@@ -23,6 +23,7 @@ The in-room monitor regressions accept a throwaway base URL:
     node lean-qa.mjs http://localhost:18080 1366x860
     node lean-power.mjs http://localhost:18080  # real power button, guest logon, shutdown, off refresh
     node lean-edges.mjs http://localhost:18080  # pointer-lock ownership, rapid seating, Esc during shutdown
+    node bookcase.mjs http://localhost:18080    # isolated media collection, slot returns, disc/case, tidy and refresh
 
 Omit the last argument to `lean-qa.mjs` to run all five sizes, including 390x844. Screenshots are saved in `tests/shots/` when run from this directory. These scripts keep the real CSP enabled and use isolated browser storage.
 

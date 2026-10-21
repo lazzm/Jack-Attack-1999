@@ -418,7 +418,7 @@
       snapHi.layers.set(1); snapHi.renderOrder = 5; root.add(snapHi);
     }
     snapHi.visible = !!s;
-    if (s) { const p = s.pose || s; snapHi.position.set(p.x, p.y, p.z); const b = s.box || [s.r * 0.9, 1.5, s.r * 0.9]; snapHi.scale.set(b[0], b[1], b[2]); snapHi.rotation.set((p.rx || 0) * D2R, (p.ry || 0) * D2R, (p.rz || 0) * D2R, 'YXZ'); }
+    if (s) { const p = s.pose || s, c = s.preview || p; snapHi.position.set(c.x, c.y, c.z); const b = s.box || [s.r * 0.9, 1.5, s.r * 0.9]; snapHi.scale.set(b[0], b[1], b[2]); snapHi.rotation.set((p.rx || 0) * D2R, (p.ry || 0) * D2R, (p.rz || 0) * D2R, 'YXZ'); }
   }
   // put the held thing down: where you're looking (a surface), into a snap, or let it drop
   function drop(sx, sy) {
@@ -543,7 +543,7 @@
   }
   function tidy(rid) { // everything back where it lives (Mom tidied up)
     for (const id in THINGS) { const t = THINGS[id]; if (rid && t.home.room !== rid && t.at.room !== rid) continue; if (held && held.id === id) { held = null; ui.holdBar(null); } t.st = t.home.snap ? 'snap' : 'rest'; t.snap = t.home.snap || null; t.at = Object.assign({}, t.home); moveTo(t, t.home.room); place(t); layerFor(t); }
-    saveThings(); dirty();
+    emit('tidy', rid); saveThings(); dirty();
   }
   // things that open and shut: drawers, doors, lids (a hinge or a slide)
   const OPEN = {};

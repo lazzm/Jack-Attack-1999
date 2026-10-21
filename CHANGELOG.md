@@ -1,5 +1,11 @@
 # Jack's Home Page - changelog
 
+## 2.23.1 - 2026-10-21
+- PC media bookcase now has four evenly spaced bays and reserved, edged slots: upright big boxes, jewel cases and solid printed-spine magazines, with shelf-edge clearance. Existing crowded shelf poses migrate once; objects left elsewhere stay where they were.
+- Boxes/cases/mags highlight their own return slot and slide upright into it. Loose discs highlight their own case, including cases moved away from the shelf. Slot assignments and placements persist across refreshes.
+- Added a physical-shelf "Put everything back" action; tidying closes cases, returns discs and clears stale placement animations. The right-hand console rack and its models are unchanged.
+- Verified on isolated data: 26-item collection, box/case/mag returns, disc return, tidy, refresh persistence and inspected front/oblique desktop screenshots. Chromium software WebGL only; not every possible collection, browser or physical GPU was tested.
+
 ## 2.23.0 - 2026-10-21
 - JackOS stays inside the physical 4:3 CRT, with recessed curved glass, a dark lip, sheen and scanlines. Room HUD hides while seated; desktop windows, menus, tooltips and balloons use monitor coordinates and stay inside its glass.
 - Stand/sit and PC power transitions keep the room visible. Corrected wake-container visibility, viewport-dependent window geometry, desktop mouse capture, shutdown/Esc races and foreground-canvas ownership.

@@ -2,7 +2,7 @@
  * D: = discs.js's jhp_discs.cd, drive A:), js/pm-art.js draws the artwork, the room engine is js/hs-world.js through
  * js/rm-room.js's window.Room grab API. Here:
  *   - the games shelf: a beech-effect flat-pack bookcase against the left wall (between the CD rack and the wardrobe):
- *     big-box PC games and jewel cases stand on it spines out, the mags lie in a pile with their cover CDs taped on
+ *     big-box PC games, jewel cases and magazines stand upright in reserved spine-out slots
  *   - the floppy box on the desk (a snap: drop a floppy on it and it goes in; click it and the next one comes out)
  *   - parcels from the Pixel Post mail order, on the floor in front of the shelf
  * Everything is a grabbable thing: pick it up, carry it, put it down anywhere. A box or a jewel case opens on a real
@@ -106,16 +106,15 @@
     return flat(g, 5);
   }
   function magModel(it) {
-    const g = new T.Group(), w = 21, h = 0.7, d = 28;
+    const g = new T.Group(), w = 21, h = 26.5, d = 0.7;
     const pages = M({ c: '#f2efe4', map: K.tex('pm.pages', 8, 64, (c, W, H2) => { c.fillStyle = '#f4f1e6'; c.fillRect(0, 0, W, H2); c.fillStyle = 'rgba(0,0,0,.12)'; for (let y = 0; y < H2; y += 3) c.fillRect(0, y, W, 1); }) });
-    const top = new T.Group(); g.add(top);
-    K.into(g).box(0, -h / 2, 0, w, h, d, { t: M('#fff'), u: mat('pm.mb.' + it.id, 210, 280, () => A.magBack(it)), all: pages });
+    K.into(g).box(0, -h / 2, 0, w, h, d, { b: mat('pm.mb.' + it.id, 210, 280, () => A.magBack(it)), l: mat('pm.ms.' + it.id, 24, 320, () => A.svg('0 0 24 320', '<rect width="24" height="320" fill="#a51924"/>' + A.T(12, 26, 'JA', 14, '#ffe6a0') + `<g transform="translate(16 160) rotate(-90)">${A.T(0, 0, PM.MONTHS[it.m - 1].toUpperCase() + ' 1999', 12, '#fff')}</g>`)), all: pages });
     const withDisc = PM.where(it.id) === 'shelf';
     const cover = (on) => mat('pm.mc.' + it.id + (on ? '.d' : ''), 252, 336, () => A.magCover(it, on), { m: GLOSS });
-    const plane = K.into(g).plane(0, -h - 0.02, 0, w, d, cover(withDisc), { rx: 90 });
-    g.userData.cover = on => { plane.material = cover(on); H.dirty(); };
-    K.into(g).shadow(0, 0, 0, w + 4, d + 4, 0.5, { sq: true });
-    return flat(g, 13);
+    const plane = K.into(g).box(0, -h / 2, d / 2 + 0.025, w, h, 0.05, {f: cover(withDisc), all: pages});
+    g.userData.cover = on => { plane.material[4] = cover(on); H.dirty(); };
+    K.into(g).shadow(0, 0, 0, w + 1, d + 0.4, 0.35, { sq: true });
+    return g;
   }
   function discModel(it) {
     const g = new T.Group();
@@ -151,13 +150,15 @@
   function animLid(g, to, ms) { const L = lidFor.get(g); if (!L) return Promise.resolve(); const from = L.k, t0 = performance.now(); return new Promise(res => { H.anims.set('pmlid:' + g.uuid, n => { const k = Math.min(1, (n - t0) / (ms || 450)); setLid(g, from + (to - from) * (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2)); if (k < 1) return true; res(); return false; }); }); }
 
   // ================================================================ the games shelf (against the left wall, between the CD rack and the wardrobe)
-  const SH = { x: -265.5, z: 10, w: 36, d: 29, t: 1.8, boards: [-36, -8, 22, 50, 71] }; // (local: x along the shelf, +z out into the room)
+  const SH = { x: -265.5, z: 10, w: 48, d: 29, t: 1.8, boards: [-49, -19, 11, 41, 71] }; // four usable, evenly spaced bays
+  let slotG;
   const toWorld = (lx, lz) => ({ x: SH.x + lz, z: SH.z - lx }); // (it faces +x: turned 90 degrees)
   const SHELF_RY = 90;
   let built = false;
   function buildShelf() {
     const r = H.ROOMS.bedroom, g = new T.Group();
     const B = K.into(g).at(0, 0, 0, SHELF_RY);
+    slotG = new T.Group(); g.add(slotG); slotG.rotation.y = SHELF_RY * D2R;
     const wood = M({ c: '#e8cfa4', map: window.HouseArt ? HouseArt.t('pine') : null }), edge = M('#e6c99a'), back = M('#5a4128');
     const { w, d, t, boards } = SH, top = boards[0], H0 = 73 - top;
     B.box(0, (top + 73) / 2, -d / 2 + 0.4, w - 0.4, H0, 0.5, back);                                                   // hardboard back
@@ -177,7 +178,9 @@
   function shelfNote() {
     secret('disc.cupboard');
     const n = PM.items().filter(x => x.kind !== 'floppy').length;
-    say('My games shelf', `${n} games, CDs and mags. Pick one up (click it), then press <b>F</b> (or the button) to open it and take the disc out. The CD tray on the PC opens with its eject button.${PM.parcels().length ? ' <b>There\'s a parcel on the floor!</b>' : ''}`, 6500);
+    say('My games shelf', `${n} games, CDs and mags. Click to pick one up; <b>F</b> opens it. Return a loose disc to its own case first, then bring the case to its highlighted shelf slot. <button type="button" class="pm-tidy-shelf">Put everything back</button>${PM.parcels().length ? ' <b>There\'s a parcel on the floor!</b>' : ''}`, 12000);
+    const button = document.querySelector('.pm-tidy-shelf');
+    if (button) button.addEventListener('click', ev => {ev.stopPropagation(); Room.tidy(); H.hush();});
   }
 
   // ================================================================ the floppy box on the desk
@@ -219,27 +222,35 @@
 
   // ================================================================ the things
   const THING = {}; // thing id -> item id
+  const migrateLegacyShelf = !Apps.store.get('jhp_pm_slots', null);
   const tb = id => 'pmb.' + id, td = id => 'pmd.' + id, tf = id => 'pmf.' + id;
   const floppyThings = () => Object.keys(THING).filter(k => k.startsWith('pmf.')).map(k => H.THINGS[k]).filter(Boolean);
   // where each thing lives on the shelf
   function homes() {
-    const all = PM.items(), out = {};
-    const boxes = all.filter(x => x.kind === 'box'), cases = all.filter(x => x.kind === 'jewel' || x.kind === 'cdr' || x.kind === 'sleeve'), mags = all.filter(x => x.kind === 'mag').sort((a, b) => a.m - b.m), carts = all.filter(x => x.kind === 'cart');
-    const INNER = SH.w - 2 * SH.t - 0.6, surf = i => SH.boards[i + 1] - SH.t / 2;
-    const rowX = [-INNER / 2, -INNER / 2, -INNER / 2];
-    let row = 0;
-    boxes.forEach(it => { while (row < 2 && rowX[row] + 5.2 > INNER / 2) row++; if (row > 1) return; const lx = rowX[row] + 2.6; rowX[row] += 5.35; const p = toWorld(lx, -SH.d / 2 + 11); out[it.id] = { x: p.x, y: surf(row), z: p.z, ry: 180 }; });
-    let jr = 0;
-    cases.forEach(it => {
-      const th = it.kind === 'sleeve' ? 0.4 : 1.05;
-      while (jr < 3 && rowX[jr] + th + (rowX[jr] > -INNER / 2 ? 0.5 : 0) > INNER / 2) jr++;
-      if (jr > 2) return;
-      if (rowX[jr] > -INNER / 2 && !rowX['g' + jr]) { rowX[jr] += 0.6; rowX['g' + jr] = 1; }
-      const lx = rowX[jr] + th / 2; rowX[jr] += th + 0.06;
-      const p = toWorld(lx, -SH.d / 2 + 8.5); out[it.id] = { x: p.x, y: surf(jr), z: p.z, ry: 180 };
-    });
-    mags.forEach((it, i) => { const p = toWorld(-1 + (i % 3) * 0.7, 1); out[it.id] = { x: p.x, y: surf(3) - i * 0.72, z: p.z, ry: SHELF_RY + 90 + [3, -4, 6, -2, 4, -5, 2, -3, 5, -1, 3, -4][it.m - 1] }; });
-    carts.forEach((it, i) => { const p = toWorld(9 - i * 3, 7); out[it.id] = { x: p.x, y: surf(3) - mags.length * 0.72, z: p.z, ry: SHELF_RY - 24 }; });
+    const out = {}, inner = SH.w - SH.t * 2 - 1.2, rows = [0, 0, 0, 0];
+    const saved = Apps.store.get('jhp_pm_slots', {}), slots = saved && typeof saved === 'object' ? saved : {};
+    const all = PM.items().filter(it => it.kind !== 'floppy');
+    for (const id of Object.keys(slots)) { const s = slots[id]; if (Number.isInteger(s.row) && s.row >= 0 && s.row < 4 && s.end <= inner && s.end > 0) rows[s.row] = Math.max(rows[s.row], s.end); else delete slots[id]; }
+    for (const it of all) {
+      const th = it.kind === 'box' ? 5 : it.kind === 'cart' ? 7.6 : it.kind === 'mag' ? .8 : it.kind === 'sleeve' ? .3 : 1;
+      let s = slots[it.id];
+      if (!s) {
+        const row = rows.indexOf(Math.min(...rows)), start = rows[row];
+        if (start + th + .8 > inner) throw new Error('PC bookcase capacity exceeded');
+        s = slots[it.id] = { row, lx: -inner / 2 + start + .4 + th / 2, end: start + th + .8, th };
+        rows[row] = s.end;
+      }
+      const depth = it.kind === 'box' ? 19 : it.kind === 'mag' ? 21 : it.kind === 'cart' ? 11.6 : it.kind === 'sleeve' ? 12.6 : 14.2;
+      const p = toWorld(s.lx, SH.d / 2 - 1.4 - depth / 2);
+      out[it.id] = {x: p.x, y: SH.boards[s.row + 1] - SH.t / 2, z: p.z, ry: 180, snap: 'pm.slot.' + it.id};
+      if (slotG && !slotG.getObjectByName(it.id)) {
+        const mark = new T.Group(); mark.name = it.id; slotG.add(mark);
+        const b = K.into(mark), y = out[it.id].y;
+        b.box(s.lx, y - .035, 0, th + .55, .07, SH.d - 3, M('#574733'));
+        for (const side of [-1, 1]) b.box(s.lx + side * (th / 2 + .3), y - .8, 0, .12, 1.6, SH.d - 3, M('#b59a72'));
+      }
+    }
+    Apps.store.set('jhp_pm_slots', slots);
     return out;
   }
   const LINE = {
@@ -252,6 +263,10 @@
     const id = tb(it.id); THING[id] = it.id;
     if (H.THINGS[id]) return H.THINGS[id];
     const obj = (MODEL[it.kind] || jewel)(it);
+    H.snap(home.snap, {room: 'bedroom', x: home.x, y: home.y - (it.kind === 'box' ? 12 : it.kind === 'mag' ? 13.25 : 6.25), z: home.z, r: 24,
+      pose: home, preview: {x: home.x, y: home.y - (it.kind === 'box' ? 12 : it.kind === 'mag' ? 13.25 : 6.25), z: home.z},
+      box: [it.kind === 'box' ? 19 : it.kind === 'mag' ? 21 : 14.2, it.kind === 'box' ? 24 : it.kind === 'mag' ? 26.5 : 12.5, it.kind === 'box' ? 5.4 : 1.2],
+      accepts: (kind, t) => t.id === id, hint: 'Let go to slide it into its shelf slot', onSnap: () => {setLid(obj, 0);} });
     const hasDisc = !!it.disc && it.kind !== 'cart';
     const t = R.grabbable(id, { obj, kind: it.kind === 'cart' ? 'cart' : 'case', label: it.kind === 'mag' ? `JACK ATTACK! ${PM.MONTHS[it.m - 1]} (cover CD taped on)` : it.title,
       home: Object.assign({ room: 'bedroom' }, home), holdD: it.kind === 'box' ? 52 : 40,
@@ -260,11 +275,20 @@
       onGrab: () => { if (it.kind === 'box') { secret('pm.shelf'); secret('disc.cupboard'); } if (obj.userData.lazy) { obj.userData.lazy(); obj.userData.lazy = null; bump(it.id); } const b = obj.userData.back; if (b) { obj.userData.back = null; try { const mesh = obj.children.find(m => m.isMesh && Array.isArray(m.material)); if (mesh) { mesh.material = mesh.material.slice(); mesh.material[5] = b(); if (obj.userData.edges) { const [r, u] = obj.userData.edges(); mesh.material[0] = r; mesh.material[2] = u; } bump(it.id); H.dirty(); } } catch (e) {} }
         say(it.title, esc(it.owner === 'Callum' ? 'Callum\'s. He wants it back. He keeps saying "GIVE IT BACK" at school.' : it.blurb || pick(LINE[it.kind] || LINE.jewel)), 4000); },
     });
+    // Migrate only the old crowded shelf poses, never objects left elsewhere.
+    if (t.st === 'rest' && (t.at.snap === home.snap || (migrateLegacyShelf && !t.at.hide && Math.abs(t.at.x - SH.x) < 16 && Math.abs(t.at.z - SH.z) < 24 && t.at.y < 72))) {
+      t.st = 'snap'; t.snap = home.snap; t.at = Object.assign({room: 'bedroom'}, home); t.rx = t.rz = 0; H.place(t);
+    }
     return t;
   }
   function discThing(it) {
     const id = td(it.id); THING[id] = it.id;
     if (H.THINGS[id]) return H.THINGS[id];
+    const boxSlot = 'pm.case.' + it.id;
+    H.snap(boxSlot, {room: 'bedroom', x: 0, y: 0, z: 0, r: 26, hide: true, box: [13, 1, 13],
+      accepts: (kind, t) => t.id === id, enabled: () => !!H.THINGS[tb(it.id)] && !H.THINGS[tb(it.id)].at.hide,
+      hint: 'Let go to put the disc back in its own case',
+      onSnap: () => discHome(it)});
     const t = R.grabbable(id, { obj: discModel(it), kind: 'disc', label: it.title + ' (the disc)', holdD: 30,
       home: Object.assign({ room: 'bedroom', hide: true }, homeOf(it.id)),
       use: () => discHome(it), useLabel: it.kind === 'mag' ? 'Put it back on the mag' : 'Put it back in its case',
@@ -287,7 +311,31 @@
     return { blank: 'Blank. 1.44 MB of nothing. Downloads go on these.', dl: 'Something I downloaded, saved onto a floppy so I never have to download it again.', gcse: 'My GCSE coursework. The ONLY copy. This is fine.', dave: 'Dave\'s disk. He said DON\'T LOOK ON IT. So obviously...', boot: 'The JackOS 98 Startup Disk. For emergencies. (Every day.)', quest: 'The text adventure. Shareware! Please copy!' }[k] || 'A floppy disk. 1.44 MB. That\'s, like, 700 pages of homework.';
   }
   let HOMES = {};
+  H.anims.set('pm.case-targets', () => {
+    for (const id in HOMES) {
+      const box = H.THINGS[tb(id)], sn = H.SNAPS['pm.case.' + id]; if (!box || !sn) continue;
+      sn.room = box.at.room; sn.x = box.obj.position.x; sn.y = box.obj.position.y - 5; sn.z = box.obj.position.z;
+      sn.pose = {x: sn.x, y: sn.y, z: sn.z, ry: box.at.ry || 0};
+    }
+    return true;
+  });
   const homeOf = id => HOMES[id] || { x: SH.x + 4, y: SH.boards[3] - 1, z: SH.z };
+  H.on('tidy', rid => {
+    if (rid && rid !== 'bedroom') return;
+    // Cancel pending lid/placement animations before they can undo tidying.
+    for (const it of PM.items()) {
+      const box = H.THINGS[tb(it.id)], disc = H.THINGS[td(it.id)];
+      for (const t of [box, disc]) if (t) {
+        H.anims.delete('snap:' + t.id); H.anims.delete('pmtilt:' + t.id);
+        t.rx = t.rz = 0; H.place(t);
+      }
+      if (box) {H.anims.delete('pmlid:' + box.obj.uuid); setLid(box.obj, 0);}
+      if (disc) {disc.st = 'rest'; disc.snap = null; disc.at = Object.assign({}, box ? box.home : disc.home, {hide: true}); H.place(disc);}
+      if (box && box.obj.userData.cover) box.obj.userData.cover(true);
+    }
+    const cd = R.drive('cd');
+    if (cd && isDisc(cd.thing)) {const sn = H.SNAPS['pc.cd']; if (sn.onUnsnap) sn.onUnsnap(H.THINGS[cd.thing]); PM.ejectD();}
+  });
   function sync() { // make a thing for everything you own (new things turn up on the shelf)
     if (!built) return;
     HOMES = homes();
@@ -297,7 +345,7 @@
       if (t && HOMES[it.id]) t.home = Object.assign({ room: 'bedroom' }, HOMES[it.id]);
       if (it.disc && it.kind !== 'cart') { const dt = discThing(it); if (it.kind === 'mag' && t.obj.userData.cover) t.obj.userData.cover(dt.st === 'rest' && !!dt.at.hide && PM.where(it.id) === 'shelf'); }
     }
-    fillRow(); drives(); parcels();
+    fillRow(); drives(); parcels(); H.saveThings();
   }
 
   // ---- the disc: out of its case and into your hand, and back again
