@@ -1,5 +1,13 @@
 # Jack's Home Page - changelog
 
+## 2.28.0 - 2026-10-21
+- PC Restart now reuses the room and boot sequence instead of reloading the browser. Physical props and the background console runtime remain alive. Repeated restart requests are guarded; desktop game saves flush and PC windows close before the next boot. Shut Down retains its existing in-room power cycle.
+- Guest Log Off now returns to the logon screen inside the same 3D monitor without rebuilding the house. Repeated logoff works; entering the monitor clears the standing HUD/input flag, including after resize. Member logoff and incoming roaming-profile changes deliberately retain their existing reload: safely replacing profile-owned in-memory state needs a separate account-handover change.
+- Reusable crash recovery clears old crash handlers/flags, hides stale DOS/standby/crash screens, and retains the unclean-shutdown flag so ScanDisk still runs. Old desktop resume records are discarded without discarding the room.
+- The room watchdog no longer mistakes intentional BIOS/shutdown screens for broken overdraw, avoiding false repair warnings and unnecessary diagnostics.
+- Added localhost-only restart/logoff and repeated-crash/console-continuation regressions; updated the power regression to wait for DOM readiness rather than all delayed page resources. Remaining: account-switch scene preservation, DOS-specific end-to-end coverage, other browsers and physical-GPU benchmarking are not claimed by this batch.
+- Verified on isolated temporary data: menu-driven and duplicate restarts, repeated guest logoff, member-path safety guard, resize and desktop pointer ownership, stand/sit after logoff, refresh during BIOS, two simulated crashes with ScanDisk and the same advancing console instance, plus cold power-on/shutdown/repower. Inspected 1366x860 and 390x844 screenshots; new regressions report no browser errors/warnings and the server has no module-load errors. A resource-heavy parallel attempt was rerun sequentially; the final runs pass.
+
 ## 2.27.0 - 2026-10-21
 - Walking saves now retain location and door states throughout the house and outdoors. Destination rooms load before collision validation; expired bedroom-only resume restrictions are removed. New visits still start with closed doors, while a resumed visit restores its saved doors. Invalid positions fall back safely.
 - Page hiding saves the grounded player position immediately; jump/head-bob offsets are not baked into saves. Space jumps while carrying instead of dropping the item; Click/E places it, I inspects, and Esc backs out of inspection before returning the item. Updated carry hints.

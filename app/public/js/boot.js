@@ -210,19 +210,44 @@
   const later = (fn, ms) => timers.push(setTimeout(fn, ms));
   let skipped = false, gate = Promise.resolve(), openGate = () => {}, mirror = null, inWorldBoot = false;
   let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0, t0 = performance.now(), pressed = mode === 'wake';
-  let handed = false, early = false;
+  let handed = false, early = false, cycling = false;
   const roomOff = () => document.body.classList.remove('pc-power');
   window.PCPower = {
     off() {
+      if (!window.House || !House.ok) return false;
+      if (window.Apps && Apps.flushGames) Apps.flushGames();
+      if (window.Desk && Desk.resetPC) Desk.resetPC();
+      forget(); tracked.length = 0;
+      cycling = false;
       timers.forEach(clearTimeout); timers.length = 0; pressed = skipped = handed = early = outroing = false; clean = true;
       if (mirror) mirror.disconnect();
       for (const e of document.querySelectorAll('#monitorSurface .float .ctl [aria-label="Close"],#monitorSurface .appwin [data-w=close]')) e.click();
-      for (const id of ['shutdown','dimmer','bootBios','bootScan','bootSplash']) {const e = $(id); if (e) e.hidden = true;}
+      for (const id of ['shutdown','dimmer','bootBios','bootScan','bootSplash','standby','bsod','dos']) {const e = $(id); if (e) e.hidden = true;}
       $('biosText').textContent = ''; $('crt').classList.remove('off');
       document.querySelectorAll('#monitorSurface .closing').forEach(e => e.classList.remove('closing'));
       pb.classList.remove('on','mon','go','deep','outro','auto'); pbtn.classList.remove('down');
       document.body.classList.add('pc-power'); document.body.classList.remove('online');
       window.JHPBoot = 'forced'; return !!(window.House && House.finishShutdown && House.finishShutdown());
+    },
+    restart() {
+      if (cycling) return true;
+      let wasClean = true; try { wasClean = localStorage.getItem('jhp_clean') !== '0'; } catch (e) {}
+      if (!this.off()) return false;
+      cycling = true; clean = wasClean;
+      later(() => power(true), 250);
+      return true;
+    },
+    logoff() {
+      // Account changes still rebuild their profile-owned scene. Never retain a
+      // member's in-memory belongings on the guest desktop.
+      if ((window.Net && Net.me && Net.me.member) || (window.Roam && Roam.owner) || !window.JackLogon) return false;
+      if (cycling) return true;
+      if (!this.off()) return false;
+      cycling = true; window.JHPBoot = 'wake';
+      document.body.classList.remove('pc-power');
+      House.monitor();
+      JackLogon.boot().then(() => {cycling = false; keep = true; document.body.classList.add('online'); Sound.play('startup');});
+      return true;
     }
   };
   pbtn.addEventListener('click', power);
@@ -482,6 +507,7 @@
       dt.forEach(clearTimeout); clearInterval(pi); w.close();
       Desk.toast('Connection established', 'Connected to JackNet at 49,333 bps. (It says 56K on the box.)', 5000);
       document.body.classList.add('online');
+      cycling = false;
       if (inWorldBoot && window.House && House.ok) House.monitor();
       finish();
     };

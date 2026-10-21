@@ -1139,6 +1139,7 @@
     if (monitor && mode === 'monitor') { glassFit(); return true; }
     monitor = true;
     preparePCView();
+    html.classList.remove('hs-standing'); // also entered directly after an in-room logoff
     monitorSurfaceEl.classList.remove('pc-starting');
     body.classList.add('pc-monitor');
     Object.assign(P, monitorPose());
@@ -1433,7 +1434,7 @@
     return false;
   }
   function wdCheck() {
-    if (!live || document.hidden || mode === 'off' || mode === 'follow' || viewOpen() || pb.classList.contains('deep') || pb.classList.contains('rm-tvon')) { wdBlack = 0; return; }
+    if (!live || document.hidden || ['off','follow','pcboot','shutdown'].includes(mode) || viewOpen() || pb.classList.contains('deep') || pb.classList.contains('rm-tvon')) { wdBlack = 0; return; }
     try {
       let bad = !cv.isConnected, why = '';
       if (!bad) { const r = cv.getBoundingClientRect(), cs = getComputedStyle(cv); bad = !r.width || !r.height || cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05; }

@@ -200,6 +200,7 @@ back next year!!!
   // ---- Shut Down JackOS... the proper way
   const reboot = how => {
     if (how === 'power' && window.House && House.ok && window.PCPower && PCPower.off()) return;
+    if (how === 'bios' && window.House && House.ok && window.PCPower && PCPower.restart()) return;
     try { sessionStorage.setItem('jhp_forceboot', how); } catch (e) {} location.reload();
   };
   function shutdownSplash(msg, then) {
@@ -329,15 +330,21 @@ back next year!!!
     'An exception 0E has occurred at 0028:C02A0201 in VxD VMM(01) + 00001999. This was called from 0028:C0034A1C in VxD MODEM(01). It may be possible to continue normally.',
     'JackOS has run out of memory. All 64MB of it. Someone opened too many toolbars.',
   ];
-  let crashed = false;
+  let crashed = false, crashGo = null, crashTimer = 0;
+  function resetPC() {
+    crashed = false; clearTimeout(crashTimer);
+    if (crashGo) { document.removeEventListener('keydown', crashGo); $('bsod').removeEventListener('click', crashGo); crashGo = null; }
+    $('bsod').style.display = ''; $('dos').style.display = '';
+  }
   function bsod(why) {
     if (crashed) return; crashed = true;
     Sound.music.stop();
     $('bsodText').textContent = CRASHES[Math.floor(Math.random() * CRASHES.length)];
     $('bsod').style.display = 'flex';
     try { localStorage.setItem('jhp_clean', '0'); } catch (e) {} // crashed = not shut down properly = ScanDisk next time
-    const go = () => { document.removeEventListener('keydown', go); $('bsod').removeEventListener('click', go); crtOff(() => reboot('bios')); };
-    setTimeout(() => { document.addEventListener('keydown', go); $('bsod').addEventListener('click', go); }, 500);
+    $('bsod').hidden = false;
+    const go = crashGo = () => { document.removeEventListener('keydown', go); $('bsod').removeEventListener('click', go); crashGo = null; crtOff(() => reboot('bios')); };
+    crashTimer = setTimeout(() => { document.addEventListener('keydown', go); $('bsod').addEventListener('click', go); }, 500);
   }
   // super rare: roughly once every eight hours of browsing, the PC just... crashes
   setInterval(() => { if (!document.hidden && DesktopSurface.ready() && (Math.random() < 1 / 480 || /[?&]bsodtest/.test(location.search))) bsod('random'); }, /[?&]bsodtest/.test(location.search) ? 5000 : 60000);
@@ -435,5 +442,5 @@ back next year!!!
     const w = openWin('Date/Time Properties', body, 300);
     body.querySelector('.btn').addEventListener('click', w.close);
   });
-  window.Desk = { refreshNews: () => calendar(), go, toast, msgbox, ask, notepad, openWin, activate, activateTop, isActive, nz, place, readme, today99, bsod, reboot, get current() { return window.IE ? IE.current : null; } };
+  window.Desk = { refreshNews: () => calendar(), go, toast, msgbox, ask, notepad, openWin, activate, activateTop, isActive, nz, place, readme, today99, bsod, reboot, resetPC, get current() { return window.IE ? IE.current : null; } };
 })();

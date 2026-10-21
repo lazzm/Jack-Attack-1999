@@ -1168,6 +1168,7 @@
       const sm = $('startMenu'); if (sm) sm.classList.remove('open'); const sb = $('startBtn'); if (sb) sb.classList.remove('on');
       Desk.msgbox('Log Off JackOS', 'Are you sure you want to log off?', 'q', [['Yes', async () => {
         if (window.Sound && Sound.music) Sound.music.stop();
+        if (window.PCPower && PCPower.logoff()) return;
         overlay().innerHTML = '<div class="jlsave">Saving your settings...</div>'; sfx('shutdown');
         const t0 = Date.now();
         try { if (window.Roam && me().member) await Roam.logoff(); } catch (e) {} // members: upload their roaming profile, give the PC back to the guest
