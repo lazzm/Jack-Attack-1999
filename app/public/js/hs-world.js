@@ -262,7 +262,7 @@
   function relight() { lightsFor(); dirty(); }
 
   // ================================================================ walking: a grid per floor (5 cm cells), the stairs between them
-  const GR = { x0: -300, z0: -100, cs: 5, nx: 150, nz: 160 }, RAD = 22;
+  const GR = { x0: -360, z0: -600, cs: 5, nx: 180, nz: 360 }, RAD = 22;
   const grids = { U: null, G: null, dirty: true, walk: [], block: [], stairs: [] };
   function walkRect(lvl, x0, z0, x1, z1, o) { grids.walk.push(Object.assign({ lvl, x0, z0, x1, z1 }, o || {})); grids.dirty = true; }
   function block(lvl, x0, z0, x1, z1, o) { const b = Object.assign({ lvl, x0, z0, x1, z1 }, o || {}); grids.block.push(b); grids.dirty = true; return b; }

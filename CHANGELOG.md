@@ -1,5 +1,11 @@
 # Jack's Home Page - changelog
 
+## 2.21.0 - 2026-10-21
+- The stairwell rebuilt properly: one even flight that stops at the wall, aligned string/handrail/spindles, a closed-in cupboard
+  under the slope, the fuse box on the hall wall.
+- Front and back doors open onto real doorways and you can walk out to the drive and the garden; a proper 1999 front door
+  (handle, letterbox, glass). Doorway gaps closed, duplicate frames and overlapping floors removed.
+
 ## 2.20.1 - 2026-10-21
 - The browser tab always says "Jack Attack 1999" (pages no longer change it).
 

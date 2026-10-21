@@ -70,19 +70,26 @@
     });
     [[(x0 + x1) / 2, z0 + 14, w, 28, 180], [(x0 + x1) / 2, z1 - 14, w, 28, 0], [x0 + 14, (z0 + z1) / 2, dd, 28, -90], [x1 - 14, (z0 + z1) / 2, dd, 28, 90]].forEach(([x, z, len, dep, ry]) => B.ao(x, fy - 0.15, z, len, dep, { rx: 90, ry, a: 0.4 }));
   }
+  // a flat polygon from 3D points [x, y, z] (any plane), double-sided material expected
+  function poly(B, pts, m) {
+    const g = new T.BufferGeometry(), pos = [], idx = [], uv = [];
+    pts.forEach((p, i) => { pos.push(p[0], p[1], p[2]); uv.push(0, 0); if (i > 1) idx.push(0, i - 1, i); });
+    g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
+    return B.geo(g, 0, 0, 0, m, { uv: 128 });
+  }
   // a door in a wall, on a hinge (k: n/s/e/w side of the room it's built in; a0..a1 along the wall)
   function doorway(r, B, id, k, fixed, a0, a1, fy, o) {
     o = o || {};
-    const hgt = o.h || 205, top = fy - hgt, mid = (a0 + a1) / 2, dw = a1 - a0 - 1;
+    const hgt = o.h || 205, top = fy - hgt, mid = (a0 + a1) / 2, dw = a1 - a0 + 0.2;
     const along = k === 'n' || k === 's';
     const P = (a, y, n) => along ? [a, y, fixed + n * (k === 'n' ? 1 : -1)] : [fixed + n * (k === 'w' ? 1 : -1), y, a];
     // the frame (architrave) both sides, and the reveal
-    for (const sgn of [1, -1]) {
-      const [ax, ay, az] = P(a0 - 3, (top + fy) / 2, sgn); const [bx, by, bz] = P(a1 + 3, (top + fy) / 2, sgn); const [tx, ty, tz] = P(mid, top - 3, sgn);
+    for (const sgn of (o.noframe ? [] : [1, -1])) {
+      const [ax, ay, az] = P(a0 - 3.3, (top + fy) / 2, sgn); const [bx, by, bz] = P(a1 + 3.3, (top + fy) / 2, sgn); const [tx, ty, tz] = P(mid, top - 3.3, sgn);
       B.box(ax, ay, az, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mWhite); B.box(bx, by, bz, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mWhite); B.box(tx, ty, tz, along ? dw + 13 : 2.4, 6, along ? 2.4 : dw + 13, mWhite);
     }
     const rv = M({ c: '#e4e0d4', side: 2 }); // (double-sided: no see-through slot beside the open leaf)
-    if (along) { B.plane(a0, (top + fy) / 2, fixed, 10, hgt, rv, { ry: 90 }); B.plane(a1, (top + fy) / 2, fixed, 10, hgt, rv, { ry: -90 }); B.plane(mid, top, fixed, a1 - a0, 10, rv, { rx: -90 }); }
+    if (o.noframe) { /* (the frame and reveal were built with the wall) */ } else if (along) { B.plane(a0, (top + fy) / 2, fixed, 10, hgt, rv, { ry: 90 }); B.plane(a1, (top + fy) / 2, fixed, 10, hgt, rv, { ry: -90 }); B.plane(mid, top, fixed, a1 - a0, 10, rv, { rx: -90 }); }
     else { B.plane(fixed, (top + fy) / 2, a0, 10, hgt, rv, { ry: 0 }); B.plane(fixed, (top + fy) / 2, a1, 10, hgt, rv, { ry: 180 }); B.plane(fixed, top, mid, 10, a1 - a0, rv, { rx: -90 }); }
     if (o.leaf === false) return null;
     // the leaf, hinged at a1 (or a0 with o.flip), swinging into the room on the + side
@@ -91,12 +98,12 @@
     const D = K.into(pv), lm = o.mat || M({ c: '#efebe2', map: tex('whiteGloss'), sh: 24, sp: '#333' });
     const sgnA = o.flip ? 1 : -1; // leaf goes from the hinge back across the opening
     const cx = along ? sgnA * dw / 2 : 0, cz = along ? 0 : sgnA * dw / 2;
-    D.box(cx, top + 0.5 + (hgt - 1) / 2, cz, along ? dw : 3.6, hgt - 1, along ? 3.6 : dw, lm);
+    D.box(cx, top + 0.3 + (hgt - 0.2) / 2, cz, along ? dw : 3.6, hgt - 0.2, along ? 3.6 : dw, lm);
     // panels both sides, the handle both sides
     for (const sgn of [-1, 1]) {
-      for (const [u, v] of [[-0.17, -0.25], [0.17, -0.25], [-0.17, 0.2], [0.17, 0.2]]) {
+      for (const [u, v] of (o.glass ? [[-0.17, 0.2], [0.17, 0.2]] : [[-0.17, -0.25], [0.17, -0.25], [-0.17, 0.2], [0.17, 0.2]])) {
         const ph = (hgt - 1) * 0.38, pw = dw * 0.34, py = top + 0.5 + (hgt - 1) * (0.5 + v), pa = sgnA * dw / 2 + u * dw * 1.5;
-        if (along) D.box(pa, py, sgn * 1.95, pw, ph, 0.4, M('#e2ded4')); else D.box(sgn * 1.95, py, pa, 0.4, ph, pw, M('#e2ded4'));
+        if (along) D.box(pa, py, sgn * 1.95, pw, ph, 0.4, (o.panel || M('#e2ded4'))); else D.box(sgn * 1.95, py, pa, 0.4, ph, pw, (o.panel || M('#e2ded4')));
       }
       const ha = sgnA * (dw - 7); if (along) { D.box(ha, fy - 103, sgn * 2.4, 1.6, 2.2, 1.2, mBrass); D.box(ha - sgnA * 3, fy - 103, sgn * 4, 7, 1.4, 1.4, mBrass); } else { D.box(sgn * 2.4, fy - 103, ha, 1.2, 2.2, 1.6, mBrass); D.box(sgn * 4, fy - 103, ha - sgnA * 3, 1.4, 1.4, 7, mBrass); }
     }
@@ -124,7 +131,7 @@
     const batch = K.batch(), B = K.into(batch);
     const wall = M({ c: '#fff', map: tex('wallpaperHall') }), carpet = M({ c: '#fff', map: tex('carpetBeige') });
     // floor: round the stairwell (the hole the stairs come up through)
-    B.plane(330, UY, 190, 164, 122, carpet, { rx: 90, uv: 90 }); B.plane(290, UY, 475, 84, 452, carpet, { rx: 90, uv: 90 }); B.plane(370, UY, 650, 84, 104, carpet, { rx: 90, uv: 90 });
+    B.plane(330, UY, 189.5, 160, 121, carpet, { rx: 90, uv: 90 }); B.plane(290, UY, 475, 80, 450, carpet, { rx: 90, uv: 90 }); B.plane(370, UY, 650, 80, 100, carpet, { rx: 90, uv: 90 });
     // walls
     const wl = (x, y, z, w, h, ry) => B.plane(x, y, z, w, h, wall, { ry, uv: 128 });
     // west wall x 250: doors to Jack's room (150..230), the bathroom (300..380), the little sister's room (450..530)
@@ -151,7 +158,7 @@
     B.box(245, UY + 1.1, 190, 10.4, 2.2, 80, M({ c: '#fff', map: tex('oak') })); B.box(245, UY - 0.45, 190, 10.4, 0.9, 80, M({ c: '#fff', map: tex('oak') })); // the threshold strip: fills the wall thickness between Jack's carpet and the landing, flush with both
     
     // the banisters: round the stairwell up here, and down the stairs
-    banister(B, [[330, 262], [330, 600], [410, 600]], UY); // (the whole open edge of the stairwell: newels with round caps at the corners; blocked below)
+    banister(B, [[330, 252], [330, 600], [410, 600]], UY); // (the whole open edge of the stairwell: newels with round caps at the corners; blocked below)
     // skirting on the landing walls
     [[130, 150], [230, 300], [380, 450], [530, 700]].forEach(([a, b]) => B.box(250.8, UY - 4.5, (a + b) / 2, 1.6, 9, b - a, mSkirt));
     stairs(B);
@@ -191,22 +198,22 @@
   }
   // the stairs: 14 steps of 20 cm, a carpet runner, the handrail down the open side, the panelled side under it
   function stairs(B) {
-    const carpet0 = M({ c: '#fff', map: tex('carpetBeige') }), tread = M({ c: '#fff', map: tex('carpetBeige') }), wood = M({ c: '#fff', map: tex('oak') }), riser = M({ c: '#fff', map: tex('carpetBeige') });
+    // ONE flight: 13 treads of going 25 and rise 20, between the string on the banister side (x 327..333) and the east wall (x 410).
+    const carpet0 = M({ c: '#fff', map: tex('carpetBeige') }), tread = M({ c: '#fff', map: tex('carpetBeige') }), wood = M({ c: '#fff', map: tex('oak') }), riser = M({ c: '#fff', map: tex('carpetBeige') }), spin = M({ c: '#f0ece2', sh: 30 });
+    const X0 = 333, X1 = 409.8, XC = (X0 + X1) / 2, XW = X1 - X0, pitch = z => UY + 0.8 * (z - 250);
     for (let k = 1; k <= 13; k++) {
       const z0 = 250 + 25 * (k - 1), y = UY + 20 * k;
-      B.box(370, y + 1.5, z0 + 12.5, 80, 3, 27, { t: tread, all: M('#7a6a52') }); // tread (with a nosing)
-      B.box(370, y - 10, z0 + 0.5, 80, 20, 1.2, riser); // riser
-      B.box(370, y + 3.2, z0 + 25.5, 76, 0.6, 2, mBrass); // the stair rod (carpet grip)
+      B.box(XC, y + 1.5, z0 + 13.5, XW, 3, 27, { t: tread, all: M('#7a6a52') }); // tread (with a nosing)
+      B.box(XC, y - 9.9, z0 + 0.5, XW, 19.8, 1.2, riser); // riser (its top is hidden inside the tread above)
+      B.box(XC, y + 3.2, z0 + 25.5, XW - 2, 0.6, 2, mBrass); // the stair rod (carpet grip)
     }
-    B.box(370, GY - 10, 575, 80, 20, 1.2, riser); B.plane(370, GY, 520.5, 80, 159, carpet0, { rx: 90, uv: 90 }); // (the hall floor under and at the foot of the stairs)
-    // the string (side board) on the open side, and the handrail down the stairs
-    const len = Math.hypot(350, 280), ang = Math.atan2(280, 350) / D2R;
-    B.box(331, (UY + GY) / 2 - 10, 425, 3, 30, len, wood, { rx: -ang });
-    B.box(331, (UY + GY) / 2 - 92, 425, 6, 5, len, wood, { rx: -ang });
-    for (let k = 1; k <= 13; k++) { const z = 250 + 25 * k - 12, y = UY + 20 * k; B.cyl(331, y - 46, z, 1.4, 1.4, 88, 8, M({ c: '#f0ece2', sh: 30 })); }
-    B.box(331, GY - 52, 602, 10, 104, 10, wood); B.ball(331, GY - 107, 602, 5, 5, 5, wood, 12); // the newel post at the bottom
-    // the underside (the cupboard's sloping ceiling) and the panelled side wall down to the hall floor
-    const soffit = new T.PlaneGeometry(80, len); B.geo(soffit, 370, (UY + GY) / 2 + 22, 425, M({ c: '#d8d2c4', side: 2 }), { rx: 90 - ang });
+    B.box(XC, GY - 9.9, 575, XW, 19.8, 1.2, riser); B.plane(370, GY, 520.5, 80, 159, carpet0, { rx: 90, uv: 90 }); // (the foot of the stairs, and the hall floor under them)
+    // the closed string on the open side: from just above the nosings to just under the soffit; the handrail and spindles stand on it
+    const ang = Math.atan2(0.8, 1) / D2R, z1 = 252, z2 = 600, zc = (z1 + z2) / 2, L = Math.hypot(z2 - z1, 0.8 * (z2 - z1));
+    B.box(330, pitch(zc) + 8, zc, 6, 25, L, wood, { rx: -ang });
+    B.box(330, pitch(zc) - 92, zc, 6, 5, L, wood, { rx: -ang });
+    for (let k = 1; k <= 13; k++) { const z = 250 + 25 * k - 12.5; B.cyl(330, pitch(z) - 48.75, z, 1.4, 1.4, 82.5, 8, spin); }
+    B.box(330, GY - 52, 600, 10, 104, 10, wood); B.ball(330, GY - 107, 600, 5, 5, 5, wood, 12); // the newel post at the bottom
   }
 
   // ================================================================ THE HALL (round the bottom of the stairs)
@@ -224,19 +231,20 @@
     wl(307.5, (GC + GY) / 2, 60, 205, GY - GC, 0); // the back wall
     wl(410, (GC + GY) / 2, 155, 190, GY - GC, -90); // the east wall (the back bit)
     // the wall under the stairs (the cupboard), with its little door (360..440)
-    const sideW = (z0, z1, top) => wl(330, (top + GY) / 2, (z0 + z1) / 2, z1 - z0, GY - top, 90 - 180);
-    sideW(250, 360, GC); sideW(440, 600, GY - (600 - 470) / 350 * 280 - 6);
-    { const g = new T.BufferGeometry(); const pts = []; const yAt = z => UY + (z - 250) / 350 * 280 + 22; // (the triangle up to the stairs' underside)
-      const tri = (a, b, c) => pts.push(...a, ...b, ...c); tri([330, GC, 250], [330, yAt(250) < GC ? GC : yAt(250), 250], [330, GC, 360]);
-      g.setAttribute('position', new T.Float32BufferAttribute(pts, 3)); g.computeVertexNormals(); }
-    wl(330, (GC + GY - 100) / 2, 400, 80, GY - 100 - GC, -90);
+    // the cupboard's front wall (x 330) follows the slope of the flight; the open stairs show above it; the back wall (z 250.5) closes it from the hall
+    const yU = z => UY + 0.8 * (z - 250) + 23.5, zF = 250 + (GY - UY - 23.5) / 0.8, wall2 = M({ c: '#fff', map: tex('wallpaperHall'), side: 2 }), ZB = 250.5;
+    const pw = pts => poly(B, pts.map(([z, y]) => [330, y, z]), wall2);
+    pw([[ZB, GY], [ZB, yU(ZB)], [362, yU(362)], [362, GY]]); pw([[362, yU(362)], [438, yU(438)], [438, GY - 94], [362, GY - 94]]); pw([[438, GY], [438, yU(438)], [zF, GY]]);
+    poly(B, [[330, GC, ZB], [410, GC, ZB], [410, GY, ZB], [330, GY, ZB]], wall2);
+    // the fuse box: on the hall's east wall, flush with it
+    const fz = B.at(410, GY - 165, 130); fz.box(-3, 0, 0, 6, 26, 20, M('#efece4')); fz.box(-6.15, 0, 0, 0.5, 21, 16, M('#d8d4c8')); fz.box(-6.5, 0, 0, 0.3, 2, 4, M('#555'));
     // the front: the front door (260..340), the bottom of the stairs, the east wall down there
     [[205, 260], [340, 410]].forEach(([a, b]) => wl((a + b) / 2, (GC + GY) / 2, 700, b - a, GY - GC, 180));
     wl(300, (GC + GY - 210) / 2, 700, 80, GY - 210 - GC, 180);
     wl(410, (GC + GY) / 2, 650, 100, GY - GC, -90);
     // skirting
     [[60, 150], [230, 480], [560, 700]].forEach(([a, b]) => B.box(205.8, GY - 4.5, (a + b) / 2, 1.6, 9, b - a, mSkirt));
-    B.box(307.5, GY - 4.5, 60.8, 205, 9, 1.6, mSkirt); B.box(329.2, GY - 4.5, 305, 1.6, 9, 110, mSkirt); B.box(329.2, GY - 4.5, 520, 1.6, 9, 160, mSkirt);
+    B.box(307.5, GY - 4.5, 60.8, 205, 9, 1.6, mSkirt); B.box(329.2, GY - 4.5, 305.25, 1.6, 9, 109.5, mSkirt); B.box(329.2, GY - 4.5, 505, 1.6, 9, 130, mSkirt);
     B.ao(205.3, GY - 16, 380, 640, 32, { ry: 90, rx: 180, a: 0.5 }); B.ao(329.7, GY - 16, 425, 350, 32, { ry: -90, rx: 180, a: 0.45 });
     B.ao(206 + 14, GY - 0.3, 380, 640, 28, { rx: 90, ry: -90, a: 0.4 });
     // the front door's frame (its leaf is hinged on in init, with the drive beyond); the doormat
@@ -276,17 +284,15 @@
     const batch = K.batch(), B = K.into(batch);
     const yAt = z => UY + (z - 250) / 350 * 280 + 22; // the sloping ceiling (the underside of the stairs)
     const wall = M({ c: '#d8d0bc', map: tex('wallWarm') });
-    B.plane(370, GY, 345, 76, 190, M({ c: '#fff', map: tex('carpetBeige') }), { rx: 90, uv: 90 });
-    B.plane(408, (GC + GY) / 2, 345, 190, GY - GC, wall, { ry: -90, uv: 128 }); // east (the house wall)
-    B.plane(370, (GC + GY) / 2, 252, 76, GY - GC, wall, { uv: 128 }); // the back (under the landing)
-    B.plane(332, (GC + GY) / 2, 306, 108, GY - GC, wall, { ry: 90, uv: 128 }); // west, the solid bit
-    B.plane(370, GC, 280, 76, 60, M('#d8d2c4'), { rx: -90 });
+    // enclosed under the flight: back wall (hall build), front wall (hall build), the east wall is the stairwell's own (x 410), the sloping soffit is the ceiling
+    const wallD = M({ c: '#d8d0bc', map: tex('wallWarm'), side: 2 }), yU = z => UY + 0.8 * (z - 250) + 23.5, zF = 250 + (GY - UY - 23.5) / 0.8;
+    B.plane(370, GY, (250.5 + 441) / 2, 80, 441 - 250.5, M({ c: '#fff', map: tex('carpetBeige') }), { rx: 90, uv: 90 });
+    poly(B, [[330, yU(250.5), 250.5], [410, yU(250.5), 250.5], [410, GY, zF], [330, GY, zF]], M({ c: '#d8d2c4', side: 2 }));
     // a bare bulb on a pull cord, the electricity meter (its disc really spins), the fuse box
-    B.cyl(370, GC + 3, 290, 2, 2, 6, 10, mWhite); r.bulb = B.group ? null : null;
-    const meter = new T.Group(); meter.position.set(406, GY - 160, 300); r.group.add(meter); const MT = K.into(meter);
+    B.cyl(370, 125.5, 290, 2, 2, 6, 10, mWhite); r.bulb = B.group ? null : null;
+    const meter = new T.Group(); meter.position.set(410, GY - 125, 300); r.group.add(meter); const MT = K.into(meter);
     MT.box(-2, 0, 0, 4, 26, 18, M('#2a2a2a')); MT.plane(-4.1, -4, 0, 14, 10, M({ c: '#fff', map: K.tex('hs.meter', 128, 96, (g) => { g.fillStyle = '#f0ece0'; g.fillRect(0, 0, 128, 96); A.text(g, 'kWh', 64, 20, '700 14px ' + A.UIF, '#222', 'center'); g.fillStyle = '#111'; g.fillRect(14, 30, 100, 26); g.fillStyle = '#fff'; [0, 4, 7, 2, 9].forEach((n, i) => A.text(g, String(n), 26 + i * 19, 50, '700 18px "Courier New",monospace', '#fff', 'center')); A.text(g, 'ELECTRICITY BOARD', 64, 84, '9px ' + A.UIF, '#555', 'center'); }) }), { ry: -90 });
     r.disc = MT.cyl(-4.6, 6, 0, 5, 5, 0.3, 24, M({ c: '#c8c8c8', sh: 80, sp: '#fff', map: K.tex('hs.disc', 64, 64, (g) => { g.fillStyle = '#c8c8cc'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#c01a1a'; g.fillRect(28, 0, 8, 12); }) }), { rz: 90 });
-    const fz = B.at(406, GY - 200, 380); fz.box(-3, 0, 0, 6, 22, 30, M('#efece4')); fz.box(-6.1, 0, 0, 0.4, 18, 26, M('#d8d4c8'));
     // the old portable telly on a box, the SNES on another, a tangle of leads
     const bx = B.at(380, GY, 300); bx.box(0, -22, 0, 44, 44, 34, { all: M('#b89060'), t: M({ c: '#fff', map: boxTex('TEA CHEST', '#b89060') }) }); bx.shadow(0, 0, 0, 52, 42, 0.7, { sq: true });
     const tv = new T.Group(); tv.position.set(380, GY - 44, 296); tv.rotation.y = -20 * D2R; r.group.add(tv); const TV = K.into(tv);
@@ -306,10 +312,10 @@
     B.box(346, GY - 70, 260, 32, 140, 3, M('#9aa0a8'), { rx: -12 }); B.box(346, GY - 70, 262, 34, 4, 3, M('#7a7a80'), { rx: -12 });
     const tb = B.at(350, GY, 390); tb.box(0, -10, 0, 40, 20, 20, M({ c: '#c82a1a', sh: 50, sp: '#555' })); tb.box(0, -22, 0, 30, 4, 4, M('#333')); tb.shadow(0, 0, 0, 46, 26, 0.6, { sq: true });
     const bg = B.at(395, GY, 260); bg.ball(0, -16, 0, 14, 16, 12, M({ c: '#e8e4dc', sh: 30, sp: '#555' }), 12); bg.box(-8, -30, 0, 4, 8, 4, M('#5a8ad0')); bg.ball(6, -32, 2, 4, 4, 4, M('#f0c000'), 8); bg.shadow(0, 0, 0, 30, 26, 0.6);
-    const sh = B.at(406, GY - 120, 360); sh.box(-8, 0, 0, 16, 2, 60, M({ c: '#fff', map: tex('pine') })); [[-8, -16], [-8, 0], [-8, 16]].forEach(([x, z], i) => sh.cyl(x, -7, z, 5, 5, 12, 14, M(['#e8e4dc', '#a8c8e0', '#f0d080'][i])));
+    const sh = B.at(410, GY - 120, 360); sh.box(-8, 0, 0, 16, 2, 60, M({ c: '#fff', map: tex('pine') })); [[-8, -16], [-8, 0], [-8, 16]].forEach(([x, z], i) => sh.cyl(x, -7, z, 5, 5, 12, 14, M(['#e8e4dc', '#a8c8e0', '#f0d080'][i])));
     batch.build(r.group);
     // the light (a pull cord)
-    const bl = new T.Group(); bl.position.set(370, GC + 6, 290); r.group.add(bl); const BL = K.into(bl);
+    const bl = new T.Group(); bl.position.set(370, 127, 290); r.group.add(bl); const BL = K.into(bl);
     BL.cyl(0, 6, 0, 0.3, 0.3, 12, 4, M('#eee')); r.bulbMesh = BL.ball(0, 15, 0, 3.4, 4.4, 3.4, M({ c: '#f4f0e0', e: '#000' }).clone(), 12);
     BL.cyl(6, 40, 0, 0.15, 0.15, 74, 4, M('#ddd')); BL.ball(6, 78, 0, 0.9, 1.4, 0.9, M('#e8e0c8'), 8);
     H.spot('hs.cord', { label: 'Light cord', obj: bl, act: () => { lightsOn.cupboard = !lit('cupboard'); secret('hs.cupboard'); cupLight(r); H.relight(); H.sfx.tone(900, 0.03, 'square', 0.06); } });
@@ -629,11 +635,11 @@
     B.plane((x0 + x1) / 2, GY + 0.1, (z0 + z1) / 2 + 400, 4000, 4000, mGrass(), { rx: 90, uv: 110 }); // (the world beyond the fence)
     B.plane(-50, GY - 0.3, -126, 330, 130, mSlab(), { rx: 90, uv: 100 }); // the patio by the back door
     // the back of the house: brick, the kitchen window and the back door from outside, Jack's window up above
-    B.plane(60, GY - 300, -57, 720, 606, mBrick(), { ry: 180, uv: 128 });
+    B.plane(-110, GY - 300, -57, 380, 606, mBrick(), { ry: 180, uv: 128 }); B.plane(290, GY - 300, -57, 260, 606, mBrick(), { ry: 180, uv: 128 }); B.plane(120, -51, -57, 80, 398, mBrick(), { ry: 180, uv: 128 }); // (the back door's opening is cut: x 80..160, up to y GY-205)
     B.box(60, GY - 603, -40, 740, 6, 40, M('#5a3a2a')); B.box(60, GY - 625, -20, 740, 40, 2, M('#7a3a2a'));
     B.plane(300, GY - 420, -57.5, 70, 80, M({ c: '#c8d8f0', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); B.plane(300, GY - 420, -59, 64, 74, M({ c: '#1a2a3a', o: 0.6, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); // the bathroom window
     B.plane(-80, 242, -57.5, 120, 95, M({ c: '#c8d8f0', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); B.box(-80, 242, -58, 124, 99, 2, M({ c: '#f2f0ea', sh: 40 }), { sides: 'frltub' }); B.plane(-80, 242, -59.2, 116, 91, M({ c: '#1a2a3a', o: 0.6, tr: true, sh: 100, sp: '#fff' }), { ry: 180 });
-    B.box(120, GY - 102, -58, 82, 204, 3, M({ c: '#f2f0ea', sh: 40 })); B.plane(120, GY - 150, -59.7, 50, 70, M({ c: '#1a2a3a', o: 0.7, tr: true, sh: 100, sp: '#fff' }), { ry: 180 });
+    B.box(77, GY - 102, -58.5, 6, 204, 3, mWhite); B.box(163, GY - 102, -58.5, 6, 204, 3, mWhite); B.box(120, GY - 206, -58.5, 92, 6, 3, mWhite); B.box(120, GY - 0.8, -58, 80, 1.6, 8, M('#9a9a92')); // (the opening, framed, with a step)
     B.plane(191, -63, -57.5, 70, 98, M({ c: '#c8d8f0', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); B.plane(191, -63, -59, 64, 92, M({ c: '#1a2a3a', o: 0.6, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); // Jack's window
     B.cyl(200, (GY - 300) / 2, -60, 5, 5, 600, 8, M('#2a2a2a')); // the drainpipe
     // fences down both sides and across the end, the gate at the end, next door's roofs over the top
@@ -665,7 +671,7 @@
     H.spot('hs.butt', { label: 'The water butt', act: sayLines('hs.butt', 'The water butt', ['The water butt. Full of rainwater and one very confused frog.']) }); pickBox(r, 'hs.butt', 200, GY - 45, -80, 52, 90, 52);
     H.spot('hs.jackwin', { label: "Jack's window (from outside)", act: () => say("My window", 'That\'s my room up there. You can see the posters. Dave throws stones at it when my Mom won\'t let him ring the bell.') }); pickBox(r, 'hs.jackwin', 191, -63, -58, 70, 98, 4);
     H.walkRect('G', x0 + 6, z0 + 6, x1 - 6, z1 - 2, { room: 'garden' }); H.walkRect('G', 84, -60, 156, -50, { door: 'back', room: 'garden' });
-    H.block('G', -310, -540, -150, -400); H.block('G', 118, -148, 182, -72); H.block('G', -258, -234, -142, -166); H.block('G', 172, -108, 228, -52); H.block('G', 70, -340, 90, -320); H.block('G', -170, -500, -130, -460);
+    H.block('G', -310, -540, -150, -400); H.block('G', 152, -148, 182, -72); // (clear of the back door's path) H.block('G', -258, -234, -142, -166); H.block('G', 172, -108, 228, -52); H.block('G', 70, -340, 90, -320); H.block('G', -170, -500, -130, -460);
     H.support('garden', -215, -191, -27, -61, GY - 0.3); H.support('garden', -305, -530, -155, -410, GY - 190);
     H.support('garden', 121, -145, 179, -75, GY - 112);
   }
@@ -682,11 +688,10 @@
     B.box(300, GY - 6, 1200, 1800, 12, 10, M('#9a9a92')); // the kerb
     B.plane(300, GY - 0.3, 1440, 1800, 3, M('#f4f0e0'), { rx: 90 });
     // the front of the house: brick, the bay window, the front door from outside, the number
-    B.plane(42.5, GY - 150, 701, 760, 600, mBrick(), { uv: 128 });
+    B.plane(-38.75, GY - 150, 701, 597.5, 600, mBrick(), { uv: 128 }); B.plane(381.25, GY - 150, 701, 82.5, 600, mBrick(), { uv: 128 }); B.plane(300, 25.5, 701, 80, 245, mBrick(), { uv: 128 }); // (the front door's opening is cut: x 260..340, up to y GY-205)
     B.box(42.5, GY - 300, 690, 790, 6, 60, M('#5a3a2a')); B.box(42.5, GY - 318, 714, 790, 30, 2, M('#7a3a2a'));
     B.box(-60, 225, 704, 236, 160, 8, M({ c: '#f2f0ea', sh: 40 }), { sides: 'frltub' }); B.plane(-60, 225, 708.5, 220, 150, M({ c: '#1a2a3a', o: 0.65, tr: true, sh: 100, sp: '#fff' }));
-    B.box(300, GY - 102, 704, 82, 204, 3, M({ c: '#f2f0ea', sh: 40 })); B.plane(300, GY - 150, 706, 44, 70, M({ c: '#c8d8e8', o: 0.75, tr: true, sh: 90, sp: '#fff' }));
-    B.box(300, GY - 85, 706.2, 26, 5, 1.2, mBrass); B.cyl(300, GY - 110, 706.5, 1.6, 1.6, 2, 10, mBrass, { rx: 90 });
+    B.box(257, GY - 102, 703, 6, 204, 3, mWhite); B.box(343, GY - 102, 703, 6, 204, 3, mWhite); B.box(300, GY - 206, 703, 92, 6, 3, mWhite); // (the opening, framed)
     B.box(300, GY - 215, 704, 100, 14, 40, M('#e8e4dc')); B.box(300, GY - 222, 724, 100, 2, 2, M('#9a9a92')); // the porch roof
     B.plane(340, GY - 180, 702.6, 16, 20, M({ c: '#fff', map: K.tex('hs.numb', 64, 80, (g) => { g.fillStyle = '#1a1a1a'; g.fillRect(0, 0, 64, 80); A.text(g, '42', 32, 58, '48px ' + A.FONT, '#f0d080', 'center'); }) }));
     B.box(300, GY - 1, 730, 70, 2, 44, M({ c: '#fff', map: matTex() })); B.cyl(360, GY - 60, 730, 2, 2, 120, 8, M('#2a2a2a')); B.ball(360, GY - 124, 730, 8, 8, 8, M({ c: '#f4ecd8', e: phase() === 'night' ? '#a08040' : '#000' }), 12);
@@ -698,7 +703,7 @@
     for (let x = -340; x < 230; x += 32) B.ball(x, GY - 52, 1060, 22, 30, 20, M({ c: ['#2e6a2a', '#3a7a30'][(x / 32) % 2 ? 1 : 0], sh: 6 }), 8);
     const lp = B.at(220, GY, 1170); lp.cyl(0, -220, 0, 5, 7, 440, 10, M('#3a3a40')); lp.box(0, -445, 0, 14, 10, 30, M('#2a2a2a')); lp.box(0, -440, 10, 10, 6, 10, M({ c: '#fff4c8', e: phase() === 'day' ? '#000' : '#ffd27a' }));
     // Dad's car: a burgundy family saloon (no real make), on the drive, nose to the street
-    const car = B.at(370, GY, 906, 0, { sx: 0.82, sy: 0.82, sz: 0.82 }), cm = M({ c: '#6a1a2a', sh: 80, sp: '#aaa' }), gl = M({ c: '#7a98b0', o: 0.85, tr: true, sh: 120, sp: '#fff' });
+    const car = B.at(430, GY, 906, 0, { sx: 0.82, sy: 0.82, sz: 0.82 }), cm = M({ c: '#6a1a2a', sh: 80, sp: '#aaa' }), gl = M({ c: '#7a98b0', o: 0.85, tr: true, sh: 120, sp: '#fff' });
     car.rbox(0, -52, 0, 170, 46, 400, 9, cm);
     car.rbox(0, -78, -10, 166, 10, 300, 4, cm); // the sills/belt line
     { const cab = new T.BoxGeometry(150, 54, 210); const P2 = cab.attributes.position; for (let k = 0; k < P2.count; k++) if (P2.getY(k) > 0) { P2.setX(k, P2.getX(k) * 0.9); P2.setZ(k, P2.getZ(k) * 0.72 - 6); } cab.computeVertexNormals(); car.geo(cab, 0, -102, -14, gl, { sy: -1 }); }
@@ -712,13 +717,13 @@
     car.ball(0, -84, -120, 8, 6, 8, M('#c8a060'), 8); // the nodding dog on the parcel shelf
     car.shadow(0, 0, 0, 200, 430, 0.7, { sq: true });
     batch.build(r.group);
-    H.spot('hs.car', { label: "Dad's car", act: sayLines('hs.car', "Dad's car", ['Dad\'s car. Burgundy. It has a cassette player and a tin of travel sweets that are all stuck together.', 'Dad washes it every Sunday "because it\'s a nice thing to do". It is never a nice thing to do.', 'There\'s a nodding dog on the parcel shelf. ' + 'My sister' + ' named it.']) }); pickBox(r, 'hs.car', 370, GY - 70, 900, 170, 120, 400);
+    H.spot('hs.car', { label: "Dad's car", act: sayLines('hs.car', "Dad's car", ['Dad\'s car. Burgundy. It has a cassette player and a tin of travel sweets that are all stuck together.', 'Dad washes it every Sunday "because it\'s a nice thing to do". It is never a nice thing to do.', 'There\'s a nodding dog on the parcel shelf. ' + 'My sister' + ' named it.']) }); pickBox(r, 'hs.car', 430, GY - 70, 915, 140, 120, 330);
     H.spot('hs.gate', { label: 'The front gate', act: sayLines('hs.gate', 'The front gate', ['The gate squeaks. Dad says he\'ll oil it. The gate has squeaked since 1991.', 'Beyond the gate: the street, the lamp-post, the postbox at the end. We don\'t go further than that today.']) }); pickBox(r, 'hs.gate', 390, GY - 35, 1095, 160, 70, 20);
     H.spot('hs.lamppost', { label: 'The lamp-post', act: sayLines('hs.lamppost', 'The lamp-post', ['The lamp-post. Orange at night. Moths love it. We used it as the goal for about six years.']) }); pickBox(r, 'hs.lamppost', 220, GY - 220, 1170, 14, 440, 14);
     H.spot('hs.bay', { label: 'The lounge window (from outside)', act: () => say('The bay window', 'The lounge. You can see the telly flickering through the nets. Mom twitches those nets at EVERYONE who walks past.') }); pickBox(r, 'hs.bay', -60, 225, 703, 236, 160, 6);
     H.walkRect('G', 124, 704, 466, 1120, { room: 'drive' }); H.walkRect('G', -340, 704, 124, 1060, { room: 'drive' }); H.walkRect('G', 262, 660, 338, 710, { door: 'front', room: 'drive' });
-    H.block('G', 282, 700, 458, 1104); H.block('G', -360, 1050, 232, 1120); H.block('G', 340, 706, 380, 750);
-    H.support('drive', 285, 700, 455, 1100, GY - 80); H.support('drive', 265, 708, 335, 752, GY - 2);
+    H.block('G', 352, 700, 502, 1104); // (the car is parked off to the side: the front door's path is clear) H.block('G', -360, 1050, 232, 1120); H.block('G', 340, 706, 380, 750);
+    H.support('drive', 355, 700, 505, 1100, GY - 80); H.support('drive', 265, 708, 335, 752, GY - 2);
   }
 
   // ================================================================ the rooms, their lights, their views
@@ -732,7 +737,7 @@
       amb: () => ({ sky: '#c8c0b0', gnd: '#5a4a3a', i: phase() === 'day' ? 0.75 : lit('hall') ? 0.4 : 0.22 }),
       stations: [{ id: 'stairs', n: 'Bottom of the stairs', pose: () => look('G', 268, 660, 370, 230, 380, 158) }, { id: 'back', n: 'The hall', pose: () => look('G', 300, 640, 260, 260, 150, 158) }] },
     cupboard: { name: 'Under the stairs', title: 'UNDER THE STAIRS', lvl: 'G', area: [[332, 252, 408, 440]], bx0: 334, bx1: 406, bz0: 254, bz1: 438, eye: 112, build: buildCupboard, noMap: false,
-      lights: () => [{ x: 370, y: GC + 24, z: 290, c: '#ffe0a0', i: lit('cupboard') ? 1.1 : 0, d: 260 }, { x: 368, y: GY - 120, z: 345, c: '#ffd9a0', i: H.here === 'cupboard' ? 0.85 : 0, d: 240 }, { x: 336, y: 290, z: 400, c: '#e8e0d0', i: H.DOORS.cupboard && H.DOORS.cupboard.open ? (phase() === 'day' ? 0.7 : 0.35) : 0.05, d: 220 }],
+      lights: () => [{ x: 370, y: 150, z: 290, c: '#ffe0a0', i: lit('cupboard') ? 1.1 : 0, d: 260 }, { x: 368, y: GY - 120, z: 345, c: '#ffd9a0', i: H.here === 'cupboard' ? 0.85 : 0, d: 240 }, { x: 336, y: 290, z: 400, c: '#e8e0d0', i: H.DOORS.cupboard && H.DOORS.cupboard.open ? (phase() === 'day' ? 0.7 : 0.35) : 0.05, d: 220 }],
       amb: () => ({ sky: '#6a6050', gnd: '#2a2018', i: lit('cupboard') ? 0.32 : (H.DOORS.cupboard && H.DOORS.cupboard.open ? 0.18 : 0.08) }),
       stations: [{ id: 'snes', n: 'The old console', pose: () => look('G', 362, 400, 358, GY - 38, 330, 112) }] },
     lounge: { name: 'The lounge', title: 'THE LOUNGE', lvl: 'G', area: [[-280, 305, 195, 700]], bx0: -278, bx1: 193, bz0: 307, bz1: 698, build: buildLounge,
@@ -767,7 +772,7 @@
       }
       // the links: stairs (always open) between the landing and the hall; doors to the lounge, the kitchen, the cupboard
       H.door('stairs', { rooms: ['landing', 'hall'], always: true, open: true });
-      H.stairs({ x0: 332, z0: 200, x1: 408, z1: 650, m0: 250, m1: 600, y: (x, z) => UY + 20 * Math.max(0, Math.min(14, Math.ceil((z - 250) / 25))) });
+      H.stairs({ x0: 333, z0: 200, x1: 410, z1: 650, m0: 250, m1: 600, y: (x, z) => UY + 20 * Math.max(0, Math.min(14, Math.ceil((z - 250) / 25))) });
       // the bedroom door's link to the landing (if the landing was made after it)
       if (!H.ROOMS.landing.links.includes('bedroom')) H.ROOMS.landing.links.push('bedroom');
       this.ready = true;
@@ -786,9 +791,11 @@
         
         // outside: the back door (kitchen -> garden) and the front door (hall -> drive). The doors are the painted ones already there: they swing
         const kit = H.ROOMS.kitchen, kb = K.batch(), KB = K.into(kb);
-        const bd = doorway(kit, KB, 'backdoor', 'n', -56, 80, 160, GY, { inside: true, mat: M({ c: '#f2f0ea', sh: 40, sp: '#444' }), deco: (Dd, g2) => { Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, -1.9, 50, 70, M({ c: '#c8e0f0', o: 0.4, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, 1.9, 50, 70, M({ c: '#c8e0f0', o: 0.4, tr: true, sh: 100, sp: '#fff' })); } });
+        const bd = doorway(kit, KB, 'backdoor', 'n', -56, 80, 160, GY, { inside: true, noframe: true, mat: M({ c: '#f2f0ea', sh: 40, sp: '#444' }), deco: (Dd, g2) => { Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, -1.9, 50, 70, M({ c: '#c8e0f0', o: 0.4, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, 1.9, 50, 70, M({ c: '#c8e0f0', o: 0.4, tr: true, sh: 100, sp: '#fff' })); } });
         kb.build(kit.group);
-        const fd2 = doorway(hall, K.into(fb), 'frontdoor', 's', 700, 260, 340, GY, { inside: true, leaf: true, mat: M({ c: '#f2f0ea', sh: 40, sp: '#444' }), deco: (Dd, g2) => { Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, -1.9, 44, 70, M({ c: '#c8d8e8', o: 0.6, tr: true, sh: 90, sp: '#fff' }), { ry: 180 }); Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, 1.9, 44, 70, M({ c: '#c8d8e8', o: 0.6, tr: true, sh: 90, sp: '#fff' })); Dd.box(g2.sgnA * g2.dw / 2, g2.fy - 85, 0, 26, 5, 5, mBrass); } });
+        const gl = () => M({ c: '#dfe8ee', o: 0.7, tr: true, sh: 90, sp: '#fff' });
+        const fd2 = doorway(hall, K.into(fb), 'frontdoor', 's', 700, 260, 340, GY, { inside: true, leaf: true, noframe: true, glass: true, panel: M({ c: '#27402f', sh: 8, sp: '#1a1a1a' }), mat: M({ c: '#2f4d3a', sh: 10, sp: '#1a1a1a' }), deco: (Dd, g2) => { const cx = g2.sgnA * g2.dw / 2;
+          for (const sg of [-1, 1]) { Dd.plane(cx, g2.top + 42, sg * 1.9, 30, 46, gl(), sg < 0 ? { ry: 180 } : {}); Dd.box(cx, g2.fy - 100, sg * 2.1, 24, 4, 0.8, mBrass); Dd.box(cx, g2.fy - 100, sg * 2.5, 20, 1.2, 0.4, M('#3a2a10')); Dd.box(cx, g2.fy - 80, sg * 2.2, 4, 8, 1, mBrass); } } });
         fb.build(hall.group);
         H.door('back', { rooms: ['kitchen', 'garden'], pivot: bd, swing: 100, dir: -1 }); H.door('front', { rooms: ['hall', 'drive'], pivot: fd2, swing: 100, dir: 1 });
         H.spot('hs.backdoor', { label: () => H.DOORS.back.open ? 'Shut the back door' : 'The back door (to the garden)', obj: bd, act: () => { const o = !H.DOORS.back.open; H.setDoor('back', o); if (o && phase() !== 'day') say('The back door', 'Brrr. It\'s dark out there. Mind the step.'); } });
