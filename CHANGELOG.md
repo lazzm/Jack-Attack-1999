@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.21.4 - 2026-10-21
+- The PC's desktop gets the mouse back after switching on from the room (the room's mouse lock never let go); room mouse capture only happens in the room.
+
 ## 2.21.3 - 2026-10-21
 - Crouch is C only (Ctrl + W while crouching closed the browser tab).
 
