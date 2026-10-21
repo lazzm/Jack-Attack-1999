@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.21.2 - 2026-10-21
+- Walking again after letting go of the mouse re-locks it reliably (keeps retrying while you move).
+
 ## 2.21.1 - 2026-10-21
 - The tab-title lock is a script file now (the site's security policy blocked it inline).
 

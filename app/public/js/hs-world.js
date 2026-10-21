@@ -731,7 +731,8 @@
   function wantLock() { if (!plOK() || locked()) return; try { const r = cv.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
   // capture the mouse whenever we can while walking (the browser only allows it on a click or key press, so: every one)
   document.addEventListener('mousedown', ev => { if (ev.button === 0 && !(ev.target.closest && ev.target.closest('button,a,input,select,textarea,.hs-ui,.rm-hud,[role=dialog]'))) wantLock(); }, true);
-  document.addEventListener('keydown', ev => { if (!ev.repeat && /^(Key[WASDEC]|Arrow|Space|ShiftLeft|ShiftRight)/.test(ev.code)) wantLock(); }, true);
+  let lockTry = 0; // (retry while moving: Chrome refuses a re-lock for about a second after Esc, so one try isn't enough)
+  document.addEventListener('keydown', ev => { const n = performance.now(); if (n - lockTry > 250 && /^(Key[WASDEC]|Arrow|Space|ShiftLeft|ShiftRight)/.test(ev.code)) { lockTry = n; wantLock(); } }, true);
   document.addEventListener('pointerlockchange', () => {
     const on = locked(); clearTimeout(lockHintT);
     ui.el.classList.toggle('locked', on); lockHint.classList.toggle('on', !on && mode === 'walk');
