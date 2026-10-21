@@ -24,6 +24,7 @@ The in-room monitor regressions accept a throwaway base URL:
     node lean-power.mjs http://localhost:18080  # real power button, guest logon, shutdown, off refresh
     node lean-edges.mjs http://localhost:18080  # pointer-lock ownership, rapid seating, Esc during shutdown
     node bookcase.mjs http://localhost:18080    # isolated media collection, slot returns, disc/case, tidy and refresh
+    node shelf-layout.mjs http://localhost:18080 # rearrange, rapid grabs/drops, mid-slide refresh, tidy and separate roaming test profiles
     node tv-background.mjs http://localhost:18080 # Esc continuation, re-entry, background refresh, true stop
     node lighting.mjs http://localhost:18080 review # eight spaces, day/dusk/night, ceiling switch and off-light budget
     node inspect.mjs http://localhost:18080     # same-model inspection, mouse face turns, rotation, refresh

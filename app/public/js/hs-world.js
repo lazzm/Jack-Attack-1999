@@ -394,7 +394,8 @@
   function grab(id) {
     const t = THINGS[id]; if (!t || held) return false;
     if (t.canGrab && !t.canGrab()) return false;
-    const was = t.st === 'snap' ? t.snap : null;
+    anims.delete('snap:' + id);
+    const was = t.st === 'snap' || t.st === 'anim' ? t.snap : null;
     held = { id, d: clamp(t.holdD || 55, 30, 140), ry: 0, from: Object.assign({}, t.at), was, sx: t.at.x, sy: t.at.y, sz: t.at.z };
     if (was) { const sn = SNAPS[was]; t.snap = null; if (sn && sn.onUnsnap) try { sn.onUnsnap(t); } catch (e) { console.error(e); } emit('unsnap', was, id); }
     t.st = 'held'; t.at.hide = false; t.obj.visible = true;
@@ -460,9 +461,11 @@
   function roomOfPoint(p) { for (const id of visSet) { const r = ROOMS[id]; if (r.area.some(a => p.x >= a[0] - 1 && p.x <= a[2] + 1 && p.z >= a[1] - 1 && p.z <= a[3] + 1) && Math.abs((p.y || LV[r.lvl]) - LV[r.lvl]) < 290) return r; } return null; }
   function moveTo(t, rid) { const r = ROOMS[rid]; if (r && t.obj.parent !== r.things) r.things.add(t.obj); }
   function snapIn(t, s) {
+    const destination = Object.assign({}, s.pose || {x:s.x,y:s.y,z:s.z,ry:s.ry||0});
+    if (s.onBegin && s.onBegin(t, destination) === false) return;
     held = null; ui.holdBar(null); snapGlow(null);
     const p0 = { x: t.obj.position.x, y: t.obj.position.y, z: t.obj.position.z, ry: t.obj.rotation.y / D2R, rx: t.obj.rotation.x / D2R, rz: t.obj.rotation.z / D2R };
-    const p1 = s.pose || { x: s.x, y: s.y, z: s.z, ry: s.ry || 0 };
+    const p1 = destination;
     t.st = 'anim'; const t0 = performance.now(), ms = 380;
     anims.set('snap:' + t.id, n => {
       const k = ease(Math.min(1, (n - t0) / ms));
@@ -535,14 +538,15 @@
     }
     return any;
   }
-  function saveThings() {
+  function saveThings(immediate) {
     clearTimeout(saveT);
-    saveT = setTimeout(() => {
+    const write = () => {
       const st = {};
       for (const id in THINGS) { const t = THINGS[id]; if (t.noSave) continue; const a = t.at; st[id] = [a.room, +a.x.toFixed(1), +a.y.toFixed(1), +a.z.toFixed(1), Math.round(a.ry || 0), t.st === 'snap' ? t.snap : 0, a.hide ? 1 : 0]; }
       const op = {}; for (const id in OPEN) if (OPEN[id].open) op[id] = 1;
       try { if (window.Apps && Apps.saveGame) Apps.saveGame('hs.things', { t: st, o: op }, { v: 1 }); else ls.set('jhp_hs_things', { t: st, o: op }); } catch (e) {}
-    }, 600);
+    };
+    if (immediate === true) write(); else saveT = setTimeout(write, 600);
   }
   let loaded = null;
   function loadThings() {

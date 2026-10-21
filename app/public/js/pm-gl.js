@@ -201,7 +201,7 @@
   function shelfNote() {
     secret('disc.cupboard');
     const n = PM.items().filter(x => x.kind !== 'floppy').length;
-    say('My games shelf', `${n} games, CDs and mags. Click to pick one up; <b>F</b> opens it. Return a loose disc to its own case first, then bring the case to its highlighted shelf slot. <button type="button" class="pm-tidy-shelf">Put everything back</button>${PM.parcels().length ? ' <b>There\'s a parcel on the floor!</b>' : ''}`, 12000);
+    say('My games shelf', `${n} games, CDs and mags. Click to pick one up; <b>F</b> opens it. Point at an unassigned gap and release to make it that item's new home. Marked slots stay reserved for their games. Return loose discs to their own cases first. Tidying keeps your arrangement. <button type="button" class="pm-tidy-shelf">Put everything back</button>${PM.parcels().length ? ' <b>There\'s a parcel on the floor!</b>' : ''}`, 12000);
     const button = document.querySelector('.pm-tidy-shelf');
     if (button) button.addEventListener('click', ev => {ev.stopPropagation(); Room.tidy(); H.hush();});
   }
@@ -248,30 +248,50 @@
   const migrateLegacyShelf = !Apps.store.get('jhp_pm_slots', null);
   const tb = id => 'pmb.' + id, td = id => 'pmd.' + id, tf = id => 'pmf.' + id;
   const floppyThings = () => Object.keys(THING).filter(k => k.startsWith('pmf.')).map(k => H.THINGS[k]).filter(Boolean);
+  const shelfWidth = () => SH.w - SH.t * 2 - 1.2;
+  const thickness = it => it.kind === 'box' ? 5 : it.kind === 'cart' ? 7.6 : it.kind === 'mag' ? .8 : it.kind === 'sleeve' ? .3 : 1;
+  const depthOf = it => it.kind === 'box' ? 19 : it.kind === 'mag' ? 21 : it.kind === 'cart' ? 11.6 : it.kind === 'sleeve' ? 12.6 : 14.2;
+  const halfHeight = it => it.kind === 'box' ? 12 : it.kind === 'mag' ? 13.25 : 6.25;
+  function spans(row, except, slots) {
+    return PM.items().filter(it => it.kind !== 'floppy' && it.id !== except).map(it => slots[it.id]).filter(s => s && s.row === row).map(s => [s.end - s.th - .8, s.end]).sort((a,b) => a[0]-b[0]);
+  }
+  function gaps(row, except, slots) {
+    const out=[]; let start=0;
+    for(const [a,b] of spans(row,except,slots)){if(a>start+.001)out.push([start,a]);start=Math.max(start,b);}
+    if(start<shelfWidth()-.001)out.push([start,shelfWidth()]);return out;
+  }
+  function homePose(it, row, lx) {
+    const p=toWorld(lx,SH.d/2-1.4-depthOf(it)/2);
+    return {x:p.x,y:SH.boards[row+1]-SH.t/2,z:p.z,ry:180,snap:'pm.slot.'+it.id};
+  }
   // where each thing lives on the shelf
   function homes() {
-    const out = {}, inner = SH.w - SH.t * 2 - 1.2, rows = [0, 0, 0, 0];
-    const saved = Apps.store.get('jhp_pm_slots', {}), slots = saved && typeof saved === 'object' ? saved : {};
+    const out = {}, inner = shelfWidth();
+    const saved = Apps.store.get('jhp_pm_slots', {}), slots = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
     const all = PM.items().filter(it => it.kind !== 'floppy');
-    for (const id of Object.keys(slots)) { const s = slots[id]; if (Number.isInteger(s.row) && s.row >= 0 && s.row < 4 && s.end <= inner && s.end > 0) rows[s.row] = Math.max(rows[s.row], s.end); else delete slots[id]; }
+    const accepted=[[],[],[],[]];
+    for(const it of all){const s=slots[it.id],th=thickness(it),a=s&&s.end-th-.8;
+      if(!s||!Number.isInteger(s.row)||s.row<0||s.row>3||![s.lx,s.end,s.th].every(Number.isFinite)||Math.abs(s.th-th)>.001||a<-.001||s.end>inner+.001||Math.abs(s.lx-(-inner/2+a+.4+th/2))>.001||accepted[s.row].some(([x,y])=>a<y-.001&&s.end>x+.001)){delete slots[it.id];continue;}
+      accepted[s.row].push([a,s.end]);
+    }
     for (const it of all) {
-      const th = it.kind === 'box' ? 5 : it.kind === 'cart' ? 7.6 : it.kind === 'mag' ? .8 : it.kind === 'sleeve' ? .3 : 1;
+      const th = thickness(it);
       let s = slots[it.id];
       if (!s) {
-        const row = rows.indexOf(Math.min(...rows)), start = rows[row];
-        if (start + th + .8 > inner) throw new Error('PC bookcase capacity exceeded');
+        const rows=[0,1,2,3].sort((a,b)=>spans(a,it.id,slots).reduce((n,[x,y])=>n+y-x,0)-spans(b,it.id,slots).reduce((n,[x,y])=>n+y-x,0));
+        const row=rows.find(r=>gaps(r,it.id,slots).some(([a,b])=>b-a>=th+.8-.001));
+        if(row==null) throw new Error('PC bookcase capacity exceeded');
+        const start=gaps(row,it.id,slots).find(([a,b])=>b-a>=th+.8-.001)[0];
         s = slots[it.id] = { row, lx: -inner / 2 + start + .4 + th / 2, end: start + th + .8, th };
-        rows[row] = s.end;
       }
-      const depth = it.kind === 'box' ? 19 : it.kind === 'mag' ? 21 : it.kind === 'cart' ? 11.6 : it.kind === 'sleeve' ? 12.6 : 14.2;
-      const p = toWorld(s.lx, SH.d / 2 - 1.4 - depth / 2);
-      out[it.id] = {x: p.x, y: SH.boards[s.row + 1] - SH.t / 2, z: p.z, ry: 180, snap: 'pm.slot.' + it.id};
+      out[it.id] = homePose(it,s.row,s.lx);
       if (slotG && !slotG.getObjectByName(it.id)) {
         const mark = new T.Group(); mark.name = it.id; slotG.add(mark);
-        const b = K.into(mark), y = out[it.id].y;
-        b.box(s.lx, y - .035, 0, th + .55, .07, SH.d - 3, M('#574733'));
-        for (const side of [-1, 1]) b.box(s.lx + side * (th / 2 + .3), y - .8, 0, .12, 1.6, SH.d - 3, M('#b59a72'));
+        const b = K.into(mark);
+        b.box(0, -.035, 0, th + .55, .07, SH.d - 3, M('#574733'));
+        for (const side of [-1, 1]) b.box(side * (th / 2 + .3), -.8, 0, .12, 1.6, SH.d - 3, M('#b59a72'));
       }
+      if(slotG)slotG.getObjectByName(it.id).position.set(s.lx,out[it.id].y,0);
     }
     Apps.store.set('jhp_pm_slots', slots);
     return out;
@@ -282,6 +302,11 @@
     disc: ['Hold it by the edges. Fingerprints make it skip.', 'The shiny side is the side the laser reads. Don\'t scratch it. (CALLUM.)'],
   };
   const pick = L => L[Math.floor(Math.random() * L.length)];
+  function shelfSlot(it,home,obj) {
+    H.snap(home.snap,{room:'bedroom',x:home.x,y:home.y-halfHeight(it),z:home.z,r:24,pose:home,
+      preview:{x:home.x,y:home.y-halfHeight(it),z:home.z},box:[depthOf(it),halfHeight(it)*2,thickness(it)+.4],
+      accepts:(kind,t)=>t.id===tb(it.id),hint:'Let go to return it to its shelf slot',onSnap:()=>setLid(obj,0)});
+  }
   function caseThing(it, home) {
     const id = tb(it.id); THING[id] = it.id;
     if (H.THINGS[id]) return H.THINGS[id];
@@ -294,10 +319,7 @@
         if (obj.userData.edges) {const [right, under] = obj.userData.edges(); mesh.material[0] = right; mesh.material[2] = under;}}
       obj.userData.back = null;
     }
-    H.snap(home.snap, {room: 'bedroom', x: home.x, y: home.y - (it.kind === 'box' ? 12 : it.kind === 'mag' ? 13.25 : 6.25), z: home.z, r: 24,
-      pose: home, preview: {x: home.x, y: home.y - (it.kind === 'box' ? 12 : it.kind === 'mag' ? 13.25 : 6.25), z: home.z},
-      box: [it.kind === 'box' ? 19 : it.kind === 'mag' ? 21 : 14.2, it.kind === 'box' ? 24 : it.kind === 'mag' ? 26.5 : 12.5, it.kind === 'box' ? 5.4 : 1.2],
-      accepts: (kind, t) => t.id === id, hint: 'Let go to slide it into its shelf slot', onSnap: () => {setLid(obj, 0);} });
+    shelfSlot(it,home,obj);
     const hasDisc = !!it.disc && it.kind !== 'cart';
     const t = R.grabbable(id, { obj, kind: it.kind === 'cart' ? 'cart' : 'case', label: it.kind === 'mag' ? `JACK ATTACK! ${PM.MONTHS[it.m - 1]} (cover CD taped on)` : it.title,
       home: Object.assign({ room: 'bedroom' }, home), holdD: it.kind === 'box' ? 52 : 40,
@@ -374,10 +396,55 @@
     for (const it of PM.items()) {
       if (it.kind === 'floppy') { floppyThing(it); continue; }
       const t = caseThing(it, HOMES[it.id] || homeOf(it.id));
-      if (t && HOMES[it.id]) t.home = Object.assign({ room: 'bedroom' }, HOMES[it.id]);
+      if (t && HOMES[it.id]) {t.home = Object.assign({ room: 'bedroom' }, HOMES[it.id]); shelfSlot(it,HOMES[it.id],t.obj);}
       if (it.disc && it.kind !== 'cart') { const dt = discThing(it); if (it.kind === 'mag' && t.obj.userData.cover) t.obj.userData.cover(dt.st === 'rest' && !!dt.at.hide && PM.where(it.id) === 'shelf'); }
     }
     fillRow(); drives(); parcels(); H.saveThings();
+  }
+
+  // Rearranging is a physical action, not a separate inventory editor. Reserve
+  // the chosen gap before its slide starts, so rapid grabs cannot double-book it.
+  function commitHome(t,row,pose) {
+    const it=PM.item(THING[t.id]);if(!it||!t.id.startsWith('pmb.'))return false;
+    const slots=Apps.store.get('jhp_pm_slots',{}),th=thickness(it),lx=SH.z-pose.z;
+    const start=lx+shelfWidth()/2-.4-th/2,end=start+th+.8;
+    if(!gaps(row,it.id,slots).some(([a,b])=>start>=a-.001&&end<=b+.001))return false;
+    slots[it.id]={row,lx,end,th};Apps.store.set('jhp_pm_slots',slots);HOMES=homes();
+    for(const item of PM.items()) {const box=H.THINGS[tb(item.id)],home=HOMES[item.id];if(box&&home){box.home=Object.assign({room:'bedroom'},home);shelfSlot(item,home,box.obj);}}
+    t.at=Object.assign({},t.home);t.rx=t.rz=0;t.st='snap';t.snap=t.home.snap;
+    H.saveThings(true);return true;
+  }
+  const freeSlots=[];
+  function updateFreeSlots() {
+    const id=H.held(),t=id&&H.THINGS[id],it=t&&id.startsWith('pmb.')&&PM.item(THING[id]);
+    for(const s of freeSlots)s.offer=null;
+    if(!it||H.here!=='bedroom')return;
+    const ray=H.rayAt(innerWidth/2,innerHeight/2),front=SH.x+SH.d/2;
+    if(ray.d.x>=-.05)return;
+    const distance=(front-ray.o.x)/ray.d.x;if(distance<0||distance>230)return;
+    const aim=SH.z-(ray.o.z+ray.d.z*distance),slots=Apps.store.get('jhp_pm_slots',{}),th=thickness(it);
+    for(let row=0;row<4;row++) {
+      let best=null;
+      for(const [a,b] of gaps(row,it.id,slots)) {
+        if(b-a<th+.8-.001)continue;
+        const lx=Math.max(-shelfWidth()/2+a+.4+th/2,Math.min(-shelfWidth()/2+b-.4-th/2,aim));
+        if(!best||Math.abs(lx-aim)<best.distance)best={lx,distance:Math.abs(lx-aim)};
+      }
+      if(!best)continue;
+      const s=freeSlots[row],home=homePose(it,row,best.lx);s.offer=id;s.pose=home;
+      Object.assign(s,{x:home.x,y:home.y-halfHeight(it),z:home.z});
+      s.preview={x:s.x,y:s.y,z:s.z};s.box=[depthOf(it),halfHeight(it)*2,th+.4];
+    }
+  }
+  function buildFreeSlots() {
+    for(let row=0;row<4;row++) {
+      const s=H.snap('pm.free.'+row,{room:'bedroom',r:24,pose:{},offer:null,
+        enabled:()=>!!s.offer&&s.offer===H.held(),accepts:(kind,t)=>s.offer===t.id,
+        hint:'Let go to make this its new shelf slot',onBegin:(t,p)=>commitHome(t,row,p),
+        onSnap:t=>{t.snap=t.home.snap;setLid(t.obj,0);}});
+      freeSlots.push(s);
+    }
+    H.on('grab',updateFreeSlots);H.ambient.add(updateFreeSlots);
   }
 
   // ---- the disc: out of its case and into your hand, and back again
@@ -555,7 +622,7 @@
   function go() {
     if (built || !H.ROOMS.bedroom || !H.ROOMS.bedroom.built || !H.SNAPS['pc.cd']) return;
     built = true;
-    try { buildShelf(); buildFloppyBox(); catalogueThing(); sync(); prepareArtwork(); } catch (e) { console.error('[pm]', e); }
+    try { buildShelf(); buildFloppyBox(); catalogueThing(); sync(); buildFreeSlots(); prepareArtwork(); } catch (e) { console.error('[pm]', e); }
   }
   H.on('built', id => { if (id === 'bedroom') setTimeout(go, 0); });
   go(); setTimeout(go, 500); setTimeout(go, 2000);

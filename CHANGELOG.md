@@ -1,5 +1,12 @@
 # Jack's Home Page - changelog
 
+## 2.26.0 - 2026-10-21
+- Personal PC media arrangements: carry a box, case or magazine, aim at an unassigned shelf gap and release into the highlighted position. It slides upright into its new reserved home; the old slot is freed. Mixed item widths, gaps and shelf edges are checked so models cannot overlap or overhang. Existing marked homes remain reserved for items left out; loose discs still return to their own cases first.
+- Tidying now respects the player's chosen arrangement. New purchases reuse available gaps without repacking the existing collection; invalid/overlapping saved slot entries are repaired. The console rack is unchanged.
+- Reuses the existing player profile/JackOS logon and roaming save format: guests keep browser-local arrangements; a member's collection, layout and room save follow their account. No server schema changes, data migration or manual live-user data edits. This is browser-game groundwork for an eventual desktop release, not a Windows executable or offline-account redesign.
+- Snap targets are copied before animation, shelf reservations commit before the slide and immediately save, and re-grabbing cancels the old slide. Refresh during placement, Esc cancellation and rapid placements preserve a coherent arrangement.
+- Verified on isolated temporary data: physical placement, mixed media, Esc, re-grab and rapid-drop races, mid-slide refresh, tidy, unchanged console homes, two separate test accounts and a profile restored in another browser. Desktop/narrow screenshots inspected; existing bookcase and PC input-transition regressions pass. Limits: Chromium software WebGL; finite shelf capacity and the existing roaming-profile storage/network limits remain. Other browsers, a native Windows package and offline/cloud conflict redesign were not verified or implemented.
+
 ## 2.25.1 - 2026-10-21
 - Follow-up car angle review: corrected reversed cabin triangle winding caused by baking a mirrored Y scale into static geometry. Near-side glazing is now solid from outside, rather than disappearing and exposing the parcel-shelf prop. No layout, mud IDs or chore-state changes.
 - Verified with the isolated car-angle/scrubbing regression and inspected screenshots. Same hardware/browser and broader art-pass limits as 2.25.0.
