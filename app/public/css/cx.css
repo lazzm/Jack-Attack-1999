@@ -1,0 +1,142 @@
+/* cx: JACK ATTACK! back issues (www.jackattack.jnet/backissues) + the Back Issues box on the magazine's Reviews page.
+ * The Class of '99 web sites style themselves (js/cx-web-*.js); the ring bar is here so every member looks the same. */
+
+/* ---------------------------------------------------------------- the archive pages */
+.cx-page{background:#fffbe8;color:#111;min-height:max(560px,calc(100vh - 200px));font:14px/1.5 Georgia,"Times New Roman",serif;padding:0 0 10px;overflow-wrap:anywhere}
+.cx-page a{color:#0028c8}
+.cx-top{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;background:#000;color:#fff;padding:6px 14px}
+.cx-top .cx-logo{font:400 26px/1 var(--mag);color:var(--sun);letter-spacing:.02em;-webkit-text-stroke:1px #000}
+.cx-top .cx-arch{font:bold 11px var(--ui);letter-spacing:.12em;color:#ccc}
+.cx-top a{margin-left:auto;color:#ffd400!important;font:bold 12px var(--ui)}
+.cx-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 14px;border-bottom:3px solid #000;font:bold 13px var(--ui)}
+.cx-nav b{font:400 22px/1 var(--mag);letter-spacing:.03em}
+.cx-nav .cx-home{background:var(--hot);color:#fff!important;padding:3px 10px;text-decoration:none;border:2px solid #000}
+.cx-nav span{color:#999}
+.cx-parts{display:flex;flex-wrap:wrap;gap:4px;padding:8px 14px 0}
+.cx-parts a{font:bold 12px var(--ui);text-decoration:none;color:#000!important;background:#fff;border:2px solid #000;padding:4px 9px;box-shadow:2px 2px 0 #000;min-height:18px}
+.cx-parts a.on{background:var(--sun)}
+.cx-parts a:hover{background:#fff3a0}
+.cx-page > .cx-ph,.cx-page > .kicker,.cx-page > .review,.cx-page > .cx-soon,.cx-page > .letter,.cx-page > .cx-ed,.cx-page > .cx-prev,.cx-page > .cx-cheats,.cx-page > .cx-poster,.cx-page > .cx-pcap,.cx-page > .cx-compo,.cx-page > .cx-form,.cx-page > .cx-won,.cx-page > .cx-small,.cx-page > p{margin-left:14px;margin-right:14px}
+.cx-ph{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;flex-wrap:wrap;border-bottom:4px solid #000;margin:14px 14px 12px;padding-bottom:4px}
+.cx-ph h2{margin:0;font:400 40px/0.95 var(--mag);text-transform:uppercase;background:linear-gradient(90deg,#e10600,#ff7a00,#ffd400,#2a9a2a,#2a7ad8,#a040c0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cx-ph span{font:bold 11px var(--ui);letter-spacing:.1em;background:#000;color:var(--sun);padding:3px 8px}
+.cx-small{font:12px/1.45 Arial,sans-serif;color:#444}
+.cx-foot{margin:22px 14px 0;padding-top:8px;border-top:2px dashed #999;font:11px/1.45 Arial,sans-serif;color:#555;text-align:center}
+
+/* the archive grid */
+.cx-arch-h{padding:14px 14px 0}
+.cx-arch-h h1{margin:0 0 6px;font:400 48px/0.95 var(--mag);letter-spacing:.02em}
+.cx-arch-h p{margin:0 0 8px;max-width:760px}
+.cx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;padding:14px}
+.cx-tile{display:block;text-decoration:none;color:#000!important;transition:transform .12s}
+.cx-tile:hover{transform:translateY(-3px) rotate(-1deg)}
+.cx-tile .cx-tl{display:block;text-align:center;font:bold 12px var(--ui);margin-top:6px}
+.cx-tile .cx-tl em{font-style:normal;color:#e10600}
+.cx-tile.lock{opacity:.85}
+
+/* ---------------------------------------------------------------- a cover (scales with its width) */
+.cxc{position:relative;container-type:inline-size;aspect-ratio:3/4;width:100%;overflow:hidden;background:linear-gradient(var(--c1),var(--c2));border:3px solid #000;box-shadow:5px 5px 0 rgba(0,0,0,.35);color:#fff;user-select:none}
+.cxc-mast{position:absolute;left:3%;right:3%;top:2%;font:400 17cqw/0.9 var(--mag);color:var(--mc);text-align:center;letter-spacing:-.01em;-webkit-text-stroke:.6cqw #000;paint-order:stroke fill;text-shadow:1cqw 1cqw 0 #000;transform:rotate(-2deg);white-space:nowrap}
+.cxc-strip{position:absolute;left:0;right:0;top:21%;display:flex;justify-content:space-between;gap:2cqw;background:#000;color:#fff;font:bold 3.1cqw/1 var(--ui);padding:1cqw 3cqw;letter-spacing:.04em}
+.cxc-strip span:nth-child(2){overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cxc-art{position:absolute;left:12%;width:76%;top:27%;height:57%}
+.cxc-lines{position:absolute;right:2%;top:28%;width:34%;display:flex;flex-direction:column;gap:2cqw;align-items:flex-end;text-align:right}
+.cxc-lines b{font:400 4.1cqw/1.05 var(--mag);background:rgba(0,0,0,.72);color:#fff;padding:.8cqw 1.6cqw;letter-spacing:.02em}
+.cxc-lines b:nth-child(odd){background:var(--mc);color:#000}
+.cxc-main{position:absolute;left:3%;right:20%;bottom:3%;font:400 8.6cqw/0.95 var(--comic);color:#fff;-webkit-text-stroke:.5cqw #000;paint-order:stroke fill;text-shadow:.8cqw .8cqw 0 #000;transform:rotate(-4deg);letter-spacing:.02em}
+.cxc-cd{position:absolute;left:2%;top:28%;width:22cqw;height:22cqw;border-radius:50%;border:.6cqw solid #000;background:radial-gradient(circle,#fff 0 9%,#000 9% 11%,var(--cd) 11% 58%,#fff 58% 60%,var(--cd) 60%);color:#000;font:400 3.4cqw/1 var(--comic);display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;padding:0;transform:rotate(-12deg);box-shadow:.8cqw .8cqw 0 rgba(0,0,0,.5)}
+.cxc-cd span{background:rgba(255,255,255,.85);padding:.6cqw;border-radius:1cqw}
+.cxc-cd:hover{transform:rotate(12deg) scale(1.06)}
+.cxc-bar{position:absolute;right:2%;bottom:2%;width:20%;background:#fff;padding:1cqw;border:.4cqw solid #000;cursor:pointer;display:flex;flex-direction:column;align-items:center}
+.cxc-bar svg{width:100%;height:auto;display:block}
+.cxc-bar i{font:bold 2.6cqw/1 "Courier New",monospace;color:#000;font-style:normal}
+.cxc-lockon{position:absolute;inset:0;background:rgba(0,0,0,.62);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2cqw;color:#fff;text-align:center}
+.cxc-lockon b{font:400 11cqw/1 var(--mag);color:var(--sun);transform:rotate(-8deg);border:1cqw solid var(--sun);padding:1cqw 4cqw}
+.cxc-lockon span{font:bold 5cqw var(--ui);letter-spacing:.06em}
+.cxc-new{position:absolute;right:4%;bottom:15%;width:20cqw;height:20cqw;border-radius:50%;background:#e10600;color:#fff;font:400 4.4cqw/1 var(--comic);display:flex;align-items:center;justify-content:center;text-align:center;transform:rotate(14deg);border:.6cqw solid #fff;animation:cxpulse 1s ease-in-out infinite alternate}
+@keyframes cxpulse{to{transform:rotate(14deg) scale(1.08)}}
+.cxc.sm .cxc-cd,.cxc.sm .cxc-bar{pointer-events:none}
+
+/* ---------------------------------------------------------------- issue pages */
+.cx-coverpage{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:20px;padding:14px;align-items:start}
+.cx-contents h2{margin:0 0 8px;font:400 34px/1 var(--mag)}
+.cx-contents ul{list-style:none;margin:0 0 10px;padding:0}
+.cx-contents li{border-bottom:2px dotted #999;padding:6px 0;display:flex;flex-direction:column}
+.cx-contents li a{font:400 22px/1.1 var(--mag);text-decoration:none;color:#000!important;letter-spacing:.02em}
+.cx-contents li a b{display:inline-block;min-width:34px;background:#000;color:var(--sun);text-align:center;margin-right:8px;font-weight:400}
+.cx-contents li span{font:13px Georgia,serif;color:#444;margin-left:42px}
+.cx-locked{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:20px;padding:14px;align-items:start}
+.cx-locked h2{font:400 40px/1 var(--mag);margin:0 0 8px;color:#e10600}
+.cx-ed{display:grid;grid-template-columns:72px minmax(0,1fr);gap:14px;font:15px/1.6 Georgia,serif}
+.cx-edpic svg{width:72px;height:72px;border:3px solid #000;box-shadow:4px 4px 0 var(--hot)}
+.cx-ed p{margin:0 0 10px}
+.cx-sig{font:400 26px var(--comic);color:#0028c8;transform:rotate(-3deg);display:inline-block}
+.cx-sig small{font:12px Georgia,serif;color:#555}
+.cx-rev .cx-out{display:inline-block;font:bold 11px var(--ui);margin-left:8px;color:#555}
+.cx-silver{background:radial-gradient(circle at 35% 30%,#fff,#c8c8c8 60%,#8a8a8a)!important;border-color:#555!important;color:#222!important}
+.cx-soon{border:3px dashed #000;background:#fff;padding:10px 14px;margin:0 14px 18px}
+.cx-soon b{font:400 26px/1 var(--mag);text-transform:uppercase}
+.cx-soon .meta{font:bold 11px var(--ui);color:#fff;background:#000;padding:2px 6px;margin-left:6px;vertical-align:middle}
+.cx-soon p{margin:6px 0 0;font:14px Georgia,serif}
+.cx-prev{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.cx-pv{background:#fff;border:3px solid #000;padding:10px 12px;box-shadow:4px 4px 0 var(--cyan)}
+.cx-pv h3{margin:0;font:400 24px/1 var(--mag);text-transform:uppercase}
+.cx-pv .meta{display:inline-block;font:bold 11px var(--ui);background:#000;color:#fff;padding:2px 6px;margin:6px 0}
+.cx-pv p{margin:0 0 8px}
+.cx-when{font:400 16px var(--comic);color:#e10600}
+.cx-hype{position:relative;height:16px;border:2px solid #000;background:#eee;margin-top:6px}
+.cx-hype i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#ffd400,#e10600)}
+.cx-hype span{position:relative;font:bold 10px/12px var(--ui);padding-left:4px}
+.cx-cheats{display:grid;gap:12px}
+.cx-ch{background:#fff;border:3px solid #000;border-left:12px solid var(--sun);padding:8px 12px}
+.cx-ch h3{margin:0 0 4px;font:400 22px/1.05 var(--mag);text-transform:uppercase}
+.cx-ch .meta{font:bold 10px var(--ui);background:#000;color:#fff;padding:2px 5px;vertical-align:middle}
+.cx-ch p{margin:0}
+.cx-poster{display:flex;justify-content:center}
+.cx-poster svg{width:100%;max-width:420px;height:auto;border:4px solid #000;box-shadow:8px 8px 0 rgba(0,0,0,.3);background:#fff}
+.cx-pcap{text-align:center;max-width:560px;margin:12px auto!important;font:14px/1.5 Georgia,serif}
+.cx-compo{display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px;align-items:center}
+.cx-prize{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff7b0,#e2a400 60%,#9a6b00);border:4px dashed #7a4a00;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font:400 22px/1 var(--mag);transform:rotate(-8deg)}
+.cx-prize span{font:400 15px var(--comic);color:#7a1a00}
+.cx-form{background:#fff;border:3px solid #000;padding:10px 14px;margin-top:12px}
+.cx-q{border:0;border-bottom:2px dotted #999;margin:0 0 10px;padding:0 0 8px}
+.cx-q legend{font:bold 15px Georgia,serif;margin-bottom:4px;padding:0}
+.cx-q label{display:block;padding:5px 2px;cursor:pointer;font:14px Arial,sans-serif;min-height:22px}
+.cx-q input{width:18px;height:18px;vertical-align:-3px;margin-right:6px}
+.cx-res{text-align:center;font:15px Georgia,serif;min-height:20px}
+.cx-won{background:var(--sun);border:3px solid #000;padding:12px;text-align:center;font:400 19px/1.25 var(--mag);letter-spacing:.02em;margin-top:12px}
+
+@media (max-width:640px){
+  .cx-coverpage,.cx-locked{grid-template-columns:minmax(0,1fr)}
+  .cx-coverpage .cxc,.cx-locked .cxc{max-width:340px;margin:0 auto}
+  .cx-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:10px}
+  .cx-arch-h h1{font-size:38px}
+  .cx-ph h2{font-size:32px}
+  .cx-compo{grid-template-columns:minmax(0,1fr);justify-items:center}
+  .cx-ed{grid-template-columns:minmax(0,1fr)}
+  .cx-top a{margin-left:0}
+}
+
+/* ---------------------------------------------------------------- the Back Issues box on the Reviews page */
+.cx-magbox .cx-mb{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.cx-mb-st{position:relative;width:96px;height:96px;flex:none}
+.cx-mb-st span{position:absolute;left:calc(var(--i) * 12px);top:calc(var(--i) * 4px);width:58px;height:78px;border:2px solid #000;background:linear-gradient(#e10600,#ffd400);transform:rotate(calc((var(--i) - 1) * 6deg));display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:3px 0;box-shadow:2px 2px 0 rgba(0,0,0,.3)}
+.cx-mb-st span:nth-child(2n){background:linear-gradient(#2a5ad8,#9fd0ff)}
+.cx-mb-st b{font:400 16px/1 var(--mag);color:#fff;-webkit-text-stroke:.5px #000}
+.cx-mb-st i{font:bold 9px var(--ui);background:#000;color:#fff;padding:1px 3px;font-style:normal}
+.cx-magbox .cx-mb > div:last-child{flex:1;min-width:200px}
+.cx-magbox a.btn{text-decoration:none;color:#000;display:inline-flex;align-items:center}
+.cx-cheatline{font:14px Georgia,serif;background:#fff3a0;border:2px dashed #000;padding:6px 10px}
+
+/* ---------------------------------------------------------------- THE CLASS OF '99 RING bar (all member sites) */
+.cxw-ring{max-width:500px;margin:12px auto;border:3px ridge #b0b0b0;background:#000080;color:#fff;padding:6px 8px;font:12px Arial,sans-serif;display:flex;gap:8px;align-items:center;text-align:left}
+.cxw-ring svg{flex:none;width:44px;height:44px}
+.cxw-ring b{color:#ffd400}
+.cxw-ring a{color:#fff!important;font-weight:bold}
+.cxw-foot{color:inherit}
+.cxw-nav{margin:6px 0 10px;font:bold 13px Arial,sans-serif}
+.cxw-nav a,.cxw-nav b{display:inline-block;margin:2px 8px}
+.cxw-mates{border:2px dashed currentColor;padding:6px 10px;margin:12px 0;font-size:13px}
+.cxw-mates p{margin:6px 0}
+.cxw-who{font-weight:bold;text-decoration:underline}
+@media (max-width:600px){.cxw-ring{flex-wrap:wrap}}

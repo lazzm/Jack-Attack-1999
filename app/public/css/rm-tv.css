@@ -1,0 +1,270 @@
+/* rm-tv: the telly (and the Game Boy) up close in Jack's room (js/rm-tv.js loads this when a console is first clicked) */
+/* the room behind stops being drawn while the telly's up */
+.powerscr.rm-tvon .pc-stage,.powerscr.rm-tvon .pc-room,.powerscr.rm-tvon .rm-hud,.powerscr.rm-tvon .pc-cap{visibility:hidden}
+
+.rm-tvv{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px;box-sizing:border-box}
+.rm-tvwrap{position:relative;flex:none;transform-origin:50% 50%;transition:transform .45s cubic-bezier(.2,.7,.25,1);
+  --tw:min(94vw,calc((100vh - 250px) * 1.401),1000px);width:var(--tw)}
+.rm-side{display:flex;flex-direction:column;align-items:center;gap:6px;width:min(94vw,1000px);transition:opacity .3s}
+.rm-view:not(.on) .rm-side{opacity:0}
+
+/* ---- the telly: a grey portable, a curved glass, two knobs */
+.rm-crt{position:relative;width:100%;aspect-ratio:1.401;box-sizing:border-box;padding:4.5% 15% 6.5% 4.5%;border-radius:3.5%/4.5%;
+  background:linear-gradient(180deg,#5d5f63,#3c3e42 70%,#333539);box-shadow:inset 0 .4vw .3vw rgba(255,255,255,.18),inset 0 -.5vw .6vw rgba(0,0,0,.4),0 2vw 5vw rgba(0,0,0,.7)}
+.rm-crt .rm-glass{width:100%;height:100%;border-radius:4%/5.3%;box-shadow:0 0 0 .6vw #1c1d20,0 0 0 .75vw #4a4c50}
+.rm-tvname{position:absolute;right:3.2%;top:9%;width:9%;font:700 clamp(7px,1.05vw,12px)/1 var(--ui);letter-spacing:.18em;color:#aaa;text-align:center;writing-mode:vertical-rl;transform:rotate(180deg);font-style:normal}
+.rm-tvknob{position:absolute;right:4.6%;width:6%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 40% 35%,#666,#222 70%);box-shadow:0 .2vw .3vw rgba(0,0,0,.6),inset 0 0 0 .3vw #2a2a2a;font-style:normal}
+.rm-tvknob.a{top:48%}.rm-tvknob.b{top:64%}
+.rm-tvled2{position:absolute;right:6.8%;bottom:9%;width:1.4%;aspect-ratio:1;border-radius:50%;background:#3aff5a;box-shadow:0 0 .6vw #3aff5a;font-style:normal}
+.rm-glass{position:relative;overflow:hidden;background:#000;container-type:size}
+.rm-glass canvas{position:absolute;left:0;top:0;width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+.rm-smooth .rm-glass canvas{image-rendering:auto}
+.rm-scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px);mix-blend-mode:multiply;opacity:.8}
+.rm-hand .rm-scan{display:none}
+.rm-glare{position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:radial-gradient(ellipse 120% 100% at 50% 50%,transparent 62%,rgba(0,0,0,.45) 100%),linear-gradient(125deg,rgba(255,255,255,.1),rgba(255,255,255,0) 30%)}
+.rm-blowing .rm-tvwrap{animation:rmblow .5s}
+@keyframes rmblow{20%{transform:translateY(-4px) rotate(-1deg)}40%{transform:translateY(3px) rotate(1deg)}60%{transform:translateY(-2px)}}
+
+/* ---- the Game Boy Color: purple, the screen and every button are real */
+.rm-hand{flex-direction:row;gap:28px}
+.rm-hand .rm-tvwrap{--tw:min(88vw,calc((100vh - 40px) * .6),430px)}
+.rm-hand .rm-side{width:min(360px,40vw)}
+.rm-gbc{position:relative;width:100%;aspect-ratio:.6;box-sizing:border-box;border-radius:4% 4% 18% 4%/2.4% 2.4% 11% 2.4%;
+  background:radial-gradient(ellipse 80% 40% at 30% 10%,rgba(255,255,255,.18),transparent 60%),linear-gradient(160deg,#9a6ad8,#6a3fb0 50%,#4a2a8a);box-shadow:inset 0 .4vw .4vw rgba(255,255,255,.25),inset 0 -.6vw .8vw rgba(0,0,0,.35),0 2vw 5vw rgba(0,0,0,.7)}
+.rm-gbc .rm-glass{position:absolute;left:12%;right:12%;top:8%;aspect-ratio:10/9;border-radius:2%;box-shadow:0 0 0 1.8vw #2c2c3c,0 0 0 2vw #1a1a24}
+.rm-gblogo{position:absolute;left:0;right:0;top:51.5%;text-align:center;font:italic 900 calc(var(--tw) * .042)/1 Arial Black,Arial,sans-serif;color:#d8c8f8;text-shadow:0 1px 0 rgba(0,0,0,.3);letter-spacing:.04em;font-style:italic}
+.rm-gblogo b:nth-of-type(1){color:#e01a4a}.rm-gblogo b:nth-of-type(2){color:#2a8a2a}.rm-gblogo b:nth-of-type(3){color:#f0b000}.rm-gblogo b:nth-of-type(4){color:#1a5ae0}.rm-gblogo b:nth-of-type(5){color:#e0601a}.rm-gblogo b:nth-of-type(6){color:#8a1ab0}
+.rm-gbpow{position:absolute;left:5%;top:30%;width:2.5%;aspect-ratio:1;border-radius:50%;background:#ff3a3a;box-shadow:0 0 6px #f33}
+.rm-gbpad{position:absolute;left:0;right:0;top:58%;bottom:0;touch-action:none}
+.rm-gbpad b,.rm-gbpad i{position:absolute;display:block;font-style:normal}
+.rm-gbd{position:absolute;left:8%;top:12%;width:34%;aspect-ratio:1}
+.rm-gbd b{background:#1e1e24;box-shadow:inset 0 2px 0 rgba(255,255,255,.15)}
+.rm-gbd b[data-b=up]{left:33%;top:0;width:34%;height:38%;border-radius:8% 8% 0 0}
+.rm-gbd b[data-b=down]{left:33%;bottom:0;width:34%;height:38%;border-radius:0 0 8% 8%}
+.rm-gbd b[data-b=left]{left:0;top:33%;width:38%;height:34%;border-radius:8% 0 0 8%}
+.rm-gbd b[data-b=right]{right:0;top:33%;width:38%;height:34%;border-radius:0 8% 8% 0}
+.rm-gbd i{left:33%;top:33%;width:34%;height:34%;background:#1e1e24}
+.rm-gbd b.on{background:#000}
+.rm-gba,.rm-gbb{width:17%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 40% 35%,#e04a7a,#a01a4a 70%);box-shadow:0 .5vw 0 #5a0a2a,0 .8vw .6vw rgba(0,0,0,.3);color:rgba(40,10,60,.6);font:700 clamp(8px,2.4vw,12px)/1 var(--ui);display:flex!important;align-items:flex-end;justify-content:center;padding-bottom:0;text-indent:0}
+.rm-gba{right:7%;top:12%}.rm-gbb{right:29%;top:22%}
+.rm-gba.on,.rm-gbb.on{transform:translateY(3px);box-shadow:0 .2vw 0 #5a0a2a}
+.rm-gbs{bottom:30%;width:16%;height:4.5%;border-radius:2vw;background:#3a3a46;transform:rotate(-25deg);color:#2a1a5a;font:700 clamp(6px,1.6vw,9px)/1 var(--ui);text-indent:0;display:flex!important;justify-content:center;padding-top:160%;box-sizing:content-box;height:0;padding:2.2% 0}
+.rm-gbs{left:30%}.rm-gbs.st{left:52%}
+.rm-gbs.on{background:#111}
+.rm-gbs::after{content:attr(data-b);position:absolute;top:130%;left:0;right:0;text-align:center;font:700 clamp(6px,1.5vw,9px)/1 var(--ui);color:rgba(30,10,60,.7);text-transform:uppercase}
+.rm-gbs{font-size:0!important}
+
+/* ---- the console bar, the shelf of cartridges and discs, the buttons */
+.rm-conbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;font:12px var(--ui);color:#9a927e}
+.rm-conbar b{font:400 16px var(--mag);letter-spacing:.08em;color:#e8dfc8}
+.rm-av{font:700 10px var(--ui);letter-spacing:.12em;color:#6f685b}
+.rm-cb{border:0;border-radius:5px;padding:7px 12px;font:12px var(--ui);color:#e8dfc8;background:rgba(255,240,210,.1)}
+.rm-cb:hover{background:rgba(255,240,210,.2)}
+.rm-cb.on{background:#e8dfc8;color:#1a1a1a;font-weight:700}
+.rm-b.off{color:#9a927e}
+.rm-shelf{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:10px;padding:8px 12px 10px;border-radius:4px;background:linear-gradient(180deg,rgba(120,84,50,.0),rgba(120,84,50,.0) 80%,#6a4a2a 80%,#4a321a);min-height:60px}
+.rm-shelf[hidden]{display:none}
+.rm-shelfnote{flex-basis:100%;margin:2px 0 0;text-align:center;font:11px var(--ui);color:#8d8574}
+.rm-pick{position:relative;border:0;padding:0;display:block;transition:transform .15s;background:none}
+.rm-pick:hover{transform:translateY(-4px)}
+.rm-pick.in{transform:translateY(-10px);filter:drop-shadow(0 0 8px rgba(255,220,120,.7))}
+.rm-lbl{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;font-style:normal;box-sizing:border-box}
+.rm-lbl b{font:400 11px/1.05 var(--mag);letter-spacing:.04em;color:#fff;text-shadow:0 1px 0 #000}
+/* N64 / Mega Drive / Game Boy cartridges; PlayStation / Dreamcast discs in jewel cases */
+.rm-m-cartridge{width:92px;height:70px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#5a5a5e,#38383c);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),0 4px 8px rgba(0,0,0,.5)}
+[data-con=md] .rm-m-cartridge{background:linear-gradient(180deg,#26262a,#111);height:76px;border-radius:3px}
+[data-con=gb] .rm-m-cartridge{width:64px;height:72px;border-radius:3px 12px 3px 3px;background:linear-gradient(180deg,#9a9aa0,#6e6e74)}
+.rm-m-cartridge .rm-lbl{left:10%;right:10%;top:16%;bottom:12%;border-radius:3px;background:linear-gradient(160deg,var(--c),#111 140%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.rm-m-disc{width:86px;height:76px;border-radius:2px;background:linear-gradient(135deg,rgba(255,255,255,.35),rgba(255,255,255,.05) 40%,rgba(255,255,255,.2)),#1a1a1e;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3),0 4px 8px rgba(0,0,0,.5)}
+.rm-m-disc .rm-lbl{left:7px;right:7px;top:6px;bottom:6px;background:linear-gradient(160deg,var(--c),#000 150%)}
+[data-con=dc] .rm-m-disc{background:linear-gradient(135deg,rgba(255,255,255,.4),rgba(255,255,255,.1) 40%),#e8e8e4}
+.rm-lost{opacity:.35;filter:grayscale(1)}
+.rm-lost .rm-lbl{background:#222!important}.rm-lost .rm-lbl b{font-size:26px;color:#777}
+.rm-help{min-height:16px;font:12px var(--ui);color:#a69e8c;text-align:center;max-width:94vw}
+.rm-help small{color:#6f685b}
+.rm-btns{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.rm-btns [hidden]{display:none}
+.rm-blowb{background:#ffd84a!important;color:#1a1a1a!important;font-weight:700!important;animation:rmpulse 1s infinite}
+@keyframes rmpulse{50%{box-shadow:0 0 0 6px rgba(255,216,74,.25)}}
+.rm-playing .rm-shelf .rm-pick:not(.in){opacity:.55}
+
+/* ---- the score card, on the screen */
+.rm-res{position:absolute;inset:7% 12%;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1.2cqh;padding:3cqh 4cqw;box-sizing:border-box;text-align:center;
+  background:rgba(0,0,30,.84);border:3px solid #fff;color:#fff;font:700 clamp(9px,3.4cqh,18px)/1.2 "Courier New",monospace;box-shadow:0 0 0 3px #000}
+.rm-res.on{display:flex}
+.rm-res h3{margin:0;font:400 clamp(16px,9cqh,44px)/1 var(--mag);letter-spacing:.08em;color:#ffd84a;text-shadow:3px 3px 0 #a01a1a}
+.rm-res p{margin:0;font-weight:400}
+.rm-sc b{color:#7affd0;font-size:1.3em}
+.rm-best b{color:#ffd84a}
+.rm-srv{font-weight:400;min-height:1.2em}.rm-srv small{color:#aaa}.rm-rup{color:#7aff7a}
+.rm-hi{margin:0;padding:0;list-style:none;width:min(100%,24em);font-weight:400}
+.rm-hi li{display:flex;justify-content:space-between;gap:1em}.rm-hi li.me{color:#ffd84a}.rm-hi li.none{justify-content:center;color:#aaa}
+.rm-rb{display:flex;gap:8px;margin-top:.6em}
+.rm-res .rm-b{background:#fff;color:#000;font:700 clamp(10px,3.2cqh,15px) "Courier New",monospace;border-radius:0;padding:.4em .9em}
+.rm-res .rm-b:hover{background:#ffd84a}
+.rm-hand .rm-res{inset:0;border-width:2px;font-size:clamp(8px,6cqh,12px)}
+.rm-hand .rm-res h3{font-size:clamp(14px,13cqh,30px)}
+.rm-hand .rm-hi{display:none}
+
+/* ---- the touch pad (phones and tablets) */
+.rm-pad{position:absolute;left:0;right:0;bottom:0;height:min(42vh,300px);display:flex;align-items:center;justify-content:space-between;padding:0 16px 14px;box-sizing:border-box;touch-action:none;-webkit-user-select:none;user-select:none}
+.rm-pad[hidden]{display:none}
+.rm-pad b,.rm-pad i{display:block;font-style:normal}
+.rm-pl,.rm-pr{position:relative;width:min(42vw,170px);aspect-ratio:1}
+.rm-pm{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:10px;align-items:center}
+.rm-dpad{position:absolute;inset:6%}
+.rm-dpad b{position:absolute;background:#2a2a2e;box-shadow:inset 0 2px 0 rgba(255,255,255,.12),0 3px 0 #111}
+.rm-dpad b[data-b=up]{left:33%;top:0;width:34%;height:36%;border-radius:6px 6px 0 0}
+.rm-dpad b[data-b=down]{left:33%;bottom:0;width:34%;height:36%;border-radius:0 0 6px 6px}
+.rm-dpad b[data-b=left]{left:0;top:33%;width:36%;height:34%;border-radius:6px 0 0 6px}
+.rm-dpad b[data-b=right]{right:0;top:33%;width:36%;height:34%;border-radius:0 6px 6px 0}
+.rm-dpad i{position:absolute;left:33%;top:33%;width:34%;height:34%;background:#2a2a2e}
+.rm-dpad b.on{background:#555}
+.rm-stick{position:absolute;inset:8%;border-radius:50%;background:radial-gradient(circle,#2a2a2e 40%,#1a1a1e 70%);box-shadow:inset 0 0 0 3px #333}
+.rm-stick i{position:absolute;left:50%;top:50%;width:44%;height:44%;margin:-22% 0 0 -22%;border-radius:50%;background:radial-gradient(circle at 40% 35%,#888,#3a3a3e 70%);box-shadow:0 4px 8px rgba(0,0,0,.6)}
+.rm-fb{position:absolute;width:40%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 40% 35%,color-mix(in srgb,var(--bc) 70%,#fff),var(--bc) 60%,color-mix(in srgb,var(--bc) 60%,#000));color:#fff;font:700 18px/1 var(--ui);display:flex!important;align-items:center;justify-content:center;box-shadow:0 4px 0 rgba(0,0,0,.5);text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.rm-fb.on{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.5)}
+.rm-n1 .rm-fb{left:30%;top:30%}
+.rm-n2 .rm-fb:nth-child(1){right:2%;top:16%}.rm-n2 .rm-fb:nth-child(2){left:6%;top:44%}
+.rm-n3 .rm-fb:nth-child(1){right:2%;top:38%}.rm-n3 .rm-fb:nth-child(2){left:30%;top:4%}.rm-n3 .rm-fb:nth-child(3){left:2%;top:46%}
+.rm-n4 .rm-fb{width:36%}.rm-n4 .rm-fb:nth-child(1){left:32%;bottom:0}.rm-n4 .rm-fb:nth-child(2){right:0;top:32%}.rm-n4 .rm-fb:nth-child(3){left:0;top:32%}.rm-n4 .rm-fb:nth-child(4){left:32%;top:0}
+.rm-st,.rm-sh{padding:8px 14px;border-radius:14px;background:#2a2a2e;color:#bbb;font:700 11px/1 var(--ui);letter-spacing:.06em}
+.rm-st.on,.rm-sh.on{background:#555}
+[data-con=ps] .rm-dpad b,[data-con=ps] .rm-dpad i{background:#b9b6ae}[data-con=ps] .rm-dpad b.on{background:#8a877f}
+[data-con=ps] .rm-fb{background:radial-gradient(circle at 40% 35%,#444,#1a1a1a 70%);color:var(--bc);font-size:22px}
+[data-con=dc] .rm-stick{background:radial-gradient(circle,#d8d8d4 40%,#bcbcb8 70%)}[data-con=dc] .rm-stick i{background:radial-gradient(circle at 40% 35%,#eee,#999 70%)}
+
+/* ---- phones held upright: the telly at the top, the shelf or the pad under it */
+@media (max-aspect-ratio:3/4){
+  .rm-tvv{justify-content:flex-start;padding-top:max(16px,4vh)}
+  .rm-tvwrap{--tw:98vw}
+  .rm-crt{aspect-ratio:1.266;padding:3% 3% 5.5% 3%}
+  .rm-crt .rm-tvname,.rm-crt .rm-tvknob{display:none}
+  .rm-crt .rm-tvled2{right:4%;bottom:1.8%}
+  .rm-tvv.rm-padon .rm-shelf,.rm-tvv.rm-padon .rm-conbar{display:none}
+  .rm-tvv.rm-padon .rm-side{position:absolute;left:0;right:0;bottom:min(42vh,300px);width:auto}
+  .rm-tvv.rm-padon .rm-help{display:none}
+  .rm-hand{justify-content:flex-start;flex-direction:column;gap:10px}
+  .rm-hand .rm-side{width:94vw}
+  .rm-hand .rm-tvwrap{--tw:min(92vw,calc((100vh - 120px) * .6))}
+  .rm-hand.rm-playing .rm-shelf{display:none}
+}
+/* phones on their side: the telly fills the height, the pad goes either side of it */
+@media (max-height:500px) and (min-aspect-ratio:3/2){
+  .rm-tvv{flex-direction:row;padding:8px}
+  .rm-tvwrap{--tw:calc((100vh - 16px) * 1.401)}
+  .rm-side{width:auto;max-width:calc(100vw - (100vh - 16px) * 1.401 - 30px)}
+  .rm-tvv.rm-padon .rm-side{position:absolute;right:8px;top:8px;width:auto;max-width:none}
+  .rm-tvv.rm-padon .rm-shelf,.rm-tvv.rm-padon .rm-conbar,.rm-tvv.rm-padon .rm-help{display:none}
+  .rm-pad{top:0;height:auto;padding:0 10px;pointer-events:none}
+  .rm-pad>div{pointer-events:auto}
+  .rm-pl,.rm-pr{width:min(calc((100vw - (100vh - 16px) * 1.401) / 2 - 16px),160px)}
+  .rm-pm{bottom:8px}
+  .rm-hand{flex-direction:row}
+  .rm-hand .rm-tvwrap{--tw:calc((100vh - 16px) * .6)}
+}
+@media (prefers-reduced-motion:reduce){.rm-tvwrap{transition:none}}
+
+/* ---- (pack 35) the cartridges and discs are real objects on a real shelf: thickness, a lit top edge, grip ridges,
+   a shadow on the shelf, and (for borrowed games) a mate's name sticker. The shelf leans back a touch so you look down on it. */
+.rm-shelf{perspective:700px;perspective-origin:50% -40%;gap:14px;padding:12px 14px 12px;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) calc(100% - 26px),#7a5634 calc(100% - 26px),#5e4026 calc(100% - 14px),#3a2614 calc(100% - 13px),#2a1a0c 100%)}
+.rm-pick{transform-style:preserve-3d;transform:rotateX(-10deg);transition:transform .22s cubic-bezier(.3,1.4,.5,1),filter .2s,opacity .2s;--th:12px;--body:#4a4a50;--body2:#2c2c30;--edge:#6a6a72}
+.rm-pick::before{content:'';position:absolute;left:0;right:0;top:0;height:var(--th);transform-origin:50% 0;transform:rotateX(90deg);border-radius:4px 4px 0 0;
+  background:linear-gradient(90deg,var(--body2),var(--edge) 30%,var(--edge) 70%,var(--body2));box-shadow:inset 0 -1px 0 rgba(0,0,0,.4)}
+.rm-pick::after{content:'';position:absolute;left:6%;right:6%;bottom:-9px;height:10px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),rgba(0,0,0,0));transform:translateZ(-10px);pointer-events:none}
+.rm-pick:hover{transform:rotateX(-10deg) translateY(-5px) translateZ(6px)}
+.rm-pick.in{transform:rotateX(-22deg) translateY(-14px) translateZ(14px);filter:drop-shadow(0 0 9px rgba(255,220,120,.6))}
+.rm-pick:focus-visible{outline:2px solid #ffd84a;outline-offset:3px}
+/* cartridges: a moulded plastic body with ridges at the top and a printed label */
+.rm-m-cartridge{border-radius:7px 7px 3px 3px;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.10) 0 1px,rgba(0,0,0,.18) 1px 3px) 50% 0/72% 14% no-repeat,
+    linear-gradient(90deg,rgba(0,0,0,.35),rgba(255,255,255,.06) 12%,rgba(255,255,255,0) 50%,rgba(0,0,0,.25)),linear-gradient(180deg,var(--edge),var(--body) 18%,var(--body2));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -2px 0 rgba(0,0,0,.35),0 1px 0 #000}
+.rm-m-cartridge .rm-lbl{top:20%;left:9%;right:9%;bottom:9%;border-radius:2px;
+  background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 40%),linear-gradient(160deg,var(--c),color-mix(in srgb,var(--c) 35%,#000) 120%);
+  box-shadow:0 0 0 2px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.3)}
+.rm-m-cartridge .rm-lbl::before{content:'';position:absolute;left:0;right:0;bottom:0;height:22%;background:linear-gradient(90deg,#111 0 30%,rgba(255,255,255,.85) 30% 31%,#111 31%);opacity:.75}
+.rm-m-cartridge .rm-lbl b{position:relative;top:-6%;padding:0 3px}
+[data-con=n64] .rm-m-cartridge{width:94px;height:68px;--body:#46464c;--body2:#26262a;--edge:#6c6c74;border-radius:10px 10px 3px 3px}
+[data-con=sn] .rm-m-cartridge{width:98px;height:62px;--body:#c4c2bc;--body2:#8e8c86;--edge:#e2e0da;--th:14px;border-radius:12px 12px 2px 2px}
+[data-con=sn] .rm-m-cartridge .rm-lbl{top:24%;left:12%;right:12%}
+[data-con=md] .rm-m-cartridge{width:84px;height:76px;--body:#202024;--body2:#0c0c0e;--edge:#3a3a40;border-radius:4px}
+[data-con=gb] .rm-m-cartridge{width:64px;height:74px;--body:#8e8e96;--body2:#5e5e66;--edge:#b0b0b8;--th:8px;border-radius:3px 14px 3px 3px}
+[data-con=gb] .rm-m-cartridge .rm-lbl{top:24%;bottom:14%}
+/* discs: a CD in a jewel case (a dark spine on the left, clear plastic with a shine) */
+.rm-m-disc{--th:9px;--body:#0e0e12;--body2:#060608;--edge:#3a3a44;border-radius:2px;
+  background:linear-gradient(115deg,rgba(255,255,255,.38),rgba(255,255,255,.04) 34%,rgba(255,255,255,0) 60%,rgba(255,255,255,.14)),linear-gradient(90deg,#08080a 0 9px,#2a2a30 9px 10px,#16161a 10px);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),inset 0 1px 0 rgba(255,255,255,.5),0 1px 0 #000}
+.rm-m-disc .rm-lbl{left:12px;right:5px;top:5px;bottom:5px;background:radial-gradient(circle at 70% 55%,rgba(255,255,255,.25) 0 9%,rgba(0,0,0,0) 10%),linear-gradient(160deg,var(--c),color-mix(in srgb,var(--c) 30%,#000) 130%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+[data-con=dc] .rm-m-disc{--body:#d8d8d2;--body2:#a8a8a2;--edge:#f4f4f0;background:linear-gradient(115deg,rgba(255,255,255,.5),rgba(255,255,255,.08) 34%,rgba(255,255,255,0) 60%,rgba(255,255,255,.2)),linear-gradient(90deg,#c8c8c2 0 9px,#9a9a94 9px 10px,#e6e6e0 10px)}
+.rm-lost{opacity:.4;filter:grayscale(1) brightness(.7)}
+/* a mate's name sticker (borrowed games) */
+.rm-stk{position:absolute;right:-6px;bottom:6px;z-index:2;transform:rotate(-9deg) translateZ(1px);padding:1px 4px 2px;background:#fffef2;border-radius:1px;box-shadow:0 1px 2px rgba(0,0,0,.5);
+  font:700 9px/1 "Comic Sans MS","Chalkboard SE",cursive;color:#1a2a9a;font-style:normal;letter-spacing:.02em;white-space:nowrap}
+.rm-stk::before{content:'';position:absolute;left:30%;top:-3px;width:40%;height:5px;background:rgba(255,255,220,.55);transform:rotate(4deg)}
+/* the high-score table: mates' scores off the cartridge's own save battery */
+.rm-hi li.mate span{color:#9fd0ff}
+.rm-hi li.mate span small{font-size:.75em;opacity:.7}
+/* (the carts stand ON the plank: its lit top face, then its front edge; the note goes above) */
+.rm-shelf{padding:8px 14px 18px;background:linear-gradient(180deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) calc(100% - 22px),#8a6440 calc(100% - 22px),#6e4e30 calc(100% - 10px),#3e2a16 calc(100% - 10px),#2a1a0c 100%)}
+.rm-shelfnote{order:-1;margin:0 0 6px}
+.rm-pick::after{bottom:-6px}
+.rm-m-cartridge .rm-lbl::before{background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.8));opacity:.6}
+
+/* (pack 35) the SNES and PlayStation pads keep their real diamond, whichever buttons a game uses:
+   SNES: X top, Y left, A right, B bottom. PlayStation: triangle top, square left, circle right, cross bottom */
+.rm-dia .rm-fb{width:36%}
+[data-con=sn] .rm-dia .rm-fb[data-b=x],[data-con=ps] .rm-dia .rm-fb[data-b=y]{left:32%;top:0}
+[data-con=sn] .rm-dia .rm-fb[data-b=y],[data-con=ps] .rm-dia .rm-fb[data-b=x],[data-con=ps] .rm-dia .rm-fb[data-b=c]{left:0;top:32%}
+[data-con=sn] .rm-dia .rm-fb[data-b=a],[data-con=ps] .rm-dia .rm-fb[data-b=b]{right:0;top:32%}
+[data-con=sn] .rm-dia .rm-fb[data-b=b],[data-con=ps] .rm-dia .rm-fb[data-b=a]{left:32%;bottom:0}
+
+/* ================================================================ (pack 35) hardware close-ups: a pass against the real 1999 kit
+   The Game Lad Colour: a lit, moulded body (light from the top left), the speaker slots, POWER label, printed A/B letters */
+.rm-gbc{background:linear-gradient(160deg,#8a5ad8 0%,#6a3fb0 45%,#4e2a8a 100%);
+  box-shadow:inset 1.2vw 1.2vw 2vw rgba(255,255,255,.14),inset -1vw -1.4vw 2.2vw rgba(0,0,0,.35),inset 0 0 0 .25vw rgba(255,255,255,.12),0 2vw 3vw rgba(0,0,0,.6)}
+.rm-gbc::before{content:'';position:absolute;left:6%;right:6%;top:4.5%;height:46%;border-radius:3% / 2%;background:linear-gradient(180deg,#2a2a36,#1c1c26 60%,#15151d);box-shadow:inset 0 .15vw 0 rgba(255,255,255,.08),0 .3vw .6vw rgba(0,0,0,.4);pointer-events:none}
+.rm-gbc::after{content:'';position:absolute;right:7%;bottom:7%;width:17%;height:11%;pointer-events:none;
+  background:repeating-linear-gradient(115deg,transparent 0 11%,#2a1a4a 11% 15%,transparent 15% 24%);filter:drop-shadow(.08vw .08vw 0 rgba(255,255,255,.18));transform:skewY(-8deg)}
+.rm-gbc .rm-glass{z-index:1;box-shadow:0 0 0 .35vw #0c0c12,inset 0 0 1.2vw rgba(0,0,0,.6)}
+.rm-gbc .rm-glass::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.1),rgba(255,255,255,0) 28%)}
+.rm-gblogo{z-index:1;top:50%;color:#cdbdee;text-shadow:0 .08vw 0 rgba(0,0,0,.5)}
+.rm-gbpow{left:6.5%;top:26%;width:3%;background:radial-gradient(circle at 40% 35%,#ff7a7a,#e01212 65%);box-shadow:0 0 .6vw #ff2a2a,inset 0 0 0 .12vw rgba(0,0,0,.5),0 0 0 .22vw #241a3a;z-index:1}
+.rm-gbpow::after{content:'POWER';position:absolute;left:-.35vw;top:130%;font:700 .55vw/1 var(--ui);letter-spacing:.08em;color:rgba(30,10,60,.75);font-style:normal}
+.rm-gbd b{background:linear-gradient(180deg,#2a2a32,#17171d);box-shadow:inset 0 .18vw 0 rgba(255,255,255,.18),inset 0 -.2vw 0 rgba(0,0,0,.5),0 .35vw .4vw rgba(0,0,0,.35)}
+.rm-gbd i{background:radial-gradient(circle,#101014 0 30%,#1e1e24 32%)}
+.rm-gba,.rm-gbb{background:radial-gradient(circle at 38% 32%,#f07aa8,#b8245e 55%,#8a1646 100%);box-shadow:0 .5vw 0 #4a0a26,0 .9vw .7vw rgba(0,0,0,.35),inset 0 0 0 .14vw rgba(255,255,255,.18);color:transparent}
+.rm-gba::after,.rm-gbb::after{content:attr(data-b);position:absolute;right:-28%;bottom:-18%;font:700 .7vw/1 var(--ui);color:rgba(30,10,60,.75);text-transform:uppercase;font-style:normal}
+.rm-gbs{background:linear-gradient(180deg,#5a5a6a,#2e2e3a);box-shadow:inset 0 .12vw 0 rgba(255,255,255,.2),0 .3vw 0 #1a1a24}
+/* the portable telly: the channel buttons, speaker slots and the bottom lip of a real 14-inch set */
+.rm-crt{background:linear-gradient(170deg,#5a5c62,#3c3e44 50%,#2c2e33);box-shadow:inset .5vw .5vw 1.2vw rgba(255,255,255,.1),inset -.6vw -.8vw 1.6vw rgba(0,0,0,.45),0 2vw 3vw rgba(0,0,0,.65)}
+.rm-crt::before{content:'';position:absolute;right:4.4%;top:26%;width:6.4%;height:16%;pointer-events:none;
+  background:repeating-linear-gradient(180deg,#26272b 0 22%,transparent 22% 34%);box-shadow:inset 0 0 0 .04vw rgba(255,255,255,.06)}
+.rm-crt::after{content:'';position:absolute;right:4.2%;bottom:14.5%;width:6.8%;height:10%;pointer-events:none;
+  background:repeating-linear-gradient(90deg,#1e1f23 0 30%,transparent 30% 50%);opacity:.9}
+.rm-crt .rm-glass{box-shadow:0 0 0 .6vw #1c1d20,0 0 0 .75vw #4a4c50,inset 0 0 2vw rgba(0,0,0,.5)}
+.rm-crt .rm-glare{background:radial-gradient(ellipse 120% 100% at 50% 50%,transparent 58%,rgba(0,0,0,.5) 100%),radial-gradient(ellipse 60% 40% at 30% 12%,rgba(255,255,255,.16),rgba(255,255,255,0) 70%),linear-gradient(125deg,rgba(255,255,255,.08),rgba(255,255,255,0) 30%)}
+.rm-tvknob{background:radial-gradient(circle at 40% 35%,#7a7c82,#2a2b2f 70%);box-shadow:0 .25vw .4vw rgba(0,0,0,.6),inset 0 0 0 .28vw #26272b,inset 0 .1vw 0 rgba(255,255,255,.15)}
+.rm-tvknob::after{content:'';position:absolute;left:48%;top:12%;width:4%;height:30%;background:#ddd;border-radius:1vw}
+.rm-tvname{color:#b8b8bc;text-shadow:0 .05vw 0 rgba(255,255,255,.15),0 -.05vw 0 rgba(0,0,0,.6)}
+.rm-tvwrap::after{content:'';position:absolute;left:6%;right:6%;bottom:-1.4vw;height:1.4vw;border-radius:0 0 1vw 1vw;background:linear-gradient(180deg,#2a2b2f,#141518);box-shadow:0 1vw 2vw rgba(0,0,0,.6);pointer-events:none}
+.rm-hand .rm-tvwrap::after{display:none}
+/* the phone pads sit on a controller shaped like that console's own */
+.rm-pad::before{content:'';position:absolute;left:50%;top:50%;width:min(96vw,560px);height:min(44vw,220px);transform:translate(-50%,-50%);z-index:-1;pointer-events:none;
+  border-radius:48% 48% 48% 48% / 60% 60% 60% 60%;background:linear-gradient(180deg,#4a4a52,#2a2a30);box-shadow:inset 0 .5vw 0 rgba(255,255,255,.1),inset 0 -1vw 2vw rgba(0,0,0,.4),0 1vw 2vw rgba(0,0,0,.6)}
+[data-con=n64] .rm-pad::before{background:linear-gradient(180deg,#8a8a92,#5a5a62);clip-path:polygon(0 30%,20% 0,38% 0,42% 22%,58% 22%,62% 0,80% 0,100% 30%,100% 70%,82% 100%,64% 100%,58% 72%,42% 72%,36% 100%,18% 100%,0 70%);border-radius:0}
+[data-con=ps] .rm-pad::before{background:linear-gradient(180deg,#9a9aa0,#5e5e66);clip-path:polygon(0 18%,8% 0,34% 0,40% 20%,60% 20%,66% 0,92% 0,100% 18%,100% 72%,90% 100%,70% 100%,62% 70%,38% 70%,30% 100%,10% 100%,0 72%);border-radius:0}
+[data-con=sn] .rm-pad::before{background:linear-gradient(180deg,#d8d6d0,#a8a6a0);border-radius:50%/50%;box-shadow:inset 0 .5vw 0 rgba(255,255,255,.5),inset 0 -1vw 2vw rgba(0,0,0,.25),0 1vw 2vw rgba(0,0,0,.6)}
+[data-con=md] .rm-pad::before{background:linear-gradient(180deg,#2c2c30,#101012);border-radius:30% 30% 50% 50%/50% 50% 60% 60%}
+[data-con=dc] .rm-pad::before{background:linear-gradient(180deg,#f2f2ee,#c8c8c2);border-radius:40% 40% 50% 50%/50% 50% 70% 70%;box-shadow:inset 0 .5vw 0 rgba(255,255,255,.7),inset 0 -1vw 2vw rgba(0,0,0,.2),0 1vw 2vw rgba(0,0,0,.6)}
+/* (pass 2) finer speaker slots, readable POWER / A / B print, room under the telly for the AV switch */
+.rm-gbc::after{width:15%;height:12%;background:repeating-linear-gradient(115deg,transparent 0 13%,#3a2660 13% 15.5%,transparent 15.5% 16.6%);filter:drop-shadow(.06vw .06vw 0 rgba(255,255,255,.14))}
+.rm-gbpow::after{font-size:clamp(6px,.6vw,8px);left:-.6vw}
+.rm-gba::after,.rm-gbb::after{font-size:clamp(8px,.85vw,11px);right:-30%;bottom:-22%}
+.rm-tvv:not(.rm-hand) .rm-tvwrap{margin-bottom:1.6vw}
+/* (pass 3) the controller backdrop stays inside the pad's own box (never over the telly buttons) */
+.rm-pad::before{top:0;height:100%;transform:translateX(-50%)}
+/* (pass 4) on the N64 pad the stick lives on the middle prong (the D-pad stays on the left wing) */
+[data-con=n64] .rm-pl:has(.rm-stick){transform:translateX(34%)}
+[data-con=n64] .rm-pad:has(.rm-stick) .rm-pm{bottom:4px}

@@ -1,0 +1,24 @@
+/* apps-solitaire styles: Solitaire + FreeCell */
+.solwin > .appbody{padding:0;overflow:hidden;background:#008000;min-height:120px}
+.solwrap{position:absolute;inset:0;overflow:hidden}
+.solcv{position:absolute;left:0;top:0;display:block;touch-action:none;outline:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;cursor:default}
+.solwin .appstatus{display:flex}
+.solwin .appstatus > span:first-child{flex:1}
+.solwin .appstatus > .solst2{flex:none;min-width:92px;text-align:left}
+.solmsg .txt{white-space:pre-line}
+.soldlg .soldbtns{justify-content:flex-end;margin-top:10px;gap:6px}
+.soldlg .soldbtns .btn{min-width:72px}
+.soldlg .solopt{display:flex;gap:10px;flex-wrap:wrap}
+.soldlg .solopt .group{flex:1;min-width:120px;display:flex;flex-direction:column;gap:5px;margin:12px 0 4px}
+.soldlg .solchk{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.soldlg label{display:flex;align-items:center;gap:5px;min-height:20px;cursor:pointer}
+.soldlg input[type=radio],.soldlg input[type=checkbox]{margin:0;width:14px;height:14px;flex:none}
+.soldeck{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:6px;justify-items:center}
+.soldeck button{padding:3px;margin:0;background:#fff;border:2px solid transparent;cursor:pointer;line-height:0;touch-action:manipulation}
+.soldeck button.on{border-color:#000080;background:#000080}
+.soldeck button:focus-visible{outline:1px dotted #000}
+.soldeckname{margin-top:6px;min-height:16px;font-weight:bold}
+.soltab{border-collapse:collapse;font:12px var(--ui);width:100%}
+.soltab td{padding:2px 8px 2px 0}
+.soltab th{text-align:left;padding:6px 0 2px;border-bottom:1px solid #808080}
+@media (max-width:420px){ .soldeck{grid-template-columns:repeat(4,1fr)} }

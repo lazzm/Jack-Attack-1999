@@ -1,0 +1,90 @@
+/* apps-web: the 1999 Web (hidden homepages). Page-specific styles arrive with each page; these are the shared bits. */
+.wpg{margin:0;min-height:560px;padding:18px;position:relative;overflow:hidden;font:14px/1.45 "Times New Roman",Times,serif;color:#000;background:#fff;overflow-wrap:anywhere}
+.wpg a{color:#00e;text-decoration:underline;cursor:pointer}
+.wpg a:visited{color:#551a8b}
+.wpg h1,.wpg h2,.wpg h3{overflow-wrap:normal;word-break:normal}
+.wpg marquee{display:block}
+.wpg img,.wpg canvas,.wpg svg{max-width:100%}
+.wpg table{border-collapse:collapse}
+.wpg .c{text-align:center}
+.wpg .small{font-size:11px}
+.wpg .btn{color:#000;font:12px var(--ui)}
+.wpg input[type=text],.wpg textarea,.wpg select{font:13px var(--ui);color:#000;max-width:100%;box-sizing:border-box}
+@media (max-width:600px){ .wpg{padding:12px 10px 20px;font-size:13px} .wpg h1{font-size:23px!important} }
+
+/* loading: what a slow page looked like before anything arrived */
+.wpg-loading{background:#fff}
+.wload{padding:8px 4px;font:13px "Times New Roman",serif;color:#555}
+.wload-dots{font-size:20px;letter-spacing:4px;animation:blink 1s steps(1) infinite}
+.wpg-err{font:13px var(--ui)}
+
+/* hit counters */
+.wctr{display:inline-flex;gap:1px;vertical-align:middle;font:bold 15px "Courier New",monospace;white-space:nowrap}
+.wctr i{font-style:normal;display:inline-block;min-width:13px;text-align:center;padding:1px 1px}
+.wctr-odo i{background:#000;color:#fff;border:1px solid #666;box-shadow:inset 0 -6px 0 rgba(255,255,255,.12)}
+.wctr-led{background:#100;padding:2px 4px;border:2px inset #888}
+.wctr-led i{color:#ff2020;text-shadow:0 0 4px #f00;min-width:11px}
+.wctr-green{background:#001400;padding:2px 4px;border:1px solid #0a0}
+.wctr-green i{color:#33ff33;text-shadow:0 0 3px #0f0;min-width:11px}
+.wctr-flip i{background:linear-gradient(#333 49%,#000 50%,#000 51%,#222);color:#fff;border-radius:3px;margin:0 1px;min-width:15px;padding:3px 1px;font-size:17px}
+.wctr-gold i{background:linear-gradient(#fff6b0,#d4a200);color:#5a3a00;border:1px solid #7a5a00;border-radius:2px}
+.wctr-plain,.wctr-words,.wctr-roman,.wctr-bin,.wctr-hex{font:bold 14px "Courier New",monospace;display:inline}
+.wctr-words{font:italic bold 15px "Times New Roman",serif}
+.wctr-tally{display:inline;font:bold 15px "Courier New",monospace;letter-spacing:-1px;white-space:normal}
+.wctr-tally s{text-decoration-thickness:2px;margin-right:4px}
+.wfootctr{text-align:center;margin:18px 0 4px;font:12px Arial,sans-serif}
+
+/* guestbook */
+.wgb{margin:16px auto;max-width:560px;border:3px ridge #c0c0c0;background:#fffff0;color:#000;font:13px Arial,sans-serif;text-align:left}
+.wgb-head{background:#000080;color:#fff;font:bold 15px Arial,sans-serif;padding:4px 8px}
+.wgb-form{padding:8px;border-bottom:1px dashed #999}
+.wgb-who{font-size:12px;margin-bottom:4px}
+.wgb-msg{width:100%;resize:vertical;min-height:40px}
+.wgb-row{display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap}
+.wgb-note{font-size:11px;color:#a00}
+.wgb-list{max-height:330px;overflow:auto;padding:4px 8px}
+.wgbe{padding:6px 0;border-bottom:1px dotted #aaa}
+.wgbe:last-child{border-bottom:0}
+.wgbe-h b{color:#800}
+.wgbe-d{font-size:11px;color:#666}
+.wgbe-r{color:#e0a000;font-weight:bold;letter-spacing:1px}
+.wgbe-t{white-space:pre-wrap}
+.wgbe-new{animation:wgbnew 2.5s}
+@keyframes wgbnew{0%{background:#ff0}100%{background:transparent}}
+.wgb-wait{color:#666;font-style:italic;padding:6px 0}
+
+/* the Biscuit Ring */
+.wring{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin:22px auto 6px;max-width:560px;padding:8px 10px;background:#f6e3b4;border:3px double #8a5a1a;font:12px Arial,sans-serif;color:#3a2200;text-align:center}
+.wring a{color:#5a1a00;font-weight:bold}
+.wring-nav{margin-top:3px}
+.wring-logo{position:relative;width:46px;height:32px;flex:none}
+.wring-bis{position:absolute;left:0;top:2px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,#7a4a14 0 1.5px,transparent 2px) 0 0/8px 8px,#c88a3a;border:2px solid #7a4a14;box-shadow:inset 0 0 0 3px #e0a85a}
+.wring-bis.b2{left:16px;top:2px;background:#5a2e0a;border-color:#3a1a00;box-shadow:inset 0 0 0 3px #7a4a14}
+
+/* MIDI player box (the 1999 plug-in kind) */
+.wmidi{display:inline-flex;align-items:center;gap:3px;background:#c0c0c0;border:2px outset #fff;padding:3px;font:11px var(--ui);color:#000;vertical-align:middle;max-width:100%}
+.wmidi button{width:24px;height:22px;padding:0;border:2px outset #fff;background:#c0c0c0;font-size:10px;color:#000;cursor:pointer}
+.wmidi button:active{border-style:inset}
+.wm-lcd{display:inline-flex;gap:8px;align-items:center;background:#000;color:#0f0;font:11px "Courier New",monospace;padding:3px 6px;border:2px inset #888;min-width:0;overflow:hidden;white-space:nowrap}
+.wm-name{overflow:hidden;text-overflow:ellipsis;max-width:170px}
+.wmidi.on .wm-name{animation:blink 1s steps(1) infinite}
+.wm-vol{display:inline-flex;gap:1px;align-items:flex-end;height:16px;padding:0 2px}
+.wm-vol i{width:3px;background:#080;height:4px}
+.wmidi.on .wm-vol i{background:#0c0;animation:wmeq .5s ease-in-out infinite alternate}
+.wmidi.on .wm-vol i:nth-child(2){animation-delay:.15s}.wmidi.on .wm-vol i:nth-child(3){animation-delay:.3s}.wmidi.on .wm-vol i:nth-child(4){animation-delay:.08s}
+@keyframes wmeq{from{height:3px}to{height:15px}}
+
+/* under construction sign with a little digging man */
+.wuc{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;background:repeating-linear-gradient(-45deg,#ffd400 0 12px,#000 12px 24px);border:2px solid #000;margin:8px 0}
+.wuc-t{background:#ffd400;color:#000;font:bold 14px Arial,sans-serif;padding:2px 8px;border:2px solid #000}
+.wuc-man{width:26px;height:30px;flex:none;background:#ffd400;border:2px solid #000;border-radius:3px;position:relative;overflow:hidden}
+.wuc-man::before{content:"";position:absolute;left:8px;top:3px;width:8px;height:8px;border-radius:50%;background:#000}
+.wuc-man::after{content:"";position:absolute;left:4px;top:13px;width:3px;height:16px;background:#000;transform-origin:50% 0;animation:wdig .6s steps(2) infinite}
+@keyframes wdig{from{transform:rotate(-30deg)}to{transform:rotate(30deg) translateX(8px)}}
+
+/* badges */
+.wbest{display:inline-flex;align-items:center;gap:6px;border:2px outset #ddd;background:#e8e8e8;color:#000;padding:3px 8px;font:11px Arial,sans-serif;margin:6px 0}
+.wbest-ico{width:22px;height:16px;flex:none;background:linear-gradient(#000080,#1084d0);border:1px solid #000;box-shadow:inset 0 -3px 0 #c0c0c0}
+.wbadge{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:88px;height:31px;box-sizing:border-box;border:2px outset #fff;background:var(--bc);color:#fff;font:bold 9px/1.05 Verdana,Arial,sans-serif;text-align:center;vertical-align:middle;margin:2px;overflow:hidden}
+.wbadge b{font-size:11px;color:#ff0}
+.wbadge span{font-size:8px}

@@ -1,0 +1,62 @@
+/* pm: Jack's physical media on the PC side (js/pm-media.js): drive A: in My Computer, the "lean back and grab a disc"
+ * window (the phone-friendly fallback for the shelf in the room) and the Pixel Post mail-order site. The things themselves
+ * are WebGL in the room (js/pm-gl.js, drawn with js/pm-art.js). Classes are pmd-* / ppo-* (the monitor owns pm-*). */
+
+/* ---------------------------------------------------------------- on the PC: drive A:, "lean back and grab a disc", Pixel Post */
+.pmd-fx{position:absolute;inset:0;padding:2px;display:flex}
+.pmd-fxl{flex:1;overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;padding:6px;background:#fff}
+.pmd-fxi{width:76px;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font:11px var(--ui);color:#000;padding:2px;cursor:pointer}
+.pmd-fxi svg{width:32px;height:32px}
+.pmd-fxi.sel span:last-child{background:#000080;color:#fff;outline:1px dotted #fff}
+.pmd-fxe{margin:auto;text-align:center;color:#555;font:12px var(--ui)}
+.pmd-gw{position:absolute;inset:0;display:flex;flex-direction:column;gap:6px;padding:6px;font:11px var(--ui)}
+.pmd-gw-tip{padding:6px 8px;background:#ffffe1;border:1px solid #000;line-height:1.35}
+.pmd-gw-dr{display:flex;gap:10px;flex-wrap:wrap}
+.pmd-gw-dr>div{flex:1;min-width:150px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden}
+.pmd-gw-dr .btn{margin-left:auto;min-width:0;padding:1px 8px}
+.pmd-gw-l{flex:1;min-height:0;overflow:auto;background:#fff;padding:2px}
+.pmd-gw-g{padding:4px 4px 2px;font-weight:bold;color:#000080;border-bottom:1px solid #c0c0c0}
+.pmd-gw-i{display:flex;width:100%;align-items:center;gap:6px;padding:3px 4px;border:0;background:none;font:11px var(--ui);color:#000;text-align:left;cursor:pointer;min-height:24px}
+.pmd-gw-i.sel{background:#000080;color:#fff}
+.pmd-gw-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pmd-gw-w{flex:none;color:#666;font-size:10px}.pmd-gw-i.sel .pmd-gw-w{color:#ccf}
+.pmd-gw-ic{flex:none;width:16px;height:16px;border:1px solid #000;background:linear-gradient(90deg,var(--b) 0 22%,var(--a) 22%)}
+.pmd-ic-jewel,.pmd-ic-cdr,.pmd-ic-sleeve,.pmd-ic-mag{border-radius:50%;background:radial-gradient(circle,#fff 0 2px,#999 2px 3px,var(--a) 3px)}
+.pmd-ic-floppy{background:linear-gradient(180deg,#bbb 0 35%,#222 35%);border-radius:1px}
+.pmd-gw-b{display:flex;gap:6px;flex-wrap:wrap}
+.pmd-gw-b .btn{min-width:0;padding:3px 10px}
+
+.ppo{background:#fff;color:#000;font:13px/1.4 Verdana,Arial,sans-serif;margin:-4px;min-height:100%}
+.ppo-top{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;padding:14px 16px 10px;background:linear-gradient(180deg,#ffd400,#ffb000);border-bottom:4px solid #000}
+.ppo-logo{font:400 44px/1 Anton,Impact,sans-serif;color:#e10600;-webkit-text-stroke:2px #000;paint-order:stroke fill;letter-spacing:1px}
+.ppo-logo b{font-weight:400;color:#2a2aaa}
+.ppo-tag{font:bold 12px Verdana,sans-serif;padding-bottom:6px}
+.ppo-strip{background:#000;color:#ffd400;font:bold 12px "Courier New",monospace;padding:3px 0}
+.ppo-note{margin:12px 16px;padding:8px 12px;background:#ffffcc;border:2px dashed #e10600;font-weight:bold}
+.ppo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding:0 16px 16px}
+.ppo-it{display:flex;gap:10px;padding:8px;border:2px solid #000;background:#f4f4ff;box-shadow:3px 3px 0 #000}
+.ppo-it.have{background:#eaffea}
+.ppo-art{flex:none;width:86px}
+.ppo-art svg{width:86px;height:auto;display:block;border:1px solid #000}
+.ppo-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.ppo-tx b{font:400 16px/1.1 Anton,Impact,sans-serif;letter-spacing:.02em}
+.ppo-tx small{font-size:11px;color:#333}
+.ppo-pr{font:bold 18px Verdana,sans-serif;color:#e10600}
+.ppo-got{font:bold 11px Verdana,sans-serif;color:#007000}
+.ppo-buy{align-self:flex-start;font:bold 12px Verdana,sans-serif;color:#fff;background:linear-gradient(#ff3a3a,#a00000);border:2px outset #ff8a8a;padding:5px 12px;cursor:pointer}
+.ppo-buy:disabled{opacity:.45;cursor:default}
+.ppo-acct{display:flex;flex-wrap:wrap;gap:6px 18px;margin:12px 16px;padding:8px 12px;background:#eef2ff;border:2px solid #2a2aaa;font-size:12px}
+.ppo-acct b{color:#2a2aaa}.ppo-wait{color:#c00000;font-weight:bold;animation:ppoblink 1s steps(1) infinite}
+@keyframes ppoblink{50%{opacity:.35}}
+.ppo-note.ok{border-color:#007000;background:#eaffea}
+.ppo-h{margin:16px 16px 10px;font:400 22px/1 Anton,Impact,sans-serif;letter-spacing:.04em;color:#e10600;border-bottom:3px solid #000;padding-bottom:4px}
+.ppo-it{position:relative}
+.ppo-flag{position:absolute;left:-8px;top:-10px;z-index:1;padding:3px 8px;font:400 13px/1 Anton,Impact,sans-serif;letter-spacing:.06em;color:#fff;background:#e10600;border:2px solid #000;transform:rotate(-6deg)}
+.ppo-flag.budget{background:#2a2aaa}.ppo-flag.hot{background:#ff7a00}
+.ppo-it.soon{background:#f4f4f4;opacity:.85}
+.ppo-soon{font:bold 11px Verdana,sans-serif;color:#7a5a00;background:#fff3b0;border:1px dashed #c8a000;padding:3px 6px;align-self:flex-start}
+.ppo-lent{color:#555;font-weight:normal}
+.ppo-rp{display:inline-block;width:10px;height:14px;vertical-align:-1px;background:linear-gradient(135deg,#7aff9a,#1a9a3a);clip-path:polygon(50% 0,100% 30%,100% 70%,50% 100%,0 70%,0 30%)}
+.ppo-ft{padding:10px 16px 16px;font-size:10px;color:#555;border-top:1px solid #ccc}
+@media (max-width:600px){.ppo-logo{font-size:34px}.ppo-grid{grid-template-columns:1fr;padding:0 10px 12px}.ppo-note{margin:10px}}
+

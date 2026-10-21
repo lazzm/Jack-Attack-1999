@@ -1,0 +1,36 @@
+/* The family PC's 15" CRT: faint scanlines, a whisper of RGB phosphor grid, a glassy tint, darker curved corners
+   and a slow refresh band. Flickers are rare and random (driven by crt.js), never a regular beat.
+   All on one click-through layer above everything. */
+#crtglass{position:fixed;inset:0;z-index:2147483646;pointer-events:none;overflow:hidden;contain:strict}
+#crtglass[hidden]{display:none}
+/* scanlines + phosphor triads */
+#crtglass::before{content:"";position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0,0,0,.055) 0, rgba(0,0,0,.055) 1px, transparent 1px, transparent 3px),
+    repeating-linear-gradient(to right, rgba(255,60,60,.024) 0 1px, rgba(60,255,60,.016) 1px 2px, rgba(60,60,255,.024) 2px 3px);
+  mix-blend-mode:multiply}
+/* curved glass: dark corners and edges */
+#crtglass::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse 118% 112% at 50% 50%, transparent 60%, rgba(0,0,0,.085) 84%, rgba(0,0,0,.2) 100%);
+  box-shadow:inset 0 0 50px rgba(0,0,0,.105), inset 0 0 4px rgba(0,0,0,.2)}
+/* phosphor tint: a touch cool in the middle, warmer at the edges */
+#crtglass s{position:absolute;inset:0;text-decoration:none;
+  background:radial-gradient(ellipse at 50% 45%, rgba(170,210,255,.048), rgba(255,200,150,.034) 80%);
+  mix-blend-mode:overlay}
+/* slow refresh band rolling down */
+#crtglass i{position:absolute;left:0;right:0;top:0;height:20vh;
+  background:linear-gradient(to bottom, transparent, rgba(255,255,255,.016) 45%, rgba(255,255,255,.027) 50%, rgba(255,255,255,.016) 55%, transparent);
+  transform:translateY(-22vh);animation:crtroll 11s linear infinite;will-change:transform}
+/* flickers: off until crt.js briefly switches one on at a random moment */
+#crtglass b,#crtglass u{position:absolute;inset:0;opacity:0}
+#crtglass b{background:rgba(255,255,255,.017)}
+#crtglass u{background:rgba(0,0,0,.019)}
+#crtglass.fb b,#crtglass.fu u{opacity:1}
+/* the odd interference line zipping down */
+#crtglass em{position:absolute;left:0;right:0;top:0;height:2px;background:rgba(255,255,255,.033);box-shadow:0 0 4px rgba(255,255,255,.028);
+  opacity:0;transform:translateY(-5vh)}
+#crtglass.zip em{animation:crtzip .9s linear 1}
+@keyframes crtroll{to{transform:translateY(122vh)}}
+@keyframes crtzip{0%{opacity:1;transform:translateY(-5vh)}99%{opacity:1;transform:translateY(105vh)}100%{opacity:0;transform:translateY(105vh)}}
+@media (prefers-reduced-motion:reduce){ #crtglass i,#crtglass b,#crtglass u,#crtglass em{animation:none;display:none} }
+@media print{ #crtglass{display:none} }

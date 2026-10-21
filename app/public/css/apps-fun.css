@@ -1,0 +1,375 @@
+/* apps-fun: screen savers, Network Neighborhood, WinPopup, Gubbinz the screen mate, secret pages, Run toys, date events */
+.ff-i16{display:inline-flex;width:16px;height:16px;flex:none;vertical-align:-3px}
+.ff-i16 svg{width:16px;height:16px}
+
+/* ---- full-screen saver (above everything but the BSOD) */
+.ff-saver{position:fixed;inset:0;z-index:8900;background:#000;cursor:none;touch-action:none;transition:opacity .25s}
+.ff-saver canvas{display:block;width:100%;height:100%}
+.ff-saver.bye{opacity:0}
+
+/* ---- mini Explorer windows */
+.ff-exp{display:flex;flex-direction:column;height:100%;min-height:0;gap:4px}
+.appwin > .appbody:has(> .ff-exp){padding:4px;display:flex;flex-direction:column}
+.ff-tool{display:flex;gap:3px;flex-wrap:wrap;flex:none}
+.ff-tool .btn{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;min-height:24px}
+.ff-tool .btn svg{width:16px;height:16px}
+.ff-addr{display:flex;align-items:center;gap:6px;flex:none}
+.ff-crumb{flex:1;min-width:0;padding:2px 4px;display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;font:12px var(--ui)}
+.ff-crumb a{color:#000;text-decoration:none}
+.ff-crumb a:hover{text-decoration:underline;color:#0000ee}
+.ff-grid{flex:1;min-height:120px;overflow:auto;padding:6px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px}
+.ff-ic{width:86px;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:3px 2px;font:11px var(--ui);color:#000;cursor:default;text-align:center}
+.ff-ic svg{width:32px;height:32px}
+.ff-ic span{padding:0 2px;line-height:1.2;word-break:break-word}
+.ff-ic.sel span{background:#000080;color:#fff;outline:1px dotted #000}
+.ff-ic.sel svg{filter:brightness(.7) sepia(1) hue-rotate(190deg) saturate(3)}
+.ff-ic.dim{opacity:.6}
+.ff-exp.list .ff-grid{flex-direction:column;flex-wrap:nowrap}
+.ff-exp.list .ff-ic{width:auto;flex-direction:row;gap:6px;padding:1px 2px;text-align:left}
+.ff-exp.list .ff-ic svg{width:16px;height:16px}
+.ff-empty{color:#555;padding:12px;font:12px var(--ui)}
+
+/* ---- WinPopup */
+.ff-pop textarea{width:100%;margin:8px 0 2px;resize:vertical;font:12px var(--ui)}
+.ff-pop .small{font-size:11px}
+.ff-left{color:#555;margin-bottom:6px}
+.ff-pophead{display:flex;gap:10px;align-items:flex-start}
+.ff-poptext{margin:8px 0;padding:6px;min-height:60px;max-height:160px;overflow:auto;white-space:pre-wrap;word-break:break-word;font:12px var(--ui)}
+.ff-ign{display:flex;align-items:center;gap:4px;margin-bottom:6px;font-size:11px}
+
+/* ---- Gubbinz the screen mate */
+.ff-mate{position:fixed;left:0;top:0;z-index:3400;touch-action:none;cursor:grab;will-change:transform;-webkit-user-select:none;user-select:none}
+.ff-mate canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+.ff-mate:active{cursor:grabbing}
+.ff-bubble{position:fixed;left:0;top:0;z-index:3401;pointer-events:none;background:#ffffe1;border:1px solid #000;border-radius:8px;padding:3px 7px;font:bold 11px var(--ui);color:#000;white-space:nowrap;box-shadow:2px 2px 0 rgba(0,0,0,.25);max-width:220px}
+.ff-bubble[hidden]{display:none}
+/* the Recycle Bin as a drop target for Gubbinz, and its wobble when he goes in (or comes out) */
+.dicon.ff-drop span{background:#000080;outline:1px dotted #fff}
+.dicon.ff-drop svg{filter:brightness(1.35) drop-shadow(0 0 3px #fff)}
+.dicon.ff-wobble svg{animation:ffwobble .9s ease-in-out}
+@keyframes ffwobble{0%,100%{transform:rotate(0)}15%{transform:rotate(-14deg) scale(1.1)}35%{transform:rotate(12deg)}55%{transform:rotate(-8deg)}75%{transform:rotate(5deg)}}
+
+/* ---- Gubbinz the Assistant */
+.ff-asst{position:fixed;right:12px;bottom:42px;z-index:3300;display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:min(300px,calc(100vw - 24px));animation:ffpop .35s ease-out;transition:opacity .5s,transform .5s}
+.ff-asst.bye{opacity:0;transform:translateY(20px)}
+.ff-asst-say{position:relative;background:#ffffe1;border:1px solid #000;border-radius:10px;padding:8px 10px;font:12px var(--ui);box-shadow:2px 2px 0 rgba(0,0,0,.3)}
+.ff-asst-say::after{content:"";position:absolute;right:40px;bottom:-9px;border:9px solid transparent;border-bottom:0;border-top-color:#000}
+.ff-asst-say p{margin:0 0 8px;white-space:pre-wrap}
+.ff-asst-btns{display:flex;gap:4px;flex-wrap:wrap}
+.ff-asst-btns .btn{padding:2px 8px;font-size:11px}
+.ff-asst-box{background:var(--face);border:2px solid;border-color:#dfdfdf #000 #000 #dfdfdf;padding:2px;width:96px}
+.ff-asst-box .tb{height:16px;font-size:11px}
+.ff-asst-box canvas{display:block;width:78px;height:84px;margin:4px auto 2px;image-rendering:pixelated;background:radial-gradient(circle at 50% 70%,#fff8c0,#e8d890)}
+@keyframes ffpop{from{opacity:0;transform:translateY(30px) scale(.9)}}
+
+/* ---- desktop effects layer + body effects */
+.ff-fx{position:fixed;left:0;top:0;z-index:1500;pointer-events:none}
+.ff-fx.top{z-index:3350}
+body.ff-god #desktop{animation:ffgod .5s ease-in-out infinite alternate}
+@keyframes ffgod{to{filter:sepia(1) saturate(4) brightness(1.15) hue-rotate(-12deg)}}
+body.ff-party #desktop{animation:ffparty 1s linear infinite}
+@keyframes ffparty{to{filter:hue-rotate(360deg)}}
+body.ff-speed #desktop{animation:ffspeed .08s linear infinite}
+@keyframes ffspeed{0%{transform:translateX(-6px) skewX(-2deg)}50%{transform:translateX(6px) skewX(2deg)}}
+body.ff-dim #desktop,body.ff-dim #taskbar{filter:brightness(.25) grayscale(1);transition:filter .3s}
+html.ff-flip body{transform:rotate(180deg);transition:transform .6s}
+html.ff-mirror body{transform:scaleX(-1);transition:transform .5s}
+html.ff-spin body{animation:ffspin 2s ease-in-out}
+@keyframes ffspin{to{transform:rotate(360deg)}}
+body.ff-nocursor,body.ff-nocursor *{cursor:none!important}
+@media (prefers-reduced-motion:reduce){html.ff-spin body,body.ff-speed #desktop,body.ff-party #desktop{animation:none}}
+
+/* ---- Christmas tinsel, Mom's sticky note, the black cat, the CD tray */
+.ff-tinsel{position:fixed;left:0;right:0;bottom:26px;height:14px;z-index:3001;pointer-events:none;background:repeating-linear-gradient(115deg,#d4af37 0 3px,#fff3a0 3px 5px,#2a8a2a 5px 8px,#c0302a 8px 10px);-webkit-mask:radial-gradient(14px 10px at 50% 0,#000 98%,transparent) 0 0/28px 14px repeat-x;mask:radial-gradient(14px 10px at 50% 0,#000 98%,transparent) 0 0/28px 14px repeat-x}
+.ff-tinsel i{position:absolute;top:6px;width:9px;height:9px;border-radius:50%;box-shadow:inset -2px -2px 0 rgba(0,0,0,.3),inset 2px 2px 0 rgba(255,255,255,.5);animation:ffbob 1.6s ease-in-out infinite alternate}
+@keyframes ffbob{to{transform:translateY(2px)}}
+.ff-sticky{position:fixed;z-index:1900;width:200px;min-height:130px;padding:18px 14px 14px;background:linear-gradient(#fff8a0,#ffef70);box-shadow:3px 4px 0 rgba(0,0,0,.3);transform:rotate(-3deg);touch-action:none;cursor:move;font:bold 17px/1.3 "Comic Sans MS","Chalkboard SE",cursive;color:#1a2a9a}
+.ff-sticky::before{content:"";position:absolute;top:-8px;left:50%;width:60px;height:18px;margin-left:-30px;background:rgba(255,255,255,.6);transform:rotate(4deg)}
+.ff-sticky p{margin:0;white-space:pre-wrap}
+.ff-stx{position:absolute;right:4px;top:3px;border:0;background:none;font:bold 13px var(--ui);color:#a08000;cursor:pointer}
+.ff-cat{position:fixed;left:-70px;z-index:3390;pointer-events:none;animation:ffcat 12s linear forwards}
+@keyframes ffcat{to{transform:translateX(calc(100vw + 140px))}}
+.ff-cat .ff-legs{animation:fflegs .3s steps(2) infinite}
+.ff-cat .ff-legs2{animation:fflegs .3s steps(2) infinite reverse}
+@keyframes fflegs{50%{transform:translateX(2px)}}
+.ff-tray{position:fixed;right:-190px;top:42%;z-index:3390;width:190px;height:22px;transition:right .6s ease-out;pointer-events:none}
+.ff-tray.out{right:0}
+.ff-trayin{position:relative;width:100%;height:100%;background:#c8c8c8;border:1px solid #555;border-right:0;box-shadow:inset 0 2px #fff}
+.ff-cd{position:absolute;left:40px;top:-38px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,#fff 0 7px,#ccc 8px 11px,transparent 12px),conic-gradient(#e0e0ff,#ffe0f0,#e0fff0,#fff8d0,#e0e0ff);transform:scaleY(.25);opacity:.9}
+.ff-cup{position:absolute;left:70px;top:-30px;width:24px;height:28px;background:#fff;border:2px solid #555;border-top-width:4px;border-radius:0 0 6px 6px}
+.ff-cup::after{content:"";position:absolute;right:-9px;top:5px;width:8px;height:10px;border:2px solid #555;border-left:0;border-radius:0 6px 6px 0}
+
+/* ---- MS-DOS style windows */
+.appwin > .appbody:has(> .ff-dos){padding:0;background:#000}
+.ff-dos{background:#000;color:#c0c0c0;height:100%;overflow:auto;padding:6px 8px}
+.ff-dos pre{margin:0;font:13px/1.25 "Courier New",monospace;white-space:pre-wrap;word-break:break-word}
+.ff-greenterm .ff-dos{color:#3f3}
+@media (max-width:640px){.ff-dos pre{font-size:10px}}
+
+/* ---- About JackOS */
+.ff-abtop{display:flex;gap:14px;align-items:flex-start}
+.ff-ablogo{flex:none;width:84px;height:74px;cursor:pointer;background:linear-gradient(#5a8ad8,#000080);border:2px solid;border-color:#808080 #fff #fff #808080;display:flex;align-items:center;justify-content:center}
+.ff-ablogo svg{width:64px;height:56px}
+.ff-ablogo.wob{animation:ffwob .35s}
+@keyframes ffwob{30%{transform:rotate(-8deg) scale(1.08)}60%{transform:rotate(6deg)}}
+.ff-abname{font:bold 24px/1 Arial,sans-serif;font-style:italic;margin-bottom:6px}
+.ff-abname b{color:#e10600}
+.ff-abtxt p{margin:0 0 8px}
+.ff-abroll{height:150px;overflow:hidden;background:#000080;color:#fff;text-align:center;margin-top:8px;position:relative}
+.ff-abin{position:absolute;left:0;right:0;top:100%;animation:ffroll 16s linear infinite;font:12px var(--ui)}
+@keyframes ffroll{to{transform:translateY(calc(-100% - 160px))}}
+
+/* ---- winipcfg */
+.ff-ipc table{width:100%;font:12px var(--ui);margin-top:6px}
+.ff-ipc td{padding:2px}
+.ff-ipc select{width:100%}
+.ff-ipv{display:block;padding:2px 4px;font:12px var(--ui)}
+.ff-ipbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px}
+.ff-ipbtns .btn{padding:3px 4px}
+
+/* ---- Online Services wizard + Jackotchi */
+.ff-wiz{display:flex;gap:10px;min-height:250px}
+.ff-wizside{flex:none;width:110px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;font:bold 13px var(--ui);padding:8px;border:2px solid;border-color:#808080 #fff #fff #808080;text-shadow:1px 1px #000}
+.ff-wizlogo svg{width:56px;height:56px;animation:spin 6s linear infinite}
+.ff-wizmain{flex:1;display:flex;flex-direction:column;min-width:0}
+.ff-wizbody{flex:1}
+.ff-wizbody h3{margin:0 0 8px;font:bold 14px var(--ui)}
+.ff-wizbody p{margin:0 0 8px}
+.ff-wizend{white-space:pre-wrap}
+.ff-opt{display:block;margin:3px 0}
+.ff-wizbtns{display:flex;gap:4px;justify-content:flex-end;border-top:1px solid #808080;box-shadow:0 -1px #fff inset;padding-top:8px}
+.ff-small{font-size:11px;color:#555}
+@media (max-width:480px){.ff-wiz{flex-direction:column}.ff-wizside{width:auto;flex-direction:row;padding:4px}.ff-wizlogo svg{width:28px;height:28px}}
+.ff-traygc{position:relative}
+.ff-traygc.ff-beg svg{animation:blink .8s steps(1) infinite}
+.ff-gchi{display:flex;flex-direction:column;align-items:center}
+.ff-egg{width:190px;padding:16px 18px 12px;border-radius:50% 50% 46% 46%/58% 58% 42% 42%;background:radial-gradient(circle at 35% 25%,#ffc0e8,#ff7ac8 55%,#c03a90);border:2px solid #70204f;box-shadow:inset -6px -8px 0 rgba(0,0,0,.15)}
+.ff-lcd{position:relative;margin:8px auto 10px;width:124px;height:112px;background:#9bbc0f;border:6px solid #444;border-radius:6px;box-shadow:inset 2px 2px 0 rgba(0,0,0,.25);overflow:hidden}
+.ff-lcd canvas{position:absolute;left:30px;top:6px;width:52px;height:56px;image-rendering:pixelated;filter:grayscale(1) contrast(1.4) sepia(1) hue-rotate(40deg) saturate(1.6) brightness(.7);mix-blend-mode:multiply}
+.ff-poo{position:absolute;right:6px;top:44px;font:14px monospace;color:#306230}
+.ff-gst{position:absolute;left:4px;right:4px;bottom:3px;font:bold 10px/1.15 "Courier New",monospace;color:#0f380f}
+.ff-eggbtns{display:flex;justify-content:center;gap:12px}
+.ff-eggbtns button{width:28px;height:28px;border-radius:50%;border:2px solid #555;background:radial-gradient(circle at 35% 30%,#fff,#ffd400 60%,#c09000);font:bold 11px var(--ui);cursor:pointer}
+.ff-eggbtns button:active{transform:translateY(1px);filter:brightness(.9)}
+.ff-egglbl{display:flex;justify-content:center;gap:6px;font:bold 8px var(--ui);color:#70204f;margin-top:2px}
+.ff-egglbl span{width:34px;text-align:center}
+.ff-gmsg{min-height:16px;margin:6px 0 0;text-align:center}
+
+/* ================================================================ secret web pages */
+.ffp{margin:0;min-height:560px;padding:18px;position:relative;overflow:hidden;font:14px/1.45 "Times New Roman",Times,serif;color:#000}
+.ffp h1{margin:6px 0 10px;font:bold 30px/1.1 "Times New Roman",serif}
+.ffp h2{font:bold 22px "Times New Roman",serif}
+.ffp h3{margin:4px 0 6px;font:bold 16px Arial,sans-serif}
+.ffp .ff-c{text-align:center}
+.ffp .ff-big{font-size:20px;font-weight:bold}
+.ffp marquee{display:block}
+.ffp code{font:bold 13px "Courier New",monospace;background:#000;color:#ffd400;padding:0 4px;white-space:nowrap}
+.ff-cols{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+.ff-cols > .ff-box{flex:1 1 240px;min-width:0}
+.ff-box{border:3px ridge #c0c0c0;padding:8px 12px;background:rgba(255,255,255,.08);margin:10px 0}
+.ff-tbl{border-collapse:collapse;width:100%}
+.ff-tbl td,.ff-tbl th{border:1px solid currentColor;padding:3px 6px;text-align:left;vertical-align:top}
+.ff-counter{text-align:center;margin:18px 0 6px;font:13px Arial,sans-serif}
+.ff-hits{display:inline-flex;gap:1px;background:#000;padding:2px;vertical-align:middle;border:2px inset #888}
+.ff-hits i{font:bold 15px/1 "Courier New",monospace;color:#3f3;background:#111;padding:2px 3px;font-style:normal}
+.ff-ring{margin:16px auto 0;max-width:460px;text-align:center;border:2px outset #ccc;background:#fff;color:#000;padding:6px 8px;font:12px Arial,sans-serif}
+.ff-ring a{color:#0000ee;font-weight:bold}
+.ff-ringlogo{font:bold 15px Arial Black,Arial,sans-serif;letter-spacing:1px}
+.ff-ringlogo b:nth-child(4n+1){color:#e10600}.ff-ringlogo b:nth-child(4n+2){color:#0a0}.ff-ringlogo b:nth-child(4n+3){color:#0028c8}.ff-ringlogo b:nth-child(4n){color:#ff8c00}
+.ff-ringlogo span{font:italic bold 13px Georgia,serif;color:#5b16c9}
+.ff-ringnav{margin-top:3px}
+.ff-gb{margin:16px 0;border:2px dashed currentColor;padding:8px}
+.ff-gb h3{text-align:center}
+.ff-gbform{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.ff-gbform input{flex:1 1 120px;min-width:0}
+.ff-gbe{padding:4px 0;border-bottom:1px dotted currentColor}
+.ff-gbe small{opacity:.7}
+.ff-rbw{background:linear-gradient(90deg,#f00,#f80,#ff0,#0c0,#08f,#80f,#f00);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:ffrbw 2s linear infinite}
+@keyframes ffrbw{to{background-position:200% 0}}
+.ff-mq{background:#000;color:#ff0;font:bold 16px Arial,sans-serif;padding:3px 0;margin:8px 0}
+
+/* area51 */
+.ff-a51{background:radial-gradient(1px 1px at 20px 30px,#fff,transparent) 0 0/97px 89px,radial-gradient(1px 1px at 60px 70px,#ccf,transparent) 0 0/131px 113px,radial-gradient(1.5px 1.5px at 40px 10px,#ffd,transparent) 0 0/173px 151px,#000;color:#3f3;font-family:"Courier New",monospace}
+.ff-a51 a{color:#9f9}
+.ff-a51 .ff-glow{color:#5f5;text-shadow:0 0 8px #0f0;font-family:"Courier New",monospace}
+.ff-a51 .ff-box{border-color:#3f3;background:rgba(0,40,0,.6)}
+.ff-ufo{display:inline-block;width:150px;cursor:pointer;animation:ffhover 3s ease-in-out infinite;position:relative}
+.ff-ufo svg{width:150px;height:75px}
+.ff-ufo.wob svg{animation:ffwob .4s}
+.ff-ufo.beam::after{content:"";position:absolute;left:30%;top:60px;width:40%;height:240px;background:linear-gradient(rgba(200,255,160,.7),transparent);clip-path:polygon(30% 0,70% 0,100% 100%,0 100%);pointer-events:none}
+@keyframes ffhover{50%{transform:translate(10px,-8px) rotate(3deg)}}
+.ff-blurs{display:flex;gap:10px;flex-wrap:wrap}
+.ff-blurs figure{margin:0;flex:1 1 110px;text-align:center;font-size:11px}
+.ff-blurs i{display:block;height:80px;background:radial-gradient(ellipse 30px 12px at 55% 45%,#ccc,transparent),#123;filter:blur(3px);border:2px solid #3f3}
+.ff-blurs i.b2{background:radial-gradient(circle 30px at 40% 60%,#d9a080,transparent),#234}
+
+/* grot + squig dance */
+.ff-gdance{background:#300050;color:#ff0;animation:ffdisco 1.2s steps(4) infinite;font-family:"Comic Sans MS",cursive}
+@keyframes ffdisco{0%{background:#300050}25%{background:#003a50}50%{background:#3a0030}75%{background:#103a00}}
+.ff-dancers,.ff-squigs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:12px 0}
+.ff-dg{width:65px;height:70px;image-rendering:pixelated}
+.ff-sqd{background:#ffe0f0 repeating-linear-gradient(45deg,transparent 0 18px,rgba(255,200,0,.25) 18px 36px);color:#c0005a;font-family:"Comic Sans MS",cursive}
+.ff-sq{width:48px;height:54px;image-rendering:pixelated}
+.ff-sqd a,.ff-gdance a{color:inherit;font-weight:bold}
+
+/* y2k bunker */
+.ff-y2k{background:radial-gradient(circle at 20% 30%,#3a4a2a 0 40px,transparent 41px) 0 0/160px 140px,radial-gradient(circle at 70% 70%,#7a7050 0 34px,transparent 35px) 0 0/190px 170px,#5a6a3a;color:#fff;font-family:Arial,sans-serif}
+.ff-y2k h1{font-family:Impact,"Arial Black",sans-serif;letter-spacing:1px;color:#ffd400;text-shadow:2px 2px #000}
+.ff-y2k .ff-box{background:rgba(0,0,0,.55);border-color:#ffd400}
+.ff-y2k a{color:#ff0}
+.ff-y2kcount{display:inline-block;background:#000;color:#f00;font:bold 22px "Courier New",monospace;padding:4px 12px;border:3px double #f00}
+.ff-y2kcount b{font-size:30px}
+.ff-chk{display:block;margin:2px 0}
+.ff-y2kres{color:#ff0;font-weight:bold;min-height:20px}
+.ff-bug{animation:ffhover 1s ease-in-out infinite}
+
+/* gubbinz homepage */
+.ff-gub{background:#4a3010 repeating-radial-gradient(circle at 30% 40%,#5a3a18 0 6px,#4a3010 6px 14px);color:#b6ff00;font-family:"Comic Sans MS",cursive}
+.ff-gub h1{color:#ff3a1a;transform:rotate(-2deg);font-family:"Comic Sans MS",cursive;text-shadow:3px 3px #000}
+.ff-gub .ff-cols{margin:12px 6px}
+.ff-gub .ff-box{background:rgba(0,0,0,.4);border-color:#7a5a2a;transform:rotate(1deg)}
+.ff-gub .ff-box:nth-child(2){transform:rotate(-1.5deg)}
+.ff-gub a{color:#ffd400}
+.ff-gubme{width:104px;height:112px;image-rendering:pixelated}
+.ff-red{color:#ff2a1a}
+
+/* dave */
+.ff-dave{background:#ff0;color:#00f;font-family:"Comic Sans MS",cursive}
+.ff-dave h3{font-family:"Comic Sans MS",cursive;color:#f00;text-decoration:underline}
+.ff-jack{background:#fff;border:3px solid #e10600;color:#e10600;font:bold 13px Arial,sans-serif;padding:6px 10px;margin:10px 0 10px 30px;transform:rotate(-1deg);box-shadow:3px 3px 0 rgba(0,0,0,.3);max-width:440px}
+.ff-ucsign{display:inline-block;background:repeating-linear-gradient(45deg,#000 0 10px,#ffd400 10px 20px);color:#fff;text-shadow:1px 1px 0 #000,-1px -1px 0 #000;font:bold 16px Arial Black,Arial,sans-serif;padding:6px 12px;animation:blink 1s steps(1) infinite}
+
+/* admin */
+.ff-admin{background:#000;color:#3f3;font-family:"Courier New",monospace}
+.ff-term pre{margin:0 0 10px;font:14px/1.3 "Courier New",monospace;white-space:pre-wrap}
+.ff-login{display:flex;flex-direction:column;gap:6px;max-width:320px}
+.ff-login label{display:flex;gap:8px;align-items:center}
+.ff-login input{flex:1;background:#000;color:#3f3;border:1px solid #3f3;box-shadow:none;font:14px "Courier New",monospace}
+.ff-login .btn{align-self:flex-start;background:#000;color:#3f3;border-color:#3f3;box-shadow:none}
+.ff-out{min-height:160px}
+.ff-denied{color:#f33;font-size:26px}
+.ff-granted{color:#ff0;font-size:26px}
+
+/* webring */
+.ff-wr{background:#fff repeating-linear-gradient(0deg,transparent 0 23px,#e8f0ff 23px 24px);font-family:Arial,sans-serif}
+.ff-ringbig{display:inline-grid;grid-template-columns:1fr 1fr;width:150px;height:150px;border-radius:50%;overflow:hidden;border:6px solid #000;animation:spin 12s linear infinite}
+.ff-ringbig span{display:flex;align-items:center;justify-content:center;font:bold 18px Arial Black,Arial,sans-serif;color:#fff}
+.ff-ringbig span:nth-child(1){background:#e10600}.ff-ringbig span:nth-child(2){background:#0a0}.ff-ringbig span:nth-child(3){background:#0028c8}.ff-ringbig span:nth-child(4){background:#ff8c00}
+.ff-wrlist .dead{color:#888;text-decoration:line-through}
+
+/* cube club */
+.ff-cube{background:#eef url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='30' height='30' fill='%23ffe8e8'/%3E%3Crect x='30' y='30' width='30' height='30' fill='%23e8f0ff'/%3E%3C/svg%3E");font-family:Arial,sans-serif}
+.ff-cubelogo{display:inline-grid;grid-template-columns:repeat(3,28px);gap:3px;background:#000;padding:4px;border-radius:6px;transform:rotate(-8deg)}
+.ff-cubelogo i{height:28px;border-radius:3px}
+.ff-step{background:#fff;border-left:6px solid #0028c8;padding:6px 10px;margin:6px 0}
+.ff-step p{margin:3px 0 0}
+.ff-scr{font:bold 16px "Courier New",monospace;background:#000;color:#ffd400;padding:6px;word-spacing:4px}
+
+/* tetris shrine */
+.ff-tet{background:#100820;color:#ffd;font-family:Georgia,serif}
+.ff-tet .ff-box{background:rgba(20,10,40,.85);border-color:#a08040}
+.ff-tet a{color:#ffd400}
+.ff-z{position:relative;z-index:1}
+.ff-fall{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.ff-fall i{position:absolute;top:-40px;width:20px;height:20px;opacity:.35;box-shadow:20px 0 0 inherit;animation:fffall linear infinite}
+@keyframes fffall{to{transform:translateY(1200px) rotate(180deg)}}
+.ff-candles{display:flex;justify-content:center;gap:30px;margin:6px 0}
+.ff-candles i{width:12px;height:36px;background:#f4f0d8;position:relative;border-radius:2px}
+.ff-candles i::before{content:"";position:absolute;left:1px;top:-16px;width:10px;height:15px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(circle at 50% 70%,#fff 0 2px,#ffd400 3px,#ff7a00 6px);animation:ffflick .2s ease-in-out infinite alternate}
+@keyframes ffflick{to{transform:scale(.85,1.1) rotate(4deg)}}
+.ff-pieces{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+.ff-pieces figure{margin:0;text-align:center}
+.ff-pc{display:grid;gap:1px}
+.ff-pc i{width:14px;height:14px;box-shadow:inset -2px -2px rgba(0,0,0,.35),inset 2px 2px rgba(255,255,255,.5)}
+
+/* under construction */
+.ff-uc{background:#ffd400 repeating-linear-gradient(-45deg,transparent 0 30px,rgba(0,0,0,.85) 30px 60px);font-family:Arial,sans-serif}
+.ff-uc > p,.ff-uc .ff-c{background:#ffd400;padding:4px 8px}
+.ff-ucgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:12px 0}
+.ff-ucs{position:relative;width:110px;background:#fff;border:3px solid #000;padding:8px 4px 6px;text-align:center;font:bold 11px Arial Black,Arial,sans-serif;animation:ffswing 1.4s ease-in-out infinite alternate;transform-origin:50% 0}
+.ff-ucs svg{width:60px;height:60px;display:block;margin:0 auto 4px}
+.ff-ucs .ff-shovel{animation:ffdig .5s ease-in-out infinite alternate;transform-origin:22px 20px}
+@keyframes ffdig{to{transform:rotate(-30deg)}}
+@keyframes ffswing{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+.ff-lamp{position:absolute;top:-10px;right:8px;width:12px;height:12px;border-radius:50%;background:#f80;box-shadow:0 0 10px #f80;animation:blink .6s steps(1) infinite}
+.ff-ucprog{display:inline-flex;width:min(320px,90%);text-align:left}
+
+/* matrix */
+.ff-mx{background:#000;padding:0;min-height:580px}
+.ff-mxc{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ff-mxbox{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);background:rgba(0,0,0,.85);border:1px solid #1f8f1f;padding:16px 22px;min-width:min(340px,90%);text-align:center}
+.ff-mxt{margin:0;color:#5f5;font:bold 18px/1.5 "Courier New",monospace;text-align:left;white-space:pre-wrap;min-height:120px}
+.ff-pills{display:flex;gap:16px;justify-content:center;margin-top:12px}
+.ff-pill{border:0;border-radius:16px;padding:8px 18px;color:#fff;font:bold 14px Arial,sans-serif;cursor:pointer;box-shadow:inset 0 -6px rgba(0,0,0,.3),inset 0 4px rgba(255,255,255,.4)}
+.ff-pill.red{background:#c00}.ff-pill.blue{background:#0040d0}
+
+/* konami */
+.ff-kon{background:#c8c8c8;font-family:Arial,sans-serif}
+.ff-kon.won{animation:ffparty 2s linear infinite}
+.ff-pad{display:flex;gap:30px;justify-content:center;align-items:center;margin:16px auto;background:#e8e8e8;border:3px solid #888;border-radius:12px;padding:14px 22px;width:max-content;max-width:100%}
+.ff-dpad{display:grid;grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,38px)}
+.ff-dpad button{background:#222;color:#888;border:0;font-size:14px;cursor:pointer}
+.ff-dpad button:active,.ff-ab button:active{filter:brightness(1.6)}
+.ff-dpad [data-k=ArrowUp]{grid-area:1/2}.ff-dpad [data-k=ArrowLeft]{grid-area:2/1}.ff-dpad [data-k=ArrowRight]{grid-area:2/3}.ff-dpad [data-k=ArrowDown]{grid-area:3/2}
+.ff-ab{display:flex;gap:12px;transform:rotate(-20deg)}
+.ff-ab button{width:46px;height:46px;border-radius:50%;border:0;background:#c00;color:#fff;font:bold 16px Arial;cursor:pointer}
+.ff-kprog{font-size:20px;letter-spacing:4px;color:#c00}
+
+/* wrong browser */
+.ff-ns{background:#fff;font-family:Arial,sans-serif}
+.ff-ns h1{color:#e10600;font-family:Impact,"Arial Black",sans-serif}
+.ff-bar{display:inline-block;height:14px;background:#0028c8}.ff-bar.b{background:#0a8a8a}.ff-bar.c{background:#888}
+.ff-badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.ff-badges span{width:88px;height:31px;border:1px solid #000;background:linear-gradient(#ffffe0,#c0c0a0);font:9px/1.1 Arial,sans-serif;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.ff-badges b{font-size:10px;color:#000080}
+.ff-dlbox{max-width:360px;margin:8px auto;text-align:left}
+
+/* crash museum */
+.ff-bsodp{background:#0000aa;color:#fff;font-family:"Courier New",monospace}
+.ff-bsodp h1{font-family:"Courier New",monospace}
+.ff-bsodp dt{font-weight:bold;color:#ff0;margin-top:8px}
+.ff-bsodp dd{margin:0 0 0 20px}
+.ff-hd{background:#c0c0c0;color:#0000aa;padding:0 8px;font-weight:bold}
+.ff-crashbox{margin:18px 0;border:2px solid #fff;padding:12px}
+.ff-bsodp .ff-small{color:#ccf}
+
+/* credits crawl */
+.ff-cred{background:#000;color:#ffd400;min-height:600px;padding:0;perspective:320px}
+.ff-stars{position:absolute;inset:0;background:radial-gradient(1px 1px at 20px 30px,#fff,transparent) 0 0/97px 89px,radial-gradient(1px 1px at 60px 70px,#ccf,transparent) 0 0/131px 113px,radial-gradient(1.5px 1.5px at 40px 10px,#ffd,transparent) 0 0/173px 151px}
+.ff-crawlwrap{position:absolute;left:50%;bottom:0;width:min(520px,92%);height:900px;transform:translateX(-50%) rotateX(28deg);transform-origin:50% 100%;overflow:hidden;-webkit-mask:linear-gradient(transparent,#000 35%);mask:linear-gradient(transparent,#000 35%)}
+.ff-crawl{position:absolute;top:62%;left:0;right:0;text-align:justify;font:bold 22px/1.4 Arial,sans-serif;animation:ffcrawl 70s linear forwards}
+@keyframes ffcrawl{to{transform:translateY(-2600px)}}
+.ff-crawl .h{text-align:center;font-size:34px;letter-spacing:2px}
+.ff-crawl .s{text-align:center;font-size:28px;margin-top:80px}
+.ff-crawl p:first-child{color:#4af;text-align:center;font-weight:normal;font-size:18px}
+.ff-crawl .cr{text-align:center;display:flex;flex-direction:column}
+.ff-crawl .cr small{font-size:15px;color:#ffe880;font-weight:normal}
+.ff-credbtns{position:absolute;right:10px;bottom:10px;display:flex;gap:10px;align-items:center;font:12px var(--ui)}
+.ff-credbtns a{color:#ffd400}
+@media (prefers-reduced-motion:reduce){.ff-crawl{animation:none;position:static}.ff-crawlwrap{transform:none;height:auto;position:static;mask:none;-webkit-mask:none;padding:20px}}
+
+/* no secret */
+.ff-nosec{background:#fff;font-family:Arial,sans-serif}
+.ff-white{color:#fff;text-align:center}
+.ff-white::selection,.ff-white b::selection{background:#000080;color:#fff}
+.ff-gap{height:420px}
+.ff-grey{color:#aaa}
+.ff-dot{display:inline-block;color:#ccc;text-decoration:none;font-size:14px;padding:6px}
+
+/* old site */
+.ff-old{background:#c0c0c0;font:16px/1.3 "Times New Roman",serif}
+.ff-old h1{font:bold 32px "Times New Roman",serif}
+.ff-broken{display:inline-block;border:1px solid #808080;padding:20px 30px;font:12px Arial,sans-serif;color:#333;background:#d4d0c8}
+
+@media (max-width:640px){
+  .ffp{padding:12px 10px;font-size:13px}
+  .ffp h1{font-size:22px}
+  .ff-gap{height:300px}
+  .ff-dg{width:48px;height:52px}
+  .ff-sq{width:36px;height:40px}
+  .ff-jack{margin-left:0}
+  .ff-tbl{font-size:12px}
+  .ff-crawl{font-size:17px}
+}
+@media (min-width:900px){.ff-asst{right:330px}}
+@media (max-width:640px){.ff-sticky{width:150px;min-height:96px;font-size:14px;padding:14px 10px 10px}.ff-mate canvas{opacity:.95}}

@@ -1,0 +1,69 @@
+/* ch: Mom's jobs, done for real round the house (js/ch-*.js). The HUD bits match the house's (css/hs.css): small, warm,
+ * quiet. The list up close is the real sheet of paper on the fridge / Jack's wall, with its words laid on it sharp. */
+.ch-hud{position:absolute;inset:0;pointer-events:none}
+html.hs-focus .ch-hud{display:none}
+/* the job you're doing */
+.ch-chip{position:absolute;left:50%;top:12px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;max-width:calc(100vw - 200px);padding:7px 14px 7px 14px;border-radius:18px;background:rgba(20,16,12,.55);box-shadow:inset 0 0 0 1px rgba(255,240,210,.16),0 4px 14px rgba(0,0,0,.35);backdrop-filter:blur(2px);white-space:nowrap}
+.ch-chip[hidden]{display:none}
+.ch-chip b{font:400 15px var(--mag);letter-spacing:.08em;color:#ffe9a8;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;text-shadow:0 2px 6px #000}
+.ch-chip>i{font:700 12px var(--ui);font-style:normal;color:#d8cfb8;min-width:30px;text-align:right}
+.ch-dots{display:flex;gap:3px}
+.ch-dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,240,210,.14);box-shadow:inset 0 0 0 1px rgba(255,240,210,.3);transition:background .25s,transform .25s}
+.ch-dots i.on{background:#7ad84a;box-shadow:0 0 6px rgba(122,216,74,.7);transform:scale(1.08)}
+.ch-chip.pulse{animation:chPulse .5s ease-out}
+.ch-chip.done{background:rgba(30,90,20,.7)}
+.ch-chip.done>i{color:#c8ff9a}
+@keyframes chPulse{0%{transform:translateX(-50%) scale(1)}35%{transform:translateX(-50%) scale(1.07)}100%{transform:translateX(-50%) scale(1)}}
+/* today's list, from anywhere */
+.ch-jobs{position:absolute;right:12px;top:52px;display:flex;align-items:center;gap:6px;height:32px;padding:0 10px 0 8px;border:0;border-radius:16px;background:rgba(20,16,12,.5);color:#f0e8d0;font:700 12px var(--ui);box-shadow:inset 0 0 0 1px rgba(255,240,210,.18);pointer-events:auto;cursor:pointer}
+.ch-jobs:hover{background:rgba(60,50,30,.7)}
+.ch-jobs.all{background:rgba(30,90,20,.65)}
+.ch-jico{width:16px;height:20px;border-radius:1px;background:#fbfaf4 repeating-linear-gradient(180deg,transparent 0 4px,rgba(80,130,210,.5) 4px 5px);box-shadow:1px 1px 0 rgba(0,0,0,.4);position:relative;transform:rotate(-4deg)}
+.ch-jico::before{content:'';position:absolute;left:5px;top:-3px;width:6px;height:6px;border-radius:50%;background:#d02a2a}
+.hs-ui.holding .ch-chip{opacity:.85}
+@media (max-aspect-ratio:3/4){.ch-chip{top:auto;bottom:150px;max-width:calc(100vw - 24px);padding:6px 12px;gap:8px}.ch-chip b{font-size:13px}.ch-dots i{width:7px;height:7px}.ch-jobs{top:48px}html .hs-ui.holding .ch-chip{bottom:auto;top:100px}}
+@media (hover:none),(pointer:coarse){.ch-chip{top:auto;bottom:150px}.hs-ui.holding .ch-chip{bottom:auto;top:96px}}
+/* the list up close: Mom's handwriting on lined paper (laid onto the 3D sheet, 512 x 704) */
+.ch-sheet{background:#fbfaf4 repeating-linear-gradient(180deg,transparent 0 43px,rgba(80,130,210,.35) 43px 45px);background-position:0 84px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.ch-sheet::before{content:'';position:absolute;left:64px;top:0;bottom:0;width:2px;background:rgba(220,60,60,.45)}
+.ch-pad{position:relative;padding:22px 26px 20px 82px;height:100%;box-sizing:border-box;font:21px/1.3 "Comic Sans MS","Comic Sans","Chalkboard SE",cursive;color:#1a3a9a}
+.ch-pad h2{margin:0;font:700 40px/1 "Comic Sans MS","Comic Sans",cursive;color:#c0102a;text-decoration:underline;text-decoration-thickness:3px}
+.ch-date{position:absolute;right:20px;top:66px;font-size:18px}
+.ch-pad ol{list-style:none;margin:30px 0 0;padding:0}
+.ch-pad li{position:relative;min-height:80px;margin-bottom:6px}
+.ch-pad li b{display:block;font-weight:400;font-size:24px}
+.ch-box{position:absolute;left:-58px;top:2px;width:26px;height:26px;border:3px solid #1a3a9a;border-radius:2px}
+.ch-pad li.done .ch-box::after{content:'';position:absolute;left:6px;top:-12px;width:10px;height:24px;border:solid #0a8a2a;border-width:0 6px 6px 0;transform:rotate(40deg)}
+.ch-pad li.done b{text-decoration:line-through;text-decoration-color:rgba(26,58,154,.6);opacity:.7}
+.ch-where{display:block;font:13px/1.3 Tahoma,Verdana,sans-serif;color:#556}
+.ch-pay{display:block;font-size:16px;color:#7a5a00}
+.ch-pay em{font-style:normal;color:#888;font-size:13px}
+.ch-pad li.done .ch-pay{color:#0a8a2a;font-weight:700}
+.ch-ex{margin:8px 0 0;font-size:15px;line-height:1.35}
+.ch-ex span{white-space:nowrap}
+.ch-ex span.done{color:#0a8a2a;text-decoration:line-through}
+.ch-ps{margin:10px 0 0;font-size:15px;color:#c0102a}
+.ch-sig{position:absolute;right:28px;bottom:16px;font-size:26px;color:#c0102a}
+/* the PC: where the old program used to be */
+.ch-pc{padding:14px;background:linear-gradient(90deg,#e8ecee,#fbfcfc 18%,#eef1f2 60%,#dde2e4);font:12px Tahoma,Verdana,sans-serif;color:#000}
+.ch-pc .ch-pcnote{position:relative;margin:4px 6px 12px;padding:16px 16px 12px 44px;background:#fff linear-gradient(transparent 0 27px,#9cc8f0 27px 28px) 0 12px/100% 28px;border:1px solid #c8c8c8;box-shadow:3px 4px 0 rgba(0,0,0,.18);transform:rotate(-.8deg);font:15px/28px "Comic Sans MS","Chalkboard SE","Marker Felt",cursive;color:#1a2a80}
+.ch-pc .ch-pcnote::before{content:'';position:absolute;left:30px;top:0;bottom:0;width:1px;background:#f0a0a0}
+.ch-pc .ch-pcnote::after{content:'';position:absolute;left:50%;top:-8px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ff8a8a,#c00 60%,#600);box-shadow:1px 1px 1px rgba(0,0,0,.4)}
+.ch-pc .ch-pcnote h3{margin:0;font:bold 19px/28px "Comic Sans MS","Chalkboard SE","Marker Felt",cursive;color:#c0002a}
+.ch-pc .ch-pcnote p{margin:0}
+.ch-pc .ch-pcps{color:#a0002a;font-size:13px}
+.ch-pchow{margin:0 6px 10px;line-height:1.45}
+.ch-pcrow{justify-content:center;gap:8px}
+.ch-pcrow .btn{min-width:96px}
+/* a tool in your hands (the hoover, the mower, the broom) */
+.ch-toolbar{position:absolute;left:50%;bottom:max(18px,3vh);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;max-width:calc(100vw - 24px);pointer-events:none}
+.ch-toolbar[hidden]{display:none}
+.ch-tname{font:400 15px var(--mag);letter-spacing:.08em;color:#ffe9a8;text-shadow:0 2px 6px #000;text-transform:uppercase}
+.ch-thint{font:11px var(--ui);color:#cfc6b0;text-shadow:0 1px 4px #000;text-align:center;max-width:520px}
+.ch-thint:empty{display:none}
+.ch-thint b{color:#ffd84a}
+.ch-tbtns{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;pointer-events:auto}
+.ch-tbtns button{min-width:40px;height:36px;padding:0 14px;border:0;border-radius:18px;background:rgba(20,16,12,.55);color:#f0e8d0;font:12px var(--ui);box-shadow:inset 0 0 0 1px rgba(255,240,210,.18);pointer-events:auto;cursor:pointer}
+.ch-tbtns button:first-child{background:rgba(120,90,20,.7)}
+.ch-tbtns button:hover{background:rgba(60,50,30,.7)}
+@media (hover:none),(pointer:coarse){.ch-toolbar{bottom:140px}}

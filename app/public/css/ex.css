@@ -1,0 +1,411 @@
+/* ex.css: the ECONOMY expansion (JackCards Series Two, Card Clash, JackBay Rupee Auctions, Jacktown Town Hall,
+ * The Mega Masters, more Odd Jobz). Pages are 1999 web pages; programs are JackOS 98 windows. */
+
+/* ---------------------------------------------------------------- cards + tiles (everywhere) */
+.ex-card{display:block;width:100%;height:auto}
+.ex-tile{position:relative;display:inline-block;vertical-align:top;line-height:0}
+.ex-tile svg{width:100%;height:auto;display:block}
+.ex-tile-card{width:74px}
+.ex-tile .ex-cnt{position:absolute;right:-4px;top:-6px;background:#e10600;color:#fff;font:bold 10px/14px Verdana,Arial,sans-serif;padding:0 4px;border:1px solid #000;border-radius:7px;line-height:14px}
+.ex-tile .ex-ser{position:absolute;left:2px;bottom:2px;background:#000c;color:#ffd400;font:bold 8px/11px Verdana,sans-serif;padding:0 2px;font-style:normal}
+.ex-new{position:absolute;left:50%;top:-8px;transform:translateX(-50%) rotate(-6deg);background:#ffd400;color:#e10600;font:bold 11px/15px Impact,'Arial Black',sans-serif;padding:0 5px;border:2px solid #e10600;letter-spacing:1px;z-index:2;line-height:15px;animation:exBob .6s ease-in-out infinite alternate}
+@keyframes exBob{to{transform:translateX(-50%) rotate(4deg) scale(1.08)}}
+.ex-tr2 svg,.ex-tr3 svg{filter:drop-shadow(0 0 3px #6ab0ff)}
+.ex-tr4 svg{filter:drop-shadow(0 0 4px #ffc000)}
+.ex-tr5 svg{filter:drop-shadow(0 0 5px #ff40c0);animation:exHue 3s linear infinite}
+@keyframes exHue{0%{filter:drop-shadow(0 0 5px #ff40c0)}33%{filter:drop-shadow(0 0 5px #40c0ff)}66%{filter:drop-shadow(0 0 5px #ffd400)}100%{filter:drop-shadow(0 0 5px #ff40c0)}}
+.ex-sil{width:74px;aspect-ratio:60/84;background:#1a1a2a;border:2px dashed #6a6a8a;border-radius:4px;display:flex!important;align-items:center;justify-content:center;line-height:1}
+.ex-sil svg{width:80%;filter:brightness(0) opacity(.45)}
+.ex-sil b{position:absolute;font:bold 26px Impact,sans-serif;color:#fff;opacity:.6}
+.ex-el{width:14px;height:14px;vertical-align:-2px}
+@media (prefers-reduced-motion:reduce){.ex-tr5 svg,.ex-new{animation:none}}
+
+/* ---------------------------------------------------------------- tearing open a packet (pages and the Binder) */
+.ex-rev{position:relative;padding:10px 6px;text-align:center}
+.ex-rev-pack{position:absolute;left:50%;top:6px;width:110px;margin-left:-55px;z-index:3;pointer-events:none}
+.ex-rev-pack svg{width:100%}
+.ex-tear{animation:exTear .9s ease-in forwards}
+@keyframes exTear{0%{transform:scale(1)}30%{transform:scale(1.1) rotate(-4deg)}60%{transform:scale(1.15) rotate(5deg);opacity:1}100%{transform:translateY(-60px) scale(.6) rotate(25deg);opacity:0}}
+.ex-rev-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;perspective:800px;min-height:150px}
+.ex-rev-c{position:relative;width:104px;aspect-ratio:60/84;padding:0;border:0;background:none;cursor:pointer;animation:exDeal .5s backwards;animation-delay:calc(.9s + var(--d))}
+@keyframes exDeal{from{transform:translateY(-80px) scale(.5);opacity:0}}
+.ex-rev-in{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,1.5,.5,1)}
+.ex-rev-c.on .ex-rev-in{transform:rotateY(180deg)}
+.ex-rev-b,.ex-rev-f{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;line-height:0}
+.ex-rev-f{transform:rotateY(180deg)}
+.ex-rev-b svg,.ex-rev-f svg{width:100%;height:100%}
+.ex-rev-c:not(.on):hover .ex-rev-in{transform:translateY(-4px) rotate(-2deg)}
+.ex-rev-holo::after{content:'';position:absolute;inset:-14px;border-radius:12px;background:radial-gradient(closest-side,#fff8,#ffd40055,transparent);z-index:-1;animation:exGlow 1.2s ease-in-out infinite alternate}
+@keyframes exGlow{from{opacity:.4;transform:scale(.95)}to{opacity:1;transform:scale(1.05)}}
+.ex-rev-bar{margin-top:10px;font:12px Verdana,Arial,sans-serif;min-height:24px}
+.ex-rev-c .ex-new{top:-10px}
+
+/* ---------------------------------------------------------------- signposts on other people's pages */
+.ex-sign{margin:8px 0;padding:6px 10px;background:#fffbd0;border:2px dashed #e10600;font:12px/1.4 Verdana,Arial,sans-serif;color:#000}
+.ex-sign svg{vertical-align:middle}
+.ex-sign a{font-weight:bold}
+.ex-baysign{background:#fff0c0;border-color:#0064d2}
+.gr-sign li.ex-li svg{width:20px;height:20px}
+.ex-page{min-height:100%}
+
+/* ---------------------------------------------------------------- THE CARD KORNER (www.cardkorner.kidz) */
+.ckn{background:radial-gradient(circle at 20% 30%,#fff 0 1px,transparent 1.5px) 0 0/53px 41px,radial-gradient(circle at 70% 80%,#ffe680 0 1px,transparent 1.5px) 0 0/37px 59px,#1a0a3a;color:#fff;font:13px/1.45 Verdana,Arial,sans-serif;padding:0 0 12px}
+.ckn a{color:#ffe680}
+.ckn-top{text-align:center;padding:10px 8px 0}
+.ckn-sign{display:inline-block;padding:8px 22px 6px;background:linear-gradient(#e10600,#900);border:4px solid #ffd400;border-radius:10px;box-shadow:0 0 0 3px #000,0 0 22px #ff4a9a;font:44px/1 Bangers,Impact,'Arial Black',sans-serif;letter-spacing:3px;color:#ffd400;text-shadow:3px 3px 0 #000;transform:rotate(-1.5deg)}
+.ckn-the{display:block;font-size:18px;letter-spacing:6px;color:#fff}
+.ckn-sign small{display:block;font:bold 10px Verdana,sans-serif;letter-spacing:0;color:#fff;text-shadow:none;margin-top:4px}
+.ckn-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:12px 0 6px}
+.ckn-nav a{background:#ffd400;color:#2a0a6a!important;font:bold 12px Verdana,sans-serif;padding:3px 10px;border:2px outset #fff6a0;text-decoration:none}
+.ckn-tick{overflow:hidden;white-space:nowrap;background:#000;color:#5aff5a;font:bold 12px 'Courier New',monospace;border-top:2px solid #5aff5a;border-bottom:2px solid #5aff5a;padding:3px 0}
+.ckn-tick span{display:inline-block;padding-left:100%;animation:exTick 40s linear infinite}
+@keyframes exTick{to{transform:translateX(-100%)}}
+.ckn-h{font:32px Bangers,Impact,sans-serif;letter-spacing:2px;color:#ffd400;text-shadow:2px 2px 0 #e10600;margin:10px 0 0}
+.ckn-wrap{display:flex;gap:12px;padding:10px 12px;align-items:flex-start}
+.ckn-main{flex:1;min-width:0}
+.ckn-side{width:230px;flex:none}
+.ckn-box{background:#fffbe8;color:#000;border:3px solid #000;box-shadow:4px 4px 0 #9a3ae0;padding:8px 10px;margin-bottom:12px}
+.ckn-box a{color:#0033cc}
+.ckn-box h3{margin:0 0 6px;font:24px Bangers,Impact,sans-serif;letter-spacing:1.5px;color:#e10600}
+.ckn-buy{display:flex;gap:12px;align-items:center}
+.ckn-packs{flex:none;width:190px;height:150px;position:relative}
+.ckn-packs svg{position:absolute;width:86px;top:4px;filter:drop-shadow(2px 3px 2px #0008)}
+.ckn-packs svg:nth-child(1){left:0;transform:rotate(-10deg)}.ckn-packs svg:nth-child(2){left:52px;z-index:2;top:0}.ckn-packs svg:nth-child(3){left:104px;transform:rotate(9deg)}
+.ckn-price{font:bold 22px Verdana,sans-serif;margin:4px 0}
+.ckn-price .ec-rp{font-size:22px}
+.ckn-btns{gap:8px;flex-wrap:wrap}
+.ckn-btns .btn,.ckn-open{font-weight:bold;min-height:28px}
+.ckn-open{background:#ffd400;font-size:14px;padding:4px 14px;animation:exPulse 1s ease-in-out infinite alternate}
+@keyframes exPulse{to{box-shadow:0 0 12px #ff4a9a}}
+.ckn-small{font-size:11px;color:#444}
+.ckn-msg{margin-top:6px;padding:4px 6px;background:#e8ffe0;border:1px solid #2a8a2a;font-size:12px}
+.ckn-msg.bad{background:#ffe8e8;border-color:#c00;color:#900}
+.ckn-reveal{background:#2a0a5a;border:3px solid #ffd400;margin-bottom:12px;padding:6px;color:#fff}
+.ckn-reveal .btn{color:#000}
+.ckn-again{text-align:center;margin:6px 0 0}
+.ckn-done{color:#0a7a0a;font-weight:bold}
+.ckn-strip{display:flex;flex-wrap:wrap;gap:6px}
+.ckn-strip .ex-tile-card{width:58px}
+.ckn-mo{display:flex;gap:8px;align-items:flex-start;margin-bottom:12px}
+.ckn-mo-face{flex:none;border:3px solid #ffd400;line-height:0}
+.ckn-bub{position:relative;background:#fff;color:#000;border:2px solid #000;border-radius:10px;padding:6px 8px;font:12px/1.35 'Comic Sans MS','Chalkboard SE','Marker Felt',cursive}
+.ckn-bub::before{content:'';position:absolute;left:-10px;top:14px;border:8px solid transparent;border-right-color:#000;border-left:0}
+.ckn-foot{text-align:center;font-size:10px;color:#c8b8ff;margin-top:8px;padding:0 8px}
+.ckn-tab{width:100%;border-collapse:collapse;font-size:12px}
+.ckn-tab td,.ckn-tab th{border:1px solid #000;padding:4px 6px;text-align:left;vertical-align:top}
+.ckn-tab th{background:#ffd400}
+.ckn-prog{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ckn-bar{display:inline-block;width:200px;max-width:50vw;height:14px;background:#000;border:2px solid #ffd400}
+.ckn-bar i{display:block;height:100%;background:linear-gradient(90deg,#5aff5a,#ffd400)}
+.ckn-elh{font:20px Bangers,Impact,sans-serif;letter-spacing:1px;color:var(--ec);margin:14px 0 6px;text-shadow:1px 1px 0 #000}
+.ckn-elh small{font:11px Verdana,sans-serif;color:#d8c8ff;text-shadow:none}
+.ckn-elh svg{width:20px;height:20px;vertical-align:-3px}
+.ckn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px}
+.ckn-cell{background:none;border:0;padding:4px;color:#fff;font:10px/1.2 Verdana,sans-serif;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;text-align:center}
+.ckn-cell:hover,.ckn-cell:focus-visible{background:#ffffff1a;outline:1px dotted #ffd400}
+.ckn-miss{opacity:.8}
+.ckn-det{display:flex;gap:12px;flex-wrap:wrap}
+.ckn-big{width:180px;flex:none}
+.ckn-det>div:last-child{flex:1;min-width:200px}
+.ckn-ring{line-height:2.2}
+.ckn-el{display:inline-block;padding:0 6px;border:1px solid #000;color:#000;font-weight:bold;border-radius:3px;line-height:18px}
+.ckn-el svg{width:12px;height:12px;vertical-align:-1px}
+.ckn-back{background:#2a2218;color:#e8d8b8;padding:20px}
+.ckn-backin{max-width:560px;margin:0 auto;background:#3a3020;border:2px dashed #8a7a5a;padding:14px 18px;font:13px/1.5 'Courier New',monospace}
+.ckn-backin h2{color:#ff6a3a;font:bold 18px 'Courier New',monospace}
+.ckn-backin a{color:#ffd400}
+@media (max-width:700px){.ckn-wrap{flex-direction:column}.ckn-side{width:auto}.ckn-buy{flex-direction:column}.ckn-sign{font-size:32px;padding:6px 12px}.ckn-packs{width:190px}}
+
+/* ---------------------------------------------------------------- JackCards Binder 99 (a program) */
+.exb{display:flex;flex-direction:column;height:100%;min-height:0;font:12px var(--ui);background:#c0c0c0}
+.exb-tabs{display:flex;gap:2px;padding:4px 4px 0;flex:none}
+.exb-tabs button{font:12px var(--ui);padding:3px 10px;background:#c0c0c0;border:1px solid;border-color:#fff #404040 #c0c0c0 #fff;border-radius:3px 3px 0 0;cursor:pointer;position:relative;top:1px}
+.exb-tabs button.on{background:#c0c0c0;font-weight:bold;padding-bottom:5px;top:0;z-index:1}
+.exb-badge{display:inline-block;background:#e10600;color:#fff;border-radius:7px;padding:0 5px;font-size:10px;line-height:14px}
+.exb-body{flex:1;min-height:0;overflow:auto;border:1px solid;border-color:#fff #404040 #404040 #fff;margin:0 4px 4px;padding:8px;background:#c0c0c0}
+.exb-spread{display:flex;gap:0;justify-content:center;background:#1a0a5a;padding:10px;border:2px inset #fff;border-radius:4px}
+.exb-page{flex:1;max-width:330px;background:linear-gradient(90deg,#e8e8f0,#fff 8%,#f4f4fa);padding:6px 8px 8px;box-shadow:inset 0 0 6px #0004}
+.exb-page+.exb-page{border-left:3px double #8a8aa0;background:linear-gradient(270deg,#e8e8f0,#fff 8%,#f4f4fa)}
+.exb-ph{font:bold 10px Verdana,sans-serif;color:#5a5a8a;text-align:center;margin-bottom:4px;letter-spacing:1px}
+.exb-pockets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.exb-pk{position:relative;aspect-ratio:60/84;border:1px solid #9a9ab8;background:linear-gradient(160deg,#ffffff88,#d8d8e888);border-radius:3px;padding:2px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+button.exb-pk{font:inherit}
+.exb-pk .ex-tile{width:100%}
+.exb-pk.sel{outline:3px solid #ffd400;outline-offset:1px}
+.exb-pk::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#ffffff55 0 20%,transparent 40%);pointer-events:none;border-radius:3px}
+.exb-empty{cursor:default;flex-direction:column;color:#8a8aa8;font:bold 13px Verdana,sans-serif}
+.exb-empty small{font:9px Verdana,sans-serif}
+.exb-blank{visibility:hidden}
+.exb-nav{display:flex;justify-content:center;align-items:center;gap:10px;margin:8px 0}
+.exb-det{display:flex;gap:10px;margin-top:8px;padding:8px;background:#fff;border:2px inset #fff;flex-wrap:wrap}
+.exb-big{width:160px;flex:none}
+.exb-big svg{width:100%;height:auto}
+.exb-det>div:last-child{flex:1;min-width:180px}
+.exb-det h3{margin:0 0 4px;font:bold 15px Verdana,sans-serif}
+.exb-det p{margin:4px 0}
+.exb-guest{padding:10px;background:#fff;border:2px inset #fff}
+.exb-deck{display:flex;gap:8px;min-height:100%}
+.exb-dl{width:300px;flex:none;background:#fff;border:2px inset #fff;padding:6px}
+.exb-dr{flex:1;min-width:0;background:#fff;border:2px inset #fff;padding:6px;display:flex;flex-direction:column}
+.exb-dh{margin-bottom:4px}
+.exb-unsaved{color:#c00}
+.exb-dlist{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.exb-dc{padding:0;border:0;background:none;cursor:pointer;aspect-ratio:60/84;display:block}
+.exb-dc .ex-tile{width:100%}
+.exb-dslot{border:1px dashed #aaa;border-radius:3px;background:#f0f0f4}
+.exb-curve{display:flex;gap:3px;height:46px;align-items:flex-end;margin:8px 0 2px;padding:2px;background:#f4f4f4;border:1px solid #ddd}
+.exb-curve span{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.exb-curve i{display:block;width:70%;background:#2f80ee;min-height:1px}
+.exb-curve b{font:9px Verdana,sans-serif}
+.exb-rule{min-height:30px;font-size:11px;color:#004}
+.exb-filt{display:flex;flex-wrap:wrap;gap:2px;margin-bottom:6px}
+.exb-filt .btn{font-size:11px;padding:1px 6px;min-width:0}
+.exb-filt .btn.on{border-style:inset;font-weight:bold;background:#d8d8d8}
+.exb-pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px;overflow:auto;align-content:start}
+.exb-pc{padding:0;border:0;background:none;cursor:pointer}
+.exb-pc .ex-tile{width:100%}
+.exb-pc:hover .ex-tile,.exb-dc:hover .ex-tile{transform:translateY(-2px)}
+.exb-none{color:#666}
+.exb-packs{background:#2a0a5a;color:#fff;border:2px inset #fff;padding:10px;min-height:100%}
+.exb-ptop{display:flex;gap:12px;align-items:center}
+.exb-ptop>svg{width:90px;flex:none}
+.exb-ptop h3{margin:0 0 4px;font:22px Bangers,Impact,sans-serif;letter-spacing:1px;color:#ffd400}
+.exb-packs .btn{color:#000}
+.exb-rip{background:#ffd400}
+.exb-rev .ex-rev-c{width:96px}
+@media (max-width:600px){.exb-deck{flex-direction:column}.exb-dl{width:auto}}
+
+/* ---------------------------------------------------------------- CARD CLASH (a program) */
+.exc{position:relative;height:100%;min-height:0;display:flex;flex-direction:column;background:#0a3a1a radial-gradient(ellipse at 50% 40%,#1a6a3a,#0a2a14 75%);color:#fff;font:12px var(--ui);overflow:hidden}
+.exc-game{display:flex;flex-direction:column;height:100%;min-height:0}
+.exc-pl{display:flex;align-items:center;gap:8px;padding:4px 8px;background:#00000055;flex:none;min-height:30px;flex-wrap:wrap}
+.exc-face{width:30px;height:30px;flex:none;border:2px solid #ffd400;line-height:0;background:#000}
+.exc-face svg{width:100%;height:100%}
+.exc-nm{font:bold 13px Verdana,sans-serif}
+.exc-lockd{margin-left:6px;background:#ffd400;color:#000;font:bold 9px Verdana,sans-serif;padding:1px 4px;animation:exPulse .8s infinite alternate}
+.exc-hpbar{display:inline-block;width:150px;max-width:30vw;height:12px;background:#300;border:2px solid #000;position:relative}
+.exc-hpbar i{display:block;height:100%;background:linear-gradient(#7aff5a,#2ab02a);transition:width .3s}
+.exc-hpn{font:bold 16px Impact,'Arial Black',sans-serif;min-width:22px}
+.exc-cnt{margin-left:auto;font-size:11px;opacity:.85}
+.exc-ini{background:#2f80ee;font:bold 10px Verdana,sans-serif;padding:1px 4px;border:1px solid #fff}
+.exc-board{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:4px 8px}
+.exc-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;flex:1;min-height:0;max-height:200px}
+.exc-lane{position:relative;border:2px dashed #ffffff44;border-radius:6px;background:#00000033;padding:3px;display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:0;color:#fff;font:inherit}
+.exc-op .exc-lane{background:#30000033}
+.exc-lane.tgt{border:2px solid #ffd400;background:#ffd40026;animation:exPulse .7s infinite alternate}
+.exc-empty{opacity:.4;font-size:11px}
+.exc-bc{position:relative;height:100%;aspect-ratio:60/84;max-width:100%;transition:transform .2s}
+.exc-bc .exc-art{width:100%;height:100%;line-height:0}
+.exc-bc .exc-art svg{width:100%;height:100%}
+.exc-bc.ghost{opacity:.55;filter:saturate(.6)}
+.exc-x{position:absolute;right:-4px;top:-4px;background:#c00;color:#fff;border:1px solid #fff;border-radius:50%;width:16px;height:16px;line-height:14px;font-size:11px}
+.exc-atk,.exc-hp{position:absolute;top:91%;width:21%;aspect-ratio:1;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;font:bold clamp(10px,2.2vh,17px)/1 Impact,'Arial Black',sans-serif;text-align:center;border:2px solid #000;border-radius:50%;color:#000;background:#d8dce4;box-sizing:border-box}
+.exc-atk{left:16%}
+.exc-hp{left:84%;background:#e10600;color:#fff;border-radius:30% 30% 50% 50%}
+.exc-hp.hurt{background:#ff8a00;color:#000}
+.exc-atk.up{background:#5aff5a}.exc-atk.down{background:#ff9a9a}
+.exc-shield{position:absolute;inset:-4px;border:3px solid #8ad8ff;border-radius:8px;box-shadow:0 0 10px #8ad8ff;pointer-events:none}
+.exc-gtag{position:absolute;top:2px;left:2px;right:2px;background:#3a3a5a;color:#ffd400;font:bold 9px Verdana,sans-serif;padding:1px 3px;border:1px solid #ffd400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exc-mid{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;font:bold 12px Verdana,sans-serif;padding:2px 0;flex:none}
+.exc-en{display:inline-flex;align-items:center;gap:2px}
+.exc-en i{display:inline-block;width:10px;height:16px;border:1px solid #000;background:#444;border-radius:2px}
+.exc-en i.on{background:linear-gradient(#fff36a,#ffb000);box-shadow:0 0 4px #ffd400}
+.exc-en b{margin-left:4px}
+.exc-timer{background:#000;color:#5aff5a;font:bold 13px 'Courier New',monospace;padding:0 6px;border:1px solid #5aff5a}
+.exc-timer.low{color:#ff4040;border-color:#ff4040}
+.exc-gnow{background:#3a3a5a;color:#ffd400;padding:1px 6px;font-size:10px;border:1px solid #ffd400}
+.exc-hand{display:flex;gap:4px;justify-content:center;padding:6px 6px 2px;flex:none;overflow-x:auto;min-height:96px;background:#00000040}
+.exc-hc{flex:none;width:78px;padding:0;border:0;background:none;cursor:pointer;line-height:0;transition:transform .15s}
+.exc-hc svg{width:100%;height:auto}
+.exc-hc:hover{transform:translateY(-6px)}
+.exc-hc.sel{transform:translateY(-10px);filter:drop-shadow(0 0 6px #ffd400)}
+.exc-hc.used{opacity:.35;transform:none}
+.exc-hc.dear{filter:grayscale(.8) brightness(.7)}
+.exc-act{display:flex;align-items:center;gap:6px;padding:4px 8px 6px;flex:none;flex-wrap:wrap;justify-content:flex-end;min-height:32px}
+.exc-act .btn{color:#000}
+.exc-hint{flex:1;min-width:160px;font-size:11px;color:#e8ffe0}
+.exc-go{background:#ffd400;min-width:110px;min-height:28px;font-size:13px}
+.exc-none{opacity:.6;align-self:center}
+.exc-fx{position:absolute;inset:0;pointer-events:none;z-index:5}
+.exc-pop{position:absolute;transform:translate(-50%,-50%);font:bold 20px Impact,'Arial Black',sans-serif;color:#fff;-webkit-text-stroke:1px #000;text-shadow:2px 2px 0 #000;white-space:nowrap;animation:exPop 1.1s ease-out forwards}
+.exc-pop.hurt{color:#ff5a5a}.exc-pop.heal{color:#7aff5a}.exc-pop.meh{color:#d8d8ff;font-size:15px}.exc-pop.big{font-size:28px}
+@keyframes exPop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}15%{opacity:1;transform:translate(-50%,-60%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-160%) scale(1)}}
+.exc-ban{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:34px Bangers,Impact,sans-serif;letter-spacing:2px;color:#ffd400;-webkit-text-stroke:1.5px #000;text-shadow:3px 3px 0 #e10600;animation:exBan .9s ease-out forwards;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:4px}
+.exc-ban svg{width:90px;height:auto;filter:drop-shadow(0 0 10px #fff)}
+.exc-ban b{font:bold 14px Verdana,sans-serif;-webkit-text-stroke:0;text-shadow:1px 1px 0 #000;color:#fff;background:#0008;padding:1px 6px}
+.exc-ban.theirs svg{filter:drop-shadow(0 0 10px #ff4040)}
+@keyframes exBan{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+.exc-bc.arrive{animation:exArrive .35s ease-out}
+@keyframes exArrive{from{transform:translateY(30px) scale(.5);opacity:0}}
+.exc-bc.hit{animation:exShake .35s}
+@keyframes exShake{20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.exc-bc.lunge-up{transform:translateY(-14px) scale(1.05)}
+.exc-bc.lunge-down{transform:translateY(14px) scale(1.05)}
+.exc-bc.dead{transition:all .4s;opacity:0;transform:rotate(12deg) scale(.6);filter:grayscale(1)}
+.exc-bc.buff{filter:drop-shadow(0 0 6px #7aff5a)}
+.exc-over{position:absolute;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:9;padding:10px}
+.exc-ob{background:#c0c0c0;color:#000;border:2px outset #fff;box-shadow:4px 4px 0 #0008;padding:12px 16px;text-align:center;max-width:360px;width:100%}
+.exc-ob h2{margin:0 0 4px;font:38px Bangers,Impact,sans-serif;letter-spacing:2px}
+.exc-ob.win h2{color:#0a8a2a}.exc-ob.lose h2{color:#c00}.exc-ob.draw h2{color:#00a}
+.exc-prize{font:bold 20px Verdana,sans-serif;color:#0a6a1a}
+.exc-small{font-size:11px;color:#444}
+.exc-start{overflow:auto;height:100%;padding:10px 12px}
+.exc-logo{text-align:center;margin:4px 0 10px}
+.exc-logo span{display:inline-block;font:52px/1 Bangers,Impact,sans-serif;letter-spacing:3px;color:#ffd400;-webkit-text-stroke:2px #000;text-shadow:4px 4px 0 #e10600;transform:rotate(-4deg)}
+.exc-logo span+span{color:#5aff5a;transform:rotate(3deg);margin-left:8px}
+.exc-logo small{display:block;font:bold 11px Verdana,sans-serif;color:#d8ffd8;margin-top:6px}
+.exc-opps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.exc-opp{display:flex;gap:8px;align-items:center;background:#00000055;border:2px solid #ffffff33;padding:6px;border-radius:4px}
+.exc-opp .exc-face{width:48px;height:48px}
+.exc-opp>div{flex:1;min-width:0}
+.exc-opp small{display:block;font-size:10px;opacity:.9;margin-top:2px}
+.exc-opp .btn{color:#000;font-weight:bold;flex:none}
+.exc-lv{font:bold 9px Verdana,sans-serif;background:#ffd400;color:#000;padding:0 3px}
+.exc-mydeck{margin-top:10px;padding:6px 8px;background:#00000055;border:1px solid #ffffff44}
+.exc-mydeck .btn{color:#000}
+.exc-rec{font-size:11px;opacity:.85}
+.exc-msg{background:#ffe8e8;color:#900;padding:3px 6px;border:1px solid #c00}
+.exc-wait{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;text-align:center;padding:10px}
+.exc-wait .btn{color:#000}
+.exc-spin{width:70px;animation:exSpin 1.2s linear infinite}
+.exc-spin svg{width:100%}
+@keyframes exSpin{to{transform:rotateY(360deg)}}
+@media (max-width:600px){.exc-opps{grid-template-columns:minmax(0,1fr)}.exc-hc{width:52px}.exc-hand{min-height:78px}.exc-logo span{font-size:38px}.exc-row{gap:4px}.exc-pl{padding:2px 6px}.exc-hpbar{width:90px}}
+
+/* ---------------------------------------------------------------- JACKBAY RUPEE AUCTIONS (www.jackbay.webcom/rupees.html) */
+.exy{background:#fff;color:#000;font:13px/1.4 Arial,Helvetica,sans-serif}
+.exy a{color:#0033cc}
+.exy-top{display:flex;align-items:flex-end;gap:8px 18px;padding:10px 12px 6px;flex-wrap:wrap;border-bottom:2px solid #ffcc00}
+.exy-logo{font:bold 40px/1 'Arial Black',Arial,sans-serif;letter-spacing:-3px;text-decoration:none!important}
+.exy-logo span:nth-child(1),.exy-logo span:nth-child(5){color:#e53238}.exy-logo span:nth-child(2),.exy-logo span:nth-child(6){color:#0064d2}.exy-logo span:nth-child(3),.exy-logo span:nth-child(7){color:#f5af02}.exy-logo span:nth-child(4){color:#86b817}
+.exy-logo small{display:block;font:bold 10px Arial,sans-serif;letter-spacing:0;color:#086a08}
+.exy-nav{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto}
+.exy-nav a{background:#ffcc00;color:#000!important;font:bold 12px Arial,sans-serif;padding:4px 10px;border-radius:6px 6px 0 0;text-decoration:none}
+.exy-nav a.on{background:#2a8a2a;color:#fff!important}
+.exy-in{padding:10px 12px}
+.exy-in h2{margin:4px 0 8px;font:bold 20px Arial,sans-serif}
+.exy-hello{background:#e8ffe0;border:1px solid #2a8a2a;padding:6px 8px;margin-bottom:8px;font-size:12px}
+.exy-bar{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;background:#fff8d0;border:1px solid #e0d090;padding:6px 8px;margin-bottom:8px;font-size:12px}
+.exy-bar input{width:120px}
+.exy-sellbtn{margin-left:auto;background:#e53238;color:#fff!important;font-weight:bold;padding:3px 10px;border-radius:4px;text-decoration:none}
+.exy-n{font-size:11px;color:#555;margin:0 0 4px}
+.exy-tab{width:100%;border-collapse:collapse;font-size:12px}
+.exy-tab th{background:#ccffcc;text-align:left;padding:4px;font-size:11px}
+.exy-tab td{padding:5px 4px;border-bottom:1px solid #e0e0f0;vertical-align:middle}
+.exy-tab tr:nth-child(even) td{background:#f6fff6}
+.exy-tab tr.mine td{background:#fffbe0}
+.exy-tab tr.lead td{background:#e8ffe0}
+.exy-tab .pr{font-weight:bold;white-space:nowrap}
+.exy-pic{display:inline-block;width:52px;line-height:0}
+.exy-pic .ex-tile{width:100%}
+.exy-pic .ex-tile:not(.ex-tile-card){background:#fff;border:1px solid #aaa;padding:3px;box-sizing:border-box}
+.exy-pic.big{width:170px}
+.exy-tl.soon{color:#e10600;font-weight:bold}
+.exy-hot{display:inline-block;background:#e10600;color:#fff;font:bold 9px Arial;padding:0 3px}
+.exy-win{color:#0a8a0a}.exy-out{color:#c00}
+.exy-empty{border:2px dashed #ccc;padding:14px;text-align:center}
+.exy-item{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.exy-det{flex:1;min-width:240px}
+.exy-det h2{margin:0 0 2px}
+.exy-sub{font-size:11px;color:#555;margin-bottom:6px}
+.exy-dt{border-collapse:collapse;font-size:12px;width:100%}
+.exy-dt td{padding:3px 6px;border-bottom:1px solid #eee;vertical-align:top}
+.exy-dt td:first-child{font-weight:bold;white-space:nowrap;background:#f0fff0;width:110px}
+.exy-big{font-size:16px;font-weight:bold}
+.exy-big .ec-rp{font-size:16px}
+.exy-bid{border:2px solid #2a8a2a;background:#f0fff0;padding:8px;margin:10px 0;font-size:12px}
+.exy-bid input{font:14px Arial,sans-serif;width:100px}
+.exy-msg{margin:6px 0 2px;font-weight:bold;color:#004a00;min-height:1em}
+.exy-state{padding:5px 8px;margin:6px 0;border:1px solid}
+.exy-state.win{background:#e8ffe0;border-color:#2a8a2a}.exy-state.out{background:#ffecec;border-color:#c00}.exy-state.mine{background:#fffbe0;border-color:#c8a000}
+.exy-desc{border:1px solid #ccc;padding:6px 10px;margin:10px 0;background:#fffff0}
+.exy-desc h3{margin:0 0 4px;font:bold 14px Arial,sans-serif;color:#2a6a2a}
+.exy-hist{font-size:12px;border-collapse:collapse;width:100%;margin-top:4px}
+.exy-hist td,.exy-hist th{padding:2px 6px;border-bottom:1px solid #ddd;text-align:left}
+.exy-hist tr.me td{background:#fff8c0}
+.exy-ended{background:#fffbe0;border:3px double #e53238;padding:10px;margin:10px 0}
+.exy-steps{display:flex;flex-wrap:wrap;gap:4px;padding:0;list-style:none;counter-reset:s;margin:0 0 10px}
+.exy-steps li{counter-increment:s;background:#eee;padding:3px 8px;font-size:11px;color:#666}
+.exy-steps li::before{content:counter(s) '. ';font-weight:bold}
+.exy-steps li.on{background:#2a8a2a;color:#fff}
+.exy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.exy-cell{display:flex;flex-direction:column;align-items:center;gap:3px;background:#f8f8f8;border:1px solid #ddd;padding:4px;cursor:pointer;font:10px/1.2 Arial,sans-serif;text-align:center}
+.exy-cell .ex-tile{width:56px}
+.exy-cell .ex-tile:not(.ex-tile-card){width:48px}
+.exy-cell:hover{background:#fffbe0;border-color:#c8a000}
+.exy-sf input,.exy-sf select{font:13px Arial,sans-serif}
+.exy-sf input[type=number]{width:100px}
+.exy-fee .ec-rp{font-size:13px}
+.exy-small{font-size:11px;color:#555}
+.exy-help li{margin:3px 0}
+.exy-foot{text-align:center;font-size:10px;color:#666;border-top:1px solid #ddd;margin-top:10px;padding:8px}
+@media (max-width:600px){.exy-tab .hide{display:none}.exy-logo{font-size:32px}.exy-nav{margin-left:0}.exy-pic.big{width:130px}}
+
+/* ---------------------------------------------------------------- JACKTOWN TOWN HALL (www.jacktownhall.jnet) */
+.exh{background:#e8ecf4;color:#000;font:13px/1.45 'Times New Roman',Georgia,serif;padding-bottom:10px}
+.exh a{color:#1a3a8a}
+.exh-top{display:flex;align-items:center;gap:12px;background:#1a3a8a;color:#fff;padding:8px 14px;border-bottom:4px solid #ffd400}
+.exh-t{font:bold 26px Georgia,'Times New Roman',serif;letter-spacing:1px}
+.exh-s{font:italic 12px Georgia,serif;color:#ffe680}
+.exh-nav{display:flex;flex-wrap:wrap;gap:0;background:#c8d0e4;border-bottom:1px solid #8a94b0}
+.exh-nav a{padding:4px 12px;font:bold 12px Verdana,Arial,sans-serif;color:#1a3a8a;text-decoration:none;border-right:1px solid #8a94b0}
+.exh-nav a:hover{background:#fff}
+.exh-h{font:bold 20px Georgia,serif;color:#1a3a8a;margin:10px 14px 0}
+.exh-in{padding:10px 14px}
+.exh-cols{display:flex;gap:12px;align-items:flex-start}
+.exh-main{flex:1;min-width:0}.exh-side{width:240px;flex:none}
+.exh-box{background:#fff;border:1px solid #8a94b0;padding:8px 12px;margin-bottom:10px;box-shadow:2px 2px 0 #c8d0e4}
+.exh-box h3{margin:0 0 6px;font:bold 16px Georgia,serif;color:#1a3a8a;border-bottom:2px solid #ffd400;padding-bottom:3px}
+.exh-biz{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.exh-plot{display:grid;grid-template-columns:repeat(4,22px);gap:2px;padding:4px;background:#3a8a2a;border:2px solid #000;flex:none}
+.exh-cell{width:22px;height:22px;border:1px solid #0006;display:flex;align-items:center;justify-content:center;font:bold 12px Arial;color:#000}
+.exh-tab{border-collapse:collapse;font:12px Verdana,Arial,sans-serif;flex:1;min-width:240px}
+.exh-tab td,.exh-tab th{border:1px solid #c8d0e4;padding:3px 6px;text-align:left;vertical-align:top}
+.exh-tab td:first-child{font-weight:bold;background:#f0f2f8;white-space:nowrap}
+.exh-tab th{background:#1a3a8a;color:#fff}
+.exh-lv{width:100%;margin-top:6px}
+.exh-lv tr.on td{background:#fff8c0;font-weight:bold}
+.exh-big{font-size:16px;font-weight:bold}
+.exh-big .ec-rp{font-size:16px}
+.exh-go{background:#ffd400;min-height:30px;font-size:14px;padding:3px 16px}
+.exh-done{color:#0a6a1a;font-weight:bold}
+.exh-small{font:11px Verdana,Arial,sans-serif;color:#444}
+.exh-said{background:#fffbe0;border:2px solid #c8a000;padding:6px 10px;margin-bottom:10px;font:12px Verdana,Arial,sans-serif}
+.exh-ol{margin:0;padding-left:22px;font:12px Verdana,Arial,sans-serif}
+.exh-ol li{margin:3px 0}
+.exh-foot{text-align:center;font:10px Verdana,sans-serif;color:#555;margin-top:6px}
+@media (max-width:700px){.exh-cols{flex-direction:column}.exh-side{width:auto}.exh-t{font-size:19px}}
+
+/* ---------------------------------------------------------------- THE MEGA MASTERS (www.megamasters.cyb) */
+.exm{background:#0a0a14 repeating-linear-gradient(45deg,#14142a 0 10px,#0a0a14 10px 20px);color:#fff;font:13px/1.45 Verdana,Arial,sans-serif;padding-bottom:10px}
+.exm a{color:#ffd400}
+.exm-top{text-align:center;padding:10px 8px 0}
+.exm-logo{display:inline-flex;align-items:center;gap:10px}
+.exm-logo>div span{display:block;font:44px/0.95 Bangers,Impact,sans-serif;letter-spacing:4px;color:#ffd400;-webkit-text-stroke:1.5px #000;text-shadow:3px 3px 0 #b00020}
+.exm-logo small{display:block;font:bold 10px Verdana,sans-serif;color:#c8c8ff;margin-top:4px}
+.exm-nav{display:flex;justify-content:center;gap:6px;margin:8px 0}
+.exm-nav a{background:#b00020;color:#fff!important;font:bold 12px Verdana,sans-serif;padding:3px 12px;border:2px solid #ffd400;text-decoration:none}
+.exm-h{font:30px Bangers,Impact,sans-serif;letter-spacing:2px;color:#ffd400;margin:6px 0}
+.exm-in{padding:8px 12px}
+.exm-week{background:#ffd400;color:#000;padding:6px 10px;border:3px solid #000;margin-bottom:10px;font-size:12px}
+.exm-week .ec-rp{font-size:12px}
+.exm-cd{font:bold 13px 'Courier New',monospace;background:#000;color:#5aff5a;padding:0 4px}
+.exm-evs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.exm-ev{background:#1a1a3a;border:3px solid #ffd400;padding:8px 10px}
+.exm-ev h3{margin:0 0 6px;font:22px Bangers,Impact,sans-serif;letter-spacing:1.5px;color:#ffd400}
+.exm-ev h3 span{display:block;font:bold 13px Verdana,sans-serif;letter-spacing:0;color:#fff}
+.exm-clash{border-color:#5aff5a}.exm-clash h3{color:#5aff5a}
+.exm-job{border-color:#5ab0ff}.exm-job h3{color:#5ab0ff}
+.exm-ev .btn{color:#000;font-weight:bold}
+.exm-me{background:#000;padding:3px 6px;border:1px solid #ffd400}
+.exm-tab{width:100%;border-collapse:collapse;font-size:12px}
+.exm-tab th{text-align:left;border-bottom:2px solid #ffd400;padding:2px 4px}
+.exm-tab td{padding:2px 4px;border-bottom:1px solid #333}
+.exm-tab tr.p1 td{color:#ffd400;font-weight:bold}.exm-tab tr.p2 td{color:#d8dce4;font-weight:bold}.exm-tab tr.p3 td{color:#e8a060;font-weight:bold}
+.exm-small{font-size:11px;color:#aaa}
+.exm-last{background:#14142a;border:1px solid #444;padding:6px 10px;margin-top:10px}
+.exm-last h3{margin:0 0 4px;font:bold 14px Verdana,sans-serif;color:#ffd400}
+.exm-rules{background:#14142a;border:2px solid #ffd400;padding:8px 14px}
+.exm-rules li{margin:4px 0}
+.exm-foot{text-align:center;font-size:10px;color:#888;margin-top:8px}
+@media (max-width:760px){.exm-evs{grid-template-columns:minmax(0,1fr)}.exm-logo>div span{font-size:32px}.exm-logo svg{width:40px;height:40px}}

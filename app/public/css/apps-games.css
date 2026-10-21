@@ -1,0 +1,70 @@
+/* apps-games: shared game-window kit (games folder, loading screen, dialogs, high scores, about, help) */
+.jgwin > .appbody{padding:0;overflow:hidden;background:#000;min-height:80px}
+.jghost{position:absolute;inset:0;overflow:hidden;outline:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.jgcv{position:absolute;left:0;top:0;display:block;touch-action:none;outline:none;-webkit-user-select:none;user-select:none}
+.jgload{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--face);color:#000;font:12px var(--ui);text-align:center;padding:12px}
+.jgloadico svg{width:48px;height:48px}
+.jgloadbar{width:180px}
+.jgwin .appstatus{display:flex}
+.jgwin .appstatus > span{flex:1}
+
+/* dialogs */
+.jgdlg .jgdbtns{justify-content:flex-end;margin-top:10px;gap:6px}
+.jgdlg .jgdbtns .btn{min-width:72px}
+.jgdlg label{display:flex;align-items:center;gap:5px;min-height:20px;cursor:pointer}
+.jgdlg input[type=radio],.jgdlg input[type=checkbox]{margin:0;width:14px;height:14px;flex:none}
+.jgdlg .jgname{width:100%;box-sizing:border-box;font:12px var(--ui);padding:3px}
+.jgdlg .group{display:flex;flex-direction:column;gap:4px}
+.jgopts{display:flex;gap:10px;flex-wrap:wrap}
+.jgopts .group{flex:1;min-width:130px}
+
+/* about box */
+.jgabout{display:flex;gap:12px;align-items:flex-start}
+.jgaico svg{width:48px;height:48px}
+.jgatxt{display:flex;flex-direction:column;gap:2px;padding-top:2px}
+.jganame{font-size:14px}
+.jgablurb{margin:10px 0 6px;font-size:11px;line-height:1.4}
+.jgcredits{height:96px;overflow:hidden;position:relative;margin-top:8px;background:#fff}
+.jgcrin{padding:4px 8px}
+.jgcrin.roll{animation:jgroll 16s linear infinite}
+.jgcredits:hover .jgcrin.roll{animation-play-state:paused}
+@keyframes jgroll{0%,8%{transform:translateY(0)}92%,100%{transform:translateY(calc(-100% + 88px))}}
+.jgcr{display:flex;justify-content:space-between;gap:10px;padding:1px 0;font-size:11px}
+.jgcr span{color:#555}
+.jgcr b{text-align:right}
+.jgalic{margin-top:10px;font-size:11px;line-height:1.4}
+.jghr{border:0;border-top:1px solid #808080;border-bottom:1px solid #fff;margin:8px 0}
+.jgamem{font-size:11px;line-height:1.4}
+
+/* high score tables */
+.jgtabs{padding:0}
+.jgtabs span{cursor:pointer}
+.jgtabpage{border:1px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080;padding:8px;background:var(--face)}
+.jghs{width:100%;border-collapse:collapse;font:12px var(--ui);background:#fff;border:2px solid;border-color:#808080 #fff #fff #808080}
+.jghs td{padding:2px 6px;white-space:nowrap}
+.jghs td.r{text-align:right;font-family:"Courier New",monospace;font-weight:bold}
+.jghs td.d{color:#666;font-size:11px;text-align:right}
+.jghs tr.hl td{background:#000080;color:#fff}
+.jghs tr.hl td.d{color:#ccf}
+.jghs td.jgempty{white-space:normal;color:#555;padding:12px 8px;text-align:center}
+
+/* help */
+.jghelp{display:flex;flex-direction:column;height:100%;gap:6px}
+.jghtabs{display:flex;flex-wrap:wrap;gap:3px}
+.jghtabs .btn{padding:2px 8px;min-height:22px}
+.jghbody{flex:1;overflow:auto;padding:8px 10px;background:#ffffe8;font:12px/1.45 var(--ui);-webkit-user-select:text;user-select:text}
+.jghbody h3{margin:0 0 8px;font:bold 14px var(--ui);color:#000080}
+.jghbody p{margin:0 0 8px}
+.jghbody ul{margin:0 0 8px;padding-left:18px}
+.appwin .jghelp{min-height:200px}
+
+/* the Games folder */
+.jgfolder{height:100%;background:#fff;border:2px solid;border-color:#808080 #fff #fff #808080;box-shadow:inset 1px 1px #000;overflow:auto;box-sizing:border-box}
+.appwin > .appbody > .jgfolder{position:absolute;inset:4px}
+.jgfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:4px;padding:6px}
+.jgfi{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:4px 2px;cursor:pointer;font:11px var(--ui);color:#000;touch-action:manipulation}
+.jgfic svg{width:32px;height:32px;display:block}
+.jgflb{text-align:center;line-height:1.25;padding:0 2px;max-width:80px;overflow-wrap:anywhere}
+.jgfi.sel .jgflb{background:#000080;color:#fff;outline:1px dotted #ff0}
+.jgfi:focus-visible{outline:none}
+.jgfi:focus-visible .jgflb{outline:1px dotted #000}

@@ -1,0 +1,33 @@
+/* apps-dos: the MS-DOS Prompt window, the full-screen mode and the on-screen keys for phones */
+.doswin > .appbody{padding:0;background:#000;display:flex;flex-direction:column;overflow:hidden}
+.dosbox{display:flex;flex-direction:column;flex:1;min-height:0;height:100%}
+.dos-tool{flex:none;display:flex;align-items:center;gap:2px;padding:2px 4px;background:#c0c0c0;border-bottom:1px solid #808080;box-shadow:0 1px #fff}
+.dos-tool .dos-size{font:11px var(--ui);height:22px;padding:0 2px;width:72px}
+.dos-tb{width:24px;height:22px;padding:0;background:#c0c0c0;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.dos-tb svg{width:16px;height:16px}
+.dos-tb:hover{border-color:#fff #808080 #808080 #fff}
+.dos-tb:active{border-color:#808080 #fff #fff #808080}
+.dos-tsep{width:1px;height:18px;background:#808080;box-shadow:1px 0 #fff;margin:0 3px}
+.dos-load{color:#c0c0c0;font:14px "Lucida Console","Consolas","DejaVu Sans Mono",monospace;padding:12px}
+.dos-host{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:#000;overflow:hidden;cursor:text}
+.dos-scr{flex:1;min-height:0;display:flex;align-items:flex-start;justify-content:flex-start;overflow:hidden;padding:2px}
+.dos-cv{image-rendering:pixelated;image-rendering:crisp-edges;display:block;background:#000}
+.dos-kbd{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0.01;border:0;padding:0;margin:0;resize:none;overflow:hidden;background:transparent;color:transparent;caret-color:transparent;font-size:16px;box-shadow:none;outline:none}
+.dos-keys{flex:none;display:flex;flex-wrap:wrap;gap:3px;padding:3px;background:#c0c0c0;border-top:1px solid #808080}
+.dos-keys button{font:bold 11px var(--ui);min-width:34px;height:28px;padding:0 5px;background:#c0c0c0;border:1px solid;border-color:#fff #000 #000 #fff;box-shadow:inset -1px -1px #808080,inset 1px 1px #dfdfdf;cursor:pointer;touch-action:manipulation}
+.dos-keys button:active{border-color:#000 #fff #fff #000}
+/* full screen: the DOS box takes the whole display, like Alt+Enter did */
+.doswin.dosfull{left:0!important;top:0!important;width:100vw!important;height:100vh!important;max-height:none;z-index:19600!important;padding:0;border:0;box-shadow:none;background:#000}
+.doswin.dosfull > .tb,.doswin.dosfull .dos-tool,.doswin.dosfull .appgrip{display:none}
+.doswin.dosfull .dos-scr{align-items:center;justify-content:center;padding:0}
+body.dos-fs #taskbar,body.dos-fs .taskbar{visibility:hidden}
+#dos .dos-host{position:absolute;inset:0}
+#dos .dos-scr{align-items:center;justify-content:center}
+.dos-ptab{border-collapse:collapse;margin:8px 0;width:100%}
+.dos-ptab td{padding:2px 4px;font:12px var(--ui)}
+.dos-ptab td:first-child{width:90px}
+.dos-ptab input,.dos-ptab select{width:100%;box-sizing:border-box}
+@media (max-width:560px){
+  .dos-tool .dos-size{width:60px}
+  .dos-tb[data-t=mark],.dos-tb[data-t=bg],.dos-tb[data-t=props]{display:none}
+}

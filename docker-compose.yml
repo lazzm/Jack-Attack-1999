@@ -1,0 +1,49 @@
+# Jack's Home Page (est. 1999) - jacklm.com
+# Node serves the static site + a shared WebSocket (/ws) for all the LIVE! toys.
+# Edit ./app, test locally, then ./deploy.sh (copies to ./site, the served copy); shared state lives in ./data/state.json.
+# Admin (curl only): curl -X POST -H "X-Admin-Token: $ADMIN_TOKEN" https://jacklm.com/admin/{state|wipe-wall|clear-chat|reset-cube|delete-gb?id=..}
+services:
+  landing:
+    image: node:24-alpine
+    container_name: landing
+    restart: unless-stopped
+    user: "1000:1000"
+    working_dir: /app
+    command: ["node", "server.js"]
+    environment:
+      - PORT=8080
+      - DATA_DIR=/data
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - ALLOWED_ORIGINS=https://jacklm.com,https://www.jacklm.com
+    volumes:
+      - ./site:/app:ro
+      - ./data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+
+      # Apex: jacklm.com
+      - "traefik.http.routers.landing.rule=Host(`jacklm.com`)"
+      - "traefik.http.routers.landing.entrypoints=websecure"
+      - "traefik.http.routers.landing.tls.certresolver=cloudflare"
+      - "traefik.http.services.landing.loadbalancer.server.port=8080"
+
+      # www -> apex redirect
+      - "traefik.http.routers.landing-www.rule=Host(`www.jacklm.com`)"
+      - "traefik.http.routers.landing-www.entrypoints=websecure"
+      - "traefik.http.routers.landing-www.tls.certresolver=cloudflare"
+      - "traefik.http.routers.landing-www.middlewares=landing-www-redirect"
+      - "traefik.http.routers.landing-www.service=landing"
+      - "traefik.http.middlewares.landing-www-redirect.redirectregex.regex=^https?://www\\.jacklm\\.com/(.*)"
+      - "traefik.http.middlewares.landing-www-redirect.redirectregex.replacement=https://jacklm.com/$${1}"
+      - "traefik.http.middlewares.landing-www-redirect.redirectregex.permanent=true"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
