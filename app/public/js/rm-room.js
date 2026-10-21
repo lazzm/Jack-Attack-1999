@@ -406,12 +406,16 @@
     const pm = mPine();
     const cab = B.at(TX, 0, -34); // the TV cabinet (pine, two shelves, open front)
     cab.box(0, 28.6, 0, 72, 2.4, 42, pm, { uv: 50 }); cab.box(0, 71.6, 0, 72, 2.4, 42, pm, { uv: 50 }); cab.box(0, 51, 0, 68, 1.8, 40, pm, { uv: 50 });
-    cab.box(-35, 50, 0, 2.2, 44, 42, pm, { uv: 50 }); cab.box(35, 50, 0, 2.2, 44, 42, pm, { uv: 50 }); cab.box(0, 50, -20.4, 68, 44, 1.2, M('#3a2414'));
+    cab.box(-35, 50, 0, 2.2, 44, 42, pm, { uv: 50 }); cab.box(35, 50, 0, 2.2, 44, 42, pm, { uv: 50 });
+    // Rear braces leave real cable-access openings behind both shelves.
+    const back=M('#3a2414');
+    [-32,0,32].forEach(x=>cab.box(x,50,-20.4,4,40,1.2,back));
+    [30,52.5,70].forEach(y=>cab.box(0,y,-20.4,68,3,1.2,back));
     cab.shadow(0, FY, 0, 80, 50, 0.7, { sq: true });
     // the telly: a 14-inch portable, with a proper deep back
     const tv = new T.Group(); tv.position.set(TX, 27.4, -36); r.group.add(tv); const TV = K.into(tv);
     TV.rbox(0, -17, 4, 46, 34, 14, 1.6, M({ c: '#4a4c52', sh: 25, sp: '#333' }));
-    TV.geo(taper(38, 28, 22, 0.62), 0, -17, -14, M('#36383d'));
+    TV.geo(taper(38, 28, 14, 0.62), 0, -17, -10, M('#36383d')); // deep CRT back, clear of the wall and its leads
     TV.box(0, -2.5, 10.9, 40, 4, 0.4, M('#2a2c30'));
     TV.rbox(-3, -19, 11.12, 35.2, 27, 0.72, 0.34, M({ c: '#111619', sh: 45, sp: '#35424b' }));
     const scr = new T.Mesh(crtGlass(33, 24.75, 0.3, 0.38), new T.MeshBasicMaterial({ color: 0xffffff, map: tex('screenOff') }));
@@ -438,27 +442,57 @@
       H.spot('dcbox', { label: 'Daydream box', obj: db }); H.block('U', TX + 34, -44, TX + 70, -10);
     }
     // the leads and controllers on the rug
-    const pads = new T.Group(); r.group.add(pads); const PD = K.into(pads);
-    padN64(PD.at(TX - 10, FY, 26, 16)); padPS(PD.at(TX + 16, FY, 30, -12));
-    lead(PD, [[TX - 17, 47, -16], [TX - 15, FY - 0.6, -6], [TX - 20, FY - 0.6, 10], [TX - 10, FY - 1.4, 21]], '#1a1a1a');
-    lead(PD, [[TX + 16, 48, -16], [TX + 20, FY - 0.6, -4], [TX + 24, FY - 0.6, 14], [TX + 17, FY - 1.4, 26]], '#8a877f');
-    lead(PD, [[TX + 5, 20, -52], [TX + 30, 40, -54], [TX + 34, FY - 1, -53], [-100, FY - 0.6, -52]], '#202020'); // the power lead along the skirting
-    H.spot('pads', { label: 'Controllers', obj: pads, act: () => say('Controllers', 'The Ultra 64 pad and the PlaySpace pad, leads tangled together forever. The Ultra 64 stick is loose from too much Kart Kaos.') });
+    const pads = new T.Group(); r.group.add(pads); const padsBatch=K.batch(),PD=K.into(padsBatch);
+    pads.name='console-controllers';
+    const padY=FY-0.3, floorY=FY-0.62;
+    padN64(PD.at(TX - 10, padY, 26, 16)); padPS(PD.at(TX + 16, padY, 30, -12));
+    const socket=(x,y,col)=>{PD.rbox(x,y,-15.15,2.6,1.5,2.5,0.3,M(col));};
+    const end=(x,z,ry)=>{const a=ry*D2R;return[x-Math.sin(a)*7.2,padY-1.8,z-Math.cos(a)*7.2]};
+    socket(TX-24.54,48,'#222326');socket(TX+8.17,48,'#85847f');
+    // Stay in front of the shelf lip while descending; slack rests ON the rug.
+    lead(PD,[[TX-24.54,48,-13.9],[TX-24.54,48,-9],[TX-24.54,68,-7],[TX-25,floorY,-3],[TX-26,floorY,7],[TX-22,floorY,14],[TX-15,floorY,15],end(TX-10,26,16)],'#27282b','ultra-pad');
+    lead(PD,[[TX+8.17,48,-13.9],[TX+8.17,48,-8],[TX+8.17,68,-6],[TX+10,floorY,1],[TX+23,floorY,8],[TX+26,floorY,17],[TX+21,floorY,21],end(TX+16,30,-12)],'#8a877f','playspace-pad');
+    lead(PD,[[TX+5,16,-53],[TX+5,16,-55.45],[TX+27,24,-55.45],[TX+29,60,-55.45],[TX+39,60,-55.45],[TX+39,60,-53.85],[TX+39,FY-0.6,-53.85],[-105,FY-0.6,-53.85],[-100,69,-53.85],[-100,60,-52.5],[-100,54,-52.5]],'#252527','tv-power');
+    PD.rbox(-98,54,BZ+0.7,12,8,1.4,0.5,mWhite);
+    PD.rbox(-100,54,-53.9,3.3,3.8,1.4,0.35,M('#353536'));
+    PD.cyl(-100,54,-52.9,0.5,0.5,0.8,10,M('#29292b'),{rx:90});
+    PD.box(-94.5,53.7,-54.52,1.2,1.8,0.2,M('#a39c8d'));
+    padsBatch.build(pads);pads.userData.cables=padsBatch.routes;
+    H.spot('pads', { label: 'Controllers', obj: pads, act: () => say('Controllers', 'The Ultra 64 pad and the PlaySpace pad. D-pads, shoulder buttons, and a loose stick from too much Kart Kaos. Their leads run back to the console sockets.') });
     // behind the telly: a nest of leads (where the Segue game fell)
-    const nest = new T.Group(); r.group.add(nest); const NS = K.into(nest);
-    for (let i = 0; i < 7; i++) { const a = i * 0.9; lead(NS, [[TX - 14 + i * 4, 10, -54], [TX - 10 + Math.sin(a) * 12, 22 + i, -50], [TX + Math.cos(a) * 14, 24, -53], [TX + 12 - i * 3, 26, -51]], ['#1a1a1a', '#222', '#d8d8d8', '#c8a020', '#1a1a1a', '#b02020', '#333'][i]); }
+    const nest = new T.Group(); nest.name='console-av-leads';r.group.add(nest);const nestBatch=K.batch(),NS=K.into(nestBatch);
+    // Connected AV leads through the rear openings, not through the solid back/shelves.
+    lead(NS,[[TX-17,46,-35.4],[TX-17,46,-55.45],[TX-23,40,-55.45],[TX-23,22,-55.45],[TX-8,18,-55.45],[TX-8,18,-53]],'#242426','ultra-av');
+    lead(NS,[[TX+16,47,-35.4],[TX+16,47,-55.45],[TX+22,39,-55.45],[TX+22,23,-55.45],[TX-3,18.5,-55.45],[TX-3,18.5,-53]],'#76746f','playspace-av');
+    nestBatch.build(nest);nest.userData.cables=nestBatch.routes;
     pickBox(r, 'tvback', TX, 14, -50, 46, 30, 10);
     // the rug
     B.plane(TX + 10, FY - 0.25, 30, 120, 76, M({ c: '#fff', map: tex('rug') }), { rx: 90 });
     B.box(TX + 10, FY - 0.15, 30, 121, 0.3, 77, M('#5a1818'), { sides: 'frlb' });
     pickBox(r, 'rug', TX + 10, FY - 1, 30, 120, 2, 76);
     // the beanbag: a soft lump with a dent where he sits
-    const bb = new T.Group(); bb.position.set(TX + 78, FY, 56); r.group.add(bb); const BG = K.into(bb), bm = M({ c: '#ffffff', map: tex('beanbag'), sh: 14, sp: '#3a1010' });
-    BG.lathe(0, 0, 0, [[0.1, -31], [10, -30.5], [18, -28], [23, -24], [27, -18], [29.5, -11], [30, -6], [28.5, -2], [26, 0]], 26, bm, { sz: 0.9 });
-    BG.geo(new T.TorusGeometry(29.2, 0.5, 6, 40), 0, -10, 0, M({ c: '#7a1414', sh: 10 }), { rx: 90, sz: 0.9 }); // the seam
-    BG.ball(2, -27, 6, 15, 4.5, 13, M({ c: '#8a1a1a', sh: 10 }), 16); // the dent where he sits
-    BG.shadow(0, 0, 0, 64, 58, 0.8);
-    H.spot('beanbag', { label: 'The beanbag', obj: bb }); H.block('U', TX + 48, 26, TX + 108, 86);
+    const bb = new T.Group(); bb.position.set(TX + 78, FY, 56); r.group.add(bb); const BG = K.into(bb), bm = M({ c: '#ffffff', map: tex('beanbag'), sh: 3, sp: '#231112' });
+    bb.name = 'beanbag';
+    // One closed fabric skin: a depressed seat, raised back and squashy floor contact.
+    const profile = [[0,-17],[5,-17],[10,-18],[15,-21],[20,-26],[24,-29],[28,-27],[31,-21],[32,-13],[31,-6],[28,-1],[20,-0.1],[0,-0.1]];
+    const clothPoint = (rad,y,a) => {
+      const fold = Math.sin(a*6+0.4)*0.55*Math.sin(Math.PI*rad/32);
+      const squash=(Math.max(0,Math.cos(a))*7-Math.max(0,-Math.cos(a))*12)*Math.sin(Math.PI*rad/32);
+      return new T.Vector3(Math.sin(a)*(rad+fold),y+squash,Math.cos(a)*(rad+fold)*0.88);
+    };
+    const skin = new T.LatheGeometry(profile.map(([rad,y])=>new T.Vector2(rad,y)),48), pos=skin.attributes.position;
+    for(let i=0;i<pos.count;i++){const a=Math.atan2(pos.getX(i),pos.getZ(i)),p=clothPoint(Math.hypot(pos.getX(i),pos.getZ(i)),pos.getY(i),a);pos.setXYZ(i,p.x,p.y,p.z)}
+    skin.computeVertexNormals(); BG.geo(skin,0,0,0,bm);
+    const seamM=M({c:'#b85b51',sh:3}),seams=K.batch(),SB=K.into(seams);
+    for(let panel=0;panel<6;panel++){
+      const points=profile.map(([rad,y])=>clothPoint(rad+0.12,y-0.14,panel*Math.PI/3));
+      for(let i=1;i<points.length;i++)SB.geo(new T.TubeGeometry(new T.LineCurve3(points[i-1],points[i]),1,0.055,4),0,0,0,seamM);
+    }
+    seams.build(bb);
+    BG.rbox(0,-4,-26.9,7,0.7,1,0.2,M('#601b20')); // concealed refill zip and pull, above the carpet
+    BG.box(3.1,-4.5,-27.1,0.7,0.25,1.1,mMetal);
+    BG.shadow(0,0,0,67,60,0.65);
+    H.spot('beanbag', { label: 'The beanbag', obj: bb }); H.block('U', TX + 46, 26, TX + 110, 86);
     // the games mags on the floor
     const mg = new T.Group(); mg.position.set(TX + 34, FY, 58); mg.rotation.y = -8 * D2R; r.group.add(mg); const MG = K.into(mg);
     ['magC', 'magB', 'mag'].forEach((t, i) => MG.box(i * 0.8 - 1, -0.45 - i * 0.9, i * 0.6, 21, 0.8, 28, { t: M({ c: '#fff', map: tex(t) }), all: M('#f0eee8') }, { ry: [6, -5, 9][i] }));
@@ -518,9 +552,48 @@
     if (extra) extra(g);
     H.spot(id, { label, obj: g });
   }
-  function padN64(P) { const m = M({ c: '#5a5a5e', sh: 30, sp: '#333' }); P.rbox(0, -1.5, -2, 14, 3, 6, 1.2, m); [-5, 0, 5].forEach((x, i) => P.rbox(x, -1.5, 3, 3.2, 3, 7, 1.2, m, { ry: [-15, 0, 15][i] })); P.cyl(0, -3.6, -1, 0.9, 0.9, 1.6, 8, M('#ccc')); P.ball(4, -3.1, -2.5, 0.8, 0.4, 0.8, M('#2a5ad0'), 6); P.ball(5.6, -3.1, -1.3, 0.8, 0.4, 0.8, M('#1a9a3a'), 6); P.shadow(0, 0, 0, 18, 14, 0.6); }
-  function padPS(P) { const m = M({ c: '#c9c6be', sh: 30, sp: '#444' }); P.rbox(0, -1.4, 0, 15, 2.8, 5.5, 1, m); [-5.5, 5.5].forEach(x => P.rbox(x, -1.4, 3.5, 3.6, 2.8, 6, 1.4, m, { ry: x < 0 ? 12 : -12 })); P.cyl(-4.5, -3, -0.5, 1.6, 1.6, 0.6, 10, M('#888')); [[4, -1.8, '#4ad0a8'], [5.6, -0.3, '#f07a7a'], [4, 1.2, '#7a9af0'], [2.4, -0.3, '#f08ad8']].forEach(([x, z, c]) => P.cyl(x, -3, z - 0.5, 0.55, 0.55, 0.5, 8, M(c))); P.shadow(0, 0, 0, 20, 12, 0.6); }
-  function lead(P, pts, col) { const c = new T.CatmullRomCurve3(pts.map(p => new T.Vector3(p[0], p[1], p[2]))); P.geo(new T.TubeGeometry(c, 30, 0.35, 5), 0, 0, 0, M({ c: col, sh: 30, sp: '#222' })); }
+  function padShell(P,shape,col) {
+    const shell=(depth,y,scale,m)=>{const g=new T.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSize:0.16,bevelThickness:0.16,bevelSegments:2,curveSegments:6,steps:1});g.rotateX(Math.PI/2);g.scale(scale,1,scale);P.geo(g,0,y,0,m)};
+    shell(1.2,-0.2,1,M({c:'#33353a',sh:15}));
+    shell(1.35,-1.4,0.985,M({c:col,sh:19,sp:'#303136'}));
+    // Rear strain relief and shoulder buttons, all separate solids.
+    P.cyl(0,-1.8,-6.65,0.43,0.43,1.3,10,M('#26272a'),{rx:90});
+    [-5.3,5.3].forEach(x=>P.rbox(x,-2.45,-4.7,3.7,0.95,1.7,0.3,M('#44464c')));
+    [-5,5].forEach(x=>P.cyl(x,-0.21,1,0.38,0.38,0.2,8,M('#222326')));
+  }
+  function dpad(P,x,z) {
+    const m=M({c:'#33363b',sh:12});P.cyl(x,-2.88,z,1.9,1.9,0.16,20,M('#76777c'));
+    P.rbox(x,-3.1,z,1.05,0.55,3.2,0.13,m);P.rbox(x,-3.1,z,3.2,0.55,1.05,0.13,m);P.cyl(x,-3.4,z,0.45,0.45,0.1,12,m);
+  }
+  function padN64(P) {
+    const s=new T.Shape();s.moveTo(-7,-5);s.quadraticCurveTo(-9,-4,-8,0);s.lineTo(-7.8,7);s.quadraticCurveTo(-6,10,-4.5,7);s.lineTo(-3,2.8);s.quadraticCurveTo(-2,2,-1.9,4);s.lineTo(-1.7,9);s.quadraticCurveTo(0,11,1.7,9);s.lineTo(1.9,4);s.quadraticCurveTo(2,2,3,2.8);s.lineTo(4.5,7);s.quadraticCurveTo(6,10,7.8,7);s.lineTo(8,0);s.quadraticCurveTo(9,-4,7,-5);s.quadraticCurveTo(0,-7,-7,-5);s.closePath();
+    padShell(P,s,'#71747c');dpad(P,-4.8,-1.9);
+    P.cyl(0,-2.9,1.2,2,2,0.25,8,M('#40434a'));P.cyl(0,-3.65,1.2,0.38,0.4,1.2,12,M('#a6a7ad'));P.cyl(0,-4.3,1.2,1.05,0.8,0.5,16,M('#c4c4c2'));
+    for(const [x,z,c,r] of [[3.2,1,'#2e814b',0.8],[4.8,-0.2,'#395caa',0.7],[4.2,-3.5,'#cfaf40',0.48],[5.5,-2.4,'#cfaf40',0.48],[6.8,-3.5,'#cfaf40',0.48],[5.5,-4.5,'#cfaf40',0.48]])P.cyl(x,-3.04,z,r,r,0.65,14,M({c,sh:28}));
+    P.cyl(0,-3.02,-2.9,0.65,0.65,0.6,14,M('#ac4342'));P.rbox(0,-1.5,5.8,1.6,1.4,2.8,0.4,M('#474b53'));P.shadow(0,0,1,21,24,0.5);
+  }
+  function padPS(P) {
+    const s=new T.Shape();s.moveTo(-6.5,-5);s.quadraticCurveTo(-9,-5,-9,0);s.lineTo(-8,7);s.quadraticCurveTo(-7,10,-5,7);s.lineTo(-3,3);s.quadraticCurveTo(0,2,3,3);s.lineTo(5,7);s.quadraticCurveTo(7,10,8,7);s.lineTo(9,0);s.quadraticCurveTo(9,-5,6.5,-5);s.quadraticCurveTo(0,-6.5,-6.5,-5);s.closePath();
+    padShell(P,s,'#c2bfb7');dpad(P,-5.2,-1);
+    P.cyl(5,-2.9,-1,2.6,2.6,0.18,24,M('#a29e98'));
+    [[5,-2.7,'#589e8f'],[6.7,-1,'#bb6869'],[5,0.7,'#687db0'],[3.3,-1,'#a4769c']].forEach(([x,z,c])=>P.cyl(x,-3.12,z,0.68,0.68,0.65,16,M({c,sh:28})));
+    [-1,1].forEach(x=>P.rbox(x,-3.02,-0.8,1.3,0.45,0.65,0.2,M('#56585c'),{ry:-12}));
+    for(const x of [-2.3,2.3]){P.cyl(x,-2.95,3.2,1.55,1.55,0.4,20,M('#8d8a84'));P.cyl(x,-3.35,3.2,0.45,0.45,0.7,12,M('#33363a'));P.ball(x,-3.85,3.2,1.1,0.45,1.1,M({c:'#36383c',sh:6}),16)}
+    P.shadow(0,0,1,23,22,0.5);
+  }
+  function lead(P,pts,col,id) {
+    // Rounded polyline stays inside each route's clearances: Catmull-Rom overshot
+    // shelf/floor corners and made disconnected-looking buried cable sections.
+    const points=pts.map(p=>new T.Vector3(...p)),path=new T.CurvePath();let start=points[0];
+    for(let i=1;i<points.length-1;i++){
+      const p=points[i],trim=Math.min(1.3,p.distanceTo(points[i-1])*0.24,p.distanceTo(points[i+1])*0.24);
+      const a=p.clone().add(points[i-1].clone().sub(p).setLength(trim)),b=p.clone().add(points[i+1].clone().sub(p).setLength(trim));
+      path.add(new T.LineCurve3(start,a));path.add(new T.QuadraticBezierCurve3(a,p,b));start=b;
+    }
+    path.add(new T.LineCurve3(start,points[points.length-1]));const radius=0.28;
+    P.geo(new T.TubeGeometry(path,Math.max(48,pts.length*12),radius,6),0,0,0,M({c:col,sh:14,sp:'#222'}));
+    if(P.batch){P.batch.routes=P.batch.routes||[];P.batch.routes.push({id,radius,points:path.getSpacedPoints(160).map(p=>p.toArray())})}
+  }
   function taper(w, h, d, k) { const g = new T.BoxGeometry(w, h, d); const p = g.attributes.position; for (let i = 0; i < p.count; i++) if (p.getZ(i) < 0) { p.setX(i, p.getX(i) * k); p.setY(i, p.getY(i) * k); } g.computeVertexNormals(); return g; }
   function flipUV(geo) { const u = geo.attributes.uv; for (let i = 0; i < u.count; i++) u.setY(i, 1 - u.getY(i)); }
   // A closed lens, including sides and back. The face gently bows forward;

@@ -125,7 +125,7 @@
     g.strokeStyle = '#7a2222'; g.lineWidth = 10; g.strokeRect(5, 5, w - 10, h - 10); g.strokeStyle = '#c8c0a8'; g.lineWidth = 3; g.strokeRect(12, 12, w - 24, h - 24);
     grain(g, w, h, 6000, 0.08, 83);
   }];
-  P.beanbag = [256, 256, (g, w, h) => { g.fillStyle = '#b52424'; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 3) { g.fillStyle = `rgba(0,0,0,${(y % 6) ? 0.05 : 0.1})`; g.fillRect(0, y, w, 1); } grain(g, w, h, 3000, 0.07, 91); mottle(g, w, h, 12, 'rgba(255,120,120,.08)', 40, 92); }];
+  P.beanbag = [256, 256, (g, w, h) => { g.fillStyle='#a93932';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=2)for(let x=0;x<w;x+=2){g.fillStyle=(x+y)%4?'rgba(236,172,136,.055)':'rgba(50,14,16,.055)';g.fillRect(x,y,1,1)}grain(g,w,h,7000,0.035,91);mottle(g,w,h,18,'rgba(230,130,100,.035)',22,92); }];
   P.curtain = [256, 256, (g, w, h) => { g.fillStyle = '#20356e'; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 2) { g.fillStyle = `rgba(0,0,0,${0.04 + (x % 8 === 0 ? 0.06 : 0)})`; g.fillRect(x, 0, 1, h); } for (let y = 0; y < h; y += 32) { g.fillStyle = 'rgba(255,220,120,.18)'; star(g, (y * 7) % w + 16, y + 16, 5, 5); g.fill(); } grain(g, w, h, 2000, 0.05, 93); }];
   // ================================================================ posters (each a canvas painting)
   P.posterShuttle = [300, 420, (g, w, h) => {

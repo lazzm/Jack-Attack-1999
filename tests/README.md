@@ -46,6 +46,7 @@ Account and cash-wallet regressions (localhost only):
     node accounts-sockets.mjs http://localhost:18080 # server-side anonymous blocking and account lifecycle
     node accounts-bank.mjs http://localhost:18080 # signup, real job wages, bank exchange and narrow screenshots
     node accounts-profile.mjs http://localhost:18080 # cross-browser saves, wrong password and member logoff
+    node room-models.mjs http://localhost:18080      # beanbag/pads, sampled cable clearances, walking collision and refresh; desktop/narrow captures
 
 Historical room scripts above which assume anonymous gameplay or a Guest button need authenticated setup before use with mandatory accounts. They are not claimed as current account-gate regressions.
 For a post-deploy visual check only, `node live-readonly.mjs https://jacklm.com` checks the mandatory account screen and browser errors. It does not log on, create an account or change game state.
