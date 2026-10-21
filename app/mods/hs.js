@@ -138,8 +138,8 @@ function pocket(ws, c) {
   if (HC.dow99(day) !== 6) return ctx.send(ws, { t: 'hsPocket', amt: 0, why: 'not saturday' });
   const p = P(key); if (p.pk === day) return ctx.send(ws, { t: 'hsPocket', amt: 0, why: 'had it' });
   p.pk = day; ctx.markDirty();
-  const a = E.acct(c), amt = a ? Math.max(0, E.earnA(a, 'hspocket', 'Saturday pocket money from Mom')) : 0;
-  ctx.send(ws, { t: 'hsPocket', amt });
+  const a = E.acct(c), amt = a ? Math.max(0, E.earnA(a, 'hspocket', 'Saturday pocket money from Mom', 100)) : 0;
+  ctx.send(ws, { t: 'hsPocket', amt:0, cashPence:amt*5 });
 }
 function quizQ(ws, c, m) {
   const i = Math.floor(+m.i); if (!(i >= 0 && i < DAYN)) return;

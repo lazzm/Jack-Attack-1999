@@ -161,6 +161,7 @@
   Econ.mail = o => { const d = (window.JackFiles && JackFiles.deliver) || (mailApi && mailApi.deliver); if (!d) return false; try { d(o); return true; } catch (e) { return false; } };
   if (window.Net) {
     Net.on('ecMe', m => { if (m.guest) { me = null; } else { me = m; reportSecrets(); } applyAll(); tray(); emit('me', me); });
+    Net.on('ecExchanged', m => {emit('exchanged',m);});
     Net.on('ecEarn', m => { if (me) { me.bal = m.bal; } tray(true); earnToast(m); if (m.amt > 0 && !(m.code === 'stock' || m.code === 'farm' && !m.amt)) shower(m.amt, null); emit('earn', m); A.secret('econ.firstteef'); });
     Net.on('ecHi', m => { for (const k in m.wear || {}) wearMap[k.toLowerCase()] = m.wear[k]; emit('wear', null); });
     Net.on('ecWear', m => { wearMap[String(m.n).toLowerCase()] = m.w; document.dispatchEvent(new CustomEvent('econ-wear', { detail: { nick: m.n } })); emit('wear', m.n); });

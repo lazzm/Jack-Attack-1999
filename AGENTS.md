@@ -41,7 +41,8 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
 - No real brands/logos/copied assets or code. Fake TLDs only (.jnet .webcom .kidz .grot ...), never real domains or
   subdomains of jacklm.com. Consoles in the house use fake names (Ultra 64, PlaySpace, Game Lad, Segue, Daydream,
   Super Ultra). The PC is JackOS: never "Windows" (C:\JACKOS, SYSTEM32 inside it).
-- Currency is Rupees, earned only through server earn paths with daily caps (the browser never mints Rupees).
+- Every player needs a JackNet account before playing; no guest/cancel bypass. Existing account names, saves and balances must survive.
+- Pocket money and job wages are server-held cash in integer pence. JackNet Bank exchanges £1 for 20 Rupees (5p increments, £20/day, one-way, no real money); new cash wallets start at £0, without converting old Rupees. Rupees still use capped server earn paths; the browser never mints either currency. Persist exchange-slip nonces so retries never debit twice.
 - People: Jack, Dave, Luke, Callum, JackK, Crystal (Jack's little sister), Mom, Dad, Gran, Grandad, Nan and Gubbinz are fixed;
   everyone else comes from `Cast` (`Cast.n('cousin')`, `Cast.t('{teacher} ... {teacher.his}')`). Never hardcode them.
   Files that server mods `require` (e.g. `public/js/*-cat.js`) must guard browser globals: `typeof Cast !== 'undefined'`.

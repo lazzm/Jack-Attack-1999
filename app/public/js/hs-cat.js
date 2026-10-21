@@ -25,7 +25,7 @@
   function dow99(day) { const [, m, d] = String(day).split('-').map(Number); return new Date(Date.UTC(1999, m - 1, m === 2 && d === 29 ? 28 : d)).getUTCDay(); }
   const EARN = {
     hstin: { amt: 10, cap: 1, drop: 0.1, label: 'Raided the biscuit tin' },
-    hspocket: { amt: 25, cap: 1, label: 'Pocket money (Saturday!)' },
+    hspocket: { amt: 100, cap: 1, label: 'Pocket money (Saturday!)' },
     hsquiz: { amt: 2, cap: 10, half: 6, label: 'TELLY-TEXT quiz: right answer' },
     hsquizall: { amt: 10, cap: 1, drop: 0.2, label: 'TELLY-TEXT quiz: every answer right' },
   };

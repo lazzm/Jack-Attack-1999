@@ -162,14 +162,14 @@
     Net.on('chDone', m => {
       const id = m.c, C = CC.CHORE[id]; if (!C) return;
       clearTimeout(waitPay[id]); delete waitPay[id];
-      S.done[id] = { sc: m.sc | 0, amt: m.amt | 0, bad: m.bad ? 1 : 0 }; S.ever[id] = 1; save(); refresh();
+      S.done[id] = { sc: m.sc | 0, amt: m.amt | 0, cashPence:m.cashPence, bad: m.bad ? 1 : 0 }; S.ever[id] = 1; save(); refresh();
       if (m.bad) return jack(C.short, 'Mom says that was done suspiciously quickly, so she\'s not paying for it. Fair enough.');
-      if (m.amt > 0) H.toast('+' + m.amt + ' Rupees', 'Mom paid you ' + CC.money(Math.round(m.amt * 100 / CC.PER_POUND)) + ' for: ' + C.n.toLowerCase() + ' (into your JackNet Bank)');
+      if (m.cashPence > 0) H.toast('+' + CC.money(m.cashPence), 'Mom paid you for: ' + C.n.toLowerCase() + '. Exchange your pocket money at JackNet Bank.');
       setTimeout(() => mom(cast((m.mom || 'Ta, love.') + (m.sc ? ` (${m.sc}%)` : ''))), 900);
       if (m.sc >= 100) secret('ch.gold');
       if (m.sc >= 95) secret('grind.perfect');
       if (!m.amt) setTimeout(() => jack(C.short, m.list ? 'No money for that one: that\'s all the job money the Bank of Mom pays out in one day.' : (m.want === 0 ? 'Not on Mom\'s list, and she\'s already paid me for four extra jobs today. Worth a go though.' : 'No money for that one. Mom\'s purse is empty.')), 3800);
-      if (m.bonus > 0) setTimeout(() => { H.toast('+' + m.bonus + ' Rupees', "BONUS: every job on Mom's list done! (" + CC.money(Math.round(m.bonus * 100 / CC.PER_POUND)) + ' extra)'); }, 5200);
+      if (m.bonusPence > 0) setTimeout(() => { H.toast('+' + CC.money(m.bonusPence), "BONUS: every job on Mom's list done! Cash added to your pocket money."); }, 5200);
       allCheck();
       try { if (window.Grind) Net.send({ t: 'grMe' }); } catch (e) {}
     });
@@ -456,7 +456,7 @@
   }
   function sheetHTML() {
     const L = list();
-    const row = (id, i) => { const C = CC.CHORE[id], d = S.done[id]; return `<li class="${d ? 'done' : ''}"><i class="ch-box"></i><b>${i + 1}. ${esc(C.n)}</b><span class="ch-where">${esc(C.blurb)}</span><span class="ch-pay">${d ? (d.amt ? `Done! ${CC.money(CC.pence(id))} paid (${d.amt} Rupees)` : 'Done!') : started(id) ? `Doing it: ${count(id)} of ${stepsOf(id).length}` : `${CC.money(CC.pence(id))}`}<em> &middot; ${esc(C.where)}</em></span></li>`; };
+    const row = (id, i) => { const C = CC.CHORE[id], d = S.done[id]; return `<li class="${d ? 'done' : ''}"><i class="ch-box"></i><b>${i + 1}. ${esc(C.n)}</b><span class="ch-where">${esc(C.blurb)}</span><span class="ch-pay">${d ? (Number.isFinite(d.cashPence) ? 'Done! '+CC.money(d.cashPence)+' cash paid' : d.amt ? d.amt+' Rupees paid (before cash wallets)' : 'Done!') : started(id) ? `Doing it: ${count(id)} of ${stepsOf(id).length}` : `${CC.money(CC.pence(id))}`}<em> &middot; ${esc(C.where)}</em></span></li>`; };
     const extras = CC.CHORES.filter(c => !L.includes(c.id) && avail(c.id));
     return `<div class="ch-pad"><h2>JOBS FOR JACK</h2><div class="ch-date">${esc(date99())}</div><ol>${L.map(row).join('')}</ol>
       <p class="ch-ex"><b>Anything else = a bit extra!</b> ${extras.map(c => `<span class="${S.done[c.id] ? 'done' : ''}">${esc(c.short)}</span>`).join(' &middot; ')}</p>

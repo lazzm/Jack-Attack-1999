@@ -56,7 +56,7 @@ function meView(key) {
   if (!key) return { t: 'chMe', day: d, list, done: {}, prog: {}, member: false };
   const p = P(key), prog = {};
   for (const id in p.run) prog[id] = Object.keys(p.run[id].got || {});
-  const done = {}; for (const id in p.done) done[id] = { sc: p.done[id].sc | 0, amt: p.done[id].amt | 0, bad: p.done[id].bad ? 1 : 0 };
+  const done = {}; for (const id in p.done) done[id] = { sc: p.done[id].sc | 0, amt: p.done[id].amt | 0, cashPence:p.done[id].cashPence, bad: p.done[id].bad ? 1 : 0 };
   return { t: 'chMe', day: d, list, done, prog, member: true, extras: p.extras, all: p.all };
 }
 const okChore = id => own(CH.CHORE, id) && CH.AREAS[CH.CHORE[id].area];
@@ -99,14 +99,14 @@ function finish(ws, c, key, p, id, r) {
     if (G && G.jobBook) { const b = G.jobBook(c, key, C.job, sc, want, `Mom's jobs: ${C.n} (${sc}%)`); amt = b.amt | 0; pb = !!b.pb; }
     else { const a = E.acctByKey(key); if (a && want > 0) amt = Math.max(0, E.earnA(a, 'job', `Mom's jobs: ${C.n}`, want)); }
   } catch (e) { console.error('ch book', e.message); }
-  p.done[id] = { sc, amt, t: Date.now() }; p.n[id] = (p.n[id] | 0) + 1; p.tot += amt;
+  p.done[id] = { sc, amt, cashPence:amt*5, t: Date.now() }; p.n[id] = (p.n[id] | 0) + 1; p.tot += amt;
   if (sc > (p.best[id] | 0)) p.best[id] = sc;
   let bonus = 0;
   if (onList && !p.all && list.every(x => p.done[x] && !p.done[x].bad)) {
     p.all = 1; const a = E.acctByKey(key); if (a) bonus = Math.max(0, E.earnA(a, 'chall', "Every job on Mom's list done!")); p.tot += bonus;
   }
   ctx.markDirty();
-  ctx.send(ws, { t: 'chDone', c: id, sc, amt, want, list: onList, bonus, pb, mom: CH.momSays(sc, p.n[id] + (p.tot % 7)), extras: p.extras });
+  ctx.send(ws, { t: 'chDone', c: id, sc, amt, cashPence:amt*5, want, list: onList, bonus, bonusPence:bonus*5, pb, mom: CH.momSays(sc, p.n[id] + (p.tot % 7)), extras: p.extras });
 }
 
 function handle(ws, c, m) {

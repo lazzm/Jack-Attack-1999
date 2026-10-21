@@ -157,6 +157,7 @@
   // A keen player earns about 150-300 Rupees a day; doing absolutely everything tops out near 820. Shop prices fit that:
   // a Common thing is 40, a hat 40-150, a Lootlings Rare 350, the big status items 1000-2500.
   const EARN = {
+    cashExchange: {amt:1,cap:400,label:'Pocket money exchange (up to £20 daily)'},
     daily: { amt: 25, cap: 1, label: 'Daily log-on bonus' },
     score: { amt: 5, cap: 12, half: 6, gap: 20, drop: 0.06, label: 'High score submitted' },
     record: { amt: 20, cap: 3, drop: 0.25, label: 'New high-score RECORD' },

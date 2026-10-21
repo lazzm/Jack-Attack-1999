@@ -229,7 +229,7 @@
     Net.on('hsMe', m => { srv.member = !!m.member; srv.chores = m.chores || null; srv.done = m.done || []; srv.tin = !!m.tin; srv.pocket = !!m.pocket; if (m.member && m.saturday && !m.pocket) setTimeout(pocket, 4000); });
     Net.on('hsTin', m => { if (m.amt > 0) toast('+' + m.amt + ' Rupees', 'Found in the biscuit tin, under the biscuits!'); srv.tin = true; });
     Net.on('hsChore', m => { if (m.amt > 0) toast('+' + m.amt + ' Rupees', 'Mom paid you for doing a job!'); if (m.done) srv.done = m.done; });
-    Net.on('hsPocket', m => { if (m.amt > 0) { srv.pocket = true; voice('MOM', 'Jack! Here\'s your pocket money. Five pounds. Don\'t spend it all on games magazines.'); setTimeout(() => toast('+' + m.amt + ' Rupees', 'Saturday pocket money!'), 2500); } });
+    Net.on('hsPocket', m => { if (m.cashPence > 0) { srv.pocket = true; voice('MOM', 'Jack! Here\'s your pocket money. Five pounds. Don\'t spend it all on games magazines.'); setTimeout(() => toast('+£'+(m.cashPence/100).toFixed(2), 'Saturday pocket money! Exchange it at JackNet Bank.'), 2500); } });
     const ask = () => send({ t: 'hsMe' });
     Net.on('welcome', ask); Net.on('loginOk', ask); try { if (Net.me && Net.me.id) ask(); } catch (e) {}
   }

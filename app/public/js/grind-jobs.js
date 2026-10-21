@@ -210,7 +210,7 @@
         <div class="gj-big">${sc} <small style="font-size:14px">${esc(J[j].unit)}</small></div>
         <div class="gj-stars">${'&#9733;'.repeat(stars)}<i>${'&#9733;'.repeat(3 - stars)}</i></div>
         ${m.pb ? '<p style="text-align:center;color:#b0002a;font-weight:bold">NEW PERSONAL BEST!</p>' : ''}
-        ${mem && !m.offline && !m.bad ? `<div class="gj-earn">${m.amt ? `You earned ${window.Econ && Econ.rupees ? Econ.rupees(m.amt, true) : esc(RP(m.amt))}!` : (m.n > C.RUNS.length ? 'No pay this time (all of today\'s paid goes are used up), but it counts for the Hall of Fame.' : m.want > 0 ? 'That\'s all the job money the Bank of Mom pays out in one day. Come back tomorrow!' : 'No Rupees for that one. Try again!')}</div>` : ''}
+        ${mem && !m.offline && !m.bad ? `<div class="gj-earn">${m.cashPence ? `You earned £${(m.cashPence/100).toFixed(2)} pocket money! Exchange it at JackNet Bank.` : (m.n > C.RUNS.length ? 'No pay this time (all of today\'s paid goes are used up), but it counts for the Hall of Fame.' : m.want > 0 ? 'That\'s all the job money the Bank of Mom pays out in one day. Come back tomorrow!' : 'No pocket money for that one. Try again!')}</div>` : ''}
         ${m.bad ? '<p class="gj-guest">Hmm, that round looked a bit odd to the JackNet server, so it didn\'t count.</p>' : ''}
         ${!mem ? `<div class="gj-guest">A JackNet member would have earned up to <b>${esc(RP(C.jobPay(j, sc, 0)))}</b> for that. Joining is FREE! <a href="#" data-jlogon>Join / Log on</a></div>` : ''}
         ${m.offline && mem ? '<p class="gj-guest">Couldn\'t reach JackNet, so no pay for that one. (Is the modem plugged in?)</p>' : ''}

@@ -366,7 +366,7 @@ function broadcast(msg, except) {
   for (const ws of clients.keys()) if (ws !== except) send(ws, s);
 }
 function presence() {
-  return [...clients.values()].filter(c => c.ready).map(c => ({ id: c.id, nick: c.nick, col: c.col, where: c.where, member: !!c.member }));
+  return [...clients.values()].filter(c => c.ready && c.member).map(c => ({ id: c.id, nick: c.nick, col: c.col, where: c.where, member: true }));
 }
 function pushChat(entry) {
   state.chat.push(entry);
@@ -710,7 +710,7 @@ function logIn(ws, c, key, isNew) {
   send(ws, { t: 'loginOk', nick: mem.name, token: newToken(key), no: mem.no, isNew, members: memberCount() });
   broadcast({ t: 'online', online: presence() });
   modEmit('login', c, isNew);
-  pushChat({ sys: true, text: isNew ? `*** ${mem.name} just joined JackNet! Member #${mem.no}` : `*** ${old} logged on as ${mem.name}`, ts: Date.now() });
+  pushChat({ sys: true, text: isNew ? `*** ${mem.name} just joined JackNet! Member #${mem.no}` : `*** ${mem.name} logged on to JackNet`, ts: Date.now() });
   markDirty();
 }
 
@@ -754,6 +754,8 @@ function handle(ws, c, m) {
     return;
   }
   if (!c.ready) return;
+  // Anonymous sockets may authenticate, but cannot play or mutate game state.
+  if (!c.member && m.t !== 'login' && m.t !== 'logoff') return;
 
   if (/^(members|profile|saveProfile|shout|fBoards|fTopics|fTopic|fNew|fReply|fDel)$/.test(m.t)) return community(ws, c, m);
   if (/^(kvGet|kvInc|kvPush|kvPut|relay)$/.test(m.t)) return shared(ws, c, m);
@@ -764,6 +766,8 @@ function handle(ws, c, m) {
       if (!loginByIp.get(c.ip).take()) return send(ws, { t: 'loginErr', msg: 'Too many tries. Have a biscuit and try again in a minute.' });
       const name = String(m.name || '').trim(), pass = String(m.pass || ''), key = name.toLowerCase();
       const mem = state.members[key];
+      if (!mem && m.signup === false) return send(ws, { t: 'loginErr', msg: 'That account was not found. Choose Create Account to sign up.' });
+      if (mem && m.signup === true) return send(ws, { t: 'loginErr', msg: 'That user name is already taken. Log on or choose another name.' });
       if (!mem) {
         const why = nameProblem(name);
         if (why) return send(ws, { t: 'loginErr', msg: why });

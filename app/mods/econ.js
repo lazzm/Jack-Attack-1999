@@ -99,12 +99,42 @@ function earnA(a, src, note, amtOverride) {
     a.caps[src] = n + 1;
     const base = amtOverride != null ? Math.max(0, Math.floor(amtOverride)) : rule.amt;
     amt = rule.half && n >= rule.half ? Math.ceil(base / 2) : base;
-    amt = credit(a, amt, src, note || rule.label);
+    if (['job','chall','hspocket'].includes(src)) {
+      // Keep legacy job/XP bookkeeping in five-pence units; only the wallet is paid.
+      const w = wallet(a), pence = Math.min(amt * 5, 5000000 - w.pence);
+      amt = Math.floor(pence / 5); w.pence += amt * 5;
+      w.log.push([Date.now(), amt * 5, String(note || rule.label).slice(0,100)]); w.log = w.log.slice(-50);
+      ctx.markDirty(); meToAll(a);
+    } else amt = credit(a, amt, src, note || rule.label);
   }
   for (const fn of HOOKS.earn) { try { fn(a, src, amt, paying); } catch (e) { console.error('econ earn hook', e); } }
   return amt;
 }
 function earn(c, src, note, amt) { const a = acct(c); return a ? earnA(a, src, note, amt) : -1; }
+// Lazy additive wallet: never convert or replace an existing Rupee balance.
+function wallet(a) {
+  if (!a.wallet) { a.wallet = {pence:0,log:[],nonce:crypto.randomBytes(16).toString('hex'),day:'',exchanged:0,last:null}; ctx.markDirty(); }
+  return a.wallet;
+}
+function exchange(ws,c,m) {
+  const a=acct(c);if(!a)return need(ws);
+  const w=wallet(a), p=m.pence;
+  if(typeof m.nonce!=='string'||m.nonce!==w.nonce){
+    if(w.last&&m.nonce===w.last.nonce&&p===w.last.pence){ctx.send(ws,{t:'ecExchanged',...w.last,duplicate:true});sendMe(ws,c);return;}
+    sendMe(ws,c);return err(ws,'That exchange slip has expired. Check your balance and try again.');
+  }
+  if(!isInt(p,5,2000)||p%5)return err(ws,'Exchange 5p to £20 in multiples of 5p.');
+  const day=uk().day;if(w.day!==day){w.day=day;w.exchanged=0;}
+  if(w.pence<p)return err(ws,'You do not have that much pocket money.');
+  if(w.exchanged+p>2000)return err(ws,'The bank exchanges at most £20 of pocket money per day.');
+  rollDay(a);if((a.caps.cashExchange||0)>=CAT.EARN.cashExchange.cap)return err(ws,'The daily exchange limit has been reached.');
+  if(a.bal+p/5>MAXB)return err(ws,'Your Rupee account is full. No pocket money was taken.');
+  const receipt={nonce:w.nonce,pence:p,rupees:p/5};
+  w.pence-=p;w.exchanged+=p;w.nonce=crypto.randomBytes(16).toString('hex');w.last=receipt;
+  w.log.push([Date.now(),-p,'Exchanged for '+p/5+' Rupees']);w.log=w.log.slice(-50);
+  earnA(a,'cashExchange','JackNet Bank: exchanged pocket money',p/5);
+  ctx.markDirty();meToAll(a);ctx.send(ws,{t:'ecExchanged',...receipt});
+}
 function err(ws, msg) { ctx.send(ws, { t: 'ecErr', msg }); }
 function need(ws) { err(ws, 'You need to be a JackNet member to earn and spend Rupees. Join for FREE (Start > Log Off, then pick a name and a password), it takes 10 seconds!'); }
 
@@ -123,7 +153,8 @@ function meView(a) {
   rollDay(a);
   const caps = {}; for (const k in CAT.EARN) caps[k] = [a.caps[k] | 0, CAT.EARN[k].cap];
   const st = {}; for (const s in a.st) if (a.st[s] > 0) st[s] = [a.st[s], a.cost[s] | 0];
-  return { t: 'ecMe', name: a.name, bal: a.bal, earned: a.earned | 0, spent: a.spent | 0, inv: a.inv, wear: a.wear, log: a.log.slice(-LOGN), caps, streak: a.streak | 0, st, plot: a.plot, farm: farmView(a), rentAcc: r2(a.rentAcc || 0), worth: worth(a), opened: a.opened, tix: (a.tix || []).filter(t => t.no === D.lotto.no).map(t => t.n), lt: a.lt || [], secrets: (a.sec || []).length };
+  const w = wallet(a);
+  return { t: 'ecMe', name: a.name, bal: a.bal, earned: a.earned | 0, spent: a.spent | 0, inv: a.inv, wear: a.wear, log: a.log.slice(-LOGN), caps, streak: a.streak | 0, st, plot: a.plot, farm: farmView(a), rentAcc: r2(a.rentAcc || 0), worth: worth(a), opened: a.opened, tix: (a.tix || []).filter(t => t.no === D.lotto.no).map(t => t.n), lt: a.lt || [], secrets: (a.sec || []).length, wallet:{pence:w.pence,log:w.log,nonce:w.nonce,remaining:2000-(w.day===uk().day?w.exchanged:0),rate:20} };
 }
 function sendMe(ws, c) { const a = acct(c); if (a) ctx.send(ws, meView(a)); }
 function meToAll(a) { toMember(a.name, meView(a)); }
@@ -606,6 +637,7 @@ function handle(ws, c, m) {
   if (!c.ec.rl.take()) { if (Date.now() - c.ec.warned > 5000) { c.ec.warned = Date.now(); err(ws, 'Slow down! The JackNet server is only a 486.'); } return; }
   const a = c.member ? acct(c) : null;
   switch (m.t) {
+    case 'ecExchange': return exchange(ws,c,m);
     case 'ecMe': if (a) ctx.send(ws, meView(a)); else ctx.send(ws, { t: 'ecMe', guest: true }); return;
     case 'ecSub': for (const f of SUBFLAGS) if (typeof m[f] === 'boolean') c.ec[f] = m[f]; return;
     case 'ecBuy': return buy(ws, c, m);
@@ -632,7 +664,7 @@ function handle(ws, c, m) {
 
 module.exports = {
   name: 'econ',
-  types: ['ecMe', 'ecSub', 'ecBuy', 'ecWear', 'ecUse', 'ecSecret', 'ecMkt', 'ecHist', 'ecTrade', 'ecRich', 'ecTown', 'ecClaim', 'ecBuild', 'ecPlotName', 'ecAbandon', 'ecGaz', 'ecLotto', 'ecTicket', 'ecRace', 'ecBet', 'ecFarm'],
+  types: ['ecExchange', 'ecMe', 'ecSub', 'ecBuy', 'ecWear', 'ecUse', 'ecSecret', 'ecMkt', 'ecHist', 'ecTrade', 'ecRich', 'ecTown', 'ecClaim', 'ecBuild', 'ecPlotName', 'ecAbandon', 'ecGaz', 'ecLotto', 'ecTicket', 'ecRace', 'ecBet', 'ecFarm'],
   init(x) {
     ctx = x; D = x.data; initData();
     x.on('hello', (ws, c) => {

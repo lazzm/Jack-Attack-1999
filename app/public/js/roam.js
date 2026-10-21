@@ -90,7 +90,7 @@
   // our boxes wait for the full-screen JackNet logon (js/site.js) to finish fading away
   // (and, at switch-on, for the dial-up box to finish)
   let booted = false, hooked = false; // (boot.js loads after this file, so BootDone is looked up when it's needed)
-  const waiting = () => { if (!hooked && window.BootDone) { hooked = true; BootDone.then(() => { booted = true; }); } return (!booted && !!window.BootDone) || !!document.querySelector('.jlogoff'); };
+  const waiting = () => { if(window.AccountGate&&AccountGate.blocked)return false; if (!hooked && window.BootDone) { hooked = true; BootDone.then(() => { booted = true; }); } return (!booted && !!window.BootDone) || !!document.querySelector('.jlogoff'); };
   const afterLogon = fn => { const t0 = Date.now(); (function poll() { if (waiting() && Date.now() - t0 < 15000) return setTimeout(poll, 150); fn(); })(); };
   // a 1999 file-copy box that waits for the upload ("Copying your files and settings to JackNet...")
   function copying(m, done, up) {
@@ -126,6 +126,7 @@
       <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px"><button class="btn dflt" type="button" data-k style="text-align:left;padding:5px 8px">Keep the files on this computer and <u>a</u>dd them to my profile</button><button class="btn" type="button" data-u style="text-align:left;padding:5px 8px"><u>U</u>se my saved JackNet profile <small>(the guest's things stay on this PC)</small></button></div>`;
     b.querySelector('b').textContent = name;
     const w = Desk.openWin('JackNet - Your Profile', b, 380);
+    if(window.AccountGate&&AccountGate.blocked)AccountGate.profile(w.el);
     let picked = false; const pick = keep => { if (picked) return; picked = true; w.close(); cb(keep); };
     b.querySelector('[data-k]').addEventListener('click', () => pick(true));
     b.querySelector('[data-u]').addEventListener('click', () => pick(false));

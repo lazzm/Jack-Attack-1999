@@ -191,7 +191,7 @@ function jobDone(ws, c, key, m) {
   const pb = sc > (p.best[j] | 0); if (pb) p.best[j] = sc;
   const wk = wkOf(p); if (sc > (wk.jb[j] | 0)) wk.jb[j] = sc;
   ctx.markDirty(); hofAt = 0;
-  ctx.send(ws, { t: 'grJobDone', j, sc, amt, want, n: n + 1, runs: G.RUNS.length, best: p.best[j] | 0, pb });
+  ctx.send(ws, { t: 'grJobDone', j, sc, amt, cashPence:amt*5, want, n: n + 1, runs: G.RUNS.length, best: p.best[j] | 0, pb });
   ctx.emit('grJob', c, key, j, sc, amt); // (mods/ex.js: odd-job streaks, the Job of the Day and The Mega Masters)
 }
 

@@ -292,7 +292,7 @@
     bankSess = 0; A.secret('econ.timeout');
     P.el.innerHTML = `${bankTop('')}<div class="bk-body bk-to"><h1>Your session has timed out</h1><p>For your security, you have been logged out of JackNet Bank Online because you did not do anything for <b>3 minutes</b>.</p><p>(Our server got bored. It is a 486 and it has feelings.)</p><p><a href="${BU}/">Log in again &raquo;</a></p></div>${bankFoot()}`;
   }
-  const bankFoot = () => footer(`<p class="bk-small">JackNet Bank plc is not a real bank. Rupees are not real money. Your Mom's money is real money, leave it alone. Interest is paid daily at 0.1% (maximum 10 Rupees a day). <a href="${BU}/vault.html" class="bk-hid">staff</a></p>`);
+  const bankFoot = () => footer(`<p class="bk-small">JackNet Bank plc is not a real bank. Rupees and pocket money here are fictional game money. No real-money payments. Interest is paid daily at 0.1% (maximum 10 Rupees a day). <a href="${BU}/vault.html" class="bk-hid">staff</a></p>`);
   route(BH, '/', BCSS, P => {
     const show = () => {
       if (!member()) { P.el.innerHTML = `${bankTop('home')}<div class="bk-body"><div class="bk-cols"><div class="bk-login"><h2>Online Banking</h2><p>To open a JackNet Bank Rupee Account you first need to be a JackNet member. It's free!</p>${guestBox('Every member gets a Rupee account automatically.')}</div><div class="bk-ad"><h2>Banking at the speed of 56K!</h2><ul><li>Check your Rupee balance 24 hours a day*</li><li>See every Rupee that comes in and goes out</li><li><b>NEW:</b> balances now shown in shiny RUPEES!</li><li>0.1% interest EVERY DAY</li><li>No queues. No pens on chains. No Mr Hargreaves.</li></ul><p class="bk-small">*Except when Mom is on the phone.</p></div></div></div>${bankFoot()}`; bankWire(P); return; }
@@ -313,6 +313,7 @@
     return { head: `DATE     DETAILS                            PAID OUT  PAID IN    BALANCE\n${'-'.repeat(73)}`, rows };
   }
   route(BH, '/statement.html', BCSS, P => {
+    let exchangePending=false, exchangeNote='';
     const draw = () => {
       const me = Econ.me;
       if (!member()) { IE.navigate(BU + '/'); return; }
@@ -330,14 +331,35 @@ ${'-'.repeat(73)}
 </pre></div>
         <div class="bk-row"><button type="button" class="bk-print">Print statement</button><button type="button" class="bk-save">Save as STATEMENT.TXT</button><span class="bk-small">Last 50 transactions. Rent from Jacktown is paid every hour (pending: ${rp(Math.floor(me.rentAcc || 0))}).</span></div>
         <h2>Today's Rupee allowance</h2><p class="bk-small">You can only earn so much from each thing per day (it resets at midnight). Here's how much you've had:</p>
-        <table class="bk-caps">${Object.keys(C.EARN).filter(k => k !== 'set' && k !== 'ach').map(k => { const [n, cap] = caps[k] || [0, C.EARN[k].cap]; return `<tr><td>${esc(C.EARN[k].label)}</td><td>${teef(C.EARN[k].amt)} each</td><td><span class="bk-cbar"><i style="width:${Math.round(n / cap * 100)}%"></i></span></td><td>${n} of ${cap}</td></tr>`; }).join('')}</table>
+        <table class="bk-caps">${Object.keys(C.EARN).filter(k => !['set','ach','job','chall','hspocket','cashExchange'].includes(k)).map(k => { const [n, cap] = caps[k] || [0, C.EARN[k].cap]; return `<tr><td>${esc(C.EARN[k].label)}</td><td>${teef(C.EARN[k].amt)} each</td><td><span class="bk-cbar"><i style="width:${Math.round(n / cap * 100)}%"></i></span></td><td>${n} of ${cap}</td></tr>`; }).join('')}</table>
         <p>Log-on streak: <b>${me.streak} day${me.streak === 1 ? '' : 's'}</b> (missing a day only pauses it, it never goes down). Secrets cashed in: <b>${me.secrets}</b>. Money in from or out to other members is marked PAYMENT, TRADING POST or BAZAAR. <a href="${BU}/pay.html">Pay someone &raquo;</a></p></div>${bankFoot()}`;
       bankWire(P);
       const txt = `JACKNET BANK PLC - STATEMENT OF ACCOUNT\nCUSTOMER: ${me.name}\n\n${st.head}\n${st.rows.join('\n')}\n\nCLOSING BALANCE: ${rp(me.bal)}\n`;
+      const wallet=me.wallet;
+      if(wallet){
+        const cash=p=>'£'+(p/100).toFixed(2), section=document.createElement('section');section.className='bk-paper';
+        section.innerHTML='<h2>Pocket Money Exchange</h2><p>Cash in your pocket: <b data-cash></b> &middot; £1 = 20 Rupees</p><p>Earn pounds and pence from Mom\'s jobs and Saturday pocket money, then exchange them here. In-game money only.</p><form data-exchange><label>Amount in pounds <input name="pounds" type="number" min="0.05" max="20" step="0.05" value="1.00" required></label> <button type="submit">Exchange for Rupees</button></form><p class="bk-small" data-limit></p><p data-exchange-message role="status"></p>';
+        section.querySelector('[data-cash]').textContent=cash(wallet.pence);section.querySelector('[data-limit]').textContent='Daily limit: £20. Remaining today: '+cash(wallet.remaining)+'. Minimum 5p; multiples of 5p. No fees.';
+        section.querySelector('[data-exchange-message]').textContent=exchangeNote;
+        section.querySelector('input').value=(Math.min(100,wallet.pence,wallet.remaining)/100).toFixed(2);
+        const ledger=document.createElement('div');ledger.innerHTML='<details><summary>Pocket money statement</summary><table><tbody>'+wallet.log.slice(-8).reverse().map(row=>'<tr><td>'+esc(d99(row[0]))+'</td><td>'+esc(row[2])+'</td><td>'+esc((row[1]<0?'-':'+')+cash(Math.abs(row[1])))+'</td></tr>').join('')+'</tbody></table></details><p class="bk-small"><a href="http://www.oddjobz.jnet/">Find an odd job</a>, or check Mom\'s list in the house to earn pocket money.</p>';section.appendChild(ledger);
+        const button=section.querySelector('button');button.disabled=exchangePending||wallet.pence<5||wallet.remaining<5;
+        section.querySelector('form').addEventListener('submit',ev=>{
+          ev.preventDefault();if(exchangePending)return;
+          const value=ev.target.elements.pounds.value;if(!/^\d{1,2}(\.\d{1,2})?$/.test(value))return;
+          const parts=value.split('.'),pence=Number(parts[0])*100+Number(((parts[1]||'')+'00').slice(0,2));
+          if(pence%5||pence<5||pence>Math.min(wallet.pence,wallet.remaining,2000)){section.querySelector('[data-exchange-message]').textContent='Choose a multiple of 5p within your cash balance and daily limit.';return;}
+          exchangePending=true;button.disabled=true;
+          if(!Econ.send({t:'ecExchange',pence,nonce:wallet.nonce})){exchangePending=false;button.disabled=false;section.querySelector('[data-exchange-message]').textContent='Disconnected. Reconnect before exchanging. No money was taken.';}
+        });
+        P.q('.bk-sum').after(section);
+      }
       P.q('.bk-print').addEventListener('click', () => { A.secret('econ.print'); if (window.Spooler) Spooler.print('Bank Statement.txt', { pages: Math.max(1, Math.ceil(st.rows.length / 40)), owner: 'Jack', text: txt }); else Desk.toast('Print', 'No printer installed.'); });
       P.q('.bk-save').addEventListener('click', () => { A.fs.add('C:/My Documents/Rupees', { name: 'STATEMENT.TXT', type: 'txt', date: d99(Date.now()), size: Math.max(1, Math.round(txt.length / 1024)) + ' KB', text: txt }); Desk.toast('Download complete', 'STATEMENT.TXT saved to C:\\My Documents\\Rupees', 4000); });
     };
     Net.send({ t: 'ecMe' }); draw(); P.on('me', draw);
+    P.on('exchanged',m=>{exchangeNote='Receipt: '+ '£'+(m.pence/100).toFixed(2)+' exchanged for '+m.rupees+' '+(m.rupees===1?'Rupee':'Rupees')+'.';P.later(()=>{exchangePending=false;draw()},900)});
+    P.on('err',msg=>{exchangePending=false;exchangeNote=msg;draw()});
   });
   route(BH, '/richlist.html', BCSS, P => {
     P.el.innerHTML = `${bankTop('rich')}<div class="bk-body"><h1>The Rupee Rich List 1999</h1><p>The richest members of JackNet, by net worth (cash, plus shares at today's price, plus a third of what their Jacktown buildings cost). Updated live by our mainframe.</p><div class="bk-rich">Loading...</div></div>${bankFoot()}`;

@@ -1118,32 +1118,31 @@
   function overlay() { if (!ov) { ov = h('div', 'jlogoff logon'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'Welcome to JackNet'); DesktopSurface.root().appendChild(ov); } return ov; }
   let atBoot = false; // the logon at switch-on (vs. [Log on] links and the members-only box later)
   function finish(guest) {
+    if (!me().member) return; // logging on is mandatory; Escape/Cancel cannot become a guest
     const o = ov; ov = null; pend = false;
     if (o) { o.classList.add('jlbye'); setTimeout(() => o.remove(), 380); }
-    if (guest && atBoot && window.Desk) Desk.toast('JackNet', `Logged on as a guest: ${me().nick}. Join any time: Start > Log Off, or [Log on] at the top of any JACK ATTACK! page.`, 6000);
     atBoot = false;
     const r = resolveLogon; resolveLogon = null; if (r) setTimeout(r, o ? 300 : 0);
   }
-  function lbox(inner) { overlay().innerHTML = `<form class="jlbox" autocomplete="on"><div class="jltb"><span>Welcome to JackNet</span><button type="button" class="jlhelp" aria-label="Help">?</button></div><div class="jlbody">${KEYS}${inner}</div></form>`; ov.querySelector('.jlhelp').addEventListener('click', () => { const hp = ov && ov.querySelector('.jlhint'); if (hp) { hp.innerHTML = '<b>Members:</b> type your name and password.<br><b>New?</b> Type a NEW name and a password: you\'re signed up.<br><b>Just looking?</b> Log on as Guest.'; hp.style.color = '#000'; } sfx('click'); }); return ov.querySelector('form'); }
+  function lbox(inner) { overlay().innerHTML = `<form class="jlbox" autocomplete="on"><div class="jltb"><span>Welcome to JackNet</span><button type="button" class="jlhelp" aria-label="Help">?</button></div><div class="jlbody">${KEYS}${inner}</div></form>`; ov.querySelector('.jlhelp').addEventListener('click', () => { const hp = ov && ov.querySelector('.jlhint'); if (hp) { hp.innerHTML = '<b>Log on:</b> type your account name and password.<br><b>New?</b> Choose Create Account. A JackNet account is required to play.'; hp.style.color = '#000'; } sfx('click'); }); return ov.querySelector('form'); }
   function form(note) {
     const f = lbox(`<div class="jlmain"><p>Type a user name and password to log on to JackNet.</p>
       <div class="jlrow"><label for="jlUser"><u>U</u>ser name:</label><input id="jlUser" type="text" maxlength="16" autocomplete="username" value="${esc(me().member ? me().nick : store.get('jhp_site_lastnick', ''))}"></div>
       <div class="jlrow"><label for="jlPass"><u>P</u>assword:</label><input id="jlPass" type="password" maxlength="64" autocomplete="current-password"></div>
-      <p class="jlhint">New? Just pick a name and password: that's you signed up!</p><p class="jlhint jlghint">Just looking? <b>Log on as Guest</b>: you can see and play everything. Posting, high scores and Rupees are for members.</p><p class="jlerr" role="alert">${esc(note || '')}</p></div>
-      <div class="jlbtns"><button class="btn" type="submit">OK</button><button class="btn" type="button" data-c>Cancel</button><button class="btn jlguest" type="button" data-g>Log on as <u>G</u>uest</button></div>`);
+      <p class="jlhint">An account is required to play. New here? Choose Create Account.</p><p class="jlerr" role="alert">${esc(note || '')}</p></div>
+      <div class="jlbtns"><button class="btn" type="submit">Log On</button><button class="btn" type="button" data-create>Create Account</button></div>`);
     setTimeout(() => { const u = $('jlUser'); (u && u.value ? $('jlPass') : u).focus(); }, 60);
     f.addEventListener('submit', ev => {
       ev.preventDefault();
       const name = $('jlUser').value.trim(), pass = $('jlPass').value, err = f.querySelector('.jlerr');
       if (!NICK_RULE.test(name)) { err.textContent = 'User names are 3 to 16 letters, numbers, _ or - (no spaces).'; sfx('uhoh'); return; }
       if (pass.length < 4) { err.textContent = 'Passwords are at least 4 characters.'; sfx('uhoh'); return; }
-      if (!window.Net || !Net.send({ t: 'login', name, pass })) { err.textContent = 'Can\'t reach JackNet (is somebody on the phone?). Try again, or log on as Guest.'; return; }
+      if (!window.Net || !Net.send({ t: 'login', name, pass, signup:false })) { err.textContent = 'Can\'t reach JackNet (is somebody on the phone?). Reconnect and try again.'; return; }
       store.set('jhp_site_lastnick', name);
       err.style.color = '#000'; err.textContent = 'Verifying user name and password...'; f.querySelectorAll('button').forEach(b => { b.disabled = true; }); pend = true;
     });
-    const guest = () => { if (me().member) { Net.send({ t: 'logoff', token: Net.store.get('jhp_token') }); } finish(true); };
-    f.querySelector('[data-c]').addEventListener('click', guest); f.querySelector('[data-g]').addEventListener('click', guest);
-    f.addEventListener('keydown', ev => { if (ev.key === 'Escape') guest(); });
+    f.querySelector('[data-create]').addEventListener('click',()=>window.AccountGate&&AccountGate.show());
+    f.addEventListener('keydown', ev => { if (ev.key === 'Escape') ev.preventDefault(); });
   }
   let pend = false;
   function auto() { // a saved logon that the server accepted: show it, then carry on by itself
@@ -1159,7 +1158,7 @@
         waitNet(7000).then(() => {
           if (!ov) return;
           if (connected() && me().member) auto();
-          else form(!connected() ? 'Can\'t reach JackNet right now. You can log on as a Guest.' : hasToken() ? 'Your saved logon didn\'t work. Type your name and password again.' : '');
+          else form(!connected() ? 'Can\'t reach JackNet right now. Reconnect to log on.' : hasToken() ? 'Your saved logon didn\'t work. Type your name and password again.' : '');
         });
       });
     },
@@ -1168,7 +1167,6 @@
       const sm = $('startMenu'); if (sm) sm.classList.remove('open'); const sb = $('startBtn'); if (sb) sb.classList.remove('on');
       Desk.msgbox('Log Off JackOS', 'Are you sure you want to log off?', 'q', [['Yes', async () => {
         if (window.Sound && Sound.music) Sound.music.stop();
-        if (window.PCPower && PCPower.logoff()) return;
         overlay().innerHTML = '<div class="jlsave">Saving your settings...</div>'; sfx('shutdown');
         const t0 = Date.now();
         try { if (window.Roam && me().member) await Roam.logoff(); } catch (e) {} // members: upload their roaming profile, give the PC back to the guest

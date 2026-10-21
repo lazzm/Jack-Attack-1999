@@ -236,18 +236,6 @@
       cycling = true; clean = wasClean;
       later(() => power(true), 250);
       return true;
-    },
-    logoff() {
-      // Account changes still rebuild their profile-owned scene. Never retain a
-      // member's in-memory belongings on the guest desktop.
-      if ((window.Net && Net.me && Net.me.member) || (window.Roam && Roam.owner) || !window.JackLogon) return false;
-      if (cycling) return true;
-      if (!this.off()) return false;
-      cycling = true; window.JHPBoot = 'wake';
-      document.body.classList.remove('pc-power');
-      House.monitor();
-      JackLogon.boot().then(() => {cycling = false; keep = true; document.body.classList.add('online'); Sound.play('startup');});
-      return true;
     }
   };
   pbtn.addEventListener('click', power);
