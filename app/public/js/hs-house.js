@@ -723,7 +723,9 @@
     const car = B.at(frame.x, frame.y, frame.z, 0, { sx: frame.s, sy: frame.s, sz: frame.s }), cm = M({ c: '#6a1a2a', sh: 65, sp: '#888' }), gl = M({ c: '#344c60', sh: 110, sp: '#a5b9c4' });
     car.rbox(0, -52, 0, 170, 46, 400, 9, cm);
     car.rbox(0, -78, -10, 166, 10, 300, 4, cm); // the sills/belt line
-    { const cab = new T.BoxGeometry(150, 54, 210); const P2 = cab.attributes.position; for (let k = 0; k < P2.count; k++) if (P2.getY(k) > 0) { P2.setX(k, P2.getX(k) * 0.9); P2.setZ(k, P2.getZ(k) * 0.72 - 6); } cab.computeVertexNormals(); car.geo(cab, 0, -102, -14, gl, { sy: -1 }); }
+    // Build in the house's y-down frame. Baking a negative scale into a batch
+    // reverses triangle winding and makes the near windows disappear.
+    { const cab = new T.BoxGeometry(150, 54, 210); const P2 = cab.attributes.position; for (let k = 0; k < P2.count; k++) if (P2.getY(k) < 0) { P2.setX(k, P2.getX(k) * 0.9); P2.setZ(k, P2.getZ(k) * 0.72 - 6); } cab.computeVertexNormals(); car.geo(cab, 0, -102, -14, gl); }
     car.rbox(0, -131, -20, 134, 5, 150, 2, cm); // the roof
     const pillar = (top,bottom) => {const a=new T.Vector3(...top),b=new T.Vector3(...bottom),delta=b.clone().sub(a),centre=a.clone().add(b).multiplyScalar(.5);const geo=new T.BoxGeometry(5.5,delta.length()+2,5.5);geo.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),delta.normalize())));car.geo(geo,centre.x,centre.y,centre.z,cm);};
     for(const side of [-1,1]){pillar([side*67.5,-130,55.6],[side*75,-75,91]);pillar([side*67.5,-130,-95.6],[side*75,-75,-119]);pillar([side*67.5,-130,-14],[side*75,-75,-14]);}

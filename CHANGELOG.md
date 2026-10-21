@@ -1,5 +1,9 @@
 # Jack's Home Page - changelog
 
+## 2.25.1 - 2026-10-21
+- Follow-up car angle review: corrected reversed cabin triangle winding caused by baking a mirrored Y scale into static geometry. Near-side glazing is now solid from outside, rather than disappearing and exposing the parcel-shelf prop. No layout, mud IDs or chore-state changes.
+- Verified with the isolated car-angle/scrubbing regression and inspected screenshots. Same hardware/browser and broader art-pass limits as 2.25.0.
+
 ## 2.25.0 - 2026-10-21
 - Real-prop inspection: I while carrying brings the same solid object into view; drag to rotate, wheel to zoom, Esc returns to carrying. F on the puzzle cube now turns its actual 26-cubie model by dragging a face; right-drag rotates it. Six complete faces, thin inset stickers, animated quarter turns, persistent puzzle state and the existing solved secret replace the unrelated flat close-up.
 - Game Lad lifts into a stable, centred play pose rather than chasing its dropped position. Its rear cartridge follows the full handheld rotation, including inspection, with the label hidden from the front. Corrected coplanar battery-cover flicker, screw placement and interrupted lift/return handling. Esc leaves its running game intact.

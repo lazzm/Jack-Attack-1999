@@ -8,5 +8,5 @@ await p.addInitScript(()=>{localStorage.setItem('jhp_everbooted','1');localStora
 try{
 const response=await p.goto(base,{waitUntil:'domcontentloaded'});assert.equal(response.status(),200);
 await p.waitForFunction(()=>window.House?.mode==='monitor'&&!!House.pcGL,{},{timeout:60000});await p.waitForTimeout(4000);
-await p.screenshot({path:'shots/live-2.25.0.png'});assert.deepEqual(errors,[]);console.log('LIVE READ-ONLY PASS: HTTP 200; monitor visible; no browser errors/warnings');
+await p.screenshot({path:'shots/live-reviewed.png'});assert.deepEqual(errors,[]);console.log('LIVE READ-ONLY PASS: HTTP 200; monitor visible; no browser errors/warnings');
 }finally{await b.close()}
