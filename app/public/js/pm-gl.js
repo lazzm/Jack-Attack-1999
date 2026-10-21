@@ -311,13 +311,13 @@
     return { blank: 'Blank. 1.44 MB of nothing. Downloads go on these.', dl: 'Something I downloaded, saved onto a floppy so I never have to download it again.', gcse: 'My GCSE coursework. The ONLY copy. This is fine.', dave: 'Dave\'s disk. He said DON\'T LOOK ON IT. So obviously...', boot: 'The JackOS 98 Startup Disk. For emergencies. (Every day.)', quest: 'The text adventure. Shareware! Please copy!' }[k] || 'A floppy disk. 1.44 MB. That\'s, like, 700 pages of homework.';
   }
   let HOMES = {};
-  H.anims.set('pm.case-targets', () => {
+  H.ambient.add(() => {
+    if (!/^pmd\./.test(H.held() || '')) return;
     for (const id in HOMES) {
       const box = H.THINGS[tb(id)], sn = H.SNAPS['pm.case.' + id]; if (!box || !sn) continue;
       sn.room = box.at.room; sn.x = box.obj.position.x; sn.y = box.obj.position.y - 5; sn.z = box.obj.position.z;
       sn.pose = {x: sn.x, y: sn.y, z: sn.z, ry: box.at.ry || 0};
     }
-    return true;
   });
   const homeOf = id => HOMES[id] || { x: SH.x + 4, y: SH.boards[3] - 1, z: SH.z };
   H.on('tidy', rid => {

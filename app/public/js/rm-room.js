@@ -187,22 +187,25 @@
 
   // ================================================================ BUILDING IT
   const R = {}; // the bits we need later (meshes, materials)
+  let pcPowered = mode === 'wake';
   const room = H.room('bedroom', {
     name: "Jack's room", title: "JACK'S ROOM", lvl: 'U', area: [[LX, BZ, RX, FZ]],
     bx0: LX + 2, bx1: RX - 2, bz0: BZ + 2, bz1: FZ - 2,
     lights: () => {
       const L = [];
       const ph = skyPhase || 'day', day = ph === 'day', dim = ph === 'dusk' || ph === 'dawn';
-      if (LIGHT.lamp) L.push({ x: -50, y: -27, z: -34, c: '#ffc27a', i: 1.55, d: 430 }); // (the desk lamp: the warm key light)
-      if (LIGHT.main) L.push({ x: -20, y: -140, z: 90, c: '#fff0d6', i: 0.95, d: 760 });
-      L.push({ x: 191, y: -60, z: -10, c: day ? '#dfe8ff' : dim ? '#ffb88a' : '#7a8ab8', i: day ? 1.0 : dim ? 0.6 : 0.22, d: day ? 650 : 420 });
-      if (LIGHT.lava) L.push({ x: 130, y: -6, z: -44, c: '#ff4a8a', i: 0.55, d: 170 });
-      if (LIGHT.telly) L.push({ x: TX, y: -8, z: 20, c: '#7a9aff', i: 0.6, d: 240 });
-      if (H.stood) L.push({ x: L0().mx, y: -24, z: 30, c: '#9ac0ff', i: 0.45, d: 220 });
+      if (LIGHT.lamp) L.push({ x: -50, y: -27, z: -34, c: '#ffd6a3', i: 1.2, d: 390 });
+      if (LIGHT.main) L.push({ x: -20, y: -140, z: 90, c: '#fff0d6', i: 1.15, d: 680 });
+      L.push({ x: 191, y: -60, z: -10, c: day ? '#e2ecff' : dim ? '#ffd0af' : '#8c9fc4', i: day ? .85 : dim ? .5 : .16, d: day ? 620 : 420 });
+      if (LIGHT.lava) L.push({ x: 130, y: -6, z: -44, c: '#ff6d9c', i: .32, d: 150 });
+      if (LIGHT.telly) L.push({ x: TX, y: -8, z: 20, c: '#9bb5ed', i: .32, d: 180 });
+      if (pcPowered) L.push({ x: L0().mx, y: -24, z: 20, c: '#b3caec', i: .22, d: 150 });
       return L;
     },
-    amb: () => { const ph = skyPhase || 'day'; const m = LIGHT.main ? 0.18 : 0; return ph === 'day' ? { sky: '#bcbcc4', gnd: '#5a4430', i: 0.5 + m } : ph === 'night' ? { sky: '#4a4660', gnd: '#241a12', i: 0.3 + m } : { sky: '#9a8494', gnd: '#42301f', i: 0.42 + m }; /* (soft and warm: a lamp-lit 1999 bedroom) */ },
-    sun: () => { const ph = skyPhase || 'day'; if (ph === 'night') return { x: 260, y: -260, z: -420, tx: 0, ty: 73, tz: 60, c: '#8090c8', i: 0.12 }; return { x: 260, y: -300, z: -420, tx: 0, ty: 73, tz: 60, c: ph === 'day' ? '#fff2dc' : '#ffb07a', i: ph === 'day' ? 0.45 : 0.3 }; },
+    amb: () => { const ph = skyPhase || 'day'; if (ph === 'day') return {sky: '#d6dfe8', gnd: '#827361', i: .62 + (LIGHT.main ? .08 : 0)};
+      if (LIGHT.main) return {sky: '#dfc9ad', gnd: '#75624e', i: .54};
+      return ph === 'night' ? {sky: '#8896b0', gnd: '#4d4d58', i: .38} : {sky: '#c3a9aa', gnd: '#75614f', i: .52}; },
+    sun: () => { const ph = skyPhase || 'day'; return { x: 260, y: -300, z: -420, tx: 0, ty: 73, tz: 60, c: ph === 'night' ? '#a2b6dc' : ph === 'day' ? '#fff2dc' : '#ffcfac', i: ph === 'night' ? .055 : ph === 'day' ? .28 : .16 }; },
     build(r) { buildBedroom(r); },
   });
   function buildBedroom(r) {
@@ -863,8 +866,8 @@
     // the power LEDs (green while the PC is on and you've stood up from it)
     const ledOff = M({ c: '#33402a', sh: 60, sp: '#444' }), ledOn = M({ c: '#7dff6a', e: '#4dff3a', basic: true });
     const leds = [P.box(L.tx - 6, -21.6, L.tz + 18.4, 0.7, 0.7, 0.3, ledOff), P.box(L.mx + 11.6, -9.9, 0.1, 0.6, 0.6, 0.2, ledOff)];
-    const ledSet = on => { leds.forEach(m => { if (m) m.material = on ? ledOn : ledOff; }); H.dirty(); };
-    H.on('pcpower', on => ledSet(on)); H.on('stood', () => ledSet(true)); H.on('sat', () => ledSet(true)); if (H.stood) ledSet(true);
+    const ledSet = on => { const changed = pcPowered !== !!on; pcPowered = !!on; leds.forEach(m => { if (m) m.material = on ? ledOn : ledOff; }); if (changed) H.relight(); H.dirty(); };
+    H.on('pcpower', on => ledSet(on)); H.on('stood', () => ledSet(pcPowered)); H.on('sat', () => ledSet(pcPowered)); ledSet(pcPowered);
     g.traverse(o => { if (o.isMesh) o.userData.noPick = 1; });
     g.userData.glass = glass; r.group.add(g); H.pcGL = g; H.pcGlass = glassM; H.dirty();
     return btn;
@@ -975,7 +978,7 @@
         if (!ok) { H.unfocus(); say('The telly', 'That did not load. Try again in a minute.'); return; }
         try { go(); } catch (e) { console.error(e); H.unfocus(); }
       }),
-      exit: () => { tvFocus = false; ++tvRequest; tvSession(null); if (window.RoomTV && RoomTV.open_) RoomTV.close(); }
+      exit: () => { tvFocus = false; ++tvRequest; if (window.RoomTV && RoomTV.open_) RoomTV.close(); else if (!(window.RoomTV && RoomTV._dbg() && RoomTV._dbg().background)) tvSession(null); }
     });
     if (tvFocus) tvSession({ con, gid: gameId || '', back: H._.focusS.back });
   }
@@ -1187,12 +1190,13 @@
         pose: { x: c.x, y: c.y + (c.disc ? -0.14 : 1), z: c.z + (c.disc ? 6 : 0), ry: 0, rx: c.disc ? 90 : 0 }, hide: c.disc,
         accepts: (kind, t) => !!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === id), enabled: () => !inserted(id),
         hint: 'Click/E to insert into the ' + CAT.CONSOLES[id].n,
-        onSnap: t => { lidSet(id, false); tvOpen(id, t.gameId); }, onUnsnap: () => lidSet(id, true) });
+        onSnap: t => { lidSet(id, false); tvOpen(id, t.gameId); }, onUnsnap: () => {lidSet(id, true); if (window.RoomTV) RoomTV.stopPhysical(id);} });
     }
     const gb = H.THINGS.gb;
     const gbSlot = Room.addSnap('console.gb', { x: 0, y: 0, z: 0, r: 10, box: [5.5, 1, 2], pose: {},
       accepts: (kind, t) => !!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === 'gb'),
-      enabled: () => gb.st !== 'held' && !inserted('gb'), hint: 'Click/E to insert into the Game Lad', onSnap: t => tvOpen('gb', t.gameId) });
+      enabled: () => gb.st !== 'held' && !inserted('gb'), hint: 'Click/E to insert into the Game Lad', onSnap: t => tvOpen('gb', t.gameId),
+      onUnsnap: () => {if (window.RoomTV) RoomTV.stopPhysical('gb');} });
     const moveGBSlot = () => {
       const a = gb.obj.position, yaw = gb.obj.rotation.y, x = a.x - Math.sin(yaw) * 5, z = a.z - Math.cos(yaw) * 5;
       Object.assign(gbSlot, { x, y: a.y - 1.2, z }); Object.assign(gbSlot.pose, { x, y: a.y - 1.2, z, rx: 90, ry: yaw / D2R });
@@ -1219,10 +1223,15 @@
     if (saved && CAT.CONSOLES[saved.con] && !CAT.CONSOLES[saved.con].away) {
       let tries = 0;
       const resume = () => {
-        if (!H.live || !canGo()) { if (++tries < 200) setTimeout(resume, 100); return; }
+        if (!H.live || (!saved.background && !canGo())) { if (++tries < 200) setTimeout(resume, 100); return; }
         const t = mediaThings[saved.gid], sn = H.SNAPS['console.' + saved.con];
         if (saved.gid && (!t || !sn || CAT.GAME[saved.gid].con !== saved.con)) { tvSession(null); return; }
         if (t) { t.st = 'snap'; t.snap = sn.id; t.at = Object.assign({ room: 'bedroom', hide: !!sn.hide }, sn.pose); t.rx = sn.pose.rx || 0; H.place(t); lidSet(saved.con, false); }
+        if (saved.background) {
+          const ready = window.RoomTV ? Promise.resolve() : (tvLoad = tvLoad || loadJs('js/rm-tv.js'));
+          ready.then(() => {RoomTV.open(saved.con, null, {restoring: true}); if (saved.gid) RoomTV.playPhysical(saved.gid); RoomTV.close();}).catch(() => {tvLoad = null;});
+          return;
+        }
         const b = saved.back;
         if (b && [b.x, b.y, b.z, b.rx, b.ry].every(Number.isFinite) && b.x > LX && b.x < RX && b.z > BZ && b.z < FZ) { Object.assign(H.P, b); H.setWalkFrom(b); }
         tvOpen(saved.con, saved.gid, true);
@@ -1285,7 +1294,24 @@
     found: id => !!S.f[id], owned: g => { const G = CAT.GAME[g]; return !!G && (G.own ? isOut(CAT.CONSOLES[G.con].from) : !!S.f['cart.' + g]); },
     where: () => H.here, T, K, House: H, ensureHouse,
     onClose(fn) { (EVS.close = EVS.close || []).push(fn); }, offClose(fn) { const a = EVS.close || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); },
-    _: { ejectMedia, tvOn(url) { if (!R.tvScreen) return; LIGHT.telly = true; H.relight(); const m = R.tvScreen.material; if (url) new T.TextureLoader().load(url, tx => { const old = m.map; m.map = tx; m.color.set('#ffffff'); if (old && old !== tex('screenOff')) old.dispose(); m.needsUpdate = true; H.dirty(); }); else { m.color.set('#6a8aff'); m.needsUpdate = true; H.dirty(); } },
+    _: { ejectMedia,
+      tvVisible(con) {
+        const screen = con === 'gb' ? R.gbScreen : R.tvScreen; if (!screen) return false;
+        for (let o = screen; o; o = o.parent) if (!o.visible) return false;
+        const v = new T.Vector3(); screen.getWorldPosition(v);
+        const p = H.toScreen(v.x, -v.y, v.z);
+        return !!p && p.x > -100 && p.y > -100 && p.x < innerWidth + 100 && p.y < innerHeight + 100;
+      },
+      tvOff(con) {
+        const screen = con === 'gb' ? R.gbScreen : R.tvScreen; if (!screen) return;
+        const m = screen.material, tx = m.map;
+        if (tx && tx.userData.jackLive) {if (tx.userData.hud) tx.userData.hud.dispose(); tx.dispose();}
+        m.map = con === 'gb' ? null : tex('screenOff'); m.color.set(con === 'gb' ? '#83956c' : '#ffffff');
+        m.onBeforeCompile = () => {}; m.customProgramCacheKey = () => 'room-screen-off'; m.needsUpdate = true;
+        if (con !== 'gb') LIGHT.telly = false;
+        H.relight(); H.dirty();
+      },
+      tvOn(url) { if (!R.tvScreen) return; LIGHT.telly = true; H.relight(); const m = R.tvScreen.material; if (url) new T.TextureLoader().load(url, tx => { const old = m.map; m.map = tx; m.color.set('#ffffff'); if (old && old !== tex('screenOff')) old.dispose(); m.needsUpdate = true; H.dirty(); }); else { m.color.set('#6a8aff'); m.needsUpdate = true; H.dirty(); } },
       tvLive(canvas, overlay, con) {
         const screen = con === 'gb' ? R.gbScreen : R.tvScreen;
         if (!screen || !canvas) return null;

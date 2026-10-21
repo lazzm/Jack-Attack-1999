@@ -124,7 +124,21 @@
   const phase = () => { const c = pbEl ? pbEl.classList : null; if (c && (c.contains('rm-night') || c.contains('rm-dusk') || c.contains('rm-dawn') || c.contains('rm-day'))) return c.contains('rm-night') ? 'night' : c.contains('rm-dusk') ? 'dusk' : c.contains('rm-dawn') ? 'dawn' : 'day'; const h = new Date().getHours(); return h < 6 || h >= 20 ? 'night' : h < 8 ? 'dawn' : h >= 18 ? 'dusk' : 'day'; };
   const lightsOn = {}; // room -> ceiling light on? (set by the switches; js/hs-life.js decides the defaults)
   const lit = id => lightsOn[id] != null ? lightsOn[id] : (phase() !== 'day');
+  function interiorAmb(id, dayIntensity = .64) {
+    if (phase() === 'day') return {sky: '#d6dfe8', gnd: '#887d6e', i: dayIntensity};
+    if (lit(id)) return {sky: '#ded1bc', gnd: '#7a6853', i: .5};
+    return phase() === 'night' ? {sky: '#7887a2', gnd: '#45464c', i: .3} : {sky: '#c1adb2', gnd: '#746251', i: .46};
+  }
+  function outdoorAmb(ground) {
+    return phase() === 'day' ? {sky: '#cfe0ff', gnd: ground, i: .78} : phase() === 'night' ? {sky: '#7283a4', gnd: '#49514e', i: .46} : {sky: '#d9b6ae', gnd: '#66654f', i: .62};
+  }
   const sky = () => K.TEX['rm.sky'];
+  const phaseTextures = new Set();
+  function phaseTex(key, w, h, paint, options) {
+    const t = K.tex(key, w, h, paint, options);
+    t.userData.repaintPhase = () => {paint(t.userData.g, w, h); t.needsUpdate = true;};
+    phaseTextures.add(t); return t;
+  }
 
   // ================================================================ THE LANDING (and the stairs going down)
   function buildLanding(r) {
@@ -609,7 +623,7 @@
     const dome = new T.SphereGeometry(1800, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2); // (a hemisphere: our y is down, so it's flipped with sy)
     B.geo(dome, cx, GY + 2, cz, M({ c: '#fff', map: skyOutTex(), basic: true, side: 2 }), { sy: -1 }); // (both sides: the flip turns its faces inside out)
   }
-  function skyOutTex() { return K.tex('hs.skyout', 512, 256, (g, w, h) => {
+  function skyOutTex() { return phaseTex('hs.skyout', 512, 256, (g, w, h) => {
     const ph = phase(), D = ph === 'day', N = ph === 'night';
     g.fillStyle = A.lin(g, 0, 0, 0, h, D ? [[0, '#2a6ad8'], [0.5, '#7ab0f0'], [1, '#d8e8ff']] : N ? [[0, '#02040c'], [0.6, '#0a1230'], [1, '#1c2448']] : [[0, '#2a2a6a'], [0.5, '#a05a7a'], [1, '#ffb070']]); g.fillRect(0, 0, w, h);
     if (N) { const r = K.rnd(12); for (let i = 0; i < 220; i++) { g.fillStyle = `rgba(255,255,240,${0.3 + r() * 0.7})`; g.fillRect(r() * w, r() * h * 0.8, r() < 0.1 ? 2 : 1, 1); } g.fillStyle = '#f4f0d8'; g.beginPath(); g.arc(400, 70, 12, 0, 7); g.fill(); g.fillStyle = '#0a1230'; g.beginPath(); g.arc(405, 66, 11, 0, 7); g.fill(); }
@@ -648,7 +662,7 @@
     B.plane((x0 + x1) / 2, GY - 90, z0 + 1, x1 - x0, 180, fm, { ry: 0, uv: 100 });
     for (let z = z0; z <= z1; z += 180) { B.box(x0 + 2, GY - 92, z, 8, 190, 8, M('#5a3a22')); B.box(x1 - 2, GY - 92, z, 8, 190, 8, M('#5a3a22')); }
     for (let x = x0; x <= x1; x += 172) B.box(x, GY - 92, z0 + 2, 8, 190, 8, M('#5a3a22'));
-    B.plane(-42.5, GY - 230, z0 - 400, 1400, 300, M({ c: '#fff', map: K.tex('hs.roofs', 512, 128, (g, w, h) => { g.clearRect(0, 0, w, h); const N = phase() === 'night'; for (let k = 0; k < 6; k++) { const x = k * 90 - 10; g.fillStyle = N ? '#0c0d14' : '#b08060'; g.fillRect(x, 70, 88, 58); g.fillStyle = N ? '#07080d' : '#5a4a48'; g.beginPath(); g.moveTo(x - 4, 72); g.lineTo(x + 44, 34); g.lineTo(x + 92, 72); g.fill(); g.fillStyle = N ? '#0a0b10' : '#8a6a5a'; g.fillRect(x + 60, 26, 10, 26); for (const wx of [x + 12, x + 50]) { g.fillStyle = N && (k + wx) % 3 === 0 ? '#ffd27a' : N ? '#0a0e18' : '#9ab8d8'; g.fillRect(wx, 84, 22, 18); } } }, { clamp: true }), tr: true, basic: true }), {});
+    B.plane(-42.5, GY - 230, z0 - 400, 1400, 300, M({ c: '#fff', map: phaseTex('hs.roofs', 512, 128, (g, w, h) => { g.clearRect(0, 0, w, h); const N = phase() === 'night'; for (let k = 0; k < 6; k++) { const x = k * 90 - 10; g.fillStyle = N ? '#0c0d14' : '#b08060'; g.fillRect(x, 70, 88, 58); g.fillStyle = N ? '#07080d' : '#5a4a48'; g.beginPath(); g.moveTo(x - 4, 72); g.lineTo(x + 44, 34); g.lineTo(x + 92, 72); g.fill(); g.fillStyle = N ? '#0a0b10' : '#8a6a5a'; g.fillRect(x + 60, 26, 10, 26); for (const wx of [x + 12, x + 50]) { g.fillStyle = N && (k + wx) % 3 === 0 ? '#ffd27a' : N ? '#0a0e18' : '#9ab8d8'; g.fillRect(wx, 84, 22, 18); } } }, { clamp: true }), tr: true, basic: true }), {});
     // the shed (Dad's), the whirly washing line, the wheelie bin, a flower bed, the water butt, a tree
     const sh = B.at(-230, GY, -470, 8), shw = M({ c: '#fff', map: tex('pineDark') });
     sh.box(0, -95, 0, 150, 190, 120, shw, { uv: 60 }); sh.box(0, -200, 0, 162, 20, 132, M('#3a3a3a')); sh.box(0, -190, 0, 150, 2, 120, M('#2a2a2a'));
@@ -701,7 +715,9 @@
     B.box(-60, GY - 35, 1095, 600, 70, 20, mBrick(), { uv: 128 }); B.box(-60, GY - 72, 1095, 600, 4, 24, M('#9a9a92'));
     B.box(300, GY - 35, 1095, 20, 70, 20, mBrick(), { uv: 128 }); B.box(480, GY - 35, 1095, 20, 70, 20, mBrick(), { uv: 128 });
     for (let x = -340; x < 230; x += 32) B.ball(x, GY - 52, 1060, 22, 30, 20, M({ c: ['#2e6a2a', '#3a7a30'][(x / 32) % 2 ? 1 : 0], sh: 6 }), 8);
-    const lp = B.at(220, GY, 1170); lp.cyl(0, -220, 0, 5, 7, 440, 10, M('#3a3a40')); lp.box(0, -445, 0, 14, 10, 30, M('#2a2a2a')); lp.box(0, -440, 10, 10, 6, 10, M({ c: '#fff4c8', e: phase() === 'day' ? '#000' : '#ffd27a' }));
+    const lp = B.at(220, GY, 1170); lp.cyl(0, -220, 0, 5, 7, 440, 10, M('#3a3a40')); lp.box(0, -445, 0, 14, 10, 30, M('#2a2a2a'));
+    r.streetGlow = M({ c: '#fff4c8', e: phase() === 'day' ? '#000' : '#ffd27a' }).clone();
+    lp.box(0, -440, 10, 10, 6, 10, r.streetGlow);
     // Dad's car: a burgundy family saloon (no real make), on the drive, nose to the street
     const car = B.at(430, GY, 906, 0, { sx: 0.82, sy: 0.82, sz: 0.82 }), cm = M({ c: '#6a1a2a', sh: 80, sp: '#aaa' }), gl = M({ c: '#7a98b0', o: 0.85, tr: true, sh: 120, sp: '#fff' });
     car.rbox(0, -52, 0, 170, 46, 400, 9, cm);
@@ -730,34 +746,34 @@
   const ROOMDEF = {
     landing: { name: 'The landing', title: 'THE LANDING', lvl: 'U', area: [[250, 130, 410, 250], [250, 250, 330, 700], [330, 250, 410, 700]], bx0: 252, bx1: 408, bz0: 132, bz1: 698, build: buildLanding,
       lights: () => [{ x: 300, y: -150, z: 400, c: '#fff0d8', i: lit('landing') ? 0.9 : 0, d: 520 }, { x: 390, y: -10, z: 440, c: phase() === 'day' ? '#e8f0ff' : '#5a6a9a', i: phase() === 'day' ? 1.3 : 0.25, d: 560 }, { x: 300, y: -60, z: 180, c: '#f0ece0', i: phase() === 'day' ? 0.4 : 0.1, d: 320 }],
-      amb: () => ({ sky: '#c0c0cc', gnd: '#5a4a3a', i: phase() === 'day' ? 0.7 : lit('landing') ? 0.4 : 0.22 }),
+      amb: () => interiorAmb('landing', .68),
       stations: [{ id: 'top', n: 'Top of the stairs', pose: () => look('U', 300, 175, 370, 220, 520, 158) }, { id: 'doors', n: 'Landing', pose: () => look('U', 310, 640, 250, -40, 420, 158) }] },
     hall: { name: 'The hall', title: 'THE HALL', lvl: 'G', area: [[205, 60, 410, 250], [205, 250, 330, 600], [205, 600, 410, 700], [330, 440, 410, 600]], bx0: 207, bx1: 408, bz0: 62, bz1: 698, build: buildHall,
       lights: () => { const day = phase() === 'day'; return [{ x: 300, y: 130, z: 200, c: '#fff0d8', i: lit('hall') ? 1.0 : 0, d: 520 }, { x: 300, y: 130, z: 560, c: '#fff0d8', i: lit('hall') ? 0.8 : 0, d: 420 }, { x: 300, y: 200, z: 690, c: day ? '#dfe8ff' : '#3a4a7a', i: day ? 1.3 : 0.2, d: 520 }, { x: 390, y: 180, z: 440, c: day ? '#e8f0ff' : '#5a6a9a', i: day ? 1.0 : 0.2, d: 460 }, { x: 260, y: 220, z: 150, c: day ? '#f0f0f0' : '#333', i: day ? 0.5 : 0.1, d: 300 }]; },
-      amb: () => ({ sky: '#c8c0b0', gnd: '#5a4a3a', i: phase() === 'day' ? 0.75 : lit('hall') ? 0.4 : 0.22 }),
+      amb: () => interiorAmb('hall', .68),
       stations: [{ id: 'stairs', n: 'Bottom of the stairs', pose: () => look('G', 268, 660, 370, 230, 380, 158) }, { id: 'back', n: 'The hall', pose: () => look('G', 300, 640, 260, 260, 150, 158) }] },
     cupboard: { name: 'Under the stairs', title: 'UNDER THE STAIRS', lvl: 'G', area: [[332, 252, 408, 440]], bx0: 334, bx1: 406, bz0: 254, bz1: 438, eye: 112, build: buildCupboard, noMap: false,
-      lights: () => [{ x: 370, y: 150, z: 290, c: '#ffe0a0', i: lit('cupboard') ? 1.1 : 0, d: 260 }, { x: 368, y: GY - 120, z: 345, c: '#ffd9a0', i: H.here === 'cupboard' ? 0.85 : 0, d: 240 }, { x: 336, y: 290, z: 400, c: '#e8e0d0', i: H.DOORS.cupboard && H.DOORS.cupboard.open ? (phase() === 'day' ? 0.7 : 0.35) : 0.05, d: 220 }],
-      amb: () => ({ sky: '#6a6050', gnd: '#2a2018', i: lit('cupboard') ? 0.32 : (H.DOORS.cupboard && H.DOORS.cupboard.open ? 0.18 : 0.08) }),
+      lights: () => [{ x: 370, y: 150, z: 290, c: '#ffe4b8', i: lit('cupboard') ? 1.1 : 0, d: 260 }, { x: 336, y: 290, z: 400, c: '#e8e0d0', i: H.DOORS.cupboard && H.DOORS.cupboard.open ? (phase() === 'day' ? .65 : .25) : 0, d: 220 }],
+      amb: () => ({ sky: lit('cupboard') ? '#b2a18b' : '#7d8190', gnd: '#5b5145', i: lit('cupboard') ? .46 : (H.DOORS.cupboard && H.DOORS.cupboard.open ? .3 : .22) }),
       stations: [{ id: 'snes', n: 'The old console', pose: () => look('G', 362, 400, 358, GY - 38, 330, 112) }] },
     lounge: { name: 'The lounge', title: 'THE LOUNGE', lvl: 'G', area: [[-280, 305, 195, 700]], bx0: -278, bx1: 193, bz0: 307, bz1: 698, build: buildLounge,
       lights: () => { const L = [{ x: -60, y: GC + 30, z: 500, c: '#fff0d0', i: lit('lounge') ? 0.95 : 0, d: 700 }, { x: -60, y: 220, z: 690, c: phase() === 'day' ? '#e8f0ff' : '#4a5a8a', i: phase() === 'day' ? 1.1 : 0.2, d: 650 }]; const lamp = lightsOn.loungeLamp == null ? phase() !== 'day' : lightsOn.loungeLamp; if (lamp) L.push({ x: 160, y: GY - 160, z: 360, c: '#ffd8a0', i: 0.8, d: 380 }); if (HouseRooms.rooms.lounge.fireOn) L.push({ x: -240, y: GY - 30, z: 500, c: '#ff8a40', i: 0.9, d: 300 }); if (window.HouseTelly && HouseTelly.on) L.push({ x: LT.x, y: GY - 80, z: LT.z + 60, c: '#8aa8ff', i: 0.55, d: 320 }); return L; },
-      amb: () => ({ sky: '#c8b8a8', gnd: '#4a2a22', i: phase() === 'day' ? 0.5 : lit('lounge') ? 0.38 : 0.22 }),
+      amb: () => interiorAmb('lounge', .6),
       sun: () => phase() === 'day' ? { x: -60, y: -100, z: 1200, tx: -60, ty: GY, tz: 400, c: '#fff4e0', i: 0.35 } : null,
       stations: [{ id: 'telly', n: 'The telly', pose: () => look('G', -50, 640, LT.x, GY - 70, LT.z, 150) }, { id: 'fire', n: 'The fireplace', pose: () => look('G', 100, 560, -270, GY - 90, 500, 158) }, { id: 'window', n: 'The window', pose: () => look('G', -40, 420, -60, 230, 700, 158) }] },
     garden: { name: 'The back garden', title: 'THE BACK GARDEN', lvl: 'G', area: [[-300, -560, 215, -56]], bx0: -298, bx1: 213, bz0: -558, bz1: -58, build: buildGarden, outside: true,
       lights: () => [{ x: 120, y: GY - 230, z: -70, c: '#ffe0a0', i: phase() === 'day' ? 0 : 0.7, d: 500 }],
-      amb: () => ({ day: { sky: '#cfe0ff', gnd: '#4a6a2a', i: 1.0 }, night: { sky: '#303a5a', gnd: '#101810', i: 0.35 } }[phase() === 'day' ? 'day' : phase() === 'night' ? 'night' : 'day'] || { sky: '#e0b0a0', gnd: '#3a4a2a', i: 0.7 }),
+      amb: () => outdoorAmb('#78855a'),
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: -900, tx: 0, ty: GY, tz: -300, c: '#8090c8', i: 0.15 } : { x: 400, y: -900, z: -600, tx: 0, ty: GY, tz: -300, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'patio', n: 'The garden', pose: () => look('G', 40, -90, -80, GY - 80, -420, 158) }, { id: 'shed', n: 'The shed', pose: () => look('G', -40, -300, -230, GY - 100, -470, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 20, -360, 80, 60, -56, 158) }] },
     drive: { name: 'The front', title: 'OUT THE FRONT', lvl: 'G', area: [[-340, 700, 470, 1120]], bx0: -338, bx1: 468, bz0: 702, bz1: 1118, build: buildDrive, outside: true,
       lights: () => [{ x: 360, y: GY - 124, z: 730, c: '#ffe0a0', i: phase() === 'day' ? 0 : 0.7, d: 420 }, { x: 220, y: GY - 430, z: 1170, c: '#ffb860', i: phase() === 'day' ? 0 : 1.2, d: 900 }],
-      amb: () => (phase() === 'day' ? { sky: '#cfe0ff', gnd: '#4a4a3a', i: 1.0 } : phase() === 'night' ? { sky: '#303a5a', gnd: '#101010', i: 0.35 } : { sky: '#e0b0a0', gnd: '#3a3a2a', i: 0.7 }),
+      amb: () => outdoorAmb('#797b70'),
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: 1700, tx: 300, ty: GY, tz: 900, c: '#8090c8', i: 0.15 } : { x: -400, y: -900, z: 1500, tx: 300, ty: GY, tz: 900, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'car', n: "Dad's car", pose: () => look('G', 60, 1060, 370, GY - 70, 880, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 180, 1040, 150, 120, 700, 158) }, { id: 'street', n: 'The street', pose: () => look('G', 200, 760, 240, GY - 120, 1400, 158) }] },
     kitchen: { name: 'The kitchen', title: 'THE KITCHEN', lvl: 'G', area: [[-280, -56, 195, 295]], bx0: -278, bx1: 193, bz0: -54, bz1: 293, build: buildKitchen,
-      lights: () => [{ x: -60, y: GC + 10, z: 120, c: '#f4f8ff', i: lit('kitchen') ? 1.0 : 0, d: 700 }, { x: -80, y: 240, z: -40, c: phase() === 'day' ? '#e8f0ff' : '#4a5a8a', i: phase() === 'day' ? 1.0 : 0.2, d: 600 }],
-      amb: () => ({ sky: '#e0d8c0', gnd: '#5a4a32', i: phase() === 'day' ? 0.55 : lit('kitchen') ? 0.42 : 0.2 }),
+      lights: () => [{ x: -60, y: GC + 10, z: 120, c: '#f4f8ff', i: lit('kitchen') ? .9 : 0, d: 700 }, { x: -80, y: 240, z: -40, c: phase() === 'day' ? '#e8f0ff' : '#4a5a8a', i: phase() === 'day' ? .72 : .16, d: 600 }],
+      amb: () => interiorAmb('kitchen', .64),
       sun: () => phase() === 'day' ? { x: -80, y: -100, z: -800, tx: -80, ty: GY, tz: 120, c: '#fff4e0', i: 0.3 } : null,
       stations: [{ id: 'fridge', n: 'The fridge', pose: () => look('G', -120, 160, -250, GY - 110, -10, 158) }, { id: 'sink', n: 'The sink', pose: () => look('G', -40, 180, -80, GY - 110, -56, 158) }, { id: 'table', n: 'The table', pose: () => look('G', 120, 260, -60, GY - 76, 170, 158) }] },
   };
@@ -809,7 +825,17 @@
     relight() { H.relight(); },
   };
   // the VCR's clock and the microwave's: flashing 12:00 (until somebody sets them)
+  let lastPhase = phase();
   H.ambient.add(now => {
+    const ph = phase();
+    if (ph !== lastPhase) {
+      lastPhase = ph;
+      for (const t of phaseTextures) t.userData.repaintPhase();
+      const drive = HouseRooms.rooms.drive;
+      if (drive && drive.streetGlow) drive.streetGlow.emissive.set(ph === 'day' ? '#000' : '#ffd27a');
+      const cupboard = HouseRooms.rooms.cupboard; if (cupboard) cupLight(cupboard);
+      H.relight();
+    }
     const blink = Math.floor(now / 600) % 2 === 0;
     for (const [rid, key, set] of [['lounge', 'vcrTex', 'vcrSet'], ['kitchen', 'mwTex', 'mwSet']]) {
       const r = HouseRooms.rooms[rid]; if (!r || !r[key] || !r.group.visible) continue;

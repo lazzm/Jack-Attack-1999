@@ -1,5 +1,12 @@
 # Jack's Home Page - changelog
 
+## 2.24.0 - 2026-10-21
+- Esc now leaves physical console games running on their screens. Returning keeps the same game instance, timer and progress; room controls cannot leak into the game. Ejecting or switching consoles really stops it and releases screen textures. Background console selection/power restores without forcing the player back into a close-up.
+- Background game drawing/uploads are capped at 30 Hz when the screen is visible and 10 Hz otherwise, while simulation keeps its fixed update step. Sound is quieter when leaned out and silent outside the bedroom; hidden tabs suspend the loop. Removed a permanent case-target animation that unnecessarily forced room redraws.
+- Whole-house lighting pass: more readable cool daylight, warm indoor bounce and subdued night fill across bedroom, landing, hall, cupboard, lounge, kitchen, garden and drive. Off lights no longer consume the fixed GPU light budget; selection follows actual influence and walking position, preserving stable slots and smooth fades. PC glow follows actual power, not simply standing up.
+- Outdoor sky, distant rooftops and street-lamp glow now follow day/night changes without a refresh; corrected the garden's dusk ambient branch. Reduced kitchen window glare and localized bedroom lamp/screen glow.
+- Verification: isolated Chromium screenshots across all eight spaces at day/dusk/night, ceiling-switch and off-light-budget checks; TV continuation/re-entry/background-refresh tests. Limits: software WebGL, not a physical-GPU FPS benchmark or exhaustive corner/browser audit. One active console runtime; refresh uses each game's existing saves (games without mid-session saves return to their title), whereas Esc preserves the exact running session.
+
 ## 2.23.1 - 2026-10-21
 - PC media bookcase now has four evenly spaced bays and reserved, edged slots: upright big boxes, jewel cases and solid printed-spine magazines, with shelf-edge clearance. Existing crowded shelf poses migrate once; objects left elsewhere stay where they were.
 - Boxes/cases/mags highlight their own return slot and slide upright into it. Loose discs highlight their own case, including cases moved away from the shelf. Slot assignments and placements persist across refreshes.

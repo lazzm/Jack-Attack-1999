@@ -192,6 +192,15 @@
   }
   function owned(gid) { if (R.owned(gid)) return true; try { return !!(window.PM && PM.owns && PM.owns('cart.' + gid)); } catch (e) { return false; } } // (or bought from the mail-order catalogue: js/pm-*.js)
   function open(con, from, options) {
+    if (V && V.background) {
+      if (V.con === con) {
+        V.background = false; pb.appendChild(V.el); V.el.classList.add('on');
+        pb.classList.add('rm-console-focus'); clearInput();
+        addEventListener('keydown', onKey, true); addEventListener('keyup', onKeyUp, true);
+        loop.last = performance.now(); loop.acc = 0; loop.start(); _.emit('open', con); return;
+      }
+      close(true);
+    }
     if (V) return;
     if (con === 'dc' && !conOut('dc')) return;
     if (!CAT.CONSOLES[con]) return;
@@ -241,19 +250,28 @@
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     loop.start();
   }
-  function close() {
+  function close(powerOff) {
     if (!V) return;
-    // The room telly keeps its live canvas texture, so backing out does not replace it with a flat overlay.
-    if (V.liveTx && R.House && R.House.ren.initTexture) { R.House.ren.initTexture(V.liveTx); const hud = V.liveTx.userData.hud; if (hud) R.House.ren.initTexture(hud); }
+    if (V.live && powerOff !== true) {
+      if (V.background) return;
+      V.background = true; V.el.remove();
+      try {localStorage.setItem('jhp_console_focus', JSON.stringify({con: V.con, gid: V.gid, background: true}));} catch (e) {}
+      pb.classList.remove('rm-tvon', 'rm-console-focus');
+      removeEventListener('keydown', onKey, true); removeEventListener('keyup', onKeyUp, true);
+      clearInput(); _.emit('close'); return;
+    }
+    // This path is a real stop/eject, not a lean-out. Release both GPU textures.
     stopGame(); music(null);
-    const el = V.el; V = null;
+    if (V.live && _.tvOff) _.tvOff(V.con);
+    try {localStorage.removeItem('jhp_console_focus');} catch (e) {}
+    const el = V.el, wasBackground = V.background; V = null;
     pb.classList.remove('rm-tvon', 'rm-console-focus');
     el.classList.remove('on'); el.classList.add('bye');
     setTimeout(() => el.remove(), 320);
     removeEventListener('keydown', onKey, true); removeEventListener('keyup', onKeyUp, true);
     clearInput();
     loop.stop();
-    _.emit('close');
+    if (!wasBackground) _.emit('close');
   }
   function sndBtn() { if (!V) return; const on = !!(window.Sound && Sound.on); const b = $(V.el, '.rm-snd'); b.innerHTML = on ? '&#128266; Sound on' : '&#128263; Sound off'; b.classList.toggle('off', !on); }
   // which console (the real telly's input is selected by the cartridge on the shelf)
@@ -557,13 +575,18 @@
 
   // ================================================================ the loop
   const loop = {
-    raf: 0, last: 0, acc: 0,
+    raf: 0, last: 0, acc: 0, viewAt: 0, viewOn: false,
     start() { if (this.raf) return; this.last = performance.now(); this.acc = 0; const f = n => { this.raf = requestAnimationFrame(f); this.tick(n); }; this.raf = requestAnimationFrame(f); },
     stop() { cancelAnimationFrame(this.raf); this.raf = 0; },
     tick(n) {
       if (!V) return;
+      // Keep the simulation alive, but avoid rendering/uploading a second game
+      // at the monitor's full refresh rate while Jack is walking elsewhere.
+      if (V.background && n - this.viewAt > 250) {this.viewAt = n; this.viewOn = !!(_.tvVisible && _.tvVisible(V.con));}
+      if (V.background && n - this.last < (this.viewOn ? 1000 / 30 : 1000 / 10)) return;
       let dt = (n - this.last) / 1000; this.last = n; if (dt > 0.25) dt = 0.25;
-      pollGamepad();
+      if (!V.background) pollGamepad();
+      if (OUT && AC) OUT.gain.setTargetAtTime(V.background ? (R.House.here === 'bedroom' ? .12 : 0) : .5, AC.currentTime, .15);
       if (V.st === 'boot' && bootFn) {
         const g = V.cv0.getContext ? V.cv0.getContext('2d') : null;
         if (g) {
@@ -598,7 +621,7 @@
 
   // ---- keys: while the telly is up, every key is ours (Esc goes back to the room, never skips the boot)
   function onKey(ev) {
-    if (!V) return;
+    if (!V || V.background) return;
     if (ev.key === 'Escape') { ev.preventDefault(); ev.stopImmediatePropagation(); close(); return; }
     const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
     const b = KEYMAP[ev.key];
@@ -666,7 +689,7 @@
 
   // ================================================================ hooking up the room
   // (testing: RoomTV.test('sn.zero') opens the right console and boots the game, found or not; RoomTV.dbg() is the running game's K)
-  function test(gid) { const G = CAT.GAME[gid]; if (!G) return false; if (V && V.con !== G.con) close(); if (!V) open(G.con, null); if (!V) return false; if (V.con !== G.con) { V.con = G.con; V.el.dataset.con = G.con; conBar(); shelf(); } bootBad = false; try { sessionStorage.setItem('jhp_rm_ins', '0'); } catch (e) {} insert(gid, null); bootBad = false; return true; }
-  function playPhysical(gid) { const G = CAT.GAME[gid]; if (!G || !V || V.con !== G.con) return false; insert(gid, null); bootBad = false; return true; }
-  window.RoomTV = { game(id, def) { defs[id] = def; }, defs, test, playPhysical, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con }, open, close, font, sfx, music, LOOK, get open_() { return !!V; } };
+  function test(gid) { const G = CAT.GAME[gid]; if (!G) return false; if (V && V.con !== G.con) close(true); if (!V || V.background) open(G.con, null); if (!V) return false; if (V.con !== G.con) { V.con = G.con; V.el.dataset.con = G.con; conBar(); shelf(); } bootBad = false; try { sessionStorage.setItem('jhp_rm_ins', '0'); } catch (e) {} insert(gid, null); bootBad = false; return true; }
+  function playPhysical(gid) { const G = CAT.GAME[gid]; if (!G || !V || V.con !== G.con) return false; if (V.gid === gid && ['game', 'boot', 'wait'].includes(V.st)) return true; insert(gid, null); bootBad = false; return true; }
+  window.RoomTV = { game(id, def) { defs[id] = def; }, defs, test, playPhysical, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
 })();

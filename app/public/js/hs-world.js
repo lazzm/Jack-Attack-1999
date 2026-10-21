@@ -218,11 +218,19 @@
     for (const id in DOORS) { const d = DOORS[id]; if (d.pivot) d.pivot.visible = d.rooms.some(o => vs.has(o)); }
     visSet = vs; lightsFor(); dirty();
   }
-  function lightsFor() { // the nearest lights of the rooms on show get the five point lights
+  function lightsFor() { // Spend the fixed light budget on lights which actually illuminate this view.
     const all = [];
-    for (const id of visSet) { const r = ROOMS[id]; for (const l of (typeof r.lights === 'function' ? r.lights() : r.lights)) all.push(Object.assign({ room: id, d2: (l.x - P.x) ** 2 + (l.z - P.z) ** 2 + (id === (cur && cur.id) ? 0 : 1e5) }, l)); }
-    all.sort((a, b) => a.d2 - b.d2);
-    PL.forEach((pl, i) => { const l = all[i]; PS[i].t = l ? { key: l.room + ':' + (l.x | 0) + ',' + (l.z | 0), l } : null; }); // (targets only: tickLights eases to them, so crossing a doorway never pops)
+    for (const id of visSet) { const r = ROOMS[id]; for (const l of (typeof r.lights === 'function' ? r.lights() : r.lights)) {
+      if (l.i != null && l.i <= 0) continue; // An off bulb must never displace a lit window/lamp.
+      const distance = Math.hypot(l.x - P.x, l.y - P.y, l.z - P.z), range = l.d || 400;
+      const influence = (l.i == null ? 1 : l.i) * Math.pow(Math.max(0, 1 - distance / range), 2);
+      all.push(Object.assign({room: id, key: id + ':' + l.x + ',' + l.y + ',' + l.z, score: influence * (id === (cur && cur.id) ? 1 : .2)}, l));
+    } }
+    all.sort((a, b) => b.score - a.score);
+    const chosen = all.slice(0, PL.length), remaining = chosen.slice();
+    // Retain each surviving light's slot: re-sorting should not make every light fade out.
+    PS.forEach(s => { const j = remaining.findIndex(l => l.key === s.key); s.t = j < 0 ? null : {key: remaining[j].key, l: remaining.splice(j, 1)[0]}; });
+    PS.forEach(s => { if (!s.t && remaining.length) {const l = remaining.shift(); s.t = {key: l.key, l};} });
     const r = cur; const amb = r && (typeof r.amb === 'function' ? r.amb() : r.amb);
     if (amb) { HT.sky.set(amb.sky); HT.gnd.set(amb.gnd); HT.i = amb.i; } else { HT.sky.set(0x8a90a8); HT.gnd.set(0x30261c); HT.i = 0.55; }
     const sl = r && (typeof r.sun === 'function' ? r.sun() : r.sun);
@@ -946,10 +954,14 @@
   let need = true, raf = 0, lastT = 0, lastAmb = 0, frame = 0, viewing = false, viewT = 0;
   function dirty() { need = true; }
   const ambient = new Set(); // things that animate gently (the lava lamp, a telly): redrawn ~20 times a second
+  let lightCheck = 0, lightX = Infinity, lightY = Infinity, lightZ = Infinity;
   function loop(now) {
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.12, (now - (lastT || now)) / 1000); lastT = now;
     if (!live || document.hidden) return;
+    if (now - lightCheck > 250 && Math.hypot(P.x - lightX, P.y - lightY, P.z - lightZ) > 35) {
+      lightCheck = now; lightX = P.x; lightY = P.y; lightZ = P.z; lightsFor();
+    }
     tickLights(dt);
     const vo = viewOpen(); if (vo !== viewing) { viewing = vo; viewT = now; html.classList.toggle('hs-viewing', vo); if (vo) { setHot(null); ui.tip(null); unlock(); } }
     // (the consoles' telly is up: once it has settled, the room behind needn't be drawn)
