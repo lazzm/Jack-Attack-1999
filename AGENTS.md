@@ -1,0 +1,64 @@
+# AGENTS.md - Jack Attack 1999 (jacklm.com)
+
+You are working on **Jack Attack 1999**: a "16-year-old kid in 1999" simulator. A 3D family house (WebGL, three.js r128)
+with Jack's bedroom, consoles and a beige family PC; sit at the PC and you get "JackOS 98" (a fake Windows-98-style OS)
+with "JackNet Explorer" browsing a huge fake 1999 web, the JACK ATTACK! games magazine, games, an economy (Rupees),
+multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at https://jacklm.com. Owner: Jack (GitHub lazzm).
+
+## Layout
+- `app/` - the site. `server.js` (Node, WebSocket at /ws, admin endpoints), `mods/*.js` (server modules, state in
+  `DATA_DIR/state.json` under `state.mods.<name>`), `public/` (index.html, `js/*.js` ~250 files, `css/`).
+  Packs by prefix: `hs-*` house/world (hs-world.js = camera, walking, collision, picking, doors, quality tiers, watchdog;
+  hs-house.js = downstairs models; hs-edit.js = owner-only layout editor), `rm-*` bedroom + consoles (rm-room.js bedroom,
+  rm-tv.js/rm-cat.js console + cartridge registry, rm-g-*.js the console games), `pm-*` physical media (discs, floppies,
+  Pixel Post mail order), `ex-*` economy, `cx-*` magazine back issues, `sx-*` secrets/Great Hunt, `jw-*` JackWorld, `md-*`
+  JackMUD, `ch-*` chores, `pcgames*` FPS games, `cast.js` (per-visitor random names + pronouns), `boot.js` (power-on fly-in).
+- `deploy.sh` - snapshots data, rsyncs `app/` to `site/` (served read-only by the `landing` container), stamps `?v=`, restarts.
+- `tests/` - Playwright scripts (system Chromium at /usr/bin/chromium). See tests/README.md.
+- NOT in git (never commit, never print): `.env` (ADMIN_TOKEN), `data/` (real users, passwords, town, backups), `site/`.
+
+## Workflow (follow exactly)
+1. Edit in `app/`. Run `node --check` on every JS file you touch.
+2. Test on a throwaway server, never on live data:
+   `cd app && PORT=18080 DATA_DIR=/tmp/jhp-test ADMIN_TOKEN=testtoken node server.js` then run tests from `tests/`
+   (e.g. `node smoke3.mjs http://localhost:18080`, `node integ.mjs 18080`). Check the server log has no "mod failed to load".
+   Stop your server by its PID (`ss -ltnp`). NEVER `pkill node` / `killall node`: the live site's node is visible on the host.
+3. Bump `app/package.json` version AND add a `CHANGELOG.md` entry before every deploy.
+4. Deploy: `./deploy.sh` (or copy only the changed files into `site/`, restamp `?v=` in site/public/index.html, and
+   `docker restart landing` if server/mod files changed). Then check https://jacklm.com and `docker logs landing`.
+5. Commit and push to `origin main` after every deploy, so GitHub always matches live.
+
+## Hard rules
+- THE DATABASE IS SACRED: never reset, delete or overwrite `data/`; migrate state in place; deploy.sh snapshots first.
+- Never touch other stacks in /opt/stacks (especially `wetty` = the owner's remote shell). Never `docker compose down` here
+  without checking what runs.
+- 1999 forever: the site's "today" is the same day/month in 1999; nothing after 31/12/1999; facts and dates must be accurate.
+- "Need to feel 1999": period hardware and UI, no modern overlays/fonts; it's a game, not a modern app with a 1999 skin.
+- Nothing 2D in the 3D world: every model solid from every walkable angle (thickness, all faces, contact shadows);
+  no z-fighting; doors start shut and are solid from both sides; never let anything stand between camera and PC.
+- A refresh must never change state (standing stays standing, PC stays on) and never show black.
+- Kid friendly. "Mom" not "mum". No location clues, no Jack's birthday, never mention "No Scrubs".
+- No real brands/logos/copied assets or code. Fake TLDs only (.jnet .webcom .kidz .grot ...), never real domains or
+  subdomains of jacklm.com. Consoles in the house use fake names (Ultra 64, PlaySpace, Game Lad, Segue, Daydream,
+  Super Ultra). The PC is JackOS: never "Windows" (C:\JACKOS, SYSTEM32 inside it).
+- Currency is Rupees, earned only through server earn paths with daily caps (the browser never mints Rupees).
+- People: Jack, Dave, Luke, Callum, JackK, Crystal (Jack's little sister), Mom, Dad, Gran, Grandad, Nan and Gubbinz are fixed;
+  everyone else comes from `Cast` (`Cast.n('cousin')`, `Cast.t('{teacher} ... {teacher.his}')`). Never hardcode them.
+  Files that server mods `require` (e.g. `public/js/*-cat.js`) must guard browser globals: `typeof Cast !== 'undefined'`.
+- No visible phone wording ("tap", "swipe"): click/press/drag, but everything must work on phones.
+- Browser tab title is always "Jack Attack 1999" (js/title.js); it's shown nowhere else.
+- The site's CSP is `script-src 'self'`: no inline scripts or inline event handlers; put code in files.
+- Controls in the house: WASD/arrows walk, Shift jog, C crouch (never Ctrl: Ctrl+W closes the tab), Space jump,
+  E/click use or grab, F2 or hold Esc stand up from the PC, G graphics, F9 god mode (owner "Jack" only).
+
+## Owner's layout edits
+Jack exports `layout-edits.json` from god mode (name, room, file:line, original and new x/y/z/rotation). Apply each entry
+by changing the matching `B.at(...)`/position call in the named file to the new values, then test and deploy.
+
+## Open to-do (owner agreed)
+1. "Lean into the screen": console games render onto the 3D telly's screen as a live texture (no 2D TV overlay or
+   AV-switch pop-up); cartridges picked from the real shelf and inserted via the grab API; the camera glides in to frame
+   the screen. Same for the PC: the desktop stays on the 3D monitor in its bezel (4:3), no full-screen hand-over.
+2. Put-things-back / tidy-up option for grabbed objects; room notes must not cover the view; texture and lighting pass.
+3. Remaining "Windows"/"Microsoft" strings (md-rooms.js, hs-*.js, mods/roam.js); kitchen/bedroom furniture rotation audit;
+   z-fighting at wall bottoms; front-door-open picking; patio table collision.
