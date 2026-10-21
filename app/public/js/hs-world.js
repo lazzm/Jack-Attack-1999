@@ -649,6 +649,7 @@
   const joy = { x: 0, y: 0, on: false };
   let lastPt = { x: 0, y: 0, ok: false, mouse: false };
   function tickWalk(dt) {
+    if (window.House && House.god) { const gr = House.god(dt); roomCheck(); return gr; } // (layout editor, hs-edit.js: noclip fly)
     let mx = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), mz = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
     if (joy.on) { mx = joy.x; mz = -joy.y; }
     const mag = Math.min(1, Math.hypot(mx, mz));
@@ -688,6 +689,7 @@
   }
   function onKey(ev) {
     if (!live) return;
+    if (window.House && House.god) return; // (layout editor owns the keys)
     const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
     if (mode === 'focus' && ev.key === 'Escape' && !pb.querySelector(':scope > .rm-view')) { ev.preventDefault(); ev.stopImmediatePropagation(); if (focusS && focusS.o.esc && focusS.o.esc() === false) return; unfocus(); return; }
     if (pb.querySelector(':scope > .rm-view') || (mode !== 'walk' && mode !== 'glide')) { if (mode === 'stand' || mode === 'sit') { ev.preventDefault(); ev.stopImmediatePropagation(); } return; }

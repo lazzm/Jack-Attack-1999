@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.22.0 - 2026-10-21
+- (Owner only) a layout editor: logged in as Jack, F9 in the room flies freely, selects and moves models, keeps the edits locally and exports them as layout-edits.json to be written into the code.
+
 ## 2.21.4 - 2026-10-21
 - The PC's desktop gets the mouse back after switching on from the room (the room's mouse lock never let go); room mouse capture only happens in the room.
 
