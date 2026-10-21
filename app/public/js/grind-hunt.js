@@ -152,7 +152,7 @@
     }
   }
   setInterval(tick, 1200);
-  new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1 && n.classList && n.classList.contains('appwin')) { setTimeout(tick, 300); setTimeout(tick, 1200); return; } }).observe(document.body, { childList: true });
+  new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1 && n.classList && n.classList.contains('appwin')) { setTimeout(tick, 300); setTimeout(tick, 1200); return; } }).observe(DesktopSurface.root(), { childList: true });
   document.addEventListener('click', ev => { if (ev.target.closest && ev.target.closest('#startBtn')) setTimeout(tick, 60); }, true);
 
   // ================================================================ picking one up

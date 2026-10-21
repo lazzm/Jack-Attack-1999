@@ -70,6 +70,7 @@
   function outro() {
     if (outroing || !boot) return; outroing = true;
     forget(); // switching off (or restarting, or a crash): next time starts afresh
+    if (window.House && House.ok && House.shutdownPC && House.shutdownPC()) return;
     const html = document.documentElement, body = document.body, off = lastSd === 'off';
     [...boot.children].forEach(c => { c.style.display = ''; c.hidden = c !== pb; });
     boot.className = ''; boot.style.cssText = '';
@@ -193,8 +194,9 @@
         if (!window.Apps || !Apps.apps || !Apps.apps[s.id]) return;
         const place = x => {
           if (!x || !x.el) return; const st = x.el.style, n = v => parseFloat(v);
-          if (s.w) st.width = Math.min(n(s.w), innerWidth - 8) + 'px'; if (s.h) st.height = Math.min(n(s.h), innerHeight - 50) + 'px';
-          if (s.x) st.left = Math.max(0, Math.min(n(s.x), innerWidth - 80)) + 'px'; if (s.y) st.top = Math.max(0, Math.min(n(s.y), innerHeight - 80)) + 'px';
+          const dw = window.DesktopSurface ? DesktopSurface.width() : innerWidth, dh = window.DesktopSurface ? DesktopSurface.height() : innerHeight;
+          if (s.w) st.width = Math.min(n(s.w), dw - 8) + 'px'; if (s.h) st.height = Math.min(n(s.h), dh - 50) + 'px';
+          if (s.x) st.left = Math.max(0, Math.min(n(s.x), dw - 80)) + 'px'; if (s.y) st.top = Math.max(0, Math.min(n(s.y), dh - 80)) + 'px';
           if (s.min && x.min) x.min();
         };
         const w = Apps.open(s.id, s.arg);
@@ -213,8 +215,9 @@
   }
   if (mode === 'wake') { // it was left on: the monitor wakes up from standby and everything is where it was (no logon box either)
     try { sessionStorage.setItem('jhp_booted', '1'); } catch (e) {}
-    boot.classList.add('waking');
-    setTimeout(() => { boot.classList.add('gone'); setTimeout(() => bootGone(), 400); }, 1000);
+    // The house takes over this same layer as soon as its scripts are ready;
+    // an old full-page CRT wake animation would cover the room with black.
+    setTimeout(() => { if (!window.House || !House.ok) { document.documentElement.classList.remove('pc-standwake'); boot.classList.add('gone'); setTimeout(bootGone, 400); } }, 1500);
     document.body.classList.add('online');
     finish();
     whenReady(() => setTimeout(() => restore(resume), 30));
@@ -233,8 +236,10 @@
     if (skipped) return; skipped = true;
     document.body.classList.remove('pc-power');
     timers.forEach(clearTimeout);
-    boot.classList.add('gone');
-    setTimeout(() => bootGone(), 400);
+    // The splash is part of the boot layer; hide it before the room keeps that layer around.
+    const splash = $('bootSplash'); if (splash) splash.hidden = true;
+    if (!inWorldBoot) { boot.classList.add('gone'); setTimeout(() => bootGone(), 400); }
+    const surface = $('monitorSurface'); if (surface) surface.classList.remove('pc-starting');
     // the JackNet network logon (js/site.js) comes up before the dial-up box; it auto-logs-on with a saved logon
     (window.JackLogon ? JackLogon.boot() : Promise.resolve()).then(dial, dial);
   }
@@ -300,24 +305,26 @@
     glass.style.setProperty('--px', (1 / k).toFixed(4) + 'px');
     return k;
   }
-  let gate = Promise.resolve(), openGate = () => {}, mirror = null;
+  let gate = Promise.resolve(), openGate = () => {}, mirror = null, inWorldBoot = false;
   function power(auto) { // auto: a restart, nobody pressed anything
     if (pressed) return; pressed = true;
-    try { localStorage.removeItem('jhp_off'); } catch (e) {} // switched back on
+    try { localStorage.removeItem('jhp_off'); localStorage.setItem('jhp_last', String(Date.now())); } catch (e) {} // switched back on, including a refresh during BIOS
     if (auto !== true) { try { Sound.unlock(); } catch (e) {} Sound.play('thud'); }
     pstage.style.fontSize = getComputedStyle(pstage).fontSize; // so going full screen doesn't resize the room mid-zoom
     cancelAnimationFrame(raf); pb.removeEventListener('pointermove', aim);
     if (auto !== true) pbtn.classList.add('down');
     pb.classList.add('on');
     gate = new Promise(r => { openGate = r; });
+    inWorldBoot = !!(window.House && House.ok && House.bootPC && House.bootPC());
     later(() => Sound.play('crt'), 260); // fans and the hard disk spinning up
     later(() => { pb.classList.add('mon'); fitMini(); glass.classList.add('warm'); }, 550); // the monitor gets a signal and warms up
-    later(() => bios(true), still ? 750 : 1150); // the BIOS starts, small, on the monitor
+    later(() => bios(!inWorldBoot), still ? 750 : 1150); // the BIOS starts on the monitor
     later(zoom, still || fast ? 1500 : 2000); // (with reduced motion it's a shorter, gentler move, but still a move)
     later(handover, 2000 + 3500); // (in case the animation frames stall, e.g. a background tab)
   }
   function zoom() { // the camera swings round to face the screen and moves in until the screen fills the window
     if (skipped || handed) return;
+    if (inWorldBoot) { handover(); return; }
     const k = fitMini(), dolly = 1.3; // how much of it is the camera moving in (more looks fish-eyed up close); the rest is zoom
     const zEnd = PERSP * (1 - 1 / dolly), sEnd = Math.log(k / dolly), P0 = window.RoomCam && RoomCam.pose ? RoomCam.pose() : null, [x0, y0, z0] = P0 ? P0.t : roomPos(vrx, vry), rx0 = P0 ? P0.rx : vrx, ry0 = P0 ? P0.ry : vry; // (P0: wherever you're standing in the house)
     const T = still ? 1300 : fast ? 1650 : 2000, start = performance.now(), em = parseFloat(pstage.style.fontSize) || 10;
@@ -346,6 +353,7 @@
   }
   function handover() { // swap the zoomed-in monitor for the real full-size BIOS screen (same text, same place)
     if (handed || skipped) return; handed = true;
+    if (inWorldBoot) { roomOff(); openGate(); return; }
     const scr = $('bootBios');
     if (early) scr.style.transform = scr.style.background = ''; // (it fades to the real black as the full-screen glass comes in)
     else { scr.style.opacity = '0'; scr.hidden = false; void scr.offsetWidth; scr.style.transition = 'opacity .25s'; scr.style.opacity = '1'; }

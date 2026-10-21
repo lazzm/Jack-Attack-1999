@@ -363,10 +363,11 @@
     if (!pdrag.ghost) {
       if (Math.abs(ev.clientX - pdrag.x) + Math.abs(ev.clientY - pdrag.y) < 10) return;
       const g = document.createElement('div'); g.className = 'br-ghost'; g.innerHTML = big(JI('bmp', 32)) + `<span>${esc(picName(pdrag.pic))}.bmp</span>`;
-      document.body.appendChild(g); pdrag.ghost = g; document.body.classList.add('br-dragon');
+      DesktopSurface.root().appendChild(g); pdrag.ghost = g; document.body.classList.add('br-dragon');
       try { getSelection().removeAllRanges(); } catch (e) {}
     }
-    pdrag.ghost.style.left = (ev.clientX + 6) + 'px'; pdrag.ghost.style.top = (ev.clientY + 6) + 'px';
+    const p = DesktopSurface.point(ev.clientX, ev.clientY);
+    pdrag.ghost.style.left = (p.x + 6) + 'px'; pdrag.ghost.style.top = (p.y + 6) + 'px';
     pdrag.ghost.classList.toggle('ok', overDesk(document.elementFromPoint(ev.clientX, ev.clientY)));
   });
   const endPdrag = ev => {

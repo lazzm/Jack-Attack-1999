@@ -896,7 +896,7 @@ JACKNET DUNGEONS
     });
   }
   const bodyObs = new MutationObserver(muts => { if (muts.some(m => [...m.addedNodes].some(n => n.classList && n.classList.contains('fxwin')))) patchExplorers(); });
-  if (document.body) bodyObs.observe(document.body, { childList: true });
+  if (document.body) bodyObs.observe(DesktopSurface.root(), { childList: true });
   // double-click / Enter on the relabelled drive: our disc's AutoPlay instead of the cover disc
   let lastIt = null, lastT = 0;
   document.addEventListener('click', ev => {

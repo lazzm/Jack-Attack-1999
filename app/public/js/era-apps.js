@@ -213,7 +213,7 @@
         const want = rawSaver();
         if (MINE[want] && Date.now() - lastInput > 15000 && E.installed(MINE[want].app)) takeOver(want);
       }
-    }).observe(document.body, { childList: true });
+    }).observe(DesktopSurface.root(), { childList: true });
     // when one of ours is the chosen saver, start it a moment before apps-fun's idle timer would (same rules as its idleBlocked)
     const shown = id => { const e = $(id); return e && !e.hidden && getComputedStyle(e).display !== 'none'; };
     const waitMin = () => { let v = null; try { v = localStorage.getItem('jhp_saverwait'); } catch (e) {} if (v == null || v === '') return 3; const x = parseFloat(String(v).replace(/"/g, '')); return isFinite(x) ? Math.max(0, x) : 3; };
@@ -302,7 +302,7 @@
     E.load('staples').then(() => { if (E.staplesShow) E.staplesShow(kind, ctx || {}); }).catch(e => console.error(e)).finally(() => { stBusy = false; });
   }
   E.staples = staples;
-  new MutationObserver(muts => { for (const m of muts) for (const n of m.addedNodes) stWatch(n); }).observe(document.body, { childList: true });
+  new MutationObserver(muts => { for (const m of muts) for (const n of m.addedNodes) stWatch(n); }).observe(DesktopSurface.root(), { childList: true });
 
   // ================================================================ Jackster: everyone on the site shares their My Music
   // Net.relay 'era.sqs': {q:'ls'} asks; {a:'ls', ids:[...]} answers (only ids from our own catalogue, so nothing odd travels).

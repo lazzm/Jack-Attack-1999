@@ -232,20 +232,20 @@ ${p.nodl ? `<a class="ssk-dlbtn off">CD-ROM ONLY</a><p>${esc(p.n)} is too big to
   // ================================================================ Squig Screen Mates
   const MATES = []; let raf = 0, lastT = 0;
   const SQUIG = (mood, f) => `<svg viewBox="0 0 32 28" width="32" height="28" aria-hidden="true"><g transform="translate(0 ${f ? 1 : 0})"><circle cx="8" cy="6.5" r="3.2" fill="#e8381b" stroke="#5a0a00"/><circle cx="24" cy="6.5" r="3.2" fill="#e8381b" stroke="#5a0a00"/><circle cx="8" cy="6.5" r="1.4" fill="#ff8a7a"/><circle cx="24" cy="6.5" r="1.4" fill="#ff8a7a"/><ellipse cx="16" cy="15" rx="13" ry="10.5" fill="#e8381b" stroke="#5a0a00"/><ellipse cx="11" cy="9.5" rx="4" ry="2" fill="#ff9a7a" opacity=".85"/><circle cx="6.5" cy="17" r="1.8" fill="#ffb0c0"/><circle cx="25.5" cy="17" r="1.8" fill="#ffb0c0"/>${mood === 'sleep' ? '<path d="M8.5 13q2.5 2 5 0M18.5 13q2.5 2 5 0" stroke="#5a0a00" stroke-width="1.4" fill="none"/>' : '<ellipse cx="11.5" cy="12.5" rx="3" ry="3.6" fill="#fff" stroke="#5a0a00" stroke-width=".7"/><ellipse cx="20.5" cy="12.5" rx="3" ry="3.6" fill="#fff" stroke="#5a0a00" stroke-width=".7"/><circle cx="12.2" cy="13.2" r="1.6"/><circle cx="21.2" cy="13.2" r="1.6"/><circle cx="11.7" cy="12.4" r=".6" fill="#fff"/><circle cx="20.7" cy="12.4" r=".6" fill="#fff"/>'}${mood === 'eat' ? '<ellipse cx="16" cy="19.5" rx="4.5" ry="3" fill="#5a0a20" stroke="#5a0a00"/><ellipse cx="16" cy="20.6" rx="2.6" ry="1.4" fill="#ff6a9a"/>' : mood === 'fall' ? '<ellipse cx="16" cy="19.5" rx="2.6" ry="2.6" fill="#5a0a20" stroke="#5a0a00"/>' : '<path d="M12 18.5q4 3.4 8 0" stroke="#5a0a00" fill="none" stroke-width="1.4" stroke-linecap="round"/>'}</g><path d="M${f ? '8 25l-3 2.5M24 25l3 2.5' : '10 25l-1.5 2.5M22 25l1.5 2.5'}" stroke="#5a0a00" stroke-width="2.6" stroke-linecap="round"/></svg>`;
-  function floorY() { const tb = $('taskbar'); return tb ? tb.getBoundingClientRect().top : innerHeight; }
+  function floorY() { const tb = $('taskbar'); return tb ? DesktopSurface.rect(tb).top : DesktopSurface.height(); }
   function ledges() {
     const out = [];
-    qsa(document, '.win.float:not(.mate), #browser').forEach(w => { if (w.style.display === 'none' || w.classList.contains('min') || w.offsetParent === null && w.id !== 'browser') return; const r = w.getBoundingClientRect(); if (r.width < 60 || r.top < 30 || r.top > innerHeight - 60) return; if (document.body.classList.contains('maxed') && w.id === 'browser') return; out.push({ x1: r.left + 4, x2: r.right - 4, y: r.top }); });
+    qsa(document, '.win.float:not(.mate), #browser').forEach(w => { if (w.style.display === 'none' || w.classList.contains('min') || w.offsetParent === null && w.id !== 'browser') return; const r = DesktopSurface.rect(w); if (r.width < 60 || r.top < 30 || r.top > DesktopSurface.height() - 60) return; if (document.body.classList.contains('maxed') && w.id === 'browser') return; out.push({ x1: r.left + 4, x2: r.right - 4, y: r.top }); });
     return out;
   }
   function addMate() {
     if (MATES.length >= 5) return toast('Blobbit Screen Mates', 'Five Blobbits is the maximum. Any more and they form a boy band.');
     const el = h(SQUIG('walk'), 'mate'); el.style.cssText = 'position:fixed;left:0;top:0;width:32px;height:28px;z-index:2147480000;cursor:grab;touch-action:none;user-select:none;will-change:transform';
-    document.body.appendChild(el);
-    const m = { el, x: 40 + Math.random() * (innerWidth - 120), y: -30, vx: 0, vy: 0, dir: Math.random() < 0.5 ? -1 : 1, st: 'fall', t: 0, frame: 0, ledge: null, mood: 'walk', drag: null, fed: 0 };
+    DesktopSurface.root().appendChild(el);
+    const m = { el, x: 40 + Math.random() * (DesktopSurface.width() - 120), y: -30, vx: 0, vy: 0, dir: Math.random() < 0.5 ? -1 : 1, st: 'fall', t: 0, frame: 0, ledge: null, mood: 'walk', drag: null, fed: 0 };
     MATES.push(m); store.set('jhp_setup_mates', MATES.length);
-    el.addEventListener('pointerdown', ev => { ev.preventDefault(); el.setPointerCapture(ev.pointerId); m.drag = { dx: ev.clientX - m.x, dy: ev.clientY - m.y, lx: ev.clientX, ly: ev.clientY, vx: 0, vy: 0 }; m.st = 'drag'; el.style.cursor = 'grabbing'; sfx('boing'); });
-    el.addEventListener('pointermove', ev => { if (!m.drag) return; m.drag.vx = (ev.clientX - m.drag.lx) * 0.6 + m.drag.vx * 0.4; m.drag.vy = (ev.clientY - m.drag.ly) * 0.6 + m.drag.vy * 0.4; m.drag.lx = ev.clientX; m.drag.ly = ev.clientY; m.x = ev.clientX - m.drag.dx; m.y = ev.clientY - m.drag.dy; });
+    el.addEventListener('pointerdown', ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); ev.preventDefault(); el.setPointerCapture(ev.pointerId); m.drag = { dx: p.x - m.x, dy: p.y - m.y, lx: p.x, ly: p.y, vx: 0, vy: 0 }; m.st = 'drag'; el.style.cursor = 'grabbing'; sfx('boing'); });
+    el.addEventListener('pointermove', ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); if (!m.drag) return; m.drag.vx = (p.x - m.drag.lx) * 0.6 + m.drag.vx * 0.4; m.drag.vy = (p.y - m.drag.ly) * 0.6 + m.drag.vy * 0.4; m.drag.lx = p.x; m.drag.ly = p.y; m.x = p.x - m.drag.dx; m.y = p.y - m.drag.dy; });
     const drop = () => { if (!m.drag) return; m.vx = Math.max(-25, Math.min(25, m.drag.vx)); m.vy = Math.max(-25, Math.min(25, m.drag.vy)); m.drag = null; m.st = 'fall'; m.ledge = null; el.style.cursor = 'grab'; if (Math.hypot(m.vx, m.vy) > 18) A.secret('setup.yeet'); };
     el.addEventListener('pointerup', drop); el.addEventListener('pointercancel', drop);
     el.addEventListener('contextmenu', ev => { ev.preventDefault(); IE.menu([{ label: 'Feed', act: () => { m.st = 'eat'; m.t = 0; m.fed++; sfx('pet'); if (m.fed >= 5) A.secret('setup.fatsquig'); } }, { label: 'Sleep', act: () => { m.st = 'sleep'; m.t = 0; } }, { label: 'Add another Blobbit', act: addMate }, '-', { label: 'About Blobbit Screen Mates...', act: () => msg('Blobbit Screen Mates 1.0', 'Blobbit Screen Mates 1.0\nby BlobSoft\n\nFreeware. Blobbits are not responsible for windows they sit on.\n\nTip: pick a Blobbit up and throw it!', 'info') }, { label: 'Go home', act: () => removeMate(m) }], ev.clientX, ev.clientY); });
@@ -265,7 +265,7 @@ ${p.nodl ? `<a class="ssk-dlbtn off">CD-ROM ONLY</a><p>${esc(p.n)} is too big to
       if (m.st === 'drag') { m.mood = 'fall'; }
       else if (m.st === 'fall') {
         m.vy += 0.6 * dt; m.x += m.vx * dt; m.y += m.vy * dt; m.vx *= 0.99;
-        if (m.x < 0) { m.x = 0; m.vx = Math.abs(m.vx) * 0.6; } if (m.x > innerWidth - 32) { m.x = innerWidth - 32; m.vx = -Math.abs(m.vx) * 0.6; }
+        if (m.x < 0) { m.x = 0; m.vx = Math.abs(m.vx) * 0.6; } if (m.x > DesktopSurface.width() - 32) { m.x = DesktopSurface.width() - 32; m.vx = -Math.abs(m.vx) * 0.6; }
         const feet = m.y + 28;
         const land = m.vy > 0 && L.find(l => m.x + 16 > l.x1 && m.x + 16 < l.x2 && feet >= l.y && feet - m.vy * dt <= l.y + 2);
         if (land) { m.y = land.y - 28; m.st = 'walk'; m.vy = 0; m.vx = 0; m.ledge = land; sfx('thud'); }
@@ -278,7 +278,7 @@ ${p.nodl ? `<a class="ssk-dlbtn off">CD-ROM ONLY</a><p>${esc(p.n)} is too big to
         if (m.ledge) { m.ledge = l; m.y = l.y - 28; } else m.y = fy - 28;
         if (m.st === 'walk') {
           m.x += m.dir * 1.1 * dt; m.mood = 'walk';
-          const x1 = m.ledge ? m.ledge.x1 - 10 : 0, x2 = m.ledge ? m.ledge.x2 - 22 : innerWidth - 32;
+          const x1 = m.ledge ? m.ledge.x1 - 10 : 0, x2 = m.ledge ? m.ledge.x2 - 22 : DesktopSurface.width() - 32;
           if (m.x < x1 || m.x > x2) { if (m.ledge && Math.random() < 0.5) { m.st = 'fall'; m.vx = m.dir * 2; m.ledge = null; } else { m.dir = -m.dir; m.x = Math.max(x1, Math.min(x2, m.x)); } }
           if (Math.random() < 0.002 * dt) { m.st = pick2(['idle', 'idle', 'sleep', 'jump', 'eat']); m.t = 0; }
           if (!m.ledge && Math.random() < 0.0015 * dt && L.length) { m.st = 'jump'; m.t = 0; }

@@ -18,7 +18,7 @@
   const pick = a => a[Math.floor(Math.random() * a.length)];
   const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
   const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
-  const phone = () => innerWidth < 640;
+  const phone = () => DesktopSurface.width() < 640;
   const toast = (t, x, ms) => Desk.toast(t, x, ms || 5000);
   const msg = (t, x, ic) => Desk.msgbox(t, x, ic || 'info');
   const secret = id => { try { if (window.Apps && Apps.secret) Apps.secret(id); } catch (e) {} };
@@ -199,9 +199,9 @@
   const comingSoon = n => () => toast(n, pick(['This feature is coming in version 2.0. Version 2.0 is coming in the year 2000.', 'Coming soon! (Probably.)', 'Please insert the JackNet Toolbar CD (Disc 3 of 7).', 'Error 1999: feature not found. Have you tried turning it off and on again?']));
   function panel(anchor, html, wire) { // a little pop-down panel under a toolbar button (emoticon pickers etc.)
     document.querySelectorAll('.tbpanel').forEach(p => p.remove());
-    const p = document.createElement('div'); p.className = 'tbpanel'; p.innerHTML = html; document.body.appendChild(p);
-    const r = anchor.getBoundingClientRect(), pr = p.getBoundingClientRect();
-    p.style.left = Math.max(2, Math.min(r.left, innerWidth - pr.width - 4)) + 'px'; p.style.top = Math.min(r.bottom + 1, innerHeight - pr.height - 34) + 'px';
+    const p = document.createElement('div'); p.className = 'tbpanel'; p.innerHTML = html; DesktopSurface.root().appendChild(p);
+    const r = DesktopSurface.rect(anchor), pr = DesktopSurface.rect(p);
+    p.style.left = Math.max(2, Math.min(r.left, DesktopSurface.width() - pr.width - 4)) + 'px'; p.style.top = Math.min(r.bottom + 1, DesktopSurface.height() - pr.height - 34) + 'px';
     const off = ev => { if (!p.contains(ev.target) && ev.target !== anchor && !anchor.contains(ev.target)) { p.remove(); document.removeEventListener('pointerdown', off, true); } };
     setTimeout(() => document.addEventListener('pointerdown', off, true), 0);
     if (wire) wire(p, () => { p.remove(); document.removeEventListener('pointerdown', off, true); });
@@ -658,8 +658,9 @@
     if (!ev.target.closest || !ev.target.closest('#page') || calm()) return;
     lastT = now; live++; ti++;
     const s = document.createElement('span'); s.className = 'tbtrail' + (mode === 'Squigs' || mode === 'Blobs' ? ' sq' : '');
-    s.innerHTML = pick(TRAIL[mode]); s.style.left = ev.clientX + 6 + 'px'; s.style.top = ev.clientY + 8 + 'px'; s.style.color = mode === 'Hearts' ? '#ff2a7a' : mode === 'Squigs' || mode === 'Blobs' ? '#e8381b' : TCOL[ti % TCOL.length];
-    document.body.appendChild(s);
+    const p = DesktopSurface.point(ev.clientX, ev.clientY);
+    s.innerHTML = pick(TRAIL[mode]); s.style.left = p.x + 6 + 'px'; s.style.top = p.y + 8 + 'px'; s.style.color = mode === 'Hearts' ? '#ff2a7a' : mode === 'Squigs' || mode === 'Blobs' ? '#e8381b' : TCOL[ti % TCOL.length];
+    DesktopSurface.root().appendChild(s);
     const done = () => { if (s.isConnected) { s.remove(); live--; } };
     s.addEventListener('animationend', done); setTimeout(done, 1200);
   }, { passive: true });

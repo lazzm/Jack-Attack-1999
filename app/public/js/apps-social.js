@@ -367,10 +367,10 @@
       <div class="field so-cllist" role="listbox" aria-label="Contacts"></div>
       <div class="so-clbtns"><button class="btn so-main" type="button">${ico(LOGO16)}<span>Uh-Oh!</span></button><button class="btn so-stbtn" type="button"><span class="so-stico"></span><span class="so-stlbl"></span></button></div>`;
     // dock on the right, but if the browser reaches under it, sit below the browser's title bar and toolbars so its buttons stay reachable
-    const W = 214, br = document.getElementById('browser'), bR = br && !br.classList.contains('min') ? br.getBoundingClientRect() : null;
-    const Y = bR && bR.right > innerWidth - W - 4 ? Math.max(4, Math.round(bR.top + 130)) : 4;
-    const H = Math.min(470, innerHeight - Y - 40);
-    CL = Apps.win('Uh-Oh!', b, { w: W, h: H, icon: LOGO16, noMax: true, minW: 180, minH: 260, x: innerWidth - W - 4, y: Y, onClose: () => { CL = null; dockPref(false); } });
+    const W = 214, br = document.getElementById('browser'), bR = br && !br.classList.contains('min') ? DesktopSurface.rect(br) : null;
+    const Y = bR && bR.right > DesktopSurface.width() - W - 4 ? Math.max(4, Math.round(bR.top + 130)) : 4;
+    const H = Math.min(470, DesktopSurface.height() - Y - 40);
+    CL = Apps.win('Uh-Oh!', b, { w: W, h: H, icon: LOGO16, noMax: true, minW: 180, minH: 260, x: DesktopSurface.width() - W - 4, y: Y, onClose: () => { CL = null; dockPref(false); } });
     CL.el.classList.add('so-clwin');
     const mn = CL.el.querySelector('[data-w=min]'); if (mn) mn.addEventListener('click', () => dockPref(false));
     const list = b.querySelector('.so-cllist');
@@ -517,7 +517,7 @@
       <textarea class="so-imta" rows="3" maxlength="300" aria-label="Your message" placeholder="Type a message, then press Enter or Send"></textarea>
       <div class="so-imbtns"><button class="btn" data-a="nudge" type="button">Nudge!</button><button class="btn" data-a="file" type="button">File...</button><button class="btn" data-a="throw" type="button">Throw...</button><span class="so-left">300</span><button class="btn so-send" data-a="send" type="button"><b>Send</b></button></div>`;
     const n = UM.sessions.size;
-    const w = Apps.win('Message Session - ' + showName(peer), b, { w: 380, h: 390, icon: LOGO16, status: true, minW: 280, minH: 280, x: Math.max(4, innerWidth - 640 - n * 26), y: 60 + n * 26, onClose: () => { UM.sessions.delete(key); const l = liveOf(peer); if (s.tyOut && l) Net.relay(l.id, 'social.im', { k: 'ty', on: 0 }); renderCL(); } });
+    const w = Apps.win('Message Session - ' + showName(peer), b, { w: 380, h: 390, icon: LOGO16, status: true, minW: 280, minH: 280, x: Math.max(4, DesktopSurface.width() - 640 - n * 26), y: 60 + n * 26, onClose: () => { UM.sessions.delete(key); const l = liveOf(peer); if (s.tyOut && l) Net.relay(l.id, 'social.im', { k: 'ty', on: 0 }); renderCL(); } });
     s = { key, peer, w, log: b.querySelector('.so-imlog'), ta: b.querySelector('textarea'), tyOut: 0, tyTimer: 0, unread: 0 };
     UM.sessions.set(key, s);
     w.el.addEventListener('pointerdown', () => unflash(s));
@@ -735,7 +735,7 @@ Your UIN (Uh-Oh! Number) is yours forever. Well, for this computer.
     }
     function fly(svg, from, to, ms, opts, done) {
       const el = h('div', 'so-proj' + (opts.cls ? ' ' + opts.cls : ''), svg);
-      document.body.appendChild(el);
+      DesktopSurface.root().appendChild(el);
       const t0 = performance.now(), arc = opts.arc || 120;
       const step = now => {
         const t = Math.min(1, (now - t0) / ms), e = opts.ease ? 1 - Math.pow(1 - t, 2) : t;
@@ -751,17 +751,17 @@ Your UIN (Uh-Oh! Number) is yours forever. Well, for this computer.
     }
     function edgePoint() {
       const s = Math.floor(Math.random() * 3);
-      return s === 0 ? { x: -40, y: rnd(40, innerHeight * 0.6) } : s === 1 ? { x: innerWidth + 40, y: rnd(40, innerHeight * 0.6) } : { x: rnd(0, innerWidth), y: innerHeight + 30 };
+      return s === 0 ? { x: -40, y: rnd(40, DesktopSurface.height() * 0.6) } : s === 1 ? { x: DesktopSurface.width() + 40, y: rnd(40, DesktopSurface.height() * 0.6) } : { x: rnd(0, DesktopSurface.width()), y: DesktopSurface.height() + 30 };
     }
     function land(o, kind, text) {
       if (active >= 5) return; active++;
-      const win = topWindow(), r = win ? win.getBoundingClientRect() : { left: 80, top: 80, width: innerWidth - 160, height: innerHeight - 200 };
-      const to = { x: Math.max(30, Math.min(innerWidth - 30, r.left + r.width * rnd(0.25, 0.75))), y: Math.max(30, Math.min(innerHeight - 70, r.top + Math.min(r.height - 20, r.height * rnd(0.2, 0.55)))) };
+      const win = topWindow(), r = win ? DesktopSurface.rect(win) : { left: 80, top: 80, width: DesktopSurface.width() - 160, height: DesktopSurface.height() - 200 };
+      const to = { x: Math.max(30, Math.min(DesktopSurface.width() - 30, r.left + r.width * rnd(0.25, 0.75))), y: Math.max(30, Math.min(DesktopSurface.height() - 70, r.top + Math.min(r.height - 20, r.height * rnd(0.2, 0.55)))) };
       const from = edgePoint(), ms = reduced() ? 300 : kind === 'plane' ? 2200 : kind === 'squig' ? 1300 : 900;
       fly(KINDS[kind][1], from, to, ms, kind === 'plane' ? { turn: 1, wobble: 1, arc: 60, cls: 'so-big' } : kind === 'snow' ? { grow: 1.4, arc: 140, spin: 200 } : { arc: 200, spin: 720 }, () => {
-        const host = win && document.body.contains(win) ? win : document.body;
-        const hr = host === document.body ? { left: 0, top: 0 } : host.getBoundingClientRect();
-        const at = (el, w2, h2) => { el.style.left = (to.x - hr.left - w2 / 2) + 'px'; el.style.top = (to.y - hr.top - h2 / 2) + 'px'; if (host === document.body) el.style.position = 'fixed'; host.appendChild(el); };
+        const host = win && DesktopSurface.root().contains(win) ? win : DesktopSurface.root();
+        const hr = host === DesktopSurface.root() ? { left: 0, top: 0 } : DesktopSurface.rect(host);
+        const at = (el, w2, h2) => { el.style.left = (to.x - hr.left - w2 / 2) + 'px'; el.style.top = (to.y - hr.top - h2 / 2) + 'px'; if (host === DesktopSurface.root()) el.style.position = 'fixed'; host.appendChild(el); };
         if (win && win.classList) { win.classList.remove('so-hit'); void win.offsetWidth; win.classList.add('so-hit'); setTimeout(() => win.classList.remove('so-hit'), 500); }
         if (kind === 'snow') {
           play('thud'); note(1400, 0.05, 'triangle', 30);
@@ -791,9 +791,9 @@ Your UIN (Uh-Oh! Number) is yours forever. Well, for this computer.
       n.innerHTML = '<span></span>';
       n.firstChild.textContent = text;
       if (o.id > 0 && who(o.id)) { const b = h('button', 'btn so-sm', 'Throw one back!'); b.type = 'button'; b.addEventListener('click', () => { n.remove(); send(o, kind); }); n.appendChild(b); }
-      n.style.left = Math.max(4, Math.min(innerWidth - 230, at.x - 110)) + 'px';
-      n.style.top = Math.max(4, Math.min(innerHeight - 110, at.y + 46)) + 'px';
-      document.body.appendChild(n);
+      n.style.left = Math.max(4, Math.min(DesktopSurface.width() - 230, at.x - 110)) + 'px';
+      n.style.top = Math.max(4, Math.min(DesktopSurface.height() - 110, at.y + 46)) + 'px';
+      DesktopSurface.root().appendChild(n);
       setTimeout(() => n.classList.add('fade'), 6500); setTimeout(() => n.remove(), 7300);
     }
     function unfold(o, text) {
@@ -807,7 +807,7 @@ Your UIN (Uh-Oh! Number) is yours forever. Well, for this computer.
       const bin = h('button', 'btn', 'Bin it'); bin.type = 'button'; bin.addEventListener('click', w.close); row.appendChild(bin);
     }
     function launch(kind) { // your own throw leaves the screen
-      const from = { x: innerWidth / 2 + rnd(-60, 60), y: innerHeight - 50 }, to = { x: from.x + rnd(-200, 200), y: -60 };
+      const from = { x: DesktopSurface.width() / 2 + rnd(-60, 60), y: DesktopSurface.height() - 50 }, to = { x: from.x + rnd(-200, 200), y: -60 };
       fly(KINDS[kind][1], from, to, reduced() ? 250 : 700, kind === 'plane' ? { turn: 1, arc: 30 } : { grow: 0.5, arc: 40, spin: 300 });
     }
     function send(p, kind, text) {
@@ -914,8 +914,8 @@ Your UIN (Uh-Oh! Number) is yours forever. Well, for this computer.
         if (document.querySelectorAll('.so-bottle').length >= 3) return;
         const e = pick(list);
         const el = h('button', 'so-bottle', I.bottle); el.type = 'button'; el.title = 'A bottle has washed up! Click to open it.'; el.setAttribute('aria-label', el.title);
-        el.style.left = rnd(100, Math.max(120, innerWidth - 80)) + 'px';
-        document.body.appendChild(el);
+        el.style.left = rnd(100, Math.max(120, DesktopSurface.width() - 80)) + 'px';
+        DesktopSurface.root().appendChild(el);
         const kill = setTimeout(() => el.remove(), 120000);
         el.addEventListener('click', () => {
           clearTimeout(kill); el.remove(); play('boing'); got('bottle'); shown++; store.set('jhp_social_bottles', shown);
@@ -966,8 +966,8 @@ Your UIN (Uh-Oh! Number) is yours forever. Well, for this computer.
       cur = p; got(mine ? 'parcelstart' : 'parcel');
       const el = h('div', 'so-parcel', `<div class="so-parbox">${I.parcel}</div><div class="so-parlbl"><b>Pass the Parcel!</b><span></span><i class="so-parmusic"></i></div><div class="so-parbtns"><button class="btn so-sm" type="button" data-x="pass">Pass it on</button><button class="btn so-sm" type="button" data-x="keep">Keep hold</button></div>`);
       el.querySelector('span').textContent = `${p.layers} layer${p.layers === 1 ? '' : 's'} left \u00b7 from ${p.from} \u00b7 ${p.hops} hop${p.hops === 1 ? '' : 's'} so far`;
-      el.style.left = Math.max(10, Math.min(innerWidth - 230, rnd(120, innerWidth - 260))) + 'px';
-      document.body.appendChild(el); p.el = el;
+      el.style.left = Math.max(10, Math.min(DesktopSurface.width() - 230, rnd(120, DesktopSurface.width() - 260))) + 'px';
+      DesktopSurface.root().appendChild(el); p.el = el;
       if (!mine) { play('join'); el.classList.add('arrive'); }
       let n = 0; p.music = p.music || MUSIC_MS();
       const notes = [523, 587, 659, 698, 784, 698, 659, 587];
@@ -1300,7 +1300,7 @@ A: Never give out your real name, address, school or phone number.
     if (UM.status !== 'off') setTimeout(() => sendStatus(0), 1200);
     CAPSULE.schedule();
     ready(() => setTimeout(() => {
-      const phone = touch() || innerWidth < 760;
+      const phone = touch() || DesktopSurface.width() < 760;
       const gone = window.Setup && !Setup.has('uhoh'); // not installed on this PC (setup.js): no contact list, no hello
       if (!phone && !gone && Net.me.member && store.get('jhp_social_dock', true) !== false) openCL();
       const u = myUIN(), seen = store.get('jhp_social_hello', []), k = Net.me.member ? String(u) : 'guest';

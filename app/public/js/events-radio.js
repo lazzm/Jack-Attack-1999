@@ -148,7 +148,7 @@
     if (!d) return;
     if (dedEl) dedEl.remove(); clearTimeout(dedT);
     dedEl = h('div', 'rj-ded', `${NOTE}<b>This one's for ${esc(d.to)} from ${esc(d.from)}!</b>${d.msg ? `<i>"${esc(d.msg)}"</i><br>` : ''}<small>${esc((C.TUNES[d.i] || {}).n || '')} on Radio Jack</small>`);
-    dedEl.setAttribute('role', 'status'); document.body.appendChild(dedEl);
+    dedEl.setAttribute('role', 'status'); DesktopSurface.root().appendChild(dedEl);
     dedEl.addEventListener('click', () => dedEl && dedEl.remove());
     dedT = setTimeout(() => { if (dedEl) dedEl.remove(); dedEl = null; }, 9000);
   }

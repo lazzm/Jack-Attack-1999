@@ -159,7 +159,7 @@
   function watchChat() {
     const log = $('chatLog'); if (log) chatMO.observe(log, { childList: true });
     // JackIRC windows (#jackattack moved there): watch their logs too
-    new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1 && n.classList && n.classList.contains('appwin')) setTimeout(() => { if (n.querySelector('.ir-log')) { chatMO.observe(n, { childList: true, subtree: true }); decorateChat(n); } }, 50); }).observe(document.body, { childList: true });
+    new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1 && n.classList && n.classList.contains('appwin')) setTimeout(() => { if (n.querySelector('.ir-log')) { chatMO.observe(n, { childList: true, subtree: true }); decorateChat(n); } }, 50); }).observe(DesktopSurface.root(), { childList: true });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watchChat); else watchChat();
   // a little showcase box: on JackNet profiles and at the bottom of Homepagez pages

@@ -1115,7 +1115,7 @@
   let ov = null, resolveLogon = null;
   const hasToken = () => { try { return !!localStorage.getItem('jhp_token'); } catch (e) { return false; } };
   const connected = () => window.Net && Net.connected && Net.me && Net.me.id;
-  function overlay() { if (!ov) { ov = h('div', 'jlogoff logon'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'Welcome to JackNet'); document.body.appendChild(ov); } return ov; }
+  function overlay() { if (!ov) { ov = h('div', 'jlogoff logon'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'Welcome to JackNet'); DesktopSurface.root().appendChild(ov); } return ov; }
   let atBoot = false; // the logon at switch-on (vs. [Log on] links and the members-only box later)
   function finish(guest) {
     const o = ov; ov = null; pend = false;

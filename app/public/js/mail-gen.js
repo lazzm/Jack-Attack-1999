@@ -384,7 +384,7 @@
     if (trayBtn) { const t = `You have ${n} new e-mail message${n > 1 ? 's' : ''}`; trayBtn.title = t; trayBtn.setAttribute('aria-label', t); }
   }
   G.tray = tray;
-  const busy = () => document.hidden || document.getElementById('boot') || document.querySelector('.logon') || document.querySelector('.dialwin');
+  const busy = () => document.hidden || !DesktopSurface.ready() || document.querySelector('.logon') || document.querySelector('.dialwin');
   const plural = (n, w) => `${n} new ${w}${n === 1 ? '' : 's'}`;
   function toast(text, ms0) { lastToastAt = Date.now(); Desk.toast('Outlook Express', text, ms0 || 6000); }
   function arrive(m, quiet) {

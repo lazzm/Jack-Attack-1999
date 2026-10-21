@@ -139,10 +139,11 @@
     const th = qs(el, '.sys-vs-thumb');
     const set = (nv, fire) => { v = clamp(nv, 0, 1); th.style.top = ((1 - v) * 100) + '%'; el.setAttribute('aria-valuenow', Math.round(v * 100)); if (fire && onChange) onChange(v); };
     let drag = false;
-    const at = ev => { const r = el.getBoundingClientRect(); set(1 - (ev.clientY - r.top - 6) / (r.height - 12), true); };
+    const at = ev => { const r = DesktopSurface.rect(el), p = DesktopSurface.point(ev.clientX, ev.clientY); set(1 - (p.y - r.top - 6) / (r.height - 12), true); };
     on(el, 'pointerdown', ev => { ev.preventDefault(); drag = true; el.setPointerCapture(ev.pointerId); at(ev); el.focus(); });
     on(el, 'pointermove', ev => { if (drag) at(ev); });
     on(el, 'pointerup', () => { drag = false; if (o.end) o.end(v); });
+    on(el, 'pointercancel', () => { drag = false; });
     on(el, 'keydown', ev => { const d = { ArrowUp: 0.05, ArrowRight: 0.05, ArrowDown: -0.05, ArrowLeft: -0.05, PageUp: 0.2, PageDown: -0.2 }[ev.key]; if (d) { ev.preventDefault(); set(v + d, true); if (o.end) o.end(v); } });
     set(v);
     return { el, set, get v() { return v; } };
@@ -226,9 +227,9 @@
     const sl = vslider(volume(), v => { put('vol', v); audioReady = true; applyVol(); if (v >= 0.999) S('loud'); }, { end: () => { if (Sound.on) Sound.play('beep'); } });
     qs(p, '.sys-vp-s').appendChild(sl.el);
     on(qs(p, 'input'), 'change', e => { setSfx(!e.target.checked); audioReady = true; applyVol(); if (Sound.on) Sound.play('click'); });
-    document.body.appendChild(p); volPop = p;
-    const r = $('sfxBtn').getBoundingClientRect();
-    p.style.left = clamp(r.left + r.width / 2 - 34, 4, innerWidth - 76) + 'px';
+    DesktopSurface.root().appendChild(p); volPop = p;
+    const r = DesktopSurface.rect($('sfxBtn'));
+    p.style.left = clamp(r.left + r.width / 2 - 34, 4, DesktopSurface.width() - 76) + 'px';
     setTimeout(() => on(document, 'pointerdown', outVol, true), 0);
   }
   function outVol(ev) { if (volPop && !volPop.contains(ev.target) && !ev.target.closest('#sfxBtn')) closeVol(); }
@@ -239,9 +240,9 @@
   const dateLong = () => { const t = Desk.today99(); return `${DAYS[t.date.getDay()]}, ${t.d} ${MONTHS[t.m - 1]} 1999`; };
   let tipEl = null, tipT = 0;
   function showTip(el, text, ms) {
-    hideTip(); tipEl = h('', 'sys-tooltip'); tipEl.textContent = text; document.body.appendChild(tipEl);
-    const r = el.getBoundingClientRect(), tr = tipEl.getBoundingClientRect();
-    tipEl.style.left = clamp(r.right - tr.width, 2, innerWidth - tr.width - 2) + 'px'; tipEl.style.top = (r.top - tr.height - 4) + 'px';
+    hideTip(); tipEl = h('', 'sys-tooltip'); tipEl.textContent = text; DesktopSurface.root().appendChild(tipEl);
+    const r = DesktopSurface.rect(el), tr = DesktopSurface.rect(tipEl);
+    tipEl.style.left = clamp(r.right - tr.width, 2, DesktopSurface.width() - tr.width - 2) + 'px'; tipEl.style.top = (r.top - tr.height - 4) + 'px';
     if (ms) tipT = setTimeout(hideTip, ms);
   }
   function hideTip() { clearTimeout(tipT); if (tipEl) tipEl.remove(); tipEl = null; }
@@ -362,7 +363,7 @@
   // ================================================================ taskbar right-click: Cascade / Tile / Minimize All / Task Manager
   function arrange(how) {
     const ws = visibleWins(); if (!ws.length) return toast('Taskbar', 'There are no windows to arrange. Just the desktop, looking lovely.');
-    const W = innerWidth, H = innerHeight - 36;
+    const W = DesktopSurface.width(), H = DesktopSurface.height() - 36;
     ws.forEach((w, i) => {
       w.classList.remove('maxwin');
       if (how === 'cascade') { w.style.left = (8 + i * 24) % Math.max(60, W - 300) + 'px'; w.style.top = (8 + i * 24) % Math.max(60, H - 200) + 'px'; }
@@ -395,7 +396,7 @@
     ];
     if (t.closest('#clock')) items.unshift({ label: 'Adjust Date/Time', act: () => { if (!A.run('timedate.cpl')) open('system.datetime'); } }, '-');
     items.push({ label: 'Properties', act: taskbarProps });
-    IE.menu(items, ev.clientX, Math.min(ev.clientY, innerHeight - 40) - 10);
+    IE.menu(items, ev.clientX, ev.clientY);
   }, true);
   function taskbarProps() {
     const d = dlg('Taskbar Properties', `<div class="sys-tbprev"><div class="sys-tbp-win"><b>Sound Recorder</b><span></span></div><div class="sys-tbp-bar"><span class="sys-tbp-start">Start</span><span class="sys-tbp-task">Sound Rec...</span><span class="sys-tbp-clock">12:45</span></div></div>
@@ -499,15 +500,15 @@
   if (desktop) on(desktop, 'pointerdown', ev => {
     if (ev.button !== 0 || ev.pointerType !== 'mouse' || (ev.target !== desktop && ev.target !== iconsBox)) return;
     selectOnly(null);
-    const sx = ev.clientX, sy = ev.clientY; let box = null, n = 0;
+    const start = DesktopSurface.point(ev.clientX, ev.clientY), sx = start.x, sy = start.y; let box = null, n = 0;
     const move = e => {
-      const x1 = Math.min(sx, e.clientX), y1 = Math.min(sy, e.clientY), x2 = Math.max(sx, e.clientX), y2 = Math.max(sy, e.clientY);
-      if (!box) { if (Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) < 4) return; box = h('', 'sys-marq'); document.body.appendChild(box); }
+      const p = DesktopSurface.point(e.clientX, e.clientY), x1 = Math.min(sx, p.x), y1 = Math.min(sy, p.y), x2 = Math.max(sx, p.x), y2 = Math.max(sy, p.y);
+      if (!box) { if (Math.abs(p.x - sx) + Math.abs(p.y - sy) < 4) return; box = h('', 'sys-marq'); DesktopSurface.root().appendChild(box); }
       Object.assign(box.style, { left: x1 + 'px', top: y1 + 'px', width: (x2 - x1) + 'px', height: (y2 - y1) + 'px' });
-      n = 0; qsa(document, '.icons .dicon').forEach(d => { const r = d.getBoundingClientRect(); const hit = r.right > x1 && r.left < x2 && r.bottom > y1 && r.top < y2; d.classList.toggle('sel', hit); if (hit) n++; });
+      n = 0; qsa(document, '.icons .dicon').forEach(d => { const r = DesktopSurface.rect(d); const hit = r.right > x1 && r.left < x2 && r.bottom > y1 && r.top < y2; d.classList.toggle('sel', hit); if (hit) n++; });
     };
-    const up = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); if (box) box.remove(); if (n >= 5) S('marquee'); };
-    document.addEventListener('pointermove', move); document.addEventListener('pointerup', up);
+    const up = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up); if (box) box.remove(); if (n >= 5) S('marquee'); };
+    document.addEventListener('pointermove', move); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
   });
   // ---- the desktop right-click menu (replaces the old one)
   on(window, 'contextmenu', ev => {
@@ -555,9 +556,10 @@
     qsa(chanBar, '.sys-chan-b').forEach(b => on(b, 'click', () => { Sound.play('click'); open('system.channels', b.dataset.c); }));
     on(qs(chanBar, '.sys-chan-x'), 'click', ev => { ev.stopPropagation(); msg('Channel Bar', 'Do you want the Channel Bar to appear on your desktop the next time you start JackOS?', 'q', [['Yes', () => { chanBar.remove(); chanBar = null; }], ['No', () => channelBar(false)], ['Cancel']]); });
     const grip = qs(chanBar, '.sys-chan-grip'); let drag = null;
-    on(grip, 'pointerdown', ev => { if (ev.target.closest('button')) return; const r = chanBar.getBoundingClientRect(), dr = desktop.getBoundingClientRect(); drag = { dx: ev.clientX - r.left + dr.left, dy: ev.clientY - r.top + dr.top }; grip.setPointerCapture(ev.pointerId); });
-    on(grip, 'pointermove', ev => { if (!drag) return; const x = clamp(ev.clientX - drag.dx, 0, innerWidth - 120), y = clamp(ev.clientY - drag.dy, 0, innerHeight - 140); chanBar.style.right = 'auto'; chanBar.style.left = x + 'px'; chanBar.style.top = y + 'px'; });
+    on(grip, 'pointerdown', ev => { if (ev.target.closest('button')) return; const r = DesktopSurface.rect(chanBar), dr = DesktopSurface.rect(desktop), p = DesktopSurface.point(ev.clientX, ev.clientY); drag = { dx: p.x - r.left + dr.left, dy: p.y - r.top + dr.top }; grip.setPointerCapture(ev.pointerId); });
+    on(grip, 'pointermove', ev => { if (!drag) return; const p = DesktopSurface.point(ev.clientX, ev.clientY), x = clamp(p.x - drag.dx, 0, DesktopSurface.width() - 120), y = clamp(p.y - drag.dy, 0, DesktopSurface.height() - 140); chanBar.style.right = 'auto'; chanBar.style.left = x + 'px'; chanBar.style.top = y + 'px'; });
     on(grip, 'pointerup', () => { if (drag) put('chanpos', [parseInt(chanBar.style.left, 10), parseInt(chanBar.style.top, 10)]); drag = null; });
+    on(grip, 'pointercancel', () => { drag = null; });
   }
   // "View As Web Page": an Active Desktop component with the Desktop News Network ticker (headlines are shared by everyone)
   let webBox = null, onnUnwatch = null;
@@ -615,7 +617,7 @@
   const realBoot = !!$('boot');
   const quietOpen = id => { if (document.querySelector('.appwin') || document.querySelector('.float:not(.dialwin)')) return; try { open(id, '__auto'); } catch (e) { console.warn('[system]', e); } };
   (window.BootDone || Promise.resolve()).then(() => {
-    if (get('chanbar', innerWidth >= 1180)) channelBar(true);
+    if (get('chanbar', DesktopSurface.width() >= 1180)) channelBar(true);
     if (get('web', false)) webView(true);
     if (get('rsrc', false)) resTray(true);
     if (get('arrange', '')) { setTimeout(() => arrangeIcons(get('arrange', '')), 600); setTimeout(() => arrangeIcons(get('arrange', '')), 4000); }
@@ -623,7 +625,7 @@
     if (first) setTimeout(() => schedTick(true), 5000);
     if (!realBoot || /[?&]nowelcome/.test(location.search)) return;
     const seenWelcome = get('welcomed', false);
-    if (!seenWelcome || get('welcomeEvery', false)) setTimeout(() => afterLogon(() => { if (innerWidth <= 600) { put('welcomed', true); toast('Welcome to JackOS 98', 'Take the tour any time: Start > Programs > Accessories > System Tools > Welcome To JackOS.', 7000); } else quietOpen('system.welcome'); }), 2500);
+    if (!seenWelcome || get('welcomeEvery', false)) setTimeout(() => afterLogon(() => { if (DesktopSurface.width() <= 600) { put('welcomed', true); toast('Welcome to JackOS 98', 'Take the tour any time: Start > Programs > Accessories > System Tools > Welcome To JackOS.', 7000); } else quietOpen('system.welcome'); }), 2500);
     else if (get('tips', true) && Math.random() < 0.6) setTimeout(() => afterLogon(() => quietOpen('system.tips')), 12000);
     // warm the cache for the big one once things are quiet
     setTimeout(() => need('system-progs.js').catch(() => {}), 15000);

@@ -77,12 +77,13 @@
   // ---- "What's This?" for everything else, like a JackOS 98 dialog
   const JOKES = ['It is a bit of the computer.', 'It does what it says. Mostly.', 'Jack made it. Please do not click. (You can click.)', 'This is very important to the running of JackOS. Probably.', 'Nobody knows what this does. Not even JackOS.', 'It\'s grey. Like everything else.'];
   function whatsThis(t, x, y) {
+    const p = DesktopSurface.point(x, y); x = p.x; y = p.y;
     const name = label(t.closest('button,[role],a,label,.tb,.status,.group,.lg') || t) || 'This area';
     const tip = document.createElement('div');
     tip.className = 'whatsthis';
-    tip.style.cssText = `position:fixed;left:${Math.min(x, innerWidth - 230)}px;top:${Math.min(y, innerHeight - 90)}px;z-index:2147483000;max-width:220px;background:#ffffe1;border:1px solid #000;padding:4px 6px;font:11px Tahoma,'MS Sans Serif',sans-serif;color:#000;box-shadow:2px 2px 0 rgba(0,0,0,.4)`;
+    tip.style.cssText = `position:fixed;left:${Math.max(4, Math.min(x, DesktopSurface.width() - 230))}px;top:${Math.max(4, Math.min(y, DesktopSurface.height() - 90))}px;z-index:2147483000;max-width:220px;background:#ffffe1;border:1px solid #000;padding:4px 6px;font:11px Tahoma,'MS Sans Serif',sans-serif;color:#000;box-shadow:2px 2px 0 rgba(0,0,0,.4)`;
     tip.innerHTML = `<b>${esc(name)}</b><br>${esc(JOKES[(name.length + name.charCodeAt(0)) % JOKES.length])}`;
-    document.body.appendChild(tip);
+    DesktopSurface.root().appendChild(tip);
     const gone = () => { tip.remove(); document.removeEventListener('pointerdown', gone, true); };
     setTimeout(() => document.addEventListener('pointerdown', gone, true), 0);
     setTimeout(gone, 6000);
@@ -91,6 +92,7 @@
   window.addEventListener('contextmenu', ev => {
     if (ev.defaultPrevented) return; // someone else already showed a menu
     const t = ev.target && ev.target.closest ? ev.target : document.body;
+    if (!DesktopSurface.root().contains(t)) return;
     ev.preventDefault();
     if (!window.IE || !IE.menu) return;
     const x = ev.clientX, y = ev.clientY, m = items => IE.menu(items, x, y);

@@ -274,14 +274,14 @@
     const who = charOf(), C = CHARS[who];
     const el = h('div', 'era-asst'); el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'JackOS Assistant: ' + C.name);
     el.innerHTML = `<div class="era-asst-box"><div class="era-asst-tb"><span>${esc(C.name)}</span><button type="button" aria-label="Close">x</button></div><canvas class="era-asst-cv" width="${CW * 2}" height="${CH * 2}" title="${esc(C.name)} (right-click for options)"></canvas></div>`;
-    document.body.appendChild(el);
+    DesktopSurface.root().appendChild(el);
     const cv = el.querySelector('canvas'), g = cv.getContext('2d');
     cur = { el, cv, g, who, s: { anim: 'greet', at: 0, len: 1.1, look: [0, 0], blink: false }, idleT: 0, lastT: 0, win: ctx && ctx.win, quiet: 0, born: Date.now() };
     place(cur.win);
     // drag by the title bar
     const tb = el.querySelector('.era-asst-tb'); let drag = null;
-    tb.addEventListener('pointerdown', ev => { if (ev.target.closest('button')) return; const r = boxRect(); drag = { dx: ev.clientX - r.left, dy: ev.clientY - r.top }; tb.setPointerCapture(ev.pointerId); });
-    tb.addEventListener('pointermove', ev => { if (!drag) return; const b = boxRect(); boxAt(Math.max(0, Math.min(innerWidth - b.width, ev.clientX - drag.dx)), Math.max(0, Math.min(innerHeight - 60, ev.clientY - drag.dy))); });
+    tb.addEventListener('pointerdown', ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); if (ev.target.closest('button')) return; const r = boxRect(); drag = { dx: p.x - r.left, dy: p.y - r.top }; tb.setPointerCapture(ev.pointerId); });
+    tb.addEventListener('pointermove', ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); if (!drag) return; const b = boxRect(); boxAt(Math.max(0, Math.min(DesktopSurface.width() - b.width, p.x - drag.dx)), Math.max(0, Math.min(DesktopSurface.height() - 60, p.y - drag.dy))); });
     tb.addEventListener('pointerup', () => { drag = null; });
     tb.querySelector('button').addEventListener('click', () => hide(true));
     cv.addEventListener('click', () => { if (!cur) return; cur.quiet = 0; if (cur.el.querySelector('.era-bal')) return; askBox(); });
@@ -314,13 +314,13 @@
     return cur;
   }
   // the assistant is anchored by its bottom-right corner so the balloon can grow up and to the left
-  const boxRect = () => cur.el.querySelector('.era-asst-box').getBoundingClientRect();
-  function boxAt(x, y) { if (!cur) return; const b = boxRect(); cur.el.style.left = cur.el.style.top = 'auto'; cur.el.style.right = Math.round(innerWidth - x - b.width) + 'px'; cur.el.style.bottom = Math.round(innerHeight - y - b.height) + 'px'; }
+  const boxRect = () => DesktopSurface.rect(cur.el.querySelector('.era-asst-box'));
+  function boxAt(x, y) { if (!cur) return; const b = boxRect(); cur.el.style.left = cur.el.style.top = 'auto'; cur.el.style.right = Math.round(DesktopSurface.width() - x - b.width) + 'px'; cur.el.style.bottom = Math.round(DesktopSurface.height() - y - b.height) + 'px'; }
   function place(win) {
     if (!cur) return;
     const el = cur.el, W = CW + 8;
-    let x = innerWidth - W - 16, y = innerHeight - CH - 30 - 40;
-    if (win && win.isConnected) { const r = win.getBoundingClientRect(); x = Math.min(innerWidth - W - 6, Math.max(4, r.right - W - 22)); y = Math.min(innerHeight - CH - 60, Math.max(140, r.bottom - CH - 50)); }
+    let x = DesktopSurface.width() - W - 16, y = DesktopSurface.height() - CH - 30 - 40;
+    if (win && win.isConnected) { const r = DesktopSurface.rect(win); x = Math.min(DesktopSurface.width() - W - 6, Math.max(4, r.right - W - 22)); y = Math.min(DesktopSurface.height() - CH - 60, Math.max(140, r.bottom - CH - 50)); }
     boxAt(x, y);
   }
   // the speech balloon (sits above him; grows upwards so he stays put)
@@ -330,8 +330,8 @@
     const b = h('div', 'era-bal'); b.innerHTML = html;
     c.el.insertBefore(b, c.el.firstChild);
     // keep the whole thing on screen: the balloon goes above, so move the assistant down/up as needed
-    const r = c.el.getBoundingClientRect(), box = c.el.querySelector('.era-asst-box').getBoundingClientRect();
-    if (r.top < 4 || r.left < 4 || box.bottom > innerHeight - 30) boxAt(box.left + Math.max(0, 4 - r.left), Math.min(innerHeight - 34 - box.height, box.top + Math.max(0, 4 - r.top)));
+    const r = DesktopSurface.rect(c.el), box = DesktopSurface.rect(c.el.querySelector('.era-asst-box'));
+    if (r.top < 4 || r.left < 4 || box.bottom > DesktopSurface.height() - 30) boxAt(box.left + Math.max(0, 4 - r.left), Math.min(DesktopSurface.height() - 34 - box.height, box.top + Math.max(0, 4 - r.top)));
     if (wire) wire(b);
     const f = b.querySelector('.opt,input,button'); if (f && !E.phone()) setTimeout(() => { try { f.focus({ preventScroll: true }); } catch (e) {} }, 50);
     return b;
@@ -339,11 +339,11 @@
   // "Move when in the way": hop beside a dialog he would cover, or duck out of sight if there's no room
   function outOfTheWay(win) {
     if (!cur || !win || !win.isConnected) return;
-    const r = win.getBoundingClientRect(), a = cur.el.getBoundingClientRect();
+    const r = DesktopSurface.rect(win), a = DesktopSurface.rect(cur.el);
     if (a.right < r.left || a.left > r.right || a.bottom < r.top || a.top > r.bottom) return;
-    const y = Math.max(4, Math.min(innerHeight - a.height - 34, r.bottom - a.height));
+    const y = Math.max(4, Math.min(DesktopSurface.height() - a.height - 34, r.bottom - a.height));
     if (r.left - a.width - 8 >= 4) boxAt(r.left - a.width - 8, y);
-    else if (r.right + a.width + 8 <= innerWidth - 4) boxAt(r.right + 8, y);
+    else if (r.right + a.width + 8 <= DesktopSurface.width() - 4) boxAt(r.right + 8, y);
     else cur.el.style.visibility = 'hidden';
   }
   const closeBal = () => { if (cur) { const b = cur.el.querySelector('.era-bal'); if (b) b.remove(); cur.quiet = 0; } };

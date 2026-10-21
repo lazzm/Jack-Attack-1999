@@ -12,7 +12,7 @@
   const rnd = (a, b) => a + Math.random() * (b - a), ri = (a, b) => Math.floor(rnd(a, b + 1)), pick = a => a[Math.floor(Math.random() * a.length)];
   const pad = (n, l) => String(n).padStart(l || 2, '0');
   const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const phone = () => innerWidth < 640 || matchMedia('(hover:none)').matches;
+  const phone = () => DesktopSurface.width() < 640 || matchMedia('(hover:none)').matches;
   const sfx = n => { try { Sound.play(n); } catch (e) {} };
   const note = (f, s, t) => { try { if (Sound.on && Sound.note) Sound.note(f, s, t); } catch (e) {} };
   const booted = () => !$('boot');
@@ -118,7 +118,7 @@ body.ssn-autorestart .float[aria-label="Shut Down JackOS"]{visibility:hidden}
     o = o || {};
     const g = cv.getContext('2d'), DPR = Math.min(2, devicePixelRatio || 1);
     let W = 0, H = 0;
-    const size = () => { W = cv.clientWidth || innerWidth; H = cv.clientHeight || innerHeight; cv.width = W * DPR; cv.height = H * DPR; g.setTransform(DPR, 0, 0, DPR, 0, 0); };
+    const size = () => { W = cv.clientWidth || DesktopSurface.width(); H = cv.clientHeight || DesktopSurface.height(); cv.width = W * DPR; cv.height = H * DPR; g.setTransform(DPR, 0, 0, DPR, 0, 0); };
     size(); addEventListener('resize', size);
     const COLS = ['#ff3a3a', '#ffd400', '#3aff6a', '#4aa8ff', '#ff4aff', '#ffffff', '#ff9a2a', '#3affff'];
     const GR = 140, rockets = [], parts = [];
@@ -224,7 +224,7 @@ body.ssn-autorestart .float[aria-label="Shut Down JackOS"]{visibility:hidden}
       const b = EVE.banner = h('div', 'ssn-eve', `<svg class="pop" viewBox="0 0 32 32" aria-hidden="true"><path d="M4 30l8-20 12 12z" fill="#ffd400" stroke="#000"/><path d="M8 20l6 6M10 15l8 8" stroke="#e10600" stroke-width="2"/><circle cx="22" cy="6" r="2" fill="#ff2a6d"/><circle cx="28" cy="12" r="2" fill="#3affff"/><circle cx="17" cy="4" r="1.5" fill="#3aff6a"/><path d="M24 2l2 4M30 6l-3 2M20 10l3-3" stroke="#fff"/></svg><span class="st">MILLENNIUM COUNTDOWN</span><span class="tm" role="timer">--:--:--</span><span class="lb">until the<br>YEAR 2000!!!</span><button type="button" aria-label="Make smaller" title="Make smaller">_</button>`);
       b.querySelector('button').addEventListener('click', () => { EVE.small = !EVE.small; b.classList.toggle('small', EVE.small); b.querySelector('button').textContent = EVE.small ? '+' : '_'; });
       if (phone()) { EVE.small = false; }
-      document.body.appendChild(b);
+      DesktopSurface.root().appendChild(b);
       $('clock') && $('clock').classList.add('ssn-blink');
     }
     const tm = EVE.banner.querySelector('.tm'), s = hms(left);

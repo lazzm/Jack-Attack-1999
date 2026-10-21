@@ -28,8 +28,9 @@
     const now = performance.now(); if (now - last < 50) return; last = now;
     const s = document.createElement('span'); s.className = 'spark';
     s.textContent = Math.random() < 0.5 ? '✦' : '*';
-    s.style.left = (ev.clientX + (Math.random() * 12 - 6)) + 'px'; s.style.top = (ev.clientY + 6 + Math.random() * 8) + 'px';
+    const p = DesktopSurface.point(ev.clientX, ev.clientY);
+    s.style.left = (p.x + (Math.random() * 12 - 6)) + 'px'; s.style.top = (p.y + 6 + Math.random() * 8) + 'px';
     s.style.color = cols[Math.floor(Math.random() * cols.length)];
-    document.body.appendChild(s); setTimeout(() => s.remove(), 800);
+    DesktopSurface.root().appendChild(s); setTimeout(() => s.remove(), 800);
   }, { passive: true });
 })();

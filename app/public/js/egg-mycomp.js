@@ -65,8 +65,9 @@
     const bin = () => document.getElementById('iconBin');
     const over = (x, y) => { const bi = bin(); if (!bi) return false; const r = bi.getBoundingClientRect(); return r.width > 0 && x > r.left - 10 && x < r.right + 10 && y > r.top - 10 && y < r.bottom + 10; };
     const mv = e => {
-      if (!ghost) { if (Math.hypot(e.clientX - sx, e.clientY - sy) < 8) return; ghost = ic.cloneNode(true); ghost.removeAttribute('id'); ghost.style.cssText = 'position:fixed;z-index:99999;pointer-events:none;opacity:.7'; document.body.appendChild(ghost); }
-      ghost.style.left = (e.clientX - 30) + 'px'; ghost.style.top = (e.clientY - 30) + 'px';
+      if (!ghost) { if (Math.hypot(e.clientX - sx, e.clientY - sy) < 8) return; ghost = ic.cloneNode(true); ghost.removeAttribute('id'); ghost.style.cssText = 'position:fixed;z-index:99999;pointer-events:none;opacity:.7'; DesktopSurface.root().appendChild(ghost); }
+      const p = DesktopSurface.point(e.clientX, e.clientY);
+      ghost.style.left = (p.x - 30) + 'px'; ghost.style.top = (p.y - 30) + 'px';
       const bi = bin(); if (bi) bi.classList.toggle('sel', over(e.clientX, e.clientY));
     };
     const up = e => {

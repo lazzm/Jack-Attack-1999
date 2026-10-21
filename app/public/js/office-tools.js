@@ -63,10 +63,10 @@
 
   // ================================================================ MAGNIFIER (a live, zoomed copy of the screen in a shadow DOM)
   function openMagnifier() {
-    let z = store.get('jhp_office_mag', 3), follow = true, invert = false, mx = innerWidth / 2, my = innerHeight / 2;
+    let z = store.get('jhp_office_mag', 3), follow = true, invert = false, mx = DesktopSurface.width() / 2, my = DesktopSurface.height() / 2;
     const b = h('<div class="mg"></div><div class="mg-bar"><label>Magnification: <select class="mz">' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<option value="${n}">${n}x</option>`).join('') + '</select></label><label><input type="checkbox" class="mf" checked> Follow mouse</label><label><input type="checkbox" class="mi"> Invert colours</label><button class="btn mx" type="button">Exit</button></div>');
     b.style.cssText = 'display:flex;flex-direction:column;flex:1;min-height:0';
-    const w = K.win('Magnifier', b, { w: innerWidth, h: Math.min(230, Math.round(innerHeight * 0.32)), x: 0, y: 0, icon: I.magnify, minW: 200, minH: 120, cls: 'mg-win', onClose: () => { clearInterval(t); removeEventListener('pointermove', pm, true); removeEventListener('pointerdown', pm, true); } });
+    const w = K.win('Magnifier', b, { w: DesktopSurface.width(), h: Math.min(230, Math.round(DesktopSurface.height() * 0.32)), x: 0, y: 0, icon: I.magnify, minW: 200, minH: 120, cls: 'mg-win', onClose: () => { clearInterval(t); removeEventListener('pointermove', pm, true); removeEventListener('pointerdown', pm, true); } });
     const view = qs(b, '.mg'), shadow = view.attachShadow({ mode: 'open' });
     const links = [...document.querySelectorAll('link[rel=stylesheet]')].map(l => `<link rel="stylesheet" href="${esc(l.href)}">`).join('');
     shadow.innerHTML = `${links}<style>:host{display:block;position:absolute;inset:0;overflow:hidden;contain:strict} .mg-world{position:absolute;left:0;top:0;transform-origin:0 0;font:12px/1.35 var(--ui);color:#000;background:#008080;overflow:hidden;pointer-events:none} .mg-world.inv{filter:invert(1)} .mg-x{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,0,0,.45)} .mg-y{position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,0,0,.45)}</style><div class="mg-world"></div><i class="mg-x"></i><i class="mg-y"></i>`;
@@ -74,9 +74,9 @@
     qs(b, '.mz').value = String(z);
     function reclone() {
       if (w.closed || w.el.style.display === 'none') return;
-      world.style.width = innerWidth + 'px'; world.style.height = innerHeight + 'px';
+      world.style.width = DesktopSurface.width() + 'px'; world.style.height = DesktopSurface.height() + 'px';
       const frag = document.createDocumentFragment();
-      [...document.body.children].forEach(el => {
+      [...DesktopSurface.root().children].forEach(el => {
         if (el === w.el || /^(SCRIPT|LINK|STYLE|TEMPLATE|NOSCRIPT)$/.test(el.tagName)) return;
         const c = el.cloneNode(true);
         c.querySelectorAll('iframe,video,audio,script').forEach(x => x.remove());
@@ -88,12 +88,12 @@
       place();
     }
     function place() {
-      const r = view.getBoundingClientRect();
-      const tx = clamp(r.width / 2 - mx * z, Math.min(0, r.width - innerWidth * z), 0), ty = clamp(r.height / 2 - my * z, Math.min(0, r.height - innerHeight * z), 0);
+      const r = DesktopSurface.rect(view);
+      const tx = clamp(r.width / 2 - mx * z, Math.min(0, r.width - DesktopSurface.width() * z), 0), ty = clamp(r.height / 2 - my * z, Math.min(0, r.height - DesktopSurface.height() * z), 0);
       world.style.transform = `translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${z})`;
       world.classList.toggle('inv', invert);
     }
-    const pm = ev => { if (!follow || w.closed) return; if (w.el.contains(ev.target)) return; mx = ev.clientX; my = ev.clientY; requestAnimationFrame(place); };
+    const pm = ev => { if (!follow || w.closed) return; if (w.el.contains(ev.target)) return; const p = DesktopSurface.point(ev.clientX, ev.clientY); mx = p.x; my = p.y; requestAnimationFrame(place); };
     addEventListener('pointermove', pm, true); addEventListener('pointerdown', pm, true);
     on(qs(b, '.mz'), 'change', ev => { z = +ev.target.value; store.set('jhp_office_mag', z); if (z >= 9) K.secret('magnify'); place(); });
     on(qs(b, '.mf'), 'change', ev => { follow = ev.target.checked; });
@@ -290,7 +290,7 @@
     let state = store.get('jhp_office_progman', null), minUse = false;
     const b = h('<div class="pm-desk"></div>');
     b.style.cssText = 'display:flex;flex:1;min-height:0';
-    const w = K.win('Program Manager', b, { w: Math.min(640, innerWidth), h: 460, menubar: true, icon: I.progman, minW: 260, minH: 240, cls: 'pm-win' });
+    const w = K.win('Program Manager', b, { w: Math.min(640, DesktopSurface.width()), h: 460, menubar: true, icon: I.progman, minW: 260, minH: 240, cls: 'pm-win' });
     const desk = qs(b, '.pm-desk');
     const G = GROUPS.map((g, i) => Object.assign({ i, minimized: !!g.min, max: false }, g, state && state[i] ? state[i] : {}));
     let active = G.find(g => !g.minimized) || G[0];
@@ -352,7 +352,7 @@
     const FILE = '<svg viewBox="0 0 16 14"><path d="M3 1h7l3 3v9H3z" fill="#fff" stroke="#000"/></svg>', PROG = '<svg viewBox="0 0 16 14"><rect x="1.5" y="1.5" width="13" height="11" fill="#fff" stroke="#000"/><rect x="2" y="2" width="12" height="2" fill="#000080"/></svg>', DOCI = '<svg viewBox="0 0 16 14"><path d="M3 1h7l3 3v9H3z" fill="#fff" stroke="#000"/><path d="M5 6h6M5 8h6M5 10h4" stroke="#000"/></svg>';
     const b = h(`<div class="fm"><div class="fm-drives"><button class="fm-drv" type="button" data-d="A">${FLP} a</button><button class="fm-drv on" type="button" data-d="C">${DRV} c</button><button class="fm-drv" type="button" data-d="D">${CDR} d</button><span style="margin-left:auto">C: [JACKS_PC]</span></div><div class="fm-path"></div><div class="fm-main"><div class="fm-tree" role="tree"></div><div class="fm-list" role="listbox"></div></div></div>`);
     b.style.cssText = 'display:flex;flex:1;min-height:0';
-    const w = K.win('File Manager', b, { w: Math.min(640, innerWidth), h: 440, menubar: true, status: true, icon: I.winfile, minW: 280, minH: 220, cls: 'fm-win' });
+    const w = K.win('File Manager', b, { w: Math.min(640, DesktopSurface.width()), h: 440, menubar: true, status: true, icon: I.winfile, minW: 280, minH: 220, cls: 'fm-win' });
     const [st2] = K.statusParts(w, ['']);
     const tree = qs(b, '.fm-tree'), list = qs(b, '.fm-list');
     const hasSub = n => (n.kids || []).some(k => k.type === 'dir' && !k.hidden);

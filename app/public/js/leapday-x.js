@@ -12,7 +12,7 @@
   const SS = () => window.Seasons;
   const rnd = (a, b) => a + Math.random() * (b - a), ri = (a, b) => Math.floor(rnd(a, b + 1)), pick = a => a[Math.floor(Math.random() * a.length)];
   const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const small = () => innerWidth < 640 || matchMedia('(hover:none)').matches;
+  const small = () => DesktopSurface.width() < 640 || matchMedia('(hover:none)').matches;
   const sfx = n => { try { Sound.play(n); } catch (e) {} };
   const note = (f, s, t) => { try { if (Sound.on && Sound.note) Sound.note(f, s, t); } catch (e) {} };
   const h = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
@@ -131,12 +131,12 @@ body.lp-calm #lpglitch i{display:none}
     watch(c, fix, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['title'] });
     fix();
     // the tray's own date tooltip (apps-system.js) reads Desk.today99(): put the impossible date in it as it appears
-    watch(document.body, () => {
-      for (const tip of document.querySelectorAll('body > .sys-tooltip')) {
+    watch(DesktopSurface.root(), () => {
+      for (const tip of DesktopSurface.root().querySelectorAll(':scope > .sys-tooltip')) {
         if (!/28 February 1999/.test(tip.textContent)) continue;
         const w0 = tip.offsetWidth; tip.textContent = tip.textContent.replace(/^\w+, 28 February 1999/, TITLE);
         const left = parseFloat(tip.style.left) || 0, w1 = tip.offsetWidth;
-        tip.style.left = Math.max(2, Math.min(innerWidth - w1 - 2, left - (w1 - w0))) + 'px';
+        tip.style.left = Math.max(2, Math.min(DesktopSurface.width() - w1 - 2, left - (w1 - w0))) + 'px';
       }
     });
   }
@@ -203,7 +203,7 @@ body.lp-calm #lpglitch i{display:none}
   function glitchLayer() {
     if (glx && glx.isConnected) return glx;
     glx = h('div', '', '<i></i><i></i><i></i><i></i>'); glx.id = 'lpglitch'; glx.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(glx);
+    DesktopSurface.root().appendChild(glx);
     if (!$('lpRgbSvg')) {
       const s = h('div', '', `<svg id="lpRgbSvg" width="0" height="0" style="position:absolute;width:0;height:0" aria-hidden="true" focusable="false"><filter id="lpRgb" x="-2%" y="0" width="104%" height="100%" color-interpolation-filters="sRGB">
 <feTurbulence type="fractalNoise" baseFrequency="0.00001 0.045" numOctaves="1" seed="7" result="n"/>
@@ -212,7 +212,7 @@ body.lp-calm #lpglitch i{display:none}
 <feColorMatrix in="t" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/><feOffset in="r" dx="4" dy="0" result="ro"/>
 <feColorMatrix in="t" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="gb"/><feOffset in="gb" dx="-3" dy="0" result="gbo"/>
 <feBlend in="ro" in2="gbo" mode="screen"/></filter></svg>`).firstElementChild;
-      document.body.appendChild(s);
+      DesktopSurface.root().appendChild(s);
     }
     return glx;
   }
@@ -317,7 +317,7 @@ body.lp-calm #lpglitch i{display:none}
   function restoreDay() {
     got('restore');
     const dim = h('div', 'lp-dim', '<div>JackOS is restoring 29-02-99.DAY to C:\\JACKOS\\CALENDAR...</div>');
-    document.body.appendChild(dim);
+    DesktopSurface.root().appendChild(dim);
     note(98, 1.4, 'sine'); setTimeout(() => note(92.5, 1.6, 'sine'), 500);
     requestAnimationFrame(() => dim.classList.add('on'));
     const msg = t => { if (dim.firstChild) dim.firstChild.textContent = t; };
@@ -501,7 +501,7 @@ body.lp-calm #lpglitch i{display:none}
   function repair(then) {
     if ($('lpRepair')) return;
     const o = h('div', '', `<div class="hd"><span>JackOS ScanDisk</span><span>Calendar Repair</span></div><div class="mid"><div class="box" role="dialog" aria-label="ScanDisk"><h2>ScanDisk</h2><pre></pre><div class="bar"><i></i></div><div class="btns" hidden><button type="button" data-a="ok">&lt; OK &gt;</button><button type="button" data-a="info">&lt; More Info &gt;</button></div></div></div><div class="ft">ScanDisk is checking the calendar. Please do not turn off your computer.</div>`);
-    o.id = 'lpRepair'; document.body.appendChild(o);
+    o.id = 'lpRepair'; DesktopSurface.root().appendChild(o);
     const pre = o.querySelector('pre'), bar = o.querySelector('.bar i'), btns = o.querySelector('.btns');
     const rows = ['ScanDisk is now checking the calendar for 1999:', ''];
     const MON = [['January', 31], ['February', 28], ['March', 31], ['April', 30], ['May', 31], ['June', 30], ['July', 31], ['August', 31], ['September', 30], ['October', 31], ['November', 30], ['December', 31]];

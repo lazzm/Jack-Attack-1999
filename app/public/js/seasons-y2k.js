@@ -73,7 +73,7 @@ body.ssn-shake #taskbar{animation:glitch .4s steps(2) infinite reverse}
   // ================================================================ bits and pieces
   let T = [], wins = [], els = [], before = null, keyFn = null, glIv = 0, ampIv = 0, fw = null, icons = [], drill = false, phase = '';
   const later = (fn, ms) => { const t = setTimeout(() => { T = T.filter(x => x !== t); try { fn(); } catch (e) { console.error(e); } }, ms); T.push(t); return t; };
-  const add = el => { document.body.appendChild(el); els.push(el); return el; };
+  const add = el => { DesktopSurface.root().appendChild(el); els.push(el); return el; };
   const ICO = {
     error: J('error', 32) || '<svg viewBox="0 0 32 32" width="32" height="32"><circle cx="16" cy="16" r="14" fill="#e10600" stroke="#000"/><path d="M10 10l12 12M22 10L10 22" stroke="#fff" stroke-width="3.5"/></svg>',
     warn: J('warning', 32) || '<svg viewBox="0 0 32 32" width="32" height="32"><path d="M16 2 31 29H1z" fill="#ffd400" stroke="#000"/><rect x="14.5" y="11" width="3" height="10"/><rect x="14.5" y="23" width="3" height="3"/></svg>',
@@ -83,13 +83,13 @@ body.ssn-shake #taskbar{animation:glitch .4s steps(2) infinite reverse}
   const POPUP_ICO = '<svg viewBox="0 0 16 16"><rect x="1" y="3" width="14" height="10" fill="#ffffe1" stroke="#000"/><path d="M1 3l7 6 7-6" fill="none" stroke="#000"/></svg>';
   function place(w) {
     const r = w.el.getBoundingClientRect();
-    w.el.style.left = Math.round(rnd(4, Math.max(5, innerWidth - r.width - 4))) + 'px';
-    w.el.style.top = Math.round(rnd(4, Math.max(5, innerHeight - 36 - r.height - 4))) + 'px';
+    w.el.style.left = Math.round(rnd(4, Math.max(5, DesktopSurface.width() - r.width - 4))) + 'px';
+    w.el.style.top = Math.round(rnd(4, Math.max(5, DesktopSurface.height() - 36 - r.height - 4))) + 'px';
   }
   function err(title, text, kind, btns) {
     const b = h('div', '', `<div class="row" style="flex-wrap:nowrap;align-items:flex-start;gap:12px"><span style="flex:none;width:32px;height:32px">${ICO[kind] || ICO.error}</span><div class="txt" style="padding-top:6px"></div></div><div class="row" style="justify-content:center;margin-top:12px"></div>`);
     b.querySelector('.txt').textContent = text;
-    const w = A.win(title, b, { w: Math.min(330, innerWidth - 12), noResize: true, noMax: true, noMin: true, cls: 'ssn-err' });
+    const w = A.win(title, b, { w: Math.min(330, DesktopSurface.width() - 12), noResize: true, noMax: true, noMin: true, cls: 'ssn-err' });
     (btns || ['OK']).forEach((l, i) => { const x = h('button', 'btn' + (i ? '' : ' dflt'), esc(l)); x.type = 'button'; x.style.minWidth = '70px'; x.addEventListener('click', () => w.close()); b.lastChild.appendChild(x); });
     place(w); wins.push(w); sfx('uhoh');
     return w;
@@ -97,14 +97,14 @@ body.ssn-shake #taskbar{animation:glitch .4s steps(2) infinite reverse}
   function popup(from, text) { // a WinPopup ("net send") from one of the mates
     const b = h('div', 'ssn-pop', `<div class="hd">Message from <b>${esc(from)}</b> to <b>JACK</b> on 01/01/1900 00:00</div><div class="msg"></div><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" type="button">OK</button></div>`);
     b.querySelector('.msg').textContent = text;
-    const w = A.win('WinPopup', b, { w: Math.min(300, innerWidth - 12), noResize: true, noMax: true, noMin: true, cls: 'ssn-err', icon: POPUP_ICO });
+    const w = A.win('WinPopup', b, { w: Math.min(300, DesktopSurface.width() - 12), noResize: true, noMax: true, noMin: true, cls: 'ssn-err', icon: POPUP_ICO });
     b.querySelector('.btn').addEventListener('click', () => w.close());
     place(w); wins.push(w); sfx('join');
     return w;
   }
   function jackamp() {
     const b = h('div', 'ssn-amp', `<div class="lcd2"><div class="t">19100</div><div class="sp">${'<i></i>'.repeat(16)}</div></div><div class="mq">***</div><div class="bt"><span>|&lt;</span><span>&#9654;</span><span>II</span><span>&#9632;</span><span>&gt;|</span></div>`);
-    const w = A.win('JackAmp', b, { w: Math.min(280, innerWidth - 12), noResize: true, noMax: true, noMin: true, cls: 'ssn-err', icon: J('jackamp') || undefined });
+    const w = A.win('JackAmp', b, { w: Math.min(280, DesktopSurface.width() - 12), noResize: true, noMax: true, noMin: true, cls: 'ssn-err', icon: J('jackamp') || undefined });
     place(w); wins.push(w);
     const msg = '  *** 1. JACK - HAPPY NEW YEAR 19100 (99:59) ***  PLAYLIST DATE: 01/01/19100  ***  ERROR: TRACK IS 18,101 YEARS LONG  ***';
     let i = 0; const bars = [...b.querySelectorAll('.sp i')], mq = b.querySelector('.mq');
@@ -144,7 +144,7 @@ body.ssn-shake #taskbar{animation:glitch .4s steps(2) infinite reverse}
   }
   function iconsFall() {
     if (reduced()) return;
-    const floor = innerHeight - 32 - 70;
+    const floor = DesktopSurface.height() - 32 - 70;
     icons.forEach((e, i) => {
       const r = e.getBoundingClientRect();
       e.classList.remove('ssn-wob');
@@ -270,7 +270,7 @@ body.ssn-shake #taskbar{animation:glitch .4s steps(2) infinite reverse}
     b.querySelector('.txt').textContent = drill
       ? 'Y2K DRILL COMPLETE.\n\nIn the real thing, JackOS would now notice it is the year 2000. JackOS 98 only knows about 1999, so it would have to restart.\n\nRestart now (for realism)?'
       : 'JackOS has detected that the date is 01/01/2000.\n\nJackOS 98 only knows about 1999. Your computer must restart before the new date can take effect.\n\n(Don\'t worry. Nothing is lost. It\'s just 1999 again.)';
-    const w = A.win(drill ? 'Y2K Drill' : 'System Settings Change', b, { w: Math.min(360, innerWidth - 12), noResize: true, noMax: true, noMin: true, cls: 'ssn-keep' });
+    const w = A.win(drill ? 'Y2K Drill' : 'System Settings Change', b, { w: Math.min(360, DesktopSurface.width() - 12), noResize: true, noMax: true, noMin: true, cls: 'ssn-keep' });
     const btns = b.lastChild;
     const mk = (l, fn, d) => { const x = h('button', 'btn' + (d ? ' dflt' : ''), esc(l)); x.type = 'button'; x.style.minWidth = '90px'; x.addEventListener('click', fn); btns.appendChild(x); return x; };
     let n = 15, iv = 0;

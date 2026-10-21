@@ -9,7 +9,7 @@
   'use strict';
   if (window.MDTerm) return;
   const A = window.Apps, esc = A.esc, store = A.store;
-  const phone = () => innerWidth < 640 || matchMedia('(hover:none)').matches;
+  const phone = () => DesktopSurface.width() < 640 || matchMedia('(hover:none)').matches;
   const sfx = n => { try { Sound.play(n); } catch (e) {} };
   const h = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
 
@@ -178,11 +178,11 @@
   function menuAt(anchor, items, send, skin) {
     if (window.IE && IE.menu && skin !== 'awt') { const r = anchor.getBoundingClientRect(); IE.menu(items.map(([label, cmd]) => ({ label, act: () => send(cmd) })), r.left, r.bottom); return; }
     document.querySelectorAll('.md-pop').forEach(p => p.remove());
-    const p = h('div', 'md-pop'); const r = anchor.getBoundingClientRect();
+    const p = h('div', 'md-pop'); const r = DesktopSurface.rect(anchor);
     for (const [label, cmd] of items) { const b = h('button', '', esc(label)); b.type = 'button'; b.addEventListener('click', () => { p.remove(); send(cmd); }); p.appendChild(b); }
-    document.body.appendChild(p);
-    const pr = p.getBoundingClientRect();
-    p.style.left = Math.max(4, Math.min(innerWidth - pr.width - 4, r.left)) + 'px'; p.style.top = (r.bottom + pr.height > innerHeight - 4 ? r.top - pr.height : r.bottom) + 'px';
+    DesktopSurface.root().appendChild(p);
+    const pr = DesktopSurface.rect(p);
+    p.style.left = Math.max(4, Math.min(DesktopSurface.width() - pr.width - 4, r.left)) + 'px'; p.style.top = (r.bottom + pr.height > DesktopSurface.height() - 4 ? r.top - pr.height : r.bottom) + 'px';
     p.style.zIndex = (window.JZ = (window.JZ || 2400) + 5);
     setTimeout(() => document.addEventListener('pointerdown', function off(e) { if (!p.contains(e.target)) { p.remove(); document.removeEventListener('pointerdown', off, true); } }, true), 0);
   }

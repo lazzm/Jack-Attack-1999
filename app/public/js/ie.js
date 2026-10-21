@@ -63,7 +63,7 @@
     $('startMenu').classList.remove('open');
     if (how === 'click') { // a new page starts at the top, like a browser (on phones, just under the banner)
       const pg = $('page');
-      pg.scrollTop = innerWidth < 760 ? pg.scrollTop + $('pane').getBoundingClientRect().top - pg.getBoundingClientRect().top - ($('menu') ? $('menu').offsetHeight : 46) : 0; // phones: land just under the sticky menu, member bar showing
+      pg.scrollTop = DesktopSurface.width() < 760 ? pg.scrollTop + $('pane').getBoundingClientRect().top - pg.getBoundingClientRect().top - ($('menu') ? $('menu').offsetHeight : 46) : 0; // phones: land just under the sticky menu, member bar showing
     }
     if (xbarMode === 'history') renderXbar();
   }
@@ -185,7 +185,9 @@
   // ================================================================ menus
   let openMenus = [], menubarOpen = null;
   function closeMenus() { openMenus.forEach(m => m.remove()); openMenus = []; document.querySelectorAll('#ieMenu button.open').forEach(b => b.classList.remove('open')); menubarOpen = null; }
-  function menu(items, x, y, level) {
+  function menu(items, x, y, level, inSurface) {
+    // Public callers pass browser client coordinates; layout below uses monitor pixels.
+    if (!inSurface) { const local = DesktopSurface.point(x, y); x = local.x; y = local.y; }
     level = level || 0;
     openMenus.filter((m, i) => i >= level).forEach(m => m.remove());
     openMenus = openMenus.slice(0, level);
@@ -199,7 +201,7 @@
       if (it.rad) b.classList.add('rad');
       if (it.sub) {
         b.classList.add('sub');
-        const openSub = () => { const r = b.getBoundingClientRect(); menu(typeof it.sub === 'function' ? it.sub() : it.sub, r.right - 3, r.top - 3, level + 1); };
+        const openSub = () => { const r = DesktopSurface.rect(b); menu(typeof it.sub === 'function' ? it.sub() : it.sub, r.right - 3, r.top - 3, level + 1, true); };
         b.addEventListener('mouseenter', openSub); b.addEventListener('click', openSub);
       } else {
         b.addEventListener('mouseenter', () => { openMenus.filter((m, i) => i > level).forEach(m => m.remove()); openMenus = openMenus.slice(0, level + 1); });
@@ -208,11 +210,14 @@
       b.addEventListener('mouseenter', () => hl(el, null)); // the mouse takes over from the keyboard highlight
       el.appendChild(b);
     }
-    document.body.appendChild(el);
-    const r = el.getBoundingClientRect();
+    DesktopSurface.root().appendChild(el);
+    el.style.maxHeight = Math.max(40, DesktopSurface.height() - 40) + 'px';
+    el.style.maxWidth = Math.max(40, DesktopSurface.width() - 4) + 'px';
+    el.style.overflowY = 'auto';
+    const r = DesktopSurface.rect(el);
     // a submenu that will not fit on the right opens to the left of its parent, like JackOS
-    el.style.left = Math.max(2, (level && x + r.width > innerWidth - 2) ? x - r.width - (openMenus[level - 1] ? openMenus[level - 1].offsetWidth - 6 : 0) : Math.min(x, innerWidth - r.width - 2)) + 'px';
-    el.style.top = Math.max(2, Math.min(y, innerHeight - r.height - 34)) + 'px';
+    el.style.left = Math.max(2, (level && x + r.width > DesktopSurface.width() - 2) ? x - r.width - (openMenus[level - 1] ? openMenus[level - 1].offsetWidth - 6 : 0) : Math.min(x, DesktopSurface.width() - r.width - 2)) + 'px';
+    el.style.top = Math.max(2, Math.min(y, DesktopSurface.height() - r.height - 34)) + 'px';
     openMenus.push(el);
     return el;
   }
@@ -662,7 +667,7 @@ STILL STUCK?
   // the browser is one of the desktop's windows: clicking it brings it to the front (over other programs), and anything
   // that shows or hides it (packs just toggle the 'min' class) keeps its taskbar button and the active window right
   browser._task = $('taskBrowser');
-  browser.addEventListener('pointerdown', () => { if (innerWidth > 760 && !browser.classList.contains('min')) Desk.activate(browser); }, true);
+  browser.addEventListener('pointerdown', () => { if (DesktopSurface.width() > 760 && !browser.classList.contains('min')) Desk.activate(browser); }, true);
   let wasMin = browser.classList.contains('min');
   new MutationObserver(() => {
     const m = browser.classList.contains('min');
@@ -671,23 +676,23 @@ STILL STUCK?
     if (m) { closeMenus(); Desk.activateTop(); } else { $('taskBrowser').hidden = false; Desk.activate(browser); }
   }).observe(browser, { attributes: true, attributeFilter: ['class'] });
   // drag the window by its title bar, resize from the corner grip, and remember where it was left
-  const canMove = () => !document.body.classList.contains('maxed') && innerWidth > 760;
+  const canMove = () => !document.body.classList.contains('maxed') && DesktopSurface.width() > 760;
   function applyGeom() {
     const g = store.get('jhp_win', null);
     if (!g || !canMove()) { browser.style.left = browser.style.top = browser.style.width = browser.style.height = browser.style.bottom = ''; return; }
-    const w = Math.min(g.w, innerWidth - 20), h = Math.min(g.h, innerHeight - 52);
+    const w = Math.min(g.w, DesktopSurface.width() - 20), h = Math.min(g.h, DesktopSurface.height() - 52);
     browser.style.width = w + 'px'; browser.style.height = h + 'px'; browser.style.bottom = 'auto';
-    browser.style.left = Math.max(-w + 120, Math.min(innerWidth - 120, g.l)) + 'px';
-    browser.style.top = Math.max(0, Math.min(innerHeight - 70, g.t)) + 'px';
+    browser.style.left = Math.max(-w + 120, Math.min(DesktopSurface.width() - 120, g.l)) + 'px';
+    browser.style.top = Math.max(0, Math.min(DesktopSurface.height() - 70, g.t)) + 'px';
   }
   function grab(ev, mode) {
     if (!canMove() || ev.button > 0 || ev.target.closest('button')) return;
     ev.preventDefault();
-    const r = browser.getBoundingClientRect(), sx = ev.clientX, sy = ev.clientY;
-    const startT = r.top - $('desktop').getBoundingClientRect().top;
+    const r = DesktopSurface.rect(browser), start = DesktopSurface.point(ev.clientX, ev.clientY);
+    const startT = r.top - DesktopSurface.rect($('desktop')).top;
     const el = ev.currentTarget; el.setPointerCapture(ev.pointerId);
     const move = e => {
-      const dx = e.clientX - sx, dy = e.clientY - sy;
+      const p = DesktopSurface.point(e.clientX, e.clientY), dx = p.x - start.x, dy = p.y - start.y;
       let g;
       if (mode === 'move') g = { l: r.left + dx, t: startT + dy, w: r.width, h: r.height };
       else { // resize from any edge or corner: mode is like 'se', 'w', 'n'...
@@ -699,8 +704,8 @@ STILL STUCK?
       }
       store.set('jhp_win', g); applyGeom();
     };
-    const up = () => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); window.dispatchEvent(new Event('resize')); };
-    el.addEventListener('pointermove', move); el.addEventListener('pointerup', up);
+    const up = () => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); el.removeEventListener('pointercancel', up); window.dispatchEvent(new Event('resize')); };
+    el.addEventListener('pointermove', move); el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
   }
   $('brTitleBar').addEventListener('pointerdown', ev => grab(ev, 'move'));
   $('sizeGrip').addEventListener('pointerdown', ev => grab(ev, 'se'));

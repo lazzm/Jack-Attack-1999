@@ -7,7 +7,7 @@
   let on = true;
   try { on = localStorage.getItem('jhp_crt') !== '0'; } catch (e) {}
   el.hidden = !on;
-  document.body.appendChild(el);
+  DesktopSurface.root().appendChild(el);
   const still = matchMedia('(prefers-reduced-motion: reduce)');
   const rnd = (a, b) => a + Math.random() * (b - a);
   function blip(cls, ms, then) { el.classList.add(cls); setTimeout(() => { el.classList.remove(cls); if (then) then(); }, ms); }

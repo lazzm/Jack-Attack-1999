@@ -167,7 +167,7 @@
     function recount() { for (let i = 0; i < W * H; i++) cnt[i] = nb(i).reduce((a, j) => a + mine[j], 0); }
     let laidFor = '';
     function layout() {
-      const avail = Math.min(innerWidth, 900) - 40, small = touch || innerWidth < 640;
+      const avail = Math.min(DesktopSurface.width(), 900) - 40, small = touch || DesktopSurface.width() < 640;
       // on a narrow phone a wide field (Expert) is turned on its side so it scrolls down instead of sideways
       tr = small && W > H && W * 22 > avail;
       const DC = tr ? H : W, DR = tr ? W : H;
@@ -180,8 +180,8 @@
       const firstTime = !laidFor; laidFor = key;
       const el = K.w.el; el.style.width = 'auto'; el.style.height = 'auto';
       const nat = el.offsetWidth;
-      if (nat > innerWidth - 4) el.style.width = (innerWidth - 4) + 'px';
-      if (firstTime) { el.style.left = Math.max(2, (innerWidth - el.offsetWidth) / 2) + 'px'; el.style.top = Math.max(2, Math.min(90, (innerHeight - el.offsetHeight) / 2 - 40)) + 'px'; }
+      if (nat > DesktopSurface.width() - 4) el.style.width = (DesktopSurface.width() - 4) + 'px';
+      if (firstTime) { el.style.left = Math.max(2, (DesktopSurface.width() - el.offsetWidth) / 2) + 'px'; el.style.top = Math.max(2, Math.min(90, (DesktopSurface.height() - el.offsetHeight) / 2 - 40)) + 'px'; }
       K.fit();
     }
     function drawCounters() { drawLCD(lcdL, M - flags(), !cfg.color); drawLCD(lcdT, time, !cfg.color); drawFace(faceC, mood, faceDown, !cfg.color); }
@@ -353,7 +353,7 @@
       if (ev.key === 'Enter' && ev.shiftKey) {
         if (typed.endsWith('xyzzy')) {
           ev.preventDefault(); cheat = !cheat; typed = '';
-          if (cheat) { if (!pixel) { pixel = h('div'); pixel.id = 'swPixel'; } document.body.appendChild(pixel); E.secret('sweep.xyzzy'); }
+          if (cheat) { if (!pixel) { pixel = h('div'); pixel.id = 'swPixel'; } DesktopSurface.root().appendChild(pixel); E.secret('sweep.xyzzy'); }
           else if (pixel) pixel.remove();
         }
         return;

@@ -1,5 +1,14 @@
 # Jack's Home Page - changelog
 
+## 2.23.0 - 2026-10-21
+- JackOS stays inside the physical 4:3 CRT, with recessed curved glass, a dark lip, sheen and scanlines. Room HUD hides while seated; desktop windows, menus, tooltips and balloons use monitor coordinates and stay inside its glass.
+- Stand/sit and PC power transitions keep the room visible. Corrected wake-container visibility, viewport-dependent window geometry, desktop mouse capture, shutdown/Esc races and foreground-canvas ownership.
+- Console games use a live screen texture in the room; physical shelf media use the grab system and aligned shelf placement. Cartridge/disc modelling and console insertion details have been refined.
+- Quality-bar standing rules recorded in AGENTS.md. Browser regression scripts cover monitor sizing, UI interaction, refresh and power cycles on isolated test data.
+- Corrected desktop readiness checks for the persistent room, projected secret-item hit testing, and the no-WebGL standing-refresh fallback. Game Lad now uses its physical LCD too.
+- Remaining: the away Super Ultra retains its legacy overlay; games without mid-session saves restart at their title. Physical disc/Game Lad insertion and every individual game were not exhaustively verified.
+- Verification limits: automated Chromium uses software WebGL. Physical GPU hardware, Safari/iOS and every individual console-game campaign have not been exhaustively tested.
+
 ## 2.22.0 - 2026-10-21
 - (Owner only) a layout editor: logged in as Jack, F9 in the room flies freely, selects and moves models, keeps the edits locally and exports them as layout-edits.json to be written into the code.
 

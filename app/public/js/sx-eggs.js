@@ -14,7 +14,7 @@
   const layer = (cls, html, ms, click) => {
     const d = document.createElement('div'); d.className = 'sxe ' + (cls || ''); if (html) d.innerHTML = html;
     if (click) d.classList.add('sxe-click');
-    document.body.appendChild(d);
+    DesktopSurface.root().appendChild(d);
     if (ms) setTimeout(() => d.remove(), ms);
     return d;
   };
@@ -142,7 +142,7 @@
   E.warp = () => {
     secret('sx.r.warp');
     const d = layer('sxe-warp', '<canvas></canvas><p>WARP FACTOR NINE... ENGAGE!</p>', 3600);
-    const c = d.querySelector('canvas'), g = c.getContext('2d'); c.width = Math.min(1200, innerWidth); c.height = Math.min(900, innerHeight);
+    const c = d.querySelector('canvas'), g = c.getContext('2d'); c.width = Math.min(1200, DesktopSurface.width()); c.height = Math.min(900, DesktopSurface.height());
     const S = Array.from({ length: 220 }, () => ({ a: Math.random() * Math.PI * 2, r: Math.random() * 40, v: 0.5 + Math.random() * 2 }));
     const t0 = performance.now();
     (function f(t) {
@@ -163,7 +163,7 @@
     w.classList.add('sxe-beam');
     setTimeout(() => {
       w.classList.remove('sxe-beam');
-      if (w.classList.contains('appwin')) { const r = w.getBoundingClientRect(); w.style.left = Math.max(0, Math.min(innerWidth - r.width, Math.random() * (innerWidth - r.width))) + 'px'; w.style.top = Math.max(0, Math.min(innerHeight - r.height - 30, Math.random() * (innerHeight - r.height - 30))) + 'px'; }
+      if (w.classList.contains('appwin')) { const r = DesktopSurface.rect(w); w.style.left = Math.max(0, Math.min(DesktopSurface.width() - r.width, Math.random() * (DesktopSurface.width() - r.width))) + 'px'; w.style.top = Math.max(0, Math.min(DesktopSurface.height() - r.height - 30, Math.random() * (DesktopSurface.height() - r.height - 30))) + 'px'; }
       w.classList.add('sxe-beamin'); setTimeout(() => w.classList.remove('sxe-beamin'), 1700);
       toast('Transporter room', 'Energise! Beamed it up, and back down again a bit to the left. (Sorry about that.)', 5000);
     }, 1650);
@@ -244,13 +244,13 @@
   // ---------------------------------------------------------------- toys
   E.lego = raw => {
     secret('sx.r.lego');
-    const cols = ['#e10600', '#ffd400', '#2a7ad8', '#3c3', '#fff', '#111'], W = Math.min(innerWidth, 1400);
+    const cols = ['#e10600', '#ffd400', '#2a7ad8', '#3c3', '#fff', '#111'], W = Math.min(DesktopSurface.width(), 1400);
     const bricks = []; let h = '';
     for (let i = 0; i < 24; i++) { const x = Math.floor(Math.random() * Math.max(1, (W - 60) / 48)) * 48 + 6; bricks.push(x); h += `<span class="sxe-brick" data-x="${x}" style="left:${x}px;background:${cols[i % cols.length]}"></span>`; }
     const d = layer('', h, 6500), stack = {};
     d.querySelectorAll('.sxe-brick').forEach((b, i) => setTimeout(() => {
       const x = +b.dataset.x, lvl = stack[x] = (stack[x] | 0) + 1;
-      b.style.transition = 'top .5s cubic-bezier(.5,0,1,1)'; b.style.top = (innerHeight - 30 - lvl * 26) + 'px';
+      b.style.transition = 'top .5s cubic-bezier(.5,0,1,1)'; b.style.top = (DesktopSurface.height() - 30 - lvl * 26) + 'px';
       setTimeout(() => note(1600 + Math.random() * 400, 0.04, 0, 'square'), 480);
     }, i * 140));
     setTimeout(() => toast(/knex/i.test(raw || '') ? 'K\'Nex' : 'LEGO', /knex/i.test(raw || '') ? 'Rods and connectors everywhere! Jack\'s K\'Nex roller coaster took three weekends. These bricks are for the shuttle launch pad.' : 'Click, click, click! Mind your feet: treading on one of these in the dark is the worst pain known to science.', 5000), 3600);
@@ -259,7 +259,7 @@
   E.listen = () => {
     secret('sx.r.listen');
     const d = layer('', '<div class="sxe-navi" style="left:50%;top:50%"><span>Hey! Listen!</span></div>', 15000), f = d.querySelector('.sxe-navi'), sp = f.querySelector('span');
-    const mv = ev => { f.style.left = (ev.clientX + 26) + 'px'; f.style.top = (ev.clientY - 20) + 'px'; };
+    const mv = ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); f.style.left = (p.x + 26) + 'px'; f.style.top = (p.y - 20) + 'px'; };
     document.addEventListener('pointermove', mv); document.addEventListener('pointerdown', mv);
     const lines = ['Hey! Listen!', 'Hey!', 'Listen!', 'Look!', 'Watch out!', 'Hello!'];
     let i = 0; const iv = setInterval(() => { if (!d.isConnected) { clearInterval(iv); document.removeEventListener('pointermove', mv); document.removeEventListener('pointerdown', mv); return; } sp.textContent = lines[i++ % lines.length]; sp.classList.add('on'); setTimeout(() => sp.classList.remove('on'), 1200); note(1568, 0.08, 0, 'sine'); note(2093, 0.12, 0.09, 'sine'); }, 2600);
@@ -300,15 +300,15 @@
     secret('sx.r.pong');
     const d = layer('sxe-pong', '<div class="sxe-pad" style="left:20px"></div><div class="sxe-pad" style="right:20px"></div><div class="sxe-pball"></div>', 10500);
     const [pl, pr] = d.querySelectorAll('.sxe-pad'), b = d.querySelector('.sxe-pball');
-    let x = innerWidth / 2, y = innerHeight / 3, vx = 6, vy = 4, last = performance.now();
+    let x = DesktopSurface.width() / 2, y = DesktopSurface.height() / 3, vx = 6, vy = 4, last = performance.now();
     (function f(t) {
       if (!d.isConnected) return;
       const dt = Math.min(3, (t - last) / 16); last = t;
       x += vx * dt; y += vy * dt;
-      if (y < 0 || y > innerHeight - 40) { vy = -vy; y = Math.max(0, Math.min(innerHeight - 40, y)); note(490, 0.03, 0); }
-      if (x < 34 || x > innerWidth - 46) { vx = -vx; x = Math.max(34, Math.min(innerWidth - 46, x)); note(x < 100 ? 245 : 490, 0.05, 0); }
+      if (y < 0 || y > DesktopSurface.height() - 40) { vy = -vy; y = Math.max(0, Math.min(DesktopSurface.height() - 40, y)); note(490, 0.03, 0); }
+      if (x < 34 || x > DesktopSurface.width() - 46) { vx = -vx; x = Math.max(34, Math.min(DesktopSurface.width() - 46, x)); note(x < 100 ? 245 : 490, 0.05, 0); }
       b.style.left = x + 'px'; b.style.top = y + 'px';
-      const py = Math.max(0, Math.min(innerHeight - 110, y - 34)); pl.style.top = py + 'px'; pr.style.top = py + 'px';
+      const py = Math.max(0, Math.min(DesktopSurface.height() - 110, y - 34)); pl.style.top = py + 'px'; pr.style.top = py + 'px';
       requestAnimationFrame(f);
     })(last);
     setTimeout(() => toast('PONG', 'One of the very first video games, from 1972. Bip. Bop. Bip. Bop. Nobody has ever won (the paddles are too good).', 6000), 800);

@@ -492,7 +492,7 @@ ${adHtml(1)}
   }
   // the browser window, its title bar and status bar
   const BR = () => $('browser');
-  const canMove = () => !document.body.classList.contains('maxed') && innerWidth > 760;
+  const canMove = () => !document.body.classList.contains('maxed') && DesktopSurface.width() > 760;
   const getGeom = () => { const r = BR().getBoundingClientRect(), d = $('desktop') ? $('desktop').getBoundingClientRect().top : 0; return { l: Math.round(r.left), t: Math.round(r.top - d), w: Math.round(r.width), h: Math.round(r.height) }; };
   function setGeom(g) {
     const br = BR(); br.style.transition = 'left .45s,top .45s,width .45s,height .45s';
@@ -556,8 +556,8 @@ ${adHtml(1)}
       const r = BR().getBoundingClientRect(), w = Math.round(r.width), hh = Math.round(r.height), res = qs(el, '.res');
       if (res) res.innerHTML = `Your window is <b>${w} x ${hh}</b>.<br>This site is best viewed in <b>1024 x 768</b>!!!`;
       const fix = () => {
-        if (!canMove()) return msg('JackNet Explorer', innerWidth <= 760 ? `Your whole screen is only ${innerWidth} x ${innerHeight}!\n\nJackNet Explorer can't make the window bigger than the screen. Get a bigger screen. (Mom says no.)` : 'The window is maximised, so it can\'t be resized. Click the Restore button at the top right first.', 'info');
-        setGeom({ l: Math.max(0, Math.round((innerWidth - 1024) / 2)), t: 0, w: Math.min(1024, innerWidth - 20), h: Math.min(768, innerHeight - 52) });
+        if (!canMove()) return msg('JackNet Explorer', DesktopSurface.width() <= 760 ? `Your whole screen is only ${DesktopSurface.width()} x ${DesktopSurface.height()}!\n\nJackNet Explorer can't make the window bigger than the screen. Get a bigger screen. (Mom says no.)` : 'The window is maximised, so it can\'t be resized. Click the Restore button at the top right first.', 'info');
+        setGeom({ l: Math.max(0, Math.round((DesktopSurface.width() - 1024) / 2)), t: 0, w: Math.min(1024, DesktopSurface.width() - 20), h: Math.min(768, DesktopSurface.height() - 52) });
         toast("Gaz's MEGA Page", 'window.resizeTo(1024, 768)... MEGA!', 3000);
       };
       if (Math.abs(w - 1024) > 8 || Math.abs(hh - 768) > 8) ctx.later(() => msg('JackNet Explorer', `Your window is ${w} x ${hh}.\n\nThis site is best viewed in 1024 x 768!!! Shall I fix it for you?`, 'q', [['OK', fix], ['Cancel', () => toast("Gaz's MEGA Page", 'Fine. Enjoy the page looking WRONG.', 3000)]]), 1200);
@@ -565,7 +565,7 @@ ${adHtml(1)}
     } else if (k === 'kyle') {
       const back = () => { if (!kyleWas) return; const k2 = kyleWas; kyleWas = null; if (k2.maxed && !document.body.classList.contains('maxed')) $('brMax').click(); else setGeom(k2.geom); };
       ctx.later(() => {
-        if (innerWidth <= 760) {
+        if (DesktopSurface.width() <= 760) {
           const br = BR(); try { br.animate([{ transform: 'none' }, { transform: 'translate(-30%,-30%) scale(.4)', offset: 0.25 }, { transform: 'translate(-30%,-30%) scale(.4)', offset: 0.8 }, { transform: 'none' }], { duration: 3000, easing: 'ease-in-out' }); } catch (e) {}
           ctx.later(() => toast("Kyle's Korner", 'window.moveTo(0,0)... but your screen is too small for corners. Phew!', 3500), 3000);
           return;
@@ -592,7 +592,8 @@ ${adHtml(1)}
         if (!ev.target.closest || !ev.target.closest('#s-secret')) return;
         const now = Date.now(); if (now - lastS < 40) return; lastS = now;
         const s = h('<svg viewBox="0 0 12 12"><path d="M6 0l1.5 4.5L12 6 7.5 7.5 6 12 4.5 7.5 0 6l4.5-1.5z" fill="hsl(' + (now / 5 % 360) + ',100%,70%)"/></svg>', 'bdl-sparkle');
-        s.style.left = (ev.clientX - 6 + (Math.random() - 0.5) * 10) + 'px'; s.style.top = (ev.clientY - 6) + 'px'; document.body.appendChild(s); setTimeout(() => s.remove(), 950);
+        const p = DesktopSurface.point(ev.clientX, ev.clientY);
+        s.style.left = (p.x - 6 + (Math.random() - 0.5) * 10) + 'px'; s.style.top = (p.y - 6) + 'px'; DesktopSurface.root().appendChild(s); setTimeout(() => s.remove(), 950);
       };
       ctx.on(document, 'pointermove', spark, { passive: true }); ctx.on(document, 'pointerdown', spark, { passive: true });
     }
@@ -612,7 +613,7 @@ ${adHtml(1)}
       if (run !== popRun) return;
       const [t, html, prize] = POPS[i];
       const body = h(`<div class="pbar">${J('jacknet', 16)}<span>http://www.freepagez.w3b/~freestuff/popup${i + 1}.html</span></div><div class="bdl-pbody">${html}</div>`);
-      const W = Math.min(300, innerWidth - 16), x = Math.max(4, Math.min(innerWidth - W - 4, 40 + Math.random() * (innerWidth - W - 80))), y = Math.max(4, 30 + Math.random() * Math.max(10, innerHeight - 330));
+      const W = Math.min(300, DesktopSurface.width() - 16), x = Math.max(4, Math.min(DesktopSurface.width() - W - 4, 40 + Math.random() * (DesktopSurface.width() - W - 80))), y = Math.max(4, 30 + Math.random() * Math.max(10, DesktopSurface.height() - 330));
       const last = i === POPS.length - 1;
       A.win(t + ' - JackNet Explorer', body, { w: W, h: 200, cls: 'bdl-pop', noMax: true, x, y, icon: J('jacknet', 16), onClose: () => { if (run !== popRun) return; if (last) { B.secret('popups'); toast('FREE STUFF ZONE!!!', 'You closed EVERY pop-up! Pop-up whacker!', 3500); } else popChain(ctx, i + 1); } });
       sfx('boing');

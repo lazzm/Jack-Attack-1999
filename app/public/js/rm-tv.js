@@ -154,15 +154,48 @@
     for (const i in GPB) { const b = GPB[i], on = !!(g.buttons[i] && g.buttons[i].pressed); if (on && !gpHeld[b]) pend[b] = true; gpHeld[b] = on; }
   }
 
-  // ================================================================ the overlay: the telly (or the Game Boy) up close
+  // ================================================================ the room telly (the Game Boy still gets a close-up)
   let V = null; // the open view
-  const CONS = ['n64', 'ps', 'md', 'dc'];
   const conOut = c => _.isOut(CAT.CONSOLES[c].from);
+  function screenLines(g, text, x, y, width, color, scale) {
+    const words = String(text || '').split(/\s+/), lines = []; let line = '';
+    for (const word of words) { if (line && font.width(line + ' ' + word, scale) > width) { lines.push(line); line = word; } else line += (line ? ' ' : '') + word; }
+    if (line) lines.push(line);
+    lines.forEach((s, i) => font.center(g, s, x, y + i * 10 * scale, color, scale));
+    return lines.length * 10 * scale;
+  }
+  function resultFrame(g, w, h) {
+    if (!V.result) return;
+    const r = V.result, s = Math.max(1, Math.floor(w / 320)), cx = w / 2;
+    g.fillStyle = 'rgba(4,8,22,.94)'; g.fillRect(w * .04, h * .04, w * .92, h * .92);
+    g.strokeStyle = '#d8d5bf'; g.lineWidth = s; g.strokeRect(w * .04, h * .04, w * .92, h * .92);
+    let y = h * .09;
+    y += screenLines(g, r.title, cx, y, w * .84, '#ffd85e', s) + 6 * s;
+    y += screenLines(g, r.text, cx, y, w * .84, '#f0eee3', s) + 5 * s;
+    font.center(g, 'SCORE ' + r.sc, cx, y, '#8bf3b8', s); y += 15 * s;
+    font.center(g, 'BEST ' + Math.max(localBest(V.gid), srv.best[V.gid] | 0), cx, y, '#ffd85e', s); y += 18 * s;
+    const leaders = (srv.hi[V.gid] || []).concat(mates(V.gid)).sort((a, b) => b.s - a.s).slice(0, 3);
+    for (const [i, row] of leaders.entries()) { font.draw(g, (i + 1) + '. ' + row.n.slice(0, 18), w * .12, y, '#ddd', s); font.draw(g, row.s, w * .7, y, '#ddd', s); y += 12 * s; }
+    const status = $(V.el, '.rm-srv');
+    if (status && y < h - 50 * s) screenLines(g, status.textContent, cx, y + 4 * s, w * .8, '#b8c4d4', s);
+    font.center(g, 'A / START: PLAY AGAIN', cx, h - 32 * s, '#fff', s);
+    font.center(g, 'B: CHANGE GAME   ESC: LEAN BACK', cx, h - 18 * s, '#e0d090', s);
+  }
+  function liveFrame() {
+    if (!V || !V.live) return;
+    if (V.result) { const g = V.cv1.getContext('2d'); g.clearRect(0, 0, V.cv1.width, V.cv1.height); resultFrame(g, V.cv1.width, V.cv1.height); }
+    // Upload both canvases directly. Compositing in the room's material avoids
+    // reading a WebGL game back through a 2D canvas every animation frame.
+    V.liveTx = _.tvLive && _.tvLive(V.cv0, V.cv1, V.con);
+    if (V.liveTx && R.House && R.House.ren.initTexture) { R.House.ren.initTexture(V.liveTx); R.House.ren.initTexture(V.liveTx.userData.hud); }
+    if (R.House) R.House.dirty();
+  }
   function owned(gid) { if (R.owned(gid)) return true; try { return !!(window.PM && PM.owns && PM.owns('cart.' + gid)); } catch (e) { return false; } } // (or bought from the mail-order catalogue: js/pm-*.js)
-  function open(con, from) {
+  function open(con, from, options) {
     if (V) return;
     if (con === 'dc' && !conOut('dc')) return;
-    const hand = con === 'gb';
+    if (!CAT.CONSOLES[con]) return;
+    const hand = con === 'gb', live = !CAT.CONSOLES[con].away;
     const el = h(`
       <div class="rm-tvwrap"><div class="rm-tvbez ${hand ? 'rm-gbc' : 'rm-crt'}">
         <div class="rm-glass"><canvas class="rm-c0"></canvas><canvas class="rm-c1"></canvas><div class="rm-res"></div><i class="rm-scan"></i><i class="rm-glare"></i></div>
@@ -175,29 +208,33 @@
         <div class="rm-help"></div>
         <div class="rm-btns"><button type="button" class="rm-b rm-back">&larr; Back to my room</button><button type="button" class="rm-b rm-eject" hidden>Eject</button><button type="button" class="rm-b rm-blowb" hidden>Blow on it</button><button type="button" class="rm-b rm-snd"></button></div>
       </div>
-      <div class="rm-pad" hidden></div>`, 'rm-view rm-tvv' + (hand ? ' rm-hand' : ''));
+      <div class="rm-pad" hidden></div>`, 'rm-view rm-tvv' + (hand && !live ? ' rm-hand' : '') + (live ? ' rm-live3d' : ''));
     el.dataset.con = con;
     pb.appendChild(el);
-    V = { el, con, hand, game: null, gid: '', st: 'shelf', cv0: $(el, '.rm-c0'), cv1: $(el, '.rm-c1') };
+    V = { el, con, hand, live, restoring: !!(options && options.restoring), game: null, gid: '', st: 'shelf', cv0: $(el, '.rm-c0'), cv1: $(el, '.rm-c1') };
+    if (live) {
+      const bar = h('', 'rm-livebar'); bar.appendChild($(el, '.rm-help')); bar.appendChild($(el, '.rm-btns')); el.appendChild(bar);
+      $(el, '.rm-back').textContent = 'Lean back (Esc)'; $(el, '.rm-eject').textContent = 'Change game';
+      pb.classList.remove('rm-tvon'); pb.classList.add('rm-console-focus');
+    }
     // (no pointer events reach the room behind; Esc closes)
     $(el, '.rm-back').addEventListener('click', close);
     $(el, '.rm-eject').addEventListener('click', () => { _.sfx('click'); eject(); });
     $(el, '.rm-blowb').addEventListener('click', blow);
     $(el, '.rm-snd').addEventListener('click', () => { try { Sound.on = !Sound.on; if (Sound.on) ac(); } catch (e) {} sndBtn(); if (!Sound.on) music(null); else if (V && V.song) music(V.song); });
     sndBtn();
-    if (hand) gbButtons($(el, '.rm-gbpad'));
-    conBar(); shelf(); idle();
+    if (hand && !live) gbButtons($(el, '.rm-gbpad'));
+    if (!live) { conBar(); shelf(); } idle();
     // zoom: from where the telly (or the Game Boy) is in the room to the middle of the window
     const wrap = $(el, '.rm-tvwrap');
     requestAnimationFrame(() => {
       el.classList.add('on');
-      const src = from && from.getBoundingClientRect ? from.getBoundingClientRect() : (from && from.width != null ? from : null), dst = wrap.getBoundingClientRect(); // (an element, or a screen rect {left, top, width, height})
+      const src = !live && from && from.getBoundingClientRect ? from.getBoundingClientRect() : (!live && from && from.width != null ? from : null), dst = wrap.getBoundingClientRect(); // (an element, or a screen rect {left, top, width, height})
       if (src && src.width > 4 && dst.width > 4) {
         const k = Math.max(src.width / dst.width, 0.05), dx = src.left + src.width / 2 - (dst.left + dst.width / 2), dy = src.top + src.height / 2 - (dst.top + dst.height / 2);
         wrap.style.transition = 'none'; wrap.style.transform = `translate(${dx}px,${dy}px) scale(${k})`; void wrap.offsetWidth;
         wrap.style.transition = ''; wrap.style.transform = '';
       }
-      setTimeout(() => { if (V && V.el === el) pb.classList.add('rm-tvon'); }, 450); // (then the room behind stops being drawn)
     });
     _.emit('open', con);
     addEventListener('keydown', onKey, true); addEventListener('keyup', onKeyUp, true);
@@ -206,26 +243,25 @@
   }
   function close() {
     if (!V) return;
-    // the telly in the room stays on, showing what was on it (a 2D game's last picture; 3D just glows)
-    if (!V.hand && !CAT.CONSOLES[V.con].away) { try { let url = ''; if (!V.cv0.dataset.gl && V.st === 'game') { const c = document.createElement('canvas'); c.width = 160; c.height = 120; const g = c.getContext('2d'); g.drawImage(V.cv0, 0, 0, 160, 120); g.drawImage(V.cv1, 0, 0, 160, 120); url = c.toDataURL('image/jpeg', 0.7); } if (_.tvOn) _.tvOn(url); } catch (e) {} }
+    // The room telly keeps its live canvas texture, so backing out does not replace it with a flat overlay.
+    if (V.liveTx && R.House && R.House.ren.initTexture) { R.House.ren.initTexture(V.liveTx); const hud = V.liveTx.userData.hud; if (hud) R.House.ren.initTexture(hud); }
     stopGame(); music(null);
     const el = V.el; V = null;
-    pb.classList.remove('rm-tvon');
+    pb.classList.remove('rm-tvon', 'rm-console-focus');
     el.classList.remove('on'); el.classList.add('bye');
     setTimeout(() => el.remove(), 320);
     removeEventListener('keydown', onKey, true); removeEventListener('keyup', onKeyUp, true);
-    for (const k in held) held[k] = false; for (const k in padHeld) padHeld[k] = false;
+    clearInput();
     loop.stop();
     _.emit('close');
   }
   function sndBtn() { if (!V) return; const on = !!(window.Sound && Sound.on); const b = $(V.el, '.rm-snd'); b.innerHTML = on ? '&#128266; Sound on' : '&#128263; Sound off'; b.classList.toggle('off', !on); }
-  // which console (the telly can show any of them: the AV switch box)
+  // which console (the real telly's input is selected by the cartridge on the shelf)
   function conBar() {
     const bar = $(V.el, '.rm-conbar');
     if (V.hand) { bar.innerHTML = `<b>${esc(CAT.CONSOLES.gb.full.replace(/^the /, ''))}</b> <span>Pick a cartridge</span>`; return; }
     if (CAT.CONSOLES[V.con].away) { bar.innerHTML = `<b>${esc(CAT.CONSOLES[V.con].n)}</b> <span>Pick a cartridge</span>`; return; }
-    bar.innerHTML = '<span class="rm-av">AV SWITCH:</span>' + CONS.filter(conOut).map(c => `<button type="button" class="rm-cb${c === V.con ? ' on' : ''}" data-c="${c}">${esc(CAT.CONSOLES[c].n)}</button>`).join('');
-    bar.querySelectorAll('.rm-cb').forEach(b => b.addEventListener('click', () => { if (!V || b.dataset.c === V.con) return; _.sfx('click'); stopGame(); V.con = b.dataset.c; V.el.dataset.con = V.con; conBar(); shelf(); idle(); }));
+    bar.innerHTML = `<b>${esc(CAT.CONSOLES[V.con].n)}</b> <span>Pick a game off the real shelf.</span>`;
   }
   // the cartridges / discs for this console: the ones you have, and gaps for the ones still lost
   function shelf() {
@@ -246,19 +282,26 @@
     else if (V.cv0.dataset.gl) { const n = V.cv0.cloneNode(); delete n.dataset.gl; V.cv0.replaceWith(n); V.cv0 = n; }
     if (gl) V.cv0.dataset.gl = '1';
     V.cv0.width = c1.width = w; V.cv0.height = c1.height = hh;
+    if (gl && V.live) {
+      // The room renderer consumes this frame on its own animation callback.
+      // Preserve it until then instead of allowing the browser to clear it.
+      const o = { alpha: false, antialias: V.con === 'dc', preserveDrawingBuffer: true };
+      V.cv0.getContext('webgl2', o) || V.cv0.getContext('webgl', o);
+    }
     V.el.classList.toggle('rm-smooth', !!smooth);
   }
   function blank(text) { // the telly with nothing on: blue AV screen (or the Game Boy switched off)
     size(...(V.hand ? LOOK.gb.res : [320, 240]), false, false);
     const g = V.cv0.getContext('2d'), W = V.cv0.width, H = V.cv0.height;
     if (V.hand) { g.fillStyle = '#5a6a4a'; g.fillRect(0, 0, W, H); }
-    else { g.fillStyle = '#1838b8'; g.fillRect(0, 0, W, H); font.draw(g, 'AV-1', 16, 14, '#fff', 2); if (text) font.center(g, text, W / 2, H / 2 - 4, '#fff', 1); }
+    else { g.fillStyle = '#1838b8'; g.fillRect(0, 0, W, H); font.draw(g, 'AV-1', 16, 14, '#fff', 2); if (text) screenLines(g, text, W / 2, H / 2 - 12, W - 40, '#fff', 1); }
     V.cv1.getContext('2d').clearRect(0, 0, W, H);
+    liveFrame();
   }
   function idle() {
     V.st = 'shelf'; blank(V.hand ? '' : `${CAT.CONSOLES[V.con].n.toUpperCase()} - PUT A ${CAT.CONSOLES[V.con].media.toUpperCase()} IN`);
     $(V.el, '.rm-eject').hidden = true; $(V.el, '.rm-blowb').hidden = true;
-    $(V.el, '.rm-help').textContent = V.hand ? 'Pick a cartridge to play.' : 'Pick a game off the shelf.';
+    $(V.el, '.rm-help').textContent = V.live ? 'Lean back, pick a game from the shelf, then insert it into its console.' : 'Pick a cartridge to play.';
     V.el.classList.remove('rm-playing'); $(V.el, '.rm-res').classList.remove('on');
     pad(null);
   }
@@ -277,7 +320,7 @@
     // cartridges don't always go in right first time
     const cart = CAT.CONSOLES[V.con].media === 'cartridge';
     let n = 0; try { n = +sessionStorage.getItem('jhp_rm_ins') || 0; sessionStorage.setItem('jhp_rm_ins', String(n + 1)); } catch (e) {}
-    bootBad = cart && n > 0 && Math.random() < 0.2;
+    bootBad = !V.live && cart && n > 0 && Math.random() < 0.2;
     const ready = (window.RoomTV.defs[gid] ? Promise.resolve() : Promise.all((G.deps || []).map(d => load('js/' + d + '.js'))).then(() => load('js/' + G.file + '.js')))
       .then(() => { const d = window.RoomTV.defs[gid]; if (!d) throw new Error('no game'); return d.three ? load('js/rm-3d.js') : null; });
     boot(ready);
@@ -299,7 +342,7 @@
     V.el.classList.add('rm-blowing'); setTimeout(() => V && V.el.classList.remove('rm-blowing'), 600);
     setTimeout(() => { if (V && V.gid === G.id) boot(V.ready || Promise.resolve()); }, 650);
   }
-  function eject() { stopGame(); if (!V) return; $(V.el, '.rm-shelf').querySelectorAll('.rm-pick').forEach(b => b.classList.remove('in')); idle(); }
+  function eject() { if (!V) return; if (V.live) { const con = V.con; close(); if (_.ejectMedia) _.ejectMedia(con); return; } stopGame(); $(V.el, '.rm-shelf').querySelectorAll('.rm-pick').forEach(b => b.classList.remove('in')); idle(); }
 
   // the start-up screens (t: seconds; draw on g, a 2D context the console's size). Return true when done.
   const BOOTS = {
@@ -416,25 +459,27 @@
     const res = def.res || L.res;
     size(res[0], res[1], def.smooth != null ? def.smooth : L.smooth, !!def.three);
     V.st = 'game'; V.el.classList.add('rm-playing');
-    $(V.el, '.rm-help').innerHTML = touchy() ? (V.hand ? 'Use the buttons on the Game Lad.' : 'Use the controller under the telly.') : esc(def.help || '') + ' <small>(Esc: back to the room)</small>';
+    $(V.el, '.rm-help').innerHTML = touchy() ? 'Use the controller below.' : esc(def.help || '') + ' <small>(Esc: back to the room)</small>';
     pad(def);
     K = makeK(gid, def);
     try { game = def.make(K) || {}; } catch (e) { console.error(e); game = null; return crash(); }
+    liveFrame();
     _.emit('play', gid);
-    playedOne(gid);
+    if (!V.restoring) playedOne(gid);
   }
   function crash() { const g = V.cv1.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, V.cv1.width, V.cv1.height); font.center(g, 'THIS GAME HAS CRASHED. EJECT IT AND TRY AGAIN.', V.cv1.width / 2, V.cv1.height / 2, '#fff', 1); }
   function stopGame() {
     if (game && game.end) { try { game.end(); } catch (e) {} }
     if (K && K._three && K._three.dispose) { try { K._three.dispose(); } catch (e) {} }
     game = null; K = null; music(null); if (V) V.song = null;
+    if (V) V.result = null;
     bootFn = null;
     if (V) $(V.el, '.rm-res').classList.remove('on');
   }
   function makeK(gid, def) {
     const G = CAT.GAME[gid], cv = V.cv0, W = cv.width, H = cv.height;
     const k = {
-      id: gid, con: V.con, def, W, H, cv, g: def.three ? null : cv.getContext('2d'), hud: V.cv1.getContext('2d'), t: 0, frame: 0,
+      id: gid, con: V.con, restoring: V.restoring, def, W, H, cv, g: def.three ? null : cv.getContext('2d'), hud: V.cv1.getContext('2d'), t: 0, frame: 0,
       font, sfx, pal: V.pal || GBPAL.none,
       held: b => alias(b).some(isHeld), pressed: b => alias(b).some(x => !!now[x]), any: () => Object.keys(now).some(x => now[x] && ['a', 'b', 'c', 'x', 'y', 'start'].includes(x)),
       stick, label: b => (LOOK[V ? V.con : 'n64'].keys || {})[b] || String(b).toUpperCase(),
@@ -443,14 +488,14 @@
       save(st) { try { return Apps.saveGame('rm.' + gid, st, { v: def.v || 1 }); } catch (e) { return false; } },
       load() { try { return Apps.loadGame('rm.' + gid, def.v || 1); } catch (e) { return null; } },
       clear() { try { Apps.clearGame('rm.' + gid); } catch (e) {} },
-      secret: id => _.secret(id),
+      secret: id => { if (!k.restoring) _.secret(id); },
       rnd(seed) { let a = (seed >>> 0) || 1; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; },
       three(o) { if (!k._three) k._three = window.RoomTV.make3d(k, Object.assign({ look: V.con === 'ps' ? 'ps1' : V.con }, o || {})); return k._three; },
       over(score, o) { finish(k, gid, Math.max(0, Math.floor(score || 0)), o || {}); },
       tok: '',
     };
     // ask the server for a token for this go (members get on the table and earn; guests just play)
-    try { if (window.Net) Net.send({ t: 'rmGo', g: gid }); } catch (e) {}
+    try { if (window.Net && !k.restoring) Net.send({ t: 'rmGo', g: gid }); } catch (e) {}
     return k;
   }
   // a go is over: the score card on the screen, and the server's say
@@ -460,7 +505,7 @@
     const tok = k.tok;
     if (tok) { try { Net.send({ t: 'rmDone', g: gid, tok, sc }); } catch (e) {} k.tok = ''; }
     if (o.keep) { // carry on playing (and get a new token for the next stretch)
-      try { if (window.Net) Net.send({ t: 'rmGo', g: gid }); } catch (e) {}
+      try { if (window.Net && !k.restoring) Net.send({ t: 'rmGo', g: gid }); } catch (e) {}
       return;
     }
     const res = $(V.el, '.rm-res');
@@ -468,13 +513,14 @@
       <div class="rm-best">YOUR BEST <b>${Math.max(localBest(gid), srv.best[gid] | 0).toLocaleString('en-GB')}</b></div><div class="rm-srv">${tok ? 'Sending your score to JackNet...' : (window.Net && Net.me && Net.me.member ? '' : 'Log on to JackNet to get on the high-score table and earn Rupees!')}</div>
       <ol class="rm-hi"></ol><div class="rm-rb"><button type="button" class="rm-b rm-again">Play again</button><button type="button" class="rm-b rm-shelfb">Change game</button></div>`;
     res.classList.add('on');
+    V.result = { title: o.title || 'GAME OVER', text: String(o.text || '').replace(/<[^>]+>/g, ''), sc };
     V.waitRes = gid;
     $(res, '.rm-again').addEventListener('click', again); $(res, '.rm-shelfb').addEventListener('click', () => eject());
     if (srv.hi[gid]) hiList(srv.hi[gid]);
     try { Net.send({ t: 'rmHi', g: gid }); } catch (e) {}
     k.done = true;
   }
-  function again() { if (!V || !V.gid) return; const gid = V.gid; stopGame(); V.gid = gid; startGame(); }
+  function again() { if (!V || !V.gid) return; const gid = V.gid; stopGame(); V.gid = gid; V.restoring = false; startGame(); }
   function mates(gid) { // Jack's mates have all had a go on his consoles: their scores are saved on the cartridge
     const G = CAT.GAME[gid]; if (!G) return [];
     let h = 0; for (const ch of gid) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
@@ -524,15 +570,17 @@
           const f = bootBad ? garbled : bootFn, done = f(g, V.cv0.width, V.cv0.height, bootT);
           if (bootBad && bootT > 0.7) $(V.el, '.rm-blowb').hidden = false;
           bootT += dt;
+          liveFrame();
           if (done) { bootFn = null; const myV = V, gid = V.gid; V.ready.then(ok => { if (!V || V !== myV || V.st !== 'wait' || V.gid !== gid) return; if (ok) startGame(); else { V.st = 'shelf'; blank('THAT DID NOT LOAD. TRY AGAIN.'); } }); V.st = 'wait'; }
         }
         now = pend; pend = {};
         return;
       }
-      if (V.st !== 'game' || !game) { pend = {}; return; }
+      if (V.st !== 'game' || !game) { liveFrame(); pend = {}; return; }
       if (K.done && $(V.el, '.rm-res').classList.contains('on')) { // the score card: A plays again, B changes game
         now = pend; pend = {};
         if (now.a || now.start) again(); else if (now.b) eject();
+        liveFrame();
         return;
       }
       this.acc += dt; let steps = 0;
@@ -543,7 +591,7 @@
         if (!game) return;
       }
       if (steps >= 9) this.acc = 0;
-      try { if (game && game.draw) game.draw(); } catch (e) { console.error(e); game = null; crash(); }
+      try { if (game && game.draw) game.draw(); liveFrame(); } catch (e) { console.error(e); game = null; crash(); }
     },
   };
   document.addEventListener('visibilitychange', () => { if (!V) return; if (document.hidden) { loop.stop(); music(null); } else { loop.start(); if (V.song) music(V.song); } });
@@ -551,24 +599,26 @@
   // ---- keys: while the telly is up, every key is ours (Esc goes back to the room, never skips the boot)
   function onKey(ev) {
     if (!V) return;
-    if (ev.key === 'Escape') { ev.preventDefault(); ev.stopImmediatePropagation(); if ($(V.el, '.rm-res').classList.contains('on') || V.st !== 'game') close(); else close(); return; }
+    if (ev.key === 'Escape') { ev.preventDefault(); ev.stopImmediatePropagation(); close(); return; }
     const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
     const b = KEYMAP[ev.key];
     if (b) { ev.preventDefault(); ev.stopImmediatePropagation(); if (!ev.repeat) press(b, true); held[b] = true; }
     else if (!ev.ctrlKey && !ev.metaKey && !ev.altKey && ev.key.length === 1) ev.stopImmediatePropagation();
   }
   function onKeyUp(ev) { if (!V) return; const b = KEYMAP[ev.key]; if (b) { held[b] = false; ev.stopImmediatePropagation(); } }
-  addEventListener('blur', () => { for (const k in held) held[k] = false; });
+  function clearInput() { for (const map of [held, padHeld, gpHeld]) for (const k in map) map[k] = false; pend = {}; now = {}; stickT.on = false; stickT.x = stickT.y = 0; }
+  addEventListener('blur', clearInput);
+  addEventListener('pagehide', () => { if (K) K.tok = ''; stopGame(); });
 
   // ---- the touch pad (phones and tablets), styled like the console's own controller
   function pad(def) {
-    if (!V || V.hand) return;
+    if (!V || (V.hand && !V.live)) return;
     const P = $(V.el, '.rm-pad'), con = V.con, L = LOOK[con];
     if (!def || !touchy()) { P.hidden = true; P.innerHTML = ''; V.el.classList.remove('rm-padon'); return; }
     const bs = (def.buttons || ['a', 'b']).filter(b => L.keys[b] || b === 'c' || b === 'x');
     P.innerHTML = `<div class="rm-pl">${def.stick ? '<div class="rm-stick"><i></i></div>' : '<div class="rm-dpad"><b data-b="up"></b><b data-b="left"></b><b data-b="right"></b><b data-b="down"></b><i></i></div>'}</div>
       <div class="rm-pm">${bs.includes('l') ? '<b class="rm-sh" data-b="l">' + esc(L.keys.l || 'L') + '</b>' : ''}<b class="rm-st" data-b="start">START</b>${bs.includes('r') ? '<b class="rm-sh" data-b="r">' + esc(L.keys.r || 'R') + '</b>' : ''}</div>
-      <div class="rm-pr ${con === 'sn' || con === 'ps' ? 'rm-dia' : 'rm-n' + bs.filter(b => !['l', 'r'].includes(b)).length}">${bs.filter(b => !['l', 'r'].includes(b)).map(b => `<b class="rm-fb" data-b="${b}" style="--bc:${(L.cols || {})[b] || '#555'}">${esc(L.keys[b] || (b === 'x' ? L.keys.c : '') || b.toUpperCase())}</b>`).join('')}</div>`;
+      <div class="rm-pr ${con === 'sn' || con === 'ps' ? 'rm-dia' : 'rm-pad-n' + bs.filter(b => !['l', 'r'].includes(b)).length}">${bs.filter(b => !['l', 'r'].includes(b)).map(b => `<b class="rm-fb" data-b="${b}" style="--bc:${(L.cols || {})[b] || '#555'}">${esc(L.keys[b] || (b === 'x' ? L.keys.c : '') || b.toUpperCase())}</b>`).join('')}</div>`;
     P.hidden = false; V.el.classList.add('rm-padon');
     padTouch(P, def);
   }
@@ -617,5 +667,6 @@
   // ================================================================ hooking up the room
   // (testing: RoomTV.test('sn.zero') opens the right console and boots the game, found or not; RoomTV.dbg() is the running game's K)
   function test(gid) { const G = CAT.GAME[gid]; if (!G) return false; if (V && V.con !== G.con) close(); if (!V) open(G.con, null); if (!V) return false; if (V.con !== G.con) { V.con = G.con; V.el.dataset.con = G.con; conBar(); shelf(); } bootBad = false; try { sessionStorage.setItem('jhp_rm_ins', '0'); } catch (e) {} insert(gid, null); bootBad = false; return true; }
-  window.RoomTV = { game(id, def) { defs[id] = def; }, defs, test, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con }, open, close, font, sfx, music, LOOK, get open_() { return !!V; } };
+  function playPhysical(gid) { const G = CAT.GAME[gid]; if (!G || !V || V.con !== G.con) return false; insert(gid, null); bootBad = false; return true; }
+  window.RoomTV = { game(id, def) { defs[id] = def; }, defs, test, playPhysical, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con }, open, close, font, sfx, music, LOOK, get open_() { return !!V; } };
 })();

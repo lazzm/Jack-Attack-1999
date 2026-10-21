@@ -15,6 +15,17 @@ Then run a script with the base URL (or port) it expects, e.g.
     node standwake.mjs                         # refresh at the PC then stand up (edit the URL inside)
     node pcmouse.mjs                           # the desktop keeps the mouse after switching on from the room
 
+The in-room monitor regressions accept a throwaway base URL:
+
+    node lean-qa.mjs http://localhost:18080 1366x768
+    node lean-qa.mjs http://localhost:18080 1920x1080
+    node lean-qa.mjs http://localhost:18080 2560x1080
+    node lean-qa.mjs http://localhost:18080 1366x860
+    node lean-power.mjs http://localhost:18080  # real power button, guest logon, shutdown, off refresh
+    node lean-edges.mjs http://localhost:18080  # pointer-lock ownership, rapid seating, Esc during shutdown
+
+Omit the last argument to `lean-qa.mjs` to run all five sizes, including 390x844. Screenshots are saved in `tests/shots/` when run from this directory. These scripts keep the real CSP enabled and use isolated browser storage.
+
 Most print `no errors` / `NO ERRORS` when they pass. Screenshots go in `shots/` (git-ignored).
 Some scripts have a hard-coded URL or port near the top: check before running. On the server they are run under
 `systemd-run --user --scope -p MemoryMax=3G -p MemorySwapMax=0 -q node <script>` to cap memory.

@@ -96,20 +96,20 @@
     const gone = store.get(STICKY_KEY, {});
     document.querySelectorAll('.fam-sticky').forEach(e => e.remove());
     if (!window.FAM_STICKIES) return; // Jack asked for no sticky notes on the desktop (the notes stay in the data, switched off)
-    const live = STICKIES.filter(s => happened(s.date) && !gone[s.id]).sort((a, b) => mdOf(b.date) - mdOf(a.date)).slice(0, innerWidth < 700 ? 1 : 3);
+    const live = STICKIES.filter(s => happened(s.date) && !gone[s.id]).sort((a, b) => mdOf(b.date) - mdOf(a.date)).slice(0, DesktopSurface.width() < 700 ? 1 : 3);
     live.forEach((s, i) => {
       const e = document.createElement('div'); e.className = 'fam-sticky'; e.setAttribute('role', 'note');
       e.style.setProperty('--r', (s.rot != null ? s.rot : (i % 2 ? 3 : -2)) + 'deg');
-      const W = innerWidth;
+      const W = DesktopSurface.width();
       if (W < 700) { e.style.left = Math.max(8, Math.min(W - 140, W - 150 - i * 18)) + 'px'; e.style.top = (250 + i * 40) + 'px'; }
       else { e.style.left = Math.max(260, Math.min(W - 180, W * 0.36 + i * 178)) + 'px'; e.style.top = (64 + (i % 2) * 46) + 'px'; }
       e.innerHTML = `<button class="x" type="button" aria-label="Peel off">x</button><b>${esc(s.head)}</b>${esc(s.text)}<i>- ${esc(s.by)}</i>`;
       let drag = null, moved = false;
-      e.addEventListener('pointerdown', ev => { if (ev.target.closest('.x')) return; drag = { x: ev.clientX - e.offsetLeft, y: ev.clientY - e.offsetTop }; moved = false; e.setPointerCapture(ev.pointerId); });
-      e.addEventListener('pointermove', ev => { if (!drag) return; moved = true; e.style.left = Math.max(0, Math.min(innerWidth - 60, ev.clientX - drag.x)) + 'px'; e.style.top = Math.max(0, Math.min(innerHeight - 80, ev.clientY - drag.y)) + 'px'; });
+      e.addEventListener('pointerdown', ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); if (ev.target.closest('.x')) return; drag = { x: p.x - e.offsetLeft, y: p.y - e.offsetTop }; moved = false; e.setPointerCapture(ev.pointerId); });
+      e.addEventListener('pointermove', ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); if (!drag) return; moved = true; e.style.left = Math.max(0, Math.min(DesktopSurface.width() - 60, p.x - drag.x)) + 'px'; e.style.top = Math.max(0, Math.min(DesktopSurface.height() - 80, p.y - drag.y)) + 'px'; });
       e.addEventListener('pointerup', () => { if (drag && !moved) { A.secret('fam.sticky'); Sound.play('turn'); } drag = null; });
       e.querySelector('.x').addEventListener('click', () => { A.secret('fam.sticky'); const g = store.get(STICKY_KEY, {}); g[s.id] = 1; store.set(STICKY_KEY, g); e.classList.add('peel'); Sound.play('turn'); setTimeout(() => e.remove(), 520); });
-      document.body.appendChild(e);
+      DesktopSurface.root().appendChild(e);
     });
   }
 

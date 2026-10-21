@@ -418,7 +418,7 @@
       snapHi.layers.set(1); snapHi.renderOrder = 5; root.add(snapHi);
     }
     snapHi.visible = !!s;
-    if (s) { snapHi.position.set(s.x, s.y, s.z); const b = s.box || [s.r * 0.9, 1.5, s.r * 0.9]; snapHi.scale.set(b[0], b[1], b[2]); snapHi.rotation.y = (s.ry || 0) * D2R; }
+    if (s) { const p = s.pose || s; snapHi.position.set(p.x, p.y, p.z); const b = s.box || [s.r * 0.9, 1.5, s.r * 0.9]; snapHi.scale.set(b[0], b[1], b[2]); snapHi.rotation.set((p.rx || 0) * D2R, (p.ry || 0) * D2R, (p.rz || 0) * D2R, 'YXZ'); }
   }
   // put the held thing down: where you're looking (a surface), into a snap, or let it drop
   function drop(sx, sy) {
@@ -467,7 +467,7 @@
     if (!held) return; const t = THINGS[held.id], f = held.from, was = held.was;
     held = null; ui.holdBar(null); snapGlow(null);
     if (was && SNAPS[was]) { t.at = f; return snapIn(t, SNAPS[was]); }
-    t.st = 'fall'; t.at = Object.assign({}, f, { y: f.y - 3 }); t.landY = f.y; t.vy = 0; moveTo(t, f.room);
+    t.st = 'fall'; t.at = Object.assign({}, f, { y: f.y - 3, ry: f.ry || 0 }); t.landY = f.y; t.vy = 0; t.t0 = performance.now(); t.fromX = t.obj.position.x; t.fromZ = t.obj.position.z; t.obj.rotation.set((t.rx || 0) * D2R, (f.ry || 0) * D2R, (t.rz || 0) * D2R, 'YXZ'); moveTo(t, f.room);
   }
   // things in front of boot.js's PC (as you see it now) are drawn on the second canvas, over it; so is whatever you're holding
   function pcParts() { const L = Lb(); return [[L.mx - 19, -40, -19, L.mx + 19, 0, 1], [L.tx - 10, -42.3, L.tz - 17, L.tx + 10, 0, L.tz + 19], [L.kx - 15, -3.5, 6, L.kx + 15, 0, 17.5], [L.ux - 7, -3, L.uz - 8, L.ux + 7, 0, L.uz + 8]]; }
@@ -533,7 +533,12 @@
   function restoreThing(t) { // where this visitor left it last time
     const s = loadThings().t[t.id]; if (!s || !ROOMS[s[0]]) return;
     t.at = { room: s[0], x: s[1], y: s[2], z: s[3], ry: s[4], hide: !!s[6] };
-    if (s[5] && SNAPS[s[5]]) { t.st = 'snap'; t.snap = s[5]; } else t.st = 'rest';
+    if (s[5] && SNAPS[s[5]]) {
+      t.st = 'snap'; t.snap = s[5];
+      const p = SNAPS[s[5]].pose || SNAPS[s[5]];
+      t.at.x = p.x; t.at.y = p.y; t.at.z = p.z; t.at.ry = p.ry || 0;
+      t.rx = p.rx || 0; t.rz = p.rz || 0;
+    } else t.st = 'rest';
     moveTo(t, t.at.room); place(t); layerFor(t);
   }
   function tidy(rid) { // everything back where it lives (Mom tidied up)
@@ -700,13 +705,14 @@
     if (k === ' ' && !(t && t.closest && t.closest('button'))) { ev.preventDefault(); ev.stopImmediatePropagation(); if (held) drop(); else keys.jump = true; return; }
     if ((k === 'c' || k === 'C') && !ev.ctrlKey && !ev.metaKey) { keys.crouch = true; ev.preventDefault(); return; } // (C only: Ctrl + W would close the tab)
     if (k === 'e' || k === 'E' || k === 'Enter') {
+      if (ev.repeat) { ev.preventDefault(); return; }
       if (t && t.closest && t.closest('button') && k !== 'e' && k !== 'E') return; // (Enter/Space on a focused button is that button's)
       ev.preventDefault(); ev.stopImmediatePropagation();
       if (held) drop(); else useAt(hot && lastPt.mouse ? lastPt.x : vw / 2, hot && lastPt.mouse ? lastPt.y : vh / 2, true);
       return;
     }
     if (held && (k === 'f' || k === 'F')) { const t = THINGS[held.id]; if (t && t.use) { ev.preventDefault(); t.use(t); } return; }
-    if (held && (k === 'r' || k === 'R')) { held.ry += ev.shiftKey ? -45 : 45; ev.preventDefault(); return; }
+    if (held && (k === 'r' || k === 'R')) { if (!ev.repeat) held.ry += ev.shiftKey ? -45 : 45; ev.preventDefault(); return; }
     if (held && (k === '+' || k === '=' || k === ']')) { held.d = clamp(held.d + 10, 25, 150); return; }
     if (held && (k === '-' || k === '_' || k === '[')) { held.d = clamp(held.d - 10, 25, 150); return; }
     if (k === 'Escape') { if (held) { putBack(); ev.preventDefault(); ev.stopImmediatePropagation(); } else if (glide) { if (cancelGlide(true)) { ev.preventDefault(); ev.stopImmediatePropagation(); } } return; }
@@ -715,7 +721,7 @@
   }
   function onKeyUp(ev) { const k = KEYMOVE[ev.key]; if (k) keys[k] = false; if (ev.key === 'Shift') keys.run = false; if (ev.key === 'c' || ev.key === 'C') keys.crouch = false; }
   addEventListener('keydown', onKey, true); addEventListener('keyup', onKeyUp, true);
-  addEventListener('blur', () => { for (const k in keys) keys[k] = false; joy.on = false; });
+  addEventListener('blur', () => { for (const k in keys) keys[k] = false; joy.on = false; try { if (document.pointerLockElement === cv) document.exitPointerLock(); } catch (e) {} });
 
   // pointers: drag to look, click to use (one pointer looks; the joystick has its own)
   const PT = new Map();
@@ -727,22 +733,20 @@
   });
   // first-person mouse lock (desktop only): click in the room to lock, Esc lets go (the browser does that), drag-to-look still works unlocked
   const locked = () => !!cv && document.pointerLockElement === cv;
-  function unlock() { try { if (document.pointerLockElement) document.exitPointerLock(); } catch (e) {} }
+  function unlock() { try { if (document.pointerLockElement === cv) document.exitPointerLock(); } catch (e) {} }
   const lockHint = document.createElement('div'); lockHint.className = 'hs-lockhint'; lockHint.setAttribute('aria-hidden', 'true'); lockHint.textContent = 'Click to look around'; let lockHintT = 0;
   function plOK() { return !touchy() && live && mode === 'walk' && !viewOpen() && !ui.modalOpen(); }
   function wantLock() { if (!plOK() || locked()) return; try { const r = cv.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
   // capture the mouse whenever we can while walking (the browser only allows it on a click or key press, so: every one)
-  const inRoom = () => { const h = document.documentElement; return h.classList.contains('hs-standing') || document.body.classList.contains('pc-power'); }; // (never while sat at the PC: its desktop needs the mouse)
-  const freeIfPC = () => { if (!inRoom() && document.pointerLockElement) unlock(); }; // sat at the PC: the desktop gets the mouse back, always
+  const inRoom = () => live && (mode === 'walk' || mode === 'glide') && !viewOpen();
+  const freeIfPC = () => { if (!inRoom() && locked()) unlock(); }; // sitting down or leaving the room always gives the desktop mouse back
   setInterval(freeIfPC, 300);
-  document.addEventListener('mousedown', ev => { freeIfPC(); if (ev.button === 0 && inRoom() && (ev.target === cv || (pb.contains(ev.target) && !(ev.target.closest && ev.target.closest('button,a,input,select,textarea,.hs-ui,.rm-hud,[role=dialog],.pm-glass'))))) wantLock(); }, true);
-  let lockTry = 0; // (retry while moving: Chrome refuses a re-lock for about a second after Esc, so one try isn't enough)
-  document.addEventListener('keydown', ev => { const n = performance.now(); if (n - lockTry > 250 && inRoom() && /^(Key[WASDEC]|Arrow|Space|ShiftLeft|ShiftRight)/.test(ev.code)) { lockTry = n; wantLock(); } }, true);
+  document.addEventListener('mousedown', freeIfPC, true);
   document.addEventListener('pointerlockchange', () => {
     const on = locked(); clearTimeout(lockHintT);
-    ui.el.classList.toggle('locked', on); lockHint.classList.toggle('on', !on && mode === 'walk');
+    ui.el.classList.toggle('locked', on); lockHint.classList.toggle('on', !on && inRoom());
     if (on) { lastPt = { x: vw / 2, y: vh / 2, ok: true, mouse: true }; setHot(null); ui.tip(null); }
-    else { if (!ui.el.contains(lockHint)) ui.el.appendChild(lockHint); lockHint.classList.add('on'); lockHintT = setTimeout(() => lockHint.classList.remove('on'), 4000); hoverQ = false; }
+    else { if (inRoom()) { if (!ui.el.contains(lockHint)) ui.el.appendChild(lockHint); lockHint.classList.add('on'); lockHintT = setTimeout(() => lockHint.classList.remove('on'), 4000); } hoverQ = false; }
   });
   pb.addEventListener('pointermove', ev => {
     if (locked()) {
@@ -768,8 +772,10 @@
     const p = PT.get(ev.pointerId); if (!p) return; PT.delete(ev.pointerId);
     if (ev.type === 'pointercancel') return;
     if (locked()) { if (!p.drag) { if (held) drop(); else useAt(vw / 2, vh / 2, true); } return; }
-    if (!p.drag && p.type === 'mouse' && ev.button === 0) wantLock();
     if (!p.drag && performance.now() - p.t0 < 900) { if (held) drop(ev.clientX, ev.clientY); else useAt(ev.clientX, ev.clientY); }
+    // Resolve the original click before locking: acquiring on mousedown used
+    // to turn an off-centre click into an action on the centre object.
+    if (!p.drag && p.type === 'mouse' && ev.button === 0) wantLock();
   };
   pb.addEventListener('pointerup', endPt); pb.addEventListener('pointercancel', endPt);
   pb.addEventListener('wheel', ev => { if (!live || !held) return; ev.preventDefault(); held.d = clamp(held.d - Math.sign(ev.deltaY) * 8, 25, 150); }, { passive: false });
@@ -820,6 +826,7 @@
   function focus(pose, o) {
     o = o || {};
     if (focusS || !(mode === 'walk' || mode === 'glide') || viewOpen()) return false;
+    unlock();
     if (held) putBack();
     focusS = { back: { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry, lvl: W.lvl, seat: W.seat }, o };
     for (const k in keys) keys[k] = false; joy.on = false;
@@ -915,7 +922,7 @@
         hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : 'Click: put it down &middot; R: turn &middot; Wheel: nearer/further &middot; Esc: put back' + (t.use ? ` &middot; <b>F</b>: ${esc(t.useLabel || 'use it')}` : '');
         const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use; u.textContent = t.useLabel || 'Use';
       },
-      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML = `<b>${esc(s.hint || 'Let go to put it in')}</b>`; else if (held) this.holdBar(THINGS[held.id]); },
+      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML = `<b>${esc(s.hint || 'Click/E to place it')}</b>`; else if (held) this.holdBar(THINGS[held.id]); },
       crossOn() { el.classList.add('cross'); clearTimeout(crossT); crossT = setTimeout(() => el.classList.remove('cross'), 2500); },
       fade(on, ms) { const f = $('.hs-fade'); f.style.transitionDuration = (ms || 300) + 'ms'; f.classList.toggle('on', !!on); },
       modalOpen: () => !!el.querySelector('.hs-modal.on'),
@@ -946,8 +953,8 @@
     tickLights(dt);
     const vo = viewOpen(); if (vo !== viewing) { viewing = vo; viewT = now; html.classList.toggle('hs-viewing', vo); if (vo) { setHot(null); ui.tip(null); unlock(); } }
     // (the consoles' telly is up: once it has settled, the room behind needn't be drawn)
-    if (vo && now - viewT > 600 && pb.querySelector(':scope > .rm-tvv.on:not(.bye)') && !pb.classList.contains('rm-tvon')) pb.classList.add('rm-tvon');
-    if (pb.classList.contains('rm-tvon') || pb.classList.contains('deep')) return; // (the telly's up, or we've flown into the PC)
+    if (vo && now - viewT > 600 && document.querySelector('.rm-tvv.rm-hand.on:not(.bye)') && !pb.classList.contains('rm-tvon')) pb.classList.add('rm-tvon');
+    if ((pb.classList.contains('rm-tvon') || pb.classList.contains('deep')) && !monitor) return; // (the telly's up, or we've flown into the PC)
     if (glLost() && !rebuildGL()) return; // (room's context was dropped: rebuilt now it's on show again)
     let moving = false;
     if (mode === 'follow') moving = followCss();
@@ -1001,11 +1008,11 @@
     camera.layers.set(0); ren.render(scene, camera);
     if (front || anyFront) {
       if (!ren2) { ren2 = new T.WebGLRenderer({ canvas: cv2, antialias: true, alpha: true, premultipliedAlpha: true }); ren2.setClearColor(0x000000, 0); ren2.localClippingEnabled = true; measure(); }
-      if (!cv2.parentNode) frontHost().appendChild(cv2);
+      if (cv2.parentNode !== frontHost()) frontHost().appendChild(cv2);
       camera.layers.set(1); ren2.render(scene, camera); camera.layers.set(0);
       anyFront = front;
     }
-    if (stood) glassFit();
+    if (stood || monitor) glassFit();
     for (const sf of SURF) placeSurf(sf);
   }
   const frontFx = new Set(); // other layer-1 things (the PC's CD tray when it's out)
@@ -1015,6 +1022,8 @@
   // Walking about, the PC is the room's own WebGL models (js/rm-room.js: House.pcGL), depth-sorted with everything else; boot.js's
   // CSS 3D PC only takes over while it flies in to the BIOS or pulls back out (from the seat, where the two line up exactly).
   function pcVis() {
+    // The seated monitor view keeps the room's real CRT visible.  Only the
+    // boot hand-over modes replace it with boot.js's CSS model.
     const on = mode === 'follow' || mode === 'off';
     if (on !== pcOn) { pcOn = on; pb.classList.toggle('hs-nopc', !on); }
     const g = window.House && House.pcGL; if (g && g.visible === on) g.visible = !on;
@@ -1026,6 +1035,45 @@
     RC.hold = m !== 'follow' && m !== 'off';
     pb.classList.toggle('hs-follow', m === 'follow'); html.classList.toggle('hs-follow', m === 'follow');
     dirty();
+  }
+  // Keep the live desktop on the 3D monitor once JackOS has finished loading.
+  // The room canvas stays outside the transformed body, as it does when standing up.
+  function monitorDesktop() {
+    if (stood || standing || !boot || !bootOver) return false;
+    if (monitor && mode === 'monitor') { glassFit(); return true; }
+    monitor = true;
+    preparePCView();
+    monitorSurfaceEl.classList.remove('pc-starting');
+    body.classList.add('pc-monitor');
+    Object.assign(P, monitorPose());
+    setWalkFrom(Object.assign({ lvl: 'U' }, P));
+    setMode('monitor');
+    render();
+    return true;
+  }
+  function bootPC() {
+    const from = Object.assign({}, P);
+    monitor = true; stood = false; standing = false;
+    preparePCView(); body.classList.add('pc-monitor');
+    monitorSurfaceEl.classList.add('pc-starting');
+    for (const id of ['bootBios', 'bootScan', 'bootSplash']) {
+      const el = document.getElementById(id); if (el) monitorSurfaceEl.appendChild(el);
+    }
+    Object.assign(P, from); setMode('pcboot');
+    glideTo(monitorPose, { lock: true, ms: 950 });
+    return true;
+  }
+  function shutdownPC() {
+    clearTimeout(escT); standBtn.classList.remove('hold');
+    putAway(); monitor = false; stood = false; standing = false;
+    anims.delete('stand'); glide = null;
+    monitorSurfaceEl.style.visibility = 'hidden';
+    monitorSurfaceEl.classList.remove('pc-starting');
+    body.classList.remove('pc-monitor'); html.classList.remove('hs-standing');
+    ls.del('jhp_hs_stand');
+    setMode('shutdown'); emit('pcpower', false);
+    glideTo(seatPose, { lock: true, ms: 900 });
+    return true;
   }
   function start() { // the room is on show and the PC is off: you're sitting at the desk
     if (live) return; live = true;
@@ -1040,21 +1088,27 @@
     stIdx = nearestStation(); ui.where();
     if (!raf) raf = requestAnimationFrame(loop);
     if (Q.auto) Q.probe = performance.now() + 2000;
-    if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', touchy() ? 'Use the stick (bottom left) to walk, and drag to look round. Tap things to use them, or to pick them up.' : '<b>W A S D</b> (or the arrow keys) to walk, drag to look. Shift to jog, <b>C</b> to crouch. Click or <b>E</b> to use things or pick them up. <b>G</b>: graphics.', 9000); }, 1400);
+    if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', touchy() ? 'Use the stick (bottom left) to walk, and drag to look round. Press things to use them, or to pick them up.' : '<b>W A S D</b> (or the arrow keys) to walk, drag to look. Shift to jog, <b>C</b> to crouch. Click or <b>E</b> to use things or pick them up. <b>G</b>: graphics.', 9000); }, 1400);
     emit('start');
   }
   // remember where you were (a refresh while walking round puts you back there; a switch-off or a long gap starts at the desk)
   let poseT = 0;
   function savePose() { if (mode !== 'walk' || stood) return; ls.set('jhp_hs_pose', { x: +P.x.toFixed(1), y: +P.y.toFixed(1), z: +P.z.toFixed(1), rx: +P.rx.toFixed(1), ry: +P.ry.toFixed(1), seat: W.seat ? 1 : 0, lvl: W.lvl, t: Date.now() }); }
   function savedPose() { const s = ls.get('jhp_hs_pose', null); if (!s || Date.now() - s.t > 45 * 60000 || BOOT === 'forced') return null; if (!cellOk(s.lvl || 'U', s.x, s.z) && !s.seat) return null; if (ROOMS.bedroom && !inArea(ROOMS.bedroom, s.x, s.z, s.lvl || 'U')) return null; return s; }
-  function saveStood() { if (stood && !standing) { try { ls.set('jhp_hs_stand', { t: Date.now(), p: mode === 'walk' ? { x: +P.x.toFixed(1), y: +P.y.toFixed(1), z: +P.z.toFixed(1), rx: +P.rx.toFixed(1), ry: +P.ry.toFixed(1), seat: W.seat ? 1 : 0, lvl: W.lvl } : (ls.get('jhp_hs_stand', {}) || {}).p }); localStorage.setItem('jhp_last', String(Date.now())); } catch (e) {} } }
+  function saveStood() {
+    if (!stood || standing || mode === 'sit') return;
+    try {
+      const p = mode === 'walk' ? { x:+P.x.toFixed(1), y:+P.y.toFixed(1), z:+P.z.toFixed(1), rx:+P.rx.toFixed(1), ry:+P.ry.toFixed(1), seat:W.seat ? 1 : 0, lvl:W.lvl } : (ls.get('jhp_hs_stand', {}) || {}).p;
+      ls.set('jhp_hs_stand', {t:Date.now(), p}); localStorage.setItem('jhp_last', String(Date.now()));
+    } catch (e) {}
+  }
   setInterval(saveStood, 1000); addEventListener('pagehide', saveStood);
   setInterval(() => { if (live && mode === 'walk' && Date.now() - poseT > 1500) { poseT = Date.now(); savePose(); } }, 2000);
   // pb's classes tell us what boot.js is up to
   new MutationObserver(() => {
     const c = pb.classList;
     if (!live && !c.contains('outro')) return;
-    if ((c.contains('on') || c.contains('auto') || c.contains('outro')) && mode !== 'follow' && !stood && !standing) {
+    if ((c.contains('on') || c.contains('auto') || c.contains('outro')) && mode !== 'follow' && mode !== 'monitor' && mode !== 'pcboot' && mode !== 'shutdown' && !stood && !standing) {
       if (c.contains('outro')) ls.del('jhp_hs_pose'); // (switched off: the next start is at the desk)
       putAway(); setMode('follow');
     }
@@ -1073,37 +1127,64 @@
   }, true);
 
   // ================================================================ STANDING UP from the PC while it's on (the live desktop on the monitor)
-  let stood = false, standing = false, savedPb = null;
-  const body = document.body;
+  let stood = false, standing = false, monitor = false;
+  const body = document.body, monitorSurfaceEl = document.getElementById('monitorSurface') || body;
+  // Fit the entire 4:3 glass with room for its curved bezel at every aspect.
+  function monitorPose() {
+    const g = window.House && House.pcGL, gl = g && g.userData.glass;
+    let centre = {x:Lb().mx,y:GY,z:.06};
+    if (gl) { root.updateMatrixWorld(true); const m = new T.Matrix4().copy(root.matrixWorld).invert().multiply(g.matrixWorld); centre = new T.Vector3(gl.x,gl.y,gl.z).applyMatrix4(m); }
+    const width = gl && gl.w || GW, height = width * 3/4;
+    const distance = Math.max(width * PERSP * em / (vw * .88), height * PERSP * em / (vh * .82));
+    return { x: centre.x, y: centre.y, z: centre.z + distance, rx: 0, ry: 0, seat: 1, lvl: 'U' };
+  }
+  function preparePCView() {
+    if (window.Room && Room.prepare) Room.prepare();
+    unlock(); live = true;
+    for (const k of ['transform', 'clipPath', 'webkitClipPath', 'filter', 'opacity', 'visibility']) body.style[k] = '';
+    html.classList.remove('pc-outro', 'pc-skip', 'pc-wake'); html.classList.add('pc-roomview', 'hs-live');
+    if (boot.parentNode !== html) html.appendChild(boot);
+    boot.className = 'hs-monitorboot'; boot.style.cssText = '';
+    for (const c of boot.children) if (c !== pb) c.hidden = true;
+    pb.hidden = false; pb.classList.remove('go', 'deep', 'rm-tvon', 'outro', 'auto');
+    pb.classList.add('on', 'mon', 'ready');
+    cv.hidden = false; cv.style.cssText = '';
+    monitorSurfaceEl.style.width = '1024px'; monitorSurfaceEl.style.height = '768px';
+    monitorSurfaceEl.style.visibility = ''; monitorSurfaceEl.style.clipPath = '';
+    measure(); uiMount();
+    if (!cur) cur = ROOMS.bedroom;
+    if (cur) { buildRoom(cur); visCalc(); }
+    ui.fade(false, 0); emit('pcpower', true);
+    if (!raf) raf = requestAnimationFrame(loop);
+    dirty();
+  }
   let bootOver = false; (window.BootDone || Promise.resolve()).then(() => { bootOver = true; });
   const bootIsOver = () => bootOver || document.body.classList.contains('online') || !boot.isConnected; // (the dial-up's done: the desktop is up)
-  function canStand() { return bootIsOver() && !stood && !standing && !document.body.classList.contains('pc-power') && !!boot && !!window.Room && !pb.classList.contains('outro'); }
+  function canStand() { return mode !== 'shutdown' && bootIsOver() && !stood && !standing && !document.body.classList.contains('pc-power') && !!boot && !!window.Room && !pb.classList.contains('outro'); }
   const whyNotStand = () => ({ bootOver: bootIsOver(), stood, standing, pcPower: document.body.classList.contains('pc-power'), boot: !!boot, room: !!window.Room, outro: pb.classList.contains('outro') });
   function standUp(now) {
     if (!canStand()) return false;
-    standing = true;
+    clearTimeout(escT); standBtn.classList.remove('hold');
+    // Explicitly leaving the PC also leaves any PC game's input capture.
+    // The background room poll still only owns the house canvas's lock.
+    if (document.pointerLockElement) try { document.exitPointerLock(); } catch (e) {}
     try { if (window.Apps && Apps.flushGames) Apps.flushGames(); } catch (e) {}
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
-    savedPb = { cls: pb.className, hidden: pb.hidden, bootCls: boot.className, bootCss: boot.style.cssText, inDom: boot.isConnected, parent: boot.parentNode, next: boot.nextSibling, kids: [...boot.children].map(c => [c, c.hidden, c.style.display]) };
-    [...boot.children].forEach(c => { c.style.display = c === pb ? '' : c.style.display; if (c !== pb) c.hidden = true; });
-    boot.className = 'hs-standboot'; boot.style.cssText = '';
-    pb.hidden = false; pb.className = 'bscreen powerscr on mon ready hs-stand';
-    html.classList.add('pc-outro', 'hs-standing'); html.appendChild(boot);
-    stood = true; live = true; measure(); uiMount(); html.classList.add('hs-live');
-    if (!cur) { cur = ROOMS.bedroom; buildRoom(cur); }
+    const fp = monitor ? Object.assign({}, P) : null;
+    preparePCView();
+    standing = true; stood = true; monitor = false;
+    body.classList.remove('pc-monitor'); html.classList.add('hs-standing');
     W.lvl = 'U'; cur = ROOMS.bedroom; visCalc();
-    setMode('stand'); reveal();
-    const sp = seatPose(), fp = fillPose();
-    Object.assign(P, fp); glass.k = 0; // (the page starts full size and settles onto the glass)
-    if (!raf) raf = requestAnimationFrame(loop);
+    setMode('stand');
+    const sp = Object.assign({}, seatPose(), { seat: 0, y: LV.U - STAND, lvl: 'U' });
+    const from = fp || monitorPose(); Object.assign(P, from); glass.k = 1;
     const t0 = performance.now(), ms = now ? 0 : 1100;
     sfx.tone(120, 0.3, 'sine', 0.05);
     anims.set('stand', n => {
       const k = ms ? Math.min(1, (n - t0) / ms) : 1, e = ease(k);
-      P.x = lerp(fp.x, sp.x, e); P.y = lerp(fp.y, sp.y, e); P.z = lerp(fp.z, sp.z, e); P.rx = lerp(fp.rx, sp.rx, e); P.ry = lerp(fp.ry, sp.ry, e);
-      glass.k = Math.min(1, k / 0.25);
+      P.x = lerp(from.x, sp.x, e); P.y = lerp(from.y, sp.y, e); P.z = lerp(from.z, sp.z, e); P.rx = lerp(from.rx, sp.rx, e); P.ry = lerp(from.ry, sp.ry, e);
       if (k < 1) return true;
-      standing = false; setWalkFrom(Object.assign({ seat: 1, lvl: 'U' }, sp)); setMode('walk'); stIdx = nearestStation(); ui.where();
+      standing = false; setWalkFrom(sp); setMode('walk'); stIdx = nearestStation(); ui.where();
       emit('stood');
       if (!ls.get('jhp_hs_stoodhint', 0)) { ls.set('jhp_hs_stoodhint', 1); ui.say('The PC is still on', 'Everything on it keeps going. Walk round, then click the monitor (or press its power button... no, DON\'T) to sit back down.', 7000); }
       return false;
@@ -1114,57 +1195,43 @@
   }
   function sitDown() { // back to the desktop: no BIOS, no boot, straight back in
     if (!stood || standing || mode === 'sit') return;
-    putAway(); setMode('sit');
-    const sp = seatPose();
-    glideTo(sp, { lock: true, ms: 800, done: () => {
-      mode = 'sit'; const fp = fillPose(), t0 = performance.now(), ms = 900;
-      anims.set('sit', n => {
-        const k = Math.min(1, (n - t0) / ms), e = ease(k);
-        P.x = lerp(sp.x, fp.x, e); P.y = lerp(sp.y, fp.y, e); P.z = lerp(sp.z, fp.z, e); P.rx = lerp(sp.rx, fp.rx, e); P.ry = lerp(sp.ry, fp.ry, e);
-        glass.k = k > 0.75 ? 1 - (k - 0.75) / 0.25 : 1;
-        if (k < 1) return true;
-        finishSit(); return false;
-      });
-    } });
+    putAway(); setMode('sit'); ls.del('jhp_hs_stand');
+    glideTo(monitorPose, { lock: true, ms: 900, done: finishSit });
   }
   function finishSit() {
-    stood = false; live = false; setMode('off');
-    body.style.transform = ''; body.style.clipPath = ''; body.style.webkitClipPath = '';
-    html.classList.remove('pc-outro', 'hs-standing', 'hs-live');
-    if (savedPb) {
-      pb.className = savedPb.cls; pb.hidden = savedPb.hidden;
-      savedPb.kids.forEach(([c, h, d]) => { c.hidden = h; c.style.display = d; });
-      boot.className = savedPb.bootCls; boot.style.cssText = savedPb.bootCss;
-      if (!savedPb.inDom) boot.remove(); else if (savedPb.parent) savedPb.parent.insertBefore(boot, savedPb.next);
-    }
-    if (cv2.parentNode === html) cv2.remove();
+    stood = false; standing = false; monitor = false;
+    html.classList.remove('hs-standing');
+    if (cv2.parentNode === html) pb.appendChild(cv2);
     ls.del('jhp_hs_stand');
     emit('sat');
+    monitorDesktop();
   }
   // the page laid onto the monitor's glass (perspective correct: a homography as a CSS matrix3d)
   const glass = { k: 1 };
   function glassFit() {
     // the glass is taken from the WebGL monitor itself (rm-room.js's pcGL: wherever it was built), in the engine's own y-down frame
-    const g = House.pcGL, gl = g && g.userData.glass; let cx, cy, z = 0.05;
-    if (gl) { const M = new T.Matrix4().copy(House.root.matrixWorld).invert().multiply(g.matrixWorld); const o = new T.Vector3(gl.x, gl.y, gl.z).applyMatrix4(M); cx = o.x; cy = o.y; z = o.z + 0.01; } else { const L = Lb(); cx = L.mx; cy = GY; }
-    const w = GW / 2, h = GH / 2;
+    const g = House.pcGL, gl = g && g.userData.glass; let cx, cy, z = 0.05, glassMatrix = null;
+    if (gl) { glassMatrix = new T.Matrix4().copy(House.root.matrixWorld).invert().multiply(g.matrixWorld); const o = new T.Vector3(gl.x, gl.y, gl.z).applyMatrix4(glassMatrix); cx = o.x; cy = o.y; z = o.z + 0.01; } else { const L = Lb(); cx = L.mx; cy = GY; }
+    const sw = monitor || stood ? 1024 : vw, sh = monitor || stood ? 768 : vh;
+    const screenW = gl && gl.w || 29.2, screenH = screenW * 3 / 4;
+    const w = screenW / 2, h = screenH / 2;
     // the page keeps its shape and covers the glass (the spare is trimmed off by the clip)
-    const pa = vw / vh, ga = GW / GH;
-    const cw = pa > ga ? GH * pa / 2 : w, ch = pa > ga ? h : GW / pa / 2;
-    const q = [[cx - cw, cy - ch], [cx + cw, cy - ch], [cx + cw, cy + ch], [cx - cw, cy + ch]].map(([x, y]) => toScreen(x, y, z));
+    const cw = w, ch = h;
+    const q = [[-cw,-ch],[cw,-ch],[cw,ch],[-cw,ch]].map(([dx,dy]) => {
+      if (!glassMatrix) return toScreen(cx+dx,cy+dy,z);
+      const p = new T.Vector3(gl.x+dx,gl.y+dy,gl.z+.01).applyMatrix4(glassMatrix);
+      return toScreen(p.x,p.y,p.z);
+    });
     if (frame % 4 === 0 || glass.hid == null) {
       let hid = P.z < z + 2;
       if (!hid && mode === 'walk') { const c = toScreen(cx, cy, z); if (c) { const h = pick(c.x, c.y, { skip: isThingMesh }); hid = !!h && h.spot !== 'pc' && h.dist < c.d - 8; } }
       glass.hid = hid;
     }
-    if (q.some(p => !p) || glass.hid) { body.style.visibility = 'hidden'; return; }
-    body.style.visibility = '';
-    let m = homography(vw, vh, q);
-    if (glass.k < 1) m = m.map((v, i) => lerp(i % 5 === 0 ? 1 : 0, v, glass.k)); // (blending to/from the full-size page at the ends)
-    body.style.transform = 'matrix3d(' + m.map(v => +v.toFixed(8)).join(',') + ')';
-    const ix = pa > ga ? (1 - GW / (cw * 2)) / 2 * vw : 0, iy = pa > ga ? 0 : (1 - GH / (ch * 2)) / 2 * vh;
-    const r = glass.k < 1 ? lerp(0, 1, glass.k) : 1;
-    body.style.clipPath = `inset(${(iy * r).toFixed(1)}px ${(ix * r).toFixed(1)}px round ${(vw * 0.035 * r).toFixed(1)}px / ${(vh * 0.05 * r).toFixed(1)}px)`;
+    if (q.some(p => !p) || glass.hid) { monitorSurfaceEl.style.visibility = 'hidden'; return; }
+    monitorSurfaceEl.style.visibility = '';
+    let m = homography(sw, sh, q);
+    monitorSurfaceEl.style.transform = 'matrix3d(' + m.map(v => +v.toFixed(8)).join(',') + ')';
+    monitorSurfaceEl.style.clipPath = '';
   }
   // rect (0,0)-(w,h) onto the quad q (tl, tr, br, bl), as a column-major matrix3d
   function homography(w, h, q) {
@@ -1180,7 +1247,7 @@
   // the way to stand up: hold Esc on the desktop for a moment, or the chair button
   let escT = 0;
   addEventListener('keydown', ev => {
-    const away = !live || mode === 'follow'; // (sat at the PC: the house isn't being walked round)
+    const away = !live || mode === 'follow' || mode === 'monitor'; // (sat at the PC: the house isn't being walked round)
     if (ev.key === 'F2' && !stood && away && canStand() && !ev.repeat) { ev.preventDefault(); standUp(); return; }
     if (ev.key !== 'Escape' || stood || !away || !canStand() || ev.repeat) return;
     clearTimeout(escT); escT = setTimeout(() => { if (canStand()) standUp(); }, 500);
@@ -1194,7 +1261,10 @@
   standBtn.addEventListener('click', () => standUp());
   // (it sits at the top-right corner of the desktop; only while the PC is on)
   const bootDone = window.BootDone || Promise.resolve();
-  bootDone.then(() => { setTimeout(() => { if (!window.Room) return; const tray = document.getElementById('tray'), clk = document.getElementById('clock'); if (tray) tray.insertBefore(standBtn, clk && clk.parentNode === tray ? clk : null); startItems(); standHint(); }, 1200); });
+  bootDone.then(() => {
+    const ready = () => { if (!window.Room) return; const tray = document.getElementById('tray'), clk = document.getElementById('clock'); if (tray) tray.insertBefore(standBtn, clk && clk.parentNode === tray ? clk : null); startItems(); standHint(); monitorDesktop(); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready, {once:true}); else ready();
+  });
   // Start > Stand up (at the top, where you'll see it), and Start > Room graphics
   function startItems() {
     const sm = document.getElementById('startMenu'), first = sm && sm.querySelector('button'); if (!first || document.getElementById('smStand')) return;
@@ -1208,7 +1278,7 @@
     const b = document.createElement('div'); b.className = 'hs-standtip'; b.setAttribute('role', 'status');
     b.style.cssText = 'position:fixed;left:6px;bottom:36px;z-index:30000;max-width:250px;padding:8px 26px 8px 10px;background:#ffffe1;color:#000;border:1px solid #000;font:11px Tahoma,Verdana,sans-serif;box-shadow:2px 2px 0 rgba(0,0,0,.35);cursor:pointer';
     b.innerHTML = '<b>Want a look round your room?</b><br>Start &gt; Stand up, the chair button down here, hold Esc or press F2. The PC stays on: walk back to the desk and click the monitor to sit back down.<span style="position:absolute;right:6px;top:4px;font-weight:700">&times;</span>';
-    b.addEventListener('click', () => b.remove()); document.body.appendChild(b); setTimeout(() => b.remove(), 14000);
+    b.addEventListener('click', () => b.remove()); monitorSurfaceEl.appendChild(b); setTimeout(() => b.remove(), 14000);
   }
   // a refresh while standing up: the PC wakes up as normal, and we stand straight back up
   // (and back after 10 hours or more with the PC left on: you come back into the room, the PC still on; sit down to carry on)
@@ -1229,7 +1299,10 @@
     render();
     const gl = ren.getContext(), w = gl.drawingBufferWidth, h = gl.drawingBufferHeight, px = new Uint8Array(4);
     if (!w || !h) return false;
-    for (const [fx, fy] of [[.5, .5], [.25, .5], [.75, .5], [.5, .25], [.5, .75], [.3, .3], [.7, .7]]) { gl.readPixels(Math.floor(w * fx), Math.floor(h * fy), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); if (px[0] + px[1] + px[2] > 24) return true; }
+    // The live desktop is DOM over dark CRT glass: central samples can all
+    // correctly be dark. Include the bezel/room and distinguish actual glass
+    // pixels from the renderer's clear colour before declaring a lost frame.
+    for (const [fx, fy] of [[.5,.5],[.25,.5],[.75,.5],[.5,.25],[.5,.75],[.3,.3],[.7,.7],[.08,.5],[.92,.5],[.5,.08],[.5,.92]]) { gl.readPixels(Math.floor(w*fx),Math.floor(h*fy),1,1,gl.RGBA,gl.UNSIGNED_BYTE,px); if (px[0]+px[1]+px[2]>24 || Math.abs(px[0]-5)+Math.abs(px[1]-4)+Math.abs(px[2]-4)>6) return true; }
     return false;
   }
   function wdCheck() {
@@ -1264,8 +1337,8 @@
   bootDone.then(() => { const s = ls.get('jhp_hs_stand', null), away = (window.JHPAway || 0) > 10 * 3600000; if (!(BOOT === 'wake' && (away || (s && Date.now() - s.t < 30 * 60000)))) unhideStand(); if (BOOT === 'wake' && (away || (s && Date.now() - s.t < 30 * 60000))) { let tries = 0; const go = () => { if (!canStand() && window.JHPStood && ++tries < 80) return setTimeout(go, 100); if (!canStand()) unhideStand(); if (canStand()) { let sp0 = !away && s && s.p; try { standUp(true); } catch (e) { console.error(e); unhideStand(); } { let did = false; (EVS.stood = EVS.stood || []).push(() => { if (did) return; did = true; if (sp0 && !(ROOMS.bedroom && inArea(ROOMS.bedroom, sp0.x, sp0.z, sp0.lvl || 'U'))) sp0 = null; /* (the rest of the house isn't loaded yet and its doors start shut: a refresh outside the bedroom puts you back by the desk, never in an undrawn room) */ if (sp0) { Object.assign(P, { x: sp0.x, y: sp0.y, z: sp0.z, rx: sp0.rx, ry: sp0.ry }); setWalkFrom(sp0); } dirty(); unhideStand(); }); } if (away) setTimeout(() => ui.say('You left the PC on', 'It\'s been on all this time (Dad will NOT be happy about the electric). Your stuff is still on the screen: click the monitor to sit back down.', 7000), 400); } }; setTimeout(go, window.JHPStood ? 0 : 1600); } });
 
   // ================================================================ resizing, rotating, the tab going away
-  addEventListener('resize', () => { if (!live) return; measure(); if (mode === 'walk' && W.seat && Math.abs(P.ry - seatPose().ry) < 1) { Object.assign(P, seatPose()); } dirty(); });
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) { lastT = 0; dirty(); } else { for (const k in keys) keys[k] = false; } });
+  addEventListener('resize', () => { if (!live) return; measure(); if (monitor) Object.assign(P, monitorPose()); else if (mode === 'walk' && W.seat && Math.abs(P.ry - seatPose().ry) < 1) { Object.assign(P, seatPose()); } dirty(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { lastT = 0; dirty(); } else { for (const k in keys) keys[k] = false; unlock(); } });
 
   // ================================================================ the API
   window.House = {
@@ -1278,7 +1351,7 @@
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,
     say: (t, x, ms) => ui.say(t, x, ms), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),
-    dirty, relight, ambient, anims, visCalc, start, standUp, sitDown, canStand,
+    dirty, relight, ambient, anims, visCalc, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC,
     Q, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
     _: { whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },

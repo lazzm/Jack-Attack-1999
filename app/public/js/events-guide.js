@@ -280,14 +280,14 @@
     const cd = () => { const L = Ev.live.get(id); if (L) b.querySelector('.er-cd').textContent = mmss(L.e - Ev.now()); };
     draw(); cd();
     const offs = [Ev.on('live', m => { if (!w.closed) { draw(); if (m && m.id === 'cd' && m.pop) { const f = b.querySelector('.er-feed'); if (f) f.textContent = `${m.pop} pulled a party popper! POP!`; } } }),
-      Ev.on('launch', () => { if (!w.closed) { confetti(innerWidth / 2, innerHeight / 3, 120); sfx('solve'); } }),
+      Ev.on('launch', () => { if (!w.closed) { confetti(DesktopSurface.width() / 2, DesktopSurface.height() / 3, 120); sfx('solve'); } }),
       Ev.on('end', m => { if (w.closed || m.id !== id) return; draw(); const r = m.res || {}; b.insertAdjacentHTML('beforeend', `<div class="group"><span class="lg">Results</span>${(r.win || []).length ? r.win.map(x => `<div>${x[1] ? x[2] + '. ' : '&#9733; '}<b>${esc(x[0])}</b>${x[1] ? ' (' + x[1] + ')' : ' wins the spot prize!'}</div>`).join('') : '<div>Thanks for coming!</div>'}</div>`); })];
     const t = setInterval(() => { if (w.closed) { clearInterval(t); offs.forEach(f => f()); return; } cd(); }, 1000);
     return w;
   }
   function confetti(x, y, n) {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const c = document.createElement('canvas'); c.className = 'er-conf'; c.width = innerWidth; c.height = innerHeight; document.body.appendChild(c);
+    const c = document.createElement('canvas'); c.className = 'er-conf'; c.width = DesktopSurface.width(); c.height = DesktopSurface.height(); DesktopSurface.root().appendChild(c);
     const g = c.getContext('2d'), P = [], cols = ['#e10600', '#ffd400', '#1e8a3a', '#2463e0', '#ff3cff', '#fff'];
     for (let i = 0; i < n; i++) P.push({ x, y, vx: (Math.random() - 0.5) * 9, vy: -Math.random() * 9 - 2, c: cols[i % cols.length], s: 3 + Math.random() * 4, r: Math.random() * 6 });
     let f = 0; const step = () => { g.clearRect(0, 0, c.width, c.height); for (const p of P) { p.x += p.vx; p.y += p.vy; p.vy += 0.3; p.r += 0.2; g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); g.restore(); } if (++f < 90) requestAnimationFrame(step); else c.remove(); };

@@ -62,3 +62,31 @@ by changing the matching `B.at(...)`/position call in the named file to the new 
 2. Put-things-back / tidy-up option for grabbed objects; room notes must not cover the view; texture and lighting pass.
 3. Remaining "Windows"/"Microsoft" strings (md-rooms.js, hs-*.js, mods/roam.js); kitchen/bedroom furniture rotation audit;
    z-fighting at wall bottoms; front-door-open picking; patio table collision.
+
+## Quality bar (the owner's standing rules - apply to EVERY task)
+- Everything must be polished to a professional standard. "Works" is not done;
+  "looks and feels like a finished, shipped 1999 game" is done.
+- Artwork must look PROFESSIONAL: cohesive palette, believable materials, proper
+  proportions, clean edges, no placeholder boxes or flat painted cards. Every 3D model
+  is solid from every walkable angle (thickness, all faces, no gaps, contact shadows,
+  no z-fighting, correct rotation, sitting ON surfaces not floating or intersecting).
+- It must FEEL 1999: period hardware, print, fonts and UI; minimal in-world UI;
+  no modern overlays.
+- Intuitive within seconds: clear affordances, hover labels, smooth transitions,
+  nothing confusing, nothing that traps the player.
+- CHECK EVERYTHING YOU TOUCH, AND AROUND IT:
+  1. After each change, take screenshots (tests/, Playwright) from several angles and
+     distances, desktop 1366x860 AND phone 390x844, and actually look at them like a
+     harsh art director.
+  2. Test every path: rapid clicks, Esc mid-animation, refresh in every state
+     (a refresh must never change state or go black), rotate/resize, walk into
+     everything, open/close everything, keyboard and mouse and touch.
+  3. Zero console errors or warnings you caused; no "mod failed to load" on the server.
+- IMPROVE WHAT YOU FIND: if while working you notice anything nearby that is broken,
+  ugly, flat, misaligned, confusing or un-1999, fix it too (within the same files),
+  then re-check. Iterate on each model and screen several times, comparing against
+  how the real 1999 thing looked, until it is genuinely good.
+- Never ship half-finished work: if something can't be finished, leave it working and
+  list exactly what's left in the CHANGELOG entry and your report.
+- At the end of every task, report honestly: what changed, what you verified with
+  screenshots, and what you could not verify.

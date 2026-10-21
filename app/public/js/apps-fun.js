@@ -8,10 +8,10 @@
   const esc = Apps.esc, store = Apps.store;
   const rnd = (a, b) => a + Math.random() * (b - a), ri = (a, b) => Math.floor(rnd(a, b + 1)), pick = a => a[Math.floor(Math.random() * a.length)];
   const pad = (n, l) => String(n).padStart(l || 2, '0');
-  const phone = () => innerWidth < 640 || matchMedia('(hover:none)').matches;
+  const phone = () => DesktopSurface.width() < 640 || matchMedia('(hover:none)').matches;
   const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const h = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
-  const booted = () => !$('boot');
+  const booted = () => DesktopSurface.ready();
   const play = n => { try { Sound.play(n); } catch (e) {} };
   // ?funtest=MMDD or ?funtest=MMDDHH pretends it's that day (and hour) for the date events
   const FT = location.search.match(/[?&]funtest=(\d{2})(\d{2})(\d{2})?/);
@@ -373,8 +373,8 @@
     let W = 0, H = 0, inst, raf = 0, last = 0, stopped = false;
     const build = () => {
       const r = canvas.getBoundingClientRect();
-      W = canvas.width = Math.max(40, Math.round(full ? innerWidth : (r.width || canvas.width)));
-      H = canvas.height = Math.max(30, Math.round(full ? innerHeight : (r.height || canvas.height)));
+      W = canvas.width = Math.max(40, Math.round(full ? DesktopSurface.width() : (r.width || canvas.width)));
+      H = canvas.height = Math.max(30, Math.round(full ? DesktopSurface.height() : (r.height || canvas.height)));
       g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
       inst = make(g, W, H, Object.assign({ full, k: Math.min(W, H) / 600 }, opts || {}));
     };
@@ -408,7 +408,7 @@
     closeOverlays();
     const el = h('div', 'ff-saver'); el.id = 'ffSaver'; el.setAttribute('aria-label', name + ' screen saver (press any key)');
     const c = document.createElement('canvas'); el.appendChild(c);
-    document.body.appendChild(el);
+    DesktopSurface.root().appendChild(el);
     const stop = runSaver(c, name, true, opts);
     ssOn = { el, stop, name, t0: Date.now(), from: null };
     ssOn.timer = setTimeout(() => { if (ssOn && ssOn.el === el) got('saver60'); }, 60000);
@@ -725,7 +725,7 @@
       <div class="row" style="justify-content:flex-end"><button class="btn" type="button" style="min-width:72px">Reply</button><button class="btn" type="button" style="min-width:72px">Discard</button></div>`;
     b.querySelectorAll('.f').forEach(e => { e.textContent = m.from || 'Somebody'; });
     b.querySelector('.ff-poptext').textContent = String(m.text || '').slice(0, 200);
-    const w = Apps.win('WinPopup', b, { w: 340, icon: I.popup, noResize: true, noMax: true, escClose: true, x: innerWidth - 360 - popWins.size * 24, y: 40 + popWins.size * 30, onClose: () => { popWins.delete(w); if (!popWins.size) missed = 0; } });
+    const w = Apps.win('WinPopup', b, { w: 340, icon: I.popup, noResize: true, noMax: true, escClose: true, x: DesktopSurface.width() - 360 - popWins.size * 24, y: 40 + popWins.size * 30, onClose: () => { popWins.delete(w); if (!popWins.size) missed = 0; } });
     popWins.add(w);
     const [reply, discard] = b.querySelectorAll('.btn');
     b.querySelector('input').addEventListener('change', e => { if (e.target.checked) ignored.add(m.fromId); else ignored.delete(m.fromId); });
@@ -805,25 +805,25 @@
   }
   // ---- the screen mate himself
   const mate = { el: null, cv: null, g: null, bubble: null, raf: 0, x: 0, y: 0, face: 1, mode: '', surf: null, timer: 0, acts: 0, maxActs: 5, sc: 2, pokes: [], night: false, visits: 0 };
-  const tbTop = () => innerHeight - ((($('taskbar') || {}).offsetHeight) || 32);
+  const tbTop = () => DesktopSurface.height() - ((($('taskbar') || {}).offsetHeight) || 32);
   function climbable() {
     return [...document.querySelectorAll('.appwin, #browser')].filter(w => {
       if (!w.offsetParent && getComputedStyle(w).position !== 'fixed') return false;
       if (w.style.display === 'none' || w.classList.contains('min') || w.classList.contains('maxwin')) return false;
-      const r = w.getBoundingClientRect();
-      return r.width > 220 && r.top > 70 && r.top < tbTop() - 120 && r.left > -20 && r.right < innerWidth + 20;
+      const r = DesktopSurface.rect(w);
+      return r.width > 220 && r.top > 70 && r.top < tbTop() - 120 && r.left > -20 && r.right < DesktopSurface.width() + 20;
     });
   }
   function say(text, ms) {
     if (!mate.el) return;
-    if (!mate.bubble) { mate.bubble = h('div', 'ff-bubble'); document.body.appendChild(mate.bubble); }
+    if (!mate.bubble) { mate.bubble = h('div', 'ff-bubble'); DesktopSurface.root().appendChild(mate.bubble); }
     mate.bubble.textContent = text; mate.bubble.hidden = false;
     mate.sayUntil = performance.now() + (ms || 2200);
     placeBubble();
   }
   function placeBubble() {
     const b = mate.bubble; if (!b || b.hidden) return;
-    const w = b.offsetWidth || 80, left = Math.max(4, Math.min(innerWidth - w - 4, mate.x - w / 2)), top = mate.y - GH * mate.sc - 8 - (b.offsetHeight || 20) + OY * mate.sc;
+    const w = b.offsetWidth || 80, left = Math.max(4, Math.min(DesktopSurface.width() - w - 4, mate.x - w / 2)), top = mate.y - GH * mate.sc - 8 - (b.offsetHeight || 20) + OY * mate.sc;
     b.style.transform = `translate(${Math.round(left)}px,${Math.round(Math.max(2, top))}px)`;
   }
   function setMode(mode, o) { Object.assign(mate, { mode, mt: 0, f: 0, tint: 0, fx: null }, o || {}); }
@@ -836,13 +836,13 @@
     const el = h('div', 'ff-mate'); el.setAttribute('role', 'img'); el.setAttribute('aria-label', 'Gubbinz, the little green helper, walking about');
     const cv = document.createElement('canvas'); cv.width = GW; cv.height = GH;
     cv.style.width = GW * mate.sc + 'px'; cv.style.height = GH * mate.sc + 'px';
-    el.appendChild(cv); document.body.appendChild(el);
+    el.appendChild(cv); DesktopSurface.root().appendChild(el);
     Object.assign(mate, { el, cv, g: cv.getContext('2d'), acts: 0, maxActs: phone() ? 3 : ri(4, 7), surf: null, pokes: [], visits: mate.visits + 1 });
     mate.face = Math.random() < 0.5 ? 1 : -1;
-    mate.x = mate.face > 0 ? -GW * mate.sc / 2 : innerWidth + GW * mate.sc / 2; mate.y = tbTop();
-    setMode('walk', { tx: rnd(innerWidth * 0.2, innerWidth * 0.8), sp: phone() ? 30 : 42 });
+    mate.x = mate.face > 0 ? -GW * mate.sc / 2 : DesktopSurface.width() + GW * mate.sc / 2; mate.y = tbTop();
+    setMode('walk', { tx: rnd(DesktopSurface.width() * 0.2, DesktopSurface.width() * 0.8), sp: phone() ? 30 : 42 });
     mate.stain = false; el.style.transformOrigin = '50% 85%';
-    if (at) { mate.x = at.x; mate.y = at.y; mate.face = at.x < innerWidth / 2 ? 1 : -1; jumpTo(Math.max(30, Math.min(innerWidth - 30, at.x + mate.face * 120)), null); }
+    if (at) { mate.x = at.x; mate.y = at.y; mate.face = at.x < DesktopSurface.width() / 2 ? 1 : -1; jumpTo(Math.max(30, Math.min(DesktopSurface.width() - 30, at.x + mate.face * 120)), null); }
     wireMate(el);
     mate.last = 0; mate.raf = requestAnimationFrame(mateTick);
     return true;
@@ -862,7 +862,7 @@
     if (!mate.surf) return tbTop();
     const w = mate.surf.el;
     if (!w.isConnected || w.style.display === 'none' || w.classList.contains('min') || w.classList.contains('maxwin')) return null;
-    const r = w.getBoundingClientRect();
+    const r = DesktopSurface.rect(w);
     if (r.top < 40 || r.width < 100) return null;
     mate.x = r.left + mate.surf.rel; mate.surf.lo = r.left + 12; mate.surf.hi = r.right - 40;
     return r.top;
@@ -870,17 +870,17 @@
   function decide() {
     mate.acts++;
     const onWin = !!mate.surf, p = phone(), n = mate.night;
-    const lo = onWin ? mate.surf.lo : 20, hi = onWin ? mate.surf.hi : innerWidth - 20;
+    const lo = onWin ? mate.surf.lo : 20, hi = onWin ? mate.surf.hi : DesktopSurface.width() - 20;
     if (mate.acts > mate.maxActs) {
       if (onWin) return jumpTo(mate.x + mate.face * 40, null);
-      const edge = mate.x < innerWidth / 2 ? -60 : innerWidth + 60;
+      const edge = mate.x < DesktopSurface.width() / 2 ? -60 : DesktopSurface.width() + 60;
       return setMode('walk', { tx: edge, sp: p ? 34 : 46, exit: true });
     }
     const r = Math.random();
-    if (onWin && r < 0.3) return jumpTo(Math.max(20, Math.min(innerWidth - 20, mate.x + mate.face * rnd(30, 90))), null);
+    if (onWin && r < 0.3) return jumpTo(Math.max(20, Math.min(DesktopSurface.width() - 20, mate.x + mate.face * rnd(30, 90))), null);
     if (!onWin && !p && r < 0.16) {
       const ws = climbable();
-      if (ws.length) { const w = pick(ws), rr = w.getBoundingClientRect(); const tx = rnd(Math.max(rr.left + 30, 30), Math.min(rr.right - 80, innerWidth - 30)); return setMode('walk', { tx, sp: 46, then: () => { const r2 = w.getBoundingClientRect(); if (r2.top > 60) jumpTo(mate.x, { el: w, rel: mate.x - r2.left }); else decide(); } }); }
+      if (ws.length) { const w = pick(ws), rr = DesktopSurface.rect(w); const tx = rnd(Math.max(rr.left + 30, 30), Math.min(rr.right - 80, DesktopSurface.width() - 30)); return setMode('walk', { tx, sp: 46, then: () => { const r2 = DesktopSurface.rect(w); if (r2.top > 60) jumpTo(mate.x, { el: w, rel: mate.x - r2.left }); else decide(); } }); }
     }
     const opts = [['walk', 30], ['sit', 12], ['wave', 12], ['eat', 12], ['sleep', n ? 26 : 8], ['yawn', n ? 22 : 3]];
     let tot = opts.reduce((a, o) => a + o[1], 0), q = Math.random() * tot, pickd = 'walk';
@@ -895,7 +895,7 @@
   function jumpTo(x, surf) {
     const x0 = mate.x, y0 = mate.y;
     let y1 = tbTop();
-    if (surf) y1 = surf.el.getBoundingClientRect().top;
+    if (surf) y1 = DesktopSurface.rect(surf.el).top;
     const dist = Math.abs(y1 - y0), dur = 0.45 + Math.min(0.6, dist / 900);
     setMode('jump', { j: { x0, y0, x1: x, y1, dur, surf, peak: Math.min(y0, y1) - 40 - dist * 0.15 } });
     play('boing');
@@ -930,13 +930,13 @@
         mate.x = j.x0 + (j.x1 - j.x0) * k;
         const a = j.y0, b2 = j.peak, c = j.y1; mate.y = (1 - k) * (1 - k) * a + 2 * (1 - k) * k * b2 + k * k * c;
         mate.face = Math.sign(j.x1 - j.x0) || mate.face; pose = 'jump';
-        if (k >= 1) { mate.surf = j.surf ? { el: j.surf.el, rel: mate.x - j.surf.el.getBoundingClientRect().left } : null; if (surfY() == null) { mate.surf = null; setMode('fall', { vy: 0 }); } else decide(); }
+        if (k >= 1) { mate.surf = j.surf ? { el: j.surf.el, rel: mate.x - DesktopSurface.rect(j.surf.el).left } : null; if (surfY() == null) { mate.surf = null; setMode('fall', { vy: 0 }); } else decide(); }
         break;
       }
       case 'fall': {
         const prevY = mate.y; mate.vy += 1500 * dt; mate.y += mate.vy * dt; pose = 'dangle'; fr = Math.floor(t / 120);
         let land = null;
-        for (const w of climbable()) { const r = w.getBoundingClientRect(); if (prevY <= r.top && mate.y >= r.top && mate.x > r.left + 10 && mate.x < r.right - 30) { land = { y: r.top, surf: { el: w, rel: mate.x - r.left } }; break; } }
+        for (const w of climbable()) { const r = DesktopSurface.rect(w); if (prevY <= r.top && mate.y >= r.top && mate.x > r.left + 10 && mate.x < r.right - 30) { land = { y: r.top, surf: { el: w, rel: mate.x - r.left } }; break; } }
         if (!land && mate.y >= tbTop()) land = { y: tbTop(), surf: null };
         if (land) {
           mate.y = land.y; mate.surf = land.surf; play('thud');
@@ -947,7 +947,7 @@
         break;
       }
       case 'drag': pose = 'dangle'; fr = Math.floor(t / 110); break;
-      case 'angry': pose = 'angry'; fr = Math.floor(t / 120); if (mate.mt > 1.2) { const edge = mate.x < innerWidth / 2 ? -60 : innerWidth + 60; mate.surf = null; mate.y = tbTop(); setMode('walk', { tx: edge, sp: 260, exit: true }); } break;
+      case 'angry': pose = 'angry'; fr = Math.floor(t / 120); if (mate.mt > 1.2) { const edge = mate.x < DesktopSurface.width() / 2 ? -60 : DesktopSurface.width() + 60; mate.surf = null; mate.y = tbTop(); setMode('walk', { tx: edge, sp: 260, exit: true }); } break;
       case 'happy': pose = 'happy'; fr = Math.floor(t / 140); if (mate.mt > 1.1) decide(); break;
       case 'tantrum': { // stood on the rim of the Recycle Bin, going red, shaking and stamping
         pose = 'angry'; fr = Math.floor(t / 100);
@@ -980,14 +980,15 @@
     el.addEventListener('pointermove', ev => {
       if (!down) return;
       if (!down.dragging && Math.hypot(ev.clientX - down.x, ev.clientY - down.y) > 6) { down.dragging = true; setMode('drag'); mate.surf = null; say(pick(['PUT ME DOWN!', 'Oi! Wheee!', 'Not the ears!', "It looks like you're dragging me!"]), 1500); mate.y0drag = mate.y; }
-      if (down.dragging) { mate.x = Math.max(10, Math.min(innerWidth - 10, ev.clientX)); mate.y = Math.max(GH * mate.sc, Math.min(tbTop(), ev.clientY + GH * mate.sc * 0.55)); const bi = binEl(); if (bi) bi.classList.toggle('ff-drop', overBin(ev.clientX, ev.clientY)); }
+      if (down.dragging) { const p = DesktopSurface.point(ev.clientX, ev.clientY); mate.x = Math.max(10, Math.min(DesktopSurface.width() - 10, p.x)); mate.y = Math.max(GH * mate.sc, Math.min(tbTop(), p.y + GH * mate.sc * 0.55)); const bi = binEl(); if (bi) bi.classList.toggle('ff-drop', overBin(p.x, p.y)); }
     });
     const up = ev => {
       if (!down) return;
       const d = down; down = null;
       if (d.dragging) {
         const bi = binEl(); if (bi) bi.classList.remove('ff-drop');
-        if (ev.type === 'pointerup' && overBin(ev.clientX, ev.clientY)) return binHim();
+        const p = DesktopSurface.point(ev.clientX, ev.clientY);
+        if (ev.type === 'pointerup' && overBin(p.x, p.y)) return binHim();
         mate.dropH = tbTop() - mate.y; setMode('fall', { vy: 0 }); return;
       }
       poke();
@@ -1010,12 +1011,12 @@
   void startMate;
   // ---- the Recycle Bin: drop him on it and in he goes (kicking and screaming). Restore brings him back; emptying it does not.
   const binEl = () => $('iconBin');
-  function overBin(x, y) { const bi = binEl(); if (!bi || !bi.isConnected) return false; const r = bi.getBoundingClientRect(); return r.width > 0 && x > r.left - 14 && x < r.right + 14 && y > r.top - 20 && y < r.bottom + 10; }
+  function overBin(x, y) { const bi = binEl(); if (!bi || !bi.isConnected) return false; const r = DesktopSurface.rect(bi); return r.width > 0 && x > r.left - 14 && x < r.right + 14 && y > r.top - 20 && y < r.bottom + 10; }
   let binned = !!store.get('jhp_fun_binned', false);
   const GROT_ICO = '<svg viewBox="0 0 32 32"><path d="M4 12l5-2 1-5 4 3h4l4-3 1 5 5 2-5 3v8l-4 6h-6l-4-6v-8z" fill="#3fa52c" stroke="#14300c"/><rect x="11" y="13" width="3" height="3" fill="#ff2a1a"/><rect x="18" y="13" width="3" height="3" fill="#ff2a1a"/><path d="M11 21h10" stroke="#3a0000" stroke-width="2"/><path d="M12 21v2M16 21v2M20 21v2" stroke="#fff"/></svg>';
   const grotEntry = () => ({ id: 'gubbinz', from: 'C:/JACKOS/Desktop', node: { name: 'Gubbinz.grt', type: 'grt', size: '1 KB', date: d99(), svg: GROT_ICO }, confirm: "Are you sure you want to delete 'Gubbinz'?\n\n(He is looking at you through the lid.)", onRestore: releaseGrot, onEmpty: escapeGrot });
   function binHim() {
-    const bi = binEl(), r = bi ? bi.getBoundingClientRect() : { left: 20, top: tbTop() - 90, width: 76, height: 70 };
+    const bi = binEl(), r = bi ? DesktopSurface.rect(bi) : { left: 20, top: tbTop() - 90, width: 76, height: 70 };
     const cx = r.left + r.width / 2;
     mate.surf = null; mate.x = cx; mate.y = r.top + 13; // feet on the rim of the bin, clinging on
     got('binned'); play('waaagh');
@@ -1032,7 +1033,7 @@
   }
   function releaseGrot() { // Restore from the bin
     binned = false; store.set('jhp_fun_binned', false); got('grotrestore');
-    const bi = binEl(), r = bi ? bi.getBoundingClientRect() : null;
+    const bi = binEl(), r = bi ? DesktopSurface.rect(bi) : null;
     if (Apps.recycle) Apps.recycle.wobble();
     spawnMate(true, r ? { x: r.left + r.width / 2, y: r.top + 6 } : { x: 60, y: tbTop() });
     mate.stain = true;
@@ -1042,7 +1043,7 @@
     setTimeout(() => {
       if (mate.el) return;
       binned = false; store.set('jhp_fun_binned', false); got('grotescape');
-      const bi = binEl(), r = bi ? bi.getBoundingClientRect() : null;
+      const bi = binEl(), r = bi ? DesktopSurface.rect(bi) : null;
       if (Apps.recycle) Apps.recycle.wobble();
       play('boing');
       spawnMate(true, r ? { x: r.left + r.width / 2, y: r.top + 6 } : { x: 60, y: tbTop() });
@@ -1089,7 +1090,7 @@
     asstShown = true; got('assistant');
     const el = h('div', 'ff-asst');
     el.innerHTML = `<div class="ff-asst-say"><p></p><div class="ff-asst-btns"><button class="btn" type="button" data-a="more">Tell me more</button><button class="btn" type="button" data-a="opt">Options</button><button class="btn" type="button" data-a="bye">Go away</button></div></div><div class="ff-asst-box"><div class="tb"><span class="t">Gubbinz</span><span class="ctl"><button type="button" aria-label="Close" data-a="bye">x</button></span></div><canvas width="${GW}" height="${GH}"></canvas></div>`;
-    document.body.appendChild(el);
+    DesktopSurface.root().appendChild(el);
     const p = el.querySelector('p'), cv = el.querySelector('canvas'), g = cv.getContext('2d');
     let i = TIPS.indexOf(tip); if (i < 0) i = ri(0, TIPS.length - 1);
     const show = () => { p.textContent = tip || TIPS[i]; tip = null; };
@@ -1568,10 +1569,10 @@ AUTHORISED PERSONNEL ONLY
   // ================================================================ desktop effects layer (snow, confetti, fireworks, bats, UFOs...)
   // One canvas over the desktop (under program windows, never catches clicks). Its loop only runs while an effect is alive.
   const FX = { cv: null, g: null, list: [], raf: 0, last: 0, W: 0, H: 0 };
-  function fxSize() { if (!FX.cv) return; FX.W = FX.cv.width = innerWidth; FX.H = FX.cv.height = Math.max(100, tbTop()); }
+  function fxSize() { if (!FX.cv) return; FX.W = FX.cv.width = DesktopSurface.width(); FX.H = FX.cv.height = Math.max(100, tbTop()); }
   addEventListener('resize', fxSize);
   function fx(effect, top) {
-    if (!FX.cv) { FX.cv = h('canvas', 'ff-fx'); FX.cv.setAttribute('aria-hidden', 'true'); document.body.appendChild(FX.cv); FX.g = FX.cv.getContext('2d'); fxSize(); }
+    if (!FX.cv) { FX.cv = h('canvas', 'ff-fx'); FX.cv.setAttribute('aria-hidden', 'true'); DesktopSurface.root().appendChild(FX.cv); FX.g = FX.cv.getContext('2d'); fxSize(); }
     if (top) FX.cv.classList.add('top');
     FX.list.push(effect);
     if (!FX.raf) { FX.last = 0; FX.raf = requestAnimationFrame(fxTick); }
@@ -1585,9 +1586,9 @@ AUTHORISED PERSONNEL ONLY
     else { FX.raf = 0; FX.cv.remove(); FX.cv = null; }
   }
   function snowFx(dur) {
-    const flakes = [], pile = new Float32Array(Math.ceil(innerWidth / 4) + 2), n = phone() ? 45 : 110;
+    const flakes = [], pile = new Float32Array(Math.ceil(DesktopSurface.width() / 4) + 2), n = phone() ? 45 : 110;
     let life = 0;
-    for (let i = 0; i < n; i++) flakes.push({ x: rnd(0, innerWidth), y: rnd(-innerHeight, innerHeight), r: rnd(1, 3.2), s: rnd(25, 60), w: rnd(0, 6) });
+    for (let i = 0; i < n; i++) flakes.push({ x: rnd(0, DesktopSurface.width()), y: rnd(-DesktopSurface.height(), DesktopSurface.height()), r: rnd(1, 3.2), s: rnd(25, 60), w: rnd(0, 6) });
     return fx({ kind: 'snow', step(g, dt, W, H, t) {
       life += dt; const ending = dur && life > dur;
       g.fillStyle = '#fff';
@@ -1621,7 +1622,7 @@ AUTHORISED PERSONNEL ONLY
   }
   function fireworkFx(x) {
     const C = pick(['#ff3030', '#ffd400', '#30ff60', '#40a0ff', '#ff40ff', '#ffffff', '#ff9020']);
-    const r = { x: x == null ? rnd(innerWidth * 0.15, innerWidth * 0.85) : x, y: tbTop(), vy: -rnd(380, 520), top: rnd(tbTop() * 0.15, tbTop() * 0.45) };
+    const r = { x: x == null ? rnd(DesktopSurface.width() * 0.15, DesktopSurface.width() * 0.85) : x, y: tbTop(), vy: -rnd(380, 520), top: rnd(tbTop() * 0.15, tbTop() * 0.45) };
     const sparks = []; let boom = false;
     play('zap');
     return fx({ step(g, dt) {
@@ -1789,7 +1790,7 @@ AUTHORISED PERSONNEL ONLY
     const SQ = ['(@@)', '<vv>'];
     const stars = Array.from({ length: 40 }, () => ({ x: ri(0, COLS - 1), y: ri(0, ROWS - 1), s: pick([0.3, 0.6, 1]), c: pick(['.', '.', '*', '+']) }));
     let f = 0;
-    const w = dosWin('Telnet - jacknet.tv', [[0, 'Connecting to jacknet.tv...']], { w: Math.min(560, innerWidth - 8), h: 330 });
+    const w = dosWin('Telnet - jacknet.tv', [[0, 'Connecting to jacknet.tv...']], { w: Math.min(560, DesktopSurface.width() - 8), h: 330 });
     const timer = setInterval(() => {
       if (w.closed) { clearInterval(timer); return; }
       f++;
@@ -1832,7 +1833,7 @@ AUTHORISED PERSONNEL ONLY
     if (/^rm/i.test(raw)) return Desk.msgbox('JackOS', "This isn't that kind of computer. Try 'deltree'. (Actually, don't.)", 'warn');
     Desk.msgbox('Deltree', 'Delete directory "C:\\JACKOS" and all its subdirectories? [yn]', 'q', [['Yes', () => {
       const icons = [...document.querySelectorAll('.icons .dicon')];
-      icons.forEach((ic, i) => { ic.style.transition = `transform .9s cubic-bezier(.5,0,1,.5) ${i * 0.06}s, opacity .9s ${i * 0.06}s`; ic.style.transform = `translate(${ri(-40, 40)}px, ${innerHeight}px) rotate(${ri(-200, 200)}deg)`; ic.style.opacity = '0'; });
+      icons.forEach((ic, i) => { ic.style.transition = `transform .9s cubic-bezier(.5,0,1,.5) ${i * 0.06}s, opacity .9s ${i * 0.06}s`; ic.style.transform = `translate(${ri(-40, 40)}px, ${DesktopSurface.height()}px) rotate(${ri(-200, 200)}deg)`; ic.style.opacity = '0'; });
       play('thud');
       setTimeout(() => {
         icons.forEach(ic => { ic.style.transition = 'transform .6s ease-out, opacity .6s'; ic.style.transform = ''; ic.style.opacity = ''; });
@@ -1871,7 +1872,7 @@ AUTHORISED PERSONNEL ONLY
   C(['gravity', 'newton'], () => {
     got('gravity');
     const icons = [...document.querySelectorAll('.icons .dicon')];
-    icons.forEach((ic, i) => { const r = ic.getBoundingClientRect(); ic.style.transition = `transform 1.1s cubic-bezier(.6,0,.4,1.4) ${i * 0.05}s`; ic.style.transform = `translateY(${Math.max(0, tbTop() - r.bottom - 4)}px)`; });
+    icons.forEach((ic, i) => { const r = DesktopSurface.rect(ic); ic.style.transition = `transform 1.1s cubic-bezier(.6,0,.4,1.4) ${i * 0.05}s`; ic.style.transform = `translateY(${Math.max(0, tbTop() - r.bottom - 4)}px)`; });
     play('thud');
     setTimeout(() => { icons.forEach(ic => { ic.style.transition = 'transform .8s ease-in-out'; ic.style.transform = ''; }); setTimeout(() => icons.forEach(ic => { ic.style.transition = ''; }), 900); }, 6000);
   });
@@ -1927,7 +1928,7 @@ AUTHORISED PERSONNEL ONLY
   C(['open sesame', 'eject', 'eject d:', 'cdrom', 'cup holder'], () => {
     got('cdtray');
     const t = h('div', 'ff-tray'); t.innerHTML = '<div class="ff-trayin"><span class="ff-cd"></span><span class="ff-cup"></span></div>';
-    document.body.appendChild(t); play('turn');
+    DesktopSurface.root().appendChild(t); play('turn');
     setTimeout(() => { t.classList.add('out'); }, 30);
     Desk.toast('CD-ROM Drive (D:)', 'Tray opened. Please do not use it as a cup holder. (Somebody already did.)', 4500);
     setTimeout(() => { t.classList.remove('out'); play('turn'); setTimeout(() => t.remove(), 700); }, 4200);
@@ -1954,7 +1955,7 @@ AUTHORISED PERSONNEL ONLY
     if (document.querySelector('.ff-tinsel')) return;
     const t = h('div', 'ff-tinsel'); t.setAttribute('aria-hidden', 'true');
     t.innerHTML = Array.from({ length: 24 }, (_, i) => `<i style="left:${(i + 0.5) * 100 / 24}%;background:${['#e10600', '#ffd400', '#0028c8', '#0a0', '#f0f'][i % 5]};animation-delay:-${(i % 4) * 0.4}s"></i>`).join('');
-    document.body.appendChild(t);
+    DesktopSurface.root().appendChild(t);
     if (ms) setTimeout(() => t.remove(), ms);
   }
   function stickyNote(text, id) {
@@ -1962,19 +1963,19 @@ AUTHORISED PERSONNEL ONLY
     const n = h('div', 'ff-sticky'); n.setAttribute('role', 'note');
     n.innerHTML = `<button class="ff-stx" type="button" aria-label="Close note">x</button><p></p>`;
     n.querySelector('p').textContent = text;
-    document.body.appendChild(n);
-    n.style.left = Math.max(8, innerWidth - (phone() ? 175 : 240)) + 'px'; n.style.top = (phone() ? innerHeight * 0.45 : 40) + 'px';
+    DesktopSurface.root().appendChild(n);
+    n.style.left = Math.max(8, DesktopSurface.width() - (phone() ? 175 : 240)) + 'px'; n.style.top = (phone() ? DesktopSurface.height() * 0.45 : 40) + 'px';
     n.querySelector('.ff-stx').addEventListener('click', () => n.remove());
     let d = null;
-    n.addEventListener('pointerdown', ev => { if (ev.target.closest('button')) return; d = { x: ev.clientX - n.offsetLeft, y: ev.clientY - n.offsetTop }; n.setPointerCapture(ev.pointerId); });
-    n.addEventListener('pointermove', ev => { if (d) { n.style.left = Math.max(0, Math.min(innerWidth - 60, ev.clientX - d.x)) + 'px'; n.style.top = Math.max(0, Math.min(innerHeight - 80, ev.clientY - d.y)) + 'px'; } });
+    n.addEventListener('pointerdown', ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); if (ev.target.closest('button')) return; d = { x: p.x - n.offsetLeft, y: p.y - n.offsetTop }; n.setPointerCapture(ev.pointerId); });
+    n.addEventListener('pointermove', ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); if (d) { n.style.left = Math.max(0, Math.min(DesktopSurface.width() - 60, p.x - d.x)) + 'px'; n.style.top = Math.max(0, Math.min(DesktopSurface.height() - 80, p.y - d.y)) + 'px'; } });
     n.addEventListener('pointerup', () => { d = null; });
     if (id) got(id);
   }
   function blackCat() {
     const c = h('div', 'ff-cat'); c.setAttribute('aria-hidden', 'true');
     c.innerHTML = '<svg viewBox="0 0 40 24" width="60" height="36"><path d="M6 12q-5-6 0-10" stroke="#111" stroke-width="2.5" fill="none" class="ff-tail"/><ellipse cx="17" cy="13" rx="11" ry="6" fill="#111"/><circle cx="30" cy="9" r="5.5" fill="#111"/><path d="M26 5l1-5 3 4zM31 4l3-4 1 5z" fill="#111"/><rect x="31" y="7.5" width="2" height="2" fill="#ffe000"/><rect x="28" y="7.5" width="2" height="2" fill="#ffe000"/><g class="ff-legs"><rect x="9" y="17" width="2.5" height="7" fill="#111"/><rect x="23" y="17" width="2.5" height="7" fill="#111"/></g><g class="ff-legs2"><rect x="13" y="17" width="2.5" height="7" fill="#111"/><rect x="26" y="17" width="2.5" height="7" fill="#111"/></g></svg>';
-    document.body.appendChild(c);
+    DesktopSurface.root().appendChild(c);
     c.style.top = (tbTop() - 34) + 'px';
     setTimeout(() => c.remove(), 12500);
   }

@@ -129,10 +129,10 @@
   E.mods.buddy = () => {
     if (pal && pal.el.isConnected) { pal.say("I'm already here, buddy! Did you miss me? I missed you! I always miss you!", true); return; }
     const el = h('div', 'ed-pal'); el.innerHTML = '<canvas width="240" height="280" aria-label="Purple Pal"></canvas>';
-    document.body.appendChild(el);
+    DesktopSurface.root().appendChild(el);
     const cv = el.querySelector('canvas'), g = cv.getContext('2d'); g.scale(2, 2);
     const s = { walking: true, dir: 1, talking: false, waving: false, dancing: false };
-    let x = -130, tx = Math.min(innerWidth - 140, Math.max(20, innerWidth * 0.12)), raf = 0, bubble = null, talkTimer = 0, gone = false, songT = 0, homeDone = store.get('jhp_era_palhome', 0);
+    let x = -130, tx = Math.min(DesktopSurface.width() - 140, Math.max(20, DesktopSurface.width() * 0.12)), raf = 0, bubble = null, talkTimer = 0, gone = false, songT = 0, homeDone = store.get('jhp_era_palhome', 0);
     pal = { el, say };
     el.style.left = x + 'px';
     const loop = ts => {
@@ -144,12 +144,12 @@
     };
     raf = requestAnimationFrame(loop);
     function cleanup() { cancelAnimationFrame(raf); clearInterval(talkTimer); el.remove(); if (bubble) bubble.remove(); bubble = null; if (Sound.music.playing && SONGS.includes(Sound.music.playing) && songT) Sound.music.stop(); pal = null; }
-    function placeBubble() { const r = el.getBoundingClientRect(), bw = bubble.offsetWidth, bh = bubble.offsetHeight; bubble.style.left = Math.max(8, Math.min(innerWidth - bw - 8, r.left + 30)) + 'px'; bubble.style.top = Math.max(4, r.top - bh - 6) + 'px'; }
+    function placeBubble() { const r = DesktopSurface.rect(el), bw = bubble.offsetWidth, bh = bubble.offsetHeight; bubble.style.left = Math.max(8, Math.min(DesktopSurface.width() - bw - 8, r.left + 30)) + 'px'; bubble.style.top = Math.max(4, r.top - bh - 6) + 'px'; }
     function say(text, menu) {
       if (bubble) bubble.remove();
       bubble = h('div', 'ed-say'); bubble.setAttribute('role', 'dialog'); bubble.setAttribute('aria-label', 'Purple Pal says');
       bubble.innerHTML = `<button class="x" type="button" aria-label="Close">x</button><div class="tx"></div>${menu ? '<div class="acts"><button data-a="joke">Tell me a joke</button><button data-a="sing">Sing me a song</button><button data-a="web">Search the web</button><button data-a="mail">Check my e-mail</button><button data-a="bye">Goodbye</button></div>' : ''}`;
-      document.body.appendChild(bubble); placeBubble();
+      DesktopSurface.root().appendChild(bubble); placeBubble();
       const tx = bubble.querySelector('.tx'); let i = 0; s.talking = true; clearInterval(talkTimer);
       talkTimer = setInterval(() => { i += 2; tx.textContent = text.slice(0, i); if (i % 4 === 0 && Sound.on) note(rnd(180, 320), 0.05, 'square'); if (i >= text.length) { clearInterval(talkTimer); s.talking = false; } placeBubble(); }, 40);
       bubble.querySelector('.x').addEventListener('click', bye);

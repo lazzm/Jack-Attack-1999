@@ -279,10 +279,10 @@
   E.mods.neko = () => {
     if (neko) { neko.stop(); Desk.toast('Robo-Neko 98', 'The robot has gone back to its charger. (Start it again from the Start menu.)', 3500); return; }
     const c = document.createElement('canvas'); c.className = 'e3-neko'; c.width = c.height = 32; c.title = 'Robo-Neko (double-click to send it home)';
-    document.body.appendChild(c);
+    DesktopSurface.root().appendChild(c);
     const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
-    let x = innerWidth / 2, y = innerHeight - 80, tx = x, ty = y, still = 0, state = 'surprise', st = 0, raf = 0, last = 0, flip = false, zz = 0;
-    const mv = ev => { tx = ev.clientX - 26; ty = ev.clientY + 6; };
+    let x = DesktopSurface.width() / 2, y = DesktopSurface.height() - 80, tx = x, ty = y, still = 0, state = 'surprise', st = 0, raf = 0, last = 0, flip = false, zz = 0;
+    const mv = ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); tx = p.x - 26; ty = p.y + 6; };
     addEventListener('pointermove', mv, { passive: true }); addEventListener('pointerdown', mv, { passive: true });
     const loop = ts => {
       raf = requestAnimationFrame(loop);
@@ -297,7 +297,7 @@
         if (state === 'sit' && still > 3) { state = 'yawn'; st = 0; }
         if (state === 'yawn' && st > 1.2) { state = 'sleep'; st = 0; E.secret('dodgy.neko'); }
       }
-      x = Math.max(0, Math.min(innerWidth - 32, x)); y = Math.max(0, Math.min(innerHeight - 32, y));
+      x = Math.max(0, Math.min(DesktopSurface.width() - 32, x)); y = Math.max(0, Math.min(DesktopSurface.height() - 32, y));
       c.style.transform = `translate(${x | 0}px,${y | 0}px)`;
       const fr = state === 'run' ? ((ts / 110 | 0) % 2 ? NEKO.run1 : NEKO.run2) : NEKO[state] || NEKO.sit;
       g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, 32, 32);

@@ -216,7 +216,7 @@
   A.register('share.diskswap', { single: true, cmd: ['diskswap', 'diskswap.exe', 'floppyswap'], open(arg) {
     const b = document.createElement('div'); b.className = 'shz-ds';
     b.innerHTML = '<p style="margin:16px">Loading DiskSwap 1.44...<br><br>Checking drive A:... OK</p>';
-    const w = A.win('DiskSwap 1.44 - (untitled disk)', b, { w: 720, h: innerWidth < 640 ? innerHeight - 50 : 520, icon: ICONS.disk, menubar: true, status: true, minW: 300, minH: 300 });
+    const w = A.win('DiskSwap 1.44 - (untitled disk)', b, { w: 720, h: DesktopSurface.width() < 640 ? DesktopSurface.height() - 50 : 520, icon: ICONS.disk, menubar: true, status: true, minW: 300, minH: 300 });
     SH.web().then(W => { if (!w.closed) W.diskSwap(w, arg); }).catch(() => { if (!w.closed) b.innerHTML = '<p style="margin:16px">DISKSWAP.EXE is corrupt or missing. Try installing it again from www.floppyswap.webcom.</p>'; });
     return w;
   } });
@@ -329,7 +329,7 @@ FACTS I HAVE WORKED OUT
     o.querySelector('b').textContent = title; o.querySelector('p').textContent = text;
     o.querySelector('.btn').addEventListener('click', () => { o.remove(); fn(); });
     o.querySelector('.shz-ox').addEventListener('click', () => o.remove());
-    document.body.appendChild(o);
+    DesktopSurface.root().appendChild(o);
     setTimeout(() => { if (o.isConnected) o.classList.add('bye'); setTimeout(() => o.remove(), 500); }, 16000);
   };
   const bragGo = (k, g) => SH.go(SH.url('brag', k ? `/make/${k}${g ? '-' + g : ''}.html` : '/'));
@@ -390,7 +390,7 @@ FACTS I HAVE WORKED OUT
     bar.appendChild(b);
   }
   whenReady(() => {
-    if (window.MutationObserver) new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) watchWin(n); }).observe(document.body, { childList: true });
+    if (window.MutationObserver) new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) watchWin(n); }).observe(DesktopSurface.root(), { childList: true });
     drawDisks(); scoreLinks(); setTimeout(scoreLinks, 3000);
   });
   document.addEventListener('section', ev => { if (/^(demos|home)$/.test(String(ev.detail || ''))) scoreLinks(); });

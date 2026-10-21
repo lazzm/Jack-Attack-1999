@@ -110,7 +110,7 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
     cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
     const g = cv.getContext('2d'), n = reduced() ? 18 : phone() ? 30 : 60, flakes = [];
     let W = 0, H = 0, raf = 0, last = 0;
-    const size = () => { W = cv.width = l.clientWidth || innerWidth; H = cv.height = l.clientHeight || innerHeight; };
+    const size = () => { W = cv.width = l.clientWidth || DesktopSurface.width(); H = cv.height = l.clientHeight || DesktopSurface.height(); };
     size(); addEventListener('resize', size);
     for (let i = 0; i < n; i++) flakes.push({ x: rnd(0, W), y: rnd(-H, H), r: rnd(1.2, 3.2), s: rnd(reduced() ? 10 : 25, reduced() ? 20 : 55), w: rnd(0, 6) });
     const step = ts => {
@@ -155,7 +155,7 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
   const PAN_ICO = '<svg viewBox="0 0 32 32"><ellipse cx="13" cy="20" rx="11" ry="5" fill="#2a2a2a" stroke="#000"/><ellipse cx="13" cy="18.5" rx="9" ry="3.6" fill="#555"/><ellipse cx="13" cy="10" rx="7.5" ry="2.6" fill="#f2c46a" stroke="#8a5a1a"/><path d="M23 19l8-3" stroke="#000" stroke-width="3" stroke-linecap="round"/><path d="M8 6l1 2M18 5l-1 2M13 4v2" stroke="#8a5a1a"/></svg>';
   function pancake() {
     const b = h('div', '', `<div class="ssn-pan"><div class="ceil">the kitchen ceiling</div><div class="cake"></div><svg class="pn" viewBox="0 0 180 30" aria-hidden="true"><path d="M2 8h112q-4 18-56 18T2 8z" fill="#2a2a2a" stroke="#000"/><ellipse cx="58" cy="8" rx="56" ry="5" fill="#555" stroke="#000"/><rect x="112" y="5" width="66" height="7" rx="3" fill="#5a3a1a" stroke="#000"/></svg><div class="msg">Click TOSS! to flip the pancake.</div></div><div class="row" style="margin-top:8px;flex-wrap:wrap"><button class="btn dflt" type="button" style="min-width:90px;font-weight:bold">TOSS!</button><label>Topping: <select><option>Lemon and sugar</option><option>Chocolate spread</option><option>Golden syrup</option><option>Jam</option><option>Squirty cream</option></select></label><span class="small ssn-pc" style="margin-left:auto">Flips: 0</span></div>`);
-    const w = A.win('Pancake Toss 99', b, { w: Math.min(330, innerWidth - 12), noResize: true, noMax: true, icon: PAN_ICO });
+    const w = A.win('Pancake Toss 99', b, { w: Math.min(330, DesktopSurface.width() - 12), noResize: true, noMax: true, icon: PAN_ICO });
     const stage = b.querySelector('.ssn-pan'), cake = b.querySelector('.cake'), msg = b.querySelector('.msg'), btn = b.querySelector('.btn'), cnt = b.querySelector('.ssn-pc');
     let flips = store.get('jhp_ssn_flips', 0), busy = false, stuck = 0;
     cnt.textContent = 'Flips: ' + flips;
@@ -263,7 +263,7 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
   function bonfire() {
     if (document.querySelector('.ssn-bon')) return;
     const el = h('div', 'ssn-bon', '<canvas></canvas><div class="glow"></div><div class="fire"></div><div class="rhyme">Remember, remember, the fifth of November</div>');
-    document.body.appendChild(el);
+    DesktopSurface.root().appendChild(el);
     const fw = SS.fireworks(el.querySelector('canvas'), { calm: reduced() });
     const t0 = Date.now();
     const quit = ev => { if (Date.now() - t0 < 800) return; if (ev && ev.type === 'pointermove' && Math.abs(ev.movementX) + Math.abs(ev.movementY) < 6) return; fw.kill(); el.remove(); ['keydown', 'pointerdown', 'pointermove'].forEach(e => document.removeEventListener(e, quit, true)); };
@@ -321,7 +321,7 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
   const TREE_SVG = '<svg viewBox="0 0 200 250" aria-hidden="true"><g fill="#0d5a1a" stroke="#063a0c" stroke-width="2"><path d="M100 30L52 100h22L36 160h26L20 222h160l-42-62h26l-38-60h22z"/></g><path d="M64 96q36 18 74-2M52 152q48 22 98-4M38 214q60 22 126-4" fill="none" stroke="#ffd400" stroke-width="3" stroke-dasharray="1 5" stroke-linecap="round"/><rect x="88" y="222" width="24" height="22" fill="#7a4a1a" stroke="#000"/><path d="M100 6l6 13 14 1.5-10.5 9.5 3 14L100 37l-12.5 7 3-14L80 20.5 94 19z" fill="#ffd400" stroke="#a07000" stroke-width="1.5"/><g class="lights"><circle class="lt" cx="86" cy="70" r="5" fill="#ff2a2a"/><circle class="lt" cx="114" cy="84" r="5" fill="#ffd400"/><circle class="lt" cx="72" cy="122" r="5" fill="#3affff"/><circle class="lt" cx="104" cy="118" r="5" fill="#ff4aff"/><circle class="lt" cx="132" cy="136" r="5" fill="#3aff6a"/><circle class="lt" cx="60" cy="186" r="5" fill="#ffd400"/><circle class="lt" cx="94" cy="178" r="5" fill="#ff2a2a"/><circle class="lt" cx="128" cy="190" r="5" fill="#3affff"/><circle class="lt" cx="156" cy="206" r="5" fill="#ff4aff"/><circle class="lt" cx="40" cy="210" r="5" fill="#3aff6a"/><circle class="lt" cx="100" cy="148" r="5" fill="#ffd400"/><circle class="lt" cx="86" cy="100" r="4" fill="#ff4aff"/></g></svg>';
   function treeWin() {
     const b = h('div', 'ssn-xt tw', `<div class="tr">${TREE_SVG}</div><div class="side"><b>The Christmas tree</b><div class="small">Dad put the lights on. Then took them off. Then put them on again. Lights:</div><div class="row" style="flex-wrap:wrap;gap:4px"><button class="btn" type="button" data-m="tw">Twinkle</button><button class="btn" type="button" data-m="">Steady</button><button class="btn" type="button" data-m="disco">Disco</button><button class="btn" type="button" data-m="off">Off</button></div><b style="margin-top:4px">Under the tree:</b><div class="ssn-pres"></div><div class="ssn-pmsg">${today().md >= 1225 ? 'Click a present to open it!' : 'DO NOT OPEN UNTIL 25/12/99. (You can shake them though.)'}</div></div>`);
-    const w = A.win('Christmas Tree', b, { w: Math.min(560, innerWidth - 8), icon: TREE32, noResize: true });
+    const w = A.win('Christmas Tree', b, { w: Math.min(560, DesktopSurface.width() - 8), icon: TREE32, noResize: true });
     b.querySelectorAll('[data-m]').forEach(x => x.addEventListener('click', () => { b.className = 'ssn-xt ' + x.dataset.m; sfx('click'); }));
     presentGrid(b.querySelector('.ssn-pres'), b.querySelector('.ssn-pmsg'));
     return w;
@@ -335,7 +335,7 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
   };
   function presentsWin() {
     const b = h('div', '', `<p style="margin:0 0 8px"><b>Merry Christmas!</b> You have <b>${PRESENTS.length}</b> new presents. Click one to unwrap it!</p><div class="ssn-pres"></div><div class="ssn-pmsg" style="margin-top:8px">(Nan's present is socks. We already know. It's always socks.)</div>`);
-    const w = A.win('You have new presents!', b, { w: Math.min(380, innerWidth - 8), icon: TREE32, noResize: true, noMax: true });
+    const w = A.win('You have new presents!', b, { w: Math.min(380, DesktopSurface.width() - 8), icon: TREE32, noResize: true, noMax: true });
     presentGrid(b.querySelector('.ssn-pres'), b.querySelector('.ssn-pmsg'));
     return w;
   }

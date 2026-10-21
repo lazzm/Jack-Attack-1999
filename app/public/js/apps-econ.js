@@ -182,7 +182,7 @@
   // tinkle; spending throws a few out of the tray. Cheap: a handful of absolutely placed SVGs moved with transforms.
   const calm = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
   let lastPtr = null; // where the visitor last clicked: earning usually comes from what you just did
-  document.addEventListener('pointerdown', e => { lastPtr = { x: e.clientX, y: e.clientY, at: Date.now() }; }, true);
+  document.addEventListener('pointerdown', e => { lastPtr = { ...DesktopSurface.point(e.clientX, e.clientY), at: Date.now() }; }, true);
   const GEMSZ = { green: 18, blue: 19, red: 20, purple: 21, gold: 23, rainbow: 26 };
   const CHIME = { green: 1568, blue: 1760, red: 2093, purple: 2349, gold: 2637, rainbow: 3136 }; // pitch climbs with value
   let gemLayer = null, showerAt = 0, showerT = 0, showerPend = 0;
@@ -194,10 +194,10 @@
       const now = Date.now(); if (now - showerAt < 900) { showerPend += amt; clearTimeout(showerT); showerT = setTimeout(() => { const n = showerPend; showerPend = 0; shower(n, null); }, 900 - (now - showerAt)); return; }
       showerAt = now;
     }
-    if (!gemLayer || !gemLayer.isConnected) { gemLayer = document.createElement('div'); gemLayer.id = 'ecGems'; gemLayer.setAttribute('aria-hidden', 'true'); document.body.appendChild(gemLayer); }
-    const tr = (t.querySelector('svg.ec-gem') || t).getBoundingClientRect(), tx = tr.left + tr.width / 2, ty = tr.top + tr.height / 2;
+    if (!gemLayer || !gemLayer.isConnected) { gemLayer = document.createElement('div'); gemLayer.id = 'ecGems'; gemLayer.setAttribute('aria-hidden', 'true'); DesktopSurface.root().appendChild(gemLayer); }
+    const tr = DesktopSurface.rect(t.querySelector('svg.ec-gem') || t), tx = tr.left + tr.width / 2, ty = tr.top + tr.height / 2;
     let fx, fy;
-    if (from && from.getBoundingClientRect) { const r = from.getBoundingClientRect(); fx = r.left + r.width / 2; fy = r.top + r.height / 2; }
+    if (from && from.getBoundingClientRect) { const r = DesktopSurface.rect(from); fx = r.left + r.width / 2; fy = r.top + r.height / 2; }
     else if (from && from.x != null) { fx = from.x; fy = from.y; }
     else if (!spend && lastPtr && Date.now() - lastPtr.at < 4000 && lastPtr.y < tr.top - 30) { fx = lastPtr.x; fy = lastPtr.y; }
     else { fx = tx; fy = ty; }
@@ -280,7 +280,7 @@
       for (const n of m.addedNodes) if (n.nodeType === 1 && n.classList) { if (n.classList.contains('ff-mate')) hatOnMate(n); if (n.classList.contains('appwin')) playSnd('open'); }
       for (const n of m.removedNodes) if (n.nodeType === 1 && n.classList && n.classList.contains('appwin')) playSnd('close');
     }
-  }).observe(document.body, { childList: true });
+  }).observe(DesktopSurface.root(), { childList: true });
   function playSnd(k) { const s = SOUNDS[applied.snd]; if (!s) return; const now = Date.now(); if (now - lastSnd < 200) return; lastSnd = now; s[k](); }
   // Gubbinz the screen mate wears a hat (his canvas is 26x28 pixels, scaled 2x on desktops, 1.5x on phones)
   function hatOnMate(el) {

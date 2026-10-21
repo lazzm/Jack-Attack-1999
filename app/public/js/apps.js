@@ -67,37 +67,37 @@
   const wins = new Map(); // id -> win
   // the screen changed size (a phone turned sideways and back, a window resized): every window fits back on it
   function fitWins() {
-    const vw = innerWidth, vh = innerHeight - 32; // (the taskbar)
+    const vw = DesktopSurface.width(), vh = DesktopSurface.height() - 32; // (the taskbar)
     for (const w of wins.values()) {
       const el = w.el; if (w.closed || el.style.display === 'none' || el.classList.contains('maxwin')) continue;
       const want = el._want || { w: el.offsetWidth, h: 0 };
       el.style.width = Math.max(160, Math.min(want.w, vw - 8)) + 'px';
       if (want.h) el.style.height = Math.max(100, Math.min(want.h, vh - 8)) + 'px';
-      const r = el.getBoundingClientRect();
+      const r = DesktopSurface.rect(el);
       el.style.left = Math.max(4, Math.min(r.left, vw - r.width - 4)) + 'px';
       el.style.top = Math.max(0, Math.min(r.top, vh - Math.min(r.height, vh) - 4)) + 'px';
     }
   }
-  let fitT = 0, lastVp = innerWidth + 'x' + innerHeight; // only for a real change of screen size (programs fire their own 'resize's)
-  addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(() => { const v = innerWidth + 'x' + innerHeight; if (v === lastVp) return; lastVp = v; fitWins(); }, 120); });
+  let fitT = 0, lastVp = DesktopSurface.width() + 'x' + DesktopSurface.height(); // only for a real change of screen size (programs fire their own 'resize's)
+  addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(() => { const v = DesktopSurface.width() + 'x' + DesktopSurface.height(); if (v === lastVp) return; lastVp = v; fitWins(); }, 120); });
   function win(title, body, o) {
     o = o || {};
     const id = nextId++;
     const el = document.createElement('div');
     el.className = 'win float appwin' + (o.cls ? ' ' + o.cls : '');
-    el.style.width = Math.min(o.w || 420, innerWidth - 8) + 'px';
-    if (o.h) el.style.height = Math.min(o.h, innerHeight - 50) + 'px';
+    el.style.width = Math.min(o.w || 420, DesktopSurface.width() - 8) + 'px';
+    if (o.h) el.style.height = Math.min(o.h, DesktopSurface.height() - 50) + 'px';
     el.style.zIndex = nz();
     el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', title);
     el.innerHTML = `<div class="tb"><span class="ico">${o.icon || ICON.app}</span><span class="t"></span><span class="ctl">${o.noMin ? '' : '<button data-w="min" aria-label="Minimise">_</button>'}${o.noMax ? '' : '<button data-w="max" aria-label="Maximise">&#9633;</button>'}<button data-w="close" aria-label="Close">x</button></span></div>${o.menubar ? '<div class="menubar appmenu"></div>' : ''}<div class="appbody"></div>${o.status ? '<div class="status appstatus"><span></span></div>' : ''}${o.noResize ? '' : '<span class="sizegrip appgrip"></span>'}`;
     el.querySelector('.t').textContent = title;
     const bd = el.querySelector('.appbody');
     if (body) bd.appendChild(body);
-    document.body.appendChild(el);
-    const r = el.getBoundingClientRect();
+    DesktopSurface.root().appendChild(el);
+    const r = DesktopSurface.rect(el);
     const off = (wins.size % 6) * 24;
-    el.style.left = Math.max(4, Math.min(innerWidth - r.width - 4, (o.x != null ? o.x : (innerWidth - r.width) / 2 - 60 + off))) + 'px';
-    el.style.top = Math.max(4, Math.min(innerHeight - r.height - 40, (o.y != null ? o.y : (innerHeight - r.height) / 2 - 70 + off))) + 'px';
+    el.style.left = Math.max(4, Math.min(DesktopSurface.width() - r.width - 4, (o.x != null ? o.x : (DesktopSurface.width() - r.width) / 2 - 60 + off))) + 'px';
+    el.style.top = Math.max(4, Math.min(DesktopSurface.height() - r.height - 40, (o.y != null ? o.y : (DesktopSurface.height() - r.height) / 2 - 70 + off))) + 'px';
     const task = document.createElement('button'); task.className = 'tbtn';
     task.innerHTML = `<span class="tico">${o.icon || ICON.app}</span><span></span>`; task.lastChild.textContent = title; task.title = title;
     $('tasks').appendChild(task); el._task = task;
@@ -125,17 +125,18 @@
     // drag + resize
     const tb = el.querySelector('.tb');
     let drag = null;
-    tb.addEventListener('pointerdown', ev => { if (ev.target.closest('button') || el.classList.contains('maxwin')) return; drag = { dx: ev.clientX - el.offsetLeft, dy: ev.clientY - el.offsetTop }; tb.setPointerCapture(ev.pointerId); });
-    tb.addEventListener('pointermove', ev => { if (!drag) return; el.style.left = Math.max(-el.offsetWidth + 80, Math.min(innerWidth - 80, ev.clientX - drag.dx)) + 'px'; el.style.top = Math.max(0, Math.min(innerHeight - 60, ev.clientY - drag.dy)) + 'px'; });
+    tb.addEventListener('pointerdown', ev => { if (ev.button > 0 || ev.target.closest('button') || el.classList.contains('maxwin')) return; const p = DesktopSurface.point(ev.clientX, ev.clientY); drag = { dx: p.x - el.offsetLeft, dy: p.y - el.offsetTop }; tb.setPointerCapture(ev.pointerId); });
+    tb.addEventListener('pointermove', ev => { if (!drag) return; const p = DesktopSurface.point(ev.clientX, ev.clientY); el.style.left = Math.max(-el.offsetWidth + 80, Math.min(DesktopSurface.width() - 80, p.x - drag.dx)) + 'px'; el.style.top = Math.max(0, Math.min(DesktopSurface.height() - 60, p.y - drag.dy)) + 'px'; });
     tb.addEventListener('pointerup', () => { drag = null; });
     tb.addEventListener('pointercancel', () => { drag = null; });
     tb.addEventListener('dblclick', ev => { if (!ev.target.closest('button') && !o.noMax) toggleMax(); });
     const grip = el.querySelector('.appgrip');
     if (grip) {
       let rs = null;
-      grip.addEventListener('pointerdown', ev => { ev.preventDefault(); rs = { x: ev.clientX, y: ev.clientY, w: el.offsetWidth, h: el.offsetHeight }; grip.setPointerCapture(ev.pointerId); });
-      grip.addEventListener('pointermove', ev => { if (!rs) return; el.style.width = Math.max(o.minW || 220, rs.w + ev.clientX - rs.x) + 'px'; el.style.height = Math.max(o.minH || 140, rs.h + ev.clientY - rs.y) + 'px'; });
+      grip.addEventListener('pointerdown', ev => { ev.preventDefault(); const p = DesktopSurface.point(ev.clientX, ev.clientY); rs = { x: p.x, y: p.y, w: el.offsetWidth, h: el.offsetHeight }; grip.setPointerCapture(ev.pointerId); });
+      grip.addEventListener('pointermove', ev => { if (!rs) return; const p = DesktopSurface.point(ev.clientX, ev.clientY); el.style.width = Math.min(DesktopSurface.width() - Math.max(0, el.offsetLeft) - 4, Math.max(o.minW || 220, rs.w + p.x - rs.x)) + 'px'; el.style.height = Math.min(DesktopSurface.height() - el.offsetTop - 36, Math.max(o.minH || 140, rs.h + p.y - rs.y)) + 'px'; });
       grip.addEventListener('pointerup', () => { if (rs) el._want = { w: el.offsetWidth, h: el.offsetHeight }; rs = null; window.dispatchEvent(new Event('resize')); });
+      grip.addEventListener('pointercancel', () => { rs = null; });
     }
     el.addEventListener('keydown', ev => { if (ev.key === 'Escape' && o.escClose) w.close(); });
     // programs that fill their window a moment after it opens: for the first few seconds, nudge it back up/left so it
@@ -144,8 +145,8 @@
       let moved = false; tb.addEventListener('pointerdown', () => { moved = true; }, { once: true });
       const ro = new ResizeObserver(() => {
         if (moved || w.closed || el.classList.contains('maxwin')) return;
-        const r = el.getBoundingClientRect(); if (!r.height) return;
-        const t = Math.max(4, Math.min(r.top, innerHeight - 40 - r.height)), l = Math.max(4, Math.min(r.left, innerWidth - r.width - 4));
+        const r = DesktopSurface.rect(el); if (!r.height) return;
+        const t = Math.max(4, Math.min(r.top, DesktopSurface.height() - 40 - r.height)), l = Math.max(4, Math.min(r.left, DesktopSurface.width() - r.width - 4));
         if (t < r.top - 1) el.style.top = t + 'px'; if (l < r.left - 1) el.style.left = l + 'px';
       });
       ro.observe(el); setTimeout(() => ro.disconnect(), 4000);

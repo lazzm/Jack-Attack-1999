@@ -133,7 +133,7 @@
   }
 
   // ================================================================ toasts (bottom right, above the tray)
-  function toasts() { let c = qs(document.body, '.jsn-toasts'); if (!c) { c = h('div', 'jsn-toasts'); c.setAttribute('aria-live', 'polite'); document.body.appendChild(c); } return c; }
+  function toasts() { let c = qs(document.body, '.jsn-toasts'); if (!c) { c = h('div', 'jsn-toasts'); c.setAttribute('aria-live', 'polite'); DesktopSurface.root().appendChild(c); } return c; }
   function toast(html, onClick, ms) {
     const c = toasts();
     while (c.children.length >= 3) c.firstChild.remove();
@@ -301,7 +301,7 @@
     if (!M.running) start();
     if (M.list && !M.list.closed) { M.list.restore(); return M.list; }
     const b = h('div', 'jm');
-    const w = A.win('JSN Messenger Service', b, { w: 248, h: Math.min(470, innerHeight - 60), menubar: true, status: true, icon: people('on', 16), minW: 200, minH: 260, x: innerWidth - Math.min(248, innerWidth - 8) - 8, y: 16, onClose: () => { M.list = null; } });
+    const w = A.win('JSN Messenger Service', b, { w: 248, h: Math.min(470, DesktopSurface.height() - 60), menubar: true, status: true, icon: people('on', 16), minW: 200, minH: 260, x: DesktopSurface.width() - Math.min(248, DesktopSurface.width() - 8) - 8, y: 16, onClose: () => { M.list = null; } });
     w.body.classList.add('jm-body');
     M.list = w;
     A.menubar(w, [
@@ -543,7 +543,7 @@ SAFETY (IMPORTANT!)
     if (cv && !cv.w.closed) { if (!o.quiet) { cv.w.restore(); unflash(cv); setTimeout(() => cv.ta.focus(), 20); } return cv; }
     const b = h('div', 'jc', `<div class="jc-to"></div><div class="jc-warn">Never tell anyone your password, or a credit card number, in an instant message conversation.</div><div class="jc-log" role="log" aria-live="polite"></div><form class="jc-send"><textarea maxlength="400" aria-label="Type your message"></textarea><button class="btn" type="submit">Send</button></form>`);
     const n = M.convs.size % 5;
-    const w = A.win(name + ' - Instant Message', b, { w: 390, h: Math.min(340, innerHeight - 70), menubar: true, status: true, icon: people('on', 16), minW: 260, minH: 220, x: Math.max(4, innerWidth / 2 - 260 + n * 22), y: 40 + n * 22, onClose: () => M.convs.delete(k) });
+    const w = A.win(name + ' - Instant Message', b, { w: 390, h: Math.min(340, DesktopSurface.height() - 70), menubar: true, status: true, icon: people('on', 16), minW: 260, minH: 220, x: Math.max(4, DesktopSurface.width() / 2 - 260 + n * 22), y: 40 + n * 22, onClose: () => M.convs.delete(k) });
     w.body.classList.add('jc-body');
     cv = { name: (M.contacts.get(k) || {}).name || name, w, log: qs(b, '.jc-log'), ta: qs(b, 'textarea'), lines: [] };
     M.convs.set(k, cv);

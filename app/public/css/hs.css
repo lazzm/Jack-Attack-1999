@@ -19,10 +19,34 @@ html.hs-live .powerscr .pc-desk,html.hs-live .powerscr .pc-deskedge{visibility:h
 .powerscr.hs-nopc .pc-cap{opacity:0!important;pointer-events:none!important}
 .powerscr.hs-trayout .pc-tray{background:#0c0b09!important;box-shadow:inset 0 .3em .4em #000!important}
 /* standing up from the PC (it stays on): the page is laid onto the monitor's glass */
-html.hs-standing #boot{background:#050404;opacity:1}
+html.pc-roomview{background:#050404}
+html.pc-roomview body{position:static;z-index:auto;background:transparent;transform:none;clip-path:none;filter:none;opacity:1;pointer-events:auto}
+html.pc-roomview #boot{position:fixed;inset:0;z-index:0;background:#050404;opacity:1;pointer-events:none;transition:none}
+html.pc-roomview #bootPower{display:block!important;visibility:visible!important;pointer-events:auto}
+html.pc-roomview #boot .hs-gl{visibility:visible!important;opacity:1!important;transition:none}
 html.hs-standing .powerscr .pc-cap{display:none}
 html.hs-standing .powerscr .pm-pic,html.hs-standing .powerscr .pm-text,html.hs-standing .powerscr .pm-star{display:none}
-html.hs-standing body{will-change:transform}
+html.hs-standing #monitorSurface{will-change:transform}
+/* While seated, the desktop is clipped to the 3D monitor and the room canvas remains behind it. */
+#boot.hs-monitorboot{position:fixed;inset:0;z-index:0;background:transparent;opacity:1;pointer-events:none}
+#boot.hs-monitorboot .hs-gl{visibility:visible!important}
+#monitorViewport{position:fixed;inset:0;overflow:hidden;contain:layout size paint;pointer-events:none;z-index:1}
+#monitorSurface{position:absolute;left:0;top:0;right:auto;bottom:auto;width:100%;height:100%;will-change:transform;transform-origin:0 0;z-index:1;pointer-events:auto}
+html.pc-roomview #monitorSurface{width:1024px;height:768px;overflow:hidden;border-radius:2% / 2.5%;background:#008080;box-shadow:0 0 0 8px #111713,0 0 0 12px #232823,0 0 10px 14px rgba(0,0,0,.7);isolation:isolate}
+html.pc-roomview #monitorSurface::after{content:"";position:absolute;inset:0;z-index:2147483647;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 34px 10px rgba(0,0,0,.5),inset 0 2px 5px rgba(220,240,230,.3);background:repeating-linear-gradient(0deg,rgba(0,0,0,.075) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 20% 0%,rgba(225,240,238,.13),transparent 55%),linear-gradient(130deg,rgba(255,255,255,.055),transparent 45%,rgba(0,0,0,.08))}
+html.pc-roomview:not(.hs-standing) .hs-ui{display:none}
+html.pc-roomview.hs-standing #monitorSurface{pointer-events:none}
+html.pc-roomview #crt{display:none!important}
+html.pc-roomview #monitorSurface.pc-starting>:not(.bscreen){visibility:hidden!important}
+html.pc-roomview #monitorSurface.pc-starting>.bscreen{z-index:100000}
+html.pc-roomview #monitorSurface .float{max-width:1016px;max-height:728px}
+html.pc-roomview #monitorSurface .float>.body{max-height:702px}
+html.pc-roomview #monitorSurface .appwin.maxwin{width:1024px!important;height:736px!important;max-width:none;max-height:none}
+html.pc-roomview #monitorSurface .menu{max-width:1020px;max-height:732px}
+html.pc-roomview #toastWrap{max-width:1008px}
+html.pc-roomview #browser{left:96px;top:10px;bottom:10px;width:918px;max-width:none}
+html.pc-roomview body.maxed #browser,html.pc-roomview #browser.fs{left:0;top:0;bottom:0;width:1024px}
+html.pc-roomview #monitorSurface .sizegrip{display:block}
 /* no WebGL: the PC on its own in the dark (the way it used to be) */
 .powerscr.hs-nogl .pc-room{visibility:visible}
 
@@ -71,7 +95,7 @@ html.hs-viewing .hs-ui,html.hs-follow .hs-ui{opacity:0;visibility:hidden;transit
 .hs-ui .rm-note{position:absolute}
 .hs-ui .rm-toast{position:absolute}
 .hs-tin{position:absolute;right:12px;top:10px}
-@media (hover:none),(pointer:coarse){.hs-ui .rm-note{bottom:auto;top:60px}}
+@media (hover:none),(pointer:coarse){.hs-ui .rm-note{top:auto;bottom:158px;max-height:22vh;overflow:auto}.hs-ui .rm-note b{font-size:16px}.hs-ui .rm-note p{font-size:12px}}
 .hs-fade{position:absolute;inset:0;background:#000;opacity:0;transition:opacity .3s;pointer-events:none}
 .hs-fade.on{opacity:1}
 /* phones */
@@ -180,6 +204,6 @@ html.hs-live .powerscr.rm-tvon .hs-gl{visibility:hidden}
 .hs-mobwrap .hs-mobside{display:none}
 .hs-mobmeasure{position:fixed;left:-9999px;top:0;visibility:hidden}
 .hs-ui.locked .hs-cross{opacity:.9}
-.hs-lockhint{position:absolute;left:50%;bottom:18%;transform:translateX(-50%);padding:4px 10px;font:12px/1.2 system-ui,sans-serif;color:#fff8e6;background:rgba(0,0,0,.55);border-radius:3px;pointer-events:none;opacity:0;transition:opacity .3s}
+.hs-lockhint{position:absolute;left:50%;bottom:18%;transform:translateX(-50%);padding:4px 10px;font:12px/1.2 var(--ui,"MS Sans Serif",Arial,sans-serif);color:#fff8e6;background:rgba(0,0,0,.55);border-radius:3px;pointer-events:none;opacity:0;transition:opacity .3s}
 .hs-lockhint.on{opacity:.9}
 @media (hover:none),(pointer:coarse){.hs-lockhint{display:none}}

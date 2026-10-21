@@ -108,7 +108,7 @@
     const items = (m.items || []).map(lootName);
     d.innerHTML = `<div class="grk-burst"></div><div class="grk-box"><div class="grk-dg">LEVEL UP!</div><div class="grk-lvn">JackNet Rank ${m.lv}</div><div class="grk-tt">${esc(C.TITLES[m.lv] || '')}</div>${m.rw ? `<div class="grk-rw">+${esc(RP(m.rw))}${items.length ? ' and ' + items.map(esc).join(', ') + '!' : ''}</div>` : ''}</div>`;
     for (let i = 0; i < 16; i++) { const s = document.createElement('i'); s.className = 'grk-star'; const a = i / 16 * Math.PI * 2; s.style.left = '50%'; s.style.top = '50%'; s.style.setProperty('--dx', Math.cos(a) * (120 + Math.random() * 60) + 'px'); s.style.setProperty('--dy', Math.sin(a) * (90 + Math.random() * 50) + 'px'); s.style.animationDelay = (Math.random() * 0.2) + 's'; s.style.background = ['#ffd400', '#ff3a9a', '#3ad0ff', '#7aff5a'][i % 4]; d.appendChild(s); }
-    document.body.appendChild(d);
+    DesktopSurface.root().appendChild(d);
     if (window.Sound && Sound.on && Sound.note) { // a little original fanfare
       [[523, 0], [659, 0.1], [784, 0.2], [1047, 0.3], [784, 0.45], [1047, 0.55], [1319, 0.7]].forEach(([f, at]) => setTimeout(() => Sound.note(f, at >= 0.7 ? 0.35 : 0.12, 'square'), at * 1000));
     }

@@ -1,8 +1,19 @@
 /* rm-tv: the telly (and the Game Boy) up close in Jack's room (js/rm-tv.js loads this when a console is first clicked) */
-/* the room behind stops being drawn while the telly's up */
+/* Only the separate handheld close-up suppresses the room renderer. */
 .powerscr.rm-tvon .pc-stage,.powerscr.rm-tvon .pc-room,.powerscr.rm-tvon .rm-hud,.powerscr.rm-tvon .pc-cap{visibility:hidden}
 
 .rm-tvv{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px;box-sizing:border-box}
+.rm-live3d{pointer-events:none;background:transparent!important}
+.rm-view.rm-live3d.on{background:transparent!important}
+.rm-live3d .rm-tvwrap,.rm-live3d .rm-side{display:none}
+.rm-live3d .rm-livebar{position:absolute;left:12px;right:12px;bottom:14px;display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none}
+.rm-live3d .rm-livebar .rm-b{pointer-events:auto;border:1px solid #8c8775;border-radius:2px;background:#242722;color:#eee7d3;font:12px var(--ui);min-height:36px;padding:6px 12px}
+.rm-live3d .rm-help{color:#eee7d3;text-shadow:0 1px 3px #000;max-width:90vw}
+.rm-live3d .rm-pad{pointer-events:auto;isolation:isolate}
+.rm-live3d.rm-padon .rm-livebar{bottom:min(32vh,240px)}
+.rm-live3d.rm-padon .rm-pad{height:min(30vh,220px)}
+.rm-live3d .rm-st,.rm-live3d .rm-sh{min-height:44px;min-width:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center}
+@media(max-height:500px){.rm-live3d.rm-padon .rm-pad{height:140px;left:0;right:0;pointer-events:none}.rm-live3d.rm-padon .rm-pl,.rm-live3d.rm-padon .rm-pr{width:120px;pointer-events:auto}.rm-live3d.rm-padon .rm-pm{pointer-events:auto;bottom:0}.rm-live3d.rm-padon .rm-pad::before{display:none}.rm-live3d.rm-padon .rm-livebar{bottom:auto;top:8px}.rm-live3d .rm-help{display:none}}
 .rm-tvwrap{position:relative;flex:none;transform-origin:50% 50%;transition:transform .45s cubic-bezier(.2,.7,.25,1);
   --tw:min(94vw,calc((100vh - 250px) * 1.401),1000px);width:var(--tw)}
 .rm-side{display:flex;flex-direction:column;align-items:center;gap:6px;width:min(94vw,1000px);transition:opacity .3s}
@@ -124,10 +135,10 @@
 .rm-stick i{position:absolute;left:50%;top:50%;width:44%;height:44%;margin:-22% 0 0 -22%;border-radius:50%;background:radial-gradient(circle at 40% 35%,#888,#3a3a3e 70%);box-shadow:0 4px 8px rgba(0,0,0,.6)}
 .rm-fb{position:absolute;width:40%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 40% 35%,color-mix(in srgb,var(--bc) 70%,#fff),var(--bc) 60%,color-mix(in srgb,var(--bc) 60%,#000));color:#fff;font:700 18px/1 var(--ui);display:flex!important;align-items:center;justify-content:center;box-shadow:0 4px 0 rgba(0,0,0,.5);text-shadow:0 1px 2px rgba(0,0,0,.6)}
 .rm-fb.on{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.5)}
-.rm-n1 .rm-fb{left:30%;top:30%}
-.rm-n2 .rm-fb:nth-child(1){right:2%;top:16%}.rm-n2 .rm-fb:nth-child(2){left:6%;top:44%}
-.rm-n3 .rm-fb:nth-child(1){right:2%;top:38%}.rm-n3 .rm-fb:nth-child(2){left:30%;top:4%}.rm-n3 .rm-fb:nth-child(3){left:2%;top:46%}
-.rm-n4 .rm-fb{width:36%}.rm-n4 .rm-fb:nth-child(1){left:32%;bottom:0}.rm-n4 .rm-fb:nth-child(2){right:0;top:32%}.rm-n4 .rm-fb:nth-child(3){left:0;top:32%}.rm-n4 .rm-fb:nth-child(4){left:32%;top:0}
+.rm-pad-n1 .rm-fb{left:30%;top:30%}
+.rm-pad-n2 .rm-fb:nth-child(1){right:2%;top:16%}.rm-pad-n2 .rm-fb:nth-child(2){left:6%;top:44%}
+.rm-pad-n3 .rm-fb:nth-child(1){right:2%;top:38%}.rm-pad-n3 .rm-fb:nth-child(2){left:30%;top:4%}.rm-pad-n3 .rm-fb:nth-child(3){left:2%;top:46%}
+.rm-pad-n4 .rm-fb{width:36%}.rm-pad-n4 .rm-fb:nth-child(1){left:32%;bottom:0}.rm-pad-n4 .rm-fb:nth-child(2){right:0;top:32%}.rm-pad-n4 .rm-fb:nth-child(3){left:0;top:32%}.rm-pad-n4 .rm-fb:nth-child(4){left:32%;top:0}
 .rm-st,.rm-sh{padding:8px 14px;border-radius:14px;background:#2a2a2e;color:#bbb;font:700 11px/1 var(--ui);letter-spacing:.06em}
 .rm-st.on,.rm-sh.on{background:#555}
 [data-con=ps] .rm-dpad b,[data-con=ps] .rm-dpad i{background:#b9b6ae}[data-con=ps] .rm-dpad b.on{background:#8a877f}

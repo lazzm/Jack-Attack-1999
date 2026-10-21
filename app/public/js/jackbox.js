@@ -13,8 +13,7 @@
   function askNewPassword() {
     if (open) return;
     const S = window.SysPack;
-    const boot = document.getElementById('boot');
-    if (!S || !S.dlg || (boot && boot.offsetParent !== null)) { clearTimeout(pendingDlg); pendingDlg = setTimeout(askNewPassword, 1500); return; }
+    if (!S || !S.dlg || !DesktopSurface.ready()) { clearTimeout(pendingDlg); pendingDlg = setTimeout(askNewPassword, 1500); return; }
     const d = S.dlg('Change JackNet Password', `<p style="margin:0 0 8px">Your JackNet password is a temporary one. Please choose a new password now. Only you will know it.</p>
 <div class="pgk-pwg" style="display:grid;grid-template-columns:auto 1fr;gap:6px 8px;align-items:center">
 <label for="jbOld">Old password:</label><input id="jbOld" type="password" autocomplete="current-password" maxlength="64">

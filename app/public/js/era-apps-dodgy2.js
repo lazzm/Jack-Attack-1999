@@ -324,17 +324,17 @@
       <div class="d2-wx-body"><div class="d2-wx-now">${WX_ICON[now.ic]}<div><div class="d2-wx-t">${now.temp}&deg;C</div><div class="d2-wx-c">${esc(now.txt)}</div><div class="d2-wx-sub">Your Town &middot; ${d99()}</div></div></div>
       <div class="d2-wx-days">${[1, 2, 3, 4, 5].map(i => { const f = weatherFor(i); return `<div title="${esc(f.txt)}">${DAYS[(dow + i) % 7]}${WX_ICON[f.ic]}${f.temp}&deg;</div>`; }).join('')}</div>
       <div class="d2-wx-ad" tabindex="0" role="button"></div><div class="d2-wx-foot"><span>Updated: <b class="d2-wx-up">just now</b></span><span>Ad 1 of ${ADS.length}</span></div></div>`;
-    document.body.appendChild(el);
+    DesktopSurface.root().appendChild(el);
     WXW = { el };
-    const phone = innerWidth < 640;
-    el.style.left = (phone ? 4 : Math.max(4, innerWidth - 182)) + 'px';
-    el.style.top = (phone ? innerHeight - 60 : Math.min(innerHeight - 280, 406)) + 'px';
+    const phone = DesktopSurface.width() < 640;
+    el.style.left = (phone ? 4 : Math.max(4, DesktopSurface.width() - 182)) + 'px';
+    el.style.top = (phone ? DesktopSurface.height() - 60 : Math.min(DesktopSurface.height() - 280, 406)) + 'px';
     if (phone) el.classList.add('mini');
     // rolling down near an edge: keep the whole widget on screen
-    WXW.fit = () => requestAnimationFrame(() => { const r = el.getBoundingClientRect(); el.style.left = clamp(r.left, 2, Math.max(2, innerWidth - r.width - 2)) + 'px'; el.style.top = clamp(r.top, 2, Math.max(2, innerHeight - r.height - 32)) + 'px'; });
+    WXW.fit = () => requestAnimationFrame(() => { const r = DesktopSurface.rect(el); el.style.left = clamp(r.left, 2, Math.max(2, DesktopSurface.width() - r.width - 2)) + 'px'; el.style.top = clamp(r.top, 2, Math.max(2, DesktopSurface.height() - r.height - 32)) + 'px'; });
     new MutationObserver(() => WXW && WXW.fit()).observe(el, { attributes: true, attributeFilter: ['class'] });
     // on a phone it rolls itself up again as soon as you tap anything else, so it never sits on top of a program
-    const outside = ev => { if (!el.isConnected) return removeEventListener('pointerdown', outside, true); if (innerWidth < 640 && !el.contains(ev.target) && !(ev.target.closest && ev.target.closest('.menu,.msgbox'))) el.classList.add('mini'); };
+    const outside = ev => { if (!el.isConnected) return removeEventListener('pointerdown', outside, true); if (DesktopSurface.width() < 640 && !el.contains(ev.target) && !(ev.target.closest && ev.target.closest('.menu,.msgbox'))) el.classList.add('mini'); };
     addEventListener('pointerdown', outside, true);
     const ad = el.querySelector('.d2-wx-ad'), foot = el.querySelector('.d2-wx-foot span:last-child');
     let ai = Math.floor(Math.random() * ADS.length), hideAds = false, upd = 0;
@@ -368,12 +368,12 @@
     ], x, y);
     el.querySelector('[data-x=close]').addEventListener('click', close);
     el.querySelector('[data-x=mini]').addEventListener('click', () => el.classList.toggle('mini'));
-    el.querySelector('[data-x=menu]').addEventListener('click', ev => { const r = ev.currentTarget.getBoundingClientRect(); menu(Math.min(r.left, innerWidth - 180), r.bottom); });
+    el.querySelector('[data-x=menu]').addEventListener('click', ev => { const r = ev.currentTarget.getBoundingClientRect(); menu(r.left, r.bottom); });
     el.addEventListener('contextmenu', ev => { ev.preventDefault(); menu(ev.clientX, ev.clientY); });
     // drag by the title bar
     const tb = el.querySelector('.d2-wx-tb'); let drag = null;
-    tb.addEventListener('pointerdown', ev => { if (ev.target.closest('button')) return; drag = { dx: ev.clientX - el.offsetLeft, dy: ev.clientY - el.offsetTop }; tb.setPointerCapture(ev.pointerId); });
-    tb.addEventListener('pointermove', ev => { if (!drag) return; el.style.left = clamp(ev.clientX - drag.dx, -100, innerWidth - 60) + 'px'; el.style.top = clamp(ev.clientY - drag.dy, 0, innerHeight - 50) + 'px'; });
+    tb.addEventListener('pointerdown', ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); if (ev.target.closest('button')) return; drag = { dx: p.x - el.offsetLeft, dy: p.y - el.offsetTop }; tb.setPointerCapture(ev.pointerId); });
+    tb.addEventListener('pointermove', ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); if (!drag) return; el.style.left = clamp(p.x - drag.dx, -100, DesktopSurface.width() - 60) + 'px'; el.style.top = clamp(p.y - drag.dy, 0, DesktopSurface.height() - 50) + 'px'; });
     tb.addEventListener('pointerup', () => { drag = null; }); tb.addEventListener('pointercancel', () => { drag = null; });
     tb.addEventListener('dblclick', ev => { if (!ev.target.closest('button')) el.classList.toggle('mini'); });
     void hideAds;
@@ -419,9 +419,9 @@
   }
   function startTrail(col) {
     const N = 10, dots = [], pts = [];
-    for (let i = 0; i < N; i++) { const d = document.createElement('div'); d.className = 'd2-trail'; d.style.background = `radial-gradient(circle,#fff 0 20%,${col} 45%,transparent 72%)`; d.style.opacity = 0; document.body.appendChild(d); dots.push(d); }
+    for (let i = 0; i < N; i++) { const d = document.createElement('div'); d.className = 'd2-trail'; d.style.background = `radial-gradient(circle,#fff 0 20%,${col} 45%,transparent 72%)`; d.style.opacity = 0; DesktopSurface.root().appendChild(d); dots.push(d); }
     let raf = 0, x = -99, y = -99, idle = 0;
-    const mv = ev => { x = ev.clientX; y = ev.clientY; idle = 0; };
+    const mv = ev => { const p = DesktopSurface.point(ev.clientX, ev.clientY); x = p.x; y = p.y; idle = 0; };
     addEventListener('pointermove', mv, { passive: true });
     const loop = () => {
       raf = requestAnimationFrame(loop);

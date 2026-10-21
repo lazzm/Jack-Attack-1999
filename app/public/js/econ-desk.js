@@ -5,7 +5,7 @@
   if (window.EconDesk) return;
   const A = window.Apps, esc = A.esc, fmt = Econ.fmt;
   const $ = id => document.getElementById(id);
-  const phone = () => matchMedia('(hover:none)').matches || innerWidth < 600;
+  const phone = () => matchMedia('(hover:none)').matches || DesktopSurface.width() < 600;
   const tbH = () => (($('taskbar') || {}).offsetHeight) || 30;
   const snd = n => { if (window.Sound) Sound.play(n); };
 
@@ -37,16 +37,16 @@
     if (pet) { cancelAnimationFrame(pet.raf); pet.el.remove(); if (pet.bub) pet.bub.remove(); pet = null; }
     if (!id || !defOf(id)) return;
     const el = document.createElement('div'); el.className = 'ec-pet'; el.setAttribute('role', 'img'); el.setAttribute('aria-label', 'Your taskbar pet');
-    const cv = document.createElement('canvas'); cv.width = PW; cv.height = PH; el.appendChild(cv); document.body.appendChild(el);
+    const cv = document.createElement('canvas'); cv.width = PW; cv.height = PH; el.appendChild(cv); DesktopSurface.root().appendChild(el);
     const sc = phone() ? 1.5 : 2; cv.style.width = PW * sc + 'px'; cv.style.height = PH * sc + 'px';
-    pet = { id, el, cv, g: cv.getContext('2d'), sc, x: innerWidth * (0.3 + Math.random() * 0.4), tx: 0, face: 1, st: { cols: scramble() }, last: 0, next: 0, raf: 0, bub: null, sayUntil: 0 };
+    pet = { id, el, cv, g: cv.getContext('2d'), sc, x: DesktopSurface.width() * (0.3 + Math.random() * 0.4), tx: 0, face: 1, st: { cols: scramble() }, last: 0, next: 0, raf: 0, bub: null, sayUntil: 0 };
     pet.tx = pet.x;
     el.addEventListener('click', () => { const d = defOf(id); say(d.says[Math.floor(Math.random() * d.says.length)]); snd(id === 'pet.squig' ? 'boing' : id === 'pet.cube' ? 'click' : id === 'pet.snot' ? 'pet' : 'thud'); if (id === 'pet.cube') pet.st.cols = scramble(); if (id === 'pet.rock') { pet.st.roll = 20; pet.tx = pet.x + (Math.random() < .5 ? -40 : 40); } });
     pet.raf = requestAnimationFrame(tick);
   }
   function say(t) {
     if (!pet) return;
-    if (!pet.bub) { pet.bub = document.createElement('div'); pet.bub.className = 'ff-bubble ec-petbub'; document.body.appendChild(pet.bub); }
+    if (!pet.bub) { pet.bub = document.createElement('div'); pet.bub.className = 'ff-bubble ec-petbub'; DesktopSurface.root().appendChild(pet.bub); }
     pet.bub.textContent = t; pet.bub.hidden = false; pet.sayUntil = performance.now() + 2200;
   }
   function tick(t) {
@@ -57,8 +57,8 @@
     if (t > pet.next) { // decide something new to do
       pet.next = t + 2500 + Math.random() * 5000;
       const r = Math.random();
-      if (pet.id === 'pet.rock') { if (r < 0.15) { st.roll = 30; pet.tx = Math.max(30, Math.min(innerWidth - 60, pet.x + (Math.random() < .5 ? -50 : 50))); } }
-      else if (r < 0.65) pet.tx = 40 + Math.random() * (innerWidth - 120);
+      if (pet.id === 'pet.rock') { if (r < 0.15) { st.roll = 30; pet.tx = Math.max(30, Math.min(DesktopSurface.width() - 60, pet.x + (Math.random() < .5 ? -50 : 50))); } }
+      else if (r < 0.65) pet.tx = 40 + Math.random() * (DesktopSurface.width() - 120);
       else if (pet.id === 'pet.snot' && r < 0.85) { st.pick = 1; setTimeout(() => { if (pet) st.pick = 0; }, 1600); }
       else if (pet.id === 'pet.cube' && r < 0.8) { st.cols = scramble(); }
       else if (pet.id === 'pet.squig' && r < 0.75) { pet.tx = 30; st.chomp = 1; }
@@ -71,10 +71,10 @@
     if (st.roll > 0) st.roll -= dt * 30;
     st.bounce = pet.id === 'pet.squig' ? Math.round(Math.abs(Math.sin(t / 160)) * 4) : 0;
     drawPet(pet.g, pet.id, f, st);
-    const w = PW * pet.sc, h = PH * pet.sc, left = Math.round(pet.x - w / 2), top = Math.round(innerHeight - tbH() - h + 2);
+    const w = PW * pet.sc, h = PH * pet.sc, left = Math.round(pet.x - w / 2), top = Math.round(DesktopSurface.height() - tbH() - h + 2);
     pet.el.style.transform = `translate(${left}px,${top}px)`;
     pet.cv.style.transform = pet.face < 0 ? 'scaleX(-1)' : '';
-    if (pet.bub && !pet.bub.hidden) { if (t > pet.sayUntil) pet.bub.hidden = true; else { const bw = pet.bub.offsetWidth || 60; pet.bub.style.transform = `translate(${Math.max(4, Math.min(innerWidth - bw - 4, pet.x - bw / 2))}px,${top - (pet.bub.offsetHeight || 20) - 4}px)`; } }
+    if (pet.bub && !pet.bub.hidden) { if (t > pet.sayUntil) pet.bub.hidden = true; else { const bw = pet.bub.offsetWidth || 60; pet.bub.style.transform = `translate(${Math.max(4, Math.min(DesktopSurface.width() - bw - 4, pet.x - bw / 2))}px,${top - (pet.bub.offsetHeight || 20) - 4}px)`; } }
   }
 
   // ================================================================ Jack Ticker 98

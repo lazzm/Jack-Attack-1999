@@ -3386,7 +3386,7 @@ If you get lost: Go > My Computer.
     function scrollToSel(i) { // measure where the match is with a hidden copy of the textarea
       const m = document.createElement('div'), cs = getComputedStyle(ta);
       m.style.cssText = `position:absolute;visibility:hidden;white-space:${wrap ? 'pre-wrap' : 'pre'};overflow-wrap:break-word;width:${ta.clientWidth}px;font:${cs.font};padding:${cs.padding};line-height:${cs.lineHeight}`;
-      m.textContent = ta.value.slice(0, i) + '.'; document.body.appendChild(m);
+      m.textContent = ta.value.slice(0, i) + '.'; DesktopSurface.root().appendChild(m);
       ta.scrollTop = Math.max(0, m.offsetHeight - ta.clientHeight / 2); m.remove();
     }
     function findDlg() {

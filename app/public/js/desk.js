@@ -19,12 +19,12 @@
   // switching on they come out a few seconds apart instead of all at once. toast() returns the balloon element.
   const toastQ = []; let toastLast = 0, toastGone = 0, toastTimer = 0, bootAt = 0, deskAt = 0;
   document.addEventListener('DOMContentLoaded', () => (window.BootDone || Promise.resolve()).then(() => { bootAt = Date.now(); }));
-  const toastMax = () => (innerWidth < 600 ? 1 : 2);
+  const toastMax = () => (DesktopSurface.width() < 600 ? 1 : 2);
   function toastPump() {
     clearTimeout(toastTimer); toastTimer = 0;
     const wrap = $('toastWrap'); if (!wrap || !toastQ.length) return;
     // nobody can see a balloon under the switch-on screens, the log-on box or the dial-up window: they wait until it's gone
-    if (document.querySelector('#boot:not(.gone), .jlogoff:not(.jlbye), .logon, .dialwin')) { deskAt = 0; toastTimer = setTimeout(toastPump, 400); return; }
+    if ((!document.body.classList.contains('pc-monitor') && document.querySelector('#boot:not(.gone)')) || document.querySelector('.jlogoff:not(.jlbye), .logon, .dialwin')) { deskAt = 0; toastTimer = setTimeout(toastPump, 400); return; }
     const now = Date.now(); if (!deskAt) deskAt = now;
     // the first minute on the desktop: one balloon at a time with a breather in between (a new visitor gets a lot of hellos)
     const settling = !bootAt || now - Math.max(bootAt, deskAt) < 60000, gap = settling ? 4000 : 500;
@@ -81,15 +81,15 @@
   }
   const isActive = el => shown(el) && !el.classList.contains('inactive') && +el.style.zIndex >= (window.JZ || 0);
   const place = (w, x, y) => { // keep a new window fully on screen (phones too)
-    const r = w.getBoundingClientRect(), H = innerHeight - 32;
-    w.style.left = Math.round(Math.max(4, Math.min(innerWidth - r.width - 4, x))) + 'px';
+    const r = DesktopSurface.rect(w), H = DesktopSurface.height() - 32;
+    w.style.left = Math.round(Math.max(4, Math.min(DesktopSurface.width() - r.width - 4, x))) + 'px';
     w.style.top = Math.round(Math.max(4, Math.min(H - r.height - 4, y))) + 'px';
   };
   let TASKICO = '<svg viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="12" fill="#c0c0c0" stroke="#000"/><rect x="2" y="3" width="12" height="3" fill="#000080"/></svg>';
   document.addEventListener('DOMContentLoaded', () => { if (window.JICON) TASKICO = JICON.get('app', 16); });
   function openWin(title, body, width) {
     const w = document.createElement('div');
-    w.className = 'win float'; w.style.width = Math.min(width || 340, innerWidth - 8) + 'px';
+    w.className = 'win float'; w.style.width = Math.min(width || 340, DesktopSurface.width() - 8) + 'px';
     w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', title);
     const tb = document.createElement('div'); tb.className = 'tb';
     const t = document.createElement('span'); t.className = 't'; t.textContent = title;
@@ -98,9 +98,9 @@
     ctl.appendChild(x); tb.append(t, ctl);
     const bd = document.createElement('div'); bd.className = 'body'; bd.appendChild(body);
     w.append(tb, bd);
-    document.body.appendChild(w);
-    const r = w.getBoundingClientRect();
-    place(w, (innerWidth - r.width) / 2 + (Math.random() * 40 - 20), (innerHeight - 32 - r.height) / 2 - 20 + (Math.random() * 40 - 20));
+    DesktopSurface.root().appendChild(w);
+    const r = DesktopSurface.rect(w);
+    place(w, (DesktopSurface.width() - r.width) / 2 + (Math.random() * 40 - 20), (DesktopSurface.height() - 32 - r.height) / 2 - 20 + (Math.random() * 40 - 20));
     // taskbar button: click it to bring the window forward, again to tuck it away
     const task = document.createElement('button'); task.className = 'tbtn'; task.innerHTML = `<span class="tico">${TASKICO}</span><span></span>`; task.lastChild.textContent = title; task.title = title;
     $('tasks').appendChild(task); w._task = task;
@@ -109,11 +109,12 @@
     activate(w);
     // drag by the title bar
     let drag = null;
-    tb.addEventListener('pointerdown', ev => { if (ev.target.closest('button')) return; drag = { dx: ev.clientX - w.offsetLeft, dy: ev.clientY - w.offsetTop }; tb.setPointerCapture(ev.pointerId); });
+    tb.addEventListener('pointerdown', ev => { if (ev.button > 0 || ev.target.closest('button')) return; const p = DesktopSurface.point(ev.clientX, ev.clientY); drag = { dx: p.x - w.offsetLeft, dy: p.y - w.offsetTop }; tb.setPointerCapture(ev.pointerId); });
     tb.addEventListener('pointermove', ev => {
       if (!drag) return;
-      w.style.left = Math.max(-w.offsetWidth + 60, Math.min(innerWidth - 60, ev.clientX - drag.dx)) + 'px';
-      w.style.top = Math.max(0, Math.min(innerHeight - 50, ev.clientY - drag.dy)) + 'px';
+      const p = DesktopSurface.point(ev.clientX, ev.clientY);
+      w.style.left = Math.max(-w.offsetWidth + 60, Math.min(DesktopSurface.width() - 60, p.x - drag.dx)) + 'px';
+      w.style.top = Math.max(0, Math.min(DesktopSurface.height() - 50, p.y - drag.dy)) + 'px';
     });
     tb.addEventListener('pointerup', () => { drag = null; });
     tb.addEventListener('pointercancel', () => { drag = null; });
@@ -310,11 +311,11 @@ back next year!!!
   const SPLAT = ['#e10600', '#0028c8', '#ffd400', '#0a0', '#f0f', '#00e5ff'];
   $('pane').addEventListener('pointerdown', ev => {
     if (!paintball || ev.target.closest('canvas,button,input,textarea,select')) return;
-    const r = $('pane').getBoundingClientRect();
+    const r = DesktopSurface.rect($('pane')), p = DesktopSurface.point(ev.clientX, ev.clientY);
     const s = document.createElement('span'); s.className = 'splat';
     const c = SPLAT[Math.floor(Math.random() * SPLAT.length)];
     s.style.background = `radial-gradient(circle,${c} 45%,transparent 46%),radial-gradient(circle at 20% 30%,${c} 18%,transparent 19%),radial-gradient(circle at 80% 70%,${c} 14%,transparent 15%)`;
-    s.style.left = (ev.clientX - r.left) + 'px'; s.style.top = (ev.clientY - r.top) + 'px';
+    s.style.left = (p.x - r.left) + 'px'; s.style.top = (p.y - r.top) + 'px';
     $('pane').appendChild(s); Sound.play('thud');
     setTimeout(() => s.remove(), 15000);
   });
@@ -336,7 +337,7 @@ back next year!!!
     setTimeout(() => { document.addEventListener('keydown', go); $('bsod').addEventListener('click', go); }, 500);
   }
   // super rare: roughly once every eight hours of browsing, the PC just... crashes
-  setInterval(() => { if (!document.hidden && !document.getElementById('boot') && (Math.random() < 1 / 480 || /[?&]bsodtest/.test(location.search))) bsod('random'); }, /[?&]bsodtest/.test(location.search) ? 5000 : 60000);
+  setInterval(() => { if (!document.hidden && DesktopSurface.ready() && (Math.random() < 1 / 480 || /[?&]bsodtest/.test(location.search))) bsod('random'); }, /[?&]bsodtest/.test(location.search) ? 5000 : 60000);
 
   // ================================================================ forever 1999
   // The page lives in 1999: same day and month as the visitor's real clock. Posts appear on their day each year,

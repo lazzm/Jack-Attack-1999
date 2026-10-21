@@ -379,15 +379,16 @@
   let glintEl = null;
   function glint() {
     if (st.by.glint || document.hidden || glintEl) return;
-    if (document.querySelector('#boot:not(.gone), .logon, .dialwin')) return;
+    if (!DesktopSurface.ready() || document.querySelector('.logon, .dialwin')) return;
     const dk = $('desktop'); if (!dk) return;
     for (let i = 0; i < 12; i++) {
-      const x = 110 + Math.random() * Math.max(10, innerWidth - 160), y = 40 + Math.random() * Math.max(10, innerHeight - 120);
-      const at = document.elementFromPoint(x, y); if (!at || !(at === dk || at.id === 'desktop' || at.classList.contains('icons'))) continue;
+      const x = 110 + Math.random() * Math.max(10, DesktopSurface.width() - 160), y = 40 + Math.random() * Math.max(10, DesktopSurface.height() - 120);
+      const client = DesktopSurface.client(x, y);
+      const at = document.elementFromPoint(client.x, client.y); if (!at || !(at === dk || at.id === 'desktop' || at.classList.contains('icons'))) continue;
       const b = glintEl = document.createElement('button'); b.type = 'button'; b.className = 'sx-glint'; b.title = ''; b.setAttribute('aria-label', 'Something shiny');
       b.style.left = Math.round(x) + 'px'; b.style.top = Math.round(y) + 'px';
       b.addEventListener('click', ev => { ev.stopPropagation(); b.classList.add('sx-got'); byte('glint'); setTimeout(() => { b.remove(); glintEl = null; }, 900); });
-      document.body.appendChild(b);
+      DesktopSurface.root().appendChild(b);
       setTimeout(() => { if (glintEl === b && !b.classList.contains('sx-got')) { b.remove(); glintEl = null; } }, 9000);
       return;
     }

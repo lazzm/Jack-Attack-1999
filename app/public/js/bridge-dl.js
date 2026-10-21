@@ -232,8 +232,9 @@ html.bdl-cur,html.bdl-cur body,html.bdl-cur body *:not(input):not(textarea):not(
   // phones have no pointer: the cursor pops up where you tap
   addEventListener('pointerdown', e => {
     if (e.pointerType === 'mouse' || !S.cursor || !tapImg) return;
-    const im = h(null, 'bdl-tap', 'img'); im.src = tapImg; im.alt = ''; im.style.left = (e.clientX - 4) + 'px'; im.style.top = (e.clientY - 4) + 'px';
-    document.body.appendChild(im); setTimeout(() => im.remove(), 800);
+    const p = DesktopSurface.point(e.clientX, e.clientY);
+    const im = h(null, 'bdl-tap', 'img'); im.src = tapImg; im.alt = ''; im.style.left = (p.x - 4) + 'px'; im.style.top = (p.y - 4) + 'px';
+    DesktopSurface.root().appendChild(im); setTimeout(() => im.remove(), 800);
   }, { passive: true, capture: true });
 
   // Control Panel > Mouse > Pointers (apps-programs.js calls this when it builds the tab)
@@ -292,8 +293,8 @@ html.bdl-cur,html.bdl-cur body,html.bdl-cur body *:not(input):not(textarea):not(
     const g = canvas.getContext('2d');
     const build = a => {
       const r = canvas.getBoundingClientRect();
-      W = canvas.width = Math.max(40, Math.round(full ? innerWidth : (r.width || canvas.width)));
-      H = canvas.height = Math.max(30, Math.round(full ? innerHeight : (r.height || canvas.height)));
+      W = canvas.width = Math.max(40, Math.round(full ? DesktopSurface.width() : (r.width || canvas.width)));
+      H = canvas.height = Math.max(30, Math.round(full ? DesktopSurface.height() : (r.height || canvas.height)));
       g.fillStyle = '#000'; g.fillRect(0, 0, W, H); inst = a.SAVERS[id](g, W, H);
     };
     let AR = null;
@@ -335,7 +336,7 @@ html.bdl-cur,html.bdl-cur body,html.bdl-cur body *:not(input):not(textarea):not(
     };
     SV.configure = name => saverIdOf(name) ? msg('Display Properties', `${name}\n\n${SAVERS[saverIdOf(name)].d}\n\nThere are no settings. It came off the Internet. Be grateful.`, 'info') : (oConf && oConf.call(SV, name));
     // the idle timer starts the chosen saver; when it's one of ours, swap it in
-    new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.id === 'ffSaver' && !n._era) { const id = saverIdOf(rawSaver()); if (id && Date.now() - lastInput > 15000) takeOver(id); } }).observe(document.body, { childList: true });
+    new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.id === 'ffSaver' && !n._era) { const id = saverIdOf(rawSaver()); if (id && Date.now() - lastInput > 15000) takeOver(id); } }).observe(DesktopSurface.root(), { childList: true });
     notifySavers();
   }
   if (window.Savers) hookSavers(); else document.addEventListener('DOMContentLoaded', hookSavers);
@@ -410,7 +411,7 @@ html.bdl-cur,html.bdl-cur body,html.bdl-cur body *:not(input):not(textarea):not(
       }
       for (const n of m.removedNodes) if (n.nodeType === 1 && n.classList.contains('appwin') && !qs(n, '.msgbox')) tsnd('close');
     }
-  }).observe(document.body, { childList: true });
+  }).observe(DesktopSurface.root(), { childList: true });
   function themeWindow(pick) {
     const ids = Object.keys(THEMES).filter(k => Setup.has(THEMES[k].pid));
     const cur = S.theme ? S.theme.id : 'std', parts0 = (S.theme && S.theme.parts) || {};

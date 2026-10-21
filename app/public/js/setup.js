@@ -385,8 +385,8 @@ IMPORTANT - READ CAREFULLY (nobody does): This licence agreement ("LICENCE") is 
     function open() {
       const icon = J(p.ic || 'exe');
       const bg = h(`<div class="ig-title">${esc(p.n)}</div><div class="ig-bill"><b></b><span></span></div><div class="ig-by">InstallJack&reg; 5.1 &copy; 1997-1999 Gubbinz Software Ltd</div>`, 'ig-bg');
-      const tb = $('taskbar'); if (tb) bg.style.bottom = Math.max(0, innerHeight - tb.getBoundingClientRect().top) + 'px';
-      document.body.appendChild(bg);
+      const tb = $('taskbar'); if (tb) bg.style.bottom = Math.max(0, DesktopSurface.height() - DesktopSurface.rect(tb).top) + 'px';
+      DesktopSurface.root().appendChild(bg);
       const d = { dir: 'C:\\Program Files\\' + p.dir, type: 'typical', name: (window.Net && Net.me && Net.me.member && Net.me.nick) || 'Jack', co: '', bundle: null, icon: !!p.icons.length, launch: true, readme: false, restart: !!p.restart };
       const tbLeft = window.OldPC ? Object.keys(OldPC.NAMES).filter(k => !OldPC.installed.includes(k)) : [];
       if ((p.lic === 'Adware' || p.lic === 'Freeware' && Math.random() < 0.4) && tbLeft.length && p.k !== 'os') d.bundle = pick(tbLeft);
@@ -945,7 +945,7 @@ IMPORTANT - READ CAREFULLY (nobody does): This licence agreement ("LICENCE") is 
   // the first-boot balloon ("Your PC is fresh out of the box!") or, for people who were here before, what changed
   function afterLogon(fn, n) {
     n = n || 0;
-    if (document.querySelector('.logon, .dialwin, #boot:not(.gone), .jlogoff:not(.jlbye)') && n < 240) return setTimeout(() => afterLogon(fn, n + 1), 500);
+    if ((!DesktopSurface.ready() || document.querySelector('.logon, .dialwin, .jlogoff:not(.jlbye)')) && n < 240) return setTimeout(() => afterLogon(fn, n + 1), 500);
     fn();
   }
   function hello() {

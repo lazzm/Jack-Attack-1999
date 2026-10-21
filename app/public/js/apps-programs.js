@@ -21,7 +21,7 @@
   const toast = (t, x, ms) => Desk.toast(t, x, ms);
   const sfx = n => { try { Sound.play(n); } catch (e) {} };
   const fmtN = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  const sizeWin = (w, px) => { w.el.style.width = Math.min(px, innerWidth - 8) + 'px'; const r = w.el.getBoundingClientRect(); if (r.right > innerWidth - 4) w.el.style.left = Math.max(4, innerWidth - r.width - 4) + 'px'; };
+  const sizeWin = (w, px) => { w.el.style.width = Math.min(px, DesktopSurface.width() - 8) + 'px'; const r = DesktopSurface.rect(w.el); if (r.right > DesktopSurface.width() - 4) w.el.style.left = Math.max(4, DesktopSurface.width() - r.width - 4) + 'px'; };
   const today = () => (Desk.today99 ? Desk.today99() : { m: 1, d: 1, md: 101, date: new Date(1999, 0, 1) });
   const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -225,7 +225,7 @@
     set(n) {
       Trails.n = clamp(n | 0, 0, 7); store.set('jhp_prog_trails', Trails.n);
       Trails.els.forEach(e => e.remove()); Trails.els = [];
-      for (let i = 0; i < Trails.n; i++) { const e = h(ARROW, 'pg-trail'); e.style.opacity = String(1 - (i + 1) / (Trails.n + 2)); document.body.appendChild(e); Trails.els.push(e); }
+      for (let i = 0; i < Trails.n; i++) { const e = h(ARROW, 'pg-trail'); e.style.opacity = String(1 - (i + 1) / (Trails.n + 2)); DesktopSurface.root().appendChild(e); Trails.els.push(e); }
       cancelAnimationFrame(Trails.raf); if (Trails.n) Trails.raf = requestAnimationFrame(Trails.tick);
       if (Trails.n) secret('trails');
     },
@@ -235,7 +235,7 @@
       Trails.raf = requestAnimationFrame(Trails.tick);
     },
   };
-  on(document, 'pointermove', e => { if (e.pointerType === 'mouse') { Trails.x = e.clientX; Trails.y = e.clientY; } }, { passive: true });
+  on(document, 'pointermove', e => { if (e.pointerType === 'mouse') { const p = DesktopSurface.point(e.clientX, e.clientY); Trails.x = p.x; Trails.y = p.y; } }, { passive: true });
   if (store.get('jhp_prog_trails', 0)) setTimeout(() => { const n = store.get('jhp_prog_trails', 0); Trails.n = 0; Trails.set(n); }, 0);
 
   // keyboard cursor blink rate (it really changes the speed of every blinking thing on the page)
@@ -1090,7 +1090,7 @@ File > Set As Wallpaper puts it on the desktop. Show your Mom.
     const setBar = progBar(qs(b, '.pgd-bar'));
     const cv = qs(b, '.pgd-map canvas'), cx = cv.getContext('2d');
     let cols = 60, cw = 8, ch = 9;
-    function layoutMap() { const W = Math.min(560, innerWidth - 40); cols = Math.floor((W - 6) / cw); cv.width = cols * cw; cv.height = Math.ceil(N / cols) * ch; cv.style.width = cv.width + 'px'; drawAll(); }
+    function layoutMap() { const W = Math.min(560, DesktopSurface.width() - 40); cols = Math.floor((W - 6) / cw); cv.width = cols * cw; cv.height = Math.ceil(N / cols) * ch; cv.style.width = cv.width + 'px'; drawAll(); }
     function cell(i) {
       const b2 = blocks[i], x = (i % cols) * cw, y = Math.floor(i / cols) * ch;
       const col = hl[i] ? DF_COL[hl[i]] : DF_COL[b2.t];
@@ -1155,7 +1155,7 @@ File > Set As Wallpaper puts it on the desktop. Show your Mom.
     tap(qs(b, '[data-d=det]'), e => {
       details = !details; e.target.textContent = details ? 'Hide Details' : 'Show Details';
       qs(b, '.pgd-map').hidden = !details; qs(b, '[data-d=legend]').hidden = !details;
-      sizeWin(w, details ? Math.min(590, innerWidth - 8) : 360); if (details) layoutMap();
+      sizeWin(w, details ? Math.min(590, DesktopSurface.width() - 8) : 360); if (details) layoutMap();
     });
     tap(qs(b, '[data-d=pause]'), e => { paused = !paused; e.target.textContent = paused ? 'Resume' : 'Pause'; w.status.textContent = paused ? 'Defragmentation paused.' : 'Defragmenting file structure...'; });
     tap(qs(b, '[data-d=stop]'), () => {
