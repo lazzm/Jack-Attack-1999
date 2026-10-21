@@ -719,18 +719,27 @@
     r.streetGlow = M({ c: '#fff4c8', e: phase() === 'day' ? '#000' : '#ffd27a' }).clone();
     lp.box(0, -440, 10, 10, 6, 10, r.streetGlow);
     // Dad's car: a burgundy family saloon (no real make), on the drive, nose to the street
-    const car = B.at(430, GY, 906, 0, { sx: 0.82, sy: 0.82, sz: 0.82 }), cm = M({ c: '#6a1a2a', sh: 80, sp: '#aaa' }), gl = M({ c: '#7a98b0', o: 0.85, tr: true, sh: 120, sp: '#fff' });
+    const frame = r.carFrame = {x:430,y:GY,z:906,s:.82};
+    const car = B.at(frame.x, frame.y, frame.z, 0, { sx: frame.s, sy: frame.s, sz: frame.s }), cm = M({ c: '#6a1a2a', sh: 65, sp: '#888' }), gl = M({ c: '#344c60', sh: 110, sp: '#a5b9c4' });
     car.rbox(0, -52, 0, 170, 46, 400, 9, cm);
     car.rbox(0, -78, -10, 166, 10, 300, 4, cm); // the sills/belt line
     { const cab = new T.BoxGeometry(150, 54, 210); const P2 = cab.attributes.position; for (let k = 0; k < P2.count; k++) if (P2.getY(k) > 0) { P2.setX(k, P2.getX(k) * 0.9); P2.setZ(k, P2.getZ(k) * 0.72 - 6); } cab.computeVertexNormals(); car.geo(cab, 0, -102, -14, gl, { sy: -1 }); }
     car.rbox(0, -131, -20, 134, 5, 150, 2, cm); // the roof
-    [[-66, 60], [66, 60], [-66, -96], [66, -96]].forEach(([x, z]) => car.box(x, -103, z, 5, 52, 6, cm, { rx: z > 0 ? 24 : -20 }));
-    [[-72, 140], [72, 140], [-72, -140], [72, -140]].forEach(([x, z]) => { car.cyl(x, -30, z, 30, 30, 20, 20, M('#111'), { rz: 90 }); car.cyl(x + (x > 0 ? 1 : -1) * 10.5, -30, z, 18, 18, 1, 20, M({ c: '#c8c8cc', sh: 90, sp: '#fff' }), { rz: 90 }); });
+    const pillar = (top,bottom) => {const a=new T.Vector3(...top),b=new T.Vector3(...bottom),delta=b.clone().sub(a),centre=a.clone().add(b).multiplyScalar(.5);const geo=new T.BoxGeometry(5.5,delta.length()+2,5.5);geo.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),delta.normalize())));car.geo(geo,centre.x,centre.y,centre.z,cm);};
+    for(const side of [-1,1]){pillar([side*67.5,-130,55.6],[side*75,-75,91]);pillar([side*67.5,-130,-95.6],[side*75,-75,-119]);pillar([side*67.5,-130,-14],[side*75,-75,-14]);}
+    [[-80, 140], [80, 140], [-80, -140], [80, -140]].forEach(([x, z]) => { car.cyl(x, -30, z, 30, 30, 20, 24, M('#191a1b'), { rz: 90 }); const side=x>0?1:-1; car.cyl(x+side*10.5,-30,z,18,18,1.5,20,M({c:'#aaaeb2',sh:70,sp:'#ddd'}),{rz:90}); car.cyl(x+side*11.4,-30,z,6,6,1,12,M('#5b5c60'),{rz:90}); });
+    // Dark window seals, centre pillars, door trim and inset handles make the
+    // opaque glazing read as glass, without a transparent empty cabin.
+    for (const side of [-1,1]) {
+      car.box(side*83.8,-77,-12,1.4,3,284,M('#232529'));
+      car.box(side*85.1,-52,-12,.5,33,1.2,M('#431b24'));
+      for (const z of [-64,48]) car.rbox(side*85.3,-68,z,1,3.2,13,1,M('#27272a'));
+    }
     car.box(0, -40, 201, 170, 16, 6, M('#2a2a2a')); car.box(0, -40, -201, 170, 16, 6, M('#2a2a2a'));
     [-60, 60].forEach(x => { car.box(x, -62, 203, 26, 12, 2, M({ c: '#fff4c8', e: '#fff0a0' })); car.box(x, -62, -203, 26, 12, 2, M({ c: '#ff3a3a', e: '#800' })); });
     car.box(0, -62, 203.2, 40, 10, 1, M('#222')); car.plane(0, -56, 203.8, 50, 12, M({ c: '#fff', map: K.tex('hs.plate', 128, 32, (g) => { g.fillStyle = '#f4f4f0'; g.fillRect(0, 0, 128, 32); A.text(g, 'T42 JAK', 64, 24, '700 22px "Arial Narrow",Arial,sans-serif', '#111', 'center'); }) }));
     car.box(-78, -96, 60, 6, 8, 16, M('#222')); car.box(78, -96, 60, 6, 8, 16, M('#222')); // mirrors
-    car.ball(0, -84, -120, 8, 6, 8, M('#c8a060'), 8); // the nodding dog on the parcel shelf
+    car.ball(0, -84, -96, 8, 6, 8, M('#c8a060'), 8); // inside the rear glazing, not poking through it
     car.shadow(0, 0, 0, 200, 430, 0.7, { sq: true });
     batch.build(r.group);
     H.spot('hs.car', { label: "Dad's car", act: sayLines('hs.car', "Dad's car", ['Dad\'s car. Burgundy. It has a cassette player and a tin of travel sweets that are all stuck together.', 'Dad washes it every Sunday "because it\'s a nice thing to do". It is never a nice thing to do.', 'There\'s a nodding dog on the parcel shelf. ' + 'My sister' + ' named it.']) }); pickBox(r, 'hs.car', 430, GY - 70, 915, 140, 120, 330);

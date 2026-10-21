@@ -206,7 +206,9 @@
         const geo = new T.PlaneGeometry(w, d);
         const sq = o && o.sq;
         const m = sq ? mat({ c: '#000', map: sqBlobTex(), basic: true, tr: true, o: Math.min(0.999, a == null ? 0.9 : a), dw: false, po: -2 }) : shadowMat(a);
-        return put(geo, xform(base, x, y - 0.12, z, Object.assign({}, o, { rx: 90 })), m, {});
+        const mesh = put(geo, xform(base, x, y - 0.12, z, Object.assign({}, o, { rx: 90 })), m, {});
+        if (mesh) {mesh.userData.contactShadow = true; mesh.userData.noPick = true;}
+        return mesh;
       },
       wshadow(x, y, z, w, h, a, o) { // a soft shadow on a wall behind something (faces +z; turn it with ry)
         const geo = new T.PlaneGeometry(w, h);

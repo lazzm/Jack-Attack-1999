@@ -699,7 +699,7 @@
   function things() {
     const add = (id, def) => { const t = H.thing(id, def); t.obj.userData.thing = 1; t.obj.traverse(o => { o.userData.thing = 1; }); H.restoreThing(t); return t; };
     add('gb', { home: { room: 'bedroom', x: -56, y: 0, z: 18, ry: -18 }, kind: 'handheld', label: 'Game Lad Color', obj: gbModel(), use: () => tvOpen('gb'), useLabel: 'Play it', holdD: 40 });
-    add('cube', { home: { room: 'bedroom', x: -50, y: 0, z: -22, ry: 25 }, kind: 'toy', label: "Rubik's cube", obj: cubeModel(), use: () => bits('cube'), useLabel: 'Solve it', holdD: 34 });
+    add('cube', { home: { room: 'bedroom', x: -50, y: 0, z: -22, ry: 25 }, kind: 'toy', label: 'Puzzle cube', obj: cubeModel(), use: () => H.inspect('cube'), useLabel: 'Solve it', holdD: 34 });
     add('vpet', { home: { room: 'bedroom', x: 40, y: 0, z: 24, ry: 10 }, kind: 'toy', label: 'Eggbert (my keyring pet)', obj: vpetModel(), use: () => bits('vpet'), useLabel: 'Check on it', holdD: 30 });
     const fb = new T.Group(); K.into(fb).ball(0, -11, 0, 11, 11, 11, M({ c: '#fff', map: K.tex('rm.ball', 256, 128, (g, w, h) => { g.fillStyle = '#f4f4f0'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a1a1a'; for (let y = 0; y < 3; y++) for (let x = 0; x < 6; x++) { const cx = x * 43 + (y % 2) * 21, cy = 20 + y * 44; g.beginPath(); for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; g.lineTo(cx + Math.cos(a) * 11, cy + Math.sin(a) * 11); } g.fill(); } }), sh: 30 }), 18);
     K.into(fb).shadow(0, 0, 0, 24, 24, 0.5);
@@ -724,14 +724,64 @@
     // Small moulding details make the shell read as a real late-90s handheld
     // from close range: a side seam, battery cover and four recessed screws.
     G.box(-3.82, -1.25, 0, 0.16, 1.15, 8.8, M('#4c2d78'));
-    G.rbox(0, -0.08, 1.4, 5.4, 0.16, 5.7, 0.07, M('#583487'));
+    G.rbox(0, 0.08, 2.5, 5.4, 0.16, 5.4, 0.07, M('#583487'));
     const screw = M({ c: '#b5a3c7', sh: 80, sp: '#eee' });
-    for (const z of [-5.45, 5.45]) for (const x of [-3.05, 3.05]) G.cyl(x, -3.06, z, 0.16, 0.16, 0.12, 8, screw);
+    for (const z of [-5.45, 5.45]) for (const x of [-2.9, 2.9]) G.cyl(x, .025, z, 0.16, 0.16, 0.05, 8, screw);
     G.shadow(0, 0, 0, 10.5, 16, 0.6); return g; }
-  function cubeModel() { const g = new T.Group(); const C = K.into(g); const cols = ['#e01a1a', '#ffd200', '#1a8a1a', '#1a4ae0', '#ff7a00', '#f4f4f4'];
-    C.rbox(0, -2.9, 0, 5.8, 5.8, 5.8, 0.5, M('#111')); const r = K.rnd(4);
-    for (let f = 0; f < 5; f++) for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const c = M({ c: cols[(r() * 6) | 0], sh: 50, sp: '#555' }), a = (i - 1) * 1.9, b = (j - 1) * 1.9; if (f === 0) C.box(a, -5.85, b, 1.6, 0.1, 1.6, c); else if (f === 1) C.box(a, -2.9 + b, 2.95, 1.6, 1.6, 0.1, c); else if (f === 2) C.box(2.95, -2.9 + b, a, 0.1, 1.6, 1.6, c); else if (f === 3) C.box(a, -2.9 + b, -2.95, 1.6, 1.6, 0.1, c); else C.box(-2.95, -2.9 + b, a, 0.1, 1.6, 1.6, c); }
-    C.shadow(0, 0, 0, 8, 8, 0.6, { sq: true }); return g; }
+  function cubeModel() {
+    const g = new T.Group(), core = new T.Group(), CM = window.CubeModel;
+    core.position.y = -2.9; g.add(core);
+    const cols = {R:'#b82e25',O:'#d16c25',W:'#e9e5d8',Y:'#dfbd28',G:'#318158',B:'#31569a'};
+    let state; try {state = JSON.parse(localStorage.getItem('jhp_rm_cube'));} catch (e) {}
+    if (!Array.isArray(state) || state.length !== 26 || state.some(c => !c || !Array.isArray(c.p) || c.p.length !== 3 || !c.s || c.p.some(v => ![-1,0,1].includes(v)) || Object.entries(c.s).some(([k,v]) => !CM.VEC[k] || !cols[v]))) {
+      state = CM.solved(); const rnd = K.rnd(41); for (let i = 0; i < 25; i++) CM.apply(state, CM.randomMove(rnd));
+    }
+    let turn = null;
+    function draw() {
+      while (core.children.length) {const child=core.children[0];child.traverse(o=>{if(o.isMesh)o.geometry.dispose();});core.remove(child);}
+      for (const c of state) {
+        const part = new T.Group(); part.position.set(c.p[0]*1.92,-c.p[1]*1.92,c.p[2]*1.92); core.add(part);
+        const C = K.into(part); C.rbox(0,0,0,1.88,1.88,1.88,.09,M({c:'#171819',sh:28}));
+        for (const [key,col] of Object.entries(c.s)) {
+          const n = CM.VEC[key], dim = n.map(v => v ? .016 : 1.64);
+          C.box(n[0]*.946,-n[1]*.946,n[2]*.946,dim[0],dim[1],dim[2],M({c:cols[col],sh:38,sp:'#555'}));
+        }
+        part.traverse(o => {if(o.isMesh) {o.userData.cubie=c; o.userData.thing=1; o.userData.spot='cube'; o.layers.set(H.THINGS.cube && H.THINGS.cube.front ? 1 : 0);}});
+      }
+      H.dirty();
+    }
+    function finish() {
+      if (!turn) return;
+      const wasSolved=CM.isSolved(state);
+      CM.apply(state,turn.move); turn=null; H.anims.delete('cube-turn'); draw();
+      try {localStorage.setItem('jhp_rm_cube',JSON.stringify(state));} catch(e) {}
+      if(!wasSolved&&CM.isSolved(state)){secret('rm.cube');H.toast('Puzzle cube','Solved! All six faces match.');}
+    }
+    function twist(move) {
+      if (turn || !CM.validMove(move)) return false;
+      const pivot = new T.Group(); core.add(pivot);
+      for (const child of core.children.slice()) if (child !== pivot && child.children[0]?.userData.cubie.p[move.a] === move.l) pivot.attach(child);
+      turn={move,pivot}; const t0=performance.now();
+      H.anims.set('cube-turn', now => {if (!turn) return false; const k=Math.min(1,(now-t0)/180); pivot.rotation.set(0,0,0); pivot.rotation[['x','y','z'][move.a]]=(move.a===1?1:-1)*move.d*Math.PI/2*(k*k*(3-2*k)); if(k===1){finish();return false;}return true;});
+      H.dirty(); return true;
+    }
+    g.userData.cube={get state(){return CM.clone(state);}, finish, twist, drag(hit,dx,dy) {
+      if(turn) return;
+      const normal=hit.face.normal.clone(); normal.y *= -1;
+      const c=hit.object.userData.cubie, origin=hit.point.clone(), a0=origin.clone().project(H.camera);
+      let best=null;
+      for(let a=0;a<3;a++) {
+        const axis=new T.Vector3(); axis.setComponent(a,1); const tangent=axis.cross(normal);
+        if(tangent.lengthSq()<.5) continue; tangent.y *= -1;
+        const dir=tangent.transformDirection(g.matrixWorld), p=origin.clone().add(dir).project(H.camera);
+        const sx=(p.x-a0.x)*innerWidth, sy=-(p.y-a0.y)*innerHeight, len=Math.hypot(sx,sy);
+        const dot=(sx*dx+sy*dy)/(len||1);
+        if(!best||Math.abs(dot)>best.score) best={a,l:c.p[a],d:dot>0?1:-1,score:Math.abs(dot)};
+      }
+      if(best) twist({a:best.a,l:best.l,d:best.d});
+    }};
+    draw(); K.into(g).shadow(0,0,0,7,7,.4,{sq:true}); return g;
+  }
   function vpetModel() { const g = new T.Group(); const V = K.into(g); V.ball(0, -2.2, 0, 2.8, 2.2, 3.4, M({ c: '#ff5aa8', sh: 50, sp: '#555' }), 14); V.plane(0, -4.1, 0.4, 2.4, 1.8, M({ c: '#a8b890', e: '#1a2010' }), { rx: -80 }); [-0.8, 0, 0.8].forEach(x => V.cyl(x, -3, 2.4, 0.35, 0.35, 0.4, 8, M('#ffd84a'), { rx: 60 })); V.geo(new T.TorusGeometry(1.4, 0.18, 6, 16), 0, -2.2, -4.2, M({ c: '#c8c8c8', sh: 80 }), { rx: 70 }); V.shadow(0, 0, 0, 7, 9, 0.5); return g; }
   function floppyModel(label, col) { const g = new T.Group(); const F = K.into(g); F.box(0, -0.17, 0, 9, 0.34, 9.4, { t: M({ c: '#fff', map: floppyTex(label, col) }), all: M(col) }); F.shadow(0, 0, 0, 11, 11, 0.5, { sq: true }); return g; }
   function floppyTex(label, col) { return K.tex('rm.fl.' + label, 128, 128, (g, w, h) => { g.fillStyle = col; g.fillRect(0, 0, w, h); g.fillStyle = '#9aa0a8'; g.fillRect(30, 0, 70, 40); g.fillStyle = '#4a5058'; g.fillRect(74, 6, 14, 28); g.fillStyle = '#f4f0e0'; g.fillRect(12, 56, 104, 64); A.text(g, label, 64, 84, '700 13px ' + A.HAND, '#1a3a9a', 'center'); g.fillStyle = 'rgba(255,255,255,.3)'; g.fillRect(4, 124, 6, 4); }); }
@@ -946,13 +996,31 @@
   };
   const canGo = () => H.mode === 'walk' || H.mode === 'glide';
   const TV_SAVE = 'jhp_console_focus';
-  let tvFocus = false, tvFocusCon = 'n64', tvRequest = 0;
+  let tvFocus = false, tvFocusCon = 'n64', tvRequest = 0, gbPlay = null;
+  function holdHandheld() {
+    const t = H.THINGS.gb;
+    H.anims.delete('gb-return');
+    if(t.st==='fall') t.at.y=t.landY;
+    gbPlay = {at:Object.assign({},t.at),st:t.st,rx:t.rx||0,rz:t.rz||0,view:Object.assign({},H.P,{rx:0,seat:1,lvl:H.W.lvl})};
+    const view = gbPlay.view, yaw=view.ry*D2R, d=Math.max(8/(Math.tan(H.camera.fov*D2R/2)*.8),5/(Math.tan(H.camera.fov*D2R/2)*innerWidth/innerHeight*.8));
+    t.st='play';t.inspectFront=true;H.layerFor(t);
+    const pos=t.obj.position.clone(),rot=t.obj.quaternion.clone(),target=new T.Vector3(view.x+Math.sin(yaw)*d,view.y+.5,view.z-Math.cos(yaw)*d);
+    const q=new T.Quaternion().setFromEuler(new T.Euler(-80*D2R,-view.ry*D2R,0,'YXZ')),t0=performance.now();
+    H.anims.set('gb-pose',n=>{const k=Math.min(1,(n-t0)/650),e=k*k*(3-2*k);t.obj.position.lerpVectors(pos,target,e);t.obj.quaternion.copy(rot).slerp(q,e);return k<1;});
+  }
+  function returnHandheld() {
+    if(!gbPlay)return; const saved=gbPlay,t=H.THINGS.gb;gbPlay=null;H.anims.delete('gb-pose');
+    const pos=t.obj.position.clone(),q=t.obj.quaternion.clone(),target=new T.Vector3(saved.at.x,saved.at.y,saved.at.z);
+    const end=new T.Quaternion().setFromEuler(new T.Euler(saved.rx*D2R,(saved.at.ry||0)*D2R,saved.rz*D2R,'YXZ')),t0=performance.now();
+    t.st='anim';H.anims.set('gb-return',n=>{const k=Math.min(1,(n-t0)/500),e=k*k*(3-2*k);t.obj.position.lerpVectors(pos,target,e);t.obj.quaternion.copy(q).slerp(end,e);if(k<1)return true;t.at=saved.at;t.rx=saved.rx;t.rz=saved.rz;t.st='rest';t.inspectFront=false;H.place(t);H.layerFor(t);return false;});
+  }
   function tvSession(value) { try { if (value) localStorage.setItem(TV_SAVE, JSON.stringify(value)); else localStorage.removeItem(TV_SAVE); } catch (e) {} }
   function inserted(con) { return Object.values(mediaThings).find(t => t && t.st === 'snap' && t.snap === 'console.' + con); }
   function tvPose(con) {
     // Fit the whole portable set, including its bezel, in either orientation.
     const aspect = innerWidth / innerHeight, fov = H.camera.fov * D2R / 2;
     if (con === 'gb') {
+      if (gbPlay) return gbPlay.view;
       const a = H.THINGS.gb.at, yaw = (a.ry || 0) * D2R;
       const d = Math.max(8 / (Math.tan(fov) * .84), 4.5 / (Math.tan(fov) * aspect * .86));
       return { x: a.x + Math.sin(yaw) * d * .174, y: a.y - 2.7 - d * .985, z: a.z + Math.cos(yaw) * d * .174, rx: -80, ry: -(a.ry || 0), seat: 1, lvl: 'U' };
@@ -969,6 +1037,7 @@
     const go = () => { RoomTV.open(con, con === 'gb' ? rectOf(H.THINGS.gb.obj) : rectOf(R.tvScreen), { restoring: !!resume }); if (gameId) RoomTV.playPhysical(gameId); };
     const ready = () => window.RoomTV ? Promise.resolve() : (tvLoad = tvLoad || loadJs('js/rm-tv.js'));
     if (H.held()) H.putBack();
+    if (con === 'gb') holdHandheld();
     tvFocusCon = con;
     clearTimeout(boT);
     const request = ++tvRequest, p = ready().then(() => true, () => { tvLoad = null; return false; });
@@ -978,7 +1047,7 @@
         if (!ok) { H.unfocus(); say('The telly', 'That did not load. Try again in a minute.'); return; }
         try { go(); } catch (e) { console.error(e); H.unfocus(); }
       }),
-      exit: () => { tvFocus = false; ++tvRequest; if (window.RoomTV && RoomTV.open_) RoomTV.close(); else if (!(window.RoomTV && RoomTV._dbg() && RoomTV._dbg().background)) tvSession(null); }
+      exit: () => { returnHandheld(); tvFocus = false; ++tvRequest; if (window.RoomTV && RoomTV.open_) RoomTV.close(); else if (!(window.RoomTV && RoomTV._dbg() && RoomTV._dbg().background)) tvSession(null); }
     });
     if (tvFocus) tvSession({ con, gid: gameId || '', back: H._.focusS.back });
   }
@@ -1195,12 +1264,16 @@
     const gb = H.THINGS.gb;
     const gbSlot = Room.addSnap('console.gb', { x: 0, y: 0, z: 0, r: 10, box: [5.5, 1, 2], pose: {},
       accepts: (kind, t) => !!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === 'gb'),
-      enabled: () => gb.st !== 'held' && !inserted('gb'), hint: 'Click/E to insert into the Game Lad', onSnap: t => tvOpen('gb', t.gameId),
-      onUnsnap: () => {if (window.RoomTV) RoomTV.stopPhysical('gb');} });
+      enabled: () => (gb.st === 'rest' || gb.st === 'snap') && !inserted('gb'), hint: 'Click/E to insert into the Game Lad', onSnap: t => tvOpen('gb', t.gameId),
+      onUnsnap: t => {t.frontAnchor=null;if (window.RoomTV) RoomTV.stopPhysical('gb');} });
     const moveGBSlot = () => {
-      const a = gb.obj.position, yaw = gb.obj.rotation.y, x = a.x - Math.sin(yaw) * 5, z = a.z - Math.cos(yaw) * 5;
-      Object.assign(gbSlot, { x, y: a.y - 1.2, z }); Object.assign(gbSlot.pose, { x, y: a.y - 1.2, z, rx: 90, ry: yaw / D2R });
-      const t = inserted('gb'); if (t) { t.at = Object.assign({ room: gb.at.room }, gbSlot.pose); t.rx = 90; H.place(t); }
+      gb.obj.updateWorldMatrix(true,false);
+      const local=new T.Matrix4().makeRotationX(-Math.PI/2);local.setPosition(0,.28,-6.5);
+      const matrix=new T.Matrix4().copy(H.root.matrixWorld).invert().multiply(gb.obj.matrixWorld).multiply(local);
+      const pos=new T.Vector3(),q=new T.Quaternion(),scale=new T.Vector3();matrix.decompose(pos,q,scale);const rot=new T.Euler().setFromQuaternion(q,'YXZ');
+      Object.assign(gbSlot,{x:pos.x,y:pos.y,z:pos.z});Object.assign(gbSlot.pose,{x:pos.x,y:pos.y,z:pos.z,rx:rot.x/D2R,ry:rot.y/D2R,rz:rot.z/D2R});
+      const t=inserted('gb');if(t){t.frontAnchor='gb';t.obj.position.copy(pos);t.obj.quaternion.copy(q);H.layerFor(t);if(gb.st==='rest'||gb.st==='snap'){t.at=Object.assign({room:gb.at.room},gbSlot.pose);t.rx=rot.x/D2R;t.rz=rot.z/D2R;}}
+      if(gb.st==='held'||gb.st==='inspect'||gb.st==='play'||gb.st==='anim')H.anims.set('gb-slot',()=>{moveGBSlot();return gb.st==='held'||gb.st==='inspect'||gb.st==='play'||gb.st==='anim';});
     };
     moveGBSlot(); H.ambient.add(moveGBSlot);
     const add = g => {
@@ -1218,7 +1291,7 @@
     games.forEach(add);
     (EVS.find = EVS.find || []).push(id => { if (id && id.startsWith('cart.')) { const g = CAT.GAME[id.slice(5)]; if (g) add(g); } });
     if (window.PM && PM.on) PM.on('change', () => games.forEach(add));
-    H.ambient.add(() => { if (tvFocus && !H.focused) { tvFocus = false; ++tvRequest; tvSession(null); } });
+    H.ambient.add(() => { if (tvFocus && !H.focused) { returnHandheld(); tvFocus = false; ++tvRequest; tvSession(null); } });
     let saved; try { saved = JSON.parse(localStorage.getItem(TV_SAVE) || 'null'); } catch (e) {}
     if (saved && CAT.CONSOLES[saved.con] && !CAT.CONSOLES[saved.con].away) {
       let tries = 0;

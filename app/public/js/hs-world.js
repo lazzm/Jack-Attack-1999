@@ -168,6 +168,9 @@
   // ================================================================ rooms, doors and what's drawn
   const ROOMS = {}, DOORS = {};
   let cur = null; // the room you're in
+  let worldLoading = false;
+  onLoading();
+  function onLoading() { (EVS.loading = EVS.loading || []).push(on => {worldLoading = !!on; if (on) {for (const k in keys) keys[k] = false; unlock();}}); }
   const LV = { U: 73, G: 353 }; // floor heights (y is down)
   function room(id, def) {
     const r = ROOMS[id] = Object.assign({ id, name: id, lvl: 'U', area: [], lights: [], stations: [], built: false, links: [] }, def);
@@ -222,9 +225,12 @@
     const all = [];
     for (const id of visSet) { const r = ROOMS[id]; for (const l of (typeof r.lights === 'function' ? r.lights() : r.lights)) {
       if (l.i != null && l.i <= 0) continue; // An off bulb must never displace a lit window/lamp.
-      const distance = Math.hypot(l.x - P.x, l.y - P.y, l.z - P.z), range = l.d || 400;
+      // Rank sources against the room, not the player: approaching a poster must
+      // not replace the ceiling light and relight half the room.
+      const cx = (r.bx0 + r.bx1) / 2, cz = (r.bz0 + r.bz1) / 2;
+      const distance = Math.hypot(l.x - cx, l.y - (LV[r.lvl] - 120), l.z - cz), range = l.d || 400;
       const influence = (l.i == null ? 1 : l.i) * Math.pow(Math.max(0, 1 - distance / range), 2);
-      all.push(Object.assign({room: id, key: id + ':' + l.x + ',' + l.y + ',' + l.z, score: influence * (id === (cur && cur.id) ? 1 : .2)}, l));
+      all.push(Object.assign({room: id, key: id + ':' + l.x + ',' + l.y + ',' + l.z, score: influence + (id === (cur && cur.id) ? 10 : 0)}, l));
     } }
     all.sort((a, b) => b.score - a.score);
     const chosen = all.slice(0, PL.length), remaining = chosen.slice();
@@ -364,7 +370,9 @@
     const r = ROOMS[t.at.room] || ROOMS[home.room];
     (r ? r.things : root).add(t.obj);
     // its size (the object is built with its bottom centre at the origin)
-    const bb = new T.Box3().setFromObject(t.obj);
+    const bb = new T.Box3(); t.obj.updateMatrixWorld(true);
+    t.obj.traverse(o => {if (o.isMesh && !o.userData.contactShadow) bb.expandByObject(o);});
+    if (bb.isEmpty()) bb.setFromObject(t.obj);
     t.hx = Math.max(1, (bb.max.x - bb.min.x) / 2); t.hz = Math.max(1, (bb.max.z - bb.min.z) / 2); t.h = Math.max(0.5, bb.max.y - bb.min.y);
     place(t);
     spot(id, Object.assign({ label: t.label, obj: t.obj, grab: true, range: t.range || 230 }, def.spot || {}));
@@ -485,7 +493,8 @@
     return { a, b, c, d, dep: dd / n };
   }
   function frontOf(t) {
-    if (t.st === 'held') return true;
+    if (t.st === 'held' || t.st === 'inspect' || t.inspectFront) return true;
+    if (t.frontAnchor && THINGS[t.frontAnchor]) return frontOf(THINGS[t.frontAnchor]);
     const a = t.at; if (a.hide || a.room !== 'bedroom' || !pcOn || mode === 'follow') return false;
     const tb = scrBox(a.x - t.hx, a.y - t.h, a.z - t.hz, a.x + t.hx, a.y, a.z + t.hz); if (!tb) return false;
     for (const q of pcParts()) {
@@ -496,7 +505,10 @@
     }
     return false;
   }
-  function layerFor(t) { const f = frontOf(t); if (f === t.front) return; t.front = f; t.obj.traverse(o => o.layers.set(f ? 1 : 0)); }
+  function layerFor(t) {
+    if (t.shadowState !== t.st) {t.shadowState = t.st; t.obj.traverse(o => {if (o.userData.contactShadow) o.visible = t.st === 'rest' || t.st === 'snap';});}
+    const f = frontOf(t); if (f === t.front) return; t.front = f; t.obj.traverse(o => o.layers.set(f ? 1 : 0));
+  }
   function tickThings(dt) {
     let any = false;
     for (const id in THINGS) {
@@ -644,8 +656,8 @@
     r.stations.forEach((s, i) => { const p = stationPose(r, s); const d = Math.hypot(p.x - P.x, p.z - P.z) + Math.abs(angd(P.ry, p.ry)) * 1.5; if (d < bd) { bd = d; best = i; } });
     return best;
   }
-  const canAct = () => live && (mode === 'walk' || mode === 'glide') && !viewOpen();
-  const viewOpen = () => !!pb.querySelector(':scope > .rm-view') || !!(ui.el && ui.el.querySelector('.hs-modal.on'));
+  const canAct = () => !worldLoading && live && (mode === 'walk' || mode === 'glide') && !viewOpen();
+  const viewOpen = () => !!pb.querySelector(':scope > .rm-view') || !!document.querySelector('html > .rm-live3d.on') || !!(ui.el && ui.el.querySelector('.hs-modal.on'));
 
   // ================================================================ which room you're in
   function roomCheck() {
@@ -704,11 +716,13 @@
     if (!live) return;
     if (window.House && House.god) return; // (layout editor owns the keys)
     const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
-    if (mode === 'focus' && ev.key === 'Escape' && !pb.querySelector(':scope > .rm-view')) { ev.preventDefault(); ev.stopImmediatePropagation(); if (focusS && focusS.o.esc && focusS.o.esc() === false) return; unfocus(); return; }
-    if (pb.querySelector(':scope > .rm-view') || (mode !== 'walk' && mode !== 'glide')) { if (mode === 'stand' || mode === 'sit') { ev.preventDefault(); ev.stopImmediatePropagation(); } return; }
+    if (inspection) { if (ev.key === 'Escape' || ev.key.toLowerCase() === 'i') endInspect(); ev.preventDefault(); ev.stopImmediatePropagation(); return; }
+    if (mode === 'focus' && ev.key === 'Escape' && !viewOpen()) { ev.preventDefault(); ev.stopImmediatePropagation(); if (focusS && focusS.o.esc && focusS.o.esc() === false) return; unfocus(); return; }
+    if (viewOpen() || (mode !== 'walk' && mode !== 'glide')) { if (mode === 'stand' || mode === 'sit') { ev.preventDefault(); ev.stopImmediatePropagation(); } return; }
     if (ui.modalOpen()) return;
+    if (worldLoading) {ev.preventDefault(); return;}
     const k = ev.key;
-    if (KEYMOVE[k]) { if (cancelGlide() || !glide) keys[KEYMOVE[k]] = true; ev.preventDefault(); ev.stopImmediatePropagation(); ui.crossOn(); return; }
+    if (KEYMOVE[k]) { wantLock(); if (cancelGlide() || !glide) keys[KEYMOVE[k]] = true; ev.preventDefault(); ev.stopImmediatePropagation(); ui.crossOn(); return; }
     if (k === 'Shift') { keys.run = true; return; }
     if (k === ' ' && !(t && t.closest && t.closest('button'))) { ev.preventDefault(); ev.stopImmediatePropagation(); if (held) drop(); else keys.jump = true; return; }
     if ((k === 'c' || k === 'C') && !ev.ctrlKey && !ev.metaKey) { keys.crouch = true; ev.preventDefault(); return; } // (C only: Ctrl + W would close the tab)
@@ -720,6 +734,7 @@
       return;
     }
     if (held && (k === 'f' || k === 'F')) { const t = THINGS[held.id]; if (t && t.use) { ev.preventDefault(); t.use(t); } return; }
+    if (held && (k === 'i' || k === 'I')) { ev.preventDefault(); inspect(held.id); return; }
     if (held && (k === 'r' || k === 'R')) { if (!ev.repeat) held.ry += ev.shiftKey ? -45 : 45; ev.preventDefault(); return; }
     if (held && (k === '+' || k === '=' || k === ']')) { held.d = clamp(held.d + 10, 25, 150); return; }
     if (held && (k === '-' || k === '_' || k === '[')) { held.d = clamp(held.d - 10, 25, 150); return; }
@@ -735,7 +750,7 @@
   const PT = new Map();
   const uiTarget = el => el && el.closest && el.closest('button,a,input,label,select,textarea,.rm-note,.rm-view,.hs-ui,.powerbtn,.pc-fs');
   pb.addEventListener('pointerdown', ev => {
-    if (!live || mode === 'off' || mode === 'follow' || ev.button > 0 || uiTarget(ev.target)) return;
+    if (worldLoading || !live || mode === 'off' || mode === 'follow' || ev.button > 0 || uiTarget(ev.target)) return;
     PT.set(ev.pointerId, { x0: ev.clientX, y0: ev.clientY, x: ev.clientX, y: ev.clientY, ry0: P.ry, rx0: P.rx, drag: false, t0: performance.now(), type: ev.pointerType });
     try { pb.setPointerCapture(ev.pointerId); } catch (e) {}
   });
@@ -743,15 +758,21 @@
   const locked = () => !!cv && document.pointerLockElement === cv;
   function unlock() { try { if (document.pointerLockElement === cv) document.exitPointerLock(); } catch (e) {} }
   const lockHint = document.createElement('div'); lockHint.className = 'hs-lockhint'; lockHint.setAttribute('aria-hidden', 'true'); lockHint.textContent = 'Click to look around'; let lockHintT = 0;
-  function plOK() { return !touchy() && live && mode === 'walk' && !viewOpen() && !ui.modalOpen(); }
-  function wantLock() { if (!plOK() || locked()) return; try { const r = cv.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+  function plOK() { return !worldLoading && !touchy() && live && mode === 'walk' && !viewOpen() && !ui.modalOpen(); }
+  let lockTry = 0, lockPending = false;
+  function wantLock() {
+    if (!plOK() || locked() || lockPending || performance.now() - lockTry < 350) return;
+    lockTry = performance.now(); lockPending = true;
+    try { const r = cv.requestPointerLock(); if (r && r.then) r.then(() => {lockPending = false;}, () => {lockPending = false;}); else setTimeout(() => {lockPending = false;}, 500); } catch (e) {lockPending = false;}
+  }
   // capture the mouse whenever we can while walking (the browser only allows it on a click or key press, so: every one)
   const inRoom = () => live && (mode === 'walk' || mode === 'glide') && !viewOpen();
   const freeIfPC = () => { if (!inRoom() && locked()) unlock(); }; // sitting down or leaving the room always gives the desktop mouse back
   setInterval(freeIfPC, 300);
   document.addEventListener('mousedown', freeIfPC, true);
   document.addEventListener('pointerlockchange', () => {
-    const on = locked(); clearTimeout(lockHintT);
+    const on = locked(); lockPending = false; clearTimeout(lockHintT); PT.clear();
+    if (!on) for (const k in keys) keys[k] = false;
     ui.el.classList.toggle('locked', on); lockHint.classList.toggle('on', !on && inRoom());
     if (on) { lastPt = { x: vw / 2, y: vh / 2, ok: true, mouse: true }; setHot(null); ui.tip(null); }
     else { if (inRoom()) { if (!ui.el.contains(lockHint)) ui.el.appendChild(lockHint); lockHint.classList.add('on'); lockHintT = setTimeout(() => lockHint.classList.remove('on'), 4000); } hoverQ = false; }
@@ -828,6 +849,60 @@
     return { x: best.x, y: ey, z: best.z, ry, rx: clamp(rx, -60, 40), lvl: W.lvl };
   }
 
+  // Inspect the actual prop. Its temporary pose never replaces its saved home.
+  let inspection = null;
+  function inspect(id) {
+    if (inspection || mode !== 'walk' || worldLoading) return false;
+    const t = THINGS[id]; if (!t || (held && held.id !== id)) return false;
+    if (!held && !grab(id)) return false;
+    const grip = held; held = null; t.st = 'inspect'; unlock();
+    for (const k in keys) keys[k] = false;
+    ui.holdBar(null); snapGlow(null); ui.hush(); ui.tip(null); setMode('inspect');
+    t.obj.updateWorldMatrix(true, true); const box = new T.Box3();
+    t.obj.traverse(o => {if (o.isMesh && !o.userData.contactShadow) {o.geometry.computeBoundingBox(); const m = new T.Matrix4().copy(t.obj.matrixWorld).invert().multiply(o.matrixWorld); box.union(o.geometry.boundingBox.clone().applyMatrix4(m));}});
+    const centre = box.getCenter(new T.Vector3()), size = box.getSize(new T.Vector3());
+    const panel = document.createElement('div'); panel.className = 'hs-inspection';
+    const name = document.createElement('b'); name.textContent = typeof t.label === 'function' ? t.label() : t.label;
+    const hint = document.createElement('span'); hint.textContent = t.obj.userData.cube ? 'Drag a face to turn · Right-drag to rotate · Wheel: zoom · Esc: back' : 'Drag to rotate · Wheel: zoom · Esc: back';
+    const back = document.createElement('button'); back.type = 'button'; back.textContent = 'Back'; back.addEventListener('click', endInspect);
+    panel.append(name, hint, back); ui.el.appendChild(panel);
+    inspection = {t, grip, centre, panel, yaw: -P.ry + 24, pitch: id === 'gb' ? -80 : -18, zoom: 1, radius: size.length() / 2, drag: null};
+    html.classList.add('hs-inspecting'); layerFor(t); poseInspect(); return true;
+  }
+  function poseInspect() {
+    const s = inspection; if (!s) return;
+    const angle = camera.fov * D2R / 2, fit = Math.min(angle, Math.atan(Math.tan(angle) * vw / vh));
+    const d = Math.max(10, s.radius / Math.sin(fit) * 1.24) * s.zoom, f = fwd(), t = s.t;
+    t.obj.rotation.set(s.pitch * D2R, s.yaw * D2R, 0, 'YXZ');
+    const offset = s.centre.clone().applyEuler(t.obj.rotation);
+    t.obj.position.set(P.x + f.x * d - offset.x, P.y + f.y * d - offset.y, P.z + f.z * d - offset.z);
+    t.obj.updateMatrixWorld(true); dirty();
+  }
+  function endInspect() {
+    const s = inspection; if (!s) return;
+    if (s.t.obj.userData.cube) s.t.obj.userData.cube.finish();
+    s.panel.remove(); inspection = null; html.classList.remove('hs-inspecting');
+    held = s.grip; s.t.st = 'held'; setMode('walk'); ui.holdBar(s.t); dirty();
+  }
+  document.addEventListener('pointerdown', ev => {
+    const s = inspection; if (!s || ev.target.closest('button')) return;
+    ev.preventDefault(); ev.stopImmediatePropagation();
+    const ray = new T.Raycaster(); ray.layers.enableAll(); ray.setFromCamera(new T.Vector2(ev.clientX / vw * 2 - 1, 1 - ev.clientY / vh * 2), camera);
+    const hit = ray.intersectObject(s.t.obj, true).find(h => h.object.userData.cubie);
+    s.drag = {id: ev.pointerId, x: ev.clientX, y: ev.clientY, hit: ev.button === 0 ? hit : null};
+  }, true);
+  document.addEventListener('pointermove', ev => {
+    const s = inspection, d = s && s.drag; if (!d || d.id !== ev.pointerId) return;
+    ev.preventDefault(); ev.stopImmediatePropagation(); const dx = ev.clientX - d.x, dy = ev.clientY - d.y;
+    if (d.hit) {if (Math.hypot(dx, dy) > 22) {s.t.obj.userData.cube.drag(d.hit, dx, dy); s.drag = null;}}
+    else {s.yaw += dx * .45; s.pitch = clamp(s.pitch + dy * .45, -180, 180); d.x = ev.clientX; d.y = ev.clientY; poseInspect();}
+  }, true);
+  const inspectUp = () => {if (inspection) inspection.drag = null;};
+  document.addEventListener('pointerup', inspectUp); document.addEventListener('pointercancel', inspectUp);
+  document.addEventListener('contextmenu', ev => {if (inspection) ev.preventDefault();});
+  document.addEventListener('wheel', ev => {if (!inspection) return; ev.preventDefault(); ev.stopImmediatePropagation(); inspection.zoom = clamp(inspection.zoom + Math.sign(ev.deltaY) * .08, .78, 1.8); poseInspect();}, {capture:true, passive:false});
+  addEventListener('resize', poseInspect);
+
   // ================================================================ sitting down to use something (the telly, the phone, the fridge door)
   // focus(pose, { enter(), exit(), label }) glides you there; you can't walk until you get up (the button, or Esc)
   let focusS = null;
@@ -898,7 +973,7 @@
     hold.addEventListener('click', ev => {
       const b = ev.target.closest('[data-h]'); if (!b || !held) return; const a = b.dataset.h, t = THINGS[held.id];
       if (a === 'near') held.d = clamp(held.d - 12, 25, 150); else if (a === 'far') held.d = clamp(held.d + 12, 25, 150);
-      else if (a === 'turn') held.ry += 45; else if (a === 'put') drop(); else if (a === 'back') putBack(); else if (a === 'use' && t && t.use) t.use(t);
+      else if (a === 'turn') held.ry += 45; else if (a === 'inspect') inspect(t.id); else if (a === 'put') drop(); else if (a === 'back') putBack(); else if (a === 'use' && t && t.use) t.use(t);
     });
     // the joystick (touch screens): bottom left
     const bJ = $('.hs-jump'), bD = $('.hs-duck'); if (touchy()) { bJ.style.display = bD.style.display = 'block'; }
@@ -925,9 +1000,10 @@
       },
       holdBar(t) {
         if (!t) { hold.hidden = true; el.classList.remove('holding'); return; }
+        if (!hold.querySelector('[data-h=inspect]')) {const b = document.createElement('button'); b.type = 'button'; b.dataset.h = 'inspect'; b.textContent = 'Inspect'; hold.querySelector('.hs-hbtn').prepend(b);}
         hold.hidden = false; el.classList.add('holding');
         hold.querySelector('.hs-hname').textContent = typeof t.label === 'function' ? t.label() : t.label;
-        hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : 'Click: put it down &middot; R: turn &middot; Wheel: nearer/further &middot; Esc: put back' + (t.use ? ` &middot; <b>F</b>: ${esc(t.useLabel || 'use it')}` : '');
+        hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : 'Click: put down &middot; R: turn &middot; I: inspect &middot; Wheel: distance &middot; Esc: put back' + (t.use ? ` &middot; <b>F</b>: ${esc(t.useLabel || 'use it')}` : '');
         const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use; u.textContent = t.useLabel || 'Use';
       },
       snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML = `<b>${esc(s.hint || 'Click/E to place it')}</b>`; else if (held) this.holdBar(THINGS[held.id]); },
@@ -954,14 +1030,10 @@
   let need = true, raf = 0, lastT = 0, lastAmb = 0, frame = 0, viewing = false, viewT = 0;
   function dirty() { need = true; }
   const ambient = new Set(); // things that animate gently (the lava lamp, a telly): redrawn ~20 times a second
-  let lightCheck = 0, lightX = Infinity, lightY = Infinity, lightZ = Infinity;
   function loop(now) {
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.12, (now - (lastT || now)) / 1000); lastT = now;
     if (!live || document.hidden) return;
-    if (now - lightCheck > 250 && Math.hypot(P.x - lightX, P.y - lightY, P.z - lightZ) > 35) {
-      lightCheck = now; lightX = P.x; lightY = P.y; lightZ = P.z; lightsFor();
-    }
     tickLights(dt);
     const vo = viewOpen(); if (vo !== viewing) { viewing = vo; viewT = now; html.classList.toggle('hs-viewing', vo); if (vo) { setHot(null); ui.tip(null); unlock(); } }
     // (the consoles' telly is up: once it has settled, the room behind needn't be drawn)
@@ -1066,6 +1138,7 @@
   function bootPC() {
     const from = Object.assign({}, P);
     monitor = true; stood = false; standing = false;
+    html.classList.remove('hs-standing');
     preparePCView(); body.classList.add('pc-monitor');
     monitorSurfaceEl.classList.add('pc-starting');
     for (const id of ['bootBios', 'bootScan', 'bootSplash']) {
@@ -1086,6 +1159,13 @@
     setMode('shutdown'); emit('pcpower', false);
     glideTo(seatPose, { lock: true, ms: 900 });
     return true;
+  }
+  function finishShutdown() {
+    if (!live) return false;
+    glide = null; monitor = stood = standing = false;
+    const p = Object.assign({}, P, {y: LV.U - STAND, seat: 0, lvl: 'U'});
+    Object.assign(P, p); setWalkFrom(p); html.classList.add('hs-standing');
+    setMode('walk'); emit('pcpower', false); savePose(); saveThings(); dirty(); return true;
   }
   function start() { // the room is on show and the PC is off: you're sitting at the desk
     if (live) return; live = true;
@@ -1172,7 +1252,7 @@
   }
   let bootOver = false; (window.BootDone || Promise.resolve()).then(() => { bootOver = true; });
   const bootIsOver = () => bootOver || document.body.classList.contains('online') || !boot.isConnected; // (the dial-up's done: the desktop is up)
-  function canStand() { return mode !== 'shutdown' && bootIsOver() && !stood && !standing && !document.body.classList.contains('pc-power') && !!boot && !!window.Room && !pb.classList.contains('outro'); }
+  function canStand() { return !inspection && mode !== 'shutdown' && bootIsOver() && !stood && !standing && !document.body.classList.contains('pc-power') && !!boot && !!window.Room && !pb.classList.contains('outro'); }
   const whyNotStand = () => ({ bootOver: bootIsOver(), stood, standing, pcPower: document.body.classList.contains('pc-power'), boot: !!boot, room: !!window.Room, outro: pb.classList.contains('outro') });
   function standUp(now) {
     if (!canStand()) return false;
@@ -1355,7 +1435,7 @@
   // ================================================================ the API
   window.House = {
     ok: true, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
-    focus, unfocus, surface, faceQuad, get focused() { return !!focusS; },
+    focus, unfocus, surface, faceQuad, inspect, endInspect, get focused() { return !!focusS; },
     room, buildRoom, door, setDoor, walkRect, block, stairs, support, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     restoreThing, saveThings, layerFor, frontFx, place,
     grab, drop, putBack, held: () => held && held.id, act: id => act(SPOTS[id]), useAt,
@@ -1363,7 +1443,7 @@
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,
     say: (t, x, ms) => ui.say(t, x, ms), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),
-    dirty, relight, ambient, anims, visCalc, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC,
+    dirty, relight, ambient, anims, visCalc, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
     Q, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
     _: { whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },

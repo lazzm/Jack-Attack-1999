@@ -198,7 +198,10 @@ back next year!!!
   });
   $('smUpdate').addEventListener('click', () => { $('startMenu').classList.remove('open'); msgbox('JackOS Update', 'Connecting to JackOS Update...\n\nYour computer is completely up to date. For 1999. There will never be another update. Enjoy!', 'info'); if (window.Apps) Apps.secret('update'); });
   // ---- Shut Down JackOS... the proper way
-  const reboot = how => { try { sessionStorage.setItem('jhp_forceboot', how); } catch (e) {} location.reload(); };
+  const reboot = how => {
+    if (how === 'power' && window.House && House.ok && window.PCPower && PCPower.off()) return;
+    try { sessionStorage.setItem('jhp_forceboot', how); } catch (e) {} location.reload();
+  };
   function shutdownSplash(msg, then) {
     Sound.music.stop();
     // every window closes down into the taskbar, the taskbar goes, the screen dims...

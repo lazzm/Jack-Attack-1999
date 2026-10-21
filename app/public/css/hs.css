@@ -206,4 +206,27 @@ html.hs-live .powerscr.rm-tvon .hs-gl{visibility:hidden}
 .hs-ui.locked .hs-cross{opacity:.9}
 .hs-lockhint{position:absolute;left:50%;bottom:18%;transform:translateX(-50%);padding:4px 10px;font:12px/1.2 var(--ui,"MS Sans Serif",Arial,sans-serif);color:#fff8e6;background:rgba(0,0,0,.55);border-radius:3px;pointer-events:none;opacity:0;transition:opacity .3s}
 .hs-lockhint.on{opacity:.9}
+.hs-loading{position:fixed;inset:0;z-index:40000;background:#25292c;color:#eee4ca;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:13px "Courier New",monospace;pointer-events:auto}
+.hs-loading>b{font-size:22px;letter-spacing:.12em;color:#dbc172}
+.hs-load-track{width:min(300px,70vw);height:12px;padding:3px;border:1px solid #80745b;background:#101316}
+.hs-load-track i{display:block;height:100%;background:#bba267;transition:width .12s}
+/* One restrained, late-90s game HUD. JackOS retains its own desktop chrome. */
+html.hs-live{--game-ui:"Courier New",monospace;--game-panel:rgba(22,25,27,.94);--game-edge:#80745b;--game-ink:#eee4ca;--game-accent:#dbc172}
+.hs-ui{font-family:var(--game-ui)}
+.hs-ui .hs-title{font:700 15px var(--game-ui);letter-spacing:.08em}
+.hs-ui .hs-getup{border-radius:0;font:700 12px var(--game-ui);background:var(--game-panel);border-color:var(--game-edge);color:var(--game-ink)}
+.hs-ui .rm-tinbtn,.hs-ui .ch-jobs,.hs-ui .ch-chip,.hs-ui .ch-toolbar button{border:1px solid var(--game-edge);border-radius:0;background:var(--game-panel);color:var(--game-ink);font:12px var(--game-ui);backdrop-filter:none;box-shadow:none}
+.hs-ui .ch-chip b,.hs-ui .ch-chip>i,.hs-ui .ch-tname,.hs-ui .ch-thint{font-family:var(--game-ui)}
+.hs-ui .ch-dots i{border-radius:0}
+.hs-ui.locked .hs-hbtn{display:none}
+.hs-ui.locked .hs-tip{left:50%!important;top:auto;bottom:94px;transform:translateX(-50%)!important}
+.hs-tip,.hs-lockhint{border:1px solid var(--game-edge);border-radius:0;background:var(--game-panel);color:var(--game-ink);font:12px/1.4 var(--game-ui);box-shadow:none}
+.hs-tip i,.hs-tip small{color:var(--game-accent)}
+.hs-ui .rm-note{left:18px;bottom:20px;top:auto;width:min(380px,calc(100vw - 36px));transform:translateY(12px)}
+.hs-ui .rm-note.on{transform:none}
+.hs-ui.holding .rm-note{bottom:110px}
+.hs-ui .rm-note b{font:700 13px var(--game-ui);letter-spacing:.05em}
 @media (hover:none),(pointer:coarse){.hs-lockhint{display:none}}
+.hs-inspection{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:grid;gap:9px;text-align:center;padding:14px 20px;background:#151914ee;border:1px solid #9b9061;color:#eee4c4;font:13px 'Courier New',monospace;pointer-events:auto;min-width:360px}
+.hs-inspection b{font-size:17px;color:#d8c488}.hs-inspection button{justify-self:center;background:#32362c;border:1px solid #a29468;color:#eee4c4;padding:5px 20px;font:inherit}
+.hs-inspecting .hs-top,.hs-inspecting .hs-map,.hs-inspecting .hs-cross,.hs-inspecting .hs-lockhint{display:none!important}

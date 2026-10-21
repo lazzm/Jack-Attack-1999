@@ -66,10 +66,11 @@
 
   // ================================================================ WASH DAD'S CAR (on the drive, beside the car)
   const BUCKET = { x: 248, z: 1000 };
-  const MUD = [ // x, y, z, which way it faces: 's' = the near side (x 284.4), 't' = on top
-    [284.2, GY - 40, 742, 's'], [284.2, GY - 52, 800, 's'], [284.2, GY - 36, 866, 's'], [284.2, GY - 58, 932, 's'], [284.2, GY - 42, 990, 's'], [284.2, GY - 50, 1050, 's'],
-    [312, GY - 75.4, 1060, 't'], [352, GY - 75.4, 1036, 't'], [330, GY - 75.4, 738, 't'], [340, GY - 133.8, 900, 't'],
+  const MUD = [ // Car-local coordinates: keep chore IDs stable when the model moves/scales.
+    [-85.15,-48,-155,'s'],[-85.15,-55,-95,'s'],[-85.15,-46,-35,'s'],[-85.15,-58,25,'s'],[-85.15,-48,85,'s'],[-85.15,-54,155,'s'],
+    [-32,-75.15,170,'t'],[32,-75.15,170,'t'],[-36,-75.15,-178,'t'],[30,-133.65,-20,'t'],
   ];
+  function carPoint(x,y,z) {const f=R('drive').carFrame; return {x:f.x+x*f.s,y:f.y+y*f.s,z:f.z+z*f.s};}
   let mud = [], sponge = null, bucket = null, carTool = null;
   const CV = () => (CK.S.v.car = CK.S.v.car || { sc: {} });
   const mudTex = (i, pigeon) => K.tex('ch.mud' + i, 128, 128, (g, w, h) => {
@@ -81,18 +82,20 @@
   CK.add({
     id: 'car', room: 'drive',
     build(r) {
-      MUD.forEach(([x, y, z, f], i) => {
+      const scale = r.carFrame.s;
+      MUD.forEach(([lx, ly, lz, f], i) => {
+        const {x,y,z}=carPoint(lx,ly,lz);
         const m = M({ c: '#fff', map: mudTex(i, i === 9), tr: true, dw: false, sh: 10 }).clone();
         const pl = new T.Mesh(new T.PlaneGeometry(i === 9 ? 18 : 30, i === 9 ? 18 : 24), m); pl.renderOrder = 3;
-        pl.position.set(x, y, z); if (f === 's') pl.rotation.y = -Math.PI / 2; else pl.rotation.x = Math.PI / 2;
+        pl.position.set(x, y, z); pl.scale.setScalar(scale); if (f === 's') pl.rotation.y = -Math.PI / 2; else pl.rotation.x = Math.PI / 2;
         r.group.add(pl);
-        const pk = new T.Mesh(new T.BoxGeometry(f === 's' ? 3 : 32, f === 's' ? 26 : 3, f === 's' ? 32 : 26), new T.MeshBasicMaterial({ visible: false })); pk.position.set(f === 's' ? x - 1 : x, f === 's' ? y : y - 1, z); r.group.add(pk);
+        const pk = new T.Mesh(new T.BoxGeometry(f === 's' ? 3 : 32, f === 's' ? 26 : 3, f === 's' ? 32 : 26), new T.MeshBasicMaterial({ visible: false })); pk.position.set(f === 's' ? x - .5 : x, f === 's' ? y : y - .5, z); pk.scale.setScalar(scale); r.group.add(pk);
         H.spot('ch.mud' + i, { obj: pk, room: 'drive', range: 260, label: i === 9 ? 'Pigeon business (on the roof)' : 'Mud', act: () => scrubMud(i) });
         mud.push({ pl, m, pk });
       });
       // CLEAN ME, in the dirt on the boot
       const cm = new T.Mesh(new T.PlaneGeometry(60, 26), M({ c: '#fff', map: K.tex('ch.cleanme', 256, 112, (g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(120,96,60,.55)'; g.fillRect(0, 0, w, h); g.globalCompositeOperation = 'destination-out'; g.font = '700 46px "Comic Sans MS",cursive'; g.textAlign = 'center'; g.fillStyle = '#000'; g.fillText('CLEAN ME', 128, 72); g.font = '20px "Comic Sans MS",cursive'; g.fillText('(also, Dave woz ere)', 128, 100); g.globalCompositeOperation = 'source-over'; }, { clamp: true }), tr: true, dw: false }).clone());
-      cm.rotation.x = Math.PI / 2; cm.rotation.z = Math.PI / 2; cm.position.set(370, GY - 75.5, 716); cm.renderOrder = 3; r.group.add(cm); this.cleanme = cm;
+      const boot=carPoint(20,-75.2,-178); cm.rotation.x = Math.PI / 2; cm.position.set(boot.x,boot.y,boot.z); cm.scale.setScalar(scale); cm.renderOrder = 3; r.group.add(cm); this.cleanme = cm;
       // the bucket of soapy water, the sponge in it
       bucket = grp(G => { G.lathe(0, 0, 0, [[12.4, -28], [13, -27.4], [10.2, 0], [0.1, 0]], 22, mat('#e8c020', { sh: 50, sp: '#666', side: 2 })); G.disc(0, -23, 0, 11.6, M({ c: '#e8eef0', sh: 90, sp: '#fff' })); for (let i = 0; i < 12; i++) G.ball(Math.cos(i * 0.6) * (4 + (i % 4) * 2), -23.5, Math.sin(i * 0.6) * (4 + (i % 4) * 2), 2.4, 1.4, 2.4, M({ c: '#fff', o: 0.9, tr: true }), 8); G.geo(new T.TorusGeometry(12.6, 0.4, 5, 20, Math.PI), 0, -28, 0, mat('#888', { sh: 80 }), { rz: 180, rx: 90 }); G.shadow(0, 0, 0, 32, 32, 0.6); });
       bucket.position.set(BUCKET.x, GY, BUCKET.z); r.group.add(bucket);
@@ -137,8 +140,8 @@
   function rinse() {
     if (carTool) CK.tool.drop(true);
     const r = R('drive'); CK.snd.splash(); setTimeout(CK.snd.splash, 200);
-    for (let k = 0; k < 6; k++) setTimeout(() => CK.fx.burst(r, 286, GY - 95, 760 + k * 55, { n: 22, col: '#c8e4ff', size: 2, life: 1.2, spd: 30, up: 10, grav: 300, floor: GY - 0.5, op: 0.8 }), k * 90);
-    setTimeout(() => { CK.step('car', 'rinse'); CK.MODS.car.sync(); for (let k = 0; k < 8; k++) setTimeout(() => CK.fx.burst(r, 286 + Math.random() * 100, GY - 60 - Math.random() * 70, 720 + Math.random() * 360, { n: 4, col: '#ffffff', size: 1.4, life: 0.6, spd: 6, up: 6, grav: 0 }), k * 120); }, 700);
+    for (let k = 0; k < 6; k++) setTimeout(() => {const p=carPoint(-88,-95,-150+k*55); CK.fx.burst(r,p.x,p.y,p.z,{ n: 22, col: '#c8e4ff', size: 2, life: 1.2, spd: 30, up: 10, grav: 300, floor: GY - 0.5, op: 0.8 });}, k * 90);
+    setTimeout(() => { CK.step('car', 'rinse'); CK.MODS.car.sync(); for (let k = 0; k < 8; k++) setTimeout(() => {const p=carPoint(-80+Math.random()*160,-60-Math.random()*70,-170+Math.random()*340); CK.fx.burst(r,p.x,p.y,p.z,{ n: 4, col: '#ffffff', size: 1.4, life: 0.6, spd: 6, up: 6, grav: 0 });}, k * 120); }, 700);
     CK.jack("Dad's car", 'SPLOOSH. Half over the car, half over my trainers. It\'s sparkling though. Dad will still say it\'s "a bit streaky".', 4500);
   }
 

@@ -205,6 +205,27 @@
     } catch (e) {}
   }
 
+  // Initialise the reusable PC power state even on a wake. The room is not a web page to reload on shutdown.
+  const quick = booted && !forced, fast = false, timers = [];
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  let skipped = false, gate = Promise.resolve(), openGate = () => {}, mirror = null, inWorldBoot = false;
+  let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0, t0 = performance.now(), pressed = mode === 'wake';
+  let handed = false, early = false;
+  const roomOff = () => document.body.classList.remove('pc-power');
+  window.PCPower = {
+    off() {
+      timers.forEach(clearTimeout); timers.length = 0; pressed = skipped = handed = early = outroing = false; clean = true;
+      if (mirror) mirror.disconnect();
+      for (const e of document.querySelectorAll('#monitorSurface .float .ctl [aria-label="Close"],#monitorSurface .appwin [data-w=close]')) e.click();
+      for (const id of ['shutdown','dimmer','bootBios','bootScan','bootSplash']) {const e = $(id); if (e) e.hidden = true;}
+      $('biosText').textContent = ''; $('crt').classList.remove('off');
+      document.querySelectorAll('#monitorSurface .closing').forEach(e => e.classList.remove('closing'));
+      pb.classList.remove('on','mon','go','deep','outro','auto'); pbtn.classList.remove('down');
+      document.body.classList.add('pc-power'); document.body.classList.remove('online');
+      window.JHPBoot = 'forced'; return !!(window.House && House.finishShutdown && House.finishShutdown());
+    }
+  };
+  pbtn.addEventListener('click', power);
   // straight after Start > Log Off the page reloads into the logon screen (js/site.js), and ?noboot (for testing) skips it all
   let relog = false; try { relog = sessionStorage.getItem('jhp_site_relogon') === '1'; } catch (e) {}
   if (!forced && (relog || /[?&]noboot/.test(location.search))) {
@@ -224,11 +245,6 @@
     return;
   }
   try { sessionStorage.setItem('jhp_booted', '1'); localStorage.setItem('jhp_everbooted', '1'); localStorage.setItem('jhp_clean', '0'); } catch (e) {}
-  const quick = booted && !forced; // been here before: shorter boot. After a shut down, restart or crash: the full slow boot again
-  const fast = false; // (a PC that was left on now wakes up instead of booting)
-  const timers = [];
-  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
-  let skipped = false;
 
   // the boot layer also holds the 3D room (js/hs-world.js): never remove it while someone is standing/walking in the room
   function bootGone() { const h = document.documentElement; if (h.classList.contains('hs-standing') || h.classList.contains('hs-live')) { boot.classList.remove('gone'); return; } boot.remove(); }
@@ -249,7 +265,6 @@
   // ---- 0. the family PC and its monitor, sat on the desk. Only the tower's power button switches it on
   // (it's a real <button>, so Tab + Enter/Space work too). Pressing it also unlocks sound: browsers need a click first.
   // a switched-off PC in a dark room doesn't flicker: the CRT glass overlay (crt.js) stays off until the BIOS fills the screen
-  const roomOff = () => document.body.classList.remove('pc-power');
   document.body.classList.add('pc-power');
   try { if (localStorage.getItem('jhp_crt') === '0') pb.classList.add('nocrt'); } catch (e) {} // CRT glass switched off (Run > crt)
   const fsBox = $('bootFs'), root = document.documentElement;
@@ -275,14 +290,13 @@
     } catch (e) {}
   }
   // the camera drifts a few degrees towards the mouse or your finger
-  let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0, t0 = performance.now(), pressed = false;
   const view = () => {
     const o = window.RoomCam || 0;
     if (o.hold) return; // (js/hs-world.js is driving the camera: walking round the house)
     cam.style.transform = roomView(L.rx + cy * 4 + (o.rx || 0), L.ry + cx * 9 + (o.ry || 0));
     cam.style.setProperty('--sl', (0.8 - cx * 0.06).toFixed(3));
   };
-  const aim = ev => { tx = (ev.clientX / innerWidth - 0.5) * 2; ty = (ev.clientY / innerHeight - 0.5) * 2; };
+  function aim(ev) { tx = (ev.clientX / innerWidth - 0.5) * 2; ty = (ev.clientY / innerHeight - 0.5) * 2; }
   function sway(now) {
     const idle = Math.sin((now - t0) / 2600) * 0.12;
     cx += (tx + idle - cx) * 0.06; cy += (ty - cy) * 0.06;
@@ -305,9 +319,9 @@
     glass.style.setProperty('--px', (1 / k).toFixed(4) + 'px');
     return k;
   }
-  let gate = Promise.resolve(), openGate = () => {}, mirror = null, inWorldBoot = false;
   function power(auto) { // auto: a restart, nobody pressed anything
     if (pressed) return; pressed = true;
+    layout(); keep = true; window.JHPBoot = 'room';
     try { localStorage.removeItem('jhp_off'); localStorage.setItem('jhp_last', String(Date.now())); } catch (e) {} // switched back on, including a refresh during BIOS
     if (auto !== true) { try { Sound.unlock(); } catch (e) {} Sound.play('thud'); }
     pstage.style.fontSize = getComputedStyle(pstage).fontSize; // so going full screen doesn't resize the room mid-zoom
@@ -341,7 +355,6 @@
       if (t < 1) requestAnimationFrame(frame); else handover();
     })(start);
   }
-  let handed = false, early = false;
   function sharp(s, dx, dy) {
     const scr = $('bootBios');
     if (!early) { // see-through, so the monitor's glass (its glow and scanlines) stays behind the sharp text; the small copy fades out
@@ -361,7 +374,6 @@
     later(() => { pb.hidden = true; if (mirror) mirror.disconnect(); scr.style.transition = scr.style.opacity = scr.style.transformOrigin = ''; for (const e of [mini, mstar]) e.style.transition = e.style.opacity = ''; }, 320);
     later(() => openGate(), fast ? 450 : 900);
   }
-  pbtn.addEventListener('click', power);
   if (forced === 'bios') { pb.classList.add('auto'); later(() => power(true), 900); } else pb.classList.add('ready'); // a restart: the room, a pause, and it comes back on by itself
 
   // ---- 1. BIOS
@@ -470,6 +482,7 @@
       dt.forEach(clearTimeout); clearInterval(pi); w.close();
       Desk.toast('Connection established', 'Connected to JackNet at 49,333 bps. (It says 56K on the box.)', 5000);
       document.body.classList.add('online');
+      if (inWorldBoot && window.House && House.ok) House.monitor();
       finish();
     };
     dt.push(setTimeout(end, fast ? 1000 : quick ? 1600 : 5800));

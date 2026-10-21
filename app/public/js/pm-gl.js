@@ -29,12 +29,27 @@
   const fonts = () => FONTS || (FONTS = Promise.all(['anton', 'bangers'].map(n => fetch('fonts/' + n + '.woff2').then(r => r.arrayBuffer()).then(b64)))
     .then(([a, b]) => ({ Anton: `@font-face{font-family:Anton;src:url(data:font/woff2;base64,${a})}`, Bangers: `@font-face{font-family:Bangers;src:url(data:font/woff2;base64,${b})}` })).catch(() => ({})));
   const TEX = {}, QUEUE = [];
+  let loadingPanel = null;
+  function prepareArtwork() {
+    if (loadingPanel) return;
+    const panel = loadingPanel = document.createElement('div'); panel.className = 'hs-loading';
+    panel.innerHTML = '<b>PREPARING ROOM</b><span>Loading game artwork</span><div class="hs-load-track"><i></i></div>';
+    panel.setAttribute('role', 'status'); H.ui.el.appendChild(panel); H.emit('loading', true);
+    const start = performance.now(); let total = Math.max(1, QUEUE.length + busyRaster);
+    const check = () => {
+      total = Math.max(total, QUEUE.length + busyRaster);
+      panel.querySelector('i').style.width = (100 * (1 - (QUEUE.length + busyRaster) / total)) + '%';
+      if (QUEUE.length || busyRaster) {if (performance.now() - start < 12000) return setTimeout(check, 40);}
+      // Texture uploads belong to loading, not the first frame the player turns toward a shelf.
+      try { for (const t of Object.values(TEX)) if (H.ren.initTexture) H.ren.initTexture(t); }
+      finally { panel.remove(); loadingPanel = null; H.emit('loading', false); H.dirty(); }
+    };
+    setTimeout(check, 0);
+  }
   let busyRaster = 0;
   const LANES = 3;
-  let loadHooked = false;
-  function pump() { // a few pictures at a time (phones), and only once the page itself has loaded (pending images hold up the load event)
+  function pump() { // Begin immediately; unrelated page images must not hold the room's artwork hostage.
     if (busyRaster >= LANES || !QUEUE.length) return;
-    if (document.readyState !== 'complete') { if (!loadHooked) { loadHooked = true; addEventListener('load', () => setTimeout(pump, 80), { once: true }); } return; }
     busyRaster++; const job = QUEUE.shift();
     if (QUEUE.length) setTimeout(pump, 0);
     fonts().then(F => {
@@ -55,6 +70,14 @@
     if (TEX[key]) return TEX[key];
     const c = document.createElement('canvas'); c.width = w; c.height = h;
     const g = c.getContext('2d'); g.fillStyle = fill || '#444'; g.fillRect(0, 0, w, h);
+    // A readable printed cover remains if an image cannot decode; never a grey box.
+    const it = PM.items().find(it => key.endsWith('.' + it.id));
+    if (it) {
+      g.fillStyle = it.c1 || '#172d49'; g.fillRect(0, 0, w, h);
+      g.fillStyle = it.c3 || '#cda94b'; g.fillRect(0, 0, w, h * .12);
+      g.fillStyle = it.c2 || '#f5e8c9'; g.font = `bold ${Math.max(9, Math.min(w / 9, h / 8))}px Arial`; g.textAlign = 'center';
+      K.wrapText(g, it.title.toUpperCase(), w / 2, h * .3, w * .86, Math.max(12, h * .12));
+    }
     const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.ClampToEdgeWrapping; t.anisotropy = 4; t.minFilter = T.LinearMipmapLinearFilter;
     t.userData = { g, canvas: c };
     QUEUE.push({ t, w, h, svg, key }); pump();
@@ -75,7 +98,7 @@
     B.box(0, -h / 2 + 1, d / 2 - 0.35, w - 1.2, h - 2.5, 0.2, M('#0c0c0c'));            // the black plastic tray inside
     const L = hinge(g, -w / 2, d / 2 - 0.08, -150);
     K.into(L.pivot).box(w / 2, -h / 2, 0, w, h, 0.16, { f: mat('pm.fr.' + id, 256, 324, () => A.frontBig(it, 200, 270), { m: GLOSS }), b: M(A.tint(it.c1 || '#333', -0.45)), all: edge });
-    B.shadow(0, 0, 0, w + 4, d + 6, 0.55, { sq: true });
+    B.shadow(0, 0, 0, w + .6, d + .5, 0.32, { sq: true });
     lidFor.set(g, L); g.userData.back = () => mat('pm.bk.' + id, 256, 324, () => A.backBig(it), { m: GLOSS }); g.userData.backFace = 'b';
     g.userData.edges = () => [mat('pm.ed.' + id, 64, 320, () => A.edgeBig(it, 50, 240)), mat('pm.eu.' + id, 256, 64, () => A.edgeBig(it, 190, 50))]; // (the outer edge and the bottom: printed too, drawn on the first pick-up)
     return g;
@@ -87,7 +110,7 @@
     const L = hinge(g, -w / 2 + 0.3, d / 2 - 0.1, -112);
     const lidMesh = K.into(L.pivot).box(w / 2 - 0.3, -h / 2, 0, w, h, 0.12, { f: clear ? M({ c: '#ffffff', map: svgTex('pm.jf.' + id, 284, 250, () => A.jewelFront(it, true), '#dfe6ee'), tr: true, o: 0.5, sh: 120, sp: '#ffffff', dw: false }) : mat('pm.jf.' + id, 284, 250, () => A.jewelFront(it, false), { m: PLASTIC }), b: clear ? M({ c: '#dfe6ee', o: 0.3 }) : M('#f4f1e8'), all: plastic });
     if (clear) K.into(g).plane(0.3, -h / 2, 0.24, 12, 12, M({ c: '#fff', map: svgTex('pm.dl.' + id, 256, 256, () => A.discLabel(it), '#d8d2b0') })); // (no inlay: you see the disc through the lid)
-    B.shadow(0, 0, 0, w + 3, d + 4, 0.5, { sq: true });
+    B.shadow(0, 0, 0, w + .4, d + .3, 0.28, { sq: true });
     lidFor.set(g, L);
     if (!clear) g.userData.lazy = () => { const base = g.children.find(m => m.isMesh && Array.isArray(m.material)); if (base) { base.material = base.material.slice(); base.material[5] = mat('pm.jb.' + id, 256, 200, () => A.inlayBack(it), { m: PLASTIC }); } if (lidMesh && Array.isArray(lidMesh.material)) { lidMesh.material = lidMesh.material.slice(); lidMesh.material[5] = mat('pm.jbk.' + id, 256, 220, () => A.booklet(it)); } }; // (the back and the booklet: drawn when you first pick it up)
     return g;
@@ -263,6 +286,14 @@
     const id = tb(it.id); THING[id] = it.id;
     if (H.THINGS[id]) return H.THINGS[id];
     const obj = (MODEL[it.kind] || jewel)(it);
+    // Every face is prepared before the first grab, not swapped in while it is in your hands.
+    if (obj.userData.lazy) {obj.userData.lazy(); obj.userData.lazy = null;}
+    if (obj.userData.back) {
+      const mesh = obj.children.find(m => m.isMesh && Array.isArray(m.material));
+      if (mesh) {mesh.material = mesh.material.slice(); mesh.material[5] = obj.userData.back();
+        if (obj.userData.edges) {const [right, under] = obj.userData.edges(); mesh.material[0] = right; mesh.material[2] = under;}}
+      obj.userData.back = null;
+    }
     H.snap(home.snap, {room: 'bedroom', x: home.x, y: home.y - (it.kind === 'box' ? 12 : it.kind === 'mag' ? 13.25 : 6.25), z: home.z, r: 24,
       pose: home, preview: {x: home.x, y: home.y - (it.kind === 'box' ? 12 : it.kind === 'mag' ? 13.25 : 6.25), z: home.z},
       box: [it.kind === 'box' ? 19 : it.kind === 'mag' ? 21 : 14.2, it.kind === 'box' ? 24 : it.kind === 'mag' ? 26.5 : 12.5, it.kind === 'box' ? 5.4 : 1.2],
@@ -293,6 +324,7 @@
       home: Object.assign({ room: 'bedroom', hide: true }, homeOf(it.id)),
       use: () => discHome(it), useLabel: it.kind === 'mag' ? 'Put it back on the mag' : 'Put it back in its case',
       onGrab: () => say(it.title, esc(pick(LINE.disc)) + ' <small>(Open the PC\'s CD tray with its eject button, then put it on the tray.)</small>', 5000) });
+    ensure(id);
     return t;
   }
   function floppyThing(it) {
@@ -523,7 +555,7 @@
   function go() {
     if (built || !H.ROOMS.bedroom || !H.ROOMS.bedroom.built || !H.SNAPS['pc.cd']) return;
     built = true;
-    try { buildShelf(); buildFloppyBox(); catalogueThing(); sync(); } catch (e) { console.error('[pm]', e); }
+    try { buildShelf(); buildFloppyBox(); catalogueThing(); sync(); prepareArtwork(); } catch (e) { console.error('[pm]', e); }
   }
   H.on('built', id => { if (id === 'bedroom') setTimeout(go, 0); });
   go(); setTimeout(go, 500); setTimeout(go, 2000);

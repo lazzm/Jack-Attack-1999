@@ -194,7 +194,7 @@
   function open(con, from, options) {
     if (V && V.background) {
       if (V.con === con) {
-        V.background = false; pb.appendChild(V.el); V.el.classList.add('on');
+        V.background = false; (V.live ? document.documentElement : pb).appendChild(V.el); V.el.classList.add('on');
         pb.classList.add('rm-console-focus'); clearInput();
         addEventListener('keydown', onKey, true); addEventListener('keyup', onKeyUp, true);
         loop.last = performance.now(); loop.acc = 0; loop.start(); _.emit('open', con); return;
@@ -219,7 +219,7 @@
       </div>
       <div class="rm-pad" hidden></div>`, 'rm-view rm-tvv' + (hand && !live ? ' rm-hand' : '') + (live ? ' rm-live3d' : ''));
     el.dataset.con = con;
-    pb.appendChild(el);
+    (live ? document.documentElement : pb).appendChild(el);
     V = { el, con, hand, live, restoring: !!(options && options.restoring), game: null, gid: '', st: 'shelf', cv0: $(el, '.rm-c0'), cv1: $(el, '.rm-c1') };
     if (live) {
       const bar = h('', 'rm-livebar'); bar.appendChild($(el, '.rm-help')); bar.appendChild($(el, '.rm-btns')); el.appendChild(bar);

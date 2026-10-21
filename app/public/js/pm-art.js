@@ -71,7 +71,7 @@
     return svg('0 0 190 240', s);
   }
   function priceOf(it) { return (PM.PRICE && PM.PRICE[it.id]) || (it.box && it.box.game && D.GAMES[it.box.game] && D.GAMES[it.box.game].price) || ''; }
-  const sticker = (x, y, rot, p) => `<g transform="translate(${x} ${y}) rotate(${rot})"><rect x="-23" y="-13" width="46" height="26" rx="3" fill="#ff7a1a" stroke="#c84a00" stroke-width=".8"/><rect x="-23" y="-13" width="46" height="8" rx="3" fill="#e05a00"/>${T(0, -6.8, 'GAMES GALAXY', 5, '#fff', { f: BLACK, ls: 0.3 })}${T(0, 8.6, '\u00a3' + p, 12, '#fff', { f: BLACK })}</g>`;
+  const sticker = (x, y, rot, p) => `<g transform="translate(${x} ${y}) rotate(${rot})"><rect x="-23" y="-13" width="46" height="26" rx="3" fill="#ff7a1a" stroke="#c84a00" stroke-width=".8"/><rect x="-23" y="-13" width="46" height="8" rx="3" fill="#e05a00"/>${T(0, -6.8, 'GAMES GALAXY', 5, '#fff', { f: BLACK, ls: 0.3 })}${T(0, 5.5, String(p), 11, '#fff', { f: BLACK })}${T(0, 11, 'RUPEES', 3.8, '#fff', { f: BLACK, ls: .5 })}</g>`;
   // the front of a game box (Discs.front) with a price sticker on (Callum's and Luke's have his name instead)
   function frontBig(it, W, H) {
     const inner = D.front(it.box).replace(/^<svg [^>]*>/, '').replace(/<\/svg>$/, ''), p = priceOf(it);

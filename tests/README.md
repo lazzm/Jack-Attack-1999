@@ -26,6 +26,10 @@ The in-room monitor regressions accept a throwaway base URL:
     node bookcase.mjs http://localhost:18080    # isolated media collection, slot returns, disc/case, tidy and refresh
     node tv-background.mjs http://localhost:18080 # Esc continuation, re-entry, background refresh, true stop
     node lighting.mjs http://localhost:18080 review # eight spaces, day/dusk/night, ceiling switch and off-light budget
+    node inspect.mjs http://localhost:18080     # same-model inspection, mouse face turns, rotation, refresh
+    node handheld.mjs http://localhost:18080    # rear cartridge, stable play pose, Esc and interrupted lift
+    node house-review.mjs http://localhost:18080 # eight spaces, stable light sources and aligned car mud
+    node art-loading.mjs http://localhost:18080 # cold artwork preparation and transition into the room
 
 Omit the last argument to `lean-qa.mjs` to run all five sizes, including 390x844. Screenshots are saved in `tests/shots/` when run from this directory. These scripts keep the real CSP enabled and use isolated browser storage.
 
