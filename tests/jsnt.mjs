@@ -1,0 +1,11 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ executablePath: '/usr/bin/chromium' });
+const errs = [];
+const mk = async (q, name) => { const p = await (await browser.newContext({ viewport: { width: 1366, height: 860 } })).newPage(); p.on('pageerror', e => errs.push(e.message)); await p.goto(process.argv[2] + '/?noboot&allsoft' + q); await p.waitForTimeout(4000); await p.evaluate(() => document.querySelectorAll('.msgbox .btn').forEach(b=>b.click())); if (name) { await p.evaluate(n => Net.send({ t: 'login', name: n, pass: 'pass1234' }), name); await p.waitForTimeout(2000); } return p; };
+const a = await mk('', null);
+await a.evaluate(() => IE.navigate('http://www.jsn.jnet/')); await a.waitForTimeout(2000); await a.screenshot({ path: 'shots/jsn-portal-oct.png' });
+console.log('links has JSN:', await a.evaluate(() => [...document.querySelectorAll('#bandLinks button')].some(b => b.textContent.includes('JSN'))));
+const b = await mk('&date99=05-01', null);
+await b.evaluate(() => IE.navigate('http://www.jsn.jnet/')); await b.waitForTimeout(2000); await b.screenshot({ path: 'shots/jsn-portal-may.png' });
+console.log(errs.join('\n') || 'no errors');
+await browser.close();

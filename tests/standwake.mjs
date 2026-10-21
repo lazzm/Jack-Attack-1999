@@ -1,0 +1,13 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ executablePath: '/usr/bin/chromium', args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const p = await b.newPage({ viewport: { width: 1366, height: 860 } }); const e = []; p.on('pageerror', x => e.push(x.message)); p.on('console', m => { if (m.type() === 'error') e.push('C ' + m.text().slice(0, 150)); });
+await p.goto('https://jacklm.com/'); await p.waitForTimeout(6000);
+await p.evaluate(() => document.querySelector('#bootPower .powerbtn').click()); await p.waitForTimeout(16000);
+await p.evaluate(() => { const bt = [...document.querySelectorAll('button')].find(b => /guest/i.test(b.textContent) && b.offsetParent); if (bt) bt.click(); }); await p.waitForTimeout(8000);
+await p.reload(); await p.waitForTimeout(9000); console.log('after reload html', await p.evaluate(() => document.documentElement.className));
+await p.keyboard.down('Escape'); await p.waitForTimeout(900); await p.keyboard.up('Escape'); await p.waitForTimeout(5000);
+const st = await p.evaluate(() => { const cs = [...document.querySelectorAll('canvas')].map(c => { const s = getComputedStyle(c), r = c.getBoundingClientRect(); return (c.id || c.className || 'canvas') + ' ' + c.width + 'x' + c.height + ' vis=' + s.visibility + ' disp=' + s.display + ' op=' + s.opacity + ' z=' + s.zIndex + ' rect=' + Math.round(r.width) + 'x' + Math.round(r.height) + ' par=' + (c.parentElement && (c.parentElement.id || c.parentElement.className)); });
+  const bp = document.getElementById('bootPower'), boot = document.getElementById('boot');
+  return { cs, boot: boot ? [boot.className, getComputedStyle(boot).display, boot.isConnected] : 'none', bp: bp ? [bp.className, bp.hidden, getComputedStyle(bp).display] : 'none', html: document.documentElement.className, body: document.body.className.slice(0, 200), where: window.Room && Room.where && Room.where() }; });
+console.log(JSON.stringify(st, null, 1)); console.log('errors', e.slice(0, 6));
+await p.screenshot({ path: 'standup.jpg', type: 'jpeg', quality: 45 }); await b.close();

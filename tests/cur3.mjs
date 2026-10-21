@@ -1,0 +1,11 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ executablePath: '/usr/bin/chromium' });
+const p = await b.newPage({ viewport: { width: 1366, height: 860 } });
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+await p.goto('http://localhost:18080/'); await p.evaluate(() => localStorage.setItem('jhp_cursor', '2')); await p.reload(); await p.waitForTimeout(4000);
+const q = () => p.evaluate(() => { const c = s => { const e = document.querySelector(s); return e ? getComputedStyle(e).cursor.slice(0, 12) : 'none'; }; return { room: c('#bootPower .pc-room'), btn: c('#bootPower .powerbtn'), skip: c('#bootSkip'), tb: c('#browser > .tb') }; });
+console.log('room', await q());
+await p.click('#bootSkip').catch(() => {}); await p.waitForTimeout(9000);
+await p.evaluate(() => { const c = document.querySelector('.logon button[type=button]'); if (c) c.click(); }); await p.waitForTimeout(3000);
+console.log('desk', await q(), errs);
+await b.close();

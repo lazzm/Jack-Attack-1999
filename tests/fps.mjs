@@ -1,0 +1,13 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const errs = [];
+const p = await (await browser.newContext({ viewport: { width: 1366, height: 860 } })).newPage(); p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push('c: ' + m.text()); });
+await p.goto(process.argv[2] + '/?noboot&allsoft'); await p.waitForTimeout(4000); await p.evaluate(() => document.querySelectorAll('.msgbox .btn').forEach(b=>b.click()));
+await p.evaluate(() => Apps.open('pcgames.jaquake', 'e1m1')); await p.waitForTimeout(8000);
+await p.keyboard.down('w'); await p.waitForTimeout(1200); await p.keyboard.up('w');
+await p.screenshot({ path: 'shots/fps-jaq.png' });
+await p.evaluate(() => document.querySelectorAll('.appwin [data-w=close]').forEach(b=>b.click())); await p.waitForTimeout(800);
+await p.evaluate(() => Apps.open('pcgames.jrt')); await p.waitForTimeout(6000); await p.screenshot({ path: 'shots/fps-jrt-menu.png' });
+await p.evaluate(() => document.querySelectorAll('.appwin [data-w=close]').forEach(b=>b.click())); await p.waitForTimeout(800);
+await p.evaluate(() => Apps.open('pcgames.jrt', 'practice')); await p.waitForTimeout(9000); await p.screenshot({ path: 'shots/fps-jrt.png' });
+console.log(errs.join('\n') || 'no errors'); await browser.close();

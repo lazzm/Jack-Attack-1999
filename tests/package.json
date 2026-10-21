@@ -1,0 +1,7 @@
+{
+  "name": "jack-attack-1999-tests",
+  "private": true,
+  "description": "Browser tests for Jack Attack 1999 (Playwright, system Chromium). Run against a local dev server: see README.md",
+  "type": "module",
+  "devDependencies": { "playwright": "1.48.2" }
+}

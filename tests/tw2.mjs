@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ executablePath: '/usr/bin/chromium' });
+const errs=[];
+const page = await (await browser.newContext({ viewport: { width: 1366, height: 860 } })).newPage();
+page.on('pageerror', e => errs.push(e.message));
+await page.goto(process.argv[2] + '/'); await page.waitForTimeout(2500);
+await page.click('#bootPower button[aria-label]'); await page.waitForTimeout(25000);
+console.log(await page.evaluate(() => ({ boot: !!document.getElementById('boot'), fs: !!document.fullscreenElement, icons: document.querySelectorAll('.dicon').length, logon: !!document.querySelector('.logon, #logon') })));
+console.log(errs.join('\n')||'no errors');
+await browser.close();

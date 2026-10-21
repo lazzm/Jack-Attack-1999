@@ -1,0 +1,11 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ executablePath: '/usr/bin/chromium' });
+const p = await (await browser.newContext({ viewport: { width: 1366, height: 860 } })).newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+await p.goto('http://localhost:18080/?noboot&allsoft'); await p.waitForTimeout(4500);
+await p.evaluate(() => Net.send({ t: 'login', name: 'LootLook', pass: 'pass1234' })); await p.waitForTimeout(3000);
+const apps = await p.evaluate(() => Object.keys(Apps.apps).filter(k => /loot/i.test(k)));
+console.log('apps', apps.join(' '));
+await p.evaluate(() => document.querySelectorAll('.appwin [data-w=close], .msgbox .btn').forEach(b => b.click()));
+await p.evaluate(a => Apps.open(a[0]), apps); await p.waitForTimeout(3000); await p.screenshot({ path: 'shots/loot-chest.png' });
+await p.evaluate(() => IE.navigate('http://www.lootlings.jnet/')); await p.waitForTimeout(2500); await p.screenshot({ path: 'shots/loot-web.png' });
+console.log(errs.join('\n') || 'no errors'); await browser.close();
