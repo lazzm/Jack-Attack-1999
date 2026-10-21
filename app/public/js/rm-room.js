@@ -93,6 +93,13 @@
 
   // ================================================================ no WebGL: the PC on its own (the old dark room), the hook still there
   if (!GL) {
+    const entry = document.getElementById('houseEntry');
+    if (entry) {
+      entry.setAttribute('role','alert');
+      entry.querySelector('strong').textContent = '3D GRAPHICS UNAVAILABLE';
+      entry.querySelector('span').textContent = 'The house needs WebGL graphics. Check hardware acceleration in your browser, then reload.';
+      const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Reload'; retry.addEventListener('click', () => location.reload()); entry.appendChild(retry);
+    }
     pb.classList.add('hs-nogl');
     window.Room = { spots: () => [], _clues: () => [], addClue() {}, addSpot() { return { obj: null }; }, grabbable() { return null; }, addSnap() {}, on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, say() {}, toast() {}, look() {}, found: id => !!S.f[id], owned: () => false, where: () => '', tidy() {}, held: () => null, drive: () => ({}), eject() {},
       _: { S, save, spot() {}, SPOTS: {}, emit, secret, isOut, foundIt() {}, search() {}, freeze: () => true, sfx, esc, pb, coin: {}, tvOn() {} } };

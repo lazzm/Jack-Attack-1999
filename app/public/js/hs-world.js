@@ -271,7 +271,8 @@
   let warmed = 0;
   function reveal() { // hold black while everything builds and uploads (never longer than ~5 s), then fade in once, fully drawn
     ui.fade(true, 0); const t0 = performance.now();
-    const go = () => { if (!window.HouseRooms && performance.now() - t0 < 1500 && window.House && !warmed) return setTimeout(go, 100); prewarm(); warmed = 1; setTimeout(() => ui.fade(false, 400), 60); };
+    const uncover = () => { ui.fade(false, 400); setTimeout(() => { const panel = document.getElementById('houseEntry'); if (panel) panel.remove(); html.classList.remove('house-entering'); }, 420); };
+    const go = () => { if (!window.HouseRooms && performance.now() - t0 < 1500 && window.House && !warmed) return setTimeout(go, 100); prewarm(); warmed = 1; setTimeout(uncover, 60); };
     setTimeout(go, 30); setTimeout(() => ui.fade(false, 400), 5000);
     setTimeout(prewarm, 4000); // (rooms that load lazily, warmed behind the scenes)
   }
@@ -1185,9 +1186,14 @@
     measure(); uiMount();
     html.classList.add('hs-live');
     const s = savedPose();
-    if (!restorePose(s)) { Object.assign(P, seatPose()); setWalkFrom(Object.assign({ lvl: 'U' }, P)); }
+    if (!restorePose(s)) {
+      // Enter the game standing in the room, not parked at the old tower intro.
+      const entry = {x:40,y:LV.U-STAND,z:155,rx:-8,ry:-40,seat:0,lvl:'U'};
+      Object.assign(P, entry); setWalkFrom(entry);
+    }
     if (!cur) { cur = ROOMS.bedroom; buildRoom(cur); visCalc(); }
     reveal();
+    render();
     setMode(BOOT === 'forced' || pb.classList.contains('auto') ? 'follow' : 'walk');
     stIdx = nearestStation(); ui.where();
     if (!raf) raf = requestAnimationFrame(loop);

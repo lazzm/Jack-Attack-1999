@@ -17,6 +17,14 @@
     else m = Date.now() - (+ls.getItem('jhp_last') || 0) < 48 * 3600 * 1000 ? 'wake' : 'old';
   } catch (e) {}
   window.JHPBoot = m;
+  if (m === 'room' || m === 'old') {
+    // The old CSS tower is not an entry screen: wait for the walkable house.
+    document.documentElement.classList.add('house-entering');
+    var entry = document.createElement('div'); entry.id = 'houseEntry'; entry.setAttribute('role', 'status');
+    var title = document.createElement('strong'); title.textContent = 'ENTERING HOUSE';
+    var note = document.createElement('span'); note.textContent = 'Preparing the room...';
+    entry.append(title, note); document.documentElement.appendChild(entry);
+  }
   if (m === 'wake') document.documentElement.classList.add('pc-wake');
   try { var st = JSON.parse(localStorage.getItem('jhp_hs_stand') || 'null'); if (m === 'wake' && st) { window.JHPStood = st; document.documentElement.classList.add('pc-standwake'); } } catch (e) {} // (stay hidden until the saved room is ready, without an arbitrary pose expiry)
   if (m === 'skip') document.documentElement.classList.add('pc-skip'); // no flash of the room straight after Log Off

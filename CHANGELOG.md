@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.28.1 - 2026-10-21
+- Removed the legacy PC-only power-button landing view from cold entry. Fresh visits now start standing at a walkable bedroom overview; saved positions and powered-on desktop resumes are unchanged. The PC remains an in-world object which can be switched on manually.
+- The old CSS tower is hidden behind a short, period-styled room-preparation message until the actual house is rendered and revealed. If the renderer is unavailable, a clear WebGL/reload message replaces the obsolete entry screen instead of leaving the player stranded there.
+- Verified on isolated temporary data: delayed-engine loading without an intro flash, fresh entry and saved-position refresh at 1366x860 and touch-enabled 390x844, manual PC power-on/logon, and a simulated renderer-unavailable branch. Screenshots inspected; no browser errors/warnings in the normal-entry regressions or server module-load errors. Actual unsupported phone hardware was not available to reproduce the owner's device failure. Mandatory accounts and the proposed pounds-to-Rupees bank remain unchanged, pending approval of their separate persistent wallet change.
+
 ## 2.28.0 - 2026-10-21
 - PC Restart now reuses the room and boot sequence instead of reloading the browser. Physical props and the background console runtime remain alive. Repeated restart requests are guarded; desktop game saves flush and PC windows close before the next boot. Shut Down retains its existing in-room power cycle.
 - Guest Log Off now returns to the logon screen inside the same 3D monitor without rebuilding the house. Repeated logoff works; entering the monitor clears the standing HUD/input flag, including after resize. Member logoff and incoming roaming-profile changes deliberately retain their existing reload: safely replacing profile-owned in-memory state needs a separate account-handover change.
