@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.29.2 - 2026-10-21
+- Rebuilt the bedroom desk lamp with connected twin arms, hinge pins, anchored springs, a weighted base and rocker switch. Its head sits clear of the arms; the shade is a solid rolled-edge metal shell with a cream interior and recessed bulb/socket, not a double-sided open cylinder. Fixed details are batched; the shade uses two material groups.
+- The warm light now originates at the modelled bulb, with a shorter desk-lamp range. Bulb and interior glow switch off properly. Clicking always toggles the lamp, including when it reveals a hidden item; saved on/off state survives refresh. Added a routed power cable and second plug on the shared wall plate, clearing the desktop edge, back panel, wall and skirting.
+- Tested on isolated data: physical bulb/light alignment, sampled cable-radius clearances, repeated switching, actual E-key and mouse-click use, and off/on refresh. Inspected close, reverse, interior, day/night and 1366x860/390x844 screenshots and iterated on the model. No browser errors/warnings or module-load errors in the final regression. Limits: Chromium/software WebGL only; no other-browser/physical-phone verification or whole-house lighting overhaul. The previously identified room-boundary lighting and doorway shadow strip remain unfixed.
+
 ## 2.29.1 - 2026-10-21
 - Rebuilt the bedroom beanbag as one closed fabric skin with a depressed seat, raised back, panel seams, matte woven fabric and refill zip. Removed the separate raised 'dent' lump and conspicuous horizontal texture bands. Collision bounds now cover the wider shape.
 - Rebuilt the Ultra 64 and PlaySpace pads with solid contoured upper/lower shells, D-pads, shoulder buttons, raised face buttons, analogue controls, underside details and strain reliefs. Fixed controllers/cables are batched by material rather than adding a draw call for every small part. Existing interaction targets and console gameplay are unchanged.

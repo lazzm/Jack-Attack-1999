@@ -201,7 +201,7 @@
     lights: () => {
       const L = [];
       const ph = skyPhase || 'day', day = ph === 'day', dim = ph === 'dusk' || ph === 'dawn';
-      if (LIGHT.lamp) L.push({ x: -50, y: -27, z: -34, c: '#ffd6a3', i: 1.2, d: 390 });
+      if (LIGHT.lamp) { const p=R.lampSource||{x:-52.65,y:-33.65,z:-30};L.push({x:p.x,y:p.y,z:p.z,c:'#ffd6a3',i:1.2,d:190}); }
       if (LIGHT.main) L.push({ x: -20, y: -140, z: 90, c: '#fff0d6', i: 1.15, d: 680 });
       L.push({ x: 191, y: -60, z: -10, c: day ? '#e2ecff' : dim ? '#ffd0af' : '#8c9fc4', i: day ? .85 : dim ? .5 : .16, d: day ? 620 : 420 });
       if (LIGHT.lava) L.push({ x: 130, y: -6, z: -44, c: '#ff6d9c', i: .32, d: 150 });
@@ -331,16 +331,7 @@
     const chairThing = H.thing('chair', { kind: 'furniture', label: 'My office chair', holdD: 74, home: { room: 'bedroom', x: L0().mx + 92, y: FY, z: 100, ry: 38 }, obj: chairGroup });
     H.restoreThing(chairThing);
     // the desk lamp (an anglepoise; it really lights the room)
-    const lamp = new T.Group(); lamp.position.set(-62, 0, -40); r.group.add(lamp); const LP = K.into(lamp);
-    LP.cyl(0, -1.2, 0, 6, 6.5, 2.4, 20, mDark); LP.shadow(0, 0, 0, 18, 18, 0.7);
-    LP.cyl(0, -14, 0, 0.8, 0.8, 26, 8, mDark, { rz: 14 }); LP.ball(-3.2, -27, 0, 1.6, 1.6, 1.6, mMetal, 8);
-    LP.cyl(4, -30, 0, 0.8, 0.8, 16, 8, mDark, { rz: -62 });
-    { const spr = (x0, y0, x1, y1) => { const pts = []; const n = 34; for (let i = 0; i <= n; i++) { const t = i / n, a = t * Math.PI * 2 * 9; pts.push(new T.Vector3(x0 + (x1 - x0) * t + Math.cos(a) * 0.45, y0 + (y1 - y0) * t + Math.sin(a) * 0.45, 0)); } LP.geo(new T.TubeGeometry(new T.CatmullRomCurve3(pts), 120, 0.12, 4), 0, 0, 0, mMetal); };
-      spr(-5, -12, 1, -24); spr(-1, -26, 8, -31); LP.cyl(-3.2, -27, 0, 0.5, 0.5, 2.4, 6, mMetal, { rx: 90 }); LP.cyl(12, -31, 1, 0.5, 0.5, 2.4, 6, mMetal, { rx: 90 }); }
-    const shade = new T.Group(); shade.position.set(11, -32, 2); shade.rotation.z = 0.6; lamp.add(shade); const SH = K.into(shade);
-    SH.cyl(0, 0, 0, 2.2, 7.5, 9, 18, { s: M({ c: '#1e1e22', sh: 40, sp: '#333', side: 2 }), t: mDark, u: M({ c: '#fff6d8', basic: true }) }, { open: true });
-    R.bulb = SH.ball(0, 2, 0, 2.2, 2.2, 2.2, M({ c: '#fff4c8', basic: true }).clone(), 10);
-    H.spot('lamp', { label: 'Desk lamp', obj: lamp, act: () => { const hid = CAT.FINDS.filter(f => f.spot === 'lamp' && isOut(f.from) && !S.f[f.id]); if (hid.length && Math.random() < 0.5) return foundIt(hid[0]); LIGHT.lamp = !LIGHT.lamp; saveLights(); lampLook(); H.relight(); sfx('click'); say('Desk lamp', LIGHT.lamp ? 'Click. On. It gets REALLY hot. Do not touch the shade.' : 'Click. Off. Spooky.'); } });
+    buildDeskLamp(r);
     // little things on the desk: revision books, a mug of cold tea, a pencil pot
     const bk = B.at(-44, 0, -46, 8);
     ['#c02a2a', '#2a5ab0', '#e8b020', '#2a8a4a'].forEach((c, i) => bk.rbox(i * 0.6 - 1, -1.1 - i * 2.2, i * 0.4, 21, 2, 29, 0.4, M(c)));
@@ -401,6 +392,46 @@
   const PICK = new T.MeshBasicMaterial({ visible: false });
   function pickBox(r, id, x, y, z, w, h, d, ry) { const m = new T.Mesh(new T.BoxGeometry(w, h, d), PICK); m.position.set(x, y, z); m.rotation.y = (ry || 0) * D2R; r.group.add(m); m.userData.spot = id; const s = H.SPOTS[id]; H.spot(id, Object.assign({}, s || { label: id }, { obj: m })); return m; }
 
+  function buildDeskLamp(r) {
+    const lamp=new T.Group();lamp.name='desk-lamp';lamp.position.set(-62,0,-40);r.group.add(lamp);
+    const fixed=K.batch(),LP=K.into(fixed),enamel=M({c:'#303238',sh:28,sp:'#35363a'});
+    LP.cyl(0,-1.25,0,6.1,6.5,2.5,32,enamel);LP.cyl(0,-0.16,0,6.1,6.1,0.25,32,M('#1a1c20'));LP.shadow(0,0,0,17,17,0.6);
+    LP.cyl(-1,-3,0,1.6,1.8,1.8,16,enamel);
+    const base=new T.Vector3(-1,-3,0),elbow=new T.Vector3(-7,-23,0),head=new T.Vector3(10,-35,10),angle=0.45;
+    const wrist=new T.Vector3(head.x+Math.sin(angle)*5,head.y-Math.cos(angle)*5,0);
+    function rod(a,b,radius,material){const d=b.clone().sub(a),g=new T.CylinderGeometry(radius,radius,d.length(),10);g.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),d.normalize())));const mid=a.clone().add(b).multiplyScalar(0.5);LP.geo(g,mid.x,mid.y,mid.z,material)}
+    for(const [a,b]of [[base,elbow],[elbow,wrist]]){
+      for(const z of [-0.9,0.9])rod(a.clone().setZ(z),b.clone().setZ(z),0.38,enamel);
+      const p=a.clone().lerp(b,0.22).setZ(1.45),q=a.clone().lerp(b,0.78).setZ(1.45),axis=q.clone().sub(p).normalize(),side=new T.Vector3(-axis.y,axis.x,0),pts=[];
+      for(let i=0;i<=100;i++){const t=i/100,phase=t*Math.PI*18,rad=0.38*Math.sin(Math.PI*t);pts.push(p.clone().lerp(q,t).addScaledVector(side,Math.cos(phase)*rad).add(new T.Vector3(0,0,Math.sin(phase)*rad)))}
+      LP.geo(new T.TubeGeometry(new T.CatmullRomCurve3(pts),120,0.09,5),0,0,0,mMetal);
+      for(const v of [p,q]){rod(v.clone().setZ(0.9),v,0.15,mMetal);LP.ball(v.x,v.y,v.z,0.22,0.22,0.22,mMetal,8)}
+    }
+    for(const p of [base,elbow,wrist]){LP.cyl(p.x,p.y,0,1.1,1.1,2.8,16,enamel,{rx:90});for(const z of [-1.5,1.5])LP.cyl(p.x,p.y,z,0.55,0.55,0.3,12,mMetal,{rx:90})}
+    rod(wrist,new T.Vector3(wrist.x,wrist.y,head.z),0.65,enamel); // mount behind the head: neither arm crosses the shade opening
+    fixed.build(lamp);
+    const shade=new T.Group();shade.name='lamp-shade';shade.position.copy(head);shade.rotation.z=angle;lamp.add(shade);const SH=K.into(shade);
+    // A closed metal shell with a rolled rim and separately lit cream interior.
+    const profile=[[1.9,-5],[2.4,-4.7],[3.2,-2],[5.2,1.5],[7.4,4.5],[7.6,5],[7.3,5.3],[7,4.8],[4.8,1.7],[2.8,-1.7],[1.8,-4.2],[1.5,-4.2],[1.5,-5],[1.9,-5]];
+    const shell=new T.LatheGeometry(profile.map(p=>new T.Vector2(...p)),32),indices=shell.index.array,outer=[],inner=[];
+    for(let seg=0;seg<32;seg++)for(let j=0;j<profile.length-1;j++){const dest=j>=6&&j<=10?inner:outer,start=(seg*(profile.length-1)+j)*6;for(let k=0;k<6;k++)dest.push(indices[start+k])}
+    shell.setIndex(outer.concat(inner));shell.clearGroups();shell.addGroup(0,outer.length,0);shell.addGroup(outer.length,inner.length,1);
+    R.lampLiner=M({c:'#d9d2bd',e:'#000000',sh:12}).clone();
+    const shellMesh=new T.Mesh(shell,[enamel,R.lampLiner]);shellMesh.name='lamp-shell';shade.add(shellMesh);
+    SH.cyl(0,-3,0,1.35,1.35,3,16,M('#4a4540'));SH.cyl(0,-0.8,0,1,1,1.6,16,mMetal);
+    R.bulb=SH.ball(0,1.5,0,2,2.4,2,M({c:'#e4dfd0',e:'#000000',sh:25}).clone(),20);R.bulb.name='lamp-bulb';
+    R.lampSource=new T.Vector3(0,1.5,0).applyAxisAngle(new T.Vector3(0,0,1),angle).add(head).add(lamp.position);
+    R.lampButton=K.into(lamp).rbox(2,-2.6,1.4,2.2,0.8,1.4,0.25,M('#55585d'));R.lampButton.name='lamp-switch';R.lampButton.matrix.decompose(R.lampButton.position,R.lampButton.quaternion,R.lampButton.scale);
+    const cable=K.into(lamp);lead(cable,[[0,-1.1,-6.2],[-3,-0.65,-9],[-8,-0.65,-10],[-10,-0.65,-12],[-10,-0.65,-15],[-10,-0.65,-15.65],[-10,0.2,-15.65],[-10,6,-15.65],[-19,20,-15.65],[-25,42,-13.3],[-32,50,-12.5],[-32,54,-12.5]],'#28282b','desk-lamp-power');
+    cable.rbox(-32,54,-13.9,3.3,3.8,1.4,0.35,M('#353536'));cable.cyl(-32,54,-12.9,0.5,0.5,0.8,10,M('#29292b'),{rx:90});
+    H.spot('lamp',{label:'Desk lamp',obj:lamp,act:()=>{
+      LIGHT.lamp=!LIGHT.lamp;saveLights();lampLook();H.relight();sfx('click');
+      const hidden=CAT.FINDS.filter(f=>f.spot==='lamp'&&isOut(f.from)&&!S.f[f.id]);if(hidden.length&&Math.random()<0.5)return foundIt(hidden[0]);
+      say('Desk lamp',LIGHT.lamp?'Click. On. It gets REALLY hot. Do not touch the shade.':'Click. Off. Spooky.');
+    }});
+    R.lampLiner=shellMesh.material[1]; // interaction adoption gives each picked mesh its own materials
+  }
+
   // ---------------------------------------------------------------- the telly corner: cabinet, telly, consoles, CD rack, beanbag
   function buildTellyCorner(B, r) {
     const pm = mPine();
@@ -453,10 +484,10 @@
     lead(PD,[[TX-24.54,48,-13.9],[TX-24.54,48,-9],[TX-24.54,68,-7],[TX-25,floorY,-3],[TX-26,floorY,7],[TX-22,floorY,14],[TX-15,floorY,15],end(TX-10,26,16)],'#27282b','ultra-pad');
     lead(PD,[[TX+8.17,48,-13.9],[TX+8.17,48,-8],[TX+8.17,68,-6],[TX+10,floorY,1],[TX+23,floorY,8],[TX+26,floorY,17],[TX+21,floorY,21],end(TX+16,30,-12)],'#8a877f','playspace-pad');
     lead(PD,[[TX+5,16,-53],[TX+5,16,-55.45],[TX+27,24,-55.45],[TX+29,60,-55.45],[TX+39,60,-55.45],[TX+39,60,-53.85],[TX+39,FY-0.6,-53.85],[-105,FY-0.6,-53.85],[-100,69,-53.85],[-100,60,-52.5],[-100,54,-52.5]],'#252527','tv-power');
-    PD.rbox(-98,54,BZ+0.7,12,8,1.4,0.5,mWhite);
+    PD.rbox(-97,54,BZ+0.7,18,8,1.4,0.5,mWhite);
     PD.rbox(-100,54,-53.9,3.3,3.8,1.4,0.35,M('#353536'));
     PD.cyl(-100,54,-52.9,0.5,0.5,0.8,10,M('#29292b'),{rx:90});
-    PD.box(-94.5,53.7,-54.52,1.2,1.8,0.2,M('#a39c8d'));
+    PD.box(-90.5,53.7,-54.52,1.2,1.8,0.2,M('#a39c8d'));
     padsBatch.build(pads);pads.userData.cables=padsBatch.routes;
     H.spot('pads', { label: 'Controllers', obj: pads, act: () => say('Controllers', 'The Ultra 64 pad and the PlaySpace pad. D-pads, shoulder buttons, and a loose stick from too much Kart Kaos. Their leads run back to the console sockets.') });
     // behind the telly: a nest of leads (where the Segue game fell)
@@ -592,7 +623,8 @@
     }
     path.add(new T.LineCurve3(start,points[points.length-1]));const radius=0.28;
     P.geo(new T.TubeGeometry(path,Math.max(48,pts.length*12),radius,6),0,0,0,M({c:col,sh:14,sp:'#222'}));
-    if(P.batch){P.batch.routes=P.batch.routes||[];P.batch.routes.push({id,radius,points:path.getSpacedPoints(160).map(p=>p.toArray())})}
+    const routes=P.batch?(P.batch.routes=P.batch.routes||[]):P.group?(P.group.userData.cables=P.group.userData.cables||[]):null;
+    if(routes)routes.push({id,radius,points:path.getSpacedPoints(160).map(p=>p.toArray())});
   }
   function taper(w, h, d, k) { const g = new T.BoxGeometry(w, h, d); const p = g.attributes.position; for (let i = 0; i < p.count; i++) if (p.getZ(i) < 0) { p.setX(i, p.getX(i) * k); p.setY(i, p.getY(i) * k); } g.computeVertexNormals(); return g; }
   function flipUV(geo) { const u = geo.attributes.uv; for (let i = 0; i < u.count; i++) u.setY(i, 1 - u.getY(i)); }
@@ -769,7 +801,9 @@
     H.spot('lantern', { label: 'Ceiling light', obj: cl, act: () => H.act('switch') });
   }
   function lampLook() {
-    if (R.bulb) R.bulb.material.color.set(LIGHT.lamp ? '#fff4c8' : '#5a5448');
+    if(R.bulb){R.bulb.material.color.set(LIGHT.lamp?'#fff1cf':'#c3beb0');R.bulb.material.emissive.set(LIGHT.lamp?'#ffc77a':'#000000');R.bulb.material.userData.e0=R.bulb.material.emissive.clone()}
+    if(R.lampLiner){R.lampLiner.emissive.set(LIGHT.lamp?'#4a3520':'#000000');R.lampLiner.userData.e0=R.lampLiner.emissive.clone()}
+    if(R.lampButton){R.lampButton.rotation.z=(LIGHT.lamp?-8:8)*D2R;R.lampButton.updateMatrix()}
     if (R.lantern) { const ms = [].concat(R.lantern.material); for (const m of ms) { m.emissive.set(LIGHT.main ? '#c8b890' : '#000000'); m.userData.e0 = m.emissive.clone(); } }
     if (R.rocker) R.rocker.rotation.z = (LIGHT.main ? -12 : 12) * D2R;
     H.dirty();
