@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.21.1 - 2026-10-21
+- The tab-title lock is a script file now (the site's security policy blocked it inline).
+
 ## 2.21.0 - 2026-10-21
 - The stairwell rebuilt properly: one even flight that stops at the wall, aligned string/handrail/spindles, a closed-in cupboard
   under the slope, the fuse box on the hall wall.
