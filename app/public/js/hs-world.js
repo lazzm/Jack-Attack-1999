@@ -696,7 +696,7 @@
     if (KEYMOVE[k]) { if (cancelGlide() || !glide) keys[KEYMOVE[k]] = true; ev.preventDefault(); ev.stopImmediatePropagation(); ui.crossOn(); return; }
     if (k === 'Shift') { keys.run = true; return; }
     if (k === ' ' && !(t && t.closest && t.closest('button'))) { ev.preventDefault(); ev.stopImmediatePropagation(); if (held) drop(); else keys.jump = true; return; }
-    if ((k === 'c' || k === 'C') && !ev.ctrlKey && !ev.metaKey || k === 'Control') { keys.crouch = true; if (k === 'Control') return; ev.preventDefault(); return; }
+    if ((k === 'c' || k === 'C') && !ev.ctrlKey && !ev.metaKey) { keys.crouch = true; ev.preventDefault(); return; } // (C only: Ctrl + W would close the tab)
     if (k === 'e' || k === 'E' || k === 'Enter') {
       if (t && t.closest && t.closest('button') && k !== 'e' && k !== 'E') return; // (Enter/Space on a focused button is that button's)
       ev.preventDefault(); ev.stopImmediatePropagation();
@@ -711,7 +711,7 @@
     if ((k === 'g' || k === 'G') && !ev.ctrlKey && !ev.metaKey) { gfxNext(); return; }
     if (k === 'Tab' && !ev.ctrlKey && !ev.altKey) { /* (Tab stays the browser's: the power button must stay reachable) */ }
   }
-  function onKeyUp(ev) { const k = KEYMOVE[ev.key]; if (k) keys[k] = false; if (ev.key === 'Shift') keys.run = false; if (ev.key === 'c' || ev.key === 'C' || ev.key === 'Control') keys.crouch = false; }
+  function onKeyUp(ev) { const k = KEYMOVE[ev.key]; if (k) keys[k] = false; if (ev.key === 'Shift') keys.run = false; if (ev.key === 'c' || ev.key === 'C') keys.crouch = false; }
   addEventListener('keydown', onKey, true); addEventListener('keyup', onKeyUp, true);
   addEventListener('blur', () => { for (const k in keys) keys[k] = false; joy.on = false; });
 

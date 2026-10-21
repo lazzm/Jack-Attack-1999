@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.21.3 - 2026-10-21
+- Crouch is C only (Ctrl + W while crouching closed the browser tab).
+
 ## 2.21.2 - 2026-10-21
 - Walking again after letting go of the mouse re-locks it reliably (keeps retrying while you move).
 
