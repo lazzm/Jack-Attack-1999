@@ -31,8 +31,12 @@ The in-room monitor regressions accept a throwaway base URL:
     node handheld.mjs http://localhost:18080    # rear cartridge, stable play pose, Esc and interrupted lift
     node house-review.mjs http://localhost:18080 # eight spaces, stable light sources and aligned car mud
     node art-loading.mjs http://localhost:18080 # cold artwork preparation and transition into the room
+    node house-resume.mjs http://localhost:18080 bedroom,landing,hall,cupboard # refresh, saved doors and carry/jump/inspect controls
+    node house-resume.mjs http://localhost:18080 lounge,kitchen,garden,drive # downstairs/outdoors, narrow view and powered-off resume
+    node house-save.mjs http://localhost:18080 # deferred props, unbuilt room saves, old poses and invalid-camera recovery
 
 Omit the last argument to `lean-qa.mjs` to run all five sizes, including 390x844. Screenshots are saved in `tests/shots/` when run from this directory. These scripts keep the real CSP enabled and use isolated browser storage.
+The two `house-resume.mjs` batches avoid long-running software-WebGL sessions; omit the room list to run all eight together. Its room placement uses collision-valid cells rather than claiming to exercise a complete walked route through every doorway. Both new house regression scripts reject non-localhost targets.
 
 Most print `no errors` / `NO ERRORS` when they pass. Screenshots go in `shots/` (git-ignored).
 Some scripts have a hard-coded URL or port near the top: check before running. On the server they are run under

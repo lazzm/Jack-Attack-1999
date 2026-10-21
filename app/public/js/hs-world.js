@@ -177,6 +177,8 @@
     r.group = new T.Group(); r.group.name = id; r.group.visible = false; root.add(r.group);
     r.things = new T.Group(); r.group.add(r.things);
     r.supports = r.supports || []; r.walls = r.walls || null;
+    // A bedroom prop may have been left in a room whose definition was lazy.
+    for (const [tid, t] of pendingRestores) if (loadThings().t[tid][0] === id) { pendingRestores.delete(tid); restoreThing(t); }
     return r;
   }
   function buildRoom(r) {
@@ -360,7 +362,7 @@
   }
 
   // ================================================================ things you can pick up and put down (the grab system)
-  const THINGS = {}, SNAPS = {};
+  const THINGS = {}, SNAPS = {}, pendingRestores = new Map();
   let held = null; // { id, d (distance), ry (extra turn), from (where it was) }
   let saveT = 0;
   function thing(id, def) {
@@ -394,6 +396,7 @@
   function grab(id) {
     const t = THINGS[id]; if (!t || held) return false;
     if (t.canGrab && !t.canGrab()) return false;
+    pendingRestores.delete(id); // a new grab supersedes an old deferred placement
     anims.delete('snap:' + id);
     const was = t.st === 'snap' || t.st === 'anim' ? t.snap : null;
     held = { id, d: clamp(t.holdD || 55, 30, 140), ry: 0, from: Object.assign({}, t.at), was, sx: t.at.x, sy: t.at.y, sz: t.at.z };
@@ -541,9 +544,12 @@
   function saveThings(immediate) {
     clearTimeout(saveT);
     const write = () => {
-      const st = {};
-      for (const id in THINGS) { const t = THINGS[id]; if (t.noSave) continue; const a = t.at; st[id] = [a.room, +a.x.toFixed(1), +a.y.toFixed(1), +a.z.toFixed(1), Math.round(a.ry || 0), t.st === 'snap' ? t.snap : 0, a.hide ? 1 : 0]; }
-      const op = {}; for (const id in OPEN) if (OPEN[id].open) op[id] = 1;
+      // Keep records belonging to unbuilt rooms; saving the bedroom must not
+      // erase the rest of the house, nor overwrite a deferred prop with its home.
+      const previous = loadThings(), st = Object.assign({}, previous.t), op = Object.assign({}, previous.o);
+      for (const id in THINGS) { const t = THINGS[id]; if (t.noSave || pendingRestores.has(id)) continue; const a = t.at; st[id] = [a.room, +a.x.toFixed(1), +a.y.toFixed(1), +a.z.toFixed(1), Math.round(a.ry || 0), t.st === 'snap' ? t.snap : 0, a.hide ? 1 : 0]; }
+      for (const id in OPEN) { if (OPEN[id].open) op[id] = 1; else delete op[id]; }
+      loaded = {t:st,o:op};
       try { if (window.Apps && Apps.saveGame) Apps.saveGame('hs.things', { t: st, o: op }, { v: 1 }); else ls.set('jhp_hs_things', { t: st, o: op }); } catch (e) {}
     };
     if (immediate === true) write(); else saveT = setTimeout(write, 600);
@@ -555,7 +561,9 @@
     return loaded;
   }
   function restoreThing(t) { // where this visitor left it last time
-    const s = loadThings().t[t.id]; if (!s || !ROOMS[s[0]]) return;
+    const s = loadThings().t[t.id]; if (!s) return;
+    if (!ROOMS[s[0]]) { pendingRestores.set(t.id,t); return; }
+    pendingRestores.delete(t.id);
     t.at = { room: s[0], x: s[1], y: s[2], z: s[3], ry: s[4], hide: !!s[6] };
     if (s[5] && SNAPS[s[5]]) {
       t.st = 'snap'; t.snap = s[5];
@@ -566,7 +574,7 @@
     moveTo(t, t.at.room); place(t); layerFor(t);
   }
   function tidy(rid) { // everything back where it lives (Mom tidied up)
-    for (const id in THINGS) { const t = THINGS[id]; if (rid && t.home.room !== rid && t.at.room !== rid) continue; if (held && held.id === id) { held = null; ui.holdBar(null); } t.st = t.home.snap ? 'snap' : 'rest'; t.snap = t.home.snap || null; t.at = Object.assign({}, t.home); moveTo(t, t.home.room); place(t); layerFor(t); }
+    for (const id in THINGS) { const t = THINGS[id]; if (rid && t.home.room !== rid && t.at.room !== rid) continue; pendingRestores.delete(id); if (held && held.id === id) { held = null; ui.holdBar(null); } t.st = t.home.snap ? 'snap' : 'rest'; t.snap = t.home.snap || null; t.at = Object.assign({}, t.home); moveTo(t, t.home.room); place(t); layerFor(t); }
     emit('tidy', rid); saveThings(); dirty();
   }
   // things that open and shut: drawers, doors, lids (a hinge or a slide)
@@ -728,7 +736,7 @@
     const k = ev.key;
     if (KEYMOVE[k]) { wantLock(); if (cancelGlide() || !glide) keys[KEYMOVE[k]] = true; ev.preventDefault(); ev.stopImmediatePropagation(); ui.crossOn(); return; }
     if (k === 'Shift') { keys.run = true; return; }
-    if (k === ' ' && !(t && t.closest && t.closest('button'))) { ev.preventDefault(); ev.stopImmediatePropagation(); if (held) drop(); else keys.jump = true; return; }
+    if (k === ' ' && !(t && t.closest && t.closest('button'))) { ev.preventDefault(); ev.stopImmediatePropagation(); if (!ev.repeat) keys.jump = true; return; }
     if ((k === 'c' || k === 'C') && !ev.ctrlKey && !ev.metaKey) { keys.crouch = true; ev.preventDefault(); return; } // (C only: Ctrl + W would close the tab)
     if (k === 'e' || k === 'E' || k === 'Enter') {
       if (ev.repeat) { ev.preventDefault(); return; }
@@ -1007,7 +1015,7 @@
         if (!hold.querySelector('[data-h=inspect]')) {const b = document.createElement('button'); b.type = 'button'; b.dataset.h = 'inspect'; b.textContent = 'Inspect'; hold.querySelector('.hs-hbtn').prepend(b);}
         hold.hidden = false; el.classList.add('holding');
         hold.querySelector('.hs-hname').textContent = typeof t.label === 'function' ? t.label() : t.label;
-        hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : 'Click: put down &middot; R: turn &middot; I: inspect &middot; Wheel: distance &middot; Esc: put back' + (t.use ? ` &middot; <b>F</b>: ${esc(t.useLabel || 'use it')}` : '');
+        hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : 'Click / E: put down &middot; R: turn &middot; I: inspect &middot; Space: jump &middot; Wheel: distance &middot; Esc: put back' + (t.use ? ` &middot; <b>F</b>: ${esc(t.useLabel || 'use it')}` : '');
         const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use; u.textContent = t.useLabel || 'Use';
       },
       snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML = `<b>${esc(s.hint || 'Click/E to place it')}</b>`; else if (held) this.holdBar(THINGS[held.id]); },
@@ -1176,8 +1184,7 @@
     measure(); uiMount();
     html.classList.add('hs-live');
     const s = savedPose();
-    if (s) { P.x = s.x; P.y = s.y; P.z = s.z; P.rx = s.rx; P.ry = s.ry; setWalkFrom(Object.assign({}, s, { seat: s.seat })); }
-    else { Object.assign(P, seatPose()); setWalkFrom(Object.assign({ lvl: 'U' }, P)); }
+    if (!restorePose(s)) { Object.assign(P, seatPose()); setWalkFrom(Object.assign({ lvl: 'U' }, P)); }
     if (!cur) { cur = ROOMS.bedroom; buildRoom(cur); visCalc(); }
     reveal();
     setMode(BOOT === 'forced' || pb.classList.contains('auto') ? 'follow' : 'walk');
@@ -1187,18 +1194,42 @@
     if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', touchy() ? 'Use the stick (bottom left) to walk, and drag to look round. Press things to use them, or to pick them up.' : '<b>W A S D</b> (or the arrow keys) to walk, drag to look. Shift to jog, <b>C</b> to crouch. Click or <b>E</b> to use things or pick them up. <b>G</b>: graphics.', 9000); }, 1400);
     emit('start');
   }
-  // remember where you were (a refresh while walking round puts you back there; a switch-off or a long gap starts at the desk)
+  // Save grounded poses (not head-bob/jump offsets). Load the destination before
+  // collision validation: downstairs rooms and their grids are created lazily.
   let poseT = 0;
-  function savePose() { if (mode !== 'walk' || stood) return; ls.set('jhp_hs_pose', { x: +P.x.toFixed(1), y: +P.y.toFixed(1), z: +P.z.toFixed(1), rx: +P.rx.toFixed(1), ry: +P.ry.toFixed(1), seat: W.seat ? 1 : 0, lvl: W.lvl, t: Date.now() }); }
-  function savedPose() { const s = ls.get('jhp_hs_pose', null); if (!s || Date.now() - s.t > 45 * 60000 || BOOT === 'forced') return null; if (!cellOk(s.lvl || 'U', s.x, s.z) && !s.seat) return null; if (ROOMS.bedroom && !inArea(ROOMS.bedroom, s.x, s.z, s.lvl || 'U')) return null; return s; }
+  function walkingPose() {
+    const d = {}; for (const id in DOORS) if (!DOORS[id].always) d[id] = !!DOORS[id].open;
+    return {x:+W.x.toFixed(1), y:+(W.fy - W.eyeNow).toFixed(1), z:+W.z.toFixed(1), rx:+P.rx.toFixed(1), ry:+P.ry.toFixed(1), seat:W.seat ? 1 : 0, lvl:W.lvl, d};
+  }
+  function validPose(s) { return !!s && ['x','y','z','rx','ry'].every(k => Number.isFinite(s[k])) && ['U','G'].includes(s.lvl || 'U') && Math.abs(s.y) < 1000 && Math.abs(s.rx) <= 90; }
+  function savePose() { if (!['walk','glide'].includes(mode) || stood) return; ls.set('jhp_hs_pose', Object.assign(walkingPose(), {t:Date.now()})); }
+  function savedPose() { const s = ls.get('jhp_hs_pose', null); return BOOT !== 'forced' && validPose(s) ? s : null; }
+  function restorePose(s) {
+    if (!validPose(s)) return false;
+    const lvl = s.lvl || 'U', r = roomAt(s.x, s.z, lvl); if (!r) return false;
+    buildRoom(r);
+    if (s.d && typeof s.d === 'object') for (const id in DOORS) {
+      const d = DOORS[id]; if (d.always || typeof s.d[id] !== 'boolean') continue;
+      d.open = s.d[id]; d.ang = d.open ? 1 : 0; anims.delete('door:' + id);
+      if (d.pivot) d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1);
+    }
+    grids.dirty = true;
+    if (!s.seat && !floorAt(s.x, s.z, lvl, s.y + (r.eye || STAND))) return false;
+    Object.assign(P, {x:s.x,y:s.y,z:s.z,rx:s.rx,ry:s.ry});
+    const old = cur; cur = r; W.vx = W.vz = W.jh = W.jv = W.bob = 0;
+    setWalkFrom(s); visCalc(); stIdx = nearestStation(); ui.where();
+    if (old !== r) emit('room', r.id, old && old.id);
+    return true;
+  }
   function saveStood() {
     if (!stood || standing || mode === 'sit') return;
     try {
-      const p = mode === 'walk' ? { x:+P.x.toFixed(1), y:+P.y.toFixed(1), z:+P.z.toFixed(1), rx:+P.rx.toFixed(1), ry:+P.ry.toFixed(1), seat:W.seat ? 1 : 0, lvl:W.lvl } : (ls.get('jhp_hs_stand', {}) || {}).p;
+      const p = ['walk','glide'].includes(mode) ? walkingPose() : (ls.get('jhp_hs_stand', {}) || {}).p;
       ls.set('jhp_hs_stand', {t:Date.now(), p}); localStorage.setItem('jhp_last', String(Date.now()));
     } catch (e) {}
   }
-  setInterval(saveStood, 1000); addEventListener('pagehide', saveStood);
+  function saveWalkState() { savePose(); saveStood(); }
+  setInterval(saveStood, 1000); addEventListener('pagehide', saveWalkState);
   setInterval(() => { if (live && mode === 'walk' && Date.now() - poseT > 1500) { poseT = Date.now(); savePose(); } }, 2000);
   // pb's classes tell us what boot.js is up to
   new MutationObserver(() => {
@@ -1430,11 +1461,28 @@
     } catch (e) { console.error(e); }
   }
   setInterval(wdCheck, 1500);
-  bootDone.then(() => { const s = ls.get('jhp_hs_stand', null), away = (window.JHPAway || 0) > 10 * 3600000; if (!(BOOT === 'wake' && (away || (s && Date.now() - s.t < 30 * 60000)))) unhideStand(); if (BOOT === 'wake' && (away || (s && Date.now() - s.t < 30 * 60000))) { let tries = 0; const go = () => { if (!canStand() && window.JHPStood && ++tries < 80) return setTimeout(go, 100); if (!canStand()) unhideStand(); if (canStand()) { let sp0 = !away && s && s.p; try { standUp(true); } catch (e) { console.error(e); unhideStand(); } { let did = false; (EVS.stood = EVS.stood || []).push(() => { if (did) return; did = true; if (sp0 && !(ROOMS.bedroom && inArea(ROOMS.bedroom, sp0.x, sp0.z, sp0.lvl || 'U'))) sp0 = null; /* (the rest of the house isn't loaded yet and its doors start shut: a refresh outside the bedroom puts you back by the desk, never in an undrawn room) */ if (sp0) { Object.assign(P, { x: sp0.x, y: sp0.y, z: sp0.z, rx: sp0.rx, ry: sp0.ry }); setWalkFrom(sp0); } dirty(); unhideStand(); }); } if (away) setTimeout(() => ui.say('You left the PC on', 'It\'s been on all this time (Dad will NOT be happy about the electric). Your stuff is still on the screen: click the monitor to sit back down.', 7000), 400); } }; setTimeout(go, window.JHPStood ? 0 : 1600); } });
+  bootDone.then(() => {
+    const s = ls.get('jhp_hs_stand', null), away = (window.JHPAway || 0) > 10 * 3600000;
+    if (BOOT !== 'wake' || (!away && !s)) { unhideStand(); return; }
+    let tries = 0;
+    const go = async () => {
+      if (!canStand() && ++tries < 80) return setTimeout(go, 100);
+      if (!canStand()) { unhideStand(); return; }
+      try {
+        // Register doors and collision before restoring a downstairs/outdoor pose.
+        if (validPose(s && s.p) && window.Room && Room.ensureHouse) await Room.ensureHouse();
+        const restored = () => { window.House.off('stood', restored); restorePose(s && s.p); dirty(); unhideStand(); };
+        window.House.on('stood', restored);
+        if (!standUp(true)) { window.House.off('stood', restored); unhideStand(); }
+      } catch (e) { console.error(e); unhideStand(); }
+      if (away) setTimeout(() => ui.say('You left the PC on', 'Your stuff is still on the screen. Click the monitor to sit back down.', 7000), 400);
+    };
+    setTimeout(go, window.JHPStood ? 0 : 1600);
+  });
 
   // ================================================================ resizing, rotating, the tab going away
   addEventListener('resize', () => { if (!live) return; measure(); if (monitor) Object.assign(P, monitorPose()); else if (mode === 'walk' && W.seat && Math.abs(P.ry - seatPose().ry) < 1) { Object.assign(P, seatPose()); } dirty(); });
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) { lastT = 0; dirty(); } else { for (const k in keys) keys[k] = false; unlock(); } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { lastT = 0; dirty(); } else { saveWalkState(); for (const k in keys) keys[k] = false; unlock(); } });
 
   // ================================================================ the API
   window.House = {

@@ -1139,6 +1139,7 @@
   // ================================================================ downstairs (js/hs-house.js, loaded the first time you open the door)
   let houseP = null;
   function ensureHouse() {
+    if (houseP) return houseP; // init marks ready before its door-registration microtask finishes
     if (window.HouseRooms && HouseRooms.ready) return Promise.resolve();
     if (!houseP) houseP = loadJs('js/hs-house.js').then(() => { if (!window.HouseRooms) throw new Error('no house'); return HouseRooms.init(); }).catch(e => { houseP = null; throw e; });
     return houseP;
@@ -1420,6 +1421,7 @@
   };
   // first visit: a gentle hint (on paper, like Jack's other notes)
   function hint() {
+    if (H.here !== 'bedroom') return; // an outdoor resume is not a first bedroom visit
     if (S.seen._hint2) return; S.seen._hint2 = 1; save();
     const touch = !!(window.matchMedia && (matchMedia('(hover:none)').matches || matchMedia('(pointer:coarse)').matches));
     say("Jack's room", touch ? 'This is my room! Walk round with the stick (bottom left), drag to look, and press on things to use them or pick them up. The PC is on the desk: its power button is on the tower.' : 'This is my room! Walk round with <b>W A S D</b> (or the arrow keys), drag to look, click things to use them or pick them up. The arrows jump to the good spots. The PC\'s power button is on the tower.', 11000);

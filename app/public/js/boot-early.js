@@ -18,6 +18,6 @@
   } catch (e) {}
   window.JHPBoot = m;
   if (m === 'wake') document.documentElement.classList.add('pc-wake');
-  try { var st = JSON.parse(localStorage.getItem('jhp_hs_stand') || 'null'); if (m === 'wake' && st && Date.now() - st.t < 30 * 60000) { window.JHPStood = st; document.documentElement.classList.add('pc-standwake'); } } catch (e) {} // (a refresh while stood up: stay hidden until hs-world.js has stood us back up, no desktop flash)
+  try { var st = JSON.parse(localStorage.getItem('jhp_hs_stand') || 'null'); if (m === 'wake' && st) { window.JHPStood = st; document.documentElement.classList.add('pc-standwake'); } } catch (e) {} // (stay hidden until the saved room is ready, without an arbitrary pose expiry)
   if (m === 'skip') document.documentElement.classList.add('pc-skip'); // no flash of the room straight after Log Off
 })();
