@@ -17,7 +17,7 @@
 .rm-tvv.rm-lockin .rm-tvwrap{display:block;position:absolute;left:50%;top:50%;width:var(--lock-width);height:var(--lock-height);margin:0!important;transform:translate(-50%,-50%);transition:none}
 .rm-tvv.rm-lockin .rm-tvbez{position:absolute;inset:0;width:100%;height:100%;padding:0;aspect-ratio:auto;border:0;border-radius:0;background:#000;box-shadow:none}
 .rm-tvv.rm-lockin .rm-glass{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;border-radius:0;box-shadow:none}
-.rm-tvv.rm-lockin .rm-tvwrap::after,.rm-tvv.rm-lockin .rm-tvbez>:not(.rm-glass),.rm-tvv.rm-lockin .rm-livebar,.rm-tvv.rm-lockin .rm-side,.rm-tvv.rm-lockin .rm-res{display:none!important}
+.rm-tvv.rm-lockin .rm-tvwrap::after,.rm-tvv.rm-lockin .rm-tvbez::before,.rm-tvv.rm-lockin .rm-tvbez::after,.rm-tvv.rm-lockin .rm-tvbez>:not(.rm-glass),.rm-tvv.rm-lockin .rm-livebar,.rm-tvv.rm-lockin .rm-side,.rm-tvv.rm-lockin .rm-res{display:none!important}
 .rm-live3d.rm-padon .rm-livebar{bottom:min(32vh,240px)}
 .rm-live3d.rm-padon .rm-pad{height:min(30vh,220px)}
 .rm-live3d .rm-st,.rm-live3d .rm-sh{min-height:44px;min-width:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center}

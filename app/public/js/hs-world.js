@@ -459,7 +459,7 @@
     held = { id, d: clamp(t.holdD || 55, 30, 140), ry: 0, from: Object.assign({}, t.at), was, sx: t.at.x, sy: t.at.y, sz: t.at.z };
     if (was) { const sn = SNAPS[was]; t.snap = null; if (sn && sn.onUnsnap) try { sn.onUnsnap(t); } catch (e) { console.error(e); } emit('unsnap', was, id); }
     t.st = 'held'; t.at.hide = false; t.obj.visible = true;
-    t.obj.traverse(o => o.layers.set(1));
+    layerFor(t); // update the cached front-layer state too, even before a frame renders
     if (cur && t.obj.parent !== cur.things) cur.things.attach ? cur.things.add(t.obj) : 0;
     sfx.tone(520, 0.05, 'triangle', 0.05); sfx.tone(780, 0.05, 'triangle', 0.04, 0.05);
     ui.holdBar(t);

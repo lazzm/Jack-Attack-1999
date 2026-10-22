@@ -1617,9 +1617,13 @@
         tx.image = canvas; tx.userData = tx.userData || {}; tx.userData.jackLive = true; tx.minFilter = T.LinearFilter; tx.magFilter = T.LinearFilter; tx.generateMipmaps = false;
         const hud = tx.userData.hud || (tx.userData.hud = new T.CanvasTexture(overlay || document.createElement('canvas')));
         hud.image = overlay || hud.image; hud.minFilter = T.LinearFilter; hud.magFilter = T.LinearFilter; hud.generateMipmaps = false; hud.needsUpdate = true;
+        // three.js caches this material's live-screen program across console
+        // changes. Its compiled uniforms must keep the same object identities;
+        // a fresh texture-owned object leaves the old game's HUD bound.
+        const uniforms=m.userData.rmCRTUniforms||(m.userData.rmCRTUniforms={rmHUD:{value:hud},rmLines:{value:canvas.height}});
+        uniforms.rmHUD.value=hud;uniforms.rmLines.value=canvas.height;tx.userData.uniforms=uniforms;
         tx.needsUpdate = true; m.map = tx; m.color.set('#ffffff');
         if (fresh) {
-          const uniforms = tx.userData.uniforms = { rmHUD: { value: hud }, rmLines: { value: canvas.height } };
           m.onBeforeCompile = shader => {
             Object.assign(shader.uniforms, uniforms);
             shader.fragmentShader = 'uniform sampler2D rmHUD;\nuniform float rmLines;\n' + shader.fragmentShader;

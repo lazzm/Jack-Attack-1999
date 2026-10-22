@@ -55,6 +55,7 @@
       ['S', 3, 3, 7, 6], ['T', 14, 8, 17, 12], ['U', 9, 3, 12, 6], ['V', 31, 27, 34, 28], ['W', 31, 32, 34, 36], ['X', 14, 20, 17, 21],
       ['Y', 22, 10, 24, 12], ['Z', 31, 20, 34, 22]];
     for (const [ch, c0, r0, c1, r1] of LM) fill(c0, r0, c1, r1, ch);
+    H(39,44,45,'r'); // lighthouse forecourt: connects the coast road to its pickup/drop-off
     fill(0, 0, N - 1, 0, '%'); fill(0, 0, 0, 41, '%'); fill(N - 1, 0, N - 1, 41, '%');
     return { G, LM };
   }
