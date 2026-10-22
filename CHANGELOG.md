@@ -1,5 +1,9 @@
 # Jack's Home Page - changelog
 
+## 2.31.2 - 2026-10-22
+- Moved the new quick lean-back shortcut from Q to Backspace after the screenshot/control review exposed existing Q shoulder-button, weapon-swap and camera controls in console games. Those game controls remain unchanged. Backspace leaves PC/TV/handheld/focused views or inspection in one press; Esc still opens the menu, and editing text retains ordinary Backspace deletion. Updated all new hints and standing controls accordingly.
+- Repeated isolated PC/console/family-TV quick-exit, continuing-game, LOCK IN and editable-field regressions; reviewed screenshots. The chair-placement fix from 2.31.1 is unchanged. TV-side shelf customisation and new console-game boxes remain the next separate task. No manual live-data edits; physical hardware/other browsers remain unverified.
+
 ## 2.31.1 - 2026-10-22
 - Fixed furniture placement when looking down: a floor-only item aimed into the player's own footprint now settles just beyond their feet if the full destination is safe. Walls, doors, other furniture and the monitor approach remain protected; no unrestricted free-space search or clipping bypass. Placement and walking use the same rotated player-clearance calculation, including after turning a chair with R.
 - Floor furniture lands fully upright instead of retaining the last fraction of the held-object sway. The chair/beanbag F hint correctly says "put down", not the inherited "Inspect" label. Rejection text explains aiming farther ahead; the Esc-menu return remains available.

@@ -15,7 +15,7 @@
  <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [0]<small class="hs-lock-help">Full-screen view of the screen you are using. Press 0 again to return. Original proportions are preserved.</small></label>
  <label>Graphics <select name="graphics"><option value="auto">Automatic</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
- <p class="hs-pause-keys">WASD: walk · Mouse: look · F: interact<br>Shift: jog · C: crouch · Space: jump<br>I: inspect · R: turn · Click: place<br>Q: lean back · 0: LOCK IN · Esc: menu</p>
+ <p class="hs-pause-keys">WASD: walk · Mouse: look · F: interact<br>Shift: jog · C: crouch · Space: jump<br>I: inspect · R: turn · Click: place<br>Backspace: lean back · 0: LOCK IN · Esc: menu</p>
  <p class="hs-pause-status" role="status">Movement is stopped. Online programs and the TV keep running.</p></div>`;
  document.documentElement.appendChild(el);
  let previous=null;

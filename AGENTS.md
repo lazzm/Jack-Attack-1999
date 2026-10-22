@@ -55,7 +55,7 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
 - The site's CSP is `script-src 'self'`: no inline scripts or inline event handlers; put code in files.
 - Controls in the house: WASD/arrows walk, Shift jog, C crouch (never Ctrl: Ctrl+W closes the tab), Space jump,
   F interacts (use/grab; insert at a highlighted slot; otherwise use a held object or put it down), E/click are
-  placement/interaction alternatives, I inspects, R turns, Q leans back from screens/inspection (not while typing),
+  placement/interaction alternatives, I inspects, R turns, Backspace leans back from screens/inspection (not while typing),
   Esc opens the game menu (including return/leave actions). F2 stands up from the PC,
   0 toggles LOCK IN for the active in-game screen (never while typing), G graphics, F9 god mode (owner "Jack" only).
   Keep on-screen prompts consistent; never intercept Ctrl+F. LOCK IN preserves the screen's native aspect ratio and running state.

@@ -798,7 +798,7 @@
     if(window.HousePause&&HousePause.handleEscape(ev))return;
     if(controlsPaused)return;
     const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
-    if(ev.key.toLowerCase()==='q'&&!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&t?.tagName!=='SELECT'&&window.HousePause?.canBack){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)HousePause.quickBack();return;}
+    if(ev.key==='Backspace'&&!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&t?.tagName!=='SELECT'&&window.HousePause?.canBack){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)HousePause.quickBack();return;}
     if (inspection) { if (ev.key === 'Escape' || ev.key.toLowerCase() === 'i') endInspect(); ev.preventDefault(); ev.stopImmediatePropagation(); return; }
     if (mode === 'focus' && ev.key === 'Escape' && !viewOpen()) { ev.preventDefault(); ev.stopImmediatePropagation(); if (focusS && focusS.o.esc && focusS.o.esc() === false) return; unfocus(); return; }
     if (viewOpen() || (mode !== 'walk' && mode !== 'glide')) { if (mode === 'stand' || mode === 'sit') { ev.preventDefault(); ev.stopImmediatePropagation(); } return; }
@@ -1103,7 +1103,7 @@
       crossOn() { el.classList.add('cross'); clearTimeout(crossT); crossT = setTimeout(() => el.classList.remove('cross'), 2500); },
       fade(on, ms) { const f = $('.hs-fade'); f.style.transitionDuration = (ms || 300) + 'ms'; f.classList.toggle('on', !!on); },
       modalOpen: () => !!el.querySelector('.hs-modal.on'),
-      focusBar(label) { const b = $('.hs-getup'); b.hidden = !label; if (label) b.querySelector('span').textContent = label + (touchy()?'':' [Q]'); el.classList.toggle('focus', !!label); },
+      focusBar(label) { const b = $('.hs-getup'); b.hidden = !label; if (label) b.querySelector('span').textContent = label + (touchy()?'':' [Backspace]'); el.classList.toggle('focus', !!label); },
       map() { // a tiny plan of the floor you're on, with you on it
         const r = cur; if (!r) return; const w = 84, h = 84;
         mg.clearRect(0, 0, w, h);
@@ -1517,7 +1517,7 @@
   }, true);
   addEventListener('keyup', ev => { if (ev.key === 'Escape') { clearTimeout(escT); standBtn.classList.remove('hold'); } });
   const standBtn = document.createElement('button');
-  standBtn.type = 'button'; standBtn.className = 'hs-standbtn'; standBtn.title = 'Stand up. The PC stays on. (Q / F2, or Esc > Back to the room.)';
+  standBtn.type = 'button'; standBtn.className = 'hs-standbtn'; standBtn.title = 'Stand up. The PC stays on. (Backspace / F2, or Esc > Back to the room.)';
   standBtn.setAttribute('aria-label', 'Stand up from the PC and go in your room. The PC stays on.');
   standBtn.innerHTML = '<svg viewBox="0 0 16 16" width="16" height="16" shape-rendering="crispEdges" aria-hidden="true"><path fill="#000" d="M4 1h7v1H4zM3 2h1v6H3zM11 2h1v6H11zM2 8h12v1H2zM2 9h1v2H2zM13 9h1v2H13zM3 11h10v1H3zM7 12h2v2H7zM4 14h8v1H4zM4 15h1v1H4zM11 15h1v1H11z"/><path fill="#1a3a9a" d="M4 2h7v6H4z"/><path fill="#3a6ad8" d="M5 3h2v4H5z"/><path fill="#808080" d="M3 9h10v2H3z"/><path fill="#c0c0c0" d="M3 9h10v1H3z"/></svg>';
   standBtn.addEventListener('click', () => standUp());
@@ -1539,7 +1539,7 @@
     if (ls.get('jhp_hs_standhint', 0) || stood) return; ls.set('jhp_hs_standhint', 1);
     const b = document.createElement('div'); b.className = 'hs-standtip'; b.setAttribute('role', 'status');
     b.style.cssText = 'position:fixed;left:6px;bottom:36px;z-index:30000;max-width:250px;padding:8px 26px 8px 10px;background:#ffffe1;color:#000;border:1px solid #000;font:11px Tahoma,Verdana,sans-serif;box-shadow:2px 2px 0 rgba(0,0,0,.35);cursor:pointer';
-    b.innerHTML = '<b>Want a look round your room?</b><br>Press Q to lean back and walk around. The PC stays on. Walk back and press F at the monitor to sit down. F2, the chair button and Esc &gt; Back to the room also work.<span style="position:absolute;right:6px;top:4px;font-weight:700">&times;</span>';
+    b.innerHTML = '<b>Want a look round your room?</b><br>Press Backspace to lean back and walk around. The PC stays on. Walk back and press F at the monitor to sit down. F2, the chair button and Esc &gt; Back to the room also work.<span style="position:absolute;right:6px;top:4px;font-weight:700">&times;</span>';
     b.addEventListener('click', () => b.remove()); monitorSurfaceEl.appendChild(b); setTimeout(() => b.remove(), 14000);
   }
   // a refresh while standing up: the PC wakes up as normal, and we stand straight back up
