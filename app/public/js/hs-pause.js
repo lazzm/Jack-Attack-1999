@@ -19,6 +19,9 @@
  <p class="hs-pause-keys">WASD: walk · Mouse: look · F: use / play<br>E / Click: pick up, remove, place<br>Shift: jog · C: crouch · Space: jump<br>I: inspect · R: turn<br>Backspace: lean back · 0: LOCK IN · Esc: menu</p>
  <p class="hs-pause-status" role="status">Movement is stopped. Online programs and the TV keep running.</p></div>`;
  document.documentElement.appendChild(el);
+ const stamp=new URL(document.querySelector('script[src*="js/hs-pause.js"]')?.src||location.href).searchParams.get('v')||'',release=stamp.includes('-')?stamp.match(/^\d+\.\d+\.\d+/)?.[0]:null;
+ const version=document.createElement('small');version.className='hs-pause-version';version.style.cssText='display:block;text-align:right;padding:0 16px 12px;color:#b8aa84;font:11px monospace';el.appendChild(version);
+ function showVersion(v){const current=release||v||window.Net?.me.version;version.textContent=current?'VERSION '+current:'DEVELOPMENT BUILD'}showVersion();window.Net?.on('welcome',m=>showVersion(m.v));
  let previous=null;
  const button=k=>el.querySelector('[data-pause="'+k+'"]');
  function canBack(){return!!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_)}

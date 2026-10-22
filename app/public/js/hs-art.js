@@ -232,6 +232,22 @@
   P.note = [128, 128, (g, w, h) => { g.fillStyle = '#fff38a'; g.fillRect(0, 0, w, h); g.fillStyle = 'rgba(0,0,0,.05)'; g.fillRect(0, 0, w, 14); }];
   P.noteBlue = [128, 128, (g, w, h) => { g.fillStyle = '#9af0ff'; g.fillRect(0, 0, w, h); }];
 
+  // Low-resolution painted illustrations, with separately typeset print.
+  const extraPrints={posterBand:['band','THE MODEM','BOYS','LIVE • DIAL-UP TOUR 99','#aa4c20'],posterShuttle:['shuttle','STS-93','COLUMBIA • 1999','REACH FOR THE STARS','#245969']};
+  const prints={posterFilm:['space','INTERGALACTIC','BATTLES','EPISODE 0: THE PHANTOM MENU','#a77331'],posterGame:['hover','HYPER DRIVE','2000','FREE WITH JACK ATTACK! ISSUE 9','#245969'],posterRobot:['robots','ROBO','RUMBLE','BUILD IT • BASH IT • BIN IT','#8d4c22'],mag:['hover','JACK ATTACK!','DAYDREAM!','100s OF CHEATS INSIDE','#b92532'],magB:['critters','ULTRA 64 PLAYER','CRITTER SPECIAL','MAPS • TIPS • SECRET CODES','#756023'],magC:['dungeon','PC ZONE OUT','DUNGEON KEEPA 2','10 DEMOS • FULL REVIEWS','#265d9c']};
+  Object.assign(prints,extraPrints);
+  for(const[name,[art,title,sub,footer,col]]of Object.entries(prints)){
+    const old=P[name][2];P[name][2]=(g,w,h)=>{
+      if(!window.PrintArt?.has(art)){old(g,w,h);return}
+      g.fillStyle='#172431';g.fillRect(0,0,w,h);PrintArt.paint(g,art,8,79,w-16,h-132);
+      g.fillStyle='#e8dec3';g.fillRect(0,0,w,74);g.fillRect(0,h-47,w,47);
+      g.fillStyle=col;g.fillRect(0,0,w,5);g.fillRect(0,69,w,5);
+      fit(g,title,w-22,name.startsWith('mag')?44:39,FONT);text(g,title,w/2,38,g.font,'#192534','center');
+      fit(g,sub,w-22,21,FONT);text(g,sub,w/2,62,g.font,col,'center');
+      fit(g,footer,w-20,13,UIF);text(g,footer,w/2,h-23,g.font,'#253447','center');
+      text(g,'1999 • PRINTED FOR JACKNET',w/2,h-8,'8px '+UIF,'#5d594f','center');
+    };
+  }
   const cache = {};
   function t(name, o) {
     if (cache[name]) return cache[name];
@@ -240,7 +256,9 @@
     return cache[name] = tx;
   }
   // a texture with world-scale tiling (the kit's uv option does the maths: one tile = `cm` centimetres)
-  window.HouseArt = { P, t, rr, star, lin, text, grain, mottle, FONT, UIF, HAND };
+  function printed(key,w,h,draw,o){const tx=K.tex(key,w,h,draw,o);window.PrintArt?.ready.then(()=>{const g=tx.userData.g;g.save();g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);draw(g,w,h);g.restore();tx.needsUpdate=true;window.House?.dirty()});return tx}
+  window.HouseArt = { P, t, printed, rr, star, lin, text, grain, mottle, FONT, UIF, HAND };
+  if(window.PrintArt)PrintArt.ready.then(()=>{for(const n of Object.keys(prints)){const tx=cache[n],p=P[n];if(tx){const g=tx.userData.g;g.clearRect(0,0,p[0],p[1]);p[2](g,p[0],p[1]);tx.needsUpdate=true}}window.House?.dirty()});
   // fonts arrive late: repaint the texts once they're in
   try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { for (const n in cache) { const tx = cache[n], p = P[n]; if (!tx || !p) continue; const g = tx.userData.g; g.clearRect(0, 0, p[0], p[1]); try { p[2](g, p[0], p[1]); } catch (e) {} tx.needsUpdate = true; } if (window.House && House.dirty) House.dirty(); }); } catch (e) {}
 })();

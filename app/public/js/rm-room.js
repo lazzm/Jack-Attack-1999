@@ -842,9 +842,9 @@
     function item(id,title,mag,index,cover,start){
       if(!Number.isInteger(slots[id])){slots[id]=used.has(index)?Array.from({length:32},(_,n)=>n).find(n=>!used.has(n)):index;used.add(slots[id]);saveSlots()}
       const n=slots[id],obj=new T.Group(),O=K.into(obj),col=['#354a65','#8b3c30','#485b41','#b08740','#554364'][index%5];
-      const print=K.tex('reading.print.'+id,256,mag?340:384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);c.font='bold 26px Georgia';K.wrapText(c,title,20,64,w-40,31);c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':'JACKSOFT PAPERBACKS',20,h-42);c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,h*.5+k*11,105,70)},{clamp:true});
+      const print=A.printed('reading.print.'+id,256,mag?340:384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);c.font='bold 26px Georgia';K.wrapText(c,title,20,64,w-40,31);c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':'JACKSOFT PAPERBACKS',20,h-42);const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):['city','space','critters','robots','space','robots'][+id.split('.').pop()];if(!window.PrintArt?.paint(c,art,20,h*.46,w-40,h*.34)){c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,h*.5+k*11,105,70)}},{clamp:true});
       const spine=K.tex('reading.spine.'+id,64,384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.translate(w/2,h/2);c.rotate(-Math.PI/2);c.fillStyle='#f3e6c1';let size=24;c.font='bold '+size+'px Georgia';while(c.measureText(title).width>h-22&&size>10)c.font='bold '+(--size)+'px Georgia';c.textAlign='center';c.fillText(title,0,8)},{clamp:true});
-      if(mag){const rear=K.tex('reading.rear.'+id,256,340,(c,w,h)=>{c.translate(w,h);c.rotate(Math.PI);c.drawImage(print.image,0,0,w,h)},{clamp:true});O.box(0,-.4,0,21,.8,28,{t:M({c:'#fff',map:cover?tex(cover):print}),u:M({c:'#fff',map:rear}),l:M({c:'#fff',map:spine}),all:M('#e6dfcf')});O.shadow(0,0,0,22,29,.25,{sq:true})}
+      if(mag){const rear=A.printed('reading.rear.'+id,256,340,(c,w,h)=>{c.translate(w,h);c.rotate(Math.PI);c.drawImage(print.image,0,0,w,h)},{clamp:true});O.box(0,-.4,0,21,.8,28,{t:M({c:'#fff',map:cover?tex(cover):print}),u:M({c:'#fff',map:rear}),l:M({c:'#fff',map:spine}),all:M('#e6dfcf')});O.shadow(0,0,0,22,29,.25,{sq:true})}
       else{O.box(0,-11,0,14,22,2,{f:M({c:'#fff',map:print}),b:M({c:'#fff',map:print}),l:M({c:'#fff',map:spine}),all:M('#e3d9bf')});O.box(0,-.12,0,14.2,.24,2.2,M(col));O.box(0,-21.88,0,14.2,.24,2.2,M(col));O.shadow(0,0,0,16,4,.3,{sq:true})}
       const home={...pose(n,mag),snap:'reading.slot.'+n},t=H.thing(id,{obj,home:start||home,kind:mag?'reading.mag':'reading.book',label:title,holdD:38,useLabel:'Read / inspect',use:()=>H.inspect(id)});
       if(!start){t.st='snap';t.snap=home.snap;t.rx=home.rx;H.place(t)}H.restoreThing(t);t.home=home;
@@ -859,7 +859,18 @@
   function buildDoor(B, r) {
     const fm = mWhite, x = RX, z0 = DOOR.z0, z1 = DOOR.z1, y0 = DOOR.y0;
     B.box(x - 1, (y0 + FY) / 2, z0 - 3, 2.4, FY - y0, 6, fm); B.box(x - 1, (y0 + FY) / 2, z1 + 3, 2.4, FY - y0, 6, fm); B.box(x - 1, y0 - 3, (z0 + z1) / 2, 2.4, 6, z1 - z0 + 12, fm);
-    B.plane(x + 5, (y0 + FY) / 2, z0, 10, FY - y0, M('#e4e0d4'), { ry: 0 }); B.plane(x + 5, (y0 + FY) / 2, z1, 10, FY - y0, M('#e4e0d4'), { ry: 180 }); B.plane(x + 5, y0, (z0 + z1) / 2, 10, z1 - z0, M('#e4e0d4'), { rx: -90 });
+    // The shared 240..250 reveal must survive either room being culled.
+    const frame = new T.Group(); frame.name = 'bedroom-door-frame';
+    const J = K.into(frame), jm = M('#e4e0d4'), mid = (z0 + z1) / 2, height = FY - y0;
+    J.box(x + 5, (y0 + FY) / 2, z0 - 1, 10, height, 2, jm);
+    J.box(x + 5, (y0 + FY) / 2, z1 + 1, 10, height, 2, jm);
+    J.box(x + 5, y0 - 1, mid, 10, 2, z1 - z0, jm);
+    // A real planted stop overlaps the leaf clearances on its landing side;
+    // it stays clear of the leaf's inward swing (closed outer face x244.8).
+    J.box(x + 6, (y0 + FY) / 2, z0 + 1, 2, height, 2.4, fm);
+    J.box(x + 6, (y0 + FY) / 2, z1 - 1, 2, height, 2.4, fm);
+    J.box(x + 6, y0 + 0.8, mid, 2, 2, z1 - z0 - 4.4, fm);
+    J.box(x + 6, FY - 0.4, mid, 2, 0.8, z1 - z0 - 4.4, jm);
     const dp = new T.Group(); dp.position.set(x + 3, 0, z1); r.group.add(dp); const DP = K.into(dp);
     const dw = z1 - z0 - 1, dh = FY - y0 - 1, dc = -dw / 2;
     DP.box(0, y0 + 0.5 + dh / 2, dc, 3.6, dh, dw, M({ c: '#efebe2', map: tex('whiteGloss'), sh: 24, sp: '#333' }));
@@ -867,7 +878,7 @@
     [-1, 1].forEach(s => { DP.box(s * 2.4, -30, dc - dw / 2 + 7, 1.2, 2.2, 1.6, mBrass); DP.box(s * 4, -30, dc - dw / 2 + 10, 1.4, 1.4, 7, mBrass); });
     DP.rbox(-4.5, -40, dc + 18, 4, 70, 18, 2, M('#7a1a2a')); // a dressing gown on a hook
     DP.plane(2.6, -70, dc - 4, 22, 14, M({ c: '#fff', map: K.tex('rm.sign', 256, 160, (g, w, h) => { g.fillStyle = '#111'; g.fillRect(0, 0, w, h); g.strokeStyle = '#ffd400'; g.lineWidth = 8; g.strokeRect(6, 6, w - 12, h - 12); A.text(g, 'JACK\'S ROOM', 128, 66, '44px ' + A.FONT, '#ffd400', 'center'); A.text(g, 'KNOCK FIRST. YES, YOU, ' + ((window.Cast ? Cast.n('sister') : 'SIS')).toUpperCase(), 128, 120, '700 14px ' + A.UIF, '#fff', 'center'); }) }), { ry: 90 });
-    H.door('bedroom', { rooms: ['bedroom', 'landing'], pivot: dp, swing: 96, dir: 1, open: false }); S.door = 0; // (always shut at the start of a visit)
+    H.door('bedroom', { rooms: ['bedroom', 'landing'], pivot: dp, frame, swing: 96, dir: 1, open: false }); S.door = 0; // (always shut at the start of a visit)
     H.spot('door', { label: () => H.DOORS.bedroom.open ? 'Shut the door' : 'The door', range: 300, obj: dp, act: () => { const o = !H.DOORS.bedroom.open; ensureHouse().then(() => { H.setDoor('bedroom', o); S.door = o ? 1 : 0; save(); }, () => say('Hmm', 'The door is stuck. Try again in a minute.')); } });
     const sw = new T.Group(); sw.position.set(x - 0.6, -32, z0 - 16); r.group.add(sw); const SW = K.into(sw); // the light switch
     SW.box(0, 0, 0, 1.2, 8.6, 8.6, mWhite); R.rocker = SW.box(-0.8, 0, 0, 1, 2.4, 1.4, M('#d8d4c8'));R.rocker.matrix.decompose(R.rocker.position,R.rocker.quaternion,R.rocker.scale);
@@ -1453,10 +1464,10 @@
   const onMediaRack=box=>Math.abs(box.at.z+43)<1&&Math.abs(box.at.x-(TX-56))<17;
   function rackPose(slot){return{room:'bedroom',x:TX-66.5+(slot%4)*7,y:7+Math.floor(slot/4)*15,z:-43,ry:90};}
   // Small, period-style printed illustrations; lettering is drawn separately.
-  const caseArtFiles={'n64.kart':'kart','n64.range':'spy','ps.run':'wombat'},caseArt={};
+  const caseArtFiles={'n64.kart':'/art/box-v1/kart.webp','n64.range':'/art/box-v1/spy.webp','ps.run':'/art/box-v1/wombat.webp','ps.grav':'/art/print-v2/hover.webp','gb.mon':'/art/print-v2/critters.webp','gb.mon2':'/art/print-v2/critters.webp'},caseArt={};
   function printedCaseTexture(key,g,w,h,paint){
     const tx=K.tex(key,w,h,paint,{clamp:true}),file=caseArtFiles[g.id];
-    if(file){let entry=caseArt[file];if(!entry){entry=caseArt[file]={image:new Image(),ready:false,prints:new Map()};entry.image.onload=()=>{entry.ready=true;for(const [texture,draw]of entry.prints){const canvas=texture.image,ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);draw(ctx,canvas.width,canvas.height);texture.needsUpdate=true}H.dirty()};entry.image.src='/art/box-v1/'+file+'.webp'}entry.prints.set(tx,paint)}
+    if(file){let entry=caseArt[file];if(!entry){entry=caseArt[file]={image:new Image(),ready:false,prints:new Map()};entry.image.onload=()=>{entry.ready=true;for(const [texture,draw]of entry.prints){const canvas=texture.image,ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);draw(ctx,canvas.width,canvas.height);texture.needsUpdate=true}H.dirty()};entry.image.src=file}entry.prints.set(tx,paint)}
     return tx;
   }
   function caseScene(c,g){

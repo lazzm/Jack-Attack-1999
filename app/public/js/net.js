@@ -31,6 +31,7 @@
       if (m.t === 'welcome') { try { sessionStorage.setItem('jhp_prev_id', String(m.id)); } catch (e) {} me.id = m.id; me.nick = m.nick; me.col = m.col; me.member = m.member; me.no = m.memberNo; if (!m.member) store.del('jhp_token'); }
       if (m.t === 'loginOk') { me.nick = m.nick; me.member = true; me.no = m.no; store.set('jhp_token', m.token); }
       if (m.t === 'you') { me.nick = m.nick; me.member = m.member; if (!m.member) { store.del('jhp_token'); me.no = 0; } }
+      if(m.t==='welcome')me.version=m.v;
       emit(m.t, m);
     };
     ws.onclose = () => {

@@ -766,7 +766,7 @@ function handle(ws, c, m) {
       if (!loginByIp.get(c.ip).take()) return send(ws, { t: 'loginErr', msg: 'Too many tries. Have a biscuit and try again in a minute.' });
       const name = String(m.name || '').trim(), pass = String(m.pass || ''), key = name.toLowerCase();
       const mem = state.members[key];
-      if (!mem && m.signup === false) return send(ws, { t: 'loginErr', msg: 'That account was not found. Choose Create Account to sign up.' });
+      if (!mem && m.signup !== true) return send(ws, { t: 'loginErr', msg: 'That account was not found. Choose Create Account to sign up.' });
       if (mem && m.signup === true) return send(ws, { t: 'loginErr', msg: 'That user name is already taken. Log on or choose another name.' });
       if (!mem) {
         const why = nameProblem(name);
@@ -787,7 +787,7 @@ function handle(ws, c, m) {
           const ff = failsByName.get(key) || { n: 0, until: 0 };
           ff.n++; if (ff.n >= 8) { ff.until = Date.now() + 10 * 60000; ff.n = 0; }
           failsByName.set(key, ff);
-          return send(ws, { t: 'loginErr', msg: `"${mem.name}" is already a member, and that's the wrong password. If it's not you, pick a different name!` });
+          return send(ws, { t: 'loginErr', msg: 'That is the wrong password. Please try again.' });
         }
         failsByName.delete(key);
         logIn(ws, c, key, false);

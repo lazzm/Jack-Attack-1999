@@ -5,7 +5,7 @@
   let creating=false,pending=false,blocked=true;
   const owner=()=>{try{return localStorage.getItem('jhp_roam_who')||''}catch(e){return ''}};
   const initialOwner=owner();
-  window.AccountGate={get allowed(){return !!(window.Net&&Net.me.member)&&!blocked;},get blocked(){return blocked;},show(){creating=true;show()},profile(el){panel.replaceChildren(el);el.style.position='relative';el.style.left=el.style.top='auto';el.style.maxWidth='100%';}};
+  window.AccountGate={get allowed(){return !!(window.Net&&Net.me.member)&&!blocked;},get blocked(){return blocked;},show(){if(pending)return;creating=true;show()},profile(el){panel.replaceChildren(el);el.style.position='relative';el.style.left=el.style.top='auto';el.style.maxWidth='100%';}};
   function pause(){if(document.pointerLockElement)try{document.exitPointerLock()}catch(e){}if(window.House&&House.emit)House.emit('loading',true)}
   function loading(note){blocked=true;pause();root.classList.add('account-required');if(!panel.isConnected)root.appendChild(panel);panel.textContent=typeof note==='string'?note:'Loading your JackNet settings...';if(typeof note==='string'){const retry=document.createElement('button');retry.type='button';retry.textContent='Retry';retry.addEventListener('click',()=>location.reload());panel.appendChild(retry)}}
   function show(note){
@@ -13,9 +13,10 @@
     pause();
     root.classList.add('account-required');if(!panel.isConnected)root.appendChild(panel);
     panel.innerHTML='<form class="account-box"><h1>Welcome to JackNet</h1><p class="account-intro"></p><label>User name<input name="name" autocomplete="username" minlength="3" maxlength="16" required></label><label>Password<input name="password" type="password" minlength="4" maxlength="64" required></label>'+(creating?'<label>Confirm password<input name="confirm" type="password" minlength="4" maxlength="64" autocomplete="new-password" required></label>':'')+'<p class="account-error" role="status"></p><div class="account-buttons"><button type="submit"></button><button type="button" data-switch></button></div><small>Free game account. No real name, email or real money needed.</small></form>';
+    panel.querySelector('h1').textContent=creating?'Create a JackNet Account':'Log On to JackNet';
     panel.querySelector('.account-intro').textContent=creating?'Choose a name for your room, saves and pocket money.':'Log on to resume your room and saved games.';
     panel.querySelector('[name=password]').autocomplete=creating?'new-password':'current-password';
-    panel.querySelector('[type=submit]').textContent=creating?'Create Account':'Log On';panel.querySelector('[data-switch]').textContent=creating?'I have an account':'Create an account';
+    panel.querySelector('[type=submit]').textContent=creating?'Create Account':'Log On';panel.querySelector('[data-switch]').textContent=creating?'Back to Log On':'Create Account';
     panel.querySelector('.account-error').textContent=note||'';
     panel.querySelector('[data-switch]').addEventListener('click',()=>{if(!pending){creating=!creating;show()}});
     panel.querySelector('form').addEventListener('submit',ev=>{

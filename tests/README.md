@@ -2,6 +2,11 @@
 
 Current F/E media and account regressions (localhost throwaway servers only):
 
+    node printed-art.mjs http://localhost:18464
+    node golden-movement.mjs http://localhost:18464
+    node door-seal.mjs http://localhost:18464
+    node account-form.mjs # frontend 18464; starts/stops its own isolated authentication backend
+
     node chair-placement.mjs http://localhost:18463
     node reading-phone.mjs http://localhost:18463
     node box-art.mjs http://localhost:18463

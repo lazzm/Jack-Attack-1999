@@ -136,6 +136,7 @@
   const KEYMAP = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right',
     z: 'a', Z: 'a', ' ': 'a', j: 'a', J: 'a', x: 'b', X: 'b', k: 'b', K: 'b', c: 'c', C: 'c', l: 'c', L: 'c', v: 'y', V: 'y', i: 'y', I: 'y', q: 'l', Q: 'l', e: 'r', E: 'r', Enter: 'start', Shift: 'select' };
   const held = {}, padHeld = {}, gpHeld = {}; let pend = {}, now = {}; const stickT = { x: 0, y: 0, on: false };
+  const mappedKey=ev=>defs[V?.gid]?.keyboard?.[ev.code]||KEYMAP[ev.key];
   function press(b, down) {
     if (down) { if (!isHeld(b)) pend[b] = true; } // (an edge: only when it wasn't already held)
   }
@@ -625,11 +626,11 @@
     if (!V || V.background) return;
     if (ev.key === 'Escape') { ev.preventDefault(); ev.stopImmediatePropagation(); close(); return; }
     const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
-    const b = KEYMAP[ev.key];
+    const b = mappedKey(ev);
     if (b) { ev.preventDefault(); ev.stopImmediatePropagation(); if (!ev.repeat) press(b, true); held[b] = true; }
     else if (!ev.ctrlKey && !ev.metaKey && !ev.altKey && ev.key.length === 1) ev.stopImmediatePropagation();
   }
-  function onKeyUp(ev) { if (!V) return; const b = KEYMAP[ev.key]; if (b) { held[b] = false; ev.stopImmediatePropagation(); } }
+  function onKeyUp(ev) { if (!V) return; const b = mappedKey(ev); if (b) { held[b] = false; ev.stopImmediatePropagation(); } }
   function clearInput() { for (const map of [held, padHeld, gpHeld]) for (const k in map) map[k] = false; pend = {}; now = {}; stickT.on = false; stickT.x = stickT.y = 0; }
   addEventListener('blur', clearInput);
   addEventListener('pagehide', () => { if (K) K.tok = ''; stopGame(); });

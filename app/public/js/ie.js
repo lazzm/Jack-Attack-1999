@@ -101,7 +101,7 @@
     const m = lower.match(/#([a-z]+)/);
     if (lower.startsWith(host) || !/[./]/.test(lower) || lower.startsWith('#')) {
       const word = m ? m[1] : lower.replace(host, '').replace(/[/#]/g, '').replace(/\.html?$/, '');
-      sec = word === '' || word === 'index' ? 'home' : Object.keys(NAMES).find(k => k === word || NAMES[k].toLowerCase().includes(word));
+      sec = word === '' || word === 'index' ? 'home' : Object.keys(NAMES).find(k => k === word || fileOf(k).replace(/\.html?$/,'') === word || NAMES[k].toLowerCase().includes(word));
     }
     typed = [text, ...typed.filter(t => t !== text)].slice(0, 12); store.set('jhp_typed', typed);
     const exact = lower.replace(host, '').replace(/^[/#]+/, '').replace(/\.html?$/, '').replace(/\/$/, '');

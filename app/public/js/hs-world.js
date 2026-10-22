@@ -195,6 +195,7 @@
     if (d.rooms) d.rooms.forEach(rid => ROOMS[rid] && ROOMS[rid].links.push(id));
     d.ang = d.open ? 1 : 0;
     if (d.pivot) { root.add(d.pivot); d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1); } // (the leaf is drawn whenever either room is: see visCalc)
+    if (d.frame) root.add(d.frame); // shared static jambs never rotate with the leaf
     return d;
   }
   function setDoor(id, open, now) {
@@ -218,7 +219,7 @@
     walk(cur, 0);
     if (cur && (cur.id === 'hall' || cur.id === 'landing' || cur.id === 'cupboard')) { vs.add('hall'); vs.add('landing'); } // (the stairwell joins them: a wrong guess can never black the view out)
     for (const id in ROOMS) { const r = ROOMS[id], on = vs.has(id); if (on) buildRoom(r); r.group.visible = on; }
-    for (const id in DOORS) { const d = DOORS[id]; if (d.pivot) d.pivot.visible = d.rooms.some(o => vs.has(o)); }
+    for (const id in DOORS) { const d = DOORS[id], on = d.rooms.some(o => vs.has(o)); if (d.pivot) d.pivot.visible = on; if (d.frame) d.frame.visible = on; }
     visSet = vs; lightsFor(); dirty();
   }
   // Each room owns its lighting state. The same small GPU rig is reused when
@@ -379,6 +380,7 @@
     const list = [];
     for (const id of visSet) ROOMS[id].group.traverseVisible(m => { if (m.isMesh && !m.userData.noPick) list.push(m); });
     for (const id in DOORS) { const dp = DOORS[id].pivot; if (dp && dp.visible) dp.traverseVisible(m => { if (m.isMesh && !m.userData.noPick) list.push(m); }); } // (door leaves hang off the root, not a room's group: they must be pickable too)
+    for (const d of Object.values(DOORS)) if (d.frame && d.frame.visible) d.frame.traverseVisible(m => { if (m.isMesh && !m.userData.noPick) list.push(m); });
     const hits = ray.intersectObjects(list, false);
     for (const h of hits) {
       if (o.skip && o.skip(h.object)) continue;
@@ -1193,7 +1195,7 @@
   let anyFront = false;
   function renderLit(renderer) {
     const roomGroups=new Set(Object.values(ROOMS).map(r=>r.group)),doorGroups=new Map();
-    for(const d of Object.values(DOORS))if(d.pivot)doorGroups.set(d.pivot,d.lightRoom||d.rooms[0]);
+    for(const d of Object.values(DOORS)){if(d.pivot)doorGroups.set(d.pivot,d.lightRoom||d.rooms[0]);if(d.frame)doorGroups.set(d.frame,d.lightRoom||d.rooms[0]);}
     const nodes=[],owners=new Set();
     for(const r of Object.values(ROOMS)){nodes.push({obj:r.group,on:r.group.visible,owner:r.id});if(r.group.visible)owners.add(r.id)}
     for(const [obj,owner]of doorGroups){nodes.push({obj,on:obj.visible,owner});if(obj.visible)owners.add(owner)}

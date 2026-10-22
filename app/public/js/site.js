@@ -681,6 +681,7 @@
       xf(360, 128, 1, -0.12); tf(620, 82, 0.85); tf(745, 162, 0.6);
       bolt(800, 118, 850, 112, '#f33'); bolt(820, 130, 868, 124, '#f33');
     })();
+    if(window.PrintArt)PrintArt.ready.then(()=>PrintArt.paint(hc.getContext('2d'),'space',0,0,hc.width,hc.height));
     b.appendChild(head);
     // the Episode I counter
     const rel = new Date(1999, 6, 16), days = Math.round((t.date - rel) / 86400000);

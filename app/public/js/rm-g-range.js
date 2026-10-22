@@ -655,7 +655,8 @@
   // ================================================================ the cartridge
   TV.game(GID, {
     three: true, stick: true, buttons: ['a', 'b', 'l', 'r'],
-    help: 'Aim: arrows or the mouse. Fire: Z or click. Reload: X. Aim / zoom: hold E. Swap gun: Q. Pause: Enter.',
+    keyboard:{KeyW:'moveForward',KeyS:'moveBack',KeyA:'moveLeft',KeyD:'moveRight'},
+    help: 'Move: WASD. Aim: arrows or the mouse. Fire: Z or click. Reload: X. Aim / zoom: hold E. Swap gun: Q. Pause: Enter.',
     make(K) {
       const T3 = K.three({ fogCol: 0xc8a090, fogNear: 30, fogFar: 190, fov: 60, far: 700 }), T = T3.T, cam = T3.cam, ren = T3.ren, scene = T3.scene, hud = K.hud, F = K.font, W = K.W, H = K.H;
       const TX = paintTextures(T3, prng(64));
@@ -1207,6 +1208,15 @@
           if (mv.pitchTo != null) G.pitch = lerp(mv.pitch0, mv.pitchTo, k);
           if (mv.t >= mv.dur) { G.move = null; G.yawOff = yaw - st.yaw * D2R; if (mv.then) mv.then(); }
         }
+        else if(!G.demo&&!G.done&&!G.defuse){
+          let sx=+K.held('moveRight')-K.held('moveLeft'),sz=+K.held('moveBack')-K.held('moveForward');const len=Math.hypot(sx,sz);
+          if(len){const step=2.8*dt/Math.max(1,len),dx=(sx*Math.cos(yaw)+sz*Math.sin(yaw))*step,dz=(-sx*Math.sin(yaw)+sz*Math.cos(yaw))*step,solid=SC.meshes.filter(m=>!['leaf','mount','water'].includes(m.userData.key));
+            for(const[axis,delta]of[['x',dx],['z',dz]]){if(Math.abs(delta)<1e-6)continue;const dir=new T.Vector3(axis==='x'?Math.sign(delta):0,0,axis==='z'?Math.sign(delta):0),origin=cam.position.clone();let blocked=false;
+              for(const h of [.4,1.1,1.6]){origin.copy(cam.position);origin.y+=h-1.7;ray.set(origin,dir);ray.near=0;ray.far=Math.abs(delta)+.35;if(ray.intersectObjects(solid).length){blocked=true;break}}
+              if(blocked)continue;const next=cam.position.clone();next[axis]+=delta;const probe=next.clone();probe.y+=.4;ray.set(probe,new T.Vector3(0,-1,0));ray.near=0;ray.far=2.8;const floor=ray.intersectObjects(solid).find(hit=>hit.face&&hit.face.normal.y>.6);if(!floor)continue;const y=floor.point.y+1.7;if(y-cam.position.y>.4||cam.position.y-y>.65)continue;cam.position.copy(next);cam.position.y=y;G.bob+=dt;
+            }ray.near=0;ray.far=Infinity;
+          }
+        }
         if (M.train) roll = Math.sin(G.t * 1.7) * 0.012 * (SC.scen ? SC.scen.v / 26 : 0) + (Math.random() < 0.01 ? 0.01 : 0);
         let sx = 0, sy = 0; if (shake > 0) { sx = (Math.random() - 0.5) * shake * 0.12; sy = (Math.random() - 0.5) * shake * 0.12; }
         cam.rotation.set(G.pitch + sy + G.kick * 0.012, yaw + sx, roll);
@@ -1612,7 +1622,7 @@
         const last = clamp(SV.last | 0, 0, MISSIONS.length - 1); delete SV.back; save();
         mode = 'missions'; mt = 0; msel = MS(MISSIONS[last].id).ok.some(Boolean) && last + 1 < SV.open ? last + 1 : last; loadScene(Math.min(msel, SV.open - 1)); flyT = 0; music('menu');
       } else goTitle();
-      window.__rangeDbg = { DBG, get G() { return G; }, get mode() { return mode; }, get SV() { return SV; }, get SC() { return SC; }, crowd,
+      window.__rangeDbg = { DBG, get G() { return G; }, get mode() { return mode; }, get SV() { return SV; }, get SC() { return SC; },get camera(){return cam},get aimPos(){return[aimX,aimY]}, crowd,
         start(mi, d) { startMission(mi, d || 0, false); mode = 'play'; }, win() { if (G) missionDone(); }, fail() { if (G) missionFail('TEST'); },
         clear() { if (G) for (const e of G.ents) if (e.k === 'g' || e.k === 'boss') down(e, true); }, aim(x, y) { aimX = x; aimY = y; }, fire() { if (G) fire(); }, debrief() { return DB; } };
       // ---- a console-only model viewer (for checking the models from every side): __rangeDbg.view('soldier', angleDeg, dist, height, 'aim'|'run'|'idle'|'down')
