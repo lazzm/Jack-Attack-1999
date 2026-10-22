@@ -223,39 +223,68 @@
     for (const id in DOORS) { const d = DOORS[id]; if (d.pivot) d.pivot.visible = d.rooms.some(o => vs.has(o)); }
     visSet = vs; lightsFor(); dirty();
   }
-  function lightsFor() { // Spend the fixed light budget on lights which actually illuminate this view.
-    const all = [];
-    for (const id of visSet) { const r = ROOMS[id]; for (const l of (typeof r.lights === 'function' ? r.lights() : r.lights)) {
-      if (l.i != null && l.i <= 0) continue; // An off bulb must never displace a lit window/lamp.
-      // Rank sources against the room, not the player: approaching a poster must
-      // not replace the ceiling light and relight half the room.
-      const cx = (r.bx0 + r.bx1) / 2, cz = (r.bz0 + r.bz1) / 2;
-      const distance = Math.hypot(l.x - cx, l.y - (LV[r.lvl] - 120), l.z - cz), range = l.d || 400;
-      const influence = (l.i == null ? 1 : l.i) * Math.pow(Math.max(0, 1 - distance / range), 2);
-      all.push(Object.assign({room: id, key: id + ':' + l.x + ',' + l.y + ',' + l.z, score: influence + (id === (cur && cur.id) ? 10 : 0)}, l));
-    } }
-    all.sort((a, b) => b.score - a.score);
-    const chosen = all.slice(0, PL.length), remaining = chosen.slice();
-    // Retain each surviving light's slot: re-sorting should not make every light fade out.
-    PS.forEach(s => { const j = remaining.findIndex(l => l.key === s.key); s.t = j < 0 ? null : {key: remaining[j].key, l: remaining.splice(j, 1)[0]}; });
-    PS.forEach(s => { if (!s.t && remaining.length) {const l = remaining.shift(); s.t = {key: l.key, l};} });
-    const r = cur; const amb = r && (typeof r.amb === 'function' ? r.amb() : r.amb);
-    if (amb) { HT.sky.set(amb.sky); HT.gnd.set(amb.gnd); HT.i = amb.i; } else { HT.sky.set(0x8a90a8); HT.gnd.set(0x30261c); HT.i = 0.55; }
-    const sl = r && (typeof r.sun === 'function' ? r.sun() : r.sun);
-    if (sl) { sun.position.set(sl.x, sl.y, sl.z); sun.target.position.set(sl.tx || 0, sl.ty || 0, sl.tz || 0); sun.color.set(sl.c); HT.sun = sl.i; } else HT.sun = 0;
+  // Each room owns its lighting state. The same small GPU rig is reused when
+  // drawing it; crossing a doorway never reallocates another room's lights.
+  const roomRigs = new Map();
+  function roomRig(r) {
+    if (!r) return null;
+    let rig = roomRigs.get(r.id);
+    if (!rig) {
+      rig = { fresh:true, slots:PL.map(()=>({key:null,cur:0,t:null,l:null})),
+        sky:new T.Color(),ground:new T.Color(),ambient:0,sun:0,sunColor:new T.Color(),
+        targetSky:new T.Color(),targetGround:new T.Color(),targetSunColor:new T.Color(),targetAmbient:0,targetSun:0,sourceSun:null };
+      roomRigs.set(r.id,rig);
+    }
+    return rig;
+  }
+  function lightsFor() {
+    for (const id in ROOMS) {
+      const r=ROOMS[id]; if (!r.built) continue;
+      const rig=roomRig(r), all=[],cx=Number.isFinite(r.bx0)?(r.bx0+r.bx1)/2:0,cz=Number.isFinite(r.bz0)?(r.bz0+r.bz1)/2:0;
+      for (const l of (typeof r.lights==='function'?r.lights():r.lights)) {
+        if (l.i!=null && l.i<=0) continue;
+        const distance=Math.hypot(l.x-cx,l.y-(LV[r.lvl]-120),l.z-cz),range=l.d||400;
+        all.push(Object.assign({key:id+':'+l.x+','+l.y+','+l.z,score:(l.i==null?1:l.i)*Math.pow(Math.max(0,1-distance/range),2)},l));
+      }
+      all.sort((a,b)=>b.score-a.score);
+      const remaining=all.slice(0,PL.length);
+      rig.slots.forEach(s=>{const j=remaining.findIndex(l=>l.key===s.key);s.t=j<0?null:remaining.splice(j,1)[0]});
+      rig.slots.forEach(s=>{if(!s.t&&remaining.length)s.t=remaining.shift()});
+      const a=(typeof r.amb==='function'?r.amb():r.amb)||{sky:'#8a90a8',gnd:'#30261c',i:0.55};
+      rig.targetSky.set(a.sky);rig.targetGround.set(a.gnd);rig.targetAmbient=a.i;
+      const sl=typeof r.sun==='function'?r.sun():r.sun;rig.targetSun=sl?sl.i:0;if(sl){rig.sourceSun=Object.assign({},sl);rig.targetSunColor.set(sl.c)}
+    }
     tickLights(0);
   }
-  const PS = PL.map(() => ({ key: null, cur: 0, tgt: 0, t: null })), HT = { sky: new T.Color(), gnd: new T.Color(), i: 0.55, sun: 0 };
-  let lightSnap = true;
-  function tickLights(dt) { // ease every light to its target over ~0.4 s (a light that changes identity fades out, then the slot is reused)
-    const k = lightSnap ? 1 : Math.min(1, dt / 0.14); let moving = false;
-    PL.forEach((pl, i) => { const s = PS[i], t = s.t;
-      if (t && (s.key === t.key || s.cur < 0.02)) { const l = t.l; s.key = t.key; pl.position.set(l.x, l.y, l.z); pl.color.set(l.c || '#fff'); pl.distance = l.d || 400; pl.decay = 2; s.tgt = l.i == null ? 1 : l.i; } else s.tgt = 0;
-      const d = s.tgt - s.cur; if (Math.abs(d) > 0.003) { s.cur += d * k; moving = true; } else s.cur = s.tgt; pl.intensity = s.cur; });
-    hemi.color.lerp(HT.sky, k); hemi.groundColor.lerp(HT.gnd, k); const dh = HT.i - hemi.intensity, ds = HT.sun - sun.intensity;
-    if (Math.abs(dh) > 0.003) { hemi.intensity += dh * k; moving = true; } else hemi.intensity = HT.i;
-    if (Math.abs(ds) > 0.003) { sun.intensity += ds * k; moving = true; } else sun.intensity = HT.sun;
-    if (dt > 0 && lightSnap) lightSnap = false; if (moving) dirty();
+  function tickLights(dt) {
+    let moving=false;
+    for (const rig of roomRigs.values()) {
+      const k=rig.fresh?1:Math.min(1,dt/0.14);
+      for (const s of rig.slots) {
+        if(s.t&&(s.key===s.t.key||s.cur<0.02||rig.fresh)){s.key=s.t.key;s.l=s.t}
+        const target=s.t&&s.key===s.t.key?(s.t.i==null?1:s.t.i):0,d=target-s.cur;
+        if(Math.abs(d)>0.003){s.cur+=d*k;moving=true}else s.cur=target;
+      }
+      const colorGap=(a,b)=>Math.abs(a.r-b.r)+Math.abs(a.g-b.g)+Math.abs(a.b-b.b);
+      if(colorGap(rig.sky,rig.targetSky)>0.003||colorGap(rig.ground,rig.targetGround)>0.003||colorGap(rig.sunColor,rig.targetSunColor)>0.003)moving=true;
+      rig.sky.lerp(rig.targetSky,k);rig.ground.lerp(rig.targetGround,k);
+      for(const [value,target]of [['ambient','targetAmbient'],['sun','targetSun']]){const d=rig[target]-rig[value];if(Math.abs(d)>0.003){rig[value]+=d*k;moving=true}else rig[value]=rig[target]}
+      if(rig.sourceSun)rig.sunColor.lerp(rig.targetSunColor,k);
+      rig.fresh=false;
+    }
+    if(moving)dirty();
+  }
+  function applyRoomRig(r) {
+    const rig=roomRig(r);if(!rig)return;
+    hemi.color.copy(rig.sky);hemi.groundColor.copy(rig.ground);hemi.intensity=rig.ambient;
+    sun.intensity=rig.sun;sun.color.copy(rig.sunColor);
+    if(rig.sourceSun){const l=rig.sourceSun;sun.position.set(l.x,l.y,l.z);sun.target.position.set(l.tx||0,l.ty||0,l.tz||0)}
+    sun.updateMatrixWorld(true);sun.target.updateMatrixWorld(true);
+    PL.forEach((pl,i)=>{const s=rig.slots[i],l=s.l;pl.intensity=s.cur;if(l){pl.position.set(l.x,l.y,l.z);pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)});
+  }
+  function lightingSnapshot(id) {
+    const r=roomRigs.get(id);return r?{ambient:r.ambient,sky:r.sky.getHex(),ground:r.ground.getHex(),sun:r.sun,
+      lights:r.slots.filter(s=>s.cur>0.003&&s.l).map(s=>({key:s.key,x:s.l.x,y:s.l.y,z:s.l.z,i:s.cur}))}:null;
   }
   function prewarm() { // build every room and push its textures/geometry to the GPU in one hidden pass, so nothing pops in later
     try {
@@ -460,7 +489,7 @@
     t.st = 'fall'; t.vy = 0; t.at = { room: tgt.room, x: tgt.x, y: startY, z: tgt.z, ry: (t.obj.rotation.y / D2R) };
     t.landY = y; t.fromX = hp.x; t.fromZ = hp.z; t.t0 = performance.now();
     moveTo(t, tgt.room);
-    emit('place', t.id);
+    emit('place', t.id);saveThings();
   }
   function roomOfPoint(p) { for (const id of visSet) { const r = ROOMS[id]; if (r.area.some(a => p.x >= a[0] - 1 && p.x <= a[2] + 1 && p.z >= a[1] - 1 && p.z <= a[3] + 1) && Math.abs((p.y || LV[r.lvl]) - LV[r.lvl]) < 290) return r; } return null; }
   function moveTo(t, rid) { const r = ROOMS[rid]; if (r && t.obj.parent !== r.things) r.things.add(t.obj); }
@@ -545,20 +574,28 @@
   function saveThings(immediate) {
     clearTimeout(saveT);
     const write = () => {
+      saveT=0;
       // Keep records belonging to unbuilt rooms; saving the bedroom must not
       // erase the rest of the house, nor overwrite a deferred prop with its home.
       const previous = loadThings(), st = Object.assign({}, previous.t), op = Object.assign({}, previous.o);
-      for (const id in THINGS) { const t = THINGS[id]; if (t.noSave || pendingRestores.has(id)) continue; const a = t.at; st[id] = [a.room, +a.x.toFixed(1), +a.y.toFixed(1), +a.z.toFixed(1), Math.round(a.ry || 0), t.st === 'snap' ? t.snap : 0, a.hide ? 1 : 0]; }
+      for (const id in THINGS) { const t = THINGS[id]; if (t.noSave || pendingRestores.has(id)) continue; const a = t.at,y=t.st==='fall'&&Number.isFinite(t.landY)?t.landY:a.y; st[id] = [a.room, +a.x.toFixed(1), +y.toFixed(1), +a.z.toFixed(1), Math.round(a.ry || 0), t.st === 'snap' ? t.snap : 0, a.hide ? 1 : 0]; }
       for (const id in OPEN) { if (OPEN[id].open) op[id] = 1; else delete op[id]; }
       loaded = {t:st,o:op};
-      try { if (window.Apps && Apps.saveGame) Apps.saveGame('hs.things', { t: st, o: op }, { v: 1 }); else ls.set('jhp_hs_things', { t: st, o: op }); } catch (e) {}
+      try { if (!(window.Apps && Apps.saveGame && Apps.saveGame('hs.things',loaded,{v:1})))ls.set('jhp_hs_things',{t:st,o:op,_savedAt:Date.now()}); } catch (e) {}
     };
     if (immediate === true) write(); else saveT = setTimeout(write, 600);
   }
   let loaded = null;
   function loadThings() {
     if (loaded) return loaded;
-    try { loaded = (window.Apps && Apps.loadGame && Apps.loadGame('hs.things', 1)) || ls.get('jhp_hs_things', null) || { t: {}, o: {} }; } catch (e) { loaded = { t: {}, o: {} }; }
+    try {
+      // Direct house entry runs before gamesave.js/Apps. Do not cache an empty
+      // legacy fallback and later overwrite the visitor's real modern save.
+      const entries=['jhp_gs_hs.things','jhp_gsl_hs.things'].map(k=>ls.get(k,null)).filter(e=>e&&e.f===1&&e.v===1&&e.s&&typeof e.s==='object');
+      entries.sort((a,b)=>(+b.t||0)-(+a.t||0));
+      const legacy=ls.get('jhp_hs_things',null),modern=entries[0];
+      loaded=legacy&&(!modern||(+legacy._savedAt||0)>(+modern.t||0))?legacy:modern?modern.s:(window.Apps&&Apps.loadGame&&Apps.loadGame('hs.things',1))||{t:{},o:{}};
+    } catch (e) { loaded = { t: {}, o: {} }; }
     return loaded;
   }
   function restoreThing(t) { // where this visitor left it last time
@@ -1094,6 +1131,40 @@
   }
   function gfxNext() { const o = ['auto', 'low', 'medium', 'high'], i = o.indexOf(Q.auto ? 'auto' : Q.tier); gfxSet(o[(i + 1) % 4]); ui.toast('Graphics: ' + gfxName(), Q.auto ? 'Picked for this computer (press G to change)' : 'Press G to change'); }
   let anyFront = false;
+  function renderLit(renderer) {
+    const roomGroups=new Set(Object.values(ROOMS).map(r=>r.group)),doorGroups=new Map();
+    for(const d of Object.values(DOORS))if(d.pivot)doorGroups.set(d.pivot,d.lightRoom||d.rooms[0]);
+    const nodes=[],owners=new Set();
+    for(const r of Object.values(ROOMS)){nodes.push({obj:r.group,on:r.group.visible,owner:r.id});if(r.group.visible)owners.add(r.id)}
+    for(const [obj,owner]of doorGroups){nodes.push({obj,on:obj.visible,owner});if(obj.visible)owners.add(owner)}
+    const extraOwner=cur&&cur.id;
+    for(const obj of root.children)if(!roomGroups.has(obj)&&!doorGroups.has(obj)&&!obj.isLight&&obj!==sun.target){nodes.push({obj,on:obj.visible,owner:extraOwner});if(obj.visible)owners.add(extraOwner)}
+    for(const obj of scene.children)if(obj!==root&&!obj.isLight){nodes.push({obj,on:obj.visible,owner:extraOwner});if(obj.visible)owners.add(extraOwner)}
+    const materials=new Map();scene.traverseVisible(o=>{for(const m of o.material?[].concat(o.material):[])if(!materials.has(m))materials.set(m,m.visible)});
+    const clear=renderer.autoClear,update=scene.autoUpdate,autoReset=renderer.info.autoReset;
+    // Update static/dynamic transforms once, not once per room. Only the small
+    // reused light rig changes during the passes; the depth buffer is shared.
+    scene.updateMatrixWorld(true);scene.autoUpdate=false;renderer.autoClear=false;renderer.info.autoReset=false;renderer.info.reset();
+    renderer.clear(true,true,true);
+    const ids=[...owners].filter(id=>ROOMS[id]);
+    const distance=id=>{const r=ROOMS[id],a=r.area[0]||[P.x,P.z,P.x,P.z];return Math.hypot((a[0]+a[2])/2-P.x,(a[1]+a[3])/2-P.z)};
+    try {
+      // All opaque surfaces first. Otherwise a translucent door/window in one
+      // room would blend against black instead of the room behind its glass.
+      for(const transparent of [false,true]){
+        for(const [m,on]of materials)m.visible=on&&!!m.transparent===transparent;
+        const order=transparent?ids.slice().sort((a,b)=>distance(b)-distance(a)):ids;
+        for(const id of order){
+          for(const n of nodes)n.obj.visible=n.on&&n.owner===id;
+          applyRoomRig(ROOMS[id]);renderer.render(scene,camera);
+        }
+      }
+    } finally {
+      for(const n of nodes)n.obj.visible=n.on;
+      for(const [m,on]of materials)m.visible=on;
+      renderer.autoClear=clear;scene.autoUpdate=update;renderer.info.autoReset=autoReset;
+    }
+  }
   function render() {
     glCam(P.x, P.y, P.z, P.rx, P.ry);
     if (mode !== 'follow' && mode !== 'off') cssCam();
@@ -1102,11 +1173,11 @@
     let front = false; for (const id in THINGS) { const t = THINGS[id]; if (t.obj.parent && t.obj.parent.parent && t.obj.parent.parent.visible) layerFor(t); if (t.front && t.obj.visible) front = true; }
     if (snapHi && snapHi.visible) front = true;
     const ly = pcOn ? 1 : 0; for (const f of frontFx) { if (f.userData.ly !== ly) { f.userData.ly = ly; f.traverse(o => o.layers.set(ly)); } if (f.visible && pcOn) front = true; }
-    camera.layers.set(0); ren.render(scene, camera);
+    camera.layers.set(0); renderLit(ren);
     if (front || anyFront) {
       if (!ren2) { ren2 = new T.WebGLRenderer({ canvas: cv2, antialias: true, alpha: true, premultipliedAlpha: true }); ren2.setClearColor(0x000000, 0); ren2.localClippingEnabled = true; measure(); }
       if (cv2.parentNode !== frontHost()) frontHost().appendChild(cv2);
-      camera.layers.set(1); ren2.render(scene, camera); camera.layers.set(0);
+      camera.layers.set(1); renderLit(ren2); camera.layers.set(0);
       anyFront = front;
     }
     if (stood || monitor) glassFit();
@@ -1235,7 +1306,7 @@
       ls.set('jhp_hs_stand', {t:Date.now(), p}); localStorage.setItem('jhp_last', String(Date.now()));
     } catch (e) {}
   }
-  function saveWalkState() { savePose(); saveStood(); }
+  function saveWalkState() { if(live&&saveT&&(!window.AccountGate||AccountGate.allowed))saveThings(true);savePose();saveStood(); }
   setInterval(saveStood, 1000); addEventListener('pagehide', saveWalkState);
   setInterval(() => { if (live && mode === 'walk' && Date.now() - poseT > 1500) { poseT = Date.now(); savePose(); } }, 2000);
   // pb's classes tell us what boot.js is up to
@@ -1505,6 +1576,6 @@
     dirty, relight, ambient, anims, visCalc, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
     Q, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
-    _: { whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
+    _: { whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
   };
 })();

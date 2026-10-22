@@ -50,6 +50,20 @@ Account and cash-wallet regressions (localhost only):
     node desk-lamp.mjs http://localhost:18080        # bulb alignment, cable clearances, repeated switching, on/off refresh and multi-angle day/night captures
 
 Historical room scripts above which assume anonymous gameplay or a Guest button need authenticated setup before use with mandatory accounts. They are not claimed as current account-gate regressions.
+Authenticated lighting/render/save regressions (localhost only; screenshots in `shots/`):
+
+    node doorway-lighting.mjs http://localhost:18080 final 14 low # identical view across room ownership, day/night and graphics tier arguments
+    node doorway-walk-drop.mjs http://localhost:18080 # actual WASD doorway crossing and immediate dropped-object refresh
+    node house-lights.mjs http://localhost:18080 # physical switches, keyboard/mouse, rapid toggles and persistent lamp/fire state
+    node house-save-startup.mjs http://localhost:18080 # modern, newer local-large and legacy fallback saves before Apps loads
+    node ao-geometry.mjs http://localhost:18080 # inward wall shading, fade UVs and stair/door screenshots
+    node lounge-art.mjs http://localhost:18080 # cabinet sliding doors/refresh, bowl, lamp and cable clearances
+    node room-render-lifecycle.mjs http://localhost:18080 # PC pointer ownership, front props, inspection, background console and glass
+    node room-render-soak.mjs http://localhost:18080 18 # minutes of room/door/light cycles, reload and forced WebGL context recovery
+    node render-perf.mjs http://localhost:18080 after # software-WebGL frame/render timings; compare against an isolated baseline copy
+
+`room-fixture.mjs` creates disposable accounts and rejects non-localhost URLs. Run these sequentially on software WebGL; several simultaneous room browsers can exhaust CPU and time out loading. A long soak may run beside one focused test, but performance comparisons must run alone.
+
 For a post-deploy visual check only, `node live-readonly.mjs https://jacklm.com` checks the mandatory account screen and browser errors. It does not log on, create an account or change game state.
 
 Most print `no errors` / `NO ERRORS` when they pass. Screenshots go in `shots/` (git-ignored).

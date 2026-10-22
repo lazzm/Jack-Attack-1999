@@ -243,9 +243,11 @@
     cove((LX + RX) / 2, BZ + 3.5, RX - LX, 0); cove(LX + 3.5, (BZ + FZ) / 2, FZ - BZ, 90); cove((LX + RX) / 2, FZ - 3.5, RX - LX, 180); cove(RX - 3.5, (BZ + FZ) / 2, FZ - BZ, -90);
     // a little darkness where walls meet the floor and the ceiling (it reads as a real corner)
     const ao = (x, z, w, ry) => B.ao(x, FY - 17, z, w, 34, { ry, rx: 180, a: 0.55 });
-    ao((LX + RX) / 2, BZ + 0.3, RX - LX, 0); ao(LX + 0.3, (BZ + FZ) / 2, FZ - BZ, 90); ao((LX + RX) / 2, FZ - 0.3, RX - LX, 180); ao(RX - 0.3, (BZ + FZ) / 2, FZ - BZ, -90);
+    ao((LX + RX) / 2, BZ + 0.3, RX - LX, 0); ao(LX + 0.3, (BZ + FZ) / 2, FZ - BZ, 90); ao((LX + RX) / 2, FZ - 0.3, RX - LX, 180);
+    [[BZ,DOOR.z0],[DOOR.z1,FZ]].forEach(([a,b])=>ao(RX-0.3,(a+b)/2,b-a,-90));
     const aoF = (x, z, w, d, ry) => B.ao(x, FY - 0.15, z, w, d, { rx: 90, ry, a: 0.45 });
-    aoF((LX + RX) / 2, BZ + 15, RX - LX, 30, 180); aoF(LX + 15, (BZ + FZ) / 2, FZ - BZ, 30, -90); aoF((LX + RX) / 2, FZ - 15, RX - LX, 30, 0); aoF(RX - 15, (BZ + FZ) / 2, FZ - BZ, 30, 90);
+    aoF((LX + RX) / 2, BZ + 15, RX - LX, 30, 180); aoF(LX + 15, (BZ + FZ) / 2, FZ - BZ, 30, -90); aoF((LX + RX) / 2, FZ - 15, RX - LX, 30, 0);
+    [[BZ,DOOR.z0],[DOOR.z1,FZ]].forEach(([a,b])=>aoF(RX-15,(a+b)/2,b-a,30,90));
     const aoC = (x, z, w, ry) => B.ao(x, CY + 14, z, w, 28, { ry, a: 0.35 });
     aoC((LX + RX) / 2, BZ + 0.3, RX - LX, 0); aoC(LX + 0.3, (BZ + FZ) / 2, FZ - BZ, 90); aoC((LX + RX) / 2, FZ - 0.3, RX - LX, 180); aoC(RX - 0.3, (BZ + FZ) / 2, FZ - BZ, -90);
 
@@ -790,7 +792,7 @@
     H.door('bedroom', { rooms: ['bedroom', 'landing'], pivot: dp, swing: 96, dir: 1, open: false }); S.door = 0; // (always shut at the start of a visit)
     H.spot('door', { label: () => H.DOORS.bedroom.open ? 'Shut the door' : 'The door', range: 300, obj: dp, act: () => { const o = !H.DOORS.bedroom.open; ensureHouse().then(() => { H.setDoor('bedroom', o); S.door = o ? 1 : 0; save(); }, () => say('Hmm', 'The door is stuck. Try again in a minute.')); } });
     const sw = new T.Group(); sw.position.set(x - 0.6, -32, z0 - 16); r.group.add(sw); const SW = K.into(sw); // the light switch
-    SW.box(0, 0, 0, 1.2, 8.6, 8.6, mWhite); R.rocker = SW.box(-0.8, 0, 0, 1, 2.4, 1.4, M('#d8d4c8'));
+    SW.box(0, 0, 0, 1.2, 8.6, 8.6, mWhite); R.rocker = SW.box(-0.8, 0, 0, 1, 2.4, 1.4, M('#d8d4c8'));R.rocker.matrix.decompose(R.rocker.position,R.rocker.quaternion,R.rocker.scale);
     H.spot('switch', { label: 'Light switch', obj: sw, range: 260, act: () => { LIGHT.main = !LIGHT.main; saveLights(); secret('hs.lights'); lampLook(); H.relight(); H.sfx.tone(1800, 0.02, 'square', 0.06); H.sfx.noise(0.03, 0.08, 3000); } });
   }
   function buildCeiling(B, r) {
@@ -805,7 +807,7 @@
     if(R.lampLiner){R.lampLiner.emissive.set(LIGHT.lamp?'#4a3520':'#000000');R.lampLiner.userData.e0=R.lampLiner.emissive.clone()}
     if(R.lampButton){R.lampButton.rotation.z=(LIGHT.lamp?-8:8)*D2R;R.lampButton.updateMatrix()}
     if (R.lantern) { const ms = [].concat(R.lantern.material); for (const m of ms) { m.emissive.set(LIGHT.main ? '#c8b890' : '#000000'); m.userData.e0 = m.emissive.clone(); } }
-    if (R.rocker) R.rocker.rotation.z = (LIGHT.main ? -12 : 12) * D2R;
+    if (R.rocker) {R.rocker.rotation.z = (LIGHT.main ? -12 : 12) * D2R;R.rocker.updateMatrix()}
     H.dirty();
   }
 

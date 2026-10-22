@@ -216,6 +216,11 @@
       },
       ao(x, y, z, w, h, o) { // a darkening strip on a wall: from the edge at (x, y, z) fading over h; ry turns it to face along the wall
         const geo = new T.PlaneGeometry(w, h);
+        // rx:180 used to flip the entire wall strip out through the wall.
+        // Keep its face inward: floor edges are darkest at +y; ceiling edges
+        // need reversed UVs, not reversed geometry. Horizontal strips keep rx:90.
+        o=Object.assign({},o||{});
+        if(o.rx===180)o.rx=0;else if(!o.rx)flipV(geo);
         return put(geo, xform(base, x, y, z, o), mat({ c: '#000', map: fadeTex(), basic: true, tr: true, o: (o && o.a) || 0.999, dw: false, po: -2 }), {});
       },
     };
