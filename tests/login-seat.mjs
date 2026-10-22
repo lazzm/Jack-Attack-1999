@@ -1,0 +1,11 @@
+import assert from'node:assert/strict';import{roomFixture}from'./room-fixture.mjs';
+const account='Login'+Date.now().toString(36),password='Throwaway-1999';
+const{browser,page:p,errors,until}=await roomFixture(process.argv[2]||'http://localhost:18461',{account,password});
+try{
+ await p.reload({waitUntil:'domcontentloaded'});await until(()=>AccountGate.allowed&&House?.live&&!document.querySelector('.hs-loading,#houseEntry'));assert.equal(await p.evaluate(()=>House.mode),'walk');
+ await p.evaluate(()=>localStorage.removeItem('jhp_token'));await p.reload({waitUntil:'domcontentloaded'});await until(()=>Net?.connected&&!!document.querySelector('#accountGate form'));
+ await p.locator('[name=name]').fill(account);await p.locator('[name=password]').fill('Wrong-password');await p.locator('#accountGate [type=submit]').click();await until(()=>!!document.querySelector('.account-error')?.textContent.includes('wrong password'));assert.equal(await p.evaluate(()=>sessionStorage.getItem('jhp_login_seat')),null);
+ await p.locator('[name=password]').fill(password);await p.locator('#accountGate [type=submit]').click();await until(()=>AccountGate.allowed&&House.mode==='monitor'&&!sessionStorage.getItem('jhp_login_seat'));
+ for(const[width,height]of[[1366,860],[1920,1080],[2560,1080],[390,844]]){await p.setViewportSize({width,height});await p.waitForTimeout(400);await p.screenshot({path:`shots/login-pc-${width}.png`})}
+ await p.keyboard.press('Backspace');await until(()=>House.mode==='walk');await p.reload({waitUntil:'domcontentloaded'});await until(()=>AccountGate.allowed&&House?.live&&!document.querySelector('.hs-loading,#houseEntry'));assert.equal(await p.evaluate(()=>House.mode),'walk');assert.deepEqual(errors,[]);console.log('LOGIN SEAT PASS: explicit signup/logon enters PC, wrong password clears request, standing refresh stays standing');
+}finally{await browser.close()}

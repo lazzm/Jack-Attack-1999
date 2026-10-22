@@ -512,7 +512,8 @@
     }
     if (!tgt) { const r = roomOfPoint(hp) || cur; tgt = { room: r.id, x: clamp(hp.x, r.bx0 + t.hx, r.bx1 - t.hx), z: clamp(hp.z, r.bz0 + t.hz, r.bz1 - t.hz), y0: hp.y }; }
     const r=ROOMS[tgt.room],ry=t.obj.rotation.y/D2R;
-    if(t.floorOnly){const floor=floorDropTarget(t,r,tgt,ry);if(!floor){ui.toast('Not enough room','Aim farther ahead at clear floor. F / E / Click puts it down; Esc > Put held item back returns it.');return false;}tgt=floor;}
+    if(t.canPlace&&t.canPlace(tgt)===false)return false;
+    if(t.floorOnly){const floor=floorDropTarget(t,r,tgt,ry);if(!floor){ui.toast('Not enough room','Aim farther ahead at clear floor. E / Click puts it down; Esc > Put held item back returns it.');return false;}tgt=floor;}
     const y = t.floorOnly?LV[r.lvl]:landY(tgt.room, tgt.x, tgt.z, tgt.y0, t);
     const startY = Math.min(hp.y, y - 0.5); // (it drops from where it is, or is set straight down)
     held = null; ui.holdBar(null); snapGlow(null);
@@ -817,11 +818,9 @@
       ev.preventDefault(); ev.stopImmediatePropagation();
       wantLock();
       if (held) {
-        const item=THINGS[held.id],hp=heldPos(),slot=nearSnap(item,hp.x,hp.y,hp.z);
-        // F is contextual: insert/return at a slot, otherwise use a playable
-        // held object. Click/E always place it, so there is no drop dead end.
-        if ((k==='f'||k==='F') && (!slot||item.useAtHome&&slot.id===item.home.snap) && item.use) item.use(item); else drop();
-      } else useAt(vw/2,vh/2,true);
+        const item=THINGS[held.id];
+        if(k==='f'||k==='F'||k==='Enter'){if(item.use)item.use(item);else ui.toast(item.label,'E / Click: place it. F uses objects; E carries and places them.');}else drop();
+      } else useAt(vw/2,vh/2,true,(k==='f'||k==='F'||k==='Enter')?'use':'grab');
       return;
     }
     if (held && (k === 'i' || k === 'I')) { ev.preventDefault(); inspect(held.id); return; }
@@ -907,20 +906,21 @@
     const sid = h && h.spot && !(held && h.spot === held.id) ? h.spot : null;
     setHot(sid);
     const s = sid && SPOTS[sid];
-    ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab && !held ? ' <i>pick up</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
+    ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab && !held ? ' <i>E: pick up'+(THINGS[sid]?.use?' · F: use':'')+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
     pb.classList.toggle('hs-hot', !!sid);
   }
   // using a thing: close enough, do it; too far, go over to it first
-  function useAt(sx, sy, center) {
+  function useAt(sx, sy, center,action) {
     if (!canAct()) return;
     const h = pick(sx, sy);
     if (!h || !h.spot) { if (!center && h && h.dist < 1200 && !touchy()) emit('miss', h); return; }
     const s = SPOTS[h.spot];
+    const perform=()=>{const item=THINGS[s.id];if(action==='use'&&s.grab&&item){if(item.use)item.use(item);else ui.toast(item.label,'Press E to pick it up.');}else if(action!=='use'&&s.remove)s.remove();else act(s);};
     if (h.dist > s.range && s.view !== false) {
       const v = viewFor(s, h);
-      if (v) return glideTo(v, { done: () => act(s) });
+      if (v) return glideTo(v, { done: perform });
     }
-    act(s);
+    perform();
   }
   function act(s) {
     if (!s) return;
@@ -1057,6 +1057,7 @@
       <div class="hs-joy" aria-hidden="true"><i></i></div>
       <button type="button" class="hs-jump" style="display:none;position:fixed;right:14px;bottom:96px;width:62px;height:40px;border-radius:20px;border:2px solid #fff8;background:#0006;color:#fff;font:700 12px sans-serif;z-index:30001;touch-action:none">JUMP</button>
       <button type="button" class="hs-duck" style="display:none;position:fixed;right:14px;bottom:44px;width:62px;height:40px;border-radius:20px;border:2px solid #fff8;background:#0006;color:#fff;font:700 12px sans-serif;z-index:30001;touch-action:none">DUCK</button>
+      <button type="button" class="hs-use" style="display:none;position:fixed;right:14px;bottom:148px;width:62px;height:40px;border-radius:20px;border:2px solid #fff8;background:#0006;color:#fff;font:700 12px sans-serif;z-index:30001;touch-action:none">USE</button>
       <div class="hs-note rm-note"><b></b><p></p><button type="button" class="rm-x" aria-label="Close">&times;</button></div>
       <div class="hs-toast rm-toast"></div>
       <div class="hs-fade"></div>`;
@@ -1070,7 +1071,8 @@
       else if (a === 'turn') held.ry += 45; else if (a === 'inspect') inspect(t.id); else if (a === 'put') drop(); else if (a === 'back') putBack(); else if (a === 'use' && t && t.use) t.use(t);
     });
     // the joystick (touch screens): bottom left
-    const bJ = $('.hs-jump'), bD = $('.hs-duck'); if (touchy()) { bJ.style.display = bD.style.display = 'block'; }
+    const bJ = $('.hs-jump'), bD = $('.hs-duck'), bU=$('.hs-use'); if (touchy()) { bJ.style.display = bD.style.display = bU.style.display = 'block'; }
+    bU.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();if(!canAct())return;if(held){const t=THINGS[held.id];if(t?.use)t.use(t)}else useAt(vw/2,vh/2,true,'use')});
     bJ.addEventListener('pointerdown', ev => { ev.preventDefault(); ev.stopPropagation(); if (canAct()) keys.jump = true; });
     bD.addEventListener('pointerdown', ev => { ev.preventDefault(); ev.stopPropagation(); keys.crouch = !keys.crouch; bD.style.background = keys.crouch ? '#fff6' : '#0006'; });
     const jEl = $('.hs-joy'), knob = jEl.firstElementChild; let jid = null;
@@ -1087,7 +1089,7 @@
       say(title, text, ms) { note.querySelector('b').textContent = title; note.querySelector('p').innerHTML = text; note.classList.add('on'); clearTimeout(noteT); noteT = setTimeout(() => note.classList.remove('on'), ms || Math.max(4500, String(text).length * 70)); },
       hush() { note.classList.remove('on'); },
       toast(title, text) { toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 4200); },
-      tip(text, x, y, far) { if (!text) { tipEl.classList.remove('on'); return; } tipEl.innerHTML = text + (far ? ' <small>(walk closer)</small>' : touchy() ? '' : ' <small>[F]</small>'); tipEl.classList.add('on'); tipEl.style.transform = `translate(${Math.min(x + 14, vw - 160)}px,${y + 18}px)`; },
+      tip(text, x, y, far) { if (!text) { tipEl.classList.remove('on'); return; } tipEl.innerHTML = text + (far ? ' <small>(walk closer)</small>' : touchy()||/E: pick up/.test(text) ? '' : ' <small>[F: use]</small>'); tipEl.classList.add('on'); tipEl.style.transform = `translate(${Math.min(x + 14, vw - 240)}px,${y + 18}px)`; },
       where() {
         const r = cur; if (!r) return;
         $('.hs-title').textContent = r.title || r.name.toUpperCase(); $('.hs-where').textContent = r.stations[stIdx] ? r.stations[stIdx].n : r.sub || '';
@@ -1097,10 +1099,10 @@
         if (!hold.querySelector('[data-h=inspect]')) {const b = document.createElement('button'); b.type = 'button'; b.dataset.h = 'inspect'; b.textContent = 'Inspect'; hold.querySelector('.hs-hbtn').prepend(b);}
         hold.hidden = false; el.classList.add('holding');
         hold.querySelector('.hs-hname').textContent = typeof t.label === 'function' ? t.label() : t.label;
-        hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : '<b>F</b>: ' + esc(t.use ? (t.useLabel || 'use it') : 'put down') + ' &middot; Click / E: place &middot; R: turn &middot; I: inspect &middot; Wheel: distance &middot; Esc: menu / put back';
+        hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : '<b>E / Click</b>: place' + (t.use?' &middot; F: '+esc(t.useLabel||'use'):'') + ' &middot; R: turn &middot; I: inspect &middot; Wheel: distance &middot; Esc: menu / put back';
         const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use; u.textContent = t.useLabel || 'Use';
       },
-      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) {const t=held&&THINGS[held.id];hold.querySelector('.hs-hkeys').innerHTML = t?.useAtHome&&s.id===t.home.snap?`<b>F: ${esc(t.useLabel||'open it')} · E / Click: return box</b>`:`<b>F / Click: ${esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''))}</b>`;} else if (held) this.holdBar(THINGS[held.id]); },
+      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML=`<b>E / Click: ${esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''))}</b>`;else if (held) this.holdBar(THINGS[held.id]); },
       crossOn() { el.classList.add('cross'); clearTimeout(crossT); crossT = setTimeout(() => el.classList.remove('cross'), 2500); },
       fade(on, ms) { const f = $('.hs-fade'); f.style.transitionDuration = (ms || 300) + 'ms'; f.classList.toggle('on', !!on); },
       modalOpen: () => !!el.querySelector('.hs-modal.on'),
@@ -1318,7 +1320,7 @@
     stIdx = nearestStation(); ui.where();
     if (!raf) raf = requestAnimationFrame(loop);
     if (Q.auto) Q.probe = performance.now() + 2000;
-    if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', touchy() ? 'Use the stick (bottom left) to walk, and drag to look round. Press things to use them, or to pick them up.' : '<b>W A S D</b> to walk, mouse to look. Shift to jog, <b>C</b> to crouch, Space to jump. <b>F</b> to interact or pick up, <b>I</b> to inspect a held item. Click to place; <b>Esc</b>: game menu, settings and put back. <b>G</b>: graphics.', 9000); }, 1400);
+    if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', touchy() ? 'Use the stick (bottom left) to walk, and drag to look round. Press things to use them, or to pick them up.' : '<b>W A S D</b> to walk, mouse to look. Shift to jog, <b>C</b> to crouch, Space to jump. <b>F</b> to use or play, <b>E</b> to pick up/remove/place, <b>I</b> to inspect a held item. Click to place; <b>Esc</b>: game menu, settings and put back. <b>G</b>: graphics.', 9000); }, 1400);
     emit('start');
   }
   // Save grounded poses (not head-bob/jump offsets). Load the destination before

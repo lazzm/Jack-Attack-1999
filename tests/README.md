@@ -1,5 +1,19 @@
 # Jack Attack 1999 - browser tests
 
+Current F/E media and account regressions (localhost throwaway servers only):
+
+    node controls-media.mjs http://localhost:18461
+    node console-case-play.mjs http://localhost:18461
+    node login-seat.mjs http://localhost:18461
+    node media-touch.mjs http://localhost:18461
+    node starter-account.mjs http://localhost:18461 # requires an unused test account in disposable data
+    node starter-unit.cjs
+    node wallet-unit.cjs
+
+`create-approved-test.mjs` is NOT a test: it creates the specifically owner-approved
+account through signup, never replaces an existing user, and requires `--approved-live`
+for the production URL. Do not include it in an automated test run.
+
 Playwright scripts that drive the real site in Chromium (uses the system browser at `/usr/bin/chromium`, no download).
 
     cd tests && PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install

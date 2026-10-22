@@ -15,7 +15,8 @@
  <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [0]<small class="hs-lock-help">Full-screen view of the screen you are using. Press 0 again to return. Original proportions are preserved.</small></label>
  <label>Graphics <select name="graphics"><option value="auto">Automatic</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
- <p class="hs-pause-keys">WASD: walk · Mouse: look · F: interact<br>Shift: jog · C: crouch · Space: jump<br>I: inspect · R: turn · Click: place<br>Backspace: lean back · 0: LOCK IN · Esc: menu</p>
+ <fieldset class="hs-test-reset" hidden><legend>TEST ACCOUNT ONLY</legend><p>Reset this test room, media, local game saves and balances. Daily limits, chores and shared-world records are kept. Other accounts are not affected.</p><button type="button" data-pause="resetTest">RESET TEST SAVE</button><div class="hs-test-confirm" hidden><p>Start the test save again? A server backup is kept.</p><button type="button" data-pause="confirmReset">YES, RESET TEST</button><button type="button" data-pause="cancelReset">CANCEL</button></div></fieldset>
+ <p class="hs-pause-keys">WASD: walk · Mouse: look · F: use / play<br>E / Click: pick up, remove, place<br>Shift: jog · C: crouch · Space: jump<br>I: inspect · R: turn<br>Backspace: lean back · 0: LOCK IN · Esc: menu</p>
  <p class="hs-pause-status" role="status">Movement is stopped. Online programs and the TV keep running.</p></div>`;
  document.documentElement.appendChild(el);
  let previous=null;
@@ -26,6 +27,7 @@
  function openMenu(){
   if(el.open||!H.live||window.House?.god||window.AccountGate&&!AccountGate.allowed)return false;
   previous=document.activeElement;syncSettings();el.querySelector('[name=graphics]').value=H.Q.want;
+  el.querySelector('.hs-test-reset').hidden=!(window.Net?.me.member&&Net.me.nick.toLowerCase()==='test'&&localStorage.getItem('jhp_starter')==='1');el.querySelector('.hs-test-confirm').hidden=true;
   button('leave').hidden=!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_);
   button('return').hidden=!H.held();H.pauseControls(true);document.documentElement.classList.add('hs-paused');el.showModal();button('resume').focus();return true;
  }
@@ -34,7 +36,10 @@
  el.addEventListener('cancel',ev=>{ev.preventDefault();closeMenu()});
  el.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-pause]');if(!b)return;
-  if(b.dataset.pause==='resume')closeMenu();
+  if(b.dataset.pause==='resetTest')el.querySelector('.hs-test-confirm').hidden=false;
+  else if(b.dataset.pause==='cancelReset')el.querySelector('.hs-test-confirm').hidden=true;
+  else if(b.dataset.pause==='confirmReset'){b.disabled=true;Net.send({t:'testReset',confirm:'RESET TEST'});setTimeout(()=>{b.disabled=false},10000)}
+  else if(b.dataset.pause==='resume')closeMenu();
   else if(b.dataset.pause==='return'){closeMenu();H.putBack()}
   else if(b.dataset.pause==='leave'){
    closeMenu();quickBack();
@@ -43,6 +48,7 @@
    if(action?.catch)action.catch(()=>{el.querySelector('.hs-pause-status').textContent='Full-screen was unavailable. The game still works in this window.'});
   }
  });
+ window.Net?.on('testResetResult',m=>{el.querySelector('.hs-pause-status').textContent=m.msg;button('confirmReset').disabled=false;if(m.ok)el.querySelector('.hs-test-confirm').hidden=true});
  el.addEventListener('change',ev=>{if(ev.target.name==='desktopFull')lockScreen(ev.target.checked);else if(ev.target.name==='graphics')H.gfx(ev.target.value)});
  document.addEventListener('fullscreenchange',()=>{button('fullscreen').textContent=document.fullscreenElement?'WINDOWED GAME':'FULL-SCREEN GAME'});
  // House's handler calls us first. This also shields later desktop/game

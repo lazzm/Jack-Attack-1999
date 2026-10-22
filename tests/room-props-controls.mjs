@@ -8,10 +8,10 @@ try{
  console.log('PROPS ready');
  assert(await p.evaluate(()=>['beanbag','chair','schoolbag','books','mug','pencilpot','hifi'].every(id=>House.THINGS[id])));
  await walkView([-100,-55,135],[-100,52,56]);
- await p.keyboard.down('f');await p.waitForTimeout(700);assert.equal(await p.evaluate(()=>House.held()),'beanbag','F did not pick up beanbag');await p.keyboard.up('f');
- console.log('PROPS F grab passed');
- await walkView([-10,-55,160],[-10,73,60]);await p.keyboard.press('f');assert.equal(await p.evaluate(()=>House.held()),'beanbag','Unsafe PC placement was allowed');
- await walkView([-100,-55,215],[-100,73,145]);await p.waitForTimeout(350);await p.keyboard.press('f');
+ await p.keyboard.down('e');await p.waitForTimeout(700);assert.equal(await p.evaluate(()=>House.held()),'beanbag','E did not pick up beanbag');await p.keyboard.up('e');
+ console.log('PROPS E grab passed');
+ await walkView([-10,-55,160],[-10,73,60]);await p.keyboard.press('e');assert.equal(await p.evaluate(()=>House.held()),'beanbag','Unsafe PC placement was allowed');
+ await walkView([-100,-55,215],[-100,73,145]);await p.waitForTimeout(350);await p.keyboard.press('e');
  console.log('PROPS drop',await p.evaluate(()=>({held:House.held(),state:House.THINGS.beanbag.st,toast:document.querySelector('.hs-toast')?.textContent})));
  assert.equal(await p.evaluate(()=>House.held()),null,'Clear-floor drop was rejected');
  await until(()=>House.THINGS.beanbag.st==='rest');
@@ -22,11 +22,11 @@ try{
  // One pillow, physically returned through the normal snap animation.
  await walkView([112,-55,80],[190,33,-33]);await p.evaluate(()=>{House.grab('ch.pillow');House.hush()});
  // The snap's generous bed target is intentionally reached by aiming at it.
- await p.keyboard.press('f');await until(()=>ChoreKit.has('bed','pillow'));
+ await p.keyboard.press('e');await until(()=>ChoreKit.has('bed','pillow'));
  assert.equal(await p.evaluate(()=>House.THINGS['ch.pillow'].at.y),37,'Pillow floats over mattress');
  await view([110,-25,150],[190,35,-20]);await p.screenshot({path:'shots/props-only-pillow-tidied.png'});
  await p.setViewportSize({width:390,height:844});await p.screenshot({path:'shots/props-only-pillow-tidied-narrow.png'});await p.setViewportSize({width:1366,height:860});
  await p.evaluate(()=>{House.hush();House._.setMode('walk');House.saveThings()});await p.reload({waitUntil:'domcontentloaded'});await until(()=>AccountGate.allowed&&House?.live&&House.THINGS?.beanbag&&!document.querySelector('.hs-loading,#houseEntry'));
  const refreshed=await p.evaluate(()=>House.THINGS.beanbag.at);for(const key of ['room','x','y','z','ry'])assert.equal(refreshed[key],placed.at[key],'Refresh changed beanbag '+key);await until(()=>!!House.THINGS['ch.pillow']);assert.equal(await p.evaluate(()=>House.THINGS['ch.pillow'].at.y),37);
- assert.deepEqual(errors,[]);console.log('PROPS / F CONTROLS PASS: repeat guard, safe furniture placement, dynamic collision, inspection, single pillow and refresh');
+ assert.deepEqual(errors,[]);console.log('PROPS / E CONTROLS PASS: repeat guard, safe furniture placement, dynamic collision, inspection, single pillow and refresh');
 }finally{await browser.close()}

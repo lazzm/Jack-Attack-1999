@@ -54,6 +54,8 @@
   const live = mode === 'room' || mode === 'old' || mode === 'forced';
   const store = { get() { try { return JSON.parse(localStorage.getItem('jhp_rm') || 'null') || {}; } catch (e) { return {}; } }, set(v) { try { localStorage.setItem('jhp_rm', JSON.stringify(v)); } catch (e) {} } };
   const S = store.get(); S.f = S.f || {}; S.seen = S.seen || {};
+  const sparseStarter=(()=>{try{return localStorage.getItem('jhp_starter')==='1'}catch(e){return false}})();
+  const gameOwned=g=>!!g&&((g.own&&(!sparseStarter||g.id==='gb.blocks'))||S.f['cart.'+g.id]||window.PM?.owns('cart.'+g.id));
   const save = () => store.set(S);
   const sfx = n => { try { Sound.play(n); } catch (e) {} };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -1402,6 +1404,10 @@
   const mediaBoxes={},mediaSlots={};
   let mediaSlotSave=null;
   const caseStore={get(){try{return JSON.parse(localStorage.getItem('jhp_console_slots')||'{}')}catch(e){return{}}},save(){try{localStorage.setItem('jhp_console_slots',JSON.stringify(mediaSlotSave))}catch(e){}}};
+  let openCases;try{openCases=JSON.parse(localStorage.getItem('jhp_console_open')||'{}')||{}}catch(e){openCases={}}
+  if(typeof openCases!=='object'||Array.isArray(openCases))openCases={};
+  const inOwnCase=g=>mediaThings[g]?.st==='snap'&&mediaThings[g].snap==='media.case.'+g;
+  const onMediaRack=box=>Math.abs(box.at.z+43)<1&&Math.abs(box.at.x-(TX-56))<17;
   function rackPose(slot){return{room:'bedroom',x:TX-66.5+(slot%4)*7,y:7+Math.floor(slot/4)*15,z:-43,ry:90};}
   function caseScene(c,g){
     const sky=c.createLinearGradient(0,0,0,320);sky.addColorStop(0,'#182d55');sky.addColorStop(1,g.col||'#ab6236');c.fillStyle=sky;c.fillRect(0,0,512,320);
@@ -1442,7 +1448,11 @@
     for(const y of [-h+1,-1])B.cyl(-w/2,y,d/2-.13,.22,.22,1.1,10,shell);
     batch.build(obj);K.into(obj).shadow(0,0,0,w+1,d+1,.35,{sq:true});obj.userData.mediaCase={game:g.id,width:w,height:h,depth:d,lid};return obj;
   }
-  function caseLid(box,open){const lid=box.obj.userData.mediaCase.lid,from=lid.rotation.y,inRack=Math.abs(box.at.z+43)<1&&Math.abs(box.at.x-(TX-56))<17,to=open?-(inRack?14:115)*D2R:0,start=performance.now();H.anims.set('case.lid.'+box.id,now=>{const k=Math.min(1,(now-start)/280);lid.rotation.y=from+(to-from)*(k*k*(3-2*k));return k<1;});}
+  function caseLid(box,open){
+    box.caseOpen=!!open;openCases[box.gameId]=!!open;try{localStorage.setItem('jhp_console_open',JSON.stringify(openCases))}catch(e){}
+    const t=mediaThings[box.gameId];if(inOwnCase(box.gameId)){t.at.hide=!open;H.place(t);H.layerFor(t)}
+    const lid=box.obj.userData.mediaCase.lid,from=lid.rotation.y,to=open?-115*D2R:0,start=performance.now();H.anims.set('case.lid.'+box.id,now=>{const k=Math.min(1,(now-start)/280);lid.rotation.y=from+(to-from)*(k*k*(3-2*k));return k<1;});
+  }
   function boxSlot(g){
     if(!mediaSlotSave){const saved=caseStore.get();mediaSlotSave=saved&&typeof saved==='object'&&!Array.isArray(saved)?saved:{};const used=new Set();for(const [id,n] of Object.entries(mediaSlotSave)){if(!CAT.GAME[id]||!Number.isInteger(n)||n<0||n>=20||used.has(n))delete mediaSlotSave[id];else used.add(n)}}
     if(!Number.isInteger(mediaSlotSave[g.id])){const used=new Set(Object.values(mediaSlotSave)),n=Array.from({length:20},(_,i)=>(i%5)*4+Math.floor(i/5)).find(n=>!used.has(n));if(n==null)return null;mediaSlotSave[g.id]=n;caseStore.save()}return mediaSlotSave[g.id];
@@ -1450,17 +1460,19 @@
   function addMediaBox(g,con){
     const n=boxSlot(g);if(n==null)return null;
     const pose=rackPose(n),id='media.box.'+g.id;
-    const box=Room.grabbable(id,{obj:mediaCaseModel(g,con),kind:'console-case',gameId:g.id,label:g.title+(con.media==='disc'?' — jewel case':' — game box'),home:Object.assign({},pose,{snap:'media.slot.'+n}),holdD:38,useAtHome:true,useLabel:con.media==='disc'?'Take out disc':'Take out cartridge',
-      use:()=>{const t=mediaThings[g.id];if(!t)return;if(t.st==='snap'&&t.snap==='media.case.'+g.id||t.at.hide&&t.snap!=='console.'+g.con){if(H.held()===id)H.putBack();caseLid(box,true);H.grab(t.id)}else{H.toast(g.title,'The '+(con.media==='disc'?'disc':'cartridge')+' is out. Return it to this case first.')}}});
+    const box=Room.grabbable(id,{obj:mediaCaseModel(g,con),kind:'console-case',gameId:g.id,label:g.title+(con.media==='disc'?' — jewel case':' — game box'),home:Object.assign({},pose,{snap:'media.slot.'+n}),holdD:38,useLabel:'Open / close case',
+      onGrab:()=>caseLid(box,false),
+      canPlace:target=>{if(!inOwnCase(g.id)&&target.room==='bedroom'&&target.z< -26&&Math.abs(target.x-(TX-56))<21){H.toast(g.title,'Return its '+(con.media==='disc'?'disc':'cartridge')+' before putting the case on the shelf.');return false}return true},
+      use:()=>{if(H.held()===id){H.toast(g.title,'E / Click: place the case on the floor or a surface first. Then F opens it.');return}if(onMediaRack(box)){H.toast(g.title,'E: pick up the case. Place it down off the shelf, then F opens it.');return}caseLid(box,!box.caseOpen);H.saveThings()}});
     mediaBoxes[g.id]=box;
     const sn=Room.addSnap('media.case.'+g.id,{room:'bedroom',x:pose.x,y:pose.y-6,z:pose.z,r:26,box:[14,12,2],pose:Object.assign({},pose),hide:true,accepts:(kind,t)=>t?.id==='media.'+g.id,enabled:()=>['rest','snap'].includes(box.st)&&!box.at.hide,hint:'Return to its own '+(con.media==='disc'?'jewel case':'game box'),onSnap:()=>caseLid(box,false)});
-    const follow=()=>{const p=box.at;Object.assign(sn,{room:p.room,x:p.x,y:p.y-6,z:p.z});Object.assign(sn.pose,p,{hide:true});const t=mediaThings[g.id];if(t){t.home=Object.assign({},p,{snap:sn.id,hide:true});if(t.st==='snap'&&t.snap===sn.id&&(!t.at.hide||['room','x','y','z','ry'].some(k=>t.at[k]!==p[k]))){t.at=Object.assign({},p,{hide:true});H.place(t)}}};
+    const follow=()=>{const p=box.at;Object.assign(sn,{room:p.room,x:p.x,y:p.y-6,z:p.z});Object.assign(sn.pose,p,{hide:true});const t=mediaThings[g.id];if(t){t.home=Object.assign({},p,{snap:sn.id,hide:true});if(t.st==='snap'&&t.snap===sn.id&&(t.at.hide===!!box.caseOpen||['room','x','y','z','ry'].some(k=>t.at[k]!==p[k]))){t.at=Object.assign({},p,{hide:!box.caseOpen});H.place(t)}}};
     H.ambient.add(follow);follow();return box;
   }
   function rackSlots(){
     for(let n=0;n<20;n++){const p=rackPose(n);mediaSlots[n]=Room.addSnap('media.slot.'+n,{room:'bedroom',x:p.x,y:p.y-6,z:p.z,r:26,box:[15.2,12.6,5.6],preview:{x:p.x,y:p.y-6.3,z:p.z},pose:p,hint:'Put the box upright in this slot',
-      accepts:(kind,t)=>{if(kind!=='console-case'||!t||Object.entries(mediaSlotSave||{}).some(([id,s])=>s===n&&id!==t.gameId))return false;const ray=H.rayAt(pb.clientWidth/2,pb.clientHeight/2);if(ray.d.z>=-.01)return false;const distance=(-36-ray.o.z)/ray.d.z;if(distance<0||distance>260)return false;const x=ray.o.x+ray.d.x*distance,y=ray.o.y+ray.d.y*distance;return Math.abs(x-p.x)<3.5&&Math.abs(y-(p.y-6.3))<7.5},
-      onBegin:(t)=>{mediaSlotSave[t.gameId]=n;caseStore.save();t.home=Object.assign({},p,{snap:'media.slot.'+n});return true;}})}
+      accepts:(kind,t)=>{if(kind!=='console-case'||!t||!inOwnCase(t.gameId)||Object.entries(mediaSlotSave||{}).some(([id,s])=>s===n&&id!==t.gameId))return false;const ray=H.rayAt(pb.clientWidth/2,pb.clientHeight/2);if(ray.d.z>=-.01)return false;const distance=(-36-ray.o.z)/ray.d.z;if(distance<0||distance>260)return false;const x=ray.o.x+ray.d.x*distance,y=ray.o.y+ray.d.y*distance;return Math.abs(x-p.x)<3.5&&Math.abs(y-(p.y-6.3))<7.5},
+      onBegin:(t)=>{mediaSlotSave[t.gameId]=n;caseStore.save();t.home=Object.assign({},p,{snap:'media.slot.'+n});caseLid(t,false);return true;}})}
     H.on('tidy',rid=>{if(rid&&rid!=='bedroom')return;for(const box of Object.values(mediaBoxes))caseLid(box,false);const v=window.RoomTV?._dbg();if(v?.gid&&mediaThings[v.gid]?.snap!=='console.'+v.con)RoomTV.stopPhysical(v.con);});
   }
   function ejectMedia(con) {
@@ -1474,8 +1486,9 @@
     mediaThings._ready = 1;
     const games = CAT.GAMES.filter(g => !CAT.CONSOLES[g.con].away);
     rackSlots();
-    const owns = g => isOut(g.from || CAT.CONSOLES[g.con].from) && (g.own || S.f['cart.' + g.id] || (window.PM && PM.owns && PM.owns('cart.' + g.id)));
+    const owns = g => isOut(g.from || CAT.CONSOLES[g.con].from) && gameOwned(g);
     for (const [id, c] of Object.entries(R.consoles || {})) {
+      if(H.SPOTS[id])H.SPOTS[id].remove=()=>inserted(id)?ejectMedia(id):H.toast(CAT.CONSOLES[id].n,'No game is inserted. F plays / uses it; E removes media.');
       Room.addSnap('console.' + id, { x: c.x, y: c.y, z: c.z, r: 14, box: c.disc ? [12, 0.4, 12] : [10, 4, 3],
         pose: { x: c.x, y: c.y + (c.disc ? -0.14 : 1), z: c.z + (c.disc ? 6 : 0), ry: 0, rx: c.disc ? 90 : 0 }, hide: c.disc,
         accepts: (kind, t) => kind===(c.disc?'console-disc':'cart')&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === id), enabled: () => !inserted(id),
@@ -1509,6 +1522,7 @@
       // elsewhere and anything already inserted into a running console.
       const old=games.indexOf(g),oldX=TX-66.5+(old%4)*7,oldY=7+Math.floor(old/4)*15;
       if(t.snap?.startsWith('media.shelf.')||t.at.hide&&!t.snap||t.st==='rest'&&t.at.room==='bedroom'&&Math.abs(t.at.x-oldX)<.1&&Math.abs(t.at.y-oldY)<.1&&Math.abs(t.at.z+40)<.1){t.st='snap';t.snap=shelf;t.at=Object.assign({},home);t.rx=t.rz=0;H.place(t);H.saveThings()}
+      if(openCases[g.id]&&!onMediaRack(box))caseLid(box,true);
       if (t.st === 'snap' && t.snap === 'console.' + g.con) { const c = R.consoles[g.con]; if (c && c.lid) c.lid.rotation.x = 0; }
     };
     games.forEach(add);
@@ -1587,7 +1601,7 @@
     held: () => H.held(), tidy: rid => H.tidy(rid || 'bedroom'),
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); if (['grab', 'place', 'snap', 'unsnap'].includes(ev)) H.on(ev, fn); },
     say, toast, look(n) { const i = STN[n]; if (i != null) H.goStation(i); }, get station() { const i = H._.stIdx; return (room.stations[i] || {}).id || ''; },
-    found: id => !!S.f[id], owned: g => { const G = CAT.GAME[g]; return !!G && (G.own ? isOut(CAT.CONSOLES[G.con].from) : !!S.f['cart.' + g]); },
+    found: id => !!S.f[id], owned: g => { const G = CAT.GAME[g]; return gameOwned(G)&&isOut(G.from||CAT.CONSOLES[G.con].from); },
     where: () => H.here, T, K, House: H, ensureHouse,
     onClose(fn) { (EVS.close = EVS.close || []).push(fn); }, offClose(fn) { const a = EVS.close || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); },
     _: { ejectMedia,

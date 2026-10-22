@@ -25,15 +25,28 @@
       if(creating&&pass!==f.elements.confirm.value){err.textContent='The passwords do not match.';return;}
       if(!Net.connected||!Net.me.id){err.textContent='JackNet is connecting. Please try again in a moment.';return;}
       if(!Net.send({t:'login',name,pass,signup:creating}))return;
+      try{sessionStorage.setItem('jhp_login_seat','1')}catch(e){}
       pending=true;f.querySelectorAll('button').forEach(b=>b.disabled=true);err.textContent='Verifying your account...';
     });
     panel.querySelector('[name=name]').focus();
   }
-  function unlock(){pending=false;blocked=false;panel.remove();root.classList.remove('account-required');if(window.House&&House.emit)House.emit('loading',!!document.querySelector('.hs-loading'))}
+  function unlock(){pending=false;blocked=false;panel.remove();root.classList.remove('account-required');if(window.House&&House.emit)House.emit('loading',!!document.querySelector('.hs-loading'));seatAfterLogin()}
+  let seating=false;
+  function seatAfterLogin(){
+    let requested=false;try{requested=sessionStorage.getItem('jhp_login_seat')==='1'}catch(e){}if(!requested||seating)return;seating=true;
+    const start=Date.now();(function enter(){
+      if(blocked||!Net.me.member){seating=false;return}
+      const h=window.House;
+      if(h?.live&&['monitor','pcboot'].includes(h.mode)){try{sessionStorage.removeItem('jhp_login_seat')}catch(e){}seating=false;return}
+      if(h?.live&&!h.busy&&window.HousePause?.canBack&&h.mode!=='walk')HousePause.quickBack();
+      if(h?.live&&h.mode==='walk'&&!h.busy&&!document.querySelector('.hs-loading')){if(h.held())h.putBack();h.act('pc')}
+      if(Date.now()-start<60000)setTimeout(enter,100);else seating=false;
+    })();
+  }
   Net.on('welcome',m=>{pending=false;if(m.member){if(owner().toLowerCase()===m.nick.toLowerCase())unlock();else loading()}else{blocked=true;show()}});
   Net.on('loginOk',loading);
   Net.on('rmSame',unlock);Net.on('rmNone',m=>{if(m.guest)return;setTimeout(()=>{if(initialOwner&&initialOwner.toLowerCase()!==Net.me.nick.toLowerCase())location.reload();else unlock()},0)});
-  Net.on('loginErr',m=>{pending=false;const f=panel.querySelector('form');if(f){panel.querySelector('.account-error').textContent=m.msg;f.querySelectorAll('button').forEach(b=>b.disabled=false)}});
+  Net.on('loginErr',m=>{pending=false;try{sessionStorage.removeItem('jhp_login_seat')}catch(e){}const f=panel.querySelector('form');if(f){panel.querySelector('.account-error').textContent=m.msg;f.querySelectorAll('button').forEach(b=>b.disabled=false)}});
   Net.on('you',m=>{if(!m.member){pending=false;blocked=true;show('You have logged off. Log on to continue.')}});
   Net.on('_close',()=>{pending=false;if(!Net.me.member)show('JackNet is disconnected. Your existing account and saves are safe. Reconnecting...');else if(blocked)loading('Connection lost while loading your settings. Reconnecting...')});
   for(const type of ['rmErr','rmBusy'])Net.on(type,m=>{if(blocked)loading(m.msg||'JackNet could not load your settings. Your saves are safe. Please retry.')});

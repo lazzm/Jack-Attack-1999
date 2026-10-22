@@ -46,6 +46,9 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
   Intergalactic Battles: An Old Hope. Audit source and inspect the rendered lettering; never silently truncate titles.
   Preserve internal IDs/save keys, technical API/font names, third-party licence notices and players' own posts/data.
 - Every player needs a JackNet account before playing; no guest/cancel bypass. Existing account names, saves and balances must survive.
+- Explicit signup/logon enters the PC; ordinary refresh/token resume preserves the saved standing/seated state.
+  The owner-approved account `test` has a sparse personal-media starter and a confirmed, backed-up test-only save reset.
+  Never convert/reset another account, overwrite an existing registration, or clear daily earning/exchange caps or shared-world records.
 - Pocket money and job wages are server-held cash in integer pence. JackNet Bank exchanges £1 for 20 Rupees (5p increments, £20/day, one-way, no real money); new cash wallets start at £0, without converting old Rupees. Rupees still use capped server earn paths; the browser never mints either currency. Persist exchange-slip nonces so retries never debit twice.
 - People: Jack, Dave, Luke, Callum, JackK, Crystal (Jack's little sister), Mom, Dad, Gran, Grandad, Nan and Gubbinz are fixed;
   everyone else comes from `Cast` (`Cast.n('cousin')`, `Cast.t('{teacher} ... {teacher.his}')`). Never hardcode them.
@@ -54,8 +57,9 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
 - Browser tab title is always "Jack Attack 1999" (js/title.js); it's shown nowhere else.
 - The site's CSP is `script-src 'self'`: no inline scripts or inline event handlers; put code in files.
 - Controls in the house: WASD/arrows walk, Shift jog, C crouch (never Ctrl: Ctrl+W closes the tab), Space jump,
-  F interacts (use/grab; insert at a highlighted slot; otherwise use a held object or put it down), E/click are
-  placement/interaction alternatives, I inspects, R turns, Backspace leans back from screens/inspection (not while typing),
+  F uses/plays/opens; E/click picks up, removes or places (including insertion at highlighted slots).
+  Console cases must be placed off the shelf before F opens them; E takes the visible medium and returns it to its case.
+  Only filled cases go back onto the console rack. I inspects, R turns, Backspace leans back from screens/inspection (not while typing),
   Esc opens the game menu (including return/leave actions). F2 stands up from the PC,
   0 toggles LOCK IN for the active in-game screen (never while typing), G graphics, F9 god mode (owner "Jack" only).
   Keep on-screen prompts consistent; never intercept Ctrl+F. LOCK IN preserves the screen's native aspect ratio and running state.

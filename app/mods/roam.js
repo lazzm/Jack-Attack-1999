@@ -23,6 +23,30 @@ function write(name, obj) {
   fs.renameSync(tmp, f);
 }
 
+// Only the explicitly designated test account gets this sparse starter profile.
+function starterProfile() {
+  const values = {
+    jhp_starter: 1,
+    jhp_setup: { v: 2, rm: {}, add: {}, noicon: {}, when: {}, dl: [] },
+    jhp_pm: { v: 1, own: {}, fl: {}, gift: 99, days: [], seen: {}, opened: {}, n: 0 },
+    jhp_discs: { cd: '', scr: {}, d2: {}, n: {}, dx: 0, gave: {}, ej: [] },
+    jhp_rm: { f: {}, seen: {} }
+  };
+  return Object.fromEntries(Object.entries(values).map(([k,v]) => [k,JSON.stringify(v)]));
+}
+function seedStarter(name, reset = false) {
+  if (String(name).toLowerCase() !== 'test') throw Error('Starter is restricted to test');
+  const f = fileOf(name), cur = read(name);
+  if (cur && !reset) return false;
+  const now = Math.max(Date.now(), (cur?.ts || 0) + 1);
+  fs.mkdirSync(DIR, { recursive: true });
+  if (cur) fs.copyFileSync(f, f + '.bak-' + now);
+  const prof = { ts: now, reset: now, enc: 'raw', data: Buffer.from(JSON.stringify(starterProfile())).toString('base64') };
+  write(name, prof);
+  if (reset && ctx) for (const [ws,c] of ctx.clients) if (c.member?.toLowerCase() === 'test') ctx.send(ws, { t:'rmData', ...prof });
+  return true;
+}
+
 // admin: give a member a brand-new PC (what a new visitor gets). The old profile is kept as a backup file, never deleted.
 function resetProfile(name) {
   const f = fileOf(name), now = Date.now();
@@ -58,6 +82,7 @@ function resetInstalls(name) {
 }
 
 module.exports = {
+  seedStarter,
   resetProfile,
   resetInstalls,
   name: 'roam',

@@ -120,7 +120,7 @@
     save();
   }
   // this month's mag is always on the pile (it came this month), and the cover disc in the drive is ours
-  { const m = today().m; if (!S.own[MAG(m)]) { S.own[MAG(m)] = Date.now(); save(); } }
+  if(ls('jhp_starter')!=='1'){ const m = today().m; if (!S.own[MAG(m)]) { S.own[MAG(m)] = Date.now(); save(); } }
   { const c = D.drive; const it = discItem(c); if (it && !owns(it) && (D.BOX[it] || MINE[it] || /^pm\.mag/.test(it))) { S.own[it] = Date.now(); save(); } }
   if (S.a && !S.fl[S.a] && S.a !== 'gquest') { S.a = ''; save(); }
   if (S.tray && (!owns(S.tray) || discItem(D.drive) === S.tray)) { S.tray = ''; save(); }
