@@ -1,5 +1,11 @@
 # Jack Attack 1999 - browser tests
 
+Printed reading matter (throwaway localhost accounts only):
+
+    node magazine-catalogue-unit.cjs
+    node reading-pages.mjs http://localhost:18474 # 108 fitted pages; twelve issues, paperbacks, directory, TV guide, comic; bookmarks/refresh
+    node shelf-print-polish.mjs http://localhost:18474 # Pixel Post orientation; held layers; keyboard/touch; cover CD; directory shelf support
+
 Current F/E media and account regressions (localhost throwaway servers only):
 
     node posters-v3.mjs http://localhost:18466 # complete poster prints, real clicks/zoom, Q, resize, Esc and refresh

@@ -430,13 +430,16 @@
     sofa(B, -60, 560, 180, 200, M({ c: '#fff', map: sofaTex() }));
     sofa(B, 110, 430, -118, 90, M({ c: '#fff', map: sofaTex() }));
     const ct = B.at(-60, GY, 450); ct.box(0, -42, 0, 100, 3, 55, M({ c: '#fff', map: tex('oak') })); [[-45, -23], [45, -23], [-45, 23], [45, 23]].forEach(([x, z]) => ct.box(x, -20.5, z, 4, 41, 4, M({ c: '#fff', map: tex('oak') }))); ct.box(0, -8, 0, 92, 2, 48, M({ c: '#fff', map: tex('oak') }));
-    ct.box(-28, -44, 6, 21, 0.8, 28, { t: M({ c: '#fff', map: guideTex() }), all: M('#f0eee8') }, { ry: -12 }); // the TV guide
+    if(window.Magazines)Magazines.makePaper('hs.tvguide',{room:'lounge',x:-88,y:GY-43.5,z:456,ry:-12},guideTex(),.8);
+    else ct.box(-28,-44,6,21,.8,28,{t:M({c:'#fff',map:guideTex()}),all:M('#f0eee8')},{ry:-12});
     ct.box(20, -45, -6, 12, 3, 10, M({ c: '#fff', map: tex('pillow') }));
     ct.lathe(28,-43.5,10,[[0,-0.7],[4.4,-0.7],[6.4,-2.4],[7.7,-4.3],[8,-4.2],[8.2,-3.9],[6.8,-1.7],[4.8,0],[0,0]],32,M({c:'#c9d7de',sh:65,sp:'#777f84'}));
     ct.shadow(0, 0, 0, 108, 62, 0.65, { sq: true });
     // the phone table by the door, a standard lamp, the display cabinet, a rubber plant
     const pt = B.at(170, GY, 610); pt.box(0, -64, 0, 40, 3, 36, M({ c: '#fff', map: tex('oak') })); [[-17, -15], [17, -15], [-17, 15], [17, 15]].forEach(([x, z]) => pt.box(x, -31, z, 3, 62, 3, M({ c: '#fff', map: tex('oak') }))); pt.box(0, -20, 0, 36, 2, 32, M({ c: '#fff', map: tex('oak') }));
-    pt.box(-6, -24, 0, 22, 4, 28, M({ c: '#c8a050', map: K.tex('hs.pbook', 128, 160, (g) => { g.fillStyle = '#e8c840'; g.fillRect(0, 0, 128, 160); A.text(g, 'PHONE BOOK', 64, 60, '22px ' + A.FONT, '#1a1a1a', 'center'); A.text(g, '1999/2000', 64, 90, '700 14px ' + A.UIF, '#1a1a1a', 'center'); }) }));
+    const directory=K.tex('hs.pbook',128,160,g=>{g.fillStyle='#e8c840';g.fillRect(0,0,128,160);A.text(g,'PHONE BOOK',64,60,'22px '+A.FONT,'#1a1a1a','center');A.text(g,'1999',64,90,'700 14px '+A.UIF,'#1a1a1a','center')});
+    if(window.Magazines)Magazines.makePaper('hs.pbook',{room:'lounge',x:164,y:GY-21,z:610,ry:0},directory,4);
+    else pt.box(-6,-24,0,22,4,28,M({c:'#c8a050',map:directory}));
     pt.shadow(0, 0, 0, 46, 42, 0.6, { sq: true });
     // the family phone: a cordless on its base (the handset stands in the charger at an angle; js/hs-life.js makes it ring)
     const ph = new T.Group(); ph.position.set(170, GY - 65.5, 604); ph.rotation.y = -100 * D2R; r.group.add(ph); const PH = K.into(ph), cream = M({ c: '#e4ddc8', sh: 40, sp: '#555' }), grey = M({ c: '#4a4c54', sh: 40, sp: '#444' });
@@ -452,7 +455,7 @@
     PH.shadow(0, 0, 2, 15, 22, 0.6, { sq: true });
     r.phone = ph;
     H.spot('hs.phone', { label: () => (window.HouseLife && HouseLife.ringing && HouseLife.ringing()) ? 'The phone! (it\'s ringing)' : 'The phone', obj: ph, act: () => life('phone') });
-    H.spot('hs.pbook', { label: 'Phone book', act: () => life('pbook') }); pickBox(r, 'hs.pbook', 164, GY - 44, 610, 24, 6, 30);
+    if(!H.THINGS['hs.pbook']){H.spot('hs.pbook',{label:'Phone book',act:()=>life('pbook')});pickBox(r,'hs.pbook',164,GY-24,610,24,6,30)}
     const sl=B.at(160,GY,360);sl.cyl(0,-1.5,0,14,15,3,28,M('#2a2a2a'));sl.cyl(0,-77,0,1,1,151,12,mBrass);
     sl.lathe(0,-158,0,[[11.6,-13.2],[12,-13.4],[20.2,12.8],[20.1,13.3],[19.6,13.3],[11.2,-12.7],[11.6,-13.2]],32,M({c:'#e8d2a4',sh:7}));
     for(const yy of [-171.3,-144.7])sl.geo(new T.TorusGeometry(yy===-171.3?11.6:19.9,0.22,5,40),0,yy,0,M('#bba67f'),{rx:90});
@@ -496,6 +499,7 @@
     H.block('G',-162,516,42,606);H.block('G',49,369,171,492);H.block('G',-115,418,-5,482); // full sofa/chair footprints, not just their seat centres
     H.block('G', 146, 588, 194, 634); H.block('G', -230, 305, -130, 342); H.block('G', -280, 420, -230, 580); H.block('G', 144, 344, 176, 376); H.block('G', -268, 646, -232, 676);
     H.support('lounge', -110, 422, -10, 478, GY - 43.5); H.support('lounge', 150, 592, 190, 628, GY - 65.5); H.support('lounge', -280, 430, -230, 570, GY - 114);
+    H.support('lounge',152,594,188,626,GY-21); // the phone book's lower shelf
   }
   function routedCord(B,pts,col){
     const points=pts.map(p=>new T.Vector3(...p)),curve=new T.CurvePath();let from=points[0];
@@ -526,7 +530,7 @@
   function tileTex() { return K.tex('hs.hearth', 128, 64, (g, w, h) => { for (let x = 0; x < 8; x++) for (let y = 0; y < 4; y++) { g.fillStyle = (x + y) % 2 ? '#7a4a2a' : '#8a5a34'; g.fillRect(x * 16, y * 16, 16, 16); } g.strokeStyle = '#3a2414'; for (let i = 0; i <= 8; i++) { g.beginPath(); g.moveTo(i * 16, 0); g.lineTo(i * 16, 64); g.stroke(); } }); }
   function photoTex(c) { return K.tex('hs.photo.' + c, 64, 80, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = A.lin(g, 0, 4, 0, 70, [[0, c], [1, '#e8e0d0']]); g.fillRect(4, 4, w - 8, h - 8); g.fillStyle = '#e0b090'; g.beginPath(); g.arc(32, 34, 10, 0, 7); g.fill(); g.fillStyle = '#3a2a1a'; g.fillRect(22, 24, 20, 6); g.fillStyle = c; g.fillRect(20, 46, 24, 28); }); }
   function landTex() { return K.tex('hs.land', 256, 170, (g, w, h) => { g.fillStyle = A.lin(g, 0, 0, 0, h, [[0, '#a8c0d8'], [0.55, '#e8d8b8'], [0.56, '#6a8a4a'], [1, '#3a5a2a']]); g.fillRect(0, 0, w, h); g.fillStyle = '#5a6a7a'; g.beginPath(); g.moveTo(0, 95); g.lineTo(70, 50); g.lineTo(130, 90); g.lineTo(190, 40); g.lineTo(256, 95); g.fill(); g.fillStyle = '#f4f0e8'; g.fillRect(150, 100, 30, 20); g.fillStyle = '#8a2a1a'; g.beginPath(); g.moveTo(146, 100); g.lineTo(165, 88); g.lineTo(184, 100); g.fill(); A.grain(g, w, h, 3000, 0.08, 12); }); }
-  function guideTex() { return K.tex('hs.guide', 256, 340, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#c01a1a'; g.fillRect(0, 0, w, 70); A.text(g, 'TELLY TIMES', 128, 52, '44px ' + A.FONT, '#fff', 'center'); g.fillStyle = A.lin(g, 0, 80, 0, 290, [[0, '#2a4a8a'], [1, '#0a1a3a']]); g.fillRect(10, 80, 236, 210); A.text(g, 'THIS WEEK', 20, 316, '26px ' + A.FONT, '#111'); A.text(g, 'ALL 5 CHANNELS', 20, 334, '700 12px ' + A.UIF, '#c01a1a'); }); }
+  function guideTex() { return A.printed('hs.guide',256,340,(g,w,h)=>{g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle='#c01a1a';g.fillRect(0,0,w,70);A.text(g,'TELLY TIMES',128,52,'44px '+A.FONT,'#fff','center');g.fillStyle='#192b45';g.fillRect(10,80,236,210);window.PrintArt?.paint(g,'robots',10,80,236,210);g.fillStyle='#111b';g.fillRect(10,256,236,34);A.text(g,'TIN ROBOT CLUB',128,280,'24px '+A.FONT,'#fff','center');A.text(g,'THIS WEEK',20,316,'26px '+A.FONT,'#111');A.text(g,'ALL 5 CHANNELS',20,334,'700 12px '+A.UIF,'#c01a1a')},{clamp:true}); }
   function streetTex() { return K.tex('hs.street', 512, 256, (g, w, h) => {
     const ph = phase(), N = ph === 'night', D = ph === 'day';
     g.fillStyle = A.lin(g, 0, 0, 0, h, D ? [[0, '#4a8ae0'], [1, '#c8e0ff']] : N ? [[0, '#03050f'], [1, '#18224a']] : [[0, '#3a2a6a'], [1, '#ffa06a']]); g.fillRect(0, 0, w, h);

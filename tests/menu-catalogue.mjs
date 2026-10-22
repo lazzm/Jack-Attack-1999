@@ -12,8 +12,9 @@ try{
  await page.waitForTimeout(400);await page.keyboard.press('e');
  await until(()=>House.THINGS['pm.catalogue'].snap==='reading.slot.2');
  assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].rx),-90);
+ assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].at.ry),90);
  assert(await page.evaluate(()=>House.THINGS['pm.catalogue'].obj.userData.leaves.every(l=>l.k===0)),'Open catalogue not closed on shelf');
- await view([-115,-20,175],[-155,-15,234]);await page.screenshot({path:'shots/menu-catalogue/shelf-front.png'});
+ await view([-100,-85,168],[slot.x,slot.y-14,234]);await page.screenshot({path:'shots/menu-catalogue/shelf-front.png'});
  await view([-210,-25,165],[-155,-5,234]);await page.screenshot({path:'shots/menu-catalogue/shelf-side.png'});
  await page.evaluate(()=>{House._.setMode('walk');House.saveWalkState();localStorage.setItem('jhp_logout_audit','kept')});
  await page.keyboard.press('Escape');await page.locator('[data-pause=logout]').click();
@@ -36,6 +37,7 @@ try{
  assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_logout_audit')),'kept');
  assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].snap),'reading.slot.2');
  assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].rx),-90);
+ assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].at.ry),90);
  assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].home.snap),'reading.slot.2');
  await page.keyboard.press('q');await until(()=>House.mode==='walk');
  await page.evaluate(()=>{House.grab('pm.catalogue');House.putBack()});await until(()=>House.THINGS['pm.catalogue'].st==='snap');

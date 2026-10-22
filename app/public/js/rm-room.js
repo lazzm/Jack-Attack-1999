@@ -835,12 +835,13 @@
     const used=new Set();for(const[id,n]of Object.entries(slots)){if(!Number.isInteger(n)||n<0||n>31||used.has(n))delete slots[id];else used.add(n)}
     const flat=t=>t.kind==='reading.mag'||t.kind==='mess.mag'||t.kind==='catalogue';
     const pose=(n,mag)=>({room:'bedroom',x:cx-28+(n%8)*8,y:boards[1+Math.floor(n/8)]-.9-(mag?14:0),z:cz,ry:-90,rx:mag?-90:0});
+    const shelfPose=(n,t)=>Object.assign(pose(n,flat(t)),t.kind==='catalogue'?{ry:90,rx:-90}:{});
     const saveSlots=()=>{try{localStorage.setItem('jhp_reading_slots',JSON.stringify(slots))}catch(e){}};
     for(let n=0;n<32;n++){
       const owner=Object.keys(slots).find(id=>slots[id]===n),mag=owner&&(owner.includes('mag')||owner==='ch.m.comic'||owner==='pm.catalogue');
-      const sn=H.snap('reading.slot.'+n,{room:'bedroom',...pose(n,false),r:25,pose:pose(n,mag),box:[7,30,23],preview:{x:pose(n,false).x,y:pose(n,false).y-15,z:cz},hint:'Shelve it in this slot',
-        accepts:(kind,t)=>{if(!['reading.book','reading.mag','mess.mag','catalogue'].includes(kind)||Object.entries(slots).some(([id,s])=>s===n&&id!==t.id))return false;Object.assign(sn.pose,pose(n,flat(t)));return true},
-        onBegin:t=>{t.obj.userData.closePages?.();slots[t.id]=n;t.home={...pose(n,flat(t)),snap:sn.id};saveSlots()},onSnap:t=>H.emit('reading-shelved',t)});
+      const sn=H.snap('reading.slot.'+n,{room:'bedroom',...pose(n,false),r:25,pose:Object.assign(pose(n,mag),owner==='pm.catalogue'?{ry:90,rx:-90}:{}),box:[7,30,23],preview:{x:pose(n,false).x,y:pose(n,false).y-15,z:cz},hint:'Shelve it in this slot',
+        accepts:(kind,t)=>{if(!['reading.book','reading.mag','mess.mag','catalogue'].includes(kind)||Object.entries(slots).some(([id,s])=>s===n&&id!==t.id))return false;Object.assign(sn.pose,shelfPose(n,t));return true},
+        onBegin:t=>{t.obj.userData.closePages?.();slots[t.id]=n;t.home={...shelfPose(n,t),snap:sn.id};saveSlots()},onSnap:t=>H.emit('reading-shelved',t)});
     }
     function item(id,title,mag,index,cover,start){
       if(!Number.isInteger(slots[id])){slots[id]=used.has(index)?Array.from({length:32},(_,n)=>n).find(n=>!used.has(n)):index;used.add(slots[id]);saveSlots()}
@@ -855,7 +856,7 @@
         for(const i of vertices)uv.setXY(i,1-uv.getX(i),1-uv.getY(i));uv.needsUpdate=true;
         O.shadow(0,0,0,22,29,.25,{sq:true});
       }
-      else{O.box(0,-11,0,14,22,2,{f:M({c:'#fff',map:print}),b:M({c:'#fff',map:print}),l:M({c:'#fff',map:spine}),all:M('#e3d9bf')});O.box(0,-.12,0,14.2,.24,2.2,M(col));O.box(0,-21.88,0,14.2,.24,2.2,M(col));O.shadow(0,0,0,16,4,.3,{sq:true})}
+      else{O.box(0,-11,0,14,21.52,2,{f:M({c:'#fff',map:print}),b:M({c:'#fff',map:print}),l:M({c:'#fff',map:spine}),all:M('#e3d9bf')});O.box(0,-.12,0,14.2,.24,2.2,M(col));O.box(0,-21.88,0,14.2,.24,2.2,M(col));O.shadow(0,0,0,16,4,.3,{sq:true})}
       const home={...pose(n,mag),snap:'reading.slot.'+n},t=H.thing(id,{obj,home:start||home,kind:mag?'reading.mag':'reading.book',label:title,holdD:38,useLabel:'Read / inspect',use:()=>H.inspect(id)});
       if(!start){t.st='snap';t.snap=home.snap;t.rx=home.rx;H.place(t)}H.restoreThing(t);t.home=home;
     }

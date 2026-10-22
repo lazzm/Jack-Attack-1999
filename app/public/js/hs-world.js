@@ -826,7 +826,9 @@
     if(controlsPaused)return;
     const t = ev.target; if (typing) return;
     if(ev.key.toLowerCase()==='q'&&!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&!typing&&window.HousePause?.canBack){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)HousePause.quickBack();return;}
-    if (inspection) { if (ev.key === 'Escape' || ev.key.toLowerCase() === 'i') endInspect(); ev.preventDefault(); ev.stopImmediatePropagation(); return; }
+    if(inspection&&(ev.key==='Tab'||(['Enter',' '].includes(ev.key)&&ev.target?.closest?.('.hs-inspection button'))))return;
+    if(inspection&&(ev.ctrlKey||ev.metaKey||ev.altKey))return;
+    if (inspection) { if (ev.key === 'Escape') endInspect(); else {try {inspection.t.onInspectKey?.(ev)}catch(e){console.error(e)}if(ev.key.toLowerCase()==='i')endInspect()} ev.preventDefault(); ev.stopImmediatePropagation(); return; }
     if (mode === 'focus' && ev.key === 'Escape' && !viewOpen()) { ev.preventDefault(); ev.stopImmediatePropagation(); if (focusS && focusS.o.esc && focusS.o.esc() === false) return; unfocus(); return; }
     if (viewOpen() || (mode !== 'walk' && mode !== 'glide')) { if (mode === 'stand' || mode === 'sit') { ev.preventDefault(); ev.stopImmediatePropagation(); } return; }
     if (ui.modalOpen()) return;
@@ -982,7 +984,8 @@
     const hint = document.createElement('span'); hint.innerHTML = (t.obj.userData.cube ? 'Drag a face to turn · Right-drag to rotate' : 'Drag to rotate')+' · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back · <kbd>Esc</kbd> menu';
     const back = document.createElement('button'); back.type = 'button'; back.textContent = 'Back'; back.addEventListener('click', endInspect);
     panel.append(name, hint, back); ui.el.appendChild(panel);
-    inspection = {t, grip, centre, panel, yaw: -P.ry + 24, pitch: id === 'gb' ? -80 : -18, zoom: 1, radius: size.length() / 2, drag: null};
+    const ip=t.inspectPose||{};
+    inspection = {t, grip, centre, panel, yaw: -P.ry+(ip.yaw??24), pitch: ip.pitch??(id==='gb'?-80:-18), zoom: ip.zoom??1, radius: size.length() / 2, drag: null};
     html.classList.add('hs-inspecting'); layerFor(t); poseInspect(); return true;
   }
   function poseInspect() {
@@ -999,6 +1002,8 @@
     if (s.t.obj.userData.cube) s.t.obj.userData.cube.finish();
     s.panel.remove(); inspection = null; html.classList.remove('hs-inspecting');
     held = s.grip; s.t.st = 'held'; setMode('walk'); ui.holdBar(s.t); dirty();
+    try {s.t.onInspectEnd?.()}catch(e){console.error(e)}
+    emit('inspect-end',s.t.id);
   }
   document.addEventListener('pointerdown', ev => {
     const s = inspection; if (!s || ev.target.closest('button')) return;
