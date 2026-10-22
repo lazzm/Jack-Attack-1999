@@ -69,6 +69,7 @@ For a post-deploy visual check only, `node live-readonly.mjs https://jacklm.com`
 Authenticated object/control regressions (localhost only; run from `tests/`):
 
     node chair-pc-menu.mjs http://localhost:18080 # chair angles, Esc menu, first-person PC and 4:3 LOCK IN/refresh
+    node chair-placement.mjs http://localhost:18080 # F/E/click furniture drops near feet, rotated clearance, PC safety and refresh
     node room-props-controls.mjs http://localhost:18080 # F repeats, furniture collision, safe placement, inspection and pillow refresh
     node vhs-physical.mjs http://localhost:18080 # physical insertion, playback away/refresh/eject, reusable return slots and TV LOCK IN
     node release-room-pc.mjs http://localhost:18080 # Goldenballs, 0/typing guard, same-scene shutdown, off refresh and power-on

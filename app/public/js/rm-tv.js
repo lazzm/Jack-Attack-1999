@@ -179,7 +179,7 @@
     const status = $(V.el, '.rm-srv');
     if (status && y < h - 50 * s) screenLines(g, status.textContent, cx, y + 4 * s, w * .8, '#b8c4d4', s);
     font.center(g, 'A / START: PLAY AGAIN', cx, h - 32 * s, '#fff', s);
-    font.center(g, 'B: CHANGE GAME   0: LOCK IN   ESC: MENU', cx, h - 18 * s, '#e0d090', s);
+    font.center(g, 'B: GAME   Q: LEAN BACK   0: LOCK IN   ESC: MENU', cx, h - 18 * s, '#e0d090', s);
   }
   function liveFrame() {
     if (!V || !V.live) return;
@@ -478,7 +478,7 @@
     const res = def.res || L.res;
     size(res[0], res[1], def.smooth != null ? def.smooth : L.smooth, !!def.three);
     V.st = 'game'; V.el.classList.add('rm-playing');
-    $(V.el, '.rm-help').innerHTML = touchy() ? 'Use the controller below.' : esc(def.help || '') + ' <small>(0: LOCK IN · Esc: menu)</small>';
+    $(V.el, '.rm-help').innerHTML = touchy() ? 'Use the controller below.' : esc(def.help || '') + ' <small>(Q: lean back · 0: LOCK IN · Esc: menu)</small>';
     pad(def);
     K = makeK(gid, def);
     try { game = def.make(K) || {}; } catch (e) { console.error(e); game = null; return crash(); }

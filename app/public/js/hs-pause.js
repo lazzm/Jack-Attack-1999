@@ -15,11 +15,13 @@
  <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [0]<small class="hs-lock-help">Full-screen view of the screen you are using. Press 0 again to return. Original proportions are preserved.</small></label>
  <label>Graphics <select name="graphics"><option value="auto">Automatic</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
- <p class="hs-pause-keys">WASD: walk · Mouse: look · F: interact<br>Shift: jog · C: crouch · Space: jump<br>I: inspect · R: turn · Click: place<br>0: LOCK IN · Esc: menu</p>
+ <p class="hs-pause-keys">WASD: walk · Mouse: look · F: interact<br>Shift: jog · C: crouch · Space: jump<br>I: inspect · R: turn · Click: place<br>Q: lean back · 0: LOCK IN · Esc: menu</p>
  <p class="hs-pause-status" role="status">Movement is stopped. Online programs and the TV keep running.</p></div>`;
  document.documentElement.appendChild(el);
  let previous=null;
  const button=k=>el.querySelector('[data-pause="'+k+'"]');
+ function canBack(){return!!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_)}
+ function quickBack(){if(H.paused||!canBack())return false;if(H.mode==='inspect')H.endInspect();else if(window.RoomTV?.open_)RoomTV.close();else if(H.focused)H.unfocus();else H.standUp();return true;}
  function syncSettings(){const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press 0 again to return. Original proportions are preserved.':'Use a PC, console, Game Lad or family TV, then press 0 to LOCK IN.';}
  function openMenu(){
   if(el.open||!H.live||window.House?.god||window.AccountGate&&!AccountGate.allowed)return false;
@@ -35,7 +37,7 @@
   if(b.dataset.pause==='resume')closeMenu();
   else if(b.dataset.pause==='return'){closeMenu();H.putBack()}
   else if(b.dataset.pause==='leave'){
-   closeMenu();if(H.mode==='inspect')H.endInspect();else if(window.RoomTV?.open_)RoomTV.close();else if(H.focused)H.unfocus();else if(H.canStand())H.standUp();
+   closeMenu();quickBack();
   }else if(b.dataset.pause==='fullscreen'){
    const action=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();
    if(action?.catch)action.catch(()=>{el.querySelector('.hs-pause-status').textContent='Full-screen was unavailable. The game still works in this window.'});
@@ -53,6 +55,6 @@
   // delivering a keydown. Opening the menu here handles that path as well.
   if(was&&!now&&!el.open&&H.mode==='walk'&&!document.hidden&&document.hasFocus())openMenu();
  });
- window.HousePause={show:openMenu,close:closeMenu,handleEscape,get open(){return el.open}};
+ window.HousePause={show:openMenu,close:closeMenu,handleEscape,quickBack,get canBack(){return canBack()},get open(){return el.open}};
  const menuButton=document.createElement('button');menuButton.type='button';menuButton.className='hs-menu-button';menuButton.textContent='MENU';menuButton.setAttribute('aria-label','Open game menu');menuButton.addEventListener('click',openMenu);document.documentElement.appendChild(menuButton);
 })();

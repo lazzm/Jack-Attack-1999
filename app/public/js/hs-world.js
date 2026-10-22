@@ -391,7 +391,8 @@
 
   // ================================================================ things you can pick up and put down (the grab system)
   const THINGS = {}, SNAPS = {}, pendingRestores = new Map();
-  function insideThing(t,x,z,margin){const a=(t.at.ry||0)*D2R,dx=x-t.at.x,dz=z-t.at.z;return Math.abs(dx*Math.cos(a)-dz*Math.sin(a))<t.hx+margin&&Math.abs(dx*Math.sin(a)+dz*Math.cos(a))<t.hz+margin;}
+  function insideFootprint(t,at,x,z,margin){const a=(at.ry||0)*D2R,dx=x-at.x,dz=z-at.z;return Math.abs(dx*Math.cos(a)-dz*Math.sin(a))<t.hx+margin&&Math.abs(dx*Math.sin(a)+dz*Math.cos(a))<t.hz+margin;}
+  function insideThing(t,x,z,margin){return insideFootprint(t,t.at,x,z,margin);}
   function floorPlacement(t,r,x,z,ry){
     const a=ry*D2R,hx=Math.abs(Math.cos(a))*t.hx+Math.abs(Math.sin(a))*t.hz,hz=Math.abs(Math.sin(a))*t.hx+Math.abs(Math.cos(a))*t.hz;
     const rect={x0:x-hx,z0:z-hz,x1:x+hx,z1:z+hz},over=b=>rect.x1>b.x0&&rect.x0<b.x1&&rect.z1>b.z0&&rect.z0<b.z1;
@@ -400,8 +401,23 @@
     if(grids.walk.some(w=>w.lvl===r.lvl&&w.door&&over({x0:w.x0-12,x1:w.x1+12,z0:w.z0-12,z1:w.z1+12})))return false;
     // Keep the monitor approach clear, even when the PC is switched off.
     if(r.id==='bedroom'&&over({x0:-54,x1:30,z0:33,z1:100}))return false;
-    if(W.lvl===r.lvl&&x+hx>W.x-RAD&&x-hx<W.x+RAD&&z+hz>W.z-RAD&&z-hz<W.z+RAD)return false;
+    if(W.lvl===r.lvl&&insideFootprint(t,{x,z,ry},W.x,W.z,RAD))return false;
     return !Object.values(THINGS).some(other=>other!==t&&other.obstacle&&!other.at.hide&&['rest','snap','fall'].includes(other.st)&&other.at.room===r.id&&over({x0:other.at.x-other.hx,z0:other.at.z-other.hz,x1:other.at.x+other.hx,z1:other.at.z+other.hz}));
+  }
+  function floorDropTarget(t,r,target,ry){
+    if(floorPlacement(t,r,target.x,target.z,ry))return target;
+    // Looking down projects the chair underneath the player's own feet.
+    // Ease it just beyond that footprint instead of trapping it in hand.
+    // This is not a free-space search: walls, doors and the PC stay protected.
+    if(W.lvl!==r.lvl)return null;
+    const a=ry*D2R;
+    let dx=target.x-W.x,dz=target.z-W.z;
+    if(!insideFootprint(t,{x:target.x,z:target.z,ry},W.x,W.z,RAD))return null;
+    if(Math.hypot(dx,dz)<1){const f=fwd();dx=f.x;dz=f.z;if(Math.hypot(dx,dz)<.01){dx=Math.sin(P.ry*D2R);dz=-Math.cos(P.ry*D2R)}}
+    const lx=dx*Math.cos(a)-dz*Math.sin(a),lz=dx*Math.sin(a)+dz*Math.cos(a);
+    const scale=Math.min(Math.abs(lx)>.001?(t.hx+RAD+2)/Math.abs(lx):Infinity,Math.abs(lz)>.001?(t.hz+RAD+2)/Math.abs(lz):Infinity);
+    const candidate=Object.assign({},target,{x:W.x+dx*scale,z:W.z+dz*scale});
+    return Math.hypot(candidate.x-target.x,candidate.z-target.z)<=90&&floorPlacement(t,r,candidate.x,candidate.z,ry)?candidate:null;
   }
   let held = null; // { id, d (distance), ry (extra turn), from (where it was) }
   let saveT = 0;
@@ -495,7 +511,7 @@
     }
     if (!tgt) { const r = roomOfPoint(hp) || cur; tgt = { room: r.id, x: clamp(hp.x, r.bx0 + t.hx, r.bx1 - t.hx), z: clamp(hp.z, r.bz0 + t.hz, r.bz1 - t.hz), y0: hp.y }; }
     const r=ROOMS[tgt.room],ry=t.obj.rotation.y/D2R;
-    if(t.floorOnly&&!floorPlacement(t,r,tgt.x,tgt.z,ry)){ui.toast('Not enough room','Aim at clear floor, or Esc > Put held item back.');return false;}
+    if(t.floorOnly){const floor=floorDropTarget(t,r,tgt,ry);if(!floor){ui.toast('Not enough room','Aim farther ahead at clear floor. F / E / Click puts it down; Esc > Put held item back returns it.');return false;}tgt=floor;}
     const y = t.floorOnly?LV[r.lvl]:landY(tgt.room, tgt.x, tgt.z, tgt.y0, t);
     const startY = Math.min(hp.y, y - 0.5); // (it drops from where it is, or is set straight down)
     held = null; ui.holdBar(null); snapGlow(null);
@@ -576,7 +592,7 @@
         const sk = Math.min(1, (now - t.t0) / 240); t.obj.position.x = lerp(t.fromX == null ? a.x : t.fromX, a.x, ease(sk)); t.obj.position.z = lerp(t.fromZ == null ? a.z : t.fromZ, a.z, ease(sk));
         if (a.y >= t.landY) { a.y = t.landY; if (t.vy > 160) { t.vy = -t.vy * 0.22; sfx.noise(0.05, 0.08, 500); } else { t.vy = 0; if (sk >= 1) { t.st = 'rest'; t.fromX = t.fromZ = null; layerFor(t); saveThings(); emit('rest', id); } } }
         t.obj.position.y = a.y;
-        const r = t.obj.rotation; r.x *= 0.8; r.z *= 0.8;
+        const r = t.obj.rotation; if(t.floorOnly){r.x=0;r.z=0}else{r.x *= 0.8; r.z *= 0.8;}
         any = true;
       }
       // anything that has fallen out of the world goes home
@@ -782,6 +798,7 @@
     if(window.HousePause&&HousePause.handleEscape(ev))return;
     if(controlsPaused)return;
     const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if(ev.key.toLowerCase()==='q'&&!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&t?.tagName!=='SELECT'&&window.HousePause?.canBack){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)HousePause.quickBack();return;}
     if (inspection) { if (ev.key === 'Escape' || ev.key.toLowerCase() === 'i') endInspect(); ev.preventDefault(); ev.stopImmediatePropagation(); return; }
     if (mode === 'focus' && ev.key === 'Escape' && !viewOpen()) { ev.preventDefault(); ev.stopImmediatePropagation(); if (focusS && focusS.o.esc && focusS.o.esc() === false) return; unfocus(); return; }
     if (viewOpen() || (mode !== 'walk' && mode !== 'glide')) { if (mode === 'stand' || mode === 'sit') { ev.preventDefault(); ev.stopImmediatePropagation(); } return; }
@@ -1079,14 +1096,14 @@
         if (!hold.querySelector('[data-h=inspect]')) {const b = document.createElement('button'); b.type = 'button'; b.dataset.h = 'inspect'; b.textContent = 'Inspect'; hold.querySelector('.hs-hbtn').prepend(b);}
         hold.hidden = false; el.classList.add('holding');
         hold.querySelector('.hs-hname').textContent = typeof t.label === 'function' ? t.label() : t.label;
-        hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : '<b>F</b>: ' + esc(t.useLabel || (t.use ? 'use it' : 'put down')) + ' &middot; Click / E: place &middot; R: turn &middot; I: inspect &middot; Wheel: distance &middot; Esc: menu / put back';
+        hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : '<b>F</b>: ' + esc(t.use ? (t.useLabel || 'use it') : 'put down') + ' &middot; Click / E: place &middot; R: turn &middot; I: inspect &middot; Wheel: distance &middot; Esc: menu / put back';
         const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use; u.textContent = t.useLabel || 'Use';
       },
       snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML = `<b>F / Click: ${esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''))}</b>`; else if (held) this.holdBar(THINGS[held.id]); },
       crossOn() { el.classList.add('cross'); clearTimeout(crossT); crossT = setTimeout(() => el.classList.remove('cross'), 2500); },
       fade(on, ms) { const f = $('.hs-fade'); f.style.transitionDuration = (ms || 300) + 'ms'; f.classList.toggle('on', !!on); },
       modalOpen: () => !!el.querySelector('.hs-modal.on'),
-      focusBar(label) { const b = $('.hs-getup'); b.hidden = !label; if (label) b.querySelector('span').textContent = label; el.classList.toggle('focus', !!label); },
+      focusBar(label) { const b = $('.hs-getup'); b.hidden = !label; if (label) b.querySelector('span').textContent = label + (touchy()?'':' [Q]'); el.classList.toggle('focus', !!label); },
       map() { // a tiny plan of the floor you're on, with you on it
         const r = cur; if (!r) return; const w = 84, h = 84;
         mg.clearRect(0, 0, w, h);
@@ -1500,7 +1517,7 @@
   }, true);
   addEventListener('keyup', ev => { if (ev.key === 'Escape') { clearTimeout(escT); standBtn.classList.remove('hold'); } });
   const standBtn = document.createElement('button');
-  standBtn.type = 'button'; standBtn.className = 'hs-standbtn'; standBtn.title = 'Stand up. The PC stays on. (F2, or Esc > Back to the room.)';
+  standBtn.type = 'button'; standBtn.className = 'hs-standbtn'; standBtn.title = 'Stand up. The PC stays on. (Q / F2, or Esc > Back to the room.)';
   standBtn.setAttribute('aria-label', 'Stand up from the PC and go in your room. The PC stays on.');
   standBtn.innerHTML = '<svg viewBox="0 0 16 16" width="16" height="16" shape-rendering="crispEdges" aria-hidden="true"><path fill="#000" d="M4 1h7v1H4zM3 2h1v6H3zM11 2h1v6H11zM2 8h12v1H2zM2 9h1v2H2zM13 9h1v2H13zM3 11h10v1H3zM7 12h2v2H7zM4 14h8v1H4zM4 15h1v1H4zM11 15h1v1H11z"/><path fill="#1a3a9a" d="M4 2h7v6H4z"/><path fill="#3a6ad8" d="M5 3h2v4H5z"/><path fill="#808080" d="M3 9h10v2H3z"/><path fill="#c0c0c0" d="M3 9h10v1H3z"/></svg>';
   standBtn.addEventListener('click', () => standUp());
@@ -1522,7 +1539,7 @@
     if (ls.get('jhp_hs_standhint', 0) || stood) return; ls.set('jhp_hs_standhint', 1);
     const b = document.createElement('div'); b.className = 'hs-standtip'; b.setAttribute('role', 'status');
     b.style.cssText = 'position:fixed;left:6px;bottom:36px;z-index:30000;max-width:250px;padding:8px 26px 8px 10px;background:#ffffe1;color:#000;border:1px solid #000;font:11px Tahoma,Verdana,sans-serif;box-shadow:2px 2px 0 rgba(0,0,0,.35);cursor:pointer';
-    b.innerHTML = '<b>Want a look round your room?</b><br>Press F2, use the chair button, or Esc &gt; Back to the room. The PC stays on. Walk back and press F at the monitor to sit down.<span style="position:absolute;right:6px;top:4px;font-weight:700">&times;</span>';
+    b.innerHTML = '<b>Want a look round your room?</b><br>Press Q to lean back and walk around. The PC stays on. Walk back and press F at the monitor to sit down. F2, the chair button and Esc &gt; Back to the room also work.<span style="position:absolute;right:6px;top:4px;font-weight:700">&times;</span>';
     b.addEventListener('click', () => b.remove()); monitorSurfaceEl.appendChild(b); setTimeout(() => b.remove(), 14000);
   }
   // a refresh while standing up: the PC wakes up as normal, and we stand straight back up
