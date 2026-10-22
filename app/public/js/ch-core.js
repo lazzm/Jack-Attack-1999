@@ -614,7 +614,7 @@
       const c = sf.ac && sf.ac();
       if (!on || !c) { if (this.hum) { try { this.hum.g.gain.setTargetAtTime(0, c ? c.currentTime : 0, 0.08); const h = this.hum; setTimeout(() => { try { h.o.stop(); h.n.stop(); } catch (e) {} }, 400); } catch (e) {} this.hum = null; } return; }
       if (this.hum) return;
-      const g = c.createGain(); g.gain.value = 0; g.connect(c.destination);
+      const g = c.createGain(); g.gain.value = 0; g.connect(Sound.output(c));
       const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = (this.cur && this.cur.hz) || 118; const og = c.createGain(); og.gain.value = 0.25; o.connect(og); og.connect(g);
       const buf = c.createBuffer(1, c.sampleRate, c.sampleRate), ch = buf.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
       const n = c.createBufferSource(); n.buffer = buf; n.loop = true; const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 900; f.Q.value = 0.6; n.connect(f); f.connect(g);

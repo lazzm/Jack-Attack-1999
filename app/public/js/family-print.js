@@ -117,8 +117,8 @@
   // ================================================================ sound: zzzzt-zzzzt
   let actx = null, master = null;
   function ac() {
-    if (!window.Sound || !Sound.on) return null;
-    if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); master = actx.createGain(); master.gain.value = 0.22; master.connect(actx.destination); }
+    if (!window.Sound || !Sound.on || !Sound.ready) return null;
+    if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); master = actx.createGain(); master.gain.value = 0.22; master.connect(Sound.output(actx)); }
     if (actx.state === 'suspended') actx.resume();
     return actx;
   }

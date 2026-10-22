@@ -2198,7 +2198,7 @@ File > Set As Wallpaper puts it on the desktop. Show your Mom.
       const line = `At the third stroke, it will be ${t}:${String(m + (s === 0 ? 1 : 0)).padStart(2, '0')}${s ? ' and ' + s + ' seconds' : ' precisely'}.`;
       const cw = call(['Speaking Clock', [line, 'BEEP... BEEP... BEEP...', 'At the third stroke, it will be... (it goes on like this forever. It\'s quite relaxing.)']]);
       setTimeout(() => { if (cw.closed) return; [0, 1, 2].forEach(k => setTimeout(() => Sound.note(1000, 0.12, 'sine'), k * 1000)); }, 3200);
-      try { if (Sound.on && window.speechSynthesis) { const u = new SpeechSynthesisUtterance(line); u.rate = 0.9; speechSynthesis.cancel(); speechSynthesis.speak(u); } } catch (e) {}
+      try { if (Sound.on && window.speechSynthesis) { const u = new SpeechSynthesisUtterance(line); u.rate = 0.9; speechSynthesis.cancel(); Sound.speak(u); } } catch (e) {}
     }
     A.menubar(w, [
       ['File', [{ label: 'Exit', act: () => w.close() }]],

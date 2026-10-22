@@ -571,7 +571,7 @@ PS. Ten... nine... eight...</pre>`;
   // ================================================================ the phone lines
   const DT = { 1: [697, 1209], 2: [697, 1336], 3: [697, 1477], 4: [770, 1209], 5: [770, 1336], 6: [770, 1477], 7: [852, 1209], 8: [852, 1336], 9: [852, 1477], 0: [941, 1336], '*': [941, 1209], '#': [941, 1477] };
   const tone = (d, len) => { const f = DT[d]; if (!f) return; try { Sound.note(f[0], len || 0.12, 'sine'); Sound.note(f[1], len || 0.12, 'sine'); } catch (e) {} };
-  const say = text => { try { if (window.Sound && Sound.on && window.speechSynthesis) { const u = new SpeechSynthesisUtterance(text); u.rate = 0.95; u.pitch = 0.8; speechSynthesis.cancel(); speechSynthesis.speak(u); } } catch (e) {} };
+  const say = text => { try { if (window.Sound && Sound.on && window.speechSynthesis) { const u = new SpeechSynthesisUtterance(text); u.rate = 0.95; u.pitch = 0.8; speechSynthesis.cancel(); Sound.speak(u); } } catch (e) {} };
   let callWin = null;
   function callWindow(who, pad) {
     if (callWin && !callWin.closed) callWin.close();

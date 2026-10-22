@@ -3669,7 +3669,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
         const s = c.createBufferSource(); s.buffer = buf;
         const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1500 + Math.random() * 3500; f.Q.value = 1.2;
         const g = c.createGain(); g.gain.value = 0.12;
-        s.connect(f); f.connect(g); g.connect(c.destination); s.start(t);
+        s.connect(f); f.connect(g); g.connect(Sound.output(c)); s.start(t);
       }
     } catch (e) {}
   }

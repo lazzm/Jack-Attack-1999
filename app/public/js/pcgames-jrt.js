@@ -546,7 +546,7 @@
       try {
         const u = new SpeechSynthesisUtterance(say_), vs = speechSynthesis.getVoices() || [];
         u.voice = vs.find(v => /en-GB/i.test(v.lang) && /male|daniel|george|uk/i.test(v.name)) || vs.find(v => /en-GB/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null;
-        u.pitch = 0.45; u.rate = 0.9; u.volume = 0.9; speechSynthesis.cancel(); speechSynthesis.speak(u);
+        u.pitch = 0.45; u.rate = 0.9; u.volume = 0.9; speechSynthesis.cancel(); Sound.speak(u);
       } catch (e) {}
     }
     function handle(ev) {

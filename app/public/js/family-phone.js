@@ -26,8 +26,8 @@
   // ================================================================ sound (own WebAudio context; silent unless the visitor has SFX on)
   let actx = null, master = null;
   function ac() {
-    if (!window.Sound || !Sound.on) return null;
-    if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); master = actx.createGain(); master.gain.value = 0.12; master.connect(actx.destination); }
+    if (!window.Sound || !Sound.on || !Sound.ready) return null;
+    if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); master = actx.createGain(); master.gain.value = 0.12; master.connect(Sound.output(actx)); }
     if (actx.state === 'suspended') actx.resume();
     return actx;
   }
@@ -54,7 +54,7 @@
   const parseTune = s => String(s || '').trim().split(/\s+/).filter(t => TOK.test(t));
   const tuneOf = id => PRESETS[id] ? { name: PRESETS[id][0], bpm: PRESETS[id][1], toks: parseTune(PRESETS[id][2]) } : (st.tones[id] ? { name: st.tones[id].name, bpm: st.tones[id].bpm || 125, toks: parseTune(st.tones[id].s) } : null);
   let tuneTimer = null;
-  function stopTune() { clearTimeout(tuneTimer); tuneTimer = null; if (actx) { try { master.disconnect(); } catch (e) {} master = actx.createGain(); master.gain.value = 0.12; master.connect(actx.destination); } }
+  function stopTune() { clearTimeout(tuneTimer); tuneTimer = null; if (actx) { try { master.disconnect(); } catch (e) {} master = actx.createGain(); master.gain.value = 0.12; master.connect(Sound.output(actx)); } }
   function playTune(t, maxSec, onEnd) {
     stopTune();
     if (!t || !t.toks.length) { if (onEnd) onEnd(); return 0; }

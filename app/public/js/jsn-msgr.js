@@ -124,7 +124,7 @@
   let ac = null;
   function tone(f, d, at) {
     if (window.Sound && Sound.note) { setTimeout(() => { try { Sound.note(f, d, 'sine'); } catch (e) {} }, at); return; }
-    try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const t = ac.currentTime + at / 1000, o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + d); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + d + 0.05); } catch (e) {}
+    try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const t = ac.currentTime + at / 1000, o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + d); o.connect(g); g.connect(Sound.output(ac)); o.start(t); o.stop(t + d + 0.05); } catch (e) {}
   }
   function ding(kind) {
     if (!prefs().sound) return;

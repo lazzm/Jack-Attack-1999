@@ -32,9 +32,10 @@
   // ================================================================ the sound chip
   let ac = null, out = null, an = null, noiseBuf = null, vol = Math.max(0, Math.min(1, +(Ev.store.get('jhp_events_vol', 0.7)))), playing = false, timer = null, t0 = null, track = -1, ptr = null, nodes = [], done = -1;
   function audio() {
+    if (!window.Sound?.ready) return null;
     if (ac) { if (ac.state === 'suspended') ac.resume(); return ac; }
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
-    ac = new AC(); out = ac.createGain(); out.gain.value = vol * 0.35; an = ac.createAnalyser(); an.fftSize = 64; out.connect(an); an.connect(ac.destination);
+    ac = new AC(); out = ac.createGain(); out.gain.value = vol * 0.35; an = ac.createAnalyser(); an.fftSize = 64; out.connect(an); an.connect(Sound.output(ac, 'music'));
     noiseBuf = ac.createBuffer(1, ac.sampleRate * 0.5, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     return ac;
   }

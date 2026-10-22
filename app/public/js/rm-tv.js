@@ -84,27 +84,29 @@
   };
 
   // ================================================================ sound (only when the visitor has SFX on: there's a speaker button)
-  let AC = null, OUT = null, NB = null;
+  let AC = null, OUT = null, MUSIC_OUT = null, NB = null;
   function ac() {
     if (!window.Sound || !Sound.on) return null;
-    if (!AC) { try { AC = Sound.unlock && Sound.unlock(); } catch (e) { AC = null; } if (!AC) return null; OUT = AC.createGain(); OUT.gain.value = 0.5; OUT.connect(AC.destination); }
+    if (!AC) { try { AC = Sound.unlock && Sound.unlock(); } catch (e) { AC = null; } if (!AC) return null; OUT = AC.createGain(); OUT.gain.value = 0.5; OUT.connect(Sound.output(AC)); MUSIC_OUT = AC.createGain(); MUSIC_OUT.gain.value = 0.5; MUSIC_OUT.connect(Sound.output(AC,'music')); }
     if (AC.state === 'suspended') AC.resume();
     return AC;
   }
   const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
   const sfx = {
-    tone(f, d, type, vol, when, to) {
+    tone(f, d, type, vol, when, to, channel) {
+      if (channel !== 'music' && !window.Sound?.effectsOn) return;
       const c = ac(); if (!c || !(f > 0)) return; const t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain();
       o.type = type || 'square'; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(Math.max(1, to), t + d);
       g.gain.setValueAtTime(vol == null ? 0.12 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d);
-      o.connect(g); g.connect(OUT); o.start(t); o.stop(t + d + 0.03);
+      o.connect(g); g.connect(channel === 'music' ? MUSIC_OUT : OUT); o.start(t); o.stop(t + d + 0.03);
     },
-    noise(d, vol, f, when, type, to) {
+    noise(d, vol, f, when, type, to, channel) {
+      if (channel !== 'music' && !window.Sound?.effectsOn) return;
       const c = ac(); if (!c) return; const t = c.currentTime + (when || 0);
       if (!NB) { NB = c.createBuffer(1, c.sampleRate, c.sampleRate); const a = NB.getChannelData(0); for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1; }
       const s = c.createBufferSource(); s.buffer = NB; const fl = c.createBiquadFilter(); fl.type = type || 'lowpass'; fl.frequency.setValueAtTime(f || 2000, t); if (to) fl.frequency.exponentialRampToValueAtTime(Math.max(20, to), t + d);
       const g = c.createGain(); g.gain.setValueAtTime(vol == null ? 0.15 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d);
-      s.connect(fl); fl.connect(g); g.connect(OUT); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.03);
+      s.connect(fl); fl.connect(g); g.connect(channel === 'music' ? MUSIC_OUT : OUT); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.03);
     },
     seq(notes, o) { o = o || {}; const b = 60 / (o.bpm || 140); let w = o.when || 0; for (const [m, beats] of notes) { if (m > 0) sfx.tone(mtof(m), b * beats * 0.95, o.wave || 'square', o.vol == null ? 0.1 : o.vol, w); w += b * beats; } },
   };
@@ -149,7 +151,7 @@
         source.buffer = buffer; source.loop = true; source.playbackRate.value = song.rate || 1;
         gain.gain.setValueAtTime(0, c.currentTime);
         gain.gain.linearRampToValueAtTime(song.vol == null ? .5 : song.vol, c.currentTime + .04);
-        source.connect(gain); gain.connect(OUT);
+        source.connect(gain); gain.connect(MUSIC_OUT);
         mus.offset %= buffer.duration; mus.started = c.currentTime; mus.rate = source.playbackRate.value;
         mus.source = source; mus.gain = gain; source.start(0, mus.offset);
       }).catch(() => { if (epoch === mus.epoch) music(song.fallback || null); });
@@ -166,11 +168,11 @@
         const play = (arr, wave, vol, oct) => {
           if (!arr || !arr.length) return; const m = arr[i % arr.length]; if (!(m > 0)) return;
           let len = 1; while (arr[(i + len) % arr.length] === -1 && len < arr.length) len++;
-          sfx.tone(mtof(m + (oct || 0)), st * len * 0.92, wave, vol, mus.next - c.currentTime);
+          sfx.tone(mtof(m + (oct || 0)), st * len * 0.92, wave, vol, mus.next - c.currentTime, null, 'music');
         };
         play(S.lead, S.wave || 'square', S.vol == null ? 0.06 : S.vol);
         play(S.bass, S.bassWave || 'triangle', (S.vol == null ? 0.06 : S.vol) * 1.4);
-        if (S.drums) { const d = S.drums[i % S.drums.length]; if (d === 'x') sfx.noise(0.06, 0.05, 6000, mus.next - c.currentTime, 'highpass'); if (d === 'o') sfx.tone(120, 0.12, 'sine', 0.15, mus.next - c.currentTime, 40); }
+        if (S.drums) { const d = S.drums[i % S.drums.length]; if (d === 'x') sfx.noise(0.06, 0.05, 6000, mus.next - c.currentTime, 'highpass', null, 'music'); if (d === 'o') sfx.tone(120, 0.12, 'sine', 0.15, mus.next - c.currentTime, 40, 'music'); }
         mus.step++; mus.next += st;
       }
     }, 50);
@@ -320,6 +322,7 @@
     if (!wasBackground) _.emit('close');
   }
   function sndBtn() { if (!V) return; const on = !!(window.Sound && Sound.on); const b = $(V.el, '.rm-snd'); b.innerHTML = on ? '&#128266; Sound on' : '&#128263; Sound off'; b.classList.toggle('off', !on); }
+  document.addEventListener('audiochange',()=>{sndBtn();if(!window.Sound?.on)music(null);else if(V?.song&&Sound.ready&&(!mus.song||(mus.song.audio&&!mus.source))&&!document.hidden)music(V.song)});
   // which console (the real telly's input is selected by the cartridge on the shelf)
   function conBar() {
     const bar = $(V.el, '.rm-conbar');
@@ -547,6 +550,7 @@
       font, sfx, pal: V.pal || GBPAL.none,
       held: b => alias(b).some(isHeld), pressed: b => alias(b).some(x => !!now[x]), any: () => Object.keys(now).some(x => now[x] && ['a', 'b', 'c', 'x', 'y', 'start'].includes(x)),
       stick, label: b => (LOOK[V ? V.con : 'n64'].keys || {})[b] || String(b).toUpperCase(),
+      keyLabel: b => touchy() || gpad() ? ((LOOK[V ? V.con : 'n64'].keys || {})[b] || String(b).toUpperCase()) : ({a:'Z',b:'X',c:'C',x:'C',y:'V',l:'U',r:'E',start:'ENTER',select:'SHIFT'}[b] || String(b).toUpperCase()),
       music(song) { if (V) V.song = song || null; music(song); },
       get best() { return Math.max(localBest(gid), (srv.best[gid] | 0)); },
       save(st) { try { return Apps.saveGame('rm.' + gid, st, { v: def.v || 1 }); } catch (e) { return false; } },
@@ -632,8 +636,13 @@
       if (V.background && n - this.viewAt > 250) {this.viewAt = n; this.viewOn = !!(_.tvVisible && _.tvVisible(V.con));}
       if (V.background && n - this.last < (this.viewOn ? 1000 / 30 : 1000 / 10)) return;
       let dt = (n - this.last) / 1000; this.last = n; if (dt > 0.25) dt = 0.25;
-      if (!V.background) pollGamepad();
+      if (R.House.paused) clearInput();
+      else if (!V.background) pollGamepad();
       if (OUT && AC) OUT.gain.setTargetAtTime(V.background ? (R.House.here === 'bedroom' ? .12 : 0) : .5, AC.currentTime, .15);
+      if (MUSIC_OUT && AC) MUSIC_OUT.gain.setTargetAtTime(V.background ? (R.House.here === 'bedroom' ? .12 : 0) : .5, AC.currentTime, .15);
+      // The active game freezes under the game menu. Its audio may keep playing
+      // so the settings can be auditioned; a TV left running with Q stays live.
+      if (R.House.paused && !V.background) { this.acc = 0; liveFrame(); return; }
       if (V.st === 'boot' && bootFn) {
         const g = V.cv0.getContext ? V.cv0.getContext('2d') : null;
         if (g) {
@@ -669,7 +678,7 @@
   // ---- keys: while the telly is up, every key is ours (Esc goes back to the room, never skips the boot)
   function onKey(ev) {
     if (!V || V.background) return;
-    if (ev.key === 'Escape') { ev.preventDefault(); ev.stopImmediatePropagation(); close(); return; }
+    if (ev.key === 'Escape') { if (window.HousePause) HousePause.handleEscape(ev); else { ev.preventDefault(); ev.stopImmediatePropagation(); close(); } return; }
     const t = ev.target; if (t?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]')) return;
     const b = mappedKey(ev);
     if (b) { ev.preventDefault(); ev.stopImmediatePropagation(); if (!ev.repeat) press(b, true); held[b] = true; }

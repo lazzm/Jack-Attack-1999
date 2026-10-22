@@ -12,6 +12,7 @@
  const el=document.createElement('dialog');el.className='hs-pause';el.setAttribute('aria-labelledby','hsPauseTitle');
  el.innerHTML=`<div class="hs-pause-head"><span>1999</span><h1 id="hsPauseTitle">GAME MENU</h1></div>
  <div class="hs-pause-main"><button type="button" data-pause="resume">RESUME</button><button type="button" data-pause="leave" hidden>BACK TO THE ROOM</button><button type="button" data-pause="return" hidden>PUT HELD ITEM BACK</button>
+ <fieldset><legend>AUDIO</legend><label><input type="checkbox" name="music"> Music</label><label><input type="checkbox" name="effects"> Sound effects &amp; voices</label><label class="hs-audio-volume">Volume <output>100%</output><input type="range" name="volume" min="0" max="100" step="1" aria-label="Overall volume"></label><p class="hs-pause-mouse">Applies throughout the house, PC and games. Saved for next time.</p></fieldset>
  <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [T]<small class="hs-lock-help">Full-screen view of the screen you are using. Press T again to return. Original proportions are preserved.</small></label>
  <label>Graphics <select name="graphics"><option value="auto">Automatic</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
@@ -26,15 +27,18 @@
  const button=k=>el.querySelector('[data-pause="'+k+'"]');
  function canBack(){return!!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_)}
  function quickBack(){if(H.paused||!canBack())return false;if(H.mode==='inspect')H.endInspect();else if(window.RoomTV?.open_)RoomTV.close();else if(H.focused)H.unfocus();else H.standUp();return true;}
- function syncSettings(){const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press T again to return. Original proportions are preserved.':'Use a PC, console, Game Lad or family TV, then press T to LOCK IN.';}
+ function syncAudio(){el.querySelector('[name=music]').checked=!!window.Sound?.musicOn;el.querySelector('[name=effects]').checked=!!window.Sound?.effectsOn;const volume=Math.round((window.Sound?.volume??1)*100);el.querySelector('[name=volume]').value=volume;el.querySelector('.hs-audio-volume output').textContent=volume+'%'}
+ document.addEventListener('audiochange',syncAudio);
+ function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press T again to return. Original proportions are preserved.':'Use a PC, console, Game Lad or family TV, then press T to LOCK IN.';}
  function openMenu(){
   if(el.open||!H.live||window.House?.god||window.AccountGate&&!AccountGate.allowed)return false;
-  previous=document.activeElement;syncSettings();el.querySelector('[name=graphics]').value=H.Q.want;
+  previous=el.contains(document.activeElement)?null:document.activeElement;syncSettings();el.querySelector('[name=graphics]').value=H.Q.want;
   el.querySelector('.hs-test-reset').hidden=!(window.Net?.me.member&&Net.me.nick.toLowerCase()==='test'&&localStorage.getItem('jhp_starter')==='1');el.querySelector('.hs-test-confirm').hidden=true;
   button('leave').hidden=!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_);
+  el.querySelector('.hs-pause-status').textContent=window.RoomTV?.open_?'This console game is paused. Audio keeps playing so you can adjust it. Online programs keep running.':'Movement is stopped. Online programs and the TV keep running.';
   button('return').hidden=!H.held();H.pauseControls(true);document.documentElement.classList.add('hs-paused');el.showModal();button('resume').focus();return true;
  }
- function closeMenu(){if(!el.open)return;el.close();document.documentElement.classList.remove('hs-paused');if(previous?.isConnected)previous.focus({preventScroll:true});H.pauseControls(false);}
+ function closeMenu(){if(!el.open)return;el.close();document.documentElement.classList.remove('hs-paused');if(previous?.isConnected&&!el.contains(previous)&&previous.getClientRects().length)previous.focus({preventScroll:true});if(el.contains(document.activeElement))document.activeElement.blur();H.pauseControls(false);}
  function handleEscape(ev){if(ev.key!=='Escape')return false;if(!el.open&&!H.live)return false;ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat){if(el.open)closeMenu();else openMenu()}return true;}
  el.addEventListener('cancel',ev=>{ev.preventDefault();closeMenu()});
  el.addEventListener('click',ev=>{
@@ -52,7 +56,8 @@
   }
  });
  window.Net?.on('testResetResult',m=>{el.querySelector('.hs-pause-status').textContent=m.msg;button('confirmReset').disabled=false;if(m.ok)el.querySelector('.hs-test-confirm').hidden=true});
- el.addEventListener('change',ev=>{if(ev.target.name==='desktopFull')lockScreen(ev.target.checked);else if(ev.target.name==='graphics')H.gfx(ev.target.value)});
+ el.addEventListener('change',ev=>{if(ev.target.name==='desktopFull')lockScreen(ev.target.checked);else if(ev.target.name==='graphics')H.gfx(ev.target.value);else if(ev.target.name==='music')Sound.musicOn=ev.target.checked;else if(ev.target.name==='effects')Sound.effectsOn=ev.target.checked});
+ el.addEventListener('input',ev=>{if(ev.target.name==='volume')Sound.setVolume(+ev.target.value/100)});
  document.addEventListener('fullscreenchange',()=>{button('fullscreen').textContent=document.fullscreenElement?'WINDOWED GAME':'FULL-SCREEN GAME'});
  // House's handler calls us first. This also shields later desktop/game
  // shortcuts while the modal owns the keyboard; native Tab/Enter still work.

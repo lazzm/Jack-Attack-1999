@@ -203,7 +203,7 @@
     const say = () => {
       const s = SAYS[Math.floor(Math.random() * SAYS.length)]; bub.textContent = ''; let i = 0; clearInterval(mt);
       mt = setInterval(() => { if (!root.isConnected) return clearInterval(mt); i++; bub.textContent = s.slice(0, i); mouth.style.transform = `scaleY(${i % 2 ? 1.4 : 0.7})`; if (i % 3 === 0 && window.Sound && Sound.on) Sound.note(180 + Math.random() * 120, 0.05, 'sawtooth'); if (i >= s.length) { clearInterval(mt); mouth.style.transform = ''; } }, 45);
-      try { if (voice && voice.checked && window.speechSynthesis && window.SpeechSynthesisUtterance) { const u = new SpeechSynthesisUtterance(s); u.pitch = 1.8; u.rate = 1.1; speechSynthesis.cancel(); speechSynthesis.speak(u); } } catch (e) {}
+      try { if (voice && voice.checked && window.speechSynthesis && window.SpeechSynthesisUtterance) { const u = new SpeechSynthesisUtterance(s); u.pitch = 1.8; u.rate = 1.1; speechSynthesis.cancel(); Sound.speak(u); } } catch (e) {}
       n++; if (onSay) onSay(n);
     };
     return { say, stop: () => { clearInterval(mt); try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} } };

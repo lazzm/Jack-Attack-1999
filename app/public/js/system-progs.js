@@ -698,7 +698,7 @@
     const w = A.win(name + ' - Sound Recorder', b, { w: 330, icon: I.mic, menubar: true, noResize: true, noMax: true, onClose: () => { stopAll(); if (stream) stream.getTracks().forEach(t => t.stop()); } });
     const cv = qs(b, 'canvas'), g = cv.getContext('2d'), slider = qs(b, '.sys-sr-slider');
     let buf = null, src = null, rec = null, stream = null, chunks = [], raf = 0, t0 = 0, mode = 'idle', pos = 0, reversed = false, speed = 1, echo = false, vol = 1, recT = 0, playLen = 0;
-    const ac = () => { Sound.unlock && Sound.unlock(); return (Sound.ctx || (window.AudioContext ? (window.SysAC = window.SysAC || new AudioContext()) : null)); };
+    const ac = () => Sound.unlock && Sound.unlock();
     const len = () => buf ? buf.duration : 0;
     const setPos = p => { pos = clamp(p, 0, len()); qs(b, '.sys-sr-pos b').textContent = pos.toFixed(2) + ' sec.'; slider.value = len() ? Math.round(pos / len() * 1000) : 0; };
     let srSv = null; // (the autosave, set up at the end)
@@ -713,9 +713,9 @@
     function play() {
       const c = ac(); if (!buf || !c) return msg('Sound Recorder', 'There is nothing to play. Click the red button to record something first. (Say "Hello, computer". Everyone does.)', 'info');
       stopAll(); mode = 'play'; src = c.createBufferSource(); src.buffer = buf; src.playbackRate.value = speed;
-      let node = src; const gn = c.createGain(); gn.gain.value = vol * (Sound.on ? 1 : 0); node.connect(gn); node = gn;
-      if (echo) { const dl = c.createDelay(0.5); dl.delayTime.value = 0.22; const fb = c.createGain(); fb.gain.value = 0.4; node.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(c.destination); }
-      node.connect(c.destination);
+      let node = src; const gn = c.createGain(); gn.gain.value = vol; node.connect(gn); node = gn;
+      if (echo) { const dl = c.createDelay(0.5); dl.delayTime.value = 0.22; const fb = c.createGain(); fb.gain.value = 0.4; node.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(Sound.output(c)); }
+      node.connect(Sound.output(c));
       const start = pos >= len() - 0.02 ? 0 : pos; src.start(0, start); t0 = performance.now(); playLen = (len() - start) / speed;
       if (!Sound.on) toast('Sound Recorder', 'Sound is muted (the speaker in the tray). Playing silently, which is very 1999 of it.', 3500);
       const tick = () => { if (mode !== 'play') return; const el = (performance.now() - t0) / 1000; setPos(start + el * speed); draw(false, el); if (el >= playLen) { stopAll(); setPos(len()); return; } raf = requestAnimationFrame(tick); }; tick();

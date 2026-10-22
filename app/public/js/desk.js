@@ -272,8 +272,8 @@ back next year!!!
     };
   }
 
-  function sfxIcon() { $('sfxWaves').style.display = Sound.on ? '' : 'none'; $('sfxX').style.display = Sound.on ? 'none' : ''; $('sfxBtn').title = 'Sound effects: ' + (Sound.on ? 'on' : 'off'); }
-  $('sfxBtn').addEventListener('click', () => { Sound.on = !Sound.on; sfxIcon(); Sound.play('click'); toast('Volume', Sound.on ? 'Sound effects on.' : 'Sound effects off.', 1800); });
+  function sfxIcon() { $('sfxWaves').style.display = Sound.on && Sound.volume > 0 ? '' : 'none'; $('sfxX').style.display = Sound.on && Sound.volume > 0 ? 'none' : ''; $('sfxBtn').title = 'Sound: ' + (Sound.on ? 'on' : 'off') + ' · Music: ' + (Sound.musicOn ? 'on' : 'off') + ' · Effects: ' + (Sound.effectsOn ? 'on' : 'off'); }
+  $('sfxBtn').addEventListener('click', () => { Sound.on = !Sound.on; sfxIcon(); Sound.play('click'); toast('Volume', Sound.on ? 'Sound on. Separate music and effects controls are in the game menu.' : 'All sound off.', 1800); });
   sfxIcon();
   document.addEventListener('sfxchange', sfxIcon);
   $('netBtn').addEventListener('click', () => window.JackIRC && JackIRC.launch ? JackIRC.launch({ autojoin: true }) : go('chat', 'click'));

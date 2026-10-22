@@ -166,7 +166,7 @@
     c.after.push(() => {
       const say = c.q('.gbo-say'), bar = c.q('.gbo-bar i'), pc = c.q('.gbo-pc'), t0 = Date.now(); let i = 0, done = false;
       const voice = c.q('.gbo-voice');
-      const speak = s => { try { if (voice.checked && window.speechSynthesis && window.SpeechSynthesisUtterance) { const u = new SpeechSynthesisUtterance(s.replace(/\(|\)/g, '')); u.pitch = 0.3; u.rate = 0.75; speechSynthesis.cancel(); speechSynthesis.speak(u); } } catch (e) {} };
+      const speak = s => { try { if (voice.checked && window.speechSynthesis && window.SpeechSynthesisUtterance) { const u = new SpeechSynthesisUtterance(s.replace(/\(|\)/g, '')); u.pitch = 0.3; u.rate = 0.75; speechSynthesis.cancel(); Sound.speak(u); } } catch (e) {} };
       const next = () => { const s = LINES[i % LINES.length]; i++; say.textContent = s; say.classList.remove('boom'); void say.offsetWidth; say.classList.add('boom'); if (window.Sound && Sound.on) { Sound.note(55 + (i % 3) * 8, 0.6, 'sine'); Sound.note(110, 0.4, 'triangle'); } speak(s); };
       next(); c.every(next, 3400);
       c.every(() => { const s = (Date.now() - t0) / 1000, p = 99 * (1 - Math.exp(-s / 25)); bar.style.width = p + '%'; pc.textContent = (p >= 98.9 ? '99%' : Math.floor(p) + '%') + ' loaded. Please wait.'; if (s > 90 && !done) { done = true; c.secret('eras.grotbo'); pc.textContent = '99% loaded. Please wait. (Still. Anything takes time.)'; } }, 250);

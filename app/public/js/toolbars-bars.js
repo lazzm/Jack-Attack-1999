@@ -192,7 +192,7 @@
   const FACTS = ['A floppy disk holds 1.44 megabytes.', 'The Ultra 64 has 4 megabytes of memory. 8 with the Expansion Pak!', 'There are 151 Pocket Critters.', 'Red ones go faster. Science.', 'Blockology was invented in Moscow in 1984.', 'A CD-ROM holds about 650 megabytes. That is 451 floppy disks!'];
   function talk(t, who, pitch) {
     toast(who + ' says:', t, 6000);
-    try { if (window.speechSynthesis && window.Sound && Sound.on) { const u = new SpeechSynthesisUtterance(t); u.pitch = pitch || 1.6; u.rate = 1.05; speechSynthesis.cancel(); speechSynthesis.speak(u); } } catch (e) {}
+    try { if (window.speechSynthesis && window.Sound && Sound.on) { const u = new SpeechSynthesisUtterance(t); u.pitch = pitch || 1.6; u.rate = 1.05; speechSynthesis.cancel(); Sound.speak(u); } } catch (e) {}
   }
   const insertChat = s => { const i = $('chatInput'); if (!i) return; i.value += (i.value ? ' ' : '') + s; IE.go('chat', 'click'); setTimeout(() => i.focus(), 50); };
   const bundle = k => () => window.OldPC && OldPC.bundle(k);

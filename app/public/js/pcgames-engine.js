@@ -736,7 +736,7 @@ void main(){ vec3 d = normalize(vD); vec3 c;
   let AC = null, out = null, noiseBuf = null;
   function ac() {
     if (!window.Sound || !Sound.on) return null;
-    if (!AC) { try { AC = Sound.unlock && Sound.unlock(); } catch (e) { AC = null; } if (!AC) return null; out = AC.createGain(); out.gain.value = 0.22; out.connect(AC.destination); }
+    if (!AC) { try { AC = Sound.unlock && Sound.unlock(); } catch (e) { AC = null; } if (!AC) return null; out = AC.createGain(); out.gain.value = 0.22; out.connect(Sound.output(AC)); }
     if (AC.state === 'suspended') AC.resume();
     return AC;
   }

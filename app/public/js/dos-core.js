@@ -259,7 +259,7 @@
       const t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain();
       o.type = 'square'; o.frequency.value = Math.min(12000, freq);
       g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.045, t + 0.004); g.gain.setValueAtTime(0.045, t + Math.max(0.005, dur - 0.012)); g.gain.linearRampToValueAtTime(0.0001, t + dur);
-      o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.02);
+      o.connect(g); g.connect(Sound.output(c)); o.start(t); o.stop(t + dur + 0.02);
     } catch (e) {}
   };
   DOS.beep = () => DOS.tone(800, 0.22);

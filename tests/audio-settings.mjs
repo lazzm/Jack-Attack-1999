@@ -1,0 +1,62 @@
+import assert from 'node:assert/strict';
+import {roomFixture} from './room-fixture.mjs';
+const {browser,page:p,errors,until}=await roomFixture(process.argv[2]||'http://localhost:18471');
+try {
+  const menu=()=>p.locator('.hs-pause');
+  const music=()=>menu().locator('[name=music]'),effects=()=>menu().locator('[name=effects]');
+  await p.keyboard.press('Escape');assert(await p.evaluate(()=>HousePause.open));
+  await music().check();await effects().uncheck();
+  assert.deepEqual(await p.evaluate(()=>[Sound.musicOn,Sound.effectsOn,Sound.on]),[true,false,true]);
+  await p.evaluate(()=>{
+    const c=Sound.unlock();window.audioMeters={};
+    for(const kind of ['music','effects']){const a=c.createAnalyser();a.fftSize=2048;Sound.output(c,kind).connect(a);audioMeters[kind]=a}
+    window.audioRMS=kind=>{const a=audioMeters[kind],d=new Float32Array(a.fftSize);a.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,x)=>s+x*x,0)/d.length)};
+    Sound.music.play('theme');
+  });
+  await p.waitForTimeout(350);
+  assert(await p.evaluate(()=>audioRMS('music')>.00001),'MIDI plays with effects disabled');
+  assert.equal(await p.evaluate(()=>audioRMS('effects')),0);
+  await music().uncheck();await effects().check();
+  await p.evaluate(()=>Sound.note(440,2,'sine'));await p.waitForTimeout(200);
+  assert(await p.evaluate(()=>audioRMS('effects')>.00001),'Effects play with music disabled');
+  assert(await p.evaluate(()=>audioRMS('music')<.000001),'Existing MIDI is silenced immediately');
+  await music().check();
+  const slider=menu().locator('[name=volume]');await slider.focus();await p.keyboard.press('Home');
+  await p.waitForTimeout(300);assert.equal(await p.evaluate(()=>Sound.volume),0);
+  assert(await p.evaluate(()=>audioRMS('music')<.000001&&audioRMS('effects')<.000001));
+  await p.keyboard.press('End');await p.keyboard.press('ArrowLeft');
+  assert.equal(await p.evaluate(()=>Sound.volume),.99);assert.equal(await menu().locator('output').innerText(),'99%');
+  for(let n=0;n<6;n++)await music().click();assert(await music().isChecked());
+  await p.screenshot({path:'shots/audio-settings-desktop.png'});
+  await p.setViewportSize({width:390,height:844});await p.screenshot({path:'shots/audio-settings-narrow.png'});
+  await p.setViewportSize({width:1366,height:860});
+  await p.keyboard.press('Escape');assert.equal(await p.evaluate(()=>House.mode),'walk');
+  await p.evaluate(async()=>{Sound.music.stop();await Apps.load('js/rm-tv.js');House.act('n64')});
+  await until(()=>House.focused&&RoomTV.open_);
+  await p.evaluate(()=>RoomTV.test('n64.kart'));
+  await until(()=>RoomTV._dbg()?.st==='game'&&window.__kartDbg?.st.mode==='title');
+  await p.evaluate(()=>{__kartDbg.race('tt',0,0);__kartDbg.go()});await until(()=>__kartDbg.st.mode==='race');
+  await p.waitForTimeout(500);await p.evaluate(()=>window.audioGame=RoomTV.dbg());
+  await p.keyboard.press('Escape');assert(await p.evaluate(()=>HousePause.open),'Esc opens the global menu over a console');const pausedRace=await p.evaluate(()=>__kartDbg.st.raceT);await music().uncheck();
+  await p.waitForTimeout(300);assert(await p.evaluate(()=>audioRMS('music')<.000001),'Recorded Kart music obeys the same switch');
+  await p.evaluate(()=>RoomTV.sfx.tone(440,1,'sine',.2));await p.waitForTimeout(100);
+  assert(await p.evaluate(()=>audioRMS('effects')>.00001));
+  await music().check();await effects().uncheck();await p.waitForTimeout(300);
+  assert(await p.evaluate(()=>audioRMS('music')>.00001));assert(await p.evaluate(()=>audioRMS('effects')<.000001));
+  assert(await p.evaluate(()=>RoomTV.dbg()===audioGame),'Audio switches must not restart the game');
+  assert.equal(await p.evaluate(()=>__kartDbg.st.raceT),pausedRace,'The active race stays frozen while adjusting audio');
+  await p.screenshot({path:'shots/audio-settings-kart.png'});
+  await p.keyboard.press('Escape');assert.equal(await p.evaluate(()=>document.querySelector('.hs-pause').contains(document.activeElement)),false,'Closed menu must release keyboard focus');await p.keyboard.press('q');await until(()=>House.mode==='walk');
+  await p.evaluate(()=>{Sound.on=false});await p.keyboard.press('Escape');
+  assert.equal(await music().isChecked(),false);assert.equal(await effects().isChecked(),false);
+  await music().check();await p.keyboard.press('Escape');
+  await p.reload({waitUntil:'domcontentloaded'});await until(()=>window.AccountGate?.allowed&&window.House?.live&&!document.querySelector('.hs-loading,#houseEntry'));
+  assert.deepEqual(await p.evaluate(()=>[Sound.musicOn,Sound.effectsOn,Sound.volume,House.mode]),[true,false,.99,'walk']);
+  await p.evaluate(()=>House.sitDown());await until(()=>House.mode==='monitor');
+  await p.keyboard.press('Escape');assert(await music().isChecked());assert.equal(await effects().isChecked(),false);
+  await effects().check();await p.screenshot({path:'shots/audio-settings-pc.png'});await p.keyboard.press('Escape');
+  assert.equal(await p.evaluate(()=>House.mode),'monitor');
+  assert.deepEqual(errors,[]);
+  console.log('AUDIO SETTINGS PASS: independent MIDI/recorded music and effects, actual analyser silence, master volume/keyboard slider, repeat clicks, legacy mute synchronization, PC/console/room, refresh, desktop/narrow screenshots');
+}catch(e){console.error('Audio test failure:',e.message,errors);await p.screenshot({path:'shots/audio-settings-failure.png'}).catch(()=>{});throw e}
+finally{await browser.close()}

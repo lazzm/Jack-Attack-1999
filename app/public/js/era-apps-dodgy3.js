@@ -58,7 +58,7 @@
     b.innerHTML = '<div class="out" aria-live="polite"></div><form><span>&gt;</span><input type="text" maxlength="80" autocomplete="off" spellcheck="false" aria-label="Talk to Dr. Chatso"></form>';
     const out = b.querySelector('.out'), inp = b.querySelector('input');
     let name = '', rude = 0, n = 0;
-    const speak = t => { try { if (Sound.on && window.speechSynthesis && window.SpeechSynthesisUtterance) { const u = new SpeechSynthesisUtterance(t.toLowerCase()); u.pitch = 0.4; u.rate = 0.85; speechSynthesis.cancel(); speechSynthesis.speak(u); } } catch (e) {} };
+    const speak = t => { try { if (Sound.on && window.speechSynthesis && window.SpeechSynthesisUtterance) { const u = new SpeechSynthesisUtterance(t.toLowerCase()); u.pitch = 0.4; u.rate = 0.85; speechSynthesis.cancel(); Sound.speak(u); } } catch (e) {} };
     const put = (html, cls) => { const d = document.createElement('div'); d.innerHTML = html; if (cls) d.className = cls; out.appendChild(d); out.scrollTop = out.scrollHeight; };
     const doc = t => { put(`<b>${esc(t)}</b>`); speak(t); };
     K.onClose(() => { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} });

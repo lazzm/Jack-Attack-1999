@@ -9,7 +9,7 @@
   const note = (f, d, t, w) => setTimeout(() => { try { Sound.note(f, d, w || 'square'); } catch (e) {} }, (t || 0) * 1000);
   const msg = (t, x, i) => Desk.msgbox(t, x, i || 'info');
   const toast = (t, x, ms) => Desk.toast(t, x, ms || 6000);
-  const say = (text, pitch, rate) => { try { if (window.Sound && Sound.on && window.speechSynthesis) { const u = new SpeechSynthesisUtterance(text); u.pitch = pitch == null ? 1 : pitch; u.rate = rate || 1; speechSynthesis.cancel(); speechSynthesis.speak(u); } } catch (e) {} };
+  const say = (text, pitch, rate) => { try { if (window.Sound && Sound.on && window.speechSynthesis) { const u = new SpeechSynthesisUtterance(text); u.pitch = pitch == null ? 1 : pitch; u.rate = rate || 1; speechSynthesis.cancel(); Sound.speak(u); } } catch (e) {} };
   const md = () => { try { return Desk.today99().md; } catch (e) { return 101; } };
   const layer = (cls, html, ms, click) => {
     const d = document.createElement('div'); d.className = 'sxe ' + (cls || ''); if (html) d.innerHTML = html;

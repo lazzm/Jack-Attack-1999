@@ -82,6 +82,8 @@ html.pc-roomview.pc-desktop-full #monitorSurface::after{display:none}
 .hs-pause label{display:block;margin:0 0 13px}
 .hs-pause small{display:block;margin:5px 0 0 23px;color:#b4b6a8;font-size:11px;line-height:1.4}
 .hs-pause input{accent-color:#dbc172;vertical-align:middle}
+.hs-audio-volume output{float:right;color:#dbc172;font-weight:bold}
+.hs-audio-volume input[type=range]{display:block;box-sizing:border-box;width:100%;margin:10px 0 0;cursor:pointer}
 .hs-pause select{float:right;min-width:145px;padding:3px;background:#161c1e;color:#eee4ca;border:1px solid #8b7f61;font:12px "Courier New",monospace}
 .hs-pause-mouse,.hs-pause-status{margin:10px 0 0;color:#adb4ae;font-size:11px;line-height:1.5}
 .hs-pause-keys{margin:12px 0;color:#d3ccb8;font-size:11px;line-height:1.8}

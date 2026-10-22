@@ -1,21 +1,59 @@
 /* Sound Blaster 16 emulation (WebAudio). Nothing plays until the visitor clicks something. */
 (function () {
-  let ctx = null, master = null;
-  let sfxOn = false;
-  try { sfxOn = localStorage.getItem('jhp_sfx') === '1'; } catch (e) {}
+  let ctx = null, master = null, musicMaster = null;
+  let sfxOn = false, musicOn = false, volume = 1;
+  try {
+    const legacy = localStorage.getItem('jhp_sfx') === '1';
+    sfxOn = localStorage.getItem('jhp_audio_effects') == null ? legacy : localStorage.getItem('jhp_audio_effects') === '1';
+    musicOn = localStorage.getItem('jhp_audio_music') == null ? legacy : localStorage.getItem('jhp_audio_music') === '1';
+    const saved = Number(localStorage.getItem('jhp_audio_volume') ?? 1);
+    volume = Number.isFinite(saved) ? Math.max(0, Math.min(1, saved)) : 1;
+  } catch (e) {}
+  const buses = new Map();
+  const ready = () => typeof navigator === 'undefined' || !navigator.userActivation || navigator.userActivation.hasBeenActive;
+  function output(c, channel = 'effects') {
+    let bus = buses.get(c);
+    if (!bus) {
+      bus = {effects:c.createGain(),music:c.createGain()}; buses.set(c,bus);
+      for (const kind of ['effects','music']) { bus[kind].gain.value = volume * (kind === 'music' ? +musicOn : +sfxOn); bus[kind].connect(c.destination); }
+    }
+    return bus[channel === 'music' ? 'music' : 'effects'];
+  }
+  function changed() {
+    try {
+      localStorage.setItem('jhp_sfx', sfxOn || musicOn ? '1' : '0');
+      localStorage.setItem('jhp_audio_effects', sfxOn ? '1' : '0');
+      localStorage.setItem('jhp_audio_music', musicOn ? '1' : '0');
+      localStorage.setItem('jhp_audio_volume', String(volume));
+    } catch (e) {}
+    for (const [c,bus] of buses) {
+      if (c.state === 'closed') { buses.delete(c); continue; }
+      for (const kind of ['effects','music']) {
+        const gain = bus[kind].gain;
+        gain.cancelScheduledValues(c.currentTime);
+        gain.setTargetAtTime(volume * (kind === 'music' ? +musicOn : +sfxOn), c.currentTime, .012);
+      }
+    }
+    if (!sfxOn || !volume) try { window.speechSynthesis?.cancel(); } catch (e) {}
+    if (sfxOn || musicOn) ac();
+    document.dispatchEvent(new Event('sfxchange'));
+    document.dispatchEvent(new Event('audiochange'));
+  }
 
   function ac() {
+    if (!ready()) return null;
     if (!ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return null;
       ctx = new AC();
-      master = ctx.createGain(); master.gain.value = 0.25; master.connect(ctx.destination);
+      master = ctx.createGain(); master.gain.value = 0.25; master.connect(output(ctx));
+      musicMaster = ctx.createGain(); musicMaster.gain.value = 0.25; musicMaster.connect(output(ctx,'music'));
     }
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
   }
 
-  function tone(freq, dur, type, vol, when, slideTo) {
+  function tone(freq, dur, type, vol, when, slideTo, channel) {
     const c = ac(); if (!c) return;
     const t = c.currentTime + (when || 0);
     const o = c.createOscillator(), g = c.createGain();
@@ -24,11 +62,11 @@
     if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
     g.gain.setValueAtTime(vol == null ? 0.3 : vol, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    o.connect(g); g.connect(master);
+    o.connect(g); g.connect(channel === 'music' ? musicMaster : master);
     o.start(t); o.stop(t + dur + 0.02);
   }
 
-  function noise(dur, vol, when, filterFreq) {
+  function noise(dur, vol, when, filterFreq, channel) {
     const c = ac(); if (!c) return;
     const t = c.currentTime + (when || 0);
     const len = Math.max(1, Math.floor(c.sampleRate * dur));
@@ -38,7 +76,7 @@
     const src = c.createBufferSource(); src.buffer = buf;
     const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = filterFreq || 1200; f.Q.value = 0.8;
     const g = c.createGain(); g.gain.setValueAtTime(vol || 0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    src.connect(f); f.connect(g); g.connect(master);
+    src.connect(f); f.connect(g); g.connect(channel === 'music' ? musicMaster : master);
     src.start(t);
   }
 
@@ -113,10 +151,10 @@
     const L = tune.lead, B = tune.bass, ST = tune.step;
     while (nextTime < c.currentTime + 0.25) {
       const when = nextTime - c.currentTime, i = step % L.length;
-      if (L[i] > 0) { let len = 1; while (L[(i + len) % L.length] === -1) len++; tone(N(L[i]), ST * len * 0.92, 'square', 0.09, when); }
-      if (step % 2 === 0) { const b = B[(step / 2) % B.length]; tone(N(b), ST * 1.8, 'triangle', 0.22, when); }
-      if (tune.hats && step % 2 === 1) noise(0.03, 0.05, when, 7000);
-      if (step % 8 === 0) tone(60, 0.12, 'sine', 0.3, when, 35);
+      if (L[i] > 0) { let len = 1; while (L[(i + len) % L.length] === -1 && len < L.length) len++; tone(N(L[i]), ST * len * 0.92, 'square', 0.09, when, null, 'music'); }
+      if (step % 2 === 0) { const b = B[(step / 2) % B.length]; tone(N(b), ST * 1.8, 'triangle', 0.22, when, null, 'music'); }
+      if (tune.hats && step % 2 === 1) noise(0.03, 0.05, when, 7000, 'music');
+      if (step % 8 === 0) tone(60, 0.12, 'sine', 0.3, when, 35, 'music');
       nextTime += ST; step++;
     }
   }
@@ -124,22 +162,38 @@
   const music = {
     playing: '',
     play(name) {
-      const c = ac(); if (!c) return;
       this.stop();
       tune = TUNES[name] || TUNES.theme; this.playing = TUNES[name] ? name : 'theme';
+      const c = ac(); if (!c) return;
       step = 0; nextTime = c.currentTime + 0.05;
       musicTimer = setInterval(schedule, 60); schedule();
     },
-    stop() { this.playing = ''; clearInterval(musicTimer); },
+    stop() { this.playing = ''; clearInterval(musicTimer); musicTimer = null; },
   };
 
   window.Sound = {
-    get on() { return sfxOn; },
-    set on(v) { sfxOn = !!v; try { localStorage.setItem('jhp_sfx', sfxOn ? '1' : '0'); } catch (e) {} if (sfxOn) ac(); },
+    get on() { return sfxOn || musicOn; },
+    set on(v) { sfxOn = musicOn = !!v; changed(); },
+    get effectsOn() { return sfxOn; },
+    set effectsOn(v) { sfxOn = !!v; changed(); },
+    get musicOn() { return musicOn; },
+    set musicOn(v) { musicOn = !!v; changed(); },
+    get volume() { return volume; },
+    get ready() { return ready(); },
+    output,
     play(name) { if (sfxOn && sfx[name]) { try { sfx[name](); } catch (e) {} } },
-    setVolume(v) { ac(); if (master) master.gain.value = 0.25 * Math.max(0, Math.min(1, v)); },
+    setVolume(v) { if (!Number.isFinite(+v)) return; volume = Math.max(0, Math.min(1, +v)); changed(); },
+    speak(utterance) { if (sfxOn && volume && window.speechSynthesis) { utterance.volume *= volume; speechSynthesis.speak(utterance); } },
     note(f, d, type) { if (sfxOn) tone(f, d || 0.25, type || 'square', 0.15); },
     music, addTune, tunes: () => Object.keys(TUNES),
     unlock: ac,
   };
+  function wake() {
+    if (!ready()) return;
+    if (sfxOn || musicOn) ac();
+    if (music.playing && !musicTimer) music.play(music.playing);
+    document.dispatchEvent(new Event('audiochange'));
+    document.removeEventListener('pointerdown',wake,true);document.removeEventListener('keydown',wake,true);
+  }
+  document.addEventListener('pointerdown',wake,true);document.addEventListener('keydown',wake,true);
 })();

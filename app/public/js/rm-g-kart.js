@@ -235,6 +235,7 @@
     three: true, stick: true, buttons: ['a', 'b', 'c', 'r'],
     help: 'Steer: arrows. Go: Z. Brake / back: X. Use item: C. Hold E while turning to hop and drift. Pause: Enter.',
     make(K) {
+      const key = b => K.keyLabel ? K.keyLabel(b) : K.label(b);
       const T3 = K.three({ far: 900, fov: 64, fogCol: 0xc4dcf0, fogNear: 70, fogFar: 300 }), T = T3.T, H = K.hud, F = K.font, W = K.W, HH = K.H;
       icons();
       let RK = window.RoomRK;
@@ -1243,7 +1244,7 @@
         }
         if (mode === 'cc') {
           sel.cc = nav(4, sel.cc); if (back()) { boop(); mode = 'main'; return; }
-          if (ok()) { if (!ccOpen(sel.cc)) { boop(); say(sel.cc === 2 ? 'WIN A CUP ON 100CC FIRST' : 'WIN BOTH CUPS ON 150CC FIRST', 1.6); return; } beep(); cfg.cc = sel.cc; toDriver(); }
+          if (ok()) { if (!ccOpen(sel.cc)) { boop(); say(sel.cc === 2 ? 'WIN GOLD ON 100CC FIRST' : 'WIN BOTH GOLDS ON 150CC FIRST', 1.6); return; } beep(); cfg.cc = sel.cc; toDriver(); }
           return;
         }
         if (mode === 'driver') {
@@ -1447,6 +1448,9 @@
       function panel(x, y, w, h, col, edge) { H.fillStyle = col || 'rgba(10,20,80,.78)'; H.fillRect(x, y, w, h); H.strokeStyle = edge || '#ffe14a'; H.lineWidth = 2; H.strokeRect(x + 1, y + 1, w - 2, h - 2); H.strokeStyle = 'rgba(255,255,255,.25)'; H.lineWidth = 1; H.strokeRect(x + 3.5, y + 3.5, w - 7, h - 7); }
       const txt = (s, x, y, c, k, sh) => F.draw(H, s, x, y, c || '#fff', k || 1, sh === false ? null : (sh || '#000'));
       const ctr = (s, y, c, k, sh) => F.center(H, s, W / 2, y, c || '#fff', k || 1, sh === false ? null : (sh || '#000'));
+      function printLines(s,x,y,width,col) {
+        let line='';for(const word of s.split(' ')){const next=line?line+' '+word:word;if(F.width(next)>width&&line){txt(line,x,y,col);y+=10;line=word}else line=next}if(line)txt(line,x,y,col);
+      }
       const blink = r => ((K.t * (r || 2)) | 0) % 2 === 0;
       const portrait = (d, x, y, s, hi) => { const D = DRIVERS[d]; H.fillStyle = hexs(D.col); H.fillRect(x, y, s, s); H.fillStyle = 'rgba(255,255,255,.3)'; H.fillRect(x, y, s, s / 3); H.strokeStyle = hi ? '#ffe14a' : '#000'; H.lineWidth = hi ? 2 : 1; H.strokeRect(x + 0.5, y + 0.5, s - 1, s - 1); F.center(H, D.n[0], x + s / 2, y + s / 2 - 3, '#fff', 1, '#000'); };
       let mini = null, miniFor = '';
@@ -1469,7 +1473,7 @@
         let ic = me.item; if (me.roll > 0) ic = ITEMS[((K.t * 14) | 0) % (cfg.kind === 'battle' ? 5 : ITEMS.length)];
         if (ic && ICON[ic]) H.drawImage(ICON[ic], x + 8, y + 5, 24, 24);
         if (me.item === 'TRIPLE') for (let n = 0; n < me.icount; n++) { H.fillStyle = '#ff7a00'; H.fillRect(x + 8 + n * 9, y + 29, 6, 3); }
-        if (me.item && !me.roll && blink(3)) txt(K.label('c'), x + 41, y + 26, '#ffe14a');
+        if (me.item && !me.roll && blink(3)) txt(key('c'), x + 41, y + 26, '#ffe14a');
       }
       function placeBadge(p) {
         const cols = [['#fff8a0', '#e8a000'], ['#ffffff', '#9aa0b0'], ['#ffc890', '#b8641a']][p] || ['#a8d8ff', '#2a6ad0'];
@@ -1490,36 +1494,37 @@
         if (mode === 'title') {
           H.fillStyle = 'rgba(0,0,40,.25)'; H.fillRect(0, 0, W, HH); logo(48, 1.2);
           if (((mt / 6) | 0) % 2 === 1) { panel(70, 104, 180, 104); ctr('BEST SCORES', 112, '#ffe14a', 1); table().forEach((r, n) => { txt((n + 1) + '. ' + r.n, 84, 126 + n * 10, r.mate ? '#fff' : '#9affa0'); F.draw(H, String(r.s).padStart(6, ' '), 196, 126 + n * 10, '#ffe14a', 1, '#000'); }); }
-          else if (blink(2)) ctr('PRESS START', 150, '#fff', 2, '#1a0a5a');
+          else if (blink(2)) ctr('PRESS ' + key('start'), 150, '#fff', 2, '#1a0a5a');
           if (msgT > 0) ctr(msg, 186, '#9affa0', 1);
           ctr('(C) 1999 BIGWHEEL SOFTWARE', HH - 22, '#ddd', 1); ctr('LICENSED BY ULTRA ENTERTAINMENT', HH - 12, '#aab', 1);
           return;
         }
-        if (mode === 'demo') { raceHud(true); ctr('DEMO PLAY', 54, '#ffe14a', 2, '#000'); if (blink(2)) ctr('PRESS START', HH - 40, '#fff', 1); return; }
+        if (mode === 'demo') { raceHud(true); ctr('DEMO PLAY', 54, '#ffe14a', 2, '#000'); if (blink(2)) ctr('PRESS ' + key('start'), HH - 40, '#fff', 1); return; }
         if (mode === 'main') {
           H.fillStyle = 'rgba(0,0,40,.25)'; H.fillRect(0, 0, W, HH); logo(32, 0.85);
           panel(90, 74, 140, MAIN.length * 15 + 14);
           MAIN.forEach((s, n) => { const on = n === sel.main; ctr((on ? '> ' : '') + s + (on ? ' <' : ''), 82 + n * 15, on ? '#ffe14a' : '#fff', 1); });
           const tip = ['FOUR TRACKS, POINTS, A TROPHY', 'ONE RACE ON ANY TRACK', 'YOU, THE CLOCK AND YOUR GHOST', 'POP EVERYONE ELSE\'S BALLOONS', 'BEST SCORES AND TIMES', 'MUSIC, CAMERA, GHOST', 'THE CONTROLS AND THE ITEMS'][sel.main];
-          ctr(tip, 196, '#9ad8ff', 1); ctr(K.label('a') + ' CHOOSE   ' + K.label('b') + ' BACK', HH - 16, '#ccc', 1);
+          ctr(tip, 196, '#9ad8ff', 1); ctr('ARROWS MOVE   ' + key('a') + ' SELECT   ' + key('b') + ' BACK', HH - 16, '#ccc', 1);
           if (msgT > 0) ctr(msg, 210, '#ff8a6a', 1);
           return;
         }
         if (mode === 'cc') {
           big('CHOOSE A CLASS', W / 2, 30, 20, '#ffe14a', '#ff8a00'); panel(80, 54, 160, 104);
-          CLASSES.forEach((c, n) => { const on = n === sel.cc, open = ccOpen(n); ctr((on ? '> ' : '') + (open ? c.n : c.n + ' (LOCKED)') + (on ? ' <' : ''), 66 + n * 22, !open ? '#777' : on ? '#ffe14a' : '#fff', on ? 2 : 1); });
-          ctr(['GENTLE: GOOD FOR LEARNING', 'THE PROPER SPEED', 'FAST AND FURIOUS', 'EVERY TRACK BACK TO FRONT!'][sel.cc], 172, '#9ad8ff', 1);
+          CLASSES.forEach((c, n) => { const on = n === sel.cc, open = ccOpen(n); ctr((on ? '> ' : '') + (open ? c.n : c.n + ' (LOCKED)') + (on ? ' <' : ''), 66 + n * 22, on ? '#ffe14a' : open ? '#fff' : '#a0a0b0', on && open ? 2 : 1); });
+          ctr(['GENTLE: GOOD FOR LEARNING', 'THE PROPER SPEED', 'FLAT-OUT MAYHEM', 'EVERY TRACK BACK TO FRONT!'][sel.cc], 172, '#9ad8ff', 1);
           if (!ccOpen(sel.cc)) ctr(sel.cc === 2 ? 'WIN A GOLD CUP ON 100CC TO OPEN IT' : 'WIN GOLD IN BOTH CUPS ON 150CC', 186, '#ff8a6a', 1);
           if (msgT > 0) ctr(msg, 204, '#ff8a6a', 1);
+          ctr('ARROWS MOVE   ' + key('a') + ' SELECT   ' + key('b') + ' BACK', HH - 14, '#ccc', 1);
           return;
         }
         if (mode === 'driver') {
           big('PLAYER SELECT', W / 2, 18, 18, '#ffe14a', '#ff8a00');
-          const D = DRIVERS[sel.drv]; panel(8, 34, 104, 112, 'rgba(10,20,80,.7)');
-          txt(D.n, 16, 42, '#ffe14a', 2); txt(D.tag, 16, 62, '#9ad8ff', 1);
-          [['SPEED', D.spd], ['ACCEL', D.acc], ['HANDLING', D.hnd], ['WEIGHT', D.wt]].forEach(([l, v], n) => { txt(l, 16, 80 + n * 15, '#fff', 1); for (let p = 0; p < 5; p++) { H.fillStyle = p < v ? ['#3aff5a', '#ffe14a', '#2ab0ff', '#ff8a3a'][n] : 'rgba(255,255,255,.2)'; H.fillRect(16 + p * 9, 89 + n * 15, 7, 4); } });
-          DRIVERS.forEach((d, n) => { const x = 40 + (n % 4) * 62, y = 164 + (n / 4 | 0) * 30; portrait(n, x, y, 22, n === sel.drv); txt(d.n.split(' ').pop().slice(0, 7), x + 24, y + 8, n === sel.drv ? '#ffe14a' : '#fff', 1); });
-          ctr(K.label('a') + ' OK   ' + K.label('b') + ' BACK', HH - 10, '#ccc', 1);
+          const D = DRIVERS[sel.drv]; panel(8, 34, 118, 120, 'rgba(10,20,80,.7)');
+          txt(D.n, 16, 42, '#ffe14a', 2); printLines(D.tag,16,62,104,'#9ad8ff');
+          [['SPEED', D.spd], ['ACCEL', D.acc], ['HANDLING', D.hnd], ['WEIGHT', D.wt]].forEach(([l, v], n) => { txt(l, 16, 88 + n * 15, '#fff', 1); for (let p = 0; p < 5; p++) { H.fillStyle = p < v ? ['#3aff5a', '#ffe14a', '#2ab0ff', '#ff8a3a'][n] : 'rgba(255,255,255,.2)'; H.fillRect(16 + p * 9, 97 + n * 15, 7, 4); } });
+          DRIVERS.forEach((d, n) => { const x = 16 + (n % 4) * 72, y = 164 + (n / 4 | 0) * 30; portrait(n, x, y, 20, n === sel.drv); txt(d.n, x + 23, y + 7, n === sel.drv ? '#ffe14a' : '#fff', 1); });
+          ctr(key('a') + ' OK   ' + key('b') + ' BACK', HH - 10, '#ccc', 1);
           return;
         }
         if (mode === 'cup') {
@@ -1529,7 +1534,7 @@
             const tr = cupDone(cfg.cc, n); if (tr) F.center(H, ['', 'GOLD', 'SILVER', 'BRONZE'][tr] + ' TROPHY', x + 70, 80, ['', '#ffd040', '#e0e0f0', '#e0904a'][tr], 1, '#000');
             if (!open) { F.center(H, 'LOCKED', x + 70, 110, '#ff8a6a', 2, '#000'); F.center(H, 'GET A TROPHY IN', x + 70, 134, '#ccc', 1, '#000'); F.center(H, 'THE BISCUIT CUP', x + 70, 144, '#ccc', 1, '#000'); }
             else c.t.forEach((ti, k) => F.draw(H, (k + 1) + ' ' + TRACKS[ti].n, x + 10, 98 + k * 20, on ? '#fff' : '#aab', 1, '#000')); });
-          if (msgT > 0) ctr(msg, 198, '#ff8a6a', 1); ctr(K.label('a') + ' OK   ' + K.label('b') + ' BACK', HH - 14, '#ccc', 1);
+          if (msgT > 0) ctr(msg, 198, '#ff8a6a', 1); ctr(key('a') + ' OK   ' + key('b') + ' BACK', HH - 14, '#ccc', 1);
           return;
         }
         if (mode === 'track') {
@@ -1538,14 +1543,16 @@
           TRACKS.forEach((t, n) => { const on = n === sel.trk, open = trackOpen(n); const y = 44 + n * 17; if (on) { H.fillStyle = 'rgba(255,225,74,.18)'; H.fillRect(20, y - 3, 280, 14); }
             txt((on ? '>' : ' ') + (open ? t.n : '?????'), 24, y, !open ? '#777' : on ? '#ffe14a' : '#fff', 1); if (open) { const b = flow === 'tt' ? sv.tt[n] : sv.lap[n]; F.draw(H, (flow === 'tt' ? '' : 'LAP ') + fmt(b), 210, y, '#9ad8ff', 1, '#000'); } });
           if (flow === 'tt') ctr('STAFF GHOST (DAVE): ' + fmt(TRACKS[sel.trk].par), 192, '#ffb0e0', 1); if (msgT > 0) ctr(msg, 204, '#ff8a6a', 1);
-          ctr(K.label('a') + ' OK   ' + K.label('b') + ' BACK', HH - 14, '#ccc', 1);
+          ctr(key('a') + ' OK   ' + key('b') + ' BACK', HH - 14, '#ccc', 1);
           return;
         }
         if (mode === 'arena') { H.fillStyle = 'rgba(0,0,40,.3)'; H.fillRect(0, 0, W, HH); big('BATTLE', W / 2, 30, 22, '#ffe14a', '#ff8a00'); panel(70, 60, 180, 70); ARENAS.forEach((a, n) => ctr((n === sel.arena ? '> ' : '') + a.n + (n === sel.arena ? ' <' : ''), 74 + n * 22, n === sel.arena ? '#ffe14a' : '#fff', n === sel.arena ? 2 : 1)); ['THREE BALLOONS EACH. GET HIT, LOSE ONE.', 'LAST KART WITH A BALLOON WINS!', 'DRIVE THROUGH ? BOXES FOR ITEMS.'].forEach((l, n) => ctr(l, 148 + n * 12, '#9ad8ff', 1)); return; }
         if (mode === 'options') {
           H.fillStyle = 'rgba(0,0,40,.4)'; H.fillRect(0, 0, W, HH); big('OPTIONS', W / 2, 30, 22, '#ffe14a', '#ff8a00'); panel(60, 56, 200, 116);
           [['MUSIC', sv.opt.mus ? 'ON' : 'OFF'], ['CAMERA', sv.opt.cam ? 'FAR' : 'NEAR'], ['GHOST', sv.opt.ghost ? 'ON' : 'OFF'], ['AUTO GO', sv.opt.auto ? 'ON' : 'OFF'], ['DONE', '']].forEach(([a, b], n) => { const on = n === sel.opt; txt((on ? '> ' : '  ') + a, 76, 68 + n * 20, on ? '#ffe14a' : '#fff', 1); if (b) txt(b, 196, 68 + n * 20, '#9affa0', 1); });
-          if (sel.opt === 3) ctr('THE KART GOES BY ITSELF: HOLD ' + K.label('b') + ' TO BRAKE', 180, '#9ad8ff', 1); else ctr('(SOUND FX: THE SPEAKER BUTTON BY THE TELLY)', 180, '#9ad8ff', 1); return;
+          if (sel.opt === 3) ctr('THE KART GOES BY ITSELF: HOLD ' + key('b') + ' TO BRAKE', 180, '#9ad8ff', 1); else ctr('GLOBAL AUDIO: ESC GAME MENU', 180, '#9ad8ff', 1);
+          if (!window.Sound?.musicOn) ctr('MUSIC MUTED IN THE ESC GAME MENU', 196, '#ffb0a0', 1);
+          ctr('ARROWS CHANGE   ' + key('a') + ' SELECT   ' + key('b') + ' BACK', HH - 14, '#ccc', 1); return;
         }
         if (mode === 'records') {
           H.fillStyle = 'rgba(0,0,40,.5)'; H.fillRect(0, 0, W, HH);
@@ -1553,21 +1560,22 @@
             const tro = []; for (let cc = 0; cc < 4; cc++) for (let c = 0; c < 2; c++) { const v = cupDone(cc, c); if (v) tro.push(CLASSES[cc].n + ' ' + (c ? 'STAR' : 'BISCUIT') + ': ' + ['', 'GOLD', 'SILVER', 'BRONZE'][v]); }
             ctr('TROPHIES', 158, '#ffe14a', 1); (tro.length ? tro : ['NONE YET!']).slice(0, 4).forEach((s, n) => ctr(s, 170 + n * 10, '#fff', 1)); }
           else { big('BEST TIMES', W / 2, 24, 20, '#ffe14a', '#ff8a00'); panel(20, 42, 280, 160); txt('TRACK', 28, 50, '#9ad8ff'); txt('3 LAPS', 172, 50, '#9ad8ff'); txt('LAP', 244, 50, '#9ad8ff'); TRACKS.forEach((t, n) => { const open = trackOpen(n); txt(open ? t.n : '?????', 28, 64 + n * 16, open ? '#fff' : '#777'); if (open) { F.draw(H, fmt(sv.tt[n]), 172, 64 + n * 16, '#ffe14a', 1, '#000'); F.draw(H, fmt(sv.lap[n]), 244, 64 + n * 16, '#9affa0', 1, '#000'); } }); }
-          ctr('< > PAGE   ' + K.label('b') + ' BACK', HH - 14, '#ccc', 1); return;
+          ctr('< > PAGE   ' + key('b') + ' BACK', HH - 14, '#ccc', 1); return;
         }
         if (mode === 'how') {
           H.fillStyle = 'rgba(0,0,30,.72)'; H.fillRect(0, 0, W, HH);
           if (sel.how === 0) { big('HOW TO PLAY', W / 2, 20, 18, '#ffe14a', '#ff8a00');
-            [['STEER', 'ARROWS / STICK'], ['GO', K.label('a') + ' (HOLD IT)'], ['BRAKE / BACK', K.label('b')], ['USE ITEM', K.label('c') + ' (UP: THROW AHEAD, DOWN: BEHIND)'], ['HOP + DRIFT', 'HOLD ' + K.label('r') + ' WHILE TURNING'], ['PAUSE', 'START']].forEach(([a, b], n) => { txt(a, 22, 42 + n * 16, '#ffe14a'); txt(b, 110, 42 + n * 16, '#fff'); });
-            ['DRIFT ROUND BENDS: THE SPARKS GO BLUE,', 'THEN ORANGE, THEN PURPLE. LET GO OF ' + K.label('r'), 'FOR A MINI-TURBO!', 'PRESS GO JUST AS THE LAST LIGHT COMES ON', 'FOR A ROCKET START.'].forEach((l, n) => ctr(l, 146 + n * 11, '#9ad8ff', 1)); }
-          else if (sel.how === 1) { big('ITEMS', W / 2, 18, 18, '#ffe14a', '#ff8a00'); ITEMS.forEach((it, n) => { const x = n < 5 ? 10 : 164, y = 34 + (n % 5) * 36; H.drawImage(ICON[it], x, y, 24, 24); txt(it === 'TRIPLE' ? 'TRIPLE TURBO' : it === 'BOMB' ? 'SKY BOMB' : it === 'STAR' ? 'SUPERSTAR' : it, x + 28, y + 3, '#ffe14a'); txt(ITEM_INFO[it], x + 28, y + 14, '#fff'); }); }
+            [['STEER', 'ARROWS / STICK'], ['GO', key('a') + ' (HOLD IT)'], ['BRAKE / BACK', key('b')], ['USE ITEM', key('c')], ['HOP + DRIFT', 'HOLD ' + key('r') + ' WHILE TURNING'], ['PAUSE', key('start')]].forEach(([a, b], n) => { txt(a, 22, 42 + n * 16, '#ffe14a'); txt(b, 110, 42 + n * 16, '#fff'); });
+            ctr('UP / DOWN: AIM ITEMS AHEAD / BEHIND',136,'#fff',1);
+            ['DRIFT ROUND BENDS: THE SPARKS GO BLUE,', 'THEN ORANGE, THEN PURPLE. LET GO OF ' + key('r'), 'FOR A MINI-TURBO!', 'PRESS GO JUST AS THE LAST LIGHT COMES ON', 'FOR A ROCKET START.'].forEach((l, n) => ctr(l, 146 + n * 11, '#9ad8ff', 1)); }
+          else if (sel.how === 1) { big('ITEMS', W / 2, 18, 18, '#ffe14a', '#ff8a00'); ITEMS.forEach((it, n) => { const x = n < 5 ? 10 : 164, y = 34 + (n % 5) * 36; H.drawImage(ICON[it], x, y, 24, 24); txt(it === 'TRIPLE' ? 'TRIPLE TURBO' : it === 'BOMB' ? 'SKY BOMB' : it === 'STAR' ? 'SUPERSTAR' : it, x + 28, y + 3, '#ffe14a'); printLines(ITEM_INFO[it],x+28,y+14,118,'#fff'); }); }
           else { big('TIPS', W / 2, 20, 18, '#ffe14a', '#ff8a00'); ['ORANGE ARROWS ON THE ROAD = A FREE BOOST.', 'GRASS, SAND AND MUD SLOW YOU DOWN.', 'THE FURTHER BACK YOU ARE, THE BETTER', 'THE ITEMS YOU GET FROM ? BOXES.', 'FALL OFF AND THE DRONE FISHES YOU OUT.', 'SOME TRACKS HAVE A SHORT CUT...', '', 'GRAND PRIX: POINTS FOR EVERY PLACE.', 'TOP THREE AFTER FOUR RACES = A TROPHY.', 'WIN CUPS TO UNLOCK MORE!'].forEach((l, n) => ctr(l, 40 + n * 15, n > 6 ? '#9affa0' : '#fff', 1)); }
-          ctr('< ' + (sel.how + 1) + '/3 >    ' + K.label('b') + ' BACK', HH - 14, '#ccc', 1); return;
+          ctr('< ' + (sel.how + 1) + '/3 >    ' + key('b') + ' BACK', HH - 14, '#ccc', 1); return;
         }
         if (mode === 'podium') {
           big(CUPS[gp.cup].n, W / 2, 20, 18, CUPS[gp.cup].col, '#ff8a00'); ctr(CLASSES[gp.cc].n + ' RESULTS', 36, '#fff', 1);
           if (mt > 2) { const p = gp.place; big(p < 3 ? ['GOLD CUP!', 'SILVER CUP!', 'BRONZE CUP!'][p] : 'BETTER LUCK NEXT TIME!', W / 2, HH - 54, p < 3 ? 22 : 14, p === 0 ? '#fff8a0' : '#ffffff', p === 0 ? '#e8a000' : '#9aa0b0'); gp.msgs.forEach((m, n) => { if (blink(2)) ctr(m, HH - 36 + n * 10, '#9affa0', 1); }); }
-          if (mt > 4 && blink(2)) ctr('PRESS ' + K.label('a'), HH - 12, '#fff', 1);
+          if (mt > 4 && blink(2)) ctr('PRESS ' + key('a'), HH - 12, '#fff', 1);
           return;
         }
         raceHud(false);
@@ -1609,13 +1617,13 @@
       function resultsBoard() {
         panel(40, 26, 240, 172, 'rgba(10,20,80,.85)'); big('RESULTS', W / 2, 40, 16, '#ffe14a', '#ff8a00');
         results.rows.forEach((r, n) => { if (results.t < n * 0.15) return; const y = 58 + n * 16; if (r.me) { H.fillStyle = 'rgba(255,225,74,.2)'; H.fillRect(46, y - 3, 228, 14); } txt(ORD[n], 50, y, n === 0 ? '#ffe14a' : '#fff'); portrait(r.d, 80, y - 3, 12, r.me); txt(r.n, 98, y, r.me ? '#ffe14a' : '#fff'); F.draw(H, fmt(r.t), 172, y, '#9ad8ff', 1, '#000'); if (gp) F.draw(H, '+' + r.add, 246, y, '#9affa0', 1, '#000'); });
-        if (mt > 1 && blink(2)) ctr('PRESS ' + K.label('a'), 204, '#fff', 1);
+        if (mt > 1 && blink(2)) ctr('PRESS ' + key('a'), 204, '#fff', 1);
       }
       function standingsBoard() {
         panel(40, 26, 240, 172, 'rgba(10,20,80,.85)'); big('CUP POINTS', W / 2, 40, 16, '#ffe14a', '#ff8a00');
         const st = DRIVERS.map((d, n) => ({ d: n, p: gp.pts[n] || 0 })).sort((a, b) => b.p - a.p);
         st.forEach((r, n) => { const y = 58 + n * 16, mine = r.d === sel.drv; if (mine) { H.fillStyle = 'rgba(255,225,74,.2)'; H.fillRect(46, y - 3, 228, 14); } txt(ORD[n], 50, y, '#fff'); portrait(r.d, 80, y - 3, 12, mine); txt(DRIVERS[r.d].n, 98, y, mine ? '#ffe14a' : '#fff'); const w = Math.min(70, r.p * 1.2); H.fillStyle = hexs(DRIVERS[r.d].col); H.fillRect(174, y, w * Math.min(1, mt * 1.5), 6); F.draw(H, String(r.p), 252, y, '#9affa0', 1, '#000'); });
-        if (mt > 1 && blink(2)) ctr(gp.race >= 3 ? 'PRESS ' + K.label('a') + ' FOR THE PRIZES' : 'PRESS ' + K.label('a') + ' FOR THE NEXT RACE', 204, '#fff', 1);
+        if (mt > 1 && blink(2)) ctr(gp.race >= 3 ? 'PRESS ' + key('a') + ' FOR THE PRIZES' : 'PRESS ' + key('a') + ' FOR THE NEXT RACE', 204, '#fff', 1);
       }
       function ttBoard() {
         const r = results; panel(50, 30, 220, 160, 'rgba(10,20,80,.85)'); big(r.rec ? 'NEW RECORD!' : 'TIME TRIAL', W / 2, 46, 18, r.rec ? '#fff8a0' : '#ffe14a', '#ff8a00');
@@ -1625,12 +1633,12 @@
         txt('DAVE', 70, 144, '#ffb0e0'); F.draw(H, fmt(r.par), 190, 144, '#ffb0e0', 1, '#000');
         ctr(r.t < r.par ? 'YOU BEAT DAVE\'S STAFF TIME!' : 'BEAT ' + fmt(r.par) + ' TO BEAT DAVE', 164, r.t < r.par ? '#9affa0' : '#fff', 1);
         if (r.rec) ctr('GHOST SAVED', 176, '#c8b0ff', 1);
-        if (mt > 1 && blink(2)) ctr('PRESS ' + K.label('a'), 204, '#fff', 1);
+        if (mt > 1 && blink(2)) ctr('PRESS ' + key('a'), 204, '#fff', 1);
       }
       function battleBoard() {
         const r = results; panel(50, 40, 220, 140, 'rgba(10,20,80,.85)'); big(r.title, W / 2, 56, 18, '#ffe14a', '#ff8a00');
         r.rows.forEach((k, n) => { const y = 76 + n * 18; portrait(k.d, 70, y - 3, 13, k === me); txt(k.n, 90, y, k === me ? '#ffe14a' : '#fff'); txt(k.out ? 'OUT' : k.balloons + ' LEFT', 200, y, k.out ? '#ff8a6a' : '#9affa0'); });
-        if (mt > 1 && blink(2)) ctr('PRESS ' + K.label('a'), 196, '#fff', 1);
+        if (mt > 1 && blink(2)) ctr('PRESS ' + key('a'), 196, '#fff', 1);
       }
 
       // ---------------------------------------------------------------- off we go
@@ -1642,7 +1650,7 @@
       }
       if (RK) init(); else kitReady.then(() => { if (mode === 'load') init(); }, () => { mode = 'load'; });
       window.__kartDbg = {
-        get st() { return { mode, kind: cfg.kind, cc: cfg.cc, track: cfg.track, raceT, me: me && { x: me.x, z: me.z, y: me.y, v: me.v, lap: me.lap, prog: me.prog, place: me.place, item: me.item, done: me.done, ft: me.ft }, karts: karts.map(k => ({ n: k.n, prog: Math.round(k.prog), place: k.place, done: k.done, lap: k.lap, ft: k.ft, v: Math.round(k.v), b: k.balloons })), gp: gp && { race: gp.race, pts: gp.pts, total: gp.total }, sv }; },
+        get st() { return { mode, paused, selection:{...sel}, kind: cfg.kind, cc: cfg.cc, track: cfg.track, raceT, me: me && { x: me.x, z: me.z, y: me.y, v: me.v, lap: me.lap, prog: me.prog, place: me.place, item: me.item, done: me.done, ft: me.ft }, karts: karts.map(k => ({ n: k.n, prog: Math.round(k.prog), place: k.place, done: k.done, lap: k.lap, ft: k.ft, v: Math.round(k.v), b: k.balloons })), gp: gp && { race: gp.race, pts: gp.pts, total: gp.total }, sv }; },
         race(kind, n, cc) { cfg.cc = cc == null ? 1 : cc; sel.drv = sv.drv; if (kind === 'gp') { cfg.cup = n | 0; newGP(); } else if (kind === 'battle') { cfg.arena = n | 0; startBattle(); } else { cfg.track = n | 0; cfg.kind = kind || 'vs'; gp = null; setupRace(); } },
         go() { if (mode === 'intro') startCount(); count = 0.01; },
         get perf() { const i = T3.ren.info; let objs = 0; T3.scene.traverse(() => objs++); return { calls: i.render.calls, tris: i.render.triangles, pts: i.render.points, geos: i.memory.geometries, texs: i.memory.textures, progs: (i.programs || []).length, objs, fxN: fxN && fxN.pts.geometry.drawRange.count }; },
