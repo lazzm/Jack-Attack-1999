@@ -52,7 +52,9 @@ Account and cash-wallet regressions (localhost only):
 Historical room scripts above which assume anonymous gameplay or a Guest button need authenticated setup before use with mandatory accounts. They are not claimed as current account-gate regressions.
 Authenticated lighting/render/save regressions (localhost only; screenshots in `shots/`):
 
-    node doorway-lighting.mjs http://localhost:18080 final 14 low # identical view across room ownership, day/night and graphics tier arguments
+    node doorway-lighting.mjs http://localhost:18080 review all low # bedroom/kitchen/lounge boundary pixels; day/dusk/night, desktop/narrow, open/closed doors
+    node doorway-lighting.mjs http://localhost:18080 review all high # same matrix with the five-light budget
+    node shell-ao.mjs                         # all four shell edges skip doors, retain window sills and ceiling AO
     node doorway-walk-drop.mjs http://localhost:18080 # actual WASD doorway crossing and immediate dropped-object refresh
     node house-lights.mjs http://localhost:18080 # physical switches, keyboard/mouse, rapid toggles and persistent lamp/fire state
     node house-save-startup.mjs http://localhost:18080 # modern, newer local-large and legacy fallback saves before Apps loads
@@ -82,3 +84,7 @@ Esc now opens the game menu; historical scripts expecting immediate Esc exit nee
 Most print `no errors` / `NO ERRORS` when they pass. Screenshots go in `shots/` (git-ignored).
 Some scripts have a hard-coded URL or port near the top: check before running. On the server they are run under
 `systemd-run --user --scope -p MemoryMax=3G -p MemorySwapMax=0 -q node <script>` to cap memory.
+
+Set `CHROMIUM_PATH` to use another installed Chromium executable (the default remains `/usr/bin/chromium`). Navigation waits for the document response, then the fixture checks live game readiness. UI actions allow 120 seconds for software-rendered CI startup; setup failures capture `shots/fixture-failure.png`. Doorway pixel assertions run for every screenshot tag, not just `final`.
+
+The five-light doorway run initially warms at the narrow viewport, then captures both full test sizes. The two lighting matrices pin the month to October and use 14:00 / 17:00 / 22:00, checking the actual sky phase. In the seasonal sky model, 18:10 in October is already night.

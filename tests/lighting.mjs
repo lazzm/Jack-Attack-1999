@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import {roomFixture} from './room-fixture.mjs';
 const base=process.argv[2]||'http://localhost:18450',tag=process.argv[3]||'review',tier=process.argv[4]||'low';
-const {browser,page:p,errors}=await roomFixture(base,{tier});
+const {browser,page:p,errors}=await roomFixture(base,{tier,month:9});
 try{
- for(const [phase,hour]of [['day',14],['dusk',18],['night',22]]){
+ for(const [phase,hour]of [['day',14],['dusk',17],['night',22]]){
   await p.evaluate(hour=>{window.auditHour=hour;window.auditMinute+=5;House.dirty()},hour);await p.waitForTimeout(900);
+  await p.waitForFunction(phase=>document.getElementById('bootPower').classList.contains('rm-'+phase),phase);
   for(const id of ['bedroom','landing','hall','cupboard','lounge','kitchen','garden','drive']){
    await p.evaluate(id=>{House.goRoom(id,0);House.hush();House.relight()},id);await p.waitForTimeout(900);
    await p.screenshot({path:'shots/lighting-'+tag+'-'+tier+'-'+phase+'-'+id+'.png'});

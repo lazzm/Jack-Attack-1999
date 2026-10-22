@@ -24,6 +24,7 @@
   const secret = id => { try { R._.secret(id); } catch (e) {} };
   const mWhite = M({ c: '#efece4', sh: 20, sp: '#222' }), mSkirt = M({ c: '#efebe0', map: tex('whiteGloss'), sh: 30, sp: '#333' });
   const mBrass = M({ c: '#c8a040', sh: 70, sp: '#a08040' }), mMetal = M({ c: '#9a9aa0', sh: 60, sp: '#888' }), mDark = M({ c: '#1b1b1e', sh: 20, sp: '#222' });
+  const mThreshold = M({ c: '#fff', map: tex('oak'), sh: 1, sp: '#000' });
   const PICK = new T.MeshBasicMaterial({ visible: false });
   const SECRETS = [
     ['hs.downstairs', 'Downstairs', 'Leave Jack\'s room and go downstairs.'],
@@ -71,6 +72,18 @@
       let a=a0;for(const h of (((d.holes||{})[k]||[]).filter(h=>h[3]>=fy-0.5).sort((p,q)=>p[0]-q[0]))){draw(a,h[0]);a=Math.max(a,h[1])}draw(a,a1);
       B.ao(along?(a0+a1)/2:fixed+sign*0.3,cy+13,along?fixed+sign*0.3:(a0+a1)/2,a1-a0,26,{ry,a:0.3});
     }
+  }
+  // Room-side closure of the downstairs doors. The hall's trim/floor may be
+  // culled behind a closed leaf at x=207.5, so these stay with the inner room.
+  function innerThreshold(B, z) {
+    B.box(202.5, GY + 0.9, z, 15, 2, 80, mThreshold); // 1 mm above the hall avoids coplanar overlap
+    // Inset the solid reveals 1 mm from the hall reveal planes to avoid z-fighting.
+    for (const sign of [-1, 1]) {
+      B.box(202.5, GY - 102.5, z + sign * 40.7, 15, 205, 1.6, mWhite);
+      B.box(194.2, GY - 102.5, z + sign * 43.3, 1.6, 205, 6, mWhite);
+    }
+    B.box(202.5, GY - 205.7, z, 15, 1.6, 80, mWhite);
+    B.box(194.2, GY - 208.3, z, 1.6, 6, 86.6, mWhite);
   }
   // a flat polygon from 3D points [x, y, z] (any plane), double-sided material expected
   function poly(B, pts, m) {
@@ -392,6 +405,7 @@
     r.fireOn=lightsOn.loungeFire===true;
     const batch = K.batch(), B = K.into(batch);
     const wall = M({ c: '#fff', map: tex('wallpaperLounge') });
+    innerThreshold(B, 520);
     shell(B, { x0: -280, z0: 305, x1: 195, z1: 700, fy: GY, cy: GC, wall, floor: M({ c: '#fff', map: tex('carpetRed') }), fuv: 44, holes: { e: [[480, 560, GY - 205, GY]], s: [[-170, 50, 150, 300]] } });
     // a picture rail and a dado-ish border
     const rail = M({ c: '#fff', map: tex('oak') });
@@ -577,6 +591,7 @@
   function buildKitchen(r) {
     const batch = K.batch(), B = K.into(batch);
     const wall = M({ c: '#f0e6b8', map: tex('wallWarm') });
+    innerThreshold(B, 190);
     shell(B, { x0: -280, z0: -56, x1: 195, z1: 295, fy: GY, cy: GC, wall, floor: M({ c: '#fff', map: tex('lino') }), fuv: 60, holes: { e: [[150, 230, GY - 205, GY]], n: [[-140, -20, 195, 290], [80, 160, GY - 205, GY]] } });
     // the window over the sink and the back door (half glass): the garden outside
     // Shared sky/neighbourhood; no overlapping bedroom/kitchen sky cards.
