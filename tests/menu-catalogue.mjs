@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {roomFixture} from './room-fixture.mjs';
+const account='Menu'+Date.now().toString(36),password='Throwaway-1999';
+const {browser,page,errors,until,view}=await roomFixture(process.argv[2],{account,password});
+await mkdir('shots/menu-catalogue',{recursive:true});
+try{
+ await page.evaluate(()=>{House.grab('pm.catalogue');House.THINGS['pm.catalogue'].use(House.THINGS['pm.catalogue'])});
+ await page.waitForTimeout(120);
+ const slot=await page.evaluate(()=>House.SNAPS['reading.slot.2']);
+ await view([-155,-55,165],[slot.x,slot.y-15,234]);await page.evaluate(()=>House._.setMode('walk'));
+ await page.waitForTimeout(400);await page.keyboard.press('e');
+ await until(()=>House.THINGS['pm.catalogue'].snap==='reading.slot.2');
+ assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].rx),-90);
+ assert(await page.evaluate(()=>House.THINGS['pm.catalogue'].obj.userData.leaves.every(l=>l.k===0)),'Open catalogue not closed on shelf');
+ await view([-115,-20,175],[-155,-15,234]);await page.screenshot({path:'shots/menu-catalogue/shelf-front.png'});
+ await view([-210,-25,165],[-155,-5,234]);await page.screenshot({path:'shots/menu-catalogue/shelf-side.png'});
+ await page.evaluate(()=>{House._.setMode('walk');House.saveWalkState();localStorage.setItem('jhp_logout_audit','kept')});
+ await page.keyboard.press('Escape');await page.locator('[data-pause=logout]').click();
+ await page.screenshot({path:'shots/menu-catalogue/logout-desktop.png'});
+ await page.locator('[data-pause=cancelLogout]').click();assert.equal(await page.evaluate(()=>Net.me.member),true);
+ await page.setViewportSize({width:390,height:844});await page.locator('[data-pause=logout]').click();
+ await page.screenshot({path:'shots/menu-catalogue/logout-narrow.png'});
+ // Simulate a failed save without dropping the authenticated connection.
+ await page.evaluate(()=>{window.realSync=Roam.syncNow;Roam.syncNow=async()=>false});
+ await page.locator('[data-pause=confirmLogout]').click();
+ await until(()=>document.querySelector('.hs-pause-status').textContent.includes('could not confirm'));
+ assert.equal(await page.evaluate(()=>Net.me.member&&AccountGate.allowed&&HousePause.open),true);
+ assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_logout_audit')),'kept');
+ await page.evaluate(()=>{Roam.syncNow=realSync});
+ await Promise.all([page.waitForEvent('domcontentloaded'),page.locator('[data-pause=confirmLogout]').click()]);
+ await until(()=>window.Net?.connected&&window.AccountGate?.blocked&&!Net.me.member&&!!document.querySelector('#accountGate [name=name]'));
+ assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_token')),null);
+ await page.locator('#accountGate [name=name]').fill(account);await page.locator('#accountGate [name=password]').fill(password);await page.locator('#accountGate [type=submit]').click();
+ await until(()=>AccountGate.allowed&&House.live&&House.mode==='monitor'&&!document.querySelector('.hs-loading,#houseEntry'));
+ assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_logout_audit')),'kept');
+ assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].snap),'reading.slot.2');
+ assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].rx),-90);
+ assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].home.snap),'reading.slot.2');
+ await page.keyboard.press('q');await until(()=>House.mode==='walk');
+ await page.evaluate(()=>{House.grab('pm.catalogue');House.putBack()});await until(()=>House.THINGS['pm.catalogue'].st==='snap');
+ assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].snap),'reading.slot.2');
+ assert.deepEqual(errors,[]);console.log('PASS: catalogue shelf, closed pages, angles, logout/cancel/save failure/relogin/slot persistence, desktop/narrow, no browser errors/warnings');
+}catch(e){await page.screenshot({path:'shots/menu-catalogue/failure.png'});throw e}finally{await browser.close()}

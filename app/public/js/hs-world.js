@@ -767,6 +767,11 @@
 
   // ================================================================ moving: keys, the joystick, drag to look
   const keys = {};
+  let crouchToggle = !!ls.get('jhp_hs_crouch_toggle', false);
+  function crouchSetting(value) {
+    if (typeof value === 'boolean') { crouchToggle = value; ls.set('jhp_hs_crouch_toggle', value); keys.crouch = false; dirty(); }
+    return crouchToggle;
+  }
   const KEYMOVE = { w: 'f', W: 'f', ArrowUp: 'f', s: 'b', S: 'b', ArrowDown: 'b', a: 'l', A: 'l', ArrowLeft: 'l', d: 'r', D: 'r', ArrowRight: 'r' };
   const joy = { x: 0, y: 0, on: false };
   let lastPt = { x: 0, y: 0, ok: false, mouse: false };
@@ -830,7 +835,7 @@
     if (KEYMOVE[k]) { wantLock(); if (cancelGlide() || !glide) keys[KEYMOVE[k]] = true; ev.preventDefault(); ev.stopImmediatePropagation(); ui.crossOn(); return; }
     if (k === 'Shift') { keys.run = true; return; }
     if (k === ' ' && !(t && t.closest && t.closest('button'))) { ev.preventDefault(); ev.stopImmediatePropagation(); if (!ev.repeat) keys.jump = true; return; }
-    if ((k === 'c' || k === 'C') && !ev.ctrlKey && !ev.metaKey) { keys.crouch = true; ev.preventDefault(); return; } // (C only: Ctrl + W would close the tab)
+    if ((k === 'c' || k === 'C') && !ev.ctrlKey && !ev.metaKey && !ev.altKey) { if (!ev.repeat) keys.crouch = crouchToggle ? !keys.crouch : true; ev.preventDefault(); ev.stopImmediatePropagation(); return; }
     if ((k === 'f' || k === 'F') && (ev.ctrlKey || ev.metaKey || ev.altKey)) return;
     if (k === 'f' || k === 'F' || k === 'e' || k === 'E' || k === 'Enter') {
       if (ev.repeat) { ev.preventDefault(); return; }
@@ -851,7 +856,7 @@
     if ((k === 'g' || k === 'G') && !ev.ctrlKey && !ev.metaKey) { gfxNext(); return; }
     if (k === 'Tab' && !ev.ctrlKey && !ev.altKey) { /* (Tab stays the browser's: the power button must stay reachable) */ }
   }
-  function onKeyUp(ev) { const k = KEYMOVE[ev.key]; if (k) keys[k] = false; if (ev.key === 'Shift') keys.run = false; if (ev.key === 'c' || ev.key === 'C') keys.crouch = false; }
+  function onKeyUp(ev) { const k = KEYMOVE[ev.key]; if (k) keys[k] = false; if (ev.key === 'Shift') keys.run = false; if (!crouchToggle && (ev.key === 'c' || ev.key === 'C')) keys.crouch = false; }
   addEventListener('keydown', onKey, true); addEventListener('keyup', onKeyUp, true);
   addEventListener('blur', () => { for (const k in keys) keys[k] = false; joy.on = false; try { if (document.pointerLockElement === cv) document.exitPointerLock(); } catch (e) {} });
 
@@ -1455,6 +1460,7 @@
     try { if (window.Apps && Apps.flushGames) Apps.flushGames(); } catch (e) {}
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     const fp = monitor ? Object.assign({}, P) : null;
+    putAway(); PT.clear(); W.vx = W.vz = 0;
     preparePCView();
     standing = true; stood = true; monitor = false;
     body.classList.remove('pc-monitor'); html.classList.add('hs-standing');
@@ -1466,7 +1472,7 @@
     sfx.tone(120, 0.3, 'sine', 0.05);
     anims.set('stand', n => {
       const k = ms ? Math.min(1, (n - t0) / ms) : 1, e = ease(k);
-      P.x = lerp(from.x, sp.x, e); P.y = lerp(from.y, sp.y, e); P.z = lerp(from.z, sp.z, e); P.rx = lerp(from.rx, sp.rx, e); P.ry = lerp(from.ry, sp.ry, e);
+      P.x = lerp(from.x, sp.x, e); P.y = lerp(from.y, sp.y, e); P.z = lerp(from.z, sp.z, e); P.rx = lerp(from.rx, sp.rx, e); P.ry = from.ry + angd(from.ry, sp.ry) * e;
       if (k < 1) return true;
       standing = false; setWalkFrom(sp); setMode('walk'); stIdx = nearestStation(); ui.where();
       emit('stood');
@@ -1647,14 +1653,14 @@
     ok: true, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
     focus, unfocus, surface, faceQuad, inspect, endInspect, get focused() { return !!focusS; },
     room, buildRoom, door, setDoor, walkRect, block, stairs, support, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
-    restoreThing, saveThings, layerFor, frontFx, place,
+    restoreThing, saveThings, saveWalkState, layerFor, frontFx, place,
     grab, drop, putBack, held: () => held && held.id, placement:()=>held&&THINGS[held.id].floorOnly?floorAim(THINGS[held.id]):null, act: id => act(SPOTS[id]), useAt,
     glideTo, goStation, cancelGlide, viewFor, setWalkFrom, seatPose, fillPose, get gliding() { return !!glide; },
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,
     say: (t, x, ms) => ui.say(t, x, ms), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),
     dirty, relight, ambient, anims, visCalc, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
-    desktopDisplay,surfaceScreen,pauseControls,get paused(){return controlsPaused;},
+    desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},
     Q, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
     _: { whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },

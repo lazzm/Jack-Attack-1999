@@ -250,17 +250,19 @@
   // Complete individual poster designs: their logos are part of the print, not
   // a repeated UI header. Load once, repaint only when decoded; never crop type.
   const posterImages = {};
-  const postersReady = Promise.all(Object.entries({posterBand:'band',posterFilm:'film',posterGame:'game',posterRobot:'robot',posterShuttle:'shuttle'}).map(([name,file]) => {
-    const image = new Image(), fallback = P[name][2];
-    P[name] = [384, 538, (g,w,h) => {
+  const issuePrints=Object.fromEntries(Array.from({length:6},(_,i)=>['magIssue'+(i+1),String(i+1).padStart(2,'0')]));
+  const postersReady = Promise.all(Object.entries({posterBand:'band',posterFilm:'film',posterGame:'game',posterRobot:'robot',posterShuttle:'shuttle',...issuePrints}).map(([name,file]) => {
+    const magazine=name.startsWith('magIssue'),height=magazine?512:538;
+    const image = new Image(), fallback = (P[name]||P.mag)[2];
+    P[name] = [384, height, (g,w,h) => {
       if (image.naturalWidth) { g.drawImage(image,0,0,w,h); return; }
-      g.save();g.scale(w/300,h/420);fallback(g,300,420);g.restore();
+      g.save();g.scale(w/(magazine?256:300),h/(magazine?340:420));fallback(g,magazine?256:300,magazine?340:420);g.restore();
     }];
     posterImages[name] = image;
     return new Promise(resolve => {
-      image.onload = () => { const tx = cache[name]; if (tx) { const g=tx.userData.g;g.clearRect(0,0,384,538);P[name][2](g,384,538);tx.needsUpdate=true; } window.House?.dirty();resolve(); };
+      image.onload = () => { const tx = cache[name]; if (tx) { const g=tx.userData.g;g.clearRect(0,0,384,height);P[name][2](g,384,height);tx.needsUpdate=true; } window.House?.dirty();resolve(); };
       image.onerror = () => resolve(); // Keep the painted fallback on a failed request.
-      image.src = '/art/posters-v3/'+file+'.webp';
+      image.src = '/art/'+(magazine?'magazines-v1/':'posters-v3/')+file+'.webp';
     });
   }));
   function t(name, o) {

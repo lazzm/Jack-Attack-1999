@@ -595,6 +595,7 @@
     }
     K.into(g).shadow(0, 0, 0, CW + 4, CH + 4, 0.5, { sq: true });
     const out = flat(g, 14); out.userData.leaves = L; out.userData.turned = 0;
+    out.userData.closePages = () => {out.userData.turned=0;H.anims.delete('pmtilt:pm.catalogue');TILT.set('pm.catalogue',0);out.userData.tilt.rotation.x=0;out.userData.tilt.position.y=0;L.forEach((leaf,i)=>{clearTimeout(leaf.timer);H.anims.delete('pmleaf:'+i);leaf.k=0;leaf.piv.rotation.z=0;leaf.piv.position.y=-.6-(L.length-i)*LEAF});H.dirty()};
     out.userData.ensure = () => { L.forEach((l, i) => { if (l.ready) return; l.ready = true; l.front.material = mat('pm.cat.' + (i * 2), 252, 336, l.f, { m: GLOSS }); l.back.material = mat('pm.cat.' + (i * 2 + 1), 252, 336, l.b, { m: GLOSS }); }); bump('cat'); H.dirty(); };
     // the cover shows from the start (the rest is drawn when you pick it up)
     L[0].front.material = mat('pm.cat.0', 252, 336, L[0].f, { m: GLOSS });
@@ -606,16 +607,17 @@
     const closing = n >= L.length;
     const anim = (leaf, to) => { const from = leaf.k, t0 = performance.now(); H.anims.set('pmleaf:' + L.indexOf(leaf), now => { const k = Math.min(1, (now - t0) / 520); leaf.k = from + (to - from) * (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2); leaf.piv.rotation.z = -Math.PI * leaf.k; leaf.piv.position.y = -0.6 - (leaf.k > 0.5 ? L.indexOf(leaf) + 1 : L.length - L.indexOf(leaf)) * LEAF; H.dirty(); return k < 1; }); };
     sfx('click');
-    if (closing) { L.slice().reverse().forEach((l, i) => setTimeout(() => anim(l, 0), i * 60)); t.obj.userData.turned = 0; secret('pm.catalogue'); return; }
+    if (closing) { L.slice().reverse().forEach((l, i) => {clearTimeout(l.timer);l.timer=setTimeout(() => anim(l, 0), i * 60)}); t.obj.userData.turned = 0; secret('pm.catalogue'); return; }
     anim(L[n], 1); t.obj.userData.turned = n + 1;
     if (n === 0) say('The Pixel Post catalogue', 'Autumn 1999. Prices in Rupees. You order on the Internet: www.pixelpost.jnet (sit down at the PC). It comes the same day!', 6000);
   }
   function catalogueThing() {
     if (H.THINGS['pm.catalogue']) return;
     THING['pm.catalogue'] = 'catalogue';
-    R.grabbable('pm.catalogue', { obj: catalogueModel(), kind: 'catalogue', label: 'The Pixel Post games catalogue', holdD: 72,
+    const t=R.grabbable('pm.catalogue', { obj: catalogueModel(), kind: 'catalogue', label: 'The Pixel Post games catalogue', holdD: 72,
       home: { room: 'bedroom', x: 168, y: 30, z: 122, ry: -14 }, use: t => turnPage(t), useLabel: 'Turn the page',
       onGrab: () => {} });
+    try {const n=JSON.parse(localStorage.getItem('jhp_reading_slots')||'{}')['pm.catalogue'],sn=H.SNAPS['reading.slot.'+n];if(sn?.accepts(t.kind,t))t.home={...sn.pose,snap:sn.id};}catch(e){}
   }
 
   // ================================================================ go (when the room is built: straight away, or when Jack stands up)

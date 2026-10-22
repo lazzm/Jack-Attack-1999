@@ -14,8 +14,10 @@
  <div class="hs-pause-main"><button type="button" data-pause="resume">RESUME</button><button type="button" data-pause="leave" hidden>BACK TO THE ROOM</button><button type="button" data-pause="return" hidden>PUT HELD ITEM BACK</button>
  <fieldset><legend>AUDIO</legend><label><input type="checkbox" name="music"> Music</label><label><input type="checkbox" name="effects"> Sound effects &amp; voices</label><label class="hs-audio-volume">Volume <output>100%</output><input type="range" name="volume" min="0" max="100" step="1" aria-label="Overall volume"></label><p class="hs-pause-mouse">Applies throughout the house, PC and games. Saved for next time.</p></fieldset>
  <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [T]<small class="hs-lock-help">Full-screen view of the screen you are using. Press T again to return. Original proportions are preserved.</small></label>
+ <label><input type="checkbox" name="crouchToggle"> Toggle crouch [C]<small>Off: hold C. On: press C to crouch or stand.</small></label>
  <label>Graphics <select name="graphics"><option value="auto">Automatic</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
+ <fieldset><legend>JACKNET ACCOUNT</legend><button type="button" data-pause="logout">LOG OUT</button><div class="hs-logout-confirm" hidden><p>Save your room and settings, then return to Log On? Your account is kept.</p><button type="button" data-pause="confirmLogout">SAVE AND LOG OUT</button><button type="button" data-pause="cancelLogout">CANCEL</button></div></fieldset>
  <fieldset class="hs-test-reset" hidden><legend>TEST ACCOUNT ONLY</legend><p>Reset this test room, media, local game saves and balances. Daily limits, chores and shared-world records are kept. Other accounts are not affected.</p><button type="button" data-pause="resetTest">RESET TEST SAVE</button><div class="hs-test-confirm" hidden><p>Start the test save again? A server backup is kept.</p><button type="button" data-pause="confirmReset">YES, RESET TEST</button><button type="button" data-pause="cancelReset">CANCEL</button></div></fieldset>
  <p class="hs-pause-keys">WASD: walk · Mouse: look · F: use / play<br>E / Click: pick up, remove, place<br>Shift: jog · C: crouch · Space: jump<br>I: inspect · R: turn<br>Q: lean back · T: LOCK IN · Esc: menu</p>
  <p class="hs-pause-status" role="status">Movement is stopped. Online programs and the TV keep running.</p></div>`;
@@ -23,7 +25,26 @@
  const stamp=new URL(document.querySelector('script[src*="js/hs-pause.js"]')?.src||location.href).searchParams.get('v')||'',release=stamp.includes('-')?stamp.match(/^\d+\.\d+\.\d+/)?.[0]:null;
  const version=document.createElement('small');version.className='hs-pause-version';version.style.cssText='display:block;text-align:right;padding:0 16px 12px;color:#b8aa84;font:11px monospace';el.appendChild(version);
  function showVersion(v){const current=release||v||window.Net?.me.version;version.textContent=current?'VERSION '+current:'DEVELOPMENT BUILD'}showVersion();window.Net?.on('welcome',m=>showVersion(m.v));
- let previous=null;
+ let previous=null,loggingOut=false;
+ let logoutAck=null;
+ window.Net?.on('you',m=>{if(logoutAck&&!m.member)logoutAck(true)});
+ window.Net?.on('_close',()=>{if(logoutAck)logoutAck(false)});
+ async function logout(){
+  if(loggingOut)return;
+  loggingOut=true;
+  const status=el.querySelector('.hs-pause-status');
+  el.querySelectorAll('button,input,select').forEach(b=>b.disabled=true);
+  status.textContent='Saving your room and settings to JackNet...';
+  try{
+   if(!window.Net?.connected||!Net.me.member||!window.Roam)throw Error('Reconnect to JackNet, then try again. You are still logged on.');
+   window.Apps?.flushGames?.();H.saveWalkState();
+   if(!await Roam.syncNow())throw Error('JackNet could not confirm your save. You are still logged on. Please try again.');
+   status.textContent='Saved. Logging out...';
+   const ok=await new Promise(resolve=>{const finish=ok=>{clearTimeout(timer);logoutAck=null;resolve(ok)};const timer=setTimeout(()=>finish(false),8000);logoutAck=finish;if(!Net.send({t:'logoff',token:Net.store.get('jhp_token')}))finish(false)});
+   if(!ok)throw Error('Your save was confirmed, but logout was not. Reconnect and try again.');
+   location.reload();
+  }catch(e){status.textContent=e.message;loggingOut=false;el.querySelectorAll('button,input,select').forEach(b=>b.disabled=false);syncSettings();button('cancelLogout').focus();}
+ }
  const button=k=>el.querySelector('[data-pause="'+k+'"]');
  function canBack(){return!!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_)}
  function quickBack(){if(H.paused||!canBack())return false;if(H.mode==='inspect')H.endInspect();else if(window.RoomTV?.open_)RoomTV.close();else if(H.focused)H.unfocus();else H.standUp();return true;}
@@ -32,18 +53,22 @@
  function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press T again to return. Original proportions are preserved.':'Use a PC, console, Game Lad or family TV, then press T to LOCK IN.';}
  function openMenu(){
   if(el.open||!H.live||window.House?.god||window.AccountGate&&!AccountGate.allowed)return false;
-  previous=el.contains(document.activeElement)?null:document.activeElement;syncSettings();el.querySelector('[name=graphics]').value=H.Q.want;
+  previous=el.contains(document.activeElement)?null:document.activeElement;syncSettings();el.querySelector('[name=graphics]').value=H.Q.want;el.querySelector('[name=crouchToggle]').checked=H.crouchSetting();
   el.querySelector('.hs-test-reset').hidden=!(window.Net?.me.member&&Net.me.nick.toLowerCase()==='test'&&localStorage.getItem('jhp_starter')==='1');el.querySelector('.hs-test-confirm').hidden=true;
+  el.querySelector('.hs-logout-confirm').hidden=true;
   button('leave').hidden=!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_);
   el.querySelector('.hs-pause-status').textContent=window.RoomTV?.open_?'This console game is paused. Audio keeps playing so you can adjust it. Online programs keep running.':'Movement is stopped. Online programs and the TV keep running.';
   button('return').hidden=!H.held();H.pauseControls(true);document.documentElement.classList.add('hs-paused');el.showModal();button('resume').focus();return true;
  }
- function closeMenu(){if(!el.open)return;el.close();document.documentElement.classList.remove('hs-paused');if(previous?.isConnected&&!el.contains(previous)&&previous.getClientRects().length)previous.focus({preventScroll:true});if(el.contains(document.activeElement))document.activeElement.blur();H.pauseControls(false);}
+ function closeMenu(){if(!el.open||loggingOut)return;el.close();document.documentElement.classList.remove('hs-paused');if(previous?.isConnected&&!el.contains(previous)&&previous.getClientRects().length)previous.focus({preventScroll:true});if(el.contains(document.activeElement))document.activeElement.blur();H.pauseControls(false);}
  function handleEscape(ev){if(ev.key!=='Escape')return false;if(!el.open&&!H.live)return false;ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat){if(el.open)closeMenu();else openMenu()}return true;}
  el.addEventListener('cancel',ev=>{ev.preventDefault();closeMenu()});
  el.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-pause]');if(!b)return;
-  if(b.dataset.pause==='resetTest')el.querySelector('.hs-test-confirm').hidden=false;
+  if(b.dataset.pause==='logout'){el.querySelector('.hs-logout-confirm').hidden=false;button('cancelLogout').focus();}
+  else if(b.dataset.pause==='cancelLogout'){el.querySelector('.hs-logout-confirm').hidden=true;button('logout').focus();}
+  else if(b.dataset.pause==='confirmLogout')logout();
+  else if(b.dataset.pause==='resetTest')el.querySelector('.hs-test-confirm').hidden=false;
   else if(b.dataset.pause==='cancelReset')el.querySelector('.hs-test-confirm').hidden=true;
   else if(b.dataset.pause==='confirmReset'){b.disabled=true;Net.send({t:'testReset',confirm:'RESET TEST'});setTimeout(()=>{b.disabled=false},10000)}
   else if(b.dataset.pause==='resume')closeMenu();
@@ -56,7 +81,7 @@
   }
  });
  window.Net?.on('testResetResult',m=>{el.querySelector('.hs-pause-status').textContent=m.msg;button('confirmReset').disabled=false;if(m.ok)el.querySelector('.hs-test-confirm').hidden=true});
- el.addEventListener('change',ev=>{if(ev.target.name==='desktopFull')lockScreen(ev.target.checked);else if(ev.target.name==='graphics')H.gfx(ev.target.value);else if(ev.target.name==='music')Sound.musicOn=ev.target.checked;else if(ev.target.name==='effects')Sound.effectsOn=ev.target.checked});
+ el.addEventListener('change',ev=>{if(ev.target.name==='desktopFull')lockScreen(ev.target.checked);else if(ev.target.name==='crouchToggle')H.crouchSetting(ev.target.checked);else if(ev.target.name==='graphics')H.gfx(ev.target.value);else if(ev.target.name==='music')Sound.musicOn=ev.target.checked;else if(ev.target.name==='effects')Sound.effectsOn=ev.target.checked});
  el.addEventListener('input',ev=>{if(ev.target.name==='volume')Sound.setVolume(+ev.target.value/100)});
  document.addEventListener('fullscreenchange',()=>{button('fullscreen').textContent=document.fullscreenElement?'WINDOWED GAME':'FULL-SCREEN GAME'});
  // House's handler calls us first. This also shields later desktop/game

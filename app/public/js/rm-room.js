@@ -833,29 +833,36 @@
     let slots;try{slots=JSON.parse(localStorage.getItem('jhp_reading_slots')||'{}')}catch(e){slots={}}
     if(!slots||typeof slots!=='object'||Array.isArray(slots))slots={};
     const used=new Set();for(const[id,n]of Object.entries(slots)){if(!Number.isInteger(n)||n<0||n>31||used.has(n))delete slots[id];else used.add(n)}
-    const flat=t=>t.kind==='reading.mag'||t.kind==='mess.mag';
+    const flat=t=>t.kind==='reading.mag'||t.kind==='mess.mag'||t.kind==='catalogue';
     const pose=(n,mag)=>({room:'bedroom',x:cx-28+(n%8)*8,y:boards[1+Math.floor(n/8)]-.9-(mag?14:0),z:cz,ry:-90,rx:mag?-90:0});
     const saveSlots=()=>{try{localStorage.setItem('jhp_reading_slots',JSON.stringify(slots))}catch(e){}};
     for(let n=0;n<32;n++){
-      const owner=Object.keys(slots).find(id=>slots[id]===n),mag=owner&&(owner.includes('mag')||owner==='ch.m.comic');
+      const owner=Object.keys(slots).find(id=>slots[id]===n),mag=owner&&(owner.includes('mag')||owner==='ch.m.comic'||owner==='pm.catalogue');
       const sn=H.snap('reading.slot.'+n,{room:'bedroom',...pose(n,false),r:25,pose:pose(n,mag),box:[7,30,23],preview:{x:pose(n,false).x,y:pose(n,false).y-15,z:cz},hint:'Shelve it in this slot',
-        accepts:(kind,t)=>{if(!['reading.book','reading.mag','mess.mag'].includes(kind)||Object.entries(slots).some(([id,s])=>s===n&&id!==t.id))return false;Object.assign(sn.pose,pose(n,flat(t)));return true},
-        onBegin:t=>{slots[t.id]=n;t.home={...pose(n,flat(t)),snap:sn.id};saveSlots()},onSnap:t=>H.emit('reading-shelved',t)});
+        accepts:(kind,t)=>{if(!['reading.book','reading.mag','mess.mag','catalogue'].includes(kind)||Object.entries(slots).some(([id,s])=>s===n&&id!==t.id))return false;Object.assign(sn.pose,pose(n,flat(t)));return true},
+        onBegin:t=>{t.obj.userData.closePages?.();slots[t.id]=n;t.home={...pose(n,flat(t)),snap:sn.id};saveSlots()},onSnap:t=>H.emit('reading-shelved',t)});
     }
     function item(id,title,mag,index,cover,start){
       if(!Number.isInteger(slots[id])){slots[id]=used.has(index)?Array.from({length:32},(_,n)=>n).find(n=>!used.has(n)):index;used.add(slots[id]);saveSlots()}
       const n=slots[id],obj=new T.Group(),O=K.into(obj),col=['#354a65','#8b3c30','#485b41','#b08740','#554364'][index%5];
       const print=A.printed('reading.print.'+id,256,mag?340:384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);c.font='bold 26px Georgia';K.wrapText(c,title,20,64,w-40,31);c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':'JACKSOFT PAPERBACKS',20,h-42);const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):['city','space','critters','robots','space','robots'][+id.split('.').pop()];if(!window.PrintArt?.paint(c,art,20,h*.46,w-40,h*.34)){c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,h*.5+k*11,105,70)}},{clamp:true});
       const spine=K.tex('reading.spine.'+id,64,384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.translate(w/2,h/2);c.rotate(-Math.PI/2);c.fillStyle='#f3e6c1';let size=24;c.font='bold '+size+'px Georgia';while(c.measureText(title).width>h-22&&size>10)c.font='bold '+(--size)+'px Georgia';c.textAlign='center';c.fillText(title,0,8)},{clamp:true});
-      if(mag){const rear=A.printed('reading.rear.'+id,256,340,(c,w,h)=>{c.translate(w,h);c.rotate(Math.PI);c.drawImage(print.image,0,0,w,h)},{clamp:true});O.box(0,-.4,0,21,.8,28,{t:M({c:'#fff',map:cover?tex(cover):print}),u:M({c:'#fff',map:rear}),l:M({c:'#fff',map:spine}),all:M('#e6dfcf')});O.shadow(0,0,0,22,29,.25,{sq:true})}
+      if(mag){
+        const face=cover?tex(cover):print,mesh=O.box(0,-.4,0,21,.8,28,{t:M({c:'#fff',map:face,sp:'#000000'}),u:M({c:'#fff',map:face,sp:'#000000'}),l:M({c:'#fff',map:spine}),all:M('#e6dfcf')});
+        // Opposite paper faces need opposite UV orientation, not a new cover.
+        const geo=mesh.geometry,uv=geo.attributes.uv,back=geo.groups.find(g=>g.materialIndex===2),vertices=new Set();
+        for(let i=back.start;i<back.start+back.count;i++)vertices.add(geo.index.getX(i));
+        for(const i of vertices)uv.setXY(i,1-uv.getX(i),1-uv.getY(i));uv.needsUpdate=true;
+        O.shadow(0,0,0,22,29,.25,{sq:true});
+      }
       else{O.box(0,-11,0,14,22,2,{f:M({c:'#fff',map:print}),b:M({c:'#fff',map:print}),l:M({c:'#fff',map:spine}),all:M('#e3d9bf')});O.box(0,-.12,0,14.2,.24,2.2,M(col));O.box(0,-21.88,0,14.2,.24,2.2,M(col));O.shadow(0,0,0,16,4,.3,{sq:true})}
       const home={...pose(n,mag),snap:'reading.slot.'+n},t=H.thing(id,{obj,home:start||home,kind:mag?'reading.mag':'reading.book',label:title,holdD:38,useLabel:'Read / inspect',use:()=>H.inspect(id)});
       if(!start){t.st='snap';t.snap=home.snap;t.rx=home.rx;H.place(t)}H.restoreThing(t);t.home=home;
     }
     ['The Modem Mystery','Intergalactic Battles: An Old Hope','The Pocket-Critter Field Guide','How Radios Work','The Space-Kat Annual','Build Your Own Robot'].forEach((title,i)=>item('reading.book.'+i,title,false,[0,10,16,19,24,28][i]));
-    item('reading.mag.back1','PC ZONE OUT — Back Issue',true,4,'magC');item('reading.mag.back2','ULTRA 64 PLAYER — Back Issue',true,13,'magB');
-    [['mags','PC ZONE OUT','magC'],['reading.mag.floor1','ULTRA 64 PLAYER','magB'],['reading.mag.floor2','JACK ATTACK!','mag']].forEach(([id,title,cover],i)=>item(id,title,true,[7,15,23][i],cover,{room:'bedroom',x:TX+33+i*.8,y:FY-i*.85,z:58+i*.6,ry:[-2,-13,1][i]}));
-    item('reading.mag.bed','JACK ATTACK! — Bedside Copy',true,31,'mag',{room:'bedroom',x:172,y:30,z:105,ry:12});
+    item('reading.mag.back1','JACK ATTACK! — May 1999',true,4,'magIssue5');item('reading.mag.back2','JACK ATTACK! — June 1999',true,13,'magIssue6');
+    [['mags','JACK ATTACK! — January 1999','magIssue1'],['reading.mag.floor1','JACK ATTACK! — February 1999','magIssue2'],['reading.mag.floor2','JACK ATTACK! — March 1999','magIssue3']].forEach(([id,title,cover],i)=>item(id,title,true,[7,15,23][i],cover,{room:'bedroom',x:TX+33+i*.8,y:FY-i*.85,z:58+i*.6,ry:[-2,-13,1][i]}));
+    item('reading.mag.bed','JACK ATTACK! — April 1999',true,31,'magIssue4',{room:'bedroom',x:172,y:30,z:105,ry:12});
   }
 
   // ---------------------------------------------------------------- the door (to the landing), the light switch, the ceiling light
