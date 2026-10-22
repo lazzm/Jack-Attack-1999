@@ -147,9 +147,9 @@
       let neat = -Math.sin(u * Math.PI) * 2.6 - 0.6; if (u < 0.07) neat += (0.07 - u) * 240; if (u > 0.95) neat += (u - 0.95) * 160; if (v > 0.97) neat += (v - 0.97) * 90;
       const b = Math.max(0, Math.min(1, duvK.s * (1 - sstep(0.35, 0.65, u)) + duvK.f * sstep(0.35, 0.65, u)));
       const y2 = base + (neat - base) * b + wr * (1 - duvK.t) * (1 - 0.5 * b) - duvK.lift * Math.sin(u * Math.PI) * Math.sin(v * Math.PI);
-      p.setZ(i, -y2);
+      p.setZ(i,-y2+(duv.geometry.attributes.clothDepth?.getX(i)||0));
     }
-    p.needsUpdate = true; duv.geometry.computeVertexNormals(); H.dirty();
+    p.needsUpdate=true;duv.geometry.computeVertexNormals();duv.geometry.computeBoundingSphere();H.dirty();
   }
   function pull(which) {
     const key = { pullL: 's', pullR: 'f', smooth: 't' }[which], t0 = performance.now(), ms = 700;
@@ -163,16 +163,16 @@
       // the duvet: ours now (the room's own one, which is exactly the same shape, is hidden)
       const dtex = A.t('duvet');
       r.group.traverse(o => { if (o.isMesh && o.material && o.material.map === dtex && !o.userData.ch) o.visible = false; });
-      const W = bw + 14, L = bl - 34, geo = new T.PlaneGeometry(W, L, 22, 30);
+      const W=bw+14,L=bl-34,geo=K.thicken(new T.PlaneGeometry(W,L,22,30),.8);
       duvBase = new Float32Array(geo.attributes.position.count * 2);
       for (let i = 0; i < geo.attributes.position.count; i++) { duvBase[i * 2] = geo.attributes.position.getX(i); duvBase[i * 2 + 1] = geo.attributes.position.getY(i); }
       const g = new T.Group(); r.group.add(g);
       duv = K.into(g).geo(geo, bcx, 36, bcz + 14, M({ c: '#fff', map: dtex, side: 2 }).clone(), { rx: 90 }); duv.userData.ch = 1;
-      // the spare pillow (on the floor) and the pyjamas
+      // The bed's only pillow starts on the floor, beside the pyjamas.
       const pil = grp(G => { G.rbox(0, -5, 0, 50, 10, 30, 4.8, M({ c: '#fff', map: A.t('pillow'), sh: 8 })); G.ball(0, -7, 0, 22, 4, 12, M({ c: '#fff', map: A.t('pillow'), sh: 8 }), 14); G.shadow(0, 0, 0, 56, 34, 0.5, { sq: true }); });
       pillowT = CK.thing('ch.pillow', { obj: pil, kind: 'pillow', label: 'Pillow (on the floor, obviously)', chore: 'bed', holdD: 70, home: { room: 'bedroom', x: 40, y: FY, z: 72, ry: 80 } });
       pjsT = CK.thing('ch.pjs', { obj: cloth('pjs', 34, 32, 3, P.pjs, 21), kind: 'pjs', label: 'Pyjamas', chore: 'bed', holdD: 55, home: { room: 'bedroom', x: 112, y: FY, z: 150, ry: -20 } });
-      CK.snap('ch.s.pillow', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [80, 2, 120], accepts: k => k === 'pillow', pose: { x: 190, y: 25.5, z: -33, ry: 0 }, hint: 'Let go: on the bed', onSnap: () => { CK.lock('ch.pillow'); CK.step('bed', 'pillow'); CK.snd.thud(); } });
+      CK.snap('ch.s.pillow', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [80, 2, 120], accepts: k => k === 'pillow', pose: { x: 190, y: 37, z: -33, ry: 0 }, hint: 'Let go: on the bed', onSnap: () => { CK.lock('ch.pillow'); CK.step('bed', 'pillow'); CK.snd.thud(); } });
       CK.snap('ch.s.pjs', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [80, 2, 120], pose: { x: 188, y: 24, z: -30, ry: 0 }, accepts: k => k === 'pjs', hide: true, hint: 'Let go: under the pillow', onSnap: () => { CK.lock('ch.pjs'); CK.step('bed', 'pjs'); CK.snd.rustle(); } });
       // clicking the bed straightens the duvet (once it's made, the bed is the bed again: there might be something in it)
       CK.guard('bed', () => bedClick());
@@ -181,7 +181,7 @@
     sync() {
       const v = V(), dn = CK.done('bed');
       duvK.s = CK.has('bed', 'pullL') ? 1 : 0; duvK.f = CK.has('bed', 'pullR') ? 1 : 0; duvK.t = CK.has('bed', 'smooth') ? 1 : 0; duvK.lift = 0; duvShape();
-      if (pillowT) { if (CK.has('bed', 'pillow')) { pillowT.home = { room: 'bedroom', x: 190, y: 25.5, z: -33, ry: 0 }; CK.lock('ch.pillow'); if (pillowT.st !== 'snap' && (Math.abs(pillowT.at.x - 190) > 2 || pillowT.at.y !== 25.5)) CK.home('ch.pillow'); } else CK.lock('ch.pillow', false); }
+      if (pillowT) { if (CK.has('bed', 'pillow')) { pillowT.home = { room: 'bedroom', x: 190, y: 37, z: -33, ry: 0 }; CK.lock('ch.pillow'); if (Math.abs(pillowT.at.x - 190) > 2 || pillowT.at.y !== 37) CK.home('ch.pillow'); } else CK.lock('ch.pillow', false); }
       if (pjsT) { if (CK.has('bed', 'pjs')) { pjsT.home = { room: 'bedroom', x: 112, y: FY, z: 150, hide: true }; CK.lock('ch.pjs'); if (!pjsT.at.hide) CK.home('ch.pjs'); } else CK.lock('ch.pjs', false); }
       void v; void dn;
     },

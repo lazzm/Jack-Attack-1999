@@ -137,13 +137,13 @@
 
   // ================================================================ TIDY THE VIDEOS (into the video tower by the telly)
   const TOWER = { x: 14, z: 322 };
-  const VIDS = [['GLADIATORS - THE FINAL', '#f4f0e0'], ['DOCTOR WHO (TAPED 1996)', '#d8e8ff'], ["CHILDREN IN NEED '98", '#ffe680'], ['STAR TREK TNG x3', '#f4f0e0'], ['THE SNOWMAN (XMAS)', '#e0f4e0'], ['DO NOT TAPE OVER - MOM', '#ffd0e0']];
+  const VIDS = [['BASHIATORS - THE FINAL', '#f4f0e0'], ['DOCTOR WHEN (TAPED 1996)', '#d8e8ff'], ["CHILDREN IN KNEAD '98", '#ffe680'], ['GALAXY WALK: THE NEXT SHIFT', '#f4f0e0'], ['THE SNOWBLOKE (XMAS)', '#e0f4e0'], ['DO NOT TAPE OVER - MOM', '#ffd0e0']];
   const VSPOT = [[-150, 382, 20], [-24, 398, -40], [40, 436, 60], [-142, 500, 10], [-205, 432, 80], [62, 508, -20]];
   let vids = [], towerN = 0;
   function tapeModel(i) {
     const [lab, col] = VIDS[i];
-    const lbl = K.tex('ch.vhs.l' + i, 256, 140, (q, w, h) => { q.fillStyle = '#151515'; q.fillRect(0, 0, w, h); q.fillStyle = '#2a2a2a'; q.fillRect(40, 70, 176, 50); q.fillStyle = '#4a4a4a'; q.beginPath(); q.arc(84, 95, 18, 0, 7); q.arc(172, 95, 18, 0, 7); q.fill(); q.fillStyle = col; q.fillRect(30, 10, 196, 46); q.font = '700 17px "Comic Sans MS",cursive'; q.fillStyle = '#1a2a8a'; q.textAlign = 'center'; q.fillText(lab.slice(0, 22), 128, 40); });
-    const sp = K.tex('ch.vhs.s' + i, 256, 36, (q, w, h) => { q.fillStyle = '#151515'; q.fillRect(0, 0, w, h); q.fillStyle = col; q.fillRect(8, 6, w - 16, h - 12); q.font = '700 15px "Comic Sans MS",cursive'; q.fillStyle = '#1a2a8a'; q.fillText(lab.slice(0, 26), 14, 24); });
+    const lbl = K.tex('ch.vhs.l' + i, 512, 280, (q,w,h)=>{q.fillStyle='#151515';q.fillRect(0,0,w,h);q.fillStyle='#2a2a2a';q.fillRect(60,145,392,100);q.fillStyle='#777';for(const x of [160,352]){q.beginPath();q.arc(x,195,36,0,7);q.fill();q.fillStyle='#222';q.beginPath();q.arc(x,195,12,0,7);q.fill();q.fillStyle='#777'}q.fillStyle=col;q.fillRect(28,18,456,112);q.fillStyle='#152b52';q.font='700 28px "Courier New",monospace';K.wrapText(q,lab,42,59,428,36)},{clamp:true});
+    const sp = K.tex('ch.vhs.s' + i,512,72,(q,w,h)=>{q.fillStyle='#151515';q.fillRect(0,0,w,h);q.fillStyle=col;q.fillRect(12,8,w-24,h-16);let size=30;do{q.font='700 '+size+'px "Courier New",monospace';if(q.measureText(lab).width<=w-40)break;size--}while(size>16);q.fillStyle='#152b52';q.fillText(lab,20,47)},{clamp:true});
     return grp(G => { G.box(0, -1.25, 0, 18.7, 2.5, 10.3, { t: M({ c: '#fff', map: lbl }), f: M({ c: '#fff', map: sp }), all: mat('#1a1a1a', { sh: 30, sp: '#333' }) }); G.shadow(0, 0, 0, 21, 12, 0.45, { sq: true }); });
   }
   CK.add({
@@ -154,10 +154,10 @@
       tw.position.set(TOWER.x, GY, TOWER.z); r.group.add(tw);
       H.block('G', TOWER.x - 14, TOWER.z - 13, TOWER.x + 14, TOWER.z + 13);
       vids = VIDS.map((v, i) => CK.thing('ch.v.' + i, { obj: tapeModel(i), kind: 'chvhs', label: 'Video: ' + v[0], chore: 'videos', holdD: 42, home: { room: 'lounge', x: VSPOT[i][0], y: GY, z: VSPOT[i][1], ry: VSPOT[i][2] } }));
-      const ts = CK.snap('ch.s.tower', { room: 'lounge', x: TOWER.x, y: GY - 40, z: TOWER.z + 8, r: 40, box: [24, 2, 4], accepts: (k, t) => { if (k !== 'chvhs') return false; const n = vids.filter((x, i) => CK.has('videos', 'v' + i)).length; ts.pose = { x: TOWER.x, y: GY - 2.2 - (6 - n) * 10.8, z: TOWER.z + 0.8, ry: 0 }; return true; }, hint: 'Let go: in the video tower', onSnap: t => { CK.snd.thud(); setTimeout(CK.snd.clink, 60); const i = +t.id.slice(5); t.home = Object.assign({}, t.at); CK.lock(t.id); CK.keep(t.id); CK.step('videos', 'v' + i); if (i === 5) CK.jack('Video', 'MOM\'S PROGRAMMES - DO NOT TAPE OVER. It\'s got three weeks of a soap on it. Treat it like the crown jewels.', 3500); } });
+      const ts = CK.snap('ch.s.tower', { room: 'lounge', x:TOWER.x,y:GY-40,z:TOWER.z+8,r:40,box:[21,2.6,11],accepts:(k,t)=>{if(k!=='chvhs')return false;const i=+t.id.slice(5);ts.pose={x:TOWER.x,y:GY-2.2-(5-i)*10.8,z:TOWER.z+.8,ry:0};ts.preview={x:TOWER.x,y:ts.pose.y-1.3,z:ts.pose.z};return true},hint:'Let go: in its video tower slot',onSnap:t=>{CK.snd.thud();const i=+t.id.slice(5);t.home=Object.assign({},t.at);CK.keep(t.id);CK.step('videos','v'+i)} });
       this.sync();
     },
-    sync() { vids.forEach((t, i) => { if (!t) return; if (CK.has('videos', 'v' + i)) CK.lock(t.id); else CK.lock(t.id, false); }); },
+    sync() { vids.forEach((t,i)=>{if(!t)return;CK.lock(t.id,false);if(CK.has('videos','v'+i))t.home={room:'lounge',x:TOWER.x,y:GY-2.2-(5-i)*10.8,z:TOWER.z+.8,ry:0};});if(window.HouseTelly)HouseTelly.tapes(); },
     reset() { vids.forEach(t => { if (t) { CK.lock(t.id, false); CK.home(t.id); } }); },
   });
 

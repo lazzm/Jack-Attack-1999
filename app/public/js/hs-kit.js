@@ -98,6 +98,14 @@
     return MATS[key] = m;
   }
   const shadowMat = a => mat({ c: '#000', map: blobTex(), basic: true, tr: true, o: a == null ? 0.999 : Math.min(0.999, a), dw: false, po: -2 });
+  // Bias only deliberate surface-mounted print, never the whole scene. Keep
+  // depth testing enabled: labels must not shine through walls or objects.
+  const DECALS = new WeakMap();
+  function decalMat(spec) {
+    const base=mat(spec);if(DECALS.has(base))return DECALS.get(base);
+    const m=base.clone();m.polygonOffset=true;m.polygonOffsetFactor=-1;m.polygonOffsetUnits=-1;
+    m.userData=Object.assign({},base.userData,{decal:true});DECALS.set(base,m);return m;
+  }
 
   // ================================================================ merging static geometry: one draw call per material
   const _v = new T.Vector3(), _n = new T.Vector3(), _nm = new T.Matrix3();
@@ -194,6 +202,7 @@
       },
       ball(x, y, z, rx, ry, rz, m, seg, o) { const geo = new T.SphereGeometry(1, seg || 16, Math.max(6, ((seg || 16) * 0.66) | 0)); return put(geo, xform(base, x, y, z, Object.assign({}, o, { sx: rx, sy: ry, sz: rz })), m, o); },
       plane(x, y, z, w, h, m, o) { const geo = new T.PlaneGeometry(w, h); flipV(geo); return put(geo, xform(base, x, y, z, o), m, o); },
+      decal(x, y, z, w, h, m, o) { const geo=new T.PlaneGeometry(w,h);flipV(geo);return put(geo,xform(base,x,y,z,o),decalMat(m),o); },
       disc(x, y, z, r, m, seg, o) { const geo = new T.CircleGeometry(r, seg || 24); { const u = geo.attributes.uv; for (let i = 0; i < u.count; i++) u.setY(i, 1 - u.getY(i)); } return put(geo, xform(base, x, y, z, Object.assign({}, o || {}, { rx: (o && o.rx != null ? o.rx : 0) + 90 })), m, o); },
       lathe(x, y, z, pts, seg, m, o) {
         // pts: [[radius, y], ...] from the top down (y is down). Lathe wants them bottom-up in its own y-up space
@@ -253,6 +262,16 @@
     return geo;
   }
 
+  // Close a deformed indexed sheet with a back and perimeter, retaining UVs.
+  // clothDepth lets animated quilts keep their thickness when their top moves.
+  function thicken(geo,depth){
+    if(!geo.index||geo.attributes.clothDepth)return geo;
+    const p=geo.attributes.position,u=geo.attributes.uv,n=p.count,pos=new Float32Array(n*6),uv=new Float32Array(n*4),offset=new Float32Array(n*2),idx=Array.from(geo.index.array),edges=new Map();
+    for(let i=0;i<n;i++)for(let side=0;side<2;side++){const j=i+side*n;pos[j*3]=p.getX(i);pos[j*3+1]=p.getY(i);pos[j*3+2]=p.getZ(i)-side*depth;offset[j]=-side*depth;if(u){uv[j*2]=u.getX(i);uv[j*2+1]=u.getY(i)}}
+    const out=idx.slice();for(let i=0;i<idx.length;i+=3){const[a,b,c]=idx.slice(i,i+3);out.push(a+n,c+n,b+n);for(const[x,y]of [[a,b],[b,c],[c,a]]){const key=Math.min(x,y)+':'+Math.max(x,y);if(edges.has(key))edges.delete(key);else edges.set(key,[x,y])}}
+    for(const[a,b]of edges.values())out.push(a,a+n,b,b,a+n,b+n);
+    geo.setAttribute('position',new T.BufferAttribute(pos,3));geo.setAttribute('uv',new T.BufferAttribute(uv,2));geo.setAttribute('clothDepth',new T.BufferAttribute(offset,1));geo.setIndex(out);geo.deleteAttribute('normal');geo.computeVertexNormals();geo.computeBoundingSphere();geo.computeBoundingBox();return geo;
+  }
   // ================================================================ text and pictures onto canvases
   function wrapText(g, text, x, y, maxW, lh) {
     const words = String(text).split(/\s+/); let line = '';
@@ -269,5 +288,5 @@
     return t;
   }
 
-  window.HouseKit = { T, D2R, tex, mat, shadowMat, batch: () => new Batch(), Batch, into, xform, roundBox, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso: a => { aniso = a; }, TEX, MATS };
+  window.HouseKit = { T, D2R, tex, mat, shadowMat, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso: a => { aniso = a; }, TEX, MATS };
 })();

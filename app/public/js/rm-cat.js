@@ -6,7 +6,7 @@
  *             needs before it earns anything), own: 1 = came with the console, else where it is found (FINDS)
  *             shop: Rupees = only from the mail-order catalogue (Agent P's pack; its FIND has spot 'mail', mail: 1: the parcel grants it),
  *             owner: a mate's name = borrowed (a name sticker on the cart), deps: shared files to load first,
- *             pal: a Game Boy cartridge's own colours (rm-tv.js GBPAL key)
+ *             pal: a Game Lad cartridge's own colours (rm-tv.js GBPAL key)
  *   FINDS     things to find in the room (carts and Treasure Tin bits). spot = the clickable thing that hides it.
  *   SPOTS     the daily "Mom lost her purse money" hiding places, with a vague clue each */
 (function (root) {
@@ -25,7 +25,7 @@
   const G = (id, title, file, o) => Object.assign({ id, con: id.split('.')[0], title, file }, o);
   const GAMES = [
     G('n64.kart', 'KART KAOS 64', 'rm-g-kart', { own: 1, max: 30000, rate: 120, min: 40, pay: 1500, blurb: 'Three laps, eight karts, one banana-shaped grudge.', col: '#d8261c' }),
-    G('n64.range', 'SECRET AGENT 64: TARGET RANGE', 'rm-g-range', { max: 60000, rate: 600, min: 20, pay: 3000, blurb: 'The firing range from the spy game. Pop the targets, spare the civilians.', col: '#3a3a3a' }),
+    G('n64.range', 'GOLDENBALLS: TARGET RANGE', 'rm-g-range', { max: 60000, rate: 600, min: 20, pay: 3000, blurb: 'The firing range from the spy game. Pop the targets, spare the civilians.', col: '#a77824' }),
     G('n64.hop', 'BOUNCE QUEST 64', 'rm-g-hop', { max: 20000, rate: 100, min: 30, pay: 800, blurb: 'Hop round Biscuit Island and find all the golden acorns.', col: '#f0b800' }),
     G('ps.run', 'WARP WOMBAT', 'rm-g-run', { own: 1, max: 40000, rate: 200, min: 20, pay: 1500, blurb: 'Spin, jump and smash crates down the jungle path.', col: '#e8661c' }),
     G('ps.fight', 'TEKNO FIST', 'rm-g-fight', { max: 50000, rate: 400, min: 20, pay: 3000, blurb: 'Best of three. Six fighters and a boss. One very loud announcer.', col: '#7a1010' }),
@@ -37,7 +37,7 @@
     G('dc.taxi', 'MAD MINICAB', 'rm-g-taxi', { own: 1, max: 50000, rate: 200, min: 30, pay: 2000, blurb: 'Get your passengers there FAST. Pavements are just wide roads.', col: '#f0c800' }),
     G('dc.dash', 'ZIP ADVENTURE', 'rm-g-dash', { max: 99999, rate: 500, min: 20, pay: 3000, blurb: 'Zip goes 3D! Run, ring-chase and loop down Emerald Bay.', col: '#2a8af0' }),
     G('dc.duel', 'SOUL SABRE', 'rm-g-duel', { max: 50000, rate: 400, min: 20, pay: 3000, blurb: 'Swords, sparks and very dramatic hair.', col: '#5a2ab0' }),
-    // ---- expansion pack 35 (Agent L): the Super Nintendo under the stairs, and more lost games round the room
+    // ---- expansion pack 35 (Agent L): the Super Ultra under the stairs, and more lost games round the room
     G('gb.mon2', 'POCKET CRITTERS: PUDDLE VERSION', 'rm-g-mon', { max: 99999, rate: 40, min: 20, pay: 300, deps: ['lk-crit'], pal: 'left', owner: 'JackK', blurb: 'JackK\'s copy. Different critters live in the long grass. Link up and trade!', col: '#2a6ad0' }),
     G('gb.grab', 'GRABBO LAND', 'rm-g-grab', { shop: 60, max: 99999, rate: 250, min: 30, pay: 1500, blurb: 'The greediest treasure hunter on the island. Barge, bash and grab it all.', col: '#e0b000' }),
     G('n64.party', 'WOBBLE PARTY 64', 'rm-g-party', { owner: 'Dave', max: 30000, rate: 60, min: 90, pay: 1000, blurb: 'Dice, stars and minigames. Four players, one board, zero friendships left.', col: '#2a9ad8' }),
@@ -53,24 +53,24 @@
 
   // things to find. spot: the clickable thing in the room that hides it (rm-room.js), n: name, d: what Jack says
   const FINDS = [
-    { id: 'cart.n64.range', spot: 'drawer', n: 'SECRET AGENT 64 cartridge', d: "There it is! Under the letters. I thought Dave nicked it." },
+    { id: 'cart.n64.range', spot: 'drawer', n: 'GOLDENBALLS cartridge', d: "There it is! Under the letters. I thought Dave nicked it." },
     { id: 'cart.n64.hop', spot: 'wardrobe', n: 'BOUNCE QUEST 64 cartridge', d: 'In the wardrobe, inside a welly. Classic me.' },
-    { id: 'cart.ps.fight', spot: 'bed', n: 'TEKNO FIST disc', d: "Under the bed with a sock and half a Wagon Wheel. The disc is fine. The Wagon Wheel isn't." },
+    { id: 'cart.ps.fight', spot: 'bed', n: 'TEKNO FIST disc', d: "Under the bed with a sock and half a Wobbly Wheel. The disc is fine. The Wobbly Wheel isn't." },
     { id: 'cart.ps.grav', spot: 'bin', n: 'ANTI-GRAV 3000 disc', d: 'In the bin?! Mom must have thought the case was rubbish. It IS a bit cracked.' },
     { id: 'cart.gb.mon', spot: 'beanbag', n: 'POCKET CRITTERS cartridge', d: 'Down the side of the beanbag! My save file had 3 hours on it!' },
     { id: 'cart.md.rage', spot: 'tvback', n: 'PAVEMENTS OF PERIL cartridge', d: 'Fell down behind the telly with all the leads. Dusty. Blow on it.' },
-    { id: 'cart.dc.dash', spot: 'dcbox', from: '14/10', n: 'ZIP ADVENTURE disc', d: 'It was in the Dreamcast box the whole time, under the instructions.' },
+    { id: 'cart.dc.dash', spot: 'dcbox', from: '14/10', n: 'ZIP ADVENTURE disc', d: 'It was in the Daydream box the whole time, under the instructions.' },
     { id: 'cart.dc.duel', spot: 'post', from: '14/10', n: 'SOUL SABRE disc', d: "Won it in the JACK ATTACK! competition! (Well, Jack sent it to himself. Shh.)" },
     { id: 'cart.gb.mon2', spot: 'bed', n: 'POCKET CRITTERS: PUDDLE VERSION cartridge', d: 'Under my pillow! JackK lent me his PUDDLE VERSION so we can trade critters. I need a link cable now...' },
     { id: 'link.cable', spot: 'tvback', n: 'Game Lad link cable', d: 'A LINK CABLE, tangled up with the telly leads! Now I can trade and battle Pocket Critters with my mates.' },
     { id: 'cart.n64.party', spot: 'wardrobe', n: 'WOBBLE PARTY 64 cartridge', d: 'On top of the wardrobe. Mom hid it after the Great Mini-Game Row. It\'s Dave\'s, so I have to give it back. Eventually.' },
     // (mail: only arrives by post, ordered from the mail-order catalogue (Agent P's pack): never hidden in a room)
     { id: 'cart.ps.sneak', spot: 'mail', mail: 1, n: 'METAL GERBIL SOLID disc', d: 'It came in the post! Still in the shrink-wrap. Tactical Sneaking Action, here I come.' },
-    { id: 'cart.gb.grab', spot: 'mail', mail: 1, n: 'GRABBO LAND cartridge', d: 'It came in the post! A brand-new Game Boy game. The box smells amazing.' },
-    { id: 'cart.md.teeny', spot: 'shelf', n: 'TEENY MOTORS cartridge', d: 'Behind the K\'Nex roller coaster. It\'s Callum\'s! He says it\'s the only console game worth playing. He has a point.' },
+    { id: 'cart.gb.grab', spot: 'mail', mail: 1, n: 'GRABBO LAND cartridge', d: 'It came in the post! A brand-new Game Lad game. The box smells amazing.' },
+    { id: 'cart.md.teeny', spot: 'shelf', n: 'TEENY MOTORS cartridge', d: 'Behind the Buildex roller coaster. It\'s Callum\'s! He says it\'s the only console game worth playing. He has a point.' },
     { id: 'cart.sn.zeldo', spot: 'mail', mail: 1, n: 'THE LEGEND OF ZELDO cartridge', d: 'It came in the post! With a fold-out map and everything.' },
     { id: 'cart.sn.plumb', spot: 'hs.sofa', n: 'SUPER PLUMBO WORLD cartridge', d: 'Down the back of the sofa, with 40p and a lot of crumbs. It\'s Luke\'s copy. Do NOT tell Luke.' },
-    { id: 'cart.dc.toy', spot: 'mail', mail: 1, from: '14/10', n: 'TOY SQUADRON disc', d: 'It came in the post! A Dreamcast game where you fly toys round a house. Mom says do NOT try it with real planes.' },
+    { id: 'cart.dc.toy', spot: 'mail', mail: 1, from: '14/10', n: 'TOY SQUADRON disc', d: 'It came in the post! A Daydream game where you fly toys round a house. Mom says do NOT try it with real planes.' },
     { id: 'cart.sn.fight', spot: 'mail', mail: 1, n: 'STREET SCRAPPER II cartridge', d: 'It came in the post! Eight scrappers. Dave is going DOWN.' },
     { id: 'tin.marble', spot: 'rug', n: 'Shooter marble', d: 'The big swirly one. Never play with this one, it is too precious.' },
     { id: 'tin.tazo', spot: 'bin', n: 'Shiny tazo', d: 'Out of a crisp packet. Worth more than the crisps were.' },

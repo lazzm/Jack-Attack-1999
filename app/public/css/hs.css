@@ -57,6 +57,33 @@ html.pc-roomview #toastWrap{max-width:1008px}
 html.pc-roomview #browser{left:96px;top:10px;bottom:10px;width:918px;max-width:none}
 html.pc-roomview body.maxed #browser,html.pc-roomview #browser.fs{left:0;top:0;bottom:0;width:1024px}
 html.pc-roomview #monitorSurface .sizegrip{display:block}
+/* Optional, explicitly chosen PC view: same desktop and same app state. */
+html.pc-roomview.pc-desktop-full #monitorViewport{background:#050606;pointer-events:auto}
+html.pc-roomview.pc-desktop-full #monitorSurface{border-radius:0;box-shadow:none}
+html.pc-roomview.pc-desktop-full #monitorSurface::after{display:none}
+.hs-surface-lock{z-index:5;border-radius:0!important;box-shadow:0 0 0 100vmax #050606!important}
+.hs-menu-button{display:none}
+@media(hover:none),(pointer:coarse){html.hs-live .hs-menu-button{display:block;position:fixed;left:12px;bottom:12px;z-index:20050;padding:7px 10px;border:1px solid #8b7f61;background:#202628;color:#eee4ca;font:700 11px "Courier New",monospace}}
+/* Native modal supplies keyboard focus containment and a true top layer. */
+.hs-pause{box-sizing:border-box;width:min(450px,calc(100vw - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:0;overflow:auto;border:2px solid #9f8d62;outline:2px solid #141717;background:#202628;color:#eee4ca;box-shadow:5px 5px 0 #0008;font:13px/1.5 "Courier New",monospace;text-align:left}
+.hs-pause::backdrop{background:rgba(4,7,9,.73)}
+.hs-pause-head{padding:16px 22px 12px;background:#151b1d;border-bottom:1px solid #72684e}
+.hs-pause-head span{float:right;color:#897e61;font-size:12px;letter-spacing:.15em}
+.hs-pause h1{margin:0;color:#dbc172;font:700 22px "Courier New",monospace;letter-spacing:.1em}
+.hs-pause-main{padding:18px 22px}
+.hs-pause button{display:block;width:100%;min-height:38px;margin:0 0 8px;padding:7px 12px;border:1px solid #8b7f61;border-bottom:3px solid #101718;background:#323b3d;color:#eee4ca;font:700 13px "Courier New",monospace;cursor:pointer;text-align:left}
+.hs-pause [hidden]{display:none!important}
+.hs-pause button:hover,.hs-pause button:focus-visible{background:#465151;color:#ffe9a2;outline:1px solid #dbc172;outline-offset:2px}
+.hs-pause button:active{border-bottom-width:1px;padding-top:9px}
+.hs-pause fieldset{margin:18px 0 14px;padding:12px;border:1px solid #685f4c}
+.hs-pause legend{padding:0 6px;color:#dbc172;letter-spacing:.1em;font-weight:bold}
+.hs-pause label{display:block;margin:0 0 13px}
+.hs-pause small{display:block;margin:5px 0 0 23px;color:#b4b6a8;font-size:11px;line-height:1.4}
+.hs-pause input{accent-color:#dbc172;vertical-align:middle}
+.hs-pause select{float:right;min-width:145px;padding:3px;background:#161c1e;color:#eee4ca;border:1px solid #8b7f61;font:12px "Courier New",monospace}
+.hs-pause-mouse,.hs-pause-status{margin:10px 0 0;color:#adb4ae;font-size:11px;line-height:1.5}
+.hs-pause-keys{margin:12px 0;color:#d3ccb8;font-size:11px;line-height:1.8}
+html.hs-paused .hs-ui{pointer-events:none!important}
 /* no WebGL: the PC on its own in the dark (the way it used to be) */
 .powerscr.hs-nogl .pc-room{visibility:visible}
 

@@ -37,7 +37,7 @@
     ['pan', () => grp(G => { const al = mat('#b8bcc4', { sh: 90, sp: '#ddd', side: 2 }); G.cyl(0, -4.5, 0, 9, 9, 9, 24, al, { open: true }); G.disc(0, -0.4, 0, 9, al); G.rbox(16, -7.5, 0, 14, 1.6, 2.6, 0.6, mat('#1a1a1a', { sh: 40 })); G.group.userData.dirt = dirt(G, 'pan', BURNT, 15, -0.8, 8.6); })],
   ];
   const DISHN = ['Dinner plate (baked beans)', 'Dinner plate (egg. EGG.)', 'Side plate (toast crusts)', 'Cereal bowl', 'Mug (tea ring)', 'Glass (milky)', 'Saucepan (burnt beans!)'];
-  const PILE = [[-12, WT, -16, 0], [-12, WT - 1.8, -16, 30], [-12, WT - 3.5, -16, 70], [8, WT, -34, 0], [-26, WT, -38, 20], [-30, WT, -16, 0], [6, WT, -6, -30]];
+  const PILE = [[-12, WT, -16, 0], [-12, WT - 1.8, -16, 30], [-12, WT - 3.5, -16, 70], [8, WT, -34, 0], [-26, WT, -38, 20], [-30, WT, -16, 0], [-12, WT - 4.9, -16, 0]];
   const RACK = { x: -132, z: -12 };
   // where each one stands in the rack: plates on their edges at the back, cups upside down at the front
   const RPOSE = [
@@ -45,8 +45,11 @@
     { x: -122, y: WT - 5, z: -4, rx: 180 }, { x: -112, y: WT - 10, z: -6, rx: 180 }, { x: -142, y: WT - 12, z: -2, rx: 180 }, { x: -120, y: WT - 9, z: -20, rx: 180 },
   ];
   // the washing-up bowl (red plastic, in the sink: every kitchen in 1999 had one), and the water in it
-  const SINK = { x: -84, y: WT, z: -26 }, LOW = WT - 1, HALF = WT - 5, FULL = WT - 9;
-  const tubR = y => 11.5 + Math.min(1, (WT - y) / 12.8) * 2.7; // (its radius at a height)
+  const SINK = { x: -84, y: WT + 12, z: -26 }, LOW = SINK.y - 1, HALF = SINK.y - 5, FULL = SINK.y - 9;
+  const tubR = y => 11.5 + Math.min(1, (SINK.y - y) / 12.8) * 2.7;
+  // Only known factory poses move with a layout correction. Player placements,
+  // snapped dishes and finished chore steps retain their saved state.
+  function updateFactoryPose(t,old){if(!t||t.at.hide||t.st!=='rest'||t.at.room!=='kitchen'||!['x','y','z','ry'].every((k,i)=>Math.abs((t.at[k]||0)-old[i])<.11))return;CK.home(t.id)}
   let dishes = [], water = null, suds = null, tub = null, sinkSpot = null, soapBottle = null, extraSuds = 0;
   const W = () => (CK.S.v.wash = CK.S.v.wash || { sc: {}, inn: -1 });
   const filled = () => CK.has('washup', 'fill');
@@ -56,14 +59,14 @@
     build(r) {
       // the washing-up bowl, the water, the bubbles
       tub = grp(G => { const pm = mat('#d8283a', { sh: 40, sp: '#555', side: 2 }); G.lathe(0, 0, 0, [[14.6, -13.4], [14.2, -12.6], [11.5, -0.6], [11, 0], [0.1, 0]], 32, pm, { sz: 0.74 }); G.lathe(0, 0, 0, [[14.3, -13.2], [15.2, -13.4], [15.2, -12.8]], 32, mat('#c01a2a', { sh: 50 }), { sz: 0.74 }); G.disc(0, -0.7, 0, 11, mat('#b81a2a'), 28, { sz: 0.74 }); });
-      tub.position.set(SINK.x, WT, SINK.z); r.group.add(tub);
+      tub.position.set(SINK.x,SINK.y,SINK.z);tub.name='washing-up-bowl';r.group.add(tub);
       water = new T.Mesh(new T.CircleGeometry(1, 32), M({ c: '#c8d8e0', o: 0.62, tr: true, sh: 120, sp: '#fff', side: 2 }).clone()); water.rotation.x = Math.PI / 2; water.position.set(SINK.x, LOW, SINK.z); water.visible = false; water.renderOrder = 2; r.group.add(water);
       suds = grp(G => { const r2 = K.rnd(21), sm = M({ c: '#ffffff', o: 0.94, tr: true, sh: 60, sp: '#fff' }); for (let i = 0; i < 52; i++) { const a = r2() * Math.PI * 2, d = Math.sqrt(r2()) * 12.4, s = 1.4 + r2() * 3; G.ball(Math.cos(a) * d, -s * 0.25, Math.sin(a) * d * 0.74, s, s * 0.65, s, sm, 10); } });
       suds.position.set(SINK.x, LOW, SINK.z); suds.visible = false; r.group.add(suds);
       // the washing-up liquid bottle (green, of course)
       soapBottle = grp(G => { G.lathe(0, 0, 0, [[0.4, -25], [1.1, -24], [1.3, -21], [3.2, -18.5], [4.2, -14], [4.2, -2], [3.8, 0], [0.1, 0]], 20, mat('#f4f4f0', { sh: 90, sp: '#bbb' }), { sz: 0.7 }); G.cyl(0, -25.6, 0, 1, 1.4, 2, 12, mat('#1a9a3a', { sh: 80 })); G.plane(0, -8, 2.98, 6, 9, M({ c: '#fff', map: K.tex('ch.soap', 64, 96, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a9a3a'; g.fillRect(0, 0, w, 16); A.text(g, 'WASHING', 32, 38, '700 11px ' + A.UIF, '#1a7a2a', 'center'); A.text(g, 'UP', 32, 52, '700 11px ' + A.UIF, '#1a7a2a', 'center'); A.text(g, 'LIQUID', 32, 66, '700 11px ' + A.UIF, '#1a7a2a', 'center'); A.text(g, 'original', 32, 84, 'italic 9px ' + A.UIF, '#555', 'center'); }) }), {}); G.shadow(0, 0, 0, 10, 8, 0.5); });
-      soapBottle.position.set(SINK.x + 26, WT, SINK.z + 14); r.group.add(soapBottle);
-      CK.spot(r, 'ch.soap', soapBottle, { label: 'Fairy Liquid (well, the shop\'s own)', act: () => { if (!CK.has('washup', 'plug')) return CK.jack('Washing up', 'Hot water first. (Click the sink: the hot tap.)'); if (!filled()) return fill(); sinkClick(); } });
+      soapBottle.position.set(SINK.x+37,WT,SINK.z+14);r.group.add(soapBottle);
+      CK.spot(r, 'ch.soap', soapBottle, { label: 'Washing-up liquid (shop\'s own)', act: () => { if (!CK.has('washup', 'plug')) return CK.jack('Washing up', 'Hot water first. (Click the sink: the hot tap.)'); if (!filled()) return fill(); sinkClick(); } });
       // the draining rack (white plastic-coated wire, a drip tray underneath)
       const rk = grp(G => {
         const wm = mat('#f2f2ee', { sh: 70, sp: '#999' });
@@ -77,6 +80,7 @@
       rk.position.set(RACK.x, WT, RACK.z); r.group.add(rk);
       // the dirty things
       dishes = DISH.map(([type, mk], i) => CK.thing('ch.d.' + i, { obj: mk(), kind: 'wdish', label: DISHN[i], chore: 'washup', holdD: 45, home: { room: 'kitchen', x: PILE[i][0], y: PILE[i][1], z: PILE[i][2], ry: PILE[i][3] } }));
+      if(!CK.has('washup','w6')&&!CK.has('washup','r6'))updateFactoryPose(dishes[6],[6,WT,-6,-30]);
       dishes.forEach((t, i) => { if (!t) return; t.dishI = i; t.canGrab = () => canGrabDish(i); const sp = H.SPOTS[t.id]; sp.use = true; sp.act = () => dishClick(i); sp.label = () => dishLabel(i); });
       CK.snap('ch.s.wsink', { room: 'kitchen', x: SINK.x, y: SINK.y - 6, z: SINK.z, r: 36, box: [38, 2, 28], accepts: (k, t) => k === 'wdish' && filled() && inSink() < 0 && !CK.has('washup', 'w' + t.dishI), pose: { x: SINK.x, y: LOW - 0.2, z: SINK.z, ry: 15 }, hint: 'Let go: in the washing-up water', onSnap: t => { CK.snd.splash(); CK.fx.burst(KR(), SINK.x, FULL, SINK.z, { n: 14, tex: 'bub', size: 2.4, life: 1.2, spd: 18, up: 30, grav: 40 }); W().inn = t.dishI; CK.save(); if (!W().tipShown) { W().tipShown = 1; CK.jack('Washing up', 'In the water. Now scrub it: click it (or the sink) till it squeaks.', 4500); } } });
       const rs = CK.snap('ch.s.rack', { room: 'kitchen', x: RACK.x, y: WT - 10, z: RACK.z, r: 38, box: [46, 2, 28], accepts: (k, t) => { if (k !== 'wdish' || !CK.has('washup', 'w' + t.dishI) || CK.has('washup', 'r' + t.dishI)) return false; rs.pose = RPOSE[t.dishI]; return true; }, hint: 'Let go: in the draining rack', onSnap: t => { CK.snd.clink(); CK.lock(t.id); t.home = Object.assign({}, t.at); CK.keep(t.id); CK.step('washup', 'r' + t.dishI); } });
@@ -98,6 +102,7 @@
       });
       // a refresh with something in the water: back in the water
       if (v.inn >= 0 && dishes[v.inn] && inSink() < 0 && !CK.has('washup', 'r' + v.inn)) { const t = dishes[v.inn]; if (Math.abs(t.at.x - SINK.x) < 6 && Math.abs(t.at.z - SINK.z) < 6) { t.st = 'snap'; t.snap = 'ch.s.wsink'; } else v.inn = -1; }
+      const inWater=inSink();if(inWater>=0){const t=dishes[inWater];if(Math.abs(t.at.y-(LOW-.2))>.1){t.at.y=LOW-.2;H.place(t);CK.keep(t.id)}}
       H.dirty();
     },
     reset() { extraSuds = 0; dishes.forEach(t => { if (t) { t.rx = 0; t.rz = 0; CK.home(t.id); } }); this.sync(); },
@@ -131,7 +136,7 @@
     if (running) return; running = true;
     CK.begin('washup');
     const r = KR(); CK.snd.pour(2.4); water.visible = true; let last = 0;
-    rise(LOW, HALF, 2200, (k, now, y) => { if (now - last > 80) { last = now; CK.fx.stream(r, [SINK.x - 2, WT - 17, SINK.z - 12], [SINK.x - 2, y, SINK.z - 10], { col: '#e0f0ff' }); } }, () => { running = false; CK.step('washup', 'plug'); });
+    rise(LOW, HALF, 2200, (k, now, y) => { if (now - last > 80) { last = now; CK.fx.stream(r, [SINK.x - 2, WT - 17, SINK.z - 4], [SINK.x - 2, y, SINK.z - 4], { col: '#e0f0ff' }); } }, () => { running = false; CK.step('washup', 'plug'); });
     CK.jack('Washing up', 'Hot tap on. (It runs cold for a whole minute first. Every time.) Now a squirt of washing-up liquid: click the sink again, or the bottle.', 4500);
   }
   function fill() {
@@ -143,7 +148,7 @@
       suds.position.y = y; suds.scale.set(0.3 + 0.7 * k, 0.05 + 0.95 * k, 0.3 + 0.7 * k);
       if (now - last > 90) { last = now; if (k < 0.45) CK.fx.burst(r, soapBottle.position.x - 3, WT - 23, soapBottle.position.z, { n: 3, col: '#5ae86a', size: 1.2, life: 0.5, spd: 10, up: -5, grav: 600, to: [SINK.x + 4, y, SINK.z] }); CK.fx.burst(r, SINK.x + (Math.random() - 0.5) * 16, y - 1, SINK.z + (Math.random() - 0.5) * 10, { n: 3, tex: 'bub', size: 2.2, life: 1, spd: 8, up: 18, grav: 10 }); }
     }, () => { running = false; CK.step('washup', 'fill'); v.full = 1; CK.save(); CK.MODS.washup.sync(); });
-    CK.jack('Washing up', 'A big squirt of washing-up liquid (Mom calls it all Fairy Liquid). BUBBLES. Now the dirty stuff off the cooker, one at a time, into the water.', 5000);
+    CK.jack('Washing up', 'A big squirt of washing-up liquid. BUBBLES. Now the dirty stuff off the cooker, one at a time, into the water.', 5000);
   }
   function scrub(i) {
     const v = W(), t = dishes[i], m = t.obj.userData.dirt;
@@ -193,12 +198,16 @@
       const cutM = () => grp(G => { const st = mat('#d4d8de', { sh: 110, sp: '#fff' }); G.box(-1.6, -0.3, 0, 1.4, 0.4, 19, st); G.box(-1.6, -0.35, -7, 1.8, 0.5, 5, mat('#2a1a10')); G.box(1.8, -0.3, 2, 1.2, 0.4, 13, st); G.box(1.8, -0.35, -6, 1.6, 0.5, 6, mat('#2a1a10')); for (let i = 0; i < 4; i++) G.box(1.0 + i * 0.55, -0.3, 10, 0.3, 0.3, 3, st); G.shadow(0, 0, 0, 8, 22, 0.3, { sq: true }); });
       const glassM = () => grp(G => { G.cyl(0, -6, 0, 3.6, 3, 12, 18, M({ c: '#d8ecf4', o: 0.35, sh: 120, sp: '#fff', side: 2 }), { open: true }); G.disc(0, -0.4, 0, 3, M({ c: '#d8ecf4', o: 0.5, sh: 120 }), 16); G.shadow(0, 0, 0, 9, 9, 0.3); });
       for (let i = 0; i < 4; i++) {
-        tbl.p[i] = CK.thing('ch.t.p' + i, { obj: plateM(), kind: 'tplate', label: 'Dinner plate', chore: 'table', holdD: 45, home: { room: 'kitchen', x: -214, y: WT - i * 1.8, z: -2, ry: i * 20 } });
-        tbl.k[i] = CK.thing('ch.t.k' + i, { obj: cutM(), kind: 'tcut', label: 'Knife and fork', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -190 + (i % 2) * 6, y: WT - Math.floor(i / 2) * 0.8, z: -2, ry: -10 + i * 8 } });
-        tbl.g[i] = CK.thing('ch.t.g' + i, { obj: glassM(), kind: 'tglass', label: 'Glass', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -172 + (i % 2) * 8, y: WT, z: -6 + Math.floor(i / 2) * 8, ry: 0 } });
+        tbl.p[i] = CK.thing('ch.t.p' + i, { obj: plateM(), kind: 'tplate', label: 'Dinner plate', chore: 'table', holdD: 45, home: { room: 'kitchen', x: -201, y: WT - i * 1.8, z: -4, ry: i * 20 } });
+        tbl.k[i] = CK.thing('ch.t.k' + i, { obj: cutM(), kind: 'tcut', label: 'Knife and fork', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -186 + (i % 2) * 6, y: WT - Math.floor(i / 2) * 0.8, z: -2, ry: 0 } });
+        tbl.g[i] = CK.thing('ch.t.g' + i, { obj: glassM(), kind: 'tglass', label: 'Glass', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -170 + (i % 2) * 8, y: WT, z: -6 + Math.floor(i / 2) * 8, ry: 0 } });
+        if(!CK.has('table','p'+i))updateFactoryPose(tbl.p[i],[-214,WT-i*1.8,-2,i*20]);
+        if(!CK.has('table','k'+i))updateFactoryPose(tbl.k[i],[-190+(i%2)*6,WT-Math.floor(i/2)*.8,-2,-10+i*8]);
+        if(!CK.has('table','g'+i))updateFactoryPose(tbl.g[i],[-172+(i%2)*8,WT,-6+Math.floor(i/2)*8,0]);
       }
       const ketchup = grp(G => { G.lathe(0, 0, 0, [[0.1, -19], [1.6, -18.6], [1.8, -16], [3.6, -12.5], [3.8, -3], [3.4, 0], [0.1, 0]], 18, M({ c: '#c8100a', sh: 90, sp: '#fff' })); G.cyl(0, -19.5, 0, 1.4, 1.6, 1.6, 12, mat('#f4f4f4')); G.cyl(0, -8, 0, 3.86, 3.86, 7, 18, M({ c: '#fff', map: K.tex('ch.ketchup', 128, 48, flip((g, w, h) => { g.fillStyle = '#f4f0e0'; g.fillRect(0, 0, w, h); A.text(g, 'TOMATO', 64, 22, '700 15px ' + A.FONT, '#c8100a', 'center'); A.text(g, 'KETCHUP', 64, 42, '700 15px ' + A.FONT, '#1a6a1a', 'center'); })) }), { open: true }); G.shadow(0, 0, 0, 10, 10, 0.4); });
-      tbl.sauce = CK.thing('ch.t.sauce', { obj: ketchup, kind: 'sauce', label: 'Ketchup', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -156, y: WT, z: 4, ry: 0 } });
+      tbl.sauce = CK.thing('ch.t.sauce', { obj: ketchup, kind: 'sauce', label: 'Ketchup', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -168, y: WT, z: -20, ry: 0 } });
+      if(!CK.has('table','sauce'))updateFactoryPose(tbl.sauce,[-156,WT,4,0]);
       // where they go
       PLACES.forEach((P, i) => {
         for (const [k, kind, n] of [['p', 'tplate', 'a plate'], ['k', 'tcut', 'the knife and fork'], ['g', 'tglass', 'a glass']]) {
@@ -227,7 +236,7 @@
     ['beans', 'Baked beans', 'cupboard'], ['soup', 'Tomato soup', 'cupboard'], ['flakes', 'Cornflakes', 'cupboard'],
     ['bread', 'Sliced white', 'breadbin'],
   ];
-  const WHERE = { fridge: { x: -250, y: GY - 62, z: 22, r: 40, n: 'in the fridge (bottom door)' }, freezer: { x: -250, y: GY - 140, z: 22, r: 32, n: 'in the freezer (top door)' }, cupboard: { x: -220, y: GC() + 80, z: -12, r: 44, n: 'in the cupboard' }, breadbin: { x: 40, y: WT - 12, z: -14, r: 30, n: 'in the bread bin' } };
+  const WHERE = { fridge: { x: -247.5, y: GY - 62, z: 22, r: 40, n: 'in the fridge (bottom door)' }, freezer: { x: -247.5, y: GY - 140, z: 22, r: 32, n: 'in the freezer (top door)' }, cupboard: { x: -187, y: GC() + 80, z: -12, r: 32, n: 'in the cupboard' }, breadbin: { x: 40, y: WT - 12, z: -32, r: 30, n: 'in the bread bin' } };
   function GC() { return 95; }
   const label = (key, w, h, paint, round) => M({ c: '#fff', map: K.tex('ch.shop.' + key, w, h, round ? flip(paint) : paint) });
   const SHOPM = {

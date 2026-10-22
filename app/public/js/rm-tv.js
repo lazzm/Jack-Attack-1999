@@ -179,7 +179,7 @@
     const status = $(V.el, '.rm-srv');
     if (status && y < h - 50 * s) screenLines(g, status.textContent, cx, y + 4 * s, w * .8, '#b8c4d4', s);
     font.center(g, 'A / START: PLAY AGAIN', cx, h - 32 * s, '#fff', s);
-    font.center(g, 'B: CHANGE GAME   ESC: LEAN BACK', cx, h - 18 * s, '#e0d090', s);
+    font.center(g, 'B: CHANGE GAME   0: LOCK IN   ESC: MENU', cx, h - 18 * s, '#e0d090', s);
   }
   function liveFrame() {
     if (!V || !V.live) return;
@@ -223,7 +223,7 @@
     V = { el, con, hand, live, restoring: !!(options && options.restoring), game: null, gid: '', st: 'shelf', cv0: $(el, '.rm-c0'), cv1: $(el, '.rm-c1') };
     if (live) {
       const bar = h('', 'rm-livebar'); bar.appendChild($(el, '.rm-help')); bar.appendChild($(el, '.rm-btns')); el.appendChild(bar);
-      $(el, '.rm-back').textContent = 'Lean back (Esc)'; $(el, '.rm-eject').textContent = 'Change game';
+      $(el, '.rm-back').textContent = 'Back to the room'; $(el, '.rm-eject').textContent = 'Change game';
       pb.classList.remove('rm-tvon'); pb.classList.add('rm-console-focus');
     }
     // (no pointer events reach the room behind; Esc closes)
@@ -252,6 +252,7 @@
   }
   function close(powerOff) {
     if (!V) return;
+    lockIn(false);
     if (V.live && powerOff !== true) {
       if (V.background) return;
       V.background = true; V.el.remove();
@@ -477,7 +478,7 @@
     const res = def.res || L.res;
     size(res[0], res[1], def.smooth != null ? def.smooth : L.smooth, !!def.three);
     V.st = 'game'; V.el.classList.add('rm-playing');
-    $(V.el, '.rm-help').innerHTML = touchy() ? 'Use the controller below.' : esc(def.help || '') + ' <small>(Esc: back to the room)</small>';
+    $(V.el, '.rm-help').innerHTML = touchy() ? 'Use the controller below.' : esc(def.help || '') + ' <small>(0: LOCK IN · Esc: menu)</small>';
     pad(def);
     K = makeK(gid, def);
     try { game = def.make(K) || {}; } catch (e) { console.error(e); game = null; return crash(); }
@@ -691,5 +692,7 @@
   // (testing: RoomTV.test('sn.zero') opens the right console and boots the game, found or not; RoomTV.dbg() is the running game's K)
   function test(gid) { const G = CAT.GAME[gid]; if (!G) return false; if (V && V.con !== G.con) close(true); if (!V || V.background) open(G.con, null); if (!V) return false; if (V.con !== G.con) { V.con = G.con; V.el.dataset.con = G.con; conBar(); shelf(); } bootBad = false; try { sessionStorage.setItem('jhp_rm_ins', '0'); } catch (e) {} insert(gid, null); bootBad = false; return true; }
   function playPhysical(gid) { const G = CAT.GAME[gid]; if (!G || !V || V.con !== G.con) return false; if (V.gid === gid && ['game', 'boot', 'wait'].includes(V.st)) return true; insert(gid, null); bootBad = false; return true; }
-  window.RoomTV = { game(id, def) { defs[id] = def; }, defs, test, playPhysical, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
+  function lockIn(on){if(!V||V.background)return false;if(typeof on==='boolean')V.lockedIn=on;V.el.classList.toggle('rm-lockin',!!V.lockedIn);if(V.lockedIn){const ratio=V.cv0.width/V.cv0.height,w=Math.min(innerWidth,innerHeight*ratio);V.el.style.setProperty('--lock-width',w+'px');V.el.style.setProperty('--lock-height',w/ratio+'px')}return!!V.lockedIn;}
+  addEventListener('resize',()=>{if(V?.lockedIn)lockIn(true)});
+  window.RoomTV = { game(id, def) { defs[id] = def; }, defs, test, playPhysical,lockIn, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
 })();

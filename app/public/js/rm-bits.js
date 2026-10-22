@@ -90,12 +90,12 @@
 
   // ================================================================ the drawer: letters and floppies (and clues from other packs)
   const LETTERS = [
-    { k: 'mom', from: 'Mom', paper: 'note', text: 'JACK.\n\nYour room is a TIP. Hoover under that bed before Saturday or there will be no Dreamcast for Christmas.\n\nAlso have you seen my change? I keep losing it in your room. If you find it you can keep it (once).\n\nLove Mom x' },
+    { k: 'mom', from: 'Mom', paper: 'note', text: 'JACK.\n\nYour room is a TIP. Hoover under that bed before Saturday or there will be no Daydream for Christmas.\n\nAlso have you seen my change? I keep losing it in your room. If you find it you can keep it (once).\n\nLove Mom x' },
     { k: 'jackk', from: 'JackK', paper: 'lined', text: 'Jack -\n\nMy cousin says if you go on JackNet Explorer and type KEEPOUTDAVE in the address bar there is a secret page about Dave. DON\'T TELL DAVE.\n\nKart race Saturday? I\'ve got four controllers now.\n\n- JackK' },
     { k: 'dave', from: 'Dave', paper: 'lined', text: 'JACK!!!\n\nType PLUGH in Start > Run on your PC. Something happens. I\'m not saying what.\n\nAlso you still have my rumble pak and I want it back. And my Kart Kaos best lap is 0\'38"21 and that is a WORLD RECORD probably.\n\nDAVE' },
     { k: 'callum', from: 'Callum', paper: 'grid', text: 'Callum\'s top tips:\n\n1. PC games are better than consoles. Fact.\n2. On your telly, if a cartridge won\'t work, BLOW ON IT. Works every time (mostly).\n3. Stroke ' + (window.Cast ? Cast.n('cat') : 'the cat') + ' loads. Just do it.\n4. My dad says the Millennium Bug will turn all the computers back to 1900. I am stocking up on batteries.' },
     { k: 'school', from: 'School', paper: 'typed', text: 'Dear Parent/Guardian,\n\nThis is a reminder that HANDHELD GAMES and VIRTUAL PETS are not permitted in lessons. Several virtual pets have "died" during assembly, causing upset.\n\nItems will be confiscated and returned at the end of term.\n\nMr Bramble\nHead of Year' },
-    { k: 'chain', from: '???', paper: 'typed', text: 'THIS IS A CHAIN LETTER!!!\n\nCopy this out 10 times and give it to 10 friends by Friday or your Game Boy batteries will run out in the middle of a boss.\n\nA boy in Year 6 didn\'t send it and his Tamagotchi ran away.\n\n(Jack did not send it. Jack\'s batteries are fine. So far.)' },
+    { k: 'chain', from: '???', paper: 'typed', text: 'THIS IS A CHAIN LETTER!!!\n\nCopy this out 10 times and give it to 10 friends by Friday or your Game Lad batteries will run out in the middle of a boss.\n\nA boy in Year 6 didn\'t send it and his Eggbert ran away.\n\n(Jack did not send it. Jack\'s batteries are fine. So far.)' },
   ];
   const FLOPPIES = [
     ['GAMES BACKUP 1/3', '#1a1a6a', 'Disk 1 of 3. Disks 2 and 3 are "somewhere". The backup is useless without them.'],
@@ -185,7 +185,7 @@
     const hr = new Date().getHours(), night = pb.classList.contains('rm-night'), dusk = pb.classList.contains('rm-dusk') || pb.classList.contains('rm-dawn');
     const v = view('window', '<canvas class="rm-wincv" width="480" height="360"></canvas><i class="rm-winframe"></i>', {
       say: night ? 'It\'s dark out. You can see the stars from here, and the Plough. If you wait you might see a satellite go over (it\'s probably the Space Station!).'
-        : dusk ? 'The sun\'s going down. All the windows over the road are going orange.' : 'Roofs, chimneys and the big tree. Some birds. A cloud shaped like a Dreamcast (not really).',
+        : dusk ? 'The sun\'s going down. All the windows over the road are going orange.' : 'Roofs, chimneys and the big tree. Some birds. A cloud shaped like a Daydream (not really).',
       btns: [searchBtn('window', 'Check the windowsill')],
     });
     if (night) _.secret('rm.night');
@@ -245,8 +245,8 @@
   function magsView() {
     return view('mags', `<div class="rm-magbig"><div class="rm-magcover"><b>JACK ATTACK!</b><small>THE MAG FOR GAMERS WHO CAN'T SIT STILL</small><i class="rm-mcart"></i><em>EXCLUSIVE!<br>50 CHEATS<br>INSIDE!</em></div>
       <div class="rm-magpage"><h4>CHEATS CORNER</h4>
-      <p><b>BLOCKOLOGY</b> (Game Boy): on the title screen hold <b>SELECT</b> and press <b>START</b> to play the secret <b>B-TYPE</b>: 25 lines on a messy well.</p>
-      <p><b>SECRET AGENT 64</b>: on the dossier screen press <b>L, L, R, R, L, R</b> (Q and E on a keyboard) for <b>PAINTBALL MODE</b>. Splat!</p>
+      <p><b>BLOCKOLOGY</b> (Game Lad): on the title screen hold <b>SELECT</b> and press <b>START</b> to play the secret <b>B-TYPE</b>: 25 lines on a messy well.</p>
+      <p><b>GOLDENBALLS</b>: on the dossier screen press <b>L, L, R, R, L, R</b> (Q and E on a keyboard) for <b>PAINTBALL MODE</b>. Splat!</p>
       <p><b>ANY CARTRIDGE</b>: not working? Take it out and BLOW on it. This is science.</p>
       <p><b>KART KAOS 64</b>: there's a short cut on Biscuit Circuit! Look for a gap in the hedge. (Dave says he found it first. Dave says a lot of things.)</p>
       <p><b>POCKET CRITTERS</b>: talk to everybody. Twice. Mom always knows something useful.</p>

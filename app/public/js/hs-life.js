@@ -63,11 +63,11 @@
     if (p === 'school') L.push([M, 'Jack? Why aren\'t you at school? ...Oh, it\'s an INSET day. Right. Well don\'t sit on that computer all day.']);
     if (p === 'after' || p === 'day') L.push([M, 'Jack, have you done your homework?'], [M, 'Jack! Come and get your washing, it\'s on the stairs!'], [Sis, 'MOOOOOM! Jack\'s being annoying!'], [M, 'Jack, Dave\'s Mom rang. Are you going round there?']);
     if (p === 'tea') L.push([M, 'JACK! TEA\'S READY! It\'ll go cold!'], [M, 'Jack, set the table please, love!'], [M, 'Tea in five minutes! Wash your hands!']);
-    if (p === 'evening') L.push([M, 'Jack, it\'s a school night. Not too late, eh?'], [Dd, 'Jack! Have you been using the phone? The bill came.'], [M, 'Jack, do you want a cup of tea?'], [Sis, 'Jack, can I have a go on the Game Boy? Pleeeeease?']);
+    if (p === 'evening') L.push([M, 'Jack, it\'s a school night. Not too late, eh?'], [Dd, 'Jack! Have you been using the phone? The bill came.'], [M, 'Jack, do you want a cup of tea?'], [Sis, 'Jack, can I have a go on the Game Lad? Pleeeeease?']);
     if (p === 'late') L.push([Dd, 'Jack! Bed! Now!'], [M, 'Jack, turn that light off, love, it\'s late.']);
     if (p === 'night') L.push([Dd + ' (half asleep)', 'Jack... it\'s gone midnight. What are you doing? Go to bed.']);
     if (pcOn) L.push([M, 'Jack, are you on that computer AGAIN?'], [M, 'Jack! Get off the Internet! I need to ring your Nan!'], [Dd, 'Is that the Internet on? Do you know how much those phone calls cost?']);
-    if (n.dow === 6) L.push([M, 'Jack, I\'m popping to the shops. Do you want anything? ...Besides a Dreamcast.']);
+    if (n.dow === 6) L.push([M, 'Jack, I\'m popping to the shops. Do you want anything? ...Besides a Daydream.']);
     if (n.dow === 0) L.push([M, 'Jack, we\'re going to Gran\'s for Sunday dinner at one! Wear something clean!']);
     return L;
   }
@@ -85,10 +85,10 @@
   const ringing = () => !!ring;
   const CALLS = [
     { who: 'Gran', from: 'Gran', lines: () => ['Hello love! It\'s Gran. Is your Mom there? ...No? Never mind.', 'Are you eating properly? You\'re a growing lad. I\'ve knitted you a jumper. It\'s got a reindeer on it.', 'Are you still playing on that computer? Your Grandad says it\'ll make your eyes go square.'], replies: [['Yes Gran. Thanks Gran.', 'Lovely. I\'ll send it in the post. Bye love! Bye! Bye bye! Bye!'], ['The computer\'s brilliant, Gran!', 'Ooh. Well, as long as you\'re happy. Love to your Mom. Bye love! Bye bye!']] },
-    { who: 'Dave', from: 'Dave', lines: () => ['Alright Jack! It\'s Dave. You coming out? We\'re going down the rec.', 'Luke\'s got a new football. And I\'ve got a whole tube of Pringles. Well, half a tube.'], replies: [['Can\'t, I\'m grounded (sort of).', 'Gutted. Come round tomorrow then, I\'ve got the new N64 mag with the cheats in.'], ['Yeah, give me ten minutes!', 'Sorted. If you\'re not there in ten we\'re playing three-and-in without you. Later!']] },
+    { who: 'Dave', from: 'Dave', lines: () => ['Alright Jack! It\'s Dave. You coming out? We\'re going down the rec.', 'Luke\'s got a new football. And I\'ve got a whole tube of Crunchtubes. Well, half a tube.'], replies: [['Can\'t, I\'m grounded (sort of).', 'Gutted. Come round tomorrow then, I\'ve got the new ULTRA 64 mag with the cheats in.'], ['Yeah, give me ten minutes!', 'Sorted. If you\'re not there in ten we\'re playing three-and-in without you. Later!']] },
     { who: 'a wrong number', from: '???', lines: () => ['Hello? Is that the Golden Dragon? I want to order a number 27 and a 42 with egg fried rice.'], replies: [['Sorry, wrong number!', 'Oh! Sorry love. Bye.'], ['Yes. That will be one million pounds.', '...What? Who IS this? (click)']] },
     { who: 'a man selling double glazing', from: '???', lines: () => ['Good evening sir, I\'m calling about your windows. Are you the homeowner?', 'Have you ever thought about a conservatory?'], replies: [['I\'m sixteen.', 'Ah. Could you put your father on? ...No? Right. Thank you for your time.'], ['Our windows are already double glazed.', 'Ah. Have you considered TRIPLE gla- (you put the phone down)']] },
-    { who: 'JackK', from: 'JackK', lines: () => ['Jack. It\'s Jack. The other... no, it\'s JackK. Is your Internet on? I sent you an e-mail.', 'Also, have you finished Zelda yet? Don\'t tell me the ending.'], replies: [['The phone line\'s free, so the Internet\'s off!', 'Oh yeah. Ha. Well, check your mail later then. Laters!'], ['I finished it on Sunday.', 'NO WAY. Don\'t tell me. DON\'T TELL ME. (he hangs up)']] },
+    { who: 'JackK', from: 'JackK', lines: () => ['Jack. It\'s Jack. The other... no, it\'s JackK. Is your Internet on? I sent you an e-mail.', 'Also, have you finished Acorn Quest yet? Don\'t tell me the ending.'], replies: [['The phone line\'s free, so the Internet\'s off!', 'Oh yeah. Ha. Well, check your mail later then. Laters!'], ['I finished it on Sunday.', 'NO WAY. Don\'t tell me. DON\'T TELL ME. (he hangs up)']] },
     { who: 'Callum', from: 'Callum', lines: () => ['It\'s Callum. Quick question: what\'s the cheat for all the weapons? I\'m on the third level and I\'ve got nothing.'], replies: [['IDKFA. Obviously.', 'Legend. Owe you one. Actually I\'ll owe you nothing, everyone knows that one.'], ['Look it up on the Internet.', 'I can\'t! My sister\'s on the phone. Well, she was. Now I am. (click)']] },
     { who: 'Nan', from: 'Nan', lines: () => ['Hello duck, it\'s your Nan. Did you get the card? There\'s a postal order in it. Don\'t lose it.'], replies: [['Thanks Nan!', 'You\'re welcome, love. Spend it on something nice. Not sweets. Bye bye now!']] },
     { who: 'a recorded voice', from: '???', lines: () => ['CONGRATULATIONS! You have been selected to receive a FREE holiday! To claim, call this premium-rate number. Calls cost a pound a minute.'], replies: [['(Put the phone down. Mom says never ring those.)', '(click)']] },
@@ -140,7 +140,7 @@
     S.calls = (S.calls | 0) + 1; save();
   }
   // dialling
-  const BOOK = () => [['Gran', '01632 960213'], ['Nan', '01632 960584'], ['Dave', '01632 960117'], ['Luke', '01632 960342'], ['Callum', '01632 960776'], ['JackK', '01632 960908'], ['The Golden Dragon (Chinese)', '01632 960888'], ['Odeon (film times)', '01632 960400'], ['Doctors', '01632 960500'], ['Speaking clock', '123'], ['Who rang last?', '1471']];
+  const BOOK = () => [['Gran', '01632 960213'], ['Nan', '01632 960584'], ['Dave', '01632 960117'], ['Luke', '01632 960342'], ['Callum', '01632 960776'], ['JackK', '01632 960908'], ['The Golden Dragon (Chinese)', '01632 960888'], ['Odyssey Pictures (film times)', '01632 960400'], ['Doctors', '01632 960500'], ['Speaking clock', '123'], ['Who rang last?', '1471']];
   let dialled = '', padSurf = null;
   function dial() {
     dialled = '';
@@ -167,11 +167,11 @@
       '01632960213': ['Gran', 'Hello? Who is it? JACK! Ooh, you never ring! Is everything all right? Are you eating? Your Grandad says hello. HE SAYS HELLO. Bye love! Bye! Bye bye!'],
       '01632960584': ['Nan', 'Hello duck! Oh how lovely. I\'ve just put the kettle on. Did you get my card? There\'s a postal order in it. Don\'t lose it.'],
       '01632960117': ['Dave', '"Dave\'s house." It\'s Dave\'s Mom. "He\'s out on his bike, love. I\'ll tell him you rang."'],
-      '01632960342': ['Luke', 'Luke: "Jack! Have you got the Zelda guide still? I need it back. I KNOW you have it."'],
+      '01632960342': ['Luke', 'Luke: "Jack! Have you got the Acorn Quest guide still? I need it back. I KNOW you have it."'],
       '01632960776': ['Callum', 'Engaged. Callum is on the Internet. Of course he is.'],
       '01632960908': ['JackK', 'JackK\'s answering machine: "You\'ve reached JackK. Leave a message after the beep. Unless you\'re selling something." BEEEP.'],
       '01632960888': ['The Golden Dragon', '"Golden Dragon, can I help you?" ...You panic and order prawn crackers to be delivered to Dave\'s house. Then you put the phone down.'],
-      '01632960400': ['The Odeon', 'Recorded message: "Welcome to the Odeon. For this week\'s films, press 1. To book, hold the line. You are caller number... forty... seven."'],
+      '01632960400': ['The Odyssey Pictures', 'Recorded message: "Welcome to the Odyssey Pictures. For this week\'s films, press 1. To book, hold the line. You are caller number... forty... seven."'],
       '01632960500': ['The doctors', '"Surgery. The next appointment is in three weeks." You\'re not even ill. You put the phone down.'],
       '999': ['999', '(You put the phone down before it rings. That\'s for emergencies only. Mom would go spare.)'],
     };
@@ -236,7 +236,7 @@
   function pocket() { if (net() && !srv.pocket) send({ t: 'hsPocket' }); }
 
   // ================================================================ the fridge door: Mom's notes, the jobs list, magnets you can move
-  const fridgePose = () => ({ x: -250, y: GY - 120, z: 165, rx: -3, ry: 0, lvl: 'G', seat: 1 });
+  const fridgePose = () => ({ x: HR.rooms.kitchen.fridgeFrame.x, y: GY - 120, z: 165, rx: -3, ry: 0, lvl: 'G', seat: 1 });
   function fridge() {
     const el = document.createElement('div'); el.className = 'hs-fridge';
     const n = now99(), list = todays(), done = doneLocal().concat(srv.done);
@@ -253,7 +253,8 @@
     el.innerHTML = `<div class="hs-fdoor">${notes.join('')}${mm}<i class="hs-fhandle"></i></div>`;
     H.focus(fridgePose(), { label: 'Shut the fridge', enter: () => {
       const r = HR.rooms.kitchen;
-      const quad = [[-280, GY - 168, 12.2], [-220, GY - 168, 12.2], [-220, GY - 4, 12.2], [-280, GY - 4, 12.2]];
+      const f=r.fridgeFrame,x0=f.x-f.w/2+.8,x1=f.x+f.w/2-.8,z=f.z+f.d/2+.3;
+      const quad=[[x0,GY-168,z],[x1,GY-168,z],[x1,GY-4,z],[x0,GY-4,z]];
       const sf = H.surface(el, quad, { w: 360, h: 984 }); fr = sf; void r;
       magnets(el);
     }, exit: () => { if (fr) { fr.close(); fr = null; } } });
@@ -303,7 +304,7 @@
   }
 
   // ================================================================ the microwave: 12:00, flashing, forever (unless you set it)
-  const mwPose = () => ({ x: -160, y: GY - 120, z: -6, rx: -14, ry: -90, lvl: 'G', seat: 1 });
+  const mwPose = () => {const g=HR.rooms.kitchen.mw;return{x:g.position.x,y:g.position.y-17,z:g.position.z+100,rx:0,ry:0,lvl:'G',seat:1}};
   let mwS = null;
   function micro() {
     const el = document.createElement('div'); el.className = 'hs-micro';

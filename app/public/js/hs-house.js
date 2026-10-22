@@ -91,7 +91,7 @@
       B.box(ax, ay, az, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mWhite); B.box(bx, by, bz, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mWhite); B.box(tx, ty, tz, along ? dw + 13 : 2.4, 6, along ? 2.4 : dw + 13, mWhite);
     }
     const rv = M({ c: '#e4e0d4', side: 2 }); // (double-sided: no see-through slot beside the open leaf)
-    if (o.noframe) { /* (the frame and reveal were built with the wall) */ } else if (along) { B.plane(a0, (top + fy) / 2, fixed, 10, hgt, rv, { ry: 90 }); B.plane(a1, (top + fy) / 2, fixed, 10, hgt, rv, { ry: -90 }); B.plane(mid, top, fixed, a1 - a0, 10, rv, { rx: -90 }); }
+    if (o.noframe || o.noreveal) { /* Shared reveals are built by one room only. */ } else if (along) { B.plane(a0, (top + fy) / 2, fixed, 10, hgt, rv, { ry: 90 }); B.plane(a1, (top + fy) / 2, fixed, 10, hgt, rv, { ry: -90 }); B.plane(mid, top, fixed, a1 - a0, 10, rv, { rx: -90 }); }
     else { B.plane(fixed, (top + fy) / 2, a0, 10, hgt, rv, { ry: 0 }); B.plane(fixed, (top + fy) / 2, a1, 10, hgt, rv, { ry: 180 }); B.plane(fixed, top, mid, 10, a1 - a0, rv, { rx: -90 }); }
     if (o.leaf === false) return null;
     // the leaf, hinged at a1 (or a0 with o.flip), swinging into the room on the + side
@@ -171,12 +171,13 @@
     [[150, 230], [300, 380], [450, 530]].forEach(([a, b]) => wl(250, (UC - 132) / 2, (a + b) / 2, b - a, -132 - UC, 90));
     wl(330, (UC + UY) / 2, 130, 160, UY - UC, 0); // the end wall (north)
     // east wall x 410: right down the stairwell to the hall floor, with a little window halfway
-    wl(410, (UC + GY) / 2, 190, 120, GY - UC, -90); wl(410, (UC + GY) / 2, 650, 100, GY - UC, -90);
+    // The hall owns the lower portions; do not draw them twice with two rigs.
+    wl(410, (UC + GC) / 2, 190, 120, GC - UC, -90); wl(410, (UC + GC) / 2, 650, 100, GC - UC, -90);
     wl(410, (UC + GY) / 2, (250 + 400) / 2, 150, GY - UC, -90); wl(410, (UC + GY) / 2, (480 + 600) / 2, 120, GY - UC, -90);
     wl(410, (UC - 80) / 2, 440, 80, -80 - UC, -90); wl(410, (60 + GY) / 2, 440, 80, GY - 60, -90);
     // the landing window (frosted, bubbly 70s glass Dad never replaced)
     B.plane(410.8, -10, 440, 80, 140, M({ c: '#d8e0e8', o: 0.5, tr: true, sh: 80, sp: '#fff' }), { ry: -90 });
-    B.plane(500, -10, 440, 300, 400, M({ c: '#fff', map: sky(), basic: true }), { ry: -90 });
+    // The common outdoor scene is visible through the frosted glass.
     [[400, -80, 440, 1, 6, 80], [400, 60, 440, 1, 6, 80], [400, -10, 400, 1, 146, 6], [400, -10, 480, 1, 146, 6]].forEach(([x, y, z, w, h, d]) => B.box(x + 8.75, y, z, 1.5, h, d, mWhite));
     B.rbox(408.5, 62, 440, 3, 3, 90, 0.8, mWhite);
     wl(330, (UC + UY) / 2, 700, 160, UY - UC, 180); // the front end (south): Mom and Dad's door
@@ -186,7 +187,7 @@
     // the floor's edge round the stairwell (you can see its thickness from the stairs)
     const edgeM = M('#d8d0c0');
     B.plane(329.9, (UY + GC) / 2, 425, 350, GC - UY, edgeM, { ry: 90 }); B.plane(370, (UY + GC) / 2, 600.1, 80, GC - UY, edgeM, { ry: 180 }); // (the slab ends at the stairwell: edge faces the stairs)
-    B.box(331.4, UY - 0.6, 425, 3.2, 1.2, 350, mSkirt); B.box(370, UY - 0.6, 598.4, 80, 1.2, 3.2, mSkirt); // the nosing round the opening
+    B.box(332.2, UY - 0.8, 425, 1.6, 1.6, 350, mSkirt); B.box(370, UY - 0.6, 598.4, 80, 1.2, 3.2, mSkirt); // the nosing clears the newels
     B.box(245, UY + 1.1, 190, 10.4, 2.2, 80, M({ c: '#fff', map: tex('oak') })); B.box(245, UY - 0.45, 190, 10.4, 0.9, 80, M({ c: '#fff', map: tex('oak') })); // the threshold strip: fills the wall thickness between Jack's carpet and the landing, flush with both
     
     // the banisters: round the stairwell up here, and down the stairs
@@ -200,13 +201,13 @@
     // doors: Jack's (already there: js/rm-room.js), the bathroom, the little sister's room, Mom and Dad's
     const Bd = K.into(K.batch()); // (frames go in the batch below)
     const fb = K.batch(), F = K.into(fb);
-    doorway(r, F, 'jackframe', 'w', 250, 150, 230, UY, { leaf: false }); // (Jack's door from the landing side: architrave and reveal; the leaf is in js/rm-room.js)
+    doorway(r, F, 'jackframe', 'w', 250, 150, 230, UY, { leaf: false, noreveal:true }); // bedroom owns the shared reveal
     doorway(r, F, 'bath', 'w', 250, 300, 380, UY, { leaf: true, inside: true });
     const sd = doorway(r, F, 'sis', 'w', 250, 450, 530, UY, { inside: true, deco: (D, g) => { D.plane(g.along ? 0 : 2.6, -64, g.sgnA * g.dw / 2, 30, 20, M({ c: '#fff', map: sisSign() }), { ry: 90 }); } });
     const md = doorway(r, F, 'mum', 's', 700, 260, 340, UY, { inside: true });
     fb.build(r.group); void Bd;
     H.spot('hs.bath', { label: 'The bathroom', act: sayLines('hs.bath', 'The bathroom', ['Somebody is in there. Somebody is ALWAYS in there.', 'Mom says the bath is for Sunday nights and the immersion heater is not made of money.', 'There is a queue. There is only one bathroom. There are four of us. Maths.']) }); pickBox(r, 'hs.bath', 250, -30, 340, 6, 200, 80);
-    H.spot('hs.sis', { label: () => sis() + "'s room", act: () => { secret('hs.sister'); say(sis() + "'s room", cast(['"KEEP OUT. THIS MEANS YOU JACK." There is a drawing of me with horns.', '{sister} is in there playing {sister.his} Spice Girls tape. Again. On repeat. Since 4 o\'clock.', 'I knocked. A voice said "GO AWAY". Fair enough.'][((H.SPOTS['hs.sis'].n = (H.SPOTS['hs.sis'].n | 0) + 1) - 1) % 3])); } }); pickBox(r, 'hs.sis', 250, -30, 490, 6, 200, 80);
+    H.spot('hs.sis', { label: () => sis() + "'s room", act: () => { secret('hs.sister'); say(sis() + "'s room", cast(['"KEEP OUT. THIS MEANS YOU JACK." There is a drawing of me with horns.', '{sister} is in there playing {sister.his} Seasoning Girls tape. Again. On repeat. Since 4 o\'clock.', 'I knocked. A voice said "GO AWAY". Fair enough.'][((H.SPOTS['hs.sis'].n = (H.SPOTS['hs.sis'].n | 0) + 1) - 1) % 3])); } }); pickBox(r, 'hs.sis', 250, -30, 490, 6, 200, 80);
     H.spot('hs.mum', { label: "Mom and Dad's room", act: sayLines('hs.mum', "Mom and Dad's room", ['Not allowed. There is nothing in there anyway, except Dad\'s exercise bike being used as a clothes horse.', 'The door\'s shut. Christmas presents get hidden in there. Allegedly.']) }); pickBox(r, 'hs.mum', 300, -30, 698, 80, 200, 6);
     H.spot('hs.loft', { label: 'The loft hatch', act: sayLines('hs.loft', 'The loft', ['The loft. Dad goes up there once a year for the Christmas decorations and comes down covered in fibreglass.', 'There\'s a pole with a hook for opening it. Nobody knows where the pole is.']) }); pickBox(r, 'hs.loft', 290, UC + 2, 600, 60, 3, 70);
     H.spot('hs.lwin', { label: 'The landing window', act: () => say('The landing window', 'Bubbly glass, so you can\'t see out properly. You can see it\'s ' + ({ day: 'daytime', night: 'dark', dusk: 'getting dark', dawn: 'getting light' })[phase()] + ' though.') }); pickBox(r, 'hs.lwin', 408, -10, 440, 4, 140, 80);
@@ -398,9 +399,9 @@
     // the bay window at the front: net curtains, heavy curtains, the street outside
     const sw = -60;
     B.plane(sw, (150 + 300) / 2, 700 + 8, 220, 150, M({ c: '#fff', o: 0.18, tr: true, sh: 80, sp: '#fff' }), { ry: 180 });
-    B.plane(sw, -70, 700 + 1500, 3000, 1500, M({ c: '#fff', map: streetTex(), basic: true }), { ry: 180 });
+    // Shared solid neighbourhood beyond the glass, not a painted street card.
     [[sw - 110, 0], [sw + 110, 0], [sw, 0]].forEach(([x], i) => B.box(x, 225, 703, i === 2 ? 5 : 8, 150, 8, M({ c: '#f2f0ea', sh: 40 })));
-    B.box(sw, 147, 703, 220, 6, 8, M('#f2f0ea')); B.box(sw, 300, 708, 236, 4, 18, mWhite); B.box(sw, 297, 700 - 4, 236, 3, 10, mWhite);
+    B.box(sw, 147, 703, 220, 6, 8, M('#f2f0ea')); B.box(sw, 300, 708, 236, 4, 18, mWhite); B.box(sw, 297, 700 - 4, 236, 3, 9.6, mWhite);
     const net = M({ c: '#fff', map: netTex(), tr: true, o: 0.85, side: 2 });
     B.plane(sw, 222, 696, 214, 140, net, { ry: 180 });
     curtainG(B, sw - 136, 140, 690, 46, 210, M({ c: '#fff', map: curtTex(), side: 2 })); curtainG(B, sw + 136, 140, 690, 46, 210, M({ c: '#fff', map: curtTex(), side: 2 }));
@@ -479,8 +480,8 @@
     const pic = B.at(-280 + 41.5, GY - 175, 500, 90); pic.wshadow(1, 2, -1.3, 86, 62, 0.5); pic.box(0, 0, 0, 80, 56, 2.4, M('#6a4a2a')); pic.plane(0, 0, 1.3, 72, 48, M({ c: '#fff', map: landTex() }));
     batch.build(r.group);
     // spots
-    wrapSpot('hs.sofa', { label: 'The sofa', act: sayLines('hs.sofa', 'The sofa', ['Down the back of the sofa: 37p, a hair bobble, a Lego man and a fossilised Quaver.', 'Dad\'s end, Mom\'s end, and the middle bit where the spring goes.']) }); pickBox(r, 'hs.sofa', -60, GY - 30, 560, 200, 60, 80);
-    H.spot('hs.chair', { label: "Dad's chair", act: sayLines('hs.chair', "Dad's chair", ['Dad\'s chair. Nobody sits in Dad\'s chair. It is the law.', 'It has a dent in the exact shape of Dad.']) }); pickBox(r, 'hs.chair', 110, GY - 30, 430, 90, 60, 80, -70);
+    wrapSpot('hs.sofa', { label: 'The sofa', act: sayLines('hs.sofa', 'The sofa', ['Down the back of the sofa: 37p, a hair bobble, a Buildo man and a fossilised Waver.', 'Dad\'s end, Mom\'s end, and the middle bit where the spring goes.']) }); pickBox(r, 'hs.sofa', -60, GY - 30, 560, 200, 60, 80);
+    H.spot('hs.chair', { label: "Dad's chair", act: sayLines('hs.chair', "Dad's chair", ['Dad\'s chair. Nobody sits in Dad\'s chair. It is the law.', 'It has a dent in the exact shape of Dad.']) });pickBox(r,'hs.chair',110,GY-47,430,90,94,88,-118);
     H.spot('hs.fire', { label: 'The gas fire', act: () => { r.fireOn = !r.fireOn;lightsOn.loungeFire=r.fireOn;saveHouseLights(); H.relight(); say('The gas fire', r.fireOn ? 'Click click click WHUMP. The fake coals glow orange. Toasty.' : 'Off. Mom says not to leave it on, it costs a fortune.'); } }); pickBox(r, 'hs.fire', -280 + 44, GY - 50, 500, 6, 100, 104);
     H.spot('hs.mantel', { label: 'The mantelpiece', act: sayLines('hs.mantel', 'The mantelpiece', ['A carriage clock (ten minutes fast, on purpose, so we\'re never late), my school photo from Year 7 (bowl haircut, braces), and {sister}\'s ballet certificate.', 'The school photo. Mom refuses to take it down. I have asked. Many times.']) }); pickBox(r, 'hs.mantel', -280 + 44, GY - 124, 500, 10, 22, 140);
     H.spot('hs.cabinet', { label: 'Display cabinet', act: sayLines('hs.cabinet', 'The display cabinet', ['Mom\'s best glasses, a crystal swan, and a plate from Torquay. We are not allowed to open it. We have never opened it.']) }); pickBox(r, 'hs.cabinet', -180, GY - 60, 322, 90, 120, 26);
@@ -490,7 +491,7 @@
     // walking
     H.walkRect('G', -278, 307, 193, 698, { room: 'lounge' });
     H.block('G', LT.x - 48, 305, LT.x + 48, 352); // the telly
-    H.block('G', -165, 525, 45, 600); H.block('G', 66, 386, 156, 476); H.block('G', -115, 418, -5, 482); // sofa, chair, table
+    H.block('G',-162,516,42,606);H.block('G',49,369,171,492);H.block('G',-115,418,-5,482); // full sofa/chair footprints, not just their seat centres
     H.block('G', 146, 588, 194, 634); H.block('G', -230, 305, -130, 342); H.block('G', -280, 420, -230, 580); H.block('G', 144, 344, 176, 376); H.block('G', -268, 646, -232, 676);
     H.support('lounge', -110, 422, -10, 478, GY - 43.5); H.support('lounge', 150, 592, 190, 628, GY - 65.5); H.support('lounge', -280, 430, -230, 570, GY - 114);
   }
@@ -503,13 +504,18 @@
     const S = B.at(x, GY, z, ry), pipe = M({ c: '#8a6a4a', sh: 10 });
     S.rbox(0, -18, 4, w - 4, 24, 74, 5, m); // the base
     const n = w > 120 ? 3 : 1, cw = n === 3 ? (w - 44) / 3 : w - 36;
-    for (let i = 0; i < n; i++) { const cx = n === 1 ? 0 : (i - 1) * (w - 40) / 3; S.rbox(cx, -37, 2, cw - 2, 16, 62, 7, m); S.geo(new T.TorusGeometry(1, 0.5, 6, 4), cx, -45, 33, pipe, { sx: cw / 2 - 2, sz: 1, rx: 90 }); } // seat cushions, a seam at the front
+    for(let i=0;i<n;i++){const cx=n===1?0:(i-1)*(w-40)/3;S.rbox(cx,-37,2,cw-2,16,62,7,m);cushionPiping(S,cx,-37,2,cw-1.8,62.2,7,pipe)}
     for (let i = 0; i < n; i++) { const cx = n === 1 ? 0 : (i - 1) * (w - 40) / 3; S.rbox(cx, -66, -26, cw - 2, 44, 16, 7, m, { rx: 8 }); } // back cushions, leaning back
     S.rbox(0, -56, -36, w, 56, 12, 6, m); // the frame behind
     [-1, 1].forEach(s => { S.rbox(s * (w / 2 - 9), -36, 4, 18, 40, 78, 8, m); S.rbox(s * (w / 2 - 9), -58, 4, 20, 8, 80, 4, m); }); // arms with a padded roll
-    if (n === 3) { S.rbox(-w / 2 + 34, -62, -8, 30, 30, 10, 5, M({ c: '#7a2a2a', sh: 8 }), { ry: 12, rz: 6 }); S.rbox(w / 2 - 40, -60, -10, 30, 30, 10, 5, M({ c: '#c8a850', sh: 8 }), { ry: -18, rz: -4 }); } // scatter cushions
+    if(n===3){S.rbox(-w/2+34,-58,-13,26,28,10,4.5,M({c:'#7a2a2a',sh:8}),{ry:12,rx:12,rz:6});S.rbox(w/2-40,-58,-13,26,28,10,4.5,M({c:'#c8a850',sh:8}),{ry:-18,rx:12,rz:-4})}
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => S.cyl(a * (w / 2 - 10), -3, 4 + b * 34, 3, 3.6, 6, 10, M('#3a2414'))); // feet
     S.shadow(0, 0, 4, w + 12, 88, 0.75, { sq: true });
+  }
+  function cushionPiping(B,x,y,z,w,d,r,m){
+    const path=new T.CurvePath(),v=(a,b)=>new T.Vector3(a,0,b),a=w/2,b=d/2,points=[[-a+r,-b],[a-r,-b],[a,-b+r],[a,b-r],[a-r,b],[-a+r,b],[-a,b-r],[-a,-b+r]],corners=[[a,-b],[a,b],[-a,b],[-a,-b]];
+    for(let i=0;i<8;i++){const p=v(...points[i]),q=v(...points[(i+1)%8]);path.add(i%2?new T.QuadraticBezierCurve3(p,v(...corners[(i-1)/2]),q):new T.LineCurve3(p,q))}
+    B.geo(new T.TubeGeometry(path,56,0.18,5,true),x,y,z,m);
   }
   function curtainG(B, x, y, z, w, h, m) { const g = new T.PlaneGeometry(w, h, 40, 10), p = g.attributes.position, u = g.attributes.uv; for (let i = 0; i < p.count; i++) { const px = p.getX(i); p.setZ(i, Math.sin(px / w * Math.PI * 10) * 3.2 + 3); u.setY(i, 1 - u.getY(i)); } g.computeVertexNormals(); B.geo(g, x, y + h / 2, z, m, { ry: 180 }); }
   function sofaTex() { return K.tex('hs.sofa', 256, 256, (g, w, h) => { g.fillStyle = '#c8b898'; g.fillRect(0, 0, w, h); const r = K.rnd(8); for (let i = 0; i < 26; i++) { const x = r() * w, y = r() * h; g.fillStyle = ['#b04a4a', '#c86a5a', '#a03a4a'][i % 3]; for (let k = 0; k < 5; k++) { g.beginPath(); g.ellipse(x + Math.cos(k * 1.26) * 7, y + Math.sin(k * 1.26) * 7, 6, 4, k * 1.26, 0, 7); g.fill(); } g.fillStyle = '#e8c860'; g.beginPath(); g.arc(x, y, 3, 0, 7); g.fill(); g.fillStyle = '#5a7a4a'; g.beginPath(); g.ellipse(x + 14, y + 10, 8, 3, 0.6, 0, 7); g.fill(); } A.grain(g, w, h, 4000, 0.06, 9); }); }
@@ -573,47 +579,67 @@
     const wall = M({ c: '#f0e6b8', map: tex('wallWarm') });
     shell(B, { x0: -280, z0: -56, x1: 195, z1: 295, fy: GY, cy: GC, wall, floor: M({ c: '#fff', map: tex('lino') }), fuv: 60, holes: { e: [[150, 230, GY - 205, GY]], n: [[-140, -20, 195, 290], [80, 160, GY - 205, GY]] } });
     // the window over the sink and the back door (half glass): the garden outside
-    B.plane(-80, 200, -56 - 420, 1400, 700, M({ c: '#fff', map: sky(), basic: true }));
+    // Shared sky/neighbourhood; no overlapping bedroom/kitchen sky cards.
     winFrame(B, -140, -20, 195, 290, -56);
     doorway(r, B, 'backframe', 'n', -56, 80, 160, GY, { leaf: false });
-    B.plane(120, 200, -56 - 420, 1, 1, M('#000')); // (the garden is the room beyond: built when the door opens)
     // the units along the back wall: base cupboards, the worktop, wall cupboards, the sink, the cooker, the washing machine
     const doorM = M({ c: '#fff', map: unitTex() }), top = M({ c: '#fff', map: worktopTex(), sh: 40, sp: '#555' });
-    const unit = (x0, x1) => { const cx = (x0 + x1) / 2, w = x1 - x0; B.box(cx, GY - 46, -26, w, 86, 58, { f: doorM, all: M('#e8e2d0') }); B.box(cx, GY - 4, -24, w, 8, 54, M('#3a3a3a'), { sides: 'f' }); };
-    unit(-280, -160); unit(-160, -40); unit(20, 80);
-    B.box(-150, GY - 91.5, -23, 260, 3, 66, top); B.box(50, GY - 91.5, -23, 60, 3, 66, top);
+    const unit = (x0, x1, appliance) => { const cx=(x0+x1)/2,w=x1-x0,carcass=M('#e8e2d0');
+      for(const x of [x0+1,x1-1])B.box(x,GY-46,-26,2,86,58,carcass);
+      B.box(cx,GY-46,-54,w-4,86,2,carcass);B.box(cx,GY-5,-26,w-4,2,54,carcass);
+      B.box(cx,GY-46,2,w-4,84,2,appliance?M({c:'#eeeae2',sh:24}):doorM);
+      B.box(cx,GY-4,-24,w,8,54,M('#3a3a3a'),{sides:'f'});
+    };
+    unit(-214.5,-160);unit(-160,-40);unit(20,80,true);
+    // Reserve the fridge bay and cut a real opening for the sink bowl.
+    const work=(x0,x1,z0,z1)=>B.box((x0+x1)/2,GY-91.5,(z0+z1)/2,x1-x0,3,z1-z0,top);
+    work(-214.5,-103,-56,10);work(-57,-40,-56,10);work(-103,-57,-56,-44);work(-103,-57,-8,10);work(20,80,-56,10);
     B.plane(-90, GY - 120, -55.8, 380, 56, M({ c: '#fff', map: tex('tiles') }), { uv: 0 });
     const wu = (x0, x1) => { const cx = (x0 + x1) / 2; B.box(cx, GC + 80, -40, x1 - x0, 70, 32, { f: doorM, all: M('#e8e2d0') }); };
-    wu(-280, -160); wu(20, 80);
+    wu(-214.5,-160);wu(20,80);
     B.shadow(-110, GY, -26, 270, 70, 0.7, { sq: true });
     // the sink (stainless steel), the taps, the washing-up
-    const sk = B.at(-80, GY - 93, -26); sk.box(0, 0, 0, 50, 1, 40, M({ c: '#c8ccd0', sh: 90, sp: '#fff' })); sk.box(0, 6, 0, 40, 12, 30, M({ c: '#9aa0a8', sh: 80, sp: '#ddd', side: 2 }), { sides: 'u' }); sk.cyl(-6, -10, -16, 0.9, 0.9, 18, 8, mMetal); sk.cyl(-6, -18, -10, 0.8, 0.8, 12, 8, mMetal, { rx: 90 }); sk.cyl(6, -4, -16, 1.6, 1.6, 6, 8, mMetal);
-    sk.box(18, -6, 0, 8, 12, 4, M('#3a8ad0')); // washing-up liquid
+    const sk=B.at(-80,GY-93,-26),steel=M({c:'#b4bcc4',sh:70,sp:'#aab4bd'});
+    for(const x of [-24,24])sk.rbox(x,-0.3,0,2,0.6,40,0.25,steel);
+    for(const z of [-19,19])sk.rbox(0,-0.3,z,46,0.6,2,0.25,steel);
+    sk.box(0,13,0,46,2,36,steel);for(const x of [-22.5,22.5])sk.box(x,6,0,1,12,36,steel);for(const z of [-17.5,17.5])sk.box(0,6,z,44,12,1,steel);
+    sk.cyl(0,11.9,0,2.2,2.2,0.2,20,M('#454b50'));sk.cyl(0,11.7,0,1.5,1.5,0.2,20,mMetal);
+    for(let a=0;a<8;a++)sk.cyl(Math.cos(a*Math.PI/4),11.55,Math.sin(a*Math.PI/4),0.12,0.12,0.12,6,M('#25282b'));
+    sk.cyl(-6,-10,-16,0.9,0.9,18,12,mMetal);sk.cyl(-6,-18,-10,0.8,0.8,12,12,mMetal,{rx:90});sk.cyl(6,-4,-16,1.6,1.6,6,12,mMetal);
+    for(const [x,c]of [[-6,'#c54b40'],[6,'#3f6999']]){sk.cyl(x,-7.3,-16,1.7,1.7,0.6,12,mWhite);sk.cyl(x,-7.7,-16,0.7,0.7,0.25,12,M(c))}
     // the cooker (freestanding, four rings, an eye-level grill), the washing machine
     const ck = B.at(-10, GY, -26); ck.box(0, -46, 0, 58, 92, 58, { f: M({ c: '#fff', map: cookerTex() }), all: M('#e8e8e4') }); ck.box(0, -93, 0, 58, 2, 58, M({ c: '#efefec', sh: 60 })); [[-14, -12], [14, -12], [-14, 12], [14, 12]].forEach(([x, z]) => ck.cyl(x, -94.6, z, 8, 8, 0.6, 18, M('#2a2a2a')));
     ck.box(0, -150, -18, 58, 20, 24, M('#e8e8e4'));
+    for(const x of [-26,26])ck.box(x,-121,-25,2.4,58,3,M('#aaa9a4'));
+    ck.box(0,-148,-5.8,48,11,0.6,M('#333335'));ck.box(0,-142.3,-4,48,0.8,7,mMetal);ck.cyl(0,-146,-1,0.8,0.8,42,10,mMetal,{rz:90});
     for (let i = 0; i < 5; i++) { ck.cyl(-20 + i * 10, -84, 29.3, 2.4, 2.4, 1.4, 12, M({ c: '#2a2a2a', sh: 40 }), { rx: 90 }); ck.box(-20 + i * 10, -84, 30.2, 0.6, 2.2, 0.4, M('#ddd')); }
     ck.cyl(0, -52, 30.4, 1, 1, 46, 8, mMetal, { rz: 90 }); ck.plane(0, -45, 29.2, 44, 22, M({ c: '#1a1a1a', sh: 90, sp: '#888', o: 0.9, tr: true }));
     const wm = B.at(50, GY, -26); wm.geo(new T.TorusGeometry(13, 1.6, 8, 28), 0, -45, 29.4, M({ c: '#c8ccd0', sh: 60, sp: '#888' })); wm.cyl(0, -45, 29.2, 11.5, 11.5, 0.6, 28, M({ c: '#2a3440', sh: 120, sp: '#fff' }), { rx: 90 }); wm.cyl(0, -45, 29.6, 8, 8, 0.3, 24, M({ c: '#7a8a9a', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { rx: 90 });
     wm.box(-14, -82, 29.4, 16, 5, 1.2, M('#d8d8d4')); wm.cyl(12, -82, 29.8, 2.2, 2.2, 1.2, 14, M({ c: '#333', sh: 40 }), { rx: 90 }); [4, 18, 22].forEach(x => wm.box(x - 10, -82, 29.6, 1.2, 1.2, 0.5, M('#1a8a3a')));
     // the fridge-freezer (the magnets and notes are the fridge door: js/hs-life.js)
-    const fr = B.at(-250, GY, -20); fr.rbox(0, -85, 0, 60, 170, 64, 2, M({ c: '#f4f2ec', sh: 50, sp: '#555' })); fr.box(0, -110, 32.2, 58, 1.2, 0.8, M('#c8c6c0'));
+    r.fridgeFrame={x:-247.5,z:-20,w:60,h:170,d:64};
+    const fr = B.at(r.fridgeFrame.x,GY,r.fridgeFrame.z); fr.rbox(0, -85, 0, 60, 170, 64, 2, M({ c: '#f4f2ec', sh: 50, sp: '#555' })); fr.box(0, -110, 32.2, 58, 1.2, 0.8, M('#c8c6c0'));
     [[-130, 36], [-70, 46]].forEach(([y, hh]) => { fr.rbox(26, y, 33.6, 2.2, hh, 2.2, 0.8, M({ c: '#e0dcd4', sh: 60, sp: '#888' })); fr.box(26, y - hh / 2 + 1, 32.8, 2.2, 2, 1.2, M('#d0ccc4')); fr.box(26, y + hh / 2 - 1, 32.8, 2.2, 2, 1.2, M('#d0ccc4')); });
     fr.plane(-14, -160, 32.3, 16, 4, M({ c: '#fff', map: K.tex('hs.frlogo', 128, 32, (g) => { g.fillStyle = '#f4f2ec'; g.fillRect(0, 0, 128, 32); A.text(g, 'FROSTMASTER', 64, 22, '700 15px ' + A.UIF, '#8a8a8a', 'center'); }) }));
     fr.box(0, -2, 20, 56, 4, 24, M('#1a1a1a')); // the plinth
     fr.shadow(0, 0, 0, 68, 70, 0.7, { sq: true });
     // things on the worktop: the kettle, the toaster, the bread bin, the microwave, the radio (the biscuit tin is its own)
-    const kt = B.at(-200, GY - 93, -36); kt.lathe(0, 0, 0, [[9, -22], [10.5, -14], [10, 0], [0.5, 0]], 18, M({ c: '#f0f0ec', sh: 60, sp: '#666' })); kt.box(-11, -14, 0, 2, 14, 3, M('#f0f0ec')); kt.cyl(0, -1, 0, 11, 11, 2, 18, M('#333')); kt.shadow(0, 0, 0, 24, 24, 0.6);
+    const kt=B.at(-200,GY-93,-36),enamel=M({c:'#ecece5',sh:35,sp:'#666'}),handle=M({c:'#343638',sh:24});
+    kt.lathe(0,0,0,[[0,-22],[6,-22],[8,-20],[10,-14],[9.6,-2],[9,-1],[0,-1]],28,enamel);kt.cyl(0,-0.5,0,10.8,10.8,1,28,handle);
+    kt.cyl(0,-22.3,0,5.6,5.6,0.6,24,handle);kt.rbox(0,-23.4,0,3.2,1.8,2,0.5,handle);
+    kt.geo(new T.TorusGeometry(7.3,1.15,8,24,Math.PI),-8.8,-12,0,handle,{rz:90});
+    kt.cyl(10,-18,0,2.2,3,8,18,enamel,{rz:45});kt.cyl(12.83,-20.83,0,1.5,1.5,0.4,16,M('#4b4f50'),{rz:45});kt.rbox(-9,-3,0,2,1,3,0.3,handle);kt.shadow(0,0,0,26,24,0.5);
     const ts = B.at(-140, GY - 93, -36); ts.rbox(0, -9, 0, 26, 18, 16, 3, M({ c: '#d8d8d4', sh: 70, sp: '#888' })); ts.box(-5, -18.4, 0, 3, 1, 12, M('#111')); ts.box(5, -18.4, 0, 3, 1, 12, M('#111')); ts.shadow(0, 0, 0, 30, 20, 0.6, { sq: true });
-    const bb = B.at(40, GY - 93, -36); bb.rbox(0, -12, 0, 34, 24, 24, 6, M({ c: '#c83a2a', sh: 40, sp: '#555' })); bb.shadow(0, 0, 0, 38, 28, 0.6, { sq: true });
-    const rd = B.at(-30, GY - 93, -46); rd.rbox(0, -10, 0, 24, 14, 8, 2, M('#3a3a3e')); rd.cyl(6, -10, 4.2, 4, 4, 0.4, 16, M('#666'), { rx: 90 }); rd.box(-5, -12, 4.2, 8, 3, 0.4, M({ c: '#d8a040', e: '#3a2000' })); rd.cyl(-8, -24, -2, 0.3, 0.3, 20, 4, mMetal, { rz: 20 });
+    const bb = B.at(40, GY - 93, -36); bb.rbox(0, -12, 0, 34, 24, 24, 6, M({ c: '#c83a2a', sh: 40, sp: '#555' }));bb.rbox(0,-11,12.1,24,0.4,0.4,0.15,M('#76291f'));bb.rbox(0,-8,12.8,8,1.3,1.2,0.4,mMetal);bb.shadow(0, 0, 0, 38, 28, 0.6, { sq: true });
+    const rd = B.at(65,GY-93,-5); rd.rbox(0,-7,0,24,14,8,2,M('#3a3a3e')); rd.cyl(6,-7,4.2,4,4,0.4,16,M('#555'),{rx:90});rd.box(-5,-9,4.2,8,3,0.4,M({c:'#d8a040',e:'#3a2000'}));rd.cyl(-8,-21,-2,0.3,0.3,20,6,mMetal,{rz:20});
     // the microwave: the clock is flashing 12:00
-    const mw = new T.Group(); mw.position.set(-250, GY - 93, -6); mw.rotation.y = 90 * D2R; r.group.add(mw); const MW = K.into(mw); r.mw = mw;
+    const mw = new T.Group();mw.name='kitchen-microwave';mw.position.set(r.fridgeFrame.x,GY-169,-20);r.group.add(mw);const MW=K.into(mw);r.mw=mw;
     MW.rbox(0, -16, 0, 46, 30, 34, 1.4, M({ c: '#e8e6e0', sh: 30 })); MW.plane(-6, -16, 17.1, 30, 22, M({ c: '#2a2a2a', sh: 90, sp: '#888' }));
     r.mwTex = K.tex('hs.mwclock', 128, 40, () => {}, { clamp: true });
     const md = new T.Mesh(new T.PlaneGeometry(9, 3), new T.MeshBasicMaterial({ map: r.mwTex })); flipUV(md.geometry); md.position.set(15, -26, 17.12); mw.add(md);
     for (let i = 0; i < 6; i++) MW.box(12 + (i % 3) * 3, -18 + Math.floor(i / 3) * 3, 17.2, 2.4, 2, 0.4, M('#aaa'));
-    MW.shadow(0, 0, 0, 48, 36, 0.6, { sq: true });
+    MW.rbox(9.5,-16,18,1.1,15,1.5,0.4,M('#9b9b96'));for(let i=0;i<7;i++)MW.box(-23.1,-21+i*1.3,0,0.2,0.5,19,M('#666964'));
+    MW.shadow(0,-1,0,48,36,0.45,{sq:true});
     const kb = new T.Group(); kb.position.set(170, GY, 20); r.group.add(kb); const KB = K.into(kb);
     KB.cyl(0, -30, 0, 15, 14, 60, 20, M({ c: '#d8d8d4', sh: 70, sp: '#888' })); KB.cyl(0, -61, 0, 15.6, 15.6, 2.4, 20, M({ c: '#c8c8c4', sh: 80, sp: '#999' })); KB.box(0, -1.5, 15, 8, 3, 6, M('#333')); KB.shadow(0, 0, 0, 36, 36, 0.6);
     H.spot('hs.bin', { label: 'Kitchen bin', obj: kb, act: () => life('bin') }); H.block('G', 152, 2, 188, 38);
@@ -633,15 +659,15 @@
     const hands = new T.Group(); hands.position.set(-280 + 3.6, GC + 50, 120); r.group.add(hands); const HN = K.into(hands);
     r.hh = new T.Group(); hands.add(r.hh); K.into(r.hh).box(0.3, -4, 0, 0.6, 8, 1.4, M('#111')); r.mh = new T.Group(); hands.add(r.mh); K.into(r.mh).box(0.6, -6, 0, 0.6, 12, 0.9, M('#111')); void HN;
     // the biscuit tin (a daily raid: js/hs-life.js asks the server)
-    const tin = new T.Group(); tin.position.set(-110, GY - 93, -40); r.group.add(tin); const TN = K.into(tin);
+    const tin = new T.Group();tin.position.set(40,GY-93,-4);r.group.add(tin);const TN=K.into(tin);
     TN.cyl(0, -9, 0, 11, 11, 18, 24, M({ c: '#fff', map: tinTex(), sh: 60, sp: '#888' }));
     const lid = new T.Group(); lid.position.set(0, -18, -11); tin.add(lid); K.into(lid).cyl(0, -0.8, 11, 11.6, 11.6, 2.2, 24, M({ c: '#2a5ab0', sh: 60, sp: '#888' })); r.tinLid = lid;
     TN.shadow(0, 0, 0, 26, 26, 0.6);
     H.spot('hs.tin', { label: 'The biscuit tin', obj: tin, act: () => life('tin') });
-    H.spot('hs.fridge', { label: 'The fridge', act: () => life('fridge') }); pickBox(r, 'hs.fridge', -250, GY - 85, 14, 60, 170, 4);
+    H.spot('hs.fridge', { label: 'The fridge', act: () => life('fridge') });pickBox(r,'hs.fridge',r.fridgeFrame.x,GY-85,14,60,170,4);
     H.spot('hs.kettle', { label: 'The kettle', act: () => { H.sfx.noise(2.2, 0.05, 900, 0, 'lowpass', 2400); say('The kettle', ['On it goes. In 1999 the kettle is the most important thing in any house.', 'Mom: "Put the kettle on, love." It is always on. The kettle never rests.'][((r.kn = (r.kn | 0) + 1)) % 2]); } }); pickBox(r, 'hs.kettle', -200, GY - 104, -36, 24, 24, 22);
     H.spot('hs.toaster', { label: 'Toaster', act: sayLines('hs.toaster', 'Toaster', ['The toaster has two settings: still bread, and charcoal.']) }); pickBox(r, 'hs.toaster', -140, GY - 102, -36, 28, 20, 18);
-    H.spot('hs.radio', { label: 'Kitchen radio', act: sayLines('hs.radio', 'Kitchen radio', ['Tuned to the local station. A man is reading out the traffic. There is no traffic.', 'Mom has it on all day. She knows all the adverts off by heart.']) }); pickBox(r, 'hs.radio', -30, GY - 103, -46, 26, 16, 10);
+    H.spot('hs.radio', { label: 'Kitchen radio', act: sayLines('hs.radio', 'Kitchen radio', ['Tuned to the local station. A man is reading out the traffic. There is no traffic.', 'Mom has it on all day. She knows all the adverts off by heart.']) });pickBox(r,'hs.radio',65,GY-100,-5,26,16,10);
     H.spot('hs.paper', { label: 'The newspaper', act: () => life('paper') }); pickBox(r, 'hs.paper', -34, GY - 77, 180, 30, 2, 40);
     H.spot('hs.cooker', { label: 'The cooker', act: sayLines('hs.cooker', 'The cooker', ['Tonight: ' + ['fish fingers, chips and beans', 'spag bol', 'a Findus Crispy Pancake each', 'shepherd\'s pie', 'a chicken Kiev (garlic everywhere)'][new Date().getDay() % 5] + '. Mom says do NOT touch the knobs.']) }); pickBox(r, 'hs.cooker', -10, GY - 46, 3, 58, 92, 4);
     H.spot('hs.washer', { label: 'Washing machine', act: sayLines('hs.washer', 'Washing machine', ['It walks across the floor on the spin cycle. We have found it in the middle of the kitchen before.']) }); pickBox(r, 'hs.washer', 50, GY - 46, 3, 58, 86, 4);
@@ -649,7 +675,8 @@
     H.ambient.add(() => { if (!r.group.visible) return; const d = new Date(), m = d.getMinutes() + d.getSeconds() / 60, h = (d.getHours() % 12) + m / 60; r.mh.rotation.x = -m / 60 * Math.PI * 2; r.hh.rotation.x = -h / 12 * Math.PI * 2; });
     H.walkRect('G', -278, -54, 193, 293, { room: 'kitchen' });
     H.block('G', -280, -56, 82, 6); H.block('G', -280, -56, -218, 14); H.block('G', -124, 126, 4, 214); H.block('G', -80, 92, -40, 128); H.block('G', -80, 212, -40, 248); H.block('G', -150, 150, -110, 190); H.block('G', -10, 150, 30, 190);
-    H.support('kitchen', -280, -56, 80, 10, GY - 93); H.support('kitchen', -120, 130, 0, 210, GY - 76);
+    H.support('kitchen',-214.5,-56,-103,10,GY-93);H.support('kitchen',-57,-56,-40,10,GY-93);H.support('kitchen',-103,-56,-57,-44,GY-93);H.support('kitchen',-103,-8,-57,10,GY-93);H.support('kitchen',-103,-44,-57,-8,GY-81);
+    H.support('kitchen',-39,-55,19,3,GY-94);H.support('kitchen',20,-56,80,10,GY-93);H.support('kitchen',-277.5,-52,-217.5,12,GY-170);H.support('kitchen',-120,130,0,210,GY-76);
   }
   function winFrame(B, x0, x1, y0, y1, z) { const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, w = x1 - x0, h = y1 - y0, fm = M({ c: '#f2f0ea', sh: 40, sp: '#444' }), fz = z - 8; B.box(cx, y0 + 3, fz, w, 6, 6, fm); B.box(cx, y1 - 3, fz, w, 6, 6, fm); B.box(x0 + 3, cy, fz, 6, h, 6, fm); B.box(x1 - 3, cy, fz, 6, h, 6, fm); B.box(cx, cy, fz, 5, h, 6, fm); B.plane(cx, cy, fz - 1, w - 6, h - 6, M({ c: '#c8d8f0', o: 0.12, tr: true, sh: 120, sp: '#fff' })); B.plane(cx, y0, z - 6, w, 12, M('#d8d4c8'), { rx: -90 }); B.plane(x0, cy, z - 6, 12, h, M('#d0ccc0'), { ry: 90 }); B.plane(x1, cy, z - 6, 12, h, M('#d0ccc0'), { ry: -90 }); B.rbox(cx, y1 + 1.5, z + 2, w + 10, 3, 10, 0.8, M('#efece4')); }
   function chair(B, x, z, ry) { const C = B.at(x, GY, z, ry), w = M({ c: '#fff', map: tex('pine') }); C.box(0, -44, 0, 40, 3, 40, w); [[-17, -17], [17, -17], [-17, 17], [17, 17]].forEach(([a, b]) => C.box(a, -22, b, 3, 44, 3, w)); C.box(0, -66, -18.5, 40, 6, 3, w); [-12, 0, 12].forEach(a => C.box(a, -56, -18.5, 3, 24, 2, w)); C.shadow(0, 0, 0, 46, 46, 0.5, { sq: true }); }
@@ -689,73 +716,79 @@
   function buildGarden(r) {
     const batch = K.batch(), B = K.into(batch);
     const x0 = -300, x1 = 215, z0 = -560, z1 = -56; // (behind the kitchen; the back wall of the house is z = -56)
-    skyDome(B, (x0 + x1) / 2, (z0 + z1) / 2 - 300);
+    r.wheelie={x:160,z:-190};r.waterButt={x:180,z:-102};
     B.plane((x0 + x1) / 2, GY, (z0 + z1) / 2, x1 - x0, z1 - z0, mGrass(), { rx: 90, uv: 110 });
-    B.plane((x0 + x1) / 2, GY + 0.1, (z0 + z1) / 2 + 400, 4000, 4000, mGrass(), { rx: 90, uv: 110 }); // (the world beyond the fence)
     B.plane(-50, GY - 0.3, -126, 330, 130, mSlab(), { rx: 90, uv: 100 }); // the patio by the back door
     // the back of the house: brick, the kitchen window and the back door from outside, Jack's window up above
     B.plane(-110, GY - 300, -57, 380, 606, mBrick(), { ry: 180, uv: 128 }); B.plane(290, GY - 300, -57, 260, 606, mBrick(), { ry: 180, uv: 128 }); B.plane(120, -51, -57, 80, 398, mBrick(), { ry: 180, uv: 128 }); // (the back door's opening is cut: x 80..160, up to y GY-205)
     B.box(60, GY - 603, -40, 740, 6, 40, M('#5a3a2a')); B.box(60, GY - 625, -20, 740, 40, 2, M('#7a3a2a'));
     B.plane(300, GY - 420, -57.5, 70, 80, M({ c: '#c8d8f0', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); B.plane(300, GY - 420, -59, 64, 74, M({ c: '#1a2a3a', o: 0.6, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); // the bathroom window
     B.plane(-80, 242, -57.5, 120, 95, M({ c: '#c8d8f0', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); B.box(-80, 242, -58, 124, 99, 2, M({ c: '#f2f0ea', sh: 40 }), { sides: 'frltub' }); B.plane(-80, 242, -59.2, 116, 91, M({ c: '#1a2a3a', o: 0.6, tr: true, sh: 100, sp: '#fff' }), { ry: 180 });
-    B.box(77, GY - 102, -58.5, 6, 204, 3, mWhite); B.box(163, GY - 102, -58.5, 6, 204, 3, mWhite); B.box(120, GY - 206, -58.5, 92, 6, 3, mWhite); B.box(120, GY - 0.8, -58, 80, 1.6, 8, M('#9a9a92')); // (the opening, framed, with a step)
+    B.box(76.8, GY - 102, -58.5, 5.6, 204, 3, mWhite); B.box(163.2, GY - 102, -58.5, 5.6, 204, 3, mWhite); B.box(120, GY - 206, -58.5, 92, 6, 3, mWhite); B.box(120, GY - 0.8, -58, 80, 1.6, 8, M('#9a9a92')); // trim clears the shared interior reveals
     B.plane(191, -63, -57.5, 70, 98, M({ c: '#c8d8f0', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); B.plane(191, -63, -59, 64, 92, M({ c: '#1a2a3a', o: 0.6, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); // Jack's window
     B.cyl(200, (GY - 300) / 2, -60, 5, 5, 600, 8, M('#2a2a2a')); // the drainpipe
     // fences down both sides and across the end, the gate at the end, next door's roofs over the top
     const fm = mFence();
-    B.plane(x0 + 1, GY - 90, (z0 + z1) / 2, z1 - z0, 180, fm, { ry: 90, uv: 100 }); B.plane(x1 - 1, GY - 90, (z0 + z1) / 2, z1 - z0, 180, fm, { ry: -90, uv: 100 });
-    B.plane((x0 + x1) / 2, GY - 90, z0 + 1, x1 - x0, 180, fm, { ry: 0, uv: 100 });
+    B.box(x0+1.5,GY-90,(z0+z1)/2,3,180,z1-z0,fm,{uv:100});B.box(x1-1.5,GY-90,(z0+z1)/2,3,180,z1-z0,fm,{uv:100});
+    B.box((x0+x1)/2,GY-90,z0+1.5,x1-x0,180,3,fm,{uv:100});
     for (let z = z0; z <= z1; z += 180) { B.box(x0 + 2, GY - 92, z, 8, 190, 8, M('#5a3a22')); B.box(x1 - 2, GY - 92, z, 8, 190, 8, M('#5a3a22')); }
     for (let x = x0; x <= x1; x += 172) B.box(x, GY - 92, z0 + 2, 8, 190, 8, M('#5a3a22'));
-    B.plane(-42.5, GY - 230, z0 - 400, 1400, 300, M({ c: '#fff', map: phaseTex('hs.roofs', 512, 128, (g, w, h) => { g.clearRect(0, 0, w, h); const N = phase() === 'night'; for (let k = 0; k < 6; k++) { const x = k * 90 - 10; g.fillStyle = N ? '#0c0d14' : '#b08060'; g.fillRect(x, 70, 88, 58); g.fillStyle = N ? '#07080d' : '#5a4a48'; g.beginPath(); g.moveTo(x - 4, 72); g.lineTo(x + 44, 34); g.lineTo(x + 92, 72); g.fill(); g.fillStyle = N ? '#0a0b10' : '#8a6a5a'; g.fillRect(x + 60, 26, 10, 26); for (const wx of [x + 12, x + 50]) { g.fillStyle = N && (k + wx) % 3 === 0 ? '#ffd27a' : N ? '#0a0e18' : '#9ab8d8'; g.fillRect(wx, 84, 22, 18); } } }, { clamp: true }), tr: true, basic: true }), {});
     // the shed (Dad's), the whirly washing line, the wheelie bin, a flower bed, the water butt, a tree
-    const sh = B.at(-230, GY, -470, 8), shw = M({ c: '#fff', map: tex('pineDark') });
-    sh.box(0, -95, 0, 150, 190, 120, shw, { uv: 60 }); sh.box(0, -200, 0, 162, 20, 132, M('#3a3a3a')); sh.box(0, -190, 0, 150, 2, 120, M('#2a2a2a'));
+    const sh=B.at(-212,GY,-462),shw=M({c:'#fff',map:tex('pineDark')});
+    sh.box(0,-95,0,150,190,120,shw,{uv:60});
+    const gable=new T.Shape();gable.moveTo(-75,-190);gable.lineTo(0,-221);gable.lineTo(75,-190);gable.closePath();sh.geo(new T.ExtrudeGeometry(gable,{depth:120,bevelEnabled:false}),0,0,-60,shw,{uv:60});
+    const roof=new T.Shape();roof.moveTo(-81,-190);roof.lineTo(0,-224);roof.lineTo(81,-190);roof.lineTo(81,-184);roof.lineTo(0,-218);roof.lineTo(-81,-184);roof.closePath();sh.geo(new T.ExtrudeGeometry(roof,{depth:132,bevelEnabled:false}),0,0,-66,M({c:'#3d4140',sh:5}));
     sh.box(30, -90, 61, 50, 160, 3, shw, { uv: 60 }); sh.box(30, -90, 63, 44, 150, 1, M('#8a6a44')); sh.box(50, -90, 64, 3, 10, 2, mMetal);
-    sh.plane(-40, -120, 61.6, 40, 36, M({ c: '#7a8a7a', o: 0.6, tr: true, sh: 100 })); sh.box(-40, -120, 61.2, 44, 40, 1, M('#f0f0ea'), { sides: 'frltub' });
+    sh.box(-40,-120,60.5,40,36,.5,M({c:'#6c7f84',sh:75,sp:'#bac8cc'}));for(const x of [-61,-19])sh.box(x,-120,61.5,2,40,2,mWhite);for(const y of [-139,-101])sh.box(-40,y,61.5,40,2,2,mWhite);sh.box(-40,-120,61.8,1.5,36,1,mWhite);
+    for(const y of [-145,-40]){sh.box(7,y,63,9,2,1,mMetal);sh.cyl(3,y,63,1,1,5,10,mMetal)}sh.rbox(50,-84,65.4,4,5,2,.5,mMetal);sh.cyl(50,-83.5,66.5,.35,.35,.3,8,M('#282a2b'),{rx:90});
     sh.shadow(0, 0, 0, 170, 140, 0.6, { sq: true });
     const wl = B.at(80, GY, -330); wl.cyl(0, -100, 0, 2, 2.4, 200, 8, mMetal); for (let i = 0; i < 4; i++) wl.geo(new T.TorusGeometry(40 + i * 28, 0.5, 4, 32), 0, -196 + i * 4, 0, M('#ddd'), { rx: 90 }); for (let i = 0; i < 4; i++) wl.cyl(Math.cos(i * 1.57) * 60, -170, Math.sin(i * 1.57) * 60, 0.6, 0.6, 70, 4, mMetal, { rz: Math.cos(i * 1.57) * 50, rx: Math.sin(i * 1.57) * 50 });
     [['#fff', 0], ['#2a5ad0', 1], ['#ff9ad0', 2], ['#e8e8e8', 3]].forEach(([c, i]) => wl.rbox(Math.cos(i * 1.57 + 0.4) * 90, -150, Math.sin(i * 1.57 + 0.4) * 90, 30, 40, 2, 3, M({ c, side: 2 }), { ry: i * 90 }));
     wl.shadow(0, 0, 0, 40, 40, 0.5);
-    const wb = B.at(150, GY, -110); wb.rbox(0, -55, 0, 58, 110, 70, 4, M({ c: '#2a5a2a', sh: 30, sp: '#333' })); wb.rbox(0, -112, 4, 60, 6, 74, 2, M('#245024')); wb.cyl(0, -8, -36, 12, 12, 8, 14, M('#111'), { rx: 90 }); wb.cyl(-22, -8, -36, 12, 12, 8, 14, M('#111'), { rx: 90 }); wb.shadow(0, 0, 0, 70, 84, 0.6, { sq: true });
-    const fb = B.at(-200, GY, -200); fb.box(0, -4, 0, 110, 8, 60, M('#3a2a1a')); for (let i = 0; i < 12; i++) { const c = ['#ff3a3a', '#ffd400', '#ff8ad0', '#fff', '#ff8a20'][i % 5]; fb.cyl(-48 + i * 9, -14, -14 + (i % 3) * 14, 0.5, 0.5, 14, 4, M('#2a6a2a')); fb.ball(-48 + i * 9, -22, -14 + (i % 3) * 14, 4, 3, 4, M(c), 8); }
-    const wbt = B.at(200, GY, -80); wbt.cyl(0, -45, 0, 26, 24, 90, 16, M({ c: '#2a6a2a', sh: 30 })); wbt.cyl(0, -91, 0, 27, 27, 2, 16, M('#1a4a1a'));
+    const wb=B.at(r.wheelie.x,GY,r.wheelie.z),green=M({c:'#2a5a2a',sh:20,sp:'#333'});
+    wb.rbox(0,-61,0,58,98,70,4,green);wb.rbox(0,-112,4,60,6,74,2,M('#245024'));
+    for(const x of [-22,22]){wb.cyl(x,-12,-28,12,12,7,24,M('#202224'),{rz:90});wb.cyl(x+(x<0?-3.6:3.6),-12,-28,4,4,.4,14,M('#777b7c'),{rz:90});wb.box(x,-6,26,4,12,5,green)}
+    wb.cyl(0,-12,-28,1.2,1.2,49,12,mMetal,{rz:90});for(const x of [-18,18]){wb.box(x,-60,35.2,1.2,74,.8,M('#245024'));wb.box(x,-109,-37,3,8,7,green)}wb.cyl(0,-112,-40,1.4,1.4,39,12,green,{rz:90});wb.shadow(0,0,0,70,84,.6,{sq:true});
+    const fb=B.at(-230,GY,-270);fb.box(0,-4,0,110,8,60,M('#3a2a1a'));for(const x of [-54,54])fb.box(x,-5,0,4,10,64,M('#725437'));for(const z of [-30,30])fb.box(0,-5,z,106,10,4,M('#725437'));
+    for(let i=0;i<12;i++){const x=-46+i*8.3,z=-16+(i%3)*16,c=['#cf4e5d','#e2bd45','#c97ba0','#e4dfd0','#d78441'][i%5],petal=M(c);fb.cyl(x,-15,z,.35,.35,14,6,M('#376f39'));for(let k=0;k<5;k++){const a=k*Math.PI*2/5;fb.ball(x+Math.cos(a)*2.4,-22,z+Math.sin(a)*2.4,2.1,.7,1.4,petal,8,{ry:-a/D2R})}fb.ball(x,-22.5,z,1.1,.7,1.1,M('#d0a542'),8);for(const s of [-1,1])fb.ball(x+s*1.9,-15,z,2.4,.3,1,M('#4c8249'),8,{rz:s*25})}
+    const wbt=B.at(r.waterButt.x,GY,r.waterButt.z);wbt.cyl(0,-45,0,26,24,90,28,M({c:'#315d39',sh:15}));wbt.cyl(0,-91,0,27,27,2,28,M('#24482c'));
+    for(const y of [-20,-68])wbt.geo(new T.TorusGeometry(y===-20?24.5:25.5,.65,6,40),0,y,0,M('#284b30'),{rx:90});wbt.cyl(0,-14,25.5,1.4,1.4,6,12,M('#292d2e'),{rx:90});wbt.box(0,-17,29,7,1.3,2,M('#292d2e'));wbt.shadow(0,0,0,58,58,.5);
     tree(B, 140, -500, 280, 70); tree(B, -40, -540, 240, 55);
-    B.box(-50, GY - 44, -126 + 60, 330, 2, 2, M('#6a6a62')); // the patio's edge
+    B.box(-50,GY-1,-66,330,2,2,M('#6a6a62')); // grounded edging, not a floating bar
     batch.build(r.group);
-    H.spot('hs.shed', { label: "Dad's shed", act: sayLines('hs.shed', "Dad's shed", ['Dad\'s shed. Padlocked. Inside: the lawnmower, 200 jam jars of screws, and a radio tuned to the cricket.', 'Dad goes in the shed "to sort it out". He has been sorting it out since 1994.']) }); pickBox(r, 'hs.shed', -230, GY - 95, -470, 150, 190, 120, 8);
-    H.spot('hs.wheelie', { label: 'The wheelie bin', act: sayLines('hs.wheelie', 'The wheelie bin', ['Bin day is Tuesday. Dad wheels it out at 6am like it\'s a race.', 'It smells. It always smells. Don\'t open it.']) }); pickBox(r, 'hs.wheelie', 150, GY - 55, -110, 58, 110, 70);
+    H.spot('hs.shed', { label: "Dad's shed", act: sayLines('hs.shed', "Dad's shed", ['Dad\'s shed. Padlocked. Inside: the lawnmower, 200 jam jars of screws, and a radio tuned to the cricket.', 'Dad goes in the shed "to sort it out". He has been sorting it out since 1994.']) });pickBox(r,'hs.shed',-212,GY-95,-462,150,190,120);
+    H.spot('hs.wheelie', { label: 'The wheelie bin', act: sayLines('hs.wheelie', 'The wheelie bin', ['Bin day is Tuesday. Dad wheels it out at 6am like it\'s a race.', 'It smells. It always smells. Don\'t open it.']) });pickBox(r,'hs.wheelie',r.wheelie.x,GY-55,r.wheelie.z,60,116,82);
     H.spot('hs.washline', { label: 'The washing line', act: sayLines('hs.washline', 'The washing line', ['The whirly washing line. Mom\'s sheets, Dad\'s work shirts, and my PE kit, flapping about for the whole street to see.', 'If you spin it fast enough the pegs fly off. Don\'t.']) }); pickBox(r, 'hs.washline', 80, GY - 150, -330, 190, 110, 190);
-    H.spot('hs.flowers', { label: "Mom's flower bed", act: sayLines('hs.flowers', "Mom's flower bed", ['Mom\'s flowers. Do NOT kick the football near Mom\'s flowers. (I have kicked the football into Mom\'s flowers.)']) }); pickBox(r, 'hs.flowers', -200, GY - 14, -200, 110, 28, 60);
-    H.spot('hs.butt', { label: 'The water butt', act: sayLines('hs.butt', 'The water butt', ['The water butt. Full of rainwater and one very confused frog.']) }); pickBox(r, 'hs.butt', 200, GY - 45, -80, 52, 90, 52);
+    H.spot('hs.flowers', { label: "Mom's flower bed", act: sayLines('hs.flowers', "Mom's flower bed", ['Mom\'s flowers. Do NOT kick the football near Mom\'s flowers. (I have kicked the football into Mom\'s flowers.)']) });pickBox(r,'hs.flowers',-230,GY-14,-270,114,28,64);
+    H.spot('hs.butt', { label: 'The water butt', act: sayLines('hs.butt', 'The water butt', ['The water butt. Full of rainwater and one very confused frog.']) });pickBox(r,'hs.butt',r.waterButt.x,GY-45,r.waterButt.z,56,94,60);
     H.spot('hs.jackwin', { label: "Jack's window (from outside)", act: () => say("My window", 'That\'s my room up there. You can see the posters. Dave throws stones at it when my Mom won\'t let him ring the bell.') }); pickBox(r, 'hs.jackwin', 191, -63, -58, 70, 98, 4);
     H.walkRect('G', x0 + 6, z0 + 6, x1 - 6, z1 - 2, { room: 'garden' }); H.walkRect('G', 84, -60, 156, -50, { door: 'back', room: 'garden' });
-    H.block('G', -310, -540, -150, -400); H.block('G', 152, -148, 182, -72); // (clear of the back door's path) H.block('G', -258, -234, -142, -166); H.block('G', 172, -108, 228, -52); H.block('G', 70, -340, 90, -320); H.block('G', -170, -500, -130, -460);
-    H.support('garden', -215, -191, -27, -61, GY - 0.3); H.support('garden', -305, -530, -155, -410, GY - 190);
-    H.support('garden', 121, -145, 179, -75, GY - 112);
+    H.block('G',-289,-524,-135,-400);H.block('G',129,-232,191,-147);
+    H.block('G',-287,-302,-173,-238);H.block('G',152,-130,208,-70);H.block('G',77,-333,83,-327);
+    H.support('garden',-215,-191,115,-61,GY-.3);H.support('garden',129,-223,191,-149,GY-115);
   }
   function buildDrive(r) {
     const batch = K.batch(), B = K.into(batch);
     const x0 = 120, x1 = 470, z0 = 700, z1 = 1100; // (in front of the hall's front door; the street runs along z = 1100)
-    skyDome(B, (x0 + x1) / 2, (z0 + z1) / 2 + 200);
-    B.plane((x0 + x1) / 2 + 2000, GY + 0.1, (z0 + z1) / 2, 6000, 6000, mGrass(), { rx: 90, uv: 110 });
     B.plane(295, GY, 900, 350, 400, mTarmac(), { rx: 90, uv: 120 }); // the drive
     B.plane(-180, GY, 900, 600, 400, mGrass(), { rx: 90, uv: 110 }); // the front lawn (in front of the lounge's bay)
     B.plane(600, GY, 900, 260, 400, mGrass(), { rx: 90, uv: 110 });
-    B.plane(300, GY - 0.2, 1150, 1800, 100, mSlab(), { rx: 90, uv: 100 }); // the pavement
+    B.plane(300, GY - 0.2, 1150, 1800, 100, mSlab(), { rx: 90, uv: 100 }); // above the shared neighbourhood foundation
     B.plane(300, GY, 1450, 1800, 500, mTarmac(), { rx: 90, uv: 120 }); // the road
     B.box(300, GY - 6, 1200, 1800, 12, 10, M('#9a9a92')); // the kerb
     B.plane(300, GY - 0.3, 1440, 1800, 3, M('#f4f0e0'), { rx: 90 });
     // the front of the house: brick, the bay window, the front door from outside, the number
     B.plane(-38.75, GY - 150, 701, 597.5, 600, mBrick(), { uv: 128 }); B.plane(381.25, GY - 150, 701, 82.5, 600, mBrick(), { uv: 128 }); B.plane(300, 25.5, 701, 80, 245, mBrick(), { uv: 128 }); // (the front door's opening is cut: x 260..340, up to y GY-205)
     B.box(42.5, GY - 300, 690, 790, 6, 60, M('#5a3a2a')); B.box(42.5, GY - 318, 714, 790, 30, 2, M('#7a3a2a'));
-    B.box(-60, 225, 704, 236, 160, 8, M({ c: '#f2f0ea', sh: 40 }), { sides: 'frltub' }); B.plane(-60, 225, 708.5, 220, 150, M({ c: '#1a2a3a', o: 0.65, tr: true, sh: 100, sp: '#fff' }));
-    B.box(257, GY - 102, 703, 6, 204, 3, mWhite); B.box(343, GY - 102, 703, 6, 204, 3, mWhite); B.box(300, GY - 206, 703, 92, 6, 3, mWhite); // (the opening, framed)
+    // Open frame, not a solid white panel hiding the lounge window.
+    for(const x of [-174,54])B.box(x,225,704.3,8,160,8,mWhite);
+    for(const y of [147.5,302.5])B.box(-60,y,704.3,220,5,8,mWhite);
+    B.plane(-60,225,708.5,220,150,M({c:'#1a2a3a',o:.28,tr:true,sh:100,sp:'#fff'}));
+    B.box(256.8, GY - 102, 703, 5.6, 204, 3, mWhite); B.box(343.2, GY - 102, 703, 5.6, 204, 3, mWhite); B.box(300, GY - 206, 703, 92, 6, 3, mWhite);
     B.box(300, GY - 215, 704, 100, 14, 40, M('#e8e4dc')); B.box(300, GY - 222, 724, 100, 2, 2, M('#9a9a92')); // the porch roof
     B.plane(340, GY - 180, 702.6, 16, 20, M({ c: '#fff', map: K.tex('hs.numb', 64, 80, (g) => { g.fillStyle = '#1a1a1a'; g.fillRect(0, 0, 64, 80); A.text(g, '42', 32, 58, '48px ' + A.FONT, '#f0d080', 'center'); }) }));
     B.box(300, GY - 1, 730, 70, 2, 44, M({ c: '#fff', map: matTex() })); B.cyl(360, GY - 60, 730, 2, 2, 120, 8, M('#2a2a2a')); B.ball(360, GY - 124, 730, 8, 8, 8, M({ c: '#f4ecd8', e: phase() === 'night' ? '#a08040' : '#000' }), 12);
-    B.plane(560, GY - 150, 701, 300, 600, mBrick(), { uv: 128 }); // next door
-    B.box(560, GY - 300, 690, 300, 6, 60, M('#5a3a2a'));
+    // Next door is a complete solid model in the shared neighbourhood.
     // a low front wall with a gate, the hedge, a lamp-post on the pavement
     B.box(-60, GY - 35, 1095, 600, 70, 20, mBrick(), { uv: 128 }); B.box(-60, GY - 72, 1095, 600, 4, 24, M('#9a9a92'));
     B.box(300, GY - 35, 1095, 20, 70, 20, mBrick(), { uv: 128 }); B.box(480, GY - 35, 1095, 20, 70, 20, mBrick(), { uv: 128 });

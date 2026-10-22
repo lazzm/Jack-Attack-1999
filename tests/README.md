@@ -66,6 +66,18 @@ Authenticated lighting/render/save regressions (localhost only; screenshots in `
 
 For a post-deploy visual check only, `node live-readonly.mjs https://jacklm.com` checks the mandatory account screen and browser errors. It does not log on, create an account or change game state.
 
+Authenticated object/control regressions (localhost only; run from `tests/`):
+
+    node chair-pc-menu.mjs http://localhost:18080 # chair angles, Esc menu, first-person PC and 4:3 LOCK IN/refresh
+    node room-props-controls.mjs http://localhost:18080 # F repeats, furniture collision, safe placement, inspection and pillow refresh
+    node vhs-physical.mjs http://localhost:18080 # physical insertion, playback away/refresh/eject, reusable return slots and TV LOCK IN
+    node release-room-pc.mjs http://localhost:18080 # Goldenballs, 0/typing guard, same-scene shutdown, off refresh and power-on
+    node lock-in-handheld.mjs http://localhost:18080 # same-instance Game Lad LOCK IN, 10:9 aspect and desktop/narrow resizing
+    node object-audit.mjs http://localhost:18080 final # multi-angle desktop/narrow views and finite geometry
+    node surface-audit.mjs http://localhost:18080 final # candidate coplanar overlaps and exterior/threshold captures
+
+Esc now opens the game menu; historical scripts expecting immediate Esc exit need updating. Candidate overlap counts include hidden model joins, not just visible z-fighting. These tests use Chromium/software WebGL, not physical-hardware performance measurements.
+
 Most print `no errors` / `NO ERRORS` when they pass. Screenshots go in `shots/` (git-ignored).
 Some scripts have a hard-coded URL or port near the top: check before running. On the server they are run under
 `systemd-run --user --scope -p MemoryMax=3G -p MemorySwapMax=0 -q node <script>` to cap memory.

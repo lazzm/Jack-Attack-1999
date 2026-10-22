@@ -23,7 +23,8 @@
   const g = cv.getContext('2d');
   const tex = new T.CanvasTexture(cv); tex.minFilter = T.LinearFilter; tex.generateMipmaps = false;
   const room = () => HR.rooms.lounge;
-  const st = { on: false, ch: S.ch, text: false, sub: false, vcr: null, play: 0, speed: 0, menu: null, static: 0, osd: '', osdT: 0, mute: false };
+  const st = { on: !!S.on, ch: S.ch, text: false, sub: false, vcr: S.vcr||null, play: 0, speed: [-12,0,1,10].includes(S.speed)?S.speed:0, menu: null, static: 0, osd: '', osdT: 0, mute: false };
+  const savePlayback=()=>{S.on=st.on;S.vcr=st.vcr;S.speed=st.speed;S.ch=st.ch;save()};
   let ttx = null, ttxCv = null;
 
   // ================================================================ little drawing helpers (everything's original art)
@@ -216,16 +217,31 @@
     { id: 'vhs.blank', label: '???', show: 'secret', len: 60, col: '#f4f0e0' },
   ];
   const TAPE = {}; TAPES.forEach(t => { TAPE[t.id] = t; });
+  // Chore tapes are the same physical format, not unplayable lookalikes.
+  [['BASHIATORS - THE FINAL','robots'],['DOCTOR WHEN','cartoon'],['CHILDREN IN KNEAD','quiz'],['GALAXY WALK: THE NEXT SHIFT','cartoon'],['THE SNOWBLOKE','cartoon'],["MOM'S PROGRAMMES",'soap']].forEach(([label,show],i)=>{TAPE['ch.v.'+i]={id:'ch.v.'+i,label,show,len:240}});
+  TAPE['ch.v.3'].show='galaxy';
+  SHOW.galaxy=(t)=>{
+    g.fillStyle='#111b2d';g.fillRect(0,0,W,Hh);g.fillStyle='#04070e';g.fillRect(45,40,550,210);
+    for(let i=0;i<55;i++){g.fillStyle=i%4?'#c3cbd4':'#e2d6a9';g.fillRect(50+(i*73+t*3)%530,48+(i*47)%180,2,2)}
+    g.fillStyle='#728e9e';g.beginPath();g.arc(470,125,62,0,7);g.fill();g.strokeStyle='#c9b97e';g.lineWidth=9;g.beginPath();g.ellipse(470,125,91,17,-.3,0,7);g.stroke();
+    g.fillStyle='#343d4b';g.fillRect(0,280,W,200);g.fillStyle='#182330';g.fillRect(35,298,570,72);
+    for(let i=0;i<26;i++){g.fillStyle=['#a67c4a','#568b91','#a3af92'][(i+Math.floor(t*2))%3];g.fillRect(48+i*21,310+(i%3)*14,15,6)}
+    person(190,208,1.05,'#d5ad8e','#a98d4a','#4b352b',Math.abs(Math.sin(t*7))*.7);person(370,210,.92,'#d8b79b','#576f89','#242a2d',Math.abs(Math.cos(t*6))*.5);
+    txt('GALAXY WALK',30,42,30,'#e7cf90');caption('THE NEXT SHIFT',"Captain's log: the kettle has boldly gone missing.");
+    return ['Set course for the biscuit nebula.','Captain, the toaster cannot take much more!','We come in peace. And slippers.','Engage the washing-up drive.'][Math.floor(t/5)%4];
+  };
+  if(!TAPE[st.vcr]){st.vcr=null;st.speed=0}
   function tapeModel(t) { // a VHS cassette lying flat (18.7 x 10.3 x 2.5 cm), its label on top and on the spine
     const grp = new T.Group(); const B = K.into(grp);
-    const lbl = K.tex('vhs.lbl.' + t.id, 256, 140, (gg, w, h) => { gg.fillStyle = '#151515'; gg.fillRect(0, 0, w, h); gg.fillStyle = '#2a2a2a'; gg.fillRect(40, 70, 176, 50); gg.fillStyle = '#4a4a4a'; gg.beginPath(); gg.arc(84, 95, 18, 0, 7); gg.arc(172, 95, 18, 0, 7); gg.fill(); gg.fillStyle = t.col; gg.fillRect(16, 10, 224, 46); gg.font = '700 17px "Comic Sans MS",cursive'; gg.fillStyle = '#1a2a8a'; K.wrapText(gg, t.label, 22, 30, 214, 18); });
-    const spine = K.tex('vhs.sp.' + t.id, 256, 36, (gg, w, h) => { gg.fillStyle = '#151515'; gg.fillRect(0, 0, w, h); gg.fillStyle = t.col; gg.fillRect(8, 6, w - 16, h - 12); gg.font = '700 15px "Comic Sans MS",cursive'; gg.fillStyle = '#1a2a8a'; gg.fillText(t.label.slice(0, 26), 14, 24); });
+    const lbl=K.tex('vhs.lbl.'+t.id,512,280,(gg,w,h)=>{gg.fillStyle='#151515';gg.fillRect(0,0,w,h);gg.fillStyle='#2a2a2a';gg.fillRect(60,145,392,100);gg.fillStyle='#777';for(const x of [160,352]){gg.beginPath();gg.arc(x,195,36,0,7);gg.fill();gg.fillStyle='#222';gg.beginPath();gg.arc(x,195,12,0,7);gg.fill();gg.fillStyle='#777'}gg.fillStyle=t.col;gg.fillRect(28,18,456,112);gg.fillStyle='#152b52';gg.font='700 28px "Courier New",monospace';K.wrapText(gg,t.label,42,59,428,36)},{clamp:true});
+    const spine=K.tex('vhs.sp.'+t.id,512,72,(gg,w,h)=>{gg.fillStyle='#151515';gg.fillRect(0,0,w,h);gg.fillStyle=t.col;gg.fillRect(12,8,w-24,h-16);let size=30;do{gg.font='700 '+size+'px "Courier New",monospace';if(gg.measureText(t.label).width<=w-40)break;size--}while(size>14);gg.fillStyle='#152b52';gg.fillText(t.label,20,47)},{clamp:true});
     B.box(0, -1.25, 0, 18.7, 2.5, 10.3, { t: K.mat({ c: '#fff', map: lbl }), f: K.mat({ c: '#fff', map: spine }), all: K.mat({ c: '#1a1a1a', sh: 30, sp: '#333' }) });
     B.shadow(0, 0, 0, 21, 12, 0.45, { sq: true });
     return grp;
   }
   function tapes() {
-    const r = room(); if (!r || r._tapes) return; r._tapes = 1;
+    const r = room(); if (!r) return;
+    if(r._tapes){restoreInserted();return;}r._tapes = 1;
     TAPES.forEach((t, i) => {
       const thing = H.thing(t.id, { kind: 'vhs', label: 'Video: ' + t.label, obj: tapeModel(t), home: { room: 'lounge', x: -60 + 27, y: GY - 3 - i * 2.5, z: 342, ry: (i % 2 ? 4 : -3) }, holdD: 42 });
       thing.obj.traverse(o => { o.userData.thing = 1; });
@@ -235,17 +251,20 @@
     if (H.SPOTS['hs.tapes']) H.SPOTS['hs.tapes'].off = true;
     // the slot on the front of the video
     const v = r.vcr, front = v.position.z + 15.2;
-    H.snap('vcr', { room: 'lounge', x: v.position.x - 6, y: v.position.y - 5, z: front + 4, r: 16, box: [21, 3, 4], accepts: k => k === 'vhs', enabled: () => !st.vcr, hint: 'Let go to push the tape in', pose: { x: v.position.x - 6, y: v.position.y - 4, z: front - 8, ry: 0 }, hide: true,
-      onSnap: t => { st.vcr = t.id; st.play = 0; st.speed = 0; H.sfx.noise(0.4, 0.08, 800, 0, 'bandpass', 300); H.sfx.tone(90, 0.2, 'square', 0.04, 0.3); osd('TAPE IN'); say('The video', 'Ker-chunk. Whirr. The tape\'s in. Sit down at the telly and press PLAY (or channel 0 for the video).', 5000); },
-      onUnsnap: () => { st.vcr = null; st.speed = 0; } });
+    H.snap('vcr', { room: 'lounge', x: v.position.x - 6, y: v.position.y - 5, z: front + 4, r: 16, box: [21, 3, 4], accepts: k => k === 'vhs'||k==='chvhs', enabled: () => !st.vcr, hint: 'Let go to push the tape in', pose: { x: v.position.x - 6, y: v.position.y - 4, z: front - 8, ry: 0 }, hide: true,
+      onSnap: t => { st.vcr=t.id;st.play=0;st.speed=1;st.ch=0;power(true);savePlayback();if(window.ChoreKit&&t.kind==='chvhs')ChoreKit.keep(t.id);H.sfx.noise(.4,.08,800,0,'bandpass',300);osd('PLAY');say('The video','Ker-chunk. Whirr. Playing '+esc(TAPE[t.id]?.label||'the tape')+'. Use the telly remote to pause, rewind or eject.',5000); },
+      onUnsnap: () => { st.vcr=null;st.speed=0;savePlayback(); } });
     for (const t of TAPES) { const th = H.THINGS[t.id]; if (th && th.st === 'snap' && th.snap === 'vcr') st.vcr = t.id; }
     // a click on the video itself: eject (when there's a tape in)
     const s = H.SPOTS['hs.vcr']; if (s) s.act = () => { if (st.vcr) eject(); else open('vcr'); };
+    restoreInserted();
   }
+  function restoreInserted(){const t=st.vcr&&H.THINGS[st.vcr],s=H.SNAPS.vcr;if(!t||!s||!t.at.hide)return;t.st='snap';t.snap='vcr';t.at=Object.assign({room:'lounge',hide:true},s.pose);t.at.hide=true;H.place(t);if(st.on){room().tvScreen.material.map=tex;room().tvScreen.material.needsUpdate=true;}}
   function eject() {
     const id = st.vcr; if (!id) return; const t = H.THINGS[id], v = room().vcr, front = v.position.z + 15.2;
     st.vcr = null; st.speed = 0; t.snap = null; t.rx = 0; t.st = 'fall'; t.vy = 0; t.at = { room: 'lounge', x: v.position.x - 6, y: v.position.y - 8, z: front + 10, ry: 0 }; t.landY = GY - 1; t.fromX = v.position.x - 6; t.fromZ = front + 2; t.t0 = performance.now(); t.obj.visible = true;
     H.sfx.noise(0.3, 0.08, 700); H.sfx.tone(120, 0.1, 'square', 0.05, 0.2); osd('EJECT'); H.saveThings();
+    savePlayback();if(window.ChoreKit&&t.kind==='chvhs')ChoreKit.keep(t.id);
   }
   const tapeT = () => st.vcr ? (S.tapes[st.vcr] || 0) : 0;
   function tapeFrame(dt) { // the tape moves: play, fast forward, rewind
@@ -304,7 +323,7 @@
     person(220, 230, 1.0, '#e8c0a0', '#c01a1a', '#5a3a1a', Math.abs(Math.sin(t * 8)) * 0.8);
     g.fillStyle = '#2a8aff'; g.fillRect(150, 330, 140, 60); g.fillStyle = '#ffd400'; g.fillRect(212, 330, 16, 60); g.fillRect(150, 352, 140, 16);
     txt('DEC 25 1998', W - 30, Hh - 60, 24, '#ff8a3a', 'right', '700 24px "Courier New",monospace'); txt('REC ●', 30, 50, 22, '#ff3a3a', 'left', '700 22px "Courier New",monospace');
-    subtitle = ['Dad: "Is it recording? Is the red light on?"', 'Jack: "A NINTENDO 64?! YESSSSS!"', 'Gran: "Mind my sherry!"', 'Mom: "Say thank you to Father Christmas!"', '(The camera points at the carpet for a while.)'][Math.floor(t / 6) % 5];
+    subtitle = ['Dad: "Is it recording? Is the red light on?"', 'Jack: "A ULTRA 64?! YESSSSS!"', 'Gran: "Mind my sherry!"', 'Mom: "Say thank you to Father Christmas!"', '(The camera points at the carpet for a while.)'][Math.floor(t / 6) % 5];
     if (t > 12) secret('hs.ttx.hidden');
   }
   // ---- the video's on-screen menu: the TIMER (nobody has ever got this right)
@@ -349,9 +368,9 @@
   function sitDown(what) {
     if (!st.on) power(true);
     if (what === 'vcr' && st.vcr) { st.ch = 0; }
-    surf = H.surface(cv, screenQuad, { w: W, h: Hh }); cv.classList.add('on');
+    surf = H.surface(cv, screenQuad, { w: W, h: Hh, screen:true }); cv.classList.add('on');
     remote();
-    if (!S.hint) { S.hint = 1; save(); say('The telly', 'Mom says don\'t sit so close or you\'ll get square eyes. The remote: numbers for the channels (0 is the video), TEXT for TELLY-TEXT, and the coloured buttons for its links. Keys work too: 0-9, T for text, arrows for channels.', 9000); }
+    if (!S.hint) { S.hint = 1; save(); say('The telly', 'Mom says don\'t sit so close or you\'ll get square eyes. The remote: numbers for the channels (its 0 button is the video), TEXT for TELLY-TEXT, and the coloured buttons for its links. Keyboard: 1-5 for channels, T for text, arrows for channels. Press 0 to LOCK IN; Esc opens the game menu.', 9000); }
     else if (life() && life().quiet()) say('The telly', 'It\'s late. Keep the volume DOWN or Dad will be down those stairs.', 4000);
     keysOn(true);
   }
@@ -362,6 +381,7 @@
     if (st.on) { st.static = performance.now() + 350; H.sfx.noise(0.35, 0.05, 3000); H.sfx.tone(15700, 0.6, 'sine', 0.008); } else { H.sfx.tone(200, 0.1, 'sine', 0.04, 0, 60); }
     if (r && r.tvScreen) { r.tvScreen.material.map = st.on ? tex : A.t('screenOff'); r.tvScreen.material.needsUpdate = true; }
     HR.relight(); H.dirty();
+    savePlayback();
   }
   function chan(n) { st.ch = n; S.ch = n; save(); st.static = performance.now() + 240; H.sfx.noise(0.2, 0.04, 2500); osd(n === 0 ? 'AV' : String(n)); st.osdT = performance.now() + 2200; curShow = ''; }
   function remote() {
@@ -398,6 +418,7 @@
     if (k === 'stop') { st.speed = 0; osd('STOP'); }
     if (k === 'rew') { if (st.ch !== 0) chan(0); st.speed = -12; osd('REW'); H.sfx.noise(1.5, 0.03, 1200, 0, 'bandpass', 2400); }
     if (k === 'ff') { if (st.ch !== 0) chan(0); st.speed = 10; osd('FF'); H.sfx.noise(1.5, 0.03, 1200, 0, 'bandpass', 2400); }
+    savePlayback();
   }
   function ensureTtx() {
     if (ttx || !window.TTX) { if (!window.TTX) Promise.all([window.TTXData ? 0 : loadJs('js/hs-ttx-data.js'), loadJs('js/hs-ttx.js')]).then(() => { if (!ttx && window.TTX) mkTtx(); }); return; }
@@ -411,9 +432,12 @@
     if (!k) return; ev.preventDefault(); ev.stopImmediatePropagation(); press(k);
   }
   // ---- the picture keeps going: fast when you're watching, slowly on the 3D telly when you walk past
-  let lastSlow = 0;
+  let lastSlow = 0,lastSave=0;
+  addEventListener('pagehide',savePlayback);document.addEventListener('visibilitychange',()=>{if(document.hidden)savePlayback()});
   H.ambient.add(now => {
-    const r = room(); if (!r || !r.group.visible || !st.on) return;
+    const r = room();if(st.on&&st.vcr&&now-lastSave>2000){lastSave=now;savePlayback()}
+    if(!r||!st.on)return;
+    if(!r.group.visible&&!surf){if(st.vcr&&st.speed){const dt=Math.min(.25,(now-(last||now))/1000);last=now;tapeFrame(dt)}return;}
     if (surf) return; // (the fast loop has it)
     if (now - lastSlow > 120) { lastSlow = now; frame(now); H.dirty(); }
   });
@@ -429,5 +453,6 @@
 
   window.HouseTelly = { open(what) { if (what === 'tapes') { tapes(); say('Video tapes', 'Pick a tape up off the shelf and push it into the slot on the front of the video. Then sit down at the telly and press PLAY.', 6000); return; } open(what); }, guide, get on() { return st.on; }, phoneLine: n => window.TTX ? TTX.phoneLine(n) : null, press, st, tapes };
   tapes();
+  if(st.on)power(true);
   loadJs('js/hs-ttx-data.js').catch(() => {});
 })();

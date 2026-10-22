@@ -31,7 +31,7 @@
       this.sync();
     },
     also: {
-      garden: () => CK.snap('ch.s.wheelie', { room: 'garden', x: 150, y: GY - 118, z: -110, r: 46, box: [50, 2, 60], accepts: k => k === 'kbag', hide: true, hint: 'Let go: in the wheelie bin', onSnap: t => {
+      garden: () => CK.snap('ch.s.wheelie', { room: 'garden', x: R('garden').wheelie.x, y: GY - 118, z: R('garden').wheelie.z, r: 46, box: [50, 2, 60], accepts: k => k === 'kbag', hide: true, hint: 'Let go: in the wheelie bin', onSnap: t => {
         CK.snd.thud(); setTimeout(() => H.sfx.tone(70, 0.25, 'sine', 0.08), 120); t.home = Object.assign({}, t.at, { hide: true }); CK.lock(t.id); CK.keep(t.id);
         CK.step('bins', 'out'); CK.jack('The wheelie bin', 'THUNK. In it goes. It smells like a fox has been in there. A fox HAS been in there. Now a new bag in the kitchen bin.', 4500);
       } }),

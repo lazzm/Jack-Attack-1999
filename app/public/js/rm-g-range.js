@@ -21,8 +21,8 @@
   const TV = window.RoomTV; if (!TV) return;
   const GID = 'n64.range';
   const NEWSECRETS = [
-    ['rm.range.hat', 'Hat Trick', 'Knock three hats off in a row in Secret Agent 64.'],
-    ['rm.range.klaxon', 'Klaxon Silenced', 'Find out who is behind it all in Secret Agent 64, and stop him.'],
+    ['rm.range.hat', 'Hat Trick', 'Knock three hats off in a row in Goldenballs.'],
+    ['rm.range.klaxon', 'Klaxon Silenced', 'Find out who is behind it all in Goldenballs, and stop him.'],
   ];
   try { if (window.Apps && Apps.defineSecret) for (const [id, n, hint] of NEWSECRETS) if (!(Apps.secrets && Apps.secrets[id])) Apps.defineSecret(id, n, hint); } catch (e) {}
 
@@ -1429,10 +1429,8 @@
       const LOGO = (() => { const c = document.createElement('canvas'); c.width = 640; c.height = 170; const g = c.getContext('2d');
         g.save(); g.translate(14, 0); g.transform(1, 0, -0.18, 1, 0, 0);
         g.font = '900 58px "Arial Black",Arial,sans-serif'; g.textBaseline = 'alphabetic';
-        g.lineJoin = 'round'; g.lineWidth = 12; g.strokeStyle = '#0a0a12'; g.strokeText('SECRET AGENT', 30, 86);
-        let gr = g.createLinearGradient(0, 30, 0, 90); gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.45, '#9aa4b8'); gr.addColorStop(0.5, '#4a5468'); gr.addColorStop(1, '#d8e0ee'); g.fillStyle = gr; g.fillText('SECRET AGENT', 30, 86);
-        const sw = g.measureText('SECRET AGENT').width; g.font = '900 104px "Arial Black",Arial,sans-serif'; const fx = Math.min(640 - g.measureText('64').width - 40, 30 + sw + 6); g.lineWidth = 14; g.strokeText('64', fx, 120);
-        gr = g.createLinearGradient(0, 40, 0, 124); gr.addColorStop(0, '#fff6a0'); gr.addColorStop(0.5, '#f0a018'); gr.addColorStop(0.55, '#b8460a'); gr.addColorStop(1, '#ffd040'); g.fillStyle = gr; g.fillText('64', fx, 120);
+        g.lineJoin = 'round'; g.lineWidth = 12; g.strokeStyle = '#0a0a12'; g.strokeText('GOLDENBALLS', 30, 86);
+        const gr = g.createLinearGradient(0,30,0,90);gr.addColorStop(0,'#fff6ba');gr.addColorStop(.45,'#e0ae4b');gr.addColorStop(.5,'#926024');gr.addColorStop(1,'#ffe6a0');g.fillStyle=gr;g.fillText('GOLDENBALLS',30,86);
         g.restore();
         g.fillStyle = '#c01a1a'; g.fillRect(70, 112, 360, 34); g.fillStyle = '#0a0a12'; g.fillRect(70, 146, 360, 4);
         g.font = 'bold 26px Arial,sans-serif'; g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText('T A R G E T   R A N G E', 250, 138);
@@ -1505,7 +1503,7 @@
         if (banner) { const B = banner, a = Math.min(1, B.age * 4, (B.life - B.age) * 3); if (a > 0) { g.globalAlpha = a; g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(0, 74, W, B.sub ? 36 : 24); F.center(g, B.t, W / 2, 78, B.col, 2, '#000'); if (B.sub) F.center(g, B.sub, W / 2, 98, '#fff', 1, '#000'); g.globalAlpha = 1; } }
         if (hurtFlash > 0) { const a = Math.min(0.55, hurtFlash); const gr = g.createRadialGradient(W / 2 + hurtSide * 90, H / 2, H * 0.25, W / 2, H / 2, H * 0.8); gr.addColorStop(0, 'rgba(200,0,0,0)'); gr.addColorStop(1, `rgba(220,0,0,${a})`); g.fillStyle = gr; g.fillRect(0, 0, W, H); }
         if (G.hp < 30 && M.kind !== 'range' && !G.done) { g.fillStyle = `rgba(160,0,0,${0.12 + Math.sin(K.t * 6) * 0.06})`; g.fillRect(0, 0, W, H); }
-        if (G.demo) { g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(0, H - 22, W, 14); F.center(g, (K.frame >> 5) % 2 ? 'DEMO - PRESS START' : 'SECRET AGENT 64', W / 2, H - 19, '#ffd84a', 1); }
+        if (G.demo) { g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(0, H - 22, W, 14); F.center(g, (K.frame >> 5) % 2 ? 'DEMO - PRESS START' : 'GOLDENBALLS', W / 2, H - 19, '#ffd84a', 1); }
         if (paused) {
           g.fillStyle = 'rgba(4,8,16,.72)'; g.fillRect(0, 0, W, H); folder(g, 60, 40, W - 120, H - 70, 'PAUSED');
           F.draw(g, M.n, 72, 52, '#1a1a1a', 1); F.draw(g, DIFFS[G.d], 72, 62, '#7a2a1a', 1);

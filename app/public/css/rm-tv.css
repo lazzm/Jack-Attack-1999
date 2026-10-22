@@ -12,6 +12,12 @@
 .rm-live3d .rm-help{color:#eee7d3;text-shadow:0 1px 3px #000;max-width:90vw;padding:5px 9px;background:rgba(22,25,27,.9);font:12px "Courier New",monospace}
 .rm-live3d .rm-help small{color:#d1c9b3}
 .rm-live3d .rm-pad{pointer-events:auto;isolation:isolate}
+/* LOCK IN reuses the running game's two canvases; no new game or readback. */
+.rm-view.rm-tvv.rm-lockin.on{display:block;background:#050606!important;pointer-events:auto}
+.rm-tvv.rm-lockin .rm-tvwrap{display:block;position:absolute;left:50%;top:50%;width:var(--lock-width);height:var(--lock-height);margin:0!important;transform:translate(-50%,-50%);transition:none}
+.rm-tvv.rm-lockin .rm-tvbez{position:absolute;inset:0;width:100%;height:100%;padding:0;aspect-ratio:auto;border:0;border-radius:0;background:#000;box-shadow:none}
+.rm-tvv.rm-lockin .rm-glass{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;border-radius:0;box-shadow:none}
+.rm-tvv.rm-lockin .rm-tvwrap::after,.rm-tvv.rm-lockin .rm-tvbez>:not(.rm-glass),.rm-tvv.rm-lockin .rm-livebar,.rm-tvv.rm-lockin .rm-side,.rm-tvv.rm-lockin .rm-res{display:none!important}
 .rm-live3d.rm-padon .rm-livebar{bottom:min(32vh,240px)}
 .rm-live3d.rm-padon .rm-pad{height:min(30vh,220px)}
 .rm-live3d .rm-st,.rm-live3d .rm-sh{min-height:44px;min-width:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center}

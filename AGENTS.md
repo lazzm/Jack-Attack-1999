@@ -41,6 +41,10 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
 - No real brands/logos/copied assets or code. Fake TLDs only (.jnet .webcom .kidz .grot ...), never real domains or
   subdomains of jacklm.com. Consoles in the house use fake names (Ultra 64, PlaySpace, Game Lad, Segue, Daydream,
   Super Ultra). The PC is JackOS: never "Windows" (C:\JACKOS, SYSTEM32 inside it).
+- ALL authored pop-culture references and brands must be recognisable, funny fictional parodies, including dialogue,
+  fake web pages, magazines, TV listings, VHS labels, box artwork and game titles. Examples: Galaxy Walk;
+  Intergalactic Battles: An Old Hope. Audit source and inspect the rendered lettering; never silently truncate titles.
+  Preserve internal IDs/save keys, technical API/font names, third-party licence notices and players' own posts/data.
 - Every player needs a JackNet account before playing; no guest/cancel bypass. Existing account names, saves and balances must survive.
 - Pocket money and job wages are server-held cash in integer pence. JackNet Bank exchanges £1 for 20 Rupees (5p increments, £20/day, one-way, no real money); new cash wallets start at £0, without converting old Rupees. Rupees still use capped server earn paths; the browser never mints either currency. Persist exchange-slip nonces so retries never debit twice.
 - People: Jack, Dave, Luke, Callum, JackK, Crystal (Jack's little sister), Mom, Dad, Gran, Grandad, Nan and Gubbinz are fixed;
@@ -50,7 +54,10 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
 - Browser tab title is always "Jack Attack 1999" (js/title.js); it's shown nowhere else.
 - The site's CSP is `script-src 'self'`: no inline scripts or inline event handlers; put code in files.
 - Controls in the house: WASD/arrows walk, Shift jog, C crouch (never Ctrl: Ctrl+W closes the tab), Space jump,
-  E/click use or grab, F2 or hold Esc stand up from the PC, G graphics, F9 god mode (owner "Jack" only).
+  F interacts (use/grab; insert at a highlighted slot; otherwise use a held object or put it down), E/click are
+  placement/interaction alternatives, I inspects, R turns, Esc opens the game menu (including return/leave actions). F2 stands up from the PC,
+  0 toggles LOCK IN for the active in-game screen (never while typing), G graphics, F9 god mode (owner "Jack" only).
+  Keep on-screen prompts consistent; never intercept Ctrl+F. LOCK IN preserves the screen's native aspect ratio and running state.
 
 ## Owner's layout edits
 Jack exports `layout-edits.json` from god mode (name, room, file:line, original and new x/y/z/rotation). Apply each entry
@@ -60,6 +67,8 @@ by changing the matching `B.at(...)`/position call in the named file to the new 
 1. "Lean into the screen": console games render onto the 3D telly's screen as a live texture (no 2D TV overlay or
    AV-switch pop-up); cartridges picked from the real shelf and inserted via the grab API; the camera glides in to frame
    the screen. Same for the PC: the desktop stays on the 3D monitor in its bezel (4:3), no full-screen hand-over.
+   Owner-approved exception: LOCK IN (0 or the Esc menu) makes the active PC, console, Game Lad or family-TV screen
+   full-screen at its native aspect ratio without restarting it. Default remains in-world.
 2. Put-things-back / tidy-up option for grabbed objects; room notes must not cover the view; texture and lighting pass.
 3. Remaining "Windows"/"Microsoft" strings (md-rooms.js, hs-*.js, mods/roam.js); kitchen/bedroom furniture rotation audit;
    z-fighting at wall bottoms; front-door-open picking; patio table collision.
