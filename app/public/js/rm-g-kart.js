@@ -973,7 +973,11 @@
       let gp = null, results = null, camYaw = 0, camY = 3, fov = 64, demoT = 0, demoCam = 0, introT = 0, lastLapMsg = 0, finalLap = false, trackPrev = -1, prevT = 0, hiPage = 0;
       const sel = { main: 0, cc: 1, drv: sv.drv, cup: 0, trk: sv.track, arena: 0, opt: 0, how: 0, rec: 0 };
       function say(s, t) { msg = s; msgT = t || 1.4; }
-      const raceSong = () => cfg.kind === 'battle' ? song(8) : (song(TH.song) && (finalLap ? fast(song(TH.song)) : song(TH.song)));
+      // One owner-approved recording trial: races only, never menus or other games.
+      const raceSong = () => !sv.opt.mus ? null : cfg.kind === 'battle' ? song(8) : ({
+        audio: 'audio/kart-trial/race.mp3?v=2.36.1', vol: .5, rate: finalLap ? 1.12 : 1,
+        fallback: finalLap ? fast(song(TH.song)) : song(TH.song),
+      });
       const song = n => sv.opt.mus ? SONGS[n] : null;
       const music = s => K.music(s || null);
       const scoreCap = s => Math.max(0, Math.min(Math.floor(s), 30000, Math.floor(120 * (K.t + 4))));
@@ -1125,7 +1129,7 @@
             const lap = Math.floor(k.prog / L.N) + 1;
             if (lap > k.lap && k.lap > 0) {
               const lt = raceT - k.lapStart; k.laps.push(lt); k.lapStart = raceT; if (!k.bestLap || lt < k.bestLap) k.bestLap = lt;
-              if (k === me && kind !== 'demo') { if (lap === 3) { say('FINAL LAP!', 2); finalLap = true; K.sfx.seq([[79, 0.5], [79, 0.5], [84, 1]], { bpm: 300, vol: 0.09 }); music(song(TH.song) && fast(song(TH.song))); } else if (lap < 4) say('LAP ' + lap + '   ' + fmt(lt), 1.6); }
+              if (k === me && kind !== 'demo') { if (lap === 3) { say('FINAL LAP!', 2); finalLap = true; K.sfx.seq([[79, 0.5], [79, 0.5], [84, 1]], { bpm: 300, vol: 0.09 }); music(raceSong()); } else if (lap < 4) say('LAP ' + lap + '   ' + fmt(lt), 1.6); }
             }
             k.lap = Math.max(k.lap, lap);
             if (lap >= 4) { k.done = true; k.ft = raceT; if (k === me && kind !== 'demo') finishRace(); }
@@ -1335,7 +1339,7 @@
           if (c1 !== c0 && c1 >= 1 && c1 <= 3) K.sfx.tone(440, 0.22, 'square', 0.1);
           if (K.pressed('a') && me.early == null) me.early = count;
           if (count <= 0) {
-            mode = 'race'; K.sfx.tone(880, 0.6, 'square', 0.12); music(cfg.kind === 'battle' ? song(8) : song(TH.song));
+            mode = 'race'; K.sfx.tone(880, 0.6, 'square', 0.12); music(raceSong());
             if (K.held('a') && me.early != null && me.early < 1.0 && me.early > 0.1) { me.boost = 1.0; say('ROCKET START!', 1.2); K.sfx.noise(0.6, 0.15, 900, 0, 'bandpass', 3000); }
             else if (me.early != null && me.early > 2.2) { me.spin = 0.7; me.spinYaw = me.yaw; say('TOO EARLY!', 1.2); }
             for (const k of karts) if (k.ai && k.rocket) k.boost = 0.7;

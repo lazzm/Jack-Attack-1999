@@ -109,9 +109,53 @@
     seq(notes, o) { o = o || {}; const b = 60 / (o.bpm || 140); let w = o.when || 0; for (const [m, beats] of notes) { if (m > 0) sfx.tone(mtof(m), b * beats * 0.95, o.wave || 'square', o.vol == null ? 0.1 : o.vol, w); w += b * beats; } },
   };
   // a looping tune: 16th-note steps, lead and bass in MIDI numbers (0 = rest, -1 = hold)
-  const mus = { song: null, step: 0, next: 0, timer: 0 };
+  const mus = { song: null, step: 0, next: 0, timer: 0, source: null, gain: null, url: '', offset: 0, started: 0, rate: 1, epoch: 0, enabled: null };
+  const recordings = new Map();
+  function recording(url, c) {
+    if (!recordings.has(url)) recordings.set(url, fetch(url).then(r => {
+      if (!r.ok) throw new Error('Recording unavailable');
+      return r.arrayBuffer();
+    }).then(bytes => c.decodeAudioData(bytes)).then(original => {
+      // Blend the short trial's end into its beginning, avoiding a hard click at
+      // the loop boundary. This is not a replacement for a composed loop master.
+      const overlap = Math.min(Math.round(original.sampleRate * .08), Math.floor(original.length / 4));
+      const buffer = c.createBuffer(original.numberOfChannels, original.length - overlap, original.sampleRate);
+      for (let ch = 0; ch < original.numberOfChannels; ch++) {
+        const input = original.getChannelData(ch), output = buffer.getChannelData(ch);
+        output.set(input.subarray(overlap));
+        for (let n = 0; n < overlap; n++) {
+          const mix = n / overlap, at = output.length - overlap + n;
+          output[at] = input[original.length - overlap + n] * (1 - mix) + input[n] * mix;
+        }
+      }
+      return buffer;
+    }));
+    return recordings.get(url);
+  }
   function music(song) {
-    clearInterval(mus.timer); mus.song = song || null; if (!song) return;
+    clearInterval(mus.timer); const epoch = ++mus.epoch;
+    if (mus.source) {
+      mus.offset += (AC.currentTime - mus.started) * mus.rate;
+      mus.source.stop(); mus.source.disconnect(); mus.gain.disconnect();
+      mus.source = mus.gain = null;
+    }
+    mus.song = song || null; mus.enabled = !!window.Sound?.on; if (!song) return;
+    if (song.audio) {
+      if (mus.url !== song.audio) { mus.url = song.audio; mus.offset = 0; }
+      const c = ac(); if (!c) return;
+      recording(song.audio, c).then(buffer => {
+        if (epoch !== mus.epoch || !window.Sound?.on || document.hidden) return;
+        const source = c.createBufferSource(), gain = c.createGain();
+        source.buffer = buffer; source.loop = true; source.playbackRate.value = song.rate || 1;
+        gain.gain.setValueAtTime(0, c.currentTime);
+        gain.gain.linearRampToValueAtTime(song.vol == null ? .5 : song.vol, c.currentTime + .04);
+        source.connect(gain); gain.connect(OUT);
+        mus.offset %= buffer.duration; mus.started = c.currentTime; mus.rate = source.playbackRate.value;
+        mus.source = source; mus.gain = gain; source.start(0, mus.offset);
+      }).catch(() => { if (epoch === mus.epoch) music(song.fallback || null); });
+      return;
+    }
+    mus.url = ''; mus.offset = 0;
     mus.step = 0; mus.next = 0;
     mus.timer = setInterval(() => {
       const c = ac(); if (!c || !mus.song) return;
@@ -582,6 +626,7 @@
     stop() { cancelAnimationFrame(this.raf); this.raf = 0; },
     tick(n) {
       if (!V) return;
+      if (mus.enabled !== !!window.Sound?.on) music(window.Sound?.on ? V.song : null);
       // Keep the simulation alive, but avoid rendering/uploading a second game
       // at the monitor's full refresh rate while Jack is walking elsewhere.
       if (V.background && n - this.viewAt > 250) {this.viewAt = n; this.viewOn = !!(_.tvVisible && _.tvVisible(V.con));}

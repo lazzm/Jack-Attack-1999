@@ -1,0 +1,16 @@
+{
+  "provider": "Replicate",
+  "model": "meta/musicgen",
+  "version": "671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb",
+  "input": {
+    "prompt": "Original instrumental late-1990s 64-bit kart-racing game theme. Bright brassy synthesizer stabs, rubbery electric bass, playful marimba melody and punchy dry drum-machine groove, 150 BPM. Joyful triumphant G major with colourful major ninth chords and a rising energetic chorus. Arcade fun, catchy original composition, no vocals, no recognizable melodies or existing songs, no long intro or cinematic ending, steady loop-friendly groove.",
+    "model_version": "stereo-large",
+    "output_format": "mp3",
+    "normalization_strategy": "peak",
+    "duration": 24
+  },
+  "prediction": "bf85kzzp05rna0d1cf3vp659hr",
+  "bytes": 288837,
+  "usage": "Owner-requested non-commercial game audio trial; model weights are CC-BY-NC 4.0. Review licensing before any commercial release.",
+  "license": "https://replicate.com/meta/musicgen/readme"
+}

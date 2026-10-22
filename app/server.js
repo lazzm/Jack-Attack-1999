@@ -184,7 +184,7 @@ function isMemberName(name) { return !!state.members[String(name).toLowerCase()]
 const COLOURS = ['#ff0000', '#00c000', '#0000ff', '#ff00ff', '#ff8000', '#008080', '#8000ff', '#c00060', '#808000', '#0080ff'];
 
 // ---------------------------------------------------------------- static files
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.gif': 'image/gif', '.ico': 'image/x-icon', '.svg': 'image/svg+xml', '.txt': 'text/plain; charset=utf-8', '.json': 'application/json', '.woff2': 'font/woff2', '.jpg': 'image/jpeg', '.xml': 'application/xml; charset=utf-8', '.webmanifest': 'application/manifest+json' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.gif': 'image/gif', '.ico': 'image/x-icon', '.svg': 'image/svg+xml', '.txt': 'text/plain; charset=utf-8', '.json': 'application/json', '.woff2': 'font/woff2', '.jpg': 'image/jpeg', '.xml': 'application/xml; charset=utf-8', '.webmanifest': 'application/manifest+json', '.mp3': 'audio/mpeg' };
 
 const HTML_CSP = "default-src 'self'; connect-src 'self' wss: ws:; img-src 'self' data: blob:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; frame-ancestors 'none'";
 // e-card, homepage and brag-badge links (/card/<id>, /~name, /hp/<name>, /badge/<id>): index.html with their own og tags (mods/share.js)
