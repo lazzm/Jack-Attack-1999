@@ -71,7 +71,7 @@
   ];
   // the computer players. One personality per difficulty; extra computer players get the friends' names
   const FOES = [
-    { n: 'Dave', tag: 'Easy', blurb: 'Would rather be playing GoldenEye on his N64.', hi: 'Dave: is the blue team me? ok cool', taunts: ['Dave: can we play GoldenEye after this?', 'Dave: Luke says this would be loads better on the N64', 'Dave: my knights are coming. probably.', 'Dave: hang on, my Mom says tea is ready in 10 mins', 'Dave: which button makes the horses go'], win: 'Dave: haha I WON?? I never win anything!', lose: 'Dave: good game. N64 now? Please?' },
+    { n: 'Dave', tag: 'Easy', blurb: 'Would rather be playing Goldenballs on his ULTRA 64.', hi: 'Dave: is the blue team me? ok cool', taunts: ['Dave: can we play Goldenballs after this?', 'Dave: Luke says this would be loads better on the ULTRA 64', 'Dave: my knights are coming. probably.', 'Dave: hang on, my Mom says tea is ready in 10 mins', 'Dave: which button makes the horses go'], win: 'Dave: haha I WON?? I never win anything!', lose: 'Dave: good game. ULTRA 64 now? Please?' },
     { n: 'JackK', tag: 'Normal', blurb: 'Your mate Jack. Goes by JackK so nobody mixes you up. Everybody still mixes you up.', hi: 'JackK: may the best Jack win', taunts: ['JackK: there can be only one Jack', 'JackK: my peasants chop faster than yours', 'JackK: incoming!', 'JackK: you missed a bit'], win: 'JackK: the better Jack wins. Obviously.', lose: 'JackK: rematch. Tomorrow. After school.' },
     { n: 'Callum', tag: 'Hard', blurb: 'Has a 450 MHz PC, a proper mouse mat and no mercy.', hi: 'Callum: you\'re going down. I\'ve been practising.', taunts: ['Callum: rush incoming lol', 'Callum: I normally play this on Fast speed', 'Callum: you\'re not even using hotkeys are you', 'Callum: my knights are faster than your modem', 'Callum: is that a WALL of houses? lol'], win: 'Callum: gg. Told you. Want the disc back now.', lose: 'Callum: ...my mouse was lagging. Rematch. NOW.' },
   ];
@@ -1266,7 +1266,7 @@
         pl: () => [you(0, 1, 0), cpu('The Blue Knights', 0, 1, 2, 1)],
         init() { const a = S.ai[1]; a.peace = 1e9; a.cfg = { grots: 5, army: 2, age: 1e9, towers: 0 }; S.res[1] = { f: 100, w: 100, t: 40 }; const tc = findTC(1); if (tc) tc.hp = 700; S.tut = { i: 0, t0: 0 }; },
         win: 'The Blue Knights\' Town Centre lies in ruins. Sir Reginald: "Splendid, my lord! You\'re a natural. Now try a real game. Dave is waiting."', lose: 'Sir Reginald: "Oh dear. Even the best kings lose sometimes. Shall we try that again?"' },
-      { id: 'push', n: 'Dave\'s Big Push', d: 'Dave has been practising (on the N64, mostly). His soldiers come early and keep coming. Hold out for 12 minutes, or flatten his Town Centre first.', mi: 1,
+      { id: 'push', n: 'Dave\'s Big Push', d: 'Dave has been practising (on the ULTRA 64, mostly). His soldiers come early and keep coming. Hold out for 12 minutes, or flatten his Town Centre first.', mi: 1,
         pl: () => [you(0, 1, 0), cpu('Dave', 0, 1, 2, 2, 0)],
         init() { const a = S.ai[1]; a.waveAt = 150; a.cfg = { army: 12 }; S.res[1].f += 200; S.res[0].w += 150; },
         check() { if (S.time >= 720 && !S.pl[0].out) return S.pl[0].ally; return null; },
@@ -1950,7 +1950,7 @@
       if (S.me < 0) return;
       if (CHEATS[up]) { const r = CHEATS[up](); G.timer(() => msg(r, '#7fff7f'), 300); G.secret('rts.cheat'); G.sfx('solve'); return; }
       const F = (S.pl.find((P, p) => P.foe && meFoe(p)) || {}).foe; if (!F) return;
-      if (/N64|GOLDENEYE|NINTENDO|MARIO/.test(up)) { G.timer(() => msg('Luke and Dave say this would be better on the N64. They are wrong. (Well. Maybe GoldenEye.)', '#ffe8a0'), 500); return; }
+      if (/N64|GOLDENEYE|NINTENDO|MARIO/.test(up)) { G.timer(() => msg('Luke and Dave say this would be better on the ULTRA 64. They are wrong. (Well. Maybe Goldenballs.)', '#ffe8a0'), 500); return; }
       if (/^(GG|GOOD GAME)/.test(up)) { G.timer(() => msg(F.n + ': gg? it\'s not over yet!', '#8ab0ff'), 900); return; }
       if (/CHEAT/.test(up)) { G.timer(() => msg(F.n + ': I\'m not telling you the cheats. Ask Callum. Actually don\'t, he\'ll just laugh.', '#8ab0ff'), 900); return; }
       G.timer(() => msg(F.n + ': ' + vpick(['lol', 'what?', 'stop typing and play!', 'is that you Jack?', 'my Mom says hi', 'can\'t talk, building', 'whatever']), '#8ab0ff'), 900 + Math.random() * 800);
@@ -2598,7 +2598,7 @@ ${row('Food gathered', p => Math.floor(st[p].gath.f))}${row('Wood gathered', p =
         { label: 'How to Play', act: () => helpScreen(S && !S.over ? closeOv : showTitle) },
         { label: 'Keys', key: '?', act: () => keysScreen(S && !S.over ? closeOv : showTitle) },
         '-',
-        { label: 'Readme.txt', act: () => G.msg('README.TXT', 'AGE OF JACKPIRES II: THE AGE OF JACKS\nVersion 1.1\n\nNEW IN 1.1\n- Spearmen, the Blacksmith and the Wheelbarrow\n- Up to four players: free-for-all or teams\n- The Learning Campaign and four campaign battles\n- Play online over JackNet (Play Online on the title screen)\n\nKNOWN ISSUES\n- Villagers sometimes get stuck behind trees. This is realistic.\n- Callum says the Hard computer is "too easy". Callum is lying.\n- Luke and Dave keep asking if there is an N64 version. There is not.\n\nThis disc belongs to CALLUM. If found, return to Callum.', 'info') },
+        { label: 'Readme.txt', act: () => G.msg('README.TXT', 'AGE OF JACKPIRES II: THE AGE OF JACKS\nVersion 1.1\n\nNEW IN 1.1\n- Spearmen, the Blacksmith and the Wheelbarrow\n- Up to four players: free-for-all or teams\n- The Learning Campaign and four campaign battles\n- Play online over JackNet (Play Online on the title screen)\n\nKNOWN ISSUES\n- Villagers sometimes get stuck behind trees. This is realistic.\n- Callum says the Hard computer is "too easy". Callum is lying.\n- Luke and Dave keep asking if there is an ULTRA 64 version. There is not.\n\nThis disc belongs to CALLUM. If found, return to Callum.', 'info') },
         { label: 'About Age of Jackpires II...', act: () => G.about() },
       ]],
     ]);

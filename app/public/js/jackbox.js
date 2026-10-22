@@ -52,7 +52,7 @@
     if (!n) return;
     store.set('jhp_jb_seen', [...seen].slice(-800));
     try { Sound.play('join'); } catch (e) {}
-    if (window.Desk && Desk.toast) Desk.toast('Outlook Express', live ? `New letter from ${esc(items[0].name)}!` : `You have ${n} new letter${n > 1 ? 's' : ''} from readers in your Inbox.`, 5000);
+    if (window.Desk && Desk.toast) Desk.toast('JackMail Express', live ? `New letter from ${esc(items[0].name)}!` : `You have ${n} new letter${n > 1 ? 's' : ''} from readers in your Inbox.`, 5000);
   }
   Net.on('jbList', m => setTimeout(() => take(m.items || [], false), 2500));
   Net.on('jbNew', m => take([m.item], true));

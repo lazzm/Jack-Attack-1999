@@ -100,11 +100,11 @@
     [329, 'Golden Eggs hidden!', 'Easter Sunday is 4 April this year. Until 11 April, Golden Eggs are hidden all over JackNet. Only 150 will ever exist!'],
     [517, 'New JackCard: Screensaver Searching Space', 'From today your PC can help listen for aliens with a special screensaver while you are at school. We made it a JackCard. It is quite rare.'],
     [601, 'LOOTLINGS PUBLIC BETA IS OPEN!', 'You can now find, wear, trade and sell things! It is a beta, so the paint is still wet. Play during the beta and you get a Beta Tester badge.', 1],
-    [716, 'Episode I is out!', 'The Phantom Menace is out in UK cinemas today! Until 31 July the "Episode I Queue" JackCard can drop. Dave queued for six hours. Dave says it was worth it. Dave has seen it four times.'],
+    [716, 'Episode I is out!', 'The Phantom Nuisance is out in UK cinemas today! Until 31 July the "Episode I Queue" JackCard can drop. Dave queued for six hours. Dave says it was worth it. Dave has seen it four times.'],
     [804, 'ECLIPSE WEEK!', 'On 11 August there is a total eclipse of the Sun, and Cornwall is right in the path! Eclipse things are dropping now until 18 August: Eclipse Viewers, the Eclipse Badge, the Total Eclipse wallpaper, the Corona window theme and a JackCard. Remember: NEVER look at the Sun without proper eclipse glasses.', 1],
     [811, 'TODAY IS ECLIPSE DAY!', 'At about 11 minutes past 11 this morning the Moon covered the Sun and Cornwall went dark for two minutes. The birds stopped singing. Fizzwick screamed. Snorb slept through it. Eclipse things drop until 18 August.', 1],
-    [915, 'Conker season!', 'Conkers are falling! Champion Conkers and the Conker Season wallpaper drop until the end of October. No baking them in the oven (that is cheating).'],
-    [1005, 'Pokemon fever!', 'Pokemon Red and Blue are out in the UK today! Everyone at school has a link cable. Our "Pokemon Fever" JackCard drops until 19 October.'],
+    [915, 'Acorn Quest season!', 'Conkers are falling! Champion Conkers and the Acorn Quest Season wallpaper drop until the end of October. No baking them in the oven (that is cheating).'],
+    [1005, 'Pocket Critters fever!', 'Pocket Critters Red and Blue are out in the UK today! Everyone at school has a link cable. Our "Pocket Critters Fever" JackCard drops until 19 October.'],
     [1014, 'A games console with a MODEM!', 'A brand new console came out in the UK today, and it has a modem built in. Online games on the telly! The "Console With a Modem" JackCard drops until 28 October.'],
     [1016, 'The Bazaar is open!', 'You can now sell your spare things to other members on the Bazaar, for whatever price you like. The Bazaar keeps a tiny 5% fee, which vanishes in a puff of Snorb. And the Trading Post lets you swap safely: nothing moves until you both tick OK.'],
     [1020, 'Lootlings Games Night!', 'Fizzwick wired four computers together with a VERY long cable for a games night. Snorb won at falling blocks, Crumbit won at kart racing and Moggle beat everyone at chess. Grumplet lost at everything and says he let everyone win. Remember: Arcade high scores can dig up loot too!'],
@@ -114,7 +114,7 @@
     [1105, 'Bonfire Night!', 'Ooh! Aah! The whole of Jacktown is down the field watching the fireworks. Grumplet brought a flask of soup. He says he is not enjoying it. He is.'],
     [1115, 'THE GRAND OPENING!!!', 'Lootlings is OFFICIALLY OPEN! Thank you to every beta tester. Log on this week (until 21 November) for the special Grand Opening Badge. Pibble has made a cake. It is mostly paint.', 1],
     [1201, 'Christmas is coming!', 'All through December: Santa Hats, Reindeer Antlers, beards, Snow Pibbles, candy cane pointers, snow wallpaper and the Christmas Stocking set. Snow Pibbles are limited to 150, so keep playing!', 1],
-    [1210, 'Dear Father Christmas...', 'Every Lootling has written a Christmas list. Snorb wants a games console, a virtual pet, a yo-yo, a LEGO spaceship and "snacks". Fizzwick wants more RAM. Pibble wants paint. Grumplet says he wants nothing. (He wants a Rubik\'s Cube.)'],
+    [1210, 'Dear Father Christmas...', 'Every Lootling has written a Christmas list. Snorb wants a games console, a virtual pet, a yo-yo, a BLOCKO spaceship and "snacks". Fizzwick wants more RAM. Pibble wants paint. Grumplet says he wants nothing. (He wants a Rubrick\'s Cube.)'],
     [1225, 'Merry Christmas!', 'Merry Christmas from all the Lootlings! Snorb ate all the mince pies. Snorb is now asleep under the tree.'],
     [1227, 'The Millennium is nearly here!', 'Millennium Party Hats, the Y2K Survivor Badge, the Millennium Countdown Clock and the Millennium Eve JackCard drop until the 31st. Is your computer Y2K ready? Robo-Snorb 2000 is (probably).', 1],
     [1231, 'MILLENNIUM EVE!', 'The last day of 1999. Tonight is the biggest New Year\'s Eve of all time! Whatever happens at midnight, your Lootlings stuff is safe in your Treasure Chest. (We checked. Twice.)', 1],
@@ -122,7 +122,7 @@
   const newsItem = n => `<div class="lx-nitem${n[3] ? ' big' : ''}"><div class="lx-nd">${mdTxt(n[0])}</div><b>${esc(n[1])}</b><br>${esc(n[2])}</div>`;
   route('/news.html', P => {
     const d = md(), past = NEWS.filter(n => n[0] <= d).reverse();
-    const next = [[716, 'Episode I'], [804, 'Eclipse week'], [915, 'Conker season'], [1005, 'Pokemon fever'], [1024, 'Spooky season'], [1101, 'Bonfire Night'], [1115, 'THE GRAND OPENING'], [1201, 'Christmas'], [1227, 'The Millennium']].filter(x => x[0] > d).slice(0, 3);
+    const next = [[716, 'Episode I'], [804, 'Eclipse week'], [915, 'Acorn Quest season'], [1005, 'Pocket Critters fever'], [1024, 'Spooky season'], [1101, 'Bonfire Night'], [1115, 'THE GRAND OPENING'], [1201, 'Christmas'], [1227, 'The Millennium']].filter(x => x[0] > d).slice(0, 3);
     page(P, '/news.html', `<h1>Lootlings News</h1><p>Everything that's happened on Lootlings in 1999 so far. Seasonal things only drop at the right time of year, so keep checking!</p>${next.length ? `<div class="lx-msg"><b>Coming up:</b> ${next.map(x => `${esc(x[1])} (${mdTxt(x[0])})`).join(' &middot; ')}</div>` : ''}<div class="lx-news">${past.map(newsItem).join('')}</div>`);
     if (d >= 811) A.secret('loot.eclipse');
   });

@@ -210,7 +210,7 @@ body.ssn-shake #taskbar{animation:glitch .4s steps(2) infinite reverse}
       () => popup('CALLUM', 'MY PC IS BEEPING!!! IS IT GOING TO EXPLODE??? I UNPLUGGED IT AND IT IS STILL BEEPING\n\n...oh wait that\'s the smoke alarm. Dad\'s doing toast.'),
       () => err('JackNet Explorer', 'Welcome to JackNet! Today\'s date is: 1/1/19100\n\n(Lots of web sites stick "19" on the front of the year. This year, that makes it 19100.)', 'warn'),
       () => { if (window.Spooler) Spooler.print('Y2K_PANIC.TXT', { pages: 2, owner: 'JackOS', text: 'THE YEAR IS 1900. THE YEAR IS 1900. THE YEAR IS 1900.\n'.repeat(12) }); },
-      () => err('Outlook Express', 'You have 36,524 days of unread mail.\n\nThe oldest message is from 1900. It says: "Is it the year 2000 yet?"', 'info'),
+      () => err('JackMail Express', 'You have 36,524 days of unread mail.\n\nThe oldest message is from 1900. It says: "Is it the year 2000 yet?"', 'info'),
       () => popup('LUKE', 'is it 2000 yet?? me and dave are on rainbow road and we are NOT pausing for a bug\n\nDAVE STOP USING THE LIGHTNING'),
       clip,
       () => err('Calendar', '1 January 1900 was a MONDAY.\n\n1 January 2000 is a SATURDAY.\n\nYour weekend has been cancelled. You have school today. In 1900.', 'warn'),

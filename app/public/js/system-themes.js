@@ -66,16 +66,16 @@
   };
   const THEMES = [
     { name: 'JackOS Standard', key: 'std', wall: '', scheme: ['#000080', '#1084d0', '#c0c0c0', '#000'], desc: 'The classic teal. Beige. Navy. Home.' },
-    { name: 'Orks!', key: 'orks', wall: WALL.orks, scheme: ['#2a4a10', '#7aa030', '#b8c090', '#000'], desc: 'Green and red, camo wallpaper, a choppa for a pointer, grunts for sounds. Red ones go faster.' },
-    { name: 'Outer Space', key: 'space', wall: WALL.space, scheme: ['#1a1050', '#5a3a9a', '#c8c4d8', '#000'], desc: 'A quiet starfield with a ringed planet. Navy and purple windows. Bleeps. Dad\'s favourite.' },
-    { name: 'Tetris', key: 'tetris', wall: WALL.tetris, scheme: ['#8030c0', '#00a0c0', '#d0d0e0', '#000'], desc: 'All seven pieces, the proper colours. An L for a pointer. Lines never clear.' },
+    { name: 'Gorks!', key: 'orks', wall: WALL.orks, scheme: ['#2a4a10', '#7aa030', '#b8c090', '#000'], desc: 'Green and red, camo wallpaper, a choppa for a pointer, grunts for sounds. Red ones go faster.' },
+    { name: 'Outer Space', key: 'space', wall: WALL.space, scheme: ['#1a1050', '#5a3a9a', '#c8c4d8', '#000'], desc: 'A quiet starfield with a ringed planet. Navy and purple jackos. Bleeps. Dad\'s favourite.' },
+    { name: 'Blockology', key: 'tetris', wall: WALL.tetris, scheme: ['#8030c0', '#00a0c0', '#d0d0e0', '#000'], desc: 'All seven pieces, the proper colours. An L for a pointer. Lines never clear.' },
     { name: 'Cube Mania', key: 'cube', wall: WALL.cube, scheme: ['#c00000', '#0028c8', '#d8d8d8', '#000'], desc: 'Stickers in six colours. Clicky turns for sounds. R U R\' U\'.' },
     { name: 'Haunted House', key: 'haunted', wall: WALL.haunted, scheme: ['#2a1040', '#6a3a9a', '#8a8898', '#000'], desc: 'Purple fog, a house on a hill, bats. Creaks and a "wooo". A skeleton hand pointer. Scary. A bit.' },
     { name: 'Dinosaurs', key: 'dinos', wall: WALL.dinos, scheme: ['#3a5a1a', '#8a7a3a', '#c8c0a0', '#000'], desc: 'Jungle green, footprints and roars (Jack did them in Sound Recorder). A claw for a pointer. One tiny dinosaur hides on the wallpaper.' },
-    { name: 'Galaxy Far Away', key: 'galaxy', wall: WALL.galaxy, scheme: ['#101018', '#c8a040', '#d0d0d0', '#000'], desc: 'The space-opera one. A drifting starfield, black and gold windows, a glowing-blade pointer (right-click goes red), hums and blasters. An original tribute; no film bits.' },
+    { name: 'Galaxy Far Away', key: 'galaxy', wall: WALL.galaxy, scheme: ['#101018', '#c8a040', '#d0d0d0', '#000'], desc: 'The space-opera one. A drifting starfield, black and gold jackos, a glowing-blade pointer (right-click goes red), hums and blasters. An original tribute; no film bits.' },
     { name: 'Under the Sea', key: 'sea', wall: WALL.sea, scheme: ['#0a4a8a', '#30a0c0', '#b0d8e8', '#000'], desc: 'Deep blue, bubbles, a fish. Blub. Gubbinz is scared of it.' },
-    { name: 'Millennium', key: 'millennium', wall: WALL.millennium, scheme: ['#2a1a6a', '#d4a020', '#e8e0c8', '#000'], desc: 'Fireworks on midnight blue, gold windows, a sparkler pointer, party poppers. For a night that never comes.' },
-    { name: 'The Matrix', key: 'matrix', wall: WALL.matrix, scheme: ['#000000', '#00a000', '#b8c8b8', '#000'], desc: 'Green letters, black windows, a white rabbit. Jack saw it in June. It changed his wallpaper forever (until Orks!).' },
+    { name: 'Millennium', key: 'millennium', wall: WALL.millennium, scheme: ['#2a1a6a', '#d4a020', '#e8e0c8', '#000'], desc: 'Fireworks on midnight blue, gold jackos, a sparkler pointer, party poppers. For a night that never comes.' },
+    { name: 'The Modemtrix', key: 'matrix', wall: WALL.matrix, scheme: ['#000000', '#00a000', '#b8c8b8', '#000'], desc: 'Green letters, black jackos, a white rabbit. Jack saw it in June. It changed his wallpaper forever (until Gorks!).' },
     { name: 'Hot Dog Stand', key: 'hotdog', wall: WALL.hotdog, scheme: ['#ff0000', '#ff0000', '#ffff00', '#000'], desc: 'No.' },
   ];
   let active = null, styleEl = null, prevIcons = {}, drift = 0, lastEv = 0;

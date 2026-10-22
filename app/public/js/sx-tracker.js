@@ -31,7 +31,7 @@
   const CATS = [
     ['eggs', 'Easter Eggs', PFX(['sx.r'])],
     ['puzzles', 'Puzzles & Mysteries', PFX(['sx.h', 'sx.b', 'arg', 'leap'])],
-    ['dos', 'MS-DOS', PFX(['dos', 'sx.d'])],
+    ['dos', 'JACK-DOS', PFX(['dos', 'sx.d'])],
     ['desk', 'Desktop & JackOS', id => !id.includes('.') || PFX(['system', 'setup', 'fresh', 'tb', 'sx.t', 'sx'])(id)],
     ['progs', 'Programs', PFX(['prog', 'office', 'fun', 'carta', 'files', 'mail'])],
     ['games', 'Games', PFX(['games', 'sol', 'fps', 'disc', 'zone', 'mp', 'pcgames'])],

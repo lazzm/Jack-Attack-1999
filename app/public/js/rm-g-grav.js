@@ -36,7 +36,7 @@
     { n: 'SOLSTICE', col: 0x2ac86a, trim: 0xff8a1a, glow: 0x9aff6a, kind: 3, spd: 4, thr: 5, hnd: 3, shd: 1, pilots: ['PULSE', 'QUASAR'], tag: 'OFF THE LINE LIKE A ROCKET' },
     { n: 'NULLPOINT', col: 0x50505e, trim: 0xe8c21a, glow: 0xffe14a, kind: 4, spd: 5, thr: 4, hnd: 4, shd: 3, pilots: ['NULL', 'VOID'], tag: 'THE SECRET PROTOTYPE', locked: 1 },
   ];
-  const CLASSES = [{ n: 'SUB-SONIC', top: 50, ai: 0.95, mult: 1 }, { n: 'SUPERSONIC', top: 62, ai: 1.0, mult: 1.2 }];
+  const CLASSES = [{ n: 'SUB-ZIP', top: 50, ai: 0.95, mult: 1 }, { n: 'SUPERSONIC', top: 62, ai: 1.0, mult: 1.2 }];
 
   // ================================================================ the tracks: [x, z, height, width, bank]
   const TRACKS = [
@@ -128,7 +128,7 @@
     void(g, w, h, hy) { g.strokeStyle = 'rgba(255,40,40,.5)'; for (let y = hy; y > hy * 0.5; y -= (hy - y) * 0.3 + 3) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); } for (let x = 0; x < w; x += 16) { g.beginPath(); g.moveTo(x, hy); g.lineTo(x, hy * 0.55); g.stroke(); } for (let i = 0; i < 100; i++) { g.fillStyle = '#fff'; g.fillRect(Math.random() * w, Math.random() * hy * 0.5, 1, 1); } },
   };
   // weapon icons for the HUD
-  const WEPS = ['BOLTS', 'SEEKER', 'MINES', 'SHIELD', 'TURBO', 'QUAKE'];
+  const WEPS = ['BOLTS', 'SEEKER', 'MINES', 'SHIELD', 'TURBO', 'JAQUAKE'];
   const WEP_INFO = { BOLTS: 'THREE ROCKETS STRAIGHT AHEAD', SEEKER: 'CHASES THE SHIP IN FRONT', MINES: 'DROPPED BEHIND YOU', SHIELD: 'NOTHING CAN HURT YOU', TURBO: 'A BIG BURST OF SPEED', QUAKE: 'A SHOCKWAVE DOWN THE TRACK' };
   const WCOL = { BOLTS: '#ffe14a', SEEKER: '#ff5a2a', MINES: '#ff2a8a', SHIELD: '#5ad8ff', TURBO: '#ff9a1a', QUAKE: '#c08aff' };
   const ICON = {};
@@ -140,7 +140,7 @@
     mk('MINES', g => { for (const [x, y] of [[8, 8], [16, 10], [10, 16]]) { g.beginPath(); g.arc(x, y, 3.5, 0, TAU); g.fill(); g.fillRect(x - 5, y - 0.5, 10, 1); g.fillRect(x - 0.5, y - 5, 1, 10); } });
     mk('SHIELD', g => { g.beginPath(); g.moveTo(12, 3); g.lineTo(20, 6); g.lineTo(19, 14); g.lineTo(12, 21); g.lineTo(5, 14); g.lineTo(4, 6); g.closePath(); g.lineWidth = 2; g.stroke(); g.globalAlpha = 0.4; g.fill(); g.globalAlpha = 1; });
     mk('TURBO', g => { for (const y of [6, 12]) { g.beginPath(); g.moveTo(4, y + 6); g.lineTo(12, y - 2); g.lineTo(20, y + 6); g.lineTo(20, y + 9); g.lineTo(12, y + 1); g.lineTo(4, y + 9); g.fill(); } });
-    mk('QUAKE', g => { g.lineWidth = 2; g.beginPath(); for (let x = 3; x <= 21; x++) g.lineTo(x, 12 + Math.sin(x * 0.9) * 6); g.stroke(); });
+    mk('JAQUAKE', g => { g.lineWidth = 2; g.beginPath(); for (let x = 3; x <= 21; x++) g.lineTo(x, 12 + Math.sin(x * 0.9) * 6); g.stroke(); });
   }
 
   // ================================================================ the disc
@@ -451,7 +451,7 @@
         if (w === 'BOLTS') { for (const o of [-1.6, 0, 1.6]) shots.push({ k: 'bolt', fi: s.fi + 2, d: s.d + o, v: s.v + 70, life: 2.2, owner: s, m: shotMesh('bolt') }); if (!s.ai) K.sfx.noise(0.3, 0.15, 2000, 0, 'bandpass', 500); return; }
         if (w === 'SEEKER') { const p = rank().indexOf(s), t = p > 0 ? rank()[p - 1] : null; shots.push({ k: 'seeker', fi: s.fi + 2, d: s.d, v: Math.max(80, s.v + 35), life: 5, owner: s, tgt: t, m: shotMesh('seeker') }); if (!s.ai) K.sfx.tone(500, 0.4, 'sawtooth', 0.06, 0, 1500); else if (t === me) say('SEEKER LOCKED ON YOU!', 1.2); return; }
         if (w === 'MINES') { s.mines = 5; s.mineT = 0; if (!s.ai) say('MINES DROPPED', 0.8); return; }
-        if (w === 'QUAKE') { shots.push({ k: 'quake', fi: s.fi + 3, d: 0, v: 110, life: 3.5, owner: s, hit: new Set([s]), m: shotMesh('quake') }); K.sfx.noise(1.5, 0.2, 200, 0, 'lowpass', 40); shake = Math.max(shake, 0.35); if (!s.ai) say('QUAKE!', 1); }
+        if (w === 'JAQUAKE') { shots.push({ k: 'quake', fi: s.fi + 3, d: 0, v: 110, life: 3.5, owner: s, hit: new Set([s]), m: shotMesh('quake') }); K.sfx.noise(1.5, 0.2, 200, 0, 'lowpass', 40); shake = Math.max(shake, 0.35); if (!s.ai) say('JAQUAKE!', 1); }
       }
       function shotsStep(dt) {
         const N = L.N;
@@ -501,7 +501,7 @@
         // weapons
         if (s.wep) { s.cool -= dt; if (s.cool <= 0) { s.cool = 0.5 + Math.random() * 0.8; const p = s.place, ahead = rank()[p - 1], behind = rank()[p + 1];
           const gapA = ahead ? ((ahead.prog - s.prog) * L.step) : 1e9, gapB = behind ? ((s.prog - behind.prog) * L.step) : 1e9;
-          if ((s.wep === 'BOLTS' && gapA < 70 && Math.abs(ahead.d - s.d) < 3) || (s.wep === 'SEEKER' && gapA < 130) || (s.wep === 'MINES' && gapB < 45) || (s.wep === 'TURBO' && Math.abs(curv) < 0.008) || (s.wep === 'SHIELD' && (s.energy < 50 || shots.some(x => x.tgt === s))) || (s.wep === 'QUAKE' && p > 1)) inp.fire = true;
+          if ((s.wep === 'BOLTS' && gapA < 70 && Math.abs(ahead.d - s.d) < 3) || (s.wep === 'SEEKER' && gapA < 130) || (s.wep === 'MINES' && gapB < 45) || (s.wep === 'TURBO' && Math.abs(curv) < 0.008) || (s.wep === 'SHIELD' && (s.energy < 50 || shots.some(x => x.tgt === s))) || (s.wep === 'JAQUAKE' && p > 1)) inp.fire = true;
           if (s.energy < 28 && s.wep !== 'SHIELD') { inp.fire = false; inp.absorb = true; } } }
         return inp;
       }
@@ -612,7 +612,7 @@
         if (mode === 'demo') { demoT += dt; if (K.any() || demoT > 40) goTitle(); return; }
         if (mode === 'main') { sel.main = nav(MAIN.length, sel.main); if (back()) { boop(); goTitle(); return; }
           if (ok()) { beep(); const m = MAIN[sel.main]; mt = 0; if (m === 'CHAMPIONSHIP') { flow = 'champ'; mode = 'cls'; } else if (m === 'SINGLE RACE') { flow = 'race'; mode = 'cls'; } else if (m === 'TIME TRIAL') { flow = 'tt'; cfg.cls = 0; toTeam(); } else if (m === 'RECORDS') { mode = 'records'; sel.rec = 0; } else if (m === 'OPTIONS') { mode = 'options'; sel.opt = 0; } else { mode = 'how'; sel.how = 0; } } return; }
-        if (mode === 'cls') { sel.cls = nav(2, sel.cls); if (back()) { boop(); mode = 'main'; return; } if (ok()) { if (sel.cls === 1 && !supOpen()) { boop(); say('WIN THE SUB-SONIC CHAMPIONSHIP FIRST', 2); return; } beep(); cfg.cls = sel.cls; toTeam(); } return; }
+        if (mode === 'cls') { sel.cls = nav(2, sel.cls); if (back()) { boop(); mode = 'main'; return; } if (ok()) { if (sel.cls === 1 && !supOpen()) { boop(); say('WIN THE SUB-ZIP CHAMPIONSHIP FIRST', 2); return; } beep(); cfg.cls = sel.cls; toTeam(); } return; }
         if (mode === 'team') {
           const c = sel.team; if (K.pressed('left')) sel.team = (sel.team + TEAMS.length - 1) % TEAMS.length; if (K.pressed('right') || K.pressed('down') || K.pressed('up')) sel.team = (sel.team + 1) % TEAMS.length;
           if (c !== sel.team) { K.sfx.tone(700 + sel.team * 120, 0.05, 'square', 0.05); showShip(sel.team, V1.set(0, -298.6, 0)); }
@@ -624,7 +624,7 @@
         }
         if (mode === 'track') { const c = sel.trk; sel.trk = nav(TRACKS.length, sel.trk); if (c !== sel.trk) previewT = 0.35;
           if (previewT > 0) { previewT -= dt; if (previewT <= 0 && trackOpen(sel.trk) && trackPrev !== sel.trk) { buildTrack(sel.trk); trackPrev = sel.trk; clearShips(); } }
-          if (back()) { boop(); toTeam(); return; } if (ok()) { if (!trackOpen(sel.trk)) { boop(); say('WIN THE SUB-SONIC CHAMPIONSHIP TO OPEN IT', 2); return; } beep(); cfg.track = sel.trk; cfg.kind = flow; champ = null; setupRace(); } return; }
+          if (back()) { boop(); toTeam(); return; } if (ok()) { if (!trackOpen(sel.trk)) { boop(); say('WIN THE SUB-ZIP CHAMPIONSHIP TO OPEN IT', 2); return; } beep(); cfg.track = sel.trk; cfg.kind = flow; champ = null; setupRace(); } return; }
         if (mode === 'options') { sel.opt = nav(4, sel.opt); if (back()) { boop(); mode = 'main'; save(); return; } if (ok() || K.pressed('left') || K.pressed('right')) { beep(); if (sel.opt === 0) { sv.opt.mus = sv.opt.mus ? 0 : 1; music(song(6)); } else if (sel.opt === 1) sv.opt.cam = sv.opt.cam ? 0 : 1; else if (sel.opt === 2) sv.opt.auto = sv.opt.auto ? 0 : 1; else if (ok()) mode = 'main'; save(); } return; }
         if (mode === 'records') { if (K.pressed('left') || K.pressed('right')) { sel.rec = 1 - sel.rec; beep(); } if (back() || ok()) { boop(); mode = 'main'; } return; }
         if (mode === 'how') { if (K.pressed('right') || ok()) { if (sel.how < 2) { sel.how++; beep(); } else if (ok()) { mode = 'main'; beep(); } } if (K.pressed('left') && sel.how > 0) { sel.how--; beep(); } if (back()) { boop(); mode = 'main'; } return; }

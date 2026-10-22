@@ -70,7 +70,7 @@
     ['magmoth', 'Magmoth', 'blaze', 3, 5, 5, 4, 'hover', 'Flutters towards the brightest light in the house. Usually the telly.', ['bug', '#ff6a1a', '#ffd400', 'two', 'none', 'antenna', 'wings']],
     ['phoenix', 'Pixel Phoenix', 'blaze', 5, 6, 6, 5, 'reborn', 'A bird made of 8-bit fire. Game over? Not for this one. Insert coin, continue.', ['phoenix', '#ff4a1a', '#ffd400', 'visor', 'beak', 'crest', 'pixwings'], { lim: 25 }],
     ['sproutling', 'Sproutling', 'sprout', 0, 1, 1, 3, '', 'The Brussels sprout nobody ate at Christmas. It has come back for revenge.', ['ball', '#4ac04a', '#a0f07a', 'angry', 'frown', 'leaf', 'none']],
-    ['conkerclops', 'Conkerclops', 'sprout', 0, 2, 2, 2, 'thorns', 'A champion conker with one big eye. A 47-er! Baked in the oven (cheating).', ['ball', '#8a4a1a', '#3ab03a', 'one', 'grin', 'shell', 'string']],
+    ['conkerclops', 'Conkerclops', 'sprout', 0, 2, 2, 2, 'thorns', 'A champion acorn quest with one big eye. A 47-er! Baked in the oven (cheating).', ['ball', '#8a4a1a', '#3ab03a', 'one', 'grin', 'shell', 'string']],
     ['mossquito', 'Mossquito', 'sprout', 0, 2, 2, 2, 'leech', 'Bites you and you come up in moss. Itchy, green moss.', ['bug', '#3a8a2a', '#a0f07a', 'two', 'beak', 'antenna', 'wings']],
     ['weedwhack', 'Weedwhacker', 'sprout', 1, 3, 3, 3, 'reach', 'Pops up between the patio slabs. Dad has tried everything. EVERYTHING.', ['blob', '#2a9a2a', '#ff3a6a', 'angry', 'fangs', 'leaf', 'leaves']],
     ['potato', 'Potato Pete', 'sprout', 1, 2, 1, 4, 'heal', 'Just a potato. A very brave potato. Wears his Cubs cap with pride.', ['bean', '#c8a060', '#2a5ad8', 'two', 'smile', 'cap', 'arms']],

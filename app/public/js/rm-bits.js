@@ -185,7 +185,7 @@
     const hr = new Date().getHours(), night = pb.classList.contains('rm-night'), dusk = pb.classList.contains('rm-dusk') || pb.classList.contains('rm-dawn');
     const v = view('window', '<canvas class="rm-wincv" width="480" height="360"></canvas><i class="rm-winframe"></i>', {
       say: night ? 'It\'s dark out. You can see the stars from here, and the Plough. If you wait you might see a satellite go over (it\'s probably the Space Station!).'
-        : dusk ? 'The sun\'s going down. All the windows over the road are going orange.' : 'Roofs, chimneys and the big tree. Some birds. A cloud shaped like a Daydream (not really).',
+        : dusk ? 'The sun\'s going down. All the jackos over the road are going orange.' : 'Roofs, chimneys and the big tree. Some birds. A cloud shaped like a Daydream (not really).',
       btns: [searchBtn('window', 'Check the windowsill')],
     });
     if (night) _.secret('rm.night');

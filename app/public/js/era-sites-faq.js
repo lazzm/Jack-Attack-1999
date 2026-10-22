@@ -85,7 +85,7 @@ ${wrap("S, E to the kitchen. Mom gives you The Look. TAKE BAG (the bin bag). E t
 --- PART 2: TOWN ---
 ${wrap('W, W to the hall, S to the front garden, S to the street, W into the corner shop. BUY CRISPS (+5). They are alien flavour. They cost 50p. They are STRATEGIC CRISPS. Do not eat them.')}
 ${wrap('E to the street, S to the bus stop, S to the park, E to the school gates, N to the playground, N to the corridor, W to Mr Bell\'s classroom. TAKE FELT (+5) (the red felt tip, the good kind).')}
-${wrap('Now USE FELT ON TUBE (+15). You have a LIGHTSABER. Do the noise. VVVSHHHMMM.')}
+${wrap('Now USE FELT ON TUBE (+15). You have a LIGHTSPATULA. Do the noise. VVVSHHHMMM.')}
 ${wrap(Cast.t('Optional: E, E into computer club and TALK TO {teacher.FIRST}. {teacher.He} will tell you about SUBs. {teacher.He} is very happy.'))}
 ${wrap("Go back out: E, S, S, W to the park, N to the bus stop, E to the toy shop queue. WAIT. WAIT. WAIT. (Three waits. That is what a queue is for. You cannot leave the queue once you have started, that is the rule.) Then go IN. BUY FIGURE (+20). 3.99. Last one on the shelf.")}
 ${wrap("OUT, W to the bus stop, N to the street, E to Dave's front door, IN. GIVE FIGURE TO DAVE (+25). Dave gives you the overdue library book: THE CUBE: A COMPLETE SOLUTION. You will need it later. Dave is doing the engine noise. Leave him to it.")}
@@ -96,18 +96,18 @@ ${wrap("E to the Mushroom Forest. (Do NOT go east again unless you like walking 
 ${wrap('E to the fort gate. The tin soldier wants a password. EXAMINE GATE (it is scratched on the bath). SAY COWABUNGA (+10). Everybody shouts it back. You are in.')}
 
 --- PART 4: THE TOY KINGDOM ---
-${wrap('E into the Toy Town Square. NE to the Arena. FIGHT ZOG (+30). Big Zog is a plastic knight with a drainpipe. You win with your cardboard lightsaber and the crowd throws 10 RUPEES at you.')}
+${wrap('E into the Toy Town Square. NE to the Arena. FIGHT ZOG (+30). Big Zog is a plastic knight with a drainpipe. You win with your cardboard lightspatula and the crowd throws 10 RUPEES at you.')}
 ${wrap('SW to the square, N to the Robot Workshop. BUY PAINT (+10) (5 Rupees, only red, red is science). S to the square. PAINT TRUCK (+20). It goes faster now. Do not drive it yet.')}
-${wrap("DOWN into the Toy Tunnels, E, N (follow the GUBBINZ WOZ ERE arrow), E into the hidey hole. GUBBINZ!!! (+30) He has your N64 memory card. Discuss it later.")}
+${wrap("DOWN into the Toy Tunnels, E, N (follow the GUBBINZ WOZ ERE arrow), E into the hidey hole. GUBBINZ!!! (+30) He has your ULTRA 64 memory card. Discuss it later.")}
 ${wrap("W, S, W, UP back to the square. Try to go E to the King's castle. The drawbridge (a cereal-box lid) is shut, so ASK GUBBINZ ABOUT DRAWBRIDGE: he squeezes under it and opens it from the inside (+20). Go E into the castle.")}
-${wrap('King Gorzag (a giant teddy bear) has a scrambled Rubik\'s cube he calls the Big Shiny Thing. SOLVE CUBE (+40). You need the library book from Dave for this, which is why we did Dave first.')}
+${wrap('King Gorzag (a giant teddy bear) has a scrambled Rubrick\'s cube he calls the Big Shiny Thing. SOLVE CUBE (+40). You need the library book from Dave for this, which is why we did Dave first.')}
 ${wrap('W to the square. DRIVE TRUCK. You go up to the top of the Block Tower. SOLVE CUBE one more time, in front of every toy in the kingdom (+50). YOU ARE THE TOY KING. 350 out of 350. Go and have your tea.')}
 ${sec('GQ05', 'Points list')}
   Torch ......................... 10    Batteries ..................... 10
   Through the socks ............. 15    Doing the bins ................ 10
   Alien crisps ..................  5    Feeding the Blobbit ........... 20
   Password ...................... 10    Wrapping paper tube ...........  5
-  Red felt tip ..................  5    Making the lightsaber ......... 15
+  Red felt tip ..................  5    Making the lightspatula ......... 15
   Beating Big Zog ............... 30    Red paint ..................... 10
   Painting the truck ............ 20    Pilot figure .................. 20
   The cube book ................. 25    Finding Gubbinz ............... 30
@@ -210,15 +210,15 @@ ${wrap('General tips: put a BLOCKER down early so the others walk back and forth
 ${sec('GL04', 'Legal')}${LEGAL('BlockerBob')}
 `);
 
-  add('pokemon-rb', 'Game Boy', 'Pokemon Red / Blue', 'FAQ / Walkthrough', 'TrainerTez', [['20/09/99', '0.8 - Written from the American version with my cousin.'], ['06/10/99', '1.0 - UK VERSION IS OUT (5 Oct)! Checked everything again.'], ['25/10/99', '1.1 - Added version exclusives and the Elite Four.']], () => `
+  add('pokemon-rb', 'Game Lad', 'Pocket Critters Red / Blue', 'FAQ / Walkthrough', 'TrainerTez', [['20/09/99', '0.8 - Written from the American version with my cousin.'], ['06/10/99', '1.0 - UK VERSION IS OUT (5 Oct)! Checked everything again.'], ['25/10/99', '1.1 - Added version exclusives and the Elite Four.']], () => `
 CONTENTS:  Basics [PK01]  Starters [PK02]  Gym Leaders [PK03]  Elite Four [PK04]
            Red/Blue Exclusives [PK05]  Tips [PK06]  Glitches [PK07]  Legal [PK08]
-${sec('PK01', 'Basics')}${wrap('There are 151 Pokemon to catch. You cannot get them all in one game: some are only in Red, some only in Blue, so you have to TRADE with a mate using a Game Link Cable. Your goal: beat all eight Gym Leaders, then the Elite Four, and fill your Pokedex. Your rival is Professor Oak\'s grandson. He is very annoying. Smell ya later!')}
+${sec('PK01', 'Basics')}${wrap('There are 151 Pocket Critters to catch. You cannot get them all in one game: some are only in Red, some only in Blue, so you have to TRADE with a mate using a Game Link Cable. Your goal: beat all eight Gym Leaders, then the Elite Four, and fill your Pokedex. Your rival is Professor Oak\'s grandson. He is very annoying. Smell ya later!')}
 ${sec('PK02', 'Starters')}
-  BULBASAUR (Grass/Poison)  - easy mode for the first two gyms
-  CHARMANDER (Fire)         - hard start (Brock and Misty!), but becomes
+  BULBABEAST (Grass/Poison)  - easy mode for the first two gyms
+  CHARBROILER (Fire)         - hard start (Brock and Misty!), but becomes
                               CHARIZARD, so worth it
-  SQUIRTLE (Water)          - good all-rounder. Beats Brock easily.
+  SQUIRTURTLE (Water)          - good all-rounder. Beats Brock easily.
 ${wrap('Your rival always picks the starter that beats yours. Typical.')}
 ${sec('PK03', 'Gym Leaders (in order)')}
   1. BROCK ....... Pewter City ...... Rock ....... Boulder Badge
@@ -233,24 +233,24 @@ ${wrap('Yes, Giovanni is the boss of Team Rocket AND a Gym Leader. Nobody in Vir
 ${sec('PK04', 'The Elite Four')}
   LORELEI (Ice) > BRUNO (Fighting) > AGATHA (Ghost) > LANCE (Dragon)
   ...and then one last battle against the Champion. Guess who.
-${wrap('You fight all four in a row with no Pokemon Centre in between, so bring LOTS of potions and revives.')}
+${wrap('You fight all four in a row with no Pocket Critters Centre in between, so bring LOTS of potions and revives.')}
 ${sec('PK05', 'Red / Blue exclusives')}
   Only in RED:  Ekans, Arbok, Oddish, Gloom, Vileplume, Mankey, Primeape,
                 Growlithe, Arcanine, Scyther, Electabuzz
   Only in BLUE: Sandshrew, Sandslash, Vulpix, Ninetales, Meowth, Persian,
                 Bellsprout, Weepinbell, Victreebel, Magmar, Pinsir
 ${sec('PK06', 'Tips')}
-  - Some Pokemon only evolve when traded: Kadabra, Machoke, Graveler and
+  - Some Pocket Critters only evolve when traded: Kadabra, Machoke, Graveler and
     Haunter. Trade them to a mate and ask for them back. (A good mate.)
   - Save before you throw a ball at anything rare.
   - Snorlax blocks the road twice. You need the Poke Flute to wake it up.
   - HM moves (Cut, Fly, Surf, Strength, Flash) can't be deleted easily,
-    so don't waste a good Pokemon's slots on them.
-${sec('PK07', 'Glitches and playground rumours')}${wrap('You will hear LOTS of rumours at school. Here is what I know. There IS a famous glitch Pokemon (talk to the old man in Viridian City, then surf up and down the east coast of Cinnabar Island) but it can mess up your save file and your Hall of Fame, so I am NOT putting the steps here. Do it at your own risk and do not blame me. As for Mew: I have never seen ANY real way to catch Mew in a normal game. Ignore anyone who says it is under the truck. I pushed the truck. Well, I tried.')}
-${sec('PK08', 'Legal')}${LEGAL('TrainerTez', 'Pokemon is a trademark of its owners. This guide is not official in any way.')}
+    so don't waste a good Pocket Critters's slots on them.
+${sec('PK07', 'Glitches and playground rumours')}${wrap('You will hear LOTS of rumours at school. Here is what I know. There IS a famous glitch Pocket Critters (talk to the old man in Viridian City, then surf up and down the east coast of Cinnabar Island) but it can mess up your save file and your Hall of Fame, so I am NOT putting the steps here. Do it at your own risk and do not blame me. As for Mew: I have never seen ANY real way to catch Mew in a normal game. Ignore anyone who says it is under the truck. I pushed the truck. Well, I tried.')}
+${sec('PK08', 'Legal')}${LEGAL('TrainerTez', 'Pocket Critters is a trademark of its owners. This guide is not official in any way.')}
 `);
 
-  add('zelda-oot', 'Nintendo 64', 'The Legend of Zelda: Ocarina of Time', 'FAQ / Dungeon Guide', 'HeroOfDave', [['20/12/98', '0.5 - Got it for Christmas early!'], ['26/01/99', '1.0 - BEAT THE WATER TEMPLE. You will too. Read on.'], ['04/05/99', '1.2 - Added warp songs and the Iron Boots tip.']], () => `
+  add('zelda-oot', 'Ultra 64', 'The Legend of Zeldoo: Kazoo of Time', 'FAQ / Dungeon Guide', 'HeroOfDave', [['20/12/98', '0.5 - Got it for Christmas early!'], ['26/01/99', '1.0 - BEAT THE WATER TEMPLE. You will too. Read on.'], ['04/05/99', '1.2 - Added warp songs and the Iron Boots tip.']], () => `
 CONTENTS:  Dungeons [ZO01]  Songs [ZO02]  Water Temple [ZO03]  Tips [ZO04]
 ${sec('ZO01', 'Dungeons (in order)')}
   -- AS YOUNG LINK --
@@ -276,12 +276,12 @@ ${sec('ZO04', 'Tips')}
 ${sec('ZO05', 'Legal')}${LEGAL('HeroOfDave')}
 `);
 
-  add('tetris-gb', 'Game Boy', 'Tetris', 'Strategy FAQ', 'LongBarLarry', [['12/03/99', '1.0 - The only game I need.']], () => `
+  add('tetris-gb', 'Game Lad', 'Blockology', 'Strategy FAQ', 'LongBarLarry', [['12/03/99', '1.0 - The only game I need.']], () => `
 ${sec('TE01', 'Modes')}${wrap('A-TYPE: the endless one. Clear lines, get faster, go for the high score. B-TYPE: you pick a height of rubbish to start with; clear 25 lines to win. Three music types to pick from, plus music OFF (for school).')}
 ${sec('TE02', 'Scoring (per line clear)')}
   Single ..... 40 x (level + 1)        Double ..... 100 x (level + 1)
-  Triple .... 300 x (level + 1)        TETRIS .... 1200 x (level + 1)
-${wrap('A Tetris (four lines at once with the long bar) is worth WAY more than four singles. So leave a gap down one side and wait for the long piece. It will come. It always comes. (Eventually.)')}
+  Triple .... 300 x (level + 1)        BLOCKOLOGY .... 1200 x (level + 1)
+${wrap('A Blockology (four lines at once with the long bar) is worth WAY more than four singles. So leave a gap down one side and wait for the long piece. It will come. It always comes. (Eventually.)')}
 ${sec('TE03', 'Tips')}
   - Keep the stack flat. Bumps make holes. Holes make tears.
   - Look at the NEXT piece box, not just the piece that is falling.
@@ -293,7 +293,7 @@ ${sec('TE04', 'Legal')}${LEGAL('LongBarLarry')}
 
   const opt = o => Object.assign(FAQS[FAQS.length - 1], o);
 
-  add('goldeneye', 'Nintendo 64', 'GoldenEye 007', 'FAQ / Multiplayer Guide', 'DoubleOhDave', [['02/01/99', '1.0 - First version. Christmas was spent on Facility.'], ['14/03/99', '1.1 - Added multiplayer house rules.'], ['30/07/99', '1.2 - Added the bonus levels.']], () => `
+  add('goldeneye', 'Ultra 64', 'Goldenballs 007', 'FAQ / Multiplayer Guide', 'DoubleOhDave', [['02/01/99', '1.0 - First version. Christmas was spent on Facility.'], ['14/03/99', '1.1 - Added multiplayer house rules.'], ['30/07/99', '1.2 - Added the bonus levels.']], () => `
 CONTENTS:  Levels [GE01]  Difficulty [GE02]  Cheats [GE03]  Multiplayer [GE04]
            Tips [GE05]  Legal [GE06]
 ${sec('GE01', 'The levels')}
@@ -319,18 +319,18 @@ ${sec('GE05', 'Tips')}
   - On Dam, find the bungee jump at the end. It is the best bit.
   - Guards hear gunshots. The silenced pistol is your friend.
 ${sec('GE06', 'Legal')}${LEGAL('DoubleOhDave')}
-`); opt({ short: 'GOLDENEYE' });
+`); opt({ short: 'GOLDENBALLS' });
 
-  add('mk64', 'Nintendo 64', 'Mario Kart 64', 'Cup Guide & Shortcuts', 'BananaBlocker', [['22/02/99', '1.0 - Every cup, every track.'], ['09/06/99', '1.1 - Added the Wario Stadium jump. Luke showed me.']], () => `
+  add('mk64', 'Ultra 64', 'Kart Kaos 64', 'Cup Guide & Shortcuts', 'BananaBlocker', [['22/02/99', '1.0 - Every cup, every track.'], ['09/06/99', '1.1 - Added the Wario Stadium jump. Luke showed me.']], () => `
 ${sec('MK01', 'Drivers')}
-  LIGHT:   Toad, Peach, Yoshi     - fast off the line, easy to bump about
-  MEDIUM:  Mario, Luigi           - good at everything
-  HEAVY:   Bowser, Wario, D.K.    - slow to start, top speed is huge
+  LIGHT:   Toad, Peach, Yosher     - fast off the line, easy to bump about
+  MEDIUM:  Marlo, Louie G           - good at everything
+  HEAVY:   Bouncer, Wario, D.K.    - slow to start, top speed is huge
 ${sec('MK02', 'The cups')}
-  MUSHROOM: Luigi Raceway, Moo Moo Farm, Koopa Troopa Beach, Kalimari Desert
-  FLOWER:   Toad's Turnpike, Frappe Snowland, Choco Mountain, Mario Raceway
-  STAR:     Wario Stadium, Sherbet Land, Royal Raceway, Bowser's Castle
-  SPECIAL:  D.K.'s Jungle Parkway, Yoshi Valley, Banshee Boardwalk,
+  MUSHROOM: Louie G Raceway, Moo Moo Farm, Koopa Troopa Beach, Kalimari Desert
+  FLOWER:   Toad's Turnpike, Frappe Snowland, Choco Mountain, Marlo Raceway
+  STAR:     Wario Stadium, Sherbet Land, Royal Raceway, Bouncer's Castle
+  SPECIAL:  D.K.'s Jungle Parkway, Yosher Valley, Banshee Boardwalk,
             Rainbow Road
 ${wrap('Win gold in every cup on 150cc and you unlock the Extra mode, where every track is back to front. It does your head in. It is brilliant.')}
 ${sec('MK03', 'Driving')}
@@ -344,9 +344,9 @@ ${sec('MK03', 'Driving')}
 ${sec('MK04', 'Shortcuts')}${wrap('Wario Stadium: on the first big straight there is a place where you can jump over the wall and land much further along. Takes practice (and Luke). Koopa Troopa Beach: a ramp on the right lets you jump through a little cave in the rocks. Rainbow Road is very long, and there is a way to skip a huge chunk if you are brave enough to drop off the edge at the start. We do not talk about the times it went wrong.')}
 ${sec('MK05', 'Battle mode')}${wrap('Three balloons each. Lose them all and you are out (or you turn into a little bomb and drive about getting revenge, if there are more than two of you). Block Fort is the best arena. Double Deck is the worst. Fight me.')}
 ${sec('MK06', 'Legal')}${LEGAL('BananaBlocker')}
-`); opt({ short: 'MARIO KART' });
+`); opt({ short: 'KART KAOS' });
 
-  add('banjo', 'Nintendo 64', 'Banjo-Kazooie', 'Walkthrough (Worlds & Moves)', 'JiggyJen', [['15/11/98', '0.9 - Got to Gobi\'s Valley.'], ['10/01/99', '1.0 - 100 Jiggies! Beat Grunty!'], ['18/05/99', '1.1 - Added note totals per world.']], () => `
+  add('banjo', 'Ultra 64', 'Backpack Buddies', 'Walkthrough (Worlds & Moves)', 'JiggyJen', [['15/11/98', '0.9 - Got to Gobi\'s Valley.'], ['10/01/99', '1.0 - 100 Jiggies! Beat Grunty!'], ['18/05/99', '1.1 - Added note totals per world.']], () => `
 ${sec('BK01', 'The story')}${wrap('The witch Gruntilda has kidnapped Banjo\'s little sister Tooty, because she wants to be the prettiest in the land. Banjo the bear and Kazooie the bird (who lives in his backpack and is very rude) go up Grunty\'s lair to get her back. Bottles the mole teaches you moves along the way.')}
 ${sec('BK02', 'The worlds (in order)')}
    1. Mumbo's Mountain        2. Treasure Trove Cove
@@ -372,7 +372,7 @@ ${sec('BK04', 'Tips')}
 ${sec('BK05', 'Legal')}${LEGAL('JiggyJen')}
 `); opt({ short: 'BANJO' });
 
-  add('mgs', 'PlayStation', 'Metal Gear Solid', 'FAQ / Boss Guide', 'CardboardBox', [['14/12/98', '0.5 - Written from my cousin\'s American copy.'], ['27/02/99', '1.0 - UK VERSION IS OUT! Both discs done.'], ['20/04/99', '1.1 - Added the two endings.']], () => `
+  add('mgs', 'PlaySpace', 'Metal Gear Wobbly', 'FAQ / Boss Guide', 'CardboardBox', [['14/12/98', '0.5 - Written from my cousin\'s American copy.'], ['27/02/99', '1.0 - UK VERSION IS OUT! Both discs done.'], ['20/04/99', '1.1 - Added the two endings.']], () => `
 CONTENTS:  Basics [MG01]  Bosses [MG02]  Stuck? [MG03]  Endings [MG04]
            Legal [MG05]
 ${sec('MG01', 'Basics')}${wrap('You are Solid Snake, sneaking into a base on Shadow Moses Island. It is a SNEAKING game: if you are fighting all the time you are playing it wrong. Watch the radar in the corner, stay out of the guards\' view cones, knock on walls to make them come and look, and crawl under things. The cardboard box is the best item in the history of video games. Guards walk straight past a box. Nobody questions the box.')}
@@ -396,7 +396,7 @@ ${sec('MG04', 'Endings')}${wrap('There are two endings, decided by what you do i
 ${sec('MG05', 'Legal')}${LEGAL('CardboardBox')}
 `); opt({ short: 'MGS' });
 
-  add('halflife', 'PC (JackOS)', 'Half-Life', 'Walkthrough Notes & Cheats', 'CrowbarCallum', [['05/01/99', '0.8 - Up to Blast Pit. That tentacle thing.'], ['20/02/99', '1.0 - Finished! Xen is weird.'], ['11/07/99', '1.1 - Added console cheats (for after you have finished it).']], () => `
+  add('halflife', 'PC (JackOS)', 'Half-Loaf', 'Walkthrough Notes & Cheats', 'CrowbarCallum', [['05/01/99', '0.8 - Up to Blast Pit. That tentacle thing.'], ['20/02/99', '1.0 - Finished! Xen is weird.'], ['11/07/99', '1.1 - Added console cheats (for after you have finished it).']], () => `
 ${sec('HL01', 'The chapters')}
   Black Mesa Inbound        Anomalous Materials     Unforeseen Consequences
   Office Complex            "We've Got Hostiles"    Blast Pit
@@ -416,15 +416,15 @@ ${sec('HL02', 'Tips')}
     the oxygen and the power. Then you know what to do.
   - Save often. Quicksave is F6. Quickload is F7. Learn them.
   - The crowbar never runs out of ammo.
-${sec('HL03', 'Console cheats (ONLY after you finish it!)')}${wrap('Start Half-Life with -console on the end of the shortcut (or -dev) and press the key next to 1 to open the console. Type sv_cheats 1 first, then start a new game or load a map. Then:')}
+${sec('HL03', 'Console cheats (ONLY after you finish it!)')}${wrap('Start Half-Loaf with -console on the end of the shortcut (or -dev) and press the key next to 1 to open the console. Type sv_cheats 1 first, then start a new game or load a map. Then:')}
   god ............... you can't be hurt
   noclip ............ fly through walls
   impulse 101 ....... all the weapons and lots of ammo
 ${wrap('Using cheats the first time through spoils it. You have been warned. Callum has been warned TWICE.')}
 ${sec('HL04', 'Legal')}${LEGAL('CrowbarCallum')}
-`); opt({ short: 'HALF-LIFE' });
+`); opt({ short: 'HALF-LOAF' });
 
-  add('starcraft', 'PC (JackOS)', 'StarCraft', 'Beginner\'s Strategy Guide', 'ZergRushZed', [['12/12/98', '1.0 - First version.'], ['06/04/99', '1.1 - Added Brood War notes.']], () => `
+  add('starcraft', 'PC (JackOS)', 'StarGraft', 'Beginner\'s Strategy Guide', 'ZergRushZed', [['12/12/98', '1.0 - First version.'], ['06/04/99', '1.1 - Added Brood War notes.']], () => `
 ${sec('SC01', 'The three races')}
   TERRAN .... humans. Buildings can lift off and fly. Bunkers, tanks,
               Marines. Good for beginners.
@@ -449,12 +449,12 @@ ${sec('SC03', 'Cheats (single player only)')}${wrap('Press Enter, type the code,
   there is no cow level ..... win the mission straight away
 ${wrap('Cheats do not work on Battle.net. Obviously. Stop asking.')}
 ${sec('SC04', 'Legal')}${LEGAL('ZergRushZed')}
-`); opt({ short: 'STARCRAFT' });
+`); opt({ short: 'STARGRAFT' });
 
-  add('sonicadv', 'Dreamcast', 'Sonic Adventure', 'FAQ / Chao Guide', 'BlueBlurBen', [['15/01/99', '0.5 - Written from my Japanese import. I cannot read the menus.'], ['16/10/99', '1.0 - UK DREAMCAST IS HERE (14 Oct)! Redone in English.'], ['10/11/99', '1.1 - Added the Chao Garden.']], () => `
+  add('sonicadv', 'Daydream', 'Zip Adventure', 'FAQ / Chao Guide', 'BlueBlurBen', [['15/01/99', '0.5 - Written from my Japanese import. I cannot read the menus.'], ['16/10/99', '1.0 - UK DAYDREAM IS HERE (14 Oct)! Redone in English.'], ['10/11/99', '1.1 - Added the Chao Garden.']], () => `
 ${sec('SA01', 'The six stories')}
-  SONIC ......... the main story. Very fast. Go.
-  TAILS ......... race Sonic to the end of each level. He flies.
+  ZIP ......... the main story. Very fast. Go.
+  TAILS ......... race Zip to the end of each level. He flies.
   KNUCKLES ...... find the pieces of the Master Emerald. Use the radar.
   AMY ........... run away from a big robot. Hammer jump!
   BIG THE CAT ... fishing. Yes, fishing. For his frog, Froggy.
@@ -469,7 +469,7 @@ ${sec('SA03', 'Chao Garden')}
     out with you in Chao Adventure. A virtual pet in your pocket. It
     beeps in class. Mr Bell was not impressed.
 ${sec('SA04', 'Legal')}${LEGAL('BlueBlurBen')}
-`); opt({ short: 'SONIC ADV' });
+`); opt({ short: 'ZIP ADV' });
 
   const byId = id => FAQS.find(f => f.id === id);
   const head = `<div class="gf-top"><b>Jack<span>FAQs</span></b><i>Video game FAQs, walkthroughs and cheats. Text only. No pictures. No mercy.</i></div><div class="gf-nav"><a href="${U('/')}">Home</a><a href="${U('/board.html')}">Message Board</a><a href="${U('/submit.html')}">Submit a FAQ</a><a href="http://www.cheatz.w3b/">More Cheats</a><a href="http://www.jackdot.jnet/">Jackdot</a></div>`;
@@ -487,7 +487,7 @@ ${sec('SA04', 'Legal')}${LEGAL('BlueBlurBen')}
     if (!f) return page(c, '<p>FAQ not found. It may have been removed at the author\'s request (their Mom found out).</p>');
     const vers = f.ver.filter(v => { const [d, m] = v[0].split('/').map(Number), y = +v[0].split('/')[2]; return y === 98 || m * 100 + d <= c.md; });
     const ver = (vers[vers.length - 1] || f.ver[0])[1].split(' ')[0];
-    const txt = `${banner(f.short || f.game.replace(/^The Legend of Zelda: /, 'Zelda ').replace(/Pokemon Red \/ Blue/, 'Pokemon').slice(0, 13))}\n\n${f.game} - ${f.kind}\n${f.sys}\nVersion ${ver}\nBy ${f.by} (${f.by.toLowerCase()}@jackmail.webcom)\n\n${sec('VH', 'Version history')}${(vers.length ? vers : f.ver.slice(0, 1)).map(v => `  ${v[0]}  ${v[1]}`).join('\n')}\n${f.body()}\n${RULE}\n                         END OF FILE. GO PLAY OUTSIDE.\n${RULE}\n`;
+    const txt = `${banner(f.short || f.game.replace(/^The Legend of Zelda: /, 'Zelda ').replace(/Pokemon Red \/ Blue/, 'Pocket Critters').slice(0, 13))}\n\n${f.game} - ${f.kind}\n${f.sys}\nVersion ${ver}\nBy ${f.by} (${f.by.toLowerCase()}@jackmail.webcom)\n\n${sec('VH', 'Version history')}${(vers.length ? vers : f.ver.slice(0, 1)).map(v => `  ${v[0]}  ${v[1]}`).join('\n')}\n${f.body()}\n${RULE}\n                         END OF FILE. GO PLAY OUTSIDE.\n${RULE}\n`;
     c.after.push(() => {
       const end = c.q('.gf-end'); if (!end || !window.IntersectionObserver) return;
       const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { c.secret('eras.faq'); io.disconnect(); } }); io.observe(end); c.off(() => io.disconnect());

@@ -66,7 +66,7 @@
     [811, 'ECLIPSE DAY!', 'Did you see it? Half of JackWorld logged off to go outside and look at the sky through a cereal box. NEVER look at the Sun directly! The Eclipse Viewer is in the Catalogue for a few days.'],
     [903, 'Back to school (boo)', 'The after-school rush is back: everybody in the Lobby at 4 o\'clock talking about homework they haven\'t done. Revision tip from the JackWorld Crew: do it BEFORE you log on.'],
     [910, 'Friday Night Disco on the Rooftop', 'Every Friday from 6pm, DJ Spinz takes over the Rooftop Disco. The floor lights up, the regulars dance, and there\'s Musical Chairs all night. Wear your best hat!'],
-    [1014, 'The Dreamcast is out!', 'Sega\'s new console is in the shops today. Half the Crew have gone to queue outside the games shop. The other half are pretending they don\'t care. JackWorld stays open as normal!'],
+    [1014, 'The Daydream is out!', 'Segue\'s new console is in the shops today. Half the Crew have gone to queue outside the games shop. The other half are pretending they don\'t care. JackWorld stays open as normal!'],
     [1025, 'Spooky week', 'Jack-o\'-Lanterns are in the Seasonal page of the Catalogue until 2 November. Light them up in your room!'],
     [1105, 'Remember, remember...', 'Fireworks boxes in the Catalogue (look, don\'t light: your dad does the lighting). Bonfire safety: keep your pets indoors tonight.'],
     [1201, 'Christmas comes to JackWorld', 'Christmas trees are in the Seasonal page. The Snowy Peak is extra snowy. Room of the Week judges will be looking for the most festive rooms!'],

@@ -15,6 +15,7 @@
   const PK = 'jhp_family_phone';
   const pst = () => { try { return JSON.parse(localStorage.getItem(PK) || 'null') || {}; } catch (e) { return {}; } };
   const psave = o => { try { localStorage.setItem(PK, JSON.stringify(Object.assign(pst(), o))); } catch (e) {} };
+  const phoneKeys=[{k:'c',x:-1.5,z:-1.2,w:.9,d:.7},{k:'sel',x:0,z:-1.2,w:1.6,d:.8},{k:'up',x:1.5,z:-1.45,w:.9,d:.4},{k:'down',x:1.5,z:-.95,w:.9,d:.4},...Array.from({length:12},(_,i)=>({k:'123456789*0#'[i],x:-1.25+(i%3)*1.25,z:.2+Math.floor(i/3)*1.05,w:1.05,d:.8}))];
 
   // ================================================================ the model: a 1999 candy-bar phone, 13 x 4.8 x 2.3 cm, lying on its back
   function model() {
@@ -27,6 +28,7 @@
     for (let i = 0; i < 5; i++) B.cyl(-1 + i * 0.5, -2.4, -6.2, 0.1, 0.1, 0.2, 6, dark); // the earpiece holes
     B.rbox(0, -2.45, -1.2, 1.6, 0.3, 0.8, 0.3, M({ c: '#5a7ad0', sh: 50 })); B.rbox(-1.5, -2.4, -1.2, 0.9, 0.25, 0.7, 0.2, M('#3a3a44')); B.rbox(1.5, -2.4, -1.2, 0.9, 0.25, 0.7, 0.2, M('#3a3a44')); // menu, C, up/down
     for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) B.rbox(-1.25 + c * 1.25, -2.45, 0.2 + r * 1.05, 1.05, 0.3, 0.8, 0.25, M({ c: '#3c3e48', sh: 30 })); // the keypad
+    for(const key of phoneKeys){const label=key.k==='sel'?'—':key.k==='up'?'▲':key.k==='down'?'▼':key.k.toUpperCase(),map=K.tex('mobile.key.'+key.k,96,64,(c,w,h)=>{c.fillStyle='#3c3e48';c.fillRect(0,0,w,h);c.fillStyle='#eee6ca';c.font='bold 39px Arial';c.textAlign='center';c.fillText(label,w/2,47)});B.box(key.x,-2.62,key.z,key.w*.83,.025,key.d*.8,{t:M({c:'#fff',map}),all:body})}
     for (let i = 0; i < 4; i++) B.cyl(-0.6 + i * 0.4, -2.4, 5.6, 0.08, 0.08, 0.2, 6, dark); // the mic holes
     B.cyl(1.5, -1.5, -7.3, 0.42, 0.36, 1.8, 8, M({ c: '#111', sh: 20 }), { rx: 90 }); B.ball(1.5, -1.5, -8.2, 0.45, 0.45, 0.45, M('#111'), 6); // the stubby antenna (out of the top, lying flat with the phone)
     B.box(0, -1.1, 6.55, 1.2, 0.5, 0.2, M('#555')); // the charger socket
@@ -63,39 +65,41 @@
   // "Use it": the phone comes up to your face; the program's own screen and keys are laid over it
   function use(arg) {
     if (!thing || surf || usingT) return;
-    if (H.held() !== 'mobile') { if (H.mode === 'walk' || H.mode === 'glide') H.grab('mobile'); if (H.held() !== 'mobile') return; }
     usingT = 1;
-    const P = H.P, pose = { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry, lvl: H.W.lvl, seat: H.W.seat };
-    H.focus(pose, { ms: 0, label: 'Put it down', enter: () => mount(arg), exit: unmount });
+    const a=thing.at,yaw=(a.ry||0)*D2R,d=Math.max(14.6/(2*Math.tan(H.camera.fov*D2R/2)*.78),5/(2*Math.tan(H.camera.fov*D2R/2)*innerWidth/innerHeight*.8));
+    const pose={x:a.x+Math.sin(yaw)*d*.174,y:a.y-1.4-d*.985,z:a.z+Math.cos(yaw)*d*.174,rx:-80,ry:-(a.ry||0),lvl:H.W.lvl,seat:1};
+    if(!H.focus(pose, { ms:650, label:'Lean back', enter:()=>mount(arg), exit:unmount }))usingT=0;
   }
+  let lcdTexture=null,lcdTick=null;
+  function quad(key){return()=>{thing.obj.updateWorldMatrix(true,false);const m=new T.Matrix4().copy(H.root.matrixWorld).invert().multiply(thing.obj.matrixWorld);return[[-1,-1],[1,-1],[1,1],[-1,1]].map(([x,z])=>{const p=new T.Vector3(key.x+x*key.w/2,-2.68,key.z+z*key.d/2).applyMatrix4(m);return[p.x,p.y,p.z]})}}
   function mount(arg) {
     const go = () => {
+      if(!usingT||!H.focused)return;
       usingT = 0; setGlow(false);
-      psave({ charging: false });
+      psave({ charging: !!atHome() });
       win = FamilyPhone.open(arg);
       if (!win || !win.el) return;
       const body = win.el.querySelector('.tb-ph'); if (!body) return;
       win.el.style.display = 'none'; // (the Win98 window stays alive behind the scenes: its timers, its screen)
-      const el = document.createElement('div'); el.className = 'hs-mobwrap'; el.appendChild(body);
-      const side = body.querySelector('.tb-side'); if (side) side.classList.add('hs-mobside');
-      // the DOM phone's size, then a quad floating in front of your eyes with the same shape
-      const tmp = document.createElement('div'); tmp.className = 'hs-mobmeasure'; tmp.appendChild(el); document.body.appendChild(tmp);
-      const ph = body.querySelector('.tb-body') || body, bw = Math.max(120, ph.offsetWidth || 230), bh = Math.max(240, ph.offsetHeight || 520);
-      tmp.remove();
-      if (thing) thing.obj.visible = false;
-      const quad = H.faceQuad(13 * (bw / bh), 13, 30, 2.5, 0); // (13 cm tall, held 30 cm away, a touch below the eye line)
-      surf = H.surface(el, quad, { w: bw, h: bh });
+      if(lcdTexture)lcdTexture.dispose();lcdTexture=new T.CanvasTexture(body.querySelector('.tb-lcd'));lcdTexture.flipY=false;lcdTexture.minFilter=T.NearestFilter;lcdTexture.magFilter=T.NearestFilter;lcdTexture.generateMipmaps=false;
+      lcd.material.map=lcdTexture;lcd.material.color.set('#fff');lcd.material.needsUpdate=true;
+      lcdTick=()=>{if(win?.el)win.el.style.display='none';lcdTexture.needsUpdate=true;H.dirty()};H.ambient.add(lcdTick);
+      surf=[];
+      for(const key of phoneKeys){const b=document.createElement('button');b.type='button';b.className='hs-phone-key';b.setAttribute('aria-label',key.k==='sel'?'Phone Menu / Select':'Phone '+key.k);b.title=key.k==='sel'?'Enter: Menu / Select':key.k.toUpperCase();b.style.cssText='padding:0;border:0;background:transparent;cursor:pointer';b.addEventListener('click',()=>FamilyPhone.press(key.k));surf.push(H.surface(b,quad(key),{w:80,h:60}))}
+      H.ui.focusBar('Lean back');H.say('Talkbrik T-99','Click the physical keys · ↑ ↓ navigate · Enter select · C cancel · Backspace lean back',6500);
       H.dirty();
     };
     (window.FamilyPhone ? Promise.resolve() : (window.Apps && Apps.load ? Apps.load('js/family-phone.js') : Promise.reject())).then(go, () => { usingT = 0; say("Jack's mobile", 'No signal. Try again in a minute.'); });
   }
   function unmount() {
     usingT = 0;
-    if (surf) { surf.close(); surf = null; }
+    if (surf) { surf.forEach(s=>s.close()); surf = null; }
+    if(lcdTick){H.ambient.delete(lcdTick);lcdTick=null;}
     if (win) { try { win.close(); } catch (e) {} win = null; }
     if (thing) thing.obj.visible = true;
     H.dirty();
   }
+  addEventListener('keydown',ev=>{if(!surf||H.paused||ev.ctrlKey||ev.metaKey||ev.altKey||win?.el.contains(ev.target))return;const k={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',Enter:'sel',c:'c',C:'c',w:'up',a:'left',s:'down',d:'right'}[ev.key]||(/^[0-9*#]$/.test(ev.key)?ev.key:null);if(k){ev.preventDefault();ev.stopImmediatePropagation();FamilyPhone.press(k)}},true);
   // a text arrives: the phone buzzes where it lies (and tells you where that is)
   let buzzing = 0;
   function buzz(it) {

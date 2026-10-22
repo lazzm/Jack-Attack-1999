@@ -180,7 +180,7 @@
     ['rts.cheat', 'Cheater cheater', 'Type a cheat into a strategy game\'s chat'],
     ['boss.bedtime', 'School night', 'Play football manager until Mom notices'],
     ['boss.top', 'Top of the league', 'Lead the league as a football manager'],
-    ['keepa.slap', 'Hand of doom', 'Give a lazy imp a slap'],
+    ['keepa.slap', 'Hand of gloom', 'Give a lazy imp a slap'],
     ['keepa.heroes', 'No heroes allowed', 'Beat the do-gooders who invade your dungeon'],
   ].forEach(([k, n, hint]) => A.defineSecret('disc.' + k, n, hint));
   // more game secrets, one line per game (ids become 'disc.<game>.<k>'; the games call G.secret('<game>.<k>'))
@@ -380,7 +380,7 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
       blurb: 'Build the theme park of your dreams! Lay paths, plonk down rides, hire handymen to sweep up and design your very own rollercoaster, one wobbly piece at a time. Then watch hundreds* of guests queue for it, ride it, and tell you exactly what they think.',
       feats: ['Over 20 rides, stalls and bits of scenery', 'Coaster designer: loops! lift hills! screaming!', 'Every guest has their own thoughts (most of them are "I\'m hungry")', 'Handymen, mechanics, loans and a bank manager'],
       quotes: [['"Better than going to an actual theme park. No queues!"', 'JACK ATTACK! 93%'], ['"I built a coaster that went into the lake. Ten out of ten."', 'JackK']], demoOf: 'Jacks: Armageddon',
-      readme: 'NOTE FROM JACK: Dave says building a theme park on a computer is pointless because you can\'t go on the rides. Dave, that is the WHOLE POINT. Luke says "is there a Mario in it". There is not a Mario in it.' },
+      readme: 'NOTE FROM JACK: Dave says building a theme park on a computer is pointless because you can\'t go on the rides. Dave, that is the WHOLE POINT. Luke says "is there a Marlo in it". There is not a Marlo in it.' },
     { id: 'city', game: 'city', kind: 'big', label: 'JACKCITY3K', discs: 1, needCD: true, c1: '#1a2a6a', c2: '#7fe0ff', c3: '#ff8a3a', scene: 'city', kb: 72000, age: '3+',
       logo: u => `<defs>${LG(u + 'l', '#ffffff', '#5ab0ff', 1)}</defs>` + T(100, 36, 'JACKCITY', 34, `url(#${u}l)`, '#001a5a', { sw: 5, len: 180 }) + T(100, 74, '3000', 44, '#ffd400', '#001a5a', { sw: 6, it: 1 }),
       sticker: ['NOW WITH|MONSTER|ATTACKS!', '#7fe0ff'],
@@ -393,7 +393,7 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
       sticker: ['FREE|BANANA|INSIDE!*', '#ffe14a'],
       blurb: 'Four teams of heavily armed Jacks. One small island. Bazookas, grenades, dynamite, airstrikes and the legendary Banana Bomb. Take it in turns to blow each other into the sea. Up to four players on one computer, or take on the computer if your mates have gone home for tea.',
       feats: ['2-4 players hot-seat, or versus the computer', 'Destructible landscapes: blow holes in EVERYTHING', 'Over a dozen weapons including the Banana Bomb', 'Wind! Water! Crates! Sudden death!'],
-      quotes: [['"I played it for nine hours. Mom brought me tea. I didn\'t notice."', 'Jack'], ['"Even Dave liked it, and he only likes N64."', 'Luke']], demoOf: 'Dungeon Keepa 2', fine: '*There is no banana inside. The banana is in the game.',
+      quotes: [['"I played it for nine hours. Mom brought me tea. I didn\'t notice."', 'Jack'], ['"Even Dave liked it, and he only likes ULTRA 64."', 'Luke']], demoOf: 'Dungeon Keepa 2', fine: '*There is no banana inside. The banana is in the game.',
       readme: 'NOTE FROM JACK: hot-seat means everyone sits on the same chair in turn. Not literally on top of each other. LUKE.' },
     { id: 'rts', game: 'rts', kind: 'big', label: 'AOJ2_DISC1', discs: 2, needCD: true, owner: 'Callum', c1: '#3a2a10', c2: '#ffcc33', c3: '#e10600', scene: 'rts', kb: 196000, age: '11+',
       logo: u => T(100, 26, 'AGE OF', 18, '#ffe9a0', '#3a1a00', { f: 'Georgia,\'Times New Roman\',serif', sw: 4, ls: 4 }) + T(100, 60, 'JACKPIRES II', 30, '#ffcc33', '#3a1a00', { f: 'Georgia,\'Times New Roman\',serif', sw: 5, len: 182 }) + T(100, 78, 'THE AGE OF JACKS', 11, '#fff', '#3a1a00', { f: 'Georgia,serif', sw: 3, ls: 2 }),
@@ -783,8 +783,8 @@ JACKNET DUNGEONS
   }
   // ================================================================ the cupboard window
   const NOTES = [
-    ['Luke', 'can we just play Mario Kart on your N64 instead??? - Luke', '#fff36a', -4],
-    ['Dave', 'PC games = spreadsheets with explosions. N64 4 EVA!!! - Dave', '#9fe8ff', 3],
+    ['Luke', 'can we just play Kart Kaos on your ULTRA 64 instead??? - Luke', '#fff36a', -4],
+    ['Dave', 'PC games = spreadsheets with explosions. ULTRA 64 4 EVA!!! - Dave', '#9fe8ff', 3],
     ['Jack', 'BORROWED OFF CALLUM: Age of Jackpires II + JRT. Give back by Friday (which Friday??)', '#ffb0d8', -2],
     ['JackK', 'JackK woz ere. Your Jacks: Armageddon score is RUBBISH', '#b8ff9a', 5],
   ];
@@ -809,11 +809,14 @@ JACKNET DUNGEONS
     const s1 = qs(bx, '.dc-s1'), s2 = qs(bx, '.dc-s2'), dr = qs(bx, '.dc-ditems'), card = qs(bx, '.dc-card'), info = qs(bx, '.dc-info'), btns = qs(bx, '.dc-btns');
     function draw() {
       if (w.closed) return;
-      s1.innerHTML = BOXES.filter(b => b.kind === 'big').map(spine).join('');
-      s2.innerHTML = BOXES.filter(b => b.kind === 'jewel').map(spine).join('') + '<span class="dc-gap"></span><span class="dc-mags"></span>';
-      dr.innerHTML = BOXES.filter(b => !/^(big|jewel)$/.test(b.kind)).map(b => `<button type="button" class="dc-di${S.cd === b.id ? ' dc-out' : ''}" data-b="${b.id}" title="${esc(titleOf(b))}">${front(b)}<span>${esc(titleOf(b).replace(/ \(.*\)$/, ''))}</span></button>`).join('');
+      const mine=BOXES.filter(b=>store.get('jhp_starter',0)!==1||window.PM?.owns(b.id));
+      if(!mine.some(b=>b.id===sel))sel=mine[0]?.id;
+      s1.innerHTML = mine.filter(b => b.kind === 'big').map(spine).join('');
+      s2.innerHTML = mine.filter(b => b.kind === 'jewel').map(spine).join('') + '<span class="dc-gap"></span><span class="dc-mags"></span>';
+      dr.innerHTML = mine.filter(b => !/^(big|jewel)$/.test(b.kind)).map(b => `<button type="button" class="dc-di${S.cd === b.id ? ' dc-out' : ''}" data-b="${b.id}" title="${esc(titleOf(b))}">${front(b)}<span>${esc(titleOf(b).replace(/ \(.*\)$/, ''))}</span></button>`).join('');
       qsa(bx, '[data-b]').forEach(e => { e.classList.toggle('sel', e.dataset.b === sel); e.addEventListener('click', () => { sfx('click'); if (sel !== e.dataset.b) { sel = e.dataset.b; showBack = false; store.set('jhp_discs_sel', sel); } draw(); if (isPhone()) card.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }); });
       const b = BOX[sel];
+      if(!b){card.textContent='Your collection starts here.';info.textContent='No PC games owned yet. Earn pocket money and visit Pixel Post.';btns.replaceChildren();return;}
       card.className = 'dc-card dc-c-' + b.kind + (showBack ? ' dc-showback' : '');
       card.innerHTML = showBack ? back(b) : front(b);
       const pid = pidOf(b), inst = installed(b), isIn = S.cd === b.id;

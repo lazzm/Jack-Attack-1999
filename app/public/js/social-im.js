@@ -91,7 +91,7 @@ window.SocialIM = function (X) {
     const BODY = {
       avi: 'This was going to be a video of a dancing robot.\nThe modem has turned it into one (1) very still robot.\nIt is still dancing on the inside.',
       exe: "This file says it's NOT A VIRUS.\nGubbinz Anti-Virus 98 checked. It's not a virus. It's a picture of a duck.\nQuack.",
-      bmp: 'A picture of Pikachu. Lovingly drawn in Paint. Yellow, mostly.\n(Only the top 3 lines of pixels arrived. They are very nice pixels.)',
+      bmp: 'A picture of Zapachu. Lovingly drawn in Paint. Yellow, mostly.\n(Only the top 3 lines of pixels arrived. They are very nice pixels.)',
       mid: 'A MIDI file! Sadly the sound card ate it.\nHum along: dum dum DUM, dum dum DUMMM.',
       doc: 'HOMEWORK ANSWERS\n\n1. Yes\n2. No\n3. The Romans\n4. Probably the Romans again\n\n(Not guaranteed. Not even slightly.)',
       wav: 'A funny noise. You had to be there.\nIt sounded a bit like a modem sneezing.',

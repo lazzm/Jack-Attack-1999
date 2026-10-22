@@ -1423,7 +1423,7 @@
       status();
       if (num === DAVE) {
         secret('sol.dave');
-        Desk.toast('FreeCell', `Game #${DAVE}! Dave says this one is IMPOSSIBLE. Unbeatable. His cousin's mate tried it for a whole half-term. (Dave also says his uncle works at Nintendo.)`, 9000);
+        Desk.toast('FreeCell', `Game #${DAVE}! Dave says this one is IMPOSSIBLE. Unbeatable. His cousin's mate tried it for a whole half-term. (Dave also says his uncle works at Ultra Entertainment.)`, 9000);
       }
       if (!restart) sfx('dice');
     }
@@ -1504,7 +1504,7 @@
     Apps.fs.add('C:/JACKOS', { name: 'SOL.EXE', type: 'exe', app: 'sol', size: '64 KB', date: '11/05/98' });
     Apps.fs.add('C:/JACKOS', { name: 'FREECELL.EXE', type: 'exe', app: 'freecell', size: '35 KB', date: '11/05/98' });
     Apps.fs.add('C:/JACKOS/SYSTEM', { name: 'CARDS.DLL', type: 'dll', size: '148 KB', date: '11/05/98' });
-    Apps.fs.add('C:/My Documents', { name: 'freecell tips.txt', type: 'txt', size: '1 KB', date: '22/03/99', text: `FREECELL TIPS (by Jack, age none of your business)\n\n1. Empty columns are worth MORE than free cells.\n2. Get the Aces out first. Then the 2s.\n3. Don't fill all four free cells. Ever. That's how you lose.\n4. Kevin the king looks at whichever side you're about to cheat on.\n\nTHINGS DAVE SAYS ABOUT FREECELL\n- there's a game that can't be won. He says it's #11982.\n  (He also said that about #1. I won #1 at lunch.)\n- if you press loads of keys at once you can make it let you win\n- his uncle works at Nintendo (he doesn't)\n\nBEST STREAK: 7 (Mom made me stop for tea)\n` });
+    Apps.fs.add('C:/My Documents', { name: 'freecell tips.txt', type: 'txt', size: '1 KB', date: '22/03/99', text: `FREECELL TIPS (by Jack, age none of your business)\n\n1. Empty columns are worth MORE than free cells.\n2. Get the Aces out first. Then the 2s.\n3. Don't fill all four free cells. Ever. That's how you lose.\n4. Kevin the king looks at whichever side you're about to cheat on.\n\nTHINGS DAVE SAYS ABOUT FREECELL\n- there's a game that can't be won. He says it's #11982.\n  (He also said that about #1. I won #1 at lunch.)\n- if you press loads of keys at once you can make it let you win\n- his uncle works at Ultra Entertainment (he doesn't)\n\nBEST STREAK: 7 (Mom made me stop for tea)\n` });
     Apps.fs.add('C:/JACKOS/SYSTEM', { name: 'vegas.ini', type: 'txt', size: '1 KB', date: '01/04/99', hidden: true, text: `[Solitaire]\nDraw=1\nScoring=Vegas\nKeepScore=1\n; my bank is "in the red" which Dad says is a grown-up way of saying\n; I owe the computer money. how do I pay a computer.\n` });
   } catch (e) {}
 })();

@@ -59,7 +59,7 @@
   }
 
   // ================================================================ SNAKE (Nokia style)
-  register({ id: 'snake', name: 'Snake', tag: 'Like on Dad\'s Nokia', controls: 'Arrow keys or drag the mouse', fmt: s => s,
+  register({ id: 'snake', name: 'Snake', tag: 'Like on Dad\'s Talkbrik', controls: 'Arrow keys or drag the mouse', fmt: s => s,
     create(api, d) {
       const C = 20, CW = 24, CH = 17;
       let snake = [{ x: 8, y: 8 }, { x: 7, y: 8 }, { x: 6, y: 8 }], dir = { x: 1, y: 0 }, next = dir, food = null, acc = 0, score = 0, speed = 120;
@@ -396,7 +396,7 @@
   // ================================================================ HANGMAN (Save the Grot)
   register({ id: 'hangman', name: 'Save the Astronaut', tag: 'Hangman, but the astronaut\'s oxygen is running out', controls: 'Type letters, or click them', fmt: s => s + ' words',
     create(api, d) {
-      const WORDS = ['PIKACHU', 'SQUIRTLE', 'DREAMCAST', 'GOLDENEYE', 'TAMAGOTCHI', 'NINTENDO', 'PLAYSTATION', 'MILLENNIUM', 'MATRIX', 'LIGHTSABER', 'PODRACING', 'MODEM', 'FURBY', 'ZELDA', 'KAZOOIE', 'ASTRONAUT', 'ROCKET', 'SPUTNIK', 'WARHAMMER', 'TETRIS', 'JOYSTICK', 'CARTRIDGE', 'FLOPPY', 'SCREENSAVER', 'GUESTBOOK', 'ECLIPSE', 'DINOSAUR', 'SPACESHIP', 'GAMEBOY', 'RUMBLE', 'EXPANSION', 'WORMS', 'SONIC', 'MARIO', 'DONKEY', 'METROID', 'ROBOT', 'JEDI', 'WOOKIEE', 'TRANSFORMER', 'CYBERSPACE', 'NETSCAPE', 'MAINFRAME', 'PIXEL', 'POLYGON', 'MEGABYTE', 'PENTIUM', 'NAPSTER', 'WEBRING', 'HYPERLINK'];
+      const WORDS = ['ZAPACHU', 'SQUIRTURTLE', 'DAYDREAM', 'GOLDENBALLS', 'EGGBERT', 'ULTRA ENTERTAINMENT', 'PLAYSPACE', 'MILLENNIUM', 'MATRIX', 'LIGHTSPATULA', 'PODRACING', 'MODEM', 'FURBY', 'ZELDA', 'KAZOOIE', 'ASTRONAUT', 'ROCKET', 'SPUTNIK', 'WAR HAMSTER', 'BLOCKOLOGY', 'JOYSTICK', 'CARTRIDGE', 'FLOPPY', 'SCREENSAVER', 'GUESTBOOK', 'ECLIPSE', 'DINOSAUR', 'SPACESHIP', 'GAMEBOY', 'RUMBLE', 'EXPANSION', 'WORMS', 'ZIP', 'MARLO', 'DONKEY', 'METROID', 'ROBOT', 'SPACE CADET', 'WOOKIEE', 'TRANSFORMER', 'CYBERSPACE', 'NETSCAPEGOAT', 'MAINFRAME', 'PIXEL', 'POLYGON', 'MEGABYTE', 'PENTIUM', 'NAPSTER', 'WEBRING', 'HYPERLINK'];
       let word, got, wrong, streak = 0, done = 0;
       const nextWord = () => { word = WORDS[irnd(WORDS.length)]; got = new Set(); wrong = new Set(); done = 0; };
       nextWord();

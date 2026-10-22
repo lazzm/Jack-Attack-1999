@@ -32,7 +32,7 @@ Rows of pegs, every one buried under coats, PE bags and the odd lonely trainer. 
 exits: e=school.moving
 items: scarf stick
 x: pegs,coats: Duffel coats, parkas, one shell suit (purple, green and pink: very loud). A name tag on one says "IF FOUND RETURN TO DAVE (DONT OPEN THE POCKETS)".
-x: box,lost,property: A cardboard box full of single gloves, broken rulers, a Tamagotchi with flat batteries and seventeen odd socks. The socks look like they're trying to escape.
+x: box,lost,property: A cardboard box full of single gloves, broken rulers, a Eggbert with flat batteries and seventeen odd socks. The socks look like they're trying to escape.
 tip: See the things lying here? Type {W}GET SCARF{x} to pick something up, or {W}GET ALL{x}.
 
 #school.things The Hall of Things
@@ -125,7 +125,7 @@ A warm, low-ceilinged tavern full of mismatched chairs and the smell of chips. A
 exits: e=town.nst u=town.innup
 npcs: barnaby
 x: fire,fireplace: The fire crackles. Someone has hung their soggy socks to dry on the grate. You hope they're not anyone's dinner.
-x: noticeboard,board,pins: {W}NOTICES{x}\n  * LOST: Polly-Gon the parrot. Green. Rude. Ask Captain Pete at the Isle of Spam (boats from the docks).\n  * WANTED: Brave souls to sort out the SOCK GREMLINS. See the Mayor.\n  * FOR SWAP: 1x Game Boy (works if you hit it), for 1x bike.\n  * BAND WANTED: we are called "The Lag Goblins". no talent required. meet at the Bards' Bandstand.\n  * BUY Fizz Pop at the bar! (Type LIST.)
+x: noticeboard,board,pins: {W}NOTICES{x}\n  * LOST: Polly-Gon the parrot. Green. Rude. Ask Captain Pete at the Isle of Spam (boats from the docks).\n  * WANTED: Brave souls to sort out the SOCK GREMLINS. See the Mayor.\n  * FOR SWAP: 1x Game Lad (works if you hit it), for 1x bike.\n  * BAND WANTED: we are called "The Lag Goblins". no talent required. meet at the Bards' Bandstand.\n  * BUY Fizz Pop at the bar! (Type LIST.)
 tip: The Dial-Up Inn is the best place to {W}REST{x}. You can also {W}LIST{x} and {W}BUY{x} food and drink here.
 amb: Barnaby hums along to the jukebox. | The fire pops and a log rolls over. | Someone at a corner table says "my mom's picking me up at six" for the third time.
 
@@ -155,7 +155,7 @@ x: fountain,water: A stone fountain with a statue of a hero holding a sword in o
 x: stalls,awnings,stall: "TURNIPS - 2 FOR 1." "PRE-OWNED FLOPPY DISKS (MOSTLY WORKING)." "LUCKY PEBBLES." "GOOSE INSURANCE."
 x: statue: The hero on the fountain has a slightly worried face, like he's just remembered he left the gas on.
 tip: Market Square is the middle of town. If you're ever lost, type {W}RECALL{x} to come straight back here.
-amb: A stallholder shouts "TURNIPS! LOVELY TURNIPS!" | A pigeon lands on the statue's head and looks very pleased with itself. | Someone drops a coin in the fountain and makes a wish out loud. It's about a Nintendo 64. | A kid runs past shouting "ANYONE GOT A SPARE TAZO?"
+amb: A stallholder shouts "TURNIPS! LOVELY TURNIPS!" | A pigeon lands on the statue's head and looks very pleased with itself. | Someone drops a coin in the fountain and makes a wish out loud. It's about a Ultra 64. | A kid runs past shouting "ANYONE GOT A SPARE TAZO?"
 night: Market Square is quiet now. The stalls are covered up with tarpaulins, the fountain tinkles away to itself under the gas lamps, and the pigeons are huddled on the statue. Streets lead off north, east, south and west. The Town Crier is still here, ringing his bell very softly.
 
 #town.est East Street
@@ -166,7 +166,7 @@ x: hat,shop,umbrellas,clockmaker: The hat shop window has a hat with a whole stu
 
 #town.bank The Baudby Bank & Rupee Exchange
 flags: safe
-A hushed, marble bank with brass rails and little windows. Everything echoes, so everyone whispers. Behind the main counter, Mr Abacus Penny peers at you over his half-moon spectacles. A shiny brass sign says "RUPEE EXCHANGE" next to an enormous beige computer that whirrs. East Street is north, and South Street is through the side door west.
+A hushed, marble bank with brass rails and little jackos. Everything echoes, so everyone whispers. Behind the main counter, Mr Abacus Penny peers at you over his half-moon spectacles. A shiny brass sign says "RUPEE EXCHANGE" next to an enormous beige computer that whirrs. East Street is north, and South Street is through the side door west.
 exits: n=town.est w=town.sst e=town.row
 npcs: penny
 x: sign,brass,exchange: {Y}THE RUPEE EXCHANGE{x}: swap your gold for JackNet Rupees, or your Rupees for gold. Type {W}EXCHANGE{x} to see how. (Members only. Daily limits apply. Mr Penny is very strict about limits.)
@@ -243,12 +243,12 @@ amb: A delivery cart rattles past, piled high with Fizz Pop crates. | A seagull 
 
 #town.temple The Temple of Saint Reboot
 flags: safe temple
-A peaceful white temple with tall windows that throw rainbows across the floor. Rows of comfy beds line one wall for adventurers who've had a funny turn. At the altar, a big glowing button says RESET. Sister Ping, in white robes and fluffy slippers, hums and plumps pillows. South Street is east, and West Street is through the north door.
+A peaceful white temple with tall jackos that throw rainbows across the floor. Rows of comfy beds line one wall for adventurers who've had a funny turn. At the altar, a big glowing button says RESET. Sister Ping, in white robes and fluffy slippers, hums and plumps pillows. South Street is east, and West Street is through the north door.
 exits: e=town.sst n=town.wst
 npcs: ping
 x: button,reset,altar: A big round button, softly glowing. A little plaque reads: "SAINT REBOOT, PATRON OF FRESH STARTS. WHEN ALL ELSE FAILS, TURN IT OFF AND ON AGAIN."
 x: beds,pillows: Soft and cosy, with patchwork quilts. Each has a little bedside table with a glass of water and a jelly baby.
-x: windows: Stained glass pictures: a knight bonking a goose, a wizard reading a very thick manual, and a computer with a smiley face.
+x: jackos: Stained glass pictures: a knight bonking a goose, a wizard reading a very thick manual, and a computer with a smiley face.
 tip: If you ever {W}faint{x}, you'll wake up here. Sister Ping will {W}HEAL{x} you (free up to level 5).
 amb: Sister Ping hums a little hymn. | A bell tinkles softly. | Somewhere a computer chimes as it starts up. Everyone looks peaceful.
 
@@ -274,7 +274,7 @@ amb: A modem screeches as someone dials up. | Callum mutters "come ON, 3% ..." |
 flags: out safe
 A crumbly old gateway in the town wall, covered in ivy and the names of people who were here (DAVE WOZ ERE 98). The Whispering Woods start just to the west: you can hear them whispering. West Street is back east, a grotty Back Alley runs off to the south.
 exits: e=town.wst w=woods.edge s=town.alley
-x: ivy,names,wall: Carved names: "DAVE WOZ ERE 98." "LUKE 4 N64." "CALLUM WAS HERE (ON A 56K)." "JACKK RULES THE ISLE OF SPAM."
+x: ivy,names,wall: Carved names: "DAVE WOZ ERE 98." "LUKE 4 ULTRA 64." "CALLUM WAS HERE (ON A 56K)." "JACKK RULES THE ISLE OF SPAM."
 
 #town.alley The Back Alley
 flags: out
@@ -561,11 +561,11 @@ amb: Something snores in the cave. ZZZZZ... | A blue light giggles and bobs away
 
 #woods.owl The Owl Tree
 flags: safe
-An enormous hollow tree, its trunk full of little round doors and windows. Inside the biggest hollow, on a perch, sits Professor Hoot, an owl in a tweed waistcoat and a pair of brand-new spectacles, surrounded by books. The Deep Woods are back east.
+An enormous hollow tree, its trunk full of little round doors and jackos. Inside the biggest hollow, on a perch, sits Professor Hoot, an owl in a tweed waistcoat and a pair of brand-new spectacles, surrounded by books. The Deep Woods are back east.
 exits: e=woods.deep
 npcs: hoot
 x: books: "Mice and How to Think About Them." "Advanced Hooting." "Night Shifts: A Memoir."
-x: doors,windows: Each little door has a name: SQUIRREL (KEEP OUT), WOODPECKER (KNOCK FIRST), MOTHS (WE LIKE YOUR LAMP).
+x: doors,jackos: Each little door has a name: SQUIRREL (KEEP OUT), WOODPECKER (KNOCK FIRST), MOTHS (WE LIKE YOUR LAMP).
 
 #woods.cave The Bear's Cave
 flags: out
@@ -680,11 +680,11 @@ exits: s=sea.rocks u=sea.lamp
 
 #sea.lamp The Lamp Room
 flags: out
-At the very top of the lighthouse, a huge glass lamp turns slowly in the middle of the room. The windows look out over the sparkling sea in every direction. Sitting on top of the lamp, looking very pleased with herself, is a green parrot. The stairs go back down.
+At the very top of the lighthouse, a huge glass lamp turns slowly in the middle of the room. The jackos look out over the sparkling sea in every direction. Sitting on top of the lamp, looking very pleased with herself, is a green parrot. The stairs go back down.
 exits: d=sea.lighthouse
 npcs: polly
 x: lamp: A great big glass lamp. It goes round and round. At night it sweeps across the sea.
-x: windows,view,sea: Far to the north, you can see Baudby's rooftops and the clock tower.
+x: jackos,view,sea: Far to the north, you can see Baudby's rooftops and the clock tower.
 
 #sea.palms The Palm Grove
 flags: out
@@ -907,10 +907,10 @@ tip: You're in SPACE! Type {W}BOARD{x} to fly home, or {W}SHUTTLE{x} for the Moo
 amb: The station hums. | A loose pencil floats past your nose. | An announcement: "WOULD THE OWNER OF A FLOATING SANDWICH PLEASE COLLECT IT FROM THE CONTROL ROOM."
 
 #space.ring The Central Ring
-A round corridor that curves away out of sight in both directions, because the whole station is a big wheel. Windows show the Earth turning slowly below: blue and white and beautiful. Control is east, the Hydroponics garden is west, the Observation Deck is north, and the Docking Bay is south.
+A round corridor that curves away out of sight in both directions, because the whole station is a big wheel. JackOS show the Earth turning slowly below: blue and white and beautiful. Control is east, the Hydroponics garden is west, the Observation Deck is north, and the Docking Bay is south.
 exits: s=space.dock e=space.control w=space.hydro n=space.deck
 mobs: tomato
-x: earth,windows,window: The whole Earth, blue and white and swirly. You can see clouds over the sea. Somewhere down there, Baudby. Somewhere down there, your Mom, wondering why the phone line has been busy for three hours.
+x: earth,jackos,window: The whole Earth, blue and white and swirly. You can see clouds over the sea. Somewhere down there, Baudby. Somewhere down there, your Mom, wondering why the phone line has been busy for three hours.
 
 #space.control The Control Room
 flags: safe
@@ -936,11 +936,11 @@ x: stars: More stars than you've ever seen. No street lamps up here.
 
 #space.quarters The Crew Quarters
 flags: safe inn
-A small cosy room with sleeping bags strapped to the walls (you sleep standing up in space), a little kitchen, and posters of rockets and planets. Someone's Game Boy is velcroed to the wall. The Observation Deck is south. {D}(A good place to REST.){x}
+A small cosy room with sleeping bags strapped to the walls (you sleep standing up in space), a little kitchen, and posters of rockets and planets. Someone's Game Lad is velcroed to the wall. The Observation Deck is south. {D}(A good place to REST.){x}
 exits: s=space.deck
 items: milkshake
 x: posters: A poster of the Moon landing. A poster of a rocket. A poster of a cat in a spacesuit: "HANG IN THERE".
-x: game,boy: A Game Boy, velcroed to the wall. It's playing a falling-blocks game. Somebody's high score: 99,999. "Commander Nova" says the name.
+x: game,boy: A Game Lad, velcroed to the wall. It's playing a falling-blocks game. Somebody's high score: 99,999. "Commander Nova" says the name.
 
 #space.airlock The Airlock
 flags: nomob

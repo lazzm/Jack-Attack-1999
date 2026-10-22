@@ -23,21 +23,21 @@
   // ================================================================ THE CAST
   const CAST = {
     jack: { name: 'Jack', kid: 1, skin: '#f5c89a', hair: 'messy', hc: '#5a3216', cap: '#d81818', top: '#2a6fd0', pat: 'stripes', pc: '#ffffff', legs: '#2b3f86', shoes: '#f2f2f2',
-      bio: 'Editor, writer, webmaster and only member of staff at JACK ATTACK! Online. Likes: Tetris, Star Wars, Rubik\'s cubes, the N64, sci-fi telly. Dislikes: the phone ringing during a download.' },
+      bio: 'Editor, writer, webmaster and only member of staff at JACK ATTACK! Online. Likes: Blockology, Intergalactic Battles, Rubrick\'s cubes, the ULTRA 64, sci-fi telly. Dislikes: the phone ringing during a download.' },
     dave: { name: 'Dave', kid: 1, tall: 2, ss: 1, skin: '#f7d0a8', hair: 'curtains', hc: '#e8c840', top: '#1f9a3a', pat: 'sport', pc: '#ffffff', legs: '#8a8a8a', shoes: '#222222',
-      bio: 'Jack\'s best mate. Nintendo forever. GoldenEye champion (says Dave). Has a cousin who "works at Nintendo" (garden centre). Has never passed the car park test. Now draws his own comic. Nobody asked him to.' },
+      bio: 'Jack\'s best mate. Ultra Entertainment forever. Goldenballs champion (says Dave). Has a cousin who "works at Ultra Entertainment" (garden centre). Has never passed the car park test. Now draws his own comic. Nobody asked him to.' },
     kim: { name: 'Cousin Kim', kid: 1, fem: 1, skin: '#c98a5a', hair: 'bunches', hc: '#1a1a1a', bob: '#e10600', top: '#8a3ac0', pat: 'jacket', pc: '#c070f0', legs: '#2b3f86', shoes: '#ff6ab8',
-      bio: 'Jack\'s cousin. Can do the Rubik\'s cube in forty seconds. Knows every Pokémon, every cheat and every shortcut, and is annoyingly nice about it.' },
+      bio: 'Jack\'s cousin. Can do the Rubrick\'s cube in forty seconds. Knows every Pocket Critters, every cheat and every shortcut, and is annoyingly nice about it.' },
     mom: { name: 'Mom', fem: 1, lips: '#c8204a', skin: '#f5c89a', hair: 'curly', hc: '#a0401a', top: '#ff8ac0', pat: 'cardigan', pc: '#ffffff', legs: '#3a3a5a', shoes: '#600000',
-      bio: 'Runs the house, the phone and the off switch. Needs the phone line at exactly the moment a download hits 99%. Every time. Secretly quite good at Tetris.' },
+      bio: 'Runs the house, the phone and the off switch. Needs the phone line at exactly the moment a download hits 99%. Every time. Secretly quite good at Blockology.' },
     dad: { name: 'Dad', skin: '#eebb99', hair: 'bald', hc: '#6a4a2a', glasses: 1, gl: '#5a3a2a', tache: 1, top: '#7a5a3a', pat: 'jumper', pc: '#c9a060', legs: '#555555', shoes: '#8a2a2a',
       bio: 'Has bought 40 tins of beans for the Millennium Bug. Calls the mouse "the clicker". Believes the computer can catch a cold. Unbeatable at Championship Manager.' },
     gran: { name: 'Gran', short: 1, fem: 1, gl: '#a04a7a', skin: '#f2c8a8', hair: 'bun', hc: '#d0d0d0', glasses: 1, top: '#b090d0', pat: 'cardigan', pc: '#ffffff', skirt: '#5a4a7a', legs: '#c9a080', shoes: '#222222',
-      bio: 'Knits. Bakes. Has the highest Tetris score in the family and will not give the Game Boy back. Carries a handbag that can stop a grown man.' },
+      bio: 'Knits. Bakes. Has the highest Blockology score in the family and will not give the Game Lad back. Carries a handbag that can stop a grown man.' },
     ali: { name: 'Mr Ali', skin: '#b07a4a', hair: 'neat', hc: '#111111', glasses: 1, beard: '#2e2a2a', gl: '#c8a040', gl2: '#e0c870', top: '#e8f0ff', pat: 'shirt', pc: '#c02020', legs: '#2a2a3a', shoes: '#111111',
       bio: 'Runs Computer Club on Tuesdays. Says it\'s for spreadsheets. Has the school\'s best Minesweeper time and guards it with his life.' },
     luke: { name: 'Luke', kid: 1, ss: 1, skin: '#a8703e', hair: 'neat', hc: '#1a1010', top: '#d02030', pat: 'sport', pc: '#ffffff', legs: '#1a2a5a', shoes: '#f0f0f0',
-      bio: 'Jack\'s mate. Nintendo till he dies. Goes in goal so he can lean on the post. Thinks the PlayStation is "for people who don\'t like fun". Will tell you the football score whether you asked or not.' },
+      bio: 'Jack\'s mate. Ultra Entertainment till he dies. Goes in goal so he can lean on the post. Thinks the PlaySpace is "for people who don\'t like fun". Will tell you the football score whether you asked or not.' },
     otherjack: { name: 'JackK', kid: 1, skin: '#f0c090', hair: 'messy', hc: '#2a1a0a', cap: '#2a4ad0', capback: 1, top: '#2a9a4a', pat: 'stripes', pc: '#e8ffe8', legs: '#3a3a3a', shoes: '#202020',
       bio: 'Jack\'s mate. Also called Jack, which is why everyone calls him JackK (his JackNet name, and what he answers to at school). Wears his cap backwards so you can tell them apart. Has a homepage with a quiz on it. Refuses to be Jack Two.' },
     callum: { name: 'Callum', kid: 1, skin: '#f2c79a', hair: 'gelled', hc: '#7a4a1a', glasses: 1, gl: '#222233', top: '#22222c', pat: 'logo', pc: '#3c3', legs: '#3a4a6a', shoes: '#e8e8e8',
@@ -799,7 +799,7 @@
     };
     const thing = (k, x, y, w) => {
       const X = ox + x, Y = oy + y;
-      if (k === 'n64') { L(X, Y, X + 60, Y); L(X + 60, Y, X + 58, Y + 34); L(X + 58, Y + 34, X - 2, Y + 32); L(X - 2, Y + 32, X, Y); scrawl('N64', X + 10, Y + 24, 17); L(X + 30, Y + 34, X + 40, Y + 60, 1.6); g.lineWidth = 2; g.strokeRect(X + 30, Y + 58, 24, 14); }
+      if (k === 'n64') { L(X, Y, X + 60, Y); L(X + 60, Y, X + 58, Y + 34); L(X + 58, Y + 34, X - 2, Y + 32); L(X - 2, Y + 32, X, Y); scrawl('ULTRA 64', X + 10, Y + 24, 17); L(X + 30, Y + 34, X + 40, Y + 60, 1.6); g.lineWidth = 2; g.strokeRect(X + 30, Y + 58, 24, 14); }
       else if (k === 'pc') { L(X, Y, X + 48, Y); L(X + 48, Y, X + 48, Y + 40); L(X + 48, Y + 40, X, Y + 40); L(X, Y + 40, X, Y); L(X + 8, Y + 8, X + 40, Y + 8, 1.6); L(X + 40, Y + 8, X + 40, Y + 30, 1.6); L(X + 40, Y + 30, X + 8, Y + 30, 1.6); L(X + 8, Y + 30, X + 8, Y + 8, 1.6); scrawl('zzz', X + 12, Y + 24, 12); }
       else if (k === 'trophy') { L(X - 16, Y, X + 16, Y); L(X - 16, Y, X - 10, Y + 26); L(X + 16, Y, X + 10, Y + 26); L(X - 10, Y + 26, X + 10, Y + 26); L(X, Y + 26, X, Y + 40); L(X - 12, Y + 42, X + 12, Y + 42); ring(X - 20, Y + 10, 6, 2); ring(X + 20, Y + 10, 6, 2); scrawl('1st', X - 10, Y + 18, 12); }
       else if (k === 'car') { L(X, Y + 20, X + 70, Y + 20); L(X + 4, Y + 20, X + 12, Y + 4); L(X + 12, Y + 4, X + 50, Y + 4); L(X + 50, Y + 4, X + 62, Y + 20); ring(X + 16, Y + 26, 8); ring(X + 56, Y + 26, 8); for (let k2 = 0; k2 < 3; k2++) L(X - 30 + k2 * 4, Y + 6 + k2 * 8, X - 8, Y + 6 + k2 * 8, 1.6); }
@@ -871,14 +871,14 @@
   const STRIPS = [
     { id: 'euro', t: 'Invisible Money', d: '01/01', p: [
       { bg: 'park', c: [['callum', 22, 'point', 'smug', 1], ['jack', 58, 'stand', 'neutral', -1], ['dave', 82, 'stand', 'neutral', -1], ['luke', 108, 'stand', 'neutral', -1]], s: [['callum', 'From today, half of Europe has the same money. The Euro.']] },
-      { bg: 'park', c: [['callum', 22, 'hips', 'smug', 1], ['dave', 80, 'think', 'think', -1]], s: [['dave', 'Can you buy an N64 with it?'], ['callum', 'You can\'t even TOUCH it. It\'s only in computers till 2002.']] },
+      { bg: 'park', c: [['callum', 22, 'hips', 'smug', 1], ['dave', 80, 'think', 'think', -1]], s: [['dave', 'Can you buy an ULTRA 64 with it?'], ['callum', 'You can\'t even TOUCH it. It\'s only in computers till 2002.']] },
       { bg: 'park', c: [['luke', 26, 'shrug', 'neutral', 1], ['jack', 64, 'stand', 'smug', 1], ['callum', 102, 'stand', 'worried', -1]], s: [['luke', 'So it\'s money you can\'t see or spend.'], ['jack', 'Like my pocket money, then.']] } ] },
     { id: 'resolution', t: 'The Resolution', d: '04/01', p: [
       { bg: 'living', c: [['dad', 40, 'hold', 'happy', 1, { hold: 'notepad' }], ['jack', 88, 'stand', 'neutral', -1]], s: [['dad', 'New Year\'s resolution: I will UNDERSTAND the computer.'], ['jack', 'Good luck, Dad.']] },
       { bg: 'bedroom', o: { nobed: 1 }, c: [['pc', 70, '', 'happy'], ['dad', 46, 'type', 'worried', 1]], s: [['dad', 'It says "press any key". Where\'s the ANY key?']] },
       { bg: 'bedroom', o: { nobed: 1 }, c: [['pc', 70, '', 'sweat'], ['dad', 46, 'type', 'angry', 1], ['jack', 108, 'facepalm', 'sad', -1]], s: [['off:Mom:L', 'He said that last year.'], ['jack', 'And the year before.']], capb: '4th January. Resolution: broken.' } ] },
     { id: 'oneside', t: 'One Side', d: '16/01', p: [
-      { bg: 'bedroom', c: [['jack', 50, 'hold', 'grin', 1, { hold: 'cube' }]], s: [['jack', 'I\'ve done one WHOLE side of the Rubik\'s cube!']] },
+      { bg: 'bedroom', c: [['jack', 50, 'hold', 'grin', 1, { hold: 'cube' }]], s: [['jack', 'I\'ve done one WHOLE side of the Rubrick\'s cube!']] },
       { bg: 'bedroom', c: [['jack', 34, 'stand', 'shock', 1], ['kim', 72, 'hold', 'smug', -1, { hold: 'cube' }]], s: [['kim', 'Can I have a go?']], fx: [['CLICK CLICK CLICK', 80, 30, 24, '#ffd400', -6]] },
       { bg: 'bedroom', c: [['jack', 34, 'stand', 'shock', 1], ['kim', 72, 'hold', 'happy', -1, { hold: 'cubedone' }]], s: [['kim', 'Forty seconds. There\'s a method. Want me to show you?']] },
       { bg: 'bedroom', c: [['jack', 46, 'hold', 'angry', 1, { hold: 'cube' }], ['biscuit', 100, 'sit', 'smug', -1]], s: [['jack', 'No! I\'m working it out MYSELF.'], ['biscuit', '...he peeled the stickers off last time.', 't']] } ] },
@@ -897,7 +897,7 @@
       { bg: 'kitchen', c: [['mom', 30, 'stand', 'neutral', 1, { hold: 'mug' }]], fr: [['box', 90, G]], fx: [['!', 90, 58, 40, '#e10600', 0]] },
       { bg: 'kitchen', c: [['mom', 34, 'cross', 'smug', 1], ['jack', 88, 'hold', 'worried', -1, { hold: 'biscuit' }]], s: [['mom', 'Nice try, soldier. Homework.'], ['jack', 'How did you know?'], ['mom', 'Boxes don\'t breathe, love.']] } ] },
     { id: 'trailer', t: 'The Download', d: '12/03', sunday: 1, p: [
-      { bg: 'bedroom', o: { nobed: 1 }, c: [['pc', 64, '', 'progress', 1, { pct: 0.01, modem: 'yell' }], ['jack', 36, 'type', 'grin', 1]], s: [['jack', 'The new Star Wars trailer! Only 25 megabytes!']], fx: [['SKREEEE-BONG', 92, 26, 22, '#3cf', 6]] },
+      { bg: 'bedroom', o: { nobed: 1 }, c: [['pc', 64, '', 'progress', 1, { pct: 0.01, modem: 'yell' }], ['jack', 36, 'type', 'grin', 1]], s: [['jack', 'The new Intergalactic Battles trailer! Only 25 megabytes!']], fx: [['SKREEEE-BONG', 92, 26, 22, '#3cf', 6]] },
       { bg: 'bedroom', o: { nobed: 1 }, c: [['pc', 64, '', 'progress', 1, { pct: 0.3, modem: 'neutral' }], ['jack', 36, 'type', 'sleep', 1, { zzz: 1 }]], cap: 'One hour later...', over: [['31%', 64, 58, 13, '#000']] },
       { bg: 'bedroom', o: { nobed: 1 }, c: [['pc', 64, '', 'progress', 1, { pct: 0.99, modem: 'happy' }], ['jack', 36, 'type', 'grin', 1]], cap: 'Two hours and thirty-nine minutes later...', s: [['jack', '99%! NEARLY!']], over: [['99%', 64, 58, 13, '#000']] },
       { bg: 'kitchen', o: { offhook: 1 }, c: [['mom', 26, 'hold', 'happy', 1, { hold: 'phone' }]], s: [['mom', 'I\'ll just give Auntie Pat a quick ring.']], fx: [['click', 20, 40, 18, '#fff', 0]] },
@@ -913,8 +913,8 @@
       { bg: 'complab', c: [['pc', 58, '', 'mines'], ['jack', 30, 'type', 'shock', 1], ['ali', 100, 'hips', 'smug', -1]], s: [['ali', 'That\'s a very... interesting... spreadsheet, boys.']] },
       { bg: 'complab', c: [['pc', 92, '', 'mines'], ['jack', 18, 'stand', 'shock', 1], ['dave', 40, 'stand', 'shock', 1], ['ali', 66, 'type', 'angry', 1]], s: [['ali', 'Shift up. I\'ve got a best time to beat.']], capb: '{teacher}\'s record: 61 seconds. Nobody has ever seen {teacher.him} do a spreadsheet.' } ] },
     { id: 'aprilfool', t: 'April Fool', d: '01/04', p: [
-      { bg: 'playground', c: [['jack', 26, 'stand', 'worried', 1], ['dave', 78, 'stand', 'neutral', -1], ['luke', 104, 'stand', 'neutral', -1]], s: [['jack', 'Lads... it\'s in the paper. Nintendo are only making PC games now.']] },
-      { bg: 'playground', c: [['dave', 44, 'shock', 'shock', 1], ['luke', 82, 'shock', 'cry', -1]], s: [['luke', 'NOT MARIO!!!', 'y']], fr: [['gameboy', 66, 92]], fx: [['CLATTER', 64, 80, 22, '#ffd400', 4]] },
+      { bg: 'playground', c: [['jack', 26, 'stand', 'worried', 1], ['dave', 78, 'stand', 'neutral', -1], ['luke', 104, 'stand', 'neutral', -1]], s: [['jack', 'Lads... it\'s in the paper. Ultra Entertainment are only making PC games now.']] },
+      { bg: 'playground', c: [['dave', 44, 'shock', 'shock', 1], ['luke', 82, 'shock', 'cry', -1]], s: [['luke', 'NOT MARLO!!!', 'y']], fr: [['gameboy', 66, 92]], fx: [['CLATTER', 64, 80, 22, '#ffd400', 4]] },
       { bg: 'playground', c: [['dave', 10, 'fall', 'ko', -1, { tilt: 1.57 }], ['callum', 76, 'cheer', 'laugh', 1], ['jack', 110, 'shrug', 'worried', -1]], s: [['callum', 'FINALLY! Welcome to PROPER games!'], ['jack', '...April Fool?']] } ] },
     { id: 'jjj', t: 'Homework', d: '10/04', p: [
       { bg: 'bedroom', o: { nobed: 1 }, c: [['pc', 64, '', 'text'], ['jack', 36, 'type', 'happy', 1]], s: [['jack', 'Last sentence... DONE. Time for crisps.']] },
@@ -926,7 +926,7 @@
       { bg: 'bedroom', o: { nobed: 1 }, c: [['dad', 40, 'think', 'neutral', 1], ['jack', 90, 'stand', 'smug', -1]], s: [['dad', 'How many photos of the CAT are in this essay?'], ['jack', 'Forty. It\'s about the Romans.']] } ] },
     { id: 'davecomik2', t: 'Dave\'s Comik 2 (by Dave)', d: '22/04', kind: 'dave', p: [
       { write: ['DAVES COMIK 2!!!', 'now in {x:colour} biro (felt tips at lukes)'], men: [[200, 'me', { crown: 1 }]], arrows: [['me (best)', 250, 150, 214, 190]] },
-      { write: ['me and luke play the', 'N64 it is the best thing'], things: [['n64', 150, 160]], men: [[70, 'me', {}], [310, 'luke', { small: 1 }]], arrows: [['the best thing', 236, 120, 196, 160]] },
+      { write: ['me and luke play the', 'ULTRA 64 it is the best thing'], things: [['n64', 150, 160]], men: [[70, 'me', {}], [310, 'luke', { small: 1 }]], arrows: [['the best thing', 236, 120, 196, 160]] },
       { write: ['callum says PC is better'], things: [['pc', 260, 150]], men: [[110, 'callum', { sad: 1 }]], arrows: [['callum (wrong)', 150, 110, 128, 150], ['boring box', 250, 130, 280, 150]] },
       { write: ['THE END', 'luke came 2nd. i came 1st.'], things: [['trophy', 190, 120]], men: [[300, 'me', { up: 1 }]] } ], note: 'Dave did another one. He says it\'s in colour. It is not in colour. - Jack' },
     { id: 'virus', t: 'Virus Alert', d: '26/04', p: [
@@ -934,12 +934,12 @@
       { bg: 'bedroom', o: { nobed: 1 }, c: [['pc', 70, '', 'sad', 1, { scarf: 1 }], ['dad', 34, 'stand', 'worried', 1], ['jack', 108, 'stand', 'neutral', -1]], s: [['jack', 'Dad, it\'s not THAT kind of virus.'], ['dad', 'Better safe than sorry.']] },
       { bg: 'bedroom', o: { nobed: 1 }, c: [['pc', 70, '', 'happy', 1, { scarf: 1, thermo: 1 }], ['dad', 34, 'stand', 'happy', 1]], s: [['dad', 'There. No temperature.']], fx: [['achoo', 98, 30, 20, '#fff', 8]] } ] },
     { id: 'daydream', t: 'Daydreamer', d: '07/05', p: [
-      { bg: 'complab', c: [['jack', 50, 'think', 'happy', 1]], s: [['jack', 'Only ten weeks till the new Star Wars...', 't']] },
+      { bg: 'complab', c: [['jack', 50, 'think', 'happy', 1]], s: [['jack', 'Only ten weeks till the new Intergalactic Battles...', 't']] },
       { bg: 'space', fr: [['pod', 54, 77, 1]], c: [['jack', 54, 'cheer', 'grin', 1, { y: -20, hold: 'saber' }]], s: [['jack', 'Jack, ace pilot of the galaxy! Nobody is faster!']], fx: [['WHOOSH', 30, 80, 26, '#6cf', -4]] },
       { bg: 'space', fr: [['pod', 74, 81, -1], ['pod', 28, 91, 1]], c: [['callum', 74, 'point', 'smug', -1, { y: -16 }], ['jack', 28, 'shock', 'shock', 1, { y: -6 }]], s: [['callum', 'Move, loser! My spaceship\'s got 450 MEGAHERTZ.']] },
-      { bg: 'complab', c: [['jack', 40, 'stand', 'shock', 1], ['ali', 90, 'point', 'angry', -1]], s: [['ali', 'JACK! What is the capital of France?'], ['jack', '...Tatooine?']] } ] },
-    { id: 'tama', t: 'Tamagotchi', d: '15/05', p: [
-      { bg: 'playground', c: [['kim', 34, 'hold', 'happy', 1, { hold: 'tama' }], ['jack', 76, 'stand', 'neutral', -1]], s: [['kim', 'My Tamagotchi is forty days old.']] },
+      { bg: 'complab', c: [['jack', 40, 'stand', 'shock', 1], ['ali', 90, 'point', 'angry', -1]], s: [['ali', 'JACK! What is the capital of France?'], ['jack', '...Tattyween?']] } ] },
+    { id: 'tama', t: 'Eggbert', d: '15/05', p: [
+      { bg: 'playground', c: [['kim', 34, 'hold', 'happy', 1, { hold: 'tama' }], ['jack', 76, 'stand', 'neutral', -1]], s: [['kim', 'My Eggbert is forty days old.']] },
       { bg: 'playground', c: [['jack', 40, 'stand', 'sad', 1], ['dave', 86, 'stand', 'neutral', -1]], s: [['jack', 'Mine died. I took it swimming.'], ['dave', 'Mine ran away.']] },
       { bg: 'playground', c: [['kim', 30, 'shrug', 'angry', 1], ['dave', 86, 'stand', 'smug', -1]], s: [['kim', 'They CAN\'T run away, Dave.'], ['dave', 'It\'s in the garden somewhere. Beeping.']] } ] },
     { id: 'overthere', t: 'No Spoilers', d: '19/05', p: [
@@ -954,13 +954,13 @@
       { bg: 'living', o: { night: 1, tv: '#2a8a3a' }, c: [['dad', 70, 'stand', 'neutral', -1], ['jack', 96, 'stand', 'worried', -1], ['luke', 118, 'stand', 'worried', -1]], s: [['dad', 'One-nil down. Ninety minutes up. It\'s over, lads. Bed.']] },
       { bg: 'playground', c: [['luke', 34, 'cheer', 'laugh', 1], ['jack', 82, 'stand', 'shock', -1]], cap: 'The next morning.', s: [['luke', 'TWO GOALS IN INJURY TIME!!!', 'y'], ['jack', 'WHAT?!']] },
       { bg: 'kitchen', c: [['dad', 40, 'hold', 'smug', 1, { hold: 'mug' }], ['jack', 92, 'stand', 'angry', -1]], s: [['dad', 'Never leave before the final whistle, son. I\'ve always said that.']] } ] },
-    { id: 'gran', t: 'Gran vs Tetris', d: '29/05', p: [
-      { bg: 'living', c: [['gran', 46, 'hold', 'neutral', 1, { hold: 'gameboy' }], ['jack', 90, 'point', 'happy', -1]], s: [['gran', 'What\'s this Game Boy thing, then?'], ['jack', 'Just turn the shapes and make lines, Gran.']] },
+    { id: 'gran', t: 'Gran vs Blockology', d: '29/05', p: [
+      { bg: 'living', c: [['gran', 46, 'hold', 'neutral', 1, { hold: 'gameboy' }], ['jack', 90, 'point', 'happy', -1]], s: [['gran', 'What\'s this Game Lad thing, then?'], ['jack', 'Just turn the shapes and make lines, Gran.']] },
       { bg: 'living', o: { night: 1 }, c: [['gran', 56, 'hold', 'angry', 1, { hold: 'gameboy' }], ['jack', 96, 'slump', 'sleep', -1, { zzz: 1 }]], cap: 'Five hours later...', fx: [['beep boop', 32, 40, 18, '#9bbc0f', 0]] },
       { bg: 'living', o: { night: 1 }, c: [['gran', 46, 'cheer', 'grin', 1, { hold: 'gameboy' }], ['jack', 92, 'stand', 'shock', -1]], s: [['gran', 'LEVEL 20! GET IN!!!', 'y']] },
       { bg: 'living', o: { night: 1 }, c: [['gran', 40, 'hold', 'smug', 1, { hold: 'gameboy' }], ['jack', 90, 'stand', 'sad', -1]], s: [['jack', 'Can I have it back now, Gran?'], ['gran', 'Get your own, love.']] } ] },
     { id: 'matrix', t: 'There Is No Ball', d: '12/06', p: [
-      { bg: 'park', c: [['jack', 44, 'stand', 'grin', 1], ['dave', 84, 'stand', 'grin', -1]], s: [['dave', 'THE MATRIX! Best film EVER.'], ['jack', 'Do the bit where he dodges!']] },
+      { bg: 'park', c: [['jack', 44, 'stand', 'grin', 1], ['dave', 84, 'stand', 'grin', -1]], s: [['dave', 'THE MODEMTRIX! Best film EVER.'], ['jack', 'Do the bit where he dodges!']] },
       { bg: 'park', c: [['dave', 76, 'stand', 'smug', -1, { tilt: 0.55 }], ['jack', 26, 'point', 'grin', 1, { hold: 'ball' }]], s: [['dave', 'Throw it. I\'ll dodge it in slow motion.']], fx: [['sloooow', 104, 40, 18, '#fff', 0]] },
       { bg: 'park', c: [['dave', 66, 'fall', 'ko', -1, { tilt: 1.57 }], ['jack', 26, 'shrug', 'neutral', 1]], fr: [['ball', 118, 84]], s: [['dave', 'There... is no... ball...'], ['jack', 'There was a ball.']], fx: [['BONK', 104, 58, 30, '#ffd400', 10]] } ] },
     { id: 'carpark', t: 'The Car Park', d: '26/06', p: [
@@ -970,7 +970,7 @@
       { bg: 'daves', o: { tv: '#e10600' }, c: [['dad', 82, 'sitfloor', 'shock', -1, { pad: 1, y: -4 }], ['dave', 112, 'stand', 'smug', -1]], s: [['dad', 'Why am I upside down? Where\'s the BRAKE?']], fx: [['CRASH!', 50, 22, 34, '#ff8a00', -8]] } ] },
     { id: 'davestrip', t: 'Guest Strip: Dave\'s Comik (by Dave)', d: '03/07', kind: 'dave', p: [
       { write: ['DAVES COMIK!!!', 'by dave (not jack)'], things: [['sun', 330, 50]], men: [[110, 'me', { crown: 1 }], [270, 'jack', { small: 1 }]], arrows: [['me', 150, 120, 124, 160]] },
-      { write: ['this is me i am the best', 'at {x:goldneye} {x:goldenay} goldeneye'], men: [[190, '', { up: 1, big: 1 }]], things: [['trophy', 300, 150]], arrows: [['me (best)', 60, 150, 166, 170]] },
+      { write: ['this is me i am the best', 'at {x:goldneye} {x:goldenay} goldenballs'], men: [[190, '', { up: 1, big: 1 }]], things: [['trophy', 300, 150]], arrows: [['me (best)', 60, 150, 166, 170]] },
       { write: ['this is jack he is', '{x:rubbish} rubish (sorry jack)'], men: [[120, 'jack', { sad: 1 }], [270, 'odjob', {}]], arrows: [['(alowed)', 300, 112, 280, 140]] },
       { write: ['THE END', 'the next one will be in colour'], things: [['star', 192, 190]] } ], note: 'Dave asked if he could do a comic. I said yes. I regret it. - Jack' },
     { id: 'queue', t: 'The Queue', d: '15/07', sunday: 1, p: [
@@ -983,9 +983,9 @@
       { bg: 'cinema', c: [['jack', 26, 'run', 'grin', 1], ['dave', 54, 'run', 'grin', 1], ['kim', 82, 'run', 'happy', 1], ['gran', 110, 'run', 'grin', 1]], fx: [['DOORS OPEN!!!', 64, 22, 28, '#3c3', -4]] },
       { bg: 'dark', c: [['jack', 30, 'sit', 'grin', 1, { nochair: 1, hold: 'popcorn' }], ['dave', 62, 'sit', 'shock', 1, { nochair: 1 }], ['gran', 96, 'sit', 'sleep', 1, { nochair: 1, zzz: 1 }]], fr: [['seats', 0, 104]], s: [['jack', 'It\'s starting!!!', 'w'], ['dave', 'Shhhh!', 'w']], dim: 0 } ] },
     { id: 'gbc', t: 'In Colour', d: '31/07', p: [
-      { bg: 'park', c: [['luke', 40, 'hold', 'grin', 1, { hold: 'gbc' }], ['jack', 88, 'stand', 'neutral', -1]], s: [['luke', 'Game Boy COLOR! It\'s in COLOUR!']] },
+      { bg: 'park', c: [['luke', 40, 'hold', 'grin', 1, { hold: 'gbc' }], ['jack', 88, 'stand', 'neutral', -1]], s: [['luke', 'Game Lad Color! It\'s in COLOUR!']] },
       { bg: 'park', c: [['luke', 40, 'hold', 'happy', 1, { hold: 'gbc' }], ['jack', 88, 'shrug', 'smug', -1]], s: [['jack', 'So is real life.']] },
-      { bg: 'park', c: [['luke', 40, 'hold', 'smug', 1, { hold: 'gbc' }], ['jack', 88, 'think', 'worried', -1]], s: [['luke', 'Real life hasn\'t got Tetris in it.'], ['jack', '...fair point. Can I have a go?']] } ] },
+      { bg: 'park', c: [['luke', 40, 'hold', 'smug', 1, { hold: 'gbc' }], ['jack', 88, 'think', 'worried', -1]], s: [['luke', 'Real life hasn\'t got Blockology in it.'], ['jack', '...fair point. Can I have a go?']] } ] },
     { id: 'memcard', t: 'Fifteen Blocks', d: '07/08', p: [
       { bg: 'living', c: [['jack', 64, 'sitfloor', 'angry', -1, { pad: 1 }]], s: [['jack', 'Why is my memory card FULL? I had three saves!']] },
       { bg: 'living', o: { tv: '#202060' }, c: [['jack', 64, 'sitfloor', 'shock', -1, { pad: 1 }]], over: [['DAVE 1  DAVE 2  DAVE 3', 22, 35, 7, '#fff'], ['DAVE 4  DAVE 5  ...  DAVE 15', 22, 41, 7, '#fff']] },
@@ -1012,7 +1012,7 @@
       { bg: 'complab', c: [['ali', 22, 'stand', 'worried', 1], ['jack', 74, 'point', 'smug', 1], ['otherjack', 104, 'hips', 'angry', -1]], s: [['jack', 'He means you, Jack K.'], ['otherjack', 'No he doesn\'t. YOU\'RE the spare Jack.']] },
       { bg: 'complab', c: [['ali', 22, 'facepalm', 'angry', 1], ['jack', 74, 'point', 'yell', 1], ['otherjack', 104, 'point', 'yell', -1]], s: [['ali', 'Fine. You\'re Jack One and Jack Two.'], ['jack', 'I\'M Jack One!', 'y']] } ] },
     { id: 'dreamcastusa', t: 'Imported', d: '18/09', p: [
-      { bg: 'playground', c: [['callum', 40, 'point', 'smug', 1], ['jack', 84, 'stand', 'shock', -1], ['dave', 108, 'stand', 'shock', -1]], s: [['callum', 'My uncle sent me a Dreamcast from America. I\'ve had it TEN DAYS.']] },
+      { bg: 'playground', c: [['callum', 40, 'point', 'smug', 1], ['jack', 84, 'stand', 'shock', -1], ['dave', 108, 'stand', 'shock', -1]], s: [['callum', 'My uncle sent me a Daydream from America. I\'ve had it TEN DAYS.']] },
       { bg: 'playground', c: [['dave', 40, 'think', 'neutral', 1], ['callum', 88, 'stand', 'worried', -1]], s: [['dave', 'Does an American one work on our tellies?'], ['callum', 'It\'s... FINE.']] },
       { bg: 'living', o: { tv: '#888', tvroll: 1 }, c: [['callum', 70, 'shrug', 'worried', -1]], s: [['callum', 'It\'s meant to look like this. It\'s ARTISTIC.']], capb: 'Black and white. And it rolled.' } ] },
     { id: 'millionaire', t: 'Phone a Friend', d: '21/09', p: [
@@ -1024,40 +1024,40 @@
       { bg: 'bedroom', o: { nobed: 1 }, c: [['pc', 64, '', 'cyan'], ['jack', 36, 'type', 'shock', 1]], over: [['OUT OF CYAN', 64, 58, 9, '#000080']], fx: [['BEEP BEEP BEEP', 64, 22, 22, '#e10600', -4]] },
       { bg: 'complab', c: [['ali', 40, 'hold', 'think', 1, { hold: 'poster' }], ['jack', 90, 'stand', 'worried', -1]], s: [['ali', 'Jack, why is the sea pink? And Neptune? And the sky?'], ['jack', 'It\'s a sunset solar system, {teacher.sir}.']] } ] },
     { id: 'pokemon', t: 'Gotta Pick \'Em All', d: '05/10', sunday: 1, p: [
-      { bg: 'shops', c: [['jack', 26, 'stand', 'grin', 1], ['kim', 56, 'stand', 'happy', 1], ['dave', 86, 'stand', 'grin', 1], ['shop', 116, 'stand', 'neutral', -1]], over: [['GAMES \'N\' THAT', 64, 22, 12, '#ffd400']], s: [['shop', 'Pokémon! Red AND Blue! Out today!']] },
-      { bg: 'bedroom', c: [['jack', 50, 'sitfloor', 'grin', 1, { hold: 'gameboy' }]], s: [['jack', 'Starter Pokémon... I choose SQUIRTLE.']] },
-      { bg: 'daves', c: [['dave', 50, 'sitfloor', 'grin', 1, { hold: 'gameboy' }]], s: [['dave', 'Starter Pokémon... I choose SQUIRTLE.']] },
-      { bg: 'kitchen', o: { offhook: 1 }, c: [['jack', 40, 'hold', 'happy', 1, { hold: 'phone' }]], s: [['jack', 'Which one did you pick?'], ['off:Dave (on the phone):R', 'SQUIRTLE!']] },
+      { bg: 'shops', c: [['jack', 26, 'stand', 'grin', 1], ['kim', 56, 'stand', 'happy', 1], ['dave', 86, 'stand', 'grin', 1], ['shop', 116, 'stand', 'neutral', -1]], over: [['GAMES \'N\' THAT', 64, 22, 12, '#ffd400']], s: [['shop', 'Pocket Critters! Red AND Blue! Out today!']] },
+      { bg: 'bedroom', c: [['jack', 50, 'sitfloor', 'grin', 1, { hold: 'gameboy' }]], s: [['jack', 'Starter Pocket Critters... I choose SQUIRTURTLE.']] },
+      { bg: 'daves', c: [['dave', 50, 'sitfloor', 'grin', 1, { hold: 'gameboy' }]], s: [['dave', 'Starter Pocket Critters... I choose SQUIRTURTLE.']] },
+      { bg: 'kitchen', o: { offhook: 1 }, c: [['jack', 40, 'hold', 'happy', 1, { hold: 'phone' }]], s: [['jack', 'Which one did you pick?'], ['off:Dave (on the phone):R', 'SQUIRTURTLE!']] },
       { bg: 'playground', c: [['kim', 40, 'facepalm', 'angry', 1], ['jack', 78, 'stand', 'happy', -1], ['dave', 106, 'stand', 'happy', -1]], s: [['kim', 'You pick DIFFERENT ones so you can TRADE!']] },
       { bg: 'playground', c: [['jack', 50, 'stand', 'shock', 1], ['dave', 82, 'stand', 'shock', -1]], s: [['jack', '...'], ['dave', '...'], ['off:Mom:R', 'WHO has been on the phone for an HOUR?', 'y']] } ] },
     { id: 'dreamcast', t: 'Saving Up', d: '14/10', p: [
-      { bg: 'shops', c: [['jack', 40, 'stand', 'grin', 1], ['dave', 80, 'stand', 'grin', -1]], over: [['GAMES \'N\' THAT', 64, 22, 12, '#ffd400'], ['DREAMCAST £199.99', 74, 42, 9, '#e10600']], s: [['jack', 'The Dreamcast is out! It\'s got a MODEM in it!']] },
+      { bg: 'shops', c: [['jack', 40, 'stand', 'grin', 1], ['dave', 80, 'stand', 'grin', -1]], over: [['GAMES \'N\' THAT', 64, 22, 12, '#ffd400'], ['DAYDREAM £199.99', 74, 42, 9, '#e10600']], s: [['jack', 'The Daydream is out! It\'s got a MODEM in it!']] },
       { bg: 'shops', c: [['jack', 44, 'hold', 'worried', 1, { hold: 'coins' }], ['dave', 82, 'hold', 'worried', -1, { hold: 'coins' }]], s: [['dave', 'How much have we got?'], ['jack', 'Three pounds forty-seven. And a button.']] },
       { bg: 'shops', c: [['jack', 44, 'think', 'neutral', 1], ['dave', 82, 'think', 'neutral', -1]], s: [['dave', 'So we need about £196 more.'], ['jack', 'Christmas.'], ['dave', 'Which one?']] } ] },
-    { id: 'robot1', t: 'Robot Wars (Part 1)', d: '23/10', p: [
-      { bg: 'garage', c: [['jack', 40, 'cheer', 'grin', 1], ['dave', 84, 'cheer', 'grin', -1]], s: [['jack', 'We are building a robot. For ROBOT WARS.']] },
+    { id: 'robot1', t: 'Robo Rumble (Part 1)', d: '23/10', p: [
+      { bg: 'garage', c: [['jack', 40, 'cheer', 'grin', 1], ['dave', 84, 'cheer', 'grin', -1]], s: [['jack', 'We are building a robot. For ROBO RUMBLE.']] },
       { bg: 'garage', c: [['dave', 46, 'hold', 'grin', 1, { hold: 'drill' }], ['jack', 94, 'stand', 'worried', -1]], fx: [['BZZZZT', 70, 30, 30, '#ffd400', -8]], s: [['jack', 'Is that your dad\'s drill?']] },
       { bg: 'garage', c: [['jack', 30, 'point', 'grin', 1], ['dave', 106, 'stand', 'grin', -1]], fr: [['robot', 68, 94]], s: [['jack', 'Behold: SIR HOOVERS-A-LOT! Part Hoover. Part skateboard. ALL fury.']] },
       { bg: 'garage', c: [['jack', 30, 'shock', 'shock', 1], ['biscuit', 104, 'sit', 'shock', -1]], fr: [['robot', 70, 94]], fx: [['WHIRRRR', 70, 54, 24, '#e10600', 6]], s: [['jack', 'It\'s ALIVE! It\'s... going for the cat!']], capb: 'TO BE CONTINUED...' } ] },
-    { id: 'robot2', t: 'Robot Wars (Part 2)', d: '30/10', p: [
+    { id: 'robot2', t: 'Robo Rumble (Part 2)', d: '30/10', p: [
       { bg: 'kitchen', c: [['biscuit', 30, 'sit', 'shock', 1], ['dave', 104, 'run', 'shock', -1]], fr: [['robot', 70, 94]], cap: 'Previously: a robot. A cat. Trouble.', fx: [['VRRRRM', 70, 50, 26, '#ffd400', 0]] },
       { bg: 'living', c: [['dad', 96, 'fall', 'shock', 1, { tilt: -1.4, dizzy: 1 }]], fr: [['robot', 28, 94]], fx: [['CRASH!', 64, 26, 36, '#ff8a00', -8]] },
       { bg: 'living', o: { nosofa: 1 }, c: [['mom', 30, 'stand', 'shock', 1], ['jack', 104, 'stand', 'worried', -1]], fr: [['robot', 66, 94]], s: [['mom', 'Is it... HOOVERING the carpet?'], ['jack', 'It does that when it\'s angry.']] },
       { bg: 'living', o: { nosofa: 1 }, c: [['mom', 34, 'stand', 'happy', 1], ['jack', 90, 'stand', 'shock', -1], ['dave', 114, 'stand', 'shock', -1]], s: [['mom', 'Boys. Can you make me ANOTHER one?']] } ] },
     { id: 'halloween', t: 'Trick or Treat', d: '31/10', single: 1, p: [
-      { bg: 'hall', o: { night: 1 }, c: [['jack', 40, 'pointup', 'grin', 1, { hold: 'saber', nocap: 1, top: '#8a5a3a', pat: 'plain' }], ['dave', 76, 'stand', 'happy', 1], ['gran', 112, 'stand', 'happy', -1]], fr: [['console', 76, 84], ['pumpkin', 18, 92]], s: [['gran', 'Ooh! A little monk and a... cardboard box?'], ['dave', 'I\'m a DREAMCAST.']] } ] },
+      { bg: 'hall', o: { night: 1 }, c: [['jack', 40, 'pointup', 'grin', 1, { hold: 'saber', nocap: 1, top: '#8a5a3a', pat: 'plain' }], ['dave', 76, 'stand', 'happy', 1], ['gran', 112, 'stand', 'happy', -1]], fr: [['console', 76, 84], ['pumpkin', 18, 92]], s: [['gran', 'Ooh! A little monk and a... cardboard box?'], ['dave', 'I\'m a DAYDREAM.']] } ] },
     { id: 'bonfire', t: 'The Big One', d: '05/11', p: [
       { bg: 'park', o: { dark: 1, nobench: 1 }, c: [['callum', 30, 'point', 'smug', 1], ['jack', 80, 'stand', 'neutral', -1], ['luke', 106, 'stand', 'neutral', -1]], fr: [['rocket', 58, 96]], s: [['callum', 'My dad\'s rocket cost TWENTY QUID. It\'s called the MEGA-NOVA.']] },
       { bg: 'park', o: { dark: 1, nobench: 1 }, c: [['callum', 30, 'cheer', 'grin', 1], ['jack', 80, 'stand', 'shock', -1], ['luke', 106, 'stand', 'shock', -1]], fr: [['rocket', 58, 96, 3]], fx: [['FZZZZZZZZ...', 64, 40, 28, '#ffd400', -6]] },
       { bg: 'park', o: { dark: 1, nobench: 1 }, c: [['callum', 30, 'shrug', 'worried', 1], ['jack', 80, 'stand', 'smug', -1], ['luke', 106, 'stand', 'smug', -1]], fr: [['rocket', 58, 96, 2]], fx: [['pff.', 64, 30, 18, '#fff', 0]], s: [['luke', 'Is that it?'], ['callum', 'It looks better on PC.']] } ] },
-    { id: 'tetrisbrain', t: 'Tetris Brain', d: '06/11', single: 1, p: [
-      { bg: 'bedroom', o: { night: 1 }, c: [['jack', 24, 'think', 'worried', 1]], s: [['jack', 'If you turned the fridge round, it\'d fit next to the sofa... and the car could go there... and the whole street would CLEAR...', 't']], capb: 'Day four of the Tetris holiday. Jack sees shapes everywhere.' } ] },
+    { id: 'tetrisbrain', t: 'Blockology Brain', d: '06/11', single: 1, p: [
+      { bg: 'bedroom', o: { night: 1 }, c: [['jack', 24, 'think', 'worried', 1]], s: [['jack', 'If you turned the fridge round, it\'d fit next to the sofa... and the car could go there... and the whole street would CLEAR...', 't']], capb: 'Day four of the Blockology holiday. Jack sees shapes everywhere.' } ] },
     { id: 'furby', t: 'Me Sleep Now', d: '13/11', p: [
       { bg: 'bedroom', o: { night: 1 }, c: [['kim', 40, 'hold', 'happy', 1, { hold: 'furby' }], ['jack', 90, 'stand', 'neutral', -1]], s: [['kim', 'Can you mind my Furby tonight? He\'s ever so sweet.']] },
       { bg: 'bedroom', o: { night: 1 }, c: [['jack', 50, 'sitfloor', 'shock', 1]], fr: [['furby', 88, 84]], cap: '3am.', s: [['off:Furby:R', 'Kah may-may! Me HUNGRY! Me LOVE YOU!']], dim: 0.35 },
       { bg: 'kitchen', c: [['kim', 40, 'stand', 'shock', 1], ['jack', 92, 'cross', 'smug', -1]], s: [['kim', 'Jack, why is my Furby in the FREEZER?'], ['jack', 'He knows what he did.']] } ] },
     { id: 'davecomik4', t: 'Dave\'s Comik 4: The Tornament (by Dave)', d: '19/11', kind: 'dave', p: [
-      { write: ['DAVES COMIK 4', 'the goldeneye {x:tornament} {x:turnament}', 'tornament'], men: [[60, 'me', { crown: 1 }], [150, 'luke', {}], [240, 'jack', {}], [330, 'jackk', { small: 1 }]] },
+      { write: ['DAVES COMIK 4', 'the goldenballs {x:tornament} {x:turnament}', 'tornament'], men: [[60, 'me', { crown: 1 }], [150, 'luke', {}], [240, 'jack', {}], [330, 'jackk', { small: 1 }]] },
       { write: ['the scores'], things: [['text', 70, 110, 'DAVE ........ 100'], ['text', 70, 140, 'LUKE ......... 2'], ['text', 70, 170, 'JACKK ........ 1'], ['text', 70, 200, 'JACK ......... {x:4} 0']], arrows: [['(i won)', 260, 110, 220, 104]] },
       { write: ['jack said i cheated', 'with odjob. ODJOB IS', 'ALOWED.'], men: [[260, 'jack', { cry: 1 }]] },
       { write: ['me (still best)'], things: [['trophy', 120, 120], ['trophy', 200, 120]], men: [[300, '', { crown: 1, up: 1 }]], tbc: 1 } ], note: 'For the record: Oddjob is not allowed. Everyone knows Oddjob is not allowed. - Jack' },
@@ -1079,7 +1079,7 @@
       { bg: 'daves', c: [['jack', 50, 'sitfloor', 'angry', 1, { hold: 'cables' }]], s: [['jack', 'Which cable goes in which hole?'], ['off:Callum:R', 'All of them. Obviously.']] },
       { bg: 'daves', c: [['pc', 40, '', 'sweat', 1], ['pc', 96, '', 'sweat', 1]], cap: 'Two hours later.', over: [['Connecting...', 40, 58, 9, '#3cf'], ['Connecting...', 96, 58, 9, '#3cf']] },
       { bg: 'daves', c: [['jack', 30, 'cheer', 'grin', 1], ['callum', 96, 'cheer', 'grin', -1]], s: [['jack', 'IT WORKS!!!', 'y']] },
-      { bg: 'daves', c: [['pc', 40, '', 'game'], ['pc', 96, '', 'game'], ['jack', 22, 'type', 'grin', 1, { nochair: 1 }], ['callum', 116, 'type', 'grin', -1, { nochair: 1 }]], fx: [['READY... FIGHT!', 64, 24, 26, '#e10600', -4]], s: [['off:Dave:R', 'Is it better than GoldenEye yet?']] },
+      { bg: 'daves', c: [['pc', 40, '', 'game'], ['pc', 96, '', 'game'], ['jack', 22, 'type', 'grin', 1, { nochair: 1 }], ['callum', 116, 'type', 'grin', -1, { nochair: 1 }]], fx: [['READY... FIGHT!', 64, 24, 26, '#e10600', -4]], s: [['off:Dave:R', 'Is it better than Goldenballs yet?']] },
       { bg: 'daves', c: [['pc', 40, '', 'off'], ['pc', 96, '', 'off'], ['jack', 22, 'shock', 'shock', 1], ['callum', 116, 'shock', 'shock', -1]], dim: 0.5, s: [['off:Dave\'s Mom:L', 'Just doing the hoovering, boys!']], fx: [['VRRRRR', 64, 80, 22, '#fff', 0]] } ] },
     { id: 'bsod', t: 'The Worst Moment', d: '11/12', p: [
       { bg: 'bedroom', o: { nobed: 1 }, c: [['pc', 64, '', 'happy'], ['jack', 36, 'type', 'grin', 1]], s: [['jack', 'Final boss. Forty hours. Last save: Tuesday. HERE WE GO.']] },
@@ -1090,8 +1090,8 @@
       { bg: 'living', c: [['gran', 60, 'hold', 'think', 1, { hold: 'notepad' }]], s: [['gran', '"A Voodoo3." What on earth is a Voodoo3, love?'], ['off:Jack:R', 'A graphics card!']] },
       { bg: 'living', o: { night: 1 }, c: [['gran', 60, 'sit', 'smug', 1, { hold: 'notepad' }]], s: [['gran', 'Lovely. I\'ll knit you one.']], fx: [['click clack click', 64, 30, 18, '#fff', 0]] } ] },
     { id: 'davecomik5', t: 'Dave\'s Chrismas Comik (by Dave)', d: '21/12', kind: 'dave', p: [
-      { write: ['DAVES CHRISMAS COMIK', 'dear farther chrismas i want:', '1. every N64 game', '2. {x:a dreamcast} a nother N64 (spare)'], things: [['n64', 260, 170]] },
-      { write: ['this is santa (real)'], men: [[200, 'santa', { hat: 1, big: 1 }]], things: [['present', 290, 210]], arrows: [['N64 games', 270, 120, 300, 200]] },
+      { write: ['DAVES CHRISMAS COMIK', 'dear farther chrismas i want:', '1. every ULTRA 64 game', '2. {x:a daydream} a nother ULTRA 64 (spare)'], things: [['n64', 260, 170]] },
+      { write: ['this is santa (real)'], men: [[200, 'santa', { hat: 1, big: 1 }]], things: [['present', 290, 210]], arrows: [['ULTRA 64 games', 270, 120, 300, 200]] },
       { write: ['and this is jack', 'he got {x:a} socks'], men: [[200, 'jack', { cry: 1 }]] },
       { write: ['MERY CHRISMAS', 'from dave (best)', 'P.S. luke is 2nd best'], things: [['star', 250, 210]] } ], note: 'I did not get socks. Gran knitted me a graphics card. - Jack' },
     { id: 'xmas', t: 'Christmas Day', d: '25/12', single: 1, p: [

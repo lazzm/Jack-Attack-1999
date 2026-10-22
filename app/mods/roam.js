@@ -41,10 +41,24 @@ function seedStarter(name, reset = false) {
   const now = Math.max(Date.now(), (cur?.ts || 0) + 1);
   fs.mkdirSync(DIR, { recursive: true });
   if (cur) fs.copyFileSync(f, f + '.bak-' + now);
-  const prof = { ts: now, reset: now, enc: 'raw', data: Buffer.from(JSON.stringify(starterProfile())).toString('base64') };
+  const prof = { ts: now, reset: now, starterClean: 2, enc: 'raw', data: Buffer.from(JSON.stringify(starterProfile())).toString('base64') };
   write(name, prof);
   if (reset && ctx) for (const [ws,c] of ctx.clients) if (c.member?.toLowerCase() === 'test') ctx.send(ws, { t:'rmData', ...prof });
   return true;
+}
+function upgradeStarter(name,orders=[]) {
+  if(String(name).toLowerCase()!=='test')throw Error('Starter is restricted to test');
+  const cur=read(name);if(!cur)return seedStarter(name);
+  if(cur.starterClean>=2)return false;
+  const raw=Buffer.from(cur.data,'base64'),obj=JSON.parse((cur.enc==='gzip'?zlib.gunzipSync(raw,{maxOutputLength:3000000}):raw).toString());
+  const get=k=>{try{return JSON.parse(obj[k]||'{}')}catch{return{}}};
+  const pm=get('jhp_pm'),rm=get('jhp_rm'),disc=get('jhp_discs');
+  pm.own={};pm.fl={};pm.gift=99;pm.n=0;
+  for(const id of Object.keys(rm.f||{}))if(id.startsWith('cart.'))delete rm.f[id];
+  if(!orders.some(o=>o.id===disc.cd&&pm.opened?.[o.no]))disc.cd='';
+  obj.jhp_starter='1';obj.jhp_pm=JSON.stringify(pm);obj.jhp_rm=JSON.stringify(rm);obj.jhp_discs=JSON.stringify(disc);
+  const now=Math.max(Date.now(),cur.ts+1);fs.copyFileSync(fileOf(name),fileOf(name)+'.bak-'+now);
+  write(name,{ts:now,reset:now,starterClean:2,enc:'raw',data:Buffer.from(JSON.stringify(obj)).toString('base64')});return true;
 }
 
 // admin: give a member a brand-new PC (what a new visitor gets). The old profile is kept as a backup file, never deleted.
@@ -83,6 +97,7 @@ function resetInstalls(name) {
 
 module.exports = {
   seedStarter,
+  upgradeStarter,
   resetProfile,
   resetInstalls,
   name: 'roam',
@@ -115,7 +130,7 @@ module.exports = {
       const ts = Date.now();
       const cur = read(up.who);
       if (cur && cur.reset && !(+m.base >= cur.reset)) return ctx.send(ws, { t: 'rmData', ts: cur.ts, enc: cur.enc, data: cur.data }); // an upload from before a reset: the reset wins (the client applies it and reloads)
-      try { write(up.who, { ts, enc: up.enc, data, reset: cur && cur.reset || undefined }); } catch (e) { console.error('roam: save failed', e.message); return ctx.send(ws, { t: 'rmErr', msg: 'JackNet could not save your profile.' }); }
+      try { write(up.who, { ts, enc: up.enc, data, starterClean:cur?.starterClean, reset: cur && cur.reset || undefined }); } catch (e) { console.error('roam: save failed', e.message); return ctx.send(ws, { t: 'rmErr', msg: 'JackNet could not save your profile.' }); }
       return ctx.send(ws, { t: 'rmSaved', ts });
     }
   },

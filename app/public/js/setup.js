@@ -149,7 +149,7 @@
   sw('jbasic', { n: 'JBASIC 1.1', v: '1.1', kb: 190, lic: 'Freeware', by: 'Room 14 Computer Club', cat: 'dos', sq: 4, rel: '20/09/98', ic: 'jbasic', home: 'http://room14.cyb/', apps: ['dos.run:JBASIC', 'dos.run:QBASIC'], paths: ['Accessories > JBASIC'], d: 'Write your own programs! 10 PRINT "DAVE IS SMELLY" 20 GOTO 10' });
   sw('gc', { n: 'Jack Commander 3.0', v: '3.0', kb: 280, lic: 'Shareware', by: 'Gubbinz Software Ltd', cat: 'dos', sq: 4, rel: '14/10/98', ic: 'dos', apps: ['dos.run:GC'], paths: ['Accessories > System Tools > Jack Commander'], d: 'Two blue panels full of files. F5 copies, F8 deletes, F10 quits. Once you\'ve used it you\'ll never go back.' });
   sw('intro', { n: 'JACK INTRO (demoscene)', kb: 64, lic: 'Freeware', by: 'JaCk/R00M14', cat: 'mm', sq: 5, rel: '31/12/98', ic: 'dos', apps: ['dos.run:INTRO'], paths: ['Accessories > Entertainment > JACK INTRO (demo)'], d: 'A 64 KB intro with plasma, a starfield, a scroller and greetz. Greetz to everyone. Especially Dave.' });
-  sw('cubetimer', { n: 'Cube Timer 2.0', v: '2.0', kb: 30, lic: 'Freeware', by: 'Megahertz Mike', cat: 'util', sq: 4, rel: '08/03/99', ic: 'cube', paths: ['Accessories > Cube Timer 2.0'], cmds: ['cubetime'], d: 'Times your Rubik\'s Cube solves to the hundredth of a second. Includes an average of 5.' });
+  sw('cubetimer', { n: 'Cube Timer 2.0', v: '2.0', kb: 30, lic: 'Freeware', by: 'Megahertz Mike', cat: 'util', sq: 4, rel: '08/03/99', ic: 'cube', paths: ['Accessories > Cube Timer 2.0'], cmds: ['cubetime'], d: 'Times your Rubrick\'s Cube solves to the hundredth of a second. Includes an average of 5.' });
   sw('y2kpatch', { n: 'JackOS Y2K Compliance Patch', kb: 1900, lic: 'Freeware', by: 'JackOS', cat: 'util', sq: 3, rel: '01/06/99', ic: 'y2k', apps: ['system.y2kpatch'], paths: ['Accessories > System Tools > Y2K Compliance Patch', 'Accessories > System Tools > Y2K Checker'], cmds: ['y2k'],
     d: 'Makes your computer ready for the year 2000. Probably. ' + Cast.n('kidY2k') + ' says it\'s not enough and you need tins of beans as well.', restart: true });
 
@@ -768,7 +768,7 @@ IMPORTANT - READ CAREFULLY (nobody does): This licence agreement ("LICENCE") is 
 
   // ================================================================ extras that only come from the web (their apps live in setup-shack.js)
   sw('mates', { n: 'Blobbit Screen Mates 1.0', kb: 290, lic: 'Freeware', by: 'BlobSoft', cat: 'fun', sq: 5, rel: '01/04/99', ic: 'gubbinz', def: false, apps: ['setup.mates'], paths: ['Blobbit Screen Mates >'], icons: ['suIconMates'], exe: 'SQMATES.EXE',
-    d: 'A little red Blobbit that lives on your desktop! It bounces along the taskbar, climbs on your windows, falls off them, sleeps, and eats your mouse pointer. Pick it up and throw it!' });
+    d: 'A little red Blobbit that lives on your desktop! It bounces along the taskbar, climbs on your jackos, falls off them, sleeps, and eats your mouse pointer. Pick it up and throw it!' });
   sw('fish', { n: 'Desktop Fish Tank (no fish) 1.0', kb: 140, lic: 'Shareware', by: 'AquaJack Software', cat: 'fun', sq: 2, rel: '12/12/98', ic: 'screensaver', def: false, apps: ['setup.fish'], paths: ['Desktop Fish Tank >'], exe: 'FISHTANK.EXE',
     d: 'A beautiful aquarium for your desktop: bubbles, weed, gravel and a treasure chest. Fish are available in Desktop Fish Tank PRO.', note: 'Fish coming in version 2. I promise this time.' });
   sw('davezip', { n: 'DaveZip 6.3', v: '6.3', kb: 760, lic: 'Shareware', by: 'Dave\'s Computer Company (Dave)', cat: 'util', sq: 3, rel: '29/02/98', ic: 'zip', def: false, apps: ['setup.davezip'], paths: ['DaveZip >'], exe: 'DAVEZIP.EXE',
@@ -789,7 +789,7 @@ IMPORTANT - READ CAREFULLY (nobody does): This licence agreement ("LICENCE") is 
   // the Start menu folder for every JackOS product shortcut that has an "Uninstall" (period-accurate clutter)
   [['Uh-Oh!', 'uhoh'], ['JackIRC', 'irc'], ['Space Jack Pinball', 'pinball'], ['Jacklings', 'grotlings']].forEach(([folder, id]) => { A.addProgram(['Uninstall', 'Uninstall ' + folder], () => uninstall(id), J('addrem', 16)); PR[id].paths.push('Uninstall > Uninstall ' + folder); });
   A.cmd(['uninstall'], () => applet(0));
-  A.cmd(['sysocmgr', 'winsetup', 'windows setup'], () => applet(1));
+  A.cmd(['sysocmgr', 'winsetup', 'jackos setup'], () => applet(1));
 
   // secrets
   [['setup.download', 'Fresh off the Net', 'Download a program and install it'],

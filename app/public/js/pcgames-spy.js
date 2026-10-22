@@ -76,7 +76,7 @@
   const MODE = { dm: 'DeathMatch', ctf: 'Capture the Flag', coop: 'Co-op' };
   // games JackSpy "knows" but you haven't got (1999 had a LOT of shooters; these are all made up)
   const OTHER = [['Half-Jack', 'Not installed. (It\'s scary, Mom said no.)'], ['Team Fortress Jack', 'Not installed. Ask Callum, he\'s got it.'], ['Jackfire 2', 'Not installed. It\'s on a coaster CD somewhere.'], ['Starsiege: Jackbox', 'Not installed. Too many keys to learn.']];
-  const FAKE = [['=FrAgZ= 24/7 Space Station', 'jrt', 'Space Station Jack', 'dm', '8/8', 412], ['[UK] Callum\'s Old Server', 'jrt', 'Castle Jackstone', 'ctf', '0/8', 999], ['=QUAKE= Clan Rusty Pit 24/7', 'jq', 'DM1: The Rusty Pit', 'dm', '16/16', 380], ['Dial-Up Dan\'s JQ Box', 'jq', 'DM2: Jackstone Cloisters', 'dm', '0/4', 999]];
+  const FAKE = [['=FrAgZ= 24/7 Space Station', 'jrt', 'Space Station Jack', 'dm', '8/8', 412], ['[UK] Callum\'s Old Server', 'jrt', 'Castle Jackstone', 'ctf', '0/8', 999], ['=JAQUAKE= Clan Rusty Pit 24/7', 'jq', 'DM1: The Rusty Pit', 'dm', '16/16', 380], ['Dial-Up Dan\'s JQ Box', 'jq', 'DM2: Jackstone Cloisters', 'dm', '0/4', 999]];
 
   // ---- one set of network listeners for every JackSpy window and fan page
   const subs = new Set();
@@ -196,7 +196,7 @@
     ['19/10/99', 'JackNet 24/7 servers are UP!', 'JackNet have put up FIVE servers that never go off: JRT Deathmatch, JRT Capture the Flag, Newbies Only (the bots go easy, perfect for your little brother), JAQUAKE Deathmatch and JAQUAKE Co-op. If nobody\'s on, bots play with you till somebody turns up. Press PLAY ONLINE NOW in the game, or use JackSpy 3D.'],
     ['12/10/99', 'JAQUAKE 1.06 adds deathmatch!', 'Jackware have sneaked JackNet deathmatch into the 1.06 shareware. Two maps (The Rusty Pit and Jackstone Cloisters) and CO-OP against six waves of tin robots. Rocket jumping works online. Of course it does.'],
     ['28/09/99', 'JRT demo is out!', 'The Jackreal Tournament demo is out on JackNet: Space Station Jack (low gravity!) and Coax Foundry. 22 MB though, so start the download before tea. The full game is out on 22 November.'],
-    ['15/09/99', 'Callum\'s LAN party report', 'Eight PCs, three tables, one extension lead (don\'t tell Jack\'s Mom). Callum won every match. Dave fell off Space Station Jack 31 times. Luke asked if it was on the N64. It is not on the N64.'],
+    ['15/09/99', 'Callum\'s LAN party report', 'Eight PCs, three tables, one extension lead (don\'t tell Jack\'s Mom). Callum won every match. Dave fell off Space Station Jack 31 times. Luke asked if it was on the ULTRA 64. It is not on the ULTRA 64.'],
   ];
   const CLANS = [['[JKN] Jackanory', 'Story time is frag time.'], ['=FrAgZ=', 'Always full. Always fragging. Always in bed by 10.'], ['{RUST}', 'JAQUAKE clan. We love the Boomstick.'], ['<DAVE>', 'Dave\'s clan. Dave is the only member. Dave is very good at falling off things.']];
   function fan(el) {

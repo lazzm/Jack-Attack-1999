@@ -184,13 +184,13 @@ window.SocialMore = function (X) {
   const FRIDGE = (() => {
     const WORDS = ('the a an and or but of to in on at with from is are was be not no yes my your his her its our their me you we they it this that ' +
       'big small red green fast slow old new hot cold loud quiet shiny rusty secret tiny massive ' +
-      'pokemon n64 tetris jedi ork orks boss rupees bits box paint brush green goes faster waaagh ' +
+      'pocket critters ultra 64 blockology space cadet ork gorks boss rupees bits box paint brush green goes faster waaagh ' +
       'mom dave nan cousin dog cat hamster teacher school homework bedtime tea biscuit crisps chips pie sandwich ' +
       'computer modem floppy disk cd-rom monitor mouse keyboard printer cyan internet download upload password ' +
       'game games level boss cheat code lives score high win lose pause save load crash reboot ' +
-      'tetris cube puzzle block line spin twist solve ' +
+      'blockology cube puzzle block line spin twist solve ' +
       'space rocket alien robot laser planet star moon future year 2000 bug millennium ' +
-      'jedi force droid podrace lightsabre saber hype queue cinema trailer episode sequel prequel phantom menace galaxy ' +
+      'space cadet force droid podrace lightsabre saber hype queue cinema trailer episode sequel prequel phantom menace galaxy ' +
       'love hate like want need eat sleep dream play fight run jump hide seek look see feel think know ' +
       'never always sometimes again forever tomorrow today tonight now soon later ' +
       'very really quite totally mega ultra super turbo ' +

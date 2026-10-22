@@ -82,8 +82,8 @@
   ];
   const ORDER = [0, 3, 1, 4, 2], ENDLESS = 5;
   const TIPS = ['Tip: slap an imp and it works faster. It isn\'t nice. It IS efficient.', 'Tip: imps reinforce the walls next to your floor. Heroes take ages to dig through reinforced walls.',
-    'Luke says this would be better on the N64. Luke is wrong.', 'Tip: drop your beasts right next to the heroes with the Hand. They love a scrap.',
-    'Dave says he\'d rather be playing GoldenEye. Dave is not the Keepa. You are.', 'Tip: beasts get grumpy if they\'re hungry, tired or not paid. Grumpy beasts leave.',
+    'Luke says this would be better on the ULTRA 64. Luke is wrong.', 'Tip: drop your beasts right next to the heroes with the Hand. They love a scrap.',
+    'Dave says he\'d rather be playing Goldenballs. Dave is not the Keepa. You are.', 'Tip: beasts get grumpy if they\'re hungry, tired or not paid. Grumpy beasts leave.',
     'Tip: a Training Room makes beasts tougher, but it eats gold.', 'Callum says he could beat this level with his eyes shut. Callum is a hero now, so ignore him.',
     'Tip: Fire Gobblers like a big Hatchery. Trolls like a Training Room. Dark Mages like books.', 'Your Mom says tea is in ten minutes, Keepa. Better dig faster.',
     'JackK built a Lair the size of a football pitch once. Nobody came. He forgot the Portal.',

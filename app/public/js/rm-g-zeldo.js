@@ -2373,7 +2373,7 @@
             else yield say("OLD SALTY: Ha! You got it! I've been staring at that thing for forty years. Now what'll I look at?");
             break;
           case 'cal':
-            yield say(cycle(e, ["CAL: Oh, hi. My PC's broken, so I had to go outside. This is like DOOM, but with more trees.", "CAL: There's a chest up past those trees. I'd get it myself, but... trees.", 'CAL: That pond is magic, I reckon. Stand in front of it and your hearts fill up. Or I fell asleep. One of the two.']));
+            yield say(cycle(e, ["CAL: Oh, hi. My PC's broken, so I had to go outside. This is like GLOOM, but with more trees.", "CAL: There's a chest up past those trees. I'd get it myself, but... trees.", 'CAL: That pond is magic, I reckon. Stand in front of it and your hearts fill up. Or I fell asleep. One of the two.']));
             break;
         }
       }
@@ -2401,7 +2401,7 @@
           S.gems -= 10; S.hp = Math.min(S.maxH * 2, S.hp + 6); SND.heal(); save(); yield say('MABEL: There! Rosy cheeks again.');
         }
       }
-      const GRAVES = ["HERE LIES DAVE'S HIGH SCORE. IT WAS NOT VERY HIGH.", 'R.I.P. MY TAMAGOTCHI. THREE DAYS OLD. I FORGOT TO FEED HIM.', 'HERE LIES THE LAST CHOCOLATE BISCUIT. DAD ATE IT.', 'SIR LANCELOT OF LASAGNA. A GOOD KNIGHT. GOOD NIGHT.',
+      const GRAVES = ["HERE LIES DAVE'S HIGH SCORE. IT WAS NOT VERY HIGH.", 'R.I.P. MY EGGBERT. THREE DAYS OLD. I FORGOT TO FEED HIM.', 'HERE LIES THE LAST CHOCOLATE BISCUIT. DAD ATE IT.', 'SIR LANCELOT OF LASAGNA. A GOOD KNIGHT. GOOD NIGHT.',
         'THE MILLENNIUM BUG. DUE ANY DAY NOW.', 'BOB THE BUSH. SOMEBODY CUT HIM. TWICE.', 'HERE LIES NOBODY. IT IS A VERY QUIET GRAVE.', "MY FIRST GOLDFISH, BUBBLES. HE WAS A BRILLIANT SWIMMER.", 'R.I.P. THE BLUE BUTTON ON MY CONTROLLER. PRESSED TOO HARD.', 'GERALD THE GHOST. GONE, BUT STILL AROUND.', "GRANDAD'S CARDIGAN. IT WAS VERY ITCHY."];
       function signText(id, x, y, c) {
         if (c === 'G') return 'HERE LIES PASQUALE, BELOVED HUSBAND OF ROSA. HE ALWAYS WAS A BIT OF A PUSHOVER.';

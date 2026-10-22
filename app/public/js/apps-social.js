@@ -49,7 +49,7 @@
   const sender = msg => msg && Number.isInteger(msg.fromId) && msg.fromId !== Net.me.id ? who(msg.fromId) : null;
   const ignored = new Set(store.get('jhp_social_ignore', []));
   const isIgnored = o => !!o && ignored.has(String(o.nick).toLowerCase());
-  const WHERE = { home: 'the Home page', demos: 'the Games arcade', grot: "Gubbinz's page", saver: 'the Screensaver page', reviews: 'the Reviews', cheats: 'the Cheats', orks: 'Hobby Corner', letters: 'the Letters page', art: 'the Art Wall', chat: 'the Chat room', forums: 'the Forums', members: 'the Members page', starwars: 'the Star Wars shrine', comics: 'the Comics', top10: 'the Top 10s', quiz: 'the Nerd Quiz', polls: 'the Polls', compo: 'the Compo page', penpals: 'the Pen Pals board', downloads: 'Downloads', links: 'the Links page', hangout: 'the Hangout', login: 'the Login page' };
+  const WHERE = { home: 'the Home page', demos: 'the Games arcade', grot: "Gubbinz's page", saver: 'the Screensaver page', reviews: 'the Reviews', cheats: 'the Cheats', orks: 'Hobby Corner', letters: 'the Letters page', art: 'the Art Wall', chat: 'the Chat room', forums: 'the Forums', members: 'the Members page', starwars: 'the Intergalactic Battles shrine', comics: 'the Comics', top10: 'the Top 10s', quiz: 'the Nerd Quiz', polls: 'the Polls', compo: 'the Compo page', penpals: 'the Pen Pals board', downloads: 'Downloads', links: 'the Links page', hangout: 'the Hangout', login: 'the Login page' };
   const whereOf = o => o && o.where && String(o.where).startsWith('secret') ? 'a SECRET page (ooh)' : (o && WHERE[o.where]) || 'somewhere on the site';
 
   // a "room": who else has this shared toy open right now (so we only send live updates when someone is watching)
@@ -941,7 +941,7 @@ Your UIN (Uh-Oh! Number) is yours forever. Well, for this computer.
       'Try "net send" from Run and message YOURSELF.', 'Stamp WAAAGH on the shared whiteboard in capital letters.',
       'Leave Uh-Oh! alone for 5 minutes and it goes Away by itself. Then come back.', 'Set your Uh-Oh! status to Invisible. Spooky.',
       'Throw a snowball when nobody else is online. What goes up...', 'Move 30 fridge magnets and you become a poet.',
-      'Episode One is out on 16 July. Type "podrace" into Start > Run. It might not exist. It might.', "Pin a note that says 'Orks rule' on the corkboard.",
+      'Episode One is out on 16 July. Type "podrace" into Start > Run. It might not exist. It might.', "Pin a note that says 'Gorks rule' on the corkboard.",
       'Three people listening to JackNet Radio at the same time unlocks something.', 'Bury something in the Time Capsule for the next person.',
       "Jack's cousin's band is called The Millennium Bugs. They're on the radio.", 'The parcel can go round the same two people forever. Try it.',
       'Add a JackNet member to your Uh-Oh! list and wait for them to say OK.', 'A message in a bottle washes up every few minutes. Keep an eye on the bottom of the screen.',
@@ -1014,7 +1014,7 @@ When someone else is drawing you'll see their arrow with their
 name on it, and their lines appear as they draw them.
 
 TOOLS
-  Pencil       1 pixel. For fine work (Pokemon eyes).
+  Pencil       1 pixel. For fine work (Pocket Critters eyes).
   Brush        Thicker. Pick the size underneath.
   Eraser       Rubs out (well, paints white).
   Line         Click, drag, let go.
@@ -1113,7 +1113,7 @@ pictures. Draw something brilliant.
   S('fridgelive', 'Poltergeist', 'Watch a magnet move by itself');
   S('fridgeread', 'Poetry corner', 'Make the fridge read itself aloud');
   S('corkpin', 'Pinned', 'Pin a note on the corkboard');
-  S('corkork', 'Green propaganda', 'Pin something about Orks');
+  S('corkork', 'Green propaganda', 'Pin something about Gorks');
   S('radio', 'On air', 'Switch the radio on');
   S('radio3', 'Mass audience', 'Three people listening to the radio at once');
   S('radioreq', 'Request line', 'Ask the DJ for a tune');
@@ -1203,7 +1203,7 @@ THE CHAT ROOM HAS MOVED! It's on IRC now, and this is the program.
 3. You land in #jackattack: the main chat. It's the SAME chat as the
    Hangout on the website, so people there see your words as speech
    bubbles over your head. Wave at them.
-4. More channels: #orks #starwars #games #cubes #help, or make your own
+4. More channels: #gorks #starwars #games #cubes #help, or make your own
    with /join #whatever. (Those ones are live only: no history.)
 5. Type /help for all the commands.
 
@@ -1254,7 +1254,7 @@ A: Never give out your real name, address, school or phone number.
       <dl><dt>What is IRC?</dt><dd>Internet Relay Chat. Loads of people typing in "channels" at the same time. Channels start with #. It's been around since 1988, which makes it older than Jack.</dd>
       <dt>Where's the old Chat Room?</dt><dd>It moved into JackIRC! The main channel, <b>#jackattack</b>, is the same chat. People in the Hangout see what you say as speech bubbles.</dd>
       <dt>How do I get it?</dt><dd>Go to the <a href="#" data-go="chat">Chat Room page</a> and press the big button. Or Start &gt; Run &gt; <b>irc</b>.</dd>
-      <dt>What can I type?</dt><dd><tt>/join #orks</tt>, <tt>/me waves</tt>, <tt>/whois somebody</tt>, <tt>/list</tt>, <tt>/away</tt>, <tt>/quit</tt>. Type <tt>/help</tt> in JackIRC for the lot.</dd>
+      <dt>What can I type?</dt><dd><tt>/join #gorks</tt>, <tt>/me waves</tt>, <tt>/whois somebody</tt>, <tt>/list</tt>, <tt>/away</tt>, <tt>/quit</tt>. Type <tt>/help</tt> in JackIRC for the lot.</dd>
       <dt>Who is JackServ?</dt><dd>The channel service bot. It's a program, not a person, so it sits in its own "Services" list. It knows !joke, !8ball, !time, !seen, !trivia and !rules.</dd>
       <dt>Can I be an op?</dt><dd>No.</dd>
       <dt>Can I change my nick?</dt><dd>Your nick is your JackNet name, so nobody can pretend to be you. Log on as someone else to change it.</dd>

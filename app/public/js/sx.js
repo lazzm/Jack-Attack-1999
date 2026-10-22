@@ -92,7 +92,7 @@
     ['sx.t.leet', 'Leet o\'clock', 'Be at the PC at a very nerdy time of day'],
     ['sx.t.owl', 'Night owl', 'Be at the PC when it\'s way past bedtime'],
     ['sx.t.start', 'Start, stop, start', 'Open and close the Start menu over and over (and over)'],
-    ['sx.t.windows', 'Window shopping', 'Have a dozen windows open at once'],
+    ['sx.t.windows', 'Window shopping', 'Have a dozen jackos open at once'],
     ['sx.t.about', 'The Book of JackNet', 'The browser has an about page of its own. Type it'],
     ['sx.t.list', 'Taking stock', 'Look at your list of secrets'],
     ['sx.t.bulb', 'Bright idea', 'Use a hint bulb on a secret you can\'t find'],
@@ -412,7 +412,7 @@
   // a dozen windows at once, the nerdy time, the bedtime
   setInterval(() => {
     const n = [...document.querySelectorAll('.appwin')].filter(w => w.offsetParent !== null || w.classList.contains('min')).length;
-    if (n >= 12 && secret('sx.t.windows')) Desk.toast('JackOS 98', `${n} windows open! This PC has 64MB of RAM and it is using ALL of it. (The hard drive is going crunch crunch crunch.)`, 7000);
+    if (n >= 12 && secret('sx.t.windows')) Desk.toast('JackOS 98', `${n} jackos open! This PC has 64MB of RAM and it is using ALL of it. (The hard drive is going crunch crunch crunch.)`, 7000);
     const d = new Date(), hm = d.getHours() * 100 + d.getMinutes();
     if (hm === 1337 && secret('sx.t.leet')) Desk.toast('13:37', 'It\'s LEET O\'CLOCK. Every nerd on the JackNet is checking their watch right now. 1337!', 7000);
     if (d.getHours() === 0 && !document.hidden && secret('sx.t.owl')) Desk.toast('Night owl', 'It\'s after midnight! If Mom sees the light under the door you are in SO much trouble. (Turn the monitor brightness down. That always works.)', 8000);
@@ -439,14 +439,14 @@
     beam: ['beam me up', 'beam me up scotty', 'energize', 'energise'],
     vulcan: ['live long and prosper', 'llap', 'vulcan'],
     hadouken: ['hadouken', 'hadoken', 'fireball', 'shoryuken'],
-    alert: ['snake', 'snake?', 'snaaake', 'snaaaake', 'metal gear', 'metal gear solid'],
+    alert: ['snake', 'snake?', 'snaaake', 'snaaaake', 'metal gear', 'metal gear wobbly'],
     catch: ['gotta catch em all', "gotta catch 'em all", 'gotta catch them all', 'pokeball', 'poke ball'],
-    activate: ['activate', '3 2 1 activate', '321 activate', 'cease', 'robot wars'],
+    activate: ['activate', '3 2 1 activate', '321 activate', 'cease', 'robo rumble'],
     banzai: ['banzai', 'takeshis castle', "takeshi's castle", 'takeshi'],
     goodnews: ['good news everyone', 'good news, everyone', 'good news everyone!', 'futurama'],
     thunderbirds: ['thunderbirds are go', 'thunderbirds', 'fab', 'f.a.b.', 'f.a.b'],
     moon: ['one small step', 'one small step for man', 'apollo', 'apollo 11', 'houston', 'houston we have a problem', 'the eagle has landed'],
-    dalek: ['exterminate', 'dalek', 'daleks', 'tardis', 'doctor who'],
+    dalek: ['exterminate', 'dalek', 'daleks', 'tardis', 'doctor whoops'],
     back: ["i'll be back", 'ill be back', 'i will be back', 'hasta la vista', 'hasta la vista baby', 'terminator'],
     lego: ['lego', 'bricks', 'knex', "k'nex"],
     error: ['i am error', 'i am error.'],
@@ -455,7 +455,7 @@
     gameover: ['game over', 'gameover', 'continue', 'continue?'],
     invaders: ['space invaders', 'invaders'],
     pong: ['pong'],
-    mario: ["it's-a me", 'its a me', "it's a me", "it's-a me, mario", 'its a me mario', "it's a me mario", 'mario', 'here we go', 'wahoo'],
+    mario: ["it's-a me", 'its a me', "it's a me", "it's-a me, marlo", 'its a me marlo', "it's a me marlo", 'mario', 'here we go', 'wahoo'],
     oddjob: ['oddjob', 'odd job', '007', 'licence to kill', 'license to kill', 'slappers only'],
     year1999: ['1999', 'what year is it', 'what year is it?', 'year'],
   };

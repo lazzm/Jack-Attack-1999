@@ -228,7 +228,7 @@
     const cs = getComputedStyle(el.firstElementChild || el), bg = rgbHex(cs.backgroundColor) || rgbHex(getComputedStyle($('page') || el).backgroundColor) || '#FFFFFF', fg = rgbHex(cs.color) || '#000000';
     const file = k.startsWith('mag:') ? (k === 'mag:home' ? 'index' : k.slice(4)) + '[1].htm' : (k.split('/').filter(Boolean).pop() || 'index').replace(/\.html?$/, '') + '[1].htm';
     const body = to99(el);
-    return { name: file, text: Ev.wrap99(title, body, { bg, fg, top: k === 'mag:home' ? HOME_NOTE() : [], kw: k.startsWith('mag:') ? 'jack attack, games, cheats, reviews, orks, star wars, cubes, tetris, gubbinz, 1999' : undefined }) };
+    return { name: file, text: Ev.wrap99(title, body, { bg, fg, top: k === 'mag:home' ? HOME_NOTE() : [], kw: k.startsWith('mag:') ? 'jack attack, games, cheats, reviews, gorks, intergalactic battles, cubes, blockology, gubbinz, 1999' : undefined }) };
   }
   Ev.source99 = source99;
   Ev.to99 = to99;

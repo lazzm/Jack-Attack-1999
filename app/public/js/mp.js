@@ -735,7 +735,7 @@
   MP.game('site.hangout', { name: 'The Hangout', kind: 'room', players: 'lots', blurb: 'Walk about, sit on the sofa, chat. On the JACK ATTACK! site.', open: goSite('hangout'), live: siteIs('hangout'), invite: 'open' });
   MP.game('social.irc', { app: 'social.irc', name: 'JackIRC', kind: 'room', players: 'lots', blurb: '#jackattack and friends.', open: () => Apps.open('social.irc'), live: () => appOpen('social.irc'), invite: 'open' });
   MP.game('social.wb', { app: 'social.wb', name: 'JackNet Whiteboard', kind: 'toy', players: 'lots', blurb: 'Draw on the same board as everybody else.', open: () => Apps.open('social.wb'), live: () => appOpen('social.wb'), invite: 'open' });
-  MP.game('site.cube', { name: "The Shared Rubik's Cube", kind: 'toy', players: 'lots', blurb: 'One cube for the whole Internet. On the Games page.', open: goSite('demos'), live: siteIs('demos'), invite: 'open' });
+  MP.game('site.cube', { name: "The Shared Rubrick's Cube", kind: 'toy', players: 'lots', blurb: 'One cube for the whole Internet. On the Games page.', open: goSite('demos'), live: siteIs('demos'), invite: 'open' });
   MP.game('site.button', { name: 'THE BUTTON', kind: 'toy', players: 'lots', blurb: 'Everybody presses the same button. Nobody knows why.', open: goSite('home'), live: siteIs('home') });
   MP.game('site.wall', { name: 'The Art Wall', kind: 'toy', players: 'lots', blurb: 'One big pixel picture that everybody draws on.', open: goSite('art'), live: siteIs('art'), invite: 'open' });
   MP.game('site.pet', { name: 'Gubbinz the virtual pet', kind: 'toy', players: 'lots', blurb: 'Everybody feeds him. Nobody cleans him.', open: goSite('grot'), live: siteIs('grot'), invite: 'open' });

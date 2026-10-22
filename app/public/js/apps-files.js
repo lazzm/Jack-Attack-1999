@@ -114,7 +114,7 @@
   }
   const kbCol = b => Math.max(1, Math.ceil(b / 1024)).toLocaleString('en-GB') + 'KB';
   const longBytes = b => `${fmtSize(b)} (${b.toLocaleString('en-GB')} bytes)`;
-  const TYPENAMES = { rtf: 'Rich Text Document', wri: 'Write Document', wks: 'JackCalc Spreadsheet', xls: 'Spreadsheet', crd: 'Card File', ht: 'HyperTerminal Session', tif: 'TIFF Image', cpe: 'Fax Cover Page', pkg: 'Package', txt: 'Text Document', log: 'Text Document', bat: 'MS-DOS Batch File', sys: 'System file', ini: 'Configuration Settings', dll: 'Application Extension', vxd: 'Virtual device driver', drv: 'Device driver', inf: 'Setup Information', doc: 'Document', bmp: 'Bitmap Image', jpg: 'JPEG Image', gif: 'GIF Image', exe: 'Application', com: 'MS-DOS Application', url: 'Internet Shortcut', wav: 'Wave Sound', tmp: 'TMP File', grt: 'Gubbinz (do not delete)', bug: 'BUG File', dat: 'DAT File', sav: 'SAV File', htm: 'HTML Document', bak: 'BAK File', cfg: 'CFG File', mid: 'MIDI Sequence', zip: 'Compressed Folder' };
+  const TYPENAMES = { rtf: 'Rich Text Document', wri: 'Write Document', wks: 'JackCalc Spreadsheet', xls: 'Spreadsheet', crd: 'Card File', ht: 'HyperTerminal Session', tif: 'TIFF Image', cpe: 'Fax Cover Page', pkg: 'Package', txt: 'Text Document', log: 'Text Document', bat: 'JACK-DOS Batch File', sys: 'System file', ini: 'Configuration Settings', dll: 'Application Extension', vxd: 'Virtual device driver', drv: 'Device driver', inf: 'Setup Information', doc: 'Document', bmp: 'Bitmap Image', jpg: 'JPEG Image', gif: 'GIF Image', exe: 'Application', com: 'JACK-DOS Application', url: 'Internet Shortcut', wav: 'Wave Sound', tmp: 'TMP File', grt: 'Gubbinz (do not delete)', bug: 'BUG File', dat: 'DAT File', sav: 'SAV File', htm: 'HTML Document', bak: 'BAK File', cfg: 'CFG File', mid: 'MIDI Sequence', zip: 'Compressed Folder' };
   function typeName(n) {
     if (n.type === 'dir') return 'File Folder';
     if (n.type === 'lnk') return 'Internet Shortcut';
@@ -259,7 +259,7 @@
     put(DIARY, node);
   }
   A.fs.dir(DIARY).date = '01/01/99';
-  txt(DIARY, 'README FIRST.txt', '01/01/99', `THIS IS JACK'S DIARY.\n\nIF YOU ARE NOT JACK, STOP READING.\n\nDAVE, THIS MEANS YOU.\n\nMOM, THIS ALSO MEANS YOU. (Sorry Mom.)\n\nOne file for every day something happens. If there isn't a file for a day, nothing happened. Or I was playing GoldenEye.\n`);
+  txt(DIARY, 'README FIRST.txt', '01/01/99', `THIS IS JACK'S DIARY.\n\nIF YOU ARE NOT JACK, STOP READING.\n\nDAVE, THIS MEANS YOU.\n\nMOM, THIS ALSO MEANS YOU. (Sorry Mom.)\n\nOne file for every day something happens. If there isn't a file for a day, nothing happened. Or I was playing Goldenballs.\n`);
   D('01-01', `NEW YEAR'S DAY!!! The last year of the 1900s!!!
 
 Stayed up till midnight. Dad fell asleep at 11:40 and woke up at 12:02 and said "did I miss it". Yes Dad.
@@ -267,24 +267,24 @@ Stayed up till midnight. Dad fell asleep at 11:40 and woke up at 12:02 and said 
 I launched my website today. It's called JACK ATTACK! and it's a games mag but on the Internet, so it's free and it never runs out. It took me all of the Christmas holidays and I had to learn HTML from a library book. The book is from 1996 so it's basically ancient.
 
 New Year's resolutions:
-1. Solve a Rubik's cube (haven't got one yet, details)
+1. Solve a Rubrick's cube (haven't got one yet, details)
 2. Paint 50 miniatures
-3. Beat Dave at GoldenEye (Oddjob doesn't count, he's too small)
+3. Beat Dave at Goldenballs (Oddjob doesn't count, he's too small)
 4. Update the website EVERY DAY
 5. Eat a vegetable (Mom made me add this one)`);
   D('01-03', `Wrote the specs of our PC on the website because people need to know.
 
 Pentium II 350MHz. 64MB of RAM. 6.4 GIGABYTE hard drive. 32x CD-ROM. 56K modem.
 
-Mom read it over my shoulder and said "nobody needs 6.4 gigabytes". I said what about when I've got 400 photos of my LEGO spaceships. She said "you haven't got a camera". I said details again.
+Mom read it over my shoulder and said "nobody needs 6.4 gigabytes". I said what about when I've got 400 photos of my BLOCKO spaceships. She said "you haven't got a camera". I said details again.
 
 Dad says when he was my age computers were the size of a room. He says this every time. I think he means the computer at his work, which was the size of a room, in 1984, and he was a grown up. So that doesn't count.`);
-  D('01-09', `Pokemon cards are out in English in America! Dave has seen a picture of a Charizard one. It's shiny. He says if I give him my bike he'll get me one when they come out here.
+  D('01-09', `Pocket Critters cards are out in English in America! Dave has seen a picture of a Charizard one. It's shiny. He says if I give him my bike he'll get me one when they come out here.
 
-Dave doesn't have a Charizard. Dave doesn't have ANY Pokemon cards. Dave is trying to get my bike for nothing.
+Dave doesn't have a Charizard. Dave doesn't have ANY Pocket Critters cards. Dave is trying to get my bike for nothing.
 
-Played GoldenEye at his house anyway. Facility, Licence to Kill mode, one shot and you're dead. I won 7-4. He says his controller is broken. It is not broken, I checked.`);
-  D('01-16', `GOT A RUBIK'S CUBE IN THE JANUARY SALES!!!
+Played Goldenballs at his house anyway. Facility, Licence to Kill mode, one shot and you're dead. I won 7-4. He says his controller is broken. It is not broken, I checked.`);
+  D('01-16', `GOT A RUBRICK'S CUBE IN THE JANUARY SALES!!!
 
 It was in a bargain bin with a box of jigsaws and a yo-yo with no string. 99p. NINETY NINE PEE for the hardest puzzle in the world.
 
@@ -295,14 +295,14 @@ Done one side already. Well. Nearly one side. Eight squares out of nine. The las
 
 Skin: green (obviously). Armour: RED, because red ones go faster. Everybody knows that.
 
-The undercoat was black. Then I did the green, then a lighter green on the top bits (drybrushing, the man in the shop showed me). His teeth are white with a bit of brown so they look dirty. Orks don't brush their teeth. They brush them with OTHER ORKS.
+The undercoat was black. Then I did the green, then a lighter green on the top bits (drybrushing, the man in the shop showed me). His teeth are white with a bit of brown so they look dirty. Gorks don't brush their teeth. They brush them with OTHER GORKS.
 
 Glued my finger to his axe. Got it off. The axe now has a fingerprint on it, which is like a signature.
 
 Mom says the bedroom smells of glue. It smells of VICTORY.`);
   D('01-29', `WORMS ARMAGEDDON IS OUT!!!
 
-Didn't buy it (pocket money is all going in the Metal Gear Solid fund) but Dave's cousin let us play it at Dave's house and it is the BEST four-player game ever. You can name your worms. I named mine Pikachu, Boba, Sir Killalot and Dave. Then I blew up Dave (the worm) with a banana bomb and Dave (the human) said that's personal.
+Didn't buy it (pocket money is all going in the Metal Gear Wobbly fund) but Dave's cousin let us play it at Dave's house and it is the BEST four-player game ever. You can name your worms. I named mine Zapachu, Boba, Sir Killalot and Dave. Then I blew up Dave (the worm) with a banana bomb and Dave (the human) said that's personal.
 
 The Holy Hand Grenade sings when you throw it. The sheep is the best weapon though. A sheep. That explodes.
 
@@ -317,17 +317,17 @@ Got a hot dog. Dad had popcorn and dropped half of it. The bloopers were on the 
 Cards received: 0.
 Cards sent: 1 (to Gubbinz, from "a secret admirer", I drew him at the weekend and he lives on a bit of paper above my desk now).
 
-Gubbinz is a little green... thing. Half alien, half gremlin, all ears. He eats pizza. He is my best drawing. I think one day he should be on the website. Maybe he could be a pet. Like a Tamagotchi but with ears.
+Gubbinz is a little green... thing. Half alien, half gremlin, all ears. He eats pizza. He is my best drawing. I think one day he should be on the website. Maybe he could be a pet. Like a Eggbert but with ears.
 
 Mom got a card from Dad. Dad got a card from Mom. They both said "oh you shouldn't have". They both should have.`);
-  D('02-18', `RED DWARF IS BACK!!!
+  D('02-18', `RED DORK IS BACK!!!
 
-Series VIII started tonight on BBC Two and the whole crew is back. Even Rimmer, and he was dead. Well, he was a hologram. Now he's not a hologram, he's alive again. It's complicated. It's Red Dwarf.
+Series VIII started tonight on BBC Two and the whole crew is back. Even Rimmer, and he was dead. Well, he was a hologram. Now he's not a hologram, he's alive again. It's complicated. It's Red Dork.
 
 Dad and me watched it together and Dad laughed so much he did the snort. Mom came in to see what the snort was about and then she stayed and watched too.
 
 Smoke me a kipper, I'll be back for breakfast!`);
-  D('02-20', `ONE WHOLE SIDE OF THE RUBIK'S CUBE!!!
+  D('02-20', `ONE WHOLE SIDE OF THE RUBRICK'S CUBE!!!
 
 The YELLOW side. All nine squares. And the sides of that layer match too, so it's actually the whole TOP LAYER, which is more than a side, which means I am basically one third of the way to solving it.
 
@@ -336,21 +336,21 @@ The YELLOW side. All nine squares. And the sides of that layer match too, so it'
 Taking it to school on Monday to show Mr Bell (maths). He'll probably do a turn and mess it up. TEACHERS.`);
   D('02-26', `Massive day.
 
-1. METAL GEAR SOLID IS OUT. Dave got it. I watched him play it for three hours. Snake hides in a cardboard box. The guards walk RIGHT PAST. That's not even a joke, that's the actual game.
+1. METAL GEAR WOBBLY IS OUT. Dave got it. I watched him play it for three hours. Snake hides in a cardboard box. The guards walk RIGHT PAST. That's not even a joke, that's the actual game.
 
 2. Intel brought out the Pentium III at 500MHz. Our PC is a Pentium II at 350MHz. So our PC is now officially old. It's not even two months old. Dad says "it does what we need". I said what if what we need changes. He said it won't. It will.
 
 3. Had fish fingers. Not massive, just nice.`);
-  D('03-05', `Robot Wars Grand Final!!!
+  D('03-05', `Robo Rumble Grand Final!!!
 
-Panic Attack won the whole thing. It's got forks like a forklift truck and it just picks the other robots up and dumps them in the pit. Simple but effective, like a Game Boy.
+Panic Attack won the whole thing. It's got forks like a forklift truck and it just picks the other robots up and dumps them in the pit. Simple but effective, like a Game Lad.
 
 Sir Killalot is still the best though. He's a house robot so he's not even allowed to win. That's the saddest thing I've ever heard.
 
 I'm going to design my own robot. It will have a flipper AND a saw AND be red, so it goes faster.`);
   D('03-12', `RED NOSE DAY!!!
 
-There was a Doctor Who on Comic Relief!!! Rowan Atkinson was the Doctor and then he kept regenerating into different people, one after the other, like when you keep pressing restart on a level. It was SO funny. Dad says it's the first Doctor Who on telly in ages.
+There was a Doctor Whoops on Comic Relief!!! Rowan Atkinson was the Doctor and then he kept regenerating into different people, one after the other, like when you keep pressing restart on a level. It was SO funny. Dad says it's the first Doctor Whoops on telly in ages.
 
 We had to wear something red to school and give a pound. I wore my red Sir Killalot T-shirt (I painted it myself, it's a bit stiff). Dave wore a red nose on his ear. Got told off. Worth it.`);
   D('03-26', `There's a virus going round in emails called Melissa. It sends itself to the first 50 people in your address book. Dad was reading about it in the paper going "see, SEE, this is what I said about the Internet".
@@ -360,12 +360,12 @@ Checked our emails. We had one from my cousin ${CN('cousin2')} that said "Import
 Dad has also got a new game called Championship Manager 3 and he went on the computer at 7 o'clock "for ten minutes" and he is STILL ON IT. It is 10:30. I am writing this on paper and will type it up tomorrow.`);
   D('04-01', `April Fools!!!
 
-Told Dave that Nintendo had announced that GoldenEye 2 would be free with every N64 if you posted them your old cartridge. He nearly posted it. I stopped him at the postbox. I'm not a monster.
+Told Dave that Ultra Entertainment had announced that Goldenballs 2 would be free with every ULTRA 64 if you posted them your old cartridge. He nearly posted it. I stopped him at the postbox. I'm not a monster.
 
 Dave got me back: he told me there was no school today because of the clocks changing. There was school. I was late. Mrs Hargreaves did not think it was funny.
 
 Also they caught the man who did the Melissa virus. That's not an April Fool, it was on the news. Dad said "good".`);
-  D('04-03', `I SOLVED THE RUBIK'S CUBE!!!!!!!!!
+  D('04-03', `I SOLVED THE RUBRICK'S CUBE!!!!!!!!!
 
 THE WHOLE THING! ALL SIX SIDES!!!
 
@@ -374,16 +374,16 @@ It took three hours and a book from the library that has the moves in it. You do
 Ran downstairs. Mom said "well done love". Dad said "now mix it up and do it again". So I did. It took 2 hours. I'm getting faster. I wrote the moves down in my Lists folder so I don't forget.
 
 Best day of 1999 so far.`);
-  D('04-17', `Put JACKTRIS on the website!!! It's my own Tetris. I made it from scratch and it works, mostly. The pieces fall and the lines go and everything.
+  D('04-17', `Put JACKTRIS on the website!!! It's my own Blockology. I made it from scratch and it works, mostly. The pieces fall and the lines go and everything.
 
 Bug list:
 - If you press up too fast the piece can go a bit inside the wall. I've fixed it. I think.
 - The music is the old Russian folk song. That's not a bug, that's a feature.
 
-Dave played it for an hour and got 3,200 points. My best is 41,000. He says the keyboard is wrong for Tetris. The keyboard is not wrong for Tetris.`);
+Dave played it for an hour and got 3,200 points. My best is 41,000. He says the keyboard is wrong for Blockology. The keyboard is not wrong for Blockology.`);
   D('04-26', `A virus called Chernobyl went off today. It was set to go off on the 26th of April and it wipes your hard drive. It got loads of computers all over the world.
 
-I checked ours. Then I checked it again. Then Dad came in and asked why I was checking the computer and I told him and he checked it as well. It's fine. Everything is fine. All my LEGO photos and the website are fine.
+I checked ours. Then I checked it again. Then Dad came in and asked why I was checking the computer and I told him and he checked it as well. It's fine. Everything is fine. All my BLOCKO photos and the website are fine.
 
 I'm going to back up the website onto floppy disks. It needs 14 floppies. I have 9. Mom says she'll buy some more if I tidy my room. That is a hostage situation.`);
   D('05-15', `GUBBINZ IS ON THE WEBSITE!!!
@@ -395,7 +395,7 @@ I spent all of last week getting him to work and the hardest bit was getting his
 I put him on the front page and then I fed him eleven times to test it. He is now very full.
 
 Dave says Gubbinz looks like me. Rude. (He sort of does around the ears.)`);
-  D('05-19', `The Phantom Menace came out in America today.
+  D('05-19', `The Phantom Nuisance came out in America today.
 
 People camped outside cinemas for WEEKS. In tents. With lightsabers.
 
@@ -418,7 +418,7 @@ One song is 3MB. Our modem goes at about 5KB a second if the wind is blowing the
 ${CN('cousin2')} got to 99%. NINETY NINE PERCENT. And then his mom picked up the phone downstairs to ring his auntie and the Internet went off and the song disappeared forever.
 
 He said a word that I'm not allowed to write in my diary. Even though it's MY diary.`);
-  D('06-11', `SAW THE MATRIX!!!
+  D('06-11', `SAW THE MODEMTRIX!!!
 
 There is no spoon. THERE IS NO SPOON.
 
@@ -427,9 +427,9 @@ Tried to bend a spoon at tea time. Just with my mind. Mom said "Jack, eat your p
 The bit in the lobby. The bit with the helicopter. The bit where he dodges the bullets and goes all the way back. Me and Dave did the bullet dodge in the playground and Dave fell over. That's what happens when you're not the One.
 
 Made a Matrix screensaver page for the website in honour of it.`);
-  D('06-20', `NEW TETRIS HIGH SCORE!!!
+  D('06-20', `NEW BLOCKOLOGY HIGH SCORE!!!
 
-148,320 on the Game Boy. Level 18. LEVEL EIGHTEEN.
+148,320 on the Game Lad. Level 18. LEVEL EIGHTEEN.
 
 At level 18 the pieces don't fall, they just APPEAR at the bottom. You have to decide where they go before you've even seen them. I think my brain went faster than the Pentium III.
 
@@ -442,40 +442,40 @@ The scarab beetles crawl UNDER YOUR SKIN. You can see them moving. I'm never goi
 
 Slept with the landing light on. Not because I was scared. Because the landing needed lighting.
 
-Also Dungeon Keeper 2 and Driver came out today. Dave's got Driver and nobody can pass the car park test at the start. Dave has tried 60 times. I tried once and crashed into a pillar. It's the hardest bit of any game ever and it's the FIRST BIT.`);
+Also Dungeon Keepa 2 and Driver came out today. Dave's got Driver and nobody can pass the car park test at the start. Dave has tried 60 times. I tried once and crashed into a pillar. It's the hardest bit of any game ever and it's the FIRST BIT.`);
   D('07-03', `Put Blobbit Lob on the website!
 
 It's a game where you fire Blobbits (my own made-up bouncy critters) out of a catapult and they bounce off mushrooms. If you get a good bounce they go really far. Gubbinz is the one loading the catapult because he's the smallest.
 
 Had to work out the physics. Gravity is just "add a bit to the speed going down, every frame". That's it. That's all gravity is. Mr Okafor said it's a bit more complicated than that. Not in Blobbit Lob it isn't.`);
-  D('07-16', `SAW THE PHANTOM MENACE!!!!!!!!
+  D('07-16', `SAW THE PHANTOM NUISANCE!!!!!!!!
 
-Darth Maul has a DOUBLE lightsaber. Both ends. I didn't know you were allowed to do that.
+Dark Mole has a DOUBLE lightspatula. Both ends. I didn't know you were allowed to do that.
 
 The podrace was the best bit. Sebulba is a cheater.
 
 The music in the big fight at the end is called Duel of the Fates and it's got a choir singing in it and it's the most epic thing I have ever heard. I've got the CD. I've played it 40 times. Mom has asked me to play it 39 fewer times.
 
-Jar Jar was... Jar Jar.
+Jar Jar Jams was... Jar Jar Jams.
 
 Dad fell asleep in the bit with the Senate. He says he was resting his eyes. For twenty minutes.`);
   D('07-23', `SCHOOL'S OUT FOR SUMMER!!!
 
-SIX WEEKS of N64, LEGO, the website and staying up late.
+SIX WEEKS of ULTRA 64, BLOCKO, the website and staying up late.
 
 Plan for the summer:
 - Update the website every day
-- Get under 3 minutes on the Rubik's cube
-- Build a LEGO X-wing without the instructions
-- Level 19 on Tetris
+- Get under 3 minutes on the Rubrick's cube
+- Build a BLOCKO X-wing without the instructions
+- Level 19 on Blockology
 - Go outside (Mom)
 
-Mrs Hargreaves said "have a lovely summer, Jack, and maybe read a book". I said I read the manual for Dungeon Keeper 2. She said a real book. The manual has 64 pages. That's a real book.`);
-  D('08-07', `SUMMER TETRIS MARATHON!!!
+Mrs Hargreaves said "have a lovely summer, Jack, and maybe read a book". I said I read the manual for Dungeon Keepa 2. She said a real book. The manual has 64 pages. That's a real book.`);
+  D('08-07', `SUMMER BLOCKOLOGY MARATHON!!!
 
 Started at 2 o'clock. Got to level 19 at 11pm. LEVEL NINETEEN.
 
-Then Mom came in and took the Game Boy off me. AT LEVEL NINETEEN. She said "it's eleven o'clock at night and you have been playing that thing for nine hours".
+Then Mom came in and took the Game Lad off me. AT LEVEL NINETEEN. She said "it's eleven o'clock at night and you have been playing that thing for nine hours".
 
 That's not even the bad bit. The bad bit is she switched it off. She didn't pause it. She SWITCHED IT OFF.
 
@@ -513,12 +513,12 @@ Bad things:
 - Everything else.`);
   D('09-09', `9/9/99!!!
 
-The Dreamcast came out in America today. It's on 9/9/99 because that's a cool date. Sonic Adventure looks like a film. Five weeks till it's out here.
+The Daydream came out in America today. It's on 9/9/99 because that's a cool date. Zip Adventure looks like a film. Five weeks till it's out here.
 
 Also, some really old computer programs use 9999 to mean "no date" or "the end", so today might have confused them. Nothing happened. Our computer is fine. The bank is fine. The traffic lights are fine.
 
 Mr Bell made us write 9/9/99 at the top of our maths books and then talk about patterns. Then I worked out that 9 x 9 x 99 is 8,019. He said that wasn't the point. It's a FACT though.`);
-  D('09-18', `RUBIK'S CUBE IN UNDER 4 MINUTES!!!
+  D('09-18', `RUBRICK'S CUBE IN UNDER 4 MINUTES!!!
 
 3 minutes 51 seconds. Dad timed it with the oven clock.
 
@@ -536,34 +536,34 @@ Mr Bell came into maths, didn't say anything, and wrote "MARS CLIMATE ORBITER" o
 He is going to go on about this until I leave school. Possibly until I die.`);
   D('09-25', `Put the MegaCube on the website!!!
 
-It's ONE Rubik's cube that EVERYBODY on the site shares. If you turn it, it's turned for everyone. So if somebody nearly solves it and then somebody else does a move... that's it. That's the whole game. It's either the most fun thing ever or a disaster. Probably both.
+It's ONE Rubrick's cube that EVERYBODY on the site shares. If you turn it, it's turned for everyone. So if somebody nearly solves it and then somebody else does a move... that's it. That's the whole game. It's either the most fun thing ever or a disaster. Probably both.
 
 I scrambled it first. Sorry everybody.
 
 Dave turned the top face 400 times to see if it would break. It didn't. Dave might be broken.`);
   D('10-04', `Walking with Dinosaurs started on BBC One!!!
 
-It looks REAL. Like somebody went back in time with a camera. Dad says it's computers. HOW is it computers? Our computer can't even run Quake III properly (not that it's out yet) and the BBC made a whole T-Rex.
+It looks REAL. Like somebody went back in time with a camera. Dad says it's computers. HOW is it computers? Our computer can't even run Jaquake III properly (not that it's out yet) and the BBC made a whole T-Rex.
 
 The bit where the big one dies made Mom go "oh no" and she wasn't even watching properly.
 
 Going to do my next school project on dinosaurs. Or on how they made the dinosaurs. That's even better.`);
-  D('10-05', `POKEMON BLUE IS OUT!!!
+  D('10-05', `POCKET CRITTERS BLUE IS OUT!!!
 
 Mom took me to the shop after school. The man had a whole stack of them and half were gone already.
 
-I picked SQUIRTLE. Obviously. He's a turtle and he's blue and he squirts water and that's the best possible thing a creature can do. I've drawn him loads already. Well, not him, a turtle like him. My own one.
+I picked SQUIRTURTLE. Obviously. He's a turtle and he's blue and he squirts water and that's the best possible thing a creature can do. I've drawn him loads already. Well, not him, a turtle like him. My own one.
 
-Beat Brock already because water beats rock. My Squirtle is level 14 and his name is SHELLDON.
+Beat Brock already because water beats rock. My Squirturtle is level 14 and his name is SHELLDON.
 
-There are 151 Pokemon on a cartridge that's only 1 MEGABYTE. HOW?
+There are 151 Pocket Critters on a cartridge that's only 1 MEGABYTE. HOW?
 
-Dave got Red. We're going to trade. He doesn't know yet that I'm going to make him give me his Bulbasaur.`);
-  D('10-14', `THE DREAMCAST IS OUT HERE TODAY!!!
+Dave got Red. We're going to trade. He doesn't know yet that I'm going to make him give me his Bulbabeast.`);
+  D('10-14', `THE DAYDREAM IS OUT HERE TODAY!!!
 
 About two hundred pounds. 200MHz chip. 16MB of RAM. And it has a 33.6K MODEM BUILT IN. You can go on the Internet ON A GAMES CONSOLE.
 
-Went to the shop just to look at it. They had one set up with Sonic Adventure and a queue of kids waiting to have a go. I got two minutes. Sonic ran down the side of a building. It was the best two minutes of my life.
+Went to the shop just to look at it. They had one set up with Zip Adventure and a queue of kids waiting to have a go. I got two minutes. Zip ran down the side of a building. It was the best two minutes of my life.
 
 Mom said "we'll see" about Christmas. "We'll see" is not a no. "We'll see" is a maybe. A maybe is nearly a yes.
 
@@ -584,9 +584,9 @@ The intro made my jaw actually drop. Mom said "close your mouth Jack, you'll cat
 Spent two hours on the card game instead of doing the story. It's called Triple Triad and it's addictive.
 
 Dave asked how far I've got. Disc 1. Still. Forever.`);
-  D('10-31', `Halloween! Went trick-or-treating as a Jedi. Again. Third year running.
+  D('10-31', `Halloween! Went trick-or-treating as a Space Cadet. Again. Third year running.
 
-Same brown dressing gown (Dad's), same green lightsaber (a torch with green sweet wrappers on it), same beige top.
+Same brown dressing gown (Dad's), same green lightspatula (a torch with green sweet wrappers on it), same beige top.
 
 Dave went as an alien. He painted his face green and it wouldn't come off. He's going to be green at school tomorrow. He says it's "his look now".
 
@@ -600,11 +600,11 @@ Dad has filled the bath with water. Not yet, he's going to on New Year's Eve. "J
 I've checked my PC with a Y2K checker program. It says we're COMPLIANT. That means it won't break. Probably.
 
 Also put a Y2K countdown on the website. It goes down every second. It's making everybody nervous.`);
-  D('11-05', `Bonfire Night AND Spyro 2 came out!!!
+  D('11-05', `Bonfire Night AND Spike the Stegosaur 2 came out!!!
 
-Spyro is a little purple dragon who headbutts things and breathes fire. He's back with new levels and you can swim now. Didn't get it. Dave didn't get it either. Nobody got it. Christmas list!
+Spike the Stegosaur is a little purple dragon who headbutts things and breathes fire. He's back with new levels and you can swim now. Didn't get it. Dave didn't get it either. Nobody got it. Christmas list!
 
-Bonfire Night: went to the big one at the park. Sparklers (wrote JACK in the air, also wrote N64, also wrote POKEMON but ran out of sparkler at the M). Jacket potato with beans (one of Mom's 40 tins). The fireworks were massive. One was green and Dave said it looked like his face on Halloween.`);
+Bonfire Night: went to the big one at the park. Sparklers (wrote JACK in the air, also wrote ULTRA 64, also wrote POCKET CRITTERS but ran out of sparkler at the M). Jacket potato with beans (one of Mom's 40 tins). The fireworks were massive. One was green and Dave said it looked like his face on Halloween.`);
   D('11-18', `THE LEONID METEOR STORM WAS LAST NIGHT!!!
 
 Thousands of shooting stars an hour, the man on the news said. Maybe the most for 33 years.
@@ -620,24 +620,24 @@ Dad came out with a cup of tea and said "anything?". I said "clouds". He said "a
 
 FINALLY!!! It came out in Japan in JANUARY. It's been nearly a year!!!
 
-Mario vs Link vs Pikachu vs Kirby vs Donkey Kong vs Samus vs Fox vs Yoshi. On a 16MB cartridge. And there are SECRET characters. You can unlock Luigi, Ness, Captain Falcon and Jigglypuff. I've already got Luigi (you do the target smash with everyone).
+Marlo vs Link vs Zapachu vs Kirby vs Donkey Wrong vs Samus vs Fox vs Yosher. On a 16MB cartridge. And there are SECRET characters. You can unlock Louie G, Ness, Captain Falcon and Jigglypuff. I've already got Louie G (you do the target smash with everyone).
 
-Four players at Dave's: me (Link), Dave (Pikachu), Dave's cousin (Kirby), Dave's dad (he picked Jigglypuff by accident and won). Dave's dad WON. He doesn't even play games. He just pressed buttons. Video games are not fair.`);
-  D('12-03', `ROBOT WARS IS BACK!!! Series 3!!!
+Four players at Dave's: me (Link), Dave (Zapachu), Dave's cousin (Kirby), Dave's dad (he picked Jigglypuff by accident and won). Dave's dad WON. He doesn't even play games. He just pressed buttons. Video games are not fair.`);
+  D('12-03', `ROBO RUMBLE IS BACK!!! Series 3!!!
 
 The new arena has even more traps. Sir Killalot is still the best.
 
 I've designed my robot. It's called SIR GRUNTALOT. It's got a flipper on the front (yellow) and a big saw on an arm (I drew the teeth one at a time) and it's grey with a red stripe because red ones go faster.
 
 ${CN('teacher')} at computer club said I should look up how much a real one costs. I'm not going to look it up. Some dreams are better as drawings.`);
-  D('12-06', `DONKEY KONG 64 IS OUT TODAY!!!
+  D('12-06', `DONKEY WRONG 64 IS OUT TODAY!!!
 
-It comes with the Expansion Pak which DOUBLES the N64's memory from 4MB to 8MB. You actually NEED it to play the game. It's a 32MB cartridge. THIRTY TWO.
+It comes with the Expansion Pak which DOUBLES the ULTRA 64's memory from 4MB to 8MB. You actually NEED it to play the game. It's a 32MB cartridge. THIRTY TWO.
 
 I don't have it. Mom said "we'll see" again. It's December 6th. It's 19 days before Christmas. "We'll see" in December means "it's already wrapped and in the wardrobe".
 
 I haven't looked in the wardrobe. I want it to be a surprise. (I haven't looked. I HAVEN'T.)`);
-  D('12-17', `Quake III Arena came out here today.
+  D('12-17', `Jaquake III Arena came out here today.
 
 You need a 3D card and 64MB of RAM. We have EXACTLY 64MB of RAM. Dave's cousin lent me the demo on a CD and it runs! It runs in a window the size of a stamp. At 640x480 the frame rate goes down to "slideshow".
 
@@ -646,13 +646,13 @@ Mom came in during a match and said "is that the one where you shoot people" and
 Writing to Father Christmas about a Voodoo3. Father Christmas knows what a Voodoo3 is. Dad doesn't.`);
   D('12-25', `MERRY CHRISTMAS!!!
 
-GOT DONKEY KONG 64!!! AND A RUMBLE PAK!!! AND A LEGO SPACESHIP!!!
+GOT DONKEY WRONG 64!!! AND A RUMBLE PAK!!! AND A BLOCKO SPACESHIP!!!
 
 (I did NOT look in the wardrobe. I want that on record.)
 
-Also got: socks (Gran), a book about space (${CN('cousin2')}), a Gubbinz mug that Mom made at one of those paint-a-pot places (BEST PRESENT), a selection box, and a new Rubik's cube because the old one is "a bit sticky" (it's covered in model paint).
+Also got: socks (Gran), a book about space (${CN('cousin2')}), a Gubbinz mug that Mom made at one of those paint-a-pot places (BEST PRESENT), a selection box, and a new Rubrick's cube because the old one is "a bit sticky" (it's covered in model paint).
 
-The DK Rap is now stuck in my head and will be stuck there forever. Mom has heard it nine times today. She says if she hears "DK, Donkey Kong" once more she's moving to Mars. Mars is cursed, Mom. NASA keeps losing things there.
+The DK Rap is now stuck in my head and will be stuck there forever. Mom has heard it nine times today. She says if she hears "DK, Donkey Wrong" once more she's moving to Mars. Mars is cursed, Mom. NASA keeps losing things there.
 
 Best Christmas ever.`);
   D('12-28', `The Millennium Bug came EARLY!!!
@@ -664,7 +664,7 @@ So the bug is REAL. And it's three days early. Which means it's either going to 
 Dad has bought a SECOND torch.`);
   D('12-31', `LAST DAY OF 1999. LAST DAY OF THE 1900s. LAST DAY OF THE MILLENNIUM (Dave's dad says actually that's next year, everybody has told Dave's dad to be quiet).
 
-Going to Dave's for the Millennium Party!!! I've packed: sleeping bag, N64, GoldenEye, 4 controllers, Pokemon Blue, link cable, party poppers, a torch (MILLENNIUM BUG).
+Going to Dave's for the Millennium Party!!! I've packed: sleeping bag, ULTRA 64, Goldenballs, 4 controllers, Pocket Critters Blue, link cable, party poppers, a torch (MILLENNIUM BUG).
 
 I'm saving this diary now in case the computer explodes at midnight. If you're reading this in the year 2000, then we made it. Hello future!
 
@@ -684,7 +684,7 @@ When I grow up I want to make video games. There are other things I would also l
 
 I want to make games because games are the only kind of story where YOU are the one who does things. In a book you just read about the hero. In a film you just watch the hero. In a game you ARE the hero, or sometimes a little green dinosaur, or a worm with a bazooka. I think that is the most exciting kind of story there is.
 
-I have already made two games. One is called JACKTRIS (nearly finished) and it's like Tetris (Tetris was made in Russia by a man called Alexey Pajitnov, I looked it up). The other one isn't finished. It's about a robot who has to get to the shops before they shut. It's harder than it sounds because his batteries keep running out.
+I have already made two games. One is called JACKTRIS (nearly finished) and it's like Blockology (Blockology was made in Russia by a man called Alexey Pajitnov, I looked it up). The other one isn't finished. It's about a robot who has to get to the shops before they shut. It's harder than it sounds because his batteries keep running out.
 
 To make games you need to be good at:
 1. Maths (for the physics and the scores)
@@ -693,13 +693,13 @@ To make games you need to be good at:
 4. Music (for the music)
 5. Typing (for typing)
 
-I am good at 2, 3 and 5, and I'm getting better at 1. For 4 I can play the recorder, but only Three Blind Mice and the first bit of the Star Wars music.
+I am good at 2, 3 and 5, and I'm getting better at 1. For 4 I can play the recorder, but only Three Blind Mice and the first bit of the Intergalactic Battles music.
 
 OTHER THINGS I WOULD LIKE TO BE:
 - An astronaut. I would like to go to Mars. Someone has to, and they'll need someone who's good with computers. Also I would like to see the Earth from space and wave at Mom.
-- The world Rubik's cube champion. I got my cube last week and I can nearly do one side. The world record is a LOT faster than "nearly one side". I'm working on it.
+- The world Rubrick's cube champion. I got my cube last week and I can nearly do one side. The world record is a LOT faster than "nearly one side". I'm working on it.
 - A Space Marine. (Mrs Hargreaves, this is not a real job. I know.)
-- A Jedi. (This is also not a real job. But if it was, I'd be good at it.)
+- A Space Cadet. (This is also not a real job. But if it was, I'd be good at it.)
 
 When I am grown up I will also have a computer with a 10 GIGABYTE hard drive and a 3D card and nobody will tell me to get off it at 8 o'clock.
 
@@ -764,10 +764,10 @@ Mr Okafor's comment: "Excellent work Jack, A. Lovely diagram of the pinhole view
     (Why did Dave get more?? Unfair question)
 
 6)  1 3/4 - 5/8 =  1 1/8                       __
-                                              |  |   <- a tetris piece
+                                              |  |   <- a blockology piece
 7)  What is 7/10 as a percentage?  70%       __|  |
                                              |_____|
-8)  A Rubik's cube has 6 faces with 9 stickers each.
+8)  A Rubrick's cube has 6 faces with 9 stickers each.
     What fraction of the stickers are red?   9/54 = 1/6
     (On a SOLVED cube. On my cube right now it's about 11/54)
 
@@ -781,7 +781,7 @@ Mr Okafor's comment: "Excellent work Jack, A. Lovely diagram of the pinhole view
                                    ------
 
 Mark: 9/10. "Q6: check your working, should be 1 1/8. Oh, it is. 10/10.
-              Please stop drawing Tetris pieces on your worksheets. - Mr B"`);
+              Please stop drawing Blockology pieces on your worksheets. - Mr B"`);
   txt(HW, 'French - ma famille.txt', '03/03/99', `FRENCH HOMEWORK - Ma famille et moi
 (Mrs Pike)
 
@@ -796,7 +796,7 @@ Mon pere aime le football sur l'ordinateur. Il ne joue pas au football. Il le re
 
 Mon meilleur ami s'appelle Dave. Dave est tres drole et un peu bizarre.
 
-J'aime les jeux video, la Guerre des Etoiles et le Rubik's cube.
+J'aime les jeux video, la Guerre des Etoiles et le Rubrick's cube.
 Je n'aime pas les choux de Bruxelles.
 
 Mon animal: je n'ai pas d'animal. J'ai un Gubbinz. Il s'appelle Gubbinz. Il est vert. Il mange des Wotsits.
@@ -811,7 +811,7 @@ THINGS THE ROMANS GAVE US:
 1. Straight roads. Before the Romans the roads were wiggly.
 2. Baths. Public ones. With everybody in them. (No thank you.)
 3. Central heating, called a hypocaust. Hot air under the floor.
-4. Towns with proper planning, like SimCity.
+4. Towns with proper planning, like Civic Chaos.
 5. Aqueducts, which are bridges for water.
 6. Latin, which is where loads of English words come from. "Computer" comes from Latin "computare", which means to count. So the Romans basically invented computers. (Mr Fenwick says this is "a stretch".)
 
@@ -850,49 +850,49 @@ PASSWORD REMINDER FOR MY SECRET FOLDER
 (so I don't forget it. This is NOT the password, it's a riddle.
 Dave can't do riddles so this is safe.)
 
-   What colour is Pikachu?
+   What colour is Zapachu?
    (6 letters. Dave says "orange".
    Dave is wrong.)
 `);
   txt(LI, 'top 10 games EVER.txt', '15/03/99', `JACK'S TOP 10 GAMES EVER (UPDATED REGULARLY)
 
-1.  GoldenEye 007 (N64)        - the best game ever made. Facility. Slappers only.
-2.  The Legend of Zelda: Ocarina of Time (N64) - the bit where you grow up!!!
-3.  Super Mario 64 (N64)       - 120 stars. I have 118. Two are lost forever.
-4.  Tetris (Game Boy)          - simple. perfect. thumb-destroying.
+1.  Goldenballs 007 (ULTRA 64)        - the best game ever made. Facility. Slappers only.
+2.  The Legend of Zeldoo: Kazoo of Time (ULTRA 64) - the bit where you grow up!!!
+3.  Super Marlo 64 (ULTRA 64)       - 120 stars. I have 118. Two are lost forever.
+4.  Blockology (Game Lad)          - simple. perfect. thumb-destroying.
 5.  Worms Armageddon (PC)      - the sheep. THE SHEEP.
-6.  Metal Gear Solid (PS)      - Dave's copy. Cardboard box tactics.
+6.  Metal Gear Wobbly (PS)      - Dave's copy. Cardboard box tactics.
 7.  Final Fantasy VII (PS)     - Dave's copy. I cried. (No I didn't.)
-8.  Theme Park (PC)            - salty chips = more drinks sold. Genius.
-9.  Doom (PC)                  - IDDQD
+8.  Park Panic (PC)            - salty chips = more drinks sold. Genius.
+9.  Gloom (PC)                  - IDDQD
 10. JACKTRIS (PC/Internet)     - my own one. Is this allowed? It's my list.
 
-Games I'm waiting for: Episode I Racer, Pokemon, Smash Bros, Donkey Kong 64,
-Final Fantasy VIII, the Dreamcast, and anything with Star Wars in it.
+Games I'm waiting for: Episode I Racer, Pocket Critters, Smash Bros, Donkey Wrong 64,
+Final Fantasy VIII, the Daydream, and anything with Intergalactic Battles in it.
 `);
   txt(LI, 'top 10 films of 1999.txt', '20/12/99', `TOP 10 FILMS OF 1999 (that I saw)
 
-1. The Matrix              - there is no spoon
-2. The Phantom Menace      - Darth Maul. Pod race. Jar Jar (minus 1 point)
+1. The Modemtrix              - there is no spoon
+2. The Phantom Nuisance      - Dark Mole. Pod race. Jar Jar Jams (minus 1 point)
 3. A Bug's Life            - bloopers!
 4. The Mummy               - scarab beetles (never again)
-5. Star Trek: Insurrection - Picard does a dance
+5. Galaxy Walk: Insurrection - Picard does a dance
 6. Wild Wild West          - giant mechanical spider. That's all.
 7. Austin Powers 2         - Mom covered my eyes twice
-8. The World Is Not Enough - not as good as GoldenEye. Nothing is.
+8. The World Is Not Enough - not as good as Goldenballs. Nothing is.
 9. (I've only seen 8 films. Mom says the cinema is "very dear".)
 10. (see above)
 
-Can't wait for: Toy Story 2 (February!!!), Galaxy Quest, Pokemon: the movie
+Can't wait for: Toy Storey 2 (February!!!), Galaxy Quest, Pocket Critters: the movie
 `);
   txt(LI, 'christmas list 1999.txt', '01/11/99', `CHRISTMAS LIST 1999
 (for Mom, Dad, Gran and Father Christmas, in that order)
 
-1. DREAMCAST (+ Sonic Adventure) (+ a VMU) (+ a second controller)
-2. Donkey Kong 64 (comes with the Expansion Pak!!!)
+1. DAYDREAM (+ Zip Adventure) (+ a VMU) (+ a second controller)
+2. Donkey Wrong 64 (comes with the Expansion Pak!!!)
 3. A Rumble Pak
-4. LEGO. Any LEGO. LEGO is always a good present.
-5. Spyro 2
+4. BLOCKO. Any BLOCKO. BLOCKO is always a good present.
+5. Spike the Stegosaur 2
 6. A 3D graphics card (a Voodoo3, Dad, it's a GRAPHICS CARD, it goes INSIDE the computer)
 7. A Zip drive (100MB on one disk!!!)
 8. Paint (green, red, and that silver one for axes)
@@ -904,15 +904,15 @@ DEFINITELY NOT: a jumper. Any jumper.
   txt(LI, 'christmas list 1998 (what I got).txt', '27/12/98', `CHRISTMAS 1998 - WHAT I ASKED FOR vs WHAT I GOT
 
 ASKED FOR                      GOT
-Zelda: Ocarina of Time         Zelda: Ocarina of Time!!!
-LEGO Technic                   LEGO Technic!!!
+Zelda: Kazoo of Time         Zelda: Kazoo of Time!!!
+BLOCKO Technic                   BLOCKO Technic!!!
 A PC                           A PC!!! (well, the family PC, but it lives
                                in MY ROOM because "you're the one who uses it")
 A modem                        It came with the PC! 56K!
-A Rubik's cube                 No (getting one in the sales)
+A Rubrick's cube                 No (getting one in the sales)
 A jumper                       I didn't ask for a jumper. Got a jumper.
 `);
-  const RUBIK = `RUBIK'S CUBE - HOW TO SOLVE IT (layer by layer)
+  const RUBIK = `RUBRICK'S CUBE - HOW TO SOLVE IT (layer by layer)
 written by Jack after solving it for the FIRST TIME on 03/04/99
 
 THE LETTERS
@@ -964,19 +964,19 @@ DONE!!! GET IN!!!
 
 MY TIMES:
 `;
-  txt(LI, "rubik's cube moves.txt", '03/04/99', '', { get text() { return RUBIK + gated('', [['04-03', '  03/04/99   3 hours (first ever! library book)'], ['04-04', '  04/04/99   2 hours'], ['04-20', '  20/04/99   26 minutes'], ['05-30', '  30/05/99   8 minutes 12 seconds'], ['07-30', '  30/07/99   5 minutes 40 seconds'], ['09-18', '  18/09/99   3 minutes 51 seconds (DAD TIMED IT WITH THE OVEN CLOCK)'], ['11-27', '  27/11/99   3 minutes 02 seconds'], ['12-29', '  29/12/99   2 minutes 48 seconds (on the new cube, much smoother)']]) + '\n'; } });
-  txt(LI, 'tetris high scores.txt', '02/01/99', '', { get text() { return gated(`TETRIS HIGH SCORE LOG (Game Boy, A-TYPE, MUSIC A obviously)
+  txt(LI, "rubrick's cube moves.txt", '03/04/99', '', { get text() { return RUBIK + gated('', [['04-03', '  03/04/99   3 hours (first ever! library book)'], ['04-04', '  04/04/99   2 hours'], ['04-20', '  20/04/99   26 minutes'], ['05-30', '  30/05/99   8 minutes 12 seconds'], ['07-30', '  30/07/99   5 minutes 40 seconds'], ['09-18', '  18/09/99   3 minutes 51 seconds (DAD TIMED IT WITH THE OVEN CLOCK)'], ['11-27', '  27/11/99   3 minutes 02 seconds'], ['12-29', '  29/12/99   2 minutes 48 seconds (on the new cube, much smoother)']]) + '\n'; } });
+  txt(LI, 'blockology high scores.txt', '02/01/99', '', { get text() { return gated(`BLOCKOLOGY HIGH SCORE LOG (Game Lad, A-TYPE, MUSIC A obviously)
 ===============================================================
 Date        Score     Level   Notes
-`, [['01-02', '02/01/99     38,140    9      new Game Boy batteries'], ['01-30', '30/01/99     51,900    11     on the bus (Mom drove, I mean in the car)'], ['02-27', '27/02/99     64,220    12'], ['03-28', '28/03/99     80,505    13     got a TETRIS (4 lines) on level 13!!!'], ['04-18', '18/04/99     88,010    14     after making Jacktris, my brain is all Tetris now'], ['05-22', '22/05/99    102,330    15     OVER 100,000!!!!!'], ['06-20', '20/06/99    148,320    18     LEVEL 18!!! PHOTO TAKEN AS PROOF'], ['08-07', '07/08/99    ???,???    19     Mom switched it off. AT LEVEL 19. The score is lost.'], ['08-30', '30/08/99    141,800    17     still not as good as the lost one'], ['11-11', '11/11/99    150,060    18     NEW RECORD!!! Beat the photo!!! (no photo of this one, oops)'], ['12-26', '26/12/99    156,440    19     Boxing Day. Gran watched. She said "very nice dear"']], `
+`, [['01-02', '02/01/99     38,140    9      new Game Lad batteries'], ['01-30', '30/01/99     51,900    11     on the bus (Mom drove, I mean in the car)'], ['02-27', '27/02/99     64,220    12'], ['03-28', '28/03/99     80,505    13     got a BLOCKOLOGY (4 lines) on level 13!!!'], ['04-18', '18/04/99     88,010    14     after making Jacktris, my brain is all Blockology now'], ['05-22', '22/05/99    102,330    15     OVER 100,000!!!!!'], ['06-20', '20/06/99    148,320    18     LEVEL 18!!! PHOTO TAKEN AS PROOF'], ['08-07', '07/08/99    ???,???    19     Mom switched it off. AT LEVEL 19. The score is lost.'], ['08-30', '30/08/99    141,800    17     still not as good as the lost one'], ['11-11', '11/11/99    150,060    18     NEW RECORD!!! Beat the photo!!! (no photo of this one, oops)'], ['12-26', '26/12/99    156,440    19     Boxing Day. Gran watched. She said "very nice dear"']], `
 
-Dave's best: 11,203. (Dave says his Game Boy is "slow". Game Boys aren't slow.)
+Dave's best: 11,203. (Dave says his Game Lad is "slow". Game Boys aren't slow.)
 `); } });
   txt(LI, 'ork painting log.txt', '23/01/99', '', { get text() { return gated(`PAINTING LOG (minis, models, anything with a brush)
 =================================================
 (red ones go faster)
 
-`, [['01-23', '23/01/99  Ork Nob #1 - "Big Grob". Red armour. Glued finger to axe.'], ['02-06', '06/02/99  Space Marine #1 - "Brother Tiny". Tiny. Painted his eyes with a cocktail stick.'], ['02-21', '21/02/99  Orks x3. Got the green right this time (two coats).'], ['03-27', '27/03/99  Spent all pocket money on an Airfix Spitfire. Glue everywhere. Mom opened a window.'], ['04-10', '10/04/99  Learned DRYBRUSHING. It is magic. Redid Big Grob\'s armour.'], ['05-31', '31/05/99  TWELVE SPACE MARINES in one day. Bank holiday. Brother Zoom is the fastest (all red).'], ['06-12', '06/06/99  Painted a squig. Red, with white teef. Looks angry. Good.'], ['07-27', '27/07/99  Summer holidays: the whole mob is done. Took a photo of them on my shelf.'], ['08-15', '15/08/99  Started a Warboss. TOP SECRET. Not showing Dave until he\'s finished.'], ['09-11', '11/09/99  Warboss finished. Best thing I have ever painted. In the secret folder.'], ['10-16', '16/10/99  FLAMES on the trukk! Red, then orange, then yellow on the TIPS.'], ['11-20', '20/11/99  Bits box sorted into old ice cream tubs: heads, arms, guns, "misc"'], ['12-27', '27/12/99  Christmas LEGO spaceship built. Painting the last Orks before the Millennium!']], `
+`, [['01-23', '23/01/99  Ork Nob #1 - "Big Grob". Red armour. Glued finger to axe.'], ['02-06', '06/02/99  Space Marine #1 - "Brother Tiny". Tiny. Painted his eyes with a cocktail stick.'], ['02-21', '21/02/99  Gorks x3. Got the green right this time (two coats).'], ['03-27', '27/03/99  Spent all pocket money on an AirMix Spitfire. Glue everywhere. Mom opened a window.'], ['04-10', '10/04/99  Learned DRYBRUSHING. It is magic. Redid Big Grob\'s armour.'], ['05-31', '31/05/99  TWELVE SPACE MARINES in one day. Bank holiday. Brother Zoom is the fastest (all red).'], ['06-12', '06/06/99  Painted a squig. Red, with white teef. Looks angry. Good.'], ['07-27', '27/07/99  Summer holidays: the whole mob is done. Took a photo of them on my shelf.'], ['08-15', '15/08/99  Started a Warboss. TOP SECRET. Not showing Dave until he\'s finished.'], ['09-11', '11/09/99  Warboss finished. Best thing I have ever painted. In the secret folder.'], ['10-16', '16/10/99  FLAMES on the trukk! Red, then orange, then yellow on the TIPS.'], ['11-20', '20/11/99  Bits box sorted into old ice cream tubs: heads, arms, guns, "misc"'], ['12-27', '27/12/99  Christmas BLOCKO spaceship built. Painting the last Gorks before the Millennium!']], `
 
 TOTAL PAINTED: lots. (I lost count at 40.)
 RESOLUTION WAS 50. I THINK I'VE DONE IT. I'M NOT COUNTING AGAIN.
@@ -996,18 +996,18 @@ TUB 3 (Mint Choc Chip) - GUNS AND STUFF
   - big gun barrels, gubbinz, bitz, more gubbinz
 
 TUB 4 (Neapolitan) - "MISC"
-  - wheels, a banner pole, a dice, a Lego man (how?), half a biscuit (WHY)
+  - wheels, a banner pole, a dice, a Blocko man (how?), half a biscuit (WHY)
 `);
-  txt(LI, 'names for Orks.txt', '28/03/99', `GOOD NAMES FOR ORKS (for when I paint new ones)
+  txt(LI, 'names for Gorks.txt', '28/03/99', `GOOD NAMES FOR GORKS (for when I paint new ones)
 
 Big Grob         Zoomgob (fastest)     Snaggatoof
 Grimskull        Wazbang               Krumpa
 Gubbinz (taken, he's the website helper)
 
 SPACE MARINE NAMES: Brother Zoom, Brother Tiny, Sergeant Biscuit
-ROBOT WARS NAMES: Sir Gruntalot, The Flipper, Toastmaster 3000
-GAME BOY SAVE NAMES: JACK, JAX, ACE, J-DOG (no), DAVE (only to annoy Dave)
-TAMAGOTCHI NAMES: Chompy, Mr Bitey, Lunch (RIP all three)
+ROBO RUMBLE NAMES: Sir Gruntalot, The Flipper, Toastmaster 3000
+GAME LAD SAVE NAMES: JACK, JAX, ACE, J-DOG (no), DAVE (only to annoy Dave)
+EGGBERT NAMES: Chompy, Mr Bitey, Lunch (RIP all three)
 `);
   txt(LI, 'things that are better than homework.txt', '14/09/99', `THINGS THAT ARE BETTER THAN HOMEWORK
 1. Everything
@@ -1069,7 +1069,7 @@ TO BE CONTINUED IN CHAPTER 2!!!
   txt(ST, 'STAR CRUISER ZETA - chapter 2.txt', '19/06/99', `STAR CRUISER ZETA
 CHAPTER 2: THE BEIGE PLANET
 
-Jax took the shuttle down to Kepler-9. ZETA came too, in a small handheld unit that looked like a Game Boy but with more buttons.
+Jax took the shuttle down to Kepler-9. ZETA came too, in a small handheld unit that looked like a Game Lad but with more buttons.
 
 The surface was covered in tall beige towers. Each tower had a slot in the front and a little green light that blinked. Some of them hummed. Some of them made a grinding noise.
 
@@ -1093,8 +1093,8 @@ The bar disappeared.
 
 TO BE CONTINUED. THERE WILL DEFINITELY BE LASERS NEXT TIME.
 `);
-  txt(ST, 'Gubbinz and the Squig of Doom.txt', '29/05/99', `GUBBINZ AND THE BLOBBIT OF DOOM
-a space story by Jack (it was called "the Squig of Doom" in the first draft, but then I invented Blobbits)
+  txt(ST, 'Gubbinz and the Squig of Gloom.txt', '29/05/99', `GUBBINZ AND THE BLOBBIT OF GLOOM
+a space story by Jack (it was called "the Squig of Gloom" in the first draft, but then I invented Blobbits)
 
 Gubbinz was the smallest helper on the whole of Space Station Bad Moon, and that was saying something, because the helpers are already very small.
 
@@ -1193,9 +1193,9 @@ Mrs Hargreaves: "Very creepy, Jack! Lovely twist. Is the horse friendly? A-"
 
 Thank you very much for the socks. They are very warm and they are blue, which is my second favourite colour after red (red ones go faster).
 
-I had a lovely Christmas. I got Zelda and some LEGO Technic and a COMPUTER (well, it's the family computer, but it lives in my room). I am going to make a website on it. A website is like a magazine but you can read it on the computer. When it is finished you can look at it on your computer. (You haven't got a computer. You can look at it on mine.)
+I had a lovely Christmas. I got Zelda and some BLOCKO Technic and a COMPUTER (well, it's the family computer, but it lives in my room). I am going to make a website on it. A website is like a magazine but you can read it on the computer. When it is finished you can look at it on your computer. (You haven't got a computer. You can look at it on mine.)
 
-Thank you also for the £5. I am going to save it for a Game Boy game.
+Thank you also for the £5. I am going to save it for a Game Lad game.
 
 Love from Jack xxx
 
@@ -1207,11 +1207,11 @@ I have been reading your magazine since issue 1 and I think it is the best magaz
 
 I have three questions:
 
-1. Is there going to be a GoldenEye 2? If so, can Oddjob be banned?
+1. Is there going to be a Goldenballs 2? If so, can Oddjob be banned?
 
-2. Is it true that you can unlock Luigi in Mario 64? A boy at my school says his cousin did it. I have looked everywhere. Is his cousin lying? (I think his cousin is lying.)
+2. Is it true that you can unlock Louie G in Marlo 64? A boy at my school says his cousin did it. I have looked everywhere. Is his cousin lying? (I think his cousin is lying.)
 
-3. Can you put more Robot Wars in your magazine? There is never enough Robot Wars.
+3. Can you put more Robo Rumble in your magazine? There is never enough Robo Rumble.
 
 Yours faithfully,
 Jack
@@ -1235,7 +1235,7 @@ Jack (age: old enough)
 
 I hope you are well and the elves are OK.
 
-I have been mostly good this year. I'll be honest, there was the thing with the glue, and the thing with Dave's GoldenEye cartridge (it was an accident) (it was mostly an accident), but apart from that, VERY good.
+I have been mostly good this year. I'll be honest, there was the thing with the glue, and the thing with Dave's Goldenballs cartridge (it was an accident) (it was mostly an accident), but apart from that, VERY good.
 
 Please see the attached list. (It's in my Lists folder. You're magic, you can probably read it from there.)
 
@@ -1248,11 +1248,11 @@ P.S. I'm leaving out a mince pie and a carrot, as usual. And a slice of pizza fo
   txt(LE, 'TO BE OPENED IN THE YEAR 2000.txt', '01/01/99', '', { future: true, size: '2 KB' });
   txt(LE, 'sorry letter to Dave.txt', '15/09/99', `Dave,
 
-Sorry I said your Pikachu was "rubbish and squeaky" in front of everyone.
+Sorry I said your Zapachu was "rubbish and squeaky" in front of everyone.
 
 It isn't rubbish. It is a bit squeaky.
 
-Do you want to come round on Saturday? We can play Smash Bros (when it comes out) and you can be Pikachu and I won't say anything.
+Do you want to come round on Saturday? We can play Smash Bros (when it comes out) and you can be Zapachu and I won't say anything.
 
 Your best mate,
 Jack
@@ -1315,7 +1315,7 @@ Double maths on a Monday. Whose idea was this.
 `);
   txt(SC, 'detention slip (not my fault).txt', '30/06/99', `DETENTION SLIP
 Pupil: Jack and Dave
-Reason: Doing "the Matrix" in the corridor. Specifically, the slow-motion
+Reason: Doing "The Modemtrix" in the corridor. Specifically, the slow-motion
         bullet dodge. Dave fell into ${CN('teacher2')}.
 
 Time: 3:30 - 4:00, Thursday, Room 12
@@ -1349,10 +1349,10 @@ IDEAS FOR NEXT WEEK:
    and gets labelled UNCONFIRMED PLAYGROUND RUMOUR.
 3. Cheating is fine in single player. Cheating at Dave's is war.
 `);
-  txt(CH, 'N64 cheats.txt', '27/02/99', `N64 CHEATS (tested in my bedroom)
+  txt(CH, 'ULTRA 64 cheats.txt', '27/02/99', `ULTRA 64 CHEATS (tested in my bedroom)
 =================================
 
-GOLDENEYE 007
+GOLDENBALLS 007
   You unlock the cheat options by beating levels fast enough:
   - Paintball Mode:    beat DAM on Secret Agent in under 2:40
   - Invincibility:     beat FACILITY on 00 Agent in under 2:05
@@ -1362,12 +1362,12 @@ GOLDENEYE 007
   Then you get 007 mode where you can change how good the guards are.
   (Paintball mode is the best one. The walls turn into art.)
 
-SUPER MARIO 64
+SUPER MARLO 64
   - Get all 120 stars, then go outside and use the cannon by the moat to
-    get onto the castle roof. YOSHI IS UP THERE!!! He gives you 100 lives
+    get onto the castle roof. YOSHER IS UP THERE!!! He gives you 100 lives
     and your triple jump goes sparkly. (Confirmed! Dave's cousin has 120.)
 
-ZELDA: OCARINA OF TIME
+ZELDA: KAZOO OF TIME
   - Play the Sun's Song to make it day or night whenever you want.
   - Play Epona's Song in a field (when you're grown up) and your horse comes.
 
@@ -1377,30 +1377,30 @@ SUPER SMASH BROS. - see the separate file.
 =========
 Type these while you're playing (just type, there's no box):
 
-DOOM
+GLOOM
   IDDQD       God mode (your face goes all shiny-eyed)
   IDKFA       All weapons, ammo and keys
-  IDCLIP      Walk through walls (DOOM II)
-  IDSPISPOPD  Walk through walls (the first DOOM - good luck spelling it)
+  IDCLIP      Walk through walls (GLOOM II)
+  IDSPISPOPD  Walk through walls (the first GLOOM - good luck spelling it)
   IDBEHOLD    Pick a power-up
 
 DUKE NUKEM 3D
   DNKROZ      God mode
   DNSTUFF     All weapons, ammo and items
 
-QUAKE (press the ~ key to open the console first)
+JAQUAKE (press the ~ key to open the console first)
   god         God mode
   noclip      Walk through walls
   impulse 9   All weapons
 
-STARCRAFT (press Enter, type it, press Enter)
+STARGRAFT (press Enter, type it, press Enter)
   show me the money      +10,000 minerals and gas
   power overwhelming     Invincible units
   operation cwal         Build things really fast
   black sheep wall       See the whole map
   there is no cow level  Win the mission
 
-AGE OF EMPIRES (press Enter, type it, press Enter)
+AGE OF EMPERORS (press Enter, type it, press Enter)
   COINAGE           +1000 gold
   WOODSTOCK         +1000 wood
   PEPPERONI PIZZA   +1000 food
@@ -1408,50 +1408,50 @@ AGE OF EMPIRES (press Enter, type it, press Enter)
   BIGDADDY          A sports car with a rocket launcher. In the Bronze Age.
   PHOTON MAN        A man with a laser gun. Also in the Bronze Age.
 
-ROLLERCOASTER TYCOON
+ROLLERCOASTER RUPEECOON
   Rename a guest to "Chris Sawyer" (the man who made the game) and he walks
   round your park taking photos. "Simon Foster" paints pictures.
 `);
-  txt(CH, 'PlayStation cheats (Dave tested these).txt', '20/03/99', `PLAYSTATION CHEATS (Dave has the PlayStation, Dave tested these)
+  txt(CH, 'PlaySpace cheats (Dave tested these).txt', '20/03/99', `PLAYSPACE CHEATS (Dave has the PlaySpace, Dave tested these)
 =========================================================
 
-METAL GEAR SOLID
+METAL GEAR WOBBLY
   - The boss PSYCHO MANTIS can read your mind (and your memory card!).
     Plug your controller into PORT 2 and he can't read it anymore!
     This is the most mind-blowing thing a game has ever done.
   - Meryl's codec frequency is on the back of the CD case. (140.15)
 
-TOMB RAIDER II
+CRYPT RAIDER II
   - Level skip: light a flare, take one step forward, one step back,
     turn around three times, then jump FORWARDS.
   - All weapons: same thing, but jump BACKWARDS at the end.
   (Dave did the flare dance for twenty minutes before he got it right.
    His mom came in and asked why Lara was dancing.)
 `);
-  txt(CH, 'old school cheats.txt', '12/04/99', `OLD SCHOOL CHEATS (from ${CN('cousin2')}, who had a NES and a Mega Drive)
+  txt(CH, 'old school cheats.txt', '12/04/99', `OLD SCHOOL CHEATS (from ${CN('cousin2')}, who had a NES and a Mega Glide)
 
 THE KONAMI CODE
   Up, Up, Down, Down, Left, Right, Left, Right, B, A (then Start)
   On CONTRA it gives you 30 lives. (${CN('cousin2')} needed every one of them.)
   (Try it on this website too. Just saying.)
 
-SONIC THE HEDGEHOG 2
+ZIP THE HEDGEHOG 2
   Level select: go to the Sound Test in Options and play
   sounds 19, 65, 09, 17. Then hold A and press Start on the title screen.
 `);
-  txt(CH, 'Pokemon tips.txt', '12/10/99', `POKEMON RED/BLUE TIPS
+  txt(CH, 'Pocket Critters tips.txt', '12/10/99', `POCKET CRITTERS RED/BLUE TIPS
 =====================
 
-- Pick SQUIRTLE. It makes Brock easy. (Bulbasaur is also OK. Charmander
-  makes Brock really hard. Dave picked Charmander-- no, Dave got Red and
-  picked Bulbasaur. Doesn't matter. Squirtle is best.)
+- Pick SQUIRTURTLE. It makes Brock easy. (Bulbabeast is also OK. Charbroiler
+  makes Brock really hard. Dave picked Charbroiler-- no, Dave got Red and
+  picked Bulbabeast. Doesn't matter. Squirturtle is best.)
 - Water beats fire. Fire beats grass. Grass beats water. It's like
   rock-paper-scissors but with animals.
 
 MISSINGNO. (REAL, BUT BE CAREFUL!!!)
-  Talk to the old man in Viridian City who shows you how to catch Pokemon.
+  Talk to the old man in Viridian City who shows you how to catch Pocket Critters.
   Then fly to Cinnabar Island and surf up and down the east coast (the edge
-  where land meets water). A glitchy Pokemon called MissingNo. turns up.
+  where land meets water). A glitchy Pocket Critters called MissingNo. turns up.
   Your 6th item gets multiplied to loads (128!). Rare Candies!!!
   BUT: it can mess up your Hall of Fame and make your game look funny.
   ${CN('cousin2')} says save BEFORE. I say ${CN('cousin2')} is right for once.
@@ -1464,7 +1464,7 @@ MEW UNDER THE TRUCK
 `);
   txt(CH, 'Smash Bros secret characters.txt', '25/11/99', `SUPER SMASH BROS. - HOW TO UNLOCK THE SECRET CHARACTERS
 
-LUIGI            Finish "Break the Targets" (Bonus Practice 1) with ALL 8 of
+LOUIE G            Finish "Break the Targets" (Bonus Practice 1) with ALL 8 of
                  the starting characters. (Done it! First night!)
 JIGGLYPUFF       Finish the 1-player game.
 CAPTAIN FALCON   Finish the 1-player game in under 20 minutes.
@@ -1482,8 +1482,8 @@ every time he does the Rest move. It's unbearable.
 EVERYTHING IN THIS FILE IS AN UNCONFIRMED PLAYGROUND RUMOUR.
 Nobody has ever actually done any of these. Somebody's cousin always has.
 
-- LUIGI IS IN MARIO 64. There's a statue in the castle garden that says
-  "L is real 2401". Everyone says it means Luigi is in the game somewhere.
+- LOUIE G IS IN MARLO 64. There's a statue in the castle garden that says
+  "L is real 2401". Everyone says it means Louie G is in the game somewhere.
   >>> UNCONFIRMED PLAYGROUND RUMOUR <<< (I've looked. A LOT.)
 
 - THE TRIFORCE IS IN OCARINA OF TIME and you can get it if you do
@@ -1512,7 +1512,7 @@ Nobody has ever actually done any of these. Somebody's cousin always has.
   pic(PI, 'Gubbinz.bmp', '13/02/99', 'gubbinz');
   pic(PI, "Jack's painted Ork.bmp", '24/01/99', 'ork');
   pic(PI, 'the family PC.bmp', '02/01/99', 'pc');
-  pic(PI, "my rubik's cube.bmp", '17/01/99', 'rubik');
+  pic(PI, "my rubrick's cube.bmp", '17/01/99', 'rubik');
   pic(PI, 'my turtle drawing.bmp', '06/10/99', 'turtle');
   pic(PI, 'holiday photo (rain).jpg', '14/08/98', 'rain');
   pic(PI, 'school photo - grot (scanned).jpg', '09/03/99', 'school');
@@ -1537,12 +1537,12 @@ Nobody has ever actually done any of these. Somebody's cousin always has.
   txt(MD, 'website ideas.txt', '05/01/99', '', { get text() { return `JACK ATTACK! WEBSITE IDEAS
 - A visitor counter${done('01-02')}
 - Cheats page${done('02-27')}
-- My own Tetris${done('04-17', 'Jacktris')}
+- My own Blockology${done('04-17', 'Jacktris')}
 - A virtual pet${done('05-15', 'Gubbinz!!!')}
 - A Blobbit-flinging game${done('07-03', 'Blobbit Lob')}
 - An art wall where everybody can draw${done('03-20')}
 - A chat room${done('08-21')}
-- A Rubik's cube that everyone shares${done('09-25', 'MegaCube')}
+- A Rubrick's cube that everyone shares${done('09-25', 'MegaCube')}
 - A secret page that you only find if you type the right address
   (Not telling you where. Try typing words in the address bar.)
 - A forum
@@ -1550,11 +1550,11 @@ Nobody has ever actually done any of these. Somebody's cousin always has.
 - Put loads of secrets EVERYWHERE so nobody ever finds them all (doing it)
 `; } });
   txt(MD, 'issue 8 ideas.txt', '20/12/99', `ISSUE 8 IDEAS (after the Millennium)
-- Donkey Kong 64 review (once I've got it... hint hint, Father Christmas)
+- Donkey Wrong 64 review (once I've got it... hint hint, Father Christmas)
 - MGS review (Dave's copy, he's lending it to me "for one week only")
 - Interview with Gubbinz
 - "Did the Millennium Bug happen?" (find out on January 1st!)
-- Best painted models sent in by readers (minis, Airfix, anything)
+- Best painted models sent in by readers (minis, AirMix, anything)
 - New cheats page
 `);
   txt(MD, 'shopping list (Mom).txt', '06/11/99', `SHOPPING LIST
@@ -1605,11 +1605,11 @@ STAGE 1: Make a website.                                  ${stage('01-01', 'DONE
 STAGE 2: Put a little green helper on it.                 ${stage('05-15', 'DONE (Gubbinz)')}
 STAGE 3: Get loads of people visiting.                    in progress
 STAGE 4: Make a REAL video game. "JACK ATTACK! THE GAME".
-         It's got robots, a Rubik's cube level, a Tetris boss
+         It's got robots, a Rubrick's cube level, a Blockology boss
          and Gubbinz as a sidekick who steals your lunch.
 STAGE 5: Sell a million copies.
-STAGE 6: Buy a Dreamcast. And the next PlayStation. And a house
-         with a room just for LEGO.
+STAGE 6: Buy a Daydream. And the next PlaySpace. And a house
+         with a room just for BLOCKO.
 STAGE 7: World domination. (Be nice about it though.)
 
 SECRET CODE WORDS (for the computer):
@@ -1624,7 +1624,7 @@ Gubbinz Appreciation Society. There are no other members.
 
 Dave is annoying.
 Dave never gives pencils back.
-Dave uses Oddjob in GoldenEye.
+Dave uses Oddjob in Goldenballs.
 Dave blows on cartridges even after I told him it does nothing.
 
 Dave is also my best mate and I'd be really bored without him.
@@ -1637,15 +1637,15 @@ DO NOT TELL DAVE ANY OF THIS. ESPECIALLY THE LAST BIT.
 2. A Pentium III. 500MHz. 128MB of RAM.
 3. A second phone line JUST for the Internet so Mom can ring ${CN('auntie')}
    whenever she likes.
-4. Every LEGO set. Ever.
+4. Every BLOCKO set. Ever.
 5. A trip to space. Do they let kids go to space? Find out.
 6. A new car for Mom and Dad (a red one, so it goes faster)
 7. Give some to Dave. Not a lot. Like a hundred quid.
 8. Donate some to the RSPCA because next door's cat is nice
-9. A massive TV for Robot Wars
+9. A massive TV for Robo Rumble
 10. Put the rest in the bank for when I'm old (2050)
 `);
-  txt(TOP, 'my REAL rubiks plan.txt', '01/05/99', `SECRET RUBIK'S PLAN
+  txt(TOP, 'my REAL rubiks plan.txt', '01/05/99', `SECRET RUBRICK'S PLAN
 
 Step 1: Get under 1 minute.
 Step 2: Turn up at school with the cube scrambled.
@@ -1680,7 +1680,7 @@ REM ^ re-enabled by Mom
 DEVICE=C:\\JACKOS\\MOM.SYS /BEDTIME:8PM
 `);
   txt(C, 'HOMEWORK.DOC', '30/12/98', '', { secret: 'files.homeworkdoc' });
-  txt(C, 'SCANDISK.LOG', '29/12/98', `Microsoft ScanDisk-style log (JackOS edition)
+  txt(C, 'SCANDISK.LOG', '29/12/98', `Jacksoft ScanDisk-style log (JackOS edition)
 Drive C: checked on 29/12/98
 
 ScanDisk found and fixed problems on drive C.
@@ -1747,30 +1747,30 @@ TODO: (from 31/12) didn't fix it. We'll see what happens.
 - Spellcheck everything (Mom found "recieve" 6 times)
 - Make the logo bigger
 - Make the logo EVEN BIGGER
-- Add more N64 stuff
+- Add more ULTRA 64 stuff
 - Stop adding <BLINK> to everything (Mrs Hargreaves says it gives her a headache)
 `);
   // ---- C:\GAMES
   const GA = 'C:/GAMES';
   A.fs.dir(GA).date = '28/12/98';
   txt(GA, 'readme.txt', '28/12/98', `C:\\GAMES\n\nOld DOS games live here. Dad's from before JackOS.\nIf a game doesn't work, try typing the name into MS-DOS mode. If that doesn't work, it's broken. If it's broken, it was Dave.\n`);
-  txt(GA + '/SAVES', 'GOLDENEYE times.txt', '14/03/99', `GOLDENEYE 007 - MY BEST TIMES (Agent)\n\nDam          1:58\nFacility     1:46\nRunway       0:39  (just get on the plane!)\nSurface 1    2:33\nBunker 1     1:12\nSilo         3:44\nFrigate      1:51\nSurface 2    2:20\nBunker 2     1:55\nStatue       3:10\nArchives     1:20\nStreets      2:01\nDepot        0:56\nTrain        2:44\nJungle       1:49\nControl      5:58  (Natalya. Why.)\nCaverns      2:30\nCradle       1:01\nAztec        5:12  (Jaws!!!)\nEgyptian     not unlocked yet\n`);
-  txt(GA + '/SAVES', 'worms team names.txt', '30/01/99', `WORMS TEAMS\n\nTeam JACK:  Pikachu, Boba, Sir Killalot, Dave\nTeam DAVE:  Jack, Jack's Mom, Jack's Mom's Cat (we don't have a cat), Ian\nDAVE: who is Ian\nDAVE: "nobody knows who Ian is"\n`);
-  txt(GA, 'DOOM.TXT', '28/12/98', `DOOM - Dad's copy, on 4 floppies.\nType IDDQD for god mode. (Don't tell Dad I told you.)\nDad's best: E1M1 in 47 seconds. He brings this up at Christmas.\n`);
+  txt(GA + '/SAVES', 'GOLDENBALLS times.txt', '14/03/99', `GOLDENBALLS 007 - MY BEST TIMES (Agent)\n\nDam          1:58\nFacility     1:46\nRunway       0:39  (just get on the plane!)\nSurface 1    2:33\nBunker 1     1:12\nSilo         3:44\nFrigate      1:51\nSurface 2    2:20\nBunker 2     1:55\nStatue       3:10\nArchives     1:20\nStreets      2:01\nDepot        0:56\nTrain        2:44\nJungle       1:49\nControl      5:58  (Natalya. Why.)\nCaverns      2:30\nCradle       1:01\nAztec        5:12  (Jaws!!!)\nEgyptian     not unlocked yet\n`);
+  txt(GA + '/SAVES', 'worms team names.txt', '30/01/99', `WORMS TEAMS\n\nTeam JACK:  Zapachu, Boba, Sir Killalot, Dave\nTeam DAVE:  Jack, Jack's Mom, Jack's Mom's Cat (we don't have a cat), Ian\nDAVE: who is Ian\nDAVE: "nobody knows who Ian is"\n`);
+  txt(GA, 'GLOOM.TXT', '28/12/98', `GLOOM - Dad's copy, on 4 floppies.\nType IDDQD for god mode. (Don't tell Dad I told you.)\nDad's best: E1M1 in 47 seconds. He brings this up at Christmas.\n`);
 
   // ================================================================ C:\Program Files
   const PF = 'C:/Program Files';
   A.fs.dir(PF).date = '10/12/98';
   const prog = (dir, date, exes, readme) => { const p = PF + '/' + dir; A.fs.dir(p).date = date; exes.forEach(([n, size, arg]) => exe(p, n, date, size, { app: 'files.run', arg })); if (readme) txt(p, 'readme.txt', date, readme); return p; };
-  prog('Accessories', '10/12/98', [['NOTEPAD.EXE', '52 KB', 'app:notepad'], ['MSPAINT.EXE', '343 KB', 'app:paint|mspaint|pbrush'], ['CALC.EXE', '93 KB', 'app:calc|calculator'], ['WORDPAD.EXE', '205 KB', 'wordpad'], ['SNDREC32.EXE', '89 KB', 'app:sndrec|soundrec']], `ACCESSORIES\n===========\nLittle programs that come free with JackOS.\n\nNOTEPAD   - for writing things. The best program ever made.\nPAINT     - for drawing things. Pixel by pixel. Like a Game Boy would.\nCALCULATOR - for maths homework. (It's not cheating, it's a tool.)\nWORDPAD   - like Notepad but it wants you to pick a font.\n`);
+  prog('Accessories', '10/12/98', [['NOTEPAD.EXE', '52 KB', 'app:notepad'], ['MSPAINT.EXE', '343 KB', 'app:paint|mspaint|pbrush'], ['CALC.EXE', '93 KB', 'app:calc|calculator'], ['WORDPAD.EXE', '205 KB', 'wordpad'], ['SNDREC32.EXE', '89 KB', 'app:sndrec|soundrec']], `ACCESSORIES\n===========\nLittle programs that come free with JackOS.\n\nNOTEPAD   - for writing things. The best program ever made.\nPAINT     - for drawing things. Pixel by pixel. Like a Game Lad would.\nCALCULATOR - for maths homework. (It's not cheating, it's a tool.)\nWORDPAD   - like Notepad but it wants you to pick a font.\n`);
   prog('JackNet Explorer', '10/12/98', [['IEXPLORE.EXE', '1.1 MB', 'browser']], `JACKNET EXPLORER 5\n==================\nThe best way to see the World Wide Web.\n\nSYSTEM REQUIREMENTS: a computer, a modem, a phone line, and nobody\nneeding to use the phone for the next two hours.\n\nKNOWN ISSUES:\n- Toolbars sometimes install themselves. We don't know why. We're sorry.\n- If Mom picks up the phone, the Internet will stop. This is not a bug.\n  This is Mom.\n`);
-  prog('Outlook Express', '10/12/98', [['MSIMN.EXE', '58 KB', 'app:outlook']], `OUTLOOK EXPRESS\n===============\nSend and receive e-mail! Over the INTERNET!\n\nTIP: Your account is the FAMILY account. Please don't sign up for\nnewsletters with it. (This means you, Jack. - Mom)\n`);
-  prog('JackTris', '17/04/99', [['JACKTRIS.EXE', '212 KB', 'go:demos']], `JACKTRIS v1.0\n=============\nBy Jack. My own Tetris. Made from scratch.\n\nCONTROLS: Left/Right to move, Up to turn, Down to drop faster.\nMUSIC: the old Russian folk song (Korobeiniki). It's public domain,\nwhich means nobody owns it, which means everybody owns it.\n\nHIGH SCORE TO BEAT: mine.\n\nKNOWN BUG: none. (There was one with the wall. It's fixed. I think.)\n`);
+  prog('JackMail Express', '10/12/98', [['MSIMN.EXE', '58 KB', 'app:outlook']], `JACKMAIL EXPRESS\n===============\nSend and receive e-mail! Over the INTERNET!\n\nTIP: Your account is the FAMILY account. Please don't sign up for\nnewsletters with it. (This means you, Jack. - Mom)\n`);
+  prog('JackTris', '17/04/99', [['JACKTRIS.EXE', '212 KB', 'go:demos']], `JACKTRIS v1.0\n=============\nBy Jack. My own Blockology. Made from scratch.\n\nCONTROLS: Left/Right to move, Up to turn, Down to drop faster.\nMUSIC: the old Russian folk song (Korobeiniki). It's public domain,\nwhich means nobody owns it, which means everybody owns it.\n\nHIGH SCORE TO BEAT: mine.\n\nKNOWN BUG: none. (There was one with the wall. It's fixed. I think.)\n`);
   txt(PF + '/JackTris', 'HISCORE.DAT', '17/04/99', `JACK  41000\nJACK  38200\nJACK  35900\nJACK  30300\nGRAN    450   <- Gran had a go at Christmas\nDAVE   3200\n`);
   prog('Blobbit Lob', '03/07/99', [['SQUIGLOB.EXE', '187 KB', 'go:demos']], `BLOBBIT LOB\n===========\nPull back the catapult. Let go. WATCH THE BLOBBIT FLY.\n\nPHYSICS ENGINE: "add a bit to the speed going down, every frame".\nMr Okafor says this is "a simplification". It works though.\n\nNo Blobbits were harmed in the making of this game. They LIKE it.\n(The folder still says Squig Lob. That was its name in the first draft.)\n`);
   prog('Gubbinz', '15/05/99', [['GUBBINZ.EXE', '1.4 MB', 'go:grot']], `GUBBINZ - THE VIRTUAL PET\n=========================\nThere is only ONE Gubbinz and EVERYBODY shares him.\n\nFeed him. Pet him. Do NOT let him near the pizza unsupervised.\n\nSystem requirements: a heart.\n`);
   txt(PF + '/Gubbinz', 'GUBBINZ.INI', '15/05/99', `[Gubbinz]\nEars=flappy\nHunger=always\nFavouriteFood=pizza\nSecondFavouriteFood=more pizza\nBedtime=never\nCanBeTrustedWithPizza=0\n`);
-  prog('Cube Timer 2.0', '20/04/99', [['CUBETIME.EXE', '64 KB', 'cubetime']], `CUBE TIMER 2.0\n==============\nTimes your Rubik's cube solves. Press SPACE to start, SPACE to stop.\n\nVersion 1.0 used the oven clock. Version 2.0 uses the computer clock,\nwhich is more accurate and doesn't need Dad to be in the kitchen.\n`);
+  prog('Cube Timer 2.0', '20/04/99', [['CUBETIME.EXE', '64 KB', 'cubetime']], `CUBE TIMER 2.0\n==============\nTimes your Rubrick's cube solves. Press SPACE to start, SPACE to stop.\n\nVersion 1.0 used the oven clock. Version 2.0 uses the computer clock,\nwhich is more accurate and doesn't need Dad to be in the kitchen.\n`);
   prog('Ork Painter 98', '03/02/99', [['ORKPAINT.EXE', '410 KB', 'orkpaint']], `MINI PAINTER 98\n===============\nPaint your models on the computer before you paint them for real!\n\nCOLOURS AVAILABLE: Red.\n\nWhy only red? Because red ones go faster. We tried adding other\ncolours but they kept going red on their own.\n`);
   prog('Y2K Checker', '01/11/99', [['Y2KCHECK.EXE', '96 KB', 'y2k']], `Y2K CHECKER 1.0\n===============\nIs your computer ready for the Year 2000?\nRun Y2KCHECK.EXE to find out!\n\nThis program checks:\n- Your BIOS clock\n- Your programs\n- Your video recorder (please hold it up to the screen)\n- Your nerves\n\nDISCLAIMER: If the world ends on 01/01/2000, we can't give you a refund.\n`);
   prog('JackNet Anti-Virus 99', '27/03/99', [['AV99.EXE', '780 KB', 'av']], `JACKNET ANTI-VIRUS 99\n=====================\nProtecting your computer from: viruses, worms, Trojans, and gremlins in hats.\n\nVirus definitions last updated: 27/03/99 (the day after Melissa,\nwhen Dad panicked and bought this).\n\nREMEMBER: Never open attachments from people you don't know.\nAlso never open attachments from people you DO know, if they say\n"Important Message From" in the subject. That's how Melissa got ${CN('cousin2')}.\n`);
@@ -1799,7 +1799,7 @@ WHAT'S NEW:
 
 Please do not delete any files in this folder. Especially MOM.SYS.
 `);
-  txt(W, 'JACKOS.INI', '10/12/98', `[windows]
+  txt(W, 'JACKOS.INI', '10/12/98', `[jackos]
 load=
 run=GUBBINZ.EXE
 NullPort=None
@@ -1973,7 +1973,7 @@ It's a Gubbinz in a hat.
   Object.assign(A.fs.dir(TMP), { hidden: true, date: '10/12/98', secret: 'files.temp' });
   [['~DF1999.TMP', '14/03/99', 'ÿØÿà JFIF ...... ÿÛ C ......\n(this is the start of a picture that never finished downloading)\n'],
    ['~WRL0001.TMP', '22/01/99', 'What I want to be when I grow up\nWhen I grow up I want to be a\nWhen I grow up I want to\nWhen I grow up\n(autosave from the English homework, 14 attempts)'],
-   ['~GRT0042.TMP', '16/05/99', 'crumbs\ncrumbs\npizza crumbs\na tiny LEGO helmet\nmore crumbs\n(Gubbinz has been in here.)\n'],
+   ['~GRT0042.TMP', '16/05/99', 'crumbs\ncrumbs\npizza crumbs\na tiny BLOCKO helmet\nmore crumbs\n(Gubbinz has been in here.)\n'],
    ['install_leftovers.tmp', '25/12/98', 'SETUP WAS HERE\n(pieces of 14 different installers that never cleaned up after themselves)\n'],
    ['download_99percent.tmp', '01/06/99', '[ 99% of a song by a band ' + CN('cousin2') + ' likes ]\n\nThe last 1% will never arrive.\nMom picked up the phone.\n'],
    ['CRASH.DMP', '26/04/99', 'Memory dump at the moment the computer froze:\n\n0000: 48 41 44 4F 55 4B 45 4E   HADOUKEN\n0008: 50 49 5A 5A 41 00 00 00   PIZZA...\n0010: 47 55 42 42 49 4E 5A 00   GUBBINZ.\n\nCause of crash: Gubbinz.\n'],
@@ -2024,7 +2024,7 @@ Anyway. Don't tell anyone I can type.
   dput(FLOPPY, '', { name: 'README.TXT', type: 'txt', date: '18/03/99', text: `JACK\n\nTHIS DISK HAS THE THING ON IT.\n\nGIVE IT BACK BY FRIDAY.\n\n- DAVE\n\n(the thing is my homework. well, YOUR homework. that I copied. its fine, I changed some words)\n` });
   dput(FLOPPY, '', { name: 'HOMEWRK.TXT', type: 'txt', date: '18/03/99', text: `WHAT I WANT TO BE WHEN I GROW UP\nby Dave\n\nWhen I grow up I want to make video games. There are other things I would also like to be, and I will lsit them later in case the first one doesnt work out, but games is the main one.\n\nI want to make games because games are the only kind of story where YOU are the one who does things, and you can be Oddjob.\n\nI have allready made zero games. But I have played loads.\n\nOTHER THINGS I WOULD LIKE TO BE:\n- A footballer\n- An astronaut (Jack said it first but I said it louder)\n- Rich\n\nTHE END\n\n(Mrs Hargreaves's comment: "Dave, this seems VERY familiar. See me.")\n` });
   dput(FLOPPY, '', { name: 'DAVEPNT.BMP', type: 'img', art: 'dave_paint', date: '18/03/99' });
-  dput(FLOPPY, '', { name: 'GOLDNEYE.TXT', type: 'txt', date: '18/03/99', text: `DAVE'S GOLDENEYE TIPS\n\n1. pick oddjob\n2. hes small so nobody can hit him\n3. pick oddjob again\n4. if jack says oddjob is banned, pick oddjob anyway\n5. slappers only mode is rubbish because i lose\n` });
+  dput(FLOPPY, '', { name: 'GOLDNEYE.TXT', type: 'txt', date: '18/03/99', text: `DAVE'S GOLDENBALLS TIPS\n\n1. pick oddjob\n2. hes small so nobody can hit him\n3. pick oddjob again\n4. if jack says oddjob is banned, pick oddjob anyway\n5. slappers only mode is rubbish because i lose\n` });
   dput(FLOPPY, '', { name: 'SECRET.TXT', type: 'txt', date: '18/03/99', text: `THERE IS NO SECRET.\n\nMADE YOU LOOK.\n\n- DAVE\n` });
   dput(FLOPPY, '', { name: 'DAVE.BAS', type: 'txt', date: '18/03/99', text: `10 PRINT "DAVE IS ACE"\n20 GOTO 10\n\nREM my first program. it runs forever. thats how good it is\n` });
   dput(CDROM, '', { name: 'AUTORUN.INF', type: 'txt', date: '01/01/99', text: `[autorun]\nopen=SETUP.EXE\nicon=JACK.ICO\nlabel=JACK ATTACK! COVER DISC #7\n` });
@@ -2042,11 +2042,11 @@ Anyway. Don't tell anyone I can type.
 
   // ================================================================ the Recycle Bin's contents (Restore puts them back)
   const BIN = [
-    { id: 'hwreal', from: MD + '/Homework', del: '23/01/99', node: { name: 'homework REAL FINAL v2 (OLD).txt', type: 'txt', date: '21/01/99', text: `WHAT I WANT TO BE WHEN I GROW UP\nby Jack\n\nWhen I grow up I want to be a Jedi.\n\n(Mrs Hargreaves will not accept this. Starting again.)\n` } },
+    { id: 'hwreal', from: MD + '/Homework', del: '23/01/99', node: { name: 'homework REAL FINAL v2 (OLD).txt', type: 'txt', date: '21/01/99', text: `WHAT I WANT TO BE WHEN I GROW UP\nby Jack\n\nWhen I grow up I want to be a Space Cadet.\n\n(Mrs Hargreaves will not accept this. Starting again.)\n` } },
     { id: 'uglyork', from: MD + '/My Pictures', del: '24/01/99', node: { name: 'my first ork (UGLY).bmp', type: 'img', art: 'ugly_ork', date: '10/01/99' } },
     { id: 'dave', from: MD + '/Letters', del: '15/09/99', node: { name: 'DAVE IS NOT MY FRIEND ANYMORE.txt', type: 'txt', date: '14/09/99', text: `DAVE IS NOT MY FRIEND ANYMORE\n\nHe said my Ork looked like a "green potato".\n\nIt does NOT look like a green potato.\n\nI am never speaking to Dave again.\n\n(update: I spoke to him at lunch. He gave me half his chocolate biscuit. we're OK.)\n(update 2: why am I updating a file I'm about to delete)\n` } },
     { id: 'virus', from: MD, del: '27/03/99', node: { name: 'TOTALLY_NOT_A_VIRUS.EXE', type: 'exe', app: 'files.run', arg: 'virus', date: '26/03/99', size: '13 KB' } },
-    { id: 'xmas1', from: MD + '/Lists', del: '02/11/99', node: { name: 'christmas list DRAFT 1.txt', type: 'txt', date: '01/11/99', text: `CHRISTMAS LIST (FIRST DRAFT)\n\n1. A real lightsaber\n2. A real Robot Wars robot\n3. A pony (for Gubbinz to ride)\n4. The Moon\n5. A Dreamcast\n\n(Mom said: "let's be realistic". Keeping number 5. Deleting this.)\n` } },
+    { id: 'xmas1', from: MD + '/Lists', del: '02/11/99', node: { name: 'christmas list DRAFT 1.txt', type: 'txt', date: '01/11/99', text: `CHRISTMAS LIST (FIRST DRAFT)\n\n1. A real lightspatula\n2. A real Robo Rumble robot\n3. A pony (for Gubbinz to ride)\n4. The Moon\n5. A Daydream\n\n(Mom said: "let's be realistic". Keeping number 5. Deleting this.)\n` } },
     { id: 'poem', from: MD + '/Stories', del: '18/03/99', node: { name: 'poem about squigs (bad).txt', type: 'txt', date: '18/03/99', text: `SQUIGS\n\nSquigs are red,\nSquigs are round,\nSquigs go bounce,\nOn the ground.\n\nSquigs have teef,\nSquigs eat feet,\nThat is why,\nI wear boots on the street.\n\n(This is the worst poem ever written. Deleting.)\n` } },
     { id: 'maths', from: MD + '/School', del: '12/03/99', node: { name: 'maths test (C-) NOBODY SEE.txt', type: 'txt', date: '11/03/99', text: `MATHS TEST - ALGEBRA\nMark: C-\n\nMr Bell's comment: "Jack, x is not 'whatever I want it to be'."\n\nI revised the wrong chapter. I revised GEOMETRY. I am VERY good at geometry now.\n\n(nobody needs to see this. especially Mom.)\n` } },
     { id: 'site', from: 'C:/JACKATAK', del: '31/12/98', node: { name: 'my_first_website.htm', type: 'txt', date: '20/12/98', text: `<HTML>\n<BODY BGCOLOR="#FF00FF" TEXT="#00FF00">\n<BLINK><H1>WELCOME TO JACKS PAGE!!!!!!!</H1></BLINK>\n<MARQUEE><MARQUEE><MARQUEE>SCROLLING!!!</MARQUEE></MARQUEE></MARQUEE>\n<P>UNDER CONSTRUCTION <IMG SRC="digger.gif"> <IMG SRC="digger.gif"> <IMG SRC="digger.gif">\n<P>THIS IS MY PAGE. IT IS PINK AND GREEN. THIS IS A GOOD IDEA.\n<!-- Jack's note (30/12/98): this was not a good idea. Starting again with JACK ATTACK! -->\n</BODY>\n</HTML>\n` } },
@@ -2054,12 +2054,12 @@ Anyway. Don't tell anyone I can type.
     { id: 'tornout', from: DIARY, del: '13/11/98', node: { name: '12-11-98.txt', type: 'txt', date: '12/11/98', text: `Thursday 12 November 1998\n\nCried at the end of a film tonight.\n\nNot saying which film.\n\nNot saying how much.\n\nIt was a lot.\n\nDELETE THIS FILE BEFORE ANYONE SEES IT.\n` } },
     { id: 'grubv01', from: MD + '/My Pictures', del: '14/02/99', node: { name: 'Gubbinz v0.1 (ears too small).gif', type: 'img', art: 'fanart', date: '12/02/99' } },
     { id: 'resign', from: MD, del: '11/07/99', node: { name: 'resignation letter.txt', type: 'txt', date: '11/07/99', text: `Dear Mom,\n\nI am writing to resign from my position as Tidier of the Bedroom.\n\nI have held this position for many years and I feel it is time for someone else to take over. Possibly Dad. Possibly a robot.\n\nI will stay on until the end of the week to train my replacement.\n\nYours faithfully,\nJack\n\n(Mom's reply, written on a post-it on the monitor: "Resignation NOT accepted. Tidy your room. Love Mom x")\n` } },
-    { id: 'davecheats', from: MD + '/Cheats', del: '21/03/99', node: { name: "Dave's cheats (ALL WRONG).txt", type: 'txt', date: '20/03/99', text: `CHEATS BY DAVE\n\n- In GoldenEye, if you shoot the toilet in Facility 100 times you get a secret gun.\n- In Mario Kart, if you hold all the buttons at the start you go backwards really fast.\n- In Pokemon, if you put the cartridge in the freezer you get ice Pokemon.\n\n(Jack's note: NONE OF THESE ARE REAL. Dave froze his cousin's Game Boy game. It still works but it was wet.)\n` } },
+    { id: 'davecheats', from: MD + '/Cheats', del: '21/03/99', node: { name: "Dave's cheats (ALL WRONG).txt", type: 'txt', date: '20/03/99', text: `CHEATS BY DAVE\n\n- In Goldenballs, if you shoot the toilet in Facility 100 times you get a secret gun.\n- In Kart Kaos, if you hold all the buttons at the start you go backwards really fast.\n- In Pocket Critters, if you put the cartridge in the freezer you get ice Pocket Critters.\n\n(Jack's note: NONE OF THESE ARE REAL. Dave froze his cousin's Game Lad game. It still works but it was wet.)\n` } },
   ];
   // ================================================================ e-mail (Outlook Express). d: 'MM-DD' in 1999 (appears on that day), or old: 'dd/mm/98'
   const FAM = 'The Family <the.family@jacknet.jnet>';
   const DAVE = 'Dave <davetherave@jacknet.jnet>', RYAN = CN('cousin2') + ' <' + Cast.slug('cousin2') + '_the_great@hotjack.jnet>', MOM = 'Mom <the.family@jacknet.jnet>', GRAN = 'Gran <gran.and.grandad@jacknet.jnet>';
-  const BILL = 'JackNet Customer Accounts <accounts@jacknet.jnet>', N64 = 'The N64 Fan Club <n64fanclub@members.jacknet.jnet>', GFC = 'Gubbinz Fan Club <gubbinz.fanclub@members.jacknet.jnet>', ALI = CT('{teacher} (Computer Club) <computerclub@skool.kidz>');
+  const BILL = 'JackNet Customer Accounts <accounts@jacknet.jnet>', N64 = 'The ULTRA 64 Fan Club <n64fanclub@members.jacknet.jnet>', GFC = 'Gubbinz Fan Club <gubbinz.fanclub@members.jacknet.jnet>', ALI = CT('{teacher} (Computer Club) <computerclub@skool.kidz>');
   const JACK = '{NAME} <{ADDR}>', ME = JACK, JACKF = 'Jack (The Family) <the.family@jacknet.jnet>'; // {NAME} etc. become whoever is logged on to JackNet
   const MAIL = [
     // ---------------------------------------------------------------- always there (1998)
@@ -2078,9 +2078,9 @@ Your mailbox can hold 5MB of messages. Please delete old messages or your mailbo
 
 Happy e-mailing!
 The JackNet Mail Team` },
-    { id: 'oewelcome', f: 'inbox', old: '10/12/98', from: 'Outlook Express Team', subj: 'Welcome to Outlook Express', body: `Welcome to Outlook Express!
+    { id: 'oewelcome', f: 'inbox', old: '10/12/98', from: 'JackMail Express Team', subj: 'Welcome to JackMail Express', body: `Welcome to JackMail Express!
 
-Outlook Express is your one-stop place for e-mail on your computer.
+JackMail Express is your one-stop place for e-mail on your computer.
 
 TIPS:
  - Click New Mail to write a message.
@@ -2120,7 +2120,7 @@ P.S. HOW DO I SEND THIS` },
 heard you got a PC for christmas. nice. what is it, a pentium 2? mines a K6-2 which is basically faster (dont argue)
 
 some tips from a pro:
-- get winamp-style mp3 player thing (when the modem is quicker)
+- get jackamp-style mp3 player thing (when the modem is quicker)
 - never let your mom see the phone bill
 - defrag every week, it makes the little blocks go in the right places and its relaxing to watch
 - dont download anything off the internet
@@ -2152,7 +2152,7 @@ it looks like you're trying to find secrets! would you like help? (that's my job
 
 here are some things i've seen:
 
-1. jack has a SECRET FOLDER in his My Documents. it has a password. the password is a riddle and the riddle is in his LISTS. the answer is what orks spend. (no, it's not "pizza". i tried. it was not happy.)
+1. jack has a SECRET FOLDER in his My Documents. it has a password. the password is a riddle and the riddle is in his LISTS. the answer is what gorks spend. (no, it's not "pizza". i tried. it was not happy.)
 
 2. the A: drive is STUBBORN. it says "please insert a disk". ask it three times. (like Beetlejuice, but with floppies.)
 
@@ -2184,7 +2184,7 @@ Love {NAME} xxx
 > DID YOU GET THE SOCKS.` },
     { id: 'draftmag', f: 'drafts', old: '30/12/98', from: JACK, to: 'Letters Page', subj: 'letter for the letters page', body: `Dear Editor,
 
-I am writing to say that your magazine is great but it doesn't have enough Robot Wars in it and it never prints my letters.
+I am writing to say that your magazine is great but it doesn't have enough Robo Rumble in it and it never prints my letters.
 
 (unfinished - I'll send it when I've thought of a really good question)` },
 
@@ -2218,33 +2218,33 @@ Please remember: your phone company will charge you separately for the calls. Fo
 Kind regards,
 JackNet Customer Accounts
 "The Internet, but slowly"` },
-    { id: 'ryan0109', f: 'inbox', d: '01-09', from: RYAN, subj: 'pokemon cards', body: `pokemon cards are out in america. my mate's brother has seen a charizard one. shiny. worth like a MILLION pounds probably
+    { id: 'ryan0109', f: 'inbox', d: '01-09', from: RYAN, subj: 'pocket critters cards', body: `pocket critters cards are out in america. my mate's brother has seen a charizard one. shiny. worth like a MILLION pounds probably
 
 when they come out here im getting all 102. you will be jealous
 
 ${Cast.slug('cousin2')}
 
 p.s. tell dave not to swap his bike for one. i know dave. dave would do that` },
-    { id: 'n64jan', f: 'inbox', d: '01-15', from: N64, subj: 'N64 FAN CLUB NEWSLETTER - January 1999', body: `=========================================
-   THE N64 FAN CLUB NEWSLETTER - JANUARY
-   (we are a fan club, not Nintendo!)
+    { id: 'n64jan', f: 'inbox', d: '01-15', from: N64, subj: 'ULTRA 64 FAN CLUB NEWSLETTER - January 1999', body: `=========================================
+   THE ULTRA 64 FAN CLUB NEWSLETTER - JANUARY
+   (we are a fan club, not Ultra Entertainment!)
 =========================================
 
 HELLO MEMBERS! Happy New Year! All 214 of you!
 
 NEWS
- * SUPER SMASH BROS. comes out in Japan on 21st January! Mario, Link, Pikachu, Kirby, Donkey Kong, Samus, Fox and Yoshi all hitting each other! No UK date yet. We will be checking every day. EVERY DAY.
- * Everybody got Zelda: Ocarina of Time for Christmas. Everybody. Our postbag is 90% "how do I get past the Water Temple". (Answer: patience. And the Iron Boots. Mostly patience.)
+ * SUPER SMASH BROS. comes out in Japan on 21st January! Marlo, Link, Zapachu, Kirby, Donkey Wrong, Samus, Fox and Yosher all hitting each other! No UK date yet. We will be checking every day. EVERY DAY.
+ * Everybody got Zelda: Kazoo of Time for Christmas. Everybody. Our postbag is 90% "how do I get past the Water Temple". (Answer: patience. And the Iron Boots. Mostly patience.)
 
 TIP OF THE MONTH
- GoldenEye: on Facility, on Agent, you can get the run down to under 2 minutes if you skip the bathroom. Don't skip the bathroom on 00 Agent, though. You'll need the scientist.
+ Goldenballs: on Facility, on Agent, you can get the run down to under 2 minutes if you skip the bathroom. Don't skip the bathroom on 00 Agent, though. You'll need the scientist.
 
 MEMBER'S LETTER
- "Is it true you can play as Luigi in Mario 64?" - every member, every month
+ "Is it true you can play as Louie G in Marlo 64?" - every member, every month
  No. Probably. Maybe. We don't know. STOP ASKING.
 
 See you next month!
-The N64 Fan Club` },
+The ULTRA 64 Fan Club` },
     { id: 'dave0129', f: 'inbox', d: '01-29', from: DAVE, subj: 'WORMS', body: `my cousin got WORMS ARMAGEDDON
 
 come round tomorrow. bring your controller (you dont need a controller its a pc game. bring yourself)
@@ -2266,17 +2266,17 @@ LOVE GRAN XXXX` },
 >>>>> AMAZING will happen to you tomorrow.
 >>>>>
 >>>>> A boy in America sent it to 10 people and he got a
->>>>> Nintendo 64 for FREE.
+>>>>> Ultra 64 for FREE.
 >>>>>
->>>>> A girl in Australia DIDN'T send it and her Game Boy
+>>>>> A girl in Australia DIDN'T send it and her Game Lad
 >>>>> batteries ran out IN THE MIDDLE OF A BOSS.
 >>>>>
 >>>>> DON'T BREAK THE CHAIN!!!!!!!!!!!
 
-${Cast.slug('cousin2')}: i sent it to 10 people. if i get an n64 i'll let you know
+${Cast.slug('cousin2')}: i sent it to 10 people. if i get an ultra 64 i'll let you know
 
-JACK'S NOTE: chain letters are made up. Nothing happens if you don't send them. Except your Game Boy batteries run out, but that's because they're old.` },
-    { id: 'dave0226', f: 'inbox', d: '02-26', from: DAVE, subj: 'METAL GEAR SOLID!!!!!!!!', body: `GOT IT
+JACK'S NOTE: chain letters are made up. Nothing happens if you don't send them. Except your Game Lad batteries run out, but that's because they're old.` },
+    { id: 'dave0226', f: 'inbox', d: '02-26', from: DAVE, subj: 'METAL GEAR WOBBLY!!!!!!!!', body: `GOT IT
 
 snake hides in a CARDBOARD BOX and the guards walk right past
 
@@ -2301,21 +2301,21 @@ YOU KNOW YOU'RE ADDICTED TO THE INTERNET WHEN...
 -----End of forwarded message-----
 
 Love Dad` },
-    { id: 'n64mar', f: 'inbox', d: '03-12', from: N64, subj: 'N64 FAN CLUB NEWSLETTER - March 1999', body: `=========================================
-   THE N64 FAN CLUB NEWSLETTER - MARCH
+    { id: 'n64mar', f: 'inbox', d: '03-12', from: N64, subj: 'ULTRA 64 FAN CLUB NEWSLETTER - March 1999', body: `=========================================
+   THE ULTRA 64 FAN CLUB NEWSLETTER - MARCH
 =========================================
 
 NEWS
- * MARIO PARTY is out now! WARNING from our members: the mini-games where you spin the control stick can give you blisters on your palm. Use your thumb. Or a sock.
- * POKEMON SNAP comes out in Japan this month. You ride round on a little cart and take PHOTOS of Pokemon. The film gets developed at the end. Like a real camera, but less waiting.
- * Rare are making a new shooter called Perfect Dark, from the people who made GoldenEye. No date yet. We have our fingers crossed. All of them.
+ * MARLO PARTY is out now! WARNING from our members: the mini-games where you spin the control stick can give you blisters on your palm. Use your thumb. Or a sock.
+ * POCKET CRITTERS SNAP comes out in Japan this month. You ride round on a little cart and take PHOTOS of Pocket Critters. The film gets developed at the end. Like a real camera, but less waiting.
+ * Rare are making a new shooter called Imperfect Dark, from the people who made Goldenballs. No date yet. We have our fingers crossed. All of them.
 
-READER POLL: BEST N64 CONTROLLER COLOUR
+READER POLL: BEST ULTRA 64 CONTROLLER COLOUR
  1. Grey (it came with it)        52%
  2. See-through (WANT)            31%
  3. "The one Dave chewed"         17%
 
-TIP: Mario Kart 64 - on Koopa Troopa Beach, there's a shortcut through the rock in the middle. You need a mushroom.
+TIP: Kart Kaos 64 - on Koopa Troopa Beach, there's a shortcut through the rock in the middle. You need a mushroom.
 
 See you next month!` },
     { id: 'ryanmelissa', f: 'inbox', d: '03-26', from: RYAN, subj: 'Important Message From ' + CN('cousin2'), body: `Here is that document you asked for ... don't show anyone else ;-)
@@ -2342,11 +2342,11 @@ BLACK: out of stock
 CYAN: 40,000 cartridges
 
 ORDER NOW!!!` },
-    { id: 'sentn64', f: 'sent', d: '01-14', from: JACK, to: N64, subj: 'please can I join', body: `Dear N64 Fan Club,
+    { id: 'sentn64', f: 'sent', d: '01-14', from: JACK, to: N64, subj: 'please can I join', body: `Dear ULTRA 64 Fan Club,
 
-Please can I join the N64 Fan Club. I have an N64 and GoldenEye and Zelda and Mario 64 (118 stars, the other two are lost forever).
+Please can I join the ULTRA 64 Fan Club. I have an ULTRA 64 and Goldenballs and Zelda and Marlo 64 (118 stars, the other two are lost forever).
 
-My favourite N64 game is GoldenEye. My favourite character is Bond. Not Oddjob. Never Oddjob.
+My favourite ULTRA 64 game is Goldenballs. My favourite character is Bond. Not Oddjob. Never Oddjob.
 
 From {NAME}
 
@@ -2354,9 +2354,9 @@ P.S. Please don't tell my Mom I signed up for a newsletter.` },
     { id: 'draftmag2', f: 'drafts', d: '03-02', from: JACK, to: 'Letters Page', subj: 'letter (proper one this time)', body: `Dear Editor,
 
 I have three questions:
-1. Is there going to be a GoldenEye 2?
-2. Is Luigi in Mario 64?
-3. Can you put more Robot Wars in your magazine?
+1. Is there going to be a Goldenballs 2?
+2. Is Louie G in Marlo 64?
+3. Can you put more Robo Rumble in your magazine?
 
 (Wrote it as a real letter instead. It's in My Documents\\Letters. Printed it out. Printer out of cyan. Printed it in black. Posted it. Waiting.)` },
 
@@ -2367,8 +2367,8 @@ you probably peeled the stickers off like your mom
 
 dave
 
-> I SOLVED THE RUBIK'S CUBE!!! ALL SIX SIDES!!!` },
-    { id: 'sent0403', f: 'sent', d: '04-03', from: JACK, to: DAVE, subj: 'I SOLVED IT!!!!!!!', body: `I SOLVED THE RUBIK'S CUBE!!! ALL SIX SIDES!!!
+> I SOLVED THE RUBRICK'S CUBE!!! ALL SIX SIDES!!!` },
+    { id: 'sent0403', f: 'sent', d: '04-03', from: JACK, to: DAVE, subj: 'I SOLVED IT!!!!!!!', body: `I SOLVED THE RUBRICK'S CUBE!!! ALL SIX SIDES!!!
 
 I'll do it in front of you on Monday. I've written the moves down. R U R' U'. You won't understand. Nobody understands.
 
@@ -2388,7 +2388,7 @@ NEW! Our "Evenings & Weekends" package means you can use the Internet for less a
 *Mom's note scribbled on the printout: "AFTER 6PM AND BEFORE 8PM."
 
 JackNet Customer Accounts` },
-    { id: 'ali0419', f: 'inbox', d: '04-19', from: ALI, to: JACKF, subj: 'Your Tetris game', body: `Hello Jack,
+    { id: 'ali0419', f: 'inbox', d: '04-19', from: ALI, to: JACKF, subj: 'Your Blockology game', body: `Hello Jack,
 
 I saw your "Jacktris" game on your website (you showed me the address in Computer Club, I hope that's OK). It's very impressive! Did you really write all of that yourself?
 
@@ -2418,18 +2418,18 @@ Regarding your mother picking up the phone: we're afraid there is no setting for
 Kind regards,
 Customer Services
 JackNet 56K - "The Internet, but slowly"` },
-    { id: 'n64may', f: 'inbox', d: '05-14', from: N64, subj: 'N64 FAN CLUB NEWSLETTER - May 1999 (E3 SPECIAL)', body: `=========================================
-   THE N64 FAN CLUB - E3 SPECIAL!!!
+    { id: 'n64may', f: 'inbox', d: '05-14', from: N64, subj: 'ULTRA 64 FAN CLUB NEWSLETTER - May 1999 (E3 SPECIAL)', body: `=========================================
+   THE ULTRA 64 FAN CLUB - E3 SPECIAL!!!
 =========================================
 
 E3, the giant games show in Los Angeles, is on RIGHT NOW. Here's the news:
 
- * Nintendo's NEXT console has a code name: "DOLPHIN". No pictures. No games. Just a name. Our members have already sent in 40 drawings of what they think it looks like. Most of them are a dolphin.
- * STAR WARS EPISODE I: RACER is out on the 4th of June. Podracing! On the N64! It even supports the Expansion Pak for a sharper picture.
- * DONKEY KONG 64 is coming at the end of the year from Rare. They say it's HUGE.
+ * Ultra Entertainment's NEXT console has a code name: "DOLPHIN". No pictures. No games. Just a name. Our members have already sent in 40 drawings of what they think it looks like. Most of them are a dolphin.
+ * INTERGALACTIC BATTLES EPISODE I: RACER is out on the 4th of June. Podracing! On the ULTRA 64! It even supports the Expansion Pak for a sharper picture.
+ * DONKEY WRONG 64 is coming at the end of the year from Rare. They say it's HUGE.
 
 MEMBER'S QUESTION
- "Is Pokemon coming to the UK?" - YES, in October! For the Game Boy. You have to catch them all. There are 151. Start practising.
+ "Is Pocket Critters coming to the UK?" - YES, in October! For the Game Lad. You have to catch them all. There are 151. Start practising.
 
 See you next month!` },
     { id: 'gfc0520', f: 'inbox', d: '05-20', from: GFC, subj: 'WELCOME TO THE GUBBINZ FAN CLUB!!!', body: `WELCOME, NEW MEMBER!!!
@@ -2563,11 +2563,11 @@ TOTAL DUE                       £9.99
 We have noticed you get disconnected a lot. Have you thought about a second phone line? (Ask your parents.)
 
 JackNet Customer Accounts` },
-    { id: 'dave0716', f: 'inbox', d: '07-16', from: DAVE, subj: 'MAUL', body: `DOUBLE LIGHTSABER
+    { id: 'dave0716', f: 'inbox', d: '07-16', from: DAVE, subj: 'MAUL', body: `DOUBLE LIGHTSPATULA
 
 DOUBLE
 
-LIGHTSABER
+LIGHTSPATULA
 
 i made one out of two of my sisters hockey sticks and some tape. its in the garden. come and see. dont tell my sister
 
@@ -2583,21 +2583,21 @@ Have a lovely summer. Please go outside at least once.
 
 See you in September!
 ${CN('teacher')}` },
-    { id: 'n64aug', f: 'inbox', d: '08-01', from: N64, subj: 'N64 FAN CLUB NEWSLETTER - Summer Holiday Special', body: `=========================================
-   THE N64 FAN CLUB - SUMMER SPECIAL
+    { id: 'n64aug', f: 'inbox', d: '08-01', from: N64, subj: 'ULTRA 64 FAN CLUB NEWSLETTER - Summer Holiday Special', body: `=========================================
+   THE ULTRA 64 FAN CLUB - SUMMER SPECIAL
 =========================================
 
 It's the summer holidays! Here's what to play when it's raining (always):
 
  * EPISODE I: RACER - try Boonta Eve as Sebulba. Then complain he cheats.
- * GOLDENEYE - still the best. Four player, Facility, proximity mines. Lose friends.
- * MARIO PARTY - see above re: losing friends.
+ * GOLDENBALLS - still the best. Four player, Facility, proximity mines. Lose friends.
+ * MARLO PARTY - see above re: losing friends.
  * ZELDA - have you finished the Water Temple yet? Neither have we.
 
 COMING SOON
- * POKEMON for Game Boy - 5th of October!!!
+ * POCKET CRITTERS for Game Lad - 5th of October!!!
  * SUPER SMASH BROS. - we STILL don't have a UK date. We have stopped asking. (We have not stopped asking.)
- * DONKEY KONG 64 - comes with the EXPANSION PAK, which doubles the N64's memory from 4MB to 8MB!
+ * DONKEY WRONG 64 - comes with the EXPANSION PAK, which doubles the ULTRA 64's memory from 4MB to 8MB!
 
 Have a great summer!` },
     { id: 'gfc0809', f: 'inbox', d: '08-09', from: GFC, subj: 'ECLIPSE WARNING FOR PETS', body: `GUBBINZ FAN CLUB - IMPORTANT SAFETY MESSAGE
@@ -2626,9 +2626,9 @@ LOVE GRAN XXXX` , att: [{ name: 'eclipse_on_the_telly.jpg', type: 'img', art: 'e
 10/10 best chat room ever
 
 ${Cast.slug('cousin2')}` },
-    { id: 'dave0909', f: 'inbox', d: '09-09', from: DAVE, subj: '9/9/99', body: `dreamcast out in america TODAY
+    { id: 'dave0909', f: 'inbox', d: '09-09', from: DAVE, subj: '9/9/99', body: `daydream out in america TODAY
 
-sonic runs DOWN A BUILDING
+zip runs DOWN A BUILDING
 
 my dad says we are getting one DEFINITELY
 
@@ -2684,24 +2684,24 @@ ONLY £99.99!!!
 JACK'S NOTE: That's a tin of beans and a torch for a hundred quid. Mom has 40 tins of beans already. Mom should sell Y2K kits.` },
     { id: 'gfcbook', f: 'sent', d: '09-25', from: JACKF, to: GFC, subj: 'new thing on the website', body: `Hi PixelLord,
 
-Tell the fan club: I've put the MegaCube on the website! It's a Rubik's cube that EVERYONE shares.
+Tell the fan club: I've put the MegaCube on the website! It's a Rubrick's cube that EVERYONE shares.
 
 Gubbinz is not allowed to touch it. He tried to eat a corner.
 
 Jack (Vice-President)` },
 
     // ---------------------------------------------------------------- October - December
-    { id: 'dave1005', f: 'inbox', d: '10-05', from: DAVE, subj: 'I GOT RED', body: `GOT POKEMON RED
+    { id: 'dave1005', f: 'inbox', d: '10-05', from: DAVE, subj: 'I GOT RED', body: `GOT POCKET CRITTERS RED
 
-picked bulbasaur because its a plant and a dinosaur at the same time
+picked bulbabeast because its a plant and a dinosaur at the same time
 
-do you want to trade. i will give you a pidgey for your squirtle
+do you want to trade. i will give you a pidgey for your squirturtle
 
 (this is a fair trade)
 
 (it is not a fair trade)
 
-dave` , att: [{ name: 'trade_plan.txt', type: 'txt', text: `DAVE'S TRADE PLAN (TOP SECRET)\n\nstep 1: give jack a pidgey\nstep 2: get squirtle\nstep 3: give squirtle back because jack will cry\nstep 4: actually just trade normally\n` }] },
+dave` , att: [{ name: 'trade_plan.txt', type: 'txt', text: `DAVE'S TRADE PLAN (TOP SECRET)\n\nstep 1: give jack a pidgey\nstep 2: get squirturtle\nstep 3: give squirturtle back because jack will cry\nstep 4: actually just trade normally\n` }] },
     { id: 'bill1006', f: 'inbox', d: '10-06', from: BILL, subj: 'Your JackNet statement - September 1999', body: `Dear The Family,
 
 STATEMENT FOR: September 1999
@@ -2714,17 +2714,17 @@ TOTAL DUE                       £9.99
 Your hours online have gone DOWN. Is everything all right? Did someone get some new rules?
 
 JackNet Customer Accounts` },
-    { id: 'n64oct', f: 'inbox', d: '10-14', from: N64, subj: 'N64 FAN CLUB NEWSLETTER - October 1999', body: `=========================================
-   THE N64 FAN CLUB - OCTOBER
+    { id: 'n64oct', f: 'inbox', d: '10-14', from: N64, subj: 'ULTRA 64 FAN CLUB NEWSLETTER - October 1999', body: `=========================================
+   THE ULTRA 64 FAN CLUB - OCTOBER
 =========================================
 
 NEWS
- * The DREAMCAST is out today. Several members have written in to say they are "just looking" at it. We understand. We are also just looking. We are a fan club, not the police.
- * POKEMON RED & BLUE came out on the 5th for the Game Boy, which counts as Nintendo, so we're allowed to talk about it. 151 Pokemon. Our members have caught... about 30.
+ * The DAYDREAM is out today. Several members have written in to say they are "just looking" at it. We understand. We are also just looking. We are a fan club, not the police.
+ * POCKET CRITTERS RED & BLUE came out on the 5th for the Game Lad, which counts as Ultra Entertainment, so we're allowed to talk about it. 151 Pocket Critters. Our members have caught... about 30.
  * SUPER SMASH BROS. has a UK date at LAST: 19th of November!!!
- * DONKEY KONG 64: 6th of December. Comes with the Expansion Pak!
+ * DONKEY WRONG 64: 6th of December. Comes with the Expansion Pak!
 
-TIP: Pokemon - Squirtle makes Brock easy. Charmander makes Brock a nightmare. Pick wisely.
+TIP: Pocket Critters - Squirturtle makes Brock easy. Charbroiler makes Brock a nightmare. Pick wisely.
 
 See you next month!` },
     { id: 'gfc1025', f: 'inbox', d: '10-25', from: GFC, subj: 'HALLOWEEN COMPETITION!!!', body: `GUBBINZ FAN CLUB - HALLOWEEN COMPETITION
@@ -2738,7 +2738,7 @@ You will need:
 
 Best costume wins a GOLD STAR (drawn in crayon).
 
-Vice-President Jack says he's going as a Jedi "again". Jack, that is not Gubbinz.
+Vice-President Jack says he's going as a Space Cadet "again". Jack, that is not Gubbinz.
 
 BOOYAH!
 PixelLord` },
@@ -2766,7 +2766,7 @@ now
 
 bring a controller (you DO need a controller this time)
 
-i am pikachu. you are not pikachu. nobody else is pikachu.
+i am zapachu. you are not zapachu. nobody else is zapachu.
 
 dave` },
     { id: 'ryan1126', f: 'inbox', d: '11-26', from: RYAN, subj: 'y2k is rubbish', body: `alright
@@ -2791,21 +2791,21 @@ PLEASE DONT LET {NAMEUC} SEE THIS EMAIL.
 LOVE MOM
 
 P.S. I HAVE GONE ON THE FAMILY EMAIL AGAIN HAVENT I. OH WELL. HELLO {NAMEUC}. YOU ARE GETTING SOCKS.` },
-    { id: 'n64dec', f: 'inbox', d: '12-13', from: N64, subj: 'N64 FAN CLUB NEWSLETTER - December 1999 (LAST ONE OF THE MILLENNIUM)', body: `=========================================
-   THE N64 FAN CLUB - DECEMBER 1999
+    { id: 'n64dec', f: 'inbox', d: '12-13', from: N64, subj: 'ULTRA 64 FAN CLUB NEWSLETTER - December 1999 (LAST ONE OF THE MILLENNIUM)', body: `=========================================
+   THE ULTRA 64 FAN CLUB - DECEMBER 1999
    *** THE LAST NEWSLETTER OF THE 1900s ***
 =========================================
 
 NEWS
- * DONKEY KONG 64 IS OUT! It comes with the Expansion Pak. The opening rap is... memorable. DK! Donkey Kong!
- * SUPER SMASH BROS. is out! Unlock Luigi by finishing Break the Targets with all 8 starting characters.
+ * DONKEY WRONG 64 IS OUT! It comes with the Expansion Pak. The opening rap is... memorable. DK! Donkey Wrong!
+ * SUPER SMASH BROS. is out! Unlock Louie G by finishing Break the Targets with all 8 starting characters.
 
-OUR TOP 5 N64 GAMES OF 1999 (as voted by members)
+OUR TOP 5 ULTRA 64 GAMES OF 1999 (as voted by members)
  1. Super Smash Bros.
- 2. Donkey Kong 64
- 3. Star Wars Episode I: Racer
- 4. Mario Party
- 5. GoldenEye (it's from 1997, but members voted for it anyway, every year, forever)
+ 2. Donkey Wrong 64
+ 3. Intergalactic Battles Episode I: Racer
+ 4. Marlo Party
+ 5. Goldenballs (it's from 1997, but members voted for it anyway, every year, forever)
 
 Merry Christmas and a Happy Millennium!
 See you in the year 2000 (if the computers still work)!` },
@@ -2848,8 +2848,8 @@ Jack (Vice-President)` },
     { id: 'dave1231', f: 'inbox', d: '12-31', from: DAVE, subj: 'PARTY TONIGHT!!!!!!!!', body: `MILLENNIUM PARTY AT MINE
 
 bring:
-- n64
-- goldeneye
+- ultra 64
+- goldenballs
 - your controllers (I've only got 2)
 - a sleeping bag
 - a torch (my dad says in case of the millennium bug)
@@ -2963,7 +2963,7 @@ Love {NAME}
         refreshAll(); ok();
       } else {
         Sound.play('uhoh');
-        const lines = ['Access denied. Nice try, Dave.', 'Wrong password. It\'s not "DAVE" either.', 'Access denied. The riddle is in Jack\'s lists.', 'Nope. Think like an Ork. What do Orks spend?'];
+        const lines = ['Access denied. Nice try, Dave.', 'Wrong password. It\'s not "DAVE" either.', 'Access denied. The riddle is in Jack\'s lists.', 'Nope. Think like an Ork. What do Gorks spend?'];
         misc.pwTries = (misc.pwTries || 0) + 1; setMisc('pwTries', misc.pwTries);
         Desk.msgbox('Access Denied', lines[Math.min(lines.length - 1, misc.pwTries - 1)], 'warn');
       }
@@ -3221,7 +3221,7 @@ If you get lost: Go > My Computer.
       <table><tr><td>Type:</td><td>${esc(typeName(n))}</td></tr><tr><td>Location:</td><td>${esc(where)}</td></tr>
       <tr><td>Size:</td><td>${locked ? '???' : longBytes(bytes)}</td></tr><tr><td>Size on disk:</td><td>${locked ? '???' : longBytes(Math.max(4096, Math.ceil(bytes / 4096) * 4096))}</td></tr>
       ${n.type === 'dir' ? `<tr><td>Contains:</td><td>${locked ? 'Password protected' : `${files.length} Files, ${dirs.length} Folders`}</td></tr>` : ''}</table><hr>
-      <table><tr><td>MS-DOS name:</td><td>${esc(dosName(n))}</td></tr><tr><td>Created:</td><td>${esc(dateOf(n))} ${fakeTime(n.name + 'c')}</td></tr>${n.type !== 'dir' ? `<tr><td>Modified:</td><td>${esc(dateOf(n))} ${fakeTime(n.name)}</td></tr><tr><td>Accessed:</td><td>${todayStr()}</td></tr>` : ''}</table><hr>
+      <table><tr><td>JACK-DOS name:</td><td>${esc(dosName(n))}</td></tr><tr><td>Created:</td><td>${esc(dateOf(n))} ${fakeTime(n.name + 'c')}</td></tr>${n.type !== 'dir' ? `<tr><td>Modified:</td><td>${esc(dateOf(n))} ${fakeTime(n.name)}</td></tr><tr><td>Accessed:</td><td>${todayStr()}</td></tr>` : ''}</table><hr>
       <div class="fx-attr">Attributes: <label><input type="checkbox" ${n.user ? '' : 'checked'} disabled> Read-only</label> <label><input type="checkbox" ${n.hidden ? 'checked' : ''} disabled> Hidden</label> <label><input type="checkbox" checked disabled> Archive</label>${/JACKOS/.test(where) ? ' <label><input type="checkbox" checked disabled> System</label>' : ''}</div>
     </div><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" type="button" style="min-width:72px">OK</button><button class="btn" type="button" style="min-width:72px">Cancel</button><button class="btn" type="button" disabled style="min-width:72px">Apply</button></div>`;
     const w = A.win(n.name + ' Properties', b, { w: 340, noResize: true, noMax: true, noMin: true, escClose: true, icon: iconOf(n) });
@@ -3243,7 +3243,7 @@ If you get lost: Go > My Computer.
     </div><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn fx-ok" type="button" style="min-width:72px">OK</button><button class="btn fx-ok" type="button" style="min-width:72px">Cancel</button></div>`;
     const w = A.win(`${D[0]} (${drive}) Properties`, b, { w: 330, noResize: true, noMax: true, noMin: true, escClose: true, icon: I.hdd });
     b.querySelectorAll('.fx-ok').forEach(x => x.addEventListener('click', w.close));
-    const cl = b.querySelector('.fx-clean'); if (cl) cl.addEventListener('click', () => Desk.msgbox('Disk Cleanup', 'Disk Cleanup has finished checking drive C:.\n\nYou can free up 0 bytes.\n\nJack has already deleted everything he can. Except the GoldenEye times. Those stay forever.', 'info'));
+    const cl = b.querySelector('.fx-clean'); if (cl) cl.addEventListener('click', () => Desk.msgbox('Disk Cleanup', 'Disk Cleanup has finished checking drive C:.\n\nYou can free up 0 bytes.\n\nJack has already deleted everything he can. Except the Goldenballs times. Those stay forever.', 'info'));
   }
 
   // ---- printers and dial-up
@@ -3563,7 +3563,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
   }
   const FAKE = {
     command: () => A.open('dos.run'),
-    commandOld: () => Desk.msgbox('COMMAND.COM', 'This program needs MS-DOS mode.\n\nStart > Shut Down > Restart in MS-DOS mode. (Type HELP when you get there.)', 'info'),
+    commandOld: () => Desk.msgbox('COMMAND.COM', 'This program needs JACK-DOS mode.\n\nStart > Shut Down > Restart in JACK-DOS mode. (Type HELP when you get there.)', 'info'),
     wordpad: () => { Desk.msgbox('WordPad', 'WordPad wants you to choose a font, a size, a colour and a margin.\n\nYou chose Notepad instead. Good choice.', 'info'); openNotepad({}); },
     cubetime: cubeTimer,
     orkpaint: () => { Sound.play('waaagh'); Desk.msgbox('Mini Painter 98', 'Choose a colour:\n\n( ) Red\n\nYou chose: RED.\n\nYour model is now red. It goes faster.', 'info'); },
@@ -3580,7 +3580,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
     setup: () => progress('JACK ATTACK! Cover Disc Setup', ['Preparing to install...', 'Copying files: 0 of 0', 'Installing demos... (they\'re on the website already!)', 'Registering Gubbinz...', 'Done!'], 3000, () => { Desk.msgbox('Setup Complete', 'JACK ATTACK! Cover Disc #7 is installed!\n\nEverything on this disc is also on the website. Opening the Games Arcade now...', 'info', [['OK', () => { showBrowser(); IE.go('demos', 'click'); }]]); }, I.cd),
     virus: () => {
       Sound.play('uhoh');
-      progress('TOTALLY_NOT_A_VIRUS.EXE', ['Deleting C:\\JACKOS...', 'Deleting C:\\My Documents\\Diary...', 'Deleting C:\\My Documents\\My Pictures\\Gubbinz.bmp...', 'Deleting ALL THE GOLDENEYE SAVES...', 'Deleting...'], 3400, () => { S('virus'); Sound.play('waaagh'); Desk.msgbox('TOTALLY_NOT_A_VIRUS.EXE', 'HA! GOTCHA!\n\nNothing was deleted. It\'s just Gubbinz. He wanted to say hi.\n\nDave made this on his computer and e-mailed it on a floppy. Jack put it in the bin. You got it out. Why would you get it out?\n\n- Gubbinz', 'info'); }, I.exe);
+      progress('TOTALLY_NOT_A_VIRUS.EXE', ['Deleting C:\\JACKOS...', 'Deleting C:\\My Documents\\Diary...', 'Deleting C:\\My Documents\\My Pictures\\Gubbinz.bmp...', 'Deleting ALL THE GOLDENBALLS SAVES...', 'Deleting...'], 3400, () => { S('virus'); Sound.play('waaagh'); Desk.msgbox('TOTALLY_NOT_A_VIRUS.EXE', 'HA! GOTCHA!\n\nNothing was deleted. It\'s just Gubbinz. He wanted to say hi.\n\nDave made this on his computer and e-mailed it on a floppy. Jack put it in the bin. You got it out. Why would you get it out?\n\n- Gubbinz', 'info'); }, I.exe);
     },
   };
   function runFake(arg, node) {
@@ -3633,7 +3633,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
       const pct = Math.round(cells.filter(c => c.className === 'd').length / Math.max(1, used) * 100);
       const bar = b.querySelector('.prog span'); while (bar.children.length < Math.round(pct / 100 * 28)) bar.appendChild(document.createElement('i'));
       b.querySelector('.fx-plog').textContent = `Defragmenting file system... ${pct}% complete`;
-      if (++k > 400 || (gap < 0)) { clearInterval(t); b.querySelector('.fx-plog').textContent = 'Defragmentation is complete. Like Tetris, but for files.'; Sound.play('solve'); }
+      if (++k > 400 || (gap < 0)) { clearInterval(t); b.querySelector('.fx-plog').textContent = 'Defragmentation is complete. Like Blockology, but for files.'; Sound.play('solve'); }
     }, 70);
     b.querySelector('.btn').addEventListener('click', () => { clearInterval(t); w.close(); });
   }
@@ -3788,7 +3788,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
     b.innerHTML = `<div class="fx-tools oe-tools">${tb('new', 'New Mail', SV.newm)}<span class="tsep"></span>${tb('reply', 'Reply', SV.reply)}${tb('replyall', 'Reply All', SV.reply)}${tb('forward', 'Forward', SV.fwd)}<span class="tsep"></span>${tb('print', 'Print', SV.print)}${tb('delete', 'Delete', SV.del)}<span class="tsep"></span>${tb('sendrecv', 'Send/Recv', SV.sr)}${tb('addresses', 'Addresses', SV.addr)}</div>
       <div class="oe-head"><span class="oe-fname"></span><select class="oe-fsel" aria-label="Folder"></select><span class="oe-brand">JackNet Mail</span></div>
       <div class="oe-main"><div class="oe-folders field"></div><div class="oe-right"><div class="oe-list field" tabindex="0"></div><div class="oe-prev field"></div></div></div>`;
-    const w = A.win('Inbox - Outlook Express', b, { w: 720, h: 500, menubar: true, status: true, icon: I.mail, minW: 280, minH: 260, cls: 'oewin', onClose: () => oeWins.delete(draw) });
+    const w = A.win('Inbox - JackMail Express', b, { w: 720, h: 500, menubar: true, status: true, icon: I.mail, minW: 280, minH: 260, cls: 'oewin', onClose: () => oeWins.delete(draw) });
     const st2 = document.createElement('span'); st2.className = 'fx-st3'; w.status.parentNode.appendChild(st2); st2.innerHTML = `${ICO16(I.dialup)} Working Online`;
     const lEl = b.querySelector('.oe-list'), pEl = b.querySelector('.oe-prev'), fEl = b.querySelector('.oe-folders'), fSel = b.querySelector('.oe-fsel');
     const fname = f => FOLDERS.find(x => x[0] === f)[1];
@@ -3797,10 +3797,10 @@ with a new name. (He doesn't want anyone "improving" his diary.)
       if (w.closed) return;
       list = messages(folder);
       if (sel && !list.includes(sel)) sel = list.find(m => m.id === sel.id) || null;
-      w.setTitle(fname(folder) + ' - Outlook Express');
+      w.setTitle(fname(folder) + ' - JackMail Express');
       b.querySelector('.oe-brand').textContent = meNick() + ' - JackNet Mail';
       b.querySelector('.oe-fname').innerHTML = ICO16(FOLDERS.find(x => x[0] === folder)[2]) + ' ' + esc(fname(folder));
-      fEl.innerHTML = `<div class="oe-tree0">${ICO16(I.oe)} Outlook Express</div><div class="oe-tree1">${ICO16(I.folderOpen)} Local Folders</div>` + FOLDERS.map(([id, n, ic]) => { const u = unread(id), c = id === 'outbox' ? messages('outbox').length : u; return `<button type="button" class="oe-f${id === folder ? ' on' : ''}${c ? ' b' : ''}" data-f="${id}">${ICO16(ic)}<span>${n}${c ? ` (${c})` : ''}</span></button>`; }).join('');
+      fEl.innerHTML = `<div class="oe-tree0">${ICO16(I.oe)} JackMail Express</div><div class="oe-tree1">${ICO16(I.folderOpen)} Local Folders</div>` + FOLDERS.map(([id, n, ic]) => { const u = unread(id), c = id === 'outbox' ? messages('outbox').length : u; return `<button type="button" class="oe-f${id === folder ? ' on' : ''}${c ? ' b' : ''}" data-f="${id}">${ICO16(ic)}<span>${n}${c ? ` (${c})` : ''}</span></button>`; }).join('');
       fSel.innerHTML = FOLDERS.map(([id, n]) => { const u = unread(id); return `<option value="${id}"${id === folder ? ' selected' : ''}>${n}${u ? ` (${u})` : ''}</option>`; }).join('');
       lEl.innerHTML = `<div class="oe-row oe-hd"><span>!</span><span>${ICO16(I.clip)}</span><span>${mine() ? 'To' : 'From'}</span><span>Subject</span><span>${mine() ? 'Sent' : 'Received'}</span></div>` + list.map((m, i) => `<button type="button" class="oe-row${isNew(m) && !mine() ? ' unread' : ''}${m === sel ? ' sel' : ''}" data-i="${i}"><span>${m.priority ? '<b style="color:#c00">!</b>' : ''}</span><span>${m.att && m.att.length ? ICO16(I.clip) : ''}</span><span class="oe-from">${ICO16(isNew(m) && !mine() ? I.envClosed : I.envOpen)}<span>${esc(nameOf(mine() ? (m.to || '') : m.from))}</span></span><span class="oe-subj">${esc(m.subj || '(no subject)')}</span><span class="oe-date">${esc(msgDate(m))}</span></button>`).join('') + (list.length ? '' : `<div class="fx-emptymsg">There are no items in this view.</div>`);
       if (sel) { pEl.innerHTML = msgHtml(sel); wireAtt(pEl, sel); }
@@ -3833,12 +3833,12 @@ with a new name. (He doesn't want anyone "improving" his diary.)
     }
     b.querySelector('.oe-tools').addEventListener('click', ev => { const e = ev.target.closest('[data-a]'); if (e && !e.disabled) act(e.dataset.a); });
     A.menubar(w, [
-      ['File', () => [{ label: 'New', sub: [{ label: 'Mail Message', act: () => compose({}) }] }, { label: 'Open', dis: !sel, act: () => openMsg(sel, () => list) }, '-', { label: 'Print', dis: !sel, act: () => act('print') }, '-', { label: 'Work Offline', act: () => Desk.toast('Outlook Express', 'You are now working offline. (You were always working offline. The modem is unplugged so Mom can use the phone.)', 5000) }, { label: 'Exit', act: w.close }]],
+      ['File', () => [{ label: 'New', sub: [{ label: 'Mail Message', act: () => compose({}) }] }, { label: 'Open', dis: !sel, act: () => openMsg(sel, () => list) }, '-', { label: 'Print', dis: !sel, act: () => act('print') }, '-', { label: 'Work Offline', act: () => Desk.toast('JackMail Express', 'You are now working offline. (You were always working offline. The modem is unplugged so Mom can use the phone.)', 5000) }, { label: 'Exit', act: w.close }]],
       ['Edit', () => [{ label: 'Delete', dis: !sel, act: () => delMsg(sel) }, { label: 'Empty \'Deleted Items\' Folder', act: emptyDeleted }, '-', { label: 'Mark All as Read', act: () => { messages(folder).forEach(m => { if (!m.user || m.inc) ms.read[m.id] = 1; }); mailChanged(); } }]],
       ['View', () => FOLDERS.map(([id, n, ic]) => ({ label: n, icon: ic, rad: id === folder, act: () => { folder = id; sel = null; draw(); } }))],
       ['Tools', () => [{ label: 'Send and Receive', act: sendRecv }, { label: 'Address Book...', act: addressBook }, { label: 'Inbox Assistant...', act: () => loadMail().then(g => g.assistant()) }, '-', { label: 'Accounts...', act: () => Desk.msgbox('Internet Accounts', `Mail account: JackNet Mail (default)\nAddress: ${meAddr()}\nAlso: the.family@jacknet.jnet (the family one)\nServer: mail.jacknet.jnet\n\nConnection: JackNet 56K (dial-up)\n\nDon't change anything. Dad set it up and it took him a whole Sunday.`, 'info') }, { label: 'Options...', act: () => Desk.msgbox('Options', 'Check for new messages every: 30 minutes\nPlay sound when new messages arrive: yes\nSend messages immediately: yes (they never go)\nMom mode: ON', 'info') }]],
       ['Message', () => [{ label: 'New Message', act: () => compose({}) }, '-', { label: 'Reply to Sender', dis: !sel, act: () => act('reply') }, { label: 'Forward', dis: !sel, act: () => act('forward') }, '-', { label: 'Block Sender...', dis: !sel, act: () => { if (sel && /^\s*Mom\b/.test(sel.from)) A.secret('mail.blockmom'); Desk.msgbox('Block Sender', sel && /Dave|Mom|Gran/.test(sel.from) ? 'You can\'t block ' + nameOf(sel.from) + '. Believe us, we tried.' : 'Sender blocked. (They\'ll be back. They always come back.)', 'info'); } }]],
-      ['Help', [{ label: 'About Outlook Express', act: () => Desk.msgbox('About Outlook Express', 'Outlook Express\nVersion 5 (JackOS edition)\n\nE-mail for the whole family. Mainly Jack.\n\nThis product is licensed to:\nThe Family', 'info') }]],
+      ['Help', [{ label: 'About JackMail Express', act: () => Desk.msgbox('About JackMail Express', 'JackMail Express\nVersion 5 (JackOS edition)\n\nE-mail for the whole family. Mainly Jack.\n\nThis product is licensed to:\nThe Family', 'info') }]],
     ]);
     oeWins.add(draw); draw();
     if (unread('inbox') && folder === 'inbox') Sound.play('join');
@@ -3847,13 +3847,13 @@ with a new name. (He doesn't want anyone "improving" his diary.)
   }
   function delMsg(m) {
     const f = ms.moved[m.id] || m.f;
-    if (f === 'deleted') return Desk.msgbox('Outlook Express', `Are you sure you want to permanently delete "${m.subj}"?`, 'q', [['Yes', () => { if (m.user) ms.user = ms.user.filter(u => u.id !== m.id); else ms.gone[m.id] = 1; mailChanged(); }], ['No']]);
+    if (f === 'deleted') return Desk.msgbox('JackMail Express', `Are you sure you want to permanently delete "${m.subj}"?`, 'q', [['Yes', () => { if (m.user) ms.user = ms.user.filter(u => u.id !== m.id); else ms.gone[m.id] = 1; mailChanged(); }], ['No']]);
     if (m.user) { const u = ms.user.find(x => x.id === m.id); if (u) u.f = 'deleted'; } else ms.moved[m.id] = 'deleted';
     Sound.play('thud'); mailChanged();
   }
   function emptyDeleted() {
-    const d = messages('deleted'); if (!d.length) return Desk.msgbox('Outlook Express', 'The Deleted Items folder is already empty.', 'info');
-    Desk.msgbox('Outlook Express', `Are you sure you want to permanently delete all ${d.length} message(s) in the Deleted Items folder?`, 'q', [['Yes', () => { d.forEach(m => { if (m.user) ms.user = ms.user.filter(u => u.id !== m.id); else ms.gone[m.id] = 1; }); crumple(); mailChanged(); }], ['No']]);
+    const d = messages('deleted'); if (!d.length) return Desk.msgbox('JackMail Express', 'The Deleted Items folder is already empty.', 'info');
+    Desk.msgbox('JackMail Express', `Are you sure you want to permanently delete all ${d.length} message(s) in the Deleted Items folder?`, 'q', [['Yes', () => { d.forEach(m => { if (m.user) ms.user = ms.user.filter(u => u.id !== m.id); else ms.gone[m.id] = 1; }); crumple(); mailChanged(); }], ['No']]);
   }
   const quote = m => `\n\n----- Original Message -----\nFrom: ${pers(m.from || JACK)}\nTo: ${pers(m.to || FAM)}\nSent: ${msgDate(m)}\nSubject: ${m.subj}\n\n` + String(m.body || '').split('\n').map(l => '> ' + l).join('\n');
   const replyTo = m => ({ to: m.user && !m.inc ? (m.to || '') : m.from, subj: /^re:/i.test(m.subj) ? m.subj : 'Re: ' + m.subj, body: quote(m), reOf: m.id });
@@ -3875,7 +3875,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
     show();
     return w;
   }
-  const CONTACTS = [['Dave', DAVE], [CN('cousin2') + ' (cousin)', RYAN], ['Gran', GRAN], ['Mom', MOM], ['Dad (at work)', 'Dad (at work) <dad.at.work@jacknet.jnet>'], [CT('{teacher} (Computer Club)'), ALI], ['The N64 Fan Club', N64], ['Gubbinz Fan Club', GFC], ['JackNet Customer Services', 'JackNet Customer Services <help@jacknet.jnet>']];
+  const CONTACTS = [['Dave', DAVE], [CN('cousin2') + ' (cousin)', RYAN], ['Gran', GRAN], ['Mom', MOM], ['Dad (at work)', 'Dad (at work) <dad.at.work@jacknet.jnet>'], [CT('{teacher} (Computer Club)'), ALI], ['The ULTRA 64 Fan Club', N64], ['Gubbinz Fan Club', GFC], ['JackNet Customer Services', 'JackNet Customer Services <help@jacknet.jnet>']];
   function addressBook(pickCb) {
     const b = document.createElement('div');
     b.innerHTML = `<div class="field fx-details ab-list">${CONTACTS.map(([n, a], i) => `<button type="button" class="fx-row ab-row fx-it" data-i="${i}"><span class="fx-nm">${ICO16('<svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="3" fill="#f2c79a" stroke="#000"/><path d="M2 15c0-5 12-5 12 0z" fill="#2a7ad8" stroke="#000"/></svg>')}<span>${esc(n)}</span></span><span>${esc(a.replace(/^.*<|>$/g, ''))}</span></button>`).join('')}</div><div class="small" style="margin-top:6px">${pickCb ? 'Click a contact to add them.' : 'Click a contact to write to them.'}</div>`;
@@ -3899,15 +3899,15 @@ with a new name. (He doesn't want anyone "improving" his diary.)
     const changed = () => JSON.stringify([f('to').value, f('cc').value, f('subj').value, f('body').value]) !== start;
     const rec = folderId => { const t = today(); const u = { id: 'u' + Date.now(), seq: ++seq, f: folderId, from: pers(JACK), reOf: o.reOf, fwOf: o.fwOf, to: f('to').value.trim(), cc: f('cc').value.trim(), subj: f('subj').value.trim() || '(no subject)', body: f('body').value, date: `${pad2(t.d)}/${pad2(t.m)}/99`, time: nowTime() }; if (o.draftOf) ms.user = ms.user.filter(x => x.id !== o.draftOf.id); ms.user.push(u); mailChanged(); return u; };
     let done = false;
-    w.el.querySelector('[data-w=close]').addEventListener('click', ev => { if (!done && changed() && !w.closed) { ev.stopImmediatePropagation(); Desk.msgbox('New Message', 'Do you want to save changes to this message?', 'warn', [['Yes', () => { rec('drafts'); done = true; w.close(); Desk.toast('Outlook Express', 'Your message has been saved in your Drafts folder.', 3000); }], ['No', () => { done = true; w.close(); }], ['Cancel']]); } }, true);
+    w.el.querySelector('[data-w=close]').addEventListener('click', ev => { if (!done && changed() && !w.closed) { ev.stopImmediatePropagation(); Desk.msgbox('New Message', 'Do you want to save changes to this message?', 'warn', [['Yes', () => { rec('drafts'); done = true; w.close(); Desk.toast('JackMail Express', 'Your message has been saved in your Drafts folder.', 3000); }], ['No', () => { done = true; w.close(); }], ['Cancel']]); } }, true);
     b.addEventListener('submit', ev => ev.preventDefault());
     b.querySelector('.fx-tools').addEventListener('click', ev => {
       const e = ev.target.closest('[data-a]'); if (!e) return; const a = e.dataset.a;
       if (a === 'send') {
         if (!f('to').value.trim() && !f('cc').value.trim()) return Desk.msgbox('Send Mail', 'The message must have at least one recipient. Please put an e-mail address or a Contact name in the To or Cc box.', 'warn');
-        if (!f('subj').value.trim()) return Desk.msgbox('Outlook Express', 'This message does not have a subject. Do you want to send it anyway?', 'q', [['Yes', () => { f('subj').value = '(no subject)'; e.click(); }], ['No']]);
+        if (!f('subj').value.trim()) return Desk.msgbox('JackMail Express', 'This message does not have a subject. Do you want to send it anyway?', 'q', [['Yes', () => { f('subj').value = '(no subject)'; e.click(); }], ['No']]);
         rec('outbox'); done = true; w.close(); S('send'); sendRecv(true);
-      } else if (a === 'save') { rec('drafts'); done = true; w.close(); Desk.toast('Outlook Express', 'Your message has been saved in your Drafts folder.', 3000); }
+      } else if (a === 'save') { rec('drafts'); done = true; w.close(); Desk.toast('JackMail Express', 'Your message has been saved in your Drafts folder.', 3000); }
       else if (a === 'attach') Desk.msgbox('Insert Attachment', 'Attachments are switched off.\n\nMom\'s rule number 3. Also, a 1MB attachment would take about four minutes to send on our modem, and Mom needs the phone.', 'info');
       else if (a === 'check') { const t = f('to').value.trim(); if (!t) return Desk.msgbox('Check Names', 'There are no names to check.', 'info'); const hit = CONTACTS.find(c => c[0].toLowerCase().startsWith(t.toLowerCase().split(/[ <@]/)[0])); if (hit) { f('to').value = hit[1]; Desk.toast('Check Names', `Found: ${hit[0]}`, 2000); } else Desk.msgbox('Check Names', `"${t}" is not in your Address Book. That's OK, JackNet will try anyway. (It won't get there.)`, 'info'); }
       else if (a === 'spell') Desk.msgbox('Spelling', 'JackOS could not find a spelling checker.\n\nMrs Hargreaves would be disappointed. (She found "recieve" 6 times on the website.)', 'warn');
@@ -3931,7 +3931,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
           body: `Hi ${nameOf(name)}!!!\n\nThanks for your e-mail to JACK ATTACK! Online. This is an automatic reply from my mail robot (I built it myself, it is a bit rubbish).\n\nYour letter has gone straight onto the LETTERS page for everyone to read. Have a look:\n\n    http://www.jackattack.jnet/letters.htm\n\nIf it's a really good one it might be STAR LETTER of the day!!! I read every single letter (Mom says not at the dinner table).\n\nYESSS!\nJack\nEditor, JACK ATTACK! Online\n\n-----\n> ${String(m.body || '').split('\n').slice(0, 6).join('\n> ')}`,
           date: `${pad2(t.d)}/${pad2(t.m)}/99`, time: nowTime() });
         mailChanged(); Sound.play('join');
-        Desk.toast('Outlook Express', 'You have 1 new e-mail message from JACK ATTACK! Letters.', 5000);
+        Desk.toast('JackMail Express', 'You have 1 new e-mail message from JACK ATTACK! Letters.', 5000);
         A.secret('files.maglettter');
       }, 7000 + k * 11000 + Math.random() * 5000);
     });
@@ -3956,11 +3956,11 @@ with a new name. (He doesn't want anyone "improving" his diary.)
         clearInterval(t); if (!w.closed) w.close();
         const sent = MG() ? MailGen.send(ms.user.filter(u => u.f === 'outbox' && !toMag(u))).length : 0;
         const left = messages('outbox'), got = MG() ? MailGen.fetch() : 0;
-        if (sent && !left.length) { Desk.toast('Outlook Express', `${sent} message${sent > 1 ? 's' : ''} sent.${got ? ' And 1 new message came in!' : ''}`, 4000); mailChanged(); return; }
-        if (got && !left.length) { Desk.toast('Outlook Express', 'You have 1 new message!', 4000); mailChanged(); return; }
+        if (sent && !left.length) { Desk.toast('JackMail Express', `${sent} message${sent > 1 ? 's' : ''} sent.${got ? ' And 1 new message came in!' : ''}`, 4000); mailChanged(); return; }
+        if (got && !left.length) { Desk.toast('JackMail Express', 'You have 1 new message!', 4000); mailChanged(); return; }
         if (justSent && !left.length) { mailChanged(); return; }
         if (left.length) Desk.msgbox('JackNet Mail - Error', `The server could not be found. (Account: 'JackNet Mail', SMTP Server: 'smtp.jacknet.jnet', Error Number: 0x800CCC0D)\n\nAccount: 'JackNet Mail'\nServer: 'smtp.jacknet.jnet'\nProtocol: SMTP\nPort: 25\nSecure(SSL): No\nSocket Error: 11001\n\n${left.length} message(s) are still in your Outbox.${sent ? `\n\n(${sent} other message(s) were sent fine: mail to addresses on JackNet always gets there.)` : '\n\nTIP: JackNet Mail can only reach addresses on JackNet (like dave@hotjack.jnet). The rest of the Internet is a bit far.'}`, 'warn');
-        else Desk.toast('Outlook Express', unread('inbox') ? `No new messages. (You still have ${unread('inbox')} unread in your Inbox!)` : 'No new messages. Check again tomorrow. (It\'s always tomorrow in 1999.)', 4000);
+        else Desk.toast('JackMail Express', unread('inbox') ? `No new messages. (You still have ${unread('inbox')} unread in your Inbox!)` : 'No new messages. Check again tomorrow. (It\'s always tomorrow in 1999.)', 4000);
         mailChanged();
       }
     }, 110);
@@ -3978,7 +3978,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
   // ================================================================ register everything
   A.register('explorer', { cmd: ['explorer', 'winfile', 'my computer'], open: arg => openExplorer(arg) });
   A.register('notepad', { cmd: ['notepad', 'edit'], open: arg => openNotepad(arg && typeof arg === 'object' ? arg : {}) });
-  A.register('outlook', { single: true, cmd: ['msimn', 'outlook', 'outlook express', 'mail', 'email', 'e-mail'], open: () => openOutlook() });
+  A.register('outlook', { single: true, cmd: ['msimn', 'outlook', 'jackmail express', 'mail', 'email', 'e-mail'], open: () => openOutlook() });
   A.register('imgview', { cmd: ['imgview', 'kodakimg', 'pictures'], open: arg => arg && arg.art ? openViewer(arg) : openExplorer('C:\\My Documents\\My Pictures') });
   A.register('files.bin', { single: true, cmd: ['recycled', 'recycle bin', 'recycle'], open: () => openBin() });
   A.cmd(['c:', 'c:\\', 'c:/'], () => A.open('explorer', 'C:\\'));
@@ -3996,13 +3996,13 @@ with a new name. (He doesn't want anyone "improving" his diary.)
   A.addProgram(['Accessories', 'Communications', 'Dial-Up Networking'], () => openExplorer('Dial-Up Networking'), I.dialup);
   A.addProgram(['Accessories', 'Entertainment', 'Sound Recorder'], () => openExplorer('C:\\JACKOS\\Media'), I.wav);
   A.addProgram(['Accessories', 'Cube Timer 2.0'], cubeTimer, I.exe);
-  A.addProgram(['Outlook Express'], 'outlook', I.mail);
+  A.addProgram(['JackMail Express'], 'outlook', I.mail);
   A.addProgram(['JackOS Explorer'], 'explorer', I.folderOpen);
 
   // ---- desktop icons
   A.desktopIcon('My Computer', I.mycomp, () => openExplorer('My Computer'), 'iconMyComp');
   A.desktopIcon('My Documents', I.mydocs, () => openExplorer('C:\\My Documents'), 'iconMyDocs');
-  A.desktopIcon('Outlook Express', I.mail, () => A.open('outlook'), 'iconOutlook');
+  A.desktopIcon('JackMail Express', I.mail, () => A.open('outlook'), 'iconOutlook');
   binIcon = A.desktopIcon('Recycle Bin', binFull() ? I.binFull : I.binEmpty, () => A.open('files.bin'), 'iconBin');
 
   // ---- secret bits outside the drive
@@ -4020,7 +4020,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
     return `<div class="kod"><h1 class="kod-h">KEEP OUT DAVE</h1><div class="kod-scan">DAVE DETECTOR v1.0 ... scanning ... <b>RESULT: YOU ARE NOT DAVE.</b> Welcome!</div>
       <p>This is my secret page. If you found it, you read my WORLD DOMINATION PLANS, which means you got into my secret folder, which means you solved the riddle. Respect.</p>
       <div class="kod-row"><img src="${img}" width="168" height="168" alt="Jack's best ever painted Warboss" class="kod-img"><div><h3>MY BEST EVER MODEL</h3><p>This is my Warboss. He took four weeks. His armour has 9 coats of red (because red ones go faster). Dave has never seen him. Dave will NEVER see him.</p><p>If you see Dave, act normal.</p></div></div>
-      <h3>THINGS DAVE DOESN'T KNOW</h3><ul><li>I've unlocked Egyptian in GoldenEye.</li><li>I let him win at Mario Kart sometimes. (Sometimes.)</li><li>The password to my folder. (He's tried "DAVE" 17 times.)</li><li>He's my best mate. (DO NOT TELL HIM.)</li></ul>
+      <h3>THINGS DAVE DOESN'T KNOW</h3><ul><li>I've unlocked Egyptian in Goldenballs.</li><li>I let him win at Kart Kaos sometimes. (Sometimes.)</li><li>The password to my folder. (He's tried "DAVE" 17 times.)</li><li>He's my best mate. (DO NOT TELL HIM.)</li></ul>
       <p class="kod-foot">You are visitor number <b>2</b> to this page. (Visitor number 1 was me.)</p></div>`;
   });
 
@@ -4073,7 +4073,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
    ['gran', 'CAPS LOCK CHAMPION', 'Write back to Gran'], ['dave', 'Challenge accepted', 'Reply to Dave. He\'s been practising'], ['gubbinz', 'Fluent in Gubbinz', 'Write to a certain little green helper'],
    ['chain', 'Don\'t break the chain', 'Do what the chain letter says (it\'s harmless)'], ['chain5', 'Chain gang', 'Keep a chain letter going. And going'], ['chain10', 'The never-ending chain', 'Does it ever stop?'],
    ['unsub', 'Unsubscribe me!', 'Try to leave a mailing list'], ['unsub5', 'Still subscribed', 'Try to leave five different mailing lists'],
-   ['ecard', 'Wish you were here', 'Pick up an e-card'], ['rules', 'Inbox Assistant', 'Teach Outlook Express a new trick'], ['exclusive', 'Nobody gets in', 'Turn the junk filter all the way up'],
+   ['ecard', 'Wish you were here', 'Pick up an e-card'], ['rules', 'Inbox Assistant', 'Teach JackMail Express a new trick'], ['exclusive', 'Nobody gets in', 'Turn the junk filter all the way up'],
    ['hoax', 'Hoax buster', 'Check whether a scary virus warning is real'], ['spamclick', 'Never click the spam', 'Ask a spammer to remove you (don\'t do this for real)'],
    ['midnight', 'Night owl', 'Check your e-mail when you should be asleep'], ['switch', 'Identity crisis', 'Log on as somebody else and see whose post you get'],
    ['read50', 'Postmaster General', 'Read fifty e-mails'], ['today', 'Inbox zero, 1999', 'Read every e-mail that arrived today'], ['regular', 'Regular correspondent', 'Check your e-mail on seven different days'],

@@ -416,7 +416,7 @@
     FIND: 'Searches for a text string in a file or files.\n\nFIND [/V] [/C] [/N] [/I] "string" [[drive:][path]filename[ ...]]',
     MORE: 'Displays output one screen at a time.\n\nMORE < [drive:][path]filename\ncommand-name | MORE',
     JBASIC: 'JBASIC  Version 1.1  - Jack\'s BASIC (QBasic-ish)\n\nJBASIC [[/RUN] [drive:][path]filename]\n\n  /RUN   Runs the specified program before displaying it.',
-    START: 'Runs a JackOS program or an MS-DOS program.\n\nSTART program',
+    START: 'Runs a JackOS program or an JACK-DOS program.\n\nSTART program',
     XCOPY: 'Copies files and directory trees.\n\nXCOPY source [destination] [/S]',
     CHKDSK: 'Checks a disk and displays a status report.\n\nCHKDSK [drive:]',
     FC: 'Compares two files and displays the differences between them.\n\nFC [/C] [drive1:][path1]filename1 [drive2:][path2]filename2\n\n  /C   Disregards the case of letters.',
@@ -711,7 +711,7 @@
       this.println(`${lpad(commas(total), 15)} bytes total disk space`);
       this.println(`${lpad(commas(hb + 296960), 15)} bytes in ${hid + 3} hidden files`);
       this.println(`${lpad(commas(dirs * 4096), 15)} bytes in ${commas(dirs)} directories`);
-      this.println(`${lpad(commas(total - free - hb - 296960 - dirs * 4096), 15)} bytes in ${commas(files)} user files (most of it is Dad's DOOM)`);
+      this.println(`${lpad(commas(total - free - hb - 296960 - dirs * 4096), 15)} bytes in ${commas(files)} user files (most of it is Dad's GLOOM)`);
       this.println(`${lpad(commas(free), 15)} bytes available on disk\n`);
       this.println(`${lpad('4,096', 15)} bytes in each allocation unit\n${lpad(commas(total / 4096), 15)} total allocation units on disk\n${lpad(commas(free / 4096), 15)} available allocation units on disk\n`);
       this.println(`${lpad('655,360', 15)} total bytes memory\n${lpad('63,664', 15)} bytes free\n`);
@@ -841,7 +841,7 @@
     async COMMAND(argStr) { return this.prog('command', argStr); },
     async START(argStr) {
       const a = argStr.trim(); if (!a) { this.println('Required parameter missing'); return; }
-      if (this.mode === 'dos') { this.println('This program requires JackOS. (You\'re in MS-DOS mode. Type WIN.)'); return; }
+      if (this.mode === 'dos') { this.println('This program requires JackOS. (You\'re in JACK-DOS mode. Type WIN.)'); return; }
       const exe = this.findExe(this.args(a)[0]); if (exe && (exe.node.app === 'dos.run')) { A.open('dos.run', exe.node.arg); return; }
       if (exe && exe.node.app) { A.openFile(exe.node); return; }
       let ok = false; try { ok = A.run(a); } catch (e) { ok = false; } if (!ok) this.println(`Cannot find the file '${a}' (or one of its components).`);
@@ -961,25 +961,25 @@
     WHO: 'You are logged on as: JACK (probably). Machine: JACKS-PC. Desktop pals: 1.',
     WHOAMI: 'A visitor from the Internet, sitting at Jack\'s PC. Please don\'t touch his diary.',
     TETRIS: 'Did you mean JACKTRIS? It\'s on the website. Under GAMES. Jack made it. From scratch. He\'d like you to know.',
-    DOOM: 'DOOM is on 4 floppies in Dad\'s drawer. Dad\'s best is E1M1 in 47 seconds.\nHe brings this up at Christmas. Every Christmas.',
+    DOOM: 'GLOOM is on 4 floppies in Dad\'s drawer. Dad\'s best is E1M1 in 47 seconds.\nHe brings this up at Christmas. Every Christmas.',
     QUAKE: 'Bad command or file name. (The PC shook a bit though. Did you feel that?)',
     Y2K: 'Y2K status: 77-ish days to go. The video recorder will still say 12:00. Everything is FINE.',
     REBOOT: 'To reboot, press Ctrl+Alt+Delete. (Twice, if you\'re brave. Or Start > Shut Down if you\'re sensible.)',
     SHUTDOWN: 'In DOS you just switch it off at the wall. (DON\'T. ScanDisk will tell on you.)',
-    CUBE() { const F = 'UDLRFB', M = ['', "'", '2']; let last = -1, out = []; while (out.length < 20) { const f = Math.random() * 6 | 0; if (f === last || (f >> 1) === (last >> 1) && Math.random() < .5) continue; last = f; out.push(F[f] + M[Math.random() * 3 | 0]); } return 'Rubik\'s scramble: ' + out.join(' ') + '\n(Jack\'s best: 58.32 seconds. He wants you to know it was under a minute.)'; },
+    CUBE() { const F = 'UDLRFB', M = ['', "'", '2']; let last = -1, out = []; while (out.length < 20) { const f = Math.random() * 6 | 0; if (f === last || (f >> 1) === (last >> 1) && Math.random() < .5) continue; last = f; out.push(F[f] + M[Math.random() * 3 | 0]); } return 'Rubrick\'s scramble: ' + out.join(' ') + '\n(Jack\'s best: 58.32 seconds. He wants you to know it was under a minute.)'; },
     RUBIK: 'Type CUBE for a scramble. Or JBASIC, then open CUBESCRM.BAS.',
     SNAKE: 'Snakes live in C:\\JBASIC\\WORM.BAS. Type JBASIC /RUN C:\\JBASIC\\WORM.BAS',
     BEEP() { DOS.beep(); return ''; },
-    FORTUNE() { const F = ['You will find a shiny Pokemon card in an unexpected place.', 'A floppy disk in the hand is worth two in Dave\'s bag.', 'Your modem will connect at 26,400 today. Rejoice.', 'Today is a good day to defragment.', 'Beware of e-mails with attachments called LOVE or PRIZE.', 'You will beat Dave at GoldenEye. Unless he picks Oddjob.', 'Red ones go faster. This has always been true.', 'The cake is in the kitchen. You are not.', 'Someone will say "the Internet is just a fad". Smile and nod.']; return F[Math.random() * F.length | 0]; },
+    FORTUNE() { const F = ['You will find a shiny Pocket Critters card in an unexpected place.', 'A floppy disk in the hand is worth two in Dave\'s bag.', 'Your modem will connect at 26,400 today. Rejoice.', 'Today is a good day to defragment.', 'Beware of e-mails with attachments called LOVE or PRIZE.', 'You will beat Dave at Goldenballs. Unless he picks Oddjob.', 'Red ones go faster. This has always been true.', 'The cake is in the kitchen. You are not.', 'Someone will say "the Internet is just a fad". Smile and nod.']; return F[Math.random() * F.length | 0]; },
     async ORKSAY(a) { S('orksay'); const t = (a || 'WAAAGH!').toUpperCase().slice(0, 60); return ` ${'_'.repeat(t.length + 2)}\n< ${t} >\n ${'-'.repeat(t.length + 2)}\n    \\    ,--.\n     \\  ( o o)   <- Ork. (Paint him red. Red ones go faster.)\n        /|_^_|\\\n       / |___| \\\n        _|   |_`; },
     async ROBOSAY(a) { S('orksay'); const t = (a || 'BEEP BOOP.').toUpperCase().slice(0, 60); return ` ${'_'.repeat(t.length + 2)}\n< ${t} >\n ${'-'.repeat(t.length + 2)}\n    \\   [o_o]   <- Robot. (Built from a Meccano set and a toaster.)\n     \\  /|=|\\\n         d b`; },
     async MATRIX() { return this.prog('matrix', ''); },
     // ---- Star Wars nerdery (Episode I came out in the UK on 16 July 1999. Jack has seen it three times.)
     FORCE() { S('force'); return 'Reaching out with your feelings...\n\nThe Force is not installed on this PC. Insert "EPISODE I - THE DISC" and press any key.\n(Jack queued for 3 hours outside the cinema on 16 July. Worth it. Mostly.)'; },
-    'USE THE FORCE': 'You close your eyes. You let go. You press Enter without looking.\nBad command or file name. (Even Jedi make typos.)',
+    'USE THE FORCE': 'You close your eyes. You let go. You press Enter without looking.\nBad command or file name. (Even Space Cadet make typos.)',
     'MAY THE FORCE BE WITH YOU': '...and also with you. (Jack says this to the cat next door. The cat is unimpressed.)',
     async LIGHTSABER() { S('saber'); const t = this.term; const hum = [110, 116, 110, 104]; t.write('\n  ' + '\u2588\u2588\u2593\u2592'); for (let i = 0; i < 26; i++) { const a = t.attr; t.attr = 0x0c; t.write('\u2550'); t.attr = a; DOS.tone(hum[i % 4] + i * 3, 0.05); await this.host.sleep(25); } t.attr = 0x0f; t.write('\u25ba'); t.attr = 7; return '\n\n  VVVSHHHHMMMM. (A wrapping-paper tube and a red felt tip. Very realistic.)'; },
-    SABER: 'Type LIGHTSABER. Spell it out. Jedi don\'t abbreviate.',
+    SABER: 'Type LIGHTSPATULA. Spell it out. Space Cadet don\'t abbreviate.',
     R2D2() { S('droid'); [1800, 2400, 1200, 3000, 900, 2600].forEach((f, i) => DOS.tone(f, 0.07, i * 0.09)); return 'Bweep! Boo-dee-doo-WEEEP!\n\nTranslation unavailable. (Protocol driver not found on COM2.)'; },
     'R2-D2'() { return EGGS.R2D2.call(this); },
     C3PO: 'Oh dear. Oh my. This command was not in my programming. I am fluent in over six million forms of error message.',
@@ -988,7 +988,7 @@
     VADER: 'Kshhhhh... pahhhhh... kshhhhh... pahhhhh... (Mom thought it was the boiler.)',
     'JAR JAR': 'Bad command or file name. (Jack would prefer not to talk about it.)', JARJAR: 'Bad command or file name. (Jack would prefer not to talk about it.)',
     PODRACE: 'Pod racing is in C:\\JBASIC\\PODRACE.BAS. Type: JBASIC /RUN C:\\JBASIC\\PODRACE.BAS',
-    JEDI: 'JEDI.EXE requires midi-chlorians. Your count: 3. Gubbinz\'s count: 0. Dave\'s count: "loads, probably".',
+    JEDI: 'SPACE CADET.EXE requires midi-chlorians. Your count: 3. Gubbinz\'s count: 0. Dave\'s count: "loads, probably".',
     SITH: 'Access denied. (Only the Dark Side can read C:\\JACKOS\\SYSTEM. Or Dad.)',
   };
 

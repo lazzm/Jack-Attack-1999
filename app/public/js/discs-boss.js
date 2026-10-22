@@ -216,7 +216,7 @@
       p.t = -1; p.con = 0; p.wage = 60; p.pot = clamp(Math.round(rat(p)) + ri(R, 2, 8) + (R() < 0.12 ? 3 : 0), 5, 20); p.val = valOf(p);
       S.yth.push(p); made.push(p);
     }
-    if (!quiet && made.length) addMsg(S, 'Youth Team Coach', 'Youth intake day', `Gaffer,\n\nThe new youth team lads have arrived:\n\n${made.map(p => `${pname(p)} (${posStr(p)}, ${p.age}): ${potWord(p)}`).join('\n')}\n\nHave a look on the Youth Team screen. You can promote any of them to the first team whenever you like.\n\nOne of them asked if we've got a PlayStation in the changing room. We haven't.`, null, true);
+    if (!quiet && made.length) addMsg(S, 'Youth Team Coach', 'Youth intake day', `Gaffer,\n\nThe new youth team lads have arrived:\n\n${made.map(p => `${pname(p)} (${posStr(p)}, ${p.age}): ${potWord(p)}`).join('\n')}\n\nHave a look on the Youth Team screen. You can promote any of them to the first team whenever you like.\n\nOne of them asked if we've got a PlaySpace in the changing room. We haven't.`, null, true);
     return made;
   }
   const potStars = p => clamp(Math.round(((p.pot || 8) - 6) / 2.6), 1, 5);
@@ -615,8 +615,8 @@
   // ---- days go by
   const MATES = [
     [dayOf(1999, 8, 2), 'Callum', 'tactics tips', 'Jack,\n\n4-3-3. Attacking. Buy every striker. Works for me every time.\n\nAlso you HAVE to put the youth team kid up front, they always turn out amazing.\n\n- Callum\n\nP.S. Don\'t ring after 9, Mom gets annoyed.'],
-    [dayOf(1999, 8, 20), 'Dave', 'footy', 'Why are you playing a football game where you don\'t even get to kick the ball??\n\nCome round and play footy on my N64 instead. Luke\'s bringing crisps. Four players!!!\n\nDave'],
-    [dayOf(1999, 9, 10), 'Luke', 're: footy', 'Dave says you\'re "managing" now. My nan manages. She manages the bingo.\n\nCome round Saturday, we\'re doing a four player tournament on the N64. Bring your own controller, the grey one\'s got a wobbly stick.\n\nLuke'],
+    [dayOf(1999, 8, 20), 'Dave', 'footy', 'Why are you playing a football game where you don\'t even get to kick the ball??\n\nCome round and play footy on my ULTRA 64 instead. Luke\'s bringing crisps. Four players!!!\n\nDave'],
+    [dayOf(1999, 9, 10), 'Luke', 're: footy', 'Dave says you\'re "managing" now. My nan manages. She manages the bingo.\n\nCome round Saturday, we\'re doing a four player tournament on the ULTRA 64. Bring your own controller, the grey one\'s got a wobbly stick.\n\nLuke'],
     [dayOf(1999, 10, 14), 'JackK', 'Gubbinz Town', 'I took the Gubbinz Town job for a laugh and lost 7-0. Their keeper is LITERALLY A ROBOT.\n\nHe saved a penalty with a tractor beam.\n\nIs that allowed?\n\n- JackK'],
     [dayOf(1999, 11, 5), 'Mom', 'Fireworks', 'Jack,\n\nThe fireworks are at 7. Not "after this match". At 7.\n\nWrap up warm.\n\nMom x'],
     [dayOf(1999, 12, 1), 'Callum', 'Christmas list', 'Jack,\n\nThe full version comes out in a few days. Put it on your Christmas list. Put it at the TOP. Above socks.\n\nThe demo stops at New Year. I know. I cried.\n\n- Callum'],

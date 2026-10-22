@@ -35,7 +35,7 @@
   // ================================================================ the drivers: stats 1..5
   const DRIVERS = [
     { n: 'JACK', col: 0xd8261c, col2: 0xffffff, spd: 3, acc: 3, hnd: 3, wt: 3, k: { kind: 'kid', cap: 0xd8261c, hair: 0x5a3414, shirt: 0xd8261c }, tag: 'ALL-ROUNDER', nt: 72 },
-    { n: 'DAVE', col: 0x22a03a, col2: 0xffe14a, spd: 4, acc: 2, hnd: 3, wt: 4, k: { kind: 'kid', helmet: 0xffe14a, hair: 0xe8c860, shirt: 0x22a03a, visor: 0x2a6a3a }, tag: 'NINTENDO NUT', nt: 67 },
+    { n: 'DAVE', col: 0x22a03a, col2: 0xffe14a, spd: 4, acc: 2, hnd: 3, wt: 4, k: { kind: 'kid', helmet: 0xffe14a, hair: 0xe8c860, shirt: 0x22a03a, visor: 0x2a6a3a }, tag: 'ULTRA ENTERTAINMENT NUT', nt: 67 },
     { n: 'LUKE', col: 0x2a62e0, col2: 0xffffff, spd: 3, acc: 4, hnd: 3, wt: 2, k: { kind: 'kid', helmet: 0xffffff, shirt: 0x2a62e0, visor: 0x2a3a8a }, tag: 'QUICK OFF THE LINE', nt: 69 },
     { n: 'CALLUM', col: 0xf0b000, col2: 0x2a2a2a, spd: 5, acc: 1, hnd: 2, wt: 4, k: { kind: 'kid', hair: 0x1a1210, glasses: 1, shirt: 0x3a3a3a, skin: 0xe8b888 }, tag: 'FLAT OUT, NO BRAKES', nt: 64 },
     { n: 'JACKK', col: 0x9a3ad8, col2: 0xff8ad0, spd: 2, acc: 4, hnd: 5, wt: 2, k: { kind: 'kid', hair: 0xd85a1a, spiky: 1, shirt: 0x9a3ad8 }, tag: 'CORNERS LIKE A CAT', nt: 74 },

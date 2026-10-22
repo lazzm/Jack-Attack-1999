@@ -20,7 +20,7 @@
   const HOME = { room: 'hall', x: 224, z: 452, ry: 90 }; // (in the hall, by the lounge door)
   const SOCKET = { room: 'lounge', x: 60, y: GY - 28, z: 306.6, nx: 0, nz: 1 };
   const CRUMBS = [[-215, 385], [-150, 402], [-205, 478], [-182, 628], [-58, 386], [22, 402], [32, 498], [-92, 506], [104, 520], [60, 642], [-60, 652], [-215, 520]];
-  const KINDS = [['lego', 'A Lego brick'], ['biscuit', 'Biscuit crumbs'], ['crisps', 'Crisp bits'], ['popcorn', 'Popcorn'], ['fluff', 'Fluff'], ['biscuit', 'Custard cream crumbs'], ['crisps', 'Quaver dust'], ['fluff', 'Cat hair (next door\'s)'], ['glitter', 'Glitter (' + CK.cast('{sister}') + '\'s)']];
+  const KINDS = [['lego', 'A Blocko brick'], ['biscuit', 'Biscuit crumbs'], ['crisps', 'Crisp bits'], ['popcorn', 'Popcorn'], ['fluff', 'Fluff'], ['biscuit', 'Custard cream crumbs'], ['crisps', 'Quaver dust'], ['fluff', 'Cat hair (next door\'s)'], ['glitter', 'Glitter (' + CK.cast('{sister}') + '\'s)']];
   let hv = null, patches = [], socketObj = null, hoovering = false;
   const V = () => (CK.S.v.hoover = CK.S.v.hoover || {});
   function hooverModel() {
@@ -128,7 +128,7 @@
       const hx = head.x + head.fx * 6, hz = head.z + head.fz * 6;
       if (Math.hypot(p.x - hx, p.z - hz) > 24) return;
       p.going = true;
-      if (p.kind === 'lego') { for (let k = 0; k < 6; k++) H.sfx.noise(0.04, 0.08, 3200, k * 0.05, 'bandpass', 2000); CK.jack('CLACK-A-CLACK-CLACK', 'The hoover ate a Lego brick. It is rattling round inside like a maraca. That\'s fine. That\'s probably fine.', 3500); }
+      if (p.kind === 'lego') { for (let k = 0; k < 6; k++) H.sfx.noise(0.04, 0.08, 3200, k * 0.05, 'bandpass', 2000); CK.jack('CLACK-A-CLACK-CLACK', 'The hoover ate a Blocko brick. It is rattling round inside like a maraca. That\'s fine. That\'s probably fine.', 3500); }
       else H.sfx.noise(0.25, 0.05, 2600, 0, 'highpass', 4000);
       const sx = p.g.position.x, sz = p.g.position.z;
       CK.tween(p.g, { x: hx, z: hz, s: 0.05 }, 380).then(() => { p.g.visible = false; p.g.position.set(sx, GY, sz); p.g.scale.set(1, 1, 1); p.going = false; CK.step('hoover', 'd' + i); refreshUi(); if (patches.every((q, j) => CK.has('hoover', 'd' + j))) CK.jack('The hoover', 'Every crumb! The carpet has stripes in it now. Unplug it (just walk off) and stand it back in the hall.', 4500); });

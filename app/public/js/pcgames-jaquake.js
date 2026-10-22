@@ -1071,7 +1071,7 @@
       bind: () => con('Keys are fixed. Jack\'s dad said so.'),
       connect: () => con('No multiplayer in the shareware version. Try JACKREAL TOURNAMENT for that (Start > Programs > Games).'),
       callum: () => con('CALLUM.EXE: "My PC is a 450 MHz, overclocked to 504. It does 90 fps on this. Yours does about 12."'),
-      dave: () => con('Dave says: "Is it on the N64? No? Then I\'m not interested." (He is very interested.)'),
+      dave: () => con('Dave says: "Is it on the ULTRA 64? No? Then I\'m not interested." (He is very interested.)'),
       luke: () => con('Luke says: "This would be better with a Rumble Pak."'),
       timerefresh: () => con('3.4 seconds (128 frames). Your PC is fine. Callum\'s is faster.'),
       sv_gravity: a => con('sv_gravity is locked in single player. Try Space Station Jack in JRT for low gravity.'),

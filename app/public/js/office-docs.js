@@ -20,11 +20,11 @@
 **Plan:**
 * Have a nap after school on the 31st. (Say I'm "reading".)
 * Dave's party starts at 7. Mom says we're leaving "by half past twelve at the LATEST". That is AFTER midnight. She has not realised this. DO NOT REMIND HER.
-* Bring the torch in case the lights go off. Bring the Game Boy in case the torch goes off.
+* Bring the torch in case the lights go off. Bring the Game Lad in case the torch goes off.
 * At 23:59:50 everybody counts down. At 00:00:00 I look at Dave's video recorder. If it says 1900 I win £1 off Dave.
 
-## OPERATION DREAMCAST
-**Objective:** Own a Dreamcast. (Out 14/10/99. £199.99. That's a LOT of pocket money.)
+## OPERATION DAYDREAM
+**Objective:** Own a Daydream. (Out 14/10/99. £199.99. That's a LOT of pocket money.)
 **Plan:**
 * Save all my pocket money. (Current savings: see Pocket Money 1999.wks. It's not enough.)
 * Wash the car EVERY week, not just when Dad remembers.
@@ -41,7 +41,7 @@
 **Progress:** Not great. The bits box is mostly arms.
 
 {hide|P.S. If you can read this, you highlighted the whole page. Respect, secret agent.}
-{hide|The password to my REAL secret folder is a riddle: what do Orks spend instead of money?}
+{hide|The password to my REAL secret folder is a riddle: what do Gorks spend instead of money?}
 {hide|(It's not "pounds". It's not "pizza". Think about what's in their mouths.)}
 
 >> Jack (Agent 00-Jack)
@@ -55,7 +55,7 @@ Thank you very much for the Christmas jumper. It is very warm and it is very **b
 
 I wore it on Boxing Day and Dave said I looked like a chocolate digestive. I told him it's a //designer// jumper. He didn't believe me but he also didn't have a jumper, so who's laughing now.
 
-Thank you also for the £10. I am going to spend it **wisely** (in the January sales, on a Rubik's cube). Mom says "wisely" means "not on sweets".
+Thank you also for the £10. I am going to spend it **wisely** (in the January sales, on a Rubrick's cube). Mom says "wisely" means "not on sweets".
 
 I hope your hip is better. Next time we come round I will show you how to use the remote for the new video recorder. It's easy. You press the button with the red circle. Not the other one. The other one tapes over the wedding.
 
@@ -69,17 +69,17 @@ P.S. I've invented a little green character called Gubbinz. One day he's going t
   D.xmas = () => ({ font: 'Arial', size: 12, md: `> {s=28;c=red;f=Impact|JACK'S CHRISTMAS LIST 1999}
 > {c=green|(the last Christmas of the millennium!!!)}
 
-{s=72;c=red;f=Impact|DREAMCAST}
+{s=72;c=red;f=Impact|DAYDREAM}
 
-* A Dreamcast. (Out 14/10/99, £199.99. It has a modem IN IT. You can go on the Internet ON THE TELLY.)
-* If not a Dreamcast: a Dreamcast.
-* Donkey Kong 64 (it comes with the Expansion Pak!)
-* A new Rubik's cube (the stickers on mine are peeling off the yellow side)
+* A Daydream. (Out 14/10/99, £199.99. It has a modem IN IT. You can go on the Internet ON THE TELLY.)
+* If not a Daydream: a Daydream.
+* Donkey Wrong 64 (it comes with the Expansion Pak!)
+* A new Rubrick's cube (the stickers on mine are peeling off the yellow side)
 * Red paint for my models. Lots of red. (Red ones go faster.)
 * A graphics card with 16MB on it (I'll write down which one. Don't let the shop man choose.)
-* Batteries (for the Game Boy, the torch, and the Y2K emergency radio)
-* A Star Wars lightsaber. A proper one. With the noise.
-* ${md() >= 1019 ? 'Anything Episode I that I haven\'t already got. (See Star Wars Toys.wks.)' : 'Episode I toys (see Star Wars Toys.wks so you don\'t get me two Jar Jars)'}
+* Batteries (for the Game Lad, the torch, and the Y2K emergency radio)
+* A Intergalactic Battles lightspatula. A proper one. With the noise.
+* ${md() >= 1019 ? 'Anything Episode I that I haven\'t already got. (See Intergalactic Battles Toys.wks.)' : 'Episode I toys (see Intergalactic Battles Toys.wks so you don\'t get me two Jar Jars)'}
 * **NOT** another jumper. (Sorry Nan. Unless it's red.)
 
 ## For other people (so it's fair)
@@ -173,14 +173,14 @@ I am writing to persuade you that our school needs more computers, and I have **
 
 **Reason 5: It would be fair.** Not everybody has a computer at home. My mate Dave doesn't. (He comes round to mine and uses it, which uses up //my// computer time.) If the school had more computers, everybody could have a go.
 
-In conclusion, I think the school should buy more computers. If you can't afford it, I have also had an idea: a sponsored Tetris marathon. I would do it. I would do it for //hours//.
+In conclusion, I think the school should buy more computers. If you can't afford it, I have also had an idea: a sponsored Blockology marathon. I would do it. I would do it for //hours//.
 
 Yours sincerely,
 
 Jack
 
 ---
-{c=red;f=Comic Sans MS|Mrs Hargreaves: "Very persuasive, Jack! Good use of rhetorical questions. I'm not sure about the sponsored Tetris. B+"}` };
+{c=red;f=Comic Sans MS|Mrs Hargreaves: "Very persuasive, Jack! Good use of rhetorical questions. I'm not sure about the sponsored Blockology. B+"}` };
 
   D.website = { font: 'Arial', size: 11, md: `# HOW I MADE MY WEB SITE
 > Computer Club project - for ${N('teacher')}
@@ -237,16 +237,16 @@ The goblins sing a lot. If I was a goblin I would not sing. I would be doing gob
 * Thorin - the leader of the dwarves. Grumpy. A bit like Dad on a Monday.
 * Bard - because he's an archer and he gets the most important shot in the whole book. No spoilers. (It's the dragon. He shoots the dragon.)
 
-**Would the goblins win against Darth Maul?**
-Mrs Hargreaves said this "isn't part of the report" but I've done it anyway: **no**. Darth Maul has a lightsaber with TWO blades and he can do flips. The goblins would be fine in a riddle contest though.
+**Would the goblins win against Dark Mole?**
+Mrs Hargreaves said this "isn't part of the report" but I've done it anyway: **no**. Dark Mole has a lightspatula with TWO blades and he can do flips. The goblins would be fine in a riddle contest though.
 
 **Score:** {b;c=green|9/10.} (Minus one for the singing.)
 
 ---
-{c=red;f=Comic Sans MS|Mrs Hargreaves: "A lively, thoughtful report. Please stop comparing every book to Star Wars." A-}` };
+{c=red;f=Comic Sans MS|Mrs Hargreaves: "A lively, thoughtful report. Please stop comparing every book to Intergalactic Battles." A-}` };
 
-  D.review = { font: 'Arial', size: 11, md: `> {f=Impact;s=26|STAR WARS EPISODE I}
-> {f=Impact;s=20;c=red|THE PHANTOM MENACE}
+  D.review = { font: 'Arial', size: 11, md: `> {f=Impact;s=26|INTERGALACTIC BATTLES EPISODE I}
+> {f=Impact;s=20;c=red|THE PHANTOM NUISANCE}
 > {f=Arial Black;s=10|JACK'S REVIEW - WRITTEN THE SAME NIGHT, AT 11:48pm, DON'T TELL MOM}
 
 ## I HAVE SEEN IT
@@ -255,16 +255,16 @@ I HAVE SEEN IT. I HAVE ACTUALLY SEEN IT. Friday the 16th of July 1999, the 6:30 
 We waited SO long for this. America got it on the 19th of May. We had to wait **eight weeks** while everyone on the Internet talked about it. I had to switch off the computer for some of it. Do you know how hard that is? For me?
 
 ## The story (no spoilers)
-It's set **before** the old films. Two Jedi, Qui-Gon Jinn and his apprentice Obi-Wan Kenobi (young Obi-Wan! He's Scottish now!), have to protect Queen Amidala of the planet Naboo from the Trade Federation, who have blockaded her planet with loads of battle droids. They end up stuck on **Tatooine** and meet a little boy called **Anakin Skywalker**. If you know the old films you know who he grows up to be. I'm not saying. But you know. You KNOW.
+It's set **before** the old films. Two Space Cadet, Qui-Gon Gym and his apprentice Obi-Wan Cannoli (young Obi-Wan! He's Scottish now!), have to protect Queen Amidala of the planet Naboo from the Trade Federation, who have blockaded her planet with loads of battle droids. They end up stuck on **Tattyween** and meet a little boy called **Anklekin Skywobbler**. If you know the old films you know who he grows up to be. I'm not saying. But you know. You KNOW.
 
 ## THE POD RACE
-The pod race is the best thing I have ever seen in a cinema. Anakin flies a pod that's basically two massive engines on strings with a little seat at the back, against a cheating pod racer called Sebulba. It's so fast and so loud that Dad grabbed the armrest. DAD. I'm going to get the N64 game and practise.
+The pod race is the best thing I have ever seen in a cinema. Anakin flies a pod that's basically two massive engines on strings with a little seat at the back, against a cheating pod racer called Sebulba. It's so fast and so loud that Dad grabbed the armrest. DAD. I'm going to get the ULTRA 64 game and practise.
 
-## DARTH MAUL
-Red and black face, horns, yellow eyes and a lightsaber with **two blades**. TWO. One on each end. He barely says anything, he just does flips. He's the best baddie since the one in the black helmet. The music in the big lightsaber fight at the end has a choir singing in it, and every hair on my arms stood up.
+## DARK MOLE
+Red and black face, horns, yellow eyes and a lightspatula with **two blades**. TWO. One on each end. He barely says anything, he just does flips. He's the best baddie since the one in the black helmet. The music in the big lightspatula fight at the end has a choir singing in it, and every hair on my arms stood up.
 
-## JAR JAR
-Jar Jar Binks is a Gungan. He's clumsy and he talks funny. Dave thinks he is the funniest thing ever made. I think he is... a lot. Half the cinema laughed. The other half went very quiet. We have agreed not to talk about it.
+## JAR JAR JAMS
+Jar Jar Jams is a Gungan. He's clumsy and he talks funny. Dave thinks he is the funniest thing ever made. I think he is... a lot. Half the cinema laughed. The other half went very quiet. We have agreed not to talk about it.
 
 ## THE BITS I DIDN'T GET
 * Some of it is about taxes and trade routes and a lot of people sitting in a big round room arguing. Dad said "that's what politics is like". If that's what politics is like I'm going to be a pod racer.
@@ -283,7 +283,7 @@ Jar Jar Binks is a Gungan. He's clumsy and he talks funny. Dave thinks he is the
 > {b|GO AND SEE IT. THEN GO AND SEE IT AGAIN.}
 
 >> - Jack
->> P.S. I want a lightsaber with two blades for Christmas. I've written it on the list.` };
+>> P.S. I want a lightspatula with two blades for Christmas. I've written it on the list.` };
 
   D.fanfic = { font: 'Book Antiqua', size: 12, md: `> {f=Impact;s=24|GUBBINZ WARS}
 > {f=Impact;s=16;c=red|EPISODE I: THE PHANTOM PIZZA}
@@ -325,29 +325,29 @@ The Pizza Knight looked at the Blobbit. The Blobbit looked at the Pizza Knight. 
 > {b|THE END}
 > //(to be continued in EPISODE II: ATTACK OF THE BLOBBITS, if Mom doesn't take the computer off me)//` };
 
-  D.swquiz = { font: 'Arial', size: 12, md: `# THE ULTIMATE STAR WARS QUIZ
+  D.swquiz = { font: 'Arial', size: 12, md: `# THE ULTIMATE INTERGALACTIC BATTLES QUIZ
 > by Jack, for Dave (who says he knows "everything")
 > //written 20/05/99: Episode I came out in America YESTERDAY. UK: 16 July. 57 DAYS.//
 
-**Rules:** one point per answer. No looking in the Star Wars books. No ringing your cousin.
+**Rules:** one point per answer. No looking in the Intergalactic Battles books. No ringing your cousin.
 
-* 1. What is the name of Han Solo's ship?
-* 2. Which planet is Luke Skywalker from?
-* 3. What sort of creature is Chewbacca?
-* 4. Where does Yoda live?
-* 5. What was Han Solo frozen in?
+* 1. What is the name of Ham Solo's ship?
+* 2. Which planet is Luke Skywobbler from?
+* 3. What sort of creature is Chew Biscuit?
+* 4. Where does Yoga live?
+* 5. What was Ham Solo frozen in?
 * 6. Which bounty hunter took frozen Han to Jabba the Hutt?
 * 7. What are the small furry ones on the forest moon of Endor called?
-* 8. What colour is Luke's new lightsaber in Return of the Jedi?
+* 8. What colour is Luke's new lightspatula in Return of the Space Cadets?
 * 9. Which city in the clouds does Lando Calrissian run?
 * 10. What is the name of the Emperor's giant battle station? (There are two of them.)
 * 11. Who is Luke's father? (If you get this wrong we can't be friends.)
-* 12. BONUS: what's the name of the new baddie with the two-bladed lightsaber in Episode I?
+* 12. BONUS: what's the name of the new baddie with the two-bladed lightspatula in Episode I?
 
 ---
-{c=white|ANSWERS (highlight to see): 1. Millennium Falcon 2. Tatooine 3. A Wookiee 4. Dagobah 5. Carbonite 6. Boba Fett 7. Ewoks 8. Green 9. Cloud City (on Bespin) 10. The Death Star 11. Darth Vader 12. Darth Maul}
+{c=white|ANSWERS (highlight to see): 1. Millennium Pigeon 2. Tattyween 3. A Wookiee 4. Dagobah 5. Carbonite 6. Boba Fett 7. Ewoks 8. Green 9. Cloud City (on Bespin) 10. The Dread Scone 11. Dark Vapour 12. Dark Mole}
 
-**Dave's score:** {b;c=red|9/12.} He said Luke's new lightsaber was "lightsaber coloured". He also said question 12 was "not fair because it's not out yet". It's in the MAGAZINES, Dave.` };
+**Dave's score:** {b;c=red|9/12.} He said Luke's new lightspatula was "lightspatula coloured". He also said question 12 was "not fair because it's not out yet". It's in the MAGAZINES, Dave.` };
 
   // ================================================================ Write (JackOS 3.1) documents from Dad's old computer
   D.readme = { font: 'Times New Roman', size: 12, md: `# README - DAD'S COMPUTER
@@ -391,7 +391,7 @@ The Pizza Knight looked at the Blobbit. The Blobbit looked at the Pizza Knight. 
 * Spreadsheets (can make a column add itself up)
 * Can program a video recorder, including the timer
 * Can fix the photocopier when it says "paper jam" (most of the time)
-* Can do the Rubik's cube (one side) (nearly)
+* Can do the Rubrick's cube (one side) (nearly)
 
 ## Hobbies and interests
 * Computers
@@ -424,16 +424,16 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
   // fmt keys are cells or ranges; values are tokens: b i u cur pct num int date al=c|r|l c=#hex bg=#hex
   D.money = () => {
     const M = [
-      [101, 'January', 12, 2, 10, 9.99, 'Rubik\'s cube (Jan sales!)'], [201, 'February', 12, 0, 0, 9.0, 'Controller Pak (Mom paid half)'], [301, 'March', 12, 3, 0, 11.5, 'Airfix Spitfire + glue'],
+      [101, 'January', 12, 2, 10, 9.99, 'Rubrick\'s cube (Jan sales!)'], [201, 'February', 12, 0, 0, 9.0, 'Controller Pak (Mom paid half)'], [301, 'March', 12, 3, 0, 11.5, 'AirMix Spitfire + glue'],
       [401, 'April', 12, 1.5, 5, 8.97, '3 pots of red paint'], [501, 'May', 12, 2, 0, 11.98, 'Episode I figures x2'], [601, 'June', 12, 4, 0, 3.5, 'Ice pops (it was HOT)'],
       [701, 'July', 12, 0, 0, 9.8, 'Episode I ticket + sweets'], [801, 'August', 15, 5, 0, 2, 'Eclipse viewer glasses'], [901, 'September', 12, 0, 0, 2.5, 'School pens (boring)'],
-      [1001, 'October', 12, 2, 0, 0, 'NOTHING - saving for Dreamcast'], [1101, 'November', 12, 0, 0, 5, 'Sparklers (Mom said no rockets)'], [1201, 'December', 12, 0, 20, 18, 'Presents for everyone'],
+      [1001, 'October', 12, 2, 0, 0, 'NOTHING - saving for Daydream'], [1101, 'November', 12, 0, 0, 5, 'Sparklers (Mom said no rockets)'], [1201, 'December', 12, 0, 20, 18, 'Presents for everyone'],
     ].filter(r => r[0] <= md());
     const c = { A1: 'JACK\'S POCKET MONEY 1999', A2: 'Month', B2: 'Pocket money', C2: 'Odd jobs', D2: 'Gifts', E2: 'Spent', F2: 'What on', G2: 'Balance' };
     M.forEach((r, i) => { const n = i + 3; Object.assign(c, { ['A' + n]: r[1], ['B' + n]: r[2], ['C' + n]: r[3], ['D' + n]: r[4], ['E' + n]: r[5], ['F' + n]: r[6], ['G' + n]: n === 3 ? '=B3+C3+D3-E3' : `=G${n - 1}+B${n}+C${n}+D${n}-E${n}` }); });
     const t = M.length + 4, last = M.length + 2;
     Object.assign(c, { ['A' + t]: 'TOTAL', ['B' + t]: `=SUM(B3:B${last})`, ['C' + t]: `=SUM(C3:C${last})`, ['D' + t]: `=SUM(D3:D${last})`, ['E' + t]: `=SUM(E3:E${last})`, ['G' + t]: `=G${last}`,
-      ['A' + (t + 2)]: 'Dreamcast costs', ['B' + (t + 2)]: 199.99, ['A' + (t + 3)]: 'I have saved', ['B' + (t + 3)]: `=G${last}`, ['A' + (t + 4)]: 'Still need', ['B' + (t + 4)]: `=MAX(0,B${t + 2}-B${t + 3})`,
+      ['A' + (t + 2)]: 'Daydream costs', ['B' + (t + 2)]: 199.99, ['A' + (t + 3)]: 'I have saved', ['B' + (t + 3)]: `=G${last}`, ['A' + (t + 4)]: 'Still need', ['B' + (t + 4)]: `=MAX(0,B${t + 2}-B${t + 3})`,
       ['A' + (t + 5)]: 'Months to go', ['B' + (t + 5)]: `=ROUND(B${t + 4}/12,1)`, ['C' + (t + 5)]: '(at £12 a month, if I buy NOTHING)', ['A' + (t + 6)]: 'Got so far', ['B' + (t + 6)]: `=B${t + 3}/B${t + 2}` });
     return { cells: c, colW: { A: 96, B: 92, C: 70, D: 56, E: 64, F: 210, G: 76 }, fmt: { A1: 'b c=#000080', 'A2:G2': 'b bg=#ffff80', [`B3:E${t}`]: 'cur', [`G3:G${t}`]: 'cur b', ['A' + t]: 'b', [`B${t}:G${t}`]: 'b', [`B${t + 2}:B${t + 4}`]: 'cur', ['B' + (t + 6)]: 'pct b c=#008000', ['C' + (t + 5)]: 'i c=#808080' } };
   };
@@ -447,14 +447,14 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
     A8: 'Teef white', B8: 1, C8: 0.5, E8: 'Teef (obviously)',
     A9: 'Black undercoat', B9: 1, C9: 0.3, E9: 'Spray. Outside only (Mom rule)',
     A10: 'Yellow', B10: 1, C10: 1, E10: 'Checks. Never opened. Checks are hard',
-    A11: 'Blue', B11: 1, C11: 0.7, E11: 'Space Marines (Orks don\'t do blue)',
+    A11: 'Blue', B11: 1, C11: 0.7, E11: 'Space Marines (Gorks don\'t do blue)',
     A12: 'Glue', B12: 1, C12: 0.05, E12: 'Fingers (mostly)',
     A14: 'TOTAL POTS', B14: '=SUM(B3:B12)', A15: 'Need buying', B15: '=COUNTIF(C3:C12,"<0.25")', A16: 'Average fullness', C16: '=AVERAGE(C3:C12)',
     ...Object.fromEntries([3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => ['D' + n, `=IF(C${n}<0.25,"BUY MORE!",IF(C${n}=1,"unopened","ok"))`])),
   }, colW: { A: 130, B: 46, C: 70, D: 84, E: 220 }, fmt: { A1: 'b c=#008000', 'A2:E2': 'b bg=#c0ffc0', 'C3:C16': 'pct', 'A14:A16': 'b', 'B14:B15': 'b', A5: 'c=#ff0000 b' } };
   D.tetris = () => {
-    const R = upto([[102, '02/01/99', 38140, 9, 'new Game Boy batteries'], [130, '30/01/99', 51900, 11, 'in the car'], [227, '27/02/99', 64220, 12, ''], [328, '28/03/99', 80505, 13, 'got a TETRIS on level 13!!!'], [418, '18/04/99', 88010, 14, 'after making JackTris'], [522, '22/05/99', 102330, 15, 'OVER 100,000!!!'], [620, '20/06/99', 148320, 18, 'PHOTO TAKEN AS PROOF'], [830, '30/08/99', 141800, 17, 'not as good as the lost one'], [1111, '11/11/99', 150060, 18, 'NEW RECORD!!!'], [1226, '26/12/99', 156440, 19, 'Boxing Day, Gran watched']]);
-    const c = { A1: 'TETRIS HIGH SCORES (Game Boy, A-type)', A2: 'Date', B2: 'Score', C2: 'Level', D2: 'Notes' };
+    const R = upto([[102, '02/01/99', 38140, 9, 'new Game Lad batteries'], [130, '30/01/99', 51900, 11, 'in the car'], [227, '27/02/99', 64220, 12, ''], [328, '28/03/99', 80505, 13, 'got a BLOCKOLOGY on level 13!!!'], [418, '18/04/99', 88010, 14, 'after making JackTris'], [522, '22/05/99', 102330, 15, 'OVER 100,000!!!'], [620, '20/06/99', 148320, 18, 'PHOTO TAKEN AS PROOF'], [830, '30/08/99', 141800, 17, 'not as good as the lost one'], [1111, '11/11/99', 150060, 18, 'NEW RECORD!!!'], [1226, '26/12/99', 156440, 19, 'Boxing Day, Gran watched']]);
+    const c = { A1: 'BLOCKOLOGY HIGH SCORES (Game Lad, A-type)', A2: 'Date', B2: 'Score', C2: 'Level', D2: 'Notes' };
     R.forEach((r, i) => { const n = i + 3; c['A' + n] = r[0]; c['B' + n] = r[1]; c['C' + n] = r[2]; c['D' + n] = r[3]; });
     const e = R.length + 2, s = e + 2;
     Object.assign(c, { ['A' + s]: 'Best', ['B' + s]: `=MAX(B3:B${e})`, ['A' + (s + 1)]: 'Average', ['B' + (s + 1)]: `=AVERAGE(B3:B${e})`, ['A' + (s + 2)]: 'Worst', ['B' + (s + 2)]: `=MIN(B3:B${e})`, ['A' + (s + 3)]: 'Highest level', ['B' + (s + 3)]: `=MAX(C3:C${e})`, ['A' + (s + 4)]: 'Dave\'s best', ['B' + (s + 4)]: 11203, ['A' + (s + 5)]: 'Me vs Dave', ['B' + (s + 5)]: `=ROUND(B${s}/B${s + 4},1)`, ['C' + (s + 5)]: 'times better. (Just saying.)' });
@@ -462,7 +462,7 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
   };
   D.rubik = () => {
     const R = upto([[403, '03/04/99', 10800, 'first ever! (library book)'], [404, '04/04/99', 7200, ''], [420, '20/04/99', 1560, ''], [530, '30/05/99', 492, ''], [730, '30/07/99', 340, ''], [918, '18/09/99', 231, 'Dad timed it with the oven clock'], [1127, '27/11/99', 182, ''], [1229, '29/12/99', 168, 'new cube, much smoother']]);
-    const c = { A1: 'RUBIK\'S CUBE SOLVE TIMES', A2: 'Date', B2: 'Seconds', C2: 'Minutes', D2: 'Notes' };
+    const c = { A1: 'RUBRICK\'S CUBE SOLVE TIMES', A2: 'Date', B2: 'Seconds', C2: 'Minutes', D2: 'Notes' };
     R.forEach((r, i) => { const n = i + 3; c['A' + n] = r[0]; c['B' + n] = r[1]; c['C' + n] = `=ROUND(B${n}/60,2)`; c['D' + n] = r[2]; });
     const e = R.length + 2, s = e + 2;
     Object.assign(c, { ['A' + s]: 'Best (seconds)', ['B' + s]: `=MIN(B3:B${e})`, ['A' + (s + 1)]: 'First (seconds)', ['B' + (s + 1)]: '=B3', ['A' + (s + 2)]: 'Times faster', ['B' + (s + 2)]: `=ROUND(B${s + 1}/B${s},0)`, ['C' + (s + 2)]: 'x faster than the first go!', ['A' + (s + 3)]: 'Target', ['B' + (s + 3)]: 60, ['C' + (s + 3)]: 'under a minute by 2000?? (no chance)' });
@@ -477,10 +477,10 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
     A12: 'GRAND TOTAL', D12: '=SUM(D3:D10)', A13: 'Each (me and Dave)', D13: '=D12/2', A14: 'Days to go', D14: '=DATE(1999,12,31)-TODAY()', E14: '=IF(D14<=0,"IT\'S PARTY TIME!!!","not long now")',
   }, colW: { A: 160, B: 70, C: 76, D: 72, E: 240 }, fmt: { A1: 'b c=#800080', 'A2:E2': 'b bg=#ffd0ff', 'C3:D13': 'cur', 'A12:D14': 'b', D14: 'num0 b c=#ff0000' } };
   D.swtoys = () => {
-    const R = upto([[508, 'Qui-Gon Jinn', '08/05/99', 5.99, 'NO', 8], [515, 'Obi-Wan Kenobi (Jedi)', '15/05/99', 5.99, 'NO', 9], [522, 'Battle Droid', '22/05/99', 4.99, 'YES', 7],
-      [529, 'Jar Jar Binks', '29/05/99', 0, 'YES', 3], [605, 'Watto', '05/06/99', 5.99, 'NO', 6], [619, 'Anakin Skywalker (Tatooine)', '19/06/99', 5.99, 'NO', 8], [626, 'Queen Amidala', '26/06/99', 5.99, 'YES', 6],
-      [710, 'Sebulba\'s pod racer', '10/07/99', 14.99, 'NO', 9], [717, 'Anakin\'s pod racer', '17/07/99', 14.99, 'NO', 10], [904, 'R2-D2 (the old one, from a car boot sale)', '04/09/99', 1.5, 'NO', 9], [1116, 'Darth Maul (FINALLY!!!)', '16/11/99', 5.99, 'NO', 10]]);
-    const c = { A1: 'MY STAR WARS COLLECTION', A2: 'Figure', B2: 'Got it', C2: 'Price', D2: 'Still in box?', E2: 'Coolness /10' };
+    const R = upto([[508, 'Qui-Gon Gym', '08/05/99', 5.99, 'NO', 8], [515, 'Obi-Wan Cannoli (Space Cadet)', '15/05/99', 5.99, 'NO', 9], [522, 'Battle Droid', '22/05/99', 4.99, 'YES', 7],
+      [529, 'Jar Jar Jams', '29/05/99', 0, 'YES', 3], [605, 'Watto', '05/06/99', 5.99, 'NO', 6], [619, 'Anklekin Skywobbler (Tattyween)', '19/06/99', 5.99, 'NO', 8], [626, 'Queen Amidala', '26/06/99', 5.99, 'YES', 6],
+      [710, 'Sebulba\'s pod racer', '10/07/99', 14.99, 'NO', 9], [717, 'Anakin\'s pod racer', '17/07/99', 14.99, 'NO', 10], [904, 'R2-D2 (the old one, from a car boot sale)', '04/09/99', 1.5, 'NO', 9], [1116, 'Dark Mole (FINALLY!!!)', '16/11/99', 5.99, 'NO', 10]]);
+    const c = { A1: 'MY INTERGALACTIC BATTLES COLLECTION', A2: 'Figure', B2: 'Got it', C2: 'Price', D2: 'Still in box?', E2: 'Coolness /10' };
     R.forEach((r, i) => { const n = i + 3; c['A' + n] = r[0]; c['B' + n] = r[1]; c['C' + n] = r[2]; c['D' + n] = r[3]; c['E' + n] = r[4]; });
     const e = R.length + 2, s = e + 2;
     if (R.length > 4) c['F7'] = '<- Dave bought it me as a JOKE';
@@ -488,7 +488,7 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
     return { cells: c, colW: { A: 200, B: 70, C: 64, D: 84, E: 84, F: 200 }, fmt: { A1: 'b c=#000080', 'A2:F2': 'b bg=#000000 c=#ffd400', [`C3:C${s}`]: 'cur', ['C' + (s + 3)]: 'cur b', [`A${s}:A${s + 3}`]: 'b', F7: 'i c=#808080', ['D' + (s + 3)]: 'i' }, chart: { type: 'pie', range: `A3:A${e}`, vals: `E3:E${e}` } };
   };
   D.countdown = { cells: {
-    A1: 'STAR WARS EPISODE I COUNTDOWN', A3: 'UK release', B3: '=DATE(1999,7,16)', A4: 'America got it', B4: '=DATE(1999,5,19)', A5: 'Today', B5: '=TODAY()',
+    A1: 'INTERGALACTIC BATTLES EPISODE I COUNTDOWN', A3: 'UK release', B3: '=DATE(1999,7,16)', A4: 'America got it', B4: '=DATE(1999,5,19)', A5: 'Today', B5: '=TODAY()',
     A7: 'Days to go', B7: '=B3-B5', C7: '=IF(B7>0,"days to go!!!",IF(B7=0,"IT\'S TODAY!!! GET YOUR COAT!!!","SEEN IT!!! (twice)"))',
     A8: 'Hours to go', B8: '=MAX(0,B7*24)', A9: 'Weeks to go', B9: '=MAX(0,ROUND(B7/7,1))', A10: 'Days America got it first', B10: '=B3-B4', C10: 'NOT FAIR',
     A12: 'Times I\'ve watched the trailer', B12: 41, C12: '(on the PC, it is the size of a stamp)', A13: 'Pocket money saved for ticket', B13: 4.5, A14: 'Ticket + popcorn costs', B14: 6.8, A15: 'Still need', B15: '=MAX(0,B14-B13)',
@@ -501,41 +501,41 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
 
   // ================================================================ cardfiles
   D.mates = { cards: Cast.deep([
-    ['DAVE', 'Best mate. Lives round the corner.\nPhone: 01632 960123 (his Mom answers. Always.)\nFave game: GoldenEye. Always picks Oddjob. (Banned in our house.)\nFave film: Episode I. Fave character: Jar Jar. (We don\'t talk about it.)\nGood at: Mario Kart, eating\nBad at: riddles, giving floppy disks back\nOwes me: 1 floppy disk, £1 (Y2K bet), 3 Pokemon cards'],
-    ['COUSIN {cousin.NAME}', 'Older cousin. Has a PlayStation AND a CD Walkman.\nLends me CDs if I promise not to scratch them.\nCan do the robot dance. Badly.\nSays the Internet is "for nerds". Uses it every day.\nPhone: 01632 960404 (ask for {cousin}, not {uncle})'],
+    ['DAVE', 'Best mate. Lives round the corner.\nPhone: 01632 960123 (his Mom answers. Always.)\nFave game: Goldenballs. Always picks Oddjob. (Banned in our house.)\nFave film: Episode I. Fave character: Jar Jar Jams. (We don\'t talk about it.)\nGood at: Kart Kaos, eating\nBad at: riddles, giving floppy disks back\nOwes me: 1 floppy disk, £1 (Y2K bet), 3 Pocket Critters cards'],
+    ['COUSIN {cousin.NAME}', 'Older cousin. Has a PlaySpace AND a CD Walkman.\nLends me CDs if I promise not to scratch them.\nCan do the robot dance. Badly.\nSays the Internet is "for nerds". Uses it every day.\nPhone: 01632 960404 (ask for {cousin}, not {uncle})'],
     ['COUSIN RYAN', 'Thinks he knows EVERYTHING about computers.\nSent us a virus by e-mail and said it wasn\'t him.\nTips for computers: "turn it off and on again" (that\'s all of them)\nPhone: 01632 960356'],
     ['{kidEp1.NAME}', 'Computer Club. Makes web pages in Notepad, like me.\n{kidEp1.His} site has a MIDI that plays the second you open it. Loud.\nWants to be a games programmer. Me too. We\'re going to start a company.\nCompany name ideas: Pixel Soft, Blobbit Games, Jack & {kidEp1} Ltd (my idea, {kidEp1.he} wants {kidEp1} & Jack Ltd)'],
-    ['{club4.NAME}', 'Best at Tetris in our class. Beat me ONCE. (Level 16. I was ill.)\nKnows every Pokemon. In order.\nThinks Warhammer is "weird". Thinks Gubbinz is "cute". Gubbinz is NOT cute. (He is a bit cute.)'],
-    ['BIG {kidSoon.NAME}', 'Not actually big.\nGoalkeeper. Brilliant at football, rubbish at Mario Kart.\nOwns a real lightsaber toy. The noise is AMAZING.\nWill swap it for: nothing. I asked.'],
+    ['{club4.NAME}', 'Best at Blockology in our class. Beat me ONCE. (Level 16. I was ill.)\nKnows every Pocket Critters. In order.\nThinks War Hamster is "weird". Thinks Gubbinz is "cute". Gubbinz is NOT cute. (He is a bit cute.)'],
+    ['BIG {kidSoon.NAME}', 'Not actually big.\nGoalkeeper. Brilliant at football, rubbish at Kart Kaos.\nOwns a real lightspatula toy. The noise is AMAZING.\nWill swap it for: nothing. I asked.'],
     ['GUBBINZ', 'Species: not sure (half alien, half gremlin, all ears)\nLives: on my website (and possibly in the computer)\nLikes: pizza, shiny things, being fed by strangers\nDislikes: bath time, Dave, the Recycle Bin\nPhone: none. He just shouts.'],
     ['{teacher.NAME}', 'Runs Computer Club (Wednesdays after school).\nSays I can help with the school web site.\nTold me <BLINK> is "never the answer". It is sometimes the answer.'],
     ['NAN', 'Phone: 01632 960222. Ring on Sundays. Speak up.\nKnits jumpers (brown).\nPuts a fiver in cards. Says "don\'t tell your mother".\nHas never pressed the right button on the video recorder. Ever.'],
     ['DAVE\'S DOG (BISCUIT)', 'Eats socks.\nAte one of my Ork arms. It was a GOOD arm.\nWagging tail can knock a can of pop off a table at 3 metres.'],
   ]) };
   D.cheats = { cards: [
-    ['DOOM (PC)', 'Type these while you\'re playing (no Enter key):\nIDDQD - god mode (your face goes gold!)\nIDKFA - all keys, all weapons, full ammo\n\nDad\'s copy. Dad\'s best on level 1 is 47 seconds. He brings this up at Christmas.'],
-    ['GOLDENEYE 007 (N64)', 'Cheats unlock when you beat levels fast enough:\nPaintball Mode - beat DAM on Secret Agent in under 2:40\nInvincibility - beat FACILITY on 00 Agent in under 2:05\nDK Mode - beat RUNWAY on Agent in under 5:00\n\nOddjob is banned at mine. He\'s too short. It\'s not fair.'],
+    ['GLOOM (PC)', 'Type these while you\'re playing (no Enter key):\nIDDQD - god mode (your face goes gold!)\nIDKFA - all keys, all weapons, full ammo\n\nDad\'s copy. Dad\'s best on level 1 is 47 seconds. He brings this up at Christmas.'],
+    ['GOLDENBALLS 007 (ULTRA 64)', 'Cheats unlock when you beat levels fast enough:\nPaintball Mode - beat DAM on Secret Agent in under 2:40\nInvincibility - beat FACILITY on 00 Agent in under 2:05\nDK Mode - beat RUNWAY on Agent in under 5:00\n\nOddjob is banned at mine. He\'s too short. It\'s not fair.'],
     ['CONTRA (NES)', 'On the title screen press:\nUP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A START\nYou get 30 lives. (Dave\'s brother taught us. On his old NES.)\nIt works in loads of other games too. Try it everywhere.'],
-    ['POKEMON RED/BLUE (GB)', 'MissingNo trick:\n1. In Viridian City, talk to the old man who shows you how to catch Pokemon.\n2. Fly to Cinnabar Island.\n3. Surf up and down the east coast (the edge where land meets water).\n4. A weird glitchy Pokemon appears. The 6th item in your bag goes up to loads!\n\nWARNING: Dave says it can mess up your save. Do it at your own risk.'],
+    ['POCKET CRITTERS RED/BLUE (GB)', 'MissingNo trick:\n1. In Viridian City, talk to the old man who shows you how to catch Pocket Critters.\n2. Fly to Cinnabar Island.\n3. Surf up and down the east coast (the edge where land meets water).\n4. A weird glitchy Pocket Critters appears. The 6th item in your bag goes up to loads!\n\nWARNING: Dave says it can mess up your save. Do it at your own risk.'],
     ['JACKTRIS (PC)', 'My own game! Cheats (made by me, so they\'re REAL):\nHold DOWN to drop faster (not a cheat, it\'s the controls)\nThe only real cheat is practice.\n(OK there\'s one more. It\'s a secret. It involves the long bar.)'],
-    ['MARIO 64 - RUMOUR', 'UNCONFIRMED PLAYGROUND RUMOUR!!!\nA boy at school says his cousin unlocked LUIGI by getting all 120 stars and going to the fountain.\nI have looked. Dave has looked. Dave\'s cousin has looked.\nVERDICT: probably not true. (Keep looking though.)'],
+    ['MARLO 64 - RUMOUR', 'UNCONFIRMED PLAYGROUND RUMOUR!!!\nA boy at school says his cousin unlocked LOUIE G by getting all 120 stars and going to the fountain.\nI have looked. Dave has looked. Dave\'s cousin has looked.\nVERDICT: probably not true. (Keep looking though.)'],
     ['GUBBINZ', 'Feed him a pizza and press the speaker icon in the tray. He burps.\n(This isn\'t really a cheat. It\'s just funny.)'],
     ['JACKOS 98', 'Things to type in Start > Run:\n- "waaagh" (obviously)\n- "red ones go faster"\nThere are LOADS more. I\'m not putting them all on a card. Dave might read it.'],
   ] };
   D.swcards = { cards: [
-    ['DARTH MAUL', 'Episode I\'s big baddie. A Sith.\nRed and black face, little horns, yellow eyes.\nLightsaber: RED, with a blade at BOTH ENDS.\nSays about three lines in the whole film. Doesn\'t need to.'],
-    ['QUI-GON JINN', 'Jedi Master. Obi-Wan\'s teacher.\nGreen lightsaber. Calm. Bends the rules.\nFinds Anakin on Tatooine and thinks he\'s "the chosen one".\nPlayed by a very tall actor (Dad says he was in loads of films).'],
-    ['OBI-WAN KENOBI', 'Young in Episode I! Qui-Gon\'s apprentice.\nBlue lightsaber. Has a little plait in his hair (Jedi learners have them).\nOld Obi-Wan is the one in the first film who goes "use the Force" (sort of).'],
-    ['ANAKIN SKYWALKER', 'A slave boy on Tatooine who builds his own pod racer.\nWins the Boonta Eve pod race against Sebulba.\nBUILT C-3PO HIMSELF out of bits!!!\nGrows up to be... you know who. (Heavy breathing.)'],
+    ['DARK MOLE', 'Episode I\'s big baddie. A Sulk.\nRed and black face, little horns, yellow eyes.\nLightsaber: RED, with a blade at BOTH ENDS.\nSays about three lines in the whole film. Doesn\'t need to.'],
+    ['QUI-GON GYM', 'Space Cadet Master. Obi-Wan\'s teacher.\nGreen lightspatula. Calm. Bends the rules.\nFinds Anakin on Tattyween and thinks he\'s "the chosen one".\nPlayed by a very tall actor (Dad says he was in loads of films).'],
+    ['OBI-WAN CANNOLI', 'Young in Episode I! Qui-Gon\'s apprentice.\nBlue lightspatula. Has a little plait in his hair (Space Cadet learners have them).\nOld Obi-Wan is the one in the first film who goes "use the Force" (sort of).'],
+    ['ANKLEKIN SKYWOBBLER', 'A slave boy on Tattyween who builds his own pod racer.\nWins the Boonta Eve pod race against Sebulba.\nBUILT C-3PO HIMSELF out of bits!!!\nGrows up to be... you know who. (Heavy breathing.)'],
     ['QUEEN AMIDALA', 'Queen of Naboo. Elected! (She\'s a teenager. A teenage queen!)\nHas about fifty amazing outfits and a face painted white.\nHas handmaidens who look a LOT like her. That\'s a clue.'],
-    ['JAR JAR BINKS', 'A Gungan from Naboo. Floppy ears, long tongue.\nClumsy. Banished from the underwater city by Boss Nass.\nDave\'s favourite. We have agreed not to talk about it.'],
-    ['WATTO', 'Junk dealer in Mos Espa on Tatooine.\nA Toydarian: flies with tiny fast wings, like a blue flying pot belly.\nOwns Anakin and his mom. Bets on pod races. Grumpy.\nJedi mind tricks don\'t work on him!'],
+    ['JAR JAR JAMS', 'A Gungan from Naboo. Floppy ears, long tongue.\nClumsy. Banished from the underwater city by Boss Nass.\nDave\'s favourite. We have agreed not to talk about it.'],
+    ['WATTO', 'Junk dealer in Mos Espa on Tattyween.\nA Toydarian: flies with tiny fast wings, like a blue flying pot belly.\nOwns Anakin and his mom. Bets on pod races. Grumpy.\nJedi mind tricks don\'t work on him!'],
     ['SEBULBA', 'Pod racer. A Dug (walks on his hands!).\nBig orange pod. CHEATS. Always.\nGets his pod broken in the end. Serves him right.'],
     ['R2-D2', 'Astromech droid (the little blue and white one that beeps).\nIn Episode I he fixes the Queen\'s ship\'s shields under fire and gets a medal (well, a thank you).\nFavourite droid. Doesn\'t talk. Doesn\'t need to.'],
     ['C-3PO', 'Protocol droid. Gold (later on). Worries a lot.\nFluent in over six million forms of communication.\nIn Episode I he hasn\'t got his gold covers on yet. You can see his wires!'],
-    ['YODA', 'Jedi Master. Small, green, about 900 years old.\nLives on Dagobah (swampy) in the old films.\nTalks backwards, he does.\nIn Episode I he\'s on the Jedi Council and he is NOT sure about Anakin.'],
-    ['HAN SOLO', 'Pilot of the Millennium Falcon.\nFlew the Kessel Run in less than twelve parsecs (Dave says a parsec is distance not time. Dave read that in a magazine).\nGot frozen in carbonite in Empire.'],
-    ['BOBA FETT', 'Bounty hunter. Green armour, jetpack.\nTook frozen Han to Jabba the Hutt.\nSays hardly anything. Everybody loves him anyway.\nFalls into the Sarlacc pit in Jedi. (Dave thinks he got out.)'],
+    ['YOGA', 'Space Cadet Master. Small, green, about 900 years old.\nLives on Dagobah (swampy) in the old films.\nTalks backwards, he does.\nIn Episode I he\'s on the Space Cadet Council and he is NOT sure about Anakin.'],
+    ['HAM SOLO', 'Pilot of the Millennium Pigeon.\nFlew the Kessel Run in less than twelve parsecs (Dave says a parsec is distance not time. Dave read that in a magazine).\nGot frozen in carbonite in Empire.'],
+    ['BOBA FETT', 'Bounty hunter. Green armour, jetpack.\nTook frozen Han to Jabba the Hutt.\nSays hardly anything. Everybody loves him anyway.\nFalls into the Sarlacc pit in Space Cadet. (Dave thinks he got out.)'],
     ['ADMIRAL ACKBAR', 'Leads the rebel fleet at the Battle of Endor.\nFish-headed (he\'s a Mon Calamari).\nMost famous line is three words long and he says it at exactly the right time. "It\'s a trap!"'],
   ] };
   D.recipes = { cards: [

@@ -106,10 +106,10 @@
     '~dave': ["DAVE'S", 'TOTAL CARNAGE', 'trophy', 'fire', 1], '~kim': [sparkly(CT('{cousin.first}')), 'PoP PaRaDiSe', 'heart', 'sunset', 5], knitting: ['KNIT &', 'NATTER CLUB', 'yarn', 'paper', 9], poetree: ['PO-ETREE', 'KORNER', 'grot', 'stripe', 2],
     computerclub: ['ROOM 14', 'COMPUTER CLUB', 'computer', 'lcd'], '~stu': ['MOULDY', 'TANGERINES', 'note', 'stripe', 7], '~nan': ["NAN'S", 'RECIPES', 'cake', 'paper', 9], '~biscuit': ['WOOF!', "BISCUIT'S PAGE", 'bone', 'bev', 12],
     '~kevin': ['PET ROCK', 'NEW ADDRESS!', 'rock', 'chrome'], '~tom': [CT("{kidSoon.FIRST}'S"), 'COMING SOON', 'clock', 'check', 3], '~lee': ['YO-YO', 'TRICK ZONE', 'yoyo', 'bev', 1], rovers: ['ROVERS', 'JUNIORS FC', 'ball', 'stripe', 2],
-    '~ellie': ['POKEMON', 'ALL 151!', 'star', 'sunset', 13], '~blockhead': ['BLOCK', 'SHRINE', 'block', 'lcd'], cubetimes: ['CUBE', 'RECORDS', 'cube', 'check', 10], '~zed': [CT("{club1.FIRST}'S"), 'SCI-FI ZONE', 'ufo', 'stars'],
+    '~ellie': ['POCKET CRITTERS', 'ALL 151!', 'star', 'sunset', 13], '~blockhead': ['BLOCK', 'SHRINE', 'block', 'lcd'], cubetimes: ['CUBE', 'RECORDS', 'cube', 'check', 10], '~zed': [CT("{club1.FIRST}'S"), 'SCI-FI ZONE', 'ufo', 'stars'],
     '~gaz': ['MILLENNIUM', 'BUNKER', 'clock', 'neon', 8], top100cheats: ['TOP 100', 'CHEATS!!!', 'joy', 'neon', 10], '~mike': ['MEGAHERTZ', 'MIKE', 'computer', 'chrome'], '~mek': ['MINI', 'PAINTING', 'paint', 'dbl', 2],
     '~ash': [CT("{club2.FIRST}'S"), 'SPACE PAGE', 'planet', 'stars'], fanfic: ['FAN-FIC', 'ARCHIVE', 'book', 'paper', 9], ascii: ['ASCII', 'ART  :-)', 'computer', 'lcd'], midi: ['MIDI', 'HEAVEN', 'note', 'sunset', 4],
-    '~sam': ['EPISODE I', 'COUNTDOWN', 'saber', 'stars'], jarjar: ['JAR JAR?', 'THE DEBATE', 'eye', 'bev', 7], podracing: ['PODRACING', 'HQ', 'pod', 'stripe', 7], swrumours: ['RUMOUR', 'MILL', 'eye', 'neon', 10],
+    '~sam': ['EPISODE I', 'COUNTDOWN', 'saber', 'stars'], jarjar: ['JAR JAR JAMS?', 'THE DEBATE', 'eye', 'bev', 7], podracing: ['PODRACING', 'HQ', 'pod', 'stripe', 7], swrumours: ['RUMOUR', 'MILL', 'eye', 'neon', 10],
     brickwars: ['BRICK', 'WISHLIST', 'brick', 'bev', 3], saberduel: ['ME vs DAVE', 'SABER DUEL', 'saber', 'neon', 1], news: ['JACKNET', 'NEWS', 'news', 'chrome'], weather: ['JACKNET', 'WEATHER', 'rain', 'bev', 6],
     teef: ['GEM', 'EXCHANGE', 'gem', 'dbl', 12], hamstercam: ['HAMSTER', 'CAM - LIVE!', 'hamster', 'neon', 1], jokes: ['JOKE OF', 'THE DAY', 'grin', 'check', 3], jackmail: ['JackMail', 'FREE E-MAIL', 'mail', 'bev', 0],
     chatroom: ['THE BACK', 'ROOM CHAT', 'chat', 'check', 4], counters: ['COUNTER', 'MANIA', 'eye', 'lcd'], lost: ['404', 'NOT FOUND', 'mag', 'paper'], downloads: ['FREE', 'DOWNLOADS!!!', 'floppy', 'fire'],
@@ -157,7 +157,7 @@
   };
   // Jack's own hidden pages that are meant to be found (Cool Links lists them); site-data.js has the proper words if it's loaded
   const JACK = {
-    holocron: ['THE HOLOCRON', "Jack's secret Star Wars vault. Jedi only.", 'sw'], dave: ["Dave's Homepage (the old one)", 'Under construction since March. His cousin is doing the graphics.', 'mates'],
+    holocron: ['THE HOLOCRON', "Jack's secret Intergalactic Battles vault. Space Cadet only.", 'sw'], dave: ["Dave's Homepage (the old one)", 'Under construction since March. His cousin is doing the graphics.', 'mates'],
     orkhole: ['The Paint Hole', "Jack's painting tips for minis, model kits and anything with a brush.", 'hobby'], y2k: ['Y2K Survival Centre', "A checklist, a countdown and Mom's beans.", 'weird'],
     gubbinzfanclub: ['The Gubbinz Fan Club', 'Official fan page for the little green helper. Signed photo: he ate it.', 'fun'], keepoutdave: ['KEEP OUT DAVE', 'A page Dave is not allowed to look at.', 'weird'],
     jackamp: ['JackAmp', "Jack's media player page. It really whips the... Mom says we can't finish that.", 'soft'], jackcarta: ['JackCarta 99', 'The multimedia encyclopedia on CD-ROM, online.', 'sci'],
@@ -186,7 +186,7 @@
     if (LIST && s2 === sig) return LIST;
     sig = s2; const out = [], seenHost = new Set();
     const add = e => { e.cool = COOL.has(e.id); e.isNew = NEWS.has(e.id) || !!e.isNew; e.short = e.short || (BADGE[e.id] ? (BADGE[e.id][0] + ' ' + BADGE[e.id][1]).replace(/\s+/g, ' ') : e.title); out.push(e); };
-    add({ id: 'mag', kind: 'mag', sec: 'home', host: MAIN, url: 'http://' + MAIN + '/', title: 'JACK ATTACK! Online', desc: 'The games mag Jack made. Reviews, cheats, Star Wars, the Games Arcade, the Hangout and a little green helper called Gubbinz. The best site on the JackNet (says Jack).', cat: 'games' });
+    add({ id: 'mag', kind: 'mag', sec: 'home', host: MAIN, url: 'http://' + MAIN + '/', title: 'JACK ATTACK! Online', desc: 'The games mag Jack made. Reviews, cheats, Intergalactic Battles, the Games Arcade, the Hangout and a little green helper called Gubbinz. The best site on the JackNet (says Jack).', cat: 'games' });
     if (W) for (const w of Object.keys(W.M)) {
       const m = W.M[w]; if (m.host) seenHost.add(hostKey(m.host)); // hidden sites (the prize page...) stay hidden
       if (m.parent || m.cat === 'hidden' || m.cat === 'sub') continue;

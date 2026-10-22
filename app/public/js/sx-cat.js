@@ -8,7 +8,7 @@
   const CH = [
     { n: 1, t: 'Under the Bonnet', w: 'Hunt HQ (this web site)', ic: 'page' },
     { n: 2, t: 'Shy Files', w: "Jack's hard drive", ic: 'folder' },
-    { n: 3, t: 'C:\\> Prompt', w: 'MS-DOS', ic: 'dos' },
+    { n: 3, t: 'C:\\> Prompt', w: 'JACK-DOS', ic: 'dos' },
     { n: 4, t: 'The Vault', w: 'The Registry', ic: 'reg' },
     { n: 5, t: 'Dear Diary', w: "Jack's 1999 Calendar", ic: 'cal' },
     { n: 6, t: 'Lights Out', w: "Jack's bedroom", ic: 'room' },

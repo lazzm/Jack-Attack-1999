@@ -22,24 +22,24 @@
     ['04-01', 'MINIMUM WAGE STARTS TODAY', 'From today most adults in Britain must be paid at least 3.60 pounds an hour. (Paper rounds: still not much.)'],
     ['04-24', 'MARS AT ITS BRIGHTEST', 'Mars is opposite the Sun this week: look for a bright orange "star" in the south-east after dark.'],
     ['05-06', 'SCOTLAND AND WALES VOTE', 'People in Scotland and Wales are voting today for the first ever Scottish Parliament and Welsh Assembly.'],
-    ['05-19', 'STAR WARS OPENS IN AMERICA', 'Star Wars Episode I: The Phantom Menace opens in America today. Fans have queued for weeks. It reaches Britain on 16 July.'],
+    ['05-19', 'INTERGALACTIC BATTLES OPENS IN AMERICA', 'Intergalactic Battles Episode I: The Phantom Nuisance opens in America today. Fans have queued for weeks. It reaches Britain on 16 July.'],
     ['05-27', 'SHUTTLE OFF TO SPACE STATION', 'Space Shuttle Discovery has launched with supplies for the new International Space Station.'],
     ['05-29', 'SHUTTLE DOCKS WITH STATION', 'Discovery has docked with the International Space Station for the first time.'],
     ['05-30', 'SWEDEN WIN EUROVISION', 'Sweden won the Eurovision Song Contest in Jerusalem last night. The UK came 12th.'],
     ['06-19', 'ROYAL WEDDING AT WINDSOR', 'Prince Edward has married Sophie Rhys-Jones at St George\'s Chapel, Windsor. They are now the Earl and Countess of Wessex.'],
     ['07-01', 'QUEEN OPENS SCOTTISH PARLIAMENT', 'The Queen has officially opened the new Scottish Parliament in Edinburgh.'],
     ['07-11', 'SCHUMACHER HURT IN CRASH', 'Michael Schumacher broke his leg in a crash at the British Grand Prix. David Coulthard won the race.'],
-    ['07-16', 'STAR WARS: THE WAIT IS OVER', 'The Phantom Menace opens in British cinemas today. Some fans have taken the day off. (Some "ill" pupils were seen in the queue.)'],
+    ['07-16', 'INTERGALACTIC BATTLES: THE WAIT IS OVER', 'The Phantom Nuisance opens in British cinemas today. Some fans have taken the day off. (Some "ill" pupils were seen in the queue.)'],
     ['07-20', 'SHUTTLE STOPPED AT T-7 SECONDS', 'Columbia\'s launch was called off seven seconds before lift-off after the computers spotted a problem. They will try again.'],
     ['07-23', 'FIRST WOMAN SHUTTLE COMMANDER', 'Columbia has launched with Eileen Collins in command, the first woman to command a Space Shuttle. On board: the Chandra X-ray telescope.'],
     ['08-11', 'THE ECLIPSE!', 'The Moon covered the Sun this morning. It was total in Cornwall (where it was mostly cloudy!) and a big bite was taken out of the Sun everywhere else.'],
     ['08-26', 'JOHNSON SMASHES 400M RECORD', 'Michael Johnson ran 400 metres in 43.18 seconds at the World Championships in Seville: a new world record.'],
-    ['09-09', 'DREAMCAST LAUNCHES IN AMERICA', 'Sega\'s Dreamcast went on sale in America on 9/9/99. It comes to Britain on 14 October.'],
+    ['09-09', 'DAYDREAM LAUNCHES IN AMERICA', 'Segue\'s Daydream went on sale in America on 9/9/99. It comes to Britain on 14 October.'],
     ['09-24', 'MARS PROBE LOST', 'NASA has lost contact with the Mars Climate Orbiter as it arrived at Mars.'],
     ['10-01', 'RUGBY WORLD CUP KICKS OFF', 'The Rugby World Cup starts today in Wales, at the brand new Millennium Stadium in Cardiff.'],
-    ['10-05', 'POKEMON ARRIVES', 'Pokemon Red and Pokemon Blue are out on the Game Boy in Europe. Playgrounds will never be the same again.'],
+    ['10-05', 'POCKET CRITTERS ARRIVES', 'Pocket Critters Red and Pocket Critters Blue are out on the Game Lad in Europe. Playgrounds will never be the same again.'],
     ['10-12', 'SIX BILLION PEOPLE', 'The United Nations says the number of people in the world has reached six billion today.'],
-    ['10-14', 'DREAMCAST OUT TODAY', 'Sega\'s Dreamcast is in the shops today for 199 pounds, with a built-in modem for going online.'],
+    ['10-14', 'DAYDREAM OUT TODAY', 'Segue\'s Daydream is in the shops today for 199 pounds, with a built-in modem for going online.'],
     ['10-31', 'HAKKINEN IS CHAMPION AGAIN', 'Mika Hakkinen has won the Formula One world championship for the second year running.'],
     ['11-07', 'AUSTRALIA WIN RUGBY WORLD CUP', 'Australia beat France 35-12 in Cardiff yesterday to win the Rugby World Cup.'],
     ['11-14', 'LEWIS IS UNDISPUTED CHAMP', 'Lennox Lewis beat Evander Holyfield in Las Vegas and is now the undisputed heavyweight champion of the world.'],
@@ -91,24 +91,24 @@
   ];
   // UK cinema releases: [date, title, a line]
   const films = [
-    ['01-01', 'Star Trek: Insurrection', 'The Next Generation crew, film number three.'], ['02-05', "A Bug's Life", 'Pixar\'s ants versus grasshoppers.'],
-    ['05-21', 'Notting Hill', 'Romantic comedy in a London bookshop.'], ['06-11', 'The Matrix', 'Kung fu, slow-motion bullets and a world that isn\'t real.'],
-    ['06-25', 'The Mummy', 'Adventure in Egypt. Mind the beetles.'], ['07-16', 'Star Wars Episode I: The Phantom Menace', 'The first new Star Wars film for 16 years.'],
+    ['01-01', 'Galaxy Walk: Insurrection', 'The Next Generation crew, film number three.'], ['02-05', "A Bug's Life", 'Pixar\'s ants versus grasshoppers.'],
+    ['05-21', 'Notting Hill', 'Romantic comedy in a London bookshop.'], ['06-11', 'The Modemtrix', 'Kung fu, slow-motion bullets and a world that isn\'t real.'],
+    ['06-25', 'The Mummy', 'Adventure in Egypt. Mind the beetles.'], ['07-16', 'Intergalactic Battles Episode I: The Phantom Nuisance', 'The first new Intergalactic Battles film for 16 years.'],
     ['10-22', 'Tarzan', 'Disney\'s jungle cartoon. Tree surfing!'], ['11-12', 'The Sixth Sense', 'Spooky. Don\'t tell anyone the ending.'], ['11-26', 'The World Is Not Enough', 'The new James Bond.'],
   ];
   // games out this year in the UK: [date, format, title]
   const games = [
-    ['02-22', 'PS', 'Metal Gear Solid'], ['03-09', 'N64', 'Mario Party'], ['04-23', 'N64', 'Micro Machines 64 Turbo'], ['06-04', 'N64', 'Star Wars Episode I: Racer'],
-    ['06-25', 'PS', 'Driver'], ['07-02', 'PS', 'Ape Escape'], ['08-01', 'PS', 'Silent Hill'], ['09-10', 'PS', 'Wipeout 3'], ['09-14', 'N64', 'Mario Golf'],
-    ['10-01', 'PS', 'Dino Crisis'], ['10-05', 'GB', 'Pokemon Red and Blue'], ['10-14', 'DC', 'Dreamcast + Sonic Adventure'], ['10-18', 'PS', "Tony Hawk's Skateboarding"],
-    ['10-27', 'PS', 'Final Fantasy VIII'], ['10-29', 'N64', 'Jet Force Gemini'], ['11-05', 'PS', "Spyro 2: Gateway to Glimmer"], ['11-19', 'N64', 'Super Smash Bros.'],
-    ['12-03', 'PS', 'Tomb Raider: The Last Revelation'], ['12-03', 'PC', 'Unreal Tournament'], ['12-06', 'N64', 'Donkey Kong 64'], ['12-17', 'PC', 'Quake III Arena'],
+    ['02-22', 'PS', 'Metal Gear Wobbly'], ['03-09', 'ULTRA 64', 'Marlo Party'], ['04-23', 'ULTRA 64', 'Micro Machines 64 Turbo'], ['06-04', 'ULTRA 64', 'Intergalactic Battles Episode I: Racer'],
+    ['06-25', 'PS', 'Driver'], ['07-02', 'PS', 'Ape Escape'], ['08-01', 'PS', 'Silent Hill'], ['09-10', 'PS', 'Hover Havoc 3'], ['09-14', 'ULTRA 64', 'Marlo Golf'],
+    ['10-01', 'PS', 'Dino Crisis'], ['10-05', 'GB', 'Pocket Critters Red and Blue'], ['10-14', 'DC', 'Daydream + Zip Adventure'], ['10-18', 'PS', "Tony Hawk's Skateboarding"],
+    ['10-27', 'PS', 'Final Fantasy VIII'], ['10-29', 'ULTRA 64', 'Jet Pack Twins'], ['11-05', 'PS', "Spike the Stegosaur 2: Gateway to Glimmer"], ['11-19', 'ULTRA 64', 'Super Smash Bros.'],
+    ['12-03', 'PS', 'Crypt Raider: The Last Revelation'], ['12-03', 'PC', 'Jackreal Tournament'], ['12-06', 'ULTRA 64', 'Donkey Wrong 64'], ['12-17', 'PC', 'Jaquake III Arena'],
   ];
   // the telly. "What's on" by kind of day (shows that were on in 1999 and their usual slots), and special days.
   const tv = {
     week: [
       ['BBC1', [['7.00', 'Breakfast News'], ['3.30', "Children's BBC"], ['5.00', 'Newsround'], ['5.35', 'Neighbours'], ['6.00', 'Six O\'Clock News'], ['9.00', 'Nine O\'Clock News']]],
-      ['BBC2', [['7.00', 'Teletubbies'], ['6.00', 'The Simpsons'], ['10.30', 'Newsnight']]],
+      ['BBC2', [['7.00', 'Teletubbies'], ['6.00', 'The Simpsocks'], ['10.30', 'Newsnight']]],
       ['ITV', [['6.00', 'GMTV'], ['10.30', 'This Morning'], ['3.20', 'CITV']]],
       ['C4', [['7.00', 'The Big Breakfast'], ['4.30', 'Countdown'], ['7.00', 'Channel 4 News']]],
       ['C5', [['6.00', 'Milkshake!'], ['6.30', 'Family Affairs']]],

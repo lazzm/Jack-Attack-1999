@@ -317,7 +317,7 @@
     const go = () => { const fn = K.apps[id]; if (!fn) return msg('JackOS', `${d.title} could not start. A file it needs (OFFICE.DLL) is missing.`, 'warn'); const w = fn(arg); if (d.single && w) d.w = w; return w; };
     if (K.apps[id]) return go();
     document.body.classList.add('of-busy');
-    A.load('js/office-' + d.mod + '.js').then(() => { document.body.classList.remove('of-busy'); go(); }, () => { document.body.classList.remove('of-busy'); msg(d.title, `Cannot find the file 'OFFICE-${d.mod.toUpperCase()}.DLL'.\n\nThe disk might be full of Pokemon screenshots. Try again in a minute.`, 'warn'); });
+    A.load('js/office-' + d.mod + '.js').then(() => { document.body.classList.remove('of-busy'); go(); }, () => { document.body.classList.remove('of-busy'); msg(d.title, `Cannot find the file 'OFFICE-${d.mod.toUpperCase()}.DLL'.\n\nThe disk might be full of Pocket Critters screenshots. Try again in a minute.`, 'warn'); });
     return null;
   };
   function prog(id, mod, title, cmds, icon, menuPath, single) {
@@ -379,7 +379,7 @@
     return node;
   }
   setInterval(() => { for (let i = LATER.length - 1; i >= 0; i--) if (happened(LATER[i][1].date)) { A.fs.add(LATER[i][0], LATER[i][1]); LATER.splice(i, 1); } }, 600000);
-  const HW = MD + '/Homework', SS = MD + '/Spreadsheets', SW = MD + '/Star Wars', CF = MD + '/Cardfiles';
+  const HW = MD + '/Homework', SS = MD + '/Spreadsheets', SW = MD + '/Intergalactic Battles', CF = MD + '/Cardfiles';
   A.fs.dir(SS).date = '05/01/99'; A.fs.dir(SW).date = '03/05/99'; A.fs.dir(CF).date = '20/01/99';
   // WordPad documents
   file(MD, 'Top Secret Plans.doc', 'doc', '02/10/99', 'plans', { secret: null });
@@ -392,19 +392,19 @@
   file(HW, 'Book report - The Hobbit.doc', 'doc', '06/10/99', 'hobbit');
   file(SW, 'Episode I review (WRITTEN THE SAME NIGHT).doc', 'doc', '16/07/99', 'review', { secret: 'office.swreview' });
   file(SW, 'Gubbinz Wars - Episode I (a story).rtf', 'rtf', '24/07/99', 'fanfic');
-  file(SW, 'Star Wars quiz for Dave.doc', 'doc', '20/05/99', 'swquiz');
+  file(SW, 'Intergalactic Battles quiz for Dave.doc', 'doc', '20/05/99', 'swquiz');
   // spreadsheets
   file(SS, 'Pocket Money 1999.wks', 'wks', '31/01/99', 'money');
   file(SS, 'Ork Paint Pots.wks', 'wks', '23/01/99', 'paint');
-  file(SS, 'Tetris Scores.wks', 'wks', '02/01/99', 'tetris');
-  file(SS, 'Rubik\'s Cube Times.xls', 'xls', '03/04/99', 'rubik');
+  file(SS, 'Blockology Scores.wks', 'wks', '02/01/99', 'tetris');
+  file(SS, 'Rubrick\'s Cube Times.xls', 'xls', '03/04/99', 'rubik');
   file(SS, 'Millennium Party Budget.xls', 'xls', '01/09/99', 'party');
-  file(SW, 'Star Wars Toys.wks', 'wks', '03/05/99', 'swtoys');
+  file(SW, 'Intergalactic Battles Toys.wks', 'wks', '03/05/99', 'swtoys');
   file(SW, 'Episode I Countdown.wks', 'wks', '01/01/99', 'countdown');
   // cardfiles, address book, calendar, connections
   file(CF, 'Mates.crd', 'crd', '20/01/99', 'mates');
   file(CF, 'Cheats.crd', 'crd', '27/02/99', 'cheats');
-  file(CF, 'Star Wars Characters.crd', 'crd', '18/07/99', 'swcards');
+  file(CF, 'Intergalactic Battles Characters.crd', 'crd', '18/07/99', 'swcards');
   file('C:/JACKOS', 'Address Book.wab', 'wab', '10/12/98', null, { size: '18 KB' });
   file(MD, 'Jack\'s 1999 Diary.cal', 'cal', '01/01/99', null, { size: '6 KB' });
   const HT = 'C:/Program Files/Accessories/HyperTerminal';

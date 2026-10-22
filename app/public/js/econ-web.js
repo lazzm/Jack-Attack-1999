@@ -218,7 +218,7 @@
       A.secret('econ.firstbuy');
       const body = `Thank you for shopping at THE RUPEE EMPORIUM!\n\nOrder: RE-${String(no).padStart(6, '0')}\n\n${ok.map(r => `  ${C.ITEM[r.id].name}${r.n > 1 ? ' x ' + r.n : ''} ...... ${rp(r.info.total)}`).join('\n')}\n\nDelivered straight to Your Stash (www.rupeeshop.jnet/stash.html).\nNo refunds. No returns. No arguing with Kev about which console is best.\n\nKev\nSaturday Manager, The Rupee Emporium\n(Cheat of the week: on the title screen of any game, press UP UP DOWN DOWN. It probably does something.)`;
       if (!o.mailed) { o.mailed = Econ.mail({ from: 'The Rupee Emporium <orders@rupeeshop.jnet>', subj: `Your order RE-${String(no).padStart(6, '0')} has been dispatched!`, body }) ? 1 : -1; }
-      if (o.mailed === 1) { P.q('.sh-mailnote').textContent = 'A confirmation e-mail has been sent to your Outlook Express Inbox.'; P.later(() => Desk.toast('Outlook Express', 'You have new mail! (From: The Rupee Emporium)', 5000), 2500); }
+      if (o.mailed === 1) { P.q('.sh-mailnote').textContent = 'A confirmation e-mail has been sent to your JackMail Express Inbox.'; P.later(() => Desk.toast('JackMail Express', 'You have new mail! (From: The Rupee Emporium)', 5000), 2500); }
       P.q('.sh-print').addEventListener('click', () => { if (window.Spooler) Spooler.print(`Receipt RE-${String(no).padStart(6, '0')}.txt`, { pages: 1, owner: 'Jack', text: body }); });
     }
   });

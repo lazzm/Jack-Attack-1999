@@ -43,7 +43,7 @@
   const BRIEF = {
     1: `Every hunt starts somewhere, and this one starts right here, on Hunt HQ. Loads of hunters have signed my guestbook already, and one of them is very special. Read the <a href="${HQU}/guestbook.html">Hunters' Guestbook</a>. Then remember: on the Web, nothing is ever only what's on the screen.`,
     2: 'I keep all my Hunt stuff on my PC, in a folder: <b>My Documents &gt; Hunt Stuff</b> (double-click My Computer on the desktop). But the key in there is SHY, and shy things hide. Good explorers know how to make shy things show themselves.',
-    3: 'Some things on this PC will only talk to you in MS-DOS. There\'s a folder on C: called <b>HUNT</b>. Open the MS-DOS Prompt (Start &gt; Programs), go in and have a look round. Real hunters type <tt>DIR</tt>. And when a program puzzles you... ask it.',
+    3: 'Some things on this PC will only talk to you in JACK-DOS. There\'s a folder on C: called <b>HUNT</b>. Open the JACK-DOS Prompt (Start &gt; Programs), go in and have a look round. Real hunters type <tt>DIR</tt>. And when a program puzzles you... ask it.',
     4: 'Behind the scenes, every PC has a giant filing cabinet called <b>the Registry</b>. You are NOT supposed to touch it. (Start &gt; Run, then type <tt>regedit</tt>.) Somewhere in my bit of it, under <b>Software</b>, there is a VAULT. Crack it.',
     5: 'My 1999 diary knows the key! (Start &gt; Programs &gt; Accessories &gt; Office Tools &gt; Calendar.) Find what I wrote on these five days, and take the FIRST letter of each one:<ol><li>The night the clocks steal an hour of sleep.</li><li>The day my homework about the Romans was due.</li><li>The day of the EGGS.</li><li>The day school breaks up for the summer.</li><li>The day the Sun went out at eleven o\'clock in the morning.</li></ol>',
     6: 'Key 6 isn\'t on the computer at all. It\'s in my BEDROOM, on the wall. To see my room, shut the PC down (Start &gt; Shut Down) and, while it\'s off, have a proper look around (drag, or use the arrows). My space poster has a note stuck to it.',
@@ -226,7 +226,7 @@ ${foot || ''}
     const firstOpen = (() => { for (let i = 1; i <= 10; i++) if (!st.ch[i]) return i; return 10; })();
     if (!selCh || !X.avail(selCh)) selCh = firstOpen;
     const done = !!st.ch[10];
-    const letter = nk ? '' : `<p class="sxh-letter">Dear hunter,</p><p class="sxh-letter">Somewhere on the JackNet I have hidden <b>THE MILLENNIUM DISK</b>: one 3.5 inch floppy with the very last file of 1999 on it. To dig it up you need TEN KEYS. Every key is a word, and every key is hidden somewhere different: on the Web, on my hard drive, in MS-DOS, in the Registry, in my diary, in my bedroom, in my magazine, on the phone...</p><p class="sxh-letter">Each chapter tells you where to start. When you find a key, type it into the Lock. Keys open in order, one to ten. Stuck? Ring the Hint Line. There are also ten <a href="${HQU}/bytes.html">Golden Bytes</a> hidden around the place, for proper show-offs.</p><p class="sxh-letter">Good luck. You'll need it. <span class="sxh-sig">Jack</span></p>`;
+    const letter = nk ? '' : `<p class="sxh-letter">Dear hunter,</p><p class="sxh-letter">Somewhere on the JackNet I have hidden <b>THE MILLENNIUM DISK</b>: one 3.5 inch floppy with the very last file of 1999 on it. To dig it up you need TEN KEYS. Every key is a word, and every key is hidden somewhere different: on the Web, on my hard drive, in JACK-DOS, in the Registry, in my diary, in my bedroom, in my magazine, on the phone...</p><p class="sxh-letter">Each chapter tells you where to start. When you find a key, type it into the Lock. Keys open in order, one to ten. Stuck? Ring the Hint Line. There are also ten <a href="${HQU}/bytes.html">Golden Bytes</a> hidden around the place, for proper show-offs.</p><p class="sxh-letter">Good luck. You'll need it. <span class="sxh-sig">Jack</span></p>`;
     const mem = isMember();
     const note = mem ? '' : `<div class="sxh-note"><b>Hunting as a guest:</b> your keys are kept on this PC only, and the prizes (Rupees, a Hunt badge and the Millennium Disk) are for JackNet members. Joining is free: Start &gt; Log Off, then pick a name and a password. Everything you've found comes with you.</div>`;
     const slots = `<div class="sxh-slots" aria-label="Lucky letters">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => st.lt[n] ? `<span title="Key ${n}">${esc(st.lt[n])}</span>` : `<span class="no" title="Key ${n}: not found yet">${n}</span>`).join('')}<small>your lucky letters, keys 1 to 9</small></div>`;
@@ -305,7 +305,7 @@ ${foot || ''}
   const GB_SEED = [
     ['The Hunt Master', '01/01/99', 'Welcome, hunters! Here is my tip for chapter one. Nothing on this page is quite what it seems. If you want a key, you have to look UNDER THE BONNET. (Of this page. Not your Dad\'s car.)', 1],
     ['Callum', '02/01/99', 'Done chapter 1 in about a minute. PC gamers are just better at this. Sorry Luke.'],
-    ['Luke', '02/01/99', 'Callum only did it fast because I told him where to look. N64 4 LIFE.'],
+    ['Luke', '02/01/99', 'Callum only did it fast because I told him where to look. ULTRA 64 4 LIFE.'],
     ['Dave', '03/01/99', 'Is the answer GUBBINZ? It\'s always Gubbinz.'],
     ['JackK', '04/01/99', 'Not that Jack. The other Jack. Hi other Jack! I mean, hi Jack! Great hunt. Chapter 4 made my brain hurt.'],
     ['Pixelpete', '09/01/99', 'Took me ages to work out the shy files one. Top tip: Explorer can do more than you think.'],
@@ -434,7 +434,7 @@ computers will go wrong at midnight and we'll have to live in
 Dave's Y2K bunker (it's his shed).
 
 I don't know what the future's like. But I know what now is like:
-it's a modem screaming, a Rubik's cube with one side done, an Ork
+it's a modem screaming, a Rubrick's cube with one side done, an Ork
 with wet paint on it, Mom shouting that tea's ready, and a web
 site that I made, on my own, from scratch, in Notepad.
 
@@ -480,7 +480,7 @@ PS. Ten... nine... eight...</pre>`;
     el.innerHTML = `<div class="sxr sxr-ffc"><div class="sxr-in"><h1>${fl} THE FLOPPY FAN CLUB ${fl}</h1><p style="text-align:center"><b>Celebrating the 3.5 inch floppy disk since 1997!</b> &middot; <span class="ctr sxr-c" style="font:bold 13px 'Courier New',monospace;background:#000;color:#3f3;padding:1px 5px">------</span> fans so far</p><hr>
       <h2>Why we love the floppy</h2><ul><li>It holds <b>1.44 MB</b>. (Strictly 1,474,560 bytes. The "MB" is a funny sort of megabyte that's 1,000 times 1,024. Nerds argue about it at parties.)</li><li>It has a hard plastic case and a metal shutter, so you can carry it in your pocket. (Not next to your keys. And NEVER next to a magnet.)</li><li>Slide the little <b>write-protect tab</b> and nobody can save over your stuff. Not even Dave.</li><li>It goes <i>clunk-whirr-zzzt</i> when you put it in. Best sound in the world.</li></ul>
       <h2>Floppy facts</h2><table><tr><th>Disk</th><th>Size</th><th>Holds</th></tr><tr><td>Double Density (DD)</td><td>3.5 inch</td><td>720 KB</td></tr><tr><td>High Density (HD)</td><td>3.5 inch</td><td>1.44 MB</td></tr><tr><td>The old floppy one</td><td>5.25 inch</td><td>360 KB or 1.2 MB</td></tr><tr><td>A CD-ROM (show off)</td><td>12 cm</td><td>650 MB</td></tr></table>
-      <h2>Members' best disk labels</h2><ol><li>"DO NOT FORMAT" (it got formatted)</li><li>"HOMEWORK" (it was not homework)</li><li>"Doom - disk 3 of 4" (disk 3 of 4 is always the one that goes wrong)</li><li>"Mom's recipes - DON'T TOUCH"</li><li>"Dave's disk" (Dave lost it in 1997. It's still in Jack's drive.)</li></ol>
+      <h2>Members' best disk labels</h2><ol><li>"DO NOT FORMAT" (it got formatted)</li><li>"HOMEWORK" (it was not homework)</li><li>"Gloom - disk 3 of 4" (disk 3 of 4 is always the one that goes wrong)</li><li>"Mom's recipes - DON'T TOUCH"</li><li>"Dave's disk" (Dave lost it in 1997. It's still in Jack's drive.)</li></ol>
       <p style="text-align:center;margin:30px 0 4px">Thanks for visiting! Please sign our guestbook. (We haven't got a guestbook.)</p>
       <p style="text-align:center;margin:0 0 20px">&nbsp;<span class="sxr-white">HUNTERS: PIECE 1 OF 4 IS "WE"</span>&nbsp;</p>${ringNav(0)}</div></div>`;
     wireRing(el, MEMBERS[0][0]); counter(el, 'web.hits.sx.ffc', '.sxr-c');

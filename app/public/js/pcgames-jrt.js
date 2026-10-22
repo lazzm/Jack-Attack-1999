@@ -15,8 +15,8 @@
   const JQCOL = [0x7a5a3a, 0x5a6a3a, 0x8a3a2a, 0x3a4a6a, 0x6a6a6a, 0x8a6a2a, 0x5a3a5a, 0x2a5a4a, 0x9a8a6a];
   const BOTS = [['Callum', 4, ['Too easy.', 'That\'s what a 504 MHz PC does for you.', 'Get a Voodoo3, mate.', 'GG. Well, G for me.', 'I wasn\'t even trying.', 'Overclocked AND overskilled.']],
     ['JackK', 3, ['Two Jacks, one winner. The one with the K.', 'Oi! That was MY health pack!', 'K is for KAPOW.', 'Nice try, Jack-without-a-K.']],
-    ['Luke', 2, ['This would be better on the N64.', 'Where\'s the Rumble Pak?', 'I\'m only using one hand. Other one\'s on my crisps.', 'Can we play Mario Kart after?']],
-    ['Dave', 1, ['Which button is jump?', 'Is this GoldenEye?', 'LAG! That was LAG!', 'I want to be on Callum\'s team.', 'The N64 controller is better than a mouse.']],
+    ['Luke', 2, ['This would be better on the ULTRA 64.', 'Where\'s the Rumble Pak?', 'I\'m only using one hand. Other one\'s on my crisps.', 'Can we play Kart Kaos after?']],
+    ['Dave', 1, ['Which button is jump?', 'Is this Goldenballs?', 'LAG! That was LAG!', 'I want to be on Callum\'s team.', 'The ULTRA 64 controller is better than a mouse.']],
     ['Jumping Jack', 2, ['Boing!', 'Can\'t catch me!', 'Jump pads are my best friends.', 'Can I have a biscuit now?']],
     ['Spudgun', 2, ['Spuds away!', 'You got mashed.', 'Chips!']],
     ['Jack Frost', 3, ['Chilly, isn\'t it?', 'Ice to meet you.', 'Cool.']],
@@ -1600,7 +1600,7 @@
     const wireForm = el => { const ms = el.querySelector('[name=map]'), md = el.querySelector('[name=mode]'); if (ms && md) ms.addEventListener('change', () => { md.innerHTML = modeOpts(ms.value, md.value); }); };
     // ---- the Tournament Ladder (JRT): climb from Dave to Callum, one match at a time. Your rung is saved.
     const LADDER = [
-      { map: 'spacegrot', mode: 'dm', frags: 8, list: [['Dave', 0], ['Dial-Up Dan', 0]], t: 'Warm-up', b: 'Dave and Dial-Up Dan. Both Novices. Dave still thinks this is GoldenEye.' },
+      { map: 'spacegrot', mode: 'dm', frags: 8, list: [['Dave', 0], ['Dial-Up Dan', 0]], t: 'Warm-up', b: 'Dave and Dial-Up Dan. Both Novices. Dave still thinks this is Goldenballs.' },
       { map: 'foundry', mode: 'dm', frags: 10, list: [['Luke', 1], ['Lagmonster', 0], ['Spudgun', 1]], t: 'The Foundry', b: 'Three of them now. Luke has one hand on the mouse and one in the crisps.' },
       { map: 'spacegrot', mode: 'ctf', frags: 15, list: [['Jumping Jack', 1], ['Dave', 1], ['Nan\'s Cat', 1], ['Spudgun', 1], ['Luke', 1]], t: 'Capture the Flag', b: 'You and two bots against three. First team to three captures wins. Stick with your flag carrier!' },
       { map: 'castle', mode: 'dm', frags: 12, list: [['Jack Frost', 2], ['Jack-in-the-Box', 1], ['Y2K Bug', 2], ['Nan\'s Cat', 1]], t: 'Castle Jackstone', b: 'Four bots in a crumbly castle. The Y2K Bug says your clock is wrong.' },
@@ -1657,7 +1657,7 @@
     function closeConn() { clearInterval(G.connIv); if (G.connEl) { G.connEl.remove(); G.connEl = null; } }
     function status(s) { const st = ui.querySelector('.jrt-st'); if (st) st.textContent = s; else if (G.mode === 'menu') { const w2 = ui.querySelector('.jrt-win .bd'); if (w2) { const p = h('div', 'jrt-st', esc(s)); w2.appendChild(p); } else win('JackNet', `<p>${esc(s)}</p>`, [['OK', x => x.remove()]]); } }
     // the server browser (JackSpy 3D Lite)
-    const DEAD = JQ ? [['=QUAKE= Clan Rusty Pit 24/7', 'DM1: The Rusty Pit', 'dm', '16/16', 380, 'Server is full. It is always full. The clan never sleeps.'], ['Dial-Up Dan\'s JQ Box', 'DM2: Jackstone Cloisters', 'dm', '0/4', 999, 'Connection timed out. (His Mom needed the phone.)'], ['JAQUAKE 1.05 test - do not join', 'DM1: The Rusty Pit', 'dm', '1/8', 140, 'Version mismatch: server needs 1.05, you have 1.06.']]
+    const DEAD = JQ ? [['=JAQUAKE= Clan Rusty Pit 24/7', 'DM1: The Rusty Pit', 'dm', '16/16', 380, 'Server is full. It is always full. The clan never sleeps.'], ['Dial-Up Dan\'s JQ Box', 'DM2: Jackstone Cloisters', 'dm', '0/4', 999, 'Connection timed out. (His Mom needed the phone.)'], ['JAQUAKE 1.05 test - do not join', 'DM1: The Rusty Pit', 'dm', '1/8', 140, 'Version mismatch: server needs 1.05, you have 1.06.']]
       : [['[UK] Callum\'s Old Server', 'Castle Jackstone', 'ctf', '0/8', 999, 'His Mom switched it off at 10pm.'], ['=FrAgZ= 24/7 Space Station', 'Space Station Jack', 'dm', '8/8', 412, 'Server is full. It has been full since August.'], ['Dial-Up Dan\'s Basement', 'Space Station Jack', 'dm', '1/4', 999, 'Connection timed out. (Somebody picked up the phone.)'], ['JRT 4.04 test server - DO NOT JOIN', 'Castle Jackstone', 'dm', '2/16', 187, 'Version mismatch: server needs 4.04, you have 4.05.']];
     let brTab = 'net', brSel = null, brList = [], brF = Object.assign({ empty: false, fullS: false, mode: '' }, store.get('jhp_pcg_brf', {}));
     function browser(tab) {
@@ -1692,7 +1692,7 @@
         tr.dataset.id = g.id; tb2.appendChild(tr);
       });
       if (brTab === 'net' && !brF.empty && !brF.mode) DEAD.forEach((d, i) => { const tr = h('tr', 'dead' + (brSel === 'd' + i ? ' sel' : ''), `<td class="nm">${esc(d[0])}</td><td>${esc(d[1])}</td><td>${d[3]}</td><td>${d[4]}</td><td>${d[2].toUpperCase()}</td>`); tr.dataset.id = 'd' + i; tb2.appendChild(tr); });
-      if (!rows.length) { const tr = h('tr', 'dead', `<td colspan="5">${brTab === 'lan' ? 'No LAN games found. Is the hub plugged in? Is the BNC terminator on? Start one!' : 'Nothing matches your filters. Untick a box, or press Quick Match!'}</td>`); tb2.insertBefore(tr, tb2.firstChild); }
+      if (!rows.length) { const tr = h('tr', 'dead', `<td colspan="5">${brTab === 'lan' ? 'No LAN games found. Is the hub plugged in? Is the BNC terminatater on? Start one!' : 'Nothing matches your filters. Untick a box, or press Quick Match!'}</td>`); tb2.insertBefore(tr, tb2.firstChild); }
       brInfo();
     }
     function brInfo() {
@@ -1796,7 +1796,7 @@
     }
     function aboutDlg() {
       if (JQ) return win('About JAQUAKE deathmatch', `<p><b>JAQUAKE</b> v${JQV} (shareware) - JackNet deathmatch and co-op.<br>Jackware Software, 1999.</p><p>Deathmatch in DM1: The Rusty Pit and DM2: Jackstone Cloisters, plus co-op against six waves of tin robots, imps and slime blobs. Nothing bleeds. Everything goes POOF. Mom checked.</p><p>Netcode by Jack, tested over Callum's 56K modem while his Mom was on the phone.</p>`, [['OK', w2 => w2.remove()]]);
-      win('About Jackreal Tournament', `<p><b>JACKREAL TOURNAMENT</b> v${VERSION}${full ? '' : ' (demo)'}<br>Wiggly Megagames, 1999.</p><p>Engine: JackEngine 2 (it's Jaquake's engine with the brightness turned up).<br>Bots: Callum, JackK, Luke, Dave and some made-up ones.<br>Tested at Callum's LAN party. Dave cried. Luke asked if it was on the N64. It is not on the N64.</p>`, [['OK', w2 => w2.remove()]]);
+      win('About Jackreal Tournament', `<p><b>JACKREAL TOURNAMENT</b> v${VERSION}${full ? '' : ' (demo)'}<br>Wiggly Megagames, 1999.</p><p>Engine: JackEngine 2 (it's Jaquake's engine with the brightness turned up).<br>Bots: Callum, JackK, Luke, Dave and some made-up ones.<br>Tested at Callum's LAN party. Dave cried. Luke asked if it was on the ULTRA 64. It is not on the ULTRA 64.</p>`, [['OK', w2 => w2.remove()]]);
     }
     function gameMenu() {
       if (G.mode !== 'game' || G.over) return;

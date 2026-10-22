@@ -116,7 +116,7 @@
     { id: 'grot', name: 'Gubbinz', n: 20, art: rowsArt(GROT, { b: '#7ec8ff', k: '#1a1a1a', g: '#5aac2c', d: '#3a7a1a', r: '#e10600', w: '#ffffff', n: '#8a5a2a', y: '#ffd400' }) },
     { id: 'ork', name: 'Robot Boss', n: 20, art: rowsArt(ORK, { o: '#ff9a3a', k: '#1a1a1a', s: '#a4aebe', h: '#eef2f8', d: '#5a6474', r: '#ff2010', y: '#ffe060', w: '#ffffff', n: '#2a3a8a', c: '#7ad0ff' }) },
     { id: 'pod', name: 'Pod Racer', n: 20, art: rowsArt(POD, { y: '#e8c070', u: '#d0a050', k: '#1a1a1a', s: '#a0a0b0', h: '#e0e0e8', r: '#e10600', f: '#ffd400', o: '#ff8a00', g: '#5aac2c', c: '#505060', b: '#7ad0ff' }) },
-    { id: 'cube', name: "Rubik's Cube", n: 32, art: (c, n) => { const t = document.createElement('canvas'); t.width = t.height = 24; cubeArt(t.getContext('2d'), 24); c.fillStyle = '#1e1e50'; c.fillRect(0, 0, n, n); for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { c.fillStyle = (x + y) % 2 ? '#24245a' : '#1e1e50'; c.fillRect(x, y, 1, 1); } c.drawImage(t, 4, 4); } },
+    { id: 'cube', name: "Rubrick's Cube", n: 32, art: (c, n) => { const t = document.createElement('canvas'); t.width = t.height = 24; cubeArt(t.getContext('2d'), 24); c.fillStyle = '#1e1e50'; c.fillRect(0, 0, n, n); for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { c.fillStyle = (x + y) % 2 ? '#24245a' : '#1e1e50'; c.fillRect(x, y, 1, 1); } c.drawImage(t, 4, 4); } },
     { id: 'space', name: 'Space!', n: 24, art: spaceArt },
     { id: 'sunset', name: 'Space Sunset', paint: sunsetScene },
     { id: 'battle', name: 'Space Battle', paint: battleScene },

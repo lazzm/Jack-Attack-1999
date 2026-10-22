@@ -344,6 +344,7 @@
     SN.rbox(-4, -28.6, 18, 14, 2.4, 6, 1, M({ c: '#c8c6c0', sh: 20 })); SN.cyl(-8, -30, 18, 1.2, 1.2, 0.4, 4, M('#333'), { ry: 45 }); [[-1, 17, '#2a8a3a'], [0.4, 18.4, '#d02a2a'], [1.8, 17, '#2a5ad0'], [0.4, 15.6, '#e8c020']].forEach(([x, z, c]) => SN.cyl(x, -30, z, 0.6, 0.6, 0.4, 8, M(c)));
     const cords = new T.CatmullRomCurve3([new T.Vector3(0, -32, -10), new T.Vector3(8, -2, -20), new T.Vector3(20, -1, -40), new T.Vector3(28, -45, -42)]); SN.geo(new T.TubeGeometry(cords, 20, 0.4, 5), 0, 0, 0, M('#1a1a1a'));
     H.spot('snes', { label: 'The old console (Super Famicart)', obj: sn, act: snes });
+    if(R.hasConsole&&!R.hasConsole('sn')){sn.visible=false;H.SPOTS.snes.off=true;}
     // the hoover, the ironing board, Dad's toolbox, wellies, a bag of old toys, a shelf of paint tins
     const hv = B.at(398, GY, 420); hv.cyl(0, -15, 0, 11, 12, 30, 18, M({ c: '#d02a2a', sh: 40, sp: '#444' })); hv.lathe(0, -30, 0, [[11, 0], [7, -6], [0.5, -9]], 18, M('#d02a2a')); hv.ball(0, -40, 0, 4, 4, 4, M('#222'), 8); hv.cyl(-10, -20, 10, 1.4, 1.4, 50, 8, M('#444'), { rx: 40, rz: 20 }); hv.shadow(0, 0, 0, 30, 30, 0.7);
     B.box(346, GY - 70, 260, 32, 140, 3, M('#9aa0a8'), { rx: -12 }); B.box(346, GY - 70, 262, 34, 4, 3, M('#7a7a80'), { rx: -12 });
@@ -373,6 +374,7 @@
   function flipUV(geo) { const u = geo.attributes.uv; for (let i = 0; i < u.count; i++) u.setY(i, 1 - u.getY(i)); }
   // the SNES: Agent L's games through rm-tv.js (when it knows the console)
   function snes() {
+    if(R.hasConsole&&!R.hasConsole('sn'))return say('No console','You do not own the old console.');
     const go = () => {
       const ok = window.RoomTV && RoomTV.LOOK && RoomTV.LOOK.sn && CAT && CAT.CONSOLES && CAT.CONSOLES.sn;
       if (!ok) return say('The old console', 'My old 16-bit console from when I was little. It still works (blow on the cartridges). The games are in the box somewhere... (Coming soon: the cartridges are being dug out of the cupboard.)', 7000);

@@ -26,7 +26,7 @@
 
   // =============================================================== presence
   let online = [];
-  const NAMES = { home: 'Home', demos: 'Games', grot: 'Gubbinz', saver: 'Screensaver', reviews: 'Reviews', cheats: 'Cheats', orks: 'Hobby Corner', letters: 'Letters', art: 'Art Wall', chat: 'Chat', forums: 'Forums', members: 'Members', starwars: 'Star Wars', comics: 'Comics', top10: 'Top 10s', quiz: 'Quiz', polls: 'Polls', compo: 'Compo', penpals: 'Pen Pals', downloads: 'Downloads', links: 'Links', hangout: 'Hangout', login: 'Login' };
+  const NAMES = { home: 'Home', demos: 'Games', grot: 'Gubbinz', saver: 'Screensaver', reviews: 'Reviews', cheats: 'Cheats', orks: 'Hobby Corner', letters: 'Letters', art: 'Art Wall', chat: 'Chat', forums: 'Forums', members: 'Members', starwars: 'Intergalactic Battles', comics: 'Comics', top10: 'Top 10s', quiz: 'Quiz', polls: 'Polls', compo: 'Compo', penpals: 'Pen Pals', downloads: 'Downloads', links: 'Links', hangout: 'Hangout', login: 'Login' };
   function renderOnline() {
     const others = online.filter(o => o.id !== Net.me.id);
     $('netCount').textContent = online.length;
@@ -170,10 +170,10 @@
   const SAY = {
     feed: ["'Mmm, pizza!'", "'MORE! MORE!'", "'Burp. Ta very much.'", "'Is this Sunny D? NICE.'"],
     play: ["'Weeee! Again! AGAIN!'", "'I got the stick! I GOT THE STICK!'", "'Best. Game. EVER.'"],
-    clean: ["'Oi! That's COLD!'", "'I'm all shiny now. Like a new Game Boy.'", "'Not the ears! NOT THE EARS!'"],
+    clean: ["'Oi! That's COLD!'", "'I'm all shiny now. Like a new Game Lad.'", "'Not the ears! NOT THE EARS!'"],
     hatch: ["'Wot? Where am I? Is there food?'"],
     hungry: ["'My belly's rumblin...'", "'Anyone got a jelly baby?'", "'So... hungry...'"],
-    bored: ["'I'm bored. Can we play Tetris?'", "'Play with me!'"],
+    bored: ["'I'm bored. Can we play Blockology?'", "'Play with me!'"],
     dirty: ["'I smell like Dave's PE kit.'", "'There's flies on me. Again.'"],
     happy: ["'It looks like you're looking after a pet! Good job!'", "'Booyah! (a small one)'", "'Life's good when you've got snacks.'", "'When's Jack comin' back?'"],
   };
@@ -405,11 +405,11 @@
 
   // =============================================================== LETTERS
   const REPLIES = [
-    "Cheers! Squirtle forever.",
+    "Cheers! Squirturtle forever.",
     "Ta very much! Gubbinz says hello. Well, he says 'OI', but he means hello.",
     "Brilliant letter. You win... nothing. Sorry, there's no budget.",
     "My mom read this and said it was lovely. So that's two of us.",
-    "Hadouken! That's Street Fighter for 'thank you'.",
+    "Hadouken! That's Street Frightener for 'thank you'.",
     "Have you tried blowing on the cartridge?",
     "Totally agree. Except the bit about Oddjob.",
     "This is going in the next issue. Whenever that is.",
@@ -423,14 +423,14 @@
     "Thanks for writing in! I'll be here. Probably.",
     "May the Force be with you. (Sorry. Had to.)",
     "I've read this three times, like I've seen Episode I three times. Both worth it.",
-    "Darth Maul would approve. He doesn't say much, but he'd nod.",
-    "Did you know there's a Star Wars page now? Click Star Wars. Then write again.",
+    "Dark Mole would approve. He doesn't say much, but he'd nod.",
+    "Did you know there's a Intergalactic Battles page now? Click Intergalactic Battles. Then write again.",
     "This is better than the podrace commentary. And that bloke has two heads.",
     "Printed this out and stuck it on the fridge. Mom moved it. It's back.",
     "A letter! An actual letter! Gubbinz is doing a little dance.",
     "Red ones go faster, and so do people who write in. Fact.",
     "Have you done the Nerd Quiz yet? I bet you'd get ten out of ten. Prove it.",
-    "Jar Jar would've written something longer. Yours is better.",
+    "Jar Jar Jams would've written something longer. Yours is better.",
     "Dave says he wrote one too. Dave's letter is not here. Draw your own conclusions.",
   ];
   let gb = [], gbTotal = 0, gbShown = 6;

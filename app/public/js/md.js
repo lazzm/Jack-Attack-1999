@@ -183,7 +183,7 @@ It's finally OPEN. 137 rooms. Took me since the summer holidays.
 HOW TO PLAY
   * Start > Programs > Accessories > Communications > Telnet
     then Connect > Remote System...   Host Name: mud.jacknet.jnet   Port: 4000
-  * or in MS-DOS:   telnet mud.jacknet.jnet 4000
+  * or in JACK-DOS:   telnet mud.jacknet.jnet 4000
   * or on the web:  www.jackmud.jnet  (there's a Java thing, it takes AGES to load)
   * or get MUDdy 98 from the web site, it draws a map for you. Callum says it's cheating.
 

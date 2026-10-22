@@ -400,7 +400,7 @@
     if(grids.block.some(b=>b.lvl===r.lvl&&!b.off&&over(b)))return false;
     if(grids.walk.some(w=>w.lvl===r.lvl&&w.door&&over({x0:w.x0-12,x1:w.x1+12,z0:w.z0-12,z1:w.z1+12})))return false;
     // Keep the monitor approach clear, even when the PC is switched off.
-    if(r.id==='bedroom'&&over({x0:-54,x1:30,z0:33,z1:100}))return false;
+    if(t.id!=='chair'&&r.id==='bedroom'&&over({x0:-54,x1:30,z0:33,z1:100}))return false;
     if(W.lvl===r.lvl&&insideFootprint(t,{x,z,ry},W.x,W.z,RAD))return false;
     return !Object.values(THINGS).some(other=>other!==t&&other.obstacle&&!other.at.hide&&['rest','snap','fall'].includes(other.st)&&other.at.room===r.id&&over({x0:other.at.x-other.hx,z0:other.at.z-other.hz,x1:other.at.x+other.hx,z1:other.at.z+other.hz}));
   }
@@ -490,6 +490,19 @@
     return best && best.s;
   }
   let snapHi = null;
+  let floorHi=null;
+  function floorAim(t,sx,sy){
+    const hp=heldPos(),hit=pick(sx??vw/2,sy??vh/2,{skip:isHeldMesh,far:400});
+    const point=hit&&hit.n?.y>.6?hit.p:hp,r=roomOfPoint(point)||cur,ry=-P.ry+held.ry;
+    if(!r)return null;
+    const target={room:r.id,x:point.x,z:point.z,y0:point.y};
+    return{target:floorDropTarget(t,r,target,ry),aim:target,ry};
+  }
+  function floorGlow(p,t){
+    if(!floorHi){floorHi=new T.Mesh(new T.BoxGeometry(1,1,1),new T.MeshBasicMaterial({transparent:true,opacity:.22,depthWrite:false}));floorHi.userData.noPick=true;root.add(floorHi)}
+    floorHi.visible=!!p;
+    if(p){const q=p.target||p.aim;floorHi.material.color.set(p.target?'#8bc17b':'#c66b55');floorHi.position.set(q.x,LV[ROOMS[q.room].lvl]-.35,q.z);floorHi.scale.set(t.hx*2,.35,t.hz*2);floorHi.rotation.set(0,p.ry*D2R,0)}
+  }
   function snapGlow(s) {
     if (!snapHi) {
       snapHi = new T.Mesh(new T.BoxGeometry(1, 1, 1), new T.MeshBasicMaterial({ color: 0xffd84a, transparent: true, opacity: 0.35, depthWrite: false }));
@@ -504,7 +517,7 @@
     const sn = nearSnap(t, hp.x, hp.y, hp.z);
     if (sn) return snapIn(t, sn);
     let tgt = null;
-    const hit = pick(sx == null ? vw / 2 : sx, sy == null ? vh / 2 : sy, { skip: m => isThingMesh(m) && m.userData.spot === held.id, far: 400 });
+    const hit = pick(sx == null ? vw / 2 : sx, sy == null ? vh / 2 : sy, { skip: isHeldMesh, far: 400 });
     if (hit && hit.n && hit.n.y > 0.6 && cur) { // a flat-ish surface you're pointing at (three's normals are y-up)
       const r = roomOfPoint(hit.p) || cur;
       const x = clamp(hit.p.x, r.bx0 + t.hx, r.bx1 - t.hx), z = clamp(hit.p.z, r.bz0 + t.hz, r.bz1 - t.hz);
@@ -513,11 +526,12 @@
     if (!tgt) { const r = roomOfPoint(hp) || cur; tgt = { room: r.id, x: clamp(hp.x, r.bx0 + t.hx, r.bx1 - t.hx), z: clamp(hp.z, r.bz0 + t.hz, r.bz1 - t.hz), y0: hp.y }; }
     const r=ROOMS[tgt.room],ry=t.obj.rotation.y/D2R;
     if(t.canPlace&&t.canPlace(tgt)===false)return false;
-    if(t.floorOnly){const floor=floorDropTarget(t,r,tgt,ry);if(!floor){ui.toast('Not enough room','Aim farther ahead at clear floor. E / Click puts it down; Esc > Put held item back returns it.');return false;}tgt=floor;}
+    let finalRy=ry;
+    if(t.floorOnly){const p=floorAim(t,sx,sy);if(!p?.target){ui.toast('Not enough room','Red footprint: blocked. Aim at clear floor until it turns green, then E / Click to place. R turns the item.');return false;}tgt=p.target;finalRy=p.ry;}
     const y = t.floorOnly?LV[r.lvl]:landY(tgt.room, tgt.x, tgt.z, tgt.y0, t);
     const startY = Math.min(hp.y, y - 0.5); // (it drops from where it is, or is set straight down)
-    held = null; ui.holdBar(null); snapGlow(null);
-    t.st = 'fall'; t.vy = 0; t.at = { room: tgt.room, x: tgt.x, y: startY, z: tgt.z, ry: (t.obj.rotation.y / D2R) };
+    held = null; ui.holdBar(null); snapGlow(null);floorGlow(null);
+    t.st = 'fall'; t.vy = 0; t.at = { room: tgt.room, x: tgt.x, y: startY, z: tgt.z, ry: finalRy };t.obj.rotation.y=finalRy*D2R;
     t.landY = y; t.fromX = hp.x; t.fromZ = hp.z; t.t0 = performance.now();
     moveTo(t, tgt.room);
     emit('place', t.id);saveThings();
@@ -527,7 +541,7 @@
   function snapIn(t, s) {
     const destination = Object.assign({}, s.pose || {x:s.x,y:s.y,z:s.z,ry:s.ry||0});
     if (s.onBegin && s.onBegin(t, destination) === false) return;
-    held = null; ui.holdBar(null); snapGlow(null);
+    held = null; ui.holdBar(null); snapGlow(null);floorGlow(null);
     const p0 = { x: t.obj.position.x, y: t.obj.position.y, z: t.obj.position.z, ry: t.obj.rotation.y / D2R, rx: t.obj.rotation.x / D2R, rz: t.obj.rotation.z / D2R };
     const p1 = destination;
     t.st = 'anim'; const t0 = performance.now(), ms = 380;
@@ -548,7 +562,7 @@
   }
   function putBack() { // Esc: it goes back where you got it from
     if (!held) return; const t = THINGS[held.id], f = held.from, was = held.was;
-    held = null; ui.holdBar(null); snapGlow(null);
+    held = null; ui.holdBar(null); snapGlow(null);floorGlow(null);
     if (was && SNAPS[was]) {const s=SNAPS[was];if(!s.accepts||s.accepts(t.kind,t)){t.at=f;return snapIn(t,s);}}
     t.st = 'fall'; t.at = Object.assign({}, f, { y: f.y - 3, ry: f.ry || 0 }); t.landY = f.y; t.vy = 0; t.t0 = performance.now(); t.fromX = t.obj.position.x; t.fromZ = t.obj.position.z; t.obj.rotation.set((t.rx || 0) * D2R, (f.ry || 0) * D2R, (t.rz || 0) * D2R, 'YXZ'); moveTo(t, f.room);
   }
@@ -585,7 +599,7 @@
         o.x += (hp.x - o.x) * k; o.y += (hp.y - o.y) * k; o.z += (hp.z - o.z) * k;
         const want = P.ry * -1 + held.ry + (t.faceYou ? 180 : 0), r0 = t.obj.rotation.y / D2R;
         t.obj.rotation.set(Math.sin(performance.now() / 700) * 0.04, (r0 + angd(r0, want) * k) * D2R, Math.sin(performance.now() / 900) * 0.03, 'YXZ');
-        const sn = nearSnap(t, o.x, o.y, o.z); snapGlow(sn); ui.snapHint(sn);
+        const sn = nearSnap(t, o.x, o.y, o.z); snapGlow(sn); ui.snapHint(sn);floorGlow(t.floorOnly&&!sn&&!controlsPaused&&mode==='walk'?floorAim(t):null,t);
         any = true;
       } else if (t.st === 'fall') {
         const a = t.at, now = performance.now();
@@ -906,7 +920,7 @@
     const sid = h && h.spot && !(held && h.spot === held.id) ? h.spot : null;
     setHot(sid);
     const s = sid && SPOTS[sid];
-    ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab && !held ? ' <i>E: pick up'+(THINGS[sid]?.use?' · F: use':'')+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
+    ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab && !held ? ' <i><kbd>E</kbd>: pick up'+(THINGS[sid]?.use?' · <kbd>F</kbd>: use':'')+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
     pb.classList.toggle('hs-hot', !!sid);
   }
   // using a thing: close enough, do it; too far, go over to it first
@@ -948,13 +962,13 @@
     if (!held && !grab(id)) return false;
     const grip = held; held = null; t.st = 'inspect'; unlock();
     for (const k in keys) keys[k] = false;
-    ui.holdBar(null); snapGlow(null); ui.hush(); ui.tip(null); setMode('inspect');
+    ui.holdBar(null); snapGlow(null); floorGlow(null); ui.hush(); ui.tip(null); setMode('inspect');
     t.obj.updateWorldMatrix(true, true); const box = new T.Box3();
     t.obj.traverse(o => {if (o.isMesh && !o.userData.contactShadow) {o.geometry.computeBoundingBox(); const m = new T.Matrix4().copy(t.obj.matrixWorld).invert().multiply(o.matrixWorld); box.union(o.geometry.boundingBox.clone().applyMatrix4(m));}});
     const centre = box.getCenter(new T.Vector3()), size = box.getSize(new T.Vector3());
     const panel = document.createElement('div'); panel.className = 'hs-inspection';
     const name = document.createElement('b'); name.textContent = typeof t.label === 'function' ? t.label() : t.label;
-    const hint = document.createElement('span'); hint.textContent = t.obj.userData.cube ? 'Drag a face to turn · Right-drag to rotate · Wheel: zoom · Backspace: back · Esc: menu' : 'Drag to rotate · Wheel: zoom · Backspace: back · Esc: menu';
+    const hint = document.createElement('span'); hint.innerHTML = (t.obj.userData.cube ? 'Drag a face to turn · Right-drag to rotate' : 'Drag to rotate')+' · <kbd>Wheel</kbd> zoom · <kbd>⌫ Backspace</kbd> back · <kbd>Esc</kbd> menu';
     const back = document.createElement('button'); back.type = 'button'; back.textContent = 'Back'; back.addEventListener('click', endInspect);
     panel.append(name, hint, back); ui.el.appendChild(panel);
     inspection = {t, grip, centre, panel, yaw: -P.ry + 24, pitch: id === 'gb' ? -80 : -18, zoom: 1, radius: size.length() / 2, drag: null};
@@ -1004,7 +1018,7 @@
     if (held) putBack();
     focusS = { back: { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry, lvl: W.lvl, seat: W.seat }, o };
     for (const k in keys) keys[k] = false; joy.on = false;
-    glideTo(pose, { lock: true, ms: o.ms || 750, cancel: () => { if (!focusS) return; const f = focusS; focusS = null; glideTo(f.back, { ms: 500, done: () => setWalkFrom(f.back) }); }, done: () => { if (!focusS) return; mode = 'focus'; html.classList.add('hs-focus'); ui.focusBar(o.label || 'Get up'); if (o.enter) try { o.enter(); } catch (e) { console.error(e); } } });
+    glideTo(pose, { lock: true, ms: o.ms || 750, cancel: () => { if (!focusS) return; const f = focusS; focusS = null;if(f.o.exit)f.o.exit(); glideTo(f.back, { ms: 500, done: () => setWalkFrom(f.back) }); }, done: () => { if (!focusS) return; mode = 'focus'; html.classList.add('hs-focus'); ui.focusBar(o.label || 'Get up'); if (o.enter) try { o.enter(); } catch (e) { console.error(e); } } });
     return true;
   }
   function unfocus(now) {
@@ -1089,7 +1103,7 @@
       say(title, text, ms) { note.querySelector('b').textContent = title; note.querySelector('p').innerHTML = text; note.classList.add('on'); clearTimeout(noteT); noteT = setTimeout(() => note.classList.remove('on'), ms || Math.max(4500, String(text).length * 70)); },
       hush() { note.classList.remove('on'); },
       toast(title, text) { toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 4200); },
-      tip(text, x, y, far) { if (!text) { tipEl.classList.remove('on'); return; } tipEl.innerHTML = text + (far ? ' <small>(walk closer)</small>' : touchy()||/E: pick up/.test(text) ? '' : ' <small>[F: use]</small>'); tipEl.classList.add('on'); tipEl.style.transform = `translate(${Math.min(x + 14, vw - 240)}px,${y + 18}px)`; },
+      tip(text, x, y, far) { if (!text) { tipEl.classList.remove('on'); return; } tipEl.innerHTML = text + (far ? ' <small>(walk closer)</small>' : touchy()||text.includes('<kbd>E</kbd>') ? '' : ' <small><kbd>F</kbd> Use</small>'); tipEl.classList.add('on'); tipEl.style.transform = `translate(${Math.min(x + 14, vw - 240)}px,${y + 18}px)`; },
       where() {
         const r = cur; if (!r) return;
         $('.hs-title').textContent = r.title || r.name.toUpperCase(); $('.hs-where').textContent = r.stations[stIdx] ? r.stations[stIdx].n : r.sub || '';
@@ -1099,14 +1113,14 @@
         if (!hold.querySelector('[data-h=inspect]')) {const b = document.createElement('button'); b.type = 'button'; b.dataset.h = 'inspect'; b.textContent = 'Inspect'; hold.querySelector('.hs-hbtn').prepend(b);}
         hold.hidden = false; el.classList.add('holding');
         hold.querySelector('.hs-hname').textContent = typeof t.label === 'function' ? t.label() : t.label;
-        hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : '<b>E / Click</b>: place' + (t.use?' &middot; F: '+esc(t.useLabel||'use'):'') + ' &middot; R: turn &middot; I: inspect &middot; Wheel: distance &middot; Esc: menu / put back';
+        hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : '<kbd>E</kbd> / <kbd>Click</kbd>: place' + (t.use?' &middot; <kbd>F</kbd>: '+esc(t.useLabel||'use'):'') + ' &middot; <kbd>R</kbd>: turn &middot; <kbd>I</kbd>: inspect &middot; <kbd>Wheel</kbd>: distance &middot; <kbd>Esc</kbd>: menu / put back';
         const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use; u.textContent = t.useLabel || 'Use';
       },
-      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML=`<b>E / Click: ${esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''))}</b>`;else if (held) this.holdBar(THINGS[held.id]); },
+      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML=`<kbd>E</kbd> / <kbd>Click</kbd>: ${esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''))}`;else if (held) this.holdBar(THINGS[held.id]); },
       crossOn() { el.classList.add('cross'); clearTimeout(crossT); crossT = setTimeout(() => el.classList.remove('cross'), 2500); },
       fade(on, ms) { const f = $('.hs-fade'); f.style.transitionDuration = (ms || 300) + 'ms'; f.classList.toggle('on', !!on); },
       modalOpen: () => !!el.querySelector('.hs-modal.on'),
-      focusBar(label) { const b = $('.hs-getup'); b.hidden = !label; if (label) b.querySelector('span').textContent = label + (touchy()?'':' [Backspace]'); el.classList.toggle('focus', !!label); },
+      focusBar(label) { const b = $('.hs-getup'); b.hidden = !label; if (label) b.querySelector('span').innerHTML = esc(label) + (touchy()?'':' <kbd>⌫ Backspace</kbd>'); el.classList.toggle('focus', !!label); },
       map() { // a tiny plan of the floor you're on, with you on it
         const r = cur; if (!r) return; const w = 84, h = 84;
         mg.clearRect(0, 0, w, h);
@@ -1628,7 +1642,7 @@
     focus, unfocus, surface, faceQuad, inspect, endInspect, get focused() { return !!focusS; },
     room, buildRoom, door, setDoor, walkRect, block, stairs, support, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     restoreThing, saveThings, layerFor, frontFx, place,
-    grab, drop, putBack, held: () => held && held.id, act: id => act(SPOTS[id]), useAt,
+    grab, drop, putBack, held: () => held && held.id, placement:()=>held&&THINGS[held.id].floorOnly?floorAim(THINGS[held.id]):null, act: id => act(SPOTS[id]), useAt,
     glideTo, goStation, cancelGlide, viewFor, setWalkFrom, seatPose, fillPose, get gliding() { return !!glide; },
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,

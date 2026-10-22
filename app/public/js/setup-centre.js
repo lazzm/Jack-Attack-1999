@@ -142,7 +142,7 @@
     const pop = soft().filter(p => !p.nodl && dl(p.id) > 0).sort((a, b) => dl(b.id) - dl(a.id)).slice(0, 6);
     const hero = n ? `<p><b>Welcome back!</b> You've got ${n} program${n === 1 ? '' : 's'} on this PC. Fancy some more? A <b>Starter Pack</b> installs a whole bundle in one go.</p>`
       : SU.migrated ? '<p><b>Hello!</b> Everything that was already on your PC is still there. Here\'s where to get more.</p>'
-      : '<p><b>Your PC is fresh out of the box!</b> It has JackOS 98, JackNet Explorer, Outlook Express, the accessories and a few card games. Everything else comes from here: pick a <b>Starter Pack</b> to fill it up in one go, or browse the catalogue.</p>';
+      : '<p><b>Your PC is fresh out of the box!</b> It has JackOS 98, JackNet Explorer, JackMail Express, the accessories and a few card games. Everything else comes from here: pick a <b>Starter Pack</b> to fill it up in one go, or browse the catalogue.</p>';
     return frame('home', `<div class="jsc-hero">${mini(J('package', 32), 32)}${hero}<button type="button" class="btn jsc-big" data-go="packs.html">Starter Packs &raquo;</button></div>
 <h2>Starter Packs</h2><div class="jsc-packs">${SU.PACKS.slice(0, 4).map(packCard).join('')}</div><p style="font-size:11px"><a href="${C}packs.html">See all ${SU.PACKS.length} packs (including one Dave made) &raquo;</a></p>
 <h2>Popular with JackNet members</h2><div data-pop>${pop.length ? list(pop, true) : '<p><i>Counting the downloads... (if this stays empty, nobody has downloaded anything yet. Be the first!)</i></p>'}</div><p style="font-size:11px"><a href="${C}popular.html">The full chart &raquo;</a></p>
@@ -332,7 +332,7 @@ ${ps.length ? `<div class="jsc-list">${ps.map(p => `<div class="jsc-it">${icon(p
 
 Congratulations on your new JackOS 98 computer!
 
-It comes with JackOS 98, JackNet Explorer, Outlook Express,
+It comes with JackOS 98, JackNet Explorer, JackMail Express,
 the Accessories (Notepad, WordPad, Paint, Calculator...),
 the System Tools, Media Player and some card games.
 Everything else you get off the Internet. For FREE. (Mostly.)

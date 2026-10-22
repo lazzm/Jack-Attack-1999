@@ -34,7 +34,7 @@ function P(key) {
 // ================================================================ BEFUDDLED! (kid friendly, true in 1999, nothing after it)
 // [question, the right answer, three wrong ones]
 const QB = [
-  ['How many squares are on each face of a standard Rubik\'s cube?', '9', '4', '6', '16'],
+  ['How many squares are on each face of a standard Rubrick\'s cube?', '9', '4', '6', '16'],
   ['Which planet is known as the Red Planet?', 'Mars', 'Venus', 'Jupiter', 'Saturn'],
   ['In 1969, who was the first person to walk on the Moon?', 'Neil Armstrong', 'Buzz Aldrin', 'Yuri Gagarin', 'John Glenn'],
   ['How many players are on the pitch for one football team?', '11', '9', '10', '12'],

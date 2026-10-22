@@ -75,8 +75,8 @@
   const WORDS = (`i a the to you and it is in of me my be for on at that have not this are with so but do go we get got if can was what all no just your up out there
 now he she they like know will see good one time when how love day back well yes yeah ok okay soon home tea ready late come coming going school tonight tomorrow today later call
 text phone mobile message please thanks cool wicked brill brilliant great fun game games play playing won win lost hi hello bye night morning mate mates where wer u r ur cu
-lol luv pls thx wot dunno gonna wanna sorry miss help mum mom dad jack dave luke callum ${Cast.slug('sister')} gran nan bonnie gubbinz ork orks waaagh grot squig snake pokemon nintendo
-goldeneye mario kart computer internet website site email cheat cheats level boss best worst ever never always maybe still really very much more some any here who why
+lol luv pls thx wot dunno gonna wanna sorry miss help mum mom dad jack dave luke callum ${Cast.slug('sister')} gran nan bonnie gubbinz ork gorks waaagh grot squig snake pocket critters ultra entertainment
+goldenballs kart kaos computer internet website site email cheat cheats level boss best worst ever never always maybe still really very much more some any here who why
 which then than them their our us his her him its been had has did does done doing make made take took give gave say said tell told think thought want need look looking
 find found keep let put run walk talk bring buy bought pay paid money quid pound pence pocket shop shops town bus car lift pick picking wait waiting meet meeting outside
 inside house round park pitch football match goal score team club practice training ready dinner lunch breakfast chips pizza sweets crisps pop drink hungry tired bored busy
@@ -85,12 +85,12 @@ over own right same should something sure though through too under use way while
 mad mental crazy awesome rubbish boring funny joke laugh laughing happy sad angry scared tired hurt ill sick better worse fine alright amazing epic massive tiny huge
 monday tuesday wednesday thursday friday saturday sunday weekend week holiday holidays christmas easter birthday party film video tape telly tv watch watching channel
 homework teacher class lesson lessons exam exams test maths english science french history geography art music pe break bell detention trouble
-game boy n64 playstation dreamcast pc disk disc floppy cd modem online offline log logon password secret secrets hidden page pages download upload
+game lad ultra 64 playspace daydream pc disk disc floppy cd modem online offline log logon password secret secrets hidden page pages download upload
 dog cat goat horse fish bird pet feed fed clean dirty hungry
 red blue green yellow black white pink purple orange brown gold silver
 one two three four five six seven eight nine ten hundred thousand million first second third
 on in at by up from into onto with without before behind between
-star wars jedi lightsaber force maul droid pod racer episode
+intergalactic battles space cadet lightspatula force maul droid pod racer episode
 ring rang ringing texted texting sent send sending reply replied answer phone credit top battery charger charge snake ringtone tune
 wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutted chuffed knackered`).split(/\s+/).filter(w => /^[a-z]+$/.test(w));
   const T9 = {};
@@ -121,19 +121,19 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
     ['06-04', 'Luke', 'jack ur goalie 2day. sorry. callum wont do it he says he has 2 save his hands 4 the keyboard'],
     ['06-20', 'Dad', 'THANK YOU FOR THE TOFFEES. HOW DO YOU MAKE IT NOT CAPITALS. DAD'],
     ['06-20', 'Mom', 'Dad has borrowed my phone. Sorry about the shouting. Mom x'],
-    ['07-16', 'Dave', 'EPISODE 1 2NITE!!!!!! 7.15!!!! my dad is driving. bring ur lightsaber (the toy 1)'],
-    ['07-16', 'Dave', 'BEST FILM EVER. podrace!!!!!! darth maul!!!!!! jar jar ok maybe not jar jar'],
+    ['07-16', 'Dave', 'EPISODE 1 2NITE!!!!!! 7.15!!!! my dad is driving. bring ur lightspatula (the toy 1)'],
+    ['07-16', 'Dave', 'BEST FILM EVER. podrace!!!!!! dark mole!!!!!! jar jar jams ok maybe not jar jar jams'],
     ['07-24', 'JackK', 'ive got 20p 4 u. its in 1ps. dont say i never give u anything'],
     ['08-01', 'Luke', 'hows the caravan. is it raining. its raining here 2'],
     ['08-11', 'Mom', 'DONT look at the sun. Use the glasses. I mean it. Love Mom'],
     ['08-11', 'Luke', 'did u see it!!!! it went dark at 11 in the MORNING. my cat went mad'],
     ['09-07', 'Mom', Cast.t('Can you pick {sister} up from school at 3.15? Ill be late. Thank you, owe you one. Mom x')],
-    ['10-05', 'Luke', 'POKEMON IS OUT!!!!!!! got RED. u got blue yeah? we need 2 trade. link cable at break'],
-    ['10-05', 'Dave', 'i havent got pokemon. i dont care. its for babys. (wat level is ur pikachu)'],
-    ['10-16', 'Luke', 'u can have ur alakazam back. i was just looking at it. 4 20 mins'],
+    ['10-05', 'Luke', 'POCKET CRITTERS IS OUT!!!!!!! got RED. u got blue yeah? we need 2 trade. link cable at break'],
+    ['10-05', 'Dave', 'i havent got pocket critters. i dont care. its for babys. (wat level is ur zapachu)'],
+    ['10-16', 'Luke', 'u can have ur alakabam back. i was just looking at it. 4 20 mins'],
     ['10-31', 'Mom', 'Remember 9pm at Daves. Your dad will pick you up. Have fun you little Y2K bug x'],
     ['11-05', 'Callum', 'r u watching the fireworks. my dad set the hedge on fire. its fine. its out now'],
-    ['11-27', 'Luke', 'smash bros at mine. pikachu is unbeatable. bring daves pad he says hes ill'],
+    ['11-27', 'Luke', 'smash bros at mine. zapachu is unbeatable. bring daves pad he says hes ill'],
     ['12-01', 'Mom', 'Can you print Lucys letter to Father Christmas on the computer? She wants it "official". Mom x'],
     ['12-18', 'Mom', 'Stay OUT of the wardrobe. I know it was you. Father Christmas knows too.'],
     ['12-25', 'Dave', 'MERRY XMAS!!!!! got DK64!!!! wat u get. dont say dk64 aswell'],

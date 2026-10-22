@@ -72,7 +72,7 @@ function join(ws, c, m) {
   listNow();
   // let everybody know there's somebody to play with (not too often)
   const p = P(key);
-  if (!was && Date.now() - (p.ad || 0) > 15 * 60000) { p.ad = Date.now(); ctx.pushChat({ sys: true, text: `*** ${c.member} has plugged a link cable into their Game Boy and is waiting in the Pocket Critters Cable Club (${ver === 'puddle' ? 'Puddle' : 'Moss'} Version)!`, ts: Date.now() }); }
+  if (!was && Date.now() - (p.ad || 0) > 15 * 60000) { p.ad = Date.now(); ctx.pushChat({ sys: true, text: `*** ${c.member} has plugged a link cable into their Game Lad and is waiting in the Pocket Critters Cable Club (${ver === 'puddle' ? 'Puddle' : 'Moss'} Version)!`, ts: Date.now() }); }
 }
 function ask(ws, c, m) {
   const me = club.get(c.id), to = [...club.values()].find(x => String(x.c.id) === String(m.to));

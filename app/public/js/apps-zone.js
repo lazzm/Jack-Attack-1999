@@ -29,7 +29,7 @@
   Z.CPU_R = [900, 1300, 1800];
   Z.QUICK = ['Hi all!', 'Anyone want a game?', 'Good luck!', 'Nice move!', 'Oops!', 'Thinking...', 'Hurry up please', 'Lag!!!',
     'Brb, Mom wants me', 'Brb, Mom needs the phone line', 'lol', 'gg', 'gg wp', 'Rematch?', 'Thanks for the game', 'That was close!',
-    'Saw Episode I three times!!', 'Pod racing > homework', 'Jedi mind tricks don\'t work on me', 'Darth Maul is the coolest', 'Booyah!', 'Bye!'];
+    'Saw Episode I three times!!', 'Pod racing > homework', 'Space Cadet mind tricks don\'t work on me', 'Dark Mole is the coolest', 'Booyah!', 'Bye!'];
 
   // ================================================================ icons (hand-drawn, chunky, 1999)
   const S = s => `<svg viewBox="0 0 16 16" shape-rendering="crispEdges">${s}</svg>`;
@@ -74,7 +74,7 @@
     ['zone.ping', 'Lag-o-meter', 'Measure your lag the old-fashioned way'],
     ['zone.dave', 'Dave\'s "cheat codes"', 'Dave swears there are cheats for the Zone. He wrote them down.'],
     ['zone.homepage', 'www.jacknetzone.jnet', 'The Zone has its own web site'],
-    ['zone.splash', 'Patience of a Jedi', 'Sit through a whole intro without skipping it'],
+    ['zone.splash', 'Patience of a Space Cadet', 'Sit through a whole intro without skipping it'],
     ['zone.plugin', 'Plugged in', 'Download a plug-in you already have'],
     ['zone.signup', 'Signed up', 'Give yourself a Zone face and a motto'],
     ['zone.cup', 'Cup runneth over', 'Enter this week\'s tournament'],
@@ -250,7 +250,7 @@
     const b = document.createElement('div');
     b.innerHTML = '<pre class="zone-ping"></pre><div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn">Close</button></div>';
     const pre = b.querySelector('pre');
-    const w = Apps.win('MS-DOS Prompt - PING', b, { w: 460, noMax: true, icon: '<svg viewBox="0 0 16 16"><rect width="16" height="16" fill="#000"/><path d="M2 4l3 3-3 3" stroke="#c0c0c0" fill="none"/><path d="M7 11h6" stroke="#c0c0c0"/></svg>' });
+    const w = Apps.win('JACK-DOS Prompt - PING', b, { w: 460, noMax: true, icon: '<svg viewBox="0 0 16 16"><rect width="16" height="16" fill="#000"/><path d="M2 4l3 3-3 3" stroke="#c0c0c0" fill="none"/><path d="M7 11h6" stroke="#c0c0c0"/></svg>' });
     b.querySelector('.btn').addEventListener('click', w.close);
     const show = () => { pre.textContent = lines.join('\n'); };
     show(); let n = 0; const times = [];

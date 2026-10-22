@@ -2,6 +2,11 @@
 
 Current F/E media and account regressions (localhost throwaway servers only):
 
+    node chair-placement.mjs http://localhost:18463
+    node reading-phone.mjs http://localhost:18463
+    node box-art.mjs http://localhost:18463
+    node --expose-internals parody-audit.cjs # dry-run authored-text audit; --write is an explicit bulk rewrite
+
     node controls-media.mjs http://localhost:18461
     node console-case-play.mjs http://localhost:18461
     node login-seat.mjs http://localhost:18461

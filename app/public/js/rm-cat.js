@@ -79,7 +79,7 @@
     { id: 'tin.key', spot: 'cat', n: 'Tiny brass key', d: "The cat from next door was lying on it. It's the key to my money box!" },
     { id: 'tin.cheat', spot: 'mags', n: 'Cheat code card', d: 'Free with a games mag: UP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A. Works on everything (it does not).' },
     { id: 'tin.ticket', spot: 'cork', n: 'Cinema ticket stub', d: 'From when we went to see the new space film. Dave cried at the end. He says he did not.', from: '16/07' },
-    { id: 'tin.conker', spot: 'window', n: 'Champion conker', d: 'A 12-er. Baked in the oven (that is cheating, do not tell Dave).', from: '20/09' },
+    { id: 'tin.conker', spot: 'window', n: 'Champion acorn quest', d: 'A 12-er. Baked in the oven (that is cheating, do not tell Dave).', from: '20/09' },
   ];
   const FIND = {}; for (const f of FINDS) FIND[f.id] = f;
 

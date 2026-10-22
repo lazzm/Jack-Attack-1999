@@ -72,7 +72,7 @@
   function showBrowser() { const br = $('browser'); br.classList.remove('min'); const tb = $('taskBrowser'); if (tb) tb.hidden = false; Desk.activate(br); }
   function openUrl(u) {
     if (/^javascript:/i.test(u)) return;
-    if (/^mailto:/i.test(u)) { const to = u.slice(7).split('?')[0]; return window.JackFiles && JackFiles.compose ? JackFiles.compose({ to }) : msg('Outlook Express', 'Outlook Express is not installed.', 'warn'); }
+    if (/^mailto:/i.test(u)) { const to = u.slice(7).split('?')[0]; return window.JackFiles && JackFiles.compose ? JackFiles.compose({ to }) : msg('JackMail Express', 'JackMail Express is not installed.', 'warn'); }
     showBrowser(); IE.navigate(u);
   }
   function copyText(t, what) {
@@ -410,7 +410,7 @@
   }
   function mailIt(subj, body, att) {
     if (window.JackFiles && JackFiles.compose) JackFiles.compose({ subj, body, att });
-    else msg('Outlook Express', 'Outlook Express is not installed on this computer.', 'warn');
+    else msg('JackMail Express', 'JackMail Express is not installed on this computer.', 'warn');
   }
   async function picMail(pic) {
     const r = await renderPicture(pic), name = r.name + (r.w * r.h < 20000 ? '.gif' : '.bmp');
@@ -747,7 +747,7 @@
 
   // ================================================================ JackAmp skins (from the web, for real)
   const SKINS = [
-    { id: 'camo', n: 'Army Camo', by: 'Snaz', d: 'Green and brown, like an Airfix tank. Buttons go BOOM (they don\'t).', main: 'linear-gradient(#3a5a1a,#22300f)', lcd: '#ffd400', btn: 'linear-gradient(#6a7a3a,#2a3a10)', edge: '#9aaa5a' },
+    { id: 'camo', n: 'Army Camo', by: 'Snaz', d: 'Green and brown, like an AirMix tank. Buttons go BOOM (they don\'t).', main: 'linear-gradient(#3a5a1a,#22300f)', lcd: '#ffd400', btn: 'linear-gradient(#6a7a3a,#2a3a10)', edge: '#9aaa5a' },
     { id: 'hotdog', n: 'Hot Dog Stand', by: 'Jack', d: 'Red and yellow. Hurts your eyes. You\'ll love it.', main: 'linear-gradient(#e00000,#900000)', lcd: '#ffff00', btn: 'linear-gradient(#ffff40,#c0a000)', edge: '#ffff80', btext: '#000' },
     { id: 'rubik', n: 'Cube Mania', by: Cast.n('cousin'), d: 'Six colours. Solves itself when you press Play. (It doesn\'t.)', main: 'linear-gradient(90deg,#e10600 0 16%,#ffffff 16% 33%,#0028c8 33% 50%,#ffd400 50% 66%,#0a0 66% 83%,#ff7a00 83%)', lcd: '#ffffff', btn: 'linear-gradient(#ffffff,#a0a0a0)', edge: '#fff', btext: '#000' },
     { id: 'space', n: 'Deep Space Nine-ish', by: Cast.n('club2'), d: 'Black, stars, purple buttons. For listening to space music in the dark.', main: 'radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 70% 60%,#fff,transparent),radial-gradient(1px 1px at 40% 80%,#ff8,transparent),linear-gradient(#000010,#1a0a4a)', lcd: '#9fd0ff', btn: 'linear-gradient(#8060c0,#301060)', edge: '#c0a0ff' },

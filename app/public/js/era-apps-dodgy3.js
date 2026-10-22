@@ -39,7 +39,7 @@
     [/\bdave\b/, ['DAVE AGAIN? EVERYBODY TALKS ABOUT DAVE. WHO IS THIS DAVE?', 'I SEE. AND HOW DOES DAVE MAKE YOU FEEL?']],
     [/\b(computer|pc|modem|internet|windows)\b/, ['DO COMPUTERS WORRY YOU?', 'I AM A COMPUTER. ARE YOU TALKING ABOUT ME?', 'WHY DO YOU MENTION COMPUTERS?']],
     [/\b(ork|orks|waaagh|grot|squig|warhammer|miniatures?)\b/, ['TELL ME ABOUT THESE LITTLE PAINTED MODELS.', 'HOW MANY HAVE YOU PAINTED? HOW MANY HAVE YOU BOUGHT? I SEE. INTERESTING.', 'DO GREEN PEOPLE APPEAR IN YOUR DREAMS?']],
-    [/\b(pokemon|pikachu|nintendo|n64|playstation|game boy|zelda|mario|sega|dreamcast|tetris)\b/, ['DO YOU PLAY VIDEO GAMES TO FORGET YOUR PROBLEMS? I PLAY PONG.', 'HOW MANY HOURS A DAY? BE HONEST. I AM WRITING THIS DOWN.', 'I ONCE PLAYED TETRIS FOR SIX YEARS. I STILL SEE THE BLOCKS.']],
+    [/\b(pokemon|pikachu|nintendo|n64|playstation|game boy|zelda|mario|sega|dreamcast|tetris)\b/, ['DO YOU PLAY VIDEO GAMES TO FORGET YOUR PROBLEMS? I PLAY PONG.', 'HOW MANY HOURS A DAY? BE HONEST. I AM WRITING THIS DOWN.', 'I ONCE PLAYED BLOCKOLOGY FOR SIX YEARS. I STILL SEE THE BLOCKS.']],
     [/\b(star wars|jedi|yoda|vader|phantom menace|star trek|x-files)\b/, ['THE FORCE IS STRONG IN YOU. ALSO THE NEED TO GO OUTSIDE.', 'DO YOU THINK THE TRUTH IS OUT THERE?']],
     [/\b(sad|unhappy|depressed|upset|cry)\b/, ['I AM SORRY TO HEAR THAT YOU ARE FEELING DOWN. TALKING TO SOMEONE YOU TRUST CAN REALLY HELP. A REAL PERSON, NOT A SOUND CARD.', 'THAT SOUNDS HARD. IS THERE A GROWN-UP YOU CAN TALK TO ABOUT IT?']],
     [/\b(happy|great|good|brilliant|ace)\b/, ['THAT IS GOOD TO HEAR. WHY ARE YOU HAPPY?', 'EXCELLENT. MY CIRCUITS ARE PLEASED.']],

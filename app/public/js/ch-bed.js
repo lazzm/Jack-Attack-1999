@@ -107,7 +107,7 @@
         if (!on.has(m.id)) { t.home = { room: 'bedroom', x: 0, y: FY, z: 100, hide: true }; if (!t.at.hide || t.st === 'held') CK.home(id); CK.lock(id); continue; }
         const [x, y, z, ry] = it.at;
         t.home = { room: 'bedroom', x, y, z, ry };
-        if (CK.has('tidy', m.id)) { t.home = Object.assign({}, t.home, { hide: true }); if (m.kind === 'mag') { magN++; const a = CK.S.at[id]; if (a) { t.at = { room: a[0], x: a[1], y: a[2], z: a[3], ry: a[4] }; t.st = 'rest'; H.place(t); } } else if (!t.at.hide) CK.home(id, { hide: true }); CK.lock(id); continue; }
+        if (CK.has('tidy', m.id)) { t.home = Object.assign({}, t.home, { hide: true }); if (m.kind === 'mag') { magN++; const a = CK.S.at[id]; if (a) { t.at = { room: a[0], x: a[1], y: a[2], z: a[3], ry: a[4] };t.snap=a[7]&&H.SNAPS[a[7]]?a[7]:null;t.st=t.snap?'snap':'rest';t.rx=a[5]||0;t.rz=a[6]||0; H.place(t); } } else if (!t.at.hide) CK.home(id, { hide: true }); CK.lock(id,m.kind!=='mag'); continue; }
         CK.lock(id, false);
         if (!CK.S.at[id]) CK.home(id);
       }
@@ -123,13 +123,15 @@
     const mid = t.id.slice(5);
     if (!stay) t.home = Object.assign({}, t.at, { hide: true });
     else t.home = Object.assign({}, t.at);
-    CK.lock(t.id); CK.keep(t.id);
+    CK.lock(t.id,!stay); CK.keep(t.id);
+    if(stay&&CK.S.at[t.id]){CK.S.at[t.id][5]=t.rx||0;CK.S.at[t.id][6]=t.rz||0;CK.S.at[t.id][7]=t.snap||null;CK.save()}
     const m = CC.MESSID[mid];
     if (m && m.id === 'socks' && Math.random() < 0.35) setTimeout(() => { CK.jack('Socks', 'Two socks went in. Wait: these are two DIFFERENT socks. Where are the other two? (Behind the radiator, probably. The sock monster lives there.)'); }, 300);
     CK.step('tidy', mid);
     CK.MODS.tidy.sync();
   }
-  CK.R.addClue('radiator', { title: 'Behind the radiator', when: () => CK.has('tidy', 'socks') || CK.done('tidy'), once: true, secret: 'ch.sock', text: 'Behind the radiator: FOUR odd socks, a 1997 Panini sticker and a fluff ball the size of a hamster. So THIS is where they go. The sock monster is real.' });
+  H.on('reading-shelved',t=>{if(t.kind==='mess.mag')put(t,true)});
+  CK.R.addClue('radiator', { title: 'Behind the radiator', when: () => CK.has('tidy', 'socks') || CK.done('tidy'), once: true, secret: 'ch.sock', text: 'Behind the radiator: FOUR odd socks, a 1997 Panino sticker and a fluff ball the size of a hamster. So THIS is where they go. The sock monster is real.' });
 
   // ================================================================ MAKE YOUR BED
   let duv = null, duvBase = null, duvK = { s: 0, f: 0, t: 0, lift: 0 };

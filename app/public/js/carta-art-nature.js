@@ -638,7 +638,7 @@
   }
   const lcdDigits = (p, x, y, str, c) => p.text(x, y, str, c, 2);
   A.add({
-    rubiks_cube: { cap: 'A Rubik\'s Cube, all mixed up. Only one of its 43 quintillion positions is solved.', draw(p, S) {
+    rubiks_cube: { cap: 'A Rubrick\'s Cube, all mixed up. Only one of its 43 quintillion positions is solved.', draw(p, S) {
       S.room(p); p.ell(48, 64, 30, 5, '#6a4a28');
       cube(p, 18, 26, 10, 'wyrbwgoyw'.split(''), 'rrgyrboro'.split(''), 'bgbbowgbg'.split(''));
     } },
@@ -648,7 +648,7 @@
       p.odisc(72, 38, 18, '#c8c8d0'); p.obox(69, 15, 6, 5, '#a8a8b0'); p.odisc(72, 38, 15, '#203020'); p.rect(59, 33, 26, 11, '#90a878'); p.text(62, 36, '22.95', '#203010'); p.text(65, 48, 'SEC', '#90a878');
       p.thick(84, 22, 88, 18, '#a8a8b0', 2);
     } },
-    tetris: { cap: 'Tetris: seven shapes made of four squares each fall down. Complete a row and it vanishes.', draw(p, S) {
+    tetris: { cap: 'Blockology: seven shapes made of four squares each fall down. Complete a row and it vanishes.', draw(p, S) {
       p.fill('#000018'); p.stars(30, 70);
       const ox = 26, cs = 5, B = (x, y, c) => { p.rect(ox + x * cs, 4 + y * cs, cs, cs, c); p.rect(ox + x * cs, 4 + y * cs, cs - 1, 1, mix(c, 0.45)); p.rect(ox + x * cs, 4 + y * cs, 1, cs - 1, mix(c, 0.3)); p.rect(ox + x * cs + cs - 1, 4 + y * cs, 1, cs, mix(c, -0.45)); p.rect(ox + x * cs, 4 + y * cs + cs - 1, cs, 1, mix(c, -0.45)); };
       p.rect(ox - 2, 2, 54, 68, '#808090'); p.rect(ox, 4, 50, 65, '#101040');
@@ -658,7 +658,7 @@
       p.rect(ox, 4 + 12 * cs, 50, cs, 'rgba(255,255,255,.35)');
       p.obox(80, 4, 14, 14, '#202040'); p.text(81, 20, 'NEXT', '#9fd0ff'); [[0, 0], [1, 0], [2, 0], [3, 0]].forEach(([x]) => { p.rect(82 + x * 2.5, 10, 2, 2, C.I); });
     } },
-    tetris_game_boy: { cap: 'Tetris on two Game Boys joined by a link cable, so two players can race. Four shades of green!', draw(p, S) {
+    tetris_game_boy: { cap: 'Blockology on two Game Boys joined by a link cable, so two players can race. Four shades of green!', draw(p, S) {
       p.vgrad(0, 72, '#ffe8a0', '#ffc060');
       const gb = (x, y, field) => {
         p.opoly([[x, y], [x + 32, y], [x + 32, y + 50], [x + 25, y + 57], [x, y + 57]], '#c8c4bc'); p.rect(x + 1, y + 1, 30, 1, '#e8e4dc'); p.rect(x + 1, y + 1, 1, 55, '#e0dcd4');

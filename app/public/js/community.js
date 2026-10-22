@@ -66,7 +66,7 @@
         <div class="pmood">Mood: <b>${esc(MOODS[p.mood] || '')}</b></div></div></div>
       <div class="pbody">
         <div class="pbio">${p.bio ? esc(p.bio) : '<i>This member hasn\'t written a bio yet.</i>'}</div>
-        <table class="pfacts"><tr><th>Favourite game</th><td>${esc(p.game) || '-'}</td></tr><tr><th>Favourite film</th><td>${esc(p.film) || '-'}</td></tr><tr><th>Playing right now</th><td>${esc(p.playing) || '-'}</td></tr><tr><th>Favourite Pok&eacute;mon</th><td>${esc(p.poke) || '-'}</td></tr><tr><th>Forum posts</th><td>${p.posts}</td></tr></table>
+        <table class="pfacts"><tr><th>Favourite game</th><td>${esc(p.game) || '-'}</td></tr><tr><th>Favourite film</th><td>${esc(p.film) || '-'}</td></tr><tr><th>Playing right now</th><td>${esc(p.playing) || '-'}</td></tr><tr><th>Favourite Pocket Critters</th><td>${esc(p.poke) || '-'}</td></tr><tr><th>Forum posts</th><td>${p.posts}</td></tr></table>
         <div class="pvisits">This profile has been visited <span class="lcdnum">${[...visits].map(c => '<b>' + c + '</b>').join('')}</span> times!</div>
         ${p.sig ? `<div class="psig">${esc(p.sig)}</div>` : ''}
       </div>
@@ -97,8 +97,8 @@
       <div class="pe-row"><label for="peGame">Favourite game</label><input type="text" id="peGame" name="game" maxlength="40" value="${esc(p.game)}"></div>
       <div class="pe-row"><label for="peFilm">Favourite film</label><input type="text" id="peFilm" name="film" maxlength="40" value="${esc(p.film)}"></div>
       <div class="pe-row"><label for="pePlay">Playing right now</label><input type="text" id="pePlay" name="playing" maxlength="40" value="${esc(p.playing)}"></div>
-      <div class="pe-row"><label for="pePoke">Favourite Pok&eacute;mon</label><input type="text" id="pePoke" name="poke" maxlength="20" value="${esc(p.poke)}"></div>
-      <div class="pe-row"><label for="peSig">Forum signature</label><input type="text" id="peSig" name="sig" maxlength="100" value="${esc(p.sig)}" placeholder="e.g. WAAAGH!!! ~*~ Squirtle 4 eva ~*~"></div>
+      <div class="pe-row"><label for="pePoke">Favourite Pocket Critters</label><input type="text" id="pePoke" name="poke" maxlength="20" value="${esc(p.poke)}"></div>
+      <div class="pe-row"><label for="peSig">Forum signature</label><input type="text" id="peSig" name="sig" maxlength="100" value="${esc(p.sig)}" placeholder="e.g. WAAAGH!!! ~*~ Squirturtle 4 eva ~*~"></div>
       <div class="row" style="justify-content:flex-end"><button class="btn" type="button" data-members>Cancel</button><button class="btn big" type="submit">Save profile</button></div></form>`;
   });
   document.addEventListener('submit', ev => {

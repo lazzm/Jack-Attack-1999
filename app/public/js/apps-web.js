@@ -34,25 +34,25 @@
   P('~lee', "{club3}'s Yo-Yo Trick Zone", 1, 'hobby', 'Yo-yo tricks with diagrams: the sleeper, walk the dog, around the world and more.', 1, 'www.yoyozone.kidz');
   P('rovers', 'Rovers Juniors FC', 1, 'hobby', 'Our Sunday league football team. Results, the squad and the oranges rota.', 1, 'roversjuniors.jnet');
   // file 2: fan pages and hobbies
-  P('~ellie', "{kidPoke}'s Pokemon Facts Page", 2, 'fans', 'All 151! Facts about Pokemon Red and Blue, gym badges, types and trading.', 1, 'www.pokefacts.kidz');
-  P('~blockhead', 'THE OTHER BLOCK SHRINE', 2, 'fans', 'A Tetris shrine. Better than the other one (it says). Facts, history and the 7 pieces.', 1, 'blockshrine.w3b');
-  P('cubetimes', 'The Cube Speed Records Page', 2, 'hobby', 'Rubik\'s Cube facts and records, plus a live stopwatch league for visitors.', 1, 'www.cuberecords.infobahn');
+  P('~ellie', "{kidPoke}'s Pocket Critters Facts Page", 2, 'fans', 'All 151! Facts about Pocket Critters Red and Blue, gym badges, types and trading.', 1, 'www.pokefacts.kidz');
+  P('~blockhead', 'THE OTHER BLOCK SHRINE', 2, 'fans', 'A Blockology shrine. Better than the other one (it says). Facts, history and the 7 pieces.', 1, 'blockshrine.w3b');
+  P('cubetimes', 'The Cube Speed Records Page', 2, 'hobby', 'Rubrick\'s Cube facts and records, plus a live stopwatch league for visitors.', 1, 'www.cuberecords.infobahn');
   P('~zed', "{club1.NAME}'S SCI-FI FILM ZONE", 2, 'fans', 'Original reviews of the sci-fi films of 1999. Stars out of five. Spoilers kept to a minimum.', 1, 'www.scifizone.cyb');
   P('~gaz', "{kidY2k.NAME}'S MILLENNIUM COUNTDOWN BUNKER", 2, 'weird', 'The Millennium Bug is coming. {kidY2k} is ready. Are you? Live countdown inside.', 1, 'millenniumbunker.netz');
   P('top100cheats', 'TOP 100 CHEATS!!! (well, 40)', 2, 'games', 'Cheats for PC and console games, plus cheats for real life (they do not work).', 1, 'www.cheatz.w3b');
   P('~mike', "Megahertz Mike's Upgrade Diary", 2, 'sci', 'From 300 MHz to 450 MHz: one boy, one screwdriver, one very worried Dad.', 1, 'megahertzmike.cyb');
-  P('~mek', "Snaz's Miniature Painting Tips", 2, 'hobby', 'How to paint minis: Space Marines, Eldar, Orks, Airfix pilots, plus the bits box and dry-brushing.', 1, 'www.orkpaint.grot');
+  P('~mek', "Snaz's Miniature Painting Tips", 2, 'hobby', 'How to paint minis: Space Marines, Eldar, Gorks, AirMix pilots, plus the bits box and dry-brushing.', 1, 'www.orkpaint.grot');
   P('~ash', "{club2}'s Space Page", 2, 'sci', 'Planets, the 1999 eclipse, the space station, meteor showers and a constellation maker.', 1, 'spacepage.infobahn');
-  P('fanfic', 'The Fan-Fiction Archive', 2, 'fun', 'Short stories by JackNet readers. Pokemon, robots, floppy disks and the Millennium Bug.', 1, 'www.fanficarchive.w3b');
+  P('fanfic', 'The Fan-Fiction Archive', 2, 'fun', 'Short stories by JackNet readers. Pocket Critters, robots, floppy disks and the Millennium Bug.', 1, 'www.fanficarchive.w3b');
   P('ascii', 'ASCII ART GALLERY', 2, 'fun', 'Art made of letters. Cats, rockets, X-wings and a banner maker.', 1, 'asciigallery.netz');
   P('midi', 'MIDI HEAVEN', 2, 'fun', 'Nothing but MIDI. Press play. Turn the speakers up. Sorry, Mom.', 1, 'www.midiheaven.wubwub');
   // file 3: a galaxy far, far away
-  P('~sam', "{kidEp1.NAME}'S EPISODE I COUNTDOWN", 3, 'sw', 'The Phantom Menace countdown page! Trailer download stories, the queue and what next.', 1, 'www.episode1countdown.jnet');
-  P('jarjar', 'IS JAR JAR RUINING IT? The Great Debate', 3, 'sw', 'Has one floppy-eared alien ruined the whole film? Vote and argue (nicely).', 1, 'jarjardebate.kidz');
+  P('~sam', "{kidEp1.NAME}'S EPISODE I COUNTDOWN", 3, 'sw', 'The Phantom Nuisance countdown page! Trailer download stories, the queue and what next.', 1, 'www.episode1countdown.jnet');
+  P('jarjar', 'IS JAR JAR JAMS RUINING IT? The Great Debate', 3, 'sw', 'Has one floppy-eared alien ruined the whole film? Vote and argue (nicely).', 1, 'jarjardebate.kidz');
   P('podracing', 'PODRACING HQ', 3, 'sw', 'The Boonta Eve race, the pods, the drivers and why Sebulba is a cheat.', 1, 'www.podracinghq.jnet');
   P('swrumours', 'THE RUMOUR MILL: Episode I', 3, 'sw', 'Every playground rumour from 1998 and 1999, checked against the actual film.', 1, 'rumourmill.infobahn');
-  P('brickwars', 'My Space Brick Wishlist 1999', 3, 'sw', 'The first Star Wars LEGO sets came out this year. Here is my wishlist (all of them).', 1, 'www.brickwishlist.kidz');
-  P('saberduel', 'LIGHTSABER DUEL: Me vs Dave (photos)', 3, 'sw', 'Photos of the greatest duel ever fought in a back garden. Wrapping paper tubes were harmed.', 1, 'www.davesplace.jnet', '/duel.html');
+  P('brickwars', 'My Space Brick Wishlist 1999', 3, 'sw', 'The first Intergalactic Battles BLOCKO sets came out this year. Here is my wishlist (all of them).', 1, 'www.brickwishlist.kidz');
+  P('saberduel', 'LIGHTSPATULA DUEL: Me vs Dave (photos)', 3, 'sw', 'Photos of the greatest duel ever fought in a back garden. Wrapping paper tubes were harmed.', 1, 'www.davesplace.jnet', '/duel.html');
   // file 4: portal, services and shared toys (Jack's own, on jacklm.com, unless they have a host)
   P('news', 'JackNet News', 4, 'news', 'Headlines, weather, the poll, the search box and today in 1999.');
   P('weather', 'JackNet Weather', 4, 'news', 'The forecast for round here. Rain, mostly.');
@@ -169,11 +169,11 @@
       LABEL[id] = label;
     }
   }
-  LABEL.saberduel = 'Lightsaber Duel';
+  LABEL.saberduel = 'lightspatula Duel';
   // how each site shows its navigation (frames, buttons, text links...). Drawn by web-kit.js
   const NAV = { '~dave': 'buttons', '~kim': 'left', knitting: 'text', poetree: 'text', computerclub: 'none', '~stu': 'top', '~nan': 'text', '~biscuit': 'buttons', '~kevin': 'left', '~tom': 'text', '~lee': 'top', rovers: 'left', '~ellie': 'top', '~blockhead': 'left', cubetimes: 'text', '~zed': 'left', '~gaz': 'top', top100cheats: 'text', '~mike': 'left', '~mek': 'buttons', '~ash': 'left', fanfic: 'left', ascii: 'text', midi: 'text', '~sam': 'top', jarjar: 'text', podracing: 'buttons', swrumours: 'text', brickwars: 'text', teef: 'top', hamstercam: 'text', jokes: 'text', jackmail: 'text', counters: 'text', biscuitring: 'text', search: 'text', lookhere: 'none', hoods: 'top', 'hz-rory': 'text', 'hz-goldie': 'text', 'hz-priya': 'text', csotd: 'text', ezine: 'left', ecardz: 'top', freetoolz: 'left', chatterbox: 'left', getrich: 'text', custard: 'left', adopt: 'top', megaflash: 'none', winbig: 'none' };
   // extra 1999 furniture for the older pages: banner ads, status-bar scrollers, "last updated" lines
-  const EXTRA = { '~dave': { ad: 11, status: 'BCW!!! BEDROOM CHAMPIONSHIP WRESTLING!!! TONIGHT: THE DUVET vs MR TIDDLES!!! SIGN MY GUESTBOOK!!!', upd: 1 }, '~kim': { status: '*~* welcome 2 my page *~* sign my slambook *~* GLITTERBOMB 4 EVER *~*', upd: 2 }, '~stu': { ad: 12, upd: 4 }, '~gaz': { status: 'THE BUG IS COMING... THE BUG IS COMING... HAVE YOU GOT A TORCH?', upd: 0 }, top100cheats: { splat: 1, upd: 6 }, downloads: { splat: 1 }, '~kevin': { ad: 2, upd: 9 }, '~tom': { upd: 900 }, search: { ad: true }, directory: { ad: 9 }, '~ellie': { ad: 3, upd: 3 }, '~blockhead': { ad: 1, upd: 7 }, '~mike': { status: 'UPGRADE YOUR PC!!! 300 TO 450 MHz!!! FOR THE PRICE OF RAM AND A HEDGEHOG!!!', upd: 2 }, hamstercam: { ad: 6, status: CT('{hamster.NAME} IS LIVE *** FEED {hamster.NAME} *** {hamster.NAME} IS A HAMSTER ***') }, jokes: { ad: 0 }, '~nan': { upd: 12 }, '~biscuit': { ad: 2, upd: 5 }, fanfic: { upd: 4 }, ascii: { ad: 4 }, midi: { status: 'MIDI HEAVEN *** EVERY TUNE ON JACKNET *** TURN IT UP *** (SORRY MOM) ***' }, '~zed': { ad: 11, upd: 3 }, podracing: { splat: 1 }, '~sam': { status: 'THE PHANTOM MENACE *** OUT NOW *** SEEN IT YET??? *** SIGN THE JEDI ARCHIVES ***', upd: 1 }, swrumours: { ad: 7 }, teef: { status: 'DA GEM EXCHANGE *** WE TAKE RUPEES *** NO REFUNDS *** WAAAGH ***' }, rovers: { ad: 6, upd: 2 }, poetree: { upd: 11 }, '~lee': { ad: 8, upd: 6 }, cubetimes: { ad: 5, upd: 4 }, '~ash': { upd: 8 }, '~mek': { ad: 5 } };
+  const EXTRA = { '~dave': { ad: 11, status: 'BCW!!! BEDROOM CHAMPIONSHIP WRESTLING!!! TONIGHT: THE DUVET vs MR TIDDLES!!! SIGN MY GUESTBOOK!!!', upd: 1 }, '~kim': { status: '*~* welcome 2 my page *~* sign my slambook *~* GLITTERBOMB 4 EVER *~*', upd: 2 }, '~stu': { ad: 12, upd: 4 }, '~gaz': { status: 'THE BUG IS COMING... THE BUG IS COMING... HAVE YOU GOT A TORCH?', upd: 0 }, top100cheats: { splat: 1, upd: 6 }, downloads: { splat: 1 }, '~kevin': { ad: 2, upd: 9 }, '~tom': { upd: 900 }, search: { ad: true }, directory: { ad: 9 }, '~ellie': { ad: 3, upd: 3 }, '~blockhead': { ad: 1, upd: 7 }, '~mike': { status: 'UPGRADE YOUR PC!!! 300 TO 450 MHz!!! FOR THE PRICE OF RAM AND A HEDGEHOG!!!', upd: 2 }, hamstercam: { ad: 6, status: CT('{hamster.NAME} IS LIVE *** FEED {hamster.NAME} *** {hamster.NAME} IS A HAMSTER ***') }, jokes: { ad: 0 }, '~nan': { upd: 12 }, '~biscuit': { ad: 2, upd: 5 }, fanfic: { upd: 4 }, ascii: { ad: 4 }, midi: { status: 'MIDI HEAVEN *** EVERY TUNE ON JACKNET *** TURN IT UP *** (SORRY MOM) ***' }, '~zed': { ad: 11, upd: 3 }, podracing: { splat: 1 }, '~sam': { status: 'THE PHANTOM NUISANCE *** OUT NOW *** SEEN IT YET??? *** SIGN THE SPACE CADET ARCHIVES ***', upd: 1 }, swrumours: { ad: 7 }, teef: { status: 'DA GEM EXCHANGE *** WE TAKE RUPEES *** NO REFUNDS *** WAAAGH ***' }, rovers: { ad: 6, upd: 2 }, poetree: { upd: 11 }, '~lee': { ad: 8, upd: 6 }, cubetimes: { ad: 5, upd: 4 }, '~ash': { upd: 8 }, '~mek': { ad: 5 } };
   const GRING = ['~sam', 'jarjar', 'podracing', 'swrumours', 'brickwars', 'saberduel', '~zed', '~ash', 'hz-rory', 'galaxyring'];
   const ALIAS = { '~mom': 'knitting', '~gubbinz': 'poetree', jacknetnews: 'news', teefexchange: 'teef', gemexchange: 'teef', freemail: 'jackmail', jacksearch: 'search', grotsearch: 'search', jackseek: 'search', '~mouldytangerines': '~stu', '~jack': 'biscuitring', ring: 'biscuitring', hamster: 'hamstercam', '404': 'lost', episode1: '~sam', petitions: 'petition', polls: 'poll', webdirectory: 'directory' };
   // the visitor's names as ~words: jacklm.com/~vicky is Cousin Vicky's page (only where the word isn't taken already)
@@ -589,9 +589,9 @@
   S('cubetime', 'Speedcuber', 'Time a solve on the cube records page and post it to the league');
   S('pin', 'One, two, THREE!', 'Win a match in Bedroom Championship Wrestling');
   S('setlist', 'Encore!', 'Shout for an encore on the worst band\'s website');
-  S('jarjar', 'Mesa voted', 'Have your say in the Great Jar Jar Debate');
+  S('jarjar', 'Mesa voted', 'Have your say in the Great Jar Jar Jams Debate');
   S('podrace', 'Now THIS is podracing', 'Win a podrace on the podracing fan page');
-  S('saber', 'Duel of the fates (and Dave)', 'Watch the whole lightsaber duel photo album');
+  S('saber', 'Duel of the fates (and Dave)', 'Watch the whole lightspatula duel photo album');
   S('countdown', 'It\'s finally out', 'Visit the Episode I countdown page and press the big button');
   S('midi', 'MIDI maniac', 'Play every tune in MIDI Heaven');
   S('crystal', 'The future is green', 'Ask the crystal ball a question about the year 2000');
@@ -641,7 +641,7 @@
   S('rooms', 'Room hopper', 'Say something in three different chat rooms');
   S('deadlink', 'Link rot', 'Click five dead links on people\'s Links pages');
   S('imagemap', 'Hidden hotspot', 'Image maps have clickable bits. One of them is not where you think');
-  S('popup', 'Pop-up survivor', 'Close three pop-up windows');
+  S('popup', 'Pop-up survivor', 'Close three pop-up jackos');
   S('lake', 'Still waters', 'Find a Java applet that makes a picture ripple like a lake');
   S('broken', 'Broken image detective', 'Click a broken picture. Then find out what it should have been');
 
@@ -664,7 +664,7 @@
   A.fs.dir(COOL).date = '14/03/99';
   [["Dave's NEW page.url", '~dave', '02/05/99'], [CT("Cousin {cousin}'s page.url"), '~kim', '22/04/99'], ["Mom's knitting club.url", 'knitting', '09/03/99'], ['Gubbinz poems.url', 'poetree', '01/04/99'],
     ['Computer Club.url', 'computerclub', '16/09/99'], [CT('Mouldy Tangerines ({kidBand}).url'), '~stu', '30/07/99'], ['Episode I countdown.url', '~sam', '18/11/98'], ['Podracing HQ.url', 'podracing', '20/07/99'],
-    [CT('Pokemon facts ({kidPoke}).url'), '~ellie', '08/10/99'], ['Cube records.url', 'cubetimes', '11/02/99'], ['Upgrade diary (Mike).url', '~mike', '27/06/99'], ['Ork painting tips.url', '~mek', '23/01/99'],
+    [CT('Pocket Critters facts ({kidPoke}).url'), '~ellie', '08/10/99'], ['Cube records.url', 'cubetimes', '11/02/99'], ['Upgrade diary (Mike).url', '~mike', '27/06/99'], ['Ork painting tips.url', '~mek', '23/01/99'],
     ['Top 100 cheats.url', 'top100cheats', '05/05/99'], ['MIDI Heaven.url', 'midi', '13/04/99'], ['Joke of the day.url', 'jokes', '01/06/99'], ['JackSearch Directory.url', 'directory', '03/03/99']]
     .forEach(([n, w, d]) => url(COOL, n, w, d));
   A.fs.add(COOL, { name: 'READ ME - cool sites.txt', type: 'txt', date: '14/03/99', size: '1 KB', text: `COOL SITES (by Jack)\n====================\n\nThese are my favourite pages on the World Wide Web.\nDouble-click one to go there. Or type the address into JackNet Explorer.\n\nAll my mates have homepages now. They live at\n   www.jackattack.jnet/~theirname\nThe little squiggle is called a "tilde". It's next to the Enter key and nobody knows why.\n\nIf you get lost, use JackSearch:  www.jacksearch.find\nIt finds everything. Except my PE kit.\n\nTo do:\n- ask Dave why his page is about wrestling now\n- tell ${CT('{cousin}')} the glitter background makes my eyes go funny\n- find out what ${CT('{kidSoon}')}'s page was going to be\n- solve the riddle trail (starts at /riddle)\n` });

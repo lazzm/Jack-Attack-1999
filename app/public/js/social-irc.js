@@ -5,9 +5,9 @@ window.SocialIRC = function (X) {
   const { $, h, esc, store, pick, pad, note, got, hash, hhmm, d99, clean, isObj, int, okCol, gate, who, onlineFns, ico, txt, session, imTo, addContact, UM, setStatus, STAT, isIgnored, toggleIgnore, members, others, getOnline, sender, CHAT, IRC_ICON, Throw } = X;
   const SERVER = 'irc.jacknet.jnet', MAIN = '#jackattack', DEFAULTS = ['#jackattack', '#orks', '#starwars', '#games', '#cubes', '#help'], CH_RE = /^#[a-z0-9_-]{1,20}$/;
   const TOPIC_KEY = 'social.irctopic';
-  const DEF_TOPICS = { '#jackattack': 'Welcome to #jackattack! Same chat as the Hangout. Be nice, Mom reads this. Type !help for JackServ (the channel bot)', '#orks': 'Painting minis: Orks, Space Marines, Eldar, bits boxes and why red ones go faster', '#starwars': 'Episode I is out in the UK on 16 July!!! NO SPOILERS for people who haven\'t seen it', '#games': 'Games chat. Cheats welcome. Lies about high scores not welcome', '#cubes': "Rubik's cubes, Tetris and other square things", '#help': 'Ask anything! Someone might know. Gubbinz definitely does not', '#grotz': 'DIS IS DA SECRET GROT CHANNEL. NO HUMIES. (u can stay)' };
+  const DEF_TOPICS = { '#jackattack': 'Welcome to #jackattack! Same chat as the Hangout. Be nice, Mom reads this. Type !help for JackServ (the channel bot)', '#orks': 'Painting minis: Gorks, Space Marines, Eldar, bits boxes and why red ones go faster', '#starwars': 'Episode I is out in the UK on 16 July!!! NO SPOILERS for people who haven\'t seen it', '#games': 'Games chat. Cheats welcome. Lies about high scores not welcome', '#cubes': "Rubrick's cubes, Blockology and other square things", '#help': 'Ask anything! Someone might know. Gubbinz definitely does not', '#grotz': 'DIS IS DA SECRET GROT CHANNEL. NO HUMIES. (u can stay)' };
   const COLS = ['#ffffff', '#000000', '#00007f', '#009300', '#ff0000', '#7f0000', '#9c009c', '#fc7f00', '#ffff00', '#00fc00', '#009393', '#00ffff', '#0000fc', '#ff00ff', '#7f7f7f', '#d2d2d2'];
-  const QUITS = ['Mom needs the phone', 'Ping timeout', 'Connection reset by peer', 'Dinner time!!!', 'My sister picked up the extension', 'Leaving', 'Bedtime. School tomorrow', 'Gone to paint Orks', 'Excess flood (sorry)', 'Read error: Connection reset by Mom'];
+  const QUITS = ['Mom needs the phone', 'Ping timeout', 'Connection reset by peer', 'Dinner time!!!', 'My sister picked up the extension', 'Leaving', 'Bedtime. School tomorrow', 'Gone to paint Gorks', 'Excess flood (sorry)', 'Read error: Connection reset by Mom'];
   const opts = Object.assign({ font: 'fixed', size: 12, scheme: 'classic', ts: true, joins: true, sound: true, log: false, nickcol: true }, store.get('jhp_irc_opts', {}));
   const presence = new Map(); // id -> Set of relay channels they're in
   const seen = new Map();     // nick (lower) -> { nick, ts, what }
@@ -44,12 +44,12 @@ window.SocialIRC = function (X) {
   const SERV = '<b class="ir-serv">JackServ</b>';
   const servSay = (c, s) => line(c, 'bot', `-${SERV}- ${esc(s)}`);
   const BOT = {
-    joke: ["Why did the Game Boy cross the road? To get to the other SIDE (it's a Game Boy joke, there's an A side and a B... never mind).", "What's green and goes 'beep beep'? A Tamagotchi with a cold.", "How many programmers does it take to change a light bulb? None, it's a hardware problem.", "Why do Orks paint things red? So they go faster. That's not a joke, that's SCIENCE.", "What do you call a dinosaur with a modem? Online-osaurus. HA. (Jack wrote that one, it's rubbish)", "Knock knock. Who's there? Y2K. Y2K who? Y2K-ant you just turn it off and on again.", "What's a droid's favourite snack? Micro-chips. (Dave's one)", "My computer's got 32 MEGABYTES of RAM. Gubbinz thinks that's a kind of goat.", "Why was the N64 cold? It left its JackOS open. (It hasn't got JackOS. That's the joke.)", "What did the Pokemon say to the Rubik's cube? Nothing. Pokemon can only say their own name."],
-    ball: ['Yes.', 'No.', 'Defo.', 'Ask your Mom.', 'Gubbinz says no.', 'Signs point to WAAAGH.', 'Reply hazy, modem crackly, try again.', "Don't count on it.", 'Without a doubt. Probably.', 'Better not tell you now. (I forgot)', 'My sources say PIKACHU.', 'It is certain. As certain as a 56K modem connecting first time (not very).'],
+    joke: ["Why did the Game Lad cross the road? To get to the other SIDE (it's a Game Lad joke, there's an A side and a B... never mind).", "What's green and goes 'beep beep'? A Eggbert with a cold.", "How many programmers does it take to change a light bulb? None, it's a hardware problem.", "Why do Gorks paint things red? So they go faster. That's not a joke, that's SCIENCE.", "What do you call a dinosaur with a modem? Online-osaurus. HA. (Jack wrote that one, it's rubbish)", "Knock knock. Who's there? Y2K. Y2K who? Y2K-ant you just turn it off and on again.", "What's a droid's favourite snack? Micro-chips. (Dave's one)", "My computer's got 32 MEGABYTES of RAM. Gubbinz thinks that's a kind of goat.", "Why was the ULTRA 64 cold? It left its JackOS open. (It hasn't got JackOS. That's the joke.)", "What did the Pocket Critters say to the Rubrick's cube? Nothing. Pocket Critters can only say their own name."],
+    ball: ['Yes.', 'No.', 'Defo.', 'Ask your Mom.', 'Gubbinz says no.', 'Signs point to WAAAGH.', 'Reply hazy, modem crackly, try again.', "Don't count on it.", 'Without a doubt. Probably.', 'Better not tell you now. (I forgot)', 'My sources say ZAPACHU.', 'It is certain. As certain as a 56K modem connecting first time (not very).'],
     help: 'I am JackServ, the channel service bot (a program, not a person). Commands: !joke !8ball <question> !time !seen <nick> !trivia !rules !waaagh',
     rules: '1. Be nice. 2. No swearing (Mom reads the logs). 3. Never give out your real name, address or phone number. 4. No flooding.',
   };
-  const TRIVIA = [['How many squares on one face of a normal Rubik\'s cube?', '9'], ['What colour makes Ork vehicles go faster?', 'red'], ['What is 56K a speed of? (one word)', 'modem'], ['What year comes after 1999? (careful...)', '2000'], ['How many lines do you clear at once to get a TETRIS?', '4'], ['What colour is a Game Boy screen? (one word)', 'green'], ['What does the D in DND stand for? (Do Not ...)', 'disturb'], ['Which planet do the podracers race on in Episode I? (starts with T)', 'tatooine'], ['How many megabytes are in a gigabyte (roughly, in 1999)?', '1024'], ['What do you do to a cartridge when it won\'t work? (one word, starts with B)', 'blow'], ['What is the port number for IRC? (on this server)', '6667'], ['What do you press to pause most games? (one word)', 'start']];
+  const TRIVIA = [['How many squares on one face of a normal Rubrick\'s cube?', '9'], ['What colour makes Ork vehicles go faster?', 'red'], ['What is 56K a speed of? (one word)', 'modem'], ['What year comes after 1999? (careful...)', '2000'], ['How many lines do you clear at once to get a BLOCKOLOGY?', '4'], ['What colour is a Game Lad screen? (one word)', 'green'], ['What does the D in DND stand for? (Do Not ...)', 'disturb'], ['Which planet do the podracers race on in Episode I? (starts with T)', 'tatooine'], ['How many megabytes are in a gigabyte (roughly, in 1999)?', '1024'], ['What do you do to a cartridge when it won\'t work? (one word, starts with B)', 'blow'], ['What is the port number for IRC? (on this server)', '6667'], ['What do you press to pause most games? (one word)', 'start']];
   const triv = (t = Date.now()) => { const n = Math.floor(t / 90000); return { n, q: TRIVIA[hash('trivia' + n) % TRIVIA.length] }; };
   const trivWon = new Set();
   function botLine(c, cmd, i, arg) { // the same text on every computer, so nobody can make JackServ say anything else
@@ -101,7 +101,7 @@ window.SocialIRC = function (X) {
     o = o || {};
     if (C && !C.w.closed) { C.w.restore(); if (o.autojoin && C.connected) join(MAIN); return C.w; }
     const b = h('div', 'ir');
-    b.innerHTML = `<div class="ir-tools" role="toolbar">${[['connect', 'Connect / Disconnect'], ['opts', 'Options'], '-', ['list', 'Channels List'], ['join', 'Join a Channel'], ['whois', 'Whois'], '-', ['tile', 'Tile Windows'], ['cascade', 'Cascade JackOS'], '-', ['uhoh', 'Uh-Oh! Messenger'], ['help', 'Help']].map(t => t === '-' ? '<span class="ir-sep"></span>' : `<button type="button" data-t="${t[0]}" title="${t[1]}" aria-label="${t[1]}">${t[0] === 'uhoh' ? X.LOGO16.replace('<svg', '<svg width="16" height="16"') : svg16(TB[t[0]])}</button>`).join('')}</div>
+    b.innerHTML = `<div class="ir-tools" role="toolbar">${[['connect', 'Connect / Disconnect'], ['opts', 'Options'], '-', ['list', 'Channels List'], ['join', 'Join a Channel'], ['whois', 'Whois'], '-', ['tile', 'Tile JackOS'], ['cascade', 'Cascade JackOS'], '-', ['uhoh', 'Uh-Oh! Messenger'], ['help', 'Help']].map(t => t === '-' ? '<span class="ir-sep"></span>' : `<button type="button" data-t="${t[0]}" title="${t[1]}" aria-label="${t[1]}">${t[0] === 'uhoh' ? X.LOGO16.replace('<svg', '<svg width="16" height="16"') : svg16(TB[t[0]])}</button>`).join('')}</div>
       <div class="ir-switch" role="tablist" aria-label="JackOS"></div><div class="ir-area"></div>`;
     const w = Apps.win('JackIRC', b, { w: 800, h: 560, icon: IRC_ICON, menubar: true, minW: 300, minH: 300, onClose: () => { if (C && C.connected) quit(C.quitMsg || 'JackIRC: the chat room wot moved', true); C = null; } });
     w.body.style.padding = '0';
@@ -323,7 +323,7 @@ window.SocialIRC = function (X) {
     '- ',
     '-   CHANNELS:',
     '-    #jackattack  the main chat. same as the Hangout on the website',
-    '-    #orks        painting  |  #starwars   EPISODE ONE IS OUT 16 JULY',
+    '-    #gorks        painting  |  #starwars   EPISODE ONE IS OUT 16 JULY',
     '-    #games       cheats  |  #cubes      square things  |  #help   lol',
     '- ',
     '-   Type !help in any channel and JackServ (the channel bot) will help.',
@@ -344,7 +344,7 @@ window.SocialIRC = function (X) {
     if (!C.connected) return err('Not connected to a server. Press the red Connect button first!');
     let c = C.wins.get(name);
     if (c) { activate(c); return c; }
-    if (C.wins.size >= 12) return err('Too many windows open. Close a channel first (your 32MB of RAM is crying).');
+    if (C.wins.size >= 12) return err('Too many jackos open. Close a channel first (your 32MB of RAM is crying).');
     c = child(name, 'chan');
     line(c, 'join', `*** Now talking in ${esc(name)}`);
     const tp = (topics[name] || {}).t || DEF_TOPICS[name];

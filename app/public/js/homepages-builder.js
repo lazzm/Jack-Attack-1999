@@ -24,10 +24,10 @@
     ['ct', 'Counter', '#', () => ({ k: 'ct', st: 'odo', l: 0, a: 'c' })],
     ['gb', 'Guestbook', '\u270e', () => ({ k: 'gb', t: 'Sign my guestbook!!!' })],
     ['ln', 'Links', '@', () => ({ k: 'ln', h: 'My Kool Links', l: [{ u: 'http://www.davesplace.jnet/', t: "Dave's Kool Page" }, { u: 'http://www.homepagez.webcom/', t: 'Homepagez Neighbourhoods' }] })],
-    ['ul', 'List', '\u2022', () => ({ k: 'ul', h: 'Things I like:', it: ['Video games', 'Pizza', 'My Rubik\'s Cube'], bu: 'star' })],
+    ['ul', 'List', '\u2022', () => ({ k: 'ul', h: 'Things I like:', it: ['Video games', 'Pizza', 'My Rubrick\'s Cube'], bu: 'star' })],
     ['ring', 'Webring', '\u25ce', () => ({ k: 'ring', r: 'hpz' })],
     ['bdg', 'Badges', '\u25ad', () => ({ k: 'bdg', b: ['bvie', 'bv800', 'pgb'], a: 'c' })],
-    ['poll', 'Poll', '?', () => ({ k: 'poll', q: 'What is the best game of 1999?', o: ['Pokemon Red & Blue', 'Driver', 'Ape Escape'] })],
+    ['poll', 'Poll', '?', () => ({ k: 'poll', q: 'What is the best game of 1999?', o: ['Pocket Critters Red & Blue', 'Driver', 'Ape Escape'] })],
     ['mail', 'E-mail me', '\u2709', () => ({ k: 'mail', t: 'E-MAIL ME!!!' })],
   ];
   const BK = {}; BLOCKS.forEach(b => { BK[b[0]] = b; });
@@ -48,7 +48,7 @@
     'Join the Homepagez Member Ring! Your visitors can hop from your page to the next member\'s page, and the next, and the next...',
     'File > Save keeps your page in C:\\My Documents\\My Webs. File > Publish puts it on the World Wide Web.',
     'Webmasters always say "Best viewed at 800 x 600". Nobody knows why. Add the badge anyway.',
-    'Ask your visitors a question with a Visitor Poll! Like "Which is better: Tetris, or more Tetris?"',
+    'Ask your visitors a question with a Visitor Poll! Like "Which is better: Blockology, or more Blockology?"',
     'A marquee makes your words scroll across the screen, like the news on telly.',
     'The little arrows on the right move the selected thing up and down your page.',
     'If Mom picks up the phone while you are publishing, the upload fails. Put a sign on the phone: INTERNET IN USE!!!',

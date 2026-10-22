@@ -64,7 +64,7 @@ const HINTS = {
   2: ['Open My Computer and go to C:\\My Documents\\Hunt Stuff. The README is a decoy.',
     'Shy files are HIDDEN files. In My Computer, the View menu has an option that shows them.',
     'The hidden file is a poem. Read the first letter of every line, from top to bottom. It\'s something spooky that nobody can see.'],
-  3: ['Open the MS-DOS Prompt (Start > Programs). Type CD \\HUNT and then DIR. TYPE README.1ST shows you the instructions.',
+  3: ['Open the JACK-DOS Prompt (Start > Programs). Type CD \\HUNT and then DIR. TYPE README.1ST shows you the instructions.',
     'DOS programs explain themselves if you ask with /? on the end. Try DECODE /? and look for a switch that shows a key.',
     'DECODE /K shows the key, but back to front. Reverse it (DECODE /R can do that for you). It\'s the button on the front of a 1999 PC that never does anything.'],
   4: ['Start > Run, type regedit and press OK. Open HKEY_CURRENT_USER, then Software.',

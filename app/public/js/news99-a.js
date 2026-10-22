@@ -52,7 +52,7 @@
   const EC_MATES = [
     ['01-20', 'Jack', 'Bookmarked! 203 days to go. I have written it on my bedroom wall. (In pencil. Mom.)'],
     ['03-02', 'Callum', 'My dad says we\'re driving to Cornwall. My mom says we are NOT. Updates as they happen.'],
-    ['04-14', 'Dave', 'Will it be dark enough to play Game Boy with the light thing? Asking for science.'],
+    ['04-14', 'Dave', 'Will it be dark enough to play Game Lad with the light thing? Asking for science.'],
     ['05-25', 'Luke', 'Our science teacher is doing a whole lesson on it. With a torch and a football.'],
     ['06-30', 'JackK', 'Made the pinhole viewer from this site. Practised on a normal Sun. It is a dot. A good dot though.'],
     ['07-22', 'Callum', 'UPDATE: we are not driving to Cornwall. Mom won.'],
@@ -62,7 +62,7 @@
     ['08-11', 'Jack', 'Pinhole viewer WORKED!!! A little crescent Sun on the bottom of the cereal box. Science!!!'],
     ['08-13', 'JackK', '2090 for the next one. I\'ll be REALLY old. I\'m going to be there anyway. With a walking frame.'],
     ['09-20', 'Callum', 'Still got my eclipse glasses. Use them as a bookmark now.'],
-    ['12-28', 'Jack', 'Best day of 1999? This or Pok&eacute;mon. Tough one.'],
+    ['12-28', 'Jack', 'Best day of 1999? This or Pocket Critters. Tough one.'],
   ];
   N.def(EH, '/', c => {
     const u = c.until('08-11');
@@ -143,7 +143,7 @@
     ['12-31', 'The euro\'s first year is done! It ends the year at about <b>62p</b> (it started at 71p) and about <b>$1.00</b>. Two more years till the notes and coins. See you in 2002!'],
   ];
   const EU_MATES = [
-    ['01-02', 'JackK', 'Does this mean Pok&eacute;mon cards from Germany are cheaper now? Asking for a friend (Dave).'],
+    ['01-02', 'JackK', 'Does this mean Pocket Critters cards from Germany are cheaper now? Asking for a friend (Dave).'],
     ['01-15', 'Callum', 'My PC magazine says shops have to change all their computers for it. Bet that was fun.'],
     ['03-10', 'Dave', 'If I got paid my pocket money in lira I\'d be a MILLIONAIRE. Well, nearly. Well, 9,000 lira.'],
     ['06-20', 'Jack', 'Used the converter: my pocket money is about 3 euros. In pesetas it\'s over 500!!! Moving to Spain.'],
@@ -271,25 +271,25 @@
 `);
   // [id, name, note, [[MM-DD, heat 0-5], ...], from 1998?]
   const CRAZES = [
-    ['tama', 'Tamagotchis', 'Came out here on 8 May 1997. Everybody\'s has died by now. RIP.', [['01-01', 1], ['02-01', 0]], 1],
+    ['tama', 'Eggberts', 'Came out here on 8 May 1997. Everybody\'s has died by now. RIP.', [['01-01', 1], ['02-01', 0]], 1],
     ['yoyo', 'Yo-yos', 'Last year\'s big one. Walk the Dog, Around the World, banned in the staff room.', [['01-01', 4], ['02-15', 3], ['03-03', 1], ['04-15', 0]], 1],
     ['furby', 'Furbies', 'Christmas 1998\'s must-have (&pound;29.99). Speaks Furbish. Never sleeps.', [['01-01', 5], ['02-01', 4], ['03-15', 2], ['05-01', 1], ['12-31', 1]], 1],
-    ['robot', 'Robot Wars', 'BBC Two. Everyone has a favourite house robot.', [['01-01', 4], ['03-05', 5], ['03-25', 3], ['11-20', 3], ['12-03', 5], ['12-31', 5]], 1],
+    ['robot', 'Robo Rumble', 'BBC Two. Everyone has a favourite house robot.', [['01-01', 4], ['03-05', 5], ['03-25', 3], ['11-20', 3], ['12-03', 5], ['12-31', 5]], 1],
     ['final', '"Is that your final answer?"', 'The quiz show catchphrase. Even teachers say it. 19.2 million people watched on 7 March!', [['01-01', 3], ['03-07', 5], ['06-01', 4], ['12-31', 4]], 1],
     ['beanie', 'Beanie Babies', 'Collect them, keep the tag on, never play with them. Then on 31 August the makers said they\'d stop making them at the end of 1999!', [['01-01', 3], ['06-01', 2], ['08-30', 2], ['08-31', 4], ['10-15', 3], ['12-31', 4]]],
     ['britney', 'The Britney dance', '...Baby One More Time was number one for two weeks. School-corridor choreography.', [['02-14', 2], ['02-21', 5], ['04-01', 3], ['05-15', 1], ['07-01', 0]]],
     ['flat', 'Flat Eric impressions', 'The yellow puppet from the jeans advert, nodding to Flat Beat (number one!).', [['03-20', 2], ['03-28', 5], ['04-25', 3], ['06-01', 0]]],
-    ['pokeTV', 'The Pok&eacute;mon cartoon', 'On Sky One since 29 March. If you haven\'t got Sky, you go round to someone who has.', [['03-28', 0], ['03-29', 3], ['06-01', 4], ['10-05', 5], ['12-31', 5]]],
+    ['pokeTV', 'The Pocket Critters cartoon', 'On Sky One since 29 March. If you haven\'t got Sky, you go round to someone who has.', [['03-28', 0], ['03-29', 3], ['06-01', 4], ['10-05', 5], ['12-31', 5]]],
     ['bob', 'Bob the Builder', 'Started on the BBC on 12 April. For little brothers and sisters. (CAN WE FIX IT?)', [['04-11', 0], ['04-12', 2], ['07-01', 3], ['12-31', 4]]],
-    ['ep1', 'Episode I toys', 'Darth Maul is worth three Qui-Gons in a swap.', [['05-01', 2], ['05-10', 5], ['08-15', 4], ['09-30', 2], ['12-31', 2]]],
-    ['saber', 'Lightsaber duels', 'Wrapping-paper tubes, after you\'ve seen The Phantom Menace (out here 16 July).', [['07-15', 0], ['07-16', 5], ['09-01', 3], ['10-20', 1], ['11-30', 0]]],
+    ['ep1', 'Episode I toys', 'Dark Mole is worth three Qui-Gons in a swap.', [['05-01', 2], ['05-10', 5], ['08-15', 4], ['09-30', 2], ['12-31', 2]]],
+    ['saber', 'lightspatula duels', 'Wrapping-paper tubes, after you\'ve seen The Phantom Nuisance (out here 16 July).', [['07-15', 0], ['07-16', 5], ['09-01', 3], ['10-20', 1], ['11-30', 0]]],
     ['glasses', 'Eclipse glasses', 'For 11 August. DON\'T LOOK AT THE SUN.', [['07-10', 1], ['08-01', 4], ['08-11', 5], ['08-14', 1], ['08-31', 0]]],
     ['mambo', 'Mambo No. 5', 'Number one at the end of August. Every grown-up at every barbecue.', [['08-28', 0], ['08-29', 5], ['10-10', 3], ['11-30', 1]]],
     ['tween', 'Tweenies', 'New on BBC Two from 6 September. Little cousins LOVE it.', [['09-05', 0], ['09-06', 2], ['12-31', 3]]],
     ['blue', 'Singing "Blue (Da Ba Dee)"', 'Number one for three weeks from late September. The music teacher has had enough.', [['09-15', 2], ['09-19', 5], ['10-31', 4], ['11-30', 2]]],
-    ['pokeGB', 'Pok&eacute;mon Red &amp; Blue', 'Out here on 5 October. Link cables at lunch.', [['09-01', 2], ['10-04', 4], ['10-05', 5], ['12-31', 5]]],
-    ['cards', 'Pok&eacute;mon cards', 'Holos are currency. Charizard is a legend. Some schools have banned them.', [['01-01', 0], ['03-15', 1], ['06-01', 2], ['09-01', 3], ['11-01', 5], ['12-31', 5]]],
-    ['dc', 'The Dreamcast', 'Out here on 14 October. It has a MODEM in it.', [['09-09', 2], ['10-13', 3], ['10-14', 4], ['12-31', 4]]],
+    ['pokeGB', 'Pocket Critters Red &amp; Blue', 'Out here on 5 October. Link cables at lunch.', [['09-01', 2], ['10-04', 4], ['10-05', 5], ['12-31', 5]]],
+    ['cards', 'Pocket Critters cards', 'Holos are currency. Charizard is a legend. Some schools have banned them.', [['01-01', 0], ['03-15', 1], ['06-01', 2], ['09-01', 3], ['11-01', 5], ['12-31', 5]]],
+    ['dc', 'The Daydream', 'Out here on 14 October. It has a MODEM in it.', [['09-09', 2], ['10-13', 3], ['10-14', 4], ['12-31', 4]]],
   ];
   const heatAt = (cr, n) => {
     const pts = cr[3].map(([k, v]) => [N.dayNo(k), v]); if (n < pts[0][0]) return cr[4] ? pts[0][1] : 0;
@@ -302,13 +302,13 @@
   const CW_MATES = [
     ['01-11', 'Luke', 'Yo-yos are still hot in our school. Well, warm. Well, Liam still has one.'],
     ['02-22', 'JackK', 'Half our class did the Britney dance in the dinner queue. Dave did it too. DAVE.'],
-    ['04-02', 'Dave', 'Pok&eacute;mon cartoon is the BEST. Ash is rubbish at catching though.'],
-    ['05-12', 'Callum', 'Swapped my Jar Jar for a Darth Maul. The kid who did that deal will regret it for ever.'],
-    ['07-20', 'Jack', 'Lightsaber duel at the park with wrapping-paper tubes. I lost (my tube folded).'],
+    ['04-02', 'Dave', 'Pocket Critters cartoon is the BEST. Ash is rubbish at catching though.'],
+    ['05-12', 'Callum', 'Swapped my Jar Jar Jams for a Dark Mole. The kid who did that deal will regret it for ever.'],
+    ['07-20', 'Jack', 'lightspatula duel at the park with wrapping-paper tubes. I lost (my tube folded).'],
     ['09-01', 'Luke', 'My cousin heard about the Beanie Babies stopping and bought eleven in one day.'],
-    ['10-06', 'Dave', 'Red version. Charmander. Already naming him. He\'s called DAVE.'],
-    ['11-05', 'Jack', 'Our school banned Pok&eacute;mon cards at break. Now we swap them at the bus stop instead.'],
-    ['12-14', 'Callum', 'Is the Dreamcast a craze if only one person in our year has got one? (It\'s me. Come round.)'],
+    ['10-06', 'Dave', 'Red version. Charbroiler. Already naming him. He\'s called DAVE.'],
+    ['11-05', 'Jack', 'Our school banned Pocket Critters cards at break. Now we swap them at the bus stop instead.'],
+    ['12-14', 'Callum', 'Is the Daydream a craze if only one person in our year has got one? (It\'s me. Come round.)'],
   ];
   N.def(CH, '/', c => {
     const rows = CRAZES.map(cr => ({ cr, h: heatAt(cr, c.n), w: heatAt(cr, c.n - 7) }));

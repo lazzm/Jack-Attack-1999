@@ -44,12 +44,12 @@
     catF: ['Misty', 'Tilly', 'Smudge', 'Pickle', 'Bramble', 'Poppy', 'Honey', 'Willow', 'Treacle', 'Pebbles'],
     catM: ['Mr Tibbs', 'Tigger', 'Felix', 'Oscar', 'Ginger', 'Garfield', 'Marmalade', 'Socks', 'Crumble'],
     smallF: ['Nibbles', 'Toffee', 'Peanut', 'Fudge', 'Squeak', 'Cookie', 'Hazel', 'Button'],
-    smallM: ['Nibbles', 'Hammy', 'Peanut', 'Fudge', 'Squeak', 'Bilbo', 'Sonic', 'Pip'],
+    smallM: ['Nibbles', 'Hammy', 'Peanut', 'Fudge', 'Squeak', 'Bilbo', 'Zip', 'Pip'],
   };
   const FIXED = { // the same for everyone (the user named these)
     jack: { name: 'Jack', g: 'm', role: 'Jack himself' },
-    dave: { name: 'Dave', g: 'm', role: "Jack's best mate (Nintendo)" },
-    luke: { name: 'Luke', g: 'm', role: "Jack's mate (Nintendo)" },
+    dave: { name: 'Dave', g: 'm', role: "Jack's best mate (Ultra Entertainment)" },
+    luke: { name: 'Luke', g: 'm', role: "Jack's mate (Ultra Entertainment)" },
     callum: { name: 'Callum', g: 'm', role: "Jack's mate (PC gamer)" },
     jackk: { name: 'JackK', first: 'Jack', g: 'm', role: "Jack's mate, also called Jack (JackNet name JackK)" },
     mom: { name: 'Mom', g: 'f', role: "Jack's mom" }, dad: { name: 'Dad', g: 'm', role: "Jack's dad" },
@@ -61,7 +61,7 @@
   // everyone else: role -> how to pick. g: fixed gender, or random. pool: [female pool, male pool]. title: 'teacher' | 'aunt' ...
   const DEF = {
     sister: { role: "Jack's little sister (about 9)", g: 'f', pool: ['childF', 'childM'] },
-    cousin: { role: "Jack's cousin (Pokemon expert, does the cube in 40 s, has a pop homepage)", pool: ['teenF', 'teenM'] },
+    cousin: { role: "Jack's cousin (Pocket Critters expert, does the cube in 40 s, has a pop homepage)", pool: ['teenF', 'teenM'] },
     cousin2: { role: "Jack's big cousin on Dad's side (Gran's other grandchild; HotJack e-mail, sends chain letters and viruses, has a scanner and a CD writer)", g: 'm', pool: ['teenM'] },
     auntie: { role: "Mom's sister", g: 'f', pool: ['adultF'], title: 'Auntie' },
     uncle: { role: "Auntie's husband", g: 'm', pool: ['adultM'], title: 'Uncle' },
@@ -72,10 +72,10 @@
     cat: { role: 'the family cat (ginger, sleeps on the warm monitor)', pool: ['catF', 'catM'] },
     hamster: { role: 'the hamster on Hamster Cam', pool: ['smallF', 'smallM'] },
     cousinpet: { role: "the cousin's hamster", pool: ['smallF', 'smallM'] },
-    kidEp1: { role: 'mate with the Episode I countdown homepage (owns the 4th N64 pad)', pool: ['teenF', 'teenM'] },
+    kidEp1: { role: 'mate with the Episode I countdown homepage (owns the 4th ULTRA 64 pad)', pool: ['teenF', 'teenM'] },
     kidBand: { role: 'mate with an awful band (the Mouldy Tangerines)', pool: ['teenF', 'teenM'] },
     kidY2k: { role: 'the Millennium Bug mate (bunker in the shed)', pool: ['teenF', 'teenM'] },
-    kidPoke: { role: 'mate with the Pokemon Facts Page (all 151)', pool: ['teenF', 'teenM'] },
+    kidPoke: { role: 'mate with the Pocket Critters Facts Page (all 151)', pool: ['teenF', 'teenM'] },
     kidSoon: { role: 'mate whose homepage is "Coming soon!!! (since 1997)"', pool: ['teenF', 'teenM'] },
     kidCalc: { role: 'Year 10 kid who wired 16 calculators together', pool: ['teenF', 'teenM'] },
     kidMatt: { role: '"our" handy mate who offers to build things out of Meccano', pool: ['teenF', 'teenM'] },

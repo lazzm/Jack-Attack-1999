@@ -210,7 +210,7 @@ function radNext(now) {
   if (R.q.length) { const q = R.q.shift(); i = q.i; ded = { from: q.from, to: q.to, msg: q.msg, i }; }
   else {
     // the request hour: if nobody's asking, the regulars do (so it never feels empty)
-    if (live.has('req') && Math.random() < 0.5) { const b = BOTS[crypto.randomInt(0, BOTS.length)], t2 = BOTS[crypto.randomInt(0, BOTS.length)]; i = crypto.randomInt(0, RAD_N); ded = { from: b, to: t2 === b ? 'everyone' : t2, msg: ['Happy Thursday!', 'Turn it UP!', 'For the bus stop crew', 'Sorry about your Tamagotchi', 'You are ace', 'Miss you at school'][crypto.randomInt(0, 6)], i, bot: 1 }; }
+    if (live.has('req') && Math.random() < 0.5) { const b = BOTS[crypto.randomInt(0, BOTS.length)], t2 = BOTS[crypto.randomInt(0, BOTS.length)]; i = crypto.randomInt(0, RAD_N); ded = { from: b, to: t2 === b ? 'everyone' : t2, msg: ['Happy Thursday!', 'Turn it UP!', 'For the bus stop crew', 'Sorry about your Eggbert', 'You are ace', 'Miss you at school'][crypto.randomInt(0, 6)], i, bot: 1 }; }
     else { if (!R.bag.length) { R.bag = [...Array(RAD_N).keys()].filter(x => x !== R.i); for (let k = R.bag.length - 1; k > 0; k--) { const j = crypto.randomInt(0, k + 1); [R.bag[k], R.bag[j]] = [R.bag[j], R.bag[k]]; } } i = R.bag.shift(); }
   }
   R.i = i; R.start = now - prevEnd < 30000 && now >= prevEnd ? prevEnd : now; R.ded = ded;

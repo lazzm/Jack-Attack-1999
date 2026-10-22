@@ -18,6 +18,9 @@
   function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36) + ':' + str.length; }
   function wipe() { roaming().forEach(ls.del); }
   function apply(obj) { wipe(); Object.keys(obj || {}).forEach(k => { if (k.startsWith('jhp_') && !LOCAL.test(k) && typeof obj[k] === 'string') ls.set(k, obj[k]); }); }
+  // Apply downloaded profiles before room/media modules start, not while the
+  // previous user's in-memory timers can save their inventory over the new one.
+  try{const pending=JSON.parse(sessionStorage.getItem('jhp_roam_pending')||'null');if(pending?.obj&&typeof pending.name==='string'){apply(pending.obj);ls.set('jhp_roam_who',pending.name);ls.set('jhp_roam_ts',String(pending.ts));ls.set('jhp_roam_hash',hash(JSON.stringify(snapshot())));sessionStorage.removeItem('jhp_roam_pending')}}catch(e){try{sessionStorage.removeItem('jhp_roam_pending')}catch(ignore){}}
 
   // ---- gzip + base64 (falls back to plain base64 on browsers without CompressionStream)
   const toB64 = bytes => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); };
@@ -35,20 +38,22 @@
     return new TextDecoder().decode(bytes);
   }
 
-  let who = ls.get('jhp_roam_who') || '', busy = false, lastHash = ls.get('jhp_roam_hash') || '', waiters = [];
+  let who = ls.get('jhp_roam_who') || '', busy = false, lastHash = ls.get('jhp_roam_hash') || '', waiters = [],switching=false;
   const me = () => (Net.me && Net.me.member ? Net.me.nick : '');
 
   // ---- upload: chunks of 3000 base64 chars, paced so the server's rate limit is happy
   async function upload(force) {
     const name = me();
-    if (!name || who.toLowerCase() !== name.toLowerCase() || busy) return false;
+    if (!name || who.toLowerCase() !== name.toLowerCase() || busy || switching) return false;
     const str = JSON.stringify(snapshot()), h = hash(str);
     if (!force && h === lastHash) return true;
     busy = true;
     try {
       const { enc, data } = await pack(str);
+      if(switching)return false;
       const id = Math.random().toString(36).slice(2, 10), n = Math.max(1, Math.ceil(data.length / 3000));
       for (let i = 0; i < n; i++) {
+        if(switching||me().toLowerCase()!==name.toLowerCase())return false;
         if (!Net.send({ t: 'rmPut', id, i, n, d: data.slice(i * 3000, (i + 1) * 3000), ts: Date.now(), enc, base: +(ls.get('jhp_roam_ts') || 0) })) { busy = false; return false; }
         if (i % 10 === 9) await new Promise(r => setTimeout(r, 700));
       }
@@ -152,12 +157,14 @@
       if (me().toLowerCase() !== name.toLowerCase()) return; // logged off while deciding
       if (guest && !keep) ls.set('jhp_roam_guest', JSON.stringify(guest)); // keep the guest's stuff for when they log off
       if (guest && keep) ls.del('jhp_roam_guest'); // moved into the profile
+      if(!keep){switching=true;try{sessionStorage.setItem('jhp_roam_pending',JSON.stringify({obj,name,ts:m.ts}))}catch(e){apply(obj);ls.set('jhp_roam_who',name);ls.set('jhp_roam_ts',String(m.ts))}location.reload();return;}
       apply(keep ? merge(obj, guest) : obj);
       who = name; ls.set('jhp_roam_who', name); ls.set('jhp_roam_ts', String(m.ts)); lastHash = keep ? '' : hash(JSON.stringify(snapshot())); ls.set('jhp_roam_hash', lastHash);
       if (keep) copying(made(snapshot()), () => location.reload());
       else loaded(() => location.reload());
     };
-    if (gm && gm.any) choose(name, gm, take); else take(false);
+    // A starter profile is deliberate: never merge the pre-login demo inventory into it.
+    if(obj.jhp_starter==='1'||window.AccountGate?.blocked)take(false);else if (gm && gm.any) choose(name, gm, take); else take(false);
   });
   Net.on('rmSame', () => { /* up to date */ });
   Net.on('rmNone', m => {

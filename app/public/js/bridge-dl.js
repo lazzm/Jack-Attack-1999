@@ -48,7 +48,7 @@
   const CURS = {
     squig: { n: 'Spinning Blobbit', kb: 12, d: 'An arrow with a little red Blobbit going round and round next to it. Round and round. Round and round.' },
     rocket: { n: 'Little Rocket', kb: 9, d: 'Your pointer is a rocket! The flames flicker. Whoosh.' },
-    laser: { n: 'Laser Sword', kb: 11, d: 'A glowing green energy blade. Point at things like a Jedi. (Not a real Jedi. Copyright lawyers, please go away.)' },
+    laser: { n: 'Laser Sword', kb: 11, d: 'A glowing green energy blade. Point at things like a Space Cadet. (Not a real Space Cadet. Copyright lawyers, please go away.)' },
     cube: { n: 'Cube Spinner', kb: 14, d: 'An arrow with a tiny puzzle cube that keeps changing colour.' },
     rainbow: { n: 'Rainbow Arrow', kb: 8, d: 'The normal arrow, but it goes through every colour of the rainbow. Every. Single. Second.' },
     hourglass: { n: 'Forever Busy', kb: 10, d: 'The hourglass, ALL THE TIME. Everyone will think your computer is thinking really hard. A classic prank.' },
@@ -70,10 +70,10 @@
     ding: { n: 'Wingdingz', file: 'WINGDNGZ.TTF', kb: 18, stack: '"Wingdingz","Arial",sans-serif', d: 'Every letter is a little picture! A is a rocket, B is a floppy, H is a heart... Write secret messages your Mom can\'t read.' },
   };
   const THEMES = {
-    waaagh: { n: 'Scrapyard Robots', pid: 'bdl.th.waaagh', wall: 'waaagh', cur: 'choppa', saver: 'orkraid', scheme: ['#3a5a10', '#8ab030', '#b8b48c'], snd: 'ork', kb: 3100, d: 'Turns your whole computer into a robot scrapyard! A rusty Scrapyard Robot wallpaper, green and brown windows, a Swinging Spanner pointer, the Robot Air Raid screen saver, clanks for sounds and a Scrap Bin instead of a Recycle Bin.' },
-    space: { n: 'Outer Space Deluxe', pid: 'bdl.th.space', wall: 'space', cur: 'rocket', saver: 'warp', scheme: ['#10104a', '#6a3ab0', '#c8c4dc'], snd: 'space', kb: 2700, d: 'A nebula wallpaper with a ringed planet, deep purple windows, a rocket pointer, the Warp Tunnel screen saver and bleepy computer noises. My Computer becomes a space station.' },
-    sea: { n: 'Underwater Adventure', pid: 'bdl.th.sea', wall: 'underwater', cur: 'fish', saver: 'aquarium', scheme: ['#0a5a8a', '#2ab0c8', '#a8d4e0'], snd: 'sea', kb: 2900, d: 'Glug glug! An undersea wallpaper with a treasure chest, sea-blue windows, a goldfish pointer, the Aquarium screen saver and bubbly sounds. The Recycle Bin becomes a clam.' },
-    mystery: { n: 'Mystery 1999', pid: 'bdl.th.mystery', wall: 'mystery', cur: 'saucer', saver: 'saucer', scheme: ['#0a2a0a', '#3a8a3a', '#a4b0a0'], snd: 'mystery', kb: 2500, d: 'The truth is... somewhere. A cornfield wallpaper with a saucer, spooky green windows, a flying saucer pointer, the Saucer Sighting screen saver and creepy whistly sounds.' },
+    waaagh: { n: 'Scrapyard Robots', pid: 'bdl.th.waaagh', wall: 'waaagh', cur: 'choppa', saver: 'orkraid', scheme: ['#3a5a10', '#8ab030', '#b8b48c'], snd: 'ork', kb: 3100, d: 'Turns your whole computer into a robot scrapyard! A rusty Scrapyard Robot wallpaper, green and brown jackos, a Swinging Spanner pointer, the Robot Air Raid screen saver, clanks for sounds and a Scrap Bin instead of a Recycle Bin.' },
+    space: { n: 'Outer Space Deluxe', pid: 'bdl.th.space', wall: 'space', cur: 'rocket', saver: 'warp', scheme: ['#10104a', '#6a3ab0', '#c8c4dc'], snd: 'space', kb: 2700, d: 'A nebula wallpaper with a ringed planet, deep purple jackos, a rocket pointer, the Warp Tunnel screen saver and bleepy computer noises. My Computer becomes a space station.' },
+    sea: { n: 'Underwater Adventure', pid: 'bdl.th.sea', wall: 'underwater', cur: 'fish', saver: 'aquarium', scheme: ['#0a5a8a', '#2ab0c8', '#a8d4e0'], snd: 'sea', kb: 2900, d: 'Glug glug! An undersea wallpaper with a treasure chest, sea-blue jackos, a goldfish pointer, the Aquarium screen saver and bubbly sounds. The Recycle Bin becomes a clam.' },
+    mystery: { n: 'Mystery 1999', pid: 'bdl.th.mystery', wall: 'mystery', cur: 'saucer', saver: 'saucer', scheme: ['#0a2a0a', '#3a8a3a', '#a4b0a0'], snd: 'mystery', kb: 2500, d: 'The truth is... somewhere. A cornfield wallpaper with a saucer, spooky green jackos, a flying saucer pointer, the Saucer Sighting screen saver and creepy whistly sounds.' },
   };
   const PLUGS = {
     shock: { pid: 'bdl.shock', n: 'ShockJack', full: 'ShockJack Player 7', what: 'animated content' },
@@ -424,7 +424,7 @@ html.bdl-cur,html.bdl-cur body,html.bdl-cur body *:not(input):not(textarea):not(
     sel.value = pick && ids.includes(pick) ? pick : cur;
     const prev = () => {
       const k = sel.value, t = THEMES[k], win = qs(pv, '.w');
-      if (!t) { pv.style.background = '#008080'; ['--p1', '--p2', '--pf'].forEach(p => win.style.removeProperty(p)); cimg.removeAttribute('src'); cimg.hidden = true; desc.textContent = 'The classic JackOS look: teal desktop, grey windows, a plain white arrow. Like a fresh computer out of the box.'; return; }
+      if (!t) { pv.style.background = '#008080'; ['--p1', '--p2', '--pf'].forEach(p => win.style.removeProperty(p)); cimg.removeAttribute('src'); cimg.hidden = true; desc.textContent = 'The classic JackOS look: teal desktop, grey jackos, a plain white arrow. Like a fresh computer out of the box.'; return; }
       win.style.setProperty('--p1', t.scheme[0]); win.style.setProperty('--p2', t.scheme[1]); win.style.setProperty('--pf', t.scheme[2]); desc.textContent = t.d;
       art().then(a => { if (sel.value !== k) return; pv.style.background = `url("${svgData(a.WALLS[t.wall]())}") center/cover`; cimg.src = svgData(a.cursorFrames(t.cur)[0].svg); cimg.hidden = false; });
     };
@@ -446,7 +446,7 @@ html.bdl-cur,html.bdl-cur body,html.bdl-cur body *:not(input):not(textarea):not(
     d: 'Watch movie trailers on the Internet! In a window the size of a matchbox! At 12 frames a second! The future is here, and it is slightly blurry.', note: 'Upgrade to JackTime 4 PRO for full screen (£20). Or squint.' });
   // RealJack Player G2 already exists (era-apps.js, product 'realsquig'): the radio station uses that one
   P('bdl.smileys', { n: 'FREE SMILEYZ!!! 3.0', v: '3.0', kb: 640, lic: 'Adware', cat: 'net', sq: 2, rel: '01/07/99', ic: 'messenger', apps: ['bdl.smileys'], paths: ['FREE SMILEYZ! > Smiley Palette'], exe: 'SMILEYZ.EXE', setup: 'freesmileyz.exe',
-    d: 'Hundreds of FREE smileys for your e-mails!!! :-) ;-) :-D Adds a smiley bar to Outlook Express so every message you send is 1000% more fun. (Also adds a small advert to the bottom of every message. A small one.)', note: 'Does NOT contain spyware. We checked. We asked it and it said no.' });
+    d: 'Hundreds of FREE smileys for your e-mails!!! :-) ;-) :-D Adds a smiley bar to JackMail Express so every message you send is 1000% more fun. (Also adds a small advert to the bottom of every message. A small one.)', note: 'Does NOT contain spyware. We checked. We asked it and it said no.' });
 
   A.register('bdl.theme', { open(arg) { return themeWindow(String(arg || '').toLowerCase()); } });
   Object.entries(THEMES).forEach(([k, t]) => A.addProgram(['Desktop Dazzle', t.n + ' Theme'], () => A.open('bdl.theme', k), J('themes', 16)));
@@ -476,7 +476,7 @@ html.bdl-cur,html.bdl-cur body,html.bdl-cur body *:not(input):not(textarea):not(
     if (send) send.addEventListener('click', () => { const to = qs(win, '[name=to]'); if (to && to.value.trim() && ta.value.includes('FREE SMILEYZ!!!')) secret('smiley'); }, true);
   }
   function smileyPalette() {
-    const b = h(`<p style="margin:0 0 6px">Click a smiley to see what it means. Then open <b>Outlook Express</b> and write a New Message: the smiley bar is at the top!</p><div class="bdl-sm" style="justify-content:center">${SMILEYS.map(([s, n]) => `<button type="button" title="${esc(n)}">${esc(s)}</button>`).join('')}</div><p class="small sm-out" style="min-height:2.5em;margin:6px 0">&nbsp;</p><div class="row" style="justify-content:flex-end"><button class="btn" data-x="mail">Write an e-mail</button><button class="btn" data-x="close">Close</button></div>`);
+    const b = h(`<p style="margin:0 0 6px">Click a smiley to see what it means. Then open <b>JackMail Express</b> and write a New Message: the smiley bar is at the top!</p><div class="bdl-sm" style="justify-content:center">${SMILEYS.map(([s, n]) => `<button type="button" title="${esc(n)}">${esc(s)}</button>`).join('')}</div><p class="small sm-out" style="min-height:2.5em;margin:6px 0">&nbsp;</p><div class="row" style="justify-content:flex-end"><button class="btn" data-x="mail">Write an e-mail</button><button class="btn" data-x="close">Close</button></div>`);
     const w = A.win('FREE SMILEYZ!!! Palette', b, { w: 380, icon: J('messenger', 16), noResize: true, noMax: true });
     qsa(b, '.bdl-sm button').forEach(bt => bt.addEventListener('click', () => { qs(b, '.sm-out').textContent = `${bt.textContent} means "${bt.title}". Tilt your head to the left!`; sfx('click'); }));
     qs(b, '[data-x=mail]').addEventListener('click', () => { w.close(); A.open('outlook'); toast('FREE SMILEYZ!!!', 'Click "New Mail" and the smiley bar will be waiting for you. :-)', 5000); });
@@ -544,7 +544,7 @@ html.bdl-cur,html.bdl-cur body,html.bdl-cur body *:not(input):not(textarea):not(
   }
   const SITES = {
     [DD]: { title: 'DESKTOP DAZZLE!!! FREE Wallpapers, Cursors, Themes & More', desc: 'FREE wallpapers, animated cursors, desktop themes, screen savers, fonts and smileys! Make your computer look AWESOME. Updated every week (ish).', cat: 'soft',
-      pages: { '/': ['DESKTOP DAZZLE!!! FREE stuff for your desktop', 'free wallpapers cursors themes screen savers fonts smileys download'], '/wallpapers.html': ['FREE Wallpapers - Desktop Dazzle', 'wallpaper download space robot scrapyard pod race blocks cube dinosaurs sunset monolith cyber grid y2k'], '/cursors.html': ['FREE Animated Cursors - Desktop Dazzle', 'animated cursors ani blobbit spanner rocket laser sword cube rainbow hourglass mouse pointer'], '/themes.html': ['Desktop Themes - Desktop Dazzle', 'desktop themes scrapyard robots outer space underwater mystery 1999 plus'], '/savers.html': ['FREE Screen Savers - Desktop Dazzle', 'screen savers flying floppies warp tunnel aquarium lava lamp'], '/fonts.html': ['FREE Fonts - Desktop Dazzle', 'fonts truetype comic strip blocky 8-bit wingdingz'], '/smileys.html': ['FREE SMILEYZ - Desktop Dazzle', 'free smileys emoticons e-mail outlook express'], '/plugins.html': ['Plug-in Zone - Desktop Dazzle', 'plug-ins shockjack shocksquig jacktime realjack realsquig download'], '/intro.html': ['Desktop Dazzle - ShockJack Intro', 'shocksquig intro skip intro'], '/about.html': ['About Desktop Dazzle', 'about webmaster dazzledan awards'] } },
+      pages: { '/': ['DESKTOP DAZZLE!!! FREE stuff for your desktop', 'free wallpapers cursors themes screen savers fonts smileys download'], '/wallpapers.html': ['FREE Wallpapers - Desktop Dazzle', 'wallpaper download space robot scrapyard pod race blocks cube dinosaurs sunset monolith cyber grid y2k'], '/cursors.html': ['FREE Animated Cursors - Desktop Dazzle', 'animated cursors ani blobbit spanner rocket laser sword cube rainbow hourglass mouse pointer'], '/themes.html': ['Desktop Themes - Desktop Dazzle', 'desktop themes scrapyard robots outer space underwater mystery 1999 plus'], '/savers.html': ['FREE Screen Savers - Desktop Dazzle', 'screen savers flying floppies warp tunnel aquarium lava lamp'], '/fonts.html': ['FREE Fonts - Desktop Dazzle', 'fonts truetype comic strip blocky 8-bit wingdingz'], '/smileys.html': ['FREE SMILEYZ - Desktop Dazzle', 'free smileys emoticons e-mail jackmail express'], '/plugins.html': ['Plug-in Zone - Desktop Dazzle', 'plug-ins shockjack shocksquig jacktime realjack realsquig download'], '/intro.html': ['Desktop Dazzle - ShockJack Intro', 'shocksquig intro skip intro'], '/about.html': ['About Desktop Dazzle', 'about webmaster dazzledan awards'] } },
     'www.jacktoonz.toonz': { title: 'JACKTOONZ - Cartoons on the Web!', desc: 'Online cartoons starring Gubbinz, made with ShockJack. Plus a spinning 3D logo that took three weeks.', cat: 'fun',
       pages: { '/': ['JACKTOONZ - Cartoons on the Web!', 'cartoons shockjack gubbinz robot trouble'], '/3d.html': ['JACKTOONZ - 3D Logo Zone', '3d spinning logo shocksquig'] } },
     'www.trailerpark.flick': { title: 'THE TRAILER PARK - Movie trailers online', desc: 'Watch movie trailers on the Internet with JackTime! RoboKid, Attack of the 50ft Blob and more. Bring popcorn (and patience).', cat: 'fans',
@@ -590,7 +590,7 @@ html.bdl-cur,html.bdl-cur body,html.bdl-cur body *:not(input):not(textarea):not(
     ['intro', 'Patience of a saint', 'Watch a whole website intro without skipping it'],
     ['rclick', 'Graphics thief', 'Keep right-clicking a page that says you can\'t'],
     ['quake', 'Earthquake survivor', 'Survive three earthquakes on one homepage'],
-    ['popups', 'Pop-up whacker', 'Close a whole chain of pop-up windows'],
+    ['popups', 'Pop-up whacker', 'Close a whole chain of pop-up jackos'],
     ['clingy', 'Can\'t say goodbye', 'Get talked out of leaving a homepage three times'],
     ['ring', 'Ring of annoyance', 'Visit every homepage on the most annoying webring on the Web'],
     ['smiley', 'Smiley spammer', 'Send an e-mail with FREE smileys in it'],

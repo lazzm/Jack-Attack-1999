@@ -140,55 +140,55 @@ function cwView() {
 // ---------------------------------------------------------------- Quiz Night
 // [question, [accepted answers (lower case, letters/numbers/spaces)], the answer as QuizJack says it]
 const Q = [
-  ['POKEMON: What colour is Pikachu?', ['yellow'], 'Yellow'],
-  ['POKEMON: Which Pokemon is number 001 in the Pokedex in Red and Blue?', ['bulbasaur'], 'Bulbasaur'],
-  ['POKEMON: Which Pokemon evolves into Charmeleon?', ['charmander'], 'Charmander'],
-  ['POKEMON: What is the name of Ash\'s home town in the Pokemon cartoon?', ['pallet', 'pallet town'], 'Pallet Town'],
-  ['POKEMON: Which professor gives you your first Pokemon in Red and Blue?', ['oak', 'professor oak', 'prof oak'], 'Professor Oak'],
-  ['POKEMON: How many Pokemon are there in Red and Blue, counting Mew?', ['151', 'one hundred and fifty one', 'a hundred and fifty one'], '151'],
-  ['POKEMON: Which Pokemon, number 150, was made in a laboratory?', ['mewtwo', 'mew two', 'mew 2'], 'Mewtwo'],
-  ['POKEMON: What type of Pokemon is Squirtle?', ['water'], 'Water'],
-  ['POKEMON: What is the word Pokemon short for?', ['pocket monsters', 'pocket monster'], 'Pocket Monsters'],
-  ['POKEMON: What does Pikachu evolve into with a Thunder Stone?', ['raichu'], 'Raichu'],
-  ['POKEMON: What is the name of Team Rocket\'s talking cat Pokemon?', ['meowth'], 'Meowth'],
-  ['POKEMON: Which pink balloon Pokemon sings people to sleep?', ['jigglypuff'], 'Jigglypuff'],
-  ['POKEMON: In the games, what do you call the trainers you beat to win badges?', ['gym leader', 'gym leaders'], 'Gym Leaders'],
-  ['GAMES: What is the name of Mario\'s brother?', ['luigi'], 'Luigi'],
-  ['GAMES: What is the name of the hero in The Legend of Zelda: Ocarina of Time?', ['link'], 'Link'],
-  ['GAMES: Which blue hedgehog is Sega\'s mascot?', ['sonic'], 'Sonic'],
-  ['GAMES: In Metal Gear Solid, what is the hero\'s codename?', ['snake', 'solid snake'], 'Solid Snake'],
-  ['GAMES: Which company makes the PlayStation?', ['sony'], 'Sony'],
-  ['GAMES: Lara Croft is the star of which series of games?', ['tomb raider'], 'Tomb Raider'],
-  ['GAMES: In GoldenEye 007 on the N64, which actor\'s James Bond do you play as?', ['pierce brosnan', 'brosnan'], 'Pierce Brosnan'],
-  ['GAMES: How many squares make up each piece in Tetris?', ['4', 'four'], 'Four'],
-  ['GAMES: What does the N in N64 stand for?', ['nintendo'], 'Nintendo'],
+  ['POCKET CRITTERS: What colour is Zapachu?', ['yellow'], 'Yellow'],
+  ['POCKET CRITTERS: Which Pocket Critters is number 001 in the Pokedex in Red and Blue?', ['bulbasaur'], 'Bulbabeast'],
+  ['POCKET CRITTERS: Which Pocket Critters evolves into Charmeleon?', ['charmander'], 'Charbroiler'],
+  ['POCKET CRITTERS: What is the name of Ash\'s home town in the Pocket Critters cartoon?', ['pallet', 'pallet town'], 'Pallet Town'],
+  ['POCKET CRITTERS: Which professor gives you your first Pocket Critters in Red and Blue?', ['oak', 'professor oak', 'prof oak'], 'Professor Oak'],
+  ['POCKET CRITTERS: How many Pocket Critters are there in Red and Blue, counting Mew?', ['151', 'one hundred and fifty one', 'a hundred and fifty one'], '151'],
+  ['POCKET CRITTERS: Which Pocket Critters, number 150, was made in a laboratory?', ['mewtwo', 'mew two', 'mew 2'], 'MewToo'],
+  ['POCKET CRITTERS: What type of Pocket Critters is Squirturtle?', ['water'], 'Water'],
+  ['POCKET CRITTERS: What is the word Pocket Critters short for?', ['pocket monsters', 'pocket monster'], 'Pocket Monsters'],
+  ['POCKET CRITTERS: What does Zapachu evolve into with a Thunder Stone?', ['raichu'], 'Raichu'],
+  ['POCKET CRITTERS: What is the name of Team Rocket\'s talking cat Pocket Critters?', ['meowth'], 'Meowth'],
+  ['POCKET CRITTERS: Which pink balloon Pocket Critters sings people to sleep?', ['jigglypuff'], 'Jigglypuff'],
+  ['POCKET CRITTERS: In the games, what do you call the trainers you beat to win badges?', ['gym leader', 'gym leaders'], 'Gym Leaders'],
+  ['GAMES: What is the name of Marlo\'s brother?', ['luigi'], 'Louie G'],
+  ['GAMES: What is the name of the hero in The Legend of Zeldoo: Kazoo of Time?', ['link'], 'Link'],
+  ['GAMES: Which blue hedgehog is Segue\'s mascot?', ['sonic'], 'Zip'],
+  ['GAMES: In Metal Gear Wobbly, what is the hero\'s codename?', ['snake', 'solid snake'], 'Solid Snake'],
+  ['GAMES: Which company makes the PlaySpace?', ['sony'], 'Somy'],
+  ['GAMES: Clara Loft is the star of which series of games?', ['crypt raider'], 'Crypt Raider'],
+  ['GAMES: In Goldenballs 007 on the ULTRA 64, which actor\'s James Bond do you play as?', ['pierce brosnan', 'brosnan'], 'Pierce Brosnan'],
+  ['GAMES: How many squares make up each piece in Blockology?', ['4', 'four'], 'Four'],
+  ['GAMES: What does the N in ULTRA 64 stand for?', ['nintendo'], 'Ultra Entertainment'],
   ['GAMES: Which yellow dot-eating hero first chomped through a maze in the arcades in 1980?', ['pac man', 'pacman'], 'Pac-Man'],
-  ['GAMES: What colour is Spyro the Dragon?', ['purple'], 'Purple'],
-  ['GAMES: What kind of animal is Crash, of Crash Bandicoot? (clue: it\'s in the name)', ['bandicoot', 'a bandicoot'], 'A bandicoot'],
-  ['GAMES: Sega\'s newest console came out in Japan in November 1998. What is it called?', ['dreamcast'], 'The Dreamcast'],
-  ['GAMES: Which Nintendo handheld got a colour version in 1998?', ['game boy', 'gameboy', 'game boy color', 'gameboy color', 'game boy colour', 'gameboy colour'], 'The Game Boy (the Game Boy Color)'],
-  ['STAR WARS: Which boy from Tatooine wins a podrace in The Phantom Menace?', ['anakin', 'anakin skywalker'], 'Anakin Skywalker'],
-  ['STAR WARS: What is the name of the clumsy Gungan in The Phantom Menace?', ['jar jar', 'jar jar binks', 'jarjar'], 'Jar Jar Binks'],
-  ['STAR WARS: Which Sith Lord with a double-bladed lightsaber fights Qui-Gon and Obi-Wan in Episode I?', ['darth maul', 'maul'], 'Darth Maul'],
-  ['STAR WARS: Who is Qui-Gon Jinn\'s apprentice in The Phantom Menace?', ['obi wan', 'obi wan kenobi', 'obiwan', 'kenobi'], 'Obi-Wan Kenobi'],
-  ['STAR WARS: What is the name of Han Solo\'s ship?', ['millennium falcon', 'millenium falcon', 'the falcon', 'falcon'], 'The Millennium Falcon'],
-  ['STAR WARS: Which small green Jedi Master trains Luke in The Empire Strikes Back?', ['yoda'], 'Yoda'],
-  ['STAR WARS: Which desert planet is Luke Skywalker\'s home?', ['tatooine'], 'Tatooine'],
-  ['STAR WARS: Who created Star Wars and directed the first film?', ['george lucas', 'lucas'], 'George Lucas'],
-  ['STAR WARS: Which golden droid is fluent in over six million forms of communication?', ['c3po', 'c 3po', 'c3 po', 'c 3 po', 'threepio'], 'C-3PO'],
-  ['STAR WARS: What is Darth Vader\'s real name?', ['anakin', 'anakin skywalker'], 'Anakin Skywalker'],
-  ['FILMS: In The Matrix, what colour is the pill that Neo takes?', ['red'], 'Red'],
-  ['FILMS: Which actor plays Neo in The Matrix?', ['keanu reeves', 'keanu'], 'Keanu Reeves'],
-  ['FILMS: In Toy Story, finish Buzz Lightyear\'s catchphrase: "To infinity and..."', ['beyond'], 'Beyond!'],
-  ['FILMS: What is the name of the cowboy doll in Toy Story?', ['woody', 'sheriff woody'], 'Woody'],
+  ['GAMES: What colour is Spike the Stegosaur the Dragon?', ['purple'], 'Purple'],
+  ['GAMES: What kind of animal is Crash, of Warp Wombat? (clue: it\'s in the name)', ['bandicoot', 'a bandicoot'], 'A bandicoot'],
+  ['GAMES: Segue\'s newest console came out in Japan in November 1998. What is it called?', ['dreamcast'], 'The Daydream'],
+  ['GAMES: Which Ultra Entertainment handheld got a colour version in 1998?', ['game lad', 'gameboy', 'game lad color', 'gameboy color', 'game lad colour', 'gameboy colour'], 'The Game Lad (the Game Lad Color)'],
+  ['INTERGALACTIC BATTLES: Which boy from Tattyween wins a podrace in The Phantom Nuisance?', ['anakin', 'anklekin skywobbler'], 'Anklekin Skywobbler'],
+  ['INTERGALACTIC BATTLES: What is the name of the clumsy Gungan in The Phantom Nuisance?', ['jar jar jams', 'jar jar jams', 'jarjar'], 'Jar Jar Jams'],
+  ['INTERGALACTIC BATTLES: Which Sulk Lord with a double-bladed lightspatula fights Qui-Gon and Obi-Wan in Episode I?', ['dark mole', 'maul'], 'Dark Mole'],
+  ['INTERGALACTIC BATTLES: Who is Qui-Gon Gym\'s apprentice in The Phantom Nuisance?', ['obi wan', 'obi wan cannoli', 'obiwan', 'kenobi'], 'Obi-Wan Cannoli'],
+  ['INTERGALACTIC BATTLES: What is the name of Ham Solo\'s ship?', ['millennium pigeon', 'millenium falcon', 'the falcon', 'falcon'], 'The Millennium Pigeon'],
+  ['INTERGALACTIC BATTLES: Which small green Space Cadet Master trains Luke in The Empire Strikes Out?', ['yoda'], 'Yoga'],
+  ['INTERGALACTIC BATTLES: Which desert planet is Luke Skywobbler\'s home?', ['tatooine'], 'Tattyween'],
+  ['INTERGALACTIC BATTLES: Who created Intergalactic Battles and directed the first film?', ['gordon lukewarm', 'lucas'], 'Gordon Lukewarm'],
+  ['INTERGALACTIC BATTLES: Which golden droid is fluent in over six million forms of communication?', ['c3po', 'c 3po', 'c3 po', 'c 3 po', 'threepio'], 'C-3PO'],
+  ['INTERGALACTIC BATTLES: What is Dark Vapour\'s real name?', ['anakin', 'anklekin skywobbler'], 'Anklekin Skywobbler'],
+  ['FILMS: In The Modemtrix, what colour is the pill that Neo takes?', ['red'], 'Red'],
+  ['FILMS: Which actor plays Neo in The Modemtrix?', ['keanu reeves', 'keanu'], 'Keanu Reeves'],
+  ['FILMS: In Toy Storey, finish Buzz Lightyear\'s catchphrase: "To infinity and..."', ['beyond'], 'Beyond!'],
+  ['FILMS: What is the name of the cowboy doll in Toy Storey?', ['woody', 'sheriff woody'], 'Woody'],
   ['FILMS: Which 1999 Disney cartoon is about a boy raised by gorillas?', ['tarzan'], 'Tarzan'],
   ['FILMS: Which 1998 Pixar film is about an ant called Flik?', ['a bugs life', 'bugs life'], 'A Bug\'s Life'],
   ['FILMS: In The Mummy (1999), the lost city of Hamunaptra is in which country?', ['egypt'], 'Egypt'],
   ['FILMS: Which 1999 film stars Hugh Grant as a London bookshop owner who meets a film star?', ['notting hill'], 'Notting Hill'],
   ['FILMS: What is the name of Wallace\'s clever dog?', ['gromit'], 'Gromit'],
   ['TELLY: Name the purple Teletubby with a triangle on his head.', ['tinky winky', 'tinkywinky'], 'Tinky Winky'],
-  ['TELLY: In The Simpsons, what is the name of Bart\'s dad?', ['homer', 'homer simpson'], 'Homer'],
-  ['TELLY: What is the name of the Doctor\'s robot dog in Doctor Who?', ['k9', 'k 9', 'k nine'], 'K-9'],
+  ['TELLY: In The Simpsocks, what is the name of Bart\'s dad?', ['homer', 'homer simpson'], 'Homer'],
+  ['TELLY: What is the name of the Doctor\'s robot dog in Doctor Whoops?', ['k9', 'k 9', 'k nine'], 'K-9'],
   ['TELLY: Who asks the questions on Who Wants to Be a Millionaire?', ['chris tarrant', 'tarrant'], 'Chris Tarrant'],
   ['TELLY: How many questions do you have to get right to win the million on Who Wants to Be a Millionaire?', ['15', 'fifteen'], '15'],
   ['TELLY: Which Thunderbird is the big green one?', ['2', 'two', 'thunderbird 2', 'thunderbird two'], 'Thunderbird 2'],
@@ -210,7 +210,7 @@ const Q = [
   ['SPACE: Which very bright comet could be seen without a telescope in 1997?', ['hale bopp', 'halebopp'], 'Hale-Bopp'],
   ['SPACE: Which planet is famous for its rings?', ['saturn'], 'Saturn'],
   ['SPACE: What is the name of our galaxy?', ['milky way', 'the milky way'], 'The Milky Way'],
-  ['BONUS: How many little squares are on each face of a normal Rubik\'s Cube?', ['9', 'nine'], 'Nine'],
+  ['BONUS: How many little squares are on each face of a normal Rubrick\'s Cube?', ['9', 'nine'], 'Nine'],
 ];
 const norm = s => ' ' + String(s || '').toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
 const QUIZ_LEN = 10, ANSWER_MS = 45000, HINT_MS = 22000, GAP_MS = 9000;
@@ -237,7 +237,7 @@ function quizTick() {
   if (!here.size) { if (sess.cur) sess.cur.at += 1000; if (sess.next) sess.next += 1000; return; } // nobody in: QuizJack waits
   if (!sess.started) {
     sess.started = true; sess.next = now + 7000;
-    say('*** OI OI! IT\'S QUIZ NIGHT!!! I\'m QuizJack. 10 questions about 1999: games, films, telly, music, space, Star Wars and Pokemon. First right answer gets a point. Just type your answer. No cheating (I can see you).', 'big');
+    say('*** OI OI! IT\'S QUIZ NIGHT!!! I\'m QuizJack. 10 questions about 1999: games, films, telly, music, space, Intergalactic Battles and Pocket Critters. First right answer gets a point. Just type your answer. No cheating (I can see you).', 'big');
     if (now - lastAdvert > 3 * 3600000 && ready().length >= 2) { lastAdvert = now; ctx.pushChat({ sys: true, text: '*** QuizJack: QUIZ NIGHT is on NOW in JackIRC! Type /join #quiznight', ts: now }); }
     return;
   }
@@ -245,7 +245,7 @@ function quizTick() {
   if (c && !c.done) {
     const el = now - c.at, q = Q[c.i];
     if (el > HINT_MS && !c.hinted) { c.hinted = true; say(`HINT: ${hint(q[2])}`, 'hint'); }
-    if (el > ANSWER_MS) { c.done = true; sess.next = now + GAP_MS; say(`Nobody got it! The answer was: ${q[2]}. Too hard? Ask Jeeves. Actually, don\'t.`, 'reveal'); }
+    if (el > ANSWER_MS) { c.done = true; sess.next = now + GAP_MS; say(`Nobody got it! The answer was: ${q[2]}. Too hard? Ask Gubbinz. Actually, don\'t.`, 'reveal'); }
     return;
   }
   if (now < sess.next) return;

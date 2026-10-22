@@ -72,8 +72,8 @@
   const SKINS = ['#f0c8a0', '#e0b088', '#c08860', '#8a5a3a', '#f8d8b8'];
   const MATES = [
     { n: 'Callum', shirt: '#202020', q: ['I built a better coaster than this at home', 'This would run faster on my 3D card', 'Is this the full version or the demo?'] },
-    { n: 'Dave', shirt: '#e0c020', q: ['This is good but I\'d rather be playing Mario Kart 64', 'Can I have another burger?', 'Have you got an N64 in here?'] },
-    { n: 'Luke', shirt: '#2050e0', q: ['Does the info kiosk sell N64 games?', 'This ride is nearly as good as Wave Race 64', 'I want to go on something more thrilling'] },
+    { n: 'Dave', shirt: '#e0c020', q: ['This is good but I\'d rather be playing Kart Kaos 64', 'Can I have another burger?', 'Have you got an ULTRA 64 in here?'] },
+    { n: 'Luke', shirt: '#2050e0', q: ['Does the info kiosk sell ULTRA 64 games?', 'This ride is nearly as good as Wave Race 64', 'I want to go on something more thrilling'] },
     { n: 'JackK', shirt: '#20a020', q: ['Two Jacks in one park? Confusing', 'Wow, this park is great!', 'Who designed this coaster? It\'s mad'] },
     { n: 'Gubbinz', shirt: '#3a8a2a', q: ['Jack says I\'m not allowed on the computer. This is the computer', 'Where do the Jack Burgers come from? ...don\'t tell me', 'I\'m not going on the Big Wheel'] },
     { n: 'Jack\'s Mom', shirt: '#c06090', q: ['Is this what you do on that computer all day?', 'It\'s very nice, love. Bedtime in ten minutes', 'Who\'s going to tidy up all this litter?'] },
@@ -1024,7 +1024,7 @@
       // awards and silly news
       let lit = 0; for (let i = 0; i < NN; i++) lit += S.litter[i];
       if (S.guests.length > 25 && lit < 4) news('Your park has received an award for being the Tidiest Park in the County!', null, true);
-      const silly = ['Callum says his park has a loop-the-loop. (It doesn\'t. He made it up.)', 'Dave visited your park and asked if you\'ve got Mario Kart 64 anywhere', 'Mom says the park has to close at nine on school nights', 'Luke says the Big Wheel needs a Rumble Pak', 'Dave has been banned from the Jack Burger stall. Again.', 'JackK says your coaster "isn\'t bad, for a Jack"', 'Gubbinz has been spotted riding the Pirate Ship forty times in a row', 'The Jacktown Gazette says your park is "the best thing since sliced bread, probably"'];
+      const silly = ['Callum says his park has a loop-the-loop. (It doesn\'t. He made it up.)', 'Dave visited your park and asked if you\'ve got Kart Kaos 64 anywhere', 'Mom says the park has to close at nine on school nights', 'Luke says the Big Wheel needs a Rumble Pak', 'Dave has been banned from the Jack Burger stall. Again.', 'JackK says your coaster "isn\'t bad, for a Jack"', 'Gubbinz has been spotted riding the Pirate Ship forty times in a row', 'The Jacktown Gazette says your park is "the best thing since sliced bread, probably"'];
       if (Math.random() < 0.6) news(silly[(Math.random() * silly.length) | 0], null, true);
       // a coach party now and then
       if (S.open && S.rating > 520 && rideList().length >= 2 && Math.random() < 0.3) {

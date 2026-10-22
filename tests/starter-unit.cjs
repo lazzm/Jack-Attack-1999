@@ -18,3 +18,10 @@ assert.equal(fs.readdirSync(path.join(process.env.DATA_DIR,'test-backups')).leng
 assert.equal(JSON.stringify({member:members.other,econ:state.mods.econ.acct.other,rm:state.mods.rm.p.other,pmx:state.mods.pmx.p.other}),others);
 starter.handle(ws,c,{confirm:'RESET TEST'});assert.equal(messages.at(-1).ok,false,'Rapid reset not limited');
 console.log('STARTER UNIT PASS: test-only seed/reset, zero balances, backups, daily caps and other members preserved');
+const crypto=require('crypto'),file=path.join(process.env.DATA_DIR,'profiles',crypto.createHash('sha256').update('test').digest('hex')+'.json');
+const legacy=JSON.parse(fs.readFileSync(file));delete legacy.starterClean;
+legacy.data=Buffer.from(JSON.stringify({jhp_starter:'1',jhp_personal_note:'"kept"',jhp_rm:JSON.stringify({f:{'cart.n64.range':1,badge:7}}),jhp_pm:JSON.stringify({own:{rts:1},fl:{ghost:{}},opened:{42:1}}),jhp_discs:JSON.stringify({cd:'jrt'})})).toString('base64');fs.writeFileSync(file,JSON.stringify(legacy));
+state.mods.rm.p.test.f={'cart.ps.run':1,badge:7};state.mods.pmx.p.test.o=[{id:'jrt',no:42}];state.mods.econ.acct.test.bal=51;
+events.login(c,false);const migrated=JSON.parse(Buffer.from(JSON.parse(fs.readFileSync(file)).data,'base64'));
+assert.deepEqual(JSON.parse(migrated.jhp_pm).own,{});assert.equal(JSON.parse(migrated.jhp_pm).opened[42],1);assert.equal(JSON.parse(migrated.jhp_discs).cd,'jrt');assert.equal(migrated.jhp_personal_note,'"kept"');assert.deepEqual(state.mods.rm.p.test.f,{badge:7});assert.equal(state.mods.econ.acct.test.bal,51);assert.equal(roam.upgradeStarter('test'),false);
+assert.equal(JSON.stringify({member:members.other,econ:state.mods.econ.acct.other,rm:state.mods.rm.p.other,pmx:state.mods.pmx.p.other}),others);console.log('STARTER MIGRATION PASS: inherited media/finds removed; purchase, balance, notes, caps and other players kept');

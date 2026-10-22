@@ -187,7 +187,7 @@
       const lines = plan.filter(pc => t >= pc.t1 && pc.cleared).reduce((s, pc) => s + pc.cleared, 0); p.text(94, 10, String(lines), '#fff');
     } });
   // ---- Rubik's cube scramble and solve
-  clip('cube', { title: "Rubik's Cube: scramble and solve", dur: 12,
+  clip('cube', { title: "Rubrick's Cube: scramble and solve", dur: 12,
     moves() { if (this._m) return this._m; const R = C.art.rng(1974), m = []; for (let i = 0; i < 10; i++) m.push([(R() * 6) | 0, R() < 0.5]); return (this._m = m); },
     ev() { const out = []; for (let i = 0; i < 10; i++) out.push([0.6 + i * 0.45, () => { sfx(1400, 0.03, 'square'); sfx(900, 0.03, 'square'); }]); for (let i = 0; i < 10; i++) out.push([6 + i * 0.45, () => { sfx(1200, 0.03, 'square'); }]); out.push([10.8, () => Sound.play('solve')]); return out; },
     draw(p, t) {

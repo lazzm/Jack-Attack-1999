@@ -172,8 +172,8 @@
   const SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
   function horoscope(sign) {
     const h = hash(sign + today().key);
-    const A = ['A mysterious stranger will lend you a pencil.', 'Today is a good day to finally do one whole side of the Rubik\'s cube.', 'Beware of anyone carrying a talking toy owl.', 'Your modem will connect first time. Treasure this moment.', 'Someone will say "it\'s not a phase, Mom". It might be you.', 'A floppy disk from your past will come back to haunt you. It will say "Disk Error".', 'You will find 20p down the back of the sofa. Spend it wisely (on sweets).', 'The stars say: tidy your room. The stars sound a lot like your Mom.', 'An old friend will send you a chain e-mail. Do NOT forward it.', 'Great fortune awaits you in the bottom of a cereal box.', 'Today you will beat your high score. Or someone else will. Probably Dave.', 'A Furby will look at you funny. Do not feed it after midnight.'];
-    const B = ['Lucky colour: ' + pick2(h, ['beige (like all PCs)', 'Blueberry', 'Pikachu yellow', 'Game Boy green', 'Tangerine', 'grey (JackOS 98 grey)', 'Y2K silver']), 'Lucky number: ' + (h % 56 + 1), 'Lucky snack: ' + pick2(h >>> 3, ['crisps', 'a chocolate biscuit', 'Wotsits', 'toast', 'a whole selection box']), 'Best avoided: ' + pick2(h >>> 5, ['homework', 'the Water Temple', 'Dave\'s cat', 'dial-up during teatime', 'pressing the Turbo button'])];
+    const A = ['A mysterious stranger will lend you a pencil.', 'Today is a good day to finally do one whole side of the Rubrick\'s cube.', 'Beware of anyone carrying a talking toy owl.', 'Your modem will connect first time. Treasure this moment.', 'Someone will say "it\'s not a phase, Mom". It might be you.', 'A floppy disk from your past will come back to haunt you. It will say "Disk Error".', 'You will find 20p down the back of the sofa. Spend it wisely (on sweets).', 'The stars say: tidy your room. The stars sound a lot like your Mom.', 'An old friend will send you a chain e-mail. Do NOT forward it.', 'Great fortune awaits you in the bottom of a cereal box.', 'Today you will beat your high score. Or someone else will. Probably Dave.', 'A Furby will look at you funny. Do not feed it after midnight.'];
+    const B = ['Lucky colour: ' + pick2(h, ['beige (like all PCs)', 'Blueberry', 'Zapachu yellow', 'Game Lad green', 'Tangerine', 'grey (JackOS 98 grey)', 'Y2K silver']), 'Lucky number: ' + (h % 56 + 1), 'Lucky snack: ' + pick2(h >>> 3, ['crisps', 'a chocolate biscuit', 'Wotsits', 'toast', 'a whole selection box']), 'Best avoided: ' + pick2(h >>> 5, ['homework', 'the Water Temple', 'Dave\'s cat', 'dial-up during teatime', 'pressing the Turbo button'])];
     return A[h % A.length] + ' ' + B[(h >>> 2) % B.length] + '.';
   }
   function pick2(h, a) { return a[h % a.length]; }
@@ -181,15 +181,15 @@
   function orkAnswer(q) {
     const l = q.toLowerCase();
     if (/red|fast|quick|speed/.test(l)) return 'Red ones go faster. Ask any Micro Machines fan.';
-    if (/gun|shoot|dakka|golden/.test(l)) return 'Pick Oddjob in GoldenEye. Everyone hates it. Do it anyway.';
+    if (/gun|shoot|dakka|golden/.test(l)) return 'Pick Oddjob in Goldenballs. Everyone hates it. Do it anyway.';
     if (/food|eat|hungry|dinner|tea/.test(l)) return 'Pot Noodle. The answer is always Pot Noodle.';
     if (/money|cost|price|pay|quid/.test(l)) return "That'll be ten Rupees.";
     if (/y2k|millennium|2000/.test(l)) return "The Millennium Bug? Unplug the video recorder and hope.";
     if (/homework|school/.test(l)) return 'Yes. Sorry. Even this toolbar can\'t get you out of that one.';
     return pick(ORK_ANSWERS);
   }
-  const JOKES = ['Why did the racing car paint itself red? Because red ones go faster!', 'What do you call a Tamagotchi with no batteries? A keyring.','Why did the computer go to the doctor? It had a virus!', 'How many programmers does it take to change a light bulb? None, that is a hardware problem.', 'Knock knock. Who is there? The Millennium Bug. The Millennium Bug who? Exactly, nobody knows.', 'Why was the floppy disk sad? Nobody wanted to be its 1.44 MB-FF.', 'Why did the Game Boy go to bed? Its batteries were flat.', 'Why did the modem go to bed early? It was all worn out from the screeching.'];
-  const FACTS = ['A floppy disk holds 1.44 megabytes.', 'The Nintendo 64 has 4 megabytes of memory. 8 with the Expansion Pak!', 'There are 151 Pokemon.', 'Red ones go faster. Science.', 'Tetris was invented in Moscow in 1984.', 'A CD-ROM holds about 650 megabytes. That is 451 floppy disks!'];
+  const JOKES = ['Why did the racing car paint itself red? Because red ones go faster!', 'What do you call a Eggbert with no batteries? A keyring.','Why did the computer go to the doctor? It had a virus!', 'How many programmers does it take to change a light bulb? None, that is a hardware problem.', 'Knock knock. Who is there? The Millennium Bug. The Millennium Bug who? Exactly, nobody knows.', 'Why was the floppy disk sad? Nobody wanted to be its 1.44 MB-FF.', 'Why did the Game Lad go to bed? Its batteries were flat.', 'Why did the modem go to bed early? It was all worn out from the screeching.'];
+  const FACTS = ['A floppy disk holds 1.44 megabytes.', 'The Ultra 64 has 4 megabytes of memory. 8 with the Expansion Pak!', 'There are 151 Pocket Critters.', 'Red ones go faster. Science.', 'Blockology was invented in Moscow in 1984.', 'A CD-ROM holds about 650 megabytes. That is 451 floppy disks!'];
   function talk(t, who, pitch) {
     toast(who + ' says:', t, 6000);
     try { if (window.speechSynthesis && window.Sound && Sound.on) { const u = new SpeechSynthesisUtterance(t); u.pitch = pitch || 1.6; u.rate = 1.05; speechSynthesis.cancel(); speechSynthesis.speak(u); } } catch (e) {}
@@ -217,13 +217,13 @@
   // ================================================================ THE TOOLBARS
   // h: 1 normal, 't' tall, 2 two rows. skin: tiled pattern (css/toolbars.css). lc: logo lettering style.
   const D = {};
-  const GO = { ph: 'Search the Web...', cats: ['The Web', 'Pictures', 'MIDI files', 'Cheats', 'Homepages', 'Pokemon'] };
+  const GO = { ph: 'Search the Web...', cats: ['The Web', 'Pictures', 'MIDI files', 'Cheats', 'Homepages', 'Pocket Critters'] };
 
   D.mega = { skin: 'chrome', h: 2, m: 'globe', lc: 'lg-chrome', logo: 'Mega<i>Search</i><sup>2000</sup>', rows: [
     [srch({ ph: 'Type it. Find it. Mega it.', cats: ['The Web', 'Pictures', 'MIDI files', 'Cheats', 'Recipes', 'Homepages', 'Rupees'], go: 'MegaSearch!' }),
       btn('bulb', 'Highlight', () => document.body.classList.toggle('hilite')),
       cnt('Pop-ups blocked: ', () => '0', 'tbcnt-r'), txt('(we block nothing)', 'tbsmall'),
-      menuBtn('check', 'Spell Check', [{ label: 'Check spelling on this page', act: box('MegaSpell', 'MegaSpell found 1,999 spelling mistakes on this page.\n\nMost of them were "Pokemon". Nobody knows where the accent goes.') }, { label: 'Spell "millennium" for me', act: box('MegaSpell', 'M-I-L-L-E-N-N-I-U-M.\n\nTwo Ls, two Ns. Everyone gets it wrong. Even the people selling Millennium Mugs.') }]),
+      menuBtn('check', 'Spell Check', [{ label: 'Check spelling on this page', act: box('MegaSpell', 'MegaSpell found 1,999 spelling mistakes on this page.\n\nMost of them were "Pocket Critters". Nobody knows where the accent goes.') }, { label: 'Spell "millennium" for me', act: box('MegaSpell', 'M-I-L-L-E-N-N-I-U-M.\n\nTwo Ls, two Ns. Everyone gets it wrong. Even the people selling Millennium Mugs.') }]),
       ad(['<b>FREE</b> 500 hours!', 'Get on-line NOW!', '<b>56K!!!</b> (ish)'], () => window.OldPC && OldPC.popup(true), 'a-blu', 120)],
     [menuBtn('news', 'News', () => calNews(6).map(p => ({ label: p.tag + ': ' + p.text.slice(0, 54) + (p.text.length > 54 ? '...' : ''), act: box('MegaNews: ' + p.tag, p.text) })).concat(['-', { label: 'More news...', act: nav('news') }])),
       menuBtn('trophy', 'Sport', [{ label: 'Football results', act: nav('rovers') }, { label: 'Yo-yo league table', act: nav('~lee') }, { label: 'Robot fighting (on telly)', act: say('MegaSport', 'Sir Killalot won. Sir Killalot always wins.') }, { label: 'Tiddlywinks (live)', act: comingSoon('MegaSport') }]),
@@ -257,11 +257,11 @@
 
   D.waaaghoo = { skin: 'violet', h: 't', m: 'orkq', lc: 'lg-ork', logo: '<span style="color:#ffd400">WAAAGH</span>oo!<small>Answers</small>', rows: [[
     cust('Ask', c => `<input type="text" class="tbq" placeholder="Ask WAAAGHoo! anything..." aria-label="Ask WAAAGHoo!"><button class="tbgo" data-a="${c.a(t => { const q = t.previousElementSibling; if (!q.value.trim()) return q.focus(); t.closest('.adin').querySelector('.ans').textContent = orkAnswer(q.value); q.value = ''; play('pet'); })}">${I('fist')}<span>Ask!</span></button>`, null, 'tbask'),
-    menuBtn('q', 'Top Questions', [['Is red faster?', 'red'], ['What\'s for tea?', 'food'], ['Who should I pick in GoldenEye?', 'golden'], ['Will the Millennium Bug get me?', 'y2k'], ['Do I have to do my homework?', 'homework']].map(([l, q]) => ({ label: l, act: () => { const a = document.querySelector('.tb-waaaghoo .ans'); if (a) a.textContent = orkAnswer(q); } }))),
+    menuBtn('q', 'Top Questions', [['Is red faster?', 'red'], ['What\'s for tea?', 'food'], ['Who should I pick in Goldenballs?', 'golden'], ['Will the Millennium Bug get me?', 'y2k'], ['Do I have to do my homework?', 'homework']].map(([l, q]) => ({ label: l, act: () => { const a = document.querySelector('.tb-waaaghoo .ans'); if (a) a.textContent = orkAnswer(q); } }))),
     txt('', 'ans'),
     txt('<b>1,999,999</b> answers given. 3 were right.', 'tbsmall'),
     btn('chat', 'Silly Dictionary', nav('orktranslate')),
-    ad(['Ask an EXPERT!', 'Win an <b>N64</b>!', 'Ask us ANYTHING!!!'], nav('orks'), 'a-yel', 92)]] };
+    ad(['Ask an EXPERT!', 'Win an <b>ULTRA 64</b>!', 'Ask us ANYTHING!!!'], nav('orks'), 'a-yel', 92)]] };
 
   D.newsflash = { skin: 'news', h: 1, m: 'megaphone', lc: 'lg-news', logo: 'News<b>Flash</b>!', rows: [[
     txt('BREAKING', 'tbbreak'),
@@ -280,8 +280,8 @@
     tick(c) { if (c.st.hold > 0) c.st.hold--; else if (c.st.boost > 0) c.st.boost = Math.max(0, c.st.boost - 680); c.redraw(); } };
 
   D.askgrot = { skin: 'butler', h: 1, m: 'butler', lc: 'lg-gold', logo: 'Ask Jacksy!', rows: [[
-    cust('Ask', c => `<input type="text" class="tbq" placeholder="Ask a question in plain English..." aria-label="Ask Jacksy"><button class="tbgo" data-a="${c.a(t => { const q = t.previousElementSibling, v = q.value.trim(); if (!v) return q.focus(); t.closest('.adin').querySelector('.ans').textContent = `Jacksy found 0 results for "${v.slice(0, 24)}". Did you mean: POKEMON?`; q.value = ''; play('click'); })}">${I('mag')}<span>Ask</span></button>`, null, 'tbask'),
-    menuBtn('q', 'Popular', [{ label: 'Where is the any key?', act: box('Ask Jacksy!', 'The "any key" is whichever key you like. Jacksy recommends the big one at the bottom.') }, { label: 'Why is the sky grey?', act: box('Ask Jacksy!', 'Because it is Tuesday.') }, { label: 'How do I get rid of toolbars?', act: box('Ask Jacksy!', 'Try View > Toolbars, or the little x on each one.\n\nJacksy hopes you will not. Jacksy is a toolbar.') }, { label: 'Is Episode I good?', act: box('Ask Jacksy!', 'Podracing: yes. Everything else: the jury is out. The jury is arguing about Jar Jar.') }]),
+    cust('Ask', c => `<input type="text" class="tbq" placeholder="Ask a question in plain English..." aria-label="Ask Jacksy"><button class="tbgo" data-a="${c.a(t => { const q = t.previousElementSibling, v = q.value.trim(); if (!v) return q.focus(); t.closest('.adin').querySelector('.ans').textContent = `Jacksy found 0 results for "${v.slice(0, 24)}". Did you mean: POCKET CRITTERS?`; q.value = ''; play('click'); })}">${I('mag')}<span>Ask</span></button>`, null, 'tbask'),
+    menuBtn('q', 'Popular', [{ label: 'Where is the any key?', act: box('Ask Jacksy!', 'The "any key" is whichever key you like. Jacksy recommends the big one at the bottom.') }, { label: 'Why is the sky grey?', act: box('Ask Jacksy!', 'Because it is Tuesday.') }, { label: 'How do I get rid of toolbars?', act: box('Ask Jacksy!', 'Try View > Toolbars, or the little x on each one.\n\nJacksy hopes you will not. Jacksy is a toolbar.') }, { label: 'Is Episode I good?', act: box('Ask Jacksy!', 'Podracing: yes. Everything else: the jury is out. The jury is arguing about Jar Jar Jams.') }]),
     menuBtn('house', "Jacksy's Picks", [{ label: 'Cool Site of the Day', act: nav('csotd') }, { label: 'LookHere! start page', act: nav('lookhere') }, { label: 'The JackNet Cool Site Awards', act: nav('awards') }, { label: 'JackSearch Directory', act: nav('directory') }]),
     txt('', 'ans'),
     ad(['Ask Jacksy <b>ANYTHING</b>!', 'He knows (nothing)', 'In plain English!'], nav('search'), 'a-blu', 132)]] };
@@ -338,7 +338,7 @@
     tick('STARS', () => SIGNS.map(s => `<b>${s}:</b> ${esc(horoscope(s))}`), 'tk-stars', 0.7),
     menuBtn('ball', 'Crystal Ball', [{ label: 'Ask the crystal ball', act: nav('crystalball') }, { label: 'Fortune cookie', act: box('Fortune Cookie', pick(['You will soon be offered a free toolbar. Say no. (You won\'t.)', 'A man with a beard will give you a floppy disk.', 'Help! I am trapped in a fortune cookie factory. (Classic.)', 'Your lucky numbers are 1, 9, 9 and 9.'])) }, { label: 'Tonight\'s sky', act: () => { const s = tl('space')[0]; msg('StarGazer: Tonight', s ? plain(s.sky) : 'Clouds. Sorry.'); } }]),
     cnt('Moon: ', () => ['New', 'Waxing', 'First Quarter', 'Waxing Gibbous', 'Full', 'Waning Gibbous', 'Last Quarter', 'Waning'][Math.floor((((new Date(1999, today().m - 1, today().d) - new Date(1999, 0, 17)) / 864e5 % 29.53 + 29.53) % 29.53) / 3.7)])]],
-    wire(c) { const m = c.el.querySelector('.tblogo .tbm'); let n = 0; m.addEventListener('click', ev => { ev.stopPropagation(); if (++n >= 7 && !S('grotticus', 0)) { setS('grotticus', 1); setS('sign', 'Joysticus'); secret('tb.grotticus'); msg('StarGazer', 'The crystal ball goes cloudy... then GREEN, like a Game Boy screen.\n\nYou have discovered the secret 13th star sign: JOYSTICUS (the Joystick).\n\nJoysticans are up late, good at boss fights and never read the manual. Your lucky snack is a Pot Noodle.'); renderAgain(); } else play('pet'); }); } };
+    wire(c) { const m = c.el.querySelector('.tblogo .tbm'); let n = 0; m.addEventListener('click', ev => { ev.stopPropagation(); if (++n >= 7 && !S('grotticus', 0)) { setS('grotticus', 1); setS('sign', 'Joysticus'); secret('tb.grotticus'); msg('StarGazer', 'The crystal ball goes cloudy... then GREEN, like a Game Lad screen.\n\nYou have discovered the secret 13th star sign: JOYSTICUS (the Joystick).\n\nJoysticans are up late, good at boss fights and never read the manual. Your lucky snack is a Pot Noodle.'); renderAgain(); } else play('pet'); }); } };
 
   D.booster = { skin: 'speed', h: 1, m: 'bolt', lc: 'lg-speed', logo: 'Turbo<i>Net</i>', rows: [[
     txt('Speed Booster:', 'tbsmall'),
@@ -374,10 +374,10 @@
   D.ticker = { skin: 'matrix', h: 1, m: 'chartup', lc: 'lg-lcd', logo: 'GEM<i>EXCHANGE</i>', rows: [[
     cust('Rupee index', () => '<canvas class="tbspark" width="64" height="18"></canvas><b class="tbidx"></b>', null, 'tbsparkw'),
     tick('', c => STOCKS.map(s => `<span class="tbstk">${s[0]} <b class="${s[2] >= 0 ? 'up' : 'dn'}">${s[1].toFixed(1)} ${s[2] >= 0 ? '&#9650;' : '&#9660;'}${Math.abs(s[2]).toFixed(1)}%</b></span>`), 'tk-lcd', 1),
-    btn('chart', 'Buy!', box('Gem Exchange', 'You bought 1 share of TAMAGOTCHI.\n\nIt went down. It always goes down when you buy it.'))]],
+    btn('chart', 'Buy!', box('Gem Exchange', 'You bought 1 share of EGGBERT.\n\nIt went down. It always goes down when you buy it.'))]],
     init(c) { c.hist = Array.from({ length: 32 }, (x, i) => 100 + Math.sin(i / 3) * 5 + i * 0.4); c.draw = () => { const cv = c.el.querySelector('.tbspark'); if (!cv) return; const g = cv.getContext('2d'); g.fillStyle = '#001a00'; g.fillRect(0, 0, 64, 18); const mn = Math.min(...c.hist), mx = Math.max(...c.hist); g.strokeStyle = '#3f3'; g.beginPath(); c.hist.forEach((v, i) => g[i ? 'lineTo' : 'moveTo'](i * 2, 16 - (v - mn) / ((mx - mn) || 1) * 14)); g.stroke(); const l = c.hist[c.hist.length - 1], p = c.hist[c.hist.length - 2]; const b = c.el.querySelector('.tbidx'); b.textContent = l.toFixed(1) + (l >= p ? ' ▲' : ' ▼'); b.className = 'tbidx ' + (l >= p ? 'up' : 'dn'); }; c.draw(); },
     tick(c, n) { if (n % 2) return; c.hist.push(c.hist[c.hist.length - 1] + (Math.random() - 0.45) * 3); c.hist.shift(); c.draw(); } };
-  const STOCKS = [['RUPEE', 104.2, 4.2], ['POKEMON', 31.0, 8.8], ['N64', 212.5, 12], ['TAMAGOTCHI', 3.3, -0.5], ['POT NOODLE', 18.7, 2.1], ['RED PAINT', 99.9, 99], ['FLOPPY', 1.44, 0], ['MODEM', 56.0, -0.1], ['Y2K BEANS', 1000, 100]];
+  const STOCKS = [['RUPEE', 104.2, 4.2], ['POCKET CRITTERS', 31.0, 8.8], ['ULTRA 64', 212.5, 12], ['EGGBERT', 3.3, -0.5], ['POT NOODLE', 18.7, 2.1], ['RED PAINT', 99.9, 99], ['FLOPPY', 1.44, 0], ['MODEM', 56.0, -0.1], ['Y2K BEANS', 1000, 100]];
 
   D.petrescue = { skin: 'paws', h: 't', m: 'dog', mc: 'tbwobble', lc: 'lg-bubble', logo: 'Pet<i>Rescue</i>', rows: [[
     cust('Happiness', () => `<span class="tbhearts" title="Happiness"></span><span class="tbpetname">${esc(S('petname', 'Patch'))}</span>`, null, 'tbheartsw'),
@@ -442,7 +442,7 @@
     cnt('Mom says: ', () => { const left = Math.max(0, 1200 - ((Date.now() - T0) / 1000 | 0)); return left ? `${left / 60 | 0}:${String(left % 60).padStart(2, '0')} left` : "TIME'S UP! (she won't check)"; }, 'tbcnt-k'),
     cnt('Blocked: ', () => '0 bad sites, 3 boring sites, 1 homework site'),
     btn('chat', 'Ask Mom', () => toast('Mom says:', pick(['Have you done your homework?', 'Five more minutes, then tea.', 'Is that the computer making that noise again?', 'I need the phone line! Your Nan is ringing!', 'Don\'t give anyone your address on the Internet.', 'Sit further away from the screen, you\'ll get square eyes.']), 5000)),
-    menuBtn('star', 'Safe Sites', [{ label: Cast.t("{kidPoke}'s Pokemon Facts"), act: nav('~ellie') }, { label: 'Joke of the Day', act: nav('jokes') }, { label: "Biscuit's Homepage", act: nav('~biscuit') }, { label: 'ASCII Art Gallery', act: nav('ascii') }, { label: 'Recorder Club', act: nav('hz-recorder') }]),
+    menuBtn('star', 'Safe Sites', [{ label: Cast.t("{kidPoke}'s Pocket Critters Facts"), act: nav('~ellie') }, { label: 'Joke of the Day', act: nav('jokes') }, { label: "Biscuit's Homepage", act: nav('~biscuit') }, { label: 'ASCII Art Gallery', act: nav('ascii') }, { label: 'Recorder Club', act: nav('hz-recorder') }]),
     ad(['<b>MOM</b> approved!', 'No scary stuff!', 'Safe &amp; FUN!'], nav('~ellie'), 'a-grn', 100)]] };
   const T0 = Date.now();
 
@@ -454,7 +454,7 @@
     ad(['PLAY <b>FREE</b> GAMES!', 'Bop more Blobbits!', 'High scores!!!'], nav('demos'), 'a-yel', 120)]],
     init(c) { c.st = { hits: 0, streak: 0 }; c.say = t => { const s = c.el.querySelector('.tbsqsay'); if (s) { s.textContent = t; clearTimeout(c.sayT); c.sayT = setTimeout(() => { s.textContent = ''; }, 900); } }; } };
 
-  const QUIZ = [['How many Pokemon are there?', ['151', '99', '1,000'], 0], ['How much does a floppy disk hold?', ['1.44 MB', '650 MB', '64 KB'], 0], ['Which console came out in Europe on 14 October 1999?', ['Dreamcast', 'Nintendo 64', 'Game Boy Color'], 0], ['What does "www" stand for?', ['World Wide Web', 'Wibbly Wobbly Web', 'Wait, Wait, Wait'], 0], ['Where was Tetris invented?', ['Moscow', 'Tokyo', 'Bognor Regis'], 0], ['How many bits in a byte?', ['8', '10', '1.44'], 0], ['Which planet has the Great Red Spot?', ['Jupiter', 'Mars', 'Pluto'], 0], ['How many squares on a chess board?', ['64', '100', '42'], 0], ['What does CD-ROM stand for?', ['Compact Disc Read-Only Memory', 'Cool Disc Really Odd Music', 'Computer Data Room'], 0], ['How fast is the fastest Pentium III from February 1999?', ['500 MHz', '50 MHz', '5,000 MHz'], 0], ['How many sides does a Rubik\'s cube have?', ['6', '9', '54'], 0], ['Who directed Star Wars: Episode I?', ['George Lucas', 'Jar Jar Binks', 'Dave'], 0]];
+  const QUIZ = [['How many Pocket Critters are there?', ['151', '99', '1,000'], 0], ['How much does a floppy disk hold?', ['1.44 MB', '650 MB', '64 KB'], 0], ['Which console came out in Europe on 14 October 1999?', ['Daydream', 'Ultra 64', 'Game Lad Color'], 0], ['What does "www" stand for?', ['World Wide Web', 'Wibbly Wobbly Web', 'Wait, Wait, Wait'], 0], ['Where was Blockology invented?', ['Moscow', 'Tokyo', 'Bognor Regis'], 0], ['How many bits in a byte?', ['8', '10', '1.44'], 0], ['Which planet has the Great Red Spot?', ['Jupiter', 'Mars', 'Pluto'], 0], ['How many squares on a chess board?', ['64', '100', '42'], 0], ['What does CD-ROM stand for?', ['Compact Disc Read-Only Memory', 'Cool Disc Really Odd Music', 'Computer Data Room'], 0], ['How fast is the fastest Pentium III from February 1999?', ['500 MHz', '50 MHz', '5,000 MHz'], 0], ['How many sides does a Rubrick\'s cube have?', ['6', '9', '54'], 0], ['Who directed Intergalactic Battles: Episode I?', ['Gordon Lukewarm', 'Jar Jar Jams', 'Dave'], 0]];
   D.brainbox = { skin: 'quiz', h: 't', m: 'brain', lc: 'lg-quiz', logo: 'Brain<i>Box</i>', rows: [[
     txt('', 'tbqq'),
     cust('Answers', c => ['A', 'B', 'C'].map((l, i) => `<button class="tbans" data-i="${i}" data-a="${c.a(t => answer(c, +t.dataset.i))}"><b>${l}</b><span></span></button>`).join(''), null, 'tbansw'),

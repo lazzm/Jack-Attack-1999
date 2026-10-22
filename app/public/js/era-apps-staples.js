@@ -262,7 +262,7 @@
     JackCalc: ["It looks like you're doing your sums!", "Would you like me to do them for you? (I can't count past 4. I have no fingers.)", ['Get help with the sums', 'Just do the sums without help']],
     Write: ["It looks like you're writing something in a very old program!", "Would you like help?", ['Get help (please be patient, I am also old)', 'Just type without help']],
   };
-  const SEARCH = ["Turning your computer off by clicking Start", "Why is the printer out of cyan?", "Making your computer go faster (paint it red)", "What to do when Mom needs the phone", "Finding the Any key", "Is it a Furby or a Tamagotchi? A guide", "None of the above, look for more help on the Web"];
+  const SEARCH = ["Turning your computer off by clicking Start", "Why is the printer out of cyan?", "Making your computer go faster (paint it red)", "What to do when Mom needs the phone", "Finding the Any key", "Is it a Furby or a Eggbert? A guide", "None of the above, look for more help on the Web"];
 
   // ================================================================ the assistant on screen
   let cur = null; // { el, cv, g, raf, s, kind, char, idleT, win, mo }
@@ -427,11 +427,11 @@
       q('[data-x=n]').addEventListener('click', () => { grab(); if (step < 3) { step++; render(); } else { w.close(); finish(); } });
     };
     const BODY = {
-      gran: "Thank you very much for the jumper. It is very warm and very orange. I have worn it twice. Once was for the photo.\n\nI am being good at school and I have nearly finished my Rubik's cube (one side).",
-      santa: "This year I would like a new graphics card, a Dreamcast (it's out in October), and a Furby. I have been mostly good. Dave can confirm. Don't ask Dave.\n\nThere will be a mince pie by the fireplace. Do not let the dog have it.",
-      pen: "My name is Jack and I like computer games, sci-fi, Tetris and painting miniatures. My best mate is called Dave. My computer is a Pentium II. What's yours?\n\nPlease write back soon. Or e-mail. E-mail is faster.",
-      dave: "I am writing to complain about the state of the Game Boy you gave back to me. It has crisps in it. Inside. How.\n\nI expect a full refund (one Wham bar) by Friday.",
-      mag: "I think your magazine is brilliant. Please print my letter. Here is my high score on Tetris: 112 lines. That's real, I didn't make it up.\n\nAlso can you do a feature on Robot Wars.",
+      gran: "Thank you very much for the jumper. It is very warm and very orange. I have worn it twice. Once was for the photo.\n\nI am being good at school and I have nearly finished my Rubrick's cube (one side).",
+      santa: "This year I would like a new graphics card, a Daydream (it's out in October), and a Furby. I have been mostly good. Dave can confirm. Don't ask Dave.\n\nThere will be a mince pie by the fireplace. Do not let the dog have it.",
+      pen: "My name is Jack and I like computer games, sci-fi, Blockology and painting miniatures. My best mate is called Dave. My computer is a Pentium II. What's yours?\n\nPlease write back soon. Or e-mail. E-mail is faster.",
+      dave: "I am writing to complain about the state of the Game Lad you gave back to me. It has crisps in it. Inside. How.\n\nI expect a full refund (one Wham bar) by Friday.",
+      mag: "I think your magazine is brilliant. Please print my letter. Here is my high score on Blockology: 112 lines. That's real, I didn't make it up.\n\nAlso can you do a feature on Robo Rumble.",
     };
     function finish() {
       const sal = o.sal || 'Dear', close = o.close || 'Love from';

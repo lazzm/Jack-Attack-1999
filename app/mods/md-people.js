@@ -124,10 +124,10 @@ N('archmage', 'Archmage Floppington', 'archmage floppington mage', {
 });
 N('dave', 'Dave the apprentice', 'dave apprentice', {
   here: 'Dave, the apprentice wizard, is flapping at a smoking curtain with his hat.',
-  desc: "Jack's mate Dave, in a wizard's robe that's too long for him, with a singed hat and a burn mark on his eyebrow. He's the sort of person who reads the instructions after it goes wrong. He's got a Nintendo 64 controller sticking out of his pocket.",
+  desc: "Jack's mate Dave, in a wizard's robe that's too long for him, with a singed hat and a burn mark on his eyebrow. He's the sort of person who reads the instructions after it goes wrong. He's got a Ultra 64 controller sticking out of his pocket.",
   greet: "Oh! Hiya! Don't tell the Archmage about the curtain. Listen, I'm in BIG trouble. I've lost three pages of my spellbook and he's going to test me on them on Friday. Can you help?",
   again: "Alright? The curtain's fine now. Mostly.",
-  topics: { 'curtain,fire': "It's NOT a fire. It's a very warm light spell.", 'n64,nintendo,games': 'GoldenEye. Four player. Facility. No Oddjob. Those are the rules.', 'jack': "Jack built this whole MUD. On his own. In his bedroom. I helped! I did the sewers. And the socks. You're welcome.", 'sewers': "I made the sewers! Ace, aren't they? The smell was my idea.", 'pages,spellbook': "Page one's at the Academy library, I think. Page two went down a drain (don't ask). Page three... the fairy in the woods took it. She said it was 'rubbish spelling'. Cheek." },
+  topics: { 'curtain,fire': "It's NOT a fire. It's a very warm light spell.", 'n64,nintendo,games': 'Goldenballs. Four player. Facility. No Oddjob. Those are the rules.', 'jack': "Jack built this whole MUD. On his own. In his bedroom. I helped! I did the sewers. And the socks. You're welcome.", 'sewers': "I made the sewers! Ace, aren't they? The smell was my idea.", 'pages,spellbook': "Page one's at the Academy library, I think. Page two went down a drain (don't ask). Page three... the fairy in the woods took it. She said it was 'rubbish spelling'. Cheek." },
   chat: ['Dave waves his wand and a pigeon appears. He looks as surprised as you.', 'Dave says, "Does anyone know a spell for un-burning things?"', 'Dave says, "My mom\'s picking me up at six. What time is it now?"', 'Dave tries to look busy whenever the Archmage looks over.'],
 });
 N('reginald', 'Sir Reginald Clank', 'reginald sir clank', {
@@ -159,15 +159,15 @@ N('melody', 'Melody Strum', 'melody strum', {
   greet: 'Hiya! Fancy a tune? Bards heal with songs, you know: SING to heal your party, and LULLABY to send monsters off to sleep. Need kit? LIST.',
   shop: { n: "Melody's Music Stall", sells: ['lute', 'robe', 'tea', 'slush'], thanks: ['Rock on!', 'Play it loud!', 'Encore!'] },
   topics: { 'lag goblins,band,goblins': "The Lag Goblins? That's the boys' band. They're always about to start playing. They've been about to start since March.", 'songs,song,music': "Every good party needs a bard. We heal everyone at once. And we're great at parties. ACTUAL parties.", 'goose': 'It was a VERY musical goose.' },
-  chat: ['Melody plays a jaunty little tune.', 'Melody hums the theme tune from Robot Wars, then does the drum bits with her hands.', 'Melody taps out a rhythm on the bandstand rail.'],
+  chat: ['Melody plays a jaunty little tune.', 'Melody hums the theme tune from Robo Rumble, then does the drum bits with her hands.', 'Melody taps out a rhythm on the bandstand rail.'],
 });
 N('luke', 'Luke', 'luke', {
   here: 'Luke is leaning on a racing game, watching the demo.',
-  desc: "Jack's mate Luke: a total Nintendo fan, in a jumper with a little red cap logo he drew on himself in fabric pen. He has the highest score on every machine in the Pixel Palace except one: the Guess-O-Tron.",
+  desc: "Jack's mate Luke: a total Ultra Entertainment fan, in a jumper with a little red cap logo he drew on himself in fabric pen. He has the highest score on every machine in the Pixel Palace except one: the Guess-O-Tron.",
   greet: "Oh, hey! Want a challenge? Nobody's ever beaten the Guess-O-Tron in this town. It thinks of a number between 1 and 100 and you get seven guesses. Beat it and bring me the prize ticket!",
   again: 'Hey! Wanna go on the racer? I bet I win. I always win.',
-  topics: { 'guess-o-tron,guessotron,game,machine': 'Type PLAY to start. Then GUESS a number. It says HIGHER or LOWER. Seven goes. Top tip: start in the middle.', 'nintendo,n64': "N64 is the best console ever made. FACT. Mario 64, Zelda, GoldenEye, Mario Kart. What else do you need?", 'jack': "Jack's made a MUD! I made this arcade bit. And the Guess-O-Tron. And the sticky carpet (not on purpose).", 'callum': "Callum's always in the café. PC this, PC that. He says his computer does 3D now. Big deal. Mine plugs into the telly." },
-  chat: ['Luke says, "Who wants a go on the racer? Winner stays on!"', 'Luke drums on the cabinet while the demo plays.', 'Luke says, "Nintendo 64, man. Sixty. Four. BITS."'],
+  topics: { 'guess-o-tron,guessotron,game,machine': 'Type PLAY to start. Then GUESS a number. It says HIGHER or LOWER. Seven goes. Top tip: start in the middle.', 'nintendo,n64': "ULTRA 64 is the best console ever made. FACT. Marlo 64, Zelda, Goldenballs, Kart Kaos. What else do you need?", 'jack': "Jack's made a MUD! I made this arcade bit. And the Guess-O-Tron. And the sticky carpet (not on purpose).", 'callum': "Callum's always in the café. PC this, PC that. He says his computer does 3D now. Big deal. Mine plugs into the telly." },
+  chat: ['Luke says, "Who wants a go on the racer? Winner stays on!"', 'Luke drums on the cabinet while the demo plays.', 'Luke says, "Ultra 64, man. Sixty. Four. BITS."'],
 });
 N('callum', 'Callum', 'callum', {
   here: 'Callum is hunched over a computer, typing furiously.',
@@ -551,7 +551,7 @@ ACT['town.square'] = {
   wish(api, P) {
     if (api.gold(P) < 1) { api.out(P, "You haven't got a coin to throw in. Wishes cost at least a penny."); return true; }
     api.gold(P, -1);
-    const W = ['A Nintendo 64 with four controllers.', 'No homework. Ever.', 'That the Millennium Bug turns out to be nothing.', 'That Mom lets you stay up late on Friday.', 'Unlimited Fizz Pop.', 'That the phone line is free when you want it.', 'A pet dragon.'];
+    const W = ['A Ultra 64 with four controllers.', 'No homework. Ever.', 'That the Millennium Bug turns out to be nothing.', 'That Mom lets you stay up late on Friday.', 'Unlimited Fizz Pop.', 'That the phone line is free when you want it.', 'A pet dragon.'];
     api.out(P, `You throw a gold coin into the fountain and make a wish: {W}${api.pick(W)}{x}\nThe statue's worried face looks a tiny bit less worried.`);
     api.toRoom(P.room, `${P.name} throws a coin in the fountain and makes a wish.`, P);
     api.secret(P, 'md.wish');

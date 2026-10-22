@@ -6,13 +6,13 @@
   const I = K.I;
   const DTMF = { 1: [697, 1209], 2: [697, 1336], 3: [697, 1477], 4: [770, 1209], 5: [770, 1336], 6: [770, 1477], 7: [852, 1209], 8: [852, 1336], 9: [852, 1477], 0: [941, 1336], '*': [941, 1209], '#': [941, 1477] };
   const CALLS = { // what you hear when you autodial someone
-    '01632960123': ['Dave\'s Mom: "Hello? Oh, it\'s you! He\'s on his PlayStation. DAVID! PHONE!"', 'Dave: "...what? I was on the last level!"'],
+    '01632960123': ['Dave\'s Mom: "Hello? Oh, it\'s you! He\'s on his PlaySpace. DAVID! PHONE!"', 'Dave: "...what? I was on the last level!"'],
     '01632960404': [Cast.t('{cousin}: "Yeah? Oh, hi. Did you scratch my CD? You scratched my CD."')],
     '01632960356': [Cast.t('{cousin2}: "Have you tried turning it off and on again?" (You haven\'t said anything yet.)')],
     '01632960222': ['Nan: "HELLO? Who is it? Oh, it\'s you! Did the jumper fit? Is it warm?"'],
     '01632960555': ['Tony: "Tony\'s Pizza! Large pepperoni? Is your Mom paying?"'],
     '01632960777': ['Receptionist: "Putting you through..."', 'Mom: "Is everything OK? Have you done your homework? Why are you ringing me at WORK?"'],
-    '01632960888': ['Recorded voice: "Welcome to the Multiplex. For Star Wars Episode One, press 1. For everything else, why?"'],
+    '01632960888': ['Recorded voice: "Welcome to the Multiplex. For Intergalactic Battles Episode One, press 1. For everything else, why?"'],
     '09098790199': ['JackNet support: "Your call is important to us. You are number 47 in the queue. Calls cost 50p a minute."', '(You hang up VERY quickly. Mom checks the phone bill.)'],
   };
   function autodial(number, who) {
@@ -92,7 +92,7 @@
   // ================================================================ ADDRESS BOOK
   const DEFAULT_CONTACTS = Cast.deep([ // names from the visitor's cast (js/cast.js)
     { n: 'Dave', e: 'dave@hotjack.jnet', hp: '01632 960123', g: 'Mates', note: 'Best mate. Owes me a floppy disk.' },
-    { n: 'Cousin {cousin}', e: '{cousin.slug}.the.great@hotjack.jnet', hp: '01632 960404', g: 'Family', note: 'Has a PlayStation. Do NOT scratch {cousin.his} CDs.' },
+    { n: 'Cousin {cousin}', e: '{cousin.slug}.the.great@hotjack.jnet', hp: '01632 960404', g: 'Family', note: 'Has a PlaySpace. Do NOT scratch {cousin.his} CDs.' },
     { n: 'Cousin {cousin2}', e: '{cousin2.slug}_the_great@hotjack.jnet', hp: '01632 960356', g: 'Family', note: 'Says he didn\'t send the virus. He sent the virus.' },
     { n: 'Nan', e: '', hp: '01632 960222', g: 'Family', note: 'No e-mail. Thinks e-mail is "for spies". Ring on Sundays.' },
     { n: 'Gran and Grandad', e: 'gran.and.grandad@jacknet.jnet', hp: '', g: 'Family', note: 'Have e-mail. Type IN CAPITALS.' },
@@ -152,7 +152,7 @@
       return d;
     }
     A.menubar(w, [
-      ['File', [{ label: 'New Contact...', act: () => edit(-1) }, { label: 'Properties', act: () => sel >= 0 && edit(sel) }, { label: 'Delete', act: del }, '-', { label: 'Import', sub: [{ label: 'Address Book (WAB)...', act: () => msg('Import', 'Insert the floppy disk with the address book on it. (Not the Doom disk.)', 'info') }, { label: 'Business Card (vCard)...', act: () => msg('Import', 'vCard? Nobody Jack knows has a business card. Except Dad. His says "Dad".', 'info') }] }, { label: 'Export', sub: [{ label: 'Address Book (WAB)...', act: () => toast('Address Book', 'Exported to C:\\JACKOS\\Address Book.wab. (It was already there.)', 3000) }] }, '-', { label: 'Print...', act: () => msg('Print', 'Out of cyan.', 'warn') }, '-', { label: 'Close', act: w.close }]],
+      ['File', [{ label: 'New Contact...', act: () => edit(-1) }, { label: 'Properties', act: () => sel >= 0 && edit(sel) }, { label: 'Delete', act: del }, '-', { label: 'Import', sub: [{ label: 'Address Book (WAB)...', act: () => msg('Import', 'Insert the floppy disk with the address book on it. (Not the Gloom disk.)', 'info') }, { label: 'Business Card (vCard)...', act: () => msg('Import', 'vCard? Nobody Jack knows has a business card. Except Dad. His says "Dad".', 'info') }] }, { label: 'Export', sub: [{ label: 'Address Book (WAB)...', act: () => toast('Address Book', 'Exported to C:\\JACKOS\\Address Book.wab. (It was already there.)', 3000) }] }, '-', { label: 'Print...', act: () => msg('Print', 'Out of cyan.', 'warn') }, '-', { label: 'Close', act: w.close }]],
       ['Edit', [{ label: 'Select All', act: () => toast('Address Book', Cast.t('Selected everyone. Even {cousin2}.'), 2000) }, '-', { label: 'Find People...', key: 'Ctrl+F', act: findPeople }]],
       ['View', () => [{ label: 'Folders and Groups', chk: !qs(b, '.ab-groups').hidden, act: () => { const g = qs(b, '.ab-groups'); g.hidden = !g.hidden; } }, '-', { label: 'Reset to Jack\'s contacts', act: () => msg('Address Book', 'Put the Address Book back how Jack had it? Your own contacts will go.', 'q', [['OK', () => { C = JSON.parse(JSON.stringify(DEFAULT_CONTACTS)); saveC(); sel = -1; draw(); }], ['Cancel']]) }]],
       ['Tools', () => [{ label: 'Action', sub: [{ label: 'Send Mail', dis: sel < 0, act: () => mail(C[sel]) }, { label: 'Dial...', dis: sel < 0, act: () => autodial(C[sel].hp || C[sel].bp, C[sel].n) }] }]],
@@ -166,20 +166,20 @@
   // ================================================================ CALENDAR
   // [MM-DD, time, text, kind] kinds: hw (homework), sw (Star Wars), fun, '' (normal)
   const JACK = [
-    ['01-01', '', 'NEW YEAR! Launched JACK ATTACK! Online', 'fun'], ['01-05', '08:45', 'Back to school (boo)', ''], ['01-16', '10:00', 'January sales with Mom (RUBIK\'S CUBE)', 'fun'],
+    ['01-01', '', 'NEW YEAR! Launched JACK ATTACK! Online', 'fun'], ['01-05', '08:45', 'Back to school (boo)', ''], ['01-16', '10:00', 'January sales with Mom (RUBRICK\'S CUBE)', 'fun'],
     ['01-22', '09:00', 'Hand in: what I want to be when I grow up (English)', 'hw'], ['02-08', '09:00', 'Maths sheet 4 - fractions due', 'hw'], ['02-15', '', 'Half term!!!', 'fun'], ['02-16', '18:00', 'Pancake Day (Dad flips, Dad drops)', 'fun'],
     ['03-03', '09:00', 'French homework: ma famille', 'hw'], ['03-12', '19:00', 'Red Nose Day', 'fun'], ['03-14', '', 'MOTHER\'S DAY - card + breakfast in bed (don\'t burn the toast)', ''], ['03-15', '09:00', 'Geography: volcanoes project due', 'hw'],
     ['03-28', '01:00', 'Clocks go forward (lose an hour of sleep!!!)', ''], ['04-02', '', 'Good Friday', ''], ['04-04', '', 'Easter Sunday (EGGS)', 'fun'], ['04-27', '09:00', 'English: persuasive letter due', 'hw'],
     ['05-03', '', 'Bank holiday + Episode I toys in the shops!!!', 'sw'], ['05-10', '09:00', 'History: the Romans due', 'hw'], ['05-19', '', 'Episode I out in AMERICA (not fair)', 'sw'], ['05-31', '', 'Bank holiday', ''],
-    ['06-04', '', 'Episode I: Racer out on N64', 'sw'], ['06-09', '15:30', Cast.t('Computer Club: show my web site to {teacher}'), 'hw'], ['06-20', '', 'FATHER\'S DAY - card for Dad (Championship Manager joke?)', ''],
-    ['07-15', '20:00', 'Can\'t sleep. Episode I is TOMORROW.', 'sw'], ['07-16', '18:30', 'STAR WARS EPISODE I - cinema with Dave & Dad, row G!!!', 'sw'], ['07-23', '15:30', 'SUMMER HOLIDAYS START', 'fun'], ['07-24', '14:00', 'See Episode I again (Dave\'s turn to pay)', 'sw'],
+    ['06-04', '', 'Episode I: Racer out on ULTRA 64', 'sw'], ['06-09', '15:30', Cast.t('Computer Club: show my web site to {teacher}'), 'hw'], ['06-20', '', 'FATHER\'S DAY - card for Dad (Championship Manager joke?)', ''],
+    ['07-15', '20:00', 'Can\'t sleep. Episode I is TOMORROW.', 'sw'], ['07-16', '18:30', 'INTERGALACTIC BATTLES EPISODE I - cinema with Dave & Dad, row G!!!', 'sw'], ['07-23', '15:30', 'SUMMER HOLIDAYS START', 'fun'], ['07-24', '14:00', 'See Episode I again (Dave\'s turn to pay)', 'sw'],
     ['08-11', '11:00', 'TOTAL ECLIPSE - do NOT look at the Sun. Use the viewer.', 'fun'], ['08-30', '', 'Bank holiday', ''], ['09-06', '08:45', 'Back to school (BOO)', ''], ['09-08', '15:30', 'Computer Club starts again', ''],
-    ['09-28', '09:00', 'English: spooky story due (it has a robot in it)', 'hw'], ['10-06', '09:00', 'Book report: The Hobbit', 'hw'], ['10-14', '', 'DREAMCAST OUT (£199.99, not that I\'m counting)', 'fun'], ['10-25', '', 'Half term', 'fun'],
+    ['09-28', '09:00', 'English: spooky story due (it has a robot in it)', 'hw'], ['10-06', '09:00', 'Book report: The Hobbit', 'hw'], ['10-14', '', 'DAYDREAM OUT (£199.99, not that I\'m counting)', 'fun'], ['10-25', '', 'Half term', 'fun'],
     ['10-31', '02:00', 'Clocks go back + Halloween!', 'fun'], ['11-05', '19:00', 'Bonfire Night - sparklers (Mom: no rockets)', 'fun'], ['11-18', '02:00', 'Leonid meteors - set alarm!', 'fun'], ['12-17', '15:30', 'Last day of term', 'fun'],
     ['12-24', '', 'Christmas Eve - leave a mince pie out', 'fun'], ['12-25', '', 'CHRISTMAS DAY', 'fun'], ['12-26', '', 'Boxing Day (Nan\'s)', ''], ['12-31', '19:00', 'MILLENNIUM PARTY AT DAVE\'S!!! (stay up till midnight)', 'fun'],
   ];
   // weekly things
-  const WEEKLY = [[3, '15:30', 'Computer Club', ''], [4, '09:00', 'French vocab test', 'hw'], [6, '10:00', 'Painting minis (and LEGO)', 'fun']];
+  const WEEKLY = [[3, '15:30', 'Computer Club', ''], [4, '09:00', 'French vocab test', 'hw'], [6, '10:00', 'Painting minis (and BLOCKO)', 'fun']];
   const CALKEY = 'jhp_office_cal';
   function openCalendar() {
     let mine = store.get(CALKEY, {}); // 'MM-DD' -> [{t, x, al}]
@@ -220,7 +220,7 @@
       const dt = new Date(1999, m - 1, selD);
       qs(b, '.cl-dt').textContent = `${DAYS[dt.getDay()]} ${selD} ${MONTHS[m - 1]} 1999`;
       const ev = eventsOn(m, selD), news = ((window.CAL && CAL.posts) || []).filter(p => p[0] === key(m, selD) && (m * 100 + selD) <= t0.md);
-      qs(b, '.cl-evs').innerHTML = (ev.length ? ev.map(e => `<div class="e ${e.k}"><span>${e.t ? `<b>${esc(e.t)}</b> ` : ''}${esc(e.x)}${e.al ? ' &#9200;' : ''}</span>${e.k === 'me' ? `<button type="button" data-del="${e.mi}" title="Delete" aria-label="Delete appointment">x</button>` : ''}</div>`).join('') : '<p style="color:#808080;margin:4px 0">Nothing on. Could be a Tetris day.</p>')
+      qs(b, '.cl-evs').innerHTML = (ev.length ? ev.map(e => `<div class="e ${e.k}"><span>${e.t ? `<b>${esc(e.t)}</b> ` : ''}${esc(e.x)}${e.al ? ' &#9200;' : ''}</span>${e.k === 'me' ? `<button type="button" data-del="${e.mi}" title="Delete" aria-label="Delete appointment">x</button>` : ''}</div>`).join('') : '<p style="color:#808080;margin:4px 0">Nothing on. Could be a Blockology day.</p>')
         + (news.length ? `<p style="margin:8px 0 3px"><b>JACK ATTACK! news that day:</b></p>${news.map(p => `<div class="e"><span><small>${esc(p[1])}</small>${esc(clean(p[2])).slice(0, 220)}</span></div>`).join('')}` : '');
       w.status.textContent = `${ev.length} appointment${ev.length === 1 ? '' : 's'}   |   Today is ${DAYS[t0.date.getDay()]} ${t0.d} ${MONTHS[t0.m - 1]} 1999`;
       if (m === 7 && selD === 16) K.secret('calphantom');
@@ -249,7 +249,7 @@
       ['Edit', [{ label: 'New Appointment...', key: 'Ins', act: () => addDlg() }, { label: 'Remove All My Appointments', act: () => msg('Calendar', 'Remove all the appointments you added? Jack\'s own ones stay.', 'q', [['OK', () => { mine = {}; store.set(CALKEY, mine); draw(); }], ['Cancel']]) }]],
       ['View', () => [{ label: 'Month', key: 'F9', rad: view === 'month', act: () => { view = 'month'; draw(); } }, { label: 'Year', rad: view === 'year', act: () => { view = 'year'; draw(); } }]],
       ['Show', [{ label: 'Today', act: () => qs(b, '.cl-today').click() }, { label: 'Previous Month', key: 'Ctrl+PgUp', act: () => month(-1) }, { label: 'Next Month', key: 'Ctrl+PgDn', act: () => month(1) }, { label: 'Date...', key: 'F4', act: goDate }, '-', { label: 'Episode I Day', act: () => { m = 7; selD = 16; view = 'month'; draw(); } }]],
-      ['Help', [{ label: 'About Calendar', act: () => msg('About Calendar', 'Calendar 99\nKeeps track of Jack\'s 1999.\n\nRed = homework. Yellow = Star Wars. Green = fun. Purple = yours.\n\nIt only does 1999. After that, nobody knows.', 'info') }]],
+      ['Help', [{ label: 'About Calendar', act: () => msg('About Calendar', 'Calendar 99\nKeeps track of Jack\'s 1999.\n\nRed = homework. Yellow = Intergalactic Battles. Green = fun. Purple = yours.\n\nIt only does 1999. After that, nobody knows.', 'info') }]],
     ]);
     w.el.addEventListener('keydown', ev => { if (ev.target.tagName === 'INPUT') return; if (ev.key === 'F4') { ev.preventDefault(); goDate(); } else if (ev.key === 'F9') { ev.preventDefault(); view = 'month'; draw(); } else if (ev.key === 'Insert') addDlg(); else if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft' || ev.key === 'ArrowUp' || ev.key === 'ArrowDown') { const dd = { ArrowRight: 1, ArrowLeft: -1, ArrowUp: -7, ArrowDown: 7 }[ev.key], days = new Date(1999, m, 0).getDate(), n = selD + dd; if (n >= 1 && n <= days) { selD = n; draw(); } else month(dd > 0 ? 1 : -1); ev.preventDefault(); } else if (ev.key === 'PageUp') month(-1); else if (ev.key === 'PageDown') month(1); });
     w.el.tabIndex = -1;

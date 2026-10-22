@@ -274,7 +274,7 @@
     msg('System Warning', pick([
       'Your system is low on virtual memory. JackOS is increasing the size of your virtual memory paging file.\n\nDuring this process, memory requests for some applications may be denied. (Gubbinz has been denied a second biscuit.)',
       'Your system is running low on virtual memory.\n\nTo ensure that JackOS runs properly, increase the size of your virtual memory paging file. (Or ask Mom for more RAM for Christmas. 32MB is about \u00a330.)',
-      'Out of memory.\n\nJackOS tried to page some memory to disk, but the disk is full of Pokemon pictures.\n\nClose some windows and try again.',
+      'Out of memory.\n\nJackOS tried to page some memory to disk, but the disk is full of Pocket Critters pictures.\n\nClose some jackos and try again.',
     ]), 'warn');
   }
   // ---- printer in the tray (only while printing)
@@ -362,7 +362,7 @@
 
   // ================================================================ taskbar right-click: Cascade / Tile / Minimize All / Task Manager
   function arrange(how) {
-    const ws = visibleWins(); if (!ws.length) return toast('Taskbar', 'There are no windows to arrange. Just the desktop, looking lovely.');
+    const ws = visibleWins(); if (!ws.length) return toast('Taskbar', 'There are no jackos to arrange. Just the desktop, looking lovely.');
     const W = DesktopSurface.width(), H = DesktopSurface.height() - 36;
     ws.forEach((w, i) => {
       w.classList.remove('maxwin');
@@ -391,7 +391,7 @@
     }
     const items = [
       { label: 'Toolbars', sub: [{ label: 'Address', dis: true }, { label: 'Links', dis: true }, { label: 'Desktop', dis: true }, { label: 'Quick Launch', chk: true }, '-', { label: 'New Toolbar...', act: () => toast('New Toolbar', 'JackOS has enough toolbars. JackNet Explorer has eleven. Most of them came free with screensavers.') }] },
-      '-', { label: 'Cascade windows', act: () => arrange('cascade') }, { label: 'Tile windows horizontally', act: () => arrange('tileh') }, { label: 'Tile windows vertically', act: () => arrange('tilev') }, '-',
+      '-', { label: 'Cascade jackos', act: () => arrange('cascade') }, { label: 'Tile jackos horizontally', act: () => arrange('tileh') }, { label: 'Tile jackos vertically', act: () => arrange('tilev') }, '-',
       { label: 'Minimize All JackOS', act: minimizeAll }, { label: 'Task Manager...', act: () => open('system.taskmgr') }, '-',
     ];
     if (t.closest('#clock')) items.unshift({ label: 'Adjust Date/Time', act: () => { if (!A.run('timedate.cpl')) open('system.datetime'); } }, '-');
@@ -422,7 +422,7 @@
   function addDeskIcon(it) {
     const b = A.desktopIcon(it.n, itemIcon(it), () => openItem(it));
     b.dataset.sysd = '1'; deskIcons.set(it, b);
-    on(b, 'contextmenu', ev => { ev.preventDefault(); ev.stopPropagation(); selectOnly(b); IE.menu([{ label: 'Open', act: () => openItem(it) }, it.t === 'dir' ? { label: 'Explore', act: () => openItem(it) } : null, '-', { label: 'Send To', sub: [{ label: '3\u00bd Floppy (A:)', act: () => toast('Send To', 'Copying to A:... the disk is full. It is always full. It has DOOM on it.') }, { label: 'My Briefcase', act: () => open('briefcase') }] }, '-', { label: 'Delete', act: () => delItem(it) }, { label: 'Rename', act: () => rename(it) }, '-', { label: 'Properties', act: () => itemProps(it) }].filter(Boolean), ev.clientX, ev.clientY); });
+    on(b, 'contextmenu', ev => { ev.preventDefault(); ev.stopPropagation(); selectOnly(b); IE.menu([{ label: 'Open', act: () => openItem(it) }, it.t === 'dir' ? { label: 'Explore', act: () => openItem(it) } : null, '-', { label: 'Send To', sub: [{ label: '3\u00bd Floppy (A:)', act: () => toast('Send To', 'Copying to A:... the disk is full. It is always full. It has GLOOM on it.') }, { label: 'My Briefcase', act: () => open('briefcase') }] }, '-', { label: 'Delete', act: () => delItem(it) }, { label: 'Rename', act: () => rename(it) }, '-', { label: 'Properties', act: () => itemProps(it) }].filter(Boolean), ev.clientX, ev.clientY); });
     on(b, 'keydown', ev => { if (ev.key === 'F2') { ev.preventDefault(); rename(it); } else if (ev.key === 'Delete') delItem(it); });
     if (it.t === 'dir') A.fs.dir(DIR + '/' + it.n);
     return b;
@@ -452,7 +452,7 @@
       if (v !== old && DESK.some(d => d !== it && d.n.toLowerCase() === v.toLowerCase())) { msg('Error Renaming File', `Cannot rename ${old}: A file with the name you specified already exists. Specify a different filename.`, 'warn'); v = old; }
       if (it.t === 'dir' && v !== old) { const p = A.fs.get(DIR); if (p) { const n = (p.kids || []).find(k => k.name === old); if (n) n.name = v; } }
       it.n = v; saveDesk(); span.textContent = v;
-      if (/^(orks?|waaagh!*|da boyz)$/i.test(v)) { S('orkfolder'); Sound.play('waaagh'); toast('WAAAGH!', 'A folder fit for Orks. Gubbinz salutes it.'); }
+      if (/^(orks?|waaagh!*|da boyz)$/i.test(v)) { S('orkfolder'); Sound.play('waaagh'); toast('WAAAGH!', 'A folder fit for Gorks. Gubbinz salutes it.'); }
       if (it.t === 'txt' && !/\.\w{1,4}$/.test(v)) toast('Rename', 'If you change a filename extension, the file may become unusable. (It\'s fine. It\'s a text file. It\'ll cope.)', 5000);
     };
     on(inp, 'keydown', ev => { ev.stopPropagation(); if (ev.key === 'Enter') { ev.preventDefault(); commit(false); b.focus(); } else if (ev.key === 'Escape') { commit(true); b.focus(); } });
@@ -564,7 +564,7 @@
   // "View As Web Page": an Active Desktop component with the Desktop News Network ticker (headlines are shared by everyone)
   let webBox = null, onnUnwatch = null;
   const ONN_KEY = 'system.onn.news';
-  const ONN_STOCK = ['KID PAINTS MICRO MACHINE RED, CLAIMS IT GOES FASTER', 'LOCAL BOY CATCHES 14 POKEMON, "STILL NEED MEW"', 'ROBOT WARS: HOUSE ROBOT WINS AGAIN, NOBODY SURPRISED', 'MODEM CONNECTS AT FULL 56K FOR FIRST TIME EVER, NOBODY BELIEVES IT', 'MILLENNIUM BUG "PROBABLY FINE" SAY EXPERTS WITH TORCHES', 'DAVE BEATS JACK AT GOLDENEYE, JACK DEMANDS RE-MATCH', 'CUBE SOLVED IN UNDER 3 MINUTES, CROWD (MOM) GOES WILD', 'PRINTER OUT OF CYAN AGAIN'];
+  const ONN_STOCK = ['KID PAINTS MICRO MACHINE RED, CLAIMS IT GOES FASTER', 'LOCAL BOY CATCHES 14 POCKET CRITTERS, "STILL NEED MEW"', 'ROBO RUMBLE: HOUSE ROBOT WINS AGAIN, NOBODY SURPRISED', 'MODEM CONNECTS AT FULL 56K FOR FIRST TIME EVER, NOBODY BELIEVES IT', 'MILLENNIUM BUG "PROBABLY FINE" SAY EXPERTS WITH TORCHES', 'DAVE BEATS JACK AT GOLDENBALLS, JACK DEMANDS RE-MATCH', 'CUBE SOLVED IN UNDER 3 MINUTES, CROWD (MOM) GOES WILD', 'PRINTER OUT OF CYAN AGAIN'];
   let onnLines = ONN_STOCK.slice();
   function webView(show) {
     put('web', !!show);
@@ -654,7 +654,7 @@
   reg('system.sndvol', 'system-progs.js', ['sndvol32', 'sndvol', 'volume', 'volume control', 'mixer']);
   reg('system.printers', 'system-progs.js', ['printers', 'control printers', 'print manager']);
   reg('system.printq', 'system-progs.js', ['jackjet', 'jackjet 500', 'print queue', 'spooler']);
-  reg('system.update', 'system-progs.js', ['wupdmgr', 'update', 'windows update', 'jackos update', 'updates']);
+  reg('system.update', 'system-progs.js', ['wupdmgr', 'update', 'jackos update', 'jackos update', 'updates']);
   reg('system.y2kpatch', 'system-progs.js', ['y2kpatch', 'y2k patch', 'y2kfix']);
   reg('system.datetime', 'system-progs.js', ['datetime']);
   reg('system.themes', 'system-themes.js', ['themes', 'desktop themes', 'plus', 'themes.exe']);
@@ -703,7 +703,7 @@
   A.fs.add('C:/JACKOS/Help', { name: 'HELP_WHERE_IS_IT.TXT', type: 'txt', size: '1 KB', date: '19/06/99', text: 'Jack\'s note to self:\n\nThe REAL help is JackOS Help. Press F1. Or Start > Help.\nThe Index tab is the best one. Type a word and it finds stuff.\nThere is a topic in there that is not in the Contents.\nYou have to SEARCH for it. Hint: the magic word from the old adventure games.\n' });
   A.fs.add('C:/JACKOS/SYSTEM', { name: 'JACKJET.DRV', type: 'txt', size: '212 KB', date: '13/03/99', text: 'JackJet 500 Printer Driver v1.0\n\n(binary gibberish)\n\nMC FEED A4\nERR 50.2\nTRAY 1 HUNGRY\nLOAD A4 PLAIN PRESS GO\n\n(more gibberish)\n\nIf you can read this, the driver is upside down.\n' });
   A.fs.add('C:/JACKOS/Desktop', { name: 'desktop.ini', type: 'txt', size: '1 KB', date: '11/05/98', hidden: true, text: '[.ShellClassInfo]\nIconArea_Text=0x00FFFFFF\nChannelBar=Yes\nGubbinz=Somewhere on here\n' });
-  A.fs.add('C:/My Documents', { name: 'Backup plan.txt', type: 'txt', size: '1 KB', date: '22/08/99', text: 'BACKUP PLAN\n\nBackup says I need 1,440 floppy disks to back up everything.\nI have 3 floppy disks.\nOne of them is Dave\'s and has DOOM on it.\n\nNew plan: don\'t break anything.\n' });
+  A.fs.add('C:/My Documents', { name: 'Backup plan.txt', type: 'txt', size: '1 KB', date: '22/08/99', text: 'BACKUP PLAN\n\nBackup says I need 1,440 floppy disks to back up everything.\nI have 3 floppy disks.\nOne of them is Dave\'s and has GLOOM on it.\n\nNew plan: don\'t break anything.\n' });
 
   // ================================================================ secrets
   [['welcome', 'The grand tour', 'Discover everything JackOS 98 has to offer. All of it. To the end.'],
@@ -734,7 +734,7 @@
     ['accwiz', 'BIG TEXT', 'Make everything easier to read'],
     ['backwards', 'Backmasking', 'Play a recording the wrong way round'],
     ['theme', 'Interior decorator', 'Change the whole desktop theme'],
-    ['allthemes', 'Theme park', 'Try every single desktop theme'],
+    ['allthemes', 'Park Panic', 'Try every single desktop theme'],
     ['galaxy', 'A long time ago...', 'Visit a galaxy far away (on your desktop)'],
     ['newfolder', 'New Folder (2)', 'Make something new on the desktop'],
     ['orkfolder', 'Ork HQ', 'Name a desktop folder after Jack\'s favourite army'],

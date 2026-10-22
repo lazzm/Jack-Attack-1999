@@ -141,7 +141,7 @@
   function openDos(arg) {
     const b = document.createElement('div'); b.className = 'dosbox';
     b.innerHTML = `<div class="dos-tool"><select class="dos-size" aria-label="Font size"><option value="auto">Auto</option><option value="1">9 x 16</option><option value="0.75">7 x 12</option><option value="0.5">4 x 8</option><option value="1.5">13 x 24</option><option value="2">18 x 32</option></select><span class="dos-tsep"></span>${['mark', 'copy', 'paste'].map(k => `<button type="button" class="dos-tb" data-t="${k}" title="${k[0].toUpperCase() + k.slice(1)}">${I[k]}</button>`).join('')}<span class="dos-tsep"></span><button type="button" class="dos-tb" data-t="full" title="Full screen (Alt+Enter)">${I.full}</button><span class="dos-tsep"></span><button type="button" class="dos-tb" data-t="props" title="Properties">${I.props}</button><button type="button" class="dos-tb" data-t="bg" title="Background">${I.bg}</button><button type="button" class="dos-tb" data-t="font" title="Font">${I.font}</button></div><div class="dos-load">Loading COMMAND.COM...</div>`;
-    const w = A.win('MS-DOS Prompt', b, { w: Math.min(innerWidth - 8, 80 * 9 + 14), h: Math.min(innerHeight - 60, 25 * 16 + 24 + 62 + (touch() ? 130 : 0)), icon: I.dos, cls: 'doswin', minW: 260, minH: 160, onClose: () => { if (host) host.destroy(); if (fullWin === w) unfull(); } });
+    const w = A.win('JACK-DOS Prompt', b, { w: Math.min(innerWidth - 8, 80 * 9 + 14), h: Math.min(innerHeight - 60, 25 * 16 + 24 + 62 + (touch() ? 130 : 0)), icon: I.dos, cls: 'doswin', minW: 260, minH: 160, onClose: () => { if (host) host.destroy(); if (fullWin === w) unfull(); } });
     let host = null, shell = null;
     const title = t => w.setTitle(t);
     const full = () => { if (fullWin && fullWin !== w) unfull(); fullWin = w; w.el.classList.add('dosfull'); document.body.classList.add('dos-fs'); S('fullscreen'); if (host) { host.full = true; host.fit(); host.focus(); } };
@@ -151,17 +151,17 @@
     b.querySelectorAll('.dos-tb').forEach(btn => btn.addEventListener('click', () => {
       const t = btn.dataset.t;
       if (t === 'full') toggle();
-      else if (t === 'copy') { if (!host) return; const txt = host.screen.all(); try { navigator.clipboard && navigator.clipboard.writeText(txt); } catch (e) {} Desk.toast('MS-DOS Prompt', 'The screen text has been copied to the Clipboard.', 2500); host.focus(); }
-      else if (t === 'paste') { if (!host) return; try { navigator.clipboard && navigator.clipboard.readText ? navigator.clipboard.readText().then(tx => { host.typeText(tx); host.focus(); }).catch(() => Desk.toast('MS-DOS Prompt', 'Use Ctrl+V in the DOS window to paste.', 3000)) : Desk.toast('MS-DOS Prompt', 'Use Ctrl+V in the DOS window to paste.', 3000); } catch (e) {} }
+      else if (t === 'copy') { if (!host) return; const txt = host.screen.all(); try { navigator.clipboard && navigator.clipboard.writeText(txt); } catch (e) {} Desk.toast('JACK-DOS Prompt', 'The screen text has been copied to the Clipboard.', 2500); host.focus(); }
+      else if (t === 'paste') { if (!host) return; try { navigator.clipboard && navigator.clipboard.readText ? navigator.clipboard.readText().then(tx => { host.typeText(tx); host.focus(); }).catch(() => Desk.toast('JACK-DOS Prompt', 'Use Ctrl+V in the DOS window to paste.', 3000)) : Desk.toast('JACK-DOS Prompt', 'Use Ctrl+V in the DOS window to paste.', 3000); } catch (e) {} }
       else if (t === 'mark') { Desk.toast('Mark', 'Drag with the mouse... actually, the Copy button grabs the whole screen. It\'s 1999, we take shortcuts.', 3500); if (host) host.focus(); }
       else if (t === 'props') props();
-      else if (t === 'bg') { Desk.msgbox('MS-DOS Prompt', 'Background: this program runs in the foreground AND the background. It is very busy.\n\n(Always suspend: off. Idle sensitivity: low. Gubbinz sensitivity: high.)', 'info'); }
+      else if (t === 'bg') { Desk.msgbox('JACK-DOS Prompt', 'Background: this program runs in the foreground AND the background. It is very busy.\n\n(Always suspend: off. Idle sensitivity: low. Gubbinz sensitivity: high.)', 'info'); }
       else if (t === 'font') { const sel = b.querySelector('.dos-size'); sel.selectedIndex = (sel.selectedIndex + 1) % sel.options.length; sel.dispatchEvent(new Event('change')); }
     }));
     function props() {
       const d = document.createElement('div');
       d.innerHTML = `<div class="tabs"><button class="btn on" type="button">Program</button><button class="btn" type="button">Font</button><button class="btn" type="button">Memory</button><button class="btn" type="button">Screen</button><button class="btn" type="button">Misc</button></div><div class="tabpage" style="padding:8px"><div class="row" style="flex-wrap:nowrap;gap:10px;align-items:center"><span style="width:32px;height:32px;display:inline-flex">${I.dos}</span><input type="text" value="MS-DOS Prompt" style="flex:1"></div><table class="dos-ptab"><tr><td>Cmd line:</td><td><input type="text" value="C:\\COMMAND.COM" readonly></td></tr><tr><td>Working:</td><td><input type="text" value="${esc(shell ? shell.pathStr() : 'C:\\')}" readonly></td></tr><tr><td>Batch file:</td><td><input type="text" value="" readonly></td></tr><tr><td>Shortcut key:</td><td><input type="text" value="None" readonly></td></tr><tr><td>Run:</td><td><select><option>Normal window</option><option>Minimized</option><option>Maximized</option></select></td></tr></table><label><input type="checkbox" checked> Close on exit</label><p class="small" style="margin:8px 0 0;color:#444">Conventional memory: 640K (62K free). Expanded: none. Extended: as much as Gubbinz leaves.<br>Screen: Window / Full-screen (Alt+Enter). Fast ROM emulation: on. Dynamic memory allocation: on. Fast pasting: on.</p></div><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" type="button" data-x>OK</button><button class="btn" type="button" data-x>Cancel</button><button class="btn" type="button" data-x>Apply</button></div>`;
-      const pw = A.win('MS-DOS Prompt Properties', d, { w: 400, noResize: true, noMax: true, noMin: true, escClose: true, icon: I.dos });
+      const pw = A.win('JACK-DOS Prompt Properties', d, { w: 400, noResize: true, noMax: true, noMin: true, escClose: true, icon: I.dos });
       d.querySelectorAll('.tabs .btn').forEach(t => t.addEventListener('click', () => { d.querySelectorAll('.tabs .btn').forEach(x => x.classList.remove('on')); t.classList.add('on'); Desk.toast('Properties', t.textContent + ' tab: all the defaults. Dad set them. Don\'t.', 2000); }));
       d.querySelectorAll('[data-x]').forEach(x => x.addEventListener('click', pw.close));
     }
@@ -174,7 +174,7 @@
       host.onfull = toggle;
       host.fit();
       shell = new DOS.Shell(host, { mode: 'win' });
-      shell.title = t => title(t ? t + ' - MS-DOS Prompt' : 'MS-DOS Prompt');
+      shell.title = t => title(t ? t + ' - JACK-DOS Prompt' : 'JACK-DOS Prompt');
       S('first');
       setTimeout(() => host.focus(), 50);
       w.el.addEventListener('pointerdown', () => setTimeout(() => { if (!w.closed && host && !document.activeElement.closest('.dos-tool')) host.focus(); }, 0));
@@ -203,11 +203,11 @@
     k.addEventListener('click', ev => { const btn = ev.target.closest('button'); ev.preventDefault(); ev.stopPropagation(); if (btn && btn.dataset.k === 'full') { toggleFull(); setTimeout(() => host.focus(), 50); } });
     return k;
   }
-  A.register('dos.run', { cmd: ['command', 'command.com', 'cmd', 'dos', 'msdos', 'ms-dos', 'dosprmpt', 'dos prompt', 'ms-dos prompt', 'conagent'], open: openDos });
+  A.register('dos.run', { cmd: ['command', 'command.com', 'cmd', 'dos', 'msdos', 'ms-dos', 'dosprmpt', 'dos prompt', 'jack-dos prompt', 'conagent'], open: openDos });
   A.cmd(['jbasic', 'jbasic.exe', 'qbasic', 'qb', 'basic', 'gwbasic'], raw => A.open('dos.run', /^qb/i.test(raw || '') ? 'QBASIC' : 'JBASIC'));
   A.cmd(['jackquest', 'jack quest', 'jackquest.exe', 'grotquest', 'grot quest', 'gq', 'grotquest.exe', 'zork', 'adventure', 'advent'], () => A.open('dos.run', 'JACKQUEST'));
   A.cmd(['gc', 'jackcmd', 'jack commander', 'grotcmd', 'grot commander', 'nc', 'norton'], () => A.open('dos.run', 'GC'));
-  A.cmd(['dosedit', 'edit.com', 'ms-dos editor'], () => A.open('dos.run', 'EDIT'));
+  A.cmd(['dosedit', 'edit.com', 'jack-dos editor'], () => A.open('dos.run', 'EDIT'));
   A.cmd(['ansi', 'ansiview', 'ansi.sys'], () => A.open('dos.run', 'ANSI C:\\ANSI\\LOGO.ANS'));
   A.cmd(['autoexec', 'autoexec.bat'], () => A.open('dos.run', 'C:\\AUTOEXEC.BAT'));
   A.cmd(['deltree', 'format c:', 'format', 'fdisk', 'mem', 'mem /c', 'msd', 'chkdsk /f', 'debug', 'tree', 'matrix', 'xyzzy'], raw => A.open('dos.run', String(raw).toUpperCase().replace(/\.EXE$/, '')));
@@ -220,19 +220,19 @@
   A.addProgram(['Games', 'DOS Shareware', 'Turbo Racer'], () => A.open('dos.run', 'TRUKKRACE'), I.quest);
   A.addProgram(['Games', 'DOS Shareware', 'Gem Wars (BBS door)'], () => A.open('dos.run', 'GEMWARS'), I.quest);
   A.addProgram(['Accessories', 'Entertainment', 'JACK INTRO (demo)'], () => A.open('dos.run', 'INTRO'), I.dos);
-  A.addProgram(['MS-DOS Prompt'], 'dos.run', I.dos);
+  A.addProgram(['JACK-DOS Prompt'], 'dos.run', I.dos);
   A.addProgram(['Accessories', 'JBASIC'], () => A.open('dos.run', 'JBASIC'), I.basic);
-  A.addProgram(['Accessories', 'MS-DOS Editor'], () => A.open('dos.run', 'EDIT'), I.edit);
+  A.addProgram(['Accessories', 'JACK-DOS Editor'], () => A.open('dos.run', 'EDIT'), I.edit);
   A.addProgram(['Accessories', 'System Tools', 'Jack Commander'], () => A.open('dos.run', 'GC'), I.gc);
   A.addProgram(['Games', 'Jack Quest'], () => A.open('dos.run', 'JACKQUEST'), I.quest);
-  A.desktopIcon('MS-DOS Prompt', I.dos, () => A.open('dos.run'), 'iconDos');
+  A.desktopIcon('JACK-DOS Prompt', I.dos, () => A.open('dos.run'), 'iconDos');
   A.OPENERS.bas = node => A.open('dos.run', { run: `JBASIC "${A.fs.pathOf(node) || node.name}"` });
   A.OPENERS.ans = node => A.open('dos.run', { run: `ANSI "${A.fs.pathOf(node) || node.name}"` });
 
   // ---- what desk.js calls for Shut Down > Restart in MS-DOS mode (see the report for the hook)
   DOS.fullscreen = function (container, onExit) {
     container.innerHTML = '';
-    const stub = document.createElement('div'); stub.className = 'dos-host'; stub.style.cssText = 'color:#aaa;font:16px monospace;padding:12px'; stub.textContent = 'Starting MS-DOS mode...'; container.appendChild(stub);
+    const stub = document.createElement('div'); stub.className = 'dos-host'; stub.style.cssText = 'color:#aaa;font:16px monospace;padding:12px'; stub.textContent = 'Starting JACK-DOS mode...'; container.appendChild(stub);
     let host = null, done = false;
     const finish = () => { if (done) return; done = true; if (host) host.destroy(); container.innerHTML = ''; document.body.classList.remove('dos-fs'); if (onExit) onExit(); };
     DOS.ready().then(() => {
@@ -246,12 +246,12 @@
         try {
           const t = host.term; t.cls();
           await shell.boot(true); t.line();
-          t.line('JackOS(R) 98 MS-DOS Mode'); t.line('   (C)Copyright Jack 1999. All rights reserved (by Jack).'); t.line(); t.line('Type HELP for a list of commands. Type WIN to go back to JackOS.'); t.line();
+          t.line('JackOS(R) 98 JACK-DOS Mode'); t.line('   (C)Copyright Jack 1999. All rights reserved (by Jack).'); t.line(); t.line('Type HELP for a list of commands. Type WIN to go back to JackOS.'); t.line();
           await shell.loop(false);
         } catch (e) { if (e !== K.KILL) console.error(e); }
         finish();
       })();
-    }).catch(e => { console.error(e); stub.textContent = 'MS-DOS mode failed to load. Press any key to start JackOS.'; const h = () => { document.removeEventListener('keydown', h); finish(); }; document.addEventListener('keydown', h); });
+    }).catch(e => { console.error(e); stub.textContent = 'JACK-DOS mode failed to load. Press any key to start JackOS.'; const h = () => { document.removeEventListener('keydown', h); finish(); }; document.addEventListener('keydown', h); });
     return { exit: finish };
   };
 
@@ -265,7 +265,7 @@
   const WC = 'C:/JACKOS/COMMAND'; A.fs.dir(WC).date = '10/12/98';
   [['EDIT.COM', '69 KB', 'edit'], ['DELTREE.EXE', '19 KB', 'deltree'], ['FORMAT.COM', '49 KB', 'format'], ['MEM.EXE', '32 KB', 'mem'], ['DOSKEY.COM', '15 KB', 'doskey'], ['XCOPY.EXE', '3 KB', 'xcopy'], ['MORE.COM', '10 KB', 'more'], ['FIND.EXE', '6 KB', 'find'], ['SORT.EXE', '6 KB', 'sort'], ['ATTRIB.EXE', '15 KB', 'attrib'], ['CHKDSK.EXE', '28 KB', 'chkdsk'], ['TREE.COM', '6 KB', 'tree'], ['MSCDEX.EXE', '25 KB', 'mscdex'], ['DEBUG.EXE', '20 KB', 'debug'], ['FDISK.EXE', '63 KB', 'fdisk'], ['SCANDISK.EXE', '140 KB', 'scandisk'], ['DEFRAG.EXE', '58 KB', 'defrag'], ['MSD.EXE', '158 KB', 'msd'], ['ANSI.COM', '8 KB', 'ansi'], ['CHOICE.COM', '5 KB', 'choice'], ['LABEL.EXE', '9 KB', 'label'], ['MODE.COM', '23 KB', 'mode'], ['SYS.COM', '18 KB', 'sys'], ['KEYB.COM', '19 KB', 'keyb'], ['SMARTDRV.EXE', '45 KB', 'smartdrv'], ['UNDELETE.EXE', '26 KB', 'undelete'], ['PKUNZIP.EXE', '29 KB', 'pkunzip']].forEach(([n, s, p]) => dosexe(WC, n, '10/12/98', s, p));
   put(WC, { name: 'ANSI.SYS', type: 'txt', date: '10/12/98', size: '9 KB', text: 'DEVICE DRIVER - ANSI.SYS\n(binary. It makes the colours work. Dad put it in CONFIG.SYS in 1995 and nobody has dared take it out.)\n' });
-  txt(WC, 'EDIT.HLP', '10/12/98', `MS-DOS EDITOR HELP (JackOS edition)\n===================================\n\nThe editor has menus! Press Alt, or click them with the mouse.\n\nFILE    New, Open, Save, Save As, Print (don't), Exit\nEDIT    Cut (Shift+Del), Copy (Ctrl+Ins), Paste (Shift+Ins), Clear\nSEARCH  Find (Ctrl+F in JackOS), Repeat Last Find (F3), Change\nOPTIONS Display (the colours), Help Path\nHELP    This.\n\nKEYS\n  Arrows, Home, End, PgUp, PgDn      move about\n  Shift + arrows                      select text\n  Ctrl+Y                              delete a whole line (Dave's favourite)\n  Ctrl+Left / Ctrl+Right              a word at a time\n  Insert                              overtype mode (watch the cursor go square)\n  F3                                  find the next one\n  Esc                                 closes a menu or a dialog\n\nSAVING\n  Your files are saved on C: and stay there. Jack's own files are read-only\n  (he's touchy about his diary) so Save As them with a new name.\n`);
+  txt(WC, 'EDIT.HLP', '10/12/98', `JACK-DOS EDITOR HELP (JackOS edition)\n===================================\n\nThe editor has menus! Press Alt, or click them with the mouse.\n\nFILE    New, Open, Save, Save As, Print (don't), Exit\nEDIT    Cut (Shift+Del), Copy (Ctrl+Ins), Paste (Shift+Ins), Clear\nSEARCH  Find (Ctrl+F in JackOS), Repeat Last Find (F3), Change\nOPTIONS Display (the colours), Help Path\nHELP    This.\n\nKEYS\n  Arrows, Home, End, PgUp, PgDn      move about\n  Shift + arrows                      select text\n  Ctrl+Y                              delete a whole line (Dave's favourite)\n  Ctrl+Left / Ctrl+Right              a word at a time\n  Insert                              overtype mode (watch the cursor go square)\n  F3                                  find the next one\n  Esc                                 closes a menu or a dialog\n\nSAVING\n  Your files are saved on C: and stay there. Jack's own files are read-only\n  (he's touchy about his diary) so Save As them with a new name.\n`);
   txt(WC, 'README.TXT', '10/12/98', `C:\\JACKOS\\COMMAND\n\nThese are the DOS programs. They work from the MS-DOS Prompt (Start > Programs > MS-DOS Prompt)\nor from MS-DOS mode (Start > Shut Down > Restart in MS-DOS mode).\n\nTYPE HELP at the prompt for the list. Try MEM /C. Try TREE. Try not to FORMAT anything.\n`);
   dosexe('C:/JACKOS', 'MOUSE.COM', '10/12/98', '56 KB', 'mouse');
   dosexe('C:/JACKOS', 'JACK.COM', '10/12/98', '24 KB', 'win_com', { hidden: false });
@@ -278,7 +278,7 @@
   // ---- C:\JBASIC: Jack's BASIC and the sample programs
   const JB = 'C:/JBASIC'; A.fs.dir(JB).date = '14/02/99';
   dosexe(JB, 'JBASIC.EXE', '14/02/99', '194 KB', 'jbasic');
-  txt(JB, 'README.TXT', '14/02/99', `JBASIC 1.1 - JACK'S BASIC\n=========================\nIt's like QBasic (the blue one on Dad's old PC) but it's MINE. ${TEACHER} at computer\nclub says it's "very nearly a real programming language". Thanks ${TEACHER}.\n\nHOW TO USE IT\n  JBASIC              starts the editor (blue screen, you'll know it)\n  JBASIC WORM.BAS     opens a program\n  JBASIC /RUN X.BAS   runs it straight away\n  F5                  RUN!      Esc / any key when it says to = back\n  F1                  help      Alt = the menus (or click them)\n  Ctrl+Break / Ctrl+C stops a program that's gone loopy (it happens. a lot.)\n\nPROGRAMS IN THIS FOLDER\n  MYFIRST.BAS   my first one ever (don't laugh)\n  GUESS.BAS     guess the number (the classic)\n  ORKWAR.BAS    two robots on a skyline lob spanners at each other. ANGLE + POWER. Like\n                the banana one on Dad's PC but with ROBOTS, so better. (It was going to\n                be Orks. Dave voted robots. The file name stayed.)\n  WORM.BAS      snake game. arrows. don't eat yourself.\n  STARS.BAS     starfield. Looks like going to lightspeed. That's it, that's the program.\n  FRACTAL.BAS   a Mandelbrot. Takes a bit. ${TEACHER} showed us. It's maths but good maths.\n  BLOCKS.BAS    falling blocks (NOT Tetris. Legally.) (it is Tetris)\n  CUBESCRM.BAS  Rubik's scramble generator with a timer\n  PODRACE.BAS   dodge the rocks in your pod. Very fast. Dave crashed in 4 seconds.\n  DOGFIGHT.BAS  starfighters in a starfield, shoot with space. Pew pew.\n  SABER.BAS     lightsaber duel, two players, one keyboard. A and L to swing.\n  MUSIC.BAS     PLAY tunes on the PC speaker (turn SFX on in the tray!)\n  CLOCK.BAS     a big clock. Useful if you can't see the small clock.\n\nThings it can do: PRINT INPUT IF FOR WHILE DO GOTO GOSUB SUB FUNCTION DIM SELECT CASE\nDATA READ string functions maths RND COLOR LOCATE INKEY$ SLEEP BEEP SOUND PLAY\nSCREEN 13 (320x200, 256 colours!!) PSET LINE CIRCLE PAINT POINT\n\nIf you write one, SAVE it in here. It stays. Send it to me and I'll put it on the site.\n`);
+  txt(JB, 'README.TXT', '14/02/99', `JBASIC 1.1 - JACK'S BASIC\n=========================\nIt's like QBasic (the blue one on Dad's old PC) but it's MINE. ${TEACHER} at computer\nclub says it's "very nearly a real programming language". Thanks ${TEACHER}.\n\nHOW TO USE IT\n  JBASIC              starts the editor (blue screen, you'll know it)\n  JBASIC WORM.BAS     opens a program\n  JBASIC /RUN X.BAS   runs it straight away\n  F5                  RUN!      Esc / any key when it says to = back\n  F1                  help      Alt = the menus (or click them)\n  Ctrl+Break / Ctrl+C stops a program that's gone loopy (it happens. a lot.)\n\nPROGRAMS IN THIS FOLDER\n  MYFIRST.BAS   my first one ever (don't laugh)\n  GUESS.BAS     guess the number (the classic)\n  ORKWAR.BAS    two robots on a skyline lob spanners at each other. ANGLE + POWER. Like\n                the banana one on Dad's PC but with ROBOTS, so better. (It was going to\n                be Gorks. Dave voted robots. The file name stayed.)\n  WORM.BAS      snake game. arrows. don't eat yourself.\n  STARS.BAS     starfield. Looks like going to lightspeed. That's it, that's the program.\n  FRACTAL.BAS   a Mandelbrot. Takes a bit. ${TEACHER} showed us. It's maths but good maths.\n  BLOCKS.BAS    falling blocks (NOT Blockology. Legally.) (it is Blockology)\n  CUBESCRM.BAS  Rubrick's scramble generator with a timer\n  PODRACE.BAS   dodge the rocks in your pod. Very fast. Dave crashed in 4 seconds.\n  DOGFIGHT.BAS  starfighters in a starfield, shoot with space. Pew pew.\n  SABER.BAS     lightspatula duel, two players, one keyboard. A and L to swing.\n  MUSIC.BAS     PLAY tunes on the PC speaker (turn SFX on in the tray!)\n  CLOCK.BAS     a big clock. Useful if you can't see the small clock.\n\nThings it can do: PRINT INPUT IF FOR WHILE DO GOTO GOSUB SUB FUNCTION DIM SELECT CASE\nDATA READ string functions maths RND COLOR LOCATE INKEY$ SLEEP BEEP SOUND PLAY\nSCREEN 13 (320x200, 256 colours!!) PSET LINE CIRCLE PAINT POINT\n\nIf you write one, SAVE it in here. It stays. Send it to me and I'll put it on the site.\n`);
   txt(JB, 'JBASIC.HLP', '14/02/99', `JBASIC QUICK REFERENCE\n======================\nPRINT "hi"; x, y       ; = next to, , = next column\nINPUT "Name"; n$       LINE INPUT "> ", s$\nLET a = 1 (LET optional)   a$ = "string"   DIM grid(10, 10)   DIM SHARED hi\nIF a > 1 THEN PRINT "big" ELSE PRINT "small"\nIF a > 1 THEN ... ELSEIF ... ELSE ... END IF\nFOR i = 1 TO 10 STEP 2 ... NEXT i     EXIT FOR\nWHILE k$ = "" ... WEND      DO ... LOOP UNTIL done    DO WHILE x < 5 ... LOOP   EXIT DO\nSELECT CASE n: CASE 1: CASE 2 TO 5: CASE IS > 9: CASE ELSE: END SELECT\nGOTO label / 10 GOTO 10   GOSUB sub1 ... RETURN     labels end with a colon\nSUB Name (a, b$) ... END SUB    FUNCTION F (x) ... F = x * 2 ... END FUNCTION\nDATA 1, 2, "three"   READ a, b, c$   RESTORE     SWAP a, b   CONST PI = 3.14159\n\nSTRINGS  LEFT$ RIGHT$ MID$ LEN CHR$ ASC STR$ VAL UCASE$ LCASE$ LTRIM$ RTRIM$ INSTR SPACE$ STRING$ HEX$\nMATHS    RND INT FIX ABS SQR SIN COS TAN ATN EXP LOG SGN CINT   RANDOMIZE TIMER   TIMER\nSCREEN   CLS  COLOR fg, bg  LOCATE row, col  SCREEN 0 (text) 13 (320x200x256) 12 (640x480x16) 7 (320x200x16)\nGRAPHICS PSET (x, y), c   LINE (x1, y1)-(x2, y2), c [, B or BF]   CIRCLE (x, y), r, c   PAINT (x, y), c, border   POINT(x, y)\nKEYS     k$ = INKEY$  (arrows = CHR$(0) + "H" "P" "K" "M")   SLEEP n   SLEEP (waits for a key)\nSOUND    BEEP   SOUND freq, ticks (18 ticks = 1 s)   PLAY "T120 O4 L8 CDEFGAB>C"\nEND  STOP  SYSTEM   REM or ' for comments\n\nERRORS   "Syntax error", "Subscript out of range", "Division by zero", "NEXT without FOR",\n         "RETURN without GOSUB", "Type mismatch", "Illegal function call", "Out of DATA"... you'll see them all. I have.\n`);
   const SAMPLES = DOS.SAMPLES = {};
   SAMPLES['MYFIRST.BAS'] = `' MYFIRST.BAS  by Jack  (my first ever program!!!)
@@ -300,7 +300,7 @@ FOR i = 1 TO 5
   PRINT i; "WICKED!"
 NEXT i
 ' if you type the magic word something happens
-INPUT "do you like star wars (yes/no)"; o$
+INPUT "do you like intergalactic battles (yes/no)"; o$
 IF UCASE$(o$) = "YES" THEN
   PRINT "CORRECT. you can be in my gang"
   BEEP
@@ -391,14 +391,14 @@ LOCATE 25, 1: PRINT "Infinite! (press a key)";
 SLEEP
 SCREEN 0
 `;
-  SAMPLES['CUBESCRM.BAS'] = `' CUBESCRM.BAS - Rubik's cube scramble generator + timer
+  SAMPLES['CUBESCRM.BAS'] = `' CUBESCRM.BAS - Rubrick's cube scramble generator + timer
 ' (my best is 58.32 seconds. Under a minute. I would like that on the record.)
 RANDOMIZE TIMER
 f$ = "UDLRFB"
 m$ = " '2"
 DO
   CLS
-  COLOR 14: PRINT "RUBIK'S SCRAMBLER 2000": COLOR 7
+  COLOR 14: PRINT "RUBRICK'S SCRAMBLER 2000": COLOR 7
   PRINT
   PRINT "Scramble (20 moves):"
   PRINT
@@ -487,7 +487,7 @@ RETURN
   SAMPLES['ORKWAR.BAS'] = `' ORKWAR.BAS - two robots on a skyline lob spanners at each other.
 ' Type an ANGLE (0-90) and a POWER (1-100). First to bonk the other one wins.
 ' (Like the banana game on Dad's PC, but with robots. So, better.)
-' (It was Orks first. Dave said robots. Robots won 2-1, Gubbinz voted.)
+' (It was Gorks first. Dave said robots. Robots won 2-1, Gubbinz voted.)
 DECLARE SUB drawbot (x, y, c)
 RANDOMIZE TIMER
 SCREEN 13
@@ -564,7 +564,7 @@ SUB drawbot (x, y, c)
   LINE (x - 6, y)-(x - 6, y + 1), c: LINE (x + 6, y)-(x + 6, y + 1), c
 END SUB
 `;
-  SAMPLES['BLOCKS.BAS'] = `' BLOCKS.BAS - falling blocks. NOT Tetris. (It's Tetris.) Arrows move, up turns, space drops.
+  SAMPLES['BLOCKS.BAS'] = `' BLOCKS.BAS - falling blocks. NOT Blockology. (It's Blockology.) Arrows move, up turns, space drops.
 RANDOMIZE TIMER
 DIM board(10, 20), p(4, 4), q(4, 4)
 DATA 0,1,0,0, 0,1,0,0, 0,1,0,0, 0,1,0,0
@@ -752,7 +752,7 @@ PRINT "Time's up! You got"; hits; "hits."
 IF hits > 8 THEN PRINT "Great shot, kid!" ELSE PRINT "Stay on target. Stay on target."
 SLEEP
 `;
-  SAMPLES['SABER.BAS'] = `' SABER.BAS - lightsaber duel! Two players, one keyboard.
+  SAMPLES['SABER.BAS'] = `' SABER.BAS - lightspatula duel! Two players, one keyboard.
 ' Player 1 (green): A = swing.  Player 2 (red): L = swing.  Hit when the other one isn't swinging. First to 5.
 RANDOMIZE TIMER
 s1 = 0: s2 = 0
@@ -795,7 +795,7 @@ COLOR 7: RETURN
 CLS
 PRINT "JACK'S JUKEBOX"
 PRINT "1. Robot Marching Song (original, by me)"
-PRINT "2. Scale of Doom"
+PRINT "2. Scale of Gloom"
 PRINT "3. Modem Impression"
 PRINT "4. Random noise (Dave's favourite)"
 PRINT "Q. Quit"
@@ -880,7 +880,7 @@ DO
     CASE 6
       PRINT "LESSON 6: strings (words) have tools."
       PRINT "  LEFT$(" + CHR$(34) + "GUBBINZ" + CHR$(34) + ", 3) = "; LEFT$("GUBBINZ", 3)
-      PRINT "  LEN(" + CHR$(34) + "TETRIS" + CHR$(34) + ") ="; LEN("TETRIS")
+      PRINT "  LEN(" + CHR$(34) + "BLOCKOLOGY" + CHR$(34) + ") ="; LEN("BLOCKOLOGY")
       PRINT "  UCASE$(" + CHR$(34) + "dave" + CHR$(34) + ") = "; UCASE$("dave"); "   (shouting)"
     CASE 7
       PRINT "LESSON 7: RND makes random numbers. INT chops off the bits after the dot."
@@ -905,7 +905,7 @@ DO
   lesson = lesson + 1
 LOOP
 `;
-  SAMPLES['ORKNAME.BAS'] = `' ORKNAME.BAS - Ork name generator. For naming Orks. (Mine are all called Gitface. This fixes that.)
+  SAMPLES['ORKNAME.BAS'] = `' ORKNAME.BAS - Ork name generator. For naming Gorks. (Mine are all called Gitface. This fixes that.)
 RANDOMIZE TIMER
 DIM a$(10), b$(10), t$(8)
 DATA Gor, Naz, Grim, Skar, Zog, Mog, Ug, Drak, Wurr, Bad
@@ -976,21 +976,21 @@ SLEEP
 `;
   const SDATES = { 'MYFIRST.BAS': '20/01/99', 'GUESS.BAS': '02/02/99', 'STARS.BAS': '14/02/99', 'FRACTAL.BAS': '05/03/99', 'CUBESCRM.BAS': '20/04/99', 'WORM.BAS': '11/05/99', 'ORKWAR.BAS': '28/06/99', 'BLOCKS.BAS': '17/04/99', 'PODRACE.BAS': '24/07/99', 'DOGFIGHT.BAS': '31/07/99', 'SABER.BAS': '02/08/99', 'MUSIC.BAS': '09/09/99', 'CLOCK.BAS': '03/10/99', 'TUTORIAL.BAS': '10/10/99', 'ORKNAME.BAS': '12/09/99', 'MAZE.BAS': '27/08/99' };
   Object.keys(SAMPLES).forEach(n => bas(JB, n, SDATES[n] || '14/02/99', SAMPLES[n], n === 'MYFIRST.BAS' ? { secret: 'dos.myfirst' } : {}));
-  txt(JB, 'IDEAS.TXT', '12/10/99', `PROGRAM IDEAS\n\n- a Gubbinz tamagotchi (DONE, it's on the website, Jackotchi)\n- Ork name generator (Grotsnik? Nazdreg? Gitface? needs work)\n- a thing that does my maths homework (Mr Bell says this is "cheating". ${TEACHER} says it's "automation")\n- JackOS 2000 (a whole operating system in JBASIC. ${TEACHER} did a face.)\n- a program that prints DAVE IS NOT ACE 1 million times (done. took 9 minutes. Mom came in.)\n- pod race but 3D (how do you do 3D)\n- a text adventure. a BIG one. (see C:\\GAMES\\JACKQUEST.EXE. I did it. 2 months. 44 rooms.)\n`);
+  txt(JB, 'IDEAS.TXT', '12/10/99', `PROGRAM IDEAS\n\n- a Gubbinz eggbert (DONE, it's on the website, Jackotchi)\n- Ork name generator (Grotsnik? Nazdreg? Gitface? needs work)\n- a thing that does my maths homework (Mr Bell says this is "cheating". ${TEACHER} says it's "automation")\n- JackOS 2000 (a whole operating system in JBASIC. ${TEACHER} did a face.)\n- a program that prints DAVE IS NOT ACE 1 million times (done. took 9 minutes. Mom came in.)\n- pod race but 3D (how do you do 3D)\n- a text adventure. a BIG one. (see C:\\GAMES\\JACKQUEST.EXE. I did it. 2 months. 44 rooms.)\n`);
 
   // ---- C:\GAMES: the adventure, the DOS screensaver
   const GA = 'C:/GAMES';
   dosexe(GA, 'JACKQUEST.EXE', '30/09/99', '248 KB', 'grotquest');
-  txt(GA, 'JACKQUEST.TXT', '30/09/99', `JACK QUEST                                                     by Jack, 1999\n==========\nA TEXT ADVENTURE. Like the old ones on Dad's PC where you type GO NORTH and it\nsays "You can't go that way" about 400 times. Except mine is good.\n\nYou are Jack. It's a Saturday. Gubbinz has gone missing. Something is going on\nunder the bed. There are 44 rooms, a school, Dave, a shed, a whole Toy Kingdom, and\na Rubik's cube that might be the most important object in the universe.\n\nHOW TO PLAY\n  Type what you want to do. Short sentences. The game understands things like:\n  LOOK, GO NORTH (or just N, S, E, W, UP, DOWN, IN, OUT), TAKE thing, DROP thing,\n  EXAMINE thing (X thing), OPEN, CLOSE, USE thing ON thing, GIVE thing TO person,\n  TALK TO person, ASK person ABOUT thing, INVENTORY (I), WAIT (Z), SCORE,\n  SAVE, RESTORE, HINT (costs points!), HELP, QUIT.\n\nSCORE: 350 points. Nobody has got 350. Dave got 40 and typed rude words.\n\nTIPS\n  - EXAMINE everything. Twice.\n  - Things from the real world work in the Toy Kingdom. Especially snacks.\n  - Mom is not a puzzle. Mom is a FORCE OF NATURE.\n  - If you're stuck, HINT. Lose 5 points. Keep your dignity.\n`);
+  txt(GA, 'JACKQUEST.TXT', '30/09/99', `JACK QUEST                                                     by Jack, 1999\n==========\nA TEXT ADVENTURE. Like the old ones on Dad's PC where you type GO NORTH and it\nsays "You can't go that way" about 400 times. Except mine is good.\n\nYou are Jack. It's a Saturday. Gubbinz has gone missing. Something is going on\nunder the bed. There are 44 rooms, a school, Dave, a shed, a whole Toy Kingdom, and\na Rubrick's cube that might be the most important object in the universe.\n\nHOW TO PLAY\n  Type what you want to do. Short sentences. The game understands things like:\n  LOOK, GO NORTH (or just N, S, E, W, UP, DOWN, IN, OUT), TAKE thing, DROP thing,\n  EXAMINE thing (X thing), OPEN, CLOSE, USE thing ON thing, GIVE thing TO person,\n  TALK TO person, ASK person ABOUT thing, INVENTORY (I), WAIT (Z), SCORE,\n  SAVE, RESTORE, HINT (costs points!), HELP, QUIT.\n\nSCORE: 350 points. Nobody has got 350. Dave got 40 and typed rude words.\n\nTIPS\n  - EXAMINE everything. Twice.\n  - Things from the real world work in the Toy Kingdom. Especially snacks.\n  - Mom is not a puzzle. Mom is a FORCE OF NATURE.\n  - If you're stuck, HINT. Lose 5 points. Keep your dignity.\n`);
   dosexe(GA, 'SAVER.COM', '03/05/99', '4 KB', 'saver');
   dosexe(GA, 'MATRIX.COM', '02/07/99', '3 KB', 'matrix');
   txt(GA, 'HISCORES.TXT', '11/10/99', `DOS GAME HIGH SCORES (the honest list)\n\nWORM.BAS      JACK   340     DAVE   20 ("the arrows are backwards")\nBLOCKS.BAS    JACK  2100     DAVE  300\nPODRACE.BAS   JACK   612     DAVE    4\nDOGFIGHT.BAS  JACK    14     DAVE    0 (he fired at the stars)\nORKWAR.BAS    JACK 9 wins    DAVE 2 wins (he bonked himself 4 times)\nJACK QUEST    JACK 350/350   DAVE 40/350 (typed rude words, got told off BY THE GAME)\n`);
-  txt(GA, 'NOTES.TXT', '04/10/99', `JACKQUEST - MY OWN NOTES (don't read these if you're playing it)\n\nthe maze is not a real maze, the TOY TUNNELS go in a circle, follow the smell\nthe cube needs the paper from the library\nthe big blobbit likes crisps (alien flavour. blobbits eat anything.)\nthe password is on the gate. (it used to be WAAAGH. that still works. I am not a monster.)\nthe toy shop queue: you just WAIT. that's the puzzle. that's what queueing IS.\nthe lightsaber is a wrapping paper tube. it was always going to be a wrapping paper tube.\nDave's password is in Dave's floppy (A:) obviously\n`, { hidden: true });
+  txt(GA, 'NOTES.TXT', '04/10/99', `JACKQUEST - MY OWN NOTES (don't read these if you're playing it)\n\nthe maze is not a real maze, the TOY TUNNELS go in a circle, follow the smell\nthe cube needs the paper from the library\nthe big blobbit likes crisps (alien flavour. blobbits eat anything.)\nthe password is on the gate. (it used to be WAAAGH. that still works. I am not a monster.)\nthe toy shop queue: you just WAIT. that's the puzzle. that's what queueing IS.\nthe lightspatula is a wrapping paper tube. it was always going to be a wrapping paper tube.\nDave's password is in Dave's floppy (A:) obviously\n`, { hidden: true });
 
   // ---- C:\GAMES\SHAREWAR: the DOS shareware folder (Dad's friend Kevin brought these on floppies)
   const SW = GA + '/SHAREWAR'; A.fs.dir(SW).date = '06/06/99';
   [['JACKCRAWL.EXE', '88 KB', 'grotcrawl'], ['DAKKA.EXE', '41 KB', 'dakka'], ['SQUIGPIE.EXE', '29 KB', 'squigpie'], ['SQUIGHUNT.EXE', '22 KB', 'squighunt'], ['TRUKKRACE.EXE', '35 KB', 'trukkrace'], ['GEMWARS.EXE', '47 KB', 'teefwars'], ['INTRO.EXE', '64 KB', 'intro'], ['TPAINT.EXE', '52 KB', 'tpaint'], ['JACKTRAK.EXE', '73 KB', 'grottrak'], ['HEXED.EXE', '18 KB', 'hexed'], ['CALC.EXE', '12 KB', 'calc'], ['JACKSCAN.EXE', '96 KB', 'grotscan'], ['SQUASH.EXE', '31 KB', 'squash'], ['UNSQUASH.EXE', '27 KB', 'unsquash'], ['EDLIN.EXE', '14 KB', 'edlin'], ['DOSSHELL.EXE', '44 KB', 'dosshell']].forEach(([n, sz, p]) => dosexe(SW, n, '06/06/99', sz, p));
-  txt(SW, 'README.TXT', '06/06/99', `DOS SHAREWARE - from Kevin's floppies (Dad's friend Kevin, the one with the beard)\n=================================================================================\nAll of these run from the MS-DOS Prompt. Type the name. Or double-click them.\n\nGAMES\n  JACKCRAWL  a dungeon game made of letters. You are @. Goblins are g. Slimes are s. Get to > five times.\n  DAKKA      FLAK ATTACK! Flying saucers drop little green men on parachutes. Shoot them before four\n             land on one side. Left/right/space. (The file is still called DAKKA. Kevin named it.)\n  SQUIGPIE   CHIP VAN TYCOON. Run a chip van for a week. Buy chips and signs, set a price, watch the\n             weather. Dave went bust on day 2.\n  SQUIGHUNT  ALIEN HUNT. The Big Alien is in one of 20 caves. So are two bottomless pits and two\n             space bats. You have 5 stun darts.\n  TRUKKRACE  TURBO RACER. Drive down a road that bends. It gets faster. Your car is red. Left/right.\n  GEMWARS    a BBS door game. 10 turns. Buy miners, robots and lasers. Raid Dave's asteroid. Don't get raided.\n\nTOOLS\n  INTRO      a demo. Plasma, a scroller, copper bars, a tune. Made at ${Cast.n('cousin2')}'s. ${Cast.n('cousin2')} did the maths.\n  TPAINT     paint with letters and colours. Saves .ANS files into C:\\ANSI. F1 for help.\n  JACKTRAK   a music tracker. Type notes on the keyboard, press space, it plays. Saves .TRK files.\n  HEXED      a hex editor. Look at files as numbers. Change the numbers. Feel like a hacker.\n  CALC       a calculator. Type sums. It does them. (Mr Bell says this is "cheating". ${TEACHER} says "automation".)\n  JACKSCAN   a DOS virus scanner. Finds Gubbinz. Can't remove him. Nobody can.\n  SQUASH     makes .SQZ archives, like WinJack but it works. UNSQUASH gets them back.\n  EDLIN      the line editor from 1981. For when EDIT is too easy.\n  DOSSHELL   a menu. For people who don't like typing. (Why are you in DOS then?)\n\nSHAREWARE: if you like them, send Kevin 5 quid. Nobody has ever sent Kevin 5 quid.\n`);
+  txt(SW, 'README.TXT', '06/06/99', `DOS SHAREWARE - from Kevin's floppies (Dad's friend Kevin, the one with the beard)\n=================================================================================\nAll of these run from the JACK-DOS Prompt. Type the name. Or double-click them.\n\nGAMES\n  JACKCRAWL  a dungeon game made of letters. You are @. Goblins are g. Slimes are s. Get to > five times.\n  DAKKA      FLAK ATTACK! Flying saucers drop little green men on parachutes. Shoot them before four\n             land on one side. Left/right/space. (The file is still called DAKKA. Kevin named it.)\n  SQUIGPIE   CHIP VAN TYCOON. Run a chip van for a week. Buy chips and signs, set a price, watch the\n             weather. Dave went bust on day 2.\n  SQUIGHUNT  ALIEN HUNT. The Big Alien is in one of 20 caves. So are two bottomless pits and two\n             space bats. You have 5 stun darts.\n  TRUKKRACE  TURBO RACER. Drive down a road that bends. It gets faster. Your car is red. Left/right.\n  GEMWARS    a BBS door game. 10 turns. Buy miners, robots and lasers. Raid Dave's asteroid. Don't get raided.\n\nTOOLS\n  INTRO      a demo. Plasma, a scroller, copper bars, a tune. Made at ${Cast.n('cousin2')}'s. ${Cast.n('cousin2')} did the maths.\n  TPAINT     paint with letters and colours. Saves .ANS files into C:\\ANSI. F1 for help.\n  JACKTRAK   a music tracker. Type notes on the keyboard, press space, it plays. Saves .TRK files.\n  HEXED      a hex editor. Look at files as numbers. Change the numbers. Feel like a hacker.\n  CALC       a calculator. Type sums. It does them. (Mr Bell says this is "cheating". ${TEACHER} says "automation".)\n  JACKSCAN   a DOS virus scanner. Finds Gubbinz. Can't remove him. Nobody can.\n  SQUASH     makes .SQZ archives, like WinJack but it works. UNSQUASH gets them back.\n  EDLIN      the line editor from 1981. For when EDIT is too easy.\n  DOSSHELL   a menu. For people who don't like typing. (Why are you in DOS then?)\n\nSHAREWARE: if you like them, send Kevin 5 quid. Nobody has ever sent Kevin 5 quid.\n`);
   txt(SW, 'HISCORE.DAT', '11/10/99', `JACKCRAWL   JACK  level 5  2140\nDAKKA       JACK  41 aliens\nTRUKKRACE   JACK  1870m   DAVE  40m (into a gnome)\nSQUIGPIE    JACK  12 Rupees profit   DAVE  -9 (bust, day 2)\nSQUIGHUNT   JACK  got it in 9 goes\nGEMWARS     JACK  beat Dave 10-0   DAVE  "the game is rigged"\n`);
   // ---- C:\GC: Jack Commander (the two-pane file manager)
   const GC = 'C:/GC'; A.fs.dir(GC).date = '08/03/99';
@@ -1019,7 +1019,7 @@ SLEEP
   ans(AN, 'STARFTR.ANS', '24/07/99', `${E}0m${E}0;37m                    ${E}1;37m\u2584\n${E}0;37m                   ${E}1;37m\u2588\u2588\u2588                       ${E}1;33mSTARFIGHTER\n${E}0;37m          ${E}1;31m\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550${E}1;37m\u2588\u2588\u2588${E}1;31m\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550              ${E}0;37m(generic. not any specific one. honest.)\n${E}0;37m         ${E}1;31m\u2588${E}0;37m        ${E}1;37m\u2588\u2588\u2588${E}0;37m        ${E}1;31m\u2588\n${E}0;37m         ${E}1;31m\u2588${E}0;37m     ${E}1;36m\u2584\u2584${E}1;37m\u2588\u2588\u2588\u2588\u2588${E}1;36m\u2584\u2584${E}0;37m     ${E}1;31m\u2588        ${E}0;37m<- four wings. S-shaped. well, X-shaped.\n${E}0;37m         ${E}1;31m\u2588${E}0;37m    ${E}1;36m\u2588\u2588\u2588${E}1;37m\u2588\u2588\u2588\u2588\u2588${E}1;36m\u2588\u2588\u2588${E}0;37m    ${E}1;31m\u2588\n${E}0;37m         ${E}1;31m\u2588${E}0;37m     ${E}1;36m\u2580\u2580${E}1;37m\u2588\u2588\u2588\u2588\u2588${E}1;36m\u2580\u2580${E}0;37m     ${E}1;31m\u2588        ${E}0;37m<- engines (4) (they glow pink)\n${E}0;37m          ${E}1;31m\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550${E}1;37m\u2588\u2588\u2588${E}1;31m\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n${E}0;37m                   ${E}1;37m\u2580\u2588\u2580\n${E}0;37m                    ${E}1;35m\u2591                                 ${E}0;37m<- the laser (goes "pew")\n${E}0;37m                    ${E}1;35m\u2591\n${E}0;37m   ${E}0;36m${'\u2500'.repeat(60)}\n${E}0;37m   Drawn after seeing the film for the 3rd time (16 July 1999, queue: 3 hours).\n${E}0;37m   The pilot has a little droid in the back. The droid does all the work.\n${E}0m`, { secret: 'dos.starfighter' });
   const bbsRow = (inner) => { const vis = inner.replace(/\x1b\[[0-9;]*m/g, '').length; return `${E}0;34m\u2551${inner}${' '.repeat(Math.max(0, 58 - vis))}${E}0;34m\u2551\n`; };
   ans(AN, 'BBS.ANS', '21/06/99', `${E}0m${E}0;34m\u2554${'\u2550'.repeat(58)}\u2557\n` + bbsRow(` ${E}1;36m   JACK'S BBS   ${E}0;37m-  "The Board Wot Jack Made"  ${E}1;33m[ 1 node ]`) + `${E}0;34m\u2560${'\u2550'.repeat(58)}\u2563\n` + bbsRow(` ${E}0;37m [${E}1;37mM${E}0;37m]essages      [${E}1;37mF${E}0;37m]iles        [${E}1;37mD${E}0;37m]oors (games)`) + bbsRow(` ${E}0;37m [${E}1;37mC${E}0;37m]hat w/ SysOp [${E}1;37mU${E}0;37m]ser list    [${E}1;37mG${E}0;37m]oodbye`) + `${E}0;34m\u2560${'\u2550'.repeat(58)}\u2563\n` + bbsRow(` ${E}0;32m SysOp: Jack    Co-SysOp: Gubbinz (asleep)   Users: 2`) + bbsRow(` ${E}0;32m Hours: 4pm-8pm (Mom needs the phone)   Speed: 14.4 (sorry)`) + `${E}0;34m\u255a${'\u2550'.repeat(58)}\u255d\n${E}0;37m   (This was going to be a real BBS in 1998. Then we got the Internet. Then the\n${E}0;37m    website. This screen is all that's left. It's a nice screen though.)\n${E}0m`);
-  ans(AN, 'SQUIG.ANS', '22/06/99', `${E}0m${E}1;31m        \u2584\u2588\u2588\u2584        \u2584\u2588\u2588\u2584\n${E}1;31m       \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588         ${E}1;33mBLOBBIT\n${E}1;31m      \u2588\u2588\u2588\u2588${E}1;37m\u2588\u2588${E}0;30m\u2588${E}1;31m\u2588\u2588\u2588\u2588\u2588\u2588${E}1;37m\u2588\u2588${E}0;30m\u2588${E}1;31m\u2588\u2588\u2588\u2588       ${E}0;37m(my own critter. NOT a Pokemon.)\n${E}1;31m      \u2588\u2588\u2588\u2588${E}1;37m\u2580\u2580${E}0;30m\u2580${E}1;31m\u2588\u2588\u2588\u2588\u2588\u2588${E}1;37m\u2580\u2580${E}0;30m\u2580${E}1;31m\u2588\u2588\u2588\u2588\n${E}1;31m      \u2588\u2588${E}1;35m\u2584\u2584${E}1;31m\u2588\u2588${E}0;31m\u2580\u2584\u2584\u2584\u2584\u2584\u2584\u2580${E}1;31m\u2588\u2588${E}1;35m\u2584\u2584${E}1;31m\u2588\u2588      ${E}0;37m<- grin (massive)\n${E}1;31m       \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\n${E}1;31m        \u2580\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2580\n${E}1;31m           \u2588\u2588      \u2588\u2588          ${E}0;37m<- legs (2) (it bounces)\n${E}0;37m   ${E}5;1;33mBOING${E}0;37m  (that bit is blinking. ANSI can BLINK. ${Cast.n('cousin2')} showed me.)\n${E}0m`);
+  ans(AN, 'SQUIG.ANS', '22/06/99', `${E}0m${E}1;31m        \u2584\u2588\u2588\u2584        \u2584\u2588\u2588\u2584\n${E}1;31m       \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588         ${E}1;33mBLOBBIT\n${E}1;31m      \u2588\u2588\u2588\u2588${E}1;37m\u2588\u2588${E}0;30m\u2588${E}1;31m\u2588\u2588\u2588\u2588\u2588\u2588${E}1;37m\u2588\u2588${E}0;30m\u2588${E}1;31m\u2588\u2588\u2588\u2588       ${E}0;37m(my own critter. NOT a Pocket Critters.)\n${E}1;31m      \u2588\u2588\u2588\u2588${E}1;37m\u2580\u2580${E}0;30m\u2580${E}1;31m\u2588\u2588\u2588\u2588\u2588\u2588${E}1;37m\u2580\u2580${E}0;30m\u2580${E}1;31m\u2588\u2588\u2588\u2588\n${E}1;31m      \u2588\u2588${E}1;35m\u2584\u2584${E}1;31m\u2588\u2588${E}0;31m\u2580\u2584\u2584\u2584\u2584\u2584\u2584\u2580${E}1;31m\u2588\u2588${E}1;35m\u2584\u2584${E}1;31m\u2588\u2588      ${E}0;37m<- grin (massive)\n${E}1;31m       \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\n${E}1;31m        \u2580\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2580\n${E}1;31m           \u2588\u2588      \u2588\u2588          ${E}0;37m<- legs (2) (it bounces)\n${E}0;37m   ${E}5;1;33mBOING${E}0;37m  (that bit is blinking. ANSI can BLINK. ${Cast.n('cousin2')} showed me.)\n${E}0m`);
   ans(AN, 'CUBE.ANS', '23/06/99', `${E}0m${E}0;37m          ${E}1;37;47m   ${E}1;31;41m   ${E}1;34;44m   ${E}0;37;40m\n${E}0;37m         ${E}1;33;43m   ${E}1;32;42m   ${E}1;37;47m   ${E}0;37;40m ${E}1;31;41m \n${E}0;37m        ${E}1;31;41m   ${E}1;34;44m   ${E}1;33;43m   ${E}0;37;40m ${E}1;32;42m  ${E}0;37;40m\n${E}0;37m       ${E}1;32;42m   ${E}1;37;47m   ${E}1;31;41m   ${E}0;37;40m ${E}1;34;44m   ${E}0;37;40m        ${E}1;33mRUBIK'S CUBE\n${E}0;37m       ${E}1;34;44m   ${E}1;33;43m   ${E}1;32;42m   ${E}0;37;40m ${E}1;37;47m   ${E}0;37;40m        ${E}0;37m(scrambled. as usual.)\n${E}0;37m       ${E}1;37;47m   ${E}1;31;41m   ${E}1;34;44m   ${E}0;37;40m ${E}1;33;43m  ${E}0;37;40m\n${E}0;37m                           ${E}1;31;41m \n${E}0;37m   Jack's best: 58.32s. Under a minute. (Say it with me.)\n${E}0m`);
   txt(AN, 'README.TXT', '19/06/99', `ANSI ART\n\nThese are .ANS files: text with colour codes in. In DOS they work because of ANSI.SYS\n(it's in CONFIG.SYS, Dad put it there, it stays).\n\nTo see one:   TYPE STARFTR.ANS    or   ANSI STARFTR.ANS   (the viewer, with page up/down)\nTo make one:  EDIT, then put the codes in by hand like a maniac (${Cast.n('cousin2')} has TheDraw. ${Cast.n('cousin2')} has everything.)\n\nCodes: ESC [ 1;32 m = bright green. ESC [ 0 m = normal. 5 = BLINK (!!). 41 = red background.\n`);
 
@@ -1030,7 +1030,7 @@ SLEEP
   [
     ['first', 'C:\\>', 'Open the thing with the black screen and the blinking line'],
     ['fullscreen', 'Full screen, like 1995', 'A DOS box can fill the whole screen with one key combination'],
-    ['dosmode', 'Restart in MS-DOS mode', 'Shut down the computer the OTHER way'],
+    ['dosmode', 'Restart in JACK-DOS mode', 'Shut down the computer the OTHER way'],
     ['help', 'DOS, help me', 'Ask the prompt what it can do'],
     ['xyzzy', 'Nothing happens', 'An old magic word from an even older game'],
     ['waaagh', 'Battle cry at the prompt', 'Shout a battle cry at a black screen (an Ork one, or a turtle one)'],
@@ -1058,8 +1058,8 @@ SLEEP
     ['orksay', 'ORKSAY', 'Dad\'s cow program has a cousin with tusks'],
     ['nested', 'COMMAND in COMMAND in COMMAND', 'Run the command interpreter inside itself too many times'],
     ['feed', 'FEED.EXE', 'The commented-out line in AUTOEXEC.BAT is a real program'],
-    ['force', 'The Force at the prompt', 'A DOS command for Jedi'],
-    ['saber', 'Wrapping-paper lightsaber', 'Ignite one at the prompt'],
+    ['force', 'The Force at the prompt', 'A DOS command for Space Cadet'],
+    ['saber', 'Wrapping-paper lightspatula', 'Ignite one at the prompt'],
     ['droid', 'Bweep boo-dee-doo', 'Ask the little droid something at the prompt'],
     ['myfirst', 'MYFIRST.BAS', 'Open Jack\'s first ever program'],
     ['basic.run', 'F5', 'Run a JBASIC program'],
@@ -1068,20 +1068,20 @@ SLEEP
     ['basic.save', 'SAVE in JBASIC', 'Write your own program and save it in C:\\JBASIC'],
     ['basic.break', 'Ctrl+Break', 'Stop a program that\'s gone loopy'],
     ['basic.loop', '20 GOTO 10', 'Run Dave\'s program from his floppy (it runs forever. that\'s how good it is)'],
-    ['edit.save', 'MS-DOS Editor', 'Save a file from the blue editor'],
+    ['edit.save', 'JACK-DOS Editor', 'Save a file from the blue editor'],
     ['gc', 'Jack Commander', 'Open the two-pane file manager'],
     ['gc.view', 'F3 View', 'View a file in Jack Commander'],
     ['defrag', 'DEFRAG (DOS)', 'Watch the little blocks move about from DOS'],
     ['scandisk', 'SCANDISK (DOS)', 'Check the surface of the disk from DOS, find the grumpy cluster'],
     ['fdisk', 'FDISK', 'Open the scariest program on the computer and then close it'],
-    ['msd', 'MSD', 'Microsoft-style Diagnostics: find out what the computer thinks it is'],
+    ['msd', 'MSD', 'Jacksoft-style Diagnostics: find out what the computer thinks it is'],
     ['matrix', 'Green rain', 'Make the DOS screen do the thing from the film'],
     ['saver', 'DOS screensaver', 'There\'s a screensaver in C:\\GAMES that isn\'t a JackOS one'],
     ['virus', 'TOTALLY A VIRUS', 'A hidden .COM in C:\\JACKOS\\TEMP that\'s definitely a virus (it\'s not)'],
     ['debug', 'DEBUG', 'The program Dad used to "fix" things. Poke about'],
     ['pipe', 'Pipes!', 'Send the output of one command into another with |'],
     ['quest.start', 'Jack Quest begins', 'Start the big text adventure in C:\\GAMES'],
-    ['quest.saber', 'Tube of destiny', 'Make a lightsaber in Jack Quest'],
+    ['quest.saber', 'Tube of destiny', 'Make a lightspatula in Jack Quest'],
     ['quest.queue', 'Queue for the toys', 'Wait in the toy shop queue in Jack Quest, like everyone did'],
     ['quest.portal', 'Under the bed', 'Find the way into the Toy Kingdom in Jack Quest'],
     ['quest.gubbinz', 'Found him', 'Find Gubbinz in Jack Quest'],

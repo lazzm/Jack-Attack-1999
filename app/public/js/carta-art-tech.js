@@ -425,7 +425,7 @@
       p.fill('#000');
       const line = (y, s, c) => { p.text(4, y, 'C:', c || '#c0c0c0'); bslash(p, 12, y, c || '#c0c0c0'); p.text(16, y, '>' + s, c || '#c0c0c0'); };
       line(4, 'DIR');
-      p.text(4, 12, 'GAMES    <DIR>', '#c0c0c0'); p.text(4, 19, 'JACKOS  <DIR>', '#c0c0c0'); p.text(4, 26, 'AUTOEXEC BAT', '#c0c0c0'); p.text(4, 33, 'DOOM     EXE', '#c0c0c0');
+      p.text(4, 12, 'GAMES    <DIR>', '#c0c0c0'); p.text(4, 19, 'JACKOS  <DIR>', '#c0c0c0'); p.text(4, 26, 'AUTOEXEC BAT', '#c0c0c0'); p.text(4, 33, 'GLOOM     EXE', '#c0c0c0');
       p.text(4, 42, '4 FILE(S)', '#c0c0c0'); line(52, 'CD GAMES'); line(62, '', '#ffffff'); p.rect(24, 62, 4, 5, '#c0c0c0');
     } },
     bbc_micro: { cap: 'A BBC Micro (1981): cream case, black keys and a row of red function keys. It was in most British schools.', draw(p, S) {
@@ -451,7 +451,7 @@
       for (let i = 0; i < 4; i++) p.obox(80, 27 + i * 6, 8, 5, '#c8c0a8');
       p.px(14, 24, '#ff3030'); p.text(10, 6, '64 KB', '#203060');
     } },
-    macintosh: { cap: 'The first Macintosh (1984): screen and computer in one beige box, with a mouse and windows and icons.', draw(p, S) {
+    macintosh: { cap: 'The first Macintosh (1984): screen and computer in one beige box, with a mouse and jackos and icons.', draw(p, S) {
       S.room(p);
       p.obox(24, 2, 40, 54, '#e8e0cc'); p.rect(25, 3, 38, 2, '#fffaf0'); p.obox(28, 6, 32, 26, '#303030');
       p.rect(30, 8, 28, 22, '#f8f8f8'); p.rect(30, 8, 28, 3, '#e0e0e0'); for (let x = 30; x < 58; x += 2) p.px(x, 9, '#000');
@@ -473,7 +473,7 @@
     p.obox(x + w - 8, y + 3, 5, 4, '#c0c0c0'); p.rect(x + 2, y + 9, w - 4, h - 11, body || '#fff'); return p;
   }
   A.add({
-    windows: { cap: 'A Windows-style desktop: windows, icons, a mouse pointer, and the Start button on the taskbar.', draw(p) {
+    windows: { cap: 'A JackOS-style desktop: jackos, icons, a mouse pointer, and the Start button on the taskbar.', draw(p) {
       p.fill('#008080');
       [[6, 6, '#ffd400'], [6, 22, '#c0c0c0'], [6, 38, '#9fd0ff']].forEach(([x, y, c]) => { p.obox(x, y, 10, 9, c); p.rect(x - 1, y + 10, 12, 2, '#fff'); });
       win(p, 24, 6, 50, 34, 'MY PC'); for (let i = 0; i < 3; i++) p.obox(28 + i * 15, 18, 10, 9, '#d8d0bc');

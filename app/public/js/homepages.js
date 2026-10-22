@@ -18,7 +18,7 @@
         rules: ['No pages about ice cream. (It melts in the rocket exhaust.)', 'All countdowns must reach zero eventually.', 'Aliens welcome. Please wipe your feet.', 'No saying the Moon is made of cheese. (#12 Orbit Street already did.)', 'Pages must be at least 50% space.'] },
       Arcadia: { streets: ['Joystick', 'Pixel', 'Cartridge', 'Highscore'], ico: 'joystick', bg: '#200030', fg: '#ffccff', blurb: 'Games, cheats, high scores and the people who play them.',
         rules: ['No cheating on the High Score Hall of Fame.', 'Blowing on cartridges is allowed.', 'Every page must mention at least one game. Any game. Even Pong.', 'No spoilers without a big WARNING!!! sign.', 'Respect the pause button.'] },
-      Grotville: { streets: ['Mudpit', 'Fungus', 'Teefstreet', 'Squigalley'], ico: 'squig', bg: '#2a3a1a', fg: '#ccff99', blurb: 'Monsters, aliens, slime, Warhammer, mud and anyone who likes the colour green.',
+      Grotville: { streets: ['Mudpit', 'Fungus', 'Teefstreet', 'Squigalley'], ico: 'squig', bg: '#2a3a1a', fg: '#ccff99', blurb: 'Monsters, aliens, slime, War Hamster, mud and anyone who likes the colour green.',
         rules: ['Mud is compulsory.', 'No pages about soap.', 'Pets must be kept on a lead. Even virtual ones.', 'Shouting counts as a whole sentence.', 'Gubbinz is in charge. (He says.)'] },
       Tunesville: { streets: ['Bassline', 'Recorder', 'Encore', 'Mixtape'], ico: 'guitar', bg: '#300a00', fg: '#ffdd99', blurb: 'Bands, fans, MIDIs and people learning the recorder (sorry, neighbours).',
         rules: ['No recorder practice after 8pm.', 'MIDIs must be turned DOWN when Mom says so.', 'Air guitar counts as an instrument.', 'No pages about silence.', 'Every band is the best band in the world.'] },

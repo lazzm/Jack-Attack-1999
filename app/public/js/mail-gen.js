@@ -104,7 +104,7 @@
   const plain = h => { ta.innerHTML = String(h == null ? '' : h).replace(/<[^>]+>/g, ''); return ta.value.replace(/\s+/g, ' ').trim(); };
   const short = h => plain(h).replace(/\s*\([^)]*\)/g, '').trim();
   G.plain = plain;
-  const PLAT = { N64: 'the N64', PS: 'the PlayStation', PC: 'the PC', GB: 'the Game Boy', GBC: 'the Game Boy Color', MD: 'the Mega Drive', DC: 'the Dreamcast' };
+  const PLAT = { N64: 'the ULTRA 64', PS: 'the PlaySpace', PC: 'the PC', GB: 'the Game Lad', GBC: 'the Game Lad Color', MD: 'the Mega Glide', DC: 'the Daydream' };
 
   // ================================================================ the 1999 calendar of a kid in England (school, holidays, festivals)
   // School holidays are for Jack's own (unnamed) school. Everything else is the real 1999 date.
@@ -123,10 +123,10 @@
   ];
   const SEASON = m => m === 12 || m <= 2 ? 'winter' : m <= 5 ? 'spring' : m <= 8 ? 'summer' : 'autumn';
   const WEATHER = {
-    winter: ['It is FREEZING here.', 'The windows have got ice on the INSIDE.', 'It has been raining for about a week.', 'Dad scraped the car this morning with a CD case.', 'It got dark at about 4 o\'clock. Again.', 'There was frost on the trampoline.'],
+    winter: ['It is FREEZING here.', 'The jackos have got ice on the INSIDE.', 'It has been raining for about a week.', 'Dad scraped the car this morning with a CD case.', 'It got dark at about 4 o\'clock. Again.', 'There was frost on the trampoline.'],
     spring: ['It has been raining on and off all day.', 'The sun came out for ten minutes. Everyone went outside. Then it rained.', 'It is windy enough to fly a kite. Or a small dog.', 'The daffodils are out in the garden.', 'Mom says it is "blowy".'],
     summer: ['It is BOILING.', 'It has been sunny for three whole days. This is a record.', 'The ice cream van has been round twice today.', 'The tarmac outside has gone squishy.', 'It rained on the barbecue. It always rains on the barbecue.'],
-    autumn: ['The leaves are all coming off the trees.', 'It is getting dark really early now.', 'It has been grey and drizzly all day.', 'There is a conker tree on the way to school and it is going off.', 'The heating came on for the first time today.'],
+    autumn: ['The leaves are all coming off the trees.', 'It is getting dark really early now.', 'It has been grey and drizzly all day.', 'There is a acorn quest tree on the way to school and it is going off.', 'The heating came on for the first time today.'],
   };
   const SKYDARK = { winter: 'about half four', spring: 'about eight', summer: 'nearly ten', autumn: 'about six' };
 
@@ -179,12 +179,12 @@
   // per-message context: a few things are picked once so a message talks about the same game all the way through
   function mailCtx(base, def, r) {
     const c = Object.create(base);
-    const g = base.games.length ? pick(base.games, r) : { name: 'Jacktris', on: 'the PC', note: 'my own Tetris', p: 'PC' };
+    const g = base.games.length ? pick(base.games, r) : { name: 'Jacktris', on: 'the PC', note: 'my own Blockology', p: 'PC' };
     c.game = g.name; c.gameOn = g.on; c.gameNote = g.note; c.gameP = g.p;
     const g2 = base.games.filter(x => x.name !== g.name); c.game2 = g2.length ? pick(g2, r).name : 'Jacktris';
     const cr = base.crazes.length ? pick(base.crazes, r) : { name: 'yo-yos', note: '' }; c.craze = cr.name; c.crazeNote = cr.note;
-    const tv = base.tvs.length ? pick(base.tvs.filter(t => !t.lo).length ? base.tvs.filter(t => !t.lo) : base.tvs, r) : { name: 'The Simpsons', ch: 'BBC Two' }; c.tv = tv.name; c.tvCh = tv.ch;
-    const sv = base.saving.length ? pick(base.saving, r) : null; c.saving = sv ? sv.name : 'a Dreamcast'; c.savingPrice = sv ? '£' + sv.price.toFixed(2) : '£199.99';
+    const tv = base.tvs.length ? pick(base.tvs.filter(t => !t.lo).length ? base.tvs.filter(t => !t.lo) : base.tvs, r) : { name: 'The Simpsocks', ch: 'BBC Two' }; c.tv = tv.name; c.tvCh = tv.ch;
+    const sv = base.saving.length ? pick(base.saving, r) : null; c.saving = sv ? sv.name : 'a Daydream'; c.savingPrice = sv ? '£' + sv.price.toFixed(2) : '£199.99';
     c.wx = pick(base.weather, r);
     { const d = new Date(); c.clock = d.getHours() + ':' + pad(d.getMinutes()); }
     c.n1 = between(2, 9, r); c.n2 = between(10, 99, r); c.n3 = between(100, 999, r); c.score = (between(12, 98, r) * 1000 + between(0, 9, r) * 100).toLocaleString('en-GB');
@@ -377,7 +377,7 @@
     if (n && !trayBtn) {
       trayBtn = document.createElement('button'); trayBtn.type = 'button'; trayBtn.className = 'sys-tray mg-tray'; trayBtn.innerHTML = TRAY_SVG;
       trayBtn.addEventListener('click', ev => { ev.stopPropagation(); secret('mail.tray'); A.open('outlook'); });
-      trayBtn.addEventListener('contextmenu', ev => { ev.preventDefault(); ev.stopPropagation(); IE.menu([{ label: 'Open Outlook Express', act: () => A.open('outlook') }, { label: 'Send and Receive', act: () => X.sendRecv() }, '-', { label: 'Mark All as Read', act: () => { X.messages('inbox').forEach(m => { if (m.gen || m.inc) ms.read[m.id] = 1; }); X.changed(); } }], ev.clientX, ev.clientY - 10); });
+      trayBtn.addEventListener('contextmenu', ev => { ev.preventDefault(); ev.stopPropagation(); IE.menu([{ label: 'Open JackMail Express', act: () => A.open('outlook') }, { label: 'Send and Receive', act: () => X.sendRecv() }, '-', { label: 'Mark All as Read', act: () => { X.messages('inbox').forEach(m => { if (m.gen || m.inc) ms.read[m.id] = 1; }); X.changed(); } }], ev.clientX, ev.clientY - 10); });
       el.insertBefore(trayBtn, document.getElementById('clock'));
     }
     if (!n && trayBtn) { trayBtn.remove(); trayBtn = null; }
@@ -386,7 +386,7 @@
   G.tray = tray;
   const busy = () => document.hidden || !DesktopSurface.ready() || document.querySelector('.logon') || document.querySelector('.dialwin');
   const plural = (n, w) => `${n} new ${w}${n === 1 ? '' : 's'}`;
-  function toast(text, ms0) { lastToastAt = Date.now(); Desk.toast('Outlook Express', text, ms0 || 6000); }
+  function toast(text, ms0) { lastToastAt = Date.now(); Desk.toast('JackMail Express', text, ms0 || 6000); }
   function arrive(m, quiet) {
     const g = st(); g.got[m.id] = hm(nowMin()); lastArrive = Date.now(); nextGap = (150 + Math.random() * 270) * 1000;
     cacheSig = ''; X.changed();

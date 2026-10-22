@@ -838,7 +838,7 @@ C('areas zones where', (P, a, verb) => {
   out(P, `{C}The lands of JackMUD{x} {D}(level guide){x}\n${L.join('\n')}\n{D}You are in: ${(W.AREAS[ROOMS[P.room].area] || {}).n}. Players around: ${playing().map(Q => Q.name + ' (' + ((W.AREAS[ROOMS[Q.room].area] || {}).n || '?') + ')').join(', ')}{x}`);
 });
 C('who online players', P => {
-  const L = playing().sort((a, b) => b.ch.lv - a.ch.lv).map(Q => `  {Y}[${String(Q.ch.lv).padStart(2)} ${CL(Q.ch.cls).abbr}]{x} {c}${Q.name}{x} ${Q.ch.title || 'the ' + CL(Q.ch.cls).n}${Q.guest ? ' {D}(guest){x}' : ''}${Q.ld ? ' {D}(snoozing){x}' : ''} {D}via ${{ tel: 'Telnet', dos: 'MS-DOS', web: 'the web', app: 'MUDdy 98' }[Q.via] || 'Telnet'}{x}`);
+  const L = playing().sort((a, b) => b.ch.lv - a.ch.lv).map(Q => `  {Y}[${String(Q.ch.lv).padStart(2)} ${CL(Q.ch.cls).abbr}]{x} {c}${Q.name}{x} ${Q.ch.title || 'the ' + CL(Q.ch.cls).n}${Q.guest ? ' {D}(guest){x}' : ''}${Q.ld ? ' {D}(snoozing){x}' : ''} {D}via ${{ tel: 'Telnet', dos: 'JACK-DOS', web: 'the web', app: 'MUDdy 98' }[Q.via] || 'Telnet'}{x}`);
   out(P, boxP(P, 'WHO IS ON JACKMUD', L.map(l => l.replace(/^ {2}/, '')), 70) + `\n${plural(L.length, 'adventurer')} online. Say hello with {W}SHOUT HELLO!{x}`);
 });
 C('time date clock', P => {

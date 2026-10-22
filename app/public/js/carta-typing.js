@@ -60,7 +60,7 @@
     'Never eat a Pot Noodle that is bigger than your head.',
     'Dave borrowed my floppy disk and gave back a sandwich.',
     'The Y2K bug will not get my video recorder.',
-    'My Game Boy needs four new batteries. Again.',
+    'My Game Lad needs four new batteries. Again.',
     'Please do not use the CD-ROM tray as a cup holder.',
     'Mom needs the phone, so the Internet has to wait.',
     'Gubbinz ate the mouse. It was the computer mouse.',
@@ -85,7 +85,7 @@
     { id: 'sent', name: 'Sentences', keys: 'everything!', min: 12, tip: 'Proper sentences now. Don\'t look at the keys! I\'m watching you.', gen: () => pickN(SENTENCES, 2) },
     { id: 'speed', name: 'Speed Test', keys: 'a whole paragraph', min: 15, tip: 'The big one. Slow and right beats fast and wrong. GO!', gen: () => pick(SPEED) },
   ];
-  const TIPS = ["Feel the little bumps on F and J? That's where your pointy fingers live.", "Don't look at the keys! Look at the screen.", 'Thumbs on the space bar. What else are thumbs for?', 'Sit up straight! You look like a question mark.', 'Slow and right beats fast and wrong.', 'Sonic types fast. You are not a hedgehog. Practise!', 'Take a break every 20 minutes. Go and annoy Mom.'];
+  const TIPS = ["Feel the little bumps on F and J? That's where your pointy fingers live.", "Don't look at the keys! Look at the screen.", 'Thumbs on the space bar. What else are thumbs for?', 'Sit up straight! You look like a question mark.', 'Slow and right beats fast and wrong.', 'Zip types fast. You are not a hedgehog. Practise!', 'Take a break every 20 minutes. Go and annoy Mom.'];
 
   // ================================================================ keyboard: UK-ish layout, finger zones
   const FINGER_COL = ['#ff9ec4', '#ffc078', '#fff07a', '#9be37a', '#d8d8d8', '#86e0e0', '#8fb8ff', '#c7a3ff', '#ff9ec4'];
@@ -367,7 +367,7 @@
     function results(idx, res, passed, stars) {
       const L = LESSONS[idx];
       const el = h('div', 'ct-t-results');
-      const hello = gubWithBubble(passed ? pick(stars === 3 ? ['THREE STARS! You type faster than Sonic!', 'WAAAGH! That was PROPER fast!'] : ['You passed! Not bad for a human.', 'Good typing! Now print a certificate and show Mom.']) : res.acc < 90 ? 'Too many wrong keys! Slow down and get them right. Try again!' : `Nearly! You need ${L.min} WPM. Practise and try again.`, 72);
+      const hello = gubWithBubble(passed ? pick(stars === 3 ? ['THREE STARS! You type faster than Zip!', 'WAAAGH! That was PROPER fast!'] : ['You passed! Not bad for a human.', 'Good typing! Now print a certificate and show Mom.']) : res.acc < 90 ? 'Too many wrong keys! Slow down and get them right. Try again!' : `Nearly! You need ${L.min} WPM. Practise and try again.`, 72);
       el.appendChild(hello.el);
       const card = h('div', 'ct-t-rcard');
       card.innerHTML = `<div class="ct-t-rtitle">${passed ? 'LESSON PASSED!' : 'Not quite!'}</div><div class="ct-t-rstars">${'\u2605'.repeat(stars)}<span>${'\u2606'.repeat(3 - stars)}</span></div>

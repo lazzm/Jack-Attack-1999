@@ -402,14 +402,14 @@ function abandon(ws, c) {
 const LANDMARK = { 24: { pow: 20, jobs: 10, hap: 4 }, 17: { jobs: 12, hap: 1 }, 31: { jobs: 6, hap: 3 } };
 const TOWN_EV = [
   { id: 'stampede', need: s => s.sq > 0, t: 3, hap: -8, h: 'PIXEL PET STAMPEDE!', b: s => `A herd of ${10 + s.sq * 2} Pixel Pets escaped from the pet shops and beeped their way down ${pick(CAT.ROADS)}, flattening flower beds and eating a bin. Pixel Pets plc shares wobbled.`, mk: ['SQIG', -0.06] },
-  { id: 'parade', t: 3, hap: 10, crime: 3, h: 'FANCY DRESS PARADE THROUGH TOWN', b: () => 'Hundreds of people dressed as Jedi, robots, wizards, space marines and one very wobbly Pikachu marched down the high street. Everyone had a lovely time apart from the bloke who has to clean up.' },
+  { id: 'parade', t: 3, hap: 10, crime: 3, h: 'FANCY DRESS PARADE THROUGH TOWN', b: () => 'Hundreds of people dressed as Space Cadet, robots, wizards, space marines and one very wobbly Zapachu marched down the high street. Everyone had a lovely time apart from the bloke who has to clean up.' },
   { id: 'powercut', t: 2, pow: -1, h: 'POWER CUT!', b: s => s.powOk < 1 ? `The Big Power Station gave up trying to power ${s.demand} buildings on ${s.supply} units of electricity. Build more generators or windmills!` : 'Somebody plugged in a kettle, a telly AND a hairdryer at the same time. The whole town went dark for half an hour.' },
   { id: 'crime', t: 3, crime: 12, h: 'CRIME WAVE', b: () => 'Sneaky burglars have been nicking Rupees from the Town Treasury piggy bank. The Mayor wants more Neighbourhood Watch Huts.', tre: -0.1 },
   { id: 'bumper', need: s => s.mush > 0, t: 3, hap: 3, h: 'BUMPER MUSHROOM HARVEST', b: s => `The mushroom farms grew ${s.mush * 7} kilos of mushrooms this week. Gubbinz Pet Food is "well chuffed".`, mk: ['GUBZ', 0.05] },
   { id: 'rain', t: 2, hap: -3, h: 'IT RAINED', b: () => 'It rained all day in Jacktown. Again. Everyone stayed in and played on their computers.' },
   { id: 'sun', t: 2, hap: 5, h: 'SUNNY SPELL!', b: () => 'The sun came out for an entire afternoon. Dads were seen in shorts. It was not pretty.' },
-  { id: 'tourists', need: s => s.statue > 0, t: 3, rent: 0.25, h: 'COACH-LOAD OF TOURISTS', b: () => "A coach-load of tourists arrived to try and solve the giant Rubik's Cube statue. Nobody managed it, but the shops and cafes did very well." },
-  { id: 'premiere', need: s => s.cinema > 0, t: 3, hap: 6, h: 'EPISODE I SOLD OUT AGAIN', b: s => `Every seat at Jacktown's ${s.cinema} cinema${s.cinema > 1 ? 's' : ''} sold out again. One boy has now seen it 41 times. "Jar Jar is my favourite," he said, bravely.` },
+  { id: 'tourists', need: s => s.statue > 0, t: 3, rent: 0.25, h: 'COACH-LOAD OF TOURISTS', b: () => "A coach-load of tourists arrived to try and solve the giant Rubrick's Cube statue. Nobody managed it, but the shops and cafes did very well." },
+  { id: 'premiere', need: s => s.cinema > 0, t: 3, hap: 6, h: 'EPISODE I SOLD OUT AGAIN', b: s => `Every seat at Jacktown's ${s.cinema} cinema${s.cinema > 1 ? 's' : ''} sold out again. One boy has now seen it 41 times. "Jar Jar Jams is my favourite," he said, bravely.` },
   { id: 'y2k', t: 2, hap: -4, h: 'Y2K DRILL AT TOWN HALL', b: () => 'The council practised for the Millennium Bug by switching everything off and on again. Mostly it came back on.' },
   { id: 'fair', t: 3, hap: 8, rent: 0.1, h: 'FUNFAIR COMES TO TOWN', b: () => 'A funfair set up on the green: dodgems, a big wheel and a candyfloss stall. The arcade was NOT happy about the competition.' },
 ];

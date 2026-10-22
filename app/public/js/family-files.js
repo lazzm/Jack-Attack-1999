@@ -72,7 +72,7 @@ Gravy granules (the red tub)
 Grated cheese on top ({sister}'s job - most of it goes in {sister})
 
 Brown the mince and onion. Add carrots, peas and gravy. Simmer 20 mins.
-Mash the potatoes. Spread on top. Fork lines on it (Jack's job - he does them in the shape of a Pikachu face).
+Mash the potatoes. Spread on top. Fork lines on it (Jack's job - he does them in the shape of a Zapachu face).
 Cheese. 200C for 25 mins till it's golden and crispy round the edges.
 
 {sister} will pick out the peas. Let her. Life is too short.
@@ -161,7 +161,7 @@ Bin bags (for the rain)
 WHO DOES WHAT:
 Dad ...... the barbecue. Nobody else is allowed. He has an apron.
 Me ....... everything else
-Jack ..... carrying, and "the music" (please, not the Tetris tape again)
+Jack ..... carrying, and "the music" (please, not the Blockology tape again)
 {sister} ..... napkins, and telling everybody the sausages are pink in the middle
 
 At 3pm it rained. We ate in the kitchen. Dad stood outside under the umbrella and cooked all 16 burgers anyway.
@@ -179,8 +179,8 @@ EVERYONE:
 [x] Cards, Connect 4, the travel Scrabble with the missing Q
 
 JACK:
-[x] Game Boy + batteries (4 spare, he'll still run out)
-[x] Rubik's cube
+[x] Game Lad + batteries (4 spare, he'll still run out)
+[x] Rubrick's cube
 [x] His mobile (it does NOT work in the caravan field, he will find this out)
 [ ] Computer (NO. He asked. The answer is no.)
 [ ] 12 Ork models (I said TWO. He has packed seven. Compromise.)
@@ -380,7 +380,7 @@ Jack says he "drives really well on Ep I Racer". That is not a car.
     A4: 'Caravan (7 nights)', B4: 285, C4: 'Mine (I booked it)', A5: 'Petrol there and back', B5: 52.4, C5: 'The caravan site being so far away',
     A6: 'Fish and chips x 4, x 4 nights', B6: 61.6, C6: 'Everybody', A7: '2p machines on the pier', B7: 9.4, C7: '{sister} (and me, a bit)',
     A8: 'Crazy golf', B8: 8, C8: 'Jack won. He will not stop going on about it.', A9: 'Rain ponchos', B9: 6, C9: 'The weather',
-    A10: 'Game Boy batteries', B10: 3.99, C10: 'Jack', A11: 'Postcards + stamps', B11: 4.2, C11: 'Mom', A12: 'Stick of rock x 6', B12: 4.5, C12: 'Gifts. Ate 2 in the car.',
+    A10: 'Game Lad batteries', B10: 3.99, C10: 'Jack', A11: 'Postcards + stamps', B11: 4.2, C11: 'Mom', A12: 'Stick of rock x 6', B12: 4.5, C12: 'Gifts. Ate 2 in the car.',
     A13: 'Indoor swimming pool (it rained)', B13: 11, C13: 'The weather again', A14: 'Plastic windbreak (new, old one blew away)', B14: 7.99, C14: 'The wind',
     A16: 'TOTAL', B16: '=SUM(B4:B14)', A17: 'Per day', B17: '=B16/7', A18: 'Days it rained', B18: 5, A19: 'Days it didn\'t', B19: 2, C19: 'Both spent in the car',
   }, colW: { A: 220, B: 70, C: 270 }, fmt: { A1: 'b c=#008080', 'A3:C3': 'b bg=#c0ffc0', 'B4:B17': 'cur', 'A16:B17': 'b', 'C4:C19': 'i' }, chart: { type: 'pie', range: 'A4:A14', vals: 'B4:B14' } }));
@@ -395,7 +395,7 @@ DO NOT PUT GAMES IN IT.
 DO NOT RENAME IT TO "DAD'S BORING STUFF" (Jack, I know it was you).
 DO NOT DEFRAG IT. I don't know what that means but Jack keeps saying it and I don't trust it.
 
-If the computer says it needs to delete something to make room, delete Jack's Pokemon pictures.
+If the computer says it needs to delete something to make room, delete Jack's Pocket Critters pictures.
 There are four hundred of them. Nobody will notice if there are three hundred and ninety.
 
 - DAD
@@ -445,7 +445,7 @@ Code:  1999 1999 2000
 To use: on the phone go to Menu, Credit, Top up, and type the 12 numbers.
 
 EMERGENCIES are: car broken down, missed the bus, somebody is hurt.
-EMERGENCIES are NOT: "Dave has a new game", "what's for tea", "did you tape The Simpsons".
+EMERGENCIES are NOT: "Dave has a new game", "what's for tea", "did you tape The Simpsocks".
 
 - Dad
 `);
@@ -484,7 +484,7 @@ Saturday:
 Time taken: 6 hours 30 minutes. Shed status: door shuts AND opens. Mostly.
 `);
   txt(DND, 'Fantasy football 99-00.txt', '07/08/99', () => gated(`FANTASY FOOTBALL - OFFICE LEAGUE 1999-2000
-Team name: DAD'S ARMY FC   (Jack wanted "The Jedi Knights". No.)
+Team name: DAD'S ARMY FC   (Jack wanted "The Space Cadet Knights". No.)
 Entry: £5. Prize: £60 and "bragging rights".
 
 Formation: 4-4-2. Like a proper team. None of this "wing-backs" business.
@@ -595,7 +595,7 @@ by {sister}
 4. an astronaut (Jack says you have to be good at maths. I am OK at maths.)
 5. a lady who works at the farm park with Gerald the goat
 
-Jack wants to be "a games designer" or "a Jedi". Mom says he cant be a Jedi.
+Jack wants to be "a games designer" or "a Space Cadet". Mom says he cant be a Space Cadet.
 Dad wants to be "retired". Mom wants to be "on a beach".
 `);
   pic(SIS, 'My family.bmp', '23/05/99', () => drawFamily());
@@ -624,7 +624,7 @@ On the good day we went on the pier. I played the 2p machines and I won a keyrin
 
 We had fish and chips every night. A seagull took one of Jack's chips right out of his hand. I laughed so much I got hiccups.
 
-Jack was sad because there was no computer. He played his Game Boy and the batteries ran out on Thursday. Then he played cards with me and he let me win (he says he did not let me win).
+Jack was sad because there was no computer. He played his Game Lad and the batteries ran out on Thursday. Then he played cards with me and he let me win (he says he did not let me win).
 
 The best bit was the rock pools. I found a crab. I called him {c=red|Crabby}. I let him go because his mom would miss him.
 
@@ -663,7 +663,7 @@ Please can I have:
 
 I will leave you a mince pie and Dad says he will leave you a drink. Rudolph can have a carrot.
 
-Please bring Jack something nice too, he helped me type this. He wants "Donkey Kong 64". He says you know what that is.
+Please bring Jack something nice too, he helped me type this. He wants "Donkey Wrong 64". He says you know what that is.
 
 Love from **{sister}** xxx
 
@@ -723,10 +723,10 @@ BATTERY
 `);
   txt(MD, 'Things {sister} has broken.txt', '14/02/99', () => gated(`THINGS {sister.NAME} HAS BROKEN (a list, for evidence)
 
-`, [['01-01', '1. My Game Boy link cable (chewed) - 1998, still counts'], ['01-01', '2. The mouse ball (she took it out to "wash it". It went down the sink.)'],
+`, [['01-01', '1. My Game Lad link cable (chewed) - 1998, still counts'], ['01-01', '2. The mouse ball (she took it out to "wash it". It went down the sink.)'],
     ['02-14', '3. My Valentine\'s card to nobody (she found it, read it out at tea, I will never recover)'], ['03-27', '4. Ork Boy no. 14 - snapped his arm off. She says he was "waving goodbye".'],
     ['05-02', '5. The CD-ROM tray. She put a biscuit in it to "see what happens". What happened: the biscuit got stuck.'], ['06-19', '6. My patience. (She says I deleted her horse picture. I did NOT. Paint crashed. Probably.)'],
-    ['08-20', '7. The caravan table bed (it was already wobbly but she JUMPED on it)'], ['10-02', '8. My Rubik\'s cube - she "solved" it by peeling the stickers off.'],
+    ['08-20', '7. The caravan table bed (it was already wobbly but she JUMPED on it)'], ['10-02', '8. My Rubrick\'s cube - she "solved" it by peeling the stickers off.'],
     ['11-30', '9. The silence. She has learned to whistle. She whistles all day.'], ['12-25', '10. My heart a bit - she gave me a drawing of me and Gubbinz for Christmas. It is going on my wall. Don\'t tell her.']]));
   txt(MD, 'Mothers Day card ideas.txt', '10/03/99', `MOTHER'S DAY - SUNDAY 14th MARCH
 (do NOT forget like last year, Dad also forgot, it was a bad day for us men)
@@ -752,31 +752,31 @@ CD ............ a DVD-ROM drive (he has no DVDs. He has ONE DVD. It came with th
 MODEM ......... 56K
 MONITOR ....... 17 inch ("SEVENTEEN, JACK")
 
-WHAT HE PLAYS: Half-Life, mostly. He says "you wouldn't understand, it's got a STORY".
-WHAT I PLAY ON IT WHEN I GO ROUND: Half-Life, mostly. It's got a STORY.
+WHAT HE PLAYS: Half-Loaf, mostly. He says "you wouldn't understand, it's got a STORY".
+WHAT I PLAY ON IT WHEN I GO ROUND: Half-Loaf, mostly. It's got a STORY.
 
 THINGS HE HAS SAID ABOUT MY COMPUTER:
 - "Is it clockwork?"
 - "Does it run on coal?"
 - "My calculator could beat it at chess"
 `, [['04-30', '\nUPDATES:\n30/04 - New graphics card. He showed me the box. He showed me the box for twenty minutes.'],
-    ['06-12', '12/06 - Got RollerCoaster Tycoon. Built a ride that goes through the toilets. Genius, I admit it.'],
+    ['06-12', '12/06 - Got RollerCoaster Rupeecoon. Built a ride that goes through the toilets. Genius, I admit it.'],
     ['09-04', '04/09 - Tiberian Sun. He is "commanding the Brotherhood". He is commanding his bedroom.'],
     ['09-01', '01/09 - He read in a magazine about a new "GPU" that\'s coming out. He says his card is "obsolete". It\'s FIVE MONTHS OLD.'],
-    ['10-15', '15/10 - Age of Empires II. He sent his villagers to fight my castle. Callum, they\'re FARMERS.'],
+    ['10-15', '15/10 - Age of Emperors II. He sent his villagers to fight my castle. Callum, they\'re FARMERS.'],
     ['10-30', '30/10 - New mouse. It hasn\'t got a BALL. It\'s got a little red light underneath. That\'s actually amazing. Don\'t tell him I said that.'],
-    ['11-27', '27/11 - Unreal Tournament. He plays it with the volume so high I can hear it down the phone.'],
-    ['12-11', '11/12 - Now he wants Quake III. Says his PC "needs a challenge". I need a challenge too: getting through ONE day without hearing about his PC.']]));
-  txt(MD, 'N64 tournament scores (Dave cheats).txt', '06/04/99', () => gated(`THE N64 TOURNAMENT OF CHAMPIONS 1999
+    ['11-27', '27/11 - Jackreal Tournament. He plays it with the volume so high I can hear it down the phone.'],
+    ['12-11', '11/12 - Now he wants Jaquake III. Says his PC "needs a challenge". I need a challenge too: getting through ONE day without hearing about his PC.']]));
+  txt(MD, 'ULTRA 64 tournament scores (Dave cheats).txt', '06/04/99', () => gated(`THE ULTRA 64 TOURNAMENT OF CHAMPIONS 1999
 Players: me, Dave, Luke, JackK (Callum won't play, says consoles are "toys")
 Venue: Dave's front room (his telly is bigger)
 Rules: winner stays on, loser makes the squash
 
-`, [['04-06', `EASTER HOLIDAYS - MARIO KART 64
+`, [['04-06', `EASTER HOLIDAYS - KART KAOS 64
   Me ......... 14 points
   Luke ....... 12
   Dave ....... 18 (CHEATED - kept "accidentally" knocking my controller with his elbow)
-  JackK ...... 3 (he always picks Bowser and always comes last. Bowser deserves better.)`],
+  JackK ...... 3 (he always picks Bouncer and always comes last. Bouncer deserves better.)`],
     ['04-10', `\nGOLDENEYE - 4 PLAYER, LICENCE TO KILL, FACILITY
   Me ......... 21 kills
   Dave ....... 25 (CHEATED - SCREEN WATCHING. Also picked Oddjob. Oddjob is SHORT. Everybody knows it's unfair.)
@@ -791,13 +791,13 @@ Rules: winner stays on, loser makes the squash
     ['10-23', `\nGOLDENEYE REMATCH (half term) - NO ODDJOB
   Dave picked Jaws instead. Jaws is TALL. Somehow he still cheated. HOW.`],
     ['11-27', `\nSUPER SMASH BROS - IT'S OUT!!!
-  Luke picked Pikachu and is UNBEATABLE. Pikachu shouldn't be that good. He's a mouse.
-  Dave picked Donkey Kong and kept throwing everybody off the edge. Not technically cheating. FEELS like cheating.`],
+  Luke picked Zapachu and is UNBEATABLE. Zapachu shouldn't be that good. He's a mouse.
+  Dave picked Donkey Wrong and kept throwing everybody off the edge. Not technically cheating. FEELS like cheating.`],
     ['12-29', `\nFINAL STANDINGS 1999
   1. Dave (asterisk: CHEATED)
   2. Me (actual winner, morally)
   3. Luke
-  4. JackK (still Bowser)
+  4. JackK (still Bouncer)
   Next year's tournament: the YEAR 2000 TOURNAMENT. Venue: Dave's. Rules: NO ODDJOB, NO JAWS, NO ELBOWS.`]]));
   txt(MD, 'Phone bill - my side of the story.txt', '05/05/99', `THE PHONE BILL (£94.17) - MY SIDE OF THE STORY
 for Mom and Dad, please read before you shout
@@ -821,7 +821,7 @@ Signed, Jack.
     ['06-04', '04/06  Lent him 50p for the vending machine (a Twix that got stuck)            OWES: £2.50'],
     ['06-04', '04/06  The Twix fell out later and he ate it. Still counts.                   OWES: £2.50'],
     ['07-02', '02/07  He paid back 20p. In 1p coins. Twenty of them. Hilarious.             OWES: £2.30'],
-    ['08-19', '19/08  Lent him £1 for a Pokemon magazine (we haven\'t even GOT the game yet)   OWES: £3.30'],
+    ['08-19', '19/08  Lent him £1 for a Pocket Critters magazine (we haven\'t even GOT the game yet)   OWES: £3.30'],
     ['09-27', '27/09  He says I owe HIM £1 for "the time he let me have his chips" in 1997.   OWES: £2.30 (disputed)'],
     ['10-30', '30/10  Paid back £1.50!!!! Says "we\'re basically square". WE ARE NOT SQUARE.     OWES: £0.80'],
     ['12-20', '20/12  He bought me a Christmas present: a Gubbinz keyring. Price tag: £2.     OWES: ...'],
@@ -833,17 +833,17 @@ RIGHT column: what actually happened (Mom does NOT have a copy).
 DAY        PLAN                              WHAT ACTUALLY HAPPENED
 ---------  --------------------------------  --------------------------------------------
 Mon 24     Maths: algebra (2 hours)          Algebra, 20 mins. Then "a quick go" on Snake. Score: 188.
-Tue 25     Science: the heart + lungs        Drew a diagram of the heart. It turned into Doctor Who. He has 2 hearts now.
+Tue 25     Science: the heart + lungs        Drew a diagram of the heart. It turned into Doctor Whoops. He has 2 hearts now.
 Wed 26     English: the poems                Read one poem. {sister} made me play Connect 4. She won. Again.
-Thu 27     French: verbs                     "J'ai joue a GoldenEye". That's a verb. That counts.
+Thu 27     French: verbs                     "J'ai joue a Goldenballs". That's a verb. That counts.
 Fri 28     History: World War 1              Actually did 2 hours!!! Dad helped. Dad knows LOADS about it. Who knew.
-Sat 29     REST DAY (allowed)                Mario Party at Dave's. Got a blister.
+Sat 29     REST DAY (allowed)                Marlo Party at Dave's. Got a blister.
 Sun 30     Geography: rivers                 Mom made me go to the big supermarket. Saw a river from the car. Revision.
 Mon 31     Maths again                       Callum rang. Pentium III. 40 minutes. NO MATHS DONE.
 Tue 1      Science: electricity              Fixed the plug on {sister}'s hairdryer. PRACTICAL electricity.
 Wed 2      EVERYTHING (panic day)            Panicked. Revised. Ate a whole packet of custard creams. Felt better.
 
-RESULTS (filled in later): Maths B, Science A (the Doctor Who heart diagram, I think the teacher liked it), English B, French C (worth it), History A (thanks Dad).
+RESULTS (filled in later): Maths B, Science A (the Doctor Whoops heart diagram, I think the teacher liked it), English B, French C (worth it), History A (thanks Dad).
 Mom says "imagine if you'd actually stuck to the timetable". I'd rather not.
 `);
   txt(MD, 'Fathers Day - what to get Dad.txt', '17/06/99', `FATHER'S DAY - SUNDAY 20th JUNE
@@ -854,33 +854,33 @@ IDEAS:
 - A book about the shed? (Is there a book about sheds? There must be.)
 - Teach him how to use the internet without phoning the speaking clock by accident
 - A "voucher" for me to wash the car (costs me nothing, worth a LOT to him)
-- Let him win at GoldenEye (no. there are limits.)
+- Let him win at Goldenballs (no. there are limits.)
 
 DECISION: card made on the computer + car wash voucher + a bag of the toffees he likes. Total: 89p. Love: priceless.
 `);
-  txt(MD, 'Pokemon trades with Luke.txt', '09/10/99', () => gated(`POKEMON TRADES WITH LUKE
+  txt(MD, 'Pocket Critters trades with Luke.txt', '09/10/99', () => gated(`POCKET CRITTERS TRADES WITH LUKE
 Me: BLUE. Luke: RED. We need each other. That's how they get you.
 Link cable: mine ({sister} chewed the old one, see "Things {sister} has broken")
 
 `, [['10-09', `09/10  Traded my Meowth for his Ekans. Fair. Both version exclusives. Handshake.`],
-    ['10-09', `09/10  He picked Charmander. I picked Squirtle. Squirtle is better. (He disagrees. He is wrong.)`],
-    ['10-16', `16/10  Traded Kadabra to him so it evolves into ALAKAZAM, then he traded it back. He "accidentally" took 20 minutes to trade it back. I watched him the whole time.`],
+    ['10-09', `09/10  He picked Charbroiler. I picked Squirturtle. Squirturtle is better. (He disagrees. He is wrong.)`],
+    ['10-16', `16/10  Traded Kadabra to him so it evolves into ALAKABAM, then he traded it back. He "accidentally" took 20 minutes to trade it back. I watched him the whole time.`],
     ['10-23', `23/10  Got his Oddish for my Bellsprout. They're basically the same plant. Doesn't matter. Pokedex.`],
     ['10-30', `30/10  Luke says there's a MEW under the truck by the S.S. Anne. You need to use Strength. We spent ALL AFTERNOON. There is no Mew. There is a truck.`],
     ['11-06', `06/11  Traded Graveler -> came back as GOLEM. Luke kept it for one night "to look after it". It came back at level 39. It was level 38. WHAT DID YOU DO, LUKE.`],
     ['11-13', `13/11  Swapped Scyther (his) for Pinsir (mine). I think I won that one.`],
-    ['11-20', `20/11  Dave wants to trade too but he hasn't got the game, just a Game Boy with no batteries and "a really good feeling about Jigglypuff".`],
+    ['11-20', `20/11  Dave wants to trade too but he hasn't got the game, just a Game Lad with no batteries and "a really good feeling about Jigglypuff".`],
     ['12-04', `04/12  Haunter -> GENGAR. We both screamed. {sister} came in to see who was hurt.`],
     ['12-18', `18/12  POKEDEX: 131 seen, 119 caught. Luke: 127 caught. HE IS AHEAD. Need: Electabuzz (his). Offering: anything. ANYTHING.`],
-    ['12-28', `28/12  Got the Electabuzz. Paid: my Persian AND a promise to let him have first go on Donkey Kong 64. Worth it.`]], `\n\nRULE: no trading Pokemon you've nicknamed after your mom. (Luke named his Chansey "MOM". Mom didn't find it funny.)\n`));
-  txt(MD, 'Christmas presents for the family (budget 15 quid).txt', '11/12/99', `CHRISTMAS PRESENTS 1999 - BUDGET: £15.00 (saved since October + selling my old Game Boy games to my mate Jack, JackK on JackNet)
+    ['12-28', `28/12  Got the Electabuzz. Paid: my Persian AND a promise to let him have first go on Donkey Wrong 64. Worth it.`]], `\n\nRULE: no trading Pocket Critters you've nicknamed after your mom. (Luke named his Chansey "MOM". Mom didn't find it funny.)\n`));
+  txt(MD, 'Christmas presents for the family (budget 15 quid).txt', '11/12/99', `CHRISTMAS PRESENTS 1999 - BUDGET: £15.00 (saved since October + selling my old Game Lad games to my mate Jack, JackK on JackNet)
 
 MOM ..... bath stuff from the chemist in the posh box (£4.99) + I'll make her a calendar on the computer for 2000 with photos of all of us
 DAD ..... a fancy torch for his "Y2K kit" (£3.50). He will love it. He will say "you shouldn't have". I should have.
 {sister.NAME} .... a Furby is £30. I am not made of money. Glitter pens + a dog colouring book (£3.20). And I'll teach her Snake on my phone.
 GRAN .... a photo of me and {sister} in a frame (£2.00, Mom chips in)
 NAN ..... same frame, different photo (£2.00)
-DAVE .... we said no presents this year. (I got him a keyring anyway, 50p. It's a tiny GoldenEye gun. He'll get it.)
+DAVE .... we said no presents this year. (I got him a keyring anyway, 50p. It's a tiny Goldenballs gun. He'll get it.)
 
 TOTAL: £16.19. Over budget by £1.19. JackK owes me 80p. Problem nearly solved.
 `);

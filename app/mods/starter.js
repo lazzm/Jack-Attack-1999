@@ -4,6 +4,16 @@ const fs=require('fs'),path=require('path'),crypto=require('crypto');
 const roam=require('./roam.js');
 let ctx;
 const eligible=c=>c?.member?.toLowerCase()==='test'&&ctx.member(c)?.starterTest===1;
+function upgrade(c){
+  if(!eligible(c))return;
+  const mods=ctx.state.mods,p=mods.rm?.p?.test;
+  if(p?.f&&Object.keys(p.f).some(k=>k.startsWith('cart.'))){
+    const dir=path.join(process.env.DATA_DIR||path.join(__dirname,'..','data'),'test-backups');fs.mkdirSync(dir,{recursive:true});
+    fs.writeFileSync(path.join(dir,'inherited-finds-'+Date.now()+'-'+crypto.randomBytes(6).toString('hex')+'.json'),JSON.stringify(p.f),{flag:'wx',mode:0o600});
+    for(const id of Object.keys(p.f))if(id.startsWith('cart.'))delete p.f[id];ctx.markDirty();
+  }
+  roam.upgradeStarter(c.member,mods.pmx?.p?.test?.o||[]);
+}
 function clearProgress(c){
   const mods=ctx.state.mods,a=mods.econ?.acct?.test;
   // Preserve daily caps, exchange slips, chores and shared-world obligations.
@@ -15,8 +25,8 @@ function clearProgress(c){
 }
 module.exports={
  name:'starter',types:['testReset'],
- init(x){ctx=x;x.on('login',(c,isNew)=>{
-   if(!isNew||c.member?.toLowerCase()!=='test')return;
+ init(x){ctx=x;x.on('hello',(_ws,c)=>upgrade(c));x.on('login',(c,isNew)=>{
+   if(!isNew){upgrade(c);return}if(c.member?.toLowerCase()!=='test')return;
    ctx.member(c).starterTest=1;roam.seedStarter(c.member);clearProgress(c);
  });},
  handle(ws,c,m){

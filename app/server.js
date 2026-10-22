@@ -18,7 +18,7 @@ const VERSION = require('./package.json').version;
 
 // ---------------------------------------------------------------- state
 const WALL_W = 64, WALL_H = 40;
-const POLL_OPTIONS = ['Pokémon Red & Blue', 'Metal Gear Solid', "Tony Hawk's Skateboarding", 'Driver', 'Silent Hill', 'Ape Escape', 'Episode I: Racer', 'Mario Golf'];
+const POLL_OPTIONS = ['Pocket Critters Red & Blue', 'Metal Gear Wobbly', "Tony Hawk's Skateboarding", 'Driver', 'Silent Hill', 'Ape Escape', 'Episode I: Racer', 'Marlo Golf'];
 // high-score tables: the biggest score we'll believe, and whether lower is better (times)
 const GAMES = { squig: 20000, tris: 999999, snake: 99999, sweep: 999, bricks: 999999, invaders: 999999, rocks: 999999, pong: 999, whack: 9999, simon: 999, hangman: 999 };
 const ASC = { sweep: true }; // high-score tables and the biggest score we'll believe
@@ -82,7 +82,7 @@ for (const g in GAMES) if (!Array.isArray(state.scores[g])) state.scores[g] = []
 if (!state.forum.topics.length && state.forum.seq === 1) { // a welcome post so the boards aren't empty
   const now = Date.now();
   state.forum.topics.push({ id: state.forum.seq++, board: 'general', title: 'WELCOME TO THE JACK ATTACK! FORUMS!!!', by: 'Jack', ts: now, last: now, lastBy: 'Jack', views: 0, posts: [{ id: 1, by: 'Jack', ts: now,
-    body: "Alright everyone! Welcome to the forums!!! :D\n\nRules:\n1. Be nice.\n2. No swearing (my mom reads this).\n3. No sharing your address or phone number.\n4. Red ones go faster.\n\nPost about games, films, Orks, cubes, anything. Introduce yourself here!\n\n[b]WAAAGH!!![/b]" }] });
+    body: "Alright everyone! Welcome to the forums!!! :D\n\nRules:\n1. Be nice.\n2. No swearing (my mom reads this).\n3. No sharing your address or phone number.\n4. Red ones go faster.\n\nPost about games, films, Gorks, cubes, anything. Introduce yourself here!\n\n[b]WAAAGH!!![/b]" }] });
 }
 let dirty = true; // write any load-time migrations straight away
 const markDirty = () => { dirty = true; };
@@ -518,10 +518,10 @@ function battleLeave(c) {
 // ---------------------------------------------------------------- JackNet community: profiles + forums
 const BOARDS = [
   ['general', 'General Natter', 'Chat about anything and everything!'],
-  ['games', 'Video Games', 'N64, PlayStation, Game Boy, PC, Dreamcast...'],
-  ['scifi', 'Sci-Fi & Films', 'Star Wars, The Matrix, Red Dwarf, Doctor Who...'],
-  ['orks', 'Orks & Warhammer', 'WAAAGH! Painting, building and da best army'],
-  ['puzzles', "Rubik's & Puzzles", 'Cubes, Tetris, brain teasers'],
+  ['games', 'Video Games', 'ULTRA 64, PlaySpace, Game Lad, PC, Daydream...'],
+  ['scifi', 'Sci-Fi & Films', 'Intergalactic Battles, The Modemtrix, Red Dork, Doctor Whoops...'],
+  ['orks', 'Gorks & War Hamster', 'WAAAGH! Painting, building and da best army'],
+  ['puzzles', "Rubrick's & Puzzles", 'Cubes, Blockology, brain teasers'],
   ['tech', 'Tech Talk', 'Megahertz, megabytes and modems'],
   ['offtopic', 'Off Topic', 'Anything else. Keep it nice!'],
 ];

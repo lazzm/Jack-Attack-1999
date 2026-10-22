@@ -31,7 +31,7 @@
     { id: 'space', n: 'SPACE NIGHT', col: '#0a0a3a', acc: '#7ec8ff', deco: 'stars', hat: 'helmet', d: 'Come as an astronaut, an alien or a very small planet.', prompts: ['If you could fly to any planet, which one? (Pluto counts. It is 1999.)', 'Best space film this year? No spoilers!', 'Would you go to the space station if it had a games room?'] },
     { id: 'pj', n: 'PYJAMA PARTY', col: '#5a2a7a', acc: '#ffb0e0', deco: 'zzz', hat: 'nightcap', d: 'Dressing gowns, slippers and midnight feasts (lights out at 9, Mom says).', prompts: ['Best midnight feast snack?', 'Ghost stories: who knows a good one?', 'Who can stay up latest? (Not you. Mom is watching.)'] },
     { id: 'arcade', n: 'RETRO ARCADE NIGHT', col: '#1a0a2a', acc: '#ff3cff', deco: 'pixels', hat: 'cap', d: 'Neon, high scores and 10p coins. Old games only (old = before 1990).', prompts: ['Oldest game you have ever played?', 'What is your best ever high score, and on what?', 'Which arcade machine would you have in your bedroom?'] },
-    { id: 'monster', n: 'MONSTER MASH', col: '#1a2a0a', acc: '#a0ff40', deco: 'bats', hat: 'horns', d: 'Monsters, mummies and Mom\'s old curtains as a cape.', prompts: ['Scariest film you have seen (that you were allowed to)?', 'Vampire, werewolf or mummy?', 'What is under YOUR bed? (Mine: three socks and a Game Boy.)'] },
+    { id: 'monster', n: 'MONSTER MASH', col: '#1a2a0a', acc: '#a0ff40', deco: 'bats', hat: 'horns', d: 'Monsters, mummies and Mom\'s old curtains as a cape.', prompts: ['Scariest film you have seen (that you were allowed to)?', 'Vampire, werewolf or mummy?', 'What is under YOUR bed? (Mine: three socks and a Game Lad.)'] },
     { id: 'beach', n: 'BEACH PARTY', col: '#0a6aa0', acc: '#ffe060', deco: 'sun', hat: 'shades', d: 'Sunglasses on, it is summer in the Hangout. Even if it is raining outside. It is raining outside.', prompts: ['Best seaside holiday ever?', 'Sandcastle or rock pools?', 'Ice cream flavour of 1999?'] },
     { id: 'robot', n: 'ROBOT NIGHT', col: '#2a2a2a', acc: '#ff8000', deco: 'bolts', hat: 'antenna', d: 'Beep boop. Cardboard boxes and tin foil, please. Talk like a robot all night.', prompts: ['If you built a robot, what would it do? (Homework is allowed.)', 'Best robot in a film or on telly?', 'Would your robot be friendly? Be honest.'] },
     { id: 'pirate', n: 'PIRATE NIGHT', col: '#3a2410', acc: '#ffd400', deco: 'skull', hat: 'tricorn', d: 'Arr! Eye patches, parrots and treasure maps of the back garden.', prompts: ['What is your pirate name?', 'Where would you bury YOUR treasure?', 'Parrot or monkey?'] },
@@ -156,7 +156,7 @@
       tuck: { cd: 1800, stat: 'e', add: 25, pts: 1, full: 85, n: 'Tuck in' },
     },
     SNACKS: ['a packet of crisps', 'a slice of pizza', 'a fizzy cola bottle', 'a byte of cake', 'some alphabet spaghetti', 'a microchip (chocolate)', 'a jam sandwich', 'fish fingers'],
-    TOYS: ['a bouncy ball', 'a yo-yo', 'the floppy disk frisbee', 'a game of tag', 'a Rubik\'s cube', 'a cardboard box'],
+    TOYS: ['a bouncy ball', 'a yo-yo', 'the floppy disk frisbee', 'a game of tag', 'a Rubrick\'s cube', 'a cardboard box'],
     MILES: [[10, 10], [50, 20], [150, 40], [400, 75], [1000, 150]], // [care points, Rupees]
   };
   // mood from the four stats (0..100) and whether it is night-time on the PC

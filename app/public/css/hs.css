@@ -13,6 +13,8 @@ html.house-entering .powerscr>.pc-stage,html.house-entering .powerscr>.pc-room,h
 #houseEntry strong{font-size:22px;letter-spacing:2px;color:#dbc172}
 #houseEntry button{margin-top:8px;padding:8px 20px;border:1px solid #80745b;background:#16191b;color:#eee4ca;font:inherit;cursor:pointer}
 .hs-gl{z-index:0}
+.hs-ui kbd,.hs-pause kbd,.hs-inspect kbd{display:inline-block;min-width:1.1em;padding:0 4px;border:1px solid #a69873;border-bottom-width:2px;border-radius:2px;background:#242c2e;color:#f0dfae;font:700 11px/1.6 "Courier New",monospace;white-space:nowrap;vertical-align:baseline}
+.hs-phone-key:focus-visible{outline:1px solid #dbc172;outline-offset:1px}
 .hs-gl2{pointer-events:none;z-index:2}
 html.hs-standing>.hs-gl2{position:fixed;z-index:20003}
 .powerscr .pc-stage{z-index:1}

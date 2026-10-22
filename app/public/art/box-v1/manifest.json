@@ -1,0 +1,9 @@
+{
+  "method": "Built-in image_gen; original illustrated bitmap assets. Mechanical browser-canvas export to 320px-wide WebP, quality 0.72. Titles and spines are separately typeset by the game.",
+  "artDirection": "Fictional 1990s game packaging, restrained hand-painted gouache/airbrush, cohesive printed colours, no text, logos, real brands or existing characters. Low-resolution in-game printing rather than glossy modern key art.",
+  "assets": [
+    {"file":"kart.webp","game":"n64.kart","prompt":"Original late-1990s kart-racing box illustration: red-helmeted driver, two rivals, rolling hills. Repaint with broad gouache and airbrush shapes, restrained 1997 printed palette, no lettering or logos, not glossy modern CGI."},
+    {"file":"spy.webp","game":"n64.range","prompt":"Original fictional Goldenballs spy-game illustration: dinner-jacket agent with binoculars, navy and gold target/radar motifs and mountains. Hand-painted 1990s adventure packaging, no real actor likeness, guns, lettering or logos."},
+    {"file":"wombat.webp","game":"ps.run","prompt":"Original Warp Wombat platform-game packaging illustration: stocky round-eared brown wombat in teal waistcoat, jungle bridge and crate, warm hand-painted 1990s palette. No existing mascot likeness, lettering or logos."}
+  ]
+}

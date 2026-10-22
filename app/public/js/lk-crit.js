@@ -37,7 +37,7 @@
     ['SPROUTLE', 'MOSS', [45, 49, 49, 45], 64, 0.3, [[1, 'BONK'], [1, 'GRUMBLE'], [5, 'LEAF LICK'], [8, 'SPORE CLOUD'], [11, 'TWIG SNAP'], [16, 'MOSS BLAST']], [12, 1], 'A sprout grows on its head. On sunny days it stands very still and hums.'],
     ['MOSSAURUS', 'MOSS', [62, 64, 66, 58], 142, 0.1, [[1, 'BONK'], [1, 'LEAF LICK'], [11, 'TWIG SNAP'], [15, 'MOSS BLAST']], null, 'Its back is a little garden. Birds have been known to nest in it.'],
     ['DRIZZLET', 'PUDDLE', [44, 48, 65, 43], 63, 0.3, [[1, 'BONK'], [1, 'PUFF UP'], [5, 'SPLOSH'], [8, 'POUNCE'], [11, 'BUBBLE POP'], [16, 'TIDAL BURP']], [12, 3], 'Shaped like a raindrop. It leaves little wet footprints everywhere it goes.'],
-    ['TORRENTOAD', 'PUDDLE', [60, 63, 80, 56], 142, 0.1, [[1, 'SPLOSH'], [1, 'POUNCE'], [11, 'BUBBLE POP'], [15, 'TIDAL BURP']], null, 'It burps so loudly the windows rattle. It is very proud of this.'],
+    ['TORRENTOAD', 'PUDDLE', [60, 63, 80, 56], 142, 0.1, [[1, 'SPLOSH'], [1, 'POUNCE'], [11, 'BUBBLE POP'], [15, 'TIDAL BURP']], null, 'It burps so loudly the jackos rattle. It is very proud of this.'],
     ['EMBERCUB', 'EMBER', [39, 52, 43, 65], 62, 0.3, [[1, 'NIBBLE'], [1, 'GRUMBLE'], [5, 'SIZZLE'], [9, 'GLARE'], [11, 'CINDER SPIT'], [16, 'FLARE UP']], [12, 5], 'The flame on its head flickers when it is happy. Keep it away from paper.'],
     ['BLAZEBEAR', 'EMBER', [58, 66, 58, 78], 142, 0.1, [[1, 'SIZZLE'], [1, 'GLARE'], [11, 'CINDER SPIT'], [15, 'FLARE UP']], null, 'Gives the warmest hugs of any critter. A bit too warm, really.'],
     ['FUZZBUN', 'FLUFF', [40, 45, 40, 56], 50, 0.9, [[1, 'BONK'], [1, 'GRUMBLE'], [6, 'NIBBLE'], [10, 'POUNCE']], null, 'A ball of fluff with ears. It eats your lettuce and says sorry with its eyes.'],

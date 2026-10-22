@@ -130,9 +130,9 @@
   const money = v => '£' + v.toLocaleString('en-GB');
   // [question, right answer, wrong, wrong, wrong]: two per step, one picked each game
   const QS = [
-    [['How many sides does a Rubik\'s cube have?', '6', '4', '8', '12'], ['What colour is Pikachu?', 'Yellow', 'Blue', 'Green', 'Pink']],
+    [['How many sides does a Rubrick\'s cube have?', '6', '4', '8', '12'], ['What colour is Zapachu?', 'Yellow', 'Blue', 'Green', 'Pink']],
     [['Which of these is NOT a planet?', 'The Moon', 'Mars', 'Venus', 'Saturn'], ['How many players does a football team have on the pitch at once?', '11', '9', '10', '12']],
-    [['In "CD-ROM", what does CD stand for?', 'Compact Disc', 'Computer Disk', 'Copy Data', 'Cool Drive'], ['In Tetris, how many squares make each falling piece?', '4', '3', '5', '6']],
+    [['In "CD-ROM", what does CD stand for?', 'Compact Disc', 'Computer Disk', 'Copy Data', 'Cool Drive'], ['In Blockology, how many squares make each falling piece?', '4', '3', '5', '6']],
     [['How many days are there in a leap year?', '366', '365', '364', '360'], ['What is the closest star to the Earth?', 'The Sun', 'The North Star', 'Sirius', 'The Moon']],
     [['How many kilobytes are in one megabyte (the way computers count)?', '1024', '1000', '100', '512'], ['Which is the biggest planet in our Solar System?', 'Jupiter', 'Saturn', 'Neptune', 'Earth']],
     [['What is the capital city of Australia?', 'Canberra', 'Sydney', 'Melbourne', 'Perth'], ['How many squares are there on a chess board?', '64', '36', '81', '100']],
@@ -527,7 +527,7 @@
   const SP_MATES = [
     ['02-08', 'Callum', 'A space sponge for comet dust. That is the coolest job a sponge has ever had.'],
     ['03-22', 'Luke', 'Round the world in a balloon in 20 days. It takes my dad 20 minutes to blow up ONE balloon.'],
-    ['05-30', 'Dave', 'They docked with the space station! Like the bit in GoldenEye where... no, nothing like that.'],
+    ['05-30', 'Dave', 'They docked with the space station! Like the bit in Goldenballs where... no, nothing like that.'],
     ['07-24', 'JackK', 'First woman shuttle commander! My sister has put a picture of Eileen Collins on her wall.'],
     ['11-18', 'Jack', 'Got up at 2am for the meteors. Saw some! Then my feet froze.'],
     ['12-28', 'Callum', 'Hubble has six new gyroscopes. My PC still has the same fan from 1997.'],
@@ -547,7 +547,7 @@
   N.def(SH, '/sky.html', c => spPage(c, `<h2>Sky Watch</h2>
     <div class="sp-item${c.past('08-11') ? '' : ' up'}"><b>Total eclipse of the Sun: 11 August.</b> Total in Cornwall at about 11:11 in the morning. NEVER look at the Sun! Make a <a href="http://www.totality99.cyb/pinhole.html">pinhole viewer</a>.</div>
     <div class="sp-item${c.past('11-18') ? '' : ' up'}"><b>The Leonids: the night of 17/18 November.</b> Every November the Earth goes through dust left by a comet. ${c.past('11-18') ? 'This year it was a proper STORM, peaking at about 2am GMT on the 18th, best from Europe!' : 'This year the experts think it could be a STORM, with Europe getting the best view.'} Wrap up warm, lie down, look up. No telescope needed.</div>
-    <p><b>How to watch shooting stars:</b> get away from street lights, let your eyes get used to the dark for 20 minutes (no Game Boy!), and be patient. Bring a flask. Bring a mom.</p>`));
+    <p><b>How to watch shooting stars:</b> get away from street lights, let your eyes get used to the dark for 20 minutes (no Game Lad!), and be patient. Bring a flask. Bring a mom.</p>`));
 
   // ================================================================ THE SPORTS DESK (plain text)
   const TH = 'www.sportsdesk.netz', TU = p => 'http://' + TH + p;
@@ -577,10 +577,10 @@
   ];
   const SD_MATES = [
     ['05-23', 'Luke', 'Two trophies down. Dad says nobody English has ever done three. Wednesday!!!'],
-    ['05-27', 'Dave', 'My dad knocked the N64 off the telly when the second goal went in. It still works. N64s are indestructible.'],
-    ['07-05', 'Callum', 'Watched Wimbledon instead of playing Quake. That is how good it was. (I played Quake after.)'],
+    ['05-27', 'Dave', 'My dad knocked the ULTRA 64 off the telly when the second goal went in. It still works. N64s are indestructible.'],
+    ['07-05', 'Callum', 'Watched Wimbledon instead of playing Jaquake. That is how good it was. (I played Jaquake after.)'],
     ['10-02', 'JackK', 'The new stadium in Cardiff has a roof that closes! Like a giant tin.'],
-    ['11-01', 'Jack', 'Hakkinen won the championship. I played F1 on the PlayStation to celebrate. Crashed at the first corner.'],
+    ['11-01', 'Jack', 'Hakkinen won the championship. I played F1 on the PlaySpace to celebrate. Crashed at the first corner.'],
   ];
   const sdPage = (c, body) => `<div class="sd"><pre><span class="sd-h">THE SPORTS DESK</span>  -  results in plain text since 1996
 ${c.long.toUpperCase()}
@@ -621,24 +621,24 @@ Run by Steve. Send your scores in by e-mail.</pre>${N.mates(c, SD_MATES, 'SPORTS
 `);
   // [UK date, title, note, US date or '', buzz once out]
   const FILMS = [
-    ['01-01', 'Star Trek: Insurrection', 'The Next Generation crew, film number three.', '', 'Picard does a dance. Not even joking.'],
+    ['01-01', 'Galaxy Walk: Insurrection', 'The Next Generation crew, film number three.', '', 'Picard does a dance. Not even joking.'],
     ['02-05', 'A Bug\'s Life', 'Pixar\'s new one: an ant hires some circus bugs to fight grasshoppers.', '11-25 (1998)', 'Stay for the bloopers at the end!'],
     ['05-21', 'Notting Hill', 'A man with a bookshop meets a film star. Mom has been counting down for weeks.', '', 'Moms everywhere say it is "lovely".'],
-    ['06-11', 'The Matrix', 'Is anything real? Kung fu, slow-motion bullets and long black coats.', '03-31', 'There is no spoon. Everyone is trying to dodge things in slow motion.'],
+    ['06-11', 'The Modemtrix', 'Is anything real? Kung fu, slow-motion bullets and long black coats.', '03-31', 'There is no spoon. Everyone is trying to dodge things in slow motion.'],
     ['06-25', 'The Mummy', 'An adventure in Egypt with a mummy that comes back to life. And beetles.', '05-07', 'Scarab beetles. Sleep with the light on.'],
-    ['07-16', 'Star Wars Episode I: The Phantom Menace', 'THE big one. The first new Star Wars film in 16 years. Out in America on 19 May. Premiere in London on 14 July.', '05-19', 'Biggest opening weekend ever in Britain: about &pound;9.5 million! Duel of the Fates is the best bit.'],
+    ['07-16', 'Intergalactic Battles Episode I: The Phantom Nuisance', 'THE big one. The first new Intergalactic Battles film in 16 years. Out in America on 19 May. Premiere in London on 14 July.', '05-19', 'Biggest opening weekend ever in Britain: about &pound;9.5 million! Duel of the Fates is the best bit.'],
     ['10-22', 'Tarzan', 'Disney\'s new cartoon. He surfs down tree branches.', '06-18', 'The tree surfing looks like a video game.'],
     ['11-12', 'The Sixth Sense', 'A spooky one everyone\'s whispering about. DON\'T tell anyone the ending.', '08-06', 'Luke saw it. Luke won\'t tell us the ending. Luke is a good man.'],
     ['11-26', 'The World Is Not Enough', 'The new James Bond.', '', 'Gadgets, a boat chase on the Thames and a big explosion. Classic.'],
   ];
   const FC_MATES = [
-    ['03-12', 'Callum', 'They\'re showing the new Star Wars trailer before films in America and people are paying just to see the TRAILER.'],
-    ['04-15', 'Dave', 'Saw The Matrix trailer on the Internet. Took 40 minutes to download. Worth it.'],
-    ['06-12', 'Luke', 'THE MATRIX. I tried to dodge a football in slow motion at lunch. It hit me in normal motion.'],
-    ['07-17', 'Jack', 'SAW EPISODE I!!! Queued for ages. Darth Maul has a DOUBLE lightsaber. I need to lie down.'],
-    ['07-18', 'JackK', 'Pod race = best ten minutes of my life. Jar Jar = the other ten minutes.'],
+    ['03-12', 'Callum', 'They\'re showing the new Intergalactic Battles trailer before films in America and people are paying just to see the TRAILER.'],
+    ['04-15', 'Dave', 'Saw The Modemtrix trailer on the Internet. Took 40 minutes to download. Worth it.'],
+    ['06-12', 'Luke', 'THE MODEMTRIX. I tried to dodge a football in slow motion at lunch. It hit me in normal motion.'],
+    ['07-17', 'Jack', 'SAW EPISODE I!!! Queued for ages. Dark Mole has a DOUBLE lightspatula. I need to lie down.'],
+    ['07-18', 'JackK', 'Pod race = best ten minutes of my life. Jar Jar Jams = the other ten minutes.'],
     ['11-13', 'Luke', 'Saw The Sixth Sense. Not telling. Stop asking.'],
-    ['11-25', 'Callum', 'Toy Story 2 is out in America. Here? Not till 11 February. FEBRUARY.'],
+    ['11-25', 'Callum', 'Toy Storey 2 is out in America. Here? Not till 11 February. FEBRUARY.'],
   ];
   const fcPage = (c, body) => `<div class="fc"><div class="fc-top"><b>THE POPCORN COUNTDOWN</b><br><small>Films coming soon to a cinema near you (in Britain, not America) &middot; by Rachel, who sits in the middle of row G</small></div>
     <div class="fc-nav"><a href="${FU('/')}">Now &amp; Next</a><a href="${FU('/dates.html')}">UK Release Dates</a><a href="${FU('/ticket.html')}">Ticket Stub</a></div><div class="fc-in">${body}</div>${N.foot(c, 'THE POPCORN COUNTDOWN. Please switch off your pagers.')}</div>`;
@@ -646,9 +646,9 @@ Run by Steve. Send your scores in by e-mail.</pre>${N.mates(c, SD_MATES, 'SPORTS
     const next = FILMS.filter(f => c.until(f[0]) > 0).slice(0, 3), now = FILMS.filter(f => c.past(f[0]) && c.until(f[0]) > -42).reverse();
     const card = (f, out) => `<div class="fc-card${out ? ' out' : ''}"><div class="d">${out ? 'OUT<small>NOW</small>' : c.until(f[0]) + '<small>DAYS TO GO</small>'}</div><div><b>${f[1]}</b> <small>(UK: ${nice(f[0])})</small><br>${out ? f[4] : f[2]}</div></div>`;
     return fcPage(c, `${now.length ? '<h3>Out now</h3>' + now.map(f => card(f, 1)).join('') : ''}<h3>Coming soon</h3>${next.length ? next.map(f => card(f, 0)).join('') : ''}
-      ${c.until('11-24') <= 0 ? '<div class="fc-card"><div class="d">2000<small>NEXT YEAR</small></div><div><b>Toy Story 2</b><br>Out in America on 24 November, but not here till <b>11 February 2000</b>. The longest countdown on this site.</div></div>' : !next.length ? '' : ''}` + N.mates(c, FC_MATES, 'IN THE FOYER'));
+      ${c.until('11-24') <= 0 ? '<div class="fc-card"><div class="d">2000<small>NEXT YEAR</small></div><div><b>Toy Storey 2</b><br>Out in America on 24 November, but not here till <b>11 February 2000</b>. The longest countdown on this site.</div></div>' : !next.length ? '' : ''}` + N.mates(c, FC_MATES, 'IN THE FOYER'));
   });
-  N.def(FH, '/dates.html', c => fcPage(c, `<h2>UK Release Dates 1999</h2><table><tr><th>Film</th><th>UK</th><th>America</th><th></th></tr>${FILMS.map(f => `<tr><td>${f[1]}</td><td>${nice(f[0])}</td><td>${f[3] ? (/1998/.test(f[3]) ? nice(f[3].slice(0, 5)) + ' 1998' : nice(f[3])) : 'about the same'}</td><td>${c.past(f[0]) ? 'OUT' : c.until(f[0]) + ' days'}</td></tr>`).join('')}<tr><td>Toy Story 2</td><td>11 February 2000</td><td>24 November</td><td>next year!</td></tr></table><p><small>Why does everything come out in America first? Nobody knows. Rachel has written to the cinema. Twice.</small></p>`));
+  N.def(FH, '/dates.html', c => fcPage(c, `<h2>UK Release Dates 1999</h2><table><tr><th>Film</th><th>UK</th><th>America</th><th></th></tr>${FILMS.map(f => `<tr><td>${f[1]}</td><td>${nice(f[0])}</td><td>${f[3] ? (/1998/.test(f[3]) ? nice(f[3].slice(0, 5)) + ' 1998' : nice(f[3])) : 'about the same'}</td><td>${c.past(f[0]) ? 'OUT' : c.until(f[0]) + ' days'}</td></tr>`).join('')}<tr><td>Toy Storey 2</td><td>11 February 2000</td><td>24 November</td><td>next year!</td></tr></table><p><small>Why does everything come out in America first? Nobody knows. Rachel has written to the cinema. Twice.</small></p>`));
   N.def(FH, '/ticket.html', c => {
     const f = FILMS.filter(x => c.past(x[0])).pop();
     c.after.push(() => { const t = c.q('.fc-ticket'); if (t) t.addEventListener('click', () => { if (t.classList.contains('torn')) return; t.classList.add('torn'); N.sfx('click'); N.secret('n99.ticket'); c.q('[data-tk]').textContent = 'Enjoy the film! No talking. No kicking the seat. Popcorn: allowed.'; }); });

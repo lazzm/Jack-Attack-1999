@@ -323,7 +323,7 @@
     const hasDisc = !!it.disc && it.kind !== 'cart';
     const t = R.grabbable(id, { obj, kind: it.kind === 'cart' ? 'cart' : 'case', label: it.kind === 'mag' ? `JACK ATTACK! ${PM.MONTHS[it.m - 1]} (cover CD taped on)` : it.title,
       home: Object.assign({ room: 'bedroom' }, home), holdD: it.kind === 'box' ? 52 : 40,
-      use: it.id === 'pm.netplanet' ? () => { secret('pm.coaster'); say('A coaster!', 'Perfect. A coaster for my squash. That\'s what these are for. (I have nine.) Mom says it\'s "not a coaster, it\'s litter".', 5000); } : hasDisc ? () => takeDisc(it) : it.kind === 'cart' ? () => say(it.title, 'It\'s a cartridge. It goes in an N64, not the PC. (Luke says if you blow on it, it\'ll go in the CD tray. Luke is wrong.)') : null,
+      use: it.id === 'pm.netplanet' ? () => { secret('pm.coaster'); say('A coaster!', 'Perfect. A coaster for my squash. That\'s what these are for. (I have nine.) Mom says it\'s "not a coaster, it\'s litter".', 5000); } : hasDisc ? () => takeDisc(it) : it.kind === 'cart' ? () => say(it.title, 'It\'s a cartridge. It goes in an ULTRA 64, not the PC. (Luke says if you blow on it, it\'ll go in the CD tray. Luke is wrong.)') : null,
       useLabel: it.id === 'pm.netplanet' ? 'Use it as a coaster' : it.kind === 'mag' ? 'Peel the CD off' : it.kind === 'sleeve' ? 'Slide the disc out' : 'Take the disc out',
       onGrab: () => { if (it.kind === 'box') { secret('pm.shelf'); secret('disc.cupboard'); } if (obj.userData.lazy) { obj.userData.lazy(); obj.userData.lazy = null; bump(it.id); } const b = obj.userData.back; if (b) { obj.userData.back = null; try { const mesh = obj.children.find(m => m.isMesh && Array.isArray(m.material)); if (mesh) { mesh.material = mesh.material.slice(); mesh.material[5] = b(); if (obj.userData.edges) { const [r, u] = obj.userData.edges(); mesh.material[0] = r; mesh.material[2] = u; } bump(it.id); H.dirty(); } } catch (e) {} }
         say(it.title, esc(it.owner === 'Callum' ? 'Callum\'s. He wants it back. He keeps saying "GIVE IT BACK" at school.' : it.blurb || pick(LINE[it.kind] || LINE.jewel)), 4000); },
@@ -562,7 +562,7 @@
       sync();
       const it = PM.item(got), box = H.THINGS[tb(got)], wp = new T.Vector3(); P.spot.obj.getWorldPosition(wp);
       if (box) say('IT CAME!', `${esc(it ? it.title : 'A game')}! Rip, rip, rip. Polystyrene everywhere. (Mom will love that.) <small>(It lives on your games shelf: Esc puts it there.)</small>`, 6000);
-      else if (/^cart\./.test(got)) setTimeout(() => say('IT CAME!', `${esc(PM.titleOfShop(got))}! Rip, rip, rip. It's on the games shelf by the telly now (${/^cart\.sn\./.test(got) ? 'well, in the cupboard under the stairs with the Super Nintendo' : 'click the console to play it'}).`, 6500), 1200);
+      else if (/^cart\./.test(got)) setTimeout(() => say('IT CAME!', `${esc(PM.titleOfShop(got))}! Rip, rip, rip. It's on the games shelf by the telly now (${/^cart\.sn\./.test(got) ? 'well, in the cupboard under the stairs with the Super Ultra' : 'click the console to play it'}).`, 6500), 1200);
       if (box) { box.at = Object.assign({}, box.home); box.obj.position.set(wp.x, wp.y + 14, wp.z); box.obj.visible = true; setTimeout(() => H.grab(box.id), 60); }
       // Mom takes the empty box away for the recycling
       setTimeout(() => { P.opening = false; parcels(); }, 5000);

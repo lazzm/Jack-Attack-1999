@@ -117,7 +117,7 @@
         <label>Your message:</label><textarea name="msg" maxlength="${K.LIMITS.msg}" rows="4"></textarea><div class="shw-count small"></div>
         <label>Sign it from:</label><input type="text" name="sig" maxlength="${K.LIMITS.sig}">
         <fieldset class="shw-to"><legend>Who's it for?</legend>
-          <label class="shw-rad"><input type="radio" name="how" value="m" checked> A JackNet member <small>(it goes to their Outlook Express)</small></label>
+          <label class="shw-rad"><input type="radio" name="how" value="m" checked> A JackNet member <small>(it goes to their JackMail Express)</small></label>
           <div class="shw-mpick"></div>
           <label class="shw-rad"><input type="radio" name="how" value="l"> A friend in the real world <small>(you get a link to send them)</small></label>
         </fieldset>
@@ -147,7 +147,7 @@
           if (isToday(c[1])) secret('share.card.day');
           if (rr.to) {
             secret(rr.self ? 'share.card.self' : 'share.card.send');
-            res.innerHTML = `<div class="shw-ok"><b>Your e-card is on its way to ${esc(rr.to)}!</b><br>It will be waiting in their Outlook Express next time they log on to JackNet${rr.self ? ' (which is right now, because it\'s YOU. Check your Inbox!)' : ''}.<br><br><a href="${U('cards')}">Send another card</a></div>`;
+            res.innerHTML = `<div class="shw-ok"><b>Your e-card is on its way to ${esc(rr.to)}!</b><br>It will be waiting in their JackMail Express next time they log on to JackNet${rr.self ? ' (which is right now, because it\'s YOU. Check your Inbox!)' : ''}.<br><br><a href="${U('cards')}">Send another card</a></div>`;
           } else {
             secret('share.card.link');
             const url = SH.real('/card/' + rr.id);
@@ -194,7 +194,7 @@
   function czFaq(el) {
     czShell(el, `<h2 class="shw-h">Help &amp; FAQ</h2><div class="shw-faq">
       <h3>How do I send a card?</h3><p>Pick a shelf, pick a card, write a message and click Send. You need to be a JackNet member (it's FREE).</p>
-      <h3>Who can I send it to?</h3><p>Any JackNet member: it turns up in their Outlook Express inbox with a link to pick it up. Or a friend in the REAL world: we give you a link to send them (in a text, a chat, whatever). When they open it, they switch on the family PC and the card is waiting!</p>
+      <h3>Who can I send it to?</h3><p>Any JackNet member: it turns up in their JackMail Express inbox with a link to pick it up. Or a friend in the REAL world: we give you a link to send them (in a text, a chat, whatever). When they open it, they switch on the family PC and the card is waiting!</p>
       <h3>Do you want my e-mail address?</h3><p>NO! SparkleCardz! never asks for anybody's real e-mail address. Not yours, not your mates', not your Gran's.</p>
       <h3>How long are cards kept?</h3><p>60 days. Then the postie eats them. (He is a very hungry postie.)</p>
       <h3>Why does my card play music?</h3><p>Because it's 1999 and EVERYTHING plays music. Click Stop if your Mom is on the phone.</p>
@@ -360,7 +360,7 @@ this, I'm still waiting.)`,
     if (it.k === 'card') {
       const t = (K.CARD[it.c] || ['', '', 'an e-card'])[2];
       if (!mail({ from: 'SparkleCardz! <postie@sparklecardz.webcom>', subj: `You've got an e-card from ${it.from}!`, body: `  .  *  .   S P A R K L E C A R D Z !   .  *  .\n            You've got an e-card!\n\nHi ${n}!\n\n${it.from} has sent you an e-card ("${t}") from SparkleCardz!, the sparkliest e-card site on the Internet.\n\nTo pick up your card, click on this link:\n\nhttp://${CARD_HOST}/pickup/${it.card}.html\n\nOr go to http://${CARD_HOST}/pickup.html and type in your card number:\n\n    ${it.card}\n\nYour card will be kept for 60 days. Have a sparkly day!\n\nThe SparkleCardz! Postie\n\n-----\nSparkleCardz! is FREE. We never ask for anybody's real e-mail address.\nWant to send one back? http://${CARD_HOST}/` })) return false;
-      toast('Outlook Express', `You've got an e-card from ${it.from}! (Check your Inbox)`, 6000); sfx('join');
+      toast('JackMail Express', `You've got an e-card from ${it.from}! (Check your Inbox)`, 6000); sfx('join');
       return true;
     }
     if (it.k === 'pick') {
@@ -374,7 +374,7 @@ this, I'm still waiting.)`,
       const addr = (it.from || 'unknown.sender').toLowerCase().replace(/[^a-z0-9_-]/g, '') + '@jacknet.jnet';
       if (!mail({ from: `${fromWho} <${addr}>`, subj: subjOf(it.t, it.gen | 0), mono: true, body: `${it.from ? `Hi ${n}!! ${it.from} here. You HAVE to read this. Don't break the chain!!!\n\n` : 'Somebody sent you this. Nobody knows who. Spooky!!!\n\n'}${letterText(it.t, path, (it.count | 0) || 1, it.gen | 0 || 1, it.ch, it.ni)}` })) return false;
       const l = store.get(MYCH, []).filter(x => !(x.ch === it.ch && x.ni === it.ni)); l.push({ ch: it.ch, ni: it.ni, t: it.t, from: it.from || '', ts: it.ts }); store.set(MYCH, l.slice(-40));
-      toast('Outlook Express', `New message: "${subjOf(it.t, it.gen | 0).slice(0, 60)}"`, 5000); sfx('join');
+      toast('JackMail Express', `New message: "${subjOf(it.t, it.gen | 0).slice(0, 60)}"`, 5000); sfx('join');
       return true;
     }
     if (it.k === 'disk') {
@@ -481,7 +481,7 @@ this, I'm still waiting.)`,
     cwShell(el, '<h2>No more chain letters?</h2><div class="shw-optbox"></div>', `<a href="${U('chain')}">Tracker</a> &gt; No more letters`);
     const box = q(el, '.shw-optbox');
     if (!member()) { box.innerHTML = window.Guest ? Guest.webNote('Getting chain letters') : ''; return; }
-    const draw = onNow => { box.innerHTML = `<p>Chain letters for <b>${esc(nick())}</b> are <b class="shw-big2">${onNow ? 'ON' : 'OFF'}</b>.</p><p>${onNow ? 'Now and then a chain letter turns up in your Outlook Express (from another member, or from "a friend of a friend"). They are all harmless jokes.' : 'Nobody can send you chain letters. Peace and quiet!'}</p><button type="button" class="btn">${onNow ? 'Turn chain letters OFF' : 'Turn chain letters back ON'}</button>`;
+    const draw = onNow => { box.innerHTML = `<p>Chain letters for <b>${esc(nick())}</b> are <b class="shw-big2">${onNow ? 'ON' : 'OFF'}</b>.</p><p>${onNow ? 'Now and then a chain letter turns up in your JackMail Express (from another member, or from "a friend of a friend"). They are all harmless jokes.' : 'Nobody can send you chain letters. Peace and quiet!'}</p><button type="button" class="btn">${onNow ? 'Turn chain letters OFF' : 'Turn chain letters back ON'}</button>`;
       on(box, '.btn', 'click', () => SH.req({ t: 'shOpt', chains: !onNow }).then(r => { if (r && typeof r.chains === 'boolean') { SH.opt = { chains: r.chains }; draw(r.chains); toast('Chain Letter Tracker', r.chains ? 'Chain letters are back ON.' : 'No more chain letters. (Shhh.)', 3000); } })); };
     draw(!(SH.opt && SH.opt.chains === false));
   }
@@ -496,7 +496,7 @@ this, I'm still waiting.)`,
   }
   function cwMine(el) {
     const l = store.get(MYCH, []).slice().reverse();
-    cwShell(el, `<h2>My chain letters</h2>${!member() ? (window.Guest ? Guest.webNote('Getting chain letters') : '') : l.length ? `<table class="shw-tab"><tr><th>Letter</th><th>From</th><th>Got it</th><th></th></tr>${l.map(x => `<tr><td>${esc((K.CHAIN[x.t] || ['', '?'])[1])}</td><td>${x.from ? esc(x.from) : '<i>a friend of a friend</i>'}</td><td>${esc(d99(x.ts))}</td><td><a href="${U('chain', '/forward/' + x.ch + '-' + x.ni + '.html')}">Forward</a> | <a href="${U('chain', '/chain/' + x.ch + '.html')}">Tree</a></td></tr>`).join('')}</table>` : '<p>No chain letters yet! They turn up in Outlook Express now and then. Or <a href="' + U('chain', '/start.html') + '">start your own</a>.</p>'}`, `<a href="${U('chain')}">Tracker</a> &gt; My letters`);
+    cwShell(el, `<h2>My chain letters</h2>${!member() ? (window.Guest ? Guest.webNote('Getting chain letters') : '') : l.length ? `<table class="shw-tab"><tr><th>Letter</th><th>From</th><th>Got it</th><th></th></tr>${l.map(x => `<tr><td>${esc((K.CHAIN[x.t] || ['', '?'])[1])}</td><td>${x.from ? esc(x.from) : '<i>a friend of a friend</i>'}</td><td>${esc(d99(x.ts))}</td><td><a href="${U('chain', '/forward/' + x.ch + '-' + x.ni + '.html')}">Forward</a> | <a href="${U('chain', '/chain/' + x.ch + '.html')}">Tree</a></td></tr>`).join('')}</table>` : '<p>No chain letters yet! They turn up in JackMail Express now and then. Or <a href="' + U('chain', '/start.html') + '">start your own</a>.</p>'}`, `<a href="${U('chain')}">Tracker</a> &gt; My letters`);
   }
 
   // ================================================================ The Brag Button Factory (canvas)

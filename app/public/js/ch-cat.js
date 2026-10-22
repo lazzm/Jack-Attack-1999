@@ -66,7 +66,7 @@
     { id: 'crisps', kind: 'rubbish', n: 'Crisp packet' }, { id: 'can', kind: 'rubbish', n: 'Fizzy pop can' }, { id: 'wrap', kind: 'rubbish', n: 'Sweet wrappers' },
     { id: 'core', kind: 'rubbish', n: 'Apple core' }, { id: 'paper', kind: 'rubbish', n: 'Screwed-up homework' },
     { id: 'plate', kind: 'dish', n: 'Plate (toast crusts)' }, { id: 'mug', kind: 'dish', n: 'Mug (cold tea)' }, { id: 'bowl', kind: 'dish', n: 'Cereal bowl' },
-    { id: 'cd1', kind: 'cd', n: 'CD (out of its case)' }, { id: 'cd2', kind: 'cd', n: 'PlayStation game case' },
+    { id: 'cd1', kind: 'cd', n: 'CD (out of its case)' }, { id: 'cd2', kind: 'cd', n: 'PlaySpace game case' },
   ];
   const MESSID = {}; for (const m of MESS) MESSID[m.id] = m;
   function tidyFor(day) {

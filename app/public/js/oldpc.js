@@ -150,7 +150,7 @@ ${extra.length ? `<label><input type="checkbox" data-o="extra" checked> Also ins
   const POPUPS = {
     winner: () => {
       const b = document.createElement('div');
-      b.innerHTML = AD('#ff0', `<div class="blinky">!!! CONGRATULATIONS !!!</div><p>You are the <b>1,000,000th</b> visitor to this site!!!</p><p>You have WON a <b>FREE Dreamcast</b>*</p><button class="btn big claim">CLAIM YOUR PRIZE</button><p class="tiny">*not a real Dreamcast. Or a real prize. Or a real millionth visitor.</p>`);
+      b.innerHTML = AD('#ff0', `<div class="blinky">!!! CONGRATULATIONS !!!</div><p>You are the <b>1,000,000th</b> visitor to this site!!!</p><p>You have WON a <b>FREE Daydream</b>*</p><button class="btn big claim">CLAIM YOUR PRIZE</button><p class="tiny">*not a real Daydream. Or a real prize. Or a real millionth visitor.</p>`);
       const w = Desk.openWin('Congratulations!!! - JackNet Explorer', b, 320);
       b.querySelector('.claim').addEventListener('click', () => { w.close(); Desk.msgbox('Prize Centre', 'Your prize is... this pop-up! Thanks for playing.', 'info'); });
     },
@@ -192,8 +192,8 @@ ${extra.length ? `<label><input type="checkbox" data-o="extra" checked> Also ins
       const b = document.createElement('div');
       b.innerHTML = `<div class="mono" style="font-size:12px;background:#fff;border:2px inset #808080;padding:6px;max-height:160px;overflow:auto">From: your cousin<br>Subject: FW: FW: FW: FW: READ THIS!!!<br><br>&gt;&gt;&gt;&gt; Send this to 10 people in the next 10 minutes or Gubbinz will come and live under your bed!!!<br>&gt;&gt;&gt;&gt; This is TRUE, it happened to my friend's brother's mate!!!<br>&gt;&gt;&gt;&gt; A big computer company will give you 50p for every person you send it to!!!</div><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn cf">Forward</button><button class="btn cd">Delete</button></div>`;
       const w = Desk.openWin('FW: FW: FW: READ THIS!!! - Message', b, 360);
-      b.querySelector('.cf').addEventListener('click', () => { w.close(); Desk.toast('Outlook Express', 'Forwarded to 0 people. Your 0p is in the post.'); });
-      b.querySelector('.cd').addEventListener('click', () => { w.close(); Desk.toast('Outlook Express', 'Deleted. Gubbinz is on his way. (Not really.)'); });
+      b.querySelector('.cf').addEventListener('click', () => { w.close(); Desk.toast('JackMail Express', 'Forwarded to 0 people. Your 0p is in the post.'); });
+      b.querySelector('.cd').addEventListener('click', () => { w.close(); Desk.toast('JackMail Express', 'Deleted. Gubbinz is on his way. (Not really.)'); });
     },
     upgrade: () => {
       const b = document.createElement('div');

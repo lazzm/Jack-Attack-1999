@@ -193,7 +193,7 @@
       att: [{ name: 'SQUIG99.EXE', type: 'exe', app: 'lan.squig99', arg: { from: who, g }, size: '10 KB', date: d99() }],
     });
     try { Sound.play('join'); } catch (e) {}
-    Desk.toast('Outlook Express', 'You have 1 new e-mail message: "Happy New Year 1999 !!"', 6000);
+    Desk.toast('JackMail Express', 'You have 1 new e-mail message: "Happy New Year 1999 !!"', 6000);
   }
   L.deliverWorm = deliverWorm;
 
@@ -228,7 +228,7 @@
   A.fs.add('C:/JACKOS', { name: 'WINPOPUP.EXE', type: 'exe', app: 'lan.winpopup', date: '11/05/98', size: '28 KB' });
   A.fs.add('C:/JACKOS', { name: 'LMHOSTS.SAM', type: 'txt', date: '11/05/98', size: '3 KB', text: '# LMHOSTS file for the JackNet LAN\n#\n# This file says which computer is which. It is mostly comments.\n# Lines that start with # are comments. This is also a comment.\n#\n# 192.168.0.1    JACKS-PC        #PRE  (the good one)\n# 192.168.0.2    DAVE-PC         #PRE  (switched off at the wall)\n# 192.168.0.99   GUBBINZ         #PRE  (how did Gubbinz get an IP address)\n#\n# Everyone else turns up by themselves. That\'s the magic of the network.\n# (Dad says it isn\'t magic, it\'s "NetBIOS". Same thing.)\n' });
   A.fs.add('C:/JACKOS', { name: 'NETWORK.TXT', type: 'txt', date: '20/06/99', size: '2 KB', text: 'THE JACKNET LAN - HOW IT WORKS\n==============================\n\nEvery person on the site right now has a computer in Network Neighborhood.\nGuests are \\\\GUEST1234, members are \\\\NAME-PC.\n\nSHARING\n  Right-click one of your files in My Computer > Sharing... and it goes in your\n  Shared Documents. Other people can open it and copy it. Stop sharing any time.\n  Only text files and pictures fit down the cable. Pictures get squashed to\n  64 x 48 and 16 colours, because of the 56K modem.\n\nWINPOPUP\n  Pops a message up on somebody\'s screen. Be nice, or they\'ll block you.\n\nFLOPPIES\n  Right-click a file > Send To > 3½ Floppy (A:). Then "Give disk to..." hands the\n  actual disk to someone else on the LAN. Like at school, but without Dave\n  losing it.\n\nVIRUSES\n  Don\'t run attachments you weren\'t expecting. Even from your mates.\n  ESPECIALLY from your mates. (See www.jackshield.netz)\n' });
-  A.fs.add('C:/Program Files/JackIRC', { name: 'QUIZNITE.TXT', type: 'txt', date: '02/07/99', size: '1 KB', text: 'QUIZ NIGHT!!!\n\nEvery hour, on the hour, for 10 minutes, QuizJack runs a pub quiz in JackIRC.\n\n  /join #quiznight\n\nQuestions about 1999: games, films, telly, music, space, Star Wars and Pokemon.\nFirst right answer gets a point. Just type the answer.\n!scores shows this week\'s leaderboard. !next says when the next one starts.\n\nQuizJack is a bot. He is not a real person. (He says he is.)\n' });
+  A.fs.add('C:/Program Files/JackIRC', { name: 'QUIZNITE.TXT', type: 'txt', date: '02/07/99', size: '1 KB', text: 'QUIZ NIGHT!!!\n\nEvery hour, on the hour, for 10 minutes, QuizJack runs a pub quiz in JackIRC.\n\n  /join #quiznight\n\nQuestions about 1999: games, films, telly, music, space, Intergalactic Battles and Pocket Critters.\nFirst right answer gets a point. Just type the answer.\n!scores shows this week\'s leaderboard. !next says when the next one starts.\n\nQuizJack is a bot. He is not a real person. (He says he is.)\n' });
 
   // ---- secrets
   S('nethood', 'Anybody home?', 'Look inside somebody else\'s computer (they said you could)');

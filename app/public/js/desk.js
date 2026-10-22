@@ -169,8 +169,8 @@
 
 THINGS TO TAKE TO DAVE'S
 - sleeping bag
-- N64 + GoldenEye + 4 controllers (borrow ${window.Cast ? Cast.n('kidEp1') : 'Sam'}'s)
-- Pokemon Blue + link cable
+- ULTRA 64 + Goldenballs + 4 controllers (borrow ${window.Cast ? Cast.n('kidEp1') : 'Sam'}'s)
+- Pocket Critters Blue + link cable
 - party poppers
 - torch (in case of MILLENNIUM BUG)
 
@@ -185,7 +185,7 @@ back next year!!!
 `;
   const readme = () => window.Desk.notepad('party.txt', PARTY);
   $('iconReadme').addEventListener('click', readme);
-  if ($('emailMe') && !/^mailto:/.test($('emailMe').getAttribute('href') || '')) $('emailMe').addEventListener('click', ev => { ev.preventDefault(); msgbox('Outlook Express', "My mom says I'm not allowed to put my email on the Internet. Write a letter on the Letters page instead!", 'warn'); });
+  if ($('emailMe') && !/^mailto:/.test($('emailMe').getAttribute('href') || '')) $('emailMe').addEventListener('click', ev => { ev.preventDefault(); msgbox('JackMail Express', "My mom says I'm not allowed to put my email on the Internet. Write a letter on the Letters page instead!", 'warn'); });
 
   // ================================================================ start menu + tray
   const sm = $('startMenu');
@@ -240,7 +240,7 @@ back next year!!!
       if (v === 'standby') { $('standby').hidden = false; Sound.music.stop(); setTimeout(() => { const wake = () => { $('standby').hidden = true; ['pointermove', 'keydown', 'pointerdown'].forEach(e => document.removeEventListener(e, wake)); Sound.play('join'); }; ['pointermove', 'keydown', 'pointerdown'].forEach(e => document.addEventListener(e, wake)); }, 800); }
       else if (v === 'off') { try { localStorage.setItem('jhp_clean', '1'); } catch (e) {} shutdownSplash('JackOS is shutting down...', () => crtOff(() => reboot('power'))); }
       else if (v === 'restart') { try { localStorage.setItem('jhp_clean', '1'); } catch (e) {} shutdownSplash('JackOS is restarting...', () => crtOff(() => reboot('bios'))); }
-      else if (v === 'dos') { try { localStorage.setItem('jhp_clean', '1'); } catch (e) {} shutdownSplash('Preparing to start your computer in MS-DOS mode...', dos); }
+      else if (v === 'dos') { try { localStorage.setItem('jhp_clean', '1'); } catch (e) {} shutdownSplash('Preparing to start your computer in JACK-DOS mode...', dos); }
     });
   });
 
@@ -251,7 +251,7 @@ back next year!!!
     const out = $('dosOut'), inp = $('dosIn');
     const say = t => { out.textContent += t + '\n'; $('dos').scrollTop = 1e9; };
     out.textContent = '';
-    say('JackOS(R) 98 MS-DOS Mode\n   (C)Copyright Jack 1999. All rights reserved (by Jack).\n\nType HELP for a list of commands. Type WIN to go back to JackOS.\n');
+    say('JackOS(R) 98 JACK-DOS Mode\n   (C)Copyright Jack 1999. All rights reserved (by Jack).\n\nType HELP for a list of commands. Type WIN to go back to JackOS.\n');
     setTimeout(() => inp.focus(), 50);
     const FILES = ['AUTOEXEC BAT', 'COMMAND  COM', 'CONFIG   SYS', 'JACKATAK     <DIR>', 'JACKOS      <DIR>', 'GAMES        <DIR>', 'HOMEWORK DOC  (empty)', 'GUBBINZ  EXE', 'JACKTRIS EXE'];
     inp.onkeydown = ev => {

@@ -89,6 +89,7 @@ function done(ws, c, m) {
 function find(ws, c, m) {
   const id = String(m.id || ''), F = CAT.FIND[id]; if (!F || !outNow(F)) return;
   const key = keyOfC(c); if (!key) return ctx.send(ws, { t: 'rmFound', id, amt: 0, guest: 1 });
+  if(ctx.member(c)?.starterTest===1&&id.startsWith('cart.'))return;
   const p = P(key);
   if (own(p.f, id)) return ctx.send(ws, { t: 'rmFound', id, amt: 0, n: Object.keys(p.f).length, again: 1 });
   p.f[id] = Date.now(); ctx.markDirty();

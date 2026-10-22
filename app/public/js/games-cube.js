@@ -104,7 +104,7 @@
     { name: '5. Yellow edges', alg: "R U R' U R U2 R'", tip: 'Turn U until at least two yellow edges match the middles on their sides. If two that match are next to each other, hold them at the BACK and on the LEFT and do the move. If they are opposite each other, do it once from anywhere and look again.' },
     { name: '6. Yellow corners in place', alg: "U R U' L' U R' U' L", tip: 'Find a yellow corner that\'s in the right SPOT (it has the right three colours for that spot, even if it\'s twisted). Hold it at the front-right-top and do the move until all four corners are home. No good corners? Do it once from anywhere first.' },
     { name: '7. Twist the corners', alg: "R' D' R D", tip: 'Yellow on top, an unfinished corner at the front-right-top. Do R\' D\' R D two or four times until its yellow faces up. Then turn ONLY the top layer (U) to bring the next twisted corner to the front-right and do it again.\n\nHalfway through, the bottom of the cube looks totally wrecked. DON\'T PANIC. It all comes back at the end. This is the bit where Gran gave up.' },
-    { name: 'SOLVED!', alg: '', tip: 'Every face is one colour. Nice one!\n\nNow press Scramble and do it faster. Jack\'s best on a real cube is on the fridge (it\'s held up by the Tamagotchi magnet).' },
+    { name: 'SOLVED!', alg: '', tip: 'Every face is one colour. Nice one!\n\nNow press Scramble and do it faster. Jack\'s best on a real cube is on the fridge (it\'s held up by the Eggbert magnet).' },
   ];
 
   // ================================================================ the window

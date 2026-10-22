@@ -202,8 +202,8 @@ DEMO VERSION: two maps, and a nag screen. The full game is out on
 4. My PC: Pentium III 450, overclocked to 504 (it's fine, I put a
    bigger fan on), 128 MB RAM, Voodoo3 3000. 90 fps in JRT. Jack's
    does about 25. Luke's does a slideshow.
-5. Luke and Dave: it is NOT on the N64. Stop asking. Yes I know
-   GoldenEye has four player split screen. This has EIGHT and no screen
+5. Luke and Dave: it is NOT on the ULTRA 64. Stop asking. Yes I know
+   Goldenballs has four player split screen. This has EIGHT and no screen
    cheating. (Dave, I could see you looking at my quarter.)
 6. Mom's rule (Jack's Mom): finish by 10. Crisps stay in the kitchen.
 7. I always win. That's not a rule, it's just what happens.
@@ -252,7 +252,7 @@ beginning with F. Frags."
     Apps.fs.add('C:/Games/JRT', { name: 'JRT.EXE', type: 'exe', app: 'pcgames.jrt', size: '1,204 KB', date: jrtFull() ? '22/11/99' : '28/09/99' });
     Apps.fs.add('C:/Games/JRT', { name: 'README.TXT', type: 'txt', text: JRT_README, size: '3 KB', date: '28/09/99' });
     Apps.fs.add('C:/Games/JRT', { name: 'CALLUM.TXT', type: 'txt', text: CALLUM, size: '2 KB', date: '09/10/99' });
-    Apps.fs.add('C:/Games/JRT/System', { name: 'JRT.INI', type: 'txt', text: '[Engine.Engine]\nGameRenderDevice=GlideDrv.GlideRenderDevice\n; Jack: I don\'t have a 3dfx card. It works anyway?!\n[Botpack.Bots]\nBotName[0]=Callum\nBotSkill[0]=GODLIKE\nBotName[1]=JackK\nBotSkill[1]=Masterful\nBotName[2]=Luke\nBotSkill[2]=Average (busy playing Mario Kart in his head)\nBotName[3]=Dave\nBotSkill[3]=Novice\nBotTaunt[3]="Is this on the N64?"\n', size: '4 KB', date: '22/11/99' });
+    Apps.fs.add('C:/Games/JRT/System', { name: 'JRT.INI', type: 'txt', text: '[Engine.Engine]\nGameRenderDevice=GlideDrv.GlideRenderDevice\n; Jack: I don\'t have a 3dfx card. It works anyway?!\n[Botpack.Bots]\nBotName[0]=Callum\nBotSkill[0]=GODLIKE\nBotName[1]=JackK\nBotSkill[1]=Masterful\nBotName[2]=Luke\nBotSkill[2]=Average (busy playing Kart Kaos in his head)\nBotName[3]=Dave\nBotSkill[3]=Novice\nBotTaunt[3]="Is this on the ULTRA 64?"\n', size: '4 KB', date: '22/11/99' });
     Apps.fs.add('C:/Games/JRT', { name: 'SERVERS.TXT', type: 'txt', text: SERVERS, size: '1 KB', date: '19/10/99' });
     Apps.fs.add('C:/Program Files/JackSpy 3D', { name: 'JACKSPY.EXE', type: 'exe', app: 'pcgames.spy', size: '1,450 KB', date: '04/10/99' });
     Apps.fs.add('C:/Program Files/JackSpy 3D', { name: 'README.TXT', type: 'txt', text: SPY_README, size: '2 KB', date: '04/10/99' });
@@ -289,7 +289,7 @@ beginning with F. Frags."
     const page = () => { const el = document.createElement('div'); el.innerHTML = '<p style="font:12px Verdana;padding:20px">Loading the Frag Zone... (frames are coming soon)</p>'; Apps.load('js/pcgames-grid.js').then(() => Apps.load('js/pcgames-arena.js')).then(() => Apps.load('js/pcgames-spy.js')).then(() => { if (window.PCGSpy) PCGSpy.fan(el); }).catch(() => { el.innerHTML = '<h2>The page cannot be displayed</h2><p>The server is not answering. Try <b>Refresh</b>.</p>'; }); return el; };
     IE.addSite('www.fragzone.jnet', { title: 'The Frag Zone', desc: 'The No.1 Jackreal Tournament and JAQUAKE fan site on JackNet: 24/7 servers, the frag rankings, news and clans.', cat: 'games', pages: { '/': { title: 'The Frag Zone - JRT and JAQUAKE', html: page }, '/rankings.html': { title: 'The Frag Zone - Rankings', html: page }, '/servers.html': { title: 'The Frag Zone - Servers', html: page } } });
   }
-  Apps.cmd(['quake', 'quake.exe'], () => Desk.msgbox('JackOS', "Cannot find 'QUAKE.EXE'. Did you mean JAQUAKE? (It's in Start > Programs > Games. It's cheaper.)", 'info'));
+  Apps.cmd(['quake', 'quake.exe'], () => Desk.msgbox('JackOS', "Cannot find 'JAQUAKE.EXE'. Did you mean JAQUAKE? (It's in Start > Programs > Games. It's cheaper.)", 'info'));
   Apps.defineSecret('fps.secrets', 'Secret squirrel', 'Find every secret area in a rusty shareware shooter');
   Apps.defineSecret('fps.iddqd', 'Wrong game, mate', 'Type a famous old cheat from a DIFFERENT game into a console');
   Apps.defineSecret('fps.boss', 'Big blob, big poof', 'Defeat whatever is snoring at the bottom of the Blob Pit');

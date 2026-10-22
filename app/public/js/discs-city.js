@@ -130,7 +130,7 @@
 
   const HEADLINES = [
     'LOCAL BOY CLAIMS DOG ATE HIS HOMEWORK. DOG UNAVAILABLE FOR COMMENT.',
-    'DAVE AND LUKE QUEUE ALL NIGHT FOR NEW N64 GAME. FALL ASLEEP. MISS NEW N64 GAME.',
+    'DAVE AND LUKE QUEUE ALL NIGHT FOR NEW ULTRA 64 GAME. FALL ASLEEP. MISS NEW ULTRA 64 GAME.',
     'CALLUM UPGRADES TO 64 MB OF RAM: "IT FLIES NOW," HE SAYS. IT DOES NOT FLY.',
     'Y2K BUG: EXPERTS SAY PANIC A BIT, BUT NOT TOO MUCH, AND STOCK UP ON BEANS.',
     'DUCK SIGHTED IN BOATING LAKE. BOATING LAKE CLOSED. DUCK HAVING A LOVELY TIME.',
@@ -143,7 +143,7 @@
     'NEW JACK BURGER FLAVOUR: "SURPRISE". NOBODY KNOWS WHAT IT IS.',
     'SUNDAY LEAGUE TEAM LOSES 14-0. MANAGER: "WE WERE UNLUCKY."',
     'CORNER SHOP SELLS OUT OF POGS. AGAIN.',
-    'SCIENTISTS CONFIRM: TAMAGOTCHIS DO NOT NEED FEEDING DURING DOUBLE MATHS.',
+    'SCIENTISTS CONFIRM: EGGBERTS DO NOT NEED FEEDING DURING DOUBLE MATHS.',
     'COUNCIL TO REPAINT ALL ZEBRA CROSSINGS PURPLE "FOR A CHANGE".',
     'DAVE CLAIMS HIS UNCLE OWNS THE MOON. MOON DENIES IT.',
     'CITY LIBRARY FINALLY GETS A CD-ROM. QUEUE FOR ENCYCLOPAEDIA NOW 3 WEEKS.',
@@ -649,7 +649,7 @@ p.dg-city-stars{font-size:28px;margin:0}
       if (petEl || visiting || S.tut >= 0 || Math.random() > 0.3) return;
       const opts = [];
       if (P > 150 && !S.pets.burger) opts.push(() => { S.pets.burger = 1; pet('plan', 'Mayor! Everyone wants a Jack Burger stand. Can we have one? Pleeeease? It boosts shops AND it\'s delicious.', [['Yes!', () => { S.unlock.burger = 1; G.sfx('solve'); G.toast('JackCity 3000', 'Jack Burger Stand added to the Services menu (the shield).', 5000); news('MAYOR APPROVES JACK BURGER STAND. PEOPLE DANCE IN STREETS.', true); }], ['No', () => news('MAYOR SAYS NO TO JACK BURGERS. JACKK "DEVASTATED".', true)]]); });
-      if (P > 300 && !S.pets.nohw) opts.push(() => { S.pets.nohw = 1; pet('kids', 'Luke and Dave here. Can you make a law: No Homework on Fridays? Then we can play N64 all Friday night. Residents will LOVE it.', [['Pass the law', () => { S.ords.nohw = 1; news('NO HOMEWORK ON FRIDAYS! LUKE AND DAVE CARRIED THROUGH TOWN ON SHOULDERS.', true); }], ['Absolutely not', () => news('HOMEWORK STAYS. LUKE AND DAVE "WILL BE WRITING TO THEIR MP".', true)]]); });
+      if (P > 300 && !S.pets.nohw) opts.push(() => { S.pets.nohw = 1; pet('kids', 'Luke and Dave here. Can you make a law: No Homework on Fridays? Then we can play ULTRA 64 all Friday night. Residents will LOVE it.', [['Pass the law', () => { S.ords.nohw = 1; news('NO HOMEWORK ON FRIDAYS! LUKE AND DAVE CARRIED THROUGH TOWN ON SHOULDERS.', true); }], ['Absolutely not', () => news('HOMEWORK STAYS. LUKE AND DAVE "WILL BE WRITING TO THEIR MP".', true)]]); });
       if (P > 600 && !has('park') && !S.pets.park) opts.push(() => { S.pets.park = 1; pet('plan', 'JackK here. Can we have a park? Somewhere to skateboard. Parks make land worth more too. I read it in a book. (A Ladybird book.)', [['Build a park', () => setTool('b:park')], ['Later']]); });
       if (P > 400 && S.iTax > 6 && !S.pets.mek) opts.push(() => { S.pets.mek = 1; pet('fin', 'The factory owners want lower taxes on factories. They say they\'ll "build loads more" if you say yes.', [['Cut industry tax', () => { S.iTax = Math.max(0, S.iTax - 1); computeTotals(); updateTop(); }], ['No', () => {}]]); });
       if (P > 1000 && !S.pets.tour) opts.push(() => { S.pets.tour = 1; pet('fin', 'A proposal, Mayor: a "Visit JackCity!" tourism campaign. Posters of Jack on every bus. ' + fmt(60) + ' a month. Shops will love it.', [['Approve', () => { S.ords.tourism = 1; }], ['Decline', () => {}]]); });
@@ -1026,7 +1026,7 @@ p.dg-city-stars{font-size:28px;margin:0}
       serv: () => [['Services'], ...['police', 'fire', 'school', 'library', 'hosp', 'bus', 'park', 'stadium'].map(k => ['b:' + k, BLD[k].n, k === 'police' ? ICO.serv : sw(SWC[k]), BLD[k].cost, 0, BLD[k].d]), ['b:burger', BLD.burger.n + (S.unlock.burger ? '' : ' (locked)'), sw('#ffd400'), BLD.burger.cost, !S.unlock.burger, S.unlock.burger ? BLD.burger.d : 'Locked: wait for the people to ask for one.']],
       reward: () => [['Rewards'], ...REWARDS.map(k => ['b:' + k, BLD[k].n + (S.maxP < BLD[k].reward ? ` (${num(BLD[k].reward)} people)` : S.placed[k] ? ' (built)' : ''), ICO.reward, 0, S.maxP < BLD[k].reward || !!S.placed[k], BLD[k].d])],
       data: () => [['City Info'], ['!info', 'City Info & Graphs...', ICO.data, 0, 0, 'Population, jobs, money, demand, the Mayor rating and your goals.'], ['Data Maps'], ['%', 'Normal view', sw('#4f9a3a')], ['%lval', 'Land Value', sw('#3aa0e8')], ['%poll', 'Pollution', sw('#c84a2a')], ['%crime', 'Crime', sw('#a02a8a')], ['%traf', 'Traffic', sw('#e8a020')], ['%power', 'Power Grid', sw('#ffd400')], ['%pol', 'Police Coverage', sw('#2a4ad8')], ['%fir', 'Fire Coverage', sw('#d86a4a')], ['%edu', 'Schools', sw('#e0c070')], ['%hea', 'Hospitals', sw('#f4f4f4')], ['%bus', 'Bus Routes', sw('#e10600')]],
-      dis: () => [['Disasters'], ['&fire', 'Start a Fire', sw('#ff7a00')], ['&tornado', 'Whirlwind', sw('#999')], ['&quake', 'Earthquake', sw('#8a6a4a')], ['&squig', 'BLOB ATTACK!', ICO.dis]],
+      dis: () => [['Disasters'], ['&fire', 'Start a Fire', sw('#ff7a00')], ['&tornado', 'Whirlwind', sw('#999')], ['&jaquake', 'Earthquake', sw('#8a6a4a')], ['&squig', 'BLOB ATTACK!', ICO.dis]],
     };
     const SWC = { fire: '#d86a4a', school: '#e0c070', library: '#b89a7a', hosp: '#f4f4f4', bus: '#e10600', park: '#5ab846', stadium: '#c8c8d0' };
     const OVN = { lval: 'Land Value: red is cheap, green is posh', poll: 'Pollution: red is smoggy', crime: 'Crime: red is naughty', traf: 'Traffic: red roads are jammed. Bus Depots help', power: 'Power Grid: yellow has power, red has none', pol: 'Police coverage', fir: 'Fire station coverage', edu: 'School and library coverage', hea: 'Hospital coverage', bus: 'Bus Depot coverage' };

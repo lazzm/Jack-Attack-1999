@@ -121,7 +121,7 @@
   }
   function side() {
     return `<aside class="mdw-side">
-      <div class="mdw-box mdw-connect"><h3>Play JackMUD</h3><a class="mdw-big" href="${H}/play.html">${ico('java', 22)}<span>Play in your browser</span></a><a class="mdw-big mdw-big2" href="telnet://mud.jacknet.jnet:4000">${ico('telnet', 22)}<span>Telnet: mud.jacknet.jnet <b>4000</b></span></a><p class="mdw-small">or in MS-DOS: <code>telnet mud.jacknet.jnet 4000</code></p></div>
+      <div class="mdw-box mdw-connect"><h3>Play JackMUD</h3><a class="mdw-big" href="${H}/play.html">${ico('java', 22)}<span>Play in your browser</span></a><a class="mdw-big mdw-big2" href="telnet://mud.jacknet.jnet:4000">${ico('telnet', 22)}<span>Telnet: mud.jacknet.jnet <b>4000</b></span></a><p class="mdw-small">or in JACK-DOS: <code>telnet mud.jacknet.jnet 4000</code></p></div>
       <div class="mdw-box"><h3>Who's on now <span class="mdw-livedot" title="Live"></span></h3><div class="mdw-whoside">Asking the server...</div><p class="mdw-small"><a href="${H}/who.html">Full list &raquo;</a></p></div>
       <div class="mdw-box mdw-vote"><h3>Vote for us!</h3><p>JackMUD is on the <b>Top 100 MUDs</b> list! Vote every day and we go up. (We are number 74. Come ON.)</p><div class="mdw-vbtn">TOP <b>100</b> MUDS<br><small>CLICK TO VOTE</small></div></div>
     </aside>`;
@@ -297,7 +297,7 @@
   }
 
   // ================================================================ who's on / hall of heroes
-  const VIA = { tel: 'Telnet', dos: 'MS-DOS', web: 'Java', app: 'MUDdy 98' };
+  const VIA = { tel: 'Telnet', dos: 'JACK-DOS', web: 'Java', app: 'MUDdy 98' };
   function who(el) {
     frame(el, '/who.html', `<h1>Who's On Right Now <span class="mdw-livedot"></span></h1><p class="mdw-lead">Everyone in JackMUD this very second. This page updates itself.</p><div class="mdw-who">Asking mud.jacknet.jnet...</div><p class="mdw-small">Want to join them? <a href="${H}/play.html">Play now</a> or <a href="telnet://mud.jacknet.jnet:4000">telnet in</a>.</p>`);
     const box = el.querySelector('.mdw-who');

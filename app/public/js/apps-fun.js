@@ -334,7 +334,7 @@
   SAVERS['Digital Rain'] = (g, W, H, o) => {
     const fs = Math.max(7, Math.round(16 * Math.max(0.45, Math.min(1.2, o.k)))), cols = Math.ceil(W / fs);
     const GL = 'WAGHDKTEFZORMBSQNPX0123456789!#%&*+=<>/\\|:;'.split('');
-    const WORDS = ['WAAAGH', 'JACKOS', 'RUPEES', 'Y2K', 'N64', 'TETRIS', 'MODEM', 'REBOOT', 'PIXEL', 'FLOPPY'];
+    const WORDS = ['WAAAGH', 'JACKOS', 'RUPEES', 'Y2K', 'ULTRA 64', 'BLOCKOLOGY', 'MODEM', 'REBOOT', 'PIXEL', 'FLOPPY'];
     const drops = Array.from({ length: cols }, () => ({ y: rnd(-H, 0), sp: rnd(6, 16), word: null, wi: 0 }));
     const msg = o.msg || null; let mt = 0;
     g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
@@ -604,7 +604,7 @@
     ['cheats i made up.txt', "CHEATS I MADE UP (they don't work)\n\n- Press all the buttons at once for infinite lives\n- Hold Select and blow on the cartridge for a secret level\n- Shout HADOUKEN into the controller (don't, my sister laughed at me)\n- Turn it off and on again: works on everything\n"],
     ['band names.txt', "IDEAS FOR BAND NAMES\n\n1. The Floppy Disks\n2. Insert Coin\n3. 56K Warning\n4. Fatal Exception 0E\n5. The Millennium Bugs (TAKEN, Dave says his cousin's band is called that)\n6. Mom Says No\n\nInstruments we have: recorder, keyboard with a demo button, a bin.\n"],
     ['DO NOT READ.txt', "DO NOT READ THIS FILE\n\n\n\n\n\n\nIf you are reading this you are Dave.\nStop it Dave.\n"],
-    ['christmas list.txt', "CHRISTMAS LIST\n\n1. Expansion Pak\n2. A new controller (Dave sat on mine)\n3. LEGO Star Wars X-wing (the big one)\n4. A Rubik's cube that comes already solved (JOKE)\n5. The internet but faster\n6. Pocket money (in advance)\n"],
+    ['christmas list.txt', "CHRISTMAS LIST\n\n1. Expansion Pak\n2. A new controller (Dave sat on mine)\n3. BLOCKO Intergalactic Battles X-wing (the big one)\n4. A Rubrick's cube that comes already solved (JOKE)\n5. The internet but faster\n6. Pocket money (in advance)\n"],
     ['jokes.txt', "JOKES\n\nWhat do you call a computer that sings? A Dell... no wait. A COMPOSER.\nWhy was the floppy disk sad? It felt a bit 3.5.\nWhat's a robot's favourite snack? Micro chips. (Dave says it's rubbish. Dave is rubbish.)\n"],
     ['readme.txt', "README\n\nThis folder is shared so my cousin can copy my high scores.\nHe can't. They're .txt files. Anyone can type a high score.\nThat's not the point, Gary.\n"],
     ['high scores.txt', "MY HIGH SCORES (REAL)\n\nTetris: 112 lines\nSnake: 340\nMinesweeper (beginner): 14 seconds\nMinesweeper (expert): never finished. never will.\nBlobbit Lob: 61.2m\n"],
@@ -636,7 +636,7 @@
   const GROT_PC = { key: 'pc:grot', name: '\\\\GUBBINZ', type: 'pc', icon: I.grotpc, note: 'Comment: KEEP OUT (this means YOU)', secret: 'grotpc', kids: [
     { name: 'SNACKS', type: 'share', kids: [
       { name: 'toast recipy.txt', type: 'txt', text: "TOAST (serves 1 Gubbinz)\n\n1 bread\nput bread in toaster\nwait\nwait a bit more\nit is on fire now\nsay nothing\n\nEAT IT BEFORE JACK'S MOM SEES\n" },
-      { name: 'tamagotchi names.txt', type: 'txt', text: "MY TAMAGOTCHIS\n\n- Chompy\n- Big Chompy\n- Little Chompy (forgot him in my school bag)\n- Kevin\n" },
+      { name: 'eggbert names.txt', type: 'txt', text: "MY EGGBERTS\n\n- Chompy\n- Big Chompy\n- Little Chompy (forgot him in my school bag)\n- Kevin\n" },
     ] },
     { name: 'RUPEE STASH', type: 'lock', icon: I.lockdir, locked: "\\\\GUBBINZ\\RUPEE STASH is not accessible.\n\nOI! DAT'S MY ROOPEEZ! GET OWT!" },
     { name: 'Printer', type: 'printer', act: () => Desk.msgbox('Printer on \\\\GUBBINZ', "The printer is a little green fella with a crayon. He's on his tea break.", 'info') },
@@ -1081,7 +1081,7 @@
     'Tip: If the screen goes black and flying saucers turn up, wiggle the mouse. Or enjoy it.',
     "It looks like you're playing a game! Would you like me to stand in front of the screen?",
     'Tip: Blowing in the cartridge does not work on CD-ROMs. Please stop blowing in the CD-ROM.',
-    'Did you know? A Game Boy runs for ages on 4 AA batteries. I run on biscuits.',
+    'Did you know? A Game Lad runs for ages on 4 AA batteries. I run on biscuits.',
     'Tip: The Network Neighborhood has real people in it. Say hello! Nicely!',
   ];
   let asst = null, asstShown = false, asstNope = 0;
@@ -1291,7 +1291,7 @@
         <p>Things that might go wrong: cash machines, video recorders, digital watches, my nan's microwave (it's already broken though).</p>
         <h3>IS YOUR STUFF Y2K READY?</h3><div class="row"><select class="ff-y2ksel" aria-label="Thing to test"><option>Video recorder</option><option>Toaster</option><option>Nan's microwave</option><option>Digital watch</option><option>Dave</option><option>Gubbinz</option><option>This computer</option></select><button class="btn ff-y2kgo" type="button">Test it!</button></div><p class="ff-y2kres"></p></div>
       <div class="ff-box"><h3>BUNKER CHECKLIST</h3>${Y2KLIST.map((x, i) => `<label class="ff-chk"><input type="checkbox" data-i="${i}"${done.includes(i) ? ' checked' : ''}> ${esc(x)}</label>`).join('')}<p class="ff-y2kok"></p></div></div>
-      <p class="ff-c">Party plans for the 31st: see ${xlink('http://www.davesparty99.jnet', "Dave's party page")} (not finished). UFO-related doom: see ${plink('area51', 'the truth')}.</p>
+      <p class="ff-c">Party plans for the 31st: see ${xlink('http://www.davesparty99.jnet', "Dave's party page")} (not finished). UFO-related gloom: see ${plink('area51', 'the truth')}.</p>
       ${counter('y2kbunker', 2000)}${ringFoot('y2kbunker')}`;
   }, el => {
     const RES = { 'Video recorder': 'Y2K STATUS: Already flashing 00:00. Has been since 1994. NO CHANGE.', Toaster: 'Y2K STATUS: The toaster does not know what year it is. The toaster does not CARE. COMPLIANT.', "Nan's microwave": 'Y2K STATUS: Thinks it is 1900. Will cook your dinner in the style of 1900 (on a fire).', 'Digital watch': 'Y2K STATUS: Will say 01-01-00. Will still be 3 minutes slow.', Dave: 'Y2K STATUS: Dave does not know what year it is NOW. NOT COMPLIANT.', Gubbinz: 'Y2K STATUS: Gubbinz uses the "number of biscuits eaten" calendar. Totally safe. Woo-hoo!', 'This computer': 'Y2K STATUS: JackOS 98 is fully Y2K compliant! It will simply go back to 1999. Forever. (This is a feature.)' };
@@ -1311,9 +1311,9 @@
     <h1 class="ff-c">WELCUM TO GUBBINZ HOMEPAGE!!!1</h1>
     <div class="ff-c"><canvas class="ff-gubme" width="${GW}" height="${GH}" aria-label="Gubbinz waving"></canvas></div>
     <p class="ff-c"><b>this iz MY PAGE.</b> i made it myself on Jack's komputer when he woz at skool. dont tell Jack.</p>
-    <div class="ff-cols"><div class="ff-box"><h3>THINGS I LIKE</h3><ul><li>PIZZA</li><li>roopeez (shiny wunz)</li><li>Tetris (i got to level 2)</li><li>Jack's Game Boy (wen he's not lookin)</li><li>pressin the big red button on the front page</li></ul></div>
+    <div class="ff-cols"><div class="ff-box"><h3>THINGS I LIKE</h3><ul><li>PIZZA</li><li>roopeez (shiny wunz)</li><li>Blockology (i got to level 2)</li><li>Jack's Game Lad (wen he's not lookin)</li><li>pressin the big red button on the front page</li></ul></div>
     <div class="ff-box"><h3>THINGS I DONT LIKE</h3><ul><li>baths</li><li>the hoover</li><li>DAVE <span class="blink">!!!</span></li><li>wen the komputer sez "illegal operashun". i woz NOT doin anyfin illegal</li></ul></div>
-    <div class="ff-box"><h3>MY MATES</h3><ul><li>Pixel Pete (a Tamagotchi)</li><li>a rock (called Kevin)</li><li>Jack (he feeds me)</li><li>${plink('grotdance', 'THE GUBBINZ DANCE (my cousins)')}</li></ul></div></div>
+    <div class="ff-box"><h3>MY MATES</h3><ul><li>Pixel Pete (a Eggbert)</li><li>a rock (called Kevin)</li><li>Jack (he feeds me)</li><li>${plink('grotdance', 'THE GUBBINZ DANCE (my cousins)')}</li></ul></div></div>
     <p class="ff-c ff-big">REMEMBA: <span class="ff-red">ALWAYS BLOW ON THE CARTRIDGE</span></p>
     ${guestbook('gubbinzhome', [['Pixel Pete', 'nice page gubbinz. can i hav a jelly baby', '02/09/99'], ['Gubbinz', 'NO', '02/09/99'], ['Jack', 'Gubbinz how did you get on the internet', '05/09/99']])}
     <p class="ff-c">this page has been looked at ${lcd(hits('gubbinzhome') + 41, 4)} times. thats a LOT of roopeez.</p>${ringFoot('gubbinzhome')}`, el => {
@@ -1326,13 +1326,13 @@
     <h1 class="ff-c ff-rbw">WELCOME 2 DAVE'S KOOL PAGE!!!</h1>
     <div class="ff-c"><span class="ff-ucsign">UNDER CONSTRUCTION</span></div>
     <div class="ff-jack">JACK SAYS: Dave. Yellow background + Comic Sans = actual eye damage. -J</div>
-    <h3>ABOUT ME</h3><p>My name is Dave. I am the best at GoldenEye in our whole school. I have a dog called Biscuit and a cousin who has been on the telly (in the background).</p>
-    <div class="ff-jack">JACK SAYS: He is NOT the best at GoldenEye. I beat him 12-3 on Facility. He picked Oddjob.</div>
-    <h3>MY TOP 5 GAMES</h3><ol><li>GoldenEye</li><li>Mario Kart 64</li><li>GoldenEye again</li><li>That one with the dragon</li><li>Snake (on my dad's phone)</li></ol>
+    <h3>ABOUT ME</h3><p>My name is Dave. I am the best at Goldenballs in our whole school. I have a dog called Biscuit and a cousin who has been on the telly (in the background).</p>
+    <div class="ff-jack">JACK SAYS: He is NOT the best at Goldenballs. I beat him 12-3 on Facility. He picked Oddjob.</div>
+    <h3>MY TOP 5 GAMES</h3><ol><li>Goldenballs</li><li>Kart Kaos 64</li><li>Goldenballs again</li><li>That one with the dragon</li><li>Snake (on my dad's phone)</li></ol>
     <h3>MY KOOL LINKS</h3><ul><li>${xlink('http://www.daveskoollinks.jnet', 'More kool links')}</li><li>${xlink('http://www.biscuitthedog.webcom', 'My dog\'s page (coming soon)')}</li><li>${xlink('http://www.cheatz4u.w3b', 'CHEATZ 4 U')}</li><li>${plink('webring', 'Jack\'s webring thing (he made me put this here)')}</li></ul>
     <div class="ff-jack">JACK SAYS: Every link on this page is broken. Every. One.</div>
     <div class="ff-c"><button class="btn ff-davemidi" type="button">&#9835; Play my MIDI!</button></div>
-    ${guestbook('dave', [["Dave's Mom", 'Lovely website David. Now come and get your tea.', '11/07/99'], ['Jack', 'this page is rubbish (the GoldenEye bit is funny though)', '12/07/99'], ['Dave', 'SHUT UP JACK', '12/07/99'], ['Biscuit', 'woof', '14/07/99']])}
+    ${guestbook('dave', [["Dave's Mom", 'Lovely website David. Now come and get your tea.', '11/07/99'], ['Jack', 'this page is rubbish (the Goldenballs bit is funny though)', '12/07/99'], ['Dave', 'SHUT UP JACK', '12/07/99'], ['Biscuit', 'woof', '14/07/99']])}
     <p class="ff-c">This page has been viewed ${lcd(hits('dave') + 6, 3)} times (5 of them were me)</p>${ringFoot('dave')}`, el => {
     el.querySelector('.ff-davemidi').addEventListener('click', () => { Sound.note(440, 0.6, 'square'); Desk.toast('dave_theme.mid', "That's it. That's the whole song. It's one beep. -Jack", 4000); });
   }, "Dave's rubbish homepage", 'Jack\'s best mate has a homepage too. It is just his name');
@@ -1417,7 +1417,7 @@ AUTHORISED PERSONNEL ONLY
   page('tetris', 'Shrine of the Falling Blocks', 'ff-tet', () => `
     <div class="ff-fall" aria-hidden="true">${Array.from({ length: 14 }, (_, i) => `<i style="left:${(i * 7.3) % 100}%;animation-delay:-${(i * 1.7) % 9}s;animation-duration:${7 + (i % 5)}s;background:${Object.values(PCOL)[i % 7]}"></i>`).join('')}</div>
     <div class="ff-c ff-z"><div class="ff-candles"><i></i><i></i><i></i></div><h1>THE SHRINE OF THE FALLING BLOCKS</h1><p><i>Here we honour the greatest game ever made. Please take your shoes off.</i></p></div>
-    <div class="ff-box ff-z"><h3>THE HOLY FACTS</h3><ul><li>The game was invented in <b>1984</b> by a Russian computer scientist, <b>Alexey Pajitnov</b>, in Moscow.</li><li>The Game Boy version came out in <b>1989</b>. Mine has a crack in the screen and it still works. LEGEND.</li><li>The famous music (Music A) is an old Russian folk song called <b>Korobeiniki</b>.</li><li>Clearing 4 lines at once is called a TETRIS. It is the best feeling in the world. Fact.</li></ul></div>
+    <div class="ff-box ff-z"><h3>THE HOLY FACTS</h3><ul><li>The game was invented in <b>1984</b> by a Russian computer scientist, <b>Alexey Pajitnov</b>, in Moscow.</li><li>The Game Lad version came out in <b>1989</b>. Mine has a crack in the screen and it still works. LEGEND.</li><li>The famous music (Music A) is an old Russian folk song called <b>Korobeiniki</b>.</li><li>Clearing 4 lines at once is called a BLOCKOLOGY. It is the best feeling in the world. Fact.</li></ul></div>
     <div class="ff-box ff-z"><h3>THE SEVEN SACRED PIECES</h3><div class="ff-pieces">${Object.entries(PIECES).map(([k, rows]) => `<figure><div class="ff-pc" style="grid-template-columns:repeat(${rows[0].length},14px)">${rows.join('').split('').map(c => `<i style="${c === '#' ? 'background:' + PCOL[k] : 'visibility:hidden'}"></i>`).join('')}</div><figcaption>${k}</figcaption></figure>`).join('')}</div>
       <p class="ff-small">The long one is the I. It never comes when you need it. This is the ancient curse.</p></div>
     <div class="ff-box ff-z"><h3>A PRAYER TO THE LONG BAR</h3><p class="ff-c"><i>O Long Bar, four blocks in a row,<br>I have left a gap for thee, down below.<br>Come now, not later, I am at the top,<br>Come now, O Long Bar, before it all stops.</i></p></div>
@@ -1516,7 +1516,7 @@ AUTHORISED PERSONNEL ONLY
     <dt>The Day Gubbinz Ate the RAM</dt><dd>Computer said "Not enough memory". Gubbinz said "burp". 16MB, gone.</dd>
     <dt>General Protection Fault</dt><dd>He was a general. He was not protecting anything. It was his fault.</dd>
     <dt>Illegal Operation</dt><dd>"This program has performed an illegal operation and will be shut down." I didn't do ANYTHING. I'm not a criminal.</dd>
-    <dt>The Hourglass of Doom</dt><dd>Waited 45 minutes. Went for tea. Came back. Still an hourglass. Pressed the reset button. Lost my homework.</dd></dl>
+    <dt>The Hourglass of Gloom</dt><dd>Waited 45 minutes. Went for tea. Came back. Still an hourglass. Pressed the reset button. Lost my homework.</dd></dl>
     <div class="ff-c ff-crashbox"><p>WANT TO SEE ONE FOR REAL?</p><button class="btn big ff-crash" type="button">Crash my computer</button><p class="ff-small">*&nbsp;Press any key to continue _</p></div>
     ${counter('bsod', 404)}${ringFoot('bsod')}`, el => {
     el.querySelector('.ff-crash').addEventListener('click', () => Desk.msgbox('Crash my computer', 'Are you SURE you want to crash your computer? It will restart afterwards.', 'q', [['Yes, crash it!', () => { got('crashme'); setTimeout(() => Desk.bsod(), 400); }], ['No way']]));
@@ -1557,7 +1557,7 @@ AUTHORISED PERSONNEL ONLY
   page('oldsite', "Jack's Home Page", 'ff-old', () => `
     <center><h1>Welcome to Jacks Home Page</h1></center><hr>
     <p>Hello and welcome to my home page on the World Wide Web. This is my first web page. I made it in Notepad.</p>
-    <p>My name is Jack and I like:</p><ul><li>computer games</li><li>sci-fi films</li><li>my Rubiks cube</li><li>painting Warhammer</li></ul>
+    <p>My name is Jack and I like:</p><ul><li>computer games</li><li>sci-fi films</li><li>my Rubiks cube</li><li>painting War Hamster</li></ul>
     <p><span class="ff-broken">[x] gubbinz.gif</span></p>
     <p>This page is <b>under construction</b>. More stuff coming soon!</p>
     <p>Links:</p><ul><li>${xlink('http://www.search99.find', 'A search engine')}</li><li>${plink('dave', 'my friend Dave (he has a page too now)')}</li></ul>
@@ -1753,7 +1753,7 @@ AUTHORISED PERSONNEL ONLY
     Desk.toast(raw.toUpperCase(), /idkfa/i.test(raw) ? 'All weapons and keys! You now own: 1 stapler, the shed key and a water pistol (empty).' : 'GOD MODE ON. You are now invincible. (Except to your Mom.)', 5000);
   });
   S('iddqd', 'Old-school cheater', 'Cheats from a famous 1993 shooter work here too. Try one where commands go');
-  C(['matrix', 'wake up', 'the matrix'], () => startSaver('Digital Rain', { msg: ['Wake up, reader...', 'The JackNet has you...', 'Knock, knock.'] }));
+  C(['matrix', 'wake up', 'the modemtrix'], () => startSaver('Digital Rain', { msg: ['Wake up, reader...', 'The JackNet has you...', 'Knock, knock.'] }));
 
   // ---- ping, tracert, ipconfig
   const pingLines = (host, ip, times, extra) => [[300, `\nPinging ${host} [${ip}] with 32 bytes of data:\n`], ...times.map(t => [rnd(700, 1200), typeof t === 'string' ? t : `Reply from ${ip}: bytes=32 time=${t}ms TTL=56`]), [600, `\nPing statistics for ${ip}:\n    Packets: Sent = ${times.length}, Received = ${times.filter(t => typeof t === 'number').length}, Lost = ${times.filter(t => typeof t !== 'number').length}${extra || ''}`]];
@@ -1814,7 +1814,7 @@ AUTHORISED PERSONNEL ONLY
     Desk.msgbox('Format - C:\\', 'WARNING: ALL DATA ON NON-REMOVABLE DISK DRIVE C: WILL BE LOST!\n\nThat includes homework, high scores, party.txt and Gubbinz.\n\nProceed with Format?', 'warn', [['Yes', () => {
       const b = h('div', 'ff-fmt'); b.innerHTML = `<p class="ff-fmtt">Formatting C:\\...</p><div class="prog"><span style="display:flex;gap:2px"></span></div><p class="ff-fmtf small" style="height:16px;overflow:hidden"></p>`;
       const w = Apps.win('Format - C:\\', b, { w: 360, icon: I.dos, noResize: true, noMax: true, noMin: true });
-      const bar = b.querySelector('.prog span'), fl = b.querySelector('.ff-fmtf'), FILES2 = ['homework.doc', 'party.txt', 'high scores.txt', 'C:\\JACKOS\\*.*', 'my Pokemon card list', 'Gubbinz.exe', 'the Internet', 'the Recycle Bin (recycling it)', 'COMMAND.COM'];
+      const bar = b.querySelector('.prog span'), fl = b.querySelector('.ff-fmtf'), FILES2 = ['homework.doc', 'party.txt', 'high scores.txt', 'C:\\JACKOS\\*.*', 'my Pocket Critters card list', 'Gubbinz.exe', 'the Internet', 'the Recycle Bin (recycling it)', 'COMMAND.COM'];
       let i = 0; play('dice');
       const iv = setInterval(() => {
         if (w.closed) { clearInterval(iv); return; }
@@ -1829,7 +1829,7 @@ AUTHORISED PERSONNEL ONLY
   }
   C(['format', 'format c:', 'format c', 'format c:\\', 'format c: /q', 'format a:'], raw => /a:/i.test(raw) ? Desk.msgbox('Format - A:\\', 'There is no disk in drive A:. Dave borrowed it. He never gives them back.', 'warn') : format());
   S('format', 'Formatted (not really)', 'The scariest command there is. Wipe the C: drive. Go on');
-  C(['deltree', 'deltree c:\\JACKOS', 'deltree /y c:\\', 'deltree c:', 'deltree c:\\', 'deltree windows', 'rm -rf /', 'rm -rf'], raw => {
+  C(['deltree', 'deltree c:\\JACKOS', 'deltree /y c:\\', 'deltree c:', 'deltree c:\\', 'deltree jackos', 'rm -rf /', 'rm -rf'], raw => {
     if (/^rm/i.test(raw)) return Desk.msgbox('JackOS', "This isn't that kind of computer. Try 'deltree'. (Actually, don't.)", 'warn');
     Desk.msgbox('Deltree', 'Delete directory "C:\\JACKOS" and all its subdirectories? [yn]', 'q', [['Yes', () => {
       const icons = [...document.querySelectorAll('.icons .dicon')];
@@ -1896,7 +1896,7 @@ AUTHORISED PERSONNEL ONLY
   S('sudo', 'Super user (sort of)', 'Ask for super powers. Keep asking');
   C(['beep', 'bell', 'ding'], () => { play('beep'); Desk.msgbox('Beep', Sound.on ? 'BEEP.' : "*beep*\n\n(Your sound is switched off, so I said it instead.)", 'info'); });
   C(['lorem', 'lorem ipsum'], () => Apps.openFile({ name: 'lorem.txt', type: 'txt', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\n(This is pretend Latin that people use to fill up pages before the real words are written. Jack uses it for his homework sometimes. It has never worked.)\n' }));
-  const FORTUNES = ['You will find your missing Pokemon card where you least expect it.', 'A long bar is coming. Leave a gap.', 'Your high score will be beaten. By Dave. Sorry.', 'Do not trust the toaster on 01/01/00.', 'Someone on JackNet is thinking about you. It is probably Gubbinz.', 'Today is a good day to clear 4 lines at once.', 'The Millennium Bug fears YOU.', 'You will soon tidy your room. (Your Mom wrote this one.)', 'Red ones go faster. Always.', 'Help! I am trapped in a fortune cookie factory!'];
+  const FORTUNES = ['You will find your missing Pocket Critters card where you least expect it.', 'A long bar is coming. Leave a gap.', 'Your high score will be beaten. By Dave. Sorry.', 'Do not trust the toaster on 01/01/00.', 'Someone on JackNet is thinking about you. It is probably Gubbinz.', 'Today is a good day to clear 4 lines at once.', 'The Millennium Bug fears YOU.', 'You will soon tidy your room. (Your Mom wrote this one.)', 'Red ones go faster. Always.', 'Help! I am trapped in a fortune cookie factory!'];
   C(['cookie', 'cookies', 'fortune', 'fortune cookie'], () => Desk.msgbox('Fortune Cookie', 'You crack open the cookie. It says:\n\n"' + pick(FORTUNES) + '"\n\nLucky numbers: ' + Array.from({ length: 6 }, () => ri(1, 49)).sort((a, b) => a - b).join(', '), 'info'));
   let momN = 0, momT = 0;
   function mom() {
@@ -1916,8 +1916,8 @@ AUTHORISED PERSONNEL ONLY
   S('mom', 'Five more minutes', "Ask for Mom, then keep ignoring her until she does something about it");
   C(['coffee', 'brew', 'make coffee'], () => Desk.msgbox('Error 418', "Error 418: I'm a teapot.\n\nThis computer cannot make coffee. (That's a real error code! Somebody made it up for April Fools' Day 1998.)", 'warn'));
   C(['davespage', 'dave page', "dave's page"], () => { Desk.msgbox('Dave', "Dave is not available. He's grounded. (He'll be back on at 7. Here's his homepage instead.)", 'info'); setTimeout(() => nav('dave'), 300); });
-  C(['jack', 'whois jack', 'finger jack'], () => Apps.openFile({ name: 'about jack.txt', type: 'txt', text: "ABOUT JACK\n==========\n\nLikes: video games, sci-fi, Star Wars, Pokemon, Rubik's cubes, Tetris, painting Warhammer models.\nDislikes: homework, the phone bill, people who say 'it's just a game'.\nBest mate: Dave (don't tell him).\nPet: Gubbinz (little, green, virtual, always hungry).\nSuperpower: can solve a Rubik's cube in under 2 minutes. On a good day.\nWeakness: the Long Bar never comes.\n\nMade this whole website. And this computer. Yes, really.\n" }));
-  C(['rubik', 'rubiks', "rubik's", 'cube', 'scramble'], () => Desk.msgbox('Cube Scramble', 'Hold white on top, green at the front, and do this:\n\n' + scramble() + '\n\nThen try to solve it! (Stuck? Type "cubeclub" in the address bar.)', 'info', [['Play the MegaCube', () => { showBrowser(); IE.go('demos', 'click'); }], ['OK']]));
+  C(['jack', 'whois jack', 'finger jack'], () => Apps.openFile({ name: 'about jack.txt', type: 'txt', text: "ABOUT JACK\n==========\n\nLikes: video games, sci-fi, Intergalactic Battles, Pocket Critters, Rubrick's cubes, Blockology, painting War Hamster models.\nDislikes: homework, the phone bill, people who say 'it's just a game'.\nBest mate: Dave (don't tell him).\nPet: Gubbinz (little, green, virtual, always hungry).\nSuperpower: can solve a Rubrick's cube in under 2 minutes. On a good day.\nWeakness: the Long Bar never comes.\n\nMade this whole website. And this computer. Yes, really.\n" }));
+  C(['rubik', 'rubiks', "rubrick's", 'cube', 'scramble'], () => Desk.msgbox('Cube Scramble', 'Hold white on top, green at the front, and do this:\n\n' + scramble() + '\n\nThen try to solve it! (Stuck? Type "cubeclub" in the address bar.)', 'info', [['Play the MegaCube', () => { showBrowser(); IE.go('demos', 'click'); }], ['OK']]));
   C(['tetris', 'jacktris'], () => { showBrowser(); IE.go('demos', 'click'); Desk.toast('JACKTRIS', 'JACKTRIS is in the Games Arcade! The Long Bar is waiting. (Probably not.)', 4000); });
   C(['help', '?', 'commands', 'man'], () => Apps.openFile({ name: 'RUN HELP.txt', type: 'txt', text: "JACKOS 98: THINGS YOU CAN TYPE IN RUN\n=====================================\n\nwinver      About this computer\nping        Ping something (try: ping jacknet)\ntracert     Where does the internet go?\nipconfig    Your IP address (it's very secret)\ntelnet      Watch JackNet TV\nnethood     Network Neighborhood\nsnow        Let it snow\nparty       Do I need to explain?\nssstars     Screen savers: ssstars, sspipes, ssmyst, flyingsaucers...\ncookie      A fortune cookie\nhelp        This file\n\n...and LOADS more that aren't on this list.\nSome are cheats. Some are magic words. Some are Mom.\n\nTip: the address bar in JackNet Explorer has secrets too.\nTry: webring\n" }));
   C(['credits', 'thanks'], () => nav('credits'));
@@ -1985,7 +1985,7 @@ AUTHORISED PERSONNEL ONLY
     if (t.m === 12) { got('december'); if (!reduced()) setTimeout(() => { if (!snowing) snowing = snowFx(0); }, 3000); }
     if (t.md === 1225) setTimeout(() => { tinsel(0); got('christmas'); Desk.toast('Merry Christmas!', 'Happy Christmas from Jack, Gubbinz and the Blobbits! (Dave says it too, but he spelt it wrong.)', 7000); }, 4000);
     if (t.md === 1031) { got('halloween'); const go = () => { if (!document.hidden && !ssOn) batsFx(ri(2, 5)); setTimeout(go, rnd(30000, 70000)); }; setTimeout(go, 8000); }
-    if (t.md === 1105) { got('bonfire'); const go = () => { if (!document.hidden && !ssOn) for (let i = 0, n = ri(1, 3); i < n; i++) setTimeout(() => fireworkFx(), i * 600); setTimeout(go, rnd(20000, 45000)); }; setTimeout(go, 6000); Desk.toast('Remember, remember...', "It's Bonfire Night! Keep your pets indoors and your Tamagotchis away from the sparklers.", 6000); }
+    if (t.md === 1105) { got('bonfire'); const go = () => { if (!document.hidden && !ssOn) for (let i = 0, n = ri(1, 3); i < n; i++) setTimeout(() => fireworkFx(), i * 600); setTimeout(go, rnd(20000, 45000)); }; setTimeout(go, 6000); Desk.toast('Remember, remember...', "It's Bonfire Night! Keep your pets indoors and your Eggberts away from the sparklers.", 6000); }
     if (t.md === 401) setTimeout(() => once('aprilfool' + new Date().getFullYear(), () => { htmlFlash('ff-flip', 3000); setTimeout(() => { Desk.toast('APRIL FOOL!!!', 'Got you! Everything is the right way up again. Probably.', 5000); got('aprilfool'); }, 3100); }), 1500);
     if (t.md === 811) setTimeout(() => { eclipseFx(6); got('eclipse'); Desk.toast('The eclipse!', "It's 11 August 1999: a total eclipse of the Sun! (Don't look straight at it. Not even on a monitor.)", 7000); }, 10000);
     if (t.d === 13 && t.date.getDay() === 5) { got('friday13'); setTimeout(blackCat, 9000); }

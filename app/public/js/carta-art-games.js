@@ -3,7 +3,7 @@
 (function () {
   const A = window.Carta && Carta.art; if (!A) return;
   A.add({
-    game_boy: { cap: 'The original Game Boy: grey, chunky, four shades of green. It survives being dropped.', draw(p, S) {
+    game_boy: { cap: 'The original Game Lad: grey, chunky, four shades of green. It survives being dropped.', draw(p, S) {
       p.vgrad(0, 72, '#ffe8a0', '#ffc060');
       // body with the famous rounded bottom-right corner
       p.opoly([[30, 3], [66, 3], [66, 58], [58, 68], [30, 68]], '#c8c4bc');
@@ -136,7 +136,7 @@
       // controller
       p.obox(16, 58, 32, 12, '#d8d8d4'); dpad(p, 23, 64, '#333'); p.odisc(39, 64, 2, '#333'); p.odisc(44, 64, 2, '#333'); p.obox(28, 61, 5, 2, '#555'); p.obox(28, 65, 5, 2, '#555');
     } },
-    mega_drive: { cap: 'The black Mega Drive with its raised round middle, and the three-button pad.', draw(p, S) {
+    mega_drive: { cap: 'The black Mega Glide with its raised round middle, and the three-button pad.', draw(p, S) {
       S.carpet(p);
       p.opoly([[6, 40], [70, 40], [80, 26], [18, 26]], '#141414'); p.rect(6, 40, 64, 8, '#0a0a0a'); p.opoly([[70, 40], [80, 26], [80, 34], [70, 48]], '#050505');
       for (let i = 0; i < 4; i++) p.line(10 + i * 3, 38 - i * 3, 22 + i * 3, 38 - i * 3, '#2a2a2a');
@@ -173,7 +173,7 @@
       p.obox(50, 40, 3, 16, '#888'); p.odisc(51, 39, 5, '#e10600'); p.px(49, 37, '#ff8080').px(50, 37, '#ff8080');
       [['#e10600', 64], ['#ffd400', 71], ['#2a9a2a', 78], ['#2a6ad8', 85]].forEach(([c, x]) => { p.odisc(x, 58, 2.5, c); p.px(x - 1, 57, '#fff'); });
     } },
-    snes: { cap: 'A Super Nintendo (the European and Japanese shape) and its pad with four coloured buttons.', draw(p, S) {
+    snes: { cap: 'A Super Ultra (the European and Japanese shape) and its pad with four coloured buttons.', draw(p, S) {
       S.carpet(p);
       // console: pale grey, rounded corners, darker cartridge slot area and two sliders
       p.opoly([[8, 40], [66, 40], [74, 30], [72, 24], [14, 24], [8, 30]], '#cfcfcb'); p.rect(8, 40, 58, 8, '#000'); p.rect(9, 41, 56, 6, '#b8b8b4'); p.rect(9, 41, 56, 1, '#dcdcd8');
@@ -206,7 +206,7 @@
       p.obox(62, 36, 8, 3, '#555'); p.px(12, 36, '#30ff30');
       p.obox(66, 56, 26, 12, '#1a1a1a'); dpad(p, 72, 62, '#3a3a3a'); p.odisc(82, 60, 1.6, '#888'); p.odisc(86, 63, 1.6, '#888'); p.odisc(82, 65, 1.6, '#888');
     } },
-    playstation: { cap: 'The grey PlayStation with its round CD lid, and the pad with its four symbol buttons.', draw(p, S) {
+    playstation: { cap: 'The grey PlaySpace with its round CD lid, and the pad with its four symbol buttons.', draw(p, S) {
       S.carpet(p);
       p.opoly([[6, 38], [62, 38], [72, 26], [16, 26]], '#c8c8c4'); p.rect(6, 38, 56, 8, '#000'); p.rect(7, 39, 54, 6, '#b0b0ac'); p.rect(7, 39, 54, 1, '#d8d8d4'); p.opoly([[62, 38], [72, 26], [72, 34], [62, 46]], '#8a8a86');
       p.oell(28, 31, 13, 4.5, '#a8a8a4'); p.ell(28, 30, 11, 3, '#bcbcb8'); p.ell(24, 29, 4, 1, '#dcdcd8');
@@ -218,7 +218,7 @@
       p.ring(bx + 5, by, 1.5, '#e10600'); p.line(bx - 1, by + 3, bx + 1, by + 5, '#2a5ad8').line(bx + 1, by + 3, bx - 1, by + 5, '#2a5ad8'); p.rect(bx - 7, by - 1, 3, 3, '#ff6ab0'); p.rect(bx - 6, by, 1, 1, '#c0c0bc');
       p.obox(62, 56, 4, 2, '#555'); p.obox(67, 56, 4, 2, '#555'); p.line(64, 52, 56, 46, '#222');
     } },
-    sega_saturn: { cap: 'A black Sega Saturn with a round lid in the middle, and its six-button pad.', draw(p, S) {
+    sega_saturn: { cap: 'A black Segue Orbiter with a round lid in the middle, and its six-button pad.', draw(p, S) {
       S.carpet(p);
       p.opoly([[6, 38], [66, 38], [76, 24], [16, 24]], '#1c1c1c'); p.rect(6, 38, 60, 10, '#000'); p.rect(7, 39, 58, 8, '#262626'); p.rect(7, 39, 58, 1, '#3a3a3a'); p.opoly([[66, 38], [76, 24], [76, 34], [66, 48]], '#0e0e0e');
       p.oell(40, 31, 15, 5, '#2a2a2a'); p.ell(40, 30, 13, 3.5, '#333'); p.ell(36, 29, 5, 1, '#4a4a4a');
@@ -237,7 +237,7 @@
       // the two-D-pad controller
       p.opoly([[30, 64], [66, 64], [70, 71], [26, 71]], '#1a1a1a'); dpad(p, 36, 67, '#3a3a3a'); dpad(p, 60, 67, '#3a3a3a');
     } },
-    n64: { cap: 'A Nintendo 64 and its three-handled controller with the analogue stick in the middle.', draw(p, S) {
+    n64: { cap: 'A Ultra 64 and its three-handled controller with the analogue stick in the middle.', draw(p, S) {
       S.carpet(p);
       p.opoly([[14, 30], [64, 30], [70, 22], [20, 22]], '#3a3a3e'); p.rect(14, 30, 50, 8, '#000'); p.rect(15, 31, 48, 6, '#2a2a2e'); p.opoly([[64, 30], [70, 22], [70, 28], [64, 36]], '#1a1a1e');
       p.opoly([[30, 27], [50, 27], [53, 23], [33, 23]], '#1a1a1e'); p.obox(24, 24, 4, 3, '#555'); p.obox(54, 24, 4, 3, '#555'); for (let i = 0; i < 4; i++) p.obox(20 + i * 11, 33, 6, 3, '#111');
@@ -250,7 +250,7 @@
       [[cx + 25, cy + 1], [cx + 22, cy + 4], [cx + 28, cy + 4], [cx + 25, cy + 7]].forEach(([x, y]) => p.odisc(x, y, 1.6, '#ffd400'));
       p.odisc(cx, cy + 3, 1.6, '#e10600'); p.line(cx, cy, cx - 2, 37, '#222');
     } },
-    game_boy_color: { cap: 'A see-through purple Game Boy Color: 56 colours on screen at once!', draw(p, S) {
+    game_boy_color: { cap: 'A see-through purple Game Lad Color: 56 colours on screen at once!', draw(p, S) {
       p.vgrad(0, 72, '#e0f8d0', '#a8e090');
       p.opoly([[32, 4], [64, 4], [66, 8], [66, 64], [60, 69], [36, 69], [30, 64], [30, 8]], 'rgba(120,60,200,.92)'); p.rect(33, 5, 30, 1, '#b090ff');
       p.rect(36, 6, 6, 2, '#300040');
@@ -259,7 +259,7 @@
       dpad(p, 39, 46, '#222'); p.odisc(55, 47, 3, '#2a1a40'); p.odisc(61, 44, 3, '#2a1a40'); p.obox(40, 56, 6, 2, '#3a2a5a'); p.obox(50, 56, 6, 2, '#3a2a5a');
       for (let i = 0; i < 3; i++) p.line(52 + i * 3, 66, 56 + i * 3, 61, '#4a2a8a');
     } },
-    dreamcast: { cap: 'The white Dreamcast (with a modem built in!) and its pad with a VMU plugged into the top.', draw(p, S) {
+    dreamcast: { cap: 'The white Daydream (with a modem built in!) and its pad with a VMU plugged into the top.', draw(p, S) {
       S.carpet(p);
       p.opoly([[8, 36], [52, 36], [60, 24], [16, 24]], '#f0f0ee'); p.rect(8, 36, 44, 10, '#000'); p.rect(9, 37, 42, 8, '#dcdcda'); p.rect(9, 37, 42, 1, '#fff'); p.opoly([[52, 36], [60, 24], [60, 34], [52, 46]], '#b8b8b6');
       p.oell(34, 30, 12, 4, '#d8d8d6'); p.ell(34, 29, 10, 3, '#e8e8e6'); p.obox(14, 27, 6, 3, '#c8c8c6'); p.obox(20, 39, 5, 3, '#c8c8c6'); for (let i = 0; i < 4; i++) p.obox(12 + i * 8, 42, 5, 2, '#9a9a98');
@@ -290,7 +290,7 @@
       for (let x = 54; x < 85; x += 2) p.rect(x, 48, 1, 6, '#e8c040');
       for (let i = 0; i < 5; i++) p.line(60 + i * 4, 27, 60 + i * 4, 31, '#c8a040');
     } },
-    memory_card: { cap: 'Three ways to save: a PlayStation card, an N64 Controller Pak and a Dreamcast VMU with its own screen.', draw(p, S) {
+    memory_card: { cap: 'Three ways to save: a PlaySpace card, an ULTRA 64 Controller Pak and a Daydream VMU with its own screen.', draw(p, S) {
       S.room(p);
       // PlayStation-style card
       p.obox(6, 22, 24, 30, '#a8a8a8'); p.rect(8, 24, 20, 12, '#d8d8d8'); p.text(10, 28, '128K', '#203060'); p.rect(8, 40, 20, 1, '#888'); for (let x = 9; x < 28; x += 3) p.rect(x, 48, 2, 3, '#555');

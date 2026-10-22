@@ -30,7 +30,7 @@
   const PRESETS = [
     { name: 'Jack\'s Lot', squigs: ['Jack', 'Big Jack', 'Lil\' Jack', 'Jack Jr'] },
     { name: 'Callum\'s Crew', squigs: ['Callum', 'Frag Master', 'Turbo', 'Lag'] },
-    { name: 'N64 Massive', squigs: ['Luke', 'Dave', 'Rumble Pak', 'Blowy'] },
+    { name: 'ULTRA 64 Massive', squigs: ['Luke', 'Dave', 'Rumble Pak', 'Blowy'] },
     { name: 'JackK\'s Army', squigs: ['JackK', 'Jumping Jack', 'Jack-in-a-Box', 'Gubbinz'] },
   ];
   const WPN = {
@@ -54,7 +54,7 @@
   const SAY = {
     hurt: ['Oi!', 'Ow!', 'Mom!', 'Not fair!', 'Me teeth!', 'Ooyah!', 'Rude!', 'I\'m telling!'],
     start: ['Right then!', 'Let\'s \'ave it!', 'Wot?', 'Come on then!', 'I\'m on it!', 'Charge!', 'Is it my go?'],
-    n64: ['Should\'ve brought the N64!', 'Is this on Nintendo?', 'Blow on it!'],
+    n64: ['Should\'ve brought the ULTRA 64!', 'Is this on Ultra Entertainment?', 'Blow on it!'],
     pc: ['Lag!', 'My mouse is rubbish!', '3D card or nothing!'],
     fire: ['Take that!', 'Incoming!', 'Eat this!', 'Fire!'],
     run: ['Run awaaay!', 'Fire in the \'ole!', 'Leg it!'],

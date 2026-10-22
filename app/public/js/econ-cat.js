@@ -14,7 +14,7 @@
     ['wp.gold', 'Gold Rupees on Velvet', 500, 'wall', 'Gold Rupees on red velvet. The most expensive wallpaper on the Internet. Probably.'],
     // mouse pointers
     ['cur.toof', 'Rupee Pointer', 50, 'cur', 'Your pointer becomes a single sparkly green Rupee.'],
-    ['cur.spanner', 'Robot Wars Spanner', 50, 'cur', 'A big spanner. Click things like you are fixing a fighting robot in the pits.'],
+    ['cur.spanner', 'Robo Rumble Spanner', 50, 'cur', 'A big spanner. Click things like you are fixing a fighting robot in the pits.'],
     ['cur.squig', 'Chomper Pointer', 70, 'cur', 'A tiny round red chomping monster points at things with its teeth.'],
     ['cur.gold', 'Golden Hand', 300, 'cur', 'A golden pointing hand. Everything you click feels expensive.'],
     // sound schemes
@@ -53,8 +53,8 @@
     // desktop pets (they live on your taskbar)
     ['pet.rock', 'Pet Rock', 75, 'pet', "Rocky's cousin. Sits on your taskbar. Occasionally rolls.", {}],
     ['pet.snot', 'Little Gremlin', 200, 'pet', 'A tiny green gremlin who runs about your taskbar and picks his nose. Do not get him wet.'],
-    ['pet.squig', 'Bouncy Squig', 250, 'pet', 'A red squig (the round, bitey Warhammer kind) that bounces along the taskbar and chomps your Start button.'],
-    ['pet.cube', 'Walking Cube', 300, 'pet', "A Rubik's cube with little legs. It scrambles itself when it's bored."],
+    ['pet.squig', 'Bouncy Squig', 250, 'pet', 'A red squig (the round, bitey War Hamster kind) that bounces along the taskbar and chomps your Start button.'],
+    ['pet.cube', 'Walking Cube', 300, 'pet', "A Rubrick's cube with little legs. It scrambles itself when it's bored."],
     // daft stuff
     ['misc.ram', 'Download More RAM', 40, 'misc', 'Adds 1 MB of RAM to your computer. Over the Internet! (Results not guaranteed.)'],
     ['misc.y2k', 'Y2K Insurance', 99, 'misc', 'Covers you against the Millennium Bug. Certificate saved to My Documents.'],
@@ -95,13 +95,13 @@
     n: B('Windmill', 120, { pow: 6, hap: 1 }, 'Clean power from the wind. Very modern. Very 1999.', 3),
     x: B('Amusement Arcade', 140, { jobs: 2, hap: 4, pow: -2, crime: 1, rent: 0.06 }, 'Ten pence a go. Has a JACKTRIS cabinet.', 1),
     b: B('Rupee Bank Branch', 200, { jobs: 4, crime: 1, pow: -1, rent: 0.07 }, 'A little bank. The cashier behind the glass counts Rupees very slowly.', 1),
-    R: B("Rubik's Cube Statue", 160, { hap: 5, rent: 0.04 }, 'A giant cube statue. Tourists come to try and solve it.', 1),
+    R: B("Rubrick's Cube Statue", 160, { hap: 5, rent: 0.04 }, 'A giant cube statue. Tourists come to try and solve it.', 1),
     c: B('Cinema (Episode I)', 220, { jobs: 3, hap: 6, pow: -3, rent: 0.08 }, 'One screen. Showing Episode I. Forever. Queue starts Tuesday.', 1),
   };
   const BUILD_ORDER = ['r', 't', 'f', 'p', 'F', 'h', 'a', 'o', 's', 'T', 'm', 'q', 'w', 'g', 'e', 'n', 'x', 'b', 'R', 'c', '.'];
   const TOWN = { W: 40, H: 40, BLOCK: 5, PLOT: 4, OFF: 3, N: 7, RESERVED: [24, 17, 31] }; // 7x7 plots; plot i -> (i % 7, i / 7 | 0)
   const ROADS = ['Mushroom Lane', 'Sprite Street', 'Rupee Terrace', 'Joystick Way', 'Dragon Drive', 'Spanner Road', 'Cartridge Close'];
-  const AVES = ['Red Avenue', 'Boing Boulevard', 'Floppy Crescent', 'Modem Mews', 'Pixel Parade', 'Cube Court', 'Jedi Gardens'];
+  const AVES = ['Red Avenue', 'Boing Boulevard', 'Floppy Crescent', 'Modem Mews', 'Pixel Parade', 'Cube Court', 'Space Cadet Gardens'];
 
   // ---------------------------------------------------------------- Jack Stock Exchange companies
   // [sym, name, start price, volatility per minute, drift per minute, dividend yield per day, blurb]
@@ -120,7 +120,7 @@
   const dsym = s => DS[s] || s; // internal symbol -> the one on screen
 
   // ---------------------------------------------------------------- Jackdown Park karts (the 10-minute races; the list is still called GROTS inside)
-  const GROTS = ['Turbo Tim', 'Nitro Nell', 'Pixel Pete', 'Blue Thunder', 'Zoom Zoom', 'Rubik Rocket', 'Megabyte', 'Floppy Flo', 'Captain Joystick', 'Dial-Up Dave', 'Sir Spinalot', 'Tetromino', 'Lightspeed Lou', 'Sprocket', 'Boingo', 'Cosmic Kev', 'Bleep Bloop', 'Gigahertz', 'Mudlark', 'Spudnik', 'Snikkit the Squig', 'Wonky Wilf', 'Red Rocket', 'Lumpy'];
+  const GROTS = ['Turbo Tim', 'Nitro Nell', 'Pixel Pete', 'Blue Thunder', 'Zoom Zoom', 'Rubrick Rocket', 'Megabyte', 'Floppy Flo', 'Captain Joystick', 'Dial-Up Dave', 'Sir Spinalot', 'Tetromino', 'Lightspeed Lou', 'Sprocket', 'Boingo', 'Cosmic Kev', 'Bleep Bloop', 'Gigahertz', 'Mudlark', 'Spudnik', 'Snikkit the Squig', 'Wonky Wilf', 'Red Rocket', 'Lumpy'];
 
   // ---------------------------------------------------------------- earning rules (per JackNet member, per UK day)
   // THE BALANCE TABLE. Every Rupee anybody earns goes through ONE path: earn() in mods/econ.js. The server decides every
@@ -166,7 +166,7 @@
     gb: { amt: 15, cap: 1, drop: 0.1, label: 'Letter to Jack (guestbook)' },
     chat: { amt: 1, cap: 20, gap: 30, drop: 0.01, label: 'Chatting in the Chat Room' },
     secret: { amt: 5, cap: 10, half: 5, drop: 0.12, label: 'Secret found' },
-    cube: { amt: 25, cap: 2, drop: 0.3, label: "Solved the shared Rubik's cube" },
+    cube: { amt: 25, cap: 2, drop: 0.3, label: "Solved the shared Rubrick's cube" },
     waaagh: { amt: 15, cap: 2, drop: 0.25, label: 'Called the WAAAGH!' },
     petcare: { amt: 2, cap: 5, gap: 60, drop: 0.04, label: 'Looked after Gubbinz' },
     frag: { amt: 2, cap: 15, half: 8, gap: 3, drop: 0.03, label: 'JackReal Tournament frag' },

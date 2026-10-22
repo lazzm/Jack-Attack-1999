@@ -6,10 +6,12 @@ try{
   await p.setViewportSize({width,height});
   for(const [name,target,key] of [
    ['level',[-100,-55,145],'e'],['floor',[-100,73,145],'e'],
-   ['near-feet',[-100,73,180],'e'],['steep',[-100,73,210],'click']]){
-   await view([-100,-55,215],target);await p.evaluate(()=>{House.hush();House._.setMode('walk');House.grab('chair')});
+   ['near-feet',[-100,73,180],'e'],['desk-chair',[-15,73,95],'e'],['steep',[-60,73,210],'click']]){
+   await view([-90,-55,215],target);await p.evaluate(()=>{House.hush();House._.setMode('walk');House.grab('chair')});
    if(name==='steep')await p.keyboard.press('r');
    await p.waitForTimeout(500);
+   const preview=await p.evaluate(()=>House.placement());assert(preview?.target,`${name}: expected a green placement footprint`);
+   if(name==='desk-chair'){assert(Math.abs(preview.target.x+15)<1&&Math.abs(preview.target.z-95)<1);await p.screenshot({path:`shots/chair-preview-${size}.png`})}
    if(size==='desktop')assert((await p.locator('.hs-hkeys').innerText()).includes('E / Click: place'));
    if(key==='click')await p.mouse.click(width/2,height/2);else await p.keyboard.press(key);
    assert.equal(await p.evaluate(()=>House.held()),null,`${size} ${name} rejected a clear-floor drop`);
@@ -17,6 +19,7 @@ try{
    const placed=await p.evaluate(()=>{const t=House.THINGS.chair;return{at:t.at,rx:t.obj.rotation.x,rz:t.obj.rotation.z,blocks:!House._.floorAt(t.at.x,t.at.z,'U',73),playerClear:!!House._.floorAt(House.W.x,House.W.z,'U',73),player:[House.W.x,House.W.z]}});
    console.log(size,name,placed);
    assert.equal(placed.at.y,73);assert(placed.blocks);assert(placed.playerClear);assert(Math.abs(placed.rx)<.001&&Math.abs(placed.rz)<.001);
+   assert(Math.abs(placed.at.x-preview.target.x)<1&&Math.abs(placed.at.z-preview.target.z)<1,'Drop differs from placement preview');
    await view([-165,-20,230],[placed.at.x,30,placed.at.z]);await p.screenshot({path:`shots/chair-place-${size}-${name}.png`});
   }
   // Safety rules still reject furniture on the PC approach, not just at feet.

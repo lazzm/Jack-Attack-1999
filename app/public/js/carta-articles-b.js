@@ -39,13 +39,13 @@ The spaceships look incredibly real, using detailed models and clever camera wor
 The film is based on a French novel by Pierre Boulle. Its ape make-up was so impressive that its creator, John Chambers, was given a special honorary Oscar.
 
 It is famous for one of the most surprising endings in film history. We won't spoil it here, but it involves a beach. The film was so popular that several sequels and a television series followed in the 1970s.` },
-    { id: 'star_wars', t: 'Star Wars', c: 'films', y: 1977, img: 'lasersword', rel: ['empire_strikes_back', 'return_of_the_jedi', 'phantom_menace', 'special_effects'],
-      f: [['Released', '1977 (USA, 25 May)'], ['Writer and director', 'George Lucas'], ['Music', 'John Williams'], ['Heroes', 'Luke, Leia, Han, Chewbacca']],
-      x: `Star Wars, written and directed by George Lucas, came out in America on 25 May 1977 and in Britain at the end of that year. It tells the story of Luke Skywalker, a farm boy who joins a rebellion against an evil Empire and its terrifying masked enforcer, Darth Vader.
+    { id: 'star_wars', t: 'Intergalactic Battles', c: 'films', y: 1977, img: 'lasersword', rel: ['empire_strikes_back', 'return_of_the_jedi', 'phantom_menace', 'special_effects'],
+      f: [['Released', '1977 (USA, 25 May)'], ['Writer and director', 'Gordon Lukewarm'], ['Music', 'John Williams'], ['Heroes', 'Luke, Leia, Han, Chew Biscuit']],
+      x: `Intergalactic Battles, written and directed by Gordon Lukewarm, came out in America on 25 May 1977 and in Britain at the end of that year. It tells the story of Luke Skywobbler, a farm boy who joins a rebellion against an evil Empire and its terrifying masked enforcer, Dark Vapour.
 
-With laser swords, droids called R2-D2 and C-3PO, the smuggler Han Solo and the mighty Wookiee Chewbacca, it became one of the most successful films ever made. It won several Oscars, and John Williams's music is known all over the world.
+With laser swords, droids called R2-D2 and C-3PO, the smuggler Ham Solo and the mighty Wookiee Chew Biscuit, it became one of the most successful films ever made. It won several Oscars, and John Williams's music is known all over the world.
 
-George Lucas set up a special effects company, Industrial Light & Magic, to make the film's spaceship battles. The story continued in [[empire_strikes_back|The Empire Strikes Back]] and [[return_of_the_jedi|Return of the Jedi]], and in 1999 the story went back in time with [[phantom_menace|The Phantom Menace]].` },
+Gordon Lukewarm set up a special effects company, Industrial Light & Magic, to make the film's spaceship battles. The story continued in [[empire_strikes_back|The Empire Strikes Out]] and [[return_of_the_jedi|Return of the Space Cadets]], and in 1999 the story went back in time with [[phantom_menace|The Phantom Nuisance]].` },
     { id: 'close_encounters', t: 'Close Encounters of the Third Kind', c: 'films', y: 1977, img: 'ufo', rel: ['et', 'day_earth_stood_still', 'independence_day'],
       f: [['Released', '1977'], ['Director', 'Steven Spielberg'], ['Star', 'Richard Dreyfuss'], ['Famous for', 'A five-note tune']],
       x: `Close Encounters of the Third Kind is a 1977 film by Steven Spielberg about ordinary people who see UFOs and feel strangely drawn to a strange flat-topped mountain, Devils Tower in Wyoming, USA.
@@ -60,27 +60,27 @@ In the film's famous finale, scientists talk to a vast, glowing alien mothership
 The film is a real "behind the sofa" film, and is meant for grown-ups. Its posters were famously spooky, and it scared a whole generation of cinema-goers.
 
 The alien was designed by the Swiss artist H. R. Giger. Sigourney Weaver's character, Ripley, became one of the great film heroes, and she returned in [[aliens_film|Aliens]] in 1986. And yes, the ship's cat, Jonesy, is fine.` },
-    { id: 'star_trek_films', t: 'Star Trek films', c: 'films', y: 1979, img: 'spaceship', rel: ['forbidden_planet', 'galaxy_quest', 'star_wars'], kw: 'enterprise spock kirk',
-      f: [['First film', 'Star Trek: The Motion Picture (1979)'], ['TV series began', '1966'], ['Creator', 'Gene Roddenberry'], ['Films by 1999', 'Nine']],
-      x: `Star Trek began as an American television series in 1966, created by Gene Roddenberry, following Captain Kirk, Mr Spock and the crew of the starship Enterprise.
+    { id: 'star_trek_films', t: 'Galaxy Walk films', c: 'films', y: 1979, img: 'spaceship', rel: ['forbidden_planet', 'galaxy_quest', 'star_wars'], kw: 'enterprise spock kirk',
+      f: [['First film', 'Galaxy Walk: The Motion Picture (1979)'], ['TV series began', '1966'], ['Creator', 'Gene Roddenberry'], ['Films by 1999', 'Nine']],
+      x: `Galaxy Walk began as an American television series in 1966, created by Gene Roddenberry, following Captain Kirk, Mr Spock and the crew of the starship Enterprise.
 
-The first film, Star Trek: The Motion Picture, came out in 1979 and was directed by Robert Wise, who had also made [[day_earth_stood_still|The Day the Earth Stood Still]]. It was followed by The Wrath of Khan (1982), The Search for Spock (1984), The Voyage Home (1986), in which the crew travel back to the 1980s to find some humpback whales, and The Final Frontier (1989).
+The first film, Galaxy Walk: The Motion Picture, came out in 1979 and was directed by Robert Wise, who had also made [[day_earth_stood_still|The Day the Earth Stood Still]]. It was followed by The Wrath of Khan (1982), The Search for Spock (1984), The Voyage Home (1986), in which the crew travel back to the 1980s to find some humpback whales, and The Final Frontier (1989).
 
 The Undiscovered Country (1991) was the last outing for the original crew. Captain Picard's crew from The Next Generation took over with Generations (1994), First Contact (1996) and Insurrection (1998).` },
-    { id: 'empire_strikes_back', t: 'The Empire Strikes Back', c: 'films', y: 1980, img: 'lasersword', rel: ['star_wars', 'return_of_the_jedi', 'special_effects'],
-      f: [['Released', '1980'], ['Director', 'Irvin Kershner'], ['New hero', 'Yoda'], ['Snow planet', 'Hoth']],
-      x: `The Empire Strikes Back is the 1980 sequel to [[star_wars|Star Wars]], directed by Irvin Kershner. It begins on the frozen planet Hoth, where the rebels are attacked by giant four-legged walking tanks.
+    { id: 'empire_strikes_back', t: 'The Empire Strikes Out', c: 'films', y: 1980, img: 'lasersword', rel: ['star_wars', 'return_of_the_jedi', 'special_effects'],
+      f: [['Released', '1980'], ['Director', 'Irvin Kershner'], ['New hero', 'Yoga'], ['Snow planet', 'Hoth']],
+      x: `The Empire Strikes Out is the 1980 sequel to [[star_wars|Intergalactic Battles]], directed by Irvin Kershner. It begins on the frozen planet Hoth, where the rebels are attacked by giant four-legged walking tanks.
 
-Luke Skywalker travels to a swampy planet to train with Yoda, a small, green and very wise Jedi Master who talks in a back-to-front way. Meanwhile Han Solo and Princess Leia are chased across the galaxy by Darth Vader.
+Luke Skywobbler travels to a swampy planet to train with Yoga, a small, green and very wise Space Cadet Master who talks in a back-to-front way. Meanwhile Ham Solo and Princess Leia are chased across the galaxy by Dark Vapour.
 
-Many fans think it is the best Star Wars film. It ends with one of the biggest surprises in cinema history, revealed by Darth Vader during a laser-sword duel. If you somehow don't know it yet, we won't spoil it.` },
+Many fans think it is the best Intergalactic Battles film. It ends with one of the biggest surprises in cinema history, revealed by Dark Vapour during a laser-sword duel. If you somehow don't know it yet, we won't spoil it.` },
     { id: 'et', t: 'E.T. the Extra-Terrestrial', c: 'films', y: 1982, img: 'alien', rel: ['close_encounters', 'jurassic_park', 'telephone'],
       f: [['Released', '1982'], ['Director', 'Steven Spielberg'], ['Hero', 'Elliott, aged 10'], ['Famous scene', 'A flying bicycle']],
       x: `E.T. the Extra-Terrestrial is a 1982 film by Steven Spielberg. A gentle alien botanist is accidentally left behind on Earth, and is found hiding in the garden shed of a ten-year-old boy called Elliott.
 
 Elliott, his brother and his little sister hide E.T. from the grown-ups, teach him to talk and help him build a home-made communicator so he can call his family. The scene where Elliott's bicycle flies across the face of the full Moon is one of the most famous pictures in film.
 
-E.T. became the most successful film ever made, and kept that record until [[jurassic_park|Jurassic Park]] beat it in 1993. Bring tissues. Lots of tissues.` },
+E.T. became the most successful film ever made, and kept that record until [[jurassic_park|Jurassic Lark]] beat it in 1993. Bring tissues. Lots of tissues.` },
     { id: 'blade_runner', t: 'Blade Runner', c: 'films', y: 1982, img: 'film', rel: ['alien_film', 'metropolis', 'robot_word'],
       f: [['Released', '1982'], ['Director', 'Ridley Scott'], ['Star', 'Harrison Ford'], ['Based on', 'A novel by Philip K. Dick']],
       x: `Blade Runner is a 1982 film directed by Ridley Scott, set in a rainy, neon-lit Los Angeles of the future. Harrison Ford plays Rick Deckard, a detective whose job is to track down "replicants": artificial people who look exactly like humans.
@@ -95,23 +95,23 @@ It wasn't a big hit at first, but its amazing city of flying cars, giant video a
 The most famous scenes are the light cycle races: glowing motorbikes that leave solid walls of light behind them, so the riders must trap each other. Kids everywhere played the same idea at the arcade.
 
 Tron was one of the first films to use lots of computer-generated imagery, with around fifteen minutes of it, at a time when most people had never even seen a home computer. Many of the people who later made computer animated films say Tron inspired them.` },
-    { id: 'return_of_the_jedi', t: 'Return of the Jedi', c: 'films', y: 1983, img: 'lasersword', rel: ['star_wars', 'empire_strikes_back', 'phantom_menace'],
+    { id: 'return_of_the_jedi', t: 'Return of the Space Cadets', c: 'films', y: 1983, img: 'lasersword', rel: ['star_wars', 'empire_strikes_back', 'phantom_menace'],
       f: [['Released', '1983'], ['Director', 'Richard Marquand'], ['Forest moon', 'Endor'], ['Small furry heroes', 'Ewoks']],
-      x: `Return of the Jedi is the 1983 film that finished the first [[star_wars|Star Wars]] trilogy. It was directed by Richard Marquand.
+      x: `Return of the Space Cadets is the 1983 film that finished the first [[star_wars|Intergalactic Battles]] trilogy. It was directed by Richard Marquand.
 
-It starts with a daring rescue from the palace of the slug-like gangster Jabba the Hutt, then moves to the forest moon of Endor, where the Empire is building a second, even bigger Death Star. The rebels get help from the Ewoks, small furry forest creatures who turn out to be surprisingly good at fighting.
+It starts with a daring rescue from the palace of the slug-like gangster Jabba the Hutt, then moves to the forest moon of Endor, where the Empire is building a second, even bigger Dread Scone. The rebels get help from the Ewoks, small furry forest creatures who turn out to be surprisingly good at fighting.
 
-The film is famous for its speeder bike chase through the trees, built using tiny models and clever filming. It was the last new Star Wars film for sixteen years, until [[phantom_menace|The Phantom Menace]] arrived in 1999.` },
-    { id: 'the_terminator', t: 'The Terminator', c: 'films', y: 1984, img: 'robot', rel: ['terminator_2', 'robocop', 'robot_word'],
+The film is famous for its speeder bike chase through the trees, built using tiny models and clever filming. It was the last new Intergalactic Battles film for sixteen years, until [[phantom_menace|The Phantom Nuisance]] arrived in 1999.` },
+    { id: 'the_terminator', t: 'The Terminatater', c: 'films', y: 1984, img: 'robot', rel: ['terminator_2', 'robocop', 'robot_word'],
       f: [['Released', '1984'], ['Director', 'James Cameron'], ['Star', 'Arnold Schwarzenegger'], ['Setting', 'Los Angeles, 1984']],
-      x: `The Terminator is a 1984 film directed by James Cameron. A cyborg (a machine covered in living tissue so it looks human) is sent back in time from the far future to 1984, and a soldier from the future follows to protect a young woman called Sarah Connor.
+      x: `The Terminatater is a 1984 film directed by James Cameron. A cyborg (a machine covered in living tissue so it looks human) is sent back in time from the far future to 1984, and a soldier from the future follows to protect a young woman called Sarah Connor.
 
 Arnold Schwarzenegger, a former bodybuilding champion, plays the unstoppable machine and says very little, but his short, flat lines became some of the most copied in the playground.
 
-The Terminator was made on a fairly small budget but became a big hit. It is a film for grown-ups. The story continued in [[terminator_2|Terminator 2: Judgment Day]] in 1991, which is when Arnie switched sides.` },
-    { id: 'back_to_the_future', t: 'Back to the Future', c: 'films', y: 1985, img: 'car', rel: ['car', 'the_terminator', 'special_effects'],
+The Terminatater was made on a fairly small budget but became a big hit. It is a film for grown-ups. The story continued in [[terminator_2|Terminatater 2: Judgment Day]] in 1991, which is when Arnie switched sides.` },
+    { id: 'back_to_the_future', t: 'Back to the Furniture', c: 'films', y: 1985, img: 'car', rel: ['car', 'the_terminator', 'special_effects'],
       f: [['Released', '1985'], ['Director', 'Robert Zemeckis'], ['Star', 'Michael J. Fox'], ['Top speed needed', '88 miles per hour']],
-      x: `Back to the Future is a 1985 film directed by Robert Zemeckis. Teenager Marty McFly is accidentally sent back from 1985 to 1955 in a time machine built out of a stainless steel sports car by his friend, the wild-haired inventor Doc Brown.
+      x: `Back to the Furniture is a 1985 film directed by Robert Zemeckis. Teenager Marty McFly is accidentally sent back from 1985 to 1955 in a time machine built out of a stainless steel sports car by his friend, the wild-haired inventor Doc Brown.
 
 To travel in time, the car must reach 88 miles per hour, and it needs 1.21 gigawatts of power. In 1955 that much power can only come from a bolt of lightning, and luckily Marty knows exactly when one will strike the town clock tower.
 
@@ -123,23 +123,23 @@ Marty accidentally stops his own parents from meeting, and has to fix it before 
 Where the first film was a slow, creepy mystery, Aliens is a fast action film. It is still a film for grown-ups. Ripley looks after a brave young girl called Newt, and in the famous finale she fights while wearing a "power loader", a giant walking machine for lifting cargo.
 
 It won Oscars for its visual effects and sound effects editing, and Sigourney Weaver was nominated for Best Actress, which was rare for a science fiction film.` },
-    { id: 'robocop', t: 'RoboCop', c: 'films', y: 1987, img: 'robot', rel: ['the_terminator', 'robot_word', 'special_effects'],
+    { id: 'robocop', t: 'Robot Cop-Out', c: 'films', y: 1987, img: 'robot', rel: ['the_terminator', 'robot_word', 'special_effects'],
       f: [['Released', '1987'], ['Director', 'Paul Verhoeven'], ['Star', 'Peter Weller'], ['Setting', 'Detroit, in the future']],
-      x: `RoboCop is a 1987 science fiction film directed by Paul Verhoeven. In a future Detroit, a police officer called Alex Murphy is badly hurt and rebuilt by a big company as a cyborg cop with a metal body.
+      x: `Robot Cop-Out is a 1987 science fiction film directed by Paul Verhoeven. In a future Detroit, a police officer called Alex Murphy is badly hurt and rebuilt by a big company as a cyborg cop with a metal body.
 
-RoboCop is strong, bulletproof and very slow at turning round. Bit by bit he remembers who he used to be. The film also pokes fun at TV adverts and greedy companies.
+Robot Cop-Out is strong, bulletproof and very slow at turning round. Bit by bit he remembers who he used to be. The film also pokes fun at TV adverts and greedy companies.
 
-The giant clumsy police robot ED-209, which can't get down stairs, was brought to life with stop-motion animation by Phil Tippett. RoboCop is a film for grown-ups. It was followed by two sequels in 1990 and 1993, and a TV series.` },
-    { id: 'terminator_2', t: 'Terminator 2: Judgment Day', c: 'films', y: 1991, img: 'robot', rel: ['the_terminator', 'special_effects', 'jurassic_park'],
+The giant clumsy police robot ED-209, which can't get down stairs, was brought to life with stop-motion animation by Phil Tippett. Robot Cop-Out is a film for grown-ups. It was followed by two sequels in 1990 and 1993, and a TV series.` },
+    { id: 'terminator_2', t: 'Terminatater 2: Judgment Day', c: 'films', y: 1991, img: 'robot', rel: ['the_terminator', 'special_effects', 'jurassic_park'],
       f: [['Released', '1991'], ['Director', 'James Cameron'], ['Villain', 'The T-1000'], ['Oscars', 'Four, including visual effects']],
-      x: `Terminator 2: Judgment Day is the 1991 sequel to [[the_terminator|The Terminator]]. This time Arnold Schwarzenegger's cyborg is the good guy, sent back to protect a boy called John Connor.
+      x: `Terminatater 2: Judgment Day is the 1991 sequel to [[the_terminator|The Terminatater]]. This time Arnold Schwarzenegger's cyborg is the good guy, sent back to protect a boy called John Connor.
 
 The villain is the T-1000, a machine made of liquid metal that can turn into anyone, squeeze through bars and melt back together after being smashed. It was created with ground-breaking computer graphics, and showed film-makers that CGI could look truly solid and real.
 
-T2 won four Oscars, including one for its visual effects. Without the T-1000, the computer-made dinosaurs of [[jurassic_park|Jurassic Park]] might never have happened.` },
-    { id: 'jurassic_park', t: 'Jurassic Park', c: 'films', y: 1993, img: 'trex', rel: ['tyrannosaurus', 'velociraptor', 'special_effects', 'et'],
+T2 won four Oscars, including one for its visual effects. Without the T-1000, the computer-made dinosaurs of [[jurassic_park|Jurassic Lark]] might never have happened.` },
+    { id: 'jurassic_park', t: 'Jurassic Lark', c: 'films', y: 1993, img: 'trex', rel: ['tyrannosaurus', 'velociraptor', 'special_effects', 'et'],
       f: [['Released', '1993'], ['Director', 'Steven Spielberg'], ['Based on', 'A novel by Michael Crichton'], ['Sequel', 'The Lost World (1997)']],
-      x: `Jurassic Park is a 1993 film by Steven Spielberg, based on a novel by Michael Crichton. On an island, scientists bring dinosaurs back to life using dinosaur blood found in mosquitoes trapped in amber, and build a theme park. It goes wrong. Very wrong.
+      x: `Jurassic Lark is a 1993 film by Steven Spielberg, based on a novel by Michael Crichton. On an island, scientists bring dinosaurs back to life using dinosaur blood found in mosquitoes trapped in amber, and build a theme park. It goes wrong. Very wrong.
 
 The dinosaurs were made with a mix of huge moving models built by Stan Winston's team and amazing computer graphics from Industrial Light & Magic. No one had seen animals that looked so real on screen before.
 
@@ -172,20 +172,20 @@ The film's weird and wonderful aliens were created by make-up artist Rick Baker,
 Leeloo turns out to be the "fifth element", the key to saving the universe from a great evil, along with four ancient stones that stand for earth, water, air and fire.
 
 The film is famous for its traffic jams of flying cars stacked between skyscrapers, its wild costumes by fashion designer Jean-Paul Gaultier, and a blue alien opera singer. It opened the Cannes Film Festival in 1997.` },
-    { id: 'the_matrix', t: 'The Matrix', c: 'films', y: 1999, img: 'monitor', rel: ['tron', 'special_effects', 'blade_runner'],
+    { id: 'the_matrix', t: 'The Modemtrix', c: 'films', y: 1999, img: 'monitor', rel: ['tron', 'special_effects', 'blade_runner'],
       f: [['Released', '1999 (USA in March, UK in June)'], ['Writers and directors', 'The Wachowskis'], ['Star', 'Keanu Reeves'], ['Famous effect', '"Bullet time"']],
-      x: `The Matrix is one of the biggest films of 1999. Keanu Reeves plays Neo, a computer programmer who discovers that the world around him is not real at all: it is a giant computer simulation.
+      x: `The Modemtrix is one of the biggest films of 1999. Keanu Reeves plays Neo, a computer programmer who discovers that the world around him is not real at all: it is a giant computer simulation.
 
 A mysterious man called Morpheus offers Neo a choice between a red pill and a blue pill. Take the red one, and he will find out the truth. Of course, he takes the red one.
 
 The film is famous for its showers of green computer code and its "bullet time" effect, where the action freezes in slow motion while the camera seems to swoop all the way around it. This was done with a ring of more than a hundred still cameras, fired one after another, plus computer trickery.` },
-    { id: 'phantom_menace', t: 'Star Wars: Episode I - The Phantom Menace', c: 'films', y: 1999, img: 'lasersword', rel: ['star_wars', 'return_of_the_jedi', 'special_effects'],
-      f: [['Released', 'USA 19 May 1999, UK 16 July 1999'], ['Director', 'George Lucas'], ['Young hero', 'Anakin Skywalker'], ['Villain', 'Darth Maul']],
-      x: `The Phantom Menace is the first new Star Wars film for sixteen years, and was the most talked-about film of 1999. Some fans queued outside cinemas for weeks to see it first.
+    { id: 'phantom_menace', t: 'Intergalactic Battles: Episode I - The Phantom Nuisance', c: 'films', y: 1999, img: 'lasersword', rel: ['star_wars', 'return_of_the_jedi', 'special_effects'],
+      f: [['Released', 'USA 19 May 1999, UK 16 July 1999'], ['Director', 'Gordon Lukewarm'], ['Young hero', 'Anklekin Skywobbler'], ['Villain', 'Dark Mole']],
+      x: `The Phantom Nuisance is the first new Intergalactic Battles film for sixteen years, and was the most talked-about film of 1999. Some fans queued outside cinemas for weeks to see it first.
 
-It goes back in time, to before the [[star_wars|original Star Wars]], and shows a young Obi-Wan Kenobi and his master Qui-Gon Jinn finding a nine-year-old slave boy called Anakin Skywalker, who is amazingly good at podracing.
+It goes back in time, to before the [[star_wars|original Intergalactic Battles]], and shows a young Obi-Wan Cannoli and his master Qui-Gon Gym finding a nine-year-old slave boy called Anklekin Skywobbler, who is amazingly good at podracing.
 
-The film is packed with computer-generated creatures, including the clumsy Jar Jar Binks, and features Darth Maul, a red-and-black villain with a laser sword that has a blade at BOTH ends. The podrace scene is one of the fastest things ever put on a cinema screen.` },
+The film is packed with computer-generated creatures, including the clumsy Jar Jar Jams, and features Dark Mole, a red-and-black villain with a laser sword that has a blade at BOTH ends. The podrace scene is one of the fastest things ever put on a cinema screen.` },
     { id: 'iron_giant', t: 'The Iron Giant', c: 'films', y: 1999, img: 'robot', rel: ['sputnik', 'robot_word', 'day_earth_stood_still'],
       f: [['Released', '1999'], ['Director', 'Brad Bird'], ['Based on', 'The Iron Man by Ted Hughes (1968)'], ['Set in', '1957']],
       x: `The Iron Giant is a 1999 animated film directed by Brad Bird. It is based on The Iron Man, a story written in 1968 by the British poet Ted Hughes.
@@ -199,85 +199,85 @@ The giant was drawn with the help of computers, while the people were drawn by h
 
 The cast of a cancelled TV show called Galaxy Quest now spend their time signing autographs at fan conventions. Then a group of real aliens, who have watched the old episodes and think they are true historical documents, beam them up to help fight a real space war.
 
-The actors have to become the heroes they only pretended to be. Sigourney Weaver, star of [[alien_film|Alien]], and Alan Rickman are among the cast. Expect lots of jokes that Star Trek fans will spot.` },
+The actors have to become the heroes they only pretended to be. Sigourney Weaver, star of [[alien_film|Alien]], and Alan Rickman are among the cast. Expect lots of jokes that Galaxy Walk fans will spot.` },
     { id: 'special_effects', t: 'Special effects', c: 'films', img: 'film', rel: ['jurassic_park', 'terminator_2', 'tron', 'star_wars'], kw: 'cgi stop motion models visual effects',
-      f: [['Early pioneer', 'Georges Méliès (A Trip to the Moon, 1902)'], ['Stop motion', 'King Kong (1933)'], ['First all-computer film', 'Toy Story (1995)']],
+      f: [['Early pioneer', 'Georges Méliès (A Trip to the Moon, 1902)'], ['Stop motion', 'King Kong (1933)'], ['First all-computer film', 'Toy Storey (1995)']],
       x: `Special effects are the tricks film-makers use to show things that can't really be filmed, like spaceships, monsters and dinosaurs.
 
 One of the first masters was the French magician Georges Méliès, whose 1902 film A Trip to the Moon shows a rocket landing in the Moon's eye. In 1933, King Kong used stop-motion animation: a small model is moved a tiny bit, one frame of film is taken, and the process is repeated thousands of times. Ray Harryhausen became famous for this, with sword-fighting skeletons in Jason and the Argonauts (1963).
 
-Big films like [[star_wars|Star Wars]] used detailed models. Then computers took over: [[tron|Tron]] in 1982, [[terminator_2|Terminator 2]] in 1991, [[jurassic_park|Jurassic Park]] in 1993, and in 1995 Toy Story became the first feature film made entirely with computer animation.` },
+Big films like [[star_wars|Intergalactic Battles]] used detailed models. Then computers took over: [[tron|Tron]] in 1982, [[terminator_2|Terminatater 2]] in 1991, [[jurassic_park|Jurassic Lark]] in 1993, and in 1995 Toy Storey became the first feature film made entirely with computer animation.` },
     // ---- the Star Wars corner
-    { id: 'george_lucas', t: 'George Lucas', c: 'films', y: 1944, img: 'film', rel: ['star_wars', 'ilm', 'phantom_menace', 'x_wing'],
-      f: [['Born', '14 May 1944, Modesto, California'], ['Created', 'Star Wars, and Indiana Jones with Steven Spielberg'], ['Companies', 'Lucasfilm, ILM, LucasArts']],
-      x: `George Lucas is the American film-maker who created [[star_wars|Star Wars]]. He grew up in Modesto, California, loved fast cars and comics, and studied film at the University of Southern California.
+    { id: 'george_lucas', t: 'Gordon Lukewarm', c: 'films', y: 1944, img: 'film', rel: ['star_wars', 'ilm', 'phantom_menace', 'x_wing'],
+      f: [['Born', '14 May 1944, Modesto, California'], ['Created', 'Intergalactic Battles, and Indiana Groans with Steven Spielberg'], ['Companies', 'Lukewarm Films, ILM, Lukewarm Arts']],
+      x: `Gordon Lukewarm is the American film-maker who created [[star_wars|Intergalactic Battles]]. He grew up in Modesto, California, loved fast cars and comics, and studied film at the University of Southern California.
 
-His first feature film was THX 1138 (1971), and his second, American Graffiti (1973), was a big hit about teenagers in the early 1960s. Then came Star Wars in 1977. He also dreamed up the adventurer Indiana Jones with his friend Steven Spielberg.
+His first feature film was THX 1138 (1971), and his second, American Graffiti (1973), was a big hit about teenagers in the early 1960s. Then came Intergalactic Battles in 1977. He also dreamed up the adventurer Indiana Groans with his friend Steven Spielberg.
 
-Lucas built his own film companies, including [[ilm|Industrial Light & Magic]] for special effects and a games company now called LucasArts, which made [[x_wing|X-Wing]]. In 1999 he directed [[phantom_menace|The Phantom Menace]], the first film he had directed himself since the original Star Wars.` },
+Lucas built his own film companies, including [[ilm|Industrial Light & Magic]] for special effects and a games company now called Lukewarm Arts, which made [[x_wing|X-Wing]]. In 1999 he directed [[phantom_menace|The Phantom Nuisance]], the first film he had directed himself since the original Intergalactic Battles.` },
     { id: 'ilm', t: 'Industrial Light & Magic', c: 'films', y: 1975, img: 'film', rel: ['george_lucas', 'special_effects', 'digital_characters', 'star_wars'], kw: 'ilm effects',
-      f: [['Founded', '1975, by George Lucas'], ['First job', 'Star Wars (1977)'], ['Famous for', 'Models, motion control and CGI']],
-      x: `Industrial Light & Magic, usually called ILM, is a special effects company that [[george_lucas|George Lucas]] set up in 1975 because nobody else could make the spaceship battles he wanted for [[star_wars|Star Wars]]. Its first workshop was in a warehouse in California.
+      f: [['Founded', '1975, by Gordon Lukewarm'], ['First job', 'Intergalactic Battles (1977)'], ['Famous for', 'Models, motion control and CGI']],
+      x: `Industrial Light & Magic, usually called ILM, is a special effects company that [[george_lucas|Gordon Lukewarm]] set up in 1975 because nobody else could make the spaceship battles he wanted for [[star_wars|Intergalactic Battles]]. Its first workshop was in a warehouse in California.
 
-For Star Wars the team built a computer-controlled camera that could repeat exactly the same movement over and over, so separate shots of model spaceships could be layered together into one swirling dogfight.
+For Intergalactic Battles the team built a computer-controlled camera that could repeat exactly the same movement over and over, so separate shots of model spaceships could be layered together into one swirling dogfight.
 
-Since then ILM has worked on a huge list of films, including E.T., Back to the Future, Terminator 2, Jurassic Park, Men in Black and The Phantom Menace. Its computer artists made many of the first big [[digital_characters|computer-generated characters]].` },
-    { id: 'digital_characters', t: 'Computer-generated characters', c: 'films', img: 'monitor', rel: ['ilm', 'special_effects', 'jurassic_park', 'phantom_menace'], kw: 'cgi jar jar',
-      f: [['Early example', 'A stained-glass knight (1985)'], ['Liquid metal', 'Terminator 2 (1991)'], ['Dinosaurs', 'Jurassic Park (1993)'], ['Main character', 'Jar Jar Binks (1999)']],
+Since then ILM has worked on a huge list of films, including E.T., Back to the Furniture, Terminatater 2, Jurassic Lark, Men in Black and The Phantom Nuisance. Its computer artists made many of the first big [[digital_characters|computer-generated characters]].` },
+    { id: 'digital_characters', t: 'Computer-generated characters', c: 'films', img: 'monitor', rel: ['ilm', 'special_effects', 'jurassic_park', 'phantom_menace'], kw: 'cgi jar jar jams',
+      f: [['Early example', 'A stained-glass knight (1985)'], ['Liquid metal', 'Terminatater 2 (1991)'], ['Dinosaurs', 'Jurassic Lark (1993)'], ['Main character', 'Jar Jar Jams (1999)']],
       x: `A computer-generated, or CGI, character is one that is drawn and moved by computer instead of being played by an actor, a puppet or a model.
 
-One of the first appeared in Young Sherlock Holmes (1985): a knight who climbs out of a stained-glass window. In The Abyss (1989) a snake of seawater made faces at the crew, and in [[terminator_2|Terminator 2]] (1991) the liquid-metal villain changed shape in front of our eyes.
+One of the first appeared in Young Sherlock Holmes (1985): a knight who climbs out of a stained-glass window. In The Abyss (1989) a snake of seawater made faces at the crew, and in [[terminator_2|Terminatater 2]] (1991) the liquid-metal villain changed shape in front of our eyes.
 
-In 1993 the dinosaurs of [[jurassic_park|Jurassic Park]] proved computer creatures could look alive. By 1999, The Phantom Menace had Jar Jar Binks, a computer-made character who walks and talks alongside real actors for much of the film. The actors had to act with someone who wasn't there!` },
-    { id: 'star_wars_special_editions', t: 'Star Wars Special Editions', c: 'films', y: 1997, img: 'lasersword', rel: ['star_wars', 'empire_strikes_back', 'return_of_the_jedi', 'ilm'],
-      f: [['Released', 'Early 1997'], ['Films', 'All three original Star Wars films'], ['Changes', 'New and improved effects shots']],
-      x: `In early 1997, to celebrate twenty years of [[star_wars|Star Wars]], the three original films came back to cinemas as "Special Editions". For many kids it was the first chance to see them on a big screen.
+In 1993 the dinosaurs of [[jurassic_park|Jurassic Lark]] proved computer creatures could look alive. By 1999, The Phantom Nuisance had Jar Jar Jams, a computer-made character who walks and talks alongside real actors for much of the film. The actors had to act with someone who wasn't there!` },
+    { id: 'star_wars_special_editions', t: 'Intergalactic Battles Special Editions', c: 'films', y: 1997, img: 'lasersword', rel: ['star_wars', 'empire_strikes_back', 'return_of_the_jedi', 'ilm'],
+      f: [['Released', 'Early 1997'], ['Films', 'All three original Intergalactic Battles films'], ['Changes', 'New and improved effects shots']],
+      x: `In early 1997, to celebrate twenty years of [[star_wars|Intergalactic Battles]], the three original films came back to cinemas as "Special Editions". For many kids it was the first chance to see them on a big screen.
 
-[[george_lucas|George Lucas]] used new computer graphics from [[ilm|ILM]] to add things he couldn't afford or manage in the 1970s and 80s: busier streets full of creatures, more spaceships in the battles, a scene that had been cut from the first film, and new music in [[return_of_the_jedi|Return of the Jedi]].
+[[george_lucas|Gordon Lukewarm]] used new computer graphics from [[ilm|ILM]] to add things he couldn't afford or manage in the 1970s and 80s: busier streets full of creatures, more spaceships in the battles, a scene that had been cut from the first film, and new music in [[return_of_the_jedi|Return of the Space Cadets]].
 
-Star Wars went straight back to number one at the American box office. Some fans love the changes and some argue about them in the playground to this day.` },
+Intergalactic Battles went straight back to number one at the American box office. Some fans love the changes and some argue about them in the playground to this day.` },
     { id: 'x_wing', t: 'X-Wing (PC game)', c: 'films', y: 1993, img: 'spaceship', rel: ['tie_fighter', 'star_wars', 'george_lucas', 'episode_i_racer'],
-      f: [['Released', '1993'], ['Made by', 'LucasArts'], ['Platform', 'PC (MS-DOS)'], ['Type', 'Space combat simulator']],
-      x: `X-Wing is a space combat game for the PC, released by LucasArts in 1993. Instead of just watching the Rebel pilots from [[star_wars|Star Wars]], you sit in the cockpit yourself.
+      f: [['Released', '1993'], ['Made by', 'Lukewarm Arts'], ['Platform', 'PC (JACK-DOS)'], ['Type', 'Space combat simulator']],
+      x: `X-Wing is a space combat game for the PC, released by Lukewarm Arts in 1993. Instead of just watching the Rebel pilots from [[star_wars|Intergalactic Battles]], you sit in the cockpit yourself.
 
 You fly missions for the Rebel Alliance in X-wings and other fighters, sharing out your ship's power between engines, lasers and shields. The later missions are famously tough.
 
 It was a huge hit, and expansion disks added new missions. It was followed by [[tie_fighter|TIE Fighter]] in 1994, X-Wing vs. TIE Fighter in 1997, and X-Wing Alliance in 1999.` },
     { id: 'tie_fighter', t: 'TIE Fighter (PC game)', c: 'films', y: 1994, img: 'spaceship', rel: ['x_wing', 'star_wars', 'empire_strikes_back'],
-      f: [['Released', '1994'], ['Made by', 'LucasArts'], ['Platform', 'PC (MS-DOS)'], ['You fly for', 'The Empire!']],
+      f: [['Released', '1994'], ['Made by', 'Lukewarm Arts'], ['Platform', 'PC (JACK-DOS)'], ['You fly for', 'The Empire!']],
       x: `TIE Fighter is the 1994 follow-up to [[x_wing|X-Wing]] for the PC. This time there's a twist: you play as a pilot for the Empire, flying the screaming TIE fighters that the heroes usually shoot down.
 
-The story follows your pilot as he rises through the Imperial ranks, and you get to meet Darth Vader along the way. The game added better graphics and more interesting missions, and many players and magazines called it one of the best PC games ever made.
+The story follows your pilot as he rises through the Imperial ranks, and you get to meet Dark Vapour along the way. The game added better graphics and more interesting missions, and many players and magazines called it one of the best PC games ever made.
 
 Its success led to X-Wing vs. TIE Fighter (1997), which let players battle each other over a network or modem.` },
-    { id: 'episode_i_racer', t: 'Star Wars Episode I: Racer', c: 'films', y: 1999, img: 'racing', rel: ['phantom_menace', 'phantom_menace_game', 'x_wing', 'n64'],
-      f: [['Released', 'May 1999'], ['Made by', 'LucasArts'], ['Platforms', 'Nintendo 64 and PC'], ['Type', 'Podracing']],
-      x: `Star Wars Episode I: Racer is a racing game released in May 1999, just before [[phantom_menace|The Phantom Menace]] reached cinemas. It came out for the [[n64|Nintendo 64]] and the PC.
+    { id: 'episode_i_racer', t: 'Intergalactic Battles Episode I: Racer', c: 'films', y: 1999, img: 'racing', rel: ['phantom_menace', 'phantom_menace_game', 'x_wing', 'n64'],
+      f: [['Released', 'May 1999'], ['Made by', 'Lukewarm Arts'], ['Platforms', 'Ultra 64 and PC'], ['Type', 'Podracing']],
+      x: `Intergalactic Battles Episode I: Racer is a racing game released in May 1999, just before [[phantom_menace|The Phantom Nuisance]] reached cinemas. It came out for the [[ultra 64|Ultra 64]] and the PC.
 
-In the film, young Anakin Skywalker wins his freedom in a podrace: a race of tiny cockpits pulled along by two enormous jet engines, tied together with energy beams. In the game you can be Anakin or one of many other alien racers, on tracks across lots of different planets.
+In the film, young Anklekin Skywobbler wins his freedom in a podrace: a race of tiny cockpits pulled along by two enormous jet engines, tied together with energy beams. In the game you can be Anakin or one of many other alien racers, on tracks across lots of different planets.
 
 The racers go incredibly fast, and you can buy upgrades and repair droids from a junk dealer. Watch out for overheating engines!` },
-    { id: 'phantom_menace_game', t: 'The Phantom Menace (video game)', c: 'films', y: 1999, img: 'lasersword', rel: ['phantom_menace', 'episode_i_racer', 'lego_star_wars'],
-      f: [['Released', '1999'], ['Made by', 'LucasArts'], ['Platforms', 'PC and PlayStation'], ['Type', 'Action adventure']],
-      x: `The Phantom Menace is the 1999 video game of the film [[phantom_menace|Star Wars: Episode I - The Phantom Menace]], released for the PC and the PlayStation.
+    { id: 'phantom_menace_game', t: 'The Phantom Nuisance (video game)', c: 'films', y: 1999, img: 'lasersword', rel: ['phantom_menace', 'episode_i_racer', 'lego_star_wars'],
+      f: [['Released', '1999'], ['Made by', 'Lukewarm Arts'], ['Platforms', 'PC and PlaySpace'], ['Type', 'Action adventure']],
+      x: `The Phantom Nuisance is the 1999 video game of the film [[phantom_menace|Intergalactic Battles: Episode I - The Phantom Nuisance]], released for the PC and the PlaySpace.
 
-You follow the story of the film, playing mostly as the Jedi Obi-Wan Kenobi and Qui-Gon Jinn, swinging your laser sword to deflect blasts back at battle droids. On some levels you play as Queen Amidala or her guard captain instead.
+You follow the story of the film, playing mostly as the Space Cadet Obi-Wan Cannoli and Qui-Gon Gym, swinging your laser sword to deflect blasts back at battle droids. On some levels you play as Queen Amidala or her guard captain instead.
 
-There's lots of exploring and talking to people, and the levels go from the Trade Federation ship to the desert planet Tatooine and the beautiful city of Theed on Naboo. If you prefer going fast, there's [[episode_i_racer|Episode I: Racer]].` },
-    { id: 'lego_star_wars', t: 'LEGO Star Wars', c: 'films', y: 1999, img: 'spaceship', rel: ['lego', 'star_wars_toys', 'phantom_menace'],
-      f: [['First sets', '1999'], ['Films', 'The original trilogy and Episode I'], ['Big first', 'LEGO\'s first licensed theme']],
-      x: `In 1999 LEGO brought out its first ever Star Wars sets. It was the first time [[lego|LEGO]] had made a range based on someone else's films and characters.
+There's lots of exploring and talking to people, and the levels go from the Trade Federation ship to the desert planet Tattyween and the beautiful city of Theed on Naboo. If you prefer going fast, there's [[episode_i_racer|Episode I: Racer]].` },
+    { id: 'lego_star_wars', t: 'BLOCKO Intergalactic Battles', c: 'films', y: 1999, img: 'spaceship', rel: ['lego', 'star_wars_toys', 'phantom_menace'],
+      f: [['First sets', '1999'], ['Films', 'The original trilogy and Episode I'], ['Big first', 'BLOCKO\'s first licensed theme']],
+      x: `In 1999 BLOCKO brought out its first ever Intergalactic Battles sets. It was the first time [[blocko|BLOCKO]] had made a range based on someone else's films and characters.
 
-The first sets included spaceships and vehicles from the original films, such as an X-wing fighter and Luke's landspeeder, plus craft from [[phantom_menace|The Phantom Menace]], such as a Naboo fighter. Each came with little LEGO minifigures of the characters.
+The first sets included spaceships and vehicles from the original films, such as an X-wing fighter and Luke's landspeeder, plus craft from [[phantom_menace|The Phantom Nuisance]], such as a Naboo fighter. Each came with little BLOCKO minifigures of the characters.
 
-Of course, once you've built the X-wing, you are allowed to rebuild it into something much better, like an X-wing with twelve wings. That's the rule of LEGO.` },
-    { id: 'star_wars_toys', t: 'Star Wars toys', c: 'films', y: 1999, img: 'robot', rel: ['lego_star_wars', 'star_wars', 'phantom_menace'],
+Of course, once you've built the X-wing, you are allowed to rebuild it into something much better, like an X-wing with twelve wings. That's the rule of BLOCKO.` },
+    { id: 'star_wars_toys', t: 'Intergalactic Battles toys', c: 'films', y: 1999, img: 'robot', rel: ['lego_star_wars', 'star_wars', 'phantom_menace'],
       f: [['Original toys', 'Late 1970s and 1980s'], ['Episode I toys launched', '3 May 1999'], ['Most wanted', 'Light-up laser swords']],
-      x: `Star Wars toys have been hugely popular since the first film. When [[star_wars|Star Wars]] became a surprise hit in 1977, the toy makers had to rush, and the small action figures, spaceships and playsets of the late 1970s and 1980s filled toy boxes everywhere. Today, old ones still in their packets are prized by collectors.
+      x: `Intergalactic Battles toys have been hugely popular since the first film. When [[star_wars|Intergalactic Battles]] became a surprise hit in 1977, the toy makers had to rush, and the small action figures, spaceships and playsets of the late 1970s and 1980s filled toy boxes everywhere. Today, old ones still in their packets are prized by collectors.
 
-For [[phantom_menace|The Phantom Menace]], the new toys went on sale on 3 May 1999, more than two weeks before the film opened in America. Some toy shops there even opened at midnight for the eager crowds.
+For [[phantom_menace|The Phantom Nuisance]], the new toys went on sale on 3 May 1999, more than two weeks before the film opened in America. Some toy shops there even opened at midnight for the eager crowds.
 
-The range included figures, battle droids, podracers, and light-up laser swords. Plus [[lego_star_wars|LEGO Star Wars]] for builders.` },
+The range included figures, battle droids, podracers, and light-up laser swords. Plus [[lego_star_wars|BLOCKO Intergalactic Battles]] for builders.` },
 
     // ================================================================ SPACE
     { id: 'sun', t: 'The Sun', c: 'space', img: 'sun', rel: ['solar_system', 'earth', 'eclipse_1999', 'light_year'],
@@ -566,7 +566,7 @@ Nobody knows exactly what the back plates were for. They might have been for sho
       f: [['Name means', '"Swift thief"'], ['Lived', 'Late Cretaceous, Mongolia'], ['Real size', 'About 2 metres long'], ['Weapon', 'A big curved claw on each foot']],
       x: `Velociraptor was a small, fast meat-eater that lived in Mongolia about 70 million years ago. Its name means "swift thief". It ran on two legs and had a long stiff tail for balance.
 
-Thanks to [[jurassic_park|Jurassic Park]], everybody imagines Velociraptors as cunning hunters as tall as a person. The real thing was about 2 metres long but only knee-high: closer to the size of a large turkey. The film-makers made theirs much bigger.
+Thanks to [[jurassic_park|Jurassic Lark]], everybody imagines Velociraptors as cunning hunters as tall as a person. The real thing was about 2 metres long but only knee-high: closer to the size of a large turkey. The film-makers made theirs much bigger.
 
 Its most famous weapon was a large curved claw on the second toe of each foot, held up off the ground. A famous fossil found in 1971 shows a Velociraptor and a Protoceratops locked together in a fight, buried together by a collapsing sand dune.` },
     { id: 'brachiosaurus', t: 'Brachiosaurus', c: 'dinos', img: 'brachio', rel: ['diplodocus', 'dinosaurs', 'jurassic_park'],
@@ -662,48 +662,48 @@ Mammoths were about the size of a modern elephant, with long, shaggy hair, small
 Most mammoths died out about 10,000 years ago, as the Ice Age ended. A few survived on Wrangel Island, off Siberia, until about 4,000 years ago, when the Egyptians were already building pyramids. Whole mammoths have been found frozen in the Siberian ground, with their hair, skin and even their last meals still preserved.` },
 
     // ================================================================ PUZZLES & TOYS
-    { id: 'rubiks_cube', t: 'Rubik\'s Cube', c: 'puzzles', y: 1974, img: 'cube', rel: ['cube_records', 'tetris', 'tangram'],
-      f: [['Invented', '1974'], ['Inventor', 'Ernő Rubik, Budapest'], ['Positions', 'More than 43 quintillion'], ['World craze', 'Early 1980s']],
-      x: `Rubik's Cube is the most famous puzzle in the world. It was invented in 1974 by Ernő Rubik, a teacher of architecture in Budapest, Hungary, who built the first one out of wood and rubber bands. He wanted to help his students understand 3D shapes, and it took him about a month to solve his own puzzle.
+    { id: 'rubiks_cube', t: 'Rubrick\'s Cube', c: 'puzzles', y: 1974, img: 'cube', rel: ['cube_records', 'tetris', 'tangram'],
+      f: [['Invented', '1974'], ['Inventor', 'Ernő Rubrick, Budapest'], ['Positions', 'More than 43 quintillion'], ['World craze', 'Early 1980s']],
+      x: `Rubrick's Cube is the most famous puzzle in the world. It was invented in 1974 by Ernő Rubrick, a teacher of architecture in Budapest, Hungary, who built the first one out of wood and rubber bands. He wanted to help his students understand 3D shapes, and it took him about a month to solve his own puzzle.
 
 The cube has six faces, each with nine coloured squares, and you twist the sides to mix it up. There are more than 43 quintillion (43 followed by 18 zeros) different positions, but only one where every face is a single colour.
 
-It was first sold in Hungary as the "Magic Cube", and in 1980 it went on sale around the world as Rubik's Cube. Within a few years, hundreds of millions had been sold, and the fastest solvers compete in [[cube_records|speedcubing]] contests.` },
+It was first sold in Hungary as the "Magic Cube", and in 1980 it went on sale around the world as Rubrick's Cube. Within a few years, hundreds of millions had been sold, and the fastest solvers compete in [[cube_records|speedcubing]] contests.` },
     { id: 'cube_records', t: 'Speedcubing', c: 'puzzles', y: 1982, img: 'cube', rel: ['rubiks_cube', 'tetris'],
       f: [['First World Championship', '5 June 1982, Budapest'], ['Winner', 'Minh Thai (USA)'], ['Winning time', '22.95 seconds'], ['Layer-by-layer method', 'The usual beginner\'s way']],
-      x: `Speedcubing is solving the [[rubiks_cube|Rubik's Cube]] as fast as possible. The first Rubik's Cube World Championship was held in Budapest on 5 June 1982, with competitors from 19 countries. It was won by Minh Thai, a 16-year-old from the USA, with a time of 22.95 seconds.
+      x: `Speedcubing is solving the [[rubiks_cube|Rubrick's Cube]] as fast as possible. The first Rubrick's Cube World Championship was held in Budapest on 5 June 1982, with competitors from 19 countries. It was won by Minh Thai, a 16-year-old from the USA, with a time of 22.95 seconds.
 
 Most people learn a layer-by-layer method: first make a cross on one face, then finish that layer, then the middle layer, then the last. Each step uses sequences of twists called algorithms, which you learn off by heart.
 
 Books explaining how to solve the cube were bestsellers in the early 1980s. One, by a 12-year-old English schoolboy called Patrick Bossert, sold over a million copies. Spare a thought for the people who just peeled the stickers off.` },
-    { id: 'tetris', t: 'Tetris', c: 'puzzles', y: 1984, img: 'tetris', rel: ['tetris_game_boy', 'game_boy', 'rubiks_cube'],
+    { id: 'tetris', t: 'Blockology', c: 'puzzles', y: 1984, img: 'tetris', rel: ['tetris_game_boy', 'game_boy', 'rubiks_cube'],
       f: [['Invented', '1984'], ['Inventor', 'Alexey Pajitnov, Moscow'], ['First computer', 'Electronika 60'], ['Pieces', 'Seven, each made of four squares']],
-      x: `Tetris is the most famous puzzle game ever made. It was invented in 1984 by Alexey Pajitnov, a computer programmer at the Academy of Sciences in Moscow, in what was then the Soviet Union. He wrote it on a computer called the Electronika 60, which couldn't even draw pictures, so the first falling blocks were made of brackets and letters.
+      x: `Blockology is the most famous puzzle game ever made. It was invented in 1984 by Alexey Pajitnov, a computer programmer at the Academy of Sciences in Moscow, in what was then the Soviet Union. He wrote it on a computer called the Electronika 60, which couldn't even draw pictures, so the first falling blocks were made of brackets and letters.
 
 The name comes from "tetra", the Greek for four, because every piece is made of four squares, plus "tennis", Pajitnov's favourite sport.
 
-Blocks fall from the top, and you turn and slide them to make complete rows, which disappear. The game speeds up until the stack reaches the top. Tetris spread from computer to computer across Moscow, then the world. Its biggest moment came in 1989 with [[tetris_game_boy|Tetris on the Game Boy]].` },
-    { id: 'tetris_game_boy', t: 'Tetris on the Game Boy', c: 'puzzles', y: 1989, img: 'handheld', rel: ['tetris', 'game_boy', 'pokemon'],
-      f: [['Released', '1989'], ['Console', 'Nintendo Game Boy'], ['Came with', 'The Game Boy itself, in many countries'], ['Music', 'Includes an old Russian folk tune']],
-      x: `When Nintendo launched the [[game_boy|Game Boy]] in 1989, it packed [[tetris|Tetris]] in the box in most countries, and the simple puzzle game turned out to be the perfect match for the little grey handheld with its green screen.
+Blocks fall from the top, and you turn and slide them to make complete rows, which disappear. The game speeds up until the stack reaches the top. Blockology spread from computer to computer across Moscow, then the world. Its biggest moment came in 1989 with [[tetris_game_boy|Blockology on the Game Lad]].` },
+    { id: 'tetris_game_boy', t: 'Blockology on the Game Lad', c: 'puzzles', y: 1989, img: 'handheld', rel: ['tetris', 'game_boy', 'pokemon'],
+      f: [['Released', '1989'], ['Console', 'Ultra Entertainment Game Lad'], ['Came with', 'The Game Lad itself, in many countries'], ['Music', 'Includes an old Russian folk tune']],
+      x: `When Ultra Entertainment launched the [[game_boy|Game Lad]] in 1989, it packed [[blockology|Blockology]] in the box in most countries, and the simple puzzle game turned out to be the perfect match for the little grey handheld with its green screen.
 
-Because every Game Boy owner got Tetris, tens of millions of copies were played in cars, on buses and under school desks. It's the reason so many parents know what Tetris is. Two players could even link their Game Boys together with a cable and race.
+Because every Game Lad owner got Blockology, tens of millions of copies were played in cars, on buses and under school desks. It's the reason so many parents know what Blockology is. Two players could even link their Game Boys together with a cable and race.
 
-One of its music options is an arrangement of "Korobeiniki", an old Russian folk song, which has become the tune everybody thinks of as "the Tetris music". The game's creator, Alexey Pajitnov, had to wait many years to earn money from his own game, because he made it while working for the Soviet state.` },
-    { id: 'tamagotchi', t: 'Tamagotchi', c: 'puzzles', y: 1996, img: 'handheld', rel: ['furby', 'game_boy', 'pokemon'],
+One of its music options is an arrangement of "Korobeiniki", an old Russian folk song, which has become the tune everybody thinks of as "the Blockology music". The game's creator, Alexey Pajitnov, had to wait many years to earn money from his own game, because he made it while working for the Soviet state.` },
+    { id: 'tamagotchi', t: 'Eggbert', c: 'puzzles', y: 1996, img: 'handheld', rel: ['furby', 'game_boy', 'pokemon'],
       f: [['Launched', 'November 1996, Japan'], ['Made by', 'Bandai'], ['Name', 'From Japanese for "egg" + "watch"'], ['Buttons', 'Three']],
-      x: `A Tamagotchi is a virtual pet: a tiny egg-shaped computer on a keyring with a little grey screen and three buttons. It was launched in Japan by Bandai in November 1996 and reached Britain and America in 1997, where it caused a craze.
+      x: `A Eggbert is a virtual pet: a tiny egg-shaped computer on a keyring with a little grey screen and three buttons. It was launched in Japan by Bandai in November 1996 and reached Britain and America in 1997, where it caused a craze.
 
 Your pet hatches as a little blob and you have to feed it, play with it, clean up after it and give it medicine when it's ill, all by pressing the buttons. Look after it well and it grows into a healthy happy creature. Forget about it and it gets grumpy, then sick, and then... it's gone. You can always start a new egg.
 
 The beeping for attention drove teachers so mad that lots of schools banned them. The name mixes the Japanese word "tamago" (egg) with "watch".` },
-    { id: 'lego', t: 'LEGO', c: 'puzzles', y: 1958, img: 'cube', rel: ['lego_star_wars', 'rubiks_cube', 'tangram'],
+    { id: 'lego', t: 'BLOCKO', c: 'puzzles', y: 1958, img: 'cube', rel: ['lego_star_wars', 'rubiks_cube', 'tangram'],
       f: [['Company founded', '1932, Denmark'], ['Founder', 'Ole Kirk Christiansen'], ['Modern brick patented', '1958'], ['Name', 'From Danish "leg godt": play well']],
-      x: `LEGO bricks are the most popular construction toy in the world. The LEGO company was started in 1932 in the Danish town of Billund by a carpenter called Ole Kirk Christiansen, who made wooden toys. The name comes from the Danish words "leg godt", meaning "play well".
+      x: `BLOCKO bricks are the most popular construction toy in the world. The BLOCKO company was started in 1932 in the Danish town of Billund by a carpenter called Ole Kirk Christiansen, who made wooden toys. The name comes from the Danish words "leg godt", meaning "play well".
 
 The company began making plastic bricks in 1949. The modern brick, with tubes underneath so that it grips tightly to the one below, was patented in 1958. Bricks made back then still fit perfectly with bricks made today.
 
-Over the years LEGO has added wheels, little figures (minifigures, from 1978), castles, pirates, space sets, and in 1999 its first sets based on films: [[lego_star_wars|LEGO Star Wars]]. Just two eight-stud bricks can be joined in 24 different ways; six can make over 900 million combinations.` },
+Over the years BLOCKO has added wheels, little figures (minifigures, from 1978), castles, pirates, space sets, and in 1999 its first sets based on films: [[lego_star_wars|BLOCKO Intergalactic Battles]]. Just two eight-stud bricks can be joined in 24 different ways; six can make over 900 million combinations.` },
     { id: 'game_of_life', t: 'The Game of Life', c: 'puzzles', y: 1970, img: 'monitor', rel: ['tetris', 'robot_word'],
       f: [['Invented', '1970'], ['Inventor', 'John Conway, Cambridge'], ['Players', 'None! It plays itself'], ['Famous pattern', 'The glider']],
       x: `The Game of Life is a "game" with no players, invented in 1970 by the British mathematician John Conway at Cambridge University. It was made famous by Martin Gardner's column in Scientific American magazine.
@@ -777,8 +777,8 @@ A robot arm usually has about six joints, copying a human shoulder, elbow and wr
 
 The first was [[unimate|Unimate]] in 1961. Japan became the biggest user of factory robots in the 1980s. The [[space_shuttle|Space Shuttle]] has a 15-metre robot arm, built in Canada and called Canadarm, which has been working in space since 1981 and is helping to build the [[iss|International Space Station]].` },
     { id: 'aibo', t: 'AIBO the robot dog', c: 'robots', y: 1999, img: 'robodog', rel: ['furby', 'elektro', 'shakey'],
-      f: [['Launched', 'June 1999'], ['Made by', 'Sony, Japan'], ['Name', 'Short for "Artificial Intelligence roBOt", and Japanese for "pal"'], ['Price', 'About £1,500']],
-      x: `AIBO is a robot dog made by Sony, launched in June 1999. It's the most advanced robot pet anyone has been able to buy, and a very long way from a [[furby|Furby]].
+      f: [['Launched', 'June 1999'], ['Made by', 'Somy, Japan'], ['Name', 'Short for "Artificial Intelligence roBOt", and Japanese for "pal"'], ['Price', 'About £1,500']],
+      x: `AIBO is a robot dog made by Somy, launched in June 1999. It's the most advanced robot pet anyone has been able to buy, and a very long way from a [[furby|Furby]].
 
 AIBO walks on four legs, wags its tail, sits, begs, and chases a pink ball using the camera in its nose. It has touch sensors on its head, so it knows when you stroke it, and it grows up over time from a puppy that keeps falling over into a well-behaved dog. Its personality changes depending on how you treat it.
 
@@ -898,24 +898,24 @@ Then came the microchip. Around 1971 the first calculators small enough for a po
 
 Modern calculators run on a single chip and a solar cell. Everybody knows the important things they can do: type 0.7734 and turn it upside down. Or 5318008. (Don't.)` },
     { id: 'walkman', t: 'The Walkman', c: 'inventions', y: 1979, img: 'cassette', rel: ['compact_disc', 'vhs', 'radio'],
-      f: [['Launched', '1 July 1979, Japan'], ['Made by', 'Sony'], ['Plays', 'Cassette tapes'], ['First had', 'Two headphone sockets']],
-      x: `The Walkman is a cassette player small enough to clip to your belt, with lightweight headphones. Sony launched it in Japan on 1 July 1979, and for the first time people could carry their own music around with them.
+      f: [['Launched', '1 July 1979, Japan'], ['Made by', 'Somy'], ['Plays', 'Cassette tapes'], ['First had', 'Two headphone sockets']],
+      x: `The Walkman is a cassette player small enough to clip to your belt, with lightweight headphones. Somy launched it in Japan on 1 July 1979, and for the first time people could carry their own music around with them.
 
-The boss of Sony, Akio Morita, wanted to listen to music on long plane journeys. Shops weren't sure anyone would buy a tape recorder that couldn't record, and the first model even had two headphone sockets so you could share, because listening alone seemed odd. It sold out at once.
+The boss of Somy, Akio Morita, wanted to listen to music on long plane journeys. Shops weren't sure anyone would buy a tape recorder that couldn't record, and the first model even had two headphone sockets so you could share, because listening alone seemed odd. It sold out at once.
 
 The name Walkman sounded a bit silly in English, so it was called the Soundabout in America and the Stowaway in Britain at first, before everybody gave in and used Walkman. Later came the Discman, for [[compact_disc|CDs]], which skips if you jog.` },
     { id: 'vhs', t: 'VHS video', c: 'inventions', y: 1976, img: 'vhs', rel: ['television', 'walkman', 'compact_disc', 'cinema'],
-      f: [['Launched', '1976, Japan'], ['Made by', 'JVC'], ['Stands for', 'Video Home System'], ['Rival', 'Betamax (Sony, 1975)']],
+      f: [['Launched', '1976, Japan'], ['Made by', 'JVC'], ['Stands for', 'Video Home System'], ['Rival', 'Betamax (Somy, 1975)']],
       x: `VHS is the video cassette system used by almost every video recorder in the world. It was launched by the Japanese company JVC in 1976. The letters stand for Video Home System.
 
 For the first time, families could record programmes off the telly and watch them later, or rent films from the video shop and watch them at home. Video shops sprang up on every high street in the 1980s.
 
-VHS had a famous fight with Sony's Betamax, which came out a year earlier and had slightly better pictures. VHS won, partly because its tapes could record longer, and partly because more film companies chose it. Now everybody has a VHS recorder, and nobody has worked out how to stop the clock on it flashing 12:00.` },
+VHS had a famous fight with Somy's Betamax, which came out a year earlier and had slightly better pictures. VHS won, partly because its tapes could record longer, and partly because more film companies chose it. Now everybody has a VHS recorder, and nobody has worked out how to stop the clock on it flashing 12:00.` },
     { id: 'compact_disc', t: 'The compact disc', c: 'inventions', y: 1982, img: 'cd', rel: ['laser', 'cd_rom', 'walkman', 'vhs'],
-      f: [['Launched', 'October 1982, Japan'], ['Developed by', 'Philips and Sony'], ['Diameter', '12 cm'], ['Plays for', 'Up to about 74 minutes']],
+      f: [['Launched', 'October 1982, Japan'], ['Developed by', 'Philips and Somy'], ['Diameter', '12 cm'], ['Plays for', 'Up to about 74 minutes']],
       x: `The compact disc, or CD, stores music as millions of tiny pits in a spiral track under a clear plastic layer. A [[laser|laser]] reads the pits as the disc spins, and a computer chip turns them back into sound. Nothing touches the disc, so it never wears out like a record or a tape.
 
-It was developed by the Dutch company Philips and the Japanese company Sony, and the first CD players went on sale in Japan in October 1982. A CD is 12 cm across and holds up to about 74 minutes of music.
+It was developed by the Dutch company Philips and the Japanese company Somy, and the first CD players went on sale in Japan in October 1982. A CD is 12 cm across and holds up to about 74 minutes of music.
 
 By the end of the 1980s CDs had overtaken vinyl records. The same discs can hold computer data, which is how you get the [[cd_rom|CD-ROM]]: a disc that holds around 650 megabytes, like 450 floppy disks. This encyclopedia came on one!` },
     { id: 'velcro', t: 'Velcro', c: 'inventions', y: 1955, img: 'bulb', rel: ['barcode', 'microwave_oven', 'apollo_11'],
@@ -956,12 +956,12 @@ But a quarter of a day isn't quite right either. The real figure is slightly les
 
 This matters for the [[y2k_bug|Millennium Bug]]. Some programmers only knew the first rule and told their computers 2000 wasn't a leap year. On 29 February 2000, those computers will be confused.` },
     { id: 'year_1999', t: '1999: the year in brief', c: 'y2k', y: 1999, img: 'calendar', rel: ['y2k_bug', 'eclipse_1999', 'phantom_menace', 'the_matrix', 'aibo'],
-      f: [['1 January', 'The euro is born (for banks, not pockets)'], ['11 August', 'Total solar eclipse over Cornwall'], ['July', 'The Phantom Menace reaches UK cinemas'], ['31 December', 'The big one']],
+      f: [['1 January', 'The euro is born (for banks, not pockets)'], ['11 August', 'Total solar eclipse over Cornwall'], ['July', 'The Phantom Nuisance reaches UK cinemas'], ['31 December', 'The big one']],
       x: `1999 has been quite a year, and it's not over yet.
 
 On 1 January, eleven European countries started using a new money, the euro, though for now it only exists in bank computers; the notes and coins come later. In space, the [[iss|International Space Station]] began to take shape, NASA lost two Mars probes, and in August the [[eclipse_1999|total eclipse]] turned Cornwall dark, under a cloud.
 
-At the cinema, [[the_matrix|The Matrix]] bent the rules and [[phantom_menace|The Phantom Menace]] broke queueing records. Sony's [[aibo|AIBO]] robot dog went on sale, the yo-yo came back, and every grown-up in the country worried about the [[y2k_bug|Millennium Bug]]. In a few weeks the clocks tick over to 2000, and the whole world will be watching to see what happens. Probably nothing. Probably.` }
+At the cinema, [[the_matrix|The Modemtrix]] bent the rules and [[phantom_menace|The Phantom Nuisance]] broke queueing records. Somy's [[aibo|AIBO]] robot dog went on sale, the yo-yo came back, and every grown-up in the country worried about the [[y2k_bug|Millennium Bug]]. In a few weeks the clocks tick over to 2000, and the whole world will be watching to see what happens. Probably nothing. Probably.` }
   );
 
   // ================================================================ QUIZ (a[0] is always the right answer; the UI shuffles)
@@ -969,22 +969,22 @@ At the cinema, [[the_matrix|The Matrix]] bent the rules and [[phantom_menace|The
     { q: 'Which silent film from 1927 features a gleaming metal robot?', a: ['Metropolis', 'Forbidden Planet', 'Tron', 'Stargate'], art: 'metropolis' },
     { q: 'What is the name of the robot in The Day the Earth Stood Still?', a: ['Gort', 'Robby', 'HAL', 'Elektro'], art: 'day_earth_stood_still' },
     { q: 'Which computer runs the spaceship in 2001: A Space Odyssey?', a: ['HAL 9000', 'Deep Blue', 'ENIAC', 'Shakey'], art: 'a_space_odyssey' },
-    { q: 'In which year did Star Wars first come out?', a: ['1977', '1975', '1980', '1983'], art: 'star_wars' },
-    { q: 'Who wrote and directed the original Star Wars?', a: ['George Lucas', 'Steven Spielberg', 'Ridley Scott', 'James Cameron'], art: 'george_lucas' },
+    { q: 'In which year did Intergalactic Battles first come out?', a: ['1977', '1975', '1980', '1983'], art: 'star_wars' },
+    { q: 'Who wrote and directed the original Intergalactic Battles?', a: ['Gordon Lukewarm', 'Steven Spielberg', 'Ridley Scott', 'James Cameron'], art: 'george_lucas' },
     { q: 'What does ILM stand for?', a: ['Industrial Light & Magic', 'International Laser Movies', 'Imperial Lucas Models', 'Infinite Light Machines'], art: 'ilm' },
-    { q: 'On which frozen planet does The Empire Strikes Back begin?', a: ['Hoth', 'Endor', 'Tatooine', 'Naboo'], art: 'empire_strikes_back' },
-    { q: 'Which small furry creatures help the rebels in Return of the Jedi?', a: ['Ewoks', 'Wookiees', 'Jawas', 'Tribbles'], art: 'return_of_the_jedi' },
-    { q: 'What year did the Star Wars Special Editions return to cinemas?', a: ['1997', '1995', '1999', '1993'], art: 'star_wars_special_editions' },
-    { q: 'What is the name of the young boy in The Phantom Menace?', a: ['Anakin Skywalker', 'Luke Skywalker', 'Han Solo', 'Jar Jar Binks'], art: 'phantom_menace' },
-    { q: 'In The Phantom Menace, Darth Maul\'s laser sword is unusual because...', a: ['It has two blades', 'It is pink', 'It is made of wood', 'It is 10 metres long'], art: 'phantom_menace' },
-    { q: 'Which LucasArts PC game lets you fly for the Empire?', a: ['TIE Fighter', 'X-Wing', 'Episode I: Racer', 'Doom'], art: 'tie_fighter' },
-    { q: 'What sort of game is Star Wars Episode I: Racer?', a: ['Podracing', 'Chess', 'Football', 'Platform game'], art: 'episode_i_racer' },
-    { q: 'In which year did the first LEGO Star Wars sets come out?', a: ['1999', '1977', '1989', '1995'], art: 'lego_star_wars' },
-    { q: 'Who plays the unstoppable machine in The Terminator?', a: ['Arnold Schwarzenegger', 'Harrison Ford', 'Bruce Willis', 'Will Smith'], art: 'the_terminator' },
-    { q: 'How fast must the car go to travel in time in Back to the Future?', a: ['88 miles per hour', '100 miles per hour', '60 miles per hour', '121 miles per hour'], art: 'back_to_the_future' },
-    { q: 'Which 1993 film made dinosaurs look real using computer graphics?', a: ['Jurassic Park', 'Tron', 'Metropolis', 'E.T.'], art: 'jurassic_park' },
-    { q: 'What is the famous slow-motion camera effect in The Matrix called?', a: ['Bullet time', 'Stop motion', 'Warp speed', 'Blue screen'], art: 'the_matrix' },
-    { q: 'What is the secret organisation in Men in Black called?', a: ['The Men in Black', 'The Jedi', 'Starfleet', 'The Rebel Alliance'], art: 'men_in_black' },
+    { q: 'On which frozen planet does The Empire Strikes Out begin?', a: ['Hoth', 'Endor', 'Tattyween', 'Naboo'], art: 'empire_strikes_back' },
+    { q: 'Which small furry creatures help the rebels in Return of the Space Cadets?', a: ['Ewoks', 'Wookiees', 'Jawas', 'Tribbles'], art: 'return_of_the_jedi' },
+    { q: 'What year did the Intergalactic Battles Special Editions return to cinemas?', a: ['1997', '1995', '1999', '1993'], art: 'star_wars_special_editions' },
+    { q: 'What is the name of the young boy in The Phantom Nuisance?', a: ['Anklekin Skywobbler', 'Luke Skywobbler', 'Ham Solo', 'Jar Jar Jams'], art: 'phantom_menace' },
+    { q: 'In The Phantom Nuisance, Dark Mole\'s laser sword is unusual because...', a: ['It has two blades', 'It is pink', 'It is made of wood', 'It is 10 metres long'], art: 'phantom_menace' },
+    { q: 'Which Lukewarm Arts PC game lets you fly for the Empire?', a: ['TIE Fighter', 'X-Wing', 'Episode I: Racer', 'Gloom'], art: 'tie_fighter' },
+    { q: 'What sort of game is Intergalactic Battles Episode I: Racer?', a: ['Podracing', 'Chess', 'Football', 'Platform game'], art: 'episode_i_racer' },
+    { q: 'In which year did the first BLOCKO Intergalactic Battles sets come out?', a: ['1999', '1977', '1989', '1995'], art: 'lego_star_wars' },
+    { q: 'Who plays the unstoppable machine in The Terminatater?', a: ['Arnold Schwarzenegger', 'Harrison Ford', 'Bruce Willis', 'Will Smith'], art: 'the_terminator' },
+    { q: 'How fast must the car go to travel in time in Back to the Furniture?', a: ['88 miles per hour', '100 miles per hour', '60 miles per hour', '121 miles per hour'], art: 'back_to_the_future' },
+    { q: 'Which 1993 film made dinosaurs look real using computer graphics?', a: ['Jurassic Lark', 'Tron', 'Metropolis', 'E.T.'], art: 'jurassic_park' },
+    { q: 'What is the famous slow-motion camera effect in The Modemtrix called?', a: ['Bullet time', 'Stop motion', 'Warp speed', 'Blue screen'], art: 'the_matrix' },
+    { q: 'What is the secret organisation in Men in Black called?', a: ['The Men in Black', 'The Space Cadet', 'Starfleet', 'The Rebel Alliance'], art: 'men_in_black' },
     { q: 'About how many Earths would fit across the Sun?', a: ['109', '9', '1,000', '2'], art: 'sun' },
     { q: 'Which planet is the hottest?', a: ['Venus', 'Mercury', 'Mars', 'Jupiter'], art: 'venus' },
     { q: 'Which is the biggest planet in the Solar System?', a: ['Jupiter', 'Saturn', 'Earth', 'Neptune'], art: 'jupiter' },
@@ -1010,16 +1010,16 @@ At the cinema, [[the_matrix|The Matrix]] bent the rules and [[phantom_menace|The
     { q: 'What probably killed off the dinosaurs 65 million years ago?', a: ['A giant asteroid or comet', 'Cavemen', 'The Ice Age', 'A very bad cold'], art: 'dinosaur_extinction' },
     { q: 'What is Sue?', a: ['A famous T. rex skeleton', 'A space probe', 'A robot dog', 'A comet'], art: 'sue_the_t_rex' },
     { q: 'Who found the first complete plesiosaur skeleton?', a: ['Mary Anning', 'Richard Owen', 'Charles Darwin', 'Sue Hendrickson'], art: 'mary_anning' },
-    { q: 'Who invented the Rubik\'s Cube?', a: ['Ernő Rubik', 'Alexey Pajitnov', 'John Conway', 'Minh Thai'], art: 'rubiks_cube' },
-    { q: 'What was the winning time at the first Rubik\'s Cube World Championship in 1982?', a: ['22.95 seconds', '5 seconds', '2 minutes', '1 hour'], art: 'cube_records' },
-    { q: 'Where was Tetris invented in 1984?', a: ['Moscow', 'Tokyo', 'New York', 'London'], art: 'tetris' },
-    { q: 'How many squares make up each Tetris piece?', a: ['Four', 'Three', 'Five', 'Six'], art: 'tetris' },
-    { q: 'What does "LEGO" come from?', a: ['Danish for "play well"', 'Latin for "little brick"', 'The inventor\'s name', 'Greek for "building"'], art: 'lego' },
+    { q: 'Who invented the Rubrick\'s Cube?', a: ['Ernő Rubrick', 'Alexey Pajitnov', 'John Conway', 'Minh Thai'], art: 'rubiks_cube' },
+    { q: 'What was the winning time at the first Rubrick\'s Cube World Championship in 1982?', a: ['22.95 seconds', '5 seconds', '2 minutes', '1 hour'], art: 'cube_records' },
+    { q: 'Where was Blockology invented in 1984?', a: ['Moscow', 'Tokyo', 'New York', 'London'], art: 'tetris' },
+    { q: 'How many squares make up each Blockology piece?', a: ['Four', 'Three', 'Five', 'Six'], art: 'tetris' },
+    { q: 'What does "BLOCKO" come from?', a: ['Danish for "play well"', 'Latin for "little brick"', 'The inventor\'s name', 'Greek for "building"'], art: 'lego' },
     { q: 'What language does a Furby speak when you first switch it on?', a: ['Furbish', 'French', 'Morse code', 'Japanese'], art: 'furby' },
     { q: 'Whose 1920 play gave the world the word "robot"?', a: ['Karel Čapek', 'Isaac Asimov', 'Arthur C. Clarke', 'H. G. Wells'], art: 'robot_word' },
     { q: 'How many Laws of Robotics did Isaac Asimov write?', a: ['Three', 'Ten', 'One', 'Seven'], art: 'three_laws' },
     { q: 'What was Unimate?', a: ['The first factory robot', 'A robot dog', 'A space probe', 'A film robot'], art: 'unimate' },
-    { q: 'Which company made the AIBO robot dog in 1999?', a: ['Sony', 'Nintendo', 'LEGO', 'Bandai'], art: 'aibo' },
+    { q: 'Which company made the AIBO robot dog in 1999?', a: ['Somy', 'Ultra Entertainment', 'BLOCKO', 'Bandai'], art: 'aibo' },
     { q: 'Who invented the printing press with movable type around 1450?', a: ['Johannes Gutenberg', 'Isaac Newton', 'James Watt', 'Leonardo da Vinci'], art: 'printing_press' },
     { q: 'What does SOS look like in Morse code?', a: ['... --- ...', '--- ... ---', '.-.-.-', '---------'], art: 'morse_code' },
     { q: 'Who patented the telephone in 1876?', a: ['Alexander Graham Bell', 'Thomas Edison', 'Samuel Morse', 'Guglielmo Marconi'], art: 'telephone' },
@@ -1027,7 +1027,7 @@ At the cinema, [[the_matrix|The Matrix]] bent the rules and [[phantom_menace|The
     { q: 'Which snack gave Percy Spencer the idea for the microwave oven?', a: ['A melted chocolate bar', 'A cold pizza', 'A burnt sausage', 'An exploding egg'], art: 'microwave_oven' },
     { q: 'What was the first thing ever scanned with a barcode in a shop?', a: ['A packet of chewing gum', 'A tin of beans', 'A video game', 'A newspaper'], art: 'barcode' },
     { q: 'Which instrument is played without touching it?', a: ['The theremin', 'The piano', 'The drum', 'The trumpet'], art: 'theremin' },
-    { q: 'Which company launched the Walkman in 1979?', a: ['Sony', 'Philips', 'JVC', 'Nintendo'], art: 'walkman' },
+    { q: 'Which company launched the Walkman in 1979?', a: ['Somy', 'Philips', 'JVC', 'Ultra Entertainment'], art: 'walkman' },
     { q: 'What causes the Millennium Bug?', a: ['Years stored as two digits', 'A computer virus', 'Real insects in the wires', 'Too many fireworks'], art: 'y2k_bug' },
     { q: 'Is the year 2000 a leap year?', a: ['Yes, because 2000 divides by 400', 'No, years ending in 00 never are', 'Only in America', 'Nobody knows'], art: 'leap_year' },
     { q: 'What new money did eleven European countries start using in 1999?', a: ['The euro', 'The ecu', 'The rupee', 'The credit'], art: 'year_1999' }
@@ -1063,7 +1063,7 @@ At the cinema, [[the_matrix|The Matrix]] bent the rules and [[phantom_menace|The
     [1951, 'The Day the Earth Stood Still', 'day_earth_stood_still'],
     [1956, 'Forbidden Planet introduces Robby the Robot', 'forbidden_planet'],
     [1957, 'Sputnik 1: the Space Age begins', 'sputnik'],
-    [1958, 'The modern LEGO brick is patented', 'lego'],
+    [1958, 'The modern BLOCKO brick is patented', 'lego'],
     [1960, 'The first laser is switched on', 'laser'],
     [1961, 'Yuri Gagarin is the first human in space', 'yuri_gagarin'],
     [1961, 'Unimate, the first factory robot, starts work', 'unimate'],
@@ -1071,38 +1071,38 @@ At the cinema, [[the_matrix|The Matrix]] bent the rules and [[phantom_menace|The
     [1968, '2001: A Space Odyssey is released', 'a_space_odyssey'],
     [1969, 'Apollo 11 lands on the Moon', 'apollo_11'],
     [1970, 'John Conway invents the Game of Life', 'game_of_life'],
-    [1974, 'Ernő Rubik invents his cube', 'rubiks_cube'],
+    [1974, 'Ernő Rubrick invents his cube', 'rubiks_cube'],
     [1974, 'The first barcode is scanned in a shop', 'barcode'],
-    [1975, 'George Lucas founds Industrial Light & Magic', 'ilm'],
+    [1975, 'Gordon Lukewarm founds Industrial Light & Magic', 'ilm'],
     [1976, 'VHS video recorders go on sale', 'vhs'],
-    [1977, 'Star Wars is released', 'star_wars'],
+    [1977, 'Intergalactic Battles is released', 'star_wars'],
     [1977, 'Voyager 1 and 2 are launched', 'voyager'],
-    [1979, 'The Sony Walkman is launched', 'walkman'],
+    [1979, 'The Somy Walkman is launched', 'walkman'],
     [1980, 'The Alvarez asteroid theory of dinosaur extinction', 'dinosaur_extinction'],
     [1981, 'The first Space Shuttle flight', 'space_shuttle'],
     [1982, 'The compact disc goes on sale', 'compact_disc'],
-    [1982, 'The first Rubik\'s Cube World Championship', 'cube_records'],
-    [1984, 'Alexey Pajitnov writes Tetris in Moscow', 'tetris'],
-    [1985, 'Back to the Future', 'back_to_the_future'],
+    [1982, 'The first Rubrick\'s Cube World Championship', 'cube_records'],
+    [1984, 'Alexey Pajitnov writes Blockology in Moscow', 'tetris'],
+    [1985, 'Back to the Furniture', 'back_to_the_future'],
     [1986, 'Halley\'s Comet returns; Voyager 2 reaches Uranus', 'halleys_comet'],
     [1986, 'The Mir space station is launched', 'mir'],
-    [1989, 'Tetris comes free with the Game Boy', 'tetris_game_boy'],
+    [1989, 'Blockology comes free with the Game Lad', 'tetris_game_boy'],
     [1990, 'The Hubble Space Telescope is launched', 'hubble'],
     [1990, 'Sue the T. rex is found in South Dakota', 'sue_the_t_rex'],
-    [1991, 'Terminator 2: liquid metal on screen', 'terminator_2'],
-    [1993, 'Jurassic Park brings dinosaurs to life', 'jurassic_park'],
+    [1991, 'Terminatater 2: liquid metal on screen', 'terminator_2'],
+    [1993, 'Jurassic Lark brings dinosaurs to life', 'jurassic_park'],
     [1993, 'X-Wing lets PC owners fly for the Rebellion', 'x_wing'],
     [1994, 'Comet Shoemaker-Levy 9 hits Jupiter', 'shoemaker_levy_9'],
     [1995, 'The Galileo probe arrives at Jupiter', 'galileo_probe'],
-    [1996, 'Tamagotchi hatches in Japan', 'tamagotchi'],
+    [1996, 'Eggbert hatches in Japan', 'tamagotchi'],
     [1997, 'Comet Hale-Bopp lights up the sky', 'hale_bopp'],
     [1997, 'Mars Pathfinder and Sojourner land on Mars', 'mars_pathfinder'],
-    [1997, 'The Star Wars Special Editions', 'star_wars_special_editions'],
+    [1997, 'The Intergalactic Battles Special Editions', 'star_wars_special_editions'],
     [1998, 'Furby is the Christmas craze', 'furby'],
     [1998, 'The first part of the International Space Station', 'iss'],
-    [1999, 'The Phantom Menace: Star Wars returns', 'phantom_menace'],
-    [1999, 'The Matrix bends the rules', 'the_matrix'],
-    [1999, 'Sony\'s AIBO robot dog goes on sale', 'aibo'],
+    [1999, 'The Phantom Nuisance: Intergalactic Battles returns', 'phantom_menace'],
+    [1999, 'The Modemtrix bends the rules', 'the_matrix'],
+    [1999, 'Somy\'s AIBO robot dog goes on sale', 'aibo'],
     [1999, 'Total solar eclipse over Cornwall, 11 August', 'eclipse_1999'],
     [1999, 'The world waits for the Millennium Bug', 'y2k_bug']
   );

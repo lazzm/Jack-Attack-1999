@@ -200,7 +200,7 @@
     const d = layer('', '<div class="sxe-big">3...</div>', 4600), big = d.querySelector('.sxe-big');
     ['2...', '1...', 'ACTIVATE!'].forEach((t, i) => setTimeout(() => { big.textContent = t; big.style.animation = 'none'; void big.offsetWidth; big.style.animation = ''; }, (i + 1) * 900));
     [0, 0.9, 1.8].forEach(t => note(440, 0.3, t)); note(880, 0.8, 2.7, 'sawtooth');
-    setTimeout(() => { document.querySelectorAll('.appwin, #browser').forEach(w => w.classList.add('sxe-shake')); setTimeout(() => document.querySelectorAll('.sxe-shake').forEach(w => w.classList.remove('sxe-shake')), 1200); toast('Robot Wars', 'The house robots are coming for your windows! (Type CEASE to make them stop. They\'ve stopped already, but it\'s fun to shout it.)', 6000); }, 2800);
+    setTimeout(() => { document.querySelectorAll('.appwin, #browser').forEach(w => w.classList.add('sxe-shake')); setTimeout(() => document.querySelectorAll('.sxe-shake').forEach(w => w.classList.remove('sxe-shake')), 1200); toast('Robo Rumble', 'The house robots are coming for your jackos! (Type CEASE to make them stop. They\'ve stopped already, but it\'s fun to shout it.)', 6000); }, 2800);
   };
   E.banzai = () => {
     secret('sx.r.banzai');
@@ -231,7 +231,7 @@
     let n = 0; const iv = setInterval(() => { document.documentElement.classList.toggle('sxe-inv'); if (++n >= 6) { clearInterval(iv); document.documentElement.classList.remove('sxe-inv'); } }, 160);
     say('Ex-ter-min-ate!', 0.1, 0.8);
     for (let i = 0; i < 5; i++) note(120 + (i % 2) * 20, 0.15, i * 0.17, 'sawtooth');
-    setTimeout(() => toast('Doctor Who', `The Daleks are hiding behind the sofa this time.${md() >= 312 ? ' (Did you see the Comic Relief one on Red Nose Day? The Doctor regenerated about five times in one go!)' : ' (There\'s no Doctor Who on telly at the moment. Dad says it\'ll be back. Dad says that every year.)'}`, 7000), 2300);
+    setTimeout(() => toast('Doctor Whoops', `The Daleks are hiding behind the sofa this time.${md() >= 312 ? ' (Did you see the Comic Relief one on Red Nose Day? The Doctor regenerated about five times in one go!)' : ' (There\'s no Doctor Whoops on telly at the moment. Dad says it\'ll be back. Dad says that every year.)'}`, 7000), 2300);
   };
   E.back = () => {
     secret('sx.r.back');
@@ -253,7 +253,7 @@
       b.style.transition = 'top .5s cubic-bezier(.5,0,1,1)'; b.style.top = (DesktopSurface.height() - 30 - lvl * 26) + 'px';
       setTimeout(() => note(1600 + Math.random() * 400, 0.04, 0, 'square'), 480);
     }, i * 140));
-    setTimeout(() => toast(/knex/i.test(raw || '') ? 'K\'Nex' : 'LEGO', /knex/i.test(raw || '') ? 'Rods and connectors everywhere! Jack\'s K\'Nex roller coaster took three weekends. These bricks are for the shuttle launch pad.' : 'Click, click, click! Mind your feet: treading on one of these in the dark is the worst pain known to science.', 5000), 3600);
+    setTimeout(() => toast(/knex/i.test(raw || '') ? 'K\'Nex' : 'BLOCKO', /knex/i.test(raw || '') ? 'Rods and connectors everywhere! Jack\'s K\'Nex roller coaster took three weekends. These bricks are for the shuttle launch pad.' : 'Click, click, click! Mind your feet: treading on one of these in the dark is the worst pain known to science.', 5000), 3600);
   };
   E.error = () => { secret('sx.r.error'); Desk.msgbox('I AM ERROR.', 'I AM ERROR.\n\n(That\'s what a man in a house says in Zelda II: The Adventure of Link, from 1988. Nobody knows why. It\'s the best thing in the whole game.)', 'warn'); };
   E.listen = () => {
@@ -317,9 +317,9 @@
     secret('sx.r.mario');
     layer('', '<div class="sxe-coinblk">!</div><div class="sxe-coin"></div>', 2000);
     note(988, 0.08, 0.3); note(1319, 0.4, 0.38);
-    toast('It\'s-a me!', 'Jack does the best plumber impression in the whole school. Luke says his own is better. Luke does a better Luigi, to be fair.', 6000);
+    toast('It\'s-a me!', 'Jack does the best plumber impression in the whole school. Luke says his own is better. Luke does a better Louie G, to be fair.', 6000);
   };
-  E.oddjob = () => { secret('sx.r.oddjob'); msg('GoldenEye 007: house rules', 'ODDJOB IS BANNED.\n\nAt Dave\'s house, these are the rules:\n  1. No Oddjob (he\'s too short, you can\'t hit him).\n  2. No screen watching. (Everybody screen watches.)\n  3. No Proximity Mines in the Facility.\n  4. Slappers Only on Fridays.\n  5. Whoever loses has to sit on the floor.', 'warn'); };
+  E.oddjob = () => { secret('sx.r.oddjob'); msg('Goldenballs 007: house rules', 'ODDJOB IS BANNED.\n\nAt Dave\'s house, these are the rules:\n  1. No Oddjob (he\'s too short, you can\'t hit him).\n  2. No screen watching. (Everybody screen watches.)\n  3. No Proximity Mines in the Facility.\n  4. Slappers Only on Fridays.\n  5. Whoever loses has to sit on the floor.', 'warn'); };
   let yearAsk = 0;
   E.year1999 = () => {
     const n = Date.now() - yearAsk < 90000 ? 2 : 1; yearAsk = Date.now();

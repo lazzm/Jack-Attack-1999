@@ -6,7 +6,7 @@
   const esc = A.esc, store = A.store;
   const FLOWER_KEY = 'jhp_family_flowers';
   const SEED = [
-    { id: 'j1', name: 'Jackotchi I', owner: 'Jack', gen: 1, age: 3, cause: 'wandered off while Jack was round Dave\'s playing GoldenEye', date: '14/03/99' },
+    { id: 'j1', name: 'Jackotchi I', owner: 'Jack', gen: 1, age: 3, cause: 'wandered off while Jack was round Dave\'s playing Goldenballs', date: '14/03/99' },
     { id: 'j2', name: 'Blip', owner: 'Jack', gen: 2, age: 5, cause: 'got bored during exam revision (Jack was revising. Honestly.)', date: '02/06/99' },
     { id: 'l1', name: 'Princess Sparkles', owner: Cast.n('sister'), gen: 1, age: 9, cause: 'loved very much, then left in the caravan for a week', date: '07/08/99' },
     { id: 'd1', name: 'Mr Grumbles', owner: 'Dad', gen: 1, age: 1, cause: 'Dad thought the CLEAN button was the OFF button', date: '20/09/99' },

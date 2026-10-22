@@ -67,7 +67,7 @@
   const FUNPAL = s => FUNNY[s] ? [FUNNY[s][2][0], FUNNY[s][2][1], FUNNY[s][2][2], '#201418'] : null;
   // a few moves get funnier names on screen (the keys stay the same, so link battles still agree)
   const MVN = { POUNCE: 'BELLY FLOP', GLARE: 'THE EVILS', SNOOZE: 'LIE-IN', 'QUICK PECK': 'QUICK POKE', 'LEAF LICK': 'LEAF SLAP', 'MOSS BLAST': 'COMPOST HEAP', 'SPORE CLOUD': 'PONG CLOUD',
-    'BUBBLE POP': 'BATH BOMB', 'CINDER SPIT': 'HOT SAUCE', 'FLARE UP': 'BONFIRE', ZAP: 'STATIC SHOCK', 'STATIC POP': 'FAX BLAST', THUNDERCLAP: 'MODEM SCREAM', 'PEBBLE TOSS': 'CONKER TOSS',
+    'BUBBLE POP': 'BATH BOMB', 'CINDER SPIT': 'HOT SAUCE', 'FLARE UP': 'BONFIRE', ZAP: 'STATIC SHOCK', 'STATIC POP': 'FAX BLAST', THUNDERCLAP: 'MODEM SCREAM', 'PEBBLE TOSS': 'ACORN QUEST TOSS',
     'ROCK SLAM': 'BODY SLAM', HARDEN: 'TENSE UP', LANDSLIDE: 'AVALANCHE', 'EEL WHIP': 'WIRE WHIP', STINGLE: 'STINGY STING' };
   const mvN = m => MVN[m] || m;
   // Game Boy Color palettes: the text boxes per cartridge, the map tiles, the people

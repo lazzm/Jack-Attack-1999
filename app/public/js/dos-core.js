@@ -272,7 +272,7 @@
       o = o || {};
       this.o = o;
       this.el = document.createElement('div'); this.el.className = 'dos-host';
-      this.el.innerHTML = '<div class="dos-scr"></div><textarea class="dos-kbd" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="MS-DOS keyboard input"></textarea>';
+      this.el.innerHTML = '<div class="dos-scr"></div><textarea class="dos-kbd" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="JACK-DOS keyboard input"></textarea>';
       this.scrEl = this.el.querySelector('.dos-scr'); this.kbd = this.el.querySelector('.dos-kbd');
       const narrow = o.cols || (innerWidth < 560 ? 40 : 80);
       this.screen = new Screen(narrow, o.rows || 25);

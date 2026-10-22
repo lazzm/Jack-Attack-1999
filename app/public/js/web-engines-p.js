@@ -26,7 +26,7 @@
     const off = kv.watch(key, ev => { if (!n.isConnected) return off(); if (ev.type === 'set') n.textContent = fmt(ev.v); });
   }
   // today's headlines from Jack's 1999 calendar (plus the search-engine gossip)
-  const GOSSIP = [['04-01', 'TECH', 'WAAAGHooo! adds a new category: "Pokemon". It is the biggest one by Friday. Nobody is surprised.'], ['06-07', 'TECH', 'Two students in a garage show off a search engine called Jackgle!. "It counts links," they say. Everyone nods.'],
+  const GOSSIP = [['04-01', 'TECH', 'WAAAGHooo! adds a new category: "Pocket Critters". It is the biggest one by Friday. Nobody is surprised.'], ['06-07', 'TECH', 'Two students in a garage show off a search engine called Jackgle!. "It counts links," they say. Everyone nods.'],
     ['09-21', 'TECH', 'Garage search engine Jackgle! takes the BETA sign off. WAAAGHooo! says it is "not worried at all". (It is a bit worried.)'], ['10-04', 'TECH', 'Ask Gubbinz gets a new bow tie. Questions answered per day doubles. Coincidence? Gubbinz thinks not.']];
   function headlines(n) {
     const k = String(t99().m).padStart(2, '0') + '-' + String(t99().d).padStart(2, '0');
@@ -196,7 +196,7 @@
       const only = f.querySelector('input[name=wgw]:checked'); D.goSearch('waaaghooo', only && only.value === 'cat' && ctx.arg ? q + ' cat:' + ctx.arg : q);
     }));
     el.querySelectorAll('[data-wgadv]').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); Desk.msgbox('WAAAGHooo! Advanced Search', 'ADVANCED SEARCHING\n\n+word   must have it\n-word   must NOT have it\nsite:jacksearch.find   only on one site\n\nOr just type it in CAPITALS. That never works either.', 'info'); }));
-    el.querySelectorAll('[data-wglang]').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); Desk.msgbox('WAAAGHooo! ' + a.textContent, a.textContent === 'Pirate' ? 'Arr! This page be now in Pirate. (It looks the same. The parrot ate the translation.)' : a.textContent === 'Robot' ? 'BEEP. THIS PAGE IS NOW IN ROBOT. IT IS 0% DIFFERENT. BOOP.' : 'Our Klingon translator is at a Star Trek convention until Tuesday.', 'info'); }));
+    el.querySelectorAll('[data-wglang]').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); Desk.msgbox('WAAAGHooo! ' + a.textContent, a.textContent === 'Pirate' ? 'Arr! This page be now in Pirate. (It looks the same. The parrot ate the translation.)' : a.textContent === 'Robot' ? 'BEEP. THIS PAGE IS NOW IN ROBOT. IT IS 0% DIFFERENT. BOOP.' : 'Our Klingon translator is at a Galaxy Walk convention until Tuesday.', 'info'); }));
   }
   const WG = {
     home(el) {
@@ -313,16 +313,16 @@ ${Object.keys(C).filter(k => bc[k] && bc[k].some(e => e.cool)).map(k => `<div cl
     const l = fold(q), N = ['Luke64', 'Callum_PC', 'Gubbinz', 'MegahertzMike', 'PixelPriya', 'Snaz', 'CubeKing99'];
     const r = [];
     if (/red|fast|quick|speed|race/.test(l)) r.push('Red ones go faster. Ask anyone with a Scalextric. Next question.');
-    if (/gun|shoot|loud|golden|bond/.test(l)) r.push('GoldenEye, Facility, pistols only, no Oddjob. Those are the rules in our house.');
+    if (/gun|shoot|loud|golden|bond/.test(l)) r.push('Goldenballs, Facility, pistols only, no Oddjob. Those are the rules in our house.');
     if (/food|eat|hungry|dinner|tea|lunch|pie/.test(l)) r.push('Pot Noodle. If there is no Pot Noodle, toast. If there is no toast, ask your Mom.');
     if (/money|cost|price|pay|quid|buy/.test(l)) r.push("That'll be ten Rupees. Everything is ten Rupees.");
     if (/y2k|millennium|2000|bug/.test(l)) r.push("The Millennium Bug? Unplug the video recorder, fill the bath and stay up till midnight to watch.");
     if (/homework|school|teacher|maths|test/.test(l)) r.push("Do it on Sunday night at 9pm, like everyone else. (Don't say the dog ate it. Nobody believes the dog.)");
     if (/computer|pc|modem|internet|web|mhz|ram/.test(l)) r.push('Turn it off and on again. If that doesn\'t work, more RAM. It is always more RAM.');
-    if (/star wars|jedi|saber|menace|pod/.test(l)) r.push('Podracing was the best bit. Darth Maul was the second best bit. Jar Jar was a bit.');
-    if (/pokemon|pikachu/.test(l)) r.push('Pick Squirtle. Brock is a nightmare if you pick Charmander. Trust me.');
+    if (/star wars|jedi|saber|menace|pod/.test(l)) r.push('Podracing was the best bit. Dark Mole was the second best bit. Jar Jar Jams was a bit.');
+    if (/pokemon|pikachu/.test(l)) r.push('Pick Squirturtle. Brock is a nightmare if you pick Charbroiler. Trust me.');
     if (/dave/.test(l)) r.push("Dave? The lad with the wrestling page? He's alright. He owes me a Rumble Pak.");
-    if (/jack/.test(l)) r.push("Jack made this whole computer. He likes games, Star Wars, Rubik's cubes and painting little soldiers. Nerd. (Respect.)");
+    if (/jack/.test(l)) r.push("Jack made this whole computer. He likes games, Intergalactic Battles, Rubrick's cubes and painting little soldiers. Nerd. (Respect.)");
     if (/love|like|friend/.test(l)) r.push("Best mates are the ones who let you be Player 1. Marry one of them.");
     const GEN = ['Dunno. But I can say it in CAPITALS: DUNNO!', 'Ask Dave, he has the strategy guide.', 'Yes. Or no. Definitely one of those.', 'That depends. Is it red?', 'Blow on the cartridge and try again.', "I think it's in the Directory. Under 'Weird & Lost'.", 'Have you tried turning it off and on again? It works on little brothers too.', 'Woo-hoo! (That\'s my answer to everything.)'];
     let k = hash(l);
@@ -404,7 +404,7 @@ ${Object.keys(C).filter(k => bc[k] && bc[k].some(e => e.cool)).map(k => `<div cl
       const JOBS = [['Spider Wrangler', 'Look after our web spiders. They crawl every page on the JackNet every night and come back hungry.', 'Must not be scared of spiders. Must be OK with them being imaginary.'], ['Garage Door Engineer', 'The garage door sticks. The servers need air. This is the most important job in the company.', 'Must bring own oil can.'],
         ['Junior Webmaster', 'Make the logo slightly more colourful. Then less colourful. Then back again.', 'Must know HTML. Must not use the &lt;blink&gt; tag. We mean it.'], ['Chief Biscuit Officer', 'Make sure there are always biscuits. Report to the board (the ping-pong table).', 'Custard creams preferred.']];
       el.innerHTML = `<div class="jg-top">${jgLogo(true)}<b>Jobs at Jackgle!</b></div><div class="jg-page"><h2>Come and work in our garage!</h2><p>Jackgle! is growing fast. We now have so many staff that two of them have to sit on the lawnmower. Perks: free crisps, a ping-pong table, and you can tell people you work on "the Internet".</p>
-${JOBS.map((j, i) => `<div class="jg-job"><b>${j[0]}</b><br>${j[1]}<br><i>${j[2]}</i><br><button class="btn" type="button" data-job="${i}">Apply now</button></div>`).join('')}<p class="small">Jackgle! is an equal-opportunity garage. Humans, robots and Jedi all welcome. No Furbies (they chew the cables).</p></div>${jgFoot()}`;
+${JOBS.map((j, i) => `<div class="jg-job"><b>${j[0]}</b><br>${j[1]}<br><i>${j[2]}</i><br><button class="btn" type="button" data-job="${i}">Apply now</button></div>`).join('')}<p class="small">Jackgle! is an equal-opportunity garage. Humans, robots and Space Cadet all welcome. No Furbies (they chew the cables).</p></div>${jgFoot()}`;
       el.querySelectorAll('[data-job]').forEach(b => b.addEventListener('click', () => Desk.ask('Apply: ' + JOBS[+b.dataset.job][0], 'Tell us why you want the job (one line, no real names or addresses please):', '', 60, v => {
         if (!v || !v.trim()) return; secret('eng.jobs'); sfx('solve');
         Desk.msgbox('Jackgle! Jobs', `Thanks for applying to be our ${JOBS[+b.dataset.job][0]}!\n\nYou said: "${v.trim().slice(0, 60)}"\n\nWe will get back to you in 6-8 weeks. (We are very busy. We only have three phones and one of them is a toy.)`, 'info');
@@ -461,8 +461,8 @@ ${JOBS.map((j, i) => `<div class="jg-job"><b>${j[0]}</b><br>${j[1]}<br><i>${j[2]
 <path d="M48 94l17 7-17 7zM82 94l-17 7 17 7z" fill="#c00" stroke="#600"/><circle cx="65" cy="101" r="3.4" fill="#e10600" stroke="#600"/>
 <path d="M98 112q14-8 26-2" stroke="#1a1a1a" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M104 100h26" stroke="#888" stroke-width="3"/><path d="M107 99q10-18 20 0z" fill="#ccc" stroke="#666"/><circle cx="117" cy="84" r="2" fill="#999"/></svg>`;
   const agHead = () => `<div class="ag-head"><a class="ag-logo" href="${AGH}/">Ask <b>Gubbinz</b>!</a><span class="ag-tag">The butler of the JackNet<br>Questions answered in plain English since 1999</span></div>`;
-  const KEYHOLE = ['Where can I find cheats for Ocarina of Time?', 'How do I paint flames on a model car?', 'Is the Millennium Bug real?', 'Where can I see a hamster on the Internet?', 'What is a webring?', 'How do I get free e-mail?', 'Who is Dave?', 'Why is Jar Jar?', 'Where can I spend my Rupees?', 'How fast is a 56K modem?', 'What does BETA mean?', 'Where is the Hobby Corner?', 'Is Pokemon out in England yet?'];
-  const agForm = q => `<form class="ag-form" data-ags autocomplete="off"><label for="agq"><b>Ask Gubbinz a question in plain English:</b></label><input id="agq" type="text" maxlength="100" value="${esc(q || '')}" placeholder="e.g. Where can I find GoldenEye cheats?"><div class="row2"><button class="btn" type="submit">Ask!</button><span class="small">Gubbinz will find the answer. Probably.</span></div></form>`;
+  const KEYHOLE = ['Where can I find cheats for Kazoo of Time?', 'How do I paint flames on a model car?', 'Is the Millennium Bug real?', 'Where can I see a hamster on the Internet?', 'What is a webring?', 'How do I get free e-mail?', 'Who is Dave?', 'Why is Jar Jar Jams?', 'Where can I spend my Rupees?', 'How fast is a 56K modem?', 'What does BETA mean?', 'Where is the Hobby Corner?', 'Is Pocket Critters out in England yet?'];
+  const agForm = q => `<form class="ag-form" data-ags autocomplete="off"><label for="agq"><b>Ask Gubbinz a question in plain English:</b></label><input id="agq" type="text" maxlength="100" value="${esc(q || '')}" placeholder="e.g. Where can I find Goldenballs cheats?"><div class="row2"><button class="btn" type="submit">Ask!</button><span class="small">Gubbinz will find the answer. Probably.</span></div></form>`;
   const agFoot = () => `<p class="small" style="text-align:center;margin-top:16px"><a href="${AGH}/about.html">About your butler</a> - Questions answered: <b class="ag-n">...</b> - &copy;1999 Ask Gubbinz. Gubbinz is not responsible for answers given before his tea.</p>`;
   function agWire(el) { el.querySelectorAll('[data-ags]').forEach(f => f.addEventListener('submit', ev => { ev.preventDefault(); const q = f.querySelector('input').value.trim(); if (q) D.goSearch('askgubbinz', q); })); liveNum(el, '.ag-n', 'eng.ask.n', false); }
   const PHRASE = [['info', 'Where can I find information about %?'], ['pics', 'Where can I see a picture of %?'], ['fans', 'Where can I find a fan page about %?'], ['buy', 'Where can I buy % with Rupees?'], ['why', 'Why is %?']];
@@ -470,7 +470,7 @@ ${JOBS.map((j, i) => `<div class="jg-job"><b>${j[0]}</b><br>${j[1]}<br><i>${j[2]
     if (/\b(who|what) (are|is) (you|gubbinz)\b|about (you|gubbinz)/.test(l)) return ['Me, sir? I am Gubbinz. Desktop helper, pet, poet and, since this year, butler. Master Jack gave me the bow tie. I have only eaten one corner of it.', ['go:grot', 'Visit Gubbinz on JACK ATTACK!']];
     if (/meaning of life/.test(l)) return ['The meaning of life, sir, is 42. I looked it up in a book about hitchhiking. Twice.', null];
     if (/\b(time|date|day is it|what day|year)\b/.test(l)) return [`It is ${longDate()}, sir. Same as yesterday, only one more.`, null];
-    if (/\bjack\b|jack attack/.test(l)) return ['Master Jack, sir? He made this whole computer. He likes video games, sci-fi, Rubik\'s cubes, Tetris and painting little models. Mostly video games.', ['go:home', 'JACK ATTACK! Online']];
+    if (/\bjack\b|jack attack/.test(l)) return ['Master Jack, sir? He made this whole computer. He likes video games, sci-fi, Rubrick\'s cubes, Blockology and painting little models. Mostly video games.', ['go:home', 'JACK ATTACK! Online']];
     if (/how are you/.test(l)) return ['Very well, thank you for asking. Nobody ever asks the butler.', null];
     if (/homework|maths|spelling test/.test(l)) return ['I cannot do your homework, sir. I ate the last lot. It was algebra. It was dry.', null];
     if (/millennium|y2k|year 2000/.test(l)) return ['Nobody knows what the Millennium Bug will do, sir. I have filled the bath and hidden the biscuits. Just in case.', null];
