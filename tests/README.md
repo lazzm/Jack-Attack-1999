@@ -70,6 +70,8 @@ Authenticated object/control regressions (localhost only; run from `tests/`):
 
     node chair-pc-menu.mjs http://localhost:18080 # chair angles, Esc menu, first-person PC and 4:3 LOCK IN/refresh
     node chair-placement.mjs http://localhost:18080 # F/E/click furniture drops near feet, rotated clearance, PC safety and refresh
+    node console-cases.mjs http://localhost:18080 # real F pickup/open, custom slots, media return, tidy/refresh and full nineteen-box rack
+    node console-case-play.mjs http://localhost:18080 # physical box-to-console play, Backspace/background refresh, eject and own-box return
     node room-props-controls.mjs http://localhost:18080 # F repeats, furniture collision, safe placement, inspection and pillow refresh
     node vhs-physical.mjs http://localhost:18080 # physical insertion, playback away/refresh/eject, reusable return slots and TV LOCK IN
     node release-room-pc.mjs http://localhost:18080 # Goldenballs, 0/typing guard, same-scene shutdown, off refresh and power-on

@@ -474,11 +474,12 @@
     return { x: P.x + f.x * d, y: P.y + f.y * d + t.h * 0.5 + 6, z: P.z + f.z * d };
   }
   const isThingMesh = m => { let o = m; while (o) { if (o.userData && o.userData.thing) return true; o = o.parent; } return false; };
+  const isHeldMesh = m => {if(!held)return false;for(let o=m;o;o=o.parent)if(o===THINGS[held.id].obj)return true;return false;};
   let aimPt = null, aimT = 0; // where the crosshair points (checked a few times a second while holding)
   function nearSnap(t, x, y, z) {
     let best = null;
     const now = performance.now();
-    if (now - aimT > 120) { aimT = now; const h = pick(vw / 2, vh / 2, { skip: m => isThingMesh(m), far: 260 }); aimPt = h ? h.p : null; }
+    if (now - aimT > 120) { aimT = now; const h = pick(vw / 2, vh / 2, { skip: isHeldMesh, far: 260 }); aimPt = h ? h.p : null; }
     for (const id in SNAPS) {
       const s = SNAPS[id]; if (s.room && cur && s.room !== cur.id) continue;
       if (s.enabled && !s.enabled()) continue; if (s.accepts && !s.accepts(t.kind, t)) continue;
@@ -819,7 +820,7 @@
         const item=THINGS[held.id],hp=heldPos(),slot=nearSnap(item,hp.x,hp.y,hp.z);
         // F is contextual: insert/return at a slot, otherwise use a playable
         // held object. Click/E always place it, so there is no drop dead end.
-        if ((k==='f'||k==='F') && !slot && item.use) item.use(item); else drop();
+        if ((k==='f'||k==='F') && (!slot||item.useAtHome&&slot.id===item.home.snap) && item.use) item.use(item); else drop();
       } else useAt(vw/2,vh/2,true);
       return;
     }
@@ -953,7 +954,7 @@
     const centre = box.getCenter(new T.Vector3()), size = box.getSize(new T.Vector3());
     const panel = document.createElement('div'); panel.className = 'hs-inspection';
     const name = document.createElement('b'); name.textContent = typeof t.label === 'function' ? t.label() : t.label;
-    const hint = document.createElement('span'); hint.textContent = t.obj.userData.cube ? 'Drag a face to turn · Right-drag to rotate · Wheel: zoom · I: back · Esc: menu' : 'Drag to rotate · Wheel: zoom · I: back · Esc: menu';
+    const hint = document.createElement('span'); hint.textContent = t.obj.userData.cube ? 'Drag a face to turn · Right-drag to rotate · Wheel: zoom · Backspace: back · Esc: menu' : 'Drag to rotate · Wheel: zoom · Backspace: back · Esc: menu';
     const back = document.createElement('button'); back.type = 'button'; back.textContent = 'Back'; back.addEventListener('click', endInspect);
     panel.append(name, hint, back); ui.el.appendChild(panel);
     inspection = {t, grip, centre, panel, yaw: -P.ry + 24, pitch: id === 'gb' ? -80 : -18, zoom: 1, radius: size.length() / 2, drag: null};
@@ -1099,7 +1100,7 @@
         hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : '<b>F</b>: ' + esc(t.use ? (t.useLabel || 'use it') : 'put down') + ' &middot; Click / E: place &middot; R: turn &middot; I: inspect &middot; Wheel: distance &middot; Esc: menu / put back';
         const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use; u.textContent = t.useLabel || 'Use';
       },
-      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML = `<b>F / Click: ${esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''))}</b>`; else if (held) this.holdBar(THINGS[held.id]); },
+      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) {const t=held&&THINGS[held.id];hold.querySelector('.hs-hkeys').innerHTML = t?.useAtHome&&s.id===t.home.snap?`<b>F: ${esc(t.useLabel||'open it')} · E / Click: return box</b>`:`<b>F / Click: ${esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''))}</b>`;} else if (held) this.holdBar(THINGS[held.id]); },
       crossOn() { el.classList.add('cross'); clearTimeout(crossT); crossT = setTimeout(() => el.classList.remove('cross'), 2500); },
       fade(on, ms) { const f = $('.hs-fade'); f.style.transitionDuration = (ms || 300) + 'ms'; f.classList.toggle('on', !!on); },
       modalOpen: () => !!el.querySelector('.hs-modal.on'),

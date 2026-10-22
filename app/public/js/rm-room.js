@@ -578,7 +578,7 @@
       RK.box(0, y - FY + 0.6, 0, 31, 1.2, 22, rackM);
       H.support('bedroom', TX - 71.4, -54, TX - 40.6, -33, y);
       for (let col = 0; col < 4; col++) {
-        RK.box(-10.5 + col * 7, y - FY - 0.3, 3, 0.5, 0.6, 15, M('#151515'), { ry: 65 });
+        RK.box(-10.5 + col * 7, y - FY - 0.3, 0, 0.5, 0.6, 16, M('#151515'));
       }
     }
     RK.shadow(0, 0, 0, 36, 26, 0.7, { sq: true });
@@ -1397,6 +1397,72 @@
     const from = machine.lid.rotation.x, to = open ? 72 * D2R : 0, start = performance.now();
     H.anims.set('console.lid.' + con, now => { const k = Math.min(1, (now - start) / 320); machine.lid.rotation.x = from + (to - from) * (1 - Math.pow(1 - k, 3)); return k < 1; });
   }
+  // Cases have their own identity and placement; the playable medium remains
+  // the original saved media.<game> object, never a duplicate entitlement.
+  const mediaBoxes={},mediaSlots={};
+  let mediaSlotSave=null;
+  const caseStore={get(){try{return JSON.parse(localStorage.getItem('jhp_console_slots')||'{}')}catch(e){return{}}},save(){try{localStorage.setItem('jhp_console_slots',JSON.stringify(mediaSlotSave))}catch(e){}}};
+  function rackPose(slot){return{room:'bedroom',x:TX-66.5+(slot%4)*7,y:7+Math.floor(slot/4)*15,z:-43,ry:90};}
+  function caseScene(c,g){
+    const sky=c.createLinearGradient(0,0,0,320);sky.addColorStop(0,'#182d55');sky.addColorStop(1,g.col||'#ab6236');c.fillStyle=sky;c.fillRect(0,0,512,320);
+    c.fillStyle='#efca78';c.beginPath();c.arc(395,60,42,0,7);c.fill();c.fillStyle='#253449';c.beginPath();c.moveTo(0,200);for(let x=0;x<=512;x+=64)c.lineTo(x,100+((x*7+g.id.length*29)%90));c.lineTo(512,320);c.lineTo(0,320);c.fill();
+    if(/kart|race|taxi|zero|grav/.test(g.id)){c.fillStyle='#20222e';c.beginPath();c.moveTo(210,140);c.lineTo(300,140);c.lineTo(512,320);c.lineTo(0,320);c.fill();c.strokeStyle='#f1d879';c.lineWidth=6;c.setLineDash([22,16]);c.beginPath();c.moveTo(256,155);c.lineTo(256,320);c.stroke();c.setLineDash([]);c.fillStyle=g.col||'#c3462d';c.fillRect(100,210,240,58);c.beginPath();c.moveTo(140,210);c.lineTo(178,163);c.lineTo(260,163);c.lineTo(302,210);c.fill();c.fillStyle='#9dc2cd';c.fillRect(181,174,64,33);for(const x of [151,300]){c.fillStyle='#15161c';c.beginPath();c.arc(x,267,27,0,7);c.fill();c.fillStyle='#a0a7af';c.beginPath();c.arc(x,267,12,0,7);c.fill()}}
+    else if(/blocks/.test(g.id)){const cols=['#dca843','#719e83','#9d74b4','#ba644c'];for(let row=0;row<5;row++)for(let col=0;col<8;col++){if(row<2&&(col+row)%3===0)continue;c.fillStyle=cols[(row+col)%4];c.fillRect(48+col*51,285-row*48,46,43);c.strokeStyle='#eee1ae';c.lineWidth=3;c.strokeRect(50+col*51,287-row*48,40,37)}}
+    else if(/range|sneak/.test(g.id)){c.fillStyle='#d1a74b';c.beginPath();c.arc(256,176,93,0,7);c.fill();c.strokeStyle='#fff0b3';c.lineWidth=10;c.beginPath();c.arc(256,176,62,0,7);c.stroke();c.strokeStyle='#352b34';c.lineWidth=7;for(const dx of [-1,1]){c.beginPath();c.moveTo(256+dx*115,176);c.lineTo(256+dx*45,176);c.stroke()}c.fillStyle='#282c36';c.fillRect(237,143,38,110);c.beginPath();c.arc(256,119,24,0,7);c.fill()}
+    else{c.fillStyle='#355c38';c.beginPath();c.ellipse(256,301,250,50,0,0,7);c.fill();c.fillStyle=/run|dash|hop|grab/.test(g.id)?'#ce793a':'#79935c';c.beginPath();c.ellipse(250,195,68,81,-.2,0,7);c.fill();for(const x of [207,291]){c.beginPath();c.ellipse(x,104,25,39,(x-250)/100,0,7);c.fill()}c.fillStyle='#f5e4bb';for(const x of [229,267]){c.beginPath();c.ellipse(x,161,15,21,0,0,7);c.fill();c.fillStyle='#202634';c.beginPath();c.arc(x+3,166,6,0,7);c.fill();c.fillStyle='#f5e4bb'}c.fillStyle='#302a2b';c.beginPath();c.ellipse(248,202,20,14,0,0,7);c.fill();c.fillStyle='#dfb45b';c.fillRect(81,236,41,40);c.fillRect(389,211,41,40)}
+  }
+  function caseCover(g,con){return K.tex('media.case.cover.'+g.id,512,512,(c,w,h)=>{
+    c.fillStyle='#ebe0c5';c.fillRect(0,0,w,h);c.fillStyle='#18212f';c.fillRect(8,8,496,48);c.fillStyle='#eee3c4';c.font='bold 24px Arial';c.fillText(con.brand,22,40);
+    c.save();c.translate(12,64);c.scale(488/512,1);caseScene(c,g);c.restore();c.fillStyle='#15212b';c.fillRect(12,384,488,88);c.fillStyle='#fff0c5';let fs=34;const words=g.title.split(' ');while(fs>18){c.font='italic bold '+fs+'px Arial';let lines=1,line='';for(const word of words){if(c.measureText((line+' '+word).trim()).width>458){lines++;line=word}else line=(line+' '+word).trim()}if(lines<=2)break;fs--}K.wrapText(c,g.title,26,420,458,fs+5);c.fillStyle='#293849';c.font='bold 15px Courier New';c.fillText('JACKSOFT • ORIGINAL GAME • 1999',22,495);
+  },{clamp:true});}
+  function casePrint(g,con,spine){
+    return K.tex('media.case.'+(spine?'spine.':'back.')+g.id,spine?640:512,spine?96:512,(c,w,h)=>{
+      c.fillStyle=g.col||'#344b6c';c.fillRect(0,0,w,h);c.fillStyle='#eee5cd';c.fillRect(0,0,w,spine?20:52);
+      c.fillStyle='#1d222b';c.font='bold '+(spine?15:22)+'px Arial';c.fillText(con.brand,spine?12:24,spine?16:34);
+      if(spine){let size=32;c.font='bold '+size+'px Arial';while(c.measureText(g.title).width>w-28&&size>12)c.font='bold '+(--size)+'px Arial';c.fillStyle='#fff6d9';c.fillText(g.title,14,64);c.fillStyle='#e8dfc7';c.font='12px Courier New';c.fillText('JACKSOFT • 1999',14,87)}
+      else{c.fillStyle='#fff3d3';c.font='bold 31px Arial';const end=K.wrapText(c,g.title,24,96,w-48,36);c.font='21px Arial';K.wrapText(c,g.blurb||'An original adventure for your console.',24,end+26,w-48,28);for(let i=0;i<3;i++){c.save();c.translate(28+i*154,312);c.scale(144/512,90/320);caseScene(c,g);c.restore()}c.fillStyle='#eee5cd';c.font='18px Courier New';c.fillText('1 PLAYER • COLOUR • SOUND',24,444);c.font='15px Courier New';c.fillText('KEEP THE INSTRUCTIONS. LOSE THE AFTERNOON.',24,475)}
+    },{clamp:true});
+  }
+  function mediaCaseModel(g,con){
+    const obj=new T.Group(),batch=K.batch(),B=K.into(batch),disc=con.media==='disc',w=disc?14.2:13,h=12.6,d=disc?1.5:3.2;
+    const shell=M({c:disc?'#292c30':'#e4ddc8',sh:disc?65:8,sp:disc?'#666':'#222'}),paper=M('#e7dfc7');
+    // Recessed tray/liner with solid edge walls, rather than a painted slab.
+    B.rbox(0,-h/2,-d/2+.2,w,h,.4,.12,shell);
+    for(const x of [-w/2+.18,w/2-.18])B.box(x,-h/2,0,.36,h,d,shell);
+    for(const y of [-h+.1,-.1])B.box(0,y,0,w-.4,.2,d,shell);
+    B.box(0,-h/2,-d/2+.44,w-.7,h-.7,.12,paper);
+    B.decal(0,-h/2,-d/2-.015,w-.5,h-.5,M({c:'#fff',map:casePrint(g,con,false),sh:6}),{ry:180});
+    B.decal(-w/2-.015,-h/2,0,h-.4,d*.86,M({c:'#fff',map:casePrint(g,con,true),sh:8}),{ry:-90,rz:90});
+    // A real hinged front: fixed details batch together; the lid moves alone.
+    const lid=new T.Group();lid.position.set(-w/2,0,d/2-.14);obj.add(lid);const L=K.into(lid);
+    L.rbox(w/2,-h/2,0,w,h,.32,.12,M({c:disc?'#9eabb4':'#e4ddc8',sh:disc?70:8,sp:'#777'}));
+    L.decal(w/2,-h/2,.18,w-.65,h-.65,M({c:'#fff',map:caseCover(g,con),sh:disc?32:6}));
+    L.rbox(w-.25,-h/2,.22,.5,2,.24,.1,shell);
+    if(disc){B.cyl(0,-h/2,.5,.9,.9,.35,16,shell,{rx:90});for(const x of [-4,4])B.box(x,-h+.8,.5,.4,1,.5,shell)}
+    for(const y of [-h+1,-1])B.cyl(-w/2,y,d/2-.13,.22,.22,1.1,10,shell);
+    batch.build(obj);K.into(obj).shadow(0,0,0,w+1,d+1,.35,{sq:true});obj.userData.mediaCase={game:g.id,width:w,height:h,depth:d,lid};return obj;
+  }
+  function caseLid(box,open){const lid=box.obj.userData.mediaCase.lid,from=lid.rotation.y,inRack=Math.abs(box.at.z+43)<1&&Math.abs(box.at.x-(TX-56))<17,to=open?-(inRack?14:115)*D2R:0,start=performance.now();H.anims.set('case.lid.'+box.id,now=>{const k=Math.min(1,(now-start)/280);lid.rotation.y=from+(to-from)*(k*k*(3-2*k));return k<1;});}
+  function boxSlot(g){
+    if(!mediaSlotSave){const saved=caseStore.get();mediaSlotSave=saved&&typeof saved==='object'&&!Array.isArray(saved)?saved:{};const used=new Set();for(const [id,n] of Object.entries(mediaSlotSave)){if(!CAT.GAME[id]||!Number.isInteger(n)||n<0||n>=20||used.has(n))delete mediaSlotSave[id];else used.add(n)}}
+    if(!Number.isInteger(mediaSlotSave[g.id])){const used=new Set(Object.values(mediaSlotSave)),n=Array.from({length:20},(_,i)=>(i%5)*4+Math.floor(i/5)).find(n=>!used.has(n));if(n==null)return null;mediaSlotSave[g.id]=n;caseStore.save()}return mediaSlotSave[g.id];
+  }
+  function addMediaBox(g,con){
+    const n=boxSlot(g);if(n==null)return null;
+    const pose=rackPose(n),id='media.box.'+g.id;
+    const box=Room.grabbable(id,{obj:mediaCaseModel(g,con),kind:'console-case',gameId:g.id,label:g.title+(con.media==='disc'?' — jewel case':' — game box'),home:Object.assign({},pose,{snap:'media.slot.'+n}),holdD:38,useAtHome:true,useLabel:con.media==='disc'?'Take out disc':'Take out cartridge',
+      use:()=>{const t=mediaThings[g.id];if(!t)return;if(t.st==='snap'&&t.snap==='media.case.'+g.id||t.at.hide&&t.snap!=='console.'+g.con){if(H.held()===id)H.putBack();caseLid(box,true);H.grab(t.id)}else{H.toast(g.title,'The '+(con.media==='disc'?'disc':'cartridge')+' is out. Return it to this case first.')}}});
+    mediaBoxes[g.id]=box;
+    const sn=Room.addSnap('media.case.'+g.id,{room:'bedroom',x:pose.x,y:pose.y-6,z:pose.z,r:26,box:[14,12,2],pose:Object.assign({},pose),hide:true,accepts:(kind,t)=>t?.id==='media.'+g.id,enabled:()=>['rest','snap'].includes(box.st)&&!box.at.hide,hint:'Return to its own '+(con.media==='disc'?'jewel case':'game box'),onSnap:()=>caseLid(box,false)});
+    const follow=()=>{const p=box.at;Object.assign(sn,{room:p.room,x:p.x,y:p.y-6,z:p.z});Object.assign(sn.pose,p,{hide:true});const t=mediaThings[g.id];if(t){t.home=Object.assign({},p,{snap:sn.id,hide:true});if(t.st==='snap'&&t.snap===sn.id&&(!t.at.hide||['room','x','y','z','ry'].some(k=>t.at[k]!==p[k]))){t.at=Object.assign({},p,{hide:true});H.place(t)}}};
+    H.ambient.add(follow);follow();return box;
+  }
+  function rackSlots(){
+    for(let n=0;n<20;n++){const p=rackPose(n);mediaSlots[n]=Room.addSnap('media.slot.'+n,{room:'bedroom',x:p.x,y:p.y-6,z:p.z,r:26,box:[15.2,12.6,5.6],preview:{x:p.x,y:p.y-6.3,z:p.z},pose:p,hint:'Put the box upright in this slot',
+      accepts:(kind,t)=>{if(kind!=='console-case'||!t||Object.entries(mediaSlotSave||{}).some(([id,s])=>s===n&&id!==t.gameId))return false;const ray=H.rayAt(pb.clientWidth/2,pb.clientHeight/2);if(ray.d.z>=-.01)return false;const distance=(-36-ray.o.z)/ray.d.z;if(distance<0||distance>260)return false;const x=ray.o.x+ray.d.x*distance,y=ray.o.y+ray.d.y*distance;return Math.abs(x-p.x)<3.5&&Math.abs(y-(p.y-6.3))<7.5},
+      onBegin:(t)=>{mediaSlotSave[t.gameId]=n;caseStore.save();t.home=Object.assign({},p,{snap:'media.slot.'+n});return true;}})}
+    H.on('tidy',rid=>{if(rid&&rid!=='bedroom')return;for(const box of Object.values(mediaBoxes))caseLid(box,false);const v=window.RoomTV?._dbg();if(v?.gid&&mediaThings[v.gid]?.snap!=='console.'+v.con)RoomTV.stopPhysical(v.con);});
+  }
   function ejectMedia(con) {
     const t = inserted(con); if (!t) return;
     lidSet(con, true);
@@ -1407,17 +1473,18 @@
     if (mediaThings._ready) return;
     mediaThings._ready = 1;
     const games = CAT.GAMES.filter(g => !CAT.CONSOLES[g.con].away);
+    rackSlots();
     const owns = g => isOut(g.from || CAT.CONSOLES[g.con].from) && (g.own || S.f['cart.' + g.id] || (window.PM && PM.owns && PM.owns('cart.' + g.id)));
     for (const [id, c] of Object.entries(R.consoles || {})) {
       Room.addSnap('console.' + id, { x: c.x, y: c.y, z: c.z, r: 14, box: c.disc ? [12, 0.4, 12] : [10, 4, 3],
         pose: { x: c.x, y: c.y + (c.disc ? -0.14 : 1), z: c.z + (c.disc ? 6 : 0), ry: 0, rx: c.disc ? 90 : 0 }, hide: c.disc,
-        accepts: (kind, t) => !!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === id), enabled: () => !inserted(id),
+        accepts: (kind, t) => kind===(c.disc?'console-disc':'cart')&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === id), enabled: () => !inserted(id),
         hint: 'Click/E to insert into the ' + CAT.CONSOLES[id].n,
         onSnap: t => { lidSet(id, false); tvOpen(id, t.gameId); }, onUnsnap: () => {lidSet(id, true); if (window.RoomTV) RoomTV.stopPhysical(id);} });
     }
     const gb = H.THINGS.gb;
     const gbSlot = Room.addSnap('console.gb', { x: 0, y: 0, z: 0, r: 10, box: [5.5, 1, 2], pose: {},
-      accepts: (kind, t) => !!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === 'gb'),
+      accepts: (kind, t) => kind==='cart'&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === 'gb'),
       enabled: () => (gb.st === 'rest' || gb.st === 'snap') && !inserted('gb'), hint: 'Click/E to insert into the Game Lad', onSnap: t => tvOpen('gb', t.gameId),
       onUnsnap: t => {t.frontAnchor=null;if (window.RoomTV) RoomTV.stopPhysical('gb');} });
     const moveGBSlot = () => {
@@ -1432,14 +1499,16 @@
     moveGBSlot(); H.ambient.add(moveGBSlot);
     const add = g => {
       if (mediaThings[g.id] || !owns(g)) return;
-      const con = CAT.CONSOLES[g.con], n = games.indexOf(g), x = TX - 66.5 + (n % 4) * 7, y = 7 + Math.floor(n / 4) * 15, z = -40;
-      const shelf = 'media.shelf.' + g.id;
-      Room.addSnap(shelf, { x, y: y - 5, z, r: 12, box: con.media === 'disc' ? [12, 12, 0.3] : [10, 8, 2.5],
-        pose: { x, y, z, ry: 65 }, accepts: (kind, thing) => !!thing && thing.id === 'media.' + g.id, hint: 'Click/E to put it in its shelf slot' });
+      const con = CAT.CONSOLES[g.con],box=addMediaBox(g,con);if(!box)return;
+      const shelf='media.case.'+g.id,home=Object.assign({},box.at,{hide:true,snap:shelf});
       const t = Room.grabbable('media.' + g.id, { obj: mediaModel(g, con),
         kind: con.media === 'disc' ? 'console-disc' : 'cart', label: `${g.title} (${con.n})`, gameId: g.id,
-        home: { room: 'bedroom', x, y, z, ry: 65, snap: shelf }, holdD: 34 });
+        home, holdD: 34 });
       mediaThings[g.id] = t;
+      // Migrate only the previous assigned rack location; retain loose media
+      // elsewhere and anything already inserted into a running console.
+      const old=games.indexOf(g),oldX=TX-66.5+(old%4)*7,oldY=7+Math.floor(old/4)*15;
+      if(t.snap?.startsWith('media.shelf.')||t.at.hide&&!t.snap||t.st==='rest'&&t.at.room==='bedroom'&&Math.abs(t.at.x-oldX)<.1&&Math.abs(t.at.y-oldY)<.1&&Math.abs(t.at.z+40)<.1){t.st='snap';t.snap=shelf;t.at=Object.assign({},home);t.rx=t.rz=0;H.place(t);H.saveThings()}
       if (t.st === 'snap' && t.snap === 'console.' + g.con) { const c = R.consoles[g.con]; if (c && c.lid) c.lid.rotation.x = 0; }
     };
     games.forEach(add);
