@@ -106,7 +106,7 @@ try{
   await p.evaluate(()=>localStorage.setItem('jhp_account_form_probe','"preserved"'));
   assert.equal(await p.evaluate(()=>Roam.syncNow()),true);
   await p.reload({waitUntil:'domcontentloaded'});await seated(p);
-  await p.keyboard.press('Backspace');await until(p,()=>House.mode==='walk');
+  await p.keyboard.press('q');await until(p,()=>House.mode==='walk');
   await p.reload({waitUntil:'domcontentloaded'});
   await until(p,()=>AccountGate.allowed&&House?.live&&!document.querySelector('.hs-loading'));
   assert.equal(await p.evaluate(()=>House.mode),'walk');

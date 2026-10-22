@@ -582,27 +582,28 @@ void main(){ vec3 d = normalize(vD); vec3 c;
   // ================================================================ key bindings (Options > Controls in both games)
   const ACT = [
     ['fwd', 'Move forward', ['KeyW', 'ArrowUp']], ['back', 'Move back', ['KeyS', 'ArrowDown']], ['left', 'Strafe left', ['KeyA']], ['right', 'Strafe right', ['KeyD']],
-    ['jump', 'Jump', ['Space', 'Mouse2']], ['fire', 'Fire', ['Mouse0', 'ControlLeft']], ['next', 'Next weapon', ['KeyE']], ['prev', 'Previous weapon', ['KeyQ']],
-    ['turnl', 'Turn left', ['ArrowLeft']], ['turnr', 'Turn right', ['ArrowRight']], ['scores', 'Show the scores', ['Tab']], ['talk', 'Talk', ['KeyT']],
+    ['jump', 'Jump', ['Space', 'Mouse2']], ['fire', 'Fire', ['Mouse0', 'ControlLeft']], ['next', 'Next weapon', ['KeyE']], ['prev', 'Previous weapon', ['KeyZ']],
+    ['turnl', 'Turn left', ['ArrowLeft']], ['turnr', 'Turn right', ['ArrowRight']], ['scores', 'Show the scores', ['Tab']], ['talk', 'Talk', ['KeyY']],
   ];
   const KEYNAME = { Space: 'SPACE', Mouse0: 'LEFT CLICK', Mouse1: 'MIDDLE CLICK', Mouse2: 'RIGHT CLICK', ControlLeft: 'CTRL', ControlRight: 'RIGHT CTRL', ShiftLeft: 'SHIFT', ShiftRight: 'RIGHT SHIFT', AltLeft: 'ALT', AltRight: 'ALT GR',
     ArrowUp: 'UP ARROW', ArrowDown: 'DOWN ARROW', ArrowLeft: 'LEFT ARROW', ArrowRight: 'RIGHT ARROW', Tab: 'TAB', Enter: 'ENTER', Backspace: 'BACKSPACE', CapsLock: 'CAPS LOCK', Backquote: '`', Minus: '-', Equal: '=', BracketLeft: '[', BracketRight: ']',
     Semicolon: ';', Quote: "'", Backslash: '#', Comma: ',', Period: '.', Slash: '/', Insert: 'INS', Delete: 'DEL', Home: 'HOME', End: 'END', PageUp: 'PG UP', PageDown: 'PG DN', IntlBackslash: '\\' };
   const keyName = c => !c ? '---' : KEYNAME[c] || c.replace(/^Key|^Digit|^Numpad/, m => m === 'Numpad' ? 'KP ' : '');
+  const gameCode = c => c === 'KeyQ' ? 'KeyZ' : c === 'KeyT' ? 'KeyY' : c;
   // extra (optional): more actions for one game only, e.g. [['alt', 'Alt fire', ['Mouse2', 'KeyF']]]; their default keys win
   // over the shared defaults (so Mouse2 moves from Jump to Alt fire there). Without it nothing changes.
   function bindings(saved, extra) {
     const B = {}, ACTS = extra ? ACT.concat(extra) : ACT, own = new Set(extra ? [].concat(...extra.map(x => x[2])) : []);
     const dflt = (k, d) => own.size && !extra.some(x => x[0] === k) ? d.filter(c => !own.has(c)) : d;
-    for (const [k, , d] of ACTS) B[k] = (saved && Array.isArray(saved[k]) && saved[k].every(x => typeof x === 'string') ? saved[k] : dflt(k, d)).slice(0, 2);
+    for (const [k, , d] of ACTS) B[k] = [...new Set((saved && Array.isArray(saved[k]) && saved[k].every(x => typeof x === 'string') ? saved[k] : dflt(k, d)).slice(0, 2).map(gameCode))];
     if (extra && saved) for (const [k, , d] of extra) if (!Array.isArray(saved[k])) for (const c of d) for (const [k2] of ACT) B[k2] = B[k2].filter(x => x !== c);
     const api = {
       ACT: ACTS, B,
       codes: n => B[n] || [],
       bound: code => ACTS.some(([k]) => B[k].includes(code)),
       label: n => (B[n] || []).map(keyName).join(' or ') || '---',
-      set(n, code) { if (!B[n] || /^Escape$|^Backquote$/.test(code)) return; for (const [k] of ACTS) B[k] = B[k].filter(x => x !== code); B[n] = [code].concat(B[n].filter(x => x !== code)).slice(0, 2); },
-      reset() { for (const [k, , d] of ACTS) B[k] = dflt(k, d).slice(); },
+      set(n, code) { if (!B[n] || /^(Escape|Backquote|KeyQ|KeyT)$/.test(code)) return; for (const [k] of ACTS) B[k] = B[k].filter(x => x !== code); B[n] = [code].concat(B[n].filter(x => x !== code)).slice(0, 2); },
+      reset() { for (const [k, , d] of ACTS) B[k] = dflt(k, d).map(gameCode); },
       save: () => JSON.parse(JSON.stringify(B)),
     };
     return api;
@@ -611,7 +612,10 @@ void main(){ vec3 d = normalize(vD); vec3 c;
   // ================================================================ input: keyboard, mouse + pointer lock, two virtual sticks
   function input(host, o) {
     o = o || {};
+    host.houseTyping = () => !!o.typing?.();
     const I = { keys: {}, mdx: 0, mdy: 0, fire: false, alt: false, wheel: 0, locked: false, touch: false, mv: [0, 0], lk: [0, 0], jump: false, pressed: [], enabled: true, binds: o.binds || bindings() };
+    // Normalize legacy bindings in memory only; never rewrite the player's save.
+    for (const k of Object.keys(I.binds.B)) I.binds.B[k] = [...new Set(I.binds.B[k].map(gameCode))];
     const kd = ev => {
       if (!I.enabled) return;
       if (o.onKey && o.onKey(ev) === false) { ev.preventDefault(); ev.stopPropagation(); return; }
@@ -670,6 +674,7 @@ void main(){ vec3 d = normalize(vD); vec3 c;
     I.take = code => { const i = I.pressed.indexOf(code); if (i >= 0) { I.pressed.splice(i, 1); return true; } return false; };
     I.unlock = () => { if (document.pointerLockElement === host) try { document.exitPointerLock(); } catch (e) {} };
     I.dispose = () => {
+      delete host.houseTyping;
       host.removeEventListener('keydown', kd); host.removeEventListener('keyup', ku); window.removeEventListener('blur', blur);
       host.removeEventListener('pointerdown', md); window.removeEventListener('pointerup', mu); window.removeEventListener('mousemove', mm);
       document.removeEventListener('pointerlockchange', plc); host.removeEventListener('wheel', wh); host.removeEventListener('contextmenu', cm);

@@ -34,7 +34,7 @@
   const KILLA = [['got shoved over by', '\'s Jackhammer'], ['was peppered by', '\'s Jack Pistol'], ['got COMBO\'d by', ''], ['was rattled flat by', ''], ['caught', '\'s flak shell'], ['tripped over', '\'s grenade']]; // alt fire
   const TIPS = {
     jrt: ['Press a direction key twice, quickly, to DODGE. Callum does it all the time. It is very annoying.', 'Jump pads fire you at the high ground. Steer in the air to land where you want.', 'The Shock Jack is best from far away. Rattler up close. Flak Jack when they\'re in your face.',
-      'Hold TAB to see the scores. Press T to talk (be nice).', 'Jack Juice doubles your damage for 30 seconds. Everybody will be after you.', 'The Shield Belt soaks up most of a hit. Pick it up before Callum does.',
+      'Hold TAB to see the scores. Press Y to talk (be nice).', 'Jack Juice doubles your damage for 30 seconds. Everybody will be after you.', 'The Shield Belt soaks up most of a hit. Pick it up before Callum does.',
       'Rocket Jack splash hurts you too. Don\'t shoot the wall you are hugging.', 'In Capture the Flag, your flag has to be at home before you can score.', 'Tabbed out? Your place on a server is kept for two minutes.',
       'A grey name on the scoreboard is away from the keyboard. Shots on them don\'t count. Be a sport.', 'The [JackNet] servers are on 24/7. If nobody\'s there, the bots will keep you company.', 'At the end of each match you vote for the next map. Press 1, 2 or 3.',
       'RIGHT click is ALT FIRE. Every gun has one. Try the Shock Jack\'s slow ball, then shoot the ball with the beam. KA-BOOM.', 'The Tournament Ladder starts with Dave. It ends with Callum. Good luck.',
@@ -435,7 +435,7 @@
         ld.done(); G.mode = 'game';
         if (a.spec) say('You are SPECTATING. Click to watch the next player, SPACE for a free camera.', 6);
         else say(a.mode === 'ctf' ? 'Capture the Flag: grab their flag and bring it home!' : a.mode === 'coop' ? 'Co-op: waves of monsters are coming. Stick together!' : `DeathMatch: first to ${a.frags} frags wins!`, 5);
-        if (!a.local && a.g && a.g.pub && !a.spec) say(`Welcome to ${a.g.name}! Bots fill the empty slots. Press T to talk.`, 6);
+        if (!a.local && a.g && a.g.pub && !a.spec) say(`Welcome to ${a.g.name}! Bots fill the empty slots. Press ${binds.label('talk')} to talk.`, 6);
         grab();
       }, 60);
     }
@@ -979,6 +979,7 @@
 
     // ---------------------------------------------------------------- input
     const input = E.input(host, {
+      typing: () => !!G.keyWait,
       binds,
       onKey(ev) {
         if (G.keyWait) { if (ev.code !== 'Escape') { binds.set(G.keyWait.act, ev.code); save(); } G.keyWait.done(); G.keyWait = null; return false; }

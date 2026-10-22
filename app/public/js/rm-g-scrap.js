@@ -1670,7 +1670,7 @@
   // ================================================================ the cartridge
   TV.game('sn.fight', {
     buttons: ['y', 'x', 'l', 'b', 'a', 'r'],
-    help: 'Move: arrows. Punch: V / C / Q (light, medium, heavy). Kick: X / Z / E. Block: hold back. Pause: Enter.',
+    help: 'Move: arrows. Punch: V / C / U (light, medium, heavy). Kick: X / Z / E. Block: hold back. Pause: Enter.',
     v: 1,
     _lib: typeof TESTLIB !== 'undefined' ? TESTLIB : null,
     make(K) {

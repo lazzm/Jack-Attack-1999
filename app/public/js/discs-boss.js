@@ -1037,11 +1037,11 @@ The board tell you what they expect. Do better and they'll love you. Do worse an
 <b>Cup Night</b> (Game menu): a knockout cup against real managers on JackNet.`, [['Got it']], { w: 440 });
     }
     function keysHelp() {
-      modal('Keyboard Keys', `<table class="dg-boss-t">${[['Enter / Space', 'Continue (or Go to Match)'], ['I', 'Inbox'], ['Q', 'Squad'], ['T', 'Tactics'], ['F', 'Fixtures'], ['L', 'League table'], ['C', 'Jack Cup'], ['Y', 'Youth team'], ['R', 'Transfers'], ['M', 'Finances (money)'], ['B', 'Club and board'], ['Ctrl+S', 'Save game'], ['Esc', 'Close a message box'], ['', ''], ['During a match', ''], ['Space / P', 'Pause / carry on'], ['1 2 3 4', 'Slow / Normal / Fast / Skip'], ['S', 'Substitutions'], ['H', 'Shout from the touchline']].map(([k, v]) => k || v ? `<tr><td><b>${esc(k)}</b></td><td>${esc(v)}</td></tr>` : '').join('')}</table>`, [['OK']], { w: 340 });
+      modal('Keyboard Keys', `<table class="dg-boss-t">${[['Enter / Space', 'Continue (or Go to Match)'], ['I', 'Inbox'], ['U', 'Squad'], ['K', 'Tactics'], ['F', 'Fixtures'], ['L', 'League table'], ['C', 'Jack Cup'], ['Y', 'Youth team'], ['R', 'Transfers'], ['M', 'Finances (money)'], ['B', 'Club and board'], ['Ctrl+S', 'Save game'], ['Esc', 'Close a message box'], ['', ''], ['During a match', ''], ['Space / P', 'Pause / carry on'], ['1 2 3 4', 'Slow / Normal / Fast / Skip'], ['S', 'Substitutions'], ['H', 'Shout from the touchline']].map(([k, v]) => k || v ? `<tr><td><b>${esc(k)}</b></td><td>${esc(v)}</td></tr>` : '').join('')}</table>`, [['OK']], { w: 340 });
     }
 
     // ---- key handling
-    const NAVKEY = { i: 'inbox', q: 'squad', t: 'tactics', f: 'fix', l: 'table', c: 'cup', y: 'youth', r: 'transfers', m: 'fin', b: 'club' };
+    const NAVKEY = { i: 'inbox', u: 'squad', k: 'tactics', f: 'fix', l: 'table', c: 'cup', y: 'youth', r: 'transfers', m: 'fin', b: 'club' };
     G.on(document, 'keydown', e => {
       if (!G.focused() || !root.isConnected) return;
       if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;

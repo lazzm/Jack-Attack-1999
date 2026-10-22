@@ -86,7 +86,7 @@
       lcdTick=()=>{if(win?.el)win.el.style.display='none';lcdTexture.needsUpdate=true;H.dirty()};H.ambient.add(lcdTick);
       surf=[];
       for(const key of phoneKeys){const b=document.createElement('button');b.type='button';b.className='hs-phone-key';b.setAttribute('aria-label',key.k==='sel'?'Phone Menu / Select':'Phone '+key.k);b.title=key.k==='sel'?'Enter: Menu / Select':key.k.toUpperCase();b.style.cssText='padding:0;border:0;background:transparent;cursor:pointer';b.addEventListener('click',()=>FamilyPhone.press(key.k));surf.push(H.surface(b,quad(key),{w:80,h:60}))}
-      H.ui.focusBar('Lean back');H.say('Talkbrik T-99','Click the physical keys · ↑ ↓ navigate · Enter select · C cancel · Backspace lean back',6500);
+      H.ui.focusBar('Lean back');H.say('Talkbrik T-99','Click the physical keys · ↑ ↓ navigate · Enter select · C cancel · Q lean back',6500);
       H.dirty();
     };
     (window.FamilyPhone ? Promise.resolve() : (window.Apps && Apps.load ? Apps.load('js/family-phone.js') : Promise.reject())).then(go, () => { usingT = 0; say("Jack's mobile", 'No signal. Try again in a minute.'); });

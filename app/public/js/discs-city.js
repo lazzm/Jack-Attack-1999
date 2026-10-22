@@ -1011,7 +1011,7 @@ p.dg-city-stars{font-size:28px;margin:0}
     top('goal').addEventListener('click', () => { G.sfx('click'); cityInfo(); });
 
     const TOOLS = [
-      ['query', 'Query', ICO.query, 'Query (Q): click a tile to see what\'s there and why it isn\'t growing'], ['hand', 'Scroll', ICO.hand, 'Scroll (H): drag the map about'], ['doze', 'Bulldoze', ICO.doze, 'Bulldoze (X): drag over things to knock them down'],
+      ['query', 'Query', ICO.query, 'Query (U): click a tile to see what\'s there and why it isn\'t growing'], ['hand', 'Scroll', ICO.hand, 'Scroll (H): drag the map about'], ['doze', 'Bulldoze', ICO.doze, 'Bulldoze (X): drag over things to knock them down'],
       ['!undo', 'Undo', ICO.undo, 'Undo (Ctrl+Z): take back the last thing you built and get the Rupees back'], ['road', 'Road', ICO.road, 'Road (R): drag out a street'], ['@zone', 'Zones', ICO.zone, 'Zones (Z): homes, shops and factories'],
       ['@power', 'Power', ICO.power, 'Power & Water (P): power plants, power lines, water towers'], ['@serv', 'Services', ICO.serv, 'Services (E): police, fire, schools, parks, buses...'], ['@reward', 'Rewards', ICO.reward, 'Rewards: special buildings for a bigger city'],
       ['@data', 'Data', ICO.data, 'Data maps and City Info (M)'], ['!budget', 'Budget', ICO.budget, 'Budget (B): taxes, funding, laws and loans'], ['!adv', 'Advisors', ICO.adv, 'Advisors (V): what your team thinks'], ['@dis', 'Disasters', ICO.dis, 'Disasters: if you\'re feeling brave'],
@@ -1172,7 +1172,7 @@ p.dg-city-stars{font-size:28px;margin:0}
     G.on(cv, 'wheel', ev => { ev.preventDefault(); if (ev.ctrlKey || Math.abs(ev.deltaY) > Math.abs(ev.deltaX) * 2 && ev.shiftKey) return setZoom(ev.deltaY < 0 ? 2 : 1); camX += ev.deltaX / zoom; camY += ev.deltaY / zoom; clampCam(); }, { passive: false });
     G.on(mini, 'pointerdown', ev => { ev.stopPropagation(); const r = mini.getBoundingClientRect(); const x = Math.floor((ev.clientX - r.left) / r.width * N), y = Math.floor((ev.clientY - r.top) / r.height * N); centerOn(clamp(x, 0, N - 1), clamp(y, 0, N - 1)); });
     const keys = new Set();
-    const KEYS = [['Q', 'Query tool'], ['H', 'Scroll tool'], ['X or Delete', 'Bulldoze'], ['R', 'Road'], ['L', 'Power Line'], ['Z', 'Zones menu'], ['P', 'Power & Water menu'], ['E', 'Services menu'], ['M', 'Data maps menu'], ['I', 'City Info & graphs'], ['B', 'Budget'], ['V', 'Advisors'], ['Ctrl+Z', 'Undo the last thing you built'], ['Space', 'Pause / carry on'], ['1, 2, 3', 'Snail, bike, rocket speed'], ['Arrows or W A S D', 'Scroll the map'], ['+ and -', 'Chunky 2x zoom in / out'], ['Esc', 'Close a window, cancel a tool, normal view'], ['F1', 'How to Play']];
+    const KEYS = [['U', 'Query tool'], ['H', 'Scroll tool'], ['X or Delete', 'Bulldoze'], ['R', 'Road'], ['L', 'Power Line'], ['Z', 'Zones menu'], ['P', 'Power & Water menu'], ['E', 'Services menu'], ['M', 'Data maps menu'], ['I', 'City Info & graphs'], ['B', 'Budget'], ['V', 'Advisors'], ['Ctrl+Z', 'Undo the last thing you built'], ['Space', 'Pause / carry on'], ['1, 2, 3', 'Snail, bike, rocket speed'], ['Arrows or W A S D', 'Scroll the map'], ['+ and -', 'Chunky 2x zoom in / out'], ['Esc', 'Close a window, cancel a tool, normal view'], ['F1', 'How to Play']];
     G.on(document, 'keydown', ev => {
       if (dead || !G.focused() || ev.target.closest && ev.target.closest('input,textarea,select')) return;
       if (ev.key === 'Escape') { if (closeTopModal()) return ev.preventDefault(); closeFly(); if (overlay) setOverlay(''); setTool('query'); return; }
@@ -1186,7 +1186,7 @@ p.dg-city-stars{font-size:28px;margin:0}
       else if (k === ' ') { ev.preventDefault(); if (!visiting) setSpeed(paused ? speed : 0); }
       else if (k === '1' || k === '2' || k === '3') { if (!visiting) setSpeed(+k); }
       else if (k === '+' || k === '=') setZoom(2); else if (k === '-' || k === '_') setZoom(1);
-      else if (k === 'q') setTool('query'); else if (k === 'h') setTool('hand'); else if (k === 'i') cityInfo(); else if (k === 'm') { const b = toolsEl.querySelector('[data-t="@data"]'); openFly('data', b); flyEl._k = '@data'; }
+      else if (k === 'u') setTool('query'); else if (k === 'h') setTool('hand'); else if (k === 'i') cityInfo(); else if (k === 'm') { const b = toolsEl.querySelector('[data-t="@data"]'); openFly('data', b); flyEl._k = '@data'; }
       else if (visiting) return;
       else if (k === 'b') budget(); else if (k === 'v') advisors(); else if (k === 'r') setTool('road'); else if (k === 'l') setTool('line'); else if (k === 'x' || k === 'delete') setTool('doze');
       else if (k === 'z') fly('@zone'); else if (k === 'p') fly('@power'); else if (k === 'e') fly('@serv');
@@ -1392,7 +1392,7 @@ p.dg-city-stars{font-size:28px;margin:0}
       { who: 'plan', hint: '@zone', f: ['zi0', 'zc0'], t: 'People need jobs and shops! Zone some Industrial (yellow) a little way from the houses (factories are smelly) and some Commercial (blue) along the road. Power them up too.', ok: () => countT(T_ZONE, ZC) >= 4 && countT(T_ZONE, ZI) >= 4 },
       { who: 'tra', hint: 'spd', t: 'Mr Lane, Transport. Right, let\'s get things moving! Press the >>> (rocket) speed button and watch your town grow. Little cars mean people are off to work.', ok: () => P >= 40 },
       { who: 'fin', hint: '!budget', t: 'Mrs Tuppence, Finance. Taxes pay for everything. Open the Budget (B) to see the Rupees coming in. About 7% is fair: higher brings in more, but people move away.', ok: () => !!S.tutBud },
-      { who: 'plan', t: 'That\'s the basics, Mayor! The R C I bars at the top show what people want more of: homes, shops, factories. Your first goal is 500 people (a village). Query (Q) any building to see why it isn\'t growing. We\'ll pop up with advice now and then. Good luck!' },
+      { who: 'plan', t: 'That\'s the basics, Mayor! The R C I bars at the top show what people want more of: homes, shops, factories. Your first goal is 500 people (a village). Query (U) any building to see why it isn\'t growing. We\'ll pop up with advice now and then. Good luck!' },
     ];
     let tutEl = null;
     function tutorialCheck() {

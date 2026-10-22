@@ -16,7 +16,7 @@
  *   K: id, con, def, W, H, cv (main canvas), g (its 2D context; null for 3D), hud (a 2D context layered on top: clear it yourself)
  *      three() -> the 3D kit (see rm-3d.js), t (seconds since make), frame
  *      held(b) pressed(b) (this step only) any() stick() -> {x, y} (-1..1; arrows count too), label(b) ('✕' on a PlayStation)
- *        buttons: up down left right a b c x y l r start select. Keys: arrows/WASD, Z/Space=a, X=b, C=c and x, V=y, Q=l, E=r,
+ *        buttons: up down left right a b c x y l r start select. Keys: arrows/WASD, Z/Space=a, X=b, C=c and x, V=y, U=l, E=r,
  *        Enter=start, Shift=select. Gamepads work too.
  *      over(score, { title, text, keep }) the go is over (the runtime shows the score card, sends the score, pays Rupees);
  *        keep: true sends the score but carries on playing (for long games: call it at milestones)
@@ -134,7 +134,7 @@
 
   // ================================================================ input: keyboard, the touch pad, gamepads
   const KEYMAP = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right',
-    z: 'a', Z: 'a', ' ': 'a', j: 'a', J: 'a', x: 'b', X: 'b', k: 'b', K: 'b', c: 'c', C: 'c', l: 'c', L: 'c', v: 'y', V: 'y', i: 'y', I: 'y', q: 'l', Q: 'l', e: 'r', E: 'r', Enter: 'start', Shift: 'select' };
+    z: 'a', Z: 'a', ' ': 'a', j: 'a', J: 'a', x: 'b', X: 'b', k: 'b', K: 'b', c: 'c', C: 'c', l: 'c', L: 'c', v: 'y', V: 'y', i: 'y', I: 'y', u: 'l', U: 'l', e: 'r', E: 'r', Enter: 'start', Shift: 'select' };
   const held = {}, padHeld = {}, gpHeld = {}; let pend = {}, now = {}; const stickT = { x: 0, y: 0, on: false };
   const mappedKey=ev=>defs[V?.gid]?.keyboard?.[ev.code]||KEYMAP[ev.key];
   function press(b, down) {
@@ -180,7 +180,7 @@
     const status = $(V.el, '.rm-srv');
     if (status && y < h - 50 * s) screenLines(g, status.textContent, cx, y + 4 * s, w * .8, '#b8c4d4', s);
     font.center(g, 'A / START: PLAY AGAIN', cx, h - 32 * s, '#fff', s);
-    font.center(g, 'BACKSPACE: BACK   0: LOCK IN   ESC: MENU', cx, h - 18 * s, '#e0d090', s);
+    font.center(g, 'Q: BACK   T: LOCK IN   ESC: MENU', cx, h - 18 * s, '#e0d090', s);
   }
   function liveFrame() {
     if (!V || !V.live) return;
@@ -479,7 +479,7 @@
     const res = def.res || L.res;
     size(res[0], res[1], def.smooth != null ? def.smooth : L.smooth, !!def.three);
     V.st = 'game'; V.el.classList.add('rm-playing');
-    $(V.el, '.rm-help').innerHTML = touchy() ? 'Use the controller below.' : esc(def.help || '') + ' <small>(Backspace: lean back · 0: LOCK IN · Esc: menu)</small>';
+    $(V.el, '.rm-help').innerHTML = touchy() ? 'Use the controller below.' : esc(def.help || '') + ' <small>(Q: lean back · T: LOCK IN · Esc: menu)</small>';
     pad(def);
     K = makeK(gid, def);
     try { game = def.make(K) || {}; } catch (e) { console.error(e); game = null; return crash(); }
@@ -625,7 +625,7 @@
   function onKey(ev) {
     if (!V || V.background) return;
     if (ev.key === 'Escape') { ev.preventDefault(); ev.stopImmediatePropagation(); close(); return; }
-    const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+    const t = ev.target; if (t?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]')) return;
     const b = mappedKey(ev);
     if (b) { ev.preventDefault(); ev.stopImmediatePropagation(); if (!ev.repeat) press(b, true); held[b] = true; }
     else if (!ev.ctrlKey && !ev.metaKey && !ev.altKey && ev.key.length === 1) ev.stopImmediatePropagation();

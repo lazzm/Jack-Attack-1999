@@ -233,9 +233,7 @@
   P.noteBlue = [128, 128, (g, w, h) => { g.fillStyle = '#9af0ff'; g.fillRect(0, 0, w, h); }];
 
   // Low-resolution painted illustrations, with separately typeset print.
-  const extraPrints={posterBand:['band','THE MODEM','BOYS','LIVE • DIAL-UP TOUR 99','#aa4c20'],posterShuttle:['shuttle','STS-93','COLUMBIA • 1999','REACH FOR THE STARS','#245969']};
-  const prints={posterFilm:['space','INTERGALACTIC','BATTLES','EPISODE 0: THE PHANTOM MENU','#a77331'],posterGame:['hover','HYPER DRIVE','2000','FREE WITH JACK ATTACK! ISSUE 9','#245969'],posterRobot:['robots','ROBO','RUMBLE','BUILD IT • BASH IT • BIN IT','#8d4c22'],mag:['hover','JACK ATTACK!','DAYDREAM!','100s OF CHEATS INSIDE','#b92532'],magB:['critters','ULTRA 64 PLAYER','CRITTER SPECIAL','MAPS • TIPS • SECRET CODES','#756023'],magC:['dungeon','PC ZONE OUT','DUNGEON KEEPA 2','10 DEMOS • FULL REVIEWS','#265d9c']};
-  Object.assign(prints,extraPrints);
+  const prints={mag:['hover','JACK ATTACK!','DAYDREAM!','100s OF CHEATS INSIDE','#b92532'],magB:['critters','ULTRA 64 PLAYER','CRITTER SPECIAL','MAPS • TIPS • SECRET CODES','#756023'],magC:['dungeon','PC ZONE OUT','DUNGEON KEEPA 2','10 DEMOS • FULL REVIEWS','#265d9c']};
   for(const[name,[art,title,sub,footer,col]]of Object.entries(prints)){
     const old=P[name][2];P[name][2]=(g,w,h)=>{
       if(!window.PrintArt?.has(art)){old(g,w,h);return}
@@ -249,6 +247,22 @@
     };
   }
   const cache = {};
+  // Complete individual poster designs: their logos are part of the print, not
+  // a repeated UI header. Load once, repaint only when decoded; never crop type.
+  const posterImages = {};
+  const postersReady = Promise.all(Object.entries({posterBand:'band',posterFilm:'film',posterGame:'game',posterRobot:'robot',posterShuttle:'shuttle'}).map(([name,file]) => {
+    const image = new Image(), fallback = P[name][2];
+    P[name] = [384, 538, (g,w,h) => {
+      if (image.naturalWidth) { g.drawImage(image,0,0,w,h); return; }
+      g.save();g.scale(w/300,h/420);fallback(g,300,420);g.restore();
+    }];
+    posterImages[name] = image;
+    return new Promise(resolve => {
+      image.onload = () => { const tx = cache[name]; if (tx) { const g=tx.userData.g;g.clearRect(0,0,384,538);P[name][2](g,384,538);tx.needsUpdate=true; } window.House?.dirty();resolve(); };
+      image.onerror = () => resolve(); // Keep the painted fallback on a failed request.
+      image.src = '/art/posters-v3/'+file+'.webp';
+    });
+  }));
   function t(name, o) {
     if (cache[name]) return cache[name];
     const p = P[name]; if (!p) { console.warn('hs-art: no', name); return null; }
@@ -257,7 +271,7 @@
   }
   // a texture with world-scale tiling (the kit's uv option does the maths: one tile = `cm` centimetres)
   function printed(key,w,h,draw,o){const tx=K.tex(key,w,h,draw,o);window.PrintArt?.ready.then(()=>{const g=tx.userData.g;g.save();g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);draw(g,w,h);g.restore();tx.needsUpdate=true;window.House?.dirty()});return tx}
-  window.HouseArt = { P, t, printed, rr, star, lin, text, grain, mottle, FONT, UIF, HAND };
+  window.HouseArt = { P, t, printed, postersReady, posterImages, rr, star, lin, text, grain, mottle, FONT, UIF, HAND };
   if(window.PrintArt)PrintArt.ready.then(()=>{for(const n of Object.keys(prints)){const tx=cache[n],p=P[n];if(tx){const g=tx.userData.g;g.clearRect(0,0,p[0],p[1]);p[2](g,p[0],p[1]);tx.needsUpdate=true}}window.House?.dirty()});
   // fonts arrive late: repaint the texts once they're in
   try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { for (const n in cache) { const tx = cache[n], p = P[n]; if (!tx || !p) continue; const g = tx.userData.g; g.clearRect(0, 0, p[0], p[1]); try { p[2](g, p[0], p[1]); } catch (e) {} tx.needsUpdate = true; } if (window.House && House.dirty) House.dirty(); }); } catch (e) {}

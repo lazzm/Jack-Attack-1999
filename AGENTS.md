@@ -59,10 +59,11 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
 - Controls in the house: WASD/arrows walk, Shift jog, C crouch (never Ctrl: Ctrl+W closes the tab), Space jump,
   F uses/plays/opens; E/click picks up, removes or places (including insertion at highlighted slots).
   Console cases must be placed off the shelf before F opens them; E takes the visible medium and returns it to its case.
-  Only filled cases go back onto the console rack. I inspects, R turns, Backspace leans back from screens/inspection (not while typing),
+  Only filled cases go back onto the console rack. I inspects, R turns, Q leans back from screens/inspection (not while typing),
   Esc opens the game menu (including return/leave actions). F2 stands up from the PC,
-  0 toggles LOCK IN for the active in-game screen (never while typing), G graphics, F9 god mode (owner "Jack" only).
+  T toggles LOCK IN for the active in-game screen (never while typing), G graphics, F9 god mode (owner "Jack" only).
   Keep on-screen prompts consistent; never intercept Ctrl+F. LOCK IN preserves the screen's native aspect ratio and running state.
+  Q/T stay house controls during games. Console shoulder L uses U; PC shooters use Z for previous weapon and Y for chat. Family TV text uses Shift+T.
 
 ## Owner's layout edits
 Jack exports `layout-edits.json` from god mode (name, room, file:line, original and new x/y/z/rotation). Apply each entry
@@ -72,7 +73,7 @@ by changing the matching `B.at(...)`/position call in the named file to the new 
 1. "Lean into the screen": console games render onto the 3D telly's screen as a live texture (no 2D TV overlay or
    AV-switch pop-up); cartridges picked from the real shelf and inserted via the grab API; the camera glides in to frame
    the screen. Same for the PC: the desktop stays on the 3D monitor in its bezel (4:3), no full-screen hand-over.
-   Owner-approved exception: LOCK IN (0 or the Esc menu) makes the active PC, console, Game Lad or family-TV screen
+   Owner-approved exception: LOCK IN (T or the Esc menu) makes the active PC, console, Game Lad or family-TV screen
    full-screen at its native aspect ratio without restarting it. Default remains in-world.
 2. Put-things-back / tidy-up option for grabbed objects; room notes must not cover the view; texture and lighting pass.
 3. Remaining "Windows"/"Microsoft" strings (md-rooms.js, hs-*.js, mods/roam.js); kitchen/bedroom furniture rotation audit;

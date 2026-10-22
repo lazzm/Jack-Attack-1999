@@ -700,7 +700,7 @@
   // ================================================================ the game
   TV.game('sn.zero', {
     buttons: ['y', 'b', 'a', 'l', 'r'],
-    help: 'Steer: arrows. Go: Z. Brake: X. Boost: V. Lean: Q / E. Pause: Enter.',
+    help: 'Steer: arrows. Go: Z. Brake: X. Boost: V. Lean: U / E. Pause: Enter.',
     _lib: LIB,
     make(K) {
       const g = K.g, F = K.font, SFX = K.sfx;

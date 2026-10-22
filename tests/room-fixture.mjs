@@ -12,7 +12,7 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
   await page.locator('#accountGate [data-switch]').click();await page.locator('[name=name]').fill(account);await page.locator('[name=password]').fill(password);await page.locator('[name=confirm]').fill(password);await page.locator('#accountGate [type=submit]').click();
   await until(()=>window.AccountGate?.allowed&&window.House?.live&&window.PMGL?.built&&!document.querySelector('.hs-loading,#houseEntry'));
   await until(()=>House.mode==='monitor'&&!sessionStorage.getItem('jhp_login_seat'));
-  await page.keyboard.press('Backspace');await until(()=>House.mode==='walk');
+  await page.keyboard.press('q');await until(()=>House.mode==='walk');
   assert.deepEqual(errors,[],'Initial room errors');
   await page.evaluate(()=>Room.ensureHouse());await until(()=>window.HouseRooms?.ready);
  }catch(e){await browser.close();throw e}

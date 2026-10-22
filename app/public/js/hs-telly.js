@@ -370,7 +370,7 @@
     if (what === 'vcr' && st.vcr) { st.ch = 0; }
     surf = H.surface(cv, screenQuad, { w: W, h: Hh, screen:true }); cv.classList.add('on');
     remote();
-    if (!S.hint) { S.hint = 1; save(); say('The telly', 'Mom says don\'t sit so close or you\'ll get square eyes. The remote: numbers for the channels (its 0 button is the video), TEXT for TELLY-TEXT, and the coloured buttons for its links. Keyboard: 1-5 for channels, T for text, arrows for channels. Press 0 to LOCK IN; Esc opens the game menu.', 9000); }
+    if (!S.hint) { S.hint = 1; save(); say('The telly', 'Mom says don\'t sit so close or you\'ll get square eyes. The remote: numbers for the channels (its 0 button is the video), TEXT for TELLY-TEXT, and the coloured buttons for its links. Keyboard: 1-5 for channels, Shift+T for text, arrows for channels. Press T to LOCK IN; Esc opens the game menu.', 9000); }
     else if (life() && life().quiet()) say('The telly', 'It\'s late. Keep the volume DOWN or Dad will be down those stairs.', 4000);
     keysOn(true);
   }
@@ -427,7 +427,9 @@
   function keysOn(on) { if (on) addEventListener('keydown', onKey, true); else removeEventListener('keydown', onKey, true); }
   function onKey(ev) {
     const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
-    const M = { t: 'text', T: 'text', ArrowUp: 'chup', ArrowDown: 'chdn', ArrowRight: 'volup', ArrowLeft: 'voldn', r: 'r', g: 'g', y: 'y', b: 'c', p: 'play', ' ': 'play', s: 'stop', '[': 'rew', ']': 'ff', x: 'eject', i: 'index', '?': 'reveal', '/': 'reveal', m: 'mute', o: 'power' };
+    if (ev.ctrlKey || ev.metaKey || ev.altKey || t?.closest?.('select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]')) return;
+    const M = { ArrowUp: 'chup', ArrowDown: 'chdn', ArrowRight: 'volup', ArrowLeft: 'voldn', r: 'r', g: 'g', y: 'y', b: 'c', p: 'play', ' ': 'play', s: 'stop', '[': 'rew', ']': 'ff', x: 'eject', i: 'index', '?': 'reveal', '/': 'reveal', m: 'mute', o: 'power' };
+    if (ev.shiftKey && ev.key.toLowerCase() === 't') M[ev.key] = 'text';
     const k = /^[0-9]$/.test(ev.key) ? ev.key : M[ev.key];
     if (!k) return; ev.preventDefault(); ev.stopImmediatePropagation(); press(k);
   }

@@ -1408,9 +1408,9 @@
       if (!V) {
         B('look', IC.look, 'Look: click things to see them (Esc)', () => setTool('look'));
         B('path', IC.path, 'Paths (P)', () => setTool('path'));
-        B('queue', IC.queue, 'Queue lines (Q)', () => setTool('queue'));
+        B('queue', IC.queue, 'Queue lines (J)', () => setTool('queue'));
         B('ride', IC.ride, 'Rides (R)', b => dropdown(b, Object.keys(RIDES).map(k => ({ n: RIDES[k].n, tag: thrill(RIDES[k]) + (RIDES[k].cov ? ', roof' : ''), c: gemH(RIDES[k].cost), icon: IC.ride, tip: RIDES[k].d, act: () => setTool('ride:' + k) }))));
-        B('stall', IC.stall, 'Shops and stalls (T)', b => dropdown(b, Object.keys(STALLS).map(k => ({ n: STALLS[k].n, c: gemH(STALLS[k].cost), icon: IC.stall, tip: STALLS[k].d, act: () => setTool('stall:' + k) }))));
+        B('stall', IC.stall, 'Shops and stalls (K)', b => dropdown(b, Object.keys(STALLS).map(k => ({ n: STALLS[k].n, c: gemH(STALLS[k].cost), icon: IC.stall, tip: STALLS[k].d, act: () => setTool('stall:' + k) }))));
         B('scen', IC.scen, 'Scenery and path extras (S)', b => dropdown(b, Object.keys(SCEN).map(k => ({ n: SCEN[k].n, c: gemH(SCEN[k].cost), icon: IC.scen, act: () => setTool('scen:' + k) }))));
         B('coaster', IC.coaster, 'Build a rollercoaster (C)', () => setTool('coaster'));
         B('staff', IC.staff, 'Staff: hire handymen and mechanics (H)', () => staffWin());
@@ -1634,7 +1634,7 @@
             if (co.fail >= 0) h += '<p style="color:#c00000">The last test went wrong at the flashing piece.</p>';
           }
           if (!co.complete) h += `<div class="dg-park-pc">${['l', 's', 'r', 'lp', 'u', 'dn', 'dd', 'ch'].map(pb).join('')}</div>`;
-          h += `<div class="dg-park-pc" style="margin-top:3px"><button type="button" data-a="undo"${co.pieces.length <= 3 || co.st === 'test' ? ' disabled' : ''} title="Take the last piece away (Backspace). You get most of the money back.">${PIC.undo}<span>Undo</span></button>${co.complete ? '' : `<button type="button" data-a="fin" title="Harry works out the shortest way back to the station (F)">${PIC.fin}<span>Finish it</span></button>`}<button type="button" class="big" data-a="test"${!co.complete || co.st === 'test' || co.tested ? ' disabled' : ''} title="Send an empty train round to test it (T)">${PIC.test}<span>${co.tested ? 'Tested' : 'Test run'}</span></button></div>`;
+          h += `<div class="dg-park-pc" style="margin-top:3px"><button type="button" data-a="undo"${co.pieces.length <= 3 || co.st === 'test' ? ' disabled' : ''} title="Take the last piece away (Backspace). You get most of the money back.">${PIC.undo}<span>Undo</span></button>${co.complete ? '' : `<button type="button" data-a="fin" title="Harry works out the shortest way back to the station (F)">${PIC.fin}<span>Finish it</span></button>`}<button type="button" class="big" data-a="test"${!co.complete || co.st === 'test' || co.tested ? ' disabled' : ''} title="Send an empty train round to test it (K)">${PIC.test}<span>${co.tested ? 'Tested' : 'Test run'}</span></button></div>`;
           h += `<div class="bb">${co.tested ? btn('open', co.open ? 'Close ride' : '<b>OPEN RIDE</b>') : ''}${btn('info', 'Ride window')}${btn('done', 'Done')}</div>`;
           if (co.tested && !co.open) h += '<p class="dg-park-note">Lay a queue line up to the side of the station, then open it!</p>';
           return { html: h,
@@ -1774,7 +1774,7 @@
           const m = { ArrowLeft: 'l', ArrowUp: 's', ArrowRight: 'r', o: 'lp', u: 'u', PageUp: 'u', n: 'dn', PageDown: 'dn', x: 'dd', c: 'ch' }[lk];
           if (m && !co.complete) { addPiece(co, m); refreshWin(U.wins.co, true); ev.preventDefault(); return; }
           if (lk === 'Backspace') { undoPiece(co); refreshWin(U.wins.co, true); ev.preventDefault(); return; }
-          if (lk === 't' && co.complete && !co.tested && co.st !== 'test') { testCoaster(co); refreshWin(U.wins.co, true); ev.preventDefault(); return; }
+          if (lk === 'k' && co.complete && !co.tested && co.st !== 'test') { testCoaster(co); refreshWin(U.wins.co, true); ev.preventDefault(); return; }
           if (lk === 'f' && !co.complete) { finishFor(co); ev.preventDefault(); return; }
         }
         const tbk = key => { const b = tb.querySelector(`[data-k="${key}"]`); if (b) b.click(); };
@@ -1783,8 +1783,8 @@
         else if (k === 'Escape') { setTool('look'); closeDD(); } else if (k === '+' || k === '=') { zoom = Math.min(3, zoom + 1); resize(); } else if (k === '-') { zoom = Math.max(1, zoom - 1); resize(); }
         else if (lk === 'g') guestsWin(); else if (lk === 'o') parkWin(); else if (lk === 'm') msgsWin();
         else if (lk === 'f1' || k === '?' || k === 'F1') keysHelp();
-        else if (!V && lk === 'p') setTool('path'); else if (!V && lk === 'q') setTool('queue'); else if (!V && lk === 'b') setTool('bull'); else if (!V && lk === 'c') setTool('coaster');
-        else if (!V && lk === 'r') tbk('ride'); else if (!V && lk === 't') tbk('stall'); else if (!V && lk === 's') tbk('scen'); else if (!V && lk === 'h') staffWin(); else if (!V && lk === 'f') finWin();
+        else if (!V && lk === 'p') setTool('path'); else if (!V && lk === 'j') setTool('queue'); else if (!V && lk === 'b') setTool('bull'); else if (!V && lk === 'c') setTool('coaster');
+        else if (!V && lk === 'r') tbk('ride'); else if (!V && lk === 'k') tbk('stall'); else if (!V && lk === 's') tbk('scen'); else if (!V && lk === 'h') staffWin(); else if (!V && lk === 'f') finWin();
         else return;
         ev.preventDefault(); clampCam();
       };
@@ -2059,7 +2059,7 @@
       };
     })();
     function keysHelp() {
-      G.msg('RollerJack Tycoon: Keys', 'LOOKING ROUND\nArrow keys: scroll   + and -: zoom   Drag: scroll\nSpace: pause   1, 2, 3: speed\n\nBUILDING\nP: paths   Q: queue lines   R: rides   T: shops   S: scenery\nC: coaster   B: demolish   H: staff   Esc: stop building\nCtrl+Z: undo the last thing you built (full refund)\n\nWINDOWS\nO: park   F: finances   G: guests   M: messages\n\nBUILDING A COASTER\nLeft/Right arrow: curves   Up arrow: straight\nU: up   N: down   X: big drop   C: chain lift   O: loop\nBackspace: undo a piece   F: finish it for me   T: test run', 'info');
+      G.msg('RollerJack Tycoon: Keys', 'LOOKING ROUND\nArrow keys: scroll   + and -: zoom   Drag: scroll\nSpace: pause   1, 2, 3: speed\n\nBUILDING\nP: paths   J: queue lines   R: rides   K: shops   S: scenery\nC: coaster   B: demolish   H: staff   Esc: stop building\nCtrl+Z: undo the last thing you built (full refund)\n\nWINDOWS\nO: park   F: finances   G: guests   M: messages\n\nBUILDING A COASTER\nLeft/Right arrow: curves   Up arrow: straight\nU: up   N: down   X: big drop   C: chain lift   O: loop\nBackspace: undo a piece   F: finish it for me   K: test run', 'info');
     }
 
     // Callum's save: a busy park with his coaster (built with the same tools as yours)

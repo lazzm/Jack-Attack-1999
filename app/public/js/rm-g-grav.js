@@ -146,7 +146,7 @@
   // ================================================================ the disc
   TV.game('ps.grav', {
     three: true, stick: true, buttons: ['a', 'b', 'x', 'l', 'r'],
-    help: 'Steer: arrows. Thrust: Z. Fire: X. Absorb weapon: C. Airbrakes: Q and E. Pause: Enter.',
+    help: 'Steer: arrows. Thrust: Z. Fire: X. Absorb weapon: C. Airbrakes: U and E. Pause: Enter.',
     make(K) {
       const T3 = K.three({ far: 900, fogCol: 0x1a0830, fogNear: 60, fogFar: 320 }), T = T3.T, H = K.hud, F = K.font, W = K.W, HH = K.H;
       icons();

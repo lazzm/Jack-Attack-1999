@@ -2,6 +2,9 @@
 
 Current F/E media and account regressions (localhost throwaway servers only):
 
+    node posters-v3.mjs http://localhost:18466 # complete poster prints, real clicks/zoom, Q, resize, Esc and refresh
+    node controls-qt.mjs http://localhost:18466 # Q lean-back, T LOCK IN, typing guards and reserved game keys
+    node disc-shortcuts.mjs http://localhost:18466 # four PC-game modules and remapped key-help dialogs
     node printed-art.mjs http://localhost:18464
     node golden-movement.mjs http://localhost:18464
     node door-seal.mjs http://localhost:18464
@@ -92,14 +95,15 @@ For a post-deploy visual check only, `node live-readonly.mjs https://jacklm.com`
 
 Authenticated object/control regressions (localhost only; run from `tests/`):
 
+    node controls-qt.mjs http://localhost:18080 # Q/T shortcuts, typing/delete/modifier guards, console conflicts, desktop/phone captures
     node chair-pc-menu.mjs http://localhost:18080 # chair angles, Esc menu, first-person PC and 4:3 LOCK IN/refresh
     node chair-placement.mjs http://localhost:18080 # F/E/click furniture drops near feet, rotated clearance, PC safety and refresh
     node console-cases.mjs http://localhost:18080 # real F pickup/open, custom slots, media return, tidy/refresh and full nineteen-box rack
-    node console-case-play.mjs http://localhost:18080 # physical box-to-console play, Backspace/background refresh, eject and own-box return
+    node console-case-play.mjs http://localhost:18080 # physical box-to-console play, Q/background refresh, eject and own-box return
     node console-switch-hud.mjs http://localhost:18080 # paused Daydream/kart → Goldenballs, actual compiled HUD bindings and LOCK IN captures
     node room-props-controls.mjs http://localhost:18080 # F repeats, furniture collision, safe placement, inspection and pillow refresh
     node vhs-physical.mjs http://localhost:18080 # physical insertion, playback away/refresh/eject, reusable return slots and TV LOCK IN
-    node release-room-pc.mjs http://localhost:18080 # Goldenballs, 0/typing guard, same-scene shutdown, off refresh and power-on
+    node release-room-pc.mjs http://localhost:18080 # Goldenballs, T/typing guard, same-scene shutdown, off refresh and power-on
     node lock-in-handheld.mjs http://localhost:18080 # same-instance Game Lad LOCK IN, 10:9 aspect and desktop/narrow resizing
     node object-audit.mjs http://localhost:18080 final # multi-angle desktop/narrow views and finite geometry
     node surface-audit.mjs http://localhost:18080 final # candidate coplanar overlaps and exterior/threshold captures

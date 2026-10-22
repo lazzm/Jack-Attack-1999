@@ -73,7 +73,7 @@
 
   TV.game(GID, {
     three: true, stick: true, buttons: ['a', 'b', 'c', 'l', 'r'],
-    help: 'Run: arrows. Jump: Z (land and jump again: double, triple). Punch / talk: X. Crouch, ground pound, long jump: C. Camera: Q / E. Pause: Enter.',
+    help: 'Run: arrows. Jump: Z (land and jump again: double, triple). Punch / talk: X. Crouch, ground pound, long jump: C. Camera: U / E. Pause: Enter.',
     make(K) {
       const T3 = K.three({ fov: 60, near: 0.3, far: 420, fogCol: 0xa8d4f8, fogNear: 50, fogFar: 170 }), T = T3.T, hud = K.hud, F = K.font, W = K.W, H = K.H;
       const LT = T3.lights({ amb: 0.8, sun: 0.75, dir: [0.4, 1, 0.3], skyCol: 0xf0f8ff, groundCol: 0x5a7a4a });

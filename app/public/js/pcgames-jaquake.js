@@ -1133,6 +1133,7 @@
     // ---------------------------------------------------------------- input wiring
     const binds = E.bindings(cfg.keys);
     const input = E.input(host, {
+      typing: () => !!(G.con || G.keyWait),
       onKey(ev) {
         if (G.keyWait) { if (ev.code !== 'Escape') { binds.set(G.keyWait, ev.code); cfg.keys = binds.save(); save(); } G.keyWait = null; G.menu = MENU.keys(); sfx('menu'); return false; }
         if (ev.code === 'Backquote' || ev.key === '`' || ev.key === '¬') { G.con = !G.con; G.conScroll = 0; if (G.con) input.unlock(); else if (G.state === 'play' && !G.menu) grab(); return false; }

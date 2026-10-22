@@ -1570,7 +1570,7 @@
       else if (SPELLS[tool]) h = `${SPELLS[tool].n} (${SPELLS[tool].cost} gold): ${SPELLS[tool].d}`;
       hintEl.textContent = h;
     }
-    const TABS = [['tools', 'Tools', 'Dig, Hand, Slap (F1)'], ['rooms', 'Rooms', 'Build rooms on your claimed floor (R)'], ['traps', 'Traps', 'Traps and doors, made in the Workshop (T)'], ['spells', 'Spells', 'Cast spells with gold (M)'], ['beasts', 'Beasts', 'Your creatures and what they need (B)']];
+    const TABS = [['tools', 'Tools', 'Dig, Hand, Slap (F1)'], ['rooms', 'Rooms', 'Build rooms on your claimed floor (R)'], ['traps', 'Traps', 'Traps and doors, made in the Workshop (Y)'], ['spells', 'Spells', 'Cast spells with gold (M)'], ['beasts', 'Beasts', 'Your creatures and what they need (B)']];
     function buildTabs() {
       tabsEl.innerHTML = '';
       const list = visiting() ? (S.mode === 'raid' ? [['raid', 'Raid', 'Your raiding party'], ['info', 'Their dungeon', 'What you know about it']] : [['info', 'Tour', 'What is in this dungeon']]) : TABS;
@@ -1612,7 +1612,7 @@
         add(mkBtn('move', 'Move', '', 'move', () => setTool('move'), tool === 'move', false, 'Send your heroes somewhere: click the floor. Click a defender to gang up on it.'));
         const ab = (b, k) => { b.dataset.ab = k; add(b); };
         ab(mkBtn('smite', 'Smite', R.ab.smite > 0 ? Math.ceil(R.ab.smite) + 's' : 'ready', 'smite', () => { if (S.raid.ab.smite <= 0) setTool('smite'); else G.sfx('uhoh'); }, tool === 'smite', false, 'Lightning from the heavens: 80 damage to defenders near the spot. Every 20 seconds.', 'E'), 'smite');
-        ab(mkBtn('', 'Heal', R.ab.heal > 0 ? Math.ceil(R.ab.heal) + 's' : 'ready', 'heal', () => raidAbility('heal'), false, false, 'Heals every hero by half. Every 25 seconds.', 'Q'), 'heal');
+        ab(mkBtn('', 'Heal', R.ab.heal > 0 ? Math.ceil(R.ab.heal) + 's' : 'ready', 'heal', () => raidAbility('heal'), false, false, 'Heals every hero by half. Every 25 seconds.', 'U'), 'heal');
         ab(mkBtn('', 'Charge!', R.ab.charge > 0 ? Math.ceil(R.ab.charge) + 's' : 'ready', 'charge', () => raidAbility('charge'), false, false, 'Heroes run faster and hit harder for 10 seconds. Every 35 seconds.', 'W'), 'charge');
         add(mkBtn('', 'For the Heart!', '', 'heart', () => { R.order = -1; R.focus = null; R.oid++; G.sfx('click'); float(S.heartC.x, S.heartC.y - 2, 'CHARGE!', '#5aa0ff'); for (const h of S.heroList) h.think = 0; }, false, false, 'Forget the flag: everybody goes straight for the Dungeon Heart.'));
         add(mkBtn('', 'Leave', '', 'leave', () => leaveVisit(), false, false, 'Give up the raid and go home'));
@@ -1864,9 +1864,9 @@
       if (k === 'Home') return lookAt(S.heartC.x, S.heartC.y);
       if (lk === 'g') { if (S.mode === 'raid') { S.raid.follow = true; banner('FOLLOWING YOUR HEROES'); return; } return goHeroes(); }
       if (lk === 'f') { speed = speed >= 3 ? 1 : speed + 1; banner(speed > 1 ? 'FAST x' + speed : 'NORMAL SPEED'); return; }
-      if (visiting()) { if (S.mode === 'raid') { if (lk === 'q') raidAbility('heal'); else if (lk === 'w') raidAbility('charge'); else if (lk === 'e') { if (S.raid.ab.smite <= 0) setTool('smite'); } } if (k === 'Escape') leaveVisit(); return; }
+      if (visiting()) { if (S.mode === 'raid') { if (lk === 'u') raidAbility('heal'); else if (lk === 'w') raidAbility('charge'); else if (lk === 'e') { if (S.raid.ab.smite <= 0) setTool('smite'); } } if (k === 'Escape') leaveVisit(); return; }
       if (lk === 'd') setTool('dig'); else if (lk === 'h') setTool('hand'); else if (lk === 's') setTool('slap'); else if (lk === 'x') { brush3 = !brush3; buildTab(); }
-      else if (k === 'F1' || lk === 'r' || lk === 't' || lk === 'm' || lk === 'b') { ev.preventDefault(); tab = k === 'F1' ? 'tools' : { r: 'rooms', t: 'traps', m: 'spells', b: 'beasts' }[lk]; buildTab(); }
+      else if (k === 'F1' || lk === 'r' || lk === 'y' || lk === 'm' || lk === 'b') { ev.preventDefault(); tab = k === 'F1' ? 'tools' : { r: 'rooms', y: 'traps', m: 'spells', b: 'beasts' }[lk]; buildTab(); }
       else if (/^[1-9]$/.test(k)) pickNth(+k - 1);
       else if (k === 'Escape') setTool('dig');
     });
@@ -2259,7 +2259,7 @@ ${phone ? 'Drag the map to look around. The Brush button switches between 3x3 an
     }
     function keysHelp() {
       const wasPaused = paused; if (S && !S.done) paused = true;
-      const K2 = [['Arrow keys', 'Look around'], ['Home', 'Jump to your Dungeon Heart'], ['G', 'Jump to the heroes'], ['D / H / S', 'Dig / Hand / Slap'], ['X', 'Brush size (1 or 3x3)'], ['F1 R T M B', 'Tools / Rooms / Traps / Spells (Magic) / Beasts tab'], ['1 - 9', 'Pick a button on the open tab'], ['Right-click', 'Slap'], ['Ctrl+Z', 'Undo your last build (full refund, within 20 seconds)'], ['P or Space', 'Pause'], ['F', 'Game speed (x1, x2, x3)'], ['+ / -', 'Zoom'], ['Esc', 'Back to the Dig tool'], ['Raiding: Q / W / E', 'Heal / Charge! / Smite']];
+      const K2 = [['Arrow keys', 'Look around'], ['Home', 'Jump to your Dungeon Heart'], ['G', 'Jump to the heroes'], ['D / H / S', 'Dig / Hand / Slap'], ['X', 'Brush size (1 or 3x3)'], ['F1 R Y M B', 'Tools / Rooms / Traps / Spells (Magic) / Beasts tab'], ['1 - 9', 'Pick a button on the open tab'], ['Right-click', 'Slap'], ['Ctrl+Z', 'Undo your last build (full refund, within 20 seconds)'], ['P or Space', 'Pause'], ['F', 'Game speed (x1, x2, x3)'], ['+ / -', 'Zoom'], ['Esc', 'Back to the Dig tool'], ['Raiding: U / W / E', 'Heal / Charge! / Smite']];
       const o = overlay(`<div class="dg-keepa-box"><h2>KEYS</h2><table>${K2.map(([k, d]) => `<tr><td>${k.split(' / ').map(x => `<kbd>${esc(x)}</kbd>`).join(' / ')}</td><td>${esc(d)}</td></tr>`).join('')}</table><div class="row"><button class="dg-keepa-mbtn" data-a="back">OK</button></div></div>`);
       on(o, '[data-a=back]', () => backTo(wasPaused));
     }

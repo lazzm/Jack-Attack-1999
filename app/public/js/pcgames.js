@@ -186,7 +186,7 @@ ONLINE PLAY
 
 KEYS: WASD move, mouse look, click shoot, RIGHT click (or F) alt fire,
 SPACE jump, press a direction twice quickly to DODGE, 1-6 weapons, TAB scores,
-T talk, \` console, ESC menu. Change them in Options > Controls.
+Y talk, \` console, ESC menu. Change them in Options > Controls.
 Options also has your HUD colour, five crosshairs and the announcer.
 
 DEMO VERSION: two maps, and a nag screen. The full game is out on

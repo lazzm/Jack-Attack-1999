@@ -656,7 +656,7 @@
   TV.game(GID, {
     three: true, stick: true, buttons: ['a', 'b', 'l', 'r'],
     keyboard:{KeyW:'moveForward',KeyS:'moveBack',KeyA:'moveLeft',KeyD:'moveRight'},
-    help: 'Move: WASD. Aim: arrows or the mouse. Fire: Z or click. Reload: X. Aim / zoom: hold E. Swap gun: Q. Pause: Enter.',
+    help: 'Move: WASD. Aim: arrows or the mouse. Fire: Z or click. Reload: X. Aim / zoom: hold E. Swap gun: U. Pause: Enter.',
     make(K) {
       const T3 = K.three({ fogCol: 0xc8a090, fogNear: 30, fogFar: 190, fov: 60, far: 700 }), T = T3.T, cam = T3.cam, ren = T3.ren, scene = T3.scene, hud = K.hud, F = K.font, W = K.W, H = K.H;
       const TX = paintTextures(T3, prng(64));

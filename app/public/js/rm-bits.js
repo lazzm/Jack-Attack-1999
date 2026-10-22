@@ -246,7 +246,7 @@
     return view('mags', `<div class="rm-magbig"><div class="rm-magcover"><b>JACK ATTACK!</b><small>THE MAG FOR GAMERS WHO CAN'T SIT STILL</small><i class="rm-mcart"></i><em>EXCLUSIVE!<br>50 CHEATS<br>INSIDE!</em></div>
       <div class="rm-magpage"><h4>CHEATS CORNER</h4>
       <p><b>BLOCKOLOGY</b> (Game Lad): on the title screen hold <b>SELECT</b> and press <b>START</b> to play the secret <b>B-TYPE</b>: 25 lines on a messy well.</p>
-      <p><b>GOLDENBALLS</b>: on the dossier screen press <b>L, L, R, R, L, R</b> (Q and E on a keyboard) for <b>PAINTBALL MODE</b>. Splat!</p>
+      <p><b>GOLDENBALLS</b>: on the dossier screen press <b>L, L, R, R, L, R</b> (U and E on a keyboard) for <b>PAINTBALL MODE</b>. Splat!</p>
       <p><b>ANY CARTRIDGE</b>: not working? Take it out and BLOW on it. This is science.</p>
       <p><b>KART KAOS 64</b>: there's a short cut on Biscuit Circuit! Look for a gap in the hedge. (Dave says he found it first. Dave says a lot of things.)</p>
       <p><b>POCKET CRITTERS</b>: talk to everybody. Twice. Mom always knows something useful.</p>
@@ -339,9 +339,6 @@
 
   // ================================================================ which close-up is which
   const OPEN = {
-    postershuttle() { const S = shuttle(); return view('poster', S.svg, { say: S.P.f, btns: [searchBtn('postershuttle')] }); },
-    posterband() { return view('poster', BAND, { say: 'THE MODEM BOYS. Best band in the world. Their new single "Beep Bop Connect" got to number 4! I taped it off the radio but the DJ talked over the end.', btns: [searchBtn('posterband')] }); },
-    posterfilm() { return view('poster', FILM, { say: 'Dave drew this. It\'s a parody of the new space film. The robot is a waiter. The laser sword is a spatula. Dave is a genius (do not tell him).', btns: [searchBtn('posterfilm')] }); },
     cork() { return view('cork', corkHtml(), { say: 'My cork board. Today is circled. The cheat note is from Callum, who is never wrong (he says).', btns: [searchBtn('cork', 'Check behind the pins')] }); },
     drawer() {
       const D = drawerHtml();
@@ -357,5 +354,12 @@
     },
     vpet: petView, cube: cubeView, window: windowView, lava: lavaView, mags: magsView, rack: rackView, tin: tinView,
   };
-  window.RoomBits = { open(id) { const f = OPEN[id]; if (f) return f(); }, close, has: id => !!OPEN[id], get open_() { return !!cur; } };
+  window.RoomBits = {
+    open(id) {
+      if (id.startsWith('poster')) { close(); return window.House?.SPOTS[id]?.act?.(); }
+      const f = OPEN[id]; if (f) return f();
+    },
+    close, has: id => id.startsWith('poster') ? !!window.House?.SPOTS[id]?.act : !!OPEN[id],
+    get open_() { return !!cur; }
+  };
 })();

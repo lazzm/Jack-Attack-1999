@@ -12,11 +12,11 @@
  const el=document.createElement('dialog');el.className='hs-pause';el.setAttribute('aria-labelledby','hsPauseTitle');
  el.innerHTML=`<div class="hs-pause-head"><span>1999</span><h1 id="hsPauseTitle">GAME MENU</h1></div>
  <div class="hs-pause-main"><button type="button" data-pause="resume">RESUME</button><button type="button" data-pause="leave" hidden>BACK TO THE ROOM</button><button type="button" data-pause="return" hidden>PUT HELD ITEM BACK</button>
- <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [0]<small class="hs-lock-help">Full-screen view of the screen you are using. Press 0 again to return. Original proportions are preserved.</small></label>
+ <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [T]<small class="hs-lock-help">Full-screen view of the screen you are using. Press T again to return. Original proportions are preserved.</small></label>
  <label>Graphics <select name="graphics"><option value="auto">Automatic</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
  <fieldset class="hs-test-reset" hidden><legend>TEST ACCOUNT ONLY</legend><p>Reset this test room, media, local game saves and balances. Daily limits, chores and shared-world records are kept. Other accounts are not affected.</p><button type="button" data-pause="resetTest">RESET TEST SAVE</button><div class="hs-test-confirm" hidden><p>Start the test save again? A server backup is kept.</p><button type="button" data-pause="confirmReset">YES, RESET TEST</button><button type="button" data-pause="cancelReset">CANCEL</button></div></fieldset>
- <p class="hs-pause-keys">WASD: walk · Mouse: look · F: use / play<br>E / Click: pick up, remove, place<br>Shift: jog · C: crouch · Space: jump<br>I: inspect · R: turn<br>Backspace: lean back · 0: LOCK IN · Esc: menu</p>
+ <p class="hs-pause-keys">WASD: walk · Mouse: look · F: use / play<br>E / Click: pick up, remove, place<br>Shift: jog · C: crouch · Space: jump<br>I: inspect · R: turn<br>Q: lean back · T: LOCK IN · Esc: menu</p>
  <p class="hs-pause-status" role="status">Movement is stopped. Online programs and the TV keep running.</p></div>`;
  document.documentElement.appendChild(el);
  const stamp=new URL(document.querySelector('script[src*="js/hs-pause.js"]')?.src||location.href).searchParams.get('v')||'',release=stamp.includes('-')?stamp.match(/^\d+\.\d+\.\d+/)?.[0]:null;
@@ -26,7 +26,7 @@
  const button=k=>el.querySelector('[data-pause="'+k+'"]');
  function canBack(){return!!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_)}
  function quickBack(){if(H.paused||!canBack())return false;if(H.mode==='inspect')H.endInspect();else if(window.RoomTV?.open_)RoomTV.close();else if(H.focused)H.unfocus();else H.standUp();return true;}
- function syncSettings(){const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press 0 again to return. Original proportions are preserved.':'Use a PC, console, Game Lad or family TV, then press 0 to LOCK IN.';}
+ function syncSettings(){const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press T again to return. Original proportions are preserved.':'Use a PC, console, Game Lad or family TV, then press T to LOCK IN.';}
  function openMenu(){
   if(el.open||!H.live||window.House?.god||window.AccountGate&&!AccountGate.allowed)return false;
   previous=document.activeElement;syncSettings();el.querySelector('[name=graphics]').value=H.Q.want;

@@ -7,8 +7,8 @@ try{
   await p.evaluate(gid=>RoomTV.test(gid),gid);await until(()=>RoomTV._dbg()?.st==='game');await p.waitForTimeout(900);
   if(gid==='dc.taxi'||gid==='n64.kart')await p.keyboard.press('Enter');await p.waitForTimeout(250);
   const bindings=await p.evaluate(()=>{const seen=new Set(),out=[];House.scene.traverse(o=>{for(const m of o.material?[].concat(o.material):[]){if(seen.has(m)||!m.map?.userData?.jackLive)continue;seen.add(m);const compiled=House.ren.properties.get(m).uniforms;out.push({bound:compiled?.rmHUD?.value===m.map.userData.hud,currentCanvas:m.map.userData.hud.image===RoomTV.dbg().hud.canvas})}});return out});
-  console.log(gid,bindings);await p.keyboard.press('0');assert.equal(await p.locator('.rm-lockin .rm-tvbez').evaluate(el=>getComputedStyle(el,'::after').display),'none','CRT speaker grille leaked over LOCK IN');await p.screenshot({path:`shots/console-switch-${i}-${gid.replace('.','-')}.png`});await p.keyboard.press('0');assert(bindings.length&&bindings.every(b=>b.bound&&b.currentCanvas),'Old console HUD texture is still bound');
-  await p.keyboard.press('Backspace');await until(()=>House.mode==='walk');
+  console.log(gid,bindings);await p.keyboard.press('t');assert.equal(await p.locator('.rm-lockin .rm-tvbez').evaluate(el=>getComputedStyle(el,'::after').display),'none','CRT speaker grille leaked over LOCK IN');await p.screenshot({path:`shots/console-switch-${i}-${gid.replace('.','-')}.png`});await p.keyboard.press('t');assert(bindings.length&&bindings.every(b=>b.bound&&b.currentCanvas),'Old console HUD texture is still bound');
+  await p.keyboard.press('q');await until(()=>House.mode==='walk');
  }
  assert.deepEqual(errors,[]);console.log('CONSOLE SWITCH HUD PASS: Daydream taxi → Ultra kart → Goldenballs, repeated paused-HUD switches, live shader binding and LOCK IN captures');
 }finally{await browser.close()}

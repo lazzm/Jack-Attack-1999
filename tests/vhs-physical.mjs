@@ -7,7 +7,7 @@ try{
  assert(await p.evaluate(()=>House.SNAPS.vcr.accepts('chvhs')));
  await aimSlot('vcr','ch.v.3');await until(()=>HouseTelly.st.vcr==='ch.v.3');
  assert(await p.evaluate(()=>HouseTelly.st.on&&HouseTelly.st.speed===1&&HouseTelly.st.ch===0));
- await p.evaluate(()=>HouseTelly.open('vcr'));await until(()=>House.mode==='focus');await p.keyboard.press('0');assert(await p.evaluate(()=>House.surfaceScreen()?.locked));await p.screenshot({path:'shots/lock-in-family-tv.png'});await p.keyboard.press('Backspace');await until(()=>House.mode==='walk');assert.equal(await p.evaluate(()=>House.surfaceScreen()),null);assert.equal(await p.evaluate(()=>HousePause.open),false);
+ await p.evaluate(()=>HouseTelly.open('vcr'));await until(()=>House.mode==='focus');await p.keyboard.press('t');assert(await p.evaluate(()=>House.surfaceScreen()?.locked));await p.screenshot({path:'shots/lock-in-family-tv.png'});await p.keyboard.press('q');await until(()=>House.mode==='walk');assert.equal(await p.evaluate(()=>House.surfaceScreen()),null);assert.equal(await p.evaluate(()=>HousePause.open),false);
  await p.waitForTimeout(1300);const time=await p.evaluate(()=>JSON.parse(localStorage.getItem('jhp_hs_telly')).tapes['ch.v.3']||0);
  await view([-60,240,405],[-64,274,320],{level:'G'});await p.screenshot({path:'shots/vhs-galaxy-walk-playing.png'});
  await p.evaluate(()=>House.goRoom('kitchen',0));await p.waitForTimeout(2500);assert(await p.evaluate(time=>(JSON.parse(localStorage.getItem('jhp_hs_telly')).tapes['ch.v.3']||0)>time,time),'Hidden-room VHS did not keep playing');

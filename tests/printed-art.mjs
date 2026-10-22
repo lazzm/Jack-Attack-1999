@@ -2,7 +2,7 @@ import assert from'node:assert/strict';import{roomFixture}from'./room-fixture.mj
 const{browser,page:p,errors,until,view}=await roomFixture(process.argv[2]||'http://localhost:18464',{storage:{jhp_pm:{v:1,own:{city:1,keepa:1,podracer:1},fl:{},gift:99,opened:{}}}});
 async function shot(name){await p.screenshot({path:'shots/print-v2-'+name+'.png'})}
 async function inspect(id){await p.evaluate(id=>{House.hush();House._.setMode('walk');House.grab(id);House.inspect(id)},id);await p.waitForTimeout(500)}
-async function back(){await p.keyboard.press('Backspace');await p.evaluate(()=>House.putBack());await p.waitForTimeout(350)}
+async function back(){await p.keyboard.press('q');await p.evaluate(()=>House.putBack());await p.waitForTimeout(350)}
 try{
  await p.evaluate(()=>PrintArt.ready);assert.equal(await p.evaluate(()=>Object.keys(PrintArtData).length),9);
  for(const[name,eye,target]of[['back-posters',[-195,-80,50],[-200,-80,-56]],['shuttle',[-50,-70,35],[-52,-82,-56]],['race-poster',[-190,-65,40],[-280,-70,20]],['robot-poster',[-10,-80,140],[-10,-98,250]],['books',[-80,-40,155],[-155,-5,234]]]){await view(eye,target);await shot(name)}

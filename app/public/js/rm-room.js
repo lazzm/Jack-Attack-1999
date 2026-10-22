@@ -134,10 +134,13 @@
     P.wshadow(0.6, 1.2, 0.08, w * 1.1, h * 1.08, 0.5);
     const m = M({ c: '#ffffff', map: t, sh: 4 });
     const lift = 0.25, curlH = h * 0.12;
+    // Solid paper backing also closes the tiny join beneath the curled face.
+    P.box(0, 0, lift - 0.09, w, h, 0.12, M({ c: '#ddd5bd', sh: 2 }));
     const top = new T.PlaneGeometry(w, h - curlH); { const uv = top.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, 1 - uv.getY(i) * ((h - curlH) / h)); }
     P.geo(top, 0, -curlH / 2, lift, m, {});
     const sub = new T.PlaneGeometry(w, curlH); { const uv = sub.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, (1 - uv.getY(i)) * (curlH / h)); }
-    P.geo(sub, 0, h / 2 - curlH / 2 + 0.2, lift + 0.55, m, { rx: -9 });
+    const curl = 9 * D2R;
+    P.geo(sub, 0, h / 2 - curlH + Math.cos(curl) * curlH / 2, lift + Math.sin(curl) * curlH / 2, m, { rx: 9 });
     [[-1, -1], [1, -1], [-1, 1]].forEach(([sx, sy]) => P.ball(sx * (w / 2 - 1.2), sy * (h / 2 - 1.4) - (sy > 0 ? curlH * 0.6 : 0), lift + 0.05, 0.7, 0.7, 0.35, mBluTack, 6));
   }
   // a framed print or pinboard
@@ -590,7 +593,7 @@
     poster(B, TX, -64, BZ, 34, 46, tex('posterBand'), 0); pickBox(r, 'posterband', TX, -64, BZ + 1, 34, 46, 2); H.SPOTS.posterband.label = 'Band poster';
     poster(B, TX - 58, -96, BZ, 28, 40, tex('posterFilm'), 0); pickBox(r, 'posterfilm', TX - 58, -96, BZ + 1, 28, 40, 2); H.SPOTS.posterfilm.label = 'Film poster';
     poster(B, LX, -70, 20, 32, 45, tex('posterGame'), 90); pickBox(r, 'postergame', LX + 1, -70, 20, 2, 45, 32);
-    H.spot('postergame', { label: 'HYPER DRIVE 2000 poster', act: () => say('HYPER DRIVE 2000', 'A free poster off the front of JACK ATTACK! issue 9. The game isn\'t even out yet. It might never be. The poster is still amazing.') });
+    H.spot('postergame', { label: 'HYPER DRIVE 2000 poster', act: () => posterFocus('postergame') });
     // the bin (round, a crisp packet poking out)
     const bn = new T.Group(); bn.position.set(-118, FY, -42); r.group.add(bn); const BN = K.into(bn);
     BN.lathe(0, 0, 0, [[9, -27], [10.2, -27], [8.4, 0], [0.2, 0]], 18, M({ c: '#2a5ad0', sh: 30, sp: '#333', side: 2 }));
@@ -804,7 +807,7 @@
     H.spot('radiator', { label: 'Radiator', act: () => say('Radiator', night() ? 'Off. Dad turns the heating off at 10 o\'clock "because we\'re not made of money".' : 'The radiator. It goes clunk clunk clunk when it comes on, like someone hitting the pipes with a spanner.') });
     pickBox(r, 'radiator', -10, FY - 36, FZ - 6, 120, 56, 6);
     poster(B, -10, -98, FZ, 30, 42, tex('posterRobot'), 180); pickBox(r, 'posterrobot', -10, -98, FZ - 1, 30, 42, 2);
-    H.spot('posterrobot', { label: 'ROBO RUMBLE poster', act: () => say('ROBO RUMBLE', 'Dave and me are going to build a robot and enter. We have a name (KILLBOT 2000) and a drawing. We need everything else.') });
+    H.spot('posterrobot', { label: 'ROBO RUMBLE poster', act: () => posterFocus('posterrobot') });
     const sb = new T.Group(); sb.position.set(58, FY, 226); sb.rotation.y = -12 * D2R; /* (by the washing basket: not in the doorway, so you can get out) */ r.group.add(sb); const SB = K.into(sb); // the school bag
     SB.rbox(0, -18, 0, 30, 36, 14, 5, M({ c: '#1a3a7a', sh: 10 })); SB.rbox(0, -10, 8, 22, 16, 5, 3, M('#163068'));
     SB.box(-4, -38, 2, 18, 8, 1, M({ c: '#fff', map: tex('timetable') }), { rz: 8 });
@@ -1151,7 +1154,7 @@
     clock: () => { const d = new Date(); return `The radio alarm clock says ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}. It's tuned to the chart show. The snooze button is broken from overuse.`; },
     cork: ['My cork board: a 1999 calendar, a photo of me and Dave at the swimming baths, and a list of cheats.'],
     posterband: ['THE MODEM BOYS. Best band ever. Their song "Beep Bop Connect" was number 4 for a week.'],
-    posterfilm: ['STAR SCRAPS: The Phantom Menu. A film about a space restaurant. It is a parody in a comic. Dave drew it.'],
+    posterfilm: ['INTERGALACTIC BATTLES: The Phantom Menu. A film about a space restaurant.'],
     rack: ['My CD rack. Mostly free CD-ROMs off magazines, and THE MODEM BOYS.'],
     drawer: ['My desk drawer: letters, floppy disks, a broken Eggbert... the usual.'],
     dcbox: ['The Daydream box. Polystyrene, instructions in five languages, a VMU leaflet.'],
@@ -1166,7 +1169,7 @@
     return () => {
       const s = H.SPOTS[id]; const sid = (s && s.alias) || id;
       emit('click', sid); S.seen[sid] = 1; save();
-      let cl = (CLUES[sid] || []).find(c => !(c.once && c.done) && (!c.when || c.when()));
+      let cl = (sid.startsWith('poster') ? [] : (CLUES[sid] || [])).find(c => !(c.once && c.done) && (!c.when || c.when()));
       if (cl && lastClue[sid] === cl && !cl.once) { lastClue[sid] = null; cl = null; }
       if (cl) { cl.done = true; lastClue[sid] = cl; const t = typeof cl.text === 'function' ? cl.text() : cl.text; say(cl.title || labelOf(id), t); if (cl.secret) secret(cl.secret); return; }
       if (coin.member && !coin.got && COINSPOT.has(sid)) { try { Net.send({ t: 'rmCoin', spot: sid }); } catch (e) {} }
@@ -1262,9 +1265,30 @@
   addEventListener('resize', () => { if (tvFocus && H.mode === 'focus') { Object.assign(H.P, tvPose(tvFocusCon)); H.dirty(); } });
   // ---- close-ups (js/rm-bits.js): the camera moves in close first, and back out after
   let bitsLoad = null, pending = false, boT = 0;
+  // Posters never open a separate picture: approach the actual paper on its wall.
+  const POSTER_VIEW = {
+    postershuttle: [-52, -82, BZ, 30, 42, 0], posterband: [TX, -64, BZ, 34, 46, 0],
+    posterfilm: [TX - 58, -96, BZ, 28, 40, 0], postergame: [LX, -70, 20, 32, 45, 90],
+    posterrobot: [-10, -98, FZ, 30, 42, 180]
+  };
+  function posterPose(id) {
+    const [x, y, z, w, h, angle] = POSTER_VIEW[id], a = angle * D2R;
+    const fov = H.camera.fov * D2R;
+    const d = Math.max(h, w / Math.max(0.2, innerWidth / innerHeight)) / (2 * Math.tan(fov / 2)) * 1.18;
+    return { x: x + Math.sin(a) * d, y, z: z + Math.cos(a) * d, rx: 0, ry: -angle, seat: 1, lvl: 'U' };
+  }
+  let focusedPoster = null;
+  function posterFocus(id) {
+    if (!POSTER_VIEW[id] || !canGo() || pending || H.focused) return false;
+    H.hush(); H.ui.tip(null);
+    return H.focus(() => posterPose(id), { label: 'Lean back', ms: 650,
+      enter: () => { focusedPoster = id; H.ui.tip(null); }, exit: () => { focusedPoster = null; } });
+  }
+  addEventListener('resize', () => { if (focusedPoster && H.mode === 'focus') { Object.assign(H.P, posterPose(focusedPoster)); H.dirty(); } });
   const BITVIEW = { postershuttle: [-52, -82, BZ], posterband: [TX, -64, BZ], posterfilm: [TX - 58, -96, BZ], cork: [42, -84, BZ], window: [191, -63, BZ], lava: [134, 6, BZ + 21], mags: [TX + 34, FY, 58], rack: [TX - 56, 33, -44], drawer: [56, 6, 40] };
   function bits(id) {
-    if(id==='lava'){if(H.held())H.putBack();return H.focus({x:98,y:-9,z:15,rx:-14,ry:36,lvl:'U',seat:1},{label:'Lean back',enter:()=>say('Lava lamp','Watch the real glass and wax. Backspace leans back; Esc opens the game menu.',4000)})}
+    if (POSTER_VIEW[id]) return posterFocus(id);
+    if(id==='lava'){if(H.held())H.putBack();return H.focus({x:98,y:-9,z:15,rx:-14,ry:36,lvl:'U',seat:1},{label:'Lean back',enter:()=>say('Lava lamp','Watch the real glass and wax. Q leans back; Esc opens the game menu.',4000)})}
     if (!canGo() || pending || (window.RoomBits && RoomBits.open_)) return;
     H.hush();
     const open = () => { try { RoomBits.open(id); } catch (e) { console.error(e); } };
