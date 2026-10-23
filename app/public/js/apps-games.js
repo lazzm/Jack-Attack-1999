@@ -255,7 +255,7 @@
       dialog, msg: JG.msg,
       focus() { try { (G.focusEl || host).focus({ preventScroll: true }); } catch (e) {} },
       keys: null, // { down(ev), up(ev) } routed from the document while this window is on top
-      // Layout and input share JackOS logical pixels, including synthetic trackpad events.
+      // Layout and input share JackOS logical pixels.
       rect(el) { return window.DesktopSurface ? DesktopSurface.rect(el) : el.getBoundingClientRect(); },
       point(ev) { return window.DesktopSurface ? DesktopSurface.point(ev.clientX, ev.clientY) : { x: ev.clientX, y: ev.clientY }; },
       // Convert absolute logical coordinates to physical client coordinates for debug/test input.
@@ -287,8 +287,9 @@
       // music via Sound.addTune'd tunes: only when sound is on and the game's music option allows it
       music(name) { try { if (window.Sound && Sound.on && name) { if (Sound.music.playing !== name) Sound.music.play(name); G._tune = name; } else G.stopMusic(); } catch (e) {} },
       stopMusic() { try { if (window.Sound && G._tune && Sound.music.playing === G._tune) Sound.music.stop(); } catch (e) {} G._tune = ''; },
-      fit() { if (innerWidth < 700 || innerHeight < 540) { w.el.classList.add('maxwin'); setTimeout(() => window.dispatchEvent(new Event('resize')), 30); } },
-      phone: () => matchMedia('(hover:none)').matches || innerWidth < 600,
+      // Legacy game helpers: desktop windows retain their chosen size.
+      fit() {},
+      phone: () => false,
       // the saved game (js/gamesave.js, key games.<id>): G.saver(getState, {v, live, every}) -> {load, save, now, clear}.
       // It saves when the window closes and when the page goes away, and stops when the window has gone.
       saver(get, o) {
@@ -333,14 +334,42 @@
       if (document.querySelector('.menu')) return false;
       return tops()[0] === w.el;
     };
+    // Mouse and keyboard share holds; changing to/from a gamepad cancels them.
+    const keys = new Map(), pointers = new Map();
+    const cancelInputs = () => {
+      for (const ev of keys.values()) G.keys?.up?.(ev);
+      keys.clear();
+      const active = [...pointers.values()]; pointers.clear();
+      for (const point of active) {
+        point.target.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId: point.id, pointerType: point.type, button: 0, buttons: 0 }));
+        try { if (point.target.hasPointerCapture(point.id)) point.target.releasePointerCapture(point.id); } catch (_) {}
+      }
+    };
+    G.on(host, 'pointerdown', ev => {
+      if (ev.pointerType === 'mouse') pointers.set(ev.pointerId, { id: ev.pointerId, type: ev.pointerType, target: ev.target });
+    }, true);
+    const released = ev => pointers.delete(ev.pointerId);
+    G.on(document, 'pointerup', released, true); G.on(document, 'pointercancel', released, true);
+    G.on(host, 'lostpointercapture', ev => { if (pointers.has(ev.pointerId)) cancelInputs(); }, true);
+    G.on(document, 'game-input-change', ev => {
+      const { mode, previous } = ev.detail || {};
+      if (mode !== previous && (mode === 'gamepad' || previous === 'gamepad')) cancelInputs();
+    });
+    G.on(window, 'blur', cancelInputs);
+    G.on(document, 'visibilitychange', () => { if (document.hidden) cancelInputs(); });
+    G.onClose(cancelInputs);
     G.on(document, 'keydown', ev => {
       if (!routed(ev)) return;
       if (ev.ctrlKey && ev.altKey) return;
       if (ev.key === 'F2' && G.newGame) { ev.preventDefault(); G.newGame(); return; }
       if (ev.key === 'F1' && G.helpKey) { ev.preventDefault(); G.helpKey(); return; }
+      keys.set(ev.code || ev.key, { key: ev.key, code: ev.code, location: ev.location, repeat: false, preventDefault() {} });
       if (G.keys.down && G.keys.down(ev) === true) ev.preventDefault();
     });
-    G.on(document, 'keyup', ev => { if (routed(ev) && G.keys.up && G.keys.up(ev) === true) ev.preventDefault(); });
+    G.on(document, 'keyup', ev => {
+      const held = keys.delete(ev.code || ev.key);
+      if ((held || routed(ev)) && G.keys?.up && G.keys.up(ev) === true) ev.preventDefault();
+    });
     G._cleanup = () => {
       G.closed = true; G.stopLoop(); G.stopMusic();
       timers.forEach(id => { clearTimeout(id); clearInterval(id); }); timers.clear();
@@ -354,7 +383,6 @@
     host.innerHTML = `<div class="jgload"><div class="jgloadico">${g.icon}</div><div>Loading ${esc(g.exe)}...</div><div class="prog jgloadbar"><span style="display:flex;gap:2px"></span></div></div>`;
     let G = null;
     const w = Apps.win(g.name, host, { w: g.w, h: g.h, icon: g.icon, menubar: true, status: g.status !== false, cls: 'jgwin jgw-' + g.id, minW: g.minW || 280, minH: g.minH || 240, onClose: () => { if (G) G._cleanup(); } });
-    if (innerWidth < 700 || innerHeight < 540) w.el.classList.add('maxwin'); // phones: games always run full screen
     const bar = host.querySelector('.jgloadbar span');
     let k = 0; const fill = setInterval(() => { if (k < 14 && bar) { bar.appendChild(document.createElement('i')); k++; } }, 60);
     played(g.id);
@@ -365,33 +393,6 @@
       if (!mod) throw new Error('missing module ' + g.id);
       host.innerHTML = '';
       G = makeG(g, w, host);
-      // Keep the kit's rendering/loop untouched. Games query phone() while
-      // drawing their existing pointer controls and help, so it stays current.
-      G.phone = () => window.GameInput ? GameInput.touch : !!window.matchMedia?.('(pointer:coarse), (hover:none)').matches;
-      // Input changes cancel old holds; the running game and its physics stay
-      // intact. Several games already consume pointercancel but not lost capture.
-      const keys = new Map(), pointers = new Map();
-      const cancelInputs = () => {
-        for (const ev of keys.values()) G.keys?.up?.(ev);
-        keys.clear();
-        const active = [...pointers.values()]; pointers.clear();
-        for (const point of active) {
-          point.target.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId: point.id, pointerType: point.type, button: 0, buttons: 0 }));
-          try { if (point.target.hasPointerCapture(point.id)) point.target.releasePointerCapture(point.id); } catch (_) {}
-        }
-      };
-      G.on(document, 'keydown', ev => {
-        if (G.active() && host.contains(ev.target) && !ev.target.closest('input,textarea,select,[contenteditable]')) keys.set(ev.code || ev.key, { key: ev.key, code: ev.code, location: ev.location, repeat: false, preventDefault() {} });
-      }, true);
-      G.on(document, 'keyup', ev => keys.delete(ev.code || ev.key), true);
-      G.on(host, 'pointerdown', ev => pointers.set(ev.pointerId, { id: ev.pointerId, type: ev.pointerType, target: ev.target }), true);
-      const released = ev => pointers.delete(ev.pointerId);
-      G.on(document, 'pointerup', released, true); G.on(document, 'pointercancel', released, true);
-      G.on(host, 'lostpointercapture', ev => { if (pointers.has(ev.pointerId)) cancelInputs(); }, true);
-      G.on(document, 'game-input-change', ev => { if(['mouse','keyboard'].includes(ev.detail?.mode)&&['mouse','keyboard'].includes(ev.detail?.previous))return;cancelInputs(); });
-      G.on(window, 'blur', cancelInputs);
-      G.on(document, 'visibilitychange', () => { if (document.hidden) cancelInputs(); });
-      G.onClose(cancelInputs);
       JG.live[g.id] = G; G.onClose(() => { if (JG.live[g.id] === G) delete JG.live[g.id]; });
       mod(G, arg);
       setTimeout(() => G.focus(), 30);

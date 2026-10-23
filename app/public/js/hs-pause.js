@@ -14,7 +14,6 @@
  <div class="hs-pause-main"><button type="button" data-pause="resume">RESUME</button><button type="button" data-pause="leave" hidden>BACK TO THE ROOM</button><button type="button" data-pause="return" hidden>PUT HELD ITEM BACK</button>
  <fieldset><legend>AUDIO</legend><label><input type="checkbox" name="music"> Music</label><label><input type="checkbox" name="effects"> Sound effects &amp; voices</label><label class="hs-audio-volume">Volume <output>100%</output><input type="range" name="volume" min="0" max="100" step="1" aria-label="Overall volume"></label><p class="hs-pause-mouse">Applies throughout the house, PC and games. Saved for next time.</p></fieldset>
  <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [T]<small class="hs-lock-help">Full-screen view of the screen you are using. Press T again to return. Original proportions are preserved.</small></label>
- <label><input type="checkbox" name="pcTrackpad"> PC trackpad<small>Move the JackOS cursor; Left / Right click, Double click, Drag and scroll. Keyboard types into the selected text box. Starts on for touch controls.</small></label>
  <label><input type="checkbox" name="crouchToggle"> Toggle crouch [C]<small>Off: hold C. On: press C to crouch or stand.</small></label>
  <button type="button" data-pause="graphics" aria-controls="hsGraphicsMenu" aria-expanded="false">GRAPHICS OPTIONS <span class="hs-graphics-summary"></span></button>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
@@ -52,10 +51,10 @@
  }
  const button=k=>el.querySelector('[data-pause="'+k+'"]');
  function canBack(){return!!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_)}
- function quickBack(){if(H.paused||!canBack())return false;window.PCTouch?.reset();if(H.mode==='inspect')H.endInspect();else if(window.RoomTV?.open_)RoomTV.close();else if(H.focused)H.unfocus();else H.standUp();return true;}
+ function quickBack(){if(H.paused||!canBack())return false;if(H.mode==='inspect')H.endInspect();else if(window.RoomTV?.open_)RoomTV.close();else if(H.focused)H.unfocus();else H.standUp();return true;}
  function syncAudio(){el.querySelector('[name=music]').checked=!!window.Sound?.musicOn;el.querySelector('[name=effects]').checked=!!window.Sound?.effectsOn;const volume=Math.round((window.Sound?.volume??1)*100);el.querySelector('[name=volume]').value=volume;el.querySelector('.hs-audio-volume output').textContent=volume+'%'}
  document.addEventListener('audiochange',syncAudio);
- function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;const pad=el.querySelector('[name=pcTrackpad]');pad.checked=!!window.PCTouch?.enabled;pad.disabled=!window.PCTouch;const graphics=button('graphics');graphics.disabled=!graphicsMenu||!H.graphicsGet||!H.graphicsSet;const preset=H.graphicsGet?.().preset;graphics.querySelector('span').textContent=window.HouseGraphicsMenu?.names[preset]||'';el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press T again to return. Original proportions are preserved.':'Use a PC, console, Game Lad or family TV, then press T to LOCK IN.';}
+ function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;const graphics=button('graphics');graphics.disabled=!graphicsMenu||!H.graphicsGet||!H.graphicsSet;const preset=H.graphicsGet?.().preset;graphics.querySelector('span').textContent=window.HouseGraphicsMenu?.names[preset]||'';el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press T again to return. Original proportions are preserved.':'Use a PC, console, Game Lad or family TV, then press T to LOCK IN.';}
  function openMenu(){
   if(el.open||!H.live||window.House?.god||window.AccountGate&&!AccountGate.allowed)return false;
   previous=el.contains(document.activeElement)?null:document.activeElement;graphicsBack(false);el.querySelector('[name=crouchToggle]').checked=H.crouchSetting();
@@ -63,7 +62,7 @@
   el.querySelector('.hs-logout-confirm').hidden=true;
   button('leave').hidden=!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_);
   el.querySelector('.hs-pause-status').textContent=window.RoomTV?.open_?'This console game is paused. Audio keeps playing so you can adjust it. Online programs keep running.':'Movement is stopped. Online programs and the TV keep running.';
-  window.PCTouch?.reset();button('return').hidden=!H.held();H.pauseControls(true);document.documentElement.classList.add('hs-paused');el.showModal();button('resume').focus();return true;
+  button('return').hidden=!H.held();H.pauseControls(true);document.documentElement.classList.add('hs-paused');el.showModal();button('resume').focus();return true;
  }
  function closeMenu(){if(!el.open||loggingOut)return;el.close();graphicsBack(false);document.documentElement.classList.remove('hs-paused');if(previous?.isConnected&&!el.contains(previous)&&previous.getClientRects().length)previous.focus({preventScroll:true});if(el.contains(document.activeElement))document.activeElement.blur();H.pauseControls(false);}
  function handleEscape(ev){if(ev.key!=='Escape')return false;if(!el.open&&!H.live)return false;ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat){if(el.open){if(graphicsOpen)graphicsBack();else closeMenu()}else openMenu()}return true;}
@@ -87,7 +86,7 @@
   }
  });
  window.Net?.on('testResetResult',m=>{el.querySelector('.hs-pause-status').textContent=m.msg;button('confirmReset').disabled=false;if(m.ok)el.querySelector('.hs-test-confirm').hidden=true});
- el.addEventListener('change',ev=>{if(ev.target.name==='desktopFull')lockScreen(ev.target.checked);else if(ev.target.name==='pcTrackpad')window.PCTouch?.setEnabled(ev.target.checked);else if(ev.target.name==='crouchToggle')H.crouchSetting(ev.target.checked);else if(ev.target.name==='music')Sound.musicOn=ev.target.checked;else if(ev.target.name==='effects')Sound.effectsOn=ev.target.checked});
+ el.addEventListener('change',ev=>{if(ev.target.name==='desktopFull')lockScreen(ev.target.checked);else if(ev.target.name==='crouchToggle')H.crouchSetting(ev.target.checked);else if(ev.target.name==='music')Sound.musicOn=ev.target.checked;else if(ev.target.name==='effects')Sound.effectsOn=ev.target.checked});
  el.addEventListener('input',ev=>{if(ev.target.name==='volume')Sound.setVolume(+ev.target.value/100)});
  document.addEventListener('fullscreenchange',()=>{button('fullscreen').textContent=document.fullscreenElement?'WINDOWED GAME':'FULL-SCREEN GAME'});
  // House's handler calls us first. This also shields later desktop/game
@@ -104,8 +103,7 @@
   const now=!!document.pointerLockElement?.classList.contains('hs-gl'),was=owned;owned=now;
   // Browsers can consume Esc themselves to release pointer lock, without
   // delivering a keydown. Opening the menu here handles that path as well.
-  if(was&&!now&&!window.GameInput?.touch&&!el.open&&H.mode==='walk'&&!document.hidden&&document.hasFocus())openMenu();
+  if(was&&!now&&!el.open&&H.mode==='walk'&&!document.hidden&&document.hasFocus())openMenu();
  });
  window.HousePause={show:openMenu,close:closeMenu,handleEscape,quickBack,get canBack(){return canBack()},get open(){return el.open},get page(){return graphicsOpen?'graphics':'main'}};
- const menuButton=document.createElement('button');menuButton.type='button';menuButton.className='hs-menu-button';menuButton.textContent='MENU';menuButton.setAttribute('aria-label','Open game menu');menuButton.addEventListener('click',openMenu);document.documentElement.appendChild(menuButton);
 })();

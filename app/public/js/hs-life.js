@@ -342,12 +342,7 @@
     if (window.TTXData) show(); else (window.Apps && Apps.load ? Apps.load('js/hs-ttx-data.js') : Promise.reject()).then(show, () => say('The paper', 'Dad\'s got it. He\'s doing the crossword.'));
   }
 
-  // ================================================================ Mom tidies your room (if you've left things all over the place)
-  H.on('room', (id, old) => {
-    if (id !== 'bedroom' || !old || old === 'bedroom' || !R.tidy) return;
-    const moved = Object.values(H.THINGS).filter(t => t.home && t.home.room === 'bedroom' && t.st === 'rest' && (Math.abs(t.at.x - t.home.x) > 25 || Math.abs(t.at.z - t.home.z) > 25 || t.at.room !== 'bedroom')).length;
-    if (moved >= 3 && S.tidied !== ukDay() && Math.random() < 0.4) { S.tidied = ukDay(); save(); R.tidy('bedroom'); setTimeout(() => say('Mom tidied your room!', 'Everything\'s been put "back where it lives". Including things that didn\'t live anywhere. Mom: "Your room was a TIP."', 7000), 300); }
-  });
+  // Room layouts change only through the player's own placement/tidy actions.
   H.on('place', () => { // the tidy chore: everything in your room back home
     if (window.Chores || !todays().includes('tidy') || doneLocal().includes('tidy')) return;
     const all = Object.values(H.THINGS).filter(t => t.home && t.home.room === 'bedroom');

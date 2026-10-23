@@ -1,5 +1,5 @@
 /* rm-tv: THE CONSOLES in Jack's room (loaded by rm-room.js the first time a console is clicked). Click a console and the
- * camera "zooms" into the telly (or the Game Boy): pick a cartridge or disc off the shelf, it goes in, the console boots
+ * camera "zooms" into the telly (or the Game Lad): pick a cartridge or disc off the shelf, it goes in, the console boots
  * with its own start-up screen and jingle (all original: no real logos or sounds), and you play. Every game is a lazy
  * file (js/rm-g-*.js) that registers itself with RoomTV.game(). Scores go to the server (mods/rm.js: a token per go,
  * checked for time and rate), which pays capped Rupees and keeps a top-ten table per game.
@@ -8,8 +8,7 @@
  *   RoomTV.game('n64.kart', {
  *     res: [320, 240],         optional: the canvas size (default: the console's own: gb 160x144, md 320x224, n64/ps 320x240, dc 640x480)
  *     three: true,             a 3D game: the main canvas is WebGL, K.three() gives the three.js kit (js/rm-3d.js)
- *     stick: true,             the touch pad shows an analog stick instead of a D-pad
- *     buttons: ['a', 'b'],     the buttons it uses (the touch pad shows only these, plus START)
+ *     buttons: ['a', 'b'],     the console buttons the game uses
  *     help: 'Steer: arrows. Accelerate: Z. Item: X. Pause: Enter.',   the controls line under the telly (keyboard words)
  *     make(K) { ...; return { update(dt) {}, draw() {}, end() {} } },  a fresh go: called again for "Play again"
  *   });
@@ -34,8 +33,7 @@
   const $ = (el, s) => el.querySelector(s);
   const h = (html, cls, tag) => { const e = document.createElement(tag || 'div'); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
-  const touchy = () => window.GameInput ? GameInput.touch : !!window.matchMedia?.('(pointer:coarse), (hover:none)').matches;
-  const keyboardHints = () => !window.GameInput || ['mouse', 'keyboard'].includes(GameInput.mode);
+  const keyboardHints = () => !window.GameInput || GameInput.mode !== 'gamepad';
   const load = src => (window.Apps && Apps.load) ? Apps.load(src) : new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
   (function css() { if (document.getElementById('rmTvCss')) return; const l = document.createElement('link'); l.id = 'rmTvCss'; l.rel = 'stylesheet'; l.href = 'css/rm-tv.css' + ((document.querySelector('link[href*="css/rm.css"]') || {}).href || '').replace(/^[^?]*/, ''); document.head.appendChild(l); })();
 
@@ -179,25 +177,21 @@
     }, 50);
   }
 
-  // ================================================================ input: keyboard, the touch pad, gamepads
+  // ================================================================ input: keyboard, mouse hardware buttons, gamepads
   const KEYMAP = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right',
     z: 'a', Z: 'a', ' ': 'a', j: 'a', J: 'a', x: 'b', X: 'b', k: 'b', K: 'b', c: 'c', C: 'c', l: 'c', L: 'c', v: 'y', V: 'y', i: 'y', I: 'y', u: 'l', U: 'l', e: 'r', E: 'r', Enter: 'start', Shift: 'select' };
-  const held = {}, padHeld = {}, gpHeld = {}, keySources = new Map(), touchPads = new Map(); let pend = {}, now = {}; const stickT = { x: 0, y: 0, on: false };
+  const held = {}, hardwareHeld = {}, gpHeld = {}, keySources = new Map(); let pend = {}, now = {};
   const mappedKey=ev=>defs[V?.gid]?.keyboard?.[ev.code]||KEYMAP[ev.key];
   function press(b, down) {
     if (down) { if (!isHeld(b)) pend[b] = true; } // (an edge: only when it wasn't already held)
   }
-  const isHeld = b => !!(held[b] || padHeld[b] || gpHeld[b]);
+  const isHeld = b => !!(held[b] || hardwareHeld[b] || gpHeld[b]);
   // 'c' doubles as 'x' (the PlayStation's square, the Dreamcast's X)
   const alias = b => b === 'x' ? ['x', 'c'] : b === 'c' ? ['c', 'x'] : [b];
   function stick() {
     if (!V || V.background || R.House.paused) return { x: 0, y: 0 };
-    if (stickT.on) return { x: stickT.x, y: stickT.y };
     const gp = !window.GameInput || GameInput.mode === 'gamepad' ? gpad() : null; if (gp && (Math.abs(gp.axes[0] || 0) > 0.15 || Math.abs(gp.axes[1] || 0) > 0.15)) return { x: clamp(gp.axes[0] || 0, -1, 1), y: clamp(gp.axes[1] || 0, -1, 1) };
-    // A separate movement pad also sends menu directions. Those directions
-    // must not turn into aiming when the right thumb leaves the aim stick.
-    const directionHeld = b => V?.el.classList.contains('rm-dual') ? !!(held[b] || gpHeld[b]) : isHeld(b);
-    return { x: +directionHeld('right') - +directionHeld('left'), y: +directionHeld('down') - +directionHeld('up') };
+    return { x: +isHeld('right') - +isHeld('left'), y: +isHeld('down') - +isHeld('up') };
   }
   function gpad() { try { const l = navigator.getGamepads ? navigator.getGamepads() : []; for (const g of l) if (g && g.connected) return g; } catch (e) {} return null; }
   const GPB = { 0: 'a', 1: 'b', 2: 'c', 3: 'y', 4: 'l', 5: 'r', 8: 'select', 9: 'start', 12: 'up', 13: 'down', 14: 'left', 15: 'right' };
@@ -231,7 +225,7 @@
     const status = $(V.el, '.rm-srv');
     if (status && y < h - 50 * s) screenLines(g, status.textContent, cx, y + 4 * s, w * .8, '#b8c4d4', s);
     font.center(g, 'A / START: PLAY AGAIN', cx, h - 32 * s, '#fff', s);
-    font.center(g, keyboardHints() ? 'Q: BACK   T: LOCK IN   ESC: MENU' : 'BACK / MENU / LOCK IN', cx, h - 18 * s, '#e0d090', s);
+    font.center(g, 'Q: BACK   T: LOCK IN   ESC: MENU', cx, h - 18 * s, '#e0d090', s);
   }
   function liveFrame() {
     if (!V || !V.live) return;
@@ -271,8 +265,7 @@
         <div class="rm-help"></div>
         <div class="rm-btns"><button type="button" class="rm-b rm-back">&larr; Back to my room</button><button type="button" class="rm-b rm-eject" hidden>Eject</button><button type="button" class="rm-b rm-blowb" hidden>Blow on it</button><button type="button" class="rm-b rm-snd"></button></div>
       </div>
-      <div class="rm-tools" aria-label="Console controls"><button type="button" class="rm-b rm-lean" title="Leave the game running">BACK</button><button type="button" class="rm-b rm-menu" title="Game menu">MENU</button><button type="button" class="rm-b rm-lock" title="Keep playing at the screen’s native shape" aria-pressed="false">LOCK IN</button></div>
-      <div class="rm-pad" hidden></div>`, 'rm-view rm-tvv' + (hand && !live ? ' rm-hand' : '') + (live ? ' rm-live3d' : ''));
+      <div class="rm-tools" aria-label="Console controls"><button type="button" class="rm-b rm-lean" title="Leave the game running">Q · BACK</button><button type="button" class="rm-b rm-menu" title="Game menu">ESC · MENU</button><button type="button" class="rm-b rm-lock" title="Keep playing at the screen’s native shape" aria-pressed="false">T · LOCK IN</button></div>`, 'rm-view rm-tvv' + (hand && !live ? ' rm-hand' : '') + (live ? ' rm-live3d' : ''));
     el.dataset.con = con;
     (live ? document.documentElement : pb).appendChild(el);
     V = { el, con, hand, live, restoring: !!(options && options.restoring), game: null, gid: '', st: 'shelf', cv0: $(el, '.rm-c0'), cv1: $(el, '.rm-c1') };
@@ -322,7 +315,6 @@
     }
     // This path is a real stop/eject, not a lean-out. Release both GPU textures.
     stopGame(); music(null);
-    for (const [el, state] of touchPads) if (V.el.contains(el)) state.destroy();
     if (V.live && _.tvOff) _.tvOff(V.con);
     try {localStorage.removeItem('jhp_console_focus');} catch (e) {}
     const el = V.el, wasBackground = V.background; V = null;
@@ -566,7 +558,7 @@
       font, sfx, pal: V.pal || GBPAL.none,
       held: b => alias(b).some(isHeld), pressed: b => alias(b).some(x => !!now[x]), any: () => Object.keys(now).some(x => now[x] && ['a', 'b', 'c', 'x', 'y', 'start'].includes(x)),
       stick, label: b => (LOOK[V ? V.con : 'n64'].keys || {})[b] || String(b).toUpperCase(),
-      keyLabel: b => touchy() || (window.GameInput ? GameInput.mode === 'gamepad' : gpad()) ? ((LOOK[V ? V.con : 'n64'].keys || {})[b] || String(b).toUpperCase()) : ({a:'Z',b:'X',c:'C',x:'C',y:'V',l:'U',r:'E',start:'ENTER',select:'SHIFT'}[b] || String(b).toUpperCase()),
+      keyLabel: b => (window.GameInput ? GameInput.mode === 'gamepad' : gpad()) ? ((LOOK[V ? V.con : 'n64'].keys || {})[b] || String(b).toUpperCase()) : ({a:'Z',b:'X',c:'C',x:'C',y:'V',l:'U',r:'E',start:'ENTER',select:'SHIFT'}[b] || String(b).toUpperCase()),
       music(song) { if (V) V.song = song || null; music(song); },
       get best() { return Math.max(localBest(gid), (srv.best[gid] | 0)); },
       save(st) { try { return Apps.saveGame('rm.' + gid, st, { v: def.v || 1 }); } catch (e) { return false; } },
@@ -708,20 +700,20 @@
   }
   function clearInput() {
     keySources.clear();
-    for (const state of touchPads.values()) state.reset();
-    for (const map of [held, padHeld, gpHeld]) for (const k in map) map[k] = false;
-    pend = {}; now = {}; stickT.on = false; stickT.x = stickT.y = 0;
+    releaseHardware();
+    for (const map of [held, gpHeld]) for (const k in map) map[k] = false;
+    pend = {}; now = {};
   }
   addEventListener('blur', clearInput);
   addEventListener('pagehide', () => { clearInput(); if (K) K.tok = ''; stopGame(); });
 
   function toolLabels() {
     if (!V) return;
-    const hints = keyboardHints(), labels = [['.rm-lean', hints ? 'Q · BACK' : 'BACK'], ['.rm-menu', hints ? 'ESC · MENU' : 'MENU'], ['.rm-lock', (hints ? 'T · ' : '') + (V.lockedIn ? 'IN ROOM' : 'LOCK IN')]];
+    const labels = [['.rm-lean', 'Q · BACK'], ['.rm-menu', 'ESC · MENU'], ['.rm-lock', 'T · ' + (V.lockedIn ? 'IN ROOM' : 'LOCK IN')]];
     for (const [selector, text] of labels) $(V.el, selector).textContent = text;
   }
   function gameHelp(def) {
-    $(V.el, '.rm-help').innerHTML = touchy() ? 'Use the controller below.' : keyboardHints() ? esc(def.help || '') + ' <small>(Q: lean back · T: LOCK IN · Esc: menu)</small>' : 'Use your controller. Back · Menu · LOCK IN';
+    $(V.el, '.rm-help').innerHTML = (keyboardHints() ? esc(def.help || '') : 'Use your controller.') + ' <small>(Q: lean back · T: LOCK IN · Esc: menu)</small>';
   }
   document.addEventListener('game-input-change', ev => {
     if(['mouse','keyboard'].includes(ev.detail?.mode)&&['mouse','keyboard'].includes(ev.detail?.previous))return;
@@ -731,97 +723,26 @@
     if (V.lockedIn) lockIn(true);
   });
 
-  // Each pointer owns its own contribution. Releasing one finger never releases
-  // another finger (or the keyboard); rebuilding a pad removes its old listeners.
-  function syncTouch() {
-    const keys = new Set(); let axis = null;
-    for (const [el, state] of touchPads) {
-      const local = new Set(); let localAxis = null;
-      for (const point of state.act.values()) {
-        for (const b of point.keys) { keys.add(b); local.add(b); }
-        if (point.axis) axis = localAxis = point.axis;
-      }
-      el.querySelectorAll('[data-b]').forEach(e => e.classList.toggle('on', local.has(e.dataset.b) || local.has(state.directions[e.dataset.b])));
-      const knob = el.querySelector('.rm-stick i');
-      if (knob) knob.style.transform = localAxis ? `translate(${localAxis.x * 24}px,${localAxis.y * 24}px)` : '';
-    }
-    for (const b of new Set([...Object.keys(padHeld), ...keys])) {
-      const on = keys.has(b); if (on) press(b, true); padHeld[b] = on;
-    }
-    stickT.on = !!axis; stickT.x = axis ? axis.x : 0; stickT.y = axis ? axis.y : 0;
-  }
+  // Keep the lifecycle hook: screen sizing still follows game start/stop.
   function pad(def) {
-    if (!V) return;
-    const P = $(V.el, '.rm-pad'), con = V.con, L = LOOK[con];
-    touchPads.get(P)?.destroy();
-    V.el.classList.remove('rm-padon', 'rm-dual');
-    if (!def || !touchy()) { P.hidden = true; P.innerHTML = ''; if (V.lockedIn) lockIn(true); return; }
-    const bs = [...new Set(def.buttons || ['a', 'b'])].filter(b => L.keys[b] || b === 'c' || b === 'x');
-    // Goldenballs declares independent WASD movement; K.stick remains its aim.
-    const dual = ['KeyW', 'KeyS', 'KeyA', 'KeyD'].every(k => def.keyboard?.[k]);
-    const direction = '<div class="rm-dpad" aria-label="Direction pad"><b data-b="up"></b><b data-b="left"></b><b data-b="right"></b><b data-b="down"></b><i></i></div>';
-    const analog = '<div class="rm-stick" aria-label="Analogue stick"><i></i></div>';
-    const button = (b, cls) => `<button type="button" class="${cls}" data-b="${b}" style="--bc:${L.cols[b] || '#555'}" aria-label="${esc(L.keys[b] || b.toUpperCase())}">${esc(L.keys[b] || (b === 'x' ? L.keys.c : '') || b.toUpperCase())}</button>`;
-    const face = bs.filter(b => !['l', 'r', 'start', 'select'].includes(b));
-    P.innerHTML = `<div class="rm-padname">${esc(CAT.CONSOLES[con].n)} · CONTROL PAD</div>
-      <div class="rm-pl"><span class="rm-control-label">${dual ? 'MOVE' : def.stick ? 'CONTROL STICK' : 'DIRECTION'}</span>${dual || !def.stick ? direction : analog}</div>
-      <div class="rm-pm">${bs.includes('l') ? button('l', 'rm-sh') : ''}${L.keys.select ? button('select', 'rm-st') : ''}${button('start', 'rm-st')}${bs.includes('r') ? button('r', 'rm-sh') : ''}</div>
-      <div class="rm-pr">${dual ? '<div class="rm-aim"><span class="rm-control-label">AIM</span>' + analog + '</div>' : ''}<div class="rm-face ${['ps', 'sn', 'dc'].includes(con) ? 'rm-dia ' : ''}rm-pad-n${face.length}">${face.map(b => button(b, 'rm-fb')).join('')}</div></div>`;
-    P.hidden = false; V.el.classList.add('rm-padon'); V.el.classList.toggle('rm-dual', dual);
-    padTouch(P, dual ? def.keyboard : null);
-    if (V.lockedIn) lockIn(true);
+    if (V?.lockedIn) lockIn(true);
   }
-  function padTouch(P, movement) {
-    touchPads.get(P)?.destroy();
-    const act = new Map(), listeners = [];
-    const listen = (el, name, fn) => { el.addEventListener(name, fn); listeners.push(() => el.removeEventListener(name, fn)); };
-    const directions = { up: movement?.KeyW || 'up', down: movement?.KeyS || 'down', left: movement?.KeyA || 'left', right: movement?.KeyD || 'right' };
-    const locate = (point, ev) => {
-      point.keys = [];
-      if (point.kind === 'button') { point.keys = [point.button]; return; }
-      const r = point.el.getBoundingClientRect(); if (!r.width || !r.height) return;
-      let x = (ev.clientX - r.left) / r.width * 2 - 1, y = (ev.clientY - r.top) / r.height * 2 - 1;
-      if (point.kind === 'stick') {
-        const m = Math.hypot(x, y); if (m > 1) { x /= m; y /= m; }
-        if (m < .12) x = y = 0;
-        point.axis = { x, y };
-      }
-      const threshold = point.kind === 'stick' ? .5 : .32;
-      const on = { left: x < -threshold, right: x > threshold, up: y < -threshold, down: y > threshold };
-      for (const d in on) if (on[d]) { point.keys.push(point.kind === 'stick' ? d : directions[d]); if (movement && point.kind !== 'stick') point.keys.push(d); }
-    };
-    const up = ev => {
-      if (!act.delete(ev.pointerId)) return;
-      try { if (P.hasPointerCapture(ev.pointerId)) P.releasePointerCapture(ev.pointerId); } catch (e) {}
-      syncTouch();
-    };
-    const reset = () => {
-      const ids = [...act.keys()]; act.clear();
-      for (const id of ids) { try { if (P.hasPointerCapture(id)) P.releasePointerCapture(id); } catch (e) {} }
-      syncTouch();
-    };
-    const state = { act, directions, reset, destroy() { reset(); listeners.forEach(off => off()); touchPads.delete(P); } };
-    touchPads.set(P, state);
-    listen(P, 'pointerdown', ev => {
-      if (!V || V.background || R.House.paused || !V.el.contains(P) || (ev.button != null && ev.button !== 0)) return;
-      const stick = ev.target.closest('.rm-stick'), dpad = ev.target.closest('.rm-dpad,.rm-gbd'), button = ev.target.closest('[data-b]');
-      if (!stick && !dpad && !button) return;
-      ev.preventDefault(); ev.stopPropagation();
-      const point = { kind: stick ? 'stick' : dpad ? 'dpad' : 'button', el: stick || dpad || button, button: button?.dataset.b, keys: [] };
-      act.set(ev.pointerId, point); locate(point, ev); syncTouch();
-      try { P.setPointerCapture(ev.pointerId); } catch (e) {}
-    });
-    listen(P, 'pointermove', ev => { const point = act.get(ev.pointerId); if (!point) return; ev.preventDefault(); if (R.House.paused || V?.background) { reset(); return; } locate(point, ev); syncTouch(); });
-    for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) listen(P, name, up);
-    // Also release if capture was unavailable and the finger left the pad.
-    for (const name of ['pointerup', 'pointercancel']) listen(window, name, up);
-    listen(P, 'contextmenu', ev => ev.preventDefault());
-    listen(P, 'click', ev => { ev.preventDefault(); const b = ev.target.closest('[data-b]'); if (ev.detail === 0 && b && !R.House.paused && V && !V.background) pend[b.dataset.b] = true; });
+  function releaseHardware() {
+    for (const b in hardwareHeld) hardwareHeld[b] = false;
+    V?.el.querySelectorAll('.rm-gbpad [data-b].on').forEach(el => el.classList.remove('on'));
   }
-  // The handheld's own buttons use the same cancellation and multitouch path.
+  addEventListener('mouseup', ev => { if (ev.button === 0) releaseHardware(); });
+  // These are the Game Lad's own moulded buttons, operated with the mouse.
   function gbButtons(el) {
     el.innerHTML = '<span class="rm-gbd"><b data-b="up"></b><b data-b="left"></b><b data-b="right"></b><b data-b="down"></b><i></i></span><b class="rm-gbb" data-b="b">B</b><b class="rm-gba" data-b="a">A</b><b class="rm-gbs" data-b="select">SELECT</b><b class="rm-gbs st" data-b="start">START</b>';
-    padTouch(el);
+    el.addEventListener('mousedown', ev => {
+      if (ev.button !== 0 || !V || V.background || R.House.paused) return;
+      const button = ev.target.closest('[data-b]'); if (!button) return;
+      ev.preventDefault(); ev.stopPropagation();
+      releaseHardware();
+      const b = button.dataset.b; press(b, true); hardwareHeld[b] = true;
+      button.classList.add('on');
+    });
   }
 
   // ================================================================ "you have won!" (the post: after playing lots of different games)
@@ -846,16 +767,10 @@
     if (V.lockedIn) {
       const width = V.el.clientWidth || innerWidth, height = V.el.clientHeight || innerHeight;
       const style = getComputedStyle(V.el), number = name => parseFloat(style.getPropertyValue(name)) || 0;
-      let left = number('--rm-screen-left'), right = number('--rm-screen-right');
+      const left = number('--rm-screen-left'), right = number('--rm-screen-right');
       const origin = V.el.getBoundingClientRect(), toolbar = $(V.el, '.rm-tools').getBoundingClientRect();
       const top = Math.max(number('--rm-screen-top'), toolbar.bottom - origin.top + 6);
-      if (V.el.classList.contains('rm-padon') && left >= 100) {
-        const wingLeft = $(V.el, '.rm-pl').getBoundingClientRect(), wingRight = $(V.el, '.rm-pr').getBoundingClientRect();
-        left = Math.max(left, wingLeft.right - origin.left + 10);
-        right = Math.max(right, origin.left + width - wingRight.left + 10);
-      }
-      const tray = $(V.el, '.rm-pad'), trayTop = tray.getBoundingClientRect().top - origin.top;
-      const bottom = V.el.classList.contains('rm-padon') && left < 100 && !tray.hidden ? Math.max(number('--rm-screen-bottom'), height - trayTop + 6) : number('--rm-screen-bottom');
+      const bottom = number('--rm-screen-bottom');
       const w = Math.max(1, width - left - right), h = Math.max(1, height - top - bottom), ratio = V.cv0.width / V.cv0.height;
       const screenWidth = Math.min(w, h * ratio);
       V.el.style.setProperty('--lock-width', screenWidth + 'px');
@@ -866,7 +781,6 @@
     return !!V.lockedIn;
   }
   addEventListener('resize', () => { clearInput(); if (V?.lockedIn) lockIn(true); });
-  window.visualViewport?.addEventListener('resize', () => { clearInput(); if (V?.lockedIn) lockIn(true); });
 
   window.RoomTV = { game(id, def) { defs[id] = def; }, defs, test, playPhysical,lockIn, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
 })();

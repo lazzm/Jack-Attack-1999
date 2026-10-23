@@ -1,4 +1,4 @@
-// Run sequentially from tests/: node mobile-phone-use.mjs http://localhost:PORT
+// Run sequentially from tests/: node physical-phone-use.mjs http://localhost:PORT
 // Uses the main runner's existing disposable server; never starts a server.
 // Budget: five minutes total, 12 seconds per state wait, one browser at a time.
 import assert from 'node:assert/strict';
@@ -15,7 +15,7 @@ const watchdog=setTimeout(()=>{
 await mkdir('shots',{recursive:true});
 try {
   // Deliberately sequential: software WebGL must not share concurrent browsers.
-  for(const size of [{width:1366,height:860,tag:'desktop',touch:false},{width:390,height:844,tag:'portrait',touch:true}]){
+  for(const size of [{width:1366,height:860,tag:'desktop',touch:false}]){
     const f=await roomFixture(base,size), {page:p,errors}=f;activeBrowser=f.browser;
     p.setDefaultTimeout(12000);
     const until=async fn=>{const deadline=Date.now()+12000;while(Date.now()<deadline){if(await p.evaluate(fn))return;await p.waitForTimeout(100)}throw Error('Phone state timeout: '+fn)};

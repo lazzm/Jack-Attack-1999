@@ -6,6 +6,7 @@
  *   old    : not been here for over 48 hours: the PC is off (it got switched off at the wall), and a fresh start
  *   wake   : back within 48 hours and it was left on: straight back to where they were */
 (function () {
+  if(window.PCOnly?.blocked)return;
   var m = 'room';
   try {
     var ss = sessionStorage, ls = localStorage;

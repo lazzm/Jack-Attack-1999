@@ -2,6 +2,7 @@
  * Every page load starts with the PC switched off (?noboot skips it, for testing only). There is no Skip: it always plays out.
  * A refresh or a closed tab picks up where you left off once it's switched back on. */
 (function () {
+  if(window.PCOnly?.blocked)return;
   const $ = id => document.getElementById(id);
   let booted = false, forced = '', clean = false;
   try {

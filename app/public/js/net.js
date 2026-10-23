@@ -16,6 +16,7 @@
   function emit(t, m) { (handlers[t] || []).forEach(fn => { try { fn(m); } catch (e) { console.error(e); } }); }
 
   function connect() {
+    if(window.PCOnly?.blocked)return;
     if (ws && ws.readyState <= 1) return; // already connecting/connected (a wake-up and a retry timer can both fire)
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
     ws = new WebSocket(proto + '//' + location.host + '/ws');

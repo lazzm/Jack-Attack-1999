@@ -65,7 +65,7 @@ html.pc-roomview.pc-desktop-full #monitorSurface{border-radius:0;box-shadow:none
 html.pc-roomview.pc-desktop-full #monitorSurface::after{display:none}
 .hs-surface-lock{z-index:5;border-radius:0!important;box-shadow:0 0 0 100vmax #050606!important}
 .hs-menu-button{display:none}
-@media(hover:none),(pointer:coarse){html.hs-live .hs-menu-button{display:block;position:fixed;left:12px;bottom:12px;z-index:20050;padding:7px 10px;border:1px solid #8b7f61;background:#202628;color:#eee4ca;font:700 11px "Courier New",monospace}}
+
 /* Native modal supplies keyboard focus containment and a true top layer. */
 .hs-pause{box-sizing:border-box;width:min(450px,calc(100vw - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:0;overflow:auto;border:2px solid #9f8d62;outline:2px solid #141717;background:#202628;color:#eee4ca;box-shadow:5px 5px 0 #0008;font:13px/1.5 "Courier New",monospace;text-align:left}
 .hs-pause::backdrop{background:rgba(4,7,9,.73)}
@@ -128,40 +128,40 @@ html.hs-viewing .hs-ui,html.hs-follow .hs-ui{opacity:0;visibility:hidden;transit
 .hs-hbtn button[data-h=put]{background:rgba(120,90,20,.7)}
 .hs-hbtn button[hidden]{display:none}
 @media (hover:hover) and (pointer:fine){.hs-hbtn button[data-h=near],.hs-hbtn button[data-h=far],.hs-hbtn button[data-h=turn]{display:none}}
-/* the joystick (touch screens only) */
-.hs-joy{position:absolute;left:22px;bottom:26px;width:104px;height:104px;border-radius:50%;background:radial-gradient(circle,rgba(255,240,210,.06),rgba(255,240,210,.14));box-shadow:inset 0 0 0 2px rgba(255,240,210,.22);display:none;pointer-events:auto;touch-action:none}
-.hs-joy i{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(255,250,235,.55),rgba(200,190,170,.35));box-shadow:0 2px 8px rgba(0,0,0,.5);transition:transform .08s}
-@media (hover:none),(pointer:coarse){.hs-joy{display:block}.hs-ui.holding .hs-hold{bottom:24px}}
+
+
+
+
 /* Jack's notes and toasts (the paper note style from css/rm.css) */
 .hs-ui .rm-note{position:absolute}
 .hs-ui .rm-toast{position:absolute}
 .hs-tin{position:absolute;right:12px;top:10px}
-@media (hover:none),(pointer:coarse){.hs-ui .rm-note{top:auto;bottom:158px;max-height:22vh;overflow:auto}.hs-ui .rm-note b{font-size:16px}.hs-ui .rm-note p{font-size:12px}}
+
 .hs-fade{position:absolute;inset:0;background:#000;opacity:0;transition:opacity .3s;pointer-events:none}
 .hs-fade.on{opacity:1}
-/* phones */
+
 @media (max-aspect-ratio:3/4){
   .hs-arrow{min-width:40px;height:56px;margin-top:-28px}
   .hs-arrow.l{left:4px}.hs-arrow.r{right:4px}
   .hs-map{width:64px;height:64px}
   .hs-title{font-size:16px}
 }
-@media (max-height:480px){.hs-map{display:none}.hs-joy{bottom:14px;left:14px;width:90px;height:90px}}
+@media (max-height:480px){.hs-map{display:none}}
 /* the room is the real world: no custom cursor, a hand over things you can use */
 html.hs-live #boot #bootPower.hs-hot,html.hs-live #boot #bootPower.hs-hot *{cursor:pointer!important}
 /* the chair in the PC's tray: stand up */
 .hs-standbtn.hold svg{animation:hsHold .75s linear}
 @keyframes hsHold{to{transform:translateY(-3px)}}
-/* the "press the power button" caption: clear of the joystick on touch screens, smaller now the room is the main thing */
+/* The room is the main view; keep the power-button caption small. */
 html.hs-live .pc-cap p{font-size:20px}
-@media (hover:none),(pointer:coarse){html.hs-live .powerscr .pc-cap{bottom:150px}html.hs-live .pc-cap p{font-size:17px}}
+
 @media (max-height:500px) and (min-aspect-ratio:3/2){html.hs-live .powerscr .pc-cap{bottom:auto}}
 /* sat down using something (the telly, the phone, the fridge): a way back up, nothing else in the way */
 .hs-getup{position:absolute;left:14px;bottom:max(18px,3vh);display:flex;align-items:center;gap:6px;height:38px;padding:0 14px 0 10px;border:1px solid rgba(255,240,210,.35);border-radius:3px;background:rgba(20,16,12,.6);color:#f0e8d0;font:400 14px var(--mag);letter-spacing:.08em;text-transform:uppercase}
 .hs-getup svg{width:18px;height:18px}
 .hs-getup:hover{background:rgba(60,50,30,.7)}
 .hs-getup[hidden]{display:none}
-html.hs-focus .hs-joy,html.hs-focus .hs-arrow,html.hs-focus .hs-map,html.hs-focus .hs-cross,html.hs-focus .hs-use,html.hs-focus .hs-jump,html.hs-focus .hs-duck{display:none!important}
+html.hs-focus .hs-arrow,html.hs-focus .hs-map,html.hs-focus .hs-cross,html.hs-focus .hs-use,html.hs-focus .hs-jump,html.hs-focus .hs-duck{display:none!important}
 .hs-surf{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:auto;overflow:hidden;-webkit-user-select:none;user-select:none}
 
 /* ================================================================ life in the house (js/hs-life.js) */
@@ -183,7 +183,7 @@ html.hs-focus .hs-joy,html.hs-focus .hs-arrow,html.hs-focus .hs-map,html.hs-focu
 .hs-callb button:hover{background:#ffe98a}
 .hs-book{width:100%;border-collapse:collapse;font:13px "Comic Sans MS","Comic Sans",cursive;color:#1a3a9a}
 .hs-book td{padding:1px 4px}.hs-book td+td{text-align:right;font-family:"Courier New",monospace;color:#333}
-@media (hover:none),(pointer:coarse){.hs-call{bottom:auto;top:70px}}
+
 /* the phone's keypad, laid over the real one */
 .hs-pad{background:rgba(232,224,200,.0);display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px;box-sizing:border-box}
 .hs-padd{width:92%;height:34px;background:#1a2a1a;color:#8aff9a;font:700 20px/34px "Courier New",monospace;text-align:center;border-radius:4px;box-shadow:inset 0 2px 4px #000;overflow:hidden;white-space:nowrap}
@@ -267,10 +267,10 @@ html.hs-live{--game-ui:"Courier New",monospace;--game-panel:rgba(22,25,27,.94);-
 .hs-ui .rm-note.on{transform:none}
 .hs-ui.holding .rm-note{bottom:110px}
 .hs-ui .rm-note b{font:700 13px var(--game-ui);letter-spacing:.05em}
-@media (hover:none),(pointer:coarse){.hs-lockhint{display:none}}
+
 .hs-inspection{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:grid;gap:9px;text-align:center;padding:14px 20px;background:#151914ee;border:1px solid #9b9061;color:#eee4c4;font:13px 'Courier New',monospace;pointer-events:auto;min-width:360px}
 .hs-inspection b{font-size:17px;color:#d8c488}.hs-inspection button{justify-self:center;background:#32362c;border:1px solid #a29468;color:#eee4c4;padding:5px 20px;font:inherit}
-.hs-inspecting .hs-top,.hs-inspecting .hs-map,.hs-inspecting .hs-cross,.hs-inspecting .hs-lockhint,.hs-inspecting .hs-use,.hs-inspecting .hs-jump,.hs-inspecting .hs-duck,.hs-inspecting .hs-joy{display:none!important}
+.hs-inspecting .hs-top,.hs-inspecting .hs-map,.hs-inspecting .hs-cross,.hs-inspecting .hs-lockhint{display:none!important}
 .hs-inspection{box-sizing:border-box;max-width:calc(100vw - 32px);min-width:min(360px,calc(100vw - 32px))}
 .magazine-page-controls{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px}
 .magazine-page-controls button:disabled{opacity:.45;cursor:default}

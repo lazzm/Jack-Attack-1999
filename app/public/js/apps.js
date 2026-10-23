@@ -65,7 +65,7 @@
   const nz = () => (window.Desk && Desk.nz ? Desk.nz() : (window.JZ = (window.JZ || 2400) + 1)), top = () => window.JZ || 2400; // shared with Desk's dialogs
   let nextId = 1;
   const wins = new Map(); // id -> win
-  // the screen changed size (a phone turned sideways and back, a window resized): every window fits back on it
+  // Keep windows within the JackOS desktop when its logical size changes.
   function fitWins() {
     const vw = DesktopSurface.width(), vh = DesktopSurface.height() - 32; // (the taskbar)
     for (const w of wins.values()) {
@@ -250,23 +250,25 @@
     win('Secrets Found', b, { w: 380, icon: '<svg viewBox="0 0 32 32"><path d="M16 2l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1z" fill="#ffd400" stroke="#a07000"/></svg>', noResize: true, noMax: true });
   }
 
-  // One real touch opens an icon. Mouse (including JackOS Trackpad) keeps
-  // double-click semantics. Native keyboard clicks activate once, as buttons do.
+  // Native double-click opens; keyboard/assistive button clicks activate once.
   function bindLaunch(el, action, select) {
-    let last = 0, activated = -Infinity;
     el.dataset.openGesture = 'icon';
-    const launch = () => { last = 0; activated = performance.now(); action(); };
-    el.addEventListener('pointercancel', () => { last = 0; });
+    if (!el.hasAttribute('tabindex')) el.tabIndex = 0;
     el.addEventListener('click', ev => {
       if (ev.button > 0) return;
       if (select) select(ev);
-      const directTouch = ev.isTrusted && (ev.pointerType === 'touch' || ev.pointerType === 'pen' || ev.sourceCapabilities?.firesTouchEvents || !ev.pointerType && ev.detail !== 0 && window.GameInput?.touch);
-      const now = performance.now();
-      if (directTouch || ev.detail === 0 || ev.detail === 2 || last && now - last < 450) launch();
-      else last = now || .001;
+      if (ev.detail === 0) action();
     });
-    // Trackpad Double emits click(1), click(2), dblclick(2). Never open twice.
-    el.addEventListener('dblclick', ev => { ev.preventDefault(); if (performance.now() - activated > 600) launch(); });
+    el.addEventListener('dblclick', ev => {
+      if (ev.button > 0) return;
+      ev.preventDefault(); action();
+    });
+    // Buttons generate their own keyboard click. Other icon rows need Enter.
+    if (el.tagName !== 'BUTTON') el.addEventListener('keydown', ev => {
+      if (ev.key !== 'Enter') return;
+      ev.preventDefault();
+      if (!ev.repeat) action();
+    });
   }
   // ================================================================ desktop icons
   const icons = document.querySelector('.icons');

@@ -6,16 +6,14 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {roomFixture} from './room-fixture.mjs';
 await mkdir('shots',{recursive:true});
-const {browser,page:p,errors,until}=await roomFixture(process.argv[2]||'http://localhost:18080',{touch:true,width:390,height:844});
+const {browser,page:p,errors,until}=await roomFixture(process.argv[2]||'http://localhost:18080',{width:1366,height:860});
 const menu=p.locator('.hs-pause'),page=p.locator('.hs-graphics-menu');
 const option=name=>page.locator(`[name=gfx${name}]`);
 const get=()=>p.evaluate(()=>House.graphicsGet());
 const snapshot=()=>p.evaluate(()=>({music:Sound.musicOn,effects:Sound.effectsOn,volume:Sound.volume,pad:window.PCTouch?.enabled,crouch:House.crouchSetting(),mode:House.mode}));
-const touchSession=await p.context().newCDPSession(p);
 async function open() {
-  if(!await p.evaluate(()=>GameInput.touch)){await touchSession.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:2,y:2}]});await touchSession.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]})}
-  if(!await menu.evaluate(el=>el.open))await p.locator('.hs-menu-button').tap();
-  await p.locator('[data-pause=graphics]').tap();
+  if(!await menu.evaluate(el=>el.open)){await p.keyboard.press('Escape');await until(()=>HousePause.open);}
+  await p.locator('[data-pause=graphics]').click();
   assert.equal(await p.evaluate(()=>HousePause.page),'graphics');assert(await p.evaluate(()=>House.paused));
   assert.equal(await p.locator('.hs-pause-main').isVisible(),false);
   for(const selector of ['[name=music]','[name=pcTrackpad]','[name=crouchToggle]','[data-pause=logout]'])assert.equal(await p.locator(selector).isVisible(),false,selector+' leaked into submenu');
@@ -56,10 +54,10 @@ try {
   assert.equal(await page.locator('output').innerText(),'50%');await p.keyboard.press('End');assert.equal((await get()).scale,1);
   // A trusted touch on the resolution slider, rather than a script-only event.
   await option('Scale').scrollIntoViewIfNeeded();const slider=await option('Scale').boundingBox();
-  await p.touchscreen.tap(slider.x+slider.width*.35,slider.y+slider.height/2);
+  await p.mouse.click(slider.x+slider.width*.35,slider.y+slider.height/2);
   assert((await get()).scale<1&&(await get()).scale>=.5,'Touch did not change the native slider');
   const dynamic=page.locator('.hs-graphics-check:has([name=gfxDynamic])');
-  if(await option('Dynamic').isChecked())await dynamic.tap();assert.equal((await get()).dynamic,false);
+  if(await option('Dynamic').isChecked())await dynamic.click();assert.equal((await get()).dynamic,false);
   for(const aa of ['off','on','auto']) {
     await option('Antialias').selectOption(aa);const state=await get();assert.equal(state.antialias,aa);
     assert.equal(await page.locator('.hs-graphics-aa-actual').innerText(),'Active: '+(state.actualAntialias?'On':'Off')+'.','Requested AA presented as actual AA');
@@ -67,7 +65,7 @@ try {
   for(const [name,key,value] of [['PixelRatio','pixelRatio','1.5'],['Anisotropy','anisotropy','16'],['BackgroundFps','backgroundFps','20']]) {
     await option(name).selectOption(value);assert.equal((await get())[key],Number(value));
   }
-  await page.locator('.hs-graphics-check:has([name=gfxDecorations])').tap();assert.equal((await get()).decorations,true);
+  await page.locator('.hs-graphics-check:has([name=gfxDecorations])').click();assert.equal((await get()).decorations,true);
   assert.equal(await option('Preset').inputValue(),'custom');
   assert.match(await page.innerText(),/Background screen refresh/);assert.match(await page.innerText(),/Messages and audio keep running/);
   assert.equal(await page.locator('select').count(),5,'Unexpected or unimplemented graphics controls');
@@ -75,30 +73,30 @@ try {
   await option('Preset').selectOption('low');const reset=await get();
   for(const key of ['preset','scale','dynamic','antialias','pixelRatio','anisotropy','backgroundFps','decorations'])assert.equal(reset[key],presets.low[key],'Preset failed to reset '+key);
   // Back restores unrelated settings and focus without resuming the house.
-  await page.locator('[data-gfx=back]').tap();assert.equal(await p.evaluate(()=>HousePause.page),'main');assert(await p.evaluate(()=>House.paused));
+  await page.locator('[data-gfx=back]').click();assert.equal(await p.evaluate(()=>HousePause.page),'main');assert(await p.evaluate(()=>House.paused));
   assert(await p.locator('[name=music]').isVisible());assert(await p.locator('[data-pause=logout]').isVisible());
   assert.equal(await p.evaluate(()=>document.activeElement.dataset.pause),'graphics');assert.deepEqual(await snapshot(),before);
-  await p.locator('[data-pause=graphics]').tap();await p.keyboard.press('Escape');assert.equal(await p.evaluate(()=>HousePause.page),'main');
+  await p.locator('[data-pause=graphics]').click();await p.keyboard.press('Escape');assert.equal(await p.evaluate(()=>HousePause.page),'main');
   await p.keyboard.press('Escape');assert.equal(await menu.evaluate(el=>el.open),false);assert.equal(await p.evaluate(()=>House.paused),false);
-  for(let i=0;i<3;i++){await open();await page.locator('[data-gfx=back]').tap()}
-  await p.locator('[data-pause=graphics]').tap();
+  for(let i=0;i<3;i++){await open();await page.locator('[data-gfx=back]').click()}
+  await p.locator('[data-pause=graphics]').click();
   // Resize while inside the page: same page, state and reachable footer.
-  for(const [width,height,tag] of [[844,390,'landscape'],[1366,860,'desktop'],[390,844,'portrait-return']]) {
+  for(const [width,height,tag] of [[1920,1080,'desktop-full'],[2560,1080,'ultrawide'],[1366,860,'desktop-return']]) {
     await p.setViewportSize({width,height});assert.equal(await p.evaluate(()=>HousePause.page),'graphics');await bounds(tag);
   }
   // Native dialog cancel must also return one level before closing.
   await menu.evaluate(el=>el.dispatchEvent(new Event('cancel',{cancelable:true})));
   assert.equal(await p.evaluate(()=>HousePause.page),'main');assert(await menu.evaluate(el=>el.open));
-  await p.locator('[data-pause=graphics]').tap();
+  await p.locator('[data-pause=graphics]').click();
   for(let i=0;i<15;i++){await p.keyboard.press('Tab');assert(await menu.evaluate(el=>el.contains(document.activeElement)),'Focus escaped the modal')}
-  await page.locator('[data-gfx=resume]').tap();assert.equal(await menu.evaluate(el=>el.open),false);assert.equal(await p.evaluate(()=>House.paused),false);
+  await page.locator('[data-gfx=resume]').click();assert.equal(await menu.evaluate(el=>el.open),false);assert.equal(await p.evaluate(()=>House.paused),false);
   assert.equal(await menu.evaluate(el=>el.contains(document.activeElement)),false);assert.deepEqual(await snapshot(),before);
   // Saved custom choices survive refresh without changing standing / seated state.
-  await open();await option('Anisotropy').selectOption('16');const saved=await get();await page.locator('[data-gfx=resume]').tap();
+  await open();await option('Anisotropy').selectOption('16');const saved=await get();await page.locator('[data-gfx=resume]').click();
   await p.reload({waitUntil:'domcontentloaded'});await until(()=>window.House?.live&&window.AccountGate?.allowed&&!document.querySelector('.hs-loading,#houseEntry'));
   assert.equal(await p.evaluate(()=>House.mode),before.mode);await open();const restored=await get();
   for(const key of ['preset','scale','dynamic','antialias','pixelRatio','anisotropy','backgroundFps','decorations'])assert.equal(restored[key],saved[key],'Refresh lost '+key);
-  await page.locator('[data-gfx=resume]').tap();
+  await page.locator('[data-gfx=resume]').click();
   assert.deepEqual(errors,[]);
-  console.log('GRAPHICS MENU UI PASS: real presets/custom API, all controls and actual AA; touch/keyboard, Back/Resume/Esc/native cancel, focus, saved settings, 44px portrait/landscape/desktop controls and screenshots.');
+  console.log('GRAPHICS MENU UI PASS: real presets/custom API, all controls and actual AA; mouse/keyboard, Back/Resume/Esc/native cancel, focus, saved settings, 44px desktop/ultrawide controls and screenshots.');
 } catch(e) {await p.screenshot({path:'shots/graphics-menu-failure.png'}).catch(()=>{});throw e} finally {await browser.close()}

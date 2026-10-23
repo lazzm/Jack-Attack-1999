@@ -1,30 +1,26 @@
-/* Current input, shared by the room and JackOS. Capability queries are only the
- * starting guess: real input wins, independent of screen size. Synthetic mouse
- * events from JackOS Trackpad remain usable without impersonating hardware. */
+/* PC input shared by the room and JackOS. Only hardware activity changes mode;
+ * keyboard and mouse belong to the same desktop control family. */
 (function () {
   'use strict';
   if (window.GameInput) return;
-  const coarse = window.matchMedia?.('(pointer:coarse), (hover:none)');
-  let mode = coarse?.matches ? 'touch' : 'mouse', lastDirect = mode, composing = false;
+  let mode = 'mouse', lastDirect = mode, composing = false;
   const pads = new Map(); let timer = 0;
   const editable = el => !!el?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]');
   function publish(next, reason) {
     if (next === mode) return;
     const previous = mode; mode = next; if (next !== 'gamepad') lastDirect = next;
     mark();
-    document.dispatchEvent(new CustomEvent('game-input-change', { bubbles: true, detail: { mode, currentInput: mode, touch: mode === 'touch', previous, reason } }));
+    document.dispatchEvent(new CustomEvent('game-input-change', { bubbles: true, detail: { mode, currentInput: mode, touch: false, previous, reason } }));
   }
-  function mark() { document.documentElement.dataset.gameInput = mode; document.documentElement.dataset.gameTouch = String(mode === 'touch'); }
+  function mark() { document.documentElement.dataset.gameInput = mode; document.documentElement.dataset.gameTouch = 'false'; }
   function pointer(ev) {
     if (!ev.isTrusted) return;
-    if (ev.pointerType === 'touch' || ev.pointerType === 'pen') { publish('touch', ev.pointerType); return; }
     // Touch-generated compatibility mouse events are not a physical mouse.
     if (ev.sourceCapabilities?.firesTouchEvents) return;
     if (ev.pointerType === 'mouse' && (ev.type !== 'pointermove' || ev.movementX || ev.movementY)) publish('mouse', 'mouse');
   }
   window.addEventListener('pointerdown', pointer, true);
   window.addEventListener('pointermove', pointer, { capture: true, passive: true });
-  window.addEventListener('touchstart', ev => { if (ev.isTrusted) publish('touch', 'touch'); }, { capture: true, passive: true });
   window.addEventListener('compositionstart', ev => { if (ev.isTrusted) composing = true; }, true);
   window.addEventListener('compositionend', ev => { if (ev.isTrusted) composing = false; }, true);
   window.addEventListener('keydown', ev => {
@@ -52,6 +48,6 @@
   window.addEventListener('gamepadconnected', () => { clearTimeout(timer); poll(); });
   window.addEventListener('gamepaddisconnected', () => { clearTimeout(timer); poll(); });
   window.addEventListener('blur', () => { composing = false; });
-  window.GameInput = Object.freeze({ get mode() { return mode; }, get currentInput() { return mode; }, get currentinput() { return mode; }, get touch() { return mode === 'touch'; } });
+  window.GameInput = Object.freeze({ get mode() { return mode; }, get currentInput() { return mode; }, get currentinput() { return mode; }, get touch() { return false; } });
   mark(); poll();
 })();

@@ -1,17 +1,8 @@
-/* Input affordances follow the current device, never the viewport width.
-   Targets remain in the JackOS icon grid; only click handling changes. */
-[data-game-touch="true"] [data-open-gesture]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-[data-game-touch="true"] [data-input-only="keyboard"],
-[data-game-input="gamepad"] [data-input-only="keyboard"],
-html:not([data-game-touch="true"]) [data-input-only="touch"]{display:none!important}
+/* PC prompts remain visible. Hide obsolete touch-only markup until removed. */
+[data-input-only="touch"],
+.hs-joy,
+.hs-menu-button,
+.hs-hbtn button[data-h=near],
+.hs-hbtn button[data-h=far],
+.hs-hbtn button[data-h=turn]{display:none!important}
 [data-open-gesture]:focus-visible{outline:1px dotted currentColor;outline-offset:-2px}
-
-/* Hybrid devices change affordances as their real input changes. */
-html[data-game-touch="true"] .hs-joy{display:block}
-html[data-game-touch="false"] .hs-joy{display:none}
-html[data-game-touch="true"].hs-live .hs-menu-button{display:block;position:fixed;left:12px;bottom:12px;z-index:20050;padding:7px 10px;border:1px solid #8b7f61;background:#202628;color:#eee4ca;font:700 11px "Courier New",monospace}
-html[data-game-touch="false"] .hs-menu-button{display:none}
-html[data-game-touch="true"] .hs-hbtn button[data-h=near],html[data-game-touch="true"] .hs-hbtn button[data-h=far],html[data-game-touch="true"] .hs-hbtn button[data-h=turn]{display:block}
-html[data-game-touch="false"] .hs-hbtn button[data-h=near],html[data-game-touch="false"] .hs-hbtn button[data-h=far],html[data-game-touch="false"] .hs-hbtn button[data-h=turn]{display:none}
-
-html[data-game-touch="true"] .hs-inspection button,html[data-game-touch="true"] .hs-hbtn button{min-height:44px;touch-action:manipulation}

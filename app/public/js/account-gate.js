@@ -1,6 +1,7 @@
 /* A JackNet identity is required before entering the game. No guest bypass. */
 (function(){
   'use strict';
+  if(window.PCOnly?.blocked){window.AccountGate={allowed:false,blocked:true};return;}
   const root=document.documentElement, panel=document.createElement('div');panel.id='accountGate';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','JackNet account');
   let creating=false,pending=false,blocked=true;
   const owner=()=>{try{return localStorage.getItem('jhp_roam_who')||''}catch(e){return ''}};

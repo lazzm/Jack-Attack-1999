@@ -212,7 +212,7 @@
   }
   const panel=document.querySelector('.hs-inspection');if(panel){
    panel.querySelector('b').textContent=(C.byId[doc.id]?'JACK ATTACK! — ':'')+doc.title;
-   panel.querySelector('span').innerHTML='<span data-input-only="touch">Drag to inspect · Use the page buttons to read</span><span data-input-only="keyboard">Drag to inspect · <kbd>F</kbd> / <kbd>→</kbd> open / next · <kbd>←</kbd> previous · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back</span>';
+   panel.querySelector('span').innerHTML='Drag to inspect · <kbd>F</kbd> / <kbd>→</kbd> open / next · <kbd>←</kbd> previous · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back';
    controls=document.createElement('span');controls.className='magazine-page-controls';for(const n of [-1,1]){const button=document.createElement('button');button.type='button';button.dataset.turn=n;button.addEventListener('click',()=>turn(n));controls.appendChild(button)}controls.appendChild(document.createElement('small'));
    if(hasPocket){const button=document.createElement('button');button.type='button';button.dataset.coverDisc='';button.textContent='Take inside-cover CD';button.addEventListener('click',()=>{if(flipping||phase(slot)!=='inside'||!discPresent())return;H.endInspect();window.PMGL?.takeDisc(doc.id)});controls.appendChild(button)}panel.appendChild(controls);
   }

@@ -1,13 +1,12 @@
 import assert from 'node:assert/strict';
 import {roomFixture} from './room-fixture.mjs';
 const base=new URL(process.argv[2]);base.searchParams.set('allsoft','1');
-const f=await roomFixture(base.href,{touch:true,width:390,height:844}),{page:p,browser,until,errors}=f;
-const cdp=await p.context().newCDPSession(p);
+const f=await roomFixture(base.href,{width:1366,height:860}),{page:p,browser,until,errors}=f;
 async function step(fn){for(let i=0;i<100;i++){if(await p.evaluate(fn))return;await p.waitForTimeout(100)}throw Error('Game action timeout: '+fn)}
-async function drag(from,to){await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,...from}]});for(let i=1;i<=8;i++)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:1,x:from.x+(to.x-from.x)*i/8,y:from.y+(to.y-from.y)*i/8}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})}
+async function drag(from,to){await p.mouse.move(from.x,from.y);await p.mouse.down();await p.mouse.move(to.x,to.y,{steps:8});await p.mouse.up()}
 try{
- await p.evaluate(()=>{House.sitDown();PCTouch.setEnabled(false)});await until(()=>House.mode==='monitor');
- for(const [width,height,locked]of [[390,844,true],[1366,860,false]]){
+ await p.evaluate(()=>{House.sitDown()});await until(()=>House.mode==='monitor');
+ for(const [width,height,locked]of [[1366,860,true],[1920,1080,false]]){
   await p.setViewportSize({width,height});await p.evaluate(v=>House.desktopDisplay(v),locked);
   await p.evaluate(()=>Apps.open('games.chess'));await until(()=>!!JGames.live.chess?.dbg);await p.evaluate(()=>JGames.live.chess.dbgLoad('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'));
   await p.waitForTimeout(400);
@@ -20,5 +19,5 @@ try{
   await drag({x:piece.x,y:piece.y},{x:piece.tx,y:piece.ty});await step(()=>JGames.live.jigsaw.w.status.textContent.startsWith(window.expectedJigsawCount+' of '));
   assert.notEqual(await p.evaluate(()=>JGames.live.jigsaw.w.status.textContent),before);await p.screenshot({path:`shots/pc-game-jigsaw-${width}.png`});await p.evaluate(()=>JGames.live.jigsaw.w.close());
  }
- assert.deepEqual(errors,[]);console.log('PC GAME MONITOR INPUT PASS: real touch chess move and jigsaw drag; native canvas sizing and screen transform at 390 LOCK IN and 1366 in-world');
+ assert.deepEqual(errors,[]);console.log('PC GAME MONITOR INPUT PASS: real mouse chess move and jigsaw drag; native canvas sizing and screen transform at 1366 LOCK IN and 1920 in-world');
 }catch(e){await p.screenshot({path:'shots/pc-game-input-failure.png'});console.log(await p.evaluate(()=>({expected:window.expectedJigsawCount,status:JGames.live.jigsaw?.w.status.textContent,piece:JGames.live.jigsaw?.dbg.pieceAt(0),chess:JGames.live.chess?.dbg()})));throw e}finally{await browser.close()}

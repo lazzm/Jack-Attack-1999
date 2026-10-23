@@ -1,5 +1,13 @@
 # Jack Attack 1999 - browser tests
 
+Current PC-only access/layout regression (disposable localhost data only):
+
+    node pc-access-and-layout.mjs http://localhost:18080
+    node pc-console-controls.mjs http://localhost:18080
+
+Phones/tablets must be blocked before gameplay. Historical phone/touch gameplay checks below
+are superseded; desktop screenshots and mouse/keyboard controls are the current target.
+
 Current physical-room regressions (disposable localhost data only):
 
     node bedroom-hifi-unit.cjs
@@ -148,17 +156,13 @@ Some scripts have a hard-coded URL or port near the top: check before running. O
 `systemd-run --user --scope -p MemoryMax=3G -p MemorySwapMax=0 -q node <script>` to cap memory.
 
 
-Screen-performance and current-input checks (authenticated disposable localhost; run serially):
+PC screen-performance and current-input checks (authenticated disposable localhost; run serially):
 
     node hs-input-unit.cjs
-    node console-touch-unit.cjs
     node mobile-phone-unit.cjs
     node reading-turn-unit.cjs
     node graphics-menu-ui.mjs http://localhost:18080
-    node mobile-game-launch.mjs http://localhost:18080
-    node console-touch-layout.mjs http://localhost:18080
-    node pc-trackpad-touch.mjs http://localhost:18080
-    node mobile-phone-use.mjs http://localhost:18080
+    node physical-phone-use.mjs http://localhost:18080
     node reading-cd-shelf.mjs http://localhost:18080
     node inspect-free-rotation.mjs http://localhost:18080
     node window-artifacts.mjs http://localhost:18080
@@ -169,10 +173,14 @@ Screen-performance and current-input checks (authenticated disposable localhost;
     node frame-budget.mjs http://localhost:18080
     node pc-surface-budget.mjs http://localhost:18080
     node reading-motion-recording.mjs http://localhost:18080 after desktop
-    node reading-motion-recording.mjs http://localhost:18080 after phone
 
 Record the baseline on an isolated checkout using `before` in place of `after`.
 Videos, timelines and extracted frames stay in ignored `tests/recordings/`; actually inspect motion as well as stills.
 Recording needs the Playwright FFmpeg binary to pass its own `-version` preflight.
 Frame timings use software Chromium and are comparative diagnostics, not a hardware FPS promise.
 `window-artifacts.mjs --source-only` checks generated drainpipe/glazing clearance without a browser.
+
+Read-only post-deploy checks (no logon or game actions):
+
+    node live-readonly.mjs https://jacklm.com 2.40.0
+    node live-pc-only.mjs https://jacklm.com

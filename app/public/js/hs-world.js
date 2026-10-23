@@ -14,6 +14,7 @@
 (function () {
   'use strict';
   const T = window.THREE, K = window.HouseKit;
+  if(window.PCOnly?.blocked){window.House={ok:false,live:false};return;}
   const pb = document.getElementById('bootPower');
   if (!T || !K || !pb || window.House) return;
   const boot = document.getElementById('boot'), stage = pb.querySelector('.pc-stage'), cam = pb.querySelector('.pc-cam');
@@ -24,11 +25,9 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const angd = (a, b) => { let d = (b - a) % 360; if (d > 180) d -= 360; if (d < -180) d += 360; return d; };
-  const touchy = () => window.GameInput?GameInput.touch:!!(window.matchMedia && (matchMedia('(hover:none)').matches || matchMedia('(pointer:coarse)').matches));
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
   const EVS = {}; const emit = (ev, ...a) => (EVS[ev] || []).slice().forEach(fn => { try { fn(...a); } catch (e) { console.error(e); } });
-  let pcReserve={bottom:0,right:0};
   let controlsPaused=false,desktopFull=ls.get('jhp_hs_desktop_full',false)===true;
 
   // ================================================================ graphics quality: Low / Medium / High, picked for this machine (or chosen: G in the house,
@@ -36,7 +35,7 @@
   const QN = ['low', 'medium', 'high'], PRMAX = { low: 1, medium: 1.5, high: 2 };
   const Q = (function () {
     const want = ls.get('jhp_hs_gfx', 'auto'), n = navigator;
-    const mob = /Android|iPhone|iPad|iPod|Mobile|Silk/i.test(n.userAgent || '') || touchy();
+    const mob = false; // Device access is handled before the game loads.
     const mem = n.deviceMemory || 8, cores = n.hardwareConcurrency || 4, dpr = window.devicePixelRatio || 1;
     const t = mob || mem <= 2 || cores <= 2 ? 'low' : mem <= 4 || cores <= 4 || (dpr > 2 && screen.width * dpr > 3800) ? 'medium' : 'high';
     return { want, auto: !QN.includes(want), tier: QN.includes(want) ? want : t, guess: t, mob, fps: 0, gpu: '', renderScale:1, pixelRatio:1, f: { n: 0, t: 0, low: 0 }, probe: 0 };
@@ -503,7 +502,7 @@
   function heldPos() { // where the held thing floats: in front of your eyes, never through a wall
     const t = THINGS[held.id], f = fwd();
     let d = held.d;
-    const hit = pick(vw / 2 + (lastPt.ok && !touchy() ? (lastPt.x - vw / 2) * 0.0 : 0), vh / 2, { skip: m => m.userData.spot === held.id || isThingMesh(m), far: d + 30 });
+    const hit = pick(vw / 2, vh / 2, { skip: m => m.userData.spot === held.id || isThingMesh(m), far: d + 30 });
     if (hit && hit.dist < d + Math.max(t.hx, t.hz)) d = Math.max(18, hit.dist - Math.max(t.hx, t.hz) - 2);
     return { x: P.x + f.x * d, y: P.y + f.y * d + t.h * 0.5 + 6, z: P.z + f.z * d };
   }
@@ -806,7 +805,7 @@
     if (r !== cur) { const old = cur; cur = r; buildRoom(r); if (held && THINGS[held.id]) { r.things.add(THINGS[held.id].obj); THINGS[held.id].at.room = r.id; } visCalc(); stIdx = nearestStation(); ui.where(); if (!W.seat) W.eye = (r && r.eye) || STAND; emit('room', r && r.id, old && old.id); } // (what you're carrying comes with you)
   }
 
-  // ================================================================ moving: keys, the joystick, drag to look
+  // ================================================================ moving: keyboard and mouse look
   const keys = {};
   let crouchToggle = !!ls.get('jhp_hs_crouch_toggle', false);
   function crouchSetting(value) {
@@ -814,12 +813,10 @@
     return crouchToggle;
   }
   const KEYMOVE = { w: 'f', W: 'f', ArrowUp: 'f', s: 'b', S: 'b', ArrowDown: 'b', a: 'l', A: 'l', ArrowLeft: 'l', d: 'r', D: 'r', ArrowRight: 'r' };
-  const joy = { x: 0, y: 0, on: false };
   let lastPt = { x: 0, y: 0, ok: false, mouse: false };
   function tickWalk(dt) {
     if (window.House && House.god) { const gr = House.god(dt); roomCheck(); return gr; } // (layout editor, hs-edit.js: noclip fly)
     let mx = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), mz = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
-    if (joy.on) { mx = joy.x; mz = -joy.y; }
     const mag = Math.min(1, Math.hypot(mx, mz));
     const night = !!(window.HouseLife && HouseLife.quiet && HouseLife.quiet());
     if (!W.seat) W.eye = Math.max(60, ((cur && cur.eye) || STAND) - (keys.crouch ? 38 : 0)); // (C / Ctrl: duck)
@@ -908,12 +905,13 @@
   }
   function onKeyUp(ev) { const k = KEYMOVE[ev.key]; if (k) keys[k] = false; if (ev.key === 'Shift') keys.run = false; if (!crouchToggle && (ev.key === 'c' || ev.key === 'C')) keys.crouch = false; }
   addEventListener('keydown', onKey, true); addEventListener('keyup', onKeyUp, true);
-  addEventListener('blur', () => { for (const k in keys) keys[k] = false; joy.on = false; try { if (document.pointerLockElement === cv) document.exitPointerLock(); } catch (e) {} });
+  addEventListener('blur', () => { for (const k in keys) keys[k] = false; try { if (document.pointerLockElement === cv) document.exitPointerLock(); } catch (e) {} });
 
-  // pointers: drag to look, click to use (one pointer looks; the joystick has its own)
+  // pointers: drag to look, click to use
   const PT = new Map();
   const uiTarget = el => el && el.closest && el.closest('button,a,input,label,select,textarea,.rm-note,.rm-view,.hs-ui,.powerbtn,.pc-fs');
   pb.addEventListener('pointerdown', ev => {
+    if (ev.pointerType && ev.pointerType!=='mouse')return;
     if (worldLoading || !live || mode === 'off' || mode === 'follow' || ev.button > 0 || uiTarget(ev.target)) return;
     PT.set(ev.pointerId, { x0: ev.clientX, y0: ev.clientY, x: ev.clientX, y: ev.clientY, ry0: P.ry, rx0: P.rx, drag: false, t0: performance.now(), type: ev.pointerType });
     try { pb.setPointerCapture(ev.pointerId); } catch (e) {}
@@ -922,9 +920,7 @@
   const locked = () => !!cv && document.pointerLockElement === cv;
   function unlock() { try { if (document.pointerLockElement === cv) document.exitPointerLock(); } catch (e) {} }
   const lockHint = document.createElement('div'); lockHint.className = 'hs-lockhint'; lockHint.setAttribute('aria-hidden', 'true'); lockHint.textContent = 'Click to look around'; let lockHintT = 0;
-  let mouseLook=!touchy();
-  document.addEventListener('game-input-change',ev=>{if(ev.detail.mode==='touch'){mouseLook=false;unlock()}else if(ev.detail.mode==='mouse')mouseLook=true});
-  function plOK() { return mouseLook && !controlsPaused && !worldLoading && !touchy() && live && mode === 'walk' && !viewOpen() && !ui.modalOpen(); }
+  function plOK() { return !controlsPaused && !worldLoading && live && mode === 'walk' && !viewOpen() && !ui.modalOpen(); }
   let lockTry = 0, lockPending = false;
   function wantLock() {
     if (!plOK() || locked() || lockPending || performance.now() - lockTry < 350) return;
@@ -944,7 +940,7 @@
     else { if (inRoom()) { if (!ui.el.contains(lockHint)) ui.el.appendChild(lockHint); lockHint.classList.add('on'); lockHintT = setTimeout(() => lockHint.classList.remove('on'), 4000); } hoverQ = false; }
   });
   pb.addEventListener('pointermove', ev => {
-    if(controlsPaused)return;
+    if(controlsPaused||ev.pointerType&&ev.pointerType!=='mouse')return;
     if (locked()) {
       if (mode === 'walk' || mode === 'glide') { if (mode === 'glide') cancelGlide(); P.ry += ev.movementX * 0.1; P.rx = clamp(P.rx - ev.movementY * 0.1, -78, 70); dirty(); lastPt = { x: vw / 2, y: vh / 2, ok: true, mouse: true }; hoverQ = true; }
       return;
@@ -956,7 +952,7 @@
       const dx = p.x - p.x0, dy = p.y - p.y0;
       if (!p.drag && Math.hypot(dx, dy) > (p.type === 'mouse' ? 5 : 9)) { p.drag = true; if (mode === 'glide') cancelGlide(); p.ry0 = P.ry - 0; p.rx0 = P.rx; p.x0 = p.x; p.y0 = p.y; }
       if (p.drag && (mode === 'walk')) {
-        const k = (p.type === 'mouse' ? 0.22 : 0.28) * 1366 / Math.max(800, vw) * (touchy() ? 1.15 : 1);
+        const k = 0.22 * 1366 / Math.max(800, vw);
         P.ry = p.ry0 + (p.x - p.x0) * k; P.rx = clamp(p.rx0 - (p.y - p.y0) * k, -78, 70);
         dirty();
       }
@@ -983,7 +979,7 @@
     const sid = h && h.spot && !(held && h.spot === held.id) ? h.spot : null;
     setHot(sid);
     const s = sid && SPOTS[sid];
-    ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab && !held && !touchy() ? ' <i><kbd>E</kbd>: pick up'+(THINGS[sid]?.use?' · <kbd>F</kbd>: use':'')+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
+    ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab && !held ? ' <i><kbd>E</kbd>: pick up'+(THINGS[sid]?.use?' · <kbd>F</kbd>: use':'')+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
     pb.classList.toggle('hs-hot', !!sid);
   }
   // Ordinary interaction never moves the player. Screens/inspection own their
@@ -991,7 +987,7 @@
   function useAt(sx, sy, center,action) {
     if (!canAct()) return;
     const h = pick(sx, sy);
-    if (!h || !h.spot) { if (!center && h && h.dist < 1200 && !touchy()) emit('miss', h); return; }
+    if (!h || !h.spot) { if (!center && h && h.dist < 1200) emit('miss', h); return; }
     const s = SPOTS[h.spot];
     const perform=()=>{const item=THINGS[s.id];if(action==='use'&&s.grab&&item){if(item.use)item.use(item);else ui.toast(item.label,'Press E to pick it up.');}else if(action!=='use'&&s.remove)s.remove();else act(s);};
     if (h.dist > s.range) { ui.toast(typeof s.label==='function'?s.label():s.label,'Move closer, then press F or click.'); return; }
@@ -1029,11 +1025,11 @@
     const centre = box.getCenter(new T.Vector3()), size = box.getSize(new T.Vector3());
     const panel = document.createElement('div'); panel.className = 'hs-inspection';
     const name = document.createElement('b'); name.textContent = typeof t.label === 'function' ? t.label() : t.label;
-    const hint = document.createElement('span'); hint.innerHTML = '<span data-input-only="touch">'+(t.obj.userData.cube?'Drag a face to turn · Two fingers rotate':'Drag to rotate')+'</span><span data-input-only="keyboard">'+(t.obj.userData.cube?'Drag a face to turn · Right-drag to rotate':'Drag to rotate')+' · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back · <kbd>Esc</kbd> menu</span>';
+    const hint = document.createElement('span'); hint.innerHTML=(t.obj.userData.cube?'Drag a face to turn · Right-drag to rotate':'Drag to rotate')+' · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back · <kbd>Esc</kbd> menu';
     const back = document.createElement('button'); back.type = 'button'; back.textContent = 'Back'; back.addEventListener('click', endInspect);
     panel.append(name, hint, back); ui.el.appendChild(panel);
     const ip = t.inspectPose || {};
-    inspection = {t, grip, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null, points:new Map()};
+    inspection = {t, grip, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null};
     html.classList.add('hs-inspecting'); layerFor(t); poseInspect(); return true;
   }
   function poseInspect() {
@@ -1054,25 +1050,21 @@
     emit('inspect-end', s.t.id);
   }
   document.addEventListener('pointerdown', ev => {
-    const s = inspection; if (!s || ev.target.closest('button')) return;
+    const s = inspection; if (!s || ev.pointerType&&ev.pointerType!=='mouse' || ev.target.closest('button')) return;
     ev.preventDefault(); ev.stopImmediatePropagation();
-    if(ev.pointerType==='touch'){
-      s.points.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
-      if(s.points.size>1){const p=[...s.points.values()];s.drag={two:true,x:p.reduce((n,v)=>n+v.x,0)/p.length,y:p.reduce((n,v)=>n+v.y,0)/p.length};return}
-    }
     const ray = new T.Raycaster(); ray.layers.enableAll(); ray.setFromCamera(new T.Vector2(ev.clientX / vw * 2 - 1, 1 - ev.clientY / vh * 2), camera);
     const hit = ray.intersectObject(s.t.obj, true).find(h => h.object.userData.cubie);
     s.drag = {id: ev.pointerId, x: ev.clientX, y: ev.clientY, hit: ev.button === 0 ? hit : null};
   }, true);
   document.addEventListener('pointermove', ev => {
-    const s = inspection, d = s && s.drag;if(s?.points.has(ev.pointerId))s.points.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
-    if (!d || (!d.two&&d.id!==ev.pointerId)) return;
+    const s = inspection, d = s && s.drag;
+    if (!d || d.id!==ev.pointerId) return;
     ev.preventDefault(); ev.stopImmediatePropagation();
-    const points=d.two?[...s.points.values()]:null,x=points?points.reduce((n,v)=>n+v.x,0)/points.length:ev.clientX,y=points?points.reduce((n,v)=>n+v.y,0)/points.length:ev.clientY,dx=x-d.x,dy=y-d.y;
+    const x=ev.clientX,y=ev.clientY,dx=x-d.x,dy=y-d.y;
     if (d.hit) {if (Math.hypot(dx, dy) > 22) {s.t.obj.userData.cube.drag(d.hit, dx, dy); s.drag = null;}}
     else {s.yaw = (s.yaw+dx*.45)%360; s.pitch = (s.pitch-dy*.45)%360; d.x=x;d.y=y;poseInspect();}
   }, true);
-  const inspectUp = ev => {if (inspection){inspection.points.delete(ev.pointerId);inspection.drag = null;}};
+  const inspectUp = () => {if(inspection)inspection.drag=null;};
   document.addEventListener('pointerup', inspectUp); document.addEventListener('pointercancel', inspectUp);
   document.addEventListener('contextmenu', ev => {if (inspection) ev.preventDefault();});
   document.addEventListener('wheel', ev => {if (!inspection) return; ev.preventDefault(); ev.stopImmediatePropagation(); inspection.zoom = clamp(inspection.zoom + Math.sign(ev.deltaY) * .08, .78, 1.8); poseInspect();}, {capture:true, passive:false});
@@ -1087,7 +1079,7 @@
     unlock();
     if (held) putBack();
     focusS = { back: { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry, lvl: W.lvl, seat: W.seat }, o };
-    for (const k in keys) keys[k] = false; joy.on = false;
+    for (const k in keys) keys[k] = false;
     glideTo(pose, { lock: true, ms: o.ms || 750, cancel: () => { if (!focusS) return; const f = focusS; focusS = null;if(f.o.exit)f.o.exit(); glideTo(f.back, { ms: 500, done: () => setWalkFrom(f.back) }); }, done: () => { if (!focusS) return; mode = 'focus'; html.classList.add('hs-focus'); ui.focusBar(o.label || 'Get up'); if (o.enter) try { o.enter(); } catch (e) { console.error(e); } } });
     return true;
   }
@@ -1138,10 +1130,6 @@
       <div class="hs-tip" aria-hidden="true"></div>
       <div class="hs-hold" hidden><span class="hs-hname"></span><span class="hs-hkeys"></span><span class="hs-hbtn"><button type="button" data-h="near" aria-label="Nearer">&minus;</button><button type="button" data-h="far" aria-label="Further">+</button><button type="button" data-h="turn">Turn</button><button type="button" data-h="use" hidden></button><button type="button" data-h="put">Put down</button><button type="button" data-h="back">Put back</button></span></div>
       <button type="button" class="hs-getup" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M13 3 6 10l7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Get up</span></button>
-      <div class="hs-joy" aria-hidden="true"><i></i></div>
-      <button type="button" class="hs-jump" style="display:none;position:fixed;right:14px;bottom:96px;width:62px;height:40px;border-radius:20px;border:2px solid #fff8;background:#0006;color:#fff;font:700 12px sans-serif;z-index:30001;touch-action:none">JUMP</button>
-      <button type="button" class="hs-duck" style="display:none;position:fixed;right:14px;bottom:44px;width:62px;height:40px;border-radius:20px;border:2px solid #fff8;background:#0006;color:#fff;font:700 12px sans-serif;z-index:30001;touch-action:none">DUCK</button>
-      <button type="button" class="hs-use" style="display:none;position:fixed;right:14px;bottom:148px;width:62px;height:40px;border-radius:20px;border:2px solid #fff8;background:#0006;color:#fff;font:700 12px sans-serif;z-index:30001;touch-action:none">USE</button>
       <div class="hs-note rm-note"><b></b><p></p><button type="button" class="rm-x" aria-label="Close">&times;</button></div>
       <div class="hs-toast rm-toast"></div>
       <div class="hs-fade"></div>`;
@@ -1154,19 +1142,6 @@
       if (a === 'near') held.d = clamp(held.d - 12, 25, 150); else if (a === 'far') held.d = clamp(held.d + 12, 25, 150);
       else if (a === 'turn') held.ry += 45; else if (a === 'inspect') inspect(t.id); else if (a === 'put') drop(); else if (a === 'back') putBack(); else if (a === 'use' && t && t.use) t.use(t);
     });
-    // the joystick (touch screens): bottom left
-    const bJ = $('.hs-jump'), bD = $('.hs-duck'), bU=$('.hs-use');
-    const inputUI = ev => { if(['mouse','keyboard'].includes(ev?.detail?.mode)&&['mouse','keyboard'].includes(ev?.detail?.previous))return;bJ.style.display = bD.style.display = bU.style.display = touchy()?'block':'none'; joy.on=false; keys.jump=false; if(held)ui.holdBar(THINGS[held.id]); const label=$('.hs-getup span');label.querySelector('kbd')?.remove();if(!touchy()&&!$('.hs-getup').hidden)label.insertAdjacentHTML('beforeend',' <kbd>Q</kbd>'); };
-    document.addEventListener('game-input-change',inputUI); if(touchy())bJ.style.display=bD.style.display=bU.style.display='block';
-    bU.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();if(!canAct())return;if(held){const t=THINGS[held.id];if(t?.use)t.use(t)}else useAt(vw/2,vh/2,true,'use')});
-    bJ.addEventListener('pointerdown', ev => { ev.preventDefault(); ev.stopPropagation(); if (canAct()) keys.jump = true; });
-    bD.addEventListener('pointerdown', ev => { ev.preventDefault(); ev.stopPropagation(); keys.crouch = !keys.crouch; bD.style.background = keys.crouch ? '#fff6' : '#0006'; });
-    const jEl = $('.hs-joy'), knob = jEl.firstElementChild; let jid = null;
-    const jAt = ev => { const r = jEl.getBoundingClientRect(); let x = (ev.clientX - r.left) / r.width * 2 - 1, y = (ev.clientY - r.top) / r.height * 2 - 1; const m = Math.hypot(x, y); if (m > 1) { x /= m; y /= m; } joy.x = x; joy.y = y; joy.on = true; knob.style.transform = `translate(${(x * 30).toFixed(1)}px,${(y * 30).toFixed(1)}px)`; };
-    jEl.addEventListener('pointerdown', ev => { if (!canAct()) return; ev.preventDefault(); ev.stopPropagation(); jid = ev.pointerId; try { jEl.setPointerCapture(jid); } catch (e) {} cancelGlide(); jAt(ev); });
-    jEl.addEventListener('pointermove', ev => { if (ev.pointerId === jid) jAt(ev); });
-    const jUp = ev => { if (ev.pointerId !== jid) return; jid = null; joy.on = false; joy.x = joy.y = 0; knob.style.transform = ''; };
-    jEl.addEventListener('pointerup', jUp); jEl.addEventListener('pointercancel', jUp);
     $('.hs-getup').addEventListener('click', () => unfocus());
     const map = $('.hs-map'), mg = map.getContext('2d');
     let crossT = 0;
@@ -1175,7 +1150,7 @@
       say(title, text, ms) { note.querySelector('b').textContent = title; note.querySelector('p').innerHTML = text; note.classList.add('on'); clearTimeout(noteT); noteT = setTimeout(() => note.classList.remove('on'), ms || Math.max(4500, String(text).length * 70)); },
       hush() { note.classList.remove('on'); },
       toast(title, text) { toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 4200); },
-      tip(text, x, y, far) { if (!text) { tipEl.classList.remove('on'); return; } tipEl.innerHTML = text + (far ? ' <small>(walk closer)</small>' : touchy()||text.includes('<kbd>E</kbd>') ? '' : ' <small><kbd>F</kbd> Use</small>'); tipEl.classList.add('on'); tipEl.style.transform = `translate(${Math.min(x + 14, vw - 240)}px,${y + 18}px)`; },
+      tip(text, x, y, far) { if (!text) { tipEl.classList.remove('on'); return; } tipEl.innerHTML = text + (far ? ' <small>(walk closer)</small>' : text.includes('<kbd>E</kbd>') ? '' : ' <small><kbd>F</kbd> Use</small>'); tipEl.classList.add('on'); tipEl.style.transform = `translate(${Math.min(x + 14, vw - 240)}px,${y + 18}px)`; },
       where() {
         const r = cur; if (!r) return;
         $('.hs-title').textContent = r.title || r.name.toUpperCase(); $('.hs-where').textContent = r.stations[stIdx] ? r.stations[stIdx].n : r.sub || '';
@@ -1185,14 +1160,14 @@
         if (!hold.querySelector('[data-h=inspect]')) {const b = document.createElement('button'); b.type = 'button'; b.dataset.h = 'inspect'; b.textContent = 'Inspect'; hold.querySelector('.hs-hbtn').prepend(b);}
         hold.hidden = false; el.classList.add('holding');
         hold.querySelector('.hs-hname').textContent = typeof t.label === 'function' ? t.label() : t.label;
-        hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : '<kbd>E</kbd> / <kbd>Click</kbd>: place' + (t.use?' &middot; <kbd>F</kbd>: '+esc(t.useLabel||'use'):'') + ' &middot; <kbd>R</kbd>: turn &middot; <kbd>I</kbd>: inspect &middot; <kbd>Wheel</kbd>: distance &middot; <kbd>Esc</kbd>: menu / put back';
+        hold.querySelector('.hs-hkeys').innerHTML = '<kbd>E</kbd> / <kbd>Click</kbd>: place' + (t.use?' &middot; <kbd>F</kbd>: '+esc(t.useLabel||'use'):'') + ' &middot; <kbd>R</kbd>: turn &middot; <kbd>I</kbd>: inspect &middot; <kbd>Wheel</kbd>: distance &middot; <kbd>Esc</kbd>: menu / put back';
         const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use; u.textContent = t.useLabel || 'Use';
       },
-      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML=(touchy()?'Put down: ':'<kbd>E</kbd> / <kbd>Click</kbd>: ')+esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''));else if (held) this.holdBar(THINGS[held.id]); },
+      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML='<kbd>E</kbd> / <kbd>Click</kbd>: '+esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''));else if (held) this.holdBar(THINGS[held.id]); },
       crossOn() { el.classList.add('cross'); clearTimeout(crossT); crossT = setTimeout(() => el.classList.remove('cross'), 2500); },
       fade(on, ms) { const f = $('.hs-fade'); f.style.transitionDuration = (ms || 300) + 'ms'; f.classList.toggle('on', !!on); },
       modalOpen: () => !!el.querySelector('.hs-modal.on'),
-      focusBar(label) { const b = $('.hs-getup'); b.hidden = !label; if (label) b.querySelector('span').innerHTML = esc(label) + (touchy()?'':' <kbd>Q</kbd>'); el.classList.toggle('focus', !!label); },
+      focusBar(label) { const b = $('.hs-getup'); b.hidden = !label; if (label) b.querySelector('span').innerHTML = esc(label) + ' <kbd>Q</kbd>'; el.classList.toggle('focus', !!label); },
       map() { // a tiny plan of the floor you're on, with you on it
         const r = cur; if (!r) return; const w = 84, h = 84;
         mg.clearRect(0, 0, w, h);
@@ -1431,7 +1406,7 @@
     stIdx = nearestStation(); ui.where();
     if (!raf) raf = requestAnimationFrame(loop);
     if (Q.auto) Q.probe = performance.now() + 2000;
-    if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', touchy() ? 'Use the stick (bottom left) to walk, and drag to look round. Press things to use them, or to pick them up.' : '<b>W A S D</b> to walk, mouse to look. Shift to jog, <b>C</b> to crouch, Space to jump. <b>F</b> to use or play, <b>E</b> to pick up/remove/place, <b>I</b> to inspect a held item. Click to place; <b>Esc</b>: game menu, settings and put back. <b>G</b>: graphics.', 9000); }, 1400);
+    if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', '<b>W A S D</b> to walk, mouse to look. Shift to jog, <b>C</b> to crouch, Space to jump. <b>F</b> to use or play, <b>E</b> to pick up/remove/place, <b>I</b> to inspect a held item. Click to place; <b>Esc</b>: game menu, settings and put back. <b>G</b>: graphics.', 9000); }, 1400);
     emit('start');
   }
   // Save grounded poses (not head-bob/jump offsets). Load the destination before
@@ -1481,7 +1456,7 @@
     }
     if (c.contains('go')) ls.del('jhp_hs_pose');
   }).observe(pb, { attributes: true, attributeFilter: ['class'] });
-  function putAway() { unlock(); if (held) putBack(); glide = null; for (const k in keys) keys[k] = false; joy.on = false; ui.hush(); ui.tip(null); setHot(null); }
+  function putAway() { unlock(); if (held) putBack(); glide = null; for (const k in keys) keys[k] = false; ui.hush(); ui.tip(null); setHot(null); }
   // boot.js calls bootPC directly: a single glide from the player's current
   // first-person pose to the glass. No intermediate side-on station.
 
@@ -1525,15 +1500,15 @@
     if(typeof full==='boolean'){desktopFull=full;ls.set('jhp_hs_desktop_full',full)}
     html.classList.toggle('pc-desktop-full',monitor&&desktopFull);if(live){glassFit();dirty()}return desktopFull;
   }
-  function pauseControls(on){controlsPaused=!!on;for(const k in keys)keys[k]=false;W.vx=W.vz=0;joy.on=false;PT.clear();if(inspection){inspection.drag=null;inspection.points.clear()}if(on){unlock();setHot(null);ui.tip(null)}else wantLock();dirty();}
+  function pauseControls(on){controlsPaused=!!on;for(const k in keys)keys[k]=false;W.vx=W.vz=0;PT.clear();if(inspection){inspection.drag=null;}if(on){unlock();setHot(null);ui.tip(null)}else wantLock();dirty();}
   // Fit the entire 4:3 glass with room for its curved bezel at every aspect.
   function monitorPose() {
     const g = window.House && House.pcGL, gl = g && g.userData.glass;
     const centre=monitorCentre();
     const width = gl && gl.w || GW, height = width * 3/4;
-    const availableW=Math.max(120,vw-pcReserve.right),availableH=Math.max(120,vh-pcReserve.bottom);
+    const availableW=vw,availableH=vh;
     const distance = Math.max(width * PERSP * em / (availableW * .88), height * PERSP * em / (availableH * .82));
-    return { x: centre.x+pcReserve.right*distance/(2*PERSP*em), y: centre.y+pcReserve.bottom*distance/(2*PERSP*em), z: centre.z + distance, rx: 0, ry: 0, seat: 1, lvl: 'U' };
+    return { x: centre.x, y: centre.y, z: centre.z + distance, rx: 0, ry: 0, seat: 1, lvl: 'U' };
   }
   function preparePCView() {
     if (window.Room && Room.prepare) Room.prepare();
@@ -1609,11 +1584,11 @@
   const glass = { k: 1, fitKey: null, checkedAt: 0 };
   function glassFit() {
     const full=monitor&&desktopFull,now=performance.now(),g0=window.House&&House.pcGL;
-    const key=[mode,monitor,stood,full,vw,vh,pcReserve.bottom,pcReserve.right,P.x,P.y,P.z,P.rx,P.ry,g0?.matrixWorld.elements.join(',')].join('|');
+    const key=[mode,monitor,stood,full,vw,vh,P.x,P.y,P.z,P.rx,P.ry,g0?.matrixWorld.elements.join(',')].join('|');
     if(glass.fitKey===key&&(monitor||now-glass.checkedAt<150))return;
     const moved=glass.fitKey!==key;glass.fitKey=key;
     html.classList.toggle('pc-desktop-full',full);
-    if(full){const w=Math.max(120,vw-pcReserve.right),h=Math.max(120,vh-pcReserve.bottom),scale=Math.min(w/1024,h/768);monitorSurfaceEl.style.visibility='';monitorSurfaceEl.style.clipPath='';monitorSurfaceEl.style.transform=`translate(${(w-1024*scale)/2}px,${(h-768*scale)/2}px) scale(${scale})`;return;}
+    if(full){const w=vw,h=vh,scale=Math.min(w/1024,h/768);monitorSurfaceEl.style.visibility='';monitorSurfaceEl.style.clipPath='';monitorSurfaceEl.style.transform=`translate(${(w-1024*scale)/2}px,${(h-768*scale)/2}px) scale(${scale})`;return;}
     // the glass is taken from the WebGL monitor itself (rm-room.js's pcGL: wherever it was built), in the engine's own y-down frame
     const g = House.pcGL, gl = g && g.userData.glass; let cx, cy, z = 0.05, glassMatrix = null;
     if (gl) { glassMatrix = new T.Matrix4().copy(House.root.matrixWorld).invert().multiply(g.matrixWorld); const o = new T.Vector3(gl.x, gl.y, gl.z).applyMatrix4(glassMatrix); cx = o.x; cy = o.y; z = o.z + 0.01; } else { const L = Lb(); cx = L.mx; cy = GY; }
@@ -1759,10 +1734,6 @@
   });
 
   // ================================================================ resizing, rotating, the tab going away
-  document.addEventListener('pc-trackpad-layout',ev=>{
-    pcReserve={bottom:clamp(+ev.detail?.bottom||0,0,Math.max(0,vh-120)),right:clamp(+ev.detail?.right||0,0,Math.max(0,vw-120))};
-    glass.fitKey=null;if(monitor&&mode==='monitor')Object.assign(P,monitorPose());dirty();
-  });
   addEventListener('resize', () => { if (!live) return; measure(); if (monitor) Object.assign(P, monitorPose()); else if (mode === 'walk' && W.seat && Math.abs(P.ry - seatPose().ry) < 1) { Object.assign(P, seatPose()); } dirty(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { lastT = 0; dirty(); } else { saveWalkState(); for (const k in keys) keys[k] = false; unlock(); } });
 
