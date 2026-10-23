@@ -14,7 +14,7 @@
 (function () {
   'use strict';
   const T = window.THREE, K = window.HouseKit;
-  if(window.PCOnly?.blocked){window.House={ok:false,live:false};return;}
+  if(window.PCOnly?.desktopOnly){window.House={ok:false,live:false,dirty(){}};return;}
   const pb = document.getElementById('bootPower');
   if (!T || !K || !pb || window.House) return;
   const boot = document.getElementById('boot'), stage = pb.querySelector('.pc-stage'), cam = pb.querySelector('.pc-cam');

@@ -1,7 +1,15 @@
-html.pc-device-blocked body{visibility:hidden;pointer-events:none}
-.pc-required{margin:0;min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;box-sizing:border-box;padding:24px;background:#008080;color:#111;font:14px/1.5 Arial,sans-serif}
-.pc-required main{width:min(420px,100%);min-width:0;max-width:100%;box-sizing:border-box;padding:4px 4px 22px;border:2px outset #eee;background:#c0c0c0;box-shadow:2px 2px #0008}
-.pc-required h1{margin:0 0 22px;padding:5px 9px;background:#000080;color:#fff;font:bold 15px Arial,sans-serif}
-.pc-required p{margin:12px 20px}
-.pc-required strong{display:block;font-size:19px;margin-bottom:16px}
-.pc-required small{display:block;margin:22px 20px 0;font-size:12px;color:#444}
+/* JackOS fills the handheld viewport; the house never starts on these devices. */
+html.mobile-desktop,html.mobile-desktop body{margin:0;width:100%;height:100%;overflow:hidden;background:#008080}
+html.mobile-desktop #monitorViewport{position:fixed;inset:0;pointer-events:auto;background:#008080}
+html.mobile-desktop #monitorSurface{width:100%;height:100%;transform:none!important;clip-path:none!important;overflow:hidden;background:#008080}
+html.mobile-desktop #boot,html.mobile-desktop .hs-ui,html.mobile-desktop .hs-gl,html.mobile-desktop .hs-gl2,html.mobile-desktop .pc-fs,html.mobile-desktop .hs-pause,html.mobile-desktop #houseEntry{display:none!important}
+html.mobile-desktop #browser{left:0;top:0;right:0;bottom:0;width:100%;max-width:none;min-width:0}
+html.mobile-desktop .float{max-width:calc(100% - 8px);max-height:calc(100% - 40px)}
+html.mobile-desktop .appwin.maxwin{width:100%!important;height:calc(100% - 32px)!important;left:0!important;top:0!important;max-width:none;max-height:none}
+html.mobile-desktop .tb .ctl button{min-width:28px;min-height:26px}
+html.mobile-desktop #taskbar{height:36px}
+html.mobile-desktop #desktop{bottom:36px}
+html.mobile-desktop #startBtn{min-height:30px}
+html.mobile-desktop #startMenu{bottom:36px;max-height:calc(100% - 40px);overflow:auto}
+html.mobile-desktop .mobile-power{position:absolute;inset:0;z-index:100000;background:#008080;display:grid;place-content:center;text-align:center;font:14px Tahoma,Arial,sans-serif}
+html.mobile-desktop .mobile-power button{padding:12px 24px;border:2px outset #fff;background:#c0c0c0;font:inherit}

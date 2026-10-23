@@ -257,7 +257,8 @@
     el.addEventListener('click', ev => {
       if (ev.button > 0) return;
       if (select) select(ev);
-      if (ev.detail === 0) action();
+      const directTouch=window.PCOnly?.desktopOnly&&ev.isTrusted&&(ev.pointerType==='touch'||ev.pointerType==='pen'||ev.sourceCapabilities?.firesTouchEvents);
+      if (ev.detail === 0 || directTouch) action();
     });
     el.addEventListener('dblclick', ev => {
       if (ev.button > 0) return;

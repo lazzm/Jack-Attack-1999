@@ -13,12 +13,11 @@ try{
  ];
  for(const [name,userAgent,platform,points]of devices){
   const c=await browser.newContext({userAgent,hasTouch:true,viewport:{width:390,height:844}}),p=await c.newPage(),errors=[];let sockets=0;
-  p.on('response',r=>{if(r.status()>=400)console.log('HTTP FAILURE',r.status(),r.url())});p.on('websocket',()=>sockets++);p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(['error','warning'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});
-  await p.addInitScript(({platform,points})=>{Object.defineProperty(navigator,'platform',{get:()=>platform});Object.defineProperty(navigator,'maxTouchPoints',{get:()=>points});localStorage.setItem('jhp_token','preserve-existing-token');localStorage.setItem('jhp_hs_pose','preserve-existing-pose')},{platform,points});
-  await p.goto(base+'/?noboot&allsoft',{waitUntil:'domcontentloaded'}).catch(e=>{if(!/interrupted|ERR_ABORTED/.test(e.message))throw e});
-  await p.waitForURL('**/pc-required.html');assert.equal(await p.locator('h1').textContent(),'PC required');assert.equal(await p.locator('form,canvas,script').count(),0);assert.equal(sockets,0);assert(await p.locator('main').evaluate(el=>{const r=el.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth}),'PC-required notice overflows');assert.deepEqual(errors,[]);
-  assert.deepEqual(await p.evaluate(()=>[localStorage.getItem('jhp_token'),localStorage.getItem('jhp_hs_pose')]),['preserve-existing-token','preserve-existing-pose']);
-  await p.screenshot({path:`shots/pc-only/${name}.png`});await p.reload();await p.setViewportSize({width:844,height:390});assert.equal(await p.locator('h1').textContent(),'PC required');assert.equal(sockets,0);await c.close();console.log('PC ACCESS BLOCK PASS',name);
+  p.on('websocket',()=>sockets++);p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(['error','warning'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});
+  await p.addInitScript(({platform,points})=>{Object.defineProperty(navigator,'platform',{get:()=>platform});Object.defineProperty(navigator,'maxTouchPoints',{get:()=>points})},{platform,points});
+  await p.goto(base,{waitUntil:'networkidle'});await p.locator('#accountGate form').waitFor();
+  assert(await p.evaluate(()=>PCOnly.desktopOnly&&!House.ok));assert.equal(await p.locator('#boot,canvas.hs-gl,.hs-ui,.pc-touch').count(),0);assert(sockets>0);assert.deepEqual(errors,[]);
+  await p.screenshot({path:`shots/pc-only/${name}.png`});await p.reload({waitUntil:'networkidle'});await p.setViewportSize({width:844,height:390});await p.locator('#accountGate form').waitFor();assert.equal(await p.locator('#boot,.hs-gl,.hs-ui').count(),0);await c.close();console.log('MOBILE JACKOS ACCESS PASS',name);
  }
  // Windows PCs with a touch display remain PCs, even in a narrow window.
  const c=await browser.newContext({userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128.0.0.0 Safari/537.36',hasTouch:true,viewport:{width:390,height:844}}),p=await c.newPage();

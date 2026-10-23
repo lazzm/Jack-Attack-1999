@@ -36,6 +36,7 @@
  * where things are: Apps.saveGame('hs.things'). */
 (function () {
   'use strict';
+  if(window.PCOnly?.desktopOnly)return;
   // in the PC: Start > Run "room" stands you up from the PC (it stays on)
   document.addEventListener('DOMContentLoaded', () => {
     if (!window.Apps || !Apps.cmd) return;

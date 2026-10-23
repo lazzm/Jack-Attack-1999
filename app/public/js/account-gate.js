@@ -35,6 +35,7 @@
   function unlock(){pending=false;blocked=false;panel.remove();root.classList.remove('account-required');if(window.House&&House.emit)House.emit('loading',!!document.querySelector('.hs-loading'));seatAfterLogin()}
   let seating=false;
   function seatAfterLogin(){
+    if(window.PCOnly?.desktopOnly){try{sessionStorage.removeItem('jhp_login_seat')}catch(e){}return;}
     let requested=false;try{requested=sessionStorage.getItem('jhp_login_seat')==='1'}catch(e){}if(!requested||seating)return;seating=true;
     const start=Date.now();(function enter(){
       if(blocked||!Net.me.member){seating=false;return}

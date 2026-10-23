@@ -1,0 +1,45 @@
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+const base=process.argv[2];assert(['localhost','127.0.0.1'].includes(new URL(base).hostname));
+await mkdir('shots/mobile-desktop',{recursive:true});
+const b=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
+const c=await b.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,
+ userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'});
+const p=await c.newPage(),errors=[],username='Mobile'+Date.now().toString(36);
+const until=async fn=>{for(let i=0;i<300;i++){try{if(await p.evaluate(fn))return}catch(e){if(!/context was destroyed/.test(e.message))throw e}await p.waitForTimeout(100)}throw Error('State timeout '+fn)};
+p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(['error','warning'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});
+const saved={jhp_hs_stand:'{"x":101,"z":151,"lvl":"U","seat":0}',jhp_hs_pose:'{"x":101,"z":151}',jhp_off:'1',jhp_rm:'{"seen":{"custom":1},"f":{}}'};
+await p.addInitScript(saved=>{if(!localStorage.getItem('mobile_fixture_seeded')){for(const[k,v]of Object.entries(saved))localStorage.setItem(k,v);localStorage.setItem('mobile_fixture_seeded','1')}},saved);
+const unchanged=async()=>assert.deepEqual(await p.evaluate(keys=>Object.fromEntries(keys.map(k=>[k,localStorage.getItem(k)])),Object.keys(saved)),saved);
+const noRoom=async()=>{assert.equal(await p.locator('#boot,.hs-gl,.hs-gl2,.hs-ui,.hs-joy,.pc-touch').count(),0);assert(!await p.evaluate(()=>House.ok||!!window.Room));assert(!await p.evaluate(()=>!!document.pointerLockElement));await unchanged()};
+try{
+ await p.goto(base+'/?allsoft',{waitUntil:'networkidle'});await p.locator('#accountGate form').waitFor();await noRoom();await p.screenshot({path:'shots/mobile-desktop/logon.png'});
+ await p.locator('#accountGate [data-switch]').tap();await p.locator('[name=name]').fill(username);await p.locator('[name=password]').fill('Throwaway-1999');await p.locator('[name=confirm]').fill('Throwaway-1999');await p.locator('#accountGate [type=submit]').tap();
+ await until(()=>window.AccountGate?.allowed&&window.MobileDesktop&&DesktopSurface.ready());await p.waitForTimeout(6500);await noRoom();
+ await p.screenshot({path:'shots/mobile-desktop/portrait.png'});
+ await p.evaluate(()=>{document.querySelector('#browser').classList.add('min')});
+ const icon=p.locator('[data-app="notepad"]').first();console.log('notepad icons',await icon.count());
+ if(await icon.count())await icon.tap();else await p.evaluate(()=>Apps.open('notepad'));
+ await p.locator('.appwin').first().waitFor();assert.equal(await p.locator('.appwin').count(),1);
+ await p.screenshot({path:'shots/mobile-desktop/notepad.png'});
+ await p.evaluate(()=>document.querySelector('.appwin [data-w=close]').click());
+ await p.locator('#iconGamesFolder').tap();await p.locator('.jgfi').filter({hasText:'Jack Chess'}).tap();await until(()=>!!window.JGames?.live?.chess);await p.waitForTimeout(300);
+ await p.evaluate(()=>JGames.live.chess.dbgLoad('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'));
+ const points=await p.evaluate(()=>{const G=JGames.live.chess,cv=G.host.querySelector('canvas'),r=G.rect(cv),W=parseFloat(cv.style.width),H=parseFloat(cv.style.height),lab=Math.min(W,H)>300?16:12,sz=Math.max(8,Math.floor((Math.min(W,H)-lab*2-6)/8)),ox=Math.floor((W-sz*8)/2),oy=Math.floor((H-sz*8)/2);return [G.client(r.left+ox+4.5*sz,r.top+oy+6.5*sz),G.client(r.left+ox+4.5*sz,r.top+oy+4.5*sz)]});
+ for(const point of points)await p.touchscreen.tap(point.x,point.y);
+ await until(()=>JGames.live.chess.dbg().moves[0]==='e4');
+ await p.screenshot({path:'shots/mobile-desktop/chess.png'});
+ await p.setViewportSize({width:844,height:390});await p.waitForTimeout(300);await noRoom();await p.screenshot({path:'shots/mobile-desktop/landscape.png'});
+ await p.keyboard.press('F2');await noRoom();
+ await p.reload({waitUntil:'networkidle'});await until(()=>window.AccountGate?.allowed&&window.MobileDesktop&&DesktopSurface.ready());await p.waitForTimeout(1200);await noRoom();await p.screenshot({path:'shots/mobile-desktop/refresh.png'});
+ await p.locator('#startBtn').tap();await p.locator('#smShutdown').tap();
+ const shut=p.locator('form').filter({has:p.locator('[name=sd]')});await shut.locator('[type=submit]').tap();
+ await p.locator('.mobile-power button').waitFor();await unchanged();await p.screenshot({path:'shots/mobile-desktop/off.png'});
+ await p.reload({waitUntil:'networkidle'});await p.locator('.mobile-power button').waitFor();await noRoom();
+ await p.locator('.mobile-power button').tap();await until(()=>window.AccountGate?.allowed&&window.MobileDesktop&&!document.querySelector('.mobile-power'));await noRoom();
+ await p.locator('#startBtn').tap();await p.locator('#smLogoff').tap();await p.getByRole('button',{name:'Yes',exact:true}).tap();
+ await p.locator('#accountGate form').waitFor();await p.locator('[name=name]').fill(username);await p.locator('[name=password]').fill('Throwaway-1999');await p.locator('#accountGate [type=submit]').tap();
+ await until(()=>window.AccountGate?.allowed&&window.MobileDesktop&&DesktopSurface.ready());await noRoom();
+ assert.deepEqual(errors,[]);console.log('MOBILE DESKTOP PASS: mandatory signup, JackOS only/no WebGL room, desktop windows/game, touch chess move, rotation/refresh/F2, shutdown/off refresh/switch-on/logout/logon, saved room/power preserved, no errors/warnings');
+}catch(e){console.log('BROWSER ERRORS',errors);await p.screenshot({path:'shots/mobile-desktop/failure.png'});throw e}finally{await b.close()}

@@ -53,7 +53,7 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
 - People: Jack, Dave, Luke, Callum, JackK, Crystal (Jack's little sister), Mom, Dad, Gran, Grandad, Nan and Gubbinz are fixed;
   everyone else comes from `Cast` (`Cast.n('cousin')`, `Cast.t('{teacher} ... {teacher.his}')`). Never hardcode them.
   Files that server mods `require` (e.g. `public/js/*-cat.js`) must guard browser globals: `typeof Cast !== 'undefined'`.
-- PC ONLY (owner instruction): desktop/laptop play with keyboard, mouse and PC gamepads. Phones and tablets get the PC-required page before logon/gameplay; do not add mobile/touch controls, phone layouts or a PC trackpad. Do not identify a PC by viewport width or touch capability alone. The physical in-game phone and Game Lad are ordinary playable 3D props. Use click/press/drag wording.
+- Device policy (owner instruction): desktop/laptop players keep the full 3D house. Phones/tablets may use only the fullscreen JackOS desktop after mandatory account logon: no room, walking, standing-up controls or WebGL house renderer. Mobile use must not change the saved house pose or PC power state. Support direct desktop touch interaction; do not restore room touch controllers or the PC trackpad. Do not identify a PC by viewport width or touch capability alone. The physical in-game phone and Game Lad remain ordinary 3D props on PC. Use click/press/drag wording.
 - Browser tab title is always "Jack Attack 1999" (js/title.js); it's shown nowhere else.
 - The site's CSP is `script-src 'self'`: no inline scripts or inline event handlers; put code in files.
 - Controls in the house: WASD/arrows walk, Shift jog, C crouch (never Ctrl: Ctrl+W closes the tab), Space jump,
@@ -93,7 +93,7 @@ by changing the matching `B.at(...)`/position call in the named file to the new 
 - CHECK EVERYTHING YOU TOUCH, AND AROUND IT:
   1. After each change, take screenshots (tests/, Playwright) from several angles and
      distances at desktop 1366x860 and other relevant PC sizes; check that phones/tablets
-     receive the PC-required screen (390x844), and actually look at the captures like a
+     open JackOS only (390x844 and landscape), and actually look at the captures like a
      harsh art director.
   2. Test every path: rapid clicks, Esc mid-animation, refresh in every state
      (a refresh must never change state or go black), rotate/resize, walk into

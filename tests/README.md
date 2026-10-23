@@ -1,12 +1,13 @@
 # Jack Attack 1999 - browser tests
 
-Current PC-only access/layout regression (disposable localhost data only):
+Current device-policy and room-layout regression (disposable localhost data only):
 
+    node mobile-desktop.mjs http://localhost:18080
     node pc-access-and-layout.mjs http://localhost:18080
     node pc-console-controls.mjs http://localhost:18080
 
-Phones/tablets must be blocked before gameplay. Historical phone/touch gameplay checks below
-are superseded; desktop screenshots and mouse/keyboard controls are the current target.
+Phones/tablets use fullscreen JackOS only, behind the same account gate. The room remains
+desktop-only. Verify touch desktop launching/reading, saved room/power preservation and no room renderer.
 
 Current physical-room regressions (disposable localhost data only):
 
@@ -182,5 +183,5 @@ Frame timings use software Chromium and are comparative diagnostics, not a hardw
 
 Read-only post-deploy checks (no logon or game actions):
 
-    node live-readonly.mjs https://jacklm.com 2.40.0
+    node live-readonly.mjs https://jacklm.com 2.41.0
     node live-pc-only.mjs https://jacklm.com

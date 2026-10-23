@@ -77,7 +77,7 @@ assert(f.changes.every(c => c.previous && c.mode && c.touch === false));
 assert.equal(f.document.documentElement.dataset.gameInput, 'keyboard');
 
 // Native click(1), click(2), dblclick opens once; nearby click(1)s never emulate it.
-const apps = source('apps.js'), appCtx = {}; vm.createContext(appCtx);
+const apps = source('apps.js'), appCtx = {window:{PCOnly:{desktopOnly:false}}}; vm.createContext(appCtx);
 vm.runInContext(apps.slice(apps.indexOf('  function bindLaunch('), apps.indexOf('  // ================================================================ desktop icons')), appCtx);
 let opened = 0, selected = 0;
 const icon = new Events('BUTTON'); appCtx.bindLaunch(icon, () => opened++, () => selected++);
@@ -92,6 +92,15 @@ const row = new Events(); appCtx.bindLaunch(row, () => opened++);
 assert.equal(row.tabIndex, 0); assert(row.fire('keydown', { key: 'Enter' }).defaultPrevented);
 row.fire('keydown', { key: 'Enter', repeat: true }); row.fire('keyup', { key: 'Enter' });
 assert.equal(opened, 4, 'Non-button Enter did not activate exactly once'); assert(selected > 0);
+
+// Handheld JackOS gets direct icon activation, without changing desktop double-clicks.
+appCtx.window.PCOnly.desktopOnly=true;
+const beforeMobile=opened;
+icon.fire('click',{detail:1,button:0,pointerType:'touch'});
+assert.equal(opened,beforeMobile+1);
+icon.fire('click',{detail:1,button:0,pointerType:'touch',isTrusted:false});
+assert.equal(opened,beforeMobile+1);
+appCtx.window.PCOnly.desktopOnly=false;
 
 // Execute the complete production game kit, including real routing and cleanup.
 const games = source('apps-games.js');
