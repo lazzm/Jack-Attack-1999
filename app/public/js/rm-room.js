@@ -263,6 +263,8 @@
     // where you can walk (the furniture is in the way: see the blocks in each part)
     H.walkRect('U', LX, BZ, RX, FZ, { room: 'bedroom' });
     H.walkRect('U', RX - 6, DOOR.z0 + 4, RX + 16, DOOR.z1 - 4, { door: 'bedroom', room: 'bedroom' });
+    H.support('bedroom',WIN.x0-7,BZ-8,WIN.x1+7,BZ+10,WIN.y1); // real windowsill top
+    H.support('bedroom',-66,BZ,38,BZ+18,-129.2); // ornament shelf top
     H.support('bedroom', -76, -55, 76, 31, 0); // the desk top
     const L = L0(); // the PC's own surfaces (things can sit on the tower and the keyboard)
     H.support('bedroom', L.tx - 9.5, L.tz - 16.5, L.tx + 9.5, L.tz + 17.5, -42.3);
@@ -295,13 +297,14 @@
     // the sill: a dead cactus on it
     B.rbox(cx, WIN.y1 + 1.6, BZ + 1, w + 14, 3.2, 10 + dep - 6, 0.8, mWhite);
     B.shadow(cx, WIN.y1 + 3.4, BZ + 8, w + 10, 6, 0.4, { sq: true });
-    const pot = B.at(WIN.x1 - 10, WIN.y1, BZ + 3);
+    const cactus=new T.Group(),pot=K.into(cactus);
     // Closed terracotta base sits exactly on the sill; the old open cone
     // stopped four units above it and the cactus floated above its rim.
     pot.lathe(0,0,0,[[0,0],[2.8,0],[3.6,-8],[3.9,-8],[3.9,-8.8],[3.2,-8.8],[2.7,-1],[0,-1],[0,0]],20,M('#b8582a'));
     pot.disc(0,-8.1,0,3.15,M('#4b3524'),20);
     pot.cyl(0,-12.05,0,1.6,2,8,10,M({c:'#5a7a3a',flat:true}));pot.ball(0,-17,0,1.6,1.4,1.6,M('#5a7a3a'),8);
-    pot.shadow(0, 0, 0, 10, 10, 0.5);
+    pot.shadow(0,0,0,10,10,.5);
+    loose('cactus',cactus,{room:'bedroom',x:WIN.x1-10,y:WIN.y1,z:BZ+3,ry:0},'Windowsill cactus');
     // the curtain pole and the curtains, gathered at the sides (real folds, not a flat sheet)
     B.cyl(cx, WIN.y0 - 12, BZ + 6, 1.4, 1.4, w + 70, 10, mBrass, { rz: 90 });
     B.ball(cx - w / 2 - 37, WIN.y0 - 12, BZ + 6, 2.6, 2.6, 2.6, mBrass, 10); B.ball(cx + w / 2 + 37, WIN.y0 - 12, BZ + 6, 2.6, 2.6, 2.6, mBrass, 10);
@@ -324,19 +327,28 @@
     const t=H.thing(id,Object.assign({obj,home,label,kind:'roomprop',holdD:55,use:use?()=>wrap(id,use)(id):()=>H.inspect(id),useLabel:use?'Look inside':'Inspect'},options||{}));
     H.restoreThing(t);return t;
   }
+  function shelfLoose(id,obj,home,label,box,options){
+    const snap='ornament.'+id;
+    H.snap(snap,{room:home.room,x:home.x,y:home.y,z:home.z,r:24,box,pose:Object.assign({},home),accepts:(kind,t)=>t.id===id,hint:'Put '+label.toLowerCase()+' back on the shelf'});
+    return loose(id,obj,Object.assign({},home,{snap}),label,options);
+  }
   function buildDesk(B, r) {
     const dm = mDesk();
     B.rbox(0, 1.6, -12, 152, 3.2, 86, 0.6, dm, { uv: 60 });
+    B.box(0,3.4,30.8,151,1.1,1.4,M('#705036'));
+    for(const x of [-73,44,69])for(const z of [-49,25])B.rbox(x,FY-.65,z,3,1.3,4,.3,M('#292622'));
     B.box(-74, 37, -12, 4, 70, 84, dm, { uv: 60 }); // the left end
     B.box(0, 36, -52.7, 144, 60, 1.4, M('#2a1c10')); // inset from both end boards
     // the drawer unit on the right (the top drawer opens: letters and floppies)
     B.box(56, 37.5, -11, 36, 71, 82, dm, { uv: 60, sides: 'trlbu' });
     B.box(56, 26, 29.4, 34, 22, 1.2, dm, { uv: 60 }); B.box(56, 49, 29.4, 34, 22, 1.2, dm, { uv: 60 });
+    for(const [y,h]of [[13,3.8],[37.5,.8],[66.4,13.2]])B.box(56,y,29.2,34,h,1.4,dm,{uv:60});
     [26, 49].forEach(y => B.box(56, y, 30.6, 10, 1.6, 1.4, mBrass));
     B.shadow(0, FY, -12, 170, 100, 0.75, { sq: true });
     const dg = new T.Group(); dg.position.set(56, 0, 0); r.group.add(dg);
     const D = K.into(dg); D.box(0, 6.5, 29.4, 34, 9, 1.2, dm, { uv: 60 }); D.box(0, 6.5, 30.6, 10, 1.6, 1.4, mBrass); D.box(0, 10.5, 0, 32, 1, 58, M('#4a3420')); D.box(-15.5, 7, 0, 1, 8, 58, M('#4a3420')); D.box(15.5, 7, 0, 1, 8, 58, M('#4a3420'));
-    D.plane(-5, 9.9, 6, 18, 24, M({ c: '#f4f0e0' }), { rx: 90, rz: 12 }); D.plane(6, 9.8, 12, 16, 20, M('#fffbe0'), { rx: 90, rz: -8 }); D.box(4, 9.4, -10, 9, 0.6, 9.4, M({ c: '#fff', map: tex('floppyLabel') }));
+    D.box(0,6.5,-28.5,32,8,1,M('#4a3420'));
+    D.box(-5,9.8,6,18,.25,24,M('#f4f0e0'),{ry:12});D.box(6,9.5,12,16,.25,20,M('#fffbe0'),{ry:-8}); D.box(4, 9.4, -10, 9, 0.6, 9.4, M({ c: '#fff', map: tex('floppyLabel') }));
     H.openable('drawer', { label: 'Desk drawer', pivot: dg, type: 'slide', axis: 'z', amt: 22, base: 0, onToggle: open => { if (open) setTimeout(() => { if (H.OPEN.drawer && H.OPEN.drawer.open) bits('drawer'); }, 420); } });
     // An ordinary late-90s armless task chair: woven upholstery, a separate
     // padded back, moulded shell, gas lift and five twin-wheel castors.
@@ -365,7 +377,7 @@
     ch.decal(-14,-37.66,7,8,4,M({c:'#fff',map:tag}),{rx:-90});
     chairBatch.build(chairGroup);K.into(chairGroup).shadow(0,0,0,70,70,.52);
     chairGroup.userData.periodChair={type:'armless upholstered task chair',castors:5,wheels:10,seatHeight:44.5};
-    loose('chair',chairGroup,{room:'bedroom',x:L0().mx+92,y:FY,z:100,ry:38},'My office chair',{kind:'furniture',holdD:90,obstacle:true,floorOnly:true,use:null});
+    loose('chair',chairGroup,{room:'bedroom',x:L0().mx,y:FY,z:106,ry:180},'My office chair',{kind:'furniture',holdD:90,obstacle:true,floorOnly:true,noStack:true,seat:{eye:110,front:2},use:()=>H.sitOn('chair'),useLabel:'Sit down'});
     // the desk lamp (an anglepoise; it really lights the room)
     buildDeskLamp(r);
     // little things on the desk: revision books, a mug of cold tea, a pencil pot
@@ -419,7 +431,7 @@
   // models on the shelf: proper little solids
   function shelfModels(r, x0, y, z) {
     const g = new T.Group(); g.position.set(x0, y, z); r.group.add(g); const S2 = K.into(g);
-    const sp = S2.at(-36, 0, 0); // the BUILDO space shuttle stack (tank, boosters, orbiter) on a black base
+    const shuttle=new T.Group(),sp=K.into(shuttle); // the BUILDO space shuttle stack (tank, boosters, orbiter) on a black base
     sp.box(0, -1, 0, 14, 2, 10, M('#2a2a2a')); sp.cyl(0, -16, 0, 2.6, 2.6, 26, 14, M({ c: '#d8742a' })); sp.lathe(0, -29, 0, [[0.1, -4], [2.6, 0]], 14, M('#d8742a'));
     [-3.8, 3.8].forEach(x => { sp.cyl(x, -14, 0, 1.3, 1.3, 24, 10, mWhite); sp.lathe(x, -26, 0, [[0.1, -2.5], [1.3, 0]], 10, mWhite); });
     sp.box(0, -14, 3.4, 4, 20, 3, mWhite); sp.box(0, -8, 4.5, 10, 2, 5, mWhite); sp.box(0, -24, 4, 3, 3, 2.2, M('#222'));
@@ -463,21 +475,25 @@
     poseCar(.1); let runUntil=0, start=0;
     const run=()=>{start=performance.now();runUntil=start+14000;H.dirty()};
     H.ambient.add(now=>{if(now<runUntil){poseCar(((now-start)/6500+.1)%1);H.dirty()}});
-    const tr = S2.at(30, 0, 0),gold=M({c:'#d7ae3b',sh:62,sp:'#ac944c'});
+    const trophy=new T.Group(),tr=K.into(trophy),gold=M({c:'#d7ae3b',sh:62,sp:'#ac944c'});
     tr.box(0,-1.5,0,6,3,5,M('#2a1a10'));tr.cyl(0,-5.2,0,.8,1.2,5,12,gold);
     // A thick rolled lip, inner bowl and closed base meet the stem.
     tr.lathe(0,-11,0,[[0,3.5],[1.1,3.5],[2.6,0],[3.4,-4],[3.4,-4.4],[3.0,-4.4],[2.2,-.1],[.7,2.7],[0,2.7],[0,3.5]],20,gold);
     [-1,1].forEach(side=>tr.geo(new T.TorusGeometry(1.5,.22,6,18,Math.PI*1.25),side*3,-11.8,0,gold,{rz:side<0?70:-110}));
     tr.decal(0,-1.4,2.52,5,1.6,M({c:'#fff',map:K.tex('rm.trophy.plate',256,96,(c,w,h)=>{c.fillStyle='#bd9e50';c.fillRect(0,0,w,h);A.text(c,'SWIMMING 25 METRES',128,40,'700 20px '+A.UIF,'#302511','center');A.text(c,'JUNIOR AWARD',128,73,'17px '+A.UIF,'#302511','center')},{clamp:true})}));
     tr.shadow(0,0,0,9,7,.5,{sq:true});
-    const rb = S2.at(44, 0, 1), rm = M({ c: '#c8c8d0', sh: 40, sp: '#666' }); // the robot from robot club
+    const robot=new T.Group(),rb=K.into(robot), rm = M({ c: '#c8c8d0', sh: 40, sp: '#666' }); // the robot from robot club
     rb.box(-2, -2.5, 0, 2, 5, 2.2, rm); rb.box(2, -2.5, 0, 2, 5, 2.2, rm); rb.rbox(0, -8.5, 0, 7, 7, 4.4, 0.6, rm); rb.rbox(0, -14, 0, 5.4, 4, 4, 0.6, M('#d8d8e0'));
     rb.ball(-1.2, -14.4, 2, 0.7, 0.7, 0.3, M({ c: '#e8261c', e: '#600' }), 6); rb.ball(1.2, -14.4, 2, 0.7, 0.7, 0.3, M({ c: '#e8261c', e: '#600' }), 6);
     rb.box(-4.6, -9, 0, 1.6, 5, 1.8, M('#a8a8b0')); rb.box(4.6, -9, 0, 1.6, 5, 1.8, M('#a8a8b0')); rb.cyl(0, -17, 0, 0.2, 0.2, 2.4, 4, mMetal); rb.ball(0, -18.4, 0, 0.6, 0.6, 0.6, M('#f0c000'), 6);
     rb.box(0, -9, 2.3, 4, 3, 0.4, M({ c: '#2a6ae0', e: '#0a1a40' }));
     [['#1a1a2a', 0], ['#7a1a1a', 4]].forEach(([c, dx]) => S2.rbox(-50 + dx, -12, 0, 3.6, 24, 17, 0.3, M(c), { rz: dx ? -6 : 0 }));
     H.spot('shelf', { label: 'My shelf', obj: g });
-    H.spot('coaster',{label:'Buildex roller coaster — F / Click: run the car',obj:coaster,act:run,wrapped:1});
+    H.spot('coaster',{label:'Buildex roller coaster',obj:coaster,act:run,wrapped:1});
+    shelfLoose('coaster',coaster,{room:'bedroom',x:x0+4,y,z,ry:0},'Buildex roller coaster',[38,1,18],{use:run,useLabel:'Run the car'});
+    shelfLoose('shuttlemodel',shuttle,{room:'bedroom',x:x0-36,y,z,ry:0},'Buildo shuttle model',[16,1,12]);
+    shelfLoose('trophy',trophy,{room:'bedroom',x:x0+30,y,z,ry:0},'Swimming trophy',[10,1,8]);
+    shelfLoose('robotmodel',robot,{room:'bedroom',x:x0+44,y,z:z+1,ry:0},'Robot club model',[12,1,8]);
   }
   // an invisible click box (for things built into the room's merged geometry)
   const PICK = new T.MeshBasicMaterial({ visible: false });
@@ -616,7 +632,7 @@
     BG.rbox(0,-4,-26.9,7,0.7,1,0.2,M('#601b20')); // concealed refill zip and pull, above the carpet
     BG.box(3.1,-4.5,-27.1,0.7,0.25,1.1,mMetal);
     BG.shadow(0,0,0,67,60,0.65);
-    loose('beanbag',bb,{room:'bedroom',x:TX+78,y:FY,z:56,ry:0},'The beanbag',{kind:'furniture',holdD:95,obstacle:true,floorOnly:true,use:null});
+    loose('beanbag',bb,{room:'bedroom',x:TX+78,y:FY,z:56,ry:-135},'The beanbag',{kind:'furniture',holdD:95,obstacle:true,floorOnly:true,noStack:true,seat:{eye:81,front:4},use:()=>H.sitOn('beanbag'),useLabel:'Sit down'});
     // the games mags on the floor
     // These magazines are individual grab-API objects, built with the reading bookcase.
     // Open media rack: twenty separate slots, with enough clearance for a disc
@@ -645,10 +661,11 @@
     // the bin (round, a crisp packet poking out)
     const bn = new T.Group(); bn.position.set(-118, FY, -42); r.group.add(bn); const BN = K.into(bn);
     BN.lathe(0, 0, 0, [[9, -27], [10.2, -27], [8.4, 0], [0.2, 0]], 18, M({ c: '#2a5ad0', sh: 30, sp: '#333', side: 2 }));
+    BN.cyl(0,-.25,0,8.35,8.35,.5,18,M('#244898'));
     BN.disc(0, -20, 0, 9, M('#111'), 18);
     BN.box(2, -27, 0, 9, 7, 2, M('#e8c020'), { rz: 20, ry: 20 }); BN.ball(-3, -24, 2, 4, 3, 4, M('#f4f4f4'), 8);
     BN.shadow(0, 0, 0, 24, 24, 0.7);
-    H.spot('bin', { label: 'The bin', obj: bn }); H.block('U', -130, -56, -106, -30);
+    H.spot('bin',{label:'The bin',obj:bn});loose('bin',bn,{room:'bedroom',x:-118,y:FY,z:-42,ry:0},'Wastepaper bin',{obstacle:true,floorOnly:true});
   }
   // a console: a body (rounded), its top painted, extra details
   function con(r, id, x, y, z, w, h, d, top, col, label, extra) {
@@ -807,8 +824,16 @@
     PO.box(0, -10.1, 0, 24.2, 0.2, 3, M('#c8b890')); PO.shadow(0, 0, 0, 28, 22, 0.6, { sq: true });
     H.spot('post', { label: 'A parcel!', obj: post }); post.visible = false;
     // a school jumper on the floor at the end of the bed
-    const jp = B.at(190, FY, 170, 20); jp.ball(0, -1.6, 0, 22, 2.2, 15, M({ c: '#1a2a5a', sh: 4 }), 12); jp.ball(-14, -1.2, 10, 10, 1.6, 5, M('#1a2a5a'), 10); jp.ball(10, -1.4, -8, 6, 2, 6, M('#1a2a5a'), 8); jp.shadow(0, 0, 0, 52, 36, 0.4);
-    H.spot('jumper', { label: 'School jumper', act: () => say('School jumper', 'My school jumper. On the floor. Mom says the floor is not a wardrobe. The floor disagrees.') }); pickBox(r, 'jumper', 190, FY - 2, 170, 44, 4, 30, 20);
+    const jumper=new T.Group();jumper.name='school-jumper';const J=K.into(jumper),knit=K.tex('rm.schoolknit',128,128,(g,w,h)=>{
+      g.fillStyle='#263b61';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=5)for(let x=0;x<w;x+=4){g.strokeStyle=(y/5)%2?'#30486e':'#203353';g.beginPath();g.moveTo(x,y);g.lineTo(x+2,y+3);g.lineTo(x+4,y);g.stroke()}
+    },{rep:[3,3]}),wool=M({c:'#d5def0',map:knit,sh:1}),rib=M({c:'#1c2f50',sh:1});
+    J.rbox(0,-2.1,0,27,4.2,31,1.6,wool);J.rbox(0,-2,14.8,26.5,3.8,3,1,rib);
+    for(const side of [-1,1]){J.rbox(side*16.3,-2,-6,10,3.5,24,1.3,wool,{ry:side*27});J.rbox(side*20.4,-2,3.9,9,3.2,3.6,.8,rib,{ry:side*27})}
+    J.geo(new T.TorusGeometry(4.2,.8,6,24),0,-4.1,-11.2,rib,{rx:90});J.disc(0,-3.85,-11.2,3.4,M('#101a30'),20);
+    for(let i=0;i<6;i++)J.rbox(-9+i*3.5,-4.24,10, .16,.12,7,.05,M('#536480'));
+    J.rbox(-6,-4.28,-5,4,.14,4,.3,M('#c8b979'));J.box(-6,-4.39,-5,.7,.08,2.5,rib);J.shadow(0,0,0,52,40,.48);
+    jumper.scale.setScalar(.7);loose('jumper',jumper,{room:'bedroom',x:190,y:FY,z:170,ry:20},'School jumper',{kind:'clothing',holdD:60,use:()=>H.inspect('jumper'),useLabel:'Inspect'});
+
   }
 
   // ---------------------------------------------------------------- the wardrobe, the chest of drawers and the hi-fi
@@ -876,7 +901,16 @@
       [-7,7].forEach(z=>DB.cyl(23,y,z,.65,.65,2,8,mBrass,{rz:90}));
       DB.cyl(24.1,y,0,.65,.65,14,12,mBrass,{rx:90});db.build(dr);
       if(i===0){D.rbox(0,y+5,0,25,7,38,1.4,M('#203c6a'));D.box(0,y+.9,0,24,.5,36,M('#2d4c7b'))}
-      if(i===1)for(const z of [-14,10])D.rbox(1,y+5,z,26,7,17,1.6,M(z<0?'#b4b0a1':'#423e4b'));
+      if(i===1)for(const z of [-16])D.rbox(1,y+5,z,26,7,17,1.6,M(z<0?'#b4b0a1':'#423e4b'));
+      if(i===1){
+        const slot='clothes.jumper';
+        const pose=()=>({room:'bedroom',x:dr.position.x+2,y:y+9.2,z:cz+11,ry:90});
+        const jumper=H.THINGS.jumper;if(jumper)jumper.home=Object.assign(pose(),{snap:slot});
+        H.snap(slot,{room:'bedroom',x:cx+29,z:cz+11,y:y+8,r:42,box:[26,4,30],pose:pose(),enabled:()=>!!H.OPEN['bedroom.drawer.1']?.open,
+          accepts:(kind,t)=>kind==='clothing'&&t.id==='jumper',hint:'Put the jumper away in its drawer'});
+        if(jumper)H.restoreThing(jumper);
+        H.ambient.add(()=>{const sn=H.SNAPS[slot],p=pose();if(sn.pose.x!==p.x){sn.pose=p;sn.x=p.x;sn.y=p.y;sn.z=p.z}const t=H.THINGS.jumper;if(t?.st==='snap'&&t.snap===slot&&(t.at.x!==p.x||t.at.y!==p.y||t.at.z!==p.z)){Object.assign(t.at,p);H.place(t)}});
+      }
       H.openable('bedroom.drawer.'+i,{label:['Top drawer — school clothes','Middle drawer — jumpers','Bottom drawer — socks'][i],pivot:dr,type:'slide',axis:'x',base:cx,amt:25});
       // Rails stay inside the carcass; a drawer stops before its back leaves it.
       [-30.8,30.8].forEach(z=>B.box(cx, y+9,cz+z,39,1.4,1.2,M('#8c6841')));
@@ -964,9 +998,10 @@
     SB.shadow(0, 0, 0, 38, 22, 0.6);
     H.spot('schoolbag', { label: 'School bag', obj: sb, act: () => say('School bag', ['My school bag. Inside: three exercise books, a squashed banana, a letter about the Year 11 trip, and the Maths homework that was due Friday.', 'Homework diary: "French vocab test Thursday". It is not Thursday. Is it?', 'A calculator. Type 0.7734 and turn it upside down. It says hELLO. That is the whole joke. It never gets old.'][(S.sb = ((S.sb | 0) + 1) % 3)]) });
     loose('schoolbag',sb,{room:'bedroom',x:58,y:FY,z:226,ry:-12},'School bag',{obstacle:true,floorOnly:true,useLabel:'Look inside'});
-    const lb = B.at(110, FY, 222); lb.lathe(0, 0, 0, [[16, -40], [17, -40], [14, 0], [0.2, 0]], 16, M({ c: '#e8e4d8', sh: 10, side: 2 })); lb.ball(0, -40, 0, 15, 6, 15, M('#5a6a8a'), 12); lb.ball(4, -44, -3, 8, 4, 6, M('#e8e8e8'), 10); lb.shadow(0, 0, 0, 40, 40, 0.6);
+    const laundry=new T.Group(),lb=K.into(laundry); lb.lathe(0, 0, 0, [[16, -40], [17, -40], [14, 0], [0.2, 0]], 16, M({ c: '#e8e4d8', sh: 10, side: 2 })); lb.ball(0, -40, 0, 15, 6, 15, M('#5a6a8a'), 12); lb.ball(4, -44, -3, 8, 4, 6, M('#e8e8e8'), 10); lb.shadow(0, 0, 0, 40, 40, 0.6);
     H.spot('washing', { label: 'Washing basket', act: () => say('Washing basket', 'Full. Overflowing. Mom says if it doesn\'t go downstairs it doesn\'t get washed. Fair.') }); pickBox(r, 'washing', 110, FY - 22, 222, 34, 44, 34);
-    H.block('U', 90, 202, 130, 242);
+    lb.cyl(0,-.25,0,13.8,13.8,.5,18,M('#c8c4b9'));lb.geo(new T.TorusGeometry(16.5,.6,6,28),0,-40,0,M('#d7d3c7'),{rx:90});
+    loose('washing',laundry,{room:'bedroom',x:110,y:FY,z:222,ry:0},'Washing basket',{obstacle:true,floorOnly:true,useLabel:'Look inside'});
   }
 
   function buildReadingShelf(r){
@@ -1015,6 +1050,7 @@
     item('reading.mag.back1','JACK ATTACK! — May 1999',true,4,'magIssue5');item('reading.mag.back2','JACK ATTACK! — June 1999',true,13,'magIssue6');
     [['mags','JACK ATTACK! — January 1999','magIssue1'],['reading.mag.floor1','JACK ATTACK! — February 1999','magIssue2'],['reading.mag.floor2','JACK ATTACK! — March 1999','magIssue3']].forEach(([id,title,cover],i)=>item(id,title,true,[7,15,23][i],cover,{room:'bedroom',x:TX+33+i*.8,y:FY-i*.85,z:58+i*.6,ry:[-2,-13,1][i]}));
     item('reading.mag.bed','JACK ATTACK! — April 1999',true,31,'magIssue4',{room:'bedroom',x:172,y:30,z:29,ry:-6});
+    window.Magazines?.sync();
   }
 
   // ---------------------------------------------------------------- the door (to the landing), the light switch, the ceiling light
@@ -1068,7 +1104,7 @@
     add('gb', { home: { room: 'bedroom', x: -56, y: 0, z: 18, ry: -18 }, kind: 'handheld', label: 'Game Lad Color', obj: gbModel(), use: () => tvOpen('gb'), useLabel: 'Play it', holdD: 40 });
     const cube=add('cube',{home:{room:'bedroom',x:-40,y:0,z:-10,ry:25},kind:'toy',label:'Puzzle cube',obj:cubeModel(),use:()=>H.inspect('cube'),useLabel:'Solve it',holdD:34});
     if(cube.at.room==='bedroom'&&cube.st==='rest'&&Math.abs(cube.at.x+50)<.1&&Math.abs(cube.at.y)<.1&&Math.abs(cube.at.z+22)<.1&&Math.abs(cube.at.ry-25)<.1){cube.at=Object.assign({},cube.home);H.place(cube);H.saveThings()}
-    add('vpet', { home: { room: 'bedroom', x: 40, y: 0, z: 24, ry: 10 }, kind: 'toy', label: 'Eggbert (my keyring pet)', obj: vpetModel(), use: () => bits('vpet'), useLabel: 'Check on it', holdD: 30 });
+    add('vpet', { home: { room: 'bedroom', x: 40, y: 0, z: 24, ry: 10 }, kind: 'toy', label: 'Eggbert (my keyring pet)', obj: vpetModel(), use:()=>H.inspect('vpet'),useLabel:'Check on it',holdD:30,inspectPose:{pitch:-78,yaw:0},onInspectStart:petInspect,onInspectEnd:()=>{clearInterval(R.petTimer);R.petTimer=null},onInspectKey:ev=>{const action={a:'feed',b:'play',c:'clean'}[ev.key.toLowerCase()];if(action&&!ev.repeat)R.petAction?.(action)} });
     const fb = new T.Group(); K.into(fb).ball(0, -11, 0, 11, 11, 11, M({ c: '#fff', map: K.tex('rm.ball', 256, 128, (g, w, h) => { g.fillStyle = '#f4f4f0'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a1a1a'; for (let y = 0; y < 3; y++) for (let x = 0; x < 6; x++) { const cx = x * 43 + (y % 2) * 21, cy = 20 + y * 44; g.beginPath(); for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; g.lineTo(cx + Math.cos(a) * 11, cy + Math.sin(a) * 11); } g.fill(); } }), sh: 30 }), 18);
     K.into(fb).shadow(0, 0, 0, 24, 24, 0.5);
     add('football', { home: { room: 'bedroom', x: -60, y: FY, z: 200, ry: 0 }, kind: 'ball', label: 'Football', obj: fb, holdD: 60 });
@@ -1157,7 +1193,41 @@
     }};
     draw(); K.into(g).shadow(0,0,0,7,7,.4,{sq:true}); return g;
   }
-  function vpetModel() { const g = new T.Group(); const V = K.into(g); V.ball(0, -2.2, 0, 2.8, 2.2, 3.4, M({ c: '#ff5aa8', sh: 50, sp: '#555' }), 14); V.plane(0, -4.1, 0.4, 2.4, 1.8, M({ c: '#a8b890', e: '#1a2010' }), { rx: -80 }); [-0.8, 0, 0.8].forEach(x => V.cyl(x, -3, 2.4, 0.35, 0.35, 0.4, 8, M('#ffd84a'), { rx: 60 })); V.geo(new T.TorusGeometry(1.4, 0.18, 6, 16), 0, -2.2, -4.2, M({ c: '#c8c8c8', sh: 80 }), { rx: 70 }); V.shadow(0, 0, 0, 7, 9, 0.5); return g; }
+  function vpetModel(){
+    const g=new T.Group();g.name='eggbert-keyring';const chassis=new T.Group();chassis.position.y=.35;g.add(chassis);const V=K.into(chassis),pink=M({c:'#cf5492',sh:32,sp:'#684455'}),dark=M('#713454'),metal=M({c:'#b7b7b2',sh:70});
+    const shell=V.ball(0,-1.8,0,3.05,1.6,3.6,pink,24),sp=shell.geometry.attributes.position;for(let i=0;i<sp.count;i++)sp.setY(i,Math.min(.75,Math.max(sp.getY(i),-.56)));shell.geometry.computeVertexNormals();V.cyl(0,-.56,.1,1.7,1.7,.3,24,M('#ae477c'));
+    for(const x of [-1.1,1.1]){V.cyl(x,-.39,.1,.19,.19,.08,10,metal);V.box(x,-.344,.1,.22,.02,.035,M('#414342'))}
+    V.rbox(0,-1.7,-3.5,1.25,1,1.5,.35,pink);V.geo(new T.TorusGeometry(1.15,.16,8,24),0,-1.65,-4.95,metal,{rx:90});
+    V.rbox(0,-2.95,-.5,3.9,.66,3.1,.4,dark);V.rbox(0,-3.33,-.5,3.1,.12,2.4,.18,M('#343e31'));
+    const cv=document.createElement('canvas');cv.width=64;cv.height=48;const tx=new T.CanvasTexture(cv);tx.minFilter=tx.magFilter=T.NearestFilter;tx.generateMipmaps=false;
+    V.decal(0,-3.401,-.5,2.8,2.1,new T.MeshBasicMaterial({map:tx}),{rx:90});R.petLCD={cv,tx};drawPet();
+    const logo=K.tex('rm.eggbert.logo',256,64,(c,w,h)=>{c.fillStyle='#cf5492';c.fillRect(0,0,w,h);A.text(c,'EGGBERT',128,45,'700 38px '+A.UIF,'#fff0c8','center')},{clamp:true});
+    V.decal(0,-2.88,-2.5,3.2,.65,M({c:'#fff',map:logo}),{rx:90});
+    [-1,0,1].forEach((x,i)=>{V.cyl(x,-2.89,2.05,.34,.34,.43,14,M({c:'#efcf62',sh:22}));const t=K.tex('rm.eggkey.'+i,32,32,(c)=>{c.fillStyle='#efcf62';c.fillRect(0,0,32,32);A.text(c,'ABC'[i],16,25,'700 25px '+A.UIF,'#6b432c','center')},{clamp:true});V.decal(x,-3.115,2.05,.42,.42,M({c:'#fff',map:t}),{rx:90})});
+    K.into(g).shadow(0,0,0,7,12,.4);return g;
+  }
+  function petState(){
+    let p;try{p=JSON.parse(localStorage.getItem('jhp_rm_pet')||'null')}catch(e){}
+    if(!p?.born)p={born:Date.now(),at:Date.now(),food:3,fun:3,poo:0,age:0,care:0,name:'EGGBERT',dead:0};
+    const steps=Math.max(0,Math.floor((Date.now()-p.at)/1800000));
+    if(steps){for(let i=0;i<Math.min(steps,48);i++){if(i%6===5)p.food=Math.max(0,p.food-1);if(i%5===4)p.fun=Math.max(0,p.fun-1);if(i%10===9)p.poo=Math.min(3,p.poo+1)}p.at+=steps*1800000;p.age=Math.floor((Date.now()-p.born)/86400000)}return p;
+  }
+  function drawPet(p=petState(),frame=0){
+    const lcd=R.petLCD;if(!lcd)return;const c=lcd.cv.getContext('2d');c.fillStyle='#a7b88a';c.fillRect(0,0,64,48);c.fillStyle='#283b25';c.font='8px monospace';c.fillText('EGGBERT',13,8);
+    for(let i=0;i<4;i++){c.fillStyle=i<p.food?'#283b25':'#84966e';c.fillRect(5+i*14,12,10,3)}c.fillStyle='#283b25';
+    const bob=frame%2;for(let y=0;y<15;y++)for(let x=0;x<13;x++){const d=((x-6)/6)**2+((y-8)/8)**2;if(d<1&&d>.6)c.fillRect(24+x,21+y+bob,1,1)}
+    c.fillRect(28,26+bob,2,2);c.fillRect(33,26+bob,2,2);c.fillRect(29,31+bob,5,1);c.fillRect(25,36,4,2);c.fillRect(34,36,4,2);for(let i=0;i<p.poo;i++)c.fillRect(47+i*4,36-i*3,3,2);
+    c.font='7px monospace';c.fillText('A   B   C',8,46);lcd.tx.needsUpdate=true;H.dirty();
+  }
+  function petInspect(panel){
+    let p=petState(),frame=0;const status=document.createElement('span');status.textContent='A: feed · B: play · C: clean';panel.insertBefore(status,panel.lastChild);
+    const save=()=>{try{localStorage.setItem('jhp_rm_pet',JSON.stringify(p))}catch(e){}};
+    R.petAction=action=>{p=petState();if(action==='feed')p.food=Math.min(4,p.food+1);if(action==='play')p.fun=Math.min(4,p.fun+1);if(action==='clean')p.poo=0;p.care++;save();status.textContent='Food '+p.food+'/4 · Fun '+p.fun+'/4 · Age '+p.age+' days';if(p.food===4&&p.fun===4&&!p.poo)secret('rm.pet');drawPet(p,frame);sfx('click')};
+    const actions=document.createElement('div');actions.className='hs-object-actions';panel.insertBefore(actions,panel.lastChild);
+    for(const [key,label]of [['feed','Feed [A]'],['play','Play [B]'],['clean','Clean [C]']]){const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.pet=key;b.addEventListener('click',()=>R.petAction(key));actions.appendChild(b)}
+    save();drawPet(p);clearInterval(R.petTimer);R.petTimer=setInterval(()=>drawPet(p,++frame),700);
+  }
+
   function floppyModel(label, col) { const g = new T.Group(); const F = K.into(g); F.box(0, -0.17, 0, 9, 0.34, 9.4, { t: M({ c: '#fff', map: floppyTex(label, col) }), all: M(col) }); F.shadow(0, 0, 0, 11, 11, 0.5, { sq: true }); return g; }
   function floppyTex(label, col) { return K.tex('rm.fl.' + label, 128, 128, (g, w, h) => { g.fillStyle = col; g.fillRect(0, 0, w, h); g.fillStyle = '#9aa0a8'; g.fillRect(30, 0, 70, 40); g.fillStyle = '#4a5058'; g.fillRect(74, 6, 14, 28); g.fillStyle = '#f4f0e0'; g.fillRect(12, 56, 104, 64); A.text(g, label, 64, 84, '700 13px ' + A.HAND, '#1a3a9a', 'center'); g.fillStyle = 'rgba(255,255,255,.3)'; g.fillRect(4, 124, 6, 4); }); }
   function discModel(col, label) { const g = new T.Group(); const D = K.into(g);
@@ -1821,7 +1891,7 @@
   H.on('room', (id, old) => { if(id!=='bedroom'){++bitsEpoch;clearTimeout(boT);back=null;pending=false;} emit('room', id, old); if (id && id !== 'bedroom') ensureHouse().catch(() => {}); pb.classList.toggle('rm-away', id !== 'bedroom'); });
   H.on('station', (rid, sid) => { pb.classList.toggle('rm-away', !(rid === 'bedroom' && sid === 'desk')); if (rid === 'bedroom' && sid !== 'desk') secret('rm.room'); });
   H.on('standup', () => { pb.classList.add('rm-away'); secret('rm.room'); });
-  H.on('stood', () => { secret('hs.stand'); H.relight(); });
+  H.on('stood', () => { secret('hs.stand'); H.relight();setTimeout(()=>H.resumeSeat(),0); });
   H.on('sat', () => H.relight());
   H.on('step', () => { if (carry.id) { carry.d++; if (carry.d > 40) secret('hs.juggle'); } });
 

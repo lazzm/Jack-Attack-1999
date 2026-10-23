@@ -23,7 +23,7 @@ try{
  await p.keyboard.press('Escape');assert(await p.evaluate(()=>HousePause.open));await p.locator('.hs-pause [name=desktopFull]').check();
  await p.locator('.hs-pause [data-pause=resume]').click();
  const full=await p.evaluate(()=>{const r=document.getElementById('monitorSurface').getBoundingClientRect();return{full:document.documentElement.classList.contains('pc-desktop-full'),ratio:r.width/r.height,width:r.width,height:r.height}});
- assert(full.full);assert(Math.abs(full.ratio-4/3)<.001);assert(Math.abs(full.height-860)<1);await p.screenshot({path:'shots/pc-fullscreen-desktop.png'});
+ assert(full.full);assert(Math.abs(full.width-1366)<1);assert(Math.abs(full.height-860)<1);await p.screenshot({path:'shots/pc-fullscreen-desktop.png'});
  await p.keyboard.press('Escape');await p.screenshot({path:'shots/pause-1999-desktop.png'});await p.setViewportSize({width:390,height:844});await p.screenshot({path:'shots/pause-1999-narrow.png'});
  await p.locator('.hs-pause [data-pause=resume]').click();await p.screenshot({path:'shots/pc-fullscreen-desktop-narrow.png'});
  await p.setViewportSize({width:1920,height:1080});await p.screenshot({path:'shots/pc-fullscreen-desktop-wide.png'});await p.setViewportSize({width:2560,height:1080});await p.screenshot({path:'shots/pc-fullscreen-desktop-ultrawide.png'});
@@ -31,5 +31,5 @@ try{
  await p.keyboard.press('F2');await until(()=>House.mode==='walk');assert.equal(await p.evaluate(()=>document.documentElement.classList.contains('pc-desktop-full')),false);
  await p.evaluate(()=>House.sitDown());await until(()=>House.mode==='monitor');assert(await p.evaluate(()=>document.documentElement.classList.contains('pc-desktop-full')));
  await p.keyboard.press('Escape');await p.locator('.hs-pause [name=desktopFull]').uncheck();await p.locator('.hs-pause [data-pause=resume]').click();assert.equal(await p.evaluate(()=>document.documentElement.classList.contains('pc-desktop-full')),false);
- assert.deepEqual(errors,[]);console.log('CHAIR / PC / MENU PASS: solid model, 5 twin castors, first-person view, Esc, movement guard, 4:3 display option, resize and refresh');
+ assert.deepEqual(errors,[]);console.log('CHAIR / PC / MENU PASS: solid model, 5 twin castors, first-person view, Esc, movement guard, viewport-filling LOCK IN, resize and refresh');
 }finally{await browser.close()}

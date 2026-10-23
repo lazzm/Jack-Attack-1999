@@ -13,7 +13,7 @@
  el.innerHTML=`<div class="hs-pause-head"><span>1999</span><h1 id="hsPauseTitle">GAME MENU</h1></div>
  <div class="hs-pause-main"><button type="button" data-pause="resume">RESUME</button><button type="button" data-pause="leave" hidden>BACK TO THE ROOM</button><button type="button" data-pause="return" hidden>PUT HELD ITEM BACK</button>
  <fieldset><legend>AUDIO</legend><label><input type="checkbox" name="music"> Music</label><label><input type="checkbox" name="effects"> Sound effects &amp; voices</label><label class="hs-audio-volume">Volume <output>100%</output><input type="range" name="volume" min="0" max="100" step="1" aria-label="Overall volume"></label><p class="hs-pause-mouse">Applies throughout the house, PC and games. Saved for next time.</p></fieldset>
- <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [T]<small class="hs-lock-help">Full-screen view of the screen you are using. Press T again to return. Original proportions are preserved.</small></label>
+ <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [T]<small class="hs-lock-help">Full-screen view of the screen you are using. Press T again to return. JackOS fills the window; console and handheld screens keep their original proportions.</small></label>
  <label><input type="checkbox" name="crouchToggle"> Toggle crouch [C]<small>Off: hold C. On: press C to crouch or stand.</small></label>
  <button type="button" data-pause="graphics" aria-controls="hsGraphicsMenu" aria-expanded="false">GRAPHICS OPTIONS <span class="hs-graphics-summary"></span></button>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
@@ -54,7 +54,7 @@
  function quickBack(){if(H.paused||!canBack())return false;if(H.mode==='inspect')H.endInspect();else if(window.RoomTV?.open_)RoomTV.close();else if(H.focused)H.unfocus();else H.standUp();return true;}
  function syncAudio(){el.querySelector('[name=music]').checked=!!window.Sound?.musicOn;el.querySelector('[name=effects]').checked=!!window.Sound?.effectsOn;const volume=Math.round((window.Sound?.volume??1)*100);el.querySelector('[name=volume]').value=volume;el.querySelector('.hs-audio-volume output').textContent=volume+'%'}
  document.addEventListener('audiochange',syncAudio);
- function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;const graphics=button('graphics');graphics.disabled=!graphicsMenu||!H.graphicsGet||!H.graphicsSet;const preset=H.graphicsGet?.().preset;graphics.querySelector('span').textContent=window.HouseGraphicsMenu?.names[preset]||'';el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press T again to return. Original proportions are preserved.':'Use a PC, console, Game Lad or family TV, then press T to LOCK IN.';}
+ function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;const graphics=button('graphics');graphics.disabled=!graphicsMenu||!H.graphicsGet||!H.graphicsSet;const preset=H.graphicsGet?.().preset;graphics.querySelector('span').textContent=window.HouseGraphicsMenu?.names[preset]||'';el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press T again to return. JackOS fills the window; console and handheld screens keep their original proportions.':'Use a PC, console, Game Lad or family TV, then press T to LOCK IN.';}
  function openMenu(){
   if(el.open||!H.live||window.House?.god||window.AccountGate&&!AccountGate.allowed)return false;
   previous=el.contains(document.activeElement)?null:document.activeElement;graphicsBack(false);el.querySelector('[name=crouchToggle]').checked=H.crouchSetting();
@@ -103,7 +103,7 @@
   const now=!!document.pointerLockElement?.classList.contains('hs-gl'),was=owned;owned=now;
   // Browsers can consume Esc themselves to release pointer lock, without
   // delivering a keydown. Opening the menu here handles that path as well.
-  if(was&&!now&&!el.open&&H.mode==='walk'&&!document.hidden&&document.hasFocus())openMenu();
+  if(was&&!now&&!el.open&&(H.mode==='walk'||H.mode==='focus'&&H._.focusS?.o.seatId)&&!document.hidden&&document.hasFocus())openMenu();
  });
  window.HousePause={show:openMenu,close:closeMenu,handleEscape,quickBack,get canBack(){return canBack()},get open(){return el.open},get page(){return graphicsOpen?'graphics':'main'}};
 })();

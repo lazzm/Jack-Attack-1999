@@ -183,5 +183,17 @@ Frame timings use software Chromium and are comparative diagnostics, not a hardw
 
 Read-only post-deploy checks (no logon or game actions):
 
-    node live-readonly.mjs https://jacklm.com 2.41.0
+    node live-readonly.mjs https://jacklm.com 2.42.0
     node live-pc-only.mjs https://jacklm.com
+
+Bedroom prop/seating and neighbourhood review (disposable localhost; serial browser runs):
+
+    node neighbourhood-geometry.cjs
+    node room-props-seats.mjs http://localhost:18080
+    node room-props-closeups.mjs http://localhost:18080
+    node prop-placement-final.mjs http://localhost:18080
+    node pc-lock-in-fill.mjs http://localhost:18080
+
+The full-size JackOS desktop fills the browser viewport; the in-world monitor remains 4:3.
+Console and handheld LOCK IN keep their original aspect ratios. Outdoor observer captures
+include views beyond the playable boundary; they do not imply a new walkable town.

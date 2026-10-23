@@ -20,17 +20,16 @@
   // ================================================================ cloth: a crumpled heap of fabric (a silhouette on a lumpy sheet)
   function clothTex(key, w, h, paint) { return K.tex('ch.cl.' + key, w, h, (g, ww, hh) => { g.clearRect(0, 0, ww, hh); paint(g, ww, hh); }, { clamp: true }); }
   function cloth(key, w, d, hgt, paint, seed) {
-    const tex = clothTex(key, 128, 128, paint);
-    const geo = new T.PlaneGeometry(w, d, 14, 14), p = geo.attributes.position, r = rnd(seed || 5), bumps = [];
-    for (let i = 0; i < 5; i++) bumps.push([(r() - 0.5) * w * 0.7, (r() - 0.5) * d * 0.7, 3 + r() * w * 0.18, hgt * (0.4 + r() * 0.6)]);
-    for (let i = 0; i < p.count; i++) {
-      const x = p.getX(i), y = p.getY(i); let hh = 0.25;
-      for (const [bx, by, br, bh] of bumps) { const q = Math.hypot(x - bx, y - by) / br; if (q < 1) hh += bh * Math.pow(Math.cos(q * Math.PI / 2), 2); }
-      hh += Math.sin(x * 0.7 + y * 0.3) * 0.25;
-      p.setXYZ(i, x, -hh, y);
-    }
-    geo.computeVertexNormals();
-    return grp((G, g) => { const m = new T.Mesh(geo, M({ c: '#fff', map: tex, side: 2, at: 0.45, sh: 4 })); g.add(m); G.shadow(0, 0, 0, w * 0.9, d * 0.9, 0.4); });
+    const colours={tshirt:'#ad2630',jeans:'#375983',shirt:'#deddd6',pe:'#253861',jumper2:'#666a73',pjs:'#94b6d5'},base=colours[key]||'#5d6d87';
+    const tex=K.tex('ch.solidcloth.'+key,128,128,(g,ww,hh)=>{g.fillStyle=base;g.fillRect(0,0,ww,hh);paint(g,ww,hh)},{clamp:true});
+    const outline=key==='jeans'?[[30,6],[98,6],[104,122],[72,122],[64,46],[56,122],[24,122]]:key==='pe'?[[16,24],[112,24],[120,104],[72,104],[64,70],[56,104],[8,104]]:[[34,12],[52,8],[64,18],[76,8],[94,12],[122,key==='tshirt'?34:70],[108,key==='tshirt'?52:76],[96,44],[98,120],[30,120],[32,44],[20,key==='tshirt'?52:76],[6,key==='tshirt'?34:70]];
+    const shape=new T.Shape();outline.forEach(([x,z],i)=>shape[i?'lineTo':'moveTo']((x/128-.5)*w,(.5-z/128)*d));shape.closePath();
+    const geo=new T.ExtrudeGeometry(shape,{depth:Math.max(.7,hgt*.28),bevelEnabled:true,bevelThickness:.18,bevelSize:.3,bevelSegments:1,steps:1});geo.rotateX(Math.PI/2);
+    const pos=geo.attributes.position,uv=geo.attributes.uv;let bottom=-Infinity;
+    for(let i=0;i<pos.count;i++){const x=pos.getX(i),z=pos.getZ(i),y=pos.getY(i)-hgt*.16*(1+Math.sin(x*.27+z*.12+seed));pos.setY(i,y);bottom=Math.max(bottom,y);uv.setXY(i,x/w+.5,.5-z/d)}
+    for(let i=0;i<pos.count;i++)pos.setY(i,pos.getY(i)-bottom);geo.computeVertexNormals();
+    return grp(G=>{G.geo(geo,0,0,0,M({c:'#fff',map:tex,sh:2}));G.shadow(0,0,0,w*.9,d*.9,.4)});
+
   }
   const P = {
     tshirt: (g, w, h) => { g.fillStyle = '#c0202c'; g.beginPath(); g.moveTo(34, 12); g.lineTo(52, 8); g.quadraticCurveTo(64, 20, 76, 8); g.lineTo(94, 12); g.lineTo(122, 34); g.lineTo(108, 52); g.lineTo(96, 44); g.lineTo(98, 120); g.lineTo(30, 120); g.lineTo(32, 44); g.lineTo(20, 52); g.lineTo(6, 34); g.closePath(); g.fill(); A.grain(g, w, h, 500, 0.08, 3); A.text(g, 'MODEM', 64, 70, '700 15px ' + A.FONT, '#fff', 'center'); A.text(g, 'BOYS', 64, 88, '700 15px ' + A.FONT, '#ffd400', 'center'); A.text(g, "TOUR '99", 64, 104, '9px ' + A.UIF, '#fff', 'center'); },
@@ -89,6 +88,13 @@
       CK.snap('ch.s.bin', { room: 'bedroom', x: -118, y: FY - 30, z: -42, r: 26, box: [22, 2, 22], accepts: k => k === 'mess.rubbish', hide: true, hint: 'Let go: in the bin', onSnap: t => put(t) });
       CK.snap('ch.s.rack', { room: 'bedroom', x: -234, y: FY - 46, z: -30, r: 28, box: [22, 30, 6], accepts: k => k === 'mess.cd', hide: true, hint: 'Let go: back in the CD rack', onSnap: t => put(t) });
       const pile = CK.snap('ch.s.mags', { room: 'bedroom', x: -144, y: FY - 4, z: 58, r: 30, box: [24, 2, 30], accepts: k => { if (k !== 'mess.mag') return false; pile.pose = { x: -144 + magN * 0.8, y: FY - 2.8 - magN * 1.1, z: 58 + magN * 0.6, ry: -8 + magN * 7 }; return true; }, hint: 'Let go: on the pile of mags', onSnap: t => { magN++; put(t, true); } });
+      const receptacles=[['ch.s.basket','washing',44],['ch.s.bin','bin',27]];
+      for(const [slot,id]of receptacles)H.SNAPS[slot].enabled=()=>{const target=H.THINGS[id];return !!target&&['rest','snap'].includes(target.st)&&!target.at.hide};
+      H.ambient.add(()=>{for(const [slot,id,offset]of receptacles){
+        const target=H.THINGS[id],snap=H.SNAPS[slot];if(!target||!snap)continue;
+        Object.assign(snap,{room:target.at.room,x:target.at.x,y:target.at.y-offset,z:target.at.z});
+        if(id==='washing'&&basketPile){const r=H.ROOMS[target.at.room];if(r&&basketPile.parent!==r.things)r.things.add(basketPile);basketPile.position.set(target.at.x,target.at.y-offset,target.at.z);basketPile.visible=basketN>0&&target.st==='rest'}
+      }});
       // the basket fills up as clothes go in
       basketPile = grp(G => { ['#c0202c', '#3a5a8a', '#f2f2ee', '#6a6e74', '#1a2a6a'].forEach((c, i) => G.ball(Math.cos(i * 2.1) * 5, -2 - i * 1.4, Math.sin(i * 2.1) * 5, 9, 3, 7, mat(c), 10, { ry: i * 50 })); });
       basketPile.position.set(110, FY - 44, 222); basketPile.visible = false; r.group.add(basketPile);

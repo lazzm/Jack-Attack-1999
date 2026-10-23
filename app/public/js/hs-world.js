@@ -484,7 +484,7 @@
   function snapDef(id, def) { return SNAPS[id] = Object.assign({ id, r: 14 }, def); }
   function grab(id) {
     const t = THINGS[id]; if (!t || held) return false;
-    if (t.canGrab && !t.canGrab()) return false;
+    if (focusS?.o.seatId===id || t.canGrab && !t.canGrab()) return false;
     pendingRestores.delete(id); // a new grab supersedes an old deferred placement
     anims.delete('snap:' + id);
     const was = t.st === 'snap' || t.st === 'anim' ? t.snap : null;
@@ -874,6 +874,7 @@
       }
       ev.preventDefault(); ev.stopImmediatePropagation(); return;
     }
+    if (focusS?.o.seatId && (KEYMOVE[ev.key] || ev.key===' ' || ev.key==='F2')) {ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)unfocus();return;}
     if (mode === 'focus' && ev.key === 'Escape' && !viewOpen()) { ev.preventDefault(); ev.stopImmediatePropagation(); if (focusS && focusS.o.esc && focusS.o.esc() === false) return; unfocus(); return; }
     if (viewOpen() || (mode !== 'walk' && mode !== 'glide')) { if (mode === 'stand' || mode === 'sit') { ev.preventDefault(); ev.stopImmediatePropagation(); } return; }
     if (ui.modalOpen()) return;
@@ -914,13 +915,14 @@
     if (ev.pointerType && ev.pointerType!=='mouse')return;
     if (worldLoading || !live || mode === 'off' || mode === 'follow' || ev.button > 0 || uiTarget(ev.target)) return;
     PT.set(ev.pointerId, { x0: ev.clientX, y0: ev.clientY, x: ev.clientX, y: ev.clientY, ry0: P.ry, rx0: P.rx, drag: false, t0: performance.now(), type: ev.pointerType });
+    if(mode==='focus'&&focusS?.o.seatId)wantLock();
     try { pb.setPointerCapture(ev.pointerId); } catch (e) {}
   });
   // first-person mouse lock (desktop only): click in the room to lock, Esc lets go (the browser does that), drag-to-look still works unlocked
   const locked = () => !!cv && document.pointerLockElement === cv;
   function unlock() { try { if (document.pointerLockElement === cv) document.exitPointerLock(); } catch (e) {} }
   const lockHint = document.createElement('div'); lockHint.className = 'hs-lockhint'; lockHint.setAttribute('aria-hidden', 'true'); lockHint.textContent = 'Click to look around'; let lockHintT = 0;
-  function plOK() { return !controlsPaused && !worldLoading && live && mode === 'walk' && !viewOpen() && !ui.modalOpen(); }
+  function plOK() { return !controlsPaused && !worldLoading && live && (mode === 'walk'||mode==='focus'&&focusS?.o.seatId) && !viewOpen() && !ui.modalOpen(); }
   let lockTry = 0, lockPending = false;
   function wantLock() {
     if (!plOK() || locked() || lockPending || performance.now() - lockTry < 350) return;
@@ -928,7 +930,7 @@
     try { const r = cv.requestPointerLock(); if (r && r.then) r.then(() => {lockPending = false;}, () => {lockPending = false;}); else setTimeout(() => {lockPending = false;}, 500); } catch (e) {lockPending = false;}
   }
   // capture the mouse whenever we can while walking (the browser only allows it on a click or key press, so: every one)
-  const inRoom = () => !controlsPaused && live && (mode === 'walk' || mode === 'glide') && !viewOpen();
+  const inRoom = () => !controlsPaused && live && (mode === 'walk' || mode === 'glide'||mode==='focus'&&focusS?.o.seatId) && !viewOpen();
   const freeIfPC = () => { if (!inRoom() && locked()) unlock(); }; // sitting down or leaving the room always gives the desktop mouse back
   setInterval(freeIfPC, 300);
   document.addEventListener('mousedown', freeIfPC, true);
@@ -942,7 +944,7 @@
   pb.addEventListener('pointermove', ev => {
     if(controlsPaused||ev.pointerType&&ev.pointerType!=='mouse')return;
     if (locked()) {
-      if (mode === 'walk' || mode === 'glide') { if (mode === 'glide') cancelGlide(); P.ry += ev.movementX * 0.1; P.rx = clamp(P.rx - ev.movementY * 0.1, -78, 70); dirty(); lastPt = { x: vw / 2, y: vh / 2, ok: true, mouse: true }; hoverQ = true; }
+      if (mode === 'walk' || mode === 'glide'||mode==='focus'&&focusS?.o.seatId) { if (mode === 'glide') cancelGlide(); P.ry += ev.movementX * 0.1; P.rx = clamp(P.rx - ev.movementY * 0.1, -78, 70); dirty(); lastPt = { x: vw / 2, y: vh / 2, ok: true, mouse: true }; hoverQ = true; }
       return;
     }
     lastPt = { x: ev.clientX, y: ev.clientY, ok: true, mouse: ev.pointerType === 'mouse' };
@@ -951,7 +953,7 @@
       p.x = ev.clientX; p.y = ev.clientY;
       const dx = p.x - p.x0, dy = p.y - p.y0;
       if (!p.drag && Math.hypot(dx, dy) > (p.type === 'mouse' ? 5 : 9)) { p.drag = true; if (mode === 'glide') cancelGlide(); p.ry0 = P.ry - 0; p.rx0 = P.rx; p.x0 = p.x; p.y0 = p.y; }
-      if (p.drag && (mode === 'walk')) {
+      if (p.drag && (mode === 'walk'||mode==='focus'&&focusS?.o.seatId)) {
         const k = 0.22 * 1366 / Math.max(800, vw);
         P.ry = p.ry0 + (p.x - p.x0) * k; P.rx = clamp(p.rx0 - (p.y - p.y0) * k, -78, 70);
         dirty();
@@ -1030,7 +1032,7 @@
     panel.append(name, hint, back); ui.el.appendChild(panel);
     const ip = t.inspectPose || {};
     inspection = {t, grip, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null};
-    html.classList.add('hs-inspecting'); layerFor(t); poseInspect(); return true;
+    html.classList.add('hs-inspecting');layerFor(t);poseInspect();try{t.onInspectStart?.(panel)}catch(e){console.error(e)}return true;
   }
   function poseInspect() {
     const s = inspection; if (!s) return;
@@ -1080,14 +1082,35 @@
     if (held) putBack();
     focusS = { back: { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry, lvl: W.lvl, seat: W.seat }, o };
     for (const k in keys) keys[k] = false;
-    glideTo(pose, { lock: true, ms: o.ms || 750, cancel: () => { if (!focusS) return; const f = focusS; focusS = null;if(f.o.exit)f.o.exit(); glideTo(f.back, { ms: 500, done: () => setWalkFrom(f.back) }); }, done: () => { if (!focusS) return; mode = 'focus'; html.classList.add('hs-focus'); ui.focusBar(o.label || 'Get up'); if (o.enter) try { o.enter(); } catch (e) { console.error(e); } } });
+    glideTo(pose, { lock: true, ms: o.ms || 750, cancel: () => { if (!focusS) return; const f = focusS; focusS = null;if(f.o.seatId)ls.del('jhp_hs_furniture_seat');if(f.o.exit)f.o.exit(); glideTo(f.back, { ms: 500, done: () => setWalkFrom(f.back) }); }, done: () => { if (!focusS) return; mode = 'focus'; html.classList.add('hs-focus'); ui.focusBar(o.label || 'Get up'); if (o.enter) try { o.enter(); } catch (e) { console.error(e); } } });
     return true;
   }
+  function seatExit(p){
+    const lvl=p.lvl||W.lvl,r=roomAt(p.x,p.z,lvl);
+    if(!r)return null;
+    for(let distance=0;distance<=90;distance+=5)for(let i=0;i<(distance?16:1);i++){
+      const a=i*Math.PI/8,x=p.x+Math.sin(a)*distance,z=p.z+Math.cos(a)*distance;
+      if(roomAt(x,z,lvl)?.id===r.id&&floorAt(x,z,lvl,LV[lvl]))return Object.assign({},p,{x,z,y:LV[lvl]-STAND,seat:0,lvl});
+    }return null;
+  }
+  function sitOn(id, saved) {
+    const t=THINGS[id];if(t?.seat&&t.st==='held'){ui.toast('Put the seat down','E / Click places it. Then F sits down.');return false;}if(!t?.seat||!['rest','snap'].includes(t.st)||t.at.hide||t.at.room!==cur?.id||held||focusS)return false;
+    const at=t.at,a=(at.ry||0)*D2R,front=t.seat.front||0;
+    const pose={x:at.x+Math.sin(a)*front,y:at.y-t.seat.eye,z:at.z+Math.cos(a)*front,rx:-4,ry:180-(at.ry||0),seat:1,lvl:cur.lvl};
+    if(Number.isFinite(saved?.rx)&&Number.isFinite(saved?.ry)){pose.rx=saved.rx;pose.ry=saved.ry;}
+    const back=seatExit(saved?.back&&validPose(saved.back)?saved.back:Object.assign({},P,{lvl:W.lvl}));
+    if(!back){ui.toast('No room to stand','Clear some floor beside the seat first.');return false;}
+    if(!focus(pose,{seatId:id,label:'Stand up / WASD',enter:()=>{wantLock();dirty()}}))return false;
+    if(back)focusS.back=back;
+    ls.set('jhp_hs_furniture_seat',{id,back:focusS.back,rx:pose.rx,ry:pose.ry});if(stood)ls.set('jhp_hs_stand',{t:Date.now(),p:focusS.back});return true;
+  }
+  function resumeSeat(){const saved=ls.get('jhp_hs_furniture_seat',null);if(saved&&mode==='walk'&&!focusS)sitOn(saved.id,saved);}
   function unfocus(now) {
     if (!focusS) return; const f = focusS; focusS = null;
+    if(f.o.seatId){ls.del('jhp_hs_furniture_seat');f.back=seatExit(f.back)||f.back;}
     html.classList.remove('hs-focus'); ui.focusBar(null);
     if (f.o.exit) try { f.o.exit(); } catch (e) { console.error(e); }
-    mode = 'walk'; glideTo(f.back, { ms: now ? 0 : 650, done: () => setWalkFrom(f.back) });
+    mode = 'walk'; glideTo(f.back, { lock:!!f.o.seatId,ms:now?0:650, done: () => setWalkFrom(f.back) });
   }
   // a piece of page laid onto a flat thing in the room (perspective correct), so it's crisp and you can click it
   const SURF = new Set();
@@ -1161,7 +1184,7 @@
         hold.hidden = false; el.classList.add('holding');
         hold.querySelector('.hs-hname').textContent = typeof t.label === 'function' ? t.label() : t.label;
         hold.querySelector('.hs-hkeys').innerHTML = '<kbd>E</kbd> / <kbd>Click</kbd>: place' + (t.use?' &middot; <kbd>F</kbd>: '+esc(t.useLabel||'use'):'') + ' &middot; <kbd>R</kbd>: turn &middot; <kbd>I</kbd>: inspect &middot; <kbd>Wheel</kbd>: distance &middot; <kbd>Esc</kbd>: menu / put back';
-        const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use; u.textContent = t.useLabel || 'Use';
+        const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use||t.useLabel==='Inspect';u.textContent = t.useLabel || 'Use';
       },
       snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML='<kbd>E</kbd> / <kbd>Click</kbd>: '+esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''));else if (held) this.holdBar(THINGS[held.id]); },
       crossOn() { el.classList.add('cross'); clearTimeout(crossT); crossT = setTimeout(() => el.classList.remove('cross'), 2500); },
@@ -1407,7 +1430,7 @@
     if (!raf) raf = requestAnimationFrame(loop);
     if (Q.auto) Q.probe = performance.now() + 2000;
     if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', '<b>W A S D</b> to walk, mouse to look. Shift to jog, <b>C</b> to crouch, Space to jump. <b>F</b> to use or play, <b>E</b> to pick up/remove/place, <b>I</b> to inspect a held item. Click to place; <b>Esc</b>: game menu, settings and put back. <b>G</b>: graphics.', 9000); }, 1400);
-    emit('start');
+    emit('start');if(BOOT!=='wake'||stood)setTimeout(resumeSeat,0);
   }
   // Save grounded poses (not head-bob/jump offsets). Load the destination before
   // collision validation: downstairs rooms and their grids are created lazily.
@@ -1439,11 +1462,11 @@
   function saveStood() {
     if (!stood || standing || mode === 'sit') return;
     try {
-      const p = ['walk','glide'].includes(mode) ? walkingPose() : (ls.get('jhp_hs_stand', {}) || {}).p;
+      const p=focusS?.o.seatId?focusS.back:['walk','glide'].includes(mode)?walkingPose():(ls.get('jhp_hs_stand',{})||{}).p;
       ls.set('jhp_hs_stand', {t:Date.now(), p}); localStorage.setItem('jhp_last', String(Date.now()));
     } catch (e) {}
   }
-  function saveWalkState() { if(live&&saveT&&(!window.AccountGate||AccountGate.allowed))saveThings(true);savePose();saveStood(); }
+  function saveWalkState() { if(mode==='focus'&&focusS?.o.seatId)ls.set('jhp_hs_furniture_seat',{id:focusS.o.seatId,back:focusS.back,rx:P.rx,ry:P.ry});if(live&&saveT&&(!window.AccountGate||AccountGate.allowed))saveThings(true);savePose();saveStood(); }
   setInterval(saveStood, 1000); addEventListener('pagehide', saveWalkState);
   setInterval(() => { if (live && mode === 'walk' && Date.now() - poseT > 1500) { poseT = Date.now(); savePose(); } }, 2000);
   // pb's classes tell us what boot.js is up to
@@ -1497,8 +1520,9 @@
     return candidates[2];
   }
   function desktopDisplay(full){
-    if(typeof full==='boolean'){desktopFull=full;ls.set('jhp_hs_desktop_full',full)}
-    html.classList.toggle('pc-desktop-full',monitor&&desktopFull);if(live){glassFit();dirty()}return desktopFull;
+    if(typeof full!=='boolean')return desktopFull;
+    const changed=desktopFull!==full;desktopFull=full;ls.set('jhp_hs_desktop_full',full);
+    html.classList.toggle('pc-desktop-full',monitor&&desktopFull);if(live){glassFit();dirty();if(changed)dispatchEvent(new Event('resize'))}return desktopFull;
   }
   function pauseControls(on){controlsPaused=!!on;for(const k in keys)keys[k]=false;W.vx=W.vz=0;PT.clear();if(inspection){inspection.drag=null;}if(on){unlock();setHot(null);ui.tip(null)}else wantLock();dirty();}
   // Fit the entire 4:3 glass with room for its curved bezel at every aspect.
@@ -1566,7 +1590,8 @@
     try { localStorage.setItem('jhp_last', String(Date.now())); } catch (e) {} // (a refresh while standing wakes the PC up, then we stand straight back up)
     return true;
   }
-  function sitDown() { // back to the desktop: no BIOS, no boot, straight back in
+  function sitDown() {
+    ls.del('jhp_hs_furniture_seat'); // back to the desktop: no BIOS, no boot, straight back in
     if (!stood || standing || mode === 'sit') return;
     rememberPCEntry();
     putAway(); setMode('sit'); ls.del('jhp_hs_stand');
@@ -1587,8 +1612,9 @@
     const key=[mode,monitor,stood,full,vw,vh,P.x,P.y,P.z,P.rx,P.ry,g0?.matrixWorld.elements.join(',')].join('|');
     if(glass.fitKey===key&&(monitor||now-glass.checkedAt<150))return;
     const moved=glass.fitKey!==key;glass.fitKey=key;
+    const logicalW=full?'100%':'1024px',logicalH=full?'100%':'768px';if(monitorSurfaceEl.style.width!==logicalW)monitorSurfaceEl.style.width=logicalW;if(monitorSurfaceEl.style.height!==logicalH)monitorSurfaceEl.style.height=logicalH;
     html.classList.toggle('pc-desktop-full',full);
-    if(full){const w=vw,h=vh,scale=Math.min(w/1024,h/768);monitorSurfaceEl.style.visibility='';monitorSurfaceEl.style.clipPath='';monitorSurfaceEl.style.transform=`translate(${(w-1024*scale)/2}px,${(h-768*scale)/2}px) scale(${scale})`;return;}
+    if(full){monitorSurfaceEl.style.visibility='';monitorSurfaceEl.style.clipPath='';monitorSurfaceEl.style.transform='none';return;}
     // the glass is taken from the WebGL monitor itself (rm-room.js's pcGL: wherever it was built), in the engine's own y-down frame
     const g = House.pcGL, gl = g && g.userData.glass; let cx, cy, z = 0.05, glassMatrix = null;
     if (gl) { glassMatrix = new T.Matrix4().copy(House.root.matrixWorld).invert().multiply(g.matrixWorld); const o = new T.Vector3(gl.x, gl.y, gl.z).applyMatrix4(glassMatrix); cx = o.x; cy = o.y; z = o.z + 0.01; } else { const L = Lb(); cx = L.mx; cy = GY; }
@@ -1744,7 +1770,7 @@
     room, buildRoom, door, setDoor, walkRect, block, stairs, support, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     restoreThing, saveThings, saveWalkState, layerFor, frontFx, place,
     grab, drop, putBack, held: () => held && held.id, placement:()=>held&&THINGS[held.id].floorOnly?floorAim(THINGS[held.id]):null, act: id => act(SPOTS[id]), useAt,
-    glideTo, goStation, cancelGlide, viewFor, setWalkFrom, seatPose, fillPose, get gliding() { return !!glide; },
+    glideTo, goStation, cancelGlide, viewFor, setWalkFrom, seatPose, sitOn, resumeSeat, fillPose, get gliding() { return !!glide; },
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,
     say: (t, x, ms) => ui.say(t, x, ms), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),

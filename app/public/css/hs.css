@@ -61,7 +61,12 @@ html.pc-roomview body.maxed #browser,html.pc-roomview #browser.fs{left:0;top:0;b
 html.pc-roomview #monitorSurface .sizegrip{display:block}
 /* Optional, explicitly chosen PC view: same desktop and same app state. */
 html.pc-roomview.pc-desktop-full #monitorViewport{background:#050606;pointer-events:auto}
-html.pc-roomview.pc-desktop-full #monitorSurface{border-radius:0;box-shadow:none}
+html.pc-roomview.pc-desktop-full #monitorSurface{width:100%;height:100%;border-radius:0;box-shadow:none}
+html.pc-roomview.pc-desktop-full #monitorSurface .appwin.maxwin{left:0!important;top:0!important;width:100%!important;height:calc(100% - 32px)!important;max-width:none!important;max-height:none!important}
+html.pc-roomview.pc-desktop-full #browser{left:96px;top:10px;bottom:10px;width:calc(100% - 106px)}
+html.pc-roomview.pc-desktop-full body.maxed #browser,html.pc-roomview.pc-desktop-full #browser.fs{left:0;top:0;bottom:0;width:100%}
+html.pc-roomview.pc-desktop-full #monitorSurface .float{max-width:calc(100% - 8px);max-height:calc(100% - 40px)}
+@media(max-width:760px){html.pc-roomview.pc-desktop-full #browser{left:0;top:0;bottom:0;width:100%}}
 html.pc-roomview.pc-desktop-full #monitorSurface::after{display:none}
 .hs-surface-lock{z-index:5;border-radius:0!important;box-shadow:0 0 0 100vmax #050606!important}
 .hs-menu-button{display:none}
@@ -281,3 +286,5 @@ html.pc-roomview #crtglass{display:none!important}
 /* A background desktop stays live for messages and programs. Rest decoration
    instead of repainting dozens of banners/blinks through a moving 3D plane. */
 html.hs-screen-idle #monitorSurface *,html.hs-screen-idle #monitorSurface *::before,html.hs-screen-idle #monitorSurface *::after{animation-play-state:paused!important;transition:none!important}
+
+.hs-object-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.hs-object-actions button{padding:5px 12px}
