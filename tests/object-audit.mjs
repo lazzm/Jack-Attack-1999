@@ -23,6 +23,7 @@ const views=[
  ['house','G',[180,195,1020],[80,170,700]]
 ];
 try{
+ await p.evaluate(()=>{for(const r of Object.values(House.ROOMS))House.buildRoom(r)});
  const inventory=await p.evaluate(()=>{
   const bad=[],seen=new Set();let meshes=0,triangles=0;
   House.scene.updateMatrixWorld(true);House.scene.traverse(o=>{if(!o.geometry||seen.has(o.geometry))return;seen.add(o.geometry);meshes++;const g=o.geometry,a=g.attributes.position;triangles+=(g.index?g.index.count:a.count)/3;for(const v of a.array)if(!Number.isFinite(v)){bad.push(o.name||o.uuid);break}});

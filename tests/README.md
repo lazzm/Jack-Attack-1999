@@ -3,6 +3,8 @@
 Printed reading matter (throwaway localhost accounts only):
 
     node magazine-catalogue-unit.cjs
+    node magazine-turning.mjs http://localhost:18475 # closed front -> every page -> closed back; reverse, resize, refresh and interrupted turns
+    node door-editor-state.mjs http://localhost:18475 # saved editor transforms cannot open a logically shut door; --before reproduces on an unpatched copy
     node reading-pages.mjs http://localhost:18474 # 108 fitted pages; twelve issues, paperbacks, directory, TV guide, comic; bookmarks/refresh
     node shelf-print-polish.mjs http://localhost:18474 # Pixel Post orientation; held layers; keyboard/touch; cover CD; directory shelf support
 

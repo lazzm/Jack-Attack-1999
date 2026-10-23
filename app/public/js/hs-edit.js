@@ -25,7 +25,13 @@
   };
   const vals = g => ({ x: g.position.x, y: g.position.y, z: g.position.z, rx: g.rotation.x / D2R, ry: g.rotation.y / D2R, rz: g.rotation.z / D2R });
   const setVals = (g, v) => { g.position.set(v.x, v.y, v.z); g.rotation.set(v.rx * D2R, v.ry * D2R, v.rz * D2R); touch(g); };
-  function touch(g) { g.updateMatrix(); g.matrixWorldNeedsUpdate = true; g.updateMatrixWorld(true); if (H() && H().dirty) H().dirty(); }
+  function touch(g) {
+    // A saved editor angle is not an open-door command. Replaying it used
+    // to leave an open-looking leaf with closed collision/portal visibility.
+    const h=H(),door=h&&Object.values(h.DOORS).find(d=>d.pivot===g);
+    if(door)g.rotation.y=door.ang*door.swing*D2R*(door.dir||1);
+    g.updateMatrix();g.matrixWorldNeedsUpdate=true;g.updateMatrixWorld(true);if(h&&h.dirty)h.dirty();
+  }
   function roomOf(g) { const R = H().ROOMS; for (let p = g.parent; p; p = p.parent) for (const id in R) if (R[id].group === p) return id; return null; }
   const attached = g => { for (let p = g; p; p = p.parent) if (p === H().scene) return true; return false; };
   const excluded = g => { const R = H().ROOMS; for (const id in R) if (R[id].group === g || R[id].things === g) return true; return g === H().root; };

@@ -17,6 +17,7 @@ try{
  for(let month=1;month<=12;month++){
   await page.evaluate(month=>{House.hush();House._.setMode('walk');Magazines.read('reading.mag.bed','pm.mag.'+String(month).padStart(2,'0'))},month);
   assert.equal(await page.evaluate(()=>House.mode),'inspect');
+  assert.equal(await page.evaluate(()=>Magazines.reading.phase),'front');await page.keyboard.press('f');await until(()=>!Magazines.reading.flipping);
   if(month===1)await page.screenshot({path:'shots/reading-pages/first-open.png'});
   for(let n=0;n<2;n++){await page.keyboard.press('ArrowRight');await until(()=>!Magazines.reading.flipping)}
   assert.equal(await page.evaluate(()=>Magazines.reading.page),4);
