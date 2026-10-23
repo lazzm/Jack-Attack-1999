@@ -11,7 +11,7 @@ const art=new Proxy({t:key=>{if(!textures.has(key)){const tex=new T.Texture();te
 const window={THREE:T,HouseArt:art,Room:{_:{}},RoomCat:{FINDS:[]}};
 const context=vm.createContext({window,document,localStorage:{getItem:()=>null},Apps:{defineSecret:noop},console,Date,Math,Promise});
 vm.runInContext(readFileSync(new URL('../app/public/js/hs-kit.js',import.meta.url),'utf8'),context);
-const K=window.HouseKit,records=[],physics=[],H=window.House={K,T,ok:true,SPOTS:{},DOORS:{},ambient:{add:noop},sfx:{},dirty:noop,relight:noop};
+const K=window.HouseKit,records=[],physics=[],H=window.House={K,T,root:new T.Group(),ok:true,SPOTS:{},DOORS:{},ambient:{add:noop},sfx:{},dirty:noop,relight:noop};
 H.spot=(id,def)=>(H.SPOTS[id]=def);
 H.door=(id,def)=>{H.DOORS[id]=def;physics.push(['door',id,def.rooms,def.swing,def.dir,def.pivot?.position.toArray()])};
 for(const name of ['walkRect','block','support'])H[name]=(...args)=>physics.push([name,...args]);

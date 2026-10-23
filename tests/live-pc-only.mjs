@@ -17,6 +17,7 @@ try {
   assert.equal(await p.locator('#boot,.hs-gl,.hs-gl2,.hs-ui,.pc-touch').count(),0);
   await p.reload({waitUntil:'networkidle'});
   await p.screenshot({path:'shots/live-mobile-jackos.png'});
+  await p.setViewportSize({width:844,height:390});await p.screenshot({path:'shots/live-mobile-jackos-landscape.png'});assert(await p.evaluate(()=>PCOnly.desktopOnly&&!House.ok));assert.equal(await p.locator('#boot,.hs-gl,.hs-gl2,.hs-ui,.pc-touch').count(),0);
   assert(sockets>0);assert.deepEqual(errors,[]);
   console.log('LIVE MOBILE JACKOS PASS: mandatory logon/refresh; no room renderer/controls; zero errors/warnings');
 } finally {await b.close()}

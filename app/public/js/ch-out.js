@@ -157,16 +157,16 @@
   const MOWHOME = { x: 196, z: 748, ry: 200 }, OSOCK = { x: 236, y: GY - 46, z: 701.6 };
   const GNOME = { x: -132, z: 884 };
   const NX = Math.ceil((LAWN.x1 - LAWN.x0) / CELL), NZ = Math.ceil((LAWN.z1 - LAWN.z0) / CELL);
-  let mower = null, grassTex = null, cut = null, mowing = false, gnome = null, lastPaint = 0, stripeDir = {};
+  let mower=null,grassTex=null,cut=null,grassField=null,grassSeeds=null,grassPerCell=0,grassPose=null, mowing = false, gnome = null, lastPaint = 0, stripeDir = {};
   const LV = () => (CK.S.v.lawn = CK.S.v.lawn || {});
   function mowerModel() {
-    const g = new T.Group(), G = K.into(g), or = mat('#f07a10', { sh: 60, sp: '#777' }), dk = mat('#222', { sh: 30 });
+    const g = new T.Group(), G = K.into(g), or = mat('#c96d2c',{sh:28,sp:'#614637'}), dk = mat('#222', { sh: 30 });
     G.lathe(0, 0, 0, [[0.1, -18], [8, -17], [16, -13], [20, -7], [21, -3], [20.6, 0], [0.1, 0]], 26, or);
-    G.cyl(0, -18.6, 0, 6, 7, 2, 18, dk); G.box(0, -17, 14, 14, 3, 6, M({ c: '#fff', map: K.tex('ch.mowlogo', 128, 32, (q, w, h) => { q.fillStyle = '#f07a10'; q.fillRect(0, 0, w, h); A.text(q, 'HOVER-MO', 64, 23, '700 18px ' + A.FONT, '#111', 'center'); }) }), { rx: -20 });
+    G.rbox(0,-21,0,16,9,18,2.4,dk);for(let z=-6;z<=6;z+=2)G.box(0,-25.61,z,12,.2,.65,mat('#111512'));G.geo(new T.TorusGeometry(20.9,.55,6,28),0,-3,0,or,{rx:90});for(const x of [-11,11])G.cyl(x,-12,-14,2.5,2.5,3,12,dk,{rz:90}); G.box(0, -17, 14, 14, 3, 6, M({ c: '#fff', map: K.tex('ch.mowlogo', 128, 32, (q, w, h) => { q.fillStyle = '#f07a10'; q.fillRect(0, 0, w, h); A.text(q, 'HOVER-MO', 64, 23, '700 18px ' + A.FONT, '#111', 'center'); }) }), { rx: -20 });
     G.shadow(0, 0, 0, 46, 46, 0.6);
     const pv = new T.Group(); pv.position.set(0, -12, -14); g.add(pv); g.userData.pivot = pv; const P = K.into(pv);
-    [-11, 11].forEach(x => P.cyl(x, -38, -6, 1.1, 1.1, 78, 8, mat('#c8c8cc', { sh: 80 }), { rx: -18 }));
-    P.cyl(0, -74, -18, 1.4, 1.4, 26, 8, dk, { rz: 90 }); P.box(9, -70, -16, 4, 8, 4, mat('#d01a1a'));
+    [-11, 11].forEach(x => P.cyl(x,-37,-9,1.1,1.1,Math.hypot(74,18),10,mat('#a9afb0',{sh:45,sp:'#697273'}),{rx:Math.atan2(18,74)/D2R}));
+    P.cyl(0,-74,-18,1.8,1.8,26,12,dk,{rz:90});P.cyl(0,-78,-18,0.55,0.55,22,8,mat('#a83b31'),{rz:90});for(const x of [-10,10])P.cyl(x,-76,-18,.55,.55,4,8,mat('#a83b31'));P.rbox(9,-70,-16,4,8,4,.6,mat('#b32e27'));
     return g;
   }
   CK.add({
@@ -174,14 +174,16 @@
     build(r) {
       // the long grass (a texture over the lawn: mowing draws the stripes into it)
       grassTex = K.tex('ch.grass', NX * 4, NZ * 4, () => {}, { clamp: true });
-      grassTex.magFilter = T.LinearFilter;
-      const gm = M({ c: '#fff', map: grassTex, tr: true, sh: 4 }).clone();
-      const gp = new T.Mesh(new T.PlaneGeometry(LAWN.x1 - LAWN.x0, LAWN.z1 - LAWN.z0), gm); gp.rotation.x = Math.PI / 2; gp.position.set((LAWN.x0 + LAWN.x1) / 2, GY - 0.5, (LAWN.z0 + LAWN.z1) / 2); gp.renderOrder = 1; gp.userData.noPick = 1; r.group.add(gp);
+      grassTex.magFilter=T.LinearFilter;grassTex.flipY=false; // Box top UVs already use the house's flipped V axis.
+      // Solid turf surface replaces the old transparent floating overlay.
+      const gm=M({c:'#fff',map:grassTex,sh:2}),gp=new T.Group(),batch=K.batch();gp.name='mowable-turf';
+      K.into(batch).box((LAWN.x0+LAWN.x1)/2,GY+1.5,(LAWN.z0+LAWN.z1)/2,LAWN.x1-LAWN.x0,3,LAWN.z1-LAWN.z0,{t:gm,all:M('#65533c')});batch.build(gp);gp.traverse(o=>o.userData.noPick=1);r.group.add(gp);
+      buildGrassField(r);
       cut = new Uint8Array(NX * NZ);
       const v = LV(); if (v.day === CK.day() && v.cut) { const raw = atob(v.cut); for (let i = 0; i < cut.length && i < raw.length; i++) cut[i] = raw.charCodeAt(i); }
       paintGrass();
       // the gnome (do NOT mow the gnome)
-      gnome = grp(G => { G.cyl(0, -10, 0, 4, 6, 20, 12, mat('#2a5ad0')); G.ball(0, -24, 0, 4.4, 4.4, 4.4, mat('#f0c8a0'), 12); G.ball(0, -19, 2.4, 4, 4, 2.6, mat('#f4f4f4'), 10); G.lathe(0, -27, 0, [[0.1, -14], [4.8, 0]], 12, mat('#d01a1a'), { rz: 8 }); G.ball(2.6, -8, 3.4, 1.8, 1.8, 1.8, mat('#6a3a1a'), 8); G.shadow(0, 0, 0, 16, 16, 0.6); });
+      gnome = grp(G => { G.cyl(0, -10, 0, 4, 6, 20, 12, mat('#2a5ad0')); G.ball(0, -24, 0, 4.4, 4.4, 4.4, mat('#f0c8a0'), 12); G.ball(0, -19, 2.4, 4, 4, 2.6, mat('#f4f4f4'), 10); G.cyl(0,-34,0,.1,4.8,14,12,mat('#b6322e'));for(const x of [-2.2,2.2]){G.ball(x,-1.8,2.5,2.8,1.8,4,mat('#49372a'),8);G.ball(x*.48,-25.2,4.05,.38,.48,.4,mat('#242728'),8)}G.ball(0,-23.5,4.5,1,1.3,1,mat('#d8ae86'),8);for(const x of [-4.6,4.6])G.ball(x,-13,2,1.4,1.6,1.4,mat('#e4bb96'),8);G.cyl(7,-30,3,.3,.3,36.5,6,mat('#765537'),{rz:8});G.cyl(9.5,-32,3.2,.07,.07,31,6,mat('#b4afa0')); G.ball(2.6, -8, 3.4, 1.8, 1.8, 1.8, mat('#6a3a1a'), 8); G.shadow(0, 0, 0, 16, 16, 0.6); });
       gnome.position.set(GNOME.x, GY, GNOME.z); gnome.rotation.y = 0.4; r.group.add(gnome);
       CK.spot(r, 'ch.gnome', gnome, { label: 'Gerald (the gnome)', act: () => CK.jack('Gerald', 'Gerald the gnome. Mom got him at a car boot sale. He has a fishing rod and no fish. Do NOT mow Gerald.', 4000) });
       // the mower, by the front door; the outside socket
@@ -201,22 +203,63 @@
     },
     reset() { LV().cut = ''; LV().at = null; if (cut) { cut.fill(0); paintGrass(); } this.sync(); },
   });
+  function grassBlade(){
+    const geo=new T.BufferGeometry(),v=[-.42,0,0,.42,0,0,0,0,.12,-.05,-.55,.06,.45,-.55,.06,.2,-.55,.15,.85,-1,.18];
+    geo.setAttribute('position',new T.Float32BufferAttribute(v,3));geo.setIndex([0,2,1,0,1,4,0,4,3,1,2,5,1,5,4,2,0,3,2,3,5,3,4,6,4,5,6,5,3,6]);geo.computeVertexNormals();
+    return geo;
+  }
+  function buildGrassField(r){
+    // Closed, bent blades; instanced once. No alpha cards, sorting, animation
+    // loop or per-blade objects. Mowing only changes the touched cell matrices.
+    const geo=grassBlade();
+    grassPerCell=H.Q.tier==='low'?8:H.Q.tier==='high'?20:14;const total=NX*NZ*grassPerCell;
+    grassField=new T.InstancedMesh(geo,M({c:'#fff',sh:1,sp:'#000'}),total);grassField.name='mowable-grass-blades';grassField.userData.noPick=1;grassField.instanceMatrix.setUsage(T.DynamicDrawUsage);
+    grassSeeds=new Float32Array(total*4);grassPose=new T.Object3D();const rnd=K.rnd(913);
+    for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++)for(let n=0;n<grassPerCell;n++){
+      const id=(j*NX+i)*grassPerCell+n,k=id*4;grassSeeds[k]=Math.min(LAWN.x1-.4,LAWN.x0+(i+.1+rnd()*.8)*CELL);grassSeeds[k+1]=Math.min(LAWN.z1-.4,LAWN.z0+(j+.1+rnd()*.8)*CELL);grassSeeds[k+2]=3.5+rnd()*4;grassSeeds[k+3]=rnd()*Math.PI*2;
+    }
+    // r128 does not compute InstancedMesh bounds: the base geometry must carry
+    // the whole field sphere so distant blades never pop at a screen edge.
+    geo.boundingSphere=new T.Sphere(new T.Vector3((LAWN.x0+LAWN.x1)/2,GY-4,(LAWN.z0+LAWN.z1)/2),Math.hypot(LAWN.x1-LAWN.x0,LAWN.z1-LAWN.z0)/2+12);
+    r.group.add(grassField);
+  }
+  CK.whenBuilt('garden',r=>{
+    if(r.group.getObjectByName('garden-grass-blades'))return;
+    const random=K.rnd(721),seeds=[];
+    for(let z=-545;z<-75;z+=18)for(let x=-285;x<205;x+=18){
+      if(x>-220&&x<120&&z>-196||x<-130&&z<-392||x<-170&&x>-290&&z>-310&&z<-230||x>125&&z>-230&&z<-145||x>150&&z>-140)continue;
+      for(let i=0;i<(H.Q.tier==='low'?3:6);i++)seeds.push([x+random()*15,z+random()*15,2.8+random()*2.8,random()*Math.PI*2]);
+    }
+    const geo=grassBlade();geo.boundingSphere=new T.Sphere(new T.Vector3(-42.5,GY-3,-308),375);
+    const mesh=new T.InstancedMesh(geo,M({c:'#fff',sh:1,sp:'#000'}),seeds.length),pose=new T.Object3D(),color=new T.Color();mesh.name='garden-grass-blades';mesh.userData.noPick=1;
+    seeds.forEach(([x,z,h,a],i)=>{pose.position.set(x,GY-.02,z);pose.rotation.set(0,a,0);pose.scale.set(1,h,1);pose.updateMatrix();mesh.setMatrixAt(i,pose.matrix);color.set(['#394d2b','#435c30','#50673a'][i%3]);mesh.setColorAt(i,color)});
+    mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;r.group.add(mesh);H.dirty();
+  });
+  function cutGrassGeometry(cells){
+    if(!grassField||!cut)return;const color=new T.Color();
+    const cell=(i,j)=>{const state=cut[j*NX+i];for(let n=0;n<grassPerCell;n++){
+      const id=(j*NX+i)*grassPerCell+n,k=id*4,h=grassSeeds[k+2];grassPose.position.set(grassSeeds[k],GY-.03,grassSeeds[k+1]);grassPose.rotation.set(0,grassSeeds[k+3],0);grassPose.scale.set(state?.75:1,state?1.1:h,state?.75:1);grassPose.updateMatrix();grassField.setMatrixAt(id,grassPose.matrix);
+      color.set(state===1?'#607b43':state===2?'#4d6939':['#394d2b','#435c30','#50673a'][id%3]);grassField.setColorAt(id,color);
+    }};
+    if(cells)for(const [i,j]of cells)cell(i,j);else for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++)cell(i,j);
+    grassField.instanceMatrix.needsUpdate=true;if(grassField.instanceColor)grassField.instanceColor.needsUpdate=true;
+  }
   function paintGrass(cells) {
     const g = grassTex.userData.g, w = NX * 4, h = NZ * 4;
-    const long = (x, z) => { const k = (x * 7 + z * 13) % 5; return ['#2f6a22', '#356f26', '#2a6320', '#3a7428', '#316b24'][k]; };
+    const long = (x, z) => { const k = (x * 7 + z * 13) % 5; return ['#344f2c','#3c5930','#334d2b','#425f33','#39532e'][k]; };
     const draw = (i, j) => {
       const c = cut[j * NX + i];
       const y = (NZ - 1 - j) * 4; // (the canvas's top row is the far end of the lawn)
       if (!c) { g.fillStyle = long(i, j); g.fillRect(i * 4, y, 4, 4); g.fillStyle = 'rgba(80,140,50,.6)'; g.fillRect(i * 4 + ((i * 3 + j) % 4), y, 1, 3); }
-      else { g.fillStyle = c === 1 ? '#6aa848' : '#5a9a3c'; g.fillRect(i * 4, y, 4, 4); }
+      else { g.fillStyle = c === 1 ? '#607b43' : '#4d6939'; g.fillRect(i * 4, y, 4, 4); }
     };
     if (cells) cells.forEach(([i, j]) => draw(i, j)); else { g.clearRect(0, 0, w, h); for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) draw(i, j); }
-    grassTex.needsUpdate = true; H.dirty();
+    grassTex.needsUpdate=true;cutGrassGeometry(cells);H.dirty();
   }
   function plugMower() { if (CK.tool.plug()) { CK.step('lawn', 'plug'); CK.jack('The mower', 'Plugged in. WHUMMMMMM. It hovers! It actually hovers! Up and down in nice straight lines, like Dad does.', 4000); mowUi(); } }
   let nearHomeM = false, nearSockM = false;
   function mowHint() { if (!CK.tool.plugged) return 'Plug it in: the outside socket by the front door.'; const left = stripsLeft(); return left ? `Mow the lawn: ${left} strip${left > 1 ? 's' : ''} to go. Mind the gnome. Mind the cable.` : 'Lawn done! Put the mower back by the front door.'; }
-  function mowButtons() { const out = []; if (!CK.tool.plugged && nearSockM) out.push(['Plug it in', plugMower]); if (nearHomeM) out.push(['Put it back', putMowerBack]); return out; }
+  function mowButtons(){const out=[],nearSocket=Math.hypot(H.W.x-OSOCK.x,H.W.z-OSOCK.z)<150,nearHome=Math.hypot(H.W.x-MOWHOME.x,H.W.z-MOWHOME.z)<110;if(!CK.tool.plugged&&nearSocket)out.push(['Plug it in',plugMower]);if(nearHome)out.push(['Put it back',putMowerBack]);return out;}
   function mowUi() { CK.tool.hint(mowHint()); CK.tool.buttons(); }
   const stripsLeft = () => Array.from({ length: STRIPS }, (_, s) => s).filter(s => !CK.has('lawn', 'l' + s)).length;
   function takeMower() {
@@ -225,7 +268,7 @@
     if (CK.done('lawn')) return CK.jack('The mower', 'The lawn\'s done. Look at those stripes. Wombleton, eat your heart out.');
     CK.begin('lawn'); mowing = true;
     CK.tool.take({
-      id: 'mower', name: 'The hover mower', obj: mower, dist: 58, tilt: 0.35, rear: 20, hz: 150,
+      id:'mower',name:'The hover mower',obj:mower,dist:58,radius:21, tilt: 0.35, rear: 20, hz: 150,
       cable: { room: 'drive', x: OSOCK.x, y: OSOCK.y + 4, z: OSOCK.z + 3, nx: 0, nz: 1, max: 1000, col: '#f07a10' },
       hint: mowHint(), buttons: () => mowButtons(), frame: head => mowFrame(head),
       unplugged: () => { CK.secret('ch.plug'); CK.jack('PING!', 'The plug came out of the outside socket. (Plug it back in by the front door.)', 3500); mowUi(); },
@@ -269,7 +312,7 @@
   let broom = null, piles = [], sack = null, sweeping = false;
   function broomModel() {
     const g = new T.Group(), G = K.into(g);
-    G.rbox(0, -3, 0, 40, 6, 7, 1.5, mat('#7a4a22', { sh: 10 })); for (let i = 0; i < 20; i++) G.box(-18 + i * 1.9, -0.8, 0, 0.8, 1.6, 5.4, mat('#2a2218'));
+    G.rbox(0, -7.5, 0, 40, 5, 7, 1.5, mat('#7a4a22', { sh: 10 })); for (let i = 0; i < 20; i++) G.box(-18 + i * 1.9, -2.5, 0, 0.8, 5, 5.4, mat('#2a2218'));
     G.shadow(0, 0, 0, 46, 14, 0.5, { sq: true });
     const pv = new T.Group(); pv.position.set(0, -6, 0); g.add(pv); g.userData.pivot = pv; K.into(pv).cyl(0, -62, -2, 1.3, 1.3, 124, 8, mat('#c8a060', { sh: 20 }));
     return g;
@@ -279,7 +322,7 @@
     id: 'sweep', room: 'drive',
     build(r) {
       piles = LEAVES.map(([x, z], i) => { const g = pileModel(i + 11); g.position.set(x, GY, z); r.group.add(g); return { g, x, z }; });
-      sack = grp(G => { G.lathe(0, 0, 0, [[0.1, -48], [17, -47], [19, -30], [18, -6], [14, 0], [0.1, 0]], 18, mat('#2a6a2a', { sh: 40, sp: '#444', side: 2 })); G.disc(0, -40, 0, 16, mat('#6a4a1a')); G.shadow(0, 0, 0, 40, 40, 0.5); });
+      sack = grp(G => { G.lathe(0, 0, 0, [[.001,0],[14,0],[18,-6],[19,-30],[17,-47],[16.2,-47],[18.2,-30],[17.2,-6],[13.3,-.9],[.001,-.9],[.001,0]].reverse(), 18, mat('#2a6a2a', { sh: 40, sp: '#444', side: 2 })); G.disc(0, -40, 0, 16, mat('#6a4a1a')); G.shadow(0, 0, 0, 40, 40, 0.5); });
       sack.position.set(SACK.x, GY, SACK.z); r.group.add(sack);
       CK.spot(r, 'ch.sack', sack, { label: 'Garden sack (for leaves)', act: () => tipLeaves() });
       broom = broomModel(); r.group.add(broom);

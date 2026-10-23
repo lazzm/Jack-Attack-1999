@@ -814,6 +814,7 @@
   }
   const KEYMOVE = { w: 'f', W: 'f', ArrowUp: 'f', s: 'b', S: 'b', ArrowDown: 'b', a: 'l', A: 'l', ArrowLeft: 'l', d: 'r', D: 'r', ArrowRight: 'r' };
   let lastPt = { x: 0, y: 0, ok: false, mouse: false };
+  const walkingFloor=(x,z)=>window.ChoreKit?.tool?.canWalk?.(x,z)===false?null:floorAt(x,z,W.lvl,W.fy);
   function tickWalk(dt) {
     if (window.House && House.god) { const gr = House.god(dt); roomCheck(); return gr; } // (layout editor, hs-edit.js: noclip fly)
     let mx = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), mz = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
@@ -833,11 +834,11 @@
     const spd = Math.hypot(W.vx, W.vz);
     if (spd > 1) {
       const nx = W.x + W.vx * dt, nz = W.z + W.vz * dt;
-      let f = floorAt(nx, nz, W.lvl, W.fy);
+      let f=walkingFloor(nx,nz);
       if (!f && !floorAt(W.x, W.z, W.lvl, W.fy)) f = { y: W.fy, lvl: W.lvl }; // (somewhere you shouldn't be, e.g. an old saved spot: you can always walk out of it)
       if (f) { W.x = nx; W.z = nz; }
-      else if ((f = floorAt(nx, W.z, W.lvl, W.fy))) { W.x = nx; W.vz *= 0.5; }
-      else if ((f = floorAt(W.x, nz, W.lvl, W.fy))) { W.z = nz; W.vx *= 0.5; }
+      else if((f=walkingFloor(nx,W.z))) { W.x = nx; W.vz *= 0.5; }
+      else if((f=walkingFloor(W.x,nz))) { W.z = nz; W.vx *= 0.5; }
       else { W.vx = W.vz = 0; }
       if (f) { W.fy += (f.y - W.fy) * Math.min(1, dt * 14); W.lvl = f.lvl; }
       if (stIdx >= 0 && spd > 40) { stIdx = -1; ui.where(); }
@@ -886,7 +887,8 @@
     if (viewOpen() || (mode !== 'walk' && mode !== 'glide'&&!(mode==='focus'&&focusS?.o.seatId))) { if (mode === 'stand' || mode === 'sit') { ev.preventDefault(); ev.stopImmediatePropagation(); } return; }
     if (ui.modalOpen()) return;
     if (worldLoading) {ev.preventDefault(); return;}
-    const k = ev.key;
+    const k=ev.key;
+    if(window.ChoreKit?.tool?.key?.(ev)){wantLock();return;}
     if (KEYMOVE[k]) { wantLock(); if (cancelGlide() || !glide) keys[KEYMOVE[k]] = true; ev.preventDefault(); ev.stopImmediatePropagation(); ui.crossOn(); return; }
     if (k === 'Shift') { keys.run = true; return; }
     if (k === ' ' && !(t && t.closest && t.closest('button'))) { ev.preventDefault(); ev.stopImmediatePropagation(); if (!ev.repeat) keys.jump = true; return; }
@@ -1511,7 +1513,7 @@
     }
     if (c.contains('go')) ls.del('jhp_hs_pose');
   }).observe(pb, { attributes: true, attributeFilter: ['class'] });
-  function putAway() { unlock(); if (held) putBack(); glide = null; for (const k in keys) keys[k] = false; ui.hush(); ui.tip(null); setHot(null); }
+  function putAway(){unlock();if(focusS?.o.seatId){focusS=null;html.classList.remove('hs-focus');ui.focusBar(null);}if(held)putBack(); glide = null; for (const k in keys) keys[k] = false; ui.hush(); ui.tip(null); setHot(null); }
   // boot.js calls bootPC directly: a single glide from the player's current
   // first-person pose to the glass. No intermediate side-on station.
 
@@ -1544,7 +1546,7 @@
     if(gl){root.updateMatrixWorld(true);const m=new T.Matrix4().copy(root.matrixWorld).invert().multiply(g.matrixWorld);return new T.Vector3(gl.x,gl.y,gl.z).applyMatrix4(m)}
     return new T.Vector3(Lb().mx,GY,.06);
   }
-  function rememberPCEntry(){if(mode==='walk'||mode==='glide')ls.set('jhp_hs_pc_return',Object.assign(walkingPose(),{seat:0}));}
+  function rememberPCEntry(){const back=focusS?.o.seatId?focusS.back:null;if(back||mode==='walk'||mode==='glide')ls.set('jhp_hs_pc_return',Object.assign({},back||walkingPose(),{seat:0}));}
   function pcExitPose(){
     const saved=ls.get('jhp_hs_pc_return',null),c=monitorCentre();
     const candidates=[saved,{x:c.x,y:LV.U-STAND,z:115,rx:-10,ry:0,seat:0,lvl:'U'},{x:40,y:LV.U-STAND,z:155,rx:-8,ry:-40,seat:0,lvl:'U'}];

@@ -210,7 +210,7 @@
     // The oak base rail caps this edge. A second white nosing used to share
     // its outer face and flicker through the oak at floor level.
     B.box(245, UY + 1.1, 190, 10.4, 2.2, 80, M({ c: '#fff', map: tex('oak') })); B.box(245, UY - 0.45, 190, 10.4, 0.9, 80, M({ c: '#fff', map: tex('oak') })); // the threshold strip: fills the wall thickness between Jack's carpet and the landing, flush with both
-    
+
     // the banisters: round the stairwell up here, and down the stairs
     banister(B, [[330, 252], [330, 600], [410, 600]], UY); // (the whole open edge of the stairwell: newels with round caps at the corners; blocked below)
     // skirting on the landing walls
@@ -777,9 +777,9 @@
     const gr = g.createRadialGradient(140, 60, 2, 140, 60, 80); gr.addColorStop(0, N ? 'rgba(0,0,0,0)' : 'rgba(255,250,220,.95)'); gr.addColorStop(0.3, N ? 'rgba(0,0,0,0)' : 'rgba(255,240,190,.5)'); gr.addColorStop(1, 'rgba(255,240,190,0)'); g.fillStyle = gr; g.fillRect(60, -20, 160, 160);
   }, { clamp: true }); }
   const mFence = () => M({ c: '#fff', map: K.tex('hs.fence', 256, 256, (g, w, h) => { g.fillStyle = '#8a6a44'; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 32) { g.fillStyle = x % 64 ? '#946f48' : '#7e6040'; g.fillRect(x, 0, 30, h); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(x + 30, 0, 2, h); } A.grain(g, w, h, 2500, 0.08, 61); for (let x = 0; x < w; x += 32) for (let i = 0; i < 6; i++) { g.strokeStyle = 'rgba(60,40,20,.25)'; g.beginPath(); g.moveTo(x + 4, i * 40 + (x % 7) * 3); g.lineTo(x + 26, i * 40 + 20); g.stroke(); } }) });
-  const mGrass = () => M({ c: '#fff', map: K.tex('hs.grass', 256, 256, (g, w, h) => { g.fillStyle = '#4a7a2e'; g.fillRect(0, 0, w, h); const r = K.rnd(62); for (let i = 0; i < 14000; i++) { const v = r(); g.fillStyle = v < 0.4 ? 'rgba(30,70,20,.4)' : v < 0.9 ? 'rgba(130,190,70,.3)' : 'rgba(220,200,90,.35)'; g.fillRect(r() * w, r() * h, 1, 1 + r() * 2); } A.mottle(g, w, h, 20, 'rgba(0,0,0,.08)', 40, 63); }) });
+  const mGrass = () => M({ c: '#fff', map: K.tex('hs.grass', 256, 256, (g, w, h) => { g.fillStyle = '#465e35'; g.fillRect(0, 0, w, h); const r = K.rnd(62); for (let i = 0; i < 14000; i++) { const v = r(); g.fillStyle = v < 0.4 ? 'rgba(35,58,25,.35)' : v < 0.9 ? 'rgba(102,136,75,.25)' : 'rgba(160,151,88,.18)'; g.fillRect(r() * w, r() * h, 1, 1 + r() * 2); } A.mottle(g, w, h, 20, 'rgba(0,0,0,.08)', 40, 63); }) });
   const mSlab = () => M({ c: '#fff', map: K.tex('hs.slab', 256, 256, (g, w, h) => { for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) { g.fillStyle = ['#a8a49a', '#9e9a90', '#b0aca2'][(x + y * 3) % 3]; g.fillRect(x * 64, y * 64, 64, 64); } g.strokeStyle = '#5a5a52'; g.lineWidth = 2; for (let i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(i * 64, 0); g.lineTo(i * 64, h); g.stroke(); g.beginPath(); g.moveTo(0, i * 64); g.lineTo(w, i * 64); g.stroke(); } A.grain(g, w, h, 4000, 0.07, 64); A.mottle(g, w, h, 12, 'rgba(40,60,20,.15)', 30, 65); }) });
-  const mBrick = () => M({ c: '#fff', map: K.tex('hs.brick', 256, 128, (g, w, h) => { g.fillStyle = '#b8b0a4'; g.fillRect(0, 0, w, h); for (let y = 0; y < 8; y++) for (let x = -1; x < 9; x++) { const off = y % 2 ? 16 : 0; g.fillStyle = ['#a85a3a', '#b0633f', '#9a5236', '#b86a44'][(x + y * 5) % 4]; g.fillRect(x * 32 + off + 1, y * 16 + 1, 30, 14); } A.grain(g, w, h, 1500, 0.08, 66); }) });
+  const mBrick=()=>M({c:'#fff',map:K.tex('hs.brick.v2',256,256,(g,w,h)=>{g.fillStyle='#a69b87';g.fillRect(0,0,w,h);const r=K.rnd(66);for(let y=0;y<24;y++)for(let x=-1;x<9;x++){g.fillStyle=['#98664e','#a26d51','#936049','#ac7859'][(r()*4)|0];g.fillRect(x*32+(y%2)*16+.7,y*h/24+.7,30.6,h/24-1.4)}A.grain(g,w,h,1500,.06,66)})});
   const mTarmac = () => M({ c: '#fff', map: K.tex('hs.tarmac', 256, 256, (g, w, h) => { g.fillStyle = '#4a4a4c'; g.fillRect(0, 0, w, h); const r = K.rnd(67); for (let i = 0; i < 12000; i++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,.3)' : 'rgba(255,255,255,.12)'; g.fillRect(r() * w, r() * h, 1.5, 1.5); } }) });
   function tree(B, x, z, hgt, spread) {
     const trunk = M({ c: '#fff', map: tex('oak') }), leaf = M({ c: '#2e6a2a', sh: 10 });
@@ -787,29 +787,48 @@
     for (let i = 0; i < 6; i++) { const a = i * 1.1, rr = spread * (0.5 + (i % 3) * 0.22); B.ball(x + Math.cos(a) * spread * 0.45, GY - hgt * 0.62 - (i % 2) * spread * 0.3, z + Math.sin(a) * spread * 0.45, rr, rr * 0.8, rr, M({ c: ['#2e6a2a', '#3a7a30', '#27602a'][i % 3], sh: 10 }), 10); }
     B.shadow(x, GY, z, spread * 2.2, spread * 2.2, 0.5);
   }
+  let exteriorRoof=null;
+  function houseRoof(){
+    if(exteriorRoof)return;exteriorRoof=new T.Group();exteriorRoof.name='family-house-roof';H.root.add(exteriorRoof);
+    const batch=K.batch(),B=K.into(batch),tile=M({c:'#fff',sh:4,map:K.tex('hs.roof.slates',256,256,(g,w,h)=>{const r=K.rnd(301);g.fillStyle='#373d3b';g.fillRect(0,0,w,h);for(let y=0;y<8;y++)for(let x=-1;x<9;x++){g.fillStyle=['#5a5049','#62574f','#514b45'][(r()*3)|0];g.fillRect(x*32+(y%2)*16+1,y*32+1,30,30)}A.grain(g,w,h,1200,.045,301)})}),edge=M('#413b37'),cream=M('#ddd6c5');
+    const slab=(points,z,depth,material)=>{const q=new T.Shape();points.forEach(([x,y],i)=>q[i?'lineTo':'moveTo'](x,y));q.closePath();B.geo(new T.ExtrudeGeometry(q,{depth,bevelEnabled:false}),0,0,z,material,{uv:material===tile?256:128})};
+    // Complete solid roof across both storeys, shared by front/back views.
+    slab([[-326,-200],[60,-370],[60,-363],[-326,-193]],-82,808,tile);
+    slab([[60,-370],[446,-200],[446,-193],[60,-363]],-82,808,tile);
+    for(const z of [-59,701])slab([[-300,-196],[-300,-204.5],[60,-363],[420,-204.5],[420,-196]],z,2,mBrick());
+    B.cyl(60,-369,322,4.5,4.5,816,12,edge,{rx:90});
+    for(const x of [-322,442]){B.box(x,-195,322,9,13,808,cream);B.cyl(x,-188,322,4,4,814,10,edge,{rx:90})}
+    // Tile courses are thin raised battens on the slopes, never coplanar planes.
+    for(let n=1;n<=9;n++){const t=n/10,y=-200-170*t;for(const sign of [-1,1])B.box(60+sign*386*(1-t),y-.8,322,1.6,1.5,802,M(n%2?'#4e4541':'#60534b'))}
+    const c=B.at(-135,-260,360);c.box(0,-72,0,63,145,62,mBrick(),{uv:90});c.box(0,-148,0,72,10,71,M('#a19786'));
+    for(const x of [-16,16]){c.cyl(x,-168,0,9,11,32,12,M('#98644b'));c.cyl(x,-184.5,0,7,7,.7,12,M('#292a26'))}
+    for(const x of [-316,436])for(const z of [-61,705]){B.cyl(x,78.5,z,3.1,3.1,533,10,edge);B.box(x,352,z+4,18,3,18,M('#545953'));for(let n=-2;n<=2;n++)B.box(x+n*2.5,350.43,z+4,1.2,.12,12,M('#232825'))}
+    batch.build(exteriorRoof);H.dirty();
+  }
+  const shedWood=()=>M({c:'#fff',map:K.tex('hs.shed.boards',128,256,(g,w,h)=>{const r=K.rnd(177);g.fillStyle='#847351';g.fillRect(0,0,w,h);for(let x=0;x<w;x+=32){g.fillStyle=['#897856','#7e6f51','#918061','#827154'][x/32];g.fillRect(x+1,0,30,h);g.fillStyle='#574d3b';g.fillRect(x,0,1,h);for(let n=0;n<12;n++){g.strokeStyle=n%2?'rgba(42,39,25,.13)':'rgba(192,176,137,.12)';g.beginPath();let xx=x+3+r()*25;g.moveTo(xx,0);for(let y=8;y<=h;y+=8)g.lineTo(xx+Math.sin(y*.025+n)*.7,y);g.stroke()}}})});
   function buildGarden(r) {
+    houseRoof();
     const batch = K.batch(), B = K.into(batch);
     const x0 = -300, x1 = 215, z0 = -560, z1 = -56; // (behind the kitchen; the back wall of the house is z = -56)
     r.wheelie={x:160,z:-190};r.waterButt={x:180,z:-102};
-    B.plane((x0 + x1) / 2, GY, (z0 + z1) / 2, x1 - x0, z1 - z0, mGrass(), { rx: 90, uv: 110 });
-    B.plane(-50, GY - 0.3, -126, 330, 130, mSlab(), { rx: 90, uv: 100 }); // the patio by the back door
+    B.box((x0+x1)/2,GY+2,(z0+z1)/2,x1-x0,4,z1-z0,mGrass(),{uv:110});
+    B.box(-50,GY+1.7,-126,330,4,130,mSlab(),{uv:100}); // the patio by the back door
     // the back of the house: brick, the kitchen window and the back door from outside, Jack's window up above
     const openings=[[-140,-20,195,290],[80,160,GY-205,356],[156,226,-112,-14]],cuts=[...new Set([-300,420,...openings.flatMap(h=>h.slice(0,2))])].sort((a,b)=>a-b);
     for(let i=0;i<cuts.length-1;i++){
-      const x0=cuts[i],x1=cuts[i+1],holes=openings.filter(h=>h[0]<x1&&h[1]>x0).sort((a,b)=>a[2]-b[2]);let top=-250;
+      const x0=cuts[i],x1=cuts[i+1],holes=openings.filter(h=>h[0]<x1&&h[1]>x0).sort((a,b)=>a[2]-b[2]);let top=-196;
       const wall=(a,b)=>{if(b>a)B.plane((x0+x1)/2,(a+b)/2,-57,x1-x0,b-a,mBrick(),{ry:180,uv:128})};
       for(const h of holes){wall(top,h[2]);top=Math.max(top,h[3])}wall(top,356);
     }
-    B.box(60, GY - 603, -40, 740, 6, 40, M('#5a3a2a')); B.box(60, GY - 625, -20, 740, 40, 2, M('#7a3a2a'));
-    B.plane(300, GY - 420, -57.5, 70, 80, M({ c: '#c8d8f0', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); B.plane(300, GY - 420, -59, 64, 74, M({ c: '#1a2a3a', o: 0.6, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); // the bathroom window
+
+    B.box(300,-67,-58.5,70,80,2,M({c:'#789095',sh:28,sp:'#879a9b'}));
+    for(const x of [263,337])B.box(x,-67,-60,5,88,5,mWhite);for(const y of [-109,-25])B.box(300,y,-60,70,4,5,mWhite);B.box(300,-69,-61,70,3,3,mWhite);B.box(300,-20,-63,82,5,10,M('#bbb5a5'));
     for(const x of [-138,-22,-80])B.box(x,242.5,-59,4,x===-80?87:95,3,mWhite);
     for(const y of [197,288])B.box(-80,y,-59,112,4,3,mWhite);
     B.plane(-80,242.5,-61.2,112,87,M({c:'#c8d8f0',o:.12,tr:true,sh:80,sp:'#7c8f99'}),{ry:180});
     B.box(76.8, GY - 102, -58.5, 5.6, 204, 3, mWhite); B.box(163.2, GY - 102, -58.5, 5.6, 204, 3, mWhite); B.box(120, GY - 206, -58.5, 92, 6, 3, mWhite); B.box(120, GY - 0.8, -58, 80, 1.6, 8, M('#9a9a92')); // trim clears the shared interior reveals
     B.plane(191,-63,-57.5,70,98,M({c:'#c8d8f0',o:.12,tr:true,sh:80,sp:'#7c8f99'}),{ry:180}); // the real bedroom remains visible behind the glass
-    // Keep the pipe on the brick pier, clear of Jack's 156..226 window.
-    // At x=200 it crossed the right pane and intersected its glazing.
-    B.cyl(240, (GY - 300) / 2, -60, 5, 5, 600, 8, M('#2a2a2a')); // the drainpipe
+
     // fences down both sides and across the end, the gate at the end, next door's roofs over the top
     const fm = mFence();
     // One post per corner; panel ends butt against post shoulders. The old
@@ -825,11 +844,11 @@
     for (let i=1;i<xs.length-1;i++) post(xs[i],rear);
     for (let i=1;i<xs.length;i++) B.box((xs[i-1]+xs[i])/2,GY-90,z0+1.5,xs[i]-xs[i-1]-8,180,3,fm,{uv:100});
     // the shed (Dad's), the whirly washing line, the wheelie bin, a flower bed, the water butt, a tree
-    const sh=B.at(-212,GY,-462),shw=M({c:'#fff',map:tex('pineDark')});
+    const sh=B.at(-212,GY,-462),shw=shedWood();
     sh.box(0,-95,0,150,190,120,shw,{uv:60});
     const gable=new T.Shape();gable.moveTo(-75,-190);gable.lineTo(0,-221);gable.lineTo(75,-190);gable.closePath();sh.geo(new T.ExtrudeGeometry(gable,{depth:120,bevelEnabled:false}),0,0,-60,shw,{uv:60});
     const roof=new T.Shape();roof.moveTo(-81,-190);roof.lineTo(0,-224);roof.lineTo(81,-190);roof.lineTo(81,-184);roof.lineTo(0,-218);roof.lineTo(-81,-184);roof.closePath();sh.geo(new T.ExtrudeGeometry(roof,{depth:132,bevelEnabled:false}),0,0,-66,M({c:'#3d4140',sh:5}));
-    sh.box(30, -90, 61, 50, 160, 3, shw, { uv: 60 }); sh.box(30, -90, 63, 44, 150, 1, M('#8a6a44')); sh.box(50, -90, 64, 3, 10, 2, mMetal);
+    sh.box(30, -90, 61, 50, 160, 3, shw, { uv: 60 }); sh.box(30, -90, 63, 44, 150, 1, shedWood()); sh.box(50, -90, 64, 3, 10, 2, mMetal);
     sh.box(-40,-120,60.5,40,36,.5,M({c:'#6c7f84',sh:75,sp:'#bac8cc'}));for(const x of [-61,-19])sh.box(x,-120,61.5,2,40,2,mWhite);for(const y of [-139,-101])sh.box(-40,y,61.5,40,2,2,mWhite);sh.box(-40,-120,61.8,1.5,36,1,mWhite);
     for(const y of [-145,-40]){sh.box(7,y,63,9,2,1,mMetal);sh.cyl(3,y,63,1,1,5,10,mMetal)}sh.rbox(50,-84,65.4,4,5,2,.5,mMetal);sh.cyl(50,-83.5,66.5,.35,.35,.3,8,M('#282a2b'),{rx:90});
     sh.shadow(0, 0, 0, 170, 140, 0.6, { sq: true });
@@ -867,7 +886,7 @@
     for(let i=0;i<12;i++){const x=-46+i*8.3,z=-16+(i%3)*16,c=['#cf4e5d','#e2bd45','#c97ba0','#e4dfd0','#d78441'][i%5],petal=M(c);fb.cyl(x,-15,z,.35,.35,14,6,M('#376f39'));for(let k=0;k<5;k++){const a=k*Math.PI*2/5;fb.ball(x+Math.cos(a)*2.4,-22,z+Math.sin(a)*2.4,2.1,.7,1.4,petal,8,{ry:-a/D2R})}fb.ball(x,-22.5,z,1.1,.7,1.1,M('#d0a542'),8);for(const s of [-1,1])fb.ball(x+s*1.9,-15,z,2.4,.3,1,M('#4c8249'),8,{rz:s*25})}
     const wbt=B.at(r.waterButt.x,GY,r.waterButt.z);wbt.cyl(0,-45,0,26,24,90,28,M({c:'#315d39',sh:15}));wbt.cyl(0,-91,0,27,27,2,28,M('#24482c'));
     for(const y of [-20,-68])wbt.geo(new T.TorusGeometry(y===-20?24.5:25.5,.65,6,40),0,y,0,M('#284b30'),{rx:90});wbt.cyl(0,-14,25.5,1.4,1.4,6,12,M('#292d2e'),{rx:90});wbt.box(0,-17,29,7,1.3,2,M('#292d2e'));wbt.shadow(0,0,0,58,58,.5);
-    tree(B, 140, -500, 280, 70); tree(B, -40, -540, 240, 55);
+    tree(B,145,-500,250,58); tree(B, -40, -540, 240, 55);
     B.box(-50,GY-1,-66,330,2,2,M('#6a6a62')); // grounded edging, not a floating bar
     batch.build(r.group);
     H.spot('hs.shed', { label: "Dad's shed", act: sayLines('hs.shed', "Dad's shed", ['Dad\'s shed. Padlocked. Inside: the lawnmower, 200 jam jars of screws, and a radio tuned to the cricket.', 'Dad goes in the shed "to sort it out". He has been sorting it out since 1994.']) });pickBox(r,'hs.shed',-212,GY-95,-462,150,190,120);
@@ -877,23 +896,38 @@
     H.spot('hs.butt', { label: 'The water butt', act: sayLines('hs.butt', 'The water butt', ['The water butt. Full of rainwater and one very confused frog.']) });pickBox(r,'hs.butt',r.waterButt.x,GY-45,r.waterButt.z,56,94,60);
     H.spot('hs.jackwin', { label: "Jack's window (from outside)", act: () => say("My window", 'That\'s my room up there. You can see the posters. Dave throws stones at it when my Mom won\'t let him ring the bell.') }); pickBox(r, 'hs.jackwin', 191, -63, -58, 70, 98, 4);
     H.walkRect('G', x0 + 6, z0 + 6, x1 - 6, z1 - 2, { room: 'garden' }); H.walkRect('G', 84, -60, 156, -50, { door: 'back', room: 'garden' });
+    H.block('G',-300,-64,80,-48);H.block('G',160,-64,420,-48); // solid rear wall; the back-door corridor stays open
     H.block('G',-289,-524,-135,-400);H.block('G',129,-232,191,-147);
-    H.block('G',-287,-302,-173,-238);H.block('G',152,-130,208,-70);H.block('G',77,-283,83,-277);
+    H.block('G',-287,-302,-173,-238);H.block('G',152,-130,208,-70);H.block('G',77,-283,83,-277);H.block('G',134,-511,156,-489);
     H.support('garden',-215,-191,115,-61,GY-.3);H.support('garden',129,-223,191,-149,GY-115);
   }
   function buildDrive(r) {
+    houseRoof();
     const batch = K.batch(), B = K.into(batch);
     const x0 = 120, x1 = 470, z0 = 700, z1 = 1100; // (in front of the hall's front door; the street runs along z = 1100)
-    B.plane(295, GY, 900, 350, 400, mTarmac(), { rx: 90, uv: 120 }); // the drive
-    B.plane(-180, GY, 900, 600, 400, mGrass(), { rx: 90, uv: 110 }); // the front lawn (in front of the lounge's bay)
-    B.plane(600, GY, 900, 260, 400, mGrass(), { rx: 90, uv: 110 });
-    B.plane(300, GY - 0.2, 1150, 1800, 100, mSlab(), { rx: 90, uv: 100 }); // above the shared neighbourhood foundation
-    B.plane(300, GY, 1450, 1800, 500, mTarmac(), { rx: 90, uv: 120 }); // the road
-    B.box(300, GY - 6, 1200, 1800, 12, 10, M('#9a9a92')); // the kerb
-    B.plane(300, GY - 0.3, 1440, 1800, 3, M('#f4f0e0'), { rx: 90 });
+    B.box(315,GY+2,900,390,4,400,mTarmac(),{uv:120});
+    // The turf bed fits the real plot. The mowable inset sits .6 cm above it.
+    B.box(-110,GY+2.6,880,460,4,360,mGrass(),{uv:110});
+    B.box(620,GY+2,900,220,4,400,mGrass(),{uv:110});
+    B.box(300,GY+1.6,1150,1800,4,100,mSlab(),{uv:100});
+    B.box(300,GY+3,1450,1800,4,500,mTarmac(),{uv:120});
+    B.box(300,GY-1,1198,1800,6,9,M('#9a9a92'));
+    for(let x=-520;x<1200;x+=260)B.box(x,GY+.87,1450,130,.2,8,M('#d2cdb6'));
+    for(const x of [120,-340])B.box(x,GY-1,880,3,3,360,M('#8c8679'));
+    // A clear pedestrian route beside the parked car.
+    B.box(286,GY-.45,904,68,1,300,mSlab(),{uv:100});
     // the front of the house: brick, the bay window, the front door from outside, the number
-    B.plane(-38.75, GY - 150, 701, 597.5, 600, mBrick(), { uv: 128 }); B.plane(381.25, GY - 150, 701, 82.5, 600, mBrick(), { uv: 128 }); B.plane(300, 25.5, 701, 80, 245, mBrick(), { uv: 128 }); // (the front door's opening is cut: x 260..340, up to y GY-205)
-    B.box(42.5, GY - 300, 690, 790, 6, 60, M('#5a3a2a')); B.box(42.5, GY - 318, 714, 790, 30, 2, M('#7a3a2a'));
+    const holes=[[-170,50,150,300],[260,340,GY-205,GY]],cuts=[-300,-170,50,260,340,420];
+    for(let i=0;i<cuts.length-1;i++){const a=cuts[i],b=cuts[i+1];let y=-196;
+      const wall=(top,bottom)=>{if(bottom>top)B.box((a+b)/2,(top+bottom)/2,702,b-a,bottom-top,2,mBrick(),{uv:128})};
+      for(const h of holes.filter(h=>h[0]<b&&h[1]>a).sort((a,b)=>a[2]-b[2])){wall(y,h[2]);y=h[3]}wall(y,GY);
+    }
+    // Recessed upstairs glazing is framed on all sides, with proper sill depth.
+    const upperGlass=M({c:'#fff',sh:42,sp:'#809294',map:K.tex('hs.upperglass',128,128,(g,w,h)=>{const c=g.createLinearGradient(0,0,30,h);c.addColorStop(0,'#71828a');c.addColorStop(.5,'#4c626a');c.addColorStop(1,'#344d59');g.fillStyle=c;g.fillRect(0,0,w,h);g.fillStyle='rgba(208,199,172,.2)';g.fillRect(2,0,15,h);g.fillRect(w-17,0,15,h);g.fillStyle='rgba(215,227,221,.1)';g.beginPath();g.moveTo(0,24);g.lineTo(w,65);g.lineTo(w,75);g.lineTo(0,34);g.fill()},{clamp:true})});
+    for(const [x,w]of [[-175,108],[55,108],[330,72]]){B.box(x,-57,703.3,w+10,138,2,M('#383c38'));B.box(x,-57,705,w,128,1.2,upperGlass);
+      for(const side of [-1,1])B.box(x+side*(w/2+2.5),-57,706,5,138,6,mWhite);
+      for(const y of [-123,9])B.box(x,y,706,w,5,6,mWhite);B.box(x,-57,706,4,128,4,mWhite);B.box(x,15,708,w+15,6,12,M('#b8b4a5'));
+    }
     // Open frame, not a solid white panel hiding the lounge window.
     for(const x of [-174,54])B.box(x,225,704.3,8,160,8,mWhite);
     for(const y of [147.2,302.5])B.box(-60,y,704.3,220,5,8,mWhite); // no coplanar underside with the lounge's frame
@@ -906,7 +940,8 @@
     // a low front wall with a gate, the hedge, a lamp-post on the pavement
     B.box(-60, GY - 35, 1095, 600, 70, 20, mBrick(), { uv: 128 }); B.box(-60, GY - 72, 1095, 600, 4, 24, M('#9a9a92'));
     B.box(300, GY - 35, 1095, 20, 70, 20, mBrick(), { uv: 128 }); B.box(480, GY - 35, 1095, 20, 70, 20, mBrick(), { uv: 128 });
-    for (let x = -340; x < 230; x += 32) B.ball(x, GY - 52, 1060, 22, 30, 20, M({ c: ['#2e6a2a', '#3a7a30'][(x / 32) % 2 ? 1 : 0], sh: 6 }), 8);
+    const clippedHedge=M({c:'#fff',sh:2,sp:'#142316',map:K.tex('hs.hedge.leaves',128,128,(g,w,h)=>{const r=K.rnd(812);g.fillStyle='#3e5934';g.fillRect(0,0,w,h);for(let i=0;i<1900;i++){g.fillStyle=['#405a34','#48653a','#344e2d','#516d40'][(r()*4)|0];g.beginPath();g.ellipse(r()*w,r()*h,1.5+r(),.7+r()*.6,r()*Math.PI,0,Math.PI*2);g.fill()}})});
+    B.rbox(-60,GY-42,1064,570,84,30,8,clippedHedge,{uv:60});
     const lp = B.at(220, GY, 1170); lp.cyl(0, -220, 0, 5, 7, 440, 10, M('#3a3a40')); lp.box(0, -445, 0, 14, 10, 30, M('#2a2a2a'));
     r.streetGlow = M({ c: '#fff4c8', e: phase() === 'day' ? '#000' : '#ffd27a' }).clone();
     lp.box(0, -440, 10, 10, 6, 10, r.streetGlow);
@@ -952,13 +987,15 @@
     car.ball(0, -84, -96, 8, 6, 8, M('#c8a060'), 8); // inside the rear glazing, not poking through it
     car.shadow(0, 0, 0, 200, 430, 0.7, { sq: true });
     batch.build(r.group);
-    H.spot('hs.car', { label: "Dad's car", act: sayLines('hs.car', "Dad's car", ['Dad\'s car. Burgundy. It has a cassette player and a tin of travel sweets that are all stuck together.', 'Dad washes it every Sunday "because it\'s a nice thing to do". It is never a nice thing to do.', 'There\'s a nodding dog on the parcel shelf. ' + 'My sister' + ' named it.']) }); pickBox(r, 'hs.car', 430, GY - 70, 915, 140, 120, 330);
+    H.spot('hs.car', { label: "Dad's car", act: sayLines('hs.car', "Dad's car", ['Dad\'s car. Burgundy. It has a cassette player and a tin of travel sweets that are all stuck together.', 'Dad washes it every Sunday "because it\'s a nice thing to do". It is never a nice thing to do.', 'There\'s a nodding dog on the parcel shelf. ' + 'My sister' + ' named it.']) }); pickBox(r,'hs.car',430,GY-70,906,140,120,330);
     H.spot('hs.gate', { label: 'The front gate', act: sayLines('hs.gate', 'The front gate', ['The gate squeaks. Dad says he\'ll oil it. The gate has squeaked since 1991.', 'Beyond the gate: the street, the lamp-post, the postbox at the end. We don\'t go further than that today.']) }); pickBox(r, 'hs.gate', 390, GY - 35, 1095, 160, 70, 20);
     H.spot('hs.lamppost', { label: 'The lamp-post', act: sayLines('hs.lamppost', 'The lamp-post', ['The lamp-post. Orange at night. Moths love it. We used it as the goal for about six years.']) }); pickBox(r, 'hs.lamppost', 220, GY - 220, 1170, 14, 440, 14);
     H.spot('hs.bay', { label: 'The lounge window (from outside)', act: () => say('The bay window', 'The lounge. You can see the telly flickering through the nets. Mom twitches those nets at EVERYONE who walks past.') }); pickBox(r, 'hs.bay', -60, 225, 703, 236, 160, 6);
     H.walkRect('G', 124, 704, 466, 1120, { room: 'drive' }); H.walkRect('G', -340, 704, 124, 1060, { room: 'drive' }); H.walkRect('G', 262, 660, 338, 710, { door: 'front', room: 'drive' });
-    H.block('G', 352, 700, 502, 1104); // (the car is parked off to the side: the front door's path is clear) H.block('G', -360, 1050, 232, 1120); H.block('G', 340, 706, 380, 750);
-    H.support('drive', 355, 700, 505, 1100, GY - 80); H.support('drive', 265, 708, 335, 752, GY - 2);
+    H.block('G',-300,694,260,708);H.block('G',340,694,420,708); // no walking through front windows
+    H.block('G',352,735,506,1075); // the car is parked off to the side; the pedestrian route stays clear
+    H.block('G', -360, 1050, 232, 1120); H.block('G', 340, 706, 380, 750);
+    H.support('drive',frame.x-56*frame.s,frame.z-85*frame.s,frame.x+56*frame.s,frame.z+45*frame.s,GY-133.5*frame.s); H.support('drive', 265, 708, 335, 752, GY - 2);
   }
 
   // ================================================================ the rooms, their lights, their views

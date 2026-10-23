@@ -533,6 +533,7 @@
       H.anims.set('ch.tool', now => {
         const d = this.cur; if (!d) return false;
         const dt = Math.min(0.1, (now - last) / 1000); last = now;
+        if(H.paused)return true;
         if (H.focused || H.mode === 'off' || H.mode === 'follow') { this.drop(); return false; }
         const head = this.place(d, dt);
         if (this.plugged) this.cable(head, ++fr % 3 === 0);
@@ -551,7 +552,7 @@
         o.position.set(x, y, z); o.rotation.set(-b * 0.6, Math.PI - a, 0, 'YXZ');
       } else {
         let dist = d.dist || 50;
-        while (dist > 20 && !H._.cellOk(W.lvl, W.x + fx * (dist - 30), W.z + fz * (dist - 30))) dist -= 5;
+        for(let step=5;step<=dist;step+=5)if(!H._.cellOk(W.lvl,W.x+fx*step,W.z+fz*step)){dist=Math.max(0,step-5);break;}
         x = W.x + fx * dist; z = W.z + fz * dist; y = W.fy;
         const k = 1 - Math.pow(0.002, dt);
         if (o.userData.placed) { o.position.x += (x - o.position.x) * k; o.position.z += (z - o.position.z) * k; o.position.y = y; } else { o.position.set(x, y, z); o.userData.placed = 1; }
@@ -573,9 +574,24 @@
     hint(t) { bar.querySelector('.ch-thint').innerHTML = t; },
     buttons() {
       const d = this.cur, el = bar.querySelector('.ch-tbtns'); el.innerHTML = '';
-      for (const [label, fn] of (d && d.buttons ? (typeof d.buttons === 'function' ? d.buttons() : d.buttons) : []).concat([['Let go', () => this.drop()]])) {
-        const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.addEventListener('click', ev => { ev.stopPropagation(); fn(); }); el.appendChild(b);
+      const actions=d&&d.buttons?(typeof d.buttons==='function'?d.buttons():d.buttons):[];
+      for(const [index,[label,fn]]of actions.concat([['Let go',()=>this.drop()]]).entries()){
+        const b=document.createElement('button');b.type='button';b.textContent=label+(index===actions.length?' [E]':index===0?' [F]':'');b.addEventListener('click',ev=>{ev.stopPropagation();fn()});el.appendChild(b);
       }
+    },
+    canWalk(x,z){
+      const d=this.cur;if(!d?.radius||d.hand)return true;
+      const a=H.P.ry*D2R,fx=Math.sin(a),fz=-Math.cos(a),W=H.W;
+      // Backing away and sliding sideways always remain possible. Forward
+      // motion stops before the mower's leading footprint reaches a wall.
+      if((x-W.x)*fx+(z-W.z)*fz<=.001)return true;
+      return H._.cellOk(W.lvl,x+fx*(d.dist||50),z+fz*(d.dist||50));
+    },
+    key(ev){
+      if(!this.cur||H.paused||ev.ctrlKey||ev.metaKey||ev.altKey)return false;
+      const k=ev.key.toLowerCase(),actions=this.cur.buttons?(typeof this.cur.buttons==='function'?this.cur.buttons():this.cur.buttons):[];
+      const run=k==='e'?()=>this.drop():k==='f'||k==='i'?actions[0]?.[1]:null;if(!run)return false;
+      ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)run();return true;
     },
     plug() {
       const d = this.cur; if (!d || !d.cable || this.plugged) return false;
@@ -622,7 +638,6 @@
       this.hum = { g, o, n };
     },
   };
-  addEventListener('keydown', ev => { if (ev.key === 'Escape' && tool.cur && !H.held()) { tool.drop(); } }, true);
   H.on('sat', () => tool.drop(true));
 
   // ================================================================ the API

@@ -4,14 +4,18 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const base=path.resolve(__dirname,'..'),T=require(path.join(base,'app/public/vendor/three.min.js'));
 const context2d={fillRect(){},createImageData(w,h){return{data:new Uint8ClampedArray(w*h*4)}},putImageData(){}};
 const H={ok:true,T,root:new T.Group(),scene:new T.Scene(),ambient:new Set(),dirty(){}};
+let phase='day',dirtyCalls=0;H.dirty=()=>dirtyCalls++;
 const window={THREE:T,House:H,HouseArt:{}};
-const sandbox=vm.createContext({window,document:{createElement(){return{getContext(){return context2d}}},getElementById(){return{classList:{contains:p=>p==='rm-day'}}}},console});
+const sandbox=vm.createContext({window,document:{createElement(){return{getContext(){return context2d}}},getElementById(){return{classList:{contains:p=>p==='rm-'+phase}}}},console});
 function run(file){vm.runInContext(fs.readFileSync(path.join(base,'app/public/js',file),'utf8'),sandbox,{filename:file})}
 run('hs-kit.js');
 const K=window.HouseKit,add=K.Batch.prototype.add;
-let primitives=0,triangles=0;
+let primitives=0,triangles=0,trunks=0,roofShells=0;
+const solids=[],treeBases=[];
 const primitiveTypes=new Set(),playable=[[-340,700,470,1120],[-300,-560,215,-56]];
 K.Batch.prototype.add=function(geometry,matrix,material,uv){
+ assert(matrix.elements.every(Number.isFinite),'finite primitive transform');
+ assert(matrix.determinant()>0,'scenery never relies on mirrored or collapsed solids');
  const p=geometry.attributes.position,idx=geometry.index?.array,edges=new Map();let volume=0;
  const v=i=>new T.Vector3().fromBufferAttribute(p,i);
  const key=a=>[a.x,a.y,a.z].map(x=>Math.round(x*1000)).join(',');
@@ -32,6 +36,13 @@ K.Batch.prototype.add=function(geometry,matrix,material,uv){
  for(const edge of edges.values())assert(edge.count===2&&edge.direction===0,geometry.type+' must be closed with consistent winding');
  // Do not introduce scenery solids above the existing walkable ground.
  geometry.computeBoundingBox();const bb=geometry.boundingBox.clone().applyMatrix4(matrix);
+ solids.push({bb:bb.clone(),material,geometry:geometry.type});
+ if(geometry.type==='ExtrudeGeometry')roofShells++;
+ const gp=geometry.parameters;
+ if(geometry.type==='CylinderGeometry'&&gp.height>200&&Math.max(gp.radiusTop,gp.radiusBottom)>=12){
+  trunks++;treeBases.push(bb.clone());
+ }
+ if(bb.min.y<-200&&bb.max.y>-370)assert(!(bb.max.x>-326&&bb.min.x<446&&bb.max.z>-82&&bb.min.z<726),'main house roof volume stays clear');
  if(bb.min.y<352.8-1e-4)for(const [x0,z0,x1,z1]of playable){
   assert(!(bb.max.x>x0&&bb.min.x<x1&&bb.max.z>z0&&bb.min.z<z1),'new scenery intrudes into playable garden/drive');
  }
@@ -41,6 +52,38 @@ K.Batch.prototype.add=function(geometry,matrix,material,uv){
 run('hs-environment.js');
 const E=window.HouseEnvironment;
 assert.equal(E.homes.length,17);assert.equal(H.ambient.size,1);
+assert.equal(new Set(E.homes.map(h=>h.type)).size,4,'four coherent house archetypes');
+assert(roofShells>=34,'every house has both a solid gable and a closed roof shell');
+assert(trunks>=8,'town trees are grounded solids');
+for(const [i,h]of E.homes.entries()){
+ assert([h.x,h.z,h.ry,h.width,h.depth,h.eave,h.rise,h.front].every(Number.isFinite));
+ assert(h.width>=500&&h.width<=560,'credible house widths in centimetres');
+ assert(h.eave>=470&&h.eave<=510,'two storeys, without stretched giant facades');
+ assert(h.front-h.depth/2>=250,'usable front garden and uninterrupted path');
+ assert(h.ry===0||h.ry===180,'homes face their street, not the playable plot');
+ const frontEdge=h.z+(h.ry===180?-1:1)*(h.front+20);
+ assert.equal(frontEdge,i<7?1800:i<13?-1290:1100,'garden threshold meets footpath edge');
+ for(const other of E.homes.slice(0,i))if(h.z===other.z)
+  assert(Math.abs(h.x-other.x)>=680,'separate plots do not overlap');
+}
+// Check the physical seams, not only the home metadata. Flat ground is the only
+// scenery permitted beneath the playable garden and drive.
+function surfaceAt(x,z){return solids.filter(({bb})=>bb.min.x<x&&bb.max.x>x&&bb.min.z<z&&bb.max.z>z&&bb.max.y-bb.min.y<=20&&bb.min.y>=340).sort((a,b)=>a.bb.min.y-b.bb.min.y)[0]}
+for(const [x,z,top]of [[-2000,1450,353],[2000,1450,353],[-2000,1150,352.8],[17,1750,352.8],[0,1700,341],[0,-940,353],[17,-1240,352.8],[17,-640,352.8],[0,900,359],[0,-400,359]]){
+ const solid=surfaceAt(x,z);assert(solid,`missing ground at ${x},${z}`);
+ assert(Math.abs(solid.bb.min.y-top)<.01,`ground/kerb level at ${x},${z}`);
+}
+for(const bb of treeBases){
+ const surface=surfaceAt((bb.min.x+bb.max.x)/2,(bb.min.z+bb.max.z)/2);
+ assert(surface&&Math.abs(surface.bb.min.y-bb.max.y)<.01,'tree trunk meets its actual lawn/foundation');
+}
+for(const h of E.homes){
+ const direction=h.ry===180?-1:1,doorX=h.type===2?0:h.width*.27;
+ for(const localZ of [h.depth/2+60,(h.depth/2+55+h.front)/2,h.front-10,h.front+10]){
+  const surface=surfaceAt(h.x+direction*doorX,h.z+direction*localZ);
+  assert(surface&&surface.bb.min.y>=351.65&&surface.bb.min.y<=352.01,`continuous doorstep-to-footpath paving: ${h.x},${h.z},${localZ}: ${surface?.bb.min.y}`);
+ }
+}
 assert.deepEqual(Array.from(E.group.children,g=>g.name),['street','opposite houses','rear houses','side houses']);
 let meshes=0;
 E.group.traverse(o=>{
@@ -52,7 +95,19 @@ E.group.traverse(o=>{
  assert.equal(g.attributes.position.count,g.attributes.normal.count);assert.equal(g.attributes.position.count,g.attributes.color.count);
  for(const name of ['position','normal','uv','color'])assert(Array.from(g.attributes[name].array).every(Number.isFinite),name+' must stay finite');
 });
-assert(meshes<=55,'bounded static draw calls');assert(triangles<60000,'bounded triangle budget');
-const before=E.group.children.map(g=>g.children.length);E.update();
-assert.deepEqual(E.group.children.map(g=>g.children.length),before,'sky update does not rebuild scenery');
-console.log(JSON.stringify({homes:E.homes.length,primitives,primitiveTypes:[...primitiveTypes],triangles,meshes,checks:'closed outward volumes; finite attributes; walkable clearance; bounded static batches; no renderer'},null,2));
+assert(meshes<=55,'bounded static draw calls');assert(triangles<64000,'bounded triangle budget including solid garden fences');
+const before=E.group.children.flatMap(g=>g.children.map(m=>[m.uuid,m.geometry.uuid,m.geometry.attributes.position.array]));
+const meshGeometry=()=>E.group.children.flatMap(g=>g.children.map(m=>[m.uuid,m.geometry.uuid,m.geometry.attributes.position.array]));
+const allMaterials=new Set();E.group.traverse(o=>{if(o.material)allMaterials.add(o.material)});
+const daylight=Array.from(allMaterials,m=>m.color.getHex());
+assert.equal(H.scene.background,E.sky,'translation-free cubemap remains the scene background');
+E.group.traverse(o=>assert(!o.isLight,'scenery uses no lights'));
+for(const ph of ['night','dusk','dawn','day']){
+ phase=ph;E.update();assert.equal(E.phase,ph);
+ assert.deepEqual(meshGeometry(),before,'phase changes never replace meshes, geometry or buffers');
+ assert.equal(H.ambient.size,1,'one sky updater throughout phase changes');
+ if(ph==='night')assert.notDeepEqual(Array.from(allMaterials,m=>m.color.getHex()),daylight,'night tint applies');
+}
+assert.deepEqual(Array.from(allMaterials,m=>m.color.getHex()),daylight,'daylight palette restores exactly');
+const clean=dirtyCalls;E.update();assert.equal(dirtyCalls,clean,'unchanged sky does no work');
+console.log(JSON.stringify({homes:E.homes.length,trunks,roofShells,primitives,primitiveTypes:[...primitiveTypes],triangles,meshes,checks:'closed outward volumes; finite attributes; walkable clearance; aligned plots/paths/kerbs; grounded trees; bounded static batches; stable phase geometry; no renderer'},null,2));

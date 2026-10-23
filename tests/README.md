@@ -1,5 +1,15 @@
 # Jack Attack 1999 - browser tests
 
+Exterior/grass/door checks (disposable localhost data only):
+
+    node exterior-rebuild.mjs http://localhost:18080
+    node exterior-art-final.mjs http://localhost:18080
+    node lawn-completion.mjs http://localhost:18080
+    node seated-pc-transition.mjs http://localhost:18080
+    node neighbourhood-geometry.cjs
+
+Review `shots/exterior/` captures from `tests/`: front/back/town, day/night, high-quality views, mowing and saved progress.
+
 Unified object interaction/seating (disposable localhost data only):
 
     node unified-interaction.mjs http://localhost:18080
