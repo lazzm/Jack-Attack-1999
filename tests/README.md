@@ -146,3 +146,33 @@ Esc now opens the game menu; historical scripts expecting immediate Esc exit nee
 Most print `no errors` / `NO ERRORS` when they pass. Screenshots go in `shots/` (git-ignored).
 Some scripts have a hard-coded URL or port near the top: check before running. On the server they are run under
 `systemd-run --user --scope -p MemoryMax=3G -p MemorySwapMax=0 -q node <script>` to cap memory.
+
+
+Screen-performance and current-input checks (authenticated disposable localhost; run serially):
+
+    node hs-input-unit.cjs
+    node console-touch-unit.cjs
+    node mobile-phone-unit.cjs
+    node reading-turn-unit.cjs
+    node graphics-menu-ui.mjs http://localhost:18080
+    node mobile-game-launch.mjs http://localhost:18080
+    node console-touch-layout.mjs http://localhost:18080
+    node pc-trackpad-touch.mjs http://localhost:18080
+    node mobile-phone-use.mjs http://localhost:18080
+    node reading-cd-shelf.mjs http://localhost:18080
+    node inspect-free-rotation.mjs http://localhost:18080
+    node window-artifacts.mjs http://localhost:18080
+    node screen-effort.mjs http://localhost:18080
+    node adaptive-render.mjs http://localhost:18080
+    node pc-game-coordinates-unit.cjs
+    node pc-game-monitor-input.mjs http://localhost:18080
+    node frame-budget.mjs http://localhost:18080
+    node pc-surface-budget.mjs http://localhost:18080
+    node reading-motion-recording.mjs http://localhost:18080 after desktop
+    node reading-motion-recording.mjs http://localhost:18080 after phone
+
+Record the baseline on an isolated checkout using `before` in place of `after`.
+Videos, timelines and extracted frames stay in ignored `tests/recordings/`; actually inspect motion as well as stills.
+Recording needs the Playwright FFmpeg binary to pass its own `-version` preflight.
+Frame timings use software Chromium and are comparative diagnostics, not a hardware FPS promise.
+`window-artifacts.mjs --source-only` checks generated drainpipe/glazing clearance without a browser.

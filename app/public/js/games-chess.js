@@ -373,7 +373,7 @@
     const C = G.canvas(boardEl, () => draw());
     const cv = C.cv, ctx = C.c; G.focusEl = cv;
     const relayout = () => {
-      const r = host.getBoundingClientRect(); const right = Math.min(r.width - 168, r.height), below = Math.min(r.width, r.height - 138), col = below > right * 1.12;
+      const r = DesktopSurface.rect(host); const right = Math.min(r.width - 168, r.height), below = Math.min(r.width, r.height - 138), col = below > right * 1.12;
       root.classList.toggle('col', col);
       boardEl.style.flex = col ? 'none' : ''; boardEl.style.height = col ? Math.max(120, Math.min(r.width + 16, r.height - 138)) + 'px' : '';
     };
@@ -578,7 +578,7 @@
       else sel = -1;
       draw();
     }
-    const pt = ev => { const r = cv.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; };
+    const pt = ev => { const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY); return [point.x - r.left, point.y - r.top]; };
     G.on(cv, 'pointerdown', ev => {
       if (ev.pointerType === 'mouse' && ev.button !== 0) return;
       ev.preventDefault(); G.focus(); cursor = -1;

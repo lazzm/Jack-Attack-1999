@@ -408,7 +408,7 @@
     });
     G.on(C.cv, 'pointerdown', ev => {
       ev.preventDefault(); G.focus(); if (!geo) return;
-      const r = C.cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+      const r = DesktopSurface.rect(C.cv), point = DesktopSurface.point(ev.clientX, ev.clientY), x = point.x - r.left, y = point.y - r.top;
       for (let k = geo.order.length - 1; k >= 0; k--) { const a = geo.order[k]; if (!a.alive) continue; const [sx, sy] = pos(a); if (x >= sx && x < sx + geo.tw && y >= sy && y < sy + geo.th) { click(a); return; } }
       if (sel >= 0) { sel = -1; dirty = true; }
     });

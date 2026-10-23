@@ -11,17 +11,19 @@ try{
  assert.equal(await page.evaluate(()=>House.THINGS['pm.catalogue'].at.ry),90);
  for(const [name,eye]of [['catalogue-front',[-100,-85,168]],['catalogue-side',[-210,-60,170]]]){await view(eye,[sn.x,sn.y-14,234]);await page.screenshot({path:'shots/shelf-print-polish/'+name+'.png'})}
  await page.evaluate(()=>{House._.setMode('walk');House.grab('reading.book.0')});await page.keyboard.press('f');
+ await page.keyboard.press('f');await until(()=>!Magazines.reading.flipping);
  assert(await page.evaluate(()=>{let ok=true;House.THINGS['reading.book.0'].obj.traverse(o=>{if(o.isMesh&&o.layers.mask!==2)ok=false});return ok}),'Pages escaped the held-object render layer');
  await page.locator('[data-turn="1"]').focus();await page.keyboard.press('Enter');await until(()=>!Magazines.reading.flipping);assert.equal(await page.evaluate(()=>Magazines.reading.page),2);
  await page.locator('[data-turn="-1"]').focus();await page.keyboard.press('Space');await until(()=>!Magazines.reading.flipping);assert.equal(await page.evaluate(()=>Magazines.reading.page),0);
  await page.keyboard.press('Control+ArrowRight');assert.equal(await page.evaluate(()=>Magazines.reading.page),0);
  await page.setViewportSize({width:390,height:844});await page.keyboard.press('q');await page.keyboard.press('f');await page.waitForTimeout(500);
+ await page.keyboard.press('f');await until(()=>!Magazines.reading.flipping);
  await page.locator('[data-turn="1"]').tap();await until(()=>!Magazines.reading.flipping);assert.equal(await page.evaluate(()=>Magazines.reading.page),1);
  await page.screenshot({path:'shots/shelf-print-polish/narrow-book.png'});await page.keyboard.press('q');
  assert(await page.evaluate(()=>{let ok=true;House.THINGS['reading.book.0'].obj.traverse(o=>{if(o.isMesh&&o.layers.mask!==2)ok=false});return ok}),'Closed cover escaped the held-object render layer');await page.evaluate(()=>House.putBack());
  const monthly=await page.evaluate(()=>Object.keys(House.THINGS).find(id=>/^pmb\.pm\.mag\./.test(id)));
  assert(monthly,'Owned monthly magazine is missing');
- await page.evaluate(id=>House.grab(id),monthly);await page.keyboard.press('f');await page.locator('.magazine-page-controls button').filter({hasText:'Take cover CD'}).tap();
+ await page.evaluate(id=>House.grab(id),monthly);await page.keyboard.press('f');await page.keyboard.press('f');await until(()=>!Magazines.reading.flipping);await page.locator('[data-cover-disc]').tap();
  await until(()=>/^pmd\.pm\.mag\./.test(House.held()||''));
  await page.evaluate(()=>House.putBack());await page.waitForTimeout(400);
  await page.evaluate(()=>{House._.setMode('walk');House.saveWalkState()});await page.reload({waitUntil:'domcontentloaded'});

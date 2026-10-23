@@ -24,10 +24,11 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const angd = (a, b) => { let d = (b - a) % 360; if (d > 180) d -= 360; if (d < -180) d += 360; return d; };
-  const touchy = () => !!(window.matchMedia && (matchMedia('(hover:none)').matches || matchMedia('(pointer:coarse)').matches));
+  const touchy = () => window.GameInput?GameInput.touch:!!(window.matchMedia && (matchMedia('(hover:none)').matches || matchMedia('(pointer:coarse)').matches));
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
   const EVS = {}; const emit = (ev, ...a) => (EVS[ev] || []).slice().forEach(fn => { try { fn(...a); } catch (e) { console.error(e); } });
+  let pcReserve={bottom:0,right:0};
   let controlsPaused=false,desktopFull=ls.get('jhp_hs_desktop_full',false)===true;
 
   // ================================================================ graphics quality: Low / Medium / High, picked for this machine (or chosen: G in the house,
@@ -38,14 +39,25 @@
     const mob = /Android|iPhone|iPad|iPod|Mobile|Silk/i.test(n.userAgent || '') || touchy();
     const mem = n.deviceMemory || 8, cores = n.hardwareConcurrency || 4, dpr = window.devicePixelRatio || 1;
     const t = mob || mem <= 2 || cores <= 2 ? 'low' : mem <= 4 || cores <= 4 || (dpr > 2 && screen.width * dpr > 3800) ? 'medium' : 'high';
-    return { want, auto: !QN.includes(want), tier: QN.includes(want) ? want : t, guess: t, mob, fps: 0, gpu: '', f: { n: 0, t: 0, low: 0 }, probe: 0 };
+    return { want, auto: !QN.includes(want), tier: QN.includes(want) ? want : t, guess: t, mob, fps: 0, gpu: '', renderScale:1, pixelRatio:1, f: { n: 0, t: 0, low: 0 }, probe: 0 };
   })();
+  function graphicsDefaults(preset){return{preset,scale:1,dynamic:preset!=='high',antialias:['medium','high'].includes(preset)?'on':'off',pixelRatio:({low:1,medium:1.5,high:2})[preset]||2,anisotropy:({low:1,medium:4,high:8})[preset]||8,backgroundFps:10,decorations:false}}
+  function cleanGraphics(value,base){
+    const v=value&&typeof value==='object'?value:{};
+    return{...base,scale:clamp(Number.isFinite(+v.scale)?+v.scale:base.scale,.5,1),dynamic:typeof v.dynamic==='boolean'?v.dynamic:base.dynamic,
+      antialias:['auto','off','on'].includes(v.antialias)?v.antialias:base.antialias,pixelRatio:[1,1.5,2].includes(+v.pixelRatio)?+v.pixelRatio:base.pixelRatio,
+      anisotropy:[1,4,8,16].includes(+v.anisotropy)?+v.anisotropy:base.anisotropy,backgroundFps:[5,10,20].includes(+v.backgroundFps)?+v.backgroundFps:base.backgroundFps,
+      decorations:typeof v.decorations==='boolean'?v.decorations:base.decorations,preset:['auto','low','medium','high','custom'].includes(v.preset)?v.preset:base.preset};
+  }
+  let graphics=cleanGraphics(ls.get('jhp_hs_graphics',null),graphicsDefaults(Q.want));
+  const wantsAntialias=()=>graphics.antialias==='on'||(graphics.antialias==='auto'&&!Q.auto&&Q.tier!=='low');
+  const wantedAniso=()=>Math.min(graphics.anisotropy,Q.tier==='low'&&graphics.preset!=='custom'?1:16);
   window.HouseQ = Q.tier;
   // ================================================================ the renderer (a canvas under boot.js's stage, one over it)
   let cv = document.createElement('canvas'); cv.className = 'hs-gl'; cv.setAttribute('aria-hidden', 'true');
   let ren;
   try {
-    ren = new T.WebGLRenderer({ canvas: cv, antialias: Q.tier !== 'low', powerPreference: Q.tier === 'low' ? 'default' : 'high-performance', alpha: false });
+    ren = new T.WebGLRenderer({ canvas: cv, antialias: wantsAntialias(), powerPreference: 'high-performance', alpha: false });
     if (!ren.getContext()) throw new Error('no gl');
   } catch (e) { window.House = { ok: false }; return; }
   pb.insertBefore(cv, stage);
@@ -54,36 +66,38 @@
     if (Q.auto && (/SwiftShader|llvmpipe|softpipe|Software|Mali-[34]|Adreno \(TM\) [345]\d\d|PowerVR SGX|GMA/i.test(Q.gpu) || ren.capabilities.maxTextureSize < 4096 || !ren.capabilities.floatFragmentTextures)) Q.tier = 'low';
     else if (Q.auto && Q.tier === 'high' && /Intel/i.test(Q.gpu) && !/Iris|Arc/i.test(Q.gpu)) Q.tier = 'medium';
   } catch (e) {}
-  window.HouseQ = Q.tier;
+  Q.guess=Q.tier;window.HouseQ = Q.tier;
   let cv2 = document.createElement('canvas'); cv2.className = 'hs-gl2'; cv2.setAttribute('aria-hidden', 'true');
   // (a lost WebGL context, e.g. too many tabs: keep the page alive and redraw when it comes back)
   let ctxLost = false;
   function hookCtx(c) {
-    c.addEventListener('webglcontextlost', ev => { ev.preventDefault(); ctxLost = true; }, false);
-    c.addEventListener('webglcontextrestored', () => { ctxLost = false; for (const k in K.MATS) K.MATS[k].needsUpdate = true; dirty(); }, false);
+    c.addEventListener('webglcontextlost', ev => { ev.preventDefault(); if(c===cv||c===cv2)ctxLost = true; }, false);
+    c.addEventListener('webglcontextrestored', () => { if(c!==cv&&c!==cv2)return;ctxLost = false; for (const k in K.MATS) K.MATS[k].needsUpdate = true; dirty(); }, false);
   }
   hookCtx(cv); hookCtx(cv2);
+  function releaseGL(renderer){try{const gl=renderer?.getContext();if(gl&&!gl.isContextLost())gl.getExtension('WEBGL_lose_context')?.loseContext()}catch(e){}}
   // (the browser drops the oldest WebGL context when the PC's games have made too many: build a fresh renderer on a fresh canvas)
   function glLost() { try { return ctxLost || ren.getContext().isContextLost(); } catch (e) { return true; } }
   function rebuildGL() {
     try {
-      const oc = cv, par = oc.parentNode, nc = document.createElement('canvas'); nc.className = oc.className; nc.setAttribute('aria-hidden', 'true');
+      const oldRenderer=ren, oc = cv, par = oc.parentNode, nc = document.createElement('canvas'); nc.className = oc.className; nc.setAttribute('aria-hidden', 'true');
       try { ren.dispose(); } catch (e) {}
-      const nr = new T.WebGLRenderer({ canvas: nc, antialias: Q.tier !== 'low', powerPreference: Q.tier === 'low' ? 'default' : 'high-performance', alpha: false });
+      const nr = new T.WebGLRenderer({ canvas: nc, antialias: wantsAntialias(), powerPreference: 'high-performance', alpha: false });
       if (!nr.getContext() || nr.getContext().isContextLost()) return false;
       nr.setClearColor(0x050404, 1); nr.localClippingEnabled = true;
       if (par) par.replaceChild(nc, oc);
       cv = nc; ren = nr; hookCtx(nc); ctxLost = false;
+      releaseGL(oldRenderer);
       if (window.House) window.House.ren = nr;
-      if (ren2 || cv2.parentNode) { try { if (ren2) ren2.dispose(); } catch (e) {} const o2 = cv2, p2 = o2.parentNode; cv2 = document.createElement('canvas'); cv2.className = o2.className; cv2.setAttribute('aria-hidden', 'true'); hookCtx(cv2); if (p2) p2.removeChild(o2); ren2 = null; }
-      K.setAniso(Math.min({ low: 1, medium: 4, high: 8 }[Q.tier], ren.capabilities.getMaxAnisotropy()));
+      if (ren2 || cv2.parentNode) { const oldForeground=ren2;try { oldForeground?.dispose(); } catch (e) {} const o2 = cv2, p2 = o2.parentNode; cv2 = document.createElement('canvas'); cv2.className = o2.className; cv2.setAttribute('aria-hidden', 'true'); hookCtx(cv2); if (p2) p2.removeChild(o2); ren2 = null;releaseGL(oldForeground); }
+      K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()));
       scene.traverse(o => { const ms = o.material ? [].concat(o.material) : []; for (const m of ms) { m.needsUpdate = true; for (const k in m) { const t = m[k]; if (t && t.isTexture) t.needsUpdate = true; } } });
       for (const k in K.MATS) K.MATS[k].needsUpdate = true;
       measure(); dirty(); return true;
     } catch (e) { console.error(e); return false; }
   }
   var ren2 = null; // (made the first time something has to be drawn in front of the PC)
-  K.setAniso(Math.min({ low: 1, medium: 4, high: 8 }[Q.tier], ren.capabilities.getMaxAnisotropy()));
+  K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()));
   ren.setClearColor(0x050404, 1);
   ren.localClippingEnabled = true;
   const scene = new T.Scene();
@@ -102,9 +116,14 @@
   function measure() {
     vw = pb.clientWidth || innerWidth; vh = pb.clientHeight || innerHeight;
     em = parseFloat(getComputedStyle(stage).fontSize) || 10;
-    const pr = Math.min(window.devicePixelRatio || 1, PRMAX[Q.tier] || 1);
+    const native=Math.min(window.devicePixelRatio||1,graphics.preset==='custom'?graphics.pixelRatio:Math.min(PRMAX[Q.tier]||1,graphics.pixelRatio));
+    // Low graphics has a pixel budget as well as a DPR cap: a large desktop
+    // viewport used to cost more than a phone even at the lowest setting.
+    const base=Q.tier==='low'&&graphics.preset!=='custom'?Math.min(native,Math.sqrt(1024*768/(vw*vh))):native;
+    const pr=base*graphics.scale*Q.renderScale;Q.pixelRatio=pr;
     ren.setPixelRatio(pr); ren.setSize(vw, vh, false);
-    if (ren2) { ren2.setPixelRatio(pr); ren2.setSize(vw, vh, false); }
+    // Held paper and live screen DOM stay sharp when the room scales down.
+    if (ren2) { ren2.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5)); ren2.setSize(vw, vh, false); }
     camera.aspect = vw / vh; camera.fov = 2 * Math.atan(vh / 2 / (PERSP * em)) / D2R; camera.updateProjectionMatrix();
     dirty();
   }
@@ -903,7 +922,9 @@
   const locked = () => !!cv && document.pointerLockElement === cv;
   function unlock() { try { if (document.pointerLockElement === cv) document.exitPointerLock(); } catch (e) {} }
   const lockHint = document.createElement('div'); lockHint.className = 'hs-lockhint'; lockHint.setAttribute('aria-hidden', 'true'); lockHint.textContent = 'Click to look around'; let lockHintT = 0;
-  function plOK() { return !controlsPaused && !worldLoading && !touchy() && live && mode === 'walk' && !viewOpen() && !ui.modalOpen(); }
+  let mouseLook=!touchy();
+  document.addEventListener('game-input-change',ev=>{if(ev.detail.mode==='touch'){mouseLook=false;unlock()}else if(ev.detail.mode==='mouse')mouseLook=true});
+  function plOK() { return mouseLook && !controlsPaused && !worldLoading && !touchy() && live && mode === 'walk' && !viewOpen() && !ui.modalOpen(); }
   let lockTry = 0, lockPending = false;
   function wantLock() {
     if (!plOK() || locked() || lockPending || performance.now() - lockTry < 350) return;
@@ -962,7 +983,7 @@
     const sid = h && h.spot && !(held && h.spot === held.id) ? h.spot : null;
     setHot(sid);
     const s = sid && SPOTS[sid];
-    ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab && !held ? ' <i><kbd>E</kbd>: pick up'+(THINGS[sid]?.use?' · <kbd>F</kbd>: use':'')+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
+    ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab && !held && !touchy() ? ' <i><kbd>E</kbd>: pick up'+(THINGS[sid]?.use?' · <kbd>F</kbd>: use':'')+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
     pb.classList.toggle('hs-hot', !!sid);
   }
   // Ordinary interaction never moves the player. Screens/inspection own their
@@ -1008,11 +1029,11 @@
     const centre = box.getCenter(new T.Vector3()), size = box.getSize(new T.Vector3());
     const panel = document.createElement('div'); panel.className = 'hs-inspection';
     const name = document.createElement('b'); name.textContent = typeof t.label === 'function' ? t.label() : t.label;
-    const hint = document.createElement('span'); hint.innerHTML = (t.obj.userData.cube ? 'Drag a face to turn · Right-drag to rotate' : 'Drag to rotate')+' · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back · <kbd>Esc</kbd> menu';
+    const hint = document.createElement('span'); hint.innerHTML = '<span data-input-only="touch">'+(t.obj.userData.cube?'Drag a face to turn · Two fingers rotate':'Drag to rotate')+'</span><span data-input-only="keyboard">'+(t.obj.userData.cube?'Drag a face to turn · Right-drag to rotate':'Drag to rotate')+' · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back · <kbd>Esc</kbd> menu</span>';
     const back = document.createElement('button'); back.type = 'button'; back.textContent = 'Back'; back.addEventListener('click', endInspect);
     panel.append(name, hint, back); ui.el.appendChild(panel);
     const ip = t.inspectPose || {};
-    inspection = {t, grip, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null};
+    inspection = {t, grip, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null, points:new Map()};
     html.classList.add('hs-inspecting'); layerFor(t); poseInspect(); return true;
   }
   function poseInspect() {
@@ -1035,17 +1056,23 @@
   document.addEventListener('pointerdown', ev => {
     const s = inspection; if (!s || ev.target.closest('button')) return;
     ev.preventDefault(); ev.stopImmediatePropagation();
+    if(ev.pointerType==='touch'){
+      s.points.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
+      if(s.points.size>1){const p=[...s.points.values()];s.drag={two:true,x:p.reduce((n,v)=>n+v.x,0)/p.length,y:p.reduce((n,v)=>n+v.y,0)/p.length};return}
+    }
     const ray = new T.Raycaster(); ray.layers.enableAll(); ray.setFromCamera(new T.Vector2(ev.clientX / vw * 2 - 1, 1 - ev.clientY / vh * 2), camera);
     const hit = ray.intersectObject(s.t.obj, true).find(h => h.object.userData.cubie);
     s.drag = {id: ev.pointerId, x: ev.clientX, y: ev.clientY, hit: ev.button === 0 ? hit : null};
   }, true);
   document.addEventListener('pointermove', ev => {
-    const s = inspection, d = s && s.drag; if (!d || d.id !== ev.pointerId) return;
-    ev.preventDefault(); ev.stopImmediatePropagation(); const dx = ev.clientX - d.x, dy = ev.clientY - d.y;
+    const s = inspection, d = s && s.drag;if(s?.points.has(ev.pointerId))s.points.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
+    if (!d || (!d.two&&d.id!==ev.pointerId)) return;
+    ev.preventDefault(); ev.stopImmediatePropagation();
+    const points=d.two?[...s.points.values()]:null,x=points?points.reduce((n,v)=>n+v.x,0)/points.length:ev.clientX,y=points?points.reduce((n,v)=>n+v.y,0)/points.length:ev.clientY,dx=x-d.x,dy=y-d.y;
     if (d.hit) {if (Math.hypot(dx, dy) > 22) {s.t.obj.userData.cube.drag(d.hit, dx, dy); s.drag = null;}}
-    else {s.yaw += dx * .45; s.pitch = clamp(s.pitch + dy * .45, -180, 180); d.x = ev.clientX; d.y = ev.clientY; poseInspect();}
+    else {s.yaw = (s.yaw+dx*.45)%360; s.pitch = (s.pitch-dy*.45)%360; d.x=x;d.y=y;poseInspect();}
   }, true);
-  const inspectUp = () => {if (inspection) inspection.drag = null;};
+  const inspectUp = ev => {if (inspection){inspection.points.delete(ev.pointerId);inspection.drag = null;}};
   document.addEventListener('pointerup', inspectUp); document.addEventListener('pointercancel', inspectUp);
   document.addEventListener('contextmenu', ev => {if (inspection) ev.preventDefault();});
   document.addEventListener('wheel', ev => {if (!inspection) return; ev.preventDefault(); ev.stopImmediatePropagation(); inspection.zoom = clamp(inspection.zoom + Math.sign(ev.deltaY) * .08, .78, 1.8); poseInspect();}, {capture:true, passive:false});
@@ -1128,7 +1155,9 @@
       else if (a === 'turn') held.ry += 45; else if (a === 'inspect') inspect(t.id); else if (a === 'put') drop(); else if (a === 'back') putBack(); else if (a === 'use' && t && t.use) t.use(t);
     });
     // the joystick (touch screens): bottom left
-    const bJ = $('.hs-jump'), bD = $('.hs-duck'), bU=$('.hs-use'); if (touchy()) { bJ.style.display = bD.style.display = bU.style.display = 'block'; }
+    const bJ = $('.hs-jump'), bD = $('.hs-duck'), bU=$('.hs-use');
+    const inputUI = ev => { if(['mouse','keyboard'].includes(ev?.detail?.mode)&&['mouse','keyboard'].includes(ev?.detail?.previous))return;bJ.style.display = bD.style.display = bU.style.display = touchy()?'block':'none'; joy.on=false; keys.jump=false; if(held)ui.holdBar(THINGS[held.id]); const label=$('.hs-getup span');label.querySelector('kbd')?.remove();if(!touchy()&&!$('.hs-getup').hidden)label.insertAdjacentHTML('beforeend',' <kbd>Q</kbd>'); };
+    document.addEventListener('game-input-change',inputUI); if(touchy())bJ.style.display=bD.style.display=bU.style.display='block';
     bU.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();if(!canAct())return;if(held){const t=THINGS[held.id];if(t?.use)t.use(t)}else useAt(vw/2,vh/2,true,'use')});
     bJ.addEventListener('pointerdown', ev => { ev.preventDefault(); ev.stopPropagation(); if (canAct()) keys.jump = true; });
     bD.addEventListener('pointerdown', ev => { ev.preventDefault(); ev.stopPropagation(); keys.crouch = !keys.crouch; bD.style.background = keys.crouch ? '#fff6' : '#0006'; });
@@ -1159,7 +1188,7 @@
         hold.querySelector('.hs-hkeys').innerHTML = touchy() ? '' : '<kbd>E</kbd> / <kbd>Click</kbd>: place' + (t.use?' &middot; <kbd>F</kbd>: '+esc(t.useLabel||'use'):'') + ' &middot; <kbd>R</kbd>: turn &middot; <kbd>I</kbd>: inspect &middot; <kbd>Wheel</kbd>: distance &middot; <kbd>Esc</kbd>: menu / put back';
         const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use; u.textContent = t.useLabel || 'Use';
       },
-      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML=`<kbd>E</kbd> / <kbd>Click</kbd>: ${esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''))}`;else if (held) this.holdBar(THINGS[held.id]); },
+      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML=(touchy()?'Put down: ':'<kbd>E</kbd> / <kbd>Click</kbd>: ')+esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''));else if (held) this.holdBar(THINGS[held.id]); },
       crossOn() { el.classList.add('cross'); clearTimeout(crossT); crossT = setTimeout(() => el.classList.remove('cross'), 2500); },
       fade(on, ms) { const f = $('.hs-fade'); f.style.transitionDuration = (ms || 300) + 'ms'; f.classList.toggle('on', !!on); },
       modalOpen: () => !!el.querySelector('.hs-modal.on'),
@@ -1180,14 +1209,14 @@
   function uiMount() { if (uiIn) return; uiIn = true; html.appendChild(ui.el); }
 
   // ================================================================ drawing
-  let need = true, raf = 0, lastT = 0, lastAmb = 0, frame = 0, viewing = false, viewT = 0;
+  let need = true, raf = 0, lastT = 0, lastAmb = 0, frame = 0, budgetPose='', viewing = false, viewT = 0;
   function dirty() { need = true; }
   const ambient = new Set(); // things that animate gently (the lava lamp, a telly): redrawn ~20 times a second
   function loop(now) {
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.12, (now - (lastT || now)) / 1000); lastT = now;
     if (!live || document.hidden) return;
-    tickLights(dt);
+    screenEffort();tickLights(dt);
     const vo = viewOpen(); if (vo !== viewing) { viewing = vo; viewT = now; html.classList.toggle('hs-viewing', vo); if (vo) { setHot(null); ui.tip(null); unlock(); } }
     // (the consoles' telly is up: once it has settled, the room behind needn't be drawn)
     if (vo && now - viewT > 600 && document.querySelector('.rm-tvv.rm-hand.on:not(.bye)') && !pb.classList.contains('rm-tvon')) pb.classList.add('rm-tvon');
@@ -1204,33 +1233,52 @@
     if (tickThings(dt)) moving = true;
     if (hoverQ && frame % 3 === 0) { hoverQ = false; hover(); }
     frame++;
-    const ambOn = ambient.size && now - lastAmb > 50;
+    const ambOn = ambient.size && now - lastAmb > (monitor?Math.max(100,1000/graphics.backgroundFps):50);
     if (!moving && !need && !ambOn) return;
     if (ambOn) { lastAmb = now; for (const fn of ambient) try { fn(now); } catch (e) {} }
     need = false;
-    render(); fpsTick(now);
+    const pose=[P.x,P.y,P.z,P.rx,P.ry].join(',');
+    render(); fpsTick(now,moving||(mode==='walk'&&pose!==budgetPose)||!!(Q.probe&&now<Q.probe));budgetPose=pose;
     if (frame % 6 === 0) ui.map();
   }
-  // the frame rate, from frames drawn back to back (idle frames aren't drawn at all). Auto: under ~40 fps for a while, a tier down
-  let lastR = 0;
-  function fpsTick(now) {
-    const f = Q.f, d = (now - lastR) / 1000; lastR = now;
-    if (d > 0 && d < 0.2) { f.n++; f.t += d; }
-    if (Q.probe && now < Q.probe) dirty(); // (the first two seconds: keep drawing, to measure)
-    if (f.t < 2) return;
-    Q.fps = Math.round(f.n / f.t); f.n = 0; f.t = 0;
-    const probing = Q.probe && now < Q.probe + 300; if (probing) Q.probe = 0;
-    if (Q.auto && Q.fps < 40 && Q.tier !== 'low') { if (++f.low >= (probing ? 1 : 2)) { f.low = 0; setTier(QN[QN.indexOf(Q.tier) - 1]); } } else f.low = 0;
+  // Budget only consecutive demanded frames. Ambient animation deliberately
+  // runs at 20 Hz and must not be mistaken for a struggling 20 FPS device.
+  let lastR=0,goodBudget=0;
+  function fpsTick(now,continuous){
+    const f=Q.f;
+    if(!continuous||backgroundCovered()){lastR=0;f.n=0;f.t=0;return}
+    const d=lastR?(now-lastR)/1000:0;lastR=now;
+    if(d>0&&d<.75){f.n++;f.t+=d}
+    if(Q.probe&&now<Q.probe)dirty();else if(Q.probe)Q.probe=0;
+    if(f.t<.9)return;
+    Q.fps=Math.round(f.n/f.t);f.n=0;f.t=0;
+    if(!graphics.dynamic)return;
+    if(Q.fps<28){
+      goodBudget=0;
+      if(Q.auto&&Q.tier!=='low')setTier(QN[QN.indexOf(Q.tier)-1]);
+      else if(Q.renderScale>.5){Q.renderScale=Math.max(.5,Q.renderScale-.125);measure()}
+    }else if(Q.fps>52&&Q.renderScale<1){
+      if(++goodBudget>=5){goodBudget=0;Q.renderScale=Math.min(1,Q.renderScale+.125);measure()}
+    }else goodBudget=0;
   }
   function setTier(t) {
-    Q.tier = t; window.HouseQ = t; K.setAniso(Math.min({ low: 1, medium: 4, high: 8 }[t], ren.capabilities.getMaxAnisotropy()));
+    Q.tier = t; window.HouseQ = t; K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()));
+    if(ren.getContext().getContextAttributes().antialias!==wantsAntialias())rebuildGL();
     measure(); visCalc(); emit('gfx', t);
   }
-  const gfxName = () => (Q.auto ? 'Auto (' + Q.tier[0].toUpperCase() + Q.tier.slice(1) + ')' : Q.tier[0].toUpperCase() + Q.tier.slice(1));
+  const gfxName = () => graphics.preset==='custom'?'Custom ('+Q.tier+')':(Q.auto ? 'Auto (' + Q.tier[0].toUpperCase() + Q.tier.slice(1) + ')' : Q.tier[0].toUpperCase() + Q.tier.slice(1));
   function gfxSet(want) { // 'auto' | 'low' | 'medium' | 'high', saved for next time
+    graphics=graphicsDefaults(QN.includes(want)?want:'auto');ls.set('jhp_hs_graphics',graphics);
+    Q.renderScale=1;Q.f.n=0;Q.f.t=0;lastR=0;goodBudget=0;
     Q.want = want; Q.auto = !QN.includes(want); ls.set('jhp_hs_gfx', want);
     setTier(Q.auto ? Q.guess : want); if (Q.auto) Q.probe = performance.now() + 2000;
     const lbl = document.getElementById('smGfx'); if (lbl) lbl.lastChild.textContent = 'Room graphics: ' + gfxName();
+  }
+  function graphicsGet(){return{...graphics,tier:Q.tier,actualAntialias:!!ren.getContext().getContextAttributes().antialias,actualScale:graphics.scale*Q.renderScale,pixelRatioActual:Q.pixelRatio}}
+  function graphicsSet(patch){
+    if(patch&&['auto','low','medium','high'].includes(patch.preset)){gfxSet(patch.preset);screenEffort();emit('graphics-options',graphicsGet());return graphicsGet()}
+    graphics=cleanGraphics({...graphics,...patch,preset:'custom'},graphics);Q.auto=false;Q.want=Q.tier;Q.probe=0;Q.renderScale=1;Q.f.n=Q.f.t=0;lastR=0;goodBudget=0;
+    ls.set('jhp_hs_gfx',Q.want);ls.set('jhp_hs_graphics',graphics);setTier(Q.tier);screenEffort();emit('graphics-options',graphicsGet());return graphicsGet();
   }
   function gfxNext() { const o = ['auto', 'low', 'medium', 'high'], i = o.indexOf(Q.auto ? 'auto' : Q.tier); gfxSet(o[(i + 1) % 4]); ui.toast('Graphics: ' + gfxName(), Q.auto ? 'Picked for this computer (press G to change)' : 'Press G to change'); }
   let anyFront = false;
@@ -1273,7 +1321,12 @@
       scene.background=background;renderer.autoClear=clear;scene.autoUpdate=update;renderer.info.autoReset=autoReset;
     }
   }
+  function backgroundCovered(){return !!((monitor&&desktopFull)||(window.RoomTV?.open_&&RoomTV.lockIn())||[...SURF].some(s=>s.screen&&s.locked))}
+  let backgroundHidden=false;
   function render() {
+    const covered=backgroundCovered();
+    if(covered!==backgroundHidden||cv.style.display!==(covered?'none':'')){backgroundHidden=covered;cv.style.display=covered?'none':'';cv2.style.display=covered?'none':''}
+    if(covered){if(stood||monitor)glassFit();for(const sf of SURF)placeSurf(sf);return}
     glCam(P.x, P.y, P.z, P.rx, P.ry);
     if (mode !== 'follow' && mode !== 'off') cssCam();
     pcVis();
@@ -1282,7 +1335,7 @@
     const ly = pcOn ? 1 : 0; for (const f of frontFx) { if (f.userData.ly !== ly) { f.userData.ly = ly; f.traverse(o => o.layers.set(ly)); } if (f.visible && pcOn) front = true; }
     camera.layers.set(0); renderLit(ren);
     if (front || anyFront) {
-      if (!ren2) { ren2 = new T.WebGLRenderer({ canvas: cv2, antialias: true, alpha: true, premultipliedAlpha: true }); ren2.setClearColor(0x000000, 0); ren2.localClippingEnabled = true; measure(); }
+      if (!ren2) { ren2 = new T.WebGLRenderer({ canvas: cv2, antialias: wantsAntialias(), alpha: true, premultipliedAlpha: true }); ren2.setClearColor(0x000000, 0); ren2.localClippingEnabled = true; measure(); }
       if (cv2.parentNode !== frontHost()) frontHost().appendChild(cv2);
       camera.layers.set(1); renderLit(ren2); camera.layers.set(0);
       anyFront = front;
@@ -1306,7 +1359,7 @@
 
   // ================================================================ boot.js: following it, holding it, and the power button
   function setMode(m) {
-    mode = m; if (m !== 'walk' && m !== 'glide') unlock();
+    const previous=mode;mode = m;if(previous!==m)emit('mode',m,previous); if (m !== 'walk' && m !== 'glide') unlock();
     RC.hold = m !== 'follow' && m !== 'off';
     pb.classList.toggle('hs-follow', m === 'follow'); html.classList.toggle('hs-follow', m === 'follow');
     dirty();
@@ -1435,6 +1488,27 @@
   // ================================================================ STANDING UP from the PC while it's on (the live desktop on the monitor)
   let stood = false, standing = false, monitor = false;
   const body = document.body, monitorSurfaceEl = document.getElementById('monitorSurface') || body;
+  let screenIdle=false,screenBackground=false;const pausedScreenSVG=new WeakSet();
+  function screenDecorations(node,idle){
+    if(node.nodeType!==1)return;
+    const decorations=[...(node.matches('marquee,svg')?[node]:[]),...node.querySelectorAll('marquee,svg')];
+    for(const el of decorations){
+      if(el.tagName.toLowerCase()==='marquee'){if(idle)el.stop?.();else el.start?.()}
+      else if(idle&&el.pauseAnimations&&!el.animationsPaused()){el.pauseAnimations();pausedScreenSVG.add(el)}
+      else if(!idle&&pausedScreenSVG.has(el)){el.unpauseAnimations?.();pausedScreenSVG.delete(el)}
+    }
+  }
+  // Only decorative presentation rests. Network handlers, message sounds,
+  // clocks, application state and running games keep their normal lifecycle.
+  function screenEffort(){
+    const background=stood&&!monitor;
+    if(background!==screenBackground){screenBackground=background;document.dispatchEvent(new CustomEvent('house-screen-effort',{detail:{idle:background}}))}
+    const idle=background&&!graphics.decorations;
+    if(idle===screenIdle)return;screenIdle=idle;html.classList.toggle('hs-screen-idle',idle);screenDecorations(monitorSurfaceEl,idle);
+    emit('screen-effort',idle?'background':'interactive');
+  }
+  new MutationObserver(records=>{if(screenIdle)for(const r of records)for(const node of r.addedNodes)screenDecorations(node,true)}).observe(monitorSurfaceEl,{childList:true,subtree:true});
+
   function monitorCentre(){
     const g=window.House&&House.pcGL,gl=g&&g.userData.glass;
     if(gl){root.updateMatrixWorld(true);const m=new T.Matrix4().copy(root.matrixWorld).invert().multiply(g.matrixWorld);return new T.Vector3(gl.x,gl.y,gl.z).applyMatrix4(m)}
@@ -1451,14 +1525,15 @@
     if(typeof full==='boolean'){desktopFull=full;ls.set('jhp_hs_desktop_full',full)}
     html.classList.toggle('pc-desktop-full',monitor&&desktopFull);if(live){glassFit();dirty()}return desktopFull;
   }
-  function pauseControls(on){controlsPaused=!!on;for(const k in keys)keys[k]=false;W.vx=W.vz=0;joy.on=false;PT.clear();if(inspection)inspection.drag=null;if(on){unlock();setHot(null);ui.tip(null)}else wantLock();dirty();}
+  function pauseControls(on){controlsPaused=!!on;for(const k in keys)keys[k]=false;W.vx=W.vz=0;joy.on=false;PT.clear();if(inspection){inspection.drag=null;inspection.points.clear()}if(on){unlock();setHot(null);ui.tip(null)}else wantLock();dirty();}
   // Fit the entire 4:3 glass with room for its curved bezel at every aspect.
   function monitorPose() {
     const g = window.House && House.pcGL, gl = g && g.userData.glass;
     const centre=monitorCentre();
     const width = gl && gl.w || GW, height = width * 3/4;
-    const distance = Math.max(width * PERSP * em / (vw * .88), height * PERSP * em / (vh * .82));
-    return { x: centre.x, y: centre.y, z: centre.z + distance, rx: 0, ry: 0, seat: 1, lvl: 'U' };
+    const availableW=Math.max(120,vw-pcReserve.right),availableH=Math.max(120,vh-pcReserve.bottom);
+    const distance = Math.max(width * PERSP * em / (availableW * .88), height * PERSP * em / (availableH * .82));
+    return { x: centre.x+pcReserve.right*distance/(2*PERSP*em), y: centre.y+pcReserve.bottom*distance/(2*PERSP*em), z: centre.z + distance, rx: 0, ry: 0, seat: 1, lvl: 'U' };
   }
   function preparePCView() {
     if (window.Room && Room.prepare) Room.prepare();
@@ -1534,11 +1609,11 @@
   const glass = { k: 1, fitKey: null, checkedAt: 0 };
   function glassFit() {
     const full=monitor&&desktopFull,now=performance.now(),g0=window.House&&House.pcGL;
-    const key=[mode,monitor,stood,full,vw,vh,P.x,P.y,P.z,P.rx,P.ry,g0?.matrixWorld.elements.join(',')].join('|');
+    const key=[mode,monitor,stood,full,vw,vh,pcReserve.bottom,pcReserve.right,P.x,P.y,P.z,P.rx,P.ry,g0?.matrixWorld.elements.join(',')].join('|');
     if(glass.fitKey===key&&(monitor||now-glass.checkedAt<150))return;
     const moved=glass.fitKey!==key;glass.fitKey=key;
     html.classList.toggle('pc-desktop-full',full);
-    if(full){const scale=Math.min(vw/1024,vh/768);monitorSurfaceEl.style.visibility='';monitorSurfaceEl.style.clipPath='';monitorSurfaceEl.style.transform=`translate(${(vw-1024*scale)/2}px,${(vh-768*scale)/2}px) scale(${scale})`;return;}
+    if(full){const w=Math.max(120,vw-pcReserve.right),h=Math.max(120,vh-pcReserve.bottom),scale=Math.min(w/1024,h/768);monitorSurfaceEl.style.visibility='';monitorSurfaceEl.style.clipPath='';monitorSurfaceEl.style.transform=`translate(${(w-1024*scale)/2}px,${(h-768*scale)/2}px) scale(${scale})`;return;}
     // the glass is taken from the WebGL monitor itself (rm-room.js's pcGL: wherever it was built), in the engine's own y-down frame
     const g = House.pcGL, gl = g && g.userData.glass; let cx, cy, z = 0.05, glassMatrix = null;
     if (gl) { glassMatrix = new T.Matrix4().copy(House.root.matrixWorld).invert().multiply(g.matrixWorld); const o = new T.Vector3(gl.x, gl.y, gl.z).applyMatrix4(glassMatrix); cx = o.x; cy = o.y; z = o.z + 0.01; } else { const L = Lb(); cx = L.mx; cy = GY; }
@@ -1636,7 +1711,7 @@
     return false;
   }
   function wdCheck() {
-    if (!live || document.hidden || ['off','follow','pcboot','shutdown'].includes(mode) || viewOpen() || pb.classList.contains('deep') || pb.classList.contains('rm-tvon')) { wdBlack = 0; return; }
+    if (!live || document.hidden || backgroundCovered() || ['off','follow','pcboot','shutdown'].includes(mode) || viewOpen() || pb.classList.contains('deep') || pb.classList.contains('rm-tvon')) { wdBlack = 0; return; }
     try {
       let bad = !cv.isConnected, why = '';
       if (!bad) { const r = cv.getBoundingClientRect(), cs = getComputedStyle(cv); bad = !r.width || !r.height || cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05; }
@@ -1684,6 +1759,10 @@
   });
 
   // ================================================================ resizing, rotating, the tab going away
+  document.addEventListener('pc-trackpad-layout',ev=>{
+    pcReserve={bottom:clamp(+ev.detail?.bottom||0,0,Math.max(0,vh-120)),right:clamp(+ev.detail?.right||0,0,Math.max(0,vw-120))};
+    glass.fitKey=null;if(monitor&&mode==='monitor')Object.assign(P,monitorPose());dirty();
+  });
   addEventListener('resize', () => { if (!live) return; measure(); if (monitor) Object.assign(P, monitorPose()); else if (mode === 'walk' && W.seat && Math.abs(P.ry - seatPose().ry) < 1) { Object.assign(P, seatPose()); } dirty(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { lastT = 0; dirty(); } else { saveWalkState(); for (const k in keys) keys[k] = false; unlock(); } });
 
@@ -1700,7 +1779,7 @@
     say: (t, x, ms) => ui.say(t, x, ms), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),
     dirty, relight, ambient, anims, visCalc, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
     desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},
-    Q, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
+    Q,graphicsGet,graphicsSet, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
     _: { whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
   };

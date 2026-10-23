@@ -238,13 +238,14 @@
     };
     // mouse/touch: hold to steer towards the pointer; quick tap = jump (or a trick in the air)
     let ptr = null;
-    const toWorld = ev => { const r = cv.getBoundingClientRect(); return [(ev.clientX - r.left - C.W / 2) / view.sc, (ev.clientY - r.top - C.H * 0.32) / view.sc]; };
+    const toWorld = ev => { const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY); return [(point.x - r.left - C.W / 2) / view.sc, (point.y - r.top - C.H * 0.32) / view.sc]; };
     G.on(cv, 'pointerdown', ev => {
       ev.preventDefault(); G.focus();
       if (!S) return;
       if (S.paused) { pause(false); return; }
       if (S.over) { newGame(); return; }
-      ptr = { id: ev.pointerId, t: performance.now(), x: ev.clientX, y: ev.clientY, moved: false };
+      const point = DesktopSurface.point(ev.clientX, ev.clientY);
+      ptr = { id: ev.pointerId, t: performance.now(), x: point.x, y: point.y, moved: false };
       try { cv.setPointerCapture(ev.pointerId); } catch (e) {}
       const [tx, ty] = toWorld(ev);
       if (S.air) { trickKey(Math.abs(tx) > Math.abs(ty) ? (tx < 0 ? 'left' : 'right') : (ty < 0 ? 'up' : 'down')); return; }
@@ -252,7 +253,8 @@
     });
     G.on(cv, 'pointermove', ev => {
       if (!ptr || ev.pointerId !== ptr.id || !S || S.air || S.crash > 0 || S.over || S.paused) return;
-      if (Math.hypot(ev.clientX - ptr.x, ev.clientY - ptr.y) > 6) ptr.moved = true;
+      const point = DesktopSurface.point(ev.clientX, ev.clientY);
+      if (Math.hypot(point.x - ptr.x, point.y - ptr.y) > 6) ptr.moved = true;
       const [tx, ty] = toWorld(ev); if (Math.hypot(tx, ty) > 10) setHeadingTo(tx, ty);
     });
     const end = ev => { if (!ptr || ev.pointerId !== ptr.id) return; const quick = performance.now() - ptr.t < 220 && !ptr.moved; ptr = null; if (quick && S && !S.air && !S.over) { const [tx, ty] = toWorld(ev); if (Math.hypot(tx, ty) < 22) jump(); } };

@@ -286,7 +286,7 @@
       L.f = f; L.s = f / 3; L.x0 = Math.round((W - f * 4) / 2); L.y0 = Math.round((H - f * 3) / 2);
     }
     function narrowCheck() {
-      const r = host.getBoundingClientRect();
+      const r = DesktopSurface.rect(host);
       const narrow = r.width < 560;
       wrap.classList.toggle('narrow', narrow);
       if (narrow) netBox.style.height = Math.round(Math.min(340, Math.max(220, r.width * 0.78))) + 'px'; else netBox.style.height = '';
@@ -352,7 +352,7 @@
     }
     G.on(cv, 'pointerdown', ev => {
       ev.preventDefault(); G.focus();
-      const r = cv.getBoundingClientRect(), f = faceAt(ev.clientX - r.left, ev.clientY - r.top);
+      const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY), f = faceAt(point.x - r.left, point.y - r.top);
       if (!f || queue.length) return;
       if (ev.button === 2 || ev.shiftKey) { apply(f, 3, true); return; }
       press = { f, t: performance.now(), id: ev.pointerId, done: false };

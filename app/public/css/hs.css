@@ -274,3 +274,10 @@ html.hs-live{--game-ui:"Courier New",monospace;--game-panel:rgba(22,25,27,.94);-
 .hs-inspection{box-sizing:border-box;max-width:calc(100vw - 32px);min-width:min(360px,calc(100vw - 32px))}
 .magazine-page-controls{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px}
 .magazine-page-controls button:disabled{opacity:.45;cursor:default}
+
+/* The physical CRT already supplies the glass/scanlines. The legacy blended
+   overlay would composite the entire desktop a second time. */
+html.pc-roomview #crtglass{display:none!important}
+/* A background desktop stays live for messages and programs. Rest decoration
+   instead of repainting dozens of banners/blinks through a moving 3D plane. */
+html.hs-screen-idle #monitorSurface *,html.hs-screen-idle #monitorSurface *::before,html.hs-screen-idle #monitorSurface *::after{animation-play-state:paused!important;transition:none!important}

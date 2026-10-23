@@ -8,5 +8,6 @@ try{
 const response=await p.goto(base,{waitUntil:'domcontentloaded'});assert.equal(response.status(),200);
 let ready=false;for(let n=0;n<300;n++){ready=await p.evaluate(()=>window.Net?.connected&&window.AccountGate?.blocked&&!!document.querySelector('#accountGate form'));if(ready)break;await p.waitForTimeout(200)}assert(ready,'Required account screen did not become ready');await p.waitForTimeout(4000);
 assert.equal(await p.locator('#accountGate [data-g],#accountGate [data-c]').count(),0);
+if(process.argv[3])assert.equal(await p.locator('.hs-pause-version').textContent(),'VERSION '+process.argv[3]);
 await p.screenshot({path:'shots/live-accounts-reviewed.png'});assert.deepEqual(errors,[]);console.log('LIVE READ-ONLY PASS: HTTP 200; mandatory account screen; no guest bypass or browser errors/warnings');
 }finally{await b.close()}

@@ -14,14 +14,19 @@
  <div class="hs-pause-main"><button type="button" data-pause="resume">RESUME</button><button type="button" data-pause="leave" hidden>BACK TO THE ROOM</button><button type="button" data-pause="return" hidden>PUT HELD ITEM BACK</button>
  <fieldset><legend>AUDIO</legend><label><input type="checkbox" name="music"> Music</label><label><input type="checkbox" name="effects"> Sound effects &amp; voices</label><label class="hs-audio-volume">Volume <output>100%</output><input type="range" name="volume" min="0" max="100" step="1" aria-label="Overall volume"></label><p class="hs-pause-mouse">Applies throughout the house, PC and games. Saved for next time.</p></fieldset>
  <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [T]<small class="hs-lock-help">Full-screen view of the screen you are using. Press T again to return. Original proportions are preserved.</small></label>
+ <label><input type="checkbox" name="pcTrackpad"> PC trackpad<small>Move the JackOS cursor; Left / Right click, Double click, Drag and scroll. Keyboard types into the selected text box. Starts on for touch controls.</small></label>
  <label><input type="checkbox" name="crouchToggle"> Toggle crouch [C]<small>Off: hold C. On: press C to crouch or stand.</small></label>
- <label>Graphics <select name="graphics"><option value="auto">Automatic</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></label>
+ <button type="button" data-pause="graphics" aria-controls="hsGraphicsMenu" aria-expanded="false">GRAPHICS OPTIONS <span class="hs-graphics-summary"></span></button>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
  <fieldset><legend>JACKNET ACCOUNT</legend><button type="button" data-pause="logout">LOG OUT</button><div class="hs-logout-confirm" hidden><p>Save your room and settings, then return to Log On? Your account is kept.</p><button type="button" data-pause="confirmLogout">SAVE AND LOG OUT</button><button type="button" data-pause="cancelLogout">CANCEL</button></div></fieldset>
  <fieldset class="hs-test-reset" hidden><legend>TEST ACCOUNT ONLY</legend><p>Reset this test room, media, local game saves and balances. Daily limits, chores and shared-world records are kept. Other accounts are not affected.</p><button type="button" data-pause="resetTest">RESET TEST SAVE</button><div class="hs-test-confirm" hidden><p>Start the test save again? A server backup is kept.</p><button type="button" data-pause="confirmReset">YES, RESET TEST</button><button type="button" data-pause="cancelReset">CANCEL</button></div></fieldset>
  <p class="hs-pause-keys">WASD: walk · Mouse: look · F: use / play<br>E / Click: pick up, remove, place<br>Shift: jog · C: crouch · Space: jump<br>I: inspect · R: turn<br>Q: lean back · T: LOCK IN · Esc: menu</p>
  <p class="hs-pause-status" role="status">Movement is stopped. Online programs and the TV keep running.</p></div>`;
  document.documentElement.appendChild(el);
+ const main=el.querySelector('.hs-pause-main');let graphicsOpen=false;
+ const graphicsMenu=window.HouseGraphicsMenu?.mount(el,{back:()=>graphicsBack(),resume:closeMenu});
+ function graphicsBack(focus=true){graphicsOpen=false;graphicsMenu?.hide();main.hidden=false;el.querySelector('h1').textContent='GAME MENU';button('graphics').setAttribute('aria-expanded','false');syncSettings();el.scrollTop=0;if(focus&&el.open){button('graphics').focus({preventScroll:true});button('graphics').scrollIntoView({block:'nearest',inline:'nearest'});}}
+ function openGraphics(){if(!graphicsMenu||!H.graphicsGet||!H.graphicsSet)return;graphicsOpen=true;main.hidden=true;button('graphics').setAttribute('aria-expanded','true');el.querySelector('h1').textContent='GRAPHICS';el.scrollTop=0;graphicsMenu.show();}
  const stamp=new URL(document.querySelector('script[src*="js/hs-pause.js"]')?.src||location.href).searchParams.get('v')||'',release=stamp.includes('-')?stamp.match(/^\d+\.\d+\.\d+/)?.[0]:null;
  const version=document.createElement('small');version.className='hs-pause-version';version.style.cssText='display:block;text-align:right;padding:0 16px 12px;color:#b8aa84;font:11px monospace';el.appendChild(version);
  function showVersion(v){const current=release||v||window.Net?.me.version;version.textContent=current?'VERSION '+current:'DEVELOPMENT BUILD'}showVersion();window.Net?.on('welcome',m=>showVersion(m.v));
@@ -47,25 +52,26 @@
  }
  const button=k=>el.querySelector('[data-pause="'+k+'"]');
  function canBack(){return!!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_)}
- function quickBack(){if(H.paused||!canBack())return false;if(H.mode==='inspect')H.endInspect();else if(window.RoomTV?.open_)RoomTV.close();else if(H.focused)H.unfocus();else H.standUp();return true;}
+ function quickBack(){if(H.paused||!canBack())return false;window.PCTouch?.reset();if(H.mode==='inspect')H.endInspect();else if(window.RoomTV?.open_)RoomTV.close();else if(H.focused)H.unfocus();else H.standUp();return true;}
  function syncAudio(){el.querySelector('[name=music]').checked=!!window.Sound?.musicOn;el.querySelector('[name=effects]').checked=!!window.Sound?.effectsOn;const volume=Math.round((window.Sound?.volume??1)*100);el.querySelector('[name=volume]').value=volume;el.querySelector('.hs-audio-volume output').textContent=volume+'%'}
  document.addEventListener('audiochange',syncAudio);
- function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press T again to return. Original proportions are preserved.':'Use a PC, console, Game Lad or family TV, then press T to LOCK IN.';}
+ function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;const pad=el.querySelector('[name=pcTrackpad]');pad.checked=!!window.PCTouch?.enabled;pad.disabled=!window.PCTouch;const graphics=button('graphics');graphics.disabled=!graphicsMenu||!H.graphicsGet||!H.graphicsSet;const preset=H.graphicsGet?.().preset;graphics.querySelector('span').textContent=window.HouseGraphicsMenu?.names[preset]||'';el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press T again to return. Original proportions are preserved.':'Use a PC, console, Game Lad or family TV, then press T to LOCK IN.';}
  function openMenu(){
   if(el.open||!H.live||window.House?.god||window.AccountGate&&!AccountGate.allowed)return false;
-  previous=el.contains(document.activeElement)?null:document.activeElement;syncSettings();el.querySelector('[name=graphics]').value=H.Q.want;el.querySelector('[name=crouchToggle]').checked=H.crouchSetting();
+  previous=el.contains(document.activeElement)?null:document.activeElement;graphicsBack(false);el.querySelector('[name=crouchToggle]').checked=H.crouchSetting();
   el.querySelector('.hs-test-reset').hidden=!(window.Net?.me.member&&Net.me.nick.toLowerCase()==='test'&&localStorage.getItem('jhp_starter')==='1');el.querySelector('.hs-test-confirm').hidden=true;
   el.querySelector('.hs-logout-confirm').hidden=true;
   button('leave').hidden=!(H.focused||H.mode==='inspect'||H.canStand()||window.RoomTV?.open_);
   el.querySelector('.hs-pause-status').textContent=window.RoomTV?.open_?'This console game is paused. Audio keeps playing so you can adjust it. Online programs keep running.':'Movement is stopped. Online programs and the TV keep running.';
-  button('return').hidden=!H.held();H.pauseControls(true);document.documentElement.classList.add('hs-paused');el.showModal();button('resume').focus();return true;
+  window.PCTouch?.reset();button('return').hidden=!H.held();H.pauseControls(true);document.documentElement.classList.add('hs-paused');el.showModal();button('resume').focus();return true;
  }
- function closeMenu(){if(!el.open||loggingOut)return;el.close();document.documentElement.classList.remove('hs-paused');if(previous?.isConnected&&!el.contains(previous)&&previous.getClientRects().length)previous.focus({preventScroll:true});if(el.contains(document.activeElement))document.activeElement.blur();H.pauseControls(false);}
- function handleEscape(ev){if(ev.key!=='Escape')return false;if(!el.open&&!H.live)return false;ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat){if(el.open)closeMenu();else openMenu()}return true;}
- el.addEventListener('cancel',ev=>{ev.preventDefault();closeMenu()});
+ function closeMenu(){if(!el.open||loggingOut)return;el.close();graphicsBack(false);document.documentElement.classList.remove('hs-paused');if(previous?.isConnected&&!el.contains(previous)&&previous.getClientRects().length)previous.focus({preventScroll:true});if(el.contains(document.activeElement))document.activeElement.blur();H.pauseControls(false);}
+ function handleEscape(ev){if(ev.key!=='Escape')return false;if(!el.open&&!H.live)return false;ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat){if(el.open){if(graphicsOpen)graphicsBack();else closeMenu()}else openMenu()}return true;}
+ el.addEventListener('cancel',ev=>{ev.preventDefault();if(graphicsOpen)graphicsBack();else closeMenu()});
  el.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-pause]');if(!b)return;
-  if(b.dataset.pause==='logout'){el.querySelector('.hs-logout-confirm').hidden=false;button('cancelLogout').focus();}
+  if(b.dataset.pause==='graphics')openGraphics();
+  else if(b.dataset.pause==='logout'){el.querySelector('.hs-logout-confirm').hidden=false;button('cancelLogout').focus();}
   else if(b.dataset.pause==='cancelLogout'){el.querySelector('.hs-logout-confirm').hidden=true;button('logout').focus();}
   else if(b.dataset.pause==='confirmLogout')logout();
   else if(b.dataset.pause==='resetTest')el.querySelector('.hs-test-confirm').hidden=false;
@@ -81,19 +87,25 @@
   }
  });
  window.Net?.on('testResetResult',m=>{el.querySelector('.hs-pause-status').textContent=m.msg;button('confirmReset').disabled=false;if(m.ok)el.querySelector('.hs-test-confirm').hidden=true});
- el.addEventListener('change',ev=>{if(ev.target.name==='desktopFull')lockScreen(ev.target.checked);else if(ev.target.name==='crouchToggle')H.crouchSetting(ev.target.checked);else if(ev.target.name==='graphics')H.gfx(ev.target.value);else if(ev.target.name==='music')Sound.musicOn=ev.target.checked;else if(ev.target.name==='effects')Sound.effectsOn=ev.target.checked});
+ el.addEventListener('change',ev=>{if(ev.target.name==='desktopFull')lockScreen(ev.target.checked);else if(ev.target.name==='pcTrackpad')window.PCTouch?.setEnabled(ev.target.checked);else if(ev.target.name==='crouchToggle')H.crouchSetting(ev.target.checked);else if(ev.target.name==='music')Sound.musicOn=ev.target.checked;else if(ev.target.name==='effects')Sound.effectsOn=ev.target.checked});
  el.addEventListener('input',ev=>{if(ev.target.name==='volume')Sound.setVolume(+ev.target.value/100)});
  document.addEventListener('fullscreenchange',()=>{button('fullscreen').textContent=document.fullscreenElement?'WINDOWED GAME':'FULL-SCREEN GAME'});
  // House's handler calls us first. This also shields later desktop/game
  // shortcuts while the modal owns the keyboard; native Tab/Enter still work.
- addEventListener('keydown',ev=>{if(el.open){if(!handleEscape(ev))ev.stopImmediatePropagation()}},true);
+ addEventListener('keydown',ev=>{if(el.open){
+  if(ev.key==='Tab'){
+   const items=[...el.querySelectorAll('button,input,select,textarea,a[href],[tabindex]')].filter(n=>!n.disabled&&n.tabIndex>=0&&n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden');
+   const at=items.indexOf(document.activeElement);if(items.length&&(at<0||ev.shiftKey&&at===0||!ev.shiftKey&&at===items.length-1)){ev.preventDefault();items[ev.shiftKey?items.length-1:0].focus()}
+  }
+  if(!handleEscape(ev))ev.stopImmediatePropagation()
+ }},true);
  let owned=false;
  document.addEventListener('pointerlockchange',()=>{
   const now=!!document.pointerLockElement?.classList.contains('hs-gl'),was=owned;owned=now;
   // Browsers can consume Esc themselves to release pointer lock, without
   // delivering a keydown. Opening the menu here handles that path as well.
-  if(was&&!now&&!el.open&&H.mode==='walk'&&!document.hidden&&document.hasFocus())openMenu();
+  if(was&&!now&&!window.GameInput?.touch&&!el.open&&H.mode==='walk'&&!document.hidden&&document.hasFocus())openMenu();
  });
- window.HousePause={show:openMenu,close:closeMenu,handleEscape,quickBack,get canBack(){return canBack()},get open(){return el.open}};
+ window.HousePause={show:openMenu,close:closeMenu,handleEscape,quickBack,get canBack(){return canBack()},get open(){return el.open},get page(){return graphicsOpen?'graphics':'main'}};
  const menuButton=document.createElement('button');menuButton.type='button';menuButton.className='hs-menu-button';menuButton.textContent='MENU';menuButton.setAttribute('aria-label','Open game menu');menuButton.addEventListener('click',openMenu);document.documentElement.appendChild(menuButton);
 })();

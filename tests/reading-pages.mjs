@@ -32,6 +32,7 @@ try{
  for(let i=0;i<6;i++){
   await page.evaluate(i=>{House._.setMode('walk');House.grab('reading.book.'+i)},i);await page.keyboard.press('f');
   assert.equal(await page.evaluate(()=>House.mode),'inspect');
+  assert.equal(await page.evaluate(()=>Magazines.reading.phase),'front');await page.keyboard.press('f');await until(()=>!Magazines.reading.flipping);
   if(i===0)await page.screenshot({path:'shots/reading-pages/book-open.png'});
   await page.locator('[data-turn="1"]').click();await until(()=>!Magazines.reading.flipping);
   assert.equal(await page.evaluate(()=>Magazines.reading.page),2);

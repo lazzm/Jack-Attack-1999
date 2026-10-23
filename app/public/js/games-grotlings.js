@@ -285,7 +285,7 @@
     function wrapC(t, x, y, maxW) { if (ctx.measureText(t).width <= maxW) { ctx.fillText(t, x, y); return; } ctx.font = '11px Tahoma, sans-serif'; ctx.fillText(t, x, y); }
 
     // ---------------------------------------------------------------- input
-    const toLevel = ev => { const r = cv.getBoundingClientRect(); return [(ev.clientX - r.left - vp.ox) / vp.s, (ev.clientY - r.top - vp.oy) / vp.s]; };
+    const toLevel = ev => { const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY); return [(point.x - r.left - vp.ox) / vp.s, (point.y - r.top - vp.oy) / vp.s]; };
     function nearest(x, y, rad) { let best = null, bd = rad; for (const g of S.grots) { const d = Math.hypot(g.x - x, g.y - 5 - y); if (d < bd) { bd = d; best = g; } } return best; }
     G.on(cv, 'pointermove', ev => { if (!S) return; const [x, y] = toLevel(ev); S.hover = nearest(x, y, ev.pointerType === 'mouse' ? 9 : 14); });
     G.on(cv, 'pointerdown', ev => {

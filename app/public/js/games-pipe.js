@@ -476,12 +476,12 @@
       ev.preventDefault(); G.focus();
       if (!S || unpause()) return;
       if (S.state === 'done') { if (S.splash <= 0.3) next(); return; }
-      const r = cv.getBoundingClientRect(), c = cellAt(ev.clientX - r.left, ev.clientY - r.top);
+      const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY), c = cellAt(point.x - r.left, point.y - r.top);
       if (c) place(c.x, c.y);
     });
     G.on(cv, 'pointermove', ev => {
       if (!S || ev.pointerType !== 'mouse') return;
-      const r = cv.getBoundingClientRect(), c = cellAt(ev.clientX - r.left, ev.clientY - r.top);
+      const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY), c = cellAt(point.x - r.left, point.y - r.top);
       if (c) S.cursor = c;
     });
     G.on(cv, 'contextmenu', ev => ev.preventDefault());

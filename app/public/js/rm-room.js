@@ -295,8 +295,11 @@
     B.rbox(cx, WIN.y1 + 1.6, BZ + 1, w + 14, 3.2, 10 + dep - 6, 0.8, mWhite);
     B.shadow(cx, WIN.y1 + 3.4, BZ + 8, w + 10, 6, 0.4, { sq: true });
     const pot = B.at(WIN.x1 - 10, WIN.y1, BZ + 3);
-    pot.lathe(0, -8, 0, [[3.6, -4], [3.2, 4]], 14, M('#b8582a'));
-    pot.cyl(0, -14, 0, 1.6, 2, 8, 10, M({ c: '#5a7a3a', flat: true })); pot.ball(0, -18, 0, 1.6, 1.4, 1.6, M('#5a7a3a'), 8);
+    // Closed terracotta base sits exactly on the sill; the old open cone
+    // stopped four units above it and the cactus floated above its rim.
+    pot.lathe(0,0,0,[[0,0],[2.8,0],[3.6,-8],[3.9,-8],[3.9,-8.8],[3.2,-8.8],[2.7,-1],[0,-1],[0,0]],20,M('#b8582a'));
+    pot.disc(0,-8.1,0,3.15,M('#4b3524'),20);
+    pot.cyl(0,-12.05,0,1.6,2,8,10,M({c:'#5a7a3a',flat:true}));pot.ball(0,-17,0,1.6,1.4,1.6,M('#5a7a3a'),8);
     pot.shadow(0, 0, 0, 10, 10, 0.5);
     // the curtain pole and the curtains, gathered at the sides (real folds, not a flat sheet)
     B.cyl(cx, WIN.y0 - 12, BZ + 6, 1.4, 1.4, w + 70, 10, mBrass, { rz: 90 });
@@ -381,6 +384,8 @@
     const glaze=M({c:'#c54132',sh:40,sp:'#777'});
     mug.lathe(0,0,0,[[0,-.8],[3,-.8],[3.1,-8.7],[3.35,-9.4],[3.8,-9.5],[3.95,-9.2],[3.95,-.8],[3.4,0],[0,0]],32,glaze);
     mug.disc(0,-7.6,0,3.07,M({c:'#62432a',sh:28}),28);mug.geo(new T.TorusGeometry(2.6,.6,8,24,Math.PI),4.2,-4.6,0,glaze,{rz:-90});
+    // Ceramic mounting pads bury both open tube ends into the cup wall.
+    for(const y of [-2,-7.2])mug.ball(3.85,y,0,1,.75,.75,glaze,14);
     const mugLabel=K.tex('rm.mugprint',128,112,(g,w,h)=>{g.fillStyle='#c54132';g.fillRect(0,0,w,h);g.translate(0,h);g.scale(1,-1);A.text(g,"WORLD'S",64,32,'700 19px '+A.UIF,'#f6e8c9','center');A.text(g,'BEST SON',64,65,'700 18px '+A.UIF,'#f6e8c9','center');A.text(g,'from Gran',64,91,'italic 14px '+A.UIF,'#f6e8c9','center')},{clamp:true});
     mug.geo(new T.CylinderGeometry(3.98,3.98,4.5,24,1,true,-.66,1.32),0,-4.8,0,M({c:'#fff',map:mugLabel,sh:40}));
     mug.shadow(0, 0, 0, 11, 11, 0.6);

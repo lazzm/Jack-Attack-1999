@@ -255,6 +255,11 @@
       dialog, msg: JG.msg,
       focus() { try { (G.focusEl || host).focus({ preventScroll: true }); } catch (e) {} },
       keys: null, // { down(ev), up(ev) } routed from the document while this window is on top
+      // Layout and input share JackOS logical pixels, including synthetic trackpad events.
+      rect(el) { return window.DesktopSurface ? DesktopSurface.rect(el) : el.getBoundingClientRect(); },
+      point(ev) { return window.DesktopSurface ? DesktopSurface.point(ev.clientX, ev.clientY) : { x: ev.clientX, y: ev.clientY }; },
+      // Convert absolute logical coordinates to physical client coordinates for debug/test input.
+      client(x, y) { return window.DesktopSurface ? DesktopSurface.client(x, y) : { x, y }; },
       // a hi-dpi canvas that fills `parent` and calls onSize(W, H) when the size changes
       canvas(parent, onSize, cls) {
         const cv = document.createElement('canvas'); cv.className = 'jgcv' + (cls ? ' ' + cls : ''); cv.tabIndex = 0;
@@ -263,7 +268,10 @@
         let ready = false; // the first measurement happens synchronously but onSize waits a tick, so callers can finish setting up
         const fit = () => {
           if (G.closed) return;
-          const r = parent.getBoundingClientRect(), dpr = Math.min(2.5, window.devicePixelRatio || 1);
+          // Reduce backing pixels on an unattended monitor, never logical layout
+          // or simulation speed. Direct use restores sharp pixels immediately.
+          const resting = window.House?.screenEffort === 'background';
+          const r = G.rect(parent), dpr = Math.min(2.5, window.devicePixelRatio || 1) * (resting ? .5 : 1);
           if (r.width < 2 || r.height < 2) return; // minimised / hidden: keep the last size
           const W = Math.max(40, Math.floor(r.width)), H = Math.max(40, Math.floor(r.height));
           if (W === C.W && H === C.H && dpr === C.dpr) return;
@@ -272,7 +280,7 @@
           if (onSize && ready) onSize(W, H);
         };
         if (window.ResizeObserver) { const ro = new ResizeObserver(fit); ro.observe(parent); cleanups.push(() => ro.disconnect()); }
-        G.on(window, 'resize', fit); fit(); setTimeout(() => { ready = true; if (G.closed) return; const w0 = C.W; fit(); if (onSize && C.W === w0) onSize(C.W, C.H); }, 0);
+        G.on(window, 'resize', fit); G.on(document, 'house-screen-effort', fit); fit(); setTimeout(() => { ready = true; if (G.closed) return; const w0 = C.W; fit(); if (onSize && C.W === w0) onSize(C.W, C.H); }, 0);
         C.fit = fit;
         return C;
       },
@@ -357,6 +365,33 @@
       if (!mod) throw new Error('missing module ' + g.id);
       host.innerHTML = '';
       G = makeG(g, w, host);
+      // Keep the kit's rendering/loop untouched. Games query phone() while
+      // drawing their existing pointer controls and help, so it stays current.
+      G.phone = () => window.GameInput ? GameInput.touch : !!window.matchMedia?.('(pointer:coarse), (hover:none)').matches;
+      // Input changes cancel old holds; the running game and its physics stay
+      // intact. Several games already consume pointercancel but not lost capture.
+      const keys = new Map(), pointers = new Map();
+      const cancelInputs = () => {
+        for (const ev of keys.values()) G.keys?.up?.(ev);
+        keys.clear();
+        const active = [...pointers.values()]; pointers.clear();
+        for (const point of active) {
+          point.target.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId: point.id, pointerType: point.type, button: 0, buttons: 0 }));
+          try { if (point.target.hasPointerCapture(point.id)) point.target.releasePointerCapture(point.id); } catch (_) {}
+        }
+      };
+      G.on(document, 'keydown', ev => {
+        if (G.active() && host.contains(ev.target) && !ev.target.closest('input,textarea,select,[contenteditable]')) keys.set(ev.code || ev.key, { key: ev.key, code: ev.code, location: ev.location, repeat: false, preventDefault() {} });
+      }, true);
+      G.on(document, 'keyup', ev => keys.delete(ev.code || ev.key), true);
+      G.on(host, 'pointerdown', ev => pointers.set(ev.pointerId, { id: ev.pointerId, type: ev.pointerType, target: ev.target }), true);
+      const released = ev => pointers.delete(ev.pointerId);
+      G.on(document, 'pointerup', released, true); G.on(document, 'pointercancel', released, true);
+      G.on(host, 'lostpointercapture', ev => { if (pointers.has(ev.pointerId)) cancelInputs(); }, true);
+      G.on(document, 'game-input-change', ev => { if(['mouse','keyboard'].includes(ev.detail?.mode)&&['mouse','keyboard'].includes(ev.detail?.previous))return;cancelInputs(); });
+      G.on(window, 'blur', cancelInputs);
+      G.on(document, 'visibilitychange', () => { if (document.hidden) cancelInputs(); });
+      G.onClose(cancelInputs);
       JG.live[g.id] = G; G.onClose(() => { if (JG.live[g.id] === G) delete JG.live[g.id]; });
       mod(G, arg);
       setTimeout(() => G.focus(), 30);
@@ -386,14 +421,10 @@
     const w = Apps.win('Games', b, { w: 470, h: 360, icon: I.folder, status: true, minW: 240, minH: 180 });
     w.status.textContent = `${all.length} object(s)`;
     b.querySelectorAll('.jgfi').forEach(el => {
-      let lastT = 0;
-      el.addEventListener('click', () => {
+      Apps.bindLaunch(el, () => all[+el.dataset.i].go(), () => {
         b.querySelectorAll('.jgfi.sel').forEach(x => x.classList.remove('sel')); el.classList.add('sel');
-        const t = Date.now(), it = all[+el.dataset.i];
-        w.status.textContent = it.name;
-        if (t - lastT < 450 || matchMedia('(hover:none)').matches) { lastT = 0; it.go(); } else lastT = t;
+        w.status.textContent = all[+el.dataset.i].name;
       });
-      el.addEventListener('keydown', ev => { if (ev.key === 'Enter') all[+el.dataset.i].go(); });
     });
     return w;
   } });

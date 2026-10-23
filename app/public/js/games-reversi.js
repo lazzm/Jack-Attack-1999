@@ -90,7 +90,7 @@
     host.appendChild(root);
     const boardEl = root.querySelector('.grv-board'), msgEl = root.querySelector('.grv-msg'), scB = root.querySelector('.grv-sc.b'), scW = root.querySelector('.grv-sc.w');
     const C = G.canvas(boardEl, () => draw()); const cv = C.cv, ctx = C.c; G.focusEl = cv;
-    const relayout = () => { const r = host.getBoundingClientRect(), tall = r.height - 44 > r.width + 40; root.classList.toggle('tall', tall); boardEl.style.flex = tall ? 'none' : ''; boardEl.style.height = tall ? Math.round(r.width + 6) + 'px' : ''; };
+    const relayout = () => { const r = DesktopSurface.rect(host), tall = r.height - 44 > r.width + 40; root.classList.toggle('tall', tall); boardEl.style.flex = tall ? 'none' : ''; boardEl.style.height = tall ? Math.round(r.width + 6) + 'px' : ''; };
     if (window.ResizeObserver) { const ro = new ResizeObserver(relayout); ro.observe(host); G.onClose(() => ro.disconnect()); }
     relayout();
     let b = null, turn = BLACK, hist = [], over = false, busy = 0, tokn = 0, anim = null, hintSq = -1, cursor = -1, last = -1;
@@ -200,7 +200,7 @@
     G.on(cv, 'pointerdown', ev => {
       if (ev.pointerType === 'mouse' && ev.button !== 0) return;
       ev.preventDefault(); G.focus(); cursor = -1;
-      const r = cv.getBoundingClientRect(), { sz, ox, oy } = geo(), x = ev.clientX - r.left - ox, y = ev.clientY - r.top - oy;
+      const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY), { sz, ox, oy } = geo(), x = point.x - r.left - ox, y = point.y - r.top - oy;
       if (x < 0 || y < 0 || x >= sz * 8 || y >= sz * 8) return;
       tap(Math.floor(y / sz) * 8 + Math.floor(x / sz));
     });

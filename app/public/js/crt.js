@@ -13,7 +13,7 @@
   function blip(cls, ms, then) { el.classList.add(cls); setTimeout(() => { el.classList.remove(cls); if (then) then(); }, ms); }
   function flicker() {
     setTimeout(flicker, rnd(8000, 25000));
-    if (el.hidden || document.hidden || still.matches) return;
+    if (el.hidden || document.hidden || still.matches || document.documentElement.classList.contains('pc-roomview')) return;
     const r = Math.random();
     if (r < 0.55) blip('fb', rnd(40, 90));
     else if (r < 0.8) blip('fu', rnd(50, 110));
@@ -21,7 +21,7 @@
   }
   function zip() {
     setTimeout(zip, rnd(30000, 90000));
-    if (el.hidden || document.hidden || still.matches) return;
+    if (el.hidden || document.hidden || still.matches || document.documentElement.classList.contains('pc-roomview')) return;
     el.classList.remove('zip'); void el.offsetWidth; el.classList.add('zip');
     setTimeout(() => el.classList.remove('zip'), 1000);
   }

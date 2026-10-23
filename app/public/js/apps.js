@@ -250,19 +250,32 @@
     win('Secrets Found', b, { w: 380, icon: '<svg viewBox="0 0 32 32"><path d="M16 2l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1z" fill="#ffd400" stroke="#a07000"/></svg>', noResize: true, noMax: true });
   }
 
-  // ================================================================ desktop icons (double-click to open, tap on touch)
+  // One real touch opens an icon. Mouse (including JackOS Trackpad) keeps
+  // double-click semantics. Native keyboard clicks activate once, as buttons do.
+  function bindLaunch(el, action, select) {
+    let last = 0, activated = -Infinity;
+    el.dataset.openGesture = 'icon';
+    const launch = () => { last = 0; activated = performance.now(); action(); };
+    el.addEventListener('pointercancel', () => { last = 0; });
+    el.addEventListener('click', ev => {
+      if (ev.button > 0) return;
+      if (select) select(ev);
+      const directTouch = ev.isTrusted && (ev.pointerType === 'touch' || ev.pointerType === 'pen' || ev.sourceCapabilities?.firesTouchEvents || !ev.pointerType && ev.detail !== 0 && window.GameInput?.touch);
+      const now = performance.now();
+      if (directTouch || ev.detail === 0 || ev.detail === 2 || last && now - last < 450) launch();
+      else last = now || .001;
+    });
+    // Trackpad Double emits click(1), click(2), dblclick(2). Never open twice.
+    el.addEventListener('dblclick', ev => { ev.preventDefault(); if (performance.now() - activated > 600) launch(); });
+  }
+  // ================================================================ desktop icons
   const icons = document.querySelector('.icons');
   function desktopIcon(label, icon, action, id) {
     icon = jmap('#' + id) || jmap('@' + label) || icon;
     const b = document.createElement('button'); b.className = 'dicon'; if (id) b.id = id;
     b.innerHTML = icon + `<span>${esc(label)}</span>`;
-    let last = 0;
-    b.addEventListener('click', ev => {
-      document.querySelectorAll('.dicon.sel').forEach(x => x.classList.remove('sel')); b.classList.add('sel');
-      const now = Date.now();
-      if (now - last < 450 || matchMedia('(hover:none)').matches) { last = 0; action(); } else last = now;
-    });
-    b.addEventListener('keydown', ev => { if (ev.key === 'Enter') action(); });
+    b.type = 'button';
+    bindLaunch(b, action, () => { document.querySelectorAll('.dicon.sel').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); });
     icons.appendChild(b);
     return b;
   }
@@ -358,7 +371,7 @@
       if (!q) return;
       const hits = [];
       (function walk(n, path) { (n.kids || []).forEach(k => { const p = path + '\\' + k.name; if (k.name.toLowerCase().includes(q) || (k.text && k.text.toLowerCase().includes(q))) hits.push([k, p]); walk(k, p); }); })(root, 'C:');
-      hits.slice(0, 200).forEach(([k, p]) => { const r = document.createElement('div'); r.className = 'xi'; r.innerHTML = `<span style="width:16px;height:16px;display:inline-block">${ICON[k.type] || ICON.txt}</span> ${esc(k.name)} <small style="color:#666">${esc(p)}</small>`; r.addEventListener('dblclick', () => k.type === 'dir' ? open('explorer', p) : openFile(k)); r.addEventListener('click', () => { if (matchMedia('(hover:none)').matches) k.type === 'dir' ? open('explorer', p) : openFile(k); }); out.appendChild(r); });
+      hits.slice(0, 200).forEach(([k, p]) => { const r = document.createElement('div'); r.className = 'xi'; r.innerHTML = `<span style="width:16px;height:16px;display:inline-block">${ICON[k.type] || ICON.txt}</span> ${esc(k.name)} <small style="color:#666">${esc(p)}</small>`; bindLaunch(r, () => k.type === 'dir' ? open('explorer', p) : openFile(k)); out.appendChild(r); });
       b.querySelector('.fcount').textContent = `${hits.length} file(s) found` + (hits.length ? ' (double-click to open)' : '');
       if (/secret|password/.test(q)) secret('findsecret');
     });
@@ -385,5 +398,5 @@
   }
   function loadJSON(src) { return loaded[src] = loaded[src] || fetch(src + '?v=' + STAMP).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(e => { delete loaded[src]; throw e; }); }
 
-  window.Apps = { load, loadJSON, win, menubar, register, open, addProgram, cmd, run, fs, openFile, OPENERS, defineSecret, secret, secretsWindow, desktopIcon, runDialog, ICON, esc, store, get found() { return found; }, get secrets() { return SECRETS; }, get programs() { return PROGRAMS; }, get apps() { return APPS; }, get cmds() { return CMDS; } };
+  window.Apps = { load, loadJSON, bindLaunch, win, menubar, register, open, addProgram, cmd, run, fs, openFile, OPENERS, defineSecret, secret, secretsWindow, desktopIcon, runDialog, ICON, esc, store, get found() { return found; }, get secrets() { return SECRETS; }, get programs() { return PROGRAMS; }, get apps() { return APPS; }, get cmds() { return CMDS; } };
 })();

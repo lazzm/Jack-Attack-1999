@@ -229,7 +229,7 @@
     }
     G.on(C.cv, 'pointerdown', ev => {
       ev.preventDefault(); G.focus(); if (!geo) return;
-      const r = C.cv.getBoundingClientRect(), x = ev.clientX - r.left - geo.x0 - geo.pad, y = ev.clientY - r.top - geo.y0 - geo.pad;
+      const r = DesktopSurface.rect(C.cv), point = DesktopSurface.point(ev.clientX, ev.clientY), x = point.x - r.left - geo.x0 - geo.pad, y = point.y - r.top - geo.y0 - geo.pad;
       const cx = Math.floor(x / geo.cs), cy = Math.floor(y / geo.cs);
       if (cx >= 0 && cx < N && cy >= 0 && cy < N) slideFrom(cy * N + cx);
     });
@@ -428,7 +428,7 @@
     }
     G.on(C.cv, 'pointerdown', ev => {
       ev.preventDefault(); G.focus(); if (!geo || done) return;
-      const r = C.cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top, p = hit(x, y);
+      const r = DesktopSurface.rect(C.cv), point = DesktopSurface.point(ev.clientX, ev.clientY), x = point.x - r.left, y = point.y - r.top, p = hit(x, y);
       if (!p) return;
       pieces = pieces.filter(q => q !== p); pieces.push(p);
       drag = { p, dx: x - toScreen(p)[0], dy: y - toScreen(p)[1], id: ev.pointerId };
@@ -438,7 +438,7 @@
     });
     G.on(C.cv, 'pointermove', ev => {
       if (!drag || ev.pointerId !== drag.id) return;
-      const r = C.cv.getBoundingClientRect(), x = ev.clientX - r.left - drag.dx + geo.m, y = ev.clientY - r.top - drag.dy + geo.m;
+      const r = DesktopSurface.rect(C.cv), point = DesktopSurface.point(ev.clientX, ev.clientY), x = point.x - r.left - drag.dx + geo.m, y = point.y - r.top - drag.dy + geo.m;
       drag.p.x = clamp((x - geo.bx) / geo.cw, -geo.bx / geo.cw - 0.4, (geo.W - geo.bx) / geo.cw - 0.6);
       drag.p.y = clamp((y - geo.by) / geo.ch, -geo.by / geo.ch - 0.4, (geo.H - geo.by) / geo.ch - 0.6);
       dirty = true;
@@ -488,7 +488,7 @@
     });
     G.keys = { down(ev) { if (ev.key === ' ') { opts.ghost = !opts.ghost; save(); dirty = true; return true; } return false; } };
     G.newGame = newGame;
-    G.dbg = { place(n) { pieces.filter(p => !p.placed).slice(0, n).forEach(p => { p.x = p.c + 0.1; p.y = p.r - 0.1; }); dirty = true; }, pieceAt(i) { const p = pieces.filter(q => !q.placed).reverse()[i]; if (!p) return null; const [sx, sy] = toScreen(p), R = C.cv.getBoundingClientRect(); return { x: R.left + sx + geo.m + geo.cw / 2, y: R.top + sy + geo.m + geo.ch / 2, tx: R.left + geo.bx + (p.c + 0.5) * geo.cw, ty: R.top + geo.by + (p.r + 0.5) * geo.ch }; } };
+    G.dbg = { place(n) { pieces.filter(p => !p.placed).slice(0, n).forEach(p => { p.x = p.c + 0.1; p.y = p.r - 0.1; }); dirty = true; }, pieceAt(i) { const p = pieces.filter(q => !q.placed).reverse()[i]; if (!p) return null; const [sx, sy] = toScreen(p), R = DesktopSurface.rect(C.cv), from = DesktopSurface.client(R.left + sx + geo.m + geo.cw / 2, R.top + sy + geo.m + geo.ch / 2), to = DesktopSurface.client(R.left + geo.bx + (p.c + 0.5) * geo.cw, R.top + geo.by + (p.r + 0.5) * geo.ch); return { x: from.x, y: from.y, tx: to.x, ty: to.y }; } };
     G.helpKey = () => help();
     const help = () => G.help([
       ['How to play', 'Drag the pieces onto the dark board. When a piece is close to its proper place it clicks in and stays put.\n\nThe faint picture on the board shows where everything goes. Turn it off in Options (or press Space) if you think you are too good for it.'],

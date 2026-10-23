@@ -528,7 +528,7 @@
       if (!S) return;
       if (S.paused) { resumeKey(); return; }
       if (S.over) return;
-      const r = cv.getBoundingClientRect(), x = ev.clientX - r.left;
+      const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY), x = point.x - r.left;
       if (L.panel && x > L.panel.x && !L.portrait) return;
       const side = x < (L.portrait ? C.W / 2 : L.cx) ? 0 : 1;
       touches.set(ev.pointerId, side);

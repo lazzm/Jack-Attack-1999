@@ -7,3 +7,4 @@ app/node_modules/
 *.log
 *.bak*
 tests/shots/
+tests/recordings/

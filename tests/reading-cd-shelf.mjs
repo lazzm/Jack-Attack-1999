@@ -1,0 +1,38 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {roomFixture} from './room-fixture.mjs';
+const {browser,page,errors,until,view}=await roomFixture(process.argv[2],{touch:true});
+await mkdir('shots/reading-cd-shelf',{recursive:true});
+const settle=()=>until(()=>Magazines.reading&&!Magazines.reading.flipping);
+try{
+ const id=await page.evaluate(()=>Object.keys(House.THINGS).find(id=>/^pmb\.pm\.mag\./.test(id)));
+ assert(id,'Disposable starter has no owned CD magazine');
+ const doc=id.slice(4),disc='pmd.'+doc;
+ await page.evaluate(id=>House.grab(id),id);await page.keyboard.press('f');
+ assert.equal(await page.evaluate(()=>Magazines.reading.phase),'front');assert(await page.locator('[data-cover-disc]').isHidden(),'CD can be removed through the closed cover');
+ await page.keyboard.press('f');await settle();assert.equal(await page.evaluate(()=>Magazines.reading.phase),'inside');
+ await page.reload({waitUntil:'domcontentloaded'});await until(()=>AccountGate.allowed&&House.mode==='inspect'&&Magazines.reading?.phase==='inside'&&!document.querySelector('.hs-loading,#houseEntry'));await settle();
+ assert(await page.evaluate(id=>House.THINGS[id].obj.getObjectByName('reading-cover-disc')?.visible,id));
+ assert(await page.locator('[data-cover-disc]').isEnabled());await page.screenshot({path:'shots/reading-cd-shelf/inside-disc.png'});
+ await page.mouse.move(650,350);await page.mouse.down();await page.mouse.move(720,370,{steps:5});await page.mouse.up();await page.screenshot({path:'shots/reading-cd-shelf/inside-angle.png'});
+ await page.locator('[data-cover-disc]').tap();await until(()=>/^pmd\.pm\.mag\./.test(House.held()||''));assert.equal(await page.evaluate(()=>House.held()),disc);
+ await page.evaluate(()=>House.drop());await page.evaluate(id=>window.readingTestDisc=id,disc);await until(()=>House.THINGS[window.readingTestDisc]?.st==='rest');
+ await page.evaluate(id=>House.grab(id),id);await page.keyboard.press('f');await page.keyboard.press('f');await settle();assert(await page.locator('[data-cover-disc]').isDisabled(),'A removed disc reappeared in its pocket');
+ assert.equal(await page.evaluate(id=>House.THINGS[id].obj.getObjectByName('reading-cover-disc').visible,id),false);await page.screenshot({path:'shots/reading-cd-shelf/empty-pocket.png'});await page.keyboard.press('q');await page.evaluate(()=>House.putBack());
+ await page.evaluate(doc=>PMGL.discHome(doc),doc);await until(()=>House.THINGS[window.readingTestDisc]?.at.hide);
+ await page.evaluate(id=>House.grab(id),id);await page.keyboard.press('f');await page.keyboard.press('f');await settle();assert(await page.locator('[data-cover-disc]').isEnabled(),'Returning own disc did not refill its pocket');
+ await page.keyboard.press('q');
+ const slot=await page.evaluate(id=>{const t=House.THINGS[id];return Object.values(House.SNAPS).find(s=>s.id.startsWith('reading.slot.')&&s.accepts(t.kind,t))?.id},id);
+ assert(slot,'CD issue cannot fit any reading shelf slot');const sn=await page.evaluate(slot=>House.SNAPS[slot],slot);
+ await view([-155,-55,165],[sn.x,sn.y-15,234]);await page.evaluate(()=>House._.setMode('walk'));await page.waitForTimeout(350);await page.keyboard.press('e');
+ await until(()=>House.THINGS[Object.keys(House.THINGS).find(id=>/^pmb\.pm\.mag\./.test(id))]?.st==='snap');
+ const placed=await page.evaluate(id=>{const t=House.THINGS[id];return{snap:t.snap,at:{...t.at},rx:t.rx,home:{...t.home}}},id);assert.equal(placed.snap,slot);assert.equal(placed.rx,0,'Upright CD magazine was laid through the shelf');
+ await view([-105,-55,175],[sn.x,sn.y-14,234]);await page.screenshot({path:'shots/reading-cd-shelf/shelf-front.png'});
+ await view([-215,-60,175],[sn.x,sn.y-14,234]);await page.screenshot({path:'shots/reading-cd-shelf/shelf-side.png'});
+ await page.evaluate(()=>{House._.setMode('walk');House.saveWalkState();House.saveThings(true)});await page.reload({waitUntil:'domcontentloaded'});
+ await until(()=>AccountGate.allowed&&PMGL.built&&!document.querySelector('.hs-loading,#houseEntry'));
+ const restored=await page.evaluate(id=>{const t=House.THINGS[id];return{snap:t.snap,at:{...t.at},rx:t.rx,home:{...t.home}}},id);assert.deepEqual(restored,placed,'CD magazine changed position/home during refresh');
+ await page.setViewportSize({width:390,height:844});await page.evaluate(id=>{House._.setMode('walk');House.grab(id)},id);await page.keyboard.press('f');await page.keyboard.press('f');await settle();await page.screenshot({path:'shots/reading-cd-shelf/phone-inside.png'});
+ await page.keyboard.press('ArrowRight');await settle();assert.equal(await page.evaluate(()=>Magazines.reading.page),0);await page.screenshot({path:'shots/reading-cd-shelf/phone-editorial.png'});
+ assert.deepEqual(errors,[]);console.log('PASS: owned cover CD discovered inside, solid ring/angle, extraction and own-pocket return, upright reading shelf, multi-angle shelf, refresh and phone reader');
+}finally{await browser.close()}

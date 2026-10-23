@@ -1595,7 +1595,9 @@
         }
         if (mode === 'howto') {
           g.fillStyle = 'rgba(0,0,10,.5)'; g.fillRect(0, 0, W, H); folder(g, 14, 18, W - 28, H - 30, 'HOW TO PLAY ' + (page + 1) + '/2');
-          const L = page === 0 ? [['AIM', 'ARROWS, THE STICK OR THE MOUSE'], ['FIRE', 'Z KEY, CLICK, OR ' + K.label('a')], ['RELOAD', 'X KEY OR ' + K.label('b')], ['AIM / ZOOM', 'HOLD E OR ' + K.label('r')], ['SWAP GUN', 'Q KEY OR ' + K.label('l')], ['PAUSE', 'ENTER OR START'], ['', ''], ['', 'PUSH THE CROSSHAIR TO THE EDGE'], ['', 'OF THE SCREEN TO LOOK ROUND.']]
+          const touch = !!window.GameInput?.touch;
+          const controls = touch ? [['MOVE','LEFT DIRECTION PAD'],['AIM','RIGHT CONTROL STICK'],['FIRE',K.label('a')],['RELOAD',K.label('b')],['AIM / ZOOM','HOLD '+K.label('r')],['SWAP GUN',K.label('l')],['PAUSE','START']] : [['MOVE','WASD'],['AIM','ARROWS OR THE MOUSE'],['FIRE','Z KEY, CLICK, OR '+K.label('a')],['RELOAD','X KEY OR '+K.label('b')],['AIM / ZOOM','HOLD E OR '+K.label('r')],['SWAP GUN','U KEY OR '+K.label('l')],['PAUSE','ENTER OR START']];
+          const L = page === 0 ? controls.concat([['','PUSH THE CROSSHAIR TO THE EDGE'],['','OF THE SCREEN TO LOOK ROUND.']])
             : [['!', 'A RED ! MEANS SOMEBODY IS ABOUT'], ['', 'TO SHOOT AT YOU. GET THEM FIRST.'], ['HEAD', 'HEADSHOTS SCORE EXTRA (HATS TOO!)'], ['DON\'T', 'NEVER SHOOT WORKERS, SCIENTISTS'], ['', 'OR PASSENGERS: -500 EACH'], ['BOXES', 'SHOOT GREEN BOXES FOR AMMO AND'], ['', 'BLUE ONES FOR BODY ARMOUR'], ['MEDALS', 'GOLD UNLOCKS A CHEAT. FINISH A'], ['', 'MISSION TO OPEN THE NEXT ONE.']];
           L.forEach(([a, b], i) => { const y = 36 + i * 17; F.draw(g, a, 28, y, '#7a2a1a', 1); F.draw(g, b, 96, y, '#1a1a1a', 1); });
           F.center(g, 'PRESS ' + K.label('a') + ' FOR THE NEXT PAGE', W / 2, H - 24, '#6a5a3a', 1);

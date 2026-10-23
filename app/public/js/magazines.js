@@ -18,9 +18,10 @@
  function backCover(doc){return backs[doc.id]||(backs[doc.id]=K.tex('reading:back:'+doc.id,384,512,(g,w,h)=>drawBack(g,w,h,doc),{clamp:true}))}
  function lines(g,text,width){const out=[];for(const para of String(text).split(/\n\s*\n/)){let line='';for(const word of para.split(/\s+/)){const next=line?line+' '+word:word;if(line&&g.measureText(next).width>width){out.push(line);line=word}else line=next}if(line)out.push(line);out.push('')}return out}
  function pageTexture(doc,index){
-  const key=doc.id+':'+index;if(pages.has(key))return pages.get(key);
+  const compact=innerWidth<700||innerWidth/innerHeight<1.1,key=doc.id+':'+index+(C.byId[doc.id]&&compact?':narrow':'');if(pages.has(key))return pages.get(key);
   let layout;
   const tx=K.tex('reading:page:'+key,768,1024,(g,w,h)=>{
+   if(C.byId[doc.id]){layout=editorialPage(g,w,h,doc,index,compact);return}
    const p=doc.pages[index];g.fillStyle='#f2ead7';g.fillRect(0,0,w,h);g.fillStyle=doc.color;g.fillRect(0,0,w,24);
    g.fillStyle='#33372c';g.font='bold 22px Arial';g.fillText(doc.publication+(doc.publication==='JACK ATTACK!'?' • ISSUE '+doc.issue:''),40,66);
    g.font='bold 38px Georgia';const head=lines(g,p.title,w-80).filter(Boolean);let y=130;for(const line of head){g.fillText(line,40,y);y+=44}y+=24;
@@ -32,108 +33,234 @@
    g.textAlign='right';g.fillText(doc.title,w-40,h-37);
   },{clamp:true});tx.userData.layout=layout;pages.set(key,tx);return tx;
  }
- const bookmarks=()=>{try{const v=JSON.parse(localStorage.getItem('jhp_reading_pages')||'{}');return v&&typeof v==='object'&&!Array.isArray(v)?v:{}}catch(e){return {}}};
- function read(id,docId,resume){
-  const t=H.THINGS[id],doc=C.byId[docId]||(window.ReadingBooks||[]).find(b=>b.id===docId);
-  if(!t||!doc||reading||H.mode!=='walk'||(H.held()&&H.held()!==id))return false;
-  if(C.byId[docId])return readMagazine(t,doc,resume);
-  const closed=t.obj.children.slice(),spread=new T.Group(),single=innerWidth<700,count=single?1:2;
-  closed.forEach(child=>t.obj.remove(child));t.obj.add(spread);
-  const paper=M({c:'#ded5c2',sp:'#000000',sh:1});
-  const meshes=Array.from({length:count},(_,i)=>{const group=new T.Group();group.position.set(single?0:(i?10.65:-10.65),-14,0);group.rotation.y=single?0:(i?-.025:.025);spread.add(group);return K.into(group).box(0,0,0,21,28,.4,{f:M({c:'#fff',sh:1}),all:paper})});
-  if(!single)K.into(spread).cyl(0,-14,-.16,.18,.18,28,12,paper);
-  const savedPage=Number(bookmarks()[doc.id]);
-  let page=Math.max(0,Math.min(doc.pages.length-count,Number.isFinite(savedPage)?Math.floor(savedPage):0)),flipping=false,controls;
-  page=Math.floor(page/count)*count;
-  const old={end:t.onInspectEnd,key:t.onInspectKey,pose:t.inspectPose};
-  const state=reading={id,docId,get page(){return page},get flipping(){return flipping}};
-  function paint(){meshes.forEach((mesh,i)=>{mesh.material=mesh.material.slice();mesh.material[4]=M({c:'#fff',map:pageTexture(doc,page+i),sp:'#000000',sh:1})});if(controls){controls.querySelector('small').textContent='PAGE '+(page+1)+(count===2?'–'+(page+2):'')+' / '+doc.pages.length;controls.querySelector('[data-turn="-1"]').disabled=page===0||flipping;controls.querySelector('[data-turn="1"]').disabled=page+count>=doc.pages.length||flipping}H.dirty()}
-  function remember(){const saved=bookmarks();saved[doc.id]=page;try{localStorage.setItem('jhp_reading_pages',JSON.stringify(saved))}catch(e){}}
-  function turn(delta){
-   if(flipping)return;const next=Math.max(0,Math.min(doc.pages.length-count,page+delta*count));if(next===page)return;
-   flipping=true;const oldPage=page;page=next;remember();paint();
-   const pivot=new T.Group();pivot.position.set(single?-10.5:0,-14,.3);spread.add(pivot);
-   K.into(pivot).box(10.5,0,0,21,28,.12,{f:M({c:'#fff',map:pageTexture(doc,delta>0?oldPage+count-1:page),sp:'#000000',sh:1}),b:M({c:'#fff',map:pageTexture(doc,page),sp:'#000000',sh:1}),all:paper});
-   pivot.traverse(o=>o.layers.set(1));
-   const start=performance.now();H.anims.set('reading.page',now=>{if(reading!==state)return false;const k=Math.min(1,(now-start)/340);pivot.rotation.y=-Math.PI*(delta>0?k:1-k);H.dirty();if(k<1)return true;pivot.traverse(o=>o.geometry?.dispose());spread.remove(pivot);flipping=false;paint();return false});
+ function editorialPage(g,w,h,doc,index,compact){
+  const p=doc.pages[index],sections=['FROM THE EDITOR','UNDER REVIEW','PLAYER’S WORKSHOP','YOUR LETTERS','ADVERTISING FEATURE','THE BACK-PAGE COMIC'],section=sections[index%6];
+  const cream=index===4?'#f4dfaf':'#f5edda',ink='#252b29';g.fillStyle=cream;g.fillRect(0,0,w,h);
+  g.fillStyle=doc.color;g.fillRect(0,0,w,66);g.fillStyle='#fff5d5';g.font='bold 32px Impact';g.fillText('JACK ATTACK!',36,44);g.font='bold 17px Arial';g.textAlign='right';g.fillText(section,w-36,42);g.textAlign='left';
+  g.fillStyle=ink;let titleSize=39,head;do{g.font='bold '+titleSize+'px Georgia';head=lines(g,p.title.replace(/^[^:]+:\s*/,''),w-72).filter(Boolean);if(head.length<=2)break;titleSize--}while(titleSize>30);
+  let y=116;for(const line of head){g.fillText(line,36,y);y+=titleSize+3}
+  const top=y+6,hero=!compact&&index===4?224:180,art=['space','city','dungeon','space','robots','critters','space','city','robots','dungeon','critters','space'][(doc.month-1)%12];
+  g.fillStyle='#242e34';g.fillRect(36,top,w-72,hero);
+  if(index===3){
+   // The letters desk: actual printed envelopes, stamp blocks and ruled paper.
+   g.fillStyle='#e9ddbd';g.fillRect(60,top+22,252,116);g.strokeStyle='#9e8b67';g.lineWidth=2;g.strokeRect(60,top+22,252,116);g.beginPath();g.moveTo(60,top+22);g.lineTo(186,top+82);g.lineTo(312,top+22);g.stroke();g.fillStyle=doc.color;g.fillRect(268,top+34,28,34);
+  }else if(index===2){
+   g.strokeStyle='#9ab3a0';g.lineWidth=1;for(let x=48;x<326;x+=20){g.beginPath();g.moveTo(x,top+12);g.lineTo(x,top+hero-12);g.stroke()}for(let z=top+12;z<top+hero;z+=20){g.beginPath();g.moveTo(48,z);g.lineTo(326,z);g.stroke()}
+   g.strokeStyle='#f2c354';g.lineWidth=7;g.beginPath();g.moveTo(70,top+120);g.lineTo(130,top+120);g.lineTo(130,top+60);g.lineTo(230,top+60);g.lineTo(230,top+114);g.lineTo(300,top+114);g.stroke();g.fillStyle='#fff2bf';for(const [x,z]of [[70,120],[130,60],[230,114],[300,114]])g.fillRect(x-5,top+z-5,10,10);
+  }else if(index===4&&images[doc.id]?.naturalWidth){
+   g.save();g.translate(157,top+hero/2);g.rotate(-.08);if(compact)g.scale(.76,.76);g.fillStyle='#000';g.fillRect(-69,-96,144,192);g.drawImage(images[doc.id],-74,-101,144,192);g.restore();
+  }else if((index===0||index===1)&&images[doc.id]?.naturalWidth){
+   // Use this issue's own cover illustration for its review, rather than
+   // an unrelated generic scene. Crop clear of the cover's masthead.
+   const im=images[doc.id],sh=Math.min(im.height,im.width*hero/300);
+   g.drawImage(im,0,(im.height-sh)*.58,im.width,sh,36,top,300,hero);
+  }else if(!window.PrintArt?.paint(g,art,36,top,300,hero)){
+   // Printed geometric illustration while the original artwork is decoding.
+   g.fillStyle=doc.color;g.fillRect(36,top,300,hero);g.strokeStyle='#f0d69c';g.lineWidth=5;for(let n=0;n<4;n++)g.strokeRect(66+n*32,top+24+n*12,110,70);
   }
-  t.inspectPose={yaw:0,pitch:0,zoom:single?.62:.82};
-  t.onInspectKey=ev=>{if(ev.key==='ArrowLeft'||ev.key==='ArrowRight'){if(!ev.repeat)turn(ev.key==='ArrowRight'?1:-1);return true}};
-  t.onInspectEnd=()=>{H.anims.delete('reading.page');spread.traverse(o=>o.geometry?.dispose());t.obj.remove(spread);closed.forEach(child=>t.obj.add(child));t.front=null;H.layerFor(t);t.onInspectKey=old.key;t.onInspectEnd=old.end;t.inspectPose=old.pose;reading=null;try{localStorage.removeItem('jhp_reading_active')}catch(e){}old.end?.();H.dirty()};
-  paint();if(!H.inspect(id)){t.onInspectEnd();return false}
-  t.front=null;H.layerFor(t);
-  try{localStorage.setItem('jhp_reading_active',JSON.stringify({id,docId}))}catch(e){}
-  const panel=document.querySelector('.hs-inspection');if(panel){panel.querySelector('span').innerHTML='Drag to rotate · <kbd>←</kbd> / <kbd>→</kbd> turn pages · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> close';controls=document.createElement('span');controls.className='magazine-page-controls';for(const [label,n]of [['← Previous',-1],['Next →',1]]){const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.turn=n;b.addEventListener('click',()=>turn(n));controls.appendChild(b)}controls.appendChild(document.createElement('small'));if(/^pmb\.pm\.mag\./.test(id)){const cd=document.createElement('button');cd.type='button';cd.textContent='Take cover CD';cd.addEventListener('click',()=>{H.endInspect();window.PMGL?.takeDisc(doc.id)});controls.appendChild(cd)}panel.appendChild(controls);paint()}
-  return true;
+  g.fillStyle='#f8e9bc';g.font='bold 26px Arial';let yy=top+35;const caption=index===0?doc.headline:index===1?'THE PLAY TEST':index===2?'PENCIL. PAPER. PRACTICE.':index===3?'THE JACK ATTACK! POSTBAG':index===4?'PAPER POWER!':'FIVE PANELS. ONE BIG MESS.';
+  for(const line of lines(g,caption,330).filter(Boolean)){g.fillText(line,358,yy);yy+=30}
+  g.font='19px Georgia';const sub=index===0?doc.kicker:index===1?'Read the verdict. Try the challenge. Make up your own mind.':index===2?'Keep this guide beside the keyboard.':index===3?'Your questions, our very best excuses.':index===4?'The finest mail-order nonsense of 1999.':'Starring Jack, Dave and Crystal.';
+  for(const line of lines(g,sub,330).filter(Boolean)){g.fillText(line,358,yy+10);yy+=24}
+  y=top+hero+34;g.fillStyle=ink;
+  const columns=compact?1:2,column=compact?w-72:(w-96)/2,bottom=h-108;let font=compact?30:27,body,rows;
+  do{g.font=font+'px Georgia';body=lines(g,p.body,column);while(body[body.length-1]==='')body.pop();rows=Math.floor((bottom-y)/(font*1.24));if(body.length<=rows*columns)break;font--}while(font>19);
+  // Balance the columns so a final paragraph never disappears below the footer.
+  const split=Math.ceil(body.length/columns);let used=y;
+  for(let c=0;c<columns;c++){let cy=y;for(const line of body.slice(c*split,(c+1)*split)){if(line)g.fillText(line,36+c*(column+24),cy);cy+=font*1.24}used=Math.max(used,cy)}
+  if(columns===2){g.strokeStyle='#b5a78a';g.lineWidth=1;g.beginPath();g.moveTo(w/2,y-20);g.lineTo(w/2,used-18);g.stroke()}
+  g.fillStyle=doc.color;g.fillRect(36,h-75,w-72,4);g.font='bold 19px Arial';g.fillText(String(index+1).padStart(2,'0')+' / '+String(doc.pages.length).padStart(2,'0'),36,h-39);g.textAlign='right';g.fillText('JACK ATTACK! • ISSUE '+doc.issue+' • 1999',w-36,h-39);g.textAlign='left';
+  return{font,bottom:used,footer:h-80,columns,section};
  }
- // Cover -> interior spreads -> closed back. All stages belong to this prop.
- function readMagazine(t,doc,resume){
-  const original=t.obj.children.slice(),model=new T.Group(),B=K.into(model),narrow=()=>innerWidth<700||innerWidth/innerHeight<1.1,single=narrow(),count=single?1:2,last=Math.ceil(doc.pages.length/count)+1;
+ const bookmarks=()=>{try{const v=JSON.parse(localStorage.getItem('jhp_reading_pages')||'{}');return v&&typeof v==='object'&&!Array.isArray(v)?v:{}}catch(e){return {}}};
+ // One physical reader for periodicals, paperbacks and the original mail-order art.
+ function read(id,docId,resume){
+  const t=H.THINGS[id],doc=C.byId[docId]||(window.ReadingBooks||[]).find(b=>b.id===docId)||(docId==='pm.catalogue'?catalogueDoc():null);
+  if(!t||!doc||reading||H.mode!=='walk'||(H.held()&&H.held()!==id))return false;
+  return readPaper(t,doc,resume);
+ }
+ function catalogueDoc(){
+  const t=H.THINGS['pm.catalogue'];if(!t?.obj.userData.leaves)return null;
+  t.obj.userData.closePages?.();t.obj.userData.ensure?.();
+  const sheets=t.obj.userData.leaves.flatMap(l=>[l.front,l.back]);
+  // Reuse every original printed face, including the order forms. No regenerated art.
+  // The old paired-leaf model pads its back cover with a final order form.
+  // Keep that form inside, with the actual red back cover closing the reader.
+  return{id:'pm.catalogue',title:'The Pixel Post games catalogue',publication:'PIXEL POST',color:'#bd2724',pages:[...sheets.slice(1,-2),sheets[sheets.length-1]].map(mesh=>({mesh})),frontMesh:sheets[0],backMesh:sheets[sheets.length-2]};
+ }
+ function originalCover(t){
+  let tx;t.obj.traverse(o=>{if(tx||!Array.isArray(o.material))return;tx=o.material[4]?.map||o.material[3]?.map});return tx;
+ }
+ function readPaper(t,doc,resume){
+  const original=t.obj.children.slice(),model=new T.Group(),narrow=()=>innerWidth<700||innerWidth/innerHeight<1.1,single=narrow(),count=single?1:2;
+  const discId=/^pmb\.pm\.mag\./.test(t.id)?'pmd.'+doc.id:null,hasPocket=!!discId;
+  const first=hasPocket?2:1,last=first+Math.ceil(doc.pages.length/count);
+  const front=C.byId[doc.id]?cover(doc.id):originalCover(t),rear=C.byId[doc.id]?backCover(doc):front;
+  const ink=map=>M({c:'#fff',map,sp:'#000000',sh:1}),paper=M({c:'#ddd3bc',sp:'#000000',sh:1}),blank=ink(null);
+  const texture=i=>i<0||i>=doc.pages.length?blank:doc.pages[i].mesh?.material||ink(pageTexture(doc,i));
+  const frontMat=doc.frontMesh?.material||ink(front),backMat=doc.backMesh?.material||ink(rear);
   original.forEach(o=>t.obj.remove(o));t.obj.add(model);
-  const paper=M({c:'#dfd6c3',sp:'#000000',sh:1}),front=cover(doc.id),rear=backCover(doc);
   const closed=new T.Group();model.add(closed);
-  K.into(closed).box(0,-14,0,21,28,.8,{f:M({c:'#fff',map:front,sp:'#000000',sh:2}),b:M({c:'#fff',map:rear,sp:'#000000',sh:2}),all:paper});
-  K.into(closed).box(-10.54,-14,0,.08,28,.86,M(doc.color));
+  K.into(closed).box(0,-14,0,21,28,.65,{f:frontMat,b:backMat,all:paper});
+  K.into(closed).box(-10.53,-14,0,.1,28,.7,M(doc.color));
+  const spread=new T.Group(),left=new T.Group(),right=new T.Group();
+  spread.add(left,right); // Add after inspection measures the closed cover below.
+  const base=(parent,x)=>K.into(parent).box(x,-14,0,21,28,.4,{f:blank,b:paper,all:paper});
+  const leftMesh=base(left,-10.56),rightMesh=base(right,10.56);
+  K.into(spread).cyl(0,-14,-.16,.16,.16,28,12,paper);
   const old={end:t.onInspectEnd,key:t.onInspectKey,pose:t.inspectPose};
-  let slot=0,flipping=false,controls,spread,meshes=[];
+  let slot=0,requested=0,flipping=false,controls,leaf=null,pocket=null,disc=null;
   if(resume?.view==='back')slot=last;
-  else if(resume?.view==='pages'||(resume&&!resume.view)){const p=Number(resume.page??bookmarks()[doc.id]);slot=1+Math.floor(Math.max(0,Math.min(doc.pages.length-1,Number.isFinite(p)?p:0))/count)}
-  const phase=()=>slot===0?'front':slot===last?'back':'pages';
-  const page=()=>slot===0?-1:slot===last?doc.pages.length:(slot-1)*count;
-  const state=reading={id:t.id,docId:doc.id,get phase(){return phase()},get page(){return page()},get flipping(){return flipping}};
-  function resize(){if(reading!==state||narrow()===single)return;const saved={view:phase(),page:page()};H.endInspect();read(t.id,doc.id,saved)}
-  function save(){try{localStorage.setItem('jhp_reading_active',JSON.stringify({id:t.id,docId:doc.id,view:phase(),page:page()}));if(phase()==='pages'){const saved=bookmarks();saved[doc.id]=page();localStorage.setItem('jhp_reading_pages',JSON.stringify(saved))}}catch(e){}}
+  else if(resume?.view==='inside'&&hasPocket)slot=1;
+  else if(resume?.view==='pages'||(resume&&!resume.view)){const p=Number(resume.page??bookmarks()[doc.id]);slot=first+Math.floor(Math.max(0,Math.min(doc.pages.length-1,Number.isFinite(p)?p:0))/count)}
+  requested=slot;
+  const phase=s=>s===0?'front':s===last?'back':s<first?'inside':'pages';
+  const page=s=>s===0?-1:s===last?doc.pages.length:s<first?-2:(s-first)*count;
+  const state=reading={id:t.id,docId:doc.id,get phase(){return phase(slot)},get page(){return page(slot)},get flipping(){return flipping}};
   function layers(){t.front=null;H.layerFor(t)}
+  function save(){try{localStorage.setItem('jhp_reading_active',JSON.stringify({id:t.id,docId:doc.id,view:phase(slot),page:page(slot)}));if(phase(slot)==='pages'){const saved=bookmarks();saved[doc.id]=page(slot);localStorage.setItem('jhp_reading_pages',JSON.stringify(saved))}}catch(e){}}
+  function discPresent(){const d=H.THINGS[discId];return !!d&&d.st==='rest'&&!!d.at.hide&&window.PM?.where(doc.id)!=='D'}
+  function status(){
+   if(!controls)return;
+   const ph=phase(slot),p=page(slot),prev=controls.querySelector('[data-turn="-1"]'),next=controls.querySelector('[data-turn="1"]');
+   controls.querySelector('small').textContent=ph==='front'?'FRONT COVER':ph==='back'?'BACK COVER — CLOSED':ph==='inside'?'INSIDE COVER · '+(discPresent()?'COVER CD':'EMPTY CD POCKET'):'PAGES '+(p+1)+(count===2&&p+1<doc.pages.length?'–'+Math.min(p+count,doc.pages.length):'')+' / '+doc.pages.length;
+   // Inputs can queue at most two leaves; opposite input cancels a queued turn.
+   prev.disabled=requested===0;next.disabled=requested===last;
+   prev.textContent=slot===1?'← Front cover':'← Previous';next.textContent=slot===0?'Open →':slot===last-1?'Back cover →':'Next →';
+   const cd=controls.querySelector('[data-cover-disc]');if(cd){cd.hidden=ph!=='inside';cd.disabled=flipping||!discPresent()}
+  }
+  function surface(s,side){
+   if(phase(s)==='inside')return pocketTexture(doc,side);
+   return texture(page(s)+(side==='right'&&count===2?1:0));
+  }
   function paint(){
-   closed.visible=phase()!=='pages';closed.rotation.y=phase()==='back'?Math.PI:0;
-   if(spread){spread.position.x=0;meshes.forEach(mesh=>mesh.parent.visible=true);spread.visible=phase()==='pages';if(spread.visible)meshes.forEach((mesh,i)=>{mesh.material=mesh.material.slice();mesh.material[4]=M({c:'#fff',map:pageTexture(doc,Math.min(doc.pages.length-1,page()+i)),sp:'#000000',sh:1})})}
-   if(controls){const prev=controls.querySelector('[data-turn="-1"]'),next=controls.querySelector('[data-turn="1"]');controls.querySelector('small').textContent=phase()==='front'?'FRONT COVER':phase()==='back'?'BACK COVER — CLOSED':'PAGES '+(page()+1)+(count===2?'–'+Math.min(page()+count,doc.pages.length):'')+' / '+doc.pages.length;prev.disabled=flipping||slot===0;next.disabled=flipping||slot===last;prev.textContent=slot===1?'← Front cover':'← Previous';next.textContent=slot===0?'Open →':slot===last-1?'Back cover →':'Next →'}
-   layers();H.dirty();
+   const ph=phase(slot);closed.visible=ph==='front'||ph==='back';closed.rotation.y=ph==='back'?Math.PI:0;
+   spread.visible=!closed.visible;spread.position.x=single?-10.56:0;left.visible=!single;right.visible=true;
+   if(spread.visible){leftMesh.material[4]=surface(slot,'left');rightMesh.material[4]=surface(slot,'right')}
+   if(pocket)pocket.visible=ph==='inside';if(disc)disc.visible=discPresent();status();H.dirty();
   }
-  function turn(delta){
-   if(flipping)return;const next=Math.max(0,Math.min(last,slot+delta));if(next===slot)return;
-   const before={slot,phase:phase(),page:page()};slot=next;flipping=true;save();paint();
-   const from=before.phase==='front'?front:before.phase==='back'?rear:pageTexture(doc,Math.min(doc.pages.length-1,before.page+(delta>0?count-1:0)));
-   const to=phase()==='back'?rear:phase()==='front'?front:pageTexture(doc,page());
-   const pivot=new T.Group();model.add(pivot);const leaf=K.into(pivot).box(10.5,-14,.55,21,28,.12,{f:M({c:'#fff',map:delta>0?from:to,sp:'#000000',sh:1}),b:M({c:'#fff',map:delta>0?to:from,sp:'#000000',sh:1}),all:paper});
-   const start=performance.now();pivot.traverse(o=>o.layers.set(1));
-   H.anims.set('reading.page',now=>{
-    if(reading!==state)return false;const k=Math.min(1,(now-start)/440),e=k*k*(3-2*k);
-    pivot.position.x=single?-10.5:before.phase==='front'?-10.5*(1-e):before.phase==='back'?10.5*(1-e):phase()==='back'?10.5*e:0;
-    if(!single&&before.phase==='front'){spread.position.x=-10.65*(1-e);meshes[0].parent.visible=e>.5}
-    if(!single&&before.phase==='back'){spread.position.x=10.65*(1-e);meshes[1].parent.visible=e>.5}
-    if(phase()==='back'){closed.visible=false;spread.visible=true;if(!single)spread.position.x=10.65*e}
-    pivot.rotation.y=-Math.PI*(delta>0?e:1-e);H.dirty();
-    if(k<1)return true;leaf.geometry.dispose();model.remove(pivot);flipping=false;paint();return false;
-   });
+  function removeLeaf(){if(!leaf)return;leaf.geometry.dispose();model.remove(leaf);leaf=null}
+  function makeLeaf(a,b){
+   // A closed, thin volume with matching front/back and solid cut edges.
+   const geo=new T.BoxGeometry(21,28,.1,20,1,1);geo.translate(10.5,-14,0);
+   const uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setY(i,1-uv.getY(i));
+   const mesh=new T.Mesh(geo,[paper,paper,paper,paper,a,b]);mesh.userData.rest=geo.attributes.position.array.slice();model.add(mesh);layers();return mesh;
   }
-  t.inspectPose={yaw:0,pitch:0,zoom:single?.62:1.18};
+  function bend(mesh,angle,progress,x,lift){
+   const pos=mesh.geometry.attributes.position,rest=mesh.userData.rest,c=Math.cos(angle),s=Math.sin(angle),curl=Math.sin(Math.PI*progress)*1.1;
+   for(let i=0;i<pos.count;i++){const u=rest[i*3],z=rest[i*3+2],arc=Math.sin(Math.PI*u/21)*curl;pos.setXYZ(i,c*u+s*arc+s*z,rest[i*3+1],-s*u+c*arc+c*z)}
+   pos.needsUpdate=true;mesh.geometry.computeVertexNormals();mesh.position.set(x,0,lift);
+  }
+  function begin(delta){
+   const before=slot,next=slot+delta;if(next<0||next>last)return false;
+   const a=phase(before),b=phase(next),opening=a==='front'||b==='front',closing=a==='back'||b==='back';
+   slot=next;flipping=true;save();
+   closed.visible=false;spread.visible=true;left.visible=!single;right.visible=true;spread.position.x=single?-10.56:0;
+   let face,reverse;
+   if(opening){
+    const interior=before===0?next:before;face=frontMat;reverse=surface(interior,single?'right':'left');
+    rightMesh.material[4]=surface(interior,'right');left.visible=false;
+   }else if(closing){
+    const interior=before===last?next:before;face=surface(interior,'right');reverse=backMat;
+    leftMesh.material[4]=surface(interior,'left');right.visible=single;
+   }else{
+    face=delta>0?surface(before,'right'):surface(next,'right');reverse=delta>0?surface(next,'left'):surface(before,'left');
+    leftMesh.material[4]=surface(delta>0?before:next,'left');rightMesh.material[4]=surface(delta>0?next:before,'right');
+   }
+   leaf=makeLeaf(face,reverse);if(pocket){pocket.visible=opening&&(a==='inside'||b==='inside');if(disc)disc.visible=discPresent()}
+   let elapsed=0;const duration=opening||closing?560:500;
+   function frame(e){
+    const angle=-Math.PI*(delta>0?e:1-e);
+    let x=single?-10.5:0;
+    if(!single&&opening){const offset=-10.56*(before===0?1-e:e);spread.position.x=offset;x=offset}
+    if(!single&&closing){const offset=10.56*(before===last?1-e:e);spread.position.x=offset;x=offset}
+    if(single&&closing){rightMesh.material[4]=surface(before===last?next:before,'right');x=-10.5+21*(before===last?1-e:e)}
+    const lift=.32+(opening&&hasPocket?.32*(before===0?1-e:e):0);
+    bend(leaf,angle,e,x,lift);H.dirty();
+   }
+   frame(0);status();
+   // dt keeps a menu pause from skipping the entire turn on resumption.
+   H.anims.set('reading.page',(now,dt)=>{
+    if(reading!==state)return false;if(H.paused)return true;
+    elapsed+=Math.min(50,Math.max(0,(dt??1/60)*1000));const k=Math.min(1,elapsed/duration),e=k*k*k*(k*(k*6-15)+10);frame(e);
+    if(k<1)return true;removeLeaf();flipping=false;paint();
+    if(requested!==slot){begin(Math.sign(requested-slot));return true}return false;
+   });return true;
+  }
+  function turn(delta){requested=Math.max(0,Math.min(last,Math.max(slot-2,Math.min(slot+2,requested+delta))));if(!flipping&&requested!==slot)begin(Math.sign(requested-slot));status()}
+  function resize(){if(reading!==state||narrow()===single)return;const saved={view:phase(slot),page:page(slot)};H.endInspect();read(t.id,doc.id,saved)}
+  t.inspectPose={yaw:0,pitch:0,zoom:single?.72:1.18};
   t.onInspectKey=ev=>{if(ev.key==='ArrowLeft'||ev.key==='ArrowRight'||ev.key.toLowerCase()==='f'){if(!ev.repeat)turn(ev.key==='ArrowLeft'?-1:1);return true}};
-  t.onInspectEnd=()=>{removeEventListener('resize',resize);H.anims.delete('reading.page');model.traverse(o=>o.geometry?.dispose());t.obj.remove(model);original.forEach(o=>t.obj.add(o));layers();t.onInspectKey=old.key;t.onInspectEnd=old.end;t.inspectPose=old.pose;reading=null;try{localStorage.removeItem('jhp_reading_active')}catch(e){}old.end?.();H.dirty()};
-  // Frame the closed cover first. Opening adds width, not height, so the
-  // camera stays still instead of lurching between cover and spread bounds.
-  if(!H.inspect(t.id)){t.onInspectEnd();return false}
-  spread=new T.Group();model.add(spread);
-  meshes=Array.from({length:count},(_,i)=>{const group=new T.Group();group.position.set(single?0:(i?10.65:-10.65),-14,0);group.rotation.y=single?0:(i?-.025:.025);spread.add(group);return K.into(group).box(0,0,0,21,28,.4,{f:M('#fff'),b:M({c:'#fff',map:i?rear:front,sp:'#000000',sh:1}),all:paper})});
-  if(!single)K.into(spread).cyl(0,-14,-.2,.17,.17,28,12,paper);
-  const panel=document.querySelector('.hs-inspection');if(panel){panel.querySelector('b').textContent='JACK ATTACK! — '+doc.title;panel.querySelector('span').innerHTML='Drag to inspect · <kbd>F</kbd> / <kbd>→</kbd> open / next · <kbd>←</kbd> previous · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back';controls=document.createElement('span');controls.className='magazine-page-controls';for(const n of [-1,1]){const b=document.createElement('button');b.type='button';b.dataset.turn=n;b.addEventListener('click',()=>turn(n));controls.appendChild(b)}controls.appendChild(document.createElement('small'));if(/^pmb\.pm\.mag\./.test(t.id)){const cd=document.createElement('button');cd.type='button';cd.textContent='Take cover CD';cd.addEventListener('click',()=>{H.endInspect();window.PMGL?.takeDisc(doc.id)});controls.appendChild(cd)}panel.appendChild(controls)}
-  paint();save();addEventListener('resize',resize);return true;
+  t.onInspectEnd=()=>{
+   removeEventListener('resize',resize);H.anims.delete('reading.page');removeLeaf();model.traverse(o=>o.geometry?.dispose());t.obj.remove(model);original.forEach(o=>t.obj.add(o));layers();
+   t.onInspectKey=old.key;t.onInspectEnd=old.end;t.inspectPose=old.pose;reading=null;try{localStorage.removeItem('jhp_reading_active')}catch(e){}old.end?.();H.dirty();
+  };
+  if(!H.inspect(t.id)){t.onInspectEnd();return false}model.add(spread);
+  if(hasPocket){
+   pocket=new T.Group();right.add(pocket);pocket.position.set(10.56,-15,.26);
+   K.into(pocket).box(0,0,0,12,12,.07,{f:M({c:'#eadfc9',sp:'#000000',sh:1}),all:paper});
+   // A genuine ring with a centre hole, printed face, inner rim and outer edge.
+   const shape=new T.Shape();shape.absarc(0,0,4.8,0,Math.PI*2,false);const hole=new T.Path();hole.absarc(0,0,.65,0,Math.PI*2,true);shape.holes.push(hole);
+   const geo=new T.ExtrudeGeometry(shape,{depth:.16,bevelEnabled:false,curveSegments:48});
+   const physicalDisc=H.THINGS[discId]?.obj;physicalDisc?.userData.ensure?.();let label;
+   physicalDisc?.traverse(o=>{if(o.userData.ok&&o.material?.map)label=o.material.map});
+   label=label||K.tex('reading:disc:'+doc.id,256,256,(g,w,h)=>{g.fillStyle=doc.color;g.fillRect(0,0,w,h);g.fillStyle='#f8f2db';g.textAlign='center';g.font='bold 24px Arial';g.fillText('JACK ATTACK!',w/2,70);g.font='bold 17px Arial';g.fillText('COVER CD • 1999',w/2,96);g.font='15px Arial';g.fillText('ISSUE '+doc.issue,w/2,191);g.fillText('HOLD BY THE EDGES',w/2,216)},{clamp:true});
+   // ExtrudeGeometry uses world XY UVs; remap to the label square.
+   const uv=geo.attributes.uv,pos=geo.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,(pos.getX(i)+4.8)/9.6,1-(pos.getY(i)+4.8)/9.6);
+   disc=new T.Mesh(geo,[ink(label),M({c:'#bcc5ce',sh:25,sp:'#777777'})]);disc.position.z=.08;disc.name='reading-cover-disc';pocket.add(disc);
+   for(const x of [-5.2,5.2])K.into(pocket).box(x,0,.22,.7,11,.08,M({c:'#dcc49c',sh:2}));
+  }
+  const panel=document.querySelector('.hs-inspection');if(panel){
+   panel.querySelector('b').textContent=(C.byId[doc.id]?'JACK ATTACK! — ':'')+doc.title;
+   panel.querySelector('span').innerHTML='<span data-input-only="touch">Drag to inspect · Use the page buttons to read</span><span data-input-only="keyboard">Drag to inspect · <kbd>F</kbd> / <kbd>→</kbd> open / next · <kbd>←</kbd> previous · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back</span>';
+   controls=document.createElement('span');controls.className='magazine-page-controls';for(const n of [-1,1]){const button=document.createElement('button');button.type='button';button.dataset.turn=n;button.addEventListener('click',()=>turn(n));controls.appendChild(button)}controls.appendChild(document.createElement('small'));
+   if(hasPocket){const button=document.createElement('button');button.type='button';button.dataset.coverDisc='';button.textContent='Take inside-cover CD';button.addEventListener('click',()=>{if(flipping||phase(slot)!=='inside'||!discPresent())return;H.endInspect();window.PMGL?.takeDisc(doc.id)});controls.appendChild(button)}panel.appendChild(controls);
+  }
+  paint();layers();save();addEventListener('resize',resize);return true;
+ }
+ function pocketTexture(doc,side){
+  const key='reading:pocket:'+doc.id+':'+side;
+  return M({c:'#fff',sp:'#000000',sh:1,map:K.tex(key,768,1024,(g,w,h)=>{
+   g.fillStyle='#eae0c7';g.fillRect(0,0,w,h);g.fillStyle=doc.color;g.fillRect(36,42,w-72,18);g.font='bold 34px Arial';g.fillText(side==='right'?'YOUR COVER CD':'JACK ATTACK! • INSIDE COVER',42,116);
+   g.fillStyle='#303226';g.font='25px Georgia';let y=178;for(const line of lines(g,side==='right'?'A whole disc of games to explore. Click the button below to lift it from its pocket. Hold it by the edges.':'Open the next page for the editorial, reviews, guides, letters and comic. Keep this issue beside the family PC.',w-84)){g.fillText(line,42,y);y+=34}
+   g.font='bold 25px Courier New';g.fillText(side==='right'?'CD POCKET — KEEP THIS ISSUE':'1999 • GAMES, GUIDES & GOOD IDEAS',42,930);
+  },{clamp:true})});
  }
  function bind(t,doc){
   if(bindings.has(t.id))return;
   bindings.set(t.id,doc.id);t.use=()=>read(t.id,doc.id);t.useLabel='Read / turn pages';t.issueId=doc.id;
+  // CD issues are upright volumes, unlike the flat loose magazines. Adapt the
+  // existing reading-slot callbacks with their upright-book pose, without
+  // changing their permanent IDs or the PC-media case/disc registry.
+  if(/^pmb\.pm\.mag\./.test(t.id)){t.kind='reading.mag';t.obj.userData.readingUpright=true;readingShelf(t)}
   if(C.byId[doc.id]){
    t.label='JACK ATTACK! — '+doc.title;
    const tx=cover(doc.id);
-   if(['reading.mag','mess.mag'].includes(t.kind))t.obj.traverse(o=>{if(Array.isArray(o.material)&&o.material[3]?.map){o.material=o.material.slice();for(const i of [2,3])o.material[i]=M({c:'#fff',map:tx,sp:'#000000',sh:1});if(t.kind==='mess.mag'&&!o.userData.readingBackUv){const geo=o.geometry,uv=geo.attributes.uv,back=geo.groups.find(g=>g.materialIndex===2),vertices=new Set();for(let i=back.start;i<back.start+back.count;i++)vertices.add(geo.index.getX(i));for(const i of vertices)uv.setXY(i,1-uv.getX(i),1-uv.getY(i));uv.needsUpdate=true;o.userData.readingBackUv=true}}});
-   else{const repaint=()=>{t.obj.traverse(o=>{if(!Array.isArray(o.material))return;o.material=o.material.slice();for(const i of [4,5])if(o.material[i]?.map)o.material[i]=M({c:'#fff',map:tx,sp:'#000000',sh:1})});H.dirty()};t.obj.userData.cover=repaint;repaint();}
+   if(!t.obj.userData.readingUpright&&['reading.mag','mess.mag'].includes(t.kind))t.obj.traverse(o=>{if(Array.isArray(o.material)&&o.material[3]?.map){o.material=o.material.slice();for(const i of [2,3])o.material[i]=M({c:'#fff',map:tx,sp:'#000000',sh:1});if(t.kind==='mess.mag'&&!o.userData.readingBackUv){const geo=o.geometry,uv=geo.attributes.uv,back=geo.groups.find(g=>g.materialIndex===2),vertices=new Set();for(let i=back.start;i<back.start+back.count;i++)vertices.add(geo.index.getX(i));for(const i of vertices)uv.setXY(i,1-uv.getX(i),1-uv.getY(i));uv.needsUpdate=true;o.userData.readingBackUv=true}}});
+   else{const repaint=()=>{if(reading?.id===t.id)return;t.obj.traverse(o=>{if(!Array.isArray(o.material))return;o.material=o.material.slice();for(const i of [4,5])if(o.material[i]?.map)o.material[i]=M({c:'#fff',map:tx,sp:'#000000',sh:1})});H.dirty()};t.obj.userData.cover=repaint;repaint();}
   }
+ }
+ const shelfAdapters=new Set();
+ function upright(t){return t?.obj.userData.readingUpright?new Proxy(t,{get:(target,key)=>key==='kind'?'reading.book':Reflect.get(target,key)}):t}
+ function readingShelf(t){
+  for(let n=0;n<32;n++){
+   const sn=H.SNAPS['reading.slot.'+n];if(!sn||shelfAdapters.has(sn))continue;
+   const accepts=sn.accepts,begin=sn.onBegin;
+   sn.accepts=(kind,item)=>accepts(item?.obj.userData.readingUpright?'reading.book':kind,upright(item));
+   sn.onBegin=(item,pose)=>begin?.(upright(item),pose);shelfAdapters.add(sn);
+  }
+  let n;try{n=JSON.parse(localStorage.getItem('jhp_reading_slots')||'{}')[t.id]}catch(e){}
+  const sn=H.SNAPS['reading.slot.'+n];if(!sn||!sn.accepts(t.kind,t))return;
+  t.home={...sn.pose,snap:sn.id};
+  if(t.st==='snap'&&t.snap===sn.id){for(const key of ['room','x','y','z','ry'])t.at[key]=sn.pose[key];t.rx=sn.pose.rx||0;H.place(t)}
  }
  function sync(){
   if(!H.ROOMS.bedroom?.built)return;
   for(const issue of C.ISSUES)for(const id of new Set([physicalId(issue.id),'pmb.'+issue.id]))if(H.THINGS[id])bind(H.THINGS[id],issue);
   for(const book of window.ReadingBooks||[])if(H.THINGS[book.id])bind(H.THINGS[book.id],book);
   for(const [id,issue]of [['ch.m.mag1','pm.mag.08'],['ch.m.mag2','pm.mag.09']])if(H.THINGS[id])bind(H.THINGS[id],C.byId[issue]);
+  for(const t of Object.values(H.THINGS))if(t.obj.userData.readingUpright)readingShelf(t);
+  const catalogue=H.THINGS['pm.catalogue'];if(catalogue&&!bindings.has(catalogue.id)){bindings.set(catalogue.id,'pm.catalogue');catalogue.use=()=>read(catalogue.id,'pm.catalogue');catalogue.useLabel='Read / turn pages'}
  }
  function makePaper(id,home,texture,thickness=1){
   if(H.THINGS[id])return H.THINGS[id];const doc=(window.ReadingBooks||[]).find(b=>b.id===id);if(!doc)return null;

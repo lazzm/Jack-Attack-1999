@@ -754,7 +754,7 @@
       if (ev.pointerType === 'mouse' && ev.button !== 0) return;
       ev.preventDefault(); G.focus();
       if (!H) return;
-      const r = cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top, i = handAt(x, y);
+      const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY), x = point.x - r.left, y = point.y - r.top, i = handAt(x, y);
       if (i < 0) return;
       const c = H.players[0].hand[i];
       drag = { card: c, i, x, y, sx: x, sy: y, gx: x - c.x, gy: y - c.y, live: false, id: ev.pointerId };
@@ -762,7 +762,7 @@
     });
     G.on(cv, 'pointermove', ev => {
       if (!drag || ev.pointerId !== drag.id) return;
-      const r = cv.getBoundingClientRect(); drag.x = ev.clientX - r.left; drag.y = ev.clientY - r.top;
+      const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY); drag.x = point.x - r.left; drag.y = point.y - r.top;
       if (!drag.live && Math.hypot(drag.x - drag.sx, drag.y - drag.sy) > 10 && H.phase === 'play' && H.turn === 0) drag.live = true;
       if (drag.live) dirty = true;
     });
@@ -1240,7 +1240,7 @@
       if (!S) return;
       if (fireworks) { fireworks.t = 99; return; }
       if (S.won) return;
-      const r = cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top, h = hit(x, y);
+      const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY), x = point.x - r.left, y = point.y - r.top, h = hit(x, y);
       if (!h) { sel = null; dirty = true; return; }
       if (h.stock) { dealRow(); return; }
       const col = S.cols[h.col];
@@ -1251,7 +1251,7 @@
     });
     G.on(cv, 'pointermove', ev => {
       if (!drag || ev.pointerId !== drag.id || drag.dead) return;
-      const r = cv.getBoundingClientRect(); drag.x = ev.clientX - r.left; drag.y = ev.clientY - r.top;
+      const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY); drag.x = point.x - r.left; drag.y = point.y - r.top;
       if (!drag.live && Math.hypot(drag.x - drag.sx, drag.y - drag.sy) > (drag.touch ? 9 : 4)) { drag.live = true; sel = null; }
       if (drag.live) dirty = true;
     });

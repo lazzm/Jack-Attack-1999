@@ -180,7 +180,7 @@
       },
     };
     const ptrs = new Map();
-    const zoneOf = ev => { const r = cv.getBoundingClientRect(), fx = (ev.clientX - r.left) / r.width; return fx < 0.36 ? 'left' : fx > 0.64 ? 'right' : 'boost'; };
+    const zoneOf = ev => { const r = DesktopSurface.rect(cv), point = DesktopSurface.point(ev.clientX, ev.clientY), fx = (point.x - r.left) / r.width; return fx < 0.36 ? 'left' : fx > 0.64 ? 'right' : 'boost'; };
     const syncPtr = () => { K.left = K.right = K.boost = 0; for (const z of ptrs.values()) K[z] = 1; };
     G.on(cv, 'pointerdown', ev => {
       ev.preventDefault(); G.focus();

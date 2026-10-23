@@ -399,7 +399,7 @@
       if (t && HOMES[it.id]) {t.home = Object.assign({ room: 'bedroom' }, HOMES[it.id]); shelfSlot(it,HOMES[it.id],t.obj);}
       if (it.disc && it.kind !== 'cart') { const dt = discThing(it); if (it.kind === 'mag' && t.obj.userData.cover) t.obj.userData.cover(dt.st === 'rest' && !!dt.at.hide && PM.where(it.id) === 'shelf'); }
     }
-    fillRow(); drives(); parcels(); H.saveThings();
+    fillRow(); drives(); parcels(); window.Magazines?.sync(); H.saveThings();
   }
 
   // Rearranging is a physical action, not a separate inventory editor. Reserve

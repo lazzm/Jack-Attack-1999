@@ -807,7 +807,9 @@
     B.plane(-80,242.5,-61.2,112,87,M({c:'#c8d8f0',o:.12,tr:true,sh:80,sp:'#7c8f99'}),{ry:180});
     B.box(76.8, GY - 102, -58.5, 5.6, 204, 3, mWhite); B.box(163.2, GY - 102, -58.5, 5.6, 204, 3, mWhite); B.box(120, GY - 206, -58.5, 92, 6, 3, mWhite); B.box(120, GY - 0.8, -58, 80, 1.6, 8, M('#9a9a92')); // trim clears the shared interior reveals
     B.plane(191,-63,-57.5,70,98,M({c:'#c8d8f0',o:.12,tr:true,sh:80,sp:'#7c8f99'}),{ry:180}); // the real bedroom remains visible behind the glass
-    B.cyl(200, (GY - 300) / 2, -60, 5, 5, 600, 8, M('#2a2a2a')); // the drainpipe
+    // Keep the pipe on the brick pier, clear of Jack's 156..226 window.
+    // At x=200 it crossed the right pane and intersected its glazing.
+    B.cyl(240, (GY - 300) / 2, -60, 5, 5, 600, 8, M('#2a2a2a')); // the drainpipe
     // fences down both sides and across the end, the gate at the end, next door's roofs over the top
     const fm = mFence();
     // One post per corner; panel ends butt against post shoulders. The old

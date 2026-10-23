@@ -439,9 +439,11 @@
   H.ambient.add(now => {
     const r = room();if(st.on&&st.vcr&&now-lastSave>2000){lastSave=now;savePlayback()}
     if(!r||!st.on)return;
-    if(!r.group.visible&&!surf){if(st.vcr&&st.speed){const dt=Math.min(.25,(now-(last||now))/1000);last=now;tapeFrame(dt)}return;}
+    const mesh=r.tvScreen,position=mesh?mesh.getWorldPosition(new T.Vector3()):null,point=position?H.toScreen(position.x,-position.y,position.z):null;
+    const visible=r.group.visible&&point&&point.x>-80&&point.y>-80&&point.x<innerWidth+80&&point.y<innerHeight+80;
+    if(!visible&&!surf){if(st.vcr&&st.speed){const dt=Math.min(.25,(now-(last||now))/1000);last=now;tapeFrame(dt)}return;}
     if (surf) return; // (the fast loop has it)
-    if (now - lastSlow > 120) { lastSlow = now; frame(now); H.dirty(); }
+    if (now - lastSlow > 1000/(H.graphicsGet?.().backgroundFps||10)) { lastSlow = now; frame(now); H.dirty(); }
   });
   function fast(now) { loopRaf = requestAnimationFrame(fast); if (surf && st.on) frame(now); else if (surf) offPic(); }
   loopRaf = requestAnimationFrame(fast);
