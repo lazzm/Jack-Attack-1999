@@ -400,7 +400,7 @@
     const lines = [
       ['JACKBIOS v4.51PG, Copyright (C) 1984-99', 0],
       ['', 0],
-      ['Main Processor : Pentium II 350MHz', 150],
+      ['Main Processor : JackCore II 450MHz', 150],
       ['Memory Testing : <span id="memc">0K</span>', 150],
     ];
     let t = 0;

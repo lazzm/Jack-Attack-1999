@@ -213,11 +213,23 @@
     emit('door', id, d.open);
   }
   let visSet = new Set();
+  let windowOnly=new Map();
+  const windowFrustum=new T.Frustum(),windowProjection=new T.Matrix4();
   function visCalc() { // the room you're in, and the rooms you can see into through open doors (and the ones they open onto)
     const vs = new Set(); if (cur) vs.add(cur.id);
     const walk = (r, depth) => { if (!r) return; for (const did of r.links) { const d = DOORS[did]; if (!d || !(d.open || d.ang > 0.01 || d.always)) continue; for (const o of d.rooms) if (!vs.has(o)) { vs.add(o); if (depth < (Q.tier === 'low' ? 0 : 1)) walk(ROOMS[o], depth + 1); } } };
     walk(cur, 0);
     if (cur && (cur.id === 'hall' || cur.id === 'landing' || cur.id === 'cupboard')) { vs.add('hall'); vs.add('landing'); } // (the stairwell joins them: a wrong guess can never black the view out)
+    // Glass is a permanent sight line, independent of the door beside it.
+    // Keep logical visibility stable; rendering may skip windows off camera.
+    const connected=new Set(vs);windowOnly=new Map();
+    for(const id of connected)for(const view of ROOMS[id]?.windowViews||[]){
+      const other=typeof view==='string'?view:view.room;if(!ROOMS[other])continue;vs.add(other);
+      if(connected.has(other))continue;
+      const bounds=windowOnly.get(other)||[];
+      if(!view.bounds)bounds.push(null);else for(const b of view.bounds)bounds.push(new T.Box3(new T.Vector3(b[0],-b[4],b[2]),new T.Vector3(b[3],-b[1],b[5])));
+      windowOnly.set(other,bounds);
+    }
     for (const id in ROOMS) { const r = ROOMS[id], on = vs.has(id); if (on) buildRoom(r); r.group.visible = on; }
     for (const id in DOORS) { const d = DOORS[id], on = d.rooms.some(o => vs.has(o)); if (d.pivot) d.pivot.visible = on; if (d.frame) d.frame.visible = on; }
     visSet = vs; lightsFor(); dirty();
@@ -461,6 +473,7 @@
     held = { id, d: clamp(t.holdD || 55, 30, 140), ry: 0, from: Object.assign({}, t.at), was, sx: t.at.x, sy: t.at.y, sz: t.at.z };
     if (was) { const sn = SNAPS[was]; t.snap = null; if (sn && sn.onUnsnap) try { sn.onUnsnap(t); } catch (e) { console.error(e); } emit('unsnap', was, id); }
     t.st = 'held'; t.at.hide = false; t.obj.visible = true;
+    aimPt = null; aimT = 0; // never inherit the previous object's shelf target
     layerFor(t); // update the cached front-layer state too, even before a frame renders
     if (cur && t.obj.parent !== cur.things) cur.things.attach ? cur.things.add(t.obj) : 0;
     sfx.tone(520, 0.05, 'triangle', 0.05); sfx.tone(780, 0.05, 'triangle', 0.04, 0.05);
@@ -478,10 +491,10 @@
   const isThingMesh = m => { let o = m; while (o) { if (o.userData && o.userData.thing) return true; o = o.parent; } return false; };
   const isHeldMesh = m => {if(!held)return false;for(let o=m;o;o=o.parent)if(o===THINGS[held.id].obj)return true;return false;};
   let aimPt = null, aimT = 0; // where the crosshair points (checked a few times a second while holding)
-  function nearSnap(t, x, y, z) {
+  function nearSnap(t, x, y, z, fresh) {
     let best = null;
     const now = performance.now();
-    if (now - aimT > 120) { aimT = now; const h = pick(vw / 2, vh / 2, { skip: isHeldMesh, far: 260 }); aimPt = h ? h.p : null; }
+    if (fresh || now - aimT > 120) { aimT = now; const h = pick(vw / 2, vh / 2, { skip: isHeldMesh, far: 260 }); aimPt = h ? h.p : null; }
     for (const id in SNAPS) {
       const s = SNAPS[id]; if (s.room && cur && s.room !== cur.id) continue;
       if (s.enabled && !s.enabled()) continue; if (s.accepts && !s.accepts(t.kind, t)) continue;
@@ -506,17 +519,25 @@
     if(p){const q=p.target||p.aim;floorHi.material.color.set(p.target?'#8bc17b':'#c66b55');floorHi.position.set(q.x,LV[ROOMS[q.room].lvl]-.35,q.z);floorHi.scale.set(t.hx*2,.35,t.hz*2);floorHi.rotation.set(0,p.ry*D2R,0)}
   }
   function snapGlow(s) {
+    if (!snapHi && !s) return;
     if (!snapHi) {
       snapHi = new T.Mesh(new T.BoxGeometry(1, 1, 1), new T.MeshBasicMaterial({ color: 0xffd84a, transparent: true, opacity: 0.35, depthWrite: false }));
-      snapHi.layers.set(1); snapHi.renderOrder = 5; root.add(snapHi);
+      // A shelf preview belongs in the room's depth buffer. The foreground
+      // canvas has no walls/shelves to occlude it and makes it shine through.
+      snapHi.userData.noPick = true; snapHi.renderOrder = 5; root.add(snapHi);
     }
-    snapHi.visible = !!s;
-    if (s) { const p = s.pose || s, c = s.preview || p; snapHi.position.set(c.x, c.y, c.z); const b = s.box || [s.r * 0.9, 1.5, s.r * 0.9]; snapHi.scale.set(b[0], b[1], b[2]); snapHi.rotation.set((p.rx || 0) * D2R, (p.ry || 0) * D2R, (p.rz || 0) * D2R, 'YXZ'); }
+    snapHi.visible = false;
+    if (s) {
+      const p = s.pose || s, c = s.preview || p, b = s.box || [s.r * 0.9, 1.5, s.r * 0.9];
+      if (![c.x,c.y,c.z,...b].every(Number.isFinite) || b.some(n=>n<=0)) return;
+      snapHi.position.set(c.x, c.y, c.z); snapHi.scale.set(b[0], b[1], b[2]);
+      snapHi.rotation.set((p.rx || 0) * D2R, (p.ry || 0) * D2R, (p.rz || 0) * D2R, 'YXZ'); snapHi.visible = true;
+    }
   }
   // put the held thing down: where you're looking (a surface), into a snap, or let it drop
   function drop(sx, sy) {
     if (!held) return; const t = THINGS[held.id], hp = heldPos();
-    const sn = nearSnap(t, hp.x, hp.y, hp.z);
+    const sn = nearSnap(t, hp.x, hp.y, hp.z, true);
     if (sn) return snapIn(t, sn);
     let tgt = null;
     const hit = pick(sx == null ? vw / 2 : sx, sy == null ? vh / 2 : sy, { skip: isHeldMesh, far: 400 });
@@ -594,6 +615,7 @@
   }
   function tickThings(dt) {
     let any = false;
+    if (!held) { snapGlow(null); if (floorHi) floorHi.visible = false; }
     for (const id in THINGS) {
       const t = THINGS[id];
       if (t.st === 'held' && held && held.id === id) {
@@ -601,7 +623,7 @@
         o.x += (hp.x - o.x) * k; o.y += (hp.y - o.y) * k; o.z += (hp.z - o.z) * k;
         const want = P.ry * -1 + held.ry + (t.faceYou ? 180 : 0), r0 = t.obj.rotation.y / D2R;
         t.obj.rotation.set(Math.sin(performance.now() / 700) * 0.04, (r0 + angd(r0, want) * k) * D2R, Math.sin(performance.now() / 900) * 0.03, 'YXZ');
-        const sn = nearSnap(t, o.x, o.y, o.z); snapGlow(sn); ui.snapHint(sn);floorGlow(t.floorOnly&&!sn&&!controlsPaused&&mode==='walk'?floorAim(t):null,t);
+        const sn = !controlsPaused && mode === 'walk' ? nearSnap(t, o.x, o.y, o.z) : null; snapGlow(sn); ui.snapHint(sn);floorGlow(t.floorOnly&&!sn&&!controlsPaused&&mode==='walk'?floorAim(t):null,t);
         any = true;
       } else if (t.st === 'fall') {
         const a = t.at, now = performance.now();
@@ -828,7 +850,14 @@
     if(ev.key.toLowerCase()==='q'&&!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&!typing&&window.HousePause?.canBack){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)HousePause.quickBack();return;}
     if(inspection&&(ev.key==='Tab'||(['Enter',' '].includes(ev.key)&&ev.target?.closest?.('.hs-inspection button'))))return;
     if(inspection&&(ev.ctrlKey||ev.metaKey||ev.altKey))return;
-    if (inspection) { if (ev.key === 'Escape') endInspect(); else {try {inspection.t.onInspectKey?.(ev)}catch(e){console.error(e)}if(ev.key.toLowerCase()==='i')endInspect()} ev.preventDefault(); ev.stopImmediatePropagation(); return; }
+    if (inspection) {
+      if (ev.key === 'Escape') endInspect();
+      else {
+        try { inspection.t.onInspectKey?.(ev); } catch (e) { console.error(e); }
+        if (ev.key.toLowerCase() === 'i') endInspect();
+      }
+      ev.preventDefault(); ev.stopImmediatePropagation(); return;
+    }
     if (mode === 'focus' && ev.key === 'Escape' && !viewOpen()) { ev.preventDefault(); ev.stopImmediatePropagation(); if (focusS && focusS.o.esc && focusS.o.esc() === false) return; unfocus(); return; }
     if (viewOpen() || (mode !== 'walk' && mode !== 'glide')) { if (mode === 'stand' || mode === 'sit') { ev.preventDefault(); ev.stopImmediatePropagation(); } return; }
     if (ui.modalOpen()) return;
@@ -984,8 +1013,8 @@
     const hint = document.createElement('span'); hint.innerHTML = (t.obj.userData.cube ? 'Drag a face to turn · Right-drag to rotate' : 'Drag to rotate')+' · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back · <kbd>Esc</kbd> menu';
     const back = document.createElement('button'); back.type = 'button'; back.textContent = 'Back'; back.addEventListener('click', endInspect);
     panel.append(name, hint, back); ui.el.appendChild(panel);
-    const ip=t.inspectPose||{};
-    inspection = {t, grip, centre, panel, yaw: -P.ry+(ip.yaw??24), pitch: ip.pitch??(id==='gb'?-80:-18), zoom: ip.zoom??1, radius: size.length() / 2, drag: null};
+    const ip = t.inspectPose || {};
+    inspection = {t, grip, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null};
     html.classList.add('hs-inspecting'); layerFor(t); poseInspect(); return true;
   }
   function poseInspect() {
@@ -1002,8 +1031,8 @@
     if (s.t.obj.userData.cube) s.t.obj.userData.cube.finish();
     s.panel.remove(); inspection = null; html.classList.remove('hs-inspecting');
     held = s.grip; s.t.st = 'held'; setMode('walk'); ui.holdBar(s.t); dirty();
-    try {s.t.onInspectEnd?.()}catch(e){console.error(e)}
-    emit('inspect-end',s.t.id);
+    try { s.t.onInspectEnd?.(); } catch (e) { console.error(e); }
+    emit('inspect-end', s.t.id);
   }
   document.addEventListener('pointerdown', ev => {
     const s = inspection; if (!s || ev.target.closest('button')) return;
@@ -1208,11 +1237,13 @@
   function gfxNext() { const o = ['auto', 'low', 'medium', 'high'], i = o.indexOf(Q.auto ? 'auto' : Q.tier); gfxSet(o[(i + 1) % 4]); ui.toast('Graphics: ' + gfxName(), Q.auto ? 'Picked for this computer (press G to change)' : 'Press G to change'); }
   let anyFront = false;
   function renderLit(renderer) {
+    windowProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);windowFrustum.setFromProjectionMatrix(windowProjection);
+    const drawnRooms=new Set([...visSet].filter(id=>window.House?.god||!windowOnly.has(id)||windowOnly.get(id).some(b=>!b||windowFrustum.intersectsBox(b))));
     const roomGroups=new Set(Object.values(ROOMS).map(r=>r.group)),doorGroups=new Map();
-    for(const d of Object.values(DOORS)){if(d.pivot)doorGroups.set(d.pivot,d.lightRoom||d.rooms[0]);if(d.frame)doorGroups.set(d.frame,d.lightRoom||d.rooms[0]);}
+    for(const d of Object.values(DOORS)){const data={owner:d.lightRoom||d.rooms[0],rooms:d.rooms};if(d.pivot)doorGroups.set(d.pivot,data);if(d.frame)doorGroups.set(d.frame,data);}
     const nodes=[],owners=new Set();
-    for(const r of Object.values(ROOMS)){nodes.push({obj:r.group,on:r.group.visible,owner:r.id});if(r.group.visible)owners.add(r.id)}
-    for(const [obj,owner]of doorGroups){nodes.push({obj,on:obj.visible,owner});if(obj.visible)owners.add(owner)}
+    for(const r of Object.values(ROOMS)){const on=r.group.visible&&drawnRooms.has(r.id);nodes.push({obj:r.group,on,restore:r.group.visible,owner:r.id});if(on)owners.add(r.id)}
+    for(const [obj,{owner,rooms}]of doorGroups){const on=obj.visible&&rooms.some(id=>drawnRooms.has(id));nodes.push({obj,on,restore:obj.visible,owner});if(on)owners.add(owner)}
     const extraOwner=cur&&cur.id;
     for(const obj of root.children)if(!roomGroups.has(obj)&&!doorGroups.has(obj)&&!obj.isLight&&obj!==sun.target){nodes.push({obj,on:obj.visible,owner:extraOwner});if(obj.visible)owners.add(extraOwner)}
     for(const obj of scene.children)if(obj!==root&&!obj.isLight){nodes.push({obj,on:obj.visible,owner:extraOwner});if(obj.visible)owners.add(extraOwner)}
@@ -1239,7 +1270,7 @@
         }
       }
     } finally {
-      for(const n of nodes)n.obj.visible=n.on;
+      for(const n of nodes)n.obj.visible=n.restore??n.on;
       for(const [m,on]of materials)m.visible=on;
       scene.background=background;renderer.autoClear=clear;scene.autoUpdate=update;renderer.info.autoReset=autoReset;
     }
@@ -1250,7 +1281,6 @@
     pcVis();
     // things in front of the PC (and the one in your hands) go on the canvas above it
     let front = false; for (const id in THINGS) { const t = THINGS[id]; if (t.obj.parent && t.obj.parent.parent && t.obj.parent.parent.visible) layerFor(t); if (t.front && t.obj.visible) front = true; }
-    if (snapHi && snapHi.visible) front = true;
     const ly = pcOn ? 1 : 0; for (const f of frontFx) { if (f.userData.ly !== ly) { f.userData.ly = ly; f.traverse(o => o.layers.set(ly)); } if (f.visible && pcOn) front = true; }
     camera.layers.set(0); renderLit(ren);
     if (front || anyFront) {

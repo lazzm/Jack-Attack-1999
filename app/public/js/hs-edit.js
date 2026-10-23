@@ -12,7 +12,7 @@
   const isJack = () => { try { const m = (typeof Net !== 'undefined' ? Net : window.Net); const me = m && m.me; return !!(me && me.member && /^jack$/i.test(me.nick || '')); } catch (e) { return false; } };
 
   // ---- tag every Group as it is added to something, with the file:line that added it (this is what gives models their names)
-  const pending = [], reg = new Map(), counts = {}, srcCache = {};
+  const pending = [], reg = new Map(), counts = {}, srcCache = {}, claimedEdits=new Set();
   const add0 = T.Object3D.prototype.add;
   function srcOf() {
     const st = new Error().stack || '', re = /((?:https?:)?\/\/[^\s()]+?\/([\w.-]+\.js))(?:\?[^\s:)]*)?:(\d+):(\d+)/g; let m;
@@ -50,8 +50,26 @@
     if (!attached(g) || excluded(g)) return false;
     const s = ud.edSrc, room = roomOf(g) || 'house', base = room + '|' + s.file + ':' + s.line, n = counts[base] = (counts[base] || 0) + 1;
     ud.ed = { key: base + '|' + n, room, orig: vals(g) }; reg.set(ud.ed.key, g); nameIt(g);
-    const e = saved[ud.ed.key]; if (e && e.now) setVals(g, e.now);
+    // Source lines move as models improve. Never apply an old line's edit to
+    // an unrelated group which now happens to occupy that line.
+    const original=ud.ed.orig,valid=v=>v&&['x','y','z','rx','ry','rz'].every(k=>Number.isFinite(v[k]));
+    const same=v=>valid(v)&&['x','y','z','rx','ry','rz'].every(k=>Math.abs(v[k]-original[k])<.02);
+    const located=Object.values(original).some(v=>Math.abs(v)>.02),target=targetOf(g),legacyKey=ud.ed.key;ud.ed.target=target;
+    if(target){reg.delete(legacyKey);ud.ed.key='target|'+target;reg.set(ud.ed.key,g)}
+    let sourceKey=saved[ud.ed.key]?ud.ed.key:legacyKey,entry=saved[sourceKey];
+    if(!entry||claimedEdits.has(sourceKey)||!valid(entry.now)||(entry.target?entry.target!==target:!(target&&entry.name===target)&&!(located&&same(entry.original))))entry=null;
+    if(!entry){
+      const matches=Object.entries(saved).filter(([key,e])=>!claimedEdits.has(key)&&e&&valid(e.now)&&(e.target?target&&e.target===target:target&&(e.name===target||located&&e.room===room&&String(e.file||'').split(':')[0]===s.file&&same(e.original))));
+      if(matches.length===1)[sourceKey,entry]=matches[0];
+    }
+    if(entry){claimedEdits.add(sourceKey);ud.ed.sourceKey=sourceKey;setVals(g,entry.now)}
     return true;
+  }
+  function targetOf(g){
+    const h=H();for(const[id,t]of Object.entries(h.THINGS))if(t.obj===g)return 'thing:'+id;
+    for(const[id,d]of Object.entries(h.DOORS))if(d.pivot===g)return 'door:'+id;
+    for(const[id,s]of Object.entries(h.SPOTS))if(s.obj===g)return 'spot:'+id;
+    return null;
   }
   setInterval(() => {
     if (!pending.length || !H() || !H().scene) return;
@@ -74,7 +92,8 @@
   function record(g) {
     const e = g.userData.ed; if (!e) return;
     const now = vals(g);
-    if (differs(now, e.orig)) saved[e.key] = Object.assign(info(g), { id: e.key, original: e.orig, now }); else delete saved[e.key];
+    if(e.sourceKey&&e.sourceKey!==e.key)delete saved[e.sourceKey];
+    if (differs(now, e.orig)) saved[e.key] = Object.assign(info(g), { id: e.key, target:e.target, original: e.orig, now }); else delete saved[e.key];
     store(); render();
   }
 

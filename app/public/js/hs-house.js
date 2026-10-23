@@ -296,7 +296,11 @@
     const mi = B.at(206, GY - 150, 300); mi.box(1, 0, 0, 2, 60, 40, M({ c: '#fff', map: tex('oak') })); mi.plane(2.2, 0, 0, 36, 56, M({ c: '#a8b8c8', sh: 120, sp: '#fff' }), { ry: 90 });
     const rd = B.at(206, GY - 36, 400); rd.box(4, 0, 0, 3.6, 56, 90, { all: M('#e8e5dc'), r: M({ c: '#fff', map: tex('radiator'), sh: 40 }) });
     const ht = B.at(222, GY, 110); ht.box(0, -76, 0, 30, 3, 60, M({ c: '#fff', map: tex('oak') })); [[-12, -26], [12, -26], [-12, 26], [12, 26]].forEach(([x, z]) => ht.box(x, -37, z, 3, 74, 3, M({ c: '#fff', map: tex('oak') })));
-    ht.lathe(0, -79, -10, [[8, -4], [3, 0]], 16, M({ c: '#c8a070', sh: 40 })); ht.box(4, -80, 12, 6, 1, 3, mMetal);
+    // A closed ceramic bowl with a rounded lip and inner basin, not an open
+    // cone whose back faces vanished when seen from above.
+    ht.lathe(0,-78,-10,[[0,-.5],[3,-.5],[5,-1.4],[7.2,-4.6],[7.8,-4.8],[8.2,-4.5],[7.7,-3],[5,0],[2.8,.2],[0,.2]],24,M({c:'#b68b59',sh:35,sp:'#333',side:2}));ht.shadow(0,-77.5,-10,18,18,.25);
+    const keys=ht.at(4,-77.9,12,22);keys.geo(new T.TorusGeometry(1.7,.3,6,18),0,0,0,mMetal,{rx:90});
+    for(const [x,ry,material]of [[-1,-20,mMetal],[1,30,mBrass]]){const key=keys.at(x,0,1,ry);key.cyl(0,.1,0,1.05,1.05,.4,12,material);key.box(0,.1,3,.75,.4,4.3,material);for(const z of [3.6,4.7])key.box(.55,.1,z,.7,.4,.65,material)}
     ht.shadow(0, 0, 0, 36, 66, 0.6, { sq: true });
     B.cyl(300, GC + 1.5, 200, 6, 6, 3, 14, mWhite); B.cyl(300, GC + 15, 200, 0.3, 0.3, 26, 4, M('#eee')); B.lathe(300, GC + 26, 200, [[2, -2], [14, 10]], 18, M({ c: '#f0e0b8', sh: 10, side: 2, e: '#000' }));
     batch.build(r.group);
@@ -357,8 +361,8 @@
     BL.cyl(0, 6, 0, 0.3, 0.3, 12, 4, M('#eee')); r.bulbMesh = BL.ball(0, 15, 0, 3.4, 4.4, 3.4, M({ c: '#f4f0e0', e: '#000' }).clone(), 12);
     BL.cyl(6, 40, 0, 0.15, 0.15, 74, 4, M('#ddd')); BL.ball(6, 78, 0, 0.9, 1.4, 0.9, M('#e8e0c8'), 8);
     H.spot('hs.cord', { label: 'Light cord', obj: bl, act: () => { lightsOn.cupboard = !lit('cupboard');saveHouseLights(); secret('hs.cupboard'); cupLight(r); H.relight(); H.sfx.tone(900, 0.03, 'square', 0.06); } });
-    wrapSpot('hs.cup.box', { label: 'Box of old games', act: () => say('Box of old games', 'My old games box: Segue manuals with no games, a broken Game Gear, and a Tiny Toons sticker book.') }); pickBox(r, 'hs.cup.box', 380, GY - 20, 300, 44, 44, 34);
-    wrapSpot('hs.cup.bag', { label: 'Bag of old toys', act: () => say('Bag of old toys', 'He-Man, a Big Trak with no batteries, half a Ker-Plunk, and every Kinder Egg toy from 1993.') }); pickBox(r, 'hs.cup.bag', 395, GY - 16, 260, 28, 32, 24);
+    wrapSpot('hs.cup.box', { label: 'Box of old games', act: () => say('Box of old games', 'My old games box: Segue manuals with no games, a broken Segue Gear, and a Teeny Loons sticker book.') }); pickBox(r, 'hs.cup.box', 380, GY - 20, 300, 44, 44, 34);
+    wrapSpot('hs.cup.bag', { label: 'Bag of old toys', act: () => say('Bag of old toys', 'Him-Bloke, a Big Trek with no batteries, half a Ker-Plonk, and every Wonder Egg toy from 1993.') }); pickBox(r, 'hs.cup.bag', 395, GY - 16, 260, 28, 32, 24);
     wrapSpot('hs.cup.shelf', { label: 'Shelf of paint tins', act: () => say('Paint tins', 'Magnolia, magnolia, "Barley White" (magnolia), and a tiny pot of the blue from my room.') }); pickBox(r, 'hs.cup.shelf', 400, GY - 128, 360, 16, 14, 60);
     H.spot('hs.hoover', { label: 'The hoover', act: () => (window.Chores && Chores.take && Chores.take('hoover')) || loadLife().then(() => HouseLife.chore('hoover'), () => {}) }); pickBox(r, 'hs.hoover', 398, GY - 22, 420, 24, 44, 24);
     H.spot('hs.meter', { label: 'Electricity meter', obj: meter, act: () => say('Electricity meter', 'The little disc goes round faster when the immersion heater\'s on. Dad watches it like it\'s the Grand National.') });
@@ -476,7 +480,16 @@
     [[-25,'#f4f0f8'],[0,'#d8b880'],[24,'#a8d8c8']].forEach(([x,c])=>{dc.lathe(x,-93,8,[[0,-11],[2,-11],[3,-10],[5,-4],[2.5,0],[0,0]],24,M({c,sh:65,sp:'#777'}));dc.cyl(x,-104.5,8,2,2,1,16,mBrass)});
     for(const [x,c]of [[-24,'#d8c6b0'],[0,'#c3d1c5'],[24,'#bdc8d9']]){dc.cyl(x,-65,6,6,6,0.7,32,M({c,sh:45}),{rx:90});dc.cyl(x,-65,6.5,4.6,4.6,0.15,32,M('#e9e2cf'),{rx:90})}
     dc.shadow(0,0,6,96,36,0.6,{sq:true});
-    const pl = B.at(-250, GY, 660); pl.lathe(0, 0, 0, [[12, -26], [10, 0], [0.5, 0]], 16, M('#b8582a')); for (let i = 0; i < 9; i++) pl.ball(Math.cos(i) * 10, -40 - i * 7, Math.sin(i * 2) * 10, 9, 2, 5, M({ c: '#2a5a2a', sh: 40, sp: '#444' }), 8, { ry: i * 40, rz: 20 }); pl.cyl(0, -50, 0, 0.8, 0.8, 50, 6, M('#4a3a1a'));
+    const pl=B.at(-250,GY-.8,660),clay=M({c:'#b8582a',sh:4,sp:'#0b0805',side:2}),stem=M('#4a3a1a');
+    pl.lathe(0,0,0,[[0,0],[9.5,0],[12,-25],[12,-26],[10.8,-26],[10.5,-24],[8.6,-2],[0,-2]],24,clay);
+    pl.geo(new T.TorusGeometry(11.4,.7,6,24),0,-25.7,0,clay,{rx:90});pl.cyl(0,.4,0,13.5,13.5,.8,24,clay);
+    pl.cyl(0,-23.6,0,10.5,10.5,.8,24,M({c:'#382c20',sh:2,sp:'#000000'}));pl.cyl(0,-62.5,0,.45,.9,77,8,stem);
+    for(let i=0;i<9;i++){
+      const x=Math.cos(i)*10,y=-40-i*7,z=Math.sin(i*2)*10,a=new T.Vector3(0,y+3,0),b=new T.Vector3(x*.8,y,z*.8),d=b.clone().sub(a),mid=a.clone().add(b).multiplyScalar(.5),branch=new T.CylinderGeometry(.28,.4,d.length(),6);
+      branch.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),d.normalize())));pl.geo(branch,mid.x,mid.y,mid.z,stem);
+      pl.ball(x,y,z,9,2,5,M({c:i%3?'#2a5a2a':'#335f2d',sh:12,sp:'#182d18'}),10,{ry:i*40,rz:20});
+    }
+    pl.shadow(0,.8,0,31,31,.4);
     // the ceiling light: a three-arm brass thing Mom loves
     const cl = B.at(-60, GC, 500); cl.cyl(0, 2, 0, 7, 7, 4, 16, mBrass); cl.cyl(0, 16, 0, 0.6, 0.6, 26, 6, mBrass);
     [0, 120, 240].forEach(a => { const x = Math.cos(a * D2R) * 16, z = Math.sin(a * D2R) * 16; cl.cyl(x / 2, 30, z / 2, 0.5, 0.5, 18, 4, mBrass, { rz: 90, ry: -a }); cl.lathe(x, 28, z, [[1.5, -2], [6, 8]], 14, M({ c: '#f8f0e0', side: 2, e: '#000' })); });
@@ -489,7 +502,7 @@
     H.spot('hs.chair', { label: "Dad's chair", act: sayLines('hs.chair', "Dad's chair", ['Dad\'s chair. Nobody sits in Dad\'s chair. It is the law.', 'It has a dent in the exact shape of Dad.']) });pickBox(r,'hs.chair',110,GY-47,430,90,94,88,-118);
     H.spot('hs.fire', { label: 'The gas fire', act: () => { r.fireOn = !r.fireOn;lightsOn.loungeFire=r.fireOn;saveHouseLights(); H.relight(); say('The gas fire', r.fireOn ? 'Click click click WHUMP. The fake coals glow orange. Toasty.' : 'Off. Mom says not to leave it on, it costs a fortune.'); } }); pickBox(r, 'hs.fire', -280 + 44, GY - 50, 500, 6, 100, 104);
     H.spot('hs.mantel', { label: 'The mantelpiece', act: sayLines('hs.mantel', 'The mantelpiece', ['A carriage clock (ten minutes fast, on purpose, so we\'re never late), my school photo from Year 7 (bowl haircut, braces), and {sister}\'s ballet certificate.', 'The school photo. Mom refuses to take it down. I have asked. Many times.']) }); pickBox(r, 'hs.mantel', -280 + 44, GY - 124, 500, 10, 22, 140);
-    H.spot('hs.cabinet', { label: 'Display cabinet', act: sayLines('hs.cabinet', 'The display cabinet', ['Mom\'s best glasses, a crystal swan, and a plate from Torquay. We are not allowed to open it. We have never opened it.']) }); pickBox(r, 'hs.cabinet', -180, GY - 60, 322, 90, 120, 26);
+    H.spot('hs.cabinet', { label: 'Display cabinet', act: sayLines('hs.cabinet', 'The display cabinet', ['Mom\'s best glasses, a crystal swan, and a souvenir plate from the seaside. We are not allowed to open it. We have never opened it.']) }); pickBox(r, 'hs.cabinet', -180, GY - 60, 322, 90, 120, 26);
     H.spot('hs.guide', { label: 'The TV guide', act: () => { if (window.HouseTelly) HouseTelly.guide(); else say('The TV guide', 'This week\'s telly, circled in Dad\'s biro.'); } }); pickBox(r, 'hs.guide', -88, GY - 45, 456, 24, 3, 30);
     H.spot('hs.lamp', { label:()=>standardLampOn()?'Standard lamp: switch off':'Standard lamp: switch on', act: () => { lightsOn.loungeLamp=!standardLampOn();saveHouseLights();standardLampLook(r);H.relight();H.sfx.tone(1500,0.02,'square',0.05); } }); pickBox(r,'hs.lamp',160,GY-100,360,42,200,42);standardLampLook(r);
     H.spot('hs.window', { label: 'The bay window', act: () => say('The bay window', ['Through the nets: the street, the lamp-post, next door\'s Sierra.', 'The milk float hums past. Mom has a pint of gold top and a yoghurt on order.', 'Somebody\'s walking a dog. The dog has a little coat on.'][((r.wn = (r.wn | 0) + 1)) % 3]) }); pickBox(r, 'hs.window', -60, 225, 694, 220, 150, 6);
@@ -594,13 +607,17 @@
       for(const x of [x0+1,x1-1])B.box(x,GY-46,-26,2,86,58,carcass);
       B.box(cx,GY-46,-54,w-4,86,2,carcass);B.box(cx,GY-5,-26,w-4,2,54,carcass);
       B.box(cx,GY-46,2,w-4,84,2,appliance?M({c:'#eeeae2',sh:24}):doorM);
-      B.box(cx,GY-4,-24,w,8,54,M('#3a3a3a'),{sides:'f'});
+      B.box(cx,GY-4,-24.3,w,8,54,M('#3a3a3a'),{sides:'f'}); // recessed kickboard, clear of the door faces
     };
     unit(-214.5,-160);unit(-160,-40);unit(20,80,true);
     // Reserve the fridge bay and cut a real opening for the sink bowl.
     const work=(x0,x1,z0,z1)=>B.box((x0+x1)/2,GY-91.5,(z0+z1)/2,x1-x0,3,z1-z0,top);
     work(-214.5,-103,-56,10);work(-57,-40,-56,10);work(-103,-57,-56,-44);work(-103,-57,-8,10);work(20,80,-56,10);
-    B.plane(-90, GY - 120, -55.8, 380, 56, M({ c: '#fff', map: tex('tiles') }), { uv: 0 });
+    // Sixteen 12 cm tiles per texture: world UVs keep the grout square and
+    // the fruit motifs round instead of stretching them across the wall.
+    // Leave the actual window and back-door opening clear. The old single
+    // strip also hid most of the window and fought the door casing for depth.
+    for(const [x0,x1]of [[-280,-140],[-20,73.5]])B.plane((x0+x1)/2,GY-120,-55.8,x1-x0,56,M({c:'#fff',map:tex('tiles')}),{uv:192});
     const wu = (x0, x1) => { const cx = (x0 + x1) / 2; B.box(cx, GC + 80, -40, x1 - x0, 70, 32, { f: doorM, all: M('#e8e2d0') }); };
     wu(-214.5,-160);wu(20,80);
     B.shadow(-110, GY, -26, 270, 70, 0.7, { sq: true });
@@ -726,12 +743,19 @@
     B.plane((x0 + x1) / 2, GY, (z0 + z1) / 2, x1 - x0, z1 - z0, mGrass(), { rx: 90, uv: 110 });
     B.plane(-50, GY - 0.3, -126, 330, 130, mSlab(), { rx: 90, uv: 100 }); // the patio by the back door
     // the back of the house: brick, the kitchen window and the back door from outside, Jack's window up above
-    B.plane(-110, GY - 300, -57, 380, 606, mBrick(), { ry: 180, uv: 128 }); B.plane(290, GY - 300, -57, 260, 606, mBrick(), { ry: 180, uv: 128 }); B.plane(120, -51, -57, 80, 398, mBrick(), { ry: 180, uv: 128 }); // (the back door's opening is cut: x 80..160, up to y GY-205)
+    const openings=[[-140,-20,195,290],[80,160,GY-205,356],[156,226,-112,-14]],cuts=[...new Set([-300,420,...openings.flatMap(h=>h.slice(0,2))])].sort((a,b)=>a-b);
+    for(let i=0;i<cuts.length-1;i++){
+      const x0=cuts[i],x1=cuts[i+1],holes=openings.filter(h=>h[0]<x1&&h[1]>x0).sort((a,b)=>a[2]-b[2]);let top=-250;
+      const wall=(a,b)=>{if(b>a)B.plane((x0+x1)/2,(a+b)/2,-57,x1-x0,b-a,mBrick(),{ry:180,uv:128})};
+      for(const h of holes){wall(top,h[2]);top=Math.max(top,h[3])}wall(top,356);
+    }
     B.box(60, GY - 603, -40, 740, 6, 40, M('#5a3a2a')); B.box(60, GY - 625, -20, 740, 40, 2, M('#7a3a2a'));
     B.plane(300, GY - 420, -57.5, 70, 80, M({ c: '#c8d8f0', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); B.plane(300, GY - 420, -59, 64, 74, M({ c: '#1a2a3a', o: 0.6, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); // the bathroom window
-    B.plane(-80, 242, -57.5, 120, 95, M({ c: '#c8d8f0', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); B.box(-80, 242, -58, 124, 99, 2, M({ c: '#f2f0ea', sh: 40 }), { sides: 'frltub' }); B.plane(-80, 242, -59.2, 116, 91, M({ c: '#1a2a3a', o: 0.6, tr: true, sh: 100, sp: '#fff' }), { ry: 180 });
+    for(const x of [-138,-22,-80])B.box(x,242.5,-59,4,x===-80?87:95,3,mWhite);
+    for(const y of [197,288])B.box(-80,y,-59,112,4,3,mWhite);
+    B.plane(-80,242.5,-61.2,112,87,M({c:'#c8d8f0',o:.12,tr:true,sh:80,sp:'#7c8f99'}),{ry:180});
     B.box(76.8, GY - 102, -58.5, 5.6, 204, 3, mWhite); B.box(163.2, GY - 102, -58.5, 5.6, 204, 3, mWhite); B.box(120, GY - 206, -58.5, 92, 6, 3, mWhite); B.box(120, GY - 0.8, -58, 80, 1.6, 8, M('#9a9a92')); // trim clears the shared interior reveals
-    B.plane(191, -63, -57.5, 70, 98, M({ c: '#c8d8f0', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); B.plane(191, -63, -59, 64, 92, M({ c: '#1a2a3a', o: 0.6, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); // Jack's window
+    B.plane(191,-63,-57.5,70,98,M({c:'#c8d8f0',o:.12,tr:true,sh:80,sp:'#7c8f99'}),{ry:180}); // the real bedroom remains visible behind the glass
     B.cyl(200, (GY - 300) / 2, -60, 5, 5, 600, 8, M('#2a2a2a')); // the drainpipe
     // fences down both sides and across the end, the gate at the end, next door's roofs over the top
     const fm = mFence();
@@ -748,8 +772,27 @@
     sh.box(-40,-120,60.5,40,36,.5,M({c:'#6c7f84',sh:75,sp:'#bac8cc'}));for(const x of [-61,-19])sh.box(x,-120,61.5,2,40,2,mWhite);for(const y of [-139,-101])sh.box(-40,y,61.5,40,2,2,mWhite);sh.box(-40,-120,61.8,1.5,36,1,mWhite);
     for(const y of [-145,-40]){sh.box(7,y,63,9,2,1,mMetal);sh.cyl(3,y,63,1,1,5,10,mMetal)}sh.rbox(50,-84,65.4,4,5,2,.5,mMetal);sh.cyl(50,-83.5,66.5,.35,.35,.3,8,M('#282a2b'),{rx:90});
     sh.shadow(0, 0, 0, 170, 140, 0.6, { sq: true });
-    const wl = B.at(80, GY, -330); wl.cyl(0, -100, 0, 2, 2.4, 200, 8, mMetal); for (let i = 0; i < 4; i++) wl.geo(new T.TorusGeometry(40 + i * 28, 0.5, 4, 32), 0, -196 + i * 4, 0, M('#ddd'), { rx: 90 }); for (let i = 0; i < 4; i++) wl.cyl(Math.cos(i * 1.57) * 60, -170, Math.sin(i * 1.57) * 60, 0.6, 0.6, 70, 4, mMetal, { rz: Math.cos(i * 1.57) * 50, rx: Math.sin(i * 1.57) * 50 });
-    [['#fff', 0], ['#2a5ad0', 1], ['#ff9ad0', 2], ['#e8e8e8', 3]].forEach(([c, i]) => wl.rbox(Math.cos(i * 1.57 + 0.4) * 90, -150, Math.sin(i * 1.57 + 0.4) * 90, 30, 40, 2, 3, M({ c, side: 2 }), { ry: i * 90 }));
+    const wl=B.at(80,GY,-280);wl.cyl(0,-100,0,2,2.4,200,10,mMetal);wl.cyl(0,-201,0,3,3,5,12,mMetal);
+    for(let i=0;i<4;i++)wl.geo(new T.TorusGeometry(40+i*28,.5,4,32),0,-196+i*4,0,M('#ddd'),{rx:90});
+    for(let i=0;i<4;i++){
+      const angle=i*Math.PI/2,a=new T.Vector3(0,-202,0),b=new T.Vector3(Math.cos(angle)*126,-183.71,Math.sin(angle)*126),d=b.clone().sub(a),mid=a.clone().add(b).multiplyScalar(.5),arm=new T.CylinderGeometry(.8,.8,d.length(),8);
+      arm.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),d.normalize())));wl.geo(arm,mid.x,mid.y,mid.z,mMetal);
+    }
+    // Peg actual garments to the third line; the old painted blocks floated
+    // below the wires. Fabric has a closed edge and a gently uneven drape.
+    [['#ece9de',46,65,'sheet'],['#31588e',26,30,'shorts'],['#cb8b97',34,40,'shirt'],['#c6c6bb',30,45,'sheet']].forEach(([colour,w,h,kind],i)=>{
+      const angle=i*Math.PI/2+.4,peg=kind==='shirt'?8:w/2-5,radius=Math.sqrt(96*96-peg*peg),C=wl.at(Math.cos(angle)*radius,-188,Math.sin(angle)*radius,(-angle-Math.PI/2)/D2R),fabric=M({c:colour,sh:3,sp:'#050505'});
+      if(kind==='sheet'){
+        const cloth=new T.PlaneGeometry(w,h,8,10),a=cloth.attributes.position;
+        for(let j=0;j<a.count;j++){const down=a.getY(j)+h/2;a.setY(j,down);a.setZ(j,Math.sin(a.getX(j)*.4+i)*.7*Math.min(1,down/8)+Math.sin(down*.13)*.35)}cloth.computeVertexNormals();C.geo(K.thicken(cloth,.55),0,0,0,fabric);
+        C.box(0,h-.7,-.25,w,1,.7,M({c:colour,sh:2}));
+      }else{
+        const points=kind==='shirt'?[[-5,0],[-10,1],[-17,9],[-12,14],[-8,10],[-8,40],[8,40],[8,10],[12,14],[17,9],[10,1],[5,0],[3,3],[-3,3]]:[[-13,0],[13,0],[12,29],[2,29],[0,19],[-2,29],[-12,29]];
+        const shape=new T.Shape();points.forEach(([x,y],j)=>j?shape.lineTo(x,y):shape.moveTo(x,y));shape.closePath();C.geo(new T.ExtrudeGeometry(shape,{depth:.65,bevelEnabled:false}),0,0,-.3,fabric);
+        if(kind==='shirt'){C.box(0,20,.45,.65,32,.25,M('#b77582'));for(let y=7;y<36;y+=7)C.ball(0,y,.8,.55,.55,.3,M('#e1d8cf'),6)}else C.box(0,1.5,.45,25,2,.3,M('#243d63'));
+      }
+      for(const x of [-peg,peg]){C.rbox(x,.5,0,1.3,4,1.4,.3,M('#b69a68'));C.cyl(x,.3,.8,.45,.45,.25,8,mMetal,{rx:90})}
+    });
     wl.shadow(0, 0, 0, 40, 40, 0.5);
     const wb=B.at(r.wheelie.x,GY,r.wheelie.z),green=M({c:'#2a5a2a',sh:20,sp:'#333'});
     wb.rbox(0,-61,0,58,98,70,4,green);wb.rbox(0,-112,4,60,6,74,2,M('#245024'));
@@ -764,13 +807,13 @@
     batch.build(r.group);
     H.spot('hs.shed', { label: "Dad's shed", act: sayLines('hs.shed', "Dad's shed", ['Dad\'s shed. Padlocked. Inside: the lawnmower, 200 jam jars of screws, and a radio tuned to the cricket.', 'Dad goes in the shed "to sort it out". He has been sorting it out since 1994.']) });pickBox(r,'hs.shed',-212,GY-95,-462,150,190,120);
     H.spot('hs.wheelie', { label: 'The wheelie bin', act: sayLines('hs.wheelie', 'The wheelie bin', ['Bin day is Tuesday. Dad wheels it out at 6am like it\'s a race.', 'It smells. It always smells. Don\'t open it.']) });pickBox(r,'hs.wheelie',r.wheelie.x,GY-55,r.wheelie.z,60,116,82);
-    H.spot('hs.washline', { label: 'The washing line', act: sayLines('hs.washline', 'The washing line', ['The whirly washing line. Mom\'s sheets, Dad\'s work shirts, and my PE kit, flapping about for the whole street to see.', 'If you spin it fast enough the pegs fly off. Don\'t.']) }); pickBox(r, 'hs.washline', 80, GY - 150, -330, 190, 110, 190);
+    H.spot('hs.washline', { label: 'The washing line', act: sayLines('hs.washline', 'The washing line', ['The whirly washing line. Mom\'s sheets, Dad\'s work shirts, and my PE kit, flapping about for the whole street to see.', 'If you spin it fast enough the pegs fly off. Don\'t.']) }); pickBox(r, 'hs.washline', 80, GY - 150, -280, 190, 110, 190);
     H.spot('hs.flowers', { label: "Mom's flower bed", act: sayLines('hs.flowers', "Mom's flower bed", ['Mom\'s flowers. Do NOT kick the football near Mom\'s flowers. (I have kicked the football into Mom\'s flowers.)']) });pickBox(r,'hs.flowers',-230,GY-14,-270,114,28,64);
     H.spot('hs.butt', { label: 'The water butt', act: sayLines('hs.butt', 'The water butt', ['The water butt. Full of rainwater and one very confused frog.']) });pickBox(r,'hs.butt',r.waterButt.x,GY-45,r.waterButt.z,56,94,60);
     H.spot('hs.jackwin', { label: "Jack's window (from outside)", act: () => say("My window", 'That\'s my room up there. You can see the posters. Dave throws stones at it when my Mom won\'t let him ring the bell.') }); pickBox(r, 'hs.jackwin', 191, -63, -58, 70, 98, 4);
     H.walkRect('G', x0 + 6, z0 + 6, x1 - 6, z1 - 2, { room: 'garden' }); H.walkRect('G', 84, -60, 156, -50, { door: 'back', room: 'garden' });
     H.block('G',-289,-524,-135,-400);H.block('G',129,-232,191,-147);
-    H.block('G',-287,-302,-173,-238);H.block('G',152,-130,208,-70);H.block('G',77,-333,83,-327);
+    H.block('G',-287,-302,-173,-238);H.block('G',152,-130,208,-70);H.block('G',77,-283,83,-277);
     H.support('garden',-215,-191,115,-61,GY-.3);H.support('garden',129,-223,191,-149,GY-115);
   }
   function buildDrive(r) {
@@ -788,7 +831,7 @@
     B.box(42.5, GY - 300, 690, 790, 6, 60, M('#5a3a2a')); B.box(42.5, GY - 318, 714, 790, 30, 2, M('#7a3a2a'));
     // Open frame, not a solid white panel hiding the lounge window.
     for(const x of [-174,54])B.box(x,225,704.3,8,160,8,mWhite);
-    for(const y of [147.5,302.5])B.box(-60,y,704.3,220,5,8,mWhite);
+    for(const y of [147.2,302.5])B.box(-60,y,704.3,220,5,8,mWhite); // no coplanar underside with the lounge's frame
     B.plane(-60,225,708.5,220,150,M({c:'#1a2a3a',o:.28,tr:true,sh:100,sp:'#fff'}));
     B.box(256.8, GY - 102, 703, 5.6, 204, 3, mWhite); B.box(343.2, GY - 102, 703, 5.6, 204, 3, mWhite); B.box(300, GY - 206, 703, 92, 6, 3, mWhite);
     B.box(300, GY - 215, 704, 100, 14, 40, M('#e8e4dc')); B.box(300, GY - 222, 724, 100, 2, 2, M('#9a9a92')); // the porch roof
@@ -804,16 +847,31 @@
     lp.box(0, -440, 10, 10, 6, 10, r.streetGlow);
     // Dad's car: a burgundy family saloon (no real make), on the drive, nose to the street
     const frame = r.carFrame = {x:430,y:GY,z:906,s:.82};
-    const car = B.at(frame.x, frame.y, frame.z, 0, { sx: frame.s, sy: frame.s, sz: frame.s }), cm = M({ c: '#6a1a2a', sh: 65, sp: '#888' }), gl = M({ c: '#344c60', sh: 110, sp: '#a5b9c4' });
+    const car = B.at(frame.x, frame.y, frame.z, 0, { sx: frame.s, sy: frame.s, sz: frame.s }), cm = M({ c: '#6a1a2a', sh: 35, sp: '#30282d' });
+    const rubber=M({c:'#24262a',sh:9,sp:'#17191b'}),chrome=M({c:'#a3a6a8',sh:48,sp:'#8b9399'});
+    const glassPrint=K.tex('hs.car.glass',128,128,(g,w,h)=>{const sky=g.createLinearGradient(0,0,w*.3,h);sky.addColorStop(0,'#526b79');sky.addColorStop(.52,'#3b5260');sky.addColorStop(1,'#263d4a');g.fillStyle=sky;g.fillRect(0,0,w,h);const sheen=g.createLinearGradient(0,0,w,h*.55);sheen.addColorStop(0,'rgba(180,199,207,0)');sheen.addColorStop(.38,'rgba(180,199,207,.13)');sheen.addColorStop(.52,'rgba(180,199,207,.04)');sheen.addColorStop(1,'rgba(180,199,207,0)');g.fillStyle=sheen;g.fillRect(0,0,w,h)},{clamp:true});
+    const gl=M({c:'#fff',map:glassPrint,sh:58,sp:'#6c7c85'});
     car.rbox(0, -52, 0, 170, 46, 400, 9, cm);
     car.rbox(0, -78, -10, 166, 10, 300, 4, cm); // the sills/belt line
     // Build in the house's y-down frame. Baking a negative scale into a batch
     // reverses triangle winding and makes the near windows disappear.
     { const cab = new T.BoxGeometry(150, 54, 210); const P2 = cab.attributes.position; for (let k = 0; k < P2.count; k++) if (P2.getY(k) < 0) { P2.setX(k, P2.getX(k) * 0.9); P2.setZ(k, P2.getZ(k) * 0.72 - 6); } cab.computeVertexNormals(); car.geo(cab, 0, -102, -14, gl); }
     car.rbox(0, -131, -20, 134, 5, 150, 2, cm); // the roof
-    const pillar = (top,bottom) => {const a=new T.Vector3(...top),b=new T.Vector3(...bottom),delta=b.clone().sub(a),centre=a.clone().add(b).multiplyScalar(.5);const geo=new T.BoxGeometry(5.5,delta.length()+2,5.5);geo.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),delta.normalize())));car.geo(geo,centre.x,centre.y,centre.z,cm);};
-    for(const side of [-1,1]){pillar([side*67.5,-130,55.6],[side*75,-75,91]);pillar([side*67.5,-130,-95.6],[side*75,-75,-119]);pillar([side*67.5,-130,-14],[side*75,-75,-14]);}
-    [[-80, 140], [80, 140], [-80, -140], [80, -140]].forEach(([x, z]) => { car.cyl(x, -30, z, 30, 30, 20, 24, M('#191a1b'), { rz: 90 }); const side=x>0?1:-1; car.cyl(x+side*10.5,-30,z,18,18,1.5,20,M({c:'#aaaeb2',sh:70,sp:'#ddd'}),{rz:90}); car.cyl(x+side*11.4,-30,z,6,6,1,12,M('#5b5c60'),{rz:90}); });
+    const trim = (top,bottom,material,width=1,overlap=0) => {const a=new T.Vector3(...top),b=new T.Vector3(...bottom),delta=b.clone().sub(a),centre=a.clone().add(b).multiplyScalar(.5);const geo=new T.BoxGeometry(width,delta.length()+overlap,width);geo.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),delta.normalize())));car.geo(geo,centre.x,centre.y,centre.z,material);};
+    for(const side of [-1,1])for(const [top,bottom]of [[[side*67.5,-130,55.6],[side*75,-75,91]],[[side*67.5,-130,-95.6],[side*75,-75,-119]],[[side*67.5,-130,-14],[side*75,-75,-14]]]){trim(top,bottom,rubber,7,2);trim(top,bottom,cm,5.5,2)}
+    for(const [y,z,width]of [[-129.5,55.9,134],[-75.3,91.2,150],[-129.5,-96,134],[-75.3,-119.3,150]])trim([-width/2,y,z],[width/2,y,z],rubber,2);
+    // Wipers sit on the sloping windscreen, rear heater lines on the rear glass.
+    for(const x of [-32,30]){trim([x-23,-81,87.7],[x+16,-88,83.2],rubber,1.2);trim([x-3,-77.5,90],[x-2,-84.5,85.6],rubber,1.5)}
+    for(let y=-90;y>=-118;y-=7){const z=-119+(y+75)*(-23.4/55)-.35;trim([-64,y,z],[64,y,z],M('#786552'),.28)}
+    [[-80,140],[80,140],[-80,-140],[80,-140]].forEach(([x,z])=>{
+      const side=x>0?1:-1;car.cyl(x,-30,z,30,30,20,24,rubber,{rz:90});
+      car.geo(new T.TorusGeometry(26.5,2.8,8,24),x+side*8.5,-30,z,rubber,{ry:90});
+      car.cyl(x+side*10.5,-30,z,18,18,1.5,24,chrome,{rz:90});car.cyl(x+side*11.4,-30,z,6,6,1,12,M('#5b5c60'),{rz:90});
+      for(let n=0;n<8;n++){const a=n*Math.PI/4;car.cyl(x+side*11.45,-30+Math.sin(a)*12.5,z+Math.cos(a)*12.5,1.9,1.9,.35,8,rubber,{rz:90})}
+      for(let n=0;n<4;n++){const a=n*Math.PI/2;car.cyl(x+side*12,-30+Math.sin(a)*8.2,z+Math.cos(a)*8.2,1,1,.7,6,chrome,{rz:90})}
+    });
+    car.cyl(-85.5,-58,-103,4.8,4.8,.5,16,cm,{rz:90});car.box(-86,-58,-103,.3,.5,3,rubber);
+    trim([-65,-82,-157],[-65,-121,-157],chrome,.7);car.cyl(-65,-82,-157,2,2,2,12,rubber);
     // Dark window seals, centre pillars, door trim and inset handles make the
     // opaque glazing read as glass, without a transparent empty cabin.
     for (const side of [-1,1]) {
@@ -822,9 +880,10 @@
       for (const z of [-64,48]) car.rbox(side*85.3,-68,z,1,3.2,13,1,M('#27272a'));
     }
     car.box(0, -40, 201, 170, 16, 6, M('#2a2a2a')); car.box(0, -40, -201, 170, 16, 6, M('#2a2a2a'));
-    [-60, 60].forEach(x => { car.box(x, -62, 203, 26, 12, 2, M({ c: '#fff4c8', e: '#fff0a0' })); car.box(x, -62, -203, 26, 12, 2, M({ c: '#ff3a3a', e: '#800' })); });
-    car.box(0, -62, 203.2, 40, 10, 1, M('#222')); car.plane(0, -56, 203.8, 50, 12, M({ c: '#fff', map: K.tex('hs.plate', 128, 32, (g) => { g.fillStyle = '#f4f4f0'; g.fillRect(0, 0, 128, 32); A.text(g, 'T42 JAK', 64, 24, '700 22px "Arial Narrow",Arial,sans-serif', '#111', 'center'); }) }));
-    car.box(-78, -96, 60, 6, 8, 16, M('#222')); car.box(78, -96, 60, 6, 8, 16, M('#222')); // mirrors
+    [-60, 60].forEach(x => { car.rbox(x,-62,203,28,14,2,1,rubber);car.box(x,-62,204.1,25,11,.6,M({c:'#dedbc5',sh:55,sp:'#b6b8b3'}));car.rbox(x,-62,-203,28,14,2,1,rubber);car.box(x,-62,-204.1,25,11,.6,M({c:'#a92b30',sh:46,sp:'#a35b5e'}));car.box(x+Math.sign(x)*8,-62,-204.5,7,10,.5,M('#c17728')); });
+    car.box(0,-62,203.2,40,10,1,rubber);for(let y=-65;y<=-59;y+=2)car.box(0,y,203.8,38,.7,.5,chrome);
+    for(const rear of [false,true]){const plate=M({c:'#fff',map:K.tex('hs.plate.'+(rear?'rear':'front'),256,64,g=>{g.fillStyle=rear?'#dbbc49':'#e8e7df';g.fillRect(0,0,256,64);A.text(g,'T42 JAK',128,47,'700 46px "Arial Narrow",Arial,sans-serif','#17191b','center')},{clamp:true})});car.box(0,-54,rear?-204:204,51,13,.8,{all:rubber,[rear?'b':'f']:plate});}
+    for(const side of [-1,1]){car.box(side*76,-92,65,10,2.4,3,rubber);car.rbox(side*83,-94,65,8,8,17,1.5,rubber);car.box(side*87.1,-94,65,.4,5.8,13.8,M({c:'#8199a4',sh:80,sp:'#b7c9cf'}));}
     car.ball(0, -84, -96, 8, 6, 8, M('#c8a060'), 8); // inside the rear glazing, not poking through it
     car.shadow(0, 0, 0, 200, 430, 0.7, { sq: true });
     batch.build(r.group);
@@ -838,12 +897,13 @@
   }
 
   // ================================================================ the rooms, their lights, their views
+  const rearGlass=[[-140,195,-66,-20,290,-54],[95,163,-60,145,233,-54]],bedroomGlass=[[156,-112,-60,226,-14,-54]],bayGlass=[[-170,150,696,50,300,710]],frontGlass=[[285,167,698,315,213,706]];
   const ROOMDEF = {
     landing: { name: 'The landing', title: 'THE LANDING', lvl: 'U', area: [[250, 130, 410, 250], [250, 250, 330, 700], [330, 250, 410, 700]], bx0: 252, bx1: 408, bz0: 132, bz1: 698, build: buildLanding,
       lights: () => [{ x: 300, y: -150, z: 400, c: '#fff0d8', i: lit('landing') ? 0.9 : 0, d: 520 }, { x: 390, y: -10, z: 440, c: phase() === 'day' ? '#e8f0ff' : '#5a6a9a', i: phase() === 'day' ? 1.3 : 0.25, d: 560 }, { x: 300, y: -60, z: 180, c: '#f0ece0', i: phase() === 'day' ? 0.4 : 0.1, d: 320 }],
       amb: () => interiorAmb('landing', .68),
       stations: [{ id: 'top', n: 'Top of the stairs', pose: () => look('U', 300, 175, 370, 220, 520, 158) }, { id: 'doors', n: 'Landing', pose: () => look('U', 310, 640, 250, -40, 420, 158) }] },
-    hall: { name: 'The hall', title: 'THE HALL', lvl: 'G', area: [[205, 60, 410, 250], [205, 250, 330, 600], [205, 600, 410, 700], [330, 440, 410, 600]], bx0: 207, bx1: 408, bz0: 62, bz1: 698, build: buildHall,
+    hall: { name: 'The hall', title: 'THE HALL', lvl: 'G', area: [[205, 60, 410, 250], [205, 250, 330, 600], [205, 600, 410, 700], [330, 440, 410, 600]], bx0: 207, bx1: 408, bz0: 62, bz1: 698, build: buildHall, windowViews:[{room:'drive',bounds:frontGlass}],
       lights: () => { const day = phase() === 'day'; return [{ x: 300, y: 130, z: 200, c: '#fff0d8', i: lit('hall') ? 1.0 : 0, d: 520 }, { x: 300, y: 130, z: 560, c: '#fff0d8', i: lit('hall') ? 0.8 : 0, d: 420 }, { x: 300, y: 200, z: 690, c: day ? '#dfe8ff' : '#3a4a7a', i: day ? 1.3 : 0.2, d: 520 }, { x: 390, y: 180, z: 440, c: day ? '#e8f0ff' : '#5a6a9a', i: day ? 1.0 : 0.2, d: 460 }, { x: 260, y: 220, z: 150, c: day ? '#f0f0f0' : '#333', i: day ? 0.5 : 0.1, d: 300 }]; },
       amb: () => interiorAmb('hall', .68),
       stations: [{ id: 'stairs', n: 'Bottom of the stairs', pose: () => look('G', 268, 660, 370, 230, 380, 158) }, { id: 'back', n: 'The hall', pose: () => look('G', 300, 640, 260, 260, 150, 158) }] },
@@ -851,22 +911,22 @@
       lights: () => [{ x: 370, y: 150, z: 290, c: '#ffe4b8', i: lit('cupboard') ? 1.1 : 0, d: 260 }, { x: 336, y: 290, z: 400, c: '#e8e0d0', i: H.DOORS.cupboard && H.DOORS.cupboard.open ? (phase() === 'day' ? .65 : .25) : 0, d: 220 }],
       amb: () => ({ sky: lit('cupboard') ? '#b2a18b' : '#7d8190', gnd: '#5b5145', i: lit('cupboard') ? .46 : (H.DOORS.cupboard && H.DOORS.cupboard.open ? .3 : .22) }),
       stations: [{ id: 'snes', n: 'The old console', pose: () => look('G', 362, 400, 358, GY - 38, 330, 112) }] },
-    lounge: { name: 'The lounge', title: 'THE LOUNGE', lvl: 'G', area: [[-280, 305, 195, 700]], bx0: -278, bx1: 193, bz0: 307, bz1: 698, build: buildLounge,
+    lounge: { name: 'The lounge', title: 'THE LOUNGE', lvl: 'G', area: [[-280, 305, 195, 700]], bx0: -278, bx1: 193, bz0: 307, bz1: 698, build: buildLounge, windowViews:[{room:'drive',bounds:bayGlass}],
       lights: () => { const L = [{ x: -60, y: GC + 30, z: 500, c: '#fff0d0', i: lit('lounge') ? 0.95 : 0, d: 700 }, { x: -60, y: 220, z: 690, c: phase() === 'day' ? '#e8f0ff' : '#4a5a8a', i: phase() === 'day' ? 1.1 : 0.2, d: 650 }]; const lamp = lightsOn.loungeLamp == null ? phase() !== 'day' : lightsOn.loungeLamp; if (lamp) L.push({ x: 160, y: GY - 160, z: 360, c: '#ffd8a0', i: 0.8, d: 380 }); if (HouseRooms.rooms.lounge.fireOn) L.push({ x: -240, y: GY - 30, z: 500, c: '#ff8a40', i: 0.9, d: 300 }); if (window.HouseTelly && HouseTelly.on) L.push({ x: LT.x, y: GY - 80, z: LT.z + 60, c: '#8aa8ff', i: 0.55, d: 320 }); return L; },
       amb: () => interiorAmb('lounge', .6),
       sun: () => phase() === 'day' ? { x: -60, y: -100, z: 1200, tx: -60, ty: GY, tz: 400, c: '#fff4e0', i: 0.35 } : null,
       stations: [{ id: 'telly', n: 'The telly', pose: () => look('G', -50, 640, LT.x, GY - 70, LT.z, 150) }, { id: 'fire', n: 'The fireplace', pose: () => look('G', 100, 560, -270, GY - 90, 500, 158) }, { id: 'window', n: 'The window', pose: () => look('G', -40, 420, -60, 230, 700, 158) }] },
-    garden: { name: 'The back garden', title: 'THE BACK GARDEN', lvl: 'G', area: [[-300, -560, 215, -56]], bx0: -298, bx1: 213, bz0: -558, bz1: -58, build: buildGarden, outside: true,
+    garden: { name: 'The back garden', title: 'THE BACK GARDEN', lvl: 'G', area: [[-300, -560, 215, -56]], bx0: -298, bx1: 213, bz0: -558, bz1: -58, build: buildGarden, outside: true, windowViews:[{room:'bedroom',bounds:bedroomGlass},{room:'kitchen',bounds:rearGlass}],
       lights: () => [{ x: 120, y: GY - 230, z: -70, c: '#ffe0a0', i: phase() === 'day' ? 0 : 0.7, d: 500 }],
       amb: () => outdoorAmb('#78855a'),
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: -900, tx: 0, ty: GY, tz: -300, c: '#8090c8', i: 0.15 } : { x: 400, y: -900, z: -600, tx: 0, ty: GY, tz: -300, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'patio', n: 'The garden', pose: () => look('G', 40, -90, -80, GY - 80, -420, 158) }, { id: 'shed', n: 'The shed', pose: () => look('G', -40, -300, -230, GY - 100, -470, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 20, -360, 80, 60, -56, 158) }] },
-    drive: { name: 'The front', title: 'OUT THE FRONT', lvl: 'G', area: [[-340, 700, 470, 1120]], bx0: -338, bx1: 468, bz0: 702, bz1: 1118, build: buildDrive, outside: true,
+    drive: { name: 'The front', title: 'OUT THE FRONT', lvl: 'G', area: [[-340, 700, 470, 1120]], bx0: -338, bx1: 468, bz0: 702, bz1: 1118, build: buildDrive, outside: true, windowViews:[{room:'lounge',bounds:bayGlass},{room:'hall',bounds:frontGlass}],
       lights: () => [{ x: 360, y: GY - 124, z: 730, c: '#ffe0a0', i: phase() === 'day' ? 0 : 0.7, d: 420 }, { x: 220, y: GY - 430, z: 1170, c: '#ffb860', i: phase() === 'day' ? 0 : 1.2, d: 900 }],
       amb: () => outdoorAmb('#797b70'),
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: 1700, tx: 300, ty: GY, tz: 900, c: '#8090c8', i: 0.15 } : { x: -400, y: -900, z: 1500, tx: 300, ty: GY, tz: 900, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'car', n: "Dad's car", pose: () => look('G', 60, 1060, 370, GY - 70, 880, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 180, 1040, 150, 120, 700, 158) }, { id: 'street', n: 'The street', pose: () => look('G', 200, 760, 240, GY - 120, 1400, 158) }] },
-    kitchen: { name: 'The kitchen', title: 'THE KITCHEN', lvl: 'G', area: [[-280, -56, 195, 295]], bx0: -278, bx1: 193, bz0: -54, bz1: 293, build: buildKitchen,
+    kitchen: { name: 'The kitchen', title: 'THE KITCHEN', lvl: 'G', area: [[-280, -56, 195, 295]], bx0: -278, bx1: 193, bz0: -54, bz1: 293, build: buildKitchen, windowViews:[{room:'garden',bounds:rearGlass}],
       lights: () => [{ x: -60, y: GC + 10, z: 120, c: '#f4f8ff', i: lit('kitchen') ? .9 : 0, d: 700 }, { x: -80, y: 240, z: -40, c: phase() === 'day' ? '#e8f0ff' : '#4a5a8a', i: phase() === 'day' ? .72 : .16, d: 600 }],
       amb: () => interiorAmb('kitchen', .64),
       sun: () => phase() === 'day' ? { x: -80, y: -100, z: -800, tx: -80, ty: GY, tz: 120, c: '#fff4e0', i: 0.3 } : null,

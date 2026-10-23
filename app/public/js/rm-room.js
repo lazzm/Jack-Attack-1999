@@ -132,7 +132,7 @@
   function poster(B, x, y, z, w, h, t, ry) {
     const P = B.at(x, y, z, ry || 0);
     P.wshadow(0.6, 1.2, 0.08, w * 1.1, h * 1.08, 0.5);
-    const m = M({ c: '#ffffff', map: t, sh: 4 });
+    const m = M({ c: '#ffffff', map: t, sh: 4, sp: '#000000' });
     const lift = 0.25, curlH = h * 0.12;
     // Solid paper backing also closes the tiny join beneath the curled face.
     P.box(0, 0, lift - 0.09, w, h, 0.12, M({ c: '#ddd5bd', sh: 2 }));
@@ -202,7 +202,7 @@
   const R = {}; // the bits we need later (meshes, materials)
   let pcPowered = mode === 'wake';
   const room = H.room('bedroom', {
-    name: "Jack's room", title: "JACK'S ROOM", lvl: 'U', area: [[LX, BZ, RX, FZ]],
+    name: "Jack's room", title: "JACK'S ROOM", lvl: 'U', area: [[LX, BZ, RX, FZ]], windowViews:[{room:'garden',bounds:[[156,-112,-60,226,-14,-54]]}],
     bx0: LX + 2, bx1: RX - 2, bz0: BZ + 2, bz1: FZ - 2,
     lights: () => {
       const L = [];
@@ -699,7 +699,16 @@
     B.shadow(cx, FY, cz, bw + 20, bl + 16, 0.8, { sq: true });
     // the duvet: rumpled, slipping off one side
     const dg = new T.PlaneGeometry(bw + 14, bl - 34, 18, 24); const p = dg.attributes.position;
-    for (let i = 0; i < p.count; i++) { const u = p.getX(i) / (bw + 14) + 0.5, v = p.getY(i) / (bl - 34) + 0.5; let y = -Math.sin(u * Math.PI) * 6 - Math.sin(v * 9 + u * 5) * 1.6 - Math.sin(u * 13 - v * 4) * 1.2; if (u < 0.08) y += (0.08 - u) * 190; if (u > 0.94) y += (u - 0.94) * 140; p.setZ(i, -y); }
+    for (let i = 0; i < p.count; i++) {
+      const u=p.getX(i)/(bw+14)+.5,v=p.getY(i)/(bl-34)+.5;
+      let y=-Math.sin(u*Math.PI)*6-Math.sin(v*9+u*5)*1.6-Math.sin(u*13-v*4)*1.2;
+      if(u<.08)y+=(.08-u)*190;if(u>.94)y+=(u-.94)*140;
+      // The reading patch is compressed flat by the magazine. Include a mesh
+      // cell around it so no triangle leaves the solid cover hovering on a fold.
+      const dx=cx+p.getX(i)-172,dz=cz+14+p.getY(i)-29,c=Math.cos(-6*D2R),s=Math.sin(-6*D2R);
+      const edge=Math.max(Math.abs(c*dx-s*dz)-17.5,Math.abs(s*dx+c*dz)-21),fade=Math.max(0,Math.min(1,edge/6)),blend=1-fade*fade*(3-2*fade);
+      y+=(30.2-36-y)*blend;p.setZ(i,-y);
+    }
     dg.computeVertexNormals();
     const duvet=B.geo(K.thicken(dg,.8),cx,36,cz+14,M({c:'#ffffff',map:tex('duvet')}),{rx:90});
     // The chore pillow is the bed's only pillow: it starts on the floor.
@@ -859,11 +868,13 @@
       else{O.box(0,-11,0,14,21.52,2,{f:M({c:'#fff',map:print}),b:M({c:'#fff',map:print}),l:M({c:'#fff',map:spine}),all:M('#e3d9bf')});O.box(0,-.12,0,14.2,.24,2.2,M(col));O.box(0,-21.88,0,14.2,.24,2.2,M(col));O.shadow(0,0,0,16,4,.3,{sq:true})}
       const home={...pose(n,mag),snap:'reading.slot.'+n},t=H.thing(id,{obj,home:start||home,kind:mag?'reading.mag':'reading.book',label:title,holdD:38,useLabel:'Read / inspect',use:()=>H.inspect(id)});
       if(!start){t.st='snap';t.snap=home.snap;t.rx=home.rx;H.place(t)}H.restoreThing(t);t.home=home;
+      // Correct only April's old factory overlap; keep every player placement.
+      if(id==='reading.mag.bed'&&t.st==='rest'&&!t.snap&&!t.at.hide&&t.at.room==='bedroom'&&[t.at.x-172,t.at.y-30,t.at.z-105,(t.at.ry||0)-12].every(v=>Math.abs(v)<.1)){Object.assign(t.at,start);H.place(t);H.saveThings()}
     }
     ['The Modem Mystery','Intergalactic Battles: An Old Hope','The Pocket-Critter Field Guide','How Radios Work','The Space-Kat Annual','Build Your Own Robot'].forEach((title,i)=>item('reading.book.'+i,title,false,[0,10,16,19,24,28][i]));
     item('reading.mag.back1','JACK ATTACK! — May 1999',true,4,'magIssue5');item('reading.mag.back2','JACK ATTACK! — June 1999',true,13,'magIssue6');
     [['mags','JACK ATTACK! — January 1999','magIssue1'],['reading.mag.floor1','JACK ATTACK! — February 1999','magIssue2'],['reading.mag.floor2','JACK ATTACK! — March 1999','magIssue3']].forEach(([id,title,cover],i)=>item(id,title,true,[7,15,23][i],cover,{room:'bedroom',x:TX+33+i*.8,y:FY-i*.85,z:58+i*.6,ry:[-2,-13,1][i]}));
-    item('reading.mag.bed','JACK ATTACK! — April 1999',true,31,'magIssue4',{room:'bedroom',x:172,y:30,z:105,ry:12});
+    item('reading.mag.bed','JACK ATTACK! — April 1999',true,31,'magIssue4',{room:'bedroom',x:172,y:30,z:29,ry:-6});
   }
 
   // ---------------------------------------------------------------- the door (to the landing), the light switch, the ceiling light
@@ -1094,7 +1105,7 @@
       c.fillStyle = '#cfc5a7'; c.beginPath(); c.arc(17 * s, 21.1 * s, 0.52 * s, 0, 7); c.fill();
       c.fillStyle = '#fff2a0'; c.save(); c.translate(1.2 * s, 25.5 * s); c.rotate(-0.1); c.fillRect(0, 0, 6.4 * s, 2.6 * s); c.font = `${0.9 * s}px Impact,sans-serif`; c.fillStyle = '#1a3a9a'; c.textAlign = 'left'; c.fillText('JACK\'S!', 0.6 * s, 1.8 * s); c.restore();
       for (let y = 27.6; y < 37; y += 0.7) { c.fillStyle = '#3b3426'; c.fillRect(3.2 * s, y * s, 13.6 * s, 0.28 * s); }
-      c.fillStyle = '#20202a'; c.fillRect(12.6 * s, 37.7 * s, 6.4 * s, 2.3 * s); c.font = `bold ${0.55 * s}px Verdana`; c.fillStyle = '#f3d266'; c.fillText('PENTIUM II', 13.2 * s, 39.1 * s);
+      c.fillStyle = '#20202a'; c.fillRect(12.6 * s, 37.7 * s, 6.4 * s, 2.3 * s); c.font = `bold ${0.55 * s}px Verdana`; c.fillStyle = '#f3d266'; c.fillText('JACKCORE II', 13.2 * s, 39.1 * s);
       c.fillStyle = '#c4ba9a'; c.fillRect(0, 40.8 * s, w, 1.2 * s);
     }, { clamp: true });
     const kbTex = K.tex('pc.kbd', 512, 172, (c, w, h) => {

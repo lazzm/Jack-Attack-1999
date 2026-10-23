@@ -76,8 +76,13 @@
   const mudTex = (i, pigeon) => K.tex('ch.mud' + i, 128, 128, (g, w, h) => {
     g.clearRect(0, 0, w, h); const r = K.rnd(40 + i);
     if (pigeon) { g.fillStyle = 'rgba(250,250,245,.95)'; g.beginPath(); g.ellipse(64, 64, 24, 18, 0.3, 0, 7); g.fill(); g.fillStyle = 'rgba(200,200,190,.9)'; for (let k = 0; k < 7; k++) { g.beginPath(); g.arc(64 + Math.cos(k) * 30, 64 + Math.sin(k * 1.3) * 26, 4 + r() * 5, 0, 7); g.fill(); } g.fillStyle = 'rgba(60,60,40,.7)'; g.beginPath(); g.arc(60, 60, 6, 0, 7); g.fill(); return; }
-    for (let k = 0; k < 14; k++) { const x = 30 + r() * 68, y = 30 + r() * 68, rr = 8 + r() * 22, gr = g.createRadialGradient(x, y, 0, x, y, rr); gr.addColorStop(0, 'rgba(150,118,74,.97)'); gr.addColorStop(0.6, 'rgba(165,132,88,.75)'); gr.addColorStop(1, 'rgba(165,132,88,0)'); g.fillStyle = gr; g.beginPath(); g.ellipse(x, y, rr, rr * (0.5 + r() * 0.5), r() * 3, 0, 7); g.fill(); }
-    for (let k = 0; k < 30; k++) { g.fillStyle = k % 3 ? 'rgba(120,92,56,.95)' : 'rgba(186,156,110,.95)'; g.beginPath(); g.arc(20 + r() * 88, 20 + r() * 88, 1 + r() * 3, 0, 7); g.fill(); }
+    // Irregular, overlapping dried splashes rather than bright circular spots.
+    for(let k=0;k<9;k++){
+      const x=42+r()*46,y=36+r()*50,rx=10+r()*22,ry=9+r()*17;
+      g.fillStyle=['rgba(99,76,51,.85)','rgba(118,92,62,.8)','rgba(133,106,74,.7)'][k%3];g.beginPath();
+      for(let j=0;j<17;j++){const a=j*Math.PI*2/17,edge=.65+r()*.4,px=x+Math.cos(a)*rx*edge,py=y+Math.sin(a)*ry*edge;j?g.lineTo(px,py):g.moveTo(px,py)}g.closePath();g.fill();
+    }
+    for(let k=0;k<38;k++){const a=r()*Math.PI*2,d=20+r()*35;g.fillStyle=k%3?'rgba(111,85,57,.7)':'rgba(147,119,84,.6)';g.fillRect(64+Math.cos(a)*d,64+Math.sin(a)*d,1+r()*3,1+r()*3)}
   }, { clamp: true });
   CK.add({
     id: 'car', room: 'drive',
@@ -95,6 +100,8 @@
       });
       // CLEAN ME, in the dirt on the boot
       const cm = new T.Mesh(new T.PlaneGeometry(60, 26), M({ c: '#fff', map: K.tex('ch.cleanme', 256, 112, (g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(120,96,60,.55)'; g.fillRect(0, 0, w, h); g.globalCompositeOperation = 'destination-out'; g.font = '700 46px "Comic Sans MS",cursive'; g.textAlign = 'center'; g.fillStyle = '#000'; g.fillText('CLEAN ME', 128, 72); g.font = '20px "Comic Sans MS",cursive'; g.fillText('(also, Dave woz ere)', 128, 100); g.globalCompositeOperation = 'source-over'; }, { clamp: true }), tr: true, dw: false }).clone());
+      // Read from behind the car, rather than as mirror writing through glass.
+      const uv=cm.geometry.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,1-uv.getX(i));uv.needsUpdate=true;
       const boot=carPoint(20,-75.2,-178); cm.rotation.x = Math.PI / 2; cm.position.set(boot.x,boot.y,boot.z); cm.scale.setScalar(scale); cm.renderOrder = 3; r.group.add(cm); this.cleanme = cm;
       // the bucket of soapy water, the sponge in it
       bucket = grp(G => { G.lathe(0, 0, 0, [[12.4, -28], [13, -27.4], [10.2, 0], [0.1, 0]], 22, mat('#e8c020', { sh: 50, sp: '#666', side: 2 })); G.disc(0, -23, 0, 11.6, M({ c: '#e8eef0', sh: 90, sp: '#fff' })); for (let i = 0; i < 12; i++) G.ball(Math.cos(i * 0.6) * (4 + (i % 4) * 2), -23.5, Math.sin(i * 0.6) * (4 + (i % 4) * 2), 2.4, 1.4, 2.4, M({ c: '#fff', o: 0.9, tr: true }), 8); G.geo(new T.TorusGeometry(12.6, 0.4, 5, 20, Math.PI), 0, -28, 0, mat('#888', { sh: 80 }), { rz: 180, rx: 90 }); G.shadow(0, 0, 0, 32, 32, 0.6); });
@@ -214,8 +221,8 @@
   const stripsLeft = () => Array.from({ length: STRIPS }, (_, s) => s).filter(s => !CK.has('lawn', 'l' + s)).length;
   function takeMower() {
     if (CK.tool.cur && CK.tool.cur.id === 'mower') return;
-    if (quiet()) return CK.jack('The mower', 'Mowing the lawn at THIS time of night? The neighbours would call the police. Mr Grimsdale definitely would.', 4500);
-    if (CK.done('lawn')) return CK.jack('The mower', 'The lawn\'s done. Look at those stripes. Wimbledon, eat your heart out.');
+    if (quiet()) return CK.jack('The mower', 'Mowing the lawn at THIS time of night? The neighbours would call the police. Next door definitely would.', 4500);
+    if (CK.done('lawn')) return CK.jack('The mower', 'The lawn\'s done. Look at those stripes. Wombleton, eat your heart out.');
     CK.begin('lawn'); mowing = true;
     CK.tool.take({
       id: 'mower', name: 'The hover mower', obj: mower, dist: 58, tilt: 0.35, rear: 20, hz: 150,

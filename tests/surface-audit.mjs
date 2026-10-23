@@ -6,9 +6,12 @@ const tag=process.argv[3]||'before';
 try{
  const report=await p.evaluate(()=>{
   Object.values(House.ROOMS).forEach(r=>House.buildRoom(r));House.scene.updateMatrixWorld(true);
-  const planes=new Map(),v=new THREE.Vector3(),textures=new Map(Object.entries(HouseKit.TEX).map(([k,t])=>[t,k]));let faces=0;
+  const planes=new Map(),v=new THREE.Vector3(),textures=new Map(Object.entries(HouseKit.TEX).map(([k,t])=>[t,k])),roomGroups=new Set(Object.values(House.ROOMS).map(r=>r.group));let faces=0;
   House.scene.traverse(o=>{
    if(!o.isMesh||!o.geometry||!o.visible||o.userData.noPick||o.userData.contactShadow)return;
+   // Audit every room, including culled rooms, but not hidden inventory models
+   // or closed subassemblies whose children still have visible=true.
+   for(let p=o.parent;p;p=p.parent)if(!p.visible&&!roomGroups.has(p))return;
    const g=o.geometry,a=g.attributes.position;if(!a)return;
    const ix=g.index,groups=g.groups.length?g.groups:[{start:0,count:ix?ix.count:a.count,materialIndex:0}];
    for(const gr of groups){const m=Array.isArray(o.material)?o.material[gr.materialIndex]:o.material;if(!m||!m.visible||m.depthWrite===false||m.polygonOffset)continue;

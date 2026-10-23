@@ -1,5 +1,16 @@
 # Jack Attack 1999 - browser tests
 
+Room review regressions (disposable localhost data only):
+
+    node review-models.mjs http://localhost:18476 # factory/custom magazine poses, square tiles, car washing and six desktop/narrow views
+    node editor-layout-safety.mjs http://localhost:18476 # reject stale line-key edits; recover unique legacy/stable-target edits
+    node window-views.mjs http://localhost:18476 # permanent sight lines, clear kitchen glass from both sides, door states and refresh
+    node print-light-marker.mjs http://localhost:18476 # matte poster distance checks and shelf marker lifecycle/occlusion
+    node room-render-soak.mjs http://localhost:18476 43 # background TV, room/door/light cycles, reload and context recovery
+
+The software-WebGL fixture allows 60 seconds for initial navigation and 90 for refresh when a soak
+runs beside one focused regression. Run hardware performance comparisons alone.
+
 Printed reading matter (throwaway localhost accounts only):
 
     node magazine-catalogue-unit.cjs
