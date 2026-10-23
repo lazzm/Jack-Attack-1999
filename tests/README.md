@@ -1,5 +1,13 @@
 # Jack Attack 1999 - browser tests
 
+Room interface regression (disposable localhost data only):
+
+    node game-ui.mjs http://localhost:18080
+
+Checks contextual carry actions, Q/right-click return, inspection, stable idle HUD,
+pause-menu layout, audio/graphics navigation, tooltip bounds, subtitle/job spacing and typing guards.
+Review `tests/shots/game-ui/` after running from `tests/`.
+
 Current device-policy and room-layout regression (disposable localhost data only):
 
     node mobile-desktop.mjs http://localhost:18080

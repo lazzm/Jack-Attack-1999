@@ -59,7 +59,7 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
 - Controls in the house: WASD/arrows walk, Shift jog, C crouch (never Ctrl: Ctrl+W closes the tab), Space jump,
   F uses/plays/opens; E/click picks up, removes or places (including insertion at highlighted slots).
   Console cases must be placed off the shelf before F opens them; E takes the visible medium and returns it to its case.
-  Only filled cases go back onto the console rack. I inspects, R turns, Q leans back from screens/inspection (not while typing),
+  Only filled cases go back onto the console rack. I inspects, R turns, Q leans back from screens/inspection, or returns a carried item to its pickup point (not while typing); right click also returns a carried item.
   Esc opens the game menu (including return/leave actions). F2 stands up from the PC; F sits on portable seating and Q/WASD/arrows/Space/F2 gets up,
   T toggles LOCK IN for the active in-game screen (never while typing), G graphics, F9 god mode (owner "Jack" only).
   Keep on-screen prompts consistent; never intercept Ctrl+F. LOCK IN preserves running state. JackOS fills the browser viewport like a normal desktop; other in-game screens preserve their native aspect ratio.

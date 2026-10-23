@@ -601,7 +601,7 @@
       return false;
     });
   }
-  function putBack() { // Esc: it goes back where you got it from
+  function putBack() { // Q / return action: it goes back where you got it from
     if (!held) return; const t = THINGS[held.id], f = held.from, was = held.was;
     held = null; ui.holdBar(null); snapGlow(null);floorGlow(null);
     if (was && SNAPS[was]) {const s=SNAPS[was];if(!s.accepts||s.accepts(t.kind,t)){t.at=f;return snapIn(t,s);}}
@@ -863,6 +863,7 @@
     if(window.HousePause&&HousePause.handleEscape(ev))return;
     if(controlsPaused)return;
     const t = ev.target; if (typing) return;
+    if(ev.key.toLowerCase()==='q'&&!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&held&&['walk','glide'].includes(mode)&&!viewOpen()){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)putBack();return;}
     if(ev.key.toLowerCase()==='q'&&!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&!typing&&window.HousePause?.canBack){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)HousePause.quickBack();return;}
     if(inspection&&(ev.key==='Tab'||(['Enter',' '].includes(ev.key)&&ev.target?.closest?.('.hs-inspection button'))))return;
     if(inspection&&(ev.ctrlKey||ev.metaKey||ev.altKey))return;
@@ -971,6 +972,7 @@
     // to turn an off-centre click into an action on the centre object.
     if (!p.drag && p.type === 'mouse' && ev.button === 0) wantLock();
   };
+  pb.addEventListener('contextmenu',ev=>{if(held&&['walk','glide'].includes(mode)&&!controlsPaused&&!viewOpen()){ev.preventDefault();ev.stopPropagation();putBack()}});
   pb.addEventListener('pointerup', endPt); pb.addEventListener('pointercancel', endPt);
   pb.addEventListener('wheel', ev => { if (!live || !held) return; ev.preventDefault(); held.d = clamp(held.d - Math.sign(ev.deltaY) * 8, 25, 150); }, { passive: false });
   pb.addEventListener('pointerleave', () => { setHot(null); ui.tip(null); });
@@ -981,7 +983,7 @@
     const sid = h && h.spot && !(held && h.spot === held.id) ? h.spot : null;
     setHot(sid);
     const s = sid && SPOTS[sid];
-    ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab && !held ? ' <i><kbd>E</kbd>: pick up'+(THINGS[sid]?.use?' · <kbd>F</kbd>: use':'')+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
+    ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab&&!held&&h.dist<=s.range?' <i><span><kbd>E</kbd> Pick up</span>'+(THINGS[sid]?.use?'<span><kbd>F</kbd> '+esc(THINGS[sid].useLabel||'Use')+'</span>':'')+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
     pb.classList.toggle('hs-hot', !!sid);
   }
   // Ordinary interaction never moves the player. Screens/inspection own their
@@ -1028,7 +1030,7 @@
     const panel = document.createElement('div'); panel.className = 'hs-inspection';
     const name = document.createElement('b'); name.textContent = typeof t.label === 'function' ? t.label() : t.label;
     const hint = document.createElement('span'); hint.innerHTML=(t.obj.userData.cube?'Drag a face to turn · Right-drag to rotate':'Drag to rotate')+' · <kbd>Wheel</kbd> zoom · <kbd>Q</kbd> back · <kbd>Esc</kbd> menu';
-    const back = document.createElement('button'); back.type = 'button'; back.textContent = 'Back'; back.addEventListener('click', endInspect);
+    const back = document.createElement('button'); back.type = 'button'; back.textContent='Back [Q]'; back.addEventListener('click', endInspect);
     panel.append(name, hint, back); ui.el.appendChild(panel);
     const ip = t.inspectPose || {};
     inspection = {t, grip, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null};
@@ -1151,13 +1153,13 @@
       <canvas class="hs-map" width="84" height="84" aria-hidden="true"></canvas>
       <div class="hs-cross" aria-hidden="true"></div>
       <div class="hs-tip" aria-hidden="true"></div>
-      <div class="hs-hold" hidden><span class="hs-hname"></span><span class="hs-hkeys"></span><span class="hs-hbtn"><button type="button" data-h="near" aria-label="Nearer">&minus;</button><button type="button" data-h="far" aria-label="Further">+</button><button type="button" data-h="turn">Turn</button><button type="button" data-h="use" hidden></button><button type="button" data-h="put">Put down</button><button type="button" data-h="back">Put back</button></span></div>
+      <div class="hs-hold" hidden><small class="hs-hmode">CARRYING</small><span class="hs-hname"></span><span class="hs-hkeys"></span><small class="hs-carry-help">Wheel: distance · Right click / Q: return · Esc: menu</small><span class="hs-hbtn"><button type="button" data-h="near" aria-label="Nearer">&minus;</button><button type="button" data-h="far" aria-label="Further">+</button><button type="button" data-h="turn">Turn</button><button type="button" data-h="use" hidden></button><button type="button" data-h="put">Place [E]</button><button type="button" data-h="back">Return [Q]</button></span></div>
       <button type="button" class="hs-getup" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M13 3 6 10l7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Get up</span></button>
       <div class="hs-note rm-note"><b></b><p></p><button type="button" class="rm-x" aria-label="Close">&times;</button></div>
       <div class="hs-toast rm-toast"></div>
       <div class="hs-fade"></div>`;
     const $ = s => el.querySelector(s);
-    let noteT = 0, toastT = 0;
+    let noteT=0,toastT=0,holdKey='',snapKey='',tipKey='',tipW=0,tipH=0;
     const note = $('.hs-note'), toastEl = $('.hs-toast'), tipEl = $('.hs-tip'), hold = $('.hs-hold');
     note.querySelector('.rm-x').addEventListener('click', () => note.classList.remove('on'));
     hold.addEventListener('click', ev => {
@@ -1173,20 +1175,28 @@
       say(title, text, ms) { note.querySelector('b').textContent = title; note.querySelector('p').innerHTML = text; note.classList.add('on'); clearTimeout(noteT); noteT = setTimeout(() => note.classList.remove('on'), ms || Math.max(4500, String(text).length * 70)); },
       hush() { note.classList.remove('on'); },
       toast(title, text) { toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 4200); },
-      tip(text, x, y, far) { if (!text) { tipEl.classList.remove('on'); return; } tipEl.innerHTML = text + (far ? ' <small>(walk closer)</small>' : text.includes('<kbd>E</kbd>') ? '' : ' <small><kbd>F</kbd> Use</small>'); tipEl.classList.add('on'); tipEl.style.transform = `translate(${Math.min(x + 14, vw - 240)}px,${y + 18}px)`; },
+      tip(text,x,y,far){if(!text||held){tipEl.classList.remove('on');tipKey='';return;}const content=text+(far?' <small>(walk closer)</small>':text.includes('<kbd>E</kbd>')?'':' <small><kbd>F</kbd> Use</small>'),key=content+'|'+vw+'|'+vh;tipEl.classList.add('on');if(key!==tipKey){tipKey=key;tipEl.innerHTML=content;tipW=tipEl.offsetWidth;tipH=tipEl.offsetHeight;}tipEl.style.transform=`translate(${clamp(x+14,8,Math.max(8,vw-tipW-8))}px,${clamp(y+18,8,Math.max(8,vh-tipH-8))}px)`;},
       where() {
         const r = cur; if (!r) return;
         $('.hs-title').textContent = r.title || r.name.toUpperCase(); $('.hs-where').textContent = r.stations[stIdx] ? r.stations[stIdx].n : r.sub || '';
       },
       holdBar(t) {
-        if (!t) { hold.hidden = true; el.classList.remove('holding'); return; }
-        if (!hold.querySelector('[data-h=inspect]')) {const b = document.createElement('button'); b.type = 'button'; b.dataset.h = 'inspect'; b.textContent = 'Inspect'; hold.querySelector('.hs-hbtn').prepend(b);}
-        hold.hidden = false; el.classList.add('holding');
-        hold.querySelector('.hs-hname').textContent = typeof t.label === 'function' ? t.label() : t.label;
-        hold.querySelector('.hs-hkeys').innerHTML = '<kbd>E</kbd> / <kbd>Click</kbd>: place' + (t.use?' &middot; <kbd>F</kbd>: '+esc(t.useLabel||'use'):'') + ' &middot; <kbd>R</kbd>: turn &middot; <kbd>I</kbd>: inspect &middot; <kbd>Wheel</kbd>: distance &middot; <kbd>Esc</kbd>: menu / put back';
-        const u = hold.querySelector('[data-h=use]'); u.hidden = !t.use||t.useLabel==='Inspect';u.textContent = t.useLabel || 'Use';
+        if(!t){hold.hidden=true;holdKey=snapKey='';hold.classList.remove('snap');el.classList.remove('holding');return;}
+        const label=typeof t.label==='function'?t.label():t.label,key=[t.id,label,t.useLabel,!!t.use].join('|');
+        if(!hold.hidden&&holdKey===key&&!snapKey)return;
+        holdKey=key;snapKey='';hold.classList.remove('snap');hold.hidden=false;el.classList.add('holding');
+        if(!hold.querySelector('[data-h=inspect]')){const button=document.createElement('button');button.type='button';button.dataset.h='inspect';button.textContent='Inspect [I]';hold.querySelector('.hs-hbtn').prepend(button);}
+        hold.querySelector('.hs-hmode').textContent='CARRYING';hold.querySelector('.hs-hname').textContent=label;
+        const use=t.use&&t.useLabel!=='Inspect';
+        hold.querySelector('.hs-hkeys').innerHTML='<span><kbd>E</kbd> Place</span>'+(use?'<span><kbd>F</kbd> '+esc(t.useLabel||'Use')+'</span>':'')+'<span><kbd>R</kbd> Turn</span><span><kbd>I</kbd> Inspect</span><span><kbd>Q</kbd> Return</span>';
+        const button=hold.querySelector('[data-h=use]');button.hidden=!use;button.textContent=(t.useLabel||'Use')+' [F]';
       },
-      snapHint(s) { hold.classList.toggle('snap', !!s); if (s) hold.querySelector('.hs-hkeys').innerHTML='<kbd>E</kbd> / <kbd>Click</kbd>: '+esc((s.hint || 'place it').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''));else if (held) this.holdBar(THINGS[held.id]); },
+      snapHint(s){
+        if(!s){if(held)this.holdBar(THINGS[held.id]);return;}
+        const hint=(s.hint||'Place here').replace(/^(?:Click\/E to |Let go(?: to|:)\s*)/i,''),key=s.id+'|'+hint;
+        if(snapKey===key)return;snapKey=key;hold.classList.add('snap');hold.querySelector('.hs-hmode').textContent='PLACE HERE';
+        hold.querySelector('.hs-hkeys').innerHTML='<span><kbd>E</kbd> '+esc(hint)+'</span><span><kbd>Q</kbd> Return</span>';
+      },
       crossOn() { el.classList.add('cross'); clearTimeout(crossT); crossT = setTimeout(() => el.classList.remove('cross'), 2500); },
       fade(on, ms) { const f = $('.hs-fade'); f.style.transitionDuration = (ms || 300) + 'ms'; f.classList.toggle('on', !!on); },
       modalOpen: () => !!el.querySelector('.hs-modal.on'),

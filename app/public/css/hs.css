@@ -288,3 +288,40 @@ html.pc-roomview #crtglass{display:none!important}
 html.hs-screen-idle #monitorSurface *,html.hs-screen-idle #monitorSurface *::before,html.hs-screen-idle #monitorSurface *::after{animation-play-state:paused!important;transition:none!important}
 
 .hs-object-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.hs-object-actions button{padding:5px 12px}
+
+/* Shared room interface: readable context actions, compact inventory and menu. */
+html.hs-live{--game-ui:Tahoma,Arial,sans-serif}
+.hs-ui .hs-title{font:700 15px "Courier New",monospace}
+.hs-hold{box-sizing:border-box;bottom:22px;gap:8px;width:max-content;max-width:min(720px,calc(100vw - 36px));padding:12px 18px;background:var(--game-panel);border:1px solid var(--game-edge);border-top:2px solid var(--game-accent)}
+.hs-hmode{font:700 10px "Courier New",monospace;letter-spacing:.14em;color:#a9b0a7}
+.hs-hname{font:700 16px/1.25 Tahoma,Arial,sans-serif;text-transform:none;letter-spacing:0;text-shadow:none;text-align:center;white-space:normal}
+.hs-hkeys{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;font:13px/1.5 Tahoma,Arial,sans-serif;text-shadow:none;color:var(--game-ink)}
+.hs-hkeys>span{white-space:nowrap}.hs-carry-help{font:11px/1.4 Tahoma,Arial,sans-serif;color:#b9bcae;text-align:center}
+.hs-hold.snap{border-color:#b9cc85}.hs-hold.snap .hs-hmode{color:#cfdfa6}
+.hs-hbtn button{height:32px;border-radius:0;font:12px Tahoma,Arial,sans-serif}
+.hs-ui.holding .hs-tip{display:none}.hs-tip{box-sizing:border-box;max-width:min(520px,calc(100vw - 24px));white-space:normal;padding:9px 12px;font:13px/1.4 Tahoma,Arial,sans-serif}
+.hs-tip i{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:5px;font-size:12px}.hs-tip i>span{white-space:nowrap}.hs-tip small{display:block;margin-top:4px}
+.hs-voice{top:64px;box-sizing:border-box;width:max-content;max-width:min(560px,calc(100vw - 320px));padding:9px 16px;background:rgba(15,19,21,.88);border-left:2px solid #a79563}
+.hs-voice b{font:700 11px "Courier New",monospace;color:#e3cb89;text-shadow:none}
+.hs-voice p{font:14px/1.45 Tahoma,Arial,sans-serif;text-shadow:none;margin:4px 0 0}
+.hs-inspection{gap:7px;padding:12px 18px;border-top:2px solid #dbc172;background:#161b1df2;font:13px/1.5 Tahoma,Arial,sans-serif}
+.hs-inspection b{font:700 16px Tahoma,Arial,sans-serif}.hs-inspection button{font:12px Tahoma,Arial,sans-serif}
+.hs-pause:not(.hs-graphics-open){width:min(720px,calc(100vw - 36px));font:13px/1.45 Tahoma,Arial,sans-serif}
+.hs-pause-head{padding:14px 20px}.hs-pause-main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:16px 20px}
+.hs-pause-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.hs-pause-actions button{margin:0}.hs-pause-actions [data-pause=resume]{grid-column:1/-1;background:#4a4938;border-color:#b9a976;color:#fff0bd}
+.hs-pause-actions kbd{float:right}.hs-pause-actions:not(:has([data-pause=return]:not([hidden]))) [data-pause=leave],.hs-pause-actions:not(:has([data-pause=leave]:not([hidden]))) [data-pause=return]{grid-column:1/-1}
+.hs-pause-main>fieldset{min-width:0;margin:0;padding:10px 12px}.hs-pause-main>fieldset:nth-of-type(n+3){grid-column:1/-1}
+.hs-pause-main>fieldset:nth-of-type(n+3)>button{margin-bottom:0}.hs-pause-main .hs-pause-status,.hs-pause-controls{grid-column:1/-1;margin:0}
+.hs-pause button{font:700 12px Tahoma,Arial,sans-serif}.hs-pause legend{font:700 12px "Courier New",monospace;letter-spacing:.06em}
+.hs-pause-controls{padding:10px 12px;border:1px solid #685f4c}.hs-pause-controls summary{cursor:pointer;color:#d7c591;font:700 12px "Courier New",monospace;letter-spacing:.06em}
+.hs-pause-controls summary:focus-visible{outline:1px solid #dbc172;outline-offset:4px}.hs-pause-keys{font:12px/2 Tahoma,Arial,sans-serif;margin:10px 0 0}
+@media(max-width:900px){.hs-voice{top:104px;max-width:calc(100vw - 36px)}}
+@media(max-width:620px){.hs-pause-main{grid-template-columns:minmax(0,1fr)}.hs-pause-main>fieldset{grid-column:1}.hs-hold{padding:10px 12px}.hs-hkeys{gap:6px 12px}.hs-pause-head,.hs-pause-main{padding-left:14px;padding-right:14px}}
+
+.hs-pause.hs-graphics-open,.hs-graphics-menu select{font-family:Tahoma,Arial,sans-serif}
+/* Screen actions use the same room controls rather than desktop-style buttons. */
+html.hs-live .rm-tvv .rm-tools .rm-b{border:1px solid var(--game-edge);border-bottom:3px solid #101718;border-radius:0;background:var(--game-panel);color:var(--game-ink);font:700 12px/1.2 Tahoma,Arial,sans-serif;box-shadow:none}
+html.hs-live .rm-tvv .rm-tools .rm-b:hover,html.hs-live .rm-tvv .rm-tools [aria-pressed=true]{background:#465151;color:#ffe9a2}
+html.hs-live .rm-tvv .rm-tools .rm-b:focus-visible{outline:1px solid var(--game-accent);outline-offset:3px}
+html.hs-live .rm-live3d .rm-help{font:12px/1.5 Tahoma,Arial,sans-serif}
