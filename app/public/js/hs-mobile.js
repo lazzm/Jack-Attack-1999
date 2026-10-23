@@ -136,7 +136,7 @@
     return {x:eye.x, y:eye.y, z:eye.z, rx, ry, lvl:H.W.lvl, seat:1};
   }
   function use(arg) {
-    if (!thing || session || H.paused || !H.live || !['walk','glide'].includes(H.mode)) return;
+    if (!thing || session || H.paused || !H.live || !(['walk','glide'].includes(H.mode)||H.mode==='focus'&&H.seated)) return;
     if (H.held() !== 'mobile' && thing.at.room !== H.here) return;
     if (H.held() && H.held() !== 'mobile') { say("Jack's mobile", 'Put down what you are holding first.'); return; }
     if (returning && H.gliding) return;

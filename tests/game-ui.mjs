@@ -8,7 +8,7 @@ try{
  await f.view([25,-70,125],[0,0,-12]);await p.evaluate(()=>House._.setMode('walk'));
  await p.evaluate(()=>{House.hush();House.grab('mug')});await p.waitForTimeout(500);
  assert.match(await p.locator('.hs-hkeys').innerText(),/Q Return/);
- assert.match(await p.locator('.hs-hold [data-h=use]').innerText(),/Look inside/);
+ assert.match(await p.locator('.hs-hold [data-h=use]').innerText(),/Use \/ look closely/);
  await shot('carrying');
  await p.evaluate(()=>House.ui.snapHint({id:'review-slot',hint:'Click/E to return to shelf'}));assert.match(await p.locator('.hs-hmode').innerText(),/PLACE HERE|CARRYING/);
  await p.evaluate(()=>House.ui.holdBar(House.THINGS.mug));

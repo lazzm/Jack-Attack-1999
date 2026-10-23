@@ -76,7 +76,7 @@
  // One physical reader for periodicals, paperbacks and the original mail-order art.
  function read(id,docId,resume){
   const t=H.THINGS[id],doc=C.byId[docId]||(window.ReadingBooks||[]).find(b=>b.id===docId)||(docId==='pm.catalogue'?catalogueDoc():null);
-  if(!t||!doc||reading||H.mode!=='walk'||(H.held()&&H.held()!==id))return false;
+  if(!t||!doc||reading||!(H.mode==='walk'||H.mode==='focus'&&H.seated)||(H.held()&&H.held()!==id))return false;
   return readPaper(t,doc,resume);
  }
  function catalogueDoc(){

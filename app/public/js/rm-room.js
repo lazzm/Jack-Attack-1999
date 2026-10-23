@@ -325,6 +325,14 @@
     if(old&&old.obj&&old.obj!==obj)old.obj.traverse(o=>{o.userData.noPick=true});
     obj.position.set(0,0,0);obj.rotation.set(0,0,0);obj.updateMatrixWorld(true);
     const t=H.thing(id,Object.assign({obj,home,label,kind:'roomprop',holdD:55,use:use?()=>wrap(id,use)(id):()=>H.inspect(id),useLabel:use?'Look inside':'Inspect'},options||{}));
+    // Ordinary props are used in their real-model close-up. Keep their clues
+    // and actions, but present those inside that same interaction.
+    if(!t.seat){
+      const action=options?.use&&options.useLabel!=='Inspect'?options.use:use?wrap(id,use):null;
+      t.use=()=>H.inspect(id);t.useLabel=action?'Use / look closely':'Look closely';
+      t.onInspectUse=action;t.inspectUseLabel=options?.useLabel||'Look inside';
+      const start=t.onInspectStart;t.onInspectStart=panel=>{start?.(panel);action?.(t)};
+    }
     H.restoreThing(t);return t;
   }
   function shelfLoose(id,obj,home,label,box,options){
@@ -1104,7 +1112,7 @@
     add('gb', { home: { room: 'bedroom', x: -56, y: 0, z: 18, ry: -18 }, kind: 'handheld', label: 'Game Lad Color', obj: gbModel(), use: () => tvOpen('gb'), useLabel: 'Play it', holdD: 40 });
     const cube=add('cube',{home:{room:'bedroom',x:-40,y:0,z:-10,ry:25},kind:'toy',label:'Puzzle cube',obj:cubeModel(),use:()=>H.inspect('cube'),useLabel:'Solve it',holdD:34});
     if(cube.at.room==='bedroom'&&cube.st==='rest'&&Math.abs(cube.at.x+50)<.1&&Math.abs(cube.at.y)<.1&&Math.abs(cube.at.z+22)<.1&&Math.abs(cube.at.ry-25)<.1){cube.at=Object.assign({},cube.home);H.place(cube);H.saveThings()}
-    add('vpet', { home: { room: 'bedroom', x: 40, y: 0, z: 24, ry: 10 }, kind: 'toy', label: 'Eggbert (my keyring pet)', obj: vpetModel(), use:()=>H.inspect('vpet'),useLabel:'Check on it',holdD:30,inspectPose:{pitch:-78,yaw:0},onInspectStart:petInspect,onInspectEnd:()=>{clearInterval(R.petTimer);R.petTimer=null},onInspectKey:ev=>{const action={a:'feed',b:'play',c:'clean'}[ev.key.toLowerCase()];if(action&&!ev.repeat)R.petAction?.(action)} });
+    add('vpet', { home: { room: 'bedroom', x: 40, y: 0, z: 24, ry: 10 }, kind: 'toy', label: 'Eggbert (my keyring pet)', obj: vpetModel(), use:()=>H.inspect('vpet'),useLabel:'Check on it',holdD:30,inspectPose:{pitch:-78,yaw:0},onInspectStart:petInspect,onInspectEnd:()=>{clearInterval(R.petTimer);R.petTimer=null},onInspectKey:ev=>{const action={a:'feed',b:'play',c:'clean'}[ev.key.toLowerCase()];if(action&&!ev.repeat)R.petAction?.(action);return!!action},onInspectClick:hit=>{const action=hit?.object.userData.inspectAction;if(action)R.petAction?.(action)} });
     const fb = new T.Group(); K.into(fb).ball(0, -11, 0, 11, 11, 11, M({ c: '#fff', map: K.tex('rm.ball', 256, 128, (g, w, h) => { g.fillStyle = '#f4f4f0'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a1a1a'; for (let y = 0; y < 3; y++) for (let x = 0; x < 6; x++) { const cx = x * 43 + (y % 2) * 21, cy = 20 + y * 44; g.beginPath(); for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; g.lineTo(cx + Math.cos(a) * 11, cy + Math.sin(a) * 11); } g.fill(); } }), sh: 30 }), 18);
     K.into(fb).shadow(0, 0, 0, 24, 24, 0.5);
     add('football', { home: { room: 'bedroom', x: -60, y: FY, z: 200, ry: 0 }, kind: 'ball', label: 'Football', obj: fb, holdD: 60 });
@@ -1203,7 +1211,7 @@
     V.decal(0,-3.401,-.5,2.8,2.1,new T.MeshBasicMaterial({map:tx}),{rx:90});R.petLCD={cv,tx};drawPet();
     const logo=K.tex('rm.eggbert.logo',256,64,(c,w,h)=>{c.fillStyle='#cf5492';c.fillRect(0,0,w,h);A.text(c,'EGGBERT',128,45,'700 38px '+A.UIF,'#fff0c8','center')},{clamp:true});
     V.decal(0,-2.88,-2.5,3.2,.65,M({c:'#fff',map:logo}),{rx:90});
-    [-1,0,1].forEach((x,i)=>{V.cyl(x,-2.89,2.05,.34,.34,.43,14,M({c:'#efcf62',sh:22}));const t=K.tex('rm.eggkey.'+i,32,32,(c)=>{c.fillStyle='#efcf62';c.fillRect(0,0,32,32);A.text(c,'ABC'[i],16,25,'700 25px '+A.UIF,'#6b432c','center')},{clamp:true});V.decal(x,-3.115,2.05,.42,.42,M({c:'#fff',map:t}),{rx:90})});
+    [-1,0,1].forEach((x,i)=>{V.cyl(x,-2.89,2.05,.34,.34,.43,14,M({c:'#efcf62',sh:22})).userData.inspectAction=['feed','play','clean'][i];const t=K.tex('rm.eggkey.'+i,32,32,(c)=>{c.fillStyle='#efcf62';c.fillRect(0,0,32,32);A.text(c,'ABC'[i],16,25,'700 25px '+A.UIF,'#6b432c','center')},{clamp:true});V.decal(x,-3.115,2.05,.42,.42,M({c:'#fff',map:t}),{rx:90}).userData.inspectAction=['feed','play','clean'][i]});
     K.into(g).shadow(0,0,0,7,12,.4);return g;
   }
   function petState(){
@@ -1445,14 +1453,14 @@
     for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) { const p = H.toScreen(x, -y, z); if (!p) continue; x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }
     return { getBoundingClientRect: () => ({ left: x0, top: y0, width: Math.max(0, x1 - x0), height: Math.max(0, y1 - y0), right: x1, bottom: y1 }) };
   };
-  const canGo = () => H.mode === 'walk' || H.mode === 'glide';
+  const canGo=()=>H.mode==='walk'||H.mode==='glide'||H.mode==='focus'&&!!H.seated;
   const TV_SAVE = 'jhp_console_focus';
   let tvFocus = false, tvFocusCon = 'n64', tvRequest = 0, gbPlay = null;
-  function holdHandheld() {
+  function holdHandheld(grip) {
     const t = H.THINGS.gb;
     H.anims.delete('gb-return');
     if(t.st==='fall') t.at.y=t.landY;
-    gbPlay = {at:Object.assign({},t.at),st:t.st,rx:t.rx||0,rz:t.rz||0,view:Object.assign({},H.P,{rx:0,seat:1,lvl:H.W.lvl})};
+    gbPlay = {grip,at:Object.assign({},t.at),st:t.st,rx:t.rx||0,rz:t.rz||0,view:Object.assign({},H.P,{rx:0,seat:1,lvl:H.W.lvl})};
     const view = gbPlay.view, yaw=view.ry*D2R, d=Math.max(8/(Math.tan(H.camera.fov*D2R/2)*.8),5/(Math.tan(H.camera.fov*D2R/2)*innerWidth/innerHeight*.8));
     t.st='play';t.inspectFront=true;H.layerFor(t);
     const pos=t.obj.position.clone(),rot=t.obj.quaternion.clone(),target=new T.Vector3(view.x+Math.sin(yaw)*d,view.y+.5,view.z-Math.cos(yaw)*d);
@@ -1461,6 +1469,7 @@
   }
   function returnHandheld() {
     if(!gbPlay)return; const saved=gbPlay,t=H.THINGS.gb;gbPlay=null;H.anims.delete('gb-pose');
+    if(saved.grip){H.anims.delete('gb-return');H.restoreGrip(saved.grip);return;}
     const pos=t.obj.position.clone(),q=t.obj.quaternion.clone(),target=new T.Vector3(saved.at.x,saved.at.y,saved.at.z);
     const end=new T.Quaternion().setFromEuler(new T.Euler(saved.rx*D2R,(saved.at.ry||0)*D2R,saved.rz*D2R,'YXZ')),t0=performance.now();
     t.st='anim';H.anims.set('gb-return',n=>{const k=Math.min(1,(n-t0)/500),e=k*k*(3-2*k);t.obj.position.lerpVectors(pos,target,e);t.obj.quaternion.copy(q).slerp(end,e);if(k<1)return true;t.at=saved.at;t.rx=saved.rx;t.rz=saved.rz;t.st='rest';t.inspectFront=false;H.place(t);H.layerFor(t);return false;});
@@ -1481,15 +1490,16 @@
   }
   function tvOpen(con, gameId, resume) {
     if(!hasConsole(con)){toast('No console connected','Only your Game Lad is available in this starter room.');return;}
-    if (!canGo() || pending || H.focused || (window.RoomTV && RoomTV.open_)) return;
+    if (!canGo() || pending || H.focused&&!H.seated || (window.RoomTV && RoomTV.open_)) return;
     if (con === 'dc' && !R.dcOut) return;
     const loaded = inserted(con); gameId = gameId || (loaded && loaded.gameId);
     if (con !== 'gb') lastCon = con;
     H.hush();
     const go = () => { RoomTV.open(con, con === 'gb' ? rectOf(H.THINGS.gb.obj) : rectOf(R.tvScreen), { restoring: !!resume }); if (gameId) RoomTV.playPhysical(gameId); };
     const ready = () => window.RoomTV ? Promise.resolve() : (tvLoad = tvLoad || loadJs('js/rm-tv.js'));
-    if (H.held()) H.putBack();
-    if (con === 'gb') holdHandheld();
+    const grip=con==='gb'?H.suspendGrip('gb'):null;
+    if(H.held())H.putBack();
+    if(con==='gb')holdHandheld(grip);
     tvFocusCon = con;
     clearTimeout(boT);
     const request = ++tvRequest, p = ready().then(() => true, () => { tvLoad = null; return false; });

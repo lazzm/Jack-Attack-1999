@@ -271,16 +271,18 @@
   CK.add({
     id: 'cat', room: 'bedroom',
     build(r) {
-      bowl = grp(G => { G.lathe(0, 0, 0, [[8, -4.2], [8.6, -4.6], [9.4, -3.8], [10, 0], [0.1, 0]], 24, mat('#d03a8a', { sh: 60, sp: '#888', side: 2 })); G.disc(0, -1.2, 0, 7.4, mat('#a02a6a')); G.shadow(0, 0, 0, 24, 24, 0.5); });
+      bowl = grp(G => { const shell=G.lathe(0, 0, 0, [[0,0],[10,0],[9.4,-3.8],[8.6,-4.6],[8,-4.2],[7.4,-1.2],[0,-1.2],[0,0]].reverse(), 24, mat('#ac4476',{sh:25,sp:'#483344'}));const p=shell.geometry.attributes.position,n=shell.geometry.attributes.normal;for(let i=0;i<p.count;i++)if(Math.abs(p.getY(i)+1.2)<.001)n.setXYZ(i,0,-1,0); G.shadow(0, 0, 0, 24, 24, 0.5); });
       bowl.position.set(BOWL.x, FY, BOWL.z); r.group.add(bowl);
-      const nameTex = K.tex('ch.bowlname', 128, 32, (g, w, h) => { g.clearRect(0, 0, w, h); A.text(g, CK.cast('{cat}').toUpperCase(), 64, 24, '700 20px ' + A.FONT, '#fff', 'center'); }, { clamp: true });
-      K.into(bowl).plane(0, -2.4, 9.75, 10, 2.5, M({ c: '#fff', map: nameTex, tr: true, at: 0.3 }), { rx: -8 });
+      const nameTex = K.tex('ch.bowlname', 128, 32, (g, w, h) => { g.fillStyle='#a92f70';g.fillRect(0,0,w,h); A.text(g, CK.cast('{cat}').toUpperCase(), 64, 24, '700 20px ' + A.FONT, '#fff', 'center'); }, { clamp: true });
+      const band=new T.PlaneGeometry(10,2.5,24,1),bp=band.attributes.position,bu=band.attributes.uv;
+      for(let i=0;i<bp.count;i++){const y=bp.getY(i)-2.3,a=bp.getX(i)/10,r=10+y*.158+.09;bp.setXYZ(i,Math.sin(a)*r,y,Math.cos(a)*r);bu.setY(i,1-bu.getY(i))}band.computeVertexNormals();
+      K.into(bowl).geo(K.thicken(band,.06),0,0,0,M({c:'#fff',map:nameTex,sh:14,sp:'#332631'}));
       bowlFill = grp(G => { const r2 = rnd(77); for (let i = 0; i < 26; i++) { const a = r2() * Math.PI * 2, d = Math.sqrt(r2()) * 6.2; G.ball(Math.cos(a) * d, -1.6 - r2() * 1.6 - (6.2 - d) * 0.25, Math.sin(a) * d, 1.1, 0.8, 1.1, mat(['#a0642a', '#8a4a1a', '#c08040'][i % 3], { sh: 20 }), 6); } });
       bowl.add(bowlFill); bowlFill.visible = false;
       CK.spot(r, 'ch.bowl', bowl, { label: () => `${CK.cast('{cat}')}'s bowl`, act: () => CK.jack(CK.cast('{cat}\'s bowl'), CK.has('cat', 'pour') ? 'Full of biscuits. Now give {cat} a shout (click {cat.him} on the bed).'.replace(/\{[^}]+\}/g, x => CK.cast(x)) : CK.cast('Empty. {cat} keeps looking at it, then at me. The cat biscuits are on my desk.')) });
       // the cat biscuits
       const boxTex = K.tex('ch.catbox', 128, 192, (g, w, h) => { g.fillStyle = '#7a2a9a'; g.fillRect(0, 0, w, h); g.fillStyle = '#ffd400'; g.fillRect(0, 0, w, 44); A.text(g, 'KITTY', 64, 34, '34px ' + A.FONT, '#7a2a9a', 'center'); A.text(g, 'CRUNCH', 64, 80, '32px ' + A.FONT, '#fff', 'center'); g.fillStyle = '#ff9a3a'; g.beginPath(); g.arc(64, 130, 30, 0, 7); g.fill(); g.fillStyle = '#ff9a3a'; g.beginPath(); g.moveTo(40, 112); g.lineTo(44, 88); g.lineTo(58, 104); g.moveTo(70, 104); g.lineTo(84, 88); g.lineTo(88, 112); g.fill(); g.fillStyle = '#111'; g.fillRect(52, 124, 6, 6); g.fillRect(70, 124, 6, 6); A.text(g, 'with real tuna*', 64, 182, '10px ' + A.UIF, '#ffd400', 'center'); });
-      const cb = grp(G => { G.box(0, -8, 0, 11, 16, 4.5, { f: M({ c: '#fff', map: boxTex }), b: M({ c: '#fff', map: boxTex }), all: mat('#6a2a8a') }); G.box(0, -16.2, 0, 11, 0.4, 4.5, mat('#ffd400')); G.shadow(0, 0, 0, 14, 8, 0.5, { sq: true }); });
+      const cb = grp(G => { G.box(0, -8, 0, 11, 16, 4.5, { f: M({ c: '#fff', map: boxTex }), b: M({ c: '#fff', map: boxTex }), all: mat('#6a2a8a') }); G.box(0,-16.12,-1.12,11,.24,2.24,mat('#d4ac2c'));G.box(0,-16.17,1.1,11,.24,2.18,mat('#e5bd34'));G.box(0,-16.32,0,10.4,.15,.28,mat('#9b7927'));G.box(-5.51,-8,0,.08,15,3.6,mat('#592071')); G.shadow(0, 0, 0, 14, 8, 0.5, { sq: true }); });
       catBox = CK.thing('ch.catbox', { obj: cb, kind: 'catfood', label: 'Cat biscuits', chore: 'cat', holdD: 45, home: { room: 'bedroom', x: 64, y: 0, z: 4, ry: 20 }, useLabel: 'Shake some out', use: () => shake() });
       const cat = H.SPOTS.cat && H.SPOTS.cat.obj;
       if (cat) { catHome = { x: cat.position.x, y: cat.position.y, z: cat.position.z, ry: cat.rotation.y }; CK.guard('cat', () => callCat()); }
@@ -372,15 +374,24 @@
       CK.spot(r, 'ch.pot', plant, { label: "Gran's spider plant", act: () => turnPot() });
       deadLeaves.forEach((lg, i) => H.spot('ch.leaf' + i, { obj: lg, room: 'bedroom', label: 'A brown leaf (pick it off)', range: 240, act: () => pluck(i) })); // (after the pot: the leaves are their own spots)
       // the watering can
-      const can = grp(G => {
-        const gm = mat('#2a9a4a', { sh: 70, sp: '#777' }), dk = mat('#1e7a38', { sh: 60, sp: '#555' });
-        G.lathe(0, 0, 0, [[0.1, -16], [4.6, -16], [6.2, -14.6], [7, -11], [7, -4], [6.4, -1.2], [5.6, 0], [0.1, 0]], 24, gm, { sz: 0.72 });
-        G.cyl(0, -16.2, 0, 3.6, 3.6, 0.6, 18, dk, { sz: 0.72 });
-        G.cyl(9.6, -9.6, 0, 0.8, 1.5, 17, 12, gm, { rz: -52 });
-        G.cyl(16.4, -15, 0, 2.3, 1.3, 1.6, 14, mat('#c8a040', { sh: 90, sp: '#fff' }), { rz: -52 });
-        G.cyl(17, -15.5, 0, 2.2, 2.2, 0.3, 14, mat('#8a6a20'), { rz: -52 });
-        G.geo(new T.TorusGeometry(6.2, 0.9, 8, 18, Math.PI), -1.4, -16.6, 0, dk, { rz: 180 });
-        G.shadow(0, 0, 0, 22, 14, 0.5);
+      const can=grp((G,model)=>{
+        model.name='watering-can';
+        const green=mat('#387b4e',{sh:28,sp:'#354d3c'}),dark=mat('#285c3a',{sh:20}),brass=mat('#ab925b',{sh:38,sp:'#5d5643'});
+        // A closed wall section: rolled fill opening, inner wall and solid base.
+        G.lathe(0,0,0,[[0,0],[5.6,0],[6.4,-1.2],[7,-4],[7,-11],[6.2,-14.6],[4.6,-16],[3.5,-16],[3.5,-15.3],[5.55,-14],[6.3,-10.8],[6.3,-4],[5.65,-1],[0,-1],[0,0]].reverse(),28,green,{sz:.72});
+        G.disc(0,-11.8,0,5.85,mat('#466660',{sh:55,sp:'#788e83'}),28,{sy:.72});
+        G.geo(new T.TorusGeometry(3.55,.25,8,28),0,-15.9,0,dark,{rx:90,sy:.72});
+        const pipe=new T.Shape();pipe.absarc(0,0,1,0,Math.PI*2,false);const hole=new T.Path();hole.absarc(0,0,.65,0,Math.PI*2,true);pipe.holes.push(hole);
+        const path=new T.CatmullRomCurve3([new T.Vector3(5.4,-5.2,0),new T.Vector3(9,-7,0),new T.Vector3(13,-12,0),new T.Vector3(17,-15.6,0)]);
+        G.geo(new T.ExtrudeGeometry(pipe,{extrudePath:path,steps:14,bevelEnabled:false,curveSegments:10}),0,0,0,green);
+        // Both handle ends enter the body; no floating half-torus.
+        const handle=new T.CatmullRomCurve3([new T.Vector3(-5.8,-13.6,0),new T.Vector3(-11,-14,0),new T.Vector3(-14,-10,0),new T.Vector3(-12,-4,0),new T.Vector3(-6,-2.4,0)]);
+        G.geo(new T.TubeGeometry(handle,18,.85,10,false),0,0,0,dark);
+        for(const y of [-11,-9.5,-8])G.rbox(-13.5,y,0,1.8,.35,1.9,.15,green);
+        const rose=new T.Group();rose.position.set(17,-15.6,0);rose.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),new T.Vector3(4,-3.6,0).normalize());model.add(rose);const R=K.into(rose);
+        R.cyl(0,0,0,1.05,2.25,2,20,brass);R.cyl(0,1.04,0,2.3,2.3,.14,20,dark);
+        for(let n=0;n<13;n++){const a=n*Math.PI*2/12,r=n===12?0:1.55;R.cyl(Math.cos(a)*r,1.12,Math.sin(a)*r,.13,.13,.05,6,mat('#22372a'))}
+        G.shadow(0,0,0,31,13,.45);
       });
       canT = CK.thing('ch.can', { obj: can, kind: 'can', label: 'Watering can (full)', chore: 'plant', holdD: 48, home: { room: 'bedroom', x: 128, y: FY, z: 22, ry: 200 }, useLabel: 'Pour', use: () => pour() });
       this.sticky = CK.sticky(r, 'plant', POT.x, POT.y - 5, POT.z + 7.4, { text: 'Water me! x the plant', size: 7, ry: 0, sign: false });
@@ -416,7 +427,7 @@
     const cactus = Math.hypot(p.x - 216, p.z + 53) < 45;
     CK.snd.pour(1.4); pouring = true; setTimeout(() => { pouring = false; }, 1500);
     const to = d < 50 ? [POT.x, POT.y - 10.5, POT.z] : cactus ? [216, -16, -53] : [p.x + 8, FY - 0.3, p.z];
-    const tip = () => { const v = new T.Vector3(17, -15.6, 0); canT.obj.localToWorld(v); return [v.x, -v.y, v.z]; };
+    const tip = () => { const v = new T.Vector3(17.85, -16.37, 0); canT.obj.localToWorld(v); return [v.x, -v.y, v.z]; };
     let n = 0; const iv = setInterval(() => { CK.fx.stream(r, tip(), to); if (++n > 14) clearInterval(iv); }, 90);
     if (d < 50) {
       if (CK.has('plant', 'water')) return setTimeout(() => CK.jack("Gran's spider plant", 'It\'s had enough. Any more and it\'ll be a swimming pool.'), 600);

@@ -1,5 +1,12 @@
 # Jack Attack 1999 - browser tests
 
+Unified object interaction/seating (disposable localhost data only):
+
+    node unified-interaction.mjs http://localhost:18080
+    node prop-interaction-models.mjs http://localhost:18080
+
+Checks F/I entry, real controls, keyboard rotation/zoom, seated reading/pet/phone/held Game Lad, return/refresh, and prop model views.
+
 Room interface regression (disposable localhost data only):
 
     node game-ui.mjs http://localhost:18080

@@ -325,3 +325,5 @@ html.hs-live .rm-tvv .rm-tools .rm-b{border:1px solid var(--game-edge);border-bo
 html.hs-live .rm-tvv .rm-tools .rm-b:hover,html.hs-live .rm-tvv .rm-tools [aria-pressed=true]{background:#465151;color:#ffe9a2}
 html.hs-live .rm-tvv .rm-tools .rm-b:focus-visible{outline:1px solid var(--game-accent);outline-offset:3px}
 html.hs-live .rm-live3d .rm-help{font:12px/1.5 Tahoma,Arial,sans-serif}
+
+.hs-inspect-description{max-width:620px;margin:2px 0 0;color:#d2d0bd;font:13px/1.5 Tahoma,Arial,sans-serif;text-align:center}.hs-inspection{max-width:min(760px,calc(100vw - 36px));box-sizing:border-box;max-height:40vh;overflow:auto}

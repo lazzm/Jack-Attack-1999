@@ -57,12 +57,12 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
 - Browser tab title is always "Jack Attack 1999" (js/title.js); it's shown nowhere else.
 - The site's CSP is `script-src 'self'`: no inline scripts or inline event handlers; put code in files.
 - Controls in the house: WASD/arrows walk, Shift jog, C crouch (never Ctrl: Ctrl+W closes the tab), Space jump,
-  F uses/plays/opens; E/click picks up, removes or places (including insertion at highlighted slots).
+  F uses/plays/opens or looks closely at the real object; close-ups remain interactive. I is an alias for that same interaction, not a separate passive view. E/click picks up, removes or places (including insertion at highlighted slots).
   Console cases must be placed off the shelf before F opens them; E takes the visible medium and returns it to its case.
-  Only filled cases go back onto the console rack. I inspects, R turns, Q leans back from screens/inspection, or returns a carried item to its pickup point (not while typing); right click also returns a carried item.
-  Esc opens the game menu (including return/leave actions). F2 stands up from the PC; F sits on portable seating and Q/WASD/arrows/Space/F2 gets up,
+  Only filled cases go back onto the console rack. R turns, Q leans back from screens/inspection, or returns a carried item to its pickup point (not while typing); right click also returns a carried item.
+  Esc opens the game menu (including return/leave actions). F2 stands up from the PC; F sits on portable seating (including with a carried item); seated players can read, use props/phone and play the held Game Lad, returning to the same seat. Q/WASD/arrows/Space/F2 gets up,
   T toggles LOCK IN for the active in-game screen (never while typing), G graphics, F9 god mode (owner "Jack" only).
-  Keep on-screen prompts consistent; never intercept Ctrl+F. LOCK IN preserves running state. JackOS fills the browser viewport like a normal desktop; other in-game screens preserve their native aspect ratio.
+  Mouse-look is automatic while walking/seated; screens, close-ups and menus release the cursor. Q/Resume restores mouse-look when the browser permits. Right click keeps its context action, not a global cursor toggle. Keep on-screen prompts consistent; never intercept Ctrl+F. LOCK IN preserves running state. JackOS fills the browser viewport like a normal desktop; other in-game screens preserve their native aspect ratio.
   Q/T stay house controls during games. Console shoulder L uses U; PC shooters use Z for previous weapon and Y for chat. Family TV text uses Shift+T.
 
 ## Owner's layout edits
