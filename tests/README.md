@@ -1,5 +1,19 @@
 # Jack Attack 1999 - browser tests
 
+Current physical-room regressions (disposable localhost data only):
+
+    node bedroom-hifi-unit.cjs
+    node house-model-geometry.mjs
+    node bedroom-hifi.mjs http://localhost:18478
+    node door-interaction-review.mjs http://localhost:18478
+    node desk-render-controls.mjs http://localhost:18478
+    node model-followup.mjs http://localhost:18478
+    node pc-view-performance.mjs http://localhost:18478 review
+
+Inspect the generated `tests/shots/` images. Software-WebGL frame times do not predict
+hardware FPS; the desk test also guards draw counts and physical controls. The hi-fi
+uses owned audio CDs; it does not grant media or invoke PC/console autorun.
+
 Room review regressions (disposable localhost data only):
 
     node review-models.mjs http://localhost:18476 # factory/custom magazine poses, square tiles, car washing and six desktop/narrow views

@@ -56,7 +56,7 @@
       // skirting along the solid bits (not across doorways)
       if (d.skirt !== false) {
         let b = s0; const sk = (p, q) => { if (q - p < 1) return; const mid = (p + q) / 2; const off = k === 'n' ? [mid, fixed + 0.8] : k === 's' ? [mid, fixed - 0.8] : k === 'w' ? [fixed + 0.8, mid] : [fixed - 0.8, mid]; B.box(off[0], fy - 4.5, off[1], k === 'n' || k === 's' ? q - p : 1.6, 9, k === 'n' || k === 's' ? 1.6 : q - p, mSkirt); };
-        for (const h of holes) { if (h[3] >= fy - 0.5) { sk(b, h[0]); b = h[1]; } }
+        for (const h of holes) { if (h[3] >= fy - 0.5) { sk(b, h[0] - 6.3); b = h[1] + 6.3; } }
         sk(b, s1);
       }
     };
@@ -85,14 +85,28 @@
     const hgt = o.h || 205, top = fy - hgt, mid = (a0 + a1) / 2, dw = a1 - a0 + 0.2;
     const along = k === 'n' || k === 's';
     const P = (a, y, n) => along ? [a, y, fixed + n * (k === 'n' ? 1 : -1)] : [fixed + n * (k === 'w' ? 1 : -1), y, a];
-    // the frame (architrave) both sides, and the reveal
-    for (const sgn of (o.noframe ? [] : [1, -1])) {
-      const [ax, ay, az] = P(a0 - 3.3, (top + fy) / 2, sgn); const [bx, by, bz] = P(a1 + 3.3, (top + fy) / 2, sgn); const [tx, ty, tz] = P(mid, top - 3.3, sgn);
-      B.box(ax, ay, az, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mWhite); B.box(bx, by, bz, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mWhite); B.box(tx, ty, tz, along ? dw + 13 : 2.4, 6, along ? 2.4 : dw + 13, mWhite);
+    // Each casing sits on its own wall face. The old +/-1 cm layers
+    // intersected, leaving coincident side faces around the opening.
+    const depth = o.depth == null ? 10 : o.depth;
+    for (const side of (o.noframe ? [] : (o.frameSides || [1, -1]))) {
+      const normal = side === 1 ? 1.1 : -depth - 1.1;
+      const [ax, ay, az] = P(a0 - 3.3, (top + fy) / 2, normal), [bx, by, bz] = P(a1 + 3.3, (top + fy) / 2, normal), [tx, ty, tz] = P(mid, top - 3, normal);
+      B.box(ax, ay, az, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mWhite);
+      B.box(bx, by, bz, along ? 6 : 2.4, hgt, along ? 2.4 : 6, mWhite);
+      B.box(tx, ty, tz, along ? a1 - a0 + 12.6 : 2.4, 6, along ? 2.4 : a1 - a0 + 12.6, mWhite);
     }
-    const rv = M({ c: '#e4e0d4', side: 2 }); // (double-sided: no see-through slot beside the open leaf)
-    if (o.noframe || o.noreveal) { /* Shared reveals are built by one room only. */ } else if (along) { B.plane(a0, (top + fy) / 2, fixed, 10, hgt, rv, { ry: 90 }); B.plane(a1, (top + fy) / 2, fixed, 10, hgt, rv, { ry: -90 }); B.plane(mid, top, fixed, a1 - a0, 10, rv, { rx: -90 }); }
-    else { B.plane(fixed, (top + fy) / 2, a0, 10, hgt, rv, { ry: 0 }); B.plane(fixed, (top + fy) / 2, a1, 10, hgt, rv, { ry: 180 }); B.plane(fixed, top, mid, 10, a1 - a0, rv, { rx: -90 }); }
+    // Solid jambs close the wall thickness; Jack's shared jamb is bedroom-owned.
+    if (!o.noframe && !o.noreveal) {
+      const rv = M('#e4e0d4'), rear = -depth + ((o.frameSides || [1, -1]).includes(-1) ? .1 : 0), front = -.1, jd = front - rear, jn = (front + rear) / 2;
+      // The existing leaf is 0.2 cm wider than the opening for its light seal.
+      // Leave 0.3 cm at each edge and butt the jamb ends to the casing backs.
+      for (const a of [a0 - 1.3, a1 + 1.3]) {
+        const [x, y, z] = P(a, (top + fy) / 2, jn);
+        B.box(x, y, z, along ? 2 : jd, hgt, along ? jd : 2, rv);
+      }
+      const [x, y, z] = P(mid, top - 1, jn);
+      B.box(x, y, z, along ? a1 - a0 + 4.6 : jd, 2, along ? jd : a1 - a0 + 4.6, rv);
+    }
     if (o.leaf === false) return null;
     // the leaf, hinged at a1 (or a0 with o.flip), swinging into the room on the + side
     const hinge = o.flip ? a0 : a1, pv = new T.Group();
@@ -107,7 +121,10 @@
         const ph = (hgt - 1) * 0.38, pw = dw * 0.34, py = top + 0.5 + (hgt - 1) * (0.5 + v), pa = sgnA * dw / 2 + u * dw * 1.5;
         if (along) D.box(pa, py, sgn * 1.95, pw, ph, 0.4, (o.panel || M('#e2ded4'))); else D.box(sgn * 1.95, py, pa, 0.4, ph, pw, (o.panel || M('#e2ded4')));
       }
-      const ha = sgnA * (dw - 7); if (along) { D.box(ha, fy - 103, sgn * 2.4, 1.6, 2.2, 1.2, mBrass); D.box(ha - sgnA * 3, fy - 103, sgn * 4, 7, 1.4, 1.4, mBrass); } else { D.box(sgn * 2.4, fy - 103, ha, 1.2, 2.2, 1.6, mBrass); D.box(sgn * 4, fy - 103, ha - sgnA * 3, 1.4, 1.4, 7, mBrass); }
+      // A low cupboard needs its own latch height, measured from its floor.
+      const ha = sgnA * (dw - 7), hy = fy - Math.min(103, hgt * 0.55);
+      if (along) { D.box(ha, hy, sgn * 2.4, 1.6, 2.2, 1.2, mBrass); D.box(ha - sgnA * 3, hy, sgn * 4, 7, 1.4, 1.4, mBrass); }
+      else { D.box(sgn * 2.4, hy, ha, 1.2, 2.2, 1.6, mBrass); D.box(sgn * 4, hy, ha - sgnA * 3, 1.4, 1.4, 7, mBrass); }
     }
     if (o.deco) o.deco(D, { along, sgnA, dw, top, hgt, fy });
     return pv;
@@ -180,20 +197,24 @@
     // The common outdoor scene is visible through the frosted glass.
     [[400, -80, 440, 1, 6, 80], [400, 60, 440, 1, 6, 80], [400, -10, 400, 1, 146, 6], [400, -10, 480, 1, 146, 6]].forEach(([x, y, z, w, h, d]) => B.box(x + 8.75, y, z, 1.5, h, d, mWhite));
     B.rbox(408.5, 62, 440, 3, 3, 90, 0.8, mWhite);
-    wl(330, (UC + UY) / 2, 700, 160, UY - UC, 180); // the front end (south): Mom and Dad's door
+    // Cut the parents' doorway out of the wallpaper, as for the west doors.
+    for (const [a, b] of [[250, 260], [340, 410]]) wl((a + b) / 2, (UC + UY) / 2, 700, b - a, UY - UC, 180);
+    wl(300, (UC - 132) / 2, 700, 80, -132 - UC, 180);
     // the ceiling (with a loft hatch) and the stairwell's upper walls
     B.plane(330, UC, 190, 160, 120, M({ c: '#fff', map: tex('artex') }), { rx: -90, uv: 110 }); B.plane(330, UC, 475, 160, 450, M({ c: '#fff', map: tex('artex') }), { rx: -90, uv: 110 });
     B.box(290, UC + 0.5, 600, 60, 1.6, 70, mWhite); B.box(290, UC + 1.2, 600, 56, 0.6, 66, M('#d8d4c8'));
     // the floor's edge round the stairwell (you can see its thickness from the stairs)
     const edgeM = M('#d8d0c0');
-    B.plane(329.9, (UY + GC) / 2, 425, 350, GC - UY, edgeM, { ry: 90 }); B.plane(370, (UY + GC) / 2, 600.1, 80, GC - UY, edgeM, { ry: 180 }); // (the slab ends at the stairwell: edge faces the stairs)
-    B.box(332.2, UY - 0.8, 425, 1.6, 1.6, 350, mSkirt); B.box(370, UY - 0.6, 598.4, 80, 1.2, 3.2, mSkirt); // the nosing clears the newels
+    B.box(329, (UY + GC) / 2, 425, 2, GC - UY, 350, edgeM);
+    B.box(370, (UY + GC) / 2, 599, 80, GC - UY, 2, edgeM);
+    // The oak base rail caps this edge. A second white nosing used to share
+    // its outer face and flicker through the oak at floor level.
     B.box(245, UY + 1.1, 190, 10.4, 2.2, 80, M({ c: '#fff', map: tex('oak') })); B.box(245, UY - 0.45, 190, 10.4, 0.9, 80, M({ c: '#fff', map: tex('oak') })); // the threshold strip: fills the wall thickness between Jack's carpet and the landing, flush with both
     
     // the banisters: round the stairwell up here, and down the stairs
     banister(B, [[330, 252], [330, 600], [410, 600]], UY); // (the whole open edge of the stairwell: newels with round caps at the corners; blocked below)
     // skirting on the landing walls
-    [[130, 150], [230, 300], [380, 450], [530, 700]].forEach(([a, b]) => B.box(250.8, UY - 4.5, (a + b) / 2, 1.6, 9, b - a, mSkirt));
+    [[130, 143.7], [236.3, 293.7], [386.3, 443.7], [536.3, 700]].forEach(([a, b]) => B.box(250.8, UY - 4.5, (a + b) / 2, 1.6, 9, b - a, mSkirt));
     stairs(B);
     // ao along the landing walls
     [[130,150],[230,300],[380,450],[530,700]].forEach(([a,b])=>B.ao(250.3,UY-16,(a+b)/2,b-a,32,{ry:90,rx:180,a:0.5}));B.ao(330, UY - 16, 130.3, 160, 32, { rx: 180, a: 0.5 });
@@ -201,7 +222,7 @@
     // doors: Jack's (already there: js/rm-room.js), the bathroom, the little sister's room, Mom and Dad's
     const Bd = K.into(K.batch()); // (frames go in the batch below)
     const fb = K.batch(), F = K.into(fb);
-    doorway(r, F, 'jackframe', 'w', 250, 150, 230, UY, { leaf: false, noreveal:true }); // bedroom owns the shared reveal
+    doorway(r, F, 'jackframe', 'w', 250, 150, 230, UY, { leaf: false, noreveal:true, frameSides: [1] }); // bedroom owns the shared reveal and reverse casing
     doorway(r, F, 'bath', 'w', 250, 300, 380, UY, { leaf: true, inside: true });
     const sd = doorway(r, F, 'sis', 'w', 250, 450, 530, UY, { inside: true, deco: (D, g) => { D.plane(g.along ? 0 : 2.6, -64, g.sgnA * g.dw / 2, 30, 20, M({ c: '#fff', map: sisSign() }), { ry: 90 }); } });
     const md = doorway(r, F, 'mum', 's', 700, 260, 340, UY, { inside: true });
@@ -222,12 +243,12 @@
     const wood = M({ c: '#fff', map: tex('oak') }), spin = M({ c: '#f0ece2', sh: 30 });
     for (let i = 0; i < pts.length - 1; i++) {
       const [x0, z0] = pts[i], [x1, z1] = pts[i + 1], len = Math.hypot(x1 - x0, z1 - z0), ry = Math.atan2(x1 - x0, z1 - z0) / D2R;
-      B.box((x0 + x1) / 2, fy - 90, (z0 + z1) / 2, 6, 5, len + 6, wood, { ry }); // the rail
-      B.box((x0 + x1) / 2, fy - 3, (z0 + z1) / 2, 6, 6, len, wood, { ry }); // the base rail
+      B.box((x0 + x1) / 2, fy - 90, (z0 + z1) / 2, 6, 5, len - 9, wood, { ry, uv: 60 }); // housed into the newel shoulders
+      B.box((x0 + x1) / 2, fy - 3, (z0 + z1) / 2, 6, 6, len - 9, wood, { ry, uv: 60 }); // no overlapping corner rail caps
       const n = Math.floor(len / 12);
       for (let k = 1; k < n; k++) { const t = k / n; B.cyl(x0 + (x1 - x0) * t, fy - 46.5, z0 + (z1 - z0) * t, 1.4, 1.4, 81, 8, spin); }
     }
-    for (const [x, z] of pts) { B.box(x, fy - 52, z, 9, 104, 9, wood); B.ball(x, fy - 106, z, 4.6, 4.6, 4.6, wood, 12); }
+    for (const [x, z] of pts) { B.box(x, fy - 52, z, 9, 104, 9, wood, { uv: 60 }); B.ball(x, fy - 106, z, 4.6, 4.6, 4.6, wood, 12); }
   }
   // the stairs: 14 steps of 20 cm, a carpet runner, the handrail down the open side, the panelled side under it
   function stairs(B) {
@@ -244,7 +265,9 @@
     // the closed string on the open side: from just above the nosings to just under the soffit; the handrail and spindles stand on it
     const ang = Math.atan2(0.8, 1) / D2R, z1 = 252, z2 = 600, zc = (z1 + z2) / 2, L = Math.hypot(z2 - z1, 0.8 * (z2 - z1));
     B.box(330, pitch(zc) + 8, zc, 6, 25, L, wood, { rx: -ang });
-    B.box(330, pitch(zc) - 92, zc, 6, 5, L, wood, { rx: -ang });
+    // Keep the descending handrail inside the top and bottom newel faces.
+    const rail0 = z1 + 4.5, rail1 = z2 - 5, railMid = (rail0 + rail1) / 2;
+    B.box(330, pitch(railMid) - 92, railMid, 6, 5, Math.hypot(rail1 - rail0, 0.8 * (rail1 - rail0)), wood, { rx: -ang, uv: 60 });
     for (let k = 1; k <= 13; k++) { const z = 250 + 25 * k - 12.5; B.cyl(330, pitch(z) - 48.75, z, 1.4, 1.4, 82.5, 8, spin); }
     B.box(330, GY - 52, 600, 10, 104, 10, wood); B.ball(330, GY - 107, 600, 5, 5, 5, wood, 12); // the newel post at the bottom
   }
@@ -277,22 +300,35 @@
     wl(300, (GC + GY - 210) / 2, 700, 80, GY - 210 - GC, 180);
     wl(410, (GC + GY) / 2, 650, 100, GY - GC, -90);
     // skirting
-    [[60, 150], [230, 480], [560, 700]].forEach(([a, b]) => B.box(205.8, GY - 4.5, (a + b) / 2, 1.6, 9, b - a, mSkirt));
-    B.box(307.5, GY - 4.5, 60.8, 205, 9, 1.6, mSkirt); B.box(329.2, GY - 4.5, 305.25, 1.6, 9, 109.5, mSkirt); B.box(329.2, GY - 4.5, 505, 1.6, 9, 130, mSkirt);
+    [[60, 143.7], [236.3, 473.7], [566.3, 700]].forEach(([a, b]) => B.box(205.8, GY - 4.5, (a + b) / 2, 1.6, 9, b - a, mSkirt));
+    B.box(307.5, GY - 4.5, 60.8, 205, 9, 1.6, mSkirt); B.box(329.2, GY - 4.5, 303.1, 1.6, 9, 105.2, mSkirt); B.box(329.2, GY - 4.5, 507.15, 1.6, 9, 125.7, mSkirt);
     [[60,150],[230,480],[560,700]].forEach(([a,b])=>{B.ao(205.3,GY-16,(a+b)/2,b-a,32,{ry:90,rx:180,a:0.5});B.ao(220,GY-0.3,(a+b)/2,b-a,28,{rx:90,ry:-90,a:0.4})});
     const fadeStart=250+(GY-32-UY-23.5)/0.8;
     [[250,362],[438,fadeStart]].forEach(([a,b])=>B.ao(329.7,GY-16,(a+b)/2,b-a,32,{ry:-90,rx:180,a:0.45}));
     const edgeFade=new T.BufferGeometry();edgeFade.setAttribute('position',new T.Float32BufferAttribute([329.7,GY-32,fadeStart,329.7,GY,fadeStart,329.7,GY,zF],3));edgeFade.setAttribute('uv',new T.Float32BufferAttribute([0,0,0,1,1,1],2));edgeFade.setIndex([0,2,1]);edgeFade.computeVertexNormals();
     B.geo(edgeFade,0,0,0,M({c:'#000',map:K.TEX.fade,basic:true,tr:true,o:0.45,dw:false,po:-2}));
     // the front door's frame (its leaf is hinged on in init, with the drive beyond); the doormat
-    doorway(r, B, 'frontframe', 's', 700, 260, 340, GY, { leaf: false });
+    doorway(r, B, 'frontframe', 's', 700, 260, 340, GY, { leaf: false, depth: 1 });
     const fd = B.at(300, GY, 700);
     fd.box(0, -1, -42, 70, 2, 44, M({ c: '#fff', map: matTex() }));
     B.shadow(300, GY, 660, 74, 48, 0.5, { sq: true });
     // coat hooks with coats, a mirror, a radiator, the hall table with the keys bowl, a ceiling light
     const ch = B.at(206, GY - 170, 640);
     ch.box(2, 0, 0, 3, 8, 80, M({ c: '#fff', map: tex('oak') }));
-    [['#2a3a5a', -28], ['#7a1a1a', -6], ['#c8a060', 16], ['#1a1a1a', 30]].forEach(([c, z]) => ch.rbox(9, 40, z, 12, 76, 22, 5, M(c)));
+    // Coats hang from real pegs: closed, softly bevelled silhouettes with
+    // shoulders, sleeves, a neck opening and a hem, rather than padded blocks.
+    [['#2a3a5a', -29, 74], ['#967a59', -8, 81], ['#363c47', 13, 64], ['#a96379', 31, 53]].forEach(([c, z, h], i) => {
+      const reach = 9 + i * 1.2, C = ch.at(reach, -1, z, 90), cloth = M({ c, sh: 2, sp: '#080808' });
+      ch.cyl((3.5 + reach) / 2, -1, z, .65, .65, reach - 3.5, 10, mBrass, { rz: 90 });
+      ch.ball(reach, -2, z, 1, 1.4, 1, mBrass, 8);
+      const w = i === 3 ? 8 : 10, shape = new T.Shape();
+      [[-3,0],[-w,4],[-w-5,25],[-w+1,28],[-w+3,19],[-w+1,h-1],[0,h],[w-1,h-1],[w-3,19],[w-1,28],[w+5,25],[w,4],[3,0],[2,3],[-2,3]].forEach(([x,y],j) => j ? shape.lineTo(x,y) : shape.moveTo(x,y));
+      shape.closePath();
+      C.geo(new T.ExtrudeGeometry(shape, { depth: 3.6, steps: 1, bevelEnabled: true, bevelSegments: 2, bevelSize: .8, bevelThickness: .7, curveSegments: 1 }), 0, 0, -1.8, cloth);
+      C.rbox(0, h / 2 + 2, 2.7, .7, h - 8, .6, .25, M({ c, sh: 4 }));
+      for (let y = 12; y < h - 9; y += 12) C.ball(1, y, 3.1, .6, .6, .3, mDark, 6);
+      for (const x of [-w*.5, w*.5]) C.rbox(x, h*.6, 2.7, w*.65, 1, .6, .25, M({ c, sh: 4 }));
+    });
     const mi = B.at(206, GY - 150, 300); mi.box(1, 0, 0, 2, 60, 40, M({ c: '#fff', map: tex('oak') })); mi.plane(2.2, 0, 0, 36, 56, M({ c: '#a8b8c8', sh: 120, sp: '#fff' }), { ry: 90 });
     const rd = B.at(206, GY - 36, 400); rd.box(4, 0, 0, 3.6, 56, 90, { all: M('#e8e5dc'), r: M({ c: '#fff', map: tex('radiator'), sh: 40 }) });
     const ht = B.at(222, GY, 110); ht.box(0, -76, 0, 30, 3, 60, M({ c: '#fff', map: tex('oak') })); [[-12, -26], [12, -26], [-12, 26], [12, 26]].forEach(([x, z]) => ht.box(x, -37, z, 3, 74, 3, M({ c: '#fff', map: tex('oak') })));
@@ -307,11 +343,11 @@
     // the front door (it's cold out), the coats, the hall table
     // the doormat: where the post (and mail-order parcels: Agent P's pack) lands. Things can rest on it: { room: 'hall', x: 300, y: 353, z: 655 }
     wrapSpot('hs.mat', { label: 'The doormat', act: () => say('The doormat', ['WELCOME, it says. Mom hoovers it. It is the cleanest thing in the house.', 'The post lands here. Mostly bills, and catalogues for Mom. Sometimes a parcel for ME.'][((r.mn = (r.mn | 0) + 1)) % 2]) }); pickBox(r, 'hs.mat', 300, GY - 1.2, 658, 70, 2.4, 44);
-    wrapSpot('hs.coats', { label: 'Coats', act: sayLines('hs.coats', 'Coats', ['Dad\'s anorak, Mom\'s good coat, my school coat (too small), ' + sis() + '\'s pink one.', 'In my coat pocket: 20p, a bus ticket and a Chupa Chups wrapper.']) }); pickBox(r, 'hs.coats', 214, GY - 130, 640, 20, 90, 80);
+    wrapSpot('hs.coats', { label: 'Coats', act: sayLines('hs.coats', 'Coats', ['Dad\'s anorak, Mom\'s good coat, my school coat (too small), ' + sis() + '\'s pink one.', 'In my coat pocket: 20p, a bus ticket and a Chompa Chomps wrapper.']) }); pickBox(r, 'hs.coats', 214, GY - 130, 640, 20, 90, 80);
     H.spot('hs.keys', { label: 'Keys bowl', act: sayLines('hs.keys', 'The keys bowl', ['Car keys, the spare front door key, a key nobody knows what it\'s for, and three buttons.']) }); pickBox(r, 'hs.keys', 222, GY - 82, 110, 30, 10, 50);
     H.spot('hs.mirror', { label: 'Mirror', act: sayLines('hs.mirror', 'Mirror', ['Still got the hair gel in from yesterday. Spiky. Excellent.', 'Is that a spot? It\'s a spot. Oh no.']) }); pickBox(r, 'hs.mirror', 207, GY - 150, 300, 3, 60, 40);
     // the cupboard door (it's a small one)
-    const cd = doorway(r, K.into(r.cupFrames = K.batch()), 'cupdoor', 'w', 330, 362, 438, GY, { h: 94, inside: false, flip: false });
+    const cd = doorway(r, K.into(r.cupFrames = K.batch()), 'cupdoor', 'w', 330, 362, 438, GY, { h: 94, inside: false, flip: false, depth: 1 });
     r.cupFrames.build(r.group);
     H.door('cupboard', { rooms: ['hall', 'cupboard'], pivot: cd, swing: 100, dir: -1 });
     H.spot('hs.cupdoor', { label: () => H.DOORS.cupboard.open ? 'Shut the cupboard' : 'The cupboard under the stairs', obj: cd, act: () => { H.setDoor('cupboard', !H.DOORS.cupboard.open); } });
@@ -431,8 +467,8 @@
     // the family telly on its stand, the video underneath, the tapes
     buildTelly(r, B);
     // the sofa (3-seater, floral) facing the telly, Dad's armchair, the coffee table
-    sofa(B, -60, 560, 180, 200, M({ c: '#fff', map: sofaTex() }));
-    sofa(B, 110, 430, -118, 90, M({ c: '#fff', map: sofaTex() }));
+    sofa(B, -60, 560, 180, 200, M({ c: '#fff', map: sofaTex(), sh: 2, sp: '#080808' }));
+    sofa(B, 110, 430, -118, 90, M({ c: '#fff', map: sofaTex(), sh: 2, sp: '#080808' }));
     const ct = B.at(-60, GY, 450); ct.box(0, -42, 0, 100, 3, 55, M({ c: '#fff', map: tex('oak') })); [[-45, -23], [45, -23], [-45, 23], [45, 23]].forEach(([x, z]) => ct.box(x, -20.5, z, 4, 41, 4, M({ c: '#fff', map: tex('oak') }))); ct.box(0, -8, 0, 92, 2, 48, M({ c: '#fff', map: tex('oak') }));
     if(window.Magazines)Magazines.makePaper('hs.tvguide',{room:'lounge',x:-88,y:GY-43.5,z:456,ry:-12},guideTex(),.8);
     else ct.box(-28,-44,6,21,.8,28,{t:M({c:'#fff',map:guideTex()}),all:M('#f0eee8')},{ry:-12});
@@ -520,20 +556,33 @@
     curve.add(new T.LineCurve3(from,points[points.length-1]));B.geo(new T.TubeGeometry(curve,72,0.25,6),0,0,0,M({c:col,sh:10}));return curve.getSpacedPoints(160).map(p=>p.toArray());
   }
   function sofa(B, x, z, ry, w, m) {
-    const S = B.at(x, GY, z, ry), pipe = M({ c: '#8a6a4a', sh: 10 });
-    S.rbox(0, -18, 4, w - 4, 24, 74, 5, m); // the base
-    const n = w > 120 ? 3 : 1, cw = n === 3 ? (w - 44) / 3 : w - 36;
-    for(let i=0;i<n;i++){const cx=n===1?0:(i-1)*(w-40)/3;S.rbox(cx,-37,2,cw-2,16,62,7,m);cushionPiping(S,cx,-37,2,cw-1.8,62.2,7,pipe)}
-    for (let i = 0; i < n; i++) { const cx = n === 1 ? 0 : (i - 1) * (w - 40) / 3; S.rbox(cx, -66, -26, cw - 2, 44, 16, 7, m, { rx: 8 }); } // back cushions, leaning back
-    S.rbox(0, -56, -36, w, 56, 12, 6, m); // the frame behind
-    [-1, 1].forEach(s => { S.rbox(s * (w / 2 - 9), -36, 4, 18, 40, 78, 8, m); S.rbox(s * (w / 2 - 9), -58, 4, 20, 8, 80, 4, m); }); // arms with a padded roll
+    const S = B.at(x, GY, z, ry), pipe = M({ c: '#8a6a4a', sh: 2 });
+    // All upholstered faces use the same centimetres-per-repeat. Stretching
+    // one floral tile over each box made the plinth flowers enormous and
+    // flattened them into stripes along the arms and cushion edges.
+    const fabric = { uv: 60 };
+    S.rbox(0, -18, 4, w - 4, 24, 74, 5, m, fabric);
+    S.rbox(0, -56, -36, w, 56, 12, 6, m, fabric);
+    const n = w > 120 ? 3 : 1, gap = 1.2, cw = (w - 40 - (n - 1) * gap) / n;
+    for (let i = 0; i < n; i++) {
+      const cx = (i - (n - 1) / 2) * (cw + gap);
+      // A small compression into the deck and back pads closes the former
+      // daylight joins without hiding the separate cushion silhouettes.
+      S.rbox(cx, -37, 2, cw, 16, 62, 7, m, fabric);
+      cushionPiping(S,cx,-37,2,cw+.12,62.12,7,pipe);
+      S.rbox(cx, -64, -26, cw, 44, 16, 7, m, { rx: 8, uv: 60 });
+    }
+    [-1, 1].forEach(s => {
+      S.rbox(s * (w / 2 - 9), -36, 4, 18, 40, 78, 8, m, fabric);
+      S.rbox(s * (w / 2 - 9), -58, 4, 20, 8, 80, 4, m, fabric);
+    });
     if(n===3){S.rbox(-w/2+34,-58,-13,26,28,10,4.5,M({c:'#7a2a2a',sh:8}),{ry:12,rx:12,rz:6});S.rbox(w/2-40,-58,-13,26,28,10,4.5,M({c:'#c8a850',sh:8}),{ry:-18,rx:12,rz:-4})}
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => S.cyl(a * (w / 2 - 10), -3, 4 + b * 34, 3, 3.6, 6, 10, M('#3a2414'))); // feet
     S.shadow(0, 0, 4, w + 12, 88, 0.75, { sq: true });
   }
   function cushionPiping(B,x,y,z,w,d,r,m){
     const path=new T.CurvePath(),v=(a,b)=>new T.Vector3(a,0,b),a=w/2,b=d/2,points=[[-a+r,-b],[a-r,-b],[a,-b+r],[a,b-r],[a-r,b],[-a+r,b],[-a,b-r],[-a,-b+r]],corners=[[a,-b],[a,b],[-a,b],[-a,-b]];
-    for(let i=0;i<8;i++){const p=v(...points[i]),q=v(...points[(i+1)%8]);path.add(i%2?new T.QuadraticBezierCurve3(p,v(...corners[(i-1)/2]),q):new T.LineCurve3(p,q))}
+    for(let i=0;i<8;i++){const p=v(...points[i]),q=v(...points[(i+1)%8]);path.add(i%2?new T.CubicBezierCurve3(p,p.clone().lerp(v(...corners[(i-1)/2]),.55228475),q.clone().lerp(v(...corners[(i-1)/2]),.55228475),q):new T.LineCurve3(p,q))}
     B.geo(new T.TubeGeometry(path,56,0.18,5,true),x,y,z,m);
   }
   function curtainG(B, x, y, z, w, h, m) { const g = new T.PlaneGeometry(w, h, 40, 10), p = g.attributes.position, u = g.attributes.uv; for (let i = 0; i < p.count; i++) { const px = p.getX(i); p.setZ(i, Math.sin(px / w * Math.PI * 10) * 3.2 + 3); u.setY(i, 1 - u.getY(i)); } g.computeVertexNormals(); B.geo(g, x, y + h / 2, z, m, { ry: 180 }); }
@@ -600,26 +649,28 @@
     // the window over the sink and the back door (half glass): the garden outside
     // Shared sky/neighbourhood; no overlapping bedroom/kitchen sky cards.
     winFrame(B, -140, -20, 195, 290, -56);
-    doorway(r, B, 'backframe', 'n', -56, 80, 160, GY, { leaf: false });
+    doorway(r, B, 'backframe', 'n', -56, 80, 160, GY, { leaf: false, depth: 1, frameSides: [1] });
     // the units along the back wall: base cupboards, the worktop, wall cupboards, the sink, the cooker, the washing machine
     const doorM = M({ c: '#fff', map: unitTex() }), top = M({ c: '#fff', map: worktopTex(), sh: 40, sp: '#555' });
     const unit = (x0, x1, appliance) => { const cx=(x0+x1)/2,w=x1-x0,carcass=M('#e8e2d0');
-      for(const x of [x0+1,x1-1])B.box(x,GY-46,-26,2,86,58,carcass);
-      B.box(cx,GY-46,-54,w-4,86,2,carcass);B.box(cx,GY-5,-26,w-4,2,54,carcass);
+      // The washer bay's rear corner clears the back-door architrave.
+      const rear = appliance ? -53 : -55;
+      for(const x of [x0+1,x1-1])B.box(x,GY-46,(rear+3)/2,2,86,3-rear,carcass);
+      B.box(cx,GY-46,rear+1,w-4,86,2,carcass);B.box(cx,GY-5,-26,w-4,2,54,carcass);
       B.box(cx,GY-46,2,w-4,84,2,appliance?M({c:'#eeeae2',sh:24}):doorM);
-      B.box(cx,GY-4,-24.3,w,8,54,M('#3a3a3a'),{sides:'f'}); // recessed kickboard, clear of the door faces
+      B.box(cx,GY-4,-3,w-4,8,2,M('#3a3a3a')); // solid recessed kickboard
     };
     unit(-214.5,-160);unit(-160,-40);unit(20,80,true);
     // Reserve the fridge bay and cut a real opening for the sink bowl.
     const work=(x0,x1,z0,z1)=>B.box((x0+x1)/2,GY-91.5,(z0+z1)/2,x1-x0,3,z1-z0,top);
-    work(-214.5,-103,-56,10);work(-57,-40,-56,10);work(-103,-57,-56,-44);work(-103,-57,-8,10);work(20,80,-56,10);
+    work(-214.5,-103,-56,10);work(-57,-40,-56,10);work(-103,-57,-56,-44);work(-103,-57,-8,10);work(20,73.5,-56,10);work(73.5,80,-53,10);
     // Sixteen 12 cm tiles per texture: world UVs keep the grout square and
     // the fruit motifs round instead of stretching them across the wall.
     // Leave the actual window and back-door opening clear. The old single
     // strip also hid most of the window and fought the door casing for depth.
     for(const [x0,x1]of [[-280,-140],[-20,73.5]])B.plane((x0+x1)/2,GY-120,-55.8,x1-x0,56,M({c:'#fff',map:tex('tiles')}),{uv:192});
     const wu = (x0, x1) => { const cx = (x0 + x1) / 2; B.box(cx, GC + 80, -40, x1 - x0, 70, 32, { f: doorM, all: M('#e8e2d0') }); };
-    wu(-214.5,-160);wu(20,80);
+    wu(-214.5,-160);wu(20,71.5); // 2.2 cm clear of the door casing
     B.shadow(-110, GY, -26, 270, 70, 0.7, { sq: true });
     // the sink (stainless steel), the taps, the washing-up
     const sk=B.at(-80,GY-93,-26),steel=M({c:'#b4bcc4',sh:70,sp:'#aab4bd'});
@@ -759,10 +810,18 @@
     B.cyl(200, (GY - 300) / 2, -60, 5, 5, 600, 8, M('#2a2a2a')); // the drainpipe
     // fences down both sides and across the end, the gate at the end, next door's roofs over the top
     const fm = mFence();
-    B.box(x0+1.5,GY-90,(z0+z1)/2,3,180,z1-z0,fm,{uv:100});B.box(x1-1.5,GY-90,(z0+z1)/2,3,180,z1-z0,fm,{uv:100});
-    B.box((x0+x1)/2,GY-90,z0+1.5,x1-x0,180,3,fm,{uv:100});
-    for (let z = z0; z <= z1; z += 180) { B.box(x0 + 2, GY - 92, z, 8, 190, 8, M('#5a3a22')); B.box(x1 - 2, GY - 92, z, 8, 190, 8, M('#5a3a22')); }
-    for (let x = x0; x <= x1; x += 172) B.box(x, GY - 92, z0 + 2, 8, 190, 8, M('#5a3a22'));
+    // One post per corner; panel ends butt against post shoulders. The old
+    // full-length panels and two offset corner posts shared exposed faces.
+    const left = x0 + 4, right = x1 - 4, rear = z0 + 4, front = z1 - 4;
+    const postM = M({ c: '#fff', map: tex('pineDark') }), zs = [rear, -390, -224, front];
+    const post = (x,z) => { B.box(x,GY-94,z,8,188,8,postM,{uv:60}); B.rbox(x,GY-189,z,9.2,2,9.2,.5,postM,{uv:60}); };
+    for (const x of [left, right]) {
+      for (const z of zs) post(x,z);
+      for (let i=1;i<zs.length;i++) B.box(x===left?x0+1.5:x1-1.5,GY-90,(zs[i-1]+zs[i])/2,3,180,zs[i]-zs[i-1]-8,fm,{uv:100});
+    }
+    const xs = [left, left+(right-left)/3, left+2*(right-left)/3, right];
+    for (let i=1;i<xs.length-1;i++) post(xs[i],rear);
+    for (let i=1;i<xs.length;i++) B.box((xs[i-1]+xs[i])/2,GY-90,z0+1.5,xs[i]-xs[i-1]-8,180,3,fm,{uv:100});
     // the shed (Dad's), the whirly washing line, the wheelie bin, a flower bed, the water butt, a tree
     const sh=B.at(-212,GY,-462),shw=M({c:'#fff',map:tex('pineDark')});
     sh.box(0,-95,0,150,190,120,shw,{uv:60});
@@ -798,7 +857,11 @@
     wb.rbox(0,-61,0,58,98,70,4,green);wb.rbox(0,-112,4,60,6,74,2,M('#245024'));
     for(const x of [-22,22]){wb.cyl(x,-12,-28,12,12,7,24,M('#202224'),{rz:90});wb.cyl(x+(x<0?-3.6:3.6),-12,-28,4,4,.4,14,M('#777b7c'),{rz:90});wb.box(x,-6,26,4,12,5,green)}
     wb.cyl(0,-12,-28,1.2,1.2,49,12,mMetal,{rz:90});for(const x of [-18,18]){wb.box(x,-60,35.2,1.2,74,.8,M('#245024'));wb.box(x,-109,-37,3,8,7,green)}wb.cyl(0,-112,-40,1.4,1.4,39,12,green,{rz:90});wb.shadow(0,0,0,70,84,.6,{sq:true});
-    const fb=B.at(-230,GY,-270);fb.box(0,-4,0,110,8,60,M('#3a2a1a'));for(const x of [-54,54])fb.box(x,-5,0,4,10,64,M('#725437'));for(const z of [-30,30])fb.box(0,-5,z,106,10,4,M('#725437'));
+    const fb=B.at(-230,GY,-270);
+    // Soil meets the inner faces; end boards fit BETWEEN the side boards.
+    fb.box(0,-4,0,106,8,56,M('#3a2a1a'));
+    for(const x of [-55,55])fb.box(x,-5,0,4,10,64,M('#725437'));
+    for(const z of [-30,30])fb.box(0,-5,z,106,10,4,M('#725437'));
     for(let i=0;i<12;i++){const x=-46+i*8.3,z=-16+(i%3)*16,c=['#cf4e5d','#e2bd45','#c97ba0','#e4dfd0','#d78441'][i%5],petal=M(c);fb.cyl(x,-15,z,.35,.35,14,6,M('#376f39'));for(let k=0;k<5;k++){const a=k*Math.PI*2/5;fb.ball(x+Math.cos(a)*2.4,-22,z+Math.sin(a)*2.4,2.1,.7,1.4,petal,8,{ry:-a/D2R})}fb.ball(x,-22.5,z,1.1,.7,1.1,M('#d0a542'),8);for(const s of [-1,1])fb.ball(x+s*1.9,-15,z,2.4,.3,1,M('#4c8249'),8,{rz:s*25})}
     const wbt=B.at(r.waterButt.x,GY,r.waterButt.z);wbt.cyl(0,-45,0,26,24,90,28,M({c:'#315d39',sh:15}));wbt.cyl(0,-91,0,27,27,2,28,M('#24482c'));
     for(const y of [-20,-68])wbt.geo(new T.TorusGeometry(y===-20?24.5:25.5,.65,6,40),0,y,0,M('#284b30'),{rx:90});wbt.cyl(0,-14,25.5,1.4,1.4,6,12,M('#292d2e'),{rx:90});wbt.box(0,-17,29,7,1.3,2,M('#292d2e'));wbt.shadow(0,0,0,58,58,.5);

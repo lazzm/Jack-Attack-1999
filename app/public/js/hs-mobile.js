@@ -1,5 +1,5 @@
 /* hs-mobile: JACK'S MOBILE, in the room. The Talkbrik T-99 (js/family-phone.js: texts, Snake, the ringtone composer) is a real
- * thing on the bedside table, on charge. Pick it up (the grab system), press F / "Use it" and it comes up to your face: the
+ * thing on the desk, on charge. Pick it up (the grab system), press F / "Use it" and it comes up to your face: the
  * phone's own screen and keys are laid over the 3D phone, so everything the program does (texts to other visitors, T9, the
  * inbox on its 1999 dates, every secret and save) works exactly as before. A text arriving buzzes the phone where it lies.
  * The PC's "Jack's Mobile" program stays as a thin fallback that says where the phone is (js/family.js asks HouseMobile). */
@@ -19,11 +19,11 @@
 
   // ================================================================ the model: a 1999 candy-bar phone, 13 x 4.8 x 2.3 cm, lying on its back
   function model() {
-    const g = new T.Group(), B = K.into(g);
+    const g = new T.Group(), batch=K.batch(),B = K.into(batch);
     const body = M({ c: '#3a3e4a', sh: 40, sp: '#555' }), dark = M({ c: '#15161a', sh: 60, sp: '#666' });
     B.rbox(0, -1.15, 0, 4.8, 2.3, 13, 0.9, body);
     B.rbox(0, -2.4, -3.6, 3.6, 0.2, 3.2, 0.3, dark); // the screen surround
-    lcd = B.plane(0, -2.52, -3.6, 2.9, 2.1, M({ c: '#a8d070', e: '#2a4a12', sh: 30, side: 2 }).clone(), { rx: -90 }); // the green backlit LCD
+    lcd = K.into(g).plane(0, -2.52, -3.6, 2.9, 2.1, M({ c: '#a8d070', e: '#2a4a12', sh: 30, side: 2 }).clone(), { rx: -90 }); // the green backlit LCD
     B.box(0, -2.36, -5.6, 3.4, 0.08, 0.5, { t: M({ c: '#fff', map: K.tex('hs.mob.brand2', 128, 20, (gg) => { gg.fillStyle = '#3a3e4a'; gg.fillRect(0, 0, 128, 20); A.text(gg, 'TALKBRIK', 64, 15, '700 13px ' + A.UIF, '#c8c8d0', 'center'); }) }), all: body });
     for (let i = 0; i < 5; i++) B.cyl(-1 + i * 0.5, -2.4, -6.2, 0.1, 0.1, 0.2, 6, dark); // the earpiece holes
     B.rbox(0, -2.45, -1.2, 1.6, 0.3, 0.8, 0.3, M({ c: '#5a7ad0', sh: 50 })); B.rbox(-1.5, -2.4, -1.2, 0.9, 0.25, 0.7, 0.2, M('#3a3a44')); B.rbox(1.5, -2.4, -1.2, 0.9, 0.25, 0.7, 0.2, M('#3a3a44')); // menu, C, up/down
@@ -33,7 +33,7 @@
     B.cyl(1.5, -1.5, -7.3, 0.42, 0.36, 1.8, 8, M({ c: '#111', sh: 20 }), { rx: 90 }); B.ball(1.5, -1.5, -8.2, 0.45, 0.45, 0.45, M('#111'), 6); // the stubby antenna (out of the top, lying flat with the phone)
     B.box(0, -1.1, 6.55, 1.2, 0.5, 0.2, M('#555')); // the charger socket
     B.shadow(0, 0, 0, 6.5, 15, 0.55, { sq: true });
-    return g;
+    batch.build(g);return g;
   }
   // the charger: a black brick in the wall socket behind the bedside table, a thin lead to the phone (drawn as part of the room)
   function charger(r) {
@@ -61,7 +61,7 @@
   }
   const atHome = () => thing && thing.st === 'rest' && thing.at.room === 'bedroom' && Math.abs(thing.at.x - HOME.x) < 14 && Math.abs(thing.at.z - HOME.z) < 14;
   function charge() { psave({ charging: !!atHome() }); }
-  const where = () => { if (!thing) return 'in your room'; if (H.held() === 'mobile') return 'in your hand'; const a = thing.at; if (atHome()) return 'on charge on the bedside table in your room'; const rn = { bedroom: 'in your room', landing: 'on the landing', hall: 'in the hall', lounge: 'in the lounge', kitchen: 'in the kitchen', cupboard: 'under the stairs', garden: 'out in the garden', drive: 'out the front' }[a.room] || 'somewhere'; return rn + (a.y < (a.room === 'bedroom' ? GY_U : 353) - 20 ? ', on something' : ', on the floor'); };
+  const where = () => { if (!thing) return 'in your room'; if (H.held() === 'mobile') return 'in your hand'; const a = thing.at; if (atHome()) return 'on charge on the desk in your room'; const rn = { bedroom: 'in your room', landing: 'on the landing', hall: 'in the hall', lounge: 'in the lounge', kitchen: 'in the kitchen', cupboard: 'under the stairs', garden: 'out in the garden', drive: 'out the front' }[a.room] || 'somewhere'; return rn + (a.y < (a.room === 'bedroom' ? GY_U : 353) - 20 ? ', on something' : ', on the floor'); };
   // "Use it": the phone comes up to your face; the program's own screen and keys are laid over it
   function use(arg) {
     if (!thing || surf || usingT) return;
@@ -105,7 +105,7 @@
   function buzz(it) {
     if (!thing) make(); if (!thing) return false;
     setGlow(true);
-    if (!H.live) { try { Sound.play('beep'); Desk.toast('*bzzzt*', `Your mobile's buzzing on the desk next to you. A text from ${it && it.from || 'someone'}. (Stand up to get it: the chair button, or hold Esc.)`, 7000); } catch (e) {} return true; }
+    if (!H.live) { try { Sound.play('beep'); Desk.toast('*bzzzt*', `Your mobile's buzzing on the desk next to you. A text from ${it && it.from || 'someone'}. (Stand up to get it: the chair button, or Esc > Back to the room.)`, 7000); } catch (e) {} return true; }
     const n = buzzing++ ? 0 : 1; void n;
     const t0 = performance.now(), o = thing.obj, base = { x: o.position.x, z: o.position.z, ry: o.rotation.y };
     H.anims.set('mobuzz', now => { const k = (now - t0) / 1000; if (k > 2.2 || H.held() === 'mobile') { o.position.x = base.x; o.position.z = base.z; o.rotation.y = base.ry; buzzing = 0; return false; } const on = Math.floor(k / 0.55) % 2 === 0; o.position.x = base.x + (on ? Math.sin(now / 9) * 0.25 : 0); o.position.z = base.z + (on ? Math.cos(now / 11) * 0.2 : 0); o.rotation.y = base.ry + (on ? Math.sin(now / 7) * 0.02 : 0); return true; });
@@ -118,7 +118,7 @@
   function fromPC(arg) {
     if (!thing || arg === 'snake' || (arg && typeof arg === 'object')) return false; // (a Snake link-up invite still opens the real program)
     const w = where();
-    try { Desk.msgbox("Jack's Mobile", `Your mobile isn't in your pocket. It's ${w}.\n\nStand up from the PC (the chair button, or hold Esc) and go and get it: pick it up and press F.`, 'info', [['Stand up', () => { if (H.canStand && H.canStand()) H.standUp(); }], ['OK']]); } catch (e) { return false; }
+    try { Desk.msgbox("Jack's Mobile", `Your mobile isn't in your pocket. It's ${w}.\n\nStand up from the PC (the chair button, or Esc > Back to the room) and go and get it: pick it up and press F.`, 'info', [['Stand up', () => { if (H.canStand && H.canStand()) H.standUp(); }], ['OK']]); } catch (e) { return false; }
     return true;
   }
   function route(arg) {

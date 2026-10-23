@@ -965,17 +965,15 @@
     ui.tip(s ? (typeof s.label === 'function' ? s.label() : s.label) + (s.grab && !held ? ' <i><kbd>E</kbd>: pick up'+(THINGS[sid]?.use?' · <kbd>F</kbd>: use':'')+'</i>' : '') : null, lastPt.x, lastPt.y, s && h.dist > s.range);
     pb.classList.toggle('hs-hot', !!sid);
   }
-  // using a thing: close enough, do it; too far, go over to it first
+  // Ordinary interaction never moves the player. Screens/inspection own their
+  // explicit camera transitions; a distant door is not a travel command.
   function useAt(sx, sy, center,action) {
     if (!canAct()) return;
     const h = pick(sx, sy);
     if (!h || !h.spot) { if (!center && h && h.dist < 1200 && !touchy()) emit('miss', h); return; }
     const s = SPOTS[h.spot];
     const perform=()=>{const item=THINGS[s.id];if(action==='use'&&s.grab&&item){if(item.use)item.use(item);else ui.toast(item.label,'Press E to pick it up.');}else if(action!=='use'&&s.remove)s.remove();else act(s);};
-    if (h.dist > s.range && s.view !== false) {
-      const v = viewFor(s, h);
-      if (v) return glideTo(v, { done: perform });
-    }
+    if (h.dist > s.range) { ui.toast(typeof s.label==='function'?s.label():s.label,'Move closer, then press F or click.'); return; }
     perform();
   }
   function act(s) {
@@ -1533,9 +1531,13 @@
     monitorDesktop();
   }
   // the page laid onto the monitor's glass (perspective correct: a homography as a CSS matrix3d)
-  const glass = { k: 1 };
+  const glass = { k: 1, fitKey: null, checkedAt: 0 };
   function glassFit() {
-    const full=monitor&&desktopFull;html.classList.toggle('pc-desktop-full',full);
+    const full=monitor&&desktopFull,now=performance.now(),g0=window.House&&House.pcGL;
+    const key=[mode,monitor,stood,full,vw,vh,P.x,P.y,P.z,P.rx,P.ry,g0?.matrixWorld.elements.join(',')].join('|');
+    if(glass.fitKey===key&&(monitor||now-glass.checkedAt<150))return;
+    const moved=glass.fitKey!==key;glass.fitKey=key;
+    html.classList.toggle('pc-desktop-full',full);
     if(full){const scale=Math.min(vw/1024,vh/768);monitorSurfaceEl.style.visibility='';monitorSurfaceEl.style.clipPath='';monitorSurfaceEl.style.transform=`translate(${(vw-1024*scale)/2}px,${(vh-768*scale)/2}px) scale(${scale})`;return;}
     // the glass is taken from the WebGL monitor itself (rm-room.js's pcGL: wherever it was built), in the engine's own y-down frame
     const g = House.pcGL, gl = g && g.userData.glass; let cx, cy, z = 0.05, glassMatrix = null;
@@ -1550,16 +1552,18 @@
       const p = new T.Vector3(gl.x+dx,gl.y+dy,gl.z+.01).applyMatrix4(glassMatrix);
       return toScreen(p.x,p.y,p.z);
     });
-    if (frame % 4 === 0 || glass.hid == null) {
+    if(q.some(p=>!p)||q.every(p=>p.x< -4)||q.every(p=>p.x>vw+4)||q.every(p=>p.y< -4)||q.every(p=>p.y>vh+4)){monitorSurfaceEl.style.visibility='hidden';return;}
+    if (now-glass.checkedAt>=150 || glass.hid == null || glass.mode!==mode || Math.hypot(P.x-(glass.eyeX??P.x),P.y-(glass.eyeY??P.y),P.z-(glass.eyeZ??P.z))>20) {
       let hid = P.z < z + 2;
-      if (!hid && mode === 'walk') { const c = toScreen(cx, cy, z); if (c) { const h = pick(c.x, c.y, { skip: isThingMesh }); hid = !!h && h.spot !== 'pc' && h.dist < c.d - 8; } }
-      glass.hid = hid;
+      if (!hid && !monitor) { const c = toScreen(cx, cy, z); if (c) { const distance=Math.hypot(P.x-cx,P.y-cy,P.z-z),h = pick(c.x, c.y, { skip: isThingMesh,far:Math.max(6,distance-8) }); hid = !!h && h.spot !== 'pc' && h.dist < distance - 8; } }
+      glass.hid = hid;glass.checkedAt=now;glass.mode=mode;glass.eyeX=P.x;glass.eyeY=P.y;glass.eyeZ=P.z;
     }
-    if (q.some(p => !p) || glass.hid) { monitorSurfaceEl.style.visibility = 'hidden'; return; }
+    if (glass.hid) { monitorSurfaceEl.style.visibility = 'hidden'; return; }
     monitorSurfaceEl.style.visibility = '';
+    if(!moved&&glass.fittedKey===key)return;
     let m = homography(sw, sh, q);
     monitorSurfaceEl.style.transform = 'matrix3d(' + m.map(v => +v.toFixed(8)).join(',') + ')';
-    monitorSurfaceEl.style.clipPath = '';
+    monitorSurfaceEl.style.clipPath = '';glass.fittedKey=key;
   }
   // rect (0,0)-(w,h) onto the quad q (tl, tr, br, bl), as a column-major matrix3d
   function homography(w, h, q) {

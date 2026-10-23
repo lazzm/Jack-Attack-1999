@@ -161,7 +161,7 @@ html.hs-live .pc-cap p{font-size:20px}
 .hs-getup svg{width:18px;height:18px}
 .hs-getup:hover{background:rgba(60,50,30,.7)}
 .hs-getup[hidden]{display:none}
-html.hs-focus .hs-joy,html.hs-focus .hs-arrow,html.hs-focus .hs-map,html.hs-focus .hs-cross{display:none}
+html.hs-focus .hs-joy,html.hs-focus .hs-arrow,html.hs-focus .hs-map,html.hs-focus .hs-cross,html.hs-focus .hs-use,html.hs-focus .hs-jump,html.hs-focus .hs-duck{display:none!important}
 .hs-surf{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:auto;overflow:hidden;-webkit-user-select:none;user-select:none}
 
 /* ================================================================ life in the house (js/hs-life.js) */

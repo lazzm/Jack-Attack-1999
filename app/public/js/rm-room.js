@@ -365,7 +365,7 @@
     // the desk lamp (an anglepoise; it really lights the room)
     buildDeskLamp(r);
     // little things on the desk: revision books, a mug of cold tea, a pencil pot
-    const books=new T.Group(),bk=K.into(books);
+    const books=new T.Group(),bookBatch=K.batch(),bk=K.into(bookBatch);
     ['MATHS','SCIENCE','ENGLISH','FRENCH'].forEach((subject,i)=>{const c=['#a73732','#355a91','#c59b36','#4b7552'][i],x=i*.6-1,y=-1.1-i*2.2,z=i*.4,cover=M(c);
       bk.box(x,y,z,20.4,1.6,28.4,M('#dedace'));bk.box(x-10.25,y,z,.5,2,29,cover);
       for(const yy of [y-.9,y+.9])bk.box(x,yy,z,21,.2,29,cover);
@@ -374,6 +374,7 @@
       for(let k=0;k<3;k++)bk.box(x+10.23,y-.5+k*.45,z,.08,.04,27.8,M('#b8b1a1'));
     });
     bk.shadow(0, 0, 0, 26, 34, 0.6, { sq: true });
+    bookBatch.build(books);
     H.spot('books', { label: 'GCSE revision guides', act: () => { secret('hs.revise'); say('GCSE revision guides', ['MATHS, SCIENCE, ENGLISH, FRENCH. Exams in June. The spines aren\'t even cracked yet.', 'I opened the Maths one. Simultaneous equations. I closed the Maths one.', 'Mom bought these. She checks if they\'ve moved. I move them a bit every week.'][(S.bk = ((S.bk | 0) + 1) % 3)]); save(); } });
     loose('books',books,{room:'bedroom',x:-40,y:0,z:-38,ry:8},'GCSE revision guides');
     const mugObj=new T.Group(),mug=K.into(mugObj);
@@ -417,12 +418,52 @@
     [-3.8, 3.8].forEach(x => { sp.cyl(x, -14, 0, 1.3, 1.3, 24, 10, mWhite); sp.lathe(x, -26, 0, [[0.1, -2.5], [1.3, 0]], 10, mWhite); });
     sp.box(0, -14, 3.4, 4, 20, 3, mWhite); sp.box(0, -8, 4.5, 10, 2, 5, mWhite); sp.box(0, -24, 4, 3, 3, 2.2, M('#222'));
     sp.shadow(0, 0, 0, 16, 12, 0.6, { sq: true });
-    const kx = S2.at(4, 0, -2), rod = M('#9a9aa0'), conn = M('#2a6ae0'), trk = M('#d8261c'); // the Buildex roller coaster
-    [[-14, 14], [-4, 18], [6, 13], [14, 9]].forEach(([x, hgt]) => [-3, 3].forEach(zz => { kx.cyl(x, -hgt / 2, zz, 0.3, 0.3, hgt, 5, rod); kx.ball(x, -hgt, zz, 0.8, 0.8, 0.8, conn, 6); }));
-    const pts = []; for (let i = 0; i <= 30; i++) { const t = i / 30, x = -16 + t * 32; pts.push(new T.Vector3(x, -(10 + Math.sin(t * Math.PI * 2.2) * 6 + (1 - t) * 6), 0)); }
-    [-3, 3].forEach(zz => kx.geo(new T.TubeGeometry(new T.CatmullRomCurve3(pts.map(p => p.clone().setZ(zz))), 40, 0.4, 5), 0, 0, 0, trk));
-    kx.box(-6, -19.5, 0, 3.4, 2, 6.6, M('#22aa44')); kx.box(0, -0.5, 0, 34, 1, 9, M('#d8d8d8'));
-    const tr = S2.at(30, 0, 0); tr.box(0, -1.5, 0, 6, 3, 5, M('#2a1a10')); tr.cyl(0, -5, 0, 0.8, 1.2, 4, 8, mBrass); tr.lathe(0, -11, 0, [[3.4, -4], [2.6, 0], [0.8, 3]], 14, M({ c: '#f0c030', sh: 90, sp: '#ffe080' })); tr.shadow(0, 0, 0, 8, 7, 0.5, { sq: true });
+    // A complete, bank-free circuit: both rails close, with cross ties and
+    // triangulated trestles under the rails rather than floating beside them.
+    const coaster = new T.Group(); coaster.name = 'buildex-coaster'; g.add(coaster);
+    coaster.position.set(4, 0, 0); const trackBatch = K.batch(), kx = K.into(trackBatch);
+    const rod = M('#9a9aa0'), conn = M('#2a6ae0'), trk = M('#d8261c');
+    const centre = new T.CatmullRomCurve3(Array.from({length: 16}, (_, i) => {
+      const a = i / 16 * Math.PI * 2;
+      return new T.Vector3(15 * Math.cos(a), -10 - 5.5 * Math.sin(a) - 2 * Math.cos(2 * a), 5.8 * Math.sin(a));
+    }), true, 'centripetal');
+    const rails = [-1, 1].map(side => Array.from({length: 96}, (_, i) => {
+      const p = centre.getPointAt(i / 96), t = centre.getTangentAt(i / 96);
+      return p.add(new T.Vector3(-t.z, 0, t.x).normalize().multiplyScalar(side * 1.7));
+    }));
+    rails.forEach(ps => kx.geo(new T.TubeGeometry(new T.CatmullRomCurve3(ps, true), 128, .25, 5, true), 0, 0, 0, trk));
+    const strut = (p, q, radius, mat) => {
+      const d = q.clone().sub(p), m = p.clone().add(q).multiplyScalar(.5);
+      kx.geo(new T.CylinderGeometry(radius, radius, d.length(), 5), m.x, m.y, m.z, mat,
+        {rx: Math.atan2(Math.hypot(d.x,d.z),d.y)/D2R, ry: Math.atan2(d.x,d.z)/D2R});
+    };
+    for (let i = 0; i < 40; i++) {
+      const u = i / 40, p = centre.getPointAt(u), t = centre.getTangentAt(u), n = new T.Vector3(-t.z,0,t.x).normalize();
+      const ends = [-1,1].map(side => p.clone().addScaledVector(n,side*1.7));
+      strut(ends[0], ends[1], .17, conn);
+      if (i % 5 === 0) {
+        const feet = [-1,1].map(side => new T.Vector3(p.x+n.x*side*2.3,-.9,p.z+n.z*side*2.3));
+        feet.forEach((f,j) => {strut(f,ends[j],.22,rod);strut(f,ends[1-j],.13,rod);kx.ball(...ends[j].toArray(),.45,.45,.45,conn,6)});
+      }
+    }
+    kx.rbox(0,-.5,0,36,1,18,.35,M('#d8d8d8')); trackBatch.build(coaster);
+    K.into(coaster).shadow(0,0,0,38,20,.4,{sq:true});
+    const car = new T.Group(); car.name = 'coaster-car'; coaster.add(car); const CC=K.into(car), cb=K.batch(), C=K.into(cb);
+    C.rbox(0,-1,0,2.8,1.5,3.8,.4,M('#22aa44'));C.box(0,-2,-1,2.8,1.8,.5,M('#147430'));
+    C.rbox(0,-1.7,.2,1.8,.6,1.7,.2,M('#e9bb37'));
+    [-1.7,1.7].forEach(x=>[-1.1,1.1].forEach(z=>C.cyl(x,.05,z,.48,.48,.55,8,M('#25252b'),{rz:90})));
+    cb.build(car); CC.shadow(0,.5,0,4,5,.2);
+    const poseCar = u => { const p=centre.getPointAt(u),t=centre.getTangentAt(u);car.position.copy(p);car.rotation.set(Math.atan2(-t.y,Math.hypot(t.x,t.z)),Math.atan2(t.x,t.z),0,'YXZ'); };
+    poseCar(.1); let runUntil=0, start=0;
+    const run=()=>{start=performance.now();runUntil=start+14000;H.dirty()};
+    H.ambient.add(now=>{if(now<runUntil){poseCar(((now-start)/6500+.1)%1);H.dirty()}});
+    const tr = S2.at(30, 0, 0),gold=M({c:'#d7ae3b',sh:62,sp:'#ac944c'});
+    tr.box(0,-1.5,0,6,3,5,M('#2a1a10'));tr.cyl(0,-5.2,0,.8,1.2,5,12,gold);
+    // A thick rolled lip, inner bowl and closed base meet the stem.
+    tr.lathe(0,-11,0,[[0,3.5],[1.1,3.5],[2.6,0],[3.4,-4],[3.4,-4.4],[3.0,-4.4],[2.2,-.1],[.7,2.7],[0,2.7],[0,3.5]],20,gold);
+    [-1,1].forEach(side=>tr.geo(new T.TorusGeometry(1.5,.22,6,18,Math.PI*1.25),side*3,-11.8,0,gold,{rz:side<0?70:-110}));
+    tr.decal(0,-1.4,2.52,5,1.6,M({c:'#fff',map:K.tex('rm.trophy.plate',256,96,(c,w,h)=>{c.fillStyle='#bd9e50';c.fillRect(0,0,w,h);A.text(c,'SWIMMING 25 METRES',128,40,'700 20px '+A.UIF,'#302511','center');A.text(c,'JUNIOR AWARD',128,73,'17px '+A.UIF,'#302511','center')},{clamp:true})}));
+    tr.shadow(0,0,0,9,7,.5,{sq:true});
     const rb = S2.at(44, 0, 1), rm = M({ c: '#c8c8d0', sh: 40, sp: '#666' }); // the robot from robot club
     rb.box(-2, -2.5, 0, 2, 5, 2.2, rm); rb.box(2, -2.5, 0, 2, 5, 2.2, rm); rb.rbox(0, -8.5, 0, 7, 7, 4.4, 0.6, rm); rb.rbox(0, -14, 0, 5.4, 4, 4, 0.6, M('#d8d8e0'));
     rb.ball(-1.2, -14.4, 2, 0.7, 0.7, 0.3, M({ c: '#e8261c', e: '#600' }), 6); rb.ball(1.2, -14.4, 2, 0.7, 0.7, 0.3, M({ c: '#e8261c', e: '#600' }), 6);
@@ -430,6 +471,7 @@
     rb.box(0, -9, 2.3, 4, 3, 0.4, M({ c: '#2a6ae0', e: '#0a1a40' }));
     [['#1a1a2a', 0], ['#7a1a1a', 4]].forEach(([c, dx]) => S2.rbox(-50 + dx, -12, 0, 3.6, 24, 17, 0.3, M(c), { rz: dx ? -6 : 0 }));
     H.spot('shelf', { label: 'My shelf', obj: g });
+    H.spot('coaster',{label:'Buildex roller coaster — F / Click: run the car',obj:coaster,act:run,wrapped:1});
   }
   // an invisible click box (for things built into the room's merged geometry)
   const PICK = new T.MeshBasicMaterial({ visible: false });
@@ -774,36 +816,119 @@
     B.plane(x0 + 2.1, (top + FY) / 2, (z0 + z1) / 2, z1 - z0 - 4, FY - top - 8, M('#2a2018'), { ry: 90 }); // (the inside back)
     B.shadow((x0 + x1) / 2, FY, (z0 + z1) / 2, x1 - x0 + 12, z1 - z0 + 14, 0.75, { sq: true });
     const rail = B.at(x0 + 30, top + 12, (z0 + z1) / 2); rail.cyl(0, 0, 0, 0.8, 0.8, z1 - z0 - 6, 8, mMetal, { rx: 90 });
-    [['#2a2a3a', -40], ['#e8e8e8', -28], ['#1a2a5a', -16], ['#7a1a1a', -4], ['#3a5a2a', 8], ['#c8a060', 20], ['#1a1a1a', 34]].forEach(([c, z]) => rail.rbox(0, 40, z, 34, 76, 5, 2, M(c)));
+    [['#2a2a3a',-38],['#e8e8e8',-25],['#1a2a5a',-12],['#7a1a1a',1],['#3a5a2a',14],['#c8a060',27],['#1a1a1a',39]].forEach(([c,z],i)=>{
+      const cloth=M({c,sh:2}), coat=rail.at(0,0,z);
+      coat.geo(new T.TorusGeometry(1.7,.27,5,12,Math.PI*1.55),0,2,0,mMetal,{rz:-25});
+      coat.box(0,7,0,.55,7,.6,mMetal);
+      [-1,1].forEach(side=>{coat.rbox(side*7.2,12,0,16,1.1,1, .4,M('#a77d45'),{rz:side*17});coat.rbox(side*16,33,0,8,37,5,1.9,cloth,{rz:-side*12})});
+      coat.rbox(0,43,0,26,i===6?68:55,5,2,cloth);
+      // Folded collars, cuffs and a stitched opening have actual thickness.
+      [-1,1].forEach(side=>coat.box(side*4,18,2.8,7,7,.7,M('#aaa798'),{rz:side*24}));
+      coat.box(0,45,2.58,.5,42,.25,M('#151c26'));
+      if(i===6)for(let j=0;j<5;j++)coat.ball(1.6,30+j*9,2.9,.6,.6,.3,mDark,6);
+    });
     const sh = B.at(x0 + 30, FY - 12, z0 + 18); sh.box(0, 0, 0, 30, 20, 14, M('#1a1a1a'), { rz: 10 }); sh.cyl(4, -2, 40, 5, 6, 26, 12, M('#2a5a2a')); // the welly
     // two doors on hinges
-    [[z0, 1], [z1, -1]].forEach(([hz, s], i) => {
+    [[z0 + .8, 1], [z1 - .8, -1]].forEach(([hz, s], i) => {
       const dr = new T.Group(); dr.position.set(x1 + 0.6, 0, hz); r.group.add(dr); const DR = K.into(dr);
-      DR.box(0.6, (top + FY) / 2 + 2, s * 25, 1.8, FY - top - 16, 50, M({ c: '#fff', map: tex('pine') }), { uv: 50 });
-      DR.box(2, -30, s * 43, 2, 8, 2, mBrass);
-      DR.box(1.7, (top + FY) / 2 + 2, s * 25, 0.4, FY - top - 40, 38, M('#b88a50'), { sides: 'r' });
-      if (i === 0) DR.plane(1.95, -64, s * 25, 26, 16, M({ c: '#fff', map: K.tex('rm.keep', 256, 160, (g, w, h) => { g.fillStyle = '#ffe600'; g.fillRect(0, 0, w, h); A.text(g, 'KEEP OUT', 128, 80, '64px ' + A.FONT, '#c00', 'center'); A.text(g, '(except Mom)', 128, 130, '700 24px ' + A.HAND, '#333', 'center'); }) }), { ry: 90, rz: -6 });
-      H.openable('wardrobe' + i, { label: 'The wardrobe', pivot: dr, type: 'hinge', axis: 'y', amt: s * 100, pick: dr, onToggle: open => { if (open) setTimeout(() => search('wardrobe'), 450); } });
-      H.SPOTS['wardrobe' + i].alias = 'wardrobe';
+      const mid=(top+FY)/2+2, height=FY-top-16, dz=s*24.6;
+      DR.box(.6,mid,dz,1.35,height,48.4,pm,{uv:50});
+      // Solid raised frame and inset field on both sides of each door.
+      for(const face of [-1,1]) {
+        const fx=.6+face*.85;
+        [-1,1].forEach(e=>DR.box(fx,mid,dz+e*21.7,.5,height,5,pm,{uv:50}));
+        [-1,1].forEach(e=>DR.box(fx,mid+e*(height/2-3),dz,.5,6,38.4,pm,{uv:50}));
+        DR.box(.6+face*.72,mid,dz,.18,height-18,34,M('#b88a50'),{uv:50});
+      }
+      [-4,4].forEach(dy=>DR.cyl(2.2,-30+dy,s*42,.8,.8,2,8,mBrass,{rz:90}));
+      DR.cyl(3.4,-30,s*42,.65,.65,8,10,mBrass);
+      [-78,52].forEach(y=>DR.cyl(0,y,s*1.3,.65,.65,5,8,mBrass));
+      if (i === 0) DR.decal(1.75, -64, s * 25, 26, 16, M({ c: '#fff', map: K.tex('rm.keep', 256, 160, (g, w, h) => { g.fillStyle = '#ffe600'; g.fillRect(0, 0, w, h); A.text(g, 'KEEP OUT', 128, 80, '64px ' + A.FONT, '#c00', 'center'); A.text(g, '(except Mom)', 128, 130, '700 24px ' + A.HAND, '#333', 'center'); }) }), { ry: 90, rz: -6 });
+      const sweep=H.block('U',x1+4,hz+(s>0?0:-49),x1+52,hz+(s>0?49:0),{off:true});
+      const door=H.openable('wardrobe'+i,{label:'The wardrobe',pivot:dr,type:'hinge',axis:'y',amt:s*88,pick:dr,
+        canToggle:open=>{if(open&&H.W.lvl==='U'&&H.W.x>x1-18&&H.W.x<x1+74&&H.W.z>sweep.z0-22&&H.W.z<sweep.z1+22){toast('Wardrobe','Step back to give the door room to open.');return false}return true},
+        onToggle:open=>{if(open){sweep.off=false;H._.grids.dirty=true;setTimeout(()=>{if(door.open&&H.here==='bedroom')search('wardrobe')},450)}else setTimeout(()=>{sweep.off=!door.open;H._.grids.dirty=true},470)}});
+      sweep.off=!door.open;H._.grids.dirty=true;
+      H.SPOTS['wardrobe'+i].alias='wardrobe';
     });
     H.block('U', x0, z0 - 2, x1 + 4, z1 + 2);
     // the chest of drawers, the hi-fi on top
     const cx = LX + 24, cz = 212;
-    const bx0 = LX + 1.5, bx1 = cx + 21.2; // a solid carcass (sides, back, top board, plinth) with the drawer fronts flush in its face
-    B.box((bx0 + bx1) / 2, FY - 42, cz, bx1 - bx0, 76, 66, pm, { uv: 50 }); B.box(cx - 2, FY - 2, cz, 40, 4, 62, M('#3a2a18'));
-    B.box(cx, FY - 81, cz, 46, 2, 68, pm, { uv: 50 });
-    [-32, 32].forEach(dz => B.box(cx + 21.6, FY - 42, cz + dz, 0.8, 76, 2, pm, { uv: 50 })); for (let k = 0; k < 4; k++) B.box(cx + 21.6, FY - 79.5 + k * 25, cz, 0.8, 1, 62, pm, { uv: 50 });
-    const dfm = M({ c: '#fff', map: tex('pineDark') });
-    for (let i = 0; i < 3; i++) { B.box(cx + 21.6, FY - 67 + i * 25, cz, 0.8, 24, 62, dfm); B.box(cx + 22.7, FY - 67 + i * 25, cz, 1.4, 1.6, 12, mBrass); }
-    B.shadow(cx, FY, cz, 52, 76, 0.7, { sq: true });
-    H.block('U', LX, cz - 36, cx + 26, cz + 36);
-    const hf = new T.Group(); hf.position.set(cx, FY - 82, cz); hf.rotation.y = 90 * D2R; r.group.add(hf); const HF = K.into(hf);
-    HF.rbox(0, -12, 0, 22, 24, 24, 0.8, M({ c: '#2a2a2e', sh: 40, sp: '#444' }));
-    HF.plane(0, -18, 12.05, 18, 3, M('#1a1a1a')); HF.plane(0, -12, 12.05, 10, 3, M({ c: '#3affd0', e: '#1a8a6a' })); HF.cyl(6, -6, 12.4, 2.4, 2.4, 0.8, 16, mMetal, { rx: 90 });
-    [-22, 22].forEach(x => { HF.box(x, -15, 0, 14, 30, 18, M('#222225')); HF.cyl(x, -15, 9.1, 5.2, 5.2, 0.6, 18, M('#111'), { rx: 90 }); HF.cyl(x, -26, 9.1, 2, 2, 0.6, 12, M('#111'), { rx: 90 }); });
-    HF.shadow(0, 0, 0, 62, 24, 0.6, { sq: true });
-    H.spot('hifi', { label: 'Hi-fi', obj: hf, act: hifi });
-    loose('hifi',hf,{room:'bedroom',x:cx,y:FY-82,z:cz,ry:90},'Hi-fi',{holdD:80,useLabel:'Play music'});
+    const bx0=LX+1.5, bx1=cx+21.2, bodyY=FY-42;
+    // Open carcass: each sliding drawer has a bottom, back and four edges.
+    B.box(bx0+1,bodyY,cz,2,76,64,pm,{uv:50});
+    [-32,32].forEach(dz=>B.box((bx0+bx1)/2,bodyY,cz+dz,bx1-bx0,76,2,pm,{uv:50}));
+    B.box(cx-2,FY-2,cz,40,4,62,M('#3a2a18'));
+    B.box(cx,FY-81,cz,46,2,68,pm,{uv:50});
+    const dfm=M({c:'#fff',map:tex('pineDark')}),inside=M('#be955d');
+    for(let i=0;i<3;i++) {
+      const y=FY-67+i*25,dr=new T.Group();dr.name='bedroom-drawer-'+i;dr.position.set(cx,0,cz);r.group.add(dr);const D=K.into(dr),db=K.batch(),DB=K.into(db);
+      DB.box(20.8,y,0,2,23,61,dfm,{uv:50});
+      DB.box(1,y+10,0,37,1.5,58,inside,{uv:50});
+      DB.box(-17,y,0,1.5,20,58,inside,{uv:50});
+      [-29,29].forEach(z=>DB.box(1,y,z,37,20,1.5,inside,{uv:50}));
+      [-7,7].forEach(z=>DB.cyl(23,y,z,.65,.65,2,8,mBrass,{rz:90}));
+      DB.cyl(24.1,y,0,.65,.65,14,12,mBrass,{rx:90});db.build(dr);
+      if(i===0){D.rbox(0,y+5,0,25,7,38,1.4,M('#203c6a'));D.box(0,y+.9,0,24,.5,36,M('#2d4c7b'))}
+      if(i===1)for(const z of [-14,10])D.rbox(1,y+5,z,26,7,17,1.6,M(z<0?'#b4b0a1':'#423e4b'));
+      H.openable('bedroom.drawer.'+i,{label:['Top drawer — school clothes','Middle drawer — jumpers','Bottom drawer — socks'][i],pivot:dr,type:'slide',axis:'x',base:cx,amt:25});
+      // Rails stay inside the carcass; a drawer stops before its back leaves it.
+      [-30.8,30.8].forEach(z=>B.box(cx, y+9,cz+z,39,1.4,1.2,M('#8c6841')));
+    }
+    B.shadow(cx,FY,cz,52,76,.7,{sq:true});H.block('U',LX,cz-36,cx+26,cz+36);
+    // Moving drawers remain solid to a walking player, with no fixed obstacle
+    // across the usable aisle when shut.
+    const drawerObstacle=H.block('U',cx+26,cz-31,cx+49,cz+31,{off:true});
+    const drawerSolid=()=>{drawerObstacle.off=!Object.keys(H.OPEN).some(id=>id.startsWith('bedroom.drawer.')&&H.OPEN[id].open);H._.grids.dirty=true};
+    for(let i=0;i<3;i++) {
+      const o=H.OPEN['bedroom.drawer.'+i];
+      o.canToggle=open=>{if(open&&H.W.lvl==='U'&&H.W.x<cx+71&&H.W.x>cx+15&&Math.abs(H.W.z-cz)<53){toast('Chest of drawers','Step back a little to give the drawer room to open.');return false}return true};
+      o.onToggle=open=>{if(open)drawerSolid();else setTimeout(drawerSolid,o.ms+20)};
+    }
+    drawerSolid();
+    buildHiFi(r,cx,FY-82,cz);
+  }
+
+  function buildHiFi(r,x,y,z) {
+    const hf=new T.Group();hf.name='bedroom-hifi';hf.position.set(x,y,z);hf.rotation.y=90*D2R;r.group.add(hf);
+    const b=K.batch(),HF=K.into(b),shell=M({c:'#303238',sh:38,sp:'#555'}),silver=M({c:'#aeb3ba',sh:62,sp:'#888'});
+    HF.rbox(0,-12,0,22,23,24,.8,shell);HF.box(0,-12,12.1,21,22,.6,M('#25282e'));
+    for(const sx of [-1,1])for(const sz of [-1,1])HF.cyl(sx*8,-.6,sz*8,.9,.9,1.2,8,mDark);
+    for(let i=0;i<8;i++)HF.box(-6+i*1.7,-23.56,-4,.55,.12,9,mDark);
+    const fascia=K.tex('rm.hifi.fascia',512,512,(g,w,h)=>{
+      g.fillStyle='#25282e';g.fillRect(0,0,w,h);g.textAlign='center';
+      g.fillStyle='#e0e2df';g.font='bold 30px Arial';g.fillText('SOUNDWAVE',256,39);
+      g.fillStyle='#aeb3ba';g.font='18px Arial';g.fillText('COMPACT DISC  •  DIGITAL AUDIO',256,68);
+      g.font='bold 19px Arial';g.fillText('PLAY / PAUSE',135,359);g.fillText('OPEN / CLOSE',368,359);
+      g.font='18px Arial';g.fillText('STOP',104,460);g.fillText('NEXT',264,460);g.fillText('VOLUME',412,460);
+    });
+    HF.decal(0,-12,12.43,20,21,M({c:'#fff',map:fascia}));
+    const weave=K.tex('rm.hifi.grille',128,128,(g,w,h)=>{g.fillStyle='#24252a';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=4)for(let x=0;x<w;x+=4){g.fillStyle=(x+y)%8?'#111318':'#3c3c40';g.fillRect(x,y,2,2)}},{rep:[3,5]});
+    [-22,22].forEach(x=>{
+      HF.rbox(x,-15,0,14,29,18,.7,M({c:'#28262a',sh:8}));
+      HF.box(x,-15,9.12,12.8,27,.35,M('#15161a'));
+      HF.cyl(x,-18,9.4,4.65,4.65,.4,20,mDark,{rx:90});HF.cyl(x,-7,9.4,1.7,1.7,.4,12,mDark,{rx:90});
+      HF.rbox(x,-15,9.75,12.1,25.8,.3,.14,M({c:'#fff',map:weave,sh:3}));
+      for(const zz of [-6,6])HF.box(x,-.4,zz,11,.8,2,mDark);
+      HF.box(x,-3,9.99,4,.8,.15,silver);
+    });
+    for(const side of [-1,1]) {
+      const path=[new T.Vector3(side*22,-3,-9.1),new T.Vector3(side*20,-2,-12.8),new T.Vector3(side*12,-1.4,-13),new T.Vector3(side*7,-3,-12.2)];
+      HF.geo(new T.TubeGeometry(new T.CatmullRomCurve3(path),16,.22,5),0,0,0,mDark);
+      HF.box(side*7,-3,-12.15,2,2,.6,M('#16171a'));
+    }
+    HF.shadow(0,0,0,62,24,.55,{sq:true});b.build(hf);
+    const lcd=K.tex('rm.hifi.lcd',384,80,(g,w,h)=>{g.fillStyle='#102d28';g.fillRect(0,0,w,h);g.fillStyle='#99e8ba';g.font='bold 42px monospace';g.textAlign='center';g.fillText('NO DISC',w/2,55)});
+    K.into(hf).decal(0,-15,12.49,17,3.6,M({c:'#fff',map:lcd,e:'#174a34',sh:12}));
+    const tray=new T.Group();tray.name='hifi-tray';hf.add(tray);const TR=K.into(tray),tb=K.batch(),TB=K.into(tb);
+    TB.box(0,-9,3,15,.7,17,mDark);TB.rbox(0,-8.4,11.8,18,1.7,1,.25,shell);
+    TB.geo(new T.TorusGeometry(5.9,.18,5,32),0,-9.4,3,silver,{rx:90});TB.cyl(0,-9.5,3,.65,.65,.35,10,mDark);tb.build(tray);
+    H.spot('hifi',{label:'Hi-fi — F / Click: use CD player',obj:hf,act:hifi,wrapped:1});
+    // Register the slot before PMGL restores discs, even when the lazy module
+    // has not arrived yet. Music CDs retain their existing physical IDs.
+    const slot=H.snap('hifi.cd',{room:'bedroom',x:x+22,y:y-9.5,z,r:22,box:[13,.8,13],pose:{x:x+22,y:y-9.5,z,ry:90},
+      enabled:()=>false,accepts:(kind,t)=>kind==='disc'&&!!window.PM?.item(t?.id?.slice(4))?.audio,hint:'E / Click: place audio CD in the hi-fi tray'});
+    R.hifi={root:hf,tray,lcd,slot};
   }
 
   // ---------------------------------------------------------------- the front wall: radiator, robot poster, school bag, washing basket
@@ -819,8 +944,17 @@
     H.spot('posterrobot', { label: 'ROBO RUMBLE poster', act: () => posterFocus('posterrobot') });
     const sb = new T.Group(); sb.position.set(58, FY, 226); sb.rotation.y = -12 * D2R; /* (by the washing basket: not in the doorway, so you can get out) */ r.group.add(sb); const SB = K.into(sb); // the school bag
     SB.rbox(0, -18, 0, 30, 36, 14, 5, M({ c: '#1a3a7a', sh: 10 })); SB.rbox(0, -10, 8, 22, 16, 5, 3, M('#163068'));
-    SB.box(-4, -38, 2, 18, 8, 1, M({ c: '#fff', map: tex('timetable') }), { rz: 8 });
-    SB.cyl(0, -36, -1, 1.6, 1.6, 12, 8, M('#111'), { rz: 90 });
+    SB.box(-4,-33,1,18,8,1,M({c:'#fff',map:tex('timetable')}),{rz:8});
+    // Continuous padded straps attach at both ends; no unsupported handle bar.
+    const straps=K.batch(),ST=K.into(straps),webbing=M('#152746'),zip=M('#aaa7a0');
+    for(const side of [-1,1]) {
+      ST.geo(new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(side*9,-31,-6),new T.Vector3(side*10,-23,-12),new T.Vector3(side*10,-10,-12),new T.Vector3(side*9,-5,-6)]),14,1.3,6),0,0,0,webbing);
+      ST.box(side*9,-8,-9,3,4,1,zip);
+    }
+    ST.geo(new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(-5,-35,-1),new T.Vector3(-5,-40,-1),new T.Vector3(5,-40,-1),new T.Vector3(5,-35,-1)]),14,.85,6),0,0,0,webbing);
+    ST.box(0,-17.8,10.65,18,.4,.4,zip);ST.box(7,-16.4,11,1,2.4,.5,zip);
+    [-14.6,14.6].forEach(x=>ST.box(x,-18,1,.3,25,8,M('#34568a')));
+    straps.build(sb);
     SB.shadow(0, 0, 0, 38, 22, 0.6);
     H.spot('schoolbag', { label: 'School bag', obj: sb, act: () => say('School bag', ['My school bag. Inside: three exercise books, a squashed banana, a letter about the Year 11 trip, and the Maths homework that was due Friday.', 'Homework diary: "French vocab test Thursday". It is not Thursday. Is it?', 'A calculator. Type 0.7734 and turn it upside down. It says hELLO. That is the whole joke. It never gets old.'][(S.sb = ((S.sb | 0) + 1) % 3)]) });
     loose('schoolbag',sb,{room:'bedroom',x:58,y:FY,z:226,ry:-12},'School bag',{obstacle:true,floorOnly:true,useLabel:'Look inside'});
@@ -969,11 +1103,18 @@
       while (core.children.length) {const child=core.children[0];child.traverse(o=>{if(o.isMesh)o.geometry.dispose();});core.remove(child);}
       for (const c of state) {
         const part = new T.Group(); part.position.set(c.p[0]*1.92,-c.p[1]*1.92,c.p[2]*1.92); core.add(part);
-        const C = K.into(part); C.rbox(0,0,0,1.88,1.88,1.88,.09,M({c:'#171819',sh:28}));
+        const batch=K.batch(),C=K.into(batch); C.rbox(0,0,0,1.88,1.88,1.88,.09,M({c:'#171819',sh:28}));
         for (const [key,col] of Object.entries(c.s)) {
           const n = CM.VEC[key], dim = n.map(v => v ? .016 : 1.64);
           C.box(n[0]*.946,-n[1]*.946,n[2]*.946,dim[0],dim[1],dim[2],M({c:cols[col],sh:38,sp:'#555'}));
         }
+        // Bake each cubie's plastic and stickers into vertex colours. The
+        // pieces still turn and pick separately, but no longer issue one
+        // draw call for every sticker while the cube sits beside the PC.
+        const positions=[],normals=[],colours=[];
+        for(const [material,attr]of batch.parts){positions.push(...attr.pos);normals.push(...attr.nrm);for(let i=0;i<attr.pos.length;i+=3)colours.push(material.color.r,material.color.g,material.color.b)}
+        const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(positions,3));geo.setAttribute('normal',new T.Float32BufferAttribute(normals,3));geo.setAttribute('color',new T.Float32BufferAttribute(colours,3));geo.computeBoundingSphere();
+        part.add(new T.Mesh(geo,M({c:'#fff',vc:true,sh:32,sp:'#444'})));
         part.traverse(o => {if(o.isMesh) {o.userData.cubie=c; o.userData.thing=1; o.userData.spot='cube'; o.layers.set(H.THINGS.cube && H.THINGS.cube.front ? 1 : 0);}});
       }
       H.dirty();
@@ -1146,6 +1287,11 @@
     const leds = [P.box(L.tx - 6, -21.6, L.tz + 18.4, 0.7, 0.7, 0.3, ledOff), P.box(L.mx + 11.6, -9.9, 0.1, 0.6, 0.6, 0.2, ledOff)];
     const ledSet = on => { const changed = pcPowered !== !!on; pcPowered = !!on; leds.forEach(m => { if (m) m.material = on ? ledOn : ledOff; }); if (changed) H.relight(); H.dirty(); };
     H.on('pcpower', on => ledSet(on)); H.on('stood', () => ledSet(pcPowered)); H.on('sat', () => ledSet(pcPowered)); ledSet(pcPowered);
+    const staticBatch=K.batch();
+    for(const mesh of g.children.slice())if(mesh.isMesh&&mesh!==btn&&!leds.includes(mesh)&&![].concat(mesh.material).some(m=>m.transparent)){
+      staticBatch.add(mesh.geometry,mesh.matrix,Array.isArray(mesh.material)?i=>mesh.material[i]:mesh.material);g.remove(mesh);mesh.geometry.dispose();
+    }
+    staticBatch.build(g);
     g.traverse(o => { if (o.isMesh) o.userData.noPick = 1; });
     g.userData.glass = glass; r.group.add(g); H.pcGL = g; H.pcGlass = glassM; H.dirty();
     return btn;
@@ -1167,14 +1313,14 @@
     bin: ['The bin. Crisp packets, a broken pencil and a letter from school I am NOT showing Mom.'],
     rug: ['The rug. It has a road map on it. I am sixteen and I still drive Micro Machines round it. Don\'t tell anyone.', 'Something rolled under the rug...'],
     window: ['The view out of my window. Back gardens, the shed and the big tree.', 'If you lean right out you can see the shop. Mom says do not lean right out.'],
-    shelf: ['My shelf: the BUILDO space shuttle, the Buildex roller coaster (it works!) and my Swimming 25 Metres trophy (from when I was 7).', 'The roller coaster took three weekends. The car falls off on the loop.'],
+    shelf: ['My shelf: the BUILDO space shuttle, the Buildex roller coaster (it works!) and my Swimming 25 Metres trophy (from when I was 7).', 'The roller coaster took three weekends. A full circuit, two rails, and about a million little blue connectors.'],
     tvback: ['Behind the telly: about forty leads, all tangled. Nobody knows which one is which.'],
     mags: ['A pile of games mags. The free demo discs are coasters now.', 'The cheats pages are the most read bit. They are falling out.'],
     clock: () => { const d = new Date(); return `The radio alarm clock says ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}. It's tuned to the chart show. The snooze button is broken from overuse.`; },
     cork: ['My cork board: a 1999 calendar, a photo of me and Dave at the swimming baths, and a list of cheats.'],
     posterband: ['THE MODEM BOYS. Best band ever. Their song "Beep Bop Connect" was number 4 for a week.'],
     posterfilm: ['INTERGALACTIC BATTLES: The Phantom Menu. A film about a space restaurant.'],
-    rack: ['My CD rack. Mostly free CD-ROMs off magazines, and THE MODEM BOYS.'],
+    rack: ['My console game cases. Audio CDs are on the wooden games shelf beside the TV.'],
     drawer: ['My desk drawer: letters, floppy disks, a broken Eggbert... the usual.'],
     dcbox: ['The Daydream box. Polystyrene, instructions in five languages, a VMU leaflet.'],
   };
@@ -1283,7 +1429,7 @@
   }
   addEventListener('resize', () => { if (tvFocus && H.mode === 'focus') { Object.assign(H.P, tvPose(tvFocusCon)); H.dirty(); } });
   // ---- close-ups (js/rm-bits.js): the camera moves in close first, and back out after
-  let bitsLoad = null, pending = false, boT = 0;
+  let bitsLoad = null, pending = false, boT = 0, bitsEpoch = 0;
   // Posters never open a separate picture: approach the actual paper on its wall.
   const POSTER_VIEW = {
     postershuttle: [-52, -82, BZ, 30, 42, 0], posterband: [TX, -64, BZ, 34, 46, 0],
@@ -1306,11 +1452,13 @@
   addEventListener('resize', () => { if (focusedPoster && H.mode === 'focus') { Object.assign(H.P, posterPose(focusedPoster)); H.dirty(); } });
   const BITVIEW = { postershuttle: [-52, -82, BZ], posterband: [TX, -64, BZ], posterfilm: [TX - 58, -96, BZ], cork: [42, -84, BZ], window: [191, -63, BZ], lava: [134, 6, BZ + 21], mags: [TX + 34, FY, 58], rack: [TX - 56, 33, -44], drawer: [56, 6, 40] };
   function bits(id) {
+    if(id==='rack')return rackNote();
     if (POSTER_VIEW[id]) return posterFocus(id);
     if(id==='lava'){if(H.held())H.putBack();return H.focus({x:98,y:-9,z:15,rx:-14,ry:36,lvl:'U',seat:1},{label:'Lean back',enter:()=>say('Lava lamp','Watch the real glass and wax. Q leans back; Esc opens the game menu.',4000)})}
     if (!canGo() || pending || (window.RoomBits && RoomBits.open_)) return;
     H.hush();
-    const open = () => { try { RoomBits.open(id); } catch (e) { console.error(e); } };
+    const request=++bitsEpoch;
+    const open = () => { if(request!==bitsEpoch||H.here!=='bedroom')return; try { RoomBits.open(id); } catch (e) { console.error(e); } };
     const ready = () => window.RoomBits ? Promise.resolve() : (bitsLoad = bitsLoad || loadJs('js/rm-bits.js'));
     const at = BITVIEW[id];
     if (!at) return ready().then(open, () => { bitsLoad = null; });
@@ -1323,10 +1471,10 @@
     else { const dx = H.P.x - x, dz = H.P.z - z, n = Math.max(1, Math.hypot(dx, dz)); ex = x + dx / n * d; ez = z + dz / n * d; ey = y - 46; }
     const ry = Math.atan2(x - ex, -(z - ez)) / D2R, rx = Math.atan2(-(y - ey), Math.hypot(x - ex, z - ez)) / D2R;
     const p = ready();
-    H.glideTo({ x: ex, y: ey, z: ez, rx, ry, seat: 1, lvl: 'U' }, { lock: true, ms: 700, cancel: () => { pending = false; backOut(); }, done: () => p.then(() => { pending = false; open(); }, () => { pending = false; bitsLoad = null; back = null; }) });
+    H.glideTo({ x: ex, y: ey, z: ez, rx, ry, seat: 1, lvl: 'U' }, { lock: true, ms: 700, cancel: () => { pending = false; backOut(); }, done: () => p.then(() => { if(request!==bitsEpoch)return;pending = false; open(); }, () => { if(request!==bitsEpoch)return;pending = false; bitsLoad = null; back = null; }) });
   }
   // back out to where you were when a close-up or the telly shuts
-  function backOut() { pending = false; if (!back) return; const b = back; back = null; H.glideTo(b, { ms: 650, done: () => H.setWalkFrom(b) }); }
+  function backOut() { ++bitsEpoch;pending = false; if(H.here!=='bedroom'){back=null;return;} if (!back) return; const b = back; back = null; H.glideTo(b, { ms: 650, done: () => H.setWalkFrom(b) }); }
 
   // ---- the cat
   let strokes = 0;
@@ -1339,16 +1487,17 @@
     const n = catName(), He = he[0].toUpperCase() + he.slice(1);
     say(n, esc([`${n} from next door. ${He} comes in through the window and sleeps on my bed. Nobody knows why.`, `Stroke stroke. ${He} opened one eye. ${He} closed it again.`, `${He}'s stretching! There's something under ${him}...`, 'Prrrrrrr.', `PRRRRRRRRRRRR. ${He} likes that.`, `PRRRRRRRRRRRRRRRRRRR! ${He}'s rolled over! Best cat ever.`][Math.min(5, strokes - 1)]));
   }
-  // ---- the hi-fi (plays a tune, if the sound's on)
-  let hifiOn = false;
-  function hifi() {
-    secret('hs.hifi');
-    try {
-      if (!Sound.on) return say('Hi-fi', 'THE MODEM BOYS CD is in. (Switch the sound on to hear it: the speaker on the telly, or the one in the PC\'s taskbar.)');
-      if (!hifiOn) { if (Sound.addTune) Sound.addTune('modemboys', { lead: [72, -1, 74, 76, -1, 79, 76, 74, 72, -1, 69, 0, 67, 69, 72, -1, 72, -1, 74, 76, -1, 79, 81, 79, 76, -1, 74, 0, 72, 74, 72, -1], bass: [48, 48, 45, 45, 41, 41, 43, 43, 48, 48, 45, 45, 41, 43, 48, 48], step: 0.16, hats: true }); Sound.music.play('modemboys'); hifiOn = true; say('Hi-fi', '"Beep Bop Connect" by THE MODEM BOYS. Turned up to 7. (Mom will shout at 8.)'); }
-      else { Sound.music.stop(); hifiOn = false; say('Hi-fi', 'Off.'); }
-    } catch (e) {}
-    LIGHT.hifi = hifiOn; emit('hifi', hifiOn);
+  // Physical hi-fi controller. Loaded on room construction, with retries if
+  // the request fails; no PC autorun or old 2D rack view is involved.
+  let hifiLoad=null;
+  function ensureHiFi() {
+    if(!R.hifi)return Promise.resolve(null);
+    if(window.RoomHiFi)return Promise.resolve(RoomHiFi.init(R.hifi));
+    return hifiLoad||(hifiLoad=loadJs('js/rm-hifi.js').then(()=>RoomHiFi.init(R.hifi)).catch(e=>{hifiLoad=null;throw e}));
+  }
+  function hifi() { ensureHiFi().then(player=>player?.use(),()=>toast('Hi-fi','Could not load the CD player. Click again to retry.')); }
+  function rackNote() {
+    say('Console game shelf','These are physical game cases. E / Click picks one up; place it off the shelf, then F opens it. E takes the disc or cartridge. Audio CDs live on the wooden games shelf beside the TV and play in the hi-fi.',8500);
   }
 
   // ================================================================ the treasure tin on the HUD
@@ -1426,6 +1575,7 @@
     H.buildRoom(room);
     pickBox(room, 'window', 191, -63, BZ - 4, 70, 98, 4); H.SPOTS.window.label = 'The window';
     things(); drives(); wire(); mediaShelf(); hudExtras();
+    ensureHiFi().catch(()=>{});
     let clockMin = -1;
     H.ambient.add(now => { // the gentle stuff: the lava lamp's blobs, the cat breathing, the clock, the sky
       if (R.blobs && LIGHT.lava) R.blobs.forEach((b, i) => { const t = now / (2600 + i * 900) + i * 2; b.position.y = -12 - (Math.sin(t) * 0.5 + 0.5) * 12; b.scale.y = 1.6 + Math.sin(t * 2.3) * 0.5; });
@@ -1660,9 +1810,9 @@
 
   // rm-tv.js and rm-bits.js say when they shut: back out of the close-up
   // (but not if another one opened straight away: switching consoles, or one close-up leading to another)
-  (EVS.close = EVS.close || []).push(() => { if (tvFocus) { H.unfocus(); return; } clearTimeout(boT); boT = setTimeout(() => { if (pending || (window.RoomTV && RoomTV.open_) || (window.RoomBits && RoomBits.open_) || pb.querySelector(':scope > .rm-view:not(.bye)')) return; backOut(); }, 160); });
+  (EVS.close = EVS.close || []).push(() => { if(H.here!=='bedroom'){clearTimeout(boT);back=null;pending=false;return;} if (tvFocus) { H.unfocus(); return; } clearTimeout(boT); boT = setTimeout(() => { if (pending || (window.RoomTV && RoomTV.open_) || (window.RoomBits && RoomBits.open_) || pb.querySelector(':scope > .rm-view:not(.bye)')) return; backOut(); }, 160); });
   (EVS.open = EVS.open || []).push(() => clearTimeout(boT));
-  H.on('room', (id, old) => { emit('room', id, old); if (id && id !== 'bedroom') ensureHouse().catch(() => {}); pb.classList.toggle('rm-away', id !== 'bedroom'); });
+  H.on('room', (id, old) => { if(id!=='bedroom'){++bitsEpoch;clearTimeout(boT);back=null;pending=false;} emit('room', id, old); if (id && id !== 'bedroom') ensureHouse().catch(() => {}); pb.classList.toggle('rm-away', id !== 'bedroom'); });
   H.on('station', (rid, sid) => { pb.classList.toggle('rm-away', !(rid === 'bedroom' && sid === 'desk')); if (rid === 'bedroom' && sid !== 'desk') secret('rm.room'); });
   H.on('standup', () => { pb.classList.add('rm-away'); secret('rm.room'); });
   H.on('stood', () => { secret('hs.stand'); H.relight(); });
