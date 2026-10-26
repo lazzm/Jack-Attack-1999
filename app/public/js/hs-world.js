@@ -504,7 +504,8 @@
     let d = held.d;
     const hit = pick(vw / 2, vh / 2, { skip: m => m.userData.spot === held.id || isThingMesh(m), far: d + 30 });
     if (hit && hit.dist < d + Math.max(t.hx, t.hz)) d = Math.max(18, hit.dist - Math.max(t.hx, t.hz) - 2);
-    return { x: P.x + f.x * d, y: P.y + f.y * d + t.h * 0.5 + 6, z: P.z + f.z * d };
+    const right=t.holdOffset?.right||0,down=t.holdOffset?.down||0,angle=P.ry*D2R;
+    return { x: P.x + f.x * d + Math.cos(angle)*right, y: P.y + f.y * d + t.h * 0.5 + 6 + down, z: P.z + f.z * d + Math.sin(angle)*right };
   }
   const isThingMesh = m => { let o = m; while (o) { if (o.userData && o.userData.thing) return true; o = o.parent; } return false; };
   const isHeldMesh = m => {if(!held)return false;for(let o=m;o;o=o.parent)if(o===THINGS[held.id].obj)return true;return false;};

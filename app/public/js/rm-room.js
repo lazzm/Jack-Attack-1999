@@ -659,6 +659,7 @@
       }
     }
     RK.shadow(0, 0, 0, 36, 26, 0.7, { sq: true });
+    if(sparseStarter)buildStarterClutter(r);
     H.spot('rack', { label: 'Game shelf', obj: rk }); H.block('U', TX - 74, -56, TX - 38, -31);
     H.block('U', TX - 38, -60, TX + 38, -11); // the cabinet
     // posters over the telly and on the side wall
@@ -674,6 +675,61 @@
     BN.box(2, -27, 0, 9, 7, 2, M('#e8c020'), { rz: 20, ry: 20 }); BN.ball(-3, -24, 2, 4, 3, 4, M('#f4f4f4'), 8);
     BN.shadow(0, 0, 0, 24, 24, 0.7);
     H.spot('bin',{label:'The bin',obj:bn});loose('bin',bn,{room:'bedroom',x:-118,y:FY,z:-42,ry:0},'Wastepaper bin',{obstacle:true,floorOnly:true});
+  }
+  // Ordinary belongings stay behind the reserved console bays, clear of every
+  // future machine and cartridge slot. These are props, never inventory grants.
+  function buildStarterClutter(r) {
+    const batch=K.batch(),C=K.into(batch),dark=M('#282b30'),paper=M('#e7dfca');
+    const lettering=(key,lines,col='#eee5cc',ink='#27303a')=>M({c:'#fff',map:K.tex('starter.'+key,512,256,(c,w,h)=>{
+      c.fillStyle=col;c.fillRect(0,0,w,h);c.strokeStyle=ink;c.lineWidth=3;c.strokeRect(12,12,w-24,h-24);
+      lines.forEach((line,i)=>A.text(c,line,w/2,64+i*57,'700 35px '+(key==='dad-note'?'Comic Sans MS':A.UIF),ink,'center'));
+    },{clamp:true})});
+    // A compact home-recording deck on top of the media tower: a deep closed
+    // casing, inset tape flap, transport keys, feet and an unprogrammed clock.
+    const v=C.at(TX-56,-8.1,-44);
+    for(const x of [-10,10])for(const z of [-7,7])v.cyl(x,-.4,z,1,1,.8,10,dark);
+    v.rbox(0,-3.9,0,28,6.2,18,.65,M({c:'#555a60',sh:24}));
+    v.box(0,-3.9,9.1,26.8,5,.35,dark);v.box(-3,-4.3,9.32,13,2,.18,M('#111417'));
+    v.box(-3,-4.15,9.44,11.8,.18,.12,M('#6b7077'));
+    v.box(8.2,-4.4,9.34,5.2,2,.15,lettering('vcr-clock',['--:--'],'#121d19','#83b49b'));
+    for(let i=0;i<5;i++)v.box(-8+i*3.3,-2.1,9.4,2.1,.65,.3,M('#8b9095'));
+    for(let i=0;i<8;i++)v.box(-9+i*2.5,-7.03,-3,.65,.06,6,M('#22262b'));
+    v.shadow(0,0,0,31,21,.5,{sq:true});
+    // Slim home-taped cassettes fit BETWEEN the reserved game-case grooves.
+    // Their 1.2 cm spines leave clearance even for the thick cartridge boxes.
+    for(let row=1;row<5;row++)for(let col=0;col<3;col++){
+      const t=C.at(TX-63+col*7,7+row*15,-42),n=row*3+col;
+      t.rbox(0,-5.5,0,1.2,11,7,.15,M('#62676d'));
+      t.box(0,-5.5,3.55,1,10.5,.12,M({c:'#fff',map:K.tex('starter.mix'+n,64,512,(c,w,h)=>{
+        c.fillStyle=['#e6d9b8','#d4dbcf','#dfcbbe'][col];c.fillRect(0,0,w,h);c.translate(32,256);c.rotate(-Math.PI/2);A.text(c,'RADIO MIX '+n+' • 1999',0,9,'700 30px '+A.UIF,'#263947','center');
+      },{clamp:true})}));t.shadow(0,0,0,2,8,.45,{sq:true});
+    }
+    // Home recordings fit behind the consoles, rather than occupying their bays.
+    ['GALAXY WALK','ROBOT RUMBLE'].forEach((title,i)=>{
+      const t=C.at(TX-18+i*18,50.1,-45);
+      t.rbox(0,-2,0,16,4,10,.35,dark);
+      t.box(0,-2,5.08,14,2.6,.12,lettering('tape'+i,[title,'OFF THE TELLY'], '#e9e1c7','#243969'));
+      for(const x of [-4.6,4.6]){t.cyl(x,-4.06,0,2.4,2.4,.1,16,M('#777c7c'));t.cyl(x,-4.14,0,.8,.8,.12,12,dark)}
+      t.shadow(0,0,0,17,11,.4,{sq:true});
+    });
+    ['MATHS','SCIENCE','FRENCH'].forEach((subject,i)=>{
+      const b=C.at(TX-18+i*17,70.4,-45),col=['#54677a','#546447','#9c6348'][i];
+      b.box(0,-1.1,0,15,2.2,11,{all:paper,f:lettering('school'+i,[subject,'YEAR 11'],col,'#fff3cf')});
+      b.box(0,-2.35,0,15.4,.3,11.4,M(col));b.box(0,-.15,0,15.4,.3,11.4,M(col));b.shadow(0,0,0,17,13,.35,{sq:true});
+    });
+    // A reused biscuit tin and a folded note from Dad on the bookcase crown.
+    const tin=C.at(-170,-75.9,234,180),enamel=M({c:'#63796a',sh:24});
+    tin.cyl(0,-6,0,6,5.7,12,24,enamel);tin.cyl(0,-12.15,0,6.25,6.25,.6,24,M('#a7ac99'));
+    tin.box(0,-6,5.8,10,5,.3,lettering('fund',['CONSOLE','FUND'],'#eee3b9','#334d40'));
+    tin.box(0,-12.49,0,4.8,.07,.5,M('#27392e'));tin.shadow(0,0,0,16,16,.4);
+    for(let i=0;i<4;i++)tin.cyl(8+i%2*2,-.18-Math.floor(i/2)*.3,2+i%2,1.1,1.1,.3,16,M({c:i%2?'#a68848':'#b8b9ac',sh:65}));
+    const note=C.at(-147,-75.9,236,180);
+    note.box(0,-.12,0,23,.24,13,{t:lettering('dad-note',['Keep saving, Jack!','Pixel Post on the PC.','— Dad'],'#eee4c5','#233f73'),all:paper});note.shadow(0,0,0,25,15,.3,{sq:true});
+    batch.build(r.group);
+    H.spot('starter.fund',{label:'Console fund',act:()=>say('Console fund', 'Dad’s note: “Keep saving, Jack! Pixel Post catalogue on the PC.” The coins are just a few old coppers for luck. My spending money is in JackNet Bank.')});
+    pickBox(r,'starter.fund',-170,-82,234,13,13,13);
+    H.spot('starter.video',{label:'Video recorder and home recordings',act:()=>say('Video recorder','Hand-labelled tapes of Galaxy Walk and Robot Rumble. The clock has been flashing since Dad unplugged it. The telly is off.')});
+    pickBox(r,'starter.video',TX-56,-12,-44,28,8,18);
   }
   // a console: a body (rounded), its top painted, extra details
   function con(r, id, x, y, z, w, h, d, top, col, label, extra) {
@@ -705,11 +761,11 @@
         hint:'E: connect the '+label+' to the telly', onSnap:()=>hardwareWiring(id)});
       // Until installed, a delivered machine stays by the front door, even if
       // a refresh interrupts unboxing. restoreThing preserves any later placement.
-      const t=Room.grabbable(id,{obj:g,kind:'hardware',label,holdD:48,
+      const t=Room.grabbable(id,{obj:g,kind:'hardware',label,holdD:85,holdOffset:{right:33,down:17},
         home:{...dock,snap:dockId},useLabel:'Play / connect console',
         use:()=>consoleConnected(id)?tvOpen(id):toast(label,'Carry it to its highlighted TV-rack slot and press E to connect it.')});
       if(!t.snap && t.at.room==='bedroom' && t.at.x===x && t.at.z===z){
-        t.at={room:'hall',x:300,y:352,z:650,ry:0};H.place(t);
+        t.at={room:'hall',x:355,y:353,z:650,ry:0};H.place(t);
         ensureHouse().then(()=>{H.buildRoom(H.ROOMS.hall);H.restoreThing(t);if(t.at.room==='hall')H.ROOMS.hall.things.add(t.obj);H.dirty()});
       }
       H.SPOTS[id].act=t.use;
@@ -732,7 +788,7 @@
       P.rbox(port,y-2.1,-15.6,2.6,1.4,2.1,.2,M('#24262a'));
       P.rbox(x,y-3,-36,3,2,2.5,.2,M('#24262a'));
       lead(P,[[port,y-2.1,-14.55],[port,y-2.1,-8],[port,FY-.62,3],[px,FY-.62,pz-7]],id==='ps'?'#8a877f':'#27282b',id+'-pad');
-      lead(P,[[x,y-3,-37.25],[x,y-3,-55.45],[x,22,-55.45],[TX-3,18,-53]],'#242426',id+'-av');
+      lead(P,[[x,y-3,-37.25],[x,y-5,-38.5],[x,y-5,-55.45],[x,22,-55.45],[TX-3,18,-53]],'#242426',id+'-av');
     }
     c.wiring.visible=consoleConnected(id);H.dirty();
   }
@@ -1082,10 +1138,10 @@
         onBegin:t=>{t.obj.userData.closePages?.();slots[t.id]=n;t.home={...shelfPose(n,t),snap:sn.id};saveSlots()},onSnap:t=>H.emit('reading-shelved',t)});
     }
     function item(id,title,mag,index,cover,start){
-      if(sparseStarter)return;
+      if(sparseStarter&&mag)return;
       if(!Number.isInteger(slots[id])){slots[id]=used.has(index)?Array.from({length:32},(_,n)=>n).find(n=>!used.has(n)):index;used.add(slots[id]);saveSlots()}
       const n=slots[id],obj=new T.Group(),O=K.into(obj),col=['#354a65','#8b3c30','#485b41','#b08740','#554364'][index%5];
-      const print=A.printed('reading.print.'+id,256,mag?340:384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);c.font='bold 26px Georgia';K.wrapText(c,title,20,64,w-40,31);c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':'JACKSOFT PAPERBACKS',20,h-42);const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):['city','space','critters','robots','space','robots'][+id.split('.').pop()];if(!window.PrintArt?.paint(c,art,20,h*.46,w-40,h*.34)){c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,h*.5+k*11,105,70)}},{clamp:true});
+      const print=A.printed('reading.print.'+id,256,mag?340:384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);c.font='bold 26px Georgia';K.wrapText(c,title,20,64,w-40,31);c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':id.startsWith('reading.school.')?'YEAR 11 • JACK’S NOTES':'JACKSOFT PAPERBACKS',20,h-42);if(id.startsWith('reading.school.')){c.strokeStyle='#c8b67d';c.lineWidth=2;for(let y=170;y<h-85;y+=14){c.beginPath();c.moveTo(24,y);c.lineTo(w-24,y);c.stroke()}A.text(c,'PROPERTY OF JACK',w/2,h-72,'700 14px '+A.UIF,'#eee0b6','center');return}const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):['city','space','critters','robots','space','robots'][+id.split('.').pop()];if(!window.PrintArt?.paint(c,art,20,h*.46,w-40,h*.34)){c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,h*.5+k*11,105,70)}},{clamp:true});
       const spine=K.tex('reading.spine.'+id,64,384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.translate(w/2,h/2);c.rotate(-Math.PI/2);c.fillStyle='#f3e6c1';let size=24;c.font='bold '+size+'px Georgia';while(c.measureText(title).width>h-22&&size>10)c.font='bold '+(--size)+'px Georgia';c.textAlign='center';c.fillText(title,0,8)},{clamp:true});
       if(mag){
         const face=cover?tex(cover):print,mesh=O.box(0,-.4,0,21,.8,28,{t:M({c:'#fff',map:face,sp:'#000000'}),u:M({c:'#fff',map:face,sp:'#000000'}),l:M({c:'#fff',map:spine}),all:M('#e6dfcf')});
@@ -1102,6 +1158,7 @@
       if(id==='reading.mag.bed'&&t.st==='rest'&&!t.snap&&!t.at.hide&&t.at.room==='bedroom'&&[t.at.x-172,t.at.y-30,t.at.z-105,(t.at.ry||0)-12].every(v=>Math.abs(v)<.1)){Object.assign(t.at,start);H.place(t);H.saveThings()}
     }
     ['The Modem Mystery','Intergalactic Battles: An Old Hope','The Pocket-Critter Field Guide','How Radios Work','The Space-Kat Annual','Build Your Own Robot'].forEach((title,i)=>item('reading.book.'+i,title,false,[0,10,16,19,24,28][i]));
+    if(sparseStarter)['GCSE Maths: Worked Examples','Science Revision Notes','French Vocabulary','School Atlas','Year 11 Homework Diary','Sketchbook: Robots & Rockets'].forEach((title,i)=>item('reading.school.'+i,title,false,[8,9,11,17,18,25][i]));
     item('reading.mag.back1','JACK ATTACK! — May 1999',true,4,'magIssue5');item('reading.mag.back2','JACK ATTACK! — June 1999',true,13,'magIssue6');
     [['mags','JACK ATTACK! — January 1999','magIssue1'],['reading.mag.floor1','JACK ATTACK! — February 1999','magIssue2'],['reading.mag.floor2','JACK ATTACK! — March 1999','magIssue3']].forEach(([id,title,cover],i)=>item(id,title,true,[7,15,23][i],cover,{room:'bedroom',x:TX+33+i*.8,y:FY-i*.85,z:58+i*.6,ry:[-2,-13,1][i]}));
     item('reading.mag.bed','JACK ATTACK! — April 1999',true,31,'magIssue4',{room:'bedroom',x:172,y:30,z:29,ry:-6});
