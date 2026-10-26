@@ -15,6 +15,7 @@
  <fieldset><legend>AUDIO</legend><label><input type="checkbox" name="music"> Music</label><label><input type="checkbox" name="effects"> Sound effects &amp; voices</label><label class="hs-audio-volume">Volume <output>100%</output><input type="range" name="volume" min="0" max="100" step="1" aria-label="Overall volume"></label><p class="hs-pause-mouse">Applies throughout the house, PC and games. Saved for next time.</p></fieldset>
  <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [T]<small class="hs-lock-help">Full-screen view of the screen you are using. Press T again to return. JackOS fills the window; console and handheld screens keep their original proportions.</small></label>
  <label><input type="checkbox" name="crouchToggle"> Toggle crouch [C]<small>Off: hold C. On: press C to crouch or stand.</small></label>
+ <label>Guidance <select name="guidance"><option value="full">Full</option><option value="light">Light</option><option value="off">Off</option></select></label>
  <button type="button" data-pause="graphics" aria-controls="hsGraphicsMenu" aria-expanded="false">GRAPHICS OPTIONS <span class="hs-graphics-summary"></span></button>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
  <button type="button" data-pause="owner" hidden>OWNER TOOLS <kbd>&#96;</kbd></button>
@@ -23,6 +24,7 @@
  <details class="hs-pause-controls"><summary>KEYBOARD &amp; MOUSE</summary><p class="hs-pause-keys"><kbd>WASD</kbd> Walk · <kbd>Mouse</kbd> Look · <kbd>Shift</kbd> Jog<br><kbd>F</kbd> Use / look / play / sit · <kbd>E</kbd> Pick up / place<br><kbd>R</kbd> Turn · <kbd>Wheel</kbd> Distance<br><kbd>Q</kbd> Back / return item · <kbd>T</kbd> LOCK IN<br><kbd>C</kbd> Crouch · <kbd>Space</kbd> Jump · <kbd>Esc</kbd> Menu<span class="hs-owner-key" hidden><br><kbd>&#96;</kbd> Owner tools / god mode</span></p></details>
  <p class="hs-pause-status" role="status">Movement is stopped. Online programs and the TV keep running.</p></div>`;
  document.documentElement.appendChild(el);
+ const guidance=el.querySelector('[name=guidance]');guidance.value=localStorage.getItem('jhp_story_guidance')||'full';guidance.addEventListener('change',()=>window.StoryGuide?.setting(guidance.value));
  const main=el.querySelector('.hs-pause-main');let graphicsOpen=false;
  const graphicsMenu=window.HouseGraphicsMenu?.mount(el,{back:()=>graphicsBack(),resume:closeMenu});
  function graphicsBack(focus=true){graphicsOpen=false;graphicsMenu?.hide();main.hidden=false;el.querySelector('h1').textContent='PAUSE MENU';button('graphics').setAttribute('aria-expanded','false');syncSettings();el.scrollTop=0;if(focus&&el.open){button('graphics').focus({preventScroll:true});button('graphics').scrollIntoView({block:'nearest',inline:'nearest'});}}

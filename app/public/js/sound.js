@@ -81,6 +81,13 @@
   }
 
   const sfx = {
+    gravel() { noise(.10,.11,0,1800); noise(.06,.06,.025,3400); },
+    carboot() { tone(170,.12,'triangle',.12,0,80); noise(.45,.10,.08,650); tone(380,.3,'sine',.025,.1,460); },
+    carclose() { noise(.12,.22,0,380); tone(65,.25,'sine',.22,0,32); },
+    heavy() { tone(64,.23,'sine',.27,0,32); noise(.14,.14,0,380); },
+    plug() { noise(.045,.18,0,2100); tone(190,.06,'triangle',.13,.035,90); },
+    pcfan() { noise(3,.055,0,220); tone(82,2.5,'sine',.035,0,110); for(let i=0;i<7;i++)noise(.055,.065,.5+i*.25,1100+i*140); },
+    floppy() { for(let i=0;i<12;i++){noise(.055,.09,i*.13,800+(i%3)*470);tone(110,.05,'square',.025,i*.13);} },
     click() { tone(880, 0.05, 'square', 0.15); },
     button() { tone(220, 0.08, 'square', 0.25, 0, 110); tone(660, 0.06, 'square', 0.15, 0.04); },
     turn() { noise(0.07, 0.2, 0, 2500); tone(140, 0.05, 'triangle', 0.2); },

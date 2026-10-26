@@ -9,3 +9,13 @@ html.hs-focus .st-objective,html.hs-inspecting .st-objective,html.hs-paused .st-
 .st-copy canvas{display:block;width:100%;height:auto}
 .st-copy nav{display:flex;justify-content:space-between;align-items:center;gap:8px;font:12px Tahoma,Arial,sans-serif}
 .st-copy button{font:inherit;background:#c0c0c0;border:2px outset #fff;padding:3px 8px;color:#000}
+/* Warm brass quest ink, with the reticle and lower subtitles kept clear. */
+.st-marker{position:absolute;transform:translate(-50%,-50%);max-width:220px;padding:4px 8px;border:1px solid #a58e55;background:rgba(36,32,23,.87);color:#f2deb0;font:12px/1.3 "Courier New",monospace;pointer-events:none;text-shadow:1px 1px #000}
+.st-prompt{position:absolute;right:24px;bottom:170px;max-width:280px;padding:8px 12px;color:#f5e7be;background:rgba(33,31,25,.9);border-left:3px solid #bda66b;font:13px/1.4 "Courier New",monospace;pointer-events:none}
+.st-chapter{position:absolute;left:24px;top:160px;max-width:calc(100% - 48px);padding:14px 22px;border-top:2px solid #bda66b;border-bottom:1px solid #bda66b;background:rgba(33,31,25,.94);color:#f2deb0;letter-spacing:2px;font:bold 21px/1.4 "Courier New",monospace;pointer-events:none}
+.st-marker[hidden],.st-prompt[hidden],.st-chapter[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){.st-marker{transition:none}}
+
+#monitorSurface.st-recovering{background:#537a7a!important}
+#monitorSurface.st-recovering>:not(.st-recovery){visibility:hidden!important}
+#monitorSurface.st-recovering::before{content:"JackOS 98 Setup";position:absolute;left:30px;top:24px;font:italic bold 30px Tahoma,Arial,sans-serif;color:#fff;text-shadow:2px 2px #244747;pointer-events:none}

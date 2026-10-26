@@ -213,7 +213,7 @@
       L.push({ x: 191, y: -60, z: -10, c: day ? '#e2ecff' : dim ? '#ffd0af' : '#8c9fc4', i: day ? .85 : dim ? .5 : .16, d: day ? 620 : 420 });
       if (LIGHT.lava) L.push({ x: 134, y: 4.6, z: BZ + 21, c: '#ff6d9c', i: .32, d: 150 });
       if (LIGHT.telly) L.push({ x: TX, y: -8, z: 20, c: '#9bb5ed', i: .32, d: 180 });
-      if (pcPowered) L.push({ x: L0().mx, y: -24, z: 20, c: '#b3caec', i: .22, d: 150 });
+      if (pcPowered && window.StoryAccess?.available !== false) L.push({ x: L0().mx, y: -24, z: 20, c: '#b3caec', i: .22, d: 150 });
       return L;
     },
     amb: () => { const ph = skyPhase || 'day'; if (ph === 'day') return {sky: '#d6dfe8', gnd: '#827361', i: .62 + (LIGHT.main ? .08 : 0)};
@@ -267,8 +267,8 @@
     H.support('bedroom',-66,BZ,38,BZ+18,-129.2); // ornament shelf top
     H.support('bedroom', -76, -55, 76, 31, 0); // the desk top
     const L = L0(); // the PC's own surfaces (things can sit on the tower and the keyboard)
-    H.support('bedroom', L.tx - 9.5, L.tz - 16.5, L.tx + 9.5, L.tz + 17.5, -42.3);
-    H.support('bedroom', L.kx - 14, 7, L.kx + 14, 16, -2.2);
+    H.support('bedroom', L.tx - 9.5, L.tz - 16.5, L.tx + 9.5, L.tz + 17.5, -42.3, {when:()=>window.StoryAccess?.available!==false||!!window.StorySnapshot?.done?.['part.tower']});
+    H.support('bedroom', L.kx - 14, 7, L.kx + 14, 16, -2.2, {when:()=>window.StoryAccess?.available!==false||!!window.StorySnapshot?.done?.['part.keys']});
     H.support('bedroom', 104, BZ, 140, -20, 21.6); // the bedside table
     H.support('bedroom', 150, BZ + 6, 236, 136, 30); // the bed
     H.support('bedroom', LX, 178, LX + 46, 246, -9); // the chest of drawers
@@ -1403,6 +1403,11 @@
     H.snap('pc.floppy', { room: 'bedroom', x: L.tx, y: -29.4, z: front + 3, r: 24, box: [10, 1, 6], accepts: k => k === 'floppy', enabled: () => !drv.floppy.thing, hint: 'Click/E to push it into the drive', pose: { x: L.tx, y: -29.4, z: front - 4, ry: 0, rx: -90 }, hide: true,
       onSnap: t => { drv.floppy.thing = t.id; H.sfx.tone(140, 0.05, 'square', 0.08); H.sfx.noise(0.05, 0.1, 2000, 0.06); emit('drive', { drive: 'floppy', thing: t.id, inserted: true }); },
       onUnsnap: t => { drv.floppy.thing = null; emit('drive', { drive: 'floppy', thing: t.id, inserted: false }); } });
+    for (const id of ['pc', 'pc.power', 'pc.tower', 'pc.fdd', 'pc.cdej', 'pc.cdtray']) {
+      const spot = H.SPOTS[id], action = spot.act;
+      spot.act = () => { if (window.StoryAccess?.available !== false) return action(); };
+      spot.obj?.traverse(o => { if (window.StoryAccess?.available === false) o.userData.noPick = true; });
+    }
     // (after a refresh: whatever was left in the drives is still in them)
     for (const id in H.THINGS) { const t = H.THINGS[id]; if (t.st === 'snap' && t.snap === 'pc.floppy') drv.floppy.thing = id; if (t.st === 'snap' && t.snap === 'pc.cd') { drv.cd.thing = id; trayBuild(); clipOn(t, true); t.at.hide = true; t.obj.visible = false; } }
   }
@@ -1410,7 +1415,9 @@
   // PC 450 tower, the keyboard, the mouse on its mat. Drawn and depth-sorted with everything else, so it holds up from anywhere you
   // walk. While boot.js is flying in or out (its CSS 3D PC takes over for the BIOS hand-over) the engine hides this (House.pcGL).
   function pcModel(L, r) {
-    const g = new T.Group(); g.name = 'pcGL'; const P = K.into(g);
+    const g = new T.Group(); g.name = 'pcGL';
+    const parts = {}; const section = id => { const part = parts[id] = new T.Group(); part.name = 'pc-' + id; g.add(part); return K.into(part); };
+    let P = section('monitor');
     const BEI = M({ c: '#ece5cf', e: '#2e2a20', sh: 18, sp: '#222' }), BEI2 = M({ c: '#e0d8be', e: '#26221a', sh: 12, sp: '#1a1a1a' }) /* (a touch of glow: the beige reads as bright as boot.js's CSS PC) */, DK = M({ c: '#9a9070', sh: 8 });
     const monTex = K.tex('pc.monfront', 512, 448, (c, w, h) => {
       const s = w / 38; c.fillStyle = '#e8e0c8'; c.fillRect(0, 0, w, h);
@@ -1462,12 +1469,14 @@
     P.rbox(L.mx, -1, -8.5, 22, 2, 19, 0.8, BEI);
     P.shadow(L.mx, 0, -8.5, 30, 28, 0.55);
     // the tower
+    P = section('tower');
     P.rbox(L.tx, -21.6, L.tz, 19.5, 41.4, 34, 0.6, BEI2);
     P.rbox(L.tx, -21.6, L.tz + 17.65, 20, 42, 1.3, 0.45, BEI); P.plane(L.tx, -21.6, L.tz + 18.32, 19.4, 41.4, M({ c: '#fff', map: towTex, e: '#262218', sh: 16, sp: '#222' }));
     const btn = P.rbox(L.tx, -19.7, L.tz + 18.55, 4.6, 4.6, 0.9, 0.7, BEI);
     for (const dx of [-7, 7]) for (const dz of [-14, 14]) P.box(L.tx + dx, -0.3, L.tz + dz, 3.2, 0.6, 2, M('#1c1814'));
     P.shadow(L.tx, 0, L.tz, 26, 40, 0.6, { sq: true });
     // the keyboard and the mouse on its mat
+    P = section('keys');
     P.box(L.kx, -0.9, 11.5, 30, 1.8, 10, { t: M({ c: '#fff', map: kbTex, sh: 20, sp: '#222' }), all: BEI2 }, { rx: -4 });
     P.shadow(L.kx, 0, 11.5, 34, 13, 0.5, { sq: true });
     P.box(L.ux, -0.15, L.uz, 10, 0.3, 8.5, { t: M({ c: '#fff', map: matTex }), all: M('#141c45') });
@@ -1476,16 +1485,19 @@
     P.geo(cab, 0, 0, 0, M('#cfc5a7'));
     // the power LEDs (green while the PC is on and you've stood up from it)
     const ledOff = M({ c: '#33402a', sh: 60, sp: '#444' }), ledOn = M({ c: '#7dff6a', e: '#4dff3a', basic: true });
-    const leds = [P.box(L.tx - 6, -21.6, L.tz + 18.4, 0.7, 0.7, 0.3, ledOff), P.box(L.mx + 11.6, -9.9, 0.1, 0.6, 0.6, 0.2, ledOff)];
+    const leds = [K.into(parts.tower).box(L.tx - 6, -21.6, L.tz + 18.4, 0.7, 0.7, 0.3, ledOff), K.into(parts.monitor).box(L.mx + 11.6, -9.9, 0.1, 0.6, 0.6, 0.2, ledOff)];
     const ledSet = on => { const changed = pcPowered !== !!on; pcPowered = !!on; leds.forEach(m => { if (m) m.material = on ? ledOn : ledOff; }); if (changed) H.relight(); H.dirty(); };
     H.on('pcpower', on => ledSet(on)); H.on('stood', () => ledSet(pcPowered)); H.on('sat', () => ledSet(pcPowered)); ledSet(pcPowered);
-    const staticBatch=K.batch();
-    for(const mesh of g.children.slice())if(mesh.isMesh&&mesh!==btn&&!leds.includes(mesh)&&![].concat(mesh.material).some(m=>m.transparent)){
-      staticBatch.add(mesh.geometry,mesh.matrix,Array.isArray(mesh.material)?i=>mesh.material[i]:mesh.material);g.remove(mesh);mesh.geometry.dispose();
+    // Keep the original batching budget inside each removable assembly.
+    for(const part of Object.values(parts)){
+      const staticBatch=K.batch();
+      for(const mesh of part.children.slice())if(mesh.isMesh&&mesh!==btn&&!leds.includes(mesh)&&![].concat(mesh.material).some(m=>m.transparent)){
+        staticBatch.add(mesh.geometry,mesh.matrix,Array.isArray(mesh.material)?i=>mesh.material[i]:mesh.material);part.remove(mesh);mesh.geometry.dispose();
+      }
+      staticBatch.build(part);
     }
-    staticBatch.build(g);
     g.traverse(o => { if (o.isMesh) o.userData.noPick = 1; });
-    g.userData.glass = glass; r.group.add(g); H.pcGL = g; H.pcGlass = glassM; H.dirty();
+    g.userData.glass = glass; g.userData.parts = parts; g.visible = window.StoryAccess?.available !== false; r.group.add(g); H.pcGL = g; H.pcGlass = glassM; H.dirty();
     return btn;
   }
   function ejectFloppy() { // ka-chunk: the disk pops out, ready to pick up
@@ -1708,7 +1720,7 @@
   const tall = () => !!(window.matchMedia && matchMedia('(max-aspect-ratio: 3/4)').matches);
   room.stations = [
     { id: 'telly', n: 'Consoles', pose: () => tall() ? look(-128, 160, TX + 2, 10, -30, 150) : look(-92, 140, TX - 12, 12, -26, 150) },
-    { id: 'desk', n: 'The PC', pose: () => Object.assign(H.seatPose(), { seat: 1, lvl: 'U' }) },
+    { id: 'desk', n: window.StoryAccess?.available === false ? 'My desk' : 'The PC', pose: () => Object.assign(H.seatPose(), { seat: 1, lvl: 'U' }) },
     { id: 'window', n: 'Window', pose: () => tall() ? look(100, 214, 196, -10, -20, 160) : look(52, 196, 196, -16, -14, 160) },
     { id: 'door', n: 'The door', pose: () => tall() ? look(-70, 120, 240, -40, 190, 160) : look(-80, 110, 240, -30, 178, 160) },
   ];
@@ -2122,8 +2134,11 @@
   function hint() {
     if (H.here !== 'bedroom') return; // an outdoor resume is not a first bedroom visit
     if (S.seen._hint2) return; S.seen._hint2 = 1; save();
-    const touch = !!(window.matchMedia && (matchMedia('(hover:none)').matches || matchMedia('(pointer:coarse)').matches));
-    say("Jack's room", touch ? 'This is my room! Walk round with the stick (bottom left), drag to look, and press on things to use them or pick them up. The PC is on the desk: its power button is on the tower.' : 'This is my room! Walk round with <b>W A S D</b> (or the arrow keys), drag to look, click things to use them or pick them up. The arrows jump to the good spots. The PC\'s power button is on the tower.', 11000);
+    if(window.StoryAccess?.available===false){
+      say("Jack's room", 'One quick go on my Game Lad first. It is on the desk. WASD walks; mouse looks. F plays or uses, E carries, R turns and Q backs out.', 8000);
+      return;
+    }
+    say("Jack's room", 'WASD walks; mouse looks. F uses or plays, E picks up or places, R turns and Q backs out. The power button is on the PC tower.', 8000);
   }
   // (with the PC on and the room not built yet, the mobile still has to buzz on the desk when a text comes)
   if (!live) setTimeout(() => { if (!window.HouseMobile && !started) { startHouse(); loadJs('js/hs-mobile.js').catch(() => {}); } }, 6000);

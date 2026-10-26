@@ -734,7 +734,7 @@
   };
   function sfxDoor(open) { sfx.noise(0.35, 0.06, open ? 500 : 380, 0, 'bandpass', open ? 900 : 200); if (!open) sfx.tone(90, 0.12, 'sine', 0.12, 0.3); }
   let stepSide = 0;
-  function sfxStep(stair) { stepSide ^= 1; sfx.noise(0.07, stair ? 0.07 : 0.035, stair ? 520 : 260 + stepSide * 40); if (stair && Math.random() < 0.25) sfx.tone(180 + Math.random() * 60, 0.18, 'sawtooth', 0.012, 0.02, 140); }
+  function sfxStep(stair) { if (cur?.id === 'drive') { window.Sound?.play('gravel'); return; } stepSide ^= 1; sfx.noise(0.07, stair ? 0.07 : 0.035, stair ? 520 : 260 + stepSide * 40); if (stair && Math.random() < 0.25) sfx.tone(180 + Math.random() * 60, 0.18, 'sawtooth', 0.012, 0.02, 140); }
 
   // ================================================================ the state machine: what the house is doing
   // off: not shown | follow: boot.js drives the camera | walk: you're in charge | glide: the camera is moving to a view
@@ -822,7 +822,8 @@
     const mag = Math.min(1, Math.hypot(mx, mz));
     const night = !!(window.HouseLife && HouseLife.quiet && HouseLife.quiet());
     if (!W.seat) W.eye = Math.max(60, ((cur && cur.eye) || STAND) - (keys.crouch ? 38 : 0)); // (C / Ctrl: duck)
-    const sp = (keys.run ? 210 : night ? 62 : 140) * (W.seat ? 0 : 1) * (keys.crouch ? 0.5 : 1); // (Shift: a jog, 1.5x. At night you creep anyway: Mom's asleep)
+    const carrySpeed = held ? (THINGS[held.id]?.walkScale || 1) : 1;
+    const sp = carrySpeed * (keys.run ? 210 : night ? 62 : 140) * (W.seat ? 0 : 1) * (keys.crouch ? 0.5 : 1); // (Shift: a jog, 1.5x. At night you creep anyway: Mom's asleep)
     const a = P.ry * D2R, fx = Math.sin(a), fz = -Math.cos(a), rx = Math.cos(a), rz = Math.sin(a);
     let tvx = 0, tvz = 0;
     if (mag > 0.05) {
@@ -1387,7 +1388,7 @@
     // boot hand-over modes replace it with boot.js's CSS model.
     const on = mode === 'follow' || mode === 'off';
     if (on !== pcOn) { pcOn = on; pb.classList.toggle('hs-nopc', !on); }
-    const g = window.House && House.pcGL; if (g && g.visible === on) g.visible = !on;
+    const g = window.House && House.pcGL; if (g) g.visible = !on && window.StoryAccess?.available !== false;
   }
 
   // ================================================================ boot.js: following it, holding it, and the power button
@@ -1626,6 +1627,7 @@
     return true;
   }
   function sitDown() {
+    if (window.StoryAccess?.available === false) return;
     ls.del('jhp_hs_furniture_seat'); // back to the desktop: no BIOS, no boot, straight back in
     if (!stood || standing || mode === 'sit') return;
     rememberPCEntry();

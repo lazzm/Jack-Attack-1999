@@ -65,9 +65,10 @@ const checks=[
  ['sparse-signup',60000,async()=>{
    let sparse;
    try{
-     sparse=await roomFixture(base,{onPage:observe});
+     sparse=await roomFixture(base,{onPage:observe,opening:true});
      const {page}=sparse;
      assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_starter')),'1');
+     assert(await page.evaluate(()=>House.mode==='walk'&&!House.pcGL.visible&&!document.body.classList.contains('pc-monitor')),'New story player must start without a PC or screen layer');
      assert(await page.evaluate(()=>House.THINGS.gb?.obj.visible),'Game Lad missing');
      assert.deepEqual(await page.evaluate(()=>['n64','ps','md','dc'].filter(id=>House.SPOTS[id]||House.THINGS[id])),[],'Sparse room contains consoles');
      assert.deepEqual(await page.evaluate(()=>PM.items().map(item=>item.id).sort()),['pm.mag.01','pm.mag.02']);

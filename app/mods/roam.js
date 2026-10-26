@@ -27,6 +27,8 @@ function write(name, obj) {
 function starterProfile() {
   const values = {
     jhp_starter: 1,
+    jhp_story_pc: "missing",
+    jhp_off: 1,
     jhp_setup: { v: 2, rm: {}, add: {}, noicon: {}, when: {}, dl: [] },
     jhp_pm: { v: 1, own: {'pm.mag.01':1,'pm.mag.02':1}, fl: {}, gift: 99, days: [], seen: {}, opened: {}, n: 0, magazines:1 },
     jhp_discs: { cd: '', scr: {}, d2: {}, n: {}, dx: 0, gave: {}, ej: [] },
