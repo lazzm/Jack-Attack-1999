@@ -175,10 +175,10 @@
   };
   // ================================================================ additions (round 36): all new, nothing above changed
   // RoomRK.loft(T, secs)              a hull from cross-sections [{ z, p: [[x, y], ...] }] (same count each), capped, faceted
-  // RoomRK.kart2(T, o)                a better kart with a proper driver: o { col, col2, skin, kind: kid|grot|dog|cat, hair, cap, helmet, shirt, num }
+  // RoomRK.kart2(T, o)                a better kart with a proper driver: o { col, col2, skin, kind: kid|grot|dog|cat, hair, cap, helmet, shirt, num, low? }
   // RoomRK.ship2(T, o)                an anti-grav racer by design: o { col, trim, kind: 0..4, glow } -> { body, glow } geometries
   // RoomRK.sky(T3, o)                 a sky dome with a painted panorama: o { r, grad: [[stop, css]...], paint(g, w, h, horizonY) } -> mesh (.follow(cam))
-  // RoomRK.fx(T3, o)                  particles in one draw call (own size + fade each): o { n, add, square, scale } -> { emit(...), update(dt), clear() }
+  // RoomRK.fx(T3, o)                  particles in one draw call (own size + fade each): o { n, add, square, scale, maxPx? } -> { emit(...), update(dt), clear(), active (read-only) }
   // RoomRK.ghost                      .rec() -> { add(dt, x, y, z, yaw), str() } and .play(str) -> { len, at(t, out) } (a time-trial ghost, 10 samples a second)
   // RoomRK.dither(g, w, h, bits)      ordered (Bayer) dither + colour depth cut on a canvas: the PlayStation look
   RK.loft = function (T, secs) {
@@ -203,25 +203,40 @@
   const oct = (w, h, b, y) => { b = b || 0.3; return [[-w / 2 * (1 - b), -h / 2 + y], [w / 2 * (1 - b), -h / 2 + y], [w / 2, -h / 2 * (1 - b) + y], [w / 2, h / 2 * (1 - b) + y], [w / 2 * (1 - b), h / 2 + y], [-w / 2 * (1 - b), h / 2 + y], [-w / 2, h / 2 * (1 - b) + y], [-w / 2, -h / 2 * (1 - b) + y]]; };
 
   RK.kart2 = function (T, o) {
-    o = o || {};
+    o = o || {}; const low = !!o.low;
     const col = o.col == null ? 0xd82a1a : o.col, col2 = o.col2 == null ? 0xffffff : o.col2, skin = o.skin == null ? 0xf0c090 : o.skin;
-    const box = (w, h, d) => new T.BoxGeometry(w, h, d), cyl = (r, h, s) => new T.CylinderGeometry(r, r, h, s || 12), ball = (r, a, b) => new T.SphereGeometry(r, a || 10, b || 8);
+    const box = (w, h, d) => new T.BoxGeometry(w, h, d), cyl = (r, h, s) => new T.CylinderGeometry(r, r, h, low ? Math.min(s || 12, 6) : (s || 12)), ball = (r, a, b) => new T.SphereGeometry(r, low ? Math.min(a || 10, 6) : (a || 10), low ? Math.min(b || 8, 4) : (b || 8));
     const P = [], add = (geo, m, c) => P.push({ geo, m, c });
     const dark = 0x1c1c22, chrome = 0xc8ccd4;
     // the body: a lofted tub with a pointy nose
     add(RK.loft(T, [{ z: 2.15, p: oct(1.0, 0.28, 0.4, 0.42) }, { z: 1.5, p: oct(1.4, 0.42, 0.35, 0.47) }, { z: 0.6, p: oct(1.75, 0.55, 0.3, 0.52) }, { z: -0.9, p: oct(1.8, 0.62, 0.3, 0.55) }, { z: -1.45, p: oct(1.5, 0.5, 0.3, 0.55) }]), null, col);
     add(box(2.3, 0.18, 0.5), M(T, 0, 0.36, 2.0), col2);                       // front bumper
-    add(box(0.7, 0.28, 0.06), M(T, 0, 0.55, 2.16, 0, 1, 1, 1, -0.35), 0xffffff); add(box(0.4, 0.06, 0.07), M(T, 0, 0.58, 2.17, 0, 1, 1, 1, -0.35), 0x222222); // number plate
+    // Solid number plaques on both bumpers; chunky digits survive a 320x240 picture.
+    for (const z of [2.27, -1.98]) {
+      add(box(0.56, 0.38, 0.08), M(T, 0, 0.55, z), 0xfff4d8);
+      if (o.num) {
+        const digits = ['1111110', '0110000', '1101101', '1111001', '0110011', '1011011', '1011111', '1110000', '1111111'];
+        const bars = [[0,.12,.2,.045],[.1,.06,.045,.12],[.1,-.06,.045,.12],[0,-.12,.2,.045],[-.1,-.06,.045,.12],[-.1,.06,.045,.12],[0,0,.2,.045]];
+        bars.forEach(([x,y,w,h],i) => { if (digits[o.num % 9][i] === '1') add(box(w,h,.02), M(T,x*Math.sign(z),.55+y,z+Math.sign(z)*.051),0x18243a); });
+      }
+    }
     add(box(2.2, 0.16, 0.42), M(T, 0, 0.42, -1.75), col2);                    // rear bumper
     add(box(1.95, 0.08, 1.7), M(T, 0, 0.3, -0.1), 0x2a2a30);                  // floor pan
     for (const s of [-1, 1]) add(box(0.32, 0.36, 1.5), M(T, s * 0.98, 0.5, 0.1), col2); // side pods
     add(box(1.0, 0.45, 0.7), M(T, 0, 0.77, -1.15), 0x34343c);                 // engine
     add(box(1.1, 0.1, 0.8), M(T, 0, 1.02, -1.15), 0x55555e);
+    for (let f = 0; !low && f < 4; f++) add(box(.9,.035,.055), M(T,0,1.085,-1.43+f*.18),chrome);
+    add(cyl(.075,2.15,6), M(T,0,.48,-1.05,0,1,1,1,0,Math.PI/2),chrome); // rear axle
+    // Boots sit in the footwell, with the knees connected to the seat.
+    for (const side of [-1,1]) {
+      add(box(.24,.25,.55),M(T,side*.26,.86,.16,0,1,1,1,-.18),0x293557);
+      add(box(.27,.18,.4),M(T,side*.26,.7,.57),dark);
+    }
     for (const s of [-1, 1]) add(cyl(0.11, 0.9, 8), M(T, s * 0.34, 0.92, -1.75, 0, 1, 1, 1, Math.PI / 2 - 0.2), chrome); // exhausts
     add(box(0.95, 0.55, 0.22), M(T, 0, 0.9, -0.55, 0, 1, 1, 1, -0.28), dark); // seat back
     add(box(0.95, 0.16, 0.7), M(T, 0, 0.72, -0.25), dark);                    // seat
     add(cyl(0.05, 0.75, 6), M(T, 0, 0.92, 0.7, 0, 1, 1, 1, 0.95), 0x333333);   // steering column
-    add(new T.TorusGeometry(0.26, 0.05, 5, 12), M(T, 0, 1.16, 0.42, 0, 1, 1, 1, -0.65), 0x222222); // steering wheel
+    add(new T.TorusGeometry(0.26, 0.05, low ? 3 : 5, low ? 8 : 12), M(T, 0, 1.16, 0.42, 0, 1, 1, 1, -0.65), 0x222222); // steering wheel
     // wheels: fat rubber, coloured hubs
     for (const [x, z, r, w] of [[-1.08, 1.25, 0.4, 0.42], [1.08, 1.25, 0.4, 0.42], [-1.12, -1.05, 0.5, 0.58], [1.12, -1.05, 0.5, 0.58]]) {
       add(cyl(r, w, 12), M(T, x, r, z, 0, 1, 1, 1, 0, Math.PI / 2), dark);
@@ -263,11 +278,15 @@
       add(box(0.18, 0.05, 0.05), M(T, 0, hy - 0.17, 0.22), 0x8a2a2a);
       if (o.glasses) { add(box(0.56, 0.05, 0.04), M(T, 0, hy + 0.05, 0.27), 0x222222); for (const s of [-1, 1]) add(new T.TorusGeometry(0.1, 0.025, 4, 8), M(T, s * 0.14, hy + 0.04, 0.27), 0x222222); }
       if (o.helmet != null) {
-        add(ball(0.46, 12, 9), M(T, 0, hy + 0.08, -0.18, 0, 1, 0.98, 1.02), o.helmet);
-        add(box(0.62, 0.18, 0.1), M(T, 0, hy + 0.24, 0.24), o.visor == null ? 0x1a2a4a : o.visor);
-        add(box(0.08, 0.5, 0.86), M(T, 0, hy + 0.4, -0.16), col2);
+        add(new T.SphereGeometry(.46,low?8:12,low?4:7,0,Math.PI*2,0,Math.PI*.56), M(T,0,hy+.08,-.18),o.helmet);
+        for (const side of [-1,1]) add(ball(.17,8,5),M(T,side*.36,hy-.03,-.14,0,.8,1,1),o.helmet);
+        add(ball(.36,10,6),M(T,0,hy+.02,.17,0,1,.42,.4),o.visor == null ? 0x1a2a4a : o.visor);
+        add(box(.25,.035,.025),M(T,-.06,hy+.08,.32),0xc8eeff);
+        add(new T.SphereGeometry(.467,low?4:6,low?4:8,Math.PI/2-.1,.2,0,Math.PI*.56),M(T,0,hy+.08,-.18),col2);
       } else {
-        add(ball(0.42, 10, 6, 0), M(T, 0, hy + 0.12, -0.2, 0, 1, 0.75, 1), o.hair == null ? 0x4a2a12 : o.hair);
+        // A top cap and rear hair leave the face visible, unlike a whole sphere over the eyes.
+        add(new T.SphereGeometry(.425,low?8:12,low?4:6,0,Math.PI*2,0,Math.PI*.48),M(T,0,hy+.1,-.2,0,1,.8,1),o.hair == null ? 0x4a2a12 : o.hair);
+        add(ball(.32,10,6),M(T,0,hy,-.35,0,1,.75,.55),o.hair == null ? 0x4a2a12 : o.hair);
         if (o.spiky) for (let k = 0; k < 5; k++) add(new T.ConeGeometry(0.1, 0.32, 4), M(T, (k - 2) * 0.15, hy + 0.42, -0.25 - Math.abs(k - 2) * 0.03, 0, 1, 1, 1, -0.5, (k - 2) * 0.25), o.hair == null ? 0x4a2a12 : o.hair);
         if (o.cap != null) { add(ball(0.43, 10, 5), M(T, 0, hy + 0.2, -0.17, 0, 1, 0.6, 1), o.cap); add(box(0.5, 0.05, 0.4), M(T, 0, hy + 0.2, 0.3), o.cap); add(box(0.14, 0.12, 0.05), M(T, 0, hy + 0.36, 0.22), 0xffffff); }
       }
@@ -354,15 +373,15 @@
     pa.setUsage(T.DynamicDrawUsage); ca.setUsage(T.DynamicDrawUsage); sa.setUsage(T.DynamicDrawUsage);
     geo.setAttribute('position', pa); geo.setAttribute('aCol', ca); geo.setAttribute('aSize', sa);
     const mat = new T.ShaderMaterial({
-      uniforms: { uScale: { value: o.scale || 220 }, uSq: { value: o.square ? 1 : 0 } },
-      vertexShader: 'attribute vec4 aCol; attribute float aSize; varying vec4 vC; uniform float uScale;\nvoid main(){ vC = aCol; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = aSize * uScale / max(0.2, -mv.z); gl_Position = projectionMatrix * mv; }',
+      uniforms: { uScale: { value: o.scale || 220 }, uSq: { value: o.square ? 1 : 0 }, uMaxSize: { value: o.maxPx || 1e9 } },
+      vertexShader: 'attribute vec4 aCol; attribute float aSize; varying vec4 vC; uniform float uScale; uniform float uMaxSize;\nvoid main(){ vC = aCol; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = min(uMaxSize, aSize * uScale / max(0.2, -mv.z)); gl_Position = projectionMatrix * mv; }',
       fragmentShader: 'varying vec4 vC; uniform float uSq;\nvoid main(){ vec2 c = gl_PointCoord - 0.5; float d = length(c); float a = 1.0; if (uSq < 0.5) { if (d > 0.5) discard; a = smoothstep(0.5, 0.2, d); } gl_FragColor = vec4(vC.rgb, vC.a * a); }',
       transparent: true, depthWrite: false, blending: o.add ? T.AdditiveBlending : T.NormalBlending,
     });
     const pts = new T.Points(geo, mat); pts.frustumCulled = false; pts.renderOrder = 5; T3.add(pts);
     let head = 0, alive = 0; const cc = new T.Color();
     const fx = {
-      pts,
+      pts, get active() { return !!alive; },
       // emit(x, y, z, vx, vy, vz, life seconds, colour, size, { g: gravity, grow: end size, a: alpha, drag })
       emit(x, y, z, vx, vy, vz, l, c, s, e) {
         const i = head; head = (head + 1) % n; e = e || {};
