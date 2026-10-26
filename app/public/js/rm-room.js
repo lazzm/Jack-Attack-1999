@@ -41,7 +41,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     if (!window.Apps || !Apps.cmd) return;
     try {
-      Apps.fs.add('C:/My Documents', { name: 'LOST GAMES.TXT', type: 'txt', date: '18/10/99', size: '1 KB', text: 'LOST GAMES (IN MY ROOM SOMEWHERE)\r\n=================================\r\n\r\nUltra 64: the spy one and the island one. One is in with my letters, I think.\r\nPlaySpace: the fighting one (under something?) and the hover racing one (Mom tidied up. Uh oh.)\r\nGame Lad: Pocket Critters!!! 3 hours on my save. Check where I sit to play.\r\nSegue: the beat-em-up. Behind the telly with all the leads?\r\nDaydream: the purple badger one came WITH it (check the box).\r\n\r\nAlso lost: my shooter marble, a tazo, my robot club badge, the hologram sticker,\r\nthe key to my money box, and the cheat card off the front of a mag.\r\n\r\nTO FIND THEM: stand up from the PC (F2, or Esc > Back to the room)\r\nand look round my room. Pick things up. Look under things. Click EVERYTHING.\r\n(Mom says if I find her lost change I can keep it.)\r\n' });
+      Apps.fs.add('C:/My Documents', { name: 'LOST GAMES.TXT', type: 'txt', date: '18/10/99', size: '1 KB', text: 'LOST GAMES (IN MY ROOM SOMEWHERE)\r\n=================================\r\n\r\nUltra 64: the spy one and the island one. One is in with my letters, I think.\r\nPlaySpace: the fighting one (under something?) and the hover racing one (Mom tidied up. Uh oh.)\r\nGame Lad: Pocket Critters!!! 3 hours on my save. Check where I sit to play.\r\nSegue: the beat-em-up. Behind the telly with all the leads?\r\nDaydream: the purple badger one came WITH it (check the box).\r\n\r\nAlso lost: my shooter marble, a tazoz, my robot club badge, the hologram sticker,\r\nthe key to my money box, and the cheat card off the front of a mag.\r\n\r\nTO FIND THEM: stand up from the PC (F2, or Esc > Back to the room)\r\nand look round my room. Pick things up. Look under things. Click EVERYTHING.\r\n(Mom says if I find her lost change I can keep it.)\r\n' });
     } catch (e) {}
     Apps.cmd(['room', 'bedroom', 'my room', 'jacksroom', 'stand', 'standup', 'stand up'], () => {
       if (window.House && House.canStand && House.canStand()) return House.standUp();
@@ -437,7 +437,7 @@
     H.spot('cork', { label: 'Cork board', obj: ck });
     poster(B, -52, -82, BZ, 30, 42, tex('posterShuttle'), 0); pickBox(r, 'postershuttle', -52, -82, BZ + 1, 30, 42, 2); H.SPOTS.postershuttle.label = 'Space shuttle poster';
     frame(B, 92, -84, BZ + 0.8, 24, 33, 1.4, M({ c: '#fff', map: tex('timetable') }), M('#2a2a2a'));
-    H.spot('timetable', { label: 'School timetable', act: () => say('My timetable', 'Year 11. GCSE year. Double Maths on a Monday morning should be against the law. Tuesday has IT, the best lesson: we get to play Minesweeper at the end if we\'re quiet.') });
+    H.spot('timetable', { label: 'School timetable', act: () => say('My timetable', 'Year 11. GCSE year. Double Maths on a Monday morning should be against the law. Tuesday has IT, the best lesson: we get to play Bugsweeper at the end if we\'re quiet.') });
     pickBox(r, 'timetable', 92, -84, BZ + 1, 24, 33, 2);
   }
   // models on the shelf: proper little solids
@@ -1519,7 +1519,7 @@
     beanbag: ['The beanbag. It leaks little white balls everywhere if you sit down too hard.', 'Best seat in the house for the Ultra 64.'],
     wardrobe: ['The wardrobe. School uniform on one side, everything else on the floor of it.', 'There is a welly in here. Just the one.'],
     bin: ['The bin. Crisp packets, a broken pencil and a letter from school I am NOT showing Mom.'],
-    rug: ['The rug. It has a road map on it. I am sixteen and I still drive Micro Machines round it. Don\'t tell anyone.', 'Something rolled under the rug...'],
+    rug: ['The rug. It has a road map on it. I am sixteen and I still drive Micro Mechanics round it. Don\'t tell anyone.', 'Something rolled under the rug...'],
     window: ['The view out of my window. Back gardens, the shed and the big tree.', 'If you lean right out you can see the shop. Mom says do not lean right out.'],
     shelf: ['My shelf: the BUILDO space shuttle, the Buildex roller coaster (it works!) and my Swimming 25 Metres trophy (from when I was 7).', 'The roller coaster took three weekends. A full circuit, two rails, and about a million little blue connectors.'],
     tvback: ['Behind the telly: about forty leads, all tangled. Nobody knows which one is which.'],
@@ -1530,7 +1530,7 @@
     posterfilm: ['INTERGALACTIC BATTLES: The Phantom Menu. A film about a space restaurant.'],
     rack: ['My console game cases. Audio CDs are on the wooden games shelf beside the TV.'],
     drawer: ['My desk drawer: letters, floppy disks, a broken Eggbert... the usual.'],
-    dcbox: ['The Daydream box. Polystyrene, instructions in five languages, a VMU leaflet.'],
+    dcbox: ['The Daydream box. Polystyrene, instructions in five languages, a VMG leaflet.'],
   };
   const rot = {};
   const lineOf = id => { let L = LINES[id]; if (typeof L === 'function') return L(); if (!L) return ''; rot[id] = ((rot[id] | 0) + 1) % L.length; return L[(rot[id] + L.length - 1) % L.length]; };

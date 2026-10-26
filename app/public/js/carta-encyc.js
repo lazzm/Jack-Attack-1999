@@ -29,7 +29,7 @@
     { id: 'x_blank', t: 'This Page Intentionally Left Blank', c: 'y2k', img: 'blank', rare: 'blank', rel: [], f: [['Words', 'Very few'], ['Pictures', 'One (white)']],
       x: 'This page has been intentionally left blank.\n\n(Except for these words. And these ones. Oh dear, it isn\'t blank any more. Please ignore this page.)' },
     { id: 'x_grot', t: 'Grot', c: 'puzzles', img: 'grot', rare: 'grot', rel: ['x_squig', 'lego'], f: [['Size', 'Small'], ['Colour', 'Green'], ['Ears', 'Big and flappy']],
-      x: 'A grot is a small green goblin-ish creature from a tabletop fantasy hobby, where people build and paint armies of little models: space marines, elves, knights, robots and, yes, goblins. Grots are the smallest, sneakiest and most easily squashed of the goblins.\n\nThey are often painted by kids with very steady hands and very messy desks. Some people keep a "bits box" full of spare arms, heads and weapons.\n\nJackCarta was not able to interview a grot for this article. It kept trying to eat the microphone.' },
+      x: 'A grot is a small green goblin-ish creature from a tabletop fantasy hobby, where people build and paint armies of little models: space mariners, elves, knights, robots and, yes, goblins. Grots are the smallest, sneakiest and most easily squashed of the goblins.\n\nThey are often painted by kids with very steady hands and very messy desks. Some people keep a "bits box" full of spare arms, heads and weapons.\n\nJackCarta was not able to interview a grot for this article. It kept trying to eat the microphone.' },
   ];
   const ZZZ = { id: 'x_zzz', t: 'Zzz', c: 'y2k', img: 'question', rare: 'zzz', rel: [], f: [['Position', 'Last'], ['Prize', 'One gold star']],
     x: '"Zzz" is the sound people make in comics when they fall asleep, and it is the very last entry in JackCarta 99.\n\nYou have read the encyclopedia all the way to the end! Well, scrolled to the end. That counts.\n\nHere is a gold star: ★\n\nNow go back to the start. There are lots of things you missed.' };
@@ -255,7 +255,7 @@
     draw(p, t) {
       if (t > 8) { p.fill('#008080'); const k = Math.min(1, (t - 8) / 0.6); p.ctext(36, 'JACKOS 98', `rgba(255,255,255,${k})`, 2); p.ctext(52, 'STARTING...', '#fff'); return; }
       p.fill('#000'); if (t < 0.3) return;
-      p.text(3, 3, 'JACKBIOS (C) 1998', '#c0c0c0'); p.text(3, 11, 'PENTIUM II 350MHZ', '#c0c0c0');
+      p.text(3, 3, 'JACKBIOS (C) 1998', '#c0c0c0'); p.text(3, 11, 'PENT-YUM II 350MHZ', '#c0c0c0');
       const mem = Math.min(65536, Math.floor(Math.max(0, t - 0.6) / 2.2 * 65536 / 1024) * 1024); p.text(3, 22, 'MEMORY TEST: ' + mem + 'K' + (mem >= 65536 ? ' OK' : ''), '#fff');
       if (t > 3.2) p.text(3, 33, 'PRIMARY MASTER: 6.4GB', '#c0c0c0'); if (t > 4) p.text(3, 41, 'SECONDARY MASTER: CD-ROM', '#c0c0c0'); if (t > 4.8) p.text(3, 52, 'KEYBOARD... OK', '#c0c0c0'); if (t > 5.5) p.text(3, 60, 'MOUSE... OK', '#c0c0c0');
       if (t > 6.2) p.text(3, 74, 'STARTING JACKOS 98...', '#ffd400'); p.text(3, 89, 'PRESS DEL TO ENTER SETUP', '#888');
@@ -272,7 +272,7 @@
       if (t > 8.2) { p.rect(6, 80, 116, 12, '#000080'); p.text(9, 84, 'ABORT, RETRY, FAIL?', '#fff'); }
     } });
   // ---- Comet Hale-Bopp
-  clip('comet', { title: 'Comet Hale-Bopp, 1997', dur: 14,
+  clip('comet', { title: 'Comet Hail-Bop, 1997', dur: 14,
     ev() { const ch = [[262, 330, 392], [220, 262, 330], [175, 220, 262], [196, 247, 294]]; const out = []; for (let i = 0; i < 9; i++) out.push([0.2 + i * 1.5, () => ch[i % 4].forEach(f => sfx(f * 2, 1.4, 'sine'))]); return out; },
     draw(p, t) {
       p.vgrad(0, 96, '#020214', '#1a2a5a'); const R = C.art.rng(77); for (let i = 0; i < 70; i++) { const x = R() * MW, y = R() * 70, tw = Math.sin(t * 3 + i) > 0.7; p.px(x, y, tw ? '#fff' : '#8090c0'); }
@@ -282,7 +282,7 @@
       p.disc(cx, cy, 2, '#fff');
       p.poly([[0, 96], [0, 76], [16, 70], [30, 78], [48, 68], [70, 80], [92, 72], [112, 78], [128, 70], [128, 96]], '#000');
       p.rect(96, 66, 6, 10, '#000').poly([[94, 66], [99, 60], [104, 66]], '#000'); p.px(98, 70, '#ffd400');
-      p.text(3, 3, 'COMET HALE-BOPP', '#9fd0ff'); p.text(3, 10, '1997', '#9fd0ff');
+      p.text(3, 3, 'COMET HAIL-BOP', '#9fd0ff'); p.text(3, 10, '1997', '#9fd0ff');
     } });
   // ---- rocket launch
   clip('rocket', { title: 'Countdown and lift-off', dur: 14,

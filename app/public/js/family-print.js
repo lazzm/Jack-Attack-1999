@@ -165,7 +165,7 @@
   function queue() {
     if (Q && !Q.w.closed) { Q.w.restore(); return Q.w; }
     const b = document.createElement('div'); b.className = 'dm-q';
-    b.innerHTML = `<div class="dm-top"><canvas class="dm-prev" width="300" height="236"></canvas><div class="dm-info"><b>RattleTek DM-9 (9-pin dot matrix)</b><span>Port: LPT1: (the big plug)</span><span>Paper: continuous, <span class="dm-paper"></span> sheets left</span><div class="dm-lcd">READY</div><span class="small">Bought in 1991. Louder than the hoover.</span></div></div>
+    b.innerHTML = `<div class="dm-top"><canvas class="dm-prev" width="300" height="236"></canvas><div class="dm-info"><b>RattleTek DM-9 (9-pin dot matrix)</b><span>Port: LPT1: (the big plug)</span><span>Paper: continuous, <span class="dm-paper"></span> sheets left</span><div class="dm-lcd">READY</div><span class="small">Bought in 1991. Louder than the vacuum.</span></div></div>
       <div class="dm-list"><table><thead><tr><th>Document Name</th><th>Status</th><th>Owner</th><th>Progress</th><th>Started At</th></tr></thead><tbody></tbody></table></div>
       <div class="dm-done"><span class="dm-dtxt"></span><button type="button" class="btn dm-save">Save printout...</button><button type="button" class="btn dm-show">View</button></div>`;
     const w = A.win('Family Dot Matrix (RattleTek DM-9)', b, { w: 520, h: 380, menubar: true, status: true, icon: F.icons.PRN32, minW: 300, minH: 300 });
@@ -173,7 +173,7 @@
     A.menubar(w, [
       ['Printer', () => [{ label: 'Pause Printing', chk: !!Q.paused, act: () => { Q.paused = !Q.paused; refresh(); if (!Q.paused) run(); } }, { label: 'Purge Print Documents', act: () => { JOBS.splice(0).forEach(j => { j.cancelled = true; }); refresh(); } }, '-', { label: 'Load Paper', act: () => loadPaper() }, { label: 'Print Test Page', act: () => print('Test Page', { text: testPage(), owner: 'JackOS' }) }, '-', { label: 'Close', act: w.close }]],
       ['Document', () => [{ label: 'Cancel Printing', dis: !JOBS.length, act: () => { const j = JOBS[0]; if (j) { j.cancelled = true; } } }]],
-      ['Help', [{ label: 'About the DM-9', act: () => Desk.msgbox('RattleTek DM-9', 'RattleTek DM-9, 9-pin dot matrix.\nSpeed: 180 characters per second (on a good day).\nNoise: yes.\n\nDad bought it in 1991 for "the accounts". It has printed: 4 years of accounts, 1 CV, 300 Ork pictures (in grey dots), every one of ' + Cast.n('sister') + '\'s school projects, and a banner that said HAPPY BIRTHDAY that went all the way down the stairs.', 'info') }]],
+      ['Help', [{ label: 'About the DM-9', act: () => Desk.msgbox('RattleTek DM-9', 'RattleTek DM-9, 9-pin dot matrix.\nSpeed: 180 characters per second (on a good day).\nNoise: yes.\n\nDad bought it in 1991 for "the accounts". It has printed: 4 years of accounts, 1 CV, 300 Gork pictures (in grey dots), every one of ' + Cast.n('sister') + '\'s school projects, and a banner that said HAPPY BIRTHDAY that went all the way down the stairs.', 'info') }]],
     ]);
     b.querySelector('.dm-save').addEventListener('click', () => { const j = Q.last; if (j) download(j); });
     b.querySelector('.dm-show').addEventListener('click', () => { const j = Q.last; if (j) viewer(j); });

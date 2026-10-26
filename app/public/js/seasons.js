@@ -194,9 +194,9 @@ body.ssn-autorestart .float[aria-label="Shut Down JackOS"]{visibility:hidden}
   ];
   const MAG_HTML = () => `<div class="cd">THE YEAR 2000 IN<b class="ssn-mcd">--:--:--</b>(UK time)</div><h3>MILLENNIUM EVE SPECIAL!!!</h3>
     <p style="margin:0">It's the LAST DAY OF THE 1900s. Here's the plan for tonight at Dave's:</p>
-    <ul><li><b>Luke and Dave</b> want to be racing on Rainbow Road in Kart Kaos 64 at the EXACT second it turns midnight. Four players. Nobody is allowed to pause.</li>
+    <ul><li><b>Luke and Dave</b> want to be racing on Rainbow Roadworks in Kart Kaos 64 at the EXACT second it turns midnight. Four players. Nobody is allowed to pause.</li>
     <li><b>Callum</b> is staying at home to guard his PC. He's convinced it's going to explode at midnight. He's unplugging it at 11:58 and putting a tea towel over it.</li>
-    <li><b>JackK</b> (my mate Jack) is bringing Pocket Critters Red and a link cable, so we can trade at midnight and be the first people to trade a Pocket Critters in the year 2000.</li>
+    <li><b>JackK</b> (my mate Jack) is bringing Pocket Critters Moss and a link cable, so we can trade at midnight and be the first people to trade a Pocket Critters in the year 2000.</li>
     <li><b>Mom</b> has 40 tins of beans, two torches and the wind-up radio. Just in case.</li>
     <li><b>Me:</b> save the game. Save ALL the games.</li></ul>
     <div class="watch"><b>Y2K BUG WATCH</b> (live!): <span class="ssn-mwatch"></span></div>`;
@@ -376,11 +376,11 @@ body.ssn-autorestart .float[aria-label="Shut Down JackOS"]{visibility:hidden}
   // ================================================================ extra posts for "What's New" (each only shows on its day)
   const CAL = window.CAL;
   if (CAL && CAL.posts) CAL.posts.push(
-    ['01-01', 'SITE', "Got back from Dave's at 1am. Luke won on Rainbow Road, nothing exploded, and Callum's PC was fine (still had the tea towel on). Weird thing though: the computer's calendar says it's <b>1999</b>. Feels like I've done this year before..."],
+    ['01-01', 'SITE', "Got back from Dave's at 1am. Luke won on Rainbow Roadworks, nothing exploded, and Callum's PC was fine (still had the tea towel on). Weird thing though: the computer's calendar says it's <b>1999</b>. Feels like I've done this year before..."],
     ['01-28', 'SITE', "<b>IT SNOWED!!!</b> For about ten minutes. It didn't settle. School didn't close. Dave made a snowball that was mostly gravel."],
-    ['11-26', 'SITE', "It's <b>Children in Need</b> tonight! Our class did a sponsored Blockology marathon: I did 212 lines. Callum did a sponsored no-PC day and lasted until lunch."],
+    ['11-26', 'SITE', "It's <b>Children in Greed</b> tonight! Our class did a sponsored Blockology marathon: I did 212 lines. Callum did a sponsored no-PC day and lasted until lunch."],
     ['12-31', 'Y2K', "<b>Y2K BUG WATCH:</b> New Zealand went into the year 2000 at 11 o'clock this morning (our time) and their computers still work! Callum is unplugging his PC at 11:58 anyway."],
-    ['12-31', 'GAMES', "Midnight plan at Dave's: Luke and Dave want to be racing on <b>Rainbow Road</b> at the exact second it turns 2000. JackK is bringing Pocket Critters Red and a link cable. I'm bringing the beans."],
+    ['12-31', 'GAMES', "Midnight plan at Dave's: Luke and Dave want to be racing on <b>Rainbow Roadworks</b> at the exact second it turns 2000. JackK is bringing Pocket Critters Moss and a link cable. I'm bringing the beans."],
   );
 
   // ================================================================ after the Millennium restart: ...again?

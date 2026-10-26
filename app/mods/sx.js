@@ -75,10 +75,10 @@ const HINTS = {
     'Take the FIRST letter of each of those five diary entries, in the order the riddle lists them. Pirates bury their treasure in one.'],
   6: ['Your bedroom is all around the PC. Shut the computer down (Start > Shut Down) and it switches off: then you can see the room. Look round with the arrows, or by dragging.',
     'You have a poster of a space shuttle on your wall. Click it and read the note stuck to it.',
-    'Eileen Collins was the pilot on two shuttle flights before. On this mission she is in charge of the whole thing. What do you call the person in charge of a space mission? (Captain is close, but NASA says something else.)'],
+    'Eileen Collinz was the pilot on two shuttle flights before. On this mission she is in charge of the whole thing. What do you call the person in charge of a space mission? (Captain is close, but NASSA says something else.)'],
   7: ['The magazine is JACK ATTACK!, the site the PC opens on. Read its Cheats page and look for the playground rumour about the Hunt.',
     'The rumour says to put the most famous cheat code ever into the Hunt HQ front page: up, up, down, down, left, right, left, right, B, A. Use the keyboard, or the little pad of buttons at the bottom of the page.',
-    'When the cheat works, it says the code first appeared in a game on the NES in 1986. The key is the name of the Japanese company that made that game.'],
+    'When the cheat works, it says the code first appeared in a game on the NEZ in 1986. The key is the name of the Japanese company that made that game.'],
   8: ['Search for "Hunters Ring" on any search engine, or go straight to the ring\'s hub: www.huntersring.jnet.',
     'There are four member sites. Each hides a piece: one is white writing on a white background (try Edit > Select All), one is in a hit counter, one is in a guestbook and one is in the page source.',
     'Put the four pieces together in ring order, site 1 to site 4. What do you call a circle of web sites that link to each other?'],
@@ -87,7 +87,7 @@ const HINTS = {
     'The message is in the pilots\' alphabet: Echo is E, November is N, Golf is G, Alpha is A, Delta is D. It\'s also the beeping you hear when someone else is already on the phone.'],
   10: ['Every key you found gave you a lucky letter. They are on the Hunt HQ board, in order, from key 1 to key 9.',
     'Nine letters, read in order. Then think about New Year\'s Eve 1999: what will everybody be doing in the very last seconds before midnight?',
-    'Ten... nine... eight... seven... It\'s the word for counting backwards to zero. (It\'s also a programme on Channel 4 with letters and numbers.)'],
+    'Ten... nine... eight... seven... It\'s the word for counting backwards to zero. (It\'s also a programme on Channel Fore with letters and numbers.)'],
 };
 
 // our earn sources, added to econ's table (one bank, one set of daily caps; "drop" = the chance of a Lootling with it)

@@ -25,7 +25,7 @@
     { id: 'reg', n: 'The Byte Drawer', h: 'The Registry has a drawer full of bytes. It is shut.' },
     { id: 'phone', n: 'The Phone Byte', h: 'You can ring a byte. Well, five of them: B-Y-T-E-S.' },
     { id: 'ring', n: 'The Tiniest Link', h: 'One site in the Hunters\' Ring has a link the size of a full stop. Look at the stars.' },
-    { id: 'note', n: 'The Logbook Byte', h: 'Notepad keeps a log if you ask it the old way: four capital letters, with a full stop in front.' },
+    { id: 'note', n: 'The Logbook Byte', h: 'Jotpad keeps a log if you ask it the old way: four capital letters, with a full stop in front.' },
     { id: 'clock', n: 'The Grumpy Clock', h: 'Click the clock on the taskbar until it gets cross.' },
     { id: 'room', n: 'The Bedroom Byte', h: 'Something gold is hiding in your bedroom. Somewhere you\'d keep a secret.' },
     { id: 'mag', n: 'The Back Issue Byte', h: 'The very first back issue of JACK ATTACK! has a byte in its cheats.' },

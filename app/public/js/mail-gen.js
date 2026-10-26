@@ -183,7 +183,7 @@
     c.game = g.name; c.gameOn = g.on; c.gameNote = g.note; c.gameP = g.p;
     const g2 = base.games.filter(x => x.name !== g.name); c.game2 = g2.length ? pick(g2, r).name : 'Jacktris';
     const cr = base.crazes.length ? pick(base.crazes, r) : { name: 'yo-yos', note: '' }; c.craze = cr.name; c.crazeNote = cr.note;
-    const tv = base.tvs.length ? pick(base.tvs.filter(t => !t.lo).length ? base.tvs.filter(t => !t.lo) : base.tvs, r) : { name: 'The Simpsocks', ch: 'BBC Two' }; c.tv = tv.name; c.tvCh = tv.ch;
+    const tv = base.tvs.length ? pick(base.tvs.filter(t => !t.lo).length ? base.tvs.filter(t => !t.lo) : base.tvs, r) : { name: 'The Simpsocks', ch: 'BBQ Two' }; c.tv = tv.name; c.tvCh = tv.ch;
     const sv = base.saving.length ? pick(base.saving, r) : null; c.saving = sv ? sv.name : 'a Daydream'; c.savingPrice = sv ? '£' + sv.price.toFixed(2) : '£199.99';
     c.wx = pick(base.weather, r);
     { const d = new Date(); c.clock = d.getHours() + ':' + pad(d.getMinutes()); }

@@ -494,7 +494,7 @@
     const say = (s, ms) => { G.msgs.push({ s, t: G.t + (ms || 3) }); if (G.msgs.length > 4) G.msgs.shift(); con(s); };
     const center = (s, ms) => { G.cp = { s, t: G.t + (ms || 3) }; con(s.replace(/\|/g, ' ')); };
     function con(s) { String(s).split('\n').forEach(l => G.conLines.push(l)); if (G.conLines.length > 200) G.conLines.splice(0, G.conLines.length - 200); }
-    con(`JAQUAKE v${VERSION} (shareware)`); con('Jackware Software, 1999. Episode 1: The Rusty Dimension'); con('8 megs of RAM detected. VGA 320x200. Sound Blaster at A220 I5 D1'); con('Type "help" for a list of commands.'); con('');
+    con(`JAQUAKE v${VERSION} (shareware)`); con('Jackware Software, 1999. Episode 1: The Rusty Dimension'); con('8 megs of RAM detected. VGA 320x200. Sound Bluster at A220 I5 D1'); con('Type "help" for a list of commands.'); con('');
 
     // view models, monsters and pickups are drawn by the module-level art (shared with the deathmatch client)
     const VM = [];
@@ -1072,7 +1072,7 @@
       connect: () => con('No multiplayer in the shareware version. Try JACKREAL TOURNAMENT for that (Start > Programs > Games).'),
       callum: () => con('CALLUM.EXE: "My PC is a 450 MHz, overclocked to 504. It does 90 fps on this. Yours does about 12."'),
       dave: () => con('Dave says: "Is it on the ULTRA 64? No? Then I\'m not interested." (He is very interested.)'),
-      luke: () => con('Luke says: "This would be better with a Rumble Pak."'),
+      luke: () => con('Luke says: "This would be better with a Rumble Pouch."'),
       timerefresh: () => con('3.4 seconds (128 frames). Your PC is fine. Callum\'s is faster.'),
       sv_gravity: a => con('sv_gravity is locked in single player. Try Space Station Jack in JRT for low gravity.'),
       r_speeds: () => { G.speeds = !G.speeds; },

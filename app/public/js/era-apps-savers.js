@@ -770,7 +770,7 @@
           g.beginPath(); g.moveTo(x - fs * 0.3, yy + fs * 0.9); g.lineTo(x, yy + fs * 1.6); g.lineTo(x + fs * 0.4, yy + fs * 0.9); g.fill(); g.stroke(); g.fillStyle = '#fff'; g.fillRect(x - fs * 0.3 + 1, yy + fs * 0.9 - 2, fs * 0.7 - 2, 3);
           g.fillStyle = '#000'; g.fillText(text, bx2 + w2 / 2, yy);
         }
-        if (sp.fools) { g.font = `bold ${Math.max(8, Math.round(u * P * 1.7))}px Arial`; g.fillStyle = '#000'; g.fillStyle = '#e10600'; g.fillText('FOR SALE', sx(-47), sy(-12.9)); g.fillStyle = '#000'; g.fillText('1 Tazo o.n.o.', sx(-47), sy(-10.1)); }
+        if (sp.fools) { g.font = `bold ${Math.max(8, Math.round(u * P * 1.7))}px Arial`; g.fillStyle = '#000'; g.fillStyle = '#e10600'; g.fillText('FOR SALE', sx(-47), sy(-12.9)); g.fillStyle = '#000'; g.fillText('1 Tazoz o.n.o.', sx(-47), sy(-10.1)); }
         const banner = sp.nye && h >= 19 ? 'PARTY LIKE IT\'S 1999!' : sp.ny && h < 1 ? 'HAPPY NEW YEAR!' : sp.bonfire && h >= 17.3 ? 'Remember, remember the 5th of November!' : sp.eclipse && cover > 0.5 ? 'TOTAL ECLIPSE! 11 August 1999 (don\'t look at the sun!)' : '';
         if (banner) { let fb = Math.max(14, Math.round(fs * 1.4)); g.font = `bold ${fb}px "Comic Sans MS", Tahoma, sans-serif`; const bwid = g.measureText(banner).width; if (bwid > W - 20) { fb = Math.max(9, Math.floor(fb * (W - 20) / bwid)); g.font = `bold ${fb}px "Comic Sans MS", Tahoma, sans-serif`; } g.fillStyle = '#000'; g.fillText(banner, W / 2 + 2, fb * 1.6 + 2); g.fillStyle = sp.bonfire ? '#ffb040' : '#ffd400'; g.fillText(banner, W / 2, fb * 1.6); }
       }

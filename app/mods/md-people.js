@@ -50,7 +50,7 @@ N('headmistress', 'Headmistress Hexadecimal', 'headmistress hexadecimal head', {
 });
 N('stuffing', 'Sergeant Stuffing', 'stuffing sergeant sarge', {
   here: 'Sergeant Stuffing stands by with his arms folded and a moustache like a broom.',
-  desc: 'An enormous man in a khaki uniform with medals pinned all over it. One of them is a Blue Peter badge. His moustache is so big birds have tried to nest in it.',
+  desc: 'An enormous man in a khaki uniform with medals pinned all over it. One of them is a Blue Pedro badge. His moustache is so big birds have tried to nest in it.',
   greet: "RIGHT THEN, RECRUIT! This is DENNIS. Dennis is a TRAINING DUMMY. First, CONSIDER DUMMY to see how tough he is. Then KILL DUMMY! The fight goes on by itself, a round every couple of seconds. Watch your HP in your prompt! Use your class SKILLS too! If it goes badly, FLEE! NOW GO!",
   again: 'Still here, recruit? KILL DUMMY! And type SKILLS to see your special moves!',
   topics: { 'skills': 'Every class has SKILLS. Knights BASH. Wizards ZAP. Rangers SHOOT. Bards SING. Type SKILLS to see yours. Use them in a fight!', 'running away,flee': 'Fight going badly? FLEE! There is no shame in running away. Well, a little bit. But not much.', 'dennis,dummy': 'Dennis has been bonked eleven thousand times. He has never once complained.', 'medals,badge': 'That one is for bravery. That one is for long service. That one is for sending a drawing in to the telly.' },
@@ -124,10 +124,10 @@ N('archmage', 'Archmage Floppington', 'archmage floppington mage', {
 });
 N('dave', 'Dave the apprentice', 'dave apprentice', {
   here: 'Dave, the apprentice wizard, is flapping at a smoking curtain with his hat.',
-  desc: "Jack's mate Dave, in a wizard's robe that's too long for him, with a singed hat and a burn mark on his eyebrow. He's the sort of person who reads the instructions after it goes wrong. He's got a Ultra 64 controller sticking out of his pocket.",
+  desc: "Jack's mate Dave, in a wizard's robe that's too long for him, with a singed hat and a burn mark on his eyebrow. He's the sort of person who reads the instructions after it goes wrong. He's got an Ultra 64 controller sticking out of his pocket.",
   greet: "Oh! Hiya! Don't tell the Archmage about the curtain. Listen, I'm in BIG trouble. I've lost three pages of my spellbook and he's going to test me on them on Friday. Can you help?",
   again: "Alright? The curtain's fine now. Mostly.",
-  topics: { 'curtain,fire': "It's NOT a fire. It's a very warm light spell.", 'n64,nintendo,games': 'Goldenballs. Four player. Facility. No Oddjob. Those are the rules.', 'jack': "Jack built this whole MUD. On his own. In his bedroom. I helped! I did the sewers. And the socks. You're welcome.", 'sewers': "I made the sewers! Ace, aren't they? The smell was my idea.", 'pages,spellbook': "Page one's at the Academy library, I think. Page two went down a drain (don't ask). Page three... the fairy in the woods took it. She said it was 'rubbish spelling'. Cheek." },
+  topics: { 'curtain,fire': "It's NOT a fire. It's a very warm light spell.", 'n64,nintendo,games': 'Goldenballs. Four player. Facility. No Oddbob. Those are the rules.', 'jack': "Jack built this whole MUD. On his own. In his bedroom. I helped! I did the sewers. And the socks. You're welcome.", 'sewers': "I made the sewers! Ace, aren't they? The smell was my idea.", 'pages,spellbook': "Page one's at the Academy library, I think. Page two went down a drain (don't ask). Page three... the fairy in the woods took it. She said it was 'rubbish spelling'. Cheek." },
   chat: ['Dave waves his wand and a pigeon appears. He looks as surprised as you.', 'Dave says, "Does anyone know a spell for un-burning things?"', 'Dave says, "My mom\'s picking me up at six. What time is it now?"', 'Dave tries to look busy whenever the Archmage looks over.'],
 });
 N('reginald', 'Sir Reginald Clank', 'reginald sir clank', {
@@ -166,7 +166,7 @@ N('luke', 'Luke', 'luke', {
   desc: "Jack's mate Luke: a total Ultra Entertainment fan, in a jumper with a little red cap logo he drew on himself in fabric pen. He has the highest score on every machine in the Pixel Palace except one: the Guess-O-Tron.",
   greet: "Oh, hey! Want a challenge? Nobody's ever beaten the Guess-O-Tron in this town. It thinks of a number between 1 and 100 and you get seven guesses. Beat it and bring me the prize ticket!",
   again: 'Hey! Wanna go on the racer? I bet I win. I always win.',
-  topics: { 'guess-o-tron,guessotron,game,machine': 'Type PLAY to start. Then GUESS a number. It says HIGHER or LOWER. Seven goes. Top tip: start in the middle.', 'nintendo,n64': "ULTRA 64 is the best console ever made. FACT. Marlo 64, Zelda, Goldenballs, Kart Kaos. What else do you need?", 'jack': "Jack's made a MUD! I made this arcade bit. And the Guess-O-Tron. And the sticky carpet (not on purpose).", 'callum': "Callum's always in the café. PC this, PC that. He says his computer does 3D now. Big deal. Mine plugs into the telly." },
+  topics: { 'guess-o-tron,guessotron,game,machine': 'Type PLAY to start. Then GUESS a number. It says HIGHER or LOWER. Seven goes. Top tip: start in the middle.', 'nintendo,n64': "ULTRA 64 is the best console ever made. FACT. Marlo 64, Zeldo, Goldenballs, Kart Kaos. What else do you need?", 'jack': "Jack's made a MUD! I made this arcade bit. And the Guess-O-Tron. And the sticky carpet (not on purpose).", 'callum': "Callum's always in the café. PC this, PC that. He says his computer does 3D now. Big deal. Mine plugs into the telly." },
   chat: ['Luke says, "Who wants a go on the racer? Winner stays on!"', 'Luke drums on the cabinet while the demo plays.', 'Luke says, "Ultra 64, man. Sixty. Four. BITS."'],
 });
 N('callum', 'Callum', 'callum', {
@@ -247,7 +247,7 @@ N('hoot', 'Professor Hoot', 'hoot professor owl', {
   here: 'Professor Hoot, an owl in a tweed waistcoat, peers at you through brand-new spectacles.',
   desc: 'A large, wise brown owl in a tweed waistcoat with a pocket watch. He knows everything, and he knows that he knows everything, which is less nice.',
   greet: "Hoo. Hoo are you? Ah. A visitor. I am Professor Hoot and I know EVERYTHING. Ask me ABOUT anything. Go on. Anything.",
-  topics: { 'everything': "Hoo-hoo. Nice try.", 'space,moon,armstrong,exam,rocket': "The first person to walk on the Moon was Neil Armstrong, in July 1969, on the Apollo 11 mission. The first person in space EVER was Yuri Gagarin, in 1961. Hoo. I told you I knew everything.", 'troll,riddle,trevor': "Trevor's riddle? I couldn't possibly tell you. Hoo. But think about what's in front of you right now, on the desk, with all the letters on it.", 'squirrel': 'I can see that squirrel. I can ALWAYS see that squirrel now.', 'spectacles,glasses': 'New spectacles! From the Post Office. Pat posted them. I can see EVERYTHING. It is wonderful and terrible.', 'bear,ted': 'Big Ted, in the cave. Sleeps all day, sleeps all night. Only one thing wakes that bear: honey.', 'dragon,floppitha': 'Floppitha, up Mount Megabyte. Clever dragon. Collects floppy disks. Lost her favourite one in the Caves of Lag, I hear. Hoo.' },
+  topics: { 'everything': "Hoo-hoo. Nice try.", 'space,moon,armstrong,exam,rocket': "The first person to walk on the Moon was Neil Armweak, in July 1969, on the Apollo 11 mission. The first person in space EVER was Yuri Garglin, in 1961. Hoo. I told you I knew everything.", 'troll,riddle,trevor': "Trevor's riddle? I couldn't possibly tell you. Hoo. But think about what's in front of you right now, on the desk, with all the letters on it.", 'squirrel': 'I can see that squirrel. I can ALWAYS see that squirrel now.', 'spectacles,glasses': 'New spectacles! From the Post Office. Pat posted them. I can see EVERYTHING. It is wonderful and terrible.', 'bear,ted': 'Big Ted, in the cave. Sleeps all day, sleeps all night. Only one thing wakes that bear: honey.', 'dragon,floppitha': 'Floppitha, up Mount Megabyte. Clever dragon. Collects floppy disks. Lost her favourite one in the Caves of Lag, I hear. Hoo.' },
   chat: ['Professor Hoot turns his head all the way round. Show-off.', 'Professor Hoot says, "Hoo. Hoo knew?"', 'Professor Hoot polishes his new spectacles.'],
 });
 N('clanksalot', 'Sir Clanksalot', 'clanksalot sir knight', {
@@ -276,7 +276,7 @@ N('trevor', 'Trevor the Toll Troll', 'trevor troll', {
   chat: ['Trevor hums to himself and counts his buttons.', 'Trevor says, "Riddle me this! No, wait, that\'s my line."', 'Trevor waves at a passing duck.'],
 });
 N('ted', 'Big Ted', 'ted big bear', {
-  here: (api, P) => api.flag(P, 'ted') ? 'Big Ted the bear is sitting up, happily licking honey off his paws.' : 'Big Ted the bear is fast asleep, snoring like a broken hoover. He blocks the way west.',
+  here: (api, P) => api.flag(P, 'ted') ? 'Big Ted the bear is sitting up, happily licking honey off his paws.' : 'Big Ted the bear is fast asleep, snoring like a broken vacuum. He blocks the way west.',
   desc: 'A huge, fluffy brown bear with a round tummy and a little blue bow tie. He looks like the biggest teddy bear in the world, because that is what he is.',
   greet: "ZZZZZZZZZZ... *snort*... mmm... honey... ZZZZZZZZZZ",
   again: 'Big Ted gives you a big sticky bear hug. "Fanks for the honey!"',
@@ -506,9 +506,9 @@ const QUESTS = [
     intro: "Dr Countdown will only let proper astronauts fly the Starhopper 99. Answer his three space questions by SAYing the answers here at the Rocket Range. (Stuck? The owl in the woods knows everything.)",
     nag: 'Ready for the next question, astronaut?',
     steps: [
-      { k: 'say', r: 'fields.range', w: ['armstrong'], hint: '{W}Question 1:{x} "Who was the first person to walk on the Moon?" (SAY the answer at the Rocket Range.)', done: 'Dr Countdown says, "CORRECT! Neil Armstrong, July 1969! Next question!"' },
-      { k: 'say', r: 'fields.range', w: ['gagarin'], hint: '{W}Question 2:{x} "Who was the very first person to go into space, in 1961?" (SAY the answer.)', done: 'Dr Countdown says, "CORRECT! Yuri Gagarin, 1961! One more!"' },
-      { k: 'say', r: 'fields.range', w: ['apollo'], hint: '{W}Question 3:{x} "What was the name of the NASA programme that took people to the Moon?" (SAY the answer.)', done: 'Dr Countdown says, "CORRECT! The Apollo programme! TEN! NINE! You PASS!"' },
+      { k: 'say', r: 'fields.range', w: ['armweak', 'armstrong'], hint: '{W}Question 1:{x} "Who was the first person to walk on the Moon?" (SAY the answer at the Rocket Range.)', done: 'Dr Countdown says, "CORRECT! Neil Armweak, July 1969! Next question!"' },
+      { k: 'say', r: 'fields.range', w: ['garglin', 'gagarin'], hint: '{W}Question 2:{x} "Who was the very first person to go into space, in 1961?" (SAY the answer.)', done: 'Dr Countdown says, "CORRECT! Yuri Garglin, 1961! One more!"' },
+      { k: 'say', r: 'fields.range', w: ['apollo'], hint: '{W}Question 3:{x} "What was the name of the NASSA programme that took people to the Moon?" (SAY the answer.)', done: 'Dr Countdown says, "CORRECT! The Apollo programme! TEN! NINE! You PASS!"' },
     ],
     reward: { xp: 500, items: ['pass'], title: 'the Astronaut', secret: 'md.astronaut' },
     end: 'Dr Countdown laminates a Launch Pass for you right there with a little machine. "Get in the rocket and type BOARD! Then LAUNCH! Off you go!"' },
@@ -551,7 +551,7 @@ ACT['town.square'] = {
   wish(api, P) {
     if (api.gold(P) < 1) { api.out(P, "You haven't got a coin to throw in. Wishes cost at least a penny."); return true; }
     api.gold(P, -1);
-    const W = ['A Ultra 64 with four controllers.', 'No homework. Ever.', 'That the Millennium Bug turns out to be nothing.', 'That Mom lets you stay up late on Friday.', 'Unlimited Fizz Pop.', 'That the phone line is free when you want it.', 'A pet dragon.'];
+    const W = ['An Ultra 64 with four controllers.', 'No homework. Ever.', 'That the Millennium Bug turns out to be nothing.', 'That Mom lets you stay up late on Friday.', 'Unlimited Fizz Pop.', 'That the phone line is free when you want it.', 'A pet dragon.'];
     api.out(P, `You throw a gold coin into the fountain and make a wish: {W}${api.pick(W)}{x}\nThe statue's worried face looks a tiny bit less worried.`);
     api.toRoom(P.room, `${P.name} throws a coin in the fountain and makes a wish.`, P);
     api.secret(P, 'md.wish');

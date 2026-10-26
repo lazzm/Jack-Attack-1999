@@ -319,7 +319,7 @@
     return a;
   }
   GM.c4 = {
-    id: 'c4', name: 'Connect Four', pn: ['Red', 'Yellow'], pc: ['#e01010', '#ffd400'], aspect: 7 / 6.8,
+    id: 'c4', name: 'Connect Fore', pn: ['Red', 'Yellow'], pc: ['#e01010', '#ffd400'], aspect: 7 / 6.8,
     blurb: 'Drop discs into the frame. Get four in a row (across, down or diagonal) to win.',
     init: () => ({ n: 0, p: 0, b: '.'.repeat(42) }),
     check: s => s && isInt(s.n, 0, 99) && isInt(s.p, 0, 1) && isStr(s.b, 42, /^[.01]+$/),
@@ -1073,7 +1073,7 @@
     },
   };
   GM.pong = {
-    id: 'pong', name: 'Saber Pong', pn: ['Blue Saber', 'Red Saber'], pc: ['#2a8cff', '#ff2a2a'], aspect: PW / PH, rt: true, pong,
+    id: 'pong', name: 'Spatula Pong', pn: ['Blue Spatula', 'Red Spatula'], pc: ['#2a8cff', '#ff2a2a'], aspect: PW / PH, rt: true, pong,
     blurb: 'Real-time space duel. Knock the droid past your opponent\'s laser sword. First to 7. Drag or use the arrow keys.',
     init: () => ({ n: 0, p: 0 }),
     check: () => true, turn: () => -1, moves: () => [], legal: () => false, apply: s => s, over: () => null,

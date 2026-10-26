@@ -48,7 +48,7 @@
   const piglatin = h => String(h).replace(/(<[^>]*>)|([A-Za-z]{2,})/g, (m, tag, w) => tag || (/^[aeiou]/i.test(w) ? w + 'way' : w.replace(/^([^aeiouAEIOU]+)(.*)$/, '$2$1ay')));
   const grotify = h => String(h).replace(/(<[^>]*>|&#?[a-zA-Z0-9]+;)|([.!?])|([a-z]+)/g, (m, tag, p, w) => tag || (p ? (p === '.' ? '. BEEP.' : p) : w.toUpperCase())); // the "Robot" language (id 'grot')
   const LANG = { any: x => x, en: x => x, ork: orkify, grot: grotify, pig: piglatin };
-  const HOT = ['hamster', 'cheats', 'pokemon', 'millennium bug', 'phantom menace', 'rupees', 'dave', 'goldeneye', 'free e-mail', 'midi'];
+  const HOT = ['hamster', 'cheats', 'critters', 'millennium bug', 'phantom menace', 'rupees', 'dave', 'goldenballs', 'free e-mail', 'midi'];
   const CSS = `.wp-search,.wp-directory{background:#fff;color:#000;font:13px/1.4 Arial,Helvetica,sans-serif;padding-top:10px}
 .gs-bar{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;background:linear-gradient(#000080,#000050);border-bottom:3px solid #ffd400;padding:6px 10px;margin:0 -18px 0}
 .gs-logo{display:inline-flex;align-items:center;gap:4px;font:bold 26px Georgia,"Times New Roman",serif;letter-spacing:2px;line-height:1}.gs-logo b{color:#ffd400;font-weight:bold}.gs-logo i{color:#fff;font-style:normal;font-weight:normal}

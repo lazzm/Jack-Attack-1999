@@ -463,7 +463,7 @@
       ]],
       ['Help', () => [
         { label: 'Help Topics', key: 'F1', act: help }, '-',
-        { label: 'About Pod Jack Racer', act: () => G.about({ ver: 'Version 1.0 (made 17 July 1999)', blurb: 'Made the day after seeing the new space film at the pictures. Now THIS is racing. (Jack said that out loud in the cinema. Mom was not impressed.)', credits: [['Pod design', 'Jack (after the film)'], ['Programming', 'Jack (till 2am)'], ['Engine noises', 'Dave (mouth)'], ['Canyon', 'Jack + MS Paint'], ['Two suns', Cast.t('Cousin {cousin}\'s idea')], ['Lap timing', 'The kitchen clock'], ['Crash testing', 'Gubbinz'], ['Sandwiches', 'Mom']] }) },
+        { label: 'About Pod Jack Racer', act: () => G.about({ ver: 'Version 1.0 (made 17 July 1999)', blurb: 'Made the day after seeing the new space film at the pictures. Now THIS is racing. (Jack said that out loud in the cinema. Mom was not impressed.)', credits: [['Pod design', 'Jack (after the film)'], ['Programming', 'Jack (till 2am)'], ['Engine noises', 'Dave (mouth)'], ['Canyon', 'Jack + JackPaint'], ['Two suns', Cast.t('Cousin {cousin}\'s idea')], ['Lap timing', 'The kitchen clock'], ['Crash testing', 'Gubbinz'], ['Sandwiches', 'Mom']] }) },
       ]],
     ]);
     // automated test harness: always accelerating, random steering (including into the scenery) and boosting

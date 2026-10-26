@@ -53,10 +53,10 @@
   }
   // JackOS 98 components (Control Panel > Add/Remove Programs > JackOS Setup), grouped like JackOS Setup groups
   const GROUPS = {
-    acc: ['Accessories', 'Includes Calculator, Paint, WordPad, Imaging and other handy programs.'],
-    games: ['Games', 'Solitaire, FreeCell, Hearts, Spider Solitaire and Reversi. Essential for "testing the mouse".'],
+    acc: ['Accessories', 'Includes Calculator, Paint, WordPod, Imaging and other handy programs.'],
+    games: ['Games', 'Solitaire, FreeCellar, Hearts, Spider Solitaire and Reversi. Essential for "testing the mouse".'],
     savers: ['Screen Savers', 'Stops your monitor getting things burnt into it. Also very good to look at.'],
-    comm: ['Communications', 'Phone Dialer, HyperTerminal, JackMeeting, Fax and WinPopup, for talking to other computers.'],
+    comm: ['Communications', 'Phone Dialer, HyperTerminull, JackMeeting, Fax and JackPopup, for talking to other computers.'],
     mm: ['Multimedia', 'CD Player, Media Player, Sound Recorder and the Volume Control.'],
     access: ['Accessibility', 'Options to change keyboard, sound, display and mouse behaviour for people with mobility, hearing or visual impairments.'],
     sys: ['System Tools', 'Character Map, Clipboard Viewer, Backup, System Monitor and friends.'],
@@ -66,23 +66,23 @@
   const os = (id, grp, n, kb, apps, paths, x) => product(id, Object.assign({ grp, n, kb, apps, paths, lic: 'JackOS component', by: 'JackOS', v: '4.10.1998' }, x || {}));
   os('calc', 'acc', 'Calculator', 160, ['calc'], ['Accessories > Calculator'], { ic: 'calc', d: 'Adds up. Has a scientific mode for the brave.' });
   os('paint', 'acc', 'Paint', 340, ['mspaint'], ['Accessories > Paint'], { ic: 'paint', d: 'Draw pictures with the spray can, like a real artist.' });
-  os('wordpad', 'acc', 'WordPad', 1100, ['office.wordpad'], ['Accessories > WordPad'], { ic: 'wordpad', d: 'Like Notepad, but with bold.' });
+  os('wordpad', 'acc', 'WordPod', 1100, ['office.wordpad'], ['Accessories > WordPod'], { ic: 'wordpad', d: 'Like Jotpad, but with bold.' });
   os('imaging', 'acc', 'Imaging', 4400, ['office.imaging'], ['Accessories > Imaging'], { ic: 'picture', d: 'Look at scanned pictures and draw on them.' });
   os('quickview', 'acc', 'Quick View', 210, ['imgview'], ['Accessories > Image Viewer'], { ic: 'picture', d: 'Peeks at pictures without opening Paint.' });
   os('clock', 'acc', 'Clock', 24, ['office.clock'], ['Accessories > Clock'], { ic: 'clock', d: 'A clock. In a window.' });
   os('themes', 'acc', 'Desktop Themes', 24800, ['system.themes'], ['Accessories > Desktop Themes'], { ic: 'themes', d: 'Wallpapers, sounds and icons that match. 24.8 MB! That\'s about 17 floppies.' });
   os('sol', 'games', 'Solitaire', 180, ['sol'], ['Games > Solitaire'], { icons: ['iconSol'], ic: 'cards', d: 'The card game that has eaten more hours than anything else on Earth.' });
-  os('freecell', 'games', 'FreeCell', 190, ['freecell'], ['Games > FreeCell'], { icons: ['iconFreecell'], ic: 'freecell', d: 'Almost every deal can be won. Almost.' });
+  os('freecell', 'games', 'FreeCellar', 190, ['freecell'], ['Games > FreeCellar'], { icons: ['iconFreecell'], ic: 'freecell', d: 'Almost every deal can be won. Almost.' });
   os('hearts', 'games', 'Hearts', 240, ['games.hearts'], ['Games > Hearts'], { ic: 'hearts', d: 'Avoid the Queen of Spades. Or shoot the moon.' });
   os('spider', 'games', 'Spider Solitaire', 260, ['games.spider'], ['Games > Spider Solitaire'], { ic: 'spider', d: 'Solitaire with eight legs.' });
   os('reversi', 'games', 'Reversi', 90, ['games.reversi'], ['Games > Reversi'], { ic: 'reversi', d: 'Black and white counters. Easy to learn, hard to beat the computer.' });
   [['ss.squigs', 'Flying Saucers'], ['ss.stars', 'Starfield Simulation'], ['ss.pipes', '3D Pipes'], ['ss.mystify', 'Mystify Your Mind'], ['ss.text', '3D Text'], ['ss.marquee', 'Marquee'], ['ss.curves', 'Curves and Colors'], ['ss.rain', 'Digital Rain']]
     .forEach(([id, n]) => os(id, 'savers', n, 60 + n.length * 9, [], ['Accessories > Screen Savers > ' + n].concat(n === '3D Text' ? ['Accessories > Screen Savers > 3D Text Setup...'] : []), { ic: 'screensaver', d: 'A screen saver.' }));
   os('dialer', 'comm', 'Phone Dialer', 120, ['dialer'], ['Accessories > Communications > Phone Dialer'], { ic: 'phone', d: 'Rings people using the modem. Mom says use the actual phone.' });
-  os('hyper', 'comm', 'HyperTerminal', 600, ['office.hyper'], ['Accessories > Communications > HyperTerminal'], { ic: 'hyperterm', d: 'Dial into bulletin boards. Very green text.' });
+  os('hyper', 'comm', 'HyperTerminull', 600, ['office.hyper'], ['Accessories > Communications > HyperTerminull'], { ic: 'hyperterm', d: 'Dial into bulletin boards. Very green text.' });
   os('meeting', 'comm', 'JackMeeting', 3100, ['office.meeting'], ['Accessories > Communications > JackMeeting'], { ic: 'phone', d: 'Video calls! (If anyone had a webcam.)' });
   os('fax', 'comm', 'Fax', 1700, ['office.fax'], ['Accessories > Fax >'], { ic: 'printer', d: 'Send faxes from the computer. Nobody you know has a fax.' });
-  os('winpopup', 'comm', 'WinPopup', 60, [], ['Accessories > Communications > WinPopup'], { cmds: ['winpopup', 'net send'], ic: 'popup', d: 'Pop up messages on other computers. Teachers hate it.' });
+  os('winpopup', 'comm', 'JackPopup', 60, [], ['Accessories > Communications > JackPopup'], { cmds: ['winpopup', 'net send'], ic: 'popup', d: 'Pop up messages on other computers. Teachers hate it.' });
   os('icw', 'comm', 'Internet Connection Wizard', 900, ['system.icw'], ['Accessories > Communications > Internet Connection Wizard'], { ic: 'icw', d: 'Sets up your Internet. Asks a LOT of questions.' });
   os('channels', 'comm', 'Channel Guide', 420, ['system.channels'], ['Accessories > Communications > Channel Guide'], { ic: 'channels', d: 'Push technology! The Internet comes to YOU. (Slowly.)' });
   os('cdplayer', 'mm', 'CD Player', 110, ['carta.cdplayer'], ['Accessories > Entertainment > CD Player'], { ic: 'cdplayer', d: 'Plays music CDs in the CD-ROM drive.' });
@@ -481,7 +481,7 @@ IMPORTANT - READ CAREFULLY (nobody does): This licence agreement ("LICENCE") is 
     const prog = A.programs.find(x => p.paths.some(pa => pa.endsWith(' >') ? x.path.join(' > ').startsWith(pa + ' ') : x.path.join(' > ') === pa));
     if (prog) typeof prog.target === 'function' ? prog.target() : A.open(prog.target);
   }
-  const readme = (p, d) => `${p.n.toUpperCase()}\n${'='.repeat(p.n.length)}\n\nVersion ${p.v}   ${p.lic}\nBy ${p.by}\n\nThank you for installing ${p.n}, ${d.name}!\n\n${p.d}\n\nINSTALLED TO\n  ${d.dir}\n\nSYSTEM REQUIREMENTS\n  486DX2/66 or better (Pentium recommended)\n  8 MB RAM (16 MB recommended)\n  ${kbStr(p.kb)} free hard disk space\n  JackOS 95 or JackOS 98\n  Sound Blaster or 100% compatible sound card\n  A mouse (a real one, not Biscuit's toy one)\n\nTO REMOVE\n  Control Panel > Add/Remove Programs.\n\nKNOWN PROBLEMS\n  - If the program does not start, try turning it off and on again.\n  - If it still does not start, ask Dave. Dave will not know.\n\n${p.home ? 'HOMEPAGE\n  ' + (p.home.startsWith('http') ? p.home : 'http://www.jackattack.jnet/' + p.home) + '\n\n' : ''}Get more great software at ${SHACK}\n`;
+  const readme = (p, d) => `${p.n.toUpperCase()}\n${'='.repeat(p.n.length)}\n\nVersion ${p.v}   ${p.lic}\nBy ${p.by}\n\nThank you for installing ${p.n}, ${d.name}!\n\n${p.d}\n\nINSTALLED TO\n  ${d.dir}\n\nSYSTEM REQUIREMENTS\n  486DX2/66 or better (Pent-Yum recommended)\n  8 MB RAM (16 MB recommended)\n  ${kbStr(p.kb)} free hard disk space\n  JackOS 95 or JackOS 98\n  Sound Bluster or 100% compatible sound card\n  A mouse (a real one, not Biscuit's toy one)\n\nTO REMOVE\n  Control Panel > Add/Remove Programs.\n\nKNOWN PROBLEMS\n  - If the program does not start, try turning it off and on again.\n  - If it still does not start, ask Dave. Dave will not know.\n\n${p.home ? 'HOMEPAGE\n  ' + (p.home.startsWith('http') ? p.home : 'http://www.jackattack.jnet/' + p.home) + '\n\n' : ''}Get more great software at ${SHACK}\n`;
 
   // ================================================================ uninstalling
   function uninstall(pid, after) {
@@ -587,7 +587,7 @@ IMPORTANT - READ CAREFULLY (nobody does): This licence agreement ("LICENCE") is 
   const restoreFiles = () => S.dl.forEach(x => { if (PR[x.pid]) A.fs.add(DLDIR, fileNode(x)); });
 
   // ================================================================ Control Panel > Add/Remove Programs
-  const JUNK = ['JackNet 56K Dialler 2.1', 'Gubbinz Virtual Pet 1.2', 'Ork Encyclopaedia 98 (CD-ROM)', 'Y2K Fix-o-Matic 1.0', 'Typing Teacher Deluxe', 'Homework Helper 97 (never opened)', 'FREE Screen Saver Pack 3000', 'Encyclopaedia of Everything 1998 (6 CDs, disc 4 missing)'];
+  const JUNK = ['JackNet 56K Dialler 2.1', 'Gubbinz Virtual Pet 1.2', 'Gork Encyclopaedia 98 (CD-ROM)', 'Y2K Fix-o-Matic 1.0', 'Typing Teacher Deluxe', 'Homework Helper 97 (never opened)', 'FREE Screen Saver Pack 3000', 'Encyclopaedia of Everything 1998 (6 CDs, disc 4 missing)'];
   function applet(tab) {
     if (!A.ui) return;
     let pend = null; // JackOS Setup: { id: bool }
@@ -745,9 +745,9 @@ IMPORTANT - READ CAREFULLY (nobody does): This licence agreement ("LICENCE") is 
     const EXTRAS = [['Readers\' high scores', 'Every score you lot sent in. Dave sent in 400 of them.', () => { const br = $('browser'); if (br) br.classList.remove('min'); IE.go('demos', 'click'); }],
       ['The Shareware Shack', 'Hundreds more programs on the Web. Goes online!', () => showSoft2()],
       ['Cheats & saves', 'Every cheat from the mag. Shh.', () => { const br = $('browser'); if (br) br.classList.remove('min'); IE.go('cheats', 'click'); }],
-      ['Wallpapers', 'Spaceships, dinosaurs, racing cars and one Ork for your desktop.', () => A.open('control') && toast('Wallpapers', 'Double-click Display, then pick a wallpaper. The good ones came off this disc.', 5000)],
+      ['Wallpapers', 'Spaceships, dinosaurs, racing cars and one Gork for your desktop.', () => A.open('control') && toast('Wallpapers', 'Double-click Display, then pick a wallpaper. The good ones came off this disc.', 5000)],
       ['Behind the scenes video', 'A 160x120 video of the JACK ATTACK! office (Jack\'s bedroom). 14 seconds long. 9 MB.', () => A.open('carta.mplayer')]];
-    const DRV = [['DirectX 6.1', 'REQUIRED for all demos! Probably. Install it anyway.', 'dx'], ['Sound Blaster 16 drivers', 'For the bleeps.', 'sb'], ['JackNet Explorer 5.0', 'The best browser in the world (it says).', 'ie'], ['Video for JackOS (Indeo codec)', 'Makes the video play. Or at least makes it say why it won\'t.', 'vid']];
+    const DRV = [['DirectX 6.1', 'REQUIRED for all demos! Probably. Install it anyway.', 'dx'], ['Sound Bluster 16 drivers', 'For the bleeps.', 'sb'], ['JackNet Explorer 5.0', 'The best browser in the world (it says).', 'ie'], ['Video for JackOS (Indeo codec)', 'Makes the video play. Or at least makes it say why it won\'t.', 'vid']];
     function show(t) {
       qsa(b, '.cdm-tabs button').forEach(x => x.classList.toggle('on', x.dataset.t === t));
       if (t === 'demos') list.innerHTML = demos().map(id => `<div class="cdm-it">${mini(J(PR[id].ic || 'exe'), 24)}<div><b>${esc(PR[id].n)}</b><small>${esc(PR[id].d)}</small></div><button class="btn" data-id="${id}">${has(id) ? 'PLAY' : 'INSTALL'}</button></div>`).join('');

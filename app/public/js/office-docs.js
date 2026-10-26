@@ -73,18 +73,18 @@ P.S. I've invented a little green character called Gubbinz. One day he's going t
 
 * A Daydream. (Out 14/10/99, £199.99. It has a modem IN IT. You can go on the Internet ON THE TELLY.)
 * If not a Daydream: a Daydream.
-* Donkey Wrong 64 (it comes with the Expansion Pak!)
+* Donkey Wrong 64 (it comes with the Expansion Pouch!)
 * A new Rubrick's cube (the stickers on mine are peeling off the yellow side)
 * Red paint for my models. Lots of red. (Red ones go faster.)
 * A graphics card with 16MB on it (I'll write down which one. Don't let the shop man choose.)
 * Batteries (for the Game Lad, the torch, and the Y2K emergency radio)
-* A Intergalactic Battles lightspatula. A proper one. With the noise.
+* An Intergalactic Battles lightspatula. A proper one. With the noise.
 * ${md() >= 1019 ? 'Anything Episode I that I haven\'t already got. (See Intergalactic Battles Toys.wks.)' : 'Episode I toys (see Intergalactic Battles Toys.wks so you don\'t get me two Jar Jars)'}
 * **NOT** another jumper. (Sorry Nan. Unless it's red.)
 
 ## For other people (so it's fair)
 * Mom: bubble bath and "peace and quiet" (I can do the second one for one evening)
-* Dad: a book about Championship Manager. (Does that exist? He'd read it.)
+* Dad: a book about Championship Mangler. (Does that exist? He'd read it.)
 * Nan: a new remote for the video that only has ONE button
 * Dave: a book of riddles. He needs the practice.
 * Gubbinz: a pizza. A small one.
@@ -102,7 +102,7 @@ P.S. I've invented a little green character called Gubbinz. One day he's going t
 \tLetters\t\tpage 4
 \tGubbinz's Agony Column\t\tpage 5
 
-## FIRST LOOK: THE DREAMCAST
+## FIRST LOOK: THE DAYDREAM
 It comes out on **14 October** and it's got a modem built in, which means you can go on the Internet through your TELLY. Dad says "what's wrong with the computer". The computer is upstairs, Dad. The telly is downstairs. That's what's wrong with it.
 
 It costs £199.99, which is about 17 months of pocket money. I've done the maths (see Pocket Money 1999.wks). I'm not going to say how far off I am.
@@ -110,7 +110,7 @@ It costs £199.99, which is about 17 months of pocket money. I've done the maths
 //TODO: ask Dave's cousin if he's getting one. Borrow it. For research.//
 
 ## MODEL OF THE MONTH
-This month's model is an Ork Nob with a big choppa. He's red, because red ones go faster. I painted his teef with a cocktail stick. One of them is crooked on purpose. (It was not on purpose.)
+This month's model is a Gork Nob with a big choppa. He's red, because red ones go faster. I painted his teef with a cocktail stick. One of them is crooked on purpose. (It was not on purpose.)
 
 ## GUBBINZ'S AGONY COLUMN
 **Dear Gubbinz, my brother keeps reading my diary. What should I do?** - Worried, age (secret)
@@ -189,7 +189,7 @@ Jack
 A web site is a bunch of pages that live on a computer called a **server**, and anyone in the world can look at them with a **browser**, like JackNet Explorer. My web site is called **JACK ATTACK! Online** and it's a games magazine. It's got reviews, cheats, a hobby corner, a guestbook and a virtual pet called Gubbinz.
 
 ## What I used
-* **Notepad** (you don't need anything fancy, you just type the code)
+* **Jotpad** (you don't need anything fancy, you just type the code)
 * **Paint** (for the pictures - I saved them as GIFs so they're small)
 * The modem (to send the files to the server - it took AGES)
 
@@ -218,22 +218,22 @@ Web pages are written in **HTML**. You put words in pointy brackets called **tag
 ---
 {c=red;f=Comic Sans MS|${N('teacher')}: "Fantastic work, Jack. Can you help me with the school web site? It still says 'under construction'. It has said that since 1997."}` };
 
-  D.hobbit = { font: 'Times New Roman', size: 12, md: `# BOOK REPORT: THE HOBBIT
-> by J.R.R. Tolkien - report by Jack
+  D.hobbit = { font: 'Times New Roman', size: 12, md: `# BOOK REPORT: THE HOBBET
+> by J.R.R. Tolkeen - report by Jack
 
 **What it's about:**
-Bilbo Baggins is a hobbit. Hobbits are small, they like food and they don't like adventures. Then a wizard called Gandalf turns up with **thirteen dwarves** (thirteen! In one little house!) and they eat all Bilbo's food and take him on an adventure to get their treasure back from a dragon called **Smaug**, who lives in the Lonely Mountain.
+Bilby Baggings is a hobbit. Hobbits are small, they like food and they don't like adventures. Then a wizard called Gandelf turns up with **thirteen dwarves** (thirteen! In one little house!) and they eat all Bilby's food and take him on an adventure to get their treasure back from a dragon called **Smog**, who lives in the Lonesome Mountain.
 
 **Best bits:**
-* The riddle game with Gollum in the dark under the mountain. Bilbo finds a magic ring that makes you invisible. It seems like it will be important later. (Dad says there's a much longer book about it. He said "much" in a scary way.)
-* The giant spiders in Mirkwood. Bilbo names his sword "Sting" after he fights them. That is the coolest naming of a sword ever.
-* Bilbo talking to Smaug and being really clever and polite while being terrified.
+* The riddle game with Gollumpy in the dark under the mountain. Bilby finds a magic ring that makes you invisible. It seems like it will be important later. (Dad says there's a much longer book about it. He said "much" in a scary way.)
+* The giant spiders in Mirkwood. Bilby names his sword "Sting" after he fights them. That is the coolest naming of a sword ever.
+* Bilby talking to Smog and being really clever and polite while being terrified.
 
 **Worst bit:**
 The goblins sing a lot. If I was a goblin I would not sing. I would be doing goblin stuff.
 
 **Characters I liked:**
-* Bilbo - he starts off scared of everything and ends up the bravest one. Good character development (Mrs Hargreaves says to always write that).
+* Bilby - he starts off scared of everything and ends up the bravest one. Good character development (Mrs Hargreaves says to always write that).
 * Thorin - the leader of the dwarves. Grumpy. A bit like Dad on a Monday.
 * Bard - because he's an archer and he gets the most important shot in the whole book. No spoilers. (It's the dragon. He shoots the dragon.)
 
@@ -255,19 +255,19 @@ I HAVE SEEN IT. I HAVE ACTUALLY SEEN IT. Friday the 16th of July 1999, the 6:30 
 We waited SO long for this. America got it on the 19th of May. We had to wait **eight weeks** while everyone on the Internet talked about it. I had to switch off the computer for some of it. Do you know how hard that is? For me?
 
 ## The story (no spoilers)
-It's set **before** the old films. Two Space Cadet, Qui-Gon Gym and his apprentice Obi-Wan Cannoli (young Obi-Wan! He's Scottish now!), have to protect Queen Amidala of the planet Naboo from the Trade Federation, who have blockaded her planet with loads of battle droids. They end up stuck on **Tattyween** and meet a little boy called **Anklekin Skywobbler**. If you know the old films you know who he grows up to be. I'm not saying. But you know. You KNOW.
+It's set **before** the old films. Two Space Cadet, Qui-Gon Gym and his apprentice Obi-Wan Cannoli (young Obi-Wan Cannoli! He's Scottish now!), have to protect Queen Amidolly of the planet Naboodle from the Trade Fedoration, who have blockaded her planet with loads of battle droids. They end up stuck on **Tattyween** and meet a little boy called **Anklekin Skywobbler**. If you know the old films you know who he grows up to be. I'm not saying. But you know. You KNOW.
 
-## THE POD RACE
-The pod race is the best thing I have ever seen in a cinema. Anakin flies a pod that's basically two massive engines on strings with a little seat at the back, against a cheating pod racer called Sebulba. It's so fast and so loud that Dad grabbed the armrest. DAD. I'm going to get the ULTRA 64 game and practise.
+## THE PEAPOD RACE
+The peapod race is the best thing I have ever seen in a cinema. Anklekin flies a pod that's basically two massive engines on strings with a little seat at the back, against a cheating peapod racer called Sebulbar. It's so fast and so loud that Dad grabbed the armrest. DAD. I'm going to get the ULTRA 64 game and practise.
 
 ## DARK MOLE
 Red and black face, horns, yellow eyes and a lightspatula with **two blades**. TWO. One on each end. He barely says anything, he just does flips. He's the best baddie since the one in the black helmet. The music in the big lightspatula fight at the end has a choir singing in it, and every hair on my arms stood up.
 
 ## JAR JAR JAMS
-Jar Jar Jams is a Gungan. He's clumsy and he talks funny. Dave thinks he is the funniest thing ever made. I think he is... a lot. Half the cinema laughed. The other half went very quiet. We have agreed not to talk about it.
+Jar Jar Jams is a Gungoo. He's clumsy and he talks funny. Dave thinks he is the funniest thing ever made. I think he is... a lot. Half the cinema laughed. The other half went very quiet. We have agreed not to talk about it.
 
 ## THE BITS I DIDN'T GET
-* Some of it is about taxes and trade routes and a lot of people sitting in a big round room arguing. Dad said "that's what politics is like". If that's what politics is like I'm going to be a pod racer.
+* Some of it is about taxes and trade routes and a lot of people sitting in a big round room arguing. Dad said "that's what politics is like". If that's what politics is like I'm going to be a peapod racer.
 * There's something with a blood test and "midi-chlorians". Dave says it's science. I'm not sure it's science.
 * Something happens in the end fight that I WILL NOT WRITE DOWN. Go and see it.
 
@@ -336,16 +336,16 @@ The Pizza Knight looked at the Blobbit. The Blobbit looked at the Pizza Knight. 
 * 3. What sort of creature is Chew Biscuit?
 * 4. Where does Yoga live?
 * 5. What was Ham Solo frozen in?
-* 6. Which bounty hunter took frozen Han to Jabba the Hutt?
-* 7. What are the small furry ones on the forest moon of Endor called?
+* 6. Which bounty hunter took frozen Han to Jibber the Hutch?
+* 7. What are the small furry ones on the forest moon of Endoor called?
 * 8. What colour is Luke's new lightspatula in Return of the Space Cadets?
-* 9. Which city in the clouds does Lando Calrissian run?
+* 9. Which city in the clouds does Lando Cardigan run?
 * 10. What is the name of the Emperor's giant battle station? (There are two of them.)
 * 11. Who is Luke's father? (If you get this wrong we can't be friends.)
 * 12. BONUS: what's the name of the new baddie with the two-bladed lightspatula in Episode I?
 
 ---
-{c=white|ANSWERS (highlight to see): 1. Millennium Pigeon 2. Tattyween 3. A Wookiee 4. Dagobah 5. Carbonite 6. Boba Fett 7. Ewoks 8. Green 9. Cloud City (on Bespin) 10. The Dread Scone 11. Dark Vapour 12. Dark Mole}
+{c=white|ANSWERS (highlight to see): 1. Millennium Pigeon 2. Tattyween 3. A Wookie-Cookie 4. Dagobar 5. Carbonite 6. Bobba Fetch 7. Yewoks 8. Green 9. Cloud City (on Bespin) 10. The Dread Scone 11. Dark Vapour 12. Dark Mole}
 
 **Dave's score:** {b;c=red|9/12.} He said Luke's new lightspatula was "lightspatula coloured". He also said question 12 was "not fair because it's not out yet". It's in the MAGAZINES, Dave.` };
 
@@ -424,7 +424,7 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
   // fmt keys are cells or ranges; values are tokens: b i u cur pct num int date al=c|r|l c=#hex bg=#hex
   D.money = () => {
     const M = [
-      [101, 'January', 12, 2, 10, 9.99, 'Rubrick\'s cube (Jan sales!)'], [201, 'February', 12, 0, 0, 9.0, 'Controller Pak (Mom paid half)'], [301, 'March', 12, 3, 0, 11.5, 'AirMix Spitfire + glue'],
+      [101, 'January', 12, 2, 10, 9.99, 'Rubrick\'s cube (Jan sales!)'], [201, 'February', 12, 0, 0, 9.0, 'Controller Pouch (Mom paid half)'], [301, 'March', 12, 3, 0, 11.5, 'AirMix Spitfire + glue'],
       [401, 'April', 12, 1.5, 5, 8.97, '3 pots of red paint'], [501, 'May', 12, 2, 0, 11.98, 'Episode I figures x2'], [601, 'June', 12, 4, 0, 3.5, 'Ice pops (it was HOT)'],
       [701, 'July', 12, 0, 0, 9.8, 'Episode I ticket + sweets'], [801, 'August', 15, 5, 0, 2, 'Eclipse viewer glasses'], [901, 'September', 12, 0, 0, 2.5, 'School pens (boring)'],
       [1001, 'October', 12, 2, 0, 0, 'NOTHING - saving for Daydream'], [1101, 'November', 12, 0, 0, 5, 'Sparklers (Mom said no rockets)'], [1201, 'December', 12, 0, 20, 18, 'Presents for everyone'],
@@ -439,7 +439,7 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
   };
   D.paint = { cells: {
     A1: 'PAINT POTS (the stock take)', A2: 'Colour', B2: 'Pots', C2: 'How full', D2: 'Status', E2: 'Used for',
-    A3: 'Ork skin green', B3: 2, C3: 0.4, E3: 'Skin. Lots of skin.',
+    A3: 'Gork skin green', B3: 2, C3: 0.4, E3: 'Skin. Lots of skin.',
     A4: 'Dark green', B4: 1, C4: 0.8, E4: 'Shading the skin',
     A5: 'Red (goes faster)', B5: 3, C5: 0.15, E5: 'EVERYTHING',
     A6: 'Metal (shiny)', B6: 1, C6: 0.6, E6: 'Choppas, shootas, teef caps',
@@ -447,7 +447,7 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
     A8: 'Teef white', B8: 1, C8: 0.5, E8: 'Teef (obviously)',
     A9: 'Black undercoat', B9: 1, C9: 0.3, E9: 'Spray. Outside only (Mom rule)',
     A10: 'Yellow', B10: 1, C10: 1, E10: 'Checks. Never opened. Checks are hard',
-    A11: 'Blue', B11: 1, C11: 0.7, E11: 'Space Marines (Gorks don\'t do blue)',
+    A11: 'Blue', B11: 1, C11: 0.7, E11: 'Space Mariners (Gorks don\'t do blue)',
     A12: 'Glue', B12: 1, C12: 0.05, E12: 'Fingers (mostly)',
     A14: 'TOTAL POTS', B14: '=SUM(B3:B12)', A15: 'Need buying', B15: '=COUNTIF(C3:C12,"<0.25")', A16: 'Average fullness', C16: '=AVERAGE(C3:C12)',
     ...Object.fromEntries([3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => ['D' + n, `=IF(C${n}<0.25,"BUY MORE!",IF(C${n}=1,"unopened","ok"))`])),
@@ -477,9 +477,9 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
     A12: 'GRAND TOTAL', D12: '=SUM(D3:D10)', A13: 'Each (me and Dave)', D13: '=D12/2', A14: 'Days to go', D14: '=DATE(1999,12,31)-TODAY()', E14: '=IF(D14<=0,"IT\'S PARTY TIME!!!","not long now")',
   }, colW: { A: 160, B: 70, C: 76, D: 72, E: 240 }, fmt: { A1: 'b c=#800080', 'A2:E2': 'b bg=#ffd0ff', 'C3:D13': 'cur', 'A12:D14': 'b', D14: 'num0 b c=#ff0000' } };
   D.swtoys = () => {
-    const R = upto([[508, 'Qui-Gon Gym', '08/05/99', 5.99, 'NO', 8], [515, 'Obi-Wan Cannoli (Space Cadet)', '15/05/99', 5.99, 'NO', 9], [522, 'Battle Droid', '22/05/99', 4.99, 'YES', 7],
-      [529, 'Jar Jar Jams', '29/05/99', 0, 'YES', 3], [605, 'Watto', '05/06/99', 5.99, 'NO', 6], [619, 'Anklekin Skywobbler (Tattyween)', '19/06/99', 5.99, 'NO', 8], [626, 'Queen Amidala', '26/06/99', 5.99, 'YES', 6],
-      [710, 'Sebulba\'s pod racer', '10/07/99', 14.99, 'NO', 9], [717, 'Anakin\'s pod racer', '17/07/99', 14.99, 'NO', 10], [904, 'R2-D2 (the old one, from a car boot sale)', '04/09/99', 1.5, 'NO', 9], [1116, 'Dark Mole (FINALLY!!!)', '16/11/99', 5.99, 'NO', 10]]);
+    const R = upto([[508, 'Qui-Gon Gym', '08/05/99', 5.99, 'NO', 8], [515, 'Obi-Wan Cannoli (Space Cadet)', '15/05/99', 5.99, 'NO', 9], [522, 'Battle Toaster', '22/05/99', 4.99, 'YES', 7],
+      [529, 'Jar Jar Jams', '29/05/99', 0, 'YES', 3], [605, 'Wotto', '05/06/99', 5.99, 'NO', 6], [619, 'Anklekin Skywobbler (Tattyween)', '19/06/99', 5.99, 'NO', 8], [626, 'Queen Amidolly', '26/06/99', 5.99, 'YES', 6],
+      [710, 'Sebulbar\'s peapod racer', '10/07/99', 14.99, 'NO', 9], [717, 'Anklekin\'s peapod racer', '17/07/99', 14.99, 'NO', 10], [904, 'R2-B2 (the old one, from a car boot sale)', '04/09/99', 1.5, 'NO', 9], [1116, 'Dark Mole (FINALLY!!!)', '16/11/99', 5.99, 'NO', 10]]);
     const c = { A1: 'MY INTERGALACTIC BATTLES COLLECTION', A2: 'Figure', B2: 'Got it', C2: 'Price', D2: 'Still in box?', E2: 'Coolness /10' };
     R.forEach((r, i) => { const n = i + 3; c['A' + n] = r[0]; c['B' + n] = r[1]; c['C' + n] = r[2]; c['D' + n] = r[3]; c['E' + n] = r[4]; });
     const e = R.length + 2, s = e + 2;
@@ -494,29 +494,29 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
     A12: 'Times I\'ve watched the trailer', B12: 41, C12: '(on the PC, it is the size of a stamp)', A13: 'Pocket money saved for ticket', B13: 4.5, A14: 'Ticket + popcorn costs', B14: 6.8, A15: 'Still need', B15: '=MAX(0,B14-B13)',
   }, colW: { A: 190, B: 84, C: 300 }, fmt: { A1: 'b c=#ff0000', 'B3:B5': 'date', B7: 'num0 b', 'B8:B10': 'num0', C7: 'b c=#000080', 'A7:A15': 'b', 'B13:B15': 'cur', C10: 'i c=#ff0000', C12: 'i' } };
   D.accounts = { cells: {
-    A1: 'HOUSEHOLD ACCOUNTS 1994', A2: '(typed in by Dad, Lotus-style, the old way)', A4: 'Item', B4: 'Jan', C4: 'Feb', D4: 'Mar', E4: 'Total',
+    A1: 'HOUSEHOLD ACCOUNTS 1994', A2: '(typed in by Dad, Lotas-style, the old way)', A4: 'Item', B4: 'Jan', C4: 'Feb', D4: 'Mar', E4: 'Total',
     A5: 'Gas', B5: 48.2, C5: 51.9, D5: 40.1, A6: 'Electric', B6: 36.75, C6: 35.5, D6: 33.2, A7: 'Phone', B7: 22.4, C7: 19.95, D7: 21.1, A8: 'Food', B8: 210, C8: 198.6, D8: 205.3, A9: 'COMPUTER (386)', B9: 0, C9: 0, D9: 899, A10: 'Jack\'s dinosaurs', B10: 4.99, C10: 7.99, D10: 12.5,
     ...Object.fromEntries([5, 6, 7, 8, 9, 10].map(n => ['E' + n, `@SUM(B${n}..D${n})`])), A12: 'TOTAL', B12: '@SUM(B5..B10)', C12: '@SUM(C5..C10)', D12: '@SUM(D5..D10)', E12: '@SUM(E5..E10)', A14: 'Note', B14: 'March was expensive. It was worth it. - Dad',
   }, colW: { A: 130, B: 64, C: 64, D: 64, E: 76 }, fmt: { A1: 'b', A2: 'i c=#808080', 'A4:E4': 'b u', 'B5:E12': 'cur', 'A12:E12': 'b', B14: 'i' } };
 
   // ================================================================ cardfiles
   D.mates = { cards: Cast.deep([
-    ['DAVE', 'Best mate. Lives round the corner.\nPhone: 01632 960123 (his Mom answers. Always.)\nFave game: Goldenballs. Always picks Oddjob. (Banned in our house.)\nFave film: Episode I. Fave character: Jar Jar Jams. (We don\'t talk about it.)\nGood at: Kart Kaos, eating\nBad at: riddles, giving floppy disks back\nOwes me: 1 floppy disk, £1 (Y2K bet), 3 Pocket Critters cards'],
-    ['COUSIN {cousin.NAME}', 'Older cousin. Has a PlaySpace AND a CD Walkman.\nLends me CDs if I promise not to scratch them.\nCan do the robot dance. Badly.\nSays the Internet is "for nerds". Uses it every day.\nPhone: 01632 960404 (ask for {cousin}, not {uncle})'],
+    ['DAVE', 'Best mate. Lives round the corner.\nPhone: 01632 960123 (his Mom answers. Always.)\nFave game: Goldenballs. Always picks Oddbob. (Banned in our house.)\nFave film: Episode I. Fave character: Jar Jar Jams. (We don\'t talk about it.)\nGood at: Kart Kaos, eating\nBad at: riddles, giving floppy disks back\nOwes me: 1 floppy disk, £1 (Y2K bet), 3 Pocket Critters cards'],
+    ['COUSIN {cousin.NAME}', 'Older cousin. Has a PlaySpace AND a CD Strollman.\nLends me CDs if I promise not to scratch them.\nCan do the robot dance. Badly.\nSays the Internet is "for nerds". Uses it every day.\nPhone: 01632 960404 (ask for {cousin}, not {uncle})'],
     ['COUSIN RYAN', 'Thinks he knows EVERYTHING about computers.\nSent us a virus by e-mail and said it wasn\'t him.\nTips for computers: "turn it off and on again" (that\'s all of them)\nPhone: 01632 960356'],
-    ['{kidEp1.NAME}', 'Computer Club. Makes web pages in Notepad, like me.\n{kidEp1.His} site has a MIDI that plays the second you open it. Loud.\nWants to be a games programmer. Me too. We\'re going to start a company.\nCompany name ideas: Pixel Soft, Blobbit Games, Jack & {kidEp1} Ltd (my idea, {kidEp1.he} wants {kidEp1} & Jack Ltd)'],
+    ['{kidEp1.NAME}', 'Computer Club. Makes web pages in Jotpad, like me.\n{kidEp1.His} site has a MIDI that plays the second you open it. Loud.\nWants to be a games programmer. Me too. We\'re going to start a company.\nCompany name ideas: Pixel Soft, Blobbit Games, Jack & {kidEp1} Ltd (my idea, {kidEp1.he} wants {kidEp1} & Jack Ltd)'],
     ['{club4.NAME}', 'Best at Blockology in our class. Beat me ONCE. (Level 16. I was ill.)\nKnows every Pocket Critters. In order.\nThinks War Hamster is "weird". Thinks Gubbinz is "cute". Gubbinz is NOT cute. (He is a bit cute.)'],
     ['BIG {kidSoon.NAME}', 'Not actually big.\nGoalkeeper. Brilliant at football, rubbish at Kart Kaos.\nOwns a real lightspatula toy. The noise is AMAZING.\nWill swap it for: nothing. I asked.'],
     ['GUBBINZ', 'Species: not sure (half alien, half gremlin, all ears)\nLives: on my website (and possibly in the computer)\nLikes: pizza, shiny things, being fed by strangers\nDislikes: bath time, Dave, the Recycle Bin\nPhone: none. He just shouts.'],
     ['{teacher.NAME}', 'Runs Computer Club (Wednesdays after school).\nSays I can help with the school web site.\nTold me <BLINK> is "never the answer". It is sometimes the answer.'],
     ['NAN', 'Phone: 01632 960222. Ring on Sundays. Speak up.\nKnits jumpers (brown).\nPuts a fiver in cards. Says "don\'t tell your mother".\nHas never pressed the right button on the video recorder. Ever.'],
-    ['DAVE\'S DOG (BISCUIT)', 'Eats socks.\nAte one of my Ork arms. It was a GOOD arm.\nWagging tail can knock a can of pop off a table at 3 metres.'],
+    ['DAVE\'S DOG (BISCUIT)', 'Eats socks.\nAte one of my Gork arms. It was a GOOD arm.\nWagging tail can knock a can of pop off a table at 3 metres.'],
   ]) };
   D.cheats = { cards: [
     ['GLOOM (PC)', 'Type these while you\'re playing (no Enter key):\nIDDQD - god mode (your face goes gold!)\nIDKFA - all keys, all weapons, full ammo\n\nDad\'s copy. Dad\'s best on level 1 is 47 seconds. He brings this up at Christmas.'],
     ['GOLDENBALLS 007 (ULTRA 64)', 'Cheats unlock when you beat levels fast enough:\nPaintball Mode - beat DAM on Secret Agent in under 2:40\nInvincibility - beat FACILITY on 00 Agent in under 2:05\nDK Mode - beat RUNWAY on Agent in under 5:00\n\nOddjob is banned at mine. He\'s too short. It\'s not fair.'],
-    ['CONTRA (NES)', 'On the title screen press:\nUP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A START\nYou get 30 lives. (Dave\'s brother taught us. On his old NES.)\nIt works in loads of other games too. Try it everywhere.'],
-    ['POCKET CRITTERS RED/BLUE (GB)', 'MissingNo trick:\n1. In Viridian City, talk to the old man who shows you how to catch Pocket Critters.\n2. Fly to Cinnabar Island.\n3. Surf up and down the east coast (the edge where land meets water).\n4. A weird glitchy Pocket Critters appears. The 6th item in your bag goes up to loads!\n\nWARNING: Dave says it can mess up your save. Do it at your own risk.'],
+    ['CONTRA (NEZ)', 'On the title screen press:\nUP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A START\nYou get 30 lives. (Dave\'s brother taught us. On his old NEZ.)\nIt works in loads of other games too. Try it everywhere.'],
+    ['POCKET CRITTERS MOSS/PUDDLE (GB)', 'MissingNope trick:\n1. In Gravel City, talk to the old man who shows you how to catch Pocket Critters.\n2. Fly to Custard Island.\n3. Surf up and down the east coast (the edge where land meets water).\n4. A weird glitchy Pocket Critters appears. The 6th item in your bag goes up to loads!\n\nWARNING: Dave says it can mess up your save. Do it at your own risk.'],
     ['JACKTRIS (PC)', 'My own game! Cheats (made by me, so they\'re REAL):\nHold DOWN to drop faster (not a cheat, it\'s the controls)\nThe only real cheat is practice.\n(OK there\'s one more. It\'s a secret. It involves the long bar.)'],
     ['MARLO 64 - RUMOUR', 'UNCONFIRMED PLAYGROUND RUMOUR!!!\nA boy at school says his cousin unlocked LOUIE G by getting all 120 stars and going to the fountain.\nI have looked. Dave has looked. Dave\'s cousin has looked.\nVERDICT: probably not true. (Keep looking though.)'],
     ['GUBBINZ', 'Feed him a pizza and press the speaker icon in the tray. He burps.\n(This isn\'t really a cheat. It\'s just funny.)'],
@@ -524,19 +524,19 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
   ] };
   D.swcards = { cards: [
     ['DARK MOLE', 'Episode I\'s big baddie. A Sulk.\nRed and black face, little horns, yellow eyes.\nLightsaber: RED, with a blade at BOTH ENDS.\nSays about three lines in the whole film. Doesn\'t need to.'],
-    ['QUI-GON GYM', 'Space Cadet Master. Obi-Wan\'s teacher.\nGreen lightspatula. Calm. Bends the rules.\nFinds Anakin on Tattyween and thinks he\'s "the chosen one".\nPlayed by a very tall actor (Dad says he was in loads of films).'],
-    ['OBI-WAN CANNOLI', 'Young in Episode I! Qui-Gon\'s apprentice.\nBlue lightspatula. Has a little plait in his hair (Space Cadet learners have them).\nOld Obi-Wan is the one in the first film who goes "use the Force" (sort of).'],
-    ['ANKLEKIN SKYWOBBLER', 'A slave boy on Tattyween who builds his own pod racer.\nWins the Boonta Eve pod race against Sebulba.\nBUILT C-3PO HIMSELF out of bits!!!\nGrows up to be... you know who. (Heavy breathing.)'],
-    ['QUEEN AMIDALA', 'Queen of Naboo. Elected! (She\'s a teenager. A teenage queen!)\nHas about fifty amazing outfits and a face painted white.\nHas handmaidens who look a LOT like her. That\'s a clue.'],
-    ['JAR JAR JAMS', 'A Gungan from Naboo. Floppy ears, long tongue.\nClumsy. Banished from the underwater city by Boss Nass.\nDave\'s favourite. We have agreed not to talk about it.'],
-    ['WATTO', 'Junk dealer in Mos Espa on Tattyween.\nA Toydarian: flies with tiny fast wings, like a blue flying pot belly.\nOwns Anakin and his mom. Bets on pod races. Grumpy.\nJedi mind tricks don\'t work on him!'],
-    ['SEBULBA', 'Pod racer. A Dug (walks on his hands!).\nBig orange pod. CHEATS. Always.\nGets his pod broken in the end. Serves him right.'],
-    ['R2-D2', 'Astromech droid (the little blue and white one that beeps).\nIn Episode I he fixes the Queen\'s ship\'s shields under fire and gets a medal (well, a thank you).\nFavourite droid. Doesn\'t talk. Doesn\'t need to.'],
-    ['C-3PO', 'Protocol droid. Gold (later on). Worries a lot.\nFluent in over six million forms of communication.\nIn Episode I he hasn\'t got his gold covers on yet. You can see his wires!'],
-    ['YOGA', 'Space Cadet Master. Small, green, about 900 years old.\nLives on Dagobah (swampy) in the old films.\nTalks backwards, he does.\nIn Episode I he\'s on the Space Cadet Council and he is NOT sure about Anakin.'],
-    ['HAM SOLO', 'Pilot of the Millennium Pigeon.\nFlew the Kessel Run in less than twelve parsecs (Dave says a parsec is distance not time. Dave read that in a magazine).\nGot frozen in carbonite in Empire.'],
-    ['BOBA FETT', 'Bounty hunter. Green armour, jetpack.\nTook frozen Han to Jabba the Hutt.\nSays hardly anything. Everybody loves him anyway.\nFalls into the Sarlacc pit in Space Cadet. (Dave thinks he got out.)'],
-    ['ADMIRAL ACKBAR', 'Leads the rebel fleet at the Battle of Endor.\nFish-headed (he\'s a Mon Calamari).\nMost famous line is three words long and he says it at exactly the right time. "It\'s a trap!"'],
+    ['QUI-GON GYM', 'Space Cadet Master. Obi-Wan Cannoli\'s teacher.\nGreen lightspatula. Calm. Bends the rules.\nFinds Anklekin on Tattyween and thinks he\'s "the chosen one".\nPlayed by a very tall actor (Dad says he was in loads of films).'],
+    ['OBI-WAN CANNOLI', 'Young in Episode I! Qui-Gym\'s apprentice.\nBlue lightspatula. Has a little plait in his hair (Space Cadet learners have them).\nOld Obi-Wan Cannoli is the one in the first film who goes "use the Force" (sort of).'],
+    ['ANKLEKIN SKYWOBBLER', 'A slave boy on Tattyween who builds his own peapod racer.\nWins the Boomta Eve peapod race against Sebulbar.\nBUILT C-4PO HIMSELF out of bits!!!\nGrows up to be... you know who. (Heavy breathing.)'],
+    ['QUEEN AMIDOLLY', 'Queen of Naboodle. Elected! (She\'s a teenager. A teenage queen!)\nHas about fifty amazing outfits and a face painted white.\nHas handmaidens who look a LOT like her. That\'s a clue.'],
+    ['JAR JAR JAMS', 'A Gungoo from Naboodle. Floppy ears, long tongue.\nClumsy. Banished from the underwater city by Boss Gnash.\nDave\'s favourite. We have agreed not to talk about it.'],
+    ['WOTTO', 'Junk dealer in Mos Espresso on Tattyween.\nA Toydarling: flies with tiny fast wings, like a blue flying pot belly.\nOwns Anklekin and his mom. Bets on peapod races. Grumpy.\nJedi mind tricks don\'t work on him!'],
+    ['SEBULBAR', 'Peapod Racer. A Dug (walks on his hands!).\nBig orange pod. CHEATS. Always.\nGets his pod broken in the end. Serves him right.'],
+    ['R2-B2', 'Astromech droid (the little blue and white one that beeps).\nIn Episode I he fixes the Queen\'s ship\'s shields under fire and gets a medal (well, a thank you).\nFavourite droid. Doesn\'t talk. Doesn\'t need to.'],
+    ['C-4PO', 'Protocol droid. Gold (later on). Worries a lot.\nFluent in over six million forms of communication.\nIn Episode I he hasn\'t got his gold covers on yet. You can see his wires!'],
+    ['YOGA', 'Space Cadet Master. Small, green, about 900 years old.\nLives on Dagobar (swampy) in the old films.\nTalks backwards, he does.\nIn Episode I he\'s on the Space Cadet Council and he is NOT sure about Anklekin.'],
+    ['HAM SOLO', 'Pilot of the Millennium Pigeon.\nFlew the Kettle Run in less than twelve parsecs (Dave says a parsec is distance not time. Dave read that in a magazine).\nGot frozen in carbonite in Empire.'],
+    ['BOBBA FETCH', 'Bounty hunter. Green armour, jetpack.\nTook frozen Han to Jibber the Hutch.\nSays hardly anything. Everybody loves him anyway.\nFalls into the Sarlacky pit in Space Cadet. (Dave thinks he got out.)'],
+    ['ADMIRAL ACKBAZ', 'Leads the rebel fleet at the Battle of Endoor.\nFish-headed (he\'s a Mon Calzone).\nMost famous line is three words long and he says it at exactly the right time. "It\'s a trap!"'],
   ] };
   D.recipes = { cards: [
     ['CHEESE ON TOAST', 'Dad\'s recipe:\n1. Toast\n2. Cheese\n3. Put cheese on toast\n4. Grill until it bubbles\n5. Burn roof of mouth\n\n(Mom says this isn\'t a recipe. Dad says it\'s a CLASSIC.)'],

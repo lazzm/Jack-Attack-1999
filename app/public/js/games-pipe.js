@@ -529,7 +529,7 @@
       ]],
       ['Help', () => [
         { label: 'Help Topics', key: 'F1', act: help }, '-',
-        { label: 'About Pipe Jack', act: () => G.about({ ver: 'Version 2.0 (Green Slime Edition)', blurb: 'Lay the pipes. Mind the juice. Do not drink the juice.', credits: [['Plumbing design', 'Jack'], ['Pipe art', 'Jack (MS Paint, zoomed in a lot)'], ['Green slime', 'Gubbinz (do not ask)'], ['Mop', 'Mom'], ['Level testing', 'Dave'], ['Rocks', 'Found in the garden'], ['Wrench consultant', 'Grandad'], ['Fast flow idea', Cast.t('Cousin {cousin}')], ['No thanks to', 'The kitchen sink']] }) },
+        { label: 'About Pipe Jack', act: () => G.about({ ver: 'Version 2.0 (Green Slime Edition)', blurb: 'Lay the pipes. Mind the juice. Do not drink the juice.', credits: [['Plumbing design', 'Jack'], ['Pipe art', 'Jack (JackPaint, zoomed in a lot)'], ['Green slime', 'Gubbinz (do not ask)'], ['Mop', 'Mom'], ['Level testing', 'Dave'], ['Rocks', 'Found in the garden'], ['Wrench consultant', 'Grandad'], ['Fast flow idea', Cast.t('Cousin {cousin}')], ['No thanks to', 'The kitchen sink']] }) },
       ]],
     ]);
     G.dbg = () => S && { level: S.level, state: S.state, score: S.score, len: S.len, flow: S.flow && { x: S.flow.x, y: S.flow.y, t: S.flow.t }, start: S.start, rot: L.rot, cell: L.cell };

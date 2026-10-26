@@ -99,7 +99,7 @@
     if (window.Setup && Setup.product) Setup.product(PID, {
       n: 'JackWorld 99', v: '1.0', kb: 3480, lic: 'Freeware', by: 'JackWorld Ltd', cat: 'net', sq: 5, rel: '04/01/99', def: false,
       d: 'A living, breathing chat world! Make a little pixel person, walk round the rooms, chat in speech bubbles, play Musical Chairs, Snowball Fights and the Quiz Booth, and get your OWN ROOM to decorate with furni from the Catalogue. Every Monday there is a brand new limited RARE.',
-      note: 'Needs a 56K modem (it works on 28.8, just a bit slower). Pentium 133, 16 MB RAM, 640x480 with 256 colours. Members get their own room for FREE.',
+      note: 'Needs a 56K modem (it works on 28.8, just a bit slower). Pent-Yum 133, 16 MB RAM, 640x480 with 256 colours. Members get their own room for FREE.',
       home: 'http://www.jackworld.jnet/', apps: ['jw.world'], paths: ['JackWorld >'], icons: ['jwIcon'], cmds: ['jackworld', 'jworld', 'jw'],
       launch: 'jw.world', exe: 'JWORLD.EXE', dir: 'JackWorld', ic: 'net', setup: 'jworld99.exe',
     });

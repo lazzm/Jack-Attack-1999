@@ -52,7 +52,7 @@
     ['sx.b.reg', 'Golden Byte: The Drawer', 'There\'s a drawer in the Registry'],
     ['sx.b.phone', 'Golden Byte: On the Phone', 'You can ring some bytes'],
     ['sx.b.ring', 'Golden Byte: The Tiniest Link', 'A link the size of a full stop'],
-    ['sx.b.note', 'Golden Byte: Captain\'s Log', 'Notepad keeps a log, if you know the old trick'],
+    ['sx.b.note', 'Golden Byte: Captain\'s Log', 'Jotpad keeps a log, if you know the old trick'],
     ['sx.b.clock', 'Golden Byte: Grumpy Clock', 'Annoy the clock'],
     ['sx.b.room', 'Golden Byte: Under the Bed?', 'Something gold in your bedroom'],
     ['sx.b.mag', 'Golden Byte: Back Issue', 'A byte stuck between the pages of an old magazine'],
@@ -65,7 +65,7 @@
     ['sx.r.vulcan', 'Live long and prosper', 'Give the PC a Vulcan greeting'],
     ['sx.r.hadouken', 'Fireball!', 'Shout a fighting-game special move'],
     ['sx.r.alert', '!', 'Call for a soldier who hides in cardboard boxes'],
-    ['sx.r.catch', 'Gotta catch them all', 'Say the playground motto of 1999'],
+    ['sx.r.catch', 'Gotta stash them all', 'Say the playground motto of 1999'],
     ['sx.r.activate', '3... 2... 1...', 'Start a robot fight'],
     ['sx.r.banzai', 'Banzai!', 'Charge a castle like a game show contestant'],
     ['sx.r.goodnews', 'Good news, everyone!', 'Say what the old professor says'],
@@ -250,7 +250,7 @@
   A.addProgram(['The Great JackNet Hunt', 'Hunt HQ on the Web'], () => Sx.go('http://' + HQ + '/'), HQ_ICON);
   try {
     if (window.Setup && Setup.product) Setup.product('sx.kit', { n: 'Hunter\'s Kit 1.0', v: '1.0', kb: 420, lic: 'Freeware', by: 'Hunt HQ', cat: 'fun', sq: 5, rel: '01/01/99', ic: 'find', def: false,
-      d: 'Everything a JackNet treasure hunter needs: the Hunt Logbook (every key, every Golden Byte), a decoder for backwards writing, Morse, the pilots\' alphabet and phone keypads, and a notepad for your clues.',
+      d: 'Everything a JackNet treasure hunter needs: the Hunt Logbook (every key, every Golden Byte), a decoder for backwards writing, Morse, the pilots\' alphabet and phone keypads, and a jotpad for your clues.',
       note: 'Batteries not included. Torch not included. Treasure definitely not included.', home: 'http://' + HQ + '/kit.html', apps: ['sx.kit'], paths: ['The Great JackNet Hunt >'], launch: 'sx.kit', exe: 'HUNTKIT.EXE', dir: 'Hunter\'s Kit' });
   } catch (e) { console.error(e); }
 
@@ -261,7 +261,7 @@
   fs.add('C:/My Documents/Hunt Stuff', { name: 'shh - dont look.txt', type: 'txt', date: '01/01/99', hidden: true, secret: 'sx.h.shy', text: 'A POEM FOR SHY FILES\nby Jack, aged "none of your business"\n\nGubbinz says there\'s something here,\nHiding where you cannot see.\nOnly those who look for shy things\nSee the files that shouldn\'t be.\nTake the first of every line...\n\n(and that is what you call a thing that is there but you can\'t see it. Whoooo. Spooky.)' });
   fs.add('C:/My Documents/Hunt Stuff', { name: 'shopping list.txt', type: 'txt', date: '27/12/98', text: 'THINGS I NEED FOR THE HUNT\n\n- a floppy disk (gold spray paint: borrow Dad\'s, ask later)\n- a torch\n- the big map from the hall cupboard\n- crisps (cheese and onion)\n- ten good hiding places\n- a way to stop Dave finding it first' });
   fs.dir('C:/HUNT');
-  fs.add('C:/HUNT', { name: 'README.1ST', type: 'txt', date: '01/01/99', size: '1 KB', text: 'GREAT JACKNET HUNT - CHAPTER 3\n==============================\n\nThis is the DECODER. It only works at the C:\\> prompt\n(Start > Programs > MS-DOS Prompt).\n\nNot sure how a DOS program works? Ask it. Type its name\nwith /? on the end and it will tell you everything.\n\nThe key is in the decoder. Be careful: I scrambled it,\nin case Dave looks.\n\n- Jack' });
+  fs.add('C:/HUNT', { name: 'README.1ST', type: 'txt', date: '01/01/99', size: '1 KB', text: 'GREAT JACKNET HUNT - CHAPTER 3\n==============================\n\nThis is the DECODER. It only works at the C:\\> prompt\n(Start > Programs > JACK-DOS Prompt).\n\nNot sure how a DOS program works? Ask it. Type its name\nwith /? on the end and it will tell you everything.\n\nThe key is in the decoder. Be careful: I scrambled it,\nin case Dave looks.\n\n- Jack' });
   fs.add('C:/HUNT', { name: 'DECODE.EXE', type: 'exe', date: '01/01/99', size: '9 KB', app: 'dos.run', arg: 'DECODE /?', dosprog: 'decode' });
   fs.add('C:/HUNT', { name: 'KEY3.TXT', type: 'txt', date: '01/01/99', size: '1 KB', text: 'Nice try!\n\nI\'m not going to just leave the key in a file called KEY3.TXT, am I?\n\nUse the DECODER.' });
   fs.add('C:/', { name: 'BYTE.BIN', type: 'sxb', sxb: 'dos', date: '01/01/99', size: '1 KB', hidden: true, text: '\u2726 GOLDEN BYTE \u2726\n\n01000111 01001111 01001100 01000100\n(that is GOLD, in binary)\n\nYou found a Golden Byte by looking at the files that hide. Well done!\nByte code: HIDN8\n\nThere are ten Golden Bytes in the Great JackNet Hunt: www.greathunt.jnet' });
@@ -342,7 +342,7 @@
     const spots = R.spots(), pick = (re, dflt) => spots.find(s => re.test(s)) || dflt;
     if (!spots.length && (tries | 0) < 40) { setTimeout(() => roomSetup((tries | 0) + 1), 1500); return; }
     const poster = pick(/shuttle|space|rocket/i, pick(/poster/i, 'poster'));
-    R.addClue(poster, { title: 'A note on the poster', when: () => avail(6) && !st.ch[6], text: '<i>"HUNT KEY 6: Eileen Collins has flown the shuttle twice, both times as the PILOT. On this mission (STS-93, Columbia) she\'s the first woman ever IN CHARGE. Her job title is the key!"</i>' });
+    R.addClue(poster, { title: 'A note on the poster', when: () => avail(6) && !st.ch[6], text: '<i>"HUNT KEY 6: Eileen Collinz has flown the shuttle twice, both times as the PILOT. On this mission (STS-93, Columbia) she\'s the first woman ever IN CHARGE. Her job title is the key!"</i>' });
     const cork = pick(/cork/i, '');
     if (cork) R.addClue(cork, { title: 'A flyer on the cork board', once: true, when: () => !X0(), text: 'Pinned over the cheats list: a flyer, in felt tip. <b>THE GREAT JACKNET HUNT!</b> Ten keys hidden all over the JackNet. Start at Hunt HQ: <b>www.greathunt.jnet</b>' });
     const drawer = pick(/drawer/i, pick(/bed|box|wardrobe/i, 'drawer'));
@@ -363,7 +363,7 @@
     const page = $('s-secret'); if (!page || page.querySelector('.sx-magbyte')) return;
     const host = page.querySelector('.cx-page, .cx-body, article, .sitebody') || page.firstElementChild || page;
     const d = document.createElement('p'); d.className = 'sx-magbyte';
-    d.innerHTML = 'Something is stuck to the bottom of this page with a bit of Blu-Tack... <button type="button" class="sx-goldbtn" title="Peel it off" aria-label="Peel off the shiny thing"></button>';
+    d.innerHTML = 'Something is stuck to the bottom of this page with a bit of Blue-Stuck... <button type="button" class="sx-goldbtn" title="Peel it off" aria-label="Peel off the shiny thing"></button>';
     host.appendChild(d);
     d.querySelector('button').addEventListener('click', ev => { ev.preventDefault(); ev.currentTarget.classList.add('sx-got'); d.lastChild.after(' A GOLDEN BYTE! (Byte code: BACK1)'); byte('mag'); }, { once: true });
   }
@@ -426,34 +426,34 @@
     const stamp = `${p2(d.getHours() % 12 || 12)}:${p2(d.getMinutes())} ${d.getHours() < 12 ? 'AM' : 'PM'} ${p2(t.d)}/${p2(t.m)}/99`;
     const pos = ta.selectionStart; ta.value = ta.value.slice(0, pos) + stamp + '\n' + ta.value.slice(pos); ta.selectionStart = ta.selectionEnd = pos + stamp.length + 1;
     ta.dispatchEvent(new Event('input', { bubbles: true }));
-    if (!st.by.note) setTimeout(() => { Desk.toast('Notepad', 'Notepad wrote the time and date, like a real captain\'s log. Something gold fell out of the menu bar too: a GOLDEN BYTE (code DOTLOG)!', 8000); byte('note'); }, 500);
+    if (!st.by.note) setTimeout(() => { Desk.toast('Jotpad', 'Jotpad wrote the time and date, like a real captain\'s log. Something gold fell out of the menu bar too: a GOLDEN BYTE (code DOTLOG)!', 8000); byte('note'); }, 500);
   });
 
   // ================================================================ easter eggs in Start > Run (effects load from js/sx-eggs.js)
   const egg = id => raw => load('eggs').then(() => window.SxEggs && SxEggs[id] && SxEggs[id](raw)).catch(() => {});
   const EGGS = {
     podbay: ['open the pod bay doors', 'open the pod bay doors hal', 'open the pod bay doors please', 'open the pod bay doors please hal', 'open the pod bay doors, hal', 'pod bay doors'],
-    daisy: ['daisy', 'daisy bell', 'hal', 'hal9000', 'hal 9000', 'hal-9000'],
-    monolith: ['monolith', '2001', '2001 a space odyssey', 'my god its full of stars', "my god, it's full of stars", 'its full of stars', "it's full of stars"],
+    daisy: ['daisy', 'daisy bell', 'hal', 'hal9000', 'hol 9000', 'hal-9000'],
+    monolith: ['monolith', '2001', '2001 a space oddity', 'my god its full of stars', "my god, it's full of stars", 'its full of stars', "it's full of stars"],
     warp: ['make it so', 'engage', 'warp 9', 'warp', 'warp factor 9', 'warp speed'],
     beam: ['beam me up', 'beam me up scotty', 'energize', 'energise'],
     vulcan: ['live long and prosper', 'llap', 'vulcan'],
     hadouken: ['hadouken', 'hadoken', 'fireball', 'shoryuken'],
     alert: ['snake', 'snake?', 'snaaake', 'snaaaake', 'metal gear', 'metal gear wobbly'],
-    catch: ['gotta catch em all', "gotta catch 'em all", 'gotta catch them all', 'pokeball', 'poke ball'],
+    catch: ['gotta stash em all', "gotta stash 'em all", 'gotta stash them all', 'pokeball', 'critter cube'],
     activate: ['activate', '3 2 1 activate', '321 activate', 'cease', 'robo rumble'],
-    banzai: ['banzai', 'takeshis castle', "takeshi's castle", 'takeshi'],
+    banzai: ['banzai', 'takeshis castle', "tikeshi's castle", 'takeshi'],
     goodnews: ['good news everyone', 'good news, everyone', 'good news everyone!', 'futurama'],
-    thunderbirds: ['thunderbirds are go', 'thunderbirds', 'fab', 'f.a.b.', 'f.a.b'],
+    thunderbirds: ['thunderbudgies are go', 'thunderbirds', 'fab', 'f.a.b.', 'f.a.b'],
     moon: ['one small step', 'one small step for man', 'apollo', 'apollo 11', 'houston', 'houston we have a problem', 'the eagle has landed'],
     dalek: ['exterminate', 'dalek', 'daleks', 'tardis', 'doctor whoops'],
     back: ["i'll be back", 'ill be back', 'i will be back', 'hasta la vista', 'hasta la vista baby', 'terminator'],
-    lego: ['lego', 'bricks', 'knex', "k'nex"],
+    lego: ['lego', 'bricks', 'knex', "k'nix"],
     error: ['i am error', 'i am error.'],
     listen: ['hey listen', 'hey! listen!', 'hey listen!', 'navi', 'listen'],
     coin: ['insert coin', 'insert coins', 'press start', 'player 1', 'player one'],
     gameover: ['game over', 'gameover', 'continue', 'continue?'],
-    invaders: ['space invaders', 'invaders'],
+    invaders: ['space invoices', 'invaders'],
     pong: ['pong'],
     mario: ["it's-a me", 'its a me', "it's a me", "it's-a me, marlo", 'its a me marlo', "it's a me marlo", 'mario', 'here we go', 'wahoo'],
     oddjob: ['oddjob', 'odd job', '007', 'licence to kill', 'license to kill', 'slappers only'],

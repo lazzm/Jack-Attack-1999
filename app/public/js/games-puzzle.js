@@ -115,7 +115,7 @@
   const PICS = [
     { id: 'grot', name: 'Gubbinz', n: 20, art: rowsArt(GROT, { b: '#7ec8ff', k: '#1a1a1a', g: '#5aac2c', d: '#3a7a1a', r: '#e10600', w: '#ffffff', n: '#8a5a2a', y: '#ffd400' }) },
     { id: 'ork', name: 'Robot Boss', n: 20, art: rowsArt(ORK, { o: '#ff9a3a', k: '#1a1a1a', s: '#a4aebe', h: '#eef2f8', d: '#5a6474', r: '#ff2010', y: '#ffe060', w: '#ffffff', n: '#2a3a8a', c: '#7ad0ff' }) },
-    { id: 'pod', name: 'Pod Racer', n: 20, art: rowsArt(POD, { y: '#e8c070', u: '#d0a050', k: '#1a1a1a', s: '#a0a0b0', h: '#e0e0e8', r: '#e10600', f: '#ffd400', o: '#ff8a00', g: '#5aac2c', c: '#505060', b: '#7ad0ff' }) },
+    { id: 'pod', name: 'Peapod Racer', n: 20, art: rowsArt(POD, { y: '#e8c070', u: '#d0a050', k: '#1a1a1a', s: '#a0a0b0', h: '#e0e0e8', r: '#e10600', f: '#ffd400', o: '#ff8a00', g: '#5aac2c', c: '#505060', b: '#7ad0ff' }) },
     { id: 'cube', name: "Rubrick's Cube", n: 32, art: (c, n) => { const t = document.createElement('canvas'); t.width = t.height = 24; cubeArt(t.getContext('2d'), 24); c.fillStyle = '#1e1e50'; c.fillRect(0, 0, n, n); for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { c.fillStyle = (x + y) % 2 ? '#24245a' : '#1e1e50'; c.fillRect(x, y, 1, 1); } c.drawImage(t, 4, 4); } },
     { id: 'space', name: 'Space!', n: 24, art: spaceArt },
     { id: 'sunset', name: 'Space Sunset', paint: sunsetScene },
@@ -507,7 +507,7 @@
         { label: 'Picture', sub: PICS.map(p => ({ label: p.name, rad: opts.pic === p.id, act: () => { opts.pic = p.id; save(); newGame(); } })) },
         { label: 'Show Picture on Board', key: 'Space', chk: opts.ghost, act: () => { opts.ghost = !opts.ghost; save(); dirty = true; } },
       ]],
-      ['Help', () => [{ label: 'Help Topics', key: 'F1', act: help }, '-', { label: 'About Jigsaw 98', act: () => G.about({ ver: 'Version 1.0', blurb: 'Jigsaws with every piece present and correct. Unlike the 1000-piece lighthouse in the loft, which is missing 3 bits of sky.', credits: [['Programming', 'Jack'], ['Wobbly piece shapes', 'Jack (and a protractor)'], ['Paintings', 'Jack'], ['Lost piece finder', 'Mom'], ['Hoover operator', 'Dad (sorry)'], ['Tester', 'Gran']] }) }]],
+      ['Help', () => [{ label: 'Help Topics', key: 'F1', act: help }, '-', { label: 'About Jigsaw 98', act: () => G.about({ ver: 'Version 1.0', blurb: 'Jigsaws with every piece present and correct. Unlike the 1000-piece lighthouse in the loft, which is missing 3 bits of sky.', credits: [['Programming', 'Jack'], ['Wobbly piece shapes', 'Jack (and a protractor)'], ['Paintings', 'Jack'], ['Lost piece finder', 'Mom'], ['Vacuum operator', 'Dad (sorry)'], ['Tester', 'Gran']] }) }]],
     ]);
     // the jigsaw in progress is saved (js/gamesave.js): the picture, the cut of every piece, where every loose piece is
     // lying (and which are in), and the time

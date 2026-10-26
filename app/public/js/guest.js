@@ -149,7 +149,7 @@
   // ---------------------------------------------------------------- one gentle reminder, the first time a guest saves a file
   document.addEventListener('jhp-toast', ev => {
     const d = ev.detail || {};
-    if (!isGuest() || !/^(Notepad|Paint|WordPad|Sound Recorder)$/.test(d.title || '') || !/^Saved/.test(d.text || '')) return;
+    if (!isGuest() || !/^(Jotpad|Paint|WordPod|Sound Recorder)$/.test(d.title || '') || !/^Saved/.test(d.text || '')) return;
     if (store.get('jhp_guest_savenote', false)) return;
     store.set('jhp_guest_savenote', true);
     setTimeout(() => window.Desk && Desk.toast('Saved on this PC only', "You're a guest, so your files only live on this computer (until somebody clears it out). Join JackNet and they follow you to any computer! Start > Log Off to join.", 10000), 600);

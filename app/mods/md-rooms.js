@@ -32,7 +32,7 @@ Rows of pegs, every one buried under coats, PE bags and the odd lonely trainer. 
 exits: e=school.moving
 items: scarf stick
 x: pegs,coats: Duffel coats, parkas, one shell suit (purple, green and pink: very loud). A name tag on one says "IF FOUND RETURN TO DAVE (DONT OPEN THE POCKETS)".
-x: box,lost,property: A cardboard box full of single gloves, broken rulers, a Eggbert with flat batteries and seventeen odd socks. The socks look like they're trying to escape.
+x: box,lost,property: A cardboard box full of single gloves, broken rulers, an Eggbert with flat batteries and seventeen odd socks. The socks look like they're trying to escape.
 tip: See the things lying here? Type {W}GET SCARF{x} to pick something up, or {W}GET ALL{x}.
 
 #school.things The Hall of Things
@@ -49,7 +49,7 @@ A tiny shop squeezed under the stairs, with jars of sweets right up to the ceili
 exits: w=school.things
 npcs: crumb
 x: jars,sweets: Cola cubes, flying saucers, sherbet lemons, fizzy laces, white mice... Fizz Pop bottles are lined up by the till like soldiers.
-x: sign: "TYPE {W}LIST{x} TO SEE WHAT WE'VE GOT. TYPE {W}BUY{x} AND THE NAME TO BUY. NO TICK. NO SWAPPING TAZOS FOR SWEETS. (THIS MEANS YOU, DAVE.)"
+x: sign: "TYPE {W}LIST{x} TO SEE WHAT WE'VE GOT. TYPE {W}BUY{x} AND THE NAME TO BUY. NO TICK. NO SWAPPING TAZOZ FOR SWEETS. (THIS MEANS YOU, DAVE.)"
 tip: In shops, {W}LIST{x} shows the prices, {W}BUY FIZZ{x} buys a Fizz Pop, and {W}SELL{x} sells your junk.
 
 #school.library The Library
@@ -155,7 +155,7 @@ x: fountain,water: A stone fountain with a statue of a hero holding a sword in o
 x: stalls,awnings,stall: "TURNIPS - 2 FOR 1." "PRE-OWNED FLOPPY DISKS (MOSTLY WORKING)." "LUCKY PEBBLES." "GOOSE INSURANCE."
 x: statue: The hero on the fountain has a slightly worried face, like he's just remembered he left the gas on.
 tip: Market Square is the middle of town. If you're ever lost, type {W}RECALL{x} to come straight back here.
-amb: A stallholder shouts "TURNIPS! LOVELY TURNIPS!" | A pigeon lands on the statue's head and looks very pleased with itself. | Someone drops a coin in the fountain and makes a wish out loud. It's about a Ultra 64. | A kid runs past shouting "ANYONE GOT A SPARE TAZO?"
+amb: A stallholder shouts "TURNIPS! LOVELY TURNIPS!" | A pigeon lands on the statue's head and looks very pleased with itself. | Someone drops a coin in the fountain and makes a wish out loud. It's about an Ultra 64. | A kid runs past shouting "ANYONE GOT A SPARE TAZOZ?"
 night: Market Square is quiet now. The stalls are covered up with tarpaulins, the fountain tinkles away to itself under the gas lamps, and the pigeons are huddled on the statue. Streets lead off north, east, south and west. The Town Crier is still here, ringing his bell very softly.
 
 #town.est East Street
@@ -314,7 +314,7 @@ flags: safe
 A tiny, crammed corner shop selling absolutely everything: Fizz Pop, sweets, string, batteries, comics, honey, crackers, torches and those little plastic toys from cereal boxes. The bell over the door dings every time anybody even breathes near it. Mrs Bundle, very small and very cheerful, stands on a box behind the counter. Harbour Road is west.
 exits: w=town.harb
 npcs: bundle
-x: comics: Comics about a dog in space, a girl who's a robot, and something called "THE BEANO" that's been read so much it's soft.
+x: comics: Comics about a dog in space, a girl who's a robot, and something called "THE BEANOH" that's been read so much it's soft.
 x: bell: Ding! You breathed near it.
 
 #town.docks The Docks
@@ -720,11 +720,11 @@ x: boat: A rowing boat called "THE SOGGY BISCUIT JUNIOR". It has a hole in it.
 
 #sea.grotto The Kraken's Grotto
 flags: out
-A huge sea cave, its walls glittering with shells. Deep blue water fills most of it, and the waves boom like thunder. On a ledge sits an old sailor with a white beard and a pipe full of bubbles. The steps go back up.
+A huge sea cave, its walls glittering with shells. Deep Bluey water fills most of it, and the waves boom like thunder. On a ledge sits an old sailor with a white beard and a pipe full of bubbles. The steps go back up.
 exits: u=sea.cove
 npcs: bill
 mobs: squidgy
-x: shells,walls: Thousands of shells, all pressed into the walls like a mosaic. They show a picture of a giant octopus waving.
+x: shells,walls: Thousands of shells, all pressed into the walls like a mosaique. They show a picture of a giant octopus waving.
 x: water: Very deep and very blue. Something big moves under the surface. Something pink.
 
 !area hills
