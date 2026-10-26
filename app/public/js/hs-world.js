@@ -348,13 +348,15 @@
 
   // ================================================================ walking: a grid per floor (5 cm cells), the stairs between them
   const GR = { x0: -360, z0: -600, cs: 5, nx: 180, nz: 360 }, RAD = 22;
-  const grids = { U: null, G: null, dirty: true, walk: [], block: [], stairs: [] };
+  const grids = { U: null, G: null, dirty: true, walk: [], block: [], stairs: [], shells: {} };
   function walkRect(lvl, x0, z0, x1, z1, o) { grids.walk.push(Object.assign({ lvl, x0, z0, x1, z1 }, o || {})); grids.dirty = true; }
   function block(lvl, x0, z0, x1, z1, o) { const b = Object.assign({ lvl, x0, z0, x1, z1 }, o || {}); grids.block.push(b); grids.dirty = true; return b; }
   function stairs(def) { grids.stairs.push(def); grids.dirty = true; } // { x0, z0, x1, z1, y(x, z) }
   function rebuildGrids() {
     grids.dirty = false;
     for (const lvl of ['U', 'G']) {
+      const regions=grids.walk.filter(w=>w.lvl===lvl&&(!w.door||DOORS[w.door].open));
+      grids.shells[lvl]={regions,edges:walkEdges(regions)};
       const g = new Uint8Array(GR.nx * GR.nz);
       const mark = (x0, z0, x1, z1, v) => { const i0 = clamp(Math.floor((x0 - GR.x0) / GR.cs), 0, GR.nx - 1), i1 = clamp(Math.ceil((x1 - GR.x0) / GR.cs) - 1, 0, GR.nx - 1), j0 = clamp(Math.floor((z0 - GR.z0) / GR.cs), 0, GR.nz - 1), j1 = clamp(Math.ceil((z1 - GR.z0) / GR.cs) - 1, 0, GR.nz - 1); for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) g[j * GR.nx + i] = v; };
       for (const w of grids.walk) if (w.lvl === lvl && (!w.door || DOORS[w.door].open)) mark(w.x0, w.z0, w.x1, w.z1, 1);
@@ -376,9 +378,58 @@
     }
   }
   const cellOk = (lvl, x, z) => { if (grids.dirty) rebuildGrids(); const i = Math.floor((x - GR.x0) / GR.cs), j = Math.floor((z - GR.z0) / GR.cs); return i >= 0 && j >= 0 && i < GR.nx && j < GR.nz && !!grids[lvl][j * GR.nx + i]; };
+  // Exact boundaries of the union, including narrow doorway links. The grid is
+  // retained for diagnostics; movement must not inherit its 5 cm stair-step edges.
+  function walkEdges(regions) {
+    const edges=[];
+    for(const r of regions)for(const [axis,value,lo,hi,nx,nz] of [
+      ['x',r.x0,r.z0,r.z1,1,0],['x',r.x1,r.z0,r.z1,-1,0],
+      ['z',r.z0,r.x0,r.x1,0,1],['z',r.z1,r.x0,r.x1,0,-1]]){
+      let spans=[[lo,hi]];
+      for(const q of regions){
+        if(q===r)continue;
+        const a=axis==='x'?q.x0:q.z0,b=axis==='x'?q.x1:q.z1,normal=nx||nz;
+        if(!(normal>0?a<value-.001&&b>=value-.001:a<=value+.001&&b>value+.001))continue;
+        const c=axis==='x'?q.z0:q.x0,d=axis==='x'?q.z1:q.x1;
+        spans=spans.flatMap(([s,e])=>d<=s||c>=e?[[s,e]]:[[s,Math.min(e,c)],[Math.max(s,d),e]].filter(([u,v])=>v-u>.001));
+      }
+      for(const [a,b]of spans)edges.push(axis==='x'?{x0:value,z0:a,x1:value,z1:b,nx,nz}:{x0:a,z0:value,x1:b,z1:value,nx,nz});
+    }
+    return edges;
+  }
+  function circleBox(x,z,x0,z0,x1,z1,radius=RAD) {
+    let dx=x-clamp(x,x0,x1),dz=z-clamp(z,z0,z1),distance=Math.hypot(dx,dz);
+    if(distance>=radius-.001)return null;
+    if(distance<.00001){
+      const sides=[[x-x0,-1,0],[x1-x,1,0],[z-z0,0,-1],[z1-z,0,1]].sort((a,b)=>a[0]-b[0]);
+      return{nx:sides[0][1],nz:sides[0][2],depth:radius+sides[0][0]};
+    }
+    return{nx:dx/distance,nz:dz/distance,depth:radius-distance};
+  }
+  function shellContacts(x,z,lvl,radius=RAD) {
+    if(grids.dirty)rebuildGrids();
+    const shell=grids.shells[lvl],out=[];
+    for(const e of shell.edges){
+      const qx=clamp(x,Math.min(e.x0,e.x1),Math.max(e.x0,e.x1)),qz=clamp(z,Math.min(e.z0,e.z1),Math.max(e.z0,e.z1));
+      const dx=x-qx,dz=z-qz,d=Math.hypot(dx,dz);
+      // At a finite edge's endpoint the body may legally be beyond that edge's
+      // infinite half-plane, in the neighbouring doorway. Its radial normal
+      // still applies there; forcing the face normal creates a phantom corner.
+      if(d<radius-.001)out.push({nx:d>.001?dx/d:e.nx,nz:d>.001?dz/d:e.nz,depth:radius-d});
+    }
+    for(const b of grids.block)if(b.lvl===lvl&&!b.off&&!(b.height!=null&&b.height<=8)){
+      const c=circleBox(x,z,b.x0,b.z0,b.x1,b.z1,radius);if(c)out.push(c);
+    }
+    return out;
+  }
+  function floorClear(x,z,lvl) {
+    if(grids.dirty)rebuildGrids();
+    return grids.shells[lvl].regions.some(r=>x>=r.x0&&x<=r.x1&&z>=r.z0&&z<=r.z1)&&!shellContacts(x,z,lvl).length;
+  }
   const onStairs = (x, z) => grids.stairs.find(s => x >= s.x0 && x <= s.x1 && z >= s.z0 && z <= s.z1);
   const doorPoint = new T.Vector3();
-  function doorObstructs(x,z,eye,lvl) {
+  function doorContacts(x,z,eye,lvl,radius=RAD) {
+    const out=[];
     for (const d of Object.values(DOORS)) {
       const leaf=d.pivot?.children.find(o=>o.isMesh&&o.geometry?.type==='BoxGeometry');
       if(!leaf||d.always||!d.rooms.some(id=>ROOMS[id]?.lvl===lvl))continue;
@@ -389,16 +440,21 @@
         d.solidQuery={angle:d.ang,inverse:new T.Matrix4().copy(leaf.matrixWorld).invert(),box:leaf.geometry.boundingBox.clone()};
       }
       const q=d.solidQuery,b=q.box;doorPoint.set(x,-eye,z).applyMatrix4(q.inverse);
-      if(doorPoint.y>b.min.y&&doorPoint.y<b.max.y&&doorPoint.x>b.min.x-RAD&&doorPoint.x<b.max.x+RAD&&doorPoint.z>b.min.z-RAD&&doorPoint.z<b.max.z+RAD)return true;
+      if(doorPoint.y>b.min.y&&doorPoint.y<b.max.y){
+        const c=circleBox(doorPoint.x,doorPoint.z,b.min.x,b.min.z,b.max.x,b.max.z,radius);
+        if(c){const normal=new T.Vector3(c.nx,0,c.nz).transformDirection(leaf.matrixWorld);out.push({nx:normal.x,nz:normal.z,depth:c.depth})}
+      }
     }
-    return false;
+    return out;
   }
+  const doorObstructs=(x,z,eye,lvl)=>doorContacts(x,z,eye,lvl).length>0;
   function lowDoorAt(x,z,lvl,padding,fy) {
     for(const d of Object.values(DOORS)){
       const b=d.closedBounds;
       if(!d.open||!b||!(d.headroom<STAND)||Math.abs(fy-d.floorY)>20||!d.rooms.some(id=>ROOMS[id]?.lvl===lvl))continue;
       const alongX=b.x1-b.x0>b.z1-b.z0;
-      if(alongX?x>=b.x0&&x<=b.x1&&z>b.z0-padding&&z<b.z1+padding:z>=b.z0&&z<=b.z1&&x>b.x0-padding&&x<b.x1+padding)return d;
+      const lo=d.lintelPlane??(alongX?b.z0:b.x0),hi=d.lintelPlane??(alongX?b.z1:b.x1);
+      if(alongX?x>=b.x0&&x<=b.x1&&z>lo-padding&&z<hi+padding:z>=b.z0&&z<=b.z1&&x>lo-padding&&x<hi+padding)return d;
     }
     return null;
   }
@@ -408,7 +464,7 @@
     const s = onStairs(x, z); let best = null;
     const cands = [];
     const inX = s && x >= s.x0 + RAD && x <= s.x1 - RAD, sy = inX ? s.y(x, z) : 0, mid = inX && z > s.m0 && z < s.m1; // (on the stairs: the ramp is the floor, bar the cupboard right under them)
-    for (const L of [lvl, lvl === 'U' ? 'G' : 'U']) if (cellOk(L, x, z)) { if (mid && !(L === 'G' && LV.G - sy > 100)) continue; cands.push({ y: LV[L], lvl: L }); }
+    for (const L of [lvl, lvl === 'U' ? 'G' : 'U']) if (floorClear(x,z,L)) { if (mid && !(L === 'G' && LV.G - sy > 100)) continue; cands.push({ y: LV[L], lvl: L }); }
     if (inX) cands.push({ y: sy, lvl: sy < (LV.U + LV.G) / 2 ? 'U' : 'G' });
     for (const c of cands) if (Math.abs(c.y - y0) <= 45 && headFitsDoor(x,z,c.lvl,c.y,eyeHeight==null?W.eyeNow+W.jh:eyeHeight) && !doorObstructs(x,z,c.y-50,c.lvl) && !Object.values(THINGS).some(t=>t.obstacle&&!t.at.hide&&(t.st==='rest'||t.st==='snap'||t.st==='fall')&&Math.abs(t.at.y-c.y)<25&&insideThing(t,x,z,RAD)) && (!best || Math.abs(c.y - y0) < Math.abs(best.y - y0))) best = c;
     return best;
@@ -464,14 +520,15 @@
 
   // ================================================================ things you can pick up and put down (the grab system)
   const THINGS = {}, SNAPS = {}, pendingRestores = new Map();
-  function insideFootprint(t,at,x,z,margin){const a=(at.ry||0)*D2R,dx=x-at.x,dz=z-at.z;return Math.abs(dx*Math.cos(a)-dz*Math.sin(a))<t.hx+margin&&Math.abs(dx*Math.sin(a)+dz*Math.cos(a))<t.hz+margin;}
+  function insideFootprint(t,at,x,z,margin){const a=(at.ry||0)*D2R,dx=x-at.x,dz=z-at.z;return !!circleBox(dx*Math.cos(a)-dz*Math.sin(a),dx*Math.sin(a)+dz*Math.cos(a),-t.hx,-t.hz,t.hx,t.hz,margin);}
   function insideThing(t,x,z,margin){return insideFootprint(t,t.at,x,z,margin);}
   function floorPlacement(t,r,x,z,ry){
     const a=ry*D2R,hx=Math.abs(Math.cos(a))*t.hx+Math.abs(Math.sin(a))*t.hz,hz=Math.abs(Math.sin(a))*t.hx+Math.abs(Math.cos(a))*t.hz;
     const rect={x0:x-hx,z0:z-hz,x1:x+hx,z1:z+hz},over=b=>rect.x1>b.x0&&rect.x0<b.x1&&rect.z1>b.z0&&rect.z0<b.z1;
     if([[rect.x0,rect.z0],[rect.x0,rect.z1],[rect.x1,rect.z0],[rect.x1,rect.z1]].some(([xx,zz])=>!r.area.some(q=>xx>q[0]+2&&xx<q[2]-2&&zz>q[1]+2&&zz<q[3]-2)))return false;
     if(grids.block.some(b=>b.lvl===r.lvl&&!b.off&&over(b)))return false;
-    if(grids.walk.some(w=>w.lvl===r.lvl&&w.door&&over({x0:w.x0-12,x1:w.x1+12,z0:w.z0-12,z1:w.z1+12})))return false;
+    if(grids.walk.some(w=>w.lvl===r.lvl&&w.door&&over({x0:w.x0-RAD-10,x1:w.x1+RAD+10,z0:w.z0-RAD-10,z1:w.z1+RAD+10})))return false;
+    if(grids.stairs.some(s=>over({x0:s.x0-12,x1:s.x1+12,z0:s.z0-35,z1:s.z1+35})))return false;
     // Keep the monitor approach clear, even when the PC is switched off.
     if(t.id!=='chair'&&r.id==='bedroom'&&over({x0:-54,x1:30,z0:33,z1:100}))return false;
     if(W.lvl===r.lvl&&insideFootprint(t,{x,z,ry},W.x,W.z,RAD))return false;
@@ -491,6 +548,24 @@
     const scale=Math.min(Math.abs(lx)>.001?(t.hx+RAD+2)/Math.abs(lx):Infinity,Math.abs(lz)>.001?(t.hz+RAD+2)/Math.abs(lz):Infinity);
     const candidate=Object.assign({},target,{x:W.x+dx*scale,z:W.z+dz*scale});
     return Math.hypot(candidate.x-target.x,candidate.z-target.z)<=90&&floorPlacement(t,r,candidate.x,candidate.z,ry)?candidate:null;
+  }
+  function placementKeepsRoutes(t,r,target,ry) {
+    // Reject a new room divider, including two individually legal chairs that
+    // together seal its only passage. Compare the reachable floor before/after;
+    // existing isolated pockets do not make every subsequent placement invalid.
+    const cells=new Map(),cs=10,fy=LV[r.lvl];
+    for(let x=Math.ceil(r.bx0/cs)*cs+2.5;x<r.bx1;x+=cs)for(let z=Math.ceil(r.bz0/cs)*cs+2.5;z<r.bz1;z+=cs){
+      if(!r.area.some(a=>x>=a[0]&&x<=a[2]&&z>=a[1]&&z<=a[3]))continue;
+      const f=floorAt(x,z,r.lvl,fy,Math.min(STAND,r.eye||STAND));
+      if(f&&Math.abs(f.y-fy)<8)cells.set(x+','+z,{x,z,blocked:insideFootprint(t,{x:target.x,z:target.z,ry},x,z,RAD)});
+    }
+    if(!cells.size)return false;
+    const px=W.lvl===r.lvl?W.x:target.x,pz=W.lvl===r.lvl?W.z:target.z;
+    const seed=[...cells.values()].filter(c=>!c.blocked).sort((a,b)=>Math.hypot(a.x-px,a.z-pz)-Math.hypot(b.x-px,b.z-pz))[0];
+    if(!seed)return false;
+    const flood=avoid=>{const seen=new Set([seed.x+','+seed.z]),queue=[seed];for(let i=0;i<queue.length;i++){const c=queue[i];for(const [dx,dz]of [[cs,0],[-cs,0],[0,cs],[0,-cs]]){const k=(c.x+dx)+','+(c.z+dz),n=cells.get(k);if(n&&!seen.has(k)&&(!avoid||!n.blocked)){seen.add(k);queue.push(n)}}}return seen};
+    const before=flood(false),after=flood(true);
+    return [...before].every(k=>cells.get(k).blocked||after.has(k));
   }
   let held = null; // { id, d (distance), ry (extra turn), from (where it was) }
   let saveT = 0;
@@ -619,11 +694,14 @@
       tgt = { room: r.id, x, z, y0: hit.p.y - 0.5 };
     }
     if (!tgt) { const r = roomOfPoint(hp) || cur; tgt = { room: r.id, x: clamp(hp.x, r.bx0 + t.hx, r.bx1 - t.hx), z: clamp(hp.z, r.bz0 + t.hz, r.bz1 - t.hz), y0: hp.y }; }
-    const r=ROOMS[tgt.room],ry=t.obj.rotation.y/D2R;
+    const ry=t.obj.rotation.y/D2R;
     if(t.canPlace&&t.canPlace(tgt)===false)return false;
     let finalRy=ry;
     if(t.floorOnly){const p=floorAim(t,sx,sy);if(!p?.target){ui.toast('Not enough room','Red footprint: blocked. Aim at clear floor until it turns green, then E / Click to place. R turns the item.');return false;}tgt=p.target;finalRy=p.ry;}
-    const y = t.floorOnly?LV[r.lvl]:landY(tgt.room, tgt.x, tgt.z, tgt.y0, t);
+    const r=ROOMS[tgt.room],y = t.floorOnly?LV[r.lvl]:landY(tgt.room, tgt.x, tgt.z, tgt.y0, t);
+    if(t.obstacle&&Math.abs(y-LV[r.lvl])<8&&(!floorPlacement(t,r,tgt.x,tgt.z,finalRy)||!placementKeepsRoutes(t,r,tgt,finalRy))){
+      ui.toast('Leave a clear path','That would block the way. The item goes back where you picked it up.');putBack();return false;
+    }
     const startY = Math.min(hp.y, y - 0.5); // (it drops from where it is, or is set straight down)
     held = null; ui.holdBar(null); snapGlow(null);floorGlow(null);
     t.st = 'fall'; t.vy = 0; t.at = { room: tgt.room, x: tgt.x, y: startY, z: tgt.z, ry: finalRy };t.obj.rotation.y=finalRy*D2R;
@@ -839,7 +917,7 @@
   }
   function setWalkFrom(p) {
     const lvl = p.lvl || (p.y > (LV.U + LV.G) / 2 - 60 ? 'G' : 'U');
-    W.x = p.x; W.z = p.z; W.lvl = lvl;
+    W.x = p.x; W.z = p.z; W.lvl = lvl;W.vx=W.vz=0;W.jh=W.jv=0;W.bob=0;
     const st = onStairs(p.x, p.z), guess = p.y + (p.seat ? SITH : STAND), sy = st ? st.y(p.x, p.z) : null;
     W.fy = sy != null && Math.abs(sy - guess) < Math.abs(LV[lvl] - guess) ? sy : LV[lvl];
     W.eyeNow = W.fy - p.y; W.seat = !!p.seat;
@@ -885,7 +963,66 @@
   }
   const KEYMOVE = { w: 'f', W: 'f', ArrowUp: 'f', s: 'b', S: 'b', ArrowDown: 'b', a: 'l', A: 'l', ArrowLeft: 'l', d: 'r', D: 'r', ArrowRight: 'r' };
   let lastPt = { x: 0, y: 0, ok: false, mouse: false };
-  const walkingFloor=(x,z)=>window.ChoreKit?.tool?.canWalk?.(x,z)===false?null:floorAt(x,z,W.lvl,W.fy);
+  const walkingFloor=(x,z)=>{
+    if(window.ChoreKit?.tool?.canWalk?.(x,z)===false)return null;
+    const f=floorAt(x,z,W.lvl,W.fy);
+    // Small thresholds are fine; stepping sideways off the flight must not
+    // turn the legacy 45 cm pose-restore tolerance into a sudden camera drop.
+    return f&&Math.abs(f.y-W.fy)<=8?f:null;
+  };
+  function movementContacts(x,z,radius=RAD) {
+    const s=onStairs(x,z),ramp=s&&x>=s.x0+RAD&&x<=s.x1-RAD&&Math.abs(s.y(x,z)-W.fy)<=45;
+    const out=ramp?[]:shellContacts(x,z,W.lvl,radius);
+    out.push(...doorContacts(x,z,W.fy-50,W.lvl,radius));
+    for(const t of Object.values(THINGS))if(t.obstacle&&!t.at.hide&&['rest','snap','fall'].includes(t.st)&&Math.abs(t.at.y-W.fy)<25){
+      const a=(t.at.ry||0)*D2R,cs=Math.cos(a),sn=Math.sin(a),dx=x-t.at.x,dz=z-t.at.z,c=circleBox(dx*cs-dz*sn,dx*sn+dz*cs,-t.hx,-t.hz,t.hx,t.hz,radius);
+      if(c)out.push({nx:c.nx*cs+c.nz*sn,nz:-c.nx*sn+c.nz*cs,depth:c.depth});
+    }
+    return out;
+  }
+  // Sweep in short increments, advance to contact, then project the remaining
+  // displacement onto its plane. Two adjoining planes handle corners without
+  // alternating X/Z decisions or throwing away the wall-tangent velocity.
+  function moveCircle(dx,dz) {
+    const count=Math.max(1,Math.ceil(Math.hypot(dx,dz)/3));
+    for(let step=0;step<count;step++){
+      let sx=dx/count,sz=dz/count;
+      for(let iteration=0;iteration<3&&Math.hypot(sx,sz)>.0001;iteration++){
+        const f=walkingFloor(W.x+sx,W.z+sz);
+        if(f){W.x+=sx;W.z+=sz;W.fy=f.y;W.lvl=f.lvl;break}
+        let lo=0,hi=1;
+        for(let n=0;n<8;n++){const mid=(lo+hi)/2;if(walkingFloor(W.x+sx*mid,W.z+sz*mid))lo=mid;else hi=mid}
+        W.x+=sx*lo;W.z+=sz*lo;sx*=1-lo;sz*=1-lo;
+        // Query the contact point, with a half-millimetre skin. The attempted
+        // endpoint normal on a rounded corner points too far around the curve
+        // and would project the tangent back into the solid at our actual feet.
+        const contacts=movementContacts(W.x,W.z,RAD+.05);
+        if(!contacts.length){
+          // Low lintels, tool restrictions and the edge of a stair ramp have
+          // no vertical wall mesh; use their valid tangent as the contact plane.
+          if(walkingFloor(W.x+sx,W.z))contacts.push({nx:0,nz:-Math.sign(sz)});
+          else if(walkingFloor(W.x,W.z+sz))contacts.push({nx:-Math.sign(sx),nz:0});
+          else{W.vx=W.vz=0;break}
+        }
+        let projected=false;
+        for(const c of contacts){const dot=sx*c.nx+sz*c.nz;if(dot<0){sx-=c.nx*dot;sz-=c.nz*dot;projected=true}const velocity=W.vx*c.nx+W.vz*c.nz;if(velocity<0){W.vx-=c.nx*velocity;W.vz-=c.nz*velocity}}
+        if(!projected)break;
+      }
+    }
+  }
+  let trappedTime=0;
+  function recoverWalking(dt) {
+    // An intentional stop against a wall is never a reason to teleport. Only
+    // recover an invalid body position (old saves or a solid moved over it).
+    if(walkingFloor(W.x,W.z)){trappedTime=0;return false}
+    trappedTime+=dt;if(trappedTime<.25)return false;
+    for(let radius=2;radius<=60;radius+=2)for(let i=0;i<32;i++){
+      const a=i*Math.PI/16,x=W.x+Math.cos(a)*radius,z=W.z+Math.sin(a)*radius,f=walkingFloor(x,z);
+      if(!f||Math.abs(f.y-W.fy)>8)continue;
+      W.x=x;W.z=z;W.fy=f.y;W.lvl=f.lvl;W.vx=W.vz=0;trappedTime=0;return true;
+    }
+    return false;
+  }
   function tickWalk(dt) {
     if (window.House && House.god) { const gr = House.god(dt); roomCheck(); return gr; } // (layout editor, hs-edit.js: noclip fly)
     let mx = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), mz = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
@@ -905,19 +1042,15 @@
     }
     const acc = 1 - Math.pow(0.0001, dt);
     W.vx += (tvx - W.vx) * acc; W.vz += (tvz - W.vz) * acc;
-    const spd = Math.hypot(W.vx, W.vz);
+    const oldX=W.x,oldZ=W.z;
+    const recovered=recoverWalking(dt);if(recovered)roomCheck();
+    let spd = Math.hypot(W.vx, W.vz);
     if (spd > 1) {
-      const nx = W.x + W.vx * dt, nz = W.z + W.vz * dt;
-      let f=walkingFloor(nx,nz);
-      if (!f && !floorAt(W.x, W.z, W.lvl, W.fy)) f = { y: W.fy, lvl: W.lvl }; // (somewhere you shouldn't be, e.g. an old saved spot: you can always walk out of it)
-      if (f) { W.x = nx; W.z = nz; }
-      else if((f=walkingFloor(nx,W.z))) { W.x = nx; W.vz *= 0.5; }
-      else if((f=walkingFloor(W.x,nz))) { W.z = nz; W.vx *= 0.5; }
-      else { W.vx = W.vz = 0; }
-      if (f) { W.fy += (f.y - W.fy) * Math.min(1, dt * 14); W.lvl = f.lvl; }
+      moveCircle(W.vx*dt,W.vz*dt);
+      spd=Math.hypot(W.x-oldX,W.z-oldZ)/dt;
       if (stIdx >= 0 && spd > 40) { stIdx = -1; ui.where(); }
       // head bob and footsteps
-      const ph = W.bobT; W.bobT += spd * dt / 62; W.bob = Math.sin(W.bobT * Math.PI) * Math.min(1, spd / 120) * 1.4;
+      const ph = W.bobT; W.bobT += spd * dt / 62; const bob=Math.sin(W.bobT * Math.PI)*Math.min(1,spd/120)*1.4;W.bob+=(bob-W.bob)*Math.min(1,dt*18);
       if (Math.floor(ph) !== Math.floor(W.bobT)) { sfxStep(!!onStairs(W.x, W.z)); emit('step', W.x, W.z, spd); }
       roomCheck();
     } else W.bob *= 0.85;
@@ -925,7 +1058,7 @@
     if (keys.jump) { keys.jump = false; if (W.jh <= 0.01 && !W.jv && !W.seat && !ducking && !(cur && cur.id === 'cupboard')) W.jv = 270; } // (a hop of about 37 cm)
     if (W.jv || W.jh > 0) { const d = Math.min(dt, 0.05); W.jv -= 980 * d; W.jh += W.jv * d; const ceiling=cur?.ceilingAt?.(W.x,W.z),clearance=Number.isFinite(ceiling)?W.fy-ceiling-W.eyeNow-4-Math.abs(W.bob):Infinity; const cap = Math.max(0, Math.min(40, 232 - W.eyeNow,clearance)); if (W.jh > cap) { W.jh = cap; W.jv = Math.min(W.jv, 0); } if (W.jh <= 0) { W.jh = 0; W.jv = 0; } }
     P.x = W.x; P.z = W.z; P.y = W.fy - W.eyeNow - W.bob - W.jh;
-    return W.jh > 0 || spd > 1 || Math.abs(W.eye - W.eyeNow) > 0.3 || Math.abs(W.bob) > 0.05;
+    return recovered || W.jh > 0 || spd > 1 || Math.abs(W.eye - W.eyeNow) > 0.3 || Math.abs(W.bob) > 0.05;
   }
   function onKey(ev) {
     if (!live) return;
@@ -1903,7 +2036,7 @@
     desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},
     Q,graphicsGet,graphicsSet, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
-    _: { doorHeadroom:(x,z,lvl,fy)=>lowDoorAt(x,z,lvl,RAD+18,fy)?.headroom||null, whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
+    _: { movementState:()=>({keys:{...keys},velocity:[W.vx,W.vz],contacts:movementContacts(W.x,W.z,RAD+.05),floor:walkingFloor(W.x,W.z)}),doorHeadroom:(x,z,lvl,fy)=>lowDoorAt(x,z,lvl,RAD+18,fy)?.headroom||null, whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
   };
   // A detached snapshot for diagnostics: no scene objects or writable references escape.
   window.__jhpDebug = () => ({
