@@ -100,3 +100,5 @@ Reviewed 19 shots (story-opening x3, sparse-polish, identity-house, owner-tools,
 |---|---|---|---|---|---|
 | R31 | bug | med | landing-art tests/shots/art-gallery/world/console-rack-front.png | Bottom bookshelf: red and brown PC game boxes intersect each other (leaning boxes interpenetrate) | Resolve lean/stack poses with real box extents (physics settle or solved spacing) |
 | R32 | bug | med | same | Grey PlaySpace console overhangs the front edge of the TV-unit shelf | Clamp console placement to the shelf footprint; nudge rack slot depth |
+| R33 | bug | low | tests/shots/seasons-web/halloween-mag.png (and Jack's phone screenshot) | White "x" marks float over the JACK ATTACK! masthead/ticker - read as stray marks, not stars | Draw twinkling 4-point pixel stars (or remove), consistent across seasons |
+| R34 | bug (rule) | med | same | Real Pokemon names in content ("Lavender Town", Viridian/Cerulean/... City, "Red & Blue") | Parody sweep + extended parody audit (Sonnet worker running) |
