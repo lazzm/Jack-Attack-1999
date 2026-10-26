@@ -42,3 +42,21 @@ Gemini TTS on our tier allows **100 generate requests per model per day** (reset
   silences, each clip verified by transcription (transcription uses gemini-3.8-flash, which is not capped this way).
 - Story/voice lines: group lines per character into one request where possible; keep ~10 requests/day spare.
 - A scheduled one-off run: `systemctl --user list-timers` (jack-names-callouts).
+
+## Story voice lines (`tools/audio/gen-lines.mjs`)
+313 lines in 26 batches (`tools/audio/voice-lines.json`; gran uses Vindemiatrix until the owner picks).
+- One TTS request per batch: lines are sent as `[tag] line ...  ...  ... [tag] line` (per-line short tag), split at
+  silences > 0.9 s (`--gap` to tune), segment count must equal line count or the whole batch is marked failed.
+  Each clip is trimmed, loudnorm -18 LUFS, verified by transcription (word overlap >= 0.8, no leaked tag words), then
+  `fx` applied (`downstairs` = hp180/lp2200 + echo; `console` = 22.05 kHz + light bitcrush + lp7000).
+  Verification uses the clean clip, so the muffle never causes false failures.
+- Output: `app/public/audio/voice/<id>.mp3` (mono, q5) + `voice/manifest.json` (`{id: {file, character, dur}}`, verified
+  clips only). Progress/transcripts: `tools/audio/lines-report.json`. Re-running skips verified clips.
+- Run: `node tools/audio/gen-lines.mjs --dry-run` (no API), then `node tools/audio/gen-lines.mjs [--max-requests N=26]
+  [--only mom-plain-01,dad-plain-02]`. Stops cleanly on a daily-quota 429. Order: untried batches first, then
+  individual retries (one request per failed line) with whatever `--max-requests` allows.
+- Offline tests: `node tools/audio/test-split.mjs` (ffmpeg only: silence splitting, matcher, fx chains).
+- Quota plan (100 TTS/day, resets ~07:00 UK): day 1 = name call-outs ~70 + lines 26 = ~96. Failed lines retry
+  individually the following day (use `--max-requests` to cap). Transcription calls are not TTS-capped.
+- Unverified in real use: whether Gemini leaves >0.9 s gaps for `...  ...`; if batches fail on segment count, try
+  `--gap 0.6` or a longer separator before burning retries.
