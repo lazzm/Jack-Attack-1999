@@ -734,7 +734,7 @@
     fr.box(-6, -136, 32.15, 18, 13, 0.12, M({ c: '#fff', map: tex('noteBlue') }), { rz: 2 });
     [[-130, 36], [-70, 46]].forEach(([y, hh]) => { fr.rbox(26, y, 33.6, 2.2, hh, 2.2, 0.8, M({ c: '#e0dcd4', sh: 60, sp: '#888' })); fr.box(26, y - hh / 2 + 1, 32.8, 2.2, 2, 1.2, M('#d0ccc4')); fr.box(26, y + hh / 2 - 1, 32.8, 2.2, 2, 1.2, M('#d0ccc4')); });
     fr.plane(-14, -160, 32.3, 16, 4, M({ c: '#fff', map: K.tex('hs.frlogo', 128, 32, (g) => { g.fillStyle = '#f4f2ec'; g.fillRect(0, 0, 128, 32); A.text(g, 'FROSTMASTER', 64, 22, '700 15px ' + A.UIF, '#8a8a8a', 'center'); }) }));
-    fr.box(0, -2, 20, 56, 4, 24, M('#1a1a1a')); // the plinth
+    fr.box(0, -2.1, 20, 56, 4, 24, M('#1a1a1a')); // the plinth (a hair off the floor plane the cabinet stands on)
     fr.shadow(0, 0, 0, 68, 70, 0.7, { sq: true });
     // things on the worktop: the kettle, the toaster, the bread bin, the microwave, the radio (the biscuit tin is its own)
     const kt=B.at(-200,GY-93,-36),enamel=M({c:'#ecece5',sh:35,sp:'#666'}),handle=M({c:'#343638',sh:24});
@@ -914,7 +914,11 @@
     const c=B.at(-135,-260,360);c.box(0,-82,0,88,165,72,mBrick(),{uv:90});c.rbox(0,-168,0,98,9,82,1,M('#a19786'));c.box(0,-174,0,84,4,66,M('#8d8476'));
     for(const x of [-26,0,26]){c.lathe(x,0,0,[[7,-212],[7.6,-210],[7.6,-207],[8.4,-206],[11.2,-182],[11.6,-176],[0.05,-176]],14,M('#9c6a4f'));c.cyl(x,-211.6,0,6.2,6.2,.6,14,M('#252622'))}
     // Barge boards along both verges of the front and back gables, so the roof edge has real thickness.
-    for(const z of [-83.6,727.6])for(const sign of [-1,1]){const len=Math.hypot(386,170),ang=Math.atan2(170,386)/D2R;B.box(60+sign*193,-283.5,z,len,20,3,cream,{rz:sign*ang});B.box(60+sign*193,-292.7,z,len+1,3,5,edge,{rz:sign*ang})}
+    for(const z of [-83.6,727.6]){
+      for(const sign of [-1,1]){const len=Math.hypot(386,170),ang=Math.atan2(170,386)/D2R,ux=sign*386/len,uy=170/len,cx=60+sign*193+ux*4,cy=-283.5+uy*4;
+        B.box(cx,cy,z,len-8,20,3,cream,{rz:sign*ang});B.box(cx,cy-9.2,z,len-7,3,5,edge,{rz:sign*ang})}
+      B.box(60,-366,z,16.4,26,3.6,cream);B.box(60,-380,z,6,4,5.4,edge); // the apex block the two boards butt into (no shared faces)
+    }
     // Downpipes fixed to the side walls by stand-off brackets, fed from the gutters by a swan neck.
     for(const [x,wx] of [[-306.2,-300],[426.2,420]])for(const z of [-40,684]){
       const sx=Math.sign(x-wx),gx=x+sx*15.8;

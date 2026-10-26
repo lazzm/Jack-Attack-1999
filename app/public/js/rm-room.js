@@ -576,7 +576,7 @@
     // Rear braces leave real cable-access openings behind both shelves.
     const back=M('#3a2414');
     [-32,0,32].forEach(x=>cab.box(x,50,-20.4,4,40,1.2,back));
-    [30,52.5,70].forEach(y=>cab.box(0,y,-20.4,68,3,1.2,back));
+    [30,52.5,68.8].forEach(y=>cab.box(0,y,-20.4,68,3,1.2,back)); // (the low brace stops above the bottom board: no shared faces)
     cab.shadow(0, FY, 0, 80, 50, 0.7, { sq: true });
     // the telly: a 14-inch portable, with a proper deep back
     const tv = new T.Group(); tv.position.set(TX, 27.4, -36); r.group.add(tv); const TV = K.into(tv);
