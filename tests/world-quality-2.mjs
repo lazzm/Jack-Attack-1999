@@ -1,6 +1,6 @@
 // World quality pass 2: fixed-camera before/after captures for the visual backlog (docs/BACKLOG.md V01-V30, S01).
 // Usage (from any cwd):  node tests/world-quality-2.mjs after [--only=stairs-up,desk-close] [--account=full|sparse] [--tier=low]
-//                        node tests/world-quality-2.mjs before ...   (serves app/public/js + css from origin/main instead of the
+//                        node tests/world-quality-2.mjs before ...   (serves app/public/js + css from the branch's merge-base with origin/main instead of the
 //                        working tree, so a "before" capture can be repeated at the same camera at any time)
 // It owns a disposable server on a free port in 18080-18099 with a new /tmp data directory and never touches real saves.
 // Output: tests/shots/world-quality-2/<view>-<tag>.png plus <tag>-draws.json (renderer.calls per view, same tier/viewport).
@@ -14,7 +14,9 @@ import {roomFixture} from './room-fixture.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url)),tag=process.argv[2]||'after';
 assert(/^[a-z0-9-]+$/i.test(tag),'Use a simple capture tag');
 const arg=k=>process.argv.find(a=>a.startsWith('--'+k+'='))?.slice(k.length+3);
-const only=arg('only')?.split(',')||null,kind=arg('account')||'full',tier=arg('tier')||'low',ref=arg('ref')||'origin/main';
+const only=arg('only')?.split(',')||null,kind=arg('account')||'full',tier=arg('tier')||'low';
+// "before" = where this branch left main (stable even when main moves on); --ref=<commit> overrides it
+const ref=arg('ref')||execFileSync('git',['merge-base','HEAD','origin/main'],{cwd:root,encoding:'utf8'}).trim();
 const dir=root+'tests/shots/world-quality-2';
 // [name, eye, target, level, roomPoint?, setup?]  (cm, y down; U = upstairs, G = downstairs; same convention as smoke.mjs)
 export const VIEWS=[
@@ -39,6 +41,9 @@ export const VIEWS=[
  ['exterior-corner',[-150,95,1500],[120,0,700],'G',[220,195,1040]],
  ['bedroom-floor',[60,-40,180],[-60,60,140],'U'],
  ['bedside',[60,-45,90],[122,10,-38],'U'],
+ ['pc-side',[-80,-38,10],[-15,-22,-12],'U'],
+ ['cork-close',[30,-70,45],[42,-84,-55],'U'],
+ ['laundry',[40,-30,150],[100,50,222],'U'],
 ];
 let server,fixture,data,log='';
 async function cleanup(){if(fixture)await fixture.browser.close().catch(()=>{});fixture=null;if(server&&server.exitCode===null){const done=once(server,'exit');server.kill('SIGTERM');await done}if(data)await rm(data,{recursive:true,force:true})}
@@ -86,7 +91,9 @@ try{
   if(name==='drive-boot')await p.evaluate(()=>{const b=House.ROOMS.drive?.carBoot;if(b&&b.open)b.toggle()});
   console.log(`shot ${name}-${tag} calls=${draws[name]}`);
  }
- await writeFile(`${dir}/${tag}-draws.json`,JSON.stringify(draws,null,1));
+ { // --only merges into the tag's existing per-view draw counts instead of replacing them
+  let all={};try{all=JSON.parse(await (await import('node:fs/promises')).readFile(`${dir}/${tag}-draws.json`,'utf8'))}catch(e){}
+  await writeFile(`${dir}/${tag}-draws.json`,JSON.stringify(Object.assign(all,draws),null,1)); }
  const errs=fixture.errors.filter(e=>!/favicon/.test(e));if(errs.length)console.log('BROWSER ERRORS',errs);
  if(/mod failed to load/.test(log))console.log('SERVER: mod failed to load');
  await cleanup();clearTimeout(watchdog);console.log('DONE '+tag+' '+JSON.stringify(draws));process.exit(errs.length?2:0);

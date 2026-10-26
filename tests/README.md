@@ -43,6 +43,15 @@ No legacy script is silently executed by the smoke runner.
 | support utilities (not tests) | `create-approved-test.mjs`, `prepare-box-art.mjs`, `prepare-posters.mjs`, `prepare-print-art.mjs`, `replicate-kart-trial.mjs`, `room-fixture.mjs` | Fixture/art preparation/account provisioning/external audio trial. Never auto-run provisioning or asset mutation. |
 
 
+World art captures and geometry audit (each owns its own disposable server and /tmp data):
+
+    node world-quality-2.mjs after                      # every fixed art view -> shots/world-quality-2/<view>-after.png + after-draws.json
+    node world-quality-2.mjs before --only=kitchen      # the same camera with app/public served from origin/main (--ref=<commit>)
+    node world-audit.mjs after-wq2 --account=full       # z-fighting/see-through/camera audit (world-audit-notes.md)
+
+`world-quality-2.mjs` uses the full-room fixture at 1366x860, Low tier and 14:00 like the smoke canonical views, so its
+per-view draw counts compare directly; two Pixel Post parcels are shown in the hall through a page-only status message.
+
 Exterior/grass/door checks (disposable localhost data only):
 
     node exterior-rebuild.mjs http://localhost:18080

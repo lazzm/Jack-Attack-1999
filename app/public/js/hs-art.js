@@ -133,6 +133,9 @@
     for (let i = 0; i < 12; i++) { const r = rnd(82 + i); g.fillStyle = '#2a5a2a'; g.beginPath(); g.arc(20 + r() * 150, 170 + r() * 70, 9, 0, 7); g.fill(); }
     g.strokeStyle = '#7a2222'; g.lineWidth = 10; g.strokeRect(5, 5, w - 10, h - 10); g.strokeStyle = '#c8c0a8'; g.lineWidth = 3; g.strokeRect(12, 12, w - 24, h - 24);
     grain(g, w, h, 6000, 0.08, 83);
+    // printed on a cheap tufted pile: knock the print colours back a little and show the rows of tufts
+    g.save(); g.globalCompositeOperation = 'saturation'; g.fillStyle = 'rgba(128,128,128,.3)'; g.fillRect(0, 0, w, h); g.restore();
+    for (let y = 0; y < h; y += 3) for (let x = (y / 3) % 2 ? 1 : 0; x < w; x += 3) { g.fillStyle = (x + y) % 2 ? 'rgba(255,250,235,.06)' : 'rgba(0,0,0,.08)'; g.fillRect(x, y, 2, 2); }
   }];
   P.beanbag = [256, 256, (g, w, h) => { g.fillStyle='#a93932';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=2)for(let x=0;x<w;x+=2){g.fillStyle=(x+y)%4?'rgba(236,172,136,.055)':'rgba(50,14,16,.055)';g.fillRect(x,y,1,1)}grain(g,w,h,7000,0.035,91);mottle(g,w,h,18,'rgba(230,130,100,.035)',22,92); }];
   P.curtain = [256, 256, (g, w, h) => { g.fillStyle = '#20356e'; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 2) { g.fillStyle = `rgba(0,0,0,${0.04 + (x % 8 === 0 ? 0.06 : 0)})`; g.fillRect(x, 0, 1, h); } for (let y = 0; y < h; y += 32) { g.fillStyle = 'rgba(255,220,120,.18)'; star(g, (y * 7) % w + 16, y + 16, 5, 5); g.fill(); } grain(g, w, h, 2000, 0.05, 93); }];
@@ -286,13 +289,16 @@
     wallWarm: [128], wallKitchen: [48], wallpaperHall: [128], wallpaperLounge: [128], tiles: [192], mdf: [60],
     pine: [60, 'grain'], pineDark: [60, 'grain'], deskWood: [60, 'grain'], oak: [60, 'grain'] };
   const HI = new Set(['timetable', 'calendar', 'note', 'noteBlue', 'photo', 'floppyLabel', 'labelLost']);
+  // Full-resolution detail on top of a 2x surface, in one pass over the pixels (fast: no per-speck draw calls).
   function detail(g, w, h, kind, seed) {
-    const r = rnd(seed);
-    if (kind === 'pile') { // short carpet pile: a fine fleck of light and dark tufts
-      for (let i = 0, n = w * h / 5; i < n; i++) { const v = r(); g.fillStyle = v < 0.5 ? 'rgba(0,0,0,.10)' : v < 0.95 ? 'rgba(255,250,235,.08)' : 'rgba(0,0,0,.22)'; g.fillRect(r() * w, r() * h, 1, 1 + (r() < 0.3)); }
-    } else if (kind === 'grain') { // open pores along the grain
-      for (let i = 0, n = w * h / 90; i < n; i++) { g.fillStyle = `rgba(30,16,6,${0.04 + r() * 0.08})`; g.fillRect(r() * w, r() * h, 3 + r() * 14, 1); }
-    } else for (let i = 0, n = w * h / 14; i < n; i++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,.035)' : 'rgba(255,255,255,.03)'; g.fillRect(r() * w, r() * h, 1, 1); }
+    const r = rnd(seed), img = g.getImageData(0, 0, w, h), d = img.data;
+    if (kind === 'grain') { // open pores: short dark streaks along the grain (rows), varying slowly
+      for (let y = 0; y < h; y++) { let run = 0, k = 0; for (let x = 0; x < w; x++) { if (run <= 0) { run = 3 + (r() * 16) | 0; k = r() < 0.18 ? -(6 + r() * 14) : (r() - 0.5) * 4; } run--; const i = (y * w + x) * 4; d[i] += k; d[i + 1] += k * 0.85; d[i + 2] += k * 0.7; } }
+    } else { // pile (carpet tufts) or a fine plaster/paper tooth
+      const amp = kind === 'pile' ? 26 : 9;
+      for (let i = 0; i < d.length; i += 4) { const v = r(), k = (v - 0.5) * amp + (kind === 'pile' && v > 0.985 ? -30 : 0); d[i] += k; d[i + 1] += k; d[i + 2] += k; }
+    }
+    g.putImageData(img, 0, 0);
   }
   function t(name, o) {
     if (cache[name]) return cache[name];

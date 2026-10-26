@@ -243,7 +243,7 @@
     B.panel((LX + RX) / 2, FY, (BZ + FZ) / 2, RX - LX, FZ - BZ, 2, M({ c: '#ffffff', map: tex('carpetBlue') }), { rx: 90, uv: 90 });
     B.panel((LX + RX) / 2, CY, (BZ + FZ) / 2, RX - LX, FZ - BZ, 2, M({ c: '#ffffff', map: tex('artex') }), { rx: -90, uv: 110 });
     // skirting boards, the wallpaper border, coving where the walls meet the ceiling
-    const skirt = (x0, z0, x1, z1, ry) => { const len = Math.hypot(x1 - x0, z1 - z0); B.box((x0 + x1) / 2, FY - 4.5, (z0 + z1) / 2, len, 9, 1.6, mSkirt, { ry }); };
+    const skirt = (x0, z0, x1, z1, ry) => { const len = Math.hypot(x1 - x0, z1 - z0); B.rbox((x0 + x1) / 2, FY - 4.5, (z0 + z1) / 2, len, 9, 1.6, 0.55, mSkirt, { ry }); }; // (a rounded torus-moulded top edge)
     skirt(LX, BZ + 0.8, RX, BZ + 0.8, 0); skirt(LX + 0.8, BZ, LX + 0.8, FZ, 90); skirt(LX, FZ - 0.8, RX, FZ - 0.8, 0);
     skirt(RX - 0.8, BZ, RX - 0.8, DOOR.z0, 90); skirt(RX - 0.8, DOOR.z1, RX - 0.8, FZ, 90);
     const bm = M({ c: '#ffffff', map: tex('border') });
@@ -535,7 +535,7 @@
       for(const z of [-0.9,0.9])rod(a.clone().setZ(z),b.clone().setZ(z),0.38,enamel);
       const p=a.clone().lerp(b,0.22).setZ(1.45),q=a.clone().lerp(b,0.78).setZ(1.45),axis=q.clone().sub(p).normalize(),side=new T.Vector3(-axis.y,axis.x,0),pts=[];
       for(let i=0;i<=100;i++){const t=i/100,phase=t*Math.PI*18,rad=0.38*Math.sin(Math.PI*t);pts.push(p.clone().lerp(q,t).addScaledVector(side,Math.cos(phase)*rad).add(new T.Vector3(0,0,Math.sin(phase)*rad)))}
-      LP.geo(new T.TubeGeometry(new T.CatmullRomCurve3(pts),120,0.09,5),0,0,0,mMetal);
+      LP.geo(new T.TubeGeometry(new T.CatmullRomCurve3(pts),120,0.13,5),0,0,0,M({c:'#6f7378',sh:20,sp:'#444'})); // (a duller, slightly thicker spring: no sparkling sub-pixel dots)
       for(const v of [p,q]){rod(v.clone().setZ(0.9),v,0.15,mMetal);LP.ball(v.x,v.y,v.z,0.22,0.22,0.22,mMetal,8)}
     }
     for(const p of [base,elbow,wrist]){LP.cyl(p.x,p.y,0,1.1,1.1,2.8,16,enamel,{rx:90});for(const z of [-1.5,1.5])LP.cyl(p.x,p.y,z,0.55,0.55,0.3,12,mMetal,{rx:90})}

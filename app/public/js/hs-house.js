@@ -55,7 +55,7 @@
       seg(a, s1, cy, fy);
       // skirting along the solid bits (not across doorways)
       if (d.skirt !== false) {
-        let b = s0; const sk = (p, q) => { if (q - p < 1) return; const mid = (p + q) / 2; const off = k === 'n' ? [mid, fixed + 0.8] : k === 's' ? [mid, fixed - 0.8] : k === 'w' ? [fixed + 0.8, mid] : [fixed - 0.8, mid]; B.box(off[0], fy - 4.5, off[1], k === 'n' || k === 's' ? q - p : 1.6, 9, k === 'n' || k === 's' ? 1.6 : q - p, mSkirt); };
+        let b = s0; const sk = (p, q) => { if (q - p < 1) return; const mid = (p + q) / 2; const off = k === 'n' ? [mid, fixed + 0.8] : k === 's' ? [mid, fixed - 0.8] : k === 'w' ? [fixed + 0.8, mid] : [fixed - 0.8, mid]; B.rbox(off[0], fy - 4.5, off[1], k === 'n' || k === 's' ? q - p : 1.6, 9, k === 'n' || k === 's' ? 1.6 : q - p, 0.55, mSkirt); };
         for (const h of holes) { if (h[3] >= fy - 0.5) { sk(b, h[0] - 6.3); b = h[1] + 6.3; } }
         sk(b, s1);
       }
@@ -210,7 +210,7 @@
     // the banisters: round the stairwell up here, and down the stairs
     banister(B, [[330, 252], [330, 600], [410, 600]], UY); // (the whole open edge of the stairwell: newels with round caps at the corners; blocked below)
     // skirting on the landing walls
-    [[130, 143.7], [236.3, 293.7], [386.3, 443.7], [536.3, 700]].forEach(([a, b]) => B.box(250.8, UY - 4.5, (a + b) / 2, 1.6, 9, b - a, mSkirt));
+    [[130, 143.7], [236.3, 293.7], [386.3, 443.7], [536.3, 700]].forEach(([a, b]) => B.rbox(250.8, UY - 4.5, (a + b) / 2, 1.6, 9, b - a, 0.55, mSkirt));
     stairs(B);
     // ao along the landing walls
     [[130,150],[230,300],[380,450],[530,700]].forEach(([a,b])=>B.ao(250.3,UY-16,(a+b)/2,b-a,32,{ry:90,rx:180,a:0.5}));B.ao(330, UY - 16, 130.3, 160, 32, { rx: 180, a: 0.5 });
@@ -289,7 +289,7 @@
     const ang = Math.atan2(0.8, 1) / D2R, z1 = 252, z2 = 600, zc = (z1 + z2) / 2, L = Math.hypot(z2 - z1, 0.8 * (z2 - z1));
     B.rbox(330, pitch(zc) + 8, zc, 6, 25, L, 0.6, wood, { rx: -ang, uv: 60 });
     // the wall string: a painted board following the pitch, like the skirting it meets top and bottom
-    B.box(408.8, pitch(zc) + 7, zc, 2.4, 25, L + 2, mSkirt, { rx: -ang });
+    B.rbox(408.8, pitch(zc) + 7, zc, 2.4, 25, L + 2, 0.6, mSkirt, { rx: -ang });
     { // a soft shadow on the wall just above the wall string, along the whole flight
       const g = new T.BufferGeometry(), za = 252, zb = 598, top = z => pitch(z) - 5.5, h = 26;
       g.setAttribute('position', new T.Float32BufferAttribute([409.8, top(za), za, 409.8, top(za) - h, za, 409.8, top(zb), zb, 409.8, top(zb) - h, zb], 3));
@@ -332,8 +332,8 @@
     B.panel(300, (GC + GY - 210) / 2, 700, 80, GY - 210 - GC, 0.8, wall, { ry: 180, uv: 128 });
     wl(410, (GC + GY) / 2, 650, 100, GY - GC, -90);
     // skirting
-    [[60, 143.7], [236.3, 473.7], [566.3, 700]].forEach(([a, b]) => B.box(205.8, GY - 4.5, (a + b) / 2, 1.6, 9, b - a, mSkirt));
-    B.box(307.5, GY - 4.5, 60.8, 205, 9, 1.6, mSkirt); B.box(329.2, GY - 4.5, 303.1, 1.6, 9, 105.2, mSkirt); B.box(329.2, GY - 4.5, 507.15, 1.6, 9, 125.7, mSkirt);
+    [[60, 143.7], [236.3, 473.7], [566.3, 700]].forEach(([a, b]) => B.rbox(205.8, GY - 4.5, (a + b) / 2, 1.6, 9, b - a, 0.55, mSkirt));
+    B.rbox(307.5, GY - 4.5, 60.8, 205, 9, 1.6, 0.55, mSkirt); B.rbox(329.2, GY - 4.5, 303.1, 1.6, 9, 105.2, 0.55, mSkirt); B.rbox(329.2, GY - 4.5, 507.15, 1.6, 9, 125.7, 0.55, mSkirt);
     [[60,150],[230,480],[560,700]].forEach(([a,b])=>{B.ao(205.3,GY-16,(a+b)/2,b-a,32,{ry:90,rx:180,a:0.5});B.ao(220,GY-0.3,(a+b)/2,b-a,28,{rx:90,ry:-90,a:0.4})});
     const fadeStart=250+(GY-32-UY-23.5)/0.8;
     [[250,362],[438,fadeStart]].forEach(([a,b])=>B.ao(329.7,GY-16,(a+b)/2,b-a,32,{ry:-90,rx:180,a:0.45}));
