@@ -1974,7 +1974,7 @@
       const old=games.indexOf(g),oldX=TX-66.5+(old%4)*7,oldY=7+Math.floor(old/4)*15;
       if(t.snap?.startsWith('media.shelf.')||t.at.hide&&!t.snap||t.st==='rest'&&t.at.room==='bedroom'&&Math.abs(t.at.x-oldX)<.1&&Math.abs(t.at.y-oldY)<.1&&Math.abs(t.at.z+40)<.1){t.st='snap';t.snap=shelf;t.at=Object.assign({},home);t.rx=t.rz=0;H.place(t);H.saveThings()}
       if(openCases[g.id]&&!onMediaRack(box))caseLid(box,true);
-      if (t.st === 'snap' && t.snap === 'console.' + g.con) { const c = R.consoles[g.con]; if (c && c.lid) c.lid.rotation.x = 0; }
+      if (t.st === 'snap' && t.snap === 'console.' + g.con) { const c = R.consoles?.[g.con]; if (c && c.lid) c.lid.rotation.x = 0; }
     };
     mediaThings.sync=()=>games.forEach(add);
     mediaThings.sync();

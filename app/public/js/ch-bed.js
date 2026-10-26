@@ -11,7 +11,7 @@
   const CK = window.ChoreKit; if (!CK || CK.MODS.tidy) return;
   const { H, T, K, A, M, CC, D2R } = CK;
   const FY = 73, GY = 353;
-  const sparse=localStorage.getItem('jhp_starter')==='1';
+  const sparse=(()=>{try{return localStorage.getItem('jhp_starter')==='1'}catch(e){return false}})();
   const S = () => CK.S;
   const V = () => (CK.S.v.bed = CK.S.v.bed || {});
   const mat = (c, o) => M(Object.assign({ c, sh: 12, sp: '#222' }, o || {}));
@@ -254,7 +254,7 @@
   });
   H.on('grab', id => { if (id === 'ch.binbag') CK.MODS.bin.sync(); });
   H.on('rest', id => { if (id === 'ch.binbag') CK.MODS.bin.sync(); });
-  const tidyInBin = () => CC.tidyFor(CK.day(),sparse).filter(m => m.kind === 'rubbish' && CK.has('tidy', m.id)).length;
+  function tidyInBin() { return CC.tidyFor(CK.day(), sparse).filter(m => m.kind === 'rubbish' && CK.has('tidy', m.id)).length; }
   function tie() {
     CK.begin('bin');
     const g = bag.obj, s0 = 1;

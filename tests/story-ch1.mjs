@@ -111,7 +111,7 @@ try {
   assert.equal(registration.status,200);
   const vp = await browser.newPage({viewport:{width:1366,height:860}});vp.on('pageerror',e=>errors.push(e.message));
   await vp.goto(base,{waitUntil:'domcontentloaded'});await vp.waitForSelector('#accountGate');
-  await vp.locator('[name=name]').fill(veteran);await vp.locator('[name=password]').fill(password);await vp.locator('#accountGate [type=submit]').click();
+  await vp.locator('[name=name]').fill(veteran);await vp.locator('[name=password]').fill(password);await vp.locator('#accountGate [type=submit]').click();for(let i=0;i<100&&!(await vp.evaluate(()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst')));i++)await vp.waitForTimeout(200);if(await vp.locator('#accountFirst').count())await vp.locator('#accountGate [type=submit]').click();
   await wait(vp,() => window.House?.live&&House.mode==='monitor'&&window.PMGL?.built&&window.st?.getState()?.flags.veteran&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
   assert.equal(await vp.locator('.st-objective').count(),0);assert.equal(await vp.evaluate(() => !!House.THINGS['st.diary']),false);
   const room = await vp.evaluate(() => JSON.stringify(Object.entries(House.THINGS).map(([id,t]) => [id,t.at])));

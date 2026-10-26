@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.48.0 - 2026-10-26
+- Story mode begins. New players follow chapters: "Just a Game Lad" (first goals, first chores, the PC, Pixel Post) and "Saving up" (save, choose and order your first console, unbox, carry it up, connect, play, add a mate to your phonebook). One small goal line shows what to do next; progress is saved on the server and survives refresh.
+- A diary on the bedside table: a real notebook you pick up and read (F), listing your chapters and ticks. Existing players see a "1999 so far" summary and are never held back.
+- Fixed a start-up error when a Game Lad cartridge was inserted before any console was built, and a load-order error in the bin chore.
+
 ## 2.47.0 - 2026-10-26
 - New players start sparse: just the Game Lad, two starter magazines and a lived-in room (books, VCR and tapes, toys, a cassette radio, a CONSOLE FUND tin with a note from Dad). Existing players keep everything.
 - Pixel Post now sells all twelve JACK ATTACK! issues and boxed consoles (Ultra 64, PlaySpace, Segue, Daydream). Parcels arrive on the hall doormat: F unboxes, carry it upstairs, E connects it in its TV-rack slot, then play. Catalogue wording follows the real state (by the front door / connected / on your shelf); each console has its own box art.
