@@ -12,11 +12,14 @@
  *   K.into(target, base?) -> a builder that adds to a Batch or straight into a Group (as meshes). Every call takes the
  *        position first and an options object last: { rx, ry, rz (degrees), sx, sy, sz, uv (world UV scale, cm per tile), sides }
  *     .box(x, y, z, w, h, d, m, o)   m: a material, or { f, b, l, r, t, u, all } per face (t = top, u = underneath)
- *     .rbox(x, y, z, w, h, d, r, m, o) a box with rounded (chamfered) edges, r = radius
+ *     .rbox(x, y, z, w, h, d, r, m, o) a bevelled box: flat faces, a real rounded edge band of radius r (o.seg rows; per-face m as box)
  *     .cyl(x, y, z, rTop, rBot, h, seg, m, o)   m: material or { s (side), t, u }
  *     .ball(x, y, z, rx, ry, rz, m, seg, o)     .plane(x, y, z, w, h, m, o) (faces +z)   .disc(x, y, z, r, m, seg, o) (faces up)
  *     .lathe(x, y, z, [[r, y], ...], seg, m, o) (the profile goes from the top down)   .geo(geometry, x, y, z, m, o)
- *     .shadow(x, y, z, w, d, a, o)  a soft contact shadow lying on a surface (y = the surface)
+ *     .shadow(x, y, z, w, d, a, o)  the shared contact shadow lying on a surface (y = the surface): dark over the footprint,
+ *        fading over the outer margin (o.m cm; o.sq for a rounded rectangle). Merged ones are flagged like single ones.
+ *   Surface textures carry userData.worldUV (cm per tile): any material using one gets world-space UVs automatically.
+ *   K.doorLeaf(pivot, o) a moulded four-panel door leaf with lever handles; K.shadowGeo / K.shadowMaterial for instancing.
  *     .at(x, y, z, ry) -> a builder for an object's own local space    .group -> the target group (when building into one) */
 (function () {
   'use strict';
@@ -99,7 +102,7 @@
   const fall = t => { t = Math.min(1, Math.max(0, t)); const s = 1 - t; return s * s * (3 - 2 * s); };
   const ringTex = () => tex('shadow.ring', 128, 128, (g, w, h) => {
     const id = g.createImageData(w, h);
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const d = Math.hypot(x - 63.5, y - 63.5) / 64; id.data[(y * w + x) * 4 + 3] = Math.round(235 * fall((d - 0.5) / 0.5) * (d < 0.5 ? 1 : 1)); }
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const d = Math.hypot(x - 63.5, y - 63.5) / 64; id.data[(y * w + x) * 4 + 3] = Math.round(235 * fall((d - 0.5) / 0.5)); }
     g.putImageData(id, 0, 0);
   }, { clamp: true });
   const sqBlobTex = () => tex('sqblob2', 128, 128, (g, w, h) => {

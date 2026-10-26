@@ -1542,7 +1542,9 @@
     // The tube housing: a short straight collar behind the bezel, then the bell tapering back to the neck
     // cover, with cooling slots across its back (a real 15-inch CRT is mostly this bulge).
     P.rbox(L.mx, -22.8, -6.6, 34, 29.5, 6.6, 1.6, BEI2);
-    P.geo(taper(32.4, 27.6, 12.4, 0.7), L.mx, -23, -16.1, BEI2);
+    { const bell = K.roundBox(32.4, 27.6, 12.4, 2.4, 2), bp = bell.attributes.position; // rounded, narrowing steadily towards the neck
+      for (let i = 0; i < bp.count; i++) { const k = 0.7 + 0.3 * (bp.getZ(i) / 12.4 + 0.5); bp.setX(i, bp.getX(i) * k); bp.setY(i, bp.getY(i) * k); }
+      P.geo(bell, L.mx, -23, -16.1, BEI2); }
     P.rbox(L.mx, -22.6, -23.2, 22.8, 19.2, 2.6, 1.2, BEI2);
     for (let i = 0; i < 6; i++) P.box(L.mx - 6.25 + i * 2.5, -27.5, -24.55, 1.1, 7.4, 0.25, M('#4a4436'));
     P.box(L.mx, -4.4, -7.5, 13, 5, 10, DK);

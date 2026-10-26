@@ -51,7 +51,7 @@
   let graphics=cleanGraphics(ls.get('jhp_hs_graphics',null),graphicsDefaults(Q.want));
   const wantsAntialias=()=>graphics.antialias==='on'||(graphics.antialias==='auto'&&!Q.auto&&Q.tier!=='low');
   // Low keeps cheap 2x anisotropic filtering: floors and long walls are seen at grazing angles everywhere.
-  const wantedAniso=()=>Math.min(Math.max(graphics.anisotropy,Q.tier==='low'&&graphics.preset!=='custom'?2:1),Q.tier==='low'&&graphics.preset!=='custom'?2:16);
+  const wantedAniso=()=>Q.tier==='low'&&graphics.preset!=='custom'?2:Math.min(graphics.anisotropy,16);
   window.HouseQ = Q.tier;
   // ================================================================ the renderer (a canvas under boot.js's stage, one over it)
   let cv = document.createElement('canvas'); cv.className = 'hs-gl'; cv.setAttribute('aria-hidden', 'true');
@@ -767,7 +767,7 @@
   // Contact shadows for grab-API props that do not model their own (phones, toys, boxes...): one instanced,
   // depth-write-free soft rectangle per prop, a single draw call per room. Shown only while the prop rests
   // upright on something; hidden while carried, falling, hidden or stood on edge in a shelf slot.
-  const PROP_SHADOW = { geo: null, mat: null, m: new T.Matrix4(), q: new T.Quaternion(), e: new T.Euler(), s: new T.Vector3(), p: new T.Vector3(), zero: new T.Matrix4().makeScale(0, 0, 0) };
+  const PROP_SHADOW = { geo: null, mat: null, m: new T.Matrix4(), q: new T.Quaternion(), e: new T.Euler(), s: new T.Vector3(), p: new T.Vector3() };
   function propShadowCandidate(t) {
     if (t.autoShadow !== undefined) return t.autoShadow;
     let own = false, mesh = false; t.obj.traverse(o => { if (o.userData.contactShadow) own = true; else if (o.isMesh) mesh = true; });
