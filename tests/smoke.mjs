@@ -11,6 +11,8 @@ const root=fileURLToPath(new URL('../',import.meta.url));
 const shots=fileURLToPath(new URL('shots/smoke/',import.meta.url));
 const args=process.argv.slice(2), only=args.find(a=>a.startsWith('--only='))?.slice(7);
 const keep=args.includes('--keep-shots');
+const account='Smoke'+Date.now().toString(36),password='Throwaway-1999';
+let registeredAccount=false;
 let server, data, fixture, activeBrowser, base, log='', renderer='unavailable', results=[], draws=[];
 const errors=[];
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
@@ -39,7 +41,11 @@ function observe(page){
 }
 async function room(){
   if(!fixture){
-    fixture=await roomFixture(base,{onPage:observe});fixture.page.setDefaultNavigationTimeout(20000);
+    if(!registeredAccount){
+      const registered=await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})});
+      assert(registered.ok,'Admin registration failed: '+registered.status);registeredAccount=true;
+    }
+    fixture=await roomFixture(base,{account,password,signup:false,onPage:observe});fixture.page.setDefaultNavigationTimeout(20000);
     renderer=await fixture.page.evaluate(()=>{const gl=House.ren.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)):'unavailable'});
   }
   return fixture;
@@ -47,12 +53,33 @@ async function room(){
 async function wait(page,fn){const deadline=Date.now()+8000;while(Date.now()<deadline){if(await page.evaluate(fn))return;await page.waitForTimeout(100)}throw Error('State timeout: '+fn+'; '+JSON.stringify(await page.evaluate(()=>({mode:window.House?.mode,held:window.House?.held?.(),phone:window.FamilyPhone?.state?.()}))))}
 async function until(fn){const {page}=await room();await wait(page,fn)}
 async function aim(eye,target){const f=await room();await f.view(eye,target);await f.page.evaluate(()=>{House.hush();House._.setMode('walk')})}
+// Save timestamps advance while the desktop is open; compare the actual pose and power.
+async function houseSave(page){return page.evaluate(()=>{
+  const pose=JSON.parse(localStorage.getItem('jhp_hs_pose')||'null');if(pose)delete pose.t;
+  return{pose,stand:JSON.parse(localStorage.getItem('jhp_hs_stand')||'null')?.p,power:localStorage.getItem('jhp_off')};
+})}
 async function reload(){const {page}=await room();await page.reload({waitUntil:'domcontentloaded'});await until(()=>window.AccountGate?.allowed&&window.House?.live&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'))}
 const checks=[
+ ['sparse-signup',60000,async()=>{
+   let sparse;
+   try{
+     sparse=await roomFixture(base,{onPage:observe});
+     const {page}=sparse;
+     assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_starter')),'1');
+     assert(await page.evaluate(()=>House.THINGS.gb?.obj.visible),'Game Lad missing');
+     assert.deepEqual(await page.evaluate(()=>['n64','ps','md','dc'].filter(id=>House.SPOTS[id]||House.THINGS[id])),[],'Sparse room contains consoles');
+     assert.deepEqual(await page.evaluate(()=>PM.items().map(item=>item.id).sort()),['pm.mag.01','pm.mag.02']);
+     assert(await page.evaluate(()=>['pmb.pm.mag.01','pmb.pm.mag.02'].every(id=>House.THINGS[id]?.obj.visible)),'Starter magazine models missing');
+     await sparse.view([-80,-55,180],[-185,40,-25]);
+     if(keep)await page.screenshot({path:shots+'sparse-signup.png'});
+     assert.deepEqual(sparse.errors,[],'Sparse signup browser errors');
+   }finally{if(sparse)await sparse.browser.close();activeBrowser=fixture?.browser}
+ }],
  ['account-house',60000,async()=>{
    const {page}=await room();
    renderer=await page.evaluate(()=>{const gl=House.ren.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');if(gl.isContextLost())throw Error('WebGL context lost');if(!ext)throw Error('UNMASKED_RENDERER unavailable');return String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL))});
    assert(await page.evaluate(()=>Net.me.member&&House.live&&House.ren.domElement.width>0));
+   assert(await page.evaluate(()=>localStorage.getItem('jhp_starter')!=='1'&&['n64','ps','md','dc'].every(id=>!!House.SPOTS[id])),'Existing player lost the full room');
    assert(await page.evaluate(()=>{const a=__jhpDebug();a.camera.x=999999;return __jhpDebug().camera.x!==999999&&Number.isFinite(a.renderer.calls)&&!!a.version}),'Debug snapshot invalid');
  }],
  ['walk-refresh',35000,async()=>{
@@ -127,14 +154,27 @@ const checks=[
    }
  }],
  ['mobile-desktop',25000,async()=>{
-   const {browser}=await room();
+   const {browser,page:desktop}=await room();
+   // Put a known standing/powered-off save on this existing account, then fetch it on the phone.
+   await desktop.evaluate(()=>{
+     House.hush();House._.setMode('focus');
+     localStorage.setItem('jhp_hs_stand',JSON.stringify({t:Date.now(),p:{x:101,y:-55,z:151,rx:0,ry:0,lvl:'U',seat:0}}));
+     localStorage.setItem('jhp_off','1');
+   });
+   const saved=await houseSave(desktop);
+   assert(await desktop.evaluate(()=>Roam.syncNow()),'Existing account profile did not upload');
+   await desktop.close(); // This is the final room check; stop software WebGL before opening the phone.
+
    const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'});
    const page=await context.newPage();observe(page);
    try{
-     await page.addInitScript(()=>{if(!localStorage.getItem('smoke_mobile')){localStorage.setItem('jhp_hs_stand','{"x":101,"z":151,"lvl":"U","seat":0}');localStorage.setItem('jhp_off','1');localStorage.setItem('smoke_mobile','1')}});
-     const noRoom=async()=>{assert.equal(await page.locator('#boot,.hs-gl,.hs-gl2,.hs-ui,.hs-joy,.pc-touch,.hs-getup').count(),0);assert(await page.evaluate(()=>!window.Room&&!window.House?.ok&&!document.pointerLockElement));assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_hs_stand')),'{"x":101,"z":151,"lvl":"U","seat":0}');assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_off')),'1')};
-     await page.goto(base,{waitUntil:'domcontentloaded'});await page.locator('#accountGate form').waitFor();await noRoom();
-     await page.locator('#accountGate [data-switch]').tap();await page.locator('[name=name]').fill('MobileSmoke');await page.locator('[name=password]').fill('Throwaway-1999');await page.locator('[name=confirm]').fill('Throwaway-1999');await page.locator('#accountGate [type=submit]').tap();
+     const noRoom=async(checkSave=true)=>{
+       assert.equal(await page.locator('#boot,.hs-gl,.hs-gl2,.hs-ui,.hs-joy,.pc-touch,.hs-getup').count(),0);
+       assert(await page.evaluate(()=>!window.Room&&!window.House?.ok&&!document.pointerLockElement));
+       if(checkSave)assert.deepEqual(await houseSave(page),saved,'Mobile changed the account house save');
+     };
+     await page.goto(base,{waitUntil:'domcontentloaded'});await page.locator('#accountGate form').waitFor();await noRoom(false);
+     await page.locator('[name=name]').fill(account);await page.locator('[name=password]').fill(password);await page.locator('#accountGate [type=submit]').tap();
      const ready=()=>window.AccountGate?.allowed&&window.MobileDesktop&&window.DesktopSurface?.ready();await wait(page,ready);await noRoom();
      if(keep)await page.screenshot({path:shots+'mobile-portrait.png'});
      await page.setViewportSize({width:844,height:390});await page.keyboard.press('F2');await noRoom();
@@ -177,7 +217,7 @@ try{
     if(only&&name!==only)continue;
     const began=Date.now();let timer;
     try{
-      if(!fixture&&!['account-house','browser-errors','server-log'].includes(name)){
+      if(!fixture&&!['sparse-signup','account-house','browser-errors','server-log'].includes(name)){
         await Promise.race([room(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('60s room setup timeout')),60000)})]);clearTimeout(timer);
       }
       await Promise.race([run(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(`${timeout/1000}s timeout`)),timeout)})]);

@@ -1,6 +1,7 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
-export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860,storage={},account='Review'+Date.now().toString(36),password='Throwaway-1999',touch=false,debug=false,recordVideo,onPage}={}){
+// signup:false logs into an existing account; provisioning stays with the caller.
+export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860,storage={},account='Review'+Date.now().toString(36),password='Throwaway-1999',touch=false,signup=true,debug=false,recordVideo,onPage}={}){
  assert(['localhost','127.0.0.1'].includes(new URL(base).hostname),'Use throwaway localhost data');
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
  const page=await browser.newPage({viewport:{width,height},hasTouch:touch,...(recordVideo?{recordVideo}:{})}),errors=[];
@@ -13,7 +14,10 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
  try{
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:60000});await until(()=>window.Net?.connected&&!!Net.me.id);
   if(debug)console.log('Fixture connected');
-  await page.locator('#accountGate [data-switch]').click();await page.locator('[name=name]').fill(account);await page.locator('[name=password]').fill(password);await page.locator('[name=confirm]').fill(password);await page.locator('#accountGate [type=submit]').click();
+  if(signup)await page.locator('#accountGate [data-switch]').click();
+  await page.locator('[name=name]').fill(account);await page.locator('[name=password]').fill(password);
+  if(signup)await page.locator('[name=confirm]').fill(password);
+  await page.locator('#accountGate [type=submit]').click();
   await until(()=>window.AccountGate?.allowed&&window.House?.live&&window.PMGL?.built&&!document.querySelector('.hs-loading,#houseEntry'));
   if(debug)console.log('Fixture room built',await page.evaluate(()=>House.mode));
   await until(()=>House.mode==='monitor'&&!sessionStorage.getItem('jhp_login_seat'));
