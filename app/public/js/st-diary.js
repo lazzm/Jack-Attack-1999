@@ -9,7 +9,7 @@
     if (saved?.id === 'st.diary' && sessionStorage.getItem('jhp_login_seat') !== '1' && !window.PCOnly?.desktopOnly) resume = saved;
   } catch (e) {}
   const HAND = '"Comic Sans MS", "Z003", "URW Chancery L", cursive';
-  const pages = [{ today: true }, ...C.chapters.filter(c => c.steps).flatMap(ch => [0, 4].map(start => ({ ch, steps: ch.steps.slice(start, start + 4), start })))];
+  const pages = [{ today: true }, ...C.chapters.filter(c => c.steps).flatMap(ch => Array.from({length:Math.ceil(ch.steps.length/4)},(_,i)=>i*4).map(start => ({ ch, steps: ch.steps.slice(start, start + 4), start })))];
   pages.push({ soon: true });
   function wrap(g, text, x, y, width, line) {
     let row = '';

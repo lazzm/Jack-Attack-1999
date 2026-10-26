@@ -26,7 +26,7 @@ function clearProgress(c){
 module.exports={
  name:'starter',types:['testReset'],
  init(x){ctx=x;x.on('hello',(_ws,c)=>upgrade(c));x.on('login',(c,isNew)=>{
-   if(!isNew){upgrade(c);return}if(c.member?.toLowerCase()!=='test'){ctx.member(c).starterSparse=1;ctx.markDirty();roam.seedNewPlayer(c.member);return;}
+   if(!isNew){upgrade(c);return}if(c.member?.toLowerCase()!=='test'){ctx.member(c).starterSparse=1;ctx.member(c).storyOpening=2;ctx.markDirty();roam.seedNewPlayer(c.member);return;}
    ctx.member(c).starterTest=1;roam.seedStarter(c.member);clearProgress(c);
  });},
  handle(ws,c,m){

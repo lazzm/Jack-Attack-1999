@@ -15,9 +15,19 @@ function player(k) {
     const veteran = ctx.state.members[k].starterSparse !== 1;
     D.p[k] = { ch: veteran ? 6 : 1, done: {}, flags: veteran ? { veteran: true } : {}, trust: 0, v: CAT.version };
     if (veteran) for (const s of CAT.steps) D.p[k].done[s.id] = Date.now();
+    if (!veteran && ctx.state.members[k].storyOpening !== 2) D.p[k].v = 1;
     ctx.markDirty();
   }
-  return D.p[k];
+  const p = D.p[k];
+  // Every pre-opening account had a working PC, even if it never read the diary.
+  // Adopt it permanently; only newly registered v2 players do the physical chain.
+  if (p.v < 2) {
+    p.flags.pcOwned = true;
+    for (const s of CAT.steps.filter(s => s.ch === 1 && /^(dad|boot|part\.|lead\.|power|install)/.test(s.id))) p.done[s.id] ||= Date.now();
+    p.v = CAT.version; ctx.markDirty();
+  }
+  if (p.flags.veteran || p.done.power) p.flags.pcOwned = true;
+  return p;
 }
 function hardware(k) {
   return (ctx.state.mods.pmx?.p?.[k]?.o || []).filter(o => /^hardware\.(n64|ps|md|dc)$/.test(o.id));
@@ -96,10 +106,15 @@ module.exports = {
     // A future chapter cannot be skipped by forged observations. Within a chapter,
     // remember real actions done early (e.g. the bin bag already went downstairs).
     if (s.ch > p.ch) return;
+    // Physical assembly is ordered and permanent. Replays cannot remove a part,
+    // connect a future lead, or turn a collection of flags into money.
+    if ((s.test.startsWith('physical.') || ['dad', 'pc'].includes(s.id)) && CAT.current(p)?.id !== s.id) return;
     if (!s.test.startsWith('chore.') && !['money.console', 'order.console', 'phone.mate'].includes(s.test)) {
       if (['parcel.console', 'carry.console', 'connect.console', 'play.console'].includes(s.test) && !hardware(k).length) return;
       if (!p.flags[s.id]) { p.flags[s.id] = true; ctx.markDirty(); }
     }
-    const completed = advance(k, p); publish(k, completed);
+    const completed = advance(k, p);
+    if (p.done.power) p.flags.pcOwned = true;
+    publish(k, completed);
   },
 };

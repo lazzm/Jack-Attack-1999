@@ -1,11 +1,11 @@
-/* Story listens to public room/media/network APIs. It never gates the house or JackOS. */
+/* Story observes public gameplay APIs; account-owned opening gates only the bedroom PC. */
 (function () {
   'use strict';
   const C = window.StoryCat, N = window.Net;
   if (!C || !N) return;
-  let state = null, line = null, hooked = false, mediaHooked = false, celebration = null;
+  let state = window.StorySnapshot ? { ...window.StorySnapshot } : null, line = null, hooked = false, mediaHooked = false, celebration = null;
   let tickUntil = 0, lastSync = 0;
-  const sent = new Map(), listeners = new Set();
+  const sent = new Map(), listeners = new Set(), dialogueQueue = [];
   const story = () => !!state && !state.flags.veteran;
   function event(id) {
     if (!story() || state.done[id] || state.flags[id] === true || !C.byId[id] || C.byId[id].ch > state.ch) return;
@@ -21,9 +21,9 @@
   function updateLine() {
     if (!line) return;
     const s = C.current(state), tick = celebration && Date.now() < tickUntil;
-    line.hidden = !visible() || !!(celebration && !tickUntil) || (!s && !tick);
+    line.hidden = !visible() || window.StoryGuide?.strength === 'off' || !!(celebration && !tickUntil) || (!s && !tick);
     line.classList.toggle('st-tick', !!tick);
-    const text = tick ? '✓ ' + C.byId[celebration].text : s ? '› ' + s.text : '';
+    const text = tick ? '✓ Objective complete — ' + C.byId[celebration].text : s ? '› ' + s.text : '';
     if (line.textContent !== text) line.textContent = text;
     line.title = s ? s.hint + ' — F reads my diary on the desk.' : '';
   }
@@ -39,6 +39,9 @@
     if (window.PM && !mediaHooked) { PM.on('change', () => setTimeout(observe, 100)); mediaHooked = true; }
     observe();
     if (N.connected && Date.now() - lastSync > 9000) { lastSync = Date.now(); N.send({ t: 'stEvent', id: 'sync' }); }
+    if (dialogueQueue.length && visible() && !document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on')) {
+      const d = dialogueQueue.shift(); window.st.say(...d);
+    }
     if (celebration && visible() && !tickUntil && !document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on')) {
       tickUntil = Date.now() + 2200;
       window.Sound?.play('join');
@@ -52,8 +55,8 @@
     if (!story()) return;
     const H = window.House, v = window.RoomTV?._dbg();
     if (H?.live) {
-      if (['hall', 'lounge', 'kitchen', 'garden', 'drive'].includes(H.here)) event('downstairs');
-      if (H.mode === 'monitor' && !H.gliding && window.DesktopSurface?.ready()) event('pc');
+      if (H.here === 'drive') event('dad');
+      if (H.mode === 'monitor' && !H.gliding && window.DesktopSurface?.ready() && (!state.done.power || state.done.install)) event('pc');
       if (v?.st === 'game' && !v.background) {
         if (v.con === 'gb') event('lad');
         else if (consoleOrders().some(o => o.id === 'hardware.' + v.con)) event('play');
@@ -65,9 +68,7 @@
         if (t?.st === 'snap' && t.at.room === 'bedroom' && t.snap === 'hardware.dock.' + con) { event('carry'); event('connect'); }
       }
     }
-    if (window.Magazines?.reading?.id === 'st.diary' && Magazines.reading.phase === 'pages') event('plan');
-    const address = document.getElementById('addrBar')?.value || '';
-    if (/^(?:https?:\/\/)?(?:www\.)?pixelpost\.jnet(?:\/|$)/i.test(address) && window.IE?.current === 'secret' && document.querySelector('#s-secret .ppo')) event('pixelpost');
+
   }
   function hook(H) {
     hooked = true;
@@ -85,10 +86,24 @@
       const fresh = C.steps.filter(s => !previous.done[s.id] && state.done[s.id]);
       if (fresh.length) { celebration = fresh[fresh.length - 1].id; tickUntil = 0; }
     }
+    const current = C.current(state);
+    if (previous && previous.ch === 1 && state.ch === 2) window.StoryGuide?.chapter(2, 'Saving up');
+    if (current && previous && C.current(previous)?.id !== current.id) {
+      const dialogue = {
+        tidy: ['Mom', 'First things first: clothes in the basket, rubbish in the bin. And bring your dishes down!'],
+        bed: ['Mom', 'Much better. Now straighten that bed, please.'],
+        bin: ['Mom', 'One last job: bring the bin bag down to the kitchen.'],
+        dad: ['Dad', "The office is chucking out the old computers. Mine is in the boot if you want it. Mind the monitor: it weighs a ton!"],
+        'part.monitor': ['Dad', 'Both hands on that monitor. No running on the stairs.'],
+        'lead.power': ['Dad', 'Everything on the desk? Plug the leads into the matching sockets, then try the big button.'],
+        pc: ['Dad', 'There you go. Your own computer. Try not to fill it with games.']
+      }[current.id];
+      if (dialogue) dialogueQueue.push(['st.opening.' + current.id, ...dialogue]);
+    }
     for (const fn of listeners) fn(state);
     check();
   });
-  function reset() { state = null; celebration = null; tickUntil = 0; sent.clear(); updateLine(); for (const fn of listeners) fn(null); }
+  function reset() { dialogueQueue.length=0; state = null; celebration = null; tickUntil = 0; sent.clear(); updateLine(); for (const fn of listeners) fn(null); }
   N.on('you', m => { if (!m.member) reset(); });
   N.on('welcome', m => { if (!m.member) reset(); });
   N.on('_close', () => { if (line) line.hidden = true; });

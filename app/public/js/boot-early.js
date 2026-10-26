@@ -7,6 +7,17 @@
  *   wake   : back within 48 hours and it was left on: straight back to where they were */
 (function () {
   if(window.PCOnly?.desktopOnly){window.JHPBoot="mobile";return;}
+  // A confirmed account replacement is applied by roam.js later in the page.
+  // Read its boot choices now, before an old powered-on profile can wake a
+  // desktop over the new player's empty desk. The full profile follows normally.
+  try {
+    var pending = JSON.parse(sessionStorage.getItem('jhp_roam_pending') || 'null');
+    if (pending && pending.obj) for (var key of ['jhp_story_pc', 'jhp_off', 'jhp_last', 'jhp_hs_stand']) {
+      if (Object.prototype.hasOwnProperty.call(pending.obj, key)) localStorage.setItem(key, pending.obj[key]);
+      else localStorage.removeItem(key);
+    }
+  } catch (e) {}
+  window.StoryAccess = { get available() { return !/^"?missing"?$/.test(localStorage.getItem('jhp_story_pc') || ''); } };
   var m = 'room';
   try {
     var ss = sessionStorage, ls = localStorage;
@@ -16,6 +27,7 @@
     else if (ss.getItem('jhp_forceboot')) m = 'forced';
     else if (ls.getItem('jhp_off') === '1' || ls.getItem('jhp_everbooted') !== '1') m = 'room';
     else m = Date.now() - (+ls.getItem('jhp_last') || 0) < 48 * 3600 * 1000 ? 'wake' : 'old';
+    if (!window.StoryAccess.available) m = 'room';
   } catch (e) {}
   window.JHPBoot = m;
   if (m === 'room' || m === 'old') {

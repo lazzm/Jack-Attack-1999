@@ -667,11 +667,30 @@ IMPORTANT - READ CAREFULLY (nobody does): This licence agreement ("LICENCE") is 
     if (add.length) msg('Insert Disk', 'Please insert the disk labelled \'JackOS 98 CD-ROM\', and then click OK.\n\n(It\'s in the drawer under the printer. Mom put it there "for safe keeping".)', 'info', [['OK', doIt], ['Cancel']]);
     else doIt();
   }
-  function copyDlg(title, files, from, done) {
+  function copyDlg(title, files, from, done, recovery = false) {
     const b = h(`<div class="dl"><div class="dl-anim"><span class="a l">${mini(J('cdrom'))}</span><span class="a r">${DL_FOLDER}</span><span class="pp">${DL_PAPER}</span><span class="pp">${DL_PAPER}</span><span class="pp">${DL_PAPER}</span></div><div class="dl-f" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">&nbsp;</div><div class="dl-bar" style="margin:6px 0"></div></div>`);
-    const w = A.win(title, b, { w: 360, icon: J('cdrom', 16), noResize: true, noMax: true, noMin: true });
+    const w = A.win(title, b, { w: 360, cls: recovery ? 'st-recovery' : '', icon: J('cdrom', 16), noResize: true, noMax: true, noMin: true });
+    if(recovery)w.el.querySelector('[data-w=close]').disabled=true;
     const set = A.ui.progBar(qs(b, '.dl-bar')); let f = 0;
     const iv = setInterval(() => { if (w.closed) return clearInterval(iv); f += 0.04 + Math.random() * 0.05; set(f); qs(b, '.dl-f').textContent = from + pick(files.length ? files : ['SETUP.EXE']); if (f >= 1) { clearInterval(iv); setTimeout(() => { w.close(); done(); }, 300); } }, 180);
+  }
+  // Dad's recovery set reuses Setup's real file-copy window on the 3D monitor.
+  function recover(done) {
+    const surface = DesktopSurface.root();surface.classList.add('st-recovering');
+    let disk = 1;
+    const next = () => {
+      const dl = A.ui.dialog('JackOS 98 Setup — Insert Disk',
+        '<p>Dad’s office recovery set</p><p>Insert <b>JackOS 98 Recovery Disk ' + disk + ' of 3</b> into drive A:.</p><p>The disks restore the office backup to C:\\JACKOS.</p>',
+        [['Insert Disk ' + disk, () => {
+          sfx('floppy');
+          copyDlg('JackOS 98 Setup — Copying Files',
+            disk === 1 ? ['SETUP.EXE','COMMAND.COM','SYSTEM.DAT'] : disk === 2 ? ['EXPLORER.EXE','USER.EXE','SHELL32.DLL'] : ['JACKNET.EXE','DESKTOP.INI','WELCOME.TXT'],
+            'A:\\', () => { if (++disk <= 3) next(); else { surface.classList.remove('st-recovering');sfx('solve'); done(); } }, true);
+        }]], {w:400});
+      dl.w.el.classList.add('st-recovery');dl.w.el.querySelector('[data-w=close]').disabled=true;
+      return dl;
+    };
+    next();
   }
   // Add/Remove > Install...: CD-ROMs in the drive, floppies, and setup files you downloaded
   function installFromDisk() {
@@ -982,7 +1001,7 @@ IMPORTANT - READ CAREFULLY (nobody does): This licence agreement ("LICENCE") is 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else setTimeout(init, 0);
 
   window.Setup = {
-    product, has, ok, coverDisc, missing, missingCmd, track, showProgram, blockedCmd, applet, install: (id, src) => wizard(id, src || 'web'), uninstall, download, launch, setInstalled, showSoft,
+    recover, product, has, ok, coverDisc, missing, missingCmd, track, showProgram, blockedCmd, applet, install: (id, src) => wizard(id, src || 'web'), uninstall, download, launch, setInstalled, showSoft,
     get list() { return ORDER.map(id => PR[id]); }, get(id) { return PR[id]; }, CATS, SITE, SHACK, kbStr, setupFile, J, d99,
     PACKS, CENTRE, CENTRE_HOST, ICON_GET, iconOf, openCentre, mine, everything, fresh: id => FRESH.has(id), get migrated() { return !!S.mig; },
   };

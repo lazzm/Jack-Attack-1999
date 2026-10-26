@@ -951,8 +951,28 @@
     const rubber=M({c:'#24262a',sh:9,sp:'#17191b'}),chrome=M({c:'#a3a6a8',sh:48,sp:'#8b9399'});
     const glassPrint=K.tex('hs.car.glass',128,128,(g,w,h)=>{const sky=g.createLinearGradient(0,0,w*.3,h);sky.addColorStop(0,'#526b79');sky.addColorStop(.52,'#3b5260');sky.addColorStop(1,'#263d4a');g.fillStyle=sky;g.fillRect(0,0,w,h);const sheen=g.createLinearGradient(0,0,w,h*.55);sheen.addColorStop(0,'rgba(180,199,207,0)');sheen.addColorStop(.38,'rgba(180,199,207,.13)');sheen.addColorStop(.52,'rgba(180,199,207,.04)');sheen.addColorStop(1,'rgba(180,199,207,0)');g.fillStyle=sheen;g.fillRect(0,0,w,h)},{clamp:true});
     const gl=M({c:'#fff',map:glassPrint,sh:58,sp:'#6c7c85'});
-    car.rbox(0, -52, 0, 170, 46, 400, 9, cm);
-    car.rbox(0, -78, -10, 166, 10, 300, 4, cm); // the sills/belt line
+    car.rbox(0, -52, 40, 170, 46, 320, 9, cm);
+    // Hollow boot: a solid floor, wheel-side walls and rear valance under a hinged lid.
+    car.box(0,-20,-157,166,5,86,cm);
+    car.box(0,-47,-199,166,52,4,cm);
+    car.box(0,-47,-119,160,52,4,cm);
+    for(const x of [-81,81])car.box(x,-48,-158,5,54,80,cm);
+    car.box(0,-23,-157,154,1,76,M('#343235'));
+    const hinge = new T.Group(); hinge.position.set(frame.x,frame.y-79*frame.s,frame.z-120*frame.s);
+    hinge.scale.setScalar(frame.s); r.group.add(hinge);
+    const lid=K.into(hinge);lid.rbox(0,0,-39,166,5,80,2,cm);
+    lid.box(0,2.9,-39,150,1.2,68,M('#423137'));
+    for(const x of [-53,53])lid.box(x,4,-20,3,4,34,M('#55333d'));
+    lid.rbox(0,1,-78,16,3,2,1,M('#aaa9a0'));
+    let bootOpen=false;try{bootOpen=localStorage.getItem('jhp_car_boot')==='1';}catch(e){}
+    hinge.rotation.x=bootOpen?-1.25:0;
+    r.carBoot={hinge,open:bootOpen,toggle(){
+      this.open=!this.open;try{localStorage.setItem('jhp_car_boot',this.open?'1':'0');}catch(e){} const from=hinge.rotation.x,to=this.open?-1.25:0,start=performance.now();
+      window.Sound?.play(this.open?'carboot':'carclose');
+      H.anims.set('story-car-boot',now=>{const t=Math.min(1,(now-start)/650);hinge.rotation.x=from+(to-from)*t*t*(3-2*t);H.dirty();return t<1});
+      H.dirty();
+    }};
+    car.rbox(0, -78, 20, 166, 10, 240, 4, cm); // the sills/belt line
     // Build in the house's y-down frame. Baking a negative scale into a batch
     // reverses triangle winding and makes the near windows disappear.
     { const cab = new T.BoxGeometry(150, 54, 210); const P2 = cab.attributes.position; for (let k = 0; k < P2.count; k++) if (P2.getY(k) < 0) { P2.setX(k, P2.getX(k) * 0.9); P2.setZ(k, P2.getZ(k) * 0.72 - 6); } cab.computeVertexNormals(); car.geo(cab, 0, -102, -14, gl); }
@@ -971,7 +991,7 @@
       for(let n=0;n<4;n++){const a=n*Math.PI/2;car.cyl(x+side*12,-30+Math.sin(a)*8.2,z+Math.cos(a)*8.2,1,1,.7,6,chrome,{rz:90})}
     });
     car.cyl(-85.5,-58,-103,4.8,4.8,.5,16,cm,{rz:90});car.box(-86,-58,-103,.3,.5,3,rubber);
-    trim([-65,-82,-157],[-65,-121,-157],chrome,.7);car.cyl(-65,-82,-157,2,2,2,12,rubber);
+    trim([-65,-82,-108],[-65,-121,-108],chrome,.7);car.cyl(-65,-82,-108,2,2,2,12,rubber);
     // Dark window seals, centre pillars, door trim and inset handles make the
     // opaque glazing read as glass, without a transparent empty cabin.
     for (const side of [-1,1]) {
@@ -987,7 +1007,8 @@
     car.ball(0, -84, -96, 8, 6, 8, M('#c8a060'), 8); // inside the rear glazing, not poking through it
     car.shadow(0, 0, 0, 200, 430, 0.7, { sq: true });
     batch.build(r.group);
-    H.spot('hs.car', { label: "Dad's car", act: sayLines('hs.car', "Dad's car", ['Dad\'s car. Burgundy. It has a cassette player and a tin of travel sweets that are all stuck together.', 'Dad washes it every Sunday "because it\'s a nice thing to do". It is never a nice thing to do.', 'There\'s a nodding dog on the parcel shelf. ' + 'My sister' + ' named it.']) }); pickBox(r,'hs.car',430,GY-70,906,140,120,330);
+    H.spot('hs.carboot',{obj:r.carBoot.hinge,label:'Car boot',range:185,act:()=>r.carBoot.toggle()});
+    H.spot('hs.car', { label: "Dad's car", act: sayLines('hs.car', "Dad's car", ['Dad\'s car. Burgundy. It has a cassette player and a tin of travel sweets that are all stuck together.', 'Dad washes it every Sunday "because it\'s a nice thing to do". It is never a nice thing to do.', 'There\'s a nodding dog on the parcel shelf. ' + 'My sister' + ' named it.']) }); pickBox(r,'hs.car',430,GY-70,946,140,120,250);
     H.spot('hs.gate', { label: 'The front gate', act: sayLines('hs.gate', 'The front gate', ['The gate squeaks. Dad says he\'ll oil it. The gate has squeaked since 1991.', 'Beyond the gate: the street, the lamp-post, the postbox at the end. We don\'t go further than that today.']) }); pickBox(r, 'hs.gate', 390, GY - 35, 1095, 160, 70, 20);
     H.spot('hs.lamppost', { label: 'The lamp-post', act: sayLines('hs.lamppost', 'The lamp-post', ['The lamp-post. Orange at night. Moths love it. We used it as the goal for about six years.']) }); pickBox(r, 'hs.lamppost', 220, GY - 220, 1170, 14, 440, 14);
     H.spot('hs.bay', { label: 'The lounge window (from outside)', act: () => say('The bay window', 'The lounge. You can see the telly flickering through the nets. Mom twitches those nets at EVERYONE who walks past.') }); pickBox(r, 'hs.bay', -60, 225, 703, 236, 160, 6);

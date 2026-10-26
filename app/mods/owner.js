@@ -45,7 +45,7 @@ function saveProfile(obj){const p={ts:Date.now(),enc:'raw',data:Buffer.from(JSON
 function fresh(){
   const econ=ctx.state.mods.econ?.acct?.jack,orders=ctx.state.mods.pmx?.p?.jack,number=ctx.state.mods.sms?.numbers?.jack;
   for(const {mod,map,key}of slots())if(ctx.state.mods[mod]?.[map])delete ctx.state.mods[mod][map][key];
-  const mem=ctx.state.members.jack;mem.starterSparse=1;delete mem.starterTest;mem.me={first:'Jack',g:'m',v:1};
+  const mem=ctx.state.members.jack;mem.starterSparse=1;mem.storyOpening=2;delete mem.starterTest;mem.me={first:'Jack',g:'m',v:1};
   ctx.state.mods.story.p.jack={ch:1,done:{},flags:{},trust:0,v:SC.version};
   // Keep actual earning/exchange caps and nonces; the explicit money tool is
   // the only owner path which bypasses caps. Shared obligations remain linked.
@@ -108,7 +108,8 @@ function handle(ws,c,m){
     else if(action==='story'){
       const chapter=SC.chapters.find(ch=>ch.id===m.chapter),step=SC.byId[m.step];if(!chapter||m.step&&(!step||step.ch!==chapter.id))throw Error('Choose a chapter and its step.');
       backup=snapshot('before-story');const p={ch:chapter.id,done:{},flags:{},trust:0,v:SC.version};for(const s of SC.steps)if(s.ch<chapter.id||m.complete&&s.ch===chapter.id||step&&s.ch===chapter.id&&SC.steps.indexOf(s)<SC.steps.indexOf(step))p.done[s.id]=Date.now();
-      if(m.complete){p.ch=Math.min(6,chapter.id+1);if(chapter.id===5)p.flags.veteran=true;}if(p.ch>3&&!p.flags.veteran)p.flags.ownerChapter=p.ch;
+      if(p.done.power)p.flags.pcOwned=true;
+      if(m.complete){p.ch=Math.min(6,chapter.id+1);if(chapter.id===SC.chapters.at(-1).id)p.flags.veteran=true;}if(p.ch>3&&!p.flags.veteran)p.flags.ownerChapter=p.ch;
       ctx.state.mods.story.p.jack=p;for(const[w,cl]of ctx.clients)if(owner(cl))ctx.send(w,{t:'stState',...p});effect={kind:'story'};
     }else if(action==='clock'){
       if(m.clear)ctx.data.clock=null;else{if(typeof m.date!=='string'||!/^1999-\d{2}-\d{2}$/.test(m.date)||!Number.isInteger(m.hour)||m.hour<0||m.hour>23)throw Error('Choose a valid 1999 date and hour.');const d=new Date(m.date+'T12:00:00Z');if(!Number.isFinite(+d)||d.toISOString().slice(0,10)!==m.date)throw Error('That date does not exist in 1999.');ctx.data.clock={date:m.date,hour:m.hour};}

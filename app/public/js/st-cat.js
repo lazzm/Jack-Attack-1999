@@ -3,14 +3,17 @@
   'use strict';
   const chapters = [
     { id: 1, title: 'Just a Game Lad', steps: [
-      { id: 'lad', text: 'One quick go on my Game Lad.', hint: 'The Game Lad is on my desk. F plays, E carries it, Q leans back. Press Enter to start the game.', test: 'play.gb' },
-      { id: 'tidy', text: 'Better tidy my room. Mom can hear the mess.', hint: 'Mom\'s list is on the wall. Clothes in the basket, rubbish in the bin, dirty dishes in the kitchen sink.', test: 'chore.tidy' },
-      { id: 'bed', text: 'Make the bed. Apparently a duvet heap does not count.', hint: 'Pick up the pillow and pyjamas, put them on the bed, then F at the duvet to straighten it.', test: 'chore.bed' },
-      { id: 'bin', text: 'Take my bin bag down before it grows legs.', hint: 'F at my bin ties the bag. E picks it up. Take it to the kitchen bin and E puts it in.', test: 'chore.bin' },
-      { id: 'downstairs', text: 'Go downstairs. See what everyone is up to.', hint: 'F opens the bedroom door. Follow the landing to the stairs, then into the hall or lounge.', test: 'room.downstairs' },
-      { id: 'pc', text: 'Have a go on JackOS.', hint: 'Sit at the PC with F. Q or F2 gets me back into the house. The PC stays on.', test: 'pc.use' },
-      { id: 'pixelpost', text: 'Find the Pixel Post catalogue on JackNet.', hint: 'In JackNet Explorer, enter www.pixelpost.jnet. Look at the consoles and their prices.', test: 'web.pixelpost' },
-      { id: 'plan', text: 'Put my console plan in the diary.', hint: 'F reads the blue diary on my desk. There is a copy under Start > Programs > Accessories on JackOS too.', test: 'diary.read' },
+      { id: 'lad', text: 'One quick go on my Game Lad.', hint: 'F plays the Game Lad. E carries, R turns, Q leans back. Enter starts the game.', test: 'play.gb', targets: ['gb'] },
+      { id: 'tidy', text: 'Mom wants my room tidy first.', hint: 'Clothes in the basket, rubbish in the bin, dishes in the kitchen sink.', test: 'chore.tidy', targets: ['ch.list.bedroom', 'ch.s.basket', 'ch.s.bin', 'ch.s.sink'] },
+      { id: 'bed', text: 'Make the bed. A duvet heap does not count.', hint: 'E carries the pillow and pyjamas to their places. F straightens the duvet.', test: 'chore.bed', targets: ['ch.pillow', 'ch.pjs', 'bed'] },
+      { id: 'bin', text: 'Take my bin bag downstairs.', hint: 'F ties the bag. E carries it to the kitchen bin; E puts it in.', test: 'chore.bin', targets: ['ch.binbag', 'ch.s.kbin'] },
+      { id: 'dad', text: 'Dad is home! Meet him at the car.', hint: 'F opens doors. Follow the stairs to the hall, then the front door to the drive.', test: 'room.drive', targets: ['st.boot'] },
+      { id: 'boot', text: "Open the boot of Dad's car.", hint: 'F opens the boot. There is an entire computer in there!', test: 'physical.boot', targets: ['st.boot'] },
+      ...['tower', 'monitor', 'keys', 'speakers'].map((part, i) => ({ id: 'part.' + part, text: ['Carry the tower up to my desk.', 'Careful! Carry the heavy monitor upstairs.', 'Bring up the keyboard and mouse.', 'Last trip: the speakers.'][i], hint: 'E picks it up. R turns it. Carry it upstairs, aim at the marked place on my desk and E sets it down. Q returns it safely.', test: 'physical.part.' + part, targets: ['st.pc.' + part] })),
+      ...['power', 'video', 'keyboard'].map((lead, i) => ({ id: 'lead.' + lead, text: ['Plug in the power lead.', 'Connect the monitor lead.', 'Connect the keyboard lead.'][i], hint: 'F plugs the marked connector into its matching port. The mouse and speakers are already paired.', test: 'physical.lead.' + lead, targets: ['st.lead.' + lead] })),
+      { id: 'power', text: 'The big moment. Press the power button.', hint: 'F at the tower switches it on. Dad left the JackOS recovery floppies beside it.', test: 'physical.power', targets: ['pc.power'] },
+      { id: 'install', text: 'Install JackOS from the recovery floppies.', hint: 'Follow JackOS Setup on the monitor. Insert each numbered recovery disk when asked.', test: 'physical.install', targets: ['pc'] },
+      { id: 'pc', text: 'Log on to JackNet. My own PC!', hint: 'Finish Setup and log on to the desktop. Time to save for a console.', test: 'pc.use', targets: ['pc'] },
     ] },
     { id: 2, title: 'Saving up', steps: [
       { id: 'save', text: 'Save enough for my first console. Every penny counts.', hint: 'Mom\'s jobs pay cash. There are games and jobs on JackOS too. JackNet Bank swaps £1 for 20 Rupees. The Segue costs 360 Rupees; keep saving for a different one if I fancy it.', test: 'money.console' },
@@ -21,14 +24,13 @@
       { id: 'play', text: 'First game on my own console. YES.', hint: 'Order a matching game if I need one. Put its case down, F opens it, E takes the game. E inserts it in the highlighted console slot; F plays.', test: 'play.console' },
       { id: 'mate', text: 'Add a mate to my phonebook. They need to hear about this.', hint: 'F uses my phone. Ask a JackNet mate for their private number, then Phonebook > Add name. Sending a text works too.', test: 'phone.mate' },
     ] },
-    { id: 3, title: "Dad's old work PC", soon: true },
-    { id: 4, title: 'Getting online upstairs', soon: true },
-    { id: 5, title: 'The Collector', soon: true },
+    { id: 3, title: 'Getting online upstairs', soon: true },
+    { id: 4, title: 'The Collector', soon: true },
   ];
   const steps = chapters.flatMap(ch => (ch.steps || []).map(s => Object.assign({ ch: ch.id }, s)));
   const byId = Object.fromEntries(steps.map(s => [s.id, s]));
   const current = p => !p || p.flags?.veteran ? null : steps.find(s => !p.done[s.id]) || null;
-  const cat = { chapters, steps, byId, current, version: 1 };
+  const cat = { chapters, steps, byId, current, version: 2 };
   if (typeof module !== 'undefined' && module.exports) module.exports = cat;
   else root.StoryCat = cat;
 })(typeof window !== 'undefined' ? window : globalThis);

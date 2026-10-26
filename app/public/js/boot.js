@@ -263,6 +263,12 @@
   // the boot layer also holds the 3D room (js/hs-world.js): never remove it while someone is standing/walking in the room
   function bootGone() { const h = document.documentElement; if (h.classList.contains('hs-standing') || h.classList.contains('hs-live')) { boot.classList.remove('gone'); return; } boot.remove(); }
   function done() {
+    if (window.StoryOpening?.needsInstall()) {
+      const splash = $('bootSplash'); if (splash) splash.hidden = true;
+      $('monitorSurface')?.classList.remove('pc-starting');
+      document.body.classList.remove('pc-power');
+      window.StoryOpening.install(done); return;
+    }
     if (skipped) return; skipped = true;
     document.body.classList.remove('pc-power');
     timers.forEach(clearTimeout);
@@ -334,7 +340,7 @@
     return k;
   }
   function power(auto) { // auto: a restart, nobody pressed anything
-    if (pressed) return; pressed = true;
+    if (window.StoryAccess?.available === false || pressed) return; pressed = true;
     layout(); keep = true; window.JHPBoot = 'room';
     try { localStorage.removeItem('jhp_off'); localStorage.setItem('jhp_last', String(Date.now())); } catch (e) {} // switched back on, including a refresh during BIOS
     if (auto !== true) { try { Sound.unlock(); } catch (e) {} Sound.play('thud'); }

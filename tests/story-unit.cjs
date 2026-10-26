@@ -8,7 +8,7 @@ class Bucket {
   take() { this.n = Math.min(this.burst, this.n + (now - this.last) / 1000 * this.rate); this.last = now; if (this.n < 1) return false; this.n--; return true; }
 }
 const fresh = { member: 'Fresh' }, old = { member: 'Veteran' }, ws = {}, ws2 = {}, events = {}, messages = [];
-const state = { members: { fresh: { starterSparse: 1 }, veteran: { name: 'Veteran' } }, mods: {
+const state = { members: { fresh: { starterSparse: 1, storyOpening:2 }, veteran: { name: 'Veteran' } }, mods: {
   story: {}, ch: { p: {} }, pmx: { p: {} }, sms: { contacts: {} }, econ: { acct: { fresh: { bal: 0, wallet: { pence: 0 }, caps: { job: 7 } }, veteran: { bal: 999 } } }, untouched: { saved: ['keep'] },
 } };
 const others = () => JSON.stringify({ econ: state.mods.econ, untouched: state.mods.untouched });
@@ -32,7 +32,10 @@ try {
   now += 10000;
   state.mods.ch.p.fresh = { n: { tidy: 1, bed: 1, bin: 1 }, done: {} };
   send('sync'); assert(p.done.tidy && p.done.bed && p.done.bin); assert.equal(p.trust, 3);
-  for (const id of ['downstairs', 'pc', 'pixelpost', 'plan']) { now += 1000; send(id); }
+  send('power'); assert(!p.done.power, 'Early power accepted');
+  send('part.monitor'); assert(!p.flags['part.monitor'], 'Out of order part accepted');
+  for (const id of ['dad','boot','part.tower','part.monitor','part.keys','part.speakers','lead.power','lead.video','lead.keyboard','power','install','pc']) { now += 1000; send(id); }
+  assert(p.flags.pcOwned, 'PC ownership was not recorded');
   assert.equal(p.ch, 2); assert.equal(C.current(p).id, 'save');
   const once = JSON.stringify(p.done); now += 10000;
   for (const id of ['lad', 'tidy', 'bed', 'bin']) send(id);
@@ -62,6 +65,14 @@ try {
   assert.equal(state.mods.econ.acct.fresh.wallet.pence, 1800);
   // Sparse detection is an initial migration decision, never a later reset.
   state.members.veteran.starterSparse = 1; now += 10000; events.login(old); assert.equal(JSON.stringify(veteran), oldSnapshot);
+  // v1 users had a PC from the start, including those still on the Game Lad step.
+  state.members.legacy = {starterSparse:1};
+  state.mods.story.p.legacy={ch:1,done:{lad:123},flags:{},trust:0,v:1};
+  events.login({member:'Legacy'});
+  const legacy=state.mods.story.p.legacy;
+  assert(legacy.flags.pcOwned&&legacy.done.power&&legacy.done.install);
+  state.members.nostory={starterSparse:1};events.login({member:'NoStory'});assert(state.mods.story.p.nostory.flags.pcOwned, 'Existing sparse account without a story lost its PC');
+  assert.equal(legacy.done.lad,123); assert.equal(C.current(legacy).id,'tidy');
   // A cached document can miss hello before its late-loaded story listener runs.
   const vm = require('node:vm'), fs = require('node:fs'), ticks = [], clientMessages = [], clientEvents = {};
   const client = { StoryCat:C, st:{say(){}}, Date, document:{addEventListener(){},querySelector(){return null},getElementById(){return null}}, setTimeout(){}, setInterval(fn){ticks.push(fn)}, Net:{connected:true,me:{member:true},send(m){clientMessages.push(m);return true},on(e,fn){clientEvents[e]=fn}} };
@@ -90,5 +101,21 @@ try {
   assert.deepEqual(clientMessages.map(m=>m.id),['connect']);
   clientMessages.length=0;client.RoomTV={_dbg:()=>({st:'game',con:'md',background:false})};client.st.observe();
   assert.deepEqual(clientMessages.map(m=>m.id),['play']);
+  // Profile replacements arrive after the head's boot decision unless boot-early
+  // adopts their already-confirmed power/ownership choices first.
+  function startup(pending, overrides={}, mobile=false){
+    const values={jhp_story_pc:'owned',jhp_everbooted:'1',jhp_last:String(now),...overrides};
+    const localStorage={getItem:k=>values[k]??null,setItem:(k,v)=>{values[k]=String(v)},removeItem:k=>{delete values[k]}};
+    const sessionStorage={getItem:k=>k==='jhp_roam_pending'?JSON.stringify({obj:pending}):null};
+    const context={Date,localStorage,sessionStorage,PCOnly:{desktopOnly:mobile},location:{search:''},document:{documentElement:{classList:{add(){}},appendChild(){}},createElement:()=>({setAttribute(){},append(){}})}};
+    context.window=context;vm.runInNewContext(fs.readFileSync(require.resolve('../app/public/js/boot-early.js'),'utf8'),context);
+    return {context,values};
+  }
+  const resetBoot=startup({jhp_story_pc:'"missing"',jhp_off:'1'});
+  assert.equal(resetBoot.context.JHPBoot,'room');assert.equal(resetBoot.context.StoryAccess.available,false);
+  const restoreBoot=startup({jhp_story_pc:'owned',jhp_last:String(now)},{jhp_story_pc:'missing',jhp_off:'1'});
+  assert.equal(restoreBoot.context.JHPBoot,'wake');assert.equal(restoreBoot.context.StoryAccess.available,true);assert.equal(restoreBoot.values.jhp_off,undefined);
+  const mobileBoot=startup({jhp_story_pc:'"missing"',jhp_off:'0'},{jhp_off:'1'},true);
+  assert.equal(mobileBoot.context.JHPBoot,'mobile');assert.equal(mobileBoot.values.jhp_off,'1');
   console.log('STORY UNIT PASS: sparse/veteran, ordered evidence, server checks, idempotent trust/no currency rewards, additive persistence, account-wide flood limit');
 } finally { Date.now = realNow; }

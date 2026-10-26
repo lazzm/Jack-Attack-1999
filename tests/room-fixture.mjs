@@ -1,10 +1,10 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 // signup:false logs into an existing account; provisioning stays with the caller.
-export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860,storage={},account='Review'+Date.now().toString(36),password='Throwaway-1999',touch=false,signup=true,debug=false,recordVideo,onPage}={}){
+export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860,storage={},account='Review'+Date.now().toString(36),password='Throwaway-1999',touch=false,signup=true,opening=false,resume=false,storageState,debug=false,recordVideo,onPage}={}){
  assert(['localhost','127.0.0.1'].includes(new URL(base).hostname),'Use throwaway localhost data');
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
- const page=await browser.newPage({viewport:{width,height},hasTouch:touch,...(recordVideo?{recordVideo}:{})}),errors=[];
+ const page=await browser.newPage({viewport:{width,height},hasTouch:touch,...(storageState?{storageState}:{}),...(recordVideo?{recordVideo}:{})}),errors=[];
  onPage?.(page);
  page.setDefaultNavigationTimeout(90000);
  page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(['warning','error'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});
@@ -14,16 +14,19 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
  try{
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:60000});await until(()=>window.Net?.connected&&!!Net.me.id);
   if(debug)console.log('Fixture connected');
+  if(!resume){
   if(signup)await page.locator('#accountGate [data-switch]').click();
   await page.locator('[name=name]').fill(account);await page.locator('[name=password]').fill(password);
   if(signup)await page.locator('[name=confirm]').fill(password);
   await page.locator('#accountGate [type=submit]').click();
   await until(()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst'));
   if(await page.locator('#accountFirst').count())await page.locator('#accountGate [type=submit]').click();
+  }
   await until(()=>window.AccountGate?.allowed&&window.House?.live&&window.PMGL?.built&&!document.querySelector('.hs-loading,#houseEntry'));
   if(debug)console.log('Fixture room built',await page.evaluate(()=>House.mode));
-  await until(()=>House.mode==='monitor'&&!sessionStorage.getItem('jhp_login_seat'));
-  await page.keyboard.press('q');await until(()=>House.mode==='walk');
+  if(opening)await until(()=>!sessionStorage.getItem('jhp_login_seat')&&House.mode==='walk');
+  else await until(()=>!sessionStorage.getItem('jhp_login_seat')&&House.mode==='monitor');
+  if(!opening)await page.keyboard.press('q');await until(()=>House.mode==='walk');
   if(debug)console.log('Fixture standing');
   assert.deepEqual(errors,[],'Initial room errors');
   await page.evaluate(()=>Room.ensureHouse());await until(()=>window.HouseRooms?.ready);
