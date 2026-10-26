@@ -1,0 +1,20 @@
+/* Seasonal events (js/season.js, js/season-halloween.js): the same quiet period HUD as the chapter objective. */
+.se-objective{border-color:#9a6a2a;color:#f3dcb0}
+.se-objective.st-tick{color:#c7dc9b;border-color:#9bb572}
+/* The carving / handing-out bar: a 1999 game panel along the bottom, clear of the subtitles' corner. */
+.se-bar{position:absolute;left:50%;bottom:max(18px,3vh);transform:translateX(-50%);box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:6px;max-width:min(860px,calc(100vw - 24px));padding:8px 14px 10px;border:1px solid var(--game-edge,#80745b);background:var(--game-panel,rgba(22,25,27,.94));color:var(--game-ink,#eee4ca);font:12px/1.4 var(--game-ui,"Courier New",monospace);pointer-events:auto;text-align:center}
+.se-bar[hidden]{display:none}
+.se-bar>b{font:bold 14px/1.2 "Courier New",monospace;letter-spacing:.12em;text-transform:uppercase;color:#ffcf7a}
+.se-hint{max-width:640px;color:#d8ceb4}
+.se-hint i{font-style:normal;color:#ffd84a}
+.se-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.se-btns button{min-height:30px;padding:3px 10px;border:1px solid var(--game-edge,#80745b);border-radius:0;background:#2b2a26;color:#f0e8d0;font:12px "Courier New",monospace;cursor:pointer}
+.se-btns button:hover,.se-btns button:focus-visible{background:#4a3a1e;outline:1px solid #ffcf7a}
+.se-btns button i{font-style:normal;color:#ffd84a}
+.se-btns button small{color:#d89a7a}
+.se-btns .se-sweet{border-left:6px solid #888}
+.se-s0{border-left-color:#c8202a!important}.se-s1{border-left-color:#2a8a3a!important}.se-s2{border-left-color:#e6a51a!important}
+.se-s3{border-left-color:#7a2aa8!important}.se-s4{border-left-color:#1a4aa8!important}.se-s5{border-left-color:#e0e020!important}
+.se-kid{display:inline-block;margin:0 4px;color:#d8ceb4}.se-kid.ok{color:#c7dc9b}
+html.hs-paused .se-bar{display:none}
+@media(max-width:700px){.se-bar{bottom:150px;padding:6px 8px}.se-btns button{min-height:36px}}

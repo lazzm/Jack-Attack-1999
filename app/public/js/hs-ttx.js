@@ -63,6 +63,7 @@
       ...band('m', 'w', 'BEFUDDLED! THE QUIZ  P150'),
       A.w + center('Ten questions a day. Beat the brain!', 38), '',
       A.g + ' TODAY: ' + A.w + DAYS[t.dow] + ' ' + t.d + ' ' + MON[t.m - 1] + ' 1999', ''];
+    if (hallowOn()) rows.push(FLASH + A.y + ' NEW! ' + STEADY + A.r + 'HALLOWEEN' + A.w + '.......... ' + A.c + '450');
     return Object.assign({ rows }, LINKS(['News', 101], ['Sport', 300], ['Quiz', 150], ['TV', 600]));
   });
   // ---- news
@@ -183,6 +184,24 @@
     const big = String(dl);
     const rows = [...band('b', 'w', 'THE MILLENNIUM'), '', A.y + center('DAYS TO GO UNTIL 2000:', 38), '', DBL + A.c + center(big, 36), '', '', A.w + ' Will the computers cope? The', A.w + ' "Millennium Bug" (Y2K) could confuse', A.w + ' old computers that store years as', A.w + ' just two numbers: 99 then... 00!', '', A.g + ' TOP TIP: ' + A.w + 'check your video recorder', A.w + ' (it still says 12:00 anyway).'];
     return Object.assign({ rows }, LINKS(['Jokes', 801], ['Stars', 802], ['News', 101], ['Index', 100]));
+  });
+  // ---- HALLOWEEN (only while the event is on: js/season-cat.js, the owner's 1999 clock too)
+  const hallowOn = () => { try { if (window.Season) return Season.active().some(x => x.e.id === 'halloween99'); } catch (e) {} const md = t99().md; return md >= 1024 && md <= 1101; };
+  const PUMPKIN = mos(['.....##.....', '..########..', '.##########.', '##.##..##.##', '############', '###.####.###', '.###....###.', '..########..'], 'y');
+  page(450, () => {
+    if (!hallowOn()) return null;
+    const t = t99(), rows = [...band('r', 'y', 'HALLOWEEN ON TELLY-TEXT'), ...PUMPKIN.map(r => '              ' + r), ''];
+    rows.push(A.y + ' SPOOKY FACTS');
+    ['Halloween grew out of an old autumn festival marking the end of the harvest.', 'In Britain, lanterns used to be carved from turnips and swedes, not pumpkins.'].forEach(f => wrap(f, 36).forEach(l => rows.push(A.w + '  ' + l)));
+    rows.push('', A.c + ' CLOCKS GO BACK: ' + A.w + (t.md < 1031 ? 'Sun 31 Oct, 2am' : 'last night!'), A.w + '  An extra hour in bed! It gets dark', A.w + '  by about half past four now.', '');
+    rows.push(A.g + ' JOKE: ' + A.w + "What do you call a ghost's", A.w + '  mum and dad? ' + CONCEAL + A.y + 'TRANSPARENTS!', A.m + ' Press REVEAL for the answer.');
+    return Object.assign({ rows }, LINKS(['Soup', 451], ['TV', 600], ['Jokes', 801], ['Index', 100]));
+  });
+  page(451, () => {
+    if (!hallowOn()) return null;
+    const rows = [...band('y', 'r', "MOM'S PUMPKIN SOUP"), '', A.c + ' Do not waste the scooped-out bits!', ''];
+    ['1. Scoop the pumpkin flesh (not the stringy bits) into a pan with an onion and a potato.', '2. Cover with stock. Simmer for 20 minutes (a grown-up does the hob).', '3. Mash it or whizz it till smooth. A drop of milk.', '4. Seeds: rinse, pat dry, a pinch of salt, roast on a tray. Crunchy!'].forEach(f => { wrap(f, 36).forEach(l => rows.push(A.w + ' ' + l)); rows.push(''); });
+    return Object.assign({ rows }, LINKS(['Halloween', 450], ['TV', 600], ['News', 101], ['Index', 100]));
   });
   // ---- the hidden pages (not on any index)
   page(199, () => ({ hidden: true, rows: [...band('r', 'w', 'ENGINEERING TEST PAGE'), '', ...[...'RGYBMCW'].map((c, i) => G['rgybmcw'[i]] + '\x7f'.repeat(38)), '', A.w + ' If you can read this, you have found', A.w + ' the TELLY-TEXT engineers\' page. It', A.w + ' is not on any index. Well done!', '', A.c + ' Secret word for the night shift:', A.y + CONCEAL + ' "WOBBLE"  (press REVEAL)', '', A.g + ' Please do not tell the producer.'], ...DEF }));
