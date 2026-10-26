@@ -35,7 +35,7 @@
     g.strokeStyle = 'rgba(100,139,166,.29)'; g.lineWidth = 1;
     for (let y = 188; y < h - 55; y += 42) { g.beginPath(); g.moveTo(26, y); g.lineTo(w - 26, y); g.stroke(); }
     g.strokeStyle = 'rgba(177,77,69,.36)'; g.beginPath(); g.moveTo(72, 20); g.lineTo(72, h - 25); g.stroke();
-    g.fillStyle = '#314568'; g.font = 'italic 25px ' + HAND; g.fillText("Jack's diary / 1999", 94, 60);
+    g.fillStyle = '#314568'; g.font = 'italic 25px ' + HAND; g.fillText(Cast.t("{me}'s diary / 1999"), 94, 60, w - 125);
     const veteran = p?.flags.veteran;
     g.font = 'italic 44px ' + HAND;
     if (veteran) {
@@ -90,7 +90,7 @@
       g.fillStyle = '#273c59'; g.fillRect(0, 0, w, h); K.speckle?.(g, w, h, 2000, ['#2d4260', '#233650'], 1, 91);
       g.strokeStyle = '#5d718a'; g.lineWidth = 3; g.strokeRect(14, 14, w - 28, h - 28);
       g.fillStyle = '#e6ddbe'; g.fillRect(50, 92, 260, 190); g.strokeStyle = '#73839b'; g.strokeRect(57, 99, 246, 176);
-      g.fillStyle = '#314568'; g.textAlign = 'center'; g.font = 'italic 42px ' + HAND; g.fillText("Jack's", 180, 152); g.fillText('diary', 180, 206); g.font = 'italic 26px ' + HAND; g.fillText('1999 / PRIVATE!', 180, 253); g.textAlign = 'left'; doodle(g, 116, 332, false);
+      g.fillStyle = '#314568'; g.textAlign = 'center'; g.font = 'italic 42px ' + HAND; g.fillText(Cast.t("{me}'s"), 180, 152, 230); g.fillText('diary', 180, 206); g.font = 'italic 26px ' + HAND; g.fillText('1999 / PRIVATE!', 180, 253); g.textAlign = 'left'; doodle(g, 116, 332, false);
     }, { clamp: true });
     const ink = M({ c: '#fff', map: cover, sh: 2 }), cloth = M('#273c59'), paper = M('#dcd3b9'), band = M('#a29d6f');
     B.box(0, -1.22, 0, 13.6, 1.6, 19.5, paper);
@@ -106,9 +106,9 @@
     textures = pages.map((_, i) => K.tex('st.page.' + i, 768, 1024, (g, w, h) => paint(g, w, h, i, p), { clamp: true }));
     // A little paper bounce keeps blue pen legible when the reader faces away
     // from the window, while the solid covers and cut edges retain room light.
-    doc = { id: 'st.diary', title: "Jack's diary", color: '#273c59', frontMesh: { material: ink }, pages: textures.map(tx => ({ mesh: { material: M({ c: '#fff', map: tx, e: '#545454', em: tx, sh: 1, sp: '#000' }) } })) };
+    doc = { id: 'st.diary', title: Cast.t("{me}'s diary"), color: '#273c59', frontMesh: { material: ink }, pages: textures.map(tx => ({ mesh: { material: M({ c: '#fff', map: tx, e: '#545454', em: tx, sh: 1, sp: '#000' }) } })) };
     window.ReadingBooks.push(doc);
-    R.grabbable('st.diary', { obj, home: { room: 'bedroom', x: -61, y: 0, z: -12, ry: -8 }, kind: 'story.diary', label: "Jack's diary", holdD: 38, useLabel: 'Read my diary' });
+    R.grabbable('st.diary', { obj, home: { room: 'bedroom', x: -61, y: 0, z: -12, ry: -8 }, kind: 'story.diary', label: Cast.t("{me}'s diary"), holdD: 38, useLabel: 'Read my diary' });
     Magazines.sync();
     H.THINGS['st.diary'].use = () => { H.saveWalkState(); refresh(); return Magazines.read('st.diary', 'st.diary', { view: 'pages', page: 0 }); };
     H.dirty();
@@ -120,7 +120,7 @@
     const paper = document.createElement('div'); paper.className = 'st-copy-paper'; paper.appendChild(canvas);
     const nav = document.createElement('nav'), prev = document.createElement('button'), next = document.createElement('button'), label = document.createElement('span');
     prev.type = next.type = 'button'; prev.textContent = '← Previous'; next.textContent = 'Next →'; nav.append(prev, label, next); el.append(paper, nav);
-    copyPage = 0; const w = A.win("Jack's diary", el, { w: 480, h: 640, icon: A.ICON.txt }); copy = { w, canvas, label };
+    copyPage = 0; const w = A.win(Cast.t("{me}'s diary"), el, { w: 480, h: 640, icon: A.ICON.txt }); copy = { w, canvas, label };
     function turn(d) { copyPage = Math.max(0, Math.min(p.flags.veteran ? 0 : pages.length - 1, copyPage + d)); prev.disabled = copyPage === 0; next.disabled = copyPage === (p.flags.veteran ? 0 : pages.length - 1); refresh(); }
     prev.addEventListener('click', () => turn(-1)); next.addEventListener('click', () => turn(1)); turn(0);
     window.st.event('plan'); return w;
@@ -155,5 +155,5 @@
   window.stDiary = { build, refresh };
   window.st.onChange(p => { if (!p) { resume = null; copy?.w.close(); copy = null; } build(); refresh(); });
   Apps.register('st.diary', { single: true, cmd: ['diary', 'journal'], open: openCopy });
-  Apps.addProgram(['Accessories', "Jack's diary"], 'st.diary', Apps.ICON.txt);
+  Apps.addProgram(['Accessories', 'My diary'], 'st.diary', Apps.ICON.txt);
 })();

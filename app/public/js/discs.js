@@ -15,7 +15,7 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const pick = l => l[Math.floor(Math.random() * l.length)];
   const sfx = n => { try { Sound.play(n); } catch (e) {} };
-  const msg = (t, x, i, b) => Desk.msgbox(t, x, i, b);
+  const msg = (t, x, i, b) => Desk.msgbox(Cast.t(t), Cast.t(x), i, b);
   const toast = (t, x, ms) => Desk.toast(t, x, ms);
   const J = (n, s) => (window.JICON && JICON.has && JICON.has(n)) ? (s ? JICON.get(n, s) : JICON.icon(n)) : A.ICON.exe;
   const isPhone = () => innerWidth < 700 || innerHeight < 540;
@@ -443,24 +443,34 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
       logo: u => T(100, 40, 'JACK', 36, '#ffe600', '#e10600', { sw: 5, it: 1 }) + T(100, 74, 'ATTACK!', 34, '#ffe600', '#e10600', { sw: 5, it: 1 }) + T(100, 96, 'COVER DISC 7', 13, '#fff', '#000', { f: 'Verdana,Arial,sans-serif', sw: 3, ls: 2 }),
       blurb: 'The JACK ATTACK! magazine cover disc. 650 MB of gaming goodness: playable demos, extras, drivers and DirectX 6.1 (again).', feats: ['Playable demos', 'Wallpapers', 'Drivers'], quotes: [['"Disc not working? Blow on it."', 'Everyone']], readme: 'This is the disc that normally lives in the CD-ROM drive.' },
     // ---- the drawer
-    { id: 'callumcd', kind: 'cdr', label: 'CALLUMS MIX', c1: '#e8e8f0', c2: '#000', c3: '#2a2aaa', owner: 'Callum',
-      blurb: 'A CD-R. Written on in felt tip: "CALLUM\'S SHAREWARE MIX!!! DEMOS + LEVELS. DO NOT SCRATCH. (JACK)". Burned at Callum\'s house on his dad\'s CD writer (it took 40 minutes and made the lights flicker).',
-      readme: 'CALLUM\'S SHAREWARE MIX\n======================\n\nall shareware so it\'s allowed to copy (I CHECKED)\n\nDOSGAMES\\   - the DOS shareware pack (6 games!!)\nQUEST\\      - the text adventure. type LOOK. then type it again\nSAVES\\      - my championship boss save. DON\'T LOAD IT. well you can look\n\nreturn this by friday or I\'m telling everyone you cried at that film\n\n- Callum\n' },
+    { id: 'callumcd', kind: 'cdr', label: '{mate3.NAME} MIX', c1: '#e8e8f0', c2: '#000', c3: '#2a2aaa', owner: 'Callum',
+      blurb: 'A CD-R. Written on in felt tip: "{mate3.NAME}\'S SHAREWARE MIX!!! DEMOS + LEVELS. DO NOT SCRATCH. ({me.NAME})". Burned at {mate3}\'s house on {mate3.his} dad\'s CD writer (it took 40 minutes and made the lights flicker).',
+      readme: '{mate3.NAME}\'S SHAREWARE MIX\n======================\n\nall shareware so it\'s allowed to copy (I CHECKED)\n\nDOSGAMES\\   - the DOS shareware pack (6 games!!)\nQUEST\\      - the text adventure. type LOOK. then type it again\nSAVES\\      - my championship boss save. DON\'T LOAD IT. well you can look\n\nreturn this by friday or I\'m telling everyone you cried at that film\n\n- {mate3}\n' },
     { id: 'dx61', kind: 'sleeve', label: 'DIRECTX61', c1: '#fff', c2: '#000', c3: '#2a7ad8',
-      blurb: 'A CD in a paper sleeve from the front of a magazine: "DIRECTX 6.1 - REQUIRED FOR ALL GAMES!!! INSTALL THIS FIRST". Every magazine gives you one. Jack has eleven.', readme: 'DIRECTX 6.1\n===========\n\nRequired for: everything.\nAlready installed: probably.\nGoing to install it again anyway: definitely.\n' },
+      blurb: 'A CD in a paper sleeve from the front of a magazine: "DIRECTX 6.1 - REQUIRED FOR ALL GAMES!!! INSTALL THIS FIRST". Every magazine gives you one. I have eleven.', readme: 'DIRECTX 6.1\n===========\n\nRequired for: everything.\nAlready installed: probably.\nGoing to install it again anyway: definitely.\n' },
     { id: 'gquest', pid: 'grotquest', kind: 'floppy', label: 'QUEST_DISK', c1: '#2a2a2a', c2: '#fff', c3: '#e10600',
       blurb: 'A 3½" floppy disk with a handwritten label: the text adventure, "v1.2 - DISK 1 OF 1 - SHAREWARE - PLEASE COPY!". It\'s a floppy, so it goes in drive A: (and it\'s already installed).', readme: 'THE TEXT ADVENTURE\n==================\nYou are standing in a dark room. There is a floppy disk here.\n> TAKE DISK\nTaken.\n' },
-    { id: 'n64', kind: 'cart', label: 'LUKE\'S', c1: '#7a7a7a', c2: '#fff', c3: '#e10600', owner: 'Luke',
-      blurb: 'A grey game cartridge with "LUKE" written on the back in Tipp-Ex. Luke left it here "so Jack can borrow it" (so Luke has an excuse to come round). It is not a CD. It will not go in the CD-ROM drive. People have tried.', readme: '' },
+    { id: 'n64', kind: 'cart', label: '{mate2.NAME}\'S', c1: '#7a7a7a', c2: '#fff', c3: '#e10600', owner: 'Luke',
+      blurb: 'A grey game cartridge with "{mate2.NAME}" written on the back in Tipp-Ex. {mate2} left it here "so {me} can borrow it" (so {mate2} has an excuse to come round). It is not a CD. It will not go in the CD-ROM drive. People have tried.', readme: '' },
   ];
+  for (const b of BOXES) {
+    const id = ({ Callum: 'mate3', Luke: 'mate2' })[b.owner];
+    if (id) { b.houseOwner = id; Object.defineProperty(b, 'owner', { enumerable: true, get: () => Cast.n(id) }); }
+    if (['callumcd', 'n64'].includes(b.id)) {
+      for (const key of ['label', 'blurb', 'readme']) {
+        const template = b[key];
+        if (typeof template === 'string') Object.defineProperty(b, key, { enumerable: true, get: () => Cast.t(template) });
+      }
+    }
+  }
   const BOX = {}; BOXES.forEach(b => { BOX[b.id] = b; });
   const EXT = {}; // discs from other packs (js/pm-media.js: audio CDs, monthly cover CDs...): id -> { id, ext: true, label, title, autorun(), files() }
   const pidOf = b => b.pid || (b.game ? 'disc.' + b.game : b.pidApp && window.Setup ? ((Setup.list.find(p => (p.apps || []).includes(b.pidApp)) || {}).id || null) : null);
   // other packs own these products: show whatever they call them now
   const prodOf = b => { const id = !b.game && pidOf(b); return id && window.Setup && Setup.get ? Setup.get(id) : null; };
   const prodName = b => { const p = prodOf(b); return p ? String(p.n).replace(/ \(.*\)$/, '').replace(/ demo$/i, '').replace(/ v?\d+\.\d[\d.]*[a-z]?$/i, '') : null; };
-  const FALLBACK = { carta: 'JackCarta 99', pinball: 'Space Pinball', jaquake: 'Jaquake', jrt: 'Jackreal Tournament', podracer: 'Pod Racer', grotlings: 'Little Diggers', cover7: 'JACK ATTACK! Cover Disc 7', callumcd: 'Callum\'s Shareware Mix (CD-R)', dx61: 'DirectX 6.1 (cover CD)', gquest: 'Text Adventure', n64: 'Luke\'s cartridge' };
-  const titleOf = b => b.ext ? b.title : b.game ? GAMES[b.game].n : b.id === 'gquest' ? (prodName(b) || FALLBACK.gquest) + ' (floppy)' : (b.mag || b.kind === 'cdr' || b.kind === 'sleeve' || b.kind === 'cart') ? FALLBACK[b.id] : (prodName(b) || FALLBACK[b.id] || b.id);
+  const FALLBACK = { carta: 'JackCarta 99', pinball: 'Space Pinball', jaquake: 'Jaquake', jrt: 'Jackreal Tournament', podracer: 'Pod Racer', grotlings: 'Little Diggers', cover7: 'JACK ATTACK! Cover Disc 7', callumcd: '{mate3}\'s Shareware Mix (CD-R)', dx61: 'DirectX 6.1 (cover CD)', gquest: 'Text Adventure', n64: '{mate2}\'s cartridge' };
+  const titleOf = b => b.ext ? b.title : b.game ? GAMES[b.game].n : b.id === 'gquest' ? (prodName(b) || FALLBACK.gquest) + ' (floppy)' : (b.mag || b.kind === 'cdr' || b.kind === 'sleeve' || b.kind === 'cart') ? Cast.t(FALLBACK[b.id]) : (prodName(b) || FALLBACK[b.id] || b.id);
   const byOf = b => b.game ? GAMES[b.game].by : (prodOf(b) && prodOf(b).by) || ({ carta: 'JackSoft Reference', jaquake: 'Id-Jack Software', jrt: 'Epic Jack Games', cover7: 'JACK ATTACK! Magazine' })[b.id] || '';
   // a two-line logo made from the product's current name
   function nameLogo(b, y, c1, s1, c2, s2) { const w = titleOf(b).toUpperCase().split(' '); const l2 = w.length > 1 ? w.pop() : ''; const l1 = w.join(' '); return T(100, y, l1, l1.length > 9 ? 24 : 32, c1, s1, { sw: 4, len: l1.length > 7 ? 180 : 0 }) + (l2 ? T(100, y + 32, l2, 30, c2, s2, { sw: 4, it: 1 }) : ''); }
@@ -471,7 +481,7 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
   const fullOut = b => b.game ? 'out ' + longDate(GAMES[b.game].rel) : 'in the shops soon';
   // ---- box fronts
   const HAND = '\'Comic Sans MS\',\'Chalkboard SE\',\'Marker Felt\',cursive';
-  function callumSticker(y) { return `<g transform="rotate(-9 86 ${y})"><rect x="20" y="${y - 14}" width="132" height="26" fill="#fff36a" stroke="#c8a000"/><path d="M20 ${y - 14}h132" stroke="#fff" opacity=".6"/>${T(86, y + 4, 'CALLUM\'S - GIVE IT BACK', 12, '#c00000', null, { f: HAND, w: 700, sw: 0 })}</g>`; }
+  function callumSticker(y) { return `<g transform="rotate(-9 86 ${y})"><rect x="20" y="${y - 14}" width="132" height="26" fill="#fff36a" stroke="#c8a000"/><path d="M20 ${y - 14}h132" stroke="#fff" opacity=".6"/>${T(86, y + 4, Cast.t('{mate3.NAME}\'S - GIVE IT BACK'), 12, '#c00000', null, { f: HAND, w: 700, sw: 0 })}</g>`; }
   function jewelArt(b, u) {
     if (b.id === 'podracer') return `<defs>${LG(u + 's', '#ff9a3a', '#ffe0a0', 1)}</defs><rect width="200" height="200" fill="url(#${u}s)"/><path d="M0 150L60 110L120 140L200 100V200H0z" fill="#c86a2c"/><path d="M40 150l60-8 60 8-60 14z" fill="#8a8a8a" stroke="#000"/><rect x="50" y="128" width="40" height="12" rx="6" fill="#ddd" stroke="#000"/><rect x="110" y="128" width="40" height="12" rx="6" fill="#ddd" stroke="#000"/><path d="M90 134h20" stroke="#2a7ad8" stroke-width="2"/><path d="M46 134h-30M46 130h-22" stroke="#ffd400" stroke-width="3"/>${pilot(100, 139, 0.95)}`;
     if (b.id === 'grotlings') return `<defs>${LG(u + 's', '#2a7ad8', '#a0e0ff', 1)}</defs><rect width="200" height="200" fill="url(#${u}s)"/><path d="M0 120h120v80H0z" fill="#3a9a2a" stroke="#000"/><path d="M0 120h120" stroke="#5ad83a" stroke-width="5"/>${[20, 50, 80, 110].map((x, i) => digger(x, 98, 0.75)).join('')}<path d="M140 200v-30h60" fill="#2a5ad8"/><path d="M138 122q12-16 24 0z" fill="#e10600" stroke="#000"/><path d="M144 122l6-14 6 14M150 108v14" stroke="#fff" stroke-width=".8" fill="none"/><path d="M140 122l10 14M160 122l-10 14" stroke="#000" stroke-width=".7"/>${digger(150, 142, 0.7)}`;
@@ -499,14 +509,14 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
     }
     if (demoBox(b) && !big) s += `<rect y="164" width="200" height="20" fill="#e10600" stroke="#fff" stroke-width="1.5"/>${T(100, 178, 'DEMO DISC - FULL GAME ' + fullOut(b).replace(/ 1999$/, '').toUpperCase(), 10, '#fff', null, { f: 'Arial Black,Arial,sans-serif', sw: 0 })}`;
     else if (demoBox(b)) s += `<g transform="rotate(32 160 40)"><rect x="96" y="28" width="140" height="22" fill="#e10600" stroke="#fff" stroke-width="2"/>${T(166, 44, 'DEMO DISC', 14, '#fff', null, { f: 'Arial Black,Arial,sans-serif', sw: 0 })}</g>`;
-    if (b.owner === 'Callum') s += callumSticker(big ? 168 : 150);
+    if (b.houseOwner === 'mate3') s += callumSticker(big ? 168 : 150);
     return s + '</svg>';
   }
   // ---- spines (UK style: read bottom to top)
   function spine(b) {
     const t = titleOf(b).replace(/ \((CD-R|floppy|cover CD)\)$/, '');
     const st = `--a:${b.c1};--b:${b.c2};--c:${b.c3}`;
-    return `<button type="button" class="dc-sp dc-${b.kind}${S.cd === b.id ? ' dc-out' : ''}" data-b="${b.id}" style="${st}" title="${esc(titleOf(b))}"><span class="dc-spt"${t.length > 17 ? ` style="font-size:${t.length > 20 ? 9 : 10}px"` : ''}>${esc(t)}</span>${b.kind === 'big' ? `<span class="dc-spl">${b.game || b.app ? (b.age || '') : ''}</span>` : ''}${b.owner === 'Callum' ? '<span class="dc-spc">C\'s</span>' : ''}</button>`;
+    return `<button type="button" class="dc-sp dc-${b.kind}${S.cd === b.id ? ' dc-out' : ''}" data-b="${b.id}" style="${st}" title="${esc(titleOf(b))}"><span class="dc-spt"${t.length > 17 ? ` style="font-size:${t.length > 20 ? 9 : 10}px"` : ''}>${esc(t)}</span>${b.kind === 'big' ? `<span class="dc-spl">${b.game || b.app ? (b.age || '') : ''}</span>` : ''}${b.houseOwner === 'mate3' ? `<span class="dc-spc">${esc(Cast.n('mate3')[0])}'s</span>` : ''}</button>`;
   }
   // ---- the back of the box
   function back(b) {
@@ -514,7 +524,7 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
     const req = g ? g.req : (b.kind === 'big' || b.kind === 'jewel') ? 'Pentium 133, 16 MB RAM, 4x CD-ROM' : '';
     const free = b.demoOf ? `<div class="dc-free">Includes FREE demo of <b>${esc(b.demoOf)}</b>!</div>` : '';
     const bars = [...Array(34)].map((_, i) => `<rect x="${i * 3}" y="0" width="${1 + (i * 7 % 3 === 0 ? 1 : 0)}" height="${i % 9 ? 26 : 30}"/>`).join('');
-    if (b.kind === 'cdr' || b.kind === 'sleeve' || b.kind === 'floppy' || b.kind === 'cart') return `<div class="dc-back dc-backplain"><div class="dc-bt">${esc(titleOf(b))}</div><p>${esc(b.blurb)}</p>${b.kind === 'cdr' ? '<p class="dc-hand">"if you lose this I will actually cry" - C</p>' : ''}</div>`;
+    if (b.kind === 'cdr' || b.kind === 'sleeve' || b.kind === 'floppy' || b.kind === 'cart') return `<div class="dc-back dc-backplain"><div class="dc-bt">${esc(titleOf(b))}</div><p>${esc(b.blurb)}</p>${b.kind === 'cdr' ? `<p class="dc-hand">"if you lose this I will actually cry" - ${esc(Cast.n('mate3')[0])}</p>` : ''}</div>`;
     return `<div class="dc-back" style="--a:${b.c1};--b:${b.c2};--c:${b.c3}"><div class="dc-bt">${esc(titleOf(b))}${demoBox(b) ? ' <span class="dc-demo">DEMO</span>' : ''}</div><p class="dc-blurb">${esc(b.blurb)}</p>${shots ? `<div class="dc-shots">${shots}</div>` : ''}<ul>${(b.feats || []).map(f => `<li>${esc(f)}</li>`).join('')}</ul>${(b.quotes || []).map(q => `<div class="dc-q">${esc(q[0])} <i>- ${esc(q[1])}</i></div>`).join('')}${free}
 ${req ? `<div class="dc-req"><b>MINIMUM SYSTEM REQUIREMENTS</b><br>JackOS 95 or JackOS 98. ${esc(req)}. Sound Blaster compatible sound card. Mouse.${b.discs === 2 ? ' 2 CD-ROMs.' : ''}</div>` : ''}
 <div class="dc-keyrow">${pidOf(b) && !b.mag ? `<span class="dc-key">CD KEY<br><b>${cdKey(b)}</b></span>` : '<span></span>'}<svg viewBox="0 0 102 30" class="dc-bar">${bars}</svg></div>
@@ -536,7 +546,7 @@ ${req ? `<div class="dc-req"><b>MINIMUM SYSTEM REQUIREMENTS</b><br>JackOS 95 or 
     o = o || {};
     const b = BOX[id] || EXT[id]; if (!b) return;
     if (window.PM && PM.mayInsert && !PM.mayInsert(id, o)) return; // (js/pm-media.js: is it on your shelf?)
-    if (b.kind === 'cart') { A.secret('disc.n64'); sfx('thud'); return msg('Drive D:', 'You try to push Luke\'s cartridge into the CD-ROM drive.\n\nIt does not go in.\n\nIt is a cartridge. The CD-ROM drive takes CDs. (Luke says it would work if you blew on it first. Luke is wrong.)', 'warn'); }
+    if (b.kind === 'cart') { A.secret('disc.n64'); sfx('thud'); return msg('Drive D:', 'You try to push {mate2}\'s cartridge into the CD-ROM drive.\n\nIt does not go in.\n\nIt is a cartridge. The CD-ROM drive takes CDs. ({mate2} says it would work if you blew on it first. {mate2} is wrong.)', 'warn'); }
     if (b.kind === 'floppy') { sfx('thud'); toast('Drive A:', `Clunk. The ${titleOf(b).replace(/ \(floppy\)$/, '')} floppy is in drive A:. (It's already installed on C:, so just play it.)`, 4000); if (then) then(); return; }
     if (S.cd === id) { if (then) then(); else if (!o.quiet) autorun(b); return; }
     const old = S.cd;
@@ -546,7 +556,7 @@ ${req ? `<div class="dc-req"><b>MINIMUM SYSTEM REQUIREMENTS</b><br>JackOS 95 or 
   }
   function eject() {
     const now = Date.now(); S.ej = S.ej.filter(t => now - t < 15000).concat([now]);
-    if (S.ej.length >= 5) { S.ej = []; saveS(); A.secret('disc.tray'); return msg('Drive D:', 'STOP PLAYING WITH THE CD TRAY.\n\nIt is not a cup holder.\n\n(Dave put a can of pop on it once. Once.)', 'warn'); }
+    if (S.ej.length >= 5) { S.ej = []; saveS(); A.secret('disc.tray'); return msg('Drive D:', 'STOP PLAYING WITH THE CD TRAY.\n\nIt is not a cup holder.\n\n({mate1} put a can of pop on it once. Once.)', 'warn'); }
     if (!S.cd) { sfx('click'); saveS(); return toast('Drive D:', 'The drive is empty. The tray slides out, sits there, and slides back in.', 3000); }
     const b = BOX[S.cd] || EXT[S.cd];
     if (b && S.cd !== 'cover7' && Math.random() < 0.05 && !S.scr[b.id]) { S.scr[b.id] = 1; toast('Oops', `You left ${b.label} out of its case and it slid off the desk. Scrrrrtch.`, 4000); }
@@ -563,7 +573,7 @@ ${req ? `<div class="dc-req"><b>MINIMUM SYSTEM REQUIREMENTS</b><br>JackOS 95 or 
   function polish(b, after) {
     const d = A.ui.dialog('Polishing ' + b.label, `<div class="row" style="flex-wrap:nowrap;gap:10px;align-items:center"><div class="dc-polish"></div><div>Rubbing the disc on your jumper. Round and round. (Not across! Everyone knows you go from the middle outwards.)<div class="dc-pbar" style="margin-top:8px"></div></div></div>`, [['Stop']], { w: 360, icon: ic16(J('cdrom')) });
     const set = A.ui.progBar(qs(d.b, '.dc-pbar')); let f = 0;
-    const iv = setInterval(() => { if (d.w.closed) return clearInterval(iv); f += 0.08; set(f); if (f >= 1) { clearInterval(iv); d.w.close(); const fixed = Math.random() < 0.7 || S.scr[b.id] > 1; if (fixed) { delete S.scr[b.id]; A.secret('disc.polish'); toast('Polished!', `${b.label} is all shiny. It should read now. (Your jumper is now 5% disc.)`, 4000); } else { S.scr[b.id] = 2; msg('Hmm', 'Still a bit scratchy. Dave says toothpaste works. Try polishing it again.', 'info'); } saveS(); redraw(); if (after) after(); } }, 160);
+    const iv = setInterval(() => { if (d.w.closed) return clearInterval(iv); f += 0.08; set(f); if (f >= 1) { clearInterval(iv); d.w.close(); const fixed = Math.random() < 0.7 || S.scr[b.id] > 1; if (fixed) { delete S.scr[b.id]; A.secret('disc.polish'); toast('Polished!', `${b.label} is all shiny. It should read now. (Your jumper is now 5% disc.)`, 4000); } else { S.scr[b.id] = 2; msg('Hmm', 'Still a bit scratchy. {mate1} says toothpaste works. Try polishing it again.', 'info'); } saveS(); redraw(); if (after) after(); } }, 160);
   }
   // ================================================================ disc files, readmes, manuals
   const readmeText = b => {
@@ -631,15 +641,15 @@ JACKNET DUNGEONS
   or lead a party of heroes in a RAID on somebody else's dungeon and
   try to smash the Heart. The owner sees how many raids it has held off.`,
   };
-  const manualText = b => `${titleOf(b).toUpperCase()} - QUICK START MANUAL\n\n(the little booklet inside the box. Somebody has drawn a moustache on the man on page 3)\n\nYOUR CD KEY: ${cdKey(b)}\n(You will need this to install. Do not lose it. Do not let Callum "borrow" it.)\n\nGETTING STARTED\n  1. Insert the disc.\n  2. Click Install.\n  3. Wait.\n  4. Wait a bit more.\n  5. Play!\n\n${MANUAL[b.game] ? MANUAL[b.game].trim() + '\n\n' : ''}TECHNICAL SUPPORT\n  Ring 0891 999 999 (calls cost 50p per minute at all times. Ask the bill payer's permission).\n`;
+  const manualText = b => Cast.t(`${titleOf(b).toUpperCase()} - QUICK START MANUAL\n\n(the little booklet inside the box. Somebody has drawn a moustache on the man on page 3)\n\nYOUR CD KEY: ${cdKey(b)}\n(You will need this to install. Do not lose it. Do not let {mate3} "borrow" it.)\n\nGETTING STARTED\n  1. Insert the disc.\n  2. Click Install.\n  3. Wait.\n  4. Wait a bit more.\n  5. Play!\n\n${MANUAL[b.game] ? MANUAL[b.game].trim() + '\n\n' : ''}TECHNICAL SUPPORT\n  Ring 0891 999 999 (calls cost 50p per minute at all times. Ask the bill payer's permission).\n`);
   const DISCFILES = b => {
     if (b.ext) return b.files ? b.files() : [];
     if (b.kind === 'cdr') return [
       ['CALLUM.TXT', 'txt', '2 KB', () => Desk.notepad('CALLUM.TXT', b.readme)],
       ['DOSGAMES', 'dir', '', () => { const p = 'dosgames'; window.Setup && Setup.has(p) ? Setup.launch(p) : installVia(p); }],
       ['QUEST', 'dir', '', () => { const p = 'grotquest'; window.Setup && Setup.has(p) ? Setup.launch(p) : installVia(p); }],
-      ['SAVES', 'dir', '', () => msg('D:\\SAVES', 'D:\\SAVES contains:\n\n  CALLUM.SAV       412 KB   (Championship Boss)\n  DONOTLOAD.SAV     12 KB\n  LEVEL12.SAV       60 KB   (Jacks: Armageddon)\n\nCallum\'s note on the folder: "LOOK DON\'T TOUCH"', 'info')],
-      ['MIX.M3U', 'txt', '1 KB', () => Desk.notepad('MIX.M3U', '#EXTM3U\n#Callum\'s mix (MIDI only, the MP3s were too big)\ntheme.mid\nkorobeiniki.mid\ndave_singing.wav  <-- DO NOT PLAY\n')],
+      ['SAVES', 'dir', '', () => msg('D:\\SAVES', 'D:\\SAVES contains:\n\n  CALLUM.SAV       412 KB   (Championship Boss)\n  DONOTLOAD.SAV     12 KB\n  LEVEL12.SAV       60 KB   (Jacks: Armageddon)\n\n{mate3}\'s note on the folder: "LOOK DON\'T TOUCH"', 'info')],
+      ['MIX.M3U', 'txt', '1 KB', () => Desk.notepad('MIX.M3U', Cast.t('#EXTM3U\n#{mate3}\'s mix (MIDI only, the MP3s were too big)\ntheme.mid\nkorobeiniki.mid\ndave_singing.wav  <-- DO NOT PLAY\n'))],
     ];
     if (b.kind === 'sleeve') return [['DXSETUP.EXE', 'exe', '9.7 MB', () => directx(b)], ['README.TXT', 'txt', '1 KB', () => Desk.notepad('README.TXT', b.readme)]];
     const g = b.game ? GAMES[b.game] : null, exe = (g && g.exe) || b.exe || 'GAME.EXE';
@@ -731,7 +741,7 @@ JACKNET DUNGEONS
     const other = S.cd && S.cd !== b.id;
     if (other) A.secret('disc.wrongdisc');
     sfx('beep');
-    msg(titleOf(b), `Please insert the ${titleOf(b).toUpperCase()} disc (${b.label}) into drive D:.\n\n${other ? `The disc in drive D: is ${labelOf(S.cd)}. That's not it.` : 'Drive D: is empty.'}\n\nThe ${titleOf(b)} CD must be in the drive to play. (It's a copy-protection thing. Sorry. Blame Callum's cousin.)`, 'warn',
+    msg(titleOf(b), `Please insert the ${titleOf(b).toUpperCase()} disc (${b.label}) into drive D:.\n\n${other ? `The disc in drive D: is ${labelOf(S.cd)}. That's not it.` : 'Drive D: is empty.'}\n\nThe ${titleOf(b)} CD must be in the drive to play. (It's a copy-protection thing. Sorry. Blame {mate3}'s cousin.)`, 'warn',
       [['Fetch it from the cupboard', () => insert(b.id, ok, { quiet: true })], ['Retry', () => { if (S.cd === b.id) ok(); else needCD(b, ok); }], ['Cancel']]);
   }
   const OPEN = {};
@@ -750,7 +760,7 @@ JACKNET DUNGEONS
   function play(b) {
     if (b.kind === 'cart' || b.kind === 'sleeve' || b.kind === 'cdr') return insert(b.id);
     if (b.id === 'cover7') return insert('cover7', () => Setup.coverDisc ? Setup.coverDisc() : 0, { quiet: true });
-    if (b.app && !A.apps[b.app]) { sfx('uhoh'); return msg('Games Cupboard', `You open the ${titleOf(b)} box...\n\nIt's EMPTY. Just the manual and a Jack Burger voucher.\n\n${b.owner === 'Callum' ? 'Callum must have taken the disc back.' : 'Dave must have borrowed the disc. Again.'} (This game isn't on this computer yet.)`, 'info'); }
+    if (b.app && !A.apps[b.app]) { sfx('uhoh'); return msg('Games Cupboard', `You open the ${titleOf(b)} box...\n\nIt's EMPTY. Just the manual and a Jack Burger voucher.\n\n${b.houseOwner === 'mate3' ? '{mate3} must have taken the disc back.' : '{mate1} must have borrowed the disc. Again.'} (This game isn't on this computer yet.)`, 'info'); }
     if (!installed(b)) return quickInstall(b, () => play(b));
     if (b.game) return A.open('discs.' + b.game);
     const pid = pidOf(b);
@@ -784,10 +794,10 @@ JACKNET DUNGEONS
   }
   // ================================================================ the cupboard window
   const NOTES = [
-    ['Luke', 'can we just play Kart Kaos on your ULTRA 64 instead??? - Luke', '#fff36a', -4],
-    ['Dave', 'PC games = spreadsheets with explosions. ULTRA 64 4 EVA!!! - Dave', '#9fe8ff', 3],
-    ['Jack', 'BORROWED OFF CALLUM: Age of Jackpires II + JRT. Give back by Friday (which Friday??)', '#ffb0d8', -2],
-    ['JackK', 'JackK woz ere. Your Jacks: Armageddon score is RUBBISH', '#b8ff9a', 5],
+    ['{mate2}', 'can we just play Kart Kaos on your ULTRA 64 instead??? - {mate2}', '#fff36a', -4],
+    ['{mate1}', 'PC games = spreadsheets with explosions. ULTRA 64 4 EVA!!! - {mate1}', '#9fe8ff', 3],
+    ['{me}', 'BORROWED OFF {mate3.NAME}: Age of Jackpires II + JRT. Give back by Friday (which Friday??)', '#ffb0d8', -2],
+    ['{mate4}', '{mate4} woz ere. Your Jacks: Armageddon score is RUBBISH', '#b8ff9a', 5],
   ];
   const TOPKEYS = BOXES.filter(b => b.game || b.pid || b.pidApp).map(b => b.id);
   const MPID = { squigs: 'squigs.online', rts: 'rts.online', boss: 'boss.online' }; // live online modes (mp.js / ONLINE below)
@@ -798,10 +808,10 @@ JACKNET DUNGEONS
     let sel = store.get('jhp_discs_sel', 'park'); if (!BOX[sel]) sel = 'park';
     let showBack = false;
     const bx = h(`<div class="dc">
-<div class="dc-cab"><div class="dc-head">THE GAMES CUPBOARD <small>Jack's. Hands off, Dave.</small></div>
+<div class="dc-cab"><div class="dc-head">THE GAMES CUPBOARD <small>${esc(Cast.t("{me}'s. Hands off, {mate1}."))}</small></div>
 <div class="dc-shelf dc-s1"></div><div class="dc-shelf dc-s2"></div>
 <div class="dc-drawer"><div class="dc-knob"></div><div class="dc-dl">THE DRAWER <small>(floppies, CD-Rs and things that aren't mine)</small></div><div class="dc-ditems"></div></div>
-<div class="dc-notes">${NOTES.map(n => `<div class="dc-note" style="background:${n[2]};transform:rotate(${n[3]}deg)">${esc(n[1])}</div>`).join('')}</div></div>
+<div class="dc-notes">${NOTES.map(n => `<div class="dc-note" style="background:${n[2]};transform:rotate(${n[3]}deg)">${esc(Cast.t(n[1]))}</div>`).join('')}</div></div>
 <div class="dc-side"><div class="dc-card"></div><div class="dc-info"></div><div class="dc-btns"></div></div>
 <div class="dc-foot"><div class="dc-drive"><div class="dc-dfront"><div class="dc-dslot"></div><span class="dc-led"></span><span class="dc-dbtn"></span></div><div class="lcd dc-lcd"></div><div class="dc-dctl"><button class="btn" type="button" data-d="ej">Eject</button><button class="btn" type="button" data-d="ar">AutoPlay</button><button class="btn" type="button" data-d="ex">Explore D:</button></div></div>
 <div class="dc-top"><div class="dc-toph">JackNet Top Installs <small>(everyone on JackNet)</small></div><div class="dc-topl">Dialling in...</div></div></div></div>`);
@@ -845,10 +855,10 @@ JACKNET DUNGEONS
       if (b.kind !== 'cart') bl.push(['Read Me', () => Desk.notepad('README.TXT', readmeText(b))]);
       if (pid && b.game) bl.push(['Manual', () => Desk.notepad('MANUAL.TXT', manualText(b))]);
       if (S.scr[b.id]) bl.push(['Polish on jumper', () => polish(b)]);
-      if (b.owner === 'Callum') bl.push(['Give it back to Callum', () => { A.secret('disc.callum'); S.gave[b.id] = (S.gave[b.id] || 0) + 1; saveS(); msg('Callum', pick(['You give Callum his disc back.\n\nCallum: "finally. you can borrow it again if you want, I\'ve finished it"\n\nYou put it straight back in the cupboard.', 'Callum: "is it scratched? IT\'S SCRATCHED. oh wait that was me. never mind, keep it till Friday"', 'Callum: "cheers. can I borrow Jacks: Armageddon then? no? fine. keep it"']), 'info'); draw(); }]);
-      if (b.owner === 'Luke') bl.push(['Give it back to Luke', () => msg('Luke', 'Luke: "nah keep it here, then I\'ve got a reason to come round. have you got any crisps"', 'info')]);
+      if (b.houseOwner === 'mate3') bl.push(['Give it back to {mate3}', () => { A.secret('disc.callum'); S.gave[b.id] = (S.gave[b.id] || 0) + 1; saveS(); msg('{mate3}', pick(['You give {mate3} {mate3.his} disc back.\n\n{mate3}: "finally. you can borrow it again if you want, I\'ve finished it"\n\nYou put it straight back in the cupboard.', '{mate3}: "is it scratched? IT\'S SCRATCHED. oh wait that was me. never mind, keep it till Friday"', '{mate3}: "cheers. can I borrow Jacks: Armageddon then? no? fine. keep it"']), 'info'); draw(); }]);
+      if (b.houseOwner === 'mate2') bl.push(['Give it back to {mate2}', () => msg('{mate2}', '{mate2}: "nah keep it here, then I\'ve got a reason to come round. have you got any crisps"', 'info')]);
       btns.innerHTML = '';
-      bl.forEach(([l, fn, c]) => { const e = h(esc(l), 'btn ' + (c || ''), 'button'); e.type = 'button'; e.addEventListener('click', fn); btns.appendChild(e); });
+      bl.forEach(([l, fn, c]) => { const e = h(esc(Cast.t(l)), 'btn ' + (c || ''), 'button'); e.type = 'button'; e.addEventListener('click', fn); btns.appendChild(e); });
       // the drive
       qs(bx, '.dc-lcd').textContent = 'D: ' + (S.cd ? labelOf(S.cd) : '[EMPTY]') + (S.cd && S.scr[S.cd] ? ' *' : '');
       qs(bx, '.dc-led').classList.toggle('on', spinning > 0);
@@ -945,14 +955,14 @@ JACKNET DUNGEONS
   A.register('discs.cupboard', { single: true, cmd: ['cupboard', 'discs', 'games cupboard', 'gamescupboard'], open: cupboard });
   A.addProgram(['Games', 'Games Cupboard'], 'discs.cupboard', ic16(IC.cupboard));
   A.desktopIcon('Games Cupboard', IC.cupboard, () => A.open('discs.cupboard'), 'dgIconCupboard');
-  A.fs.add('C:/My Documents', { name: 'games i have borrowed.txt', type: 'txt', date: '02/10/99', size: '1 KB', text: `GAMES I HAVE BORROWED (so I give them back)\n===========================================\n\nOFF CALLUM:\n  - Age of Jackpires II (both discs. disc 1 was scratched WHEN I GOT IT)\n  - Jackreal Tournament\n  - his shareware CD-R (he says "guard it with your life")\n\nOFF LUKE:\n  - a cartridge (it's for his N64. I haven't got an N64. Luke knows this.)\n\nLENT TO DAVE:\n  - nothing. never again. he still has my pod racing cover disc from MAY\n\nAll in the Games Cupboard (desktop, or type CUPBOARD in Run).\n`, secret: null });
+  A.fs.add('C:/My Documents', { name: 'games i have borrowed.txt', type: 'txt', date: '02/10/99', size: '1 KB', text: Cast.t(`GAMES I HAVE BORROWED (so I give them back)\n===========================================\n\nOFF {mate3.NAME}:\n  - Age of Jackpires II (both discs. disc 1 was scratched WHEN I GOT IT)\n  - Jackreal Tournament\n  - {mate3.his} shareware CD-R ({mate3.he} says "guard it with your life")\n\nOFF {mate2.NAME}:\n  - a cartridge (it's for {mate2.his} N64. I haven't got an N64. {mate2} knows this.)\n\nLENT TO {mate1.NAME}:\n  - nothing. never again. {mate1.he} still has my pod racing cover disc from MAY\n\nAll in the Games Cupboard (desktop, or type CUPBOARD in Run).\n`), secret: null });
   document.addEventListener('setup', ev => {
     const d = ev.detail || {}; if (!d.on) { redraw(); return; }
     const b = BOXES.find(x => pidOf(x) === d.id);
     if (b) { try { Net.kv.inc('disc.inst.' + b.id); } catch (e) {} if (b.game && GAMEIDS.every(id => window.Setup && Setup.has('disc.' + id))) A.secret('disc.allnew'); }
     redraw();
   });
-  [['cupboard', 'The cupboard under the desk', 'Find where Jack keeps his PC games'],
+  [['cupboard', 'The cupboard under the desk', 'Find where you keep your PC games'],
     ['flip', 'Read the back of the box', 'Turn a game box over. The screenshots are always better than the game.'],
     ['scratch', 'Abort, Retry, Fail?', 'Try to read a scratched disc'],
     ['polish', 'Jumper polish', 'Rescue a scratched disc the traditional way'],

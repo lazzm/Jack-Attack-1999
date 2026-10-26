@@ -36,7 +36,7 @@
 
   // ================================================================ MOM
   dirDate(MOM, '02/01/99'); dirDate(RECIPES, '08/02/99');
-  txt(MOM, 'Mobile phone RULES (for Jack).txt', '02/01/99', `RULES FOR JACK'S MOBILE PHONE
+  txt(MOM, 'Mobile phone RULES (for {me}).txt', '02/01/99', `RULES FOR {me.NAME}'S MOBILE PHONE
 (it was a Christmas present, NOT a human right)
 
 1. Texts cost 10p each. That is YOUR pocket money, not mine.
@@ -44,7 +44,7 @@
 3. No texting at the dinner table. The phone goes in the fruit bowl.
 4. It is for EMERGENCIES and for telling me where you are.
    "wer r u" is not an emergency. "come and get me pls" might be.
-5. Do not lend it to Dave. Last time Dave borrowed a calculator it came back sticky.
+5. Do not lend it to {mate1}. Last time {mate1} borrowed a calculator it came back sticky.
 6. Do not let {sister} play Snake on it. She cries when she crashes into herself.
 7. Charge it on the kitchen side, not next to your bed. I read that somewhere.
 8. If it rings in church you will be walking home.
@@ -57,13 +57,13 @@ Love Mom x
   txt(MOM, 'Thank you letters - who has done theirs.txt', '03/01/99', () => gated(`THANK YOU LETTERS 1999 - TICK WHEN DONE
 
 {sister} ......... DONE (all 6, with drawings, one has glitter on it, sorry Gran)
-Jack ......... NOT DONE. "I'll do it on the computer." (He has been ON the computer.)
+{me} ......... NOT DONE. "I'll do it on the computer." ({me.He} has been ON the computer.)
 Dad .......... "Do grown-ups have to?" YES.
 Me ........... done, obviously
-`, [['01-09', `\n09/01 - Jack has done ONE. To Nan. It is very good actually. Printed on the dot-matrix so it looks like a gas bill.`],
-    ['01-16', `16/01 - Jack: still 3 to go. Dad: still all of them.`],
+`, [['01-09', `\n09/01 - {me} has done ONE. To Nan. It is very good actually. Printed on the dot-matrix so it looks like a gas bill.`],
+    ['01-16', `16/01 - {me}: still 3 to go. Dad: still all of them.`],
     ['01-30', `30/01 - Everybody done. Dad's says "Ta for the socks. Dad". That's it. That's the whole letter.`]]));
-  txt(RECIPES, 'Shepherd\'s pie.txt', '08/02/99', `SHEPHERD'S PIE (serves 4, or 3 if Jack is hungry)
+  txt(RECIPES, 'Shepherd\'s pie.txt', '08/02/99', `SHEPHERD'S PIE (serves 4, or 3 if {me} is hungry)
 
 1lb mince (it's cottage pie if it's beef, Dad, I KNOW, nobody cares)
 1 onion, 2 carrots, a handful of frozen peas
@@ -72,7 +72,7 @@ Gravy granules (the red tub)
 Grated cheese on top ({sister}'s job - most of it goes in {sister})
 
 Brown the mince and onion. Add carrots, peas and gravy. Simmer 20 mins.
-Mash the potatoes. Spread on top. Fork lines on it (Jack's job - he does them in the shape of a Zapachu face).
+Mash the potatoes. Spread on top. Fork lines on it ({me}'s job - {me.he} does them in the shape of a Zapachu face).
 Cheese. 200C for 25 mins till it's golden and crispy round the edges.
 
 {sister} will pick out the peas. Let her. Life is too short.
@@ -91,13 +91,13 @@ Hot pan, tiny bit of butter, thin layer, flip when the edges go lacy.
 TOPPINGS:
 Me ......... lemon and sugar (the proper way)
 Dad ........ golden syrup, far too much
-Jack ....... chocolate spread AND banana AND sugar ("it's a pudding pancake")
+{me} ....... chocolate spread AND banana AND sugar ("it's a pudding pancake")
 {sister} ....... just sugar, but she wants to toss it herself
 
 Pancakes on the ceiling this year: 1 (Dad, showing off)
 Pancakes on the dog: 0 (we haven't got a dog, {sister}, don't start)
 `);
-  txt(RECIPES, 'Spag bol (Jack\'s favourite).txt', '15/03/99', `SPAG BOL - Jack's favourite, {sister}'s least favourite, Dad's "it's alright"
+  txt(RECIPES, 'Spag bol ({me}\'s favourite).txt', '15/03/99', `SPAG BOL - {me}'s favourite, {sister}'s least favourite, Dad's "it's alright"
 
 1lb mince, 1 onion, garlic (2 cloves - Dad says it's too much, Dad is wrong)
 Tin of chopped tomatoes, squirt of tomato puree, a stock cube
@@ -105,9 +105,9 @@ Mixed herbs, salt and pepper
 Spaghetti ({sister} has hers snapped in half, she's not a "twirler")
 
 Fry, add everything, simmer for as long as you can stand it.
-Jack has his with "a mountain" of cheese.
+{me} has {me.his} with "a mountain" of cheese.
 
-N.B. Jack says this is what astronauts eat. It is not. Astronauts eat it out of a tube.
+N.B. {me} says this is what astronauts eat. It is not. Astronauts eat it out of a tube.
 `);
   txt(RECIPES, 'Easter nests ({sister}\'s job).txt', '01/04/99', `CHOCOLATE EASTER NESTS (Easter is 4th April)
 
@@ -116,13 +116,13 @@ N.B. Jack says this is what astronauts eat. It is not. Astronauts eat it out of 
 Mini chocolate eggs
 Paper cake cases
 
-Melt the chocolate in a bowl over a pan of hot water (NOT in the microwave, Jack, remember the "incident").
+Melt the chocolate in a bowl over a pan of hot water (NOT in the microwave, {me}, remember the "incident").
 Stir in the crushed wheat. Spoon into cases. Push a dip in the middle. Three little eggs in each.
 Fridge for an hour.
 
 Made: 12
 Left after one hour: 7
-Left after Jack and Dad "tested" them: 3
+Left after {me} and Dad "tested" them: 3
 {sister} has put the last 3 in her room with a sign that says KEEP OUT THIS MEANS EVERYONE.
 `);
   doc(MOM, 'Letter to school - {sister}\'s trip.doc', '17/05/99', 'fam_trip', { font: 'Times New Roman', size: 12, md: `>> 17th May 1999
@@ -145,7 +145,7 @@ Yours sincerely,
 
 {sister}'s Mom
 
-P.S. {sister}'s brother Jack says to tell you he "remembers that farm" and the goats "can't be trusted". I have no idea what he means.` });
+P.S. {sister}'s {me.sib} {me} says to tell you {me.he} "remembers that farm" and the goats "can't be trusted". I have no idea what {me.he} means.` });
   txt(RECIPES, 'Barbecue (it WILL rain).txt', '12/06/99', `BARBECUE - Saturday (forecast: "sunny spells". Ha.)
 
 SHOPPING:
@@ -161,7 +161,7 @@ Bin bags (for the rain)
 WHO DOES WHAT:
 Dad ...... the barbecue. Nobody else is allowed. He has an apron.
 Me ....... everything else
-Jack ..... carrying, and "the music" (please, not the Blockology tape again)
+{me} ..... carrying, and "the music" (please, not the Blockology tape again)
 {sister} ..... napkins, and telling everybody the sausages are pink in the middle
 
 At 3pm it rained. We ate in the kitchen. Dad stood outside under the umbrella and cooked all 16 burgers anyway.
@@ -172,18 +172,18 @@ At 3pm it rained. We ate in the kitchen. Dad stood outside under the umbrella an
 EVERYONE:
 [x] Raincoats (it's a British holiday)
 [x] Wellies
-[x] Jumpers ("but it's SUMMER" - Jack. Yes. Jumpers.)
+[x] Jumpers ("but it's SUMMER" - {me}. Yes. Jumpers.)
 [x] Swimming things
 [x] Sun cream (in hope)
 [x] Travel sweets for {sister}
 [x] Cards, Connect 4, the travel Scrabble with the missing Q
 
-JACK:
-[x] Game Lad + batteries (4 spare, he'll still run out)
+{me.NAME}:
+[x] Game Lad + batteries (4 spare, {me.he}'ll still run out)
 [x] Rubrick's cube
-[x] His mobile (it does NOT work in the caravan field, he will find this out)
-[ ] Computer (NO. He asked. The answer is no.)
-[ ] 12 Ork models (I said TWO. He has packed seven. Compromise.)
+[x] {me.His} mobile (it does NOT work in the caravan field, {me.he} will find this out)
+[ ] Computer (NO. {me.He} asked. The answer is no.)
+[ ] 12 Ork models (I said TWO. {me.He} has packed seven. Compromise.)
 
 {sister.NAME}:
 [x] Mr Snuggles
@@ -195,25 +195,25 @@ DAD:
 [x] The windbreak (he will spend one hour putting it up)
 [x] His newspaper crossword book
 
-DON'T FORGET: turn the computer OFF at the wall. Jack, I mean OFF. Not "standby".
+DON'T FORGET: turn the computer OFF at the wall. {me}, I mean OFF. Not "standby".
 `);
   txt(MOM, 'Eclipse - 11th August.txt', '09/08/99', `THE ECLIPSE - WEDNESDAY 11th AUGUST, ABOUT 11 O'CLOCK
 
 It's only total down in the very south-west, but it'll go "properly dim" here too, the man on the telly says.
 
 DO NOT LOOK AT THE SUN. NOT EVEN A LITTLE BIT. NOT EVEN THROUGH SUNGLASSES.
-(Jack - this means you. Dad - this means you too.)
+({me} - this means you. Dad - this means you too.)
 
 - Eclipse glasses from the newsagent x4 (got them, they're in the drawer under the phone)
-- Jack is making a "pinhole viewer" out of a cereal box for school. Do NOT empty the cereal into the bin, Jack.
+- {me} is making a "pinhole viewer" out of a cereal box for school. Do NOT empty the cereal into the bin, {me}.
 - {sister} is worried the Sun won't come back. It will come back, sweetheart.
 - Dad is going to "pop home from work" to watch it. We'll see.
 
-Afterwards Jack said "the next one in Britain isn't until 2090". {sister} said "I'll be OLD". Dad said "I'll be dead". Nobody laughed. Then everybody laughed.
+Afterwards {me} said "the next one in Britain isn't until 2090". {sister} said "I'll be OLD". Dad said "I'll be dead". Nobody laughed. Then everybody laughed.
 `);
   txt(RECIPES, 'Apple crumble.txt', '19/09/99', `APPLE CRUMBLE (the apple tree has gone MAD this year)
 
-2lb cooking apples, peeled and sliced (Jack peels, {sister} eats the peel)
+2lb cooking apples, peeled and sliced ({me} peels, {sister} eats the peel)
 2oz sugar, a shake of cinnamon
 
 CRUMBLE:
@@ -231,12 +231,12 @@ Apples given to next door: a bag full (Bonnie the dog ate one)
 
 {sister.NAME}: a witch. Needs: black bin bag (cape), hat (make from card), broom from the garage (DUST IT).
        Green face paint. She wants a "real" black cat. No.
-JACK: says he is "too old" for trick or treating. Is going as "a Y2K bug" to Dave's party instead.
+{me.NAME}: says {me.he} is "too old" for trick or treating. Is going as "a Y2K bug" to {mate1}'s party instead.
        This is a black jumper with "ERROR" stuck on it in silver tape. I am not sure that counts.
 DAD:  will answer the door in his old monster mask and scare the little ones. NOT TOO MUCH this year.
 ME:   sweets bowl.
 
-SWEETS FOR THE DOOR: 3 big bags. Hide them from Jack AND Dad until 6pm.
+SWEETS FOR THE DOOR: 3 big bags. Hide them from {me} AND Dad until 6pm.
 `);
   doc(MOM, 'Christmas card list.doc', '13/11/99', 'fam_cards', { font: 'Times New Roman', size: 12, md: `# CHRISTMAS CARD LIST 1999
 
@@ -244,24 +244,24 @@ SWEETS FOR THE DOOR: 3 big bags. Hide them from Jack AND Dad until 6pm.
 
 ## FAMILY
 * Gran - big card, and {sister}'s drawing (the one with the robin, not the one with the dinosaur)
-* Nan - big card, photo of the kids (find one where Jack isn't pulling a face)
+* Nan - big card, photo of the kids (find one where {me} isn't pulling a face)
 * {auntie} & {uncle}, {cousin} & {cousin.his} brothers
-* Auntie Jan (she always sends one with a fiver in for each of the kids - Jack, write her a PROPER thank you)
+* Auntie Jan (she always sends one with a fiver in for each of the kids - {me}, write her a PROPER thank you)
 * {greatuncle} (is {greatuncle.he} still at the same address? Ask Gran)
 
 ## FRIENDS & NEIGHBOURS
 * Next door - from all of us, and "from {sister} to Bonnie" (the dog). Yes, the dog gets a card.
-* Karen & Steve (Dave's mom and dad) - and say thank you for having Jack round practically every Saturday
-* Luke's mom
+* Karen & Steve ({mate1}'s mom and dad) - and say thank you for having {me} round practically every Saturday
+* {mate2}'s mom
 * The lady across the road who takes our parcels in
-* Callum's mom (Jack says "she's alright, she lets us use the big computer")
+* {mate3}'s mom ({me} says "she's alright, she lets us use the big computer")
 
 ## WORK
 * Dad's office: he says he'll "do his own". He won't. Buy a box of 20.
 
 ## SCHOOL
 * {sister}'s teacher - {sister} is making it herself (glitter, God help us)
-* Jack's form tutor - Jack says "nobody does that". {sister} says "I do". Jack is doing one.
+* {me}'s form tutor - {me} says "nobody does that". {sister} says "I do". {me} is doing one.
 
 ---
 
@@ -283,17 +283,17 @@ Feed it every week till Christmas.
 
 WISHES (they told me anyway):
 {sister} ..... a Furby (and a dog)
-Jack ..... "the Millennium Bug doesn't happen so the internet still works"
-Dad ...... "a quiet New Year". At Dave's party. Good luck.
+{me} ..... "the Millennium Bug doesn't happen so the internet still works"
+Dad ...... "a quiet New Year". At {mate1}'s party. Good luck.
 Me ....... not telling
 `);
-  txt(MOM, 'Millennium Eve - who\'s doing what.txt', '30/12/99', `NEW YEAR'S EVE - THE MILLENNIUM!!! - PARTY AT KAREN & STEVE'S (Dave's)
+  txt(MOM, 'Millennium Eve - who\'s doing what.txt', '30/12/99', `NEW YEAR'S EVE - THE MILLENNIUM!!! - PARTY AT {mate1.NAME}'S
 Starts 7pm. We are leaving by HALF PAST TWELVE AT THE LATEST.
 
 BRINGING:
 Me ....... a trifle (the big bowl), sausage rolls x40
 Dad ...... the drinks, and the camping chairs
-Jack ..... his "Y2K emergency kit" (torch, batteries, a tin of beans). He has insisted. Fine.
+{me} ..... {me.his} "Y2K emergency kit" (torch, batteries, a tin of beans). {me.He} has insisted. Fine.
 {sister} ..... sparklers (to give to a GROWN-UP), and Mr Snuggles, who is also "seeing in the Millennium"
 
 THINGS TO DO BEFORE WE GO:
@@ -301,7 +301,7 @@ THINGS TO DO BEFORE WE GO:
 - Some cash out, just in case (Dad again)
 - {sister} has a nap in the afternoon so she can stay up. (She won't nap.)
 - Video the fireworks on the telly in case we miss them
-- Unplug the computer. Jack says "it's Y2K compliant". Unplug it anyway.
+- Unplug the computer. {me} says "it's Y2K compliant". Unplug it anyway.
 
 Happy New Year everybody. Whatever happens, it's been a lovely year. x
 `);
@@ -319,8 +319,8 @@ Rang round:
 Went with A. £412.60. Paying monthly as 12 x £36.83 (costs more, I know, I KNOW).
 
 NAMED DRIVERS: me, Mom.
-NOT A NAMED DRIVER: Jack. He asked. He is not on it. He is not on it for some years yet.
-Jack says he "drives really well on Ep I Racer". That is not a car.
+NOT A NAMED DRIVER: {me}. {me.He} asked. {me.He} is not on it. {me.He} is not on it for some years yet.
+{me} says {me.he} "drives really well on Ep I Racer". That is not a car.
 `, [['06-02', `\n02/06 - Small dent in the back bumper. Mom says she "did not hit the bollard, the bollard moved". Not claiming. £0.`],
     ['08-01', `01/08 - Caravan holiday: 340 miles. {sister} sick twice. Both times on my side.`],
     ['10-14', `14/10 - Somebody has put a Gubbinz sticker on the dashboard. Nobody will admit it. It's staying, actually, I quite like it.`]]));
@@ -340,13 +340,13 @@ Jack says he "drives really well on Ep I Racer". That is not a car.
       ['Petrol (70p a litre!!)', [62, 58, 64, 60, 61, 66, 118, 92, 60, 63, 64, 70]],
       ['Car insurance', [36.83, 36.83, 36.83, 36.83, 36.83, 36.83, 36.83, 36.83, 36.83, 36.83, 36.83, 36.83]],
       ['TV licence', [0, 0, 0, 101, 0, 0, 0, 0, 0, 0, 0, 0]],
-      ['Pocket money (Jack + {sister})', [28, 28, 35, 28, 28, 28, 35, 28, 28, 35, 28, 42]],
+      ['Pocket money ({me} + {sister})', [28, 28, 35, 28, 28, 28, 35, 28, 28, 35, 28, 42]],
       ['School stuff / trips', [12, 0, 18, 0, 6.5, 22, 0, 85, 34, 0, 9, 15]],
       ['Holiday (caravan)', [0, 0, 0, 0, 0, 0, 420, 0, 0, 0, 0, 0]],
       ['Christmas', [0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 160, 380]],
       ['Dog', [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
     ];
-    const c = { A1: 'HOUSEHOLD BUDGET 1999', A2: '(Dad. Do NOT "improve" this spreadsheet, Jack.)', A4: 'Item' };
+    const c = { A1: 'HOUSEHOLD BUDGET 1999', A2: '(Dad. Do NOT "improve" this spreadsheet, {me}.)', A4: 'Item' };
     MON.forEach((m, i) => { c[COL[i] + '4'] = m; });
     c.N4 = 'Year so far';
     let r = 5;
@@ -379,8 +379,8 @@ Jack says he "drives really well on Ep I Racer". That is not a car.
     A1: 'CARAVAN HOLIDAY - WHERE DID IT ALL GO', A3: 'What', B3: 'Cost', C3: 'Whose fault',
     A4: 'Caravan (7 nights)', B4: 285, C4: 'Mine (I booked it)', A5: 'Petrol there and back', B5: 52.4, C5: 'The caravan site being so far away',
     A6: 'Fish and chips x 4, x 4 nights', B6: 61.6, C6: 'Everybody', A7: '2p machines on the pier', B7: 9.4, C7: '{sister} (and me, a bit)',
-    A8: 'Crazy golf', B8: 8, C8: 'Jack won. He will not stop going on about it.', A9: 'Rain ponchos', B9: 6, C9: 'The weather',
-    A10: 'Game Lad batteries', B10: 3.99, C10: 'Jack', A11: 'Postcards + stamps', B11: 4.2, C11: 'Mom', A12: 'Stick of rock x 6', B12: 4.5, C12: 'Gifts. Ate 2 in the car.',
+    A8: 'Crazy golf', B8: 8, C8: '{me} won. {me.He} will not stop going on about it.', A9: 'Rain ponchos', B9: 6, C9: 'The weather',
+    A10: 'Game Lad batteries', B10: 3.99, C10: '{me}', A11: 'Postcards + stamps', B11: 4.2, C11: 'Mom', A12: 'Stick of rock x 6', B12: 4.5, C12: 'Gifts. Ate 2 in the car.',
     A13: 'Indoor swimming pool (it rained)', B13: 11, C13: 'The weather again', A14: 'Plastic windbreak (new, old one blew away)', B14: 7.99, C14: 'The wind',
     A16: 'TOTAL', B16: '=SUM(B4:B14)', A17: 'Per day', B17: '=B16/7', A18: 'Days it rained', B18: 5, A19: 'Days it didn\'t', B19: 2, C19: 'Both spent in the car',
   }, colW: { A: 220, B: 70, C: 270 }, fmt: { A1: 'b c=#008080', 'A3:C3': 'b bg=#c0ffc0', 'B4:B17': 'cur', 'A16:B17': 'b', 'C4:C19': 'i' }, chart: { type: 'pie', range: 'A4:A14', vals: 'B4:B14' } }));
@@ -392,10 +392,10 @@ Jack says he "drives really well on Ep I Racer". That is not a car.
 DO NOT DELETE IT.
 DO NOT MOVE IT.
 DO NOT PUT GAMES IN IT.
-DO NOT RENAME IT TO "DAD'S BORING STUFF" (Jack, I know it was you).
-DO NOT DEFRAG IT. I don't know what that means but Jack keeps saying it and I don't trust it.
+DO NOT RENAME IT TO "DAD'S BORING STUFF" ({me}, I know it was you).
+DO NOT DEFRAG IT. I don't know what that means but {me} keeps saying it and I don't trust it.
 
-If the computer says it needs to delete something to make room, delete Jack's Pocket Critters pictures.
+If the computer says it needs to delete something to make room, delete {me}'s Pocket Critters pictures.
 There are four hundred of them. Nobody will notice if there are three hundred and ninety.
 
 - DAD
@@ -413,14 +413,14 @@ NEVER AGAIN leave it this late. (I say this every year.)
 
 [x] Card (a proper one from the card shop, NOT the petrol station - lesson learned in 1997)
 [x] Book a table at the Italian place for Saturday night. Booked. 7:30.
-[x] Babysitter: Gran. (Gran says Jack is old enough to babysit {sister}. {sister} says she'd rather have Gran. So would I.)
+[x] Babysitter: Gran. (Gran says {me} is old enough to babysit {sister}. {sister} says she'd rather have Gran. So would I.)
 [ ] Flowers - pick up Saturday morning
 [ ] Chocolates - the posh ones, not the ones in the purple tin
 
 If Mom is reading this: hello love. Act surprised.
 `);
-  txt(DND, 'How to use the computer (by Jack, for Dad).txt', '15/02/99', `HOW TO USE THE COMPUTER - FOR DAD
-by Jack
+  txt(DND, 'How to use the computer (by {me}, for Dad).txt', '15/02/99', `HOW TO USE THE COMPUTER - FOR DAD
+by {me}
 
 1. The ON button is the big one on the front. Not the one on the back. The one on the back is the "everything off" switch and you have to hold it for ages and it makes the computer sad.
 2. Double-click means click TWICE, FAST. Not click, wait, have a think, click again.
@@ -433,10 +433,10 @@ by Jack
 9. The screensaver is not broken. That's what it's meant to do.
 10. Do NOT touch my Ork folder. It is not "taking up space". It is an ARCHIVE.
 
-Love Jack
+Love {me}
 P.S. If {sister} asks to go on Paint, she's allowed, but save before she touches anything.
 `);
-  txt(DND, 'Top-up card (FOR EMERGENCIES ONLY).txt', '20/02/99', `Bought Jack a top-up card for his mobile phone for EMERGENCIES ONLY.
+  txt(DND, 'Top-up card (FOR EMERGENCIES ONLY).txt', '20/02/99', `Bought {me} a top-up card for {me.his} mobile phone for EMERGENCIES ONLY.
 Typed the number in here so I don't lose the card. (I've lost the card.)
 
 TALKBRIK PAY AS YOU GO - TOP-UP: £10.00
@@ -445,25 +445,25 @@ Code:  1999 1999 2000
 To use: on the phone go to Menu, Credit, Top up, and type the 12 numbers.
 
 EMERGENCIES are: car broken down, missed the bus, somebody is hurt.
-EMERGENCIES are NOT: "Dave has a new game", "what's for tea", "did you tape The Simpsocks".
+EMERGENCIES are NOT: "{mate1} has a new game", "what's for tea", "did you tape The Simpsocks".
 
 - Dad
 `);
   txt(DND, 'Lottery numbers.txt', '06/03/99', () => gated(`LOTTERY - SAME NUMBERS EVERY SATURDAY (and Wednesdays if I remember)
 My numbers: 3, 9, 14, 22, 31, 44
-(3 = Jack's lucky number, 9 = {sister}'s, 14 = Mom's, 22 = the house, 31 = my old football shirt, 44 = no reason, I just like it)
+(3 = {me}'s lucky number, 9 = {sister}'s, 14 = Mom's, 22 = the house, 31 = my old football shirt, 44 = no reason, I just like it)
 
 PLAN IF WE WIN:
 1. Pay off the house
 2. New car (a big one, with the cup holders)
 3. A proper holiday, somewhere with sun. Actual sun.
-4. Jack wants "a computer that can run everything". Fine.
+4. {me} wants "a computer that can run everything". Fine.
 5. {sister} wants a horse. And a dog. And a horse for the dog.
 6. Mom wants "nothing, just for everyone to be happy". Mom wants a conservatory.
 
 RESULTS:
 `, [['03-06', '06/03 - 1 number. (The 9. {sister} says it was her that won.)'], ['04-17', '17/04 - 0 numbers.'], ['05-22', '22/05 - 2 numbers. So close.'], ['06-26', '26/06 - 0. The machine hates me.'],
-    ['08-14', '14/08 - 3 numbers!!! £10!!! Jack says I should "reinvest it". In what?'], ['09-25', '25/09 - 1 number.'], ['11-13', '13/11 - Mom did the numbers this week. Got 2. Says she\'s "better at it". Nobody is better at it, it\'s random.'],
+    ['08-14', '14/08 - 3 numbers!!! £10!!! {me} says I should "reinvest it". In what?'], ['09-25', '25/09 - 1 number.'], ['11-13', '13/11 - Mom did the numbers this week. Got 2. Says she\'s "better at it". Nobody is better at it, it\'s random.'],
     ['12-18', '18/12 - Christmas special. 0 numbers. Bah humbug.']]));
   txt(DND, 'Shed.txt', '19/06/99', `THE SHED - PROJECT
 
@@ -479,20 +479,20 @@ Saturday:
 14:00 - lunch
 16:00 - door shuts!!!
 16:01 - door doesn't open
-16:30 - Jack got it open with a screwdriver and a lot of "you're doing it wrong Dad"
+16:30 - {me} got it open with a screwdriver and a lot of "you're doing it wrong Dad"
 
 Time taken: 6 hours 30 minutes. Shed status: door shuts AND opens. Mostly.
 `);
   txt(DND, 'Fantasy football 99-00.txt', '07/08/99', () => gated(`FANTASY FOOTBALL - OFFICE LEAGUE 1999-2000
-Team name: DAD'S ARMY FC   (Jack wanted "The Space Cadet Knights". No.)
+Team name: DAD'S ARMY FC   ({me} wanted "The Space Cadet Knights". No.)
 Entry: £5. Prize: £60 and "bragging rights".
 
 Formation: 4-4-2. Like a proper team. None of this "wing-backs" business.
-Budget used: £39.5m of £40m. Left: £500,000. (Jack says that "wouldn't even buy a left boot".)
+Budget used: £39.5m of £40m. Left: £500,000. ({me} says that "wouldn't even buy a left boot".)
 
 WEEKLY POSITION (out of 14):
 `, [['08-14', '14/08 - 9th'], ['08-28', '28/08 - 12th. My goalkeeper let in 5. FIVE.'], ['09-18', '18/09 - 7th!'], ['10-16', '16/10 - 4th!!! Gary from accounts is 1st. Gary picks his team with a pin.'],
-    ['11-20', '20/11 - 6th. Jack picked my substitutions this week. Never again.'], ['12-27', '27/12 - 3rd at Christmas. The dream is alive.']]));
+    ['11-20', '20/11 - 6th. {me} picked my substitutions this week. Never again.'], ['12-27', '27/12 - 3rd at Christmas. The dream is alive.']]));
   txt(DND, 'Bonfire Night budget.txt', '03/11/99', `BONFIRE NIGHT - FRIDAY 5th
 
 Fireworks (the "family selection box") ...... £19.99
@@ -503,7 +503,7 @@ Hot dogs + onions ............................ Mom
 Treacle toffee ............................... Gran is bringing it. Hide the dentist's number.
 
 RULES:
-- Only DAD lights them. Not Jack, "because I'm nearly an adult". Not Dave, ESPECIALLY not Dave.
+- Only DAD lights them. Not {me}, "because I'm nearly an adult". Not {mate1}, ESPECIALLY not {mate1}.
 - Light the blue touch paper and STAND WELL BACK. Further than that.
 - {sister} watches from the kitchen window if she gets scared. She says she won't. (She will.)
 - Bonnie next door hates fireworks. Tell them we're starting at 7 so they can put her in the front room with the telly up.
@@ -526,52 +526,52 @@ ASSEMBLY (after she's asleep - Mom says that means 10 at the EARLIEST, she'll be
 6. Tie a big bow on it and put it by the tree.
 7. Eat the mince pie. Drink the... (Mom says I have to leave a bit). Carrot for the reindeer: take one bite out of it.
 
-Jack has been told and has SWORN not to tell. He's helping with step 4. He says he wants "a credit in the manual".
+{me} has been told and has SWORN not to tell. {me.He}'s helping with step 4. {me.He} says {me.he} wants "a credit in the manual".
 
 Time started: ____  Time finished: ____  Swear words: ____ (aim for zero)
 `, { secret: 'fam.bike' });
   txt(DND, 'Y2K - THE PLAN.txt', '28/12/99', `THE MILLENNIUM BUG - THE PLAN
-(Jack says I'm "being silly". The man at work says his brother-in-law says the cash machines will stop.)
+({me} says I'm "being silly". The man at work says his brother-in-law says the cash machines will stop.)
 
 BEFORE NEW YEAR'S EVE:
 [x] Cash out of the bank: £100. Under the mattress. (Mom says it's going in the biscuit tin. Fine.)
 [x] Full tank of petrol
-[x] Torch + batteries (Jack has also packed 12 batteries in his "Y2K kit", so we're covered)
+[x] Torch + batteries ({me} has also packed 12 batteries in {me.his} "Y2K kit", so we're covered)
 [x] Candles + matches
 [x] A few tins of beans and soup (we always have those anyway)
 [x] Bottled water x 6
 [ ] Fill the bath (Mom says "absolutely not")
 [x] Print out bank statement, so we can PROVE how much is in there. (Printed on the dot-matrix. It took nine minutes. The whole street heard it.)
-[x] Unplug the computer at 11:55pm. (We will be at Dave's anyway.)
+[x] Unplug the computer at 11:55pm. (We will be at {mate1}'s anyway.)
 
-JACK'S OPINION: "The computer is Y2K compliant, Dad, I checked, it has a sticker."
+{me.NAME}'S OPINION: "The computer is Y2K compliant, Dad, I checked, it has a sticker."
 MY OPINION: A sticker isn't a guarantee.
 {sister.NAME}'S OPINION: "Will Father Christmas still come next year?" Yes, love.
 
-If you are reading this in the year 2000 and everything is fine: told you so (Jack).
+If you are reading this in the year 2000 and everything is fine: told you so ({me}).
 `);
 
   // ================================================================ Jack's little sister ({sister}: always a girl, about 8)
   dirDate(SIS, '10/01/99');
   txt(SIS, '{sister}s diary KEEP OUT.txt', '10/01/99', () => gated(`{sister.NAME}S DIARY
 KEEP OUT!!!!!
-THIS MEANS JACK
+THIS MEANS {me.NAME}
 AND DAD
 MOM YOU CAN READ IT
 
-`, [['01-10', '10 jan. Jack showed me how to type. I can type my name {sister.NAME} {sister.NAME} {sister.NAME}. I can do a smiley :)'],
+`, [['01-10', '10 jan. {me} showed me how to type. I can type my name {sister.NAME} {sister.NAME} {sister.NAME}. I can do a smiley :)'],
     ['02-16', '16 feb. PANCAKE DAY!!! I tossed mine and it landed on the floor but I ate it anyway Mom said dont but I did.'],
     ['03-06', '6 march. I drawed Bonnie on the computer. Bonnie is next doors dog. I want a dog. Mom says NO. Dad says ask Mom.'],
-    ['04-04', '4 april. EASTER!!! I found 9 eggs in the garden and Jack found 3 and he is BIGGER than me so I WON.'],
+    ['04-04', '4 april. EASTER!!! I found 9 eggs in the garden and {me} found 3 and {me.he} is BIGGER than me so I WON.'],
     ['05-21', '21 may. the farm trip. I stroked a goat. its name was Gerald. a goat ate Daisys hat. best day ever.'],
-    ['06-19', '19 june. somebody deleted my horse picture. I think it was Jack. Jack says it was the computer. I put a note on the screen.'],
+    ['06-19', '19 june. somebody deleted my horse picture. I think it was {me}. {me} says it was the computer. I put a note on the screen.'],
     ['07-08', '8 july. sports day I came 2nd in the egg and spoon!!! Dad cheered so loud everyone looked.'],
     ['08-11', '11 august. the eclipse. it went dark in the day time and I held Moms hand. then the sun came back. I knew it would.'],
-    ['09-07', '7 sept. back to school. new teacher is nice. I wrote about my holiday on the computer at home and Jack helped with the long words.'],
-    ['10-25', '25 oct. I want a FURBY for christmas. everyone at school wants one. Jack says they are "spying on you". they are NOT.'],
+    ['09-07', '7 sept. back to school. new teacher is nice. I wrote about my holiday on the computer at home and {me} helped with the long words.'],
+    ['10-25', '25 oct. I want a FURBY for christmas. everyone at school wants one. {me} says they are "spying on you". they are NOT.'],
     ['10-31', '31 oct. I was a witch. I got 40 sweets. Dad was a monster and a little boy cried. Dad said sorry.'],
-    ['12-01', '1 dec. I wrote to Father Christmas. Jack typed it and printed it on the noisy printer. it went zzzt zzzt zzzt.'],
-    ['12-25', '25 dec. A BIKE!!!! A PURPLE BIKE!!!! WITH A BELL!!!!! Father Christmas is the best. Jack winked at Dad. I dont know why.']]), { secret: 'fam.lucydiary' });
+    ['12-01', '1 dec. I wrote to Father Christmas. {me} typed it and printed it on the noisy printer. it went zzzt zzzt zzzt.'],
+    ['12-25', '25 dec. A BIKE!!!! A PURPLE BIKE!!!! WITH A BELL!!!!! Father Christmas is the best. {me} winked at Dad. I dont know why.']]), { secret: 'fam.lucydiary' });
   txt(SIS, 'Spellings.txt', '18/01/99', `SPELLINGS week 3
 by {sister}
 
@@ -579,7 +579,7 @@ because   becuase   because
 friend    freind    friend
 said      sed       said
 people    peeple    people
-computer  compooter computer   (Jack says its "computer" I KNOW)
+computer  compooter computer   ({me} says its "computer" I KNOW)
 dog       dog       dog  (easy)
 dog       dog       dog  (I want one)
 
@@ -592,10 +592,10 @@ by {sister}
 1. a vet (so I can have LOTS of dogs and Mom cant say no because its my JOB)
 2. a teacher
 3. a pop star in a band like Steps
-4. an astronaut (Jack says you have to be good at maths. I am OK at maths.)
+4. an astronaut ({me} says you have to be good at maths. I am OK at maths.)
 5. a lady who works at the farm park with Gerald the goat
 
-Jack wants to be "a games designer" or "a Space Cadet". Mom says he cant be a Space Cadet.
+{me} wants to be "a games designer" or "a Space Cadet". Mom says {me.he} cant be a Space Cadet.
 Dad wants to be "retired". Mom wants to be "on a beach".
 `);
   pic(SIS, 'My family.bmp', '23/05/99', () => drawFamily());
@@ -608,7 +608,7 @@ Bean bag on head ....... 1st!!!!!!!!!!! WINNER!!!!!
 
 I got a sticker that says WELL DONE.
 Dad shouted "GO ON {sister.NAME}!!!" so loud the teachers looked at him.
-Mom took photos on the camera. Jack didnt come because he was at "his own school" (he was).
+Mom took photos on the camera. {me} didnt come because {me.he} was at "{me.his} own school" ({me.he} was).
 `);
   doc(SIS, 'My Holiday.doc', '07/09/99', 'fam_holiday', { font: 'Comic Sans MS', size: 14, md: `# My Holiday
 
@@ -616,15 +616,15 @@ by **{sister}**
 
 This summer we went on holiday in a {c=blue|caravan} by the seaside. It took a very long time to get there. I was sick 2 times. Dad says both times were on his side of the car.
 
-The caravan had a little table that turns into a bed. I slept on the table! Jack slept on the other table. He snores. Mom says he does not snore he "breathes loudly".
+The caravan had a little table that turns into a bed. I slept on the table! {me} slept on the other table. {me.He} snores. Mom says {me.he} does not snore {me.he} "breathes loudly".
 
 It rained for **5 days**. Dad put up the windbreak and the wind broke it. Then he bought a new one.
 
-On the good day we went on the pier. I played the 2p machines and I won a keyring with a dolphin on it. Jack won at crazy golf and he said it 100 times.
+On the good day we went on the pier. I played the 2p machines and I won a keyring with a dolphin on it. {me} won at crazy golf and {me.he} said it 100 times.
 
-We had fish and chips every night. A seagull took one of Jack's chips right out of his hand. I laughed so much I got hiccups.
+We had fish and chips every night. A seagull took one of {me}'s chips right out of {me.his} hand. I laughed so much I got hiccups.
 
-Jack was sad because there was no computer. He played his Game Lad and the batteries ran out on Thursday. Then he played cards with me and he let me win (he says he did not let me win).
+{me} was sad because there was no computer. {me.He} played {me.his} Game Lad and the batteries ran out on Thursday. Then {me.he} played cards with me and {me.he} let me win ({me.he} says {me.he} did not let me win).
 
 The best bit was the rock pools. I found a crab. I called him {c=red|Crabby}. I let him go because his mom would miss him.
 
@@ -646,13 +646,13 @@ by {sister}
 8. a pony (if no dog)
 9. a dog
 
-P.S. Jack says Furbys are "spy robots" and they "remember everything you say". GOOD. Mine will remember I want a dog.
+P.S. {me} says Furbys are "spy robots" and they "remember everything you say". GOOD. Mine will remember I want a dog.
 `);
   doc(SIS, 'Letter to Father Christmas.doc', '01/12/99', 'fam_santa', { font: 'Comic Sans MS', size: 14, md: `> {c=red|Dear Father Christmas}
 
 I hope you and Mrs Christmas and the elves and the reindeer are well. It is nearly the **millennium** which is 1000 years. You must be very old.
 
-I have been good this year. Mostly. I did shout at Jack but he deleted my horse picture (he says he didnt).
+I have been good this year. Mostly. I did shout at {me} but {me.he} deleted my horse picture ({me.he} says {me.he} didnt).
 
 Please can I have:
 
@@ -663,7 +663,7 @@ Please can I have:
 
 I will leave you a mince pie and Dad says he will leave you a drink. Rudolph can have a carrot.
 
-Please bring Jack something nice too, he helped me type this. He wants "Donkey Wrong 64". He says you know what that is.
+Please bring {me} something nice too, {me.he} helped me type this. {me.He} wants "Donkey Wrong 64". {me.He} says you know what that is.
 
 Love from **{sister}** xxx
 
@@ -676,7 +676,7 @@ Thank you very much for the **jumper with the horse on it**. It is my favourite 
 
 Father Christmas brought me a **PURPLE BIKE**. It has a bell. I rang it at 6 o'clock in the morning and Dad said "here we go".
 
-I also got a Furby. It is called **Sparkle**. It talks all the time. Jack says it is "plotting". It is not plotting, it is singing.
+I also got a Furby. It is called **Sparkle**. It talks all the time. {me} says it is "plotting". It is not plotting, it is singing.
 
 Thank you for the treacle toffee on bonfire night too. It stuck my teeth together.
 
@@ -684,11 +684,11 @@ See you at the Millennium!
 
 Love from **{sister}** xxxxx
 
-> {c=green|(Jack helped me with the spelling of Millennium. It has 2 Ls and 2 Ns. That is too many.)}` });
+> {c=green|({me} helped me with the spelling of Millennium. It has 2 Ls and 2 Ns. That is too many.)}` });
 
   // ================================================================ JACK
   txt(MD, 'Talkbrik T-99 manual (the important bits).txt', '02/01/99', `TALKBRIK T-99 POCKET PHONE - THE IMPORTANT BITS
-(typed up by Jack because the real manual is 200 pages and 40 of them are in Portuguese)
+(typed up by {me} because the real manual is 200 pages and 40 of them are in Portuguese)
 
 my mobile. It's on my desk next to the PC (on charge, if I remembered).
 
@@ -740,65 +740,65 @@ IDEAS:
 
 Budget: £4.50 (from my savings). Chocolates: the box with the caramel ones, not the coffee ones, she hates the coffee ones.
 `);
-  txt(MD, 'Callum\'s PC specs (he won\'t shut up).txt', '20/03/99', () => gated(`CALLUM'S NEW PC - THE SPECS
-(Callum read these out to me on the phone. For 40 minutes. Mom picked up the other phone twice.)
+  txt(MD, '{mate3}\'s PC specs ({mate3.he} won\'t shut up).txt', '20/03/99', () => gated(`{mate3.NAME}'S NEW PC - THE SPECS
+({mate3} read these out to me on the phone. For 40 minutes. Mom picked up the other phone twice.)
 
-PROCESSOR ..... Pentium III, 500MHz ("FIVE HUNDRED MEGAHERTZ, JACK")
-MEMORY ........ 128MB ("you've got 32" - yes Callum, I know)
+PROCESSOR ..... Pentium III, 500MHz ("FIVE HUNDRED MEGAHERTZ, {me.NAME}")
+MEMORY ........ 128MB ("you've got 32" - yes {mate3}, I know)
 HARD DRIVE .... 13GB ("thirteen GIGABYTES")
 GRAPHICS ...... a 3D card with 16MB on it
-SOUND ......... "Sound Blaster Live" with 4 speakers and a "subwoofer" that is louder than his mom
-CD ............ a DVD-ROM drive (he has no DVDs. He has ONE DVD. It came with the drive.)
+SOUND ......... "Sound Blaster Live" with 4 speakers and a "subwoofer" that is louder than {mate3.his} mom
+CD ............ a DVD-ROM drive ({mate3.he} has no DVDs. {mate3.He} has ONE DVD. It came with the drive.)
 MODEM ......... 56K
-MONITOR ....... 17 inch ("SEVENTEEN, JACK")
+MONITOR ....... 17 inch ("SEVENTEEN, {me.NAME}")
 
-WHAT HE PLAYS: Half-Loaf, mostly. He says "you wouldn't understand, it's got a STORY".
+WHAT {mate3.He} PLAYS: Half-Loaf, mostly. {mate3.He} says "you wouldn't understand, it's got a STORY".
 WHAT I PLAY ON IT WHEN I GO ROUND: Half-Loaf, mostly. It's got a STORY.
 
-THINGS HE HAS SAID ABOUT MY COMPUTER:
+THINGS {mate3.He} HAS SAID ABOUT MY COMPUTER:
 - "Is it clockwork?"
 - "Does it run on coal?"
 - "My calculator could beat it at chess"
-`, [['04-30', '\nUPDATES:\n30/04 - New graphics card. He showed me the box. He showed me the box for twenty minutes.'],
+`, [['04-30', '\nUPDATES:\n30/04 - New graphics card. {mate3.He} showed me the box. {mate3.He} showed me the box for twenty minutes.'],
     ['06-12', '12/06 - Got RollerCoaster Rupeecoon. Built a ride that goes through the toilets. Genius, I admit it.'],
-    ['09-04', '04/09 - Tiberian Sun. He is "commanding the Brotherhood". He is commanding his bedroom.'],
-    ['09-01', '01/09 - He read in a magazine about a new "GPU" that\'s coming out. He says his card is "obsolete". It\'s FIVE MONTHS OLD.'],
-    ['10-15', '15/10 - Age of Emperors II. He sent his villagers to fight my castle. Callum, they\'re FARMERS.'],
-    ['10-30', '30/10 - New mouse. It hasn\'t got a BALL. It\'s got a little red light underneath. That\'s actually amazing. Don\'t tell him I said that.'],
-    ['11-27', '27/11 - Jackreal Tournament. He plays it with the volume so high I can hear it down the phone.'],
-    ['12-11', '11/12 - Now he wants Jaquake III. Says his PC "needs a challenge". I need a challenge too: getting through ONE day without hearing about his PC.']]));
-  txt(MD, 'ULTRA 64 tournament scores (Dave cheats).txt', '06/04/99', () => gated(`THE ULTRA 64 TOURNAMENT OF CHAMPIONS 1999
-Players: me, Dave, Luke, JackK (Callum won't play, says consoles are "toys")
-Venue: Dave's front room (his telly is bigger)
+    ['09-04', '04/09 - Tiberian Sun. {mate3.He} is "commanding the Brotherhood". {mate3.He} is commanding {mate3.his} bedroom.'],
+    ['09-01', '01/09 - {mate3.He} read in a magazine about a new "GPU" that\'s coming out. {mate3.He} says {mate3.his} card is "obsolete". It\'s FIVE MONTHS OLD.'],
+    ['10-15', '15/10 - Age of Emperors II. {mate3.He} sent {mate3.his} villagers to fight my castle. {mate3}, they\'re FARMERS.'],
+    ['10-30', '30/10 - New mouse. It hasn\'t got a BALL. It\'s got a little red light underneath. That\'s actually amazing. Don\'t tell {mate3.him} I said that.'],
+    ['11-27', '27/11 - Jackreal Tournament. {mate3.He} plays it with the volume so high I can hear it down the phone.'],
+    ['12-11', '11/12 - Now {mate3.he} wants Jaquake III. Says {mate3.his} PC "needs a challenge". I need a challenge too: getting through ONE day without hearing about {mate3.his} PC.']]));
+  txt(MD, 'ULTRA 64 tournament scores ({mate1} cheats).txt', '06/04/99', () => gated(`THE ULTRA 64 TOURNAMENT OF CHAMPIONS 1999
+Players: me, {mate1}, {mate2}, {mate4} ({mate3} won't play, says consoles are "toys")
+Venue: {mate1}'s front room ({mate1.his} telly is bigger)
 Rules: winner stays on, loser makes the squash
 
 `, [['04-06', `EASTER HOLIDAYS - KART KAOS 64
   Me ......... 14 points
-  Luke ....... 12
-  Dave ....... 18 (CHEATED - kept "accidentally" knocking my controller with his elbow)
-  JackK ...... 3 (he always picks Bouncer and always comes last. Bouncer deserves better.)`],
+  {mate2} ....... 12
+  {mate1} ....... 18 (CHEATED - kept "accidentally" knocking my controller with {mate1.his} elbow)
+  {mate4} ...... 3 ({mate4.he} always picks Bouncer and always comes last. Bouncer deserves better.)`],
     ['04-10', `\nGOLDENEYE - 4 PLAYER, LICENCE TO KILL, FACILITY
   Me ......... 21 kills
-  Dave ....... 25 (CHEATED - SCREEN WATCHING. Also picked Oddjob. Oddjob is SHORT. Everybody knows it's unfair.)
-  Luke ....... 19
-  JackK ...... 9 (spent the whole time in the toilets)
-  NEW RULE: no Oddjob. Dave says it's "not a rule if you only make it up after you lose".`],
+  {mate1} ....... 25 (CHEATED - SCREEN WATCHING. Also picked Oddjob. Oddjob is SHORT. Everybody knows it's unfair.)
+  {mate2} ....... 19
+  {mate4} ...... 9 (spent the whole time in the toilets)
+  NEW RULE: no Oddjob. {mate1} says it's "not a rule if you only make it up after you lose".`],
     ['05-29', `\nMARIO PARTY (Half term)
-  Luke WON. Luke and Dave haven't spoken since. The mini-game where you spin the stick: I have a blister. Mom says it's "a gaming injury" and I should "stop playing it then".`],
+  {mate2} WON. {mate2} and {mate1} haven't spoken since. The mini-game where you spin the stick: I have a blister. Mom says it's "a gaming injury" and I should "stop playing it then".`],
     ['07-24', `\nEP I RACER (summer holidays)
   Me ......... 1st, 1st, 2nd, 1st !!!!!!
-  Dave ....... claims his pod "had a fault". There are no faults. It's a VIDEO GAME.`],
+  {mate1} ....... claims {mate1.his} pod "had a fault". There are no faults. It's a VIDEO GAME.`],
     ['10-23', `\nGOLDENEYE REMATCH (half term) - NO ODDJOB
-  Dave picked Jaws instead. Jaws is TALL. Somehow he still cheated. HOW.`],
+  {mate1} picked Jaws instead. Jaws is TALL. Somehow {mate1.he} still cheated. HOW.`],
     ['11-27', `\nSUPER SMASH BROS - IT'S OUT!!!
-  Luke picked Zapachu and is UNBEATABLE. Zapachu shouldn't be that good. He's a mouse.
-  Dave picked Donkey Wrong and kept throwing everybody off the edge. Not technically cheating. FEELS like cheating.`],
+  {mate2} picked Zapachu and is UNBEATABLE. Zapachu shouldn't be that good. He's a mouse.
+  {mate1} picked Donkey Wrong and kept throwing everybody off the edge. Not technically cheating. FEELS like cheating.`],
     ['12-29', `\nFINAL STANDINGS 1999
-  1. Dave (asterisk: CHEATED)
+  1. {mate1} (asterisk: CHEATED)
   2. Me (actual winner, morally)
-  3. Luke
-  4. JackK (still Bouncer)
-  Next year's tournament: the YEAR 2000 TOURNAMENT. Venue: Dave's. Rules: NO ODDJOB, NO JAWS, NO ELBOWS.`]]));
+  3. {mate2}
+  4. {mate4} (still Bouncer)
+  Next year's tournament: the YEAR 2000 TOURNAMENT. Venue: {mate1}'s. Rules: NO ODDJOB, NO JAWS, NO ELBOWS.`]]));
   txt(MD, 'Phone bill - my side of the story.txt', '05/05/99', `THE PHONE BILL (£94.17) - MY SIDE OF THE STORY
 for Mom and Dad, please read before you shout
 
@@ -806,26 +806,26 @@ for Mom and Dad, please read before you shout
 2. It was for RESEARCH. For my website. Which is basically homework.
 3. Some of it was {sister}, ringing Gran to sing her the whole of a Steps song. Twice.
 4. Some of it was Dad looking up "the cricket score". For 2 hours. On a Tuesday.
-5. Callum rang me and read out his PC specs for 40 minutes, and Mom you were ON the other phone, so you know.
+5. {mate3} rang me and read out his PC specs for 40 minutes, and Mom you were ON the other phone, so you know.
 6. I will only go on the internet after 6pm from now on. When it's cheaper. Like a responsible citizen.
 7. I'll pay some back from my pocket money: £1 a week for 10 weeks. That's £10. That's FAIR.
 
-Signed, Jack.
+Signed, {me}.
 (Mom said "fine" and "£2 a week". We agreed on £1.50. Negotiation is a life skill.)
 `);
-  txt(MD, 'JackK owes me 2 quid.txt', '08/05/99', () => gated(`JACKK OWES ME 2 QUID
-(and other money. A record. So he can't say he doesn't.)
+  txt(MD, '{mate4} owes me 2 quid.txt', '08/05/99', () => gated(`{mate4.NAME} OWES ME 2 QUID
+(and other money. A record. So {mate4.he} can't say {mate4.he} doesn't.)
 
-`, [['05-08', '08/05  Lent him £2 for chips after football. "I\'ll pay you Monday."            OWES: £2.00'],
-    ['05-10', '10/05  It is Monday. He said "which Monday".                                  OWES: £2.00'],
-    ['06-04', '04/06  Lent him 50p for the vending machine (a Twix that got stuck)            OWES: £2.50'],
-    ['06-04', '04/06  The Twix fell out later and he ate it. Still counts.                   OWES: £2.50'],
-    ['07-02', '02/07  He paid back 20p. In 1p coins. Twenty of them. Hilarious.             OWES: £2.30'],
-    ['08-19', '19/08  Lent him £1 for a Pocket Critters magazine (we haven\'t even GOT the game yet)   OWES: £3.30'],
-    ['09-27', '27/09  He says I owe HIM £1 for "the time he let me have his chips" in 1997.   OWES: £2.30 (disputed)'],
+`, [['05-08', '08/05  Lent {mate4.him} £2 for chips after football. "I\'ll pay you Monday."            OWES: £2.00'],
+    ['05-10', '10/05  It is Monday. {mate4.He} said "which Monday".                                  OWES: £2.00'],
+    ['06-04', '04/06  Lent {mate4.him} 50p for the vending machine (a Twix that got stuck)            OWES: £2.50'],
+    ['06-04', '04/06  The Twix fell out later and {mate4.he} ate it. Still counts.                   OWES: £2.50'],
+    ['07-02', '02/07  {mate4.He} paid back 20p. In 1p coins. Twenty of them. Hilarious.             OWES: £2.30'],
+    ['08-19', '19/08  Lent {mate4.him} £1 for a Pocket Critters magazine (we haven\'t even GOT the game yet)   OWES: £3.30'],
+    ['09-27', '27/09  {mate4.He} says I owe {mate4.Him} £1 for "the time {mate4.he} let me have {mate4.his} chips" in 1997.   OWES: £2.30 (disputed)'],
     ['10-30', '30/10  Paid back £1.50!!!! Says "we\'re basically square". WE ARE NOT SQUARE.     OWES: £0.80'],
-    ['12-20', '20/12  He bought me a Christmas present: a Gubbinz keyring. Price tag: £2.     OWES: ...'],
-    ['12-20', '\nOK. We\'re square. Merry Christmas, JackK.\n(You still owe me 80p.)']]), { secret: 'fam.owed' });
+    ['12-20', '20/12  {mate4.He} bought me a Christmas present: a Gubbinz keyring. Price tag: £2.     OWES: ...'],
+    ['12-20', '\nOK. We\'re square. Merry Christmas, {mate4}.\n(You still owe me 80p.)']]), { secret: 'fam.owed' });
   txt(MD, 'REVISION TIMETABLE (honest).txt', '24/05/99', `REVISION TIMETABLE - END OF YEAR EXAMS
 LEFT column: the plan (Mom has a copy, it's on the fridge).
 RIGHT column: what actually happened (Mom does NOT have a copy).
@@ -837,9 +837,9 @@ Tue 25     Science: the heart + lungs        Drew a diagram of the heart. It tur
 Wed 26     English: the poems                Read one poem. {sister} made me play Connect 4. She won. Again.
 Thu 27     French: verbs                     "J'ai joue a Goldenballs". That's a verb. That counts.
 Fri 28     History: World War 1              Actually did 2 hours!!! Dad helped. Dad knows LOADS about it. Who knew.
-Sat 29     REST DAY (allowed)                Marlo Party at Dave's. Got a blister.
+Sat 29     REST DAY (allowed)                Marlo Party at {mate1}'s. Got a blister.
 Sun 30     Geography: rivers                 Mom made me go to the big supermarket. Saw a river from the car. Revision.
-Mon 31     Maths again                       Callum rang. Pentium III. 40 minutes. NO MATHS DONE.
+Mon 31     Maths again                       {mate3} rang. Pentium III. 40 minutes. NO MATHS DONE.
 Tue 1      Science: electricity              Fixed the plug on {sister}'s hairdryer. PRACTICAL electricity.
 Wed 2      EVERYTHING (panic day)            Panicked. Revised. Ate a whole packet of custard creams. Felt better.
 
@@ -858,31 +858,31 @@ IDEAS:
 
 DECISION: card made on the computer + car wash voucher + a bag of the toffees he likes. Total: 89p. Love: priceless.
 `);
-  txt(MD, 'Pocket Critters trades with Luke.txt', '09/10/99', () => gated(`POCKET CRITTERS TRADES WITH LUKE
-Me: BLUE. Luke: RED. We need each other. That's how they get you.
+  txt(MD, 'Pocket Critters trades with {mate2}.txt', '09/10/99', () => gated(`POCKET CRITTERS TRADES WITH {mate2.NAME}
+Me: BLUE. {mate2}: RED. We need each other. That's how they get you.
 Link cable: mine ({sister} chewed the old one, see "Things {sister} has broken")
 
-`, [['10-09', `09/10  Traded my Meowth for his Ekans. Fair. Both version exclusives. Handshake.`],
-    ['10-09', `09/10  He picked Charbroiler. I picked Squirturtle. Squirturtle is better. (He disagrees. He is wrong.)`],
-    ['10-16', `16/10  Traded Kadabra to him so it evolves into ALAKABAM, then he traded it back. He "accidentally" took 20 minutes to trade it back. I watched him the whole time.`],
-    ['10-23', `23/10  Got his Oddish for my Bellsprout. They're basically the same plant. Doesn't matter. Pokedex.`],
-    ['10-30', `30/10  Luke says there's a MEW under the truck by the S.S. Anne. You need to use Strength. We spent ALL AFTERNOON. There is no Mew. There is a truck.`],
-    ['11-06', `06/11  Traded Graveler -> came back as GOLEM. Luke kept it for one night "to look after it". It came back at level 39. It was level 38. WHAT DID YOU DO, LUKE.`],
-    ['11-13', `13/11  Swapped Scyther (his) for Pinsir (mine). I think I won that one.`],
-    ['11-20', `20/11  Dave wants to trade too but he hasn't got the game, just a Game Lad with no batteries and "a really good feeling about Jigglypuff".`],
+`, [['10-09', `09/10  Traded my Meowth for {mate2.his} Ekans. Fair. Both version exclusives. Handshake.`],
+    ['10-09', `09/10  {mate2.He} picked Charbroiler. I picked Squirturtle. Squirturtle is better. ({mate2.He} disagrees. {mate2.He} is wrong.)`],
+    ['10-16', `16/10  Traded Kadabra to {mate2.him} so it evolves into ALAKABAM, then {mate2.he} traded it back. {mate2.He} "accidentally" took 20 minutes to trade it back. I watched {mate2.him} the whole time.`],
+    ['10-23', `23/10  Got {mate2.his} Oddish for my Bellsprout. They're basically the same plant. Doesn't matter. Pokedex.`],
+    ['10-30', `30/10  {mate2} says there's a MEW under the truck by the S.S. Anne. You need to use Strength. We spent ALL AFTERNOON. There is no Mew. There is a truck.`],
+    ['11-06', `06/11  Traded Graveler -> came back as GOLEM. {mate2} kept it for one night "to look after it". It came back at level 39. It was level 38. WHAT DID YOU DO, {mate2.NAME}.`],
+    ['11-13', `13/11  Swapped Scyther ({mate2.his}) for Pinsir (mine). I think I won that one.`],
+    ['11-20', `20/11  {mate1} wants to trade too but {mate1.he} hasn't got the game, just a Game Lad with no batteries and "a really good feeling about Jigglypuff".`],
     ['12-04', `04/12  Haunter -> GENGAR. We both screamed. {sister} came in to see who was hurt.`],
-    ['12-18', `18/12  POKEDEX: 131 seen, 119 caught. Luke: 127 caught. HE IS AHEAD. Need: Electabuzz (his). Offering: anything. ANYTHING.`],
-    ['12-28', `28/12  Got the Electabuzz. Paid: my Persian AND a promise to let him have first go on Donkey Wrong 64. Worth it.`]], `\n\nRULE: no trading Pocket Critters you've nicknamed after your mom. (Luke named his Chansey "MOM". Mom didn't find it funny.)\n`));
-  txt(MD, 'Christmas presents for the family (budget 15 quid).txt', '11/12/99', `CHRISTMAS PRESENTS 1999 - BUDGET: £15.00 (saved since October + selling my old Game Lad games to my mate Jack, JackK on JackNet)
+    ['12-18', `18/12  POKEDEX: 131 seen, 119 caught. {mate2}: 127 caught. {mate2.He} IS AHEAD. Need: Electabuzz ({mate2.his}). Offering: anything. ANYTHING.`],
+    ['12-28', `28/12  Got the Electabuzz. Paid: my Persian AND a promise to let {mate2.him} have first go on Donkey Wrong 64. Worth it.`]], `\n\nRULE: no trading Pocket Critters you've nicknamed after your mom. ({mate2} named {mate2.his} Chansey "MOM". Mom didn't find it funny.)\n`));
+  txt(MD, 'Christmas presents for the family (budget 15 quid).txt', '11/12/99', `CHRISTMAS PRESENTS 1999 - BUDGET: £15.00 (saved since October + selling my old Game Lad games to my mate {mate4})
 
 MOM ..... bath stuff from the chemist in the posh box (£4.99) + I'll make her a calendar on the computer for 2000 with photos of all of us
 DAD ..... a fancy torch for his "Y2K kit" (£3.50). He will love it. He will say "you shouldn't have". I should have.
 {sister.NAME} .... a Furby is £30. I am not made of money. Glitter pens + a dog colouring book (£3.20). And I'll teach her Snake on my phone.
 GRAN .... a photo of me and {sister} in a frame (£2.00, Mom chips in)
 NAN ..... same frame, different photo (£2.00)
-DAVE .... we said no presents this year. (I got him a keyring anyway, 50p. It's a tiny Goldenballs gun. He'll get it.)
+{mate1.NAME} .... we said no presents this year. (I got {mate1.him} a keyring anyway, 50p. It's a tiny Goldenballs gun. {mate1.He}'ll get it.)
 
-TOTAL: £16.19. Over budget by £1.19. JackK owes me 80p. Problem nearly solved.
+TOTAL: £16.19. Over budget by £1.19. {mate4} owes me 80p. Problem nearly solved.
 `);
 
   // ================================================================ the sticky notes on the desktop
@@ -891,9 +891,9 @@ TOTAL: £16.19. Over budget by £1.19. JackK owes me 80p. Problem nearly solved.
     { id: 's0314', date: '14/03/99', head: 'WHO LEFT THE COMPUTER ON ALL NIGHT?!', text: 'The fan was going like a hairdryer. Electricity costs MONEY.', by: 'MOM', rot: 2 },
     { id: 's0503', date: '03/05/99', head: 'WHO\'S BEEN ON THE COMPUTER?!', text: 'The phone bill is £94.17. NINETY-FOUR POUNDS. On the internet IN THE DAYTIME.', by: 'DAD', rot: -2 },
     { id: 's0619', date: '19/06/99', head: 'WHO DELETED MY HORSE PICTURE?!', text: 'It was MY turn on the computer. I know it was you.', by: '{sister}', rot: 4 },
-    { id: 's0814', date: '14/08/99', head: 'WHO\'S BEEN ON MY PHONE?!', text: 'Somebody has played Snake and got 12. TWELVE. And sent a text to Dave saying "hello this is Jacks mom". I know it was you {sister}.', by: 'JACK', rot: -1 },
+    { id: 's0814', date: '14/08/99', head: 'WHO\'S BEEN ON MY PHONE?!', text: 'Somebody has played Snake and got 12. TWELVE. And sent a text to {mate1} saying "hello this is {me}\'s mom". I know it was you {sister}.', by: '{me.NAME}', rot: -1 },
     { id: 's0905', date: '05/09/99', head: 'WHO SET THE CLOCK TO THE YEAR 2000??', text: '"To test it." DON\'T test it. Put it back.', by: 'DAD', rot: 3 },
-    { id: 's1031', date: '31/10/99', head: 'WHO\'S BEEN ON THE COMPUTER?!', text: 'Somebody has made the background a picture of a GOBLIN.\n(it\'s an ORK, Mom - J)', by: 'MOM', rot: -3 },
+    { id: 's1031', date: '31/10/99', head: 'WHO\'S BEEN ON THE COMPUTER?!', text: 'Somebody has made the background a picture of a GOBLIN.\n(it\'s an ORK, Mom - {me})', by: 'MOM', rot: -3 },
     { id: 's1218', date: '18/12/99', head: 'WHO\'S BEEN ON THE COMPUTER?!', text: 'Somebody has been reading my Christmas list. Father Christmas is WATCHING.', by: 'MOM', rot: 2 },
   ]));
 
@@ -954,13 +954,13 @@ TOTAL: £16.19. Over budget by £1.19. JackK owes me 80p. Problem nearly solved.
     };
     person(70, 190, (x, y) => wobble(g, R, [[x - 22, y - 4], [x - 16, y - 24], [x + 16, y - 24], [x + 22, y - 4]], '#4a2a10', 7), '#3060e0', '#303080', 'DAD', (x, y) => label(g, 'zzz', x + 18, y - 30, '#808080', 16));
     person(175, 175, (x, y) => { wobble(g, R, [[x - 24, y + 22], [x - 22, y - 20], [x, y - 28], [x + 22, y - 20], [x + 24, y + 22]], '#c06000', 7); }, '#e03080', '#5050a0', 'MOM', (x, y) => wobble(g, R, ell(x + 44, y + 74, 8, 8, 8), '#a00000', 2, true, '#ff3030'));
-    person(285, 150, (x, y) => wobble(g, R, [[x - 20, y - 12], [x - 10, y - 26], [x, y - 18], [x + 10, y - 27], [x + 20, y - 12]], '#3a2008', 6), '#208020', '#202020', 'JACK', (x, y) => { wobble(g, R, [[x + 44, y + 60], [x + 70, y + 60], [x + 70, y + 98], [x + 44, y + 98]], '#000', 3, true, '#c0c0c0'); wobble(g, R, [[x + 49, y + 65], [x + 65, y + 65], [x + 65, y + 82], [x + 49, y + 82]], '#000', 2, true, '#9fcf4f'); });
+    person(285, 150, (x, y) => wobble(g, R, [[x - 20, y - 12], [x - 10, y - 26], [x, y - 18], [x + 10, y - 27], [x + 20, y - 12]], '#3a2008', 6), '#208020', '#202020', Cast.t('{me.NAME}'), (x, y) => { wobble(g, R, [[x + 44, y + 60], [x + 70, y + 60], [x + 70, y + 98], [x + 44, y + 98]], '#000', 3, true, '#c0c0c0'); wobble(g, R, [[x + 49, y + 65], [x + 65, y + 65], [x + 65, y + 82], [x + 49, y + 82]], '#000', 2, true, '#9fcf4f'); });
     person(385, 110, (x, y) => { wobble(g, R, [[x - 20, y - 6], [x - 14, y - 22], [x + 14, y - 22], [x + 20, y - 6]], '#e0b000', 7); wobble(g, R, [[x - 22, y], [x - 30, y + 30]], '#e0b000', 6); wobble(g, R, [[x + 22, y], [x + 30, y + 30]], '#e0b000', 6); }, '#a020c0', '#ff70c0', 'ME');
     wobble(g, R, ell(470, 270, 30, 16), '#5a3010', 3, true, '#b07030'); wobble(g, R, ell(445, 252, 14, 12), '#5a3010', 3, true, '#b07030');
     wobble(g, R, [[455, 284], [455, 298]], '#5a3010', 5); wobble(g, R, [[485, 284], [485, 298]], '#5a3010', 5);
     label(g, 'Bonnie', 430, 225, '#000', 16); label(g, '(not ours)', 425, 345, '#808080', 14);
     label(g, 'MY FAMILY', 170, 40, '#c00000', 36, -0.02);
-    label(g, 'Jack is on his phone', 230, 80, '#208020', 16, 0.03);
+    label(g, Cast.t('{me} is on {me.his} phone'), 230, 80, '#208020', 16, 0.03);
     return c;
   }
 })();

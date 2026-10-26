@@ -228,7 +228,7 @@
   P.floppyLabel = [128, 128, (g, w, h) => { g.fillStyle = '#1a1a1e'; g.fillRect(0, 0, w, h); g.fillStyle = '#9aa0a8'; g.fillRect(28, 0, 72, 40); g.fillStyle = '#5a6068'; g.fillRect(70, 6, 16, 28); g.fillStyle = '#f4f0e0'; g.fillRect(12, 56, 104, 66); g.strokeStyle = '#9ab'; for (let i = 0; i < 4; i++) { g.beginPath(); g.moveTo(16, 74 + i * 12); g.lineTo(112, 74 + i * 12); g.stroke(); } }];
   P.lavaGlass = [64, 256, (g, w, h) => { g.fillStyle = lin(g, 0, 0, w, 0, [[0, '#a01a5a'], [0.4, '#ff4a9a'], [0.6, '#ff6aaa'], [1, '#a01a5a']]); g.fillRect(0, 0, w, h); }];
   P.cork = [256, 192, (g, w, h) => { g.fillStyle = '#b5884e'; g.fillRect(0, 0, w, h); const r = rnd(161); for (let i = 0; i < 6000; i++) { g.fillStyle = r() < 0.5 ? 'rgba(90,50,20,.3)' : 'rgba(230,190,130,.25)'; g.fillRect(r() * w, r() * h, 1 + r(), 1 + r()); } }];
-  P.photo = [128, 96, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = lin(g, 0, 8, 0, 80, [[0, '#5a9ad0'], [0.55, '#9ac8f0'], [0.56, '#3a8a5a'], [1, '#2a6a3a']]); g.fillRect(6, 6, w - 12, h - 22); g.fillStyle = '#c8865a'; [[44, 50], [76, 48]].forEach(([x, y]) => { g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); g.fillRect(x - 6, y + 6, 12, 18); }); text(g, 'me + Dave, swimming baths', 64, 90, '9px ' + HAND, '#333', 'center'); }];
+  P.photo = [128, 96, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = lin(g, 0, 8, 0, 80, [[0, '#5a9ad0'], [0.55, '#9ac8f0'], [0.56, '#3a8a5a'], [1, '#2a6a3a']]); g.fillRect(6, 6, w - 12, h - 22); g.fillStyle = '#c8865a'; [[44, 50], [76, 48]].forEach(([x, y]) => { g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); g.fillRect(x - 6, y + 6, 12, 18); }); g.font='9px '+HAND;g.fillStyle='#333';g.textAlign='center';g.fillText(Cast.t('me + {mate1}, 1999'),64,90,116); }];
   P.note = [128, 128, (g, w, h) => { g.fillStyle = '#fff38a'; g.fillRect(0, 0, w, h); g.fillStyle = 'rgba(0,0,0,.05)'; g.fillRect(0, 0, w, 14); }];
   P.noteBlue = [128, 128, (g, w, h) => { g.fillStyle = '#9af0ff'; g.fillRect(0, 0, w, h); }];
 
@@ -268,7 +268,7 @@
   function t(name, o) {
     if (cache[name]) return cache[name];
     const p = P[name]; if (!p) { console.warn('hs-art: no', name); return null; }
-    const tx = K.tex('art:' + name, p[0], p[1], p[2], o || {});
+    const tx = K.tex('art:' + name, p[0], p[1], p[2], Object.assign({},o,{identity:name==='photo'}));
     return cache[name] = tx;
   }
   // a texture with world-scale tiling (the kit's uv option does the maths: one tile = `cm` centimetres)

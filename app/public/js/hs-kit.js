@@ -24,7 +24,14 @@
   const D2R = Math.PI / 180;
 
   // ================================================================ textures (canvas, cached by key)
-  const TEX = {};
+  const TEX = {}, identityPaints = new Map();
+  // Personal print can be built behind the account gate. Repaint only that ink
+  // after Net has bound Cast, retaining all textures, geometry and house state.
+  function repaintIdentity() {
+    for (const [t, draw] of identityPaints) { draw(); t.needsUpdate = true; }
+    window.House?.ui?.where(); window.House?.dirty?.();
+  }
+  if (window.Net) for (const event of ['welcome', 'loginOk', 'meOk']) Net.on(event, repaintIdentity);
   let aniso = 4;
   function tex(key, w, h, paint, o) {
     if (TEX[key]) return TEX[key];
@@ -38,6 +45,10 @@
     if (o.near) { t.magFilter = T.NearestFilter; t.minFilter = T.NearestFilter; t.generateMipmaps = false; }
     else { t.anisotropy = aniso; t.minFilter = T.LinearMipmapLinearFilter; }
     if (!t.userData) t.userData = {}; t.userData.canvas = c; t.userData.g = g;
+    if (o.identity) identityPaints.set(t, () => {
+      c.width = w; c.height = h;
+      try { paint(g, w, h); } catch (e) { console.error('hs identity tex', key, e); }
+    });
     return TEX[key] = t;
   }
   // a little value noise, for grain, fluff and dirt

@@ -7,7 +7,7 @@
   const R = window.Room; if (!R || window.RoomBits) return;
   const CAT = window.RoomCat, _ = R._, pb = _.pb, esc = _.esc;
   const $ = (el, s) => el.querySelector(s);
-  const h = (html, cls, tag) => { const e = document.createElement(tag || 'div'); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const h = (html, cls, tag) => { const e = document.createElement(tag || 'div'); if (cls) e.className = cls; if (html != null) e.innerHTML = Cast.t(html); return e; };
   (function css() { if (document.getElementById('rmBitsCss')) return; const l = document.createElement('link'); l.id = 'rmBitsCss'; l.rel = 'stylesheet'; l.href = 'css/rm-bits.css' + ((document.querySelector('link[href*="css/rm.css"]') || {}).href || '').replace(/^[^?]*/, ''); document.head.appendChild(l); })();
   const today = () => { try { return Desk.today99(); } catch (e) { const d = new Date(); return { m: d.getMonth() + 1, d: d.getDate(), md: (d.getMonth() + 1) * 100 + d.getDate() }; } };
   const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -17,6 +17,7 @@
   function view(cls, html, o) {
     close();
     o = o || {};
+    html = Cast.t(html); o = { ...o, say: o.say ? Cast.t(o.say) : o.say };
     const el = h(`<div class="rm-cstage">${html}</div><div class="rm-cfoot"><p class="rm-csay">${o.say || ''}</p><div class="rm-cbtns">${(o.btns || []).map((b, i) => `<button type="button" class="rm-b" data-i="${i}">${esc(b[0])}</button>`).join('')}<button type="button" class="rm-b rm-cclose">Put it back</button></div></div><button type="button" class="rm-x2" aria-label="Close">&times;</button>`, 'rm-view rm-close rm-c-' + cls);
     pb.appendChild(el);
     requestAnimationFrame(() => el.classList.add('on'));
@@ -37,7 +38,7 @@
     _.emit('close');
   }
   function onKey(ev) { if (ev.key === 'Escape') { ev.preventDefault(); ev.stopImmediatePropagation(); close(); } else if (cur && cur.o.keys) cur.o.keys(ev); }
-  const say = (v, t) => { const p = $(v.el, '.rm-csay'); if (p) p.innerHTML = t; };
+  const say = (v, t) => { const p = $(v.el, '.rm-csay'); if (p) p.innerHTML = Cast.t(t); };
   const searchBtn = (id, label) => [label || 'Look behind it', v => { const hid = CAT.FINDS.filter(f => f.spot === id && _.isOut(f.from) && !_.S.f[f.id]); if (hid.length) { close(); _.foundIt(hid[0]); } else say(v, 'Nothing behind it. Just a bit of Blu-Tack.'); }];
 
   // ================================================================ the posters
@@ -72,7 +73,7 @@
     <text x="150" y="318" text-anchor="middle" font-family="Anton,Impact,sans-serif" font-size="46" fill="#ffd84a" letter-spacing="4">STAR SCRAPS</text>
     <text x="150" y="342" text-anchor="middle" font-family="Tahoma,Arial,sans-serif" font-weight="700" font-size="13" fill="#ffd84a" letter-spacing="2">EPISODE 0: THE PHANTOM MENU</text>
     <text x="150" y="372" text-anchor="middle" font-family="Tahoma,Arial,sans-serif" font-size="10" fill="#bbb">IN A GALAXY FAR, FAR AWAY... THE CHIPS ARE COLD.</text>
-    <text x="150" y="404" text-anchor="middle" font-family="'Comic Sans MS',cursive" font-size="10" fill="#8ad">drawn by DAVE (age 11 and three quarters)</text></svg>`;
+    <text x="150" y="404" text-anchor="middle" font-family="'Comic Sans MS',cursive" font-size="10" fill="#8ad">drawn by {mate1.NAME} (age 11 and three quarters)</text></svg>`;
 
   // ================================================================ the cork board: a 1999 calendar (today circled), notes, a photo
   function corkHtml() {
@@ -81,31 +82,31 @@
     for (let d = 1; d <= days; d++) cells += `<i class="${d === t.d ? 'td' : ''}">${d}</i>`;
     const ticket = today().md >= 716 && !_.S.f['tin.ticket'];
     return `<div class="rm-corkbig"><div class="rm-calbig"><b>${MONTHS[t.m - 1].toUpperCase()} 1999</b><div class="rm-calh"><i>M</i><i>T</i><i>W</i><i>T</i><i>F</i><i>S</i><i>S</i></div><div class="rm-cald">${cells}</div><small>Free from the newsagent's</small></div>
-      <div class="rm-pin rm-n1">KART RACE @ JACKK'S<br>SATURDAY!!!<br><small>bring the 4th controller</small></div>
-      <div class="rm-pin rm-n2">CHEATS<br>Start &gt; Run:<br><b>IDDQD</b> ??<br><small>(Callum says)</small></div>
+      <div class="rm-pin rm-n1">KART RACE @ {mate4.NAME}'S<br>SATURDAY!!!<br><small>bring the 4th controller</small></div>
+      <div class="rm-pin rm-n2">CHEATS<br>Start &gt; Run:<br><b>IDDQD</b> ??<br><small>({mate3} says)</small></div>
       <div class="rm-pin rm-n3">TO DO:<br>&#9744; homework<br>&#9745; finish Zip act 2<br>&#9744; tidy room (Mom)<br>&#9744; find my lost games!!</div>
-      <div class="rm-photobig"><i></i><small>Me + Dave at the baths</small></div>
+      <div class="rm-photobig"><i></i><small>Me + {mate1} at the baths</small></div>
       ${ticket ? '<div class="rm-ticket">ADMIT ONE<br><b>SCREEN 2</b></div>' : ''}</div>`;
   }
 
   // ================================================================ the drawer: letters and floppies (and clues from other packs)
   const LETTERS = [
-    { k: 'mom', from: 'Mom', paper: 'note', text: 'JACK.\n\nYour room is a TIP. Hoover under that bed before Saturday or there will be no Daydream for Christmas.\n\nAlso have you seen my change? I keep losing it in your room. If you find it you can keep it (once).\n\nLove Mom x' },
-    { k: 'jackk', from: 'JackK', paper: 'lined', text: 'Jack -\n\nMy cousin says if you go on JackNet Explorer and type KEEPOUTDAVE in the address bar there is a secret page about Dave. DON\'T TELL DAVE.\n\nKart race Saturday? I\'ve got four controllers now.\n\n- JackK' },
-    { k: 'dave', from: 'Dave', paper: 'lined', text: 'JACK!!!\n\nType PLUGH in Start > Run on your PC. Something happens. I\'m not saying what.\n\nAlso you still have my rumble pak and I want it back. And my Kart Kaos best lap is 0\'38"21 and that is a WORLD RECORD probably.\n\nDAVE' },
-    { k: 'callum', from: 'Callum', paper: 'grid', text: 'Callum\'s top tips:\n\n1. PC games are better than consoles. Fact.\n2. On your telly, if a cartridge won\'t work, BLOW ON IT. Works every time (mostly).\n3. Stroke ' + (window.Cast ? Cast.n('cat') : 'the cat') + ' loads. Just do it.\n4. My dad says the Millennium Bug will turn all the computers back to 1900. I am stocking up on batteries.' },
+    { k: 'mom', from: 'Mom', paper: 'note', text: '{me.NAME}.\n\nYour room is a TIP. Hoover under that bed before Saturday or there will be no Daydream for Christmas.\n\nAlso have you seen my change? I keep losing it in your room. If you find it you can keep it (once).\n\nLove Mom x' },
+    { k: 'jackk', from: '{mate4}', paper: 'lined', text: '{me} -\n\nMy cousin says if you go on JackNet Explorer and type KEEPOUTDAVE in the address bar there is a secret page about Dave. DON\'T TELL DAVE.\n\nKart race Saturday? I\'ve got four controllers now.\n\n- {mate4}' },
+    { k: 'dave', from: '{mate1}', paper: 'lined', text: '{me.NAME}!!!\n\nType PLUGH in Start > Run on your PC. Something happens. I\'m not saying what.\n\nAlso you still have my rumble pak and I want it back. And my Kart Kaos best lap is 0\'38"21 and that is a WORLD RECORD probably.\n\n{mate1.NAME}' },
+    { k: 'callum', from: '{mate3}', paper: 'grid', text: '{mate3}\'s top tips:\n\n1. PC games are better than consoles. Fact.\n2. On your telly, if a cartridge won\'t work, BLOW ON IT. Works every time (mostly).\n3. Stroke ' + (window.Cast ? Cast.n('cat') : 'the cat') + ' loads. Just do it.\n4. My dad says the Millennium Bug will turn all the computers back to 1900. I am stocking up on batteries.' },
     { k: 'school', from: 'School', paper: 'typed', text: 'Dear Parent/Guardian,\n\nThis is a reminder that HANDHELD GAMES and VIRTUAL PETS are not permitted in lessons. Several virtual pets have "died" during assembly, causing upset.\n\nItems will be confiscated and returned at the end of term.\n\nMr Bramble\nHead of Year' },
-    { k: 'chain', from: '???', paper: 'typed', text: 'THIS IS A CHAIN LETTER!!!\n\nCopy this out 10 times and give it to 10 friends by Friday or your Game Lad batteries will run out in the middle of a boss.\n\nA boy in Year 6 didn\'t send it and his Eggbert ran away.\n\n(Jack did not send it. Jack\'s batteries are fine. So far.)' },
+    { k: 'chain', from: '???', paper: 'typed', text: 'THIS IS A CHAIN LETTER!!!\n\nCopy this out 10 times and give it to 10 friends by Friday or your Game Lad batteries will run out in the middle of a boss.\n\nA boy in Year 6 didn\'t send it and his Eggbert ran away.\n\n({me} did not send it. {me}\'s batteries are fine. So far.)' },
   ];
   const FLOPPIES = [
     ['GAMES BACKUP 1/3', '#1a1a6a', 'Disk 1 of 3. Disks 2 and 3 are "somewhere". The backup is useless without them.'],
     ['HOMEWORK', '#c01a1a', 'There is one file on it: HOMEWORK.TXT. It just says "do it later".'],
     ['SECRET!!!', '#1a8a3a', 'In felt tip on the label: "the room is full of lost games. look EVERYWHERE. even the bin."'],
-    ['DAVE\'S', '#e0b000', 'This is Dave\'s. It has his level for Blobbit Lob on it. It is just a wall.'],
+    ['{mate1.NAME}\'S', '#e0b000', 'This is {mate1}\'s. It has {mate1.his} level for Blobbit Lob on it. It is just a wall.'],
   ];
   function drawerHtml() {
     const extra = (R._clues && R._clues('drawer')) || [];
-    const L = LETTERS.concat(extra.map((c, i) => ({ k: 'x' + i, from: c.title || 'A note', paper: 'note', text: typeof c.text === 'function' ? c.text() : c.text, secret: c.secret })));
+    const L = Cast.deep(LETTERS).concat(extra.map((c, i) => ({ k: 'x' + i, from: c.title || 'A note', paper: 'note', text: typeof c.text === 'function' ? c.text() : c.text, secret: c.secret })));
     return { L, html: `<div class="rm-drawerbig"><div class="rm-drawin">
       ${L.map((l, i) => `<button type="button" class="rm-letter rm-p-${l.paper}" data-l="${i}" style="--r:${((i * 37) % 13) - 6}deg;--x:${(i % 4) * 23 + 4}%;--y:${Math.floor(i / 4) * 34 + 6}%"><b>${esc(l.from)}</b></button>`).join('')}
       ${FLOPPIES.map((f, i) => `<button type="button" class="rm-floppy" data-f="${i}" style="--c:${f[1]};--x:${8 + i * 22}%;--r:${(i * 23) % 11 - 5}deg"><i>${esc(f[0])}</i></button>`).join('')}
@@ -292,7 +293,7 @@
     const F = CAT.FINDS.filter(f => _.isOut(f.from)), got = F.filter(f => _.S.f[f.id]);
     const icon = f => f.id.startsWith('cart.') ? (CAT.CONSOLES[f.id.split('.')[1]].media === 'disc' ? ICON.disc : ICON.cart) : (ICON[f.id.split('.')[1]] || ICON.badge);
     const coin = _.coin;
-    const v = view('tin', `<div class="rm-tinbig"><div class="rm-tinlid"><b>JACK'S TREASURE TIN</b><small>KEEP OUT. THIS MEANS YOU, DAVE.</small></div>
+    const v = view('tin', `<div class="rm-tinbig"><div class="rm-tinlid"><b>{me.NAME}'S TREASURE TIN</b><small>KEEP OUT. THIS MEANS YOU, {mate1.NAME}.</small></div>
       <div class="rm-tingrid">${F.map(f => _.S.f[f.id] ? `<div class="rm-ti got">${icon(f)}<b>${esc(f.n)}</b><small>${esc(f.d)}</small></div>` : `<div class="rm-ti">${'<i class="rm-ti-q">?</i>'}<b>Still lost</b><small>Somewhere ${esc(WHERE[f.spot] || 'in my room')}...</small></div>`).join('')}</div>
       <div class="rm-tinfoot"><b>${got.length} of ${F.length}</b> found. ${coin.member ? (coin.got ? 'You found Mom\'s lost change today. Back tomorrow!' : `Mom has lost some change in here today. Clue: <b>${esc(coin.clue || 'somewhere')}</b>`) : 'Log on to JackNet (on the PC) to hunt for Mom\'s lost change every day and earn Rupees for what you find.'}</div></div>`, { say: '' });
     $(v.el, '.rm-cfoot').hidden = true;
@@ -339,7 +340,7 @@
 
   // ================================================================ which close-up is which
   const OPEN = {
-    cork() { return view('cork', corkHtml(), { say: 'My cork board. Today is circled. The cheat note is from Callum, who is never wrong (he says).', btns: [searchBtn('cork', 'Check behind the pins')] }); },
+    cork() { return view('cork', corkHtml(), { say: 'My cork board. Today is circled. The cheat note is from {mate3}, who is never wrong ({mate3.he} says).', btns: [searchBtn('cork', 'Check behind the pins')] }); },
     drawer() {
       const D = drawerHtml();
       const v = view('drawer', D.html, { say: 'My desk drawer. Letters, floppy disks, a pencil and a rubber shaped like a car. Click something to look at it.', btns: [searchBtn('drawer', 'Dig right to the back')] });

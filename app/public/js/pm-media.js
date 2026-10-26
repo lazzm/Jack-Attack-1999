@@ -19,7 +19,7 @@
   const A = window.Apps, D = window.Discs; if (!A || !D || !D.ext || window.PM) return;
   const store = A.store, esc = A.esc;
   const sfx = n => { try { Sound.play(n); } catch (e) {} };
-  const msg = (t, x, i, b) => Desk.msgbox(t, x, i, b), toast = (t, x, ms) => { try { Desk.toast(t, x, ms); } catch (e) {} };
+  const msg = (t, x, i, b) => Desk.msgbox(cast(t), cast(x), i, b), toast = (t, x, ms) => { try { Desk.toast(cast(t), cast(x), ms); } catch (e) {} };
   const today = () => { try { return Desk.today99(); } catch (e) { const d = new Date(); return { m: d.getMonth() + 1, d: d.getDate(), md: (d.getMonth() + 1) * 100 + d.getDate() }; } };
   const cast = (s, f) => { try { return window.Cast ? Cast.t(s) : f; } catch (e) { return f || s; } };
   const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -61,7 +61,7 @@
     const mm = /^pm\.mag\.(\d\d)$/.exec(id);
     if (mm) { const m = +mm[1]; return { id, kind: 'mag', m, title: window.MagazineCat?.byId[id]?.title || `JACK ATTACK! ${MONTHS[m - 1]} 1999`, label: 'JA ' + MON3[m - 1] + ' 99', disc: COVER(m) }; }
     const f = S.fl[id];
-    if (f) return { id, kind: 'floppy', a: true, title: f.lab || 'A blank floppy disk', label: f.lab || '', fl: f };
+    if (f) { const label = f.houseLabel === 'mate1' ? cast("{mate1.NAME}'S DISK") : f.lab || ''; return { id, kind: 'floppy', a: true, title: label || 'A blank floppy disk', label, fl: f }; }
     return null;
   }
   const discItem = disc => !disc ? '' : /^pm\.cv\./.test(disc) ? 'pm.mag.' + disc.slice(6) : disc; // (what's in D: -> the thing on the shelf)
@@ -88,7 +88,7 @@
 
   // ================================================================ our discs in drive D: (discs.js runs them: AutoPlay, Explore)
   const file = (n, t, s, fn) => [n, t, s, fn];
-  const notepad = (n, t) => () => Desk.notepad(n, t);
+  const notepad = (n, t) => () => Desk.notepad(cast(n), cast(t));
   const openCD = id => { try { if (window.Carta && Carta.openWith) Carta.openWith('carta.cdplayer', 'cd', id); else A.open('carta.cdplayer', id); } catch (e) { A.open('carta.cdplayer', id); } };
   D.ext('pm.os98', { label: 'JACKOS98', title: 'JackOS 98 CD-ROM',
     autorun() { return msg('JackOS 98 CD-ROM', 'Welcome to JackOS 98!\n\nThis CD is already installed on your computer. You can add and remove JackOS components (Solitaire, the screen savers, Phone Dialer...) in JackOS Setup.\n\nWhat would you like to do?', 'q', [['JackOS Setup', () => { try { Setup.applet('setup'); } catch (e) { A.open('control'); } }], ['Browse This CD', () => D.open && openD()], ['Close']]); },
@@ -117,7 +117,7 @@
     if (old) { BOXES().forEach(b => { S.own[b.id] = t; }); for (const id in MINE) S.own[id] = t; S.gift = 99; S.old = 1; } // (everything the old cupboard had: nothing is lost)
     else FRESH.forEach(id => { S.own[id] = t; });
     S.fl['pm.fl.1'] = { k: 'blank', lab: '', c: 0, t: t }; S.fl['pm.fl.2'] = { k: 'blank', lab: '', c: 1, t: t + 1 }; S.n = 2;
-    if (old) addFloppy({ k: 'dave', lab: 'DAVE\'S DISK', c: 3 }, true);
+    if (old) addFloppy({ k: 'dave', lab: '', houseLabel: 'mate1', c: 3 }, true);
     save();
   }
   // Record the magazines and machines already present in older rooms once.
@@ -145,12 +145,12 @@
 
   // ---- visiting days: mates leave things round yours (a fresh PC fills up as you play)
   const GIFTS = [
-    { id: 'fl.dave', fl: { k: 'dave', lab: 'DAVE\'S DISK', c: 3 }, t: ['Dave came round', 'Dave left his floppy disk on your desk. "DON\'T LOOK ON IT." It\'s in your floppy box.'] },
+    { id: 'fl.dave', fl: { k: 'dave', lab: '', houseLabel: 'mate1', c: 3 }, t: ['{mate1} came round', '{mate1} left {mate1.his} floppy disk on your desk. "DON\'T LOOK ON IT." It\'s in your floppy box.'] },
     { id: 'fl.gcse', fl: { k: 'gcse', lab: 'GCSE COURSEWORK?? DO NOT DELETE', c: 1 }, t: ['Found it!', 'Your GCSE coursework floppy was in your school bag the whole time. It\'s in the floppy box now. (Back it up!)'] },
-    { id: 'n64', t: ['Luke came round', 'Luke "forgot" his ULTRA 64 cartridge. Again. It\'s on your games shelf.'] },
-    { id: 'callumcd', t: ['Callum came round', 'Callum lent you his shareware mix CD. He wants it back by Friday. It\'s on your games shelf.'] },
-    { id: 'pinball', lent: 'JackK', t: ['JackK came round', 'JackK lent you SPACE JACK PINBALL. "Don\'t beat my high score." It\'s on your games shelf, with his name on it.'] },
-    { id: 'jrt', t: ['Callum came round (again)', 'Callum lent you JACKREAL TOURNAMENT. "Don\'t scratch it. I\'ll know." It\'s on your games shelf.'] },
+    { id: 'n64', t: ['{mate2} came round', '{mate2} "forgot" {mate2.his} ULTRA 64 cartridge. Again. It\'s on your games shelf.'] },
+    { id: 'callumcd', t: ['{mate3} came round', '{mate3} lent you {mate3.his} shareware mix CD. {mate3.He} wants it back by Friday. It\'s on your games shelf.'] },
+    { id: 'pinball', lent: '{mate4}', t: ['{mate4} came round', '{mate4} lent you SPACE JACK PINBALL. "Don\'t beat my high score." It\'s on your games shelf, with {mate4.his} name on it.'] },
+    { id: 'jrt', t: ['{mate3} came round (again)', '{mate3} lent you JACKREAL TOURNAMENT. "Don\'t scratch it. I\'ll know." It\'s on your games shelf.'] },
     { id: 'gquest', t: ['A floppy in the post', 'The text adventure floppy came in the post from a shareware club. It\'s in your floppy box.'] },
   ];
   function dayTick() {
@@ -160,8 +160,8 @@
     if (S.days.length < 2) return;
     while (S.gift < GIFTS.length) {
       const g = GIFTS[S.gift++];
-      if (g.fl) { if (!Object.values(S.fl).some(f => f.k === g.fl.k)) { addFloppy(g.fl); setTimeout(() => toast(g.t[0], g.t[1], 7000), 4000); break; } }
-      else if (!owns(g.id)) { if (g.lent) { S.lent = S.lent || {}; S.lent[g.id] = g.lent; } grant(g.id); setTimeout(() => toast(g.t[0], g.t[1], 7000), 4000); break; }
+      if (g.fl) { if (!Object.values(S.fl).some(f => f.k === g.fl.k)) { addFloppy({ ...g.fl, lab: cast(g.fl.lab) }); setTimeout(() => toast(g.t[0], g.t[1], 7000), 4000); break; } }
+      else if (!owns(g.id)) { if (g.lent) { S.lent = S.lent || {}; S.lent[g.id] = cast(g.lent); } grant(g.id); setTimeout(() => toast(g.t[0], g.t[1], 7000), 4000); break; }
     }
     save(); void k;
   }
@@ -213,7 +213,7 @@
     if (!it || owns(it) || !(D.BOX[it] || MINE[it] || /^pm\.mag/.test(it))) return true;
     sfx('uhoh');
     const t = (item(it) || {}).title || id;
-    msg('Drive D:', `You haven't got ${t}.\n\nIt isn't on your shelf, so it can't go in the drive. (You can't put a disc you haven't got in a CD-ROM drive. Dave tried.)\n\n${D.BOX[it] && SHOP.includes(it) ? 'You could order it from the Pixel Post catalogue...' : ''}`, 'warn', D.BOX[it] && SHOP.includes(it) ? [['Look in the catalogue', () => catalogue(it)], ['OK']] : [['OK']]);
+    msg('Drive D:', `You haven't got ${t}.\n\nIt isn't on your shelf, so it can't go in the drive. (You can't put a disc you haven't got in a CD-ROM drive. {mate1} tried.)\n\n${D.BOX[it] && SHOP.includes(it) ? 'You could order it from the Pixel Post catalogue...' : ''}`, 'warn', D.BOX[it] && SHOP.includes(it) ? [['Look in the catalogue', () => catalogue(it)], ['OK']] : [['OK']]);
     return false;
   }
   function insert(id, o) {
@@ -247,7 +247,7 @@
     if (id === 'gquest') return [['QUEST.EXE', 'exe', '338 KB', () => (window.Setup && Setup.get('grotquest')) ? (Setup.has('grotquest') ? Setup.launch('grotquest') : Setup.install('grotquest', 'file')) : 0], ['README.TXT', 'txt', '1 KB', notepad('README.TXT', 'THE TEXT ADVENTURE v1.2\n\nYou are standing in a dark room. There is a floppy disk here.\n> TAKE DISK\nTaken.\n\nSHAREWARE - PLEASE COPY!\n')]];
     const f = S.fl[id]; if (!f) return [];
     if (f.k === 'dl') { const p = window.Setup && Setup.get(f.pid); return p ? [[Setup.setupFile(p).toUpperCase(), 'exe', Setup.kbStr(Math.min(p.kb, 1400)), () => Setup.install(f.pid, 'file')], ['README.TXT', 'txt', '1 KB', notepad('README.TXT', `${p.n}\n${'='.repeat(p.n.length)}\n\nSaved off JackNet onto this floppy so I don't have to download it AGAIN (it took ages and Mom picked up the phone twice).\n\nTo put it back on the PC: run ${Setup.setupFile(p).toUpperCase()}.\n`)]] : []; }
-    if (f.k === 'dave') return [['README.TXT', 'txt', '1 KB', notepad('README.TXT', 'THIS IS DAVE\'S DISK\n\nIf found please return to DAVE.\nIf you are Jack: DON\'T LOOK ON IT.\n\nYou looked, didn\'t you.\n')], ['HOMEWRK.TXT', 'txt', '1 KB', notepad('HOMEWRK.TXT', 'Science homework\n\nThe heart is a pump. It pumps blood. The end.\n\n(Mr ' + (window.Cast ? Cast.first('teacher') : 'Hughes') + ' said "more detail please". There is no more detail.)\n')], ['LEVEL1.LOB', 'txt', '2 KB', notepad('LEVEL1.LOB', 'DAVE\'S LEVEL\n\n##############\n#            #\n#  WALL      #\n#            #\n##############\n\nit is a wall. it is a very good wall.\n')]];
+    if (f.k === 'dave') return [['README.TXT', 'txt', '1 KB', notepad('README.TXT', 'THIS IS {mate1.NAME}\'S DISK\n\nIf found please return to {mate1.NAME}.\nIf you are {me}: DON\'T LOOK ON IT.\n\nYou looked, didn\'t you.\n')], ['HOMEWRK.TXT', 'txt', '1 KB', notepad('HOMEWRK.TXT', 'Science homework\n\nThe heart is a pump. It pumps blood. The end.\n\n(Mr ' + (window.Cast ? Cast.first('teacher') : 'Hughes') + ' said "more detail please". There is no more detail.)\n')], ['LEVEL1.LOB', 'txt', '2 KB', notepad('LEVEL1.LOB', '{mate1.NAME}\'S LEVEL\n\n##############\n#            #\n#  WALL      #\n#            #\n##############\n\nit is a wall. it is a very good wall.\n')]];
     if (f.k === 'gcse') return [['ENGLISH.DOC', 'txt', '24 KB', notepad('ENGLISH.DOC', 'GCSE ENGLISH COURSEWORK - "A Day I Will Never Forget"\n(draft 3) (FINAL) (actually final) (FINAL FINAL)\n\nIt was a dark and stormy night. Actually it was a Tuesday. I was playing my ULTRA 64 when\n\n[that is as far as I have got. Due Friday.]\n')], ['GEOG.DOC', 'txt', '8 KB', notepad('GEOG.DOC', 'Geography: rivers.\n\nRivers start at the top and go to the bottom. They have meanders.\n\n(I drew a meander in Paint. It looks like a worm.)\n')], ['BACKUP.TXT', 'txt', '1 KB', notepad('BACKUP.TXT', 'I am backing up my coursework onto this floppy. There is only one copy of this floppy.\n\nThis is fine.\n')]];
     if (f.k === 'boot') return [['COMMAND.COM', 'exe', '93 KB', () => msg('A:\\COMMAND.COM', 'This is the JackOS 98 Startup Disk. Keep it somewhere safe, in case the PC won\'t start. (It will always start. Probably.)', 'info')], ['IO.SYS', 'txt', '218 KB', notepad('IO.SYS', 'MZ......(this is a system file. It looks like this to everyone.)')], ['README.TXT', 'txt', '13 KB', notepad('README.TXT', 'JACKOS 98 STARTUP DISK\n\nIf JackOS will not start, leave this disk in drive A: and switch on.\n')]];
     return [];
@@ -412,12 +412,12 @@
   function arrive(o) {
     const t = titleOfShop(o.id);
     sfx('join');
-    const lines = [`DING DONG! ... Mom: "JACK! PARCEL FOR YOU! I've signed for it. It's by the front door."`, `The postie's been! Mom: "JAAACK! Another parcel! What have you bought NOW?" (It's by the front door.)`, `Knock knock. Mom: "Jack, the postman says this is the third parcel this week." (It's by the front door.)`];
+    const lines = [`DING DONG! ... Mom: "{me.NAME}! PARCEL FOR YOU! I've signed for it. It's by the front door."`, `The postie's been! Mom: "{me.NAME}! Another parcel! What have you bought NOW?" (It's by the front door.)`, `Knock knock. Mom: "{me}, the postman says this is the third parcel this week." (It's by the front door.)`];
     const say = lines[(SRV.orders.length + 2) % lines.length];
     try { if (window.Room && Room.say && roomLive()) Room.say('Ding dong!', say, 6000); } catch (e) {}
     toast('Ding dong!', say.replace(/^DING DONG! \.\.\. /, ''), 7000);
     try {
-      if (window.JackFiles && JackFiles.deliver) JackFiles.deliver({ from: 'Pixel Post Orders <orders@pixelpost.jnet>', to: ((Net.me && Net.me.nick) || 'Jack') + ' <me@jacknet.jnet>', subj: `Your Pixel Post order ${o.no} has been delivered!`,
+      if (window.JackFiles && JackFiles.deliver) JackFiles.deliver({ from: 'Pixel Post Orders <orders@pixelpost.jnet>', to: ((Net.me && Net.me.nick) || Cast.me().first) + ' <me@jacknet.jnet>', subj: `Your Pixel Post order ${o.no} has been delivered!`,
         body: `Dear ${(Net.me && Net.me.nick) || 'customer'},\r\n\r\nThank you for ordering from PIXEL POST, the games people!\r\n\r\nORDER NUMBER: ${o.no}\r\nITEM:         ${t} (boxed)\r\nPRICE:        ${o.price} Rupees\r\nP&P:          FREE!\r\n\r\nYour parcel has been delivered and signed for (by "MOM").\r\nIt is waiting for you by the front door.\r\n\r\nPlease allow 28 days for delivery. (It already came. Our van is very fast.)\r\n\r\nThe Pixel Post Team\r\nwww.pixelpost.jnet\r\n` });
     } catch (e) {}
   }

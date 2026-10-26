@@ -25,7 +25,7 @@
    const p=doc.pages[index];g.fillStyle='#f2ead7';g.fillRect(0,0,w,h);g.fillStyle=doc.color;g.fillRect(0,0,w,24);
    g.fillStyle='#33372c';g.font='bold 22px Arial';g.fillText(doc.publication+(doc.publication==='JACK ATTACK!'?' • ISSUE '+doc.issue:''),40,66);
    g.font='bold 38px Georgia';const head=lines(g,p.title,w-80).filter(Boolean);let y=130;for(const line of head){g.fillText(line,40,y);y+=44}y+=24;
-   let size=29,body;do{g.font=size+'px Georgia';body=lines(g,p.body,w-80);if(y+body.length*size*1.25<h-100)break;size--}while(size>18);
+   let size=29,body;do{g.font=size+'px Georgia';body=lines(g,window.Cast?Cast.t(p.body):p.body,w-80);if(y+body.length*size*1.25<h-100)break;size--}while(size>18);
    g.fillStyle='#272b25';for(const line of body){if(line)g.fillText(line,40,y);y+=size*1.25}
    layout={font:size,bottom:y,footer:h-80};
    g.fillStyle=doc.color;g.fillRect(40,h-72,w-80,2);g.font='20px Arial';g.fillText(String(index+1).padStart(2,'0'),40,h-37);

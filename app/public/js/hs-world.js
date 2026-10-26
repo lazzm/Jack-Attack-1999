@@ -1174,7 +1174,7 @@
   const ui = (function () {
     const el = document.createElement('div'); el.className = 'hs-ui rm-hud'; el.setAttribute('aria-live', 'polite');
     el.innerHTML = `
-      <div class="hs-top"><span class="hs-title">JACK'S HOUSE</span><span class="hs-where"></span></div>
+      <div class="hs-top"><span class="hs-title">YOUR HOUSE</span><span class="hs-where"></span></div>
       <canvas class="hs-map" width="84" height="84" aria-hidden="true"></canvas>
       <div class="hs-cross" aria-hidden="true"></div>
       <div class="hs-tip" aria-hidden="true"></div>

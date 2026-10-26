@@ -323,7 +323,7 @@
     person(220, 230, 1.0, '#e8c0a0', '#c01a1a', '#5a3a1a', Math.abs(Math.sin(t * 8)) * 0.8);
     g.fillStyle = '#2a8aff'; g.fillRect(150, 330, 140, 60); g.fillStyle = '#ffd400'; g.fillRect(212, 330, 16, 60); g.fillRect(150, 352, 140, 16);
     txt('DEC 25 1998', W - 30, Hh - 60, 24, '#ff8a3a', 'right', '700 24px "Courier New",monospace'); txt('REC ●', 30, 50, 22, '#ff3a3a', 'left', '700 22px "Courier New",monospace');
-    subtitle = ['Dad: "Is it recording? Is the red light on?"', 'Jack: "A ULTRA 64?! YESSSSS!"', 'Gran: "Mind my sherry!"', 'Mom: "Say thank you to Father Christmas!"', '(The camera points at the carpet for a while.)'][Math.floor(t / 6) % 5];
+    subtitle = ['Dad: "Is it recording? Is the red light on?"', Cast.t('{me}: "A ULTRA 64?! YESSSSS!"'), 'Gran: "Mind my sherry!"', 'Mom: "Say thank you to Father Christmas!"', '(The camera points at the carpet for a while.)'][Math.floor(t / 6) % 5];
     if (t > 12) secret('hs.ttx.hidden');
   }
   // ---- the video's on-screen menu: the TIMER (nobody has ever got this right)
@@ -406,7 +406,7 @@
     if (k === 'sub') { st.sub = !st.sub; osd(st.sub ? 'SUBTITLES' : 'SUBTITLES OFF'); return; }
     if (/^[0-9]$/.test(k)) { const n = +k; if (n <= 5) chan(n); else osd('NO SIGNAL'); return; }
     if (k === 'chup') return chan((st.ch + 1) % 6); if (k === 'chdn') return chan((st.ch + 5) % 6);
-    if (k === 'volup' || k === 'voldn') { S.vol = Math.max(0, Math.min(10, S.vol + (k === 'volup' ? 1 : -1))); save(); st.volT = performance.now() + 1500; if (S.vol >= 8 && life() && life().quiet()) setTimeout(() => life().voice('DAD (from upstairs)', 'JACK! TURN THAT DOWN! IT\'S THE MIDDLE OF THE NIGHT!'), 900); return; }
+    if (k === 'volup' || k === 'voldn') { S.vol = Math.max(0, Math.min(10, S.vol + (k === 'volup' ? 1 : -1))); save(); st.volT = performance.now() + 1500; if (S.vol >= 8 && life() && life().quiet()) setTimeout(() => life().voice('DAD (from upstairs)', '{me.NAME}! TURN THAT DOWN! IT\'S THE MIDDLE OF THE NIGHT!'), 900); return; }
     if (k === 'mute') { st.mute = !st.mute; osd(st.mute ? 'MUTE' : ''); return; }
     if (k === 'r' || k === 'g' || k === 'y' || k === 'c') { ensureTtx(); st.text = true; ttx.key(k); return; }
     if (k === 'index') { ensureTtx(); st.text = true; ttx.go(100); return; }

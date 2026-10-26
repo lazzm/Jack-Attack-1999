@@ -127,7 +127,7 @@
       waitPay[id] = setTimeout(() => { delete waitPay[id]; jack('Job done: ' + C.short, 'Mom says she\'ll sort my money out later. (JackNet didn\'t answer. Is the modem plugged in?)'); }, 15000);
     } else {
       jack('Job done: ' + C.short, esc(cast(pick(DONE[id] || DONE._))) + '<br><small>Mom says ta, love. (Members of JackNet get paid Rupees for every job: Start &gt; Log Off, then pick a name. It\'s free!)</small>', 9000);
-      setTimeout(() => mom(cast(pick(['Ta, love!', 'Thank you, Jack!', 'Ooh, ta!', 'Good lad!']))), 1800);
+      setTimeout(() => mom(cast(pick(['Ta, love!', 'Thank you, {me}!', 'Ooh, ta!', 'Good {me.lad}!']))), 1800);
       allCheck();
     }
   }
@@ -136,7 +136,7 @@
     const L = list(); if (!L.length || !L.every(id => S.done[id])) return;
     if (S.v._all) return; S.v._all = 1; save();
     secret('ch.all');
-    setTimeout(() => mom("Have you done ALL your jobs? Who are you and what have you done with Jack?"), 3500);
+    setTimeout(() => mom("Have you done ALL your jobs? Who are you and what have you done with {me}?"), 3500);
   }
 
   // ================================================================ the server
@@ -187,11 +187,12 @@
 
   // ================================================================ talking: Mom (shouting from downstairs) and Jack (thinking)
   function mom(text, ms) {
+    text = cast(text);
     try { if (window.HouseLife && HouseLife.voice) return HouseLife.voice('MOM', text, ms); } catch (e) {}
     H.say('MOM (shouting up the stairs)', esc(text), ms || 5000);
     const c = H.sfx.ac && H.sfx.ac(); if (c) { const n = Math.min(8, Math.ceil(text.length / 8)); for (let i = 0; i < n; i++) H.sfx.tone(190 + Math.random() * 80, 0.09, 'sawtooth', 0.012, i * 0.11, 150); }
   }
-  function jack(title, html, ms) { H.say(title, html, ms); }
+  function jack(title, html, ms) { H.say(cast(title), cast(html), ms); }
   const GRUMBLE = {
     _: ['Do I HAVE to? ...Fine.', 'Pocket money. Think of the pocket money.', 'Right. Let\'s get this over with.'],
     tidy: ['Tidy my room. It IS tidy. It\'s organised mess. There\'s a system.', 'Right. Clothes in the basket, rubbish in the bin. How hard can it be?'],
@@ -391,7 +392,7 @@
     g.fillStyle = 'rgba(0,0,0,.05)'; for (let x = 0; x < w; x += 16) { g.beginPath(); g.arc(x + 8, 6, 5, 0, 7); g.fill(); }
     A.grain(g, w, h, 1400, 0.025, 77);
     g.textBaseline = 'alphabetic';
-    A.text(g, 'JOBS FOR JACK', 84, 82, '700 46px ' + A.HAND, '#c0102a');
+    A.text(g, 'JOBS FOR {me.NAME}', 84, 82, '700 46px ' + A.HAND, '#c0102a');
     g.strokeStyle = '#c0102a'; g.lineWidth = 3; g.beginPath(); g.moveTo(84, 92); g.quadraticCurveTo(250, 100, 410, 90); g.stroke();
     A.text(g, date99(), w - 20, 118, '22px ' + A.HAND, '#1a3a9a', 'right');
     const L = list();
@@ -458,7 +459,7 @@
     const L = list();
     const row = (id, i) => { const C = CC.CHORE[id], d = S.done[id]; return `<li class="${d ? 'done' : ''}"><i class="ch-box"></i><b>${i + 1}. ${esc(C.n)}</b><span class="ch-where">${esc(C.blurb)}</span><span class="ch-pay">${d ? (Number.isFinite(d.cashPence) ? 'Done! '+CC.money(d.cashPence)+' cash paid' : d.amt ? d.amt+' Rupees paid (before cash wallets)' : 'Done!') : started(id) ? `Doing it: ${count(id)} of ${stepsOf(id).length}` : `${CC.money(CC.pence(id))}`}<em> &middot; ${esc(C.where)}</em></span></li>`; };
     const extras = CC.CHORES.filter(c => !L.includes(c.id) && avail(c.id));
-    return `<div class="ch-pad"><h2>JOBS FOR JACK</h2><div class="ch-date">${esc(date99())}</div><ol>${L.map(row).join('')}</ol>
+    return `<div class="ch-pad"><h2>JOBS FOR {me.NAME}</h2><div class="ch-date">${esc(date99())}</div><ol>${L.map(row).join('')}</ol>
       <p class="ch-ex"><b>Anything else = a bit extra!</b> ${extras.map(c => `<span class="${S.done[c.id] ? 'done' : ''}">${esc(c.short)}</span>`).join(' &middot; ')}</p>
       <p class="ch-ps">${member() ? 'ALL done = 50p BONUS. (I pay it into your JackNet Bank: 20 Rupees to the pound.)' : 'P.S. Log on to JackNet (it\'s free) and I\'ll pay it into your JackNet Bank, in Rupees!'}</p><div class="ch-sig">Love Mom x</div></div>`;
   }
@@ -499,7 +500,7 @@
 
   // ================================================================ Mom, every now and then (only while there's a job left on her list)
   let lastShout = Date.now(), shouts = 0;
-  const SHOUTS = ['JAAACK! Have you done your jobs yet?', 'Jack! Those jobs won\'t do themselves!', 'JACK! Get off that computer and do your jobs!', 'Jack, love? The list on the fridge? Remember the list?', 'JACK! I can hear you NOT doing your jobs!'];
+  const SHOUTS = ['{me.NAME}! Have you done your jobs yet?', '{me}! Those jobs won\'t do themselves!', '{me.NAME}! Get off that computer and do your jobs!', '{me}, love? The list on the fridge? Remember the list?', '{me.NAME}! I can hear you NOT doing your jobs!'];
   const REPLY = ['(Yeah yeah. In a MINUTE.)', '(I\'m DOING it.)', '(Five more minutes...)', '(How does she KNOW?)'];
   setInterval(() => {
     if (!H.live || H.busy || document.hidden || shouts >= 3) return;
@@ -508,7 +509,7 @@
     const L = list(); if (!L.length || L.every(id => S.done[id])) return;
     lastShout = Date.now(); shouts++;
     mom(cast(pick(SHOUTS)));
-    setTimeout(() => jack('Jack', pick(REPLY), 3500), 4200);
+    setTimeout(() => jack('{me}', pick(REPLY), 3500), 4200);
   }, 30000);
 
   // ================================================================ a tool in your hands (the hoover, the mower, the broom, a sponge)

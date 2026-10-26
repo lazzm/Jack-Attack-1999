@@ -48,6 +48,7 @@
   const voiceEl = document.createElement('div'); voiceEl.className = 'hs-voice'; voiceEl.innerHTML = '<b></b><p></p>'; ui.appendChild(voiceEl);
   let voiceT = 0, lastVoice = 0;
   function voice(who, text, ms) {
+    who = cast(who); text = cast(text);
     voiceEl.querySelector('b').textContent = who; voiceEl.querySelector('p').textContent = text;
     voiceEl.classList.add('on'); clearTimeout(voiceT); voiceT = setTimeout(() => voiceEl.classList.remove('on'), ms || Math.max(4200, text.length * 75));
     lastVoice = Date.now();
@@ -59,16 +60,16 @@
   function moments() { // what someone might shout right now
     const p = part(), n = now99(), L = [], pcOn = H.stood, hifi = !!(R && R._ && R._.S && false);
     const M = 'MOM' + away(), Dd = 'DAD' + away(), Sis = sis().toUpperCase();
-    if (p === 'morning') L.push([M, schoolDay(n) ? 'JACK! You\'ll be late for school! Have you had any breakfast?' : 'Jack, are you up? It\'s gone eight! Lazybones!'], [M, 'Jack, have you seen my car keys?']);
-    if (p === 'school') L.push([M, 'Jack? Why aren\'t you at school? ...Oh, it\'s an INSET day. Right. Well don\'t sit on that computer all day.']);
-    if (p === 'after' || p === 'day') L.push([M, 'Jack, have you done your homework?'], [M, 'Jack! Come and get your washing, it\'s on the stairs!'], [Sis, 'MOOOOOM! Jack\'s being annoying!'], [M, 'Jack, Dave\'s Mom rang. Are you going round there?']);
-    if (p === 'tea') L.push([M, 'JACK! TEA\'S READY! It\'ll go cold!'], [M, 'Jack, set the table please, love!'], [M, 'Tea in five minutes! Wash your hands!']);
-    if (p === 'evening') L.push([M, 'Jack, it\'s a school night. Not too late, eh?'], [Dd, 'Jack! Have you been using the phone? The bill came.'], [M, 'Jack, do you want a cup of tea?'], [Sis, 'Jack, can I have a go on the Game Lad? Pleeeeease?']);
-    if (p === 'late') L.push([Dd, 'Jack! Bed! Now!'], [M, 'Jack, turn that light off, love, it\'s late.']);
-    if (p === 'night') L.push([Dd + ' (half asleep)', 'Jack... it\'s gone midnight. What are you doing? Go to bed.']);
-    if (pcOn) L.push([M, 'Jack, are you on that computer AGAIN?'], [M, 'Jack! Get off the Internet! I need to ring your Nan!'], [Dd, 'Is that the Internet on? Do you know how much those phone calls cost?']);
-    if (n.dow === 6) L.push([M, 'Jack, I\'m popping to the shops. Do you want anything? ...Besides a Daydream.']);
-    if (n.dow === 0) L.push([M, 'Jack, we\'re going to Gran\'s for Sunday dinner at one! Wear something clean!']);
+    if (p === 'morning') L.push([M, schoolDay(n) ? '{me.NAME}! You\'ll be late for school! Have you had any breakfast?' : '{me}, are you up? It\'s gone eight! Lazybones!'], [M, '{me}, have you seen my car keys?']);
+    if (p === 'school') L.push([M, '{me}? Why aren\'t you at school? ...Oh, it\'s an INSET day. Right. Well don\'t sit on that computer all day.']);
+    if (p === 'after' || p === 'day') L.push([M, '{me}, have you done your homework?'], [M, '{me}! Come and get your washing, it\'s on the stairs!'], [Sis, 'MOOOOOM! {me}\'s being annoying!'], [M, '{me}, {mate1}\'s Mom rang. Are you going round there?']);
+    if (p === 'tea') L.push([M, '{me.NAME}! TEA\'S READY! It\'ll go cold!'], [M, '{me}, set the table please, love!'], [M, 'Tea in five minutes! Wash your hands!']);
+    if (p === 'evening') L.push([M, '{me}, it\'s a school night. Not too late, eh?'], [Dd, '{me}! Have you been using the phone? The bill came.'], [M, '{me}, do you want a cup of tea?'], [Sis, '{me}, can I have a go on the Game Lad? Pleeeeease?']);
+    if (p === 'late') L.push([Dd, '{me}! Bed! Now!'], [M, '{me}, turn that light off, love, it\'s late.']);
+    if (p === 'night') L.push([Dd + ' (half asleep)', '{me}... it\'s gone midnight. What are you doing? Go to bed.']);
+    if (pcOn) L.push([M, '{me}, are you on that computer AGAIN?'], [M, '{me}! Get off the Internet! I need to ring your Nan!'], [Dd, 'Is that the Internet on? Do you know how much those phone calls cost?']);
+    if (n.dow === 6) L.push([M, '{me}, I\'m popping to the shops. Do you want anything? ...Besides a Daydream.']);
+    if (n.dow === 0) L.push([M, '{me}, we\'re going to Gran\'s for Sunday dinner at one! Wear something clean!']);
     return L;
   }
   function shoutLoop() {
@@ -84,12 +85,12 @@
   let ring = null; // { who, t0, timer }
   const ringing = () => !!ring;
   const CALLS = [
-    { who: 'Gran', from: 'Gran', lines: () => ['Hello love! It\'s Gran. Is your Mom there? ...No? Never mind.', 'Are you eating properly? You\'re a growing lad. I\'ve knitted you a jumper. It\'s got a reindeer on it.', 'Are you still playing on that computer? Your Grandad says it\'ll make your eyes go square.'], replies: [['Yes Gran. Thanks Gran.', 'Lovely. I\'ll send it in the post. Bye love! Bye! Bye bye! Bye!'], ['The computer\'s brilliant, Gran!', 'Ooh. Well, as long as you\'re happy. Love to your Mom. Bye love! Bye bye!']] },
-    { who: 'Dave', from: 'Dave', lines: () => ['Alright Jack! It\'s Dave. You coming out? We\'re going down the rec.', 'Luke\'s got a new football. And I\'ve got a whole tube of Crunchtubes. Well, half a tube.'], replies: [['Can\'t, I\'m grounded (sort of).', 'Gutted. Come round tomorrow then, I\'ve got the new ULTRA 64 mag with the cheats in.'], ['Yeah, give me ten minutes!', 'Sorted. If you\'re not there in ten we\'re playing three-and-in without you. Later!']] },
+    { who: 'Gran', from: 'Gran', lines: () => ['Hello love! It\'s Gran. Is your Mom there? ...No? Never mind.', 'Are you eating properly? You\'re a growing {me.lad}. I\'ve knitted you a jumper. It\'s got a reindeer on it.', 'Are you still playing on that computer? Your Grandad says it\'ll make your eyes go square.'], replies: [['Yes Gran. Thanks Gran.', 'Lovely. I\'ll send it in the post. Bye love! Bye! Bye bye! Bye!'], ['The computer\'s brilliant, Gran!', 'Ooh. Well, as long as you\'re happy. Love to your Mom. Bye love! Bye bye!']] },
+    { who: '{mate1}', from: '{mate1}', lines: () => ['Alright {me}! It\'s {mate1}. You coming out? We\'re going down the rec.', '{mate2}\'s got a new football. And I\'ve got a whole tube of Crunchtubes. Well, half a tube.'], replies: [['Can\'t, I\'m grounded (sort of).', 'Gutted. Come round tomorrow then, I\'ve got the new ULTRA 64 mag with the cheats in.'], ['Yeah, give me ten minutes!', 'Sorted. If you\'re not there in ten we\'re playing three-and-in without you. Later!']] },
     { who: 'a wrong number', from: '???', lines: () => ['Hello? Is that the Golden Dragon? I want to order a number 27 and a 42 with egg fried rice.'], replies: [['Sorry, wrong number!', 'Oh! Sorry love. Bye.'], ['Yes. That will be one million pounds.', '...What? Who IS this? (click)']] },
-    { who: 'a man selling double glazing', from: '???', lines: () => ['Good evening sir, I\'m calling about your jackos. Are you the homeowner?', 'Have you ever thought about a conservatory?'], replies: [['I\'m sixteen.', 'Ah. Could you put your father on? ...No? Right. Thank you for your time.'], ['Our jackos are already double glazed.', 'Ah. Have you considered TRIPLE gla- (you put the phone down)']] },
-    { who: 'JackK', from: 'JackK', lines: () => ['Jack. It\'s Jack. The other... no, it\'s JackK. Is your Internet on? I sent you an e-mail.', 'Also, have you finished Acorn Quest yet? Don\'t tell me the ending.'], replies: [['The phone line\'s free, so the Internet\'s off!', 'Oh yeah. Ha. Well, check your mail later then. Laters!'], ['I finished it on Sunday.', 'NO WAY. Don\'t tell me. DON\'T TELL ME. (he hangs up)']] },
-    { who: 'Callum', from: 'Callum', lines: () => ['It\'s Callum. Quick question: what\'s the cheat for all the weapons? I\'m on the third level and I\'ve got nothing.'], replies: [['IDKFA. Obviously.', 'Legend. Owe you one. Actually I\'ll owe you nothing, everyone knows that one.'], ['Look it up on the Internet.', 'I can\'t! My sister\'s on the phone. Well, she was. Now I am. (click)']] },
+    { who: 'a man selling double glazing', from: '???', lines: () => ['Good evening {me.sir}, I\'m calling about your jackos. Are you the homeowner?', 'Have you ever thought about a conservatory?'], replies: [['I\'m sixteen.', 'Ah. Could you put your father on? ...No? Right. Thank you for your time.'], ['Our jackos are already double glazed.', 'Ah. Have you considered TRIPLE gla- (you put the phone down)']] },
+    { who: '{mate4}', from: '{mate4}', lines: () => ['{me}, it\'s {mate4}. Is your Internet on? I sent you an e-mail.', 'Also, have you finished Acorn Quest yet? Don\'t tell me the ending.'], replies: [['The phone line\'s free, so the Internet\'s off!', 'Oh yeah. Ha. Well, check your mail later then. Laters!'], ['I finished it on Sunday.', 'NO WAY. Don\'t tell me. DON\'T TELL ME. ({mate4.he} hangs up)']] },
+    { who: '{mate3}', from: '{mate3}', lines: () => ['It\'s {mate3}. Quick question: what\'s the cheat for all the weapons? I\'m on the third level and I\'ve got nothing.'], replies: [['IDKFA. Obviously.', 'Legend. Owe you one. Actually I\'ll owe you nothing, everyone knows that one.'], ['Look it up on the Internet.', 'I can\'t! My sister\'s on the phone. Well, she was. Now I am. (click)']] },
     { who: 'Nan', from: 'Nan', lines: () => ['Hello duck, it\'s your Nan. Did you get the card? There\'s a postal order in it. Don\'t lose it.'], replies: [['Thanks Nan!', 'You\'re welcome, love. Spend it on something nice. Not sweets. Bye bye now!']] },
     { who: 'a recorded voice', from: '???', lines: () => ['CONGRATULATIONS! You have been selected to receive a FREE holiday! To claim, call this premium-rate number. Calls cost a pound a minute.'], replies: [['(Put the phone down. Mom says never ring those.)', '(click)']] },
   ];
@@ -110,7 +111,7 @@
   }
   function stopRing(missed) {
     if (!ring) return; clearInterval(ring.timer); const c = ring.call; ring = null; H.dirty();
-    if (missed) setTimeout(() => voice('MOM', cast(c.who === 'Dave' ? 'Jack! That was Dave! He says are you coming out?' : c.who === 'Gran' ? 'Jack, that was your Gran. She says you never ring her.' : c.who === 'a wrong number' ? 'Wrong number. AGAIN. Someone wanting a Chinese.' : 'Was that the phone? Did you not hear it?!')), 1500);
+    if (missed) setTimeout(() => voice('MOM', cast(c.who === '{mate1}' ? '{me}! That was {mate1}! {mate1.He} says are you coming out?' : c.who === 'Gran' ? '{me}, that was your Gran. She says you never ring her.' : c.who === 'a wrong number' ? 'Wrong number. AGAIN. Someone wanting a Chinese.' : 'Was that the phone? Did you not hear it?!')), 1500);
   }
   // picking up: answering a call, or dialling out (the keypad, the phone book's numbers, 1471, the speaking clock)
   const phonePose = () => ({ x: 128, y: GY - 150, z: 604, rx: -8, ry: 90, lvl: 'G', seat: 1 }); // (standing by the phone table, the handset in your hand)
@@ -121,7 +122,10 @@
   }
   let callEl = null;
   function card(title, html, btns) {
-    if (!callEl) { callEl = document.createElement('div'); callEl.className = 'hs-call hs-modal'; ui.appendChild(callEl); }
+    title = cast(title); html = cast(html);
+    // Focus already owns the phone controls. The hs-modal marker would make
+    // the house hide this dialogue along with its own HUD.
+    if (!callEl) { callEl = document.createElement('div'); callEl.className = 'hs-call'; ui.appendChild(callEl); }
     callEl.innerHTML = `<b>${esc(title)}</b><div class="hs-callt">${html}</div><div class="hs-callb"></div>`;
     const bb = callEl.querySelector('.hs-callb');
     (btns || []).forEach(([label, fn]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.addEventListener('click', fn); bb.appendChild(b); });
@@ -140,37 +144,38 @@
     S.calls = (S.calls | 0) + 1; save();
   }
   // dialling
-  const BOOK = () => [['Gran', '01632 960213'], ['Nan', '01632 960584'], ['Dave', '01632 960117'], ['Luke', '01632 960342'], ['Callum', '01632 960776'], ['JackK', '01632 960908'], ['The Golden Dragon (Chinese)', '01632 960888'], ['Odyssey Pictures (film times)', '01632 960400'], ['Doctors', '01632 960500'], ['Speaking clock', '123'], ['Who rang last?', '1471']];
+  const BOOK = () => [['Gran', '01632 960213'], ['Nan', '01632 960584'], ['{mate1}', '01632 960117'], ['{mate2}', '01632 960342'], ['{mate3}', '01632 960776'], ['{mate4}', '01632 960908'], ['The Golden Dragon (Chinese)', '01632 960888'], ['Odyssey Pictures (film times)', '01632 960400'], ['Doctors', '01632 960500'], ['Speaking clock', '123'], ['Who rang last?', '1471']];
   let dialled = '', padSurf = null;
   function dial() {
     dialled = '';
     const el = document.createElement('div'); el.className = 'hs-pad';
     el.innerHTML = '<div class="hs-padd">&nbsp;</div><div class="hs-padk">' + ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map(k => `<button type="button" data-k="${k}">${k}</button>`).join('') + '</div><button type="button" class="hs-padgo">CALL</button>';
     const r = lounge(); if (r.handset) r.handset.visible = false; // (it's in your hand now)
-    padSurf = H.surface(el, H.faceQuad(7, 6.8, 30, 2, 0), { w: 300, h: 290 });
+    const keypadQuad = H.faceQuad(7, 6.8, 30, 2, 0);
+    padSurf = H.surface(el, () => { const q = keypadQuad(); return [q[3], q[2], q[1], q[0]]; }, { w: 300, h: 290 });
     el.addEventListener('click', ev => {
       const b = ev.target.closest('button'); if (!b) return;
       if (b.classList.contains('hs-padgo')) return call(dialled);
       if (dialled.length < 14) { dialled += b.dataset.k; H.sfx.tone([697, 770, 852, 941][Math.floor('123456789*0#'.indexOf(b.dataset.k) / 3)] || 700, 0.12, 'sine', 0.05); H.sfx.tone([1209, 1336, 1477][('123456789*0#'.indexOf(b.dataset.k)) % 3] || 1300, 0.12, 'sine', 0.05); }
       el.querySelector('.hs-padd').textContent = dialled || ' ';
     });
-    card('The phone', '<p>Dial tone: <i>bzzzzzzzzz</i>. Press the numbers on the phone, then CALL. (The phone book\'s on the table: Gran, Dave, the speaking clock...)</p>', [['Phone book', () => book()]]);
+    card('The phone', '<p>Dial tone: <i>bzzzzzzzzz</i>. Press the numbers on the phone, then CALL. (The phone book\'s on the table: Gran, {mate1}, the speaking clock...)</p>', [['Phone book', () => book()]]);
   }
   function hangUp() { if (padSurf) { padSurf.close(); padSurf = null; } const r = lounge(); if (r && r.handset) r.handset.visible = true; cardOff(); H.sfx.tone(260, 0.05, 'square', 0.04); H.dirty(); }
-  function book() { card('The phone book (Mom\'s writing)', '<table class="hs-book">' + BOOK().map(([n, num]) => `<tr><td>${esc(n)}</td><td>${esc(num)}</td></tr>`).join('') + '</table>', [['Back', () => dial2()]]); }
+  function book() { card('The phone book (Mom\'s writing)', '<table class="hs-book">' + BOOK().map(([n, num]) => `<tr><td>${esc(cast(n))}</td><td>${esc(num)}</td></tr>`).join('') + '</table>', [['Back', () => dial2()]]); }
   function dial2() { card('The phone', '<p>Press the numbers, then CALL.</p>', [['Phone book', () => book()]]); }
   function call(num) {
     const n = num.replace(/\s/g, ''), clock = () => { const d = new Date(); return `At the third stroke, it will be ${d.getHours() % 12 || 12} ${String(d.getMinutes()).padStart(2, '0')} and ${Math.ceil(d.getSeconds() / 10) * 10} seconds. Beep. Beep. Beep.`; };
     const ANS = {
       '123': ['The speaking clock', clock()],
       '1471': ['1471', S.calls ? 'Telephone number 0 1 6 3 2, 9 6 0, 1 1 7 called today at ' + (new Date().getHours()) + ' 0 4 hours. To return the call, press 3.' : 'You were called today. The caller withheld their number.'],
-      '01632960213': ['Gran', 'Hello? Who is it? JACK! Ooh, you never ring! Is everything all right? Are you eating? Your Grandad says hello. HE SAYS HELLO. Bye love! Bye! Bye bye!'],
+      '01632960213': ['Gran', 'Hello? Who is it? {me.NAME}! Ooh, you never ring! Is everything all right? Are you eating? Your Grandad says hello. HE SAYS HELLO. Bye love! Bye! Bye bye!'],
       '01632960584': ['Nan', 'Hello duck! Oh how lovely. I\'ve just put the kettle on. Did you get my card? There\'s a postal order in it. Don\'t lose it.'],
-      '01632960117': ['Dave', '"Dave\'s house." It\'s Dave\'s Mom. "He\'s out on his bike, love. I\'ll tell him you rang."'],
-      '01632960342': ['Luke', 'Luke: "Jack! Have you got the Acorn Quest guide still? I need it back. I KNOW you have it."'],
-      '01632960776': ['Callum', 'Engaged. Callum is on the Internet. Of course he is.'],
-      '01632960908': ['JackK', 'JackK\'s answering machine: "You\'ve reached JackK. Leave a message after the beep. Unless you\'re selling something." BEEEP.'],
-      '01632960888': ['The Golden Dragon', '"Golden Dragon, can I help you?" ...You panic and order prawn crackers to be delivered to Dave\'s house. Then you put the phone down.'],
+      '01632960117': ['{mate1}', '"{mate1}\'s house." It\'s {mate1}\'s Mom. "{mate1.He}\'s out on {mate1.his} bike, love. I\'ll tell {mate1.him} you rang."'],
+      '01632960342': ['{mate2}', '{mate2}: "{me}! Have you got the Acorn Quest guide still? I need it back. I KNOW you have it."'],
+      '01632960776': ['{mate3}', 'Engaged. {mate3} is on the Internet. Of course {mate3.he} is.'],
+      '01632960908': ['{mate4}', '{mate4}\'s answering machine: "You\'ve reached {mate4}. Leave a message after the beep. Unless you\'re selling something." BEEEP.'],
+      '01632960888': ['The Golden Dragon', '"Golden Dragon, can I help you?" ...You panic and order prawn crackers to be delivered to {mate1}\'s house. Then you put the phone down.'],
       '01632960400': ['The Odyssey Pictures', 'Recorded message: "Welcome to the Odyssey Pictures. For this week\'s films, press 1. To book, hold the line. You are caller number... forty... seven."'],
       '01632960500': ['The doctors', '"Surgery. The next appointment is in three weeks." You\'re not even ill. You put the phone down.'],
       '999': ['999', '(You put the phone down before it rings. That\'s for emergencies only. Mom would go spare.)'],
@@ -207,7 +212,7 @@
       doneLocal().push(id); save();
       say('Job done: ' + c.n.split(' (')[0], c.done + (net() ? '' : ' <small>(Log on to JackNet and Mom pays pocket money for jobs.)</small>'), 6000);
       if (net()) send({ t: 'hsChore', id });
-      if (todays().every(x => doneLocal().includes(x))) setTimeout(() => voice('MOM', 'Ooh, have you done ALL your jobs? Who are you and what have you done with Jack?'), 2500);
+      if (todays().every(x => doneLocal().includes(x))) setTimeout(() => voice('MOM', 'Ooh, have you done ALL your jobs? Who are you and what have you done with {me}?'), 2500);
     }, 900);
     return true;
   }
@@ -229,7 +234,7 @@
     Net.on('hsMe', m => { srv.member = !!m.member; srv.chores = m.chores || null; srv.done = m.done || []; srv.tin = !!m.tin; srv.pocket = !!m.pocket; if (m.member && m.saturday && !m.pocket) setTimeout(pocket, 4000); });
     Net.on('hsTin', m => { if (m.amt > 0) toast('+' + m.amt + ' Rupees', 'Found in the biscuit tin, under the biscuits!'); srv.tin = true; });
     Net.on('hsChore', m => { if (m.amt > 0) toast('+' + m.amt + ' Rupees', 'Mom paid you for doing a job!'); if (m.done) srv.done = m.done; });
-    Net.on('hsPocket', m => { if (m.cashPence > 0) { srv.pocket = true; voice('MOM', 'Jack! Here\'s your pocket money. Five pounds. Don\'t spend it all on games magazines.'); setTimeout(() => toast('+£'+(m.cashPence/100).toFixed(2), 'Saturday pocket money! Exchange it at JackNet Bank.'), 2500); } });
+    Net.on('hsPocket', m => { if (m.cashPence > 0) { srv.pocket = true; voice('MOM', '{me}! Here\'s your pocket money. Five pounds. Don\'t spend it all on games magazines.'); setTimeout(() => toast('+£'+(m.cashPence/100).toFixed(2), 'Saturday pocket money! Exchange it at JackNet Bank.'), 2500); } });
     const ask = () => send({ t: 'hsMe' });
     Net.on('welcome', ask); Net.on('loginOk', ask); try { if (Net.me && Net.me.id) ask(); } catch (e) {}
   }
@@ -242,13 +247,13 @@
     const n = now99(), list = todays(), done = doneLocal().concat(srv.done);
     const notes = [];
     const jobs = window.Chores && Chores.fridgeHTML ? Chores.fridgeHTML() : `<ol>${list.map(id => `<li class="${done.includes(id) ? 'done' : ''}">${esc(C.CHORE[id].n)}</li>`).join('')}</ol>`;
-    if (!window.Chores || jobs) notes.push(`<div class="hs-fn hs-fn-jobs" style="--r:-2deg;left:7%;top:5%"><b>JOBS FOR JACK</b>${jobs}<i>Love Mom x<br>(Pocket money on SATURDAY if they're done!)</i></div>`);
+    if (!window.Chores || jobs) notes.push(`<div class="hs-fn hs-fn-jobs" style="--r:-2deg;left:7%;top:5%"><b>JOBS FOR ${esc(cast('{me.NAME}'))}</b>${jobs}<i>Love Mom x<br>(Pocket money on SATURDAY if they're done!)</i></div>`);
     notes.push(`<div class="hs-fn hs-fn-mom" style="--r:3deg;left:52%;top:7%">${esc(cast(momNote(n)))}</div>`);
     notes.push(`<div class="hs-fn hs-fn-menu" style="--r:-4deg;left:56%;top:40%"><b>GOLDEN DRAGON</b><small>Chinese takeaway</small><br>27. Sweet &amp; sour chicken<br>42. Beef in black bean<br>55. Egg fried rice<br><b>01632 960888</b></div>`);
     notes.push(`<div class="hs-fn hs-fn-draw" style="--r:5deg;left:8%;top:43%"><i class="hs-drawing"></i><span>${esc(cast('by {sister} age 9'))}</span></div>`);
-    notes.push(`<div class="hs-fn hs-fn-card" style="--r:-2deg;left:10%;top:72%">DENTIST<br>${n.dow === 2 ? 'TODAY!' : 'Tuesday'} 4.15pm<br><small>Jack</small></div>`);
+    notes.push(`<div class="hs-fn hs-fn-card" style="--r:-2deg;left:10%;top:72%">DENTIST<br>${n.dow === 2 ? 'TODAY!' : 'Tuesday'} 4.15pm<br><small>${esc(cast('{me}'))}</small></div>`);
     const mags = S.mags || null;
-    const letters = 'JACKORKSWAAGH1999TELYMOD'.split('');
+    const letters = ('JACKORKSWAAGH1999TELYMOD' + cast('{me.NAME}').replace(/[^A-Z]/g, '')).split('');
     const mm = letters.map((l, i) => { const p = mags && mags[i] ? mags[i] : [10 + (i % 8) * 10 + (i * 7) % 4, 86 - Math.floor(i / 8) * 6 + ((i * 13) % 3)]; return `<i class="hs-mag" data-i="${i}" style="left:${p[0]}%;top:${p[1]}%;--c:${['#d02a2a', '#2a5ad0', '#e8b020', '#2a9a4a', '#a02ab0'][i % 5]}">${l}</i>`; }).join('');
     el.innerHTML = `<div class="hs-fdoor">${notes.join('')}${mm}<i class="hs-fhandle"></i></div>`;
     H.focus(fridgePose(), { label: 'Shut the fridge', enter: () => {
@@ -262,12 +267,12 @@
   let fr = null;
   function momNote(n) {
     const p = part(n);
-    if (n.md === 1224 || n.md === 1225) return 'Jack - Happy Christmas, love! Mince pies are in the tin, NOT for breakfast. Mom x';
-    if (n.md === 1231) return 'Jack - Millennium party at Auntie\'s tonight! Be ready by 7. NO computers at midnight in case they blow up. Mom x';
+    if (n.md === 1224 || n.md === 1225) return '{me} - Happy Christmas, love! Mince pies are in the tin, NOT for breakfast. Mom x';
+    if (n.md === 1231) return '{me} - Millennium party at Auntie\'s tonight! Be ready by 7. NO computers at midnight in case they blow up. Mom x';
     if (n.dow === 6) return 'Gone to the shops. Back by 12. Your pocket money is in the tin if you\'ve done your jobs. Mom x';
     if (n.dow === 0) return 'Sunday dinner at Gran\'s at 1. Clean jeans please. Mom x';
-    if (p === 'tea' || p === 'evening') return 'Jack - tea is in the oven (fish fingers, chips, beans). Don\'t let ' + '{sister}' + ' have all the ketchup. Mom x';
-    return schoolDay(n) ? 'Jack - Packed lunch in the fridge. Don\'t forget your PE kit. Ring me at work if you need anything. Mom x' : 'Jack - Popped out. Back soon. Don\'t eat all the biscuits. I HAVE COUNTED THEM. Mom x';
+    if (p === 'tea' || p === 'evening') return '{me} - tea is in the oven (fish fingers, chips, beans). Don\'t let ' + '{sister}' + ' have all the ketchup. Mom x';
+    return schoolDay(n) ? '{me} - Packed lunch in the fridge. Don\'t forget your PE kit. Ring me at work if you need anything. Mom x' : '{me} - Popped out. Back soon. Don\'t eat all the biscuits. I HAVE COUNTED THEM. Mom x';
   }
   function magnets(el) {
     const door = el.querySelector('.hs-fdoor');
@@ -298,7 +303,7 @@
     const rows = []; for (const m of ms) { let r = rows.find(q => Math.abs(q.y - m.y) < 1.6); if (!r) rows.push(r = { y: m.y, a: [] }); r.a.push(m); }
     const words = [];
     for (const r of rows) { r.a.sort((p, q) => p.x - q.x); let w = r.a[0].l; for (let i = 1; i < r.a.length; i++) { if (r.a[i].x - r.a[i - 1].x < 11) w += r.a[i].l; else { words.push(w); w = r.a[i].l; } } words.push(w); }
-    const GOOD = { ORKS: 'Mom wrote under it: "What is an ORK?"', WAAAGH: 'Mom wrote under it: "Please stop shouting that."', WAAGH: 'Mom wrote under it: "Please stop shouting that."', JACK: 'Your name. Classic.', 1999: 'Party like it\'s... this year.', MODEM: 'Beep bop connect.', HOME: 'Aww.', TEA: 'Mom: "Yes, it\'s nearly ready."', COOL: 'Everything is cool in 1999.', GAME: 'GAME. Obviously.' };
+    const GOOD = { ORKS: 'Mom wrote under it: "What is an ORK?"', WAAAGH: 'Mom wrote under it: "Please stop shouting that."', WAAGH: 'Mom wrote under it: "Please stop shouting that."', [cast('{me.NAME}')]: 'Your name. Classic.', 1999: 'Party like it\'s... this year.', MODEM: 'Beep bop connect.', HOME: 'Aww.', TEA: 'Mom: "Yes, it\'s nearly ready."', COOL: 'Everything is cool in 1999.', GAME: 'GAME. Obviously.' };
     const hit = words.find(w => GOOD[w]);
     if (hit) { secret('hs.fridge'); say('Fridge poetry', `You spelled <b>${esc(hit)}</b>. ${esc(GOOD[hit])}`); }
   }
@@ -372,7 +377,7 @@
     get S() { return S; }, save,
   };
   // the life starts: a welcome, then the shouting and the phone
-  setTimeout(() => { if (!S.hello) { S.hello = 1; save(); voice('MOM', cast(part() === 'tea' ? 'Jack! Is that you? Tea\'s nearly ready!' : 'Jack? Is that you coming down? Put the kettle on, love!')); } }, 2500);
+  setTimeout(() => { if (!S.hello) { S.hello = 1; save(); voice('MOM', cast(part() === 'tea' ? '{me}! Is that you? Tea\'s nearly ready!' : '{me}? Is that you coming down? Put the kettle on, love!')); } }, 2500);
   shoutLoop(); ringLoop();
   if (now99().dow === 6) setTimeout(pocket, 6000);
 })();

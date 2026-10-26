@@ -2,7 +2,7 @@
  * thing on the desk, on charge. Press F / "Use it" to lean into its live LCD and physical keys where it lies or is held.
  * The 3D phone stays in the room, so everything the program does (texts to other visitors, T9, the
  * inbox on its 1999 dates, every secret and save) works exactly as before. A text arriving buzzes the phone where it lies.
- * The PC's "Jack's Mobile" program stays as a thin fallback that says where the phone is (js/family.js asks HouseMobile). */
+ * The PC's My Mobile program stays as a thin fallback that says where the phone is (js/family.js asks HouseMobile). */
 (function () {
   'use strict';
   const H = window.House, R = window.Room;
@@ -82,12 +82,12 @@
   function make() {
     const r = H.ROOMS.bedroom; if (!r || thing) return;
     charger(r);
-    thing = H.thing('mobile', { home: HOME, kind: 'mobile', label: "Jack's mobile (Talkbrik T-99)", obj: model(), use: () => use(), useLabel: 'Use it', holdD: 34, faceYou: false });
+    thing = H.thing('mobile', { home: HOME, kind: 'mobile', label: () => Cast.t("{me}'s mobile (Talkbrik T-99)"), obj: model(), use: () => use(), useLabel: 'Use it', holdD: 34, faceYou: false });
     thing.obj.traverse(o => { o.userData.thing = 1; });
     H.restoreThing(thing);
     const s = H.SPOTS.mobile; if (s) s.wrapped = 1;
     H.on('rest', id => { if (id === 'mobile') charge(); });
-    H.on('grab', id => { if (id === 'mobile') { psave({ charging: false }); if (!pst().seenRoom) { psave({ seenRoom: 1 }); say("Jack's mobile", 'My Talkbrik T-99. Pay as you go. &pound;' + (((pst().credit == null ? 50 : pst().credit) | 0) / 100).toFixed(2) + ' credit. Press <b>F</b> (or "Use it") to have a look at it.', 6000); } } });
+    H.on('grab', id => { if (id === 'mobile') { psave({ charging: false }); if (!pst().seenRoom) { psave({ seenRoom: 1 }); say(Cast.t("{me}'s mobile"), 'My Talkbrik T-99. Pay as you go. &pound;' + (((pst().credit == null ? 50 : pst().credit) | 0) / 100).toFixed(2) + ' credit. Press <b>F</b> (or "Use it") to have a look at it.', 6000); } } });
     charge();
     try { const sm = JSON.parse(localStorage.getItem('jhp_family_sms') || 'null'); if (sm && sm.inbox && sm.inbox.some(x => !x.read)) setGlow(true); } catch (e) {}
   }
@@ -138,7 +138,7 @@
   function use(arg) {
     if (!thing || session || H.paused || !H.live || !(['walk','glide'].includes(H.mode)||H.mode==='focus'&&H.seated)) return;
     if (H.held() !== 'mobile' && thing.at.room !== H.here) return;
-    if (H.held() && H.held() !== 'mobile') { say("Jack's mobile", 'Put down what you are holding first.'); return; }
+    if (H.held() && H.held() !== 'mobile') { say(Cast.t("{me}'s mobile"), 'Put down what you are holding first.'); return; }
     if (returning && H.gliding) return;
     if (thing.st === 'fall') return; // let a dropped phone finish landing
     if (H.held() === 'mobile' && H.mode === 'glide') { H.cancelGlide(true); if (H.mode !== 'walk') return; }
@@ -223,11 +223,11 @@
         Object.assign(H.P, closePose());
         H.ui.focusBar('Lean back'); H.dirty();
       } catch (e) {
-        H.unfocus(); say("Jack's mobile", 'No signal. Try again in a minute.');
+        H.unfocus(); say(Cast.t("{me}'s mobile"), 'No signal. Try again in a minute.');
       }
     };
     (window.FamilyPhone ? Promise.resolve() : (window.Apps && Apps.load ? Apps.load('js/family-phone.js') : Promise.reject()))
-      .then(go, () => { if (session === s) { H.unfocus(); say("Jack's mobile", 'No signal. Try again in a minute.'); } });
+      .then(go, () => { if (session === s) { H.unfocus(); say(Cast.t("{me}'s mobile"), 'No signal. Try again in a minute.'); } });
   }
   function unmount() {
     const s = session; session = null; usingT = 0;
@@ -293,7 +293,7 @@
       });
     }
     for (let i = 0; i < 2; i++) { H.sfx.tone(140, 0.45, 'sawtooth', thing.at.room === H.here ? 0.06 : 0.02, i * 0.55); H.sfx.noise(0.45, thing.at.room === H.here ? 0.03 : 0.01, 300, i * 0.55); }
-    toast('*bzzzt* Jack\'s mobile', `A text from ${esc(it && it.from || 'someone')}. The phone's ${where()}.`);
+    toast(Cast.t("*bzzzt* {me}'s mobile"), `A text from ${esc(it && it.from || 'someone')}. The phone's ${where()}.`);
     return true;
   }
   if (window.Net) Net.on('smsNew', m => { if (H.live && thing) setTimeout(() => buzz(m.item), 200); });
@@ -301,7 +301,7 @@
   function fromPC(arg) {
     if (!thing || arg === 'snake' || (arg && typeof arg === 'object')) return false; // (a Snake link-up invite still opens the real program)
     const w = where();
-    try { Desk.msgbox("Jack's Mobile", `Your mobile isn't in your pocket. It's ${w}.\n\nStand up from the PC (the chair button, or Esc > Back to the room) and press F by the phone to use it there, or pick it up and press F.`, 'info', [['Stand up', () => { if (H.canStand && H.canStand()) H.standUp(); }], ['OK']]); } catch (e) { return false; }
+    try { Desk.msgbox(Cast.t("{me}'s Mobile"), `Your mobile isn't in your pocket. It's ${w}.\n\nStand up from the PC (the chair button, or Esc > Back to the room) and press F by the phone to use it there, or pick it up and press F.`, 'info', [['Stand up', () => { if (H.canStand && H.canStand()) H.standUp(); }], ['OK']]); } catch (e) { return false; }
     return true;
   }
   function route(arg) {
@@ -315,10 +315,10 @@
   }
   function goGet(arg) { // use it exactly where it is, whether held, on a table or on the floor
     if (H.held() === 'mobile') return use(arg);
-    if (!thing || thing.at.room !== H.here) { say("Jack's mobile", "My mobile's " + where() + '.'); return; }
+    if (!thing || thing.at.room !== H.here) { say(Cast.t("{me}'s mobile"), "My mobile's " + where() + '.'); return; }
     use(arg);
   }
-  H.on('stood', () => { if (glow) setTimeout(() => toast("Jack's mobile", "The phone's " + where() + ". The screen's lit up: a text."), 1200); });
+  H.on('stood', () => { if (glow) setTimeout(() => toast(Cast.t("{me}'s mobile"), "The phone's " + where() + ". The screen's lit up: a text."), 1200); });
   window.HouseMobile = { where, fromPC, buzz, use, route, setGlow, get thing() { return thing; }, make };
   make();
 })();

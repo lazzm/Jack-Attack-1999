@@ -129,8 +129,8 @@
   }
   // what Mom says when she checks (by rating)
   const MOMSAYS = [
-    [95, ['Ooh! Who are you and what have you done with Jack?', 'Gold star, love. GOLD STAR.', 'Well I never. That is PERFECT.']],
-    [85, ['That\'s lovely, thank you, love.', 'Good lad. See, that wasn\'t so hard, was it?', 'Ta, love. You\'re a star.']],
+    [95, ['Ooh! Who are you and what have you done with {me}?', 'Gold star, love. GOLD STAR.', 'Well I never. That is PERFECT.']],
+    [85, ['That\'s lovely, thank you, love.', 'Good {me.lad}. See, that wasn\'t so hard, was it?', 'Ta, love. You\'re a star.']],
     [70, ['That\'ll do. Just about.', 'Thank you. Eventually.', 'Was that so hard? Don\'t answer that.']],
     [0, ['Hmm. I\'ll be checking that.', 'Did you actually do it or just move it about?']],
   ];

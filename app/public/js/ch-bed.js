@@ -303,7 +303,7 @@
     if (CK.done('cat') || CK.has('cat', 'pour')) return CK.jack('Cat biscuits', CK.cast('{cat}\'s had {cat.his} tea. Any more and {cat.he}\'ll be too fat to fit through the window.'));
     const p = catBox.obj.position, d = Math.hypot(p.x - BOWL.x, p.z - BOWL.z);
     CK.begin('cat');
-    if (d > 42) { CK.snd.rustle(); CK.fx.burst(CK.MODS.cat._r || H.ROOMS.bedroom, p.x, p.y, p.z, { n: 6, col: '#a0642a', size: 1.6, life: 1.1, spd: 12, up: 5, grav: 300, floor: FY - 0.3, fade: false }); CK.oops('cat'); return CK.jack('Cat biscuits', 'Oops. Biscuits on the carpet. Over the BOWL, Jack. (Walk to the bowl by the bed and shake them in.)'); }
+    if (d > 42) { CK.snd.rustle(); CK.fx.burst(CK.MODS.cat._r || H.ROOMS.bedroom, p.x, p.y, p.z, { n: 6, col: '#a0642a', size: 1.6, life: 1.1, spd: 12, up: 5, grav: 300, floor: FY - 0.3, fade: false }); CK.oops('cat'); return CK.jack('Cat biscuits', 'Oops. Biscuits on the carpet. Over the BOWL, {me}. (Walk to the bowl by the bed and shake them in.)'); }
     const r = H.ROOMS.bedroom; let n = 0;
     CK.snd.rustle(); setTimeout(CK.snd.rustle, 300); setTimeout(CK.snd.rustle, 600);
     const iv = setInterval(() => { CK.fx.burst(r, p.x, p.y + 2, p.z, { n: 5, col: '#9a5a24', size: 1.5, life: 0.9, spd: 4, up: -5, grav: 700, floor: FY - 2.5, fade: false, to: [BOWL.x, FY - 3, BOWL.z] }); if (++n >= 7) clearInterval(iv); }, 140);
