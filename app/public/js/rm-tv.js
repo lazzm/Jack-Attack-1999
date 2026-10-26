@@ -230,9 +230,12 @@
   function liveFrame() {
     if (!V || !V.live) return;
     if (V.result) { const g = V.cv1.getContext('2d'); g.clearRect(0, 0, V.cv1.width, V.cv1.height); resultFrame(g, V.cv1.width, V.cv1.height); }
+    // LOCK IN presents the canvases themselves; the hidden room's duplicate
+    // texture upload costs a GPU copy and is refreshed immediately on returning.
+    if(V.lockedIn)return;
     // Upload both canvases directly. Compositing in the room's material avoids
     // reading a WebGL game back through a 2D canvas every animation frame.
-    V.liveTx = _.tvLive && _.tvLive(V.cv0, V.cv1, V.con);
+    V.liveTx = _.tvLive && _.tvLive(V.cv0, V.cv1, V.con, V.surface);
     if (V.liveTx && R.House && R.House.ren.initTexture) { R.House.ren.initTexture(V.liveTx); R.House.ren.initTexture(V.liveTx.userData.hud); }
     if (R.House) R.House.dirty();
   }
@@ -242,7 +245,7 @@
     if (V && V.background) {
       if (V.con === con) {
         V.background = false; (V.live ? document.documentElement : pb).appendChild(V.el); V.el.classList.add('on');
-        pb.classList.add('rm-console-focus'); clearInput();
+        pb.classList.add('rm-console-focus'); clearInput(); frameSurface(450);
         addEventListener('keydown', onKey, true); addEventListener('keyup', onKeyUp, true);
         loop.last = performance.now(); loop.acc = 0; loop.start(); _.emit('open', con); return;
       }
@@ -309,13 +312,14 @@
       if (V.background) return;
       V.background = true; V.el.remove();
       try {localStorage.setItem('jhp_console_focus', JSON.stringify({con: V.con, gid: V.gid, background: true}));} catch (e) {}
+      rememberSurface();
       pb.classList.remove('rm-tvon', 'rm-console-focus');
       removeEventListener('keydown', onKey, true); removeEventListener('keyup', onKeyUp, true);
       clearInput(); _.emit('close'); return;
     }
     // This path is a real stop/eject, not a lean-out. Release both GPU textures.
     stopGame(); music(null);
-    if (V.live && _.tvOff) _.tvOff(V.con);
+    if (V.live && _.tvOff) _.tvOff(V.con,V.surface);
     try {localStorage.removeItem('jhp_console_focus');} catch (e) {}
     const el = V.el, wasBackground = V.background; V = null;
     pb.classList.remove('rm-tvon', 'rm-console-focus');
@@ -348,7 +352,7 @@
   }
 
   // ================================================================ the screen: canvases, and what's on when nothing's playing
-  function size(w, hh, smooth, gl) {
+  function size(w, hh, smooth, gl, antialias) {
     const c0 = V.cv0, c1 = V.cv1;
     if (gl) { const n = c0.cloneNode(); c0.replaceWith(n); V.cv0 = n; } // (a canvas that has had a 2D context can't become WebGL)
     else if (V.cv0.dataset.gl) { const n = V.cv0.cloneNode(); delete n.dataset.gl; V.cv0.replaceWith(n); V.cv0 = n; }
@@ -357,7 +361,7 @@
     if (gl && V.live) {
       // The room renderer consumes this frame on its own animation callback.
       // Preserve it until then instead of allowing the browser to clear it.
-      const o = { alpha: false, antialias: V.con === 'dc', preserveDrawingBuffer: true };
+      const o = { alpha: false, antialias: antialias == null ? V.con === 'dc' : !!antialias, preserveDrawingBuffer: true };
       V.cv0.getContext('webgl2', o) || V.cv0.getContext('webgl', o);
     }
     V.el.classList.toggle('rm-smooth', !!smooth);
@@ -416,7 +420,7 @@
     V.el.classList.add('rm-blowing'); setTimeout(() => view.el.classList.remove('rm-blowing'), 600);
     setTimeout(() => { if (V === view && V.bootEpoch === epoch && V.gid === G.id) boot(V.ready || Promise.resolve()); }, 650);
   }
-  function eject() { if (!V) return; if (V.live) { const con = V.con; close(); if (_.ejectMedia) _.ejectMedia(con); return; } stopGame(); $(V.el, '.rm-shelf').querySelectorAll('.rm-pick').forEach(b => b.classList.remove('in')); idle(); }
+  function eject() { if (!V) return; if(V.surface){stopGame();shelf();idle();return;} if (V.live) { const con = V.con; close(); if (_.ejectMedia) _.ejectMedia(con); return; } stopGame(); $(V.el, '.rm-shelf').querySelectorAll('.rm-pick').forEach(b => b.classList.remove('in')); idle(); }
 
   // the start-up screens (t: seconds; draw on g, a 2D context the console's size). Return true when done.
   const BOOTS = {
@@ -528,24 +532,60 @@
   // ================================================================ the game runtime
   const defs = {};
   let K = null, game = null;
+  // Optional cartridge-owned physical screen. Legacy catalogues still open normally;
+  // only a cartridge supplying a screen opts into the existing in-world/LOCK IN path.
+  let surfaceLeaving=false;
+  function rememberSurface(){
+    if(!V?.surface)return;
+    const H=R.House;let old;try{old=JSON.parse(localStorage.getItem('jhp_console_focus')||'null');}catch(e){}
+    const back=H?._.focusS?.back || old?.back;
+    const state=JSON.stringify({con:V.con,gid:V.gid,surface:true,owner:window.Net?.me?.nick||'',background:!!V.background,locked:!!V.lockedIn,pose:{...H.P,lvl:'G',seat:1},back});
+    try{localStorage.setItem('jhp_console_focus',state);sessionStorage.setItem('jhp_surface_session',state);}catch(e){}
+  }
+  function attachSurface(def) {
+    if(V.live || typeof def.screen!=='function')return;
+    const screen=def.screen();if(!screen||!_.tvLive)return;
+    V.surface=screen;V.live=true;V.el.classList.add('rm-live3d');
+    document.documentElement.appendChild(V.el);
+    const bar=h('','rm-livebar');bar.appendChild($(V.el,'.rm-help'));bar.appendChild($(V.el,'.rm-btns'));V.el.appendChild(bar);
+    $(V.el,'.rm-eject').textContent='Change game';$(V.el,'.rm-back').textContent='Back to the room';
+    pb.classList.remove('rm-tvon');pb.classList.add('rm-console-focus');frameSurface(450);rememberSurface();R.House?.dirty();
+  }
+  function frameSurface(ms) {
+    const def=V&&defs[V.gid],H=R.House;
+    if(!V?.surface || V.background || V.restoreBackground || !H?.focused || typeof def?.screenPose!=='function')return;
+    const pose=def.screenPose(V.surface);if(pose)H.glideTo(pose,{ms:ms||250,lock:true});
+  }
+  function releaseSurface() {
+    if(!V?.surface)return;
+    if(_.tvOff)_.tvOff(V.con,V.surface);
+    V.surface=null;V.live=false;V.el.classList.remove('rm-live3d');
+    const side=$(V.el,'.rm-side');side.appendChild($(V.el,'.rm-help'));side.appendChild($(V.el,'.rm-btns'));
+    $(V.el,'.rm-livebar')?.remove();pb.appendChild(V.el);
+    $(V.el,'.rm-eject').textContent='Eject';$(V.el,'.rm-back').textContent='Back to my room';
+    if(!surfaceLeaving)try{localStorage.removeItem('jhp_console_focus');sessionStorage.removeItem('jhp_surface_session');}catch(e){}
+  }
   function startGame() {
     const gid = V.gid, def = defs[gid], L = LOOK[V.con];
     const res = def.res || L.res;
-    size(res[0], res[1], def.smooth != null ? def.smooth : L.smooth, !!def.three);
+    size(res[0], res[1], def.smooth != null ? def.smooth : L.smooth, !!def.three, def.antialias);
     V.st = 'game'; V.el.classList.add('rm-playing');
+    attachSurface(def);
     gameHelp(def);
     pad(def);
     K = makeK(gid, def);
     try { game = def.make(K) || {}; } catch (e) { console.error(e); game = null; return crash(); }
     liveFrame();
     _.emit('play', gid);
+    if(V.restoreLocked){V.restoreLocked=false;lockIn(true);}
+    if(V.restoreBackground){V.restoreBackground=false;close();}
     if (!V.restoring) playedOne(gid);
   }
   function crash() { const g = V.cv1.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, V.cv1.width, V.cv1.height); font.center(g, 'THIS GAME HAS CRASHED. EJECT IT AND TRY AGAIN.', V.cv1.width / 2, V.cv1.height / 2, '#fff', 1); }
   function stopGame() {
     if (game && game.end) { try { game.end(); } catch (e) {} }
     if (K && K._three && K._three.dispose) { try { K._three.dispose(); } catch (e) {} }
-    game = null; K = null; music(null); if (V) V.song = null;
+    game = null; K = null; releaseSurface(); music(null); if (V) V.song = null;
     if (V) { V.bootEpoch = (V.bootEpoch || 0) + 1; V.result = null; pad(null); }
     clearInput();
     bootFn = null;
@@ -568,6 +608,9 @@
       rnd(seed) { let a = (seed >>> 0) || 1; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; },
       three(o) { if (!k._three) k._three = window.RoomTV.make3d(k, Object.assign({ look: V.con === 'ps' ? 'ps1' : V.con }, o || {})); return k._three; },
       over(score, o) { finish(k, gid, Math.max(0, Math.floor(score || 0)), o || {}); },
+      // A restored cartridge requests a fresh server-held scoring window only
+      // when the player actually starts playing again. Saved points never mint cash.
+      resume() { if(!k.restoring)return;k.restoring=false;try{if(window.Net)Net.send({t:'rmGo',g:gid});}catch(e){} },
       tok: '',
     };
     // ask the server for a token for this go (members get on the table and earn; guests just play)
@@ -641,7 +684,7 @@
       if (mus.enabled !== !!window.Sound?.on) music(window.Sound?.on ? V.song : null);
       // Keep the simulation alive, but avoid rendering/uploading a second game
       // at the monitor's full refresh rate while Jack is walking elsewhere.
-      if (V.background && n - this.viewAt > 250) {this.viewAt = n; this.viewOn = !!(_.tvVisible && _.tvVisible(V.con));}
+      if (V.background && n - this.viewAt > 250) {this.viewAt = n; this.viewOn = !!(_.tvVisible && _.tvVisible(V.con,V.surface));}
       if (V.background && n - this.last < 1000/(R.House.graphicsGet?.().backgroundFps||10)) return;
       let dt = (n - this.last) / 1000; this.last = n; if (dt > 0.25) dt = 0.25;
       if (R.House.paused) clearInput();
@@ -681,7 +724,7 @@
       try { if(!V.background||this.viewOn){if(game&&game.draw)game.draw();liveFrame()} } catch (e) { console.error(e); game = null; crash(); }
     },
   };
-  document.addEventListener('visibilitychange', () => { if (!V) return; if (document.hidden) { clearInput(); loop.stop(); music(null); } else { loop.start(); if (V.song) music(V.song); } });
+  document.addEventListener('visibilitychange', () => { if (!V) return; if (document.hidden) { rememberSurface();clearInput(); loop.stop(); music(null); } else { loop.start(); if (V.song) music(V.song); } });
 
   // ---- game input keeps Q/back, T/LOCK IN and Esc/menu with the house.
   function onKey(ev) {
@@ -705,7 +748,8 @@
     pend = {}; now = {};
   }
   addEventListener('blur', clearInput);
-  addEventListener('pagehide', () => { clearInput(); if (K) K.tok = ''; stopGame(); });
+  addEventListener('beforeunload',rememberSurface);
+  addEventListener('pagehide', () => { rememberSurface();surfaceLeaving=true;clearInput(); if (K) K.tok = ''; stopGame(); });
 
   function toolLabels() {
     if (!V) return;
@@ -778,9 +822,23 @@
       V.el.style.setProperty('--lock-x', (left + w / 2) + 'px');
       V.el.style.setProperty('--lock-y', (top + h / 2) + 'px');
     }
+    rememberSurface();
+    if(!V.lockedIn)liveFrame();
     return !!V.lockedIn;
   }
-  addEventListener('resize', () => { clearInput(); if (V?.lockedIn) lockIn(true); });
+  addEventListener('resize', () => { clearInput(); if (V?.lockedIn) lockIn(true); if(V?.surface)frameSurface(200); });
 
-  window.RoomTV = { game(id, def) { defs[id] = def; }, defs, test, playPhysical,lockIn, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
+  function restoreSurface(saved){
+    if(window.AccountGate&&!window.AccountGate.allowed)return false;
+    if(V || !saved?.surface || !CAT.GAME[saved.gid] || CAT.GAME[saved.gid].con!==saved.con)return false;
+    const H=R.House;
+    const boot=()=>{open(saved.con,null,{restoring:true});if(!V)return;V.restoreBackground=!!saved.background;V.restoreLocked=!!saved.locked&&!saved.background;playPhysical(saved.gid);};
+    if(saved.background){boot();return true;}
+    const pose=saved.pose;
+    if(!pose || !['x','y','z','rx','ry'].every(k=>Number.isFinite(pose[k])))return false;
+    const done=()=>{R.offClose?.(done);if(H.focused)H.unfocus();};
+    if(!H.focus(pose,{ms:1,label:'Get up',enter:boot}))return false;
+    R.onClose?.(done);return true;
+  }
+  window.RoomTV = { restoreSurface, game(id, def) { defs[id] = def; }, defs, test, playPhysical,lockIn, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background, surface: !!V.surface }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
 })();

@@ -108,7 +108,7 @@ window.CAL = {
     ["09-05", "GAMES", "ECTS is on at Olympia in London: the big games show. Trade only, so kids can't go. UNFAIR. We're the ones who PLAY them."],
     ["09-06", "SITE", "Back to school. Boo. Updates might slow down. (They won't.)"],
     ["09-07", "GAMES", "SegaWorld in London has closed down. Never got to go."],
-    ["09-09", "GAMES", "<b>9/9/99!</b> The Daydream is out in America today! Zip Adventure looks JACKREAL. Five weeks till ours!!!"],
+    ["09-09", "GAMES", "<b>9/9/99!</b> The Daydream is out in America today! Zip the purple badger in 3D! Zip Adventure looks JACKREAL. Five weeks till ours!!!"],
     ["09-09", "Y2K", "Some old computers use 9999 to mean 'no date', so today (9/9/99) was meant to break things. Nothing happened. Phew."],
     ["09-13", "GAMES", "It's official: the next PlaySpace is called <b>PlaySpace 2</b>. Out in Japan in March. Can't wait. Can't afford it either."],
     ["09-18", "SITE", "Got my Rubrick's cube time down to 4 minutes!!! Next goal: under 2."],

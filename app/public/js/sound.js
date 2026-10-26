@@ -119,6 +119,21 @@
       });
       tone(130.8, 2.6, 'sine', 0.25, 0.05);
     },
+    // ---- seasonal start-up and shut-down chimes (Sound.variant picks them while the season is on)
+    startup_halloween() { // a spooky organ: a minor arpeggio, a low drone and a little "wooo" on top
+      [[220, 0], [261.6, 0.22], [329.6, 0.44], [440, 0.66], [415.3, 1.0]].forEach(([f, t]) => { tone(f, 1.6, 'sawtooth', 0.04, t); tone(f * 2, 1.2, 'triangle', 0.05, t); });
+      tone(110, 2.8, 'sine', 0.22, 0.05); tone(880, 1.4, 'sine', 0.05, 1.3, 600);
+    },
+    shutdown_halloween() { [[440, 0], [349.2, 0.3], [293.7, 0.6], [220, 0.9]].forEach(([f, t]) => tone(f, 1, 'triangle', 0.13, t)); tone(700, 1.4, 'sine', 0.05, 0.4, 350); },
+    startup_bonfire() { noise(0.7, 0.12, 0, 2600); tone(400, 0.7, 'sine', 0.04, 0, 1800); noise(0.25, 0.35, 0.75, 350); tone(80, 0.4, 'sine', 0.3, 0.75, 40); for (let i = 0; i < 8; i++) noise(0.03, 0.15, 1.1 + i * 0.07, 3200); [[523, 1.2], [659, 1.35], [784, 1.5]].forEach(([f, t]) => tone(f, 1.2, 'triangle', 0.1, t)); },
+    shutdown_bonfire() { [[784, 0], [659, 0.25], [523, 0.5]].forEach(([f, t]) => tone(f, 0.9, 'triangle', 0.12, t)); for (let i = 0; i < 6; i++) noise(0.04, 0.08, 0.2 + i * 0.15, 2600); },
+    startup_xmas() { // sleigh bells and a bright chime
+      for (let i = 0; i < 10; i++) { noise(0.05, 0.1, i * 0.09, 6000); tone(2637 + (i % 3) * 200, 0.06, 'triangle', 0.03, i * 0.09); }
+      [[784, 0.3], [988, 0.5], [1175, 0.7], [1568, 0.95]].forEach(([f, t]) => tone(f, 1.4, 'sine', 0.12, t)); tone(196, 2.2, 'sine', 0.2, 0.3);
+    },
+    shutdown_xmas() { [[1568, 0], [1175, 0.2], [988, 0.4], [784, 0.6]].forEach(([f, t]) => tone(f, 1, 'sine', 0.12, t)); for (let i = 0; i < 6; i++) noise(0.05, 0.06, 0.6 + i * 0.12, 6000); },
+    startup_valentine() { [[659, 0], [784, 0.2], [988, 0.4], [1319, 0.65]].forEach(([f, t]) => tone(f, 1.4, 'sine', 0.13, t)); tone(165, 2.2, 'sine', 0.18, 0.05); },
+    startup_millennium() { for (let i = 0; i < 4; i++) tone(1000 + i * 120, 0.08, 'square', 0.05, i * 0.12); [[523, 0.6], [659, 0.75], [784, 0.9], [1047, 1.1]].forEach(([f, t]) => tone(f, 1.3, 'triangle', 0.14, t)); noise(0.3, 0.2, 1.1, 1800); },
     modem() {
       const c = ac(); if (!c) return;
       // dial tone, then the number
@@ -228,7 +243,9 @@
     output,
     world,
     worldPause(on) { worldPaused=!!on; if(ctx&&worldMaster)worldMaster.gain.setTargetAtTime(on?0:.25,ctx.currentTime,.012); },
-    play(name) { if (sfxOn && sfx[name]) { try { sfx[name](); } catch (e) {} } },
+    play(name) { if (!sfxOn) return; const v = typeof window.Sound.variant === 'function' ? window.Sound.variant(name) : null, f = (v && sfx[v]) || sfx[name]; if (f) { try { f(); } catch (e) {} } },
+    variant: null, // seasons-web.js: name -> seasonal variant (e.g. 'startup' -> 'startup_halloween') while a season is on
+    has: name => !!sfx[name],
     setVolume(v) { if (!Number.isFinite(+v)) return; volume = Math.max(0, Math.min(1, +v)); changed(); },
     speak(utterance) { if (sfxOn && volume && window.speechSynthesis) { utterance.volume *= volume; speechSynthesis.speak(utterance); } },
     note(f, d, type) { if (sfxOn) tone(f, d || 0.25, type || 'square', 0.15); },

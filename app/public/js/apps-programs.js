@@ -1565,7 +1565,7 @@ File > Set As Wallpaper puts it on the desktop. Show your Mom.
         if (!S2) return;
         const sel = qs(pg, '.pgk-ss'), cv = qs(pg, 'canvas'), none = qs(pg, '.pgk-none');
         sel.value = raw && [...sel.options].some(o => o.value === raw) ? raw : (raw === '(None)' ? '(None)' : (raw ? '(None)' : nameOf(S2[0])));
-        if (raw == null && [...sel.options].some(o => o.value === 'Flying Saucers')) sel.value = 'Flying Saucers';
+        if (raw == null) { const dn = Savers.defaultName ? Savers.defaultName() : 'Flying Saucers'; if ([...sel.options].some(o => o.value === dn)) sel.value = dn; }
         const halt = () => { if (stopPrev) { try { stopPrev(); } catch (e) {} stopPrev = null; } };
         const preview = () => { halt(); const n = sel.value; const ctx2 = cv.getContext('2d'); ctx2.fillStyle = '#000'; ctx2.fillRect(0, 0, cv.width, cv.height); none.textContent = n === '(None)' ? '(None)' : ''; if (n !== '(None)' && !pg.classList.contains('off')) { try { const r = Savers.preview(cv, n); if (typeof r === 'function') stopPrev = r; } catch (e) {} } };
         SP.start = preview; SP.stop = halt;

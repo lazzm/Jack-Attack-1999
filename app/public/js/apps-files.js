@@ -563,7 +563,7 @@ Dave got Red. We're going to trade. He doesn't know yet that I'm going to make h
 
 About two hundred pounds. 200MHz chip. 16MB of RAM. And it has a 33.6K MODEM BUILT IN. You can go on the Internet ON A GAMES CONSOLE.
 
-Went to the shop just to look at it. They had one set up with Zip Adventure and a queue of kids waiting to have a go. I got two minutes. Zip ran down the side of a building. It was the best two minutes of my life.
+Went to the shop just to look at it. They had one set up with Zip Adventure and a queue of kids waiting to have a go. I got two minutes. The purple badger ran down the side of a building. It was the best two minutes of my life.
 
 Mom said "we'll see" about Christmas. "We'll see" is not a no. "We'll see" is a maybe. A maybe is nearly a yes.
 
@@ -1435,7 +1435,7 @@ THE KONAMI CODE
   On CONTRA it gives you 30 lives. (${CN('cousin2')} needed every one of them.)
   (Try it on this website too. Just saying.)
 
-ZIP THE HEDGEHOG 2
+ZIP THE BADGER 2
   Level select: go to the Sound Test in Options and play
   sounds 19, 65, 09, 17. Then hold A and press Start on the title screen.
 `);

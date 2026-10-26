@@ -1,8 +1,10 @@
-/* THE LEGEND OF ZELDO: A LINK TO THE PASTA (Super Nintendo, in Jack's room). A top-down sword-and-shield adventure.
+/* THE LEGEND OF ZELDO: A LINK TO THE PASTA (Super Ultra, in the cupboard). A top-down sword-and-shield adventure.
  * Princess Zeldo's secret pasta-sauce recipe has been nicked by BARON MEATBALLO. LINGO (that's you) grabs Grandad's old
  * sword, explores the kingdom of Lasagnia screen by screen (a village with a shop, fields, a lake, a graveyard, a forest
  * and the north cliffs), buys bombs to blast the rockfall and storms the COLANDER KEEP: small keys and locked doors, a map
  * and a compass, crystal switches, push blocks, a boomerang, the BIG CHEESE mini-boss, the big key and the Baron himself.
+ * After the feast, the village well opens THE SECOND HELPING: the Salt-Beyond, Ravioli Reservoir, an enchanted bow,
+ * Count Crouton, the Ovenheart and the Al Dente Forge. Old version-1 files, IDs and ending remain compatible.
  * Hearts, heart pieces (four make a new heart), heart containers, gems (the money), bombs and a bottle of minestrone.
  * Controls: arrows walk, B (X) sword (hold it, then let go: spin attack), A (Z) talk / lift / throw / open, Y (V) use the
  * item picked on the START menu, X (C) the map. Three save files (Jack's mates got there first); it saves on every new
@@ -61,6 +63,7 @@
   const GRASS = {
     n: { base: '#58b040', dark: '#3c8a30', light: '#88d060', deep: '#2c6a28', tall: '#3e9a34', flo: ['#f8f8f0', '#f8e040'] },
     f: { base: '#45983a', dark: '#2e7430', light: '#68b850', deep: '#1e5024', tall: '#2f8030', flo: ['#f8c0e0', '#f8f8f0'] },
+    p: { base: '#647490', dark: '#485875', light: '#93a5b8', deep: '#303d60', tall: '#526789', flo: ['#ffc8a8', '#b8f0e8'] },
     g: { base: '#5e8c5a', dark: '#44704a', light: '#7ca874', deep: '#30523a', tall: '#4a7a4c', flo: ['#d8d0f8', '#f8f8f0'] },
   };
   const TCACHE = {};
@@ -1150,8 +1153,132 @@
       '################'],
       ents: [['baron', 7, 4]] },
   };
+  // THE SECOND HELPING. Hand-authored screens, with different routes from the daylight kingdom.
+  // The village well connects the worlds after the first feast. The Reservoir has its own keys and map.
+  const SECOND = {
+    p_grave: { gx: 0, gy: 0, name: 'THE SALT FLATS', map: [
+      'CCCCCCCCCCCCCCCC','CC..c......r..CC','T..............T','T...g..g..g....T',
+      'T..............T','T...r....b......','T...............','T..g..g..g.....T',
+      'T..............T','T....XX........T','T..............T','TTTTTT....TTTTTT'],
+      chests: {'4,1':'gems50'}, ents: [['ghost',3,4],['ghost',12,8],['piece',6,8,'salt']] },
+    p_cliff: { gx: 1, gy: 0, name: 'RAVIOLI RESERVOIR', map: [
+      'CCCCCCCCCCCCCCCC','CCCCC......CCCCC','CCCCC..@@..CCCCC','CCCCC......CCCCC',
+      'CCC....::....CCC','.......::.......','...r...::...r...', 'T......::......T',
+      'T.S....::....S.T','T......::......T','T..f...::..f...T','TTTTTT....TTTTTT'],
+      warps: {'7,2':['r1',7,10,1],'8,2':['r1',8,10,1]}, ents: [['knight',4,6],['snap',12,6]] },
+    p_forest: { gx: 2, gy: 0, name: 'THE CROUTON GROVE', fog: 1, map: [
+      'TTTTTTTTTTTTTTTT','T.....TT.....c.T','T..T.....TT....T','T..T..TT..T....T',
+      'T....f.....T...T','....TT..T..T...T','........T......T','T.T..TT....TT..T',
+      'T.T......T.....T','T...TT...T..f..T','T..............T','TTTTTT....TTTTTT'],
+      chests: {'13,1':'soup'}, ents: [['ghost',5,6],['bat',10,9]] },
+    p_lake: { gx: 0, gy: 1, name: 'BRINEWATER QUAY', map: [
+      'TTTTTT....TTTTTT','T......::......T','T.~~~~.::..~~~~T','T.~~~~.::..~~~~T',
+      'T.~~~~.::..~~~~T','T.~~~~.:::::::::', 'T.~~~~.:::::::::', 'T.~~~~.::..~~~~T',
+      'T.~~~~.::..~~~~T','T.~~~~.::..~~~~T','T......::......T','TTTTTT....TTTTTT'],
+      ents: [['npc',9,4,'fisher'],['crab',8,9],['piece',3,5,'brine']] },
+    p_village: { gx: 1, gy: 1, name: 'FARFALLE AFTER SALT', map: [
+      'TTTTTT....TTTTTT','T.hhhhh::..rrrrT','T.hhhhh::..r..rT','T.hhhhh::......T',
+      'T.hhdhh::......T','....:..::.......','::::::::::::::::','.......::.......',
+      'T..f...::.O....T','T...b..::......T','T......::..f...T','TTTTTT....TTTTTT'],
+      houses: [[2,1,5,4,'shop']], warps:{'4,4':['p_shop',7,10,1]},
+      ents: [['npc',6,7,'luke'],['hen',12,6],['npc',12,9,'lady']] },
+    p_east: { gx: 2, gy: 1, name: 'THE PEPPER PASS', map: [
+      'TTTTTT....TTTTTT','T......::......T','T..b...::...b..T','T.rrrr.::......T',
+      'T.r..r.::..rrr.T','.......::..r.r.T','::::::::...r.r.T','T......::......T',
+      'T.rrr..::..bbb.T','T...r..::......T','T......::......T','TTTTTT....TTTTTT'],
+      ents: [['snap',4,4],['knight',10,8],['gloopP',5,9]] },
+    p_home: { gx: 0, gy: 2, name: 'THE AL DENTE FORGE', map: [
+      'TTTTTT....TTTTTT','T..f...::......T','T..hhhhh:......T','T..hhhhh:......T',
+      'T..hhdhh:......T','T....:..:.......','T....:::::::::::','T..............T',
+      'T.r.....f....r.T','T..............T','T....b.....b...T','TTTTTTTTTTTTTTTT'],
+      houses:[[3,2,5,3,'red']], warps:{'5,4':['p_forge',7,10,1]}, ents:[['npc',10,4,'cal']] },
+    p_south: { gx: 1, gy: 2, name: 'THE CRUMB CAUSEWAY', map: [
+      'TTTTTT....TTTTTT','T......::......T','T..r...::......T','T..~~~.::..~~~.T',
+      'T..~~~.::..~~~.T','.......::.......','::::::::::::::::','T..~~~.::..~~~.T',
+      'T..~~~.::..~~~.T','T......::......T','T..b......b....T','TTTTTTTTTTTTTTTT'],
+      ents:[['crab',4,6],['snap',11,5],['gloopP',7,9]] },
+    p_shore: { gx: 2, gy: 2, name: 'THE BISCUIT BREAKERS', map: [
+      'TTTTTT....TTTTTT','T......:.......T','T......:..T....T','T..f...:..T....T',
+      'T......:..T..c.T','.......:.......T','::::::::....sssT','T..ssssssssssssT',
+      'Tssss~~~~~~~~~~T','Tss~~~~~~~~~~~~T','T~~~~~~~~~~~~~~T','TTTTTTTTTTTTTTTT'],
+      chests:{'13,4':'piece'}, dashTrees:{'10,4':1}, ents:[['crab',9,7],['snap',4,3]] },
+  };
+  for (const id in SECOND) ROOMS[id] = Object.assign({kind:'ow',world:'salt',gp:'p',song:'salt'}, SECOND[id]);
+  ROOMS.p_shop = Object.assign({}, ROOMS.h_shop, {name:'MABEL AFTER SALT',out:['p_village',4,5,0]});
+  ROOMS.p_forge = Object.assign({}, ROOMS.h_elder, {name:'THE AL DENTE FORGE',song:'home',
+    decor:[['shelf',1,2],['books',14,2],['fire',7,0],['table',3,7],['rug',6,4]],
+    ents:[['npc',7,5,'elder']],out:['p_home',5,5,0]});
+  // Each room's connections form a loop with a locked shortcut, two treasure branches and a hidden larder.
+  // The sluice eye only responds to an arrow: the tool is needed both for exploration and Count Crouton.
+  const RESERVOIR = [
+    ['r1',1,4,'THE RESERVOIR STEPS',{n:'.',s:'X'},[
+      '################','#t............t#','#..............#','#...S......S...#',
+      '#..............#','#..............#','#..............#','#...S......S...#',
+      '#..............#','#....p....p....#','#..............#','################'],
+      {exit:['p_cliff',7,3,0],ents:[['npc',10,7,'fisher']]}],
+    ['r2',1,3,'THE FLOODED CLOISTER',{s:'.',w:'.',e:'.',n:'L'},[
+      '################','#t............t#','#..............#','#..vvv....vvv..#',
+      '#..vvv....vvv..#','#..............#','#..............#','#..vvv....vvv..#',
+      '#..vvv....vvv..#','#..............#','#p............p#','################'],
+      {ents:[['crab',4,6],['snap',11,6]]}],
+    ['r3',0,3,'THE WASHING-UP ROOM',{e:'.'},[
+      '################','#..............#','#.t..........t.#','#..............#',
+      '#..............#','#......c.......#','#..............#','#..............#',
+      '#..............#','#.S..........S.#','#..............#','################'],
+      {trap:1,ents:[['gloopP',4,4],['gloopP',11,7],['bat',7,3]],chests:{'7,5':'key'},hidden:{'7,5':1}}],
+    ['r4',2,3,'THE BLUEPRINT BATH',{w:'.'},[
+      '################','#t............t#','#............c.#','#..............#',
+      '#....vv..vv....#','#....vv..vv....#','#..............#','#....vv..vv....#',
+      '#....vv..vv....#','#..c...........#','#..............#','################'],
+      {ents:[['crab',11,3],['snap',7,6]],chests:{'13,2':'map','3,9':'compass'}}],
+    ['r5',1,2,'THE SIEVE CROSSING',{s:'L',w:'.',e:'.',n:'L'},[
+      '################','#..............#','#..t........t..#','#..............#',
+      '#....vv..vv....#','#....vv..vv....#','#..............#','#..............#',
+      '#....p....p....#','#..............#','#..............#','################'],
+      {ents:[['knight',6,4],['knight',10,8]]}],
+    ['r6',0,2,'THE BREADSTICK ARMOURY',{e:'.'},[
+      '################','#..............#','#.t..........t.#','#...########...#',
+      '#...#..c...#...#','#...#......#...#','#...####B###...#','#..............#',
+      '#..............#','#.p..........p.#','#..............#','################'],
+      {chests:{'7,4':'bow'},ents:[['bat',3,7],['gloopP',12,8]]}],
+    ['r7',2,2,'THE EYE OF THE SIEVE',{w:'.',n:'J'},[
+      '################','#..............#','#......H.......#','#vvvvvvvvvvvvvv#',
+      '#vvvvvvvvvvvvvv#','#......==......#','#..............#','#..............#',
+      '#......c.......#','#p............p#','#..............#','################'],
+      {eye:'sluice',bridge:[[7,3],[8,3],[7,4],[8,4]],chests:{'7,8':'key'},hidden:{'7,8':1}}],
+    ['r8',2,1,'THE FORGOTTEN FLOUR',{s:'J'},[
+      '################','#..............#','#.t..........t.#','#..............#',
+      '#.....c........#','#..............#','#...p......p...#','#..............#',
+      '#..............#','#..............#','#..............#','################'],
+      {chests:{'6,4':'piece'},ents:[['gem',10,6,20]]}],
+    ['r9',1,1,'THE TWIN PLATE PANTRY',{s:'L',w:'.',n:'Y'},[
+      '################','#t............t#','#..............#','#..vvv....vvv..#',
+      '#..vvv....vvv..#','#..............#','#..............#','#..vvv....vvv..#',
+      '#..vvv....vvv..#','#..............#','#p............p#','################'],
+      {ents:[['spike',1,1],['knight',11,5]]}],
+    ['r10',0,1,'THE WEIGHING ROOM',{e:'.'},[
+      '################','#..............#','#.....#A#......#','#.....#Z#......#',
+      '#..............#','#..............#','#..B.......B...#','#..............#',
+      '#.._......._...#','#..............#','#t............t#','################'],
+      {plateGate:[7,3],chests:{'7,2':'bigkey'},ents:[['bat',7,5]]}],
+    ['r11',1,0,"COUNT CROUTON'S ROOST",{s:'Y',e:'U'},[
+      '################','#t............t#','#..............#','#..............#',
+      '#..............#','#..............#','#..............#','#..............#',
+      '#..............#','#..............#','#t............t#','################'],
+      {trap:1,ents:[['crouton',7,4]]}],
+    ['r12',2,0,'THE OVENHEART SHRINE',{w:'.'},[
+      '################','#t............t#','#..............#','#.....SSSS.....#',
+      '#.....S..S.....#','#.....S..S.....#','#......c.......#','#..............#',
+      '#..............#','#t............t#','#..............#','################'],
+      {chests:{'7,6':'ovenheart'}}],
+  ];
+  for (const [id,gx,gy,name,doors,map,extra] of RESERVOIR) ROOMS[id] = Object.assign({kind:'dg',dg:'reservoir',gx,gy,name,doors,map,song:'reservoir'},extra);
+  const DUNGEONS = {keep:{name:'COLANDER KEEP',entry:'d1',boss:'d11'},reservoir:{name:'RAVIOLI RESERVOIR',entry:'r1',boss:'r11'}};
   const OWG = {}, DGG = {};
-  for (const id in ROOMS) { const r = ROOMS[id]; r.id = id; if (r.kind === 'ow') OWG[r.gx + ',' + r.gy] = id; if (r.kind === 'dg') DGG[r.gx + ',' + r.gy] = id; }
+  const worldKey = (r,x,y) => (r.world || 'light') + ':' + x + ',' + y;
+  const dgKey = (r,x,y) => (r.dg || 'keep') + ':' + x + ',' + y;
+  for (const id in ROOMS) { const r = ROOMS[id]; r.id = id; if (r.kind === 'ow') OWG[worldKey(r,r.gx,r.gy)] = id; if (r.kind === 'dg') DGG[dgKey(r,r.gx,r.gy)] = id; }
+
 
   // ================================================================ SCENERY: houses, the Colander Keep, rooms indoors, the dungeon's walls
   const SCN = {};
@@ -1419,14 +1546,109 @@
       bass: tune('C3:16 | F2:16 | G2:16 | C3:16') },
   };
 
+  SONGS.salt = {bpm:104,wave:'triangle',bassWave:'square',vol:0.045,drums:'o...x...o...x...',
+    lead:[67,-1,70,74,72,-1,67,65,63,-1,65,70,67,-1,0,65,67,-1,74,77,75,-1,72,70,67,-1,65,63,62,-1,0,0],
+    bass:[43,0,50,0,43,0,50,0,39,0,46,0,39,0,46,0,46,0,53,0,46,0,53,0,43,0,50,0,38,0,45,0]};
+  SONGS.reservoir = {bpm:116,wave:'triangle',bassWave:'triangle',vol:0.047,drums:'....x.......x...',
+    lead:[74,0,69,72,0,65,69,0,67,0,62,65,0,60,62,0,70,0,65,69,0,62,65,0,69,0,64,67,0,61,64,0],
+    bass:[38,0,45,0,50,0,45,0,36,0,43,0,48,0,43,0,34,0,41,0,46,0,41,0,33,0,40,0,45,0,40,0]};
+
+  function reservoirFloor(v,x,y) {
+    return tc('rf'+v+':'+(x%4)+':'+(y%4), gg=>{
+      R(gg,0,0,16,16,'#234458');R(gg,1,1,14,14,'#426c78');
+      R(gg,1,1,14,1,'#6c9298');R(gg,1,14,14,1,'#304e60');R(gg,14,1,1,14,'#304e60');
+      if ((x+y)%4===0) {R(gg,5,4,6,7,'#36586c');R(gg,7,5,2,5,'#91b8b0');P(gg,6,5,'#c0d4bd');}
+      if (v===1) {R(gg,3,9,5,1,'#26485a');R(gg,7,10,1,3,'#26485a');}
+      if (x%4===0) {R(gg,2,2,1,12,'#9e915a');P(gg,2,2,'#dfce85');}
+      if (y%4===0) {R(gg,2,2,12,1,'#9e915a');P(gg,13,2,'#dfce85');}
+    });
+  }
+  function buildSecondArt() {
+    ITEMIMG.bow = mk(16,16,gg=>{
+      gg.strokeStyle='#5a301c';gg.lineWidth=4;gg.beginPath();gg.arc(4,8,6,-1.3,1.3);gg.stroke();
+      gg.strokeStyle='#e8b860';gg.lineWidth=2;gg.beginPath();gg.arc(4,8,6,-1.3,1.3);gg.stroke();
+      R(gg,5,2,1,12,'#f8edc0');R(gg,2,7,12,1,'#f0d8a0');R(gg,12,6,2,3,'#c4e8f0');P(gg,14,7,'#ffffff');
+    },OUT);
+    ITEMIMG.arrow = [0,1,2,3].map(dir=>mk(16,16,gg=>{
+      gg.translate(8,8);gg.rotate([Math.PI/2,-Math.PI/2,Math.PI,0][dir]);
+      R(gg,-6,0,11,1,'#f8df9d');R(gg,-5,-2,3,2,'#93e4d8');R(gg,-5,1,3,2,'#467a9c');
+      gg.fillStyle='#e8f8ff';gg.beginPath();gg.moveTo(7,0);gg.lineTo(2,-3);gg.lineTo(2,3);gg.fill();
+    },OUT));
+    ITEMIMG.boots = mk(16,16,gg=>{for(const x of [2,9]){R(gg,x,2,4,9,'#ae5430');R(gg,x,2,4,2,'#f0bd60');R(gg,x,10,6,4,'#804326');R(gg,x,10,5,2,'#df9b50');R(gg,x,14,6,1,'#312438');}},OUT);
+    ITEMIMG.ovenheart = mk(16,16,gg=>{E(gg,8,8,7,7,'#ab4930');E(gg,8,8,5,6,'#f8a840');E(gg,8,7,3,4,'#ffe690');P(gg,7,4,'#ffffff');R(gg,6,12,5,2,'#d26e30');},OUT);
+    ITEMIMG.blade = tint(ITEMIMG.swordIcon,'#f8ce60',0.45);
+    ITEMIMG.eye = mk(16,16,gg=>{
+      gEye(gg,false);
+    },OUT);
+    ITEMIMG.eyeOn = mk(16,16,gg=>gEye(gg,true),OUT);
+    function gEye(gg,on){R(gg,2,11,12,5,'#24465a');R(gg,3,10,10,2,'#a8aaa0');E(gg,8,6,7,5,'#ae914a');E(gg,8,6,5,3,'#ece6bd');E(gg,8,6,2,3,on?'#73dec8':'#d66b40');P(gg,8,5,'#ffffff');}
+    // Count Crouton: an enormous toasted moth, a jam eye and a very silly waistcoat.
+    SPR.crouton = [0,1,2,3].map(f=>mk(48,40,gg=>{
+      const open=f===1,dizzy=f===2,wing=f===3?6:0;
+      for(const side of [-1,1]){
+        gg.save();gg.translate(24,16);gg.scale(side,1);
+        gg.fillStyle='#74452d';gg.beginPath();gg.moveTo(2,2);gg.lineTo(17,-12+wing);gg.quadraticCurveTo(26,-9+wing,20,10);gg.lineTo(4,17);gg.fill();
+        gg.fillStyle='#c48c48';gg.beginPath();gg.moveTo(4,3);gg.lineTo(17,-8+wing);gg.lineTo(18,8);gg.lineTo(6,13);gg.fill();
+        gg.strokeStyle='#f1c978';gg.lineWidth=2;gg.beginPath();gg.moveTo(7,5);gg.lineTo(16,0);gg.moveTo(7,8);gg.lineTo(16,7);gg.stroke();
+        R(gg,14,1,2,2,'#683524');gg.restore();
+      }
+      E(gg,24,22,10,14,'#63392d');E(gg,24,20,9,13,'#d79a55');E(gg,23,18,7,10,'#f3d28b');
+      R(gg,17,24,14,8,'#5a5788');R(gg,23,25,2,8,'#d8b668');P(gg,24,27,'#fff3c4');P(gg,24,31,'#fff3c4');
+      R(gg,18,4,2,6,'#b2a0a0');R(gg,28,4,2,6,'#b2a0a0');E(gg,18,3,2,2,'#f6c668');E(gg,30,3,2,2,'#f6c668');
+      E(gg,24,15,6,open?5:3,'#743035');E(gg,24,15,4,open?4:1,'#e88980');
+      if(open){R(gg,23,12,2,6,'#5b2042');P(gg,23,12,'#ffffff');}
+      if(dizzy){R(gg,20,12,3,1,'#4b2940');R(gg,25,12,3,1,'#4b2940');R(gg,23,15,2,3,'#4b2940');}
+      R(gg,17,35,5,2,'#654832');R(gg,26,35,5,2,'#654832');
+    },OUT));
+  }
+
   TV.game('sn.zeldo', {
     buttons: ['a', 'b', 'x', 'y'], v: 1,
+    screen: () => window.HouseRooms?.rooms.cupboard?.cupScreen,
+    screenPose(screen) {
+      const H=window.House,T=H?.T;if(!T||!H.camera)return null;
+      screen.updateMatrixWorld(true);
+      const v=screen.getWorldPosition(new T.Vector3()),n=new T.Vector3(0,0,1).transformDirection(screen.matrixWorld);
+      const tan=Math.tan(H.camera.fov*Math.PI/360),aspect=innerWidth/innerHeight;
+      const d=Math.max(28/(2*tan*.84),34/(2*tan*aspect*.84));
+      const x=v.x+n.x*d,y=-v.y-n.y*d,z=v.z+n.z*d;
+      return {x,y,z,rx:-Math.atan2(-v.y-y,Math.hypot(v.x-x,v.z-z))*180/Math.PI,ry:Math.atan2(v.x-x,-(v.z-z))*180/Math.PI,lvl:'G',seat:1};
+    },
     help: 'Walk: arrows. Sword: X (hold it, then let go: spin attack). Talk / lift / open: Z. Use item: V. Map: C. Menu and save: Enter.',
     make(K) {
       const g = K.g, F = K.font, sfx = K.sfx;
+      let resumeRun=!!K.restoring;
+      const touchHeld={},touchPending={};let touchNow={};
+      const held=b=>K.held(b)||!!touchHeld[b],pressed=b=>K.pressed(b)||!!touchNow[b];
+      let touchPanel=null;
+      const clearTouch=()=>{for(const k in touchHeld)delete touchHeld[k];for(const k in touchPending)delete touchPending[k];touchNow={};};
+      function installTouch(){
+        const view=K.cv.closest('.rm-tvv');
+        if(!view || !(navigator.maxTouchPoints>0 || matchMedia('(pointer:coarse)').matches))return;
+        if(!document.getElementById('zeldo-control-style')){
+          const css=document.createElement('link');css.id='zeldo-control-style';css.rel='stylesheet';css.href='css/rm-g-zeldo.css'+new URL(document.querySelector('script[src*="rm-g-zeldo.js"]')?.src||location.href).search;document.head.appendChild(css);
+        }
+        touchPanel=document.createElement('div');touchPanel.className='zeldo-controls';touchPanel.setAttribute('aria-label','Zeldo controller');
+        const dpad=document.createElement('div');dpad.className='zeldo-dpad';dpad.setAttribute('role','application');dpad.setAttribute('aria-label','Drag to walk');
+        for(const [text,cls] of [['↑','up'],['←','left'],['→','right'],['↓','down']]){const cap=document.createElement('span');cap.className=cls;cap.textContent=text;dpad.appendChild(cap);}
+        const direction=e=>{e.preventDefault();e.stopPropagation();const r=dpad.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*2-1,y=(e.clientY-r.top)/r.height*2-1;touchHeld.left=x<-.28;touchHeld.right=x>.28;touchHeld.up=y<-.28;touchHeld.down=y>.28;for(const b of ['up','down','left','right'])dpad.classList.toggle(b+'-active',touchHeld[b]);};
+        dpad.addEventListener('pointerdown',e=>{dpad.setPointerCapture(e.pointerId);direction(e);});
+        dpad.addEventListener('pointermove',e=>{if(dpad.hasPointerCapture(e.pointerId))direction(e);});
+        const release=()=>{for(const b of ['left','right','up','down']){touchHeld[b]=false;dpad.classList.remove(b+'-active');}};dpad.addEventListener('pointerup',release);dpad.addEventListener('pointercancel',release);dpad.addEventListener('lostpointercapture',release);
+        const actions=document.createElement('div');actions.className='zeldo-actions';
+        for(const [b,label]of [['b','SWORD'],['a','ACTION'],['y','ITEM'],['x','MAP'],['start','START'],['lock','LOCK IN']]){
+          const button=document.createElement('button');button.type='button';button.textContent=['b','a','y','x'].includes(b)?label+' '+K.label(b):label;button.dataset.zeldo=b;
+          button.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(window.House?.paused)return;button.setPointerCapture(e.pointerId);if(b==='lock'){RoomTV.lockIn(!RoomTV.lockIn());return;}if(!touchHeld[b])touchPending[b]=true;touchHeld[b]=true;button.classList.add('pressed');});
+          const up=()=>{touchHeld[b]=false;button.classList.remove('pressed');};button.addEventListener('pointerup',up);button.addEventListener('pointercancel',up);button.addEventListener('lostpointercapture',up);actions.appendChild(button);
+        }
+        touchPanel.append(dpad,actions);view.appendChild(touchPanel);
+        addEventListener('blur',clearTouch);document.addEventListener('visibilitychange',clearTouch);
+        requestAnimationFrame(()=>{if(RoomTV.lockIn())RoomTV.lockIn(true);});
+      }
+      installTouch();
       g.imageSmoothingEnabled = false;
-      if (!SWORD) { buildObjSprites(); buildSword(); buildMonsters(); buildItems(); }
-      const LB = b => K.label(b);
+      if (!SWORD) { buildObjSprites(); buildSword(); buildMonsters(); buildItems(); buildSecondArt(); }
+      const LB = b => touchPanel ? K.label(b) : K.keyLabel ? K.keyLabel(b) : K.label(b);
 
       // ============================================================ sounds
       const SND = {
@@ -1478,7 +1700,7 @@
       // ============================================================ the save files (three slots: Jack's mates got there first)
       const HOF0 = [['LUKE', 14820], ['JK', 12260], ['JACK', 9870], ['DAVE', 7350], ['CAL', 4410], ['MOM', 1250]];
       function freshSave(name) {
-        return { name, hp: 6, maxH: 3, pieces: 0, got: {}, gems: 0, bombs: 0, bag: 0, keys: 0, big: 0, map: 0, comp: 0, sword: 0, shield: 0, boom: 0, bottle: 0,
+        return { name, hp: 6, maxH: 3, pieces: 0, got: {}, gems: 0, bombs: 0, bag: 0, keys: 0, big: 0, map: 0, comp: 0, bow: 0, boots: 0, dungeons: {}, activeDg: 'keep', sword: 0, shield: 0, boom: 0, bottle: 0,
           sel: '', f: {}, opened: {}, doors: {}, cleared: {}, seen: {}, gone: {}, room: 'h_home', x: 136, y: 124, dir: 0, time: 0, score: 0, deaths: 0, done: 0, intro: 0 };
       }
       function demoSaves() {
@@ -1489,7 +1711,32 @@
       let store = (() => { const s = K.load(); if (s && s.v === 1 && Array.isArray(s.slots) && s.slots.length === 3 && Array.isArray(s.hof)) return s; return { v: 1, slots: demoSaves(), hof: HOF0.map(([n, sc]) => ({ n, s: sc })), last: 0 }; })();
       let S = null, slot = 0;
       function persist() { K.save(store); }
-      function save() { if (!S || !room || !pl) return; S.room = room.id; S.x = Math.round(pl.x); S.y = Math.round(pl.y); S.dir = pl.dir; store.slots[slot] = S; store.last = slot; persist(); }
+      function snapshot() {
+        if (!S || !room || !pl) return null;
+        const jumping=mode==='scroll'&&trans;
+        const fading=mode==='fade'&&trans;
+        const dest=jumping?trans.to.id:fading?trans.warp[0]:room.id;
+        const clean=e=>Object.assign({},e,{hitList:undefined,carried:undefined,getSpr:undefined});
+        const live={slot,room:dest,mode:jumping||fading?'play':mode,
+          pl:clean(pl),ents:jumping||fading?null:ents.filter(e=>!e.dead).map(clean),shots:jumping||fading?[]:shots,
+          tiles:jumping||fading?null:room.t.map(r=>r.join('')),trapOn:room.trapOn,trapPending:room.trapPending,
+          menu:menu&&Object.assign({},menu),mapT,dyingT,over,ending:ending&&Object.assign({},ending),co:!!co,box:mode==='ending'&&tb?JSON.parse(JSON.stringify(tb)):null};
+        if(jumping){live.pl.x=trans.x1;live.pl.y=trans.y1;}
+        if(fading){live.pl.x=trans.warp[1]*16+8;live.pl.y=trans.warp[2]*16+12;live.pl.dir=trans.warp[3];}
+        if(co||jumping||fading){live.pl.act=null;live.pl.carry=null;live.pl.dead=false;}
+        return live;
+      }
+      function save() {
+        if (!S || !room || !pl || mode==='done') return;
+        const live=snapshot();
+        if(mode!=='ending'){S.room=live.room;S.x=live.pl.x;S.y=live.pl.y;S.dir=live.pl.dir;}
+        store.slots[slot]=S;store.last=slot;store.active=slot;store.live=live;persist();
+      }
+      function flush() {if(S&&mode!=='done')save();}
+      function onHidden(){if(document.hidden)flush();}
+      function onPause(e){if(e.key==='Escape')flush();}
+      addEventListener('pagehide',flush);addEventListener('beforeunload',flush);
+      addEventListener('keydown',onPause,true);document.addEventListener('visibilitychange',onHidden);
 
       // ============================================================ score: progress points (and JackNet reports, spaced out)
       const addScore = n => { if (S) S.score = Math.min(60000, (S.score | 0) + n); };
@@ -1502,6 +1749,7 @@
         K.over(sc, { keep: true }); lastRep = { t: K.t, sc }; repPend = false;
       }
       function finalScore(sc, title, text) { // the server believes points per second since the last report: never send more than that
+        store.active=null;store.live=null;persist();
         const allowed = Math.floor(57 * (K.t - lastRep.t + 4));
         sc = Math.max(0, Math.min(99999, sc, allowed));
         lastRep = { t: K.t, sc }; K.over(sc, { title, text });
@@ -1509,7 +1757,7 @@
 
       // ============================================================ rooms: load, doors, tiles, drawing
       let room = null, ents = [], shots = [], fx = [], pl = null;
-      const SOLID = new Set('TbrXCFSgGhKOxkpcwq#BtQAeaZ13LYJU%~v'.split(''));
+      const SOLID = new Set('HTbrXCFSgGhKOxkpcwq#BtQAeaZ13LYJU%~v'.split(''));
       const LOW = new Set(['~', 'v']); // you can't walk on them, but things fly over
       const LIFT = { b: 'bush', r: 'rock', p: 'pot' };
       const WALKDOOR = new Set(['n', 'X', 'E']);
@@ -1522,7 +1770,7 @@
       }
       function nbRoom(rm, side) { // the room next door (overworld screens and dungeon rooms are on grids)
         const d = { n: [0, -1], s: [0, 1], w: [-1, 0], e: [1, 0] }[side], k = (rm.def.gx + d[0]) + ',' + (rm.def.gy + d[1]);
-        return rm.kind === 'ow' ? OWG[k] : rm.kind === 'dg' ? DGG[k] : null;
+        return rm.kind === 'ow' ? OWG[(rm.def.world || 'light') + ':' + k] : rm.kind === 'dg' ? DGG[(rm.def.dg || 'keep') + ':' + k] : null;
       }
       const doorId = (a, b) => [a, b].sort().join('|');
       const DOORCELLS = { n: [[7, 0], [8, 0]], s: [[7, 11], [8, 11]], w: [[0, 5], [0, 6]], e: [[15, 5], [15, 6]] };
@@ -1544,6 +1792,13 @@
       function applyCrystal(rm) {
         for (const [x, y, c] of rm.cry) rm.t[y][x] = c === 'o' ? (S.f.cry ? '2' : '1') : (S.f.cry ? '3' : '4');
       }
+      function dungeonInventory(def) {
+        const next = def.kind === 'dg' ? (def.dg || 'keep') : S.activeDg || 'keep';
+        if (next === S.activeDg) return;
+        S.dungeons = S.dungeons || {};
+        S.dungeons[S.activeDg || 'keep'] = {keys:S.keys,big:S.big,map:S.map,comp:S.comp};
+        Object.assign(S,{keys:0,big:0,map:0,comp:0},S.dungeons[next] || {});S.activeDg=next;
+      }
       function makeRoom(id) {
         const def = ROOMS[id];
         const rm = { id, def, kind: def.kind, G: GRASS[def.gp || 'n'], t: def.map.map(r => r.split('')), doors: {}, did: {}, fr: null, cry: [], sw: [], trapOn: false, name: roomName(id) };
@@ -1551,11 +1806,16 @@
         for (const k of (S.gone[id] || [])) { const [x, y] = k.split(',').map(Number); rm.t[y][x] = under(rm, x, y); }
         for (const k in (def.chests || {})) {
           const [x, y] = k.split(',').map(Number);
-          if (def.hidden && def.hidden[k] && !S.cleared[id]) rm.t[y][x] = '.';
+          if (def.hidden && def.hidden[k] && !(def.eye ? S.f[def.eye] : S.cleared[id])) rm.t[y][x] = '.';
           else if (S.opened[id + ':' + k]) rm.t[y][x] = rm.t[y][x] === 'A' ? 'a' : 'e';
         }
         if (id === 'grave' && S.f.grave) { rm.t[3][8] = 'G'; rm.t[4][8] = '^'; }
         if (id === 'd9' && S.f.gate) rm.t[3][7] = 'z';
+        if (def.plateGate && S.f['plates_'+id]) rm.t[def.plateGate[1]][def.plateGate[0]]='z';
+        if (def.eye && S.f[def.eye]) {
+          for (const [x,y] of def.bridge || []) rm.t[y][x]='=';
+          for (const k in def.hidden || {}) if (!S.opened[id+':'+k]) {const [x,y]=k.split(',').map(Number);rm.t[y][x]='c';}
+        }
         applyCrystal(rm);
         if (rm.kind === 'dg') setDoors(rm);
         return rm;
@@ -1663,7 +1923,7 @@
           }
         } else { // the dungeon
           if (x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1) { R(gg, ox, oy, 16, 16, '#22263a'); return; }
-          const hv = hash(x, y, 9), floor = () => gg.drawImage(dgFloor(hv < 0.1 ? 1 : hv < 0.2 ? 2 : 0), ox, oy);
+          const hv = hash(x, y, 9), floor = () => gg.drawImage(rm.def.dg === 'reservoir' ? reservoirFloor(hv < 0.15 ? 1 : 0,x,y) : dgFloor(hv < 0.1 ? 1 : hv < 0.2 ? 2 : 0), ox, oy);
           switch (ch) {
             case '#': gg.drawImage(dgBlock('#'), ox, oy); break;
             case 'B': case '%': floor(); if (ch === 'B') gg.drawImage(dgBlock('B'), ox, oy); break;
@@ -1672,8 +1932,10 @@
             case 'p': floor(); gg.drawImage(SPR_POT, ox, oy); break;
             case 'c': case 'e': floor(); gg.drawImage(chestImg(0, ch === 'e'), ox, oy); break;
             case 'A': case 'a': floor(); gg.drawImage(chestImg(1, ch === 'a'), ox, oy); break;
+            case 'H': floor(); gg.drawImage(S.f[rm.def.eye] ? ITEMIMG.eyeOn : ITEMIMG.eye,ox,oy); break;
+            case '=': floor(); gg.drawImage(bridgeTile(f),ox,oy); break;
             case 'v': {
-              gg.drawImage(waterBase(f, true), ox, oy);
+              gg.drawImage(waterBase(f, rm.def.dg !== 'reservoir'), ox, oy);
               const land = c => c && c !== 'v';
               if (land(T(x, y - 1))) { R(gg, ox, oy, 16, 2, '#565c78'); R(gg, ox, oy + 2, 16, 1, '#2a2e44'); R(gg, ox, oy + 3, 16, 2, 'rgba(60,0,0,.4)'); }
               if (land(T(x, y + 1))) { R(gg, ox, oy + 14, 16, 2, '#7a82a8'); R(gg, ox, oy + 13, 16, 1, '#ff9a6a'); }
@@ -1703,6 +1965,15 @@
             gg.drawImage(houseArt(w, h, st, door, F), hx * 16, hy * 16);
           }
           if (rm.id === 'cliff') gg.drawImage(keepArt(F), 80, 0);
+          if (rm.id === 'p_cliff') {
+            R(gg,78,4,100,47,'#223e51');R(gg,80,3,96,36,'#65909a');
+            for(let xx=82;xx<174;xx+=8){R(gg,xx,5,6,27,'#416879');R(gg,xx,5,1,27,'#9bb7ae');}
+            R(gg,78,32,100,5,'#c5af69');R(gg,78,32,100,1,'#eee0ac');
+            R(gg,108,16,40,32,'#263448');R(gg,111,19,34,29,'#172337');
+            E(gg,128,16,20,12,'#c1ad6a');E(gg,128,18,16,10,'#1e3e50');
+            gg.drawImage(ITEMIMG.eye,120,10);R(gg,110,33,2,15,'#8da9a7');R(gg,144,33,2,15,'#8da9a7');
+            F.center(gg,'RESERVOIR',128,3,'#fff2c0',1,'#193448');
+          }
           if (rm.id === 'forest') { // the fairy pond: a ring of mossy stones and lily pads
             for (let i = 0; i < 18; i++) { const a = i / 18 * Math.PI * 2, x = 64 + Math.cos(a) * 19, y = 144 + Math.sin(a) * 19; E(gg, x + 1, y + 1, 4, 3, '#3a3a48'); E(gg, x, y, 4, 3, i % 3 ? '#8a8aa0' : '#6a8a5a'); P(gg, Math.round(x - 1), Math.round(y - 1), '#c8c8d8'); }
             for (const [x, y] of [[58, 138], [70, 150]]) { E(gg, x, y, 3, 2, '#3a9a3a'); P(gg, x, y - 1, '#f8a0c8'); }
@@ -1712,7 +1983,18 @@
           for (const [kind, x, y] of (d.decor || [])) if (kind === 'rug') gg.drawImage(decorArt(kind, F), x * 16, y * 16);
           for (const e of (d.ents || [])) if (e[0] === 'ware') gg.drawImage(decorArt('stand', F), e[1] * 16, e[2] * 16);
           for (const [kind, x, y] of (d.decor || [])) if (kind !== 'rug') { const im = decorArt(kind, F); gg.drawImage(im, x * 16, kind === 'window' ? 6 : kind === 'shopsign' ? 6 : kind === 'clock' ? 2 : y * 16 + (16 - im.height % 16) % 16); }
-        } else gg.drawImage(dgFrame(rm.doors), 0, 0);
+        } else {
+          gg.drawImage(dgFrame(rm.doors),0,0);
+          if (d.dg === 'reservoir') {
+            // Brass cornices and water gauges give the aqueduct its own architecture.
+            for (const x of [22,222]) {R(gg,x,20,12,2,'#ac9a60');R(gg,x,22,12,1,'#e2d498');}
+            if(rm.id==='r1'||rm.id==='r11'||rm.id==='r12') {
+              gg.save();gg.globalAlpha=0.28;gg.strokeStyle='#dcce88';gg.lineWidth=1;
+              gg.beginPath();gg.ellipse(128,96,30,21,0,0,7);gg.stroke();
+              for(let i=0;i<8;i++){const a=i*Math.PI/4;gg.beginPath();gg.moveTo(128+Math.cos(a)*12,96+Math.sin(a)*8);gg.lineTo(128+Math.cos(a)*27,96+Math.sin(a)*18);gg.stroke();}gg.restore();
+            }
+          }
+        }
       }
 
       // ============================================================ things in a room
@@ -1721,8 +2003,10 @@
         gloop: { hp: 1, w: 6, h: 9, dmg: 1 }, gloopP: { hp: 2, w: 6, h: 9, dmg: 1 }, snap: { hp: 2, w: 6, h: 10, dmg: 1 },
         knight: { hp: 3, w: 6, h: 16, dmg: 2 }, bat: { hp: 1, w: 5, h: 8, dmg: 1, fly: 1 }, ghost: { hp: 2, w: 6, h: 13, dmg: 1, fly: 1 },
         crab: { hp: 2, w: 7, h: 9, dmg: 1 }, spike: { hp: 99, w: 7, h: 13, dmg: 2, tough: 1 }, ball: { hp: 1, w: 5, h: 10, dmg: 1 },
+        crouton: {hp:16,w:17,h:30,dmg:2,boss:1},
         cheese: { hp: 8, w: 13, h: 22, dmg: 2, boss: 1 }, baron: { hp: 12, w: 17, h: 30, dmg: 1, boss: 1 },
       };
+      let hitStop=0;
       let shake = 0, flashT = 0, banner = null, toast = null;
       function mkEnt(type, x, y, o) { // x, y: the feet, in pixels
         const d = EN[type] || {};
@@ -1736,9 +2020,11 @@
           const x = tx * 16 + 8, y = ty * 16 + 12;
           if (EN[type]) {
             if (quiet) continue;
+            if (type === 'crouton' && S.f.crouton) continue;
             if (type === 'cheese' && S.f.cheese) continue; if (type === 'baron' && S.f.baron) continue;
             const e = mkEnt(type, x, y); e.dir = rnd() * 4 | 0;
             if (type === 'cheese') { e.st = 'wait'; e.tm = 50; } if (type === 'baron') { e.st = 'wait'; e.tm = 9999; e.x = 128; e.y = 104; }
+            if(type === 'crouton'){e.st='hover';e.tm=100;e.x=128;e.y=80;e.z=8;}
             ents.push(e);
           } else if (type === 'npc') ents.push(mkEnt('npc', x, y, { name: a, dir: 0, enemy: false, sit: b, w: 6, h: 12, home: [x, y] }));
           else if (type === 'hen') ents.push(mkEnt('hen', x, y, { enemy: false, w: 5, h: 8 }));
@@ -1746,6 +2032,8 @@
           else if (type === 'piece') { if (!S.got['piece_' + a]) ents.push(mkEnt('pick', x, y, { kind: 'piece', id: a, perm: 1, enemy: false })); }
           else if (type === 'gem') { const id = 'gem_' + rm.id + tx + '_' + ty; if (!S.got[id]) ents.push(mkEnt('pick', x, y, { kind: 'gem' + a, id, perm: 1, enemy: false })); }
         }
+        for(const k in d.dashTrees || {}){const [x,y]=k.split(',').map(Number),id='tree_'+rm.id+k;if(S.got[id]&&!S.got['piece_'+id])ents.push(mkEnt('pick',x*16+8,y*16+12,{kind:'piece',id,perm:1,enemy:false}));}
+        if(rm.id==='r11'&&S.f.crouton&&!S.got.hc_crouton) ents.push(mkEnt('pick',128,108,{kind:'container',id:'hc_crouton',perm:1,enemy:false}));
         // a fallen heart container or the recipe that was never picked up
         if (rm.id === 'd6' && S.f.cheese && !S.got.hc_cheese) ents.push(mkEnt('pick', 128, 100, { kind: 'container', id: 'hc_cheese', perm: 1, enemy: false }));
         if (rm.id === 'd11' && S.f.baron && !S.got.hc_baron) ents.push(mkEnt('pick', 104, 108, { kind: 'container', id: 'hc_baron', perm: 1, enemy: false }));
@@ -1809,7 +2097,7 @@
         if (d.tough || e.ghostFade) { if (how !== 'bomb') { SND.tink(); sparks((e.x + sx) / 2, (e.y + sy) / 2 - 8, 3); } return false; }
         if (d.boss) return bossHit(e, dmg, how);
         if (how === 'boom' && e.type !== 'bat' && e.type !== 'gloop' && e.type !== 'ball') { e.stun = 150; e.inv = 10; SND.hit(); return true; }
-        e.hp -= dmg; e.inv = 22; e.flash = 22; e.stun = 0;
+        e.hp -= dmg; hitStop=3; e.inv = 22; e.flash = 22; e.stun = 0;
         const a = Math.atan2(e.y - sy, e.x - sx); e.kbx = Math.cos(a) * 2.6; e.kby = Math.sin(a) * 2.6; e.kbt = 10;
         SND.hit(); fx.push({ k: 'hit', x: (e.x + sx) / 2, y: (e.y + sy) / 2 - 8, t: 0, n: 6 });
         if (e.hp <= 0) bonk(e, how);
@@ -1879,6 +2167,7 @@
             } else if (e.st === 1) { e.run++; if (!moveEnt(e, e.vx, e.vy) || e.run > 60) { e.st = 2; sfx.tone(1800, 0.05, 'square', 0.03); } }
             else { const ddx = e.hx - e.x, ddy = e.hy - e.y; if (Math.abs(ddx) + Math.abs(ddy) < 1.2) { e.x = e.hx; e.y = e.hy; e.st = 0; e.tm = 40; } else { e.x += Math.sign(ddx) * Math.min(1, Math.abs(ddx)); e.y += Math.sign(ddy) * Math.min(1, Math.abs(ddy)); } }
             e.anim = (K.frame >> 2) & 1; break;
+          case 'crouton': updateCrouton(e);break;
           case 'cheese': updateCheese(e, dx, dy); break;
           case 'baron': updateBaron(e, dx, dy); break;
         }
@@ -1908,21 +2197,57 @@
         }
       }
       function dieAnim(e, done) {
-        e.anim = e.type === 'baron' ? 2 : 4; e.flash = 4;
+        e.anim = e.type === 'baron' || e.type==='crouton' ? 2 : 4; e.flash = 4;
         if (e.tm % 8 === 0) { puff(e.x + (rnd() - 0.5) * e.w * 2.4, e.y - rnd() * e.h * 1.2); SND.poof(); shake = 4; }
         if (e.tm <= 0) { e.dead = true; puff(e.x, e.y - e.h / 2, true); sparks(e.x, e.y - e.h / 2, 24, e.type === 'baron' ? '#ffffff' : '#f8d848'); shake = 10; done(); }
       }
       function bossHit(e, dmg, how) {
+        if(e.type==='crouton'){
+          if(e.st==='eye' && how==='arrow'){e.st='dizzy';e.tm=150;e.z=0;e.inv=12;e.armorHits=0;SND.hit();sparks(e.x,e.y-15,12,'#ffc4a0');return true;}
+          if(e.st!=='dizzy' || how==='boom'){SND.tink();return false;}
+          e.hp-=dmg;hitStop=3;e.inv=24;e.flash=24;SND.hit();shake=3;
+          if(e.hp<=8&&!e.phase2){e.phase2=true;text(e.x,e.y-42,'EXTRA CRUNCHY!','#ffce70');SND.roar();}
+          if(e.hp<=0){e.st='die';e.tm=100;song(null);}else if(++e.armorHits>=3){e.st='hover';e.tm=e.hp<=8?90:120;e.y=72;e.z=8;}return true;
+        }
         const vuln = e.type === 'cheese' ? e.st === 'dizzy' : e.st === 'dizzy';
         if (e.st === 'die' || e.st === 'wait') return false;
         if (e.type === 'cheese' && how === 'boom' && e.st === 'roll') { e.st = 'dizzy'; e.tm = 110; SND.hit(); return true; }
         if (e.type === 'baron' && e.st === 'eye' && (how === 'boom' || how === 'sword' || how === 'spin')) { e.st = 'dizzy'; e.tm = e.phase2 ? 150 : 190; SND.hit(); SND.roar(); shake = 4; sparks(e.x, e.y - 32, 10, '#ff6a6a'); return true; }
         if (!vuln) { SND.tink(); sparks(pl.x + DX[pl.dir] * 10, pl.y - 10 + DY[pl.dir] * 8, 3); if (how === 'sword' || how === 'spin') knock(pl, e.x, e.y, 2.2, 8); return false; }
         if (e.inv > 0) return false;
-        e.hp -= dmg; e.inv = 20; e.flash = 20; SND.hit(); fx.push({ k: 'hit', x: pl.x + DX[pl.dir] * 12, y: pl.y - 10 + DY[pl.dir] * 10, t: 0, n: 6 }); shake = 3;
+        e.hp -= dmg; hitStop=3; e.inv = 20; e.flash = 20; SND.hit(); fx.push({ k: 'hit', x: pl.x + DX[pl.dir] * 12, y: pl.y - 10 + DY[pl.dir] * 10, t: 0, n: 6 }); shake = 3;
         if (e.type === 'baron' && e.hp <= 6 && !e.phase2) { e.phase2 = true; text(e.x, e.y - 50, 'GRR!', '#ff8a6a'); }
         if (e.hp <= 0) { e.st = 'die'; e.tm = e.type === 'baron' ? 150 : 90; song(null); sfx.tone(200, 1.2, 'sawtooth', 0.08, 0, 40); }
         return true;
+      }
+      function updateCrouton(e) {
+        e.tm--;
+        if(e.st==='die'){e.anim=2;dieAnim(e,()=>{
+          S.f.crouton=1;addScore(2500);roomCleared();drop(128,108,'container',{id:'hc_crouton',perm:1,vz:2.5});
+          song('reservoir');run(function*(){yield 30;yield say('COUNT CROUTON: Oh crumbs. The OVENHEART is in the shrine to the east. Please tell everyone I was lightly toasted, never defeated.');}());save();
+        });return;}
+        const furious=e.hp<=8;
+        if(e.st==='hover') {
+          e.anim=(K.frame>>3)&1?3:0;e.z=8+Math.sin(K.frame*.08)*3;
+          e.x=128+Math.sin(K.frame*.022)*62;
+          if(e.tm===50){
+            const a=Math.atan2(pl.y-8-e.y,pl.x-e.x);
+            for(const k of [-1,0,1])shoot(e.x,e.y-15,Math.cos(a+k*.3)*1.8,Math.sin(a+k*.3)*1.8,'crumb');SND.splat();
+          }
+          if(e.tm<=0){e.st='aim';e.tm=38;e.aimX=clamp(pl.x,42,214);e.aimY=clamp(pl.y,60,158);SND.roar();}
+        }else if(e.st==='aim') {
+          e.anim=3;
+          if(e.tm<=0){e.st='swoop';e.tm=furious?28:38;e.sx=e.x;e.sy=e.y;e.duration=e.tm;}
+        }else if(e.st==='swoop') {
+          const k=1-e.tm/e.duration;e.x=lerp(e.sx,e.aimX,k);e.y=lerp(e.sy,e.aimY,k);e.z=8;e.anim=3;
+          if(e.tm<=0){e.st='eye';e.tm=furious?100:150;e.z=0;shake=4;SND.stomp();puff(e.x-12,e.y);puff(e.x+12,e.y);}
+        }else if(e.st==='eye'){
+          e.anim=1;e.z=0;
+          if(e.tm<=0){e.st='hover';e.tm=furious?90:120;e.y=72;}
+        }else if(e.st==='dizzy'){
+          e.anim=2;e.z=0;
+          if(e.tm<=0){e.st='hover';e.tm=furious?90:120;e.y=72;}
+        }
       }
       // ---- BARON MEATBALLO: hops about (watch his shadow), splats sauce, then opens his third eye: hit it to make him dizzy
       function updateBaron(e, dx, dy) {
@@ -1976,7 +2301,7 @@
         if (room.kind === 'dg') return false;
         if (room.kind !== 'ow') return true;
         const nx = tx < 0 ? -1 : tx >= COLS ? 1 : 0, ny = ty < 0 ? -1 : ty >= ROWS ? 1 : 0;
-        const id = OWG[(room.def.gx + nx) + ',' + (room.def.gy + ny)]; if (!id || (nx && ny)) return true;
+        const id = OWG[worldKey(room.def,room.def.gx + nx,room.def.gy + ny)]; if (!id || (nx && ny)) return true;
         const c = ROOMS[id].map[(ty + ROWS) % ROWS][(tx + COLS) % COLS]; return SOLID.has(c);
       }
       function blockedByThing(x, y) {
@@ -2039,7 +2364,7 @@
           const b = box(e); let hit = false;
           if (spin) hit = Math.hypot(e.x - pl.x, (e.y - e.h / 2) - (pl.y - 8)) < rr + e.w;
           else for (const [px, py] of pts) if (px > b[0] - 6 && px < b[2] + 6 && py > b[1] - 6 - e.z && py < b[3] + 6 - e.z) hit = true;
-          if (hit) { if (spin) { if (e.spinHit === pl.spinId) continue; e.spinHit = pl.spinId; } hurtEnt(e, spin ? 2 : (pl.act === 'charge' ? 1 : 1), pl.x, pl.y - 8, spin ? 'spin' : 'sword'); }
+          if (hit) { if (spin) { if (e.spinHit === pl.spinId) continue; e.spinHit = pl.spinId; } hurtEnt(e, (spin ? 2 : 1) * Math.max(1,S.sword), pl.x, pl.y - 8, spin ? 'spin' : 'sword'); }
         }
         // grass, bushes and crystal switches
         if (spin) { for (let y = -2; y <= 2; y++) for (let x = -2; x <= 2; x++) { const tx = Math.floor(pl.x / 16) + x, ty = Math.floor((pl.y - 8) / 16) + y; if (Math.hypot(tx * 16 + 8 - pl.x, ty * 16 + 8 - (pl.y - 8)) < 28) cutTile(tx, ty, true); } }
@@ -2107,12 +2432,20 @@
         if (LIFT[c]) { lift(tx, ty); return; }
         const say = s => run(function* () { yield { text: s }; }());
         if (c === '~' && room.kind === 'ow') say("The water looks lovely, but you can't swim. Your Mom kept meaning to take you to lessons.");
+        else if (c === 'O' && (S.f.recipe || S.done)) run(crossWell());
+        else if (c === 'H') say('A brass EYE watches the water. An ARROW will give it something to look at.');
         else if (c === 'O') say('You look down the well. A frog looks back up at you. Neither of you says anything.');
         else if (c === 'X') say('A big cracked boulder blocks the way. A BOMB would sort that out.');
         else if (c === 'q' || c === 'J') say('This bit of wall is cracked... it sounds hollow when you knock on it.');
         else if (c === 'v') say("Bubbling hot tomato sauce. Smells amazing. Do NOT go for a paddle.");
         else if ((c === 'c' || c === 'A') && pl.dir !== 1) say('Open chests from the front (stand below them, facing up).');
         else if (c === 'B' || c === 'G') say('Walk into it and keep pushing to shove it along.');
+      }
+      function* crossWell() {
+        const back=room.def.world==='salt';
+        yield say(back ? 'The well smells of home... and overcooked cabbage.' : 'The recipe has writing on the BACK! For the second helping, look beyond the salt. The well is glowing. Typical.');
+        const answer=yield {text:back?'Go back to DAYLIGHT LASAGNIA?':'Climb into the SALT-BEYOND?',ask:['YES','NO']};
+        if(answer===0){S.f.second=1;warp(back?'village':'p_village',10,9,0);}
       }
       function tryPush(tx, ty) {
         const c = room.t[ty][tx], nx = tx + DX[pl.dir], ny = ty + DY[pl.dir], t2 = tileAt(room, nx, ny);
@@ -2130,18 +2463,25 @@
       function blockLanded(e) {
         room.t[e.ty][e.tx] = e.kind; redrawTile(room, e.tx, e.ty); e.dead = true; sfx.noise(0.1, 0.06, 300);
         // the floor switches: cover them all to lower the gate
-        if (room.sw.length && !S.f.gate && room.id === 'd9') {
+        const gateFlag=room.id==='d9'?'gate':'plates_'+room.id, gate=room.def.plateGate || [7,3];
+        if (room.sw.length && !S.f[gateFlag] && (room.id === 'd9' || room.def.plateGate)) {
           const all = room.sw.every(([x, y]) => room.t[y][x] === 'B');
           if (room.sw.some(([x, y]) => x === e.tx && y === e.ty)) SND.click();
-          if (all) { S.f.gate = 1; room.t[3][7] = 'z'; redrawTile(room, 7, 3); SND.secret(); shake = 3; sparks(120, 56, 10); save(); }
+          if (all) { S.f[gateFlag] = 1; room.t[gate[1]][gate[0]] = 'z'; redrawTile(room,gate[0],gate[1]); SND.secret(); shake = 3; sparks(120, 56, 10); save(); }
         }
       }
       function useItem() {
         if (pl.carry || pl.act) return;
         if (!S.sel) { toast = { s: 'PICK AN ITEM ON THE START MENU', t: 0 }; return; }
-        if (S.sel === 'boom') {
+        if (S.sel === 'bow') {
+          if(ents.some(e=>e.type==='arrow'&&!e.dead))return;
+          ents.push(mkEnt('arrow',pl.x+DX[pl.dir]*8,pl.y-9+DY[pl.dir]*6,{dir:pl.dir,vx:DX[pl.dir]*4,vy:DY[pl.dir]*4,t:0,enemy:false}));
+          pl.act='item';pl.at=0;SND.throw();
+        } else if (S.sel === 'boots') {
+          pl.act='dash';pl.at=0;pl.dashWind=18;SND.charged();
+        } else if (S.sel === 'boom') {
           if (ents.some(e => e.type === 'boomer' && !e.dead)) return;
-          let vx = (K.held('right') ? 1 : 0) - (K.held('left') ? 1 : 0), vy = (K.held('down') ? 1 : 0) - (K.held('up') ? 1 : 0);
+          let vx = (held('right') ? 1 : 0) - (held('left') ? 1 : 0), vy = (held('down') ? 1 : 0) - (held('up') ? 1 : 0);
           if (!vx && !vy) { vx = DX[pl.dir]; vy = DY[pl.dir]; } const m = Math.hypot(vx, vy);
           ents.push(mkEnt('boomer', pl.x + vx / m * 6, pl.y - 9 + vy / m * 4, { vx: vx / m * 3.6, vy: vy / m * 3.6, t: 0, back: false, enemy: false }));
           pl.act = 'item'; pl.at = 0; SND.boomer();
@@ -2151,7 +2491,7 @@
           const [fx, fy] = frontPt(); S.bombs--;
           ents.push(mkEnt('bomb', clamp(fx, 20, RW - 20), clamp(fy + 4, 28, RH - 14), { t: 0, enemy: false })); SND.bombSet();
         } else if (S.sel === 'soup') {
-          if (S.bottle === 2) { S.bottle = 1; run(function* () { pl.act = 'get'; pl.getSpr = ITEMIMG.bottle[1]; SND.heal(); yield 30; S.hp = S.maxH * 2; yield { text: "Glug glug... MINESTRONE! Just like Nonna makes. Your hearts are all full again!" }; pl.act = null; pl.getSpr = null; }()); }
+          if (S.bottle === 2) { S.bottle = 1; S.hp=S.maxH*2; save(); run(function* () { pl.act = 'get'; pl.getSpr = ITEMIMG.bottle[1]; SND.heal(); yield 30; S.hp = S.maxH * 2; save(); yield { text: "Glug glug... MINESTRONE! Just like Nonna makes. Your hearts are all full again!" }; pl.act = null; pl.getSpr = null; }()); }
           else run(function* () { yield { text: "The bottle's empty. Mabel's shop can fill it up again." }; }());
         }
       }
@@ -2175,13 +2515,16 @@
 
       // ---- getting things: hold it up high, a fanfare, a few words
       const ITEMTXT = {
+        bow: () => `You got the RAVIOLI RECURVE! Pick it on the item menu. Press ${LB('y')} to fire a crisp breadstick. It never runs out: enchanted bread bin. Brass EYES only open for arrows!`,
+        ovenheart: () => 'You got the OVENHEART! A coal that never goes cold. Take it to the AL DENTE FORGE in the south-west of the Salt-Beyond.',
+        blade: () => `GRANDAD'S SWORD became the AL DENTE BLADE! Twice the bite, none of the washing up. And OVEN BOOTS: pick them, face a tree and press ${LB('y')} for a running BONK!`,
         sword: () => `You got GRANDAD'S SWORD and SHIELD! Press ${LB('b')} to swing the sword. Hold ${LB('b')}, then let go, for a SPIN ATTACK! Face things that are thrown at you and the shield blocks them.`,
         gems50: () => 'You found 50 GEMS! Somebody\'s dinner money, probably.',
-        key: () => 'You got a SMALL KEY! It opens one locked door in the Colander Keep.',
+        key: () => 'You got a SMALL KEY! It opens one locked door in this dungeon.',
         map: () => `You got the DUNGEON MAP! Press ${LB('x')} any time to have a look at it.`,
-        compass: () => 'You got the COMPASS! Now the map shows the treasure chests, and where the Baron is snoring.',
+        compass: () => "You got the COMPASS! Now this dungeon's map shows treasure chests and the boss's room.",
         boom: () => `You got the BREADSTICK BOOMERANG! It's stale, it's bent and it ALWAYS comes back. Pick it on the START menu and press ${LB('y')} to throw it. It stuns baddies, fetches things and hits switches!`,
-        bigkey: () => 'You got the BIG KEY! It opens the Baron\'s big door. It\'s ever so heavy.',
+        bigkey: () => 'You got the BIG KEY! It opens this dungeon\'s big door. It\'s ever so heavy.',
         piece: () => S.pieces === 0 ? 'You found a PIECE OF HEART! That makes four... and four pieces make a whole new HEART!' : `You found a PIECE OF HEART! That's ${S.pieces} of 4. Find four to make a new heart!`,
         container: () => 'You got a HEART CONTAINER! You have one more heart, and you\'re all better!',
         bombs: () => `You got a BOMB BAG and 8 BOMBS! Pick them on the START menu, press ${LB('y')} to put one down... then STAND BACK!`,
@@ -2189,13 +2532,16 @@
         refill: () => 'Mabel filled your bottle with hot MINESTRONE!',
         recipe: () => 'You got the SECRET RECIPE! It says: 1. Tomatoes. 2. Garlic. 3. A pinch of love. 4. NEVER let a meatball near it.',
       };
-      const ITEMICON = { sword: () => ITEMIMG.swordIcon, gems50: () => ITEMIMG.gem20[1], key: () => ITEMIMG.key, map: () => ITEMIMG.map, compass: () => ITEMIMG.compass, boom: () => ITEMIMG.boom[0], bigkey: () => ITEMIMG.bigkey,
+      const ITEMICON = { bow:()=>ITEMIMG.bow, ovenheart:()=>ITEMIMG.ovenheart, blade:()=>ITEMIMG.blade, sword: () => ITEMIMG.swordIcon, gems50: () => ITEMIMG.gem20[1], key: () => ITEMIMG.key, map: () => ITEMIMG.map, compass: () => ITEMIMG.compass, boom: () => ITEMIMG.boom[0], bigkey: () => ITEMIMG.bigkey,
         piece: () => ITEMIMG.piece, container: () => ITEMIMG.container, bombs: () => ITEMIMG.bomb[0], soup: () => ITEMIMG.bottle[1], refill: () => ITEMIMG.bottle[1], recipe: () => ITEMIMG.recipe };
       function* getItem(what) {
         pl.act = 'get'; pl.getSpr = ITEMICON[what](); pl.carry = null;
         const big = what === 'boom' || what === 'bigkey' || what === 'sword' || what === 'container' || what === 'recipe';
         if (big) SND.big(); else if (what === 'key') SND.key(); else SND.item();
         switch (what) {
+          case 'bow': S.bow=1;S.sel='bow';addScore(600);break;
+          case 'ovenheart': S.f.ovenheart=1;addScore(1000);break;
+          case 'blade': S.sword=2;S.boots=1;S.f.secondDone=1;addScore(2000);break;
           case 'sword': S.sword = 1; S.shield = 1; addScore(100); break;
           case 'gems50': S.gems = Math.min(999, S.gems + 50); addScore(50); break;
           case 'key': S.keys++; addScore(100); break;
@@ -2213,7 +2559,7 @@
         yield 46;
         yield { text: ITEMTXT[what]() };
         pl.act = null; pl.getSpr = null;
-        if (what === 'recipe') { yield 20; startEnding(); return; }
+        if (what === 'recipe' || what === 'blade') { yield 20; startEnding(); return; }
         report();
       }
 
@@ -2231,6 +2577,7 @@
       }
       function warp(id, tx, ty, dir) { trans = { warp: [id, tx, ty, dir], t: 0, n: 16, phase: 0 }; mode = 'fade'; if (room.kind !== 'ow' || id[0] !== 'h') SND.stairs(); else SND.door(); }
       function enterRoom(rm, x, y, dir) {
+        dungeonInventory(rm.def);
         room = rm; if (!room.fr) render(room);
         pl.x = x; pl.y = y; if (dir != null) pl.dir = dir;
         pl.act = pl.carry ? null : null; pl.carry = null; pl.kbt = 0; pl.pushT = 0;
@@ -2244,6 +2591,8 @@
         if (room.def.trap && !S.cleared[id] && enemiesLeft()) room.trapPending = true;
         if (id === 'd10' && room.did.s && !S.doors[room.did.s]) { S.doors[room.did.s] = 1; setDoors(room); render(room); setTimeout(() => SND.door(), 200); }
         if (id === 'd1' && !S.f.keepIn) { S.f.keepIn = 1; run(function* () { yield 20; yield { text: 'THE COLANDER KEEP. It smells of garlic, old socks and danger. Somewhere in here, Baron Meatballo is hiding the recipe.' }; }()); }
+        if(id==='r1'&&!S.f.reservoirIn){S.f.reservoirIn=1;run(function*(){yield 15;yield say('THE RAVIOLI RESERVOIR. Follow the water. Brass eyes watch its sluices; somewhere, a very stale count is making crumbs of the plumbing.');}());}
+        if(id==='r11'&&!S.f.crouton) run(function*(){yield 25;yield say('COUNT CROUTON: Behold my beautiful wings! My jam eye? Extremely private. No arrows, please. They make me all wobbly.');}());
         if (id === 'd11' && !S.f.baron) run(bossIntro());
         save(); report();
       }
@@ -2264,7 +2613,7 @@
       let dyingT = 0;
       function respawn() {
         S.hp = S.maxH * 2; pl = newPlayer(0, 0, 1);
-        if (room.kind === 'dg') enterRoom(makeRoom('d1'), 128, 172, 1);
+        if (room.kind === 'dg') enterRoom(makeRoom(DUNGEONS[room.def.dg || 'keep'].entry), 128, 172, 1);
         else enterRoom(makeRoom('h_home'), 104, 136, 0);
         mode = 'play'; fade = 1;
       }
@@ -2292,14 +2641,14 @@
       function updateBox() {
         const page = tb.pages[tb.p], total = page.join('').length;
         if (tb.n < total) {
-          const was = tb.n | 0; tb.n += K.held('a') || K.held('b') ? 2.5 : 1;
+          const was = tb.n | 0; tb.n += held('a') || held('b') ? 2.5 : 1;
           if ((tb.n | 0) !== was && (tb.n | 0) % 2 === 0) SND.blip();
-          if ((K.pressed('a') || K.pressed('b')) && tb.n > 4) tb.n = total;
+          if ((pressed('a') || pressed('b')) && tb.n > 4) tb.n = total;
           return;
         }
         const last = tb.p === tb.pages.length - 1;
-        if (last && tb.ask) { if (K.pressed('left') || K.pressed('right') || K.pressed('up') || K.pressed('down')) { tb.sel = 1 - tb.sel; SND.menu(); } }
-        if (K.pressed('a') || (K.pressed('b') && !(last && tb.ask))) {
+        if (last && tb.ask) { if (pressed('left') || pressed('right') || pressed('up') || pressed('down')) { tb.sel = 1 - tb.sel; SND.menu(); } }
+        if (pressed('a') || (pressed('b') && !(last && tb.ask))) {
           if (!last) { tb.p++; tb.n = 0; SND.menu(); return; }
           const sel = tb.sel; tb = null; SND.menu(); coNext(sel);
         }
@@ -2330,6 +2679,18 @@
       const cycle = (e, list) => { e.line = ((e.line | 0) + 1) % list.length; return list[(e.line + list.length - 1) % list.length]; };
       function* npcTalk(e) {
         const N = NN();
+        if(room.id==='p_forge') {
+          if(S.f.ovenheart && S.sword<2) {
+            yield say('ELDER PARMESAN: The OVENHEART! At last I can temper a blade without burning the toast. Stand back. This may smell delicious.');
+            yield* getItem('blade');return;
+          }
+          yield say(S.sword>=2?'ELDER PARMESAN: AL DENTE! Firm to the bite. Your blade has twice the bite too. Those OVEN BOOTS can shake secrets from trees.':'ELDER PARMESAN: Welcome to the wrong side of the salt cellar. Bring the OVENHEART from the RAVIOLI RESERVOIR and I can give Grandad\'s old blade a proper edge.');return;
+        }
+        if(room.id==='r1') {yield say('OLD SALTY: Three rules of plumbing. Find the MAP. Shoot the BRASS EYE from across the water. And never trust COUNT CROUTON: he is absolutely crackers.');return;}
+        if(room.def.world==='salt') {
+          const lines={luke:'LUKE: The well still leads home. The RESERVOIR is north. I marked the way with my feet. You are welcome.',lady:'MRS PENNE: My hens came through the well too. The Reservoir\'s brass eyes need an ARROW. A bendy breadstick will only annoy them.',cal:'CAL: The forge is in here. It needs an OVENHEART. The Reservoir has one, according to its very small instruction leaflet.',fisher:'OLD SALTY: Even in another world, I cannot swim. An arrow through the Reservoir\'s eye makes its little bridge come out. Clever, that.'};
+          yield say(lines[e.name] || 'The salt gets everywhere.');return;
+        }
         switch (e.name) {
           case 'mom':
             if (!S.sword) {
@@ -2406,6 +2767,7 @@
       function signText(id, x, y, c) {
         if (c === 'G') return 'HERE LIES PASQUALE, BELOVED HUSBAND OF ROSA. HE ALWAYS WAS A BIT OF A PUSHOVER.';
         if (c === 'g') return GRAVES[(x * 7 + y * 3) % GRAVES.length];
+        if(id==='p_cliff')return 'RAVIOLI RESERVOIR. MAP AND COMPASS IN THE EAST BATH. THE WEST ARMOURY HOLDS AN ENCHANTED BOW. KEEP THE BIG KEY DRY.';
         if (id === 'south') return '↑ FARFALLE VILLAGE     ← HOME     → SUNNY SHORE';
         if (id === 'village') return 'NORTH: THE CLIFFS AND THE COLANDER KEEP. WARNING! ROCKFALL! (A BOMB WOULD SORT THAT OUT.)';
         if (id === 'shore') return 'Written in the sand: DAVE WAS ERE. Somebody has added, underneath: DAVE SUX.';
@@ -2417,15 +2779,15 @@
       function updatePlay() {
         if (co) { if (tb) updateBox(); else if (coWait > 0 && --coWait <= 0) coNext(); updateFx(); return; }
         S.time += 1 / 60;
-        if (K.pressed('start')) { openMenu(); return; }
-        if (K.pressed('x') && !pl.carry) { mapOpen(); return; }
+        if (pressed('start')) { openMenu(); return; }
+        if (pressed('x') && !pl.carry) { mapOpen(); return; }
         updatePlayer();
         if (mode !== 'play') return;
         for (const e of ents) if (!e.dead) updateThing(e);
         ents = ents.filter(e => !e.dead);
         updateShots(); updateFx();
         // the trap shuts behind you once you're properly in the room
-        if (room.trapPending && pl.x > 36 && pl.x < RW - 36 && pl.y > 44 && pl.y < RH - 20) { room.trapPending = false; room.trapOn = true; setDoors(room); render(room); SND.shut(); shake = 2; }
+        if (room.trapPending && pl.x > 36 && pl.x < RW - 36 && pl.y > 44 && pl.y <= RH - 20) { room.trapPending = false; room.trapOn = true; setDoors(room); render(room); SND.shut(); shake = 2; }
         // the fairy pond in the woods
         if (room.id === 'forest' && Math.hypot(pl.x - 64, pl.y - 140) < 30 && S.hp < S.maxH * 2 && K.frame % 20 === 0) { S.hp++; SND.heart(); sparks(pl.x, pl.y - 10, 3, '#ffb0e0'); }
         // low on hearts: a little beep
@@ -2435,25 +2797,36 @@
       function updatePlayer() {
         if (pl.inv > 0) pl.inv--;
         if (pl.kbt > 0) { pl.kbt--; plMove(pl.kbx, 0); plMove(0, pl.kby); pl.act = pl.act === 'charge' || pl.act === 'sword' ? null : pl.act; return checkEdges(); }
-        const sx = (K.held('right') ? 1 : 0) - (K.held('left') ? 1 : 0), sy = (K.held('down') ? 1 : 0) - (K.held('up') ? 1 : 0);
+        const stick=K.stick?K.stick():{x:0,y:0};
+        const sx = (held('right') ? 1 : 0) - (held('left') ? 1 : 0) || (Math.abs(stick.x)>.25?Math.sign(stick.x):0), sy = (held('down') ? 1 : 0) - (held('up') ? 1 : 0) || (Math.abs(stick.y)>.25?Math.sign(stick.y):0);
         // actions
         if (pl.act) pl.at++;
         switch (pl.act) {
-          case 'sword': swordHits(false); if (pl.at >= 12) { pl.cut = false; if (K.held('b')) { pl.act = 'charge'; pl.charge = 0; } else pl.act = null; } break;
+          case 'dash':
+            if(pl.at<=18){if(pl.at%5===0)debris(pl.x,pl.y,'grass');break;}
+            pl.moving=true;pl.anim+=2;
+            if(!plMove(DX[pl.dir]*3.8,DY[pl.dir]*3.8)){
+              const [tx,ty]=frontTile(),k=tx+','+ty;
+              if(room.def.dashTrees && room.def.dashTrees[k] && !S.got['tree_'+room.id+k]){
+                S.got['tree_'+room.id+k]=1;room.t[ty][tx]='.';goneForGood(room,tx,ty);redrawTile(room,tx,ty);drop(tx*16+8,ty*16+12,'piece',{id:'tree_'+room.id+k,perm:1});SND.secret();
+              }
+              shake=5;SND.stomp();pl.act=null;knock(pl,pl.x+DX[pl.dir]*8,pl.y+DY[pl.dir]*8,1.5,6);save();
+            }else {if(pl.at%4===0)debris(pl.x,pl.y,'grass');if(pl.at>100)pl.act=null;checkEdges();}return;
+          case 'sword': swordHits(false); if (pl.at >= 12) { pl.cut = false; if (held('b')) { pl.act = 'charge'; pl.charge = 0; } else pl.act = null; } break;
           case 'charge':
             pl.charge++; if (pl.charge === 42) { SND.charged(); sparks(pl.x + DX[pl.dir] * 14, pl.y - 8 + DY[pl.dir] * 12, 4); }
             if (pl.charge % 6 === 0) swordHits(false);
-            if (!K.held('b')) { if (pl.charge >= 42) { pl.act = 'spin'; pl.at = 0; pl.spinId++; SND.spin(); } else pl.act = null; }
+            if (!held('b')) { if (pl.charge >= 42) { pl.act = 'spin'; pl.at = 0; pl.spinId++; SND.spin(); } else pl.act = null; }
             break;
           case 'spin': swordHits(true); if (pl.at >= 24) pl.act = null; break;
           case 'lift': if (pl.at >= 10) pl.act = null; break;
           case 'throw': case 'item': if (pl.at >= 10) pl.act = null; break;
         }
         if (!pl.act || pl.act === 'charge') {
-          if (K.pressed('b') && S.sword && !pl.carry && !pl.act) { pl.act = 'sword'; pl.at = 0; pl.cut = false; SND.sword(); }
-          else if (K.pressed('b') && pl.carry) throwIt();
-          else if (K.pressed('a') && !pl.act) actionA();
-          else if (K.pressed('y') && !pl.act) useItem();
+          if ((pressed('b') || pl.swordBuffer>0) && S.sword && !pl.carry && !pl.act) { pl.swordBuffer=0; pl.act = 'sword'; pl.at = 0; pl.cut = false; SND.sword(); }
+          else if (pressed('b') && pl.carry) throwIt();
+          else if (pressed('a') && !pl.act) actionA();
+          else if (pressed('y') && !pl.act) useItem();
         }
         if (co || mode !== 'play') return;
         // walking
@@ -2461,7 +2834,7 @@
         pl.moving = false;
         if (canWalk && (sx || sy)) {
           if (pl.act !== 'charge') { if (sx && sy) { if (!(pl.dir === (sx < 0 ? 2 : 3) || pl.dir === (sy < 0 ? 1 : 0))) pl.dir = Math.abs(sx) >= 1 ? (sx < 0 ? 2 : 3) : pl.dir; } else pl.dir = sx ? (sx < 0 ? 2 : 3) : (sy < 0 ? 1 : 0); }
-          const sp = pl.act === 'charge' ? 0.85 : pl.carry ? 1.2 : 1.45, k = sx && sy ? 0.75 : 1;
+          const sp = pl.act === 'charge' ? 0.85 : pl.carry ? 1.2 : 1.45, k = sx && sy ? Math.SQRT1_2 : 1;
           const moved = plMove(sx * sp * k, sy * sp * k);
           pl.moving = true; pl.anim++;
           // shoving blocks, gravestones and locked doors
@@ -2517,6 +2890,21 @@
             e.t++; if (e.t % (e.t > 80 ? 6 : 14) === 0) SND.fuse();
             if (e.t >= 110) { e.dead = true; explode(e.x, e.y - 6); }
             break;
+          case 'arrow': {
+            e.t++;e.x+=e.vx;e.y+=e.vy;
+            const tx=Math.floor(e.x/16),ty=Math.floor((e.y+4)/16),c=tileAt(room,tx,ty);
+            if(c==='H' && room.def.eye){
+              if(!S.f[room.def.eye]) {
+                S.f[room.def.eye]=1;
+                for(const [x,y] of room.def.bridge || []) room.t[y][x]='=';
+                for(const k in room.def.hidden || {}){const [x,y]=k.split(',').map(Number);if(!S.opened[room.id+':'+k])room.t[y][x]='c';}
+                addScore(250);render(room);sparks(e.x,e.y,12,'#a0f0d8');SND.secret();save();
+              } e.dead=true;break;
+            }
+            for(const o of ents)if(o.enemy&&!o.dead && hitBox(box(o),[e.x-3,e.y-3,e.x+3,e.y+5])){hurtEnt(o,2,e.x-e.vx*3,e.y-e.vy*3,'arrow');e.dead=true;break;}
+            if(e.t>65||!c||(SOLID.has(c)&&!LOW.has(c))) {if(c){sparks(e.x,e.y,3);SND.tink();}e.dead=true;}
+            break;
+          }
           case 'boomer': {
             e.t++; if (K.frame % 7 === 0) SND.boomer();
             if (!e.back) {
@@ -2562,6 +2950,7 @@
           case 'container': S.got[p.id] = 1; run(getItem('container')); break;
           case 'recipe': run(getItem('recipe')); break;
         }
+        save();
       }
       function updateShots() {
         for (const s of shots) {
@@ -2607,7 +2996,7 @@
       function drawSword() {
         const i = swordIdx(); if (i < 0 || !SWORD) return;
         const sp = SWORD[i], h = HAND[pl.act === 'spin' ? 0 : pl.dir];
-        g.drawImage(sp.c, Math.round(pl.x + h[0] - sp.hx), Math.round(pl.y + h[1] - sp.hy));
+        g.drawImage(S.sword>1 ? (sp.gold || (sp.gold=tint(sp.c,'#f8cf68',.4))) : sp.c, Math.round(pl.x + h[0] - sp.hx), Math.round(pl.y + h[1] - sp.hy));
         if (pl.act === 'charge' && pl.charge >= 42 && (K.frame >> 2) & 1) { const v = VEC[i]; const im = ITEMIMG.spark[(K.frame >> 2) & 3]; g.drawImage(im, Math.round(pl.x + h[0] + v[0] * 15 - 4), Math.round(pl.y + h[1] + v[1] * 15 - 4)); }
       }
       function drawHero() {
@@ -2633,6 +3022,7 @@
           case 'crab': img = SPR.crab[e.anim]; oy = 13; break;
           case 'spike': img = SPR.spike[e.anim]; oy = 15; break;
           case 'ball': img = SPR.ball[e.anim | 0]; ox = 7; oy = 13; break;
+          case 'crouton': img=SPR.crouton[e.anim];if(e.phase2)img=img.toast||(img.toast=tint(img,'#d87938',.24));ox=24;oy=38;break;
           case 'cheese': img = SPR.cheese[e.anim]; ox = 16; oy = 30; break;
           case 'baron': img = SPR.baron[e.anim]; ox = 24; oy = 46; break;
           case 'hen': img = SPR.hen[(e.anim === 2 ? 2 : e.anim) + (e.dir === 3 ? 3 : 0)]; ox = 7; oy = 13; break;
@@ -2654,6 +3044,7 @@
           }
           case 'thrown': img = e.kind === 'pot' ? SPR_POT : e.kind === 'rock' ? SPR_ROCK : SPR_BUSH; oy = 14; break;
           case 'bomb': img = ITEMIMG.bomb[(e.t >> (e.t > 80 ? 1 : 3)) & 1]; if (e.t > 80 && (e.t >> 1) & 1) img = white(img); oy = 15; break;
+          case 'arrow': img=ITEMIMG.arrow[e.dir];oy=8;break;
           case 'boomer': img = ITEMIMG.boom[(e.t >> 1) & 3]; oy = 8; break;
           case 'block': img = e.kind === 'G' ? SPR_GRAVE : dgBlock('B'); oy = 16; break;
         }
@@ -2664,12 +3055,12 @@
         if (e.stun > 0 && (K.frame >> 2) & 1) { g.globalAlpha = 0.7; }
         g.drawImage(draw, x - ox, y - oy - z);
         g.globalAlpha = 1;
-        if (e.stun > 0 || (e.type === 'cheese' && e.st === 'dizzy') || (e.type === 'baron' && e.st === 'dizzy')) { // dizzy stars
+        if (e.stun > 0 || (e.type==='crouton' && e.st==='dizzy') || (e.type === 'cheese' && e.st === 'dizzy') || (e.type === 'baron' && e.st === 'dizzy')) { // dizzy stars
           const r = e.type === 'baron' ? 18 : e.type === 'cheese' ? 12 : 7, top = y - oy - z - 2;
           for (let i = 0; i < 3; i++) { const a = K.t * 5 + i * 2.1; g.drawImage(ITEMIMG.star, Math.round(x + Math.cos(a) * r - 3), Math.round(top + Math.sin(a) * r * 0.3 - 3)); }
         }
       }
-      const SHADOWW = { gloop: 6, gloopP: 6, snap: 6, knight: 7, bat: 4, ghost: 5, crab: 6, spike: 6, ball: 5, cheese: 14, baron: 20, hen: 5, npc: 6, pick: 4, thrown: 6, bomb: 5, boomer: 4 };
+      const SHADOWW = {crouton:19,arrow:3, gloop: 6, gloopP: 6, snap: 6, knight: 7, bat: 4, ghost: 5, crab: 6, spike: 6, ball: 5, cheese: 14, baron: 20, hen: 5, npc: 6, pick: 4, thrown: 6, bomb: 5, boomer: 4 };
       function drawRoom(rm, ox, oy, full) {
         g.drawImage(rm.fr[(K.frame / 12 | 0) % 4], ox, oy);
         if (!full) return;
@@ -2684,6 +3075,10 @@
         for (const e of list) {
           if (e.type === '_pl') { drawHero(); continue; }
           drawEnt(e);
+        }
+        for(const e of ents)if(e.type==='crouton' && (e.st==='aim'||e.st==='swoop')){
+          g.strokeStyle=(K.frame>>2)&1?'#f8df88':'#b85838';g.lineWidth=1;g.beginPath();g.ellipse(e.aimX,e.aimY,17,8,0,0,7);g.stroke();
+          R(g,e.aimX-3,e.aimY,7,1,'#f8df88');R(g,e.aimX,e.aimY-3,1,7,'#f8df88');
         }
         // long grass round your ankles
         const tallAt = (x, y) => tileAt(room, Math.floor(x / 16), Math.floor((y - 2) / 16)) === '"';
@@ -2727,6 +3122,10 @@
           for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (rm.t[y][x] === 't') { const r = 30 + Math.sin(K.t * 9 + x) * 2, cx = x * 16 + 8 + ox, cy = y * 16 + 4 + oy; const gr = g.createRadialGradient(cx, cy, 2, cx, cy, r); gr.addColorStop(0, 'rgba(255,150,60,.28)'); gr.addColorStop(1, 'rgba(255,120,40,0)'); g.fillStyle = gr; g.fillRect(cx - r, cy - r, r * 2, r * 2); }
           g.restore();
         } else if (k === 'ow') {
+          if((rm.id==='village'||rm.id==='p_village')&&(S.f.recipe||S.done)){
+            for(let i=0;i<5;i++){const a=K.t*1.7+i*1.256;g.drawImage(ITEMIMG.spark[(K.frame>>3)&3],Math.round(168+Math.cos(a)*12-4+ox),Math.round(140+Math.sin(a)*5-10+oy));}
+          }
+          for(const k in rm.def.dashTrees || {}){const [x,y]=k.split(',').map(Number);if(!S.gone[rm.id]?.includes(k)&&(K.frame%100)<30)g.drawImage(ITEMIMG.spark[(K.frame>>3)&3],x*16+4+ox,y*16+2+oy);}
           if (rm.def.fog) {
             if (!MIST) { MIST = cnv(RW * 2, RH); const mg = MIST.getContext('2d'); for (let i = 0; i < 40; i++) { const x = hash(i, 1, 51) * RW * 2, y = hash(i, 2, 51) * RH, r = 20 + hash(i, 3, 51) * 30; const gr = mg.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(230,240,255,.22)'); gr.addColorStop(1, 'rgba(230,240,255,0)'); mg.fillStyle = gr; mg.fillRect(x - r, y - r, r * 2, r * 2); } }
             const o = (K.t * 6) % RW; g.drawImage(MIST, -o + ox, oy); g.drawImage(MIST, -o + RW * 2 + ox, oy);
@@ -2752,7 +3151,7 @@
         rows.forEach((r, y) => { for (let x = 0; x < 7; x++) if (r[x] === 'x') { const on = n === 2 || (n === 1 && x < 4); P(gg, x + 1, y + 1, on ? (y === 0 || (y === 1 && x < 3) ? '#ff9aa8' : y > 3 ? '#b81a2a' : '#f0303e') : '#3a1a2a'); } });
         if (n) P(gg, 2, 2, '#ffffff');
       }, '#100810'));
-      const itemIcon = k => k === 'boom' ? ITEMIMG.boom[0] : k === 'bombs' ? ITEMIMG.bomb[0] : k === 'soup' ? ITEMIMG.bottle[S.bottle === 2 ? 1 : 0] : null;
+      const itemIcon = k => k==='bow'?ITEMIMG.bow:k==='boots'?ITEMIMG.boots:k === 'boom' ? ITEMIMG.boom[0] : k === 'bombs' ? ITEMIMG.bomb[0] : k === 'soup' ? ITEMIMG.bottle[S.bottle === 2 ? 1 : 0] : null;
       function drawHUD() {
         const gr = g.createLinearGradient(0, 0, 0, TOP); gr.addColorStop(0, '#141830'); gr.addColorStop(1, '#0a0c1c'); g.fillStyle = gr; g.fillRect(0, 0, W, TOP);
         g.fillStyle = '#c8a040'; g.fillRect(0, TOP - 2, W, 1); g.fillStyle = '#5a4818'; g.fillRect(0, TOP - 1, W, 1);
@@ -2780,68 +3179,76 @@
 
       // ============================================================ the START menu: items, the quest, save
       let menu = null;
-      const ITEMS = [['boom', 'BOOMERANG'], ['bombs', 'BOMBS'], ['soup', 'MINESTRONE']];
-      const owned = k => k === 'boom' ? S.boom : k === 'bombs' ? S.bag : S.bottle > 0;
-      function openMenu() { menu = { row: 0, col: Math.max(0, ITEMS.findIndex(i => i[0] === S.sel)), t: 0, saved: 0 }; mode = 'menu'; SND.menu(); }
+      const ITEMS = [['boom','BOOMERANG'],['bombs','BOMBS'],['soup','MINESTRONE'],['bow','RAVIOLI RECURVE'],['boots','OVEN BOOTS']];
+      const owned = k => k==='bow'?S.bow:k==='boots'?S.boots:k==='boom'?S.boom:k==='bombs'?S.bag:k==='soup'?S.bottle>0:false;
+      function openMenu() {
+        const i=Math.max(0,ITEMS.findIndex(i=>i[0]===S.sel));
+        menu={row:Math.floor(i/3),col:i%3,t:0,saved:0};mode='menu';SND.menu();save();
+      }
       function updMenu() {
-        const M = menu; M.t++; if (M.saved) M.saved--;
-        if (K.pressed('start') || (K.pressed('b') && M.row === 0)) { mode = 'play'; SND.menu(); return; }
-        if (K.pressed('up') || K.pressed('down')) { M.row = 1 - M.row; SND.menu(); }
-        if (K.pressed('left')) { M.col = (M.col + 2) % 3; SND.menu(); } if (K.pressed('right')) { M.col = (M.col + 1) % 3; SND.menu(); }
-        if (M.row === 0 && owned(ITEMS[M.col][0]) && S.sel !== ITEMS[M.col][0] && (K.pressed('left') || K.pressed('right') || K.pressed('a') || K.pressed('y'))) { S.sel = ITEMS[M.col][0]; SND.pick(); }
-        if (M.row === 1 && (K.pressed('a') || K.pressed('y'))) {
-          if (M.col === 0) { mode = 'play'; SND.menu(); }
-          else if (M.col === 1) { save(); SND.save(); M.saved = 90; }
-          else { save(); SND.save(); song(null); mode = 'done'; finalScore(S.score | 0, 'SAVED!', `${NN()}'s adventure is saved. Pick the file again to carry on where you left off.`); }
+        const M=menu;M.t++;if(M.saved)M.saved--;
+        if(pressed('start')||(pressed('b')&&M.row<2)){mode='play';SND.menu();save();return;}
+        const nav=pressed('up')||pressed('down')||pressed('left')||pressed('right');
+        if(pressed('up'))M.row=(M.row+2)%3;if(pressed('down'))M.row=(M.row+1)%3;
+        const cols=M.row===1?2:3;
+        if(pressed('left'))M.col=(M.col+cols-1)%cols;if(pressed('right'))M.col=(M.col+1)%cols;M.col=Math.min(cols-1,M.col);
+        if(nav)SND.menu();
+        const item=ITEMS[M.row*3+M.col];
+        if(M.row<2&&item&&owned(item[0])&&(nav||pressed('a')||pressed('y'))){S.sel=item[0];SND.pick();save();}
+        if(M.row===2&&(pressed('a')||pressed('y'))){
+          if(M.col===0){mode='play';SND.menu();save();}
+          else if(M.col===1){save();SND.save();M.saved=90;}
+          else{save();SND.save();song(null);mode='done';finalScore(S.score|0,'SAVED!',`${NN()}'s adventure is saved. Pick the file again to carry on where you left off.`);}
         }
       }
       function drawMenu() {
-        const M = menu, k = Math.min(1, M.t / 10), off = Math.round((1 - k) * -H);
-        g.fillStyle = 'rgba(0,0,10,.55)'; g.fillRect(0, 0, W, H);
-        g.save(); g.translate(0, off);
-        frameBox(6, 6, 244, 212, '#101838');
-        F.center(g, '- ITEMS -', 70, 13, '#f8d048', 1, '#000');
-        frameBox(12, 22, 118, 62, '#0a1030');
-        ITEMS.forEach(([key, nm], i) => {
-          const x = 20 + i * 36, y = 32; g.fillStyle = '#1c2858'; g.fillRect(x, y, 30, 30); g.fillStyle = '#2c3a78'; g.fillRect(x, y, 30, 1);
-          if (owned(key)) { const ic = itemIcon(key); g.drawImage(ic, x + 15 - ic.width / 2, y + 15 - ic.height / 2); if (key === 'bombs') F.draw(g, String(S.bombs), x + 18, y + 22, '#fff', 1, '#000'); }
-          if (S.sel === key) { g.strokeStyle = '#f8d048'; g.lineWidth = 1; g.strokeRect(x + 0.5, y + 0.5, 29, 29); }
-          if (M.row === 0 && M.col === i && (M.t >> 3) & 1) { g.strokeStyle = '#ffffff'; g.lineWidth = 2; g.strokeRect(x - 2, y - 2, 34, 34); }
+        const M=menu,k=Math.min(1,M.t/10),off=Math.round((1-k)*-H);
+        R(g,0,0,W,H,'rgba(0,0,10,.55)');g.save();g.translate(0,off);frameBox(6,6,244,212,'#101838');
+        F.center(g,'- ITEMS -',71,13,'#f8d048',1,'#000');frameBox(12,22,118,84,'#0a1030');
+        ITEMS.forEach(([key],i)=>{
+          const x=20+(i%3)*36,y=27+Math.floor(i/3)*30;
+          R(g,x,y,30,26,'#1c2858');R(g,x,y,30,1,'#3c5088');
+          if(owned(key)){const ic=itemIcon(key);g.drawImage(ic,Math.round(x+15-ic.width/2),Math.round(y+13-ic.height/2));if(key==='bombs')F.draw(g,String(S.bombs),x+18,y+18,'#fff',1,'#000');}
+          else F.center(g,'?',x+15,y+9,'#445780',1);
+          if(S.sel===key){g.strokeStyle='#f8d048';g.lineWidth=1;g.strokeRect(x+.5,y+.5,29,25);}
+          if(M.row<2&&M.row*3+M.col===i){g.strokeStyle=(M.t>>3)&1?'#ffffff':'#a8c8e8';g.lineWidth=1;g.strokeRect(x-2.5,y-2.5,35,31);}
         });
-        const cur = ITEMS[M.col]; F.center(g, owned(cur[0]) ? cur[1] : '- - -', 71, 70, owned(cur[0]) ? '#ffffff' : '#5a6090', 1, '#000');
-        // equipment, heart pieces, gems and time
-        F.center(g, '- KIT -', 190, 13, '#f8d048', 1, '#000');
-        frameBox(136, 22, 108, 62, '#0a1030');
-        g.globalAlpha = S.sword ? 1 : 0.2; g.drawImage(ITEMIMG.swordIcon, 144, 29); g.globalAlpha = S.shield ? 1 : 0.2; g.drawImage(ITEMIMG.shieldIcon, 162, 29); g.globalAlpha = 1;
-        g.drawImage(ITEMIMG.pieces[S.pieces], 210, 27); F.center(g, S.pieces + '/4', 218, 45, '#ffb0b8', 1, '#000');
-        g.drawImage(ICON.gem, 144, 56); F.draw(g, String(S.gems), 156, 57, '#a8f8b0', 1, '#000');
-        F.draw(g, 'TIME ' + clock(S.time), 190, 57, '#c8d0f0', 1); F.draw(g, 'HEARTS ' + S.maxH, 144, 70, '#ffb0b8', 1);
-        // the dungeon things
-        frameBox(12, 88, 232, 34, '#0a1030');
-        F.draw(g, 'COLANDER KEEP', 20, 101, '#f8d048', 1, '#000');
-        [['map', ITEMIMG.map, S.map], ['compass', ITEMIMG.compass, S.comp], ['bigkey', ITEMIMG.bigkey, S.big]].forEach(([n, im, has], i) => { const x = 116 + i * 24; g.globalAlpha = has ? 1 : 0.18; g.drawImage(im, x, 97); g.globalAlpha = 1; });
-        g.drawImage(ICON.key, 196, 99); F.draw(g, 'X' + S.keys, 205, 101, '#fff', 1, '#000');
-        // the quest
-        frameBox(12, 126, 232, 50, '#0a1030');
-        F.draw(g, 'QUEST:', 20, 132, '#f8d048', 1, '#000');
-        wrap(questLine(), 36).slice(0, 3).forEach((l, i) => F.draw(g, l, 20, 143 + i * 10, '#ffffff', 1, '#000'));
-        // options
-        ['CARRY ON', 'SAVE', 'SAVE & QUIT'].forEach((o, i) => { const x = [20, 98, 160][i]; const on = M.row === 1 && M.col === i; F.draw(g, o, x + 10, 186, on ? '#f8d048' : '#9aa0c8', 1, '#000'); if (on) F.draw(g, '→', x, 186, '#f8d048', 1); });
-        F.center(g, M.saved ? 'SAVED!' : `${LB('start')}: BACK TO THE GAME`, 128, 203, M.saved ? '#a8f8b0' : '#5a6090', 1);
-        g.restore();
+        const cur=ITEMS[Math.min(ITEMS.length-1,M.row*3+M.col)];F.center(g,owned(cur[0])?cur[1]:'UNFOUND',71,94,'#c8d8f0',1);
+        F.center(g,'- KIT -',190,13,'#f8d048',1,'#000');frameBox(136,22,108,84,'#0a1030');
+        g.globalAlpha=S.sword?1:.2;g.drawImage(S.sword>1?ITEMIMG.blade:ITEMIMG.swordIcon,144,29);g.globalAlpha=S.shield?1:.2;g.drawImage(ITEMIMG.shieldIcon,162,29);g.globalAlpha=1;
+        g.drawImage(ITEMIMG.pieces[S.pieces],210,27);F.center(g,S.pieces+'/4',218,45,'#ffb0b8',1,'#000');
+        g.drawImage(ICON.gem,144,56);F.draw(g,String(S.gems),156,57,'#a8f8b0',1,'#000');
+        F.draw(g,'TIME '+clock(S.time),185,57,'#c8d0f0',1);F.draw(g,'HEARTS '+S.maxH,144,72,'#ffb0b8',1);
+        F.draw(g,S.sword>1?'AL DENTE BLADE':"GRANDAD'S KIT",144,93,'#f8d048',1);
+        frameBox(12,110,232,28,'#0a1030');F.draw(g,DUNGEONS[S.activeDg||'keep'].name,20,119,'#f8d048',1,'#000');
+        [[ITEMIMG.map,S.map],[ITEMIMG.compass,S.comp],[ITEMIMG.bigkey,S.big]].forEach(([im,has],i)=>{g.globalAlpha=has?1:.18;g.drawImage(im,128+i*23,116);g.globalAlpha=1;});
+        g.drawImage(ICON.key,202,118);F.draw(g,'X'+S.keys,212,119,'#fff',1,'#000');
+        frameBox(12,142,232,36,'#0a1030');F.draw(g,'QUEST:',20,147,'#f8d048',1,'#000');
+        wrap(questLine(),36).slice(0,2).forEach((l,i)=>F.draw(g,l,20,157+i*10,'#ffffff',1,'#000'));
+        ['CARRY ON','SAVE','SAVE & QUIT'].forEach((o,i)=>{const x=[20,98,160][i],on=M.row===2&&M.col===i;F.draw(g,o,x+10,186,on?'#f8d048':'#9aa0c8',1,'#000');if(on)F.draw(g,'→',x,186,'#f8d048',1);});
+        F.center(g,M.saved?'SAVED!':`${LB('start')}: BACK TO THE GAME`,128,203,M.saved?'#a8f8b0':'#8a98b8',1);g.restore();
       }
       const clock = s => { s = s | 0; const h = s / 3600 | 0, m = (s / 60 | 0) % 60; return h + ':' + String(m).padStart(2, '0'); };
       function questLine() {
-        if (!S.sword) return "Grab Grandad's sword and shield from the chest at home.";
-        if (!S.f.elder) return 'Go and see ELDER PARMESAN in Farfalle Village (east, then north).';
-        if (!S.bag) return "Buy some BOMBS at Mabel's shop in the village.";
-        if (!S.f.blast_cliff) return 'Blow up the rockfall at the north end of the village.';
-        if (!S.f.keepIn) return 'Climb the North Cliffs to the COLANDER KEEP.';
-        if (!S.boom) return 'Find the treasure of the Colander Keep. Small keys open locked doors.';
-        if (!S.f.cheese) return 'Somebody cheesy is guarding the west of the Keep...';
-        if (!S.big) return 'Find the BIG KEY. Maybe some blocks need pushing.';
-        if (!S.f.baron) return "Open the big door and beat BARON MEATBALLO! Watch his THIRD EYE.";
-        return 'You saved tea-time! Find any heart pieces you missed.';
+        if(S.f.secondDone)return 'Second helping saved! Dash into glinting trees for secret hearts.';
+        if(S.f.ovenheart)return 'Take the Ovenheart to the Al Dente Forge in the south-west.';
+        if(S.f.crouton)return 'Enter the shrine east of the roost. Claim the Ovenheart.';
+        if(S.f.second){
+          if(!S.bow)return 'Explore the Reservoir. The west armoury holds its enchanted bow.';
+          if(!S.f.sluice)return 'Shoot the brass eye across the water. Check your dungeon map.';
+          if(!S.big||S.activeDg!=='reservoir')return 'Find the big key. Weigh down both plates in the west pantry.';
+          return 'Count Crouton: arrow the open eye, then close in with your sword.';
+        }
+        if(S.f.baron)return 'Tea-time saved! The village well glows. A second helping awaits.';
+        if(!S.sword)return "Open the chest at home for Grandad's sword and shield.";
+        if(!S.f.elder)return 'Visit Elder Parmesan in the village: east, then north.';
+        if(!S.bag)return "Buy bombs at Mabel's shop. Cut grass for extra gems.";
+        if(!S.f.blast_cliff)return 'Bomb the cracked rocks north of the village.';
+        if(!S.f.keepIn)return 'Climb the North Cliffs to the Colander Keep.';
+        if(!S.boom)return 'Explore the Keep. Small keys open locked doors.';
+        if(!S.f.cheese)return 'The Big Cheese guards the west. Strike when he is dizzy.';
+        if(!S.big)return 'Find the big key. Weigh down both plates in the west vault.';
+        return 'Face Baron Meatballo! Strike his open eye, then his belly.';
       }
 
       // ============================================================ the MAP
@@ -2850,26 +3257,26 @@
       function mini(id) {
         if (MINI[id]) return MINI[id];
         const c = cnv(64, 48), gg = c.getContext('2d'), def = ROOMS[id];
-        def.map.forEach((row, y) => [...row].forEach((ch, x) => { gg.fillStyle = MCOL[ch] || '#58b040'; gg.fillRect(x * 4, y * 4, 4, 4); if (ch === 'T') { gg.fillStyle = '#3a8a34'; gg.fillRect(x * 4, y * 4, 2, 2); } }));
+        def.map.forEach((row, y) => [...row].forEach((ch, x) => { gg.fillStyle = (def.world==='salt'&&ch==='.')?'#647490':(def.world==='salt'&&ch==='T')?'#303d60':MCOL[ch] || '#58b040'; gg.fillRect(x * 4, y * 4, 4, 4); if (ch === 'T') { gg.fillStyle = def.world==='salt'?'#586b85':'#3a8a34'; gg.fillRect(x * 4, y * 4, 2, 2); } }));
         return MINI[id] = c;
       }
       function mapOpen() { mode = 'map'; mapT = 0; SND.menu(); }
-      function updMap() { mapT++; if (mapT > 6 && (K.pressed('x') || K.pressed('a') || K.pressed('b') || K.pressed('start'))) { mode = 'play'; SND.menu(); } }
+      function updMap() { mapT++; if (mapT > 6 && (pressed('x') || pressed('a') || pressed('b') || pressed('start'))) { mode = 'play'; SND.menu(); } }
       function drawMap() {
         g.fillStyle = 'rgba(0,0,10,.75)'; g.fillRect(0, 0, W, H);
         if (room.kind === 'dg') return drawDgMap();
         frameBox(22, 6, 212, 194, '#0a1030');
-        F.center(g, 'THE KINGDOM OF LASAGNIA', 128, 12, '#f8d048', 1, '#000');
-        const ox = 32, oy = 24, here = room.kind === 'ow' ? room.id : ({ h_home: 'home', h_shop: 'village', h_elder: 'village', h_nonna: 'village', c_grave: 'grave', c_field: 'east' })[room.id] || 'cliff';
-        for (const id in OWG) {} // (the grid)
+        F.center(g, room.def.world==='salt'||room.id.startsWith('p_')?'THE SALT-BEYOND':'THE KINGDOM OF LASAGNIA', 128, 12, '#f8d048', 1, '#000');
+        const ox = 32, oy = 24, here = room.kind === 'ow' ? room.id : ({ h_home: 'home', h_shop: 'village', h_elder: 'village', h_nonna: 'village', c_grave: 'grave', c_field: 'east',p_shop:'p_village',p_forge:'p_home' })[room.id] || 'cliff';
+        const world=ROOMS[here].world || 'light';
         for (let gy = 0; gy < 3; gy++) for (let gx = 0; gx < 3; gx++) {
-          const id = OWG[gx + ',' + gy], x = ox + gx * 64, y = oy + gy * 48;
+          const id = OWG[world+':'+gx+','+gy], x = ox + gx * 64, y = oy + gy * 48;
           if (S.seen[id]) g.drawImage(mini(id), x, y); else { g.fillStyle = '#1a2040'; g.fillRect(x, y, 64, 48); F.center(g, '?', x + 32, y + 20, '#3a4478', 1); }
           g.strokeStyle = 'rgba(0,0,0,.5)'; g.strokeRect(x + 0.5, y + 0.5, 63, 47);
         }
         // the keep, and where you are
         if (S.seen.cliff) { g.drawImage(ITEMIMG.trifork, 0, 0, 24, 24, ox + 64 + 26, oy + 2, 12, 12); }
-        const hx = OWG[ROOMS[here].gx + ',' + ROOMS[here].gy] ? ROOMS[here].gx : 0, hy = ROOMS[here].gy;
+        const hx = ROOMS[here].gx || 0, hy = ROOMS[here].gy || 0;
         const px = room.kind === 'ow' ? pl.x / 4 : 32, py = room.kind === 'ow' ? pl.y / 4 : 24;
         if ((mapT >> 3) & 1) { g.fillStyle = '#ffffff'; g.fillRect(ox + hx * 64 + px - 3, oy + hy * 48 + py - 5, 6, 6); g.fillStyle = '#e83838'; g.fillRect(ox + hx * 64 + px - 2, oy + hy * 48 + py - 4, 4, 4); }
         F.center(g, roomName(here), 128, 172, '#ffffff', 1, '#000');
@@ -2877,10 +3284,10 @@
       }
       function drawDgMap() {
         frameBox(22, 6, 212, 194, '#0a1030');
-        F.center(g, 'THE COLANDER KEEP', 128, 12, '#f8d048', 1, '#000');
-        const ox = 72, oy = 26, cw = 36, chh = 26;
+        F.center(g,DUNGEONS[room.def.dg || 'keep'].name,128, 12, '#f8d048', 1, '#000');
+        const ox = 72, oy = 26, cw = 36, chh = 24;
         for (const id in ROOMS) {
-          const r = ROOMS[id]; if (r.kind !== 'dg') continue;
+          const r = ROOMS[id]; if (r.kind !== 'dg' || (r.dg || 'keep') !== (room.def.dg || 'keep')) continue;
           const seen = S.seen[id], show = seen || (S.map && !r.secret); if (!show) continue;
           const x = ox + r.gx * cw, y = oy + r.gy * chh;
           g.fillStyle = seen ? '#3a5aa8' : '#1c2858'; g.fillRect(x + 2, y + 2, cw - 4, chh - 4); g.fillStyle = seen ? '#6a8ad8' : '#2c3a78'; g.fillRect(x + 2, y + 2, cw - 4, 2);
@@ -2888,7 +3295,7 @@
           if (d.n && d.n !== 'J') g.fillRect(x + cw / 2 - 3, y, 6, 3); if (d.s) g.fillRect(x + cw / 2 - 3, y + chh - 3, 6, 3); if (d.w) g.fillRect(x, y + chh / 2 - 3, 3, 6); if (d.e) g.fillRect(x + cw - 3, y + chh / 2 - 3, 3, 6);
           if (S.comp) {
             for (const k in (r.chests || {})) if (!S.opened[id + ':' + k]) { g.fillStyle = '#f8d048'; g.fillRect(x + 6 + (k.length % 3) * 6, y + 8, 4, 4); }
-            if (id === 'd11' && !S.f.baron && (mapT >> 4) & 1) { g.drawImage(SPR.ball[0], x + cw / 2 - 7, y + 5); }
+            if (id === DUNGEONS[room.def.dg||'keep'].boss && !S.f[id==='d11'?'baron':'crouton'] && (mapT >> 4) & 1) { if(id==='r11')g.drawImage(SPR.crouton[0],0,0,48,40,x+cw/2-8,y+4,16,14);else g.drawImage(SPR.ball[0], x + cw / 2 - 7, y + 5); }
           }
           if (id === room.id && (mapT >> 3) & 1) { g.fillStyle = '#fff'; g.fillRect(x + cw / 2 - 3, y + chh / 2 - 3, 6, 6); g.fillStyle = '#e83838'; g.fillRect(x + cw / 2 - 2, y + chh / 2 - 2, 4, 4); }
         }
@@ -2945,7 +3352,7 @@
       let titleT = 0;
       function updTitle() {
         titleT++;
-        if (titleT > 50 && (K.pressed('start') || K.pressed('a'))) { mode = 'files'; files = { row: Math.min(2, store.last | 0), t: 0, erase: false, confirm: -1 }; SND.pick(); song('files'); }
+        if (titleT > 50 && (pressed('start') || pressed('a'))) { mode = 'files'; files = { row: Math.min(2, store.last | 0), t: 0, erase: false, confirm: -1 }; SND.pick(); song('files'); }
       }
       function drawTitle() {
         titleArt();
@@ -2984,14 +3391,14 @@
       function updFiles() {
         const Fs = files; Fs.t++;
         if (Fs.confirm >= 0) {
-          if (K.pressed('left') || K.pressed('right')) { Fs.yes = !Fs.yes; SND.menu(); }
-          if (K.pressed('a')) { if (Fs.yes) { store.slots[Fs.confirm] = null; persist(); SND.boom(); } Fs.confirm = -1; Fs.erase = false; SND.menu(); }
-          if (K.pressed('b')) { Fs.confirm = -1; SND.menu(); }
+          if (pressed('left') || pressed('right')) { Fs.yes = !Fs.yes; SND.menu(); }
+          if (pressed('a')) { if (Fs.yes) { store.slots[Fs.confirm] = null; persist(); SND.boom(); } Fs.confirm = -1; Fs.erase = false; SND.menu(); }
+          if (pressed('b')) { Fs.confirm = -1; SND.menu(); }
           return;
         }
-        if (K.pressed('up')) { Fs.row = (Fs.row + 3) % 4; SND.menu(); } if (K.pressed('down')) { Fs.row = (Fs.row + 1) % 4; SND.menu(); }
-        if (K.pressed('b')) { if (Fs.erase) { Fs.erase = false; SND.menu(); } else { mode = 'title'; titleT = 60; song('title'); } return; }
-        if (K.pressed('a') || K.pressed('start')) {
+        if (pressed('up')) { Fs.row = (Fs.row + 3) % 4; SND.menu(); } if (pressed('down')) { Fs.row = (Fs.row + 1) % 4; SND.menu(); }
+        if (pressed('b')) { if (Fs.erase) { Fs.erase = false; SND.menu(); } else { mode = 'title'; titleT = 60; song('title'); } return; }
+        if (pressed('a') || pressed('start')) {
           if (Fs.row === 3) { Fs.erase = !Fs.erase; SND.menu(); return; }
           const s = store.slots[Fs.row];
           if (Fs.erase) { if (s) { Fs.confirm = Fs.row; Fs.yes = false; SND.menu(); } return; }
@@ -3040,13 +3447,13 @@
       function updName() {
         const N = naming; N.t++;
         const rows = 5, cols = N.row === 4 ? 3 : 10;
-        if (K.pressed('up')) { N.row = (N.row + rows - 1) % rows; N.col = Math.min(N.col, N.row === 4 ? 2 : 9); SND.menu(); }
-        if (K.pressed('down')) { N.row = (N.row + 1) % rows; N.col = Math.min(N.col, N.row === 4 ? 2 : 9); SND.menu(); }
-        if (K.pressed('left')) { N.col = (N.col + cols - 1) % cols; SND.menu(); } if (K.pressed('right')) { N.col = (N.col + 1) % cols; SND.menu(); }
-        if (K.pressed('b')) { if (N.name.length) { N.name = N.name.slice(0, -1); SND.menu(); } else { mode = 'files'; } return; }
+        if (pressed('up')) { N.row = (N.row + rows - 1) % rows; N.col = Math.min(N.col, N.row === 4 ? 2 : 9); SND.menu(); }
+        if (pressed('down')) { N.row = (N.row + 1) % rows; N.col = Math.min(N.col, N.row === 4 ? 2 : 9); SND.menu(); }
+        if (pressed('left')) { N.col = (N.col + cols - 1) % cols; SND.menu(); } if (pressed('right')) { N.col = (N.col + 1) % cols; SND.menu(); }
+        if (pressed('b')) { if (N.name.length) { N.name = N.name.slice(0, -1); SND.menu(); } else { mode = 'files'; } return; }
         const end = () => { const nm = N.name.trim() || 'JACK'; store.slots[N.slot] = freshSave(nm); persist(); SND.save(); startFile(N.slot); };
-        if (K.pressed('start')) { end(); return; }
-        if (K.pressed('a')) {
+        if (pressed('start')) { end(); return; }
+        if (pressed('a')) {
           if (N.row < 4) { if (N.name.length < 8) { N.name += GRID[N.row][N.col]; SND.blip(); } }
           else if (N.col === 0) { if (N.name.length < 8) N.name += ' '; }
           else if (N.col === 1) N.name = N.name.slice(0, -1);
@@ -3065,6 +3472,7 @@
       }
       function startFile(i) {
         slot = i; S = store.slots[i]; store.last = i;
+        S.activeDg=S.activeDg||'keep';S.dungeons=S.dungeons||{};S.bow=S.bow||0;S.boots=S.boots||0;
         for (const k of ['f', 'opened', 'doors', 'cleared', 'seen', 'gone', 'got']) if (!S[k] || typeof S[k] !== 'object') S[k] = {};
         if (!ROOMS[S.room]) { S.room = 'h_home'; S.x = 136; S.y = 124; }
         S.hp = clamp(S.hp | 0, 1, S.maxH * 2);
@@ -3072,7 +3480,7 @@
         if (!S.intro) { mode = 'intro'; intro = { page: 0, t: 0 }; song('title'); openBox({ text: INTRO[0][1] }); }
         else beginPlay();
       }
-      function beginPlay() { lastName = ''; enterRoom(makeRoom(S.room), S.x, S.y, S.dir | 0); mode = 'play'; fade = 1; }
+      function beginPlay() { lastName = ''; enterRoom(makeRoom(S.room), S.x, S.y, S.dir | 0); mode = 'play'; fade = 1; save(); }
 
       // ============================================================ THE STORY SO FAR
       let intro = null;
@@ -3084,7 +3492,7 @@
       ];
       function updIntro() {
         intro.t++;
-        if (K.pressed('start')) { tb = null; S.intro = 1; save0(); beginPlay(); wakeUp(); return; }
+        if (pressed('start')) { tb = null; S.intro = 1; save0(); beginPlay(); wakeUp(); return; }
         if (tb) { updateBoxIntro(); return; }
         intro.page++; intro.t = 0;
         if (intro.page >= INTRO.length) { S.intro = 1; save0(); beginPlay(); wakeUp(); return; }
@@ -3093,8 +3501,8 @@
       function save0() { store.slots[slot] = S; persist(); }
       function updateBoxIntro() { // the same box, but no script behind it
         const page = tb.pages[tb.p], total = page.join('').length;
-        if (tb.n < total) { tb.n += K.held('a') ? 2.5 : 0.8; if ((tb.n | 0) % 3 === 0) SND.blip(); if (K.pressed('a') && tb.n > 4) tb.n = total; return; }
-        if (K.pressed('a')) { if (tb.p < tb.pages.length - 1) { tb.p++; tb.n = 0; } else tb = null; SND.menu(); }
+        if (tb.n < total) { tb.n += held('a') ? 2.5 : 0.8; if ((tb.n | 0) % 3 === 0) SND.blip(); if (pressed('a') && tb.n > 4) tb.n = total; return; }
+        if (pressed('a')) { if (tb.p < tb.pages.length - 1) { tb.p++; tb.n = 0; } else tb = null; SND.menu(); }
       }
       function wakeUp() { run(function* () { yield 40; yield say(`MOM: ${NN()}! ${NN()}! WAKE UP! Come here, quick! Something TERRIBLE has happened!`); }()); }
       function drawIntro() {
@@ -3143,11 +3551,11 @@
       }
       function updGameOver() {
         over.t++;
-        if (K.pressed('up') || K.pressed('down')) { over.sel = 1 - over.sel; SND.menu(); }
-        if (over.t > 30 && (K.pressed('a') || K.pressed('start'))) {
+        if (pressed('up') || pressed('down')) { over.sel = 1 - over.sel; SND.menu(); }
+        if (over.t > 30 && (pressed('a') || pressed('start'))) {
           SND.pick();
           if (over.sel === 0) respawn();
-          else { S.hp = S.maxH * 2; const inDg = room.kind === 'dg'; S.room = inDg ? 'd1' : 'h_home'; S.x = inDg ? 128 : 104; S.y = inDg ? 172 : 136; S.dir = inDg ? 1 : 0; store.slots[slot] = S; persist(); mode = 'done'; finalScore(S.score | 0, 'YOU FAINTED!', `${NN()} had a little lie down. The file is saved: pick it again to carry on.`); }
+          else { S.hp = S.maxH * 2; const inDg = room.kind === 'dg'; S.room = inDg ? DUNGEONS[room.def.dg || 'keep'].entry : 'h_home'; S.x = inDg ? 128 : 104; S.y = inDg ? 172 : 136; S.dir = inDg ? 1 : 0; store.slots[slot] = S; persist(); mode = 'done'; finalScore(S.score | 0, 'YOU FAINTED!', `${NN()} had a little lie down. The file is saved: pick it again to carry on.`); }
         }
       }
       function drawGameOver() {
@@ -3168,7 +3576,8 @@
         K.secret('lk.zeldo.boss');
         S.done = 1;
         const mins = Math.floor(S.time / 60);
-        ending = { t: 0, phase: 0, page: 0, bonusT: Math.max(0, 4000 - mins * 100), bonusH: S.maxH * 100, fw: [] };
+        if(S.f.secondDone)S.f.secondCredits=1;
+        ending = { second:!!S.f.secondDone, t: 0, phase: 0, page: 0, bonusT: Math.max(0, 4000 - mins * 100), bonusH: S.maxH * 100, fw: [] };
         ending.total = Math.min(99999, (S.score | 0) + ending.bonusT + ending.bonusH);
         // after the credits you carry on from the village, everything kept
         S.room = 'village'; S.x = 120; S.y = 92; S.dir = 0; store.slots[slot] = S;
@@ -3176,14 +3585,14 @@
         store.hof = store.hof.filter(h => !h.me || h.n !== me.n).concat([me]).sort((a, b) => b.s - a.s).slice(0, 8);
         ending.rank = store.hof.indexOf(me) + 1;
         persist();
-        trans = { warp: null, t: 0, n: 40, phase: 0 }; mode = 'ending'; song(null);
+        trans = { warp: null, t: 0, n: 40, phase: 0 }; mode = 'ending'; song(null);save();
       }
       const FEAST = ['zeldo', 'mom', 'elder', 'mabel', 'nonna', 'dave', 'luke', 'cal', 'fisher', 'lady'];
       const CREDITS = () => ['THE LEGEND OF ZELDO', 'A LINK TO THE PASTA', '', '- STARRING -', NN(), '', 'PRINCESS ZELDO', 'MOM', 'ELDER PARMESAN', 'MABEL (OF MABEL\'S)', 'NONNA ROSA', 'DAVE (STILL ON THE LAST BOSS)', 'LUKE', 'CAL (PC STILL BROKEN)', 'OLD SALTY', 'MRS PENNE AND HER HENS', '',
-        '- THE BADDIES -', 'BARON MEATBALLO', 'THE BIG CHEESE', 'THE FORK KNIGHTS', 'THE GLOOPS', 'THE PEA POD SNAPPERS', 'GHOULASH THE GHOST', '', 'NO BADDIES WERE HURT IN THE', 'MAKING OF THIS GAME.', 'THEY ALL JUST WENT POOF.', '', '- BIG FORK GAMES 1999 -', '', 'THANKS FOR PLAYING!'];
+        '- THE BADDIES -', 'BARON MEATBALLO', 'THE BIG CHEESE', 'THE FORK KNIGHTS', 'THE GLOOPS', 'THE PEA POD SNAPPERS', 'GHOULASH THE GHOST', 'COUNT CROUTON (LIGHTLY TOASTED)', '', 'NO BADDIES WERE HURT IN THE', 'MAKING OF THIS GAME.', 'THEY ALL JUST WENT POOF.', '', '- BIG FORK GAMES 1999 -', '', 'THANKS FOR PLAYING!'];
       function updEnding() {
         const E2 = ending; E2.t++;
-        if (E2.phase === 0) { if (E2.t === 40) { song('ending'); E2.phase = 1; E2.t = 0; openBox({ text: `PRINCESS ZELDO: ${NN()}! You got my recipe back! The whole kingdom is SO proud of you. Even the hens.` }); } return; }
+        if (E2.phase === 0) { if (E2.t === 40) { song('ending'); E2.phase = 1; E2.t = 0; openBox({ text: E2.second?`PRINCESS ZELDO: ${NN()}! The water is running again! Two worlds, one enormous saucepan. The second helping is saved!`:`PRINCESS ZELDO: ${NN()}! You got my recipe back! The whole kingdom is SO proud of you. Even the hens. After tea, look in the village well. There is writing on the back of the recipe...` }); } return; }
         if (E2.phase === 1) {
           if (E2.t % 50 === 0) E2.fw.push({ x: 30 + rnd() * 196, y: 20 + rnd() * 50, t: 0, c: ['#f8d048', '#ff6a8a', '#6af0ff', '#a8ff6a'][rnd() * 4 | 0] });
           E2.fw = E2.fw.filter(f => ++f.t < 50);
@@ -3194,14 +3603,14 @@
           else { E2.phase = 2; E2.t = 0; }
           return;
         }
-        if (E2.phase === 2) { if (E2.t > 60 * 22 || (E2.t > 120 && K.pressed('start'))) { E2.phase = 3; E2.t = 0; } return; }
+        if (E2.phase === 2) { if (E2.t > 60 * 22 || (E2.t > 120 && pressed('start'))) { E2.phase = 3; E2.t = 0; } return; }
         if (E2.phase === 3) {
-          if (E2.t > 90 && (K.pressed('start') || K.pressed('a'))) {
+          if (E2.t > 90 && (pressed('start') || pressed('a'))) {
             const wait = Math.max(64, E2.total / 45 + 8) - (K.t - lastRep.t);
             if (wait > 0 && !E2.waited) { E2.waitT = wait; E2.waited = true; return; }
-            mode = 'done'; finalScore(E2.total, 'TEA-TIME IS SAVED!', `${NN()} beat Baron Meatballo in ${clock(S.time)} and got the recipe back. You're #${E2.rank} in the Hall of Fame!`);
+            mode = 'done'; finalScore(E2.total, E2.second?'SECOND HELPING SAVED!':'TEA-TIME IS SAVED!', E2.second?`${NN()} restored the Reservoir and forged the Al Dente Blade in ${clock(S.time)}. Hall of Fame: #${E2.rank}!`:`${NN()} beat Baron Meatballo in ${clock(S.time)} and got the recipe back. You're #${E2.rank} in the Hall of Fame!`);
           }
-          if (E2.waited && E2.waitT > 0) { E2.waitT -= 1 / 60; if (E2.waitT <= 0) { mode = 'done'; finalScore(E2.total, 'TEA-TIME IS SAVED!', `${NN()} beat Baron Meatballo in ${clock(S.time)} and got the recipe back. You're #${E2.rank} in the Hall of Fame!`); } }
+          if (E2.waited && E2.waitT > 0) { E2.waitT -= 1 / 60; if (E2.waitT <= 0) { mode = 'done'; finalScore(E2.total, E2.second?'SECOND HELPING SAVED!':'TEA-TIME IS SAVED!', E2.second?`${NN()} restored the Reservoir and forged the Al Dente Blade in ${clock(S.time)}. Hall of Fame: #${E2.rank}!`:`${NN()} beat Baron Meatballo in ${clock(S.time)} and got the recipe back. You're #${E2.rank} in the Hall of Fame!`); } }
         }
       }
       function drawEnding() {
@@ -3239,7 +3648,7 @@
         // phase 3: the scores
         bgPattern();
         frameBox(16, 8, 224, 208, '#101838');
-        F.center(g, 'THE END', 128, 16, '#f8d048', 2, '#000');
+        F.center(g, E2.second?'SECOND HELPING':'THE END', 128, 16, '#f8d048', E2.second?1:2, '#000');
         const rows = [['PROGRESS POINTS', S.score | 0], ['TIME BONUS (' + clock(S.time) + ')', E2.bonusT], ['HEART BONUS (' + S.maxH + ' HEARTS)', E2.bonusH], ['TOTAL', E2.total]];
         rows.forEach(([a, b], i) => { F.draw(g, a, 28, 44 + i * 12, i === 3 ? '#f8d048' : '#ffffff', 1, '#000'); F.draw(g, String(b).padStart(5, ' '), 196, 44 + i * 12, i === 3 ? '#f8d048' : '#a8f8b0', 1); });
         F.draw(g, 'FAINTED: ' + (S.deaths ? S.deaths + (S.deaths === 1 ? ' TIME' : ' TIMES') : 'NEVER!'), 28, 96, '#c8d0f0', 1);
@@ -3282,6 +3691,11 @@
         drawHUD();
       }
       function update() {
+        touchNow={...touchPending};for(const k in touchPending)delete touchPending[k];
+        if(resumeRun && ['up','down','left','right','a','b','y','x','start'].some(b=>held(b)||pressed(b))){resumeRun=false;if(K.resume)K.resume();else K.restoring=false;}
+        if(resumeRun&&K.stick&&Math.hypot(K.stick().x,K.stick().y)>.25){resumeRun=false;if(K.resume)K.resume();else K.restoring=false;}
+        if(pl){pl.swordBuffer=pressed('b')?6:Math.max(0,(pl.swordBuffer||0)-1);}
+        if(hitStop>0&&mode==='play'&&!co){hitStop--;if(pressed('start'))openMenu();updateFx();return;}
         switch (mode) {
           case 'title': updTitle(); break;
           case 'files': updFiles(); break;
@@ -3296,6 +3710,8 @@
           case 'gameover': updGameOver(); break;
           case 'ending': updEnding(); break;
         }
+        if(fade>0&&(mode==='play'||mode==='done'))fade=Math.max(0,fade-.05);
+        if(S && mode!=='done' && K.frame%30===0)save();
         if (banner) banner.t++; if (toast && ++toast.t > 150) toast = null;
       }
       function draw() {
@@ -3315,13 +3731,13 @@
           case 'ending': drawEnding(); break;
           case 'done': if (room && S) drawPlayFrame(); else drawTitle(); break;
         }
-        if (fade > 0 && (mode === 'play' || mode === 'done')) { g.fillStyle = `rgba(0,0,0,${fade})`; g.fillRect(0, TOP, W, RH); fade = Math.max(0, fade - 0.05); }
+        if (fade > 0 && (mode === 'play' || mode === 'done')) { g.fillStyle = `rgba(0,0,0,${fade})`; g.fillRect(0, TOP, W, RH); }
       }
       song('title');
       // (for testing: RoomTV.dbg().dbg)
       K.dbg = {
         get S() { return S; }, get pl() { return pl; }, get room() { return room; }, get ents() { return ents; }, get mode() { return mode; }, get tb() { return tb; }, get co() { return co; }, get store() { return store; },
-        get lastRep() { return lastRep; }, get ending() { return ending; },
+        flush, get fade(){return fade;}, get lastRep() { return lastRep; }, get ending() { return ending; },
         start(i, name) { if (!store.slots[i]) store.slots[i] = freshSave(name || 'JACK'); store.slots[i].intro = 1; startFile(i); },
         warp(id, tx, ty, dir) { co = null; tb = null; coQ.length = 0; enterRoom(makeRoom(id), tx * 16 + 8, ty * 16 + 12, dir || 0); mode = 'play'; },
         give(o) { Object.assign(S, o); }, flag(k, v) { S.f[k] = v; }, makeRoom, ROOMS, report, startEnding, explode, toggleCrystal, hurtPlayer, run, getItem, say,
@@ -3329,7 +3745,30 @@
         get shots() { return shots; }, tileAt: (x, y) => tileAt(room, x, y), get trans() { return trans; },
         skipText() { if (tb) { tb.p = tb.pages.length - 1; tb.n = 999; } },
       };
-      return { update, draw, end() { K.music(null); } };
+      if((K.restoring || K.con==='sn') && Number.isInteger(store.active) && store.slots[store.active]) {
+        const live=store.live;
+        startFile(store.active);
+        if(live && live.slot===slot && ROOMS[live.room]){
+          co=null;tb=null;coQ.length=0;trans=null;
+          room=makeRoom(live.room);dungeonInventory(room.def);
+          if(live.tiles?.length===ROWS && live.tiles.every(r=>r.length===COLS))room.t=live.tiles.map(r=>r.split(''));
+          room.trapOn=!!live.trapOn;room.trapPending=!!live.trapPending || (!live.ents && room.def.trap && !S.cleared[room.id]);if(room.kind==='dg')setDoors(room);render(room);
+          if(live.ents)ents=live.ents;else spawnEnts(room);
+          shots=live.shots||[];fx=[];pl=Object.assign(newPlayer(S.x,S.y,S.dir),live.pl);pl.getSpr=null;
+          if(live.co){pl.act=null;pl.dead=false;for(const e of ents)if(e.type==='baron'&&e.st==='wait'){e.st='start';e.tm=40;}}
+          menu=live.menu;mapT=live.mapT||0;dyingT=live.dyingT||0;over=live.over;ending=live.ending;if(live.mode==='ending')tb=live.box||null;
+          mode=['play','menu','map','dying','gameover','ending'].includes(live.mode)?live.mode:'play';
+          if(mode==='menu'&&!menu)mode='play';if(mode==='ending'&&!ending)mode='play';
+          if(mode==='dying'||mode==='gameover')S.hp=0;
+          unstick();song(mode==='ending'?'ending':room.def.song||'field');fade=0;banner=null;
+        }
+        if(S.f.recipe&&!S.done || S.f.secondDone&&!S.f.secondCredits)startEnding();
+      }
+      return { update, draw, end() {
+        flush();clearTouch();const view=touchPanel?.parentElement;touchPanel?.remove();if(view&&RoomTV.lockIn())RoomTV.lockIn(true);removeEventListener('blur',clearTouch);document.removeEventListener('visibilitychange',clearTouch);
+        removeEventListener('pagehide',flush);removeEventListener('beforeunload',flush);
+        removeEventListener('keydown',onPause,true);document.removeEventListener('visibilitychange',onHidden);K.music(null);
+      } };
     },
   });
 })();

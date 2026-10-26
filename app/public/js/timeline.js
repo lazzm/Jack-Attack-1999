@@ -129,7 +129,7 @@
     ['07-28', 'SPACE', "Columbia landed in Florida in the middle of the night. Eileen Collins = first woman to command a Space Shuttle, and the Chandra X-ray telescope is up there now. Mission: complete."],
     // ---------------------------------------------------------------- August
     ['08-01', 'MUSIC', "<b>Ronan Keating</b> is number one with <i>When You Say Nothing at All</i>, from Mom's Notting Hill film. Mom has now said Notting Hill is 'lovely' 400 times."],
-    ['08-03', 'GAMES', "Rainy day, so I dug the <b>Mega Glide</b> out of the loft. <b>Zip 2</b> still holds up. Got all the Chaos Emeralds once in 1994 and nobody believes me."],
+    ['08-03', 'GAMES', "Rainy day, so I dug the <b>Mega Glide</b> out of the loft. <b>Zip the Badger 2</b> still holds up. Got all six Time Stones once in 1994 and nobody believes me."],
     ['08-05', 'SPACE', "Got my <b>eclipse viewer glasses</b> for next week (from the newsagent, &pound;2). Mom has made me promise about a thousand times: NEVER look at the Sun without them. Not even a tiny peek."],
     ['08-10', 'SPACE', "The eclipse is TOMORROW morning! It's only fully total in Cornwall (and a bit of Devon), but everywhere else gets a big chunk of the Sun covered too. Praying for no clouds. Mom has made a pinhole viewer out of a cereal box."],
     ['08-12', 'SPACE', "Eclipse aftermath: the cereal box pinhole viewer actually worked! You could see a tiny crescent Sun on the bottom of the box. Next total eclipse in Britain: 2090. I'll be OLD."],

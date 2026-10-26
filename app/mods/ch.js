@@ -44,6 +44,10 @@ function P(key) {
   if (!Array.isArray(p.hist)) p.hist = [];
   p.tot = p.tot | 0; p.extras = p.extras | 0; p.all = p.all | 0;
   const d = today();
+  // Keep physical completion separately from daily pay and timing ratings.
+  // Adopt existing records before the day rolls over; never replay a reward.
+  if (!p.finished) p.finished = {};
+  for (const id of Object.keys(p.done)) if (!p.finished[id]) { p.finished[id] = p.done[id].t || Date.now(); ctx.markDirty(); }
   if (p.day !== d) { // a new day: yesterday goes in the history book, today starts clean
     const nd = Object.keys(p.done).length;
     if (p.day && nd) { p.hist.push([p.day, nd, Object.values(p.done).reduce((s, x) => s + (x.amt | 0), 0)]); if (p.hist.length > 120) p.hist.splice(0, p.hist.length - 120); }
@@ -86,6 +90,7 @@ function step(ws, c, key, m) {
 function finish(ws, c, key, p, id, r) {
   const C = CH.CHORE[id], secs = (r.last - r.t0) / 1000, list = listToday(), onList = list.includes(id);
   delete p.run[id];
+  p.finished[id] ||= Date.now();
   if (r.bad || secs < C.min) {
     p.done[id] = { sc: 0, amt: 0, bad: 1, t: Date.now() }; ctx.markDirty();
     return ctx.send(ws, { t: 'chDone', c: id, sc: 0, amt: 0, bad: 1, list: onList });

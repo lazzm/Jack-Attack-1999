@@ -117,7 +117,7 @@
         t.home = { room: 'bedroom', x, y, z, ry };
         if (CK.has('tidy', m.id)) { t.home = Object.assign({}, t.home, { hide: true }); if (m.kind === 'mag') { magN++; const a = CK.S.at[id]; if (a) { t.at = { room: a[0], x: a[1], y: a[2], z: a[3], ry: a[4] };t.snap=a[7]&&H.SNAPS[a[7]]?a[7]:null;t.st=t.snap?'snap':'rest';t.rx=a[5]||0;t.rz=a[6]||0; H.place(t); } } else if (!t.at.hide) CK.home(id, { hide: true }); CK.lock(id,m.kind!=='mag'); continue; }
         CK.lock(id, false);
-        if (!CK.S.at[id]) CK.home(id);
+        if (!CK.S.at[id] && t.st !== 'held') CK.home(id);
       }
     },
     reset() { this.lay(); this.sync(); },
@@ -195,7 +195,14 @@
       if (pjsT) { if (CK.has('bed', 'pjs')) { pjsT.home = { room: 'bedroom', x: 112, y: FY, z: 150, hide: true }; CK.lock('ch.pjs'); if (!pjsT.at.hide) CK.home('ch.pjs'); } else CK.lock('ch.pjs', false); }
       void v; void dn;
     },
-    reset() { CK.home('ch.pillow'); CK.home('ch.pjs'); this.sync(); },
+    guide() { return duv; },
+    reset() {
+      // A finished chore changes these homes (the pyjamas become hidden).
+      // A new day / owner's retry must start with real, reachable objects.
+      pillowT.home = { room: 'bedroom', x: 40, y: FY, z: 72, ry: 80 };
+      pjsT.home = { room: 'bedroom', x: 112, y: FY, z: 150, ry: -20 };
+      CK.home('ch.pillow'); CK.home('ch.pjs'); this.sync();
+    },
   });
   function bedClick() {
     if (CK.done('bed')) return false;
@@ -250,7 +257,10 @@
       if (this.sticky) this.sticky.visible = CK.onList('bin') && !CK.done('bin');
       H.dirty();
     },
-    reset() { CK.home('ch.binbag'); this.sync(); },
+    reset() {
+      bag.home = { room: 'bedroom', x: -118, y: FY - .5, z: -42, ry: 0 };
+      CK.home('ch.binbag'); this.sync();
+    },
   });
   H.on('grab', id => { if (id === 'ch.binbag') CK.MODS.bin.sync(); });
   H.on('rest', id => { if (id === 'ch.binbag') CK.MODS.bin.sync(); });
