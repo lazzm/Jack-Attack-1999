@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.50.0 - 2026-10-26
+- The house is yours: room signs, your diary, your mobile, parcel labels, Dad's note, Mom's lines, chores and family moments now use the first name you chose (and the right he/she), with your own little sister and mates. Jack's magazine, website and online mates stay exactly as they are.
+
 ## 2.49.0 - 2026-10-26
 - Owner tools (Jack's account only, press ` anywhere or use the Esc menu): save/restore progress snapshots, "Reset me to a brand-new player" (snapshot first), unlock consoles/games/magazines, adjust cash and Rupees, jump to any story chapter/step, set the 1999 date and hour, spawn Pixel Post parcels, re-run chores and household events, teleport between rooms, noclip and a debug overlay. Every action is checked on the server, logged, and destructive ones keep a snapshot.
 
