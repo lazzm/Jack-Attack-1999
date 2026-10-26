@@ -1,6 +1,7 @@
 ## Gameplay backlog
 | id | severity | area | problem | fix |
 |---|---|---|---|---|
+| G02 | high | phones/tablets | Owner: play the WHOLE game on mobile, polished and intentional (replaces JackOS-only phones) | Touch controls, mobile quality tier, all UI at phone sizes, console touch pads (brief: mobile, after movement) |
 | G01 | high | walking (hs-world.js) | Owner: "player gets stuck walking around - needs to be smooth and not frustrating" | Movement audit bots on every route + collide-and-slide controller, step offset, door funnels, stair ramps, anti-stuck (brief: movement) |
 
 # Backlog
