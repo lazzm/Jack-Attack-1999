@@ -1998,7 +1998,19 @@
     if (window.PM && PM.on) PM.on('change', () => games.forEach(add));
     H.ambient.add(() => { if (tvFocus && !H.focused) { returnHandheld(); tvFocus = false; ++tvRequest; tvSession(null); } });
     let saved; try { saved = JSON.parse(localStorage.getItem(TV_SAVE) || 'null'); } catch (e) {}
-    if (saved && CAT.CONSOLES[saved.con] && !CAT.CONSOLES[saved.con].away) {
+    try{const current=JSON.parse(sessionStorage.getItem('jhp_surface_session')||'null');if(current?.surface&&current.owner&&current.owner.toLowerCase()===String(window.Net?.me?.nick||'').toLowerCase())saved=current;}catch(e){}
+    if(saved?.surface && CAT.CONSOLES[saved.con]?.away && CAT.GAME[saved.gid]?.con===saved.con){
+      // Cartridge-owned screens have no bedroom insertion slot. Restore the
+      // display after account hydration and downstairs construction, without
+      // moving a player who had left it running in the background.
+      const loginSeat=!!sessionStorage.getItem('jhp_login_seat');let tries=0;
+      const resumeSurface=()=>{
+        if(loginSeat)return;
+        if(!H.live||!window.AccountGate?.allowed||!hasConsole(saved.con)||H.gliding||!window.PMGL?.built||document.querySelector('.hs-loading,#houseEntry')||(!saved.background&&!canGo())){if(++tries<600)setTimeout(resumeSurface,100);return;}
+        ensureHouse().then(()=>loadJs('js/rm-tv.js')).then(()=>window.RoomTV?.restoreSurface(saved)).catch(()=>{});
+      };
+      setTimeout(resumeSurface,150);
+    } else if (saved && CAT.CONSOLES[saved.con] && !CAT.CONSOLES[saved.con].away) {
       let tries = 0;
       const resume = () => {
         if (!H.live || (!saved.background && !canGo())) { if (++tries < 200) setTimeout(resume, 100); return; }
@@ -2080,25 +2092,25 @@
     where: () => H.here, T, K, House: H, ensureHouse,
     onClose(fn) { (EVS.close = EVS.close || []).push(fn); }, offClose(fn) { const a = EVS.close || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); },
     _: { ejectMedia,
-      tvVisible(con) {
-        const screen = con === 'gb' ? R.gbScreen : R.tvScreen; if (!screen) return false;
+      tvVisible(con, target) {
+        const screen = target || (con === 'gb' ? R.gbScreen : R.tvScreen); if (!screen) return false;
         for (let o = screen; o; o = o.parent) if (!o.visible) return false;
         const v = new T.Vector3(); screen.getWorldPosition(v);
         const p = H.toScreen(v.x, -v.y, v.z);
         return !!p && p.x > -100 && p.y > -100 && p.x < innerWidth + 100 && p.y < innerHeight + 100;
       },
-      tvOff(con) {
-        const screen = con === 'gb' ? R.gbScreen : R.tvScreen; if (!screen) return;
+      tvOff(con, target) {
+        const screen = target || (con === 'gb' ? R.gbScreen : R.tvScreen); if (!screen) return;
         const m = screen.material, tx = m.map;
         if (tx && tx.userData.jackLive) {if (tx.userData.hud) tx.userData.hud.dispose(); tx.dispose();}
         m.map = con === 'gb' ? null : tex('screenOff'); m.color.set(con === 'gb' ? '#83956c' : '#ffffff');
         m.onBeforeCompile = () => {}; m.customProgramCacheKey = () => 'room-screen-off'; m.needsUpdate = true;
-        if (con !== 'gb') LIGHT.telly = false;
+        if (con !== 'gb' && !target) LIGHT.telly = false;
         H.relight(); H.dirty();
       },
       tvOn(url) { if (!R.tvScreen) return; LIGHT.telly = true; H.relight(); const m = R.tvScreen.material; if (url) new T.TextureLoader().load(url, tx => { const old = m.map; m.map = tx; m.color.set('#ffffff'); if (old && old !== tex('screenOff')) old.dispose(); m.needsUpdate = true; H.dirty(); }); else { m.color.set('#6a8aff'); m.needsUpdate = true; H.dirty(); } },
-      tvLive(canvas, overlay, con) {
-        const screen = con === 'gb' ? R.gbScreen : R.tvScreen;
+      tvLive(canvas, overlay, con, target) {
+        const screen = target || (con === 'gb' ? R.gbScreen : R.tvScreen);
         if (!screen || !canvas) return null;
         const m = screen.material;
         const fresh = !(m.map && m.map.userData && m.map.userData.jackLive);
@@ -2127,7 +2139,7 @@
           m.customProgramCacheKey = () => 'room-crt-live'; m.needsUpdate = true;
         }
         tx.userData.uniforms.rmLines.value = canvas.height;
-        if (con !== 'gb' && !LIGHT.telly) { LIGHT.telly = true; H.relight(); } H.dirty();
+        if (con !== 'gb' && !target && !LIGHT.telly) { LIGHT.telly = true; H.relight(); } H.dirty();
         return tx;
       },
       S, save, spot: (id, def) => H.spot(id, def), SPOTS: H.SPOTS, emit, secret, isOut, foundIt, search, freeze: () => !canGo(), sfx, esc,
