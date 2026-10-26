@@ -54,7 +54,7 @@
     ['sx.b.ring', 'Golden Byte: The Tiniest Link', 'A link the size of a full stop'],
     ['sx.b.note', 'Golden Byte: Captain\'s Log', 'Notepad keeps a log, if you know the old trick'],
     ['sx.b.clock', 'Golden Byte: Grumpy Clock', 'Annoy the clock'],
-    ['sx.b.room', 'Golden Byte: Under the Bed?', 'Something gold in Jack\'s bedroom'],
+    ['sx.b.room', 'Golden Byte: Under the Bed?', 'Something gold in your bedroom'],
     ['sx.b.mag', 'Golden Byte: Back Issue', 'A byte stuck between the pages of an old magazine'],
     // easter eggs in Start > Run
     ['sx.r.podbay', 'I\'m sorry, Dave', 'Ask the computer to open some doors. Very politely'],

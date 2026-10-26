@@ -597,12 +597,12 @@
     k.done = true;
   }
   function again() { if (!V || !V.gid) return; const gid = V.gid; stopGame(); V.gid = gid; V.restoring = false; startGame(); }
-  function mates(gid) { // Jack's mates have all had a go on his consoles: their scores are saved on the cartridge
+  function mates(gid) { // {me}'s mates have all had a go on his consoles: their scores are saved on the cartridge
     const G = CAT.GAME[gid]; if (!G) return [];
     let h = 0; for (const ch of gid) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
     const r = () => { h = (h * 1103515245 + 12345) >>> 0; return (h >>> 8) / 16777216; };
     const top = Math.min(G.max * 0.6, G.pay * 4);
-    return [['Dave', 1], ['Luke', 0.72], ['Callum', 0.5], ['JackK', 0.33]].map(([n, k]) => ({ n, s: Math.round(top * k * (0.85 + r() * 0.3) / 10) * 10, mate: 1 }));
+    return [['mate1', 1], ['mate2', 0.72], ['mate3', 0.5], ['mate4', 0.33]].map(([id, k]) => ({ n: Cast.n(id), s: Math.round(top * k * (0.85 + r() * 0.3) / 10) * 10, mate: 1 }));
   }
   function hiList(list) {
     if (!V) return; const ol = $(V.el, '.rm-hi'); if (!ol) return;

@@ -38,49 +38,56 @@
     G('dc.dash', 'ZIP ADVENTURE', 'rm-g-dash', { max: 99999, rate: 500, min: 20, pay: 3000, blurb: 'Zip goes 3D! Run, ring-chase and loop down Emerald Bay.', col: '#2a8af0' }),
     G('dc.duel', 'SOUL SABRE', 'rm-g-duel', { max: 50000, rate: 400, min: 20, pay: 3000, blurb: 'Swords, sparks and very dramatic hair.', col: '#5a2ab0' }),
     // ---- expansion pack 35 (Agent L): the Super Ultra under the stairs, and more lost games round the room
-    G('gb.mon2', 'POCKET CRITTERS: PUDDLE VERSION', 'rm-g-mon', { max: 99999, rate: 40, min: 20, pay: 300, deps: ['lk-crit'], pal: 'left', owner: 'JackK', blurb: 'JackK\'s copy. Different critters live in the long grass. Link up and trade!', col: '#2a6ad0' }),
+    G('gb.mon2', 'POCKET CRITTERS: PUDDLE VERSION', 'rm-g-mon', { max: 99999, rate: 40, min: 20, pay: 300, deps: ['lk-crit'], pal: 'left', owner: '{mate4}', blurb: '{mate4}\'s copy. Different critters live in the long grass. Link up and trade!', col: '#2a6ad0' }),
     G('gb.grab', 'GRABBO LAND', 'rm-g-grab', { shop: 60, max: 99999, rate: 250, min: 30, pay: 1500, blurb: 'The greediest treasure hunter on the island. Barge, bash and grab it all.', col: '#e0b000' }),
-    G('n64.party', 'WOBBLE PARTY 64', 'rm-g-party', { owner: 'Dave', max: 30000, rate: 60, min: 90, pay: 1000, blurb: 'Dice, stars and minigames. Four players, one board, zero friendships left.', col: '#2a9ad8' }),
+    G('n64.party', 'WOBBLE PARTY 64', 'rm-g-party', { owner: '{mate1}', max: 30000, rate: 60, min: 90, pay: 1000, blurb: 'Dice, stars and minigames. Four players, one board, zero friendships left.', col: '#2a9ad8' }),
     G('ps.sneak', 'METAL GERBIL SOLID', 'rm-g-sneak', { shop: 90, max: 50000, rate: 150, min: 60, pay: 2000, blurb: 'Tactical Sneaking Action. Hide in a box. Never be seen.', col: '#4a5a4a' }),
-    G('md.teeny', 'TEENY MOTORS', 'rm-g-teeny', { owner: 'Callum', max: 30000, rate: 150, min: 40, pay: 1500, blurb: 'Tiny cars racing across the breakfast table. Mind the cornflakes.', col: '#e8341c' }),
+    G('md.teeny', 'TEENY MOTORS', 'rm-g-teeny', { owner: '{mate3}', max: 30000, rate: 150, min: 40, pay: 1500, blurb: 'Tiny cars racing across the breakfast table. Mind the cornflakes.', col: '#e8341c' }),
     G('sn.zero', 'FORMULA NULL', 'rm-g-zero', { own: 1, max: 50000, rate: 200, min: 40, pay: 1500, blurb: 'Hover racing in glorious Mode 7. It came with the console!', col: '#2a3ad0' }),
     G('sn.zeldo', 'THE LEGEND OF ZELDO', 'rm-g-zeldo', { shop: 90, max: 99999, rate: 60, min: 60, pay: 800, blurb: 'A Link to the Pasta. A sword, a shield and a dungeon full of keys.', col: '#2a8a3a' }),
-    G('sn.plumb', 'SUPER PLUMBO WORLD', 'rm-g-plumb', { owner: 'Luke', max: 99999, rate: 300, min: 30, pay: 2000, blurb: 'Stomp, spin and fly across Biscuit Isle. Every exit counts.', col: '#d8261c' }),
+    G('sn.plumb', 'SUPER PLUMBO WORLD', 'rm-g-plumb', { owner: '{mate2}', max: 99999, rate: 300, min: 30, pay: 2000, blurb: 'Stomp, spin and fly across Biscuit Isle. Every exit counts.', col: '#d8261c' }),
     G('dc.toy', 'TOY SQUADRON', 'rm-g-toy', { shop: 100, max: 50000, rate: 200, min: 40, pay: 2000, blurb: 'Fly a toy plane round a giant house. Missions in every room. Mind the cat.', col: '#d83a2a' }),
     G('sn.fight', 'STREET SCRAPPER II', 'rm-g-scrap', { shop: 80, max: 50000, rate: 400, min: 20, pay: 3000, blurb: 'Eight scrappers. One tournament. Fireballs are allowed.', col: '#e88a1c' }),
   ];
+  // Resolve at access: the catalogue may load before the account gate has bound Cast.
+  const authored = (o, keys) => { for (const key of keys) if (typeof o[key] === 'string' && o[key].includes('{')) {
+    const template = o[key]; Object.defineProperty(o, key, { enumerable: true, configurable: true,
+      get: () => typeof Cast !== 'undefined' ? Cast.t(template) : template });
+  } };
+  GAMES.forEach(g => authored(g, ['owner', 'blurb']));
   const GAME = {}; for (const g of GAMES) GAME[g.id] = g;
 
   // things to find. spot: the clickable thing in the room that hides it (rm-room.js), n: name, d: what Jack says
   const FINDS = [
-    { id: 'cart.n64.range', spot: 'drawer', n: 'GOLDENBALLS cartridge', d: "There it is! Under the letters. I thought Dave nicked it." },
+    { id: 'cart.n64.range', spot: 'drawer', n: 'GOLDENBALLS cartridge', d: "There it is! Under the letters. I thought {mate1} nicked it." },
     { id: 'cart.n64.hop', spot: 'wardrobe', n: 'BOUNCE QUEST 64 cartridge', d: 'In the wardrobe, inside a welly. Classic me.' },
     { id: 'cart.ps.fight', spot: 'bed', n: 'TEKNO FIST disc', d: "Under the bed with a sock and half a Wobbly Wheel. The disc is fine. The Wobbly Wheel isn't." },
     { id: 'cart.ps.grav', spot: 'bin', n: 'ANTI-GRAV 3000 disc', d: 'In the bin?! Mom must have thought the case was rubbish. It IS a bit cracked.' },
     { id: 'cart.gb.mon', spot: 'beanbag', n: 'POCKET CRITTERS cartridge', d: 'Down the side of the beanbag! My save file had 3 hours on it!' },
     { id: 'cart.md.rage', spot: 'tvback', n: 'PAVEMENTS OF PERIL cartridge', d: 'Fell down behind the telly with all the leads. Dusty. Blow on it.' },
     { id: 'cart.dc.dash', spot: 'dcbox', from: '14/10', n: 'ZIP ADVENTURE disc', d: 'It was in the Daydream box the whole time, under the instructions.' },
-    { id: 'cart.dc.duel', spot: 'post', from: '14/10', n: 'SOUL SABRE disc', d: "Won it in the JACK ATTACK! competition! (Well, Jack sent it to himself. Shh.)" },
-    { id: 'cart.gb.mon2', spot: 'bed', n: 'POCKET CRITTERS: PUDDLE VERSION cartridge', d: 'Under my pillow! JackK lent me his PUDDLE VERSION so we can trade critters. I need a link cable now...' },
+    { id: 'cart.dc.duel', spot: 'post', from: '14/10', n: 'SOUL SABRE disc', d: "Won it in the JACK ATTACK! competition! (A proper prize. I am keeping the envelope.)" },
+    { id: 'cart.gb.mon2', spot: 'bed', n: 'POCKET CRITTERS: PUDDLE VERSION cartridge', d: 'Under my pillow! {mate4} lent me {mate4.his} PUDDLE VERSION so we can trade critters. I need a link cable now...' },
     { id: 'link.cable', spot: 'tvback', n: 'Game Lad link cable', d: 'A LINK CABLE, tangled up with the telly leads! Now I can trade and battle Pocket Critters with my mates.' },
-    { id: 'cart.n64.party', spot: 'wardrobe', n: 'WOBBLE PARTY 64 cartridge', d: 'On top of the wardrobe. Mom hid it after the Great Mini-Game Row. It\'s Dave\'s, so I have to give it back. Eventually.' },
+    { id: 'cart.n64.party', spot: 'wardrobe', n: 'WOBBLE PARTY 64 cartridge', d: 'On top of the wardrobe. Mom hid it after the Great Mini-Game Row. It\'s {mate1}\'s, so I have to give it back. Eventually.' },
     // (mail: only arrives by post, ordered from the mail-order catalogue (Agent P's pack): never hidden in a room)
     { id: 'cart.ps.sneak', spot: 'mail', mail: 1, n: 'METAL GERBIL SOLID disc', d: 'It came in the post! Still in the shrink-wrap. Tactical Sneaking Action, here I come.' },
     { id: 'cart.gb.grab', spot: 'mail', mail: 1, n: 'GRABBO LAND cartridge', d: 'It came in the post! A brand-new Game Lad game. The box smells amazing.' },
-    { id: 'cart.md.teeny', spot: 'shelf', n: 'TEENY MOTORS cartridge', d: 'Behind the Buildex roller coaster. It\'s Callum\'s! He says it\'s the only console game worth playing. He has a point.' },
+    { id: 'cart.md.teeny', spot: 'shelf', n: 'TEENY MOTORS cartridge', d: 'Behind the Buildex roller coaster. It\'s {mate3}\'s! {mate3.He} says it\'s the only console game worth playing. {mate3.He} has a point.' },
     { id: 'cart.sn.zeldo', spot: 'mail', mail: 1, n: 'THE LEGEND OF ZELDO cartridge', d: 'It came in the post! With a fold-out map and everything.' },
-    { id: 'cart.sn.plumb', spot: 'hs.sofa', n: 'SUPER PLUMBO WORLD cartridge', d: 'Down the back of the sofa, with 40p and a lot of crumbs. It\'s Luke\'s copy. Do NOT tell Luke.' },
+    { id: 'cart.sn.plumb', spot: 'hs.sofa', n: 'SUPER PLUMBO WORLD cartridge', d: 'Down the back of the sofa, with 40p and a lot of crumbs. It\'s {mate2}\'s copy. Do NOT tell {mate2}.' },
     { id: 'cart.dc.toy', spot: 'mail', mail: 1, from: '14/10', n: 'TOY SQUADRON disc', d: 'It came in the post! A Daydream game where you fly toys round a house. Mom says do NOT try it with real planes.' },
-    { id: 'cart.sn.fight', spot: 'mail', mail: 1, n: 'STREET SCRAPPER II cartridge', d: 'It came in the post! Eight scrappers. Dave is going DOWN.' },
+    { id: 'cart.sn.fight', spot: 'mail', mail: 1, n: 'STREET SCRAPPER II cartridge', d: 'It came in the post! Eight scrappers. {mate1} is going DOWN.' },
     { id: 'tin.marble', spot: 'rug', n: 'Shooter marble', d: 'The big swirly one. Never play with this one, it is too precious.' },
     { id: 'tin.tazo', spot: 'bin', n: 'Shiny tazo', d: 'Out of a crisp packet. Worth more than the crisps were.' },
     { id: 'tin.badge', spot: 'shelf', n: '"I BUILT A ROBOT" badge', d: 'From the robot-building club at the library. I built a robot. It fell over.' },
     { id: 'tin.holo', spot: 'posterfilm', n: 'Hologram sticker', d: 'Stuck behind the poster. It goes from a rocket to an alien when you tilt it.' },
     { id: 'tin.key', spot: 'cat', n: 'Tiny brass key', d: "The cat from next door was lying on it. It's the key to my money box!" },
     { id: 'tin.cheat', spot: 'mags', n: 'Cheat code card', d: 'Free with a games mag: UP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A. Works on everything (it does not).' },
-    { id: 'tin.ticket', spot: 'cork', n: 'Cinema ticket stub', d: 'From when we went to see the new space film. Dave cried at the end. He says he did not.', from: '16/07' },
-    { id: 'tin.conker', spot: 'window', n: 'Champion acorn quest', d: 'A 12-er. Baked in the oven (that is cheating, do not tell Dave).', from: '20/09' },
+    { id: 'tin.ticket', spot: 'cork', n: 'Cinema ticket stub', d: 'From when we went to see the new space film. {mate1} cried at the end. {mate1.He} says {mate1.he} did not.', from: '16/07' },
+    { id: 'tin.conker', spot: 'window', n: 'Champion acorn quest', d: 'A 12-er. Baked in the oven (that is cheating, do not tell {mate1}).', from: '20/09' },
   ];
+  FINDS.forEach(f => authored(f, ['d']));
   const FIND = {}; for (const f of FINDS) FIND[f.id] = f;
 
   // the daily hiding place of Mom's lost change (the server picks one a day for each member)
@@ -94,15 +101,15 @@
 
   // secrets (Apps.defineSecret at start-up, so the Secrets window counts them all): [id, name, hint]
   const SECRETS = [
-    ['rm.room', 'Not a Grown-Up', 'Look round Jack\'s room before you switch the PC on.'],
+    ['rm.room', 'Not a Grown-Up', 'Look round your room before you switch the PC on.'],
     ['rm.blow', 'Blow On It', 'When a cartridge will not work, there is only one thing for it.'],
     ['rm.tibbs', 'Cat Whisperer', 'Stroke the visitor on the bed until he purrs.'],
-    ['rm.night', 'Night Owl', 'Look out of Jack\'s window when it is dark outside.'],
-    ['rm.tin', 'Treasure Hoarder', 'Fill the treasure tin in Jack\'s room.'],
-    ['rm.allgames', 'Every Last Game', 'Find every game hidden in Jack\'s room.'],
+    ['rm.night', 'Night Owl', 'Look out of your window when it is dark outside.'],
+    ['rm.tin', 'Treasure Hoarder', 'Fill the treasure tin in your room.'],
+    ['rm.allgames', 'Every Last Game', 'Find every game hidden in your room.'],
     ['rm.lava', 'Groovy', 'Watch the lava lamp for a whole minute.'],
-    ['rm.post', 'You Have Won!', 'Play lots of different games in Jack\'s room and wait for the post.'],
-    ['rm.cube', 'Solved It For Real', 'Solve the real puzzle cube on Jack\'s desk.'],
+    ['rm.post', 'You Have Won!', 'Play lots of different games in your room and wait for the post.'],
+    ['rm.cube', 'Solved It For Real', 'Solve the real puzzle cube on your desk.'],
     ['rm.pet', 'Pet Parent', 'Keep the keyring pet happy and fed.'],
     ['rm.kart.short', 'Off-Road', 'Some kart tracks have a short cut. Some of them are even allowed.'],
     ['rm.range.gold', 'Golden Gun', 'Clear the target range without hitting a single civilian.'],
@@ -118,7 +125,7 @@
     ['rm.dash.loop', 'Loop the Loop', 'Run all the way round the big loop in Zip Adventure.'],
     ['rm.duel.ring', 'Ring Out', 'Knock somebody clean out of the ring in Soul Sabre.'],
     // ---- expansion pack 35 (Agent L)
-    ['lk.cable', 'Linked Up', 'Find a link cable in Jack\'s room.'],
+    ['lk.cable', 'Linked Up', 'Find a link cable in your room.'],
     ['lk.trade', 'Fair Swap', 'Trade a Pocket Critter with somebody else on JackNet.'],
     ['lk.battle', 'Cable Club Champ', 'Win a Pocket Critters link battle against another member.'],
     ['lk.tradeevo', 'Trade Up', 'Some critters change when they go down a link cable.'],

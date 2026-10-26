@@ -222,7 +222,7 @@
     if (lines.length > max) { lines = lines.slice(0, max - 2).concat([{ t: '' }, { t: '-- the rest of this got eaten by the printer (it does that) --', b: true }]); }
     if (o.url) lines.unshift({ t: o.url.slice(0, COLS) }, { t: '' });
     const r = Math.random();
-    const j = { id: seq++, doc: String(doc || 'Untitled'), owner: String(o.owner || 'Jack').slice(0, 20), lines, done: 0, status: 'Spooling', started: `${now.getHours()}:${pad2(now.getMinutes())} ${pad2(t.d)}/${pad2(t.m)}/1999`, when: `${pad2(t.d)}/${pad2(t.m)}/99 ${pad2(now.getHours())}:${pad2(now.getMinutes())}`, seed: (Math.random() * 1e9) | 0 };
+    const j = { id: seq++, doc: String(doc || 'Untitled'), owner: String(o.owner || Cast.me().first).slice(0, 20), lines, done: 0, status: 'Spooling', started: `${now.getHours()}:${pad2(now.getMinutes())} ${pad2(t.d)}/${pad2(t.m)}/1999`, when: `${pad2(t.d)}/${pad2(t.m)}/99 ${pad2(now.getHours())}:${pad2(now.getMinutes())}`, seed: (Math.random() * 1e9) | 0 };
     // now and then: a paper jam part-way down, or the paper runs out at a page break
     const ev = force || (r < 0.16 ? 'jam' : r < 0.28 ? 'paper' : null); force = null;
     if (ev === 'jam') j.jamAt = 5 + Math.floor(Math.random() * Math.max(1, Math.min(lines.length, 50) - 5));

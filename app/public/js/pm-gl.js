@@ -68,7 +68,7 @@
       const done = () => { busyRaster--; setTimeout(pump, 0); };
       job.started = true;
       const url = URL.createObjectURL(new Blob([s], { type: 'image/svg+xml' }));
-      img.onload = () => { try { const g = job.t.userData.g; g.clearRect(0, 0, job.w, job.h); g.drawImage(img, 0, 0, job.w, job.h); job.t.needsUpdate = true; H.dirty(); } catch (e) {} URL.revokeObjectURL(url); done(); };
+      img.onload = () => { try { if (job.revision === job.t.userData.rasterRevision) { const g = job.t.userData.g; g.clearRect(0, 0, job.w, job.h); g.drawImage(img, 0, 0, job.w, job.h); job.t.needsUpdate = true; H.dirty(); } } catch (e) {} URL.revokeObjectURL(url); done(); };
       img.onerror = () => { URL.revokeObjectURL(url); done(); };
       img.src = url;
     });
@@ -86,10 +86,22 @@
       K.wrapText(g, it.title.toUpperCase(), w / 2, h * .3, w * .86, Math.max(12, h * .12));
     }
     const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.ClampToEdgeWrapping; t.anisotropy = 4; t.minFilter = T.LinearMipmapLinearFilter;
-    t.userData = { g, canvas: c };
-    QUEUE.push({ t, w, h, svg, key }); pump();
+    t.userData = { g, canvas: c, raster: { w, h, svg, key }, rasterRevision: 0 };
+    QUEUE.push({ t, w, h, svg, key, revision: 0 }); pump();
     return TEX[key] = t;
   }
+  // The scene can preload behind logon. Keep personal SVG labels current too;
+  // re-use their textures and leave saved/player-written label strings alone.
+  function repaintIdentity() {
+    for (const [key, t] of Object.entries(TEX)) {
+      if (!(key === 'pm.parcelf' || key === 'pm.fblab' || key.startsWith('pm.fl.') || ['callumcd', 'n64', 'pm.mix', 'rts', 'jrt'].some(id => key.endsWith('.' + id)))) continue;
+      for (let i = QUEUE.length - 1; i >= 0; i--) if (QUEUE[i].t === t) QUEUE.splice(i, 1);
+      QUEUE.push({ ...t.userData.raster, t, revision: ++t.userData.rasterRevision });
+    }
+    pump();
+  }
+  if (window.Net) for (const event of ['welcome', 'loginOk', 'meOk']) Net.on(event, repaintIdentity);
+  const currentItem = it => PM.item(it.id) || it;
   // the thing in your hands gets its pictures first
   function bump(id) { const mine = QUEUE.filter(j => j.key.endsWith('.' + id) || j.key.includes('.' + id + '.')); if (!mine.length) return; for (const j of mine) QUEUE.splice(QUEUE.indexOf(j), 1); QUEUE.unshift(...mine); }
   const mat = (key, w, h, svg, o) => M(Object.assign({ c: '#ffffff', map: svgTex(key, w, h, svg, (o && o.fill) || '#555') }, o && o.m));
@@ -101,29 +113,29 @@
   function bigBox(it) {
     const g = new T.Group(), w = 19, h = 24, d = 5, B = K.into(g), id = it.id;
     const edge = M(A.tint(it.c1 || '#333', -0.3));
-    B.box(0, -h / 2, -0.1, w, h, d - 0.2, { l: mat('pm.sp.' + id, 64, 320, () => A.spineBig(it), { m: GLOSS }), t: mat('pm.tp.' + id, 256, 64, () => A.topBig(it)), b: M(A.tint(it.c1 || '#333', -0.2)), r: edge, u: edge, f: M('#141414') });
+    B.box(0, -h / 2, -0.1, w, h, d - 0.2, { l: mat('pm.sp.' + id, 64, 320, () => A.spineBig(currentItem(it)), { m: GLOSS }), t: mat('pm.tp.' + id, 256, 64, () => A.topBig(currentItem(it))), b: M(A.tint(it.c1 || '#333', -0.2)), r: edge, u: edge, f: M('#141414') });
     B.box(0, -h / 2 + 1, d / 2 - 0.35, w - 1.2, h - 2.5, 0.2, M('#0c0c0c'));            // the black plastic tray inside
     const L = hinge(g, -w / 2, d / 2 - 0.08, -150);
-    K.into(L.pivot).box(w / 2, -h / 2, 0, w, h, 0.16, { f: mat('pm.fr.' + id, 256, 324, () => A.frontBig(it, 200, 270), { m: GLOSS }), b: M(A.tint(it.c1 || '#333', -0.45)), all: edge });
+    K.into(L.pivot).box(w / 2, -h / 2, 0, w, h, 0.16, { f: mat('pm.fr.' + id, 256, 324, () => A.frontBig(currentItem(it), 200, 270), { m: GLOSS }), b: M(A.tint(it.c1 || '#333', -0.45)), all: edge });
     B.shadow(0, 0, 0, w + .6, d + .5, 0.32, { sq: true });
-    lidFor.set(g, L); g.userData.back = () => mat('pm.bk.' + id, 256, 324, () => A.backBig(it), { m: GLOSS }); g.userData.backFace = 'b';
-    g.userData.edges = () => [mat('pm.ed.' + id, 64, 320, () => A.edgeBig(it, 50, 240)), mat('pm.eu.' + id, 256, 64, () => A.edgeBig(it, 190, 50))]; // (the outer edge and the bottom: printed too, drawn on the first pick-up)
+    lidFor.set(g, L); g.userData.back = () => mat('pm.bk.' + id, 256, 324, () => A.backBig(currentItem(it)), { m: GLOSS }); g.userData.backFace = 'b';
+    g.userData.edges = () => [mat('pm.ed.' + id, 64, 320, () => A.edgeBig(currentItem(it), 50, 240)), mat('pm.eu.' + id, 256, 64, () => A.edgeBig(currentItem(it), 190, 50))]; // (the outer edge and the bottom: printed too, drawn on the first pick-up)
     return g;
   }
   function jewel(it) {
     const g = new T.Group(), w = 14.2, h = 12.5, d = 1.0, B = K.into(g), id = it.id, clear = it.kind === 'cdr' || it.id === 'pm.mix';
     const plastic = M({ c: '#cfd6de', o: 0.45, sh: 120, sp: '#ffffff' });
-    B.box(0, -h / 2, -0.15, w, h, d - 0.3, { l: mat('pm.js.' + id, 32, 256, () => A.inlaySpine(it), { m: PLASTIC }), b: M('#202020'), t: plastic, u: plastic, r: plastic, f: M('#151515') });
+    B.box(0, -h / 2, -0.15, w, h, d - 0.3, { l: mat('pm.js.' + id, 32, 256, () => A.inlaySpine(currentItem(it)), { m: PLASTIC }), b: M('#202020'), t: plastic, u: plastic, r: plastic, f: M('#151515') });
     const L = hinge(g, -w / 2 + 0.3, d / 2 - 0.1, -112);
-    const lidMesh = K.into(L.pivot).box(w / 2 - 0.3, -h / 2, 0, w, h, 0.12, { f: clear ? M({ c: '#ffffff', map: svgTex('pm.jf.' + id, 284, 250, () => A.jewelFront(it, true), '#dfe6ee'), tr: true, o: 0.5, sh: 120, sp: '#ffffff', dw: false }) : mat('pm.jf.' + id, 284, 250, () => A.jewelFront(it, false), { m: PLASTIC }), b: clear ? M({ c: '#dfe6ee', o: 0.3 }) : M('#f4f1e8'), all: plastic });
-    if (clear) K.into(g).plane(0.3, -h / 2, 0.24, 12, 12, M({ c: '#fff', map: svgTex('pm.dl.' + id, 256, 256, () => A.discLabel(it), '#d8d2b0') })); // (no inlay: you see the disc through the lid)
+    const lidMesh = K.into(L.pivot).box(w / 2 - 0.3, -h / 2, 0, w, h, 0.12, { f: clear ? M({ c: '#ffffff', map: svgTex('pm.jf.' + id, 284, 250, () => A.jewelFront(currentItem(it), true), '#dfe6ee'), tr: true, o: 0.5, sh: 120, sp: '#ffffff', dw: false }) : mat('pm.jf.' + id, 284, 250, () => A.jewelFront(currentItem(it), false), { m: PLASTIC }), b: clear ? M({ c: '#dfe6ee', o: 0.3 }) : M('#f4f1e8'), all: plastic });
+    if (clear) K.into(g).plane(0.3, -h / 2, 0.24, 12, 12, M({ c: '#fff', map: svgTex('pm.dl.' + id, 256, 256, () => A.discLabel(currentItem(it)), '#d8d2b0') })); // (no inlay: you see the disc through the lid)
     B.shadow(0, 0, 0, w + .4, d + .3, 0.28, { sq: true });
     lidFor.set(g, L);
-    if (!clear) g.userData.lazy = () => { const base = g.children.find(m => m.isMesh && Array.isArray(m.material)); if (base) { base.material = base.material.slice(); base.material[5] = mat('pm.jb.' + id, 256, 200, () => A.inlayBack(it), { m: PLASTIC }); } if (lidMesh && Array.isArray(lidMesh.material)) { lidMesh.material = lidMesh.material.slice(); lidMesh.material[5] = mat('pm.jbk.' + id, 256, 220, () => A.booklet(it)); } }; // (the back and the booklet: drawn when you first pick it up)
+    if (!clear) g.userData.lazy = () => { const base = g.children.find(m => m.isMesh && Array.isArray(m.material)); if (base) { base.material = base.material.slice(); base.material[5] = mat('pm.jb.' + id, 256, 200, () => A.inlayBack(currentItem(it)), { m: PLASTIC }); } if (lidMesh && Array.isArray(lidMesh.material)) { lidMesh.material = lidMesh.material.slice(); lidMesh.material[5] = mat('pm.jbk.' + id, 256, 220, () => A.booklet(currentItem(it))); } }; // (the back and the booklet: drawn when you first pick it up)
     return g;
   }
   function sleeve(it) {
-    const g = new T.Group(), w = 12.6, h = 12.6, d = 0.3, art = it.box ? () => D.front(it.box).replace('<svg ', '<svg preserveAspectRatio="none" ') : () => A.insertArt(it);
+    const g = new T.Group(), w = 12.6, h = 12.6, d = 0.3, art = it.box ? () => D.front(it.box).replace('<svg ', '<svg preserveAspectRatio="none" ') : () => A.insertArt(currentItem(it));
     K.into(g).box(0, -h / 2, 0, w, h, d, { f: mat('pm.sv.' + it.id, 256, 256, art), all: M('#e8e6dc') });
     K.into(g).shadow(0, 0, 0, w + 3, 4, 0.5, { sq: true });
     return g;
@@ -152,14 +164,14 @@
     const rainbow = M({ c: '#ffffff', sh: 140, sp: '#ffffff', map: K.tex('pm.rainbow', 128, 128, (c, w, h) => { const gr = c.createConicGradient ? c.createConicGradient(0.3, w / 2, h / 2) : null; if (gr) { ['#d8dce4', '#f4f0ff', '#c0e4ff', '#ffe4f4', '#d4ffe0', '#fff4c8', '#d0d8e8', '#d8dce4'].forEach((col, i, a) => gr.addColorStop(i / (a.length - 1), col)); c.fillStyle = gr; } else c.fillStyle = '#dde'; c.fillRect(0, 0, w, h); c.fillStyle = '#111'; c.beginPath(); c.arc(w / 2, h / 2, w * 0.06, 0, 7); c.fill(); }) });
     K.into(g).cyl(0, -0.06, 0, 6, 6, 0.12, 48, M({ c: '#c8ccd2', sh: 80, sp: '#888' }), { open: true });
     const lab = K.into(g).disc(0, -0.125, 0, 6, M({ c: A.tint(it.c1 || '#888', 0.2), sh: 40, sp: '#2a2a2a' }), 48);
-    g.userData.ensure = () => { if (lab.userData.ok) return; lab.userData.ok = 1; lab.material = mat('pm.dl.' + it.id, 256, 256, () => A.discLabel(it), { m: { sh: 40, sp: '#2a2a2a' } }); bump(it.id); H.dirty(); }; // (drawn the first time it's out of its case)
+    g.userData.ensure = () => { if (lab.userData.ok) return; lab.userData.ok = 1; lab.material = mat('pm.dl.' + it.id, 256, 256, () => A.discLabel(currentItem(it)), { m: { sh: 40, sp: '#2a2a2a' } }); bump(it.id); H.dirty(); }; // (drawn the first time it's out of its case)
     K.into(g).disc(0, -0.005, 0, 6, rainbow, 48, { rx: 180 });
     K.into(g).shadow(0, 0, 0, 13, 13, 0.4);
     return flat(g, 6);
   }
   function floppyModel(it) {
     const g = new T.Group(), w = 9, h = 0.34, d = 9.4, col = A.FLOPCOL[((it.fl || {}).c | 0) % A.FLOPCOL.length];
-    K.into(g).box(0, -h / 2, 0, w, h, d, { t: mat('pm.fl.' + it.id + '.' + (it.label || ''), 128, 134, () => A.floppyFront(it), { m: PLASTIC }), u: mat('pm.flb.' + ((it.fl || {}).c | 0), 128, 134, () => A.floppyBack(it), { m: PLASTIC }), all: M({ c: col[0], sh: 40 }) });
+    K.into(g).box(0, -h / 2, 0, w, h, d, { t: mat('pm.fl.' + it.id + '.' + (it.label || ''), 128, 134, () => A.floppyFront(currentItem(it)), { m: PLASTIC }), u: mat('pm.flb.' + ((it.fl || {}).c | 0), 128, 134, () => A.floppyBack(it), { m: PLASTIC }), all: M({ c: col[0], sh: 40 }) });
     K.into(g).shadow(0, 0, 0, w + 2, d + 2, 0.45, { sq: true });
     return flat(g, 4.5);
   }
@@ -255,7 +267,7 @@
     B.box(0, -3.8, 8.4, 11, 7.2, 0.2, smoke); B.box(0, -3.8, -8.4, 11, 7.2, 0.2, smoke);
     B.box(-5.4, -3.8, 0, 0.2, 7.2, 17, smoke); B.box(5.4, -3.8, 0, 0.2, 7.2, 17, smoke);
     B.box(0, -10.8, -10.6, 11.2, 7.6, 0.25, smoke, { rx: -68 });                                                        // the lid, flipped open
-    B.box(0, -4.8, 8.55, 7, 2.8, 0.05, mat('pm.fblab', 128, 52, () => A.svg('0 0 128 52', '<rect width="128" height="52" fill="#fbfbf0"/>' + A.T(64, 22, 'DISKS', 18, '#14148a', { f: '"Comic Sans MS",cursive', w: 700 }) + A.T(64, 42, 'DO NOT TOUCH (DAVE)', 10, '#c00000', { f: '"Comic Sans MS",cursive', w: 700 }))));
+    B.box(0, -4.8, 8.55, 7, 2.8, 0.05, mat('pm.fblab', 128, 52, () => A.svg('0 0 128 52', '<rect width="128" height="52" fill="#fbfbf0"/>' + A.T(64, 22, 'DISKS', 18, '#14148a', { f: '"Comic Sans MS",cursive', w: 700 }) + A.T(64, 42, Cast.t('DO NOT TOUCH ({mate1.NAME})'), 10, '#c00000', { f: '"Comic Sans MS",cursive', w: 700 }))));
     // a row of floppies standing in it (just their tops: the real ones are things, these are the look)
     const rowG = new T.Group(); g.add(rowG); g.userData.row = rowG;
     B.shadow(0, 0, 0, 16, 22, 0.55, { sq: true });
@@ -270,7 +282,7 @@
   function nextFloppy() { // click the box: the next floppy comes out into your hand
     if (H.held()) return say('Floppy disk box', 'Put down what you\'re holding first. (Drop a floppy on the box to put it back in.)', 3500);
     const inBox = floppyThings().filter(t => t.st === 'snap' && t.snap === 'pm.flops');
-    if (!inBox.length) return say('Floppy disk box', 'Empty! Where have all my floppies gone? (Dave.)', 3500);
+    if (!inBox.length) return say('Floppy disk box', 'Empty! Where have all my floppies gone? ({mate1}.)', 3500);
     const t = inBox[(flopIdx++) % inBox.length];
     t.snap = null; t.st = 'rest'; t.rx = 0; t.at = { room: 'bedroom', x: FB.x, y: -6, z: FB.z, ry: FB.ry }; H.place(t); t.obj.visible = true;
     sfx('click'); fillRow();
@@ -279,7 +291,7 @@
   function fillRow() { // the tops of the floppies in the box
     if (!boxG) return; const row = boxG.userData.row; while (row.children.length) row.remove(row.children[0]);
     const inBox = floppyThings().filter(t => t.st === 'snap' && t.snap === 'pm.flops').slice(-16);
-    inBox.forEach((t, i) => { const it = PM.item(t.pm); if (!it) return; const col = A.FLOPCOL[((it.fl || {}).c | 0) % A.FLOPCOL.length]; K.into(row).box(0, -4.4 - (i % 2) * 0.1, 7 - i * (14 / Math.max(16, inBox.length)), 9, 9.2, 0.34, { all: M(col[0]), f: mat('pm.fl.' + it.id + '.' + (it.label || ''), 128, 134, () => A.floppyFront(it), { m: PLASTIC }) }, { rx: -6 - (i % 3) * 3 }); });
+    inBox.forEach((t, i) => { const it = PM.item(t.pm); if (!it) return; const col = A.FLOPCOL[((it.fl || {}).c | 0) % A.FLOPCOL.length]; K.into(row).box(0, -4.4 - (i % 2) * 0.1, 7 - i * (14 / Math.max(16, inBox.length)), 9, 9.2, 0.34, { all: M(col[0]), f: mat('pm.fl.' + it.id + '.' + (it.label || ''), 128, 134, () => A.floppyFront(currentItem(it)), { m: PLASTIC }) }, { rx: -6 - (i % 3) * 3 }); });
     H.dirty();
   }
 
@@ -342,7 +354,7 @@
     box: ['A proper big box. The ones with all the air in.', 'Big box. Small disc. Lots of cardboard.', 'Smells like a new game. Best smell in the world.'],
     mag: ['Fresh ink, six pages and a whole afternoon to read them. F opens the magazine; the cover CD is inside.'],
     jewel: ['A jewel case. The hinge is always the first thing to break.', 'Shiny side down, label side up. Everyone knows that.'],
-    disc: ['Hold it by the edges. Fingerprints make it skip.', 'The shiny side is the side the laser reads. Don\'t scratch it. (CALLUM.)'],
+    disc: ['Hold it by the edges. Fingerprints make it skip.', 'The shiny side is the side the laser reads. Don\'t scratch it. ({mate3.NAME}.)'],
   };
   const pick = L => L[Math.floor(Math.random() * L.length)];
   function shelfSlot(it,home,obj) {
@@ -366,10 +378,10 @@
     const hasDisc = !!it.disc && it.kind !== 'cart';
     const t = R.grabbable(id, { obj, kind: it.kind === 'mag' ? 'reading.mag' : it.kind === 'cart' ? 'cart' : 'case', label: it.kind === 'mag' ? `JACK ATTACK! ${PM.MONTHS[it.m - 1]} (cover CD taped on)` : it.title,
       home: Object.assign({ room: 'bedroom' }, home), holdD: it.kind === 'box' ? 52 : 40,
-      use: it.id === 'pm.netplanet' ? () => { secret('pm.coaster'); say('A coaster!', 'Perfect. A coaster for my squash. That\'s what these are for. (I have nine.) Mom says it\'s "not a coaster, it\'s litter".', 5000); } : hasDisc ? () => takeDisc(it) : it.kind === 'cart' ? () => say(it.title, 'It\'s a cartridge. It goes in an ULTRA 64, not the PC. (Luke says if you blow on it, it\'ll go in the CD tray. Luke is wrong.)') : null,
+      use: it.id === 'pm.netplanet' ? () => { secret('pm.coaster'); say('A coaster!', 'Perfect. A coaster for my squash. That\'s what these are for. (I have nine.) Mom says it\'s "not a coaster, it\'s litter".', 5000); } : hasDisc ? () => takeDisc(it) : it.kind === 'cart' ? () => say(it.title, 'It\'s a cartridge. It goes in an ULTRA 64, not the PC. ({mate2} says if you blow on it, it\'ll go in the CD tray. {mate2} is wrong.)') : null,
       useLabel: it.id === 'pm.netplanet' ? 'Use it as a coaster' : it.kind === 'mag' ? 'Peel the CD off' : it.kind === 'sleeve' ? 'Slide the disc out' : 'Take the disc out',
       onGrab: () => { if (it.kind === 'box') { secret('pm.shelf'); secret('disc.cupboard'); } if (obj.userData.lazy) { obj.userData.lazy(); obj.userData.lazy = null; bump(it.id); } const b = obj.userData.back; if (b) { obj.userData.back = null; try { const mesh = obj.children.find(m => m.isMesh && Array.isArray(m.material)); if (mesh) { mesh.material = mesh.material.slice(); mesh.material[5] = b(); if (obj.userData.edges) { const [r, u] = obj.userData.edges(); mesh.material[0] = r; mesh.material[2] = u; } bump(it.id); H.dirty(); } } catch (e) {} }
-        say(it.title, esc(it.owner === 'Callum' ? 'Callum\'s. He wants it back. He keeps saying "GIVE IT BACK" at school.' : it.blurb || pick(LINE[it.kind] || LINE.jewel)), 4000); },
+        say(it.title, esc(it.owner === Cast.n('mate3') ? '{mate3}\'s. {mate3.He} wants it back. {mate3.He} keeps saying "GIVE IT BACK" at school.' : it.blurb || pick(LINE[it.kind] || LINE.jewel)), 4000); },
     });
     // Migrate only the old crowded shelf poses, never objects left elsewhere.
     if (t.st === 'rest' && (t.at.snap === home.snap || (migrateLegacyShelf && !t.at.hide && Math.abs(t.at.x - SH.x) < 16 && Math.abs(t.at.z - SH.z) < 24 && t.at.y < 72))) {
@@ -405,7 +417,7 @@
   }
   function floppyLine(it) {
     const k = it.fl ? it.fl.k : it.id === 'gquest' ? 'quest' : '';
-    return { blank: 'Blank. 1.44 MB of nothing. Downloads go on these.', dl: 'Something I downloaded, saved onto a floppy so I never have to download it again.', gcse: 'My GCSE coursework. The ONLY copy. This is fine.', dave: 'Dave\'s disk. He said DON\'T LOOK ON IT. So obviously...', boot: 'The JackOS 98 Startup Disk. For emergencies. (Every day.)', quest: 'The text adventure. Shareware! Please copy!' }[k] || 'A floppy disk. 1.44 MB. That\'s, like, 700 pages of homework.';
+    return { blank: 'Blank. 1.44 MB of nothing. Downloads go on these.', dl: 'Something I downloaded, saved onto a floppy so I never have to download it again.', gcse: 'My GCSE coursework. The ONLY copy. This is fine.', dave: Cast.t("{mate1}'s disk. {mate1.He} said DON'T LOOK ON IT. So obviously..."), boot: 'The JackOS 98 Startup Disk. For emergencies. (Every day.)', quest: 'The text adventure. Shareware! Please copy!' }[k] || 'A floppy disk. 1.44 MB. That\'s, like, 700 pages of homework.';
   }
   let HOMES = {};
   H.ambient.add(() => {
@@ -580,7 +592,7 @@
   const POST = { x: 355, y: 353, z: 650 }; // beside the front-door doormat: keep WELCOME and the walking route clear
   const PARCEL = new Map(); // order item id -> { spot, g, flaps }
   let postLoading=null;
-  const parcelFace = () => mat('pm.parcelf', 1024, 616, () => A.svg('0 0 256 154', `<rect width="256" height="154" fill="#c49a62"/><rect x="118" y="0" width="20" height="40" fill="#d8c690"/><g transform="rotate(-2 70 90)"><rect x="18" y="56" width="128" height="62" fill="#fff"/>${A.T(82, 76, 'MR J. JACK', 14, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 94, 'JACK\'S ROOM', 12, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 110, '(TOP OF THE STAIRS)', 9, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}</g><g transform="rotate(9 210 80)"><rect x="168" y="62" width="74" height="30" fill="none" stroke="#c00000" stroke-width="4"/>${A.T(205, 83, 'PIXEL POST', 12, '#c00000')}</g>${A.T(200, 140, 'SIGNED FOR: MOM', 9, '#333', { f: "'Comic Sans MS',cursive", w: 700 })}`));
+  const parcelFace = () => mat('pm.parcelf', 1024, 616, () => A.svg('0 0 256 154', `<rect width="256" height="154" fill="#c49a62"/><rect x="118" y="0" width="20" height="40" fill="#d8c690"/><g transform="rotate(-2 70 90)"><rect x="18" y="56" width="128" height="62" fill="#fff"/>${A.T(82, 76, Cast.t('{me.Mr} {me}'), 14, '#14148a', { f: "'Comic Sans MS',cursive", w: 700, len: 116 })}${A.T(82, 94, 'MY ROOM', 12, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 110, '(TOP OF THE STAIRS)', 9, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}</g><g transform="rotate(9 210 80)"><rect x="168" y="62" width="74" height="30" fill="none" stroke="#c00000" stroke-width="4"/>${A.T(205, 83, 'PIXEL POST', 12, '#c00000')}</g>${A.T(200, 140, 'SIGNED FOR: MOM', 9, '#333', { f: "'Comic Sans MS',cursive", w: 700 })}`));
   function parcelModel() {
     const g = new T.Group(), B = K.into(g), w = 30, h = 14, d = 22;
     const card = M({ c: '#c49a62', map: window.HouseArt ? HouseArt.t('mdf') : null }), tape = M('#d8c690'), inside = M('#7a5a36');

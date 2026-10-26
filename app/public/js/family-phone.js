@@ -93,7 +93,7 @@
   const WORDS = (`i a the to you and it is in of me my be for on at that have not this are with so but do go we get got if can was what all no just your up out there
 now he she they like know will see good one time when how love day back well yes yeah ok okay soon home tea ready late come coming going school tonight tomorrow today later call
 text phone mobile message please thanks cool wicked brill brilliant great fun game games play playing won win lost hi hello bye night morning mate mates where wer u r ur cu
-lol luv pls thx wot dunno gonna wanna sorry miss help mum mom dad jack dave luke callum ${Cast.slug('sister')} gran nan bonnie gubbinz ork gorks waaagh grot squig snake pocket critters ultra entertainment
+lol luv pls thx wot dunno gonna wanna sorry miss help mom dad ${['me','mate1','mate2','mate3','mate4','sister'].map(Cast.slug).join(' ')} gran nan bonnie gubbinz ork gorks waaagh grot squig snake pocket critters ultra entertainment
 goldenballs kart kaos computer internet website site email cheat cheats level boss best worst ever never always maybe still really very much more some any here who why
 which then than them their our us his her him its been had has did does done doing make made take took give gave say said tell told think thought want need look looking
 find found keep let put run walk talk bring buy bought pay paid money quid pound pence pocket shop shops town bus car lift pick picking wait waiting meet meeting outside
@@ -122,42 +122,42 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
 
   // ================================================================ texts from 1999 (scripted; you can't reply to these, they're people in Jack's past)
   const SCRIPT = [
-    ['01-01', 'Dave', 'HAPPY NEW YEAR!!!!! 1999!!!! this is the last 1 before the millenium. we better make it a good 1. dave'],
+    ['01-01', '{mate1}', 'HAPPY NEW YEAR!!!!! 1999!!!! this is the last 1 before the millenium. we better make it a good 1. {mate1.slug}'],
     ['01-02', 'Mom', 'Is this working? Its Mom. How do I know if you got it. Mom'],
-    ['01-02', 'Mom', 'Jack ignore the last one I was testing. Love Mom x'],
-    ['01-09', 'Luke', 'u coming footy 2moro? 10am. bring ur ball mine went over the fence AGAIN'],
+    ['01-02', 'Mom', '{me} ignore the last one I was testing. Love Mom x'],
+    ['01-09', '{mate2}', 'u coming footy 2moro? 10am. bring ur ball mine went over the fence AGAIN'],
     ['01-21', 'Mom', 'wer r u? tea is ready - mom'],
-    ['02-14', 'Dave', 'did u get a valentine. i got 1. its from my nan. dont tell anyone'],
-    ['02-27', 'JackK', 'can i borrow 2 quid. ill pay u back monday. jackk'],
+    ['02-14', '{mate1}', 'did u get a valentine. i got 1. its from my nan. dont tell anyone'],
+    ['02-27', '{mate4}', 'can i borrow 2 quid. ill pay u back monday. {mate4.slug}'],
     ['03-14', 'Mom', 'Thank you for the card and the toast sweetheart. Grey dots are lovely. Love Mom xxx'],
-    ['03-20', 'Callum', 'r u in? i need 2 tell u about my new PC. its a pentium 3. FIVE HUNDRED MEGAHERTZ'],
-    ['03-20', 'Callum', 'u didnt reply. im ringing u'],
+    ['03-20', '{mate3}', 'r u in? i need 2 tell u about my new PC. its a pentium 3. FIVE HUNDRED MEGAHERTZ'],
+    ['03-20', '{mate3}', 'u didnt reply. im ringing u'],
     ['04-04', 'Mom', Cast.t('Happy Easter! {sister} has found 9 eggs and says she won. Let her win. Mom x')],
-    ['04-10', 'Dave', 'no oddjob is NOT a rule. u cant make rules up after u lose. dave'],
+    ['04-10', '{mate1}', 'no oddjob is NOT a rule. u cant make rules up after u lose. {mate1.slug}'],
     ['05-03', 'Mom', 'Your Dad has seen the phone bill. Come home the long way. Mom'],
     ['05-21', 'Mom', Cast.t('{sister.slug} here!!!!! on moms fone. i stroked a GOAT called gerald!!!! {sister.slug}')],
-    ['06-04', 'Luke', 'jack ur goalie 2day. sorry. callum wont do it he says he has 2 save his hands 4 the keyboard'],
+    ['06-04', '{mate2}', '{me.slug} ur goalie 2day. sorry. {mate3.slug} wont do it {mate3.he} says {mate3.he} has 2 save {mate3.his} hands 4 the keyboard'],
     ['06-20', 'Dad', 'THANK YOU FOR THE TOFFEES. HOW DO YOU MAKE IT NOT CAPITALS. DAD'],
     ['06-20', 'Mom', 'Dad has borrowed my phone. Sorry about the shouting. Mom x'],
-    ['07-16', 'Dave', 'EPISODE 1 2NITE!!!!!! 7.15!!!! my dad is driving. bring ur lightspatula (the toy 1)'],
-    ['07-16', 'Dave', 'BEST FILM EVER. podrace!!!!!! dark mole!!!!!! jar jar jams ok maybe not jar jar jams'],
-    ['07-24', 'JackK', 'ive got 20p 4 u. its in 1ps. dont say i never give u anything'],
-    ['08-01', 'Luke', 'hows the caravan. is it raining. its raining here 2'],
+    ['07-16', '{mate1}', 'EPISODE 1 2NITE!!!!!! 7.15!!!! my dad is driving. bring ur lightspatula (the toy 1)'],
+    ['07-16', '{mate1}', 'BEST FILM EVER. podrace!!!!!! dark mole!!!!!! jar jar jams ok maybe not jar jar jams'],
+    ['07-24', '{mate4}', 'ive got 20p 4 u. its in 1ps. dont say i never give u anything'],
+    ['08-01', '{mate2}', 'hows the caravan. is it raining. its raining here 2'],
     ['08-11', 'Mom', 'DONT look at the sun. Use the glasses. I mean it. Love Mom'],
-    ['08-11', 'Luke', 'did u see it!!!! it went dark at 11 in the MORNING. my cat went mad'],
+    ['08-11', '{mate2}', 'did u see it!!!! it went dark at 11 in the MORNING. my cat went mad'],
     ['09-07', 'Mom', Cast.t('Can you pick {sister} up from school at 3.15? Ill be late. Thank you, owe you one. Mom x')],
-    ['10-05', 'Luke', 'POCKET CRITTERS IS OUT!!!!!!! got RED. u got blue yeah? we need 2 trade. link cable at break'],
-    ['10-05', 'Dave', 'i havent got pocket critters. i dont care. its for babys. (wat level is ur zapachu)'],
-    ['10-16', 'Luke', 'u can have ur alakabam back. i was just looking at it. 4 20 mins'],
-    ['10-31', 'Mom', 'Remember 9pm at Daves. Your dad will pick you up. Have fun you little Y2K bug x'],
-    ['11-05', 'Callum', 'r u watching the fireworks. my dad set the hedge on fire. its fine. its out now'],
-    ['11-27', 'Luke', 'smash bros at mine. zapachu is unbeatable. bring daves pad he says hes ill'],
-    ['12-01', 'Mom', 'Can you print Lucys letter to Father Christmas on the computer? She wants it "official". Mom x'],
+    ['10-05', '{mate2}', 'POCKET CRITTERS IS OUT!!!!!!! got RED. u got blue yeah? we need 2 trade. link cable at break'],
+    ['10-05', '{mate1}', 'i havent got pocket critters. i dont care. its for babys. (wat level is ur zapachu)'],
+    ['10-16', '{mate2}', 'u can have ur alakabam back. i was just looking at it. 4 20 mins'],
+    ['10-31', 'Mom', 'Remember 9pm at {mate1}s. Your dad will pick you up. Have fun you little Y2K bug x'],
+    ['11-05', '{mate3}', 'r u watching the fireworks. my dad set the hedge on fire. its fine. its out now'],
+    ['11-27', '{mate2}', 'smash bros at mine. zapachu is unbeatable. bring {mate1.slug}s pad {mate1.he} says {mate1.he}s ill'],
+    ['12-01', 'Mom', 'Can you print {sister}s letter to Father Christmas on the computer? She wants it "official". Mom x'],
     ['12-18', 'Mom', 'Stay OUT of the wardrobe. I know it was you. Father Christmas knows too.'],
-    ['12-25', 'Dave', 'MERRY XMAS!!!!! got DK64!!!! wat u get. dont say dk64 aswell'],
-    ['12-25', 'Luke', 'merry xmas jack. got a link cable 4 xmas so now we have 2. trade 2moro?'],
-    ['12-28', 'JackK', 'merry xmas. we r square now yeah. the keyring was 2 quid. ok we r nearly square'],
-    ['12-31', 'Dave', 'PARTY 7PM!!!! bring ur torch. if the world ends we can see. dave'],
+    ['12-25', '{mate1}', 'MERRY XMAS!!!!! got DK64!!!! wat u get. dont say dk64 aswell'],
+    ['12-25', '{mate2}', 'merry xmas {me.slug}. got a link cable 4 xmas so now we have 2. trade 2moro?'],
+    ['12-28', '{mate4}', 'merry xmas. we r square now yeah. the keyring was 2 quid. ok we r nearly square'],
+    ['12-31', '{mate1}', 'PARTY 7PM!!!! bring ur torch. if the world ends we can see. {mate1.slug}'],
     ['12-31', 'Mom', 'Leaving at half past twelve. AT THE LATEST. Happy New Year love, it\'s been a good one. Mom xxx'],
   ];
   // texts dated since you last looked at the phone (in 1999 days) are new; older ones you've "already read"
@@ -165,7 +165,7 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
   const scriptMsgs = () => {
     const md = F.today().md;
     if (!since) { since = Math.min(md, st.seen || md); st.seen = md; save(); }
-    return SCRIPT.map((s, i) => ({ id: 's' + i, md: +s[0].replace('-', ''), from: s[1], text: s[2], script: true, time: `${8 + (i * 7) % 13}:${pad2((i * 23) % 60)}` }))
+    return SCRIPT.map((s, i) => ({ id: 's' + i, md: +s[0].replace('-', ''), from: Cast.t(s[1]), text: Cast.t(s[2]), script: true, time: `${8 + (i * 7) % 13}:${pad2((i * 23) % 60)}` }))
       .filter(m => m.md <= md && !st.delS[m.id]).map(m => Object.assign(m, { read: !!st.readS[m.id] || m.md < since }));
   };
   function inbox() {
@@ -227,7 +227,7 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
       <div class="tb-pad">${key('1', '1', 'o_o')}${key('2', '2', 'ABC')}${key('3', '3', 'DEF')}${key('4', '4', 'GHI')}${key('5', '5', 'JKL')}${key('6', '6', 'MNO')}${key('7', '7', 'PQRS')}${key('8', '8', 'TUV')}${key('9', '9', 'WXYZ')}${key('*', '*', '+')}${key('0', '0', '_')}${key('#', '#', 'aA')}</div>
       <div class="tb-mic"></div></div>
       <div class="tb-side"><button type="button" class="btn tb-plug">Plug in charger</button><button type="button" class="btn tb-hlp">How to use</button></div>`;
-    const w = A.win('Jack\'s Mobile', b, { w: 290, noResize: true, noMax: true, icon: F.icons.PHONE32, onClose: () => { stopAll(); } });
+    const w = A.win(Cast.t("{me}'s Mobile"), b, { w: 290, noResize: true, noMax: true, icon: F.icons.PHONE32, onClose: () => { stopAll(); } });
     const cv = b.querySelector('canvas'), g = cv.getContext('2d'), img = g.createImageData(W, H), buf = new Uint8Array(W * H);
     P = { w, b, cv, stack: [], timer: null, lit: 0 };
     // ---- drawing
@@ -554,7 +554,7 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
         { label: 'New game', act: () => push(snake()) },
         ...(window.MP ? [{ label: '2 players (link)', act: () => MP.pick('phone.snake2') }] : []),
         { label: 'Level', right: String(st.lvl), act: () => { st.lvl = st.lvl % 9 + 1; save(); } },
-        { label: 'Top score', right: String(st.hi), act: () => popup(['Top score:', String(st.hi), st.hi >= 211 ? 'Better than Jack!' : 'Jack\'s best: 211'], 2000) },
+        { label: 'Top score', right: String(st.hi), act: () => popup(['Top score:', String(st.hi), st.hi >= 211 ? 'Beat the house best!' : 'House best: 211'], 2000) },
         { label: 'Instructions', act: () => popup(['2 4 6 8 or arrows', 'to steer. Eat the', 'dots. Don\'t bite', 'yourself or a wall!'], 3500) },
       ]);
     }

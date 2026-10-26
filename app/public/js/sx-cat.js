@@ -11,7 +11,7 @@
     { n: 3, t: 'C:\\> Prompt', w: 'JACK-DOS', ic: 'dos' },
     { n: 4, t: 'The Vault', w: 'The Registry', ic: 'reg' },
     { n: 5, t: 'Dear Diary', w: "Jack's 1999 Calendar", ic: 'cal' },
-    { n: 6, t: 'Lights Out', w: "Jack's bedroom", ic: 'room' },
+    { n: 6, t: 'Lights Out', w: "Your bedroom", ic: 'room' },
     { n: 7, t: 'Cheat!', w: 'The JACK ATTACK! magazine', ic: 'mag' },
     { n: 8, t: 'Round the Ring', w: 'The World Wide Web', ic: 'web' },
     { n: 9, t: 'Hold the Line', w: 'The telephone', ic: 'phone' },
@@ -27,7 +27,7 @@
     { id: 'ring', n: 'The Tiniest Link', h: 'One site in the Hunters\' Ring has a link the size of a full stop. Look at the stars.' },
     { id: 'note', n: 'The Logbook Byte', h: 'Notepad keeps a log if you ask it the old way: four capital letters, with a full stop in front.' },
     { id: 'clock', n: 'The Grumpy Clock', h: 'Click the clock on the taskbar until it gets cross.' },
-    { id: 'room', n: 'The Bedroom Byte', h: 'Something gold is hiding in Jack\'s bedroom. Somewhere you\'d keep a secret.' },
+    { id: 'room', n: 'The Bedroom Byte', h: 'Something gold is hiding in your bedroom. Somewhere you\'d keep a secret.' },
     { id: 'mag', n: 'The Back Issue Byte', h: 'The very first back issue of JACK ATTACK! has a byte in its cheats.' },
   ];
   const BYTE = {}; BYTES.forEach(b => { BYTE[b.id] = b; });

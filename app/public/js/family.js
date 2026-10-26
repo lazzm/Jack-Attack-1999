@@ -29,7 +29,7 @@
   [['fam.dadfolder', 'Do not delete', 'Dad has a folder you are definitely not allowed in'],
    ['fam.bike', 'Father Christmas\'s workshop', 'Somebody is building something on Christmas Eve'],
    ['fam.lucydiary', 'KEEP OUT means you', 'Read a little girl\'s private diary (naughty)'],
-   ['fam.owed', 'Debt collector', 'Somebody owes Jack two quid'],
+   ['fam.owed', 'Debt collector', 'Somebody owes you two quid'],
    ['fam.snake', 'Snake charmer', 'Score 100 on a phone game'],
    ['fam.t9', 'Predictive', 'Let the phone guess your words'],
    ['fam.tune', 'Ringtone composer', 'Write a tune with at least 8 notes and play it'],
@@ -65,7 +65,7 @@
     else { let v; Object.defineProperty(window, 'OfficeDocs', { configurable: true, enumerable: true, get: () => v, set: x => { v = x; if (x && typeof x === 'object') Object.assign(x, DOCS); } }); }
   } catch (e) {}
   function addDocs(o) { Object.assign(DOCS, o); if (window.OfficeDocs) Object.assign(window.OfficeDocs, o); }
-  function whoSaved(path) { return /\/Mom\b/.test(path) ? 'Mom' : /DAD|\/Dad\b/.test(path) ? 'Dad' : path.startsWith('C:/My Documents/' + Cast.n('sister')) ? Cast.n('sister') : 'Jack'; }
+  function whoSaved(path) { return /\/Mom\b/.test(path) ? 'Mom' : /DAD|\/Dad\b/.test(path) ? 'Dad' : path.startsWith('C:/My Documents/' + Cast.n('sister')) ? Cast.n('sister') : Cast.me().first; }
   function announce() {
     if (!TODAYS.length) return;
     const key = 'jhp_family_ann', seen = store.get(key, '');
@@ -129,19 +129,19 @@
       A.secret('fam.textgot');
       if (phoneOpen()) FamilyPhone.incoming(it);
       else if (window.House && House.ok) { const b = () => { if (window.HouseMobile) HouseMobile.buzz(it); }; if (window.HouseMobile) b(); else A.load('js/hs-mobile.js').then(b, b); } // (the real phone is in the room: it buzzes there)
-      else { Desk.toast('Jack\'s Mobile  *bzzzt*', `1 message received from ${it.from}. (Start > Programs > Accessories > Jack's Mobile)`, 7000); Sound.play('beep'); nagPhone(true); }
+      else { Desk.toast(Cast.t("{me}'s Mobile  *bzzzt*"), `1 message received from ${it.from}. (Start > Programs > Accessories > My Mobile)`, 7000); Sound.play('beep'); nagPhone(true); }
     });
     Net.on('smsSent', m => { if (window.FamilyPhone) FamilyPhone.net(m); });
     Net.on('smsDelivered', m => {
       const s = sms(), x = s.sent.find(y => y.id === m.id); if (x) { x.status = 'delivered'; saveSms(s); }
-      if (phoneOpen()) FamilyPhone.net(m); else Desk.toast('Jack\'s Mobile', `Delivered: ${m.to}`, 3500);
+      if (phoneOpen()) FamilyPhone.net(m); else Desk.toast('My Mobile', `Delivered: ${m.to}`, 3500);
     });
   }
   let phoneTray = null;
   function nagPhone(on) {
     const tray = $('tray'); if (!tray) return;
     if (on && !phoneTray) {
-      phoneTray = document.createElement('button'); phoneTray.type = 'button'; phoneTray.className = 'fam-nag on'; phoneTray.title = 'Jack\'s Mobile: new message'; phoneTray.setAttribute('aria-label', 'Jack\'s Mobile: new message');
+      phoneTray = document.createElement('button'); phoneTray.type = 'button'; phoneTray.className = 'fam-nag on'; phoneTray.title = 'My Mobile: new message'; phoneTray.setAttribute('aria-label', 'My Mobile: new message');
       phoneTray.innerHTML = PHONE32;
       phoneTray.addEventListener('click', () => { openPhone(); });
       tray.insertBefore(phoneTray, $('clock') || null);
@@ -154,10 +154,10 @@
   function openPhone(arg) {
     nagPhone(false);
     if (inRoom) { const r = () => window.HouseMobile && HouseMobile.route(arg); return window.HouseMobile ? Promise.resolve(r()) : A.load('js/hs-mobile.js').then(r, r); }
-    return A.load('js/family-phone.js').then(() => FamilyPhone.open(arg)).catch(e => { console.error(e); Desk.msgbox('Jack\'s Mobile', 'No signal. (Could not load the phone. Try again in a minute.)', 'warn'); });
+    return A.load('js/family-phone.js').then(() => FamilyPhone.open(arg)).catch(e => { console.error(e); Desk.msgbox('My Mobile', 'No signal. (Could not load the phone. Try again in a minute.)', 'warn'); });
   }
   A.register('family.phone', { cmd: inRoom ? [] : ['mobile', 'jacksmobile', 'talkbrik', 'phone', 'texts'], open: arg => openPhone(arg) });
-  if (!inRoom) { A.addProgram(['Accessories', 'Jack\'s Mobile'], 'family.phone', PHONE32); A.desktopIcon('Jack\'s Mobile', PHONE32, () => A.open('family.phone'), 'iconFamPhone'); }
+  if (!inRoom) { A.addProgram(['Accessories', 'My Mobile'], 'family.phone', PHONE32); A.desktopIcon('My Mobile', PHONE32, () => A.open('family.phone'), 'iconFamPhone'); }
 
   // ================================================================ the Jackotchi nag (reads the Jackotchi's own save; js/apps-fun.js owns the pet)
   const GKEY = 'jhp_fun_grotchi', NAG = 'jhp_family_nag', BURIED = 'jhp_family_buried';
@@ -254,7 +254,7 @@
     const b = $('browser'); const sec = document.querySelector('#page .sec.on') || document.querySelector('#page');
     const title = (($('winTitle') || {}).textContent || document.title || 'JACK ATTACK! Online').replace(/ - JackNet Explorer$/, '');
     const url = (($('addrBar') || {}).value || 'http://www.jacklm.com/');
-    return printDialog(title + '.htm', { el: sec, url, owner: (window.Net && Net.me && Net.me.nick) || 'Jack' }, () => window.print());
+    return printDialog(title + '.htm', { el: sec, url, owner: (window.Net && Net.me && Net.me.nick) || Cast.me().first }, () => window.print());
   }
   const printText = (doc, text, o) => printDialog(doc, Object.assign({ text: String(text || '') }, o || {}), null);
   // JackOS 98 Print dialog: the family's dot-matrix (real printout) or the JackJet 500 (js/system-progs.js)

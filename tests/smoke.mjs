@@ -52,7 +52,7 @@ async function room(){
   }
   return fixture;
 }
-async function wait(page,fn){const deadline=Date.now()+8000;while(Date.now()<deadline){if(await page.evaluate(fn))return;await page.waitForTimeout(100)}throw Error('State timeout: '+fn+'; '+JSON.stringify(await page.evaluate(()=>({mode:window.House?.mode,held:window.House?.held?.(),phone:window.FamilyPhone?.state?.()}))))}
+async function wait(page,fn){const deadline=Date.now()+8000*SCALE;while(Date.now()<deadline){if(await page.evaluate(fn))return;await page.waitForTimeout(100)}throw Error('State timeout: '+fn+'; '+JSON.stringify(await page.evaluate(()=>({mode:window.House?.mode,held:window.House?.held?.(),phone:window.FamilyPhone?.state?.()}))))}
 async function until(fn){const {page}=await room();await wait(page,fn)}
 async function aim(eye,target){const f=await room();await f.view(eye,target);await f.page.evaluate(()=>{House.hush();House._.setMode('walk')})}
 // Save timestamps advance while the desktop is open; compare the actual pose and power.

@@ -92,7 +92,7 @@
     const id = uid(), b = it.box || {};
     const ring = `<circle cx="100" cy="100" r="99" fill="none" stroke="#bfc4cc" stroke-width="2"/><circle cx="100" cy="100" r="26" fill="#d4d8de"/><circle cx="100" cy="100" r="19" fill="#eef0f3" stroke="#aab" stroke-width=".8"/><circle cx="100" cy="100" r="8" fill="#000" fill-opacity=".85"/>`;
     if (it.kind === 'cdr' || it.id === 'pm.mix' || it.id === 'callumcd') { // a CD-R: gold-green dye, felt tip
-      const lines = it.id === 'pm.mix' ? [['DAD\'S CAR MIX', 15], ['DO NOT TOUCH', 12], ['(JACK)', 11]] : [['CALLUM\'S', 17], ['SHAREWARE MIX!!!', 13], ['DO NOT SCRATCH', 10]];
+      const lines = it.id === 'pm.mix' ? [['DAD\'S CAR MIX', 15], ['DO NOT TOUCH', 12], [Cast.t('({me.NAME})'), 11]] : [[Cast.t("{mate3.NAME}'S"), 17], ['SHAREWARE MIX!!!', 13], ['DO NOT SCRATCH', 10]];
       return svg('0 0 200 200', `<defs><radialGradient id="${id}"><stop offset=".25" stop-color="#e8e2c0"/><stop offset=".6" stop-color="#d6cc8a"/><stop offset=".85" stop-color="#bfe0c8"/><stop offset="1" stop-color="#cfd8b0"/></radialGradient></defs><circle cx="100" cy="100" r="99" fill="url(#${id})"/>${ring}${lines.map(([l, s], i) => T(100, [52, 150, 170][i], l, s, i === 2 ? '#c00000' : '#1a1aaa', { f: HAND, w: 700, t: `rotate(${[-6, 3, 4][i]} 100 ${[52, 150, 170][i]})` })).join('')}`);
     }
     let bg = it.c1 || '#333', fg = it.c2 || '#fff', acc = it.c3 || '#e10600', title = it.title.replace(/ \(.*\)$/, '').toUpperCase(), sub = '', extra = '';
@@ -129,7 +129,7 @@
   }
   function inlaySpine(it) { // 14 x 125 (the jewel case's spine)
     const c1 = it.c1 || '#333', c2 = it.c2 || '#fff', t = it.title.replace(/ \(.*\)$/, '').toUpperCase();
-    if (it.id === 'pm.mix' || it.kind === 'cdr') return svg('0 0 14 125', `<rect width="14" height="125" fill="#f2f2ee"/>${T(0, 0, it.id === 'pm.mix' ? 'DAD\'S CAR MIX' : 'CALLUM\'S MIX!!', 7.5, '#1a1aaa', { f: HAND, w: 700, t: 'translate(9.6 62) rotate(-90)' })}`);
+    if (it.id === 'pm.mix' || it.kind === 'cdr') return svg('0 0 14 125', `<rect width="14" height="125" fill="#f2f2ee"/>${T(0, 0, it.id === 'pm.mix' ? 'DAD\'S CAR MIX' : Cast.t("{mate3.NAME}'S MIX!!"), 7.5, '#1a1aaa', { f: HAND, w: 700, t: 'translate(9.6 62) rotate(-90)' })}`);
     return svg('0 0 14 125', `<rect width="14" height="125" fill="${c1}"/><rect width="14" height="16" fill="${tint(c1, -0.4)}"/>${T(0, 0, t, 8.2, c2, { t: 'translate(10 72) rotate(-90)', len: t.length > 14 ? 92 : 0 })}<circle cx="7" cy="8" r="3.4" fill="none" stroke="#fff" stroke-width=".8"/><circle cx="7" cy="8" r="1" fill="#fff"/>`);
   }
   function inlayBack(it) { // 150 x 118 (the tray card on the back of a jewel case)
@@ -229,7 +229,7 @@
   function catOrder() {
     return svg('0 0 210 280', `<rect width="210" height="280" fill="#fffdf4"/>${pageHead('99')}${T(105, 40, 'ORDER FORM', 20, '#2a2aaa')}${T(105, 52, '(we do orders on the Internet now: www.pixelpost.jnet)', 6, '#666', { f: SANS })}
       ${['NAME', 'ADDRESS', '', 'GAME', 'RUPEES', 'SIGNED (MOM)'].map((l, i) => `${T(18, 76 + i * 22, l, 7, '#222', { f: BLACK, a: 'start' })}<path d="M70 ${77 + i * 22}h122" stroke="#9aa" stroke-dasharray="2 2"/>`).join('')}
-      ${T(76, 75, 'JACK', 12, '#14148a', { f: HAND, w: 700, a: 'start', t: 'rotate(-2 76 75)' })}${T(76, 97, 'MY ROOM', 10, '#14148a', { f: HAND, w: 700, a: 'start' })}${T(76, 141, 'ALL OF THEM!!!', 11, '#c00000', { f: HAND, w: 700, a: 'start', t: 'rotate(-3 76 141)' })}
+      ${T(76, 75, Cast.t('{me.NAME}'), 12, '#14148a', { f: HAND, w: 700, a: 'start', t: 'rotate(-2 76 75)' })}${T(76, 97, 'MY ROOM', 10, '#14148a', { f: HAND, w: 700, a: 'start' })}${T(76, 141, 'ALL OF THEM!!!', 11, '#c00000', { f: HAND, w: 700, a: 'start', t: 'rotate(-3 76 141)' })}
       ${burst(160, 226, 30, '#ffd400', ['TEAR', 'HERE!'], 9, 12)}<path d="M8 196h194" stroke="#000" stroke-dasharray="5 3"/>${pageFoot()}`);
   }
   function catBack() {

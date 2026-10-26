@@ -18,7 +18,7 @@
   const R = window.Room, CAT = window.RoomCat;
   const UY = 73, UC = -185, GY = 353, GC = 95;
   const tex = n => A.t(n);
-  const say = (t, x, ms) => H.say(t, x, ms);
+  const say = (t, x, ms) => H.say(cast(t), cast(x), ms);
   const cast = s => { try { return window.Cast ? Cast.t(s) : s; } catch (e) { return s; } };
   const sis = () => { try { return Cast.n('sister'); } catch (e) { return 'my sister'; } };
   const secret = id => { try { R._.secret(id); } catch (e) {} };
@@ -26,7 +26,7 @@
   const mBrass = M({ c: '#c8a040', sh: 70, sp: '#a08040' }), mMetal = M({ c: '#9a9aa0', sh: 60, sp: '#888' }), mDark = M({ c: '#1b1b1e', sh: 20, sp: '#222' });
   const PICK = new T.MeshBasicMaterial({ visible: false });
   const SECRETS = [
-    ['hs.downstairs', 'Downstairs', 'Leave Jack\'s room and go downstairs.'],
+    ['hs.downstairs', 'Downstairs', 'Leave your room and go downstairs.'],
     ['hs.cupboard', 'Mind Your Head', 'Find the light in the cupboard under the stairs.'],
     ['hs.ttx', 'Page 100', 'Read TELLY-TEXT on the family telly.'],
     ['hs.ttx.hidden', 'Off the Index', 'Find a TELLY-TEXT page that is not on any index.'],
@@ -228,7 +228,7 @@
     const md = doorway(r, F, 'mum', 's', 700, 260, 340, UY, { inside: true });
     fb.build(r.group); void Bd;
     H.spot('hs.bath', { label: 'The bathroom', act: sayLines('hs.bath', 'The bathroom', ['Somebody is in there. Somebody is ALWAYS in there.', 'Mom says the bath is for Sunday nights and the immersion heater is not made of money.', 'There is a queue. There is only one bathroom. There are four of us. Maths.']) }); pickBox(r, 'hs.bath', 250, -30, 340, 6, 200, 80);
-    H.spot('hs.sis', { label: () => sis() + "'s room", act: () => { secret('hs.sister'); say(sis() + "'s room", cast(['"KEEP OUT. THIS MEANS YOU JACK." There is a drawing of me with horns.', '{sister} is in there playing {sister.his} Seasoning Girls tape. Again. On repeat. Since 4 o\'clock.', 'I knocked. A voice said "GO AWAY". Fair enough.'][((H.SPOTS['hs.sis'].n = (H.SPOTS['hs.sis'].n | 0) + 1) - 1) % 3])); } }); pickBox(r, 'hs.sis', 250, -30, 490, 6, 200, 80);
+    H.spot('hs.sis', { label: () => sis() + "'s room", act: () => { secret('hs.sister'); say(sis() + "'s room", cast(['"KEEP OUT. THIS MEANS YOU {me.NAME}." There is a drawing of me with horns.', '{sister} is in there playing {sister.his} Seasoning Girls tape. Again. On repeat. Since 4 o\'clock.', 'I knocked. A voice said "GO AWAY". Fair enough.'][((H.SPOTS['hs.sis'].n = (H.SPOTS['hs.sis'].n | 0) + 1) - 1) % 3])); } }); pickBox(r, 'hs.sis', 250, -30, 490, 6, 200, 80);
     H.spot('hs.mum', { label: "Mom and Dad's room", act: sayLines('hs.mum', "Mom and Dad's room", ['Not allowed. There is nothing in there anyway, except Dad\'s exercise bike being used as a clothes horse.', 'The door\'s shut. Christmas presents get hidden in there. Allegedly.']) }); pickBox(r, 'hs.mum', 300, -30, 698, 80, 200, 6);
     H.spot('hs.loft', { label: 'The loft hatch', act: sayLines('hs.loft', 'The loft', ['The loft. Dad goes up there once a year for the Christmas decorations and comes down covered in fibreglass.', 'There\'s a pole with a hook for opening it. Nobody knows where the pole is.']) }); pickBox(r, 'hs.loft', 290, UC + 2, 600, 60, 3, 70);
     H.spot('hs.lwin', { label: 'The landing window', act: () => say('The landing window', 'Bubbly glass, so you can\'t see out properly. You can see it\'s ' + ({ day: 'daytime', night: 'dark', dusk: 'getting dark', dawn: 'getting light' })[phase()] + ' though.') }); pickBox(r, 'hs.lwin', 408, -10, 440, 4, 140, 80);
@@ -237,7 +237,7 @@
     H.walkRect('U', 252, 132, 408, 250, { room: 'landing' }); H.walkRect('U', 252, 250, 328, 698, { room: 'landing' }); H.walkRect('U', 332, 602, 408, 698, { room: 'landing' });
     H.block('U', 324, 250, 336, 600); H.block('U', 330, 596, 410, 606); // the banisters
   }
-  function sisSign() { return K.tex('hs.sissign', 256, 170, (g, w, h) => { g.fillStyle = '#ff9ad0'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; for (let i = 0; i < 18; i++) { A.star(g, (i * 53) % w, (i * 37) % h, 6, 5); g.fill(); } A.text(g, cast("{sister}'S ROOM").toUpperCase(), 128, 60, '34px ' + A.FONT, '#b0106a', 'center'); A.text(g, 'KEEP OUT!!!', 128, 104, '30px ' + A.FONT, '#c00', 'center'); A.text(g, '(this means YOU Jack)', 128, 140, '700 16px ' + A.HAND, '#333', 'center'); }); }
+  function sisSign() { return K.tex('hs.sissign', 256, 170, (g, w, h) => { g.fillStyle = '#ff9ad0'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; for (let i = 0; i < 18; i++) { A.star(g, (i * 53) % w, (i * 37) % h, 6, 5); g.fill(); } A.text(g, cast("{sister}'S ROOM").toUpperCase(), 128, 60, '34px ' + A.FONT, '#b0106a', 'center'); A.text(g, 'KEEP OUT!!!', 128, 104, '30px ' + A.FONT, '#c00', 'center'); A.text(g, '(this means YOU!)', 128, 140, '700 16px ' + A.HAND, '#333', 'center'); }); }
   // spindles and a handrail along a run of points (on the landing, round the stairwell)
   function banister(B, pts, fy) {
     const wood = M({ c: '#fff', map: tex('oak') }), spin = M({ c: '#f0ece2', sh: 30 });
@@ -894,7 +894,7 @@
     H.spot('hs.washline', { label: 'The washing line', act: sayLines('hs.washline', 'The washing line', ['The whirly washing line. Mom\'s sheets, Dad\'s work shirts, and my PE kit, flapping about for the whole street to see.', 'If you spin it fast enough the pegs fly off. Don\'t.']) }); pickBox(r, 'hs.washline', 80, GY - 150, -280, 190, 110, 190);
     H.spot('hs.flowers', { label: "Mom's flower bed", act: sayLines('hs.flowers', "Mom's flower bed", ['Mom\'s flowers. Do NOT kick the football near Mom\'s flowers. (I have kicked the football into Mom\'s flowers.)']) });pickBox(r,'hs.flowers',-230,GY-14,-270,114,28,64);
     H.spot('hs.butt', { label: 'The water butt', act: sayLines('hs.butt', 'The water butt', ['The water butt. Full of rainwater and one very confused frog.']) });pickBox(r,'hs.butt',r.waterButt.x,GY-45,r.waterButt.z,56,94,60);
-    H.spot('hs.jackwin', { label: "Jack's window (from outside)", act: () => say("My window", 'That\'s my room up there. You can see the posters. Dave throws stones at it when my Mom won\'t let him ring the bell.') }); pickBox(r, 'hs.jackwin', 191, -63, -58, 70, 98, 4);
+    H.spot('hs.jackwin', { label: 'My window (from outside)', act: () => say("My window", 'That\'s my room up there. You can see the posters. {mate1} throws stones at it when my Mom won\'t let {mate1.him} ring the bell.') }); pickBox(r, 'hs.jackwin', 191, -63, -58, 70, 98, 4);
     H.walkRect('G', x0 + 6, z0 + 6, x1 - 6, z1 - 2, { room: 'garden' }); H.walkRect('G', 84, -60, 156, -50, { door: 'back', room: 'garden' });
     H.block('G',-300,-64,80,-48);H.block('G',160,-64,420,-48); // solid rear wall; the back-door corridor stays open
     H.block('G',-289,-524,-135,-400);H.block('G',129,-232,191,-147);

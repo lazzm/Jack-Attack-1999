@@ -99,7 +99,7 @@
         mud.push({ pl, m, pk });
       });
       // CLEAN ME, in the dirt on the boot
-      const cm = new T.Mesh(new T.PlaneGeometry(60, 26), M({ c: '#fff', map: K.tex('ch.cleanme', 256, 112, (g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(120,96,60,.55)'; g.fillRect(0, 0, w, h); g.globalCompositeOperation = 'destination-out'; g.font = '700 46px "Comic Sans MS",cursive'; g.textAlign = 'center'; g.fillStyle = '#000'; g.fillText('CLEAN ME', 128, 72); g.font = '20px "Comic Sans MS",cursive'; g.fillText('(also, Dave woz ere)', 128, 100); g.globalCompositeOperation = 'source-over'; }, { clamp: true }), tr: true, dw: false }).clone());
+      const cm = new T.Mesh(new T.PlaneGeometry(60, 26), M({ c: '#fff', map: K.tex('ch.cleanme', 256, 112, (g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(120,96,60,.55)'; g.fillRect(0, 0, w, h); g.globalCompositeOperation = 'destination-out'; g.font = '700 46px "Comic Sans MS",cursive'; g.textAlign = 'center'; g.fillStyle = '#000'; g.fillText('CLEAN ME', 128, 72); g.font = '20px "Comic Sans MS",cursive'; g.fillText(CK.cast('(also, {mate1} woz ere)'), 128, 100); g.globalCompositeOperation = 'source-over'; }, { clamp: true }), tr: true, dw: false }).clone());
       // Read from behind the car, rather than as mirror writing through glass.
       const uv=cm.geometry.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,1-uv.getX(i));uv.needsUpdate=true;
       const boot=carPoint(20,-75.2,-178); cm.rotation.x = Math.PI / 2; cm.position.set(boot.x,boot.y,boot.z); cm.scale.setScalar(scale); cm.renderOrder = 3; r.group.add(cm); this.cleanme = cm;

@@ -67,13 +67,13 @@
   const catName = () => { try { return window.Cast ? Cast.n('cat') : 'Mr Tibbs'; } catch (e) { return 'Mr Tibbs'; } };
   const MY_SECRETS = [
     ['hs.stand', 'Stretch Your Legs', 'Get up from the PC while it is still on.'],
-    ['hs.juggle', 'Butterfingers', 'Carry something all the way round Jack\'s room.'],
+    ['hs.juggle', 'Butterfingers', 'Carry something all the way round your room.'],
     ['hs.disc', 'Insert Disc', 'Put a disc in the PC with your own hands.'],
-    ['hs.lights', 'Who Turned the Lights Out?', 'Find the light switch in Jack\'s room.'],
-    ['hs.revise', 'Revision', 'Open one of Jack\'s GCSE revision books. Just one.'],
-    ['hs.hifi', 'Turn It Up!', 'Play a CD on Jack\'s hi-fi.'],
+    ['hs.lights', 'Who Turned the Lights Out?', 'Find the light switch in your room.'],
+    ['hs.revise', 'Revision', 'Open one of your GCSE revision books. Just one.'],
+    ['hs.hifi', 'Turn It Up!', 'Play a CD on your hi-fi.'],
     // downstairs (js/hs-house.js and friends; defined here so the Secrets window counts them from the start)
-    ['hs.downstairs', 'Downstairs', 'Leave Jack\'s room and go downstairs.'],
+    ['hs.downstairs', 'Downstairs', 'Leave your room and go downstairs.'],
     ['hs.cupboard', 'Mind Your Head', 'Find the light in the cupboard under the stairs.'],
     ['hs.ttx', 'Page 100', 'Read TELLY-TEXT on the family telly.'],
     ['hs.ttx.hidden', 'Off the Index', 'Find a TELLY-TEXT page that is not on any index.'],
@@ -92,8 +92,8 @@
   if (window.Apps) defSecrets(); else document.addEventListener('DOMContentLoaded', defSecrets);
   const EVS = {}; const emit = (ev, ...a) => (EVS[ev] || []).forEach(fn => { try { fn(...a); } catch (e) { console.error(e); } });
   function secret(id) { try { if (window.Apps && Apps.secrets && Apps.secrets[id] && !Apps.found[id]) { Apps.secret(id); toast('★ SECRET FOUND! ★', Apps.secrets[id].name); } } catch (e) {} }
-  const say = (t, x, ms) => { if (GL) H.say(t, x, ms); };
-  const toast = (t, x) => { if (GL) H.toast(t, x); };
+  const say = (t, x, ms) => { if (GL) H.say(Cast.t(t), Cast.t(x), ms); };
+  const toast = (t, x) => { if (GL) H.toast(Cast.t(t), Cast.t(x)); };
 
   // ================================================================ no WebGL: the PC on its own (the old dark room), the hook still there
   if (!GL) {
@@ -203,7 +203,7 @@
   const R = {}; // the bits we need later (meshes, materials)
   let pcPowered = mode === 'wake';
   const room = H.room('bedroom', {
-    name: "Jack's room", title: "JACK'S ROOM", lvl: 'U', area: [[LX, BZ, RX, FZ]], windowViews:[{room:'garden',bounds:[[156,-112,-60,226,-14,-54]]}],
+    name: "Your room", title: "YOUR ROOM", lvl: 'U', area: [[LX, BZ, RX, FZ]], windowViews:[{room:'garden',bounds:[[156,-112,-60,226,-14,-54]]}],
     bx0: LX + 2, bx1: RX - 2, bz0: BZ + 2, bz1: FZ - 2,
     lights: () => {
       const L = [];
@@ -221,6 +221,10 @@
       return ph === 'night' ? {sky: '#8896b0', gnd: '#4d4d58', i: .38} : {sky: '#c3a9aa', gnd: '#75614f', i: .52}; },
     sun: () => { const ph = skyPhase || 'day'; return { x: 260, y: -300, z: -420, tx: 0, ty: 73, tz: 60, c: ph === 'night' ? '#a2b6dc' : ph === 'day' ? '#fff2dc' : '#ffcfac', i: ph === 'night' ? .055 : ph === 'day' ? .28 : .16 }; },
     build(r) { buildBedroom(r); },
+  });
+  Object.defineProperties(room, {
+    name: { get: () => Cast.me().first === 'you' ? 'Your room' : Cast.t("{me}'s room") },
+    title: { get: () => Cast.me().first === 'you' ? 'YOUR ROOM' : Cast.t("{me.NAME}'S ROOM") },
   });
   function buildBedroom(r) {
     const batch = K.batch(), B = K.into(batch);
@@ -407,10 +411,10 @@
     mug.disc(0,-7.6,0,3.07,M({c:'#62432a',sh:28}),28);mug.geo(new T.TorusGeometry(2.6,.6,8,24,Math.PI),4.2,-4.6,0,glaze,{rz:-90});
     // Ceramic mounting pads bury both open tube ends into the cup wall.
     for(const y of [-2,-7.2])mug.ball(3.85,y,0,1,.75,.75,glaze,14);
-    const mugLabel=K.tex('rm.mugprint',128,112,(g,w,h)=>{g.fillStyle='#c54132';g.fillRect(0,0,w,h);g.translate(0,h);g.scale(1,-1);A.text(g,"WORLD'S",64,32,'700 19px '+A.UIF,'#f6e8c9','center');A.text(g,'BEST SON',64,65,'700 18px '+A.UIF,'#f6e8c9','center');A.text(g,'from Gran',64,91,'italic 14px '+A.UIF,'#f6e8c9','center')},{clamp:true});
+    const mugLabel=K.tex('rm.mugprint',128,112,(g,w,h)=>{g.fillStyle='#c54132';g.fillRect(0,0,w,h);g.translate(0,h);g.scale(1,-1);A.text(g,"WORLD'S",64,32,'700 19px '+A.UIF,'#f6e8c9','center');g.font='700 18px '+A.UIF;g.fillText(Cast.t('BEST {me.son}').toUpperCase(),64,65,116);A.text(g,'from Gran',64,91,'italic 14px '+A.UIF,'#f6e8c9','center')},{clamp:true,identity:true});
     mug.geo(new T.CylinderGeometry(3.98,3.98,4.5,24,1,true,-.66,1.32),0,-4.8,0,M({c:'#fff',map:mugLabel,sh:40}));
     mug.shadow(0, 0, 0, 11, 11, 0.6);
-    H.spot('mug', { label: 'Mug of tea', act: () => say('Mug of tea', ['Stone cold. Mom made it at four o\'clock. There\'s a skin on it.', 'It says WORLD\'S BEST SON on it. Gran got it. Gran is biased.'][(S.mg = ((S.mg | 0) + 1) % 2)]) });
+    H.spot('mug', { label: 'Mug of tea', act: () => say('Mug of tea', ['Stone cold. Mom made it at four o\'clock. There\'s a skin on it.', 'It says WORLD\'S BEST {me?SON|DAUGHTER} on it. Gran got it. Gran is biased.'][(S.mg = ((S.mg | 0) + 1) % 2)]) });
     loose('mug',mugObj,{room:'bedroom',x:46,y:0,z:-8,ry:0},'Mug of tea');
     const potObj=new T.Group(),pot=K.into(potObj);
     pot.lathe(0,0,0,[[0,-.5],[2.7,-.5],[2.7,-9.7],[2.9,-10],[3.2,-9.8],[3.2,0],[0,0]],24,M({c:'#355a91',sh:24}));pot.shadow(0,0,0,10,10,.5);
@@ -682,8 +686,8 @@
     const batch=K.batch(),C=K.into(batch),dark=M('#282b30'),paper=M('#e7dfca');
     const lettering=(key,lines,col='#eee5cc',ink='#27303a')=>M({c:'#fff',map:K.tex('starter.'+key,512,256,(c,w,h)=>{
       c.fillStyle=col;c.fillRect(0,0,w,h);c.strokeStyle=ink;c.lineWidth=3;c.strokeRect(12,12,w-24,h-24);
-      lines.forEach((line,i)=>A.text(c,line,w/2,64+i*57,'700 35px '+(key==='dad-note'?'Comic Sans MS':A.UIF),ink,'center'));
-    },{clamp:true})});
+      lines.forEach((line,i)=>{line=Cast.t(line);let size=35;do{c.font='700 '+size+'px '+(key==='dad-note'?'"Comic Sans MS","Z003","URW Chancery L",cursive':A.UIF);if(c.measureText(line).width<=w-40)break;size--}while(size>16);A.text(c,line,w/2,64+i*57,c.font,ink,'center')});
+    },{clamp:true,identity:key==='dad-note'})});
     // A compact home-recording deck on top of the media tower: a deep closed
     // casing, inset tape flap, transport keys, feet and an unprogrammed clock.
     const v=C.at(TX-56,-8.1,-44);
@@ -724,9 +728,9 @@
     tin.box(0,-12.49,0,4.8,.07,.5,M('#27392e'));tin.shadow(0,0,0,16,16,.4);
     for(let i=0;i<4;i++)tin.cyl(8+i%2*2,-.18-Math.floor(i/2)*.3,2+i%2,1.1,1.1,.3,16,M({c:i%2?'#a68848':'#b8b9ac',sh:65}));
     const note=C.at(-147,-75.9,236,180);
-    note.box(0,-.12,0,23,.24,13,{t:lettering('dad-note',['Keep saving, Jack!','Pixel Post on the PC.','— Dad'],'#eee4c5','#233f73'),all:paper});note.shadow(0,0,0,25,15,.3,{sq:true});
+    note.box(0,-.12,0,23,.24,13,{t:lettering('dad-note',['Keep saving, {me}!','Pixel Post on the PC.','— Dad'],'#eee4c5','#233f73'),all:paper});note.shadow(0,0,0,25,15,.3,{sq:true});
     batch.build(r.group);
-    H.spot('starter.fund',{label:'Console fund',act:()=>say('Console fund', 'Dad’s note: “Keep saving, Jack! Pixel Post catalogue on the PC.” The coins are just a few old coppers for luck. My spending money is in JackNet Bank.')});
+    H.spot('starter.fund',{label:'Console fund',act:()=>say('Console fund', Cast.t('Dad’s note: “Keep saving, {me}! Pixel Post catalogue on the PC.” The coins are just a few old coppers for luck. My spending money is in JackNet Bank.'))});
     pickBox(r,'starter.fund',-170,-82,234,13,13,13);
     H.spot('starter.video',{label:'Video recorder and home recordings',act:()=>say('Video recorder','Hand-labelled tapes of Galaxy Walk and Robot Rumble. The clock has been flashing since Dad unplugged it. The telly is off.')});
     pickBox(r,'starter.video',TX-56,-12,-44,28,8,18);
@@ -930,7 +934,7 @@
     H.spot('cat', { label: () => catName(), obj: cat });
     // a parcel on the bed (it comes after you've played five different games: a competition prize)
     const post = new T.Group(); post.position.set(170, 30, 100); post.rotation.y = 14 * D2R; r.group.add(post); R.post = post;
-    const PO = K.into(post); PO.box(0, -5, 0, 24, 10, 18, M('#c8a070')); PO.plane(0, -10.05, 0, 14, 8, M({ c: '#fff', map: K.tex('rm.addr', 128, 72, (g) => { g.fillStyle = '#fff'; g.fillRect(0, 0, 128, 72); A.text(g, 'J. JACK', 10, 28, '700 14px ' + A.HAND, '#222'); A.text(g, "JACK'S ROOM", 10, 52, '13px ' + A.HAND, '#222'); g.fillStyle = '#c02020'; g.fillRect(100, 6, 20, 24); }) }), { rx: -90 });
+    const PO = K.into(post); PO.box(0, -5, 0, 24, 10, 18, M('#c8a070')); PO.plane(0, -10.05, 0, 14, 8, M({ c: '#fff', map: K.tex('rm.addr', 128, 72, (g) => { g.fillStyle = '#fff'; g.fillRect(0, 0, 128, 72); g.font='700 14px '+A.HAND;g.fillStyle='#222';g.fillText(Cast.t('{me.Mr} {me}'),10,28,108); A.text(g, 'MY ROOM', 10, 52, '13px ' + A.HAND, '#222'); g.fillStyle = '#c02020'; g.fillRect(100, 6, 20, 24); },{identity:true}) }), { rx: -90 });
     PO.box(0, -10.1, 0, 24.2, 0.2, 3, M('#c8b890')); PO.shadow(0, 0, 0, 28, 22, 0.6, { sq: true });
     H.spot('post', { label: 'A parcel!', obj: post }); post.visible = false;
     // a school jumper on the floor at the end of the bed
@@ -1141,7 +1145,7 @@
       if(sparseStarter&&mag)return;
       if(!Number.isInteger(slots[id])){slots[id]=used.has(index)?Array.from({length:32},(_,n)=>n).find(n=>!used.has(n)):index;used.add(slots[id]);saveSlots()}
       const n=slots[id],obj=new T.Group(),O=K.into(obj),col=['#354a65','#8b3c30','#485b41','#b08740','#554364'][index%5];
-      const print=A.printed('reading.print.'+id,256,mag?340:384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);c.font='bold 26px Georgia';K.wrapText(c,title,20,64,w-40,31);c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':id.startsWith('reading.school.')?'YEAR 11 • JACK’S NOTES':'JACKSOFT PAPERBACKS',20,h-42);if(id.startsWith('reading.school.')){c.strokeStyle='#c8b67d';c.lineWidth=2;for(let y=170;y<h-85;y+=14){c.beginPath();c.moveTo(24,y);c.lineTo(w-24,y);c.stroke()}A.text(c,'PROPERTY OF JACK',w/2,h-72,'700 14px '+A.UIF,'#eee0b6','center');return}const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):['city','space','critters','robots','space','robots'][+id.split('.').pop()];if(!window.PrintArt?.paint(c,art,20,h*.46,w-40,h*.34)){c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,h*.5+k*11,105,70)}},{clamp:true});
+      const print=A.printed('reading.print.'+id,256,mag?340:384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);c.font='bold 26px Georgia';K.wrapText(c,title,20,64,w-40,31);c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':id.startsWith('reading.school.')?'YEAR 11 • MY NOTES':'JACKSOFT PAPERBACKS',20,h-42);if(id.startsWith('reading.school.')){c.strokeStyle='#c8b67d';c.lineWidth=2;for(let y=170;y<h-85;y+=14){c.beginPath();c.moveTo(24,y);c.lineTo(w-24,y);c.stroke()}c.font='700 14px '+A.UIF;c.fillStyle='#eee0b6';c.textAlign='center';c.fillText(Cast.t('PROPERTY OF {me.NAME}'),w/2,h-72,w-32);return}const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):['city','space','critters','robots','space','robots'][+id.split('.').pop()];if(!window.PrintArt?.paint(c,art,20,h*.46,w-40,h*.34)){c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,h*.5+k*11,105,70)}},{clamp:true,identity:id.startsWith('reading.school.')});
       const spine=K.tex('reading.spine.'+id,64,384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.translate(w/2,h/2);c.rotate(-Math.PI/2);c.fillStyle='#f3e6c1';let size=24;c.font='bold '+size+'px Georgia';while(c.measureText(title).width>h-22&&size>10)c.font='bold '+(--size)+'px Georgia';c.textAlign='center';c.fillText(title,0,8)},{clamp:true});
       if(mag){
         const face=cover?tex(cover):print,mesh=O.box(0,-.4,0,21,.8,28,{t:M({c:'#fff',map:face,sp:'#000000'}),u:M({c:'#fff',map:face,sp:'#000000'}),l:M({c:'#fff',map:spine}),all:M('#e6dfcf')});
@@ -1191,7 +1195,7 @@
     [[-0.17, -0.25], [0.17, -0.25], [-0.17, 0.2], [0.17, 0.2]].forEach(([u, v]) => [-1.95, 1.95].forEach(xx => DP.box(xx, y0 + 0.5 + dh * (0.5 + v), dc + u * dw * 1.5, 0.4, dh * 0.38, dw * 0.34, M('#e2ded4'))));
     [-1, 1].forEach(s => { DP.box(s * 2.4, -30, dc - dw / 2 + 7, 1.2, 2.2, 1.6, mBrass); DP.box(s * 4, -30, dc - dw / 2 + 10, 1.4, 1.4, 7, mBrass); });
     DP.rbox(-4.5, -40, dc + 18, 4, 70, 18, 2, M('#7a1a2a')); // a dressing gown on a hook
-    DP.plane(2.6, -70, dc - 4, 22, 14, M({ c: '#fff', map: K.tex('rm.sign', 256, 160, (g, w, h) => { g.fillStyle = '#111'; g.fillRect(0, 0, w, h); g.strokeStyle = '#ffd400'; g.lineWidth = 8; g.strokeRect(6, 6, w - 12, h - 12); A.text(g, 'JACK\'S ROOM', 128, 66, '44px ' + A.FONT, '#ffd400', 'center'); A.text(g, 'KNOCK FIRST. YES, YOU, ' + ((window.Cast ? Cast.n('sister') : 'SIS')).toUpperCase(), 128, 120, '700 14px ' + A.UIF, '#fff', 'center'); }) }), { ry: 90 });
+    DP.plane(2.6, -70, dc - 4, 22, 14, M({ c: '#fff', map: K.tex('rm.sign', 256, 160, (g, w, h) => { g.fillStyle = '#111'; g.fillRect(0, 0, w, h); g.strokeStyle = '#ffd400'; g.lineWidth = 8; g.strokeRect(6, 6, w - 12, h - 12); A.text(g, 'YOUR ROOM', 128, 66, '44px ' + A.FONT, '#ffd400', 'center'); A.text(g, 'KNOCK FIRST. YES, YOU, ' + ((window.Cast ? Cast.n('sister') : 'SIS')).toUpperCase(), 128, 120, '700 14px ' + A.UIF, '#fff', 'center'); }) }), { ry: 90 });
     H.door('bedroom', { rooms: ['bedroom', 'landing'], pivot: dp, frame, swing: 96, dir: 1, open: false }); S.door = 0; // (always shut at the start of a visit)
     H.spot('door', { label: () => H.DOORS.bedroom.open ? 'Shut the door' : 'The door', range: 300, obj: dp, act: () => { const o = !H.DOORS.bedroom.open; ensureHouse().then(() => { H.setDoor('bedroom', o); S.door = o ? 1 : 0; save(); }, () => say('Hmm', 'The door is stuck. Try again in a minute.')); } });
     const sw = new T.Group(); sw.position.set(x - 0.6, -32, z0 - 16); r.group.add(sw); const SW = K.into(sw); // the light switch
@@ -1369,7 +1373,7 @@
   }
   const clipOn = (t, on) => t.obj.traverse(o => { if (o.material) for (const m of [].concat(o.material)) { m.clippingPlanes = on ? [clipPlane] : []; m.needsUpdate = true; } });
   function trayMove(open) {
-    if (!H.stood) { say('CD drive', 'The tray won\'t come out with the PC switched off. (Dave says you can poke a paperclip in the little hole. Dave says a lot of things.)'); return; }
+    if (!H.stood) { say('CD drive', 'The tray won\'t come out with the PC switched off. ({mate1} says you can poke a paperclip in the little hole. {mate1} says a lot of things.)'); return; }
     trayBuild(); const d = drv.cd; if (d.open === open) return;
     d.open = open; tray.visible = true; pb.classList.add('hs-trayout');
     const from = d.k, to = open ? 1 : 0, t0 = performance.now(), L = L0(), front = trayFront();
@@ -1436,7 +1440,7 @@
       c.fillStyle = '#d2c9ab'; c.fillRect(1.6 * s, 19.6 * s, 16.8 * s, 6.6 * s); c.fillStyle = '#a59b7c'; c.fillRect(7.2 * s, 20.1 * s, 5.6 * s, 5.6 * s);
       c.fillStyle = '#5a6a3a'; c.beginPath(); c.arc(3 * s, 21 * s, 0.36 * s, 0, 7); c.fill(); c.fillStyle = '#6a3a1a'; c.beginPath(); c.arc(3 * s, 22.2 * s, 0.36 * s, 0, 7); c.fill();
       c.fillStyle = '#cfc5a7'; c.beginPath(); c.arc(17 * s, 21.1 * s, 0.52 * s, 0, 7); c.fill();
-      c.fillStyle = '#fff2a0'; c.save(); c.translate(1.2 * s, 25.5 * s); c.rotate(-0.1); c.fillRect(0, 0, 6.4 * s, 2.6 * s); c.font = `${0.9 * s}px Impact,sans-serif`; c.fillStyle = '#1a3a9a'; c.textAlign = 'left'; c.fillText('JACK\'S!', 0.6 * s, 1.8 * s); c.restore();
+      c.fillStyle = '#fff2a0'; c.save(); c.translate(1.2 * s, 25.5 * s); c.rotate(-0.1); c.fillRect(0, 0, 6.4 * s, 2.6 * s); c.font = `${0.9 * s}px Impact,sans-serif`; c.fillStyle = '#1a3a9a'; c.textAlign = 'left'; c.fillText('MINE!', 0.6 * s, 1.8 * s); c.restore();
       for (let y = 27.6; y < 37; y += 0.7) { c.fillStyle = '#3b3426'; c.fillRect(3.2 * s, y * s, 13.6 * s, 0.28 * s); }
       c.fillStyle = '#20202a'; c.fillRect(12.6 * s, 37.7 * s, 6.4 * s, 2.3 * s); c.font = `bold ${0.55 * s}px Verdana`; c.fillStyle = '#f3d266'; c.fillText('JACKCORE II', 13.2 * s, 39.1 * s);
       c.fillStyle = '#c4ba9a'; c.fillRect(0, 40.8 * s, w, 1.2 * s);
@@ -1509,7 +1513,7 @@
     tvback: ['Behind the telly: about forty leads, all tangled. Nobody knows which one is which.'],
     mags: ['A pile of games mags. The free demo discs are coasters now.', 'The cheats pages are the most read bit. They are falling out.'],
     clock: () => { const d = new Date(); return `The radio alarm clock says ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}. It's tuned to the chart show. The snooze button is broken from overuse.`; },
-    cork: ['My cork board: a 1999 calendar, a photo of me and Dave at the swimming baths, and a list of cheats.'],
+    cork: ['My cork board: a 1999 calendar, a photo of me and {mate1} at the swimming baths, and a list of cheats.'],
     posterband: ['THE MODEM BOYS. Best band ever. Their song "Beep Bop Connect" was number 4 for a week.'],
     posterfilm: ['INTERGALACTIC BATTLES: The Phantom Menu. A film about a space restaurant.'],
     rack: ['My console game cases. Audio CDs are on the wooden games shelf beside the TV.'],
@@ -1803,7 +1807,7 @@
       K.wrapText(c, g.title, 25, 158, 455, 45); c.shadowOffsetY = 0;
       c.fillStyle = '#e2d8bd'; c.font = '16px "Courier New"'; c.fillText('1999  •  ' + (con.media === 'disc' ? 'CD-ROM' : 'GAME PAK'), 23, 288);
       if (g.owner) { c.fillStyle = '#fff3b5'; c.fillRect(330, 254, 159, 48); c.fillStyle = '#273a65'; c.font = 'bold 19px "Courier New"'; c.fillText(g.owner.toUpperCase() + "'S", 342, 285, 140); }
-    }, { clamp: true });
+    }, { clamp: true, identity: true });
   }
   function mediaModel(g, con) {
     const obj = new T.Group(), B = K.into(obj), label = mediaLabel(g, con);
@@ -2122,7 +2126,7 @@
     if (H.here !== 'bedroom') return; // an outdoor resume is not a first bedroom visit
     if (S.seen._hint2) return; S.seen._hint2 = 1; save();
     const touch = !!(window.matchMedia && (matchMedia('(hover:none)').matches || matchMedia('(pointer:coarse)').matches));
-    say("Jack's room", touch ? 'This is my room! Walk round with the stick (bottom left), drag to look, and press on things to use them or pick them up. The PC is on the desk: its power button is on the tower.' : 'This is my room! Walk round with <b>W A S D</b> (or the arrow keys), drag to look, click things to use them or pick them up. The arrows jump to the good spots. The PC\'s power button is on the tower.', 11000);
+    say('My room', touch ? 'This is my room! Walk round with the stick (bottom left), drag to look, and press on things to use them or pick them up. The PC is on the desk: its power button is on the tower.' : 'This is my room! Walk round with <b>W A S D</b> (or the arrow keys), drag to look, click things to use them or pick them up. The arrows jump to the good spots. The PC\'s power button is on the tower.', 11000);
   }
   // (with the PC on and the room not built yet, the mobile still has to buzz on the desk when a text comes)
   if (!live) setTimeout(() => { if (!window.HouseMobile && !started) { startHouse(); loadJs('js/hs-mobile.js').catch(() => {}); } }, 6000);
