@@ -5,6 +5,8 @@
 | G05 | high | guidance | Remove wireframe boxes; highlight only current quest targets; quest picker; smooth arrows/markers | quest-ux worker (running) |
 | G06 | high | interaction | Open doors while holding; inventory fixes; ghost placement preview + target highlights | physics brief (after movement) |
 | G07 | high | physics | Whole game physics-based; vertical colliders; desk chair blocks player, can't tuck under desk | physics brief (after movement) |
+| G08 | high | games | Zip the Hedgehog -> ZIP THE BADGER (purple) everywhere, full new art | zip-badger worker (running) |
+| G09 | high | new game | THE MYTH OF ZELDO: THE TEMPORAL FLUTE for Ultra 64 (3D Ocarina-era parody) | after SNES Zeldo run |
 | G03 | high | graphics + performance | Owner: better lighting (cel shading etc) AND max FPS on potato devices | docs/GRAPHICS.md stages 0-4 (brief graphics-0 first, after movement) |
 | G02 | high | phones/tablets | Owner: play the WHOLE game on mobile, polished and intentional (replaces JackOS-only phones) | Touch controls, mobile quality tier, all UI at phone sizes, console touch pads (brief: mobile, after movement) |
 | G01 | high | walking (hs-world.js) | Owner: "player gets stuck walking around - needs to be smooth and not frustrating" | Movement audit bots on every route + collide-and-slide controller, step offset, door funnels, stair ramps, anti-stuck (brief: movement) |
