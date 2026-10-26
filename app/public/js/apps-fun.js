@@ -398,7 +398,10 @@
   // ---- full screen + idle detection
   let ssOn = null, lastInput = Date.now();
   const rawGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-  function saverName() { let v = rawGet('jhp_saver'); if (v && v[0] === '"') { try { v = JSON.parse(v); } catch (e) {} } return v == null ? 'Flying Saucers' : (OLDSAVER[v] || String(v)); }
+  // a seasonal screen saver (seasons-web.js) is the default while its season is on, for anyone who never picked one
+  let seasonSaver = '';
+  const defaultSaver = () => seasonSaver && SAVERS[seasonSaver] ? seasonSaver : 'Flying Saucers';
+  function saverName() { let v = rawGet('jhp_saver'); if (v && v[0] === '"') { try { v = JSON.parse(v); } catch (e) {} } return v == null ? defaultSaver() : (OLDSAVER[v] || String(v)); }
   function saverWait() { const v = rawGet('jhp_saverwait'); if (v == null || v === '') return 3; const n = parseFloat(String(v).replace(/"/g, '')); return isFinite(n) ? Math.max(0, n) : 3; }
   function startSaver(name, opts) {
     if (ssOn) return;
@@ -500,6 +503,12 @@
     stop: stopSaver,
     configure(name) { if (!name || /text|marquee/i.test(name)) textSetup(); else Desk.msgbox('Display Properties', `${name} has no options you can set. It's perfect already.\n\n(The 3D Text and Marquee savers let you type your own words.)`, 'info'); },
     get running() { return ssOn ? ssOn.name : ''; },
+    // seasonal savers come and go with their season: Savers.add(name, factory) / Savers.remove(name)
+    add(name, make) { if (typeof make !== 'function') return; SAVERS[name] = make; if (!EXTRA_SAVERS.includes(name)) { EXTRA_SAVERS.push(name); window.dispatchEvent(new CustomEvent('jhp-savers')); } },
+    remove(name) { const i = EXTRA_SAVERS.indexOf(name); if (i < 0 || name === PLASMA) return; EXTRA_SAVERS.splice(i, 1); delete SAVERS[name]; if (seasonSaver === name) seasonSaver = ''; window.dispatchEvent(new CustomEvent('jhp-savers')); },
+    set seasonDefault(n) { seasonSaver = n || ''; },
+    get seasonDefault() { return seasonSaver; },
+    defaultName: () => defaultSaver(),
   };
   function textSetup() {
     Desk.ask('3D Text Setup', 'Type the words for the 3D Text and Marquee screen savers (up to 20 letters):', saverText(), 20, v => {

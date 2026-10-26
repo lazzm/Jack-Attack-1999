@@ -295,7 +295,7 @@
           const rug2 = new T.Mesh(geo(new T.CircleGeometry(4.5, 24)), RMAT({ color: 0xe23a2a })); rug2.rotation.x = -Math.PI / 2; rug2.position.set(0, 0.05, 4); addM(rug2);
           for (let i = 0; i < 4; i++) solid(-4, i * 2.2, 13, 2.2, 2.2, 2.2, [0xd83a2a, 0x2a68c8, 0xf0b020, 0x3aa848][i], P); P.push(bx(-4, 8.8, 13, 2.2, 0.2, 2.2, 0xffffff)); // blocks tower
           solid(6, 0, 15, 2.6, 2.6, 2.6, 0xffffff, null); P.push(sp(6, 1.3, 15, 1.3, 0xffffff)); P.push(bx(6, 1.3, 15, 2.65, 0.5, 0.5, 0x222222)); P.push(bx(6, 1.3, 15, 0.5, 0.5, 2.65, 0x222222)); // football
-          poster(-6, 15, -17.85, 0, 'zip', '#2a2a2a', '#3a78d8', 'ZIP', 'ADVENTURE'); poster(-11, 14, -17.85, 0, 'kart', '#d83a2a', '#f0b020', 'KART KAOS', '64');
+          poster(-6, 15, -17.85, 0, 'zip', '#2a2a2a', '#8840c4', 'ZIP', 'ADVENTURE'); poster(-11, 14, -17.85, 0, 'kart', '#d83a2a', '#f0b020', 'KART KAOS', '64');
           poster(21.85, 14, 6, -Math.PI / 2, 'ja', '#f0b020', '#d83a2a', 'JACK', 'ATTACK!');
           addM(vmesh(P));
           blobShadow(bxp, bz, 14, 24); blobShadow(17, -10, 11, 9); blobShadow(12, 9, 10, 8);

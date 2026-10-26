@@ -396,7 +396,7 @@
 
   D.funcursor = { skin: 'rainbow', h: 1, m: 'cursorguy', lc: 'lg-rainbow', logo: 'FunCursor', rows: [[
     txt('Trail:', 'tbsmall'),
-    ...['Off', 'Sparkles', 'Stars', 'Hearts', 'Blobs', 'Rainbow'].map(l => btn(null, l, () => { setS('trail', l); document.querySelectorAll('.tb-funcursor .tbb').forEach(b => b.classList.toggle('on', b.dataset.l === S('trail', 'Sparkles'))); }, { cls: 'tbtrailb' })),
+    ...['Off', 'Sparkles', 'Stars', 'Hearts', 'Blobs', 'Rainbow', 'Seasonal'].map(l => btn(null, l, () => { setS('trail', l); document.querySelectorAll('.tb-funcursor .tbb').forEach(b => b.classList.toggle('on', b.dataset.l === S('trail', 'Sparkles'))); }, { cls: 'tbtrailb' })),
     menuBtn('cursor', 'Size', () => [{ label: 'Normal', rad: !S('big', 0), act: () => { setS('big', 0); bigCursor(); } }, { label: 'HUGE (inside web pages)', rad: !!S('big', 0), act: () => { setS('big', 1); bigCursor(); } }]),
     txt('Works inside web pages!', 'tbad-i'),
     ad(['Sparkly mouse!!!', 'Trails of <b>JOY</b>', 'Wiggle it!'], () => toast('FunCursor', 'Wiggle your mouse over a web page. Go on. Wiggle it.'), 'a-pink', 104)]],
@@ -653,13 +653,14 @@
   let lastT = 0, live = 0, ti = 0;
   document.addEventListener('pointermove', ev => {
     if (!trailOn || ev.pointerType === 'touch' || paused()) return;
-    const mode = S('trail', 'Sparkles'); if (mode === 'Off' || !TRAIL[mode]) return;
+    const mode = S('trail', 'Sparkles'); if (mode === 'Off' || (!TRAIL[mode] && mode !== 'Seasonal')) return;
     const now = performance.now(); if (now - lastT < 45 || live > 22) return;
     if (!ev.target.closest || !ev.target.closest('#page') || calm()) return;
     lastT = now; live++; ti++;
     const s = document.createElement('span'); s.className = 'tbtrail' + (mode === 'Squigs' || mode === 'Blobs' ? ' sq' : '');
     const p = DesktopSurface.point(ev.clientX, ev.clientY);
-    s.innerHTML = pick(TRAIL[mode]); s.style.left = p.x + 6 + 'px'; s.style.top = p.y + 8 + 'px'; s.style.color = mode === 'Hearts' ? '#ff2a7a' : mode === 'Squigs' || mode === 'Blobs' ? '#e8381b' : TCOL[ti % TCOL.length];
+    const sea = mode === 'Seasonal' && window.SeasonsWeb ? SeasonsWeb.trail() : null; // the season's own pictures (pumpkins, snowflakes...)
+    s.innerHTML = pick(sea || TRAIL[mode === 'Seasonal' ? 'Sparkles' : mode]); if (sea) s.classList.add('ssn'); s.style.left = p.x + 6 + 'px'; s.style.top = p.y + 8 + 'px'; s.style.color = mode === 'Hearts' ? '#ff2a7a' : mode === 'Squigs' || mode === 'Blobs' ? '#e8381b' : TCOL[ti % TCOL.length];
     DesktopSurface.root().appendChild(s);
     const done = () => { if (s.isConnected) { s.remove(); live--; } };
     s.addEventListener('animationend', done); setTimeout(done, 1200);

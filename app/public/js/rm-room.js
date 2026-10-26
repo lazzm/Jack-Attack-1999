@@ -41,7 +41,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     if (!window.Apps || !Apps.cmd) return;
     try {
-      Apps.fs.add('C:/My Documents', { name: 'LOST GAMES.TXT', type: 'txt', date: '18/10/99', size: '1 KB', text: 'LOST GAMES (IN MY ROOM SOMEWHERE)\r\n=================================\r\n\r\nUltra 64: the spy one and the island one. One is in with my letters, I think.\r\nPlaySpace: the fighting one (under something?) and the hover racing one (Mom tidied up. Uh oh.)\r\nGame Lad: Pocket Critters!!! 3 hours on my save. Check where I sit to play.\r\nSegue: the beat-em-up. Behind the telly with all the leads?\r\nDaydream: the hedgehog one came WITH it (check the box).\r\n\r\nAlso lost: my shooter marble, a tazo, my robot club badge, the hologram sticker,\r\nthe key to my money box, and the cheat card off the front of a mag.\r\n\r\nTO FIND THEM: stand up from the PC (F2, or Esc > Back to the room)\r\nand look round my room. Pick things up. Look under things. Click EVERYTHING.\r\n(Mom says if I find her lost change I can keep it.)\r\n' });
+      Apps.fs.add('C:/My Documents', { name: 'LOST GAMES.TXT', type: 'txt', date: '18/10/99', size: '1 KB', text: 'LOST GAMES (IN MY ROOM SOMEWHERE)\r\n=================================\r\n\r\nUltra 64: the spy one and the island one. One is in with my letters, I think.\r\nPlaySpace: the fighting one (under something?) and the hover racing one (Mom tidied up. Uh oh.)\r\nGame Lad: Pocket Critters!!! 3 hours on my save. Check where I sit to play.\r\nSegue: the beat-em-up. Behind the telly with all the leads?\r\nDaydream: the purple badger one came WITH it (check the box).\r\n\r\nAlso lost: my shooter marble, a tazo, my robot club badge, the hologram sticker,\r\nthe key to my money box, and the cheat card off the front of a mag.\r\n\r\nTO FIND THEM: stand up from the PC (F2, or Esc > Back to the room)\r\nand look round my room. Pick things up. Look under things. Click EVERYTHING.\r\n(Mom says if I find her lost change I can keep it.)\r\n' });
     } catch (e) {}
     Apps.cmd(['room', 'bedroom', 'my room', 'jacksroom', 'stand', 'standup', 'stand up'], () => {
       if (window.House && House.canStand && House.canStand()) return House.standUp();
@@ -1888,19 +1888,31 @@
   const mediaThings = {};
   function mediaLabel(g, con) {
     return K.tex('media.print.' + g.id, 512, 320, (c, w, h) => {
+      const zipPrint=g.id==='md.zip'||g.id==='dc.dash';
+      const portrait=()=>{const cv=document.createElement('canvas');cv.width=512;cv.height=320;const ctx=cv.getContext('2d');caseScene(ctx,g);ctx.fillStyle='#70c8dd';ctx.fillRect(0,0,210,46);return cv};
+      if(zipPrint&&con.media==='disc'){
+        c.fillStyle='#582878';c.fillRect(0,0,w,h);c.strokeStyle='#a878d0';c.lineWidth=8;
+        for(let r=90;r<300;r+=44){c.beginPath();c.ellipse(w/2,h/2,r,r*.625,0,0,Math.PI*2);c.stroke()}
+        c.drawImage(portrait(),128,24,288,288,44,110,156,156);
+        c.textAlign='center';c.fillStyle='#f0e8dc';c.font='bold 23px Arial';c.fillText(con.brand,w/2,43);
+        c.fillStyle='#ffd23a';c.font='italic bold 31px Arial';c.fillText(g.title,w/2,83);
+        c.fillStyle='#f0e8dc';c.font='16px Courier New';c.fillText('ORIGINAL GAME / 1999',w/2,279);return;
+      }
       c.fillStyle = '#eee5cd'; c.fillRect(0, 0, w, h);
       const gr = c.createLinearGradient(0, 0, w, h); gr.addColorStop(0, g.col || '#344b6c'); gr.addColorStop(1, '#161a27');
       c.fillStyle = gr; c.fillRect(8, 8, w - 16, h - 16);
       c.save(); c.beginPath(); c.rect(8, 8, w - 16, h - 16); c.clip();
       c.strokeStyle = 'rgba(255,239,171,.16)'; c.lineWidth = 14;
       for (let x = -h; x < w; x += 62) { c.beginPath(); c.moveTo(x, h); c.lineTo(x + h, 0); c.stroke(); }
-      // Original printed game art: a chequered sunburst and a small cartridge-era crest.
-      c.fillStyle = '#f4cc5d'; c.beginPath(); c.arc(420, 100, 50, 0, Math.PI * 2); c.fill();
-      c.fillStyle = '#202634'; for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) if ((x + y) % 2) c.fillRect(380 + x * 20, 60 + y * 20, 20, 20);
+      // Zip's own illustration replaces the generic cartridge crest.
+      if(zipPrint){c.drawImage(portrait(),128,24,288,288,334,62,156,156);c.strokeStyle='#efe5c8';c.lineWidth=3;c.strokeRect(333,61,158,158)}
+      // Original printed game art for the other cartridges stays unchanged.
+      if(!zipPrint){c.fillStyle = '#f4cc5d'; c.beginPath(); c.arc(420, 100, 50, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#202634'; for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) if ((x + y) % 2) c.fillRect(380 + x * 20, 60 + y * 20, 20, 20);}
       c.restore(); c.fillStyle = '#131722'; c.fillRect(8, 8, w - 16, 43);
       c.fillStyle = '#efe5c8'; c.font = 'bold 23px Arial'; c.textAlign = 'left'; c.fillText(con.brand, 23, 38, w - 46);
       c.font = 'italic bold 42px Arial'; c.fillStyle = '#fff7df'; c.shadowColor = '#121421'; c.shadowBlur = 0; c.shadowOffsetY = 3;
-      K.wrapText(c, g.title, 25, 158, 455, 45); c.shadowOffsetY = 0;
+      K.wrapText(c, g.title, 25, 158, zipPrint?290:455, 45); c.shadowOffsetY = 0;
       c.fillStyle = '#e2d8bd'; c.font = '16px "Courier New"'; c.fillText('1999  •  ' + (con.media === 'disc' ? 'CD-ROM' : 'GAME PAK'), 23, 288);
       if (g.owner) { c.fillStyle = '#fff3b5'; c.fillRect(330, 254, 159, 48); c.fillStyle = '#273a65'; c.font = 'bold 19px "Courier New"'; c.fillText(g.owner.toUpperCase() + "'S", 342, 285, 140); }
     }, { clamp: true, identity: true });
@@ -1962,6 +1974,25 @@
     if(art?.ready){c.fillStyle='#18212f';c.fillRect(0,0,512,320);const im=art.image,scale=Math.min(512/im.width,320/im.height),w=im.width*scale,h=im.height*scale;c.save();c.imageSmoothingEnabled=false;c.drawImage(im,(512-w)/2,(320-h)/2,w,h);c.restore();return}
     const sky=c.createLinearGradient(0,0,0,320);sky.addColorStop(0,'#182d55');sky.addColorStop(1,g.col||'#ab6236');c.fillStyle=sky;c.fillRect(0,0,512,320);
     c.fillStyle='#efca78';c.beginPath();c.arc(395,60,42,0,7);c.fill();c.fillStyle='#253449';c.beginPath();c.moveTo(0,200);for(let x=0;x<=512;x+=64)c.lineTo(x,100+((x*7+g.id.length*29)%90));c.lineTo(512,320);c.lineTo(0,320);c.fill();
+    if(g.id==='md.zip'||g.id==='dc.dash'){
+      // Original printed Zip illustration. The same art goes on cases, backs and media labels.
+      c.fillStyle='#70c8dd';c.fillRect(0,0,512,320);c.fillStyle='#f8e4ac';c.beginPath();c.moveTo(0,288);c.quadraticCurveTo(250,150,512,235);c.lineTo(512,320);c.lineTo(0,320);c.fill();
+      c.strokeStyle='#fff6c8';c.lineWidth=4;for(let i=0;i<9;i++){c.beginPath();c.moveTo(12,120+i*14);c.lineTo(165-i*7,100+i*14);c.stroke()}
+      const el=(x,y,rx,ry,a,col)=>{c.fillStyle=col;c.beginPath();c.ellipse(x,y,rx,ry,a,0,Math.PI*2);c.fill()};
+      const line=(x,y,X,Y,w,col)=>{c.strokeStyle=col;c.lineWidth=w;c.lineCap='round';c.beginPath();c.moveTo(x,y);c.lineTo(X,Y);c.stroke()};
+      el(283,299,111,12,0,'#58a0a6');line(259,212,222,261,22,'#582878');line(222,261,176,270,18,'#8840c4');line(282,211,328,239,22,'#8840c4');line(328,239,346,278,19,'#8840c4');
+      el(170,276,41,18,-.15,'#20b8a4');el(352,281,40,18,.15,'#20b8a4');line(137,290,200,285,7,'#fff3dc');line(320,292,388,295,7,'#fff3dc');
+      el(266,190,45,53,-.35,'#582878');el(272,183,38,47,-.35,'#9848d8');el(286,185,19,33,-.35,'#f0e8dc');
+      line(247,166,202,181,16,'#582878');line(202,181,183,155,14,'#8840c4');el(180,147,17,19,-.3,'#fff3dc');line(296,165,330,180,16,'#8840c4');line(330,180,359,157,14,'#9848d8');el(365,150,18,17,.3,'#fff3dc');
+      c.fillStyle='#e8b820';c.beginPath();c.moveTo(264,151);c.lineTo(156,121);c.lineTo(175,149);c.lineTo(153,160);c.lineTo(265,170);c.fill();
+      el(253,83,20,24,-.2,'#582878');el(254,82,11,14,-.2,'#f0e8dc');el(319,82,18,22,.4,'#8840c4');el(319,81,10,13,.4,'#f0e8dc');
+      el(286,111,58,52,-.1,'#582878');el(291,106,52,46,-.1,'#9848d8');
+      c.fillStyle='#9848d8';c.beginPath();c.moveTo(267,65);c.lineTo(278,37);c.lineTo(289,63);c.lineTo(306,35);c.lineTo(311,66);c.lineTo(329,51);c.lineTo(325,83);c.fill();
+      el(300,103,17,44,-.35,'#f0e8dc');el(301,113,41,17,-.25,'#201428');el(319,137,35,22,-.1,'#f0e8dc');el(348,127,12,8,0,'#181020');
+      el(312,111,11,15,.2,'#fff');el(316,112,5,10,.2,'#181020');el(318,107,2,3,0,'#fff');line(313,148,333,145,2,'#50206e');
+      line(248,78,328,72,10,'#5a3010');el(279,75,17,12,-.1,'#f8d020');el(280,73,12,8,-.1,'#70d8e8');el(314,72,16,11,-.1,'#f8d020');el(315,70,11,7,-.1,'#70d8e8');
+      line(249,158,296,167,12,'#ffd23a');c.font='italic bold 18px Arial';c.fillStyle='#50206e';c.fillText('DIG THE SPEED!',24,34);return;
+    }
     if(/kart|race|taxi|zero|grav/.test(g.id)){c.fillStyle='#20222e';c.beginPath();c.moveTo(210,140);c.lineTo(300,140);c.lineTo(512,320);c.lineTo(0,320);c.fill();c.strokeStyle='#f1d879';c.lineWidth=6;c.setLineDash([22,16]);c.beginPath();c.moveTo(256,155);c.lineTo(256,320);c.stroke();c.setLineDash([]);c.fillStyle=g.col||'#c3462d';c.fillRect(100,210,240,58);c.beginPath();c.moveTo(140,210);c.lineTo(178,163);c.lineTo(260,163);c.lineTo(302,210);c.fill();c.fillStyle='#9dc2cd';c.fillRect(181,174,64,33);for(const x of [151,300]){c.fillStyle='#15161c';c.beginPath();c.arc(x,267,27,0,7);c.fill();c.fillStyle='#a0a7af';c.beginPath();c.arc(x,267,12,0,7);c.fill()}}
     else if(/blocks/.test(g.id)){const cols=['#dca843','#719e83','#9d74b4','#ba644c'];for(let row=0;row<5;row++)for(let col=0;col<8;col++){if(row<2&&(col+row)%3===0)continue;c.fillStyle=cols[(row+col)%4];c.fillRect(48+col*51,285-row*48,46,43);c.strokeStyle='#eee1ae';c.lineWidth=3;c.strokeRect(50+col*51,287-row*48,40,37)}}
     else if(/range|sneak/.test(g.id)){c.fillStyle='#d1a74b';c.beginPath();c.arc(256,176,93,0,7);c.fill();c.strokeStyle='#fff0b3';c.lineWidth=10;c.beginPath();c.arc(256,176,62,0,7);c.stroke();c.strokeStyle='#352b34';c.lineWidth=7;for(const dx of [-1,1]){c.beginPath();c.moveTo(256+dx*115,176);c.lineTo(256+dx*45,176);c.stroke()}c.fillStyle='#282c36';c.fillRect(237,143,38,110);c.beginPath();c.arc(256,119,24,0,7);c.fill()}
