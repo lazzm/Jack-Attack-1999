@@ -775,7 +775,8 @@
     kt2.box(-52.4, -68.5, 0, 2.2, 7, 62, pineM, { uv: 50 }); kt2.box(52.4, -68.5, 0, 2.2, 7, 62, pineM, { uv: 50 });
     [[-54, -34], [54, -34], [-54, 34], [54, 34]].forEach(([x, z]) => turnedLeg(kt2, x, -72, z, 72, 5.6, pineM));
     // the fruit bowl: a glazed stoneware bowl on a foot ring, with real fruit in it (it is never eaten)
-    const bowl = kt2.at(-20, -76, -8);
+    const tprops = new T.Group(); tprops.position.set(-60, GY, 170); r.group.add(tprops); r.tableProps = tprops; /* (a group of its own so the Halloween carving can clear the table) */ const KT = K.into(tprops);
+    const bowl = KT.at(-20, -76, -8);
     bowl.lathe(0, 0, 0, [[12.2, -6.6], [12.4, -6.2], [11.6, -3.4], [9, -1.6], [6.2, -0.9], [6, 0], [0.05, 0], [0.05, -1.4], [4.6, -1.6], [8.4, -2.6], [10.8, -4.6], [11.7, -6.4], [12.2, -6.6]], 28, M({ c: '#c9b48c', sh: 40, sp: '#555' }));
     bowl.lathe(0, 0, 0, [[12.25, -6.7], [12.45, -6.3]], 28, M({ c: '#6b4a2a', sh: 40 }));
     [[-3.6, -4.2, 1.5, '#e8901a', 3.6], [3.2, -4.4, -2.4, '#e8901a', 3.5], [1.2, -4.6, 3.8, '#b9241e', 3.4], [-1.4, -7.6, -0.6, '#7ab03a', 3.3]].forEach(([x, y, z, c, r]) => {
@@ -786,7 +787,7 @@
     bowl.geo(new T.TubeGeometry(new T.QuadraticBezierCurve3(new T.Vector3(-8, -6.2, -3), new T.Vector3(-1, -12.5, -6), new T.Vector3(7, -7.4, -4)), 14, 1.5, 8, false), 0, 0, 0, M({ c: '#e8cf4a', sh: 20 }));
     bowl.shadow(0, 0, 0, 16, 16, 0.5);
     // the paper: a folded broadsheet with a real front page, one leaf lifting
-    const paper = kt2.at(38, -76, 19, -6), print = M({ c: '#fff', map: paperTex(), sh: 2 });
+    const paper = KT.at(38, -76, 19, -6), print = M({ c: '#fff', map: paperTex(), sh: 2 });
     paper.box(0, -0.12, 0, 28, 0.24, 36, { t: M({ c: '#fff', map: paperBackTex(), sh: 2 }), all: M('#d9d5c8') });
     { const g = new T.PlaneGeometry(28, 36, 1, 10), pp = g.attributes.position, uv = g.attributes.uv;
       for (let i = 0; i < pp.count; i++) { const t = (pp.getY(i) + 18) / 36; pp.setZ(i, Math.pow(Math.max(0, t - 0.55), 2) * 9); uv.setX(i, 1 - uv.getX(i)); }

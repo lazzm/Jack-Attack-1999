@@ -1,4 +1,12 @@
 /* Seasonal events (js/season.js, js/season-halloween.js): the same quiet period HUD as the chapter objective. */
+/* (its own class, not .st-objective: the HUD must hold exactly one .st-objective, the tracked one) */
+.se-objective{position:absolute;top:52px;left:50%;transform:translateX(-50%);box-sizing:border-box;max-width:calc(100vw - 360px);padding:5px 10px;min-height:30px;border:1px solid var(--game-edge,#80745b);background:var(--game-panel,rgba(22,25,27,.94));color:var(--game-ink,#eee4ca);font:12px/1.4 var(--game-ui,"Courier New",monospace);pointer-events:auto;cursor:pointer;text-align:left}
+.se-objective:focus-visible{outline:1px dotted #e4cf9a;outline-offset:3px}
+.se-objective[hidden]{display:none}.se-objective.st-tick{color:#c7dc9b;border-color:#9bb572}
+html.hs-focus .se-objective,html.hs-inspecting .se-objective,html.hs-paused .se-objective{display:none}
+.hs-ui:has(.hs-voice.on) .se-objective,.hs-ui:has(.hs-call.on) .se-objective{visibility:hidden}
+@media(max-width:900px){.se-objective{top:92px;max-width:calc(100vw - 40px);width:max-content}}
+@media(max-width:900px){.hs-ui.holding:has(.ch-chip:not([hidden])) .se-objective{visibility:hidden}}
 .se-objective{border-color:#9a6a2a;color:#f3dcb0}
 .se-objective.st-tick{color:#c7dc9b;border-color:#9bb572}
 /* The carving / handing-out bar: a 1999 game panel along the bottom, clear of the subtitles' corner. */

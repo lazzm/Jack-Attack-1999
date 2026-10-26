@@ -382,6 +382,7 @@
       else delete H.SNAPS[id];
       delete IT[id];
     }
+    if (H.ROOMS.kitchen?.tableProps) H.ROOMS.kitchen.tableProps.visible = true;
     built.items = false; H.dirty();
   }
   const built = { items: false };
@@ -566,7 +567,7 @@
     // the tea-light (on the table, then inside) and its flame
     const tl = new T.Group(); root.add(tl); const TL = K.into(tl); TL.cyl(0, -.8, 0, 2, 2, 1.6, 14, m.metal); TL.cyl(0, -1.65, 0, 1.8, 1.8, .2, 14, m.wax); TL.cyl(0, -2.1, 0, .08, .08, .8, 3, M('#222'));
     const flame = new T.Mesh(new T.ConeGeometry(.5, 1.9, 8), m.flame); flame.rotation.x = Math.PI; flame.position.y = -3.2; tl.add(flame); flame.visible = false;
-    kit.group.add(root);
+    kit.group.add(root); if (kit.tableProps) kit.tableProps.visible = false; // the carving needs the whole table: the fruit bowl and Dad's paper step aside
     // the table's props: newspaper (spread), the tools, {sister}'s sheet of faces, the bowl for the guts
     const news = new T.Group(); kit.group.add(news); news.position.set(PK.x, PK.y, PK.z); const NW = K.into(news), nt = K.tex('hw.news', 256, 256, (g, w, h) => { g.fillStyle = '#e8e4d6'; g.fillRect(0, 0, w, h); g.fillStyle = '#222'; g.font = '700 26px Georgia,serif'; g.fillText('THE DAILY', 12, 34); g.fillRect(10, 42, w - 20, 2); g.fillStyle = '#999'; for (let i = 0; i < 30; i++) g.fillRect(12 + (i % 3) * 80, 56 + Math.floor(i / 3) * 18, 70, 6); g.fillStyle = '#bbb'; g.fillRect(170, 60, 70, 60); });
     NW.box(-4, -.12, 0, 46, .24, 34, M({ c: '#fff', map: nt, sh: 2 }), { ry: 6 }); NW.box(14, -.36, -8, 40, .24, 30, M({ c: '#fff', map: nt, sh: 2 }), { ry: -14 }); NW.box(-18, -.6, 9, 36, .24, 28, M({ c: '#fff', map: nt, sh: 2 }), { ry: 24 });
@@ -588,6 +589,7 @@
     addSnap('hw.s.paper', { room: 'kitchen', x: PK.x, y: PK.y - 1, z: PK.z, r: 40, box: [50, 2, 40], pose: { x: PK.x, y: PK.y, z: PK.z, ry: 0, hide: true }, hide: true, hint: 'Spread the newspaper on the table', accepts: k => k === 'hw.paper',
       onSnap: () => { snd.rustle(); Season.step(EID, 'hw-pumpkin', 'paper'); pk.news.visible = true; say('c4.hal.dad', 'Dad', 'Right, pumpkin. How hard can it be? Mind your fingers, now.', true); H.dirty(); } });
     addSpot('hw.pumpkin', { label: () => pumpkinLabel(), obj: pk.root, room: 'kitchen', range: 220, act: () => carve() });
+    for (const g of [pk.news, pk.tools]) g.traverse(o => { if (o.isMesh) o.userData.spot = 'hw.pumpkin'; }); // the newspaper and tools round it are part of the same job: aiming at them must not be a dead pick
     syncPumpkin();
   }
   function paintFaceSheet(g, w, h) {
@@ -616,6 +618,7 @@
   // the server's carving state -> the model (refresh safe)
   function syncPumpkin() {
     if (!pk) return;
+    const tprops = H.ROOMS.kitchen?.tableProps; if (tprops) tprops.visible = false; // (the kitchen may build after us)
     const s = srv().steps?.['hw-pumpkin'] || {}, cv = srv().carve;
     pk.news.visible = !!s.paper && !s.place;
     const tp = H.THINGS['hw.paper']; if (tp && tp.st !== 'held') { if (s.paper) { tp.obj.visible = false; tp.at.hide = true; tp.canGrab = () => false; } else { tp.at.hide = false; tp.obj.visible = true; tp.canGrab = null; } }

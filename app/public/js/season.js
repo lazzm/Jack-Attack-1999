@@ -85,12 +85,12 @@
   }
   function updateLine() {
     const H = window.House; if (!H?.ok || !H.ui?.el) return;
-    if (!line) { line = document.createElement('div'); line.className = 'st-objective se-objective'; line.hidden = true; line.setAttribute('role', 'status'); line.setAttribute('aria-live', 'polite'); H.ui.el.appendChild(line); }
+    if (!line) { line = document.createElement('div'); line.className = 'se-objective'; line.hidden = true; line.setAttribute('role', 'status'); line.setAttribute('aria-live', 'polite'); H.ui.el.appendChild(line); }
     // The diary's quest list (js/st-engine.js) lists these objectives and draws the tracked one; this line is only the
     // fallback before the story state has arrived.
     const chapter = window.st?.tracked ? window.st.tracked() || window.st.getState?.() : window.st?.current?.(), c = current(), tick = Date.now() < tickUntil && !chapter;
 
-    line.hidden = !visible() || !!chapter || window.StoryGuide?.strength === 'off' || (!c && !tick) || !!document.querySelector('.st-objective.st-tick:not(.se-objective)');
+    line.hidden = !visible() || !!chapter || window.StoryGuide?.strength === 'off' || (!c && !tick) || !!document.querySelector('.st-objective.st-tick');
     line.classList.toggle('st-tick', tick);
     const text = tick ? '✓ Objective complete — ' + tickText : c ? c.e.name.toUpperCase() + ' › ' + c.text + (c.of > 1 ? ' (' + c.n + '/' + c.of + ')' : '') : '';
     if (line.textContent !== text) line.textContent = text;
