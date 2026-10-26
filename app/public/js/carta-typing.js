@@ -85,7 +85,7 @@
     { id: 'sent', name: 'Sentences', keys: 'everything!', min: 12, tip: 'Proper sentences now. Don\'t look at the keys! I\'m watching you.', gen: () => pickN(SENTENCES, 2) },
     { id: 'speed', name: 'Speed Test', keys: 'a whole paragraph', min: 15, tip: 'The big one. Slow and right beats fast and wrong. GO!', gen: () => pick(SPEED) },
   ];
-  const TIPS = ["Feel the little bumps on F and J? That's where your pointy fingers live.", "Don't look at the keys! Look at the screen.", 'Thumbs on the space bar. What else are thumbs for?', 'Sit up straight! You look like a question mark.', 'Slow and right beats fast and wrong.', 'Zip types fast. You are not a hedgehog. Practise!', 'Take a break every 20 minutes. Go and annoy Mom.'];
+  const TIPS = ["Feel the little bumps on F and J? That's where your pointy fingers live.", "Don't look at the keys! Look at the screen.", 'Thumbs on the space bar. What else are thumbs for?', 'Sit up straight! You look like a question mark.', 'Slow and right beats fast and wrong.', 'Zip types fast. You are not a purple badger. Practise!', 'Take a break every 20 minutes. Go and annoy Mom.'];
 
   // ================================================================ keyboard: UK-ish layout, finger zones
   const FINGER_COL = ['#ff9ec4', '#ffc078', '#fff07a', '#9be37a', '#d8d8d8', '#86e0e0', '#8fb8ff', '#c7a3ff', '#ff9ec4'];

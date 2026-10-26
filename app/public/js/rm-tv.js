@@ -230,6 +230,9 @@
   function liveFrame() {
     if (!V || !V.live) return;
     if (V.result) { const g = V.cv1.getContext('2d'); g.clearRect(0, 0, V.cv1.width, V.cv1.height); resultFrame(g, V.cv1.width, V.cv1.height); }
+    // LOCK IN presents the canvases themselves; the hidden room's duplicate
+    // texture upload costs a GPU copy and is refreshed immediately on returning.
+    if(V.lockedIn)return;
     // Upload both canvases directly. Compositing in the room's material avoids
     // reading a WebGL game back through a 2D canvas every animation frame.
     V.liveTx = _.tvLive && _.tvLive(V.cv0, V.cv1, V.con, V.surface);
@@ -349,7 +352,7 @@
   }
 
   // ================================================================ the screen: canvases, and what's on when nothing's playing
-  function size(w, hh, smooth, gl) {
+  function size(w, hh, smooth, gl, antialias) {
     const c0 = V.cv0, c1 = V.cv1;
     if (gl) { const n = c0.cloneNode(); c0.replaceWith(n); V.cv0 = n; } // (a canvas that has had a 2D context can't become WebGL)
     else if (V.cv0.dataset.gl) { const n = V.cv0.cloneNode(); delete n.dataset.gl; V.cv0.replaceWith(n); V.cv0 = n; }
@@ -358,7 +361,7 @@
     if (gl && V.live) {
       // The room renderer consumes this frame on its own animation callback.
       // Preserve it until then instead of allowing the browser to clear it.
-      const o = { alpha: false, antialias: V.con === 'dc', preserveDrawingBuffer: true };
+      const o = { alpha: false, antialias: antialias == null ? V.con === 'dc' : !!antialias, preserveDrawingBuffer: true };
       V.cv0.getContext('webgl2', o) || V.cv0.getContext('webgl', o);
     }
     V.el.classList.toggle('rm-smooth', !!smooth);
@@ -565,7 +568,7 @@
   function startGame() {
     const gid = V.gid, def = defs[gid], L = LOOK[V.con];
     const res = def.res || L.res;
-    size(res[0], res[1], def.smooth != null ? def.smooth : L.smooth, !!def.three);
+    size(res[0], res[1], def.smooth != null ? def.smooth : L.smooth, !!def.three, def.antialias);
     V.st = 'game'; V.el.classList.add('rm-playing');
     attachSurface(def);
     gameHelp(def);
@@ -819,7 +822,9 @@
       V.el.style.setProperty('--lock-x', (left + w / 2) + 'px');
       V.el.style.setProperty('--lock-y', (top + h / 2) + 'px');
     }
-    rememberSurface();return !!V.lockedIn;
+    rememberSurface();
+    if(!V.lockedIn)liveFrame();
+    return !!V.lockedIn;
   }
   addEventListener('resize', () => { clearInput(); if (V?.lockedIn) lockIn(true); if(V?.surface)frameSurface(200); });
 

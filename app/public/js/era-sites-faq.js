@@ -451,24 +451,24 @@ ${wrap('Cheats do not work on Battle.net. Obviously. Stop asking.')}
 ${sec('SC04', 'Legal')}${LEGAL('ZergRushZed')}
 `); opt({ short: 'STARGRAFT' });
 
-  add('sonicadv', 'Daydream', 'Zip Adventure', 'FAQ / Chao Guide', 'BlueBlurBen', [['15/01/99', '0.5 - Written from my Japanese import. I cannot read the menus.'], ['16/10/99', '1.0 - UK DAYDREAM IS HERE (14 Oct)! Redone in English.'], ['10/11/99', '1.1 - Added the Chao Garden.']], () => `
+  add('sonicadv', 'Daydream', 'Zip Adventure', 'FAQ / Chum Guide', 'PurpleBlur', [['15/01/99', '0.5 - Written from my Japanese import. I cannot read the menus.'], ['16/10/99', '1.0 - UK DAYDREAM IS HERE (14 Oct)! Redone in English.'], ['10/11/99', '1.1 - Added the Chum Garden.']], () => `
 ${sec('SA01', 'The six stories')}
   ZIP ......... the main story. Very fast. Go.
-  TAILS ......... race Zip to the end of each level. He flies.
-  KNUCKLES ...... find the pieces of the Master Emerald. Use the radar.
-  AMY ........... run away from a big robot. Hammer jump!
-  BIG THE CAT ... fishing. Yes, fishing. For his frog, Froggy.
-  E-102 GAMMA ... a robot with a laser. Shoot everything, beat the clock.
+  WHIRLY ......... race Zip to the end of each level. He flies.
+  MITTS ...... find the pieces of the Grand Time Stone. Use the radar.
+  POPPY ........... run away from a big robot. Hammer jump!
+  BOULDER THE CAT ... fishing. Yes, fishing. For his frog, Puddles.
+  R-99 GROMMET ... a robot with a laser. Shoot everything, beat the clock.
 ${wrap('Finish all six and a final story unlocks. You need all of them, even the fishing. ESPECIALLY the fishing.')}
-${sec('SA02', 'The hub')}${wrap('Between levels you run round Station Square (the city), the Mystic Ruins (jungle and the train) and the Egg Carrier (Robotnik\'s giant airship). Look for upgrades in all three: they give your characters new moves and you need some of them to get into later levels.')}
-${sec('SA03', 'Chao Garden')}
-  - Chao are little pets. Find their eggs and hatch them in a garden.
+${sec('SA02', 'The hub')}${wrap('Between levels you run round Platform Plaza (the city), the Misty Relics (jungle and the train) and the Chrome Carrier (Chromedome\'s giant airship). Look for upgrades in all three: they give your characters new moves and you need some of them to get into later levels.')}
+${sec('SA03', 'Chum Garden')}
+  - Chum are little pets. Find their eggs and hatch them in a garden.
   - Give them the little animals you free from robots in the levels.
-    A Chao changes to look like what you give it.
-  - Plug in a VMU (the memory card with a screen) and you can take a Chao
-    out with you in Chao Adventure. A virtual pet in your pocket. It
-    beeps in class. Mr Bell was not impressed.
-${sec('SA04', 'Legal')}${LEGAL('BlueBlurBen')}
+    A Chum changes to look like what you give it.
+  - Plug in a VMU (the memory card with a screen) and you can take a Chum
+    out with you in Chum Adventure. A virtual pet in your pocket. It
+    beeps in class. The teacher was not impressed.
+${sec('SA04', 'Legal')}${LEGAL('PurpleBlur')}
 `); opt({ short: 'ZIP ADV' });
 
   const byId = id => FAQS.find(f => f.id === id);
