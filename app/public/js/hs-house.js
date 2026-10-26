@@ -111,7 +111,7 @@
     if (o.leaf === false) return null;
     // the leaf, hinged at a1 (or a0 with o.flip), swinging into the room on the + side
     const hinge = o.flip ? a0 : a1, pv = new T.Group();
-    const [hx, , hz] = P(hinge, 0, o.inside ? 2.5 : -2.5); pv.position.set(hx, 0, hz); r.group.add(pv);
+    const [hx, , hz] = P(hinge, 0, o.hingeNormal ?? (o.inside ? 2.5 : -2.5)); pv.position.set(hx, 0, hz); r.group.add(pv);
     const D = K.into(pv), lm = o.mat || M({ c: '#efebe2', map: tex('whiteGloss'), sh: 24, sp: '#333' });
     const sgnA = o.flip ? 1 : -1; // leaf goes from the hinge back across the opening
     const cx = along ? sgnA * dw / 2 : 0, cz = along ? 0 : sgnA * dw / 2;
@@ -350,7 +350,7 @@
     // the cupboard door (it's a small one)
     const cd = doorway(r, K.into(r.cupFrames = K.batch()), 'cupdoor', 'w', 330, 362, 438, GY, { h: 94, inside: false, flip: false, depth: 1 });
     r.cupFrames.build(r.group);
-    H.door('cupboard', { rooms: ['hall', 'cupboard'], pivot: cd, swing: 100, dir: -1 });
+    H.door('cupboard', { rooms: ['hall', 'cupboard'], pivot: cd, swing: 100, dir: -1, lintelPlane: 330 });
     H.spot('hs.cupdoor', { label: () => H.DOORS.cupboard.open ? 'Shut cupboard (C: crouch through)' : 'The cupboard under the stairs', obj: cd, act: () => { H.setDoor('cupboard', !H.DOORS.cupboard.open); } });
     H.walkRect('G', 207, 62, 408, 250, { room: 'hall' }); H.walkRect('G', 207, 250, 328, 600, { room: 'hall' }); H.walkRect('G', 207, 600, 408, 698, { room: 'hall' });
     H.block('G', 205, 80, 240, 140); // the hall table
@@ -1071,7 +1071,8 @@
       }
       // the links: stairs (always open) between the landing and the hall; doors to the lounge, the kitchen, the cupboard
       H.door('stairs', { rooms: ['landing', 'hall'], always: true, open: true });
-      H.stairs({ x0: 333, z0: 200, x1: 410, z1: 650, m0: 250, m1: 600, y: (x, z) => UY + 20 * Math.max(0, Math.min(14, Math.ceil((z - 250) / 25))) });
+      // Visual treads stay solid; the body follows one continuous ramp.
+      H.stairs({ x0: 333, z0: 200, x1: 410, z1: 650, m0: 250, m1: 600, y: (x, z) => UY + .8 * Math.max(0, Math.min(350, z - 250)) });
       // the bedroom door's link to the landing (if the landing was made after it)
       if (!H.ROOMS.landing.links.includes('bedroom')) H.ROOMS.landing.links.push('bedroom');
       this.ready = true;
@@ -1080,10 +1081,12 @@
         H.buildRoom(H.ROOMS.hall);
         // the lounge and kitchen doors are built into the hall's west wall
         const hall = H.ROOMS.hall, fb = K.batch(), F = K.into(fb);
-        const kd = doorway(hall, F, 'kitdoor', 'w', 205, 150, 230, GY, { inside: true });
-        const ld = doorway(hall, F, 'loudoor', 'w', 205, 480, 560, GY, { inside: true });
+        // These leaves open into their rooms. Across the narrow hall an 80 cm
+        // open leaf left only a few centimetres of usable body clearance.
+        const kd = doorway(hall, F, 'kitdoor', 'w', 205, 150, 230, GY, { hingeNormal: -12.5 });
+        const ld = doorway(hall, F, 'loudoor', 'w', 205, 480, 560, GY, { hingeNormal: -12.5 });
         fb.build(hall.group);
-        H.door('kitchen', { rooms: ['hall', 'kitchen'], pivot: kd, swing: 95, dir: -1 }); H.door('lounge', { rooms: ['hall', 'lounge'], pivot: ld, swing: 95, dir: -1 });
+        H.door('kitchen', { rooms: ['hall', 'kitchen'], pivot: kd, swing: 95, dir: 1 }); H.door('lounge', { rooms: ['hall', 'lounge'], pivot: ld, swing: 95, dir: 1 });
         H.walkRect('G', 193, 154, 209, 226, { door: 'kitchen', room: 'hall' }); H.walkRect('G', 193, 484, 209, 556, { door: 'lounge', room: 'hall' });
         H.spot('hs.kitdoor', { label: () => H.DOORS.kitchen.open ? 'Shut the kitchen door' : 'The kitchen', obj: kd, act: () => H.setDoor('kitchen', !H.DOORS.kitchen.open) });
         H.spot('hs.loudoor', { label: () => H.DOORS.lounge.open ? 'Shut the lounge door' : 'The lounge', obj: ld, act: () => H.setDoor('lounge', !H.DOORS.lounge.open) });
