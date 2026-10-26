@@ -23,4 +23,10 @@ Owner approved the Gemini test tape (2026-10-26): "voices and audio is great".
 | Crystal (little sister) | Leda | Cheeky, whiny. Transcribes as "Mum" when shouted: write lines as "Mom". |
 | Game announcers | Fenrir | + crunchy console filter. |
 
+## Name call-outs
+Lines where family call the player by name ("JACK! Tea's ready!") are recorded once per first name in the Cast name
+pools plus the most common 1999 UK first names, as `audio/voice/<lineId>.name-<lowercase first>.mp3`. Playback picks
+the variant matching the player's chosen first name (any player called Jack gets the Jack version, not only the owner),
+else falls back to the generic `<lineId>.mp3` that uses no name ("Tea's ready! Down you come!").
+
 Rules: neutral British accents only for family (no regional accent = no location clue); kid-safe; no cloning real people.
