@@ -1,3 +1,8 @@
+## Gameplay backlog
+| id | severity | area | problem | fix |
+|---|---|---|---|---|
+| G01 | high | walking (hs-world.js) | Owner: "player gets stuck walking around - needs to be smooth and not frustrating" | Movement audit bots on every route + collide-and-slide controller, step offset, door funnels, stair ramps, anti-stuck (brief: movement) |
+
 # Backlog
 
 ## Visual backlog (art review 2026-10-26)
