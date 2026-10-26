@@ -79,3 +79,33 @@ JackOS only (on phones the JackOS desktop is "the family PC" and story gating ne
 - Follow AGENTS.md (1999 only, nothing 2D, period UI, Mom spelling, Cast, no brands, no location clues, no birthday).
 - Never strip anything from an existing account; migrations are additive.
 - Every step testable in tests/ (a scripted playthrough of each chapter), and `node tests/smoke.mjs` must pass.
+
+## Revision 2026-10-26 (owner): no PC at the start, proper game progression
+Owner: "for new player I want them to start with no PC - only a Game Lad and then they unlock the PC like pretty much
+immediately - like a whole story thing. Also for any story related things needed in the quest - ensure things are
+highlighted and pointed out etc especially at the start, make it seem like proper video game progression." Also:
+"implement real characters wandering around that give you tasks".
+
+New opening (replaces Ch1/Ch3 PC structure; the lounge family PC is dropped):
+- **Ch1 "Just a Game Lad" (~10 min):** wake up in a room with NO PC on the desk (empty desk, a dust outline/cable
+  hole where a computer will go). Game Lad tutorial. Mom gives the first jobs in person. Dad comes home: "the office
+  is chucking out the old computers... it's in the boot if you want it". Climax quest chain, all guided:
+  go out to Dad's car on the drive, carry the tower, then the heavy CRT (slow walk), keyboard/mouse box and speakers
+  up to your room; place each on the desk (highlighted snap spots); plug the leads in (highlighted ports); press the
+  power button; the existing boot + installer (setup.js) installs JackOS from floppies; JackNet logon -> chapter done.
+  Target: PC working within ~10 minutes of signup.
+- **Ch2 "Saving up"** (as before: consoles via Pixel Post), **Ch3 "Getting online upstairs"** (phone extension
+  cable), **Ch4 "The Collector"**.
+- Veterans and the owner unaffected; mobile = JackOS only, never gated.
+
+Quest guidance (applies to every story step, strongest at the start):
+- The current objective's target object(s) get a clear in-world highlight (soft pulsing outline/glow that fits the
+  period look), a small floating marker above it when off-screen or far, and an edge-of-screen arrow when behind you.
+- Contextual prompt when in range ("F: pick up the monitor"), first-time control hints shown once (E carry, R turn,
+  F use, Q back), short Mom/Dad subtitle lines + voice hook when a step starts and finishes, a satisfying completion
+  sting (sound + diary tick + small "Objective complete" banner in period style), and a chapter title card.
+- Highlights and hints fade as the player shows they know the controls; a setting turns guidance down/off.
+
+Characters (next phase): real 3D Mom, Dad and sister who move between rooms on simple daily routines, play idle
+animations, face you when near, and give/hand in tasks (F to talk -> subtitle dialogue + voice). Low-poly, solid,
+period clothing, original look; no 2D sprites.
