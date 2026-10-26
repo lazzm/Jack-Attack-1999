@@ -29,9 +29,9 @@ const keyOf = c => { if (!c || !c.member) return null; const k = String(c.member
 let listDay = '', listNow = [];
 const listToday = () => { const d = today(); if (d !== listDay) { listDay = d; listNow = CH.listFor(d); } return listNow; };
 const stepCache = new Map(); // 'day|id' -> { ids:Set, g:{s:secs}, n }
-function stepsOf(id, day) {
-  const k = day + '|' + id; let v = stepCache.get(k);
-  if (!v) { const L = CH.steps(id, day); v = { ids: new Set(L.map(x => x.s)), g: {}, n: L.length }; for (const x of L) v.g[x.s] = x.g; stepCache.set(k, v); if (stepCache.size > 200) stepCache.delete(stepCache.keys().next().value); }
+function stepsOf(id, day, sparse = false) {
+  const k = day + '|' + id + '|' + sparse; let v = stepCache.get(k);
+  if (!v) { const L = CH.steps(id, day, sparse); v = { ids: new Set(L.map(x => x.s)), g: {}, n: L.length }; for (const x of L) v.g[x.s] = x.g; stepCache.set(k, v); if (stepCache.size > 200) stepCache.delete(stepCache.keys().next().value); }
   return v;
 }
 function P(key) {
@@ -70,7 +70,7 @@ function go(ws, c, key, m) {
 }
 function step(ws, c, key, m) {
   const id = String(m.c || ''), s = String(m.s || '').slice(0, 24); if (!okChore(id)) return;
-  const d = today(), st = stepsOf(id, d); if (!st.ids.has(s)) return;
+  const d = today(), st = stepsOf(id, d, ctx.member(c)?.starterSparse===1||ctx.member(c)?.starterTest===1); if (!st.ids.has(s)) return;
   const p = P(key); if (p.done[id]) return;
   const now = Date.now();
   let r = p.run[id];

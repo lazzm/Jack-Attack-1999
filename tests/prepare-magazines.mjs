@@ -1,0 +1,5 @@
+// Mechanical encoding only: original raster cover artwork is generated with image_gen.
+import fs from 'node:fs';import path from 'node:path';import{chromium}from'playwright';
+const dir=path.resolve(import.meta.dirname,'../app/public/art/magazines-v1'),source=process.argv[2];if(!source)throw Error('Pass generated-images directory');
+const manifest=JSON.parse(fs.readFileSync(path.join(dir,'manifest.json'),'utf8')),b=await chromium.launch({executablePath:'/usr/bin/chromium'});
+try{const p=await b.newPage();for(const[id,a]of Object.entries(manifest.assets)){const src='data:image/png;base64,'+fs.readFileSync(path.join(source,a.source)).toString('base64');const url=await p.evaluate(async src=>{const im=new Image();im.src=src;await im.decode();const c=document.createElement('canvas');c.width=384;c.height=512;c.getContext('2d').drawImage(im,0,0,384,512);return c.toDataURL('image/webp',.84)},src);const bytes=Buffer.from(url.split(',')[1],'base64');fs.writeFileSync(path.join(dir,a.file),bytes);console.log(id,bytes.length)}}finally{await b.close()}

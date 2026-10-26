@@ -18,6 +18,9 @@
     { id: 'pinball', title: 'Space Jack Pinball', price: 90, rel: '01/02', tag: 'budget', blurb: 'A whole pinball table in your PC. Tilt it. It tells you off. Tilt it again.' },
     { id: 'boss', title: 'Championship Boss 99/00', price: 290, rel: '03/12', tag: 'new', blurb: 'Be the manager! Buy players, shout at the ref, get sacked in October. The new season, every stat, every club.' },
   ];
+  const magazines = typeof module !== 'undefined' && module.exports ? require('./magazine-cat.js') : root.MagazineCat;
+  for (const issue of magazines?.ISSUES || []) ITEMS.push({id:issue.id,title:issue.publication+' — '+issue.title,price:issue.price,rel:issue.rel,kind:'mag',tag:'',blurb:issue.headline+' — six original pages, with its cover CD.'});
+  for (const [console,title,price,rel] of [['n64','Ultra 64',650,'01/01'],['ps','PlaySpace',600,'01/01'],['md','Segue',360,'01/01'],['dc','Daydream',900,'14/10']]) ITEMS.push({id:'hardware.'+console,console,title,price,rel,kind:'hardware',tag:'new',blurb:'Boxed console hardware. Delivered to your front door: unbox it, carry it upstairs and place it by the telly.'});
   const CART_BASE = 160; // (console cartridges Agent L puts on sale: their own price, or this)
   const DAYMAX = 3;       // orders per member per day
   const md = s => { const [d, m] = String(s).split('/').map(Number); return m * 100 + d; };
@@ -29,7 +32,7 @@
     addCarts(cat) {
       if (!cat || !cat.GAME) return;
       for (const g in cat.GAME) {
-        const G = cat.GAME[g], price = G && (G.mail || G.shop); if (!G || !price || byId['cart.' + g]) continue;
+        const G = cat.GAME[g], price = G && (G.mail || G.shop || (!cat.CONSOLES[G.con]?.away && CART_BASE)); if (!G || !price || byId['cart.' + g]) continue;
         const con = (cat.CONSOLES || {})[G.con] || {}, F = (cat.FIND || {})['cart.' + g] || {};
         const x = { id: 'cart.' + g, cart: g, con: G.con, conName: con.n || G.con, media: con.media || 'cartridge', col: G.col || con.col || '#888', title: (G.title || G.n || g) + ' (' + (con.n || G.con) + ')', price: typeof price === 'number' ? price : CART_BASE, rel: F.from || G.from || con.from || '', tag: 'new', blurb: G.blurb || G.d || 'A game for the telly.' };
         ITEMS.push(x); byId[x.id] = x;

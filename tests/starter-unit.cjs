@@ -13,7 +13,7 @@ starter.handle(ws,other,{confirm:'RESET TEST'});assert.equal(messages.at(-1).ok,
 state.mods.econ.acct.test.bal=51;starter.handle(ws,c,{confirm:'wrong'});assert.equal(state.mods.econ.acct.test.bal,51);
 starter.handle(ws,c,{confirm:'RESET TEST'});assert.equal(messages.at(-1).ok,true);assert.equal(state.mods.econ.acct.test.bal,0);
 assert.equal(state.mods.econ.acct.test.wallet.slips.keep,1);assert.equal(state.mods.econ.acct.test.caps.rmfind,8);assert.equal(state.mods.rm.p.test.coin.got,1);assert.equal(state.mods.pmx.p.test.n,2);
-const profile=messages.find(m=>m.t==='rmData'),seed=JSON.parse(Buffer.from(profile.data,'base64'));assert.equal(seed.jhp_starter,'1');assert.deepEqual(JSON.parse(seed.jhp_pm).own,{});assert.equal(JSON.parse(seed.jhp_discs).cd,'');
+const profile=messages.find(m=>m.t==='rmData'),seed=JSON.parse(Buffer.from(profile.data,'base64'));assert.equal(seed.jhp_starter,'1');assert.deepEqual(JSON.parse(seed.jhp_pm).own,{'pm.mag.01':1,'pm.mag.02':1});assert.equal(JSON.parse(seed.jhp_discs).cd,'');
 assert.equal(fs.readdirSync(path.join(process.env.DATA_DIR,'test-backups')).length,1);assert.equal(fs.readdirSync(path.join(process.env.DATA_DIR,'profiles')).filter(f=>f.includes('.bak-')).length,1);
 assert.equal(JSON.stringify({member:members.other,econ:state.mods.econ.acct.other,rm:state.mods.rm.p.other,pmx:state.mods.pmx.p.other}),others);
 starter.handle(ws,c,{confirm:'RESET TEST'});assert.equal(messages.at(-1).ok,false,'Rapid reset not limited');
@@ -25,3 +25,5 @@ state.mods.rm.p.test.f={'cart.ps.run':1,badge:7};state.mods.pmx.p.test.o=[{id:'j
 events.login(c,false);const migrated=JSON.parse(Buffer.from(JSON.parse(fs.readFileSync(file)).data,'base64'));
 assert.deepEqual(JSON.parse(migrated.jhp_pm).own,{});assert.equal(JSON.parse(migrated.jhp_pm).opened[42],1);assert.equal(JSON.parse(migrated.jhp_discs).cd,'jrt');assert.equal(migrated.jhp_personal_note,'"kept"');assert.deepEqual(state.mods.rm.p.test.f,{badge:7});assert.equal(state.mods.econ.acct.test.bal,51);assert.equal(roam.upgradeStarter('test'),false);
 assert.equal(JSON.stringify({member:members.other,econ:state.mods.econ.acct.other,rm:state.mods.rm.p.other,pmx:state.mods.pmx.p.other}),others);console.log('STARTER MIGRATION PASS: inherited media/finds removed; purchase, balance, notes, caps and other players kept');
+
+events.login(other,true);assert.equal(members.other.starterSparse,1);assert.equal(roam.seedNewPlayer('Other'),false,'New-player seed replaced an existing profile');events.login(other,false);assert.equal(members.other.kept,true);console.log('NEW PLAYER PASS: sparse registration seed and repeat-login preservation');

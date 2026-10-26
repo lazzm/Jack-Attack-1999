@@ -60,7 +60,7 @@
   H.on('built', rid => { for (let i = waiting.length - 1; i >= 0; i--) if (waiting[i][0] === rid) { const [, fn] = waiting.splice(i, 1)[0]; fn(H.ROOMS[rid]); } for (const id of ORDER) if (MODS[id].room === rid) build(MODS[id]); });
   function built(rid) { for (const id of ORDER) if (MODS[id].room === rid) build(MODS[id]); }
 
-  const stepsOf = id => CC.steps(id, day());
+  const stepsOf = id => CC.steps(id, day(), localStorage.getItem('jhp_starter')==='1');
   const has = (id, s) => !!(S.prog[id] && S.prog[id][s]);
   const done = id => !!S.done[id];
   const started = id => !!(S.prog[id] && Object.keys(S.prog[id]).length) || !!S.t0[id];

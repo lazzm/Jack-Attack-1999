@@ -49,6 +49,7 @@
     'pm.mix': { kind: 'jewel', title: 'Dad\'s car mix', label: 'MIX!!', c1: '#d8d8e0', c2: '#000', c3: '#c00000', audio: 'mix',
       blurb: 'Dad\'s CD from the car. "DAD\'S CAR MIX - DO NOT TOUCH" in felt tip. It has been in the car. It has been UNDER the car.' },
   };
+  for (const x of window.PMCat?.ITEMS || []) if(x.kind==='hardware') MINE[x.id]={kind:'hardware',title:x.title,console:x.console,blurb:x.blurb,c1:'#303945',c2:'#ddcf9e'};
   const MAG = m => 'pm.mag.' + pad(m), COVER = m => 'pm.cv.' + pad(m);
   const magOut = m => m >= 1 && m <= 12 && m <= today().m;
   const BOXES = () => D.BOXES;
@@ -56,9 +57,9 @@
     if (!id) return null;
     const b = D.BOX[id];
     if (b) return { id, kind: KIND[b.kind] || 'jewel', title: D.titleOf(b), label: b.label, disc: b.kind === 'floppy' ? '' : id, a: b.kind === 'floppy', box: b, owner: b.owner || (S.lent && S.lent[id]) || '', c1: b.c1, c2: b.c2, c3: b.c3 };
-    if (MINE[id]) return Object.assign({ id, disc: id }, MINE[id]);
+    if (MINE[id]) return Object.assign({ id, disc: MINE[id].kind==='hardware'?'':id }, MINE[id]);
     const mm = /^pm\.mag\.(\d\d)$/.exec(id);
-    if (mm) { const m = +mm[1]; return { id, kind: 'mag', m, title: `JACK ATTACK! ${MONTHS[m - 1]} 1999`, label: 'JA ' + MON3[m - 1] + ' 99', disc: COVER(m) }; }
+    if (mm) { const m = +mm[1]; return { id, kind: 'mag', m, title: window.MagazineCat?.byId[id]?.title || `JACK ATTACK! ${MONTHS[m - 1]} 1999`, label: 'JA ' + MON3[m - 1] + ' 99', disc: COVER(m) }; }
     const f = S.fl[id];
     if (f) return { id, kind: 'floppy', a: true, title: f.lab || 'A blank floppy disk', label: f.lab || '', fl: f };
     return null;
@@ -68,13 +69,13 @@
   const SRV = { member: false, orders: [], today: 0, max: 3, bal: 0, md: 0, ok: false };
   S.opened = S.opened && typeof S.opened === 'object' ? S.opened : {};
   const srvOwns = id => SRV.member && SRV.orders.some(o => o.id === id && S.opened[o.no]);
-  const cartFound = id => { try { return /^cart\./.test(id) && window.Room && Room.found && Room.found(id); } catch (e) { return false; } };
+  const cartFound = id => { try { return /^cart\./.test(id) && ((ls('jhp_starter')!=='1'&&window.RoomCat?.GAME[id.slice(5)]?.own)||window.Room?.found?.(id)); } catch (e) { return false; } };
   const owns = id => !!(S.own[id] || S.fl[id] || srvOwns(id) || cartFound(id));
   function items() {
     const out = [];
     for (const b of BOXES()) if (owns(b.id)) out.push(item(b.id));
-    for (const id in MINE) if (S.own[id]) out.push(item(id));
-    for (let m = 1; m <= 12; m++) if (S.own[MAG(m)] && magOut(m)) out.push(item(MAG(m)));
+    for (const id in MINE) if (owns(id)) out.push(item(id));
+    for (let m = 1; m <= 12; m++) if (owns(MAG(m)) && magOut(m)) out.push(item(MAG(m)));
     for (const id of Object.keys(S.fl).sort((x, y) => (S.fl[x].t || 0) - (S.fl[y].t || 0))) out.push(item(id));
     return out.map(x => Object.assign(x, { where: where(x.id) }));
   }
@@ -119,8 +120,13 @@
     if (old) addFloppy({ k: 'dave', lab: 'DAVE\'S DISK', c: 3 }, true);
     save();
   }
-  // this month's mag is always on the pile (it came this month), and the cover disc in the drive is ours
-  if(ls('jhp_starter')!=='1'){ const m = today().m; if (!S.own[MAG(m)]) { S.own[MAG(m)] = Date.now(); save(); } }
+  // Record the magazines and machines already present in older rooms once.
+  if(!S.magazines){
+    const now=Date.now();for(const id of window.MagazineCat?.STARTER || ['pm.mag.01','pm.mag.02'])if(!S.own[id])S.own[id]=now;
+    // Retain the old room's distinct back issues, but do not create duplicate copies.
+    if(ls('jhp_starter')!=='1'){for(const m of [1,2,3,4,5,6,8,9])S.own[MAG(m)]=S.own[MAG(m)]||now;const current=today().m;S.own[MAG(current)]=S.own[MAG(current)]||now;for(const id in MINE)if(MINE[id].kind==='hardware')S.own[id]=S.own[id]||now}
+    S.magazines=1;save();
+  }
   { const c = D.drive; const it = discItem(c); if (it && !owns(it) && (D.BOX[it] || MINE[it] || /^pm\.mag/.test(it))) { S.own[it] = Date.now(); save(); } }
   if (S.a && !S.fl[S.a] && S.a !== 'gquest') { S.a = ''; save(); }
   if (S.tray && (!owns(S.tray) || discItem(D.drive) === S.tray)) { S.tray = ''; save(); }
@@ -333,7 +339,7 @@
     const sd = A.apps['ssn.disc'], open0 = sd.open;
     sd.open = function (arg) {
       const m = (typeof arg === 'number' ? arg : +arg) + 1;
-      if (m >= 1 && m <= 12 && magOut(m) && grant(MAG(m))) setTimeout(() => toast('Back issue!', `JACK ATTACK! ${MONTHS[m - 1]} 1999 (with its cover CD taped on) is on the pile of mags in your room.`, 6000), 1200);
+      // A digital cover-CD menu is not a physical magazine purchase.
       return open0.apply(this, arguments);
     };
   }
@@ -346,9 +352,19 @@
   const md99 = () => SRV.md || today().md;
   const isOut = x => CAT.out(x, md99());
   const titleOfShop = id => { const b = D.BOX[id]; try { return b ? D.titleOf(b) : (CAT.byId[id] || {}).title || id; } catch (e) { return (CAT.byId[id] || {}).title || id; } };
-  const shopArt = x => { const b = D.BOX[x.id]; if (b) return D.front(b); try { return window.PMArt ? PMArt.cartArt(x) : ''; } catch (e) { return ''; } };
+  function hardwareArt(x) {
+    const disc=x.console==='ps'||x.console==='dc',body=x.console==='ps'?'#b9b6ae':x.console==='dc'?'#efeee8':'#2b2b2e';
+    return `<svg viewBox="0 0 200 270" role="img" aria-label="${esc(x.title)} boxed console"><defs><linearGradient id="pp-box-${x.console}" x2="1" y2="1"><stop stop-color="#33445c"/><stop offset="1" stop-color="#101a2b"/></linearGradient></defs><rect width="200" height="270" fill="url(#pp-box-${x.console})"/><path d="M0 68H200V74H0Z" fill="#d4b565"/><text x="14" y="25" fill="#f4e2ac" font-family="Arial" font-weight="bold" font-size="10">PIXEL POST • CONSOLE HARDWARE</text><text x="14" y="55" fill="#fff5d6" font-family="Georgia" font-weight="bold" font-size="27">${esc(x.title)}</text><ellipse cx="100" cy="181" rx="77" ry="13" fill="#050a11"/><path d="M27 126L145 108L179 140L62 160Z" fill="${body}" stroke="#84868b"/><path d="M27 126V150L62 185V160ZM62 160L179 140V165L62 185Z" fill="${disc?'#8e908f':'#171a21'}" stroke="#555b64"/>${disc?'<ellipse cx="104" cy="134" rx="30" ry="11" fill="none" stroke="#777c80" stroke-width="2"/>':'<path d="M66 132L118 124L128 131L76 139Z" fill="#0b1016" stroke="#777c80"/>'}<path d="M77 166L89 164V171L77 173ZM132 157L144 155V162L132 164Z" fill="#090e14"/><circle cx="162" cy="156" r="2" fill="#d9af53"/><text x="100" y="216" text-anchor="middle" fill="#fff4d4" font-family="Georgia" font-weight="bold" font-size="15">THE NEXT LEVEL IS HERE.</text><text x="100" y="237" text-anchor="middle" fill="#c5d3e3" font-family="Arial" font-size="10">CONSOLE • CONTROLLER • TV LEADS</text><text x="100" y="257" text-anchor="middle" fill="#e0bb62" font-family="Courier New" font-size="11">DELIVERED TO YOUR DOOR</text></svg>`;
+  }
+  const shopArt = x => {
+    if(x.kind==='mag')return '<img alt="'+esc(x.title)+' cover" src="art/magazines-v1/'+esc(window.MagazineCat.byId[x.id].art)+'.webp" style="width:100%;height:100%;object-fit:contain">';
+    if(x.kind==='hardware')return hardwareArt(x);
+    const b=D.BOX[x.id];if(b)return D.front(b);
+    try{return window.PMArt?PMArt.cartArt(x):''}catch(e){return ''}
+  };
   // a console game that came by post: Agent L's find (rm-cat.js FINDS, spot 'mail') is what makes it playable
   function grantCart(id) {
+    if(ls('jhp_starter')==='1')return; // Purchase ownership supplies the physical game; no discovery reward.
     try { const F = window.RoomCat && RoomCat.FIND && RoomCat.FIND[id]; if (!F) return; if (window.Room && Room._ && Room._.foundIt) { if (!Room.found(id)) Room._.foundIt(F); return; }
       const st = JSON.parse(localStorage.getItem('jhp_rm') || '{}'); st.f = st.f || {}; if (!st.f[id]) { st.f[id] = Date.now(); localStorage.setItem('jhp_rm', JSON.stringify(st)); try { if (window.Net && Net.me && Net.me.member) Net.send({ t: 'rmFind', id }); } catch (e) {} }
     } catch (e) {}
@@ -370,7 +386,7 @@
       // (anything bought shows on the shelf; a parcel that's waiting is a parcel)
       changed('server');
       const n = parcels().length;
-      if (n && !S.seen.postHint) { S.seen.postHint = Date.now(); save(); setTimeout(() => toast('You\'ve got post!', n > 1 ? `${n} parcels are waiting for you in your room.` : 'A parcel is waiting for you in your room. (Mom put it on your bed.)', 7000), 3000); }
+      if (n && !S.seen.postHint) { S.seen.postHint = Date.now(); save(); setTimeout(() => toast('You\'ve got post!', n > 1 ? `${n} parcels are waiting by the front door.` : 'A parcel is waiting for you by the front door. (Mom put it by the front door.)', 7000), 3000); }
       collector();
     });
     Net.on('pmxOrdered', m => {
@@ -392,16 +408,17 @@
   function arrive(o) {
     const t = titleOfShop(o.id);
     sfx('join');
-    const lines = [`DING DONG! ... Mom: "JACK! PARCEL FOR YOU! I've signed for it. It's on your bed."`, `The postie's been! Mom: "JAAACK! Another parcel! What have you bought NOW?" (It's on your bed.)`, `Knock knock. Mom: "Jack, the postman says this is the third parcel this week." (It's on your bed.)`];
+    const lines = [`DING DONG! ... Mom: "JACK! PARCEL FOR YOU! I've signed for it. It's by the front door."`, `The postie's been! Mom: "JAAACK! Another parcel! What have you bought NOW?" (It's by the front door.)`, `Knock knock. Mom: "Jack, the postman says this is the third parcel this week." (It's by the front door.)`];
     const say = lines[(SRV.orders.length + 2) % lines.length];
     try { if (window.Room && Room.say && roomLive()) Room.say('Ding dong!', say, 6000); } catch (e) {}
     toast('Ding dong!', say.replace(/^DING DONG! \.\.\. /, ''), 7000);
     try {
       if (window.JackFiles && JackFiles.deliver) JackFiles.deliver({ from: 'Pixel Post Orders <orders@pixelpost.jnet>', to: ((Net.me && Net.me.nick) || 'Jack') + ' <me@jacknet.jnet>', subj: `Your Pixel Post order ${o.no} has been delivered!`,
-        body: `Dear ${(Net.me && Net.me.nick) || 'customer'},\r\n\r\nThank you for ordering from PIXEL POST, the games people!\r\n\r\nORDER NUMBER: ${o.no}\r\nITEM:         ${t} (boxed)\r\nPRICE:        ${o.price} Rupees\r\nP&P:          FREE!\r\n\r\nYour parcel has been delivered and signed for (by "MOM").\r\nIt is waiting for you in your room.\r\n\r\nPlease allow 28 days for delivery. (It already came. Our van is very fast.)\r\n\r\nThe Pixel Post Team\r\nwww.pixelpost.jnet\r\n` });
+        body: `Dear ${(Net.me && Net.me.nick) || 'customer'},\r\n\r\nThank you for ordering from PIXEL POST, the games people!\r\n\r\nORDER NUMBER: ${o.no}\r\nITEM:         ${t} (boxed)\r\nPRICE:        ${o.price} Rupees\r\nP&P:          FREE!\r\n\r\nYour parcel has been delivered and signed for (by "MOM").\r\nIt is waiting for you by the front door.\r\n\r\nPlease allow 28 days for delivery. (It already came. Our van is very fast.)\r\n\r\nThe Pixel Post Team\r\nwww.pixelpost.jnet\r\n` });
     } catch (e) {}
   }
-  function openParcel(id) {
+  function openParcel(id, physical=false) {
+    if(!physical){toast('Pixel Post',window.PCOnly?.desktopOnly?'Your parcel is by the front door. Unbox it in the house when you play on a desktop or laptop.':'Your parcel is by the front door. Stand up, go downstairs and press F to unbox it.',6000);return null;}
     const L = SRV.orders.filter(o => !S.opened[o.no]); const o = id ? L.find(x => x.id === id) || L[0] : L[0]; if (!o) return null;
     S.opened[o.no] = Date.now(); A.secret('pm.post');
     if (/^cart\./.test(o.id)) grantCart(o.id);
@@ -423,7 +440,7 @@
     const art = shopArt(x) || `<svg viewBox="0 0 200 270"><rect width="200" height="270" fill="#555"/></svg>`;
     const lend = b && b.owner ? ` <span class="ppo-lent">(you've got ${esc(b.owner)}'s)</span>` : '';
     return `<div class="ppo-it${have ? ' have' : ''}${out ? '' : ' soon'}" data-pp="${esc(x.id)}">${x.tag && out ? `<span class="ppo-flag ${x.tag}">${{ new: 'NEW IN!', hot: 'HOT!', budget: 'BUDGET' }[x.tag] || ''}</span>` : ''}<div class="ppo-art">${art}</div><div class="ppo-tx"><b>${esc(titleOfShop(x.id))}</b><small>${esc(x.blurb)}</small>
-      <span class="ppo-pr">${x.price} <i class="ppo-rp"></i> Rupees</span>${mine && !have ? `<span class="ppo-got">&#9993; DELIVERED (order ${esc(mine.no)}): it's in your room, waiting to be opened!</span>` : have ? `<span class="ppo-got">&#10004; ON YOUR SHELF${mine ? ' (order ' + esc(mine.no) + ')' : ''}${lend}</span>` : !out ? `<span class="ppo-soon">COMING SOON: in the shops ${esc(fmtDate(x.rel))}</span>` : `<button type="button" class="ppo-buy" data-buy="${esc(x.id)}">ORDER IT</button>`}</div></div>`;
+      <span class="ppo-pr">${x.price} <i class="ppo-rp"></i> Rupees</span>${mine && !have ? `<span class="ppo-got">&#9993; DELIVERED (order ${esc(mine.no)}): it's by the front door, waiting to be opened!</span>` : have ? `<span class="ppo-got">&#10004; ON YOUR SHELF${mine ? ' (order ' + esc(mine.no) + ')' : ''}${lend}</span>` : !out ? `<span class="ppo-soon">COMING SOON: in the shops ${esc(fmtDate(x.rel))}</span>` : `<button type="button" class="ppo-buy" data-buy="${esc(x.id)}">ORDER IT</button>`}</div></div>`;
   }
   function shopPage() {
     const el = document.createElement('div'); el.className = 'ppo';
@@ -432,10 +449,10 @@
       const member = !!(window.Net && Net.me && Net.me.member), L = CAT.ITEMS.slice();
       const newIn = L.filter(x => isOut(x) && x.tag === 'new'), soon = L.filter(x => !isOut(x)), rest = L.filter(x => isOut(x) && x.tag !== 'new');
       const n = parcels().length;
-      el.innerHTML = `<div class="ppo-top"><div class="ppo-logo">PIXEL<b>POST</b></div><div class="ppo-tag">PC games by mail order &middot; every game boxed, with the manual &middot; FREE P&amp;P &middot; Est. 1994</div></div>
+      el.innerHTML = `<div class="ppo-top"><div class="ppo-logo">PIXEL<b>POST</b></div><div class="ppo-tag">Games, consoles & magazines by mail order &middot; every game boxed, with the manual &middot; FREE P&amp;P &middot; Est. 1994</div></div>
         <div class="ppo-strip"><marquee scrollamount="4">*** ORDER ONLINE WITH RUPEES *** SAME-DAY DELIVERY (IT'S QUICKER IN JACKNET) *** NO SECONDHAND DISCS *** ${CAT.DAYMAX} ORDERS A DAY PER CUSTOMER (MOM'S RULES) ***</marquee></div>
         ${flash ? `<div class="ppo-note ok">${flash}</div>` : ''}
-        ${member ? `<div class="ppo-acct"><span>Customer: <b>${esc(Net.me.nick)}</b></span><span>Your Rupees: <b>${SRV.bal}</b></span><span>Orders today: <b>${SRV.today} of ${SRV.max}</b></span>${n ? `<span class="ppo-wait">&#9993; ${n} parcel${n > 1 ? 's' : ''} waiting in your room!</span>` : ''}</div>`
+        ${member ? `<div class="ppo-acct"><span>Customer: <b>${esc(Net.me.nick)}</b></span><span>Your Rupees: <b>${SRV.bal}</b></span><span>Orders today: <b>${SRV.today} of ${SRV.max}</b></span>${n ? `<span class="ppo-wait">&#9993; ${n} parcel${n > 1 ? 's' : ''} waiting by the front door!</span>` : ''}</div>`
           : '<div class="ppo-note">You need to be a <b>JackNet member</b> to order (we take Rupees, and the Rupees live in your JackNet account). Joining is FREE: Start &gt; Log Off, then pick a name and a password!</div>'}
         ${newIn.length ? `<h3 class="ppo-h">NEW IN THIS MONTH</h3><div class="ppo-grid">${newIn.map(card).join('')}</div>` : ''}
         <h3 class="ppo-h">THE CATALOGUE</h3><div class="ppo-grid">${rest.map(card).join('')}</div>
@@ -448,7 +465,7 @@
           b.disabled = true; b.textContent = 'RINGING...'; sfx('modem');
           order(id).then(r => {
             if (r.err) { msg('Pixel Post', r.err, 'warn'); draw(); return; }
-            flash = `&#10004; Thank you! Order <b>${esc(r.order.no)}</b>: ${esc(t)}. Your parcel has been delivered. It's on your bed! (Go and open it: stand up from the PC.)`;
+            flash = `&#10004; Thank you! Order <b>${esc(r.order.no)}</b>: ${esc(t)}. Your parcel has been delivered. It's by the front door! (Go and open it: stand up from the PC.)`;
             draw();
           });
         }], ['Cancel']]);
@@ -478,7 +495,7 @@
       body.innerHTML = `<div class="pmd-gw-tip"><b>Your discs are on the shelf behind you.</b> Press Q or F2 to stand up; the PC stays on. E picks up a PC game case and F takes out its disc. Aim at the highlighted PC tray and press E to insert it. Or choose a disc here:</div>
         <div class="pmd-gw-dr"><div><b>D:</b> ${dIt ? esc(dIt.title) : '<i>empty</i>'} <button type="button" class="btn" data-e="D"${D.drive ? '' : ' disabled'}>Eject</button></div><div><b>A:</b> ${aIt ? esc(aIt.label || 'blank floppy') : '<i>empty</i>'} <button type="button" class="btn" data-e="A"${S.a ? '' : ' disabled'}>Eject</button></div></div>
         <div class="field pmd-gw-l">${Object.keys(groups).map(g => `<div class="pmd-gw-g">${esc(g)}</div>` + groups[g].map(x => `<button type="button" class="pmd-gw-i${sel === x.id ? ' sel' : ''}" data-id="${esc(x.id)}"><span class="pmd-gw-ic pmd-ic-${x.kind}" style="--a:${x.c1 || '#888'};--b:${x.c3 || '#444'}"></span><span class="pmd-gw-n">${esc(x.kind === 'floppy' ? (x.label || 'Blank floppy disk') : x.title)}</span><span class="pmd-gw-w">${esc(WHERE[x.where])}</span></button>`).join('')).join('')}</div>
-        <div class="pmd-gw-b"><button type="button" class="btn" data-a="in" ${sel ? '' : 'disabled'}>Put it in the drive</button><button type="button" class="btn" data-a="rd" ${sel && item(sel) && (item(sel).box || MINE[sel]) ? '' : 'disabled'}>Read Me</button><button type="button" class="btn" data-a="cat">Order games...</button>${parcels().length ? '<button type="button" class="btn" data-a="pk">Open the parcel!</button>' : ''}</div>`;
+        <div class="pmd-gw-b"><button type="button" class="btn" data-a="in" ${sel ? '' : 'disabled'}>Put it in the drive</button><button type="button" class="btn" data-a="rd" ${sel && item(sel) && (item(sel).box || MINE[sel]) ? '' : 'disabled'}>Read Me</button><button type="button" class="btn" data-a="cat">Order games...</button>${parcels().length ? '<span>Parcel waiting by the front door</span>' : ''}</div>`;
       if (w.status) w.status.textContent = `${L.length} things   ${parcels().length ? 'A parcel is waiting!' : ''}`;
       body.querySelectorAll('.pmd-gw-i').forEach(b => b.addEventListener('click', () => { sfx('click'); const was = sel; sel = b.dataset.id; if (was === sel && !touch()) put(); draw(); }));
       body.querySelectorAll('[data-e]').forEach(b => b.addEventListener('click', () => { b.dataset.e === 'A' ? ejectA() : ejectD(); }));

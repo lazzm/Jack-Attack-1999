@@ -11,6 +11,7 @@
   const CK = window.ChoreKit; if (!CK || CK.MODS.tidy) return;
   const { H, T, K, A, M, CC, D2R } = CK;
   const FY = 73, GY = 353;
+  const sparse=localStorage.getItem('jhp_starter')==='1';
   const S = () => CK.S;
   const V = () => (CK.S.v.bed = CK.S.v.bed || {});
   const mat = (c, o) => M(Object.assign({ c, sh: 12, sp: '#222' }, o || {}));
@@ -71,7 +72,7 @@
   };
   // where today's mess can lie (the floor: anything on the bed would be under the bed's own click box)
   const SPOTS = [[-30, FY, 112, 20], [40, FY, 152, -35], [-112, FY, 140, 60], [92, FY, 82, 10], [-82, FY, 226, -20], [22, FY, 222, 45], [-150, FY, 182, 80], [-20, FY, 176, 15], [70, FY, 198, -10], [-188, FY, 124, 30], [-62, FY, 148, 30], [-104, FY, 196, -40]];
-  function layout(day) { const items = CC.tidyFor(day), r = CC.rng('chpos|' + day), sp = CC.shuffle(SPOTS, r); return items.map((m, i) => ({ m, at: sp[i % sp.length] })); }
+  function layout(day) { const items = CC.tidyFor(day,sparse), r = CC.rng('chpos|' + day), sp = CC.shuffle(SPOTS, r); return items.map((m, i) => ({ m, at: sp[i % sp.length] })); }
 
   // ================================================================ TIDY YOUR ROOM
   let tidyR = null, magN = 0, basketPile = null, basketN = 0;
@@ -80,6 +81,7 @@
     build(r) {
       tidyR = r;
       for (const m of CC.MESS) {
+        if(sparse&&['mag','cd'].includes(m.kind))continue;
         const id = 'ch.m.' + m.id;
         CK.thing(id, { obj: MODELS[m.id](), kind: 'mess.' + m.kind, label: m.n, chore: 'tidy', holdD: m.kind === 'clothes' ? 60 : 45, home: { room: 'bedroom', x: 0, y: FY, z: 100, hide: true } });
       }
@@ -120,7 +122,7 @@
     },
     reset() { this.lay(); this.sync(); },
     sync() {
-      basketN = CC.tidyFor(CK.day()).filter(m => m.kind === 'clothes' && CK.has('tidy', m.id)).length;
+      basketN = CC.tidyFor(CK.day(),sparse).filter(m => m.kind === 'clothes' && CK.has('tidy', m.id)).length;
       if (basketPile) { basketPile.visible = basketN > 0; basketPile.scale.set(1, 0.6 + basketN * 0.4, 1); H.dirty(); }
     },
     take() { return true; }, // (the house's own "tidy" check: this is the real one)
@@ -252,7 +254,7 @@
   });
   H.on('grab', id => { if (id === 'ch.binbag') CK.MODS.bin.sync(); });
   H.on('rest', id => { if (id === 'ch.binbag') CK.MODS.bin.sync(); });
-  const tidyInBin = () => CC.tidyFor(CK.day()).filter(m => m.kind === 'rubbish' && CK.has('tidy', m.id)).length;
+  const tidyInBin = () => CC.tidyFor(CK.day(),sparse).filter(m => m.kind === 'rubbish' && CK.has('tidy', m.id)).length;
   function tie() {
     CK.begin('bin');
     const g = bag.obj, s0 = 1;
