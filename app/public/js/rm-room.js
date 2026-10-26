@@ -1547,8 +1547,9 @@
     // The tube housing: a short straight collar behind the bezel, then the bell tapering back to the neck
     // cover, with cooling slots across its back (a real 15-inch CRT is mostly this bulge).
     P.rbox(L.mx, -22.8, -6.6, 34, 29.5, 6.6, 1.6, BEI2);
-    { const bell = K.roundBox(32.4, 27.6, 12.4, 2.4, 2), bp = bell.attributes.position; // rounded, narrowing steadily towards the neck
-      for (let i = 0; i < bp.count; i++) { const k = 0.7 + 0.3 * (bp.getZ(i) / 12.4 + 0.5); bp.setX(i, bp.getX(i) * k); bp.setY(i, bp.getY(i) * k); }
+    { const bell = K.roundBox(32.4, 27.6, 12.4, 2.4, 2), bp = bell.attributes.position, bn = bell.attributes.normal, dk = 0.3 / 12.4; // rounded, narrowing steadily towards the neck
+      for (let i = 0; i < bp.count; i++) { const x = bp.getX(i), y = bp.getY(i), z = bp.getZ(i), k = 0.7 + 0.3 * (z / 12.4 + 0.5), nx = bn.getX(i), ny = bn.getY(i), nz = bn.getZ(i);
+        bp.setXYZ(i, x * k, y * k, z); const mx = nx / k, my = ny / k, mz = nz - (x * nx + y * ny) * dk / k, l = Math.hypot(mx, my, mz) || 1; bn.setXYZ(i, mx / l, my / l, mz / l); } // (normals follow the taper)
       P.geo(bell, L.mx, -23, -16.1, BEI2); }
     P.rbox(L.mx, -22.6, -23.2, 22.8, 19.2, 2.6, 1.2, BEI2);
     for (let i = 0; i < 6; i++) P.box(L.mx - 6.25 + i * 2.5, -27.5, -24.55, 1.1, 7.4, 0.25, M('#4a4436'));

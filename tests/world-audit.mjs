@@ -14,7 +14,7 @@ const dir=root+'tests/shots/world-audit/'+tag;
 let server,fixture,data,log='';
 const baseline=new Map();
 if(process.env.WORLD_AUDIT_SOURCE_DIR)for(const file of ['hs-world.js','hs-house.js','rm-room.js','ch-out.js'])baseline.set(file,await readFile(process.env.WORLD_AUDIT_SOURCE_DIR+'/'+file,'utf8'));
-const watchdog=setTimeout(()=>{console.error('Audit timed out');void cleanup().finally(()=>process.exit(1))},600000);
+const watchdog=setTimeout(()=>{console.error('Audit timed out');void cleanup().finally(()=>process.exit(1))},+process.env.WORLD_AUDIT_TIMEOUT||600000); // (WORLD_AUDIT_TIMEOUT ms on a busy shared host)
 async function cleanup(){if(fixture)await fixture.browser.close().catch(()=>{});fixture=null;if(server&&server.exitCode===null){const done=once(server,'exit');server.kill('SIGTERM');await done}if(data)await rm(data,{recursive:true,force:true})}
 for(const sig of ['SIGINT','SIGTERM'])process.once(sig,()=>void cleanup().finally(()=>process.exit(1)));
 const views=[['bedroom',[180,-55,200],[-70,30,30],'U'],['landing',[300,-55,180],[370,160,480],'U'],['hall',[270,225,650],[350,195,400],'G'],['cupboard',[370,265,405],[370,290,280],'G'],['kitchen',[120,225,260],[-60,290,100],'G'],['lounge',[120,225,650],[-120,300,430],'G'],['garden',[20,225,-150],[-40,260,-400],'G'],['drive',[300,225,1000],[200,250,800],'G'],['tree-clearance',[92.5,225,-477.5],[145,168,-500],'G'],['stair-edge',[300,55,400],[329,73,425],'U'],['door-jamb',[205,-25,205],[240,-20,150],'U'],['plate-floor',[90,22,195],[70,72,198],'U'],['plate-edge',[90,60,210],[70,72,198],'U']];

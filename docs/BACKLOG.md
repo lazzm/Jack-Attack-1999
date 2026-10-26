@@ -79,7 +79,7 @@ Before/after pairs (same camera, Low, 1366x860, 14:00, full-room fixture; `node 
 | hall-parcels | V08 |
 | front-garden, exterior-corner, drive-boot | V09, S01 |
 
-Draw calls per view (before -> after, `before-draws.json` / `after-draws.json`): bedroom-door 783 -> 744, desk-pc 481 -> 483, tv-consoles 399 -> 360, landing-stairs 550 -> 546, kitchen 260 -> 281 (+8.1%, the most), front-garden 1004 -> 985, wardrobe 405 -> 346, bookcase 404 -> 357, kitchen-table 236 -> 254 (+7.6%); every view within +10%.
+Draw calls per view (before -> after, `before-draws.json` / `after-draws.json`, same renderer): bedroom-door 783 -> 737, desk-pc 481 -> 476, tv-consoles 399 -> 357, landing-stairs 550 -> 546, kitchen 260 -> 281 (+8.1%, the most), front-garden 1004 -> 985, wardrobe 405 -> 346, bookcase 404 -> 355, kitchen-table 236 -> 254 (+7.6%); every view within +10%. Start-up cost of the 2x surfaces (measured in the capture run on a heavily loaded software-GL host): a few hundred ms; phones on Low keep the 1x surfaces.
 
 New defects noticed (not fixed in this pass):
 
@@ -90,4 +90,5 @@ New defects noticed (not fixed in this pass):
 | V33 | low | kitchen notice board, fridge door | Each printed note/photo is its own material (+1 draw each). | Atlas the small prints (one texture, UV rects). |
 | V34 | low | `pm-gl.js` svgTex | Parcel/box art textures fix anisotropy at 4 regardless of tier. | Use the kit's tier anisotropy. |
 | V35 (fixed in wq2) | low | roof barge boards, TV-cabinet rear brace, fridge plinth | The audit listed coplanar faces where the two verge boards met at the ridge, where the low brace met the cabinet bottom and under the fridge plinth (same colour or hidden). | Boards now butt into an apex block; brace raised; plinth lifted 1 mm. |
+| V37 | med | back garden, rotary washing line (`hs-house.js` sheets) | The strict world audit (`after-*` tags) fails on main itself: a collision-valid crouched camera cell at (172.5, 225, -257.5) puts the near plane through a hanging sheet (also reproduced with main's own hs-world/hs-house/rm-room/ch-out). Not caused by this pass; likely the new movement body/collision. | Movement owner: block the washing-line footprint at sheet height, or lift the sheets above the crouch eye line. |
 | V36 | low | magazine reading view | The open magazine stands upright in the close-up rather than tilted toward the camera with a drop shadow. | Tilt the reading pose and add a page-block shadow (magazines.js). |
