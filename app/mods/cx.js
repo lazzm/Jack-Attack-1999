@@ -11,6 +11,7 @@ const path = require('path');
 const ECAT = require(path.join(__dirname, '..', 'public', 'js', 'econ-cat.js'));
 const LCAT = require(path.join(__dirname, '..', 'public', 'js', 'loot-cat.js'));
 const ECON = require('./econ.js');
+const releaseMd=require('./account-clock.js');
 
 const own = (o, k) => o != null && Object.prototype.hasOwnProperty.call(o, k);
 const BADKEY = /^(__proto__|constructor|prototype|hasownproperty|tostring|valueof)$/;
@@ -30,8 +31,8 @@ const ANS = {
 let ctx, D, E, LOOT = null;
 const keyOf = name => { const k = String(name || '').toLowerCase(); return k && !BADKEY.test(k) ? k : null; };
 const ukDay = () => E.uk().day;                      // 'YYYY-MM-DD' (UK)
-const monthNow = () => +ukDay().slice(5, 7);          // the 1999 month we're in
-const isOpen = iss => iss >= 1 && iss <= 12 && iss <= monthNow();
+const monthNow = key => Math.floor(releaseMd(ctx.state,{ready:true,member:key||''},ukDay())/100);          // the 1999 month we're in
+const isOpen = (iss,key) => iss >= 1 && iss <= 12 && iss <= monthNow(key);
 function P(key) {
   let p = D.p[key];
   if (!p || typeof p !== 'object') { p = D.p[key] = { won: {}, tr: {} }; ctx.markDirty(); }
@@ -43,12 +44,12 @@ function winsView(key) {
   const win = {};
   for (let i = 1; i <= 12; i++) { const w = D.win[i]; if (w && w.n) win[i] = { n: w.n, names: w.names.slice(0, 12) }; }
   const p = key ? P(key) : null;
-  return { t: 'cxWins', open: monthNow(), won: p ? Object.keys(p.won).map(Number).filter(n => n >= 1 && n <= 12).sort((a, b) => a - b) : [], win };
+  return { t: 'cxWins', open: monthNow(key), won: p ? Object.keys(p.won).map(Number).filter(n => n >= 1 && n <= 12).sort((a, b) => a - b) : [], win };
 }
 function compo(ws, c, key, m) {
   const iss = m.iss | 0;
   if (!own(ANS, iss)) return;
-  if (!isOpen(iss)) return ctx.send(ws, { t: 'cxCompo', iss, shut: 1, msg: `The ${MONTHS[iss - 1]} issue isn't in the shops yet. It comes out on 1 ${MONTHS[iss - 1]}!` });
+  if (!isOpen(iss,key)) return ctx.send(ws, { t: 'cxCompo', iss, shut: 1, msg: `The ${MONTHS[iss - 1]} issue isn't in the shops yet. It comes out on 1 ${MONTHS[iss - 1]}!` });
   const a = Array.isArray(m.a) ? m.a.slice(0, 3).map(x => x | 0) : [];
   if (a.length !== 3 || a.some(x => x < 0 || x > 3)) return;
   if (!key) return ctx.send(ws, { t: 'cxCompo', iss, guest: 1, msg: NEED });

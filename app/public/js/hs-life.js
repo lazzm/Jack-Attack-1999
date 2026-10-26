@@ -25,7 +25,7 @@
   const MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   function now99() {
     let t; try { t = Desk.today99(); } catch (e) { const d = new Date(); t = { m: d.getMonth() + 1, d: d.getDate() }; }
-    const d = new Date(), day = t.m === 2 && t.d === 29 ? 28 : t.d;
+    const d = window.OwnerTools?.now() || new Date(), day = t.m === 2 && t.d === 29 ? 28 : t.d;
     return { m: t.m, d: t.d, md: t.m * 100 + t.d, dow: new Date(1999, t.m - 1, day).getDay(), h: d.getHours(), min: d.getMinutes(), t: d.getHours() + d.getMinutes() / 60 };
   }
   // English school holidays, 1999 (roughly: they varied a little by county), and the bank holidays
@@ -362,6 +362,12 @@
   window.HouseLife = {
     use(what) { const f = USE[what]; if (f) f(); },
     chore, voice, ringing, ring: c => startRing(c), quiet, part, now99, schoolDay,
+    ownerEvent(id) {
+      if(!window.OwnerTools?.allowed)return false;
+      if(id==='phone'){const was=ring;startRing();return !!ring&&!was;}
+      const lines={tea:'Tea is ready! Come and get it before it goes cold!',bedtime:'Time for bed, Jack. Save your game.',school:'School! Shoes on, bag ready, out you go!',pocket:'Saturday pocket money! Check with me when your jobs are done.'};
+      if(!lines[id])return false;voice('MOM',lines[id]);return true;
+    },
     vcrSet: () => S.vcr != null, mwSet: () => S.mw != null, mwClock: clockMw,
     get S() { return S; }, save,
   };

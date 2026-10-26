@@ -194,7 +194,7 @@
   };
   // ---- what's on: each channel by the time of day (the numbers on the remote: 1-5, and 0 for the video)
   function onNow(ch) {
-    const L = life(), p = L ? L.part() : 'evening', n = L ? L.now99() : { dow: 3 }, m = new Date().getMinutes();
+    const L = life(), p = L ? L.part() : 'evening', n = L ? L.now99() : { dow: 3 }, m = (window.OwnerTools?.now() || new Date()).getMinutes();
     const ad = (ch >= 3) && (m % 15 >= 12); // an advert break near the quarter hours
     if (ad) return ['ads', 'THE ADVERTS'];
     const T = {

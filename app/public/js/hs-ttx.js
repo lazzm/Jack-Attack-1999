@@ -260,7 +260,7 @@
       g.clearRect(0, 0, cv.width, cv.height);
       if (!T.mix) { g.fillStyle = '#000'; g.fillRect(0, 0, cv.width, cv.height); }
       // the header: the page you asked for (or what you've typed), the service name, the date, the clock
-      const d = new Date(), t = t99();
+      const d = window.OwnerTools?.now() || new Date(), t = t99();
       const shown = T.search ? (100 + Math.floor(now / 37) % 800) : T.page;
       const pn = T.typed ? 'P' + (T.typed + '---').slice(0, 3) : 'P' + (T.search ? T.want : T.page);
       const hdr = A.w + pad(pn, 5) + A.y + 'TELLY-TEXT ' + A.w + shown + ' ' + DAYS[t.dow] + String(t.d).padStart(2, '0') + MON[t.m - 1] + A.y + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');

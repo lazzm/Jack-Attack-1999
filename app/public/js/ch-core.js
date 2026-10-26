@@ -644,6 +644,11 @@
   function take(id) { const m = MODS[id]; if (!m || !m._built || !m.take) return false; try { return !!m.take(); } catch (e) { console.error(e); return false; } }
   window.ChoreKit = {
     H, R, T, K, A, M, CC, D2R, esc, cast, pick, clamp, ease, touchy, member, secret,
+    ownerStart(id) {
+      if(!window.OwnerTools?.allowed)return false;const m=MODS[id];if(!m?._built)return false;
+      for(const k of ['prog','done','oops','t0','said'])delete S[k][id];
+      delete srv.done[id];delete srv.prog[id];if(m.reset)m.reset();save();refresh();begin(id);take(id);return true;
+    },
     add, built, whenBuilt, take, step, oops, has, done, started, count, begin, list, onList, stepsOf, avail,
     get S() { return S; }, save, day, date99,
     mom, jack, snd, fx, spot, pickBox, thing, guard, tool, keep, home, hideThing, lock, snap, own, canvas, redraw, tween, sticky, paper, closeUp, listHTML, refresh, chip,

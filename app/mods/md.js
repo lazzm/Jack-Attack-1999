@@ -1279,6 +1279,7 @@ module.exports = {
     for (const k in EARN_ADD) if (!ECAT.EARN[k]) ECAT.EARN[k] = EARN_ADD[k];
     coords(); initWorld(); lootAugment();
     setInterval(tick, 1000);
+    x.on('owner-replace', key => { for(const P of [...S.values()])if(!P.guest&&memKey(P)===key){P.guest=true;leaveWorld(P,'quit');} });
     x.on('close', c => { for (const P of S.values()) if (P.c === c) { P.ld = Date.now(); P.ws = null; if (P.state === 'play') toRoom(P.room, `{D}${P.name} has gone very still. (Their connection dropped.){x}`, P); } });
     x.on('login', c => { // a guest who joins JackNet mid-adventure can keep their character
       for (const P of S.values()) {

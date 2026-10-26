@@ -156,7 +156,7 @@
   const skyTex = K.tex('rm.sky', 512, 256, () => {}, { clamp: true });
   let skyPhase = '';
   function paintSky() {
-    const d = new Date(), h = d.getHours() + d.getMinutes() / 60, mo = d.getMonth();
+    const d = window.OwnerTools?.now() || new Date(), h = d.getHours() + d.getMinutes() / 60, mo = d.getMonth();
     const rise = 7.5 - Math.cos((mo + 0.5) / 12 * Math.PI * 2) * 1.6, set = 17.5 + Math.cos((mo + 0.5) / 12 * Math.PI * 2) * -2.2 + 0.4; // (rough, for southern England)
     const ph = h < rise - 0.7 || h > set + 0.7 ? 'night' : h < rise + 0.6 ? 'dawn' : h > set - 0.6 ? 'dusk' : 'day';
     pb.classList.remove('rm-day', 'rm-dusk', 'rm-dawn', 'rm-night'); pb.classList.add('rm-' + ph);
@@ -1508,7 +1508,7 @@
     shelf: ['My shelf: the BUILDO space shuttle, the Buildex roller coaster (it works!) and my Swimming 25 Metres trophy (from when I was 7).', 'The roller coaster took three weekends. A full circuit, two rails, and about a million little blue connectors.'],
     tvback: ['Behind the telly: about forty leads, all tangled. Nobody knows which one is which.'],
     mags: ['A pile of games mags. The free demo discs are coasters now.', 'The cheats pages are the most read bit. They are falling out.'],
-    clock: () => { const d = new Date(); return `The radio alarm clock says ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}. It's tuned to the chart show. The snooze button is broken from overuse.`; },
+    clock: () => { const d = window.OwnerTools?.now() || new Date(); return `The radio alarm clock says ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}. It's tuned to the chart show. The snooze button is broken from overuse.`; },
     cork: ['My cork board: a 1999 calendar, a photo of me and Dave at the swimming baths, and a list of cheats.'],
     posterband: ['THE MODEM BOYS. Best band ever. Their song "Beep Bop Connect" was number 4 for a week.'],
     posterfilm: ['INTERGALACTIC BATTLES: The Phantom Menu. A film about a space restaurant.'],
@@ -1774,7 +1774,7 @@
     H.ambient.add(now => { // the gentle stuff: the lava lamp's blobs, the cat breathing, the clock, the sky
       if (R.blobs && LIGHT.lava) R.blobs.forEach((b, i) => { const t = now / (2600 + i * 900) + i * 2; b.position.y = -12 - (Math.sin(t) * 0.5 + 0.5) * 12; b.scale.y = 1.6 + Math.sin(t * 2.3) * 0.5; });
       if (R.catBody) R.catBody.scale.y = 6.5 + Math.sin(now / 900) * 0.25;
-      const d = new Date(); if (d.getMinutes() !== clockMin) { clockMin = d.getMinutes(); paintClock(d); if (clockMin % 5 === 0) paintSky(); }
+      const d = window.OwnerTools?.now() || new Date(); if (d.getMinutes() !== clockMin) { clockMin = d.getMinutes(); paintClock(d); if (clockMin % 5 === 0) paintSky(); }
     });
     lampLook();
     postCheck(); setInterval(postCheck, 5000);
@@ -2008,6 +2008,7 @@
     }
   }
   function paintClock(d) { const t = R.clockTex; if (!t) return; const g = t.userData.g; g.fillStyle = '#140404'; g.fillRect(0, 0, 128, 48); g.font = '700 38px "Courier New",monospace'; g.textAlign = 'center'; g.fillStyle = '#ff2a1a'; g.shadowColor = '#f00'; g.shadowBlur = 8; g.fillText(d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'), 64, 38); g.shadowBlur = 0; t.needsUpdate = true; H.dirty(); }
+  addEventListener('ownerclock',()=>{paintSky();paintClock(window.OwnerTools?.now()||new Date());H.relight();});
   function postCheck() { if (!R.post) return; const v = !!(R.dcOut && S.post && !S.f['cart.dc.duel']); if (R.post.visible !== v) { R.post.visible = v; H.dirty(); } }
 
   // rm-tv.js and rm-bits.js say when they shut: back out of the close-up

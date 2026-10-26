@@ -345,6 +345,7 @@ function loadMods() {
       const ctx = {
         data: state.mods[mod.name], state, clients, send, broadcast, markDirty, clean, delink, Bucket, pushChat, presence, scrypt: scryptHash, emit: modEmit,
         member: c => (c && c.member ? state.members[c.member.toLowerCase()] : null),
+        flush: save, indexTokens,
         on: (ev, fn) => { (MOD_EVENTS[ev] = MOD_EVENTS[ev] || []).push(fn); },
       };
       if (mod.init) mod.init(ctx);
@@ -763,6 +764,9 @@ function handle(ws, c, m) {
     return;
   }
   if (!c.ready) return;
+  // Owner replacements fence old tabs, uploads and in-flight game packets until
+  // a new authenticated connection loads the authoritative replacement.
+  if (c.ownerReload) return;
   // Anonymous sockets may authenticate, but cannot play or mutate game state.
   if (!c.member && m.t !== 'login' && m.t !== 'logoff') return;
 

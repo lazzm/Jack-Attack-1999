@@ -20,7 +20,7 @@
   function apply(obj) { wipe(); Object.keys(obj || {}).forEach(k => { if (k.startsWith('jhp_') && !LOCAL.test(k) && typeof obj[k] === 'string') ls.set(k, obj[k]); }); }
   // Apply downloaded profiles before room/media modules start, not while the
   // previous user's in-memory timers can save their inventory over the new one.
-  try{const pending=JSON.parse(sessionStorage.getItem('jhp_roam_pending')||'null');if(pending?.obj&&typeof pending.name==='string'){apply(pending.obj);ls.set('jhp_roam_who',pending.name);ls.set('jhp_roam_ts',String(pending.ts));ls.set('jhp_roam_hash',hash(JSON.stringify(snapshot())));sessionStorage.removeItem('jhp_roam_pending')}}catch(e){try{sessionStorage.removeItem('jhp_roam_pending')}catch(ignore){}}
+  try{const pending=JSON.parse(sessionStorage.getItem('jhp_roam_pending')||'null');if(pending?.obj&&typeof pending.name==='string'){apply(pending.obj);ls.set('jhp_roam_who',pending.name);ls.set('jhp_roam_ts',String(pending.ts));ls.set('jhp_roam_hash',hash(JSON.stringify(snapshot())));if(pending.ownerRev!==undefined)ls.set('jhp_roam_ownerRev',String(pending.ownerRev));sessionStorage.removeItem('jhp_roam_pending')}}catch(e){try{sessionStorage.removeItem('jhp_roam_pending')}catch(ignore){}}
 
   // ---- gzip + base64 (falls back to plain base64 on browsers without CompressionStream)
   const toB64 = bytes => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); };
@@ -54,7 +54,7 @@
       const id = Math.random().toString(36).slice(2, 10), n = Math.max(1, Math.ceil(data.length / 3000));
       for (let i = 0; i < n; i++) {
         if(switching||me().toLowerCase()!==name.toLowerCase())return false;
-        if (!Net.send({ t: 'rmPut', id, i, n, d: data.slice(i * 3000, (i + 1) * 3000), ts: Date.now(), enc, base: +(ls.get('jhp_roam_ts') || 0) })) { busy = false; return false; }
+        if (!Net.send({ t: 'rmPut', id, i, n, d: data.slice(i * 3000, (i + 1) * 3000), ts: Date.now(), enc, base: +(ls.get('jhp_roam_ts') || 0), ownerRev: +(ls.get('jhp_roam_ownerRev')||0) })) { busy = false; return false; }
         if (i % 10 === 9) await new Promise(r => setTimeout(r, 700));
       }
       const ok = await new Promise(res => { waiters.push(res); setTimeout(() => res(false), 8000); });
@@ -146,8 +146,15 @@
   function onMember() {
     const name = me(); if (!name) return;
     const mine = who.toLowerCase() === name.toLowerCase();
-    Net.send({ t: 'rmGet', since: mine ? +(ls.get('jhp_roam_ts') || 0) : 0 });
+    Net.send({ t: 'rmGet', since: mine ? +(ls.get('jhp_roam_ts') || 0) : 0, ownerRev: +(ls.get('jhp_roam_ownerRev')||0) });
   }
+  Net.on('ownerReload', async m => {
+    if (!window.OwnerTools?.allowed || !m.profile) return;
+    switching=true; busy=true; // No pagehide upload of the old in-memory room.
+    const obj=JSON.parse(await unpack(m.profile.enc,m.profile.data));
+    sessionStorage.setItem('jhp_roam_pending',JSON.stringify({obj,name:me(),ts:m.profile.ts,ownerRev:m.ownerRev}));
+    location.reload();
+  });
   Net.on('rmData', async m => {
     const name = me(); if (!name) return;
     let obj;
@@ -157,7 +164,7 @@
       if (me().toLowerCase() !== name.toLowerCase()) return; // logged off while deciding
       if (guest && !keep) ls.set('jhp_roam_guest', JSON.stringify(guest)); // keep the guest's stuff for when they log off
       if (guest && keep) ls.del('jhp_roam_guest'); // moved into the profile
-      if(!keep){switching=true;try{sessionStorage.setItem('jhp_roam_pending',JSON.stringify({obj,name,ts:m.ts}))}catch(e){apply(obj);ls.set('jhp_roam_who',name);ls.set('jhp_roam_ts',String(m.ts))}location.reload();return;}
+      if(!keep){switching=true;try{sessionStorage.setItem('jhp_roam_pending',JSON.stringify({obj,name,ts:m.ts,ownerRev:m.ownerRev}))}catch(e){apply(obj);ls.set('jhp_roam_who',name);ls.set('jhp_roam_ts',String(m.ts))}location.reload();return;}
       apply(keep ? merge(obj, guest) : obj);
       who = name; ls.set('jhp_roam_who', name); ls.set('jhp_roam_ts', String(m.ts)); lastHash = keep ? '' : hash(JSON.stringify(snapshot())); ls.set('jhp_roam_hash', lastHash);
       if (keep) copying(made(snapshot()), () => location.reload());

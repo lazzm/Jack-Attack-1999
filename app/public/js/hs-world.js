@@ -1817,6 +1817,7 @@
   };
   // A detached snapshot for diagnostics: no scene objects or writable references escape.
   window.__jhpDebug = () => ({
+    fps: Q.fps, story: window.st?.getState?.() ? JSON.parse(JSON.stringify(window.st.getState())) : null,
     renderer: { calls: ren.info.render.calls, triangles: ren.info.render.triangles,
       geometries: ren.info.memory.geometries, textures: ren.info.memory.textures },
     room: cur ? cur.id : null,

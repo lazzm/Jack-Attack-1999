@@ -16,6 +16,7 @@ const crypto = require('crypto');
 const CAT = require(path.join(__dirname, '..', 'public', 'js', 'rm-cat.js'));
 const ECAT = require(path.join(__dirname, '..', 'public', 'js', 'econ-cat.js'));
 const ECON = require('./econ.js');
+const releaseMd=require('./account-clock.js');
 
 const own = (o, k) => o != null && Object.prototype.hasOwnProperty.call(o, k);
 const BADKEY = /^(__proto__|constructor|prototype|hasownproperty|tostring|valueof)$/;
@@ -33,7 +34,7 @@ const EARN_ADD = {
 const keyOfC = c => { if (!c || !c.member) return null; const k = String(c.member).toLowerCase(); return BADKEY.test(k) ? null : k; };
 const today = () => E.uk().day; // UK day 'yyyy-mm-dd'
 const md99 = () => { const d = today(); return +d.slice(5, 7) * 100 + +d.slice(8, 10); };
-const outNow = f => !f.from || CAT.md(f.from) <= md99();
+const outNow = (f,c) => !f.from || CAT.md(f.from) <= (c?releaseMd(ctx.state,c,today()):md99());
 function P(key) {
   let p = D.p[key];
   if (!p || typeof p !== 'object') { p = D.p[key] = { f: {}, best: {}, n: {}, coin: { day: '', got: 0 } }; ctx.markDirty(); }
@@ -87,7 +88,7 @@ function done(ws, c, m) {
   ctx.send(ws, { t: 'rmDone', g, sc, amt, best: p.best[g] | 0, pb: pb || first, rank, list, real });
 }
 function find(ws, c, m) {
-  const id = String(m.id || ''), F = CAT.FIND[id]; if (!F || !outNow(F)) return;
+  const id = String(m.id || ''), F = CAT.FIND[id]; if (!F || !outNow(F,c)) return;
   const key = keyOfC(c); if (!key) return ctx.send(ws, { t: 'rmFound', id, amt: 0, guest: 1 });
   if((ctx.member(c)?.starterTest===1||ctx.member(c)?.starterSparse===1)&&id.startsWith('cart.'))return;
   const p = P(key);
