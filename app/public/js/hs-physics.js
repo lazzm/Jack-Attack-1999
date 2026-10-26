@@ -83,11 +83,14 @@
       b.rad = Math.max(...b.parts.map(p => Math.hypot(p.x, p.z) + (p.t === 'cyl' ? p.r : Math.hypot(p.hx, p.hz))));
       if (b.push == null) b.push = 1 / (1 + b.mass * b.mu / o.pushPower);
       b.wp = b.parts.map(() => ({}));
+      b.minHalf = Math.max(1, Math.min(...b.parts.map(p => p.t === 'cyl' ? p.r : Math.min(p.hx, p.hz))));
       bodies.set(id, b); update(b);
       return b;
     }
     function remove(id) { const b = bodies.get(id); if (!b) return; awake.delete(b); bodies.delete(id); }
-    function update(b) { // world parts + aabb
+    function update(b) { // world parts + aabb (skipped when the pose hasn't changed since last time)
+      if (b._x === b.x && b._z === b.z && b._y === b.y && b._ry === b.ry && b._sw === b.sw) return;
+      b._x = b.x; b._z = b.z; b._y = b.y; b._ry = b.ry; b._sw = b.sw;
       let x0 = 1e9, z0 = 1e9, x1 = -1e9, z1 = -1e9;
       const by = b.ry * D2R, bc = Math.cos(by), bs = Math.sin(by);
       for (let i = 0; i < b.parts.length; i++) {
@@ -165,11 +168,14 @@
     // Is this part resting on (or hovering just above) that collider? Then it is a support, never a wall.
     function onTop(w, s, b) { return w.bot <= s.top + 0.75 && w.base && inside(b.x, b.z, s, 1.5); }
 
+    // Bodies that could be near a region: the player's neighbourhood list when it covers it (rebuilt every frame with a
+    // 30 cm margin, so a body moving a few cm this frame is still in it), else every body.
+    function near0(lvl, x0, z0, x1, z1) { const k = nearKey; return k && k.lvl === lvl && x0 >= k.x0 && x1 <= k.x1 && z0 >= k.z0 && z1 <= k.z1 ? nearList : bodies.values(); }
     // ------------------------------------------------------------ contacts for one body
     const near = [], tmpParts = [];
     function others(b, x0, z0, x1, z1, out) {
       out.length = 0;
-      for (const q of bodies.values()) if (q !== b && q.active && q.lvl === b.lvl && aabbHit(q, x0, z0, x1, z1, 0.5)) out.push(q);
+      for (const q of near0(b.lvl, x0, z0, x1, z1)) if (q !== b && q.active && q.lvl === b.lvl && aabbHit(q, x0, z0, x1, z1, 0.5)) out.push(q);
       return out;
     }
     // Push b out of everything solid beside it. Returns the contacts used (for velocity response).
@@ -179,12 +185,13 @@
         update(b);
         let worst = null;
         staticsNear(b.lvl, b.ax0, b.az0, b.ax1, b.az1, near);
+        others(b, b.ax0, b.az0, b.ax1, b.az1, tmpParts);
         for (const w of b.wp) {
           for (const s of near) {
-            if (vOverlap(w, s) <= 0.3 || onTop(w, s, b)) continue;
+            if (w.ax1 < s.ax0 || w.ax0 > s.ax1 || w.az1 < s.az0 || w.az0 > s.az1 || vOverlap(w, s) <= 0.3 || onTop(w, s, b)) continue;
             const h = footprint(w, s); if (h && h.depth > 0.01 && (!worst || h.depth > worst.depth)) worst = { nx: h.nx, nz: h.nz, depth: h.depth, other: null, kin: s.kind === 'kinematic' };
           }
-          for (const q of others(b, b.ax0, b.az0, b.ax1, b.az1, tmpParts)) for (const v of q.wp) {
+          for (const q of tmpParts) for (const v of q.wp) {
             if (vOverlap(w, v) <= 0.3 || onTop(w, v, b)) continue;
             if (v.bot <= w.top + 0.75 && v.base && inside(q.x, q.z, w, 1.5)) continue; // q rests on us
             const h = footprint(w, v); if (h && h.depth > 0.01 && (!worst || h.depth > worst.depth)) worst = { nx: h.nx, nz: h.nz, depth: h.depth, other: q };
@@ -263,12 +270,12 @@
       if (b.wy) { const d = (b.grounded ? b.mu * 900 : 30) * h; b.wy = Math.abs(b.wy) > d ? b.wy - Math.sign(b.wy) * d : 0; }
       if (b.wsw) { b.wsw *= Math.pow(b.swDamp, h * 60); if (Math.abs(b.wsw) < 1) b.wsw = 0; }
       // horizontal, in short substeps so nothing tunnels through a thin wall or a door leaf
-      const mx = b.vx * h, mz = b.vz * h, minHalf = Math.max(1, Math.min(...b.parts.map(p => p.t === 'cyl' ? p.r : Math.min(p.hx, p.hz))));
+      const mx = b.vx * h, mz = b.vz * h, minHalf = b.minHalf;
       const n = Math.max(1, Math.ceil(Math.hypot(mx, mz) / Math.min(3, minHalf * 0.6)));
       const x0 = b.x, z0 = b.z, ry0 = b.ry, sw0 = b.sw;
       for (let i = 0; i < n; i++) {
         b.x += mx / n; b.z += mz / n;
-        const hit = resolve(b, true, 3);
+        const hit = resolve(b, true, 2);
         if (hit) { // lose the velocity into the contact, keep the slide along it
           const vn = b.vx * hit.nx + b.vz * hit.nz;
           if (vn < 0) { b.vx -= hit.nx * vn * 1.08; b.vz -= hit.nz * vn * 1.08; if (vn < -40 && W.onImpact) W.onImpact(b, -vn); }
@@ -296,7 +303,7 @@
       return Math.abs(dx) + Math.abs(dz) + Math.abs(dr) + Math.abs(b.sw - sw0) > 0.002 || Math.abs(b.y - prevBottom) > 0.002;
     }
     function carry(b, dx, dz, dr, cx, cz) {
-      for (const q of bodies.values()) {
+      for (const q of near0(b.lvl, b.ax0 - 10, b.az0 - 10, b.ax1 + 10, b.az1 + 10)) {
         if (q === b || !q.active || q.support !== b) continue;
         const a = -dr * D2R, rx = q.x - cx, rz = q.z - cz;
         q.x = cx + dx + rx * Math.cos(a) - rz * Math.sin(a); q.z = cz + dz + rx * Math.sin(a) + rz * Math.cos(a); q.ry += dr;
@@ -305,7 +312,7 @@
       }
     }
     function supportGone(b) { // something under a sleeping body moved away: let it fall
-      for (const q of bodies.values()) if (q.support === b && q.active && !awake.has(q)) wakeBody(q);
+      for (const q of near0(b.lvl, b.ax0 - 10, b.az0 - 10, b.ax1 + 10, b.az1 + 10)) if (q.support === b && q.active && !awake.has(q)) wakeBody(q);
     }
     function stepOnce() {
       for (const b of Array.from(awake)) {
@@ -336,12 +343,14 @@
     function playerRegion(lvl, x, z, reach) {
       nearKey = { lvl, x0: x - reach, z0: z - reach, x1: x + reach, z1: z + reach };
       nearList = []; for (const q of bodies.values()) if (q.active && q.lvl === lvl && aabbHit(q, nearKey.x0, nearKey.z0, nearKey.x1, nearKey.z1, 30)) nearList.push(q);
+      tallList = nearList.filter(q => q.parts.some(p => p.player !== false && p.hi > o.stepUp));
     }
+    let tallList = null;
     function capsuleParts(lvl, x, z, r, feet, head, fn) {
       const x0 = x - r, z0 = z - r, x1 = x + r, z1 = z + r;
       const k = nearKey, cached = k && k.lvl === lvl && x0 >= k.x0 && x1 <= k.x1 && z0 >= k.z0 && z1 <= k.z1;
       stats.queries = (stats.queries || 0) + 1;
-      for (const q of cached ? nearList : bodies.values()) {
+      for (const q of cached ? tallList : bodies.values()) {
         if (!q.active || q.lvl !== lvl || W.ghost.has(q.id) || !aabbHit(q, x0, z0, x1, z1, 0.5)) continue;
         for (const w of q.wp) {
           if (!w.player || w.hi <= o.stepUp) continue;
@@ -358,10 +367,20 @@
       capsuleParts(lvl, x, z, r, feet, head, (q, w) => { const h = playerHit(x, z, r, w); if (h && h.depth > 0.001) out.push({ nx: h.nx, nz: h.nz, depth: h.depth, id: q.id }); });
       return out;
     }
+    // (the movement sweep asks this most often: a tight loop over just the tall bodies near the player)
     function playerBlocked(lvl, x, z, r, feet, head) {
-      let hit = false;
-      capsuleParts(lvl, x, z, r, feet, head, (q, w) => { if (!hit) { const h = playerHit(x, z, r, w); if (h && h.depth > 0.001) hit = true; } });
-      return hit;
+      const x0 = x - r, z0 = z - r, x1 = x + r, z1 = z + r, k = nearKey;
+      const list = k && k.lvl === lvl && x0 >= k.x0 && x1 <= k.x1 && z0 >= k.z0 && z1 <= k.z1 ? tallList : bodies.values();
+      const lo = feet - o.stepUp;
+      for (const q of list) {
+        if (!q.active || q.lvl !== lvl || q.ax1 + 0.5 < x0 || q.ax0 - 0.5 > x1 || q.az1 + 0.5 < z0 || q.az0 - 0.5 > z1 || W.ghost.has(q.id)) continue;
+        for (const w of q.wp) {
+          if (!w.player || w.hi <= o.stepUp || Math.min(w.bot, lo) - Math.max(w.top, head) <= 0) continue;
+          if (w.t === 'cyl') { const dx = x - w.x, dz = z - w.z, rr = r + w.r; if (dx * dx + dz * dz < rr * rr - 0.002 * rr) return true; }
+          else { const h = circleBox(x, z, r, w); if (h && h.depth > 0.001) return true; }
+        }
+      }
+      return false;
     }
     // Bodies the player is already inside (a refresh, a door swinging something into them): walk out freely.
     // A body stays a ghost until the player is completely clear of it; a new one needs a real (>1 cm) overlap.
@@ -387,7 +406,7 @@
         const want = Math.min(h.depth, into) * q.push;
         const px = -h.nx * want, pz = -h.nz * want;
         const x0 = q.x, z0 = q.z;
-        q.x += px; q.z += pz; resolve(q, true, 3);
+        q.x += px; q.z += pz; resolve(q, true, 2);
         const ax = q.x - x0, az = q.z - z0, got = Math.hypot(ax, az);
         // spin: an off-centre shove turns it (a chair's seat swivels instead)
         const cx = tx - h.nx * r, cz = tz - h.nz * r; // contact point on the player
@@ -429,7 +448,7 @@
     function findRest(spec, lvl, x, z, ry, fromY, exclude, sw) {
       probe.lvl = lvl; probe.x = x; probe.z = z; probe.ry = ry || 0; probe.sw = sw || 0; probe.parts = spec.parts; probe.h = spec.h || Math.max(...spec.parts.map(p => p.hi));
       if (probe.wp.length !== spec.parts.length) probe.wp = spec.parts.map(() => ({}));
-      probe.y = fromY; update(probe);
+      probe.y = fromY; probe._x = NaN; update(probe);
       const ex = exclude ? (exclude instanceof Set ? exclude : new Set([].concat(exclude))) : null;
       const saved = []; if (ex) for (const id of ex) { const q = bodies.get(id); if (q && q.active) { saved.push(q); q.active = false; } }
       try {

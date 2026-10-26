@@ -373,7 +373,7 @@
     const D = K.into(dg); D.box(0, 6.5, 29.4, 34, 9, 1.2, dm, { uv: 60 }); D.box(0, 6.5, 30.6, 10, 1.6, 1.4, mBrass); D.box(0, 10.5, 0, 32, 1, 58, M('#4a3420')); D.box(-15.5, 7, 0, 1, 8, 58, M('#4a3420')); D.box(15.5, 7, 0, 1, 8, 58, M('#4a3420'));
     D.box(0,6.5,-28.5,32,8,1,M('#4a3420'));
     D.box(-5,9.8,6,18,.25,24,M('#f4f0e0'),{ry:12});D.box(6,9.5,12,16,.25,20,M('#fffbe0'),{ry:-8}); D.box(4, 9.4, -10, 9, 0.6, 9.4, M({ c: '#fff', map: tex('floppyLabel') }));
-    H.openable('drawer', { label: 'Desk drawer', pivot: dg, type: 'slide', axis: 'z', amt: 22, base: 0, onToggle: open => { if (open) setTimeout(() => { if (H.OPEN.drawer && H.OPEN.drawer.open) bits('drawer'); }, 420); } });
+    H.openable('drawer', { label: 'Desk drawer', pivot: dg, type: 'slide', axis: 'z', amt: 22, base: 0, onToggle: open => { if (open && !H.held()) setTimeout(() => { if (H.OPEN.drawer && H.OPEN.drawer.open && !H.held()) bits('drawer'); }, 420); } }); // (hands full: it just slides open)
     // An ordinary late-90s armless task chair: woven upholstery, a separate
     // padded back, moulded shell, gas lift and five twin-wheel castors.
     const chairGroup=new T.Group();chairGroup.name='desk-chair';
@@ -404,11 +404,12 @@
     sw.decal(-14,-37.66,7,8,4,M({c:'#fff',map:tag}),{rx:-90});
     chairBatch.build(chairGroup);seatBatch.build(chairSwivel);K.into(chairGroup).shadow(0,0,0,70,70,.52);
     chairGroup.userData.periodChair={type:'armless upholstered task chair',castors:5,wheels:10,seatHeight:44.5};
-    // Colliders at the model's real heights: the castor star (low enough to walk over), the column, the seat (things can
-    // sit on it), the back and its strut. The seat (49 cm) fits under the desk top (69.8 cm); the back (55-89 cm) can't,
+    // Colliders at the model's real heights: the castor star (low enough to walk over), the seat with the column under
+    // it (things can sit on it), and the back. The seat (49 cm) fits under the desk top (69.8 cm); the back (55-89 cm) can't,
     // so pushed in, the chair stops with its back against the desk edge: tucked in. Home is tucked in (a tidy desk).
-    const CHAIR_PARTS=[{t:'cyl',x:0,z:0,r:30,lo:0,hi:9,player:false},{t:'cyl',x:0,z:0,r:4.5,lo:9,hi:34},
-      {t:'box',x:0,z:2,hx:22.5,hz:21.5,lo:33,hi:49,sw:true,top:true},{t:'box',x:0,z:-23,hx:2.5,hz:2.2,lo:34,hi:62,sw:true},{t:'box',x:0,z:-19.6,hx:21,hz:5.4,lo:55,hi:89,sw:true}];
+    // (three parts are enough: the column and the back strut sit inside the seat's and back's footprints)
+    const CHAIR_PARTS=[{t:'cyl',x:0,z:0,r:30,lo:0,hi:9,player:false},
+      {t:'box',x:0,z:2,hx:22.5,hz:21.5,lo:9,hi:49,sw:true,top:true},{t:'box',x:0,z:-19.6,hx:21,hz:5.4,lo:49,hi:89,sw:true}];
     loose('chair',chairGroup,{room:'bedroom',x:L0().mx,y:FY,z:18,ry:180},'My office chair',{kind:'furniture',holdD:90,obstacle:true,floorOnly:true,noStack:true,seat:{eye:110,front:2},swivel:chairSwivel,
       physics:{parts:CHAIR_PARTS,mass:9,mu:.32,coast:.42,tip:0,castors:true,drag:true,swing:1.2,swDamp:.86},use:()=>H.sitOn('chair'),useLabel:'Sit down'});
     // the desk lamp (an anglepoise; it really lights the room)
@@ -700,9 +701,8 @@
     // One closed moulded shell (outer wall, rolled lip, inner wall, inner floor), a darker recessed base ring and a
     // few ribs, then what's in it: crumpled paper, a crisp packet half out and a drinks can, resting on the rubbish.
     const binBlue=M({ c: '#2b5bcf', sh: 34, sp: '#3a3f4a' }),binDark=M({ c: '#1e3f92', sh: 20 });
-    BN.lathe(0, 0, 0, [[0,0],[8.1,0],[8.5,-.6],[10.15,-26.2],[10.55,-26.7],[10.6,-27.35],[10.1,-27.6],[9.55,-27.1],[9.45,-26.4],[7.85,-1.1],[0,-1.1]], 28, binBlue);
+    BN.lathe(0, 0, 0, [[0,0],[8.1,0],[8.5,-.6],[10.2,-26.4],[10.6,-27.1],[10.25,-27.6],[9.6,-27],[7.85,-1.1],[0,-1.1]].reverse(), 28, binBlue); // (kit lathes run top-down)
     BN.cyl(0,-.35,0,8.15,8.15,.7,28,binDark);
-    for(let i=0;i<10;i++){const a=i*36*D2R;BN.box(Math.sin(a)*9.3,-13.5,Math.cos(a)*9.3,.7,23,.5,binBlue,{ry:i*36,rx:Math.atan2(1.7,26)/D2R*-1});}
     BN.disc(0, -8, 0, 8.3, M('#14161a'), 24); // the shadowy rubbish below
     const paperM=M({c:'#efeee6',sh:8});
     [[-3,-10,2,4.2],[3,-11,-2,3.8],[0,-13.5,3.5,3.4],[-2.5,-14,-3,3]].forEach(([x,y,z,r],i)=>BN.ball(x,y,z,r,r*.86,r*.94,paperM,9,{ry:i*40,rz:i*25}));
@@ -1153,10 +1153,11 @@
     // A moulded plastic laundry basket: a real wall with a rolled rim, rows of ventilation slots, two hand-holds, a foot
     // ring, and a heap of washing (towel, jeans, a red top, socks) slumped over the top.
     const laundry=new T.Group(),lbb=K.batch(),lb=K.into(lbb),basketM=M({ c: '#ece7da', sh: 16, sp: '#4a463e' }),slotM=M({c:'#3b3a36',sh:4});
-    lb.lathe(0, 0, 0, [[0,0],[13.6,0],[14,-.8],[16.7,-39],[17.3,-39.5],[17.4,-40.6],[16.8,-41],[16.1,-40.4],[16,-39.6],[13.3,-1.2],[0,-1.2]], 32, basketM);
+    lb.lathe(0, 0, 0, [[0,0],[13.6,0],[14,-.8],[16.7,-39],[17.3,-39.5],[17.4,-40.6],[16.8,-41],[16.1,-40.4],[16,-39.6],[13.3,-1.2],[0,-1.2]].reverse(), 32, basketM);
     lb.cyl(0,-.45,0,13.9,13.9,.9,32,M({c:'#cfc9ba',sh:8}));
-    for(let row=0;row<3;row++)for(let i=0;i<14;i++){const a=(i+(row%2)*.5)*(360/14),r=14.55+row*.86+.32,y=-9-row*8.8;lb.rbox(Math.sin(a*D2R)*r,y,Math.cos(a*D2R)*r,3.1,5.4,.7,.3,slotM,{ry:a,rx:-4});}
-    for(const a of [90,270])lb.rbox(Math.sin(a*D2R)*17.05,-35.2,Math.cos(a*D2R)*17.05,9,2.6,.8,.9,slotM,{ry:a,rx:-4});
+    const wallR=h=>14+2.7*(h-.8)/38.2; // (the outer wall's radius at a height: the slots sit flush in it)
+    for(let row=0;row<3;row++)for(let i=0;i<14;i++){const a=(i+(row%2)*.5)*(360/14),y=-9-row*8.8,r=wallR(-y)+.08;lb.rbox(Math.sin(a*D2R)*r,y,Math.cos(a*D2R)*r,3.1,5.4,.5,.3,slotM,{ry:a,rx:-4});}
+    for(const a of [90,270])lb.rbox(Math.sin(a*D2R)*(wallR(35.2)+.08),-35.2,Math.cos(a*D2R)*(wallR(35.2)+.08),9,2.6,.5,.9,slotM,{ry:a,rx:-4});
     const cloth=(c)=>M({c,sh:3});
     lb.ball(0,-40,0,15.2,5.5,15.2,cloth('#4f6687'),14);                      // jeans, folded over the rim
     lb.ball(5,-43.5,-4,8.5,4.4,6.5,cloth('#f2f0e8'),12,{ry:30});             // a towel
@@ -1673,7 +1674,7 @@
     const go = () => { RoomTV.open(con, con === 'gb' ? rectOf(H.THINGS.gb.obj) : rectOf(R.tvScreen), { restoring: !!resume }); if (gameId) RoomTV.playPhysical(gameId); };
     const ready = () => window.RoomTV ? Promise.resolve() : (tvLoad = tvLoad || loadJs('js/rm-tv.js'));
     const grip=con==='gb'?H.suspendGrip('gb'):null;
-    if(H.held())H.putBack();
+    if(H.held())(H.setAside||H.putBack)();
     if(con==='gb')holdHandheld(grip);
     tvFocusCon = con;
     clearTimeout(boT);
@@ -1715,7 +1716,7 @@
   function bits(id) {
     if(id==='rack')return rackNote();
     if (POSTER_VIEW[id]) return posterFocus(id);
-    if(id==='lava'){if(H.held())H.putBack();return H.focus({x:98,y:-9,z:15,rx:-14,ry:36,lvl:'U',seat:1},{label:'Lean back',enter:()=>say('Lava lamp','Watch the real glass and wax. Q leans back; Esc opens the game menu.',4000)})}
+    if(id==='lava'){if(H.held())(H.setAside||H.putBack)();return H.focus({x:98,y:-9,z:15,rx:-14,ry:36,lvl:'U',seat:1},{label:'Lean back',enter:()=>say('Lava lamp','Watch the real glass and wax. Q leans back; Esc opens the game menu.',4000)})}
     if (!canGo() || pending || (window.RoomBits && RoomBits.open_)) return;
     H.hush();
     const request=++bitsEpoch;
@@ -1723,7 +1724,7 @@
     const ready = () => window.RoomBits ? Promise.resolve() : (bitsLoad = bitsLoad || loadJs('js/rm-bits.js'));
     const at = BITVIEW[id];
     if (!at) return ready().then(open, () => { bitsLoad = null; });
-    if (H.held()) H.putBack();
+    if (H.held()) (H.setAside || H.putBack)();
     clearTimeout(boT); pending = true;
     if (!back) back = { x: H.P.x, y: H.P.y, z: H.P.z, rx: H.P.rx, ry: H.P.ry, lvl: 'U', seat: H.W.seat };
     const [x, y, z] = at, wallBack = z <= BZ + 2, d = wallBack ? 66 : 72;

@@ -510,7 +510,7 @@
   const HEADROOM = 12;
   // (physAcc: every physics millisecond in a frame, solver and player queries together: House.physics.frameMs)
   let physAcc=0,physFrame=0;
-  function bodyBlocks(x,z,lvl,feet,eye){const ph=physReady();if(!ph)return false;const t0=performance.now(),r=ph.playerBlocked(lvl,x,z,RAD,feet,feet-eye-HEADROOM);physAcc+=performance.now()-t0;return r;}
+  function bodyBlocks(x,z,lvl,feet,eye){const ph=PH&&(physDirty||grids.dirty?physReady():PH);return !!ph&&ph.playerBlocked(lvl,x,z,RAD,feet,feet-eye-HEADROOM);} // (untimed: hundreds of calls; tests/physics.mjs measures with the CPU profiler)
   function bodyContacts(x,z,radius){const ph=physReady();if(!ph)return [];const t0=performance.now(),out=ph.playerContacts(W.lvl,x,z,radius,W.fy,W.fy-W.eyeNow-W.jh-HEADROOM);for(const c of out){const b=ph.get(c.id);c.soft=!!b&&!b.fixed&&b.push>0.2}physAcc+=performance.now()-t0;return out;}
   const W = { x: 0, z: 100, lvl: 'U', fy: 73, eye: 128, eyeNow: 100, bob: 0, bobT: 0, vx: 0, vz: 0, jh: 0, jv: 0 };
   const STAND = 128, SITH = 100; // Jack's a 5-foot-ish kid: eyes about 128 cm up (sat: 100)
@@ -686,8 +686,8 @@
   function renderBody(t) {
     const b = t.body, a = t.at; if (!b) return;
     a.x = b.x; a.y = b.y; a.z = b.z; a.ry = b.ry; if (t.swivel) { a.sw = b.sw; t.swivel.rotation.y = b.sw * D2R; }
-    const r = roomAt(b.x, b.z, b.lvl);
-    if (r && r.id !== a.room && t.st !== 'held') { a.room = r.id; moveTo(t, r.id); }
+    const home = ROOMS[a.room]; // (only look for another room once it has left this one's floor)
+    if (!home || home.lvl !== b.lvl || !inArea(home, b.x, b.z, b.lvl)) { const r = roomAt(b.x, b.z, b.lvl); if (r && r.id !== a.room && t.st !== 'held') { a.room = r.id; moveTo(t, r.id); } }
     let rx = (t.rx || 0) * D2R, rz = (t.rz || 0) * D2R, lift = 0;
     if (b.tx || b.tz) {
       const yaw = b.ry * D2R, lx = b.tx * Math.cos(yaw) - b.tz * Math.sin(yaw), lz = b.tx * Math.sin(yaw) + b.tz * Math.cos(yaw);
@@ -698,9 +698,10 @@
     if (t.airborne !== air) { t.airborne = air; t.obj.traverse(o => { if (o.userData.contactShadow) o.visible = !air && (t.st === 'rest' || t.st === 'snap'); }); }
     dirty();
   }
-  const lastBump = new Map();
+  const lastBump = new Map(), movedBodies = new Set();
+  function flushMoved() { if (!movedBodies.size) return; for (const b of movedBodies) if (b.user) renderBody(b.user); movedBodies.clear(); }
   if (PH) {
-    PH.onMove = b => { if (b.user) renderBody(b.user); };
+    PH.onMove = b => { if (b.user) movedBodies.add(b); }; // (drawn once a frame: flushMoved)
     PH.onSleep = b => {
       const t = b.user; if (!t) return; renderBody(t);
       if (t.st !== 'rest') return;
@@ -734,8 +735,8 @@
     physReady();
     if (performance.now() - (tickPhysics.when || 0) > 1000) { tickPhysics.when = performance.now(); if (physWhenKey() !== physWhen) physDirty = true; }
     doorKinematics();
-    if (!PH.awake.size) return false;
-    PH.step(dt);
+    if (!PH.awake.size) { flushMoved(); return false; }
+    PH.step(dt); flushMoved();
     return true;
   }
 
@@ -784,7 +785,7 @@
     const a = P.ry * D2R; _rt.set(Math.cos(a), 0, Math.sin(a)); _up.crossVectors(_rt, f); // screen-down, in this y-down world (+y when level)
     // Below the line of sight by its own radius plus a margin (so the crosshair always shows what you're aiming at), and
     // a little to the right, like something carried in front of you.
-    const down = t.holdOffset ? t.holdOffset.down : R + 4 + d * 0.07, right = t.holdOffset ? t.holdOffset.right : Math.min(16, R * 0.45 + 3);
+    const down = t.holdOffset ? t.holdOffset.down : R + 3 + d * 0.05, right = t.holdOffset ? t.holdOffset.right : Math.min(28, R * 0.9 + 8); // (clear of the carry panel too)
     const tucked = d < R + camera.near + 2;
     const cx = P.x + f.x * d + _up.x * down + _rt.x * right, cy = P.y + f.y * d + _up.y * down, cz = P.z + f.z * d + _up.z * down + _rt.z * right;
     // the model's origin is its bottom centre: put its middle where we want it
@@ -1071,7 +1072,7 @@
   let dragSound = 0;
   function dragTick(t, dt) {
     const b = t.body; if (!b) { letGo(); return; }
-    const a = P.ry * D2R, fx = Math.sin(a), fz = -Math.cos(a), reach = RAD + 8 + b.rad * 0.72;
+    const a = P.ry * D2R, fx = Math.sin(a), fz = -Math.cos(a), reach = RAD + 12 + b.rad * 0.95; // (an arm's length: the chair's back never fills the view)
     const tx = W.x + fx * reach, tz = W.z + fz * reach;
     let mx = tx - b.x, mz = tz - b.z; const len = Math.hypot(mx, mz), cap = 260 * dt;
     if (len > cap) { mx *= cap / len; mz *= cap / len; }
@@ -1157,7 +1158,7 @@
     const go = () => {
       const t = THINGS[g.id];
       if (held || (t && t.st !== 'rest')) { if (!held || held.id !== g.id) ls.del('jhp_hs_held'); return; }
-      if (!t || mode !== 'walk' || !live || worldLoading) { if (++tries < 40) setTimeout(go, 400); else ls.del('jhp_hs_held'); return; }
+      if (!t || mode !== 'walk' || !live || worldLoading || standing || glide) { if (++tries < 60) setTimeout(go, 400); else ls.del('jhp_hs_held'); return; }
       if (!grab(g.id, { d: g.d, ry: g.ry })) ls.del('jhp_hs_held');
     };
     setTimeout(go, 300);
@@ -1633,7 +1634,7 @@
   function verbFor(s) {
     const label = String(typeof s.label === 'function' ? s.label() : s.label || '').replace(/\s*\(.*\)$/, ''), o = OPEN[s.id], d = doorOf(s);
     const low = label.replace(/^(The|My|Your) /, m => m.toLowerCase());
-    if (o) return (o.open ? 'Close ' : 'Open ') + low;
+    if (o) return (o.open ? 'Close ' : 'Open ') + low.replace(/^./, c => c.toLowerCase());
     if (d) return d.open ? (/^Shut /.test(label) ? label : 'Shut the door') : 'Open ' + (/door/i.test(label) ? low : 'the door');
     if (/(^|\.)(car)?boot\b/.test(s.id)) return H_ROOMS_boot() ? 'Close the boot' : 'Open the boot';
     if (!label) return 'Use';
@@ -2131,7 +2132,7 @@
     if (!raf) raf = requestAnimationFrame(loop);
     if (Q.auto) Q.probe = performance.now() + 2000;
     if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', '<b>W A S D</b> to walk, mouse to look. Shift to jog, <b>C</b> to crouch, Space to jump. <b>F</b> to use or play, <b>E</b> to pick up/remove/place, <b>F</b> also looks closely at objects; click their controls to use them. Click to place; <b>Esc</b>: game menu, settings and put back. <b>G</b>: graphics.', 9000); }, 1400);
-    emit('start');if(BOOT!=='wake'||stood)setTimeout(resumeSeat,0);resumeHeld();
+    emit('start');if(BOOT!=='wake'||stood)setTimeout(resumeSeat,0);if(!(BOOT==='wake'&&ls.get('jhp_hs_stand',null)))resumeHeld(); // (a wake-and-stand refresh hands it back once stood: below)
   }
   // Save grounded poses (not head-bob/jump offsets). Load the destination before
   // collision validation: downstairs rooms and their grids are created lazily.
@@ -2468,7 +2469,7 @@
       try {
         // Register doors and collision before restoring a downstairs/outdoor pose.
         if (validPose(s && s.p) && window.Room && Room.ensureHouse) await Room.ensureHouse();
-        const restored = () => { window.House.off('stood', restored); restorePose(s && s.p); dirty(); unhideStand(); };
+        const restored = () => { window.House.off('stood', restored); restorePose(s && s.p); dirty(); unhideStand(); resumeHeld(); };
         window.House.on('stood', restored);
         if (!standUp(true)) { window.House.off('stood', restored); unhideStand(); }
       } catch (e) { console.error(e); unhideStand(); }
