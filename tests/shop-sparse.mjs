@@ -6,6 +6,7 @@ const {browser,page:p,errors,until,view}=await roomFixture(base,{account});
 fs.mkdirSync('shots/shop-sparse',{recursive:true});
 async function aim(eye,target,level='U'){await view(eye,target,{level});await p.evaluate(()=>{House.hush();House._.setMode('walk')})}
 async function shot(name){await p.screenshot({path:'shots/shop-sparse/'+name+'.png'})}
+async function parcelAim(id,eye=[300,225,610]){const target=await p.evaluate(id=>{const v=House.SPOTS['pm.parcel.'+id].obj.position;return[v.x,v.y-7,v.z]},id);await aim(eye,target,'G')}
 try{
  console.log('inventory',await p.evaluate(()=>({starter:localStorage.getItem('jhp_starter'),pm:PM.items().map(x=>x.id),magazines:Object.keys(House.THINGS).filter(id=>id.includes('mag')||id==='mags')})));
  assert.equal(await p.evaluate(()=>localStorage.getItem('jhp_starter')),'1');
@@ -16,7 +17,7 @@ try{
  console.log('order',await p.evaluate(()=>PM.order('hardware.n64')));
  await p.waitForTimeout(1700);console.log('order',await p.evaluate(()=>PM.order('pm.mag.07')));
  await until(()=>!!(House.SPOTS['pm.parcel.hardware.n64']&&House.SPOTS['pm.parcel.pm.mag.07']));
- await aim([300,225,535],[300,344,650],'G');await shot('02-hall-parcels');
+ await parcelAim('hardware.n64');await shot('02-hall-parcels');
  await p.keyboard.press('f');await until(()=>!!House.THINGS.n64);await p.waitForTimeout(1200);
  console.log('unboxed',await p.evaluate(()=>({here:House.here,held:House.held(),n64:House.THINGS.n64.at})));
  await shot('03-console-unboxed');assert.equal(await p.evaluate(()=>House.held()),'n64');
@@ -30,14 +31,14 @@ try{
  await p.evaluate(()=>House.setDoor('bedroom',true,true));await walk('x',210,-90,-1);assert.equal(await p.evaluate(()=>House.here),'bedroom');
  const dock=await p.evaluate(()=>House.SNAPS['hardware.dock.n64'].pose);
  await aim([-185,-55,110],[dock.x,dock.y-3,dock.z]);await p.keyboard.press('e');await until(()=>House.THINGS.n64.snap==='hardware.dock.n64');await shot('04-console-connected');
- await aim([266,225,555],[266,344,650],'G');await p.keyboard.press('f');await until(()=>!!House.THINGS['pmb.pm.mag.07']);await p.waitForTimeout(1200);
+ await parcelAim('pm.mag.07',[300,225,610]);await p.keyboard.press('f');await until(()=>!!House.THINGS['pmb.pm.mag.07']);await p.waitForTimeout(1200);
  console.log('mag',await p.evaluate(()=>({held:House.held(),here:House.here,at:House.THINGS['pmb.pm.mag.07'].at})));
  assert.equal(await p.evaluate(()=>House.held()),'pmb.pm.mag.07');await p.keyboard.press('f');await until(()=>!!Magazines.reading);await p.keyboard.press('f');await p.waitForTimeout(700);await p.keyboard.press('f');await p.waitForTimeout(700);await shot('05-magazine-reading');await p.keyboard.press('q');
  const mh=await p.evaluate(()=>House.THINGS['pmb.pm.mag.07'].home);
  await aim([-110,-55,130],[mh.x,mh.y-12,mh.z]);await p.keyboard.press('e');await until(()=>House.THINGS['pmb.pm.mag.07'].st==='snap');await shot('06-magazine-shelved');
  console.log('game order',await p.evaluate(()=>PM.order('cart.n64.kart')));
  await until(()=>!!House.SPOTS['pm.parcel.cart.n64.kart']);
- await aim([300,225,535],[300,340,650],'G');await p.keyboard.press('f');await p.waitForTimeout(1400);console.log('cart parcel',await p.evaluate(()=>({parcels:PM.parcels(),owned:PM.owns('cart.n64.kart'),media:!!House.THINGS['media.n64.kart']})));await until(()=>!!House.THINGS['media.n64.kart']);
+ await parcelAim('cart.n64.kart');await p.keyboard.press('f');await p.waitForTimeout(1400);console.log('cart parcel',await p.evaluate(()=>({parcels:PM.parcels(),owned:PM.owns('cart.n64.kart'),media:!!House.THINGS['media.n64.kart']})));await until(()=>!!House.THINGS['media.n64.kart']);
  const gameBox=await p.evaluate(()=>House.THINGS['media.box.n64.kart'].at);
  await aim([-220,-55,35],[gameBox.x,gameBox.y-6,-36]);await p.keyboard.press('e');assert.equal(await p.evaluate(()=>House.held()),'media.box.n64.kart');
  await aim([-80,-55,220],[-130,73,145]);await p.keyboard.press('e');await until(()=>House.THINGS['media.box.n64.kart'].st==='rest');

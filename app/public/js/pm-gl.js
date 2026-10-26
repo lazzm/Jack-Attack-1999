@@ -136,14 +136,15 @@
     return flat(g, 5);
   }
   function magModel(it) {
-    const g = new T.Group(), w = 21, h = 26.5, d = 0.7;
+    const sparse=localStorage.getItem('jhp_starter')==='1';
+    const g = new T.Group(), w = 21, h = 26.5, d = sparse?1.1:0.7;
     const pages = M({ c: '#f2efe4', map: K.tex('pm.pages', 8, 64, (c, W, H2) => { c.fillStyle = '#f4f1e6'; c.fillRect(0, 0, W, H2); c.fillStyle = 'rgba(0,0,0,.12)'; for (let y = 0; y < H2; y += 3) c.fillRect(0, y, W, 1); }) });
-    K.into(g).box(0, -h / 2, 0, w, h, d, { b: mat('pm.mb.' + it.id, 210, 280, () => A.magBack(it)), l: mat('pm.ms.' + it.id, 24, 320, () => A.svg('0 0 24 320', '<rect width="24" height="320" fill="#a51924"/>' + A.T(12, 26, 'JA', 14, '#ffe6a0') + `<g transform="translate(16 160) rotate(-90)">${A.T(0, 0, PM.MONTHS[it.m - 1].toUpperCase() + ' 1999', 12, '#fff')}</g>`)), all: pages });
+    K.into(g).box(0, -h / 2, 0, w, h, d, { b: mat('pm.mb.' + it.id, 210, 280, () => A.magBack(it)), l: mat('pm.ms.' + it.id, sparse?64:24, sparse?854:320, () => A.svg('0 0 24 320', '<rect width="24" height="320" fill="#a51924"/>' + A.T(12, 26, 'JA', 14, '#ffe6a0') + `<g transform="translate(16 160) rotate(-90)">${A.T(0, 0, PM.MONTHS[it.m - 1].toUpperCase() + ' 1999', 12, '#fff')}</g>`)), all: pages });
     const withDisc = PM.where(it.id) === 'shelf';
     const cover = (on) => mat('pm.mc.' + it.id + (on ? '.d' : ''), 252, 336, () => A.magCover(it, on), { m: GLOSS });
     const plane = K.into(g).box(0, -h / 2, d / 2 + 0.025, w, h, 0.05, {f: cover(withDisc), all: pages});
     g.userData.cover = on => { plane.material[4] = cover(on); H.dirty(); };
-    K.into(g).shadow(0, 0, 0, w + 1, d + 0.4, 0.35, { sq: true });
+    K.into(g).shadow(0, 0, 0, w + 1, d + (sparse?1.4:0.4), sparse?0.5:0.35, { sq: true });
     return g;
   }
   function discModel(it) {
@@ -196,6 +197,38 @@
     boards.forEach((y, i) => B.box(0, y - (i === 0 ? t / 2 : 0), 0, i === 0 ? w : w - 2 * t, t, d - 0.6, { all: wood, f: edge }, { uv: 40 }));
     B.box(0, 72, d / 2 - 1.5, w - 2 * t, 2, 1, M('#8a6a44'));                                                          // the plinth
     B.box(-w / 2 + 6.5, boards[1] + 0.1, d / 2 - 0.25, 8, 1.4, 0.1, mat('pm.dymo', 128, 24, () => A.svg('0 0 128 24', '<rect width="128" height="24" rx="3" fill="#161616"/>' + A.T(64, 17, 'GAMES!!', 15, '#fff', { f: '"Courier New",monospace', w: 700, ls: 3 }))), { rz: -2 });
+    if(localStorage.getItem('jhp_starter')==='1') {
+      const batch=K.batch(),B=K.into(batch).at(0,0,0,SHELF_RY);
+      // The rear 7 cm are clear of even the deepest PC boxes. Small personal
+      // belongings make the waiting shelf feel used without consuming game slots.
+      const ink=(id,text,col)=>M({c:'#fff',map:K.tex('pm.starter.'+id,512,128,(c,w,h)=>{
+        c.fillStyle=col;c.fillRect(0,0,w,h);window.HouseArt.text(c,text,w/2,h*.67,'700 34px Arial','#f2e5c5','center');
+      },{clamp:true})});
+      for(let i=0;i<6;i++){
+        const x=-15+i*5.4,y=SH.boards[1]-SH.t/2,col=['#557364','#98594a','#4b637e'][i%3];
+        B.box(x,y-7,-10.5,4.6,14,6,{all:M('#e8dfc8'),f:ink('pocket'+i,['WORDS','NOTES','IDEAS'][i%3],col)});
+        B.box(x,y-14.1,-10.5,4.8,.2,6.2,M(col));B.shadow(x,y,-10.5,5.4,7,.35,{sq:true});
+      }
+      const y1=SH.boards[2]-SH.t/2;
+      B.rbox(-4,y1-2,-10.5,24,4,6,.8,M('#334c72'));B.box(-4,y1-4.05,-10.5,21,.1,.35,M('#bdb9a7'));B.shadow(-4,y1,-10.5,26,7,.4,{sq:true});
+      const y2=SH.boards[3]-SH.t/2;
+      B.rbox(4,y2-4,-10.5,23,8,6,.6,M('#707a62'));B.box(4,y2-8.1,-10.5,23.3,.25,6.3,M('#9caa88'));B.box(4,y2-4,-7.43,18,4,.12,ink('pencils','PENCILS & BITS','#6b765c'));B.shadow(4,y2,-10.5,25,7,.4,{sq:true});
+      const y3=SH.boards[4]-SH.t/2;
+      for(let i=0;i<2;i++){
+        const car=B.at(-9+i*18,y3,-10.5,0),paint=M(i?'#a64632':'#c4a53c');
+        car.rbox(0,-1.7,0,10,2.5,4.2,.5,paint);car.rbox(0,-3.4,0,4.8,2,3.8,.4,M('#506678'));
+        for(const x of [-3.1,3.1])for(const z of [-2.1,2.1])car.cyl(x,-.8,z,1,1,.7,10,M('#24272b'),{rx:90});
+        car.shadow(0,0,0,12,6,.4,{sq:true});
+      }
+      // A portable cassette radio sits on the crown, leaving all four bays free.
+      const radio=B.at(2,SH.boards[0]-SH.t,0,0);
+      radio.rbox(0,-6.5,0,29,13,10,.8,M('#464d57'));
+      for(const x of [-10,10]){radio.cyl(x,-6.5,5.08,3.7,3.7,.25,24,M('#252a31'),{rx:90});for(let i=0;i<5;i++)radio.box(x,-9+i*1.2,5.27,6,.18,.12,M('#687079'))}
+      radio.box(0,-6,5.13,10,6,.2,M('#171e27'));radio.box(0,-6,5.28,8,4,.12,ink('radio','C90','#607276'));
+      radio.box(0,-10.5,5.16,10,1.2,.2,M('#a4a999'));for(let i=0;i<5;i++)radio.box(-4+i*2,-13.4,1,1.3,.8,2,M('#a9aaa3'));
+      for(const x of [-8,8])radio.box(x,-15,-1,1,4,1,M('#292f39'));radio.box(0,-17,-1,17,1,1,M('#292f39'));
+      radio.shadow(0,0,0,33,13,.45,{sq:true});batch.build(g);
+    }
     B.shadow(0, 73, 4, w + 14, d + 12, 0.55, { sq: true });
     const spot = R.addSpot('pm.shelf', { label: 'My games shelf', x: SH.x, y: 0, z: SH.z, mesh: g, room: 'bedroom',
       view: { x: -138, y: -80, z: SH.z, rx: -28, ry: -90 }, act: () => shelfNote() });
@@ -544,17 +577,23 @@
   }
 
   // ================================================================ parcels (Pixel Post): front-door doormat
-  const POST = { x: 300, y: 353, z: 650 }; // front-door doormat, inside the house
+  const POST = { x: 355, y: 353, z: 650 }; // beside the front-door doormat: keep WELCOME and the walking route clear
   const PARCEL = new Map(); // order item id -> { spot, g, flaps }
   let postLoading=null;
-  const parcelFace = () => mat('pm.parcelf', 256, 154, () => A.svg('0 0 256 154', `<rect width="256" height="154" fill="#c49a62"/><rect x="118" y="0" width="20" height="40" fill="#d8c690"/><g transform="rotate(-2 70 90)"><rect x="18" y="56" width="128" height="62" fill="#fff"/>${A.T(82, 76, 'MR J. JACK', 14, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 94, 'JACK\'S ROOM', 12, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 110, '(TOP OF THE STAIRS)', 9, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}</g><g transform="rotate(9 210 80)"><rect x="168" y="62" width="80" height="30" fill="none" stroke="#c00000" stroke-width="4"/>${A.T(208, 84, 'PIXEL POST', 16, '#c00000')}</g>${A.T(200, 140, 'SIGNED FOR: MOM', 9, '#333', { f: "'Comic Sans MS',cursive", w: 700 })}`));
+  const parcelFace = () => mat('pm.parcelf', 1024, 616, () => A.svg('0 0 256 154', `<rect width="256" height="154" fill="#c49a62"/><rect x="118" y="0" width="20" height="40" fill="#d8c690"/><g transform="rotate(-2 70 90)"><rect x="18" y="56" width="128" height="62" fill="#fff"/>${A.T(82, 76, 'MR J. JACK', 14, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 94, 'JACK\'S ROOM', 12, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 110, '(TOP OF THE STAIRS)', 9, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}</g><g transform="rotate(9 210 80)"><rect x="168" y="62" width="74" height="30" fill="none" stroke="#c00000" stroke-width="4"/>${A.T(205, 83, 'PIXEL POST', 12, '#c00000')}</g>${A.T(200, 140, 'SIGNED FOR: MOM', 9, '#333', { f: "'Comic Sans MS',cursive", w: 700 })}`));
   function parcelModel() {
     const g = new T.Group(), B = K.into(g), w = 30, h = 14, d = 22;
     const card = M({ c: '#c49a62', map: window.HouseArt ? HouseArt.t('mdf') : null }), tape = M('#d8c690'), inside = M('#7a5a36');
     B.box(0, -h / 2, 0, w, h, d, { all: card, t: inside, f: parcelFace() });
     B.box(0, -h + 1.2, 0, w - 0.8, 0.4, d - 0.8, M('#f4f4ee'));                      // polystyrene chips under the flaps
-    const flaps = [-1, 1].map(sx => { const p = new T.Group(); p.position.set(sx * w / 2, -h, 0); g.add(p); K.into(p).box(-sx * w / 4, -0.08, 0, w / 2, 0.16, d, { all: card, t: sx>0?parcelFace():M('#b88e58') }); if (sx < 0) K.into(p).box(w / 2 - 0.3, -0.2, 0, 1.2, 0.1, d + 0.4, tape); return { p, sx }; });
-    B.shadow(0, 0, 0, w + 6, d + 6, 0.55, { sq: true });
+    const flaps = [-1, 1].map(sx => { const p = new T.Group(); p.position.set(sx * w / 2, -h, 0); g.add(p); K.into(p).box(-sx * w / 4, -0.08, 0, w / 2, 0.16, d, { all: card, t: M('#b88e58') }); if (sx < 0) K.into(p).box(w / 2 - 0.3, -0.2, 0, 1.2, 0.1, d + 0.4, tape); return { p, sx }; });
+    const label=new T.Group();g.add(label);const wrapper=K.into(label).box(0,-h-.22,0,w-.6,.12,d-.6,{t:parcelFace(),all:card});
+    const uv=wrapper.geometry.attributes.uv,face=wrapper.geometry.groups.find(g=>g.materialIndex===3),vertices=new Set();
+    for(let i=face.start;i<face.start+face.count;i++)vertices.add(wrapper.geometry.index.getX(i));
+    for(const i of vertices)uv.setXY(i,1-uv.getX(i),1-uv.getY(i));uv.needsUpdate=true;
+    // Remove the shipping wrapper as the two cardboard flaps open.
+    g.userData.shippingLabel=label;
+    B.shadow(.6, 0, 1, w + 14, d + 12, 0.6, { sq: true });
     return { g, flaps };
   }
   function parcels() {
@@ -566,7 +605,7 @@
       if (PARCEL.has(id)) return;
       const m = parcelModel(); m.g.rotation.y = [12, -20, 30, -8, 18][i % 5] * D2R;
       const it = PM.item(id) || { title: PM.titleOfShop(id) };
-      const spot = R.addSpot('pm.parcel.' + id, { label: 'Pixel Post parcel — '+it.title, x: POST.x - (i % 2) * 34, y: POST.y-1.2, z: POST.z - Math.floor(i / 2) * 25, mesh: m.g, room: 'hall', act: () => openParcel(id) });
+      const spot = R.addSpot('pm.parcel.' + id, { label: 'Pixel Post parcel — '+it.title, x: POST.x + (i % 2) * 34, y: POST.y, z: POST.z - Math.floor(i / 2) * 28, mesh: m.g, room: 'hall', act: () => openParcel(id) });
       PARCEL.set(id, { spot, g: m.g, flaps: m.flaps, title: it.title });
     });
     H.dirty();
@@ -574,7 +613,7 @@
   function openParcel(id) {
     if (H.held()) return say('A parcel!', 'Put down what you\'re holding first.', 3000);
     const P = PARCEL.get(id); if (!P || P.opening) return;
-    P.opening = true; sfx('click');
+    P.opening = true; if(P.g.userData.shippingLabel)P.g.userData.shippingLabel.visible=false; sfx('click');
     const t0 = performance.now();
     H.anims.set('pmparcel:' + id, n => { const k = Math.min(1, (n - t0) / 650); P.flaps.forEach(f => { f.p.rotation.z = -f.sx * 2.1 * (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2); }); H.dirty(); return k < 1; });
     setTimeout(() => {
@@ -584,7 +623,7 @@
       const it = PM.item(got), box = it?.kind==='hardware'?H.THINGS[it.console]:H.THINGS[tb(got)];
       if (box) say('IT CAME!', `${esc(it ? it.title : 'A game')}! Carry it upstairs, choose a place and press E to put it down.`, 6000);
       else if (/^cart\./.test(got)) setTimeout(() => say('IT CAME!', `${esc(PM.titleOfShop(got))}! Rip, rip, rip. It's on the games shelf by the telly now (${/^cart\.sn\./.test(got) ? 'well, in the cupboard under the stairs with the Super Ultra' : 'click the console to play it'}).`, 6500), 1200);
-      if (box) { box.at={room:'hall',x:P.spot.obj.position.x,y:POST.y-1.2,z:P.spot.obj.position.z,ry:0};box.st='rest';box.snap=null;box.rx=0;H.ROOMS.hall.things.add(box.obj);H.place(box);H.saveThings(true);setTimeout(()=>{if(!H.held()&&H.here==='hall')H.grab(box.id)},60); }
+      if (box) { box.at={room:'hall',x:P.spot.obj.position.x,y:P.spot.obj.position.y,z:P.spot.obj.position.z,ry:0};box.st='rest';box.snap=null;box.rx=0;H.ROOMS.hall.things.add(box.obj);H.place(box);H.saveThings(true);setTimeout(()=>{if(!H.held()&&H.here==='hall')H.grab(box.id)},60); }
       // Mom takes the empty box away for the recycling
       setTimeout(() => { P.opening = false; parcels(); }, 5000);
     }, 700);
