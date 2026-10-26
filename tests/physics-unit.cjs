@@ -71,6 +71,9 @@ const CHAIR = [cyl(31, 0, 9, { player: false }), cyl(4, 9, 37), box(22.5, 21.5, 
   const heavyMoved = w.playerPush('U', -205, 150, r, feet, head, 10, 0, 1 / 60);
   assert(lightMoved > 1.5 && light.x > 1.5, 'Light bin was not pushed');
   assert(heavyMoved < lightMoved * 0.3, 'Heavy chest moved as easily as the bin');
+  // small light things are kicked aside, never a wall: walking into the bin can't stop the player
+  assert.equal(w.playerBlocked('U', light.x, light.z, r, feet, head), false, 'A light bin blocked the player');
+  assert.equal(w.playerBlocked('U', heavy.x, heavy.z, r, feet, head), true, 'A heavy chest did not block the player');
   // a low magazine (3 cm) is under the step height: it never blocks the player
   const mag = w.add('mag', { lvl: 'U', x: 100, z: 50, y: FY, parts: [box(10, 14, 3)] });
   assert.equal(w.playerBlocked('U', 100, 50, r, feet, head), false, 'A flat magazine blocked the player');

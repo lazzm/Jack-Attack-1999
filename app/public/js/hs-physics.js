@@ -82,6 +82,8 @@
       b.com = b.parts.reduce((n, p) => Math.max(n, p.hi), 0) * 0.42;
       b.rad = Math.max(...b.parts.map(p => Math.hypot(p.x, p.z) + (p.t === 'cyl' ? p.r : Math.hypot(p.hx, p.hz))));
       if (b.push == null) b.push = 1 / (1 + b.mass * b.mu / o.pushPower);
+      // Small light things (a bag of shopping, a bin, a dropped jumper) are kicked aside as you walk: they never stop you.
+      if (b.kick == null) b.kick = b.mass < 2 && b.h < 40;
       b.wp = b.parts.map(() => ({}));
       b.minHalf = Math.max(1, Math.min(...b.parts.map(p => p.t === 'cyl' ? p.r : Math.min(p.hx, p.hz))));
       bodies.set(id, b); update(b);
@@ -343,15 +345,15 @@
     function playerRegion(lvl, x, z, reach) {
       nearKey = { lvl, x0: x - reach, z0: z - reach, x1: x + reach, z1: z + reach };
       nearList = []; for (const q of bodies.values()) if (q.active && q.lvl === lvl && aabbHit(q, nearKey.x0, nearKey.z0, nearKey.x1, nearKey.z1, 30)) nearList.push(q);
-      tallList = nearList.filter(q => q.parts.some(p => p.player !== false && p.hi > o.stepUp));
+      pushList = nearList.filter(q => q.parts.some(p => p.player !== false && p.hi > o.stepUp)); tallList = pushList.filter(q => !q.kick);
     }
-    let tallList = null;
-    function capsuleParts(lvl, x, z, r, feet, head, fn) {
+    let tallList = null, pushList = null;
+    function capsuleParts(lvl, x, z, r, feet, head, fn, kicks) {
       const x0 = x - r, z0 = z - r, x1 = x + r, z1 = z + r;
       const k = nearKey, cached = k && k.lvl === lvl && x0 >= k.x0 && x1 <= k.x1 && z0 >= k.z0 && z1 <= k.z1;
       stats.queries = (stats.queries || 0) + 1;
-      for (const q of cached ? tallList : bodies.values()) {
-        if (!q.active || q.lvl !== lvl || W.ghost.has(q.id) || !aabbHit(q, x0, z0, x1, z1, 0.5)) continue;
+      for (const q of cached ? (kicks ? pushList : tallList) : bodies.values()) {
+        if (!q.active || q.lvl !== lvl || (q.kick && !kicks) || W.ghost.has(q.id) || !aabbHit(q, x0, z0, x1, z1, 0.5)) continue;
         for (const w of q.wp) {
           if (!w.player || w.hi <= o.stepUp) continue;
           if (Math.min(w.bot, feet - o.stepUp) - Math.max(w.top, head) <= 0) continue;
@@ -373,7 +375,7 @@
       const list = k && k.lvl === lvl && x0 >= k.x0 && x1 <= k.x1 && z0 >= k.z0 && z1 <= k.z1 ? tallList : bodies.values();
       const lo = feet - o.stepUp;
       for (const q of list) {
-        if (!q.active || q.lvl !== lvl || q.ax1 + 0.5 < x0 || q.ax0 - 0.5 > x1 || q.az1 + 0.5 < z0 || q.az0 - 0.5 > z1 || W.ghost.has(q.id)) continue;
+        if (!q.active || q.lvl !== lvl || q.kick || q.ax1 + 0.5 < x0 || q.ax0 - 0.5 > x1 || q.az1 + 0.5 < z0 || q.az0 - 0.5 > z1 || W.ghost.has(q.id)) continue;
         for (const w of q.wp) {
           if (!w.player || w.hi <= o.stepUp || Math.min(w.bot, lo) - Math.max(w.top, head) <= 0) continue;
           if (w.t === 'cyl') { const dx = x - w.x, dz = z - w.z, rr = r + w.r; if (dx * dx + dz * dz < rr * rr - 0.002 * rr) return true; }
@@ -403,7 +405,7 @@
         done.add(q);
         // push along the contact normal, by what the player wants to move into it
         const into = -(dx * h.nx + dz * h.nz); if (into <= 0) return;
-        const want = Math.min(h.depth, into) * q.push;
+        const want = q.kick ? h.depth + 0.5 : Math.min(h.depth, into) * q.push;
         const px = -h.nx * want, pz = -h.nz * want;
         const x0 = q.x, z0 = q.z;
         q.x += px; q.z += pz; resolve(q, true, 2);
@@ -422,7 +424,7 @@
         wakeBody(q); pushed += got;
         if (W.onPush) W.onPush(q, got, sweep);
         if (W.onMove && got > 0.01) W.onMove(q);
-      });
+      }, true);
       return pushed;
     }
 

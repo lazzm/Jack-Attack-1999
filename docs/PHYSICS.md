@@ -64,7 +64,7 @@ The bedroom's real furniture (rm-room.js):
   board and headboard. Ten centimetres of space under the base along the room side: flat things fit, a box does not.
 - **Telly** on its cabinet, the media rack's sides and top, the reading bookcase's sides.
 
-Bodies are compounds of parts `{t:'box'|'cyl', x, z, hx, hz | r, lo, hi, sw, top, player}` (lo/hi measured up from the
+Bodies are compounds of parts (the chair: castor star, seat-with-column, back) `{t:'box'|'cyl', x, z, hx, hz | r, lo, hi, sw, top, player}` (lo/hi measured up from the
 body's bottom). `sw` parts turn with the chair's swivel; `top` marks what can be stacked on; `player:false` parts (the
 chair's castor star) are below the step height and never block your feet.
 
@@ -89,6 +89,9 @@ things (a magazine on the floor). Thresholds keep the movement pass's 8 cm step.
   normal by what the player wants to move into it times its push factor `1 / (1 + mass x friction / 6)` (chair on castors
   0.85, beanbag 0.42, basket ~0.7, bin ~0.95). An off-centre shove spins it (a chair's seat swivels instead). The sweep
   then stops at whatever did not give way, so heavy things slow you down instead of stopping you dead.
+- **Kicked aside**: small light things (under 2 kg and 40 cm: a bag of shopping, the bin, a dropped jumper) never stop
+  you; walking into them shoves them fully out of your way. Heavier or bigger things (the chair, the basket, the bag,
+  boxes) are pushed and slow you down.
 - **Never trapped**: a body the player is already inside (a refresh, a door shoving it, the story placing it) is a ghost
   for the player until they are fully clear of it; the solver also never leaves a body inside the player.
 
@@ -126,10 +129,18 @@ else moves on load: sleeping bodies keep their exact saved pose.
 ---------------------------------------------------------------------
 ## 6. Budgets and measurements
 
-- Target: under 1 ms of physics per frame on the potato tier (solver plus the player's capsule queries plus the ghost).
-- `House.physics.frameMs` is the whole per-frame physics cost; `House.physics.world.stats` is the solver alone.
-- Node (tests/physics-unit.cjs): 30 awake boxes average about 0.15-0.3 ms per step on this host; a sleeping world
-  0.0004 ms per step.
-- Browser (tests/physics.mjs, software WebGL, CPU throttled 4x as a potato stand-in): see tests/shots/physics/report.json
-  for the p50/p95 of the whole-frame physics cost while pushing the chair.
-- Not measured: real low-end phones or old laptops with hardware GPUs (the house is desktop-only today).
+- Target: under 1 ms of physics per 60 Hz step on the potato tier (solver + the player's capsule queries + pushes + the
+  ghost), so a 30 fps potato frame (two steps) stays near 2 ms and an idle room costs nothing.
+- `House.physics.frameMs` is a wall-clock per-frame figure (handy in the console, but on a busy machine it also counts
+  time the tab was descheduled); `House.physics.world.stats` is the solver alone.
+- tests/physics.mjs measures with Chrome's CPU profiler instead (the physics share of the main thread while walking the
+  chair across the room, the heaviest case: a woken body resolved every walking substep), divided by the fixed steps
+  each frame caught up on. On this shared 12-core host (load average ~30 from other jobs, software WebGL at 3-7 fps):
+  about 0.27 ms per step unthrottled and 0.39 ms per step with the CPU throttled 4x as a potato stand-in (run of
+  2026-10-26; the raw numbers are in tests/shots/physics/report.json). The test guards 0.5 ms (1x) and 2 ms (4x).
+- Node (tests/physics-unit.cjs and a bench with the bedroom's ~60 bodies): a chair push + 12 capsule queries + a solver
+  step is about 0.03-0.05 ms; a sleeping world costs well under 0.001 ms per step.
+- What keeps it cheap: only awake bodies step; the player's queries test only tall bodies within ~80 cm (a list rebuilt
+  once a frame); body iterations near the player reuse that list; world parts are recomputed only when a pose changes;
+  moved bodies are redrawn once a frame; the chair is three colliders.
+- Not measured: real low-end PCs, phones or old laptops with hardware GPUs (the 3D house is desktop-only today).

@@ -65,7 +65,7 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
   Mouse-look is automatic while walking/seated; screens, close-ups and menus release the cursor. Q/Resume restores mouse-look when the browser permits. Right click keeps its context action, not a global cursor toggle. Floor tools use F for their available action and E to let go; Esc pauses through the game menu. Keep on-screen prompts consistent; never intercept Ctrl+F. LOCK IN preserves running state. JackOS fills the browser viewport like a normal desktop; other in-game screens preserve their native aspect ratio.
   Q/T stay house controls during games. Console shoulder L uses U; PC shooters use Z for previous weapon and Y for chat. Family TV text uses Shift+T.
 - Carrying and physics (owner, 2026-10-26; docs/PHYSICS.md). Every thing in the house is a physics body with real heights:
-  walking into it shoves it (light things slide/tip, heavy ones give way slowly and slow you down); it never traps you.
+  walking into it shoves it (small light things are kicked aside and never stop you; heavier ones give way slowly and slow you down); it never traps you.
   Small things are lifted and held below/right of the crosshair (never covering it). While carrying, a see-through
   ghost shows where it will land: green fits, red blocked (the carry panel says why), gold clicks into a slot; every
   free slot that accepts it (job basket/bin, shelf/console slots) glows. E/click sets it down exactly at a green or gold
