@@ -23,12 +23,12 @@ function write(name, obj) {
   fs.renameSync(tmp, f);
 }
 
-// Only the explicitly designated test account gets this sparse starter profile.
+// New registrations use this sparse profile. Existing profiles are never replaced.
 function starterProfile() {
   const values = {
     jhp_starter: 1,
     jhp_setup: { v: 2, rm: {}, add: {}, noicon: {}, when: {}, dl: [] },
-    jhp_pm: { v: 1, own: {}, fl: {}, gift: 99, days: [], seen: {}, opened: {}, n: 0 },
+    jhp_pm: { v: 1, own: {'pm.mag.01':1,'pm.mag.02':1}, fl: {}, gift: 99, days: [], seen: {}, opened: {}, n: 0, magazines:1 },
     jhp_discs: { cd: '', scr: {}, d2: {}, n: {}, dx: 0, gave: {}, ej: [] },
     jhp_rm: { f: {}, seen: {} }
   };
@@ -45,6 +45,11 @@ function seedStarter(name, reset = false) {
   write(name, prof);
   if (reset && ctx) for (const [ws,c] of ctx.clients) if (c.member?.toLowerCase() === 'test') ctx.send(ws, { t:'rmData', ...prof });
   return true;
+}
+// Only called for a newly registered member. Never replace an existing profile.
+function seedNewPlayer(name) {
+  if (read(name)) return false;
+  const now=Date.now();write(name,{ts:now,enc:'raw',data:Buffer.from(JSON.stringify(starterProfile())).toString('base64')});return true;
 }
 function upgradeStarter(name,orders=[]) {
   if(String(name).toLowerCase()!=='test')throw Error('Starter is restricted to test');
@@ -97,6 +102,7 @@ function resetInstalls(name) {
 
 module.exports = {
   seedStarter,
+  seedNewPlayer,
   upgradeStarter,
   resetProfile,
   resetInstalls,

@@ -69,9 +69,15 @@
     { id: 'cd1', kind: 'cd', n: 'CD (out of its case)' }, { id: 'cd2', kind: 'cd', n: 'PlaySpace game case' },
   ];
   const MESSID = {}; for (const m of MESS) MESSID[m.id] = m;
-  function tidyFor(day) {
+  function tidyFor(day, sparse = false) {
     const r = rng('chtidy|' + day), by = k => shuffle(MESS.filter(m => m.kind === k), r);
     const out = [].concat(by('clothes').slice(0, 2 + (r() < 0.5 ? 1 : 0)), by('rubbish').slice(0, 2), by('mag').slice(0, 1 + (r() < 0.4 ? 1 : 0)), by('cd').slice(0, 1), by('dish').slice(0, 1 + (r() < 0.3 ? 1 : 0)));
+    if (sparse) {
+      // New rooms do not acquire unowned media through the daily mess. Keep
+      // the same job length, replacing it with ordinary clothes and rubbish.
+      const used=new Set(out.map(m=>m.id)), spare=shuffle(MESS.filter(m=>['clothes','rubbish'].includes(m.kind)&&!used.has(m.id)),rng('chsparse|'+day));
+      return out.slice(0,9).map(m=>['mag','cd'].includes(m.kind)?spare.shift():m);
+    }
     return out.slice(0, 9);
   }
 
@@ -94,7 +100,7 @@
     lawn: () => [{ s: 'plug', g: 0.5 }].concat(N('l', 8, 1), [{ s: 'away', g: 1.2 }]),
     sweep: () => N('l', 7, 0.6).concat([{ s: 'tip', g: 1.2 }]),
   };
-  function steps(id, day) { const f = STEPS[id]; return f ? f(day) : []; }
+  function steps(id, day, sparse = false) { if(id==='tidy'&&sparse)return tidyFor(day,true).map(m=>({s:m.id,g:m.kind==='dish'?3:.7}));const f = STEPS[id]; return f ? f(day) : []; }
 
   // ---------------------------------------------------------------- Mom's list: four a day, from all over the house
   function listFor(day, areas) {

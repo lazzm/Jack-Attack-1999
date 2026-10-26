@@ -222,3 +222,20 @@ Bedroom prop/seating and neighbourhood review (disposable localhost; serial brow
 The full-size JackOS desktop fills the browser viewport; the in-world monitor remains 4:3.
 Console and handheld LOCK IN keep their original aspect ratios. Outdoor observer captures
 include views beyond the playable boundary; they do not imply a new walkable town.
+
+Sparse registration / Pixel Post pack (disposable localhost data only):
+
+    PORT=18081 DATA_DIR=/tmp/jhp-shop-sparse ADMIN_TOKEN=testtoken node tests/shop-sparse-server.cjs
+    cd tests
+    node starter-unit.cjs
+    node shop-sparse-unit.cjs
+    node shop-sparse.mjs http://localhost:18081
+    node shop-sparse-legacy.mjs http://localhost:18081
+
+`shop-sparse-server.cjs` refuses non-test ports/data/token and adds an authenticated
+`/admin/qa-credit` fixture solely in the test process. The production server has
+no credit endpoint. The browser tests cover fresh signup, sparse inventory,
+console/magazine/game orders, physical F/E controls, upstairs carry, reading slots,
+play/background refresh, old full-room migration and phone JackOS-only entry.
+Captures are under `shots/shop-sparse/`. Stop only the server PID listening on the
+chosen test port. These tests never deploy or read production data.

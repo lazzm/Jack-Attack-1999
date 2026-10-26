@@ -18,6 +18,13 @@
   const H = R.House; if (!H || !H.ok) return;
   const T = R.T, K = R.K, M = K.mat;
   const D2R = Math.PI / 180;
+  // The grab engine keeps pickup coordinates while carrying, but changes the
+  // room at doorways. Keep these deliveries' pickup room with those coordinates
+  // so refresh returns them to their real pickup point, rather than outside a room.
+  const pickupRooms=new Map();
+  H.on('grab',id=>{const t=H.THINGS[id];if(t&&(t.kind==='hardware'||/^pmb\.pm\.mag\./.test(id)))pickupRooms.set(id,t.at.room)});
+  H.on('room',()=>{const id=H.held(),t=H.THINGS[id];if(t&&pickupRooms.has(id))t.at.room=pickupRooms.get(id)});
+
   const sfx = n => { try { Sound.play(n); } catch (e) {} };
   const secret = id => { try { Apps.secret(id); } catch (e) {} };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -246,7 +253,9 @@
   // ================================================================ the things
   const THING = {}; // thing id -> item id
   const migrateLegacyShelf = !Apps.store.get('jhp_pm_slots', null);
-  const tb = id => 'pmb.' + id, td = id => 'pmd.' + id, tf = id => 'pmf.' + id;
+  const legacyMagazines=Object.fromEntries(Object.entries({...window.MagazineCat?.LEGACY_ALIASES,'ch.m.mag1':'pm.mag.08','ch.m.mag2':'pm.mag.09'}).map(([prop,issue])=>[issue,prop]));
+  const tb = id => {const old=legacyMagazines[id];return old&&localStorage.getItem('jhp_starter')!=='1'&&H.THINGS[old]?old:'pmb.'+id;};
+  const td = id => 'pmd.' + id, tf = id => 'pmf.' + id;
   const floppyThings = () => Object.keys(THING).filter(k => k.startsWith('pmf.')).map(k => H.THINGS[k]).filter(Boolean);
   const shelfWidth = () => SH.w - SH.t * 2 - 1.2;
   const thickness = it => it.kind === 'box' ? 5 : it.kind === 'cart' ? 7.6 : it.kind === 'mag' ? .8 : it.kind === 'sleeve' ? .3 : 1;
@@ -268,7 +277,7 @@
   function homes() {
     const out = {}, inner = shelfWidth();
     const saved = Apps.store.get('jhp_pm_slots', {}), slots = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
-    const all = PM.items().filter(it => it.kind !== 'floppy');
+    const all = PM.items().filter(it => !['floppy','hardware','mag'].includes(it.kind));
     const accepted=[[],[],[],[]];
     for(const it of all){const s=slots[it.id],th=thickness(it),a=s&&s.end-th-.8;
       if(!s||!Number.isInteger(s.row)||s.row<0||s.row>3||![s.lx,s.end,s.th].every(Number.isFinite)||Math.abs(s.th-th)>.001||a<-.001||s.end>inner+.001||Math.abs(s.lx-(-inner/2+a+.4+th/2))>.001||accepted[s.row].some(([x,y])=>a<y-.001&&s.end>x+.001)){delete slots[it.id];continue;}
@@ -298,6 +307,7 @@
   }
   const LINE = {
     box: ['A proper big box. The ones with all the air in.', 'Big box. Small disc. Lots of cardboard.', 'Smells like a new game. Best smell in the world.'],
+    mag: ['Fresh ink, six pages and a whole afternoon to read them. F opens the magazine; the cover CD is inside.'],
     jewel: ['A jewel case. The hinge is always the first thing to break.', 'Shiny side down, label side up. Everyone knows that.'],
     disc: ['Hold it by the edges. Fingerprints make it skip.', 'The shiny side is the side the laser reads. Don\'t scratch it. (CALLUM.)'],
   };
@@ -319,9 +329,9 @@
         if (obj.userData.edges) {const [right, under] = obj.userData.edges(); mesh.material[0] = right; mesh.material[2] = under;}}
       obj.userData.back = null;
     }
-    shelfSlot(it,home,obj);
+    if(it.kind!=='mag')shelfSlot(it,home,obj);
     const hasDisc = !!it.disc && it.kind !== 'cart';
-    const t = R.grabbable(id, { obj, kind: it.kind === 'cart' ? 'cart' : 'case', label: it.kind === 'mag' ? `JACK ATTACK! ${PM.MONTHS[it.m - 1]} (cover CD taped on)` : it.title,
+    const t = R.grabbable(id, { obj, kind: it.kind === 'mag' ? 'reading.mag' : it.kind === 'cart' ? 'cart' : 'case', label: it.kind === 'mag' ? `JACK ATTACK! ${PM.MONTHS[it.m - 1]} (cover CD taped on)` : it.title,
       home: Object.assign({ room: 'bedroom' }, home), holdD: it.kind === 'box' ? 52 : 40,
       use: it.id === 'pm.netplanet' ? () => { secret('pm.coaster'); say('A coaster!', 'Perfect. A coaster for my squash. That\'s what these are for. (I have nine.) Mom says it\'s "not a coaster, it\'s litter".', 5000); } : hasDisc ? () => takeDisc(it) : it.kind === 'cart' ? () => say(it.title, 'It\'s a cartridge. It goes in an ULTRA 64, not the PC. (Luke says if you blow on it, it\'ll go in the CD tray. Luke is wrong.)') : null,
       useLabel: it.id === 'pm.netplanet' ? 'Use it as a coaster' : it.kind === 'mag' ? 'Peel the CD off' : it.kind === 'sleeve' ? 'Slide the disc out' : 'Take the disc out',
@@ -367,13 +377,13 @@
   let HOMES = {};
   H.ambient.add(() => {
     if (!/^pmd\./.test(H.held() || '')) return;
-    for (const id in HOMES) {
+    for (const id of PM.items().filter(it=>it.disc).map(it=>it.id)) {
       const box = H.THINGS[tb(id)], sn = H.SNAPS['pm.case.' + id]; if (!box || !sn) continue;
       sn.room = box.at.room; sn.x = box.obj.position.x; sn.y = box.obj.position.y - 5; sn.z = box.obj.position.z;
       sn.pose = {x: sn.x, y: sn.y, z: sn.z, ry: box.at.ry || 0};
     }
   });
-  const homeOf = id => HOMES[id] || { x: SH.x + 4, y: SH.boards[3] - 1, z: SH.z };
+  const homeOf = id => H.THINGS[tb(id)]?.home || HOMES[id] || { x: SH.x + 4, y: SH.boards[3] - 1, z: SH.z };
   H.on('tidy', rid => {
     if (rid && rid !== 'bedroom') return;
     // Cancel pending lid/placement animations before they can undo tidying.
@@ -395,11 +405,20 @@
     HOMES = homes();
     for (const it of PM.items()) {
       if (it.kind === 'floppy') { floppyThing(it); continue; }
-      const t = caseThing(it, HOMES[it.id] || homeOf(it.id));
+      if (it.kind === 'hardware') { R.ensureHardware(it.console); continue; }
+      if (it.kind === 'mag') {
+        if(legacyMagazines[it.id]&&localStorage.getItem('jhp_starter')!=='1'){
+          // Keep the original paper prop, and retain any existing cover CD,
+          // including one already in the PC or left loose elsewhere.
+          if(it.disc)discThing(it);
+          continue;
+        }
+      }
+      const t = caseThing(it, it.kind==='mag'?(R.readingSlot(tb(it.id))||homeOf(it.id)):HOMES[it.id] || homeOf(it.id));
       if (t && HOMES[it.id]) {t.home = Object.assign({ room: 'bedroom' }, HOMES[it.id]); shelfSlot(it,HOMES[it.id],t.obj);}
       if (it.disc && it.kind !== 'cart') { const dt = discThing(it); if (it.kind === 'mag' && t.obj.userData.cover) t.obj.userData.cover(dt.st === 'rest' && !!dt.at.hide && PM.where(it.id) === 'shelf'); }
     }
-    fillRow(); drives(); parcels(); window.Magazines?.sync(); H.saveThings();
+    R.syncMedia(); fillRow(); drives(); parcels(); window.Magazines?.sync(); H.saveThings();
   }
 
   // Rearranging is a physical action, not a separate inventory editor. Reserve
@@ -418,7 +437,7 @@
   function updateFreeSlots() {
     const id=H.held(),t=id&&H.THINGS[id],it=t&&id.startsWith('pmb.')&&PM.item(THING[id]);
     for(const s of freeSlots)s.offer=null;
-    if(!it||H.here!=='bedroom')return;
+    if(!it||it.kind==='mag'||H.here!=='bedroom')return;
     const ray=H.rayAt(innerWidth/2,innerHeight/2),front=SH.x+SH.d/2;
     if(ray.d.x>=-.05)return;
     const distance=(front-ray.o.x)/ray.d.x;if(distance<0||distance>230)return;
@@ -524,28 +543,30 @@
     quiet = false;
   }
 
-  // ================================================================ parcels (Pixel Post): Mom puts them on Jack's bed (until there's a doormat downstairs)
-  const POST = { x: 210, y: 30, z: 112 }; // (on the duvet, clear of the cat and the competition parcel)
+  // ================================================================ parcels (Pixel Post): front-door doormat
+  const POST = { x: 300, y: 353, z: 650 }; // front-door doormat, inside the house
   const PARCEL = new Map(); // order item id -> { spot, g, flaps }
+  let postLoading=null;
   const parcelFace = () => mat('pm.parcelf', 256, 154, () => A.svg('0 0 256 154', `<rect width="256" height="154" fill="#c49a62"/><rect x="118" y="0" width="20" height="40" fill="#d8c690"/><g transform="rotate(-2 70 90)"><rect x="18" y="56" width="128" height="62" fill="#fff"/>${A.T(82, 76, 'MR J. JACK', 14, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 94, 'JACK\'S ROOM', 12, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 110, '(TOP OF THE STAIRS)', 9, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}</g><g transform="rotate(9 210 80)"><rect x="168" y="62" width="80" height="30" fill="none" stroke="#c00000" stroke-width="4"/>${A.T(208, 84, 'PIXEL POST', 16, '#c00000')}</g>${A.T(200, 140, 'SIGNED FOR: MOM', 9, '#333', { f: "'Comic Sans MS',cursive", w: 700 })}`));
   function parcelModel() {
     const g = new T.Group(), B = K.into(g), w = 30, h = 14, d = 22;
     const card = M({ c: '#c49a62', map: window.HouseArt ? HouseArt.t('mdf') : null }), tape = M('#d8c690'), inside = M('#7a5a36');
     B.box(0, -h / 2, 0, w, h, d, { all: card, t: inside, f: parcelFace() });
     B.box(0, -h + 1.2, 0, w - 0.8, 0.4, d - 0.8, M('#f4f4ee'));                      // polystyrene chips under the flaps
-    const flaps = [-1, 1].map(sx => { const p = new T.Group(); p.position.set(sx * w / 2, -h, 0); g.add(p); K.into(p).box(-sx * w / 4, -0.08, 0, w / 2, 0.16, d, { all: card, t: M('#b88e58') }); if (sx < 0) K.into(p).box(w / 2 - 0.3, -0.2, 0, 1.2, 0.1, d + 0.4, tape); return { p, sx }; });
+    const flaps = [-1, 1].map(sx => { const p = new T.Group(); p.position.set(sx * w / 2, -h, 0); g.add(p); K.into(p).box(-sx * w / 4, -0.08, 0, w / 2, 0.16, d, { all: card, t: sx>0?parcelFace():M('#b88e58') }); if (sx < 0) K.into(p).box(w / 2 - 0.3, -0.2, 0, 1.2, 0.1, d + 0.4, tape); return { p, sx }; });
     B.shadow(0, 0, 0, w + 6, d + 6, 0.55, { sq: true });
     return { g, flaps };
   }
   function parcels() {
-    const r = H.ROOMS.bedroom; if (!r) return;
     const want = PM.parcels();
+    if(!want.length&&!PARCEL.size)return;
+    const r = H.ROOMS.hall; if (!r?.built) { if(!postLoading)postLoading=Room.ensureHouse().then(()=>{if(H.ROOMS.hall&&!H.ROOMS.hall.built)H.buildRoom(H.ROOMS.hall);postLoading=null;parcels()});return; }
     for (const [id, P] of PARCEL) if (!want.includes(id) && !P.opening) { if (P.spot.obj.parent) P.spot.obj.parent.remove(P.spot.obj); try { H.unspot('pm.parcel.' + id); } catch (e) {} PARCEL.delete(id); }
     want.forEach((id, i) => {
       if (PARCEL.has(id)) return;
       const m = parcelModel(); m.g.rotation.y = [12, -20, 30, -8, 18][i % 5] * D2R;
       const it = PM.item(id) || { title: PM.titleOfShop(id) };
-      const spot = R.addSpot('pm.parcel.' + id, { label: 'A parcel from Pixel Post!', x: POST.x - (i % 2) * 34, y: POST.y - Math.floor(i / 2) * 14, z: POST.z - (i % 3) * 6, mesh: m.g, room: 'bedroom', act: () => openParcel(id) });
+      const spot = R.addSpot('pm.parcel.' + id, { label: 'Pixel Post parcel — '+it.title, x: POST.x - (i % 2) * 34, y: POST.y-1.2, z: POST.z - Math.floor(i / 2) * 25, mesh: m.g, room: 'hall', act: () => openParcel(id) });
       PARCEL.set(id, { spot, g: m.g, flaps: m.flaps, title: it.title });
     });
     H.dirty();
@@ -557,13 +578,13 @@
     const t0 = performance.now();
     H.anims.set('pmparcel:' + id, n => { const k = Math.min(1, (n - t0) / 650); P.flaps.forEach(f => { f.p.rotation.z = -f.sx * 2.1 * (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2); }); H.dirty(); return k < 1; });
     setTimeout(() => {
-      const got = PM.openParcel(id); if (!got) { P.opening = false; return; }
+      const got = PM.openParcel(id,true); if (!got) { P.opening = false; return; }
       sfx('solve'); secret('pm.post');
       sync();
-      const it = PM.item(got), box = H.THINGS[tb(got)], wp = new T.Vector3(); P.spot.obj.getWorldPosition(wp);
-      if (box) say('IT CAME!', `${esc(it ? it.title : 'A game')}! Rip, rip, rip. Polystyrene everywhere. (Mom will love that.) <small>(It lives on your games shelf: Esc puts it there.)</small>`, 6000);
+      const it = PM.item(got), box = it?.kind==='hardware'?H.THINGS[it.console]:H.THINGS[tb(got)];
+      if (box) say('IT CAME!', `${esc(it ? it.title : 'A game')}! Carry it upstairs, choose a place and press E to put it down.`, 6000);
       else if (/^cart\./.test(got)) setTimeout(() => say('IT CAME!', `${esc(PM.titleOfShop(got))}! Rip, rip, rip. It's on the games shelf by the telly now (${/^cart\.sn\./.test(got) ? 'well, in the cupboard under the stairs with the Super Ultra' : 'click the console to play it'}).`, 6500), 1200);
-      if (box) { box.at = Object.assign({}, box.home); box.obj.position.set(wp.x, wp.y + 14, wp.z); box.obj.visible = true; setTimeout(() => H.grab(box.id), 60); }
+      if (box) { box.at={room:'hall',x:P.spot.obj.position.x,y:POST.y-1.2,z:P.spot.obj.position.z,ry:0};box.st='rest';box.snap=null;box.rx=0;H.ROOMS.hall.things.add(box.obj);H.place(box);H.saveThings(true);setTimeout(()=>{if(!H.held()&&H.here==='hall')H.grab(box.id)},60); }
       // Mom takes the empty box away for the recycling
       setTimeout(() => { P.opening = false; parcels(); }, 5000);
     }, 700);

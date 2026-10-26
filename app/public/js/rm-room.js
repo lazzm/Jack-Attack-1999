@@ -57,7 +57,7 @@
   const S = store.get(); S.f = S.f || {}; S.seen = S.seen || {};
   const sparseStarter=(()=>{try{return localStorage.getItem('jhp_starter')==='1'}catch(e){return false}})();
   const gameOwned=g=>!!g&&((g.own&&(!sparseStarter||g.id==='gb.blocks'))||S.f['cart.'+g.id]||window.PM?.owns('cart.'+g.id));
-  const hasConsole=id=>!sparseStarter||id==='gb';
+  const hasConsole=id=>!sparseStarter||id==='gb'||!!window.PM?.owns('hardware.'+id);
   const save = () => store.set(S);
   const sfx = n => { try { Sound.play(n); } catch (e) {} };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -677,13 +677,13 @@
   }
   // a console: a body (rounded), its top painted, extra details
   function con(r, id, x, y, z, w, h, d, top, col, label, extra) {
-    if(!hasConsole(id))return;
+    if(!hasConsole(id)||R.consoles?.[id])return;
     const g = new T.Group(); g.position.set(x, y, z); r.group.add(g); const C = K.into(g);
     C.rbox(0, -h / 2, 0, w, h, d, 0.8, M({ c: col, sh: 18, sp: '#222' }));
     C.plane(0, -h - 0.02, 0, w - 1.6, d - 1.6, M({ c: '#fff', map: tex(top) }), { rx: 90 });
     const slotY = y - h - 0.24;
     R.consoles = R.consoles || {};
-    const machine = R.consoles[id] = { obj: g, x, y: slotY, z: z - 1, disc: CAT.CONSOLES[id].media === 'disc' };
+    const machine = R.consoles[id] = { obj: g, x, baseY:y, portX:x-w*.29, y: slotY, z: z - 1, disc: CAT.CONSOLES[id].media === 'disc' };
     if (machine.disc) {
       C.cyl(0, -h - 0.14, -1, 6.8, 6.8, 0.2, 40, M('#292a2d'));
       C.cyl(0, -h - 0.28, -1, 0.7, 0.7, 0.4, 12, M('#777b80'));
@@ -698,6 +698,52 @@
     C.shadow(0, 0, 0, w + 4, d + 4, 0.55, { sq: true });
     if (extra) extra(g);
     H.spot(id, { label, obj: g });
+    if (sparseStarter) {
+      const dock = {room:'bedroom', x,y,z,ry:0}, dockId='hardware.dock.'+id;
+      Room.addSnap(dockId, {...dock, pose:dock, r:24, box:[w,h,d],
+        preview:{x,y:y-h/2,z}, accepts:(kind,t)=>kind==='hardware'&&t.id===id,
+        hint:'E: connect the '+label+' to the telly', onSnap:()=>hardwareWiring(id)});
+      // Until installed, a delivered machine stays by the front door, even if
+      // a refresh interrupts unboxing. restoreThing preserves any later placement.
+      const t=Room.grabbable(id,{obj:g,kind:'hardware',label,holdD:48,
+        home:{...dock,snap:dockId},useLabel:'Play / connect console',
+        use:()=>consoleConnected(id)?tvOpen(id):toast(label,'Carry it to its highlighted TV-rack slot and press E to connect it.')});
+      if(!t.snap && t.at.room==='bedroom' && t.at.x===x && t.at.z===z){
+        t.at={room:'hall',x:300,y:352,z:650,ry:0};H.place(t);
+        ensureHouse().then(()=>{H.buildRoom(H.ROOMS.hall);H.restoreThing(t);if(t.at.room==='hall')H.ROOMS.hall.things.add(t.obj);H.dirty()});
+      }
+      H.SPOTS[id].act=t.use;
+      H.on('grab',tid=>{if(tid===id)hardwareWiring(id)});
+      H.on('tidy',()=>hardwareWiring(id));
+      hardwareWiring(id);
+    }
+    if(mediaThings._ready) consoleMediaSlot(id,machine);
+  }
+  function consoleConnected(id) {
+    return hasConsole(id)&&(!sparseStarter||id==='gb'||H.THINGS[id]?.st==='snap'&&H.THINGS[id]?.snap==='hardware.dock.'+id);
+  }
+  function hardwareWiring(id) {
+    const c=R.consoles?.[id];if(!c||!sparseStarter)return;
+    if(!c.wiring){
+      const g=c.wiring=new T.Group(),P=K.into(g);room.group.add(g);
+      const x=c.x, y=c.baseY, port=c.portX;
+      const px=x, pz=id==='md'||id==='dc'?51:26;
+      (id==='ps'||id==='dc'?padPS:padN64)(P.at(px,FY-.3,pz,0));
+      P.rbox(port,y-2.1,-15.6,2.6,1.4,2.1,.2,M('#24262a'));
+      P.rbox(x,y-3,-36,3,2,2.5,.2,M('#24262a'));
+      lead(P,[[port,y-2.1,-14.55],[port,y-2.1,-8],[port,FY-.62,3],[px,FY-.62,pz-7]],id==='ps'?'#8a877f':'#27282b',id+'-pad');
+      lead(P,[[x,y-3,-37.25],[x,y-3,-55.45],[x,22,-55.45],[TX-3,18,-53]],'#242426',id+'-av');
+    }
+    c.wiring.visible=consoleConnected(id);H.dirty();
+  }
+  function ensureHardware(id) {
+    if(!hasConsole(id)||!room.built)return;
+    const specs={n64:[TX-17,50.1,-26,26,7,19,'n64top','#2b2b2e','Ultra 64'],
+      ps:[TX+16,50.1,-26,27,6,19,'pstop','#b9b6ae','PlaySpace'],
+      md:[TX-17,70.4,-26,26,6,19,'mdtop','#18181a','Segue'],
+      dc:[TX+16,70.4,-26,21,7,19,'dctop','#efeee8','Daydream']};
+    if(specs[id]&&(id!=='dc'||R.dcOut))con(room,id,...specs[id]);
+    return H.THINGS[id];
   }
   function padShell(P,shape,col) {
     const shell=(depth,y,scale,m)=>{const g=new T.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSize:0.16,bevelThickness:0.16,bevelSegments:2,curveSegments:6,steps:1});g.rotateX(Math.PI/2);g.scale(scale,1,scale);P.geo(g,0,y,0,m)};
@@ -1036,6 +1082,7 @@
         onBegin:t=>{t.obj.userData.closePages?.();slots[t.id]=n;t.home={...shelfPose(n,t),snap:sn.id};saveSlots()},onSnap:t=>H.emit('reading-shelved',t)});
     }
     function item(id,title,mag,index,cover,start){
+      if(sparseStarter)return;
       if(!Number.isInteger(slots[id])){slots[id]=used.has(index)?Array.from({length:32},(_,n)=>n).find(n=>!used.has(n)):index;used.add(slots[id]);saveSlots()}
       const n=slots[id],obj=new T.Group(),O=K.into(obj),col=['#354a65','#8b3c30','#485b41','#b08740','#554364'][index%5];
       const print=A.printed('reading.print.'+id,256,mag?340:384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);c.font='bold 26px Georgia';K.wrapText(c,title,20,64,w-40,31);c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':'JACKSOFT PAPERBACKS',20,h-42);const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):['city','space','critters','robots','space','robots'][+id.split('.').pop()];if(!window.PrintArt?.paint(c,art,20,h*.46,w-40,h*.34)){c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,h*.5+k*11,105,70)}},{clamp:true});
@@ -1058,6 +1105,10 @@
     item('reading.mag.back1','JACK ATTACK! — May 1999',true,4,'magIssue5');item('reading.mag.back2','JACK ATTACK! — June 1999',true,13,'magIssue6');
     [['mags','JACK ATTACK! — January 1999','magIssue1'],['reading.mag.floor1','JACK ATTACK! — February 1999','magIssue2'],['reading.mag.floor2','JACK ATTACK! — March 1999','magIssue3']].forEach(([id,title,cover],i)=>item(id,title,true,[7,15,23][i],cover,{room:'bedroom',x:TX+33+i*.8,y:FY-i*.85,z:58+i*.6,ry:[-2,-13,1][i]}));
     item('reading.mag.bed','JACK ATTACK! — April 1999',true,31,'magIssue4',{room:'bedroom',x:172,y:30,z:29,ry:-6});
+    Room.readingSlot = (id, index=0) => {
+      if(!Number.isInteger(slots[id])){const occupied=new Set(Object.values(slots));const available=Array.from({length:32},(_,n)=>n).find(n=>!occupied.has(n));if(available===undefined)return null;slots[id]=available;saveSlots()}
+      const n=slots[id];return {...pose(n,false),snap:'reading.slot.'+n};
+    };
     window.Magazines?.sync();
   }
 
@@ -1489,7 +1540,7 @@
     return { x: TX - 1, y: 8.4, z: -24 + d, rx: 0, ry: 0, seat: 1, lvl: 'U' };
   }
   function tvOpen(con, gameId, resume) {
-    if(!hasConsole(con)){toast('No console connected','Only your Game Lad is available in this starter room.');return;}
+    if(!consoleConnected(con)){toast('No console connected','Place your console in its highlighted TV-rack slot and press E to connect it.');return;}
     if (!canGo() || pending || H.focused&&!H.seated || (window.RoomTV && RoomTV.open_)) return;
     if (con === 'dc' && !R.dcOut) return;
     const loaded = inserted(con); gameId = gameId || (loaded && loaded.gameId);
@@ -1823,20 +1874,21 @@
     // The grab API owns unsnapping, visibility, rotation and persistence.
     if (!H.held()) H.grab(t.id);
   }
+  function consoleMediaSlot(id,c) {
+      if(H.SPOTS[id])H.SPOTS[id].remove=()=>inserted(id)?ejectMedia(id):sparseStarter?H.grab(id):H.toast(CAT.CONSOLES[id].n,'No game is inserted. F plays / uses it; E removes media.');
+      Room.addSnap('console.' + id, { x: c.x, y: c.y, z: c.z, r: 14, box: c.disc ? [12, 0.4, 12] : [10, 4, 3],
+        pose: { x: c.x, y: c.y + (c.disc ? -0.14 : 1), z: c.z + (c.disc ? 6 : 0), ry: 0, rx: c.disc ? 90 : 0 }, hide: c.disc,
+        accepts: (kind, t) => kind===(c.disc?'console-disc':'cart')&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === id), enabled: () => consoleConnected(id)&&!inserted(id),
+        hint: 'Click/E to insert into the ' + CAT.CONSOLES[id].n,
+        onSnap: t => { lidSet(id, false); tvOpen(id, t.gameId); }, onUnsnap: () => {lidSet(id, true); if (window.RoomTV) RoomTV.stopPhysical(id);} });
+  }
   function mediaShelf() {
-    if (mediaThings._ready) return;
+    if (mediaThings._ready) {mediaThings.sync?.();return;}
     mediaThings._ready = 1;
     const games = CAT.GAMES.filter(g => !CAT.CONSOLES[g.con].away);
     rackSlots();
     const owns = g => isOut(g.from || CAT.CONSOLES[g.con].from) && gameOwned(g);
-    for (const [id, c] of Object.entries(R.consoles || {})) {
-      if(H.SPOTS[id])H.SPOTS[id].remove=()=>inserted(id)?ejectMedia(id):H.toast(CAT.CONSOLES[id].n,'No game is inserted. F plays / uses it; E removes media.');
-      Room.addSnap('console.' + id, { x: c.x, y: c.y, z: c.z, r: 14, box: c.disc ? [12, 0.4, 12] : [10, 4, 3],
-        pose: { x: c.x, y: c.y + (c.disc ? -0.14 : 1), z: c.z + (c.disc ? 6 : 0), ry: 0, rx: c.disc ? 90 : 0 }, hide: c.disc,
-        accepts: (kind, t) => kind===(c.disc?'console-disc':'cart')&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === id), enabled: () => !inserted(id),
-        hint: 'Click/E to insert into the ' + CAT.CONSOLES[id].n,
-        onSnap: t => { lidSet(id, false); tvOpen(id, t.gameId); }, onUnsnap: () => {lidSet(id, true); if (window.RoomTV) RoomTV.stopPhysical(id);} });
-    }
+    for (const [id,c] of Object.entries(R.consoles || {})) consoleMediaSlot(id,c);
     const gb = H.THINGS.gb;
     const gbSlot = Room.addSnap('console.gb', { x: 0, y: 0, z: 0, r: 10, box: [5.5, 1, 2], pose: {},
       accepts: (kind, t) => kind==='cart'&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === 'gb'),
@@ -1867,7 +1919,8 @@
       if(openCases[g.id]&&!onMediaRack(box))caseLid(box,true);
       if (t.st === 'snap' && t.snap === 'console.' + g.con) { const c = R.consoles[g.con]; if (c && c.lid) c.lid.rotation.x = 0; }
     };
-    games.forEach(add);
+    mediaThings.sync=()=>games.forEach(add);
+    mediaThings.sync();
     (EVS.find = EVS.find || []).push(id => { if (id && id.startsWith('cart.')) { const g = CAT.GAME[id.slice(5)]; if (g) add(g); } });
     if (window.PM && PM.on) PM.on('change', () => games.forEach(add));
     H.ambient.add(() => { if (tvFocus && !H.focused) { returnHandheld(); tvFocus = false; ++tvRequest; tvSession(null); } });
@@ -1877,7 +1930,13 @@
       const resume = () => {
         if (!H.live || (!saved.background && !canGo())) { if (++tries < 200) setTimeout(resume, 100); return; }
         const t = mediaThings[saved.gid], sn = H.SNAPS['console.' + saved.con];
-        if (saved.gid && (!t || !sn || CAT.GAME[saved.gid].con !== saved.con)) { tvSession(null); return; }
+        if (saved.gid && (!CAT.GAME[saved.gid] || CAT.GAME[saved.gid].con !== saved.con)) { tvSession(null); return; }
+        // Pixel Post ownership arrives asynchronously. Do not erase the running
+        // screen's save before its purchased console and game have been built.
+        if ((saved.gid && (!t || !sn)) || !consoleConnected(saved.con)) {
+          if (++tries < 200) setTimeout(resume,100); else tvSession(null);
+          return;
+        }
         if (t) { t.st = 'snap'; t.snap = sn.id; t.at = Object.assign({ room: 'bedroom', hide: !!sn.hide }, sn.pose); t.rx = sn.pose.rx || 0; H.place(t); lidSet(saved.con, false); }
         if (saved.background) {
           const ready = window.RoomTV ? Promise.resolve() : (tvLoad = tvLoad || loadJs('js/rm-tv.js'));
@@ -1943,7 +2002,7 @@
     held: () => H.held(), tidy: rid => H.tidy(rid || 'bedroom'),
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); if (['grab', 'place', 'snap', 'unsnap'].includes(ev)) H.on(ev, fn); },
     say, toast, look(n) { const i = STN[n]; if (i != null) H.goStation(i); }, get station() { const i = H._.stIdx; return (room.stations[i] || {}).id || ''; },
-    hasConsole, found: id => !!S.f[id], owned: g => { const G = CAT.GAME[g]; return gameOwned(G)&&isOut(G.from||CAT.CONSOLES[G.con].from); },
+    hasConsole, ensureHardware, syncMedia:mediaShelf, found: id => !!S.f[id], owned: g => { const G = CAT.GAME[g]; return gameOwned(G)&&isOut(G.from||CAT.CONSOLES[G.con].from); },
     where: () => H.here, T, K, House: H, ensureHouse,
     onClose(fn) { (EVS.close = EVS.close || []).push(fn); }, offClose(fn) { const a = EVS.close || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); },
     _: { ejectMedia,
