@@ -188,7 +188,10 @@
     wl(410, (UC + GY) / 2, (250 + 400) / 2, 150, GY - UC, -90); wl(410, (UC + GY) / 2, (480 + 600) / 2, 120, GY - UC, -90);
     wl(410, (UC - 80) / 2, 440, 80, -80 - UC, -90); wl(410, (60 + GY) / 2, 440, 80, GY - 60, -90);
     // the landing window (frosted, bubbly 70s glass Dad never replaced)
-    B.plane(410.8, -10, 440, 80, 140, M({ c: '#d8e0e8', o: 0.5, tr: true, sh: 80, sp: '#fff' }), { ry: -90 });
+    B.plane(410.8, -10, 440, 80, 140, M({ c: '#fff', o: 0.62, tr: true, sh: 80, sp: '#fff', map: K.tex('hs.obscureglass', 128, 128, (g, w, h) => { // 1970s "bubble" obscure glass: dimples catch the light
+      g.fillStyle = '#d4dde6'; g.fillRect(0, 0, w, h); const r = K.rnd(4410);
+      for (let i = 0; i < 260; i++) { const x = r() * w, y = r() * h, rr = 2 + r() * 5, gr = g.createRadialGradient(x - rr * 0.3, y - rr * 0.3, 0, x, y, rr); gr.addColorStop(0, 'rgba(255,255,255,.55)'); gr.addColorStop(0.6, 'rgba(190,205,220,.25)'); gr.addColorStop(1, 'rgba(120,140,160,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, rr, 0, 7); g.fill(); }
+    }, { rep: [3, 5] }) }), { ry: -90 });
     // The common outdoor scene is visible through the frosted glass.
     [[400, -80, 440, 1, 6, 80], [400, 60, 440, 1, 6, 80], [400, -10, 400, 1, 146, 6], [400, -10, 480, 1, 146, 6]].forEach(([x, y, z, w, h, d]) => B.box(x + 8.75, y, z, 1.5, h, d, mWhite));
     B.rbox(408.5, 62, 440, 3, 3, 90, 0.8, mWhite);

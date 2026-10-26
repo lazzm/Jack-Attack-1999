@@ -288,28 +288,44 @@
   const SURF = { wallBlue: [128], artex: [110], carpetBlue: [90, 'pile'], carpetBeige: [90, 'pile'], carpetRed: [44, 'pile'], lino: [60],
     wallWarm: [128], wallKitchen: [48], wallpaperHall: [128], wallpaperLounge: [128], tiles: [192], mdf: [60],
     pine: [60, 'grain'], pineDark: [60, 'grain'], deskWood: [60, 'grain'], oak: [60, 'grain'] };
+  const paintMs = { surfaces: 0 }; // (diagnostic: time spent painting the 2x surfaces)
   const HI = new Set(['timetable', 'calendar', 'note', 'noteBlue', 'photo', 'floppyLabel', 'labelLost']);
-  // Full-resolution detail on top of a 2x surface, in one pass over the pixels (fast: no per-speck draw calls).
+  // Full-resolution detail on top of a 2x surface, in one pass over the pixels. The noise is generated once
+  // and shared (each texture reads it from its own offset), so the pass costs a few milliseconds per texture.
+  let NOISE = null, STREAK = null;
+  function noiseTables() {
+    if (NOISE) return; const n = 512 * 512, r = rnd(4321); NOISE = new Float32Array(n); STREAK = new Float32Array(n);
+    for (let i = 0; i < n; i++) NOISE[i] = r() - 0.5;
+    for (let y = 0; y < 512; y++) { let run = 0, k = 0; for (let x = 0; x < 512; x++) { if (run <= 0) { run = 3 + (r() * 16) | 0; k = r() < 0.18 ? -(6 + r() * 14) : (r() - 0.5) * 4; } run--; STREAK[y * 512 + x] = k; } }
+  }
   function detail(g, w, h, kind, seed) {
-    const r = rnd(seed), img = g.getImageData(0, 0, w, h), d = img.data;
-    if (kind === 'grain') { // open pores: short dark streaks along the grain (rows), varying slowly
-      for (let y = 0; y < h; y++) { let run = 0, k = 0; for (let x = 0; x < w; x++) { if (run <= 0) { run = 3 + (r() * 16) | 0; k = r() < 0.18 ? -(6 + r() * 14) : (r() - 0.5) * 4; } run--; const i = (y * w + x) * 4; d[i] += k; d[i + 1] += k * 0.85; d[i + 2] += k * 0.7; } }
+    noiseTables();
+    const img = g.getImageData(0, 0, w, h), d = img.data, len = NOISE.length, off = (seed * 7919) % len;
+    if (kind === 'grain') { // open pores: short dark streaks along the grain (rows)
+      for (let p = 0, i = 0; i < d.length; i += 4, p++) { const k = STREAK[(p + off) % len]; d[i] += k; d[i + 1] += k * 0.85; d[i + 2] += k * 0.7; }
     } else { // pile (carpet tufts) or a fine plaster/paper tooth
-      const amp = kind === 'pile' ? 26 : 9;
-      for (let i = 0; i < d.length; i += 4) { const v = r(), k = (v - 0.5) * amp + (kind === 'pile' && v > 0.985 ? -30 : 0); d[i] += k; d[i + 1] += k; d[i + 2] += k; }
+      const amp = kind === 'pile' ? 26 : 9, dark = kind === 'pile';
+      for (let p = 0, i = 0; i < d.length; i += 4, p++) { const v = NOISE[(p + off) % len], k = v * amp + (dark && v > 0.485 ? -30 : 0); d[i] += k; d[i + 1] += k; d[i + 2] += k; }
     }
     g.putImageData(img, 0, 0);
   }
   function t(name, o) {
     if (cache[name]) return cache[name];
     const p = P[name]; if (!p) { console.warn('hs-art: no', name); return null; }
-    const surf = SURF[name];
+    // (phones on the Low tier keep the original 1x surfaces: the 2x pass costs a few hundred ms of start-up there)
+    const surf = SURF[name] && !(window.HouseQ === 'low' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '')) ? SURF[name] : null;
+    if (!surf && SURF[name]) { const tx = K.tex('art:' + name, p[0], p[1], p[2], Object.assign({}, o, { world: SURF[name][0], grain: SURF[name][1] === 'grain' })); return cache[name] = tx; }
     if (HI.has(name)) { // small print read up close: same design at twice the pixels (crisp text, no blur)
       const paint = g => { g.save(); g.setTransform(2, 0, 0, 2, 0, 0); p[2](g, p[0], p[1]); g.restore(); };
       return cache[name] = K.tex('art:' + name, p[0] * 2, p[1] * 2, paint, Object.assign({}, o, { identity: name === 'photo' }));
     }
     if (surf) { // 2x canvas, same design, then real full-resolution detail
-      const paint = g => { g.save(); g.setTransform(2, 0, 0, 2, 0, 0); p[2](g, p[0], p[1]); g.restore(); detail(g, p[0] * 2, p[1] * 2, surf[1], name.length * 977 + p[0]); };
+      // Wood grain is drawn at 2x (its lines matter); the speckled surfaces paint at 1x and are upscaled, since
+      // their full-resolution character comes from the detail pass (far cheaper than 4x the specks).
+      const paint = g => { const t0 = performance.now();
+        if (surf[1] === 'grain') { g.save(); g.setTransform(2, 0, 0, 2, 0, 0); p[2](g, p[0], p[1]); g.restore(); }
+        else { const c1 = document.createElement('canvas'); c1.width = p[0]; c1.height = p[1]; p[2](c1.getContext('2d'), p[0], p[1]); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(c1, 0, 0, p[0] * 2, p[1] * 2); }
+        detail(g, p[0] * 2, p[1] * 2, surf[1], name.length * 977 + p[0]); paintMs.surfaces += performance.now() - t0; };
       return cache[name] = K.tex('art:' + name, p[0] * 2, p[1] * 2, paint, Object.assign({}, o, { world: surf[0], grain: surf[1] === 'grain' }));
     }
     const tx = K.tex('art:' + name, p[0], p[1], p[2], Object.assign({},o,{identity:name==='photo'}));
@@ -317,7 +333,7 @@
   }
   // a texture with world-scale tiling (the kit's uv option does the maths: one tile = `cm` centimetres)
   function printed(key,w,h,draw,o){const tx=K.tex(key,w,h,draw,o);window.PrintArt?.ready.then(()=>{const g=tx.userData.g;g.save();g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);draw(g,w,h);g.restore();tx.needsUpdate=true;window.House?.dirty()});return tx}
-  window.HouseArt = { P, t, printed, postersReady, posterImages, rr, star, lin, text, grain, mottle, FONT, UIF, HAND };
+  window.HouseArt = { paintMs, P, t, printed, postersReady, posterImages, rr, star, lin, text, grain, mottle, FONT, UIF, HAND };
   if(window.PrintArt)PrintArt.ready.then(()=>{for(const n of Object.keys(prints)){const tx=cache[n],p=P[n];if(tx){const g=tx.userData.g;g.clearRect(0,0,p[0],p[1]);p[2](g,p[0],p[1]);tx.needsUpdate=true}}window.House?.dirty()});
   // fonts arrive late: repaint the texts once they're in
   try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { for (const n in cache) { const tx = cache[n], p = P[n]; if (!tx || !p || SURF[n]) continue; if (HI.has(n)) { const g = tx.userData.g; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, p[0] * 2, p[1] * 2); g.save(); g.setTransform(2, 0, 0, 2, 0, 0); try { p[2](g, p[0], p[1]); } catch (e) {} g.restore(); tx.needsUpdate = true; continue; } const g = tx.userData.g; g.clearRect(0, 0, p[0], p[1]); try { p[2](g, p[0], p[1]); } catch (e) {} tx.needsUpdate = true; } if (window.House && House.dirty) House.dirty(); }); } catch (e) {}

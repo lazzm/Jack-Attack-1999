@@ -68,12 +68,13 @@ try{
  assert(log.includes(`online at :${port}`),'Test server did not start');const base=`http://127.0.0.1:${port}`;
  const account='Wq'+Date.now().toString(36),password='Throwaway-1999';
  if(kind==='full')assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
+ const t0=Date.now();
  fixture=await roomFixture(base,{tier,...(kind==='full'?{account,password,signup:false}:{opening:true}),onPage:page=>{
   page.setDefaultTimeout(60000);
   page.addInitScript(()=>{const W=window.WebSocket;window.WebSocket=function(...a){const ws=new W(...a);window.__wq2ws=ws;return ws};window.WebSocket.prototype=W.prototype;Object.assign(window.WebSocket,{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3})});
   if(baseline.size)page.route(u=>baseline.has(new URL(u).pathname),route=>{const body=baseline.get(new URL(route.request().url()).pathname);return body==null?route.fulfill({status:404,body:''}):route.fulfill({body,contentType:route.request().url().includes('.css')?'text/css':'application/javascript'})});
  }});
- const {page:p,view}=fixture;
+ const {page:p,view}=fixture;console.log('room ready after '+((Date.now()-t0)/1000).toFixed(1)+' s; textures '+await p.evaluate(()=>Object.keys(HouseKit.TEX).length+', 2x surface painting '+Math.round(HouseArt.paintMs?.surfaces??-1)+' ms'));
  await p.evaluate(()=>{RoomTV.close?.();Object.values(House.ROOMS).forEach(r=>House.buildRoom(r));for(const d of Object.values(House.DOORS))if(!d.always)House.setDoor(d.id,false,true)});
  if(!only||only.includes('hall-parcels')){
   // Two waiting Pixel Post parcels, delivered as a server status message on this page only (no shop credit or saved order).

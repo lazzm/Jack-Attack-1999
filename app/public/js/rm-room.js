@@ -761,8 +761,12 @@
   // a console: a body (rounded), its top painted, extra details
   function con(r, id, x, y, z, w, h, d, top, col, label, extra) {
     if(!hasConsole(id)||R.consoles?.[id])return;
-    const g = new T.Group(); g.position.set(x, y, z); r.group.add(g); const C = K.into(g);
+    const g = new T.Group(); g.position.set(x, y, z); r.group.add(g); const cb = K.batch(), C = K.into(cb); // (static parts merged per material)
     C.rbox(0, -h / 2, 0, w, h, d, 0.8, M({ c: col, sh: 18, sp: '#222' }));
+    // power and reset on the front, a red power light, a parting line round the case
+    const trimM = M('#17181a'); // (the same plastic as the controller ports: no extra draw calls)
+    C.rbox(w * 0.06, -h * 0.5, d / 2 + 0.12, 2.4, 1.3, 0.5, 0.18, trimM); C.rbox(w * 0.16, -h * 0.5, d / 2 + 0.1, 1.6, 1.1, 0.4, 0.15, trimM);
+    C.box(0, -h * 0.62, d / 2 + 0.02, w - 2.4, 0.18, 0.08, trimM);
     C.decal(0, -h - K.SURFACE_LIFT, 0, w - 1.6, d - 1.6, M({ c: '#fff', map: tex(top) }), { rx: 90 });
     const slotY = y - h - 0.24;
     R.consoles = R.consoles || {};
@@ -779,6 +783,7 @@
     }
     for (const xx of [-w * 0.29, w * 0.29]) C.rbox(xx, -2.1, d / 2 + 0.08, 3.2, 1.5, 0.4, 0.15, M('#17181a'));
     C.shadow(0, 0, 0, w + 4, d + 4, 0.55, { sq: true });
+    cb.build(g);
     if (extra) extra(g);
     H.spot(id, { label, obj: g });
     if (sparseStarter) {
