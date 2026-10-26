@@ -299,11 +299,18 @@
       g.setAttribute('uv', new T.Float32BufferAttribute([0, 1, 0, 0, 1, 1, 1, 0], 2)); g.setIndex([0, 2, 1, 1, 2, 3]); g.computeVertexNormals();
       B.geo(g, 0, 0, 0, M({ c: '#000', map: K.TEX.fade, basic: true, tr: true, o: 0.4, dw: false, po: -2, side: 2 }));
     }
-    // Keep the descending handrail inside the top and bottom newel faces.
-    const rail0 = z1 + 4.5, rail1 = z2 - 5, railMid = (rail0 + rail1) / 2;
+    // The flight runs along the landing's open edge (x 330), whose own balustrade stands on the landing floor.
+    // Where the stair balustrade would pass through that one (and the landing's slab edge), the open side is a
+    // plastered spandrel under the landing instead; the stair handrail starts at a drop newel hung from the
+    // landing edge and runs down to the bottom newel. (R04: no rail crossing the landing balusters.)
+    const zDrop = 392, edgeBottom = GC - 3; // (1 cm into the landing's slab edge: no shared faces)
+    B.rbox(330, (edgeBottom + pitch(zDrop) - 4) / 2, zDrop, 9, pitch(zDrop) - 4 - edgeBottom, 9, 0.7, wood, { uv: 60 });
+    B.lathe(330, 0, zDrop, [[3.4, pitch(zDrop) - 4.2], [2.2, pitch(zDrop) - 1.5], [3, pitch(zDrop) + 1.5], [0.05, pitch(zDrop) + 2.6]], 16, wood); // the drop's turned pendant
+    { const zs = [286, zDrop], top = GC - 1.95; poly(B, [[330, top, zs[0]], [330, top, zs[1]], [330, pitch(zs[1]) - 6, zs[1]], [330, pitch(zs[0]) - 6, zs[0]]], M({ c: '#fff', map: tex('wallpaperHall'), side: 2 })); }
+    const rail0 = zDrop + 4.5, rail1 = z2 - 5, railMid = (rail0 + rail1) / 2;
     B.rbox(330, pitch(railMid) - 92, railMid, 6.4, 5.2, Math.hypot(rail1 - rail0, 0.8 * (rail1 - rail0)), 1.6, wood, { rx: -ang, uv: 60 });
     // Turned spindles, plumb, two per tread, from the string to the underside of the handrail.
-    for (let k = 1; k <= 26; k++) { const z = 250 + 12.5 * k - 6.25; if (z > z2 - 6) continue; spindle(B, 330, pitch(z) - 89.3, z, 84.4, spin); }
+    for (let k = 1; k <= 26; k++) { const z = 250 + 12.5 * k - 6.25; if (z > z2 - 6 || z < zDrop + 6) continue; spindle(B, 330, pitch(z) - 89.3, z, 84.4, spin); }
     newel(B, 330, GY, 600, wood, 10); // the newel post at the bottom
   }
 
@@ -786,7 +793,7 @@
       g.computeVertexNormals(); paper.geo(K.thicken(g, 0.08), 0.4, -0.3, 0.6, print, { rx: 90, ry: 180 }); }
     paper.shadow(0, 0, 0, 31, 39, 0.35, { sq: true });
     kt2.shadow(0, 0, 0, 130, 90, 0.7, { sq: true });
-    [[-60, 110, 0], [-60, 230, 180], [-130, 170, 90], [10, 170, -90]].forEach(([x, z, ry]) => chair(B, x, z, ry));
+    [[-60, 104, 0], [-60, 236, 180], [-136, 170, 90], [16, 170, -90]].forEach(([x, z, ry]) => chair(B, x, z, ry)); // (set 6 cm back: legs clear of the table legs and aprons)
     // a wall clock, the calendar, the cork board with Mom's lists
     const wc = B.at(-280 + 1, GC + 50, 120); wc.cyl(1, 0, 0, 16, 16, 2, 30, M('#f4f0e4'), { rz: 90 }); wc.cyl(2.2, 0, 0, 16.5, 16.5, 1, 30, M('#c83a2a'), { rz: 90 });
     r.clockHands = wc;
@@ -818,7 +825,7 @@
     H.spot('hs.wclock', { label: 'Kitchen clock', act: () => { const d = new Date(); say('Kitchen clock', 'It says ' + d.getHours() % 12 + ':' + String(d.getMinutes()).padStart(2, '0') + '. (It\'s right. The microwave isn\'t.)'); } }); pickBox(r, 'hs.wclock', -278, GC + 50, 120, 4, 32, 32);
     H.ambient.add(() => { if (!r.group.visible) return; const d = new Date(), m = d.getMinutes() + d.getSeconds() / 60, h = (d.getHours() % 12) + m / 60; r.mh.rotation.x = -m / 60 * Math.PI * 2; r.hh.rotation.x = -h / 12 * Math.PI * 2; });
     H.walkRect('G', -278, -54, 193, 293, { room: 'kitchen' });
-    H.block('G', -280, -56, 82, 6); H.block('G', -280, -56, -218, 14); H.block('G', -124, 126, 4, 214); H.block('G', -80, 92, -40, 128); H.block('G', -80, 212, -40, 248); H.block('G', -150, 150, -110, 190); H.block('G', -10, 150, 30, 190);
+    H.block('G', -280, -56, 82, 6); H.block('G', -280, -56, -218, 14); H.block('G', -124, 126, 4, 214); H.block('G', -80, 86, -40, 122); H.block('G', -80, 218, -40, 254); H.block('G', -156, 150, -116, 190); H.block('G', -4, 150, 36, 190);
     H.support('kitchen',-214.5,-56,-103,10,GY-93);H.support('kitchen',-57,-56,-40,10,GY-93);H.support('kitchen',-103,-56,-57,-44,GY-93);H.support('kitchen',-103,-8,-57,10,GY-93);H.support('kitchen',-103,-44,-57,-8,GY-81);
     H.support('kitchen',-39,-55,19,3,GY-94);H.support('kitchen',20,-56,80,10,GY-93);H.support('kitchen',-277.5,-52,-217.5,12,GY-170);H.support('kitchen',-120,130,0,210,GY-76);
   }
