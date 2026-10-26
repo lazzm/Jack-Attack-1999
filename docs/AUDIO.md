@@ -35,3 +35,10 @@ else falls back to the generic `<lineId>.mp3` that uses no name ("Tea's ready! D
   recording and generates their call-outs, verified by transcription, so new players hear their own name by the next day.
 
 Rules: neutral British accents only for family (no regional accent = no location clue); kid-safe; no cloning real people.
+
+## Quota (found 2026-10-26)
+Gemini TTS on our tier allows **100 generate requests per model per day** (resets ~07:00 UK). Budget it:
+- Name call-outs use batched requests (`BATCHED=1 node gen-names.mjs`): ~15 names voiced per request, split at
+  silences, each clip verified by transcription (transcription uses gemini-3.8-flash, which is not capped this way).
+- Story/voice lines: group lines per character into one request where possible; keep ~10 requests/day spare.
+- A scheduled one-off run: `systemctl --user list-timers` (jack-names-callouts).

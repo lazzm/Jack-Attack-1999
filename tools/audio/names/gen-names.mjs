@@ -19,6 +19,7 @@ async function call(model, body) {
   for (let i = 0; i < 6; i++) {
     const r = await fetch(API + model + ':generateContent', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': KEY }, body: JSON.stringify(body) });
     if (r.ok) return r.json();
+    if (r.status === 429 && /per_day|PerDay/.test(await r.clone().text())) throw Error('429 daily quota');
     if (r.status === 429 || r.status >= 500) { await sleep(2000 * 2 ** i); continue; }
     throw Error(r.status + ' ' + (await r.text()).slice(0, 200));
   }
@@ -53,6 +54,50 @@ async function attempt(s, name) {
   const close = h === want || lev(h, want) <= (want.length > 5 ? 2 : 1) || soundex(h) === soundex(want);
   const ok = nWords <= expect && close;
   report[key] = { ok, heard, dur: +execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', base + '.mp3']).toString() };
+}
+const BATCH = 15;
+async function batch(s, list) {
+  const S = SPEAKERS[s], dir = HERE + 'out/' + s + '/'; fs.mkdirSync(dir, { recursive: true });
+  const text = list.map(n => S.text(n)).join(' ... ');
+  const res = await call('gemini-3.8-flash-tts', { contents: [{ parts: [{ text: `[${S.tag}, one name at a time with a long pause between each] ${text}` }] }],
+    generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: S.voice } } } } });
+  const data = res.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data; if (!data) throw Error('no audio');
+  const pcm = dir + '_batch.pcm', wav = dir + '_batch.wav'; fs.writeFileSync(pcm, Buffer.from(data, 'base64'));
+  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 's16le', '-ar', '24000', '-ac', '1', '-i', pcm, wav]); fs.unlinkSync(pcm);
+  // find speech segments between silences
+  const log = execFileSync('ffmpeg', ['-i', wav, '-af', 'silencedetect=noise=-38dB:d=0.35', '-f', 'null', '-'], { stdio: ['ignore', 'ignore', 'pipe'] }).toString();
+  const dur = +execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', wav]).toString();
+  const sil = [...log.matchAll(/silence_start: ([\d.]+)[\s\S]*?silence_end: ([\d.]+)/g)].map(m => [+m[1], +m[2]]);
+  const segs = []; let t = 0; for (const [a, b] of sil) { if (a - t > 0.15) segs.push([t, a]); t = b; } if (dur - t > 0.15) segs.push([t, dur]);
+  if (segs.length !== list.length) { fs.unlinkSync(wav); throw Error(`segments ${segs.length} != names ${list.length}`); }
+  for (let i = 0; i < list.length; i++) {
+    const name = list[i], base = dir + name.toLowerCase(), [a, b] = segs[i];
+    execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', wav, '-ss', String(Math.max(0, a - 0.05)), '-to', String(b + 0.08), '-af', 'loudnorm=I=-18:TP=-1.5:LRA=9', '-ac', '1', '-c:a', 'libmp3lame', '-q:a', '5', base + '.mp3']);
+    await check(s, name, base);
+  }
+  fs.unlinkSync(wav);
+}
+async function check(s, name, base) {
+  const S = SPEAKERS[s];
+  const t = await call('gemini-3.8-flash', { contents: [{ parts: [{ inlineData: { mimeType: 'audio/mpeg', data: fs.readFileSync(base + '.mp3').toString('base64') } }, { text: 'Transcribe exactly the words spoken. Output only the words.' }] }] });
+  const heard = (t.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+  const h = norm(heard.split(/[ ,!?.]/)[0] || heard), want = norm(name);
+  const nWords = heard.split(/\s+/).filter(w => /[a-z]/i.test(w)).length, expect = S.text(name).split(/\s+/).length;
+  const ok = nWords <= expect && (h === want || lev(h, want) <= (want.length > 5 ? 2 : 1) || soundex(h) === soundex(want));
+  report[s + '/' + name] = { ok, heard, dur: +execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', base + '.mp3']).toString() };
+}
+if (process.env.BATCHED) {
+  // TTS is capped at 100 requests/day on our tier: voice BATCH names per request, split at silences.
+  let used = 0; const cap = +process.env.MAX_REQ || 90;
+  for (const s of spk) {
+    const todo = names.filter(n => !(report[s + '/' + n]?.ok && fs.existsSync(HERE + 'out/' + s + '/' + n.toLowerCase() + '.mp3')));
+    for (let i = 0; i < todo.length && used < cap; i += BATCH) {
+      const list = todo.slice(i, i + BATCH); used++;
+      try { await batch(s, list); } catch (e) { for (const n of list) if (!report[s + '/' + n]?.ok) report[s + '/' + n] = { ok: false, err: e.message }; console.log('batch fail', s, e.message); if (/429/.test(e.message)) { used = cap; } }
+      fs.writeFileSync(HERE + 'report.json', JSON.stringify(report, null, 1)); console.log(s, i + list.length + '/' + todo.length, 'requests', used);
+    }
+  }
+  const bad = Object.entries(report).filter(([, v]) => !v.ok); console.log('flagged', bad.length); process.exit(0);
 }
 const jobs = spk.flatMap(s => names.map(n => [s, n]));
 let i = 0, done = 0;
