@@ -5,6 +5,9 @@ import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
 const base = process.argv[2] || 'http://localhost:18099';
+// Stretch waits on a busy host (same rule as smoke.mjs; STORY_SCALE overrides).
+const OS = await import('node:os');
+const SCALE = +process.env.STORY_SCALE || Math.max(1, Math.min(4, Math.round(OS.loadavg()[0] / OS.cpus().length * 1.3 * 10) / 10));
 assert(['localhost', '127.0.0.1'].includes(new URL(base).hostname));
 const shots = fileURLToPath(new URL('shots/story-opening/', import.meta.url)); await mkdir(shots, {recursive:true});
 const stage=process.argv[3]||'all',resumeFile=process.argv[4]||'/tmp/jhp-story-opening-browser.json';
@@ -64,7 +67,7 @@ if(stage==='owner'){await ownerRoundTrip();process.exit(0);}
 const {browser, page:p, errors, until, view} = await roomFixture(base, {account, password, opening:true,resume:!!resumed,storageState:resumed||undefined});
 const shot = name => p.screenshot({path:shots + name + '.png'});
 async function wait(page, fn, arg, timeout=30000) {
-  const end=Date.now()+timeout;
+  const end=Date.now()+timeout*SCALE;
   while(Date.now()<end){if(await page.evaluate(fn,arg))return;await page.waitForTimeout(150)}
   throw Error('State timeout: '+String(fn));
 }
