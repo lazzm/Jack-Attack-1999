@@ -46,7 +46,9 @@ async function credentials(page,account,first,g,signup=true){
  }
  await until(page,()=>window.AccountGate?.allowed);
 }
-async function house(page){await until(page,()=>window.House?.live&&window.PMGL?.built&&House.mode==='monitor'&&!sessionStorage.getItem('jhp_login_seat')&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'));await page.keyboard.press('q');await until(page,()=>House.mode==='walk'&&!House.gliding);await page.evaluate(()=>Room.ensureHouse());await until(page,()=>window.HouseRooms?.ready);await page.evaluate(()=>{House.buildRoom(House.ROOMS.lounge);House.buildRoom(House.ROOMS.kitchen)});await until(page,()=>window.HouseLife&&window.ChoreKit)}
+async function house(page){await until(page,()=>window.House?.live&&window.PMGL?.built&&(House.mode==='monitor'||House.mode==='walk')&&!sessionStorage.getItem('jhp_login_seat')&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'));
+  // New story players start on their feet (no PC yet); veterans start at the PC.
+  if(await page.evaluate(()=>House.mode==='monitor'))await page.keyboard.press('q');await until(page,()=>House.mode==='walk'&&!House.gliding);await page.evaluate(()=>Room.ensureHouse());await until(page,()=>window.HouseRooms?.ready);await page.evaluate(()=>{House.buildRoom(House.ROOMS.lounge);House.buildRoom(House.ROOMS.kitchen)});await until(page,()=>window.HouseLife&&window.ChoreKit)}
 async function view(page,eye,target,level='U'){
  await until(page,()=>!House.gliding);
  await page.evaluate(({eye,target,level})=>{House.hush();House.setWalkFrom({x:eye[0],y:eye[1],z:eye[2],lvl:level,seat:0});const[x,y,z]=eye,[tx,ty,tz]=target;Object.assign(House.P,{x,y,z,rx:Math.atan2(-(ty-y),Math.hypot(tx-x,tz-z))*180/Math.PI,ry:Math.atan2(tx-x,-(tz-z))*180/Math.PI,seat:0,lvl:level});House._.setMode('focus');House.dirty()},{eye,target,level});await page.waitForTimeout(450);assert.deepEqual(await page.evaluate(()=>[House.P.x,House.P.y,House.P.z]),eye,'A camera glide overwrote the screenshot pose');

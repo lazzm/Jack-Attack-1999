@@ -17,7 +17,8 @@ let server, data, fixture, activeBrowser, base, log='', renderer='unavailable', 
 const errors=[];
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 // SMOKE_SCALE stretches every time budget (default: 1, or 2 automatically when the 1-minute load average exceeds the CPU count).
-const SCALE=+process.env.SMOKE_SCALE||((await import('node:os')).loadavg()[0]>(await import('node:os')).cpus().length?2:1);
+const OS=await import('node:os');
+const SCALE=+process.env.SMOKE_SCALE||Math.max(1,Math.min(4,Math.round(OS.loadavg()[0]/OS.cpus().length*1.3*10)/10));
 const reason=e=>String(e.message||e).replace(/\s+/g,' ').slice(0,320);
 let cleanupPromise;
 function cleanup(){return cleanupPromise ||= dispose()}
