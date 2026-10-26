@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.46.0 - 2026-10-26
+- Private phone numbers: every JackNet account gets its own 20-digit JackNet Mobile number (Menu > My number, shown in groups of four). Texts only go to a number you've been given; the old "Online now" list and texting by name or member number are gone, so strangers can't text you. New Phonebook (add/edit/delete up to 50 contacts) and Reply uses the sender's number. Old queued texts still arrive.
+- Fixed typing on the in-world phone: w, a, s, d and c were treated as menu keys, so letters went missing from texts and names.
+- Tests: SMS server and phone UI unit tests, plus the private-phone browser test (two accounts, add/edit/delete, send/reply, refresh).
+
 ## 2.45.0 - 2026-10-23
 - Rebuilt the surrounding 17-house neighbourhood with varied solid pitched roofs/gables, bays, porches, framed side/rear windows, chimney pots, gardens, paths, boundaries and grounded trees. Streets/pavements align with the playable frontage; the shared foundation stays below road/turf surfaces. Kept independently culled static batches and the translation-free phase-aware skybox. Night windows and lamps use the existing cheap phase tint rather than new point lights.
 - The family house now has a complete solid roof, ridge, slate courses, gables, fascia, gutters, connected downpipes and gullies. Rebuilt front wall segments around the actual window/door openings, added recessed upper glazing/sills and a framed bathroom window. Corrected brick scale, shed timber, turf/patio/road thickness, path edging and front hedge shape. Widened asphalt around the existing parked car and matched the roof placement support to its actual surface. Cleared the garden tree from the washing-line envelope and added its trunk collision. Front/rear wall collision preserves door passages while preventing walking through windows.

@@ -9,6 +9,24 @@
   const save = () => store.set(KEY, st);
   const pad2 = n => String(n).padStart(2, '0');
   const money = p => '£' + (p / 100).toFixed(2);
+  const phoneNumber = v => typeof v === 'string' && /^1999\d{16}$/.test(v);
+  const groups = n => String(n).match(/.{1,4}/g) || []; // 1999 8668 1335 / 7239 2969
+  let phone = null, phoneRef = '', phoneSerial = 0;
+  const phoneOwner = () => window.Net && Net.me.member ? String(Net.me.nick).toLowerCase() : '';
+  const privatePhone = () => phone && phone.owner === phoneOwner() ? phone : null;
+  function requestPhone() {
+    if (!phoneOwner() || !Net.connected) return false;
+    phoneRef = 'phone' + (++phoneSerial);
+    return Net.send({ t: 'smsPhoneGet', ref: phoneRef });
+  }
+  function restoreReplies(replies) {
+    const sm = F.sms(); let changed = false;
+    for (const r of replies || []) {
+      const item = sm.inbox.find(x => x.id === r.id);
+      if (item && phoneNumber(r.fromPhone) && item.fromPhone !== r.fromPhone) { item.fromPhone = r.fromPhone; changed = true; }
+    }
+    if (changed) F.saveSms(sm);
+  }
 
   // ================================================================ the 3x5 font (rows as octal digits: 4 = left, 2 = middle, 1 = right)
   const GL = {
@@ -151,7 +169,7 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
       .filter(m => m.md <= md && !st.delS[m.id]).map(m => Object.assign(m, { read: !!st.readS[m.id] || m.md < since }));
   };
   function inbox() {
-    const real = F.sms().inbox.map(m => ({ id: m.id, from: m.from, fromNo: m.fromNo, text: m.text, real: true, read: m.read, ts: m.ts, time: `${new Date(m.ts).getHours()}:${pad2(new Date(m.ts).getMinutes())}` }));
+    const real = F.sms().inbox.map(m => ({ id: m.id, from: m.from, fromNo: m.fromNo, fromPhone: m.fromPhone, text: m.text, real: true, read: m.read, ts: m.ts, time: `${new Date(m.ts).getHours()}:${pad2(new Date(m.ts).getMinutes())}` }));
     const t = F.today();
     return real.sort((a, b) => b.ts - a.ts).map(m => Object.assign(m, { day: `${pad2(t.d)}/${pad2(t.m)}` })).concat(scriptMsgs().sort((a, b) => b.md - a.md).map(m => Object.assign(m, { day: `${pad2(m.md % 100)}/${pad2(Math.floor(m.md / 100))}` })));
   }
@@ -200,6 +218,7 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
 
   function open(arg) {
     if (isOpen()) { P.w.restore(); return P.w; }
+    requestPhone();
     const b = document.createElement('div'); b.className = 'tb-ph';
     const key = (k, big, small, cls) => `<button type="button" class="tb-k${cls ? ' ' + cls : ''}" data-k="${k}" aria-label="${esc(small ? big + ' ' + small : big)}">${big}${small != null ? `<small>${small || '&nbsp;'}</small>` : ''}</button>`;
     b.innerHTML = `<div class="tb-body"><div class="tb-ant"></div><div class="tb-ear"><i></i><i></i><i></i><i></i><i></i></div><div class="tb-brand">TALKBRIK</div>
@@ -334,8 +353,8 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
       { label: 'Write message', act: () => push(editor('')) },
       { label: 'Inbox', right: unread() ? String(unread()) : '', act: () => push(inboxScreen()) },
       { label: 'Sent items', act: () => push(sentScreen()) },
-      { label: 'Online now', act: () => push(onlineScreen()) },
-      { label: 'My number', act: () => popup(window.Net && Net.me.member && Net.me.no ? [`Your number:`, String(Net.me.no), `(${Net.me.nick})`] : ['You are a guest:', (window.Net && Net.me.nick) || '?', 'Join JackNet to get a number!'], 2600) },
+      { label: 'Phonebook', act: () => push(phonebook()) },
+      { label: 'My number', act: () => { requestPhone(); push(myNumber()); } },
     ]);
     const inboxScreen = () => list('Inbox', () => inbox().map(m => ({ label: (m.read ? ' ' : '*') + m.from, right: m.day, m, act: x => push(reader(x.m)) })), { empty: 'No messages', numbers: false });
     const sentScreen = () => list('Sent items', () => F.sms().sent.slice().reverse().map(m => ({ label: m.to, right: m.status === 'delivered' ? 'Dlvd' : 'Sent', m, act: x => push(reader({ from: 'To ' + x.m.to, text: x.m.text, sent: true, time: new Date(x.m.ts).getHours() + ':' + pad2(new Date(x.m.ts).getMinutes()), day: x.m.status === 'delivered' ? 'Delivered' : (x.m.queued ? 'Waiting' : 'Sent') })) })), { empty: 'No sent items', numbers: false });
@@ -354,7 +373,7 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
         else if (k === 'up') s.off = Math.max(0, s.off - 1);
         else if (k === 'c' || (k === 'sel' && m.sent)) pop();
         else if (k === 'sel') push(list('Options', () => [
-          m.real ? { label: 'Reply', act: () => { pop(); push(editor('', null, { to: m.fromNo ? String(m.fromNo) : m.from, toName: m.from })); } } : { label: 'Reply', act: () => popup(m.from === 'Mom' ? ['Not allowed!', 'That number is', 'Mom\'s in 1999.', 'Ring her instead.'] : ['Cannot reply.', 'This text is from', '1999. You can only', 'text real people!'], 2600) },
+          m.real ? { label: 'Reply', act: () => { const current = F.sms().inbox.find(x => x.id === m.id) || m; if (!phoneNumber(current.fromPhone)) return popup(['Old message.', 'Ask your friend for', 'their JackNet number.'], 2600); pop(); push(editor('', null, { to: current.fromPhone, toName: m.from })); } } : { label: 'Reply', act: () => popup(m.from === 'Mom' ? ['Not allowed!', 'That number is', 'Mom\'s in 1999.', 'Ring her instead.'] : ['Cannot reply.', 'This text is from', '1999. You can only', 'text real people!'], 2600) },
           m.real ? { label: 'Block sender', act: () => { const sm = F.sms(); const n = String(m.from).toLowerCase(); if (!sm.blocked.includes(n)) sm.blocked.push(n); F.saveSms(sm); popup(['Blocked:', m.from], 1600, () => { pop(); }); } } : null,
           { label: 'Delete', act: () => { delMsg(m); popup('Deleted', 1000, () => { pop(); pop(); }); } },
         ].filter(Boolean)));
@@ -362,10 +381,47 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
       };
       return s;
     }
-    const others = () => ((window.FamilyOnline || window.SiteOnline || []).filter(x => x && x.id !== (window.Net && Net.me.id) && x.nick));
-    function onlineScreen(text0) {
-      return list('Online now', () => others().map(x => ({ label: x.nick, right: x.member ? 'mbr' : '', act: () => { if (text0 != null) { pop(); sendText(text0, x.nick, x.nick); } else push(editor('', null, { to: x.nick, toName: x.nick })); } })), { empty: 'Nobody online', numbers: false });
+    function myNumber() {
+      return { id: 'myNumber', draw() {
+        header('My number');
+        const mine = privatePhone();
+        if (mine) { const g = groups(mine.number); ctext(13, 'JACKNET ONLY'); ctext(22, g.slice(0, 3).join(' ')); ctext(30, g.slice(3).join(' ')); ctext(39, 'Share with friends.'); ctext(47, 'Keep it private.'); }
+        else { ctext(22, 'Waiting for network.'); ctext(34, 'Select to retry.'); }
+        soft('Back');
+      }, key(k) { if (k === 'c') pop(); else if (k === 'sel') requestPhone(); P.draw(); } };
     }
+    function phonebook(body) {
+      return list('Phonebook', () => [{ label: 'Add contact', act: () => editContact() }].concat((privatePhone()?.contacts || []).map(c => ({ label: c.name, act: () => {
+        if (body != null) { pop(); sendText(body, c.number, c.name); }
+        else push(list(c.name, [
+          { label: 'Write message', act: () => push(editor('', null, { to: c.number, toName: c.name })) },
+          { label: 'View number', act: () => { const g = groups(c.number); popup([c.name, g.slice(0, 3).join(' '), g.slice(3).join(' ')], 4000); } },
+          { label: 'Edit contact', act: () => editContact(c) },
+          { label: 'Delete contact', act: () => push(list('Delete contact?', [
+            { label: 'Keep contact', act: () => pop() },
+            { label: 'Delete', act: () => contactAction({ t: 'smsContactDelete', id: c.id }, () => { pop(); pop(); }) },
+          ])) },
+        ]));
+      } }))), { numbers: false });
+    }
+    function editContact(c) {
+      push(editor(c ? c.name : '', null, { title: 'Contact name', max: 22, soft: 'Next', onDone: name => {
+        if (!name) return popup('Enter a name', 1200);
+        push(editor(c ? c.number : '', null, { title: 'JackNet number', numeric: true, max: 20, soft: 'Save', onDone: number => {
+          if (!phoneNumber(number)) return popup(['Enter the shared', '20-digit number.'], 1800);
+          contactAction({ t: 'smsContactSave', id: c ? c.id : '', name, number }, () => { pop(); pop(); if (c) pop(); });
+        } }));
+      } }));
+    }
+    function contactAction(message, done) {
+      if (!privatePhone() || !window.Net || !Net.connected) return popup(['No network.', 'Open My number', 'and try again.'], 2000);
+      if (Object.keys(contactWait).length) return;
+      const ref = 'contact' + (++phoneSerial), origin = top();
+      const timer = setTimeout(() => { if (contactWait[ref]) { delete contactWait[ref]; if (!w.closed) popup('Network busy. Retry.', 1800); } }, 9000);
+      contactWait[ref] = m => { clearTimeout(timer); if (w.closed) return; if (!m.ok) return popup(m.err || 'Contact unavailable.', 2200); if (top() === origin) done(); popup('Phonebook saved', 1200); };
+      Net.send(Object.assign({ ref }, message));
+    }
+    const contactWait = {};
     // ---- the text editor: multi-tap, T9 predictive, 123
     const MT = { 1: '.,?!\'-1@:', 2: 'abc2', 3: 'def3', 4: 'ghi4', 5: 'jkl5', 6: 'mno6', 7: 'pqrs7', 8: 'tuv8', 9: 'wxyz9', 0: ' 0' };
     const MODES = ['Abc', 'abc', 'ABC', '123', 'T9'];
@@ -398,7 +454,7 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
       s.leave = () => { clearInterval(s.blink); commitMT(); };
       function press(k) {
         if (k === '#') { commitMT(); commitT9(); if (!o.numeric) { s.mode = MODES[(MODES.indexOf(s.mode) + 1) % MODES.length]; if (!o.title) { st.mode = s.mode; save(); } popup(s.mode === 'T9' ? ['Predictive text', 'ON'] : s.mode === '123' ? 'Numbers' : s.mode, 700); } return; }
-        if (s.mode === '123' || o.numeric) { commitT9(); if (/^[0-9*]$/.test(k) && room() > 0) s.text += k === '*' ? '+' : k; return; }
+        if (s.mode === '123' || o.numeric) { commitT9(); if ((o.numeric ? /^[0-9]$/ : /^[0-9*]$/).test(k) && room() > 0) s.text += k === '*' ? '+' : k; return; }
         if (s.mode === 'T9') {
           if (/^[2-9]$/.test(k)) { if (room() <= 0) return; const seq = (s.t9 ? s.t9.seq : '') + k; s.t9 = { seq, words: t9Words(seq), i: 0 }; return; }
           if (k === '*') { if (s.t9) s.t9.i = (s.t9.i + 1) % s.t9.words.length; else s.text += '*'; return; }
@@ -415,7 +471,7 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
       }
       s.typed = ch => { // a real keyboard: just type
         commitMT(); commitT9();
-        if (o.numeric && !/[0-9a-zA-Z_ ]/.test(ch)) return;
+        if (o.numeric && !/^[0-9]$/.test(ch)) return;
         if (room() > 0) s.text += ch;
         P.draw();
       };
@@ -448,12 +504,15 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
       return s;
     }
     function recipients(body) {
-      return list('Send to', () => [{ label: 'Enter number/name', act: () => { pop(); push(editor('', null, { numeric: false, mode: '123', title: 'No./name', soft: 'Send', max: 30, onDone: v => { if (!v) return popup('Enter a number', 1200); pop(); sendText(body, v, v); } })); } }]
-        .concat(others().map(x => ({ label: x.nick, right: x.member ? 'mbr' : '', act: () => { pop(); sendText(body, x.nick, x.nick); } }))), { numbers: false });
+      return list('Send to', [
+        { label: 'Enter shared number', act: () => { pop(); push(editor('', null, { numeric: true, title: 'JackNet number', soft: 'Send', max: 20, onDone: v => { if (!phoneNumber(v)) return popup(['Enter the shared', '20-digit number.'], 1800); pop(); sendText(body, v, v); } })); } },
+        { label: 'Phonebook', act: () => { pop(); push(phonebook(body)); } },
+      ], { numbers: false });
     }
     // ---- sending (10p a text, pay as you go)
     let ref = 0; const waiting = {};
     function sendText(body, to, toName) {
+      if (!phoneNumber(to)) return popup(['Enter a shared', 'JackNet number.'], 1800);
       if (st.credit < 10) { popup(['Insufficient', 'credit. Please', 'top up your phone.', `Balance ${money(st.credit)}`], 2600); return; }
       if (!window.Net || !Net.connected) { popup(['No network', 'coverage.', 'Message failed.'], 2000); return; }
       if (window.Guest && Guest.is()) { Guest.need('Sending text messages', () => sendText(body, to, toName)); return; }
@@ -464,21 +523,24 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
       s.key = () => {};
       push(s);
       const anim = setInterval(() => { s.f++; if (top() === s) P.draw(); }, 120);
+      s.leave = () => clearInterval(anim);
       waiting[id] = m => {
-        clearInterval(anim); if (top() === s) pop();
+        clearInterval(anim); if (w.closed) return; if (top() === s) pop();
         if (!m) return popup(['Message', 'sending failed.', 'Try again later.'], 2200);
         if (!m.ok) return popup(['Message failed:', m.err || 'Unknown error'], 3200);
         st.credit -= 10; st.batt = Math.max(0, st.batt - 0.5); save();
-        const sm = F.sms(); sm.sent.push({ id: m.id, to: m.to || toName, text: body, ts: Date.now(), status: 'sent', queued: !!m.queued }); F.saveSms(sm);
+        const sm = F.sms(); sm.sent.push({ id: m.id, to: toName || m.to, text: body, ts: Date.now(), status: 'sent', queued: !!m.queued }); F.saveSms(sm);
         A.secret('fam.text');
         popup(['Message sent', m.queued ? '(they\'re offline,' : '', m.queued ? 'they\'ll get it later)' : '', `Credit ${money(st.credit)}`].filter(Boolean), 2200, () => home());
       };
       setTimeout(() => { if (waiting[id]) { const f = waiting[id]; delete waiting[id]; f(null); } }, 9000);
     }
     P.net = m => {
+      if (m.t === 'smsContactResult' && contactWait[m.ref]) { const f = contactWait[m.ref]; delete contactWait[m.ref]; f(m); }
       if (m.t === 'smsSent' && waiting[m.ref]) { const f = waiting[m.ref]; delete waiting[m.ref]; f(m); }
       if (m.t === 'smsDelivered') { const wait = P.pop ? Math.max(0, P.pop.until - Date.now()) + 150 : 0; setTimeout(() => { if (!w.closed) popup(['Delivered:', m.to || ''], 1800); }, wait); }
     };
+    P.resetPrivate = () => { for (const id of Object.keys(contactWait)) delete contactWait[id]; for (const id of Object.keys(waiting)) delete waiting[id]; clearTimeout(P.popT); P.pop = null; home(); P.draw(); };
     P.incoming = it => {
       backlight();
       const t = tuneOf(st.tone) || tuneOf('classic');
@@ -778,6 +840,8 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
       P.draw();
     }
     P.press = press;
+    // A real keyboard typing into an editor screen (the in-world handset routes letters here).
+    P.type = ch => { const s = top(); if (!s || s.id !== 'edit' || !s.typed) return false; backlight(); s.typed(ch); return true; };
     P.state = () => { const s = top(); return { id: s.id, net: !!s.net, ph: s.ph || null, depth: P.stack.length, text: s.id === 'edit' ? s.text + (s.t9 ? s.t9.words[s.t9.i] : '') : null, mode: s.mode, score: s.score, head: s.body && s.body[0], food: s.food, dir: s.dir, dead: s.dead, pop: P.pop && P.pop.lines.join(' '), batt: st.batt, credit: st.credit }; };
     let holdT = null;
     b.querySelectorAll('[data-k]').forEach(e => {
@@ -802,7 +866,7 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
       ev.preventDefault(); press(k);
     });
     setTimeout(() => w.el.focus(), 50);
-    function stopAll() { clearInterval(P.tick); stopTune(); P.stack.forEach(s => s.leave && s.leave()); }
+    function stopAll() { clearInterval(P.tick); clearTimeout(P.popT); clearTimeout(P.litT); stopTune(); P.stack.forEach(s => s.leave && s.leave()); }
     // ---- go
     P.stack = [idle];
     backlight();
@@ -813,13 +877,31 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
     return w;
   }
 
-  // keep our own copy of who's online (the SMS recipient list)
-  if (window.Net) Net.on('online', m => { window.FamilyOnline = m.online || []; });
+  // This is a private, account-scoped packet; public presence is never a directory.
+  if (window.Net) {
+    Net.on('smsPhone', m => {
+      if (m.ref !== phoneRef || !m.ok || m.owner !== phoneOwner() || !phoneNumber(m.number)) return;
+      phone = { owner: m.owner, number: m.number, contacts: m.contacts || [] };
+      restoreReplies(m.replies);
+      if (isOpen()) P.draw();
+    });
+    Net.on('smsContactResult', m => {
+      if (m.owner !== phoneOwner()) { if (m.ok) return; }
+      if (m.ok && privatePhone()) phone.contacts = m.contacts || [];
+      if (isOpen()) { P.net(m); P.draw(); }
+    });
+    Net.on('smsNew', m => { if (m.item) restoreReplies([m.item]); });
+    for (const event of ['welcome', 'loginOk', 'you', '_close']) Net.on(event, () => {
+      phone = null; phoneRef = '';
+      if (isOpen()) { P.resetPrivate(); if (event !== '_close') requestPhone(); }
+    });
+  }
   window.FamilyPhone = {
     open, isOpen,
     incoming: it => { if (isOpen()) P.incoming(it); },
     net: m => { if (isOpen()) P.net(m); },
     press: k => { if (isOpen()) P.press(k); },
+    type: ch => isOpen() ? P.type(ch) : false,
     state: () => isOpen() ? P.state() : null,
     t9: t9Words, parseTune,
   };

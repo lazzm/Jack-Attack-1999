@@ -248,6 +248,8 @@
   function phoneKey(ev) {
     if (!surf || H.paused || ev.ctrlKey || ev.metaKey || ev.altKey ||
         ev.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]')) return;
+    // Typing a message/contact: every printable character is text, not w/a/s/d/c navigation.
+    if (ev.key.length === 1 && !/^[0-9*#]$/.test(ev.key) && FamilyPhone.state?.()?.id === 'edit' && FamilyPhone.type?.(ev.key)) { ev.preventDefault(); ev.stopImmediatePropagation(); return; }
     const k = {ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right', Enter:'sel', Backspace:'c',
       c:'c', C:'c', w:'up', a:'left', s:'down', d:'right'}[ev.key] || (/^[0-9*#]$/.test(ev.key)?ev.key:null);
     if (k) { ev.preventDefault(); ev.stopImmediatePropagation(); FamilyPhone.press(k); }

@@ -8,3 +8,4 @@ app/node_modules/
 *.bak*
 tests/shots/
 tests/recordings/
+node_modules
