@@ -1,6 +1,6 @@
-/* POCKET CRITTERS: MOSS VERSION (Game Boy, in Jack's room). Pick a starter critter at Professor Bramble's lab, walk the
+/* POCKET CRITTERS: MOSS VERSION (Game Lad, in Jack's room). Pick a starter critter at the Professor's lab, walk the
  * long grass of Route 1 and the Whispering Woods, catch wild critters in Critter Cubes, beat Jack's mates in battles and
- * win the Moss Badge from Hazel at the Moss Town Gym. 16 original critters, six types, levels, evolutions, a Critterdex.
+ * win the Moss and Splash Badges. 23 original critters, six types, levels, evolutions, a Critterdex.
  * Arrows walk, A (Z) talks and picks, B (X) goes back, Start (Enter) opens the menu (Critterdex, Party, Bag, Save).
  * The game saves itself (K.save, key rm.gb.mon): CONTINUE on the title screen. Everything here is original. */
 (function () {
@@ -66,8 +66,8 @@
   const SP = LC.SP.map(x => FUNNY[x.i] ? Object.assign({}, x, { n: FUNNY[x.i][0], dex: FUNNY[x.i][1] }) : x);
   const FUNPAL = s => FUNNY[s] ? [FUNNY[s][2][0], FUNNY[s][2][1], FUNNY[s][2][2], '#201418'] : null;
   // a few moves get funnier names on screen (the keys stay the same, so link battles still agree)
-  const MVN = { POUNCE: 'BELLY FLOP', GLARE: 'THE EVILS', SNOOZE: 'LIE-IN', 'QUICK PECK': 'QUICK POKE', 'LEAF LICK': 'LEAF SLAP', 'MOSS BLAST': 'COMPOST HEAP', 'SPORE CLOUD': 'PONG CLOUD',
-    'BUBBLE POP': 'BATH BOMB', 'CINDER SPIT': 'HOT SAUCE', 'FLARE UP': 'BONFIRE', ZAP: 'STATIC SHOCK', 'STATIC POP': 'FAX BLAST', THUNDERCLAP: 'MODEM SCREAM', 'PEBBLE TOSS': 'ACORN QUEST TOSS',
+  const MVN = { POUNCE: 'BELLY FLOP', GLARE: 'THE EVILS', SNOOZE: 'LIE-IN', 'QUICK PECK': 'QUICK POKE', 'LEAF LICK': 'LEAF SLAP', 'MOSS BLAST': 'COMPOST HEAP', 'SPORE CLOUD': 'SNOOZE SPORES',
+    'BUBBLE POP': 'BATH BOMB', 'CINDER SPIT': 'HOT SAUCE', 'FLARE UP': 'BONFIRE', ZAP: 'STATIC SHOCK', 'STATIC POP': 'FAX BLAST', THUNDERCLAP: 'MODEM SCREAM', 'PEBBLE TOSS': 'CONKER CHUCK',
     'ROCK SLAM': 'BODY SLAM', HARDEN: 'TENSE UP', LANDSLIDE: 'AVALANCHE', 'EEL WHIP': 'WIRE WHIP', STINGLE: 'STINGY STING' };
   const mvN = m => MVN[m] || m;
   // Game Boy Color palettes: the text boxes per cartridge, the map tiles, the people
@@ -94,10 +94,22 @@
     sailor: ['#f8d0a8', '#f8f8f8', '#2848a8', '#181818'], nora: ['#f8d0b0', '#58c8f0', '#2068b8', '#181818'], swimmer: ['#f0c8a0', '#f8e040', '#e05030', '#181818'],
     dinner: ['#f8e0d0', '#f8f8f8', '#5aa0d0', '#181818'], ice: ['#f8d0a8', '#f8c0d8', '#d84878', '#181818'] };
   const OCOL = { ball: ['#f8f8f8', '#e84040', '#a02020', '#181818'], cube: ['#f8f8f8', '#58a0e0', '#2858a0', '#181818'] };
-  const ITEMS = { CUBE: ['CRITTER CUBE', 150, 'Throw at a tired wild critter to catch it.'], CAKE: ['BERRY CAKE', 100, 'Heals 20 HP.'], BIG: ['BIG CAKE', 300, 'Heals 60 HP.'], PEP: ['PEP BUN', 600, 'Wakes a fainted critter up with half its HP.'] };
-  const ITEM_ORDER = ['CUBE', 'CAKE', 'BIG', 'PEP'];
+  const ITEMS = { CUBE: ['CRITTER CUBE', 150, 'Catch wild critters. Low HP or sleep helps.'], CAKE: ['BERRY CAKE', 100, 'Heals 20 HP.'], BIG: ['BIG CAKE', 300, 'Heals 60 HP.'], PEP: ['PEP BUN', 600, 'Wakes a fainted critter up with half its HP.'] };
+  ITEMS.TEA = ['THERMOS TEA', 120, 'Cures sleep, static and pong.'];
+  ITEMS.JUICE = ['SQUASH', 200, 'Restores every move by 10 PP.'];
+  const ITEM_ORDER = ['CUBE', 'CAKE', 'BIG', 'PEP', 'TEA', 'JUICE'];
+  const ppMax = m => MOVES[m][1] >= 70 ? 10 : MOVES[m][1] >= 55 ? 15 : MOVES[m][1] ? 25 : 20;
+  function prepare(c) { // Additive migration: old critters, IDs and move keys remain intact.
+    if (!c.id) c.id = uid();
+    c.pp = c.pp || {};
+    for (const m of c.moves) if (!Number.isFinite(c.pp[m])) c.pp[m] = ppMax(m);
+    return c;
+  }
+  function restore(c) { prepare(c); c.hp = maxhp(c); c.status = null; c.sleep = 0; for (const m of c.moves) c.pp[m] = ppMax(m); }
+  const statusName = c => ({sleep: 'SLP', static: 'ZAP', pong: 'PNG'}[c.status] || '');
+  const STATUS = { 'SPORE CLOUD': ['sleep', 1], STINGLE: ['pong', 0.25], ZAP: ['static', 0.15], 'STATIC POP': ['static', 0.25], THUNDERCLAP: ['static', 0.3] };
   const uid = () => Math.random().toString(36).slice(2, 10).padEnd(8, '0');
-  function mon(s, lv) { const c = { s, lv, exp: expAt(lv), moves: movesAt(s, lv), id: uid() }; c.hp = maxhp(c); return c; }
+  function mon(s, lv) { const c = { s, lv, exp: expAt(lv), moves: movesAt(s, lv), id: uid() }; c.hp = maxhp(c); return prepare(c); }
   const nameOf = c => SP[c.s].n;
 
   // ================================================================ the world: maps (16x16 tiles)
@@ -184,7 +196,7 @@
       'X________X',
       'X________X',
       'XXXXmmXXXX'] },
-    lab: { name: 'BRAMBLE LAB', out: 'X', song: 'home', inside: 1, rows: [
+    lab: { name: 'CRITTER LAB', out: 'X', song: 'home', inside: 1, rows: [
       'XXXXXXXXXX',
       'XKKKPPKKKX',
       'X________X',
@@ -325,12 +337,15 @@
   const SOLID = new Set(['T', 'W', 'R', '#', 'O', 'S', 'X', 'K', 'P', 'M', 't', 'C', 'b', 'Q', 'H', 'V', 'B', 'F']);
   const SIGNS = {
     'route2:2,6': 'ROUTE 2. North: PEBBLE BAY. South: GRUMBLY CAVE. Mind the wasps.',
-    'bay:8,5': 'PEBBLE BAY. Sea, sand and sticks of rock. GYM LEADER: CAPTAIN NORA.',
+    'bay:8,5': 'PEBBLE BAY. Sea, sand and sticks of rock. GYM LEADER: CAPTAIN {captain}.',
     'town:8,10': 'MOSS TOWN. Where the grass is greener (and longer, and full of critters).',
-    'town:12,15': 'MOSS TOWN GYM. Leader: HAZEL. "As tough as old boots!"',
+    'town:12,15': 'MOSS TOWN GYM. Leader: {gymleader}. "As tough as old boots!"',
     'route:2,8': 'ROUTE 1. North: WHISPERING WOODS. South: MOSS TOWN.',
   };
   // people and things. st: how they look. sight: trainers spot you this many tiles away
+  const castRoles = { gardener: 'adultF', camper: 'teenM', birder: 'oldF', gymleader: 'teenF', hiker: 'adultM', dinnerlady: 'adultF', icecream: 'teenF', swimmer: 'teenF', sailor: 'adultM', captain: 'adultF', professor: 'oldM', nurse: 'adultF' };
+  if (typeof Cast !== 'undefined') for (const role in castRoles) Cast.add('mon.' + role, { role: 'Pocket Critters ' + role, g: castRoles[role].endsWith('F') ? 'f' : 'm', pool: [castRoles[role]] });
+  const castName = (role, fallback) => typeof Cast !== 'undefined' ? Cast.n('mon.' + role).toUpperCase() : fallback;
   const PEOPLE = {
     mom: { hair: 2, long: 1, shirt: 1, dress: 1 }, prof: { hair: 1, shirt: 4, coat: 1 }, nurse: { hair: 2, hat: 4, shirt: 4, dress: 1 }, clerk: { hair: 3, shirt: 2, cap: 1 },
     kid: { hair: 3, shirt: 1 }, girl: { hair: 3, long: 1, shirt: 2, dress: 1 }, jackk: { hair: 3, spiky: 1, shirt: 1 }, hazel: { hair: 2, bun: 1, shirt: 2, dress: 1 }, old: { hair: 4, shirt: 2 },
@@ -353,7 +368,7 @@
       { id: 'jackk', x: 8, y: 4, dir: 'left', st: 'jackk', rival: 1 },
       { id: 'cube0', x: 3, y: 3, obj: 'cube', starter: 0 }, { id: 'cube1', x: 4, y: 3, obj: 'cube', starter: 2 }, { id: 'cube2', x: 5, y: 3, obj: 'cube', starter: 4 },
     ],
-    centre: [{ id: 'nurse', x: 3, y: 1, dir: 'down', st: 'nurse', nurse: 1 }, { id: 'centrekid', x: 6, y: 5, dir: 'left', st: 'kid', talk: ['That PC in the corner talks to PROFESSOR BRAMBLE\'s PC. If your party is full, new critters get sent there.', 'The lady by the wall runs the CABLE CLUB. Get a LINK CABLE and you can trade with your mates on JackNet!'] },
+    centre: [{ id: 'nurse', x: 3, y: 1, dir: 'down', st: 'nurse', nurse: 1 }, { id: 'centrekid', x: 6, y: 5, dir: 'left', st: 'kid', talk: ['That PC in the corner talks to PROFESSOR {professor}\'s PC. If your party is full, new critters get sent there.', 'The lady by the wall runs the CABLE CLUB. Get a LINK CABLE and you can trade with your mates on JackNet!'] },
       { id: 'cable', x: 8, y: 3, dir: 'left', st: 'linklass', cable: 1 }],
     shop: [{ id: 'clerk', x: 1, y: 2, dir: 'down', st: 'clerk', shop: 1 }, { id: 'shopgirl', x: 6, y: 4, dir: 'up', st: 'girl', talk: ['I\'m saving up for a BIG CAKE. My critter is very greedy.'] }],
     route: [
@@ -366,20 +381,20 @@
       { id: 'dave', x: 2, y: 14, dir: 'right', st: 'dave', sight: 5, tr: { name: 'DAVE', team: [[12, 7], [9, 7]], money: 200,
         pre: 'DAVE: JACK! I\'ve been training out here ALL morning. Prepare to lose!', win: 'DAVE: How?! I had the best ones!', after: 'DAVE: There\'s a really rare bush critter round here. It looks just like a bush. That\'s the problem.' } },
       { id: 'callum', x: 12, y: 9, dir: 'left', st: 'callum', sight: 6, tr: { name: 'CALLUM', team: [[8, 8], [13, 7]], money: 220,
-        pre: 'CALLUM: I normally play on my PC, but this is all right. Battle?', win: 'CALLUM: Lag. That was lag.', after: 'CALLUM: HAZEL at the gym loves MOSS critters. EMBER ones are good against her. Or so I read.' } },
+        pre: 'CALLUM: I normally play on my PC, but this is all right. Battle?', win: 'CALLUM: Lag. That was lag.', after: 'CALLUM: {gymleader} at the gym loves MOSS critters. EMBER ones are good against her. Or so I read.' } },
       { id: 'big1', x: 11, y: 1, obj: 'ball', item: 'BIG', n: 1 },
       { id: 'cube3', x: 5, y: 2, obj: 'ball', item: 'CUBE', n: 3 },
       { id: 'pep1', x: 14, y: 17, obj: 'ball', item: 'PEP', n: 1 },
     ],
     gym: [
-      { id: 'rosie', x: 1, y: 8, dir: 'right', st: 'gardener', sight: 7, tr: { name: 'GARDENER ROSIE', team: [[12, 9], [6, 9]], money: 250,
-        pre: 'ROSIE: Wipe your feet! Nobody tramples HAZEL\'s gym without a battle!', win: 'ROSIE: My begonias are ashamed of me.', after: 'ROSIE: HAZEL\'s critters are proper tough. Stock up on cakes!' } },
-      { id: 'tom', x: 8, y: 6, dir: 'left', st: 'camper', sight: 7, tr: { name: 'CAMPER TOM', team: [[11, 9], [13, 9]], money: 250,
-        pre: 'TOM: I\'ve camped in these woods for three whole nights. Well, the garden.', win: 'TOM: Back to my tent, then.', after: 'TOM: Ever had a GLOWGRUB in your tent? Best night light ever.' } },
-      { id: 'edna', x: 1, y: 4, dir: 'right', st: 'birder', sight: 7, tr: { name: 'BIRDER EDNA', team: [[7, 10], [7, 10]], money: 260,
-        pre: 'EDNA: Shh! I\'m watching the PUFFPIPS. Oh, you want a battle. Fine.', win: 'EDNA: You scared the birds off. Well done.', after: 'EDNA: HAZEL is just up there. Good luck, dear.' } },
-      { id: 'hazel', x: 4, y: 1, dir: 'down', st: 'hazel', leader: 1, tr: { name: 'LEADER HAZEL', team: [[12, 10], [15, 12]], money: 600,
-        pre: 'HAZEL: Welcome to the MOSS TOWN GYM! I\'m HAZEL. My critters grow slow and steady and they are as tough as old boots. Ready?', win: 'HAZEL: Well I never! You\'ve earned this.', after: 'HAZEL: Keep training, JACK. There are critters out there you haven\'t even dreamed of.' } },
+      { id: 'rosie', x: 1, y: 8, dir: 'right', st: 'gardener', sight: 7, tr: { name: 'GARDENER {gardener}', team: [[12, 9], [6, 9]], money: 250,
+        pre: '{gardener}: Wipe your feet! Nobody tramples {gymleader}\'s gym without a battle!', win: '{gardener}: My begonias are ashamed of me.', after: '{gardener}: {gymleader}\'s critters are proper tough. Stock up on cakes!' } },
+      { id: 'tom', x: 8, y: 6, dir: 'left', st: 'camper', sight: 7, tr: { name: 'CAMPER {camper}', team: [[11, 9], [13, 9]], money: 250,
+        pre: '{camper}: I\'ve camped in these woods for three whole nights. Well, the garden.', win: '{camper}: Back to my tent, then.', after: '{camper}: Ever had a GLOWGRUB in your tent? Best night light ever.' } },
+      { id: 'edna', x: 1, y: 4, dir: 'right', st: 'birder', sight: 7, tr: { name: 'BIRDER {birder}', team: [[7, 10], [7, 10]], money: 260,
+        pre: '{birder}: Shh! I\'m watching the PUFFPIPS. Oh, you want a battle. Fine.', win: '{birder}: You scared the birds off. Well done.', after: '{birder}: {gymleader} is just up there. Good luck, dear.' } },
+      { id: 'hazel', x: 4, y: 1, dir: 'down', st: 'hazel', leader: 1, tr: { name: 'LEADER {gymleader}', team: [[12, 10], [15, 12]], money: 600,
+        pre: '{gymleader}: Welcome to the MOSS TOWN GYM! I\'m {gymleader}. My critters grow slow and steady and they are as tough as old boots. Ready?', win: '{gymleader}: Well I never! You\'ve earned this.', after: '{gymleader}: Keep training, JACK. There are critters out there you haven\'t even dreamed of.' } },
     ],
   };
 
@@ -387,19 +402,19 @@
   NPCS.woods.push({ id: 'cavekid', x: 5, y: 2, dir: 'down', st: 'kid', talk: ['That hole up there is GRUMBLY CAVE. It grumbles. Critters that like the dark live in it.', 'PEBBLE BAY is out the other side. My Nan lives there. She makes the best rock cakes.'] });
   Object.assign(NPCS, {
     cave: [
-      { id: 'hiker', x: 8, y: 4, dir: 'left', st: 'hiker', sight: 4, tr: { name: 'HIKER BERT', team: [[9, 14], [10, 16]], money: 300,
-        pre: 'BERT: Rocks! I love rocks! Want to see my rocks? They battle!', win: 'BERT: My rocks! My lovely rocks!', after: 'BERT: GOBSTOPPAS live in here. They are rock hard. And a bit fluffy.' } },
+      { id: 'hiker', x: 8, y: 4, dir: 'left', st: 'hiker', sight: 4, tr: { name: 'HIKER {hiker}', team: [[9, 14], [10, 16]], money: 300,
+        pre: '{hiker}: Rocks! I love rocks! Want to see my rocks? They battle!', win: '{hiker}: My rocks! My lovely rocks!', after: '{hiker}: GOBSTOPPAS live in here. They are rock hard. And a bit fluffy.' } },
       { id: 'cube6', x: 2, y: 1, obj: 'ball', item: 'CUBE', n: 3 }, { id: 'pep2', x: 11, y: 4, obj: 'ball', item: 'PEP', n: 1 }, { id: 'big2', x: 1, y: 9, obj: 'ball', item: 'BIG', n: 1 },
     ],
     route2: [
       { id: 'minidave', x: 3, y: 9, dir: 'right', st: 'minidave', sight: 5, tr: { name: 'MINI-DAVE', team: [[6, 13], [9, 14]], money: 220,
         pre: 'MINI-DAVE: I\'m DAVE\'s little brother. Everybody calls me MINI-DAVE. I\'m going to be WAY better than him!', win: 'MINI-DAVE: Don\'t tell DAVE. He\'ll do the laugh.', after: 'MINI-DAVE: DAVE says the gym in PEBBLE BAY is all puddles. Bring something that isn\'t scared of a bath.' } },
-      { id: 'dinnerdot', x: 11, y: 6, dir: 'left', st: 'dinner', sight: 6, tr: { name: 'DINNER LADY DOT', team: [[11, 15], [11, 16]], money: 260,
-        pre: 'DOT: You\'ll eat your GRAVYBLOB and you\'ll LIKE it!', win: 'DOT: Well! No pudding for you.', after: 'DOT: Nobody knows what\'s in the gravy. Not even me, love.' } },
+      { id: 'dinnerdot', x: 11, y: 6, dir: 'left', st: 'dinner', sight: 6, tr: { name: 'DINNER LADY {dinnerlady}', team: [[11, 15], [11, 16]], money: 260,
+        pre: '{dinnerlady}: You\'ll eat your GRAVYBLOB and you\'ll LIKE it!', win: '{dinnerlady}: Well! No pudding for you.', after: '{dinnerlady}: Nobody knows what\'s in the gravy. Not even me, love.' } },
       { id: 'minijackk', x: 12, y: 13, dir: 'left', st: 'minijackk', sight: 6, tr: { name: 'MINI-JACKK', team: [[13, 14], [16, 15]], money: 240,
         pre: 'MINI-JACKK: Cap on backwards means I\'m serious. I\'m JACKK\'s little brother. Battle!', win: 'MINI-JACKK: My cap must have been on the wrong way round.', after: 'MINI-JACKK: Our JACKK says you\'re all right. For a JACK.' } },
-      { id: 'ivy', x: 5, y: 16, dir: 'right', st: 'ice', sight: 4, tr: { name: 'ICE CREAM IVY', team: [[7, 15], [12, 15]], money: 240,
-        pre: 'IVY: Ninety-nine with a flake? No? A BATTLE then!', win: 'IVY: Brain freeze...', after: 'IVY: The BUZZWOTS keep nicking my flakes.' } },
+      { id: 'ivy', x: 5, y: 16, dir: 'right', st: 'ice', sight: 4, tr: { name: 'ICE CREAM {icecream}', team: [[7, 15], [12, 15]], money: 240,
+        pre: '{icecream}: Ninety-nine with a flake? No? A BATTLE then!', win: '{icecream}: Brain freeze...', after: '{icecream}: The BUZZWOTS keep nicking my flakes.' } },
       { id: 'big3', x: 11, y: 18, obj: 'ball', item: 'BIG', n: 1 }, { id: 'cake3', x: 12, y: 1, obj: 'ball', item: 'CAKE', n: 2 },
     ],
     bay: [
@@ -407,20 +422,26 @@
       { id: 'rockgirl', x: 15, y: 7, dir: 'left', st: 'ice', wander: 1, talk: ['A stick of rock with PEBBLE BAY written all the way through it! How do they DO that?'] },
       { id: 'baysign', x: 1, y: 2, dir: 'down', st: 'old', talk: ['The tide comes in, the tide goes out. I just sit here. Lovely.'] },
     ],
-    centre2: [{ id: 'nurse2', x: 3, y: 1, dir: 'down', st: 'nurse', nurse: 1 }, { id: 'centre2kid', x: 6, y: 5, dir: 'left', st: 'kid', talk: ['CAPTAIN NORA\'s critters are all PUDDLE types. MOSS critters soak them right up!'] }],
+    centre2: [{ id: 'nurse2', x: 3, y: 1, dir: 'down', st: 'nurse', nurse: 1 }, { id: 'centre2kid', x: 6, y: 5, dir: 'left', st: 'kid', talk: ['CAPTAIN {captain}\'s critters are all PUDDLE types. MOSS critters soak them right up!'] }],
     shop2: [{ id: 'clerk2', x: 1, y: 2, dir: 'down', st: 'clerk', shop: 1 }, { id: 'shop2girl', x: 6, y: 4, dir: 'up', st: 'girl', talk: ['I came in for a stick of rock and left with six BERRY CAKES. Again.'] }],
     bayhouse: [{ id: 'nan', x: 6, y: 3, dir: 'left', st: 'old', talk: ['NAN: Ooh, a visitor! Have a rock cake, dear. Mind your teeth, they\'re a bit... rocky.', 'NAN: When I was a girl, we didn\'t have critters. We had a GOBSTOPPA and we made it last a year.'] }],
     gym2: [
-      { id: 'swimsal', x: 1, y: 8, dir: 'right', st: 'swimmer', sight: 7, tr: { name: 'SWIMMER SAL', team: [[2, 16], [11, 17]], money: 300,
-        pre: 'SAL: No running by the pool! Unless it\'s to a battle!', win: 'SAL: Glug.', after: 'SAL: CAPTAIN NORA\'s at the top. She\'s never once been seasick.' } },
-      { id: 'sailorstu', x: 8, y: 6, dir: 'left', st: 'sailor', sight: 7, tr: { name: 'SAILOR STU', team: [[17, 17], [2, 17]], money: 300,
-        pre: 'STU: I\'ve sailed the seven seas! Well. The paddling pool.', win: 'STU: Abandon ship!', after: 'STU: PLUGLETS gurgle when they\'re happy. Or hungry. Or cross.' } },
-      { id: 'nora', x: 4, y: 1, dir: 'down', st: 'nora', leader: 2, tr: { name: 'CAPTAIN NORA', team: [[11, 18], [17, 18], [3, 21]], money: 900,
-        pre: 'NORA: Welcome aboard the PEBBLE BAY GYM! My critters were raised in rock pools and rainy days. Ready to get soaked?', win: 'NORA: Well, shiver me timbers! The SPLASH BADGE is yours.', after: 'NORA: Two badges, JACK! You\'re a proper critter trainer now. Your Mom will be chuffed.' } },
+      { id: 'swimsal', x: 1, y: 8, dir: 'right', st: 'swimmer', sight: 7, tr: { name: 'SWIMMER {swimmer}', team: [[2, 16], [11, 17]], money: 300,
+        pre: '{swimmer}: No running by the pool! Unless it\'s to a battle!', win: '{swimmer}: Glug.', after: '{swimmer}: CAPTAIN {captain}\'s at the top. She\'s never once been seasick.' } },
+      { id: 'sailorstu', x: 8, y: 6, dir: 'left', st: 'sailor', sight: 7, tr: { name: 'SAILOR {sailor}', team: [[17, 17], [2, 17]], money: 300,
+        pre: '{sailor}: I\'ve sailed the seven seas! Well. The paddling pool.', win: '{sailor}: Abandon ship!', after: '{sailor}: PLUGLETS gurgle when they\'re happy. Or hungry. Or cross.' } },
+      { id: 'nora', x: 4, y: 1, dir: 'down', st: 'nora', leader: 2, tr: { name: 'CAPTAIN {captain}', team: [[11, 18], [17, 18], [3, 21]], money: 900,
+        pre: '{captain}: Welcome aboard the PEBBLE BAY GYM! My critters were raised in rock pools and rainy days. Ready to get soaked?', win: '{captain}: Well, shiver me timbers! The SPLASH BADGE is yours.', after: '{captain}: Two badges, JACK! You\'re a proper critter trainer now. Your Mom will be chuffed.' } },
     ],
   });
 
-  // ================================================================ music (original, Game Boy style). Written in eighths, played as 16ths.
+  NPCS.bay.push({ id: 'jackkBay', x: 9, y: 9, dir: 'down', st: 'jackk', sight: 3, rematch: true,
+    tr: { name: 'JACKK', team: [[5, 18], [8, 16], [7, 16]], money: 500,
+      pre: 'JACKK: I trained all the way here! My homework is still level one, though. Rematch!',
+      win: 'JACKK: Right. Next time I am bringing a seventh critter. What do you mean, six is the limit?',
+      after: 'JACKK: Two badges? Save some adventure for the rest of us! See you at the CABLE CLUB.' } });
+
+  // ================================================================ music (original, Game Lad style). Written in eighths, played as 16ths.
   const ex = a => { const o = []; for (const n of a) { if (n > 0) o.push(n, -1); else if (n === -1) o.push(-1, -1); else o.push(0, 0); } return o; };
   const SONGS = {
     town: { bpm: 120, vol: 0.045, lead: ex([72, 76, 79, 76, 77, 81, 79, -1, 76, 74, 72, 74, 76, -1, -1, 0, 72, 76, 79, 76, 77, 81, 84, -1, 83, 79, 77, 74, 72, -1, -1, 0]),
@@ -463,9 +484,16 @@
   // the two cartridges: Moss Version (Jack's) and Puddle Version (JackK's). Same island, different critters in the grass.
   function cart(VER) { const VV = LC.VERSIONS[VER], PUD = VER === 'puddle'; return {
     buttons: ['a', 'b'], v: 1,
-    help: 'Walk: arrows. A (talk, choose): Z. B (back, run): X. Menu: Enter.',
+    help: 'Walk: arrows. A (talk, choose): Z. B (back): X. Menu: Enter.',
     make(K) {
-      const g = K.g, P = UIPAL[VER] || K.pal, F = K.font, W = K.W, H = K.H; // (a Game Lad COLOUR cartridge: its own colours)
+      const g = K.g, P = ['#d8e8a8', '#a8bf68', '#607848', '#203828'], F = K.font, W = K.W, H = K.H;
+      // Four hardware shades by default. COLOUR mode uses the original tinted art, never a filter over text.
+      let colour = false;
+      function setColour(on) { colour = !!on; for (const cache of [sprC, sprF, pplC, objC, tileC]) for (const key in cache) delete cache[key]; }
+      function fit(text, x, y, width, col) {
+        const scale = Math.min(1, width / Math.max(1, F.width(text)));
+        g.save(); g.translate(x, y); g.scale(scale, 1); F.draw(g, text, 0, 0, col || P[3]); g.restore();
+      } // (a Game Lad COLOUR cartridge: its own colours)
       const rand = Math.random, ri = (a, b) => a + Math.floor(rand() * (b - a + 1));
       const mkc = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
 
@@ -494,7 +522,7 @@
         return D;
       }
       function toCanvas(D, pal) {
-        const n = D.n, c = mkc(n, n), x = c.getContext('2d'), col = pal ? [null, pal[1], pal[2], pal[3], pal[0]] : [null, P[1], P[2], P[3], P[0]];
+        const n = D.n, c = mkc(n, n), x = c.getContext('2d'), col = pal && colour ? [null, pal[1], pal[2], pal[3], pal[0]] : [null, P[1], P[2], P[3], P[0]];
         for (let y = 0; y < n; y++) for (let i = 0; i < n; i++) { const v = D.a[y * n + i]; if (v) { x.fillStyle = col[v]; x.fillRect(i, y, 1, 1); } }
         return c;
       }
@@ -527,7 +555,33 @@
       ];
       const artOf = s => FUNNY[s] ? FUNNY[s][3] : ART[s];
       const sprC = {}, sprite = s => sprC[s] || (sprC[s] = (() => { const D = grid(32); artOf(s)(D); D.finish(true); return toCanvas(D, FUNPAL(s)); })());
-      const sprF = {}, spriteF = s => sprF[s] || (sprF[s] = (() => { const D = grid(32); artOf(s)(D); D.finish(true); D.flipX(); return toCanvas(D, FUNPAL(s)); })());
+      // Original rear portraits: trainers see their own critter's back, never a mirrored opponent.
+      const BACK = [
+        D => { D.e(16,24,10,10,4); D.l(7,24,12,26,2); D.l(12,26,15,24,2); for(let x=7;x<27;x+=3){D.l(x,16,x-2,4+x%5,1);D.p(x-3,6+x%5,1)} D.r(6,14,20,3,1); },
+        D => { D.e(16,25,14,11,4); D.e(16,14,15,8,1); for(let x=3;x<28;x+=4)D.t(x,13,x+2,2+x%3,x+5,13,1);D.l(6,26,13,28,2);D.l(13,28,19,25,2); },
+        D => { D.r(7,5,16,23,1);D.e(16,6,8,3,3);D.r(9,10,12,2,2);D.e(16,28,12,5,1);D.r(4,30,24,2,3);D.r(10,23,12,4,2); },
+        D => { D.r(4,3,23,25,1);D.e(15,4,11,3,3);D.r(6,9,19,2,2);D.e(16,28,15,5,1);D.r(2,30,28,2,3);D.r(8,22,17,6,2); },
+        D => { D.r(5,9,23,22,1);D.e(16,9,11,5,1);D.r(7,10,3,20,2);D.l(11,28,24,12,2);D.l(16,29,26,17,2);D.r(5,29,23,2,2); },
+        D => { D.r(2,12,28,19,1);D.e(16,12,14,3,4);D.r(7,3,6,9,2);D.r(20,1,6,11,2);for(let y=17;y<29;y+=4)D.r(6,y,20,2,3);D.r(9,29,4,3,2);D.r(24,29,4,3,2); },
+        D => { D.e(16,24,13,10,1);D.e(8,7,3,8,1);D.e(23,7,3,8,1);D.e(16,27,5,4,4);for(let i=0;i<12;i++)D.p(3+i*2,17+i%3,2); },
+        D => { D.r(6,5,21,26,1);for(let x=6;x<27;x+=2){D.p(x,4,3);D.p(x,31,3)}D.r(15,6,3,24,2);D.r(8,11,5,1,4);D.r(8,15,4,1,4);D.r(8,19,5,1,4); },
+        D => { D.r(2,15,28,15,1);D.r(2,15,28,2,4);for(let x=6;x<28;x+=6){D.r(x,23,4,4,3);D.p(x+1,24,4)}D.l(29,28,31,31,3); },
+        D => { D.e(16,21,12,12,1);for(let y=13;y<31;y+=6)D.l(5,y,27,y,2);D.e(11,15,3,2,4); },
+        D => { D.e(16,18,15,15,1);for(let y=6;y<32;y+=6)D.l(2,y,30,y,2);D.e(10,9,4,2,4); },
+        D => { D.e(16,28,15,5,2);D.e(16,21,10,10,1);D.e(12,17,4,2,4);D.e(20,28,4,2,2); },
+        D => { D.e(16,23,9,8,1);for(let y=19;y<30;y+=5)D.r(8,y,17,2,3);D.e(7,11,5,9,4);D.e(25,11,5,9,4);D.t(13,30,16,34,19,30,3); },
+        D => { D.e(16,21,11,12,1);D.e(16,5,4,4,2);D.r(10,17,12,11,2);D.r(12,19,8,7,4);D.p(16,23,3); },
+        D => { D.e(16,19,14,15,1);D.r(8,13,16,15,2);D.r(10,15,12,11,4);for(let y=17;y<25;y+=3)D.r(12,y,8,1,2);D.e(2,22,3,5,1);D.e(30,22,3,5,1); },
+        D => { D.r(8,3,16,23,1);D.r(8,5,16,2,4);D.e(16,26,10,7,1);D.e(16,24,6,5,2);D.r(10,31,13,2,2); },
+        D => { D.e(16,22,15,8,1);D.e(3,22,2,5,2);D.e(29,22,2,5,2);for(let x=8;x<28;x+=6)D.l(x,17,x+2,27,2);D.l(9,28,6,32,3);D.l(23,28,26,32,3); },
+        D => { D.e(16,29,15,5,2);D.e(16,20,9,11,1);D.l(10,12,7,5,1);D.l(22,12,25,5,1);D.e(7,4,3,3,4);D.e(25,4,3,3,4);D.e(16,26,4,3,2); },
+        D => { D.e(16,23,15,11,1);for(let x=4;x<29;x+=6)D.t(x,13,x+2,5,x+5,13,4);D.e(16,24,8,6,2);D.l(6,30,26,30,3); },
+        D => { D.e(16,23,13,10,1);D.e(16,12,9,3,2);D.e(16,9,2,2,3);D.l(3,15,1,24,3);D.l(1,24,4,29,3);D.t(26,16,31,9,29,24,1);D.e(15,24,6,5,2); },
+        D => { D.e(16,21,12,11,1);for(let x=4;x<30;x+=5){D.l(x,17,x-3,13,3);D.l(x,25,x-3,29,3)}D.r(12,13,8,16,2);D.r(14,15,4,12,4); },
+        D => { D.e(16,17,16,16,1);for(let y=4;y<32;y+=5)D.l(1,y,31,y,2);D.e(9,9,4,2,4); },
+        D => { D.e(16,26,16,7,2);D.e(16,18,11,13,1);D.e(11,13,4,3,4);D.e(22,27,6,3,2); },
+      ];
+      const sprF = {}, spriteF = s => sprF[s] || (sprF[s] = (() => { const D = grid(32); BACK[s](D); D.finish(true); return toCanvas(D, FUNPAL(s)); })());
       // people: dir down / up / left / right, two walking frames
       function personArt(st, dir, fr) {
         const D = grid(16), skin = 4, hair = st.hair || 3, shirt = st.shirt || 2;
@@ -570,7 +624,7 @@
       const tileC = {};
       function tileArt(ch, fr) {
         const key = ch + (fr || 0); if (tileC[key]) return tileC[key];
-        const c = mkc(16, 16), x = c.getContext('2d'), TP = TPAL[ch] || P;
+        const c = mkc(16, 16), x = c.getContext('2d'), TP = colour ? TPAL[ch] || P : P;
         const f = (col, a, b, w, h) => { x.fillStyle = TP[col]; x.fillRect(a, b, w, h); };
         const grassBase = () => { f(0, 0, 0, 16, 16); f(1, 3, 4, 1, 2); f(1, 4, 3, 1, 1); f(1, 11, 10, 1, 2); f(1, 12, 9, 1, 1); f(1, 7, 13, 1, 1); };
         switch (ch) {
@@ -608,6 +662,15 @@
           case 'B': f(0, 0, 0, 16, 16); x.fillStyle = TP[3]; x.beginPath(); x.arc(8, 9, 7, 0, 7); x.fill(); x.fillStyle = TP[1]; x.beginPath(); x.arc(8, 8.5, 6, 0, 7); x.fill(); f(0, 4, 4, 3, 2); f(2, 7, 11, 5, 2); break;
           default: f(0, 0, 0, 16, 16);
         }
+        if (!colour) { // Rasterise once into exactly four LCD shades, including curved tile edges.
+          const im = x.getImageData(0, 0, 16, 16), shades = P.map(c => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]);
+          for (let i = 0; i < im.data.length; i += 4) {
+            let best = shades[0], distance = Infinity;
+            for (const shade of shades) { const d = (shade[0]-im.data[i])**2 + (shade[1]-im.data[i+1])**2 + (shade[2]-im.data[i+2])**2; if (d < distance) { distance = d; best = shade; } }
+            im.data[i] = best[0]; im.data[i+1] = best[1]; im.data[i+2] = best[2]; im.data[i+3] = 255;
+          }
+          x.putImageData(im, 0, 0);
+        }
         return tileC[key] = c;
       }
 
@@ -615,10 +678,19 @@
       let S = null;
       const fresh = () => ({ v: 1, map: 'house', x: 4, y: 5, dir: 'up', party: [], box: [], bag: { CUBE: 0, CAKE: 1, BIG: 0, PEP: 0 }, money: 300, f: {}, seen: {}, caught: {}, beaten: {}, taken: {}, badges: 0, play: 0 });
       const saved = (() => { const s = K.load(); return s && s.v === 1 && Array.isArray(s.party) ? s : null; })();
-      let saveT = 0;
-      function save() { if (!S) return; S.x = pl.x; S.y = pl.y; S.dir = pl.dir; S.map = map.id; K.save(S); }
+      let saveT = 0, starterCheckpoint = null, battleCheckpoint = null;
+      function save(command) {
+        if (!S) return;
+        if (starterCheckpoint && !S.f.dex) { K.save(starterCheckpoint); return; }
+        if (B && !B.link && !command && battleCheckpoint) { K.save(battleCheckpoint); return; }
+        S.x = pl.x; S.y = pl.y; S.dir = pl.dir; S.map = map.id; S.colour = colour;
+        // Checkpoints contain only cartridge state, never generators or animation offsets.
+        if (B && !B.link && S.f.dex) S.encounter = { foes: B.foes, fi: B.fi, mi: B.mi, sf: B.sf, sm: B.sm, tr: B.tr, seen: [...B.seenIn] };
+        if (B && !B.link && command) battleCheckpoint = JSON.parse(JSON.stringify(S));
+        K.save(S);
+      }
       const alive = () => S.party.filter(c => c.hp > 0);
-      const healAll = () => { for (const c of S.party) c.hp = maxhp(c); };
+      const healAll = () => { for (const c of S.party) restore(c); };
       function score() {
         const lv = S.party.reduce((n, c) => n + c.lv, 0) + S.box.reduce((n, c) => n + c.lv, 0);
         return Object.keys(S.caught).length * 50 + S.badges * 500 + Object.keys(S.beaten).length * 100 + Math.min(lv, 150) * 2;
@@ -639,7 +711,7 @@
         for (;;) {
           if (!script) return;
           let r; try { r = script.next(v); } catch (e) { console.error(e); script = null; task = null; mode = S ? 'world' : 'title'; return; }
-          if (r.done) { script = null; task = null; return; }
+          if (r.done) { script = null; task = null; if (S && mode === 'world') save(); return; }
           task = r.value;
           if (!task || task.now) { v = task ? task.value : undefined; continue; }
           return;
@@ -653,7 +725,9 @@
       }
       const NOTHING = {};
       // ---- text: a box at the bottom, typed out, A or B for the next page
+      function words(text) { return String(text).replace(/\{([a-z]+)\}/g, (_, role) => castName(role, role.toUpperCase())); }
       function wrap(text, w) {
+        text = words(text);
         const out = []; for (const para of String(text).split('\n')) { let line = ''; for (const word of para.split(' ')) { if ((line + (line ? ' ' : '') + word).length > w) { if (line) out.push(line); line = word; } else line += (line ? ' ' : '') + word; } out.push(line); }
         return out;
       }
@@ -670,6 +744,7 @@
         const lines = wrap(text, 23), pages = []; for (let i = 0; i < lines.length; i += 2) pages.push(lines.slice(i, i + 2));
         let pi = 0, ch = 0;
         return {
+          kind: 'text', get text() { return pages[pi].join(' '); },
           update() {
             const pg = pages[pi], total = pg.join('').length;
             if (ch < total) { ch += (K.frame % 2 ? 1 : 0) + (K.held('a') || K.held('b') ? 2 : 1); if (K.pressed('a') || K.pressed('b')) ch = total; if (ch >= total && o.hold && pi === pages.length - 1) { held = pg; return NOTHING; } return; }
@@ -682,10 +757,11 @@
       // ---- a list to choose from. Returns the index (or -1 for B)
       function menu(items, o) {
         o = o || {}; let i = o.start || 0; const n = items.length;
-        const w = o.w || Math.max(...items.map(s => s.length)) * 6 + 22, rows = o.rows || n, lh = o.lh || 12, hh = rows * lh + 10;
+        const w = Math.min(W, o.w || Math.max(...items.map(s => s.length)) * 6 + 22), rows = o.rows || Math.min(n, 9), lh = o.lh || 12, hh = rows * lh + 10;
         const x = o.x != null ? o.x : W - w, y = o.y != null ? o.y : (o.under ? 96 - hh : 0);
         let top = 0;
         return {
+          kind: 'menu', items, get index() { return i; },
           update() {
             if (o.cols) { if (K.pressed('up') || K.pressed('down')) { i = i % rows ? i - 1 : Math.min(n - 1, i + 1); K.sfx.tone(900, 0.02, 'square', 0.04); } }
             else {
@@ -706,7 +782,7 @@
               items.forEach((s, j) => { const cx = x + 8 + Math.floor(j / rows) * (o.colW || 36), cy = y + 7 + (j % rows) * lh; F.draw(g, (j === i ? '>' : ' ') + s, cx - 2, cy, P[3]); });
             } else {
               box(x, y, w, hh);
-              for (let j = top; j < Math.min(n, top + rows); j++) F.draw(g, (j === i ? '>' : ' ') + items[j], x + 6, y + 7 + (j - top) * lh, P[3]);
+              for (let j = top; j < Math.min(n, top + rows); j++) fit((j === i ? '>' : ' ') + items[j], x + 6, y + 7 + (j - top) * lh, w - 12);
             }
             if (o.after) o.after(i);
           },
@@ -733,7 +809,7 @@
       const pl = { x: 4, y: 5, dir: 'up', mx: 0, my: 0, moving: 0, fr: 0, turn: 0 };
       const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
       const opp = { up: 'down', down: 'up', left: 'right', right: 'left' };
-      const tileAt = (m, x, y) => (x < 0 || y < 0 || x >= m.w || y >= m.h) ? m.out : m.rows[y][x];
+      const tileAt = (m, x, y) => (x < 0 || y < 0 || x >= m.w || y >= m.h) ? m.out : (S?.cleared?.[m.id + ':' + x + ',' + y] ? (m.cave ? '=' : '.') : m.rows[y][x] || m.out);
       function loadMap(id, x, y, dir) {
         map = MAPS[id]; pl.x = x; pl.y = y; if (dir) pl.dir = dir; pl.mx = pl.my = 0; pl.moving = 0;
         npcs = (NPCS[id] || []).filter(n => !(n.obj === 'ball' && S.taken[n.id]) && !(n.obj === 'cube' && S.f.starter)).map(n => Object.assign({ mx: 0, my: 0, dir: n.dir || 'down', home: [n.x, n.y], wt: 60 + ri(0, 120) }, n));
@@ -750,12 +826,23 @@
         let n = npcAt(tx, ty);
         if (!n && tileAt(map, tx, ty) === 'C') { n = npcAt(tx + dx, ty + dy); }
         if (n) return run(talkTo(n));
+        if (tileAt(map, tx, ty) === 'H' || tileAt(map, tx, ty) === 'B') return run(fieldMove(tx, ty));
         const t = tileAt(map, tx, ty), sk = `${map.id}:${tx},${ty}`;
         if (t === 'S' && SIGNS[sk]) return run(msg(SIGNS[sk]));
         const words = { K: 'Shelves full of books. "CRITTERS AND HOW TO CUDDLE THEM", "MOSS: A HISTORY"...', P: map.id.startsWith('centre') ? null : map.id === 'lab' ? 'A big humming computer. It is cleverer than you. (It plays chess.)' : 'The telly. There\'s a cartoon on about a boy and his critter. Classic.',
           M: 'A machine that makes critters feel better. It goes PING.', b: 'Your bed. You had a dream about a GIANT critter last night.', t: map.id === 'lab' ? 'A tidy table. The Professor\'s cup of tea has gone cold.' : 'The kitchen table. There\'s a plate of biscuits. Mom has counted them.', Q: 'A pot plant. It\'s a bit droopy.' };
         if (t === 'P' && map.id.startsWith('centre')) return run(pcScript());
         if (words[t]) return run(msg(words[t]));
+      }
+      function* fieldMove(x, y) {
+        if (!S.badges) return yield* msg('A tangled hedge or heavy rock. Win the MOSS BADGE to use FIELD MANUAL 01: SHOVE.');
+        const c = S.party.find(c => c.hp > 0);
+        if (!c) return yield* msg('Your critters need a rest before they can SHOVE.');
+        if ((yield* ask(`Use SHOVE? ${nameOf(c)} looks stronger than this obstacle.`)) !== 0) return;
+        yield* msg(`${nameOf(c)} used SHOVE! Health and safety would like a word.`);
+        K.sfx.noise(0.2, 0.12, 500);
+        S.cleared = S.cleared || {}; S.cleared[map.id + ':' + x + ',' + y] = 1;
+        save();
       }
       function tryStep(dir) {
         const [dx, dy] = DIRS[dir], nx = pl.x + dx, ny = pl.y + dy;
@@ -768,11 +855,13 @@
       function arrived() {
         const w = warpAt(map.id, pl.x, pl.y);
         if (w) return run(warpTo(w));
+        save();
         if (trainerSees()) return;
         const t = tileAt(map, pl.x, pl.y);
         if ((t === '"' || t === '~' || (map.cave && t === '=')) && S.party.length && rand() < (map.cave ? 0.07 : 0.11)) return run(wild(t === '~'));
       }
       function* warpTo(w) {
+        if (w[3] === 'cave' && !S.badges) { yield* msg("A ranger's sign: MOSS BADGE holders only! The cave is too grumbly for beginners."); yield* walkPlayer('down', 1); return; }
         K.sfx.tone(400, 0.08, 'square', 0.06, 0, 200);
         yield fade(true);
         save();
@@ -825,12 +914,15 @@
         if (!alive().length) return yield* msg('Your critters are too tired to battle! Get them healed first.');
         K.music(n.leader ? SONGS.leader : SONGS.battle);
         yield* msg(n.tr.pre);
-        const team = n.tr.team.map(([s, lv]) => mon(s, lv));
-        const res = yield* battle(team, n);
+        const rival = S.f.rival == null ? 4 : S.f.rival;
+        const roster = n.rematch ? [[SP[rival].evo?.[1] ?? rival, 18], [8, 16], [7, 16]] : n.tr.team;
+        const team = roster.map(([s, lv]) => mon(s, lv));
+        const res = yield* battle(team, Object.assign({}, n.tr, { id: n.id, leader: n.leader || 0 }));
         if (res === 'win') {
-          S.beaten[n.id] = 1;
+          commitTrainer(Object.assign({}, n.tr, { id: n.id, leader: n.leader || 0 }));
+          save();
           yield* msg(n.tr.win);
-          S.money += n.tr.money; yield* msg(`JACK got ${n.tr.money}P for winning!`);
+          yield* msg(`JACK got ${n.tr.money}P for winning!`);
           if (n.leader) yield* badge(n.leader);
           else { save(); report(); }
         } else if (res === 'lose') yield* blackout();
@@ -856,20 +948,20 @@
         for (const t of n.talk || []) yield* msg(t);
       }
       function* momTalk() {
-        if (!S.f.starter) { yield* msg('MOM: Morning, love! PROFESSOR BRAMBLE popped round. He\'s waiting for you at his lab. Off you go!'); return; }
+        if (!S.f.starter) { yield* msg('MOM: Morning, love! PROFESSOR {professor} popped round. He\'s waiting for you at his lab. Off you go!'); return; }
         yield* msg('MOM: JACK! You look shattered. Sit down and have a rest, and give your critters a cuddle.');
         yield fade(true); healAll(); K.sfx.seq([[76, 0.5], [79, 0.5], [76, 0.5], [72, 0.5], [74, 1], [79, 2]], { bpm: 220, vol: 0.08 }); yield wait(50); yield fade(false);
         yield* msg('MOM: There. All better. Now don\'t stay out too late!');
         save();
       }
       function* profTalk() {
-        if (!S.f.starter) return yield* msg('PROF BRAMBLE: Ah, JACK! On the table are three CRITTER CUBES, each with a critter inside. Go on, pick one!');
+        if (!S.f.starter) return yield* msg('PROF {professor}: Ah, JACK! On the table are three CRITTER CUBES, each with a critter inside. Go on, pick one!');
         if (!S.f.dex) return;
         if (S.badges) { // after the badge: the spare starters nobody picked
           const spare = [0, 2, 4].filter(x => !S.caught[x] && !S.caught[x + 1]);
           if (spare.length) {
             const s0 = spare[0];
-            yield* msg(`PROF BRAMBLE: A MOSS BADGE! Well done, JACK. You know, there's a CRITTER CUBE nobody ever picked. ${SP[s0].n} would love a trainer like you.`);
+            yield* msg(`PROF {professor}: A MOSS BADGE! Well done, JACK. You know, there's a CRITTER CUBE nobody ever picked. ${SP[s0].n} would love a trainer like you.`);
             const c = mon(s0, 5); S.seen[s0] = 1; S.caught[s0] = 1;
             if (S.party.length < 6) S.party.push(c); else S.box.push(c);
             K.sfx.seq([[72, 0.5], [76, 0.5], [79, 0.5], [84, 1.5]], { bpm: 220, vol: 0.09 });
@@ -878,8 +970,8 @@
           }
         }
         const n = Object.keys(S.caught).length;
-        yield* msg(`PROF BRAMBLE: How's your CRITTERDEX? ${n} caught! ${n >= NSP ? 'All of them! You\'re a proper critter expert!' : n >= 8 ? 'Brilliant work. Keep it up!' : 'Keep at it. The WHISPERING WOODS are full of them.'}`);
-        if (n < NSP && n >= 6) yield* msg(`PROF BRAMBLE: Some critters only live in the ${PUD ? 'MOSS' : 'PUDDLE'} VERSION, you know. And some only change after a trip down a LINK CABLE! Try the CABLE CLUB at the CRITTER CENTRE.`);
+        yield* msg(`PROF {professor}: How's your CRITTERDEX? ${n} caught! ${n >= NSP ? 'All of them! You\'re a proper critter expert!' : n >= 8 ? 'Brilliant work. Keep it up!' : 'Keep at it. The WHISPERING WOODS are full of them.'}`);
+        if (n < NSP && n >= 6) yield* msg(`PROF {professor}: Some critters only live in the ${PUD ? 'MOSS' : 'PUDDLE'} VERSION, you know. And some only change after a trip down a LINK CABLE! Try the CABLE CLUB at the CRITTER CENTRE.`);
       }
       function* rivalTalk(n) {
         if (!S.f.starter) return yield* msg('JACKK: The Prof said I could have one too. But you can choose first. Go on. (Not that one. Joking!)');
@@ -887,11 +979,12 @@
       }
       function* pickStarter(n) {
         if (S.f.starter) return;
+        save(); starterCheckpoint = JSON.parse(JSON.stringify(S));
         const sp = SP[n.starter];
         mode = 'show'; showSp = n.starter;
         const r = yield* ask(`So you want ${sp.n}, the ${sp.t} critter?`);
         mode = 'world';
-        if (r !== 0) return;
+        if (r !== 0) { starterCheckpoint = null; return; }
         const c = mon(n.starter, 5);
         S.party.push(c); S.f.starter = n.starter + 1; S.seen[c.s] = 1; S.caught[c.s] = 1;
         npcs = npcs.filter(x => !(x.obj === 'cube' && x.starter === n.starter));
@@ -912,25 +1005,25 @@
         else yield* msg('JACKK: Ha! Better luck next time, JACK! (Don\'t worry, your critter\'s all right. The Prof fixed it up.)');
         if (rv) { yield* walkNpc(rv, 'down', 2); yield* walkNpc(rv, 'left', 3); npcs = npcs.filter(x => x !== rv); }
         S.f.rivalGone = 1; npcs = npcs.filter(x => x.obj !== 'cube');
-        yield* msg('PROF BRAMBLE: Splendid! Now, take these. FIVE CRITTER CUBES! Throw one at a tired wild critter to catch it.');
-        S.bag.CUBE = (S.bag.CUBE | 0) + 5; S.f.dex = 1;
-        yield* msg('PROF BRAMBLE: And this is a CRITTERDEX. It fills itself in as you meet critters. Press START to look at it. Catch them all, JACK!');
-        yield* msg('PROF BRAMBLE: The long grass on ROUTE 1 is just north of town. When you\'re ready, HAZEL at the GYM gives a badge to strong trainers.');
+        yield* msg('PROF {professor}: Splendid! Now, take these. FIVE CRITTER CUBES! Throw one at a tired wild critter to catch it.');
+        S.bag.CUBE = (S.bag.CUBE | 0) + 5; S.f.dex = 1; starterCheckpoint = null;
+        yield* msg('PROF {professor}: And this is a CRITTERDEX. It fills itself in as you meet critters. Press START to look at it. Catch them all, JACK!');
+        yield* msg('PROF {professor}: The long grass on ROUTE 1 is just north of town. When you\'re ready, {gymleader} at the GYM gives a badge to strong trainers.');
         save(); report();
       }
       function* nurseTalk() {
-        const r = yield* ask('NURSE JUNIPER: Welcome to the CRITTER CENTRE! Shall I make your critters feel better?');
-        if (r !== 0) return yield* msg('NURSE JUNIPER: Come back any time!');
-        yield* msg('NURSE JUNIPER: Pop them in the machine...');
+        const r = yield* ask('NURSE {nurse}: Welcome to the CRITTER CENTRE! Shall I make your critters feel better?');
+        if (r !== 0) return yield* msg('NURSE {nurse}: Come back any time!');
+        yield* msg('NURSE {nurse}: Pop them in the machine...');
         healAll(); K.sfx.seq([[72, 0.5], [76, 0.5], [79, 0.5], [84, 1], [0, 0.5], [79, 0.5], [84, 2]], { bpm: 240, vol: 0.09 }); yield wait(70);
-        yield* msg('NURSE JUNIPER: All done! Your critters are fighting fit. Bye bye!');
+        yield* msg('NURSE {nurse}: All done! Your critters are fighting fit. Bye bye!');
         save();
       }
       function* shopTalk() {
         yield* msg('SHOPKEEPER: Hiya! What can I get you?');
         for (;;) {
           const list = ITEM_ORDER.map(k => `${ITEMS[k][0]} ${ITEMS[k][1]}P`);
-          const i = yield menu(list.concat(['NO THANKS']), { x: 0, y: 0, w: 160, after: j => { box(0, 72, 160, 24); F.draw(g, `MONEY ${S.money}P`, 8, 81, P[3]); if (j < ITEM_ORDER.length) { /* */ } } });
+          const i = yield menu(list.concat(['NO THANKS']), { x: 0, y: 0, w: 160, after: j => { box(0, 108, 160, 36); F.draw(g, `MONEY ${S.money}P`, 8, 118, P[3]); if (j < ITEM_ORDER.length) { /* */ } } });
           if (i < 0 || i >= ITEM_ORDER.length) break;
           const k = ITEM_ORDER[i], price = ITEMS[k][1];
           if (S.money < price) { yield* msg('SHOPKEEPER: Ooh, you can\'t afford that, love.'); continue; }
@@ -941,29 +1034,27 @@
         yield* msg('SHOPKEEPER: Ta-ra!');
       }
       function* pcScript() {
-        yield* msg('JACK switched on the PC. It\'s connected to PROF BRAMBLE\'s PC!');
+        yield* msg('JACK switched on the PC. It\'s connected to PROF {professor}\'s PC!');
         for (;;) {
           const i = yield menu(['TAKE OUT', 'PUT IN', 'SWITCH OFF'], { x: 0, y: 0 });
           if (i === 0) {
             if (!S.box.length) { yield* msg('There are no critters stored in the PC.'); continue; }
             if (S.party.length >= 6) { yield* msg('Your party is full!'); continue; }
             const j = yield menu(S.box.map(c => `${nameOf(c)} L${c.lv}`), { x: 0, y: 0, w: 120, rows: 7 });
-            if (j >= 0) { const c = S.box.splice(j, 1)[0]; c.hp = maxhp(c); S.party.push(c); yield* msg(`${nameOf(c)} joined your party.`); }
+            if (j >= 0) { const c = S.box.splice(j, 1)[0]; restore(c); S.party.push(c); yield* msg(`${nameOf(c)} joined your party.`); }
           } else if (i === 1) {
             if (S.party.length <= 1) { yield* msg('You can\'t put your last critter away!'); continue; }
             const j = yield* partyScreen('pick');
-            if (j >= 0) { const c = S.party.splice(j, 1)[0]; S.box.push(c); yield* msg(`${nameOf(c)} went into the PC.`); }
+            if (j >= 0) { if (S.party[j].hp > 0 && alive().length === 1) { yield* msg('Keep one fit critter with you!'); continue; } const c = S.party.splice(j, 1)[0]; S.box.push(c); yield* msg(`${nameOf(c)} went into the PC.`); }
           } else break;
         }
         save();
       }
       function* blackout() {
+        S.money = Math.floor(S.money / 2); healAll(); loadMap('house', 4, 4, 'up'); save();
         yield* msg('JACK has no critters left that can battle!');
         yield* msg('JACK ran all the way home to MOM...');
         yield fade(true);
-        S.money = Math.floor(S.money / 2); healAll();
-        loadMap('house', 4, 4, 'up');
-        save();
         yield fade(false);
         yield* msg('MOM: Oh, JACK! You poor thing. Come here. There. Your critters are all better now.');
       }
@@ -996,41 +1087,58 @@
         const k = side === 'foe' ? 'foeHp' : 'meHp';
         yield fn(() => { const d = to - B[k]; if (Math.abs(d) <= 0.5) { B[k] = to; return NOTHING; } B[k] += Math.sign(d) * Math.max(0.5, Math.abs(d) / 10); });
       }
-      function* battle(foes, tr) {
+      function cry(s) { const hz = 260 + (s * 83) % 640; K.sfx.tone(hz, 0.11, 'square', 0.04, 0, hz * 0.7); K.sfx.tone(hz * 1.25, 0.09, 'triangle', 0.04, 0.12, hz); }
+      function* battle(foes, tr, checkpoint) {
+        if (!alive().length) return 'lose';
+        battleCheckpoint = null;
         const prevMode = mode; mode = 'battle';
         const first = S.party.findIndex(c => c.hp > 0);
         B = { foes, fi: 0, foe: foes[0], mi: first, foeVis: false, meVis: false, foeHp: foes[0].hp, meHp: 0, foeX: -80, meX: 120, foeBlink: 0, meBlink: 0, foeDx: 0, meDx: 0, cube: null, sf: { atk: 0, def: 0 }, sm: { atk: 0, def: 0 }, tr, seenIn: new Set([first]), evolve: [] };
+        if (checkpoint) {
+          Object.assign(B, { fi: checkpoint.fi, mi: checkpoint.mi, sf: checkpoint.sf, sm: checkpoint.sm });
+          B.foe = B.foes[B.fi]; B.foeHp = B.foe.hp; B.seenIn = new Set(checkpoint.seen);
+        }
+        for (const c of foes.concat(S.party)) prepare(c);
         S.seen[B.foe.s] = 1;
         B.foeVis = true;
         yield anim(40, t => { B.foeX = -80 + t * 80; B.meX = 120 - t * 120; });
+        cry(B.foe.s);
         if (tr) { yield* bmsg(`${tr.name} wants to battle!`); yield* bmsg(`${tr.name} sent out ${nameOf(B.foe)}!`); }
         else yield* bmsg(`A wild ${nameOf(B.foe)} appeared!`);
         B.meVis = true; B.meHp = me().hp; B.meX = 0;
         K.sfx.tone(500, 0.1, 'square', 0.06, 0, 900);
-        yield* bmsg(`Go! ${nameOf(me())}!`);
+        cry(me().s); yield* bmsg(`Go! ${nameOf(me())}!`);
         let result = null;
         while (!result) {
+          if (S.f.dex) save(true);
           const act = yield* chooseAction();
           result = yield* turn(act);
         }
         // tidy up: evolutions happen after the battle
         mode = prevMode === 'battle' ? 'world' : prevMode;
         const evo = B.evolve.slice(); B = null;
-        for (const c of evo) yield* evolve(c);
+        delete S.encounter; battleCheckpoint = null;
+        // Commit the win before an evolution scene or reward dialogue can be interrupted.
+        if (result === 'win' && tr && S.f.dex) commitTrainer(tr);
         if (result !== 'lose') save();
+        for (const c of evo) yield* evolve(c);
         return result;
       }
       const team = () => (B && B.link ? B.link.team : S.party);
       const me = () => team()[B.mi];
       function* chooseAction() {
         for (;;) {
-          held = wrap(`What will ${nameOf(me())} do?`, 13);
-          const i = yield menu(['FIGHT', 'BAG', 'CRIT', 'RUN'], { x: 80, y: 96, w: 80, rows: 2, cols: true, colW: 38, cancel: false, under: () => { box(0, 96, 160, 48); held.forEach((l, j) => F.draw(g, l, 9, 106 + j * 14, P[3])); } });
+          held = null;
+          const i = yield menu(['FIGHT', 'BAG', 'CRIT', 'RUN'], { x: 80, y: 96, w: 80, rows: 2, cols: true, colW: 38, cancel: false, under: () => { box(0, 96, 160, 48); F.draw(g, 'WHAT WILL', 7, 105, P[3]); fit(nameOf(me()), 7, 117, 66); F.draw(g, 'DO?', 7, 130, P[3]); } });
           held = null;
           if (i === 0) {
-            const mv = me().moves;
-            const j = yield menu(mv.map(mvN), { x: 0, y: 96, w: 104, rows: 4, lh: 9, after: k => { box(100, 96, 60, 48); const M = MOVES[mv[k]]; F.draw(g, 'TYPE/', 106, 103, P[3]); F.draw(g, M[0], 106, 114, P[3]); F.draw(g, M[1] ? 'POW ' + M[1] : 'EFFECT', 106, 127, P[3]); } });
-            if (j >= 0) return { k: 'move', m: mv[j] };
+            const c = prepare(me()), mv = c.moves;
+            if (!mv.some(m => c.pp[m] > 0)) { yield* bmsg('No PP left! Time for a DESPERATE BONK.'); return { k: 'move', m: 'BONK', struggle: true }; }
+            const j = yield menu(mv.map(m => mvN(m)), { x: 0, y: 96, w: 160, rows: 4, lh: 9, after: k => {
+              const m = mv[k], M = MOVES[m]; box(0, 76, 160, 20);
+              fit(`${M[0]}  PP ${c.pp[m]}/${ppMax(m)}  ${M[1] ? 'P'+M[1] : 'EFFECT'}`, 7, 82, 146);
+            } });
+            if (j >= 0) { if (c.pp[mv[j]] <= 0) { yield* bmsg('No PP left for that move!'); continue; } return { k: 'move', m: mv[j] }; }
           } else if (i === 1) {
             const it = yield* bagScreen(true);
             if (it) return it;
@@ -1044,14 +1152,22 @@
           } else if (i === 3) return { k: 'run' };
         }
       }
-      function* useMove(atkSide, mv) {
+      function* useMove(atkSide, mv, struggle) {
         const a = atkSide === 'me' ? me() : B.foe, d = atkSide === 'me' ? B.foe : me();
         const as = atkSide === 'me' ? B.sm : B.sf, ds = atkSide === 'me' ? B.sf : B.sm, M = MOVES[mv];
+        prepare(a);
+        if (a.status === 'sleep') {
+          if ((a.sleep | 0) > 0) { a.sleep--; yield* bmsg(`${nameOf(a)} is having a lie-in!`); return; }
+          a.status = null; yield* bmsg(`${nameOf(a)} woke up!`);
+        }
+        if (a.status === 'static' && rand() < 0.25) { yield* bmsg(`${nameOf(a)} is stuck buffering!`); return; }
+        if (!struggle) a.pp[mv] = Math.max(0, a.pp[mv] - 1);
         yield* bmsg(`${atkSide === 'foe' ? (B.tr ? 'Foe ' : 'Wild ') : ''}${nameOf(a)} used ${mvN(mv)}!`);
         // lunge
         yield anim(10, t => { const v = Math.sin(t * Math.PI) * 8; if (atkSide === 'me') B.meDx = v; else B.foeDx = -v; });
         if (rand() * 100 >= M[2]) { yield* bmsg('But it missed!'); return; }
         const fx = M[3];
+        if (mv === 'SPORE CLOUD') { yield* inflict(d, 'sleep'); return; }
         if (!M[1]) {
           K.sfx.tone(700, 0.15, 'square', 0.07, 0, fx && fx.endsWith('+') ? 1200 : 300);
           if (fx === 'heal') { const amt = Math.ceil(maxhp(a) / 2); if (a.hp >= maxhp(a)) return yield* bmsg('But its HP is already full!'); a.hp = Math.min(maxhp(a), a.hp + amt); yield* hpTo(atkSide, a.hp); return yield* bmsg(`${nameOf(a)} had a little nap and feels better!`); }
@@ -1068,9 +1184,27 @@
         yield* hpTo(atkSide === 'me' ? 'foe' : 'me', d.hp);
         if (r.crit) yield* bmsg('A critical hit!');
         if (r.e > 1) yield* bmsg('It\'s super effective!'); else if (r.e < 1) yield* bmsg('It\'s not very effective...');
+        const st = STATUS[mv];
+        if (d.hp > 0 && st && rand() < st[1]) yield* inflict(d, st[0]);
+        if (struggle) { a.hp = Math.max(0, a.hp - Math.max(1, Math.floor(maxhp(a) / 8))); yield* hpTo(atkSide, a.hp); yield* bmsg('The desperate effort hurt!'); }
+      }
+      function* inflict(c, status) {
+        if (c.status) return yield* bmsg('It already has a condition!');
+        if ((status === 'static' && SP[c.s].t === 'SPARK') || (status === 'pong' && SP[c.s].t === 'MOSS')) return yield* bmsg('It shrugged that off!');
+        c.status = status; if (status === 'sleep') c.sleep = ri(1, 3);
+        yield* bmsg(`${nameOf(c)} ${status === 'sleep' ? 'fell asleep!' : status === 'static' ? 'got STATIC! Its speed fell.' : 'caught the PONG!'} `);
+      }
+      function* endTurn() {
+        for (const side of ['me', 'foe']) { const c = side === 'me' ? me() : B.foe;
+          if (c.hp > 0 && c.status === 'pong') {
+            c.hp = Math.max(0, c.hp - Math.max(1, Math.floor(maxhp(c) / 8))); yield* bmsg(`${nameOf(c)} feels pongy!`); yield* hpTo(side, c.hp);
+            const r = yield* faints(); if (r) return r;
+          }
+        }
+        return null;
       }
       function* turn(act) {
-        const foeMv = (() => { const mv = B.foe.moves; const dmgMoves = mv.filter(m => MOVES[m][1] > 0); if (dmgMoves.length && rand() < 0.75) { const best = dmgMoves.sort((x, y) => eff(MOVES[y][0], SP[me().s].t) * MOVES[y][1] - eff(MOVES[x][0], SP[me().s].t) * MOVES[x][1]); return rand() < 0.6 ? best[0] : best[ri(0, best.length - 1)]; } return mv[ri(0, mv.length - 1)]; })();
+        const foeMv = (() => { const mv = prepare(B.foe).moves.filter(m => B.foe.pp[m] > 0); if (!mv.length) return 'BONK'; const useful = mv.filter(m => !(MOVES[m][3] === 'heal' && B.foe.hp >= maxhp(B.foe) * 0.65) && !(m === 'SPORE CLOUD' && me().status)); const choices = useful.length ? useful : mv; const dmgMoves = choices.filter(m => MOVES[m][1] > 0); if (dmgMoves.length && rand() < 0.75) { const best = dmgMoves.sort((x, y) => eff(MOVES[y][0], SP[me().s].t) * MOVES[y][1] - eff(MOVES[x][0], SP[me().s].t) * MOVES[x][1]); return rand() < 0.6 ? best[0] : best[ri(0, best.length - 1)]; } if (B.foe.hp < maxhp(B.foe) / 3 && choices.some(m => MOVES[m][3] === 'heal')) return choices.find(m => MOVES[m][3] === 'heal'); return choices[ri(0, choices.length - 1)]; })();
         if (act.k === 'run') {
           if (B.tr) { yield* bmsg('No running away from a trainer battle!'); return null; }
           if (stat(me(), 3) >= stat(B.foe, 3) || rand() < 0.5) { K.sfx.tone(600, 0.15, 'square', 0.06, 0, 200); yield* bmsg('Got away safely!'); return 'run'; }
@@ -1082,20 +1216,23 @@
           const r = yield* useItemBattle(act);
           if (r) return r;
         } else if (act.k === 'move') {
-          const meFirst = MOVES[act.m][3] === 'first' || (MOVES[foeMv][3] !== 'first' && stat(me(), 3) * stage(0) >= stat(B.foe, 3));
+          const meFirst = MOVES[act.m][3] === 'first' || (MOVES[foeMv][3] !== 'first' && stat(me(), 3) * (me().status === 'static' ? 0.5 : 1) >= stat(B.foe, 3) * (B.foe.status === 'static' ? 0.5 : 1));
+          const startingFoe = B.foe, startingMe = me();
           const order = meFirst ? [['me', act.m], ['foe', foeMv]] : [['foe', foeMv], ['me', act.m]];
           for (const [side, mv] of order) {
             if ((side === 'me' ? me() : B.foe).hp <= 0) continue;
-            yield* useMove(side, mv);
+            yield* useMove(side, mv, side === 'me' ? act.struggle : !B.foe.moves.some(m => B.foe.pp[m] > 0));
             const r = yield* faints(); if (r) return r;
+            if (B.foe !== startingFoe || me() !== startingMe) return null;
           }
-          return null;
+          return yield* endTurn();
         }
         // the foe's go (after switching, items, failing to run)
-        yield* useMove('foe', foeMv);
-        return yield* faints();
+        yield* useMove('foe', foeMv, !B.foe.moves.some(m => B.foe.pp[m] > 0));
+        const r = yield* faints(); return r || (yield* endTurn());
       }
       function* faints() {
+        if (me().hp <= 0 && !alive().length) return 'lose';
         if (B.foe.hp <= 0) {
           K.sfx.tone(300, 0.4, 'square', 0.08, 0, 60);
           yield anim(16, t => { B.foeDy = t * 40; }); B.foeVis = false; B.foeDy = 0;
@@ -1140,34 +1277,35 @@
             K.sfx.seq([[72, 0.25], [76, 0.25], [79, 0.25], [84, 0.75]], { bpm: 300, vol: 0.09 });
             yield* bmsg(`${nameOf(c)} grew to level ${c.lv}!`);
             for (const [l, mv] of SP[c.s].learn) if (l === c.lv && !c.moves.includes(mv)) yield* learn(c, mv);
-            const ev = SP[c.s].evo; if (ev && c.lv >= ev[0] && !B.evolve.includes(c)) B.evolve.push(c);
+            const ev = SP[c.s].evo; if (ev && c.lv >= ev[0] && !B.evolve.includes(c)) { B.evolve.push(c); c.evoPending = ev[1]; }
           }
         }
       }
       function* learn(c, mv) {
         const mn = mvN(mv);
-        if (c.moves.length < 4) { c.moves.push(mv); return yield* bmsg(`${nameOf(c)} learned ${mn}!`); }
+        if (c.moves.length < 4) { c.moves.push(mv); prepare(c); c.pp[mv] = ppMax(mv); return yield* bmsg(`${nameOf(c)} learned ${mn}!`); }
         const r = yield* ask(`${nameOf(c)} wants to learn ${mn}, but it already knows four moves. Forget one?`);
         if (r !== 0) return yield* bmsg(`${nameOf(c)} did not learn ${mn}.`);
         held = null;
         const j = yield menu(c.moves.map(mvN), { x: 0, y: 40, w: 100 });
         if (j < 0) return yield* bmsg(`${nameOf(c)} did not learn ${mn}.`);
-        const old = c.moves[j]; c.moves[j] = mv;
+        const old = c.moves[j]; c.moves[j] = mv; prepare(c); c.pp[mv] = ppMax(mv);
         yield* bmsg(`1, 2 and... POOF! ${nameOf(c)} forgot ${mvN(old)} and learned ${mn}!`);
       }
       let evoShow = null;
       function* evolve(c, into0) {
-        const into = into0 != null ? into0 : SP[c.s].evo[1], from = c.s;
+        const into = into0 != null ? into0 : c.evoPending != null ? c.evoPending : SP[c.s].evo[1], from = c.s;
+        c.evoPending = into;
         const pm = mode; mode = 'evo'; evoShow = { a: from, b: into, t: 0 };
         yield* msg(`What? ${SP[from].n} is evolving!`);
         K.music(null);
         yield anim(150, t => { evoShow.t = t; if ((t * 150 | 0) % 12 === 0) K.sfx.tone(400 + t * 800, 0.08, 'square', 0.05); });
         const oldMax = maxhp(c); c.s = into; c.hp += maxhp(c) - oldMax; S.seen[into] = 1;
-        const newCatch = !S.caught[into]; S.caught[into] = 1;
+        const newCatch = !S.caught[into]; S.caught[into] = 1; delete c.evoPending;
         evoShow.t = 2;
         K.sfx.seq([[72, 0.5], [76, 0.5], [79, 0.5], [84, 2]], { bpm: 200, vol: 0.09 });
         yield* msg(`Congratulations! Your ${SP[from].n} evolved into ${SP[into].n}!`);
-        mode = pm === 'evo' ? 'world' : pm; evoShow = null; playSong();
+        delete c.evoPending; mode = pm === 'evo' ? 'world' : pm; evoShow = null; save(); playSong();
         if (newCatch) { report(); checkDex(); }
       }
       function* useItemBattle(act) {
@@ -1180,7 +1318,7 @@
           K.sfx.tone(800, 0.3, 'square', 0.06, 0, 200);
           yield anim(24, t => { B.cube.x = 30 + t * 92; B.cube.y = 70 - Math.sin(t * Math.PI) * 50 - t * 40; });
           B.foeVis = false; K.sfx.tone(1200, 0.1, 'square', 0.07);
-          const f = B.foe, chance = Math.min(0.97, SP[f.s].rate * (1 - 0.7 * f.hp / maxhp(f)) + 0.06);
+          const f = B.foe, chance = Math.min(0.97, SP[f.s].rate * (1 - 0.7 * f.hp / maxhp(f)) * (f.status === 'sleep' ? 1.8 : f.status ? 1.4 : 1) + 0.06);
           const ok = rand() < chance, shakes = ok ? 3 : ri(0, 2);
           for (let s = 0; s < shakes; s++) { yield wait(18); yield anim(16, t => { B.cube.shake = Math.sin(t * Math.PI * 2) * 3; }); K.sfx.tone(300, 0.06, 'square', 0.07); }
           yield wait(20);
@@ -1189,14 +1327,15 @@
           yield* bmsg(`Gotcha! ${nameOf(f)} was caught!`);
           const isNew = !S.caught[f.s]; S.caught[f.s] = 1; S.seen[f.s] = 1;
           if (isNew) yield* bmsg(`${nameOf(f)}'s data was added to the CRITTERDEX.`);
-          const c = { s: f.s, lv: f.lv, exp: expAt(f.lv), moves: f.moves.slice(), hp: f.hp };
-          if (S.party.length < 6) S.party.push(c); else { S.box.push(c); yield* bmsg(`Your party is full, so ${nameOf(c)} was sent to PROF BRAMBLE's PC.`); }
+          const c = prepare({ s: f.s, lv: f.lv, exp: expAt(f.lv), moves: f.moves.slice(), hp: f.hp, status: f.status, sleep: f.sleep, pp: Object.assign({}, f.pp) });
+          if (S.party.length < 6) S.party.push(c); else { S.box.push(c); yield* bmsg(`Your party is full, so ${nameOf(c)} was sent to PROF {professor}'s PC.`); }
           B.cube = null;
           if (isNew) { report(); checkDex(); }
           return 'caught';
         }
-        // cakes and buns
+        // cakes, buns and condition remedies
         const c = S.party[act.on];
+        if (k === 'TEA' || k === 'JUICE') { remedy(c, k); yield* bmsg(`${nameOf(c)} enjoyed its drink!`); return null; }
         if (k === 'PEP') { c.hp = Math.floor(maxhp(c) / 2); S.bag.PEP--; yield* bmsg(`${nameOf(c)} perked right up!`); }
         else { const amt = k === 'BIG' ? 60 : 20, was = c.hp; c.hp = Math.min(maxhp(c), c.hp + amt); S.bag[k]--; if (act.on === B.mi) yield* hpTo('me', c.hp); yield* bmsg(`${nameOf(c)} got ${c.hp - was} HP back!`); }
         K.sfx.seq([[79, 0.25], [84, 0.5]], { bpm: 300, vol: 0.08 });
@@ -1477,13 +1616,14 @@
         const mine = mk(bs.sd[meI]), theirs = mk(bs.sd[1 - meI]);
         for (const c of theirs) S.seen[c.s] = 1;
         K.music(SONGS.leader);
+        battleCheckpoint = null;
         const prevMode = mode; mode = 'battle';
         const pm = scr; scr = null;
         B = { link: { team: mine }, foes: theirs, fi: 0, foe: theirs[0], mi: 0, foeVis: true, meVis: false, foeHp: theirs[0].hp, meHp: 0, foeX: -80, meX: 120, foeBlink: 0, meBlink: 0, foeDx: 0, meDx: 0, cube: null, sf: { atk: 0, def: 0 }, sm: { atk: 0, def: 0 }, tr: { name: foeN, link: 1 }, seenIn: new Set([0]), evolve: [] };
         yield anim(40, t => { B.foeX = -80 + t * 80; B.meX = 120 - t * 120; });
         yield* bmsg(`${foeN} wants to battle!`); yield* bmsg(`${foeN} sent out ${nameOf(B.foe)}!`);
         B.meVis = true; B.meHp = me().hp; B.meX = 0; K.sfx.tone(500, 0.1, 'square', 0.06, 0, 900);
-        yield* bmsg(`Go! ${nameOf(me())}!`);
+        cry(me().s); yield* bmsg(`Go! ${nameOf(me())}!`);
         let result = null, need = [false, false];
         while (!result) {
           let a = null;
@@ -1512,15 +1652,29 @@
         K.sfx.tone(1000, 0.04, 'square', 0.05);
         let i = 0;
         for (;;) {
-          const items = (S.f.dex ? ['CRITTERDEX'] : []).concat(S.party.length ? ['PARTY'] : [], ['BAG', 'SAVE', 'EXIT']);
+          const items = (S.f.dex ? ['CRITTERDEX'] : []).concat(S.party.length ? ['PARTY'] : [], ['BAG', 'JOURNAL', 'SAVE', 'OPTIONS', 'EXIT']);
           i = yield menu(items, { x: 76, y: 0, w: 84, start: Math.min(i, items.length - 1) });
           const k = items[i];
           if (i < 0 || k === 'EXIT') return;
           if (k === 'CRITTERDEX') yield* dexScreen();
           else if (k === 'PARTY') yield* partyScreen('look');
           else if (k === 'BAG') yield* bagScreen(false);
+          else if (k === 'JOURNAL') yield* journal();
+          else if (k === 'OPTIONS') { const r = yield menu(['GREEN SHADES', 'COLOUR TINTS', 'BACK'], { x: 0, y: 0, w: 160 }); if (r === 0 || r === 1) { setColour(r === 1); save(); } }
           else if (k === 'SAVE') { save(); K.sfx.seq([[76, 0.5], [79, 0.5], [84, 1]], { bpm: 260, vol: 0.08 }); yield* msg('JACK saved the game. (It saves itself as you go along too!)'); report(); return; }
         }
+      }
+      function* journal() {
+        const pm = scr;
+        scr = { draw() {
+          g.fillStyle = P[0]; g.fillRect(0, 0, W, H); box(0, 0, W, 20); F.center(g, "JACK'S FIELD NOTES", 80, 6, P[3]);
+          const goal = !S.f.starter ? "Visit {professor}'S LAB." : !S.badges ? 'Train in ROUTE 1 and the WOODS. Beat the MOSS GYM.' : !S.f.badge2 ? 'Use SHOVE on hedges and rocks. Cross GRUMBLY CAVE. Win the SPLASH BADGE.' : 'Both badges won! Visit {professor} and fill your CRITTERDEX. Try the CABLE CLUB.';
+          wrap(goal, 23).forEach((l, i) => F.draw(g, l, 9, 28 + i * 11, P[3]));
+          F.draw(g, `BADGES ${S.badges}/2  OWN ${Object.keys(S.caught).length}/${NSP}`, 8, 91, P[3]);
+          F.draw(g, `TIME ${Math.floor(S.play/60)} MIN`, 8, 104, P[2]);
+          F.draw(g, 'A: TALK / SEARCH', 8, 118, P[3]); F.draw(g, 'START: MENU  B: BACK', 8, 130, P[3]);
+        } };
+        yield fn(() => { if (K.pressed('a') || K.pressed('b')) return NOTHING; }); scr = pm;
       }
       let scr = null; // a full-screen view: { draw() }
       function hpBar(x, y, w, hp, max) {
@@ -1543,8 +1697,8 @@
               const y = 2 + j * 16;
               if (j === i) { g.fillStyle = P[1]; g.fillRect(0, y - 1, W, 16); }
               g.drawImage(sprite(c.s), 0, 0, 32, 32, 12, y, 14, 14);
-              F.draw(g, nameOf(c), 30, y + 1, P[3]); F.draw(g, 'L' + c.lv, 134, y + 1, P[3]);
-              hpBar(30, y + 10, 56, c.hp, maxhp(c)); F.draw(g, c.hp > 0 ? `${c.hp}/${maxhp(c)}` : 'FAINT', 98, y + 8, P[3]);
+              fit(nameOf(c), 30, y + 1, 98); F.draw(g, 'L' + c.lv, 134, y + 1, P[3]);
+              hpBar(30, y + 10, 56, c.hp, maxhp(c)); fit(c.hp > 0 ? `${c.hp}/${maxhp(c)} ${statusName(c)}` : 'FAINT', 98, y + 8, 60);
               if (j === i) F.draw(g, '>', 3, y + 3, P[3]);
             });
             box(0, 98, 160, 46); F.draw(g, why === 'forced' ? 'CHOOSE A CRITTER.' : why === 'pick' ? 'WHICH ONE?' : why === 'trade' ? 'WHICH ONE TO TRADE?' : 'A: CHOOSE  B: BACK', 8, 108, P[3]);
@@ -1571,29 +1725,40 @@
         scr = { draw() {
           g.fillStyle = P[0]; g.fillRect(0, 0, W, H);
           g.drawImage(sprite(c.s), 4, 4);
-          F.draw(g, nameOf(c), 44, 6, P[3]); F.draw(g, `L${c.lv} ${SP[c.s].t}`, 44, 18, P[3]);
+          fit(nameOf(c), 44, 6, 110); F.draw(g, `L${c.lv} ${SP[c.s].t}`, 44, 18, P[3]);
           F.draw(g, `HP ${c.hp}/${maxhp(c)}`, 44, 30, P[3]);
-          F.draw(g, `ATK ${stat(c, 1)}  DEF ${stat(c, 2)}  SPD ${stat(c, 3)}`, 4, 44, P[3]);
-          F.draw(g, `EXP ${c.exp}  NEXT ${c.lv < 50 ? expAt(c.lv + 1) - c.exp : 0}`, 4, 56, P[3]);
-          if (B && B.link) {} else F.draw(g, 'OT/' + String(c.ot || 'JACK').toUpperCase().slice(0, 10), 100, 6 + 24, c.ot ? P[3] : P[2]);
+          fit(`ATK ${stat(c, 1)} DEF ${stat(c, 2)} SPD ${stat(c, 3)}`, 4, 44, 152);
+          fit(`EXP ${c.exp} NEXT ${c.lv < 50 ? expAt(c.lv + 1) - c.exp : 0}`, 4, 5 + 45, 152);
+          if (B && B.link) {} else fit('OT/' + String(c.ot || 'JACK').toUpperCase(), 4, 58, 146, c.ot ? P[3] : P[2]);
           box(0, 68, 160, 76);
-          c.moves.forEach((m, j) => { F.draw(g, mvN(m), 10, 78 + j * 14, P[3]); F.draw(g, MOVES[m][1] ? 'P' + MOVES[m][1] : '-', 122, 78 + j * 14, P[2]); });
+          prepare(c); c.moves.forEach((m, j) => { fit(mvN(m), 8, 78 + j * 14, 103); F.draw(g, `${c.pp[m]}/${ppMax(m)}`, 118, 78 + j * 14, P[2]); });
         } };
         yield fn(() => { if (K.pressed('a') || K.pressed('b')) return NOTHING; });
         scr = pm;
+      }
+      function remedy(c, k) {
+        if (k === 'TEA') { c.status = null; c.sleep = 0; }
+        else { prepare(c); for (const m of c.moves) c.pp[m] = Math.min(ppMax(m), c.pp[m] + 10); }
+        S.bag[k]--;
       }
       function* bagScreen(inBattle) {
         for (;;) {
           const have = ITEM_ORDER.filter(k => S.bag[k] > 0);
           if (!have.length) { yield* msg('The bag is empty! (Apart from an old crisp packet.)'); return null; }
-          const j = yield menu(have.map(k => `${ITEMS[k][0]} x${S.bag[k]}`), { x: 0, y: 0, w: 160, after: k => { box(0, 96, 160, 48); wrap(ITEMS[have[k]][2], 23).forEach((l, n) => F.draw(g, l, 9, 106 + n * 14, P[3])); } });
+          const j = yield menu(have.map(k => `${ITEMS[k][0]} x${S.bag[k]}`), { x: 0, y: 0, w: 160, after: k => { box(0, 96, 160, 48); wrap(ITEMS[have[k]][2], 23).slice(0, 2).forEach((l, n) => F.draw(g, l, 9, 106 + n * 14, P[3])); } });
           if (j < 0) return null;
           const k = have[j];
-          if (k === 'CUBE') { if (!inBattle) { yield* msg('PROF BRAMBLE\'s words echoed... "There\'s a time and a place for that, JACK!"'); continue; } return { k: 'item', item: 'CUBE' }; }
+          if (k === 'CUBE') { if (!inBattle) { yield* msg('PROF {professor}\'s words echoed... "There\'s a time and a place for that, JACK!"'); continue; } return { k: 'item', item: 'CUBE' }; }
           if (!S.party.length) { yield* msg('You haven\'t got any critters to use it on!'); continue; }
           const on = yield* partyScreen('item');
           if (on < 0) continue;
           const c = S.party[on];
+          if (k === 'TEA' || k === 'JUICE') {
+            prepare(c);
+            if (c.hp <= 0 || (k === 'TEA' ? !c.status : c.moves.every(m => c.pp[m] >= ppMax(m)))) { yield* msg("It won't have any effect."); continue; }
+            if (inBattle) return { k: 'item', item: k, on };
+            remedy(c, k); save(); yield* msg(`${nameOf(c)} enjoyed its drink!`); continue;
+          }
           if (k === 'PEP' ? c.hp > 0 : (c.hp <= 0 || c.hp >= maxhp(c))) { yield* msg('It won\'t have any effect.'); continue; }
           if (inBattle) return { k: 'item', item: k, on };
           if (k === 'PEP') { c.hp = Math.floor(maxhp(c) / 2); S.bag.PEP--; yield* msg(`${nameOf(c)} perked right up!`); }
@@ -1603,66 +1768,94 @@
       function* dexScreen() {
         let i = 0, top = 0;
         const pm = scr;
-        const row = s => `${String(s + 1).padStart(3, '0')} ${S.seen[s] ? SP[s].n : '-----'}`;
         scr = { draw() {
           g.fillStyle = P[0]; g.fillRect(0, 0, W, H);
-          F.draw(g, 'CRITTERDEX', 4, 3, P[3]); F.draw(g, `SEEN ${Object.keys(S.seen).length} OWN ${Object.keys(S.caught).length}`, 70, 3, P[2]);
-          for (let r = 0; r < 10; r++) { const s = top + r; if (s >= NSP) break; const y = 15 + r * 12; if (s === i) F.draw(g, '>', 2, y, P[3]); F.draw(g, row(s), 10, y, S.seen[s] ? P[3] : P[2]); if (S.caught[s]) { g.fillStyle = P[3]; g.fillRect(150, y + 1, 5, 5); g.fillStyle = P[0]; g.fillRect(151, y + 2, 1, 1); } }
-          if (S.seen[i]) { g.drawImage(sprite(i), 0, 0, 32, 32, 118, 40, 32, 32); }
+          box(0, 0, W, 20); F.draw(g, 'CRITTERDEX', 7, 6, P[3]);
+          F.draw(g, `${Object.keys(S.caught).length}/${NSP}`, 120, 6, P[3]);
+          for (let r = 0; r < 7; r++) { const s = top + r; if (s >= NSP) break;
+            fit(`${s === i ? '>' : ' '}${String(s + 1).padStart(3, '0')} ${S.seen[s] ? SP[s].n : '-----'}`, 2, 25 + r * 11, 150);
+            if (S.caught[s]) { g.fillStyle = P[3]; g.fillRect(155, 26 + r * 11, 3, 3); }
+          }
+          box(0, 104, W, 40); silhouette(i, 6, 108);
+          F.draw(g, S.caught[i] ? 'OWNED' : S.seen[i] ? 'SEEN' : 'UNKNOWN', 45, 111, P[3]);
+          F.draw(g, 'A: READ  B: BACK', 45, 127, P[3]);
         } };
         for (;;) {
           const r = yield fn(() => {
             if (K.pressed('up')) i = Math.max(0, i - 1); if (K.pressed('down')) i = Math.min(NSP - 1, i + 1);
-            if (i < top) top = i; if (i >= top + 10) top = i - 9;
+            if (i < top) top = i; if (i >= top + 7) top = i - 6;
             if (K.pressed('a')) return i; if (K.pressed('b')) return -1;
           });
           if (r < 0) break;
-          if (!S.seen[r]) continue;
-          const inner = scr;
-          scr = { draw() {
-            g.fillStyle = P[0]; g.fillRect(0, 0, W, H);
-            g.drawImage(sprite(r), 4, 4, 32, 32);
-            F.draw(g, `${String(r + 1).padStart(3, '0')} ${SP[r].n}`, 42, 8, P[3]); F.draw(g, `TYPE ${SP[r].t}`, 42, 20, P[3]);
-            box(0, 44, 160, 100);
-            (S.caught[r] ? wrap(SP[r].dex, 23) : ['NOT CAUGHT YET.', 'CATCH ONE TO LEARN MORE!']).forEach((l, n) => F.draw(g, l, 9, 54 + n * 12, P[3]));
-          } };
-          yield fn(() => { if (K.pressed('a') || K.pressed('b')) return NOTHING; });
+          const inner = scr, lines = S.caught[r] ? wrap(SP[r].dex, 23) : ['NOT CAUGHT YET.', 'CATCH ONE TO LEARN MORE!']; let page = 0;
+          for (;;) {
+            scr = { draw() {
+              g.fillStyle = P[0]; g.fillRect(0, 0, W, H); silhouette(r, 4, 5);
+              fit(`${String(r + 1).padStart(3, '0')} ${S.seen[r] ? SP[r].n : '?????'}`, 42, 8, 112);
+              F.draw(g, S.seen[r] ? `TYPE ${SP[r].t}` : 'UNKNOWN CRITTER', 42, 22, P[3]);
+              box(0, 44, W, 100);
+              lines.slice(page * 6, page * 6 + 6).forEach((l, n) => F.draw(g, l, 9, 53 + n * 12, P[3]));
+              F.draw(g, `A: NEXT ${page + 1}/${Math.ceil(lines.length / 6)}`, 8, 132, P[2]);
+            } };
+            const next = yield fn(() => { if (K.pressed('b')) return -1; if (K.pressed('a') || K.pressed('right')) return 1; });
+            if (next < 0 || (page + 1) * 6 >= lines.length) break; page++;
+          }
           scr = inner;
         }
         scr = pm;
       }
+      const silhouettes = {};
+      function silhouette(s, x, y) {
+        if (S.caught[s]) return g.drawImage(sprite(s), x, y);
+        if (!silhouettes[s]) { const c = mkc(32, 32), a = c.getContext('2d'); a.drawImage(sprite(s), 0, 0); a.globalCompositeOperation = 'source-in'; a.fillStyle = P[3]; a.fillRect(0, 0, 32, 32); silhouettes[s] = c; }
+        g.drawImage(silhouettes[s], x, y);
+      }
 
       // ============================================================ the badge, and the credits
       let lastBadge = 1;
+      function commitTrainer(tr) {
+        if (!tr.id || S.beaten[tr.id]) return;
+        S.beaten[tr.id] = 1; S.money += tr.money || 0;
+        if (tr.leader) { awardBadge(tr.leader); healAll(); }
+      }
+      function awardBadge(k) {
+        if (k === 2) S.f.badge2 = 1; else S.f.badgeAt = S.f.badgeAt || Date.now();
+        S.badges = (S.beaten.hazel || k === 1 || S.f.badgeAt ? 1 : 0) + (S.f.badge2 ? 1 : 0);
+      }
       function* badge(k) {
-        k = k || 1; lastBadge = k;
-        if (k === 2) S.f.badge2 = 1; else S.f.badgeAt = Date.now();
-        S.badges = (S.beaten.hazel || k === 1 ? 1 : 0) + (S.f.badge2 ? 1 : 0);
+        k = k || 1; lastBadge = k; awardBadge(k); save();
+        const before = scr, D = grid(32);
+        D.e(16, 16, 14, 14, 2); D.e(16, 15, 11, 11, 4);
+        if (k === 1) { D.t(8, 19, 14, 6, 25, 10, 1); D.t(8, 19, 25, 10, 21, 23, 1); D.l(9, 25, 22, 10, 3); D.l(14, 18, 12, 12, 2); }
+        else { D.t(16, 4, 6, 20, 26, 20, 1); D.e(16, 20, 10, 7, 1); D.e(12, 20, 2, 3, 4); D.l(8, 28, 24, 28, 2); }
+        D.finish(false); const art = toCanvas(D);
+        scr = { draw() { g.fillStyle = P[0]; g.fillRect(0, 0, W, H); F.center(g, k === 1 ? 'MOSS BADGE' : 'SPLASH BADGE', 80, 6, P[3]); g.drawImage(art, 0, 0, 32, 32, 52, 22, 56, 56); F.center(g, `${S.badges} OF 2 BADGES`, 80, 83, P[2]); } };
         K.music(null);
         K.sfx.seq([[72, 0.5], [76, 0.5], [79, 0.5], [84, 1], [83, 0.5], [84, 0.5], [88, 2]], { bpm: 200, vol: 0.1 });
         if (k === 2) {
-          yield* msg('JACK got the SPLASH BADGE from CAPTAIN NORA!');
+          yield* msg('JACK got the SPLASH BADGE from CAPTAIN {captain}!');
           K.secret('rm.mon.bay');
-          yield* msg(`NORA: That's ${S.badges} badges! Keep your feet dry and your critters happy, JACK.`);
+          yield* msg(`{captain}: That's ${S.badges} badges! Keep your feet dry and your critters happy, JACK.`);
         } else {
-          yield* msg('JACK got the MOSS BADGE from HAZEL!');
+          yield* msg('JACK got the MOSS BADGE from {gymleader}!');
           K.secret(PUD ? 'lk.puddle' : 'rm.mon.gym');
-          yield* msg('HAZEL: That badge shows you\'re a proper critter trainer. I\'m proud of you, JACK. Your Mom will be too!');
-          yield* msg('HAZEL: There\'s another gym in PEBBLE BAY, past GRUMBLY CAVE at the top of the WHISPERING WOODS.');
+          yield* msg('{gymleader}: That badge shows you\'re a proper critter trainer. I\'m proud of you, JACK. Your Mom will be too!');
+          yield* msg('{gymleader}: There\'s another gym in PEBBLE BAY, past GRUMBLY CAVE at the top of the WHISPERING WOODS.');
         }
-        healAll(); save();
-        yield* credits();
+        healAll(); save(); scr = before;
+        if (k === 2) yield* credits();
+        else { yield* msg('FIELD MANUAL 01: SHOVE! Face hedges or boulders and press A. Your critters can clear shortcuts now.'); playSong(); }
       }
       let cred = null;
       function* credits() {
-        const lines = ['POCKET CRITTERS', VV.name, '', 'STARRING', 'JACK', '', 'AND HIS CRITTERS'].concat(S.party.map(c => `${nameOf(c)}  L${c.lv}`), ['', `CRITTERS CAUGHT ${Object.keys(S.caught).length}/${NSP}`, '', 'WITH', 'PROF BRAMBLE', 'MOM', 'JACKK', 'LUKE  DAVE  CALLUM', 'HAZEL', '', 'MADE IN 1999', 'BY PIXIE PIXEL', '', 'THANK YOU FOR PLAYING!', '', 'NOW GO AND', 'CATCH THE REST!']);
+        const lines = ['POCKET CRITTERS', VV.name, '', 'STARRING', 'JACK', '', 'AND HIS CRITTERS'].concat(S.party.map(c => `${nameOf(c)}  L${c.lv}`), ['', `CRITTERS CAUGHT ${Object.keys(S.caught).length}/${NSP}`, '', 'WITH', 'PROF {professor}', 'MOM', 'JACKK', 'LUKE  DAVE  CALLUM', '{gymleader}', '', 'MADE IN 1999', 'BY PIXIE PIXEL', '', 'THANK YOU FOR PLAYING!', '', 'NOW GO AND', 'CATCH THE REST!']);
         const pm = mode; mode = 'credits'; cred = { lines, y: H };
         K.music(SONGS.title);
         const sc = score(), minT = Math.max(16, sc / 40 + 9 - (K.t - lastRep.t));
         const t0 = K.t;
         yield fn(() => { cred.y -= (K.held("a") || K.held("b")) ? 1.2 : 0.5; if (cred.y < -lines.length * 12 - 10 && K.t - t0 >= minT) return NOTHING; if (cred.y < -lines.length * 12 - 10) cred.y = -lines.length * 12 - 10; });
         mode = pm === 'credits' ? 'world' : 'world'; cred = null; playSong();
-        if (!finalDone) { finalDone = true; lastRep = { t: K.t, sc }; K.over(sc, { title: lastBadge === 2 ? 'SPLASH BADGE!' : 'MOSS BADGE!', text: `JACK beat ${lastBadge === 2 ? 'CAPTAIN NORA' : 'HAZEL'} and caught ${Object.keys(S.caught).length} of ${NSP} critters!` }); }
+        if (!finalDone) { finalDone = true; report(true); save(); }
       }
 
       // ============================================================ the title screen
@@ -1674,7 +1867,7 @@
           const items = saved ? ['CONTINUE', 'NEW GAME'] : ['NEW GAME'];
           const r = yield fn(() => {
             if (K.pressed('up') || K.pressed('down')) { tsel = (tsel + 1) % items.length; K.sfx.tone(900, 0.03); }
-            if (K.pressed('start') || K.pressed('a')) return tsel;
+            if ((K.restoring && saved) || K.pressed('start') || K.pressed('a')) return tsel;
           });
           if (items[r] === 'CONTINUE') { S = saved; break; }
           if (saved) { const c = yield* ask('Start a brand new game? Your old save will be gone when you next save.'); if (c !== 0) continue; }
@@ -1683,19 +1876,33 @@
         yield fade(true);
         mode = 'world';
         S.bag = Object.assign({ CUBE: 0, CAKE: 0, BIG: 0, PEP: 0 }, S.bag);
-        for (const c of S.party.concat(S.box)) if (!c.id) c.id = uid(); // (every critter gets a tag, so a trade knows which one went)
+        setColour(S.colour);
+        for (const c of S.party.concat(S.box)) prepare(c); // (every critter gets a tag, so a trade knows which one went)
         if (member()) lsend({ t: 'lkHello' }); // (anything that came down the cable while we were off lands in a moment)
         loadMap(S.map || 'house', S.x, S.y, S.dir);
         if (!S.f.intro) {
           S.f.intro = 1;
           yield fade(false);
-          yield* msg('PROF BRAMBLE: Hello there! I\'m PROFESSOR BRAMBLE, and this is MOSS TOWN.');
-          yield* msg('PROF BRAMBLE: The long grass round here is full of POCKET CRITTERS. Some people keep them as pets. Some people battle with them.');
-          yield* msg('PROF BRAMBLE: Me? I study them. Your Mom says you\'re old enough for a critter of your very own, JACK. Come and see me at my lab!');
+          yield* msg('PROF {professor}: Hello there! I\'m PROFESSOR {professor}, and this is MOSS TOWN.');
+          yield* msg('PROF {professor}: The long grass round here is full of POCKET CRITTERS. Some people keep them as pets. Some people battle with them.');
+          yield* msg('PROF {professor}: Me? I study them. Your Mom says you\'re old enough for a critter of your very own, JACK. Come and see me at my lab!');
           save();
           return;
         }
         yield fade(false);
+        if (S.encounter) yield* resumeEncounter();
+        for (const c of S.party) if (c.evoPending != null) yield* evolve(c, c.evoPending);
+      }
+      function* resumeEncounter() {
+        const cp = S.encounter, tr = cp.tr;
+        const res = yield* battle(cp.foes, tr, cp);
+        if (res === 'lose') yield* blackout();
+        if (res === 'win' && tr) {
+          commitTrainer(tr); save();
+          yield* msg(`JACK won ${tr.money || 0}P!`);
+          if (tr.leader) yield* badge(tr.leader);
+        }
+        delete S.encounter; save(); playSong();
       }
 
       // ============================================================ drawing
@@ -1724,25 +1931,26 @@
       }
       PEOPLE.kid2 = { hair: 3, cap: 1, capCol: 2, shirt: 2, col: PCOL.kid2 };
       function drawBattle() {
-        const cv = map && map.cave, bg = cv ? ['#f0e4d0', '#b8a088', '#806850'] : map && map.inside ? ['#f8f0e0', '#e0c8a8', '#a08060'] : map && map.id === 'bay' ? ['#f0f8ff', '#f0e0a8', '#c0a060'] : ['#f8f8f0', '#a8d890', '#58a048'];
+        const cv = map && map.cave, tint = cv ? ['#f0e4d0', '#b8a088', '#806850'] : map && map.inside ? ['#f8f0e0', '#e0c8a8', '#a08060'] : map && map.id === 'bay' ? ['#f0f8ff', '#f0e0a8', '#c0a060'] : ['#f8f8f0', '#a8d890', '#58a048'];
+        const bg = colour ? tint : [P[0], P[1], P[2]];
         g.fillStyle = bg[0]; g.fillRect(0, 0, W, H);
         g.fillStyle = bg[2]; ell(124, 57, 33, 7); ell(36, 93, 35, 7);
         g.fillStyle = bg[1]; ell(124, 56, 32, 6); ell(36, 92, 34, 6);
         const f = B.foe, m = me();
-        if (B.foeVis && !B.foeBlink) g.drawImage(sprite(f.s), 0, 0, 32, 32, 92 + B.foeX + B.foeDx, -6 + (B.foeDy || 0), 64, 64);
+        if (B.foeVis && !B.foeBlink) g.drawImage(sprite(f.s), 0, 0, 32, 32, 100 + B.foeX + B.foeDx, 2 + (B.foeDy || 0), 56, 56);
         if (B.cube) { g.drawImage(objArt('cube'), B.cube.x + B.cube.shake, B.cube.y); }
         if (B.meVis && !B.meBlink && m) { g.save(); g.beginPath(); g.rect(0, 0, W, 96); g.clip(); g.drawImage(spriteF(m.s), 0, 0, 32, 32, 6 + B.meX + B.meDx, 34 + (B.meDy || 0), 64, 64); g.restore(); }
         // the foe's box
         if (B.foeVis) {
-          F.draw(g, nameOf(f), 6, 4, P[3]); F.draw(g, 'L' + f.lv, 70, 4, P[3]);
+          fit(nameOf(f), 5, 3, 78); F.draw(g, `L${f.lv} ${statusName(f)}`, 5, 12, P[3]);
           g.fillStyle = P[3]; g.fillRect(4, 22, 76, 1); g.fillRect(79, 14, 1, 9);
-          F.draw(g, 'HP', 8, 14, P[3]); hpBar(22, 15, 48, B.foeHp, maxhp(f));
-          if (S.caught[f.s] && !B.tr) { g.fillStyle = P[3]; g.fillRect(58, 4, 5, 5); g.fillStyle = P[0]; g.fillRect(59, 5, 1, 1); }
+          hpBar(28, 15, 48, B.foeHp, maxhp(f));
+          if (S.caught[f.s] && !B.tr) { g.fillStyle = P[3]; g.fillRect(82, 4, 5, 5); g.fillStyle = P[0]; g.fillRect(83, 5, 1, 1); }
           if (B.tr && B.foes.length > 1) B.foes.forEach((c, i) => { const x = 8 + i * 8; g.fillStyle = P[3]; g.fillRect(x, 26, 6, 6); g.fillStyle = c.hp > 0 ? P[1] : P[0]; g.fillRect(x + 1, 27, 4, 4); if (c.hp > 0) { g.fillStyle = P[3]; g.fillRect(x + 1, 29, 4, 1); } });
         }
         if (B.hitFx) hitFx(B.hitFx);
         if (B.meVis && m) {
-          F.draw(g, nameOf(m), 86, 60, P[3]); F.draw(g, 'L' + m.lv, 136, 68, P[3]);
+          fit(nameOf(m), 84, 59, 74); F.draw(g, `L${m.lv} ${statusName(m)}`, 90, 68, P[3]);
           F.draw(g, 'HP', 88, 76, P[3]); hpBar(102, 77, 48, B.meHp, maxhp(m));
           F.draw(g, `${Math.ceil(B.meHp)}/${maxhp(m)}`.padStart(7, ' '), 112, 84, P[3]);
           g.fillStyle = P[3]; g.fillRect(84, 93, 74, 1); g.fillRect(157, 74, 1, 20);
@@ -1750,32 +1958,34 @@
         }
         if (!task || !task.draw) box(0, 96, 160, 48);
       }
-      function ell(cx, cy, rx, ry) { g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); g.fill(); }
+      function ell(cx, cy, rx, ry) {
+        for (let y = -Math.floor(ry); y <= ry; y++) { const w = Math.floor(rx * Math.sqrt(Math.max(0, 1-y*y/(ry*ry)))); g.fillRect(Math.round(cx)-w, Math.round(cy)+y, w*2+1, 1); }
+      }
       // a little burst in the move's type colour on whoever got hit
       const FXC = { EMBER: ['#f8d040', '#f05818'], PUDDLE: ['#c0e8ff', '#3880e8'], MOSS: ['#c8f0a0', '#38a038'], SPARK: ['#fff8a0', '#f0c010'], ROCK: ['#e0c8a0', '#906838'], FLUFF: ['#ffffff', '#f080b0'] };
       function hitFx(h) {
-        const [cx, cy] = h.on === 'foe' ? [124, 26] : [38, 64], c = FXC[h.ty] || FXC.FLUFF, k = h.t;
+        const [cx, cy] = h.on === 'foe' ? [124, 26] : [38, 64], c = colour ? FXC[h.ty] || FXC.FLUFF : [P[1], P[2]], k = h.t;
         for (let i = 0; i < 8; i++) {
           const a = i / 8 * Math.PI * 2 + k * 2, r = 4 + k * 22, x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r * 0.8);
-          g.fillStyle = '#201418'; g.fillRect(x - 1, y - 1, 5, 5); g.fillStyle = c[i % 2]; g.fillRect(x, y, 3, 3);
+          g.fillStyle = P[3]; g.fillRect(x - 1, y - 1, 5, 5); g.fillStyle = c[i % 2]; g.fillRect(x, y, 3, 3);
           if (h.ty === 'SPARK') { g.fillRect(x + 3, y - 2, 1, 3); } else if (h.ty === 'PUDDLE') { g.fillRect(x + 1, y - 2, 1, 2); }
         }
-        if (k < 0.15) { g.fillStyle = c[0]; g.globalAlpha = 0.5; g.fillRect(0, 0, W, 96); g.globalAlpha = 1; }
+        if (k < 0.15) { g.fillStyle = c[0]; g.globalAlpha = colour ? 0.5 : 1; g.fillRect(0, 0, W, 96); g.globalAlpha = 1; }
       }
       function drawTitle() {
         g.fillStyle = P[0]; g.fillRect(0, 0, W, H);
-        g.fillStyle = P[3]; g.fillRect(0, 0, W, 44); g.fillStyle = P[2]; g.fillRect(0, 44, W, 2);
-        g.save(); g.font = 'italic 900 19px Arial Black,Arial,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-        g.fillStyle = P[2]; g.fillText('POCKET', W / 2 + 2, 14); g.fillStyle = P[0]; g.fillText('POCKET', W / 2, 12);
-        g.fillStyle = P[2]; g.fillText('CRITTERS', W / 2 + 2, 33); g.fillStyle = P[1]; g.fillText('CRITTERS', W / 2, 31); g.restore();
-        F.center(g, VV.name, W / 2, 50, P[2]);
-        const s = TITLE[(K.frame / 150 | 0) % TITLE.length]; tspr = s;
-        g.drawImage(sprite(s), 0, 0, 32, 32, 88, 60, 64, 64);
-        if (task && task.update && !held) {
-          const items = saved ? ['CONTINUE', 'NEW GAME'] : ['NEW GAME'];
-          items.forEach((it, i) => F.draw(g, (i === tsel ? '>' : ' ') + it, 8, 112 + i * 11, P[3]));
-          F.draw(g, '(C)1999 PIXIE', W - 82, 136, P[2]);
-        }
+        g.fillStyle = P[3]; g.fillRect(0, 0, W, 43); g.fillStyle = P[1]; g.fillRect(3, 3, 154, 1);
+        F.center(g, 'POCKET', 80, 8, P[0], 2); F.center(g, 'CRITTERS', 80, 24, P[1], 2);
+        F.center(g, VV.name, 80, 48, P[3]);
+        const s = TITLE[(K.frame / 180 | 0) % TITLE.length]; tspr = s;
+        for (let x = 0; x < 10; x++) { g.drawImage(tileArt('"'), x * 16, 88); g.drawImage(tileArt('.'), x * 16, 72); }
+        g.drawImage(person('kid2', 'right', (K.frame >> 4) % 2), 18, 68);
+        g.drawImage(sprite(s), 0, 0, 32, 32, 82, 55 + ((K.frame >> 5) % 2), 48, 48);
+        box(0, 104, 160, 40);
+        const items = saved ? ['CONTINUE', 'NEW GAME'] : ['NEW GAME'];
+        items.forEach((it, i) => F.draw(g, (i === tsel ? '>' : ' ') + it, 8, 112 + i * 11, P[3]));
+        F.draw(g, '1999', 122, 112, P[2]); F.draw(g, 'PIXIE', 122, 125, P[2]);
+        if (saved) fit(`BADGES ${saved.badges}  DEX ${Object.keys(saved.caught).length}`, 8, 92, 146);
       }
       function drawEvo() {
         g.fillStyle = P[0]; g.fillRect(0, 0, W, H);
@@ -1785,12 +1995,12 @@
       }
       function drawCredits() {
         g.fillStyle = P[3]; g.fillRect(0, 0, W, H);
-        cred.lines.forEach((l, i) => { const y = cred.y + i * 12; if (y > -10 && y < H) F.center(g, l, W / 2, y, i < 2 ? P[1] : P[0]); });
+        cred.lines.forEach((l, i) => { const y = cred.y + i * 12; if (y > -10 && y < H) F.center(g, words(l), W / 2, y, i < 2 ? P[1] : P[0]); });
       }
       let mapName = 0, lastMap = '';
 
       // ============================================================ the game loop
-      K.dbg = { get S() { return S; }, pl, get map() { return map; }, get npcs() { return npcs; }, get mode() { return mode; }, get task() { return task; }, get B() { return B; }, LINK, get scr() { return scr; }, get held() { return held; }, tileAt, SOLID, warpAt, run, battle, mon, loadMap, sprite, person, tileArt, badge }; // (for testing)
+      K.dbg = { get S() { return S; }, pl, get map() { return map; }, get npcs() { return npcs; }, get mode() { return mode; }, get task() { return task; }, get B() { return B; }, LINK, get scr() { return scr; }, get held() { return held; }, tileAt, SOLID, warpAt, run, battle, mon, loadMap, sprite, spriteF, person, tileArt, badge, ppMax }; // (for testing)
       run(titleScreen());
       return {
         update() {
