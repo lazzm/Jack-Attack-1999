@@ -64,7 +64,7 @@
     T('neon', 'Neon Arcade', 'Pixel Pete', 150, 57, 'min', { lead: 'sawtooth', dr: 'drive', arp: 1, bass: 'pump', form: 'AABB', notes: 'Fast. Shiny. Like a 10p coin going in for the very last life.',
       S: { A: { c: '1 6 3 7', m: ["1' . 7 1' 5 . 3 5", "6 . 5 6 1' . 6 .", "5 . 3 5 1' - 7 5", "7 . 5 7 2' - 7 ."] },
         B: { c: '4 5 1 1', m: ["4 4 6 4 1' . 6 .", "5 5 7 5 2' . 7 .", "1' . 7 . 6 . 5 .", '3 - - - 1 . . .'] } } }),
-    T('rainy', 'Rainy Day Inside', (typeof Cast !== 'undefined' && Cast.t ? Cast.t('{sister} & The Teapots') : "Jack's Sister & The Teapots"), 92, 53, 'maj', { lead: 'triangle', dr: 'soft', bass: 'half', arp: 1, form: 'AAB', notes: 'For days when it is raining, the telly is boring and Mom says "find something to do".',
+    T('rainy', 'Rainy Day Inside', (typeof Cast !== 'undefined' && Cast.t ? Cast.t('{jsister} & The Teapots') : "Jack's Sister & The Teapots"), 92, 53, 'maj', { lead: 'triangle', dr: 'soft', bass: 'half', arp: 1, form: 'AAB', notes: 'For days when it is raining, the telly is boring and Mom says "find something to do".',
       S: { A: { c: '1 3 4 5', m: ['3 - 2 1 2 - 3 -', '5 - - 3 2 - 1 -', '6 - 5 4 3 - 2 1', '2 - - - 5, - - -'] },
         B: { c: '6 4 1 5', m: ["1' - 7 6 5 - 3 -", '4 - 3 2 1 - - -', "3 - 4 5 1' - 6 -", '5 - - - - - . .'] } } }),
     T('boss', "Boss Level (Mom's Coming)", 'The Grot Squad', 160, 52, 'hmin', { dr: 'drive', bass: 'pump', form: 'AAB', notes: 'Footsteps on the stairs. Save the game. SAVE THE GAME.',

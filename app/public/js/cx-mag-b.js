@@ -73,7 +73,7 @@
     rev: [
       { g: 'Rugrats: Scavenger Hunt', p: 'ULTRA 64', d: '08-10', s: [70, 66, 62, 58], o: 62, v: 'For little brothers and sisters.',
         t: ['A board game with the babies from the cartoon. Up to four of you go round the board looking for things, with some mini-games on the way. It looks just like the cartoon.',
-          'It\'s fine for little kids. My little sister {sister} loved it. I played it with her for an hour and lost twice. To be honest she was better at it than me. Don\'t tell anyone.'],
+          'It\'s fine for little kids. My little sister {jsister} loved it. I played it with her for an hour and lost twice. To be honest she was better at it than me. Don\'t tell anyone.'],
         up: 'Looks like the cartoon. Good for little kids.', dn: 'Slow. Not many mini-games. Losing to your little sister.' },
       { g: 'Croc 2', p: 'PLAYSPACE', d: '08-20', s: [82, 80, 80, 80], o: 80, v: 'Snap happy.',
         t: ['Croc the crocodile is back, and this time he\'s off to find his mom and dad, with help from the little furry Gobbos. It\'s a 3D platform game with lots of different villages, jumping puzzles and silly bosses.',

@@ -1,6 +1,7 @@
 // Jack's Home Page - the "CGI-BIN" that keeps all the shared stuff in sync.
 // Serves the static site and a WebSocket at /ws that every visitor shares.
 'use strict';
+const Identity = require('./identity');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -179,6 +180,13 @@ function newToken(key) {
 }
 const loginByIp = new Map(); // ip -> Bucket
 const failsByName = new Map(); // lower name -> { n, until }
+const identityByMember = new Map();
+function identityOf(key) {
+  const mem = state.members[key], old = mem.me;
+  const me = Identity.current(key, mem);
+  if (old !== mem.me) markDirty();
+  return me;
+}
 function memberCount() { return Object.keys(state.members).length; }
 function isMemberName(name) { return !!state.members[String(name).toLowerCase()]; }
 const COLOURS = ['#ff0000', '#00c000', '#0000ff', '#ff00ff', '#ff8000', '#008080', '#8000ff', '#c00060', '#808000', '#0080ff'];
@@ -247,6 +255,7 @@ function admin(req, res, action) {
         const old = state.members[key];
         if (old) for (const h of old.tokens) tokenIndex.delete(h);
         state.members[key] = Object.assign({}, old || {}, { name, no: old ? old.no : ++state.memberSeq, salt, hash: await scryptHash(pass, salt), created: old ? old.created : Date.now(), tokens: [] });
+        identityOf(key);
         if (j.mustChange) state.members[key].mustChange = true; else delete state.members[key].mustChange; // the member is asked to pick a new password at their next logon
         markDirty(); res.writeHead(200); res.end(`ok, ${name} is member #${state.members[key].no}\n`);
       });
@@ -380,7 +389,7 @@ function petView() { return Object.assign({}, state.pet, { deaths: state.petDeat
 function snapshot(info) {
   return {
     t: 'welcome', v: VERSION, id: info.id, nick: info.nick, col: info.col, visitorNo: info.visitorNo,
-    member: !!info.member, memberNo: info.member ? state.members[info.member.toLowerCase()].no : 0, members: memberCount(),
+    member: !!info.member, memberNo: info.member ? state.members[info.member.toLowerCase()].no : 0, members: memberCount(), me: info.member ? identityOf(info.member.toLowerCase()) : null,
     hits: state.hits, button: state.button, buttonBy: state.buttonBy,
     cube: state.cube, cubeMoves: state.cubeMoves, cubeSolves: state.cubeSolves, cubeLastSolver: state.cubeLastSolver,
     wall: state.wall, wallW: WALL_W, wallH: WALL_H,
@@ -707,7 +716,7 @@ function shared(ws, c, m) {
 function logIn(ws, c, key, isNew) {
   const mem = state.members[key], old = c.nick;
   c.member = mem.name; c.nick = mem.name; if (mem.profile && mem.profile.col) c.col = mem.profile.col;
-  send(ws, { t: 'loginOk', nick: mem.name, token: newToken(key), no: mem.no, isNew, members: memberCount() });
+  send(ws, { t: 'loginOk', nick: mem.name, token: newToken(key), no: mem.no, isNew, members: memberCount(), me: identityOf(key) });
   broadcast({ t: 'online', online: presence() });
   modEmit('login', c, isNew);
   pushChat({ sys: true, text: isNew ? `*** ${mem.name} just joined JackNet! Member #${mem.no}` : `*** ${mem.name} logged on to JackNet`, ts: Date.now() });
@@ -761,6 +770,16 @@ function handle(ws, c, m) {
   if (/^(kvGet|kvInc|kvPush|kvPut|relay)$/.test(m.t)) return shared(ws, c, m);
   if (MOD_TYPES[m.t]) { if (!c.rl.mod) c.rl.mod = new Bucket(20, 60); if (!c.rl.mod.take()) return; return MOD_TYPES[m.t](ws, c, m); }
   switch (m.t) {
+    case 'meSet': {
+      const key = c.member.toLowerCase();
+      if (!identityByMember.has(key)) identityByMember.set(key, new Bucket(1 / 30, 4));
+      if (!identityByMember.get(key).take()) return send(ws, { t: 'meErr', msg: 'Please wait a minute before changing your name again.' });
+      const result = Identity.set(key, state.members[key], m.me, clean);
+      if (result.error) return send(ws, { t: 'meErr', msg: result.error });
+      markDirty();
+      for (const [peer, client] of clients) if (client.member?.toLowerCase() === key) send(peer, { t: 'meOk', me: result.me });
+      return;
+    }
     case 'login': {
       if (!loginByIp.has(c.ip)) loginByIp.set(c.ip, new Bucket(0.1, 6));
       if (!loginByIp.get(c.ip).take()) return send(ws, { t: 'loginErr', msg: 'Too many tries. Have a biscuit and try again in a minute.' });
@@ -772,10 +791,13 @@ function handle(ws, c, m) {
         const why = nameProblem(name);
         if (why) return send(ws, { t: 'loginErr', msg: why });
         if (pass.length < 4 || pass.length > 64) return send(ws, { t: 'loginErr', msg: 'Pick a password of at least 4 characters.' });
+        const identity = m.me == null ? {} : Identity.validate(m.me, clean);
+        if (identity.error) return send(ws, { t: 'loginErr', msg: identity.error });
         const salt = crypto.randomBytes(16).toString('hex');
         scryptHash(pass, salt).then(hash => {
           if (state.members[key]) return send(ws, { t: 'loginErr', msg: 'Somebody just took that name! Try another.' });
           state.members[key] = { name, no: ++state.memberSeq, salt, hash, created: Date.now(), tokens: [] };
+          if (identity.me) state.members[key].me = identity.me;
           logIn(ws, c, key, true);
         }).catch(() => send(ws, { t: 'loginErr', msg: 'JackNet had a wobble. Try again.' }));
         return;
