@@ -109,3 +109,41 @@ Quest guidance (applies to every story step, strongest at the start):
 Characters (next phase): real 3D Mom, Dad and sister who move between rooms on simple daily routines, play idle
 animations, face you when near, and give/hand in tasks (F to talk -> subtitle dialogue + voice). Low-poly, solid,
 period clothing, original look; no 2D sprites.
+
+## Quest robustness and tracking (2026-10-26 play-test revision)
+
+The diary's display order is not an action prerequisite. Server story reconciliation checks every eligible step on
+hello, login and chore/media updates. Chores count as physically finished even when Mom refuses their payment for
+speed; this never changes ratings, wages, daily caps or balances. `ch.finished` preserves that evidence across daily
+rollover and adopts existing daily completion records. Partial jobs do not count. Existing story ticks are permanent. Restarted bed/bin jobs restore visible pickup origins;
+loading the kitchen preserves the bedroom CD return slot despite its legacy shared rack ID.
+
+PC assembly has explicit prerequisites in the shared story catalogue: the boot follows Dad; each independent part
+needs the boot; each independent lead needs all four parts; power needs all three leads; installation needs power;
+JackNet needs installation. Parts and leads can be fitted in any order. Completed purchases themselves prove the
+console savings objective after the money has been spent. Successful phone actions are remembered even if done early.
+Consumed items are restored from the server's chore steps on reconnect, and completed pillow/pyjamas/bags never remain
+guidance targets while the next story acknowledgement is in flight.
+
+Press **J**, or click the small objective line, for a ruled diary page containing the current main objective and
+unfinished jobs on Mom's list (plus jobs already started and the opening bedroom chores). Choose a row to track it;
+arrow keys, Tab and Enter work too; J, Q or Esc closes the page. The selection is saved with the account profile.
+Completing the tracked job falls back to the main objective. The desktop diary copy has a **Things to do** button,
+including on a phone using the JackOS fallback. The standing device policy is the full game on phones/tablets;
+JackOS-only is a last-resort fallback, not a story restriction.
+
+Only the tracked task's unfinished targets receive a subtle warm surface rim. No guidance bounds/wireframe helpers
+are constructed. The compass uses target hysteresis, eased screen position/shortest-angle rotation, distance fading,
+safe edge margins and a centre exclusion zone. Screens, LOCK IN, close-ups and menus suppress guidance; speech also
+suppresses compass text. Light guidance keeps the objective line; Off also hides it. The picker remains available.
+
+Regression checks: `node tests/story-order-unit.cjs` covers all six chore permutations, partial work, old zero-pay
+records, reconnects, reversed parts/leads and economic isolation. `node tests/story-order.mjs http://localhost:PORT`
+uses real physical chore interactions on disposable accounts, refreshes, tracking controls, desktop/narrow captures
+and the phone diary picker. Captures go to `tests/shots/quest-ux/`. Run the existing story unit and Chapter 1 playthrough
+as well as `node tests/smoke.mjs` before release.
+
+The compact job-progress strip temporarily takes priority over compass ink while a chore is in progress.
+For separate browser runs, `story-order.mjs URL half-tidy-bed --skip-phone` saves the temporary account checkpoint
+to `/tmp/jhp-quest-ux-browser.json`. On the same disposable server data, `story-ch1.mjs URL pc /tmp/jhp-quest-ux-browser.json`
+checks reversed PC parts/leads and Setup; `story-order.mjs URL phone` checks the portrait/landscape touch picker.

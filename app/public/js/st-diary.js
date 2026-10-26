@@ -4,6 +4,68 @@
   const C = window.StoryCat;
   let doc = null, textures = [], copy = null, copyPage = 0, built = false;
   let resume = null, restoring = false;
+  let questPage = null, pickerFocus = null, pickerStamp = '';
+  function closePicker() {
+    if (!questPage?.open) return;
+    questPage.close();
+    const H = window.House;
+    if (H?.live) { H.pauseControls(false); H.resumeLook?.(); }
+    if (pickerFocus?.isConnected) pickerFocus.focus({preventScroll:true});
+  }
+  function picker(redraw = false) {
+    redraw = redraw === true;
+    if (!window.AccountGate?.allowed || !window.st.getState()) return false;
+    if (questPage?.open && !redraw) { closePicker(); return true; }
+    const H = window.House;
+    if (!redraw && H?.live && !window.PCOnly?.desktopOnly && (H.mode !== 'walk' || H.gliding || H.paused || H.focused)) return false;
+    if (!questPage) {
+      questPage = document.createElement('dialog'); questPage.className = 'st-quests';
+      questPage.setAttribute('aria-labelledby', 'stQuestTitle');
+      questPage.innerHTML = '<header><small>MY DIARY / 1999</small><h1 id="stQuestTitle">Things to do</h1><button type="button" data-quest-close aria-label="Close diary">×</button></header><p class="st-quest-note">One thing at a time. Choose what to follow.</p><div class="st-quest-list"></div><footer>J or Esc closes this page. Jobs can be done in any order.</footer>';
+      questPage.addEventListener('cancel', e => { e.preventDefault(); closePicker(); });
+      questPage.addEventListener('click', e => {
+        if (e.target.closest('[data-quest-close]')) closePicker();
+        const row = e.target.closest('[data-quest]');
+        if (row && window.st.track(row.dataset.quest)) closePicker();
+      });
+      document.documentElement.appendChild(questPage);
+    }
+    const list = questPage.querySelector('.st-quest-list'), active = window.st.tracked(), quests = window.st.objectives();
+    const stamp = JSON.stringify([active?.key, quests.map(s => [s.key,s.id,s.text])]);
+    if (redraw && stamp === pickerStamp) return true;
+    pickerStamp = stamp;
+    list.replaceChildren(); let group = '';
+    for (const s of quests) {
+      if (s.group !== group) { const h = document.createElement('h2'); h.textContent = group = s.group; list.appendChild(h); }
+      const row = document.createElement('button'); row.type = 'button'; row.dataset.quest = s.key;
+      row.setAttribute('aria-pressed', String(s.key === active?.key));
+      const mark = document.createElement('span'); mark.className = 'st-quest-check'; mark.textContent = s.key === active?.key ? '●' : '○'; mark.setAttribute('aria-hidden','true');
+      const copy = document.createElement('span'), text = document.createElement('strong'), hint = document.createElement('small');
+      text.textContent = s.text; hint.textContent = s.hint; copy.append(text, hint); row.append(mark, copy); list.appendChild(row);
+    }
+    if (!list.children.length) { const p = document.createElement('p'); p.textContent = 'Everything on my list is done. Time for a game!'; list.appendChild(p); }
+    if (!redraw) {
+      pickerFocus = document.activeElement;
+      if (H?.live) H.pauseControls(true);
+      questPage.showModal();
+    }
+    (list.querySelector('[aria-pressed="true"]') || questPage.querySelector('button')).focus({preventScroll:true});
+    if (!redraw) questPage.scrollTop = 0;
+    return true;
+  }
+  function handleKey(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey || e.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]')) return false;
+    const key = e.key.toLowerCase();
+    if (questPage?.open && ['arrowup','arrowdown','home','end'].includes(key)) {
+      const rows = [...questPage.querySelectorAll('[data-quest]')], at = rows.indexOf(document.activeElement);
+      const next = key === 'home' ? 0 : key === 'end' ? rows.length-1 : (at+(key === 'arrowup' ? -1 : 1)+rows.length)%rows.length;
+      rows[next]?.focus(); e.preventDefault(); e.stopImmediatePropagation(); return true;
+    }
+    if (questPage?.open && ['escape','j','q'].includes(key) || key === 'j' && window.House?.mode === 'walk' && !window.House?.paused) {
+      e.preventDefault(); e.stopImmediatePropagation(); if (!e.repeat) picker(); return true;
+    }
+    return false;
+  }
   try {
     const saved = JSON.parse(localStorage.getItem('jhp_reading_active') || 'null');
     if (saved?.id === 'st.diary' && sessionStorage.getItem('jhp_login_seat') !== '1' && !window.PCOnly?.desktopOnly) resume = saved;
@@ -46,12 +108,12 @@
     } else {
       const pg = pages[index];
       if (pg.today) {
-        const next = window.st.current();
+        const next = window.st.tracked();
         g.fillText('Note to self...', 94, 130); g.font = 'italic 37px ' + HAND;
         let y = wrap(g, next ? next.text : 'Two chapters down. This year is looking good.', 94, 237, w - 150, 48);
         g.fillStyle = '#586987'; g.font = 'italic 32px ' + HAND;
         wrap(g, next ? next.hint : 'The next pages are coming soon. Meanwhile, there are still games, jobs and mates to catch up with.', 94, y + 50, w - 150, 42);
-        g.fillStyle = '#8d4a3f'; g.font = 'italic 28px ' + HAND; g.fillText('Turn the page for my list.', 94, 836); doodle(g, 540, 880, true);
+        g.fillStyle = '#8d4a3f'; g.font = 'italic 28px ' + HAND; g.fillText('J chooses a task. Turn for my list.', 94, 836); doodle(g, 540, 880, true);
       } else if (pg.soon) {
         g.fillText('The next pages...', 94, 130); let y = 230; g.font = 'italic 33px ' + HAND;
         for (const ch of C.chapters.filter(ch => ch.soon)) { y = wrap(g, ch.id + '. ' + ch.title, 94, y, w - 145, 42); g.font = 'italic 27px ' + HAND; g.fillText('Locked — coming soon', 100, y + 12); y += 130; g.font = 'italic 33px ' + HAND; }
@@ -120,6 +182,7 @@
     const paper = document.createElement('div'); paper.className = 'st-copy-paper'; paper.appendChild(canvas);
     const nav = document.createElement('nav'), prev = document.createElement('button'), next = document.createElement('button'), label = document.createElement('span');
     prev.type = next.type = 'button'; prev.textContent = '← Previous'; next.textContent = 'Next →'; nav.append(prev, label, next); el.append(paper, nav);
+    const choose = document.createElement('button'); choose.type = 'button'; choose.textContent = 'Things to do'; choose.addEventListener('click', picker); el.appendChild(choose);
     copyPage = 0; const w = A.win(Cast.t("{me}'s diary"), el, { w: 480, h: 640, icon: A.ICON.txt }); copy = { w, canvas, label };
     function turn(d) { copyPage = Math.max(0, Math.min(p.flags.veteran ? 0 : pages.length - 1, copyPage + d)); prev.disabled = copyPage === 0; next.disabled = copyPage === (p.flags.veteran ? 0 : pages.length - 1); refresh(); }
     prev.addEventListener('click', () => turn(-1)); next.addEventListener('click', () => turn(1)); turn(0);
@@ -152,8 +215,8 @@
       if (!H.standUp(true)) { H.off('stood', stood); restoring = false; }
     }, () => { restoring = false; });
   }, 350);
-  window.stDiary = { build, refresh };
-  window.st.onChange(p => { if (!p) { resume = null; copy?.w.close(); copy = null; } build(); refresh(); });
+  window.stDiary = { build, refresh, picker, handleKey, updatePicker() { if (questPage?.open) picker(true); }, get picking() { return !!questPage?.open; } };
+  window.st.onChange(p => { if (!p) { resume = null; closePicker(); copy?.w.close(); copy = null; } else if (questPage?.open) picker(true); build(); refresh(); });
   Apps.register('st.diary', { single: true, cmd: ['diary', 'journal'], open: openCopy });
   Apps.addProgram(['Accessories', 'My diary'], 'st.diary', Apps.ICON.txt);
 })();

@@ -6,7 +6,7 @@ let now=Date.UTC(2026,9,23,12);Date.now=()=>now;global.setInterval=global.setTim
 const messages=[],ws={},c={member:'WalletKid'},state={members:{walletkid:{name:'WalletKid'}},scores:{}},clients=new Map([[ws,c]]);
 const ctx=data=>({data,state,clients,markDirty(){},on(){},emit(){},broadcast(){},send(_ws,m){messages.push(typeof m==='string'?JSON.parse(m):JSON.parse(JSON.stringify(m)))},Bucket:class{take(){return true}}});
 try{
- econ.init(ctx({}));grind.init(ctx({}));ch.init(ctx({}));hs.init(ctx({}));
+ const choreData={};econ.init(ctx({}));grind.init(ctx({}));ch.init(ctx(choreData));hs.init(ctx({}));
  const E=econ.api,a=E.acct(c);a.bal=321;a.inv.kept=1;
  // Exercise finance in isolation from optional XP/loot rewards.
  E.HOOKS.earn.length=0;
@@ -28,5 +28,13 @@ try{
  const before=JSON.stringify(a);econ.handle(ws,c,{t:'ecExchange',pence:5,nonce:view().wallet.nonce});assert.equal(JSON.stringify(a),before,'Daily exchange cap changed money');
  now+=86400000;econ.handle(ws,c,{t:'ecExchange',pence:5,nonce:view().wallet.nonce});assert.equal(view().wallet.remaining,1995);
  const capState=JSON.stringify(a);a.bal=require('../app/public/js/econ-cat.js').MAX;const fullCash=view().wallet.pence;econ.handle(ws,c,{t:'ecExchange',pence:5,nonce:view().wallet.nonce});assert.equal(view().wallet.pence,fullCash,'Full Rupee account must not consume cash');
+ // Physical completion migration never pays, clears caps, or drops past evidence.
+ const chorePlayer=ch._test.P('walletkid');
+ chorePlayer.done.bed={sc:0,amt:0,bad:1,t:now-1000};
+ const economyBeforeMigration=JSON.stringify(a),choreDay=chorePlayer.day;
+ ch._test.P('walletkid');assert(chorePlayer.finished.bed,'Zero-pay completion was not adopted');
+ now+=86400000;ch._test.P('walletkid');
+ assert.notEqual(chorePlayer.day,choreDay);assert.deepEqual(chorePlayer.done,{});assert(chorePlayer.finished.bed,'Day rollover lost physical completion');
+ assert.equal(JSON.stringify(a),economyBeforeMigration,'Chore completion migration changed money or caps');
  assert.equal(a.inv.kept,1);console.log('WALLET UNIT PASS: additive balances, cash wages, £5 Saturday money, replay/reload, invalid amounts, overdraw, caps, day rollover and full accounts');
 }finally{Date.now=realNow;global.setInterval=realInterval;global.setTimeout=realTimeout}

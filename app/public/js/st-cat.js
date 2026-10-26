@@ -29,8 +29,14 @@
   ];
   const steps = chapters.flatMap(ch => (ch.steps || []).map(s => Object.assign({ ch: ch.id }, s)));
   const byId = Object.fromEntries(steps.map(s => [s.id, s]));
+  // Assembly has real prerequisites, but independent parts/leads and all chores
+  // may be done in any order. Never use the diary's display order as a gate.
+  const requires = { boot: ['dad'], power: ['lead.power', 'lead.video', 'lead.keyboard'], install: ['power'], pc: ['install'] };
+  for (const part of ['tower', 'monitor', 'keys', 'speakers']) requires['part.' + part] = ['boot'];
+  for (const lead of ['power', 'video', 'keyboard']) requires['lead.' + lead] = ['part.tower', 'part.monitor', 'part.keys', 'part.speakers'];
+  const ready = (p, s) => !!p && (requires[s.id] || []).every(id => !!p.done[id]);
   const current = p => !p || p.flags?.veteran ? null : steps.find(s => !p.done[s.id]) || null;
-  const cat = { chapters, steps, byId, current, version: 2 };
+  const cat = { chapters, steps, byId, current, ready, version: 2 };
   if (typeof module !== 'undefined' && module.exports) module.exports = cat;
   else root.StoryCat = cat;
 })(typeof window !== 'undefined' ? window : globalThis);
