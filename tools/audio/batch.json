@@ -1,0 +1,121 @@
+[
+ {
+  "id": "music-kart-menu",
+  "kind": "music",
+  "model": "lyria-3-clip-preview",
+  "prompt": "Instrumental only, no vocals. Menu music for a cheerful 1998 home-console kart racing game. Bright synth brass stabs, funky slap bass, punchy drum machine with tambourine, playful marimba lead, 132 BPM, key of F major. Slightly compressed cartridge-era sound: limited sample quality, catchy hook that repeats, ends cleanly so it can loop."
+ },
+ {
+  "id": "music-kart-race-full",
+  "kind": "music",
+  "model": "lyria-3.5",
+  "prompt": "Instrumental only, no vocals. About 90 seconds. Race music for a 1998 home-console kart racing game: energetic, cartoony and fast, 150 BPM, E minor rising to G major in the chorus. Sampled rock guitar riffs, synth bass, breakbeat drums, honky-tonk piano fills, cheeky sound-effect-like synth swoops. Late-1990s cartridge sound quality. Structure: [Intro] 4 bars, [Main loop] A and B sections, [Final lap] faster and higher energy. Ends on the tonic so it loops."
+ },
+ {
+  "id": "music-radio-pop",
+  "kind": "music",
+  "model": "lyria-3-clip-preview",
+  "prompt": "Upbeat 1999 British guitar-pop radio single, jangly electric guitars, Hammond organ, tambourine, sunny and optimistic, 118 BPM, male and female group vocals, clean radio mix.\n\nLyrics:\n[Verse]\nGot my pocket money and a brand new day\nSaved it up for weeks, gonna blow it all away\n[Chorus]\nWe're the class of ninety-nine\nEverything's gonna turn out fine\nTurn it up, turn it up, one more time\nWe're the class of ninety-nine"
+ },
+ {
+  "id": "mom-tea-a",
+  "kind": "voice",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Sulafat",
+  "style": "Shout this up the stairs like a warm but fed-up British mum in 1999, standard British English accent, loud and projecting",
+  "line": "JACK! Tea's ready! And bring your plates down from your room, there's about six up there!",
+  "tag": "shouting, fed-up British mum"
+ },
+ {
+  "id": "mom-tea-b",
+  "kind": "voice",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Kore",
+  "style": "Shout this up the stairs like a warm but fed-up British mum in 1999, standard British English accent, loud and projecting",
+  "line": "JACK! Tea's ready! And bring your plates down from your room, there's about six up there!",
+  "tag": "shouting, fed-up British mum"
+ },
+ {
+  "id": "mom-tea-a-downstairs",
+  "kind": "voice",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Sulafat",
+  "fx": "lowpass=f=2200,highpass=f=180,aecho=0.8:0.55:38|71:0.32|0.18,volume=0.8",
+  "style": "Shout this up the stairs like a warm but fed-up British mum in 1999, standard British English accent, loud and projecting",
+  "line": "JACK! Tea's ready! And bring your plates down from your room, there's about six up there!",
+  "tag": "shouting, fed-up British mum"
+ },
+ {
+  "id": "dad-phone",
+  "kind": "voice",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Algenib",
+  "style": "Say this like an exasperated but good-humoured British dad in 1999, standard British English accent",
+  "line": "Who's been on the internet all evening? I've been trying to ring your Gran for an hour and it just goes beep-beep-SKREEEE.",
+  "tag": "exasperated, good-humoured British dad"
+ },
+ {
+  "id": "gran-pound",
+  "kind": "voice",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Gacrux",
+  "style": "Say this like a sweet, chatty British grandmother, warm and conspiratorial, standard British English accent",
+  "line": "Ooh, haven't you grown! Here's a pound for you, love. Don't tell your sister.",
+  "tag": "warm, conspiratorial British grandmother"
+ },
+ {
+  "id": "crystal-phone",
+  "kind": "voice",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Leda",
+  "style": "Say this like a cheeky, whiny British girl of about nine shouting down the hallway, standard British English accent",
+  "line": "Mo-om! Jack's on the computer AGAIN and I need the phone!",
+  "tag": "whiny, cheeky British little girl"
+ },
+ {
+  "id": "announcer-race",
+  "kind": "voice",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Fenrir",
+  "fx": "aresample=22050,acrusher=bits=10:mode=lin:mix=0.6,lowpass=f=7000",
+  "style": "Say this like an over-the-top late-1990s video game announcer, huge energy, British English",
+  "line": "Get ready... three... two... one... GO!",
+  "tag": "hyped video game announcer"
+ },
+ {
+  "id": "gran-pound-neutral",
+  "kind": "voice",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Gacrux",
+  "style": "Say this like a sweet, chatty British grandmother, warm and conspiratorial, standard British English accent",
+  "line": "Ooh, haven't you grown! Here's a pound for you, love. Don't tell your sister.",
+  "tag": "warm, conspiratorial grandmother, soft southern-English Received Pronunciation"
+ },
+ {
+  "id": "gran-vindemiatrix",
+  "kind": "voice",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Vindemiatrix",
+  "style": "Say this like a sweet, chatty British grandmother, warm and conspiratorial, standard British English accent",
+  "line": "Ooh, haven't you grown! Here's a pound for you, love. Don't tell your sister.",
+  "tag": "warm, conspiratorial, elderly British grandmother"
+ },
+ {
+  "id": "gran-achernar",
+  "kind": "voice",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Achernar",
+  "style": "Say this like a sweet, chatty British grandmother, warm and conspiratorial, standard British English accent",
+  "line": "Ooh, haven't you grown! Here's a pound for you, love. Don't tell your sister.",
+  "tag": "warm, conspiratorial, elderly British grandmother"
+ },
+ {
+  "id": "gran-despina",
+  "kind": "voice",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Despina",
+  "style": "Say this like a sweet, chatty British grandmother, warm and conspiratorial, standard British English accent",
+  "line": "Ooh, haven't you grown! Here's a pound for you, love. Don't tell your sister.",
+  "tag": "warm, conspiratorial, elderly British grandmother"
+ }
+]

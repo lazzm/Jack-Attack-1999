@@ -9,3 +9,7 @@ app/node_modules/
 tests/shots/
 tests/recordings/
 node_modules
+tools/audio/out/
+tools/audio/names/out/
+tools/audio/names/report.json
+tools/audio/listen.html
