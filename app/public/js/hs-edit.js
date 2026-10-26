@@ -1,4 +1,4 @@
-/* hs-edit.js: in-world layout editor ("god mode"). Only for the logged-in JackNet member Jack. F9 toggles it while walking.
+/* hs-edit.js: in-world layout editor ("god mode"). Only for the logged-in JackNet member Jack. ` (backtick, or F9) toggles it while walking.
  * Local only: it nudges groups (position / rotation.y in the parent's own frame, the numbers the build code uses), keeps the
  * edits in localStorage (re-applied after a refresh) and exports them as JSON. Hooks in hs-world.js: House.god (a tick fn, set only
  * while the mode is on) is called from tickWalk and makes onKey step aside. Nothing here runs for anybody else. */
@@ -120,7 +120,7 @@
   }
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   function render() {
-    if (!panel) return; const c = panel.querySelector('.c'); let h = '<b>GOD MODE</b> <span class="d">F9 exit</span><br><span class="d">WASD fly, Space/C up/dn, Shift fast, Esc mouse on/off<br>click or E select, arrows move, PgUp/PgDn y, [ ] rotate, R reset</span><hr style="border:0;border-top:1px solid rgba(120,255,200,.2);margin:4px 0">';
+    if (!panel) return; const c = panel.querySelector('.c'); let h = '<b>GOD MODE</b> <span class="d">` exit</span><br><span class="d">WASD fly, Space/C up/dn, Shift fast, Esc mouse on/off<br>click or E select, arrows move, PgUp/PgDn y, [ ] rotate, R reset</span><hr style="border:0;border-top:1px solid rgba(120,255,200,.2);margin:4px 0">';
     if (sel) {
       const i = info(sel), v = vals(sel);
       h += '<b>' + esc(i.name) + '</b> <span class="d">' + esc(i.room) + (i.file ? ' ' + esc(i.file) : '') + '</span><br>' + (i.note ? '<span class="d">' + esc(i.note) + '</span><br>' : '') + '<span class="d">in ' + esc(i.parentName) + '</span><br>' +
@@ -172,8 +172,10 @@
     return Math.abs(x) > Math.abs(z) ? new T.Vector3(Math.sign(x), 0, 0) : new T.Vector3(0, 0, Math.sign(z));
   }
   function onKey(ev) {
-    if (ev.code === 'F9') {
-      if (ev.repeat) return;
+    // ` (backtick) toggles it; F9 kept as an alias (Edge/Firefox use F9 for their reader view)
+    if (ev.code === 'Backquote' || ev.code === 'F9') {
+      if (ev.repeat || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+      const tg = ev.target; if (tg && (tg.tagName === 'INPUT' || tg.tagName === 'TEXTAREA' || tg.isContentEditable)) return;
       if (on) { ev.preventDefault(); ev.stopPropagation(); exit(); return; }
       const h = H(); if (isJack() && h && h.ok && h.mode === 'walk' && h.stood && !h.busy) { ev.preventDefault(); ev.stopPropagation(); enter(); }
       return;

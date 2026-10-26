@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.48.1 - 2026-10-26
+- Owner god mode now toggles with ` (backtick, under Esc). F9 still works but Edge and Firefox take it for their reader view.
+
 ## 2.48.0 - 2026-10-26
 - Story mode begins. New players follow chapters: "Just a Game Lad" (first goals, first chores, the PC, Pixel Post) and "Saving up" (save, choose and order your first console, unbox, carry it up, connect, play, add a mate to your phonebook). One small goal line shows what to do next; progress is saved on the server and survives refresh.
 - A diary on the bedside table: a real notebook you pick up and read (F), listing your chapters and ticks. Existing players see a "1999 so far" summary and are never held back.
