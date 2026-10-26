@@ -28,5 +28,10 @@ Lines where family call the player by name ("JACK! Tea's ready!") are recorded o
 pools plus the most common 1999 UK first names, as `audio/voice/<lineId>.name-<lowercase first>.mp3`. Playback picks
 the variant matching the player's chosen first name (any player called Jack gets the Jack version, not only the owner),
 else falls back to the generic `<lineId>.mp3` that uses no name ("Tea's ready! Down you come!").
+- Matching is by SOUND, not spelling (owner: "or Jak or Jaque you know variation"): names are reduced to a phonetic key
+  (Double-Metaphone style, plus a small alias table for cases it misses), so Jack/Jak/Jac/Jakk/Jaque all hit the Jack
+  recording. Files are named by the phonetic key's canonical name.
+- A nightly job (outside the live container; key stays in ~/.secrets) lists chosen first names with no matching
+  recording and generates their call-outs, verified by transcription, so new players hear their own name by the next day.
 
 Rules: neutral British accents only for family (no regional accent = no location clue); kid-safe; no cloning real people.
