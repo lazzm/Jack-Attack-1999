@@ -199,7 +199,7 @@
     bed: ['Why make the bed? I\'m only getting back in it tonight. (Mom does not accept this argument.)'],
     bin: ['My bin. It\'s mostly crisp packets. And something that used to be a banana.'],
     cat: [cast('{cat} isn\'t even our cat. {cat.He} just lives here. And eats here. And sleeps on my bed.')],
-    plant: ['Gran gave me this plant for my birthday. It has survived two years in a teenager\'s bedroom. Respect.'],
+    plant: ['Gran gave me this plant \"to brighten the place up\". It has survived two years in a teenager\'s bedroom. Respect.'],
     washup: ['The washing up. The worst job. Every plate in the house, somehow.', 'Hot water, a squirt of Fairy Liquid, and SCRUB. Rubber gloves are for wimps.'],
     table: ['Lay the table. Four plates, four forks, four knives. I can count to four.'],
     shopping: ['The shopping. If anything is crisps, it\'s going in my room. (It is not going in my room.)'],

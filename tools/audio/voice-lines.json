@@ -1,0 +1,2873 @@
+{
+ "version": 1,
+ "notes": [
+  "Generated from docs/SCRIPT.md. No line contains a player name, sister name or placeholder.",
+  "batch = one TTS request (<=13 lines, one character, one post filter). Total requests = number of batches (quota 100/day/model).",
+  "tag = leading [bracket tag] for gemini-3.8-flash-tts. character -> voice per docs/AUDIO.md (mom Sulafat, dad Algenib, sister Leda, gran TBD, announcer Fenrir).",
+  "fx: downstairs = through-the-floor muffle (shouts from another room); console = crunchy console filter; absent = clean.",
+  "callout: play the matching name clip first (names/out/<callout>/<name>), then this line. Generic fallback: the line alone.",
+  "Mom and Dad's lines are written to work for any player: no 'lad', no he/she, no names."
+ ],
+ "totals": {
+  "lines": 313,
+  "batches": 26
+ },
+ "batches": {
+  "announcer-plain-01": 13,
+  "dad-downstairs-01": 2,
+  "dad-plain-01": 13,
+  "dad-plain-02": 13,
+  "dad-plain-03": 13,
+  "dad-plain-04": 13,
+  "dad-plain-05": 13,
+  "dad-plain-06": 13,
+  "dad-plain-07": 13,
+  "dad-plain-08": 11,
+  "gran-plain-01": 12,
+  "mom-downstairs-01": 9,
+  "mom-plain-01": 13,
+  "mom-plain-02": 13,
+  "mom-plain-03": 13,
+  "mom-plain-04": 13,
+  "mom-plain-05": 13,
+  "mom-plain-06": 13,
+  "mom-plain-07": 13,
+  "mom-plain-08": 13,
+  "mom-plain-09": 13,
+  "mom-plain-10": 10,
+  "sister-plain-01": 12,
+  "sister-plain-02": 12,
+  "sister-plain-03": 12,
+  "sister-plain-04": 12
+ },
+ "lines": [
+  {
+   "id": "c2.play.announcer",
+   "character": "announcer",
+   "tag": "booming",
+   "line": "Welcome to the next level. Press start.",
+   "context": "The console boot screen, first power on, with the crunchy console filter",
+   "chapter": "2",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "c4.dd.boot",
+   "character": "announcer",
+   "tag": "booming",
+   "line": "Daydream. It's thinking.",
+   "context": "The Daydream first boot, crunchy console filter",
+   "chapter": "4",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "c4.dd.boot2",
+   "character": "announcer",
+   "tag": "epic",
+   "line": "Welcome to the future. Press start.",
+   "context": "After the boot logo",
+   "chapter": "4",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "c4.dd.zip",
+   "character": "announcer",
+   "tag": "epic",
+   "line": "Zip Adventure! Get ready to run!",
+   "context": "Zip Adventure title card",
+   "chapter": "4",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "c4.mill.tv",
+   "character": "announcer",
+   "tag": "booming",
+   "line": "Tonight is the night. Ten minutes to go. The whole country is counting.",
+   "context": "The telly special, evening",
+   "chapter": "4",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "ann.start",
+   "character": "announcer",
+   "tag": "booming",
+   "line": "Player one. Get ready.",
+   "context": "Any console game start",
+   "chapter": "5",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "ann.go",
+   "character": "announcer",
+   "tag": "booming",
+   "line": "Go!",
+   "context": "Race and fighting start",
+   "chapter": "5",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "ann.win",
+   "character": "announcer",
+   "tag": "cheering",
+   "line": "You win!",
+   "context": "Win screen",
+   "chapter": "5",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "ann.over",
+   "character": "announcer",
+   "tag": "dramatic",
+   "line": "Game over.",
+   "context": "Game over",
+   "chapter": "5",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "ann.continue",
+   "character": "announcer",
+   "tag": "urgent",
+   "line": "Continue?",
+   "context": "Continue screen",
+   "chapter": "5",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "ann.press",
+   "character": "announcer",
+   "tag": "booming",
+   "line": "Press start.",
+   "context": "Title screens",
+   "chapter": "5",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "ann.new",
+   "character": "announcer",
+   "tag": "excited",
+   "line": "New high score!",
+   "context": "New high score",
+   "chapter": "5",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "ann.lucky",
+   "character": "announcer",
+   "tag": "cheerful",
+   "line": "Bonus round. Good luck!",
+   "context": "Bonus round",
+   "chapter": "5",
+   "batch": "announcer-plain-01"
+  },
+  {
+   "id": "c3.hangup.dad",
+   "character": "dad",
+   "tag": "shouting",
+   "line": "Oi! I need the phone! Get off the internet!",
+   "context": "The player has been online for 5 minutes, Dad downstairs, muffled",
+   "fx": "downstairs",
+   "chapter": "3",
+   "batch": "dad-downstairs-01"
+  },
+  {
+   "id": "bark.dad.bed2",
+   "character": "dad",
+   "tag": "warning",
+   "line": "I can hear that keyboard clicking. Lights out. I mean it.",
+   "context": "22:00, the player still on the PC",
+   "fx": "downstairs",
+   "chapter": "5",
+   "batch": "dad-downstairs-01"
+  },
+  {
+   "id": "c1.dad.hello",
+   "character": "dad",
+   "tag": "excited",
+   "line": "There you are! Come here. You are not going to believe what I've got in the boot. |",
+   "context": "At the car, Dad waves you over",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.dad.story",
+   "character": "dad",
+   "tag": "amused",
+   "line": "The office is chucking out all the old computers. New ones on Monday, all grey and flat and very fancy. Nobody wanted the old ones. Except me. |",
+   "context": "Dad leans on the car",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.dad.offer",
+   "character": "dad",
+   "tag": "proud",
+   "line": "So. Do you want one? Your very own computer? It's no beast but it works. Mostly. |",
+   "context": "Dad opens the conversation to the offer",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.dad.yes",
+   "character": "dad",
+   "tag": "laughing",
+   "line": "Ha ha! I thought you might. Right. It's heavy, so listen. |",
+   "context": "If the player says yes (any answer leads here)",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.dad.boot",
+   "character": "dad",
+   "tag": "pointing",
+   "line": "Pop the boot, go on. Everything's in there. |",
+   "context": "Dad steps back from the boot",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.dad.brief",
+   "character": "dad",
+   "tag": "instructing",
+   "line": "Tower first, then the monitor, then the little box with the keyboard and mouse, and the speakers last. Take your time, mind the stairs. |",
+   "context": "Boot open, Dad points at the house",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.dad.mom",
+   "character": "dad",
+   "tag": "grumpy",
+   "line": "Your mother says mind the wallpaper. And so do I. |",
+   "context": "Mom appears at the door, scowling at the mess",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.tower.pick",
+   "character": "dad",
+   "tag": "encouraging",
+   "line": "That's it, bend your knees. It's heavier than it looks. |",
+   "context": "Player picks up the tower",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.tower.done",
+   "character": "dad",
+   "tag": "pleased",
+   "line": "Perfect. First one up. Off you go, next one. |",
+   "context": "Tower placed on the desk",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.mon.pick",
+   "character": "dad",
+   "tag": "worried",
+   "line": "Gently, gently! That's the heavy one. It weighs about as much as a small elephant. |",
+   "context": "Player picks up the monitor, walk speed drops",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.mon.stairs",
+   "character": "dad",
+   "tag": "nervous",
+   "line": "Mind the banister! And mind the wall! Your mother will have us both! |",
+   "context": "Halfway up the stairs with the monitor",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.mon.drop",
+   "character": "dad",
+   "tag": "alarmed",
+   "line": "Oh, my heart! Don't drop it! Pick it up, slowly. |",
+   "context": "If the player drops the monitor (it bounces, no damage)",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.mon.done",
+   "character": "dad",
+   "tag": "relieved",
+   "line": "Phew. Right. That's the worst of it over. |",
+   "context": "Monitor placed on the desk",
+   "chapter": "1",
+   "batch": "dad-plain-01"
+  },
+  {
+   "id": "c1.keys.pick",
+   "character": "dad",
+   "tag": "casual",
+   "line": "Easy one. Careful with the mouse, it's got a wire on it like a tail. |",
+   "context": "Player picks up the keyboard box",
+   "chapter": "1",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c1.speak.pick",
+   "character": "dad",
+   "tag": "cheerful",
+   "line": "Last trip! Put one each side of the screen, like bookends. |",
+   "context": "Speakers picked up",
+   "chapter": "1",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c1.lead.dad",
+   "character": "dad",
+   "tag": "helpful",
+   "line": "Now the leads. They only go one way in. If it doesn't fit, don't force it. |",
+   "context": "Desk filled, Dad appears behind the player",
+   "chapter": "1",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c1.lead.dad.power",
+   "character": "dad",
+   "tag": "amused",
+   "line": "Power. Do not plug the monitor lead into the power socket. I've seen it done. |",
+   "context": "After the power lead is plugged in",
+   "chapter": "1",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c1.power.dad",
+   "character": "dad",
+   "tag": "excited",
+   "line": "Moment of truth. Hit the button. Fingers crossed. |",
+   "context": "All leads connected, Dad rubs his hands",
+   "chapter": "1",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c1.power.boot",
+   "character": "dad",
+   "tag": "delighted",
+   "line": "It's alive! It's alive! |",
+   "context": "PC beeps and the screen flickers",
+   "chapter": "1",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c1.floppy.dad",
+   "character": "dad",
+   "tag": "calm",
+   "line": "Setup wants the floppies. They're in that box. Number one first. They have to go in order. |",
+   "context": "JackOS Setup asks for the first disk",
+   "chapter": "1",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c1.floppy.stick",
+   "character": "dad",
+   "tag": "amused",
+   "line": "Disk three. It always sticks. Give it a gentle poke. |",
+   "context": "The third disk fails the first time (scripted fun)",
+   "chapter": "1",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c1.install.done",
+   "character": "dad",
+   "tag": "proud",
+   "line": "That's it. You're a computer owner. Look at you. |",
+   "context": "Installation finished",
+   "chapter": "1",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c1.logon.dad",
+   "character": "dad",
+   "tag": "cautious",
+   "line": "One more thing. It's the phone line downstairs. If I need it, you're off. Not a word. Deal? |",
+   "context": "Dad, leaving the room",
+   "chapter": "1",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c2.pocket.dad",
+   "character": "dad",
+   "tag": "warm",
+   "line": "Saving up, eh? Right. Here's how it works. Your mother's jobs on the list pay cash. Do all four and there's a bonus. |",
+   "context": "Dad in the lounge in his chair, objective pocket",
+   "chapter": "2",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c2.pocket.dad2",
+   "character": "dad",
+   "tag": "amused",
+   "line": "And on a Saturday I'll sling you a bit extra if I'm in a good mood. Tell me nicely. |",
+   "context": "Same conversation",
+   "chapter": "2",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c2.pocket.dad3",
+   "character": "dad",
+   "tag": "knowing",
+   "line": "There's the big job as well. Wash the car, clear out the shed. Pays proper money. Rubbish money, obviously, but proper rubbish money. |",
+   "context": "Same conversation",
+   "chapter": "2",
+   "batch": "dad-plain-02"
+  },
+  {
+   "id": "c2.pocket.dad4",
+   "character": "dad",
+   "tag": "conspiratorial",
+   "line": "And keep on the right side of your mother. Her good books are worth more than any pound coin. |",
+   "context": "Closing line",
+   "chapter": "2",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c2.bigjob.give",
+   "character": "dad",
+   "tag": "cheerful",
+   "line": "Big job day. Car's a disgrace, look at it. I'll pay you properly. |",
+   "context": "Dad on the drive with a bucket, Saturday",
+   "chapter": "2",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c2.bigjob.shed",
+   "character": "dad",
+   "tag": "grumpy",
+   "line": "The shed. Everything out, everything swept, everything back in the right order. Don't ask me how the lawnmower got behind the paint. |",
+   "context": "Alternative big job, shed",
+   "chapter": "2",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c2.bigjob.done",
+   "character": "dad",
+   "tag": "impressed",
+   "line": "Now that is a car. I can see my face in it. Which is a bit upsetting, actually. |",
+   "context": "Big job complete",
+   "chapter": "2",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c2.order.dad",
+   "character": "dad",
+   "tag": "amused",
+   "line": "Ordering a console, are we? I hope it comes with an instruction manual. Nobody reads them, but I like to know they exist. |",
+   "context": "Dad when the order is placed",
+   "chapter": "2",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c2.post.dad",
+   "character": "dad",
+   "tag": "calling",
+   "line": "That'll be the postie. Go on, don't leave it on the mat. |",
+   "context": "Dad from the lounge",
+   "chapter": "2",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c2.unbox.dad",
+   "character": "dad",
+   "tag": "impressed",
+   "line": "Look at the size of that. Right. Mind your back on those stairs. |",
+   "context": "Dad leaning in the doorway as the parcel opens",
+   "chapter": "2",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c2.connect.dad",
+   "character": "dad",
+   "tag": "helpful",
+   "line": "Telly's there. Console goes next to it. The cable's the yellow one. Don't worry about the red and white ones just yet. |",
+   "context": "Console reaches the room",
+   "chapter": "2",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c2.connect.done",
+   "character": "dad",
+   "tag": "satisfied",
+   "line": "Brilliant. Does it do anything? Go on, switch it on. |",
+   "context": "Console connected",
+   "chapter": "2",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c2.phone.dad",
+   "character": "dad",
+   "tag": "grumpy",
+   "line": "Oi! I'm expecting a call! Don't tie up the line! |",
+   "context": "Dad when the player picks up the hall phone while he is waiting for a call",
+   "chapter": "2",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c3.ask.dad",
+   "character": "dad",
+   "tag": "grumpy",
+   "line": "Phone bill! That thing costs by the minute. I remember what it was like last time. Four hours on a Sunday. Four. |",
+   "context": "F on Dad",
+   "chapter": "3",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c3.ask.dad2",
+   "character": "dad",
+   "tag": "softening",
+   "line": "Hmm. Fine. But if I'm expecting a call, off you come. Deal? |",
+   "context": "After Mom said yes",
+   "chapter": "3",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c3.ask.dad.deal",
+   "character": "dad",
+   "tag": "satisfied",
+   "line": "Good. And you pay for the cable. No arguments. |",
+   "context": "Player agrees",
+   "chapter": "3",
+   "batch": "dad-plain-03"
+  },
+  {
+   "id": "c3.cable.shed",
+   "character": "dad",
+   "tag": "thoughtful",
+   "line": "There's an old extension cable in here somewhere. Under the paint. Behind the lawnmower. In the box marked \"Misc.\" |",
+   "context": "Dad on the drive, shed job done",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.cable.found",
+   "character": "dad",
+   "tag": "pleased",
+   "line": "That's the one. Ten metres of telephone lead. I bought it for the 1995 Christmas lights. Don't ask. |",
+   "context": "Player finds the cable in the shed",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.run.dad",
+   "character": "dad",
+   "tag": "cheerful",
+   "line": "Right. The socket's by the front door. Plug it in there and run it up the stairs, along the skirting. Neat. Nice and flat. |",
+   "context": "Dad in the hall, objective socket",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.run.clip",
+   "character": "dad",
+   "tag": "encouraging",
+   "line": "Good. That's it. Nice and tight. Don't staple through it, whatever you do. |",
+   "context": "After a few clips",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.run.trip.dad",
+   "character": "dad",
+   "tag": "amused",
+   "line": "Right. That's why we clip it to the wall. |",
+   "context": "Same moment",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.run.done",
+   "character": "dad",
+   "tag": "satisfied",
+   "line": "Right. Plug that into the back of your PC. The port with the little phone on it. |",
+   "context": "Cable at the desk",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.isp.dad",
+   "character": "dad",
+   "tag": "curious",
+   "line": "It says it's free. It's never free. Read the small print. |",
+   "context": "Dad as the ISP installer runs",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.dial.dad",
+   "character": "dad",
+   "tag": "proud",
+   "line": "Ready? Here goes... |",
+   "context": "Dad at the PC as the player presses Connect",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.dial.ok",
+   "character": "dad",
+   "tag": "amazed",
+   "line": "We're online! In the bedroom! Good heavens. |",
+   "context": "Connected",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.hangup.dad2",
+   "character": "dad",
+   "tag": "urgent",
+   "line": "I'm expecting an important call! Off! Off! Off!",
+   "context": "If the player doesn't hang up within 20 seconds",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.hangup.ok",
+   "character": "dad",
+   "tag": "relieved",
+   "line": "Thank you. See? We can all get along. |",
+   "context": "Player hangs up in time",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.hangup.late",
+   "character": "dad",
+   "tag": "grumpy",
+   "line": "You were on there for twenty minutes! Do you know what that costs? Do you? It's like feeding pound coins into a shredder. |",
+   "context": "Player was late (comic penalty: Dad stomps up)",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.bill.dad",
+   "character": "dad",
+   "tag": "despairing",
+   "line": "The phone bill came. I won't say how much. I'll just say it's enough to buy a console. |",
+   "context": "Later the same day, Dad at the bottom of the stairs, optional",
+   "chapter": "3",
+   "batch": "dad-plain-04"
+  },
+  {
+   "id": "c3.end.dad",
+   "character": "dad",
+   "tag": "proud",
+   "line": "Not bad. Proper little engineer. |",
+   "context": "Chapter complete",
+   "chapter": "3",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.start.dad",
+   "character": "dad",
+   "tag": "amused",
+   "line": "Don't expect me to be your bank. Anything else you want, you save up for. |",
+   "context": "Chapter 4 title card ends",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.game2.dad",
+   "character": "dad",
+   "tag": "knowing",
+   "line": "A collector. Your mother had a thing for teaspoons. Look where that got us. |",
+   "context": "Dad at the door",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.mag.dad",
+   "character": "dad",
+   "tag": "amused",
+   "line": "Cheat codes, hints, tips. In my day we just got stuck. |",
+   "context": "Dad peeking at the magazine",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.trade.dad",
+   "character": "dad",
+   "tag": "cheerful",
+   "line": "Look at that. Wheeler-dealer. Careful, or you'll end up on the telly. |",
+   "context": "Swap done",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.tourney.dad",
+   "character": "dad",
+   "tag": "cheeky",
+   "line": "Who's winning? No, don't tell me. I'll be disappointed either way. |",
+   "context": "Dad passes the door during the tourney",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.dd.dad",
+   "character": "dad",
+   "tag": "cagey",
+   "line": "A hundred and ninety-nine pounds? For a games machine? I'd want a holiday thrown in for that. |",
+   "context": "Dad at breakfast",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.dd.dad2",
+   "character": "dad",
+   "tag": "cautious",
+   "line": "It does the internet too? Does it do my tax return? No? Pity. |",
+   "context": "After the player makes the case",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.dd.unbox.dad",
+   "character": "dad",
+   "tag": "awed",
+   "line": "That's one big box. It's like a fridge. |",
+   "context": "Dad at the doorway",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.dd.setup.dad",
+   "character": "dad",
+   "tag": "helpful",
+   "line": "The phone lead goes in the back. That's the modem. Don't ring a premium number. |",
+   "context": "Dad as the Daydream is set up",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.hal.dad",
+   "character": "dad",
+   "tag": "joking",
+   "line": "Right, pumpkin. How hard can it be? Mind your fingers, now. |",
+   "context": "Dad with a pumpkin on the drive",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.hal.dad.carve",
+   "character": "dad",
+   "tag": "amused",
+   "line": "Is it supposed to look like that? Maybe it's meant to be scary. Because it is. |",
+   "context": "Carving",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.hal.treat.dad",
+   "character": "dad",
+   "tag": "hungry",
+   "line": "What? I'm checking quality. |",
+   "context": "Dad sneaks a sweet from the bowl",
+   "chapter": "4",
+   "batch": "dad-plain-05"
+  },
+  {
+   "id": "c4.hal.night",
+   "character": "dad",
+   "tag": "spooky",
+   "line": "Everyone ready? Spooky telly, lights off. Who's brave enough? |",
+   "context": "Evening, Dad switching the lights off",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.bon.dad",
+   "character": "dad",
+   "tag": "excited",
+   "line": "Right. Sparklers. Gloves on, everyone. Hold it by the bottom, point it away, stay back. |",
+   "context": "Dad in the garden with a box of sparklers",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.bon.dad2",
+   "character": "dad",
+   "tag": "peaceful",
+   "line": "Oooh. That's a good one. Better than ours, bless them. |",
+   "context": "Rockets over the road",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.bon.end",
+   "character": "dad",
+   "tag": "warmly",
+   "line": "That's your lot. Good night, everybody. Bed in half an hour. |",
+   "context": "Sparklers burn out",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.xmas.dad",
+   "character": "dad",
+   "tag": "grumbling",
+   "line": "Every year the lights are tangled. Every single year. I put them away neatly. They break into a knot overnight. |",
+   "context": "Dad with a tangle of fairy lights",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.xmas.list.dad",
+   "character": "dad",
+   "tag": "amused",
+   "line": "Ask Father Christmas. He's got a lot of paperwork. |",
+   "context": "Dad sees the list",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.xmas.carol.dad",
+   "character": "dad",
+   "tag": "joking",
+   "line": "They're not bad. A bit flat in the second verse. |",
+   "context": "Dad, same moment",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.xmas.eve.dad",
+   "character": "dad",
+   "tag": "whisper",
+   "line": "Is he asleep yet? Good. Shh. I'm eating the mince pie. |",
+   "context": "Dad on the landing",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.xmas.morn.dad",
+   "character": "dad",
+   "tag": "jolly",
+   "line": "Merry Christmas, everyone! Let's see what he's brought. |",
+   "context": "Dad at the tree",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.mill.dad",
+   "character": "dad",
+   "tag": "prepping",
+   "line": "Right. Torch, candles, tin opener, water in the bath. The millennium bug won't catch us out. |",
+   "context": "Dad with a torch at the cupboard",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.mill.dad2",
+   "character": "dad",
+   "tag": "joking",
+   "line": "Everyone's been very nervous. I've told the PC it's been a very good PC. Just in case. |",
+   "context": "Dad, ironic",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.mill.count",
+   "character": "dad",
+   "tag": "excited",
+   "line": "Ten! Nine! Eight! Seven! Six! Five! Four! Three! Two! One! |",
+   "context": "Countdown, final ten seconds",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "c4.mill.dad.cheer",
+   "character": "dad",
+   "tag": "cheering",
+   "line": "HAPPY NEW YEAR! And the lights are still on! |",
+   "context": "Same moment",
+   "chapter": "4",
+   "batch": "dad-plain-06"
+  },
+  {
+   "id": "bark.dad.tea1",
+   "character": "dad",
+   "tag": "hungry",
+   "line": "Smells good. What's for tea? No, don't tell me. Let me guess. Chips? |",
+   "context": "Lounge to kitchen",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.tea2",
+   "character": "dad",
+   "tag": "cheerful",
+   "line": "The ketchup is in the middle, I see. Good. The system works. |",
+   "context": "At the table",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.tea3",
+   "character": "dad",
+   "tag": "amused",
+   "line": "Pass the salt. No, not that. The other salt. |",
+   "context": "At the table",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.line1",
+   "character": "dad",
+   "tag": "firm",
+   "line": "Oi, don't hog the phone. I might be getting a call. |",
+   "context": "Hall, the player is on the phone",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.line2",
+   "character": "dad",
+   "tag": "grumbling",
+   "line": "Is that the internet again? It sounds like a kettle with a cold. |",
+   "context": "Hall, player online on the PC",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.line3",
+   "character": "dad",
+   "tag": "muttering",
+   "line": "The bill. The bill. I dread the bill. |",
+   "context": "Hall",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.tv1",
+   "character": "dad",
+   "tag": "grumpy",
+   "line": "Hang on, I'm watching that. Dad's choice. It's the football. |",
+   "context": "Lounge",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.tv2",
+   "character": "dad",
+   "tag": "muttering",
+   "line": "It's all adverts these days. Four minutes of programme, ten of adverts. |",
+   "context": "Lounge",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.tv3",
+   "character": "dad",
+   "tag": "pleased",
+   "line": "Page one-oh-one, for the news. Page three-two-six, for the scores. Wonderful stuff. |",
+   "context": "Lounge, Teletext",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.mess1",
+   "character": "dad",
+   "tag": "grumbling",
+   "line": "I've lost my keys. Has anyone seen my keys? They were here a minute ago. |",
+   "context": "Hall",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.mess2",
+   "character": "dad",
+   "tag": "muttering",
+   "line": "Who's been using my chair? It's still warm. |",
+   "context": "Lounge",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.bed1",
+   "character": "dad",
+   "tag": "yawning",
+   "line": "Is it bedtime yet? I'm shattered. Night night. |",
+   "context": "21:30",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.school1",
+   "character": "dad",
+   "tag": "rushed",
+   "line": "Morning, morning! I'm late! Where's my tie? Never mind! |",
+   "context": "Hall",
+   "chapter": "5",
+   "batch": "dad-plain-07"
+  },
+  {
+   "id": "bark.dad.wknd1",
+   "character": "dad",
+   "tag": "cheerful",
+   "line": "Right. The car won't wash itself. Or will it? Let's find out. |",
+   "context": "Saturday",
+   "chapter": "5",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "bark.dad.wknd2",
+   "character": "dad",
+   "tag": "relaxed",
+   "line": "Sunday. A day of rest. Do not disturb the rest. |",
+   "context": "Sunday, in the chair",
+   "chapter": "5",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "bark.dad.wknd3",
+   "character": "dad",
+   "tag": "generous",
+   "line": "It's Saturday. Pocket money day. Don't spend it all at once. |",
+   "context": "Saturday",
+   "chapter": "5",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "bark.dad.cut1",
+   "character": "dad",
+   "tag": "calm",
+   "line": "Fuse has gone. Don't panic. Stay where you are. I'll find the torch. |",
+   "context": "Everything goes dark",
+   "chapter": "5",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "bark.dad.cut2",
+   "character": "dad",
+   "tag": "muttering",
+   "line": "Where's the torch? I put it exactly here. I put it exactly here. |",
+   "context": "Cupboard under the stairs",
+   "chapter": "5",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "bark.dad.react.garden",
+   "character": "dad",
+   "tag": "pleased",
+   "line": "A fine lawn. I should enter it in a competition. |",
+   "context": "Garden",
+   "chapter": "5",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "bark.dad.react.gnome",
+   "character": "dad",
+   "tag": "proud",
+   "line": "I've named the gnome Kevin. He's very quiet. |",
+   "context": "Gnome",
+   "chapter": "5",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "bark.dad.react.joke",
+   "character": "dad",
+   "tag": "deadpan",
+   "line": "Why did the computer go to the doctor? It had a virus. Thank you, I'm here all week. |",
+   "context": "Random",
+   "chapter": "5",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "bark.dad.react.pc",
+   "character": "dad",
+   "tag": "curious",
+   "line": "Are you doing homework on that? I can hear a lot of explosions. |",
+   "context": "Bedroom doorway",
+   "chapter": "5",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "chore.saturday",
+   "character": "dad",
+   "tag": "generous",
+   "line": "Here you go. Saturday money. Don't say I never give you anything. |",
+   "context": "Saturday, Dad hands over weekly money",
+   "chapter": "5",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "chore.weekly.give",
+   "character": "dad",
+   "tag": "cheerful",
+   "line": "Big job this week. Pays properly. Interested? |",
+   "context": "Dad assigns this week's big job",
+   "chapter": "5",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "c4.xmas.gran",
+   "character": "gran",
+   "tag": "delighted",
+   "line": "Hello, my darlings! Merry Christmas! Look at you all. You've grown a foot! |",
+   "context": "Gran arrives (20 to 24/12)",
+   "chapter": "4",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "c4.xmas.gran2",
+   "character": "gran",
+   "tag": "warm",
+   "line": "I've brought mince pies and a bit of everything. And a little something for the stocking. |",
+   "context": "Gran, second line",
+   "chapter": "4",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "c4.xmas.gran3",
+   "character": "gran",
+   "tag": "amused",
+   "line": "What's that? The internet? Does it do crosswords? |",
+   "context": "Gran about the PC",
+   "chapter": "4",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "c4.xmas.gran4",
+   "character": "gran",
+   "tag": "cheerful",
+   "line": "A games machine? In my day we had a ball and a bit of string. And we were grateful. |",
+   "context": "Gran about the console",
+   "chapter": "4",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "c4.mill.gran",
+   "character": "gran",
+   "tag": "warm",
+   "line": "Happy New Year, my darlings! I've seen the fireworks on the television. Aren't they lovely? |",
+   "context": "Gran on the phone, if the line is free",
+   "chapter": "4",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "bark.gran.hello",
+   "character": "gran",
+   "tag": "delighted",
+   "line": "Hello, my darlings! It's only me! Don't get up! |",
+   "context": "Doorbell, Gran at the door",
+   "chapter": "5",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "bark.gran.hug",
+   "character": "gran",
+   "tag": "warm",
+   "line": "Give your Gran a cuddle! Let me look at you. Aren't you tall? |",
+   "context": "Hallway",
+   "chapter": "5",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "bark.gran.coin",
+   "character": "gran",
+   "tag": "secretive",
+   "line": "Here's a little something. Don't tell your mother. Spend it on something sensible. |",
+   "context": "Gran slips the player a coin",
+   "chapter": "5",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "bark.gran.plant",
+   "character": "gran",
+   "tag": "proud",
+   "line": "Ah, my spider plant! You've kept it going. Good. It likes a chat. |",
+   "context": "Gran sees the spider plant",
+   "chapter": "5",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "bark.gran.tea",
+   "character": "gran",
+   "tag": "cheerful",
+   "line": "I'll have a cup of tea. And a biscuit. Or three. |",
+   "context": "Kitchen, Gran",
+   "chapter": "5",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "bark.gran.pc",
+   "character": "gran",
+   "tag": "puzzled",
+   "line": "Is that a typewriter with a television? Whatever next? |",
+   "context": "Bedroom, Gran sees the PC",
+   "chapter": "5",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "bark.gran.bye",
+   "character": "gran",
+   "tag": "warm",
+   "line": "Right, I'll be off. Be good for your mother. Ta ta! |",
+   "context": "Gran leaving",
+   "chapter": "5",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "c1.wake.mom.call",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Up you get! It's a lovely morning and you're wasting it!",
+   "context": "Downstairs, calling up at the very start, muffled through the floor",
+   "fx": "downstairs",
+   "chapter": "1",
+   "batch": "mom-downstairs-01"
+  },
+  {
+   "id": "c1.wake.mom.shout",
+   "character": "mom",
+   "tag": "shouting",
+   "line": "Breakfast's going cold! I'm not calling again!",
+   "context": "Downstairs, if the player is still standing in the doorway after 30 seconds",
+   "fx": "downstairs",
+   "chapter": "1",
+   "batch": "mom-downstairs-01"
+  },
+  {
+   "id": "bark.mom.tea1",
+   "character": "mom",
+   "tag": "shouting",
+   "line": "Tea's ready! Come down before it goes cold!",
+   "context": "Kitchen, 17:30 to 18:30, the player upstairs, muffled",
+   "fx": "downstairs",
+   "chapter": "5",
+   "batch": "mom-downstairs-01"
+  },
+  {
+   "id": "bark.mom.tea2",
+   "character": "mom",
+   "tag": "calling",
+   "line": "Wash your hands and come and sit down!",
+   "context": "Same",
+   "fx": "downstairs",
+   "chapter": "5",
+   "batch": "mom-downstairs-01"
+  },
+  {
+   "id": "bark.mom.line3",
+   "character": "mom",
+   "tag": "calling",
+   "line": "Phone! It's for you! One of your friends! And keep it short!",
+   "context": "Hall, call for the player",
+   "fx": "downstairs",
+   "chapter": "5",
+   "batch": "mom-downstairs-01"
+  },
+  {
+   "id": "bark.mom.mess1",
+   "character": "mom",
+   "tag": "exasperated",
+   "line": "Have you SEEN your room? There's a plate in there older than me!",
+   "context": "Landing, bedroom door open, mess on the floor",
+   "fx": "downstairs",
+   "chapter": "5",
+   "batch": "mom-downstairs-01"
+  },
+  {
+   "id": "bark.mom.bed2",
+   "character": "mom",
+   "tag": "gentle",
+   "line": "Lights out, love. School tomorrow. Sleep tight.",
+   "context": "21:30",
+   "fx": "downstairs",
+   "chapter": "5",
+   "batch": "mom-downstairs-01"
+  },
+  {
+   "id": "bark.mom.school1",
+   "character": "mom",
+   "tag": "shouting",
+   "line": "Get up! You'll be late! The bus doesn't wait for anyone!",
+   "context": "Kitchen, morning, muffled",
+   "fx": "downstairs",
+   "chapter": "5",
+   "batch": "mom-downstairs-01"
+  },
+  {
+   "id": "bark.mom.gran",
+   "character": "mom",
+   "tag": "flustered",
+   "line": "Gran's coming! Tidy the lounge! Quick! She'll look in the cupboards!",
+   "context": "Hall, five minutes before Gran arrives",
+   "fx": "downstairs",
+   "chapter": "5",
+   "batch": "mom-downstairs-01"
+  },
+  {
+   "id": "c1.wake.mom.room",
+   "character": "mom",
+   "tag": "suspicious",
+   "line": "And I know what your room looks like, don't think I don't!",
+   "context": "Downstairs, a few seconds later, still muffled",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.mom.up",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Morning, love. Oh, look at this. A tip. An actual tip. |",
+   "context": "Mom walks into the room, stops at the door",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.mom.give",
+   "character": "mom",
+   "tag": "firmly",
+   "line": "Right. Room first, then you can do what you like. Clothes in the basket, rubbish in the bin, plates down to the kitchen. |",
+   "context": "F on Mom, objective meetmom",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.mom.give2",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Do it properly and there's pocket money in it. Do it badly and there's nothing in it but my disappointment. |",
+   "context": "Same conversation, second page",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.mom.leave",
+   "character": "mom",
+   "tag": "cheerful",
+   "line": "I'll be down the kitchen if you need me. And I will be checking! |",
+   "context": "Mom walks off, heading downstairs",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.tidy.hint",
+   "character": "mom",
+   "tag": "calling",
+   "line": "Are you tidying or are you reading comics? I can hear the pages turning!",
+   "context": "From downstairs, 90 seconds after tidy begins with no progress",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.tidy.done",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Well. You can see the carpet. I'd forgotten it was green. |",
+   "context": "Tidy complete, Mom checks the room",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.bed.give",
+   "character": "mom",
+   "tag": "firmly",
+   "line": "Now the bed. And a duvet in a heap is not a made bed, before you try it. |",
+   "context": "Bed objective starts, Mom pops her head round the door",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.bed.done",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Hospital corners. Nearly. That's an improvement. |",
+   "context": "Bed complete",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.bin.give",
+   "character": "mom",
+   "tag": "firmly",
+   "line": "And that bin bag is going downstairs before it grows legs. |",
+   "context": "Bin objective starts",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.bin.done",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Thank you. See? You're a natural. Don't let it go to your head. |",
+   "context": "Bin complete, bag in the kitchen bin",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.car.engine",
+   "character": "mom",
+   "tag": "surprised",
+   "line": "That'll be your father. Oh, he's early. Go and see what he wants. |",
+   "context": "In the kitchen when the car pulls up outside",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.mom.carry",
+   "character": "mom",
+   "tag": "worried",
+   "line": "Careful, careful. Not on the paintwork! |",
+   "context": "Mom in the hall at the foot of the stairs",
+   "chapter": "1",
+   "batch": "mom-plain-01"
+  },
+  {
+   "id": "c1.mom.carry2",
+   "character": "mom",
+   "tag": "exasperated",
+   "line": "Honestly, you'd think they were moving a piano. |",
+   "context": "A second pass through the hall",
+   "chapter": "1",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c1.logon.mom",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Right. Don't be on it all day. And if you need a break, come and find me. |",
+   "context": "Mom pops in as JackNet logon appears",
+   "chapter": "1",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c2.coin",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "There's your money. Spend it wisely. Or don't. It's yours. |",
+   "context": "First time the player completes a job and pocket money is paid",
+   "chapter": "2",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c2.coin2",
+   "character": "mom",
+   "tag": "firmly",
+   "line": "Don't spend it all in one shop. |",
+   "context": "Second payment",
+   "chapter": "2",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c2.sell.mom",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Selling your old toys? That is a good idea. Make a bit of room in here. |",
+   "context": "Mom sees the player listing old toys",
+   "chapter": "2",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c2.order.mom",
+   "character": "mom",
+   "tag": "wry",
+   "line": "You're spending your own money, so I'll say nothing. Nothing at all. |",
+   "context": "Mom passing the PC",
+   "chapter": "2",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c2.post.mom",
+   "character": "mom",
+   "tag": "amused",
+   "line": "It's for you. It's very big. Mind where you put it. |",
+   "context": "Mom from the kitchen",
+   "chapter": "2",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c2.carry.mom",
+   "character": "mom",
+   "tag": "worried",
+   "line": "Not the wallpaper, I said! Honestly. |",
+   "context": "Mom as the player carries the console up",
+   "chapter": "2",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c2.play.mom",
+   "character": "mom",
+   "tag": "amused",
+   "line": "Is that the sound of a happy household? It's a nice change. |",
+   "context": "Mom in the doorway while first game is played",
+   "chapter": "2",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c2.phone.mom",
+   "character": "mom",
+   "tag": "gently",
+   "line": "Go on, ring one of your mates. But keep it short. |",
+   "context": "Mom, approving",
+   "chapter": "2",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c3.ask.mom",
+   "character": "mom",
+   "tag": "thinking",
+   "line": "Phone cable up the stairs? I don't know. You'd have to earn it. And what happens if somebody needs to ring? |",
+   "context": "F on Mom in the kitchen",
+   "chapter": "3",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c3.ask.mom2",
+   "character": "mom",
+   "tag": "firmly",
+   "line": "Show me a few good days first. A full week would be better. |",
+   "context": "Same conversation, Mom's good books too low",
+   "chapter": "3",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c3.ask.mom.yes",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "I can see you've been trying. All right. But your father has the last word. |",
+   "context": "Good books high enough",
+   "chapter": "3",
+   "batch": "mom-plain-02"
+  },
+  {
+   "id": "c3.mag.mom",
+   "character": "mom",
+   "tag": "wry",
+   "line": "There's your magazine. It's got a free disc taped to it. Don't lose it; it's worth more than the magazine. |",
+   "context": "Mom on the hall table with the post",
+   "chapter": "3",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c3.run.trip",
+   "character": "mom",
+   "tag": "alarmed",
+   "line": "Oh, for goodness' sake! Are you all right? Mind the cable! |",
+   "context": "The sister gets tangled in the cable on the stairs (comic)",
+   "chapter": "3",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c3.run.landing",
+   "character": "mom",
+   "tag": "proud",
+   "line": "Very neat. Almost professional. |",
+   "context": "Cable reaches the landing",
+   "chapter": "3",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c3.isp.mom",
+   "character": "mom",
+   "tag": "wry",
+   "line": "Free internet? Now I've heard everything. |",
+   "context": "Mom in the doorway",
+   "chapter": "3",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c3.dial.mom",
+   "character": "mom",
+   "tag": "amused",
+   "line": "Is that a robot being strangled? Honestly. |",
+   "context": "Mom on the landing",
+   "chapter": "3",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c3.hangup.mom",
+   "character": "mom",
+   "tag": "dryly",
+   "line": "It's like living with a dial-up goblin.",
+   "context": "Mom, same moment",
+   "chapter": "3",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c3.bill.mom",
+   "character": "mom",
+   "tag": "firm",
+   "line": "From now on, off-peak. After six. And on a Saturday. That's the deal. |",
+   "context": "Mom after the bill",
+   "chapter": "3",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c3.end.mom",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Well, you've done it. Now don't make me regret it. |",
+   "context": "Chapter complete, Mom at the doorway",
+   "chapter": "3",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c4.start.mom",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Look at you. A PC, a console and a phone line. What's next, a spaceship? |",
+   "context": "Chapter 4 title card ends, Mom pops her head round",
+   "chapter": "4",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c4.game2.mom",
+   "character": "mom",
+   "tag": "wry",
+   "line": "Another one? Is the first one broken already? |",
+   "context": "A second game is ordered",
+   "chapter": "4",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c4.trade.mom",
+   "character": "mom",
+   "tag": "wary",
+   "line": "A swap? Fair, I hope. Don't let anyone take advantage of you. |",
+   "context": "Mom sees a swap",
+   "chapter": "4",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c4.tourney.mom",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Fine. But shoes off, no running, and I'm doing sandwiches, not a restaurant. |",
+   "context": "Mom agrees to friends round",
+   "chapter": "4",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c4.tourney.end",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Right, that's enough noise for one night. Thank you for being so lovely and polite. |",
+   "context": "Tourney over",
+   "chapter": "4",
+   "batch": "mom-plain-03"
+  },
+  {
+   "id": "c4.dd.mom",
+   "character": "mom",
+   "tag": "wry",
+   "line": "Everyone's talking about this Daydream thing. I told your father it's a phase. Then he asked to try one. |",
+   "context": "Mom in the kitchen reading the paper",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.dd.mom.deal",
+   "character": "mom",
+   "tag": "firmly",
+   "line": "Here's the deal. You save half. I'll put in half. But only if I see you keep up the jobs. No slacking. And no whinging. |",
+   "context": "The deal, Mom at the table",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.dd.mom.deal2",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "I'm proud of how hard you've worked. Go on, then. |",
+   "context": "If good books are high",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.dd.mom.no",
+   "character": "mom",
+   "tag": "gently",
+   "line": "Not yet, love. Show me a few good weeks and we'll talk again. |",
+   "context": "If good books are low",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.dd.shop",
+   "character": "mom",
+   "tag": "cautious",
+   "line": "The queue goes round the corner. No, we're not queuing. Pixel Post, remember? |",
+   "context": "Optional shop window moment",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.dd.unbox.mom",
+   "character": "mom",
+   "tag": "amused",
+   "line": "Please keep the box. I'll need something to put the Christmas decorations in. |",
+   "context": "Mom",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.dd.mom.end",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Dinner in five. And I mean five. Not \"after this level\". |",
+   "context": "Daydream played for ten minutes",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.hal.mom",
+   "character": "mom",
+   "tag": "cheerful",
+   "line": "It's Halloween! Don't worry, I've got a bowl of sweets. Sweets for them, not for you. |",
+   "context": "Mom in the kitchen, morning",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.hal.treat",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Trick or treat, here they come. Be nice. Give them a handful, not the whole bowl. |",
+   "context": "Doorbell, trick-or-treaters",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.hal.treat.mom",
+   "character": "mom",
+   "tag": "scolding",
+   "line": "Put them back! |",
+   "context": "Mom sees Dad",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.bon.mom",
+   "character": "mom",
+   "tag": "firm",
+   "line": "Gloves on! And nobody waves one near anyone else. |",
+   "context": "Mom, quiet warning",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.bon.mom2",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Hot dogs and a cup of tea. That's what Bonfire Night's all about. |",
+   "context": "Hot dogs",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.xmas.mom",
+   "character": "mom",
+   "tag": "cheerful",
+   "line": "It's December! Time for the lights, the tree and your Christmas list. And a little less moaning. |",
+   "context": "01/12 morning, Mom",
+   "chapter": "4",
+   "batch": "mom-plain-04"
+  },
+  {
+   "id": "c4.xmas.list.mom",
+   "character": "mom",
+   "tag": "wry",
+   "line": "A Daydream. A games magazine subscription. A new game. Is that it? That's not a list, it's a ransom note. |",
+   "context": "Mom reading the list",
+   "chapter": "4",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "c4.xmas.carol",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Oh, carol singers! How lovely. Quick, find some change. |",
+   "context": "Carol singers at the door",
+   "chapter": "4",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "c4.xmas.eve",
+   "character": "mom",
+   "tag": "whisper",
+   "line": "Hang your stocking up and off to bed. Father Christmas won't come if you're awake. |",
+   "context": "Christmas Eve, bedtime",
+   "chapter": "4",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "c4.xmas.morn.mom",
+   "character": "mom",
+   "tag": "sleepy",
+   "line": "It's six in the morning. Go back to bed. Oh, who am I kidding? Go on, then. |",
+   "context": "Mom, a minute after",
+   "chapter": "4",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "c4.xmas.thanks",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Right. Who's making tea? Not me. I'm doing the dinner. |",
+   "context": "After opening presents",
+   "chapter": "4",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "c4.mill.mom",
+   "character": "mom",
+   "tag": "wry",
+   "line": "It's a bug in a computer, not the end of the world. But if it's a good excuse for a party, I'll take it. |",
+   "context": "Mom",
+   "chapter": "4",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "c4.mill.mom.yes",
+   "character": "mom",
+   "tag": "smiling",
+   "line": "Just this once. Now where are my slippers? |",
+   "context": "Mom concedes",
+   "chapter": "4",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "c4.mill.mom.cheer",
+   "character": "mom",
+   "tag": "joyful",
+   "line": "Happy New Year, everyone! |",
+   "context": "At the last second of the countdown; the screen fades to white as the cheer plays (nothing after 31/12/1999 is shown)",
+   "chapter": "4",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "bark.mom.tea3",
+   "character": "mom",
+   "tag": "impatient",
+   "line": "I'm not calling again! It's on the table!",
+   "context": "Second call after 60 seconds",
+   "chapter": "5",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "bark.mom.tea4",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "Sit down, love. Eat it while it's hot. |",
+   "context": "Kitchen, player in the room",
+   "chapter": "5",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "bark.mom.tea5",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Ah, that's what I like to see. A clean plate. |",
+   "context": "At the table",
+   "chapter": "5",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "bark.mom.line1",
+   "character": "mom",
+   "tag": "brisk",
+   "line": "Hello? Oh, hello, Gran! Yes. Yes. They're being very good. Aren't you? |",
+   "context": "Hall, answering the phone",
+   "chapter": "5",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "bark.mom.line2",
+   "character": "mom",
+   "tag": "gossiping",
+   "line": "No, never! Well I never. And then what did she say? |",
+   "context": "Hall, a long call",
+   "chapter": "5",
+   "batch": "mom-plain-05"
+  },
+  {
+   "id": "bark.mom.tv1",
+   "character": "mom",
+   "tag": "shouting",
+   "line": "Turn that down! I can hear it from the kitchen!",
+   "context": "Lounge, TV volume high",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.tv2",
+   "character": "mom",
+   "tag": "exasperated",
+   "line": "Is that the telly or a rocket launch? |",
+   "context": "Lounge",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.mess2",
+   "character": "mom",
+   "tag": "grumbling",
+   "line": "Whose shoes are these in the middle of the hall? I nearly broke my neck! |",
+   "context": "Hall, shoes on the floor",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.mess3",
+   "character": "mom",
+   "tag": "firm",
+   "line": "Cups in the kitchen, please. They don't walk there on their own. |",
+   "context": "Lounge, mess on the coffee table",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.mess4",
+   "character": "mom",
+   "tag": "tired",
+   "line": "Why is the sink always full? Where do all the plates come from? |",
+   "context": "Kitchen",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.bed1",
+   "character": "mom",
+   "tag": "calling",
+   "line": "It's gone nine! Bedtime for little ones! And the rest of you, don't stay up too late!",
+   "context": "Landing, 21:00, the player still up",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.bed3",
+   "character": "mom",
+   "tag": "sleepy",
+   "line": "Right, I'm off up. Don't stay on that computer all night. |",
+   "context": "22:00",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.school2",
+   "character": "mom",
+   "tag": "frantic",
+   "line": "Where's your bag? Where's your PE kit? Have you got your dinner money? |",
+   "context": "Hall",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.school3",
+   "character": "mom",
+   "tag": "calling",
+   "line": "Coat! Scarf! Don't forget your lunch! Have a good day! |",
+   "context": "Hall, door",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.wknd1",
+   "character": "mom",
+   "tag": "relaxed",
+   "line": "Pancakes? Who wants pancakes? Don't all shout at once. |",
+   "context": "Kitchen, Saturday morning",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.wknd2",
+   "character": "mom",
+   "tag": "briskly",
+   "line": "Roast on at one. Be in for one, not five past. |",
+   "context": "Sunday",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.cut1",
+   "character": "mom",
+   "tag": "calling",
+   "line": "Is everybody all right? Stay still! I'll find the candles. |",
+   "context": "Kitchen",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.cut2",
+   "character": "mom",
+   "tag": "relieved",
+   "line": "Phew. Lights are back. I'd forgotten what the kitchen looks like. |",
+   "context": "Lights back on",
+   "chapter": "5",
+   "batch": "mom-plain-06"
+  },
+  {
+   "id": "bark.mom.react.praise",
+   "character": "mom",
+   "tag": "warmly",
+   "line": "You've been such a help lately. I've noticed. |",
+   "context": "Random, after a good streak",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "bark.mom.react.nag",
+   "character": "mom",
+   "tag": "wry",
+   "line": "I'll give you pocket money when the washing-up's done, not before. |",
+   "context": "Random, jobs not done by noon",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "bark.mom.react.cat",
+   "character": "mom",
+   "tag": "amused",
+   "line": "Whose cat is that on my table? Shoo! Shoo! |",
+   "context": "Cat event",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "bark.mom.react.hoover",
+   "character": "mom",
+   "tag": "exasperated",
+   "line": "Oh no. The bag's burst! There's dust everywhere! |",
+   "context": "Hoover bag bursts",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "bark.mom.react.phone",
+   "character": "mom",
+   "tag": "amused",
+   "line": "Answer that for me, my hands are wet! |",
+   "context": "Phone rings mid-washing-up",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "chore.rate.95a",
+   "character": "mom",
+   "tag": "amazed",
+   "line": "Ooh! Who are you and what have you done with my real helper? |",
+   "context": "Rating 95 to 100, Mom checks",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "chore.rate.95b",
+   "character": "mom",
+   "tag": "proud",
+   "line": "Gold star. GOLD STAR. |",
+   "context": "Rating 95 to 100",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "chore.rate.95c",
+   "character": "mom",
+   "tag": "delighted",
+   "line": "Well I never. That is PERFECT. |",
+   "context": "Rating 95 to 100",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "chore.rate.85a",
+   "character": "mom",
+   "tag": "warm",
+   "line": "That's lovely, thank you, love. |",
+   "context": "Rating 85 to 94",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "chore.rate.85b",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "See, that wasn't so hard, was it? |",
+   "context": "Rating 85 to 94",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "chore.rate.85c",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Ta, love. You're a star. |",
+   "context": "Rating 85 to 94",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "chore.rate.70a",
+   "character": "mom",
+   "tag": "dry",
+   "line": "That'll do. Just about. |",
+   "context": "Rating 70 to 84",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "chore.rate.70b",
+   "character": "mom",
+   "tag": "wry",
+   "line": "Thank you. Eventually. |",
+   "context": "Rating 70 to 84",
+   "chapter": "5",
+   "batch": "mom-plain-07"
+  },
+  {
+   "id": "chore.rate.70c",
+   "character": "mom",
+   "tag": "teasing",
+   "line": "Was that so hard? Don't answer that. |",
+   "context": "Rating 70 to 84",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.rate.0a",
+   "character": "mom",
+   "tag": "suspicious",
+   "line": "Hmm. I'll be checking that. |",
+   "context": "Rating below 70",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.rate.0b",
+   "character": "mom",
+   "tag": "sceptical",
+   "line": "Did you actually do it, or just move it about? |",
+   "context": "Rating below 70",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.oops",
+   "character": "mom",
+   "tag": "gasping",
+   "line": "Oh, careful! That's the good dish! |",
+   "context": "A dropped plate or spilt water",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.streak",
+   "character": "mom",
+   "tag": "delighted",
+   "line": "A bonus! You've done it every day this week. I'm impressed. |",
+   "context": "Daily streak bonus awarded",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.allfour",
+   "character": "mom",
+   "tag": "proud",
+   "line": "All four done? Well! Here's a little extra for you. |",
+   "context": "All four jobs on today's list done",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.tidy.give",
+   "character": "mom",
+   "tag": "firm",
+   "line": "Your room, please. Clothes in the basket, rubbish in the bin, plates down to the kitchen. |",
+   "context": "Mom on the list, tidy",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.tidy.done",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "The carpet's visible again. Marvellous. |",
+   "context": "Tidy handed in",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.bed.give",
+   "character": "mom",
+   "tag": "firm",
+   "line": "Make that bed. Pillow, pyjamas, duvet. Properly. |",
+   "context": "Bed",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.bed.done",
+   "character": "mom",
+   "tag": "satisfied",
+   "line": "Lovely. Looks like a hotel. A cheap one. |",
+   "context": "Bed handed in",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.bin.give",
+   "character": "mom",
+   "tag": "firm",
+   "line": "The bin in your room. Down to the kitchen before it walks. |",
+   "context": "Bin",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.bin.done",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Thank you. Smell that? That's fresh air. |",
+   "context": "Bin handed in",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.cat.give",
+   "character": "mom",
+   "tag": "amused",
+   "line": "Next door's cat is on your bed again. Feed it, and then please remove it. |",
+   "context": "Cat",
+   "chapter": "5",
+   "batch": "mom-plain-08"
+  },
+  {
+   "id": "chore.cat.done",
+   "character": "mom",
+   "tag": "amused",
+   "line": "There. Fed and happy. Now it's going to want a cuddle. |",
+   "context": "Cat handed in",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.plant.give",
+   "character": "mom",
+   "tag": "warm",
+   "line": "Gran's spider plant needs a drink. Water it, and talk to it. Gran says it helps. |",
+   "context": "Plant",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.plant.done",
+   "character": "mom",
+   "tag": "warm",
+   "line": "It looks greener already. Gran would be proud. |",
+   "context": "Plant handed in",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.washup.give",
+   "character": "mom",
+   "tag": "firm",
+   "line": "The washing-up, please. Hot water, a squirt of liquid, and the pans too. |",
+   "context": "Washing up",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.washup.done",
+   "character": "mom",
+   "tag": "relieved",
+   "line": "Not a plate left. You're a lifesaver. |",
+   "context": "Washing up handed in",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.table.give",
+   "character": "mom",
+   "tag": "brisk",
+   "line": "Lay the table for tea, please. Four places. And the ketchup, for your father. |",
+   "context": "Lay the table",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.table.done",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Perfect. Everything in the right place. For once. |",
+   "context": "Table done",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.shopping.give",
+   "character": "mom",
+   "tag": "brisk",
+   "line": "The shopping needs putting away. Fridge, freezer, cupboard. Not your bedroom. |",
+   "context": "Shopping",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.shopping.done",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Everything where it belongs. And the carrier bags folded. A miracle. |",
+   "context": "Shopping done",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.bins.give",
+   "character": "mom",
+   "tag": "firm",
+   "line": "The kitchen bin needs taking out. Round the back to the wheelie bin. And a new bag in. |",
+   "context": "Bins out",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.bins.done",
+   "character": "mom",
+   "tag": "satisfied",
+   "line": "Thank you. The kitchen smells better already. |",
+   "context": "Bins done",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.hoover.give",
+   "character": "mom",
+   "tag": "brisk",
+   "line": "The hoover's in the cupboard under the stairs. Every crumb, please. |",
+   "context": "Hoover",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.hoover.done",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Spotless. You can see the stripes. |",
+   "context": "Hoover done",
+   "chapter": "5",
+   "batch": "mom-plain-09"
+  },
+  {
+   "id": "chore.videos.give",
+   "character": "mom",
+   "tag": "patient",
+   "line": "The videos are all over the floor. Back on the shelf, and rewind them. Be kind. |",
+   "context": "Videos",
+   "chapter": "5",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "chore.videos.done",
+   "character": "mom",
+   "tag": "warm",
+   "line": "That's better. I can find the film I want now. |",
+   "context": "Videos done",
+   "chapter": "5",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "chore.cushions.give",
+   "character": "mom",
+   "tag": "firm",
+   "line": "The cushions, please. Plump them. On their corners, like diamonds. |",
+   "context": "Cushions",
+   "chapter": "5",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "chore.cushions.done",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Like diamonds. Very good. |",
+   "context": "Cushions done",
+   "chapter": "5",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "chore.car.give",
+   "character": "mom",
+   "tag": "cheerful",
+   "line": "Your father's car is a disgrace. Bucket, sponge, rinse. Watch out for the pigeon. |",
+   "context": "Car",
+   "chapter": "5",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "chore.car.done",
+   "character": "mom",
+   "tag": "impressed",
+   "line": "It's shining. Your father will be thrilled. And suspicious. |",
+   "context": "Car done",
+   "chapter": "5",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "chore.lawn.give",
+   "character": "mom",
+   "tag": "firm",
+   "line": "The front lawn. Straight stripes, please. Mind the cable. Mind the gnome. |",
+   "context": "Lawn",
+   "chapter": "5",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "chore.lawn.done",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Stripes like a cricket pitch. Very smart. |",
+   "context": "Lawn done",
+   "chapter": "5",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "chore.sweep.give",
+   "character": "mom",
+   "tag": "brisk",
+   "line": "The drive's covered in leaves. Brush them up, dustpan, dustbin. |",
+   "context": "Sweep",
+   "chapter": "5",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "chore.sweep.done",
+   "character": "mom",
+   "tag": "pleased",
+   "line": "Lovely and tidy. The neighbours will be jealous. |",
+   "context": "Sweep done",
+   "chapter": "5",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "c1.lad.sis.in",
+   "character": "sister",
+   "tag": "cheeky",
+   "line": "Ooh, what are you playing? Can I have a go? Go on, go on, go on! |",
+   "context": "Bedroom door bursts open while the Game Lad is on",
+   "chapter": "1",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c1.lad.sis.no",
+   "character": "sister",
+   "tag": "whiny",
+   "line": "You never let me do anything! I'm telling! |",
+   "context": "After the player's reply, in the doorway",
+   "chapter": "1",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c1.lad.sis.out",
+   "character": "sister",
+   "tag": "smug",
+   "line": "I'm telling Mom it's all your fault anyway. |",
+   "context": "Walking away down the landing",
+   "chapter": "1",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c1.sis.stairs",
+   "character": "sister",
+   "tag": "whiny",
+   "line": "Is that a computer? Is it mine? I want a go! It's not fair! |",
+   "context": "The sister blocks the landing when the player carries a part",
+   "chapter": "1",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c1.sis.stairs2",
+   "character": "sister",
+   "tag": "grumbling",
+   "line": "Fine. I'll just sit on the stairs and watch. |",
+   "context": "After the player squeezes past",
+   "chapter": "1",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c1.logon.sis",
+   "character": "sister",
+   "tag": "jealous",
+   "line": "Wow. Can I come in? Pleeeease? When can I have a go? |",
+   "context": "The sister peers round the door as the desktop appears",
+   "chapter": "1",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c2.sell.sis",
+   "character": "sister",
+   "tag": "horrified",
+   "line": "That's mine! You said I could have that! |",
+   "context": "The sister sees a particular toy on the list",
+   "chapter": "2",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c2.sell.sold",
+   "character": "sister",
+   "tag": "smug",
+   "line": "Ha ha, someone bought your teddy. |",
+   "context": "Item sells, sister overhears",
+   "chapter": "2",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c2.post.sis",
+   "character": "sister",
+   "tag": "excited",
+   "line": "Mom! Mom! Something's come! It's a big box! |",
+   "context": "Sister runs through the hall after the letterbox rattles",
+   "chapter": "2",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c2.unbox.sis",
+   "character": "sister",
+   "tag": "begging",
+   "line": "Can I carry it? I'll be really careful. Promise. |",
+   "context": "Sister hovering over the box",
+   "chapter": "2",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c2.play.sis",
+   "character": "sister",
+   "tag": "thrilled",
+   "line": "Whoa. Is that the actual game? It looks like a film! |",
+   "context": "Sister behind the player at the first game's title screen",
+   "chapter": "2",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c3.cable.sis",
+   "character": "sister",
+   "tag": "curious",
+   "line": "What's that for? Is it a skipping rope? |",
+   "context": "Sister sees the coil",
+   "chapter": "3",
+   "batch": "sister-plain-01"
+  },
+  {
+   "id": "c3.mag.sis",
+   "character": "sister",
+   "tag": "cheeky",
+   "line": "I've had a look at the pictures, and it's got a free sticker. I'm having the sticker. |",
+   "context": "The sister waving the mag",
+   "chapter": "3",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c3.run.trip.sis",
+   "character": "sister",
+   "tag": "squeaking",
+   "line": "Whoa! Nobody told me about the wire! |",
+   "context": "Same moment",
+   "chapter": "3",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c3.dial.sis",
+   "character": "sister",
+   "tag": "amazed",
+   "line": "Whoa. That's the loudest noise I've ever heard. |",
+   "context": "Sister at the door as the modem screeches",
+   "chapter": "3",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c4.mag.sis",
+   "character": "sister",
+   "tag": "cheeky",
+   "line": "Is that the new one? Let me see! Let me see! |",
+   "context": "The sister sees the magazine cover",
+   "chapter": "4",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c4.tourney.sis",
+   "character": "sister",
+   "tag": "whiny",
+   "line": "I want to play! I'll be quiet! I'll be good! Pleeease! |",
+   "context": "The sister wants in",
+   "chapter": "4",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c4.dd.sis",
+   "character": "sister",
+   "tag": "begging",
+   "line": "Can I have a go when you get it? I'll be really good. I'll do your jobs. |",
+   "context": "The sister overhears the plan",
+   "chapter": "4",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c4.dd.parcel",
+   "character": "sister",
+   "tag": "shrieking",
+   "line": "IT'S HERE! IT'S HERE! IT'S THE BIG ONE! |",
+   "context": "Sister at the door when the parcel arrives",
+   "chapter": "4",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c4.dd.first",
+   "character": "sister",
+   "tag": "amazed",
+   "line": "It's so shiny. It looks like a real film. |",
+   "context": "Sister at the first level",
+   "chapter": "4",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c4.hal.sis",
+   "character": "sister",
+   "tag": "spooky",
+   "line": "Wooooo! I'm a ghost! Do I look scary? Say yes. |",
+   "context": "The sister in costume at the door",
+   "chapter": "4",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c4.hal.night2",
+   "character": "sister",
+   "tag": "frightened",
+   "line": "I'm not scared. I'm just hiding. For fun. |",
+   "context": "The sister hiding behind the settee",
+   "chapter": "4",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c4.bon.sis",
+   "character": "sister",
+   "tag": "thrilled",
+   "line": "Look! I'm writing in the air! Can you read it? |",
+   "context": "The sister writes in the air with her sparkler",
+   "chapter": "4",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c4.xmas.sis",
+   "character": "sister",
+   "tag": "excited",
+   "line": "Can I put the star on? Can I? Can I? It's my turn this year! |",
+   "context": "The sister and the tree",
+   "chapter": "4",
+   "batch": "sister-plain-02"
+  },
+  {
+   "id": "c4.xmas.morn",
+   "character": "sister",
+   "tag": "shrieking",
+   "line": "HE'S BEEN! HE'S BEEN! GET UP! GET UP! |",
+   "context": "25/12 very early, sister at the door",
+   "chapter": "4",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "c4.mill.sis",
+   "character": "sister",
+   "tag": "excited",
+   "line": "Can I stay up until midnight? Pleeease? It's the millennium! |",
+   "context": "The sister",
+   "chapter": "4",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "c4.mill.sis.cheer",
+   "character": "sister",
+   "tag": "squealing",
+   "line": "It's the new millennium! It's the future! |",
+   "context": "Same moment",
+   "chapter": "4",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "bark.sis.tea1",
+   "character": "sister",
+   "tag": "whiny",
+   "line": "I don't like the green bits. Can I have just the orange bits? |",
+   "context": "At the table",
+   "chapter": "5",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "bark.sis.tea2",
+   "character": "sister",
+   "tag": "cheeky",
+   "line": "Can I leave the table? I've finished. I mean I've pushed it round. |",
+   "context": "At the table",
+   "chapter": "5",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "bark.sis.tea3",
+   "character": "sister",
+   "tag": "whiny",
+   "line": "They're looking at me! Mom, they're looking at me! |",
+   "context": "At the table, a sibling quarrel",
+   "chapter": "5",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "bark.sis.line1",
+   "character": "sister",
+   "tag": "bossy",
+   "line": "I'll get it! I'll get it! Hello? Who's calling? |",
+   "context": "Hall, ringing phone",
+   "chapter": "5",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "bark.sis.line2",
+   "character": "sister",
+   "tag": "gossiping",
+   "line": "Mom, it's for you. Somebody called Doreen. She talks a lot. |",
+   "context": "Hall",
+   "chapter": "5",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "bark.sis.tv1",
+   "character": "sister",
+   "tag": "whiny",
+   "line": "I want cartoons! It's my turn! You had it yesterday! |",
+   "context": "Lounge",
+   "chapter": "5",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "bark.sis.tv2",
+   "character": "sister",
+   "tag": "cheeky",
+   "line": "I can't hear it. Turn it up. Turn it UP. |",
+   "context": "Lounge",
+   "chapter": "5",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "bark.sis.mess1",
+   "character": "sister",
+   "tag": "tattling",
+   "line": "Mom! They left their socks in the lounge again! |",
+   "context": "Hall",
+   "chapter": "5",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "bark.sis.mess2",
+   "character": "sister",
+   "tag": "smug",
+   "line": "I tidied my room. Look. I've done everything. Where's my pound? |",
+   "context": "Hall",
+   "chapter": "5",
+   "batch": "sister-plain-03"
+  },
+  {
+   "id": "bark.sis.bed1",
+   "character": "sister",
+   "tag": "whiny",
+   "line": "I'm not tired! I don't wanna go to bed! |",
+   "context": "20:30",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bark.sis.bed2",
+   "character": "sister",
+   "tag": "sleepy",
+   "line": "Can I have a drink of water? And a story? And the landing light? |",
+   "context": "21:00",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bark.sis.school1",
+   "character": "sister",
+   "tag": "whiny",
+   "line": "I can't find my shoe. It was right there. Someone moved it. |",
+   "context": "Hall",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bark.sis.school2",
+   "character": "sister",
+   "tag": "grumbling",
+   "line": "I don't wanna go. I've got a spelling test. |",
+   "context": "Kitchen",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bark.sis.wknd1",
+   "character": "sister",
+   "tag": "cheeky",
+   "line": "Cartoons! Saturday morning telly! The best! |",
+   "context": "Saturday morning",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bark.sis.wknd2",
+   "character": "sister",
+   "tag": "excited",
+   "line": "Can we go to the park? Can we? Pleeease? |",
+   "context": "Sunday",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bark.sis.cut1",
+   "character": "sister",
+   "tag": "scared",
+   "line": "Mom? It's dark! I don't like it! |",
+   "context": "Dark",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bark.sis.cut2",
+   "character": "sister",
+   "tag": "thrilled",
+   "line": "They're back! It's magic! |",
+   "context": "Lights back",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bark.sis.react.lounge",
+   "character": "sister",
+   "tag": "cheeky",
+   "line": "Nobody ever plays with me! |",
+   "context": "Hall",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bark.sis.react.peek",
+   "character": "sister",
+   "tag": "whispering",
+   "line": "I'm not spying. I'm just standing here. Normally. |",
+   "context": "Doorway",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bark.sis.react.drawing",
+   "character": "sister",
+   "tag": "proud",
+   "line": "Look at my picture! It's a dog. Or a horse. You choose. |",
+   "context": "Showing a drawing",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bark.sis.react.console",
+   "character": "sister",
+   "tag": "begging",
+   "line": "Can I be player two? I'll let you win. Maybe. |",
+   "context": "Beside the console",
+   "chapter": "5",
+   "batch": "sister-plain-04"
+  }
+ ]
+}
