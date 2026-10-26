@@ -17,7 +17,7 @@
     const T = window.THREE; if (!T) throw new Error('three.js is missing');
     const look = o.look === 'ps' ? 'ps1' : (o.look || 'n64');
     let ren;
-    try { ren = new T.WebGLRenderer({ canvas: K.cv, antialias: look === 'dc', alpha: false, powerPreference: 'low-power' }); }
+    try { ren = new T.WebGLRenderer({ canvas: K.cv, antialias: o.antialias == null ? look === 'dc' : !!o.antialias, alpha: false, powerPreference: 'low-power' }); }
     catch (e) { throw new Error('no WebGL'); }
     ren.setPixelRatio(1); ren.setSize(K.W, K.H, false);
     ren.outputEncoding = T.LinearEncoding;

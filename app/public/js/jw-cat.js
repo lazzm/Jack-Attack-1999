@@ -433,7 +433,7 @@
     ['Which of these is NOT a Pocket Critters you can start with in Pocket Critters Red?', ['Bulbabeast', 'Charbroiler', 'Squirturtle', 'Zapachu'], 3, 1005],
     ['What is the name of the ship\'s computer in Red Dork?', ['Holly', 'Kryten', 'Talkie Toaster', 'Rimmer'], 0],
     ['What is the Doctor\'s time machine called in Doctor Whoops?', ['The DeLorean', 'The TARDIS', 'The Falcon', 'The Enterprise'], 1],
-    ['What colour is Zip the Hedgehog?', ['Red', 'Green', 'Blue', 'Yellow'], 2],
+    ['What colour is Zip the Badger?', ['Red', 'Green', 'Purple', 'Yellow'], 2],
     ['Which company makes the Game Lad?', ['Segue', 'Somy', 'Ultra Entertainment', 'Atari'], 2],
     ['What is the name of Luke Skywobbler\'s home planet?', ['Hoth', 'Tattyween', 'Endor', 'Naboo'], 1],
     ['Which red planet is named after the Roman god of war?', ['Mars', 'Venus', 'Mercury', 'Jupiter'], 0],

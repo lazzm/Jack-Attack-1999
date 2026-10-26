@@ -155,7 +155,7 @@ const Q = [
   ['POCKET CRITTERS: In the games, what do you call the trainers you beat to win badges?', ['gym leader', 'gym leaders'], 'Gym Leaders'],
   ['GAMES: What is the name of Marlo\'s brother?', ['luigi'], 'Louie G'],
   ['GAMES: What is the name of the hero in The Legend of Zeldoo: Kazoo of Time?', ['link'], 'Link'],
-  ['GAMES: Which blue hedgehog is Segue\'s mascot?', ['sonic'], 'Zip'],
+  ['GAMES: Which purple badger is Segue\'s mascot?', ['zip', 'zip the badger', 'sonic'], 'Zip'],
   ['GAMES: In Metal Gear Wobbly, what is the hero\'s codename?', ['snake', 'solid snake'], 'Solid Snake'],
   ['GAMES: Which company makes the PlaySpace?', ['sony'], 'Somy'],
   ['GAMES: Clara Loft is the star of which series of games?', ['crypt raider'], 'Crypt Raider'],

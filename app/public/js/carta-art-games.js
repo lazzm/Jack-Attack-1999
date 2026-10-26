@@ -427,7 +427,7 @@
       // floater with an umbrella
       p.oell(68, 20, 6, 3, '#e10600'); p.rect(62, 20, 13, 1, '#000'); p.rect(68, 20, 1, 5, '#ddd'); lem(67, 25, 0);
     } },
-    sonic: { cap: 'A blue spinning blur, gold rings and a loop-the-loop on chequered green hills.', draw(p, S) {
+    sonic: { cap: 'Zip the purple badger, gold rings and a loop-the-loop on chequered green hills.', draw(p, S) {
       p.vgrad(0, 40, '#2a6ad8', '#a0d8ff'); p.rect(0, 30, 96, 6, '#1a6ad8'); for (let x = 0; x < 96; x += 6) p.rect(x, 32, 3, 1, '#fff');
       // chequered ground
       for (let y = 50; y < 72; y += 6) for (let x = 0; x < 96; x += 6) p.rect(x, y, 6, 6, ((x + y) / 6) % 2 ? '#c87a2a' : '#8a4a1a');
@@ -436,8 +436,8 @@
       p.ring(66, 32, 15, '#3ac83a', 3); p.ring(66, 32, 12, '#8a4a1a', 2); p.rect(52, 44, 28, 4, '#3ac83a');
       // rings
       [[16, 30], [24, 26], [32, 24], [66, 22], [66, 42]].forEach(([x, y]) => { p.ring(x, y, 3, '#ffd400', 1); p.px(x - 2, y - 1, '#fff8a0'); });
-      // spinning blue ball with speed lines
-      p.odisc(34, 42, 6, '#1a4ae0'); p.ell(32, 40, 3, 2, '#5a8aff'); p.line(30, 46, 38, 38, '#0a2a9a'); p.line(34, 47, 39, 41, '#0a2a9a');
+      // Purple badger roll: ivory stripe and eye mask, with speed lines
+      p.odisc(34, 42, 6, '#8840c4'); p.ell(32, 39, 3, 2, '#c080e8'); p.thick(31, 37, 37, 45, '#f0e8dc', 3); p.ell(36, 41, 4, 2, '#201428'); p.ell(37, 44, 3, 2, '#f0e8dc'); p.px(39, 43, '#181020');
       for (let i = 0; i < 4; i++) p.rect(8 + i * 2, 38 + i * 2, 16 - i * 3, 1, '#ffffff');
     } },
     street_fighter_2: { cap: 'Two martial artists face off, one throwing a glowing energy ball. Round one: fight!', draw(p, S) {
