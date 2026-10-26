@@ -18,6 +18,8 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
   await page.locator('[name=name]').fill(account);await page.locator('[name=password]').fill(password);
   if(signup)await page.locator('[name=confirm]').fill(password);
   await page.locator('#accountGate [type=submit]').click();
+  await until(()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst'));
+  if(await page.locator('#accountFirst').count())await page.locator('#accountGate [type=submit]').click();
   await until(()=>window.AccountGate?.allowed&&window.House?.live&&window.PMGL?.built&&!document.querySelector('.hs-loading,#houseEntry'));
   if(debug)console.log('Fixture room built',await page.evaluate(()=>House.mode));
   await until(()=>House.mode==='monitor'&&!sessionStorage.getItem('jhp_login_seat'));

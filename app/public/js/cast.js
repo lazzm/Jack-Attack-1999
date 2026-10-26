@@ -1,7 +1,7 @@
-/* cast: the people (and pets) in Jack's 1999. Jack, his mates Dave, Luke, Callum and JackK, Mom, Dad, the grandparents and
- * Gubbinz are the same for everyone. Everybody else gets a name (and a gender, so the he/she/his/her come out right) picked
- * for THIS visitor, so every visitor's 1999 is a little different. The pick is seeded once per computer (jhp_cast_seed, which
- * roams with a JackNet member's profile, so a member keeps their cast on any PC) and never changes after that.
+/* cast: Jack's online cast (jack/dave/luke/callum/jackk/jsister) stays fixed. The house belongs to the logged-in
+ * player: Cast.me() supplies their identity and pronouns; sister/mate1..mate4 are seeded by account. Only owner 'jack'
+ * gets Crystal, Dave, Luke, Callum and JackK at home. Mom, Dad and grandparents retain their titles. Other people and
+ * pets retain the existing jhp_cast_seed, which roams with the member's profile.
  *
  *   Cast.n('sister')            -> 'Megan'                   the name to show (titles included: 'Mr Hughes', 'Auntie Sue')
  *   Cast.first('teacher')       -> 'Hughes' for a teacher, the first name for anyone else
@@ -27,6 +27,9 @@
 (function () {
   'use strict';
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+  let account = '', identity = null;
+  const HOUSE = { sister: 'jsister', mate1: 'dave', mate2: 'luke', mate3: 'callum', mate4: 'jackk' };
+  const houseTaken = new Set(), houseLast = new Set();
   let seed = +store.get('jhp_cast_seed');
   if (!seed) { seed = (Math.floor(Math.random() * 2147483646) + 1); store.set('jhp_cast_seed', String(seed)); }
 
@@ -46,7 +49,7 @@
     smallF: ['Nibbles', 'Toffee', 'Peanut', 'Fudge', 'Squeak', 'Cookie', 'Hazel', 'Button'],
     smallM: ['Nibbles', 'Hammy', 'Peanut', 'Fudge', 'Squeak', 'Bilbo', 'Zip', 'Pip'],
   };
-  const FIXED = { // the same for everyone (the user named these)
+  const FIXED = { // Jack's online cast and the family titles are the same for everyone
     jack: { name: 'Jack', g: 'm', role: 'Jack himself' },
     dave: { name: 'Dave', g: 'm', role: "Jack's best mate (Ultra Entertainment)" },
     luke: { name: 'Luke', g: 'm', role: "Jack's mate (Ultra Entertainment)" },
@@ -55,12 +58,12 @@
     mom: { name: 'Mom', g: 'f', role: "Jack's mom" }, dad: { name: 'Dad', g: 'm', role: "Jack's dad" },
     gran: { name: 'Gran', g: 'f', role: "Dad's mum" }, grandad: { name: 'Grandad', g: 'm', role: "Dad's dad" },
     nan: { name: 'Nan', g: 'f', role: "Mom's mum" },
-    sister: { name: 'Crystal', g: 'f', role: "Jack's little sister (about 9)" }, // fixed by Jack, 2026-10-21
+    jsister: { name: 'Crystal', g: 'f', role: "Jack's little sister (about 9)" }, // fixed by Jack, 2026-10-21
     gubbinz: { name: 'Gubbinz', g: 'm', role: 'the little green helper' },
   };
   // everyone else: role -> how to pick. g: fixed gender, or random. pool: [female pool, male pool]. title: 'teacher' | 'aunt' ...
   const DEF = {
-    sister: { role: "Jack's little sister (about 9)", g: 'f', pool: ['childF', 'childM'] },
+    sister: { role: "your little sister (about 9)", g: 'f', pool: ['childF', 'childM'] },
     cousin: { role: "Jack's cousin (Pocket Critters expert, does the cube in 40 s, has a pop homepage)", pool: ['teenF', 'teenM'] },
     cousin2: { role: "Jack's big cousin on Dad's side (Gran's other grandchild; HotJack e-mail, sends chain letters and viruses, has a scanner and a CD writer)", g: 'm', pool: ['teenM'] },
     auntie: { role: "Mom's sister", g: 'f', pool: ['adultF'], title: 'Auntie' },
@@ -87,7 +90,7 @@
   // the names everyone had before the cast went random: old ~links, Favourites and typed addresses still find these people,
   // and nobody else is ever given one of them (so ~sam can only ever mean the Episode I kid). Biscuit (Dave's dog), Mr Tiddles
   // (Dave's cat) and Kevin (the pet rock page) are fixed web folk, so they are kept out of the pools too.
-  const OLD = { lucy: 'sister', kim: 'cousin', kimberley: 'cousin', toffee: 'cousinpet', biscuit: 'cat', nibbles: 'hamster', sam: 'kidEp1', gaz: 'kidY2k', stu: 'kidBand',
+  const OLD = { lucy: 'jsister', kim: 'cousin', kimberley: 'cousin', toffee: 'cousinpet', biscuit: 'cat', nibbles: 'hamster', sam: 'kidEp1', gaz: 'kidY2k', stu: 'kidBand',
     ellie: 'kidPoke', tom: 'kidSoon', kev: 'kidCalc', matt: 'kidMatt', sophie: 'kidVal', zed: 'club1', ash: 'club2', lee: 'club3', priya: 'club4',
     ali: 'teacher', davies: 'teacher2', ryan: 'cousin2', sue: 'auntie', pete: 'uncle', ron: 'greatuncle', mo: 'shop' };
   const OLDLAST = { ali: 'teacher', davies: 'teacher2' };
@@ -98,9 +101,10 @@
   const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
   const rng = id => { let a = (seed ^ hash(id)) >>> 0 || 1; return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
 
-  const PEOPLE = {}, takenLast = new Set(), taken = new Set(['jack', 'dave', 'david', 'luke', 'callum', 'mom', 'dad', 'gran', 'nan', 'grandad', 'gubbinz']);
+  const PEOPLE = {}, usedLast = new Set(), usedNames = new Set(['jack', 'dave', 'david', 'luke', 'callum', 'mom', 'dad', 'gran', 'nan', 'grandad', 'gubbinz']);
   function pick(id, d) {
-    const r = rng(id), g = d.g || (r() < 0.5 ? 'f' : 'm');
+    const r = HOUSE[id] ? houseRng(id) : rng(id), g = d.g || (r() < 0.5 ? 'f' : 'm');
+    const taken = HOUSE[id] ? houseTaken : usedNames, takenLast = HOUSE[id] ? houseLast : usedLast;
     const pool = P[d.pool[g === 'f' || d.pool.length === 1 ? 0 : 1]] || P.teenM;
     let first = pool[Math.floor(r() * pool.length)];
     for (let i = 0; i < pool.length && (taken.has(first.toLowerCase()) || !free(id, first, OLD)); i++) first = pool[(pool.indexOf(first) + 1) % pool.length];
@@ -117,22 +121,47 @@
   }
   function add(id, d) {
     if (PEOPLE[id]) return PEOPLE[id];
+    if (HOUSE[id] && account === 'jack') { const f = FIXED[HOUSE[id]]; return PEOPLE[id] = { ...f, id, first: f.first || f.name, last: '', title: '', fixed: true }; }
+
     if (FIXED[id]) { const f = FIXED[id]; PEOPLE[id] = { id, name: f.name, first: f.first || f.name, last: '', title: '', g: f.g, role: f.role, fixed: true }; return PEOPLE[id]; }
-    if (d && d.fixed) { PEOPLE[id] = { id, name: d.name, first: d.first || d.name, last: d.last || '', title: d.title || '', g: d.g || 'm', role: d.role || '', fixed: true }; taken.add(String(d.name).toLowerCase()); return PEOPLE[id]; }
+    if (d && d.fixed) { PEOPLE[id] = { id, name: d.name, first: d.first || d.name, last: d.last || '', title: d.title || '', g: d.g || 'm', role: d.role || '', fixed: true }; usedNames.add(String(d.name).toLowerCase()); return PEOPLE[id]; }
     const def = d || DEF[id]; if (!def) return null;
     if (!def.pool) def.pool = ['teenF', 'teenM'];
     PEOPLE[id] = pick(id, def); return PEOPLE[id];
   }
+  // House streams depend on the account, not on whichever browser first logged on.
+  // Other cast members keep the existing roaming seed and picks.
+  function houseRng(id) {
+    let a = hash('house:' + account + ':' + id) || 1;
+    return () => { a = Math.imul(1664525, a) + 1013904223 | 0; return (a >>> 0) / 4294967296; };
+  }
+  for (let i = 1; i <= 4; i++) DEF['mate' + i] = { role: ['best mate (Ultra console fan)', 'mate (console fan)', 'mate (PC gamer)', 'mate'][i - 1], pool: ['teenF', 'teenM'] };
   Object.keys(FIXED).forEach(id => add(id));
-  Object.keys(DEF).forEach(id => add(id));
+  Object.keys(DEF).filter(id => !HOUSE[id]).forEach(id => add(id));
+  Object.keys(HOUSE).forEach(id => add(id));
 
-  const get = id => PEOPLE[id] || add(id) || null;
+  const get = id => id === 'me' ? C.me() : PEOPLE[id] || add(id) || null;
   const PR = {
     f: { he: 'she', him: 'her', his: 'her', hers: 'hers', himself: 'herself', sib: 'sister', kid: 'daughter', kidw: 'girl', Mr: 'Ms', man: 'woman', sir: 'miss', lad: 'girl', nephew: 'niece', grandkid: 'granddaughter', king: 'queen' },
     m: { he: 'he', him: 'him', his: 'his', hers: 'his', himself: 'himself', sib: 'brother', kid: 'son', kidw: 'boy', Mr: 'Mr', man: 'man', sir: 'sir', lad: 'lad', nephew: 'nephew', grandkid: 'grandson', king: 'king' } };
   const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
-  const word = (id, w) => { const p = get(id); if (!p) return null; const lw = w.toLowerCase(); if (lw === 'mr') return p.title && /^(Mr|Mrs|Miss|Ms)$/.test(p.title) ? p.title : PR[p.g].Mr; const v = PR[p.g][lw]; if (v == null) return null; return w[0] === w[0].toUpperCase() ? cap(v) : v; };
+  const word = (id, w) => { const p = get(id); if (!p) return null; const lw = w.toLowerCase(); if (lw === 'mr') return p.title && /^(Mr|Mrs|Miss|Ms)$/.test(p.title) ? p.title : PR[p.g].Mr; const alias = { son: 'kid', daughter: 'kid', boy: 'kidw', girl: 'kidw', lass: 'lad' }; const v = PR[p.g][alias[lw] || lw]; if (v == null) return null; return w[0] === w[0].toUpperCase() ? cap(v) : v; };
   const C = {
+    me() {
+      const p = account === 'jack' ? { first: 'Jack', g: 'm', v: 1 } : identity || { first: 'you', g: 'm' };
+      const pr = PR[p.g];
+      return { ...p, ...pr, name: p.first, son: pr.kid, daughter: pr.kid, boy: pr.kidw, girl: pr.kidw, lass: pr.lad };
+    },
+    bind(name, me) {
+      const key = String(name || '').toLowerCase();
+      identity = me && me.first && ['m', 'f'].includes(me.g) ? { first: me.first, g: me.g, v: 1 } : null;
+      if (account === key) return;
+      account = key;
+      houseTaken.clear(); houseLast.clear();
+      ['Jack', 'Crystal', 'Dave', 'Luke', 'Callum', 'JackK'].forEach(n => houseTaken.add(n.toLowerCase()));
+      for (const id of Object.keys(HOUSE)) { delete PEOPLE[id]; add(id); }
+    },
+    randomFirst: g => { const pool = P[g === 'f' ? 'teenF' : 'teenM']; return pool[Math.floor(Math.random() * pool.length)]; },
     get, add, ids: () => Object.keys(PEOPLE),
     n: id => (get(id) || { name: id }).name,
     first: id => { const p = get(id); return p ? (p.title && /^(Mr|Mrs|Miss|Ms)$/.test(p.title) ? p.last : p.first) : id; },
@@ -164,5 +193,6 @@
     seed: () => seed,
   };
   for (const w of ['he', 'him', 'his', 'hers', 'himself', 'sib', 'kid', 'kidw', 'man', 'sir', 'lad', 'nephew', 'grandkid', 'king']) { C[w] = id => word(id, w); C[cap(w)] = id => word(id, cap(w)); }
-  window.Cast = C;
+  if (typeof window !== 'undefined') window.Cast = C;
+  if (typeof module !== 'undefined' && module.exports) module.exports = C;
 })();

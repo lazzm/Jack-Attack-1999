@@ -71,7 +71,7 @@
     ['03-14', 'MOM', "Mother's Day! Made Mom breakfast in bed: toast (a bit black), tea (a bit cold) and a card with R2-D2 on it holding flowers. She said it was the best breakfast she'd ever had. She was being nice."],
     ['03-15', 'TOYS', "A kid in Year 8 has some <b>Pocket Critters cards</b> his uncle sent from America. He charges 10p just to LOOK at his Charizard. He's going to be a millionaire."],
     ['03-19', 'TV', "<b>The Best of Robo Rumble</b> was on tonight. All the best fights and the biggest flips. Last one till the next series. That could be MONTHS."],
-    ['03-21', 'MUSIC', "<b>B*Witched</b> are number one with <i>Blame It on the Weatherman</i>. Four Irish girls in double denim. " + Cast.n('sister') + " has learnt the whole dance. In Mom's jeans."],
+    ['03-21', 'MUSIC', "<b>B*Witched</b> are number one with <i>Blame It on the Weatherman</i>. Four Irish girls in double denim. " + Cast.n('jsister') + " has learnt the whole dance. In Mom's jeans."],
     ['03-24', 'GAMES', "<b>FINISHED KAZOO OF TIME!!!</b> Beat Ganon! Three months of my life! The ending made me feel weird and sad and happy. Now going back for all <b>100 Gold Skulltulas</b>. See you in the year 2000."],
     ['03-28', 'MUSIC', "<b>Mr. Oizo</b> is number one with <i>Flat Beat</i>, the song from the jeans advert with the yellow puppet called Flat Eric. It has NO WORDS. Number one with no words! Respect."],
     ['03-28', 'MOM', "The clocks went forward last night. The video is flashing 12:00 again. I'm the only person in this house who can fix it. Charging Dad 20p."],
