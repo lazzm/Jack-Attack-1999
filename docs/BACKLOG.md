@@ -6,6 +6,12 @@
 
 # Backlog
 
+## Story opening polish (review 2026-10-26)
+| id | severity | where | problem | fix |
+|---|---|---|---|---|
+| S01 | med | drive, Dad's car boot (tests/shots/story-opening/08-boot-open.png) | Lamppost splits the view at the boot; monitor model in the boot looks rough with a brown blob on it; tower lying awkwardly | Move/thin the lamppost or the parking spot; rebuild boot contents (packed in a cardboard box with crumpled paper, CRT face-down on a blanket) |
+| S02 | low | guidance (00-guidance-far.png) | Far marker label small; highlight glow on small objects too subtle | Larger marker with distance fade, stronger rim glow for small targets |
+
 ## Visual backlog (art review 2026-10-26)
 
 Source shots: `tests/shots/smoke/*.png` (fresh 12:57 except front-garden.png, stale 12:13 because canonical-views timed out on the 6th screenshot, `page.screenshot` 8000ms under SwiftShader; worth raising that timeout), plus `tests/shots/sparse-polish/after-*.png` and `tests/shots/story/02-diary-prop.png`. Software rendering softness discounted. Root-cause tags in brackets: [A] low-res/nearest-filtered textures on close-up; [B] box-primitive furniture with no bevel/AO; [C] no baked/contact shadows; [D] texture UV/scale mismatch; [E] HUD overlap.
