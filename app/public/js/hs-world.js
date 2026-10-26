@@ -101,7 +101,9 @@
   ren.localClippingEnabled = true;
   const scene = new T.Scene();
   const root = new T.Group(); root.scale.set(1, -1, 1); scene.add(root); // y is down in here (see hs-kit.js)
-  const camera = new T.PerspectiveCamera(45, 1, 6, 4000); camera.matrixAutoUpdate = false; camera.layers.set(0);
+  // Two centimetres preserves depth precision while keeping the entire near
+  // rectangle comfortably inside the player's 22 cm collision clearance.
+  const camera = new T.PerspectiveCamera(45, 1, 2, 4000); camera.matrixAutoUpdate = false; camera.layers.set(0);
   // the lights: a fixed rig (a constant number of lights means no shader rebuilds), moved to suit the rooms on show
   const hemi = new T.HemisphereLight(0x8a90a8, 0x30261c, 0.55); scene.add(hemi); hemi.layers.enableAll();
   const sun = new T.DirectionalLight(0xffffff, 0); root.add(sun); root.add(sun.target); sun.layers.enableAll();
@@ -212,7 +214,15 @@
     const d = DOORS[id] = Object.assign({ id, open: false, rooms: [], ang: 0, swing: 95, ms: 650 }, def);
     if (d.rooms) d.rooms.forEach(rid => ROOMS[rid] && ROOMS[rid].links.push(id));
     d.ang = d.open ? 1 : 0;
-    if (d.pivot) { root.add(d.pivot); d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1); } // (the leaf is drawn whenever either room is: see visCalc)
+    if (d.pivot) {
+      root.add(d.pivot);
+      d.pivot.rotation.y = 0; d.pivot.updateWorldMatrix(true,true);
+      const b = new T.Box3().setFromObject(d.pivot);
+      if (!b.isEmpty()) d.closedBounds = {x0:b.min.x,z0:b.min.z,x1:b.max.x,z1:b.max.z};
+      const leaf=d.pivot.children.find(o=>o.isMesh&&o.geometry?.type==='BoxGeometry');
+      if(leaf){leaf.geometry.computeBoundingBox();d.headroom=leaf.geometry.boundingBox.max.y-leaf.geometry.boundingBox.min.y;d.floorY=-b.min.y;}
+      d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1);
+    } // (the leaf is drawn whenever either room is: see visCalc)
     if (d.frame) root.add(d.frame); // shared static jambs never rotate with the leaf
     return d;
   }
@@ -349,6 +359,11 @@
       const mark = (x0, z0, x1, z1, v) => { const i0 = clamp(Math.floor((x0 - GR.x0) / GR.cs), 0, GR.nx - 1), i1 = clamp(Math.ceil((x1 - GR.x0) / GR.cs) - 1, 0, GR.nx - 1), j0 = clamp(Math.floor((z0 - GR.z0) / GR.cs), 0, GR.nz - 1), j1 = clamp(Math.ceil((z1 - GR.z0) / GR.cs) - 1, 0, GR.nz - 1); for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) g[j * GR.nx + i] = v; };
       for (const w of grids.walk) if (w.lvl === lvl && (!w.door || DOORS[w.door].open)) mark(w.x0, w.z0, w.x1, w.z1, 1);
       for (const b of grids.block) if (b.lvl === lvl && !b.off) mark(b.x0, b.z0, b.x1, b.z1, 0);
+      // Walkable regions on opposite sides of a thin wall can occupy the same
+      // 5 cm cell. A closed leaf must block that union explicitly.
+      for (const d of Object.values(DOORS)) if (!d.open && !d.always && d.closedBounds && d.rooms.some(id=>ROOMS[id]?.lvl===lvl)) {
+        const b=d.closedBounds;mark(b.x0,b.z0,b.x1,b.z1,0);
+      }
       // keep RAD away from anything solid
       const out = new Uint8Array(g.length), n = Math.ceil(RAD / GR.cs), off = [];
       for (let dj = -n; dj <= n; dj++) for (let di = -n; di <= n; di++) if (di * di + dj * dj <= n * n) off.push([di, dj]);
@@ -362,14 +377,40 @@
   }
   const cellOk = (lvl, x, z) => { if (grids.dirty) rebuildGrids(); const i = Math.floor((x - GR.x0) / GR.cs), j = Math.floor((z - GR.z0) / GR.cs); return i >= 0 && j >= 0 && i < GR.nx && j < GR.nz && !!grids[lvl][j * GR.nx + i]; };
   const onStairs = (x, z) => grids.stairs.find(s => x >= s.x0 && x <= s.x1 && z >= s.z0 && z <= s.z1);
+  const doorPoint = new T.Vector3();
+  function doorObstructs(x,z,eye,lvl) {
+    for (const d of Object.values(DOORS)) {
+      const leaf=d.pivot?.children.find(o=>o.isMesh&&o.geometry?.type==='BoxGeometry');
+      if(!leaf||d.always||!d.rooms.some(id=>ROOMS[id]?.lvl===lvl))continue;
+      // Query the actual leaf in its own frame, including during a swing.
+      // Expanding its thin rectangle keeps the camera/body clear on both sides.
+      if(!d.solidQuery||d.solidQuery.angle!==d.ang){
+        leaf.updateWorldMatrix(true,false);leaf.geometry.computeBoundingBox();
+        d.solidQuery={angle:d.ang,inverse:new T.Matrix4().copy(leaf.matrixWorld).invert(),box:leaf.geometry.boundingBox.clone()};
+      }
+      const q=d.solidQuery,b=q.box;doorPoint.set(x,-eye,z).applyMatrix4(q.inverse);
+      if(doorPoint.y>b.min.y&&doorPoint.y<b.max.y&&doorPoint.x>b.min.x-RAD&&doorPoint.x<b.max.x+RAD&&doorPoint.z>b.min.z-RAD&&doorPoint.z<b.max.z+RAD)return true;
+    }
+    return false;
+  }
+  function lowDoorAt(x,z,lvl,padding,fy) {
+    for(const d of Object.values(DOORS)){
+      const b=d.closedBounds;
+      if(!d.open||!b||!(d.headroom<STAND)||Math.abs(fy-d.floorY)>20||!d.rooms.some(id=>ROOMS[id]?.lvl===lvl))continue;
+      const alongX=b.x1-b.x0>b.z1-b.z0;
+      if(alongX?x>=b.x0&&x<=b.x1&&z>b.z0-padding&&z<b.z1+padding:z>=b.z0&&z<=b.z1&&x>b.x0-padding&&x<b.x1+padding)return d;
+    }
+    return null;
+  }
+  function headFitsDoor(x,z,lvl,fy,height){const d=lowDoorAt(x,z,lvl,RAD,fy);return !d||height<=d.headroom-4.5;}
   // the floor under (x, z) for someone standing at height y0 now (null: can't stand there)
-  function floorAt(x, z, lvl, y0) {
+  function floorAt(x, z, lvl, y0, eyeHeight) {
     const s = onStairs(x, z); let best = null;
     const cands = [];
-    const inX = s && x >= s.x0 + 10 && x <= s.x1 - 6, sy = inX ? s.y(x, z) : 0, mid = inX && z > s.m0 && z < s.m1; // (on the stairs: the ramp is the floor, bar the cupboard right under them)
+    const inX = s && x >= s.x0 + RAD && x <= s.x1 - RAD, sy = inX ? s.y(x, z) : 0, mid = inX && z > s.m0 && z < s.m1; // (on the stairs: the ramp is the floor, bar the cupboard right under them)
     for (const L of [lvl, lvl === 'U' ? 'G' : 'U']) if (cellOk(L, x, z)) { if (mid && !(L === 'G' && LV.G - sy > 100)) continue; cands.push({ y: LV[L], lvl: L }); }
     if (inX) cands.push({ y: sy, lvl: sy < (LV.U + LV.G) / 2 ? 'U' : 'G' });
-    for (const c of cands) if (Math.abs(c.y - y0) <= 45 && !Object.values(THINGS).some(t=>t.obstacle&&!t.at.hide&&(t.st==='rest'||t.st==='snap'||t.st==='fall')&&Math.abs(t.at.y-c.y)<25&&insideThing(t,x,z,RAD)) && (!best || Math.abs(c.y - y0) < Math.abs(best.y - y0))) best = c;
+    for (const c of cands) if (Math.abs(c.y - y0) <= 45 && headFitsDoor(x,z,c.lvl,c.y,eyeHeight==null?W.eyeNow+W.jh:eyeHeight) && !doorObstructs(x,z,c.y-50,c.lvl) && !Object.values(THINGS).some(t=>t.obstacle&&!t.at.hide&&(t.st==='rest'||t.st==='snap'||t.st==='fall')&&Math.abs(t.at.y-c.y)<25&&insideThing(t,x,z,RAD)) && (!best || Math.abs(c.y - y0) < Math.abs(best.y - y0))) best = c;
     return best;
   }
   const W = { x: 0, z: 100, lvl: 'U', fy: 73, eye: 128, eyeNow: 100, bob: 0, bobT: 0, vx: 0, vz: 0, jh: 0, jv: 0 };
@@ -461,15 +502,23 @@
     const r = ROOMS[t.at.room] || ROOMS[home.room];
     (r ? r.things : root).add(t.obj);
     // its size (the object is built with its bottom centre at the origin)
-    const bb = new T.Box3(); t.obj.updateMatrixWorld(true);
+    const bb = new T.Box3(); t.obj.updateWorldMatrix(true,true);
     t.obj.traverse(o => {if (o.isMesh && !o.userData.contactShadow) bb.expandByObject(o);});
     if (bb.isEmpty()) bb.setFromObject(t.obj);
     t.hx = Math.max(1, (bb.max.x - bb.min.x) / 2); t.hz = Math.max(1, (bb.max.z - bb.min.z) / 2); t.h = Math.max(0.5, bb.max.y - bb.min.y);
+    // Some closed models have a foot/binding below their nominal origin.
+    // Measure visible geometry so the shared clearance survives those details,
+    // without changing their saved coordinates or including hidden case parts.
+    const contactBounds=new T.Box3(),origin=new T.Vector3();t.obj.getWorldPosition(origin);
+    t.obj.traverseVisible(o=>{if(o.isMesh&&!o.userData.contactShadow&&[].concat(o.material).some(m=>m.visible))contactBounds.expandByObject(o)});
+    const trim=contactBounds.isEmpty()?0:Math.max(0,origin.y-contactBounds.min.y);
+    t.bottomOffset=trim<=.5?trim:0; // fine binding/feet only; preserve deliberate soft-model anchors
     place(t);
     spot(id, Object.assign({ label: t.label, obj: t.obj, grab: true, range: t.range || 230 }, def.spot || {}));
     return t;
   }
-  function place(t) { const a = t.at; t.obj.position.set(a.x, a.y, a.z); t.obj.rotation.set((t.rx || 0) * D2R, (a.ry || 0) * D2R, (t.rz || 0) * D2R, 'YXZ'); t.obj.visible = !a.hide; dirty(); }
+  const renderY=(t,y)=>K.restY(y)-(t.bottomOffset||0);
+  function place(t) { const a = t.at; t.obj.position.set(a.x, renderY(t,a.y), a.z); t.obj.rotation.set((t.rx || 0) * D2R, (a.ry || 0) * D2R, (t.rz || 0) * D2R, 'YXZ'); t.obj.visible = !a.hide; dirty(); }
   // flat surfaces things can rest on: { room, x0, z0, x1, z1, y }
   function support(rid, x0, z0, x1, z1, y, o) { const r = ROOMS[rid]; if (!r) return; r.supports.push(Object.assign({ x0, z0, x1, z1, y }, o || {})); }
   function supportsAt(rid, x, z, except) { // every surface under (x, z): the room's own, and the tops of things resting there
@@ -494,7 +543,7 @@
     aimPt = null; aimT = 0; // never inherit the previous object's shelf target
     layerFor(t); // update the cached front-layer state too, even before a frame renders
     if (cur && t.obj.parent !== cur.things) cur.things.attach ? cur.things.add(t.obj) : 0;
-    sfx.tone(520, 0.05, 'triangle', 0.05); sfx.tone(780, 0.05, 'triangle', 0.04, 0.05);
+    physicalSound('handle', {weight:thingWeight(t)});
     ui.holdBar(t);
     emit('grab', id);
     return true;
@@ -502,10 +551,14 @@
   function heldPos() { // where the held thing floats: in front of your eyes, never through a wall
     const t = THINGS[held.id], f = fwd();
     let d = held.d;
-    const hit = pick(vw / 2, vh / 2, { skip: m => m.userData.spot === held.id || isThingMesh(m), far: d + 30 });
-    if (hit && hit.dist < d + Math.max(t.hx, t.hz)) d = Math.max(18, hit.dist - Math.max(t.hx, t.hz) - 2);
+    const radius = Math.hypot(t.hx,t.hz);
+    const hit = pick(vw / 2, vh / 2, { skip: m => m.userData.spot === held.id || isThingMesh(m), far: d + radius + 2 });
+    if (hit && hit.dist < d + radius + 2) d = Math.max(0, hit.dist - radius - 2);
     const right=t.holdOffset?.right||0,down=t.holdOffset?.down||0,angle=P.ry*D2R;
-    return { x: P.x + f.x * d + Math.cos(angle)*right, y: P.y + f.y * d + t.h * 0.5 + 6 + down, z: P.z + f.z * d + Math.sin(angle)*right };
+    // A large carton cannot fit between the eye and a nearby wall. Tuck it
+    // below the eye instead of pulling its rear face through the camera.
+    const tucked=d<radius+camera.near+2;
+    return { x: P.x + f.x * d + Math.cos(angle)*right, y: tucked?Math.max(P.y+6,P.y+f.y*d)+t.h+down:P.y + f.y * d + t.h * 0.5 + 6 + down, z: P.z + f.z * d + Math.sin(angle)*right };
   }
   const isThingMesh = m => { let o = m; while (o) { if (o.userData && o.userData.thing) return true; o = o.parent; } return false; };
   const isHeldMesh = m => {if(!held)return false;for(let o=m;o;o=o.parent)if(o===THINGS[held.id].obj)return true;return false;};
@@ -589,14 +642,14 @@
     t.st = 'anim'; const t0 = performance.now(), ms = 380;
     anims.set('snap:' + t.id, n => {
       const k = ease(Math.min(1, (n - t0) / ms));
-      t.obj.position.set(lerp(p0.x, p1.x, k), lerp(p0.y, p1.y, k), lerp(p0.z, p1.z, k));
+      t.obj.position.set(lerp(p0.x, p1.x, k), lerp(p0.y, renderY(t,p1.y), k), lerp(p0.z, p1.z, k));
       t.obj.rotation.set(lerp(p0.rx, p1.rx || 0, k) * D2R, (p0.ry + angd(p0.ry, p1.ry || 0) * k) * D2R, lerp(p0.rz, p1.rz || 0, k) * D2R, 'YXZ');
       if (k < 1) return true;
       t.st = 'snap'; t.snap = s.id; t.at = { room: s.room || (cur && cur.id), x: p1.x, y: p1.y, z: p1.z, ry: p1.ry || 0, hide: !!s.hide };
       t.rx = p1.rx || 0; t.rz = p1.rz || 0;
       if (s.hide) t.obj.visible = false;
       layerFor(t);
-      sfx.tone(300, 0.06, 'square', 0.05); sfx.noise(0.08, 0.06, 1200);
+      physicalSound('handle', {weight:thingWeight(t),put:true});
       if (s.onSnap) try { s.onSnap(t); } catch (e) { console.error(e); }
       emit('snap', s.id, t.id); saveThings();
       return false;
@@ -642,6 +695,9 @@
         o.x += (hp.x - o.x) * k; o.y += (hp.y - o.y) * k; o.z += (hp.z - o.z) * k;
         const want = P.ry * -1 + held.ry + (t.faceYou ? 180 : 0), r0 = t.obj.rotation.y / D2R;
         t.obj.rotation.set(Math.sin(performance.now() / 700) * 0.04, (r0 + angd(r0, want) * k) * D2R, Math.sin(performance.now() / 900) * 0.03, 'YXZ');
+        // Translation trails the view. Keep that intermediate path below the
+        // eye too, until the whole item has cleared the near rectangle.
+        if(Math.hypot(o.x-P.x,o.z-P.z)<Math.hypot(t.hx,t.hz)+camera.near+2&&o.y-t.h<P.y+4)o.y=P.y+t.h+6;
         const sn = !controlsPaused && mode === 'walk' ? nearSnap(t, o.x, o.y, o.z) : null; snapGlow(sn); ui.snapHint(sn);floorGlow(t.floorOnly&&!sn&&!controlsPaused&&mode==='walk'?floorAim(t):null,t);
         any = true;
       } else if (t.st === 'fall') {
@@ -649,8 +705,8 @@
         t.vy += 1800 * dt; a.y += t.vy * dt;
         // (slide the last bit from where it was held to where it lands)
         const sk = Math.min(1, (now - t.t0) / 240); t.obj.position.x = lerp(t.fromX == null ? a.x : t.fromX, a.x, ease(sk)); t.obj.position.z = lerp(t.fromZ == null ? a.z : t.fromZ, a.z, ease(sk));
-        if (a.y >= t.landY) { a.y = t.landY; if (t.vy > 160) { t.vy = -t.vy * 0.22; sfx.noise(0.05, 0.08, 500); } else { t.vy = 0; if (sk >= 1) { t.st = 'rest'; t.fromX = t.fromZ = null; layerFor(t); saveThings(); emit('rest', id); } } }
-        t.obj.position.y = a.y;
+        if (a.y >= t.landY) { a.y = t.landY; if (t.vy > 160) { t.vy = -t.vy * 0.22; physicalSound('handle', {weight:thingWeight(t),put:true}); } else { t.vy = 0; if (sk >= 1) { t.st = 'rest'; t.fromX = t.fromZ = null; layerFor(t); saveThings(); emit('rest', id); } } }
+        t.obj.position.y = renderY(t,a.y);
         const r = t.obj.rotation; if(t.floorOnly){r.x=0;r.z=0}else{r.x *= 0.8; r.z *= 0.8;}
         any = true;
       }
@@ -719,22 +775,36 @@
     o.open = want == null ? !o.open : !!want;
     const from = o.k, to = o.open ? 1 : 0, t0 = performance.now();
     anims.set('open:' + id, n => { const k = Math.min(1, (n - t0) / o.ms); o.k = from + (to - from) * ease(k); o.apply(); return k < 1; });
-    if (o.sound !== false) { if (o.type === 'slide') sfx.noise(0.25, 0.05, 700, 0, 'bandpass', 300); else sfx.tone(o.open ? 160 : 120, 0.12, 'triangle', 0.05); }
+    if (o.sound !== false) { physicalSound(o.type==='slide'?'drawer':'door',{open:o.open}); }
     if (o.onToggle) try { o.onToggle(o.open); } catch (e) { console.error(e); }
     emit('open', id, o.open); saveThings();
   }
 
   // ================================================================ sound (only with the site's SFX switched on)
   let AC = null, OUT = null, NB = null;
-  function ac() { if (!window.Sound || !Sound.on) return null; if (!AC) { try { AC = Sound.unlock && Sound.unlock(); } catch (e) { AC = null; } if (!AC) return null; OUT = AC.createGain(); OUT.gain.value = 0.5; OUT.connect(Sound.output(AC)); } if (AC.state === 'suspended') AC.resume(); return AC; }
+  function ac() { if (!window.Sound || !Sound.effectsOn || controlsPaused) return null; if (!AC) { try { AC = Sound.unlock && Sound.unlock(); } catch (e) { AC = null; } if (!AC) return null; OUT = AC.createGain(); OUT.gain.value = 0.5; OUT.connect(Sound.output(AC)); } if (AC.state === 'suspended') AC.resume(); return AC; }
   const sfx = {
     tone(f, d, type, vol, when, to) { const c = ac(); if (!c || !(f > 0)) return; const t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'square'; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(Math.max(1, to), t + d); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); o.connect(g); g.connect(OUT); o.start(t); o.stop(t + d + 0.03); },
     noise(d, vol, f, when, type, to) { const c = ac(); if (!c) return; const t = c.currentTime + (when || 0); if (!NB) { NB = c.createBuffer(1, c.sampleRate, c.sampleRate); const a = NB.getChannelData(0); for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1; } const s = c.createBufferSource(); s.buffer = NB; const fl = c.createBiquadFilter(); fl.type = type || 'lowpass'; fl.frequency.setValueAtTime(f || 2000, t); if (to) fl.frequency.exponentialRampToValueAtTime(Math.max(20, to), t + d); const g = c.createGain(); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); s.connect(fl); fl.connect(g); g.connect(OUT); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.03); },
-    ac,
+    ac, output: () => { ac(); return OUT; },
   };
-  function sfxDoor(open) { sfx.noise(0.35, 0.06, open ? 500 : 380, 0, 'bandpass', open ? 900 : 200); if (!open) sfx.tone(90, 0.12, 'sine', 0.12, 0.3); }
-  let stepSide = 0;
-  function sfxStep(stair) { if (cur?.id === 'drive') { window.Sound?.play('gravel'); return; } stepSide ^= 1; sfx.noise(0.07, stair ? 0.07 : 0.035, stair ? 520 : 260 + stepSide * 40); if (stair && Math.random() < 0.25) sfx.tone(180 + Math.random() * 60, 0.18, 'sawtooth', 0.012, 0.02, 140); }
+  const physicalSound=(kind,o)=>window.Sound?.world?.(kind,o);
+  function thingWeight(t) { return t.weight || (t.floorOnly || t.hx*t.hz*t.h>22000 ? 'heavy' : t.hx*t.hz*t.h<1600 ? 'light' : 'medium'); }
+  function sfxDoor(open) { physicalSound('door',{open}); }
+  function footSurface() {
+    const stair=onStairs(W.x,W.z);
+    if(stair&&W.z>stair.m0&&W.z<stair.m1)return 'stairs';
+    if(cur?.id==='kitchen')return 'lino';
+    if(cur?.outside){const grass=cur.id==='garden'?W.x<150&&W.z< -190:W.x< -25&&W.z>770;return grass?'grass':'paving';}
+    return 'carpet'; // The hall and landing are visibly carpeted, like the bedroom.
+  }
+  function sfxStep() { if (cur?.id === 'drive') { window.Sound?.play('gravel'); return; } physicalSound('step',{surface:footSurface()}); }
+  let nextClock=0,nextOutside=0,clockSide=0;
+  function tickWorldSound(now) {
+    if(controlsPaused||!['walk','focus','glide'].includes(mode)||!window.Sound?.effectsOn)return;
+    if(now>=nextClock){nextClock=now+1000;const c=cur?.id==='kitchen'?[-278,145,120]:cur?.id==='lounge'?[-236,229,500]:null;if(c&&Math.hypot(P.x-c[0],P.y-c[1],P.z-c[2])<220)physicalSound('clock',{side:clockSide++%2});}
+    if(now>=nextOutside){nextOutside=now+7000+Math.random()*8000;if(cur?.outside){physicalSound('road');const hour=new Date().getHours();if(hour>=7&&hour<20)physicalSound('bird');}}
+  }
 
   // ================================================================ the state machine: what the house is doing
   // off: not shown | follow: boot.js drives the camera | walk: you're in charge | glide: the camera is moving to a view
@@ -821,9 +891,11 @@
     let mx = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), mz = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
     const mag = Math.min(1, Math.hypot(mx, mz));
     const night = !!(window.HouseLife && HouseLife.quiet && HouseLife.quiet());
-    if (!W.seat) W.eye = Math.max(60, ((cur && cur.eye) || STAND) - (keys.crouch ? 38 : 0)); // (C / Ctrl: duck)
+    const lintel=lowDoorAt(W.x,W.z,W.lvl,6,W.fy),nearLintel=keys.crouch&&lowDoorAt(W.x,W.z,W.lvl,RAD+18,W.fy),ducking=keys.crouch||!!lintel;
+    if (!W.seat) W.eye = Math.max(60, ((cur && cur.eye) || STAND) - (keys.crouch ? 38 : 0)); // C: crouch
+    if(lintel||nearLintel)W.eye=Math.min(W.eye,(lintel||nearLintel).headroom-10);
     const carrySpeed = held ? (THINGS[held.id]?.walkScale || 1) : 1;
-    const sp = carrySpeed * (keys.run ? 210 : night ? 62 : 140) * (W.seat ? 0 : 1) * (keys.crouch ? 0.5 : 1); // (Shift: a jog, 1.5x. At night you creep anyway: Mom's asleep)
+    const sp = carrySpeed * (keys.run ? 210 : night ? 62 : 140) * (W.seat ? 0 : 1) * (ducking ? 0.5 : 1); // (Shift: a jog, 1.5x. At night you creep anyway: Mom's asleep)
     const a = P.ry * D2R, fx = Math.sin(a), fz = -Math.cos(a), rx = Math.cos(a), rz = Math.sin(a);
     let tvx = 0, tvz = 0;
     if (mag > 0.05) {
@@ -850,8 +922,8 @@
       roomCheck();
     } else W.bob *= 0.85;
     W.eyeNow += (W.eye - W.eyeNow) * Math.min(1, dt * 5);
-    if (keys.jump) { keys.jump = false; if (W.jh <= 0.01 && !W.jv && !W.seat && !keys.crouch && !(cur && cur.id === 'cupboard')) W.jv = 270; } // (a hop of about 37 cm)
-    if (W.jv || W.jh > 0) { const d = Math.min(dt, 0.05); W.jv -= 980 * d; W.jh += W.jv * d; const cap = Math.max(0, Math.min(40, 232 - W.eyeNow)); if (W.jh > cap) { W.jh = cap; W.jv = Math.min(W.jv, 0); } if (W.jh <= 0) { W.jh = 0; W.jv = 0; } }
+    if (keys.jump) { keys.jump = false; if (W.jh <= 0.01 && !W.jv && !W.seat && !ducking && !(cur && cur.id === 'cupboard')) W.jv = 270; } // (a hop of about 37 cm)
+    if (W.jv || W.jh > 0) { const d = Math.min(dt, 0.05); W.jv -= 980 * d; W.jh += W.jv * d; const ceiling=cur?.ceilingAt?.(W.x,W.z),clearance=Number.isFinite(ceiling)?W.fy-ceiling-W.eyeNow-4-Math.abs(W.bob):Infinity; const cap = Math.max(0, Math.min(40, 232 - W.eyeNow,clearance)); if (W.jh > cap) { W.jh = cap; W.jv = Math.min(W.jv, 0); } if (W.jh <= 0) { W.jh = 0; W.jv = 0; } }
     P.x = W.x; P.z = W.z; P.y = W.fy - W.eyeNow - W.bob - W.jh;
     return W.jh > 0 || spd > 1 || Math.abs(W.eye - W.eyeNow) > 0.3 || Math.abs(W.bob) > 0.05;
   }
@@ -1250,7 +1322,7 @@
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.12, (now - (lastT || now)) / 1000); lastT = now;
     if (!live || document.hidden) return;
-    screenEffort();tickLights(dt);
+    screenEffort();tickLights(dt);tickWorldSound(now);
     const vo = viewOpen(); if (vo !== viewing) { viewing = vo; viewT = now; html.classList.toggle('hs-viewing', vo); if (vo) { setHot(null); ui.tip(null); unlock(); } }
     // (the consoles' telly is up: once it has settled, the room behind needn't be drawn)
     if (vo && now - viewT > 600 && document.querySelector('.rm-tvv.rm-hand.on:not(.bye)') && !pb.classList.contains('rm-tvon')) pb.classList.add('rm-tvon');
@@ -1473,7 +1545,8 @@
   let poseT = 0;
   function walkingPose() {
     const d = {}; for (const id in DOORS) if (!DOORS[id].always) d[id] = !!DOORS[id].open;
-    return {x:+W.x.toFixed(1), y:+(W.fy - W.eyeNow).toFixed(1), z:+W.z.toFixed(1), rx:+P.rx.toFixed(1), ry:+P.ry.toFixed(1), seat:W.seat ? 1 : 0, lvl:W.lvl, d};
+    // Do not round across a collision-cell boundary while leaning on a wall.
+    return {x:W.x, y:+(W.fy - W.eyeNow).toFixed(1), z:W.z, rx:+P.rx.toFixed(1), ry:+P.ry.toFixed(1), seat:W.seat ? 1 : 0, lvl:W.lvl, d};
   }
   function validPose(s) { return !!s && ['x','y','z','rx','ry'].every(k => Number.isFinite(s[k])) && ['U','G'].includes(s.lvl || 'U') && Math.abs(s.y) < 1000 && Math.abs(s.rx) <= 90; }
   function savePose() { if (!['walk','glide'].includes(mode) || stood) return; ls.set('jhp_hs_pose', Object.assign(walkingPose(), {t:Date.now()})); }
@@ -1488,7 +1561,22 @@
       if (d.pivot) d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1);
     }
     grids.dirty = true;
-    if (!s.seat && !floorAt(s.x, s.z, lvl, s.y + (r.eye || STAND))) return false;
+    if (!s.seat && !floorAt(s.x, s.z, lvl, s.y + (r.eye || STAND),Math.max(60,LV[lvl]-s.y))) {
+      // Older saves rounded to 0.1 cm. Recover that lost half-millimetre
+      // inside the same room rather than discarding a standing pose.
+      let recovered=null;
+      for(const [dx,dz]of [[-.051,0],[.051,0],[0,-.051],[0,.051],[-.051,-.051],[-.051,.051],[.051,-.051],[.051,.051]]){
+        const x=s.x+dx,z=s.z+dz;
+        if(roomAt(x,z,lvl)===r&&floorAt(x,z,lvl,s.y+(r.eye||STAND),Math.max(60,LV[lvl]-s.y))){recovered=Object.assign({},s,{x,z});break;}
+      }
+      // An old pose may also touch a newly solid leaf/handle margin. Keep
+      // the player standing in that room, using the nearest clear ring.
+      if(!recovered)for(const radius of [2.5,5,7.5,10,15,22,30]){
+        for(let i=0;i<16;i++){const a=i*Math.PI/8,x=s.x+Math.cos(a)*radius,z=s.z+Math.sin(a)*radius;if(roomAt(x,z,lvl)===r&&floorAt(x,z,lvl,s.y+(r.eye||STAND),Math.max(60,LV[lvl]-s.y))){recovered=Object.assign({},s,{x,z});break;}}
+        if(recovered)break;
+      }
+      if(!recovered)return false;s=recovered;
+    }
     Object.assign(P, {x:s.x,y:s.y,z:s.z,rx:s.rx,ry:s.ry});
     const old = cur; cur = r; W.vx = W.vz = W.jh = W.jv = W.bob = 0;
     setWalkFrom(s); visCalc(); stIdx = nearestStation(); ui.where();
@@ -1560,7 +1648,7 @@
     const changed=desktopFull!==full;desktopFull=full;ls.set('jhp_hs_desktop_full',full);
     html.classList.toggle('pc-desktop-full',monitor&&desktopFull);if(live){glassFit();dirty();if(changed)dispatchEvent(new Event('resize'))}return desktopFull;
   }
-  function pauseControls(on){controlsPaused=!!on;for(const k in keys)keys[k]=false;W.vx=W.vz=0;PT.clear();if(inspection){inspection.drag=null;}if(on){unlock();setHot(null);ui.tip(null)}else wantLock();dirty();}
+  function pauseControls(on){controlsPaused=!!on;window.Sound?.worldPause?.(on);if(AC&&OUT)OUT.gain.setTargetAtTime(on?0:.5,AC.currentTime,.012);for(const k in keys)keys[k]=false;W.vx=W.vz=0;PT.clear();if(inspection){inspection.drag=null;}if(on){unlock();setHot(null);ui.tip(null)}else wantLock();dirty();}
   // Fit the entire 4:3 glass with room for its curved bezel at every aspect.
   function monitorPose() {
     const g = window.House && House.pcGL, gl = g && g.userData.glass;
@@ -1815,7 +1903,7 @@
     desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},
     Q,graphicsGet,graphicsSet, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
-    _: { whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
+    _: { doorHeadroom:(x,z,lvl,fy)=>lowDoorAt(x,z,lvl,RAD+18,fy)?.headroom||null, whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
   };
   // A detached snapshot for diagnostics: no scene objects or writable references escape.
   window.__jhpDebug = () => ({

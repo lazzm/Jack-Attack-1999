@@ -22,6 +22,19 @@
   'use strict';
   const T = window.THREE; if (!T || window.HouseKit) return;
   const D2R = Math.PI / 180;
+  const SURFACE_LIFT = 0.12; // cm: 1.2 mm, below a visible floating gap
+  const restY = y => y - SURFACE_LIFT;
+  // Opt-in diagnostics only; ordinary players pay no stack capture/storage cost.
+  const auditBuild = (() => { try { return typeof localStorage !== 'undefined' && localStorage.getItem('jhp_world_audit') === '1'; } catch (e) { return false; } })();
+  function auditSource() {
+    if (!auditBuild) return null;
+    const rows = (new Error().stack || '').split('\n');
+    for (const row of rows) {
+      const m = /\/([\w-]+\.js)(?:\?[^: ]*)?:(\d+):\d+/.exec(row);
+      if (m && !/hs-kit|three/.test(m[1])) return m[1] + ':' + m[2];
+    }
+    return null;
+  }
 
   // ================================================================ textures (canvas, cached by key)
   const TEX = {}, identityPaints = new Map();
@@ -123,14 +136,15 @@
   const FACE = ['r', 'l', 'u', 't', 'f', 'b']; // BoxGeometry's groups: +x -x +y(underneath: y is down) -y(top) +z -z
   function Batch() { this.parts = new Map(); }
   // m: a material, or (for grouped geometry) a function(groupIndex) -> material or null (skip)
-  Batch.prototype.add = function (geo, m4, m, uvScale) {
+  Batch.prototype.add = function (geo, m4, m, uvScale, source) {
     const g = geo.index ? geo.toNonIndexed() : geo;
     const P = g.attributes.position, N = g.attributes.normal, U = g.attributes.uv;
     _nm.getNormalMatrix(m4);
     const groups = g.groups && g.groups.length ? g.groups : [{ start: 0, count: P.count, materialIndex: 0 }];
     for (const gr of groups) {
       const mm = typeof m === 'function' ? m(gr.materialIndex) : m; if (!mm) continue;
-      let part = this.parts.get(mm); if (!part) this.parts.set(mm, part = { pos: [], nrm: [], uv: [] });
+      let part = this.parts.get(mm); if (!part) this.parts.set(mm, part = { pos: [], nrm: [], uv: [], sources: [] });
+      if (source) part.sources.push({start:part.pos.length/3,count:gr.count,source});
       for (let i = gr.start; i < gr.start + gr.count; i++) {
         _v.fromBufferAttribute(P, i).applyMatrix4(m4); _n.fromBufferAttribute(N, i).applyMatrix3(_nm).normalize();
         part.pos.push(_v.x, _v.y, _v.z); part.nrm.push(_n.x, _n.y, _n.z);
@@ -155,6 +169,7 @@
       geo.setAttribute('uv', new T.Float32BufferAttribute(p.uv, 2));
       geo.computeBoundingSphere(); geo.computeBoundingBox();
       const mesh = new T.Mesh(geo, m);
+      if (p.sources.length) mesh.userData.auditSources = p.sources;
       if (m.transparent) mesh.renderOrder = 2;
       mesh.matrixAutoUpdate = false; mesh.updateMatrix();
       if (o.pick) mesh.userData.pick = o.pick;
@@ -177,13 +192,15 @@
     const isBatch = target instanceof Batch;
     const put = (geo, m4, m, o, faceSel) => {
       o = o || {};
-      if (isBatch) { target.add(geo, m4, faceSel || mat(m), o.uv); geo.dispose(); return null; }
+      const source = auditSource();
+      if (isBatch) { target.add(geo, m4, faceSel || mat(m), o.uv, source); geo.dispose(); return null; }
       // straight into a group: meshes (per face materials become a material array)
       let mm;
       if (faceSel) { mm = []; const n = Math.max(...geo.groups.map(gr => gr.materialIndex)) + 1; for (let i = 0; i < n; i++) mm.push(faceSel(i) || INVIS); }
       else mm = mat(m);
       if (o.uv) worldUV(geo, m4, o.uv);
       const mesh = new T.Mesh(geo, mm);
+      if (source) mesh.userData.auditSource = source;
       mesh.matrixAutoUpdate = false; mesh.matrix.copy(m4); mesh.matrixWorldNeedsUpdate = true;
       if (mm.transparent) mesh.renderOrder = 2;
       target.add(mesh); return mesh;
@@ -213,6 +230,12 @@
       },
       ball(x, y, z, rx, ry, rz, m, seg, o) { const geo = new T.SphereGeometry(1, seg || 16, Math.max(6, ((seg || 16) * 0.66) | 0)); return put(geo, xform(base, x, y, z, Object.assign({}, o, { sx: rx, sy: ry, sz: rz })), m, o); },
       plane(x, y, z, w, h, m, o) { const geo = new T.PlaneGeometry(w, h); flipV(geo); return put(geo, xform(base, x, y, z, o), m, o); },
+      // Closed plaster/timber panel. The decorated front stays exactly at
+      // the requested plane; thickness goes behind it, away from the room.
+      panel(x, y, z, w, h, depth, m, o) {
+        const geo = new T.BoxGeometry(w, h, depth); geo.translate(0, 0, -depth / 2); flipV(geo);
+        return put(geo, xform(base, x, y, z, o), m, o);
+      },
       decal(x, y, z, w, h, m, o) { const geo=new T.PlaneGeometry(w,h);flipV(geo);return put(geo,xform(base,x,y,z,o),decalMat(m),o); },
       disc(x, y, z, r, m, seg, o) { const geo = new T.CircleGeometry(r, seg || 24); { const u = geo.attributes.uv; for (let i = 0; i < u.count; i++) u.setY(i, 1 - u.getY(i)); } return put(geo, xform(base, x, y, z, Object.assign({}, o || {}, { rx: (o && o.rx != null ? o.rx : 0) + 90 })), m, o); },
       lathe(x, y, z, pts, seg, m, o) {
@@ -275,10 +298,10 @@
 
   // Close a deformed indexed sheet with a back and perimeter, retaining UVs.
   // clothDepth lets animated quilts keep their thickness when their top moves.
-  function thicken(geo,depth){
+  function thicken(geo,depth,normal){
     if(!geo.index||geo.attributes.clothDepth)return geo;
     const p=geo.attributes.position,u=geo.attributes.uv,n=p.count,pos=new Float32Array(n*6),uv=new Float32Array(n*4),offset=new Float32Array(n*2),idx=Array.from(geo.index.array),edges=new Map();
-    for(let i=0;i<n;i++)for(let side=0;side<2;side++){const j=i+side*n;pos[j*3]=p.getX(i);pos[j*3+1]=p.getY(i);pos[j*3+2]=p.getZ(i)-side*depth;offset[j]=-side*depth;if(u){uv[j*2]=u.getX(i);uv[j*2+1]=u.getY(i)}}
+    for(let i=0;i<n;i++)for(let side=0;side<2;side++){const j=i+side*n;pos[j*3]=p.getX(i)-side*depth*(normal?normal[0]:0);pos[j*3+1]=p.getY(i)-side*depth*(normal?normal[1]:0);pos[j*3+2]=p.getZ(i)-side*depth*(normal?normal[2]:1);offset[j]=-side*depth;if(u){uv[j*2]=u.getX(i);uv[j*2+1]=u.getY(i)}}
     const out=idx.slice();for(let i=0;i<idx.length;i+=3){const[a,b,c]=idx.slice(i,i+3);out.push(a+n,c+n,b+n);for(const[x,y]of [[a,b],[b,c],[c,a]]){const key=Math.min(x,y)+':'+Math.max(x,y);if(edges.has(key))edges.delete(key);else edges.set(key,[x,y])}}
     for(const[a,b]of edges.values())out.push(a,a+n,b,b,a+n,b+n);
     geo.setAttribute('position',new T.BufferAttribute(pos,3));geo.setAttribute('uv',new T.BufferAttribute(uv,2));geo.setAttribute('clothDepth',new T.BufferAttribute(offset,1));geo.setIndex(out);geo.deleteAttribute('normal');geo.computeVertexNormals();geo.computeBoundingSphere();geo.computeBoundingBox();return geo;
@@ -299,5 +322,5 @@
     return t;
   }
 
-  window.HouseKit = { T, D2R, tex, mat, shadowMat, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso: a => { aniso = a; }, TEX, MATS };
+  window.HouseKit = { T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso: a => { aniso = a; }, TEX, MATS };
 })();

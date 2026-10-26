@@ -157,7 +157,7 @@
   const MOWHOME = { x: 196, z: 748, ry: 200 }, OSOCK = { x: 236, y: GY - 46, z: 701.6 };
   const GNOME = { x: -132, z: 884 };
   const NX = Math.ceil((LAWN.x1 - LAWN.x0) / CELL), NZ = Math.ceil((LAWN.z1 - LAWN.z0) / CELL);
-  let mower=null,grassTex=null,cut=null,grassField=null,grassSeeds=null,grassPerCell=0,grassPose=null, mowing = false, gnome = null, lastPaint = 0, stripeDir = {};
+  let mowerBlock=null,mower=null,grassTex=null,cut=null,grassField=null,grassSeeds=null,grassPerCell=0,grassPose=null, mowing = false, gnome = null, lastPaint = 0, stripeDir = {};
   const LV = () => (CK.S.v.lawn = CK.S.v.lawn || {});
   function mowerModel() {
     const g = new T.Group(), G = K.into(g), or = mat('#c96d2c',{sh:28,sp:'#614637'}), dk = mat('#222', { sh: 30 });
@@ -188,6 +188,7 @@
       CK.spot(r, 'ch.gnome', gnome, { label: 'Gerald (the gnome)', act: () => CK.jack('Gerald', 'Gerald the gnome. Mom got him at a car boot sale. He has a fishing rod and no fish. Do NOT mow Gerald.', 4000) });
       // the mower, by the front door; the outside socket
       mower = mowerModel(); r.group.add(mower);
+      mowerBlock=H.block('G',0,0,0,0,{off:true});
       CK.spot(r, 'ch.mower', mower, { label: () => CK.tool.cur && CK.tool.cur.id === 'mower' ? 'The mower (you\'ve got it)' : 'The hover mower', act: () => takeMower() });
       const os = grp(G => { G.rbox(0, 0, 0, 10, 12, 4, 0.8, mat('#e8e4dc', { sh: 30 })); G.box(0, -1.6, 2.1, 8, 7, 0.6, mat('#d8d4cc')); G.box(0, 4, 2.2, 3, 1, 0.4, mat('#c81a1a')); });
       os.position.set(OSOCK.x, OSOCK.y, OSOCK.z + 2); r.group.add(os);
@@ -199,6 +200,8 @@
       const v = LV(), at = v.day === CK.day() && v.at;
       if (CK.has('lawn', 'away') || !at) { mower.position.set(MOWHOME.x, GY, MOWHOME.z); mower.rotation.set(0, MOWHOME.ry * D2R, 0); }
       else { mower.position.set(at[0], GY, at[1]); mower.rotation.set(0, at[2], 0); }
+      // Include the parked handle, which reaches crouched eye height.
+      const bounds=new T.Box3().setFromObject(mower);Object.assign(mowerBlock,{x0:bounds.min.x,z0:bounds.min.z,x1:bounds.max.x,z1:bounds.max.z,off:false});H._.grids.dirty=true;
       H.dirty();
     },
     reset() { LV().cut = ''; LV().at = null; if (cut) { cut.fill(0); paintGrass(); } this.sync(); },
@@ -266,7 +269,7 @@
     if (CK.tool.cur && CK.tool.cur.id === 'mower') return;
     if (quiet()) return CK.jack('The mower', 'Mowing the lawn at THIS time of night? The neighbours would call the police. Next door definitely would.', 4500);
     if (CK.done('lawn')) return CK.jack('The mower', 'The lawn\'s done. Look at those stripes. Wombleton, eat your heart out.');
-    CK.begin('lawn'); mowing = true;
+    CK.begin('lawn'); mowing = true;if(mowerBlock){mowerBlock.off=true;H._.grids.dirty=true;}
     CK.tool.take({
       id:'mower',name:'The hover mower',obj:mower,dist:58,radius:21, tilt: 0.35, rear: 20, hz: 150,
       cable: { room: 'drive', x: OSOCK.x, y: OSOCK.y + 4, z: OSOCK.z + 3, nx: 0, nz: 1, max: 1000, col: '#f07a10' },
