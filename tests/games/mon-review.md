@@ -109,3 +109,90 @@ listening through real speakers, live two-person Cable Club sessions and an
 unaccelerated hour-long balance play-through remain unverified. Linked battles
 retain the existing server referee's full-health rules; campaign PP and
 conditions deliberately stay local.
+
+## Run 2 — four-badge mid-game (2026-10-26)
+
+Before: two gyms, two towns, two routes, one cave and 23 species. The second
+badge ended the adventure; no villain team, third starter stage or rival
+beyond the bay existed. These were high content-depth gaps against the owner's scope.
+See `docs/games/mon.md` for the full reference comparison and next build chunk.
+
+After: four gyms, four towns, four routes, two caves and the parcel depot;
+60 species with 120 distinct original front/rear portraits. Starter families
+have third stages; fifteen new two-stage families and three old single-stage
+critter evolutions fill the middle of the dex. The final new species is
+ALARMAGEDDON, a repeatable-until-caught level-35 rare encounter unlocked by the
+clockmaker after badge four. Version exclusives still encourage trading.
+
+Team Pocket introduces a pocket-subscription scam on Peg Path, blocks Lost
+Sock Tunnel and steals Kiln's heating regulator. Winning at the depot restores
+the gym's access. The extra rival battle uses the player's opposing starter.
+Fusebox's third badge grants INSULATE for cable shortcuts; SHOVE remains useful
+in the second cave and fourth gym. New towns have healing, shops, PC storage,
+Cable Club and local hint dialogue. All named new people use Cast.
+
+The second badge now points east. Chapter credits occur after badge four and
+explicitly say four of eight; no champion/full-ending claim. The journal lists
+current story objectives. Save v1, old IDs, balances, party data and positions
+remain compatible. Victories, regulator recovery, badge flags and the unique
+clockmaker gift commit before their presentation can be interrupted.
+
+### Iteration findings
+
+- First structural pass found a depot pickup on a solid plant; moved it.
+- First rare-hunt test double-confirmed its prompt; corrected the test's input
+  handling to accommodate the existing dialogue helper advancing held text.
+- Capture review found tall enemy ground shadows behind the player's name;
+  the battle status area now clears its background before drawing lettering.
+- Separated the overlapping stats/EXP rows on the party summary.
+- Added original radio masts and brick kilns to distinguish the new towns.
+  Clear C/S/G roof plaques identify centres, shops and gyms before entry.
+- Contact sheets now explicitly select GREEN SHADES to review the default art.
+
+No high/medium presentation or correctness items remain in the tested run-2
+flows. The full-classic scope remains incomplete: badges 5–8, elite final,
+champion, tower, reserve, more types/species and a full post-game are next work.
+Unaccelerated campaign balance, real touch/controllers/audio and live
+multi-person Cable Club remain outside this scripted verification.
+
+### Captures
+
+`tests/shots/games/mon/` contains before/after title and starter captures,
+impact/cube/attract sequences, menus/dex, all old regions, both old leaders,
+`after-team-pocket-intro`, `after-pocket-road-cleared`, `after-fuse-overview`,
+`after-gym3-start`, `after-spark-award`, `after-cable-warning`,
+`after-insulated-crossing`, `after-tunnel-blockade`, `after-kiln-overview`,
+`after-rival-kiln`, `after-regulator-gate`, `after-pocket-lieutenant`,
+`after-depot-recovered`, `after-gym4-start`, `after-kiln-award`,
+`after-credits-middle`, `after-clockmaker-hunt`, `after-alarmageddon`,
+`after-rare-caught`, `after-new-evolution-23`, `after-new-evolution-30` and
+`after-legacy-continued`. Each gameplay capture has an enlarged PNG and a
+`-native.png` at 160×144. `after-roster-contact.png` and 20 portrait pages show
+all 60 species from both sides. `after-region-atlas.png` shows all eight new field/gym/depot layouts; `after-new-summary.png` and `after-rare-dex-entry.png` cover their data screens. Room, LOCK IN, pause, three viewport sizes and
+Puddle title captures cover the real runtime and sibling cartridge.
+
+### Validation and performance
+
+The native test and full room-integrated test passed on disposable localhost
+servers. Server logs had no `mod failed to load`; browser error lists were
+empty. Shared rules cover legal levels 2/22/32/50 for every species, every
+evolution's inherited moves, unchanged legacy trade evolutions, 60 resolved
+referee battles and rejection of out-of-range species. Browser tests cover
+single-entrance map reachability, solid/NPC placement, gates before/after
+rewards, actual input at all four leaders, saved villain battles, one-time
+rewards, rare capture, both new evolution classes and old-save continuation.
+
+Matched native CPU update/draw, 1,200 warmed samples, software Chromium:
+
+| Scene | Before median / p95 ms | After median / p95 ms |
+| --- | --- | --- |
+| Title | 0.1 / 0.3 | 0.2 / 0.3 |
+| Overworld | 0.3 / 0.5 | 0.3 / 0.5 |
+| Battle command | 0.1 / 0.2 | 0.2 / 0.3 |
+
+These figures exclude house rendering, texture uploads and audio; timer
+resolution is coarse. They are budget diagnostics, not a physical-device FPS
+claim. Raw summaries remain `before-performance.json` / `after-performance.json`.
+`SMOKE_SCALE=6 node tests/smoke.mjs` passed 12/12. The first attempt passed
+11/12 but its existing mobile handoff reported that the account profile did
+not upload. The unchanged full gate passed on the next attempt.

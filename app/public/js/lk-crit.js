@@ -59,11 +59,61 @@
     ['GRANITAN', 'ROCK', [80, 95, 115, 35], 170, 0.05, [[1, 'PEBBLE TOSS'], [1, 'HARDEN'], [1, 'ROCK SLAM'], [18, 'LANDSLIDE']], null, 'A CRAGGLE only grows this big after a trip down a link cable. It weighs as much as a bus. A double-decker one.'],
     ['BOGWUMP', 'PUDDLE', [85, 70, 70, 45], 160, 0.05, [[1, 'SPLOSH'], [1, 'MUD BATH'], [1, 'BUBBLE POP'], [16, 'TIDAL BURP']], null, 'A MUDWUMP that came down a link cable. Bigger, muddier and twice as grumpy. It loves a bath.'],
   ].map(([n, t, b, exp, rate, learn, evo, dex], i) => ({ i, n, t, b, exp, rate, learn, evo, dex }));
+  // Run 2 appends IDs only. Old species, move keys and link messages stay valid.
+  const newCritters = [
+    ['CRESSZILLA','MOSS',0,'Its allotment-sized hair won first prize at the village show. The judges are still missing.'],
+    ['WELLINGTON','PUDDLE',2,'A marching pair of giant boots. It never steps in the same puddle twice. There is no puddle left.'],
+    ['TOASTALOT','EMBER',4,'A breakfast banquet in shining armour. Its round table is buttered on both sides.'],
+    ['DUSTDUVET','FLUFF',6,'It evolved under the bed. Mom has been asking you to tidy that room since last winter.'],
+    ['CRISPRAT','FLUFF',7,'Six bags for the price of one. The free toy inside is another, angrier CRISPRAT.'],
+    ['FAXOMATIC','SPARK',8,'Sends rude drawings to every fax machine in town. The paper bill is enormous.'],
+    ['CONKLET','ROCK',9,'Practises looking tough on a shoelace. School rules say it must wear safety goggles.'],
+    ['CONQUEROR','ROCK',9,'Champion of a thousand playground battles. Nobody dares ask if it has been baked.'],
+    ['CHALKLING','ROCK',9,'Leaves sums on the pavement. All the answers are seven. Even the spelling ones.'],
+    ['BOARDLORD','ROCK',9,'A walking blackboard. It sets homework for its trainer and marks everything in red.'],
+    ['SOGGIP','PUDDLE',2,'A sponge from the bottom of the washing-up bowl. It knows what you had for dinner.'],
+    ['SPONGEZILLA','PUDDLE',2,'Drinks a swimming pool before breakfast. Wringing it out requires planning permission.'],
+    ['JAMJAR','MOSS',0,'A jar of homemade jam with suspicious little feet. Gran says the crunchy bits are seeds.'],
+    ['PRESERVEX','MOSS',0,'Its lid has never been opened. Not by Dad, not with a tea towel, not by anyone.'],
+    ['PEGLET','FLUFF',6,'Clings to the washing line in a gale. Occasionally brings the whole garden indoors.'],
+    ['CLOTHOSAUR','FLUFF',6,'A mountain of washing held together by pegs. It has swallowed your other school shirt.'],
+    ['CASSETTICK','SPARK',8,'Records every embarrassing thing you say. The little plastic tabs have been snapped off.'],
+    ['BOOMBOXER','SPARK',8,'Carries twin speakers and a very serious dance routine. Batteries sold separately.'],
+    ['TEABAG','EMBER',4,'Dangles from a string and complains about the water temperature. Two sugars, please.'],
+    ['TEAPOCALYPSE','EMBER',4,'Brews enough tea for a whole school fete. Even the steam wants a biscuit.'],
+    ['PAPERBAT','FLUFF',7,'Folded from a detention slip. Flies beautifully until it sees a teacher.'],
+    ['HOMEWORK','FLUFF',7,'A whole exercise book with wings. The dog refuses to eat it on professional grounds.'],
+    ['COMPOSTIMP','MOSS',0,'Lives in the green bin and wears a banana skin as a hat. Fashion is subjective.'],
+    ['BINBARON','MOSS',0,'King of the compost heap. Demands tribute in potato peelings and old tea leaves.'],
+    ['DRIPTAP','PUDDLE',2,'Drips exactly when you are trying to sleep. Stops when Dad brings the toolbox.'],
+    ['TAPTITAN','PUDDLE',2,'Hot on the left, cold on the right, chaos everywhere else. Never leave it running.'],
+    ['SNEEZLE','FLUFF',6,'A small sneeze in a very large scarf. Hay fever season is its training montage.'],
+    ['HANKERCHIEF','FLUFF',6,'The masked champion of runny noses. Its cape is always freshly laundered. Allegedly.'],
+    ['COILKID','SPARK',8,'A spring from a broken doorbell. Rings for visitors who have not arrived yet.'],
+    ['COLOSSICOIL','SPARK',8,'A whole scrapyard of springs. It once bounced over the school and missed registration.'],
+    ['COALIMP','EMBER',4,'A cheeky lump from the coal bucket. Draws moustaches on every face in the newspaper.'],
+    ['FURNACER','EMBER',4,'Stokes its own boiler. Has strong opinions about radiators and very warm pockets.'],
+    ['CLAYTCH','ROCK',9,'Made in pottery class. The teacher called it a bowl. It has taken that personally.'],
+    ['CROCKODISH','ROCK',9,'An entire angry dinner service. Every plate has a chip on its shoulder.'],
+    ['CRUMBLING','ROCK',9,'A biscuit with delusions of grandeur. Its throne is the bottom of the tin.'],
+    ['BISCUITANK','ROCK',9,'Armoured in twice-baked biscuit. Dunking it takes a bath and a great deal of courage.'],
+    ['ALARMAGEDDON','SPARK',8,'The legendary alarm clock. Once wound, it rings until somebody finishes their homework.'],
+  ];
+  const typeMoves = { MOSS:['LEAF LICK','TWIG SNAP','MOSS BLAST','SPORE CLOUD'], PUDDLE:['SPLOSH','BUBBLE POP','TIDAL BURP','MUD BATH'], EMBER:['SIZZLE','CINDER SPIT','FLARE UP','STEAM HISS'], SPARK:['ZAP','STATIC POP','THUNDERCLAP','EEL WHIP'], ROCK:['PEBBLE TOSS','ROCK SLAM','LANDSLIDE','HARDEN'], FLUFF:['NIBBLE','POUNCE','QUICK PECK','PUFF UP'] };
+  newCritters.forEach(([n,t,template,dex],j) => {
+    const i=23+j, final=j<6 || j===36 || (j>=6 && j%2===1), src=SP[template], m=typeMoves[t];
+    const b=src.b.map((v,k)=>Math.min(115,v+(j<3?40:final?26:6)+(k===3&&t==='FLUFF'?12:0)));
+    SP.push({i,n,t,b,exp:final?158:72,rate:j===36?0.04:final?0.18:0.6,
+      learn:[[1,'BONK'],[1,m[0]],[8,m[3]],[15,m[1]],[24,m[2]]],
+      evo:final?null:[22,i+1],dex});
+  });
+  [[1,23],[3,24],[5,25]].forEach(([s,t])=>{SP[s].evo=[32,t];});
+  [[6,26],[7,27],[8,28]].forEach(([s,t])=>{SP[s].evo=[24,t];});
   const NSP = SP.length;
   const TRADE_EVO = { 10: 21, 11: 22 }; // CRAGGLE -> GRANITAN, MUDWUMP -> BOGWUMP
   const VERSIONS = {
-    moss: { name: 'MOSS VERSION', only: [12, 15, 16], swap: {} },
-    puddle: { name: 'PUDDLE VERSION', only: [17, 18, 19, 20], swap: { 12: 17, 16: 19, 15: 20 } },
+    moss: { name: 'MOSS VERSION', only: [12, 15, 16, 35, 36, 45, 46], swap: {} },
+    puddle: { name: 'PUDDLE VERSION', only: [17, 18, 19, 20, 33, 34, 47, 48], swap: { 12: 17, 16: 19, 15: 20, 35: 33, 36: 34, 45: 47, 46: 48 } },
   };
 
   // ---- the sums (the same as the cartridge's)
