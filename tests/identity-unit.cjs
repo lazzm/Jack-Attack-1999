@@ -43,7 +43,7 @@ assert.deepEqual(ids.map(a.n), family);
 assert.equal(a.n('cousin'), cousin, 'Keep the old roaming cast');
 assert.equal(a.seed(), 123);
 assert.equal(a.me().he, 'she'); assert.equal(a.me().son, 'daughter'); assert.equal(a.me().lad, 'girl');
-assert.equal(a.t('{me} packed {me.his} bag. {me.He} is a {me.boy} and a {me.lad}.'), 'Sarah packed her bag. She is a girl and a lass.');
+assert.equal(a.t('{me} packed {me.his} bag. {me.He} is a {me.boy} and a {me.lad}.'), 'Sarah packed her bag. She is a girl and a girl.');
 assert.equal(a.t('{me?boy|girl}'), 'girl');
 assert.deepEqual(['jack', 'dave', 'luke', 'callum', 'jackk', 'jsister'].map(a.n), ['Jack', 'Dave', 'Luke', 'Callum', 'JackK', 'Crystal']);
 assert.equal(a.idOfSlug('lucy'), 'jsister');
