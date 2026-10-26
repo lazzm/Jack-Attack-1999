@@ -229,9 +229,9 @@
  const direction=(face,u,v)=>{const a=2*u-1,b=1-2*v;return new T.Vector3(...[[1,b,-a],[-1,b,a],[a,1,-b],[a,-1,b],[a,b,1],[-a,b,-1]][face]).normalize()};
  const sun=new T.Vector3(-.45,.58,.7).normalize(),moon=new T.Vector3(.6,.5,-.6).normalize();
  let last='',lastMinute=-1;
- function phase(){const cl=document.getElementById('bootPower')?.classList;for(const p of ['night','dusk','dawn','day'])if(cl?.contains('rm-'+p))return p;const h=new Date().getHours();return h<6||h>=20?'night':h<8?'dawn':h>=18?'dusk':'day'}
+ function phase(){const cl=document.getElementById('bootPower')?.classList;for(const p of ['night','dusk','dawn','day'])if(cl?.contains('rm-'+p))return p;const h=(window.OwnerTools?.now()||new Date()).getHours();return h<6||h>=20?'night':h<8?'dawn':h>=18?'dusk':'day'}
  function update(){
-  const ph=phase(),minute=new Date().getMinutes();if(ph===last&&minute===lastMinute)return;lastMinute=minute;if(ph===last)return;last=ph;
+  const ph=phase(),minute=(window.OwnerTools?.now()||new Date()).getMinutes();if(ph===last&&minute===lastMinute)return;lastMinute=minute;if(ph===last)return;last=ph;
   const colours={day:['#477db1','#cedadf'],dusk:['#363a64','#d89774'],dawn:['#54577d','#ddb69a'],night:['#080f23','#26344b']}[ph],zenith=new T.Color(colours[0]),horizon=new T.Color(colours[1]),night=ph==='night';
   faces.forEach((c,face)=>{const g=c.getContext('2d'),im=g.createImageData(256,256),d=im.data;
    for(let y=0;y<256;y++)for(let x=0;x<256;x++){

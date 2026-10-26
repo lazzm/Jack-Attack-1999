@@ -40,7 +40,7 @@ function verified(k, p, s) {
   return p.flags[s.id] === true;
 }
 function advance(k, p) {
-  if (p.flags.veteran) return [];
+  if (p.flags.veteran || k==='jack' && p.flags.ownerChapter===p.ch) return [];
   const completed = [];
   for (const s of CAT.steps) {
     if (own(p.done, s.id)) continue;

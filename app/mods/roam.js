@@ -101,6 +101,16 @@ function resetInstalls(name) {
 }
 
 module.exports = {
+  // Fixed owner key only. The caller snapshots before replacing; preserve exact
+  // file bytes (including timestamp/encoding) for a lossless restore.
+  ownerRead() { try { return fs.readFileSync(fileOf('jack')).toString('base64'); } catch (e) { if(e.code==='ENOENT')return null; throw e; } },
+  ownerWrite(raw) {
+    const f=fileOf('jack'); fs.mkdirSync(DIR,{recursive:true});
+    if(raw===null){if(fs.existsSync(f))fs.unlinkSync(f);return;}
+    const bytes=Buffer.from(raw,'base64'); JSON.parse(bytes.toString());
+    fs.writeFileSync(f+'.owner-tmp',bytes,{mode:0o600});fs.renameSync(f+'.owner-tmp',f);
+  },
+  ownerFresh() { return {ts:Date.now(),enc:'raw',data:Buffer.from(JSON.stringify(starterProfile())).toString('base64')}; },
   seedStarter,
   seedNewPlayer,
   upgradeStarter,
@@ -111,13 +121,17 @@ module.exports = {
   init(c) { ctx = c; try { fs.mkdirSync(DIR, { recursive: true }); } catch (e) { console.error('roam: cannot create', DIR, e.message); } },
   handle(ws, c, m) {
     if (!c.member) return ctx.send(ws, { t: 'rmNone', guest: true });
+    const owner=c.member.toLowerCase()==='jack',revision=owner?(ctx.state.mods.owner?.revision||0):0;
+    if(owner&&m.t==='rmPut'&&(+m.ownerRev||0)!==revision){
+      c.roamUp=null;c.ownerReload=true;return ctx.send(ws,{t:'ownerReload',profile:read('jack')||{ts:0,enc:'raw',data:'e30='},ownerRev:revision});
+    }
     if (!c.roamRl) c.roamRl = { get: new ctx.Bucket(0.2, 3), put: new ctx.Bucket(0.05, 2) };
     if (m.t === 'rmGet') {
       if (!c.roamRl.get.take()) return;
       const p = read(c.member);
-      if (!p) return ctx.send(ws, { t: 'rmNone' });
-      if (+m.since && +m.since >= p.ts) return ctx.send(ws, { t: 'rmSame', ts: p.ts });
-      return ctx.send(ws, { t: 'rmData', ts: p.ts, enc: p.enc, data: p.data });
+      if (!p) return ctx.send(ws, owner&&revision ? {t:'rmData',ts:0,enc:'raw',data:'e30=',ownerRev:revision} : { t: 'rmNone' });
+      if ((!owner||(+m.ownerRev||0)===revision) && +m.since && +m.since >= p.ts) return ctx.send(ws, { t: 'rmSame', ts: p.ts });
+      return ctx.send(ws, { t: 'rmData', ts: p.ts, enc: p.enc, data: p.data, ...(owner?{ownerRev:revision}:{}) });
     }
     if (m.t === 'rmPut') {
       const id = String(m.id || '').slice(0, 20), i = m.i | 0, n = m.n | 0, d = typeof m.d === 'string' ? m.d : '';

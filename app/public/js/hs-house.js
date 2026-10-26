@@ -1099,7 +1099,7 @@
     const blink = Math.floor(now / 600) % 2 === 0;
     for (const [rid, key, set] of [['lounge', 'vcrTex', 'vcrSet'], ['kitchen', 'mwTex', 'mwSet']]) {
       const r = HouseRooms.rooms[rid]; if (!r || !r[key] || !r.group.visible) continue;
-      const d = new Date(), txt = (window.HouseLife && HouseLife[set] && HouseLife[set]()) ? (d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0')) : (blink ? '12:00' : '');
+      const d = window.OwnerTools?.now() || new Date(), txt = (window.HouseLife && HouseLife[set] && HouseLife[set]()) ? (d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0')) : (blink ? '12:00' : '');
       if (r['_' + key] === txt) continue; r['_' + key] = txt;
       const g = r[key].userData.g, w = r[key].image.width, hh = r[key].image.height; g.fillStyle = '#081008'; g.fillRect(0, 0, w, hh); g.font = '700 ' + (hh - 6) + 'px "Courier New",monospace'; g.textAlign = 'center'; g.fillStyle = rid === 'lounge' ? '#3affb0' : '#7affe0'; g.shadowColor = g.fillStyle; g.shadowBlur = 6; g.fillText(txt, w / 2, hh - 6); g.shadowBlur = 0; r[key].needsUpdate = true; H.dirty();
     }

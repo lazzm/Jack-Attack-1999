@@ -10,6 +10,7 @@
 const path = require('path');
 const CAT = require(path.join(__dirname, '..', 'public', 'js', 'pm-cat.js'));
 const ECON = require('./econ.js');
+const releaseMd=require('./account-clock.js');
 try { CAT.addCarts(require(path.join(__dirname, '..', 'public', 'js', 'rm-cat.js'))); } catch (e) {}
 
 const own = (o, k) => o != null && Object.prototype.hasOwnProperty.call(o, k);
@@ -22,10 +23,10 @@ function P(key) {
   if (!Array.isArray(p.o)) p.o = []; p.n = p.n | 0; p.day = p.day || '';
   return p;
 }
-const todayMd = () => { const d = E.uk().day; return +d.slice(5, 7) * 100 + +d.slice(8, 10); };
+const todayMd = key => releaseMd(ctx.state,{ready:true,member:key||''},E.uk().day);
 function view(key) {
   const p = P(key), a = E.acct({ member: ctx.state.members[key] ? ctx.state.members[key].name : key });
-  return { t: 'pmxMe', orders: p.o.map(o => ({ no: o.no, id: o.id, price: o.price, ts: o.ts })), today: p.day === E.uk().day ? p.n : 0, max: CAT.DAYMAX, bal: a ? a.bal : 0, md: todayMd() };
+  return { t: 'pmxMe', orders: p.o.map(o => ({ no: o.no, id: o.id, price: o.price, ts: o.ts })), today: p.day === E.uk().day ? p.n : 0, max: CAT.DAYMAX, bal: a ? a.bal : 0, md: todayMd(key) };
 }
 const err = (ws, msg) => ctx.send(ws, { t: 'pmxErr', msg });
 let lastOrder = new Map(); // member key -> ts (no double clicks)
@@ -35,7 +36,7 @@ function order(ws, c, m) {
   const it = CAT.byId[id], p = P(key), day = E.uk().day, now = Date.now();
   if (now - (lastOrder.get(key) || 0) < 1500) return err(ws, 'Hang on, the order line is still ringing...');
   lastOrder.set(key, now);
-  if (!CAT.out(it, todayMd())) return err(ws, `${it.title} isn't out yet! It's in the shops from ${it.rel.replace('/', ' / ')}. Order it then.`);
+  if (!CAT.out(it, todayMd(key))) return err(ws, `${it.title} isn't out yet! It's in the shops from ${it.rel.replace('/', ' / ')}. Order it then.`);
   if (p.o.some(o => o.id === id)) return err(ws, `You've already got ${it.title}! It's on your shelf.`);
   if (p.day !== day) { p.day = day; p.n = 0; }
   if (p.n >= CAT.DAYMAX) return err(ws, `That's ${CAT.DAYMAX} orders today. Mom says that's enough parcels for one day. Try again tomorrow!`);

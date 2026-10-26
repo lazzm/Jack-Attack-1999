@@ -1,4 +1,4 @@
-/* hs-edit.js: in-world layout editor ("god mode"). Only for the logged-in JackNet member Jack. F9 toggles it while walking.
+/* hs-edit.js: in-world layout editor ("god mode"). Only for the logged-in JackNet member Jack. Backquote toggles owner tools; F9 remains an alias.
  * Local only: it nudges groups (position / rotation.y in the parent's own frame, the numbers the build code uses), keeps the
  * edits in localStorage (re-applied after a refresh) and exports them as JSON. Hooks in hs-world.js: House.god (a tick fn, set only
  * while the mode is on) is called from tickWalk and makes onKey step aside. Nothing here runs for anybody else. */
@@ -9,7 +9,7 @@
   const r1 = v => Math.round(v * 10) / 10, r2 = v => Math.round(v * 100) / 100;
   let saved = {}; try { saved = JSON.parse(localStorage.getItem(LS) || '{}') || {}; } catch (e) { saved = {}; }
   const store = () => { try { localStorage.setItem(LS, JSON.stringify(saved)); } catch (e) {} };
-  const isJack = () => { try { const m = (typeof Net !== 'undefined' ? Net : window.Net); const me = m && m.me; return !!(me && me.member && /^jack$/i.test(me.nick || '')); } catch (e) { return false; } };
+  const isJack = () => !!window.OwnerTools?.allowed;
 
   // ---- tag every Group as it is added to something, with the file:line that added it (this is what gives models their names)
   const pending = [], reg = new Map(), counts = {}, srcCache = {}, claimedEdits=new Set();
@@ -120,7 +120,7 @@
   }
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   function render() {
-    if (!panel) return; const c = panel.querySelector('.c'); let h = '<b>GOD MODE</b> <span class="d">F9 exit</span><br><span class="d">WASD fly, Space/C up/dn, Shift fast, Esc mouse on/off<br>click or E select, arrows move, PgUp/PgDn y, [ ] rotate, R reset</span><hr style="border:0;border-top:1px solid rgba(120,255,200,.2);margin:4px 0">';
+    if (!panel) return; const c = panel.querySelector('.c'); let h = '<b>GOD MODE</b> <span class="d">` owner tools</span><br><span class="d">WASD fly, Space/C up/dn, Shift fast, Esc game menu<br>click or E select, arrows move, PgUp/PgDn y, [ ] rotate, R reset</span><hr style="border:0;border-top:1px solid rgba(120,255,200,.2);margin:4px 0">';
     if (sel) {
       const i = info(sel), v = vals(sel);
       h += '<b>' + esc(i.name) + '</b> <span class="d">' + esc(i.room) + (i.file ? ' ' + esc(i.file) : '') + '</span><br>' + (i.note ? '<span class="d">' + esc(i.note) + '</span><br>' : '') + '<span class="d">in ' + esc(i.parentName) + '</span><br>' +
@@ -172,11 +172,11 @@
     return Math.abs(x) > Math.abs(z) ? new T.Vector3(Math.sign(x), 0, 0) : new T.Vector3(0, 0, Math.sign(z));
   }
   function onKey(ev) {
-    if (ev.code === 'F9') {
-      if (ev.repeat) return;
-      if (on) { ev.preventDefault(); ev.stopPropagation(); exit(); return; }
-      const h = H(); if (isJack() && h && h.ok && h.mode === 'walk' && h.stood && !h.busy) { ev.preventDefault(); ev.stopPropagation(); enter(); }
-      return;
+    if (window.OwnerTools?.typing(ev.target) || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if (ev.code === 'Backquote' || ev.code === 'F9') {
+      if (!isJack() || ev.repeat) return;
+      ev.preventDefault(); ev.stopImmediatePropagation();
+      window.OwnerTools.toggle(); return;
     }
     if (!on) return;
     const t = ev.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
@@ -185,7 +185,7 @@
     const c = ev.code, shift = ev.shiftKey;
     if (/^(KeyW|KeyA|KeyS|KeyD|Space|KeyC|ShiftLeft|ShiftRight)$/.test(c)) { gk[c] = true; ev.preventDefault(); return; }
     ev.preventDefault();
-    if (c === 'Escape') { if (!locked() && !ev.repeat) { try { const r = cvEl().requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) {} } return; }
+    if (c === 'Escape') { window.OwnerTools?.escape(); return; }
     if (c === 'KeyE' || c === 'Enter') { if (!ev.repeat) { const [x, y] = centre(); selectAt(x, y); } return; }
     if (!sel || !sel.userData.ed) return;
     if (/^Arrow/.test(c)) nudgeWorld(sel, arrowDir(c), shift ? 10 : 1);
@@ -198,7 +198,7 @@
   addEventListener('blur', () => { for (const k in gk) delete gk[k]; });
 
   // mouse: while the mode is on the world's own click / drag-to-look / re-lock stay out of it
-  const inPanel = ev => panel && panel.contains(ev.target);
+  const inPanel = ev => panel && panel.contains(ev.target) || !!ev.target.closest?.('.owner-tools');
   for (const n of ['mousedown', 'mouseup', 'click', 'pointerup']) addEventListener(n, ev => { if (on && !inPanel(ev)) { ev.stopPropagation(); if (n === 'pointerup' && drag) { try { drag = null; } catch (e) {} } } }, true);
   addEventListener('pointerdown', ev => {
     if (!on || inPanel(ev)) return; ev.stopPropagation(); if (ev.button !== 0) return;
@@ -255,6 +255,6 @@
     try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' })); a.download = 'layout-edits.json'; body().appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); } catch (e) {}
     lastMsg = 'exported ' + edits.length + ' edit(s)' + (ok ? ', copied' : ''); if (!sel) render();
   }
-  window.HouseEdit = { get on() { return on; }, get selected() { return sel && nameOf(sel); }, saved: () => saved, exportJSON: () => window.__hsEditLast };
+  window.HouseEdit = { get on() { return on; }, setEnabled(value) { if (!isJack()) return false; const h=H(); if (!value) { if(on)exit(); return true; } if(on)return true; if(!h?.live||h.mode!=='walk'||!h.stood||h.busy||h.paused)return false; enter(); return true; }, get selected() { return sel && nameOf(sel); }, saved: () => saved, exportJSON: () => window.__hsEditLast };
   Object.defineProperty(window, 'HouseEdit', { enumerable: false });
 })();

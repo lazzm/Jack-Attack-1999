@@ -278,7 +278,7 @@ back next year!!!
   sfxIcon();
   document.addEventListener('sfxchange', sfxIcon);
   $('netBtn').addEventListener('click', () => window.JackIRC && JackIRC.launch ? JackIRC.launch({ autojoin: true }) : go('chat', 'click'));
-  function clock() { const d = new Date(); $('clock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); const t = today99(); $('clock').title = `${DAYS[t.date.getDay()]}, ${t.d} ${MONTHS[t.m - 1]} 1999`; }
+  function clock() { const d = window.OwnerTools?.now() || new Date(); $('clock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); const t = today99(); $('clock').title = `${DAYS[t.date.getDay()]}, ${t.d} ${MONTHS[t.m - 1]} 1999`; }
 
   // ================================================================ cheats
   let paintball = false, rainbow = false, big = false;
@@ -361,7 +361,7 @@ back next year!!!
   const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   let newsShown = 10;
   function today99() { // same day and month, but in 1999 (which had no 29 February)
-    const n = now();
+    const n = window.OwnerTools?.clock ? OwnerTools.now() : now();
     let m = n.getMonth() + 1, d = n.getDate();
     if (m === 2 && d === 29) d = 28;
     return { m, d, md: m * 100 + d, date: new Date(1999, m - 1, d) };
@@ -433,6 +433,7 @@ back next year!!!
 
   // ================================================================ start up (JackNet Explorer opens the first page)
   clock(); setInterval(clock, 10000);
+  addEventListener('ownerclock',()=>{clock();calendar();});
   $('clock').addEventListener('dblclick', () => {
     const t = today99(), first = new Date(1999, t.m - 1, 1).getDay(), days = new Date(1999, t.m, 0).getDate();
     const body = document.createElement('div');
