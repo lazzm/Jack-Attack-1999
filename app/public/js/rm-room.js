@@ -230,7 +230,7 @@
     const batch = K.batch(), B = K.into(batch);
     // ---- walls (the back one has the window in it, the right one the door), floor, Artex ceiling
     const wm = mWall();
-    const wall = (x, y, z, w, h, ry) => B.plane(x, y, z, w, h, wm, { ry, uv: 128 });
+    const wall = (x, y, z, w, h, ry) => B.panel(x, y, z, w, h, 4, wm, { ry, uv: 128 });
     wall((LX + WIN.x0) / 2, (CY + FY) / 2, BZ, WIN.x0 - LX, FY - CY, 0);
     wall((WIN.x1 + RX) / 2, (CY + FY) / 2, BZ, RX - WIN.x1, FY - CY, 0);
     wall((WIN.x0 + WIN.x1) / 2, (CY + WIN.y0) / 2, BZ, WIN.x1 - WIN.x0, WIN.y0 - CY, 0);
@@ -240,8 +240,8 @@
     wall(RX, (CY + FY) / 2, (BZ + DOOR.z0) / 2, DOOR.z0 - BZ, FY - CY, -90);
     wall(RX, (CY + FY) / 2, (DOOR.z1 + FZ) / 2, FZ - DOOR.z1, FY - CY, -90);
     wall(RX, (CY + DOOR.y0) / 2, (DOOR.z0 + DOOR.z1) / 2, DOOR.z1 - DOOR.z0, DOOR.y0 - CY, -90);
-    B.plane((LX + RX) / 2, FY, (BZ + FZ) / 2, RX - LX, FZ - BZ, M({ c: '#ffffff', map: tex('carpetBlue') }), { rx: 90, uv: 90 });
-    B.plane((LX + RX) / 2, CY, (BZ + FZ) / 2, RX - LX, FZ - BZ, M({ c: '#ffffff', map: tex('artex') }), { rx: -90, uv: 110 });
+    B.panel((LX + RX) / 2, FY, (BZ + FZ) / 2, RX - LX, FZ - BZ, 2, M({ c: '#ffffff', map: tex('carpetBlue') }), { rx: 90, uv: 90 });
+    B.panel((LX + RX) / 2, CY, (BZ + FZ) / 2, RX - LX, FZ - BZ, 2, M({ c: '#ffffff', map: tex('artex') }), { rx: -90, uv: 110 });
     // skirting boards, the wallpaper border, coving where the walls meet the ceiling
     const skirt = (x0, z0, x1, z1, ry) => { const len = Math.hypot(x1 - x0, z1 - z0); B.box((x0 + x1) / 2, FY - 4.5, (z0 + z1) / 2, len, 9, 1.6, mSkirt, { ry }); };
     skirt(LX, BZ + 0.8, RX, BZ + 0.8, 0); skirt(LX + 0.8, BZ, LX + 0.8, FZ, 90); skirt(LX, FZ - 0.8, RX, FZ - 0.8, 0);
@@ -286,10 +286,10 @@
   function buildWindow(B) {
     const cx = (WIN.x0 + WIN.x1) / 2, cy = (WIN.y0 + WIN.y1) / 2, w = WIN.x1 - WIN.x0, h = WIN.y1 - WIN.y0, dep = 14;
     // the reveal (the wall is thick) and the outside
-    B.plane(cx, WIN.y0, BZ - dep / 2, w, dep, M('#d8d4c8'), { rx: -90 });
-    B.plane(cx, WIN.y1, BZ - dep / 2, w, dep, M('#d8d4c8'), { rx: 90 });
-    B.plane(WIN.x0, cy, BZ - dep / 2, dep, h, M('#d0ccc0'), { ry: 90 });
-    B.plane(WIN.x1, cy, BZ - dep / 2, dep, h, M('#d0ccc0'), { ry: -90 });
+    B.panel(cx, WIN.y0, BZ - dep / 2, w, dep, .4, M('#d8d4c8'), { rx: -90 });
+    B.panel(cx, WIN.y1, BZ - dep / 2, w, dep, .4, M('#d8d4c8'), { rx: 90 });
+    B.panel(WIN.x0, cy, BZ - dep / 2, dep, h, .4, M('#d0ccc0'), { ry: 90 });
+    B.panel(WIN.x1, cy, BZ - dep / 2, dep, h, .4, M('#d0ccc0'), { ry: -90 });
     // Outside is shared with the kitchen: never stack two sky cards here.
     // UPVC frame: outer frame, mullion, transom with a top opener
     const fm = M({ c: '#f2f0ea', sh: 40, sp: '#444' }), fz = BZ - dep + 3;
@@ -630,7 +630,7 @@
     const clothPoint = (rad,y,a) => {
       const fold = Math.sin(a*6+0.4)*0.55*Math.sin(Math.PI*rad/32);
       const squash=(Math.max(0,Math.cos(a))*7-Math.max(0,-Math.cos(a))*12)*Math.sin(Math.PI*rad/32);
-      return new T.Vector3(Math.sin(a)*(rad+fold),y+squash,Math.cos(a)*(rad+fold)*0.88);
+      return new T.Vector3(Math.sin(a)*(rad+fold),Math.min(-.1,y+squash),Math.cos(a)*(rad+fold)*0.88);
     };
     const skin = new T.LatheGeometry(profile.map(([rad,y])=>new T.Vector2(rad,y)),48), pos=skin.attributes.position;
     for(let i=0;i<pos.count;i++){const a=Math.atan2(pos.getX(i),pos.getZ(i)),p=clothPoint(Math.hypot(pos.getX(i),pos.getZ(i)),pos.getY(i),a);pos.setXYZ(i,p.x,p.y,p.z)}
@@ -740,7 +740,7 @@
     if(!hasConsole(id)||R.consoles?.[id])return;
     const g = new T.Group(); g.position.set(x, y, z); r.group.add(g); const C = K.into(g);
     C.rbox(0, -h / 2, 0, w, h, d, 0.8, M({ c: col, sh: 18, sp: '#222' }));
-    C.plane(0, -h - 0.02, 0, w - 1.6, d - 1.6, M({ c: '#fff', map: tex(top) }), { rx: 90 });
+    C.decal(0, -h - K.SURFACE_LIFT, 0, w - 1.6, d - 1.6, M({ c: '#fff', map: tex(top) }), { rx: 90 });
     const slotY = y - h - 0.24;
     R.consoles = R.consoles || {};
     const machine = R.consoles[id] = { obj: g, x, baseY:y, portX:x-w*.29, y: slotY, z: z - 1, disc: CAT.CONSOLES[id].media === 'disc' };
@@ -1180,9 +1180,9 @@
     // The shared 240..250 reveal must survive either room being culled.
     const frame = new T.Group(); frame.name = 'bedroom-door-frame';
     const J = K.into(frame), jm = M('#e4e0d4'), mid = (z0 + z1) / 2, height = FY - y0;
-    J.box(x + 5, (y0 + FY) / 2, z0 - 1, 10, height, 2, jm);
-    J.box(x + 5, (y0 + FY) / 2, z1 + 1, 10, height, 2, jm);
-    J.box(x + 5, y0 - 1, mid, 10, 2, z1 - z0, jm);
+    J.box(x + 5, (y0 + FY) / 2, z0 - 1 + K.SURFACE_LIFT, 9.76, height, 2, jm);
+    J.box(x + 5, (y0 + FY) / 2, z1 + 1 - K.SURFACE_LIFT, 9.76, height, 2, jm);
+    J.box(x + 5, y0 - 1 + K.SURFACE_LIFT, mid, 9.76, 2, z1 - z0, jm);
     // A real planted stop overlaps the leaf clearances on its landing side;
     // it stays clear of the leaf's inward swing (closed outer face x244.8).
     J.box(x + 6, (y0 + FY) / 2, z0 + 1, 2, height, 2.4, fm);
@@ -1190,7 +1190,7 @@
     J.box(x + 6, y0 + 0.8, mid, 2, 2, z1 - z0 - 4.4, fm);
     J.box(x + 6, FY - 0.4, mid, 2, 0.8, z1 - z0 - 4.4, jm);
     const dp = new T.Group(); dp.position.set(x + 3, 0, z1); r.group.add(dp); const DP = K.into(dp);
-    const dw = z1 - z0 - 1, dh = FY - y0 - 1, dc = -dw / 2;
+    const dw = z1 - z0 - 1 - K.SURFACE_LIFT * 2, dh = FY - y0 - 1, dc = -dw / 2 - K.SURFACE_LIFT;
     DP.box(0, y0 + 0.5 + dh / 2, dc, 3.6, dh, dw, M({ c: '#efebe2', map: tex('whiteGloss'), sh: 24, sp: '#333' }));
     [[-0.17, -0.25], [0.17, -0.25], [-0.17, 0.2], [0.17, 0.2]].forEach(([u, v]) => [-1.95, 1.95].forEach(xx => DP.box(xx, y0 + 0.5 + dh * (0.5 + v), dc + u * dw * 1.5, 0.4, dh * 0.38, dw * 0.34, M('#e2ded4'))));
     [-1, 1].forEach(s => { DP.box(s * 2.4, -30, dc - dw / 2 + 7, 1.2, 2.2, 1.6, mBrass); DP.box(s * 4, -30, dc - dw / 2 + 10, 1.4, 1.4, 7, mBrass); });

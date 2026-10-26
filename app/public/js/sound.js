@@ -1,6 +1,6 @@
-/* Sound Blaster 16 emulation (WebAudio). Nothing plays until the visitor clicks something. */
+/* Sound Rumbler 16 (procedural Web Audio). Nothing plays until the visitor clicks something. */
 (function () {
-  let ctx = null, master = null, musicMaster = null;
+  let ctx = null, master = null, musicMaster = null, worldMaster = null, worldPaused = false;
   let sfxOn = false, musicOn = false, volume = 1;
   try {
     const legacy = localStorage.getItem('jhp_sfx') === '1';
@@ -48,6 +48,7 @@
       ctx = new AC();
       master = ctx.createGain(); master.gain.value = 0.25; master.connect(output(ctx));
       musicMaster = ctx.createGain(); musicMaster.gain.value = 0.25; musicMaster.connect(output(ctx,'music'));
+      worldMaster = ctx.createGain(); worldMaster.gain.value = worldPaused ? 0 : 0.25; worldMaster.connect(output(ctx));
     }
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
@@ -62,7 +63,7 @@
     if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
     g.gain.setValueAtTime(vol == null ? 0.3 : vol, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    o.connect(g); g.connect(channel === 'music' ? musicMaster : master);
+    o.connect(g); g.connect(channel === 'music' ? musicMaster : channel === 'world' ? worldMaster : master);
     o.start(t); o.stop(t + dur + 0.02);
   }
 
@@ -76,7 +77,7 @@
     const src = c.createBufferSource(); src.buffer = buf;
     const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = filterFreq || 1200; f.Q.value = 0.8;
     const g = c.createGain(); g.gain.setValueAtTime(vol || 0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    src.connect(f); f.connect(g); g.connect(channel === 'music' ? musicMaster : master);
+    src.connect(f); f.connect(g); g.connect(channel === 'music' ? musicMaster : channel === 'world' ? worldMaster : master);
     src.start(t);
   }
 
@@ -171,6 +172,33 @@
     stop() { this.playing = ''; clearInterval(musicTimer); musicTimer = null; },
   };
 
+  // Short, original physical sounds. They share the effects/volume bus but
+  // have a separate pause gain, so the menu's own buttons remain audible.
+  function world(kind, o = {}) {
+    if (!sfxOn || !volume || worldPaused || document.hidden) return;
+    const t = (f,d,v=0.06,when=0,to,type='sine') => tone(f,d,type,v,when,to,'world');
+    const n = (d,v,f,when=0) => noise(d,v,when,f,'world');
+    if (kind === 'step') {
+      const profiles = {carpet:[.09,.055,300],lino:[.055,.07,1050],tile:[.045,.085,1700],stairs:[.09,.08,460],paving:[.055,.075,1300],grass:[.13,.055,2300]};
+      const [d,v,f] = profiles[o.surface] || profiles.carpet;
+      n(d,v,f*(.92+Math.random()*.16));
+      if (['lino','tile','paving','stairs'].includes(o.surface)) t(o.surface==='stairs'?95:145,.07,.045,0,65);
+      if (o.surface === 'stairs' && Math.random()<.18) t(195,.16,.012,.025,145,'triangle');
+    } else if (kind === 'handle') {
+      const heavy=o.weight==='heavy',light=o.weight==='light';
+      n(o.put?.09:.055,heavy?.09:light?.028:.055,light?2400:heavy?230:700);
+      if (o.put) t(heavy?72:light?480:140,heavy?.16:.07,heavy?.12:.04,0,heavy?40:90);
+    } else if (kind === 'door') {
+      n(.07,.06,1800);n(.25,.025,430,.05);
+      if (!o.open) {t(85,.16,.12,.28,40);n(.04,.06,1400,.3);}
+      else t(175,.2,.012,.08,140,'triangle');
+    } else if (kind === 'drawer') {n(.24,.045,650);n(.055,.06,350,.22);}
+    else if (kind === 'switch') {n(.015,.06,2700);t(1200,.012,.025);}
+    else if (kind === 'kettle') {n(1.3,.045,800);n(1.4,.025,2400,.35);n(.025,.06,1600,1.8);}
+    else if (kind === 'clock') {n(.012,.012,2100);t(o.side?1700:1450,.018,.008);}
+    else if (kind === 'road') n(.7,.009,230);
+    else if (kind === 'bird') {t(2450,.09,.018,0,3300);t(3100,.12,.012,.16,2200);}
+  }
   window.Sound = {
     get on() { return sfxOn || musicOn; },
     set on(v) { sfxOn = musicOn = !!v; changed(); },
@@ -181,6 +209,8 @@
     get volume() { return volume; },
     get ready() { return ready(); },
     output,
+    world,
+    worldPause(on) { worldPaused=!!on; if(ctx&&worldMaster)worldMaster.gain.setTargetAtTime(on?0:.25,ctx.currentTime,.012); },
     play(name) { if (sfxOn && sfx[name]) { try { sfx[name](); } catch (e) {} } },
     setVolume(v) { if (!Number.isFinite(+v)) return; volume = Math.max(0, Math.min(1, +v)); changed(); },
     speak(utterance) { if (sfxOn && volume && window.speechSynthesis) { utterance.volume *= volume; speechSynthesis.speak(utterance); } },
