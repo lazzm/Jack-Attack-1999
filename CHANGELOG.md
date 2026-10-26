@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.52.0 - 2026-10-26
+- Pocket Critters (Moss and Puddle Versions): moves now have PP and need healing items and the Critter Centre; sleep, static and pong conditions; catching depends on HP and conditions with the proper shake sequence; field moves open shortcuts; your rival comes back for a rematch; a progression journal and a proper ending. Battles, rewards, badges and the starter scene survive a refresh mid-turn. New four-shade artwork, badge ceremonies, and tidier battle and Critterdex screens. Old saves carry on.
+
 ## 2.51.0 - 2026-10-26
 - New story opening: brand-new players start with an empty desk and just the Game Lad. After Mom's first jobs, Dad comes home: the office is chucking out the old computers and his is in the car boot. Open the boot, carry the tower, the heavy CRT (you walk slower), keyboard and speakers upstairs, place them on the glowing desk spots, plug the leads into the highlighted ports, press power and install JackOS from floppies. Everyone who already had a PC keeps it.
 - Quest guidance: the current objective's object glows, a marker shows it from afar, an arrow points when it's behind you, prompts appear in range, first-time control hints, "Objective complete" banners with a sound, and chapter title cards. Pause menu > Guidance: Full / Light / Off.
