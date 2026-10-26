@@ -131,5 +131,6 @@ module.exports = {
     pending.set(item.id, { sender: key, recipient: target, to: raw, ts: Date.now() });
     for (const [w] of targets) ctx.send(w, { t: 'smsNew', item });
     ctx.send(ws, { t: 'smsSent', ref, ok: true, to: raw, id: item.id, queued: !targets.length });
+    ctx.emit?.('story-phone', c); // successful send remains observable after the recipient acknowledges it
   },
 };
