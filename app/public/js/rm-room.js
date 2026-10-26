@@ -157,7 +157,8 @@
   let skyPhase = '';
   function paintSky() {
     const d = window.OwnerTools?.now() || new Date(), h = d.getHours() + d.getMinutes() / 60, mo = d.getMonth();
-    const rise = 7.5 - Math.cos((mo + 0.5) / 12 * Math.PI * 2) * 1.6, set = 17.5 + Math.cos((mo + 0.5) / 12 * Math.PI * 2) * -2.2 + 0.4; // (rough, for southern England)
+    // Clock-time sunrise/sunset with 1999's BST rule (js/season-cat.js); the old rough curve is the fallback.
+    const sn = window.Season?.sun?.(d), rise = sn ? sn.rise : 7.5 - Math.cos((mo + 0.5) / 12 * Math.PI * 2) * 1.6, set = sn ? sn.set : 17.5 + Math.cos((mo + 0.5) / 12 * Math.PI * 2) * -2.2 + 0.4;
     const ph = h < rise - 0.7 || h > set + 0.7 ? 'night' : h < rise + 0.6 ? 'dawn' : h > set - 0.6 ? 'dusk' : 'day';
     pb.classList.remove('rm-day', 'rm-dusk', 'rm-dawn', 'rm-night'); pb.classList.add('rm-' + ph);
     const g = skyTex.userData.g, W = 512, Hh = 256, p = Math.max(0, Math.min(1, (h - rise) / (set - rise)));

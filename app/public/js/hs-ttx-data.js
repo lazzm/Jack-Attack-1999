@@ -131,7 +131,7 @@
     special: [
       ['03-12', 'BBC1', '7.00', 'COMIC RELIEF: Red Nose Day, all night'], ['05-22', 'BBC1', 'LIVE', 'FA CUP FINAL: Man Utd v Newcastle'], ['05-26', 'ITV', 'LIVE', 'EUROPEAN CUP FINAL: Man Utd v Bayern Munich'],
       ['05-29', 'BBC1', '8.00', 'EUROVISION SONG CONTEST from Jerusalem'], ['06-19', 'BBC1', 'LIVE', 'THE ROYAL WEDDING from Windsor'], ['07-04', 'BBC1', '2.00', 'WIMBLEDON: the men\'s final'],
-      ['08-11', 'BBC1', 'LIVE', 'THE ECLIPSE, live'], ['11-26', 'BBC1', '7.00', 'CHILDREN IN NEED'], ['12-25', 'BBC1', '3.00', 'THE QUEEN'], ['12-31', 'BBC1', 'ALL DAY', '2000 TODAY: the millennium round the world'],
+      ['08-11', 'BBC1', 'LIVE', 'THE ECLIPSE, live'], ['10-31', 'C4', '5.00', "The Witch's Wobbly Cauldron (Halloween special)"], ['10-31', 'BBC1', '6.30', 'SPOOKY SPECIAL: the Haunted House Party, live'], ['10-31', 'ITV', '9.00', 'Tales of the Unexpectedly Odd: Halloween night'], ['10-31', 'BBC2', '11.15', 'FILM: The Lost Camcorder Film'], ['11-26', 'BBC1', '7.00', 'CHILDREN IN NEED'], ['12-25', 'BBC1', '3.00', 'THE QUEEN'], ['12-31', 'BBC1', 'ALL DAY', '2000 TODAY: the millennium round the world'],
     ],
     newsAtTenEnds: '03-05', // ITV's News at Ten moved after 5 March 1999
   };

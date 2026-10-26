@@ -724,7 +724,7 @@
     H.spot('hs.micro', { label: 'Microwave', obj: mw, act: () => life('micro') });
     // the kitchen table and chairs, a fruit bowl, the newspaper
     const kt2 = B.at(-60, GY, 170); kt2.box(0, -74, 0, 120, 4, 80, M({ c: '#fff', map: tex('pine') }), { uv: 50 }); [[-54, -34], [54, -34], [-54, 34], [54, 34]].forEach(([x, z]) => kt2.box(x, -36, z, 5, 72, 5, M({ c: '#fff', map: tex('pine') })));
-    kt2.lathe(-20, -76, -8, [[12, -6], [6, 0]], 18, M({ c: '#d8c8a8', sh: 30 })); [[-24, -10, '#e8c020'], [-16, -6, '#d03a2a'], [-20, -14, '#6aa03a']].forEach(([x, z, c]) => kt2.ball(x, -82, z, 3.4, 3.4, 3.4, M(c), 10));
+    kt2.lathe(-20, -76, -8, [[12, -6], [6, 0]], 18, M({ c: '#d8c8a8', sh: 30, side: 2 })); [[-24, -10, '#e8c020'], [-16, -6, '#d03a2a'], [-20, -14, '#6aa03a']].forEach(([x, z, c]) => kt2.ball(x, -82, z, 3.4, 3.4, 3.4, M(c), 10));
     kt2.box(26, -76.5, 10, 30, 1, 40, M({ c: '#fff', map: paperTex() }), { ry: 8 });
     kt2.shadow(0, 0, 0, 130, 90, 0.7, { sq: true });
     [[-60, 110, 0], [-60, 230, 180], [-130, 170, 90], [10, 170, -90]].forEach(([x, z, ry]) => chair(B, x, z, ry));

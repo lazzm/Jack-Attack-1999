@@ -1,7 +1,16 @@
 # In-house seasonal and dated events for 1999 (design spec)
 
-Status: design only, nothing built. Written 2026-10-26 (real date). Priorities are by real date: HALLOWEEN (31 Oct, 5 days
-away) then BONFIRE NIGHT (5 Nov), then everything else in calendar order.
+Status: written 2026-10-26 (real date). Priorities are by real date: HALLOWEEN (31 Oct, 5 days away) then BONFIRE NIGHT
+(5 Nov), then everything else in calendar order.
+
+Built (2.53.0, branch `halloween`): the engine of section 1 (`js/season-cat.js`, `js/season.js`, `mods/season.js`, owner
+"Jump to event" / "Start this event again", the diary "This week" page, seasonal guidance through `js/st-guide.js`) and
+HALLOWEEN (`js/season-halloween.js`): objectives `hw-pumpkin`, `hw-decorate`, `hw-lights`, `hw-bowl`, `hw-treat` (bonus at
+10), `hw-clean` (tail). Deviations: the sweets bowl sits on a small side table by the front door (the hall table holds the
+keys bowl); the carved lantern goes on the front gatepost (the mower parks by the doorstep); the loop is one real year of
+play until the 4.14 glitch exists. Not built yet: 2.3 C-F, `hw-crystal`, `hw-video`, keepsakes, Crystal's own trip, the
+joke tax, Gran's visit, the loft fright, recorded audio for the new `hw.*` lines; Bonfire Night is catalogued (window,
+phases, owner jump) with no content.
 
 Read first: `AGENTS.md` (hard rules), `docs/STORY.md` (chapters, quest guidance, chores 2.0 "seasonal jobs"),
 `docs/GRAPHICS.md` (draw-call and light budgets), `docs/AUDIO.md`. Existing dated content: `app/public/js/calendar.js`
