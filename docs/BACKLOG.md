@@ -94,3 +94,9 @@ Reviewed 19 shots (story-opening x3, sparse-polish, identity-house, owner-tools,
 | R28 | improvement | low | games/zeldo/after-salt-arrival.png | Night palette is nice but NPCs and chicken are the same brightness as the ground; the player sparkle reads as a bug. | Add lit window glow and a subtle shadow under NPCs. |
 | R29 | improvement | low | owner-tools/progress-1366.png | Dialog is a good Win98 look. Buttons for destructive "Reset me to a brand-new player..." are the same style as safe ones. | Make the reset button red-text with a confirm step. |
 | R30 | improvement | low | story-opening/00-guidance-far.png | Rubik's cube, mug and Kitty Crunch look pixel-jagged (V26, V29). | See V26/V29 (anisotropy, thicker meshes). |
+
+## Screenshot review 2026-10-26 (art-gen world views)
+| id | type | severity | screenshot | problem | fix |
+|---|---|---|---|---|---|
+| R31 | bug | med | landing-art tests/shots/art-gallery/world/console-rack-front.png | Bottom bookshelf: red and brown PC game boxes intersect each other (leaning boxes interpenetrate) | Resolve lean/stack poses with real box extents (physics settle or solved spacing) |
+| R32 | bug | med | same | Grey PlaySpace console overhangs the front edge of the TV-unit shelf | Clamp console placement to the shelf footprint; nudge rack slot depth |
