@@ -1,5 +1,11 @@
 # Jack's Home Page - changelog
 
+## 2.47.0 - 2026-10-26
+- New players start sparse: just the Game Lad, two starter magazines and a lived-in room (books, VCR and tapes, toys, a cassette radio, a CONSOLE FUND tin with a note from Dad). Existing players keep everything.
+- Pixel Post now sells all twelve JACK ATTACK! issues and boxed consoles (Ultra 64, PlaySpace, Segue, Daydream). Parcels arrive on the hall doormat: F unboxes, carry it upstairs, E connects it in its TV-rack slot, then play. Catalogue wording follows the real state (by the front door / connected / on your shelf); each console has its own box art.
+- Your own identity: signup asks your first name (random 1999 pre-fill, dice to re-roll) and boy/girl; existing players are asked once. Your little sister and mates are your own, different for every player. Jack's online world (the magazine, his website, his mates) stays as it is.
+- Smoke test suite (12 checks, one command) gates every release; it stretches its time budget when the server is busy.
+
 ## 2.46.0 - 2026-10-26
 - Private phone numbers: every JackNet account gets its own 20-digit JackNet Mobile number (Menu > My number, shown in groups of four). Texts only go to a number you've been given; the old "Online now" list and texting by name or member number are gone, so strangers can't text you. New Phonebook (add/edit/delete up to 50 contacts) and Reply uses the sender's number. Old queued texts still arrive.
 - Fixed typing on the in-world phone: w, a, s, d and c were treated as menu keys, so letters went missing from texts and names.

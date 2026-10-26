@@ -7,7 +7,7 @@ assert((await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-toke
 const b=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']}),errors=[];
 fs.mkdirSync('shots/shop-sparse',{recursive:true});
 async function wait(p,fn){for(let i=0;i<450;i++){try{if(await p.evaluate(fn))return}catch(e){if(!/context was destroyed/.test(e.message))throw e}await p.waitForTimeout(200)}throw Error('Timed out: '+fn)}
-async function login(p){p.on('pageerror',e=>errors.push(e.message));await p.goto(base,{waitUntil:'domcontentloaded'});await p.locator('[name=name]').fill(name);await p.locator('[name=password]').fill(pass);await p.locator('#accountGate [type=submit]').click();await wait(p,()=>window.AccountGate?.allowed&&window.PM&&(!window.House?.ok||window.PMGL?.built&&!document.querySelector('.hs-loading,#houseEntry')))}
+async function login(p){p.on('pageerror',e=>errors.push(e.message));await p.goto(base,{waitUntil:'domcontentloaded'});await p.locator('[name=name]').fill(name);await p.locator('[name=password]').fill(pass);await p.locator('#accountGate [type=submit]').click();await wait(p,()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst'));if(await p.locator('#accountFirst').count())await p.locator('#accountGate [type=submit]').click();await wait(p,()=>window.AccountGate?.allowed&&window.PM&&(!window.House?.ok||window.PMGL?.built&&!document.querySelector('.hs-loading,#houseEntry')))}
 try{
  const p=await b.newPage({viewport:{width:1366,height:860}});await login(p);console.log('Legacy room ready');
  assert.notEqual(await p.evaluate(()=>localStorage.getItem('jhp_starter')),'1');

@@ -16,6 +16,8 @@ let registeredAccount=false;
 let server, data, fixture, activeBrowser, base, log='', renderer='unavailable', results=[], draws=[];
 const errors=[];
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
+// SMOKE_SCALE stretches every time budget (default: 1, or 2 automatically when the 1-minute load average exceeds the CPU count).
+const SCALE=+process.env.SMOKE_SCALE||((await import('node:os')).loadavg()[0]>(await import('node:os')).cpus().length?2:1);
 const reason=e=>String(e.message||e).replace(/\s+/g,' ').slice(0,320);
 let cleanupPromise;
 function cleanup(){return cleanupPromise ||= dispose()}
@@ -31,7 +33,7 @@ async function dispose(){
 let stopping=false;
 async function stop(signal){if(stopping)return;stopping=true;console.log(`FAIL runner: ${signal}`);await cleanup();console.log(`SUMMARY ${results.filter(Boolean).length}/${results.length+1} passed; aborted=${signal}; renderer=${renderer}; draw calls: ${draws.join(', ')||'not sampled'}`);process.exit(1)}
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>void stop(signal));
-const watchdog=setTimeout(()=>void stop('180s total timeout'),180000);
+const watchdog=setTimeout(()=>void stop(`${180*SCALE}s total timeout`),180000*SCALE);
 function observe(page){
   activeBrowser=page.context().browser();
   if(stopping){void activeBrowser.close();return;}
@@ -218,9 +220,9 @@ try{
     const began=Date.now();let timer;
     try{
       if(!fixture&&!['sparse-signup','account-house','browser-errors','server-log'].includes(name)){
-        await Promise.race([room(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('60s room setup timeout')),60000)})]);clearTimeout(timer);
+        await Promise.race([room(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(`${60*SCALE}s room setup timeout`)),60000*SCALE)})]);clearTimeout(timer);
       }
-      await Promise.race([run(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(`${timeout/1000}s timeout`)),timeout)})]);
+      await Promise.race([run(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(`${timeout*SCALE/1000}s timeout`)),timeout*SCALE)})]);
       results.push(true);console.log(`PASS ${name} (${((Date.now()-began)/1000).toFixed(1)}s)`);
     }catch(e){
       results.push(false);console.log(`FAIL ${name}: ${reason(e)}`);
