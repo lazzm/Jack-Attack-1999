@@ -63,7 +63,7 @@
       const mounted=g.clone(true);mounted.position.set(x,y,z);cables[lead].add(mounted);
       K.into(cables[lead]).geo(new T.TubeGeometry(new T.CatmullRomCurve3(path.map(p=>new T.Vector3(...p))),20,.28,6,false),0,0,0,M('#49463e'));
       ports[lead]=R.addSpot('st.lead.'+lead,{mesh:g,x,y,z,room:'bedroom',label:'F: plug in '+lead+' lead',range:150,act:()=>{
-        if(st.current()?.id!=='lead.'+lead)return;
+        if(!state() || state().done['lead.'+lead] || !StoryCat.ready(state(), StoryCat.byId['lead.'+lead]))return;
         Sound.play('plug');st.event('lead.'+lead);
       }}).obj;
     }
@@ -90,13 +90,14 @@
   }
   function sync() {
     if(!built)return;
-    const p=state(), owned=!!(p?.flags.pcOwned||p?.flags.veteran), ready=!!p?.done['part.speakers'];
+    const p=state(), owned=!!(p?.flags.pcOwned||p?.flags.veteran), ready=Object.keys(names).every(part=>p?.done['part.'+part]);
+    if(p?.done.dad&&!p.done.boot&&H.ROOMS.drive.carBoot.open)st.event('boot');
     dust.visible=!owned;
     const station=H.ROOMS.bedroom.stations.find(s=>s.id==='desk');if(station)station.n=owned?'The PC':'My desk';
     if(!owned)H.pcGL.visible=false;
     for(const part of Object.keys(names)) {
       const t=H.THINGS['st.pc.'+part], placed=!!p?.done['part.'+part];
-      if(!placed&&t.st==='snap'&&t.snap==='st.desk.'+part&&st.current()?.id==='part.'+part)st.event('part.'+part);
+      if(!placed&&t.st==='snap'&&t.snap==='st.desk.'+part)st.event('part.'+part);
       if(placed){const [x,y,z]=poses[part];fixed(t,{room:'bedroom',x,y,z,ry:0},'st.desk.'+part);}
       const show=part==='speakers'?placed||!!p?.done.dad&&!owned:!owned&&(placed||!!p?.done.dad);
       t.obj.visible=show&&(placed||H.held()===t.id||H.ROOMS.drive.carBoot.open);
@@ -114,12 +115,12 @@
   }
   const oldPower=H.SPOTS['pc.power']?.act;
   if(oldPower)H.SPOTS['pc.power'].act=()=>{
-    if(st.current()?.id==='power') {st.event('power');return;}
+    if(state()&&!state().done.power&&StoryCat.ready(state(),StoryCat.byId.power)) {st.event('power');return;}
     if(window.StoryAccess.available)oldPower();
   };
   // Before ownership the actual tower button belongs to the carried tower.
   // Its F action becomes power once all leads have been connected.
-  function enablePower(){const t=H.THINGS['st.pc.tower'];if(t&&st.current()?.id==='power'){
+  function enablePower(){const t=H.THINGS['st.pc.tower'];if(t&&state()&&!state().done.power&&StoryCat.ready(state(),StoryCat.byId.power)){
     t.use=()=>st.event('power');
     t.obj.traverse(o=>{o.userData.noPick=false;});
   }}
@@ -140,6 +141,9 @@
   }
   window.StoryOpening={sync,prepare,needsInstall,install,get built(){return built;}};
   setInterval(()=>{
+    // Setup consumes its final button. Keep the observation until acknowledged,
+    // including a dropped/rate-limited packet, instead of leaving an empty task.
+    if(active()&&installDone&&!state().done.install)st.event('install');
     if(needsInstall()&&!installing&&window.JHPBoot==='wake'&&H.mode==='monitor'&&!H.gliding&&!document.querySelector('.hs-loading,#houseEntry'))install(()=>st.observe());
   },500);
   if(state())prepare();
