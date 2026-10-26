@@ -103,6 +103,9 @@
       // Read from behind the car, rather than as mirror writing through glass.
       const uv=cm.geometry.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,1-uv.getX(i));uv.needsUpdate=true;
       const boot=carPoint(20,-75.2,-178); cm.rotation.x = Math.PI / 2; cm.position.set(boot.x,boot.y,boot.z); cm.scale.setScalar(scale); cm.renderOrder = 3; r.group.add(cm); this.cleanme = cm;
+      // The boot-lid dirt and CLEAN ME ride on the lid's hinge, so opening the boot never leaves them hanging in mid-air.
+      const lid = r.carBoot && r.carBoot.hinge;
+      if (lid) { const rx = lid.rotation.x; lid.rotation.x = 0; r.group.updateMatrixWorld(true); for (const o of [mud[8].pl, mud[8].pk, cm]) lid.attach(o); lid.rotation.x = rx; lid.updateMatrixWorld(true); }
       // the bucket of soapy water, the sponge in it
       bucket = grp(G => { G.lathe(0, 0, 0, [[12.4, -28], [13, -27.4], [10.2, 0], [0.1, 0]], 22, mat('#e8c020', { sh: 50, sp: '#666', side: 2 })); G.disc(0, -23, 0, 11.6, M({ c: '#e8eef0', sh: 90, sp: '#fff' })); for (let i = 0; i < 12; i++) G.ball(Math.cos(i * 0.6) * (4 + (i % 4) * 2), -23.5, Math.sin(i * 0.6) * (4 + (i % 4) * 2), 2.4, 1.4, 2.4, M({ c: '#fff', o: 0.9, tr: true }), 8); G.geo(new T.TorusGeometry(12.6, 0.4, 5, 20, Math.PI), 0, -28, 0, mat('#888', { sh: 80 }), { rz: 180, rx: 90 }); G.shadow(0, 0, 0, 32, 32, 0.6); });
       bucket.position.set(BUCKET.x, GY, BUCKET.z); r.group.add(bucket);

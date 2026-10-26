@@ -50,7 +50,8 @@
   }
   let graphics=cleanGraphics(ls.get('jhp_hs_graphics',null),graphicsDefaults(Q.want));
   const wantsAntialias=()=>graphics.antialias==='on'||(graphics.antialias==='auto'&&!Q.auto&&Q.tier!=='low');
-  const wantedAniso=()=>Math.min(graphics.anisotropy,Q.tier==='low'&&graphics.preset!=='custom'?1:16);
+  // Low keeps cheap 2x anisotropic filtering: floors and long walls are seen at grazing angles everywhere.
+  const wantedAniso=()=>Math.min(Math.max(graphics.anisotropy,Q.tier==='low'&&graphics.preset!=='custom'?2:1),Q.tier==='low'&&graphics.preset!=='custom'?2:16);
   window.HouseQ = Q.tier;
   // ================================================================ the renderer (a canvas under boot.js's stage, one over it)
   let cv = document.createElement('canvas'); cv.className = 'hs-gl'; cv.setAttribute('aria-hidden', 'true');
@@ -89,7 +90,7 @@
       releaseGL(oldRenderer);
       if (window.House) window.House.ren = nr;
       if (ren2 || cv2.parentNode) { const oldForeground=ren2;try { oldForeground?.dispose(); } catch (e) {} const o2 = cv2, p2 = o2.parentNode; cv2 = document.createElement('canvas'); cv2.className = o2.className; cv2.setAttribute('aria-hidden', 'true'); hookCtx(cv2); if (p2) p2.removeChild(o2); ren2 = null;releaseGL(oldForeground); }
-      K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()));
+      K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()),true);
       scene.traverse(o => { const ms = o.material ? [].concat(o.material) : []; for (const m of ms) { m.needsUpdate = true; for (const k in m) { const t = m[k]; if (t && t.isTexture) t.needsUpdate = true; } } });
       for (const k in K.MATS) K.MATS[k].needsUpdate = true;
       measure(); dirty(); return true;
@@ -762,6 +763,35 @@
   function layerFor(t) {
     if (t.shadowState !== t.st) {t.shadowState = t.st; t.obj.traverse(o => {if (o.userData.contactShadow) o.visible = t.st === 'rest' || t.st === 'snap';});}
     const f = frontOf(t); if (f === t.front) return; t.front = f; t.obj.traverse(o => o.layers.set(f ? 1 : 0));
+  }
+  // Contact shadows for grab-API props that do not model their own (phones, toys, boxes...): one instanced,
+  // depth-write-free soft rectangle per prop, a single draw call per room. Shown only while the prop rests
+  // upright on something; hidden while carried, falling, hidden or stood on edge in a shelf slot.
+  const PROP_SHADOW = { geo: null, mat: null, m: new T.Matrix4(), q: new T.Quaternion(), e: new T.Euler(), s: new T.Vector3(), p: new T.Vector3(), zero: new T.Matrix4().makeScale(0, 0, 0) };
+  function propShadowCandidate(t) {
+    if (t.autoShadow !== undefined) return t.autoShadow;
+    let own = false, mesh = false; t.obj.traverse(o => { if (o.userData.contactShadow) own = true; else if (o.isMesh) mesh = true; });
+    return t.autoShadow = !own && mesh && !t.noAutoShadow && t.hx * t.hz < 1600 && t.hx > 1.2 && t.hz > 1.2;
+  }
+  function tickPropShadows() {
+    for (const id in ROOMS) { const r = ROOMS[id]; if (r.propShadows) r.propShadows.userData.n = 0; }
+    for (const id in THINGS) {
+      const t = THINGS[id], r = ROOMS[t.at.room];
+      if (!r || !r.group.visible || !propShadowCandidate(t)) continue;
+      if (!(t.st === 'rest' || t.st === 'snap') || t.at.hide || !t.obj.visible || t.obj.parent !== r.things || Math.abs(t.rx || 0) > 20 || Math.abs(t.rz || 0) > 20) continue;
+      let ms = r.propShadows;
+      if (!ms) {
+        if (!PROP_SHADOW.geo) { PROP_SHADOW.geo = K.shadowGeo(true, 1, 1, 0.24); PROP_SHADOW.mat = K.shadowMaterial(true, 0.62); }
+        ms = r.propShadows = new T.InstancedMesh(PROP_SHADOW.geo, PROP_SHADOW.mat, 160); ms.name = 'prop-contact-shadows';
+        ms.frustumCulled = false; ms.renderOrder = 2; ms.userData.noPick = true; ms.userData.contactShadow = true; ms.userData.n = 0; ms.count = 0; r.things.add(ms);
+      }
+      const n = ms.userData.n; if (n >= 160) continue;
+      const o = t.obj.position, pad = Math.min(5, 0.8 + Math.min(t.hx, t.hz) * 0.35);
+      PROP_SHADOW.e.set(0, t.obj.rotation.y, 0); PROP_SHADOW.q.setFromEuler(PROP_SHADOW.e);
+      PROP_SHADOW.s.set(t.hx * 2 + pad * 2, 1, t.hz * 2 + pad * 2); PROP_SHADOW.p.set(o.x, o.y, o.z);
+      ms.setMatrixAt(n, PROP_SHADOW.m.compose(PROP_SHADOW.p, PROP_SHADOW.q, PROP_SHADOW.s)); ms.userData.n = n + 1;
+    }
+    for (const id in ROOMS) { const ms = ROOMS[id].propShadows; if (!ms) continue; if (ms.count !== ms.userData.n) { ms.count = ms.userData.n; } ms.instanceMatrix.needsUpdate = true; }
   }
   function tickThings(dt) {
     let any = false;
@@ -1500,8 +1530,8 @@
       if(++goodBudget>=5){goodBudget=0;Q.renderScale=Math.min(1,Q.renderScale+.125);measure()}
     }else goodBudget=0;
   }
-  function setTier(t) {
-    Q.tier = t; window.HouseQ = t; K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()));
+  function setTier(t, refresh) {
+    Q.tier = t; window.HouseQ = t; K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()),refresh);
     if(ren.getContext().getContextAttributes().antialias!==wantsAntialias())rebuildGL();
     measure(); visCalc(); emit('gfx', t);
   }
@@ -1510,14 +1540,14 @@
     graphics=graphicsDefaults(QN.includes(want)?want:'auto');ls.set('jhp_hs_graphics',graphics);
     Q.renderScale=1;Q.f.n=0;Q.f.t=0;lastR=0;goodBudget=0;
     Q.want = want; Q.auto = !QN.includes(want); ls.set('jhp_hs_gfx', want);
-    setTier(Q.auto ? Q.guess : want); if (Q.auto) Q.probe = performance.now() + 2000;
+    setTier(Q.auto ? Q.guess : want, true); if (Q.auto) Q.probe = performance.now() + 2000;
     const lbl = document.getElementById('smGfx'); if (lbl) lbl.lastChild.textContent = 'Room graphics: ' + gfxName();
   }
   function graphicsGet(){return{...graphics,tier:Q.tier,actualAntialias:!!ren.getContext().getContextAttributes().antialias,actualScale:graphics.scale*Q.renderScale,pixelRatioActual:Q.pixelRatio}}
   function graphicsSet(patch){
     if(patch&&['auto','low','medium','high'].includes(patch.preset)){gfxSet(patch.preset);screenEffort();emit('graphics-options',graphicsGet());return graphicsGet()}
     graphics=cleanGraphics({...graphics,...patch,preset:'custom'},graphics);Q.auto=false;Q.want=Q.tier;Q.probe=0;Q.renderScale=1;Q.f.n=Q.f.t=0;lastR=0;goodBudget=0;
-    ls.set('jhp_hs_gfx',Q.want);ls.set('jhp_hs_graphics',graphics);setTier(Q.tier);screenEffort();emit('graphics-options',graphicsGet());return graphicsGet();
+    ls.set('jhp_hs_gfx',Q.want);ls.set('jhp_hs_graphics',graphics);setTier(Q.tier,true);screenEffort();emit('graphics-options',graphicsGet());return graphicsGet();
   }
   function gfxNext() { const o = ['auto', 'low', 'medium', 'high'], i = o.indexOf(Q.auto ? 'auto' : Q.tier); gfxSet(o[(i + 1) % 4]); ui.toast('Graphics: ' + gfxName(), Q.auto ? 'Picked for this computer (press G to change)' : 'Press G to change'); }
   let anyFront = false;
@@ -1568,7 +1598,7 @@
     if(covered){if(stood||monitor)glassFit();for(const sf of SURF)placeSurf(sf);return}
     glCam(P.x, P.y, P.z, P.rx, P.ry);
     if (mode !== 'follow' && mode !== 'off') cssCam();
-    pcVis();
+    pcVis(); tickPropShadows();
     // things in front of the PC (and the one in your hands) go on the canvas above it
     let front = false; for (const id in THINGS) { const t = THINGS[id]; if (t.obj.parent && t.obj.parent.parent && t.obj.parent.parent.visible) layerFor(t); if (t.front && t.obj.visible) front = true; }
     const ly = pcOn ? 1 : 0; for (const f of frontFx) { if (f.userData.ly !== ly) { f.userData.ly = ly; f.traverse(o => o.layers.set(ly)); } if (f.visible && pcOn) front = true; }
