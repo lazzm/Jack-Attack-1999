@@ -1,5 +1,48 @@
 # Jack Attack 1999 - browser tests
 
+## Start here
+
+Run **`cd tests && node smoke.mjs`** before each deploy (or `node tests/smoke.mjs` from the repo root).
+It starts and stops its own server on a free port in 18080–18099, creates fresh accounts/state under
+`/tmp`, and uses installed Playwright with `/usr/bin/chromium`. No hand-started server or new dependencies.
+Expect under three minutes on software WebGL; exit 0 means every selected check passed.
+Each check has a timeout and failures do not stop later checks. Console errors/pageerrors and fatal server
+log messages fail the gate. The final line records the unmasked GPU renderer and per-view draw calls.
+
+`--only=<name>` selects one check (including its authenticated room setup when needed):
+`account-house`, `walk-refresh`, `pc-controls`, `console-game`, `phone-typing`, `prop-refresh`,
+`escape-menu`, `canonical-views`, `mobile-desktop`, `browser-errors`, `server-log`.
+A selected run is diagnostic; only the full suite is a deploy gate. Error/log checks alone have no gameplay coverage.
+`--keep-shots` preserves previous images and adds failure/mobile portrait/landscape captures.
+By default the runner replaces `tests/shots/smoke/`; the full run always writes six canonical PNGs:
+`bedroom-door`, `desk-pc`, `tv-consoles`, `landing-stairs`, `kitchen`, `front-garden`.
+Views use fixed camera coordinates, 1366×860, low graphics and 14:00 daylight through the shared fixture.
+Temporary secret/toast balloons are hidden in canonical captures to keep comparisons consistent.
+Compare art and draw counts on the same renderer; these are software-rendering diagnostics, not hardware FPS claims.
+Scene APIs position the player; real keys exercise interactions. The exterior art camera uses the existing
+regression’s street observer pose beyond the walkable boundary. This does not test walking a complete house route.
+On SIGINT/SIGTERM, failure or timeout it closes Chromium, kills only its own server PID and removes its temporary data.
+
+The inventory below classifies every existing `.mjs`/`.cjs` script. “Smoke-covered” means the
+short deploy gate; focused regressions still cover deeper paths. “Obsolete” means historical setup/control
+assumptions or one-off probes, requiring migration before reuse, not permission to delete.
+No legacy script is silently executed by the smoke runner.
+
+| Classification | Scripts | When to use |
+| --- | --- | --- |
+| smoke-covered | `smoke.mjs` | Signup/WebGL, WASD/pose refresh, PC/app/Q/F2/T, physical console, phone typing, E placement/refresh, Esc, mobile-only desktop, errors/logs, six art views. |
+| still-useful-regression (units) | `audio-routing-unit.cjs`, `bedroom-hifi-unit.cjs`, `family-phone-private-unit.cjs`, `hs-input-unit.cjs`, `magazine-catalogue-unit.cjs`, `mobile-phone-unit.cjs`, `neighbourhood-geometry.cjs`, `parody-audit.cjs`, `pc-game-coordinates-unit.cjs`, `reading-turn-unit.cjs`, `sms-private-unit.cjs`, `starter-unit.cjs`, `wallet-unit.cjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
+| still-useful-regression (accounts/devices/live) | `account-form.mjs`, `accounts-bank.mjs`, `accounts-profile.mjs`, `accounts-sockets.mjs`, `house-model-geometry.mjs`, `live-pc-only.mjs`, `live-readonly.mjs`, `mobile-desktop.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
+| still-useful-regression (room/control/art) | `adaptive-render.mjs`, `ao-geometry.mjs`, `audio-settings.mjs`, `bedroom-hifi.mjs`, `box-art.mjs`, `chair-pc-menu.mjs`, `chair-placement.mjs`, `console-case-play.mjs`, `console-cases.mjs`, `console-switch-hud.mjs`, `controls-media.mjs`, `controls-qt.mjs`, `desk-render-controls.mjs`, `disc-shortcuts.mjs`, `door-editor-state.mjs`, `door-interaction-review.mjs`, `door-seal.mjs`, `doorway-lighting.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
+| still-useful-regression (room/control/art) | `doorway-walk-drop.mjs`, `editor-layout-safety.mjs`, `exterior-art-final.mjs`, `exterior-rebuild.mjs`, `frame-budget.mjs`, `game-ui.mjs`, `golden-movement.mjs`, `graphics-menu-ui.mjs`, `house-lights.mjs`, `house-save-startup.mjs`, `inspect-free-rotation.mjs`, `kart-recording.mjs`, `kart-ui.mjs`, `lawn-completion.mjs`, `lighting.mjs`, `lock-in-handheld.mjs`, `login-seat.mjs`, `lounge-art.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
+| still-useful-regression (room/control/art) | `magazine-covers.mjs`, `magazine-turning.mjs`, `media-touch.mjs`, `menu-catalogue.mjs`, `model-followup.mjs`, `object-audit.mjs`, `pc-access-and-layout.mjs`, `pc-console-controls.mjs`, `pc-game-monitor-input.mjs`, `pc-lock-in-fill.mjs`, `pc-surface-budget.mjs`, `pc-view-performance.mjs`, `physical-phone-use.mjs`, `posters-v3.mjs`, `print-light-marker.mjs`, `printed-art.mjs`, `prop-interaction-models.mjs`, `prop-placement-final.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
+| still-useful-regression (room/control/art) | `reading-cd-shelf.mjs`, `reading-motion-recording.mjs`, `reading-pages.mjs`, `reading-phone.mjs`, `release-room-pc.mjs`, `render-perf.mjs`, `review-models.mjs`, `room-props-closeups.mjs`, `room-props-controls.mjs`, `room-props-seats.mjs`, `room-render-lifecycle.mjs`, `room-render-soak.mjs`, `screen-effort.mjs`, `seated-pc-transition.mjs`, `shelf-print-polish.mjs`, `sms-private-browser.mjs`, `stand-crouch.mjs`, `starter-account.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
+| still-useful-regression (room/control/art) | `surface-audit.mjs`, `unified-interaction.mjs`, `vhs-physical.mjs`, `window-artifacts.mjs`, `window-views.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
+| still-useful-regression (models) | `desk-lamp.mjs`, `room-models.mjs` | Authenticated model/lamp geometry and persistence checks. |
+| obsolete | `art-loading.mjs`, `artcheck.mjs`, `bookcase.mjs`, `cur3.mjs`, `discs3.mjs`, `egg.mjs`, `fps.mjs`, `fresh.mjs`, `handheld.mjs`, `house-entry.mjs`, `house-resume.mjs`, `house-review.mjs`, `house-save.mjs`, `inspect.mjs`, `integ.mjs`, `jsnt.mjs`, `lean-edges.mjs`, `lean-power.mjs`, `lean-qa.mjs`, `loot.mjs`, `n99.mjs`, `newpacks.mjs`, `newsites.mjs`, `pc-recovery.mjs`, `pc-restart.mjs`, `pcmouse.mjs`, `pwrbtn.mjs`, `resetinst.mjs`, `resetpc.mjs`, `rotate.mjs`, `shelf-layout.mjs`, `smoke3.mjs`, `standwake.mjs`, `trayprobe.mjs`, `tv-background.mjs`, `tw2.mjs`, `zrc.mjs` | Historical probes: account gate, fullscreen/mobile room, hard-coded paths or old exit controls; do not use as a deploy gate. |
+| support utilities (not tests) | `create-approved-test.mjs`, `prepare-box-art.mjs`, `prepare-posters.mjs`, `prepare-print-art.mjs`, `replicate-kart-trial.mjs`, `room-fixture.mjs` | Fixture/art preparation/account provisioning/external audio trial. Never auto-run provisioning or asset mutation. |
+
+
 Exterior/grass/door checks (disposable localhost data only):
 
     node exterior-rebuild.mjs http://localhost:18080

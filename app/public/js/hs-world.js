@@ -1814,4 +1814,16 @@
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
     _: { whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
   };
+  // A detached snapshot for diagnostics: no scene objects or writable references escape.
+  window.__jhpDebug = () => ({
+    renderer: { calls: ren.info.render.calls, triangles: ren.info.render.triangles,
+      geometries: ren.info.memory.geometries, textures: ren.info.memory.textures },
+    room: cur ? cur.id : null,
+    camera: { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry },
+    held: held ? held.id : null, seated: !!(W.seat || focusS?.o.seatId || focusS?.parent?.o.seatId),
+    pc: { mode, powered: !localStorage.getItem('jhp_off'), locked: desktopFull },
+    windows: Array.from(document.querySelectorAll('.float,#browser')).map(el => ({
+      id: el.id, title: el.querySelector('.tb .t')?.textContent?.trim().slice(0, 80) || '' })),
+    version: window.Net?.me?.version || null,
+  });
 })();

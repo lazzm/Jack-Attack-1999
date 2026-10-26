@@ -1,9 +1,10 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
-export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860,storage={},account='Review'+Date.now().toString(36),password='Throwaway-1999',touch=false,debug=false,recordVideo}={}){
+export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860,storage={},account='Review'+Date.now().toString(36),password='Throwaway-1999',touch=false,debug=false,recordVideo,onPage}={}){
  assert(['localhost','127.0.0.1'].includes(new URL(base).hostname),'Use throwaway localhost data');
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
  const page=await browser.newPage({viewport:{width,height},hasTouch:touch,...(recordVideo?{recordVideo}:{})}),errors=[];
+ onPage?.(page);
  page.setDefaultNavigationTimeout(90000);
  page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(['warning','error'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});
  if(debug){page.on('pageerror',e=>console.log('Fixture page error:',e.message));page.on('console',m=>{if(['warning','error'].includes(m.type()))console.log('Fixture console:',m.text())})}
