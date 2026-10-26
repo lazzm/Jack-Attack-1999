@@ -177,7 +177,11 @@
       if (ev.repeat || ev.ctrlKey || ev.metaKey || ev.altKey) return;
       const tg = ev.target; if (tg && (tg.tagName === 'INPUT' || tg.tagName === 'TEXTAREA' || tg.isContentEditable)) return;
       if (on) { ev.preventDefault(); ev.stopPropagation(); exit(); return; }
-      const h = H(); if (isJack() && h && h.ok && h.mode === 'walk' && h.stood && !h.busy) { ev.preventDefault(); ev.stopPropagation(); enter(); }
+      const h = H(); if (!isJack()) return;
+      if (h && h.ok && h.mode === 'walk' && h.stood && !h.busy) { ev.preventDefault(); ev.stopPropagation(); enter(); return; }
+      // Say why instead of silently ignoring the owner's key.
+      const why = !h || !h.ok ? 'The house is still loading.' : h.mode !== 'walk' ? 'Stand up first (Q or F2), then press `.' : !h.stood ? 'Get up first (Q), then press `.' : 'Finish what you are doing, then press `.';
+      try { (window.Room?.toast || window.House?.toast)?.('God mode', why); } catch (e) {}
       return;
     }
     if (!on) return;

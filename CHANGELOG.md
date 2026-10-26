@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.48.2 - 2026-10-26
+- Owner god mode explains itself: pressing ` while seated, at the PC or busy says what to do first instead of doing nothing.
+
 ## 2.48.1 - 2026-10-26
 - Owner god mode now toggles with ` (backtick, under Esc). F9 still works but Edge and Firefox take it for their reader view.
 
