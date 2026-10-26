@@ -71,9 +71,9 @@ async function wait(page, fn, arg, timeout=30000) {
 async function aim(eye, target, level='U') { await view(eye, target, {level}); await p.evaluate(() => {House.hush(); House._.setMode('walk')}); }
 async function waitStep(id) { await wait(p,id => !!st.getState()?.done[id],id,20000); }
 async function dropIn(id, snap) {
-  const s = await p.evaluate(snap => {const s=House.SNAPS[snap];return {x:s.x,y:s.y,z:s.z,room:s.room}}, snap);
+  const s = await p.evaluate(snap => {const s=House.SNAPS[snap];return {x:s.x,y:s.y,z:s.z,room:s.room,bz1:House.ROOMS[s.room].bz1}}, snap);
   for(let attempt=0;attempt<3;attempt++){
-    await aim([s.x,s.room==='kitchen'?245:-55,s.z+55], [s.x,s.y,s.z+8], s.room==='kitchen'?'G':'U');
+    await aim([s.x,s.room==='kitchen'?245:-55,Math.min(s.z+55,s.bz1-28)], [s.x,s.y,s.z+8], s.room==='kitchen'?'G':'U');
     assert(await p.evaluate(id => House.grab(id), id), 'Could not carry ' + id);
     // Extend the grip with the same distance controls as the carry HUD.
     for(let n=0;n<5+attempt;n++)await p.keyboard.press('+');
