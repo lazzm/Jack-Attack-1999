@@ -1,6 +1,6 @@
 /* POCKET CRITTERS: MOSS VERSION (Game Lad, in Jack's room). Pick a starter critter at the Professor's lab, walk the
  * long grass of Route 1 and the Whispering Woods, catch wild critters in Critter Cubes, beat Jack's mates in battles and
- * win the Moss and Splash Badges. 23 original critters, six types, levels, evolutions, a Critterdex.
+ * win four badges across the island. 60 original critters, six types, evolutions and a Critterdex.
  * Arrows walk, A (Z) talks and picks, B (X) goes back, Start (Enter) opens the menu (Critterdex, Party, Bag, Save).
  * The game saves itself (K.save, key rm.gb.mon): CONTINUE on the title screen. Everything here is original. */
 (function () {
@@ -12,9 +12,9 @@
   const LC = window.LkCrit; if (!LC) return;
   try { if (window.Apps && Apps.defineSecret && !(Apps.secrets && Apps.secrets['rm.mon.bay'])) Apps.defineSecret('rm.mon.bay', 'Splash Badge', 'There is a second gym in Pocket Critters, out past the cave.'); } catch (e) {} // (G)
   const { TYPES, CHART, eff, MOVES, NSP, stat, maxhp, expAt, movesAt } = LC;
-  // ---- (G) THE FUNNY CRITTERS: a display layer over the shared rule book. Same ids, types, stats, learnsets, evolutions and
-  // catch rates (so saves and the link cable are untouched): only the name, the Critterdex words, the art and a Game Boy
-  // Color palette per critter change. [light, colour, dark, outline]; art: 1 colour, 2 dark, 3 outline, 4 light.
+  // ---- (G) THE FUNNY CRITTERS: a display layer over the shared rule book. Stable ids, types, stats, move keys and catch rates keep
+  // old saves and the link cable compatible. New families and evolutions live in the shared rule book.
+  // This display layer supplies names, Critterdex words and original portraits. [light, colour, dark, outline]; art: 1 colour, 2 dark, 3 outline, 4 light.
   const FUNNY = {
     0: ['CRESSHEAD', 'My Year 7 science project. I drew a face on an eggshell and grew cress for hair. Then it got up and walked off.', ['#f8f0d8', '#58b848', '#287028'],
       D => { D.e(16, 21, 8, 10, 4); for (let x = 9; x <= 23; x += 2) { const k = (x >> 1) % 3 - 1, top = 4 + (x * 7) % 4; D.l(x, 13, x + k, top, 1); D.p(x + k - 1, top, 1); D.p(x + k + 1, top + 1, 1); } D.r(8, 12, 17, 2, 1); D.eye(12, 18); D.eye(18, 18); D.l(13, 24, 18, 24, 3); D.p(12, 23, 3); D.p(19, 23, 3); D.e(12, 31, 3, 1, 2); D.e(20, 31, 3, 1, 2); }],
@@ -63,6 +63,94 @@
     22: ['GRAVYLAKE', 'A GRAVYBLOB that came down a link cable. A whole lake of gravy with a face. It smells like Sunday dinner.', ['#e8d8a0', '#985828', '#502810'],
       D => { D.e(16, 24, 15, 7, 2); D.e(16, 22, 14, 6, 1); D.e(16, 14, 9, 8, 1); D.eye(11, 13); D.eye(19, 13); D.e(15, 19, 4, 2, 3); D.e(5, 22, 2, 2, 4); D.e(26, 23, 2, 2, 4); D.e(21, 27, 2, 1.5, 4); D.l(9, 6, 10, 2, 4); D.l(16, 5, 16, 1, 4); D.l(23, 6, 22, 2, 4); }],
   };
+  // Original paired portraits: each family has its own silhouette; evolutions add structure,
+  // rear views remove the face and show seams/vents instead of mirroring the front.
+  function expansionArt(s, rear) {
+    const j=s-23, family=j<6?j:6+Math.floor((j-6)/2), big=j<6||j===36||(j>=6&&j%2===1);
+    return D => {
+      const face=(x=11,y=16)=>{if(rear){D.l(x,y+7,x+9,y+7,2);D.p(x+4,y+8,2);}else{D.eye(x,y);D.eye(x+8,y);D.l(x+3,y+7,x+7,y+7,3);}};
+      const feet=(x=8,y=29)=>{D.e(x,y,4,2,2);D.e(32-x,y,4,2,2);};
+      switch(family){
+        case 0: // Cresszilla: cracked egg armour and a whole treetop.
+          D.e(16,24,12,8,4);D.e(16,13,13,7,1);D.r(5,18,22,3,2);
+          for(let x=3;x<28;x+=4){D.t(x,12,x+2,1+x%3,x+6,12,1);D.l(x+2,7,x+3,14,2);}
+          D.e(3,24,3,4,4);D.e(29,24,3,4,4);D.l(8,25,13,28,2);D.l(13,28,17,25,2);face(10,19);feet();break;
+        case 1: // Wellington: two marching boots beneath a folded cuff.
+          for(const x of [3,18]){D.r(x,7,10,19,1);D.e(x+6,26,7,4,1);D.r(x,6,10,4,2);D.r(x+2,7,6,1,4);D.r(x,29,13,2,3);}
+          if(rear){D.r(5,21,6,5,2);D.r(20,21,6,5,2);}else{D.eye(7,15);D.eye(21,15);D.l(12,23,19,23,3);}break;
+        case 2: // Toastalot: toast crown, plated body, butter shield.
+          D.r(7,10,18,18,1);D.e(16,10,9,3,4);D.r(9,13,14,2,4);D.r(10,1,4,8,2);D.r(18,1,4,8,2);
+          D.e(4,22,4,7,2);D.r(2,18,4,5,4);D.l(28,8,28,28,3);D.r(26,11,5,2,4);face(10,17);feet();break;
+        case 3: // Dustduvet: fluffed folded bedding, rabbit-eared corners.
+          D.e(16,23,14,8,1);D.e(7,9,3,7,1);D.e(25,9,3,7,1);D.r(4,21,24,5,4);
+          for(let x=5;x<29;x+=5){D.l(x,27,x+1,30,2);D.e(x,16,3,3,1);}face(10,17);break;
+        case 4: // Crisprat: multipack crown and tied packet tail.
+          D.r(7,7,19,22,1);for(let x=5;x<29;x+=4){D.t(x,10,x+2,2,x+4,10,2);D.p(x,30,3);}
+          D.r(9,12,15,11,4);D.e(4,26,3,3,2);D.l(27,24,31,20,2);D.l(31,20,28,16,2);face(10,14);break;
+        case 5: // Faxomatic: paper sail and toothed rollers.
+          D.r(3,16,26,13,1);D.r(7,3,19,15,4);D.l(7,3,25,3,3);for(let y=6;y<15;y+=3)D.r(10,y,11-y%4,1,2);
+          D.r(5,17,22,2,3);D.r(6,28,20,3,2);if(rear){for(let x=7;x<27;x+=4)D.r(x,22,2,4,3);}else{D.eye(8,21);D.eye(21,21);D.r(14,25,4,1,3);}break;
+        case 6: // Conker, champion has a chestnut shell helmet and medal.
+          D.l(16,3,16,big?9:13,3);D.l(16,3,25,1,3);D.e(16,21,big?12:9,big?10:8,1);
+          D.e(14,17,big?9:6,4,4);if(big){D.t(3,16,8,6,16,10,2);D.t(16,10,25,6,29,16,2);D.e(16,28,3,3,4);}face(10,17);feet(big?7:10);break;
+        case 7: // Chalk stick grows into a blackboard with chalk tray.
+          if(big){D.r(3,4,26,23,2);D.r(5,6,22,17,3);D.r(2,26,28,3,1);D.r(8,27,8,1,4);if(!rear){D.r(8,9,5,2,4);D.r(20,9,3,2,4);D.l(11,18,22,18,4);}else{D.l(5,7,26,23,1);D.l(26,7,5,23,1);}feet();}
+          else{D.r(10,8,12,21,4);D.e(16,8,6,2,1);D.r(10,25,12,4,2);face(11,14);D.p(6,5,4);D.p(25,10,4);}break;
+        case 8: // Sponge with pores; evolution sprouts scrubbing bristles.
+          D.r(big?4:7,big?7:12,big?24:18,big?22:16,1);D.e(16,big?7:12,big?12:9,3,1);
+          for(const [x,y] of [[7,14],[22,11],[9,25],[23,24],[16,27]])D.e(x,y,1.5,1.5,2);
+          if(big)for(let x=6;x<29;x+=3)D.l(x,7,x-1,2+x%3,3);face(10,16);feet();break;
+        case 9: // Jam jar, final has gingham lid and spreading spoon.
+          D.r(big?5:8,12,big?22:16,17,1);D.e(16,29,big?11:8,2,2);D.r(big?4:7,7,big?24:18,5,2);
+          for(let x=big?5:8;x<27;x+=4)D.r(x,7,2,4,4);D.r(10,16,13,9,4);face(11,16);
+          if(big){D.l(29,25,29,7,3);D.e(29,5,2,4,1);}break;
+        case 10: // Peg and laundry monster.
+          if(big){D.t(16,4,3,14,6,29,1);D.t(16,4,29,14,26,29,1);D.r(9,17,14,12,4);D.r(5,8,5,9,2);D.r(22,8,5,9,2);face(11,17);D.l(16,26,16,31,3);}
+          else{D.r(10,4,5,25,1);D.r(17,4,5,25,1);D.r(10,13,12,7,2);D.e(16,16,3,3,3);D.p(16,16,4);if(!rear){D.eye(11,7);D.eye(18,7);}D.l(11,29,8,31,3);D.l(21,29,24,31,3);}break;
+        case 11: // Cassette to twin-speaker radio; no logos or copied design.
+          D.r(3,big?11:13,26,big?18:14,1);D.r(5,big?13:15,22,big?13:10,2);
+          if(big){D.l(8,10,8,6,3);D.l(8,6,24,6,3);D.l(24,6,24,10,3);D.l(27,10,30,2,3);}
+          for(const x of [9,23]){D.e(x,21,big?5:3,big?5:3,3);D.e(x,21,big?3:1,big?3:1,4);}
+          if(!rear){D.r(14,16,4,2,4);D.l(14,25,18,25,3);}else D.r(12,25,8,2,3);feet();break;
+        case 12: // Teabag to steaming teapot, fabric texture and handle.
+          if(big){D.e(15,22,11,8,1);D.r(7,12,16,4,2);D.e(15,10,3,2,3);D.t(24,16,31,10,26,24,1);D.l(3,15,1,23,3);D.l(1,23,5,27,3);}
+          else{D.r(9,14,15,15,1);D.t(9,14,16,9,24,14,4);D.l(16,9,16,3,3);D.r(18,2,8,5,4);D.r(11,25,11,3,2);}
+          face(10,17);if(big){D.l(11,7,9,3,2);D.l(21,7,22,2,2);}break;
+        case 13: // Paper bat folds into a menacing exercise book.
+          if(big){D.r(8,5,18,24,1);D.r(10,7,13,20,4);D.r(8,5,2,24,2);D.r(12,9,9,2,2);D.t(8,15,0,8,4,27,1);D.t(26,15,31,8,29,27,1);face(11,16);}
+          else{D.t(16,10,2,5,6,24,4);D.t(16,10,30,5,26,24,4);D.t(8,24,16,8,24,24,1);D.l(2,5,13,17,2);D.l(30,5,19,17,2);face(10,14);}break;
+        case 14: // Compost imp grows a lidded wheelie-bin crown.
+          if(big){D.r(5,11,23,17,1);D.r(4,8,25,4,2);D.r(10,5,13,3,3);for(let x=9;x<27;x+=5)D.r(x,24,2,5,2);D.e(8,30,3,2,3);D.e(25,30,3,2,3);}
+          else{D.e(16,23,11,7,1);D.e(16,14,8,7,1);D.t(8,9,13,1,19,10,4);D.l(13,1,24,7,2);}
+          face(10,15);D.p(4,18,4);D.p(26,21,4);break;
+        case 15: // Dripping tap grows into paired mixer taps.
+          D.r(big?5:9,17,big?22:14,8,1);D.r(18,21,6,9,2);D.e(21,30,4,1,3);D.r(10,10,5,9,2);
+          D.r(big?3:7,7,big?25:15,4,1);D.r(big?5:11,4,big?6:5,4,4);if(big)D.r(22,4,6,4,4);
+          D.e(28,26,2,3,4);face(10,17);break;
+        case 16: // Sniffly scarf and caped handkerchief chief.
+          D.e(16,16,big?10:7,big?9:7,1);D.r(big?4:7,22,big?24:18,5,2);D.r(22,24,5,7,2);
+          if(big){D.t(6,17,2,31,15,27,4);D.t(26,17,30,31,17,27,4);D.r(6,11,20,5,3);}
+          if(!rear){D.eye(11,13);D.eye(19,13);D.e(16,19,3,2,4);}else D.l(10,17,22,17,2);feet();break;
+        case 17: // Coil springs, final has two satellite springs and a bell.
+          if(big){D.e(16,7,9,5,1);D.r(14,1,4,3,3);D.e(4,23,3,6,2);D.e(28,23,3,6,2);}
+          for(let y=big?12:10;y<30;y+=5){D.e(16,y,big?10:7,3,2);D.e(16,y-1,big?8:5,1,4);D.l(7,y,25,y+4,1);}face(10,13);feet();break;
+        case 18: // Coal imp to boiler with chimney and riveted fire door.
+          if(big){D.r(6,9,21,20,2);D.r(20,1,5,9,3);D.e(16,9,10,3,1);D.r(10,19,13,9,3);D.t(12,26,16,20,20,26,4);D.e(28,6,2,3,4);}
+          else{D.e(16,22,10,8,2);D.t(6,18,10,8,17,16,2);D.t(17,16,23,9,26,20,2);D.e(12,20,5,3,1);}
+          if(!rear){D.eye(10,13);D.eye(20,13);}else{for(let y=14;y<27;y+=4)D.r(9,y,14,1,3);}feet();break;
+        case 19: // Clay pot to a stack of crockery with a teacup head.
+          D.e(16,26,big?14:10,5,2);D.e(16,18,big?11:8,10,1);D.e(16,9,big?11:8,3,3);D.e(16,8,big?9:6,1,4);
+          if(big){D.e(28,17,3,5,2);D.e(28,17,1,3,4);D.e(16,27,14,2,4);D.e(16,30,15,1,2);}face(10,14);break;
+        case 20: // Biscuit to tracked, twice-baked biscuit fortress.
+          D.r(big?3:7,big?10:13,big?26:18,big?17:14,1);for(let x=6;x<28;x+=5)for(let y=13;y<26;y+=5)D.p(x,y,2);
+          if(big){D.r(2,26,28,5,3);for(let x=5;x<29;x+=5)D.e(x,28,2,2,2);D.r(12,6,10,5,2);D.l(21,7,30,7,3);}else feet();face(10,15);break;
+        case 21: // Legendary twin-bell clock, wind-up key visible from behind.
+          D.e(16,19,12,12,1);D.e(16,19,9,9,4);D.e(7,5,6,3,2);D.e(25,5,6,3,2);D.r(14,1,4,3,3);D.l(8,29,5,31,3);D.l(24,29,27,31,3);
+          if(rear){D.r(15,14,3,10,3);D.e(12,14,4,2,2);D.e(21,14,4,2,2);}else{D.l(16,19,16,11,3);D.l(16,19,23,19,3);D.eye(9,21);D.eye(21,21);D.l(13,26,19,26,3);}break;
+      }
+    };
+  }
+  for (let s=23;s<LC.NSP;s++) FUNNY[s]=[LC.SP[s].n,LC.SP[s].dex,['#d8e8a8','#a8bf68','#607848'],expansionArt(s,false)];
   const SP = LC.SP.map(x => FUNNY[x.i] ? Object.assign({}, x, { n: FUNNY[x.i][0], dex: FUNNY[x.i][1] }) : x);
   const FUNPAL = s => FUNNY[s] ? [FUNNY[s][2][0], FUNNY[s][2][1], FUNNY[s][2][2], '#201418'] : null;
   // a few moves get funnier names on screen (the keys stay the same, so link battles still agree)
@@ -70,7 +158,7 @@
     'BUBBLE POP': 'BATH BOMB', 'CINDER SPIT': 'HOT SAUCE', 'FLARE UP': 'BONFIRE', ZAP: 'STATIC SHOCK', 'STATIC POP': 'FAX BLAST', THUNDERCLAP: 'MODEM SCREAM', 'PEBBLE TOSS': 'CONKER CHUCK',
     'ROCK SLAM': 'BODY SLAM', HARDEN: 'TENSE UP', LANDSLIDE: 'AVALANCHE', 'EEL WHIP': 'WIRE WHIP', STINGLE: 'STINGY STING' };
   const mvN = m => MVN[m] || m;
-  // Game Boy Color palettes: the text boxes per cartridge, the map tiles, the people
+  // Game Lad colour palettes: the text boxes per cartridge, the map tiles, the people
   const UIPAL = { moss: ['#f8f8f0', '#b8e0a8', '#488860', '#182820'], puddle: ['#f8f8ff', '#b8d0f8', '#4868b0', '#181c38'] };
   const TPAL = {
     '.': ['#c8f0a0', '#78c060', '#3a8040', '#183818'], ',': ['#f0e0b0', '#d0b880', '#907848', '#403020'], f: ['#c8f0a0', '#78c060', '#e85878', '#183818'],
@@ -313,6 +401,45 @@
       'X________X',
       'XXXXmmXXXX'] },
   });
+  // Mid-game expansion: connected routes, services and distinct gym layouts.
+  MAPS.bay.rows[7] = 'F....,,,,,,,,,,,,,';
+  Object.assign(MAPS, {
+    route3: {name:'ROUTE 3 - PEG PATH',out:'T',song:'route',grass:[[29,17,20,15],[31,17,20,15],[35,17,20,15],[37,18,20,15],[39,18,21,15],[43,18,21,15],[45,18,21,10]],rows:[
+      'TTTTTTTTT,,TTTTTTTTT','T""""....,,..."""".T','T"""".FFF,,FF."""".T','T.....,.....,."""".T','T.FFF.,.FFF.,......T','T.....,,,,,,,..S...T','TTTTTTTTT,TTTTTTTTTT','T""""....,...""""..T','T"""".F..,...""""..T','T.....F..,.........T','T.FFFFF..,,,,,,,FF.T','T........,.....,...T',',,,,,,,,,,.....,...T','T"""".F........,...T','T"""".F..""""..,...T','T.....,,,"""",,,...T','T.f................T','TTTTTTTTTTTTTTTTTTTT']},
+    fuse: {name:'FUSEBOX TOWN',out:'T',song:'town',rows:[
+      'TTTTTTTTT,,TTTTTTTTT','T..f.....,,.....f..T','T.RRRR...,,...RRRR.T','T.RRRR...,,...RRRR.T','T.#OD#...,,...#DO#.T','T...,...S,,....,...T','T...,,,,,,,,,,,,...T','T........,,........T','T.RRRRR..,,...RRRR.T','T.RRRRR..,,...RRRR.T','T.#OD##..,,...#DO#.T','T...,...S,,....,...T','T...,,,,,,,,,,,,...T','T........,,...QQQ..T','T.f...F..,,...QQQ..T','T.....F..,,........T','T........,,........T','TTTTTTTTT,,TTTTTTTTT']},
+    centre3:{name:'CRITTER CENTRE',out:'X',song:'home',inside:1,rows:inside(MAPS.centre.rows)},
+    shop3:{name:'FUSEBOX SUPPLIES',out:'X',song:'home',inside:1,rows:inside(MAPS.shop.rows)},
+    fusehouse:{name:'RADIO REPAIR',out:'X',song:'home',inside:1,rows:inside(MAPS.house.rows)},
+    gym3:{name:'FUSEBOX GYM',out:'X',song:'gym',inside:1,rows:[
+      'XXXXXXXXXXXX','X_Q______Q_X','X__________X','XWWW___WWWWX','X___W_W____X','X___W_W____X','X___W_W____X','X___W_W____X','X___W_W____X','X____W_____X','X_Q______Q_X','X__________X','XXXXXmmXXXXX']},
+    route4:{name:'ROUTE 4 - SOCK MOOR',out:'T',song:'woods',grass:[[41,22,25,15],[45,22,25,15],[49,22,25,15],[51,23,25,15],[53,23,26,15],[55,23,26,15],[57,23,26,10]],rows:[
+      'TTTTTTTTT,,TTTTTTTTT','T........,,........T','T"""".F..,,..""""..T','T"""".F..,,..""""..T','T.....F..,,........T','T,,,,,,,,,,,,,,,,,,T','T,WWWWWWW,WWWWWWWW,T','T,WWWWWWW,WWWWWWWW,T','T,WWWWWWW,WWWWWWWW,T','T,,,,,,,,,,,,,,,,,,T','T..."""..,,..""""..T','T..."""..,,..""""..T','TFFFF....,,....FFFFT','T.....S..,,........T','T""""....,,..""""..T','T"""".FFF,,..""""..T','T........,,........T','T.....f..,,..f.....T','T........,,........T','TTTTTTTTT,,TTTTTTTTT']},
+    tunnel:{name:'LOST SOCK TUNNEL',out:'V',song:'cave',cave:1,grass:[[29,24,27,15],[31,24,27,15],[49,24,27,15],[51,24,27,15],[53,25,28,15],[55,25,28,15],[57,25,28,10]],rows:[
+      'VVVVVVVVV==VVVVVVVVV','V========B=========V','V==VVVV==BB==VVVV==V','V======VV====V=====V','V=BBB==VV====V=BBB=V','V======VV====V=====V','VVV======VV=====VVVV','V======B=VV========V','V=VVV====VV===VVV==V','V==================V','VVVVVVVVV=VVVVVVVVVV','V==================V','V=VVV=====VVVV=====V','V=====B===VVVV==B==V','V=====B============V','V=VVVV=====VVVV====V','V======B===========V','V=====VVVV=========V','VVVV==VVVVVVVVVVVVVV','VVVV==VVVVVVVVVVVVVV']},
+    kiln:{name:'KILN VILLAGE',out:'V',song:'bay',rows:[
+      'VVVVVVVVVVVVVVVVVVVV','V....f...,,........V','V.RRRR...,,...RRRR.V','V.RRRR...,,...RRRR.V','V.#OD#...,,...#DO#.V','V...,...S,,....,...V','V...,,,,,,,,,,,,...V','V........,,........V','V.RRRRR..,,...RRRR.V','V.RRRRR..,,...RRRR.V','V.#OD##..,,...#DO#.V','V...,...S,,....,...V','V...,,,,,,,,,,,,...V','V........,,...RRRR.V','V........,,...RRRR.V','V..f.....,,...#DO#.V','V........,,....,...V','VVVVVVVVV,,VVVVVVVVV']},
+    centre4:{name:'CRITTER CENTRE',out:'X',song:'home',inside:1,rows:inside(MAPS.centre.rows)},
+    shop4:{name:'KILN CORNER SHOP',out:'X',song:'home',inside:1,rows:inside(MAPS.shop.rows)},
+    kilnhouse:{name:'CLOCKMAKER',out:'X',song:'home',inside:1,rows:inside(MAPS.house.rows)},
+    gym4:{name:'KILN VILLAGE GYM',out:'X',song:'gym',inside:1,rows:[
+      'XXXXXXXXXXXX','X_Q______Q_X','X__________X','X_BBB__BBB_X','X__________X','XBBBBBBB___X','X__________X','X___BBBBBBBX','X__________X','X_BBB__BBB_X','X_Q______Q_X','X__________X','XXXXXmmXXXXX']},
+    depot:{name:'POCKET PARCEL DEPOT',out:'X',song:'cave',inside:1,rows:[
+      'XXXXXXXXXXXXXX','X_Q________Q_X','X____________X','X____________X','X_KKKKK__KKK_X','X____________X','X_KKK__KKKKK_X','X____________X','X____________X','X_KKKKK__KKK_X','X____________X','X_KKK__KKKKK_X','X____________X','X____________X','X____________X','XXXXXXmmXXXXXX']},
+  });
+  // Bare cable tiles are crossings only after the third badge's INSULATE manual.
+  MAPS.gym3.rows[9] = 'X____c_____X';
+  MAPS.route4.rows[7] = 'T,WWWWWWWcWWWWWWWW,T';
+  TPAL.c = TPAL.P;
+  TPAL.a=TPAL.P;TPAL.o=TPAL['='];
+  // Familiar roof plaques make town services readable before entering a door.
+  for(const ch of ['h','s','g'])TPAL[ch]=TPAL.R;
+  for(const id of ['fuse','kiln'])for(const [x,y,ch]of [[4,3,'h'],[15,3,'s'],[4,9,'g']]){
+    const row=MAPS[id].rows[y];MAPS[id].rows[y]=row.slice(0,x)+ch+row.slice(x+1);
+  }
+  for(const [id,x,y,ch] of [['fuse',7,2,'a'],['fuse',12,2,'a'],['fuse',7,8,'a'],['fuse',12,8,'a'],['kiln',7,8,'o'],['kiln',12,8,'o'],['kiln',7,13,'o'],['kiln',12,13,'o']]){
+    const row=MAPS[id].rows[y];MAPS[id].rows[y]=row.slice(0,x)+ch+row.slice(x+1);
+  }
   for (const k in MAPS) { const m = MAPS[k]; m.id = k; m.h = m.rows.length; m.w = m.rows[0].length; }
   // where doors and edges lead: [map, x, y] -> [map, x, y, facing]
   const WARPS = [
@@ -333,8 +460,26 @@
     ['bay', 5, 11, 'gym2', 4, 10, 'up'], ['gym2', 4, 11, 'bay', 5, 12, 'down'], ['gym2', 5, 11, 'bay', 5, 12, 'down'],
     ['bay', 14, 12, 'bayhouse', 4, 6, 'up'], ['bayhouse', 4, 7, 'bay', 14, 13, 'down'], ['bayhouse', 5, 7, 'bay', 14, 13, 'down'],
   );
+  WARPS.push(
+    ['bay',17,7,'route3',1,12,'right'], ['route3',0,12,'bay',16,7,'left'],
+    ['route3',9,0,'fuse',9,16,'up'], ['route3',10,0,'fuse',10,16,'up'],
+    ['fuse',9,17,'route3',9,1,'down'], ['fuse',10,17,'route3',10,1,'down'],
+    ['fuse',9,0,'route4',9,18,'up'], ['fuse',10,0,'route4',10,18,'up'],
+    ['route4',9,19,'fuse',9,1,'down'], ['route4',10,19,'fuse',10,1,'down'],
+    ['route4',9,0,'tunnel',4,18,'up'], ['route4',10,0,'tunnel',5,18,'up'],
+    ['tunnel',4,19,'route4',9,1,'down'], ['tunnel',5,19,'route4',10,1,'down'],
+    ['tunnel',9,0,'kiln',9,16,'up'], ['tunnel',10,0,'kiln',10,16,'up'],
+    ['kiln',9,17,'tunnel',9,1,'down'], ['kiln',10,17,'tunnel',10,1,'down']
+  );
+  for (const [town,number,house] of [['fuse',3,'fusehouse'],['kiln',4,'kilnhouse']]) {
+    for (const [x,y,insideID,iy] of [[4,4,'centre'+number,6],[15,4,'shop'+number,6],[4,10,'gym'+number,11],[15,10,house,6]]) {
+      const ix=insideID.startsWith('gym')?5:4, edge=insideID.startsWith('gym')?12:7;
+      WARPS.push([town,x,y,insideID,ix,iy,'up'],[insideID,ix,edge,town,x,y+1,'down'],[insideID,ix+1,edge,town,x,y+1,'down']);
+    }
+  }
+  WARPS.push(['kiln',15,15,'depot',6,14,'up'],['depot',6,15,'kiln',15,16,'down'],['depot',7,15,'kiln',15,16,'down']);
   const warpAt = (m, x, y) => WARPS.find(w => w[0] === m && w[1] === x && w[2] === y);
-  const SOLID = new Set(['T', 'W', 'R', '#', 'O', 'S', 'X', 'K', 'P', 'M', 't', 'C', 'b', 'Q', 'H', 'V', 'B', 'F']);
+  const SOLID = new Set(['T', 'W', 'R', '#', 'O', 'S', 'X', 'K', 'P', 'M', 't', 'C', 'b', 'Q', 'H', 'V', 'B', 'F', 'a', 'o', 'h', 's', 'g']);
   const SIGNS = {
     'route2:2,6': 'ROUTE 2. North: PEBBLE BAY. South: GRUMBLY CAVE. Mind the wasps.',
     'bay:8,5': 'PEBBLE BAY. Sea, sand and sticks of rock. GYM LEADER: CAPTAIN {captain}.',
@@ -342,8 +487,16 @@
     'town:12,15': 'MOSS TOWN GYM. Leader: {gymleader}. "As tough as old boots!"',
     'route:2,8': 'ROUTE 1. North: WHISPERING WOODS. South: MOSS TOWN.',
   };
+  Object.assign(SIGNS, {
+    'route3:15,5':'PEG PATH. North: FUSEBOX TOWN. West: PEBBLE BAY. Beware unsolicited pocket inspections.',
+    'fuse:8,5':'FUSEBOX TOWN. Roof signs: C CENTRE, S SHOP, G GYM. North: SOCK MOOR. South: PEG PATH.',
+    'fuse:8,11':'FUSEBOX GYM. Leader {electrician}. Follow the safe central cable. PUDDLE loses to SPARK; ROCK grounds it.',
+    'route4:6,13':'SOCK MOOR. North: LOST SOCK TUNNEL and KILN VILLAGE. INSULATE lets you cross bare cables.',
+    'kiln:8,5':'KILN VILLAGE. Roof signs: C CENTRE, S SHOP, G GYM. South: LOST SOCK TUNNEL.',
+    'kiln:8,11':'KILN GYM. Leader {potter}. PUDDLE cools EMBER. Parcel depot: southeast. Please recycle the packaging.',
+  });
   // people and things. st: how they look. sight: trainers spot you this many tiles away
-  const castRoles = { gardener: 'adultF', camper: 'teenM', birder: 'oldF', gymleader: 'teenF', hiker: 'adultM', dinnerlady: 'adultF', icecream: 'teenF', swimmer: 'teenF', sailor: 'adultM', captain: 'adultF', professor: 'oldM', nurse: 'adultF' };
+  const castRoles = { gardener: 'adultF', camper: 'teenM', birder: 'oldF', gymleader: 'teenF', hiker: 'adultM', dinnerlady: 'adultF', icecream: 'teenF', swimmer: 'teenF', sailor: 'adultM', captain: 'adultF', professor: 'oldM', nurse: 'adultF', electrician: 'adultF', potter: 'adultM', courier: 'teenM', mechanic: 'adultM', clockmaker: 'oldF' };
   if (typeof Cast !== 'undefined') for (const role in castRoles) Cast.add('mon.' + role, { role: 'Pocket Critters ' + role, g: castRoles[role].endsWith('F') ? 'f' : 'm', pool: [castRoles[role]] });
   const castName = (role, fallback) => typeof Cast !== 'undefined' ? Cast.n('mon.' + role).toUpperCase() : fallback;
   const PEOPLE = {
@@ -390,9 +543,9 @@
       { id: 'rosie', x: 1, y: 8, dir: 'right', st: 'gardener', sight: 7, tr: { name: 'GARDENER {gardener}', team: [[12, 9], [6, 9]], money: 250,
         pre: '{gardener}: Wipe your feet! Nobody tramples {gymleader}\'s gym without a battle!', win: '{gardener}: My begonias are ashamed of me.', after: '{gardener}: {gymleader}\'s critters are proper tough. Stock up on cakes!' } },
       { id: 'tom', x: 8, y: 6, dir: 'left', st: 'camper', sight: 7, tr: { name: 'CAMPER {camper}', team: [[11, 9], [13, 9]], money: 250,
-        pre: '{camper}: I\'ve camped in these woods for three whole nights. Well, the garden.', win: '{camper}: Back to my tent, then.', after: '{camper}: Ever had a GLOWGRUB in your tent? Best night light ever.' } },
+        pre: '{camper}: I\'ve camped in these woods for three whole nights. Well, the garden.', win: '{camper}: Back to my tent, then.', after: '{camper}: Ever had a BEEPLET in your tent? Best night light ever.' } },
       { id: 'edna', x: 1, y: 4, dir: 'right', st: 'birder', sight: 7, tr: { name: 'BIRDER {birder}', team: [[7, 10], [7, 10]], money: 260,
-        pre: '{birder}: Shh! I\'m watching the PUFFPIPS. Oh, you want a battle. Fine.', win: '{birder}: You scared the birds off. Well done.', after: '{birder}: {gymleader} is just up there. Good luck, dear.' } },
+        pre: '{birder}: Shh! I\'m watching the CRISPITS. Oh, you want a battle. Fine.', win: '{birder}: You scared the birds off. Well done.', after: '{birder}: {gymleader} is just up there. Good luck, dear.' } },
       { id: 'hazel', x: 4, y: 1, dir: 'down', st: 'hazel', leader: 1, tr: { name: 'LEADER {gymleader}', team: [[12, 10], [15, 12]], money: 600,
         pre: '{gymleader}: Welcome to the MOSS TOWN GYM! I\'m {gymleader}. My critters grow slow and steady and they are as tough as old boots. Ready?', win: '{gymleader}: Well I never! You\'ve earned this.', after: '{gymleader}: Keep training, JACK. There are critters out there you haven\'t even dreamed of.' } },
     ],
@@ -441,6 +594,55 @@
       win: 'JACKK: Right. Next time I am bringing a seventh critter. What do you mean, six is the limit?',
       after: 'JACKK: Two badges? Save some adventure for the rest of us! See you at the CABLE CLUB.' } });
 
+  // Team Pocket: a parcel subscription scam, with uniforms one size too big.
+  PEOPLE.pocket = {hair:3,cap:1,shirt:3,coat:1,col:['#d8e8a8','#a8bf68','#607848','#203828']};
+  const routeTrainer = (id,x,y,st,name,team,pre,after,money=420,sight=3) => ({id,x,y,dir:'left',st,sight,tr:{name,team,money,pre,win:'My strategy needs another page in the notebook.',after}});
+  Object.assign(NPCS, {
+    route3:[
+      {id:'pocketPeg',x:9,y:6,dir:'down',st:'pocket',vanish:true,tr:{name:'TEAM POCKET SCOUT',team:[[27,20],[39,21]],money:480,
+        pre:'TEAM POCKET: Prepare for a minor inconvenience! Make it a standing order! We put critters in pockets... then charge for the pockets! This road is premium access.',
+        win:'TEAM POCKET: Foiled by a child with no direct debit! Our next delivery is the KILN heating regulator. Forget I said that.',after:'The scout has fled north.'}},
+      routeTrainer('pegCourier',13,10,'camper','COURIER {courier}',[[37,19],[38,21]],'My delivery has legs. All four of them.','CLOTHOSAUR is what happens when you never put your washing away.'),
+      routeTrainer('pegGardener',4,3,'gardener','GARDENER {gardener}',[[35,20],[45,20]],'My jam has escaped. Can you help me train it?','JAMJAR and COMPOSTIMP thrive on this path.'),
+      {id:'pegJuice',x:2,y:15,obj:'ball',item:'JUICE',n:2}, {id:'pegCubes',x:17,y:3,obj:'ball',item:'CUBE',n:5}
+    ],
+    fuse:[{id:'fuseGuide',x:12,y:7,dir:'left',st:'clerk',talk:['The central cable in our gym is safe. Win the SPARK BADGE and INSULATE makes outdoor cables safe too.','TEAM POCKET offered me a monthly pocket subscription. My trousers already have four.']},
+      {id:'fuseCollector',x:6,y:13,dir:'right',st:'kid',talk:['My CASSETTICK evolved into BOOMBOXER. Now it demands six enormous batteries.','Starters change again at level 32! Even my magazine did not know that.'] }],
+    gym3:[routeTrainer('fuseApprentice',2,8,'clerk','APPRENTICE {mechanic}',[[39,22],[51,22]],'I wired the doorbell to the toaster. Breakfast is very exciting.','ROCK critters ground SPARK attacks.',450,2),
+      routeTrainer('fuseTuner',9,5,'camper','RADIO FAN {camper}',[[8,23],[40,24]],'I only listen to stations between stations.','Cakes are cheaper than a blackout.',480,2),
+      {id:'electrician',x:5,y:1,dir:'down',st:'clerk',leader:3,tr:{name:'ENGINEER {electrician}',team:[[40,24],[52,25],[28,27]],money:1200,
+        pre:'{electrician}: Welcome to FUSEBOX! I train SPARK critters. No extensions, no adapters, no excuses!',win:'{electrician}: You blew my fuse! The SPARK BADGE is yours.',after:'{electrician}: INSULATE protects your shoes on bare cable. Find out what TEAM POCKET is doing up north.'}}],
+    route4:[routeTrainer('moorCamper',5,10,'camper','CAMPER {camper}',[[49,23],[44,24]],'I brought a sleeping bag. The sleeping bag brought hay fever.','The central crossing needs INSULATE. The banks make a longer safe route.'),
+      routeTrainer('moorHiker',14,3,'hiker','HIKER {hiker}',[[55,24],[30,25]],'A biscuit is a rock if you leave it in your bag long enough.','The tunnel has a narrow middle. Someone in a huge coat is blocking it.'),
+      {id:'moorCakes',x:17,y:17,obj:'ball',item:'BIG',n:3},{id:'moorTea',x:2,y:4,obj:'ball',item:'TEA',n:2}],
+    tunnel:[{id:'pocketTunnel',x:9,y:10,dir:'down',st:'pocket',vanish:true,tr:{name:'TEAM POCKET SORTER',team:[[46,26],[50,26],[54,27]],money:650,
+      pre:'TEAM POCKET: We stole the heating regulator! Now every radiator needs a premium subscription. This is our service tunnel. No refunds!',
+      win:'TEAM POCKET: Our depot in KILN will hear of this! By second-class post. We have a budget.',after:'The sorter has fled.'}},
+      routeTrainer('tunnelPotter',15,14,'hiker','POTTER {potter}',[[55,25],[56,27]],'These pots are kiln-fired. They fire back.','The northern exit leads to KILN. Their heating has gone missing.',500,3),
+      {id:'tunnelPep',x:2,y:9,obj:'ball',item:'PEP',n:2},{id:'tunnelJuice',x:17,y:3,obj:'ball',item:'JUICE',n:3}],
+    kiln:[{id:'kilnGuide',x:12,y:7,dir:'left',st:'old',talk:['The gym cannot open without its heating regulator. TEAM POCKET took it to the parcel depot in the southeast.','They offered to sell it back in twelve easy payments. The cheek!']},
+      {id:'jackkKiln',x:9,y:12,dir:'down',st:'jackk',sight:3,rematch:true,rivalLevel:28,tr:{name:'JACKK',team:[],money:900,
+        pre:'JACKK: Three badges! My starter has grown. My homework pile has grown faster. One more battle before the gym!',
+        win:'JACKK: We should stop those pocket people. They charged my backpack for being a large pocket.',after:'JACKK: Four badges is halfway! We will need a bigger notebook for the next part.'}}],
+    gym4:[routeTrainer('kilnStoker',2,8,'hiker','STOKER {mechanic}',[[41,27],[54,28]],'Do not touch the pottery. It touches back.','PUDDLE attacks cool EMBER. Try your old WELLYBOB!',550,2),
+      routeTrainer('kilnBaker',9,4,'dinner','BAKER {dinnerlady}',[[57,27],[58,28]],'My biscuits are weapons grade. Want a sample?','Those boulders can be SHOVEd. The long way is free.',550,2),
+      {id:'potter',x:5,y:1,dir:'down',st:'hiker',leader:4,tr:{name:'MASTER {potter}',team:[[42,29],[54,29],[25,31],[56,30]],money:1600,
+        pre:'{potter}: You returned our regulator! Now face the KILN GYM. Four critters, fresh from the oven. Let us see if you can stand the heat!',
+        win:'{potter}: Perfectly fired! The KILN BADGE is yours.',after:'{potter}: Halfway to eight! Rest, fill your dex and look for the clockmaker. The northern league roads are still being surveyed.'}}],
+    depot:[routeTrainer('pocketPacker',2,12,'pocket','TEAM POCKET PACKER',[[27,26],[38,27]],'Contents: one child-sized defeat. Sign here.','The lieutenant is upstairs. Well, north. We cannot afford stairs.',600,6),
+      routeTrainer('pocketReturns',11,7,'pocket','TEAM POCKET RETURNS',[[46,27],[48,28]],'Returns department. We return everything except stolen regulators.','Please retain your receipt.',600,6),
+      {id:'pocketBoss',x:6,y:2,dir:'down',st:'pocket',tr:{name:'POCKET LIEUTENANT',team:[[28,28],[46,29],[52,29],[50,30]],money:1400,
+        pre:'LIEUTENANT: Our mission? Every pocket on the planet, on a monthly plan! With this regulator, even warm pockets cost extra. You cannot cancel during a battle!',
+        win:'LIEUTENANT: Subscription CANCELLED! Take the regulator. This was only our introductory offer. TEAM POCKET will return, with smaller print!',after:'An empty desk. The small print says: WE WILL BE BACK.'}},
+      {id:'depotBuns',x:10,y:1,obj:'ball',item:'PEP',n:2}],
+    fusehouse:[{id:'radioRepair',x:6,y:3,dir:'left',st:'old',talk:['RADIO REPAIR: Six new families live along PEG PATH. More live on SOCK MOOR and in LOST SOCK TUNNEL.','A quiet clock is hiding north of the big boulders at the tunnel exit. The clockmaker knows its secret.']}],
+    kilnhouse:[{id:'clockmaker',x:6,y:3,dir:'left',st:'old',clockmaker:true}],
+  });
+  for (const num of [3,4]) {
+    NPCS['centre'+num]=[{id:'nurse'+num,x:3,y:1,dir:'down',st:'nurse',nurse:1},{id:'cable'+num,x:8,y:3,dir:'left',st:'linklass',cable:1}];
+    NPCS['shop'+num]=[{id:'clerk'+num,x:1,y:2,dir:'down',st:'clerk',shop:1}];
+  }
+  NPCS.tunnel.push({id:'alarmRare',x:16,y:1,st:'old',rare:59});
   // ================================================================ music (original, Game Lad style). Written in eighths, played as 16ths.
   const ex = a => { const o = []; for (const n of a) { if (n > 0) o.push(n, -1); else if (n === -1) o.push(-1, -1); else o.push(0, 0); } return o; };
   const SONGS = {
@@ -581,7 +783,7 @@
         D => { D.e(16,17,16,16,1);for(let y=4;y<32;y+=5)D.l(1,y,31,y,2);D.e(9,9,4,2,4); },
         D => { D.e(16,26,16,7,2);D.e(16,18,11,13,1);D.e(11,13,4,3,4);D.e(22,27,6,3,2); },
       ];
-      const sprF = {}, spriteF = s => sprF[s] || (sprF[s] = (() => { const D = grid(32); BACK[s](D); D.finish(true); return toCanvas(D, FUNPAL(s)); })());
+      const sprF = {}, spriteF = s => sprF[s] || (sprF[s] = (() => { const D = grid(32); (s >= 23 ? expansionArt(s, true) : BACK[s])(D); D.finish(true); return toCanvas(D, FUNPAL(s)); })());
       // people: dir down / up / left / right, two walking frames
       function personArt(st, dir, fr) {
         const D = grid(16), skin = 4, hair = st.hair || 3, shirt = st.shirt || 2;
@@ -654,6 +856,10 @@
           case 'Q': f(0, 0, 0, 16, 16); x.fillStyle = TP[2]; x.beginPath(); x.arc(8, 6, 5, 0, 7); x.fill(); f(1, 5, 3, 2, 2); f(3, 5, 10, 6, 5); f(2, 6, 11, 4, 3); break;
           case 'H': f(0, 0, 0, 16, 16); f(3, 0, 2, 16, 14); f(2, 1, 3, 14, 12); for (let i = 0; i < 6; i++) f(1, 2 + (i * 5) % 12, 4 + (i * 3) % 9, 2, 2); break;
           // (G) the cave, the beach and the bay
+          case 'h': case 's': case 'g': x.drawImage(tileArt('R'),0,0);f(3,2,2,12,12);f(0,3,3,10,10);F.draw(x,{h:'C',s:'S',g:'G'}[ch],6,5,TP[3]);break;
+          case 'a': f(0,0,0,16,16);f(3,7,1,2,14);f(2,3,3,10,2);f(1,4,3,3,1);f(3,4,13,8,2);f(2,5,8,6,4);f(0,6,9,2,1);break;
+          case 'o': f(0,0,0,16,16);f(3,2,13,12,2);f(2,3,6,10,7);f(1,4,5,8,2);f(3,5,3,6,2);f(3,6,8,4,5);f(1,7,10,2,2);f(2,11,1,2,4);break;
+          case 'c': f(0,0,0,16,16); f(3,5,0,6,16); f(1,6,0,4,16); for(let y=1;y<16;y+=4){f(2,6,y,4,2);f(0,7,y,1,1);} f(3,1,6,14,2); break;
           case '=': f(0, 0, 0, 16, 16); f(1, 3, 4, 2, 1); f(1, 11, 9, 3, 1); f(2, 6, 12, 2, 1); f(1, 13, 2, 1, 1); f(2, 2, 10, 1, 1); break;
           case 'V': case 'E': f(1, 0, 0, 16, 16); f(0, 1, 1, 6, 3); f(0, 9, 7, 5, 3); f(2, 0, 5, 7, 1); f(2, 7, 0, 1, 7); f(2, 8, 11, 8, 1); f(2, 3, 12, 1, 4); f(3, 0, 15, 16, 1);
             if (ch === 'E') { x.fillStyle = TP[3]; x.beginPath(); x.ellipse(8, 11, 6, 6, 0, Math.PI, 0); x.fill(); f(3, 2, 11, 12, 5); } break;
@@ -812,7 +1018,7 @@
       const tileAt = (m, x, y) => (x < 0 || y < 0 || x >= m.w || y >= m.h) ? m.out : (S?.cleared?.[m.id + ':' + x + ',' + y] ? (m.cave ? '=' : '.') : m.rows[y][x] || m.out);
       function loadMap(id, x, y, dir) {
         map = MAPS[id]; pl.x = x; pl.y = y; if (dir) pl.dir = dir; pl.mx = pl.my = 0; pl.moving = 0;
-        npcs = (NPCS[id] || []).filter(n => !(n.obj === 'ball' && S.taken[n.id]) && !(n.obj === 'cube' && S.f.starter)).map(n => Object.assign({ mx: 0, my: 0, dir: n.dir || 'down', home: [n.x, n.y], wt: 60 + ri(0, 120) }, n));
+        npcs = (NPCS[id] || []).filter(n => !(n.obj === 'ball' && S.taken[n.id]) && !(n.obj === 'cube' && S.f.starter) && !(n.vanish && S.beaten[n.id]) && !(n.rare != null && S.caught[n.rare])).map(n => Object.assign({ mx: 0, my: 0, dir: n.dir || 'down', home: [n.x, n.y], wt: 60 + ri(0, 120) }, n));
         if (id === 'lab' && S.f.starter && !S.f.rivalGone) { /* JackK stays until after the battle */ }
         if (id === 'lab' && S.f.rivalGone) npcs = npcs.filter(n => !n.rival);
         S.map = id;
@@ -820,17 +1026,18 @@
       }
       function playSong() { K.music(SONGS[map.song] || SONGS.town); }
       const npcAt = (x, y) => npcs.find(n => n.x === x && n.y === y);
-      const blocked = (x, y) => SOLID.has(tileAt(map, x, y)) || !!npcAt(x, y) || (pl.x === x && pl.y === y);
+      const blocked = (x, y) => SOLID.has(tileAt(map, x, y)) || (tileAt(map,x,y)==='c' && !map.inside && !S.f.badge3) || !!npcAt(x, y) || (pl.x === x && pl.y === y);
       function interactFace() {
         const [dx, dy] = DIRS[pl.dir]; let tx = pl.x + dx, ty = pl.y + dy;
         let n = npcAt(tx, ty);
         if (!n && tileAt(map, tx, ty) === 'C') { n = npcAt(tx + dx, ty + dy); }
         if (n) return run(talkTo(n));
+        if (tileAt(map,tx,ty)==='c') return run(msg(S.f.badge3 || map.inside ? 'An insulated cable. Safe to walk across.' : 'A bare cable! Win the SPARK BADGE in FUSEBOX for FIELD MANUAL 02: INSULATE. The long way round is safe.'));
         if (tileAt(map, tx, ty) === 'H' || tileAt(map, tx, ty) === 'B') return run(fieldMove(tx, ty));
         const t = tileAt(map, tx, ty), sk = `${map.id}:${tx},${ty}`;
         if (t === 'S' && SIGNS[sk]) return run(msg(SIGNS[sk]));
         const words = { K: 'Shelves full of books. "CRITTERS AND HOW TO CUDDLE THEM", "MOSS: A HISTORY"...', P: map.id.startsWith('centre') ? null : map.id === 'lab' ? 'A big humming computer. It is cleverer than you. (It plays chess.)' : 'The telly. There\'s a cartoon on about a boy and his critter. Classic.',
-          M: 'A machine that makes critters feel better. It goes PING.', b: 'Your bed. You had a dream about a GIANT critter last night.', t: map.id === 'lab' ? 'A tidy table. The Professor\'s cup of tea has gone cold.' : 'The kitchen table. There\'s a plate of biscuits. Mom has counted them.', Q: 'A pot plant. It\'s a bit droopy.' };
+          M: 'A machine that makes critters feel better. It goes PING.', b: 'Your bed. You had a dream about a GIANT critter last night.', t: map.id === 'lab' ? 'A tidy table. The Professor\'s cup of tea has gone cold.' : 'The kitchen table. There\'s a plate of biscuits. Mom has counted them.', Q: 'A pot plant. It\'s a bit droopy.', h:'C: CRITTER CENTRE. Free healing and storage.', s:'S: SUPPLIES. Cakes, cubes and medicines.', g:'G: GYM. Earn a badge here.', a:'A radio mast. It picks up three stations and somebody ordering a very large pizza.', o:'A little brick kiln. Warm enough to toast your sandwiches. Ask first.' };
         if (t === 'P' && map.id.startsWith('centre')) return run(pcScript());
         if (words[t]) return run(msg(words[t]));
       }
@@ -861,6 +1068,10 @@
         if ((t === '"' || t === '~' || (map.cave && t === '=')) && S.party.length && rand() < (map.cave ? 0.07 : 0.11)) return run(wild(t === '~'));
       }
       function* warpTo(w) {
+        const gate = w[0]==='bay' && w[3]==='route3' && !S.f.badge2 ? 'Win the SPLASH BADGE before taking PEG PATH. The gym is in southwest PEBBLE BAY.' :
+          w[0]==='fuse' && w[3]==='route4' && !S.f.badge3 ? 'SOCK MOOR is closed to beginners. Win the SPARK BADGE in FUSEBOX first.' :
+          w[3]==='gym4' && !S.beaten.pocketBoss ? 'The gym furnace is out! Recover the heating regulator from TEAM POCKET at the southeast parcel depot.' : null;
+        if(gate){yield* msg(gate);yield* walkPlayer(opp[pl.dir],1);save();return;}
         if (w[3] === 'cave' && !S.badges) { yield* msg("A ranger's sign: MOSS BADGE holders only! The cave is too grumbly for beginners."); yield* walkPlayer('down', 1); return; }
         K.sfx.tone(400, 0.08, 'square', 0.06, 0, 200);
         yield fade(true);
@@ -915,13 +1126,17 @@
         K.music(n.leader ? SONGS.leader : SONGS.battle);
         yield* msg(n.tr.pre);
         const rival = S.f.rival == null ? 4 : S.f.rival;
-        const roster = n.rematch ? [[SP[rival].evo?.[1] ?? rival, 18], [8, 16], [7, 16]] : n.tr.team;
+        let rivalSpecies = SP[rival].evo?.[1] ?? rival;
+        if (n.rivalLevel && n.rivalLevel >= 32) rivalSpecies = SP[rivalSpecies].evo?.[1] ?? rivalSpecies;
+        const level = n.rivalLevel || 18;
+        const roster = n.rematch ? [[rivalSpecies,level],[n.rivalLevel?40:8,level-2],[n.rivalLevel?38:7,level-2]] : n.tr.team;
         const team = roster.map(([s, lv]) => mon(s, lv));
         const res = yield* battle(team, Object.assign({}, n.tr, { id: n.id, leader: n.leader || 0 }));
         if (res === 'win') {
           commitTrainer(Object.assign({}, n.tr, { id: n.id, leader: n.leader || 0 }));
           save();
           yield* msg(n.tr.win);
+          if(n.id==='pocketBoss') yield* msg('JACK returned the HEATING REGULATOR! The KILN GYM is open. The village radiators cheer very quietly.');
           yield* msg(`JACK got ${n.tr.money}P for winning!`);
           if (n.leader) yield* badge(n.leader);
           else { save(); report(); }
@@ -944,8 +1159,27 @@
         if (n.nurse) return yield* nurseTalk();
         if (n.cable) return yield* cableClub();
         if (n.shop) return yield* shopTalk();
+        if(n.clockmaker) return yield* clockmaker();
+        if(n.rare != null) return yield* rareBattle(n);
         if (n.tr) return yield* trainerBattle(n);
         for (const t of n.talk || []) yield* msg(t);
+      }
+      function* clockmaker() {
+        if(!S.f.badge4) return yield* msg('{clockmaker}: The old clock in LOST SOCK TUNNEL has slept for years. Earn the KILN BADGE and I will lend you my winding key.');
+        if(!S.f.windingKey){
+          S.f.windingKey=1;S.bag.CUBE=(S.bag.CUBE||0)+5;S.bag.JUICE=(S.bag.JUICE||0)+2;save();
+          yield* msg('{clockmaker}: Four badges! Take my WINDING KEY, five CRITTER CUBES and two SQUASHES. The clock sleeps in the northeast corner of LOST SOCK TUNNEL.');
+        } else yield* msg('{clockmaker}: ALARMAGEDDON waits northeast in LOST SOCK TUNNEL. Wind it with A. Save your cakes and cubes; legends have never heard of bedtime.');
+      }
+      function* rareBattle(n) {
+        if(!S.f.windingKey) return yield* msg('An enormous silent alarm clock. A tiny keyhole is shaped like a biscuit. Someone in KILN might know how to wind it.');
+        if((yield* ask('Wind the mysterious clock? Your homework suddenly feels overdue.'))!==0)return;
+        yield* msg('BRRRRING! ALARMAGEDDON woke up!');
+        const res=yield* battle([mon(n.rare,35)],null);
+        if(res==='lose')yield* blackout();
+        // It returns after a faint or escape, so a unique collection can never be lost.
+        if(S.caught[n.rare])npcs=npcs.filter(x=>x!==n);
+        save();playSong();
       }
       function* momTalk() {
         if (!S.f.starter) { yield* msg('MOM: Morning, love! PROFESSOR {professor} popped round. He\'s waiting for you at his lab. Off you go!'); return; }
@@ -1668,9 +1902,9 @@
         const pm = scr;
         scr = { draw() {
           g.fillStyle = P[0]; g.fillRect(0, 0, W, H); box(0, 0, W, 20); F.center(g, "JACK'S FIELD NOTES", 80, 6, P[3]);
-          const goal = !S.f.starter ? "Visit {professor}'S LAB." : !S.badges ? 'Train in ROUTE 1 and the WOODS. Beat the MOSS GYM.' : !S.f.badge2 ? 'Use SHOVE on hedges and rocks. Cross GRUMBLY CAVE. Win the SPLASH BADGE.' : 'Both badges won! Visit {professor} and fill your CRITTERDEX. Try the CABLE CLUB.';
+          const goal = !S.f.starter ? "Visit {professor}'S LAB." : !S.badges ? 'Train in ROUTE 1 and the WOODS. Beat the MOSS GYM.' : !S.f.badge2 ? 'Use SHOVE on hedges and rocks. Cross GRUMBLY CAVE. Win the SPLASH BADGE.' : !S.f.badge3 ? 'East of PEBBLE BAY: PEG PATH, TEAM POCKET and FUSEBOX GYM.' : !S.beaten.pocketBoss ? 'North over SOCK MOOR to KILN. Recover the heating regulator at the depot.' : !S.f.badge4 ? 'The regulator is safe. Challenge KILN GYM in the southwest village.' : 'Four badges! Visit the KILN clockmaker for a rare hunt. Fill the dex and try the CABLE CLUB.';
           wrap(goal, 23).forEach((l, i) => F.draw(g, l, 9, 28 + i * 11, P[3]));
-          F.draw(g, `BADGES ${S.badges}/2  OWN ${Object.keys(S.caught).length}/${NSP}`, 8, 91, P[3]);
+          F.draw(g, `BADGES ${S.badges}/8  OWN ${Object.keys(S.caught).length}/${NSP}`, 8, 91, P[3]);
           F.draw(g, `TIME ${Math.floor(S.play/60)} MIN`, 8, 104, P[2]);
           F.draw(g, 'A: TALK / SEARCH', 8, 118, P[3]); F.draw(g, 'START: MENU  B: BACK', 8, 130, P[3]);
         } };
@@ -1727,9 +1961,9 @@
           g.drawImage(sprite(c.s), 4, 4);
           fit(nameOf(c), 44, 6, 110); F.draw(g, `L${c.lv} ${SP[c.s].t}`, 44, 18, P[3]);
           F.draw(g, `HP ${c.hp}/${maxhp(c)}`, 44, 30, P[3]);
-          fit(`ATK ${stat(c, 1)} DEF ${stat(c, 2)} SPD ${stat(c, 3)}`, 4, 44, 152);
-          fit(`EXP ${c.exp} NEXT ${c.lv < 50 ? expAt(c.lv + 1) - c.exp : 0}`, 4, 5 + 45, 152);
-          if (B && B.link) {} else fit('OT/' + String(c.ot || 'JACK').toUpperCase(), 4, 58, 146, c.ot ? P[3] : P[2]);
+          fit(`ATK ${stat(c, 1)} DEF ${stat(c, 2)} SPD ${stat(c, 3)}`, 4, 42, 152);
+          fit(`EXP ${c.exp} NEXT ${c.lv < 50 ? expAt(c.lv + 1) - c.exp : 0}`, 4, 51, 152);
+          if (B && B.link) {} else fit('OT/' + String(c.ot || 'JACK').toUpperCase(), 4, 60, 146, c.ot ? P[3] : P[2]);
           box(0, 68, 160, 76);
           prepare(c); c.moves.forEach((m, j) => { fit(mvN(m), 8, 78 + j * 14, 103); F.draw(g, `${c.pp[m]}/${ppMax(m)}`, 118, 78 + j * 14, P[2]); });
         } };
@@ -1816,26 +2050,35 @@
       function commitTrainer(tr) {
         if (!tr.id || S.beaten[tr.id]) return;
         S.beaten[tr.id] = 1; S.money += tr.money || 0;
+        npcs = npcs.filter(n=>!n.vanish || n.id!==tr.id);
         if (tr.leader) { awardBadge(tr.leader); healAll(); }
       }
       function awardBadge(k) {
-        if (k === 2) S.f.badge2 = 1; else S.f.badgeAt = S.f.badgeAt || Date.now();
-        S.badges = (S.beaten.hazel || k === 1 || S.f.badgeAt ? 1 : 0) + (S.f.badge2 ? 1 : 0);
+        if(k===1) S.f.badgeAt=S.f.badgeAt||Date.now(); else S.f['badge'+k]=1;
+        S.badges=(S.f.badgeAt?1:0)+[2,3,4].filter(n=>S.f['badge'+n]).length;
       }
       function* badge(k) {
         k = k || 1; lastBadge = k; awardBadge(k); save();
         const before = scr, D = grid(32);
         D.e(16, 16, 14, 14, 2); D.e(16, 15, 11, 11, 4);
         if (k === 1) { D.t(8, 19, 14, 6, 25, 10, 1); D.t(8, 19, 25, 10, 21, 23, 1); D.l(9, 25, 22, 10, 3); D.l(14, 18, 12, 12, 2); }
+        else if(k===3){D.t(18,3,7,18,15,18,1);D.t(15,14,25,14,12,29,1);D.l(17,7,11,17,4);}
+        else if(k===4){D.r(7,10,18,17,1);D.r(11,17,10,10,3);D.t(12,25,16,17,21,25,4);D.r(20,4,4,6,2);}
         else { D.t(16, 4, 6, 20, 26, 20, 1); D.e(16, 20, 10, 7, 1); D.e(12, 20, 2, 3, 4); D.l(8, 28, 24, 28, 2); }
         D.finish(false); const art = toCanvas(D);
-        scr = { draw() { g.fillStyle = P[0]; g.fillRect(0, 0, W, H); F.center(g, k === 1 ? 'MOSS BADGE' : 'SPLASH BADGE', 80, 6, P[3]); g.drawImage(art, 0, 0, 32, 32, 52, 22, 56, 56); F.center(g, `${S.badges} OF 2 BADGES`, 80, 83, P[2]); } };
+        scr = { draw() { g.fillStyle = P[0]; g.fillRect(0, 0, W, H); F.center(g, ['','MOSS BADGE','SPLASH BADGE','SPARK BADGE','KILN BADGE'][k], 80, 6, P[3]); g.drawImage(art, 0, 0, 32, 32, 52, 22, 56, 56); F.center(g, `${S.badges} OF 8 BADGES`, 80, 83, P[2]); } };
         K.music(null);
         K.sfx.seq([[72, 0.5], [76, 0.5], [79, 0.5], [84, 1], [83, 0.5], [84, 0.5], [88, 2]], { bpm: 200, vol: 0.1 });
         if (k === 2) {
           yield* msg('JACK got the SPLASH BADGE from CAPTAIN {captain}!');
           K.secret('rm.mon.bay');
-          yield* msg(`{captain}: That's ${S.badges} badges! Keep your feet dry and your critters happy, JACK.`);
+          yield* msg(`{captain}: That's ${S.badges} badges! Take the eastern PEG PATH to FUSEBOX. TEAM POCKET has been asking about the heating in KILN.`);
+        } else if(k===3) {
+          yield* msg('JACK got the SPARK BADGE from {electrician}!');
+          yield* msg('FIELD MANUAL 02: INSULATE! You can walk across bare cables now. Head north over SOCK MOOR, through LOST SOCK TUNNEL to KILN VILLAGE.');
+        } else if(k===4) {
+          yield* msg('JACK got the KILN BADGE from {potter}!');
+          yield* msg('Four badges! Halfway to the league. This chapter is complete. The clockmaker has a rare-critter hunt waiting. Keep your save for the next adventure!');
         } else {
           yield* msg('JACK got the MOSS BADGE from {gymleader}!');
           K.secret(PUD ? 'lk.puddle' : 'rm.mon.gym');
@@ -1843,12 +2086,12 @@
           yield* msg('{gymleader}: There\'s another gym in PEBBLE BAY, past GRUMBLY CAVE at the top of the WHISPERING WOODS.');
         }
         healAll(); save(); scr = before;
-        if (k === 2) yield* credits();
-        else { yield* msg('FIELD MANUAL 01: SHOVE! Face hedges or boulders and press A. Your critters can clear shortcuts now.'); playSong(); }
+        if (k === 4) yield* credits();
+        else if(k===1) { yield* msg('FIELD MANUAL 01: SHOVE! Face hedges or boulders and press A. Your critters can clear shortcuts now.'); playSong(); }
       }
       let cred = null;
       function* credits() {
-        const lines = ['POCKET CRITTERS', VV.name, '', 'STARRING', 'JACK', '', 'AND HIS CRITTERS'].concat(S.party.map(c => `${nameOf(c)}  L${c.lv}`), ['', `CRITTERS CAUGHT ${Object.keys(S.caught).length}/${NSP}`, '', 'WITH', 'PROF {professor}', 'MOM', 'JACKK', 'LUKE  DAVE  CALLUM', '{gymleader}', '', 'MADE IN 1999', 'BY PIXIE PIXEL', '', 'THANK YOU FOR PLAYING!', '', 'NOW GO AND', 'CATCH THE REST!']);
+        const lines = ['POCKET CRITTERS', VV.name, '', 'CHAPTER TWO COMPLETE', 'FOUR OF EIGHT BADGES', '', 'STARRING', 'JACK', '', 'AND HIS CRITTERS'].concat(S.party.map(c => `${nameOf(c)}  L${c.lv}`), ['', `CRITTERS CAUGHT ${Object.keys(S.caught).length}/${NSP}`, '', 'WITH', 'PROF {professor}', 'MOM', 'JACKK', 'LUKE  DAVE  CALLUM', '{gymleader}', '', 'MADE IN 1999', 'BY PIXIE PIXEL', '', 'THE LEAGUE LIES AHEAD', 'KEEP YOUR SAVE!', '', 'NEXT: THE CLOCK HUNT', 'AND THE CRITTERDEX']);
         const pm = mode; mode = 'credits'; cred = { lines, y: H };
         K.music(SONGS.title);
         const sc = score(), minT = Math.max(16, sc / 40 + 9 - (K.t - lastRep.t));
@@ -1860,7 +2103,7 @@
 
       // ============================================================ the title screen
       let tsel = 0, tspr = 0;
-      const other = LC.VERSIONS[PUD ? 'moss' : 'puddle'].only, TITLE = PUD ? [17, 20, 19, 2, 11, 3, 18, 13, 7] : SP.map(x => x.i).filter(i => !other.includes(i) && i < 17);
+      const other = LC.VERSIONS[PUD ? 'moss' : 'puddle'].only, TITLE = PUD ? [17, 20, 19, 2, 11, 3, 18, 13, 7] : SP.map(x => x.i).filter(i => !other.includes(i) && i !== 59);
       function* titleScreen() {
         mode = 'title'; K.music(SONGS.title);
         for (;;) {
@@ -1875,6 +2118,9 @@
         }
         yield fade(true);
         mode = 'world';
+        if(S.badges>=1||S.beaten.hazel)S.f.badgeAt=S.f.badgeAt||1;
+        if(S.badges>=2||S.beaten.nora)S.f.badge2=1;
+        S.badges=(S.f.badgeAt?1:0)+[2,3,4].filter(n=>S.f['badge'+n]).length;
         S.bag = Object.assign({ CUBE: 0, CAKE: 0, BIG: 0, PEP: 0 }, S.bag);
         setColour(S.colour);
         for (const c of S.party.concat(S.box)) prepare(c); // (every critter gets a tag, so a trade knows which one went)
@@ -1922,7 +2168,8 @@
             if ('"~'.includes(tileAt(map, pl.x, pl.y)) && !pl.moving) { g.drawImage(tileArt(tileAt(map, pl.x, pl.y)), 0, 10, 16, 6, sx, sy + 14, 16, 6); }
           } else {
             const n = th.n, sx = n.x * 16 + n.mx - cx, sy = n.y * 16 + n.my - cy;
-            if (n.obj) g.drawImage(objArt(n.obj), sx, sy);
+            if (n.rare != null) g.drawImage(sprite(n.rare), 0,0,32,32,sx,sy,16,16);
+            else if (n.obj) g.drawImage(objArt(n.obj), sx, sy);
             else g.drawImage(person(n.st, n.dir, (n.mx || n.my) ? n.fr || 0 : 0), sx, sy - 4);
             if (bang === n) { box(sx + 2, sy - 18, 12, 13); F.draw(g, '!', sx + 5, sy - 15, P[3]); }
           }
@@ -1950,6 +2197,8 @@
         }
         if (B.hitFx) hitFx(B.hitFx);
         if (B.meVis && m) {
+          // Tall new portraits and ground shadows must never run through the status lettering.
+          g.fillStyle=bg[0];g.fillRect(82,58,78,38);
           fit(nameOf(m), 84, 59, 74); F.draw(g, `L${m.lv} ${statusName(m)}`, 90, 68, P[3]);
           F.draw(g, 'HP', 88, 76, P[3]); hpBar(102, 77, 48, B.meHp, maxhp(m));
           F.draw(g, `${Math.ceil(B.meHp)}/${maxhp(m)}`.padStart(7, ' '), 112, 84, P[3]);
@@ -2000,7 +2249,7 @@
       let mapName = 0, lastMap = '';
 
       // ============================================================ the game loop
-      K.dbg = { get S() { return S; }, pl, get map() { return map; }, get npcs() { return npcs; }, get mode() { return mode; }, get task() { return task; }, get B() { return B; }, LINK, get scr() { return scr; }, get held() { return held; }, tileAt, SOLID, warpAt, run, battle, mon, loadMap, sprite, spriteF, person, tileArt, badge, ppMax }; // (for testing)
+      K.dbg = { get S() { return S; }, pl, get map() { return map; }, get npcs() { return npcs; }, get mode() { return mode; }, get task() { return task; }, get B() { return B; }, LINK, MAPS, NPCS, WARPS, SP, get scr() { return scr; }, get held() { return held; }, tileAt, SOLID, warpAt, run, battle, mon, loadMap, sprite, spriteF, person, tileArt, badge, ppMax }; // (for testing)
       run(titleScreen());
       return {
         update() {
