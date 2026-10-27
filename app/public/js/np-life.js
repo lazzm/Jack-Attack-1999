@@ -129,7 +129,7 @@
   function build(c) {
     if (c.rig) return;
     const clk = clock();
-    c.rig = NR.create(c.id, { tier: window.HouseQ === 'low' ? 'low' : 'std', outfit: outfitFor(c.id, clk) });
+    c.rig = NR.create(c.id, { tier: window.HouseQ === 'low' || window.HouseQ === 'potato' ? window.HouseQ : 'std', outfit: outfitFor(c.id, clk) });
     c.rig.floor = (x, z) => NV.floor(c.lvl, x, z);
     H.spot('np.' + c.id, { label: () => label(c) + ' <i><span><kbd>F</kbd> Talk</span></i>', obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
   }
