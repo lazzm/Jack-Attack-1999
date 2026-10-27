@@ -34,6 +34,13 @@ function hardware(k) {
 }
 function verified(k, p, s) {
   const mods = ctx.state.mods;
+  // Talking to someone is a flag the client sets; real progress past it (a later step done, or its chore
+  // already counted by the server) also counts, so nobody is ever stuck behind a conversation.
+  if (s.test.startsWith('talk.')) {
+    if (p.flags[s.id] === true) return true;
+    const later = CAT.steps.slice(CAT.steps.indexOf(s) + 1).filter(x => x.ch === s.ch);
+    return later.some(x => own(p.done, x.id) || x.test.startsWith('chore.') && verified(k, p, x));
+  }
   if (s.test.startsWith('chore.')) {
     const id = s.test.slice(6), ch = mods.ch?.p?.[k];
     return !!(ch?.n?.[id] > 0 || ch?.done?.[id] && !ch.done[id].bad && ch.done[id].sc > 0);

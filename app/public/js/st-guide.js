@@ -30,6 +30,7 @@
     return s.targets||[];
   }
   function resolve(id){
+    if(id.startsWith('np.')){const c=window.HouseFamily?.chars?.[id.slice(3)];if(!c?.rig)return null;const n=id==='np.mom'?'Mom':id==='np.dad'?'Dad':(window.Cast?Cast.n('sister'):'my sister');return{obj:c.rig.group,label:n,action:'F: talk to '+n};}
     if(id==='st.boot')return{obj:H.SPOTS['st.boot']?.obj,label:'the car boot',action:st.current()?.id==='dad'?'Meet Dad at the car':'F: open / close the boot'};
     const t=H.THINGS[id],spot=H.SPOTS[id],snap=H.SNAPS[id];
     if(t)return{obj:t.obj,label:typeof t.label==='function'?t.label():t.label,action:id==='st.pc.tower'&&st.current()?.id==='power'?'F: press the power button':id.startsWith('st.pc.')?'E: pick up the '+t.label:id==='gb'?'F: play the Game Lad':'F: use · E: carry'};

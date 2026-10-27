@@ -885,7 +885,8 @@
   }
   const KEYMOVE = { w: 'f', W: 'f', ArrowUp: 'f', s: 'b', S: 'b', ArrowDown: 'b', a: 'l', A: 'l', ArrowLeft: 'l', d: 'r', D: 'r', ArrowRight: 'r' };
   let lastPt = { x: 0, y: 0, ok: false, mouse: false };
-  const walkingFloor=(x,z)=>window.ChoreKit?.tool?.canWalk?.(x,z)===false?null:floorAt(x,z,W.lvl,W.fy);
+  // (the family in the house are solid too: js/np-life.js says when a step would walk into one of them)
+  const walkingFloor=(x,z)=>window.ChoreKit?.tool?.canWalk?.(x,z)===false||window.HouseFamily?.blocks?.(x,z,W.lvl)?null:floorAt(x,z,W.lvl,W.fy);
   function tickWalk(dt) {
     if (window.House && House.god) { const gr = House.god(dt); roomCheck(); return gr; } // (layout editor, hs-edit.js: noclip fly)
     let mx = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), mz = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);

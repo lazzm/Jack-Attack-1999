@@ -1,7 +1,7 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 // signup:false logs into an existing account; provisioning stays with the caller.
-export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860,storage={},account='Review'+Date.now().toString(36),password='Throwaway-1999',touch=false,signup=true,opening=false,resume=false,storageState,debug=false,recordVideo,onPage}={}){
+export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860,storage={},account='Review'+Date.now().toString(36),password='Throwaway-1999',touch=false,signup=true,opening=false,resume=false,storageState,debug=false,recordVideo,onPage,navTimeout=60000}={}){
  assert(['localhost','127.0.0.1'].includes(new URL(base).hostname),'Use throwaway localhost data');
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
  const page=await browser.newPage({viewport:{width,height},hasTouch:touch,...(storageState?{storageState}:{}),...(recordVideo?{recordVideo}:{})}),errors=[];
@@ -12,7 +12,7 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
  await page.addInitScript(({hour,tier,storage})=>{if(Object.keys(storage).length&&!localStorage.getItem('jhp_test_seeded')){for(const[k,v]of Object.entries(storage))localStorage.setItem(k,JSON.stringify(v));localStorage.setItem('jhp_test_seeded','1')}localStorage.setItem('jhp_hs_gfx',JSON.stringify(tier));window.auditHour=hour;window.auditMinute=0;if(hour!==null){Date.prototype.getHours=()=>window.auditHour;Date.prototype.getMinutes=()=>window.auditMinute}},{hour,tier,storage});
  async function until(fn){for(let i=0;i<500;i++){try{if(await page.evaluate(fn))return}catch(e){if(!/context was destroyed/.test(e.message))throw e}if(debug&&i>0&&i%50===0)console.log('Fixture waiting',String(fn),await page.evaluate(()=>({ready:document.readyState,connected:window.Net?.connected,member:!!window.Net?.me?.member,mode:window.House?.mode,gate:!!document.querySelector('#accountGate'),loading:!!document.querySelector('.hs-loading,#houseEntry')})));await page.waitForTimeout(200)}throw Error('Timeout '+fn)}
  try{
-  await page.goto(base,{waitUntil:'domcontentloaded',timeout:60000});await until(()=>window.Net?.connected&&!!Net.me.id);
+  await page.goto(base,{waitUntil:'domcontentloaded',timeout:navTimeout});await until(()=>window.Net?.connected&&!!Net.me.id);
   if(debug)console.log('Fixture connected');
   if(!resume){
   if(signup)await page.locator('#accountGate [data-switch]').click();
