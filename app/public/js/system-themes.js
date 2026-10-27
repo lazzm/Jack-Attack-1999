@@ -112,7 +112,7 @@
     { name: 'Haunted House', key: 'haunted', wall: WALL.haunted, scheme: ['#2a1040', '#6a3a9a', '#8a8898', '#000'], desc: 'Purple fog, a house on a hill, bats. Creaks and a "wooo". A skeleton hand pointer. Scary. A bit.' },
     { name: 'Dinosaurs', key: 'dinos', wall: WALL.dinos, scheme: ['#3a5a1a', '#8a7a3a', '#c8c0a0', '#000'], desc: 'Jungle green, footprints and roars (Jack did them in Sound Recorder). A claw for a pointer. One tiny dinosaur hides on the wallpaper.' },
     { name: 'Galaxy Far Away', key: 'galaxy', wall: WALL.galaxy, scheme: ['#101018', '#c8a040', '#d0d0d0', '#000'], desc: 'The space-opera one. A drifting starfield, black and gold jackos, a glowing-blade pointer (right-click goes red), hums and blasters. An original tribute; no film bits.' },
-    { name: 'Under the Sea', key: 'sea', wall: WALL.sea, scheme: ['#0a4a8a', '#30a0c0', '#b0d8e8', '#000'], desc: 'Deep blue, bubbles, a fish. Blub. Gubbinz is scared of it.' },
+    { name: 'Under the Sea', key: 'sea', wall: WALL.sea, scheme: ['#0a4a8a', '#30a0c0', '#b0d8e8', '#000'], desc: 'Deep Bluey, bubbles, a fish. Blub. Gubbinz is scared of it.' },
     { name: 'Millennium', key: 'millennium', wall: WALL.millennium, scheme: ['#2a1a6a', '#d4a020', '#e8e0c8', '#000'], desc: 'Fireworks on midnight blue, gold jackos, a sparkler pointer, party poppers. For a night that never comes.' },
     { name: 'The Modemtrix', key: 'matrix', wall: WALL.matrix, scheme: ['#000000', '#00a000', '#b8c8b8', '#000'], desc: 'Green letters, black jackos, a white rabbit. Jack saw it in June. It changed his wallpaper forever (until Gorks!).' },
     { name: 'Hot Dog Stand', key: 'hotdog', wall: WALL.hotdog, scheme: ['#ff0000', '#ff0000', '#ffff00', '#000'], desc: 'No.' },

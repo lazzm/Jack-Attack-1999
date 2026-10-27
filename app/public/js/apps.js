@@ -36,7 +36,7 @@
     'system.tuneup': 'tuneup', 'system.rsrcmtr': 'rsrc', 'system.y2kpatch': 'y2k', 'carta.stamp': 'stamp', 'carta.mplayer': 'media', 'carta.cdplayer': 'cdplayer', 'carta.encyc': 'carta', 'carta.typing': 'typing',
     'games.pinball': 'pinball', 'games.hearts': 'hearts', 'games.spider': 'spider', 'games.pipe': 'pipe', 'games.mahjong': 'mahjong', 'games.slide': 'slider', 'games.jigsaw': 'jigsaw', 'games.reversi': 'reversi', 'games.chess': 'chess', 'games.cube': 'cube', 'games.ski': 'ski', 'games.podracer': 'podracer', 'games.grotlings': 'grotlings',
     '#iconOnline': 'online', '#ct-dicon-carta': 'carta', '#ct-dicon-mplayer': 'media', '#iconGamesFolder': 'games', '#iconPinball': 'pinball', '#iconOfficeProgman': 'oldpc',
-    'Accessories > Entertainment > Sound Recorder': 'mic', 'Accessories > System Tools > Y2K Checker': 'y2k', 'Accessories > Communications > WinPopup': 'popup', 'Accessories > MS-DOS Editor': 'edit',
+    'Accessories > Entertainment > Sound Recorder': 'mic', 'Accessories > System Tools > Y2K Checker': 'y2k', 'Accessories > Communications > JackPopup': 'popup', 'Accessories > JACK-DOS Editor': 'edit',
     'Internet > JackSearch': 'url', 'Internet > JackSearch Directory': 'url', 'Internet > JackNet News': 'url', 'Internet > The Biscuit Ring': 'url', 'Internet > Hamster Cam': 'url', 'Internet > LookHere! Start Page': 'url', 'Internet > eCardz': 'url', 'Internet > Adopt-a-Pixel': 'url', 'Internet > JackMail (free e-mail)': 'url',
     'JackCarta 99 > Read Me': 'txt', 'JackAmp > Read Me': 'txt', 'Gubbinz Teaches Typing > Squig Drop (game)': 'typing', 'Gubbinz Teaches Typing > Meteor Typer (game)': 'typing',
     'Accessories > Communications > Dial-Up Networking': 'dialup', 'Accessories > Cube Timer 2.0': 'cube', 'Accessories > Screen Savers >': 'screensaver',
@@ -227,7 +227,7 @@
     if (node.type === 'lnk' && node.go) { document.getElementById('browser').classList.remove('min'); return IE.go(node.go, 'click'); }
     if (OPENERS[node.type]) return OPENERS[node.type](node);
     if (node.type === 'txt') return Desk.notepad(node.name, node.text || '');
-    Desk.msgbox(node.name, 'There is no program associated with this file. Try opening it with Notepad. (Or maybe it\'s a secret?)', 'info');
+    Desk.msgbox(node.name, 'There is no program associated with this file. Try opening it with Jotpad. (Or maybe it\'s a secret?)', 'info');
   }
 
   // ================================================================ secrets

@@ -1,12 +1,17 @@
 # Jack's Home Page - changelog
 
-## 2.54.0 - 2026-10-26
+## 2.55.0 - 2026-10-27
 - Physics everywhere in the house (docs/PHYSICS.md): every prop is a physics body with real heights. Walk into things and they get shoved (light ones slide and wobble, heavy ones give way slowly and slow you down); dropped things fall, bounce a little, land, stack and settle with no jitter. Furniture has real parts: the desk chair's seat slides under the desk top, flat things fit under the bed, a box doesn't. Nothing can trap you: anything you end up inside lets you walk straight out.
 - The desk chair: starts tucked under the desk (out of your way); push it, or press E to take hold and slide it, and it tucks in as far as its back allows. The seat and back swivel; seated, they turn with your view. F on a tucked chair rolls it out and sits you down. The beanbag is dragged the same way (heavy).
 - Carrying made obvious: what you carry sits below and to the right of the crosshair, sized to be comfortable. A see-through ghost shows where it will land: green fits, red blocked (the panel says why), gold clicks into a slot, and every slot that wants it glows. E sets it down exactly there, X lets go (it drops), R / wheel turns it, Shift+wheel or +/- moves it nearer/further, Q returns it.
 - Open doors, drawers, cupboards and the car boot while carrying: F works what you're aiming at (a prompt shows it); otherwise F uses the carried thing.
 - A refresh hands back what you were carrying; sitting at the PC sets it down where its ghost is green, else returns it. Saves keep every prop's resting pose and the chair's swivel; older saved placements are nudged out of the new furniture colliders once.
 - Rebuilt the wastepaper bin (a real moulded wall and rim, rubbish inside) and the washing basket (rim, vent slots, hand-holds, a heap of washing); the bed gets the two legs its head end was missing. New castor-roll, scrape and bump sounds.
+
+## 2.54.0 - 2026-10-27
+- No real names anywhere: every real game, console, band, song, film, TV show, celebrity, company, product and slogan across the magazine, the fake web, Teletext, TV listings, family files and games is now a recognisable parody (about 5,000 changes; Teletext chart layout kept). The full mapping lives in docs/PARODY-NAMES.md and an audit blocks regressions.
+- Your family's files show your own name straight away (they used to sometimes load before your identity arrived).
+- Removed two location hints.
 
 ## 2.53.0 - 2026-10-26
 - Moving around is smooth: you slide along walls and round corners instead of snagging, the stairs are a gentle ramp, doors swing into rooms, and a safety net frees you if you ever get stuck (120 test routes, zero stuck). Walls are solid (no seeing through them), objects resting on surfaces no longer flicker, the low cupboard door makes you duck, and footsteps sound different on carpet, lino, stairs, paving and grass.

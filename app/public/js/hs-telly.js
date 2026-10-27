@@ -80,7 +80,7 @@
       g.fillStyle = '#0a0a40'; g.strokeStyle = '#c8c8ff'; g.lineWidth = 2; rr(60, 300, 520, 50, 25); g.fill(); g.stroke(); txt(Q[k], W / 2, 333, 20, '#fff', 'center');
       O[k].forEach((a, i) => { const x = 60 + (i % 2) * 270, y = 362 + Math.floor(i / 2) * 50, lock = t % 10 > 7 && i === (k === 0 ? 1 : 0); g.fillStyle = lock ? '#e8a020' : '#0a0a40'; rr(x, y, 250, 40, 20); g.fill(); g.stroke(); txt('ABCD'[i] + ': ' + a, x + 20, y + 27, 17, lock ? '#000' : '#fff'); });
       txt('WHO WANTS TO WIN A FIVER?', W / 2, 50, 26, '#ffd84a', 'center'); dog(o.ch);
-      return ['Is that your final answer?', 'You could phone a friend...', 'Ask the audience?', 'We\'ll be right back after the break!'][Math.floor(t / 5) % 4];
+      return ['Is that your last answer?', 'You could ring a mate...', 'Poll the Crowd?', 'We\'ll be right back after the break!'][Math.floor(t / 5) % 4];
     },
     soap(t, o) { // COBBLE LANE: the pub, two people having words
       g.fillStyle = lin(0, 0, 0, Hh, [[0, '#4a2a1a'], [1, '#2a1a10']]); g.fillRect(0, 0, W, Hh);
@@ -202,7 +202,7 @@
       2: { night: ['lecture', 'OPEN COLLEGE'], morning: ['cartoon', 'SPACE DOG'], school: ['lecture', 'SCHOOLS PROGRAMMES'], day: ['snooker', 'WORLD SNOOKER'], after: ['kids', 'MAKE IT!'], tea: ['cartoon', 'CARTOON TIME'], evening: ['robots', 'ROBO RUMBLE'], late: ['snooker', 'SNOOKER HIGHLIGHTS'] },
       3: { night: ['pages', 'PAGES FROM TELLY-TEXT'], morning: ['news', 'GOOD MORNING TELLY'], school: ['quiz', 'WHO WANTS TO WIN A FIVER?'], day: ['kids', 'SATURDAY MAKE IT!'], after: ['kids', 'TELLY CLUB'], tea: ['news', 'THE EVENING NEWS'], evening: ['quiz', 'WHO WANTS TO WIN A FIVER?'], late: ['film', 'LATE FILM'] },
       4: { night: ['film', 'THE ALL-NIGHT FILM'], morning: ['cartoon', 'WAKE UP CARTOONS'], school: ['lecture', 'SCHOOLS: MATHS'], day: ['letters', 'LETTERS AND NUMBERS'], after: ['letters', 'LETTERS AND NUMBERS'], tea: ['soap', 'BRICK STREET'], evening: ['news', 'NEWS AT SEVEN'], late: ['film', 'LATE FILM'] },
-      5: { night: ['testcard'], morning: ['kids', 'MILKY TIME'], school: ['film', 'AFTERNOON FILM'], day: ['film', 'MATINEE'], after: ['cartoon', 'SPACE DOG (REPEAT)'], tea: ['weather', 'THE WEATHER'], evening: ['soap', 'FAMILY AFFAIRS... ER, FAIRS'], late: ['film', 'LATE FILM'] },
+      5: { night: ['testcard'], morning: ['kids', 'MILKY TIME'], school: ['film', 'AFTERNOON FILM'], day: ['film', 'MATINEE'], after: ['cartoon', 'SPACE DOG (REPEAT)'], tea: ['weather', 'THE WEATHER'], evening: ['soap', 'FAMILY MISHAPS... ER, FAIRS'], late: ['film', 'LATE FILM'] },
     }[ch] || {};
     return T[p] || ['testcard'];
   }

@@ -705,14 +705,14 @@
   const MIL = 'http://www.jackmillionaire.kidz/play.html';
   const milLoad = () => (window.N99 && N99.ff ? Promise.resolve() : Apps.load('js/news99-b.js'));
   const MLI = '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#0a1a6a" stroke="#ffd060"/><text x="8" y="11.5" text-anchor="middle" font-family="Georgia,serif" font-weight="bold" font-size="9" fill="#ffd060">&#163;</text></svg>';
-  MP.game('mil.ff', { name: 'Millionaire: Fastest Finger First', icon: MLI, kind: 'party', players: '2-4', max: 4, invite: 'session',
+  MP.game('mil.ff', { name: 'Millionaire: Speediest Finger First', icon: MLI, kind: 'party', players: '2-4', max: 4, invite: 'session',
     blurb: 'Same question, same moment: first to get the order right wins the hot seat on JackK\'s quiz. Everybody else watches (and shouts).', open: () => { if (window.N99) N99.open(MIL); },
     tableOpen: s => !!s.ffOpen, start: s => milLoad().then(() => N99.ff(s)).catch(e => { console.error(e); s.leave(true); }) });
 
   // ================================================================ races: the same board / deal for everybody (each game calls MP.hook)
   const JI = n => (window.JICON ? JICON.get(n, 16) : ICON16);
   MP.race('race.sweep', { name: 'Bugsweeper 2000 race', icon: JI('sweeper'), blurb: 'Same Y2K bugs, same first square. First to clear the field wins.', defaults: () => ({ level: 'intermediate' }), race: { app: 'era.sweeper', metric: 'time', first: true, what: 'field' } });
-  MP.race('race.freecell', { name: 'FreeCell race', icon: JI('freecell'), blurb: 'Same game number. First to get all 52 cards home wins.', race: { app: 'freecell', metric: 'time', first: true, what: 'deal' } });
+  MP.race('race.freecell', { name: 'FreeCellar race', icon: JI('freecell'), blurb: 'Same game number. First to get all 52 cards home wins.', race: { app: 'freecell', metric: 'time', first: true, what: 'deal' } });
   MP.race('race.spider', { name: 'Spider Solitaire race', icon: JI('spider'), blurb: 'Same deal. First to clear the table wins (or whoever gets furthest).', defaults: () => ({ suits: 1 }), race: { app: 'games.spider', metric: 'time', first: true, what: 'deal' } });
   MP.race('race.mahjong', { name: 'Jack Jong race', icon: JI('mahjong'), blurb: 'Same tiles. First to clear the board wins.', defaults: () => ({ layout: 'dragon' }), race: { app: 'games.mahjong', metric: 'time', first: true, what: 'tiles' } });
   MP.race('race.slide', { name: 'Slider 15 race', icon: JI('slider'), blurb: 'Same shuffle. First to put it back in order wins.', defaults: () => ({ n: 4 }), race: { app: 'games.slide', metric: 'time', first: true, what: 'shuffle' } });
@@ -724,7 +724,7 @@
   const zoneOpen = path => () => { if (Z().goSite) Z().goSite(path); };
   const zoneLive = g => () => !!(Z().my && (Z().my.where === 'game' || Z().my.where === 'seat' || Z().my.where === 'watch') && Z().my.g === g);
   const ZI = (Z().ICON || {});
-  const zoneGames = [['reversi', 'Reversi'], ['checkers', 'Checkers'], ['c4', 'Connect Four'], ['ships', 'Battleships'], ['ttt', 'Noughts & Crosses'], ['gomoku', 'Five in a Row'], ['dots', 'Dots and Boxes'], ['bg', 'Backgammon'], ['pong', 'Saber Pong'], ['chess', 'Chess']];
+  const zoneGames = [['reversi', 'Reversi'], ['checkers', 'Checkers'], ['c4', 'Connect Fore'], ['ships', 'Battleships'], ['ttt', 'Noughts & Crosses'], ['gomoku', 'Five in a Row'], ['dots', 'Dots and Boxes'], ['bg', 'Backgammon'], ['pong', 'Spatula Pong'], ['chess', 'Chess']];
   const section = () => (document.body.dataset.section || '');
   const siteIs = id => () => { const br = document.getElementById('browser'); return !!br && !br.classList.contains('min') && br.style.display !== 'none' && (section() === id || (window.IE && IE.current === id)); };
   MP.game('tris.ko', { name: 'JACKTRIS Knockout', kind: 'party', players: '2-8', blurb: 'Last one standing. Clear lines to send junk!', open: () => goSite('demos')(), live: () => !!document.querySelector('#btPlayers .btp.me'), invite: 'open' });

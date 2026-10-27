@@ -209,7 +209,7 @@
     try { Net.kv.inc(k); Net.kv.get([k]).then(v => show(v[k])); } catch (e) {}
   }
   function hqShell(cur, body, foot) {
-    return `<div class="sxh"><div class="sxh-in"><!-- Hunt HQ. Made in Notepad by Jack. No answers in here, Dave. I checked. -->
+    return `<div class="sxh"><div class="sxh-in"><!-- Hunt HQ. Made in Jotpad by Jack. No answers in here, Dave. I checked. -->
 <header class="sxh-top"><div class="sxh-logo">THE GREAT<br><span>JACKNET HUNT</span></div><div class="sxh-sub">Ten keys &middot; Ten Golden Bytes &middot; One Millennium Disk</div></header>
 <nav class="sxh-nav">${NAV.map(([p, n]) => `<a href="${HQU}${p === '/' ? '/' : p}" class="${p === cur ? 'on' : ''}">${n}</a>`).join('')}</nav>
 <main class="sxh-paper">${body}</main>
@@ -261,7 +261,7 @@ ${foot || ''}
     secret('sx.h.konami'); sfx('solve');
     const box = el.querySelector('.sxh-chbox'); if (!box) return;
     const d = document.createElement('div'); d.className = 'sxh-cheat';
-    d.innerHTML = 'CHEAT ACTIVATED!!! +30 LIVES<br>(Hunt HQ doesn\'t have lives. Sorry.)<br><br>HUNTERS ON CHAPTER 7, LISTEN UP:<br>This code first appeared in a game called Gradius,<br>on the NES, in 1986. The Japanese company that made<br>that game is YOUR SEVENTH KEY.';
+    d.innerHTML = 'CHEAT ACTIVATED!!! +30 LIVES<br>(Hunt HQ doesn\'t have lives. Sorry.)<br><br>HUNTERS ON CHAPTER 7, LISTEN UP:<br>This code first appeared in a game called Gradius,<br>on the NEZ, in 1986. The Japanese company that made<br>that game is YOUR SEVENTH KEY.';
     box.prepend(d); d.scrollIntoView({ block: 'nearest' });
   }
   function chBox(el, n, locked) {
@@ -373,7 +373,7 @@ ${foot || ''}
   }
   function kitPage(el) {
     const has = window.Setup && Setup.has && Setup.has('sx.kit');
-    el.innerHTML = hqShell('/kit.html', `<h1>The Hunter's Kit 1.0</h1><div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1 1 280px"><p>Every treasure hunter needs proper kit. The <b>Hunter's Kit</b> goes on your PC (Start &gt; Programs &gt; The Great JackNet Hunt) and gives you:</p><ul><li><b>The Hunt Logbook</b>: every key, every lucky letter and every Golden Byte you've found.</li><li><b>The Decoder</b>: backwards writing, Morse code, ROT13, A=1 B=2 C=3, phone keypads and the pilots' alphabet. In both directions.</li><li><b>Notes</b>: a notepad for your clues that remembers everything.</li></ul><p>Freeware. 420 KB (about two minutes on a 56K modem, if nobody picks up the phone).</p><p><button type="button" class="sxh-btn sxh-dl">${has ? 'Open the Hunter\'s Kit' : 'Download the Hunter\'s Kit (420 KB)'}</button></p></div><div style="flex:0 0 120px;text-align:center"><svg viewBox="0 0 32 32" width="110" height="110">${'<path d="M4 9h24v18H4z" fill="#8a5a2a" stroke="#000"/><path d="M4 9l3-5h18l3 5" fill="#b07a3a" stroke="#000"/><path d="M11 9V6h10v3" fill="none" stroke="#000"/><circle cx="16" cy="18" r="5" fill="#ffd400" stroke="#000"/><path d="M16 14v4l3 2" stroke="#000" fill="none"/><path d="M4 13h24" stroke="#5a3a1a"/>'}</svg></div></div>`);
+    el.innerHTML = hqShell('/kit.html', `<h1>The Hunter's Kit 1.0</h1><div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1 1 280px"><p>Every treasure hunter needs proper kit. The <b>Hunter's Kit</b> goes on your PC (Start &gt; Programs &gt; The Great JackNet Hunt) and gives you:</p><ul><li><b>The Hunt Logbook</b>: every key, every lucky letter and every Golden Byte you've found.</li><li><b>The Decoder</b>: backwards writing, Morse code, ROT13, A=1 B=2 C=3, phone keypads and the pilots' alphabet. In both directions.</li><li><b>Notes</b>: a jotpad for your clues that remembers everything.</li></ul><p>Freeware. 420 KB (about two minutes on a 56K modem, if nobody picks up the phone).</p><p><button type="button" class="sxh-btn sxh-dl">${has ? 'Open the Hunter\'s Kit' : 'Download the Hunter\'s Kit (420 KB)'}</button></p></div><div style="flex:0 0 120px;text-align:center"><svg viewBox="0 0 32 32" width="110" height="110">${'<path d="M4 9h24v18H4z" fill="#8a5a2a" stroke="#000"/><path d="M4 9l3-5h18l3 5" fill="#b07a3a" stroke="#000"/><path d="M11 9V6h10v3" fill="none" stroke="#000"/><circle cx="16" cy="18" r="5" fill="#ffd400" stroke="#000"/><path d="M16 14v4l3 2" stroke="#000" fill="none"/><path d="M4 13h24" stroke="#5a3a1a"/>'}</svg></div></div>`);
     wireShell(el);
     el.querySelector('.sxh-dl').addEventListener('click', () => { if (window.Setup && Setup.has && !Setup.has('sx.kit')) Setup.download('sx.kit'); else A.open('sx.kit'); });
   }
@@ -434,9 +434,9 @@ computers will go wrong at midnight and we'll have to live in
 Dave's Y2K bunker (it's his shed).
 
 I don't know what the future's like. But I know what now is like:
-it's a modem screaming, a Rubrick's cube with one side done, an Ork
+it's a modem screaming, a Rubrick's cube with one side done, a Gork
 with wet paint on it, Mom shouting that tea's ready, and a web
-site that I made, on my own, from scratch, in Notepad.
+site that I made, on my own, from scratch, in Jotpad.
 
 And you came and played on it. Thanks.
 
@@ -533,7 +533,7 @@ PS. Ten... nine... eight...</pre>`;
 
   // ================================================================ the Hunter's Kit (a program)
   const MORSE = { A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..', 0: '-----', 1: '.----', 2: '..---', 3: '...--', 4: '....-', 5: '.....', 6: '-....', 7: '--...', 8: '---..', 9: '----.' };
-  const NATO = { A: 'Alpha', B: 'Bravo', C: 'Charlie', D: 'Delta', E: 'Echo', F: 'Foxtrot', G: 'Golf', H: 'Hotel', I: 'India', J: 'Juliet', K: 'Kilo', L: 'Lima', M: 'Mike', N: 'November', O: 'Oscar', P: 'Papa', Q: 'Quebec', R: 'Romeo', S: 'Sierra', T: 'Tango', U: 'Uniform', V: 'Victor', W: 'Whiskey', X: 'X-ray', Y: 'Yankee', Z: 'Zulu' };
+  const NATO = { A: 'Alpha', B: 'Bravo', C: 'Charlie', D: 'Delta', E: 'Echo', F: 'Foxtrot', G: 'Golf', H: 'Hotel', I: 'India', J: 'Juliet', K: 'Kilo', L: 'Lima', M: 'Mike', N: 'November', O: 'Oskar', P: 'Papa', Q: 'Quebec', R: 'Romeo', S: 'Sierra', T: 'Tango', U: 'Uniform', V: 'Victor', W: 'Whiskey', X: 'X-ray', Y: 'Yankee', Z: 'Zulu' };
   const KEYPAD = { 2: 'ABC', 3: 'DEF', 4: 'GHI', 5: 'JKL', 6: 'MNO', 7: 'PQRS', 8: 'TUV', 9: 'WXYZ' };
   const DEC = {
     back: s => [...s].reverse().join(''),

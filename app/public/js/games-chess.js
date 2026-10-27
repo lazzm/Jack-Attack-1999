@@ -319,7 +319,7 @@
   const BOARDS = { wood: ['#ecd3a4', '#a8703f', '#5a3410'], swamp: ['#d6e0a8', '#5d8c3a', '#20401a'], grey: ['#e0e0e0', '#8a8a9a', '#303040'] };
 
   const TAUNTS = {
-    start: ['Deep Jack is ready. Deep Jack is ALWAYS ready.', 'I have calculated 32,768 moves. In my head. Which is mostly teef.', 'You can go first. Deep Jack is a gentleman.', 'Like a pod racer on the start line, Deep Jack revs his engines. VRRRM.'],
+    start: ['Deep Jack is ready. Deep Jack is ALWAYS ready.', 'I have calculated 32,768 moves. In my head. Which is mostly teef.', 'You can go first. Deep Jack is a gentleman.', 'Like a peapod racer on the start line, Deep Jack revs his engines. VRRRM.'],
     capture: ['Mine now. Finders keepers.', 'Om nom nom.', 'That piece looked lonely.', 'Gubbinz will want that back. He can\'t have it.'],
     lost: ['Oi! I was using that!', 'That was a TACTICAL sacrifice. Obviously.', 'Lucky. Very lucky.', 'Hmph. Deep Jack saw that coming. (He did not.)'],
     check: ['Check! Your king looks nervous.', 'Knock knock. Check.', 'Check. Nowhere to hide in this sector, pilot.'],
@@ -646,7 +646,7 @@
         { label: 'Exit', act: () => G.w.close() },
       ]],
       ['Options', () => [
-        ...LEVELS.map((l, i) => ({ label: l, rad: opts.level === i, act: () => { setOpt('level', i); say(['Easy? Deep Jack will play with one eye shut.', 'Normal. A fair fight. (Deep Jack will still win.)', 'HARD MODE. Deep Jack has had three cans of Tango.'][i]); } })), '-',
+        ...LEVELS.map((l, i) => ({ label: l, rad: opts.level === i, act: () => { setOpt('level', i); say(['Easy? Deep Jack will play with one eye shut.', 'Normal. A fair fight. (Deep Jack will still win.)', 'HARD MODE. Deep Jack has had three cans of Tangy.'][i]); } })), '-',
         { label: 'Robot Pieces', rad: opts.set === 'grot', act: () => setOpt('set', 'grot') },
         { label: 'Classic Pieces', rad: opts.set === 'classic', act: () => setOpt('set', 'classic') },
         { label: 'Board', sub: [['wood', 'Wood'], ['swamp', 'Swamp Green'], ['grey', 'Computer Grey']].map(([k, n]) => ({ label: n, rad: opts.board === k, act: () => setOpt('board', k) })) }, '-',

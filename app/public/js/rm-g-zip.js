@@ -12,7 +12,7 @@
   const GID = 'md.zip', W = 320, H = 224;
   const SECRETS = [
     ['rm.zip.boss', 'Spanner in the Works', 'Beat Dr. Sprocket\'s last machine in Zip the Badger.'],
-    ['rm.zip.gems', 'Time Lord', 'Collect all six Time Stones in Zip the Badger.'],
+    ['rm.zip.gems', 'Time Laird', 'Collect all six Time Stones in Zip the Badger.'],
     ['rm.zip.select', 'Level Select', 'An old cheat code still works on the Zip the Badger title screen.'],
   ];
   try { if (window.Apps && Apps.defineSecret) for (const [id, n, h] of SECRETS) if (!(Apps.secrets && Apps.secrets[id])) Apps.defineSecret(id, n, h); } catch (e) {}

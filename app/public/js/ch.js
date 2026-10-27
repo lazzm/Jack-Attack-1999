@@ -86,7 +86,7 @@
     ['ch.every', 'Jack of All Chores', 'Do every kind of job in the house at least once.'],
     ['ch.cactus', 'Never Give Up', 'Water something that is very, very dead.'],
     ['ch.sock', 'The Sock Monster', 'Find out where the odd socks go.'],
-    ['ch.plug', 'PING!', 'Pull the hoover too far from the socket.'],
+    ['ch.plug', 'PING!', 'Pull the vacuum too far from the socket.'],
     ['ch.purr', 'Fed and Watered', "Feed next door's cat. (It isn't even our cat.)"],
     ['ch.knot', 'Double Knot', 'Tie up a bin bag.'],
     ['ch.rinse', 'Bubble Trouble', 'Fill the sink right to the top with bubbles.'],

@@ -79,7 +79,7 @@
     { id: 'cart.dc.toy', spot: 'mail', mail: 1, from: '14/10', n: 'TOY SQUADRON disc', d: 'It came in the post! A Daydream game where you fly toys round a house. Mom says do NOT try it with real planes.' },
     { id: 'cart.sn.fight', spot: 'mail', mail: 1, n: 'STREET SCRAPPER II cartridge', d: 'It came in the post! Eight scrappers. {mate1} is going DOWN.' },
     { id: 'tin.marble', spot: 'rug', n: 'Shooter marble', d: 'The big swirly one. Never play with this one, it is too precious.' },
-    { id: 'tin.tazo', spot: 'bin', n: 'Shiny tazo', d: 'Out of a crisp packet. Worth more than the crisps were.' },
+    { id: 'tin.tazo', spot: 'bin', n: 'Shiny tazoz', d: 'Out of a crisp packet. Worth more than the crisps were.' },
     { id: 'tin.badge', spot: 'shelf', n: '"I BUILT A ROBOT" badge', d: 'From the robot-building club at the library. I built a robot. It fell over.' },
     { id: 'tin.holo', spot: 'posterfilm', n: 'Hologram sticker', d: 'Stuck behind the poster. It goes from a rocket to an alien when you tilt it.' },
     { id: 'tin.key', spot: 'cat', n: 'Tiny brass key', d: "The cat from next door was lying on it. It's the key to my money box!" },

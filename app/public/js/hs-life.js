@@ -90,7 +90,7 @@
     { who: 'a wrong number', from: '???', lines: () => ['Hello? Is that the Golden Dragon? I want to order a number 27 and a 42 with egg fried rice.'], replies: [['Sorry, wrong number!', 'Oh! Sorry love. Bye.'], ['Yes. That will be one million pounds.', '...What? Who IS this? (click)']] },
     { who: 'a man selling double glazing', from: '???', lines: () => ['Good evening {me.sir}, I\'m calling about your jackos. Are you the homeowner?', 'Have you ever thought about a conservatory?'], replies: [['I\'m sixteen.', 'Ah. Could you put your father on? ...No? Right. Thank you for your time.'], ['Our jackos are already double glazed.', 'Ah. Have you considered TRIPLE gla- (you put the phone down)']] },
     { who: '{mate4}', from: '{mate4}', lines: () => ['{me}, it\'s {mate4}. Is your Internet on? I sent you an e-mail.', 'Also, have you finished Acorn Quest yet? Don\'t tell me the ending.'], replies: [['The phone line\'s free, so the Internet\'s off!', 'Oh yeah. Ha. Well, check your mail later then. Laters!'], ['I finished it on Sunday.', 'NO WAY. Don\'t tell me. DON\'T TELL ME. ({mate4.he} hangs up)']] },
-    { who: '{mate3}', from: '{mate3}', lines: () => ['It\'s {mate3}. Quick question: what\'s the cheat for all the weapons? I\'m on the third level and I\'ve got nothing.'], replies: [['IDKFA. Obviously.', 'Legend. Owe you one. Actually I\'ll owe you nothing, everyone knows that one.'], ['Look it up on the Internet.', 'I can\'t! My sister\'s on the phone. Well, she was. Now I am. (click)']] },
+    { who: '{mate3}', from: '{mate3}', lines: () => ['It\'s {mate3}. Quick question: what\'s the cheat for all the weapons? I\'m on the third level and I\'ve got nothing.'], replies: [['GLKFA. Obviously.', 'Legend. Owe you one. Actually I\'ll owe you nothing, everyone knows that one.'], ['Look it up on the Internet.', 'I can\'t! My sister\'s on the phone. Well, she was. Now I am. (click)']] },
     { who: 'Nan', from: 'Nan', lines: () => ['Hello duck, it\'s your Nan. Did you get the card? There\'s a postal order in it. Don\'t lose it.'], replies: [['Thanks Nan!', 'You\'re welcome, love. Spend it on something nice. Not sweets. Bye bye now!']] },
     { who: 'a recorded voice', from: '???', lines: () => ['CONGRATULATIONS! You have been selected to receive a FREE holiday! To claim, call this premium-rate number. Calls cost a pound a minute.'], replies: [['(Put the phone down. Mom says never ring those.)', '(click)']] },
   ];
@@ -200,7 +200,7 @@
     const c = C.CHORE[id];
     const list = todays();
     if (!list.includes(id)) {
-      const fallback = { hoover: 'The hoover. It eats socks. (Not on Mom\'s list today.)', washup: 'The sink. Not my job today. (Check the list on the fridge.)', bin: 'The kitchen bin. Not my job today.', table: 'The kitchen table. Not my job today.', washing: 'Full. Not my job today. Not touching it.', cat: '', tidy: '' }[id];
+      const fallback = { hoover: 'The vacuum. It eats socks. (Not on Mom\'s list today.)', washup: 'The sink. Not my job today. (Check the list on the fridge.)', bin: 'The kitchen bin. Not my job today.', table: 'The kitchen table. Not my job today.', washing: 'Full. Not my job today. Not touching it.', cat: '', tidy: '' }[id];
       if (fallback) say(c.n.split(' (')[0], fallback);
       return false;
     }
@@ -222,7 +222,7 @@
     H.anims.set('tin', n => { const k = Math.min(1, (n - t0) / 400); lid.rotation.x = -k * 1.2; if (k < 1) return true; setTimeout(() => { const t1 = performance.now(); H.anims.set('tin2', m => { const kk = Math.min(1, (m - t1) / 400); lid.rotation.x = -1.2 * (1 - kk); return kk < 1; }); }, 2200); return false; });
     H.sfx.tone(800, 0.05, 'triangle', 0.04); H.sfx.noise(0.3, 0.05, 2000, 0.05);
     secret('hs.tin');
-    const BISC = ['a custard cream', 'a bourbon', 'a pink wafer', 'a Rich Tea (the worst one)', 'a chocolate digestive (JACKPOT)', 'a jammy dodger', 'a shortbread finger', 'a ginger nut (it could break a tooth)'];
+    const BISC = ['a custard cream', 'a bourbon', 'a pink wafer', 'a Rich Tay (the worst one)', 'a chocolate digestive (JACKPOT)', 'a jammy dodger', 'a shortbread finger', 'a ginger nut (it could break a tooth)'];
     const b = BISC[(new Date().getDate() + new Date().getMonth()) % BISC.length];
     if (S.tday === ukDay() || srv.tin) return say('The biscuit tin', 'Just crumbs. And a fruit shortcake nobody wants. Mom has counted them anyway. (One a day!)');
     S.tday = ukDay(); save();
@@ -303,7 +303,7 @@
     const rows = []; for (const m of ms) { let r = rows.find(q => Math.abs(q.y - m.y) < 1.6); if (!r) rows.push(r = { y: m.y, a: [] }); r.a.push(m); }
     const words = [];
     for (const r of rows) { r.a.sort((p, q) => p.x - q.x); let w = r.a[0].l; for (let i = 1; i < r.a.length; i++) { if (r.a[i].x - r.a[i - 1].x < 11) w += r.a[i].l; else { words.push(w); w = r.a[i].l; } } words.push(w); }
-    const GOOD = { ORKS: 'Mom wrote under it: "What is an ORK?"', WAAAGH: 'Mom wrote under it: "Please stop shouting that."', WAAGH: 'Mom wrote under it: "Please stop shouting that."', [cast('{me.NAME}')]: 'Your name. Classic.', 1999: 'Party like it\'s... this year.', MODEM: 'Beep bop connect.', HOME: 'Aww.', TEA: 'Mom: "Yes, it\'s nearly ready."', COOL: 'Everything is cool in 1999.', GAME: 'GAME. Obviously.' };
+    const GOOD = { ORKS: 'Mom wrote under it: "What is an GORK?"', WAAAGH: 'Mom wrote under it: "Please stop shouting that."', WAAGH: 'Mom wrote under it: "Please stop shouting that."', [cast('{me.NAME}')]: 'Your name. Classic.', 1999: 'Party like it\'s... this year.', MODEM: 'Beep bop connect.', HOME: 'Aww.', TEA: 'Mom: "Yes, it\'s nearly ready."', COOL: 'Everything is cool in 1999.', GAME: 'GAME. Obviously.' };
     const hit = words.find(w => GOOD[w]);
     if (hit) { secret('hs.fridge'); say('Fridge poetry', `You spelled <b>${esc(hit)}</b>. ${esc(GOOD[hit])}`); }
   }

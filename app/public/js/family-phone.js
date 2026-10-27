@@ -93,7 +93,7 @@
   const WORDS = (`i a the to you and it is in of me my be for on at that have not this are with so but do go we get got if can was what all no just your up out there
 now he she they like know will see good one time when how love day back well yes yeah ok okay soon home tea ready late come coming going school tonight tomorrow today later call
 text phone mobile message please thanks cool wicked brill brilliant great fun game games play playing won win lost hi hello bye night morning mate mates where wer u r ur cu
-lol luv pls thx wot dunno gonna wanna sorry miss help mom dad ${['me','mate1','mate2','mate3','mate4','sister'].map(Cast.slug).join(' ')} gran nan bonnie gubbinz ork gorks waaagh grot squig snake pocket critters ultra entertainment
+lol luv pls thx wot dunno gonna wanna sorry miss help mom dad ${['me','mate1','mate2','mate3','mate4','sister'].map(Cast.slug).join(' ')} gran nan bonnie gubbinz gork gorks waaagh grot squig snake pocket critters ultra entertainment
 goldenballs kart kaos computer internet website site email cheat cheats level boss best worst ever never always maybe still really very much more some any here who why
 which then than them their our us his her him its been had has did does done doing make made take took give gave say said tell told think thought want need look looking
 find found keep let put run walk talk bring buy bought pay paid money quid pound pence pocket shop shops town bus car lift pick picking wait waiting meet meeting outside
@@ -108,7 +108,7 @@ dog cat goat horse fish bird pet feed fed clean dirty hungry
 red blue green yellow black white pink purple orange brown gold silver
 one two three four five six seven eight nine ten hundred thousand million first second third
 on in at by up from into onto with without before behind between
-intergalactic battles space cadet lightspatula force maul droid pod racer episode
+intergalactic battles space cadet lightspatula force maul droid peapod racer episode
 ring rang ringing texted texting sent send sending reply replied answer phone credit top battery charger charge snake ringtone tune
 wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutted chuffed knackered`).split(/\s+/).filter(w => /^[a-z]+$/.test(w));
   const T9 = {};
@@ -130,31 +130,31 @@ wer r u tea is ready mom gr8 l8r 2nite b4 cya hiya ta ace sound safe skint gutte
     ['02-14', '{mate1}', 'did u get a valentine. i got 1. its from my nan. dont tell anyone'],
     ['02-27', '{mate4}', 'can i borrow 2 quid. ill pay u back monday. {mate4.slug}'],
     ['03-14', 'Mom', 'Thank you for the card and the toast sweetheart. Grey dots are lovely. Love Mom xxx'],
-    ['03-20', '{mate3}', 'r u in? i need 2 tell u about my new PC. its a pentium 3. FIVE HUNDRED MEGAHERTZ'],
+    ['03-20', '{mate3}', 'r u in? i need 2 tell u about my new PC. its a pent-yum 3. FIVE HUNDRED MEGAHERTZ'],
     ['03-20', '{mate3}', 'u didnt reply. im ringing u'],
     ['04-04', 'Mom', Cast.t('Happy Easter! {sister} has found 9 eggs and says she won. Let her win. Mom x')],
-    ['04-10', '{mate1}', 'no oddjob is NOT a rule. u cant make rules up after u lose. {mate1.slug}'],
+    ['04-10', '{mate1}', 'no oddbob is NOT a rule. u cant make rules up after u lose. {mate1.slug}'],
     ['05-03', 'Mom', 'Your Dad has seen the phone bill. Come home the long way. Mom'],
     ['05-21', 'Mom', Cast.t('{sister.slug} here!!!!! on moms fone. i stroked a GOAT called gerald!!!! {sister.slug}')],
     ['06-04', '{mate2}', '{me.slug} ur goalie 2day. sorry. {mate3.slug} wont do it {mate3.he} says {mate3.he} has 2 save {mate3.his} hands 4 the keyboard'],
     ['06-20', 'Dad', 'THANK YOU FOR THE TOFFEES. HOW DO YOU MAKE IT NOT CAPITALS. DAD'],
     ['06-20', 'Mom', 'Dad has borrowed my phone. Sorry about the shouting. Mom x'],
     ['07-16', '{mate1}', 'EPISODE 1 2NITE!!!!!! 7.15!!!! my dad is driving. bring ur lightspatula (the toy 1)'],
-    ['07-16', '{mate1}', 'BEST FILM EVER. podrace!!!!!! dark mole!!!!!! jar jar jams ok maybe not jar jar jams'],
+    ['07-16', '{mate1}', 'BEST FILM EVER. peapod race!!!!!! dark mole!!!!!! jar jar jams ok maybe not jar jar jams'],
     ['07-24', '{mate4}', 'ive got 20p 4 u. its in 1ps. dont say i never give u anything'],
     ['08-01', '{mate2}', 'hows the caravan. is it raining. its raining here 2'],
     ['08-11', 'Mom', 'DONT look at the sun. Use the glasses. I mean it. Love Mom'],
     ['08-11', '{mate2}', 'did u see it!!!! it went dark at 11 in the MORNING. my cat went mad'],
     ['09-07', 'Mom', Cast.t('Can you pick {sister} up from school at 3.15? Ill be late. Thank you, owe you one. Mom x')],
-    ['10-05', '{mate2}', 'POCKET CRITTERS IS OUT!!!!!!! got RED. u got blue yeah? we need 2 trade. link cable at break'],
+    ['10-05', '{mate2}', 'POCKET CRITTERS IS OUT!!!!!!! got MOSS. u got puddle yeah? we need 2 trade. link cable at break'],
     ['10-05', '{mate1}', 'i havent got pocket critters. i dont care. its for babys. (wat level is ur zapachu)'],
     ['10-16', '{mate2}', 'u can have ur alakabam back. i was just looking at it. 4 20 mins'],
     ['10-31', 'Mom', 'Remember 9pm at {mate1}s. Your dad will pick you up. Have fun you little Y2K bug x'],
     ['11-05', '{mate3}', 'r u watching the fireworks. my dad set the hedge on fire. its fine. its out now'],
-    ['11-27', '{mate2}', 'smash bros at mine. zapachu is unbeatable. bring {mate1.slug}s pad {mate1.he} says {mate1.he}s ill'],
+    ['11-27', '{mate2}', 'smush bros at mine. zapachu is unbeatable. bring {mate1.slug}s pad {mate1.he} says {mate1.he}s ill'],
     ['12-01', 'Mom', 'Can you print {sister}s letter to Father Christmas on the computer? She wants it "official". Mom x'],
     ['12-18', 'Mom', 'Stay OUT of the wardrobe. I know it was you. Father Christmas knows too.'],
-    ['12-25', '{mate1}', 'MERRY XMAS!!!!! got DK64!!!! wat u get. dont say dk64 aswell'],
+    ['12-25', '{mate1}', 'MERRY XMAS!!!!! got DW64!!!! wat u get. dont say dw64 aswell'],
     ['12-25', '{mate2}', 'merry xmas {me.slug}. got a link cable 4 xmas so now we have 2. trade 2moro?'],
     ['12-28', '{mate4}', 'merry xmas. we r square now yeah. the keyring was 2 quid. ok we r nearly square'],
     ['12-31', '{mate1}', 'PARTY 7PM!!!! bring ur torch. if the world ends we can see. {mate1.slug}'],

@@ -100,7 +100,7 @@
     } });
 
   // ================================================================ JACK SWEEPER (Minesweeper, but the mines are Y2K bugs)
-  register({ id: 'sweep', name: 'Jack Sweeper', tag: 'Minesweeper, but with Y2K bugs. Don\'t poke them.', controls: 'Click to dig, right-click (or click and hold) to flag', asc: true, fmt: s => s + ' sec', noTitle: true,
+  register({ id: 'sweep', name: 'Jack Sweeper', tag: 'Bugsweeper, but with Y2K bugs. Don\'t poke them.', controls: 'Click to dig, right-click (or click and hold) to flag', asc: true, fmt: s => s + ' sec', noTitle: true,
     create(api, d) {
       const N = 9, M = 10, C = 30, ox = (W - N * C) / 2, oy = 70;
       let cells, first = true, t0 = 0, t = 0, dead = false, won = false, pressing = null, hold = null;
@@ -396,7 +396,7 @@
   // ================================================================ HANGMAN (Save the Grot)
   register({ id: 'hangman', name: 'Save the Astronaut', tag: 'Hangman, but the astronaut\'s oxygen is running out', controls: 'Type letters, or click them', fmt: s => s + ' words',
     create(api, d) {
-      const WORDS = ['ZAPACHU', 'SQUIRTURTLE', 'DAYDREAM', 'GOLDENBALLS', 'EGGBERT', 'ULTRA ENTERTAINMENT', 'PLAYSPACE', 'MILLENNIUM', 'MATRIX', 'LIGHTSPATULA', 'PODRACING', 'MODEM', 'FURBY', 'ZELDA', 'KAZOOIE', 'ASTRONAUT', 'ROCKET', 'SPUTNIK', 'WAR HAMSTER', 'BLOCKOLOGY', 'JOYSTICK', 'CARTRIDGE', 'FLOPPY', 'SCREENSAVER', 'GUESTBOOK', 'ECLIPSE', 'DINOSAUR', 'SPACESHIP', 'GAMEBOY', 'RUMBLE', 'EXPANSION', 'WORMS', 'ZIP', 'MARLO', 'DONKEY', 'METROID', 'ROBOT', 'SPACE CADET', 'WOOKIEE', 'TRANSFORMER', 'CYBERSPACE', 'NETSCAPEGOAT', 'MAINFRAME', 'PIXEL', 'POLYGON', 'MEGABYTE', 'PENTIUM', 'NAPSTER', 'WEBRING', 'HYPERLINK'];
+      const WORDS = ['ZAPACHU', 'SQUIRTURTLE', 'DAYDREAM', 'GOLDENBALLS', 'EGGBERT', 'ULTRA ENTERTAINMENT', 'PLAYSPACE', 'MILLENNIUM', 'MATRIX', 'LIGHTSPATULA', 'PEAPODRACING', 'MODEM', 'FURBO', 'ZELDO', 'KAZOOBIE', 'ASTRONAUT', 'ROCKET', 'SPUTNIK', 'WAR HAMSTER', 'BLOCKOLOGY', 'JOYSTICK', 'CARTRIDGE', 'FLOPPY', 'SCREENSAVER', 'GUESTBOOK', 'ECLIPSE', 'DINOSAUR', 'SPACESHIP', 'GAMEBOY', 'RUMBLE', 'EXPANSION', 'WORMS', 'ZIP', 'MARLO', 'DONKEY', 'METROAD', 'ROBOT', 'SPACE CADET', 'WOOKIE-COOKIE', 'TRANSFORMER', 'CYBERSPACE', 'NETSCAPEGOAT', 'MAINFRAME', 'PIXEL', 'POLYGON', 'MEGABYTE', 'PENT-YUM', 'GNAPSTER', 'WEBRING', 'HYPERLINK'];
       let word, got, wrong, streak = 0, done = 0;
       const nextWord = () => { word = WORDS[irnd(WORDS.length)]; got = new Set(); wrong = new Set(); done = 0; };
       nextWord();

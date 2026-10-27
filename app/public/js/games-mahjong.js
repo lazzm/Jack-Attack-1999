@@ -20,7 +20,7 @@
       P.push([6.5, 3.5, 4]);
       return P;
     } },
-    pod: { name: 'Pod Racer', make() {
+    pod: { name: 'Peapod Racer', make() {
       const P = [];
       for (const yt of [0, 6]) {
         for (const y of [yt, yt + 1]) { row(P, y, 6, 15, 0); row(P, y, 7, 14, 1); row(P, y, 8, 13, 2); }
@@ -53,7 +53,7 @@
     return pairs;
   }
   const keyOf = t => t === 'gub' ? 'pl' : /^pl|^fl/.test(t) ? t.slice(0, 2) : t;
-  const NAMES = { o: 'Robots', d: 'Dice', c: 'Cubes', p: ['Pod Racer', 'Saucer', 'Rocket', 'Space Shuttle'], g: ['Alien', 'Blobbit', 'Mushroom'] };
+  const NAMES = { o: 'Robots', d: 'Dice', c: 'Cubes', p: ['Peapod Racer', 'Saucer', 'Rocket', 'Space Shuttle'], g: ['Alien', 'Blobbit', 'Mushroom'] };
   function tileName(t) {
     if (t === 'gub') return 'Gubbinz (a planet?!)';
     if (/^pl/.test(t)) return ['Ringed Planet', 'Red Planet', 'Blue Moon World', 'Green Gas Giant'][+t[2]] + ' (any planet matches)';
@@ -448,7 +448,7 @@
         { label: 'Background', sub: [['felt', 'Green Felt'], ['space', 'Outer Space'], ['wood', "Gran's Table"]].map(([k, n]) => ({ label: n, rad: opts.bg === k, act: () => { opts.bg = k; save(); dirty = true; } })) },
         { label: 'Dim Blocked Tiles', chk: opts.dim, act: () => { opts.dim = !opts.dim; save(); dirty = true; } },
       ]],
-      ['Help', () => [{ label: 'Help Topics', key: 'F1', act: help }, '-', { label: 'About Jack Jong', act: () => G.about({ ver: 'Version 1.3 (' + tiles.length + ' tiles)', blurb: 'An ancient tile game, re-tiled for the space age. Every one of the 144 tiles was drawn by hand. Well, by mouse.', credits: [['Programming', 'Jack'], ['Tile art', 'Jack (took 3 weekends)'], ['Dice consultant', 'Dave'], ['Cube tiles', 'Jack\'s 3x3, posing nicely'], ['Pod Racer layout', Cast.t('Cousin {cousin}')], ['Blobbit wrangling', 'Gubbinz'], ['Tea and biscuits', 'Mom'], ['Real mahjong set', 'Gran (we lost 2 tiles)']] }) }]],
+      ['Help', () => [{ label: 'Help Topics', key: 'F1', act: help }, '-', { label: 'About Jack Jong', act: () => G.about({ ver: 'Version 1.3 (' + tiles.length + ' tiles)', blurb: 'An ancient tile game, re-tiled for the space age. Every one of the 144 tiles was drawn by hand. Well, by mouse.', credits: [['Programming', 'Jack'], ['Tile art', 'Jack (took 3 weekends)'], ['Dice consultant', 'Dave'], ['Cube tiles', 'Jack\'s 3x3, posing nicely'], ['Peapod Racer layout', Cast.t('Cousin {cousin}')], ['Blobbit wrangling', 'Gubbinz'], ['Tea and biscuits', 'Mom'], ['Real mahjong set', 'Gran (we lost 2 tiles)']] }) }]],
     ]);
     if (window.MP) race = MP.hook('games.mahjong', G.w, { start(seed, o, R, preview) { raceLayout = o && LAYOUTS[o.layout] ? o.layout : 'dragon'; raceCall = true; try { deal(1 + (seed % 32000)); } finally { raceCall = false; } if (preview) won = true; } });
     G.dbg = () => ({ n: tiles.length, alive: alive().length, moves: moves().length, game: gameNo, portrait, solve() { // test helper: replay the deal's own removal order

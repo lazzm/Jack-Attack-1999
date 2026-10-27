@@ -89,7 +89,7 @@
           SP('y', 'b', { n: 'WHIRLWIND KICK', su: 14, ac: 8, re: 22, dmg: 15, rng: 1.6, ht: 'h', kd: true, hop: 0.45, spin: Math.PI * 2, crush: 'low', trail: 'ftR', A: whirl, B: whirl }),
           SP('y', 'f', { n: 'TURBO UPPERCUT', su: 10, ac: 6, re: 26, dmg: 13, rng: 1.2, ht: 'm', launch: true, hop: 0.7, fx: 'fire', trail: 'hdR', A: P(C({ y: -0.4, lean: 0.5, sl: [1.0, 0.2], el: 2.0, sr: [0.3, 0.3], er: 1.4 })), B: P({ y: 0.1, lean: -0.3, twist: -0.6, sl: [0.6, 0.3], el: 1.8, sr: [3.0, 0.1], er: 0.1, hl: [1.2, 0.1], kl: 1.6, hr: [0.1, 0.1], kr: 0.4 }) })],
         throws: [T('SHOULDER THROW', 'hip', 22), T('TURBO KICK-OFF', 'toss', 18)],
-        story: ['Rico Turbo trained for ten years in a dojo above a carpet shop in Birmingham.', 'He has entered the Tekno Fist tournament to prove that TURBO KARATE is the greatest martial art in the world. (He made it up himself.)'],
+        story: ['Rico Turbo trained for ten years in a dojo above a carpet shop on a ring road.', 'He has entered the Tekno Fist tournament to prove that TURBO KARATE is the greatest martial art in the world. (He made it up himself.)'],
         ending: ['Rico Turbo stood on the roof of Tekno Tower holding the golden trophy.', 'Back home the carpet shop gave him a free rug. The dojo had a queue round the block.', 'Turbo Karate classes, every Tuesday. Bring your own headband.'] },
       { id: 'barry', n: 'BIG BARRY', s: 'POUND-SHOP WRESTLING', from: 'GRIMSBY, ENGLAND', stats: [5, 2, 3], home: 'carpark', rival: 'granny', spd: 0.8, pow: 1.2, ai: { agg: 0.9, thr: 2.2 },
         body: { h: 1.08, w: 1.38, belly: 1.45, limb: 1.32, chest: 1.12 }, hair: 'bald', top: 'singlet', pants: 'plain', sleeves: 'none', shoes: 'boot', extra: ['belt'], emblem: 'star', emblemY: 30, emblemS: 4,

@@ -39,13 +39,13 @@
   }
   function onKey(ev) { if (ev.key === 'Escape') { ev.preventDefault(); ev.stopImmediatePropagation(); close(); } else if (cur && cur.o.keys) cur.o.keys(ev); }
   const say = (v, t) => { const p = $(v.el, '.rm-csay'); if (p) p.innerHTML = Cast.t(t); };
-  const searchBtn = (id, label) => [label || 'Look behind it', v => { const hid = CAT.FINDS.filter(f => f.spot === id && _.isOut(f.from) && !_.S.f[f.id]); if (hid.length) { close(); _.foundIt(hid[0]); } else say(v, 'Nothing behind it. Just a bit of Blu-Tack.'); }];
+  const searchBtn = (id, label) => [label || 'Look behind it', v => { const hid = CAT.FINDS.filter(f => f.spot === id && _.isOut(f.from) && !_.S.f[f.id]); if (hid.length) { close(); _.foundIt(hid[0]); } else say(v, 'Nothing behind it. Just a bit of Blue-Stuck.'); }];
 
   // ================================================================ the posters
   function shuttle() {
     const late = today().md >= 723; // STS-93 went up on 23 July 1999; before that it's the big mission coming up
-    const P = late ? { m: 'STS-93', o: 'COLUMBIA', d: '23 JULY 1999', f: 'The first Space Shuttle mission with a woman in command: Eileen Collins! It carried the Chandra X-ray telescope up to look at black holes.' }
-      : { m: 'STS-93', o: 'COLUMBIA', d: 'LAUNCHING JULY 1999!', f: 'Coming soon: Eileen Collins will be the first woman ever to COMMAND a Space Shuttle. It\'s taking the Chandra X-ray telescope up to look at black holes. I\'m counting the days.' };
+    const P = late ? { m: 'STS-93', o: 'COLUMBIA', d: '23 JULY 1999', f: 'The first Space Shuttle mission with a woman in command: Eileen Collinz! It carried the Chandra X-ray telescope up to look at black holes.' }
+      : { m: 'STS-93', o: 'COLUMBIA', d: 'LAUNCHING JULY 1999!', f: 'Coming soon: Eileen Collinz will be the first woman ever to COMMAND a Space Shuttle. It\'s taking the Chandra X-ray telescope up to look at black holes. I\'m counting the days.' };
     return { P, svg: `<svg viewBox="0 0 300 420" class="rm-poster-svg"><defs><linearGradient id="rmS1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#02030a"/><stop offset=".7" stop-color="#0c1638"/><stop offset="1" stop-color="#1a2a5a"/></linearGradient>
       <radialGradient id="rmS2" cx=".5" cy=".2" r=".8"><stop offset="0" stop-color="#fffbe0"/><stop offset=".3" stop-color="#ffb23a"/><stop offset=".7" stop-color="#ff5a1a" stop-opacity=".6"/><stop offset="1" stop-color="#ff5a1a" stop-opacity="0"/></radialGradient></defs>
       <rect width="300" height="420" fill="url(#rmS1)"/>${Array.from({ length: 60 }, (_x, i) => `<circle cx="${(i * 97) % 300}" cy="${(i * 53) % 260}" r="${i % 7 ? 0.7 : 1.4}" fill="#fff" opacity="${0.4 + (i % 5) / 8}"/>`).join('')}
@@ -83,7 +83,7 @@
     const ticket = today().md >= 716 && !_.S.f['tin.ticket'];
     return `<div class="rm-corkbig"><div class="rm-calbig"><b>${MONTHS[t.m - 1].toUpperCase()} 1999</b><div class="rm-calh"><i>M</i><i>T</i><i>W</i><i>T</i><i>F</i><i>S</i><i>S</i></div><div class="rm-cald">${cells}</div><small>Free from the newsagent's</small></div>
       <div class="rm-pin rm-n1">KART RACE @ {mate4.NAME}'S<br>SATURDAY!!!<br><small>bring the 4th controller</small></div>
-      <div class="rm-pin rm-n2">CHEATS<br>Start &gt; Run:<br><b>IDDQD</b> ??<br><small>({mate3} says)</small></div>
+      <div class="rm-pin rm-n2">CHEATS<br>Start &gt; Run:<br><b>GLDQD</b> ??<br><small>({mate3} says)</small></div>
       <div class="rm-pin rm-n3">TO DO:<br>&#9744; homework<br>&#9745; finish Zip act 2<br>&#9744; tidy room (Mom)<br>&#9744; find my lost games!!</div>
       <div class="rm-photobig"><i></i><small>Me + {mate1} at the baths</small></div>
       ${ticket ? '<div class="rm-ticket">ADMIT ONE<br><b>SCREEN 2</b></div>' : ''}</div>`;
@@ -91,9 +91,9 @@
 
   // ================================================================ the drawer: letters and floppies (and clues from other packs)
   const LETTERS = [
-    { k: 'mom', from: 'Mom', paper: 'note', text: '{me.NAME}.\n\nYour room is a TIP. Hoover under that bed before Saturday or there will be no Daydream for Christmas.\n\nAlso have you seen my change? I keep losing it in your room. If you find it you can keep it (once).\n\nLove Mom x' },
+    { k: 'mom', from: 'Mom', paper: 'note', text: '{me.NAME}.\n\nYour room is a TIP. Vacuum under that bed before Saturday or there will be no Daydream for Christmas.\n\nAlso have you seen my change? I keep losing it in your room. If you find it you can keep it (once).\n\nLove Mom x' },
     { k: 'jackk', from: '{mate4}', paper: 'lined', text: '{me} -\n\nMy cousin says if you go on JackNet Explorer and type KEEPOUTDAVE in the address bar there is a secret page about Dave. DON\'T TELL DAVE.\n\nKart race Saturday? I\'ve got four controllers now.\n\n- {mate4}' },
-    { k: 'dave', from: '{mate1}', paper: 'lined', text: '{me.NAME}!!!\n\nType PLUGH in Start > Run on your PC. Something happens. I\'m not saying what.\n\nAlso you still have my rumble pak and I want it back. And my Kart Kaos best lap is 0\'38"21 and that is a WORLD RECORD probably.\n\n{mate1.NAME}' },
+    { k: 'dave', from: '{mate1}', paper: 'lined', text: '{me.NAME}!!!\n\nType PLUGH in Start > Run on your PC. Something happens. I\'m not saying what.\n\nAlso you still have my rumble pouch and I want it back. And my Kart Kaos best lap is 0\'38"21 and that is a WORLD RECORD probably.\n\n{mate1.NAME}' },
     { k: 'callum', from: '{mate3}', paper: 'grid', text: '{mate3}\'s top tips:\n\n1. PC games are better than consoles. Fact.\n2. On your telly, if a cartridge won\'t work, BLOW ON IT. Works every time (mostly).\n3. Stroke ' + (window.Cast ? Cast.n('cat') : 'the cat') + ' loads. Just do it.\n4. My dad says the Millennium Bug will turn all the computers back to 1900. I am stocking up on batteries.' },
     { k: 'school', from: 'School', paper: 'typed', text: 'Dear Parent/Guardian,\n\nThis is a reminder that HANDHELD GAMES and VIRTUAL PETS are not permitted in lessons. Several virtual pets have "died" during assembly, causing upset.\n\nItems will be confiscated and returned at the end of term.\n\nMr Bramble\nHead of Year' },
     { k: 'chain', from: '???', paper: 'typed', text: 'THIS IS A CHAIN LETTER!!!\n\nCopy this out 10 times and give it to 10 friends by Friday or your Game Lad batteries will run out in the middle of a boss.\n\nA boy in Year 6 didn\'t send it and his Eggbert ran away.\n\n({me} did not send it. {me}\'s batteries are fine. So far.)' },

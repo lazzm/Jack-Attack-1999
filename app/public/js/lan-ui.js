@@ -103,7 +103,7 @@
     const mine = o.id === me().id;
     const shared = { key: 'sd:' + o.id, name: 'Shared Documents', icon: SHARE_DIR, crumb: `\\\\${L.pcName(o)}\\Shared Documents`,
       onEnter: () => Net.send({ t: 'lanList', id: o.id }),
-      empty: mine ? 'You aren\'t sharing anything yet. Use "Share a file..." (or right-click a file in My Computer > Sharing...).' : `${o.nick} isn't sharing any files right now. (Ask them nicely with WinPopup!)`,
+      empty: mine ? 'You aren\'t sharing anything yet. Use "Share a file..." (or right-click a file in My Computer > Sharing...).' : `${o.nick} isn't sharing any files right now. (Ask them nicely with JackPopup!)`,
       kids: () => {
         const c = lists.get(o.id);
         if (!c) return null; // still loading
@@ -137,8 +137,8 @@
       menus: (sel, api) => [
         ['File', [{ label: 'Open', dis: !sel, act: () => api.open(sel) }, { label: 'Send Message...', act: () => sendPopup(sel && sel.o) }, { label: 'Give Floppy Disk...', dis: !(sel && sel.o && sel.o.id !== me().id), act: () => giveTo(sel.o) }, '-', { label: 'Properties', act: () => api.props(sel) }, '-', { label: 'Close', act: () => api.w.close() }]],
         ['View', [{ label: 'Large Icons', rad: !api.list, act: () => api.setList(false) }, { label: 'List', rad: api.list, act: () => api.setList(true) }, '-', { label: 'Refresh', key: 'F5', act: () => { lists.clear(); api.reenter(); } }]],
-        ['Tools', [{ label: 'Map Network Drive...', act: mapDrive }, { label: 'Disconnect Network Drive...', act: () => Desk.msgbox('Disconnect Network Drive', 'You have no network drives to disconnect. (Drive E: never existed. See Map Network Drive.)', 'info') }, '-', { label: 'Find Computer...', act: () => findComputer(api) }, { label: 'My Shared Files...', act: () => api.go([top, ...(pcs().filter(p => p.id === me().id).slice(0, 1))]) }, { label: 'Blocked People...', act: blockedDlg }, '-', { label: 'WinPopup', act: () => A.open('lan.winpopup') }, { label: '3½ Floppy (A:)', act: () => A.open('lan.floppy') }]],
-        ['Help', [{ label: 'About Network Neighborhood', act: () => Desk.msgbox('About Network Neighborhood', 'Network Neighborhood\nJackOS 98\n\nEvery computer on JACKNET is a real person on the site right now.\nGuests are \\\\GUEST1234. Members are \\\\NAME-PC.\n\nShare files, send WinPopups and hand people floppy disks. Be nice!', 'info') }, { label: 'NETWORK.TXT', act: () => A.openFile(A.fs.get('C:/JACKOS/NETWORK.TXT')) }]],
+        ['Tools', [{ label: 'Map Network Drive...', act: mapDrive }, { label: 'Disconnect Network Drive...', act: () => Desk.msgbox('Disconnect Network Drive', 'You have no network drives to disconnect. (Drive E: never existed. See Map Network Drive.)', 'info') }, '-', { label: 'Find Computer...', act: () => findComputer(api) }, { label: 'My Shared Files...', act: () => api.go([top, ...(pcs().filter(p => p.id === me().id).slice(0, 1))]) }, { label: 'Blocked People...', act: blockedDlg }, '-', { label: 'JackPopup', act: () => A.open('lan.winpopup') }, { label: '3½ Floppy (A:)', act: () => A.open('lan.floppy') }]],
+        ['Help', [{ label: 'About Network Neighborhood', act: () => Desk.msgbox('About Network Neighborhood', 'Network Neighborhood\nJackOS 98\n\nEvery computer on JACKNET is a real person on the site right now.\nGuests are \\\\GUEST1234. Members are \\\\NAME-PC.\n\nShare files, send JackPopups and hand people floppy disks. Be nice!', 'info') }, { label: 'NETWORK.TXT', act: () => A.openFile(A.fs.get('C:/JACKOS/NETWORK.TXT')) }]],
       ],
       status: (c, kids) => c === jacknet || c === top ? `${L.online.length} computer(s) on JACKNET · live` : kids ? `${kids.length} object(s)` : 'Opening...',
     });
@@ -276,7 +276,7 @@
     const b = h('div', 'lan-wp');
     b.innerHTML = `<div class="ff-tool"><button class="btn" data-a="send" type="button">${sm(POPUP)}<span>Send</span></button><button class="btn" data-a="del" type="button"><span>Discard</span></button><button class="btn" data-a="prev" type="button" aria-label="Previous">&#9664;</button><button class="btn" data-a="next" type="button" aria-label="Next">&#9654;</button><button class="btn" data-a="reply" type="button"><span>Reply</span></button></div>
       <div class="hd"></div><div class="field ff-poptext" aria-live="polite"></div><label class="row small lan-ign"><input type="checkbox"> <span>Block messages from this person</span></label>`;
-    const w = A.win('WinPopup', b, { w: 360, h: 300, icon: POPUP, menubar: true, status: true, minW: 260, minH: 230, onClose: () => { wp = null; } });
+    const w = A.win('JackPopup', b, { w: 360, h: 300, icon: POPUP, menubar: true, status: true, minW: 260, minH: 230, onClose: () => { wp = null; } });
     let i = L.pops.length - 1;
     const draw = () => {
       if (i >= L.pops.length) i = L.pops.length - 1;
@@ -295,14 +295,14 @@
       else if (a === 'del' && m) { L.pops.splice(i, 1); savePops(); draw(); }
       else if (a === 'prev') { i = Math.max(0, i - 1); draw(); }
       else if (a === 'next') { i = Math.min(L.pops.length - 1, i + 1); draw(); }
-      else if (a === 'reply' && m) { const o = L.online.find(x => x.id === m.fromId) || L.online.find(x => x.nick === m.from); if (!o) return Desk.msgbox('WinPopup', `${m.from} has logged off. (Probably called down for tea.)`, 'warn'); sendPopup(o); }
+      else if (a === 'reply' && m) { const o = L.online.find(x => x.id === m.fromId) || L.online.find(x => x.nick === m.from); if (!o) return Desk.msgbox('JackPopup', `${m.from} has logged off. (Probably called down for tea.)`, 'warn'); sendPopup(o); }
     };
     b.querySelector('.ff-tool').addEventListener('click', ev => { const x = ev.target.closest('[data-a]'); if (x && !x.disabled) act(x.dataset.a); });
-    b.querySelector('.lan-ign input').addEventListener('change', ev => { const m = L.pops[i]; if (!m || !ev.target.checked) return; const o = L.online.find(x => x.id === m.fromId); if (!o) { ev.target.checked = false; return Desk.msgbox('WinPopup', `${m.from} has already logged off, so there's no need. (If they come back and pester you, block them then.)`, 'info'); } blockAsk(o, draw, () => { ev.target.checked = false; }); });
+    b.querySelector('.lan-ign input').addEventListener('change', ev => { const m = L.pops[i]; if (!m || !ev.target.checked) return; const o = L.online.find(x => x.id === m.fromId); if (!o) { ev.target.checked = false; return Desk.msgbox('JackPopup', `${m.from} has already logged off, so there's no need. (If they come back and pester you, block them then.)`, 'info'); } blockAsk(o, draw, () => { ev.target.checked = false; }); });
     A.menubar(w, [
       ['Messages', () => [{ label: 'Send...', act: () => act('send') }, { label: 'Discard', dis: !L.pops[i], act: () => act('del') }, '-', { label: 'Previous', dis: i <= 0, act: () => act('prev') }, { label: 'Next', dis: i >= L.pops.length - 1, act: () => act('next') }, '-', { label: 'Clear All', act: () => { L.pops = []; savePops(); draw(); } }, '-', { label: 'Exit', act: w.close }]],
       ['Options', () => [{ label: 'Play Sound When New Message Arrives', chk: opts.sound, act: () => { opts.sound = !opts.sound; saveOpts(); } }, { label: 'Pop Up Dialog on Message Receipt', chk: opts.pop, act: () => { opts.pop = !opts.pop; saveOpts(); } }, '-', { label: 'Blocked People...', act: blockedDlg }]],
-      ['Help', [{ label: 'About WinPopup', act: () => Desk.msgbox('About WinPopup', 'WinPopup\nJackOS 98\n\nSends a little message straight onto somebody else\'s screen. Every computer in the list is a real person on JackNet right now.\n\nBe nice. If someone isn\'t, tick "Block messages from this person".', 'info') }]],
+      ['Help', [{ label: 'About JackPopup', act: () => Desk.msgbox('About JackPopup', 'JackPopup\nJackOS 98\n\nSends a little message straight onto somebody else\'s screen. Every computer in the list is a real person on JackNet right now.\n\nBe nice. If someone isn\'t, tick "Block messages from this person".', 'info') }]],
     ]);
     wp = { w, show(k) { i = k == null ? L.pops.length - 1 : k; draw(); } };
     draw();
@@ -317,7 +317,7 @@
     if (opts.sound) sfx('beep');
     if (wp && !wp.w.closed) { wp.show(); wp.w.restore(); }
     else if (opts.pop) { A.open('lan.winpopup'); }
-    else Desk.toast('WinPopup', `New message from ${m.from}. (Open WinPopup to read it.)`, 4000);
+    else Desk.toast('JackPopup', `New message from ${m.from}. (Open JackPopup to read it.)`, 4000);
   }
   function sendPopup(to) {
     const list = L.online.slice().sort((a, b) => (a.id === me().id) - (b.id === me().id) || L.pcName(a).localeCompare(L.pcName(b)));
@@ -325,7 +325,7 @@
     f.innerHTML = `<div class="row" style="flex-wrap:nowrap;gap:10px;align-items:flex-start">${POPUP.replace('<svg', '<svg width="32" height="32" style="flex:none"')}<div style="flex:1;min-width:0"><div class="row" style="flex-wrap:nowrap"><label>To:</label><select style="flex:1;min-width:0">${list.map(o => `<option value="${o.id}"${to && o.id === to.id ? ' selected' : ''}>\\\\${esc(L.pcName(o))}${o.id === me().id ? ' (you)' : ' - ' + esc(o.nick)}</option>`).join('')}</select></div><div class="small" style="color:#555">This message will pop up on their screen right now. Real people only!</div></div></div>
       <textarea maxlength="200" rows="4" aria-label="Message" placeholder="Type your message..."></textarea><div class="ff-left small">200 characters left</div>
       <div class="row" style="justify-content:flex-end"><button class="btn" type="submit" style="min-width:72px">Send</button><button class="btn" type="button" style="min-width:72px">Cancel</button></div>`;
-    if (!list.length) return Desk.msgbox('WinPopup', 'You aren\'t connected to JackNet. (Is somebody on the phone?)', 'warn');
+    if (!list.length) return Desk.msgbox('JackPopup', 'You aren\'t connected to JackNet. (Is somebody on the phone?)', 'warn');
     if (!to && list.length === 1) to = list[0];
     if (!to && others().length) f.querySelector('select').value = String(others()[0].id);
     const w = A.win('Send Message', f, { w: 380, icon: POPUP, noResize: true, noMax: true, escClose: true });
@@ -336,31 +336,31 @@
       ev.preventDefault();
       const text = ta.value.trim().slice(0, 200); if (!text) return;
       const id = +f.querySelector('select').value, o = L.online.find(x => x.id === id);
-      if (!o) return Desk.msgbox('WinPopup', 'That computer has logged off. (Probably called down for tea.)', 'warn');
+      if (!o) return Desk.msgbox('JackPopup', 'That computer has logged off. (Probably called down for tea.)', 'warn');
       if (o.id === me().id) { w.close(); A.secret('fun.selfmsg'); setTimeout(() => popIn({ from: Net.me.nick, fromId: Net.me.id, pc: L.myPc || L.pcName(me()), text, self: true }), 600); return; }
-      if (window.Guest && Guest.is()) return Guest.need('Sending WinPopup messages', () => f.requestSubmit ? f.requestSubmit() : null);
-      if (!Net.send({ t: 'lanPop', to: o.id, text })) return Desk.msgbox('WinPopup', 'The message could not be sent. JackNet is not connected. (Is someone on the phone?)', 'warn');
+      if (window.Guest && Guest.is()) return Guest.need('Sending JackPopup messages', () => f.requestSubmit ? f.requestSubmit() : null);
+      if (!Net.send({ t: 'lanPop', to: o.id, text })) return Desk.msgbox('JackPopup', 'The message could not be sent. JackNet is not connected. (Is someone on the phone?)', 'warn');
       const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
       once(['lanPopOk'], (t, m) => {
         btn.disabled = false;
-        if (t === 'timeout') return Desk.msgbox('WinPopup', 'JackNet didn\'t answer. The message may not have arrived.', 'warn');
-        if (!m.ok) return Desk.msgbox('WinPopup', m.err || 'The message could not be delivered.', 'warn');
+        if (t === 'timeout') return Desk.msgbox('JackPopup', 'JackNet didn\'t answer. The message may not have arrived.', 'warn');
+        if (!m.ok) return Desk.msgbox('JackPopup', m.err || 'The message could not be delivered.', 'warn');
         w.close(); got('popup'); A.secret('fun.netsend'); sfx('click');
-        Desk.toast('WinPopup', `The message was successfully sent to \\\\${m.to}.`, 3000);
+        Desk.toast('JackPopup', `The message was successfully sent to \\\\${m.to}.`, 3000);
       });
     });
     return w;
   }
   function blockAsk(o, then, no) {
-    Desk.msgbox('Block Messages', `Stop ${o.nick} (\\\\${L.pcName(o)}) from sending you WinPopups and floppy disks?\n\nThey won't be told. You can unblock them later (WinPopup > Options > Blocked People).`, 'q',
-      [['Block', () => { Net.send({ t: 'lanBlock', id: o.id }); once(['lanBlocks'], () => { got('block'); Desk.toast('WinPopup', `${o.nick} is blocked.`, 3000); if (then) then(); }); }], ['Cancel', () => { if (no) no(); }]]);
+    Desk.msgbox('Block Messages', `Stop ${o.nick} (\\\\${L.pcName(o)}) from sending you JackPopups and floppy disks?\n\nThey won't be told. You can unblock them later (JackPopup > Options > Blocked People).`, 'q',
+      [['Block', () => { Net.send({ t: 'lanBlock', id: o.id }); once(['lanBlocks'], () => { got('block'); Desk.toast('JackPopup', `${o.nick} is blocked.`, 3000); if (then) then(); }); }], ['Cancel', () => { if (no) no(); }]]);
   }
   function blockedDlg() {
     Net.send({ t: 'lanBlocks' });
     once(['lanBlocks'], (t) => {
       if (t === 'timeout') return;
       if (!L.blocks.length) return Desk.msgbox('Blocked People', 'You haven\'t blocked anybody. Everyone is being nice. (Hooray!)', 'info');
-      picker('Blocked People', 'These people can\'t send you WinPopups or floppy disks:', L.blocks.map((n, i) => ({ label: n, v: i, icon: J('user') })), 'Unblock', it => { Net.send({ t: 'lanUnblock', i: it.v }); Desk.toast('WinPopup', `${it.label} is unblocked.`, 3000); }, { icon: POPUP });
+      picker('Blocked People', 'These people can\'t send you JackPopups or floppy disks:', L.blocks.map((n, i) => ({ label: n, v: i, icon: J('user') })), 'Unblock', it => { Net.send({ t: 'lanUnblock', i: it.v }); Desk.toast('JackPopup', `${it.label} is unblocked.`, 3000); }, { icon: POPUP });
     });
   }
 
@@ -557,7 +557,7 @@
       got('worm');
       once(['lanMe'], () => {
         sfx('uhoh');
-        Desk.msgbox('Uh-oh!', 'Something small just wriggled into your computer...\n\nSQUIG99 is a PRETEND e-mail worm (like the real "Happy99" from January 1999, which also showed fireworks). It\'s harmless: it puts a little worm in your clock corner and adds "(sent by SQUIG99)" to e-mails you send. It also "e-mails itself" to people you\'ve swapped WinPopups, files or floppies with.\n\nLesson: never run an attachment you weren\'t expecting. Even from a mate!\n\nCure it with JACKCLEAN.EXE from www.jackshield.netz', 'warn',
+        Desk.msgbox('Uh-oh!', 'Something small just wriggled into your computer...\n\nSQUIG99 is a PRETEND e-mail worm (like the real "Happy99" from January 1999, which also showed fireworks). It\'s harmless: it puts a little worm in your clock corner and adds "(sent by SQUIG99)" to e-mails you send. It also "e-mails itself" to people you\'ve swapped JackPopups, files or floppies with.\n\nLesson: never run an attachment you weren\'t expecting. Even from a mate!\n\nCure it with JACKCLEAN.EXE from www.jackshield.netz', 'warn',
           [['Go to JackShield', () => { document.getElementById('browser').classList.remove('min'); IE.navigate('http://www.jackshield.netz/'); }], ['OK']]);
       });
     }

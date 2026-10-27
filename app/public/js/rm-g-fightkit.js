@@ -2176,7 +2176,7 @@
     function sysHud() {
       if (G.scr === 'boot' && !(window.RmFight.booted || {})[CFG.title]) {
         g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
-        const lines = hi ? ['VISUAL MEMORY UNIT', 'CONTROLLER A, SLOT 1', '', G.t < 40 ? 'CHECKING...' : SV.n ? CFG.title + ' FILE FOUND (8 BLOCKS)' : 'NO ' + CFG.title + ' FILE. ONE WILL BE MADE.', G.t > 100 ? 'OK!' : '']
+        const lines = hi ? ['VISUAL MEMORY GIZMO', 'CONTROLLER A, SLOT 1', '', G.t < 40 ? 'CHECKING...' : SV.n ? CFG.title + ' FILE FOUND (8 BLOCKS)' : 'NO ' + CFG.title + ' FILE. ONE WILL BE MADE.', G.t > 100 ? 'OK!' : '']
           : ['MEMORY CARD CHECK', 'MEMORY CARD (SLOT 1)', '', G.t < 40 ? 'CHECKING...' : SV.n ? 'LOADING ' + CFG.title + ' DATA (1 BLOCK)' : 'NO SAVE DATA. ONE WILL BE MADE (1 BLOCK).', G.t > 100 ? 'COMPLETE.' : ''];
         lines.forEach((l, i) => tx(l, W / 2, H * 0.32 + i * U(13), { col: i === 0 ? '#ffd84a' : '#ddd', al: 'c', k: i === 0 && !hi ? 2 : 1 }));
         cardIcon(W / 2 - U(14), H * 0.12, G.t > 40 && G.t < 100 && (G.t >> 3) % 2);
@@ -2217,8 +2217,8 @@
       if (!(G.saving > 0)) return;
       const a = Math.min(1, G.saving / 10), w2 = U(176), x = W / 2 - w2 / 2, y = H - U(44);
       g.save(); g.globalAlpha = a; panel(x, y, w2, U(34), { bg: 'rgba(0,0,0,.85)' }); cardIcon(x + U(6), y + U(4), (G.frame >> 3) % 2); g.restore();
-      tx(hi ? 'SAVING TO THE VMU...' : 'SAVING TO MEMORY CARD (SLOT 1)...', x + U(24), y + U(5), { col: '#ffd84a', k: hi ? 0.8 : 1, a });
-      tx(hi ? 'DO NOT REMOVE THE VMU.' : 'DO NOT REMOVE THE MEMORY CARD', x + U(24), y + U(15), { col: '#ddd', k: hi ? 0.75 : 1, a }); if (!hi) tx('OR SWITCH OFF THE POWER.', x + U(24), y + U(24), { col: '#ddd', a });
+      tx(hi ? 'SAVING TO THE VMG...' : 'SAVING TO MEMORY CARD (SLOT 1)...', x + U(24), y + U(5), { col: '#ffd84a', k: hi ? 0.8 : 1, a });
+      tx(hi ? 'DO NOT REMOVE THE VMG.' : 'DO NOT REMOVE THE MEMORY CARD', x + U(24), y + U(15), { col: '#ddd', k: hi ? 0.75 : 1, a }); if (!hi) tx('OR SWITCH OFF THE POWER.', x + U(24), y + U(24), { col: '#ddd', a });
     }
     function stats(f, x, y) {
       const st = (lbl, v, yy) => { tx(lbl, x, yy, { col: '#bcd' }); for (let i = 0; i < 5; i++) { g.fillStyle = i < v ? (hi ? '#7ad8ff' : '#ffd040') : 'rgba(255,255,255,.15)'; g.fillRect(x + U(42) + i * U(8), yy + U(1), U(6), U(5)); } };

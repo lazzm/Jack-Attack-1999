@@ -34,22 +34,22 @@
   P('~lee', "{club3}'s Yo-Yo Trick Zone", 1, 'hobby', 'Yo-yo tricks with diagrams: the sleeper, walk the dog, around the world and more.', 1, 'www.yoyozone.kidz');
   P('rovers', 'Rovers Juniors FC', 1, 'hobby', 'Our Sunday league football team. Results, the squad and the oranges rota.', 1, 'roversjuniors.jnet');
   // file 2: fan pages and hobbies
-  P('~ellie', "{kidPoke}'s Pocket Critters Facts Page", 2, 'fans', 'All 151! Facts about Pocket Critters Red and Blue, gym badges, types and trading.', 1, 'www.pokefacts.kidz');
+  P('~ellie', "{kidPoke}'s Pocket Critters Facts Page", 2, 'fans', 'All 151! Facts about Pocket Critters Moss and Puddle, gym badges, types and trading.', 1, 'www.pokefacts.kidz');
   P('~blockhead', 'THE OTHER BLOCK SHRINE', 2, 'fans', 'A Blockology shrine. Better than the other one (it says). Facts, history and the 7 pieces.', 1, 'blockshrine.w3b');
   P('cubetimes', 'The Cube Speed Records Page', 2, 'hobby', 'Rubrick\'s Cube facts and records, plus a live stopwatch league for visitors.', 1, 'www.cuberecords.infobahn');
   P('~zed', "{club1.NAME}'S SCI-FI FILM ZONE", 2, 'fans', 'Original reviews of the sci-fi films of 1999. Stars out of five. Spoilers kept to a minimum.', 1, 'www.scifizone.cyb');
   P('~gaz', "{kidY2k.NAME}'S MILLENNIUM COUNTDOWN BUNKER", 2, 'weird', 'The Millennium Bug is coming. {kidY2k} is ready. Are you? Live countdown inside.', 1, 'millenniumbunker.netz');
   P('top100cheats', 'TOP 100 CHEATS!!! (well, 40)', 2, 'games', 'Cheats for PC and console games, plus cheats for real life (they do not work).', 1, 'www.cheatz.w3b');
   P('~mike', "Megahertz Mike's Upgrade Diary", 2, 'sci', 'From 300 MHz to 450 MHz: one boy, one screwdriver, one very worried Dad.', 1, 'megahertzmike.cyb');
-  P('~mek', "Snaz's Miniature Painting Tips", 2, 'hobby', 'How to paint minis: Space Marines, Eldar, Gorks, AirMix pilots, plus the bits box and dry-brushing.', 1, 'www.orkpaint.grot');
+  P('~mek', "Snaz's Miniature Painting Tips", 2, 'hobby', 'How to paint minis: Space Mariners, Elder, Gorks, AirMix pilots, plus the bits box and dry-brushing.', 1, 'www.orkpaint.grot');
   P('~ash', "{club2}'s Space Page", 2, 'sci', 'Planets, the 1999 eclipse, the space station, meteor showers and a constellation maker.', 1, 'spacepage.infobahn');
   P('fanfic', 'The Fan-Fiction Archive', 2, 'fun', 'Short stories by JackNet readers. Pocket Critters, robots, floppy disks and the Millennium Bug.', 1, 'www.fanficarchive.w3b');
-  P('ascii', 'ASCII ART GALLERY', 2, 'fun', 'Art made of letters. Cats, rockets, X-wings and a banner maker.', 1, 'asciigallery.netz');
+  P('ascii', 'ASCII ART GALLERY', 2, 'fun', 'Art made of letters. Cats, rockets, Z-wings and a banner maker.', 1, 'asciigallery.netz');
   P('midi', 'MIDI HEAVEN', 2, 'fun', 'Nothing but MIDI. Press play. Turn the speakers up. Sorry, Mom.', 1, 'www.midiheaven.wubwub');
   // file 3: a galaxy far, far away
   P('~sam', "{kidEp1.NAME}'S EPISODE I COUNTDOWN", 3, 'sw', 'The Phantom Nuisance countdown page! Trailer download stories, the queue and what next.', 1, 'www.episode1countdown.jnet');
   P('jarjar', 'IS JAR JAR JAMS RUINING IT? The Great Debate', 3, 'sw', 'Has one floppy-eared alien ruined the whole film? Vote and argue (nicely).', 1, 'jarjardebate.kidz');
-  P('podracing', 'PODRACING HQ', 3, 'sw', 'The Boonta Eve race, the pods, the drivers and why Sebulba is a cheat.', 1, 'www.podracinghq.jnet');
+  P('podracing', 'PEAPODRACING HQ', 3, 'sw', 'The Boomta Eve race, the pods, the drivers and why Sebulbar is a cheat.', 1, 'www.podracinghq.jnet');
   P('swrumours', 'THE RUMOUR MILL: Episode I', 3, 'sw', 'Every playground rumour from 1998 and 1999, checked against the actual film.', 1, 'rumourmill.infobahn');
   P('brickwars', 'My Space Brick Wishlist 1999', 3, 'sw', 'The first Intergalactic Battles BLOCKO sets came out this year. Here is my wishlist (all of them).', 1, 'www.brickwishlist.kidz');
   P('saberduel', 'LIGHTSPATULA DUEL: Me vs Dave (photos)', 3, 'sw', 'Photos of the greatest duel ever fought in a back garden. Wrapping paper tubes were harmed.', 1, 'www.davesplace.jnet', '/duel.html');
@@ -65,7 +65,7 @@
   P('lost', '404 Not Found', 4, 'weird', 'The page cannot be found. Or can it?');
   P('downloads', 'FREE DOWNLOADS!!!', 4, 'fun', 'Free screensavers, cursors and programs. At 56K. Mom, do NOT pick up the phone.', 0, 'www.freestuff4u.w3b');
   P('crystalball', "Mystic Gubbinz's Crystal Ball", 4, 'weird', 'Ask the crystal ball a question. Gubbinz will answer it. Probably wrongly.', 0, 'mysticgubbinz.grot');
-  P('orktranslate', 'Babel Jack: The Silly Translator', 4, 'fun', 'Translate English into Pirate, Robot, Posh Butler or Ork. Type it in, get it out.', 0, 'www.babeljack.grot');
+  P('orktranslate', 'Babel Jack: The Silly Translator', 4, 'fun', 'Translate English into Pirate, Robot, Posh Butler or Gork. Type it in, get it out.', 0, 'www.babeljack.grot');
   P('awards', 'The JackNet Cool Site Awards', 4, 'comm', 'Vote for Cool Site of the Week. The winner gets a badge.', 1);
   P('timecapsule', 'The Millennium Time Capsule', 4, 'comm', 'Leave a message for the year 2000. Sealed until 01/01/2000.');
   P('petition', 'SIGN THE PETITION!!!', 4, 'comm', 'Make every day a Saturday. We need 1,000 signatures.');
@@ -590,7 +590,7 @@
   S('pin', 'One, two, THREE!', 'Win a match in Bedroom Championship Wrestling');
   S('setlist', 'Encore!', 'Shout for an encore on the worst band\'s website');
   S('jarjar', 'Mesa voted', 'Have your say in the Great Jar Jar Jams Debate');
-  S('podrace', 'Now THIS is podracing', 'Win a podrace on the podracing fan page');
+  S('podrace', 'Now THIS is peapodracing', 'Win a peapod race on the peapodracing fan page');
   S('saber', 'Duel of the fates (and Dave)', 'Watch the whole lightspatula duel photo album');
   S('countdown', 'It\'s finally out', 'Visit the Episode I countdown page and press the big button');
   S('midi', 'MIDI maniac', 'Play every tune in MIDI Heaven');
@@ -663,8 +663,8 @@
   const COOL = 'C:/My Documents/Cool Sites';
   A.fs.dir(COOL).date = '14/03/99';
   [["Dave's NEW page.url", '~dave', '02/05/99'], [CT("Cousin {cousin}'s page.url"), '~kim', '22/04/99'], ["Mom's knitting club.url", 'knitting', '09/03/99'], ['Gubbinz poems.url', 'poetree', '01/04/99'],
-    ['Computer Club.url', 'computerclub', '16/09/99'], [CT('Mouldy Tangerines ({kidBand}).url'), '~stu', '30/07/99'], ['Episode I countdown.url', '~sam', '18/11/98'], ['Podracing HQ.url', 'podracing', '20/07/99'],
-    [CT('Pocket Critters facts ({kidPoke}).url'), '~ellie', '08/10/99'], ['Cube records.url', 'cubetimes', '11/02/99'], ['Upgrade diary (Mike).url', '~mike', '27/06/99'], ['Ork painting tips.url', '~mek', '23/01/99'],
+    ['Computer Club.url', 'computerclub', '16/09/99'], [CT('Mouldy Tangerines ({kidBand}).url'), '~stu', '30/07/99'], ['Episode I countdown.url', '~sam', '18/11/98'], ['Peapodracing HQ.url', 'podracing', '20/07/99'],
+    [CT('Pocket Critters facts ({kidPoke}).url'), '~ellie', '08/10/99'], ['Cube records.url', 'cubetimes', '11/02/99'], ['Upgrade diary (Mike).url', '~mike', '27/06/99'], ['Gork painting tips.url', '~mek', '23/01/99'],
     ['Top 100 cheats.url', 'top100cheats', '05/05/99'], ['MIDI Heaven.url', 'midi', '13/04/99'], ['Joke of the day.url', 'jokes', '01/06/99'], ['JackSearch Directory.url', 'directory', '03/03/99']]
     .forEach(([n, w, d]) => url(COOL, n, w, d));
   A.fs.add(COOL, { name: 'READ ME - cool sites.txt', type: 'txt', date: '14/03/99', size: '1 KB', text: `COOL SITES (by Jack)\n====================\n\nThese are my favourite pages on the World Wide Web.\nDouble-click one to go there. Or type the address into JackNet Explorer.\n\nAll my mates have homepages now. They live at\n   www.jackattack.jnet/~theirname\nThe little squiggle is called a "tilde". It's next to the Enter key and nobody knows why.\n\nIf you get lost, use JackSearch:  www.jacksearch.find\nIt finds everything. Except my PE kit.\n\nTo do:\n- ask Dave why his page is about wrestling now\n- tell ${CT('{cousin}')} the glitter background makes my eyes go funny\n- find out what ${CT('{kidSoon}')}'s page was going to be\n- solve the riddle trail (starts at /riddle)\n` });
