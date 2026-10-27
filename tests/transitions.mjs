@@ -39,7 +39,7 @@ const fx = await roomFixture(base, { account, password, signup: false, width: 11
 const { page: p, browser, errors, until } = fx;
 p.setDefaultTimeout(60000);
 const results = [], timing = {};
-const GB_PROBE = `()=>{const t=House.THINGS.gb,o=t.obj;return{gx:o.position.x,gy:o.position.y,gz:o.position.z,gst:t.st,zm:House.P.zm||1,tv:!!window.RoomTV?.open_,lock:!!window.RoomTV?.lockIn?.(),moving:document.documentElement.classList.contains('hs-moving'),tools:window.__trace.vis('.rm-tvv .rm-tools')}}`;
+const GB_PROBE = `()=>{const t=House.THINGS.gb,o=t.obj;return{gx:o.position.x,gy:o.position.y,gz:o.position.z,gst:t.st,zm:House.P.zm||1,tv:!!window.RoomTV?.open_,lock:!!window.RoomTV?.lockIn?.(),full:!!document.querySelector('.rm-tvv.rm-lockin'),moving:document.documentElement.classList.contains('hs-moving'),tools:window.__trace.vis('.rm-tvv .rm-tools')}}`;
 
 async function settle() { await until(() => !House.gliding && !House.motion?.moving && ['walk', 'focus', 'monitor', 'inspect'].includes(House.mode)); await p.waitForTimeout(250); }
 async function aimAt(target, from, spot) {
@@ -88,7 +88,7 @@ function popsIn(tr, keys, label, { floor = 1.2 } = {}) {
 }
 function moveSpan(tr, keys) { // first and last frame in which anything moved
   let a = null, b = null;
-  for (let i = 1; i < tr.length; i++) { const d = Math.max(...keys.map(k => Math.abs((tr[i][k] ?? 0) - (tr[i - 1][k] ?? 0)))); if (d > 0.01) { if (a == null) a = tr[i - 1].t; b = tr[i].t; } }
+  for (let i = 1; i < tr.length; i++) { const d = Math.max(...keys.map(k => Math.abs((tr[i][k] ?? 0) - (tr[i - 1][k] ?? 0)))); if (d > 0.03 && tr[i].t >= 0) { if (a == null) a = Math.max(0, tr[i - 1].t); b = tr[i].t; } }
   return a == null ? 0 : b - a;
 }
 async function capture(name, act, { ms = 1400, regions = {}, black = true, target, probe = GB_PROBE, after } = {}) {
@@ -169,8 +169,11 @@ try {
     await until(() => window.RoomTV?.open_ && House.mode === 'focus');
     await p.waitForTimeout(900);
     assert(await p.evaluate(() => RoomTV.lockIn()), 'T pressed during the raise must LOCK IN once the screen is up');
-    await p.keyboard.press('t'); await p.waitForTimeout(700); await p.keyboard.press('q');
-    await until(() => House.mode === 'walk' && House.THINGS.gb.st === 'rest'); await settle();
+    // Q straight out of LOCK IN: the screen shrinks back into the glass first, then the camera leans out
+    const out = await capture('gb-lock-q', () => p.keyboard.press('q'), { ms: 1500 });
+    await until(() => House.mode === 'walk' && House.THINGS.gb.st === 'rest'); await settle(); clean(out);
+    const shrinkEnd = out.trace.find(f => !f.full)?.t ?? 0, camStart = out.trace.find(f => Math.abs(f.rx - out.trace[0].rx) > 0.05)?.t ?? 1e9;
+    assert(camStart >= shrinkEnd, `camera moved (${camStart} ms) before LOCK IN had shrunk back (${shrinkEnd} ms)`);
   });
   await scenario('gb-held', async () => {
     await aimGB(); await p.keyboard.press('e'); await until(() => House.held() === 'gb'); await p.waitForTimeout(900);
