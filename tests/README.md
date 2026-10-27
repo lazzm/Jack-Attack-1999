@@ -139,6 +139,18 @@ Unified object interaction/seating (disposable localhost data only):
 
 Checks F/I entry, real controls, keyboard rotation/zoom, seated reading/pet/phone/held Game Lad, return/refresh, and prop model views.
 
+Console games' own UI on the telly (starts and stops its own server, or pass a localhost URL; `--only=dc.taxi,n64.kart`):
+
+    node games-ui.mjs
+
+Boots every cartridge in the catalogue in turn (RoomTV.test), frames its physical screen (bedroom telly, Game Lad LCD,
+cupboard set; the Super Ultra's 2D telly view when it has no screen hook) and renders the real room twice in one task,
+once as-is and once with the HUD texture swapped for a blank one: the HUD must change the glass, and the compiled shader
+must be bound to this game's HUD. Then LOCK IN: both canvases shown, uncovered, the HUD canvas the game draws, native
+aspect. The console is switched off and the dark screen drawn between games, as when a player swaps discs (this caught
+three.js reusing a stale uniform list: every game after the first lost its in-room HUD). No browser errors allowed.
+Review `shots/games-ui/<game>-room.jpg` and `-lock.jpg`.
+
 Room interface regression (disposable localhost data only):
 
     node game-ui.mjs http://localhost:18080

@@ -2360,7 +2360,10 @@
         const m = screen.material, tx = m.map;
         if (tx && tx.userData.jackLive) {if (tx.userData.hud) tx.userData.hud.dispose(); tx.dispose();}
         m.map = con === 'gb' ? null : tex('screenOff'); m.color.set(con === 'gb' ? '#83956c' : '#ffffff');
-        m.onBeforeCompile = () => {}; m.customProgramCacheKey = () => 'room-screen-off'; m.needsUpdate = true;
+        // The dark screen's program carries the live screen's uniforms too. three.js keeps each program a material has
+        // compiled and, when it switches back to one, reuses the uniforms of whichever program was compiled LAST: an
+        // off program without rmHUD left every later game on this screen with no HUD (the picture alone).
+        m.onBeforeCompile = screenUniforms(screenCRT(m, con)); m.customProgramCacheKey = () => 'room-screen-off'; m.needsUpdate = true;
         if (con !== 'gb' && !target) LIGHT.telly = false;
         H.relight(); H.dirty();
       },
@@ -2381,7 +2384,7 @@
         // three.js caches this material's live-screen program across console
         // changes. Its compiled uniforms must keep the same object identities;
         // a fresh texture-owned object leaves the old game's HUD bound.
-        const uniforms=m.userData.rmCRTUniforms||(m.userData.rmCRTUniforms={rmHUD:{value:hud},rmLines:{value:canvas.height},rmPower:{value:1},rmKind:{value:con==='gb'?0:1}});
+        const uniforms=screenCRT(m,con);
         uniforms.rmHUD.value=hud;uniforms.rmLines.value=canvas.height;tx.userData.uniforms=uniforms;
         tx.needsUpdate = true; m.map = tx; m.color.set('#ffffff');
         if (fresh) {
@@ -2401,6 +2404,12 @@
       mk: (p, c, css, html) => { const d = document.createElement('div'); d.className = c; if (css) d.style.cssText = css; if (html) d.innerHTML = html; p.appendChild(d); return d; }, pb, stage: pb.querySelector('.pc-stage'), get hud() { return H.ui.el; }, coin,
       coinToast: amt => toast('+' + amt + ' Rupees', 'For playing on the consoles') },
   };
+  // One uniforms object per screen material, shared by every program it compiles (live and dark), so whichever program
+  // three.js reuses, rmHUD/rmPower are bound to the current game's HUD texture.
+  function screenCRT(m, con) {
+    return m.userData.rmCRTUniforms || (m.userData.rmCRTUniforms = { rmHUD: { value: null }, rmLines: { value: 480 }, rmPower: { value: 1 }, rmKind: { value: con === 'gb' ? 0 : 1 } });
+  }
+  function screenUniforms(uniforms) { return shader => { Object.assign(shader.uniforms, uniforms); }; }
   // The live-screen shader (both the telly and the Game Lad). Shared so it can be compiled ahead of time: the
   // first console go must never stall on a shader link while the camera is moving.
   function liveScreenShader(uniforms) {
