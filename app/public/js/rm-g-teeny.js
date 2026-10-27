@@ -225,7 +225,8 @@
   function buildTrack(T) {
     const S = T.S || (T.S = sampleTrack(T));
     const ww = T.ww, wh = T.wh;
-    const cv = mkc(ww, wh), v = cv.getContext('2d'), mcv = mkc(ww, wh), m = mcv.getContext('2d');
+    // (the track is painted pixel by pixel on a CPU canvas made for read-back, then copied once to the one drawn each frame)
+    const cv = mkc(ww, wh), v = cv.getContext('2d', { willReadFrequently: true }), mcv = mkc(ww, wh), m = mcv.getContext('2d', { willReadFrequently: true });
     const B = { T, S, v, m, cv, ramps: [], dyn: [], fish: [], deco: [], floor: null, fallOK: false, warn: [] };
     v.lineJoin = m.lineJoin = 'round'; v.lineCap = m.lineCap = 'round';
     const TH = THEMES[T.theme];
@@ -237,6 +238,7 @@
     startLine(B);
     if (TH.after) TH.after(B);
     dither16(cv);
+    B.cv = mkc(ww, wh); B.v = B.cv.getContext('2d'); B.v.drawImage(cv, 0, 0); B.v.lineJoin = 'round'; B.v.lineCap = 'round'; cv.width = cv.height = 1;
     // the material grid (2px cells), with the soft edges of the shapes cleaned up
     const MW = Math.ceil(ww / 2), MH = Math.ceil(wh / 2), M = new Uint8Array(MW * MH), md = m.getImageData(0, 0, ww, wh).data;
     for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
