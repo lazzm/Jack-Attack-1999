@@ -108,12 +108,19 @@
       b.ax0 = x0; b.az0 = z0; b.ax1 = x1; b.az1 = z1; b.top = b.y - b.h;
     }
     const aabbHit = (b, x0, z0, x1, z1, m) => b.ax1 + m >= x0 && b.ax0 - m <= x1 && b.az1 + m >= z0 && b.az0 - m <= z1;
-    function wakeBody(b) {
+    // Something resting in mid-air (a bat hung from the ceiling, a decoration on a wall, a thing on a surface the world
+    // doesn't model) is anchored: bumps, doors and rebuilds never set it falling. The host forces a wake for a real drop.
+    function wakeBody(b, force) {
       if (!b.active || awake.has(b)) return;
+      if (!force) {
+        if (b.anchored === undefined || b._anchorY !== b.y) { b._anchorY = b.y; b.anchored = supportUnder(b, b.y - 0.5).y - b.y > 1.5; }
+        if (b.anchored) return;
+      } else b.anchored = false;
       awake.add(b); b.still = 0; b.grounded = false;
       if (W.onWake) try { W.onWake(b); } catch (e) { console.error(e); }
     }
     function sleepBody(b) {
+      resolve(b, false, 4); // (clear any last few millimetres of overlap before it rests for good)
       b.vx = b.vy = b.vz = b.wy = b.wsw = b.tvx = b.tvz = 0; b.tx = b.tz = 0;
       if (b.restY != null) b.y = b.restY;
       update(b); awake.delete(b); b.still = 0;
@@ -225,7 +232,7 @@
     }
     // Move another body by a nudge, resolving it against the world only (no chains): returns what it managed.
     function shove(q, dx, dz) {
-      if (q.fixed) return [0, 0]; // held in a slot, or in your hands: as solid as a wall
+      if (q.fixed || q.anchored) return [0, 0]; // held in a slot, hung up, or in your hands: as solid as a wall
       const x0 = q.x, z0 = q.z; q.x += dx; q.z += dz; resolve(q, false, 2); wakeBody(q);
       const ax = q.x - x0, az = q.z - z0;
       if (Math.hypot(ax, az) > 0.01 && W.onMove) W.onMove(q);
@@ -314,7 +321,7 @@
       }
     }
     function supportGone(b) { // something under a sleeping body moved away: let it fall
-      for (const q of near0(b.lvl, b.ax0 - 10, b.az0 - 10, b.ax1 + 10, b.az1 + 10)) if (q.support === b && q.active && !awake.has(q)) wakeBody(q);
+      for (const q of near0(b.lvl, b.ax0 - 10, b.az0 - 10, b.ax1 + 10, b.az1 + 10)) if (q.support === b && q.active && !awake.has(q)) wakeBody(q, true);
     }
     function stepOnce() {
       for (const b of Array.from(awake)) {
@@ -401,7 +408,7 @@
       capsuleParts(lvl, tx, tz, r + 0.06, feet, head, (q, w) => {
         if (done.has(q)) return;
         const h = playerHit(tx, tz, r + 0.06, w); if (!h || h.depth <= 0) return;
-        if (q.fixed) return; // furniture that's being held, or locked by a job
+        if (q.fixed || q.anchored) return; // furniture that's being held, hung up, or locked by a job
         done.add(q);
         // push along the contact normal, by what the player wants to move into it
         const into = -(dx * h.nx + dz * h.nz); if (into <= 0) return;
@@ -487,7 +494,7 @@
       b.y = sup.y; b.restY = sup.y; b.support = sup.ref; b.vx = b.vy = b.vz = b.wy = b.wsw = 0; update(b);
       return Math.hypot(b.x - x0, b.z - z0, b.y - y0);
     }
-    Object.assign(W, { playerRegion, setStatic, setKinematic, add, remove, get: id => bodies.get(id), update, wake: wakeBody, sleep: sleepBody, setActive, step, playerContacts, playerBlocked, playerPush, updateGhosts, tryMove, tryTurn, findRest, settle, overlapping, supportUnder, staticsNear: (lvl, x0, z0, x1, z1) => staticsNear(lvl, x0, z0, x1, z1, []).slice(), supportGone,
+    Object.assign(W, { playerRegion, setStatic, setKinematic, add, remove, get: id => bodies.get(id), update, wake: (b, force = true) => wakeBody(b, force), sleep: sleepBody, setActive, step, playerContacts, playerBlocked, playerPush, updateGhosts, tryMove, tryTurn, findRest, settle, overlapping, supportUnder, staticsNear: (lvl, x0, z0, x1, z1) => staticsNear(lvl, x0, z0, x1, z1, []).slice(), supportGone,
       _: { boxBox, circleBox, circleCircle, footprint, worldBox } });
     return W;
   }

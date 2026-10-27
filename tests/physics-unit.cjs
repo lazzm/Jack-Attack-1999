@@ -143,4 +143,11 @@ const CHAIR = [cyl(31, 0, 9, { player: false }), cyl(4, 9, 37), box(22.5, 21.5, 
   assert(!solid(50, 50) && !solid(105, 50) && !solid(150, 50)); assert(solid(105, 20) && solid(-5, 50) && solid(150, 110));
   assert(walls.length <= 8, 'Walls were not merged: ' + walls.length);
 }
-console.log('PHYSICS UNIT PASS: fall/settle/sleep, stacking without jitter, no tunnelling, chair tucks under the real desk heights, capsule push/heavy resist/ghost, placement queries, edge tip-off, door sweep, save migration, sleep cost, merged walls');
+// 12. something authored in mid-air (a bat hung from the ceiling) is anchored: a bump or a rebuild never drops it
+{
+  const w = room(), bat = w.add('bat', { lvl: 'U', x: 0, z: 150, y: FY - 160, parts: [box(12, 3, 10)], mass: .2 });
+  w.playerPush('U', 0, 150 + 3 + 22 + 1, 22, FY, FY - 200, 0, -3, 1 / 60); run(w, 1);
+  assert.equal(bat.y, FY - 160, 'A hung decoration fell when bumped');
+  w.wake(bat); run(w, 3); assert.equal(bat.y, FY, 'A forced wake (letting go of it) must drop it');
+}
+console.log('PHYSICS UNIT PASS: fall/settle/sleep, stacking without jitter, no tunnelling, chair tucks under the real desk heights, capsule push/heavy resist/ghost, placement queries, edge tip-off, door sweep, save migration, sleep cost, merged walls, anchored decorations');

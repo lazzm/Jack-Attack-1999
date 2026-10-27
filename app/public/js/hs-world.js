@@ -696,7 +696,8 @@
     b.lvl = lvlOf(t); b.x = t.at.x; b.y = t.at.y; b.z = t.at.z; b.ry = t.at.ry || 0; b.sw = t.at.sw || 0; b.restY = t.at.y;
     b.vx = b.vy = b.vz = b.wy = b.wsw = 0; b.tx = b.tz = b.tvx = b.tvz = 0; b.still = 0;
     PH.update(b); bodyState(t);
-    if (wake && b.active) PH.wake(b); else PH.awake.delete(b);
+    b.anchored = false; // (re-checked by the solver the next time something wakes it)
+    if (wake && b.active) PH.wake(b, true); else PH.awake.delete(b);
     return b;
   }
   // a body moved: the model follows it (with its tip and a chair's swivel), and it changes room when it crosses a doorway
