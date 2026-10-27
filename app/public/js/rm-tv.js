@@ -186,7 +186,7 @@
   function press(b, down) {
     if (down) { if (!isHeld(b)) pend[b] = true; } // (an edge: only when it wasn't already held)
   }
-  const isHeld = b => !!(held[b] || hardwareHeld[b] || gpHeld[b] || padHeld[b]);
+  const isHeld = b => !!(held[b] || hardwareHeld[b] || gpHeld[b] || padHeld[b] || gbHeld[b]);
   // 'c' doubles as 'x' (the PlayStation's square, the Dreamcast's X)
   const alias = b => b === 'x' ? ['x', 'c'] : b === 'c' ? ['c', 'x'] : [b];
   function stick() {
@@ -881,26 +881,89 @@
     V?.el.querySelectorAll('.rm-gbpad [data-b].on').forEach(el => el.classList.remove('on'));
   }
   addEventListener('mouseup', ev => { if (ev.button === 0) releaseHardware(); });
-  // The Game Lad in your hands (live 3D): by touch, its own moulded buttons on the model are the controller. Finger-sized
-  // hit areas follow the projected D-pad, A/B and SELECT/START every frame (js/rm-room.js gbModel: local cm positions).
-  const GB_HIT = { pad: [-2.2, -2.9, 2.4], b: [1.6, -2.95, 2.9], a: [3.0, -2.95, 2.2], select: [-1, -2.75, 5.1], start: [0.2, -2.75, 5.1] };
+  // The Game Lad in your hands (live 3D): by touch, its own moulded buttons on the model are the controller. Every touch
+  // point is hit-tested against the model itself at the moment it lands or moves: the button centres (js/rm-room.js
+  // gbModel, local cm) are projected through the live camera into the WebGL canvas's own rectangle (a phone's browser
+  // bars change innerHeight but not the canvas), so what you see is what you press. Generous radii, nearest button wins,
+  // one entry per finger (D-pad + A together), a D-pad thumb can slide round, held directions repeat in menus, and each
+  // press sinks the moulded button, clicks and gives a short buzz where the phone supports it.
+  const GB_PAD = [-2.2, -2.9, 2.4], GB_BTN = { b: [1.6, -2.95, 2.9], a: [3.0, -2.95, 2.2], select: [-1, -2.75, 5.1], start: [0.2, -2.75, 5.1] };
+  const gbHeld = {};
   function gbTouch() {
     const view = V; if (!view || view.gbTouch) return;
-    const T = window.THREE, H = R.House, box = h('<span class="rm-gbd" aria-label="Game Lad direction pad"><b data-b="up"></b><b data-b="left"></b><b data-b="right"></b><b data-b="down"></b><i></i></span><b class="rm-gbt-b" data-b="b" aria-label="B">B</b><b class="rm-gbt-a" data-b="a" aria-label="A">A</b><b class="rm-gbt-s" data-b="select" aria-label="Select">SELECT</b><b class="rm-gbt-s" data-b="start" aria-label="Start">START</b>', 'rm-gbtouch');
-    box.setAttribute('aria-label', 'Game Lad buttons'); view.el.appendChild(box); view.gbTouch = box; padTouch(box);
-    const v = new T.Vector3(), at = (p) => { const o = H.THINGS.gb?.obj; if (!o) return null; v.set(p[0], p[1], p[2]); o.localToWorld(v); v.project(H.camera); return v.z > 1 ? null : { x: (v.x + 1) / 2 * innerWidth, y: (1 - v.y) / 2 * innerHeight }; };
-    const place = (el, p, size) => { el.style.left = (p.x - size / 2) + 'px'; el.style.top = (p.y - size / 2) + 'px'; el.style.width = el.style.height = size + 'px'; };
-    (function frame() {
-      if (V !== view || !view.el.isConnected) return;
-      requestAnimationFrame(frame);
-      const show = touchy() && !view.background && view.st === 'game' && !view.lockedIn && !R.House.paused && gbModelButtons();
-      box.hidden = !show; if (!show) return;
-      const pad = at(GB_HIT.pad), a = at(GB_HIT.a), b = at(GB_HIT.b), sel = at(GB_HIT.select), st = at(GB_HIT.start);
-      if (!pad || !a || !b || !sel || !st) { box.hidden = true; return; }
-      const unit = Math.hypot(a.x - b.x, a.y - b.y) / 1.63; // (screen px per cm: A and B are 1.63 cm apart)
-      place($(box, '.rm-gbd'), pad, Math.max(104, unit * 3.4)); place($(box, '.rm-gbt-a'), a, Math.max(52, unit * 1.6)); place($(box, '.rm-gbt-b'), b, Math.max(52, unit * 1.6));
-      const s = box.querySelectorAll('.rm-gbt-s'); place(s[0], sel, Math.max(48, unit * 1.3)); place(s[1], st, Math.max(48, unit * 1.3));
+    const T = window.THREE, H = R.House, v = new T.Vector3(), pts = new Map(), meshes = {}, rest = new Map();
+    view.gbTouch = true;
+    const obj = () => H.THINGS.gb?.obj;
+    const active = () => V === view && view.el.isConnected && touchy() && !view.background && view.st === 'game' && !view.lockedIn && !R.House.paused && gbModelButtons() && !!obj();
+    // the moulded meshes, found by where gbModel built them (for the pressed-in look)
+    (function findMeshes() {
+      const o = obj(); if (!o) return;
+      const near = (m, p) => { const e = m.matrix.elements; return Math.hypot(e[12] - p[0], e[13] - p[1], e[14] - p[2]) < .35; }; // (kit meshes carry their pose in .matrix)
+      o.traverse(m => { if (!m.isMesh || m.parent !== o) return;
+        if (near(m, GB_PAD)) (meshes.pad = meshes.pad || []).push(m);
+        for (const k in GB_BTN) if (near(m, GB_BTN[k])) (meshes[k] = meshes[k] || []).push(m); });
     })();
+    const sink = (k, on) => { for (const m of (k === 'up' || k === 'down' || k === 'left' || k === 'right' ? meshes.pad : meshes[k]) || []) { if (!rest.has(m)) rest.set(m, m.matrix.elements[13]); m.matrix.elements[13] = rest.get(m) + (on ? .22 : 0); m.matrixWorldNeedsUpdate = true; } H.dirty(); };
+    function screen(p) {
+      const o = obj(); v.set(p[0], p[1], p[2]); o.localToWorld(v); v.project(H.camera);
+      const r = H.ren.domElement.getBoundingClientRect();
+      return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height, z: v.z };
+    }
+    function hit(x, y) {
+      const pad = screen(GB_PAD), a = screen(GB_BTN.a), b = screen(GB_BTN.b);
+      if (pad.z > 1) return null;
+      const unit = Math.hypot(a.x - b.x, a.y - b.y) / 1.63; // (screen px per cm: A and B are 1.63 cm apart)
+      // the D-pad: decompose the offset along the pad's own projected axes (the handheld may be tilted or rolled)
+      const px = screen([GB_PAD[0] + 1, GB_PAD[1], GB_PAD[2]]), pz = screen([GB_PAD[0], GB_PAD[1], GB_PAD[2] - 1]);
+      const ax = { x: px.x - pad.x, y: px.y - pad.y }, az = { x: pz.x - pad.x, y: pz.y - pad.y };
+      const dx = x - pad.x, dy = y - pad.y, padR = Math.max(64, unit * 2.3);
+      if (Math.hypot(dx, dy) < padR) {
+        const lx = (dx * ax.x + dy * ax.y) / (ax.x * ax.x + ax.y * ax.y || 1), lz = (dx * az.x + dy * az.y) / (az.x * az.x + az.y * az.y || 1);
+        const m = Math.hypot(lx, lz), out = []; if (m < .25) return { pad: true, keys: out }; // (thumb resting on the pad's middle)
+        if (lx / m > .38) out.push('right'); if (lx / m < -.38) out.push('left'); if (lz / m > .38) out.push('up'); if (lz / m < -.38) out.push('down');
+        return { pad: true, keys: out };
+      }
+      let best = null, bd = Infinity;
+      for (const k in GB_BTN) { const q = k === 'a' ? a : k === 'b' ? b : screen(GB_BTN[k]), d = Math.hypot(x - q.x, y - q.y), r = Math.max(k === 'a' || k === 'b' ? 40 : 34, unit * (k === 'a' || k === 'b' ? 1.25 : 1.1)); if (d < r && d < bd) { bd = d; best = k; } }
+      return best ? { pad: false, keys: [best] } : null;
+    }
+    // a soft gold ring on the pressed moulding (the sunk button alone is hard to see from above)
+    const rings = {};
+    const ringAt = k => { const d = { up: [0, 0, -1.05], down: [0, 0, 1.05], left: [-1.05, 0, 0], right: [1.05, 0, 0] }[k]; return d ? screen([GB_PAD[0] + d[0], GB_PAD[1], GB_PAD[2] + d[2]]) : screen(GB_BTN[k]); };
+    function ring(k, on) {
+      if (!on) { rings[k]?.remove(); delete rings[k]; return; }
+      const q = ringAt(k), a = screen(GB_BTN.a), b = screen(GB_BTN.b), unit = Math.hypot(a.x - b.x, a.y - b.y) / 1.63, size = Math.max(36, unit * (k === 'a' || k === 'b' ? 1.5 : 1.1));
+      const el = rings[k] || (rings[k] = h('', 'rm-gbpress')); el.style.cssText = `left:${q.x - size / 2}px;top:${q.y - size / 2}px;width:${size}px;height:${size}px`; if (!el.isConnected) view.el.appendChild(el);
+    }
+    function sync() {
+      const now = new Set(); for (const p of pts.values()) for (const k of p.keys) now.add(k);
+      for (const k of new Set([...Object.keys(gbHeld), ...now])) {
+        const on = now.has(k), was = !!gbHeld[k];
+        if (on && !was) { if (!isHeld(k)) pend[k] = true; gbHeld[k] = performance.now(); sink(k, true); ring(k, true); try { _.sfx?.('click'); } catch (e) {} try { navigator.vibrate?.(12); } catch (e) {} }
+        else if (!on && was) { delete gbHeld[k]; sink(k, false); ring(k, false); }
+      }
+    }
+    const own = ev => { ev.preventDefault(); ev.stopImmediatePropagation(); };
+    const down = ev => {
+      if (!active() || ev.pointerType === 'mouse' || ev.target?.closest?.('button,a,input,select,textarea,dialog,.rm-tools,.rm-livebar')) return;
+      const h = hit(ev.clientX, ev.clientY); if (!h) return;
+      own(ev); pts.set(ev.pointerId, { keys: h.keys, pad: h.pad }); sync();
+    };
+    const move = ev => { const p = pts.get(ev.pointerId); if (!p) return; own(ev); if (!active()) { reset(); return; } const h = hit(ev.clientX, ev.clientY); if (p.pad) { if (h?.pad) p.keys = h.keys; } else if (h && !h.pad) p.keys = h.keys; sync(); }; // (a thumb that slides off the pad keeps its last direction until it lifts)
+    const up = ev => { if (!pts.delete(ev.pointerId)) return; own(ev); sync(); };
+    const reset = () => { pts.clear(); sync(); };
+    const opts = { capture: true, passive: false };
+    addEventListener('pointerdown', down, opts); addEventListener('pointermove', move, opts);
+    for (const n of ['pointerup', 'pointercancel']) addEventListener(n, up, opts);
+    addEventListener('blur', reset); document.addEventListener('visibilitychange', reset);
+    // held directions repeat after a beat (menus and maps), like a real pad under a patient thumb
+    const repeat = setInterval(() => {
+      if (V !== view || !view.el.isConnected) { clearInterval(repeat); removeEventListener('pointerdown', down, opts); removeEventListener('pointermove', move, opts); for (const n of ['pointerup', 'pointercancel']) removeEventListener(n, up, opts); removeEventListener('blur', reset); reset(); for (const [m, y] of rest) { m.matrix.elements[13] = y; m.matrixWorldNeedsUpdate = true; } return; }
+      if (!active() && pts.size) reset();
+      document.documentElement.classList.toggle('rm-gb-model', active());
+      const t = performance.now(); for (const k of ['up', 'down', 'left', 'right']) if (gbHeld[k] && t - gbHeld[k] > 380) pend[k] = true;
+    }, 110);
+    view.gbHit = (x, y) => hit(x, y)?.keys || []; view.gbScreen = k => screen(k === 'pad' ? GB_PAD : GB_BTN[k]); view.gbMeshes = () => Object.fromEntries(Object.entries(meshes).map(([k, l]) => [k, l.length]));
   }
   // These are the Game Lad's own moulded buttons, operated with the mouse.
   function gbButtons(el) {
@@ -1004,5 +1067,5 @@
     if(!H.focus(pose,{ms:1,label:'Get up',enter:boot}))return false;
     R.onClose?.(done);return true;
   }
-  window.RoomTV = { restoreSurface, covered, game(id, def) { defs[id] = def; }, defs, test, playPhysical,lockIn, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background, surface: !!V.surface }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
+  window.RoomTV = { restoreSurface, covered, game(id, def) { defs[id] = def; }, defs, test, playPhysical,lockIn, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background, surface: !!V.surface, gbHit: V.gbHit, gbScreen: V.gbScreen, gbMeshes: V.gbMeshes, gbHeld: { ...gbHeld } }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
 })();
