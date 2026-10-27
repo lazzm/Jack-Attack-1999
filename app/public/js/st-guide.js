@@ -13,10 +13,13 @@
   prompt.className = 'st-prompt'; card.className = 'st-chapter';
   for (const el of [marker, prompt, card]) { el.hidden = true; H.ui.el.appendChild(el); }
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
-  const show = () => st.getState() && window.Net?.connected && window.AccountGate?.allowed && H.live && H.mode === 'walk' && !H.gliding && !H.paused && !H.focused && !window.RoomTV?.open_ && !H.surfaceScreen?.() && !window.HousePause?.open && !document.hidden && !document.querySelector('.hs-loading,#houseEntry');
+  // Seasonal objectives (js/season.js) use the same guidance whenever no chapter task is tracked.
+  const seasonal = () => { const s = st.tracked(); return s ? s.season || null : window.Season?.current?.() || null; };
+  const show = () => (st.getState() || seasonal()) && window.Net?.connected && window.AccountGate?.allowed && H.live && H.mode === 'walk' && !H.gliding && !H.paused && !H.focused && !window.RoomTV?.open_ && !H.surfaceScreen?.() && !window.HousePause?.open && !document.hidden && !document.querySelector('.hs-loading,#houseEntry');
   const has = (id, step) => !!window.ChoreKit?.has(id, step);
   function targets() {
-    const s = st.tracked(); if (!s) return [];
+    const s = st.tracked(); if (!s || s.season) return window.Season?.targets?.(s?.season) || [];
+
     const held = H.held(), CK = window.ChoreKit, chore = s.test?.startsWith('chore.') ? s.test.slice(6) : null;
     if (chore && CK?.done(chore)) return [];
     if (s.id.startsWith('part.')) {
@@ -54,6 +57,11 @@
     return s.targets || [];
   }
   function resolve(id) {
+    const r = resolveThing(id), d = seasonal() && window.Season?.describe?.(id);
+    if (r && d) { r.label = d.label; r.action = d.action; }
+    return r;
+  }
+  function resolveThing(id) {
     const s = st.tracked(), t = H.THINGS[id], spot = H.SPOTS[id], snap = H.SNAPS[id];
     if (id.startsWith('np.')) { const c = window.HouseFamily?.chars?.[id.slice(3)]; if (!c?.rig || !c.present) return null; const n = id === 'np.mom' ? 'Mom' : id === 'np.dad' ? 'Dad' : (window.Cast ? Cast.n('sister') : 'my sister'); return {obj:c.rig.group, label:n, action:'F: talk to ' + n}; }
     if (id === 'st.boot') return {obj:H.ROOMS.drive?.carBoot?.hinge, label:'Dad’s car boot', action:s?.id === 'dad' ? 'Meet Dad at the car' : 'F: open the boot'};
@@ -97,7 +105,8 @@
     return bounds.isEmpty() ? m.obj.getWorldPosition(new T.Vector3()) : bounds.getCenter(new T.Vector3());
   }
   function sample(now) {
-    const ids = targets(), key = st.tracked()?.key + '|' + ids.join('|');
+    const ids = targets(), key = (st.tracked()?.key || seasonal()?.o.id) + '|' + ids.join('|');
+
     if (key !== signature || !marks.length && ids.length || marks.some(m => resolve(m.id)?.obj !== m.obj)) { signature = key; rebuild(ids); }
     const eye = H.camera.getWorldPosition(new T.Vector3()); let nearest = null;
     for (const m of marks) {

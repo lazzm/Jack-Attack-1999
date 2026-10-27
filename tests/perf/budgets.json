@@ -1,0 +1,489 @@
+{
+  "schema": 1,
+  "tolerance": 0.1,
+  "note": "Stage 0 regression ceilings from unmerged Low baseline, shared geometry across tiers. Resource counts are global resident maxima after warm-up. Section 4 draw reduction targets require Stage 1. Medium/High ceilings include measured preset cycling; High allows the six additional mowing blades per cell used by a fresh High build. Low triangle ceilings retain the cold Low run.",
+  "targets": {
+    "potato": {
+      "calls": 120,
+      "triangles": 60000,
+      "programs": 8,
+      "textureMB": 96
+    },
+    "low": {
+      "calls": 200,
+      "triangles": 120000,
+      "programs": 12,
+      "textureMB": 160
+    },
+    "medium": {
+      "calls": 350,
+      "triangles": 250000,
+      "programs": 20,
+      "textureMB": 320
+    },
+    "high": {
+      "calls": 600,
+      "triangles": 500000,
+      "programs": 30,
+      "textureMB": 640
+    }
+  },
+  "tiers": {
+    "potato": {
+      "bedroom-door": {
+        "calls": 790,
+        "triangles": 231000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "desk-pc": {
+        "calls": 490,
+        "triangles": 189000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "tv-consoles": {
+        "calls": 400,
+        "triangles": 119000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "landing-stairs": {
+        "calls": 500,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "kitchen": {
+        "calls": 260,
+        "triangles": 110000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "front-garden": {
+        "calls": 910,
+        "triangles": 226000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "room:bedroom": {
+        "calls": 420,
+        "triangles": 118000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "room:landing": {
+        "calls": 500,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "room:hall": {
+        "calls": 500,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "room:cupboard": {
+        "calls": 500,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "room:lounge": {
+        "calls": 300,
+        "triangles": 92000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "room:garden": {
+        "calls": 100,
+        "triangles": 101000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "room:drive": {
+        "calls": 210,
+        "triangles": 148000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      },
+      "room:kitchen": {
+        "calls": 220,
+        "triangles": 105000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 32,
+        "textureMB": 96
+      }
+    },
+    "low": {
+      "bedroom-door": {
+        "calls": 1150,
+        "triangles": 231000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "desk-pc": {
+        "calls": 730,
+        "triangles": 189000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "tv-consoles": {
+        "calls": 500,
+        "triangles": 119000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "landing-stairs": {
+        "calls": 550,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "kitchen": {
+        "calls": 380,
+        "triangles": 110000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "front-garden": {
+        "calls": 960,
+        "triangles": 226000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "room:bedroom": {
+        "calls": 560,
+        "triangles": 118000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "room:landing": {
+        "calls": 550,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "room:hall": {
+        "calls": 200,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "room:cupboard": {
+        "calls": 140,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "room:lounge": {
+        "calls": 380,
+        "triangles": 92000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "room:garden": {
+        "calls": 100,
+        "triangles": 101000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "room:drive": {
+        "calls": 420,
+        "triangles": 148000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      },
+      "room:kitchen": {
+        "calls": 250,
+        "triangles": 105000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 160
+      }
+    },
+    "medium": {
+      "bedroom-door": {
+        "calls": 1150,
+        "triangles": 316000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "desk-pc": {
+        "calls": 730,
+        "triangles": 213000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "tv-consoles": {
+        "calls": 500,
+        "triangles": 148000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "landing-stairs": {
+        "calls": 550,
+        "triangles": 222000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "kitchen": {
+        "calls": 380,
+        "triangles": 133000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "front-garden": {
+        "calls": 910,
+        "triangles": 273000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "room:bedroom": {
+        "calls": 560,
+        "triangles": 170000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "room:landing": {
+        "calls": 550,
+        "triangles": 222000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "room:hall": {
+        "calls": 200,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "room:cupboard": {
+        "calls": 140,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "room:lounge": {
+        "calls": 380,
+        "triangles": 98000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "room:garden": {
+        "calls": 100,
+        "triangles": 117000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "room:drive": {
+        "calls": 420,
+        "triangles": 216000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      },
+      "room:kitchen": {
+        "calls": 250,
+        "triangles": 125000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 320
+      }
+    },
+    "high": {
+      "bedroom-door": {
+        "calls": 1150,
+        "triangles": 362000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "desk-pc": {
+        "calls": 730,
+        "triangles": 259000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "tv-consoles": {
+        "calls": 500,
+        "triangles": 194000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "landing-stairs": {
+        "calls": 550,
+        "triangles": 268000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "kitchen": {
+        "calls": 380,
+        "triangles": 179000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "front-garden": {
+        "calls": 960,
+        "triangles": 319000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "room:bedroom": {
+        "calls": 560,
+        "triangles": 216000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "room:landing": {
+        "calls": 550,
+        "triangles": 268000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "room:hall": {
+        "calls": 200,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "room:cupboard": {
+        "calls": 140,
+        "triangles": 176000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "room:lounge": {
+        "calls": 380,
+        "triangles": 144000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "room:garden": {
+        "calls": 100,
+        "triangles": 163000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "room:drive": {
+        "calls": 420,
+        "triangles": 262000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      },
+      "room:kitchen": {
+        "calls": 250,
+        "triangles": 171000,
+        "geometries": 2400,
+        "textures": 330,
+        "programs": 24,
+        "textureMB": 640
+      }
+    }
+  }
+}

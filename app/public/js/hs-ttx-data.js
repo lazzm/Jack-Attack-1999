@@ -129,9 +129,9 @@
     ],
     // on top of the usual: [date, channel, time, what]
     special: [
-      ['03-12', 'BBQ1', '7.00', 'COMIC RELIEFS: Red Nose Day, all night'], ['05-22', 'BBQ1', 'LIVE', 'FA CUP FINAL: Mancake Utd v Newcastel'], ['05-26', 'ITB', 'LIVE', 'EUROPEAN CUP FINAL: Mancake Utd v Bavaria Munchen'],
+      ['03-12', 'BBQ1', '7.00', 'COMIC RELIEFS: Red Nose Day, all night'], ['05-22', 'BBQ1', 'LIVE', 'FA CUP FINAL: Mancake Utd v Newcastle'], ['05-26', 'ITB', 'LIVE', 'EUROPEAN CUP FINAL: Mancake Utd v Bavaria Munchen'],
       ['05-29', 'BBQ1', '8.00', 'EUROVIZZION SONG CONTEST from Jerusalem'], ['06-19', 'BBQ1', 'LIVE', 'THE ROYAL WEDDING from Windsor'], ['07-04', 'BBQ1', '2.00', 'WIMBLEDON: the men\'s final'],
-      ['08-11', 'BBQ1', 'LIVE', 'THE ECLIPSE, live'], ['11-26', 'BBQ1', '7.00', 'CHILDREN IN GREED'], ['12-25', 'BBQ1', '3.00', 'THE QUEEN'], ['12-31', 'BBQ1', 'ALL DAY', '2000 TODAY: the millennium round the world'],
+      ['08-11', 'BBQ1', 'LIVE', 'THE ECLIPSE, live'], ['10-31', 'C4', '5.00', "The Witch's Wobbly Cauldron (Halloween special)"], ['10-31', 'BBQ1', '6.30', 'SPOOKY SPECIAL: the Haunted House Party, live'], ['10-31', 'ITB', '9.00', 'Tales of the Unexpectedly Odd: Halloween night'], ['10-31', 'BBQ2', '11.15', 'FILM: The Lost Camcorder Film'], ['11-26', 'BBQ1', '7.00', 'CHILDREN IN GREED'], ['12-25', 'BBQ1', '3.00', 'THE QUEEN'], ['12-31', 'BBQ1', 'ALL DAY', '2000 TODAY: the millennium round the world'],
     ],
     newsAtTenEnds: '03-05', // ITV's News at Ten moved after 5 March 1999
   };

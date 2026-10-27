@@ -2,9 +2,10 @@
  * only displays it and submits user choices through the public graphics API. */
 (function () {
   'use strict';
-  const names = { auto: 'Automatic', low: 'Performance', medium: 'Balanced', high: 'Quality', custom: 'Custom' };
+  const names = { auto: 'Automatic', potato: 'Potato', low: 'Performance', medium: 'Balanced', high: 'Quality', custom: 'Custom' };
   const help = {
     auto: 'Chooses a starting point for this device. Resolution can adjust as you play.',
+    potato: 'Small picture, 30 frames per second and simpler lighting for the slowest computers.',
     low: 'Favour smooth movement with lighter rendering. A useful starting point for slower devices.',
     medium: 'Balance picture detail and smooth movement.',
     high: 'Favour a sharper picture and more detail. Uses more graphics power.',
@@ -18,7 +19,7 @@
       <p class="hs-graphics-intro">Changes apply immediately and are saved for next time.</p>
       <div class="hs-graphics-grid">
       <fieldset class="hs-graphics-preset"><legend>PICTURE PRESET</legend>
-        <label for="hsGfxPreset">Preset</label><select id="hsGfxPreset" name="gfxPreset"><option value="auto">Automatic</option><option value="low">Performance</option><option value="medium">Balanced</option><option value="high">Quality</option><option value="custom" disabled>Custom</option></select>
+        <label for="hsGfxPreset">Preset</label><select id="hsGfxPreset" name="gfxPreset"><option value="auto">Automatic</option><option value="potato">Potato</option><option value="low">Performance</option><option value="medium">Balanced</option><option value="high">Quality</option><option value="custom" disabled>Custom</option></select>
         <p class="hs-graphics-preset-help"></p><p class="hs-graphics-custom-help">Adjust an option below to make a Custom preset.</p>
       </fieldset>
       <fieldset><legend>RESOLUTION</legend>
@@ -28,6 +29,7 @@
         <label class="hs-graphics-check"><input type="checkbox" name="gfxDynamic"><span>Adjust resolution automatically<small>Allows a lower resolution when the scene is demanding. Your maximum stays as selected above.</small></span></label>
         <label for="hsGfxPixelRatio">Display detail</label><select id="hsGfxPixelRatio" name="gfxPixelRatio"><option value="1">1× — standard</option><option value="1.5">1.5×</option><option value="2">2× — sharp</option></select>
         <small>Higher detail can sharpen the picture on a dense display.</small>
+        <label class="hs-graphics-check"><input type="checkbox" name="gfxRetro"><span>Retro CRT picture<small>A crisp, enlarged picture of up to 640 × 480 dots.</small></span></label>
       </fieldset>
       <fieldset><legend>EDGES &amp; TEXTURES</legend>
         <label for="hsGfxAA">Edge smoothing</label><select id="hsGfxAA" name="gfxAntialias"><option value="auto">Automatic</option><option value="off">Off</option><option value="on">On</option></select>
@@ -40,13 +42,14 @@
         <small>Controls background TV picture refresh. Simulation, messages and audio continue.</small>
         <label class="hs-graphics-check"><input type="checkbox" name="gfxDecorations"><span>Animate unattended screens<small>Keeps decorative screen effects moving while you are away. Messages and audio keep running either way.</small></span></label>
       </fieldset></div>
+      <label class="hs-graphics-check"><input type="checkbox" name="gfxShowFps"><span>Show frame counter<small>Frames per second, frame time and scene detail in the corner of the picture.</small></span></label>
       <p class="hs-graphics-live" role="status" aria-live="polite"></p>
       <p class="hs-graphics-footnote">The active scale can change during demanding scenes when automatic resolution adjustment is enabled.</p>
       </div><div class="hs-graphics-footer"><button type="button" data-gfx="back">BACK TO MENU <kbd>Esc</kbd></button><button type="button" data-gfx="resume">RESUME GAME</button></div>`;
     dialog.appendChild(page);
     const field = name => page.querySelector('[name="gfx' + name + '"]');
     const live = page.querySelector('.hs-graphics-live');
-    const controls = { Preset: 'preset', Scale: 'scale', Dynamic: 'dynamic', Antialias: 'antialias', PixelRatio: 'pixelRatio', Anisotropy: 'anisotropy', BackgroundFps: 'backgroundFps', Decorations: 'decorations' };
+    const controls = { Preset: 'preset', Scale: 'scale', Dynamic: 'dynamic', Antialias: 'antialias', PixelRatio: 'pixelRatio', Anisotropy: 'anisotropy', BackgroundFps: 'backgroundFps', Decorations: 'decorations', Retro:'retro', ShowFps:'showFps' };
     let timer = null, error = '';
     const ready = () => typeof H?.graphicsGet === 'function' && typeof H?.graphicsSet === 'function';
     function sync() {

@@ -41,7 +41,7 @@ async function check(name, fn) {
   catch (e) { results.push([name, false]); console.log(`FAIL ${name}: ${String(e.stack || e).split('\n').slice(0, 4).join(' | ')}`); }
 }
 async function house(opts) {
-  const f = await roomFixture(base, Object.assign({ hour: 14, navTimeout: 120000 * SCALE }, opts));
+  const f = await roomFixture(base, Object.assign({ hour: 14, timeoutScale: SCALE }, opts));
   for (let i = 0; i < 120 * SCALE && !(await f.page.evaluate(() => !!window.HouseFamily?.ready)); i++) await f.page.waitForTimeout(500);
   assert(await f.page.evaluate(() => !!window.HouseFamily?.ready), 'The family never arrived');
   return f;

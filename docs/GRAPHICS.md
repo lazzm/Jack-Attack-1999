@@ -312,6 +312,30 @@ Add `potato` below `low` (the code has `low/medium/high`). Tiers are cumulative.
 - Not planned: worker rendering.
 
 ---------------------------------------------------------------------
+## Stage 0 results (2026-10-26)
+
+Implemented in the working tree; no deployment. `tests/perf/matrix.mjs` owns a disposable server and records the three separate probes, actual backend, deterministic scene/resource gates, room budgets, sampled black-frame/heap checks and canonical PNGs. See `tests/perf/README.md` for the one-command matrix, comparison, CPU throttling and Mesa options.
+
+The recorded full runs use SwiftShader, CPU rate 1, 300 tiny-buffer submissions per view, 30 synchronised fill samples per scale and 600 rendered route frames at 854×536. CPU/fill values below are medians of the six per-view medians, **not** pooled frame percentiles. Texture MB estimates referenced RGBA images plus mipmaps, rather than total process RAM or measured VRAM.
+
+| Run | Maximum canonical draws | Texture MB, warmed house | CPU submit p50 ms | Fill 1× / 0.5× ms | Route p50 / p95 / p99 ms |
+|---|---:|---:|---:|---:|---:|
+| Before Low | 908 | 93.7 | 15.5 | 662.3 / 381.9 | 233.4 / 916.7 / 1266.7 |
+| After Low | 939 | 91.6 | 13.1 | 595.3 / 412.6 | 233.3 / 1000.0 / 1399.9 |
+| After Potato | 937 | 50.6 | 9.2 | 346.2 / 230.8 | 116.6 / 333.3 / 516.6 |
+
+Raw evidence: `docs/perf-stage0-{before,after}-swiftshader.json`; screenshots under `tests/shots/perf/{before,after}/`. Low's route median is unchanged and its p95 is higher. Host load varied roughly 30–90 on 12 CPUs, so these timings do not establish a reliable Low FPS gain or predict hardware FPS. Potato trades detail for a smaller buffer and simpler lighting; it is a new tier, not an equal-quality comparison with Low.
+
+Potato caps each house drawing buffer at 350,000 pixels and 30 Hz, offers a pixelated picture bounded by 640×480, uses zero point lights, Low grass density, portal depth equal to Low and outdoor fog ending at 3000 cm with the same camera far plane. Medium/High keep their original distance and original texture rasters. Static weak-tier rasters are capped at 256/512; original sources remain available for repaint, context recovery and higher settings. Live CRT/Game Lad pictures are limited to 12/20/30/60 Hz by tier and projected size, with no mipmaps and anisotropy 1. Simulation/input retain their own cadence.
+
+The renderer reuses visibility/material/node records and projection scratch storage; media-slot matrices and home records are reused. Idle callbacks can report no change, and the watchdog avoids drawing an unchanged idle room. The downstream house pack is compiled/warmed after loading. The saved menu adds Potato, optional CRT pixels and an FPS/frame-time/call counter. `node tests/perf/check.mjs` passed pixel caps at 1366×860, 2560×1440, 390×844 and 844×390; texture restoration, live uploads, menu/refresh, fire-off, idle draws and frame-cap checks.
+
+Stage 0 budgets are regression ceilings for the existing unmerged scene, with 10% tolerance. The section 4 draw-reduction targets still require Stage 1. Warm-up makes more resources resident early; the Low front view increased from 908 to 939 calls, within its gate. The camera rail samples every room and street scenery; it does not test a collision-valid walked route. Movement/collision code was left untouched. Heap gating covers retained growth, with raw heap samples and a sampled retained-allocation profile; this does not prove zero transient allocations in three.js, DOM strings or picking/movement paths.
+
+Full timed evidence in this run covers Low and Potato. The before Medium/High capture/count run completed; the after capture run stopped after its first Medium view at the worker time limit, so Medium/High visual parity is NOT verified. Full smoke was interrupted after passing signup, account/house, walk-refresh, PC controls, console play, phone typing, prop-refresh and menus. `tests/story-ch1.mjs` was not reached and remains required before shipping. Optional 4×/6× throttled runs, a full llvmpipe matrix, physical devices and thermal behaviour remain unverified. No claim of a GPU bake, batching or portal-frustum implementation is made here.
+
+---------------------------------------------------------------------
+
 ## 6. Sources (all public; URLs checked to resolve on 2026-10-26 unless noted)
 
 three.js
