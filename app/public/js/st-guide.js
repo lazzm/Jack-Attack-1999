@@ -133,11 +133,11 @@
     }
     return [px,py];
   }
-  // (media queries made once; the speech check is DOM work, so at most five times a second: this runs every frame)
+  // (media queries made once; the speech check is DOM work, so at most ten times a second: this runs every frame)
   const coarseMQ=matchMedia('(pointer:coarse)'), reduceMQ=matchMedia('(prefers-reduced-motion: reduce)');
-  let speechAt=0, speechNow=false, viewW=innerWidth, viewH=innerHeight;
-  addEventListener('resize',()=>{viewW=innerWidth;viewH=innerHeight;});
-  function speaking(now){if(now-speechAt>200||now<speechAt){speechAt=now;speechNow=!!document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on') || (viewW<=900 || coarseMQ.matches) && !!document.querySelector('.ch-chip:not([hidden])');}return speechNow;}
+  let speechAt=0, speechNow=false, viewW=window.innerWidth||0, viewH=window.innerHeight||0;
+  window.addEventListener?.('resize',()=>{viewW=window.innerWidth;viewH=window.innerHeight;});
+  function speaking(now){if(now-speechAt>=100||now<speechAt){speechAt=now;speechNow=!!document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on') || (window.innerWidth<=900 || coarseMQ.matches) && !!document.querySelector('.ch-chip:not([hidden])');}return speechNow;}
   function tick(now) {
     const dt=Math.min(.05,(now-(previous||now))/1000); previous=now;
     const visible=show() && mode!=='off', speech=visible&&speaking(now);

@@ -1593,14 +1593,15 @@
   function tickWalk(dt) {
     if (window.House && House.god) { const gr = House.god(dt); roomCheck(); return gr; } // (layout editor, hs-edit.js: noclip fly)
     let mx = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), mz = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
-    if (touchMove.on && !mx && !mz) { mx = touchMove.x; mz = touchMove.y; } // (the touch stick, js/hs-touch.js: analogue, -1..1)
+    const tm = typeof touchMove !== 'undefined' ? touchMove : null; // (the touch stick, js/hs-touch.js: analogue, -1..1; absent in the extracted unit test)
+    if (tm?.on && !mx && !mz) { mx = tm.x; mz = tm.y; }
     const mag = Math.min(1, Math.hypot(mx, mz));
     const night = !!(window.HouseLife && HouseLife.quiet && HouseLife.quiet());
     const lintel=lowDoorAt(W.x,W.z,W.lvl,6,W.fy),nearLintel=keys.crouch&&lowDoorAt(W.x,W.z,W.lvl,RAD+18,W.fy),ducking=keys.crouch||!!lintel;
     if (!W.seat) W.eye = Math.max(60, ((cur && cur.eye) || STAND) - (keys.crouch ? 38 : 0)); // C: crouch
     if(lintel||nearLintel)W.eye=Math.min(W.eye,(lintel||nearLintel).headroom-10);
     const carrySpeed = held ? (THINGS[held.id]?.walkScale || 1) : 1;
-    const sp = carrySpeed * (keys.run || touchMove.on && touchMove.run ? 210 : night ? 62 : 140) * (W.seat ? 0 : 1) * (ducking ? 0.5 : 1); // (Shift: a jog, 1.5x. At night you creep anyway: Mom's asleep)
+    const sp = carrySpeed * (keys.run || tm?.on && tm.run ? 210 : night ? 62 : 140) * (W.seat ? 0 : 1) * (ducking ? 0.5 : 1); // (Shift: a jog, 1.5x. At night you creep anyway: Mom's asleep)
     const a = P.ry * D2R, fx = Math.sin(a), fz = -Math.cos(a), rx = Math.cos(a), rz = Math.sin(a);
     let tvx = 0, tvz = 0;
     if (mag > 0.05) {

@@ -80,8 +80,9 @@ try{
  normalBrowser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
  const phoneContext=await normalBrowser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'});
  const phone=await phoneContext.newPage();await phone.addInitScript(token=>localStorage.setItem('jhp_token',token),token);await phone.goto(base,{waitUntil:'domcontentloaded'});
- await wait(phone,()=>window.AccountGate?.allowed&&window.MobileDesktop&&window.DesktopSurface?.ready());
- assert(!await phone.evaluate(()=>window.House?.ok||!!window.Room));await phone.screenshot({path:shots+'phone-390.png'});
+ // Device policy (2026-10-26): the owner's phone gets the house with touch controls (owner tools at phone sizes: mobile.mjs).
+ await wait(phone,()=>window.AccountGate?.allowed&&window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!document.querySelector('.hs-loading,#houseEntry'));
+ assert(await phone.evaluate(()=>!!document.querySelector('.ht-hud')&&OwnerTools.allowed));await phone.screenshot({path:shots+'phone-390.png'});
  await phone.setViewportSize({width:844,height:390});await phone.screenshot({path:shots+'phone-landscape.png'});await phoneContext.close();
  const context=await normalBrowser.newContext({viewport:{width:1366,height:860}}),normal=await context.newPage();
  await normal.goto(base,{waitUntil:'domcontentloaded'});await normal.locator('#accountGate form').waitFor();await normal.locator('[name=name]').fill('NormalOwnerTest');await normal.locator('[name=password]').fill(password);await normal.locator('#accountGate [type=submit]').click();

@@ -82,7 +82,7 @@ try{
   assert.match((await reply(jack,{t:'meSet',me:{first:'Alice',g:'f'}},'meErr')).msg,/fixed/);
   await jack.reload({waitUntil:'domcontentloaded'});await allowed(jack);assert.equal((await identity(jack)).first,'Jack');
   console.log('PASS owner never asked, real cast and immutable identity');await owned.close();
-  const mobile=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'}), phone=await mobile.newPage();observe(phone);
+  const mobile=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'}), phone=await mobile.newPage();observe(phone);/* JackOS on a phone: the player's per-device JackOS-only choice (js/pc-only.js; the house is the default since 2026-10-26) */await mobile.addInitScript(()=>localStorage.setItem('jhp_device_view','jackos'));
   await credentials(phone,'IdentityMobile',true);await phone.locator('#accountFirst').waitFor();
   await phone.locator('[name=gender][value=f]').tap();await phone.locator('#accountFirst').fill('Laura');await phone.locator('h1').tap();
   await phone.screenshot({path:shots+'mobile-signup.png'});
