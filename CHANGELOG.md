@@ -1,5 +1,9 @@
 # Jack's Home Page - changelog
 
+## 2.57.4 - 2026-10-27
+- Fixed: from the drive you could see straight through the side of the house (the roof eaves had no wall under them). Both side walls now run from the ground to the eaves, and painted side gates close the passages beside the house.
+- New test: tests/exterior-shell.mjs looks at the house from all round, day and night, and fails if the street or sky shows where the walls should be.
+
 ## 2.57.3 - 2026-10-27
 - Fixed: games on the bedroom telly, the cupboard set and the Game Lad lost their HUD, menus and text (and the power-on effect) after a console had been switched off; only the first game since loading looked right. LOCK IN was always fine. 22 games were affected.
 - Teeny Motors no longer prints a canvas warning while building its track.
