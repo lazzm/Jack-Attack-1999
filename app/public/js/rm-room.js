@@ -486,7 +486,7 @@
     const poseCar = u => { const p=centre.getPointAt(u),t=centre.getTangentAt(u);car.position.copy(p);car.rotation.set(Math.atan2(-t.y,Math.hypot(t.x,t.z)),Math.atan2(t.x,t.z),0,'YXZ'); };
     poseCar(.1); let runUntil=0, start=0;
     const run=()=>{start=performance.now();runUntil=start+14000;H.dirty()};
-    H.ambient.add(now=>{if(now<runUntil){poseCar(((now-start)/6500+.1)%1);H.dirty()}});
+    H.ambient.add(now=>{if(now<runUntil){poseCar(((now-start)/6500+.1)%1);H.dirty();return true}return false});
     const trophy=new T.Group(),tr=K.into(trophy),gold=M({c:'#d7ae3b',sh:62,sp:'#ac944c'});
     tr.box(0,-1.5,0,6,3,5,M('#2a1a10'));tr.cyl(0,-5.2,0,.8,1.2,5,12,gold);
     // A thick rolled lip, inner bowl and closed base meet the stem.
@@ -1023,7 +1023,7 @@
         H.snap(slot,{room:'bedroom',x:cx+29,z:cz+11,y:y+8,r:42,box:[26,4,30],pose:pose(),enabled:()=>!!H.OPEN['bedroom.drawer.1']?.open,
           accepts:(kind,t)=>kind==='clothing'&&t.id==='jumper',hint:'Put the jumper away in its drawer'});
         if(jumper)H.restoreThing(jumper);
-        H.ambient.add(()=>{const sn=H.SNAPS[slot],p=pose();if(sn.pose.x!==p.x){sn.pose=p;sn.x=p.x;sn.y=p.y;sn.z=p.z}const t=H.THINGS.jumper;if(t?.st==='snap'&&t.snap===slot&&(t.at.x!==p.x||t.at.y!==p.y||t.at.z!==p.z)){Object.assign(t.at,p);H.place(t)}});
+        H.ambient.add(()=>{const sn=H.SNAPS[slot],p=sn.pose,x=dr.position.x+2;if(p.x!==x){p.x=x;sn.x=x}const t=H.THINGS.jumper;if(t?.st==='snap'&&t.snap===slot&&(t.at.x!==p.x||t.at.y!==p.y||t.at.z!==p.z)){Object.assign(t.at,p);H.place(t)}return false});
       }
       H.openable('bedroom.drawer.'+i,{label:['Top drawer — school clothes','Middle drawer — jumpers','Bottom drawer — socks'][i],pivot:dr,type:'slide',axis:'x',base:cx,amt:25});
       // Rails stay inside the carcass; a drawer stops before its back leaves it.
@@ -1599,7 +1599,7 @@
     t.st='anim';H.anims.set('gb-return',n=>{const k=Math.min(1,(n-t0)/500),e=k*k*(3-2*k);t.obj.position.lerpVectors(pos,target,e);t.obj.quaternion.copy(q).slerp(end,e);if(k<1)return true;t.at=saved.at;t.rx=saved.rx;t.rz=saved.rz;t.st='rest';t.inspectFront=false;H.place(t);H.layerFor(t);return false;});
   }
   function tvSession(value) { try { if (value) localStorage.setItem(TV_SAVE, JSON.stringify(value)); else localStorage.removeItem(TV_SAVE); } catch (e) {} }
-  function inserted(con) { return Object.values(mediaThings).find(t => t && t.st === 'snap' && t.snap === 'console.' + con); }
+  function inserted(con) { const slot='console.'+con;for(const id in mediaThings){const t=mediaThings[id];if(t&&t.st==='snap'&&t.snap===slot)return t;} }
   function tvPose(con) {
     // Fit the whole portable set, including its bezel, in either orientation.
     const aspect = innerWidth / innerHeight, fov = H.camera.fov * D2R / 2;
@@ -1752,7 +1752,7 @@
   function ensureHouse() {
     if (houseP) return houseP; // init marks ready before its door-registration microtask finishes
     if (window.HouseRooms && HouseRooms.ready) return Promise.resolve();
-    if (!houseP) houseP = loadJs('js/hs-house.js').then(() => { if (!window.HouseRooms) throw new Error('no house'); return HouseRooms.init(); }).catch(e => { houseP = null; throw e; });
+    if (!houseP) houseP = loadJs('js/hs-house.js').then(() => { if (!window.HouseRooms) throw new Error('no house'); return HouseRooms.init(); }).then(()=>{H.warmRooms();}).catch(e => { houseP = null; throw e; });
     return houseP;
   }
 
@@ -1786,11 +1786,15 @@
     pickBox(room, 'window', 191, -63, BZ - 4, 70, 98, 4); H.SPOTS.window.label = 'The window';
     things(); drives(); wire(); mediaShelf(); hudExtras();
     ensureHiFi().catch(()=>{});
-    let clockMin = -1;
+    // Prepare the lazy downstairs pack while the initial room is revealing.
+    ensureHouse().catch(()=>{});
+    let clockMin = -1,nextClock=0;
     H.ambient.add(now => { // the gentle stuff: the lava lamp's blobs, the cat breathing, the clock, the sky
-      if (R.blobs && LIGHT.lava) R.blobs.forEach((b, i) => { const t = now / (2600 + i * 900) + i * 2; b.position.y = -12 - (Math.sin(t) * 0.5 + 0.5) * 12; b.scale.y = 1.6 + Math.sin(t * 2.3) * 0.5; });
-      if (R.catBody) R.catBody.scale.y = 6.5 + Math.sin(now / 900) * 0.25;
-      const d = window.OwnerTools?.now() || new Date(); if (d.getMinutes() !== clockMin) { clockMin = d.getMinutes(); paintClock(d); if (clockMin % 5 === 0) paintSky(); }
+      const visible=room.group.visible&&room._renderDrawn!==false;
+      if (visible && R.blobs && LIGHT.lava) R.blobs.forEach((b, i) => { const t = now / (2600 + i * 900) + i * 2; b.position.y = -12 - (Math.sin(t) * 0.5 + 0.5) * 12; b.scale.y = 1.6 + Math.sin(t * 2.3) * 0.5; });
+      if (visible && R.catBody) R.catBody.scale.y = 6.5 + Math.sin(now / 900) * 0.25;
+      if(now>=nextClock){nextClock=now+1000;const d=window.OwnerTools?.now()||new Date();if(d.getMinutes()!==clockMin){clockMin=d.getMinutes();paintClock(d);if(clockMin%5===0)paintSky()}}
+      return !!(visible&&(R.catBody||R.blobs&&LIGHT.lava));
     });
     lampLook();
     postCheck(); setInterval(postCheck, 5000);
@@ -1870,7 +1874,7 @@
   const caseArtFiles={'n64.kart':'/art/box-v1/kart.webp','n64.range':'/art/box-v1/spy.webp','ps.run':'/art/box-v1/wombat.webp','ps.grav':'/art/print-v2/hover.webp','gb.mon':'/art/print-v2/critters.webp','gb.mon2':'/art/print-v2/critters.webp'},caseArt={};
   function printedCaseTexture(key,g,w,h,paint){
     const tx=K.tex(key,w,h,paint,{clamp:true}),file=caseArtFiles[g.id];
-    if(file){let entry=caseArt[file];if(!entry){entry=caseArt[file]={image:new Image(),ready:false,prints:new Map()};entry.image.onload=()=>{entry.ready=true;for(const [texture,draw]of entry.prints){const canvas=texture.image,ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);draw(ctx,canvas.width,canvas.height);texture.needsUpdate=true}H.dirty()};entry.image.src=file}entry.prints.set(tx,paint)}
+    if(file){let entry=caseArt[file];if(!entry){entry=caseArt[file]={image:new Image(),ready:false,prints:new Map()};entry.image.onload=()=>{entry.ready=true;for(const [texture,draw]of entry.prints){const canvas=texture.userData.canvas||texture.image,ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);draw(ctx,canvas.width,canvas.height);texture.needsUpdate=true}H.dirty()};entry.image.src=file}entry.prints.set(tx,paint)}
     return tx;
   }
   function caseScene(c,g){
@@ -1932,7 +1936,12 @@
       use:()=>{if(H.held()===id){H.toast(g.title,'E / Click: place the case on the floor or a surface first. Then F opens it.');return}if(onMediaRack(box)){H.toast(g.title,'E: pick up the case. Place it down off the shelf, then F opens it.');return}caseLid(box,!box.caseOpen);H.saveThings()}});
     mediaBoxes[g.id]=box;
     const sn=Room.addSnap('media.case.'+g.id,{room:'bedroom',x:pose.x,y:pose.y-6,z:pose.z,r:26,box:[14,12,2],pose:Object.assign({},pose),hide:true,accepts:(kind,t)=>t?.id==='media.'+g.id,enabled:()=>['rest','snap'].includes(box.st)&&!box.at.hide,hint:'Return to its own '+(con.media==='disc'?'jewel case':'game box'),onSnap:()=>caseLid(box,false)});
-    const follow=()=>{const p=box.at;Object.assign(sn,{room:p.room,x:p.x,y:p.y-6,z:p.z});Object.assign(sn.pose,p,{hide:true});const t=mediaThings[g.id];if(t){t.home=Object.assign({},p,{snap:sn.id,hide:true});if(t.st==='snap'&&t.snap===sn.id&&(t.at.hide===!!box.caseOpen||['room','x','y','z','ry'].some(k=>t.at[k]!==p[k]))){t.at=Object.assign({},p,{hide:!box.caseOpen});H.place(t)}}};
+    const follow=()=>{
+      const p=box.at;sn.room=p.room;sn.x=p.x;sn.y=p.y-6;sn.z=p.z;Object.assign(sn.pose,p);sn.pose.hide=true;
+      const t=mediaThings[g.id];if(t){Object.assign(t.home,p);t.home.snap=sn.id;t.home.hide=true;
+        if(t.st==='snap'&&t.snap===sn.id&&(t.at.hide===!!box.caseOpen||t.at.room!==p.room||t.at.x!==p.x||t.at.y!==p.y||t.at.z!==p.z||t.at.ry!==p.ry)){Object.assign(t.at,p);t.at.hide=!box.caseOpen;H.place(t)}}
+      return false;
+    };
     H.ambient.add(follow);follow();return box;
   }
   function rackSlots(){
@@ -1967,16 +1976,20 @@
       accepts: (kind, t) => kind==='cart'&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === 'gb'),
       enabled: () => (gb.st === 'rest' || gb.st === 'snap') && !inserted('gb'), hint: 'Click/E to insert into the Game Lad', onSnap: t => tvOpen('gb', t.gameId),
       onUnsnap: t => {t.frontAnchor=null;if (window.RoomTV) RoomTV.stopPhysical('gb');} });
+    const slotLocal=new T.Matrix4().makeRotationX(-Math.PI/2);slotLocal.setPosition(0,.28,-6.5);
+    const slotMatrix=new T.Matrix4(),slotPos=new T.Vector3(),slotQ=new T.Quaternion(),slotScale=new T.Vector3(),slotRotation=new T.Euler(),slotPrevious=new Float64Array(16);
+    let slotCart=null,slotState=null;
     const moveGBSlot = () => {
       gb.obj.updateWorldMatrix(true,false);
-      const local=new T.Matrix4().makeRotationX(-Math.PI/2);local.setPosition(0,.28,-6.5);
-      const matrix=new T.Matrix4().copy(H.root.matrixWorld).invert().multiply(gb.obj.matrixWorld).multiply(local);
-      const pos=new T.Vector3(),q=new T.Quaternion(),scale=new T.Vector3();matrix.decompose(pos,q,scale);const rot=new T.Euler().setFromQuaternion(q,'YXZ');
-      Object.assign(gbSlot,{x:pos.x,y:pos.y,z:pos.z});Object.assign(gbSlot.pose,{x:pos.x,y:pos.y,z:pos.z,rx:rot.x/D2R,ry:rot.y/D2R,rz:rot.z/D2R});
-      const t=inserted('gb');if(t){t.frontAnchor='gb';t.obj.position.copy(pos);t.obj.quaternion.copy(q);H.layerFor(t);if(gb.st==='rest'||gb.st==='snap'){t.at=Object.assign({room:gb.at.room},gbSlot.pose);t.rx=rot.x/D2R;t.rz=rot.z/D2R;}}
-      if(gb.st==='held'||gb.st==='inspect'||gb.st==='play'||gb.st==='anim')H.anims.set('gb-slot',()=>{moveGBSlot();return gb.st==='held'||gb.st==='inspect'||gb.st==='play'||gb.st==='anim';});
+      const t=inserted('gb'),elements=gb.obj.matrixWorld.elements;let changed=false;for(let i=0;i<16;i++)if(slotPrevious[i]!==elements[i]){changed=true;break}if(!changed&&t===slotCart&&gb.st===slotState)return false;slotCart=t;slotState=gb.st;for(let i=0;i<16;i++)slotPrevious[i]=elements[i];
+      const matrix=slotMatrix.copy(H.root.matrixWorld).invert().multiply(gb.obj.matrixWorld).multiply(slotLocal);
+      const pos=slotPos,q=slotQ,scale=slotScale;matrix.decompose(pos,q,scale);const rot=slotRotation.setFromQuaternion(q,'YXZ');
+      gbSlot.x=pos.x;gbSlot.y=pos.y;gbSlot.z=pos.z;const sp=gbSlot.pose;sp.x=pos.x;sp.y=pos.y;sp.z=pos.z;sp.rx=rot.x/D2R;sp.ry=rot.y/D2R;sp.rz=rot.z/D2R;
+      if(t){t.frontAnchor='gb';t.obj.position.copy(pos);t.obj.quaternion.copy(q);H.layerFor(t);if(gb.st==='rest'||gb.st==='snap'){Object.assign(t.at,gbSlot.pose);t.at.room=gb.at.room;t.rx=rot.x/D2R;t.rz=rot.z/D2R;}}
+      if(gb.st==='held'||gb.st==='inspect'||gb.st==='play'||gb.st==='anim')H.anims.set('gb-slot',gbSlotAnimation);
     };
-    moveGBSlot(); H.ambient.add(moveGBSlot);
+    function gbSlotAnimation(){moveGBSlot();return gb.st==='held'||gb.st==='inspect'||gb.st==='play'||gb.st==='anim'}
+    moveGBSlot(); H.ambient.add(()=>{moveGBSlot();return false});
     const add = g => {
       if (mediaThings[g.id] || !owns(g)) return;
       const con = CAT.CONSOLES[g.con],box=addMediaBox(g,con);if(!box)return;
@@ -1996,7 +2009,7 @@
     mediaThings.sync();
     (EVS.find = EVS.find || []).push(id => { if (id && id.startsWith('cart.')) { const g = CAT.GAME[id.slice(5)]; if (g) add(g); } });
     if (window.PM && PM.on) PM.on('change', () => games.forEach(add));
-    H.ambient.add(() => { if (tvFocus && !H.focused) { returnHandheld(); tvFocus = false; ++tvRequest; tvSession(null); } });
+    H.ambient.add(() => { if (tvFocus && !H.focused) { returnHandheld(); tvFocus = false; ++tvRequest; tvSession(null); }return false; });
     let saved; try { saved = JSON.parse(localStorage.getItem(TV_SAVE) || 'null'); } catch (e) {}
     try{const current=JSON.parse(sessionStorage.getItem('jhp_surface_session')||'null');if(current?.surface&&current.owner&&current.owner.toLowerCase()===String(window.Net?.me?.nick||'').toLowerCase())saved=current;}catch(e){}
     if(saved?.surface && CAT.CONSOLES[saved.con]?.away && CAT.GAME[saved.gid]?.con===saved.con){
@@ -2094,10 +2107,7 @@
     _: { ejectMedia,
       tvVisible(con, target) {
         const screen = target || (con === 'gb' ? R.gbScreen : R.tvScreen); if (!screen) return false;
-        for (let o = screen; o; o = o.parent) if (!o.visible) return false;
-        const v = new T.Vector3(); screen.getWorldPosition(v);
-        const p = H.toScreen(v.x, -v.y, v.z);
-        return !!p && p.x > -100 && p.y > -100 && p.x < innerWidth + 100 && p.y < innerHeight + 100;
+        return !!H.screenBudget(screen,true)?.visible;
       },
       tvOff(con, target) {
         const screen = target || (con === 'gb' ? R.gbScreen : R.tvScreen); if (!screen) return;
@@ -2109,15 +2119,19 @@
         H.relight(); H.dirty();
       },
       tvOn(url) { if (!R.tvScreen) return; LIGHT.telly = true; H.relight(); const m = R.tvScreen.material; if (url) new T.TextureLoader().load(url, tx => { const old = m.map; m.map = tx; m.color.set('#ffffff'); if (old && old !== tex('screenOff')) old.dispose(); m.needsUpdate = true; H.dirty(); }); else { m.color.set('#6a8aff'); m.needsUpdate = true; H.dirty(); } },
-      tvLive(canvas, overlay, con, target) {
+      tvLive(canvas, overlay, con, target,background=false,locked=false) {
         const screen = target || (con === 'gb' ? R.gbScreen : R.tvScreen);
         if (!screen || !canvas) return null;
+        const budget=H.screenBudget(screen,background,locked);
+        if(!budget?.visible)return null;
         const m = screen.material;
         const fresh = !(m.map && m.map.userData && m.map.userData.jackLive);
         const tx = fresh ? new T.CanvasTexture(canvas) : m.map;
-        tx.image = canvas; tx.userData = tx.userData || {}; tx.userData.jackLive = true; tx.minFilter = T.LinearFilter; tx.magFilter = T.LinearFilter; tx.generateMipmaps = false;
+        const now=performance.now();if(!fresh&&now-(tx.userData.uploadAt||0)<1000/budget.fps-1)return null;
+        tx.userData = tx.userData || {};tx.userData.uploadAt=now;tx.userData.jackLive = true;tx.anisotropy=1;
+        tx.image = K.liveCanvas(canvas,tx.userData,'picture',budget.maxSize); tx.minFilter = T.LinearFilter; tx.magFilter = T.LinearFilter; tx.generateMipmaps = false;
         const hud = tx.userData.hud || (tx.userData.hud = new T.CanvasTexture(overlay || document.createElement('canvas')));
-        hud.image = overlay || hud.image; hud.minFilter = T.LinearFilter; hud.magFilter = T.LinearFilter; hud.generateMipmaps = false; hud.needsUpdate = true;
+        hud.image = overlay?K.liveCanvas(overlay,tx.userData,'overlay',budget.maxSize):hud.image;hud.anisotropy=1;hud.userData=hud.userData||{};hud.userData.jackLive=true; hud.minFilter = T.LinearFilter; hud.magFilter = T.LinearFilter; hud.generateMipmaps = false; hud.needsUpdate = true;
         // three.js caches this material's live-screen program across console
         // changes. Its compiled uniforms must keep the same object identities;
         // a fresh texture-owned object leaves the old game's HUD bound.

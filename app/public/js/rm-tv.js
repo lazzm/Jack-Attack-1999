@@ -232,9 +232,9 @@
     if (V.result) { const g = V.cv1.getContext('2d'); g.clearRect(0, 0, V.cv1.width, V.cv1.height); resultFrame(g, V.cv1.width, V.cv1.height); }
     // Upload both canvases directly. Compositing in the room's material avoids
     // reading a WebGL game back through a 2D canvas every animation frame.
-    V.liveTx = _.tvLive && _.tvLive(V.cv0, V.cv1, V.con, V.surface);
+    V.liveTx = _.tvLive && _.tvLive(V.cv0, V.cv1, V.con, V.surface,V.background,V.lockedIn);
     if (V.liveTx && R.House && R.House.ren.initTexture) { R.House.ren.initTexture(V.liveTx); R.House.ren.initTexture(V.liveTx.userData.hud); }
-    if (R.House) R.House.dirty();
+    if (V.liveTx && R.House) R.House.dirty();
   }
   function owned(gid) { if (R.owned(gid)) return true; try { return !!(window.PM && PM.owns && PM.owns('cart.' + gid)); } catch (e) { return false; } } // (or bought from the mail-order catalogue: js/pm-*.js)
   function open(con, from, options) {
@@ -682,7 +682,7 @@
       // Keep the simulation alive, but avoid rendering/uploading a second game
       // at the monitor's full refresh rate while Jack is walking elsewhere.
       if (V.background && n - this.viewAt > 250) {this.viewAt = n; this.viewOn = !!(_.tvVisible && _.tvVisible(V.con,V.surface));}
-      if (V.background && n - this.last < 1000/(R.House.graphicsGet?.().backgroundFps||10)) return;
+      if (V.background && n - this.last < 1000/(R.House.screenRate?.(true)||10)) return;
       let dt = (n - this.last) / 1000; this.last = n; if (dt > 0.25) dt = 0.25;
       if (R.House.paused) clearInput();
       else if (!V.background) pollGamepad();

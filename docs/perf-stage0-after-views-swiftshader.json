@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "tag": "after-views",
+  "backend": "swiftshader",
+  "recordedAt": "2026-10-26T18:13:58.371Z",
+  "host": {
+    "cpus": 12,
+    "load": [
+      60.55,
+      50.32,
+      42.73
+    ]
+  },
+  "config": {
+    "cpuFrames": 300,
+    "fillFrames": 30,
+    "walkFrames": 600,
+    "rates": [
+      1
+    ],
+    "seed": 1999,
+    "viewport": [
+      1366,
+      860
+    ],
+    "walkViewport": [
+      854,
+      536
+    ],
+    "hour": 14,
+    "probeDOM": "hidden",
+    "walkDOM": "normal"
+  },
+  "rows": [
+    {
+      "tier": "medium",
+      "view": "bedroom-door",
+      "backend": "swiftshader",
+      "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "calls": 1148,
+      "triangles": 315066,
+      "textures": 244,
+      "geometries": 977,
+      "programs": 12,
+      "textureMB": 93.65,
+      "pixels": 1174760,
+      "luminance": 62.91408888888888,
+      "cpu": [],
+      "fill": []
+    },
+    {
+      "tier": "medium",
+      "view": "desk-pc",
+      "backend": "swiftshader",
+      "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "calls": 727,
+      "triangles": 212650,
+      "textures": 244,
+      "geometries": 977,
+      "programs": 12,
+      "textureMB": 93.65,
+      "pixels": 1174760,
+      "luminance": 47.503911111111115,
+      "cpu": [],
+      "fill": []
+    },
+    {
+      "tier": "medium",
+      "view": "tv-consoles",
+      "backend": "swiftshader",
+      "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "calls": 495,
+      "triangles": 147074,
+      "textures": 244,
+      "geometries": 977,
+      "programs": 12,
+      "textureMB": 93.65,
+      "pixels": 1174760,
+      "luminance": 57.38166666666666,
+      "cpu": [],
+      "fill": []
+    }
+  ],
+  "rooms": [],
+  "walk": [],
+  "failures": [],
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+}

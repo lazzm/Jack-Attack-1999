@@ -1111,7 +1111,8 @@
     relight() { H.relight(); },
   };
   // the VCR's clock and the microwave's: flashing 12:00 (until somebody sets them)
-  let lastPhase = phase();
+  let lastPhase = phase(),clockNext=0,clockDate=null;
+  const clockDisplays=[['lounge','vcrTex','vcrSet'],['kitchen','mwTex','mwSet']];
   H.ambient.add(now => {
     const ph = phase();
     if (ph !== lastPhase) {
@@ -1125,12 +1126,15 @@
       H.relight();
     }
     const blink = Math.floor(now / 600) % 2 === 0;
-    for (const [rid, key, set] of [['lounge', 'vcrTex', 'vcrSet'], ['kitchen', 'mwTex', 'mwSet']]) {
+    if(!clockDate||now>=clockNext){clockNext=now+1000;clockDate=window.OwnerTools?.now()||new Date()}
+    for (const [rid, key, set] of clockDisplays) {
       const r = HouseRooms.rooms[rid]; if (!r || !r[key] || !r.group.visible) continue;
-      const d = window.OwnerTools?.now() || new Date(), txt = (window.HouseLife && HouseLife[set] && HouseLife[set]()) ? (d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0')) : (blink ? '12:00' : '');
+      const d = clockDate, txt = (window.HouseLife && HouseLife[set] && HouseLife[set]()) ? (d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0')) : (blink ? '12:00' : '');
       if (r['_' + key] === txt) continue; r['_' + key] = txt;
       const g = r[key].userData.g, w = r[key].image.width, hh = r[key].image.height; g.fillStyle = '#081008'; g.fillRect(0, 0, w, hh); g.font = '700 ' + (hh - 6) + 'px "Courier New",monospace'; g.textAlign = 'center'; g.fillStyle = rid === 'lounge' ? '#3affb0' : '#7affe0'; g.shadowColor = g.fillStyle; g.shadowBlur = 6; g.fillText(txt, w / 2, hh - 6); g.shadowBlur = 0; r[key].needsUpdate = true; H.dirty();
     }
-    const lo = HouseRooms.rooms.lounge; if (lo && lo.flames && lo.group.visible) lo.flames.forEach((f, i) => { f.material.opacity = lo.fireOn ? 0.45 + Math.sin(now / 120 + i * 1.7) * 0.25 : 0; f.scale.y = 1 + Math.sin(now / 90 + i) * 0.15; });
+    const lo = HouseRooms.rooms.lounge; if(lo&&!lo.fireOn&&lo._flamesLit){for(const f of lo.flames)f.material.opacity=0;lo._flamesLit=false;H.dirty()}
+    if (lo && lo.flames && lo.group.visible && lo._renderDrawn!==false && lo.fireOn) {lo._flamesLit=true;lo.flames.forEach((f, i) => { f.material.opacity = lo.fireOn ? 0.45 + Math.sin(now / 120 + i * 1.7) * 0.25 : 0; f.scale.y = 1 + Math.sin(now / 90 + i) * 0.15; });}
+    return !!(lo&&lo.flames&&lo.group.visible&&lo._renderDrawn!==false&&lo.fireOn);
   });
 })();
