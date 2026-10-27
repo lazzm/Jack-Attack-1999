@@ -235,7 +235,7 @@
     if(covered())return;
     // Upload both canvases directly. Compositing in the room's material avoids
     // reading a WebGL game back through a 2D canvas every animation frame.
-    V.liveTx = _.tvLive && _.tvLive(V.cv0, V.cv1, V.con, V.surface,V.background,V.lockedIn);
+    V.liveTx = _.tvLive && _.tvLive(V.cv0, V.cv1, V.con, V.surface,V.background,covered());
     if (V.liveTx && R.House && R.House.ren.initTexture) { R.House.ren.initTexture(V.liveTx); R.House.ren.initTexture(V.liveTx.userData.hud); }
     if (V.liveTx && R.House) R.House.dirty();
   }

@@ -1384,7 +1384,7 @@
     inspection = {t, grip, seat, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null};
     if(t.onInspectUse){const use=document.createElement('button');use.type='button';use.textContent=(t.inspectUseLabel||'Use')+' [F]';use.dataset.inspectUse='';use.addEventListener('click',()=>{if(!controlsPaused)t.onInspectUse(t)});panel.insertBefore(use,back)}
     // the close-up eases in from where the thing was (no pop): same curve as the camera, short and quick
-    { const ms=motionMs(MOTION.ms.inspect); if(ms){inspection.blend={t0:performance.now(),ms,p:t.obj.position.clone(),q:t.obj.quaternion.clone()};html.classList.add('hs-inspect-arriving');anims.set('inspect-blend',()=>{if(!inspection?.blend){html.classList.remove('hs-inspect-arriving');return false}poseInspect();return !!inspection?.blend;});} }
+    { const ms=motionMs(MOTION.ms.inspect); if(ms){inspection.blend={t0:performance.now(),ms,p:t.obj.position.clone(),q:t.obj.quaternion.clone()};html.classList.add('hs-inspect-arriving');anims.set('inspect-blend',()=>{if(!inspection?.blend||mode!=='inspect'){if(inspection)inspection.blend=null;html.classList.remove('hs-inspect-arriving');return false}poseInspect();return !!inspection?.blend;});} }
     html.classList.add('hs-inspecting');layerFor(t);poseInspect();try{t.onInspectStart?.(panel)}catch(e){console.error(e)}return true;
   }
   function poseInspect() {
