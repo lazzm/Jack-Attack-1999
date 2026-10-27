@@ -184,7 +184,7 @@
       foot: { len: 23, w: 9.2, h: 8, heel: -5 },
       skin: '#f2c6a4', blush: '#ee8f86', brow: '#5a3322', hair: '#6a3a26', hair2: '#80492f', iris: '#5c7a4a',
       torso: [[0, 14, 10], [0.13, 13.5, 9.7], [0.3, 13.2, 9.5], [0.48, 14.1, 10.1], [0.65, 14.8, 9.8], [0.8, 15, 8.9], [0.89, 13.9, 7.6], [0.95, 9.6, 6.2], [1, 5.6, 4.8]],
-      limb: { arm: 1, leg: 1 }, step: 0.33, speed: 98,
+      limb: { arm: 1, leg: 1 }, step: 0.29, speed: 98,
     },
     dad: {
       H: 178, ankle: 7.5, knee: 47.5, hip: 88, hipX: 8.8, spine: 103, chest: 120, neck: 141.5, headY: 145,
@@ -194,7 +194,7 @@
       foot: { len: 27.5, w: 10.8, h: 8.6, heel: -5.5 },
       skin: '#eab896', blush: '#de8a78', brow: '#3e2a1e', hair: '#4a3324', hair2: '#5c4130', iris: '#4f6687',
       torso: [[0, 16.2, 11.4], [0.15, 16.4, 11.8], [0.33, 16.8, 12], [0.5, 17.6, 11.8], [0.68, 18.6, 11.2], [0.82, 19, 10], [0.91, 17.4, 8.4], [0.96, 11.5, 6.8], [1, 6.4, 5.4]],
-      limb: { arm: 1.12, leg: 1.12 }, step: 0.33, speed: 104,
+      limb: { arm: 1.12, leg: 1.12 }, step: 0.29, speed: 104,
     },
     sister: {
       H: 133, ankle: 5.8, knee: 32, hip: 61, hipX: 6.4, spine: 71, chest: 82, neck: 99.5, headY: 102.5,
@@ -204,7 +204,7 @@
       foot: { len: 19, w: 8, h: 7, heel: -4 },
       skin: '#f6cfb0', blush: '#f38f86', brow: '#9a6c3c', hair: '#b4834a', hair2: '#cc9c5e', iris: '#4a6ea6',
       torso: [[0, 11.2, 8.4], [0.14, 11, 8.3], [0.3, 11, 8.2], [0.48, 11.5, 8.3], [0.66, 12, 8], [0.82, 12.2, 7.4], [0.92, 11, 6.4], [0.97, 7.6, 5.4], [1, 4.8, 4.2]],
-      limb: { arm: 0.86, leg: 0.84 }, step: 0.33, speed: 96,
+      limb: { arm: 0.86, leg: 0.84 }, step: 0.3, speed: 96,
     },
     // a trick-or-treater from down the road (about 7): js/season-halloween.js picks the costume, skin and hair
     kid: {
@@ -215,7 +215,7 @@
       foot: { len: 18, w: 7.8, h: 6.6, heel: -3.8 },
       skin: '#f1c9a5', blush: '#ee8f86', brow: '#6a4a2a', hair: '#6a4426', hair2: '#80583a', iris: '#5a4a3a', hairStyle: 'short',
       torso: [[0, 10.6, 8], [0.14, 10.4, 7.9], [0.3, 10.4, 7.8], [0.48, 10.9, 7.9], [0.66, 11.4, 7.6], [0.82, 11.6, 7.1], [0.92, 10.5, 6.1], [0.97, 7.2, 5.1], [1, 4.6, 4]],
-      limb: { arm: 0.82, leg: 0.8 }, step: 0.33, speed: 88,
+      limb: { arm: 0.82, leg: 0.8 }, step: 0.3, speed: 88,
     },
     // the grown-up who walks the trick-or-treaters round (a neighbour: not one of the family)
     grownup: {
@@ -226,7 +226,7 @@
       foot: { len: 25, w: 10, h: 8.4, heel: -5 },
       skin: '#dca57c', blush: '#d47e6a', brow: '#2e2018', hair: '#2e2119', hair2: '#3c2c22', iris: '#4a3a2a',
       torso: [[0, 15.4, 11], [0.15, 15.4, 11.2], [0.33, 15.6, 11.4], [0.5, 16.4, 11.4], [0.68, 17.2, 10.8], [0.82, 17.4, 9.6], [0.91, 16, 8.2], [0.96, 10.6, 6.6], [1, 6, 5.2]],
-      limb: { arm: 1.1, leg: 1.06 }, step: 0.33, speed: 92,
+      limb: { arm: 1.1, leg: 1.06 }, step: 0.29, speed: 92,
     },
   };
   const BONES = ['base', 'hips', 'spine', 'chest', 'neck', 'head', 'mouth', 'jaw', 'brow', 'eyeL', 'eyeR', 'lidL', 'lidR', 'hairL', 'hairR',
@@ -428,7 +428,7 @@
     };
     S.torsoW = torsoW;
     const ty0 = S.hip + 2, ty1 = S.neck + 0.5;
-    const torso = (O.torso || S.torso).map(([t, hw, hd]) => [lerp(ty0, ty1, t), 0, 0.3 + 0.9 * Math.sin(t * Math.PI) * (t < 0.9 ? 1 : 0.5), hw, hd]);
+    const torso = (O.torso || S.torso).map(([t, hw, hd]) => [lerp(ty0, ty1, t), 0, 0.3 + 0.9 * Math.sin(t * Math.PI) * (t < 0.9 ? 1 : 0.5), hw * (1 - 0.07 * smooth((t - 0.76) / 0.16)), hd]);
     S.torsoRings = torso;
     const mid = surfRing(torso, lerp(ty0, ty1, 0.6));
     const frames = { torso: { c: circ(mid[3], mid[4]), y0: ty0, y1: ty1, base: O.base?.torso } };
@@ -448,8 +448,8 @@
         [(wr[1] + el[1]) * 0.5, (wr[0] + el[0]) * 0.5, (wr[2] + el[2]) * 0.5 - 0.2, 3.25 * la + se * 0.7, 3.05 * la + se * 0.7],
         [el[1], el[0], el[2], 3.45 * la + se * 0.8, 3.3 * la + se * 0.8],
         [(el[1] + a[1]) * 0.5, (el[0] + a[0]) * 0.5, (el[2] + a[2]) * 0.5, 3.85 * la + se, 3.85 * la + se],
-        [a[1] - 2.5, a[0] - kk * 0.4, a[2], 4.25 * la + se, 4.5 * la + se],
-        [a[1] + 0.6, a[0] - kk * 2.2, a[2] - 0.2, 3.2 * la + se * 0.6, 3.8 * la + se * 0.6],
+        [a[1] - 3, a[0] - kk * 0.6, a[2], 4.2 * la + se, 4.4 * la + se],
+        [a[1] - 0.6, a[0] - kk * 2.6, a[2] - 0.2, 3.0 * la + se * 0.5, 3.6 * la + se * 0.5],
       ];
       if (sd === 'L') frames.sleeve = { c: TAU * 3.5 * la, y0: rings[0][0], y1: rings[5][0], base: O.base?.sleeve, elbow: el[1] };
       G.add(loft(rings, L.limb, { topDome: 0.6, bottomDome: 0.3 }), C('#ffffff'), (x, y) => {
@@ -478,6 +478,7 @@
       }, { cell: CELL.legs });
       (O.shoe || trainer('#2a2a30', '#e8e4dc'))(G, S, an, kk, 'foot' + sd, L);
     }
+    S.hatted = !!O.hat;
     O.extra && O.extra(G, S, J, L, torso, pelvis);
     if (!O.noHair) hair.build(G, S, J, L, C(S.hair), C(S.hair2));
     buildProps(G, S, J, kind, L);
@@ -629,7 +630,7 @@
       const cut = Math.max(end, lerp(end, o.line(A / D2R, ab), fk)), soft = (o.soft || 7) * 1.4;
       const tx = cx + dx * 0.88, ty = cy + dy * 0.88, tz = cz + dz * 0.88;
       if (ed < cut - soft) return [tx, ty, tz];
-      const t = o.thick(ab, ed, A / D2R) * (0.5 + 0.5 * smooth((ed - cut + soft) / (soft * 1.6))); // thinning to a rounded edge
+      const t = o.thick(ab, ed, A / D2R) * (0.5 + 0.5 * smooth((ed - cut + soft) / (soft * 1.6))) * (o.flat ? 1 - 0.85 * smooth((ed - 12) / 14) : 1); // thinning to a rounded edge (pressed flat under a hat)
       let x = cx + dx * (1 + t / P.r[0]), y = cy + dy * (1 + t / P.r[1]), z = cz + dz * (1 + t / P.r[2]);
       if (o.shape) [x, y, z] = o.shape(x, y, z, ab, ed, A / D2R);
       if (ed < cut) { const k = smooth((ed - (cut - soft)) / soft); x = lerp(tx, x, k); y = lerp(ty, y, k); z = lerp(tz, z, k); }
@@ -657,13 +658,13 @@
         shape: bobFall(S, 2.6, 8) }), shade(h, h2, S), (x, y) => y < cy - 6 ? [['head', 0.8], ['neck', 0.2]] : [['head', 1]]);
     } },
     dad: { build(G, S, J, L, h, h2) { // short back-and-sides, parted on his left, a small quiff; and his glasses
-      const P = S.head, [cx, cy, cz] = P.c, grey = C('#8a8076').lerp(h, 0.4), base = shade(h, h2, S);
-      G.add(helmet(S, L, { face: 80, soft: 8,
-        line: (A, ab) => 30 + 7 * Math.exp(-(((ab - 46) / 12) ** 2)) - 27 * smooth((ab - 54) / 26),
-        end: ab => lerp(4 - 10 * Math.exp(-(((ab - 84) / 8) ** 2)), -22, smooth((ab - 96) / 26)),
-        thick: (ab, ed) => 1.1 + 1.4 * smooth((ed - 20) / 45),
-        shape: (x, y, z, ab, ed, A) => { if (ed > 22 && A > -20 && A < 50) { const b = Math.exp(-(((A - 14) / 22) ** 2)) * smooth((ed - 22) / 18) * (1 - smooth((ed - 60) / 20)); const k = 1 + 1.6 * b / P.r[1]; x = cx + (x - cx) * k; y = cy + (y - cy) * k; z = cz + (z - cz) * k; } return [x, y, z]; } }),
-        (x, y, z) => (Math.abs(x - cx) > P.r[0] * 0.9 && y < cy + 1) ? grey.clone().lerp(h, 0.5) : base(x, y, z), 'head');
+      const P = S.head, [cx, cy, cz] = P.c, base = shade(h, h2, S);
+      G.add(helmet(S, L, { face: 80, soft: 12,
+        line: (A, ab) => 35 + 5 * smooth(A / 30) - 4 * Math.exp(-(((A + 12) / 14) ** 2)) + 5 * Math.exp(-(((ab - 46) / 12) ** 2)) - 48 * smooth((ab - 52) / 28),
+        end: ab => lerp(-12, -44, smooth((ab - 104) / 45)) + 24 * Math.exp(-(((ab - 98) / 15) ** 2)),
+        thick: (ab, ed) => 1.6 + 0.5 * smooth((ab - 90) / 60) + 1.4 * smooth((ed - 20) / 45),
+        shape: (x, y, z, ab, ed, A) => { if (ed > 22 && A > -40 && A < 50) { const b = Math.exp(-(((A - 4) / 26) ** 2)) * smooth((ed - 26) / 16) * (1 - smooth((ed - 62) / 20)); const k = 1 + 2.4 * b / P.r[1]; x = cx + (x - cx) * k; y = cy + (y - cy) * k; z = cz + (z - cz) * k; } return [x, y, z]; } }),
+        base, (x, y) => y < cy - 8 ? [['head', 0.85], ['neck', 0.15]] : [['head', 1]]);
       const f = S.face, ex = f.ex * P.r[0], ey = S.eyeY, frame = C('#3b2c22'), rr = f.ew * P.r[0] * 1.25;
       for (const s of [1, -1]) {
         const fz = S.shape.front(ex, ey) + 1.1;
@@ -689,10 +690,10 @@
       }
     } },
     short: { build(G, S, J, L, h, h2) { // a child's short crop
-      G.add(helmet(S, L, { face: 80, soft: 8, line: (A, ab) => 24 + 6 * smooth((ab - 35) / 20) - 3 * Math.exp(-(((A - 20) / 16) ** 2)) - 28 * smooth((ab - 55) / 25), end: ab => lerp(2, -20, smooth((ab - 92) / 28)), thick: (ab, ed) => 1.3 + 0.9 * smooth((ed - 20) / 50) }), shade(h, h2, S), 'head');
+      G.add(helmet(S, L, { face: 80, soft: 8, flat: S.hatted, line: (A, ab) => 24 + 6 * smooth((ab - 35) / 20) - 3 * Math.exp(-(((A - 20) / 16) ** 2)) - 28 * smooth((ab - 55) / 25), end: ab => lerp(2, -20, smooth((ab - 92) / 28)), thick: (ab, ed) => 1.3 + 0.9 * smooth((ed - 20) / 50) }), shade(h, h2, S), 'head');
     } },
     bob: { ears: true, build(G, S, J, L, h, h2) { // a child's bob with a fringe
-      G.add(helmet(S, L, { face: 78, soft: 8, line: (A, ab) => 21 + 7 * smooth((ab - 40) / 20) - 50 * smooth((ab - 58) / 22), end: ab => -34 - 6 * smooth((ab - 100) / 70), thick: (ab, ed) => 1.6 + 1.0 * smooth((ed - 15) / 50), shape: bobFall(S, 2.2, 6) }), shade(h, h2, S), (x, y) => [['head', 1]]);
+      G.add(helmet(S, L, { face: 78, soft: 8, flat: S.hatted, line: (A, ab) => 21 + 7 * smooth((ab - 40) / 20) - 50 * smooth((ab - 58) / 22), end: ab => -34 - 6 * smooth((ab - 100) / 70), thick: (ab, ed) => 1.6 + 1.0 * smooth((ed - 15) / 50), shape: bobFall(S, 2.2, 6) }), shade(h, h2, S), (x, y) => [['head', 1]]);
     } },
     none: { build() {} },
     // the grown-up: neat short hair under a red bobble hat (it's cold out on Halloween)
@@ -729,14 +730,14 @@
   const wraps = (g, fr, P, tilt) => { P.rect(g, -fr.c, fr.y0 - 5, fr.c, fr.y1 + 5, '#e8e1cc'); for (let y = fr.y0 - 20; y < fr.y1 + 20; y += 3.1) P.stroke(g, '#c4b99c', 0.5, q => { q.moveTo(-fr.c, y); q.lineTo(fr.c, y + fr.c * tilt); }, 'butt'); };
   function costume(o) {
     return {
-      noHair: !!o.noHair, sleeveEase: o.sleeveEase || 0.5, legEase: o.legEase || 0.8,
+      noHair: !!o.noHair, hat: !!o.hat, sleeveEase: o.sleeveEase || 0.5, legEase: o.legEase || 0.8,
       base: kidBase(o.top, o.legs, o.base), paint: o.paint || {}, paintFace: o.face,
       shoe: o.shoe ? trainer(o.shoe, o.sole || '#e8e4dc', o.trim) : trainer('#2a2a30', '#e8e4dc'),
       extra: o.extra,
     };
   }
   OUTFITS.kid = {
-    witch: costume({ top: '#2a2433', legs: '#2a2433', shoe: '#1a1a1e', sole: '#3a3440',
+    witch: costume({ hat: true, top: '#2a2433', legs: '#2a2433', shoe: '#1a1a1e', sole: '#3a3440',
       paint: { torso: (g, S, fr, P) => { P.rect(g, -fr.c, fr.y0 + 1.5, fr.c, fr.y0 + 4.5, '#e8761c'); P.ell(g, 3, fr.y0 + 3, 1.6, 1.6, '#e8761c'); },
         legs: (g, S, fr, P) => P.stripesH(g, -fr.c, fr.c, fr.y0 - 5, fr.y1 + 5, 4, '#8a44aa', '#22202a', 0.5) },
       extra: (G, S, J, L) => {
@@ -786,7 +787,7 @@
         G.add(tube([cx + 5, cy + P.r[1] + 1.5, cz - 1], [cx + 7, cy + P.r[1] + 9, cz - 2], 0.35, 0.3, 4), C('#9aa0a8'), 'head');
         G.add(ell([cx + 7.2, cy + P.r[1] + 9.6, cz - 2], [1.4, 1.4, 1.4], L.ell), C('#ff4a3a'), 'head', { noAO: true });
       } }),
-    wizard: costume({ top: '#2a3a9a', legs: '#20204a', shoe: '#3a2a1a', sleeveEase: 1.4,
+    wizard: costume({ hat: true, top: '#2a3a9a', legs: '#20204a', shoe: '#3a2a1a', sleeveEase: 1.4,
       paint: { torso: (g, S, fr, P) => { for (const [x, y] of [[-6, fr.y0 + 8], [5, fr.y0 + 15], [-2, fr.y0 + 22], [10, fr.y0 + 5], [-11, fr.y0 + 17], [14, fr.y0 + 20], [-15, fr.y0 + 6]]) star(g, P, x, y, 1.6); },
         sleeve: (g, S, fr, P) => { star(g, P, 0, fr.y0 + 8, 1.4); star(g, P, 3, fr.y0 + 17, 1.2); } },
       extra: (G, S, J, L) => {
@@ -906,16 +907,16 @@
   const FACE_FRAG = `
     if (vNpFace.z > 0.002) {
       vec2 npf = vNpFace.xy;
-      vec4 npc = texture2D(map, vec2(0.0, 0.5) + clamp(npf * 0.25 + 0.25, 0.01, 0.49));
+      vec4 npc = texture2D(map, vec2(0.0, 0.5) + clamp(npf * 0.25 + 0.25, 0.01, 0.49), -0.6);
       diffuseColor.rgb = mix(diffuseColor.rgb, npc.rgb, npc.a * vNpFace.z * step(max(abs(npf.x), abs(npf.y)), 0.94));
       vec2 npg = npf - npGaze;
       vec2 npe = (vec2(abs(npg.x), npg.y) - npEye.xy) / npEye.zw * 0.5 + 0.5;
       float npm = step(0.0, npe.x) * step(npe.x, 1.0) * step(0.0, npe.y) * step(npe.y, 1.0);
-      npc = texture2D(map, npEyeCell + clamp(npe, 0.0, 1.0) * 0.125);
+      npc = texture2D(map, npEyeCell + clamp(npe, 0.0, 1.0) * 0.125, -0.8);
       diffuseColor.rgb = mix(diffuseColor.rgb, npc.rgb, npc.a * npm * vNpFace.z);
       vec2 npq = (npf - npMouth.xy) / npMouth.zw * 0.5 + 0.5;
       npm = step(0.0, npq.x) * step(npq.x, 1.0) * step(0.0, npq.y) * step(npq.y, 1.0);
-      npc = texture2D(map, npMouthCell + clamp(npq, 0.0, 1.0) * 0.125);
+      npc = texture2D(map, npMouthCell + clamp(npq, 0.0, 1.0) * 0.125, -0.8);
       diffuseColor.rgb = mix(diffuseColor.rgb, npc.rgb, npc.a * npm * vNpFace.z);
     }`;
   // a soft warm rim (Medium/High: the Phong path): lifts the people off the walls, like the illustrated games did
@@ -1011,7 +1012,7 @@
       talkUntil: 0, talkStart: 0, talkSeed: Math.floor(Math.random() * 9), talkText: '', mouth: 0,
       blinkAt: 1 + Math.random() * 3, blinkT: 0,
       gaze: { x: 0, y: 0 }, saccadeAt: 0, glanceAt: 3, glance: null,
-      sm: {}, hairS: 0, hairV: 0,
+      sm: {}, hairS: 0, hairV: 0, seed: Math.random() * 9, lean: Math.random() < 0.5 ? 1 : -1, wside: 0, glanceT: 0,
     };
     const floorFn = { f: null };
     const fwd = new T.Vector3();
@@ -1181,8 +1182,10 @@
         hy += -Math.cos(g * 2) * 1.1 * spd - 0.8 * spd; hx = Math.sin(g) * 1.3 * spd; roll = -Math.sin(g) * 2.2 * spd; yaw = Math.sin(g) * 5 * spd; pitch = 3 * spd;
       } else {
         // weight shifts slowly from foot to foot
-        const ws = Math.sin(t * 0.33 + st.talkSeed) * 0.8 + Math.sin(t * 0.13) * 0.4;
-        hx = ws * 1.8; roll = ws * 2.6; hy -= Math.abs(ws) * 0.5;
+        // a relaxed stance: weight on one leg (each person has a favourite side), drifting slowly, now and then swapping
+        const ws = Math.sin(t * 0.33 + st.seed) * 0.5 + Math.sin(t * 0.13) * 0.3, side = Math.sin(t * 0.045 + st.seed) > -0.35 ? st.lean : -st.lean;
+        st.wside += (side - st.wside) * (1 - Math.exp(-dt * 1.2));
+        hx = st.wside * 1.7 + ws * 0.8; roll = st.wside * 3.4 + ws * 1.2; hy -= 0.8 + Math.abs(ws) * 0.3;
       }
       if (sitK > 0.001 && seat) {
         hx = lerp(hx, 0, sitK); hy = lerp(hy, seat.h + 7.5, sitK); hz = lerp(hz, seat.back ? -2 : 0, sitK); roll *= 1 - sitK; yaw *= 1 - sitK; pitch = lerp(pitch, seat.back ? -10 : -2, sitK);
@@ -1238,7 +1241,7 @@
         if (!a && st.carry) a = ACT.carry(t, hy).arms[sd];
         if (!a && seat) a = ACT.sit(t, hy).arms[sd];
         if (!a && talking && (sd === 'R' || st.talkSeed % 2)) a = talkArm(t, sd, sd === 'R' ? 1 : 0.55);
-        if (!a) { const sw = Math.sin(g + (sd === 'L' ? Math.PI : 0)) * 19 * swing; a = [3 + sw + wob(t * 0.4, s) * 1.5, 6 + wob(t * 0.3, s + 3) * 1.2, 0, 13 + Math.max(0, sw) * 0.8 + 5 * swing, 0]; }
+        if (!a) { const sw = Math.sin(g + (sd === 'L' ? Math.PI : 0)) * 19 * swing; a = [6 + sw + wob(t * 0.4, s) * 1.5, 9 + wob(t * 0.3, s + 3) * 1.2 - 2 * swing, -12 * (1 - swing * 0.5), 24 + Math.max(0, sw) * 0.8 + 6 * swing, 10, -10]; }
         if (Array.isArray(a)) armFK(sd, a, k);
         else { tgt.set(a.ik[0], a.ik[1], a.ik[2]); pole.set(a.pole[0], a.pole[1], a.pole[2]).normalize(); armIK(sd, tgt, pole, k, eul(a.hand[0], a.hand[1], a.hand[2])); }
       }
@@ -1271,11 +1274,11 @@
         if (t > st.glanceAt) { st.glanceAt = t + 2.5 + Math.random() * 5; st.glance = Math.random() < 0.55 ? null : [(Math.random() - 0.5) * 140, S.neck + (Math.random() - 0.4) * 30, 120]; }
         if (st.glance) look = lookR.set(st.glance[0], st.glance[1], st.glance[2]);
       }
-      let yawH = 0, pitchH = 0;
+      let yawH = 0, pitchH = 0, lookYawRaw = 0, lookPitchRaw = 0;
       if (look) {
         tmp.copy(look).sub(W.neck.p); tmp.applyQuaternion(_q2.copy(W.chest.q).invert());
-        yawH = Math.atan2(tmp.x, tmp.z); pitchH = Math.atan2(tmp.y - 6, Math.hypot(tmp.x, tmp.z));
-        if (Math.abs(yawH) > 1.7) { yawH = 0; pitchH = 0; }
+        yawH = Math.atan2(tmp.x, tmp.z); pitchH = Math.atan2(tmp.y - 6, Math.hypot(tmp.x, tmp.z)); lookYawRaw = yawH; lookPitchRaw = pitchH;
+        if (Math.abs(yawH) > 1.7) { yawH = 0; pitchH = 0; lookYawRaw = 0; lookPitchRaw = 0; }
         yawH = clamp(yawH, -1.15, 1.15); pitchH = clamp(pitchH, -0.6, 0.45);
       }
       if (st.walking && !st.look) pitchH -= 0.08;
@@ -1289,8 +1292,17 @@
       useLod(near);
       if (!near) { setFace(act?.doze ? EYE.shut : EYE.open, MOUTH.smile); U.npGaze.value.set(0, 0); return; } // far away: no face animation
       // the painted eyes lead the head a little and dart about now and then
-      if (t > st.saccadeAt) { st.saccadeAt = t + 0.4 + Math.random() * 2.2; st.gaze.x = (Math.random() - 0.5) * 0.16; st.gaze.y = (Math.random() - 0.5) * 0.08; }
-      U.npGaze.value.set(clamp(yawH * 0.05 + st.gaze.x * 0.22, -0.045, 0.045), clamp(pitchH * 0.05 + st.gaze.y * 0.22, -0.03, 0.03));
+      const holding = !!st.look;
+      if (t > st.saccadeAt) {
+        st.saccadeAt = t + (holding ? 0.6 + Math.random() * 1.6 : 0.4 + Math.random() * 2.2);
+        const away = holding && Math.random() < 0.18; // now and then a quick look away while thinking
+        st.gaze.x = away ? (Math.random() < 0.5 ? -1 : 1) * (0.1 + Math.random() * 0.06) : (Math.random() - 0.5) * (holding ? 0.04 : 0.16);
+        st.gaze.y = away ? 0.02 + Math.random() * 0.04 : (Math.random() - 0.5) * (holding ? 0.03 : 0.08);
+        if (away) st.saccadeAt = t + 0.35 + Math.random() * 0.3;
+      }
+      // the head turns most of the way; the painted eyes cover what's left so they meet your eyes
+      const resY = holding ? clamp(lookYawRaw - yawH * 0.92, -0.6, 0.6) : yawH * 0.4, resP = holding ? clamp(lookPitchRaw - pitchH * 0.9, -0.5, 0.5) : pitchH * 0.4;
+      U.npGaze.value.set(clamp(resY * 0.09 + st.gaze.x * 0.25, -0.05, 0.05), clamp(resP * 0.08 + st.gaze.y * 0.25, -0.035, 0.035));
       // blink (a quick shut frame); reading or washing up looks down with heavy lids; dozing: shut
       if (t > st.blinkAt) { st.blinkT = 0.15; st.blinkAt = t + 2 + Math.random() * 4.5; if (Math.random() < 0.15) st.blinkAt = t + 0.35; }
       let eye = EYE.open; if (!st.look && !talking && (st.action === 'paper' || st.action === 'draw' || st.action === 'magazine' || st.action === 'washup')) eye = EYE.half; if (act?.doze && !st.look) eye = EYE.shut;

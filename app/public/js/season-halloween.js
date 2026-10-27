@@ -978,13 +978,19 @@
     if (!open && kids.state === 'wait' && Date.now() - kids.lastKnock > 25000 && kids.knocks < 4) knockNow();
     lastDoor = open;
   }, 400);
+  // the children's mouths move when they speak: all of them on the chorus, the first one carries on with the ask
+  function kidsTalk(chorus, rest) {
+    if (!kids) return; const ms = t => Math.max(700, t.length / 13.5 * 1000 + 300);
+    kids.list.forEach((kd, i) => { if (kd.rig) i || !rest ? kd.rig.talk(ms(chorus + (rest && !i ? ' ' + rest : '')), chorus + (rest && !i ? ' ' + rest : '')) : kd.rig.talk(ms(chorus), chorus); });
+    H.dirty();
+  }
   function greet() {
     if (!kids) return; const gr = kids.gr, names = kids.list.map(k => kidName(k.kid.k)), avoid = kids.list.find(k => k.kid.avoid), two = kids.list.find(k => k.want > 1);
     const opener = gr.wrong ? 'Treat or trick! ...TRICK OR TREAT!' : ['TRICK OR TREAT!', 'Trick or treat! Smell my feet!', 'TRICK... OR... TREAT!'][gr.id % 3];
     let ask = 'One each, please!';
     if (two) ask = 'Can ' + kidName(two.kid.k) + ' have two? It\'s ' + Cast.t('{hwkid' + two.kid.k + '.his}') + ' first time!';
     if (avoid) ask = 'One each, please. ' + kidName(avoid.kid.k) + (avoid.kid.avoid === 'nuts' ? ' can\'t have nuts.' : ' can\'t have chocolate, it melts in ' + Cast.t('{hwkid' + avoid.kid.k + '.his}') + ' gloves.');
-    H.say(names.slice(0, 2).join(' and ') + (names.length > 2 ? ' and friends' : '') + ' (at the door)', esc(opener + ' ' + ask), 6000);
+    H.say(names.slice(0, 2).join(' and ') + (names.length > 2 ? ' and friends' : '') + ' (at the door)', esc(opener + ' ' + ask), 6000); kidsTalk(opener, ask);
     if (!srv().treat?.n && !said.ids['hw.dad.safe']) setTimeout(() => say('hw.dad.safe', 'Dad', 'Only knock on doors with the lights on, and never go in anyone\'s house. Mom\'s rules. And mine.', true), 6500);
   }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -1068,8 +1074,8 @@
   }
   function leave(how, m) {
     if (!kids || kids.state === 'leave') return;
-    if (how === 'treat') { H.say('Trick-or-treaters', esc(['THANK YOU! Happy Halloween!', 'Thank yooou! Nice costume! (I\'m not wearing a costume.)', 'Thanks! Your house is the best one on the road!', 'Thank you! ...Mum, can we go home now? My bag is FULL.'][kids.g % 4]), 4200); if (m?.h === 5) setTimeout(() => say('hw.mom.five', 'Mom', 'Five lots! The neighbours will think we\'re ever so organised.', true), 4600); }
-    else if (how === 'trick') { H.say('Trick-or-treaters', 'Aww! ...TRICK, then! <i>(Something rubbery lands on the doormat.)</i>', 4600); rubberSpider(); }
+    if (how === 'treat') { const thanks = ['THANK YOU! Happy Halloween!', 'Thank yooou! Nice costume! (I\'m not wearing a costume.)', 'Thanks! Your house is the best one on the road!', 'Thank you! ...Mum, can we go home now? My bag is FULL.'][kids.g % 4]; H.say('Trick-or-treaters', esc(thanks), 4200); kidsTalk(thanks.split(/(?<=[!.])\s/)[0], thanks.split(/(?<=[!.])\s/).slice(1).join(' ') || null); if (m?.h === 5) setTimeout(() => say('hw.mom.five', 'Mom', 'Five lots! The neighbours will think we\'re ever so organised.', true), 4600); }
+    else if (how === 'trick') { H.say('Trick-or-treaters', 'Aww! ...TRICK, then! <i>(Something rubbery lands on the doormat.)</i>', 4600); kidsTalk('Aww! ...TRICK, then!'); rubberSpider(); }
     kids.state = 'leave'; kids.t0 = performance.now(); if (kids.block) { kids.block.off = true; H._.grids.dirty = true; kids.block = null; }
     H.unspot('hw.kids'); delete IT['hw.kids']; H.anims.set('hw.kids', kidTick);
   }
