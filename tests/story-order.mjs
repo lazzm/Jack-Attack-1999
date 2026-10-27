@@ -145,7 +145,7 @@ for(const scenario of scenarios){
 if(savedStorage&&process.argv[4]!=='--skip-phone'){
  const {chromium}=await import('playwright');const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});let phonePage=null;
  try{
-  const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0 Mobile Safari/537.36',storageState:savedStorage});
+  const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0 Mobile Safari/537.36',storageState:savedStorage});/* JackOS on a phone: the player's per-device JackOS-only choice (js/pc-only.js; the house is the default since 2026-10-26) */await context.addInitScript(()=>localStorage.setItem('jhp_device_view','jackos'));
   const p=await context.newPage(),errors=[];phonePage=p;p.on('pageerror',e=>errors.push(e.message));
   async function phoneUntil(fn){const end=Date.now()+90000;while(Date.now()<end){try{if(await p.evaluate(fn))return}catch(e){if(!/context was destroyed|Cannot find context/.test(e.message))throw e}await p.waitForTimeout(200)}throw Error('Phone state timeout: '+fn)}
   await p.goto(base,{waitUntil:'domcontentloaded'});

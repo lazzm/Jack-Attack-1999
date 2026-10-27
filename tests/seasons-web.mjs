@@ -57,6 +57,9 @@ try {
   await mkdir(shots, { recursive: true });
   browser = await chromium.launch({ executablePath: '/usr/bin/chromium', args: ['--enable-unsafe-swiftshader'] });
   const ctx = await browser.newContext({ viewport: { width: 1366, height: 860 }, userAgent: 'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Tablet Safari/604.1' });
+  // A tablet user agent for a light JackOS-only page (no 3D room). Since the 2026-10-26 device policy a tablet gets the
+  // house by default, so this context makes the player's own per-device JackOS-only choice (js/pc-only.js).
+  await ctx.addInitScript(() => localStorage.setItem('jhp_device_view', 'jackos'));
   const p = await ctx.newPage(), errors = [];
   p.on('pageerror', e => errors.push('pageerror: ' + e.message));
   p.on('console', m => { if (['error', 'warning'].includes(m.type()) && !/swiftshader|WebGL|GPU stall|ReadPixels/i.test(m.text())) errors.push(m.type() + ': ' + m.text()); });
@@ -198,6 +201,9 @@ try {
   await check('halloween on a phone', async () => {
     const ph = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, storageState: await ctx.storageState(), userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1' });
     const q = await ph.newPage(), errs = [];
+    // The magazine at phone width: JackOS on its own (the player's per-device choice, js/pc-only.js) shows it full screen,
+    // exactly as LOCK IN does in the phone's house; this keeps the check about the page, not the 3D room.
+    await q.addInitScript(() => localStorage.setItem('jhp_device_view', 'jackos'));
     q.on('pageerror', e => errs.push(e.message));
     await q.goto(`${base}/?date99=10-31&time=14:00:00`, { waitUntil: 'networkidle' });
     for (let i = 0; i < 300; i++) { if (await q.evaluate(() => !!(window.AccountGate?.allowed && window.DesktopSurface?.ready() && document.querySelector('.ssw-ban'))).catch(() => false)) break; await delay(150); }

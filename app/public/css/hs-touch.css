@@ -113,7 +113,7 @@ html[data-game-touch="true"] .hs-ui.holding .rm-note{bottom:auto;top:calc(env(sa
 
 /* the account gate on any handheld (tablets included): finger-sized fields, 16px text so iOS never zooms the page */
 html.handheld-house #accountGate,html.mobile-desktop #accountGate{overflow-y:auto}
-html.handheld-house .account-box input,html.mobile-desktop .account-box input{font-size:16px;min-height:38px}
+html.handheld-house .account-box input:not([type=radio]):not([type=checkbox]),html.mobile-desktop .account-box input:not([type=radio]):not([type=checkbox]){font-size:16px;min-height:38px}
 html.handheld-house .account-box button,html.mobile-desktop .account-box button{min-height:44px;min-width:88px}
 html.handheld-house .account-identity fieldset label,html.mobile-desktop .account-identity fieldset label{min-height:44px;min-width:78px}
 /* the floated Guidance select must never sit over the next button at phone widths */

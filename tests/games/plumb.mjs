@@ -195,7 +195,7 @@ async function roomCheck(){
   const back=await page.evaluate(()=>({x:House.W.x,z:House.W.z,power:localStorage.getItem('jhp_off')}));await page.reload({waitUntil:'domcontentloaded'});await f.until(()=>window.AccountGate?.allowed&&window.RoomTV?._dbg()?.background&&!!RoomTV.dbg()?.dbg&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'));
   assert(await page.evaluate(b=>House.mode==='walk'&&Math.abs(House.W.x-b.x)<1&&Math.abs(House.W.z-b.z)<1&&localStorage.getItem('jhp_off')===b.power,back));await page.screenshot({path:dir+'room-refresh-standing.png'});
   await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>RoomTV.open_&&!House.gliding);await page.locator('.rm-eject').click();await f.until(()=>RoomTV._dbg().st==='shelf');assert(!await page.evaluate(()=>RoomTV._dbg().surface));assert.equal(await page.locator('.plumb-controls').count(),0);
-  await page.evaluate(()=>RoomTV.test('sn.zero'));await f.until(()=>RoomTV._dbg().st==='game');assert(!await page.evaluate(()=>RoomTV._dbg().surface));await page.keyboard.press('Enter');await page.waitForTimeout(250);await page.screenshot({path:dir+'unchanged-cartridge.png'});
+  await page.evaluate(()=>RoomTV.test('sn.fight'));await f.until(()=>RoomTV._dbg().st==='game');assert(!await page.evaluate(()=>RoomTV._dbg().surface),'Unchanged cartridge (no screen hook) keeps the old display route');await page.keyboard.press('Enter');await page.waitForTimeout(250);await page.screenshot({path:dir+'unchanged-cartridge.png'});
 
  }
  assert.deepEqual(f.errors,[]);console.log('ROOM '+tag+' PASS');

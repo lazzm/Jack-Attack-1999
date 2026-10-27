@@ -16,14 +16,18 @@ try{
   p.on('websocket',()=>sockets++);p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(['error','warning'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});
   await p.addInitScript(({platform,points})=>{Object.defineProperty(navigator,'platform',{get:()=>platform});Object.defineProperty(navigator,'maxTouchPoints',{get:()=>points})},{platform,points});
   await p.goto(base,{waitUntil:'networkidle'});await p.locator('#accountGate form').waitFor();
-  assert(await p.evaluate(()=>PCOnly.desktopOnly&&!House.ok));assert.equal(await p.locator('#boot,canvas.hs-gl,.hs-ui,.pc-touch').count(),0);assert(sockets>0);assert.deepEqual(errors,[]);
-  await p.screenshot({path:`shots/pc-only/${name}.png`});await p.reload({waitUntil:'networkidle'});await p.setViewportSize({width:844,height:390});await p.locator('#accountGate form').waitFor();assert.equal(await p.locator('#boot,.hs-gl,.hs-ui').count(),0);await c.close();console.log('MOBILE JACKOS ACCESS PASS',name);
+  // Device policy (2026-10-26): every handheld (desktop-mode iPad included) is detected and gets the house, not JackOS only.
+  assert(await p.evaluate(()=>PCOnly.handheld&&!PCOnly.desktopOnly&&House.ok&&document.documentElement.classList.contains('handheld-house')),name+' must be a handheld with the house');for(let i=0;i<300&&!sockets;i++)await p.waitForTimeout(100);assert(sockets>0,name+': no JackNet socket');assert.deepEqual(errors,[]);
+  await p.screenshot({path:`shots/pc-only/${name}.png`});await p.reload({waitUntil:'networkidle'});await p.setViewportSize({width:844,height:390});await p.locator('#accountGate form').waitFor();assert(await p.evaluate(()=>window.House?.ok&&!PCOnly.desktopOnly),name+' lost the house on rotate/refresh');await c.close();console.log('MOBILE HOUSE ACCESS PASS',name);
  }
  // Windows PCs with a touch display remain PCs, even in a narrow window.
  const c=await browser.newContext({userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128.0.0.0 Safari/537.36',hasTouch:true,viewport:{width:390,height:844}}),p=await c.newPage();
  await p.goto(base);await p.locator('#accountGate form').waitFor();for(let i=0;i<200;i++){if(await p.evaluate(()=>!!window.GameInput&&!!window.HousePause))break;await p.waitForTimeout(100)}assert(!await p.evaluate(()=>PCOnly.blocked));assert.equal(await p.locator('.hs-joy,.hs-jump,.hs-duck,.hs-use,.pc-touch,[name=pcTrackpad]').count(),0);assert(!await p.evaluate(()=>GameInput.touch));await p.screenshot({path:'shots/pc-only/narrow-windows-pc.png'});await c.close();
 }finally{await browser.close()}
-const f=await roomFixture(base),{page:p,until,errors}=f;
+// An existing (admin-registered) player has the full room and logs on at the PC; a fresh signup starts the story with no PC.
+const account='Layout'+Date.now().toString(36),password='Throwaway-1999';
+assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
+const f=await roomFixture(base,{account,password,signup:false}),{page:p,until,errors}=f;
 try{
  await p.evaluate(async()=>{await Apps.load('js/hs-cat.js');await Apps.load('js/hs-life.js')});
  await p.evaluate(()=>{House.hush();window.roomReturns=0;House.on('room',id=>{if(id==='bedroom')roomReturns++});window.originalRandom=Math.random;Math.random=()=>0;for(const [i,id]of ['mug','cube','mobile'].entries()){const t=House.THINGS[id];t.at={room:'bedroom',x:40+i*20,y:73,z:145,ry:0,hide:false};t.st='rest';t.snap=null;House.ROOMS.bedroom.things.add(t.obj);House.place(t)}House.saveThings(true)});
