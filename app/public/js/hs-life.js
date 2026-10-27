@@ -377,7 +377,16 @@
     get S() { return S; }, save,
   };
   // the life starts: a welcome, then the shouting and the phone
-  setTimeout(() => { if (!S.hello) { S.hello = 1; save(); voice('MOM', cast(part() === 'tea' ? '{me}! Is that you? Tea\'s nearly ready!' : '{me}? Is that you coming down? Put the kettle on, love!')); } }, 2500);
+  // Mom greets by name, so wait (briefly) for the signed-in identity; never say "you? Is that you".
+  const named = () => { try { return window.Cast && Cast.me().first !== 'you'; } catch (e) { return false; } };
+  const hello = tries => {
+    if (S.hello) return;
+    if (!named() && tries < 30) return setTimeout(() => hello(tries + 1), 500);
+    S.hello = 1; save(); const tea = part() === 'tea';
+    voice('MOM', named() ? cast(tea ? '{me}! Is that you? Tea\'s nearly ready!' : '{me}? Is that you coming down? Put the kettle on, love!')
+      : tea ? 'Is that you? Tea\'s nearly ready!' : 'Is that you coming down? Put the kettle on, love!');
+  };
+  setTimeout(() => hello(0), 2500);
   shoutLoop(); ringLoop();
   if (now99().dow === 6) setTimeout(pocket, 6000);
 })();
