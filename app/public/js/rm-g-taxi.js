@@ -13,7 +13,7 @@
   const GID = 'dc.taxi';
   const SECRETS = [
     ['rm.taxi.mom', 'Mom\'s Taxi', 'Some passengers in Mad Minicab know exactly who is driving.'],
-    ['rm.taxi.mates', 'Taxi for Four', 'Give all four of Jack\'s mates a lift in Mad Minicab.'],
+    ['rm.taxi.mates', 'Taxi for Four', 'Give all four of your mates a lift in Mad Minicab.'],
     ['rm.taxi.licence', 'Full Licence', 'Get a gold medal on every Crazy Box test in Mad Minicab.'],
     ['rm.taxi.leap', 'River Leap', 'There is a way across the river in Mad Minicab that does not use a bridge.'],
   ];
@@ -25,6 +25,9 @@
   const smooth = t => t * t * (3 - 2 * t);
   function rng(seed) { let a = (seed >>> 0) || 1; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   const castN = (id, fb) => { try { return (window.Cast && Cast.n(id)) || fb; } catch (e) { return fb; } };
+  // every name on screen comes from the player's cast: 'me' is the player, mate1..mate4 and sister are theirs
+  const castUp = id => { try { if (id === 'me') return String((window.Cast && Cast.me() && Cast.me().name) || 'YOU').toUpperCase(); } catch (e) { return 'YOU'; } return String(castN(id, id === 'sister' ? 'SIS' : 'MATE')).toUpperCase(); };
+  const fillNames = s => String(s).replace(/\{ME\}/g, () => castUp('me'));
 
   // ================================================================ Sunnymouth: 48 x 48 cells of 20 m
   //  # road  = bridge  a alley (no traffic)  q park path  g grass  t trees  r car park tarmac  . sand  _ promenade  p pier
@@ -811,19 +814,20 @@
     { id: 'banana', n: 'BANANA MAN', shirt: 0xf8e020, legs: 0xf8e020, skin: 0xf8e020, hair: 0x6a5010, extra: 'banana', tip: 1.5, pitch: 1.2, rare: 1, pref: 'NC', get: ['FANCY DRESS PARTY AT {D}!', '{D}. DON\'T ASK.'], go: 'APPEEELING!', hurry: 'I\'M GOING BROWN!', crazy: ['BANANARAMA!', 'I\'M GOING BANANAS!', 'SPLIT!'], fast: 'TOP BANANA!', slow: 'I\'M OVERRIPE NOW.', bail: 'I\'LL SLIP AWAY!' },
   ];
   // Jack's mates (and Mom) turn up now and then
-  const MATES = [
-    { id: 'dave', n: 'DAVE', shirt: 0x2a8a3a, legs: 0x2a3a6a, skin: 0xf0c8a0, hair: 0x6a4020, extra: 'cap', tip: 1.2, pitch: 1.2, pref: 'G', get: ['DAVE: THE GAMES SHOP! THE NEW ULTRA 64 GAMES ARE IN!'], go: 'GO ON, JACK!', hurry: 'THEY ONLY HAD THREE COPIES!', crazy: ['THIS IS BETTER THAN KART KAOS!', 'MENTAL!'], fast: 'CHEERS JACK! SEE YOU AT SCHOOL!', slow: 'SOLD OUT. CHEERS, JACK.', bail: 'I\'LL GET MY MOM TO TAKE ME!' },
-    { id: 'luke', n: 'LUKE', shirt: 0xe82a2a, legs: 0x2a2a3a, skin: 0xe8b890, hair: 0xe8c060, extra: 'bag', tip: 1.2, pitch: 1.3, pref: 'A', get: ['LUKE: THE PIER ARCADE! I\'VE GOT A POCKET FULL OF 10Ps!'], go: 'WAHOO!', hurry: 'MY HIGH SCORE IS WAITING!', crazy: ['DO A BARREL ROLL!', 'WICKED!'], fast: 'LEGEND! I OWE YOU A GO ON THE DRIVING GAME!', slow: 'THE ARCADE SHUTS AT SIX, JACK.', bail: 'I\'LL WALK. SLOWLY.' },
-    { id: 'callum', n: 'CALLUM', shirt: 0x3a3a3a, legs: 0x2a2a5a, skin: 0xf0c8a0, hair: 0x2a1a10, extra: 'glasses', tip: 1.2, pitch: 1.1, pref: 'X', get: ['CALLUM: THE LIBRARY. THEY\'VE GOT THE INTERNET NOW!'], go: 'FASTER THAN MY 56K!', hurry: 'MY HOUR ON THE COMPUTER STARTS NOW!', crazy: ['THAT\'S LIKE A PC GAME!', 'LAG FREE!'], fast: 'CHEERS JACK. I\'LL E-MAIL YOU.', slow: 'MY SESSION TIMED OUT.', bail: 'I\'LL DIAL UP FROM HOME!' },
-    { id: 'jackk', n: 'JACKK', shirt: 0x2a5ad8, legs: 0x3a3a3a, skin: 0xf0c8a0, hair: 0x2a1a10, extra: 'cap', tip: 1.2, pitch: 1.15, pref: 'V', get: ['JACKK: VIDEO VAULT! IT\'S FILM NIGHT AT MINE!'], go: 'GO ON, OTHER JACK!', hurry: 'THEY\'LL RENT OUT THE LAST COPY!', crazy: ['THIS IS LIKE A FILM!', 'TWO JACKS, ONE CAB!'], fast: 'NICE ONE, JACK! COME ROUND LATER!', slow: 'ALL THE GOOD ONES ARE GONE.', bail: 'I\'LL WATCH THE TELLY INSTEAD!' },
+  const MATES = [ // (ids keep the old save keys; names and lines come from the player's own cast)
+    { id: 'dave', cast: 'mate1', n: 'MATE', shirt: 0x2a8a3a, legs: 0x2a3a6a, skin: 0xf0c8a0, hair: 0x6a4020, extra: 'cap', tip: 1.2, pitch: 1.2, pref: 'G', get: ['{N}: THE GAMES SHOP! THE NEW ULTRA 64 GAMES ARE IN!'], go: 'GO ON, {ME}!', hurry: 'THEY ONLY HAD THREE COPIES!', crazy: ['THIS IS BETTER THAN KART KAOS!', 'MENTAL!'], fast: 'CHEERS {ME}! SEE YOU AT SCHOOL!', slow: 'SOLD OUT. CHEERS, {ME}.', bail: 'I\'LL GET MY MOM TO TAKE ME!' },
+    { id: 'luke', cast: 'mate2', n: 'MATE', shirt: 0xe82a2a, legs: 0x2a2a3a, skin: 0xe8b890, hair: 0xe8c060, extra: 'bag', tip: 1.2, pitch: 1.3, pref: 'A', get: ['{N}: THE PIER ARCADE! I\'VE GOT A POCKET FULL OF 10Ps!'], go: 'WAHOO!', hurry: 'MY HIGH SCORE IS WAITING!', crazy: ['DO A BARREL ROLL!', 'WICKED!'], fast: 'LEGEND! I OWE YOU A GO ON THE DRIVING GAME!', slow: 'THE ARCADE SHUTS AT SIX, {ME}.', bail: 'I\'LL WALK. SLOWLY.' },
+    { id: 'callum', cast: 'mate3', n: 'MATE', shirt: 0x3a3a3a, legs: 0x2a2a5a, skin: 0xf0c8a0, hair: 0x2a1a10, extra: 'glasses', tip: 1.2, pitch: 1.1, pref: 'X', get: ['{N}: THE LIBRARY. THEY\'VE GOT THE INTERNET NOW!'], go: 'FASTER THAN MY 56K!', hurry: 'MY HOUR ON THE COMPUTER STARTS NOW!', crazy: ['THAT\'S LIKE A PC GAME!', 'LAG FREE!'], fast: 'CHEERS {ME}. I\'LL E-MAIL YOU.', slow: 'MY SESSION TIMED OUT.', bail: 'I\'LL DIAL UP FROM HOME!' },
+    { id: 'jackk', cast: 'mate4', n: 'MATE', shirt: 0x2a5ad8, legs: 0x3a3a3a, skin: 0xf0c8a0, hair: 0x2a1a10, extra: 'cap', tip: 1.2, pitch: 1.15, pref: 'V', get: ['{N}: VIDEO VAULT! IT\'S FILM NIGHT AT MINE!'], go: 'GO ON, {ME}!', hurry: 'THEY\'LL RENT OUT THE LAST COPY!', crazy: ['THIS IS LIKE A FILM!', 'TWO MATES, ONE CAB!'], fast: 'NICE ONE, {ME}! COME ROUND LATER!', slow: 'ALL THE GOOD ONES ARE GONE.', bail: 'I\'LL WATCH THE TELLY INSTEAD!' },
   ];
-  const MOM = { id: 'mom', n: 'MOM', shirt: 0x8a3a6a, legs: 0x3a3a5a, skin: 0xf0c8a0, hair: 0x6a3a1a, extra: 'bag', tip: 1.0, pitch: 1.25, pref: 'Q', get: ['MOM: JACK?! WHAT ARE YOU DOING DRIVING A TAXI?', 'MOM: ...THE SUPERSTORE, THEN. AND CAREFULLY.'], go: 'TWO HANDS ON THE WHEEL!', hurry: 'THE FROZEN PEAS ARE MELTING!', crazy: ['JACK! SLOW DOWN THIS INSTANT!', 'WAIT TILL YOUR DAD HEARS!', 'I\'M TELLING YOUR GRAN!'], fast: 'WE WILL TALK ABOUT THIS AT HOME.', slow: 'AT LEAST YOU\'RE CAREFUL. GOOD BOY.', bail: 'I\'LL GET THE BUS, YOUNG MAN!' };
+  for (const m of MATES) Object.defineProperty(m, 'n', { get: () => castUp(m.cast), enumerable: true });
+  const MOM = { id: 'mom', n: 'MOM', shirt: 0x8a3a6a, legs: 0x3a3a5a, skin: 0xf0c8a0, hair: 0x6a3a1a, extra: 'bag', tip: 1.0, pitch: 1.25, pref: 'Q', get: ['MOM: {ME}?! WHAT ARE YOU DOING DRIVING A TAXI?', 'MOM: ...THE SUPERSTORE, THEN. AND CAREFULLY.'], go: 'TWO HANDS ON THE WHEEL!', hurry: 'THE FROZEN PEAS ARE MELTING!', crazy: ['{ME}! SLOW DOWN THIS INSTANT!', 'WAIT TILL YOUR DAD HEARS!', 'I\'M TELLING YOUR GRAN!'], fast: 'WE WILL TALK ABOUT THIS AT HOME.', slow: 'AT LEAST YOU\'RE CAREFUL, LOVE.', bail: 'I\'LL GET THE BUS, THANK YOU!' };
 
   const DRIVERS = [
-    { id: 'gaz', n: 'GAZ', car: 'saloon', col: 0xffd21a, acc: 20, top: 34, grip: 9, turn: 2.0, mass: 1.0, blurb: ['THE ALL-ROUNDER.', 'NEVER LATE. WELL, HARDLY EVER.'] },
-    { id: 'tracy', n: 'TRACY', car: 'hatch', col: 0xff5ab4, acc: 24, top: 32, grip: 10.5, turn: 2.3, mass: 0.8, blurb: ['QUICK OFF THE LINE.', 'KNOWS EVERY SHORT CUT IN TOWN.'] },
-    { id: 'kev', n: 'BIG KEV', car: 'black', col: 0x1c1c22, acc: 17, top: 37.5, grip: 8, turn: 1.8, mass: 1.7, blurb: ['HEAVY AND FAST.', 'TRAFFIC GETS OUT OF HIS WAY.'] },
-    { id: 'nan', n: 'NAN', car: 'estate', col: 0x7ab8e8, acc: 19.5, top: 33.5, grip: 13, turn: 2.6, mass: 1.0, lock: 1, blurb: ['FORTY YEARS, NO CLAIMS.', 'CORNERS LIKE A RALLY DRIVER.'] },
+    { id: 'gaz', n: 'GAZ', look: { shirt: 0xe8e4d8, legs: 0x2a3a6a, skin: 0xf0c8a0, hair: 0x4a2a14, extra: 'cap' }, car: 'saloon', col: 0xffd21a, acc: 20, top: 34, grip: 9, turn: 2.0, mass: 1.0, blurb: ['THE ALL-ROUNDER.', 'NEVER LATE. WELL, HARDLY EVER.'] },
+    { id: 'tracy', n: 'TRACY', look: { shirt: 0xff5ab4, legs: 0x2a2a3a, skin: 0xf0c8a0, hair: 0xf0d060, extra: 'bun' }, car: 'hatch', col: 0xff5ab4, acc: 24, top: 32, grip: 10.5, turn: 2.3, mass: 0.8, blurb: ['QUICK OFF THE LINE.', 'KNOWS EVERY SHORT CUT IN TOWN.'] },
+    { id: 'kev', n: 'BIG KEV', look: { shirt: 0x2a2a30, legs: 0x3a3a3a, skin: 0xe8b890, hair: 0x1a1a1a, extra: 'glasses' }, car: 'black', col: 0x1c1c22, acc: 17, top: 37.5, grip: 8, turn: 1.8, mass: 1.7, blurb: ['HEAVY AND FAST.', 'TRAFFIC GETS OUT OF HIS WAY.'] },
+    { id: 'nan', n: 'NAN', look: { shirt: 0x7ab8e8, legs: 0x5a4a8a, skin: 0xf0c8a0, hair: 0xe8e8e8, extra: 'bag' }, car: 'estate', col: 0x7ab8e8, acc: 19.5, top: 33.5, grip: 13, turn: 2.6, mass: 1.0, lock: 1, blurb: ['FORTY YEARS, NO CLAIMS.', 'CORNERS LIKE A RALLY DRIVER.'] },
   ];
   const TODS = [
     { n: 'DAY', top: 0x2a6ad8, hor: 0xc8e8ff, fog: 0xbfe0f8, near: 180, far: 560, hemi: 0.85, sun: 0.95, sunCol: 0xfff2dc, dir: [0.45, 1, 0.3], glow: 0, sea: 0x2a7ad0, land: 0x6a9a50, hills: 0x9ab8c8 },
@@ -831,18 +835,28 @@
     { n: 'NIGHT', top: 0x02040e, hor: 0x1a2a58, fog: 0x0e1834, near: 100, far: 400, hemi: 0.42, sun: 0.32, sunCol: 0x8aa0ff, dir: [0.3, 1, -0.4], glow: 1, sea: 0x0a1a3a, land: 0x1a2a20, hills: 0x1a2238 },
   ];
   // the Crazy Box: ten licence tests
-  const TESTS = [
-    { id: 'jump', n: 'CRAZY JUMP', how: ['DRIVE UP THE CAR PARK RAMP', 'AND FLY OFF THE TOP!', 'HOW FAR CAN YOU GO?'], unit: 'M', med: [30, 42, 54], hi: 1, time: 30 },
+  const TESTS = [ // the Crazy Box: sixteen licence tests in four rows (each row opens when the row above has 3 medals)
     { id: 'drift', n: 'CRAZY DRIFT', how: ['HOLD ' + 'C' + ' AND STEER TO DRIFT.', 'DRIFT AS LONG AS YOU CAN', 'IN 25 SECONDS.'], unit: 'S', med: [4, 7, 10], hi: 1, time: 25 },
+    { id: 'dash', n: 'CRAZY DASH', how: ['BRAKE, THEN HIT GO STRAIGHT', 'AWAY FOR A CRAZY DASH!', 'GET TO THE FLAG FAST.'], unit: 'S', med: [13, 11, 9.5], hi: 0, time: 20 },
+    { id: 'stop', n: 'CRAZY STOP', how: ['FLOOR IT DOWN THE PROM,', 'THEN SLAM ON THE BRAKES', 'AND STOP IN THE GREEN BOX!'], unit: 'M', med: [8, 4, 1.8], hi: 0, time: 25 },
+    { id: 'park', n: 'PARK IT', how: ['STOP IN EACH GREEN BOX.', 'THREE BOXES.', 'FAST AND NEAT!'], unit: 'S', med: [50, 38, 28], hi: 0, time: 60 },
+    { id: 'jump', n: 'CRAZY JUMP', how: ['DRIVE UP THE CAR PARK RAMP', 'AND FLY OFF THE TOP!', 'HOW FAR CAN YOU GO?'], unit: 'M', med: [30, 42, 54], hi: 1, time: 30 },
     { id: 'through', n: 'CRAZY THROUGH', how: ['SKIM PAST THE TRAFFIC', 'AT SPEED WITHOUT HITTING IT.', 'NEAR MISSES IN 40 SECONDS.'], unit: '', med: [4, 7, 10], hi: 1, time: 40 },
     { id: 'pop', n: 'BALLOON POP', how: ['POP ALL 15 BALLOONS', 'ON THE BEACH.', 'QUICK AS YOU CAN!'], unit: 'S', med: [60, 45, 35], hi: 0, time: 60 },
     { id: 'slalom', n: 'CONE SLALOM', how: ['DRIVE THROUGH EVERY GATE', 'ALONG THE PROMENADE.', 'A MISSED GATE COSTS 3 SECONDS.'], unit: 'S', med: [38, 30, 24], hi: 0, time: 60 },
     { id: 'bowl', n: 'BEACH BOWLING', how: ['ONE RUN AT THE GIANT SKITTLES.', 'KNOCK THEM ALL DOWN', 'FOR A STRIKE!'], unit: '', med: [5, 8, 10], hi: 1, time: 14 },
-    { id: 'park', n: 'PARK IT', how: ['STOP IN EACH GREEN BOX.', 'THREE BOXES.', 'FAST AND NEAT!'], unit: 'S', med: [50, 38, 28], hi: 0, time: 60 },
-    { id: 'dash', n: 'CRAZY DASH', how: ['BRAKE, THEN HIT GO STRAIGHT', 'AWAY FOR A CRAZY DASH!', 'GET TO THE FLAG FAST.'], unit: 'S', med: [13, 11, 9.5], hi: 0, time: 20 },
-    { id: 'rush', n: 'RUSH HOUR', how: ['DELIVER THREE FARES', 'AGAINST THE CLOCK.', 'GO GO GO!'], unit: 'S', med: [110, 90, 72], hi: 0, time: 110 },
+    { id: 'rush', n: 'RUSH HOUR', how: ['DELIVER THREE FARES', 'AGAINST THE CLOCK.', 'GO GO GO!'], unit: 'S', med: [110, 90, 72], hi: 0, time: 110, need: 3 },
+    { id: 'hill', n: 'HILLTOP HOP', how: ['TAKE THE HUMPS ON HILLTOP', 'AS FAST AS YOU DARE.', 'LONGEST AIR TIME WINS!'], unit: 'S', med: [0.7, 1.1, 1.6], hi: 1, time: 40 },
+    { id: 'back', n: 'BACKWARDS BOLT', how: ['NO TURNING ROUND!', 'REVERSE ALL THE WAY', 'TO THE FLAG BEHIND YOU.'], unit: 'S', med: [24, 18, 14], hi: 0, time: 35 },
+    { id: 'combo', n: 'COMBO KING', how: ['DRIFTS, DASHES, JUMPS, NEAR', 'MISSES: CHAIN THEM TOGETHER.', 'BIGGEST COMBO IN 45 SECONDS.'], unit: '', med: [3, 5, 8], hi: 1, time: 45 },
+    { id: 'night', n: 'MIDNIGHT POP', how: ['15 BALLOONS IN THE PARK.', 'IN THE DARK.', 'MIND THE LAKE!'], unit: 'S', med: [60, 45, 36], hi: 0, time: 60 },
     { id: 'leap', n: 'RIVER LEAP', how: ['THE ROAD ENDS AT THE RIVER.', 'THERE\'S A RAMP. GO FAST.', 'REALLY FAST.'], unit: 'S', med: [30, 20, 13], hi: 0, time: 30 },
+    { id: 'big', n: 'THE BIG ONE', how: ['FIVE FARES. ONE CLOCK.', 'EVERY CORNER OF SUNNYMOUTH.', 'THE FINAL TEST!'], unit: 'S', med: [200, 160, 125], hi: 0, time: 200, need: 5 },
   ];
+  // the staff roll (all made up: the town's finest)
+  const CREDITS = () => ['MAD MINICAB', '', 'A HI-OCTANE ENTERTAINMENT GAME', '', 'GAME DESIGN:', 'AXEL GREASE', '', 'PROGRAMMING:', 'R. V. NEUTRAL', 'DOREEN DOORS', '', 'THE TOWN OF SUNNYMOUTH:', 'ROGER ROUNDABOUT', 'KERRY KERB', '',
+    'CARS AND PEOPLE:', 'PATSY PARKER', '', 'MUSIC:', 'THE ZEBRA CROSSINGS', '', 'TESTING:', castUp('mate1'), castUp('mate2'), castUp('mate3'), castUp('mate4'), '', 'SPECIAL THANKS:', 'MOM (FOR THE LIFTS)', 'EVERYONE WHO WAVED AT A MINICAB', '', 'AND YOU, ' + castUp('me') + '!', '', 'DRIVE SAFELY IN REAL LIFE!'];
+  const GRADE = { S: 'CRAZY CABBIE', A: 'TOP CABBIE', B: 'PROPER CABBIE', C: 'LEARNER', D: 'BACK SEAT DRIVER', E: 'BUS PASS' };
   const RANKS = [[0, 'LEARNER'], [60, 'L-PLATE PRO'], [150, 'CABBIE'], [300, 'ROAD HOG'], [500, 'SPEED MERCHANT'], [800, 'CRAZY!'], [1200, 'MAD MINICAB LEGEND']];
   const SONGS = {
     a: { bpm: 172, wave: 'sawtooth', vol: 0.034, bassWave: 'square', drums: 'o.x.oox.o.x.oxx.',
@@ -874,9 +888,16 @@
     const sv0 = K.load() || {};
     const sv = Object.assign({ money: 0, medals: {}, opts: {}, unlock: {}, driver: 0, fares: 0, mates: {}, shifts: 0, best: {} }, sv0);
     sv.opts = Object.assign({ tod: 0, music: 1, arrow: 0, cam: 0 }, sv.opts || {});
-    if (!Array.isArray(sv.hi)) sv.hi = [['DAVE', 640], ['LUKE', 520], ['CALLUM', 450], ['JACKK', 380], [castN('cousin', 'KIM').toUpperCase(), 290], [castN('kidPoke', 'SAM').toUpperCase(), 210], ['MOM', 120], ['GUBBINZ', 60]];
+    // the cabbies' table: '@id' rows are the player's cast (looked up as drawn); old saves had fixed names baked in
+    const HI0 = [['@mate1', 640], ['@mate2', 520], ['@mate3', 450], ['@mate4', 380], ['@sister', 290], ['MOM', 210], ['DAD', 120], ['GRAN', 60]];
+    if (!Array.isArray(sv.hi)) sv.hi = HI0.map(h => h.slice());
+    else { const OLD = { 'DAVE,640': '@mate1', 'LUKE,520': '@mate2', 'CALLUM,450': '@mate3', 'JACKK,380': '@mate4', 'MOM,120': 'MOM', 'GUBBINZ,60': 'GRAN' }; 
+      sv.hi = sv.hi.map(h => OLD[h[0] + ',' + h[1]] ? [OLD[h[0] + ',' + h[1]], h[1]] : h); }
+    const hiName = h => String(h[0]).startsWith('@') ? castUp(h[0].slice(1)) : String(h[0]);
+    sv.grades = sv.grades || {};
     let vmuT = 0;
     const save = () => { try { K.save(sv); } catch (e) {} vmuT = 1.6; };
+    const quiet = () => { try { K.save(sv); } catch (e) {} }; // (an autosave: no VMG card)
     const medalCount = () => Object.values(sv.medals).filter(v => v > 0).length, goldCount = () => Object.values(sv.medals).filter(v => v >= 3).length;
     const unlocked = d => !d.lock || sv.unlock.nan || medalCount() >= 5 || (sv.money | 0) >= 300;
 
@@ -1327,11 +1348,12 @@
     function updParts(dt) { for (let i = 0; i < NPART; i++) { const p = parts[i]; if (p.t < p.life) { p.t += dt; p.vy -= 9 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt; } const k = p.t < p.life ? 1 - p.t / p.life : 0; partP[i * 3] = p.x; partP[i * 3 + 1] = k > 0 ? p.y : -999; partP[i * 3 + 2] = p.z; partC[i * 3] = (p.r || 1) * k + (1 - k); partC[i * 3 + 1] = (p.g || 1) * k + (1 - k); partC[i * 3 + 2] = (p.b || 1) * k + (1 - k); } partG.attributes.position.needsUpdate = partG.attributes.color.needsUpdate = true; }
 
     // ---------------------------------------------------------------- the state of play
+    const MENUISH = m => m === 'boot' || m === 'title' || m === 'menu' || m === 'drivers' || m === 'box' || m === 'records' || m === 'options' || m === 'how' || m === 'licence';
     let mode = 'boot', bootT = 0, code = [], menu = 0, sub = null, idle = 0, demo = false, paused = false, pmenu = 0;
     let money = 0, tips = 0, fares = 0, timeLeft = 0, shiftLen = 0, arcade = true, fare = null, msgs = [], speech = null, crazyN = 0, combo = 0, comboT = 0, bestCombo = 0, crazyCount = 0;
-    let district = '', distT = 0, shake = 0, splashT = 0, safe = [], safeT = 0, stuckT = 0, endT = 0, results = null, test = null, camYaw = 0, camPos = new T.Vector3(), camLook = new T.Vector3(), countT = 0, lastBrake = -9, eng = 0, mateRide = {}, overSent = false, attractT = 0, flyT = 0, lastCrash = 0;
+    let playedT = 0, district = '', distT = 0, shake = 0, splashT = 0, safe = [], safeT = 0, stuckT = 0, endT = 0, results = null, test = null, camYaw = 0, camPos = new T.Vector3(), camLook = new T.Vector3(), countT = 0, lastBrake = -9, eng = 0, mateRide = {}, overSent = false, attractT = 0, flyT = 0, lastCrash = 0;
     const say = (a, b, t, col) => { msgs.push({ a, b: b || '', t: t || 1.8, col: col || '#ffe14a', t0: t || 1.8 }); if (msgs.length > 3) msgs.shift(); };
-    const talk = (who, text, t) => { speech = { who, text, t: t || 3 }; const P0 = (fare && fare.F.pitch) || 1; for (let i = 0; i < Math.min(10, text.length / 3); i++) sfx.tone((300 + Math.random() * 300) * P0, 0.05, 'square', 0.025, i * 0.06); };
+    const talk = (who, text, t) => { text = fillNames(text).replace('{N}', who); speech = { who, text, t: t || 3 }; const P0 = (fare && fare.F.pitch) || 1; for (let i = 0; i < Math.min(10, text.length / 3); i++) sfx.tone((300 + Math.random() * 300) * P0, 0.05, 'square', 0.025, i * 0.06); };
     const music = s => { if (sv.opts.music) K.music(SONGS[s]); else K.music(null); };
 
     // ---------------------------------------------------------------- driving
@@ -1352,6 +1374,10 @@
       if (inp.brk) lastBrake = K.t;
       if (inp.thr && !car.prevThr && K.t - lastBrake < 0.35 && fv > -2 && fv < 14 && !car.air) { car.dash = 0.5; fv = Math.max(fv, 24); crazy('DASH', car.x, car.z); sfx.noise(0.35, 0.12, 3000, 0, 'bandpass', 800); shake = Math.max(shake, 0.3); }
       car.prevThr = inp.thr;
+      // a crazy stop: stand on the brakes from flat out and stop dead, nose straight
+      if (inp.brk && fv > 20 && !car.air && !car.stopArm) car.stopArm = K.t;
+      if (car.stopArm && (!inp.brk || K.t - car.stopArm > 1.4 || car.air)) car.stopArm = 0;
+      if (car.stopArm && Math.abs(fv) < 1.2) { car.stopArm = 0; crazy('STOP', car.x, car.z); shake = Math.max(shake, 0.2); for (let i = 0; i < 8; i++) puff(car.x + (Math.random() - 0.5) * 2, car.y + 0.2, car.z + (Math.random() - 0.5) * 2, 0xd8d8d8, (Math.random() - 0.5) * 3, 1, (Math.random() - 0.5) * 3, 0.7); }
       if (!car.air) {
         if (inp.thr) { if (fv < -0.5) fv += 30 * dt; else if (fv < D.top) fv += (D.acc * (1 - fv / (D.top + 6)) + 3) * dt; }
         if (inp.brk) { if (fv > 0.5) fv -= 34 * dt; else fv = Math.max(-12, fv - 13 * dt); }
@@ -1393,6 +1419,7 @@
         car.airT += dt; car.vy -= 23 * dt; car.y += car.vy * dt;
         if (car.y <= gh) { // landed
           const hard = -car.vy; car.y = gh; car.air = false;
+          if (test && test.id === 'hill' && car.airT > 0.3) test.v = Math.max(test.v, Math.round(car.airT * 10) / 10);
           if (car.airT > 0.55) { const dist = Math.hypot(car.x - car.takeX, car.z - car.takeZ); crazy('JUMP', car.x, car.z, car.airT); if (test && test.id === 'jump' && test.flying) { test.v = Math.max(test.v, dist); test.landed = 1; } if (dist > 20 && car.takeX < 36 * CELL && car.x > 38 * CELL && Math.abs(car.z - 19.5 * CELL) < 30) { K.secret('rm.taxi.leap'); if (test && test.id === 'leap') test.done = 1; say('RIVER LEAP!', 'YOU JUMPED THE RIVER!', 2.5, '#3aff5a'); } }
           if (hard > 9) { shake = Math.max(shake, Math.min(1, hard / 25)); sfx.noise(0.3, 0.2, 500); sfx.tone(80, 0.25, 'square', 0.08, 0, 40); for (let i = 0; i < 10; i++) puff(car.x + (Math.random() - 0.5) * 3, car.y + 0.2, car.z + (Math.random() - 0.5) * 3, 0xc8c0b0, (Math.random() - 0.5) * 6, 2 + Math.random() * 3, (Math.random() - 0.5) * 6, 0.8); car.bounce = Math.min(0.5, hard * 0.02); }
           car.slopeV = 0; car.vy = 0;
@@ -1452,11 +1479,12 @@
         for (const cu of custs.slice()) if (Math.hypot(cu.x - car.x, cu.z - car.z) > 480) dropCust(cu);
       } else {
         fare.t += dt; fare.left -= dt;
+        if (fare.F === MOM && fare.t > 3.3 && !fare.momSaid) { fare.momSaid = 1; talk('MOM', MOM.get[1], 3); }
         if (fare.left < fare.par * 0.3 && !fare.hurried) { fare.hurried = 1; talk(fare.F.n, fare.F.hurry, 2.4); }
         const L = fare.dest, dd = Math.hypot(L.dx - car.x, L.dz - car.z);
         if (fare.left <= 0) { // they've had enough
           talk(fare.F.n, fare.F.bail, 2.4); say('THEY GOT OUT!', 'TOO SLOW', 2, '#ff4a3a'); sfx.seq([[60, 0.5], [55, 1]], { bpm: 200, vol: 0.08 });
-          fare = null; beacon.visible = false; if (test && test.id === 'rush') test.fail = 1; return;
+          fare = null; beacon.visible = false; if (test && test.def.need) test.fail = 1; return;
         }
         if (dd < 9 && sp < 5 && !car.air && Math.abs(car.y - Hat(L.dx, L.dz)) < 3) dropOff();
         else if (dd < 9 && sp >= 5 && K.frame % 30 === 0) say('STOP!', 'BRAKE IN THE GREEN!', 0.6, '#3aff5a');
@@ -1472,7 +1500,6 @@
       if (F0 === MOM) { sv.mom = 1; K.secret('rm.taxi.mom'); save(); }
       beacon.visible = !sv.opts.expert; beacon.position.set(L.dx, Hat(L.dx, L.dz), L.dz);
       fieldTarget = [cellOf(L.dx), cellOf(L.dz)];
-      if (F0.id === 'mom' && F0.get[1]) setTimeout(() => { if (fare && fare.F === MOM) talk('MOM', MOM.get[1], 3); }, 3300);
     }
     let fieldTarget = null;
     function dropOff() {
@@ -1488,17 +1515,25 @@
       if (MATES.includes(f.F)) { sv.mates[f.F.id] = 1; if (MATES.every(m => sv.mates[m.id])) K.secret('rm.taxi.mates'); save(); }
       burst(car.x, car.y + 2, car.z, 0xffe14a, 24);
       fare = null; beacon.visible = false; fieldTarget = null;
-      if (test && test.id === 'rush') { test.v++; }
+      if (test && test.def.need) { test.v++; }
     }
 
     // ---------------------------------------------------------------- the camera
-    let camNear = 0;
+    let camNear = 0, shownDrv = -1, drvMan = null;
     function camera(dt) {
-      if (mode === 'boot' || mode === 'title' || mode === 'menu' || mode === 'drivers' || mode === 'records' || mode === 'options' || mode === 'how' || mode === 'box') {
+      if (MENUISH(mode) && mode !== 'drivers') {
         flyT += dt * 0.035; const P = FLY[Math.floor(flyT) % FLY.length], Q = FLY[(Math.floor(flyT) + 1) % FLY.length], k = smooth(flyT % 1);
         if (!demo) { cam.position.set(lerp(P[0], Q[0], k), lerp(P[1], Q[1], k), lerp(P[2], Q[2], k)); cam.lookAt(lerp(P[3], Q[3], k), lerp(P[4], Q[4], k), lerp(P[5], Q[5], k)); }
         if (!demo) return;
       }
+      if (mode === 'drivers') {
+        if (shownDrv !== drvSel) { shownDrv = drvSel; buildCab(drvSel); car.vx = car.vz = car.vy = 0; car.steer = 0; car.pitch = car.roll = 0; car.air = false; car.bounce = 0;
+          if (drvMan) scene.remove(drvMan); const D0 = DRIVERS[drvSel], gg = folkGeo(Object.assign({ id: 'drv-' + D0.id }, D0.look)); drvMan = new T.Group(); const arm = new T.Mesh(gg.a, cityMat); arm.position.set(0.35, 1.5, 0); arm.rotation.z = 2.5; drvMan.add(new T.Mesh(gg.b, cityMat), arm); drvMan.scale.setScalar(1.15); scene.add(drvMan); }
+        const SX = 15.6 * CELL, SZ = 36 * CELL, gy = Hat(SX, SZ); car.x = SX; car.z = SZ; car.y = gy; car.h = 0.9 + K.t * 0.5; car.spin = 0;
+        if (drvMan) { drvMan.visible = unlocked(DRIVERS[drvSel]); drvMan.position.set(SX - 3.4, gy + 0.05, SZ + 1.2); drvMan.rotation.y = 0.75; }
+        cam.position.set(SX + 4.6, gy + 2.5, SZ + 7.6); cam.lookAt(SX - 0.6, gy + 0.2, SZ - 0.6); return;
+      }
+      if (drvMan) { scene.remove(drvMan); drvMan = null; shownDrv = -1; }
       const far = sv.opts.cam ? 1.3 : 1, sp = Math.hypot(car.vx, car.vz);
       const wantYaw = sp > 3 && car.fv < -1 ? car.h : car.h; // (reversing: keep looking forwards)
       camYaw += wrapA(wantYaw - camYaw) * Math.min(1, dt * (car.air ? 2 : 4.5));
@@ -1587,7 +1622,7 @@
     function placeCab(x, z, h) { car.x = x; car.z = z; car.h = h; car.y = Hat(x, z); car.vx = car.vz = car.vy = 0; car.air = false; car.steer = 0; car.dash = 0; camYaw = h; snapCam = true; startPos = [x, z, h]; safe = [[x, z, h]]; }
     function startShift(kind) {
       resetWorld(); buildCab(sv.driver); arcade = kind === 'arcade'; shiftLen = kind === 'arcade' ? 50 : kind === 'w3' ? 180 : kind === 'w5' ? 300 : 600; timeLeft = shiftLen;
-      money = 0; fares = 0; placeCab(24.5 * CELL - 3, 31.5 * CELL, Math.PI / 2);
+      money = 0; fares = 0; playedT = 0; placeCab(24.5 * CELL - 3, 31.5 * CELL, Math.PI / 2);
       for (let i = 0; i < 12; i++) spawnCust([car.x, car.z]);
       for (const v of traffic) placeCar(v, [car.x, car.z]);
       mode = 'count'; countT = 3.2; endT = 0; results = null; overSent = false; paused = false;
@@ -1608,9 +1643,15 @@
         case 'dash': placeCab(14.5 * CELL, 26.5 * CELL, Math.PI / 2); test.target = [23.5 * CELL, 26.5 * CELL]; test.arrow = true; flagMesh.visible = true; flagMesh.position.set(test.target[0], 0, test.target[1]); break;
         case 'rush': placeCab(24.5 * CELL - 3, 31.5 * CELL, Math.PI / 2); for (let k = 0; k < 12; k++) spawnCust([car.x, car.z]); test.arrow = true; break;
         case 'leap': placeCab(27.5 * CELL, 19.5 * CELL, Math.PI / 2); test.target = [39 * CELL, 19.5 * CELL]; test.arrow = true; test.direct = 1; break;
+        case 'big': placeCab(24.5 * CELL - 3, 31.5 * CELL, Math.PI / 2); for (let k = 0; k < 12; k++) spawnCust([car.x, car.z]); test.arrow = true; break;
+        case 'stop': placeCab(2 * CELL, 39.5 * CELL, Math.PI / 2); test.target = [19.5 * CELL, 39.5 * CELL]; test.arrow = true; test.direct = 1; boxMesh.visible = true; break;
+        case 'back': placeCab(14.5 * CELL, 26.5 * CELL, -Math.PI / 2); test.target = [21.5 * CELL, 26.5 * CELL]; flagMesh.visible = true; flagMesh.position.set(test.target[0], 0, test.target[1]); break;
+        case 'hill': placeCab(2.5 * CELL, 11 * CELL, Math.PI); break;
+        case 'combo': placeCab(13.5 * CELL, 19.5 * CELL, Math.PI / 2); for (const v of traffic) { placeCar(v, [car.x, car.z]); v.vmax = 12; } break;
+        case 'night': placeCab(18.5 * CELL, 5.5 * CELL, Math.PI / 2); for (let k = 0; k < 15; k++) addOrReuse('bal', (19.6 + k * 0.95 + R() * 0.3) * CELL, (5.15 + R() * 0.7) * CELL); test.need = 15; test.pop = 0; break;
       }
       mode = 'count'; countT = 3.2; endT = 0; results = null; paused = false;
-      setTod(sv.opts.tod ? sv.opts.tod - 1 : autoTod()); music('b');
+      setTod(T0.id === 'night' ? 2 : sv.opts.tod ? sv.opts.tod - 1 : autoTod()); music('b');
     }
     function addOrReuse(k, x, z) { const old = brk.find(b => b.k === k && b.gone); if (old) { old.gone = false; old.hit = false; old.x = old.x0 = x; old.z = old.z0 = z; old.y = old.y0 = ground(x, z) + 0.12; old.rx = old.rz = 0; old.vx = old.vy = old.vz = 0; setBrk(old); return old; } return addBrk(k, x, z); }
     // the parking box and the finish flag
@@ -1627,9 +1668,15 @@
         case 'bowl': if (t.t > 10 || (t.skit >= 10 && t.t > 2)) return finishTest(t.skit); break;
         case 'park': { const b = t.boxes[t.bi]; boxMesh.position.set(b[0], ground(b[0], b[1]) + 0.25, b[1]); boxMesh.rotation.z = Math.PI / 4; if (Math.hypot(car.x - b[0], car.z - b[1]) < 1.6 && sp < 0.8) { t.bi++; sfx.seq([[76, 0.25], [84, 0.5]], { bpm: 400, vol: 0.09 }); say('PARKED!', '', 0.8, '#3aff5a'); if (t.bi >= 3) { boxMesh.visible = false; return finishTest(t.t); } t.target = t.boxes[t.bi]; } break; }
         case 'dash': if (car.x > t.target[0]) { flagMesh.visible = false; return finishTest(t.t); } break;
-        case 'rush': if (t.v >= 3) return finishTest(t.t); if (t.fail) { t.fail = 0; } break;
+        case 'rush': case 'big': if (t.v >= t.def.need) return finishTest(t.t); if (t.fail) { t.fail = 0; } break;
         case 'leap': if (t.done) return finishTest(t.t); break;
+        case 'night': { if (t.pop >= t.need) return finishTest(t.t); let bd = 1e9; for (const b of brk) if (b.k === 'bal' && !b.gone) { const d = Math.hypot(b.x - car.x, b.z - car.z); if (d < bd) { bd = d; t.target = [b.x, b.z]; } } t.arrow = true; t.direct = 1; break; }
+        case 'stop': { const b = t.target; boxMesh.position.set(b[0], ground(b[0], b[1]) + 0.25, b[1]); boxMesh.rotation.z = Math.PI / 4; if (car.x > b[0] - 60) t.armed = 1; if (car.x > b[0] + 40) return finishTest(99);
+          if (t.armed && sp < 0.3 && t.t > 2) return finishTest(Math.round(Math.hypot(car.x - b[0], car.z - b[1]) * 10) / 10); break; }
+        case 'back': if (car.fv > 3) { t.fwd = (t.fwd || 0) + dt; if (t.fwd > 0.6 && !t.warned) { t.warned = 1; say('BACKWARDS!', 'NO TURNING ROUND', 1.4, '#ff4a3a'); } } if (car.x > t.target[0]) { flagMesh.visible = false; return finishTest(t.fwd > 1.5 ? 999 : t.t); } break;
+        case 'hill': case 'combo': break;
       }
+      if (t.id === 'combo') t.v = Math.max(t.v, combo);
       if (t.t >= t.def.time) finishTest(t.def.hi ? t.v : 999);
     }
     function finishTest(v) {
@@ -1639,7 +1686,8 @@
       const prev = sv.medals[D0.id] | 0; if (med > prev) sv.medals[D0.id] = med;
       const pb = sv.best[D0.id]; if (v < 999 && (pb == null || (D0.hi ? v > pb : v < pb))) sv.best[D0.id] = Math.round(v * 10) / 10;
       save(); if (goldCount() >= TESTS.length) K.secret('rm.taxi.licence');
-      results = { test: 1, v, med, t: D0, prev }; mode = 'tres'; endT = 0; K.music(null);
+      results = { test: 1, v, med, t: D0, prev }; mode = 'tres'; endT = 0; K.music(null); sv.run = null;
+      if (medalCount() >= TESTS.length && !sv.ending) { sv.ending = 1; results.ending = 1; } save();
       sfx.seq(med >= 3 ? [[72, 0.5], [76, 0.5], [79, 0.5], [84, 1.5]] : med ? [[72, 0.5], [76, 0.5], [79, 1]] : [[64, 0.5], [60, 1]], { bpm: 220, vol: 0.09 });
       boxMesh.visible = flagMesh.visible = false;
     }
@@ -1647,15 +1695,25 @@
       mode = 'over'; endT = 0; K.music(null); sfx.seq([[64, 0.5], [60, 0.5], [55, 1.5]], { bpm: 160, vol: 0.1 }); say('TIME UP!', 'THE SHIFT IS OVER', 3, '#ff4a3a');
       if (fare) { fare = null; beacon.visible = false; }
       const total = money + tips; let rank = RANKS[0][1]; for (const [m, n] of RANKS) if (total >= m) rank = n;
-      results = { money, tips, total, fares, crazyCount, bestCombo, rank, pb: total > (sv.money | 0) };
+      results = { money, tips, total, fares, crazyCount, bestCombo, rank, pb: total > (sv.money | 0), played: playedT };
       sv.shifts = (sv.shifts | 0) + 1; if (total > (sv.money | 0)) sv.money = total; if (total >= 300) sv.unlock.nan = 1;
-      const me = (window.Net && Net.me && Net.me.nick ? String(Net.me.nick) : 'YOU').toUpperCase().slice(0, 10);
-      sv.hi.push([me, total]); sv.hi.sort((a, b) => b[1] - a[1]); sv.hi = sv.hi.slice(0, 10); results.place = sv.hi.findIndex(h => h[0] === me && h[1] === total) + 1;
-      save();
+      const me = castUp('me').slice(0, 10), row = [me, total];
+      sv.hi.push(row); sv.hi.sort((a, b) => b[1] - a[1]); sv.hi = sv.hi.slice(0, 10); results.place = sv.hi.indexOf(row) + 1;
+      // the licence: a grade for the shift, judged per minute so 3, 5 and 10 minute shifts (and arcade) compare fairly
+      const mins = arcade ? Math.max(1, results.played / 60) : shiftLen / 60, per = total / mins;
+      const GR = arcade ? [[0, 'E'], [40, 'D'], [70, 'C'], [100, 'B'], [135, 'A'], [175, 'S']] : [[0, 'E'], [25, 'D'], [45, 'C'], [65, 'B'], [90, 'A'], [120, 'S']];
+      let grade = 'E'; for (const [m, g] of GR) if (per >= m) grade = g;
+      const key = arcade ? 'arcade' : 'w' + Math.round(shiftLen / 60), GO = 'EDCBAS';
+      results.grade = grade; results.gradeName = GRADE[grade]; results.newGrade = GO.indexOf(grade) > GO.indexOf(sv.grades[key] || '');
+      if (results.newGrade) sv.grades[key] = grade;
+      sv.run = null; save();
     }
 
     // ---------------------------------------------------------------- menus
-    const MAIN = ['ARCADE', 'WORK SHIFT', 'CRAZY BOX', 'RECORDS', 'OPTIONS', 'HOW TO PLAY'];
+    const MAIN = ['ARCADE', 'WORK SHIFT', 'CRAZY BOX', 'RECORDS', 'LICENCE', 'OPTIONS', 'HOW TO PLAY'];
+    const rowOpen = r => r <= 0 || TESTS.slice((r - 1) * 4, r * 4).filter(t0 => (sv.medals[t0.id] | 0) > 0).length >= 3 && rowOpen(r - 1);
+    const boxOpen = i => rowOpen(i >> 2);
+    let licPage = 0, credT = 0;
     const WORK = ['3 MINUTES', '5 MINUTES', '10 MINUTES'];
     let pending = null, drvSel = 0, boxSel = 0, optSel = 0, workSel = 0;
     const blip = () => sfx.tone(880, 0.04, 'square', 0.05), ok = () => { sfx.tone(1320, 0.07, 'square', 0.06); sfx.tone(1760, 0.08, 'square', 0.05, 0.06); };
@@ -1668,7 +1726,7 @@
         if (upP()) { menu = (menu + MAIN.length - 1) % MAIN.length; blip(); } if (dnP()) { menu = (menu + 1) % MAIN.length; blip(); }
         if (backP()) { mode = 'title'; idle = 0; K.music(null); return; }
         if (menu === 1 && (lfP() || rtP())) { workSel = (workSel + (rtP() ? 1 : 2)) % 3; blip(); }
-        if (goP()) { ok(); if (menu === 0) { pending = 'arcade'; mode = 'drivers'; drvSel = sv.driver | 0; } else if (menu === 1) { pending = ['w3', 'w5', 'w10'][workSel]; mode = 'drivers'; drvSel = sv.driver | 0; } else if (menu === 2) { mode = 'box'; } else if (menu === 3) mode = 'records'; else if (menu === 4) { mode = 'options'; optSel = 0; } else mode = 'how'; }
+        if (goP()) { ok(); if (menu === 0) { pending = 'arcade'; mode = 'drivers'; drvSel = sv.driver | 0; } else if (menu === 1) { pending = ['w3', 'w5', 'w10'][workSel]; mode = 'drivers'; drvSel = sv.driver | 0; } else if (menu === 2) { mode = 'box'; } else if (menu === 3) mode = 'records'; else if (menu === 4) { mode = 'licence'; licPage = 0; credT = 0; } else if (menu === 5) { mode = 'options'; optSel = 0; } else { mode = 'how'; licPage = 0; } }
         return;
       }
       if (mode === 'drivers') {
@@ -1678,10 +1736,10 @@
         return;
       }
       if (mode === 'box') {
-        if (upP()) { boxSel = (boxSel + TESTS.length - 1) % TESTS.length; blip(); } if (dnP()) { boxSel = (boxSel + 1) % TESTS.length; blip(); }
-        if (lfP()) { boxSel = (boxSel + TESTS.length - 5) % TESTS.length; blip(); } if (rtP()) { boxSel = (boxSel + 5) % TESTS.length; blip(); }
+        if (upP()) { boxSel = (boxSel + 12) % 16; blip(); } if (dnP()) { boxSel = (boxSel + 4) % 16; blip(); }
+        if (lfP()) { boxSel = (boxSel & 12) | ((boxSel + 3) & 3); blip(); } if (rtP()) { boxSel = (boxSel & 12) | ((boxSel + 1) & 3); blip(); }
         if (backP()) { mode = 'menu'; return; }
-        if (goP()) { ok(); pending = boxSel; mode = 'drivers'; drvSel = sv.driver | 0; }
+        if (goP()) { if (!boxOpen(boxSel)) { sfx.tone(200, 0.2, 'square', 0.06); return; } ok(); pending = boxSel; mode = 'drivers'; drvSel = sv.driver | 0; }
         return;
       }
       if (mode === 'options') {
@@ -1694,7 +1752,8 @@
         if (backP()) { mode = 'menu'; }
         return;
       }
-      if (mode === 'records' || mode === 'how') { if (goP() || backP()) { mode = 'menu'; blip(); } return; }
+      if (mode === 'licence' || mode === 'how') { credT += dt; if (lfP() || rtP()) { licPage = licPage ? 0 : 1; credT = 0; blip(); } else if (goP() || backP()) { mode = 'menu'; blip(); } return; }
+      if (mode === 'records') { if (goP() || backP()) { mode = 'menu'; blip(); } return; }
     }
     function startDemo() { demo = true; resetWorld(); buildCab(0); placeCab(24.5 * CELL - 3, 31.5 * CELL, Math.PI / 2); for (let i = 0; i < 12; i++) spawnCust([car.x, car.z]); mode = 'play'; arcade = true; timeLeft = 30; money = 0; attractT = 0; setTod(autoTod()); }
     function stopDemo() { demo = false; resetWorld(); mode = 'title'; idle = 0; flyT = Math.random() * FLY.length; }
@@ -1711,7 +1770,30 @@
       car.stuckA = thr && sp < 1.5 ? (car.stuckA || 0) + 1 / 60 : 0; if (car.stuckA > 1) car.rev = 0.9;
       if (car.rev > 0) { car.rev -= 1 / 60; thr = 0; brk = 1; steer = -steer; }
       if (test && (test.id === 'leap' || test.id === 'jump' || test.id === 'dash')) { thr = 1; brk = 0; }
+      if (test && test.id === 'back') { thr = 0; brk = 1; steer = 0; }
       return { thr, brk, steer, hb: false };
+    }
+
+    // ---------------------------------------------------------------- refresh-safe: the shift in progress is kept on the VMG
+    const ALLF = () => FOLK.concat(MATES, [MOM]);
+    function snapshot() {
+      if (demo || !car || !(mode === 'play' || mode === 'count')) return null;
+      if (test) return { k: test.i };
+      return { k: arcade ? 'arcade' : shiftLen === 180 ? 'w3' : shiftLen === 300 ? 'w5' : 'w10', timeLeft, money, tips, fares, playedT, crazyCount, bestCombo, tod, car: [car.x, car.z, car.h],
+        fare: fare && { f: fare.F.id, d: fare.dest.ch, par: fare.par, left: fare.left, t: fare.t, tips: fare.tips, crazy: fare.crazy, bumps: fare.bumps, dist: fare.dist, cls: fare.cls, hurried: fare.hurried, momSaid: fare.momSaid } };
+    }
+    let autoT = 0;
+    function keepRun(force) { const r = snapshot(); if (!r) return; sv.run = r; if (force) quiet(); }
+    function restoreRun(r) {
+      if (typeof r.k === 'number' && TESTS[r.k]) { startTest(r.k); mode = 'play'; paused = true; K.music(null); snapCam = true; camera(1 / 60); updArrow(1 / 60); say(TESTS[r.k].n, 'THE TEST STARTS AGAIN', 2.5, '#3ac8ff'); return; }
+      if (!['arcade', 'w3', 'w5', 'w10'].includes(r.k)) return;
+      startShift(r.k); timeLeft = +r.timeLeft || 1; money = r.money | 0; tips = r.tips | 0; fares = r.fares | 0; playedT = +r.playedT || 0; crazyCount = r.crazyCount | 0; bestCombo = r.bestCombo | 0;
+      if (r.tod != null) setTod(r.tod);
+      if (Array.isArray(r.car)) { placeCab(r.car[0], r.car[1], r.car[2]); custs.slice().forEach(dropCust); for (let i = 0; i < 12; i++) spawnCust([car.x, car.z]); }
+      const F0 = r.fare && ALLF().find(q => q.id === r.fare.f), L = r.fare && LMS[r.fare.d];
+      if (F0 && L) { fare = { F: F0, dest: L, par: r.fare.par, left: r.fare.left, t: r.fare.t, tips: r.fare.tips | 0, crazy: r.fare.crazy | 0, bumps: r.fare.bumps | 0, dist: r.fare.dist, cls: r.fare.cls | 0, hurried: r.fare.hurried, momSaid: r.fare.momSaid };
+        beacon.visible = !sv.opts.expert; beacon.position.set(L.dx, Hat(L.dx, L.dz), L.dz); fieldTarget = [cellOf(L.dx), cellOf(L.dz)]; }
+      mode = 'play'; paused = true; K.music(null); snapCam = true; camera(1 / 60); updArrow(1 / 60); // (paused: frame the cab now)
     }
 
     // ---------------------------------------------------------------- the main update
@@ -1719,8 +1801,10 @@
     buildCab(sv.driver | 0); placeCab(24.5 * CELL - 3, 31.5 * CELL, Math.PI / 2);
     setTod(sv.opts.tod ? sv.opts.tod - 1 : autoTod());
     flyT = Math.random() * FLY.length;
+    if (sv.run && K.restoring) { try { restoreRun(sv.run); } catch (e) { sv.run = null; mode = 'boot'; } } else if (sv.run) { sv.run = null; quiet(); }
     function update(dt) {
       if (shake > 0) shake = Math.max(0, shake - dt * 2);
+      if (vmuT > 0) vmuT -= dt;
       if (splashT > 0) { splashT -= dt; if (splashT <= 0) toSafety(); }
       seaTex.offset.x = (seaTex.offset.x + dt * 0.004) % 1; seaTex.offset.y = (seaTex.offset.y + dt * 0.002) % 1;
       for (const m of msgs) m.t -= dt; msgs = msgs.filter(m => m.t > 0);
@@ -1728,11 +1812,12 @@
       if (mode === 'view') { updPeds(dt); return; }
       if (mode !== 'play' && mode !== 'count' && mode !== 'over' && mode !== 'tres') { menus(dt); updTraffic(dt); updPeds(dt); camera(dt); return; }
       if (demo) { attractT += dt; if (K.any() || K.pressed('start') || attractT > 40) { stopDemo(); return; } }
-      if (mode === 'play' && K.pressed('start') && !demo) { paused = !paused; pmenu = 0; sfx.tone(paused ? 440 : 880, 0.06); if (paused) K.music(null); else music(test ? 'b' : arcade ? 'a' : 'b'); }
+      if ((mode === 'play' || mode === 'count') && !demo && !paused) { autoT -= dt; if (autoT <= 0) { autoT = 3; keepRun(true); } }
+      if (mode === 'play' && K.pressed('start') && !demo) { paused = !paused; pmenu = 0; if (paused) keepRun(true); else K.resume(); sfx.tone(paused ? 440 : 880, 0.06); if (paused) K.music(null); else music(test ? 'b' : arcade ? 'a' : 'b'); }
       if (paused) {
         if (upP()) { pmenu = (pmenu + 2) % 3; blip(); } if (dnP()) { pmenu = (pmenu + 1) % 3; blip(); }
-        if (K.pressed('a')) { ok(); if (pmenu === 0) { paused = false; music(test ? 'b' : arcade ? 'a' : 'b'); } else if (pmenu === 1) { paused = false; if (test) startTest(test.i); else startShift(arcade ? 'arcade' : shiftLen === 180 ? 'w3' : shiftLen === 300 ? 'w5' : 'w10'); } else { paused = false; resetWorld(); mode = 'menu'; music('menu'); } }
-        if (K.pressed('b')) { paused = false; music(test ? 'b' : arcade ? 'a' : 'b'); }
+        if (K.pressed('a')) { ok(); K.resume(); if (pmenu === 0) { paused = false; music(test ? 'b' : arcade ? 'a' : 'b'); } else if (pmenu === 1) { paused = false; if (test) startTest(test.i); else startShift(arcade ? 'arcade' : shiftLen === 180 ? 'w3' : shiftLen === 300 ? 'w5' : 'w10'); } else { paused = false; resetWorld(); mode = 'menu'; music('menu'); sv.run = null; quiet(); } }
+        if (K.pressed('b')) { paused = false; K.resume(); music(test ? 'b' : arcade ? 'a' : 'b'); }
         return;
       }
       if (mode === 'count') { countT -= dt; const n = Math.ceil(countT); if (n !== Math.ceil(countT + dt) && n > 0 && n <= 3) sfx.tone(660, 0.12, 'square', 0.07); if (countT <= 0) { mode = 'play'; sfx.tone(1320, 0.3, 'square', 0.08); if (test) say(test.def.n, 'GO!', 1.5, '#3aff5a'); else say('GO!', 'PICK SOMEONE UP!', 2, '#3aff5a'); } }
@@ -1742,15 +1827,15 @@
       // the engine (a rough little four-cylinder)
       eng -= dt; if (eng <= 0) { eng = 0.07; sfx.tone(55 + Math.abs(fv) * 4.2 + (inp.thr ? 12 : 0), 0.09, 'sawtooth', 0.018 + (inp.thr ? 0.01 : 0)); }
       if (mode === 'play') {
-        if (!test || test.id === 'rush') fares_(dt);
+        if (!test || test.def.need) fares_(dt);
         if (test) updTest(dt);
-        else if (!demo) { timeLeft -= dt; if (timeLeft < 10 && Math.ceil(timeLeft) !== Math.ceil(timeLeft + dt)) sfx.tone(1000, 0.05, 'square', 0.06); if (timeLeft <= 0) { timeLeft = 0; endShift(); } }
+        else if (!demo) { timeLeft -= dt; playedT += dt; if (timeLeft < 10 && Math.ceil(timeLeft) !== Math.ceil(timeLeft + dt)) sfx.tone(1000, 0.05, 'square', 0.06); if (timeLeft <= 0) { timeLeft = 0; endShift(); } }
         // which part of town are we in?
         const c = cellOf(car.x), r = cellOf(car.z); let dn = ''; for (const [n, c0, r0, c1, r1] of DISTRICTS) if (c >= c0 && c <= c1 && r >= r0 && r <= r1) { dn = n; break; }
         if (dn && dn !== district) { district = dn; distT = 2.5; }
         if (distT > 0) distT -= dt;
       }
-      if (mode === 'over' || mode === 'tres') { endT += dt; if (endT > 2.5 && goP()) { if (mode === 'over' && !overSent) { overSent = true; const sc = Math.min(50000, (results.total | 0) * 10, Math.floor((K.t + 4) * 190)); K.over(sc, { title: 'SHIFT OVER: ' + results.rank, text: `${results.fares} FARES  TAKINGS £${results.total}  BEST COMBO X${results.bestCombo}` }); } else if (mode === 'tres') { mode = 'box'; resetWorld(); music('menu'); } } }
+      if (mode === 'over' || mode === 'tres') { endT += dt; if (endT > 2.5 && goP()) { if (mode === 'over' && !overSent) { overSent = true; const sc = Math.min(50000, (results.total | 0) * 10, Math.floor((K.t + 4) * 190)); K.over(sc, { title: 'SHIFT OVER: ' + results.rank, text: `${results.fares} FARES  TAKINGS £${results.total}  BEST COMBO X${results.bestCombo}` }); } else if (mode === 'tres') { const end = results && results.ending; mode = end ? 'licence' : 'box'; licPage = end ? 1 : 0; credT = 0; resetWorld(); music('menu'); } } }
       updArrow(dt); camera(dt);
     }
 
@@ -1763,7 +1848,8 @@
       const H = HUD; H.clearRect(0, 0, W, HH);
       if (mode === 'view') return;
       if (mode === 'boot') { H.fillStyle = '#000'; H.fillRect(0, 0, W, HH); ol(H, 'NOW LOADING', W / 2 + 20, HH - 70, '#fff', 3, 1); const a = K.t * 6; for (let i = 0; i < 8; i++) { H.fillStyle = `rgba(255,${120 + i * 15},0,${(i + 1) / 8})`; H.beginPath(); H.arc(W / 2 - 150 + Math.cos(a - i * 0.4) * 14, HH - 60 + Math.sin(a - i * 0.4) * 14, 4, 0, 7); H.fill(); } return; }
-      if (mode === 'title' || mode === 'menu' || mode === 'drivers' || mode === 'box' || mode === 'records' || mode === 'options' || mode === 'how') return menuHud(H);
+      if (MENUISH(mode)) return menuHud(H);
+      if ((mode === 'over' || mode === 'tres') && results && endT > 0.6) { resultsHud(H); vmu(H); return; }
       if (demo) { ol(H, 'DEMO', W / 2, 60, (K.frame >> 4) & 1 ? '#fff' : '#ffd21a', 4, 1); ol(H, 'PRESS START', W / 2, HH - 40, '#fff', 2, 1); }
       // top: the clock (or the test timer), the money
       if (test) { ol(H, test.def.n, W / 2, 8, '#3ac8ff', 2, 1); const tl = Math.max(0, test.def.time - test.t); ol(H, (test.def.hi ? Math.ceil(tl) : (Math.floor(test.t * 10) / 10).toFixed(1)).toString(), W / 2, 28, tl < 5 ? '#ff4a3a' : '#fff', 5, 1); testHud(H); }
@@ -1799,7 +1885,7 @@
       if (splashT > 0) { H.fillStyle = `rgba(120,180,255,${clamp(splashT - 0.6, 0, 0.6)})`; H.fillRect(0, 0, W, HH); }
       vmu(H);
     }
-    function vmu(H) { if (vmuT <= 0) return; vmuT -= 1 / 60; const x = W - 210, y = HH - 150; panel(H, x, y, 196, 40, '#3ac8ff'); H.fillStyle = '#e8e8e0'; H.fillRect(x + 8, y + 8, 18, 26); H.fillStyle = '#4a7a6a'; H.fillRect(x + 11, y + 11, 12, 9); H.fillStyle = (K.frame >> 3) & 1 ? '#ff3a3a' : '#5a1010'; H.fillRect(x + 14, y + 25, 3, 3); F.draw(H, 'SAVING TO VMG...', x + 34, y + 10, '#fff', 1); F.draw(H, 'DO NOT REMOVE THE VMG', x + 34, y + 24, '#9ad8ff', 1); }
+    function vmu(H) { if (vmuT <= 0) return; const x = W - 210, y = MENUISH(mode) ? HH - 150 : HH - 196; panel(H, x, y, 196, 40, '#3ac8ff'); H.fillStyle = '#e8e8e0'; H.fillRect(x + 8, y + 8, 18, 26); H.fillStyle = '#4a7a6a'; H.fillRect(x + 11, y + 11, 12, 9); H.fillStyle = (K.frame >> 3) & 1 ? '#ff3a3a' : '#5a1010'; H.fillRect(x + 14, y + 25, 3, 3); F.draw(H, 'SAVING TO VMG...', x + 34, y + 10, '#fff', 1); F.draw(H, 'DO NOT REMOVE THE VMG', x + 34, y + 24, '#9ad8ff', 1); }
     function testHud(H) {
       const t = test, D0 = t.def; let line = '';
       if (D0.id === 'jump') line = t.v ? 'BEST ' + Math.round(t.v) + 'M' : 'UP THE RAMP AND OFF THE TOP!';
@@ -1809,7 +1895,12 @@
       else if (D0.id === 'slalom') line = 'GATES ' + t.gates.filter(g => g.passed).length + '/10';
       else if (D0.id === 'bowl') line = 'SKITTLES ' + (t.skit | 0) + '/10';
       else if (D0.id === 'park') line = 'BOXES ' + t.bi + '/3';
-      else if (D0.id === 'rush') line = 'FARES ' + t.v + '/3';
+      else if (D0.need) line = 'FARES ' + t.v + '/' + D0.need;
+      else if (D0.id === 'night') line = 'POPPED ' + (t.pop | 0) + '/15';
+      else if (D0.id === 'stop') line = t.armed ? 'BRAKE! STOP IN THE BOX!' : 'FULL SPEED AHEAD!';
+      else if (D0.id === 'back') line = 'HOLD BRAKE TO REVERSE';
+      else if (D0.id === 'hill') line = 'BEST AIR ' + t.v.toFixed(1) + 'S';
+      else if (D0.id === 'combo') line = 'BEST COMBO X' + t.v;
       else if (D0.id === 'dash') line = 'BRAKE, THEN GO = CRAZY DASH';
       else if (D0.id === 'leap') line = 'FULL SPEED AT THE RAMP!';
       panel(H, 10, 10, 200, 52, '#3ac8ff'); if (line.length <= 15) F.draw(H, line, 20, 20, '#fff', 2); else { const w = line.split(' '); let a = ''; while (w.length && (a + ' ' + w[0]).trim().length <= 28) a = (a + ' ' + w.shift()).trim(); F.draw(H, a, 20, 20, '#fff', 1); F.draw(H, w.join(' '), 20, 32, '#fff', 1); }
@@ -1825,14 +1916,22 @@
         H.fillStyle = mc; H.beginPath(); H.arc(W / 2, 250, 40, 0, 7); H.fill(); H.strokeStyle = '#000'; H.lineWidth = 3; H.stroke(); F.center(H, ['-', 'B', 'S', 'G'][R.med], W / 2, 236, '#000', 4);
         ol(H, mn + '!', W / 2, 304, mc, 4, 1); if (R.med > R.prev) ol(H, 'NEW MEDAL!', W / 2, 350, '#3aff5a', 2, 1);
         ol(H, 'MEDALS ' + medalCount() + '/' + TESTS.length + '   GOLDS ' + goldCount(), W / 2, 386, '#9ad8ff', 2, 1);
-        if (endT > 2.5 && (K.frame >> 4) & 1) ol(H, 'PRESS ' + K.label('a'), W / 2, 430, '#fff', 2, 1);
+        if (R.ending) ol(H, 'EVERY TEST PASSED! FULL LICENCE!', W / 2, 410, '#ff3a8a', 2, 1);
+        if (endT > 2.5 && (K.frame >> 4) & 1) ol(H, 'PRESS ' + K.label('a'), W / 2, 440, '#fff', 2, 1);
         return;
       }
-      ol(H, 'SHIFT OVER!', W / 2, 40, '#ffd21a', 5, 1);
+      ol(H, 'SHIFT OVER!', W / 2, 34, '#ffd21a', 5, 1);
       const rows = [['FARES', String(R.fares)], ['FARES TAKEN', '£' + R.money], ['CRAZY TIPS', '£' + R.tips], ['CRAZY STUNTS', String(R.crazyCount)], ['BEST COMBO', 'X' + R.bestCombo]];
-      rows.forEach(([a, b], i) => { if (endT > 0.8 + i * 0.25) { F.draw(H, a, W / 2 - 200, 110 + i * 28, '#9ad8ff', 2); F.draw(H, b, W / 2 + 200 - F.width(b, 2), 110 + i * 28, '#fff', 2); } });
-      if (endT > 2.2) { ol(H, 'TOTAL £' + R.total, W / 2, 260, '#3aff5a', 4, 1); ol(H, 'RATING: ' + R.rank, W / 2, 304, '#ff3a8a', 3, 1); if (R.pb) ol(H, 'NEW BEST TAKINGS!', W / 2, 340, '#ffd21a', 2, 1); if (R.place) ol(H, 'YOU\'RE #' + R.place + ' ON THE CABBIES\' TABLE', W / 2, 366, '#fff', 2, 1); if (sv.unlock.nan && !sv.nanSeen) { sv.nanSeen = 1; save(); say('NAN UNLOCKED!', 'A NEW DRIVER', 3, '#7ab8e8'); } }
-      if (endT > 2.5 && (K.frame >> 4) & 1) ol(H, 'PRESS ' + K.label('a'), W / 2, 420, '#fff', 2, 1);
+      panel(H, 40, 92, 340, 168, '#3ac8ff');
+      rows.forEach(([a, b], i) => { if (endT > 0.8 + i * 0.25) { F.draw(H, a, 56, 108 + i * 28, '#9ad8ff', 2); F.draw(H, b, 364 - F.width(b, 2), 108 + i * 28, '#fff', 2); } });
+      if (endT > 2.2) { // the licence grade, stamped on
+        const k2 = clamp((endT - 2.2) / 0.25, 0, 1), sc = 1 + (1 - k2) * 1.5, gc = { S: '#ffd21a', A: '#ff3a3a', B: '#3a8aff', C: '#3aff5a', D: '#ff8a3a', E: '#9a9a9a' }[R.grade];
+        panel(H, 400, 92, 200, 168, gc); F.center(H, 'LICENCE CLASS', 500, 104, '#fff', 1);
+        H.save(); H.translate(500, 170); H.scale(sc, sc); H.rotate(-0.12); H.globalAlpha = k2; H.font = 'italic 900 92px Arial Black,Arial,sans-serif'; H.textAlign = 'center'; H.textBaseline = 'middle'; H.fillStyle = '#000'; H.fillText(R.grade, 5, 5); H.fillStyle = gc; H.fillText(R.grade, 0, 0); H.lineWidth = 3; H.strokeStyle = '#000'; H.strokeText(R.grade, 0, 0); H.restore();
+        F.center(H, R.gradeName, 500, 232, gc, 2); if (R.newGrade) F.center(H, 'NEW BEST GRADE!', 500, 250, '#3aff5a', 1);
+        ol(H, 'TOTAL £' + R.total, W / 2, 278, '#3aff5a', 4, 1); ol(H, 'RATING: ' + R.rank, W / 2, 322, '#ff3a8a', 3, 1); if (R.pb) ol(H, 'NEW BEST TAKINGS!', W / 2, 358, '#ffd21a', 2, 1); if (R.place) ol(H, 'YOU\'RE #' + R.place + ' ON THE CABBIES\' TABLE', W / 2, 384, '#fff', 2, 1); if (sv.unlock.nan && !sv.nanSeen) { sv.nanSeen = 1; save(); say('NAN UNLOCKED!', 'A NEW DRIVER', 3, '#7ab8e8'); } }
+      if (endT > 2.5 && (K.frame >> 4) & 1) ol(H, 'PRESS ' + K.label('a'), W / 2, 430, '#fff', 2, 1);
+      msgs.forEach((m, i) => { ol(H, m.a, W / 2, 404 - i * 30, m.col, 2, 1); });
     }
     function logo(H, y, s) {
       for (let x = 0; x < W; x += 16) { H.fillStyle = (x / 16) % 2 ? '#111' : '#ffd21a'; H.fillRect(x, y - 30, 16, 8); H.fillRect(x + 8, y - 22, 16, 8); H.fillRect(x, y + 100 * s, 16, 8); H.fillRect(x + 8, y + 108 * s, 16, 8); }
@@ -1840,7 +1939,7 @@
       for (let i = 8; i > 0; i--) { H.fillStyle = i > 1 ? '#7a1a0a' : '#000'; H.fillText('MAD MINICAB', i, i + 4); }
       const gr = H.createLinearGradient(0, 0, 0, 64 * s); gr.addColorStop(0, '#fff8a0'); gr.addColorStop(0.45, '#ffd21a'); gr.addColorStop(0.55, '#f0a000'); gr.addColorStop(1, '#ffe060'); H.fillStyle = gr; H.fillText('MAD MINICAB', 0, 4);
       H.lineWidth = 2; H.strokeStyle = '#000'; H.strokeText('MAD MINICAB', 0, 4); H.restore();
-      ol(H, 'SUNNYMOUTH', W / 2 + 140, y + 74 * s, '#3ac8ff', 2, 1);
+      ol(H, 'SUNNYMOUTH', W / 2 + 140 * Math.max(s, 0.75), y + 74 * s, '#3ac8ff', s < 0.8 ? 1 : 2, 1);
     }
     function menuHud(H) {
       H.fillStyle = 'rgba(0,0,0,.18)'; H.fillRect(0, 0, W, HH); vmu(H);
@@ -1850,40 +1949,67 @@
         if ((K.frame >> 5) & 1) ol(H, 'PRESS START', W / 2, 300, '#fff', 4, 1);
         ol(H, 'BEST TAKINGS £' + (sv.money | 0) + '   HI-SCORE ' + K.best, W / 2, 372, '#9ad8ff', 2, 1);
         // the cabbies' table, a line at a time
-        const i = Math.floor(K.t / 2.5) % Math.min(5, sv.hi.length), h = sv.hi[i]; ol(H, (i + 1) + '. ' + h[0] + '  £' + h[1], W / 2, 400, '#ffd21a', 2, 1);
+        const i = Math.floor(K.t / 2.5) % Math.min(5, sv.hi.length), h = sv.hi[i]; ol(H, (i + 1) + '. ' + hiName(h) + '  £' + h[1], W / 2, 400, '#ffd21a', 2, 1);
         F.center(H, '(C) 1999 HI-OCTANE ENTERTAINMENT', W / 2, 452, '#ddd', 1, '#000');
         return;
       }
-      logo(H, 40, 0.6);
+      logo(H, 34, 0.5);
       if (mode === 'menu') {
-        MAIN.forEach((s, i) => { const sel = i === menu, t = s + (i === 1 ? ': ' + WORK[workSel] : ''); if (sel) { H.fillStyle = 'rgba(255,210,26,.25)'; H.fillRect(W / 2 - 200, 152 + i * 42, 400, 34); } ol(H, (sel ? '> ' : '') + t + (sel ? ' <' : ''), W / 2, 160 + i * 42, sel ? '#ffd21a' : '#fff', 3, 1); });
-        const tip = ['FARES BUY YOU MORE TIME. HOW LONG CAN YOU LAST?', 'A FIXED SHIFT. MAKE AS MUCH AS YOU CAN. LEFT/RIGHT: LENGTH', 'TEN LICENCE TESTS. WIN ALL THE GOLD MEDALS!', 'THE CABBIES\' TABLE, MEDALS AND BESTS', 'TIME OF DAY, MUSIC, ARROW, CAMERA', 'HOW TO DRIVE A MINICAB (BADLY)'][menu];
+        MAIN.forEach((s, i) => { const sel = i === menu, t = s + (i === 1 ? ': ' + WORK[workSel] : ''); if (sel) { H.fillStyle = 'rgba(255,210,26,.25)'; H.fillRect(W / 2 - 200, 140 + i * 38, 400, 32); } ol(H, (sel ? '> ' : '') + t + (sel ? ' <' : ''), W / 2, 147 + i * 38, sel ? '#ffd21a' : '#fff', 3, 1); });
+        const tip = ['FARES BUY YOU MORE TIME. HOW LONG CAN YOU LAST?', 'A FIXED SHIFT. MAKE AS MUCH AS YOU CAN. LEFT/RIGHT: LENGTH', 'SIXTEEN LICENCE TESTS. 3 MEDALS IN A ROW OPEN THE NEXT ROW!', 'THE CABBIES\' TABLE, MEDALS AND BESTS', 'YOUR MINICAB LICENCE: GRADES, MEDALS AND THE CREDITS', 'TIME OF DAY, MUSIC, ARROW, CAMERA', 'HOW TO DRIVE A MINICAB (BADLY)'][menu];
         panel(H, 20, 420, W - 40, 36, '#3ac8ff'); F.center(H, tip, W / 2, 434, '#fff', 1);
         return;
       }
       if (mode === 'drivers') {
-        ol(H, 'PICK YOUR DRIVER', W / 2, 110, '#fff', 3, 1);
-        DRIVERS.forEach((D, i) => { const x = 40 + i * 145, sel = i === drvSel, lk = !unlocked(D); panel(H, x, 150, 130, 170, sel ? '#ffd21a' : '#555');
-          H.fillStyle = '#' + D.col.toString(16).padStart(6, '0'); H.fillRect(x + 20, 172, 90, 40); H.fillStyle = 'rgba(0,0,0,.4)'; H.fillRect(x + 40, 162, 50, 14); H.fillStyle = '#222'; H.beginPath(); H.arc(x + 38, 214, 9, 0, 7); H.arc(x + 92, 214, 9, 0, 7); H.fill();
-          ol(H, lk ? '?????' : D.n, x + 65, 236, sel ? '#ffd21a' : '#fff', 2, 1);
-          [['SPEED', D.top / 38], ['GO', D.acc / 25], ['GRIP', D.grip / 13]].forEach(([n, v], j) => { F.draw(H, n, x + 10, 262 + j * 16, '#9ad8ff', 1); H.fillStyle = '#333'; H.fillRect(x + 54, 262 + j * 16, 66, 7); H.fillStyle = '#3aff5a'; H.fillRect(x + 54, 262 + j * 16, 66 * v, 7); });
-          if (lk) { H.fillStyle = 'rgba(0,0,0,.7)'; H.fillRect(x, 150, 130, 170); F.center(H, 'LOCKED', x + 65, 214, '#ff4a3a', 2); F.center(H, 'EARN £300 IN A SHIFT', x + 65, 240, '#fff', 1); F.center(H, 'OR WIN 5 MEDALS', x + 65, 252, '#fff', 1); } });
-        const D = DRIVERS[drvSel]; if (unlocked(D)) D.blurb.forEach((l, i) => F.center(H, l, W / 2, 340 + i * 20, '#fff', 2));
-        F.center(H, 'LEFT/RIGHT TO CHOOSE   ' + K.label('a') + ' TO DRIVE   ' + K.label('b') + ' BACK', W / 2, 420, '#9ad8ff', 1);
+        ol(H, 'PICK YOUR DRIVER', W / 2, 96, '#fff', 3, 1);
+        DRIVERS.forEach((D, i) => { const x = 24 + i * 151, sel = i === drvSel, lk = !unlocked(D); panel(H, x, 296, 141, 30, sel ? '#ffd21a' : '#444'); H.fillStyle = '#' + D.col.toString(16).padStart(6, '0'); H.fillRect(x + 8, 306, 14, 12); H.strokeStyle = '#000'; H.lineWidth = 1; H.strokeRect(x + 8.5, 306.5, 13, 11); F.draw(H, lk ? '?????' : D.n, x + 30, 305, sel ? '#ffd21a' : '#fff', 2); });
+        const D = DRIVERS[drvSel], lk = !unlocked(D); panel(H, 24, 336, W - 48, 106, lk ? '#ff4a3a' : '#ffd21a');
+        if (lk) { ol(H, 'LOCKED', W / 2, 352, '#ff4a3a', 3, 1); F.center(H, 'EARN £300 IN ONE SHIFT, OR WIN 5 CRAZY BOX MEDALS.', W / 2, 392, '#fff', 1); }
+        else {
+          ol(H, D.n, 40, 348, '#ffd21a', 3); D.blurb.forEach((l, i) => F.draw(H, l, 40, 384 + i * 18, '#fff', 1));
+          [['TOP SPEED', D.top / 38], ['ACCELERATION', D.acc / 25], ['GRIP', D.grip / 13]].forEach(([n, v], j) => { F.draw(H, n, 360, 352 + j * 22, '#9ad8ff', 1); H.fillStyle = '#222'; H.fillRect(460, 352 + j * 22, 140, 9); for (let q = 0; q < 10; q++) if (q < Math.round(v * 10)) { H.fillStyle = q > 7 ? '#ff3a8a' : '#3aff5a'; H.fillRect(461 + q * 14, 353 + j * 22, 12, 7); } });
+        }
+        F.center(H, 'LEFT/RIGHT TO CHOOSE   ' + K.label('a') + ' TO DRIVE   ' + K.label('b') + ' BACK', W / 2, 452, '#fff', 1);
         return;
       }
       if (mode === 'box') {
-        ol(H, 'THE CRAZY BOX', W / 2, 104, '#3ac8ff', 3, 1);
-        TESTS.forEach((t0, i) => { const col = i < 5 ? 0 : 1, row = i % 5, x = 40 + col * 290, y = 140 + row * 52, sel = i === boxSel, m = sv.medals[t0.id] | 0;
-          panel(H, x, y, 270, 44, sel ? '#ffd21a' : '#444'); F.draw(H, (i + 1) + '. ' + t0.n, x + 12, y + 10, sel ? '#ffd21a' : '#fff', 2);
-          F.draw(H, sv.best[t0.id] != null ? 'BEST ' + sv.best[t0.id] + t0.unit : 'NOT TRIED', x + 12, y + 30, '#9ad8ff', 1);
-          H.fillStyle = ['#333', '#e08a4a', '#d8d8e8', '#ffd21a'][m]; H.beginPath(); H.arc(x + 246, y + 22, 13, 0, 7); H.fill(); H.strokeStyle = '#000'; H.lineWidth = 2; H.stroke(); });
-        const t0 = TESTS[boxSel]; panel(H, 40, 404, W - 80, 56, '#3ac8ff'); F.center(H, t0.how.join(' '), W / 2, 414, '#fff', 1); F.center(H, 'GOLD ' + t0.med[2] + t0.unit + '   SILVER ' + t0.med[1] + t0.unit + '   BRONZE ' + t0.med[0] + t0.unit + '      ' + K.label('a') + ' TO TRY IT', W / 2, 436, '#ffd21a', 1);
+        ol(H, 'THE CRAZY BOX', W / 2, 100, '#3ac8ff', 3, 1);
+        TESTS.forEach((t0, i) => { const col = i & 3, row = i >> 2, x = 22 + col * 151, y = 128 + row * 64, sel = i === boxSel, m = sv.medals[t0.id] | 0, open = boxOpen(i);
+          panel(H, x, y, 143, 56, sel ? '#ffd21a' : open ? '#3a5a8a' : '#333');
+          if (!open) { H.fillStyle = 'rgba(0,0,0,.55)'; H.fillRect(x, y + 3, 143, 51); F.center(H, '?????', x + 72, y + 14, sel ? '#ffd21a' : '#777', 2); F.center(H, 'LOCKED', x + 72, y + 36, '#ff6a5a', 1); return; }
+          F.draw(H, (i + 1) + '.', x + 8, y + 9, '#9ad8ff', 1); F.draw(H, t0.n.length > 12 ? t0.n.split(' ')[0] : t0.n, x + 26, y + 9, sel ? '#ffd21a' : '#fff', 1);
+          if (t0.n.length > 12) F.draw(H, t0.n.split(' ').slice(1).join(' '), x + 26, y + 21, sel ? '#ffd21a' : '#fff', 1);
+          F.draw(H, sv.best[t0.id] != null ? 'BEST ' + sv.best[t0.id] + t0.unit : 'NOT TRIED', x + 8, y + 40, '#9ad8ff', 1);
+          H.fillStyle = ['#333', '#e08a4a', '#d8d8e8', '#ffd21a'][m]; H.beginPath(); H.arc(x + 124, y + 32, 11, 0, 7); H.fill(); H.strokeStyle = '#000'; H.lineWidth = 2; H.stroke(); if (m) F.center(H, 'BSG'[m - 1], x + 124, y + 28, '#000', 1); });
+        const t0 = TESTS[boxSel], op = boxOpen(boxSel); panel(H, 22, 392, W - 44, 70, '#3ac8ff');
+        if (op) { ol(H, t0.n, W / 2, 400, '#ffd21a', 2, 1); F.center(H, t0.how.join(' '), W / 2, 424, '#fff', 1); F.center(H, 'GOLD ' + t0.med[2] + t0.unit + '   SILVER ' + t0.med[1] + t0.unit + '   BRONZE ' + t0.med[0] + t0.unit + '      ' + K.label('a') + ' TO TRY IT', W / 2, 442, '#3aff5a', 1); }
+        else { ol(H, 'ROW ' + ((boxSel >> 2) + 1) + ' IS LOCKED', W / 2, 402, '#ff6a5a', 2, 1); F.center(H, 'WIN 3 MEDALS IN THE ROW ABOVE TO OPEN IT.', W / 2, 432, '#fff', 1); }
+        return;
+      }
+      if (mode === 'licence') {
+        if (licPage === 0) { // the licence card
+          ol(H, 'YOUR MINICAB LICENCE', W / 2, 100, '#ffd21a', 3, 1);
+          const x = 70, y = 134, w = W - 140, h = 240; H.fillStyle = '#f4ecd0'; H.fillRect(x, y, w, h); H.fillStyle = '#e8d8a8'; for (let i = 0; i < h; i += 6) H.fillRect(x, y + i, w, 2);
+          H.fillStyle = '#c8282a'; H.fillRect(x, y, w, 30); F.draw(H, 'SUNNYMOUTH BOROUGH COUNCIL', x + 12, y + 8, '#fff', 2); F.draw(H, 'HACKNEY & MINICAB', x + w - 12 - F.width('HACKNEY & MINICAB', 1), y + 12, '#ffd21a', 1);
+          H.fillStyle = '#9ab8d8'; H.fillRect(x + 16, y + 44, 92, 112); H.fillStyle = '#e8b890'; H.beginPath(); H.arc(x + 62, y + 86, 24, 0, 7); H.fill(); H.fillStyle = '#4a3020'; H.fillRect(x + 38, y + 58, 48, 14); H.fillStyle = '#2a3a6a'; H.fillRect(x + 30, y + 112, 64, 44); H.fillStyle = '#000'; H.fillRect(x + 52, y + 84, 4, 4); H.fillRect(x + 68, y + 84, 4, 4); H.fillRect(x + 56, y + 98, 12, 2);
+          const lk = (a, b, yy, c) => { F.draw(H, a, x + 124, y + yy, '#7a6a4a', 1); F.draw(H, b, x + 124, y + yy + 11, c || '#1a1a2a', 2); };
+          lk('NAME', castUp('me'), 44); lk('DRIVER', DRIVERS[sv.driver | 0].n, 76); lk('FARES DRIVEN', String(sv.fares | 0), 108); lk('BEST TAKINGS', '£' + (sv.money | 0), 140, '#2a7a2a');
+          const GO = 'EDCBAS', gx = x + w - 150; F.draw(H, 'GRADES', gx, y + 44, '#7a6a4a', 1);
+          [['ARCADE', 'arcade'], ['3 MIN', 'w3'], ['5 MIN', 'w5'], ['10 MIN', 'w10']].forEach(([n, k], i) => { const g = sv.grades[k]; F.draw(H, n, gx, y + 60 + i * 22, '#1a1a2a', 2); F.draw(H, g || '-', gx + 112, y + 60 + i * 22, g ? ['#8a8a8a', '#a86a2a', '#2a6a2a', '#2a4ac8', '#c8282a', '#c89a00'][GO.indexOf(g)] : '#9a9a9a', 2); });
+          F.draw(H, 'CRAZY BOX MEDALS ' + medalCount() + '/' + TESTS.length + '   GOLD ' + goldCount(), x + 16, y + 172, '#1a1a2a', 2);
+          for (let i = 0; i < 16; i++) { const m = sv.medals[TESTS[i].id] | 0; H.fillStyle = ['#c8bc98', '#e08a4a', '#c8c8d8', '#ffc81a'][m]; H.beginPath(); H.arc(x + 24 + i * 29.5 + (i >> 2) * 4, y + 212, 10, 0, 7); H.fill(); H.strokeStyle = '#5a4a2a'; H.lineWidth = 1; H.stroke(); }
+          F.center(H, 'LEFT/RIGHT: THE CREDITS   ' + K.label('a') + ': BACK', W / 2, 432, '#9ad8ff', 1);
+        } else { // the staff roll
+          H.fillStyle = 'rgba(0,0,20,.7)'; H.fillRect(0, 96, W, HH - 96);
+          const lines = CREDITS(), y0 = HH - credT * 34;
+          lines.forEach((l, i) => { const yy = y0 + i * 24; if (yy < 100 || yy > HH - 20) return; F.center(H, l, W / 2, yy, l.endsWith(':') ? '#ffd21a' : '#fff', 2); });
+          if (y0 + lines.length * 24 < 110) credT = 0;
+        }
         return;
       }
       if (mode === 'records') {
         ol(H, 'THE CABBIES\' TABLE', W / 2, 104, '#ffd21a', 3, 1);
-        sv.hi.forEach((h, i) => { F.draw(H, (i + 1 + '.').padEnd(4) + h[0], W / 2 - 180, 140 + i * 22, i < 3 ? '#ffd21a' : '#fff', 2); F.draw(H, '£' + h[1], W / 2 + 180 - F.width('£' + h[1], 2), 140 + i * 22, '#3aff5a', 2); });
+        sv.hi.forEach((h, i) => { F.draw(H, (i + 1 + '.').padEnd(4) + hiName(h), W / 2 - 180, 140 + i * 22, i < 3 ? '#ffd21a' : '#fff', 2); F.draw(H, '£' + h[1], W / 2 + 180 - F.width('£' + h[1], 2), 140 + i * 22, '#3aff5a', 2); });
         F.center(H, `SHIFTS ${sv.shifts | 0}   FARES ${sv.fares | 0}   MEDALS ${medalCount()}/${TESTS.length}   GOLD ${goldCount()}`, W / 2, 380, '#9ad8ff', 1);
         F.center(H, `MATES GIVEN A LIFT: ${MATES.map(m => sv.mates[m.id] ? m.n : '?').join(' ')}`, W / 2, 396, '#9ad8ff', 1);
         F.center(H, 'PRESS ' + K.label('a'), W / 2, 430, '#fff', 2);
@@ -1899,15 +2025,27 @@
         return;
       }
       if (mode === 'how') {
-        ol(H, 'HOW TO PLAY', W / 2, 96, '#ffd21a', 3, 1);
-        ['PEOPLE WAVING IN COLOURED RINGS WANT A CAB.', 'DRIVE INTO THE RING AND STOP TO PICK THEM UP.', 'GREEN = NOT FAR, YELLOW = A WAY, RED = MILES.', 'FOLLOW THE BIG ARROW. STOP IN THE GREEN BEAM.', 'FAST FARES BUY MORE TIME AND BIGGER TIPS.', '', 'CRAZY STUNTS WITH A PASSENGER = TIPS:', 'DRIFT (HOLD ' + K.label('c') + ' AND STEER), NEAR MISSES, JUMPS,', 'AND THE CRAZY DASH: BRAKE, THEN STRAIGHT ON GO.', 'STRING THEM TOGETHER FOR A COMBO!', '', 'GO: ' + K.label('a') + ' (OR UP)   BRAKE/REVERSE: ' + K.label('b') + ' (OR DOWN)', 'HANDBRAKE: ' + K.label('c') + '   PAUSE: START']
-          .forEach((l, i) => F.center(H, l, W / 2, 132 + i * 22, i === 6 ? '#ff3a8a' : i > 10 ? '#3aff5a' : '#fff', 2));
+        const KL = b => (K.keyLabel ? K.keyLabel(b) : K.label(b));
+        if (licPage === 0) {
+          ol(H, 'HOW TO PLAY', W / 2, 96, '#ffd21a', 3, 1);
+          ['PEOPLE WAVING IN COLOURED RINGS WANT A CAB.', 'DRIVE INTO THE RING AND STOP TO PICK THEM UP.', 'GREEN = NOT FAR, YELLOW = A WAY, RED = MILES.', 'FOLLOW THE BIG ARROW. STOP IN THE GREEN BEAM.', 'FAST FARES BUY MORE TIME AND BIGGER TIPS.', 'AT THE END OF A SHIFT YOU GET A LICENCE CLASS:', 'E, D, C, B, A... OR THE CRAZY CLASS S!', '', 'GO: ' + KL('a') + ' (OR UP)   BRAKE/REVERSE: ' + KL('b') + ' (OR DOWN)', 'HANDBRAKE: ' + KL('x') + '   PAUSE: ' + KL('start'), '', 'LEFT/RIGHT: THE CRAZY MOVES']
+            .forEach((l, i) => F.center(H, l, W / 2, 132 + i * 24, i === 11 ? '#9ad8ff' : i > 7 ? '#3aff5a' : i > 4 ? '#ffd21a' : '#fff', 2));
+        } else {
+          ol(H, 'THE CRAZY MOVES', W / 2, 96, '#ff3a8a', 3, 1);
+          [['CRAZY DASH', 'LET GO, TAP BRAKE, THEN STRAIGHT ON GO: A BURST OF SPEED.'], ['CRAZY DRIFT', 'HOLD THE HANDBRAKE AND STEER AT SPEED. SMOKIN\'!'], ['CRAZY STOP', 'STAND ON THE BRAKES FROM FLAT OUT AND STOP DEAD.'], ['CRAZY THROUGH', 'SKIM PAST TRAFFIC AT SPEED WITHOUT TOUCHING IT.'], ['CRAZY JUMP', 'HUMPS, RAMPS, THE CAR PARK ROOF. AIR TIME = TIPS.']]
+            .forEach(([n, d], i) => { ol(H, n, W / 2, 136 + i * 50, ['#ffd21a', '#3affd0', '#ff8a3a', '#3aff5a', '#9ad8ff'][i], 2, 1); F.center(H, d, W / 2, 160 + i * 50, '#fff', 1); });
+          F.center(H, 'CHAIN THEM WITH A PASSENGER ON BOARD FOR A COMBO = BIGGER TIPS!', W / 2, 400, '#ff3a8a', 1);
+        }
         return;
       }
     }
 
-    window.__taxiDbg = () => car && { mode, x: Math.round(car.x), z: Math.round(car.z), y: +car.y.toFixed(1), h: +car.h.toFixed(2), sp: +Math.hypot(car.vx, car.vz).toFixed(1), air: car.air, fare: fare && { to: fare.dest.ch, left: Math.round(fare.left) }, money, tips, fares, timeLeft: Math.round(timeLeft), custs: custs.length, test: test && { id: test.id, v: test.v, t: Math.round(test.t) }, arrowYaw: +arrowYaw.toFixed(2), arrowVis: arrow.visible, combo, demo };
-    window.__taxiDo = { start: k => startShift(k || 'arcade'), test: i => { sv.driver = sv.driver | 0; startTest(i); }, place: (x, z, h) => placeCab(x, z, h), pick: () => { const cu = nearestCust(); if (cu) { placeCab(cu.x + 2, cu.z, 0); pickUp(cu); } return fare && fare.dest.ch; }, tod: i => setTod(i), opt: (k, v) => { sv.opts[k] = v; }, menu: () => { mode = 'menu'; }, end: () => { timeLeft = 0.05; }, look: (x, y, z, lx, ly, lz) => { cam.position.set(x, y, z); cam.lookAt(lx, ly, lz); mode = 'view'; },
+    window.__taxiDbg = () => car && { mode, x: Math.round(car.x), z: Math.round(car.z), y: +car.y.toFixed(1), h: +car.h.toFixed(2), sp: +Math.hypot(car.vx, car.vz).toFixed(1), air: car.air, fare: fare && { to: fare.dest.ch, left: Math.round(fare.left) }, money, tips, fares, timeLeft: Math.round(timeLeft), custs: custs.length, test: test && { id: test.id, v: test.v, t: Math.round(test.t) }, arrowYaw: +arrowYaw.toFixed(2), arrowVis: arrow.visible, combo, demo, paused, menu, crazyCount, dash: car.dash, grade: results && results.grade, boxSel };
+    window.__taxiMenu = () => MAIN.slice(); window.__taxiTests = () => TESTS.map(t0 => t0.id);
+    window.__taxiDo = { save: () => { keepRun(true); }, time: t => { timeLeft = t; }, boxOpen: i => boxOpen(i), finish: v => finishTest(v), start: k => startShift(k || 'arcade'), test: i => { sv.driver = sv.driver | 0; startTest(i); }, place: (x, z, h) => placeCab(x, z, h), pick: () => { const cu = nearestCust(); if (!cu) return null; // (testing) pull up on the nearest bit of road beside them
+        let best = null, bd = 1e9; const c0 = cellOf(cu.x), r0 = cellOf(cu.z);
+        for (let r = r0 - 2; r <= r0 + 2; r++) for (let c = c0 - 2; c <= c0 + 2; c++) { if (at(c, r) !== '#') continue; const m = 4; const x = clamp(cu.x, c * CELL + m + 3, (c + 1) * CELL - m - 3), z = clamp(cu.z, r * CELL + m + 3, (r + 1) * CELL - m - 3), d = Math.hypot(x - cu.x, z - cu.z); if (d < bd) { bd = d; best = [x, z, (at(c - 1, r) === '#' || at(c + 1, r) === '#') ? Math.PI / 2 : 0]; } }
+        if (best) placeCab(best[0], best[1], best[2]); else placeCab(cu.x + 2, cu.z, 0); pickUp(cu); return fare && fare.dest.ch; }, tod: i => setTod(i), opt: (k, v) => { sv.opts[k] = v; }, menu: () => { mode = 'menu'; }, end: () => { timeLeft = 0.05; }, look: (x, y, z, lx, ly, lz) => { cam.position.set(x, y, z); cam.lookAt(lx, ly, lz); mode = 'view'; },
       showcase: () => { // (testing) every vehicle and every passenger lined up on the seafront road
         mode = 'view'; const z0 = 38.5 * CELL; let x = 3 * CELL; const kinds = [['saloon', 0xffd21a], ['hatch', 0xff5ab4], ['black', 0x1c1c22], ['estate', 0x7ab8e8], ['van', 0xf0f0f0], ['bus', 0xd8261c], ['float', 0xf0f0f0], ['saloon', 0xf0f0f0, { police: 1 }], ['van', 0xf8c8d8, { ice: 1 }]];
         for (const v of traffic) v.m.visible = false; for (const p of peds) { p.x = -999; }
@@ -1916,10 +2054,10 @@
         return out; } };
     return {
       update(dt) { update(dt); },
-      draw() { if (car) { car.root.position.set(car.x, car.y, car.z); car.root.rotation.set(0, car.h, 0); car.body.rotation.set(car.pitch, 0, car.roll); car.body.position.y = -Math.abs(Math.sin(K.t * 30)) * car.bounce * 0.3; for (const w of car.wheels) { w.w.rotation.x = car.spin; w.p.rotation.y = w.front ? -car.steer * 0.45 : 0; } car.root.visible = mode !== 'boot' && mode !== 'title' && mode !== 'menu' && mode !== 'drivers' && mode !== 'box' && mode !== 'records' && mode !== 'options' && mode !== 'how' || demo; }
+      draw() { if (car) { car.root.position.set(car.x, car.y, car.z); car.root.rotation.set(0, car.h, 0); car.body.rotation.set(car.pitch, 0, car.roll); car.body.position.y = -Math.abs(Math.sin(K.t * 30)) * car.bounce * 0.3; for (const w of car.wheels) { w.w.rotation.x = car.spin; w.p.rotation.y = w.front ? -car.steer * 0.45 : 0; } car.root.visible = !MENUISH(mode) || mode === 'drivers' || demo; }
         sky.position.copy(cam.position); stars.position.copy(cam.position);
         T3.render(); hud(); },
-      end() { K.music(null); for (const m of disposeList) { try { m.dispose(); } catch (e) {} } try { C.texDay.dispose(); C.texGlow.dispose(); signMat.map.dispose(); signMat.dispose(); } catch (e) {} delete window.__taxiDo; },
+      end() { K.music(null); for (const m of disposeList) { try { m.dispose(); } catch (e) {} } try { C.texDay.dispose(); C.texGlow.dispose(); signMat.map.dispose(); signMat.dispose(); } catch (e) {} delete window.__taxiDo; delete window.__taxiDbg; delete window.__taxiMenu; delete window.__taxiTests; },
     };
   }
 })();
