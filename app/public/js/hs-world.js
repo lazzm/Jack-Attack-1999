@@ -901,8 +901,10 @@
     const o = OPEN[id]; if (!o) return;
     if (o.canToggle && !o.canToggle(!o.open)) return;
     o.open = want == null ? !o.open : !!want;
-    const from = o.k, to = o.open ? 1 : 0, t0 = performance.now();
-    anims.set('open:' + id, n => { const k = Math.min(1, (n - t0) / o.ms); o.k = from + (to - from) * ease(k); o.apply(); return k < 1; });
+    // doors and drawers swing on the shared minimum-jerk curve; reversing mid-swing keeps the swing's momentum
+    const from = o.k, to = o.open ? 1 : 0, t0 = performance.now(), v0 = anims.has('open:' + id) ? (o.vel || 0) : 0;
+    const ms = Math.max(160, o.ms * (v0 ? Math.min(1, Math.abs(to - from) + .25) : 1));let last = t0, prev = from;
+    anims.set('open:' + id, n => { const k = clamp((n - t0) / ms, 0, 1); o.k = clamp(from + (to - from) * H5(k) + v0 * ms * H1(k), 0, 1); if (n > last) { o.vel = (o.k - prev) / (n - last); prev = o.k; last = n; } o.apply(); if (k < 1) return true; o.k = to; o.vel = 0; o.apply(); return false; });
     if (o.sound !== false) { physicalSound(o.type==='slide'?'drawer':'door',{open:o.open}); }
     if (o.onToggle) try { o.onToggle(o.open); } catch (e) { console.error(e); }
     emit('open', id, o.open); saveThings();

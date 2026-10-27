@@ -1717,7 +1717,11 @@
   }
   function returnHandheld() {
     if (!gbPlay) return; const saved = gbPlay, t = H.THINGS.gb; gbPlay = null;
-    const ms = H.motion.scale(H.motion.ms.unfocus);
+    // exit() runs just before the camera's return move is planned: take that move's own duration (shorter when
+    // the raise was interrupted part-way), so the handheld and the camera land on the same frame
+    Promise.resolve().then(() => { if (!gbPlay) returnTween(saved, t, H._.glide?.kind === 'unfocus' ? H._.glide.ms : H.motion.scale(H.motion.ms.unfocus)); });
+  }
+  function returnTween(saved, t, ms) {
     if (saved.grip) {
       // back into the hand pose it was raised from, on the camera's own return curve; then the carry takes over again
       const hand = saved.hand;
