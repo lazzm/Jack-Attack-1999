@@ -1,0 +1,17 @@
+/* Ultra 64 plastic controller: controls sit outside the 4:3 cartridge picture. */
+.rm-tvv:has(.party-controls){--rm-screen-bottom:154px}
+.party-controls{position:absolute;inset:0;pointer-events:none;user-select:none;-webkit-user-select:none}
+.party-pad,.party-buttons{position:absolute;bottom:max(10px,env(safe-area-inset-bottom));width:136px;height:136px;pointer-events:auto;touch-action:none}
+.party-pad{left:max(12px,env(safe-area-inset-left));border:2px solid #52536a;background:#b6b8c5;box-shadow:inset 2px 2px #eeeef5,inset -3px -3px #777c95;border-radius:12px}
+.party-pad span{position:absolute;display:grid;place-items:center;width:42px;height:42px;background:#393d55;color:#f0ebce;border:1px solid #202237;box-shadow:inset 2px 2px #6e738d,inset -2px -2px #282b42;font:bold 21px 'Courier New',monospace;pointer-events:none}
+.party-pad .up{top:2px;left:46px}.party-pad .down{bottom:2px;left:46px}.party-pad .left{left:2px;top:46px}.party-pad .right{right:2px;top:46px}
+.party-pad:after{content:'';position:absolute;left:46px;top:46px;width:44px;height:44px;background:#393d55}
+.party-pad.up-active .up,.party-pad.down-active .down,.party-pad.left-active .left,.party-pad.right-active .right{background:#737e9b;box-shadow:inset 2px 2px #30354e}
+.party-buttons{right:max(12px,env(safe-area-inset-right));display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:center}
+.party-buttons button{min-height:52px;min-width:0;padding:0;border:2px solid #30364b;background:#9c9fac;color:#fff8db;box-shadow:inset 2px 2px #e3e1e8,inset -3px -3px #60647e;font:bold 12px 'Courier New',monospace;touch-action:none}
+.party-buttons [data-party=a]{background:#315bb1;border-radius:50%}.party-buttons [data-party=b]{background:#43815d;border-radius:50%}
+.party-buttons [data-party=start]{background:#a34251}.party-buttons button.pressed{box-shadow:inset 2px 2px #22253b;transform:translateY(1px)}
+.rm-tvv:has(.party-controls) .rm-help{display:none}.rm-tvv:has(.party-controls) .rm-livebar{bottom:168px}
+.hs-paused .party-controls{visibility:hidden}
+@media (orientation:landscape){.rm-tvv:has(.party-controls){--rm-screen-bottom:8px;--rm-screen-left:164px;--rm-screen-right:164px}}
+@media (max-width:360px){.party-pad,.party-buttons{width:124px;height:136px}.party-pad .up,.party-pad .down{left:40px}.party-pad:after{left:40px}.party-pad .left{left:0}.party-pad .right{right:0}}
