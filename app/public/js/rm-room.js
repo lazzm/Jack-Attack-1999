@@ -1740,10 +1740,13 @@
   function gbPlayPose(view) {
     // the glass (4.6 x 4.14 cm, centred 3.5 cm up the body) fills ~58% of the height, or ~76% of a narrow width
     const t = Math.tan(H.motion.lensFov(view.zm) * D2R / 2), aspect = innerWidth / innerHeight;
-    const d = Math.max(2.07 / (0.58 * t), 2.3 / (0.76 * t * aspect), 6.5);
+    // A portrait touchscreen frames the whole handheld (screen AND its moulded buttons, which are the touch controller:
+    // js/rm-tv.js gbTouch); otherwise the glass fills the view and the pad (or the keys) does the rest.
+    const whole = !!window.GameInput?.touch && innerHeight > innerWidth * 1.1;
+    const d = whole ? Math.max(7.1 / (0.86 * t), 4.1 / (0.9 * t * aspect), 6.5) : Math.max(2.07 / (0.58 * t), 2.3 / (0.76 * t * aspect), 6.5);
     const q = new T.Quaternion().setFromEuler(new T.Euler(-80 * D2R, -view.ry * D2R, 0, 'YXZ'));
     const a = view.ry * D2R, b = (view.rx || 0) * D2R, f = new T.Vector3(Math.sin(a) * Math.cos(b), -Math.sin(b), -Math.cos(a) * Math.cos(b));
-    const glass = new T.Vector3(0, -2.97, -3.5).applyQuaternion(q);
+    const glass = (whole ? new T.Vector3(0, -2.6, 0.2) : new T.Vector3(0, -2.97, -3.5)).applyQuaternion(q);
     const pos = new T.Vector3(view.x, view.y, view.z).addScaledVector(f, d).sub(glass);
     return relTo(view, new T.Matrix4().compose(pos, q, new T.Vector3(1, 1, 1)));
   }

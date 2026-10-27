@@ -41,7 +41,7 @@
       row.setAttribute('aria-pressed', String(s.key === active?.key));
       const mark = document.createElement('span'); mark.className = 'st-quest-check'; mark.textContent = s.key === active?.key ? '●' : '○'; mark.setAttribute('aria-hidden','true');
       const copy = document.createElement('span'), text = document.createElement('strong'), hint = document.createElement('small');
-      text.textContent = s.text; hint.textContent = s.hint; copy.append(text, hint); row.append(mark, copy); list.appendChild(row);
+      text.textContent = s.text; hint.textContent = touchHint(s.hint); copy.append(text, hint); row.append(mark, copy); list.appendChild(row);
     }
     if (!list.children.length) { const p = document.createElement('p'); p.textContent = 'Everything on my list is done. Time for a game!'; list.appendChild(p); }
     if (!redraw) {
@@ -53,6 +53,9 @@
     if (!redraw) questPage.scrollTop = 0;
     return true;
   }
+  // On a touchscreen the hints name the buttons (js/hs-touch.js) instead of the keys: "F plays" -> "USE plays".
+  const TOUCH_KEYS = { F: 'USE', E: 'PICK UP', R: 'TURN', Q: 'BACK', X: 'DROP', Enter: 'START' };
+  function touchHint(text) { return window.GameInput?.touch ? String(text || '').replace(/\b(Enter|[FERQX])\b(?=[\s.,;:)]|$)/g, k => TOUCH_KEYS[k]) : text; }
   function handleKey(e) {
     if (e.ctrlKey || e.metaKey || e.altKey || e.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]')) return false;
     const key = e.key.toLowerCase();
@@ -113,7 +116,7 @@
         g.fillText('Note to self...', 94, 130); g.font = 'italic 37px ' + HAND;
         let y = wrap(g, next ? next.text : 'Two chapters down. This year is looking good.', 94, 237, w - 150, 48);
         g.fillStyle = '#586987'; g.font = 'italic 32px ' + HAND;
-        wrap(g, next ? next.hint : 'The next pages are coming soon. Meanwhile, there are still games, jobs and mates to catch up with.', 94, y + 50, w - 150, 42);
+        wrap(g, next ? touchHint(next.hint) : 'The next pages are coming soon. Meanwhile, there are still games, jobs and mates to catch up with.', 94, y + 50, w - 150, 42);
         g.fillStyle = '#8d4a3f'; g.font = 'italic 28px ' + HAND; g.fillText('J chooses a task. Turn for my list.', 94, 836); doodle(g, 540, 880, true);
       } else if (pg.soon) {
         g.fillText('The next pages...', 94, 130); let y = 230; g.font = 'italic 33px ' + HAND;

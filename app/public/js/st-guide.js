@@ -133,23 +133,28 @@
     }
     return [px,py];
   }
+  // (media queries made once; the speech check is DOM work, so at most five times a second: this runs every frame)
+  const coarseMQ=matchMedia('(pointer:coarse)'), reduceMQ=matchMedia('(prefers-reduced-motion: reduce)');
+  let speechAt=0, speechNow=false, viewW=innerWidth, viewH=innerHeight;
+  addEventListener('resize',()=>{viewW=innerWidth;viewH=innerHeight;});
+  function speaking(now){if(now-speechAt>200||now<speechAt){speechAt=now;speechNow=!!document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on') || (viewW<=900 || coarseMQ.matches) && !!document.querySelector('.ch-chip:not([hidden])');}return speechNow;}
   function tick(now) {
     const dt=Math.min(.05,(now-(previous||now))/1000); previous=now;
-    const visible=show() && mode!=='off', speech=!!document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on') || (innerWidth<=900 || matchMedia('(pointer:coarse)').matches) && !!document.querySelector('.ch-chip:not([hidden])');
+    const visible=show() && mode!=='off', speech=visible&&speaking(now);
     if (!visible) {
       marker.hidden=prompt.hidden=card.hidden=true;
       let dirty=false; for(const m of marks)for(const shell of m.shells){dirty ||= shell.visible;shell.visible=false;}
       if(dirty)H.dirty();nextSample=0;alpha=0;return;
     }
     if(now>=nextSample)sample(now);
-    const full=mode==='full', pulse=matchMedia('(prefers-reduced-motion: reduce)').matches? .75 : .72+Math.sin(now*.0022)*.18;
+    const full=mode==='full', pulse=reduceMQ.matches? .75 : .72+Math.sin(now*.0022)*.18;
     for(const m of marks)for(const shell of m.shells){shell.visible=full;shell.material.uniforms.strength.value=pulse;}
     marker.hidden=prompt.hidden=true;
     const chapterInk = titleUntil === -1 || titleUntil > Date.now();
     if(sampled && full && !speech && !chapterInk) {
       const {pos,dist}=sampled, cam=pos.clone().applyMatrix4(H.camera.matrixWorldInverse), ndc=pos.clone().project(H.camera), behind=cam.z>=0;
-      const w=H.ui.el.clientWidth||innerWidth,h=H.ui.el.clientHeight||innerHeight;
-      const marginX=w<600?78:128, top=h<500?128:w<=900?192:142,bottom=h<500?108:175;
+      const w=viewW,h=viewH; // (cached on resize: reading any viewport size here forced a style/layout flush every frame)
+      const marginX=w<600?78:128, top=h<500?128:w<=900?192:142,bottom=window.GameInput?.touch&&h>=500?285:h<500?108:175; // (touch: clear of the thumb controls)
       let tx=(ndc.x+1)*w/2,ty=(1-ndc.y)*h/2;
       const off=behind||tx<marginX||tx>w-marginX||ty<top||ty>h-bottom;
       const dx=cam.x,dy=-cam.y;
@@ -178,7 +183,9 @@
   window.StoryGuide={get strength(){return mode;},setting(value){if(['full','light','off'].includes(value)){mode=value;localStorage.setItem('jhp_story_guidance',mode);nextSample=0;}tick(performance.now());return mode;},chapter(n,title){titleUntil=-1;titleText='CHAPTER '+n+' — '+title;},targets};
   // Screen ink follows the latest camera every frame; idle rim lighting only
   // requests ten room redraws per second and never redraws behind a screen.
-  function frame(now){tick(now);requestAnimationFrame(frame);}
+  // (phones and Potato draw the house at 30 Hz: the ink follows at the same rate)
+  let lastFrame=0;
+  function frame(now){requestAnimationFrame(frame);if(H.Q?.tier==='potato'&&now-lastFrame<30&&now>=lastFrame)return;lastFrame=now;tick(now);}
   requestAnimationFrame(frame);
   H.on('mode',()=>tick(performance.now()));
   st.onChange(()=>{signature='';nextSample=0;tick(performance.now());});

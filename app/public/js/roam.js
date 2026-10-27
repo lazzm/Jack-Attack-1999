@@ -5,8 +5,9 @@
  *   Roam.logoff() -> Promise: saves the profile now, then gives the PC back to the guest (call before reloading).
  *   Roam.syncNow() -> Promise: uploads straight away (if anything changed). */
 (function () {
-  // device-only keys never roam: who this browser is, boot state, window geometry, the roaming bookkeeping itself
-  const LOCAL = /^jhp_(cid|token|clean|booted|everbooted|forceboot|win|max|logon_seen|roam_.*|site_prompted|gsl_.*)$/; // (jhp_gsl_*: big saved games stay on this PC, js/gamesave.js)
+  // device-only keys never roam: who this browser is, boot state, window geometry, the roaming bookkeeping itself, and
+  // what this device can draw (a desktop's High graphics must never land on a phone; js/pc-only.js device choice too)
+  const LOCAL = /^jhp_(cid|token|clean|booted|everbooted|forceboot|win|max|logon_seen|roam_.*|site_prompted|gsl_.*|hs_gfx|hs_graphics|device_view|touch_slow_asked)$/; // (jhp_gsl_*: big saved games stay on this PC, js/gamesave.js)
   const ls = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },

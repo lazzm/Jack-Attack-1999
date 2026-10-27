@@ -52,10 +52,12 @@ for (const event of [
   { pointerType: 'touch', movementX: 1 }, { pointerType: 'pen', movementX: 1 },
   { pointerType: 'mouse', movementX: 0, movementY: 0 },
 ]) f.document.fire('pointermove', event);
-f.document.fire('pointerdown', { pointerType: 'touch' });
-f.document.fire('pointerdown', { pointerType: 'pen' }); f.document.fire('touchstart');
-assert.equal(f.api.mode, 'keyboard', 'Non-mouse input changed PC mode');
-f.document.fire('pointermove', { pointerType: 'mouse', movementX: 1 }); assert.equal(f.api.mode, 'mouse');
+assert.equal(f.api.mode, 'keyboard', 'Moves, synthetic or touch-compatibility mouse events changed mode');
+// Device policy (2026-10-26): a finger on the screen is touch input (the house shows its thumb controls).
+f.document.fire('pointerdown', { pointerType: 'touch' }); assert.equal(f.api.mode, 'touch'); assert.equal(f.api.touch, true);
+assert.equal(f.document.documentElement.dataset.gameTouch, 'true');
+f.document.fire('pointerdown', { pointerType: 'pen' }); f.document.fire('touchstart'); assert.equal(f.api.mode, 'touch');
+f.document.fire('pointermove', { pointerType: 'mouse', movementX: 1 }); assert.equal(f.api.mode, 'mouse'); assert.equal(f.api.touch, false);
 for (const extra of [{ isTrusted: false }, { target: { closest: () => ({}) } }, { isComposing: true }, { keyCode: 229 }, { code: '' }]) {
   f.document.fire('keydown', { ...key, ...extra }); assert.equal(f.api.mode, 'mouse');
 }
@@ -73,7 +75,7 @@ f.pads([]); f.poll(); assert.equal(f.api.mode, 'keyboard');
 assert.equal(f.changes.at(-1).reason, 'gamepad-disconnected');
 f.document.hidden = true; f.document.fire('visibilitychange'); assert.equal(f.timers.size, 0);
 f.document.hidden = false; f.document.fire('visibilitychange'); assert.equal(f.timers.size, 1);
-assert(f.changes.every(c => c.previous && c.mode && c.touch === false));
+assert(f.changes.every(c => c.previous && c.mode && c.touch === (c.mode === 'touch')));
 assert.equal(f.document.documentElement.dataset.gameInput, 'keyboard');
 
 // Native click(1), click(2), dblclick opens once; nearby click(1)s never emulate it.
@@ -84,8 +86,6 @@ const icon = new Events('BUTTON'); appCtx.bindLaunch(icon, () => opened++, () =>
 for (const detail of [1, 1, 2]) icon.fire('click', { detail, button: 0 });
 assert.equal(opened, 0); icon.fire('dblclick', { detail: 2, button: 0 }); assert.equal(opened, 1);
 icon.fire('dblclick', { detail: 2, button: 0 }); assert.equal(opened, 2, 'Separate double-click suppressed');
-for (const pointerType of ['touch', 'pen']) icon.fire('click', { detail: 1, button: 0, pointerType });
-assert.equal(opened, 2, 'Touch/pen single-click launched');
 icon.fire('click', { detail: 0, button: 0 }); assert.equal(opened, 3, 'Native Enter click failed');
 icon.fire('click', { detail: 0, button: 2 }); icon.fire('dblclick', { button: 2 }); assert.equal(opened, 3);
 const row = new Events(); appCtx.bindLaunch(row, () => opened++);
@@ -93,14 +93,17 @@ assert.equal(row.tabIndex, 0); assert(row.fire('keydown', { key: 'Enter' }).defa
 row.fire('keydown', { key: 'Enter', repeat: true }); row.fire('keyup', { key: 'Enter' });
 assert.equal(opened, 4, 'Non-button Enter did not activate exactly once'); assert(selected > 0);
 
-// Handheld JackOS gets direct icon activation, without changing desktop double-clicks.
-appCtx.window.PCOnly.desktopOnly=true;
-const beforeMobile=opened;
-icon.fire('click',{detail:1,button:0,pointerType:'touch'});
-assert.equal(opened,beforeMobile+1);
-icon.fire('click',{detail:1,button:0,pointerType:'touch',isTrusted:false});
-assert.equal(opened,beforeMobile+1);
-appCtx.window.PCOnly.desktopOnly=false;
+// A finger or pen opens a JackOS icon with one click on any device (the house's monitor or JackOS on its own);
+// mouse double-clicks are unchanged, and synthetic clicks never launch.
+for (const desktopOnly of [false, true]) {
+  appCtx.window.PCOnly.desktopOnly = desktopOnly;
+  const before = opened;
+  icon.fire('click', { detail: 1, button: 0, pointerType: 'touch' }); icon.fire('click', { detail: 1, button: 0, pointerType: 'pen' });
+  assert.equal(opened, before + 2, 'Touch/pen single click did not launch');
+  icon.fire('click', { detail: 1, button: 0, pointerType: 'touch', isTrusted: false });
+  assert.equal(opened, before + 2);
+}
+appCtx.window.PCOnly.desktopOnly = false;
 
 // Execute the complete production game kit, including real routing and cleanup.
 const games = source('apps-games.js');

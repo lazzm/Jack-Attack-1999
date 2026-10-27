@@ -63,7 +63,7 @@
     const s = tracked(), tick = celebration && Date.now() < tickUntil;
     line.hidden = !visible() || window.StoryGuide?.strength === 'off' || (!s && !tick);
     line.classList.toggle('st-tick', !!tick);
-    const text = tick ? '✓ ' + C.byId[celebration].text : s ? '› ' + s.text + '  [J]' : '';
+    const text = tick ? '✓ ' + C.byId[celebration].text : s ? '› ' + s.text + (window.GameInput?.touch ? '' : '  [J]') : '';
     if (line.textContent !== text) line.textContent = text;
     line.title = s ? s.hint + ' — J: choose an objective.' : '';
   }

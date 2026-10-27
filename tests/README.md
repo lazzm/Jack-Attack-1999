@@ -68,7 +68,7 @@ the repository. Do not regenerate assets from procedural drawings or silently ov
 
 | Classification | Scripts | When to use |
 | --- | --- | --- |
-| smoke-covered | `smoke.mjs` | Signup/WebGL, WASD/pose refresh, PC/app/Q/F2/T, physical console, phone typing, E placement/refresh, Esc, mobile-only desktop, errors/logs, six art views. |
+| smoke-covered | `smoke.mjs` | Signup/WebGL, WASD/pose refresh, PC/app/Q/F2/T, physical console, phone typing, E placement/refresh, Esc, phone house (touch, phone tier, shared room) + chosen JackOS-only fallback, errors/logs, six art views. |
 | still-useful-regression (units) | `audio-routing-unit.cjs`, `bedroom-hifi-unit.cjs`, `family-phone-private-unit.cjs`, `hs-input-unit.cjs`, `magazine-catalogue-unit.cjs`, `mobile-phone-unit.cjs`, `neighbourhood-geometry.cjs`, `parody-audit.cjs`, `pc-game-coordinates-unit.cjs`, `reading-turn-unit.cjs`, `sms-private-unit.cjs`, `starter-unit.cjs`, `wallet-unit.cjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
 | still-useful-regression (accounts/devices/live) | `account-form.mjs`, `accounts-bank.mjs`, `accounts-profile.mjs`, `accounts-sockets.mjs`, `house-model-geometry.mjs`, `live-pc-only.mjs`, `live-readonly.mjs`, `mobile-desktop.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
 | still-useful-regression (room/control/art) | `adaptive-render.mjs`, `ao-geometry.mjs`, `audio-settings.mjs`, `bedroom-hifi.mjs`, `box-art.mjs`, `chair-pc-menu.mjs`, `chair-placement.mjs`, `console-case-play.mjs`, `console-cases.mjs`, `console-switch-hud.mjs`, `controls-media.mjs`, `controls-qt.mjs`, `desk-render-controls.mjs`, `disc-shortcuts.mjs`, `door-editor-state.mjs`, `door-interaction-review.mjs`, `door-seal.mjs`, `doorway-lighting.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
@@ -153,8 +153,22 @@ Current device-policy and room-layout regression (disposable localhost data only
     node pc-access-and-layout.mjs http://localhost:18080
     node pc-console-controls.mjs http://localhost:18080
 
-Phones/tablets use fullscreen JackOS only, behind the same account gate. The room remains
-desktop-only. Verify touch desktop launching/reading, saved room/power preservation and no room renderer.
+Device policy (owner, 2026-10-26): phones and tablets play the whole game, 3D house included (js/hs-touch.js thumb
+controls, Potato tier on phones, Low on tablets). JackOS on its own (mobile-desktop.mjs) is now only the fallback a
+player chooses (game menu, or the too-slow offer) or a handheld without WebGL; those older scripts still describe it.
+
+Phones and tablets (starts and stops its own server, or pass a localhost URL; one browser at a time):
+
+    node mobile.mjs [http://localhost:PORT] [--only=gate,story,full,tablet,owner,perf] [--throttle=4]
+
+Playwright device profiles (isMobile, hasTouch, mobile user agents) at 360x740, 390x844, 412x915, 768x1024 and
+844x390/915x412, driving real touch through the DevTools protocol: account gate at every size; signup -> opening
+story -> stick walk/jog -> drag look -> quest line/diary -> pause menu touch settings -> refresh mid-walk (pose kept)
+-> rotate -> WebGL context loss/restore (never black); PC logon (phones LOCK IN, monitor-chin buttons), JackOS by
+touch with the phone keyboard, carry (Pick up/Turn/Put down), case/cartridge/console by touch buttons, the console
+pad portrait/landscape/LOCK IN, the Game Lad's own moulded buttons (portrait) and pad wings (landscape); tablet;
+owner tools; frame times with emulated CPU throttling. Every state is a PNG in shots/mobile/ plus report.json
+(layout audit: clipped, tiny <36px or overlapping controls fail the run; perf numbers are software WebGL).
 
 Current physical-room regressions (disposable localhost data only):
 

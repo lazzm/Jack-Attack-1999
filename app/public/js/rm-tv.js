@@ -34,6 +34,7 @@
   const h = (html, cls, tag) => { const e = document.createElement(tag || 'div'); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const keyboardHints = () => !window.GameInput || GameInput.mode !== 'gamepad';
+  const touchy = () => !!window.GameInput?.touch;
   const load = src => (window.Apps && Apps.load) ? Apps.load(src) : new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
   (function css() { if (document.getElementById('rmTvCss')) return; const l = document.createElement('link'); l.id = 'rmTvCss'; l.rel = 'stylesheet'; l.href = 'css/rm-tv.css' + ((document.querySelector('link[href*="css/rm.css"]') || {}).href || '').replace(/^[^?]*/, ''); document.head.appendChild(l); })();
 
@@ -180,18 +181,21 @@
   // ================================================================ input: keyboard, mouse hardware buttons, gamepads
   const KEYMAP = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right',
     z: 'a', Z: 'a', ' ': 'a', j: 'a', J: 'a', x: 'b', X: 'b', k: 'b', K: 'b', c: 'c', C: 'c', l: 'c', L: 'c', v: 'y', V: 'y', i: 'y', I: 'y', u: 'l', U: 'l', e: 'r', E: 'r', Enter: 'start', Shift: 'select' };
-  const held = {}, hardwareHeld = {}, gpHeld = {}, keySources = new Map(); let pend = {}, now = {};
+  const held = {}, hardwareHeld = {}, gpHeld = {}, padHeld = {}, keySources = new Map(), touchPads = new Map(); let pend = {}, now = {}; const stickT = { x: 0, y: 0, on: false };
   const mappedKey=ev=>defs[V?.gid]?.keyboard?.[ev.code]||KEYMAP[ev.key];
   function press(b, down) {
     if (down) { if (!isHeld(b)) pend[b] = true; } // (an edge: only when it wasn't already held)
   }
-  const isHeld = b => !!(held[b] || hardwareHeld[b] || gpHeld[b]);
+  const isHeld = b => !!(held[b] || hardwareHeld[b] || gpHeld[b] || padHeld[b]);
   // 'c' doubles as 'x' (the PlayStation's square, the Dreamcast's X)
   const alias = b => b === 'x' ? ['x', 'c'] : b === 'c' ? ['c', 'x'] : [b];
   function stick() {
     if (!V || V.background || R.House.paused) return { x: 0, y: 0 };
     const gp = !window.GameInput || GameInput.mode === 'gamepad' ? gpad() : null; if (gp && (Math.abs(gp.axes[0] || 0) > 0.15 || Math.abs(gp.axes[1] || 0) > 0.15)) return { x: clamp(gp.axes[0] || 0, -1, 1), y: clamp(gp.axes[1] || 0, -1, 1) };
-    return { x: +isHeld('right') - +isHeld('left'), y: +isHeld('down') - +isHeld('up') };
+    if (stickT.on) return { x: stickT.x, y: stickT.y };
+    // A separate movement pad also sends menu directions; those must not turn into aiming when the right thumb lets go.
+    const directionHeld = b => V?.el.classList.contains('rm-dual') ? !!(held[b] || gpHeld[b] || hardwareHeld[b]) : isHeld(b);
+    return { x: +directionHeld('right') - +directionHeld('left'), y: +directionHeld('down') - +directionHeld('up') };
   }
   function gpad() { try { const l = navigator.getGamepads ? navigator.getGamepads() : []; for (const g of l) if (g && g.connected) return g; } catch (e) {} return null; }
   const GPB = { 0: 'a', 1: 'b', 2: 'c', 3: 'y', 4: 'l', 5: 'r', 8: 'select', 9: 'start', 12: 'up', 13: 'down', 14: 'left', 15: 'right' };
@@ -268,6 +272,7 @@
         <div class="rm-help"></div>
         <div class="rm-btns"><button type="button" class="rm-b rm-back">&larr; Back to my room</button><button type="button" class="rm-b rm-eject" hidden>Eject</button><button type="button" class="rm-b rm-blowb" hidden>Blow on it</button><button type="button" class="rm-b rm-snd"></button></div>
       </div>
+      <div class="rm-pad" hidden></div>
       <div class="rm-tools" aria-label="Console controls"><button type="button" class="rm-b rm-lean" title="Leave the game running">Q · BACK</button><button type="button" class="rm-b rm-menu" title="Game menu">ESC · MENU</button><button type="button" class="rm-b rm-lock" title="Keep playing at the screen’s native shape" aria-pressed="false">T · LOCK IN</button></div>`, 'rm-view rm-tvv' + (hand && !live ? ' rm-hand' : '') + (live ? ' rm-live3d' : ''));
     el.dataset.con = con;
     (live ? document.documentElement : pb).appendChild(el);
@@ -287,6 +292,7 @@
     $(el, '.rm-snd').addEventListener('click', () => { try { Sound.on = !Sound.on; if (Sound.on) ac(); } catch (e) {} sndBtn(); if (!Sound.on) music(null); else if (V && V.song) music(V.song); });
     sndBtn(); toolLabels();
     if (hand && !live) gbButtons($(el, '.rm-gbpad'));
+    if (hand && live) gbTouch();
     if (!live) { conBar(); shelf(); } idle();
     // zoom: from where the telly (or the Game Boy) is in the room to the middle of the window
     const wrap = $(el, '.rm-tvwrap');
@@ -386,7 +392,7 @@
   function idle() {
     V.st = 'shelf'; blank(V.hand ? '' : `${CAT.CONSOLES[V.con].n.toUpperCase()} - PUT A ${CAT.CONSOLES[V.con].media.toUpperCase()} IN`);
     $(V.el, '.rm-eject').hidden = true; $(V.el, '.rm-blowb').hidden = true;
-    $(V.el, '.rm-help').textContent = V.hand ? 'No cartridge in. Press Q to lower the Game Lad, carry a cartridge to its slot and press E to push it in.' : V.live ? 'Lean back, pick a game from the shelf, then insert it into its console.' : 'Pick a cartridge to play.';
+    $(V.el, '.rm-help').textContent = V.hand ? (touchy() ? 'No cartridge in. Click BACK to lower the Game Lad, carry a cartridge to its slot and click PUT IN.' : 'No cartridge in. Press Q to lower the Game Lad, carry a cartridge to its slot and press E to push it in.') : V.live ? 'Lean back, pick a game from the shelf, then insert it into its console.' : 'Pick a cartridge to play.';
     V.el.classList.remove('rm-playing'); $(V.el, '.rm-res').classList.remove('on');
     pad(null);
   }
@@ -583,6 +589,7 @@
     pad(def);
     K = makeK(gid, def);
     try { game = def.make(K) || {}; } catch (e) { console.error(e); game = null; return crash(); }
+    if (ownPad()) pad(def); // (the cartridge brought its own touch controller)
     liveFrame();
     _.emit('play', gid);
     if(V.restoreLocked){V.restoreLocked=false;lockIn(true);}
@@ -752,8 +759,9 @@
   function clearInput() {
     keySources.clear();
     releaseHardware();
-    for (const map of [held, gpHeld]) for (const k in map) map[k] = false;
-    pend = {}; now = {};
+    for (const state of touchPads.values()) state.reset();
+    for (const map of [held, gpHeld, padHeld]) for (const k in map) map[k] = false;
+    pend = {}; now = {}; stickT.on = false; stickT.x = stickT.y = 0;
   }
   addEventListener('blur', clearInput);
   addEventListener('beforeunload',rememberSurface);
@@ -761,11 +769,11 @@
 
   function toolLabels() {
     if (!V) return;
-    const labels = [['.rm-lean', 'Q · BACK'], ['.rm-menu', 'ESC · MENU'], ['.rm-lock', 'T · ' + (V.lockedIn ? 'IN ROOM' : 'LOCK IN')]];
+    const k = !touchy(), labels = [['.rm-lean', (k ? 'Q · ' : '') + 'BACK'], ['.rm-menu', (k ? 'ESC · ' : '') + 'MENU'], ['.rm-lock', (k ? 'T · ' : '') + (V.lockedIn ? 'IN ROOM' : 'LOCK IN')]];
     for (const [selector, text] of labels) $(V.el, selector).textContent = text;
   }
   function gameHelp(def) {
-    $(V.el, '.rm-help').innerHTML = (keyboardHints() ? esc(def.help || '') : 'Use your controller.') + ' <small>(Q: lean back · T: LOCK IN · Esc: menu)</small>';
+    $(V.el, '.rm-help').innerHTML = touchy() ? (V.hand && V.live && gbModelButtons() ? 'Press the Game Lad\'s own buttons.' : 'Use the controller on the screen.') : (keyboardHints() ? esc(def.help || '') : 'Use your controller.') + ' <small>(Q: lean back · T: LOCK IN · Esc: menu)</small>';
   }
   document.addEventListener('game-input-change', ev => {
     if(['mouse','keyboard'].includes(ev.detail?.mode)&&['mouse','keyboard'].includes(ev.detail?.previous))return;
@@ -775,20 +783,131 @@
     if (V.lockedIn) lockIn(true);
   });
 
-  // Keep the lifecycle hook: screen sizing still follows game start/stop.
+  // ---- the on-screen controller (touch input only): the console family's own pad, with only the buttons the game uses.
+  // Cartridges that bring their own touch controller (Plumbo, Wobble Party, Zeldo, the PlaySpace platformer) keep theirs.
+  // A portrait screen shows the whole Game Lad in your hands, so its own moulded buttons are the controller; on a
+  // landscape screen the glass fills the height and the pad's wings stand either side of it.
+  const gbModelButtons = () => !!V?.live && innerHeight > innerWidth * 1.1;
+  const ownPad = () => !!V && (!!V.el.querySelector('.plumb-controls,.party-controls,.zeldo-controls') || V.el.classList.contains('ww-touch-game'));
+  // Each pointer owns its own contribution. Releasing one finger never releases another finger (or the keyboard).
+  function syncTouch() {
+    const keys = new Set(); let axis = null;
+    for (const [el, state] of touchPads) {
+      const local = new Set(); let localAxis = null;
+      for (const point of state.act.values()) {
+        for (const b of point.keys) { keys.add(b); local.add(b); }
+        if (point.axis) axis = localAxis = point.axis;
+      }
+      el.querySelectorAll('[data-b]').forEach(e => e.classList.toggle('on', local.has(e.dataset.b) || local.has(state.directions[e.dataset.b])));
+      const knob = el.querySelector('.rm-stick i');
+      if (knob) knob.style.transform = localAxis ? `translate(${localAxis.x * 24}px,${localAxis.y * 24}px)` : '';
+    }
+    for (const b of new Set([...Object.keys(padHeld), ...keys])) {
+      const on = keys.has(b); if (on) press(b, true); padHeld[b] = on;
+    }
+    stickT.on = !!axis; stickT.x = axis ? axis.x : 0; stickT.y = axis ? axis.y : 0;
+  }
   function pad(def) {
-    if (V?.lockedIn) lockIn(true);
+    if (!V) return;
+    const P = $(V.el, '.rm-pad'), con = V.con, L = LOOK[con];
+    touchPads.get(P)?.destroy();
+    V.el.classList.remove('rm-padon', 'rm-dual');
+    if (!def || !touchy() || (V.hand && !V.lockedIn && gbModelButtons()) || ownPad()) { P.hidden = true; P.innerHTML = ''; if (V.lockedIn) lockIn(true); return; }
+    const bs = [...new Set(def.buttons || ['a', 'b'])].filter(b => L.keys[b] || b === 'c' || b === 'x');
+    // A game that declares independent WASD movement (Goldenballs) keeps K.stick as its aim.
+    const dual = ['KeyW', 'KeyS', 'KeyA', 'KeyD'].every(k => def.keyboard?.[k]);
+    const direction = '<div class="rm-dpad" aria-label="Direction pad"><b data-b="up"></b><b data-b="left"></b><b data-b="right"></b><b data-b="down"></b><i></i></div>';
+    const analog = '<div class="rm-stick" aria-label="Analogue stick"><i></i></div>';
+    const button = (b, cls) => `<button type="button" class="${cls}" data-b="${b}" style="--bc:${L.cols[b] || '#555'}" aria-label="${esc(L.keys[b] || b.toUpperCase())}">${esc(L.keys[b] || (b === 'x' ? L.keys.c : '') || b.toUpperCase())}</button>`;
+    const face = bs.filter(b => !['l', 'r', 'start', 'select'].includes(b));
+    P.innerHTML = `<div class="rm-padname">${esc(CAT.CONSOLES[con].n)} · CONTROL PAD</div>
+      <div class="rm-pl"><span class="rm-control-label">${dual ? 'MOVE' : def.stick ? 'CONTROL STICK' : 'DIRECTION'}</span>${dual || !def.stick ? direction : analog}</div>
+      <div class="rm-pm">${bs.includes('l') ? button('l', 'rm-sh') : ''}${L.keys.select ? button('select', 'rm-st') : ''}${button('start', 'rm-st')}${bs.includes('r') ? button('r', 'rm-sh') : ''}</div>
+      <div class="rm-pr">${dual ? '<div class="rm-aim"><span class="rm-control-label">AIM</span>' + analog + '</div>' : ''}<div class="rm-face ${['ps', 'sn', 'dc'].includes(con) ? 'rm-dia ' : ''}rm-pad-n${face.length}">${face.map(b => button(b, 'rm-fb')).join('')}</div></div>`;
+    P.hidden = false; V.el.classList.add('rm-padon'); V.el.classList.toggle('rm-dual', dual);
+    padTouch(P, dual ? def.keyboard : null);
+    if (V.lockedIn) lockIn(true);
+  }
+  function padTouch(P, movement) {
+    touchPads.get(P)?.destroy();
+    const act = new Map(), listeners = [];
+    const listen = (el, name, fn) => { el.addEventListener(name, fn); listeners.push(() => el.removeEventListener(name, fn)); };
+    const directions = { up: movement?.KeyW || 'up', down: movement?.KeyS || 'down', left: movement?.KeyA || 'left', right: movement?.KeyD || 'right' };
+    const locate = (point, ev) => {
+      point.keys = [];
+      if (point.kind === 'button') { point.keys = [point.button]; return; }
+      const r = point.el.getBoundingClientRect(); if (!r.width || !r.height) return;
+      let x = (ev.clientX - r.left) / r.width * 2 - 1, y = (ev.clientY - r.top) / r.height * 2 - 1;
+      if (point.kind === 'stick') {
+        const m = Math.hypot(x, y); if (m > 1) { x /= m; y /= m; }
+        if (m < .12) x = y = 0;
+        point.axis = { x, y };
+      }
+      const threshold = point.kind === 'stick' ? .5 : .32;
+      const on = { left: x < -threshold, right: x > threshold, up: y < -threshold, down: y > threshold };
+      for (const d in on) if (on[d]) { point.keys.push(point.kind === 'stick' ? d : directions[d]); if (movement && point.kind !== 'stick') point.keys.push(d); }
+    };
+    const up = ev => {
+      if (!act.delete(ev.pointerId)) return;
+      try { if (P.hasPointerCapture(ev.pointerId)) P.releasePointerCapture(ev.pointerId); } catch (e) {}
+      syncTouch();
+    };
+    const reset = () => {
+      const ids = [...act.keys()]; act.clear();
+      for (const id of ids) { try { if (P.hasPointerCapture(id)) P.releasePointerCapture(id); } catch (e) {} }
+      syncTouch();
+    };
+    const state = { act, directions, reset, destroy() { reset(); listeners.forEach(off => off()); touchPads.delete(P); } };
+    touchPads.set(P, state);
+    listen(P, 'pointerdown', ev => {
+      if (!V || V.background || R.House.paused || !V.el.contains(P) || (ev.button != null && ev.button > 0)) return;
+      const stick = ev.target.closest('.rm-stick'), dpad = ev.target.closest('.rm-dpad,.rm-gbd'), button = ev.target.closest('[data-b]');
+      if (!stick && !dpad && !button) return;
+      ev.preventDefault(); ev.stopPropagation();
+      if (button && !dpad) releaseHardware();
+      const point = { kind: stick ? 'stick' : dpad ? 'dpad' : 'button', el: stick || dpad || button, button: button?.dataset.b, keys: [] };
+      act.set(ev.pointerId, point); locate(point, ev); syncTouch();
+      try { P.setPointerCapture(ev.pointerId); } catch (e) {}
+    });
+    listen(P, 'pointermove', ev => { const point = act.get(ev.pointerId); if (!point) return; ev.preventDefault(); if (R.House.paused || V?.background) { reset(); return; } locate(point, ev); syncTouch(); });
+    for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) listen(P, name, up);
+    // Also release if capture was unavailable and the finger left the pad.
+    for (const name of ['pointerup', 'pointercancel']) listen(window, name, up);
+    listen(P, 'contextmenu', ev => ev.preventDefault());
+    listen(P, 'click', ev => { ev.preventDefault(); const b = ev.target.closest('[data-b]'); if (ev.detail === 0 && b && !R.House.paused && V && !V.background) pend[b.dataset.b] = true; });
   }
   function releaseHardware() {
     for (const b in hardwareHeld) hardwareHeld[b] = false;
     V?.el.querySelectorAll('.rm-gbpad [data-b].on').forEach(el => el.classList.remove('on'));
   }
   addEventListener('mouseup', ev => { if (ev.button === 0) releaseHardware(); });
+  // The Game Lad in your hands (live 3D): by touch, its own moulded buttons on the model are the controller. Finger-sized
+  // hit areas follow the projected D-pad, A/B and SELECT/START every frame (js/rm-room.js gbModel: local cm positions).
+  const GB_HIT = { pad: [-2.2, -2.9, 2.4], b: [1.6, -2.95, 2.9], a: [3.0, -2.95, 2.2], select: [-1, -2.75, 5.1], start: [0.2, -2.75, 5.1] };
+  function gbTouch() {
+    const view = V; if (!view || view.gbTouch) return;
+    const T = window.THREE, H = R.House, box = h('<span class="rm-gbd" aria-label="Game Lad direction pad"><b data-b="up"></b><b data-b="left"></b><b data-b="right"></b><b data-b="down"></b><i></i></span><b class="rm-gbt-b" data-b="b" aria-label="B">B</b><b class="rm-gbt-a" data-b="a" aria-label="A">A</b><b class="rm-gbt-s" data-b="select" aria-label="Select">SELECT</b><b class="rm-gbt-s" data-b="start" aria-label="Start">START</b>', 'rm-gbtouch');
+    box.setAttribute('aria-label', 'Game Lad buttons'); view.el.appendChild(box); view.gbTouch = box; padTouch(box);
+    const v = new T.Vector3(), at = (p) => { const o = H.THINGS.gb?.obj; if (!o) return null; v.set(p[0], p[1], p[2]); o.localToWorld(v); v.project(H.camera); return v.z > 1 ? null : { x: (v.x + 1) / 2 * innerWidth, y: (1 - v.y) / 2 * innerHeight }; };
+    const place = (el, p, size) => { el.style.left = (p.x - size / 2) + 'px'; el.style.top = (p.y - size / 2) + 'px'; el.style.width = el.style.height = size + 'px'; };
+    (function frame() {
+      if (V !== view || !view.el.isConnected) return;
+      requestAnimationFrame(frame);
+      const show = touchy() && !view.background && view.st === 'game' && !view.lockedIn && !R.House.paused && gbModelButtons();
+      box.hidden = !show; if (!show) return;
+      const pad = at(GB_HIT.pad), a = at(GB_HIT.a), b = at(GB_HIT.b), sel = at(GB_HIT.select), st = at(GB_HIT.start);
+      if (!pad || !a || !b || !sel || !st) { box.hidden = true; return; }
+      const unit = Math.hypot(a.x - b.x, a.y - b.y) / 1.63; // (screen px per cm: A and B are 1.63 cm apart)
+      place($(box, '.rm-gbd'), pad, Math.max(104, unit * 3.4)); place($(box, '.rm-gbt-a'), a, Math.max(52, unit * 1.6)); place($(box, '.rm-gbt-b'), b, Math.max(52, unit * 1.6));
+      const s = box.querySelectorAll('.rm-gbt-s'); place(s[0], sel, Math.max(48, unit * 1.3)); place(s[1], st, Math.max(48, unit * 1.3));
+    })();
+  }
   // These are the Game Lad's own moulded buttons, operated with the mouse.
   function gbButtons(el) {
     el.innerHTML = '<span class="rm-gbd"><b data-b="up"></b><b data-b="left"></b><b data-b="right"></b><b data-b="down"></b><i></i></span><b class="rm-gbb" data-b="b">B</b><b class="rm-gba" data-b="a">A</b><b class="rm-gbs" data-b="select">SELECT</b><b class="rm-gbs st" data-b="start">START</b>';
+    padTouch(el); // (fingers: the same multitouch path as the on-screen pads)
     el.addEventListener('mousedown', ev => {
-      if (ev.button !== 0 || !V || V.background || R.House.paused) return;
+      if (ev.button !== 0 || !V || V.background || R.House.paused || ev.sourceCapabilities?.firesTouchEvents) return;
       const button = ev.target.closest('[data-b]'); if (!button) return;
       ev.preventDefault(); ev.stopPropagation();
       releaseHardware();
@@ -864,13 +983,14 @@
     button.setAttribute('aria-pressed', String(!!V.lockedIn)); toolLabels();
     if (V.lockedIn) lockMetrics();
     if (changed) lockAnimate(on); else if (!on) V.el.classList.remove('rm-lockin');
+    if (changed && V.hand && V.st === 'game') pad(defs[V.gid]); // (LOCK IN hides the Game Lad's own buttons: the pad stands in)
     rememberSurface();
     if(!V.lockedIn)liveFrame();
     return !!V.lockedIn;
   }
   // the room is hidden only once a LOCK IN has fully landed (never during the grow or the shrink)
   function covered() { return !!(V && !V.background && V.lockedIn && !V.lockAnim); }
-  addEventListener('resize', () => { clearInput(); if (V?.lockedIn) lockIn(true); if(V?.surface)frameSurface(200); });
+  addEventListener('resize', () => { clearInput(); if (V?.hand && V.st === 'game' && touchy()) { const want = !V.lockedIn && gbModelButtons(); if (want === !$(V.el, '.rm-pad').hidden) pad(defs[V.gid]); } if (V?.lockedIn) lockIn(true); if(V?.surface)frameSurface(200); });
 
   function restoreSurface(saved){
     if(window.AccountGate&&!window.AccountGate.allowed)return false;

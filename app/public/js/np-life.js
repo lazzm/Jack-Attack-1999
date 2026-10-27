@@ -11,11 +11,10 @@
 (function () {
   'use strict';
   const H = window.House, NR = window.NPCRig, NV = window.NPCNav, L = window.NPCLines;
-  const coarse = (() => { try { return matchMedia('(hover:none) and (pointer:coarse)').matches; } catch (e) { return false; } })();
   const noop = () => false;
   const OFF = { enabled: false, active: false, present: noop, near: noop, storyLine: noop, handIn: noop, blocks: noop, mute: noop, say: noop, talk: noop, chars: {} };
   if (window.HouseFamily) return;
-  if (!H || !H.ok || !NR || !NV || !L || coarse || window.PCOnly?.desktopOnly) { window.HouseFamily = OFF; return; }
+  if (!H || !H.ok || !NR || !NV || !L || window.PCOnly?.desktopOnly) { window.HouseFamily = OFF; return; }
   const T = H.T, D2R = Math.PI / 180, TAU = Math.PI * 2;
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const lerp = (a, b, t) => a + (b - a) * t;
