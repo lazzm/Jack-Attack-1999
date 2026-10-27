@@ -4,7 +4,7 @@
 // paying anything herself, bumping into them, stepping aside, refresh keeping everyone in place, planted feet, the draw
 // call cost, and the story's first in-person scene (Mom gives the first jobs). Screenshots: tests/shots/characters/.
 // Starts and stops its own server on a free port with throwaway data, like smoke.mjs.
-//   node characters.mjs [--only=routines|day|talk|bump|refresh|feet|draws|story|shots] [--keep]
+//   node characters.mjs [--only=routines|day|talk|bump|refresh|feet|draws|story|entrance|shots] [--keep]
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {mkdtemp, mkdir, rm} from 'node:fs/promises';
@@ -154,15 +154,15 @@ try {
       await look(page, [-60, 353 - 128, 175], [-80, 353 - 150, 36], 'G');
       await page.evaluate(() => { window.__sent = []; const s = Net.send; Net.send = m => { __sent.push(m.t); return s(m); }; });
       await page.keyboard.press('f');
-      await page.waitForFunction(() => !!HouseFamily.debug.speech.cur, null, { timeout: 15000 * SCALE });
-      const said = await page.evaluate(() => { const c = HouseFamily.debug.speech.cur; return { id: c.lineId, line: NPCLines[c.lineId][1], who: c.c.id, person: c.person, note: document.querySelector('.hs-note.on')?.textContent || '', talking: HouseFamily.chars.mom.rig.talking }; });
+      // (read it in the same moment it's seen: under heavy load the line can finish between two round trips)
+      const said = await (await page.waitForFunction(() => { const c = HouseFamily.debug.speech.cur; return c && { id: c.lineId, line: NPCLines[c.lineId][1], who: c.c.id, person: c.person, note: document.querySelector('.hs-note.on')?.textContent || '', talking: HouseFamily.chars.mom.rig.talking }; }, null, { timeout: 15000 * SCALE })).jsonValue();
       assert.equal(said.who, 'mom'); assert(said.person, 'Said in person'); assert(said.talking, 'Her lips move');
       assert(said.note.includes(said.line.slice(0, 20)), 'Subtitle shows the scripted line: ' + said.note);
       assert(/^chore\.\w+\.give$|^chore\.allfour$|^bark\.mom\./.test(said.id), 'Mom hands out a job (or praise): ' + said.id);
-      await page.waitForTimeout(700); await shot(page, 'mom-talk-kitchen');
       // (people v2: the mouth is painted; talking swaps the mouth frames in the face atlas)
       const mouth = await page.evaluate(async () => { const r = HouseFamily.chars.mom.rig, s = [], f = new Set(); for (let i = 0; i < 12; i++) { s.push(r.st.mouth); f.add(r.face.mouth); await new Promise(q => setTimeout(q, 90)); } return { s, frames: [...f] }; });
       assert(Math.max(...mouth.s) - Math.min(...mouth.s) > 0.2 && mouth.frames.length > 1, 'Mouth moves while talking: ' + mouth.s.map(v => v.toFixed(2)).join(',') + ' frames ' + mouth.frames);
+      await page.waitForTimeout(700); await shot(page, 'mom-talk-kitchen');
       // handing a job in: Mom says the job's done line and her rating, in person
       const handed = await page.evaluate(() => HouseFamily.handIn('washup', { sc: 97 }));
       assert(handed, 'Mom takes the washing-up in herself');
@@ -297,6 +297,46 @@ try {
       for (let i = 0; i < 160 && !(await page.evaluate(() => !!st.getState()?.done.meetmom)); i++) await page.waitForTimeout(250);
       assert(await page.evaluate(() => !!st.getState()?.done.meetmom), 'Talking to Mom completes the step');
       assert.equal(await page.evaluate(() => st.current().id), 'tidy');
+      assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+  });
+
+  // ---------------------------------------------------------------- Mom's entrance: behind the shut door, knock, door opens, she walks in
+  // Never visible before the door opens; the door opens before she's in the room; you're held in your room meanwhile.
+  await check('entrance', async () => {
+    const { browser, page, until, errors } = await house({ account: 'Enter' + Date.now().toString(36), password: pass, opening: true });
+    try {
+      await until(() => !!st.getState() && !!House.THINGS['st.diary']);
+      await page.evaluate(() => { House._.setMode('walk'); House.interact('gb'); });
+      await until(() => window.RoomTV?.open_);
+      await page.evaluate(() => RoomTV.playPhysical('gb.blocks'));
+      await until(() => RoomTV._dbg()?.st === 'game'); await page.keyboard.press('Enter'); await page.keyboard.press('ArrowLeft');
+      await until(() => !!st.getState()?.done.lad);
+      await page.keyboard.press('q'); await until(() => House.mode === 'walk' && !House.gliding);
+      // stand in the room looking at the door
+      await look(page, [-30, 73 - 128, 190], [240, 73 - 115, 190], 'U');
+      assert.equal(await page.evaluate(() => House.DOORS.bedroom.open), false, 'The bedroom door starts shut');
+      await page.evaluate(() => { const F = HouseFamily, m = F.chars.mom; window.__ent = []; window.__entT = setInterval(() => { const e = F.debug.entrance().mom; window.__ent.push({ seen: F.debug.seen('mom'), door: House.DOORS.bedroom.open, phase: e?.phase || null, inRoom: m.present && m.lvl === 'U' && m.x < 238 && m.z < 252 }); }, 50); });
+      const log = [], t0 = Date.now(); let held = null, n = 0;
+      while (Date.now() - t0 < 120000 * SCALE) {
+        const f = await page.evaluate(() => { const F = HouseFamily, m = F.chars.mom, e = F.debug.entrance().mom; return { seen: F.debug.seen('mom'), door: House.DOORS.bedroom.open, phase: e?.phase || null, present: m.present, x: m.x, z: m.z, lvl: m.lvl, room: m.room, spot: m.goal?.spotKey || null, step: m.cur?.k || null, held: F.doorHeld(), blocks: F.blocks(250, 190, 'U') }; });
+        log.push(f);
+        if (held === null && (f.phase === 'come' || f.phase === 'knock')) held = f.held && f.blocks;
+        if (n < 6 && (f.phase === 'knock' || f.phase === 'enter')) await shot(page, 'entrance-' + (++n)); // (a frame strip of the entrance)
+        if (f.spot === 'bedDoorMom' && f.step === 'act') break;
+        await page.waitForTimeout(120);
+      }
+      await page.waitForTimeout(900); await shot(page, 'entrance-4');
+      const rec = await page.evaluate(() => { clearInterval(window.__entT); return window.__ent; });
+      log.length = 0; log.push(...rec);
+      const first = log.findIndex(f => f.seen), opened = log.findIndex(f => f.door), inRoom = log.findIndex(f => f.inRoom);
+      console.log(`  entrance: ${log.length} samples; first seen #${first}, door opened #${opened}, in the room #${inRoom}; phases ${[...new Set(log.map(f => f.phase))].join('>')}`);
+      assert(opened >= 0 && inRoom >= 0, 'Mom came in: ' + JSON.stringify(log.slice(-3)));
+      assert(log.every(f => !f.seen || f.door), 'Mom was visible before the door opened: ' + JSON.stringify(log.find(f => f.seen && !f.door)));
+      assert(opened < inRoom, 'The door opened before she came in');
+      assert(held === true, 'The doorway is held (and the door) while Mom comes up');
+      await page.waitForTimeout(3500);
+      assert.equal(await page.evaluate(() => HouseFamily.doorHeld()), false, 'Released once she has arrived and spoken');
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
   });
