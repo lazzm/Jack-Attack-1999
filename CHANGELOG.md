@@ -1,5 +1,14 @@
 # Jack's Home Page - changelog
 
+## 2.57.2 - 2026-10-27
+- Fixed: things put on the bed could drop through a dip in the duvet onto the floor underneath, out of sight and out of reach. They now land and sit on the duvet's real surface, and the sleeping cat is solid.
+- Safety net: anything that ends up under a floor, through a wall, inside furniture or deep under low furniture is moved somewhere you can reach.
+- Fixed: closing a magazine, book or close-up (Q or Esc) or pressing Q to return something could leave it floating in mid-air; it now goes back where it was, resting on what's there.
+- Fixed: plates looked grey on the floor (the glaze faced the wrong way).
+- The car boot is a real space you can put things in.
+- Watering can: F waters what you aim at, the prompt says what it'll water, the thirsty plant glows while you carry the can, and the can tips when pouring.
+- New test: tests/qa-play.mjs carries things to every surface and back, refreshes, reads and closes readers, and checks nothing is lost or floating.
+
 ## 2.57.1 - 2026-10-27
 - Fixed: after the bigger car arrived, Dad's PC parts could stay where the old car's boot was (hidden behind the bumper), so the boot looked empty. Saves are now moved for the new car in one go when they load, and saves already caught by this are repaired.
 - Fixed: the prompt on Mom, Dad and your sister showed raw code ("Use mom <i><span>…") and two F actions; it now just says "Talk to Mom".

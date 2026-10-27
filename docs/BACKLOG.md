@@ -203,3 +203,6 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R89 | world | high | Jack 2026-10-27 | "sizing all off weird - review keep iterating" | docs/SCALE-REVIEW.md (art review) -> house round 2 fixes, iterate with before/after |
 | R90 | world | high | Jack 2026-10-27 (lounge) | "Cant walk in living room well its all too small and cramped everywhere": oversized coffee table/sofa, narrow walkways, black-slab fireplace | House round 2: enlarge lounge (+kitchen/hall check), real furniture sizes, >=80 cm walkways, proper gas fire + surround |
 | R92 | lighting | high | Jack 2026-10-27 | "Poster lighting needs improving - test lighting everywhere" (posters flat/dark/glossy-wrong) | Graphics agent (gfx-best) adds a lighting pass: posters + every room/time of day, before/after review |
+| R93 | bug | high | Jack 2026-10-27 18:39 (phone, Out the front) | The side (gable end) wall of our house over the drive is missing: roof eaves with no wall under, street visible through it | House round 2, first fix |
+| R94 | bug | high | Jack 2026-10-27 18:41 (phone, Game Lad) | Game Lad on-model buttons do nothing on a phone ("Press the Game Lad's own buttons" but taps fail) | Mobile agent round 2 |
+| R95 | ux | high | same | Phone controls need to be more intuitive: walking, looking around, tapping things to interact | Mobile agent round 2 |
