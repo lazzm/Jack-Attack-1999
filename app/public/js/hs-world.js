@@ -1247,7 +1247,24 @@
       const legacy=ls.get('jhp_hs_things',null),modern=entries[0];
       loaded=legacy&&(!modern||(+legacy._savedAt||0)>(+modern.t||0))?legacy:modern?modern.s:(window.Apps&&Apps.loadGame&&Apps.loadGame('hs.things',1))||{t:{},o:{}};
     } catch (e) { loaded = { t: {}, o: {} }; }
+    migrateSave(loaded);
     return loaded;
+  }
+  // The bigger car (save v3) moves things saved in or on the old car. Done once, in memory, for the whole save
+  // (rooms that aren't built yet too). Also repairs saves already marked v3 whose drive records were skipped
+  // (2.57.0 left Dad's PC parts behind the bumper): a raised spot on the old car that's now outside the new one.
+  function migrateSave(save) {
+    if (!save || !save.t || save.pv0 !== undefined) return;
+    const { CAR, OLD_CAR } = FRONT, old = (save.pv || 0) < 3; save.pv0 = save.pv || 0; // pv0: the version it was saved with (the physics nudge below still needs it)
+    for (const id in save.t) {
+      const r = save.t[id]; if (!Array.isArray(r) || r[5] || r[0] !== 'drive') continue;
+      const lx = (r[1] - OLD_CAR.x) / OLD_CAR.s, lz = (r[3] - OLD_CAR.z) / OLD_CAR.s;
+      const stale = Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR.y - 5 && !(Math.abs(r[1] - CAR.x) <= 92 * CAR.s && Math.abs(r[3] - CAR.z) <= 205 * CAR.s);
+      if (!old && !stale) continue;
+      const at = { room: r[0], x: r[1], y: r[2], z: r[3] };
+      if (migratePlacement(at)) save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), ...r.slice(4)];
+    }
+    save.pv = Math.max(save.pv || 0, 3);
   }
   // Placements saved before the physics pass may now overlap a collider (furniture gained real parts): nudge them out once.
   const migrateQ = new Set();
@@ -1274,9 +1291,9 @@
       const p = SNAPS[s[5]].pose || SNAPS[s[5]];
       t.at.x = p.x; t.at.y = p.y; t.at.z = p.z; t.at.ry = p.ry || 0;
       t.rx = p.rx || 0; t.rz = p.rz || 0;
-    } else { t.st = 'rest'; if ((save.pv || 0) < 3 && migratePlacement(t.at)) migrateQ.add(t); }
+    } else { t.st = 'rest'; if (save.pv0 < 3 && t.at.room === 'drive') migrateQ.add(t); }
     moveTo(t, t.at.room); place(t); layerFor(t);
-    if (t.st === 'rest' && !t.at.hide && (save.pv || 0) < PV) migrateQ.add(t);
+    if (t.st === 'rest' && !t.at.hide && (save.pv0 ?? save.pv ?? 0) < PV) migrateQ.add(t);
   }
   function tidy(rid) { // everything back where it lives (Mom tidied up)
     for (const id in THINGS) { const t = THINGS[id]; if (rid && t.home.room !== rid && t.at.room !== rid) continue; pendingRestores.delete(id); if (held && held.id === id) releaseHold(); t.st = t.home.snap ? 'snap' : 'rest'; t.snap = t.home.snap || null; t.at = Object.assign({}, t.home); moveTo(t, t.home.room); place(t); layerFor(t); }
