@@ -118,7 +118,13 @@ try{
  const owner=await browser.newContext({viewport:{width:1366,height:860}}),op=await owner.newPage();observe(op);await credentials(op,'Jack','Jack','m',false);await house(op);await checkRoom(op,'Jack',true);await owner.close();console.log('PASS owner Jack: Crystal/Dave/Luke/Callum/JackK');
  }
  if(chosen('sarah')){
- const mobile=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'}),mp=await mobile.newPage();observe(mp);await credentials(mp,'Sarah','Sarah','f',false);await until(mp,()=>window.MobileDesktop&&window.DesktopSurface?.ready());assert(await mp.evaluate(()=>PCOnly.desktopOnly&&!window.House?.ren));await mp.evaluate(()=>Apps.open('st.diary'));await until(mp,()=>!!document.querySelector('.st-copy'));await shot(mp,'sarah-phone-diary');await mp.setViewportSize({width:844,height:390});await shot(mp,'sarah-phone-landscape');assert.deepEqual(await cast(mp),sarah);await mobile.close();
+ const mobile=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'}),mp=await mobile.newPage();observe(mp);await credentials(mp,'Sarah','Sarah','f',false);
+ // Phones play the whole game (device policy, 2026-10-26): Sarah's own house, her name and family on the phone too.
+ await until(mp,()=>window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!sessionStorage.getItem('jhp_login_seat')&&!document.querySelector('.hs-loading,#houseEntry'));
+ assert.equal(await mp.evaluate(()=>House.ROOMS.bedroom.title),"SARAH'S ROOM");
+ await mp.evaluate(()=>window.stDiary?.picker?.());await mp.waitForTimeout(700);await shot(mp,'sarah-phone-diary');
+ await mp.evaluate(()=>document.querySelector('.st-quests [aria-label="Close diary"]')?.click());
+ await mp.setViewportSize({width:844,height:390});await mp.waitForTimeout(700);await shot(mp,'sarah-phone-landscape');assert.deepEqual(await cast(mp),sarah);await mobile.close();
  }
  assert.deepEqual(errors,[],'Browser errors/warnings');assert(!/mod failed to load/i.test(log),log);console.log('PASS '+selection+': no browser errors/warnings or failed server mods');
 }finally{if(browser)await browser.close();if(server?.pid&&server.exitCode===null){const ended=once(server,'exit');server.kill('SIGTERM');await ended}await rm(data,{recursive:true,force:true})}

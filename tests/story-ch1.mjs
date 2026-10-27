@@ -247,15 +247,21 @@ try {
   assert.equal(await p.evaluate(() => st.getState().ch), 2);assert.equal(await p.evaluate(()=>House.pcGL.visible),true); await shot('11-diary-refresh');
   await p.keyboard.press('q'); await p.evaluate(() => House.putBack());
   if (errors.length) console.log('Desktop errors retained for the final assertion:',errors);
-  // Mobile must not build the prop/house or rewrite a desktop pose or PC power state.
+  // Phones play the same game (device policy, 2026-10-26): a token resume on a phone gets the same house, story and
+  // diary, and (like any refresh) never rewrites the saved standing pose or the PC's power state.
   const mobile = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0 Mobile Safari/537.36',storageState});
   const mp = await mobile.newPage(); mp.on('pageerror',e=>errors.push(e.message));
-  await mp.goto(base,{waitUntil:'domcontentloaded'}); await wait(mp,() => window.AccountGate?.allowed&&window.PCOnly?.desktopOnly&&!!window.st?.getState());
-  assert.equal(await mp.locator('.hs-gl,.st-objective').count(),0);
-  const mobileHouse = await mp.evaluate(() => ['jhp_hs_pose','jhp_hs_stand','jhp_off'].map(k=>localStorage.getItem(k)));
-  await mp.evaluate(() => Apps.open('st.diary')); await mp.screenshot({path:shots+'12-mobile-diary.png'});
-  await mp.setViewportSize({width:844,height:390}); await mp.screenshot({path:shots+'13-mobile-landscape.png'});
-  assert.deepEqual(await mp.evaluate(() => ['jhp_hs_pose','jhp_hs_stand','jhp_off'].map(k=>localStorage.getItem(k))),mobileHouse);
+  const kept = () => [JSON.parse(localStorage.getItem('jhp_hs_stand')||'null')?.p||null, localStorage.getItem('jhp_off')];
+  await mp.goto(base,{waitUntil:'domcontentloaded'});
+  const mobileHouse = await mp.evaluate(kept);
+  await wait(mp,() => window.AccountGate?.allowed&&window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!!window.st?.getState()&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
+  assert.equal(await mp.evaluate(() => st.getState().ch), 2);
+  await mp.evaluate(() => { if (!window.Magazines?.reading) House.interact('st.diary'); }); await wait(mp,() => window.Magazines?.reading?.id==='st.diary',null,30000);
+  await mp.waitForTimeout(800); await mp.screenshot({path:shots+'12-mobile-diary.png'});
+  await mp.setViewportSize({width:844,height:390}); await mp.waitForTimeout(800); await mp.screenshot({path:shots+'13-mobile-landscape.png'});
+  const after = await mp.evaluate(kept);
+  assert.deepEqual(after[1], mobileHouse[1], 'A phone resume changed the PC power state');
+  if (mobileHouse[0]) for (const k of ['x','z','lvl']) assert.equal(after[0]?.[k], mobileHouse[0][k], 'A phone resume changed the saved standing pose: ' + k);
   await mobile.close();
   // An admin-registered account is an existing veteran; preserve its room exactly.
   const veteran = 'Vet' + Date.now().toString(36);

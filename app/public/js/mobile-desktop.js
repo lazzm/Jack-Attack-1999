@@ -1,4 +1,6 @@
-/* Handheld access is JackOS only: no house construction or room save writes. */
+/* JackOS on its own, the handheld fallback (js/pc-only.js): only for a handheld without usable WebGL, or one whose player
+ * chose "JackOS only" (the game menu, or the too-slow offer in js/hs-touch.js). No house is built and no room save is
+ * written. Start > Play in the house (and the power panel) switch this device back. */
 (function () {
   'use strict';
   if (!window.PCOnly?.desktopOnly) return;
@@ -46,17 +48,28 @@
     const panel=document.createElement('div');panel.className='mobile-power';
     const title=document.createElement('p');title.textContent='JackOS is switched off.';
     const on=document.createElement('button');on.type='button';on.textContent='Switch on';
-    on.addEventListener('click',()=>{poweredOff=false;save();location.reload()});panel.append(title,on);surface.appendChild(panel);
+    on.addEventListener('click',()=>{poweredOff=false;save();location.reload()});panel.append(title,on);
+    if(window.PCOnly?.choice==='jackos'&&!window.PCOnly?.noWebGL){const house=document.createElement('button');house.type='button';house.textContent='Play in the house';house.addEventListener('click',toHouse);panel.append(house);}
+    surface.appendChild(panel);
   }
   window.MobileDesktop={power(how){
     document.getElementById('crt')?.classList.remove('off');
     if(how!=='power'){save();location.reload();return true;}
     poweredOff=true;for(const item of tracked)item.w.close?.();tracked=[];save();powerPanel();return true;
   }};
+  function toHouse(){save();window.PCOnly?.choose('house');location.reload();}
+  // Start > Play in the house: only when the player chose JackOS only (a phone without WebGL has no house to go to).
+  function houseItem(){
+    const sm=document.getElementById('startMenu'),first=sm?.querySelector('button');if(!first||document.getElementById('smHouse')||window.PCOnly?.choice!=='jackos'||window.PCOnly?.noWebGL)return;
+    const b=document.createElement('button');b.id='smHouse';b.setAttribute('role','menuitem');
+    b.innerHTML='<svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path fill="#000" d="M8 1 1 7h2v8h10V7h2z"/><path fill="#d8c8a0" d="M4 7h8v7H4z"/><path fill="#a03020" d="M8 2.4 2.8 7h10.4z"/><path fill="#5a3a20" d="M7 10h2v4H7z"/></svg>';
+    b.appendChild(document.createTextNode('Play in the house'));
+    b.addEventListener('click',ev=>{ev.stopPropagation();sm.classList.remove('open');toHouse();});sm.insertBefore(b,first);
+  }
   // These are room-only commands; JackOS still supplies Start > Log Off/Shutdown.
   addEventListener('DOMContentLoaded',()=>{
     for(const el of document.querySelectorAll('[data-app="room"],#standBtn,#pcStand'))el.hidden=true;
     root.classList.remove('house-entering','pc-wake','pc-standwake');
-    surface.classList.remove('pc-starting');enter();
+    surface.classList.remove('pc-starting');enter();houseItem();
   });
 })();

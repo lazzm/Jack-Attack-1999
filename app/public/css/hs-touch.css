@@ -1,0 +1,121 @@
+/* The house's thumb controls (js/hs-touch.js). Same dark panel, Courier and gold as the rest of the house HUD.
+   Shown only while touch is the input in use; nothing here changes the desktop. */
+.ht-surface,.ht-hud{display:none}
+html[data-game-touch="true"].hs-live .ht-hud{display:block}
+html[data-game-touch="true"].hs-live[data-touch-state="walk"] .ht-surface,
+html[data-game-touch="true"].hs-live[data-touch-state="seat"] .ht-surface{display:block}
+html[data-game-touch="true"][data-touch-state="off"] .ht-hud,html.hs-paused .ht-hud{display:none}
+.ht-surface{position:fixed;inset:0;z-index:20005;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.ht-hud{--ht-ink:#eee4ca;--ht-gold:#ffd84a;--ht-panel:rgba(20,23,25,.62);--ht-rim:rgba(216,207,184,.42);
+  --sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px);--sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px);
+  position:fixed;inset:0;z-index:20020;pointer-events:none;font:700 10px/1.1 "Courier New",monospace;color:var(--ht-ink);-webkit-user-select:none;user-select:none}
+
+/* the floating stick: a faint resting ring shows where the left thumb goes; it jumps to the thumb when pressed */
+.ht-stick{position:absolute;left:calc(var(--sl) + 92px);top:calc(100% - var(--sb) - 132px);width:124px;height:124px;margin:-62px 0 0 -62px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,240,210,.04) 0 52%,rgba(255,240,210,.10) 53% 100%);box-shadow:inset 0 0 0 2px rgba(255,240,210,.20),0 0 0 1px rgba(0,0,0,.25);opacity:.55;transition:opacity .15s}
+.ht-stick::after{content:"WALK";position:absolute;left:0;right:0;top:calc(100% + 6px);text-align:center;letter-spacing:.12em;color:rgba(238,228,202,.62);text-shadow:0 1px 2px #000}
+.ht-stick i{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(255,250,235,.62),rgba(190,180,160,.38));box-shadow:0 2px 8px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.25)}
+.ht-stick.on{opacity:1}
+.ht-stick.on::after{opacity:0}
+.ht-stick.run{box-shadow:inset 0 0 0 3px rgba(255,216,74,.75),0 0 14px rgba(255,216,74,.35)}
+.ht-stick.run::after{content:"JOG";opacity:1;color:var(--ht-gold)}
+html:not([data-touch-state="walk"]):not([data-touch-state="seat"]) .ht-stick{display:none}
+
+/* buttons: round, thumb-sized (56px main, 48px others), icon over a short label */
+.ht-b{pointer-events:auto;position:relative;display:grid;place-items:center;align-content:center;gap:2px;width:58px;height:58px;padding:0;border-radius:50%;border:2px solid var(--ht-rim);
+  background:var(--ht-panel);color:var(--ht-ink);font:inherit;text-transform:uppercase;letter-spacing:.02em;box-shadow:0 2px 10px rgba(0,0,0,.45);touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.ht-b svg{width:22px;height:22px;display:block}
+.ht-b span{display:block;max-width:64px;font-size:9px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 1px #000}
+.ht-b:active,.ht-b.on{background:rgba(255,216,74,.28);border-color:var(--ht-gold)}
+.ht-b[disabled]{opacity:.38}
+.ht-b.ht-main.ht-idle{opacity:.32;border-color:var(--ht-rim);color:var(--ht-ink)}
+.ht-b.ht-main{width:72px;height:72px;border-color:rgba(255,216,74,.78);color:var(--ht-gold)}
+.ht-b.ht-main svg{width:28px;height:28px}
+.ht-b.ht-main span{font-size:10px}
+.ht-b.ht-small{width:50px;height:50px}
+.ht-b.ht-small svg{width:18px;height:18px}
+.ht-b.ht-small span{font-size:8px}
+.ht-b.ht-mini{width:40px;height:40px}
+.ht-b.ht-mini span{display:none}
+.ht-b.ht-on{border-color:var(--ht-gold);color:var(--ht-gold)}
+
+/* the action cluster: bottom right; js/hs-touch.js lays the buttons on an arc round the first (most likely) one */
+.ht-acts{position:absolute;right:calc(var(--sr) + 12px);bottom:calc(var(--sb) + 14px);width:236px;height:230px;pointer-events:none}
+.ht-acts .ht-b{position:absolute}
+
+/* what the crosshair is on, just under the crosshair (never on top of the thing itself) */
+.ht-target{position:absolute;left:50%;top:calc(50% + 26px);transform:translateX(-50%);max-width:min(78vw,420px);padding:4px 9px;background:rgba(20,23,25,.70);border:1px solid rgba(216,207,184,.30);
+  font:700 11px/1.2 "Courier New",monospace;color:var(--ht-ink);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .12s}
+.ht-target.on{opacity:1}
+html:not([data-touch-state="walk"]):not([data-touch-state="seat"]) .ht-target{display:none}
+
+/* the top bar: the menu always (top left, beside the room name; Mom's jobs and the finds counters keep the top right);
+   at the PC also Stand up and LOCK IN */
+.ht-top{position:absolute;left:calc(var(--sl) + 10px);top:calc(var(--st) + 10px);display:flex;gap:8px;pointer-events:none}
+.ht-top .ht-b{width:50px;height:50px;border-radius:6px}
+.ht-top .ht-b svg{width:18px;height:18px}
+.ht-top .ht-b span{font-size:8px}
+/* at the PC: a beige monitor chin under the glass with the house's buttons (it never covers JackOS) */
+html[data-touch-state="pc"] .ht-top{left:0;right:0;top:auto;bottom:0;height:calc(var(--sb) + 54px);padding:0 calc(var(--sr) + 10px) var(--sb) calc(var(--sl) + 10px);gap:10px;align-items:center;justify-content:flex-end;box-sizing:border-box;
+  background:linear-gradient(#d9d3c0,#bdb7a3);border-top:2px solid #f2eee2;box-shadow:inset 0 -2px #8f8a78,0 -2px 6px rgba(0,0,0,.35);pointer-events:auto}
+html[data-touch-state="pc"] .ht-top::before{content:"JACKOS 98";margin-right:auto;white-space:nowrap;font:italic 700 10px Arial,sans-serif;letter-spacing:.14em;color:#6f6a5b;text-shadow:0 1px #f4f0e4}
+html[data-touch-state="pc"] .ht-top::after{content:"";order:9;width:8px;height:8px;border-radius:50%;background:#5ce04a;box-shadow:0 0 6px #5ce04a,inset 0 -1px 1px #1d7a14}
+html[data-touch-state="pc"] .ht-top .ht-b{display:flex;flex-direction:row;gap:6px;width:auto;height:40px;padding:0 10px;border-radius:3px;border:2px outset #f3efe3;background:#cfc9b6;color:#26251f;box-shadow:none}
+html[data-touch-state="pc"] .ht-top .ht-b:active{border-style:inset;background:#bdb7a3}
+html[data-touch-state="pc"] .ht-top .ht-b span{font:700 11px Arial,sans-serif;text-shadow:none;max-width:none}
+html[data-touch-state="pc"] .ht-top .ht-b svg{width:16px;height:16px}
+html[data-game-touch="true"][data-touch-state="pc"] #monitorViewport{bottom:calc(env(safe-area-inset-bottom,0px) + 54px)}
+html[data-game-touch="true"][data-touch-state="pc"] .hs-standtip{bottom:40px!important}
+html[data-touch-state="console"] .ht-top,html[data-touch-state="inspect"] .ht-top,html[data-touch-state="screen"] .ht-top{top:calc(var(--st) + 8px)}
+html[data-touch-state="console"] .ht-top{display:none}
+
+html[data-game-touch="true"] .hs-ui .hs-top{left:calc(env(safe-area-inset-left,0px) + 70px)}
+html[data-game-touch="true"][data-touch-state="inspect"] .ht-top,html[data-game-touch="true"][data-touch-state="screen"] .ht-top{display:none}
+/* the house HUD around the thumbs: the carry panel and notes move clear of the buttons; keyboard-only hints go */
+html[data-game-touch="true"] .hs-ui .hs-hold{left:50%;right:auto;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);max-width:calc(100vw - 420px);min-width:180px}
+html[data-game-touch="true"] .hs-ui .hs-hold .hs-hkeys,html[data-game-touch="true"] .hs-ui .hs-hold .hs-carry-help,html[data-game-touch="true"] .hs-ui .hs-hold .hs-hbtn{display:none!important}
+html[data-game-touch="true"] .hs-lockhint{display:none!important}
+html[data-game-touch="true"] .hs-ui .hs-getup{min-height:44px;padding:8px 14px;touch-action:manipulation}
+html[data-game-touch="true"] .hs-inspection button{min-height:44px;min-width:64px;touch-action:manipulation}
+
+/* notes and Mom's calls: never under a thumb. Landscape: between the stick and the buttons. */
+html[data-game-touch="true"] .hs-ui .rm-note{left:calc(env(safe-area-inset-left,0px) + 200px);right:auto;width:auto;max-width:calc(100vw - 460px);min-width:260px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}
+html[data-game-touch="true"] .hs-ui.holding .rm-note{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 64px)}
+/* portrait phones: thumbs share the bottom third, so the carry panel, notes and the job chip ride above them */
+@media (orientation:portrait){
+  html[data-game-touch="true"] .hs-ui .rm-note,html[data-game-touch="true"] .hs-ui.holding .rm-note{left:12px;right:12px;width:auto;max-width:none;min-width:0;top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 252px)}
+  html[data-game-touch="true"] .hs-ui .ch-chip{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 340px)}
+  html[data-game-touch="true"] .hs-ui.holding .ch-chip{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 236px)}
+  html[data-game-touch="true"] .hs-ui .hs-hold{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 146px);max-width:calc(100vw - 24px)}
+  html[data-game-touch="true"] .hs-ui .hs-map{display:none}
+  .ht-stick{left:calc(var(--sl) + 84px);top:calc(100% - var(--sb) - 150px)}
+}
+@media (orientation:landscape) and (max-height:500px){
+  .ht-stick{left:calc(var(--sl) + 96px);top:calc(100% - var(--sb) - 104px);width:112px;height:112px;margin:-56px 0 0 -56px}
+  .ht-acts{transform:scale(.88);transform-origin:100% 100%}
+  .ht-top .ht-b{width:44px;height:44px}
+}
+
+/* "this computer is struggling": a JackOS-style message box (the choice is the player's) */
+.ht-slow{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:rgba(0,0,0,.45);padding:16px}
+.ht-slow-win{width:min(360px,100%);background:#c0c0c0;border:2px outset #fff;font:13px Tahoma,Arial,sans-serif;color:#000;box-shadow:2px 2px 0 #000}
+.ht-slow-tb{background:linear-gradient(90deg,#000080,#1084d0);color:#fff;font-weight:700;padding:5px 8px}
+.ht-slow-body{padding:12px 14px 14px}
+.ht-slow-body p{margin:0 0 14px;line-height:1.35}
+.ht-slow-row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.ht-slow-row button{min-height:40px;min-width:120px;padding:6px 14px;border:2px outset #fff;background:#c0c0c0;font:inherit}
+.ht-slow-row button:active{border-style:inset}
+
+/* the game menu's touch settings */
+.hs-pause .ht-sens{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hs-pause .ht-sens input{flex:1 1 140px;min-height:32px}
+.hs-pause .ht-jackos-confirm p{margin:8px 0}
+
+/* the account gate on any handheld (tablets included): finger-sized fields, 16px text so iOS never zooms the page */
+html.handheld-house #accountGate,html.mobile-desktop #accountGate{overflow-y:auto}
+html.handheld-house .account-box input,html.mobile-desktop .account-box input{font-size:16px;min-height:38px}
+html.handheld-house .account-box button,html.mobile-desktop .account-box button{min-height:44px;min-width:88px}
+html.handheld-house .account-identity fieldset label,html.mobile-desktop .account-identity fieldset label{min-height:44px;min-width:78px}
+/* the floated Guidance select must never sit over the next button at phone widths */
+.hs-pause-main label:has(>select){display:flow-root;min-height:44px}
+@media (max-width:420px){html[data-touch-state="pc"] .ht-top::before{content:"JACKOS"}}

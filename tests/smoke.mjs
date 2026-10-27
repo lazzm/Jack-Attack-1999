@@ -53,7 +53,10 @@ async function room(){
   }
   return fixture;
 }
-async function wait(page,fn){const deadline=Date.now()+8000*SCALE;while(Date.now()<deadline){if(await page.evaluate(fn))return;await page.waitForTimeout(100)}throw Error('State timeout: '+fn+'; '+JSON.stringify(await page.evaluate(()=>({mode:window.House?.mode,held:window.House?.held?.(),phone:window.FamilyPhone?.state?.()}))))}
+async function wait(page,fn,ms=8000){const deadline=Date.now()+ms*SCALE;while(Date.now()<deadline){
+  // (a first logon on a new device may reload once to apply the account's profile: js/roam.js)
+  try{if(await page.evaluate(fn))return}catch(e){if(!/context was destroyed|navigation/i.test(e.message))throw e}
+  await page.waitForTimeout(100)}throw Error('State timeout: '+fn+'; '+JSON.stringify(await page.evaluate(()=>({mode:window.House?.mode,held:window.House?.held?.(),phone:window.FamilyPhone?.state?.()}))))}
 async function until(fn){const {page}=await room();await wait(page,fn)}
 async function aim(eye,target){const f=await room();await f.view(eye,target);await f.page.evaluate(()=>{House.hush();House._.setMode('walk')})}
 // Save timestamps advance while the desktop is open; compare the actual pose and power.
@@ -157,33 +160,44 @@ const checks=[
      draws.push(`${name}=${debug.renderer.calls}`);await page.screenshot({path:shots+name+'.png',timeout:30000*SCALE,style:'.hs-toast,.balloon { visibility: hidden !important; }'}); // (the exterior view is the slowest software-rendered capture)
    }
  }],
- ['mobile-desktop',25000,async()=>{
+ ['mobile-desktop',90000,async()=>{
+   // Device policy (2026-10-26): a phone plays the whole game. It gets the 3D house with touch controls and the phone
+   // tier, sharing the account's saves and PC power state; JackOS on its own is only the player's chosen fallback.
    const {browser,page:desktop}=await room();
-   // Put a known standing/powered-off save on this existing account, then fetch it on the phone.
    await desktop.evaluate(()=>{
      House.hush();House._.setMode('focus');
      localStorage.setItem('jhp_hs_stand',JSON.stringify({t:Date.now(),p:{x:101,y:-55,z:151,rx:0,ry:0,lvl:'U',seat:0}}));
      localStorage.setItem('jhp_off','1');
    });
-   const saved=await houseSave(desktop);
+   const saved=await houseSave(desktop),beanbag=await desktop.evaluate(()=>({...House.THINGS.beanbag.at}));
    assert(await desktop.evaluate(()=>Roam.syncNow()),'Existing account profile did not upload');
    await desktop.close(); // This is the final room check; stop software WebGL before opening the phone.
 
    const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'});
    const page=await context.newPage();observe(page);
    try{
-     const noRoom=async(checkSave=true)=>{
-       assert.equal(await page.locator('#boot,.hs-gl,.hs-gl2,.hs-ui,.hs-joy,.pc-touch,.hs-getup').count(),0);
-       assert(await page.evaluate(()=>!window.Room&&!window.House?.ok&&!document.pointerLockElement));
-       if(checkSave)assert.deepEqual(await houseSave(page),saved,'Mobile changed the account house save');
-     };
-     await page.goto(base,{waitUntil:'domcontentloaded'});await page.locator('#accountGate form').waitFor();await noRoom(false);
+     const house=()=>window.AccountGate?.allowed&&window.House?.ok&&House.live&&!document.querySelector('.hs-loading,#houseEntry');
+     page.setDefaultNavigationTimeout(30000*SCALE);
+     await page.goto(base,{waitUntil:'domcontentloaded'});await page.locator('#accountGate form').waitFor({timeout:30000*SCALE});
      await page.locator('[name=name]').fill(account);await page.locator('[name=password]').fill(password);await page.locator('#accountGate [type=submit]').tap();
-     const ready=()=>window.AccountGate?.allowed&&window.MobileDesktop&&window.DesktopSurface?.ready();await wait(page,ready);await noRoom();
+     await wait(page,house,40000);await page.waitForTimeout(1500);await wait(page,house,40000);
+     const state=await page.evaluate(()=>({handheld:PCOnly.handheld,jackos:PCOnly.desktopOnly,touch:GameInput.touch,tier:House.Q.guess,hud:!!document.querySelector('.ht-hud')}));
+     assert.deepEqual(state,{handheld:true,jackos:false,touch:true,tier:'potato',hud:true},'Phone must get the house with touch controls and the phone tier');
+     // The same account's room on the phone: the beanbag the desktop moved (prop-refresh) is where the desktop left it.
+     const moved=await page.evaluate(()=>({...House.THINGS.beanbag.at}));
+     for(const key of ['x','z','ry'])assert(Math.abs((moved[key]||0)-(beanbag[key]||0))<.6,`Phone room differs from the desktop save: beanbag ${key}`);
      if(keep)await page.screenshot({path:shots+'mobile-portrait.png'});
-     await page.setViewportSize({width:844,height:390});await page.keyboard.press('F2');await noRoom();
+     await page.setViewportSize({width:844,height:390});await page.waitForTimeout(800);assert(await page.evaluate(()=>House.live&&!House.ren.getContext().isContextLost()));
      if(keep)await page.screenshot({path:shots+'mobile-landscape.png'});
-     await page.reload({waitUntil:'domcontentloaded'});await wait(page,ready);await noRoom();
+     // (refresh mid-walk, touch walking and every phone/tablet layout: tests/mobile.mjs)
+     // The player's own choice of JackOS only (a weak phone): no house is built, no room save is written.
+     await page.evaluate(()=>{PCOnly.choose('jackos');House.saveWalkState()});const chosen=await houseSave(page);
+     await page.reload({waitUntil:'domcontentloaded'});
+     await wait(page,()=>window.AccountGate?.allowed&&window.MobileDesktop&&window.DesktopSurface?.ready(),20000);
+     assert.equal(await page.locator('#boot,.hs-gl,.hs-gl2,.hs-ui,.ht-hud,.hs-getup').count(),0);
+     assert(await page.evaluate(()=>!window.Room&&!window.House?.ok&&!document.pointerLockElement));
+     assert.deepEqual(await houseSave(page),chosen,'JackOS-only changed the account house save');
+     await page.evaluate(()=>PCOnly.choose('house'));
    }finally{await context.close()}
  }],
  ['browser-errors',5000,async()=>{assert.equal(errors.length,0,errors.join(' | '))}],

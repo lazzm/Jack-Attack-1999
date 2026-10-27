@@ -1,8 +1,10 @@
-/* PC prompts remain visible. Hide obsolete touch-only markup until removed. */
-[data-input-only="touch"],
+/* Prompts follow the input actually in use (js/hs-input.js), never the viewport width. */
+html:not([data-game-touch="true"]) [data-input-only="touch"],
+html[data-game-touch="true"] [data-input-only="keyboard"],
 .hs-joy,
 .hs-menu-button,
 .hs-hbtn button[data-h=near],
 .hs-hbtn button[data-h=far],
 .hs-hbtn button[data-h=turn]{display:none!important}
+[data-game-touch="true"] [data-open-gesture]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 [data-open-gesture]:focus-visible{outline:1px dotted currentColor;outline-offset:-2px}

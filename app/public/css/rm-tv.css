@@ -226,3 +226,108 @@ html:has(.rm-tvv.rm-lockin.on) #monitorViewport{visibility:hidden}
 /* controls arrive after the camera settles and leave before it moves (html.hs-moving: hs-world.js) */
 .rm-tvv .rm-tools,.rm-live3d .rm-livebar{transition:opacity .22s ease-out .06s}
 html.hs-moving .rm-tvv .rm-tools,html.hs-moving .rm-live3d .rm-livebar{opacity:0;transition:opacity .1s ease-in}
+
+/* ---- touch: the on-screen controller (js/rm-tv.js pad(), only while touch is the input in use). Moulded plastic, rubber keys and
+   printed legends, one shell per console family. The controller has its own region when the screen is locked in. */
+.rm-tvv{--rm-pad-height:236px;--rm-screen-top:58px;--rm-screen-bottom:8px;--rm-screen-left:8px;--rm-screen-right:8px}
+.rm-tvv.rm-dual{--rm-pad-height:284px}
+.rm-tvv.rm-padon{--rm-screen-bottom:var(--rm-pad-height)}
+.rm-tvv .rm-tools .rm-b:focus-visible,.rm-tvv .rm-pad button:focus-visible{outline:2px dotted #fff;outline-offset:3px}
+.rm-tvv .rm-pad{position:absolute;z-index:3;left:max(6px,env(safe-area-inset-left));right:max(6px,env(safe-area-inset-right));top:auto;bottom:max(6px,env(safe-area-inset-bottom));height:calc(var(--rm-pad-height) - 12px);max-width:560px;margin:0 auto;padding:0;display:block;box-sizing:border-box;isolation:isolate;touch-action:none;user-select:none;-webkit-user-select:none;pointer-events:auto;color:#282b35;font:700 10px/1.2 Arial,sans-serif;--pad-top:#aaaab0;--pad-base:#767780;--pad-edge:#494b53;--pad-ink:#292d39}
+.rm-tvv .rm-pad[hidden],.rm-hand:not(.rm-lockin) .rm-pad{display:none}
+.rm-tvv .rm-pad::before{content:'';position:absolute;inset:4px 0 0;z-index:-1;border:2px solid var(--pad-edge);border-radius:54px 54px 62px 62px;background:linear-gradient(165deg,var(--pad-top),var(--pad-base));box-shadow:inset 0 3px 1px #ffffff65,inset 0 -7px 3px #0003,0 4px 8px #0008;pointer-events:none}
+.rm-pad .rm-padname{position:absolute;top:15px;left:10px;right:10px;text-align:center;font:italic 700 11px/1 Arial,sans-serif;letter-spacing:.06em;color:var(--pad-ink);text-shadow:0 1px #ffffff50;pointer-events:none}
+.rm-tvv .rm-pl,.rm-tvv .rm-pr{position:absolute;top:36px;width:128px;height:128px;transform:none}
+.rm-tvv .rm-pl{left:12px}.rm-tvv .rm-pr{right:12px}
+.rm-control-label{position:absolute;top:-6px;left:0;right:0;text-align:center;font:700 9px/1 Arial,sans-serif;letter-spacing:.08em;color:var(--pad-ink);pointer-events:none}
+.rm-pad .rm-dpad{position:absolute;inset:12px 0 0;touch-action:none}
+.rm-pad .rm-dpad b,.rm-pad .rm-dpad i{position:absolute;display:block;background:linear-gradient(140deg,#484b50,#24262c);box-shadow:inset 0 2px 1px #ffffff45,0 3px 1px #141519;border:1px solid #1d1f24;box-sizing:border-box}
+.rm-pad .rm-dpad b[data-b=up]{left:33%;top:0;width:34%;height:37%;border-radius:5px 5px 0 0}
+.rm-pad .rm-dpad b[data-b=down]{left:33%;bottom:0;width:34%;height:37%;border-radius:0 0 5px 5px}
+.rm-pad .rm-dpad b[data-b=left]{left:0;top:33%;width:37%;height:34%;border-radius:5px 0 0 5px}
+.rm-pad .rm-dpad b[data-b=right]{right:0;top:33%;width:37%;height:34%;border-radius:0 5px 5px 0}
+.rm-pad .rm-dpad i{left:33%;top:33%;width:34%;height:34%;border:0;box-shadow:none}
+.rm-pad .rm-dpad b::after{content:'';position:absolute;inset:35%;border:1px solid #ffffff35;border-radius:2px}
+.rm-pad .rm-dpad b.on{background:#181a1f;box-shadow:inset 0 2px 4px #000}
+.rm-pad .rm-stick{position:absolute;inset:12px 4px 0;border:2px solid #54565f;border-radius:50%;background:repeating-radial-gradient(circle,#666872 0 3px,#53555e 4px 6px);box-shadow:inset 0 5px 9px #0008,0 1px #fff6}
+.rm-pad .rm-stick i{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px;display:block;border:2px solid #6a6b70;border-radius:50%;box-sizing:border-box;background:repeating-radial-gradient(circle at 45% 40%,#babac0 0 3px,#96979e 4px 5px);box-shadow:inset 0 2px 2px #fffa,0 5px 5px #0009;pointer-events:none}
+.rm-pad .rm-face{position:absolute;inset:0;border-radius:50%;background:#00000018;box-shadow:inset 0 2px 3px #0002}
+.rm-pad .rm-fb{position:absolute;width:46px;height:46px;min-height:44px;padding:0;border:2px solid #202128;border-radius:50%;color:#fff;font:700 17px/1 Arial,sans-serif;text-shadow:0 1px 2px #000a;background:radial-gradient(circle at 35% 25%,#ffffff65,transparent 65%),var(--bc);box-shadow:inset 0 2px 1px #ffffff5a,0 4px 0 #292931,0 5px 5px #0006;touch-action:none}
+.rm-pad .rm-fb.on{transform:translateY(3px);box-shadow:inset 0 2px 4px #0005,0 1px 0 #292931}
+.rm-pad-n1 .rm-fb{left:41px;top:41px}
+.rm-pad-n2 .rm-fb:nth-child(1){right:2px;top:20px}.rm-pad-n2 .rm-fb:nth-child(2){left:2px;bottom:18px}
+.rm-pad-n3 .rm-fb:nth-child(1){right:0;bottom:8px}.rm-pad-n3 .rm-fb:nth-child(2){left:41px;top:0}.rm-pad-n3 .rm-fb:nth-child(3){left:0;bottom:8px}
+.rm-pad-n4 .rm-fb:nth-child(1){left:41px;bottom:0}.rm-pad-n4 .rm-fb:nth-child(2){right:0;top:41px}.rm-pad-n4 .rm-fb:nth-child(3){left:0;top:41px}.rm-pad-n4 .rm-fb:nth-child(4){left:41px;top:0}
+.rm-tvv .rm-pm{position:absolute;bottom:14px;left:50%;width:calc(100% - 32px);transform:translateX(-50%);display:flex;justify-content:center;align-items:center;gap:8px}
+.rm-pad .rm-st,.rm-pad .rm-sh{display:block;min-width:48px;min-height:44px;padding:6px 9px;border:2px solid #33353d;border-radius:16px;background:linear-gradient(#5e616b,#33353d);color:#f4f0df;font:700 10px/1 Arial,sans-serif;letter-spacing:.04em;box-shadow:inset 0 1px #ffffff5a,0 3px #1b1c22;touch-action:none}
+.rm-pad .rm-st.on,.rm-pad .rm-sh.on{background:#202229;transform:translateY(2px);box-shadow:inset 0 2px 3px #0008}
+.rm-dual .rm-pr{height:186px}.rm-dual .rm-aim{position:absolute;top:0;left:0;width:128px;height:112px}
+.rm-dual .rm-face{top:126px;height:50px;background:none;box-shadow:none}
+.rm-dual .rm-face .rm-fb:nth-child(1){left:auto;right:4px;top:0;bottom:auto}.rm-dual .rm-face .rm-fb:nth-child(2){left:4px;right:auto;top:0;bottom:auto}
+.rm-tvv.rm-live3d.rm-padon .rm-livebar{bottom:calc(var(--rm-pad-height) + 8px)}
+[data-con=n64] .rm-pad::before{border-radius:42px 42px 36% 36%;background:linear-gradient(140deg,#a5a5ad,#747782)}
+[data-con=n64] .rm-pad .rm-st{background:linear-gradient(#d56764,#923936)}
+[data-con=ps] .rm-pad{--pad-top:#d5d1c7;--pad-base:#a6a39b;--pad-edge:#77766f}
+[data-con=ps] .rm-pad::before{border-radius:64px 64px 38px 38px}
+[data-con=ps] .rm-pad .rm-fb{color:var(--bc);font-size:24px;background:radial-gradient(circle at 35% 25%,#55565d,#202128 75%)}
+[data-con=gb] .rm-pad{--pad-top:#9b71bc;--pad-base:#694790;--pad-edge:#463260;--pad-ink:#211731}
+[data-con=gb] .rm-pad::before{border-radius:14px 14px 54px 14px}
+[data-con=md] .rm-pad{--pad-top:#3d4049;--pad-base:#1c1e26;--pad-edge:#111219;--pad-ink:#ded9cf}
+[data-con=md] .rm-pad::before{border-radius:60px 60px 45% 45%}
+[data-con=md] .rm-pad .rm-fb{border-color:#15151b;box-shadow:inset 0 2px 1px #ffffff40,0 4px #111217}
+[data-con=dc] .rm-pad{--pad-top:#f0eee6;--pad-base:#c7c7c0;--pad-edge:#92948e}
+[data-con=dc] .rm-pad::before{border-radius:50px 50px 42px 42px}
+[data-con=dc] .rm-pad .rm-stick{background:repeating-radial-gradient(circle,#cfcec7 0 3px,#aeafa8 4px 6px)}
+[data-con=sn] .rm-pad{--pad-top:#dedcd5;--pad-base:#afada7;--pad-edge:#7a7b79}
+[data-con=sn] .rm-pad::before{border-radius:90px}
+/* Wide screens use two wings, leaving a clear central screen at its native
+   aspect. Start/select/shoulders live under the left thumb, outside the glass. */
+@media(max-height:500px) and (min-aspect-ratio:3/2) and (min-width:600px){
+ .rm-tvv.rm-padon{--rm-screen-left:174px;--rm-screen-right:174px;--rm-screen-bottom:8px}
+ .rm-tvv .rm-pad{top:58px;bottom:max(6px,env(safe-area-inset-bottom));height:auto;max-width:none;pointer-events:none}
+ .rm-tvv .rm-pad::before,.rm-pad .rm-padname{display:none}
+ .rm-tvv .rm-pl,.rm-tvv .rm-pr{top:24px;width:144px;height:140px;pointer-events:auto;background:linear-gradient(150deg,var(--pad-top),var(--pad-base));border:2px solid var(--pad-edge);border-radius:32px;box-shadow:inset 0 2px #fff6,0 3px 6px #0008}
+ .rm-tvv .rm-pl{left:2px}.rm-tvv .rm-pr{right:2px}
+ .rm-tvv .rm-pl .rm-dpad{inset:12px 8px 8px}.rm-tvv .rm-pr .rm-face{inset:6px 8px}
+ .rm-tvv .rm-pm{left:2px;bottom:4px;transform:none;width:148px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;pointer-events:auto}
+ .rm-tvv .rm-pm .rm-st,.rm-tvv .rm-pm .rm-sh{padding:6px 2px}
+ .rm-tvv.rm-dual .rm-pr{height:236px;top:10px}
+ .rm-dual .rm-pr .rm-aim{left:8px;top:8px;width:128px;height:128px}
+ .rm-dual .rm-pr .rm-face{top:166px;bottom:12px;left:8px;right:8px}
+ .rm-tvv.rm-live3d.rm-padon .rm-livebar{top:auto;bottom:4px;left:180px;right:180px}
+ .rm-live3d.rm-padon .rm-livebar .rm-btns{display:none}
+}
+/* Fixed hardware legends stay in their familiar diamond positions, even when
+   a game uses only two or three of the four face buttons. */
+.rm-pad .rm-dia .rm-fb[data-b=x],.rm-pad .rm-dia .rm-fb[data-b=c]{left:0;right:auto;top:41px;bottom:auto}
+.rm-pad .rm-dia .rm-fb[data-b=y]{left:41px;right:auto;top:0;bottom:auto}
+.rm-pad .rm-dia .rm-fb[data-b=a]{left:41px;right:auto;top:auto;bottom:0}
+.rm-pad .rm-dia .rm-fb[data-b=b]{left:auto;right:0;top:41px;bottom:auto}
+[data-con=sn] .rm-pad .rm-dia .rm-fb[data-b=x]{left:41px;top:0;bottom:auto}
+[data-con=sn] .rm-pad .rm-dia .rm-fb[data-b=y]{left:0;top:41px;bottom:auto}
+[data-con=sn] .rm-pad .rm-dia .rm-fb[data-b=a]{left:auto;right:0;top:41px;bottom:auto}
+[data-con=sn] .rm-pad .rm-dia .rm-fb[data-b=b]{left:41px;right:auto;top:auto;bottom:0}
+[data-con=md] .rm-pad .rm-fb[data-b=a]{left:0;right:auto;top:auto;bottom:0}
+.rm-tvv .rm-pad{display:none}
+html[data-game-touch="true"] .rm-tvv .rm-pad:not([hidden]){display:block}
+html[data-game-touch="true"] .rm-tvv.rm-hand:not(.rm-lockin) .rm-pad{display:none}
+/* portrait: the controller sits under the telly; the back/menu bar rides above the controller */
+@media (max-aspect-ratio:3/4){
+  .rm-tvv.rm-padon .rm-shelf,.rm-tvv.rm-padon .rm-conbar,.rm-tvv.rm-padon .rm-help{display:none}
+  .rm-tvv.rm-padon .rm-side{position:absolute;left:0;right:0;bottom:var(--rm-pad-height);width:auto}
+}
+@media (max-height:500px) and (min-aspect-ratio:3/2){
+  .rm-tvv.rm-padon .rm-side{position:absolute;right:8px;top:8px;width:auto;max-width:none}
+  .rm-tvv.rm-padon .rm-shelf,.rm-tvv.rm-padon .rm-conbar,.rm-tvv.rm-padon .rm-help{display:none}
+}
+.rm-tvv.rm-padon .rm-tools .rm-b{min-height:40px}
+/* the Game Lad in your hands: finger-sized hit areas over its own moulded buttons (js/rm-tv.js gbTouch) */
+.rm-gbtouch{position:fixed;inset:0;z-index:5;pointer-events:none;touch-action:none;-webkit-user-select:none;user-select:none}
+.rm-gbtouch[hidden]{display:none}
+.rm-gbtouch>*{position:fixed;pointer-events:auto;touch-action:none;display:block;border-radius:50%;box-sizing:border-box;border:2px solid rgba(255,240,210,.22);background:transparent;-webkit-tap-highlight-color:transparent}
+.rm-gbtouch .rm-gbd{border-radius:14%}
+.rm-gbtouch .rm-gbd b,.rm-gbtouch .rm-gbd i{display:none}
+.rm-gbtouch>.on,.rm-gbtouch .rm-gbd:has(.on){border-color:rgba(255,216,74,.7);background:rgba(255,216,74,.12)}
+.rm-gbtouch .rm-gbt-a,.rm-gbtouch .rm-gbt-b,.rm-gbtouch .rm-gbt-s{color:transparent;font-size:0}
+html:not([data-game-touch="true"]) .rm-gbtouch{display:none}
+@media(max-height:500px) and (min-aspect-ratio:3/2) and (min-width:600px){.rm-tvv .rm-pad .rm-control-label{display:none}}
