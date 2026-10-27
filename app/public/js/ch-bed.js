@@ -17,6 +17,7 @@
   const mat = (c, o) => M(Object.assign({ c, sh: 12, sp: '#222' }, o || {}));
   const rnd = K.rnd;
   const grp = (fn) => { const g = new T.Group(); fn(K.into(g), g); return g; };
+  const grpB = (fn) => { const g = new T.Group(), b = K.batch(); fn(K.into(b), g); b.build(g); return g; }; // merged per material: one draw each
   // Original generated picture layers; all fictional branding remains real type.
   const fallbackPrints={};
   function packageTex(key,art,title,sub,w=320,h=448,turned=false){
@@ -29,20 +30,185 @@
     },{clamp:true});
   }
 
-  // ================================================================ cloth: a crumpled heap of fabric (a silhouette on a lumpy sheet)
-  function clothTex(key, w, h, paint) { return K.tex('ch.cl.' + key, w, h, (g, ww, hh) => { g.clearRect(0, 0, ww, hh); paint(g, ww, hh); }, { clamp: true }); }
-  function cloth(key, w, d, hgt, paint, seed) {
-    const colours={tshirt:'#ad2630',jeans:'#375983',shirt:'#deddd6',pe:'#253861',jumper2:'#666a73',pjs:'#94b6d5'},base=colours[key]||'#5d6d87';
-    const tex=K.tex('ch.solidcloth.'+key,128,128,(g,ww,hh)=>{g.fillStyle=base;g.fillRect(0,0,ww,hh);paint(g,ww,hh)},{clamp:true});
-    const outline=key==='jeans'?[[30,6],[98,6],[104,122],[72,122],[64,46],[56,122],[24,122]]:key==='pe'?[[16,24],[112,24],[120,104],[72,104],[64,70],[56,104],[8,104]]:[[34,12],[52,8],[64,18],[76,8],[94,12],[122,key==='tshirt'?34:70],[108,key==='tshirt'?52:76],[96,44],[98,120],[30,120],[32,44],[20,key==='tshirt'?52:76],[6,key==='tshirt'?34:70]];
-    const shape=new T.Shape();outline.forEach(([x,z],i)=>shape[i?'lineTo':'moveTo']((x/128-.5)*w,(.5-z/128)*d));shape.closePath();
-    const geo=new T.ExtrudeGeometry(shape,{depth:Math.max(.7,hgt*.28),bevelEnabled:true,bevelThickness:.18,bevelSize:.3,bevelSegments:1,steps:1});geo.rotateX(Math.PI/2);
-    const pos=geo.attributes.position,uv=geo.attributes.uv;let bottom=-Infinity;
-    for(let i=0;i<pos.count;i++){const x=pos.getX(i),z=pos.getZ(i),y=pos.getY(i)-hgt*.16*(1+Math.sin(x*.27+z*.12+seed));pos.setY(i,y);bottom=Math.max(bottom,y);uv.setXY(i,x/w+.5,.5-z/d)}
-    for(let i=0;i<pos.count;i++)pos.setY(i,pos.getY(i)-bottom);geo.computeVertexNormals();
-    return grp(G=>{G.geo(geo,0,0,0,M({c:'#fff',map:tex,sh:2}));G.shadow(0,0,0,w*.9,d*.9,.4)});
-
+  // ================================================================ the mess, modelled (each built bottom-centre on y = 0, y down)
+  // Real low-poly 3D that reads at floor distance: cloth is a draped sheet with soft folds whose edges meet the floor (solid
+  // from every angle, no cardboard cut-outs), socks are swept tubes with ribbed cuffs, rubbish is lathed/swept/crumpled.
+  // Materials and canvases are shared through K.mat/K.tex; every model is roughly 150-700 triangles in 2-6 draws.
+  const sstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  function segDist(px, pz, ax, az, bx, bz) { const dx = bx - ax, dz = bz - az, l = dx * dx + dz * dz || 1, t = Math.max(0, Math.min(1, ((px - ax) * dx + (pz - az) * dz) / l)); return Math.hypot(px - ax - dx * t, pz - az - dz * t); }
+  function inPoly(x, z, pts) { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, zi] = pts[i], [xj, zj] = pts[j]; if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) c = !c; } return c; }
+  function edgeOf(x, z, pts) { let d = Infinity, q = null; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [ax, az] = pts[j], [bx, bz] = pts[i], dx = bx - ax, dz = bz - az, l = dx * dx + dz * dz || 1, t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / l)), cx = ax + dx * t, cz = az + dz * t, dd = Math.hypot(x - cx, z - cz); if (dd < d) { d = dd; q = [cx, cz]; } } return { d, q }; }
+  const D = (v, s) => (v / 128 - 0.5) * s; // 128-unit design space -> cm
+  // A draped sheet of cloth. outline: [[x, z], ...] in a 128 x 128 design space over w x d cm. o.folds: ridges
+  // [x1, z1, x2, z2, height, width] (design space; height and width in cm), o.lump: [x, z, height, radius], o.thick, o.seed.
+  function sheet(outline, w, d, o) {
+    o = o || {};
+    const pts = outline.map(([x, z]) => [D(x, w), D(z, d)]), n = o.res || 22, sx = w / n, sz = d / n, cols = n + 1;
+    const r = rnd(o.seed || 7), waves = [0, 1, 2].map(() => [r() * 6.28, 0.22 + r() * 0.3, r() * 6.28, 0.18 + r() * 0.3]);
+    const folds = (o.folds || []).map(([x1, z1, x2, z2, h, fw]) => [D(x1, w), D(z1, d), D(x2, w), D(z2, d), h, fw]);
+    const lumps = (o.lump || []).map(([x, z, h, rr]) => [D(x, w), D(z, d), h, rr]);
+    const idx = new Map(), pos = [], uv = [], index = [], edge = o.edge || 2.4;
+    const cellIn = (i, j) => { const cx = -w / 2 + (i + 0.5) * sx, cz = -d / 2 + (j + 0.5) * sz; return inPoly(cx, cz, pts) || edgeOf(cx, cz, pts).d < Math.min(sx, sz) * 0.4; };
+    function vert(i, j) {
+      const k = i + j * cols; if (idx.has(k)) return idx.get(k);
+      let x = -w / 2 + i * sx, z = -d / 2 + j * sz; const ins = inPoly(x, z, pts), e = edgeOf(x, z, pts);
+      const onEdge = !ins || e.d < Math.min(sx, sz) * 0.38; if (onEdge) { x = e.q[0]; z = e.q[1]; }
+      const kk = sstep(0, edge, onEdge ? 0 : e.d);
+      let h = (o.thick || 0.8) * kk;
+      for (const [p1, f1, p2, f2] of waves) h += (o.wrinkle || 0.3) * kk * Math.sin(x * f1 + p1) * Math.sin(z * f2 + p2);
+      for (const [ax, az, bx, bz, fh, fw] of folds) { const dd = segDist(x, z, ax, az, bx, bz); h += fh * Math.exp(-dd * dd / (fw * fw)) * (0.25 + 0.75 * kk); }
+      for (const [lx, lz, lh, lr] of lumps) { const dd = Math.hypot(x - lx, z - lz); h += lh * Math.exp(-dd * dd / (lr * lr)) * kk; }
+      const id = pos.length / 3; pos.push(x, -Math.max(0.1, h), z); uv.push(x / w + 0.5, 0.5 - z / d); idx.set(k, id); return id;
+    }
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) if (cellIn(i, j)) { const a = vert(i, j), b = vert(i + 1, j), c = vert(i + 1, j + 1), e = vert(i, j + 1); index.push(a, b, e, b, c, e); }
+    const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.setIndex(index); geo.computeVertexNormals();
+    return geo;
   }
+  // A swept tube along the floor. path: [[x, z, lift], ...]; wf(t) / hf(t): half width / half height (t 0..1 along it).
+  // UV: u along the path, v round it. o.capA / o.capB close the ends (a cap's centre samples u = 0 or 1).
+  function tube(path, wf, hf, o) {
+    o = o || {};
+    const R = o.radial || 10, N = path.length, pos = [], uv = [], index = [];
+    for (let i = 0; i < N; i++) {
+      const t = i / (N - 1), [x, z, lift] = path[i], a = path[Math.max(0, i - 1)], b = path[Math.min(N - 1, i + 1)];
+      let tx = b[0] - a[0], tz = b[1] - a[1]; const l = Math.hypot(tx, tz) || 1; tx /= l; tz /= l;
+      const w = wf(t), h = hf(t), cy = -((lift || 0) + h);
+      for (let k = 0; k <= R; k++) { const ang = k / R * Math.PI * 2, c = Math.cos(ang), s = Math.sin(ang); pos.push(x - tz * c * w, cy - s * h, z + tx * c * w); uv.push(t, k / R); }
+    }
+    for (let i = 0; i < N - 1; i++) for (let k = 0; k < R; k++) { const a = i * (R + 1) + k, b = a + R + 1; index.push(a, a + 1, b, a + 1, b + 1, b); }
+    const cap = (i, u) => { const [x, z, lift] = path[i], c = pos.length / 3; pos.push(x, -((lift || 0) + hf(i / (N - 1))), z); uv.push(u, 0.5); for (let k = 0; k < R; k++) { const a = i * (R + 1) + k; if (i) index.push(c, a, a + 1); else index.push(c, a + 1, a); } };
+    if (o.capA) cap(0, 0); if (o.capB) cap(N - 1, 1);
+    const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.setIndex(index); geo.computeVertexNormals();
+    return geo;
+  }
+  const clothMat = key => M({ c: '#fff', map: clothTex(key), sh: 3, sp: '#111', side: 2 });
+  // the garment art (P below) on the cloth's own colour, with a little weave so it never reads as plastic
+  function clothTex(key) {
+    const colours = { tshirt: '#ad2630', jeans: '#375983', shirt: '#e4e3dc', pe: '#253861', jumper2: '#666a73', pjs: '#94b6d5' }, base = colours[key] || '#5d6d87';
+    return K.tex('ch.cloth3.' + key, 128, 128, (g, ww, hh) => { g.fillStyle = base; g.fillRect(0, 0, ww, hh); P[key](g, ww, hh); A.grain(g, ww, hh, 700, key === 'jumper2' ? 0.1 : 0.05, 17); }, { clamp: true });
+  }
+  // how each garment lies: its outline (the same art space as P) and its folds
+  const GARMENT = {
+    tshirt: { w: 40, d: 36, out: [[34, 12], [52, 8], [64, 18], [76, 8], [94, 12], [122, 34], [108, 52], [96, 44], [98, 120], [30, 120], [32, 44], [20, 52], [6, 34]], o: { seed: 11, thick: 0.9, folds: [[34, 16, 30, 66, 1.5, 3.2], [44, 72, 104, 100, 1.9, 4.5], [60, 40, 80, 112, 1.1, 3.5], [96, 14, 118, 40, 1.0, 2.6]], lump: [[78, 92, 1.6, 7]] } },
+    jeans: { w: 38, d: 52, out: [[30, 6], [98, 6], [104, 122], [72, 122], [64, 46], [56, 122], [24, 122]], o: { seed: 12, thick: 1.0, folds: [[30, 9, 98, 9, 1.0, 2.2], [24, 72, 58, 78, 1.3, 3], [70, 64, 104, 72, 1.3, 3], [84, 30, 92, 120, 1.2, 3.5], [24, 116, 56, 117, 1.2, 1.8], [72, 116, 104, 117, 1.2, 1.8]], lump: [[42, 40, 1.4, 8]] } },
+    shirt: { w: 40, d: 38, out: [[36, 10], [54, 6], [64, 18], [74, 6], [92, 10], [124, 46], [110, 58], [96, 46], [98, 122], [30, 122], [32, 46], [18, 58], [4, 46]], o: { seed: 13, thick: 0.8, folds: [[40, 12, 62, 22, 1.4, 2], [66, 22, 88, 12, 1.4, 2], [64, 22, 64, 120, 0.6, 1.6], [100, 32, 118, 52, 1.2, 2.6], [34, 82, 96, 98, 1.6, 4.5]], lump: [[44, 100, 1.3, 7]] } },
+    pe: { w: 30, d: 24, out: [[16, 24], [112, 24], [120, 104], [72, 104], [64, 70], [56, 104], [8, 104]], o: { seed: 14, thick: 0.9, folds: [[16, 29, 112, 29, 1.2, 2.2], [36, 60, 92, 92, 1.2, 3]], lump: [[90, 56, 1.0, 5]] } },
+    jumper2: { w: 44, d: 40, out: [[30, 12], [48, 6], [64, 4], [80, 6], [98, 12], [124, 70], [108, 76], [98, 52], [98, 122], [30, 122], [30, 52], [20, 76], [4, 70]], o: { seed: 15, thick: 1.4, wrinkle: 0.4, folds: [[30, 16, 18, 70, 1.8, 3.5], [98, 16, 112, 70, 1.6, 3.5], [36, 96, 94, 108, 1.6, 4], [40, 72, 88, 72, 0.6, 1.6]], lump: [[64, 18, 3.2, 8], [70, 88, 1.4, 8]] } },
+    pjs: { w: 34, d: 32, out: [[26, 8], [102, 8], [120, 40], [104, 50], [100, 120], [28, 120], [24, 50], [8, 40]], o: { seed: 21, thick: 0.9, folds: [[30, 14, 26, 46, 1.2, 3], [40, 70, 96, 96, 1.6, 4], [64, 10, 64, 118, 0.5, 1.4]], lump: [[52, 88, 1.3, 7]] } },
+  };
+  function cloth(key, w, d) {
+    const G0 = GARMENT[key], geo = sheet(G0.out, G0.w, G0.d, G0.o);
+    return grpB(G => {
+      G.geo(geo, 0, 0, 0, clothMat(key));
+      if (key === 'jumper2') { const cord = mat('#e8e4da', { sh: 10 }); [[-2.2, 1], [2.4, -1]].forEach(([x, s]) => G.geo(tube([[x, -12, 2.4], [x + s * 0.6, -9, 1.2], [x + s * 1.5, -6, 0.5], [x + s * 1.2, -3.5, 0.3]], () => 0.28, () => 0.28, { radial: 5, capA: true, capB: true }), 0, 0, 0, cord)); }
+      G.shadow(0, 0, 0, G0.w * 0.95, G0.d * 0.92, 0.42);
+    });
+  }
+  // SOCKS: a crumpled pair of white sports socks, red and navy hoops on ribbed cuffs, grey toes and heels (a bit grubby)
+  const sockTex = () => K.tex('ch.sock3', 128, 64, (g, w, h) => {
+    g.fillStyle = '#f2efe6'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#b9b5ab'; g.fillRect(0, 0, 14, h); g.fillRect(50, 0, 14, h); // toe, heel
+    g.fillStyle = 'rgba(120,100,70,.22)'; g.fillRect(8, h * 0.55, 40, h * 0.45); // the sole: not entirely clean
+    for (let x = 92; x < w; x += 3) { g.fillStyle = 'rgba(0,0,0,.07)'; g.fillRect(x, 0, 1, h); }
+    for (let y = 0; y < h; y += 3) { g.fillStyle = 'rgba(0,0,0,.06)'; g.fillRect(92, y, w - 92, 1); } // the rib
+    g.fillStyle = '#c8202a'; g.fillRect(100, 0, 6, h); g.fillStyle = '#1f3a7a'; g.fillRect(110, 0, 5, h);
+    g.fillStyle = '#4a463e'; g.fillRect(w - 2, 0, 2, h); // inside the cuff
+    A.grain(g, w, h, 500, 0.06, 23);
+  }, { clamp: true });
+  function sock(path, len) {
+    const cuff = t => t > 0.84 ? 1 + 0.08 * Math.sin((t - 0.84) * 60) : 1;
+    return tube(path.map(([x, z, l]) => [x * 0.86, z * 0.86, l * 0.8]), t => (t < 0.12 ? 0.55 + 0.45 * Math.sqrt(t / 0.12) : 1) * (t > 0.45 ? 2.75 : 2.5) * cuff(t), t => (t < 0.1 ? 0.5 + 0.5 * Math.sqrt(t / 0.1) : 1) * (t > 0.8 ? 0.95 : 0.78), { radial: 10, capA: true, capB: true });
+  }
+  // CRISP PACKET: a sealed foil pillow bag (WALKIES, a parody brand: a dog on the front, "ready salted-ish"). Top and bottom
+  // sheets meet along the long sides; zig-zag crimped seals close both ends; flat-shaded crinkles catch the light like foil.
+  // full: a fresh bag puffed with air; otherwise crushed and empty (today's rubbish). Front print on the top, back on the bottom.
+  const crispBagTex = () => K.tex('ch.walkies', 512, 256, (g, w, h) => {
+    for (const [x0, back] of [[0, false], [256, true]]) {
+      g.save(); g.translate(x0, 0);
+      const bg = g.createLinearGradient(0, 0, 0, h); bg.addColorStop(0, '#e2262f'); bg.addColorStop(0.55, '#c51b25'); bg.addColorStop(1, '#9e121b'); g.fillStyle = bg; g.fillRect(0, 0, 256, h);
+      g.fillStyle = 'rgba(255,255,255,.08)'; for (let k = 0; k < 9; k++) g.fillRect(14 + k * 26, 0, 9, h); // foil sheen bands
+      if (!back) {
+        g.fillStyle = '#ffd21f'; g.beginPath(); g.ellipse(128, 70, 104, 42, -0.06, 0, 7); g.fill(); g.lineWidth = 4; g.strokeStyle = '#1d2f7a'; g.stroke();
+        g.font = '900 46px ' + A.FONT; g.textAlign = 'center'; g.lineWidth = 6; g.strokeStyle = '#1d2f7a'; g.strokeText('WALKIES', 128, 86, 196); g.fillStyle = '#e2262f'; g.fillText('WALKIES', 128, 86, 196);
+        g.fillStyle = '#1d2f7a'; g.fillRect(40, 118, 176, 26); A.text(g, 'READY SALTED-ISH', 128, 137, '700 17px ' + A.UIF, '#fff', 'center');
+        const r = rnd(12); for (let k = 0; k < 14; k++) { const x = 40 + r() * 120, y = 168 + r() * 52; g.fillStyle = ['#f4c552', '#e9b23a', '#f7d77a'][k % 3]; g.beginPath(); g.ellipse(x, y, 16, 9, r() * 3, 0, 7); g.fill(); g.strokeStyle = 'rgba(150,90,20,.5)'; g.lineWidth = 1.5; g.stroke(); }
+        g.fillStyle = '#f0e6d2'; g.beginPath(); g.ellipse(196, 192, 26, 24, 0, 0, 7); g.fill(); g.fillStyle = '#7a4a22'; g.beginPath(); g.ellipse(176, 176, 9, 16, 0.5, 0, 7); g.fill(); g.beginPath(); g.ellipse(216, 176, 9, 16, -0.5, 0, 7); g.fill();
+        g.fillStyle = '#1a1a1a'; for (const x of [186, 206]) { g.beginPath(); g.arc(x, 188, 3.4, 0, 7); g.fill(); } g.beginPath(); g.ellipse(196, 200, 6, 4, 0, 0, 7); g.fill(); g.fillStyle = '#e86a8a'; g.beginPath(); g.ellipse(198, 210, 4, 6, 0, 0, 7); g.fill();
+        g.fillStyle = '#ffd21f'; g.beginPath(); for (let k = 0; k < 16; k++) { const a = k / 16 * Math.PI * 2, rr = k % 2 ? 15 : 22; g.lineTo(40 + Math.cos(a) * rr, 30 + Math.sin(a) * rr); } g.fill(); A.text(g, '34.5g', 40, 34, '900 11px ' + A.UIF, '#c51b25', 'center');
+      } else {
+        g.fillStyle = '#f6efe0'; g.fillRect(28, 40, 200, 120); A.text(g, 'WALKIES', 128, 66, '900 22px ' + A.FONT, '#c51b25', 'center');
+        ['INGREDIENTS: Potatoes, vegetable oil,', 'salt (a bit), a sense of adventure.', 'Best before: see the other side.', 'Good boy! (Bin me after.)'].forEach((t, k) => A.text(g, t, 128, 88 + k * 16, '700 11px ' + A.UIF, '#3a2a20', 'center'));
+        g.fillStyle = '#fff'; g.fillRect(150, 178, 72, 44); g.fillStyle = '#111'; for (let k = 0; k < 30; k++) g.fillRect(154 + k * 2.2, 182, k % 3 ? 1 : 1.6, 30);
+      }
+      // the crimped ends: silver foil with a zig-zag press
+      for (const ex of [0, 244]) { g.fillStyle = '#c9c9ce'; g.fillRect(ex, 0, 12, h); g.strokeStyle = 'rgba(80,80,90,.6)'; g.lineWidth = 1; g.beginPath(); for (let y = 0; y <= h; y += 6) g.lineTo(ex + (y / 6 % 2 ? 9 : 3), y); g.stroke(); }
+      g.restore();
+    }
+    A.grain(g, w, h, 1400, 0.05, 31);
+  }, { clamp: true });
+  function crispBag(full, seed) {
+    const L = 16, W = 11.5, H = full ? 3.3 : 0.85, nu = 16, nv = 10, r = rnd(seed), pos = [], uv = [], index = [];
+    const folds = full ? [[-0.6, -1, -0.2, 1, 0.12], [0.5, -1, 0.75, 1, 0.1]] : [[-0.75, -1, -0.35, 1, 0.55], [0.15, -1, 0.45, 1, 0.45], [-1, -0.25, 1, 0.35, 0.4], [0.5, 1, 0.95, -0.6, 0.35]];
+    const twist = full ? 0 : 0.35;
+    for (const top of [true, false]) {
+      const base = pos.length / 3;
+      for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) {
+        const u = i / nu * 2 - 1, v = j / nv * 2 - 1, pinch = 1 - (full ? 0.2 : 0.1) * Math.pow(Math.abs(u), 4);
+        const f = Math.pow(Math.max(0, 1 - Math.pow(Math.abs(u), 3)), 0.6) * Math.pow(Math.max(0, 1 - v * v), 0.55);
+        let crease = 0; for (const [x1, z1, x2, z2, a] of folds) { const d = segDist(u, v, x1, z1, x2, z2); crease += a * Math.max(0, 1 - d / 0.22) * (top ? 1 : 0.3); }
+        const jit = (r() - 0.5) * (full ? 0.18 : 0.3) * f;
+        let y = top ? 0.32 + (H * f) * (1 - (full ? 0.06 : 0.3) * Math.sin(u * 4.1 + v * 2.3)) + crease * (full ? 0.3 : 1) + jit : 0.1 + 0.08 * f;
+        const x = u * L / 2, z = v * W / 2 * pinch + twist * u * u * Math.sign(u) * 1.2;
+        pos.push(x, -y, z); uv.push(top ? 0.03 + 0.44 * (u + 1) / 2 : 0.53 + 0.44 * (1 - u) / 2, (v + 1) / 2);
+      }
+      for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) { const a = base + j * (nu + 1) + i, b = a + 1, c = a + nu + 2, e = a + nu + 1; if (top) index.push(a, b, e, b, c, e); else index.push(a, e, b, b, e, c); }
+    }
+    // crimped seals: a flat foil strip, zig-zag at its outer edge, at each end
+    for (const sgn of [-1, 1]) {
+      const base = pos.length / 3, teeth = 9, w0 = W / 2 * (full ? 0.8 : 0.9), yS = full ? 0.9 : 0.3;
+      for (let k = 0; k <= teeth * 2; k++) { const z = -w0 + 2 * w0 * k / (teeth * 2) + twist * 1.2 * sgn; pos.push(sgn * L / 2, -yS, z, sgn * (L / 2 + 1.5 + (k % 2 ? 0.5 : 0)), -yS - (full ? 0.15 : 0.05) - r() * 0.12, z); uv.push(sgn < 0 ? 0.005 : 0.49, k / (teeth * 2), sgn < 0 ? 0.005 : 0.49, k / (teeth * 2)); }
+      for (let k = 0; k < teeth * 2; k++) { const a = base + k * 2; index.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+    }
+    const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.setIndex(index); geo.computeVertexNormals();
+    return geo;
+  }
+  const crispMat = () => M({ c: '#fff', map: crispBagTex(), sh: 95, sp: '#b8b8c0', flat: true, side: 2 });
+  // FIZZY POP CAN: a lathed can with a lid, ring-pull and a dent, lying on its side
+  function canBody() {
+    const geo = new T.CylinderGeometry(3.3, 3.3, 9, 18, 5, true), p = geo.attributes.position;
+    for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i), a = Math.atan2(z, x), dent = 0.16 * Math.exp(-Math.pow((a - 0.9) / 0.5, 2)) * Math.exp(-Math.pow((y + 0.8) / 2.2, 2)); p.setXYZ(i, x * (1 - dent), y, z * (1 - dent)); }
+    geo.computeVertexNormals(); return geo;
+  }
+  // HOMEWORK: a screwed-up ball of lined paper
+  const homeworkTex = () => K.tex('ch.homework', 128, 128, (g, w, h) => {
+    g.fillStyle = '#f5f2e8'; g.fillRect(0, 0, w, h);
+    g.fillStyle = 'rgba(70,110,200,.45)'; for (let y = 10; y < h; y += 9) g.fillRect(0, y, w, 1);
+    g.fillStyle = 'rgba(210,50,60,.55)'; g.fillRect(18, 0, 1.5, h);
+    g.strokeStyle = 'rgba(60,60,70,.55)'; g.lineWidth = 1; const r = rnd(41);
+    for (let y = 18; y < h; y += 9) { g.beginPath(); let x = 24; g.moveTo(x, y); while (x < w - 10 - r() * 30) { x += 3 + r() * 4; g.lineTo(x, y - 1 - r() * 3); } g.stroke(); }
+    g.fillStyle = '#c8202a'; g.font = 'bold 13px ' + A.UIF; g.fillText('See me!', 60, 60);
+  }, { clamp: true });
+  function crumple(r0, seed, squash) {
+    const geo = new T.IcosahedronGeometry(r0, 2), p = geo.attributes.position, r = rnd(seed), off = new Map();
+    for (let i = 0; i < p.count; i++) { const k = Math.round(p.getX(i) * 100) + ',' + Math.round(p.getY(i) * 100) + ',' + Math.round(p.getZ(i) * 100); if (!off.has(k)) off.set(k, 0.72 + r() * 0.42); const s = off.get(k); p.setXYZ(i, p.getX(i) * s, p.getY(i) * s * squash, p.getZ(i) * s); }
+    geo.computeVertexNormals(); geo.computeBoundingBox(); return geo;
+  }
+  // BANANA SKIN: four peel petals splayed from the stalk, yellow outside with brown freckles, cream inside, brown tips
+  const bananaTex = () => K.tex('ch.banana', 64, 64, (g, w, h) => {
+    g.fillStyle = '#f0e6c2'; g.fillRect(0, 0, w, h / 2); // inside (the underside of the sweep): cream
+    g.fillStyle = '#f2cf3a'; g.fillRect(0, h / 2, w, h / 2);
+    const r = rnd(5); g.fillStyle = 'rgba(110,70,20,.55)'; for (let i = 0; i < 26; i++) { g.beginPath(); g.ellipse(r() * w, h / 2 + r() * h / 2, 0.8 + r() * 1.6, 0.6 + r(), 0, 0, 7); g.fill(); }
+    g.fillStyle = 'rgba(150,170,60,.6)'; g.fillRect(0, h / 2, 6, h / 2);
+    const gr = g.createLinearGradient(w * 0.78, 0, w, 0); gr.addColorStop(0, 'rgba(70,40,15,0)'); gr.addColorStop(1, 'rgba(60,35,12,.95)'); g.fillStyle = gr; g.fillRect(w * 0.78, 0, w * 0.22, h);
+  }, { clamp: true });
+  // YOGHURT POT: tipped over, the foil lid peeled back, a pink smear (a parody pot: DAIRY DOO, strawberry-ish)
+  const yogTex = () => K.tex('ch.yog', 256, 64, (g, w, h) => {
+    g.fillStyle = A.lin(g, 0, 0, 0, h, [[0, '#ffffff'], [1, '#f7d6e2']]); g.fillRect(0, 0, w, h);
+    g.fillStyle = '#d9346a'; g.fillRect(0, h - 9, w, 9); g.fillRect(0, 0, w, 4);
+    for (const x of [26, 154]) { A.text(g, 'DAIRY DOO', x + 50, 30, '900 21px ' + A.FONT, '#d9346a', 'center'); A.text(g, 'STRAWBERRY-ISH', x + 50, 44, '700 9px ' + A.UIF, '#7a2244', 'center'); }
+    for (const x of [8, 112, 136, 240]) { g.fillStyle = '#e0283c'; g.beginPath(); g.ellipse(x, 30, 6, 7.5, 0, 0, 7); g.fill(); g.fillStyle = '#3a9a3a'; g.fillRect(x - 4, 21, 8, 3); }
+  }, { clamp: true });
+
   const P = {
     tshirt: (g, w, h) => { g.fillStyle = '#c0202c'; g.beginPath(); g.moveTo(34, 12); g.lineTo(52, 8); g.quadraticCurveTo(64, 20, 76, 8); g.lineTo(94, 12); g.lineTo(122, 34); g.lineTo(108, 52); g.lineTo(96, 44); g.lineTo(98, 120); g.lineTo(30, 120); g.lineTo(32, 44); g.lineTo(20, 52); g.lineTo(6, 34); g.closePath(); g.fill(); A.grain(g, w, h, 500, 0.08, 3); A.text(g, 'MODEM', 64, 70, '700 15px ' + A.FONT, '#fff', 'center'); A.text(g, 'BOYS', 64, 88, '700 15px ' + A.FONT, '#ffd400', 'center'); A.text(g, "TOUR '99", 64, 104, '9px ' + A.UIF, '#fff', 'center'); },
     jeans: (g, w, h) => { g.fillStyle = '#3a5a8a'; g.beginPath(); g.moveTo(30, 6); g.lineTo(98, 6); g.lineTo(104, 122); g.lineTo(72, 122); g.lineTo(64, 46); g.lineTo(56, 122); g.lineTo(24, 122); g.closePath(); g.fill(); for (let i = 0; i < 400; i++) { g.fillStyle = i % 2 ? 'rgba(255,255,255,.1)' : 'rgba(0,0,30,.15)'; g.fillRect((i * 37) % 128, (i * 53) % 128, 2, 1); } g.strokeStyle = '#c8a050'; g.lineWidth = 1; g.strokeRect(32, 8, 64, 8); g.fillStyle = '#c8a050'; g.fillRect(62, 18, 4, 14); },
@@ -66,21 +232,60 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
   const canTex = () => packageTex('ch.can','pack.fizz','ZING!','ORANGE FIZZ',320,160,true);
   const psTex = () => packageTex('ch.pscase','pack.spike','SPIKE','THE STEGOSAUR • PLAYSPACE',320,280);
   const cdTex = () => A.printed('ch.cdface', 128, 128, (g, w, h) => { const gr = g.createConicGradient ? g.createConicGradient(0, 64, 64) : null; if (gr) { ['#e8e8f4', '#ffd8f0', '#d8f0ff', '#f4ffd8', '#ffe8c8', '#e8e8f4'].forEach((c, i) => gr.addColorStop(i / 5, c)); g.fillStyle = gr; } else g.fillStyle = '#e0e4ec'; g.beginPath(); g.arc(64, 64, 63, 0, 7); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(64, 64, 40, 0, 7); g.fill(); window.PrintArt?.paint(g,'pm.gub',16,20,96,84);A.text(g, 'HITS 43', 64, 54, '700 14px ' + A.FONT, '#d01a1a', 'center'); A.text(g, "The noise we call music", 64, 70, '7px ' + A.UIF, '#333', 'center'); g.fillStyle = '#c8c8cc'; g.beginPath(); g.arc(64, 64, 9, 0, 7); g.fill(); g.fillStyle = 'rgba(0,0,0,.6)'; g.beginPath(); g.arc(64, 64, 4, 0, 7); g.fill(); }, { clamp: true });
-  const MODELS = {
-    socks: () => grp(G => { const wm = mat('#ece8de'), gm = mat('#9a9aa0'); G.ball(-3, -2.1, 0, 4.2, 2.1, 3, wm, 12); G.ball(3.5, -2, 1.5, 4, 2, 2.8, wm, 12, { ry: 30 }); G.ball(-5.6, -2.2, 0.5, 1.8, 1.6, 2.4, gm, 8); G.box(5, -1, -4, 9, 1.6, 3.2, wm, { ry: -20 }); G.shadow(0, 0, 0, 18, 12, 0.45); }),
-    tshirt: () => cloth('tshirt', 40, 36, 3.5, P.tshirt, 11),
-    jeans: () => cloth('jeans', 38, 52, 3, P.jeans, 12),
-    shirt: () => cloth('shirt', 40, 38, 3, P.shirt, 13),
-    pe: () => cloth('pe', 30, 24, 2.4, P.pe, 14),
-    jumper2: () => cloth('jumper2', 44, 40, 4.5, P.jumper2, 15),
+  const MODELS = CK.MESS_MODELS = {
+    socks: () => grpB(G => { const m = M({ c: '#fff', map: sockTex(), sh: 4, side: 2 });
+      // one lies flat (foot and leg at an angle); its pair is bunched up across it
+      G.geo(sock([[-10, 3.5, 0], [-7.5, 3.8, 0], [-4.5, 4, 0], [-1.5, 3.9, 0], [1.2, 3.1, 0], [3.2, 1.2, 0], [4.8, -1.4, 0], [6.4, -4.2, 0], [7.8, -6.8, 0], [8.9, -9.2, 0], [9.6, -10.6, 0]]), 0, 0, 0, m);
+      G.geo(sock([[-6.5, -7.5, 0], [-4, -7.9, 0.1], [-1.5, -7.2, 0.3], [0.6, -5.6, 0.9], [2.2, -3.4, 1.7], [4.2, -1.8, 1.9], [6.8, -0.8, 1.5], [9.2, -1.2, 0.7], [11.2, -2.4, 0.2], [12.6, -3.6, 0]]), 0, 0, 0, m);
+      G.shadow(1, 0, -3, 23, 17, 0.45); }),
+    tshirt: () => cloth('tshirt'),
+    jeans: () => cloth('jeans'),
+    shirt: () => cloth('shirt'),
+    pe: () => cloth('pe'),
+    jumper2: () => cloth('jumper2'),
     mag1: () => grp(G => { G.box(0, -0.45, 0, 21, 0.9, 28, { t: M({ c: '#fff', map: A.t('mag') }), all: mat('#f0eee8') }); G.box(1, -1.1, 1, 20, 0.4, 27, mat('#f4f2ea'), { ry: 6 }); G.shadow(0, 0, 0, 26, 32, 0.45, { sq: true }); }),
     mag2: () => grp(G => { G.box(0, -0.45, 0, 21, 0.9, 28, { t: M({ c: '#fff', map: A.t('magB') }), all: mat('#f0eee8') }); G.shadow(0, 0, 0, 26, 32, 0.45, { sq: true }); }),
     comic: () => grp(G => { G.box(0, -0.3, 0, 17, 0.6, 26, { t: M({ c: '#fff', map: comicTex() }), all: mat('#f4f0e0') }); G.shadow(0, 0, 0, 22, 30, 0.4, { sq: true }); }),
-    crisps: () => grp(G => { G.ball(0, -2.2, 0, 7.5, 2.2, 10, M({ c: '#fff', map: crispTex(), sh: 70, sp: '#888' }), 16); G.box(0, -1.4, 9.8, 14, 0.6, 1.8, mat('#2a7ad8', { sh: 70 })); G.box(0, -1.4, -9.8, 14, 0.6, 1.8, mat('#2a7ad8', { sh: 70 })); G.shadow(0, 0, 0, 18, 24, 0.4); }),
-    can: () => grp(G => { G.cyl(0, -3.2, 0, 3.2, 3.2, 11.5, 18, { s: M({ c: '#fff', map: canTex(), sh: 90, sp: '#ccc' }), t: mat('#c8c8cc', { sh: 90 }), u: mat('#c8c8cc') }, { rz: 90, ry: 25 }); G.shadow(0, 0, 0, 14, 9, 0.5); }),
-    wrap: () => grp(G => { [['#d01a6a', -4, 0, 10], ['#ffd400', 3, 3, -30], ['#2a9a4a', 1, -4, 60]].forEach(([c, x, z, ry]) => { const m = mat(c, { sh: 90, sp: '#fff' }); G.ball(x, -0.8, z, 2.2, 0.8, 1.2, m, 8, { ry }); G.lathe(x + Math.cos(ry * D2R) * 2.6, -0.8, z - Math.sin(ry * D2R) * 2.6, [[0.2, -0.8], [1.2, 0.8]], 6, m, { rz: 90, ry }); }); G.shadow(0, 0, 0, 14, 12, 0.35); }),
-    core: () => grp(G => { G.lathe(0, -3.5, 0, [[0.6, -4], [2.4, -3.2], [1.2, -1.5], [1.1, 0], [1.3, 1.5], [2.6, 3.2], [0.6, 4]], 12, mat('#f0e0a8'), { rz: 90 }); G.ball(-3.6, -3.5, 0, 0.9, 2.4, 2.4, mat('#a02a1a'), 8); G.ball(3.6, -3.5, 0, 0.9, 2.3, 2.3, mat('#a02a1a'), 8); G.cyl(5.4, -3.6, 0, 0.2, 0.2, 2.2, 5, mat('#5a3a1a'), { rz: 80 }); G.shadow(0, 0, 0, 12, 7, 0.4); }),
-    paper: () => grp((G, g) => { const geo = new T.IcosahedronGeometry(4, 1), p = geo.attributes.position, r = rnd(31); for (let i = 0; i < p.count; i++) { const k = 0.75 + r() * 0.4; p.setXYZ(i, p.getX(i) * k, p.getY(i) * k, p.getZ(i) * k); } geo.computeVertexNormals(); geo.computeBoundingBox(); G.geo(geo, 0, -geo.boundingBox.max.y, 0, M({ c: '#f4f2ea', flat: true, sh: 4 })); G.shadow(0, 0, 0, 10, 10, 0.45); }),
+    crisps: () => grpB(G => { G.geo(crispBag(false, 9), 0, 0, 0, crispMat(), { ry: 8 }); G.shadow(0, 0, 0, 21, 14, 0.4); }),
+    crispsFull: () => grpB(G => { G.geo(crispBag(true, 4), 0, 0, 0, crispMat()); G.shadow(0, 0, 0, 20, 14, 0.45); }),
+    can: () => grpB(G => { const C = G.at(0, -3.3, 0, 25, { rz: 90 }), al = mat('#c9cacf', { sh: 90, sp: '#fff', side: 2 });
+      C.geo(canBody(), 0, 0, 0, M({ c: '#fff', map: canTex(), sh: 90, sp: '#ccc' }));
+      C.lathe(0, 0, 0, [[0.05, -5.55], [2.5, -5.55], [2.62, -5.95], [2.85, -5.9], [2.98, -5.45], [3.3, -4.5]], 18, al);
+      C.lathe(0, 0, 0, [[3.3, 4.5], [3.08, 5.35], [2.6, 5.75], [2.25, 5.6], [0.05, 5.15]], 18, al);
+      C.geo(new T.TorusGeometry(0.55, 0.16, 4, 10), 0.6, -5.65, 0, al, { rx: 90 }); C.box(-0.4, -5.66, 0, 1.6, 0.18, 1.1, al);
+      G.shadow(0, 0, 0, 14, 9, 0.5); }),
+    wrap: () => grpB(G => {
+      const foil = (c) => M({ c, map: K.tex('ch.foil', 32, 32, (g, w, h) => { g.fillStyle = '#e4e4e4'; g.fillRect(0, 0, w, h); for (let i = -h; i < w; i += 6) { g.fillStyle = 'rgba(255,255,255,.9)'; g.beginPath(); g.moveTo(i, 0); g.lineTo(i + 3, 0); g.lineTo(i + 3 + h, h); g.lineTo(i + h, h); g.fill(); } A.grain(g, w, h, 160, 0.12, 4); }, {}), sh: 110, sp: '#fff', side: 2 });
+      [['#d01a6a', -5.2, 1.6, 10], ['#f2c400', 4.4, 4.2, -32], ['#22a04a', 1.0, -4.8, 62]].forEach(([c, x, z, ry], n) => {
+        const r = rnd(60 + n), pos = [], uv = [], index = [], add = (px, py, pz) => { pos.push(px, py, pz); uv.push(px / 9 + 0.5, pz / 9 + 0.5); return pos.length / 3 - 1; };
+        // the crinkled middle (3 x 2.4 cm) and a fanned twist at each end
+        const g = []; for (let j = 0; j < 3; j++) for (let i = 0; i < 4; i++) g.push(add(-2.1 + i * 1.4, -(0.2 + (j === 1 && i % 3 ? 0.9 : 0.25) + r() * 0.35), -1.6 + j * 1.6));
+        for (let j = 0; j < 2; j++) for (let i = 0; i < 3; i++) { const a = g[j * 4 + i], b = a + 1, e = g[(j + 1) * 4 + i], f = e + 1; index.push(a, b, e, b, f, e); }
+        for (const s of [-1, 1]) { const knot = add(s * 2.7, -0.45, 0), tips = [-1.7, -0.6, 0.6, 1.7].map((zz, k) => add(s * (4.1 + r() * 0.5), -(k % 2 ? 1.0 : 0.25), zz)); const edge = s < 0 ? [g[0], g[4], g[8]] : [g[3], g[7], g[11]]; index.push(edge[0], edge[1], knot, edge[1], edge[2], knot); for (let k = 0; k < 3; k++) index.push(knot, tips[k], tips[k + 1]); }
+        const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.setIndex(index); geo.computeVertexNormals();
+        G.geo(geo, x, 0, z, foil(c), { ry });
+      }); G.shadow(0, 0, 0, 22, 19, 0.3); }),
+    core: () => grpB(G => { const C = G.at(0, -2.95, 0, 20, { rz: 90 }), skin = mat('#b0261c', { sh: 40, sp: '#553' });
+      const flesh = M({ c: '#fff', map: K.tex('ch.coreflesh', 16, 64, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#b8894a'); gr.addColorStop(0.12, '#ead7a2'); gr.addColorStop(0.5, '#f2e4b8'); gr.addColorStop(0.88, '#ead7a2'); gr.addColorStop(1, '#b8894a'); g.fillStyle = gr; g.fillRect(0, 0, w, h); A.grain(g, w, h, 90, 0.12, 8); }, { clamp: true }), sh: 12 });
+      C.lathe(0, 0, 0, [[0.35, -4.3], [1.9, -4.12], [2.75, -3.62], [2.95, -3.15]], 12, skin);
+      C.lathe(0, 0, 0, [[2.95, -3.15], [2.35, -2.55], [1.55, -1.6], [1.18, -0.6], [1.12, 0.4], [1.32, 1.4], [2.05, 2.35], [2.85, 3.05]], 12, flesh);
+      C.lathe(0, 0, 0, [[2.85, 3.05], [2.72, 3.6], [1.95, 4.05], [0.45, 4.22]], 12, skin);
+      for (const [x, a] of [[-0.3, 0.6], [0.5, 2.6], [0.1, 4.4]]) C.ball(Math.cos(a) * 1.08, x, Math.sin(a) * 1.08, 0.32, 0.55, 0.32, mat('#3a2110', { sh: 50 }), 6);
+      C.cyl(0, -4.9, 0, 0.16, 0.2, 1.4, 5, mat('#5a3a1a'), { rz: 8 }); C.cyl(0, 4.3, 0, 0.7, 0.2, 0.3, 5, mat('#3a2a14'));
+      G.shadow(0, 0, 0, 11, 7, 0.4); }),
+    paper: () => grpB(G => { const geo = crumple(3.9, 31, 0.86); G.geo(geo, 0, -geo.boundingBox.max.y, 0, M({ c: '#fff', map: homeworkTex(), flat: true, sh: 4 })); G.shadow(0, 0, 0, 10, 10, 0.45); }),
+    banana: () => grpB(G => { const m = M({ c: '#fff', map: bananaTex(), sh: 18, side: 2 }), r = rnd(77);
+      [8, 100, 188, 276].forEach((deg, k) => { const a = (deg + r() * 14) * D2R, len = 8 + r() * 1.6, curl = k % 2 ? 0.5 : 0.9, path = [];
+        for (let i = 0; i <= 8; i++) { const t = i / 8, rr = 0.6 + len * t, lift = 2.3 * Math.pow(1 - t, 2.2) + (t > 0.75 ? curl * (t - 0.75) * 2.4 : 0); path.push([Math.cos(a) * rr + Math.sin(a) * Math.sin(t * 3) * 0.6, Math.sin(a) * rr - Math.cos(a) * Math.sin(t * 3) * 0.6, lift]); }
+        G.geo(tube(path, t => 0.35 + 1.25 * Math.sin(Math.PI * (0.12 + t * 0.8)), () => 0.17, { radial: 6 }), 0, 0, 0, m); });
+      G.cyl(0, -2.6, 0, 0.55, 0.9, 1.8, 7, mat('#8a8a3a', { sh: 10 })); G.cyl(0, -3.65, 0.1, 0.45, 0.5, 0.5, 6, mat('#2a2010'), { rx: 12 });
+      G.shadow(0, 0, 0, 20, 20, 0.35); }),
+    yog: () => grpB(G => { const C = G.at(0, -3.25, 0, -30, { rz: 90 }), white = mat('#f7f4ee', { sh: 30, side: 2 }), foil = mat('#d8d8de', { sh: 110, sp: '#fff', side: 2 });
+      C.cyl(0, 0, 0, 3.2, 2.55, 6, 16, { s: M({ c: '#fff', map: yogTex(), sh: 40, sp: '#666' }) }, { open: true });
+      C.cyl(0, 0, 0, 3.0, 2.38, 5.9, 16, mat('#fbf6f2', { sh: 20, side: 1 }), { open: true });
+      C.disc(0, 2.98, 0, 2.55, white, 16, { rx: 180 }); C.geo(new T.TorusGeometry(3.25, 0.2, 4, 16), 0, -3.0, 0, white, { rx: 90 });
+      C.disc(0.2, -3.6, 3.4, 3.1, foil, 14, { rx: -55 });
+      G.disc(-4.6, -0.2, -2.6, 2.6, mat('#eba3bb', { sh: 40, sp: '#888' }), 12, { sx: 1.4 }); G.shadow(0, 0, 0, 12, 9, 0.45); }),
     plate: () => grp(G => { G.lathe(0, 0, 0, [[0.1, -0.4], [7, -0.4], [10.5, -1.3], [12, -1.6]], 28, mat('#f6f4ee', { sh: 60, sp: '#888' })); G.lathe(0, 0, 0, [[12, -1.6], [7, 0], [0.1, 0]], 28, mat('#e8e4da')); /* the glaze faces up and the foot down, so the contact shadow stays under it */ [[3, 2, 20], [-2, 4, -40], [1, -3, 70]].forEach(([x, z, ry]) => G.rbox(x, -1.4, z, 6, 1.2, 1.6, 0.4, mat('#a86a30'), { ry })); for (let i = 0; i < 9; i++) G.box(((i * 37) % 11) - 5, -0.6, ((i * 23) % 9) - 4, 0.6, 0.4, 0.6, mat('#c89050')); G.shadow(0, 0, 0, 26, 26, 0.45); }),
     mug: () => grp(G => { G.cyl(0, -5, 0, 4.2, 4, 10, 18, { s: mat('#2a5ad0', { sh: 60, sp: '#888' }), t: mat('#6a4020'), u: mat('#2a5ad0') }, { open: false }); G.geo(new T.TorusGeometry(2.6, 0.7, 6, 12), 4.6, -5, 0, mat('#2a5ad0', { sh: 60 })); G.cyl(0, -9.6, 0, 3.6, 3.6, 0.3, 16, mat('#7a5030', { sh: 40 })); G.box(0, -6, 4.15, 4, 1, 0.1, mat('#fff')); G.shadow(0, 0, 0, 12, 12, 0.5); }),
     bowl: () => grp(G => { G.lathe(0, 0, 0, [[7.5, -5], [7, -2.5], [4, 0], [0.1, 0]], 22, mat('#f2ece0', { sh: 50, sp: '#666', side: 2 })); G.disc(0, -1.6, 0, 5.4, mat('#f8f4e8')); for (let i = 0; i < 6; i++) G.box(Math.cos(i) * 3, -1.9, Math.sin(i * 1.7) * 3, 1.6, 0.4, 1.3, mat('#e8a830'), { ry: i * 40 }); G.cyl(4, -6, 1, 0.4, 0.4, 9, 6, mat('#c8c8cc', { sh: 90 }), { rz: 70 }); G.shadow(0, 0, 0, 18, 18, 0.5); }),
@@ -115,7 +320,9 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
         if(id==='washing'&&basketPile){const r=H.ROOMS[target.at.room];if(r&&basketPile.parent!==r.things)r.things.add(basketPile);basketPile.position.set(target.at.x,target.at.y-offset,target.at.z);basketPile.visible=basketN>0&&target.st==='rest'}
       }});
       // the basket fills up as clothes go in
-      basketPile = grp(G => { ['#c0202c', '#3a5a8a', '#f2f2ee', '#6a6e74', '#1a2a6a'].forEach((c, i) => G.ball(Math.cos(i * 2.1) * 5, -2 - i * 1.4, Math.sin(i * 2.1) * 5, 9, 3, 7, mat(c), 10, { ry: i * 50 })); });
+      // (crumpled clothes heaped in it: the same draped cloth as the floor's, in the clothes' own colours)
+      basketPile = grp(G => { const blob = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(k => { const a = k / 10 * Math.PI * 2, rr = 46 + (k % 3) * 7; return [64 + Math.cos(a) * rr, 64 + Math.sin(a) * rr]; });
+        [['tshirt', 0, 0, 0, 3.2], ['jeans', 5, -4, 70, 2.6], ['shirt', -5, 4, 150, 2.4], ['jumper2', 2, 5, 230, 2.2]].forEach(([k, x, z, ry, lift], i) => G.geo(sheet(blob, 24 - i * 2, 22 - i * 2, { res: 9, seed: 80 + i, thick: 1.6, folds: [[30, 40, 100, 80, 2.2, 3.5]], lump: [[60, 60, 3.5, 6]] }), x, -i * 1.5 + 1, z, clothMat(k), { ry })); });
       basketPile.position.set(110, FY - 44, 222); basketPile.visible = false; r.group.add(basketPile);
       this.lay();
       CK.guard('washing', () => { CK.jack('Washing basket', CK.done('tidy') ? 'Full of my clothes. Mom does the washing on a Monday. Or whenever the basket explodes.' : 'Clothes off the floor go in here. (That\'s half of tidying my room.)'); return true; });
@@ -162,7 +369,6 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
   let duv = null, duvBase = null, duvK = { s: 0, f: 0, t: 0, lift: 0 };
   const BED = { x0: 148, x1: 238, z0: -55, z1: 140 };
   const bw = BED.x1 - BED.x0, bl = BED.z1 - BED.z0, bcx = (BED.x0 + BED.x1) / 2, bcz = (BED.z0 + BED.z1) / 2;
-  const sstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
   function duvShape() {
     if (!duv) return;
     const p = duv.geometry.attributes.position, W = bw + 14, L = bl - 34;

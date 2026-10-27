@@ -151,7 +151,7 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 ## Screenshot review 2026-10-27 (physics branch)
 | id | type | severity | screenshot | problem | fix |
 |---|---|---|---|---|---|
-| R40 | art | med | physics/17-basket-target.png, 12-ghost-green.png | "Old newspapers" read as white eggs/lumps, not folded papers | Model as a folded stack with printed (blank-columned) texture and string tie |
+| R40 (done props-pass: tied stack of five printed papers) | art | med | physics/17-basket-target.png, 12-ghost-green.png | "Old newspapers" read as white eggs/lumps, not folded papers | Model as a folded stack with printed (blank-columned) texture and string tie |
 | R41 | ux | low | physics/01-chair-tucked.png | "Tucked" chair still sits mostly in front of the desk (back stops at the 69.8 cm top) | Lower the back or allow the seat further in; or start it angled beside the pedestal |
 | R42 (done 2.57 mobile pass) | ux | med | physics (all) | Carrying controls are keyboard-only (R/X/Shift+wheel/+/-); no touch buttons for turn/drop/nearer on phones | Mobile carry bar: Turn, Drop, Place, Return buttons (mobile pass) |
 | R43 | art | med | characters/rig-mom-face.png | Mom's fringe has a wedge-shaped notch cut into it and her brows read as cross; lips protrude | Rebuild fringe as one swept shape; softer brow angle; flatter lips |

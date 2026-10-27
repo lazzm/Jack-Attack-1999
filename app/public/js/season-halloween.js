@@ -584,7 +584,25 @@
     pk = { root, body, outer, inner, lid, guide, guts, blobs, stencil, sten, skin, mSkin, mIn, tl, flame, news, tools, saw, spoon, sheet, bowlGuts, cut: {}, face: null, wob: [], lidOff: false };
     root.traverse(o => { if (o.isMesh) o.userData.own = 1; });
     // the newspaper bundle on the chair and the table snap it opens out on
-    const bundle = new T.Group(), BU = K.into(bundle); BU.box(0, -1.6, 0, 30, 3.2, 22, M({ c: '#fff', map: nt, sh: 2 })); BU.box(0, -3.3, 0, 30.4, .2, 22.4, M('#e8e4d6')); BU.shadow(0, 0, 0, 34, 26, .5, { sq: true });
+    // Old newspapers: a folded stack of five, printed front pages, page edges, tied with garden twine in a bow
+    const bundle = new T.Group(), BB = K.batch(), BU = K.into(BB);
+    const front = K.tex('hw.news2', 256, 192, (g, w, h) => {
+      g.fillStyle = '#ece7d8'; g.fillRect(0, 0, w, h); window.HouseArt?.grain?.(g, w, h, 900, 0.05, 61);
+      g.fillStyle = '#1c1c1c'; g.font = '900 26px Georgia,"Times New Roman",serif'; g.textAlign = 'center'; g.fillText('THE DAILY GRUMBLE', w / 2, 30, w - 16);
+      g.fillRect(8, 36, w - 16, 2); g.fillRect(8, 40, w - 16, 1); g.font = '700 9px Georgia,serif'; g.fillText('WEDNESDAY · 25p · WEATHER: GREY, THEN GREYER', w / 2, 50, w - 16);
+      g.textAlign = 'left'; g.font = '900 19px Georgia,serif'; g.fillText('BIN MEN STRIKE', 10, 72, w - 20);
+      g.fillStyle = '#9d988a'; g.fillRect(10, 80, 112, 62); g.fillStyle = '#7a7568'; g.beginPath(); g.ellipse(50, 112, 18, 22, 0, 0, 7); g.fill(); g.fillRect(74, 96, 36, 46);
+      g.fillStyle = 'rgba(30,30,30,.55)'; for (let c = 0; c < 2; c++) for (let y = 82; y < h - 8; y += 5) g.fillRect(132 + c * 60, y, 52 - ((y * 7 + c * 3) % 11 === 0 ? 20 : 0), 2);
+      for (let y = 150; y < h - 8; y += 5) g.fillRect(10, y, 112 - (y % 4 ? 0 : 14), 2);
+    }, { clamp: true });
+    const edge = K.tex('hw.newsedge', 32, 32, (g, w, h) => { g.fillStyle = '#e6e0cf'; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 2) { g.fillStyle = y % 4 ? 'rgba(90,80,60,.28)' : 'rgba(255,255,255,.5)'; g.fillRect(0, y, w, 1); } }, {});
+    const pageM = M({ c: '#fff', map: front, sh: 2 }), edgeM = M({ c: '#fff', map: edge, sh: 2 }), twine = M({ c: '#b0915a', sh: 6 });
+    [[0, 0, 2], [0.6, -0.5, -3], [-0.5, 0.4, 4], [0.3, 0.6, -1.5], [-0.2, -0.3, 1]].forEach(([dx, dz, ry], i) => BU.box(dx, -0.47 - i * 0.95, dz, 30, 0.94, 21.5, { t: pageM, all: edgeM }, { ry }));
+    const top = -4.8;
+    for (const [w, d, ry] of [[30.6, 0.5, 0], [22.1, 0.5, 90]]) { BU.box(0, top - 0.12, 0, w, 0.24, d, twine, { ry }); for (const s of [-1, 1]) { const a = ry * D2R; BU.box(s * (w / 2 + 0.1) * Math.cos(a), top / 2, -s * (w / 2 + 0.1) * Math.sin(a), 0.24, -top + 0.1, d, twine, { ry }); } }
+    BU.ball(0, top - 0.45, 0, 0.6, 0.45, 0.6, twine, 8); for (const s of [-1, 1]) BU.geo(new T.TorusGeometry(1.0, 0.16, 4, 10), s * 1.1, top - 0.45, 0.2, twine, { rx: 80, ry: s * 25, sx: 1.2 });
+    BU.box(1.6, top - 0.3, 1.6, 0.22, 0.22, 3.4, twine, { ry: 40 }); BU.box(-1.4, top - 0.3, 1.8, 0.22, 0.22, 3.0, twine, { ry: -35 });
+    BU.shadow(0, 0, 0, 34, 26, 0.5, { sq: true }); BB.build(bundle); // (merged per material: four draws)
     addThing('hw.paper', { obj: bundle, home: { room: 'kitchen', x: -130, y: GY - 45.5, z: 170, ry: 80 }, kind: 'hw.paper', label: 'Old newspapers', holdD: 44 });
     addSnap('hw.s.paper', { room: 'kitchen', x: PK.x, y: PK.y - 1, z: PK.z, r: 40, box: [50, 2, 40], pose: { x: PK.x, y: PK.y, z: PK.z, ry: 0, hide: true }, hide: true, hint: 'Spread the newspaper on the table', accepts: k => k === 'hw.paper',
       onSnap: () => { snd.rustle(); Season.step(EID, 'hw-pumpkin', 'paper'); pk.news.visible = true; say('c4.hal.dad', 'Dad', 'Right, pumpkin. How hard can it be? Mind your fingers, now.', true); H.dirty(); } });

@@ -65,17 +65,21 @@
     { id: 'mag1', kind: 'mag', n: 'JACK ATTACK! (issue 8)' }, { id: 'mag2', kind: 'mag', n: 'A games mag' }, { id: 'comic', kind: 'mag', n: 'A comic' },
     { id: 'crisps', kind: 'rubbish', n: 'Crisp packet' }, { id: 'can', kind: 'rubbish', n: 'Fizzy pop can' }, { id: 'wrap', kind: 'rubbish', n: 'Sweet wrappers' },
     { id: 'core', kind: 'rubbish', n: 'Apple core' }, { id: 'paper', kind: 'rubbish', n: 'Screwed-up homework' },
+    { id: 'banana', kind: 'rubbish', n: 'Banana skin', extra: 1 }, { id: 'yog', kind: 'rubbish', n: 'Yoghurt pot (empty)', extra: 1 },
     { id: 'plate', kind: 'dish', n: 'Plate (toast crusts)' }, { id: 'mug', kind: 'dish', n: 'Mug (cold tea)' }, { id: 'bowl', kind: 'dish', n: 'Cereal bowl' },
     { id: 'cd1', kind: 'cd', n: 'CD (out of its case)' }, { id: 'cd2', kind: 'cd', n: 'PlaySpace game case' },
   ];
   const MESSID = {}; for (const m of MESS) MESSID[m.id] = m;
   function tidyFor(day, sparse = false) {
-    const r = rng('chtidy|' + day), by = k => shuffle(MESS.filter(m => m.kind === k), r);
+    const r = rng('chtidy|' + day), by = k => shuffle(MESS.filter(m => m.kind === k && !m.extra), r);
     const out = [].concat(by('clothes').slice(0, 2 + (r() < 0.5 ? 1 : 0)), by('rubbish').slice(0, 2), by('mag').slice(0, 1 + (r() < 0.4 ? 1 : 0)), by('cd').slice(0, 1), by('dish').slice(0, 1 + (r() < 0.3 ? 1 : 0)));
+    // the later rubbish (extra: 1) swaps in on some days from its own dice, so every other day's list is unchanged
+    const r2 = rng('chtidy2|' + day), extras = MESS.filter(m => m.extra);
+    if (r2() < 0.4) { const i = out.map(m => m.kind).lastIndexOf('rubbish'); if (i >= 0) out[i] = extras[Math.floor(r2() * extras.length)]; }
     if (sparse) {
       // New rooms do not acquire unowned media through the daily mess. Keep
       // the same job length, replacing it with ordinary clothes and rubbish.
-      const used=new Set(out.map(m=>m.id)), spare=shuffle(MESS.filter(m=>['clothes','rubbish'].includes(m.kind)&&!used.has(m.id)),rng('chsparse|'+day));
+      const used=new Set(out.map(m=>m.id)), spare=shuffle(MESS.filter(m=>['clothes','rubbish'].includes(m.kind)&&!m.extra&&!used.has(m.id)),rng('chsparse|'+day));
       return out.slice(0,9).map(m=>['mag','cd'].includes(m.kind)?spare.shift():m);
     }
     return out.slice(0, 9);
