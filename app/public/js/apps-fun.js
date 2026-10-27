@@ -398,7 +398,10 @@
   // ---- full screen + idle detection
   let ssOn = null, lastInput = Date.now();
   const rawGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-  function saverName() { let v = rawGet('jhp_saver'); if (v && v[0] === '"') { try { v = JSON.parse(v); } catch (e) {} } return v == null ? 'Flying Saucers' : (OLDSAVER[v] || String(v)); }
+  // a seasonal screen saver (seasons-web.js) is the default while its season is on, for anyone who never picked one
+  let seasonSaver = '';
+  const defaultSaver = () => seasonSaver && SAVERS[seasonSaver] ? seasonSaver : 'Flying Saucers';
+  function saverName() { let v = rawGet('jhp_saver'); if (v && v[0] === '"') { try { v = JSON.parse(v); } catch (e) {} } return v == null ? defaultSaver() : (OLDSAVER[v] || String(v)); }
   function saverWait() { const v = rawGet('jhp_saverwait'); if (v == null || v === '') return 3; const n = parseFloat(String(v).replace(/"/g, '')); return isFinite(n) ? Math.max(0, n) : 3; }
   function startSaver(name, opts) {
     if (ssOn) return;
@@ -500,6 +503,12 @@
     stop: stopSaver,
     configure(name) { if (!name || /text|marquee/i.test(name)) textSetup(); else Desk.msgbox('Display Properties', `${name} has no options you can set. It's perfect already.\n\n(The 3D Text and Marquee savers let you type your own words.)`, 'info'); },
     get running() { return ssOn ? ssOn.name : ''; },
+    // seasonal savers come and go with their season: Savers.add(name, factory) / Savers.remove(name)
+    add(name, make) { if (typeof make !== 'function') return; SAVERS[name] = make; if (!EXTRA_SAVERS.includes(name)) { EXTRA_SAVERS.push(name); window.dispatchEvent(new CustomEvent('jhp-savers')); } },
+    remove(name) { const i = EXTRA_SAVERS.indexOf(name); if (i < 0 || name === PLASMA) return; EXTRA_SAVERS.splice(i, 1); delete SAVERS[name]; if (seasonSaver === name) seasonSaver = ''; window.dispatchEvent(new CustomEvent('jhp-savers')); },
+    set seasonDefault(n) { seasonSaver = n || ''; },
+    get seasonDefault() { return seasonSaver; },
+    defaultName: () => defaultSaver(),
   };
   function textSetup() {
     Desk.ask('3D Text Setup', 'Type the words for the 3D Text and Marquee screen savers (up to 20 letters):', saverText(), 20, v => {
@@ -601,18 +610,18 @@
   const WHERE = { home: 'the front page', demos: 'the Games Arcade', grot: "Gubbinz's page", saver: 'the Screensaver page', reviews: 'the Reviews', cheats: 'the Cheats page', orks: 'the Hobby Corner', letters: 'the Letters page', art: 'the Art Wall', chat: 'the Chat Room', forums: 'the Forums', members: 'the Members list', error: 'a broken page', secret: 'a SECRET page' };
   const whereOf = o => o.where && String(o.where).startsWith('secret') ? 'a SECRET page (ooh)' : (WHERE[o.where] || 'somewhere on the site');
   const FILES = [
-    ['cheats i made up.txt', "CHEATS I MADE UP (they don't work)\n\n- Press all the buttons at once for infinite lives\n- Hold Select and blow on the cartridge for a secret level\n- Shout HADOUKEN into the controller (don't, my sister laughed at me)\n- Turn it off and on again: works on everything\n"],
+    ['cheats i made up.txt', "CHEATS I MADE UP (they don't work)\n\n- Press all the buttons at once for infinite lives\n- Hold Select and blow on the cartridge for a secret level\n- Shout HADOOKEN into the controller (don't, my sister laughed at me)\n- Turn it off and on again: works on everything\n"],
     ['band names.txt', "IDEAS FOR BAND NAMES\n\n1. The Floppy Disks\n2. Insert Coin\n3. 56K Warning\n4. Fatal Exception 0E\n5. The Millennium Bugs (TAKEN, Dave says his cousin's band is called that)\n6. Mom Says No\n\nInstruments we have: recorder, keyboard with a demo button, a bin.\n"],
     ['DO NOT READ.txt', "DO NOT READ THIS FILE\n\n\n\n\n\n\nIf you are reading this you are Dave.\nStop it Dave.\n"],
-    ['christmas list.txt', "CHRISTMAS LIST\n\n1. Expansion Pak\n2. A new controller (Dave sat on mine)\n3. BLOCKO Intergalactic Battles X-wing (the big one)\n4. A Rubrick's cube that comes already solved (JOKE)\n5. The internet but faster\n6. Pocket money (in advance)\n"],
-    ['jokes.txt', "JOKES\n\nWhat do you call a computer that sings? A Dell... no wait. A COMPOSER.\nWhy was the floppy disk sad? It felt a bit 3.5.\nWhat's a robot's favourite snack? Micro chips. (Dave says it's rubbish. Dave is rubbish.)\n"],
+    ['christmas list.txt', "CHRISTMAS LIST\n\n1. Expansion Pouch\n2. A new controller (Dave sat on mine)\n3. BLOCKO Intergalactic Battles Z-Wing (the big one)\n4. A Rubrick's cube that comes already solved (JOKE)\n5. The internet but faster\n6. Pocket money (in advance)\n"],
+    ['jokes.txt', "JOKES\n\nWhat do you call a computer that sings? A Dill... no wait. A COMPOSER.\nWhy was the floppy disk sad? It felt a bit 3.5.\nWhat's a robot's favourite snack? Micro chips. (Dave says it's rubbish. Dave is rubbish.)\n"],
     ['readme.txt', "README\n\nThis folder is shared so my cousin can copy my high scores.\nHe can't. They're .txt files. Anyone can type a high score.\nThat's not the point, Gary.\n"],
     ['high scores.txt', "MY HIGH SCORES (REAL)\n\nTetris: 112 lines\nSnake: 340\nMinesweeper (beginner): 14 seconds\nMinesweeper (expert): never finished. never will.\nBlobbit Lob: 61.2m\n"],
     ['essay FINAL final v3.txt', "My Summer Holidays\nby me\n\nOn my summer holidays I went to my nan's. It rained. We played cards. It rained more.\nThen I came home and played on the computer for 6 weeks.\n\nThe End.\n\n(Need 500 more words. Maybe describe the rain.)\n"],
     ['mixtape.txt', "MIXTAPE FOR THE CAR (side A)\n\n1. The Floppy Disks - 56K of Love\n2. DJ Pixel - Dial-Up Tone Remix\n3. The Go-Karts - Red Ones Go Faster\n4. Mom - Turn That Down (live)\n5. (taped off the radio, the DJ talks over the start, sorry)\n"],
     ['pet rock care.txt', "HOW TO LOOK AFTER YOUR PET ROCK\n\n- Feed: never\n- Walk: carry it\n- Bath: once a year\n- Tricks: sit, stay, play dead (very good at this one)\n\nMy rock is called Kevin. He is 4 billion years old.\n"],
     ['secret level map.txt', "SECRET LEVEL MAP\n\n  +-----+     +-----+\n  |START|-----| ??? |\n  +-----+     +--+--+\n                 |\n            +----+----+\n            | ROBOTS  |\n            | (loads) |\n            +---------+\n\nDave says the secret level is behind the waterfall. Dave says a lot of things.\n"],
-    ['to do.txt', "TO DO\n\n[x] get to level 30\n[ ] homework\n[ ] tidy room (Mom said 'by Saturday' but which Saturday?)\n[x] paint 5 more Space Marines\n[ ] give Dave his controller back\n"],
+    ['to do.txt', "TO DO\n\n[x] get to level 30\n[ ] homework\n[ ] tidy room (Mom said 'by Saturday' but which Saturday?)\n[x] paint 5 more Space Mariners\n[ ] give Dave his controller back\n"],
   ];
   const BLOBS = [
     { name: 'holiday photo.bmp', type: 'img', size: '2,304 KB', act: n => Desk.msgbox(n.name, 'This picture is 2.3 MB. Over JackNet at 49,333 bps that will take about 6 minutes, and someone will pick up the phone halfway. Download cancelled.', 'warn') },
@@ -623,7 +632,7 @@
   function sharesFor(o) {
     const r = seeded(o.nick + '#'), nick = o.nick;
     const own = FILES.slice().sort(() => r() - 0.5).slice(0, 3 + Math.floor(r() * 3)).map(([name, text]) => ({ name, type: 'txt', text, size: (1 + Math.floor(r() * 9)) + ' KB' }));
-    const docs = [{ name: 'homework (copied from Dave).txt', type: 'txt', size: '2 KB', text: "HISTORY HOMEWORK: THE ROMANS\n\n1. Why did the Romans build straight roads?\nBecause they didn't have any bendy ones.\n\n2. Name something the Romans gave us.\nCentral heating, baths, roads, and this homework.\n\n3. Who was Julius Caesar?\nA man who was mostly a salad.\n\n(copied from Dave. If any of this is wrong it is DAVE'S fault)\n\nTeacher's comment: See me. Both of you.\n" }, ...own];
+    const docs = [{ name: 'homework (copied from Dave).txt', type: 'txt', size: '2 KB', text: "HISTORY HOMEWORK: THE ROMANS\n\n1. Why did the Romans build straight roads?\nBecause they didn't have any bendy ones.\n\n2. Name something the Romans gave us.\nCentral heating, baths, roads, and this homework.\n\n3. Who was Julius Seizure?\nA man who was mostly a salad.\n\n(copied from Dave. If any of this is wrong it is DAVE'S fault)\n\nTeacher's comment: See me. Both of you.\n" }, ...own];
     const kids = [{ name: 'SharedDocs', type: 'share', kids: docs }];
     if (r() < 0.7) kids.push({ name: 'Games', type: 'share', kids: [BLOBS[3], { name: 'cheats.txt', type: 'txt', text: 'GAME CHEATS\n\nUp, Up, Down, Down... no, I forgot the rest.\n' }] });
     if (r() < 0.6) kids.push({ name: 'Pics', type: 'share', kids: [BLOBS[0], { name: 'my dog.bmp', type: 'img', size: '1,880 KB', act: BLOBS[0].act }] });
@@ -689,7 +698,7 @@
     f.innerHTML = `<div class="row" style="flex-wrap:nowrap;gap:10px;align-items:flex-start">${I.popup.replace('<svg', '<svg width="32" height="32" style="flex:none"')}<div style="flex:1;min-width:0"><div>To: <b>\\\\${esc(to.nick)}</b></div><div class="small" style="color:#555">This message will pop up on their screen right now.</div></div></div>
       <textarea maxlength="200" rows="4" aria-label="Message" placeholder="Type your message..."></textarea><div class="ff-left small">200 characters left</div>
       <div class="row" style="justify-content:flex-end"><button class="btn" type="submit" style="min-width:72px">Send</button><button class="btn" type="button" style="min-width:72px">Cancel</button></div>`;
-    const w = Apps.win('Send Message - WinPopup', f, { w: 360, icon: I.popup, noResize: true, noMax: true, escClose: true });
+    const w = Apps.win('Send Message - JackPopup', f, { w: 360, icon: I.popup, noResize: true, noMax: true, escClose: true });
     const ta = f.querySelector('textarea'); setTimeout(() => ta.focus(), 30);
     ta.addEventListener('input', () => { f.querySelector('.ff-left').textContent = (200 - ta.value.length) + ' characters left'; });
     f.querySelector('button[type=button]').addEventListener('click', w.close);
@@ -698,18 +707,18 @@
       const text = ta.value.trim().slice(0, 200); if (!text) return;
       const now = Date.now();
       while (sentAt.length && now - sentAt[0] > 60000) sentAt.shift();
-      if (sentAt.length && now - sentAt[sentAt.length - 1] < 8000) return Desk.msgbox('WinPopup', `Slow down! The network cable is only so long. Try again in ${Math.ceil((8000 - (now - sentAt[sentAt.length - 1])) / 1000)} seconds.`, 'warn');
-      if (sentAt.length >= 5) return Desk.msgbox('WinPopup', "You've sent loads of messages this minute. Have a biscuit and try again in a bit.", 'warn');
+      if (sentAt.length && now - sentAt[sentAt.length - 1] < 8000) return Desk.msgbox('JackPopup', `Slow down! The network cable is only so long. Try again in ${Math.ceil((8000 - (now - sentAt[sentAt.length - 1])) / 1000)} seconds.`, 'warn');
+      if (sentAt.length >= 5) return Desk.msgbox('JackPopup', "You've sent loads of messages this minute. Have a biscuit and try again in a bit.", 'warn');
       if (to.id === -1) { // the grot's computer is a machine on the network, not a person, so nobody reads messages on it
         sentAt.push(now); w.close(); got('grotmsg');
-        Desk.msgbox('WinPopup', 'The message was delivered to \\\\GUBBINZ... but nobody is sitting at that computer. It is Gubbinz\'s computer, and he is busy playing Snake. (Messages only reach real people on JackNet.)', 'info');
+        Desk.msgbox('JackPopup', 'The message was delivered to \\\\GUBBINZ... but nobody is sitting at that computer. It is Gubbinz\'s computer, and he is busy playing Snake. (Messages only reach real people on JackNet.)', 'info');
         return;
       }
       if (to.id === Net.me.id) { sentAt.push(now); w.close(); got('selfmsg'); setTimeout(() => showPopup({ from: Net.me.nick, fromId: Net.me.id, text }, true), 600); return; }
-      if (!online.some(o => o.id === to.id)) return Desk.msgbox('WinPopup', `The message could not be delivered. \\\\${to.nick} has logged off. (Probably called down for tea.)`, 'warn');
-      if (!Net.send({ t: 'popup', to: to.id, text })) return Desk.msgbox('WinPopup', 'The message could not be sent. JackNet is not connected. (Is someone on the phone?)', 'warn');
+      if (!online.some(o => o.id === to.id)) return Desk.msgbox('JackPopup', `The message could not be delivered. \\\\${to.nick} has logged off. (Probably called down for tea.)`, 'warn');
+      if (!Net.send({ t: 'popup', to: to.id, text })) return Desk.msgbox('JackPopup', 'The message could not be sent. JackNet is not connected. (Is someone on the phone?)', 'warn');
       sentAt.push(now); w.close(); got('netsend'); play('click');
-      Desk.toast('WinPopup', `Message sent to \\\\${to.nick}.`, 3000);
+      Desk.toast('JackPopup', `Message sent to \\\\${to.nick}.`, 3000);
     });
     return w;
   }
@@ -718,14 +727,14 @@
   let missed = 0;
   function showPopup(m, local) {
     if (!m || ignored.has(m.fromId)) return;
-    if (popWins.size >= 3) { missed++; Desk.toast('WinPopup', `${missed} more message(s) arrived but there's no room on the screen. Close some first!`, 4000); return; }
+    if (popWins.size >= 3) { missed++; Desk.toast('JackPopup', `${missed} more message(s) arrived but there's no room on the screen. Close some first!`, 4000); return; }
     const b = h('div', 'ff-pop');
     b.innerHTML = `<div class="ff-pophead">${I.popup.replace('<svg', '<svg width="32" height="32" style="flex:none"')}<div>Message from <b class="f"></b> to <b>YOU</b> on ${d99()} ${hhmm()}</div></div><div class="field ff-poptext"></div>
       <label class="ff-ign"><input type="checkbox"> Ignore messages from <span class="f"></span></label>
       <div class="row" style="justify-content:flex-end"><button class="btn" type="button" style="min-width:72px">Reply</button><button class="btn" type="button" style="min-width:72px">Discard</button></div>`;
     b.querySelectorAll('.f').forEach(e => { e.textContent = m.from || 'Somebody'; });
     b.querySelector('.ff-poptext').textContent = String(m.text || '').slice(0, 200);
-    const w = Apps.win('WinPopup', b, { w: 340, icon: I.popup, noResize: true, noMax: true, escClose: true, x: DesktopSurface.width() - 360 - popWins.size * 24, y: 40 + popWins.size * 30, onClose: () => { popWins.delete(w); if (!popWins.size) missed = 0; } });
+    const w = Apps.win('JackPopup', b, { w: 340, icon: I.popup, noResize: true, noMax: true, escClose: true, x: DesktopSurface.width() - 360 - popWins.size * 24, y: 40 + popWins.size * 30, onClose: () => { popWins.delete(w); if (!popWins.size) missed = 0; } });
     popWins.add(w);
     const [reply, discard] = b.querySelectorAll('.btn');
     b.querySelector('input').addEventListener('change', e => { if (e.target.checked) ignored.add(m.fromId); else ignored.delete(m.fromId); });
@@ -735,7 +744,7 @@
     if (!local) got('netgot');
   }
   Net.on('popup', m => showPopup(m, false));
-  Apps.cmd(['winpopup', 'net send'], () => { const others = online.filter(o => o.id !== Net.me.id); if (!others.length) Desk.msgbox('WinPopup', "There's nobody else on JackNet right now to send a message to. Open Network Neighborhood when someone turns up!", 'info'); else netHood(); });
+  Apps.cmd(['winpopup', 'net send'], () => { const others = online.filter(o => o.id !== Net.me.id); if (!others.length) Desk.msgbox('JackPopup', "There's nobody else on JackNet right now to send a message to. Open Network Neighborhood when someone turns up!", 'info'); else netHood(); });
   S('netsend', 'net send', 'Pop a message up on a stranger\'s screen');
   S('netgot', 'You\'ve got popup', 'Someone, somewhere, writes to you');
   S('selfmsg', 'Talking to yourself', 'Send a message to the one computer that always answers');
@@ -1312,8 +1321,8 @@
     <div class="ff-c"><canvas class="ff-gubme" width="${GW}" height="${GH}" aria-label="Gubbinz waving"></canvas></div>
     <p class="ff-c"><b>this iz MY PAGE.</b> i made it myself on Jack's komputer when he woz at skool. dont tell Jack.</p>
     <div class="ff-cols"><div class="ff-box"><h3>THINGS I LIKE</h3><ul><li>PIZZA</li><li>roopeez (shiny wunz)</li><li>Blockology (i got to level 2)</li><li>Jack's Game Lad (wen he's not lookin)</li><li>pressin the big red button on the front page</li></ul></div>
-    <div class="ff-box"><h3>THINGS I DONT LIKE</h3><ul><li>baths</li><li>the hoover</li><li>DAVE <span class="blink">!!!</span></li><li>wen the komputer sez "illegal operashun". i woz NOT doin anyfin illegal</li></ul></div>
-    <div class="ff-box"><h3>MY MATES</h3><ul><li>Pixel Pete (a Eggbert)</li><li>a rock (called Kevin)</li><li>Jack (he feeds me)</li><li>${plink('grotdance', 'THE GUBBINZ DANCE (my cousins)')}</li></ul></div></div>
+    <div class="ff-box"><h3>THINGS I DONT LIKE</h3><ul><li>baths</li><li>the vacuum</li><li>DAVE <span class="blink">!!!</span></li><li>wen the komputer sez "illegal operashun". i woz NOT doin anyfin illegal</li></ul></div>
+    <div class="ff-box"><h3>MY MATES</h3><ul><li>Pixel Pete (an Eggbert)</li><li>a rock (called Kevin)</li><li>Jack (he feeds me)</li><li>${plink('grotdance', 'THE GUBBINZ DANCE (my cousins)')}</li></ul></div></div>
     <p class="ff-c ff-big">REMEMBA: <span class="ff-red">ALWAYS BLOW ON THE CARTRIDGE</span></p>
     ${guestbook('gubbinzhome', [['Pixel Pete', 'nice page gubbinz. can i hav a jelly baby', '02/09/99'], ['Gubbinz', 'NO', '02/09/99'], ['Jack', 'Gubbinz how did you get on the internet', '05/09/99']])}
     <p class="ff-c">this page has been looked at ${lcd(hits('gubbinzhome') + 41, 4)} times. thats a LOT of roopeez.</p>${ringFoot('gubbinzhome')}`, el => {
@@ -1327,7 +1336,7 @@
     <div class="ff-c"><span class="ff-ucsign">UNDER CONSTRUCTION</span></div>
     <div class="ff-jack">JACK SAYS: Dave. Yellow background + Comic Sans = actual eye damage. -J</div>
     <h3>ABOUT ME</h3><p>My name is Dave. I am the best at Goldenballs in our whole school. I have a dog called Biscuit and a cousin who has been on the telly (in the background).</p>
-    <div class="ff-jack">JACK SAYS: He is NOT the best at Goldenballs. I beat him 12-3 on Facility. He picked Oddjob.</div>
+    <div class="ff-jack">JACK SAYS: He is NOT the best at Goldenballs. I beat him 12-3 on Facility. He picked Oddbob.</div>
     <h3>MY TOP 5 GAMES</h3><ol><li>Goldenballs</li><li>Kart Kaos 64</li><li>Goldenballs again</li><li>That one with the dragon</li><li>Snake (on my dad's phone)</li></ol>
     <h3>MY KOOL LINKS</h3><ul><li>${xlink('http://www.daveskoollinks.jnet', 'More kool links')}</li><li>${xlink('http://www.biscuitthedog.webcom', 'My dog\'s page (coming soon)')}</li><li>${xlink('http://www.cheatz4u.w3b', 'CHEATZ 4 U')}</li><li>${plink('webring', 'Jack\'s webring thing (he made me put this here)')}</li></ul>
     <div class="ff-jack">JACK SAYS: Every link on this page is broken. Every. One.</div>
@@ -1381,7 +1390,7 @@ AUTHORISED PERSONNEL ONLY
     <p class="ff-c ff-small">Rules: 1. Must be made by a kid. 2. Must have at least one animated thing. 3. No being horrible. 4. Dave is allowed in but only because he asked nicely.</p>
     ${counter('webring', 300)}${ringFoot('webring')}`, el => {
     el.querySelector('.ff-join').addEventListener('click', () => Desk.msgbox('Join the Nerd Kids WebRing', 'Thanks! Your application has been sent to the ring master. By pigeon. Allow 6-8 weeks.', 'info'));
-  }, 'Lord of the rings', 'Clubs of websites hold hands in a circle. There is a hub');
+  }, 'Lord of the Things', 'Clubs of websites hold hands in a circle. There is a hub');
 
   // ---- cubeclub
   const CUBESTEPS = [
@@ -1417,7 +1426,7 @@ AUTHORISED PERSONNEL ONLY
   page('tetris', 'Shrine of the Falling Blocks', 'ff-tet', () => `
     <div class="ff-fall" aria-hidden="true">${Array.from({ length: 14 }, (_, i) => `<i style="left:${(i * 7.3) % 100}%;animation-delay:-${(i * 1.7) % 9}s;animation-duration:${7 + (i % 5)}s;background:${Object.values(PCOL)[i % 7]}"></i>`).join('')}</div>
     <div class="ff-c ff-z"><div class="ff-candles"><i></i><i></i><i></i></div><h1>THE SHRINE OF THE FALLING BLOCKS</h1><p><i>Here we honour the greatest game ever made. Please take your shoes off.</i></p></div>
-    <div class="ff-box ff-z"><h3>THE HOLY FACTS</h3><ul><li>The game was invented in <b>1984</b> by a Russian computer scientist, <b>Alexey Pajitnov</b>, in Moscow.</li><li>The Game Lad version came out in <b>1989</b>. Mine has a crack in the screen and it still works. LEGEND.</li><li>The famous music (Music A) is an old Russian folk song called <b>Korobeiniki</b>.</li><li>Clearing 4 lines at once is called a BLOCKOLOGY. It is the best feeling in the world. Fact.</li></ul></div>
+    <div class="ff-box ff-z"><h3>THE HOLY FACTS</h3><ul><li>The game was invented in <b>1984</b> by a Russian computer scientist, <b>Alexey Pyjamanov</b>, in Moscow.</li><li>The Game Lad version came out in <b>1989</b>. Mine has a crack in the screen and it still works. LEGEND.</li><li>The famous music (Music A) is an old Russian folk song called <b>Korobeiniki</b>.</li><li>Clearing 4 lines at once is called a BLOCKOLOGY. It is the best feeling in the world. Fact.</li></ul></div>
     <div class="ff-box ff-z"><h3>THE SEVEN SACRED PIECES</h3><div class="ff-pieces">${Object.entries(PIECES).map(([k, rows]) => `<figure><div class="ff-pc" style="grid-template-columns:repeat(${rows[0].length},14px)">${rows.join('').split('').map(c => `<i style="${c === '#' ? 'background:' + PCOL[k] : 'visibility:hidden'}"></i>`).join('')}</div><figcaption>${k}</figcaption></figure>`).join('')}</div>
       <p class="ff-small">The long one is the I. It never comes when you need it. This is the ancient curse.</p></div>
     <div class="ff-box ff-z"><h3>A PRAYER TO THE LONG BAR</h3><p class="ff-c"><i>O Long Bar, four blocks in a row,<br>I have left a gap for thee, down below.<br>Come now, not later, I am at the top,<br>Come now, O Long Bar, before it all stops.</i></p></div>
@@ -1491,7 +1500,7 @@ AUTHORISED PERSONNEL ONLY
     <div class="ff-box"><p>We have detected that you are using: <b>JackNet Explorer 5</b>.</p><p>Some features of this page may not work, such as:</p><ul><li>Nothing. Everything works. It's a webpage with some writing on it.</li></ul></div>
     <div class="ff-box"><h3>THE BROWSER WARS: LIVE SCORES</h3><table class="ff-tbl"><tr><td>JackNet Explorer</td><td><span class="ff-bar" style="width:70%"></span></td></tr><tr><td>The Other Browser</td><td><span class="ff-bar b" style="width:28%"></span></td></tr><tr><td>A text-only one</td><td><span class="ff-bar c" style="width:2%"></span></td></tr></table><p class="ff-small">Scores made up by Jack.</p></div>
     <div class="ff-c"><button class="btn big ff-dl" type="button">Download The Other Browser (14.2 MB)</button><div class="ff-dlbox" hidden><div class="prog"><span style="display:flex;gap:2px" class="ff-dlbar"></span></div><p class="ff-dltxt"></p></div></div>
-    <div class="ff-badges ff-c"><span>Best viewed with<br><b>ANY BROWSER</b></span><span>Made with<br><b>NOTEPAD</b></span><span>800 x 600<br><b>256 COLOURS</b></span><span>Y2K<br><b>READY?</b></span></div>
+    <div class="ff-badges ff-c"><span>Best viewed with<br><b>ANY BROWSER</b></span><span>Made with<br><b>JOTPAD</b></span><span>800 x 600<br><b>256 COLOURS</b></span><span>Y2K<br><b>READY?</b></span></div>
     ${counter('netscape', 470)}${ringFoot('netscape')}`, el => {
     const btn = el.querySelector('.ff-dl');
     btn.addEventListener('click', () => {
@@ -1528,7 +1537,7 @@ AUTHORISED PERSONNEL ONLY
     ['', 'Earlier this year, in a box room at the top of the stairs...'],
     ['h', 'JACK ATTACK! ONLINE'],
     ['', 'It is the last year of the century. All over the country, kids are locked in a long struggle against slow modems, homework and bedtimes.'],
-    ['', 'In one small bedroom, one kid has built a whole website, a whole computer, a little green helper and a LOT of robots, armed with nothing but Notepad, 32MB of RAM and a family-size bag of crisps.'],
+    ['', 'In one small bedroom, one kid has built a whole website, a whole computer, a little green helper and a LOT of robots, armed with nothing but Jotpad, 32MB of RAM and a family-size bag of crisps.'],
     ['', 'Now, with the Millennium Bug creeping ever closer, he must finish issue 8 before his Mom needs the phone back...'],
     ['s', 'THE CREDITS'],
     ['c', 'Written, drawn and coded by|JACK'], ['c', 'Helping (not helping)|GUBBINZ'], ['c', 'Beta testing (broke it twice)|DAVE'], ['c', 'Catering (fish fingers)|MOM'], ['c', 'Blobbits|THE BLOBBITS'],
@@ -1556,7 +1565,7 @@ AUTHORISED PERSONNEL ONLY
   // ---- oldsite (January 1999)
   page('oldsite', "Jack's Home Page", 'ff-old', () => `
     <center><h1>Welcome to Jacks Home Page</h1></center><hr>
-    <p>Hello and welcome to my home page on the World Wide Web. This is my first web page. I made it in Notepad.</p>
+    <p>Hello and welcome to my home page on the World Wide Web. This is my first web page. I made it in Jotpad.</p>
     <p>My name is Jack and I like:</p><ul><li>computer games</li><li>sci-fi films</li><li>my Rubiks cube</li><li>painting War Hamster</li></ul>
     <p><span class="ff-broken">[x] gubbinz.gif</span></p>
     <p>This page is <b>under construction</b>. More stuff coming soon!</p>
@@ -1800,7 +1809,7 @@ AUTHORISED PERSONNEL ONLY
       let caption = '';
       if (f < 90) { MOON.forEach((l, i) => put(COLS - f * 0.25 - 4, 2 + i, l)); caption = 'Episode 1: Gubbinz in Space'; }
       if (f >= 20 && f < 150) { const sx = Math.min(16, (f - 20) * 0.5), sy = 8 + Math.round(Math.sin(f / 5)); SHIP.forEach((l, i) => put(sx, sy + i, l)); put(sx - 3, sy + 2, f % 2 ? '=-~' : '~=-'); if (f > 40) caption = 'Gubbinz goes looking for the Great Cheese Moon...'; }
-      if (f >= 70 && f < 150) { for (let k = 0; k < 3; k++) { const qx = COLS - ((f - 70) * 0.7 + k * 14) % (COLS + 6), qy = 2 + k * 4; SQ.forEach((l, i) => put(qx, qy + i, l)); } caption = 'Watch out! Space invaders!'; }
+      if (f >= 70 && f < 150) { for (let k = 0; k < 3; k++) { const qx = COLS - ((f - 70) * 0.7 + k * 14) % (COLS + 6), qy = 2 + k * 4; SQ.forEach((l, i) => put(qx, qy + i, l)); } caption = 'Watch out! Space Invoices!'; }
       if (f >= 150) { const k = Math.min(1, (f - 150) / 40); MOON.forEach((l, i) => put(26, 5 + i, l)); SHIP.forEach((l, i) => put(4 + k * 20, 2 + Math.round(k * 1) + i, l)); if (f > 175) put(31, 3, '|>JACK'); caption = f > 175 ? 'He made it! The moon IS made of cheese. Lunch!' : 'Landing...'; }
       if (f >= 230) { clearInterval(timer); got('telnet'); w.pre.textContent = grid.map(r => r.join('')).join('\n') + '\n\n                    THE END\n     Thank you for watching JackNet TV. Goodnight!'; return; }
       w.pre.textContent = grid.map(r => r.join('')).join('\n') + '\n\n  ' + caption;
@@ -2135,7 +2144,7 @@ AUTHORISED PERSONNEL ONLY
   Apps.desktopIcon('My Briefcase', I.brief, () => Apps.open('briefcase'), 'iconBriefcase');
   Apps.desktopIcon('Online Services', I.online, () => Apps.open('online'), 'iconOnline');
   Apps.addProgram(['Accessories', 'Communications', 'Network Neighborhood'], 'nethood', I.net);
-  Apps.addProgram(['Accessories', 'Communications', 'WinPopup'], () => Apps.run('winpopup'), I.popup);
+  Apps.addProgram(['Accessories', 'Communications', 'JackPopup'], () => Apps.run('winpopup'), I.popup);
   Apps.addProgram(['Accessories', 'Communications', 'IP Configuration'], 'winipcfg', I.net);
   Apps.addProgram(['Accessories', 'Communications', 'Telnet'], telnet, I.dos);
   Apps.addProgram(['Accessories', 'Jackotchi'], 'grotchi', I.egg);
@@ -2146,5 +2155,5 @@ AUTHORISED PERSONNEL ONLY
   Apps.addProgram(['Accessories', 'System Tools', 'About JackOS'], 'winver', I.pcme);
   // a few files on the C: drive for the curious
   Apps.fs.add('C:/JACKOS', { name: 'SSAVERS.TXT', type: 'txt', date: '12/05/99', size: '1 KB', text: 'SCREEN SAVERS INSTALLED\n\n' + SAVER_ORDER.map(n => '  ' + n).join('\n') + '\n\nTip: you can start one straight away from Start > Run. Try "flyingsaucers" or "sspipes".\nThe 3D Text one says whatever you like: "sstextsetup".\n' });
-  Apps.fs.add('C:/JACKOS', { name: 'WINPOPUP.TXT', type: 'txt', date: '30/06/99', size: '1 KB', text: 'WINPOPUP\n\nYou can send a little message to anybody on JackNet!\nOpen Network Neighborhood, pick a computer, and click Send Message.\n\nBe nice. Messages pop up on their screen straight away.\n(If someone is being a pain, tick "Ignore messages" on their message.)\n' });
+  Apps.fs.add('C:/JACKOS', { name: 'JACKPOPUP.TXT', type: 'txt', date: '30/06/99', size: '1 KB', text: 'JACKPOPUP\n\nYou can send a little message to anybody on JackNet!\nOpen Network Neighborhood, pick a computer, and click Send Message.\n\nBe nice. Messages pop up on their screen straight away.\n(If someone is being a pain, tick "Ignore messages" on their message.)\n' });
 })();

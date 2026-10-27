@@ -55,7 +55,7 @@
     const b = it.box || {}, g = b.game ? D.GAMES[b.game] : null, c1 = it.c1 || '#222', c2 = it.c2 || '#fff', c3 = it.c3 || '#e10600', id = uid();
     const shots = (b.scene && D.SHOT && D.SHOT[b.scene]) ? [0, 1, 2].map(i => { try { return D.SHOT[b.scene](i); } catch (e) { return ''; } }) : [];
     const blurb = wrap(b.blurb || '', 44).slice(0, 6), feats = (b.feats || []).slice(0, 4);
-    const req = g ? g.req : 'Pentium 133, 16 MB RAM, 4x CD-ROM';
+    const req = g ? g.req : 'Pent-Yum 133, 16 MB RAM, 4x CD-ROM';
     const bars = Array.from({ length: 30 }, (_, i) => `<rect x="${i * 1.7}" y="0" width="${[0.6, 1, 0.5, 1.2][(i * 7) % 4]}" height="${i % 9 ? 13 : 15}"/>`).join('');
     let s = `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${tint(c1, 0.05)}"/><stop offset="1" stop-color="${tint(c1, -0.7)}"/></linearGradient></defs><rect width="190" height="240" fill="url(#${id})"/>`;
     s += `<rect y="0" width="190" height="24" fill="${tint(c1, -0.5)}"/>${T(8, 16, it.title.toUpperCase(), 14, c2, { a: 'start', len: Math.min(150, it.title.length * 8.5) })}${isDemo(it) ? `<rect x="146" y="5" width="38" height="13" rx="2" fill="#e10600"/>${T(165, 14.5, 'DEMO', 8, '#fff', { f: BLACK })}` : ''}`;
@@ -64,7 +64,7 @@
     s += blurb.map((l, i) => T(9, 82 + i * 7.6, l, 5.6, '#fff', { f: SANS, a: 'start', w: 400 })).join('');
     s += feats.map((f, i) => `<circle cx="11" cy="${132 + i * 8}" r="1.6" fill="${c2}"/>` + T(16, 134.2 + i * 8, f.length > 46 ? f.slice(0, 45) + '...' : f, 5.6, c2, { f: SANS, a: 'start', w: 700 })).join('');
     s += `<rect x="8" y="168" width="174" height="34" fill="#fff"/><rect x="8" y="168" width="174" height="8" fill="#000"/>${T(95, 174, 'MINIMUM SYSTEM REQUIREMENTS', 5.4, '#fff', { f: BLACK, ls: 0.4 })}`;
-    s += wrap('JackOS 95 or JackOS 98. ' + req + '. Sound Blaster compatible sound card. Mouse.' + (b.discs === 2 ? ' 2 CD-ROMs.' : ''), 58).slice(0, 3).map((l, i) => T(11, 183 + i * 6.4, l, 4.9, '#111', { f: SANS, a: 'start' })).join('');
+    s += wrap('JackOS 95 or JackOS 98. ' + req + '. Sound Bluster compatible sound card. Mouse.' + (b.discs === 2 ? ' 2 CD-ROMs.' : ''), 58).slice(0, 3).map((l, i) => T(11, 183 + i * 6.4, l, 4.9, '#111', { f: SANS, a: 'start' })).join('');
     s += `<g transform="translate(10 210)"><rect x="-2" y="-2" width="55" height="24" fill="#fff"/><g fill="#000">${bars}</g>${T(25.5, 20, '5 0 1 9 9 9 0 ' + String(1000 + (it.title.length * 397) % 9000), 3.6, '#000', { f: SANS })}</g>`;
     s += ageBadge(80, 220, 0.8, age(it)) + cdMark(100, 220, 0.7, '#fff');
     s += T(182, 216, pubOf(it), 6, '#fff', { f: BLACK, a: 'end' }) + T(182, 224, `© 1999 ${pubOf(it)}. Made in the UK.`, 3.8, '#ccc', { f: SANS, a: 'end' }) + T(182, 230, 'Unauthorised copying, hiring or lending prohibited.', 3.4, '#aaa', { f: SANS, a: 'end' });

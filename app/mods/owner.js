@@ -4,12 +4,12 @@
 'use strict';
 const fs=require('fs'),path=require('path'),crypto=require('crypto'),zlib=require('zlib');
 const roam=require('./roam.js'),EC=require('./econ.js'),RC=require('../public/js/rm-cat.js');
-const PC=require('../public/js/pm-cat.js'),SC=require('../public/js/st-cat.js'),CC=require('../public/js/ch-cat.js');
+const PC=require('../public/js/pm-cat.js'),SC=require('../public/js/st-cat.js'),CC=require('../public/js/ch-cat.js'),SE=require('../public/js/season-cat.js');
 PC.addCarts(RC);
 const DIR=process.env.DATA_DIR||path.join(__dirname,'..','data'),SNAPS=path.join(DIR,'owner-snapshots');
 // Add new account-owned mod stores here. Never discover keys recursively: a
 // matching name inside a shared town/trade/high-score record is not ownership.
-const STORES={ch:['p'],cx:['p'],econ:['acct'],ex:['p'],grind:['p','mps'],hs:['p'],jsn:['u'],jw:['p'],lk:['p','inbox'],loot:['p'],md:['p'],pm:['box'],pmx:['p'],rm:['p'],share:['box','noch','stat','seed','owed'],sms:['numbers','contacts','replies','box'],story:['p'],sx:['p'],lan:['box','blocks']};
+const STORES={ch:['p'],cx:['p'],econ:['acct'],ex:['p'],grind:['p','mps'],hs:['p'],jsn:['u'],jw:['p'],lk:['p','inbox'],loot:['p'],md:['p'],pm:['box'],pmx:['p'],rm:['p'],share:['box','noch','stat','seed','owed'],sms:['numbers','contacts','replies','box'],story:['p'],sx:['p'],lan:['box','blocks'],season:['p']};
 const DISC_IDS=['park','city','squigs','rts','keepa','carta','pinball','jaquake','jrt','boss','podracer','grotlings','cover7','callumcd','dx61','gquest','n64'];
 const clone=v=>JSON.parse(JSON.stringify(v)),own=(o,k)=>!!o&&Object.hasOwn(o,k);
 let ctx;const limits=new Map();
@@ -62,7 +62,7 @@ function fence(){
   for(const[,c]of ctx.clients)if(owner(c)){c.ownerReload=true;c.roamUp=null;c.rmRun=null;}
 }
 function reload(){ctx.flush?.();const p=profile();for(const[ws,c]of ctx.clients)if(owner(c))ctx.send(ws,{t:'ownerReload',profile:p,ownerRev:ctx.data.revision||0});}
-function state(ws){ctx.send(ws,{t:'ownerState',allowed:true,snapshots:list(),clock:ctx.data.clock||null,chapters:SC.chapters,steps:SC.steps,parcels:PC.ITEMS.map(x=>({id:x.id,title:x.title})),chores:CC.CHORES.map(x=>({id:x.id,title:x.n})),events:['phone','tea','bedtime','school','pocket'],story:ctx.state.mods.story?.p?.jack||null});}
+function state(ws){ctx.send(ws,{t:'ownerState',allowed:true,snapshots:list(),clock:ctx.data.clock||null,chapters:SC.chapters,steps:SC.steps,parcels:PC.ITEMS.map(x=>({id:x.id,title:x.title})),chores:CC.CHORES.map(x=>({id:x.id,title:x.n})),events:['phone','tea','bedtime','school','pocket'],story:ctx.state.mods.story?.p?.jack||null,seasons:SE.EVENTS.map(e=>({id:e.id,name:e.name,soon:!!e.soon,jump:e.jump||[]}))});}
 function unlock(kind){
   const obj=decode(profile());const get=k=>{try{return JSON.parse(obj[k]||'{}');}catch{return {};}};
   const pm=get('jhp_pm');pm.own=pm.own||{};pm.opened=pm.opened||{};
@@ -121,6 +121,7 @@ function handle(ws,c,m){
     else if(action==='overlay'){if(typeof m.on!=='boolean')throw Error('Choose overlay on or off.');effect={kind:'overlay',on:m.on};}
     else if(action==='chore'){if(!own(CC.CHORE,m.chore))throw Error('Choose a household chore.');backup=snapshot('before-chore');const p=ctx.state.mods.ch.p.jack;if(p){delete p.done[m.chore];delete p.run[m.chore];}effect={kind:'chore',id:m.chore,room:CC.CHORE[m.chore].room};}
     else if(action==='event'){if(!['phone','tea','bedtime','school','pocket'].includes(m.event))throw Error('Choose a household event.');effect={kind:'event',id:m.event};}
+    else if(action==='season'){if(!own(SE.byId,m.event)||SE.byId[m.event].soon)throw Error('Choose a seasonal event.');backup=snapshot('before-season');require('./season.js').ownerReset(m.event);effect={kind:'season',id:m.event};}
     else if(action==='rebuild')effect={kind:'rebuild'};
     else throw Error('Unknown owner tool.');
     ctx.markDirty();ctx.flush?.();audit(c,action,{phase:'complete',effect,amount:m.amount,currency:m.currency,chapter:m.chapter,step:m.step,complete:m.complete,item:m.item,clock:action==='clock'?ctx.data.clock:undefined,backup});reply(true,'Done.',{effect});

@@ -175,7 +175,7 @@ window.SocialMore = function (X) {
     }
     function savePic() {
       let s = ''; for (let y = 0; y < H; y += 2) { for (let x = 0; x < W; x += 2) s += px[y * W + x] ? (px[y * W + x] === 1 ? '#' : '+') : ' '; s += '\n'; }
-      Apps.fs.add('C:/My Documents', { name: 'whiteboard.txt', type: 'txt', date: d99(), size: '7 KB', text: 'JACKNET WHITEBOARD (saved ' + d99() + ' ' + hhmm() + ')\n(Notepad can only do text, so here it is in ASCII. Squint.)\n\n' + s });
+      Apps.fs.add('C:/My Documents', { name: 'whiteboard.txt', type: 'txt', date: d99(), size: '7 KB', text: 'JACKNET WHITEBOARD (saved ' + d99() + ' ' + hhmm() + ')\n(Jotpad can only do text, so here it is in ASCII. Squint.)\n\n' + s });
       Desk.toast('Whiteboard', 'Saved as C:\\My Documents\\whiteboard.txt (in glorious ASCII).', 4000);
     }
     return { open };
@@ -184,13 +184,13 @@ window.SocialMore = function (X) {
   const FRIDGE = (() => {
     const WORDS = ('the a an and or but of to in on at with from is are was be not no yes my your his her its our their me you we they it this that ' +
       'big small red green fast slow old new hot cold loud quiet shiny rusty secret tiny massive ' +
-      'pocket critters ultra 64 blockology space cadet ork gorks boss rupees bits box paint brush green goes faster waaagh ' +
+      'pocket critters ultra 64 blockology space cadet gork gorks boss rupees bits box paint brush green goes faster waaagh ' +
       'mom dave nan cousin dog cat hamster teacher school homework bedtime tea biscuit crisps chips pie sandwich ' +
       'computer modem floppy disk cd-rom monitor mouse keyboard printer cyan internet download upload password ' +
       'game games level boss cheat code lives score high win lose pause save load crash reboot ' +
       'blockology cube puzzle block line spin twist solve ' +
       'space rocket alien robot laser planet star moon future year 2000 bug millennium ' +
-      'space cadet force droid podrace lightsabre saber hype queue cinema trailer episode sequel prequel phantom menace galaxy ' +
+      'space cadet force droid peapod race lightsabre saber hype queue cinema trailer episode sequel prequel phantom menace galaxy ' +
       'love hate like want need eat sleep dream play fight run jump hide seek look see feel think know ' +
       'never always sometimes again forever tomorrow today tonight now soon later ' +
       'very really quite totally mega ultra super turbo ' +
@@ -332,10 +332,10 @@ window.SocialMore = function (X) {
       ['social.r1', 'Dial-Up Dreams', 'The Floppy Disks', { step: 0.17, hats: true, lead: [64, -1, 67, 69, 71, -1, 69, 67, 64, -1, 62, -1, 64, -1, 0, 0, 69, -1, 71, 72, 74, -1, 72, 71, 69, -1, 67, -1, 64, -1, 0, 0, 64, 67, 71, 74, 76, -1, 74, 71, 72, -1, 71, 69, 67, -1, 0, 0, 62, 64, 67, 71, 69, -1, 67, 64, 62, -1, -1, -1, 64, -1, 0, 0], bass: [40, 40, 47, 47, 45, 45, 47, 47, 40, 40, 47, 47, 43, 43, 45, 45, 40, 40, 47, 47, 45, 45, 47, 47, 38, 38, 43, 43, 40, 40, 40, 40] }],
       ['social.r2', '56K of Love', 'The Floppy Disks', { step: 0.19, hats: true, lead: [72, 0, 72, 74, 76, 0, 74, 72, 69, -1, 67, -1, 69, -1, -1, 0, 72, 0, 72, 74, 76, 0, 79, 76, 74, -1, -1, -1, 0, 0, 0, 0, 77, 0, 77, 76, 74, 0, 76, 74, 72, -1, 69, -1, 72, -1, -1, 0, 74, 0, 74, 72, 71, 0, 72, 74, 72, -1, -1, -1, 0, 0, 0, 0], bass: [48, 48, 52, 52, 45, 45, 48, 48, 48, 48, 52, 52, 50, 50, 55, 55, 53, 53, 48, 48, 45, 45, 48, 48, 50, 50, 55, 55, 48, 48, 48, 48] }],
       ['social.r3', 'Red Ones Go Faster', 'The Go-Karts', { step: 0.13, hats: true, lead: [52, 52, 0, 52, 55, 0, 57, 0, 52, 52, 0, 52, 58, 57, 55, 0, 52, 52, 0, 52, 55, 0, 57, 0, 60, 0, 58, 0, 57, 55, 52, 0, 59, 59, 0, 59, 62, 0, 64, 0, 59, 59, 0, 59, 65, 64, 62, 0, 52, 52, 0, 52, 55, 0, 57, 0, 55, 0, 52, 0, 50, 0, 52, 0], bass: [40, 40, 40, 40, 40, 40, 43, 43, 40, 40, 40, 40, 46, 46, 45, 45, 40, 40, 40, 40, 40, 40, 43, 43, 48, 48, 46, 46, 45, 45, 40, 40] }],
-      ['social.r4', 'Pot Noodle (Remix)', 'DJ Pixel', { step: 0.15, hats: true, lead: [67, 0, 67, 0, 70, 72, 0, 70, 67, 0, 65, 0, 67, -1, 0, 0, 67, 0, 67, 0, 70, 72, 0, 74, 72, 0, 70, 0, 67, -1, 0, 0, 75, 0, 74, 0, 72, 70, 0, 72, 67, 0, 70, 0, 67, -1, 0, 0, 65, 0, 67, 0, 70, 72, 0, 70, 67, -1, -1, -1, 0, 0, 0, 0], bass: [43, 43, 43, 43, 46, 46, 41, 41, 43, 43, 43, 43, 46, 46, 48, 48, 51, 51, 48, 48, 46, 46, 43, 43, 41, 41, 46, 46, 43, 43, 43, 43] }],
+      ['social.r4', 'Pot Noodlez (Remix)', 'DJ Pixel', { step: 0.15, hats: true, lead: [67, 0, 67, 0, 70, 72, 0, 70, 67, 0, 65, 0, 67, -1, 0, 0, 67, 0, 67, 0, 70, 72, 0, 74, 72, 0, 70, 0, 67, -1, 0, 0, 75, 0, 74, 0, 72, 70, 0, 72, 67, 0, 70, 0, 67, -1, 0, 0, 65, 0, 67, 0, 70, 72, 0, 70, 67, -1, -1, -1, 0, 0, 0, 0], bass: [43, 43, 43, 43, 46, 46, 41, 41, 43, 43, 43, 43, 46, 46, 48, 48, 51, 51, 48, 48, 46, 46, 43, 43, 41, 41, 46, 46, 43, 43, 43, 43] }],
       ['social.r5', 'Turn That Down (live)', 'Mom', { step: 0.21, hats: false, lead: [60, -1, 64, -1, 67, -1, 64, -1, 60, -1, 62, -1, 64, -1, -1, -1, 65, -1, 64, -1, 62, -1, 60, -1, 62, -1, -1, -1, 0, 0, 0, 0, 60, -1, 64, -1, 67, -1, 72, -1, 71, -1, 69, -1, 67, -1, -1, -1, 65, -1, 67, -1, 64, -1, 62, -1, 60, -1, -1, -1, 0, 0, 0, 0], bass: [36, 36, 43, 43, 36, 36, 43, 43, 41, 41, 43, 43, 38, 38, 43, 43, 36, 36, 43, 43, 48, 48, 45, 45, 41, 41, 43, 43, 36, 36, 36, 36] }],
       ['social.r6', 'Fatal Exception 0E', 'The Millennium Bugs', { step: 0.12, hats: true, lead: [69, 0, 69, 0, 72, 0, 74, 0, 76, 0, 74, 0, 72, 0, 69, 0, 67, 0, 67, 0, 71, 0, 74, 0, 76, -1, -1, -1, 0, 0, 0, 0, 69, 0, 69, 0, 72, 0, 74, 0, 77, 0, 76, 0, 74, 0, 72, 0, 71, 0, 72, 0, 74, 0, 71, 0, 69, -1, -1, -1, 0, 0, 0, 0], bass: [45, 45, 45, 45, 41, 41, 41, 41, 43, 43, 43, 43, 40, 40, 40, 40, 45, 45, 45, 45, 41, 41, 41, 41, 43, 43, 47, 47, 45, 45, 45, 45] }],
-      ['social.r7', 'Podrace Pulse', 'The Floppy Disks', { step: 0.11, hats: true, lead: [57, 57, 60, 57, 64, 57, 60, 57, 59, 59, 62, 59, 65, 59, 62, 59, 57, 57, 60, 57, 64, 57, 60, 57, 55, 55, 59, 55, 62, 55, 59, 55, 69, 0, 67, 0, 64, 0, 60, 0, 62, 0, 64, 0, 65, 0, 67, 0, 69, 0, 67, 0, 64, 0, 62, 0, 57, -1, -1, -1, 0, 0, 0, 0], bass: [45, 45, 45, 45, 47, 47, 47, 47, 45, 45, 45, 45, 43, 43, 43, 43, 45, 45, 41, 41, 43, 43, 45, 45, 47, 47, 43, 43, 45, 45, 45, 45] }],
+      ['social.r7', 'Peapod Race Pulse', 'The Floppy Disks', { step: 0.11, hats: true, lead: [57, 57, 60, 57, 64, 57, 60, 57, 59, 59, 62, 59, 65, 59, 62, 59, 57, 57, 60, 57, 64, 57, 60, 57, 55, 55, 59, 55, 62, 55, 59, 55, 69, 0, 67, 0, 64, 0, 60, 0, 62, 0, 64, 0, 65, 0, 67, 0, 69, 0, 67, 0, 64, 0, 62, 0, 57, -1, -1, -1, 0, 0, 0, 0], bass: [45, 45, 45, 45, 47, 47, 47, 47, 45, 45, 45, 45, 43, 43, 43, 43, 45, 45, 41, 41, 43, 43, 45, 45, 47, 47, 43, 43, 45, 45, 45, 45] }],
       ['social.r8', 'Y2K Bunker Boogie', 'The Millennium Bugs', { step: 0.16, hats: true, lead: [62, 0, 65, 0, 69, 0, 65, 0, 62, 0, 65, 0, 70, -1, 69, 0, 62, 0, 65, 0, 69, 0, 72, 0, 74, -1, 72, 0, 69, -1, 0, 0, 67, 0, 70, 0, 74, 0, 70, 0, 67, 0, 70, 0, 75, -1, 74, 0, 62, 0, 65, 0, 69, 0, 72, 0, 70, -1, 69, -1, 62, -1, 0, 0], bass: [38, 38, 41, 41, 38, 38, 45, 45, 38, 38, 41, 41, 45, 45, 41, 41, 43, 43, 46, 46, 43, 43, 50, 50, 38, 38, 41, 41, 45, 45, 38, 38] }],
     ];
     TUNES.forEach(([id, , , t]) => Sound.addTune(id, t));
@@ -344,15 +344,15 @@ window.SocialMore = function (X) {
       "You're listening to JackNet Radio, 99.9 FM, broadcasting from a bedroom near you. Sort of.",
       'Coming up: more of the same. Because it is all we have got. All eight tunes!',
       "The big news this summer: Episode One is finally in UK cinemas from the 16th of July! Dave camped outside the cinema for two days. His Mom brought him sandwiches and a jumper. He got the tickets, then he got a cold.",
-      'Everybody keeps asking about the Episode One podrace. Is it the best bit? YES. Can you do it on a bike down the hill by the shops? Also yes. Do NOT tell Mom.',
+      'Everybody keeps asking about the Episode One peapod race. Is it the best bit? YES. Can you do it on a bike down the hill by the shops? Also yes. Do NOT tell Mom.',
       'Traffic and travel: the dial-up is busy, someone is downloading a 2 MB picture. Expect delays on all lines.',
       'Weather: it is raining on the keyboard. Please stop eating crisps over it.',
-      "Shout-out to everyone who finished Zelda this week. Green tunics are the new green.",
+      "Shout-out to everyone who finished Zeldo this week. Green tunics are the new green.",
       "Ask-the-DJ: 'Is Jar-Jar...' NO. Next question.",
       'Request line is open! Pick a tune in the Requests box and it might get played. Might.',
       "Y2K watch: 1999 is going fine so far. Jack has a torch and three tins of beans, just in case.",
       'This station is powered by a 56K modem and the sheer willpower of a little green helper called Gubbinz.',
-      "Episode One tip from Dave: the Trade Federation is just the Post Office with more spaceships. Dave has not seen it yet. Dave is guessing.",
+      "Episode One tip from Dave: the Trade Fedoration is just the Post Office with more spaceships. Dave has not seen it yet. Dave is guessing.",
       "Next, a tune the Floppy Disks wrote in the queue for Episode One. The queue was long enough for an album.",
     ];
     const SLOT = 4, now = () => Date.now();

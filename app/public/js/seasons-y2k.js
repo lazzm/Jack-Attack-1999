@@ -97,7 +97,7 @@ body.ssn-shake #taskbar{animation:glitch .4s steps(2) infinite reverse}
   function popup(from, text) { // a WinPopup ("net send") from one of the mates
     const b = h('div', 'ssn-pop', `<div class="hd">Message from <b>${esc(from)}</b> to <b>JACK</b> on 01/01/1900 00:00</div><div class="msg"></div><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" type="button">OK</button></div>`);
     b.querySelector('.msg').textContent = text;
-    const w = A.win('WinPopup', b, { w: Math.min(300, DesktopSurface.width() - 12), noResize: true, noMax: true, noMin: true, cls: 'ssn-err', icon: POPUP_ICO });
+    const w = A.win('JackPopup', b, { w: Math.min(300, DesktopSurface.width() - 12), noResize: true, noMax: true, noMin: true, cls: 'ssn-err', icon: POPUP_ICO });
     b.querySelector('.btn').addEventListener('click', () => w.close());
     place(w); wins.push(w); sfx('join');
     return w;
@@ -211,10 +211,10 @@ body.ssn-shake #taskbar{animation:glitch .4s steps(2) infinite reverse}
       () => err('JackNet Explorer', 'Welcome to JackNet! Today\'s date is: 1/1/19100\n\n(Lots of web sites stick "19" on the front of the year. This year, that makes it 19100.)', 'warn'),
       () => { if (window.Spooler) Spooler.print('Y2K_PANIC.TXT', { pages: 2, owner: 'JackOS', text: 'THE YEAR IS 1900. THE YEAR IS 1900. THE YEAR IS 1900.\n'.repeat(12) }); },
       () => err('JackMail Express', 'You have 36,524 days of unread mail.\n\nThe oldest message is from 1900. It says: "Is it the year 2000 yet?"', 'info'),
-      () => popup('LUKE', 'is it 2000 yet?? me and dave are on rainbow road and we are NOT pausing for a bug\n\nDAVE STOP USING THE LIGHTNING'),
+      () => popup('LUKE', 'is it 2000 yet?? me and dave are on rainbow roadworks and we are NOT pausing for a bug\n\nDAVE STOP USING THE LIGHTNING'),
       clip,
       () => err('Calendar', '1 January 1900 was a MONDAY.\n\n1 January 2000 is a SATURDAY.\n\nYour weekend has been cancelled. You have school today. In 1900.', 'warn'),
-      () => popup('JACKK', 'my digital watch just went to 1 JAN 1980. is that the bug or is my watch just rubbish\n\nalso I traded you a Pidgey at midnight. sorry. it was dark'),
+      () => popup('JACKK', 'my digital watch just went to 1 JAN 1980. is that the bug or is my watch just rubbish\n\nalso I traded you a Pidgeon at midnight. sorry. it was dark'),
       () => err('JACKTRIS.EXE', 'Your high score was set on 31/12/99, which is 99 years in the FUTURE.\n\nHigh score deleted for cheating.\n\n(Only joking. It\'s fine. Probably.)', 'error'),
       () => err('Scheduled Tasks', 'The scheduled task "Millennium" has finally run!\n\nResult: 1900.', 'info'),
       () => popup('DAVE', 'LUKE CHEATED. ALSO HAPPY NEW YEAR. ALSO WHY DOES DAD\'S VIDEO RECORDER SAY 1900'),

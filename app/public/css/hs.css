@@ -340,3 +340,12 @@ html.hs-moving .hs-getup,html.hs-moving .hs-inspection{opacity:0;transition:opac
 .hs-inspection{animation:hsUiIn .24s ease-out .3s both}
 html.hs-reduce-motion .hs-inspection{animation-delay:.18s}
 @keyframes hsUiIn{from{opacity:0}to{opacity:1}}
+/* HUD stacking (world quality pass 2): the top-right column holds the treasure tin and the diary; toasts start below
+   them. Spoken lines (Mom shouting up the stairs) sit in the lower third, above the carry bar, clear of the story
+   objective at the top and the paper note at the bottom left. The minimap gets a solid backing so it stays legible. */
+.hs-ui .rm-toast{top:96px}
+.hs-map{opacity:1;background:#15120e;box-shadow:inset 0 0 0 1px rgba(255,240,210,.14),0 1px 4px rgba(0,0,0,.6)}
+@media (min-width:901px) and (min-aspect-ratio:3/4){
+  .hs-voice{top:auto;bottom:128px;transform:translate(-50%,10px)}
+  .hs-voice.on{transform:translate(-50%,0)}
+}

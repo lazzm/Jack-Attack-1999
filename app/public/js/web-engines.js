@@ -109,7 +109,7 @@
     '~ellie': ['POCKET CRITTERS', 'ALL 151!', 'star', 'sunset', 13], '~blockhead': ['BLOCK', 'SHRINE', 'block', 'lcd'], cubetimes: ['CUBE', 'RECORDS', 'cube', 'check', 10], '~zed': [CT("{club1.FIRST}'S"), 'SCI-FI ZONE', 'ufo', 'stars'],
     '~gaz': ['MILLENNIUM', 'BUNKER', 'clock', 'neon', 8], top100cheats: ['TOP 100', 'CHEATS!!!', 'joy', 'neon', 10], '~mike': ['MEGAHERTZ', 'MIKE', 'computer', 'chrome'], '~mek': ['MINI', 'PAINTING', 'paint', 'dbl', 2],
     '~ash': [CT("{club2.FIRST}'S"), 'SPACE PAGE', 'planet', 'stars'], fanfic: ['FAN-FIC', 'ARCHIVE', 'book', 'paper', 9], ascii: ['ASCII', 'ART  :-)', 'computer', 'lcd'], midi: ['MIDI', 'HEAVEN', 'note', 'sunset', 4],
-    '~sam': ['EPISODE I', 'COUNTDOWN', 'saber', 'stars'], jarjar: ['JAR JAR JAMS?', 'THE DEBATE', 'eye', 'bev', 7], podracing: ['PODRACING', 'HQ', 'pod', 'stripe', 7], swrumours: ['RUMOUR', 'MILL', 'eye', 'neon', 10],
+    '~sam': ['EPISODE I', 'COUNTDOWN', 'saber', 'stars'], jarjar: ['JAR JAR JAMS?', 'THE DEBATE', 'eye', 'bev', 7], podracing: ['PEAPODRACING', 'HQ', 'pod', 'stripe', 7], swrumours: ['RUMOUR', 'MILL', 'eye', 'neon', 10],
     brickwars: ['BRICK', 'WISHLIST', 'brick', 'bev', 3], saberduel: ['ME vs DAVE', 'SABER DUEL', 'saber', 'neon', 1], news: ['JACKNET', 'NEWS', 'news', 'chrome'], weather: ['JACKNET', 'WEATHER', 'rain', 'bev', 6],
     teef: ['GEM', 'EXCHANGE', 'gem', 'dbl', 12], hamstercam: ['HAMSTER', 'CAM - LIVE!', 'hamster', 'neon', 1], jokes: ['JOKE OF', 'THE DAY', 'grin', 'check', 3], jackmail: ['JackMail', 'FREE E-MAIL', 'mail', 'bev', 0],
     chatroom: ['THE BACK', 'ROOM CHAT', 'chat', 'check', 4], counters: ['COUNTER', 'MANIA', 'eye', 'lcd'], lost: ['404', 'NOT FOUND', 'mag', 'paper'], downloads: ['FREE', 'DOWNLOADS!!!', 'floppy', 'fire'],
@@ -131,7 +131,7 @@
     'newjacks.wubwub': ['NEWJACKS', 'CARTOONS!', 'bolt', 'sunset', 7], 'webtoyz.kidz': ['WEB TOYZ', 'BUBBLE WRAP!', 'grin', 'check', 5], 'holohut.kidz': ['THE HOLO', 'HUT', 'star', 'chrome'],
     'houserobots.cyb': ['HOUSE', 'ROBOT HQ', 'robot', 'stripe', 1], 'year3000.cyb': ['YEAR 3000', 'GOOD NEWS!', 'rocket', 'stars'], 'jackfax.jnet': ['JACKFAX', 'P100 INDEX', 'tele', 'lcd'],
     'waaaghooo.find': ['WAAAGH', 'ooo!', 'ork', 'wg'], 'jackgle.find': ['Jackgle!', 'BETA', 'mag', 'jg'], 'askgubbinz.find': ['ASK', 'GUBBINZ', 'bowtie', 'ag'],
-    'jack:holocron': ['THE', 'HOLOCRON', 'saber', 'stars'], 'jack:dave': ["DAVE'S", 'v0.1 (OLD)', 'clock', 'check', 3], 'jack:orkhole': ['THE PAINT', 'HOLE', 'paint', 'fire'], 'jack:y2k': ['Y2K', 'SURVIVAL', 'clock', 'lcd'],
+    'jack:holocron': ['THE', 'HOLOCROWN', 'saber', 'stars'], 'jack:dave': ["DAVE'S", 'v0.1 (OLD)', 'clock', 'check', 3], 'jack:orkhole': ['THE PAINT', 'HOLE', 'paint', 'fire'], 'jack:y2k': ['Y2K', 'SURVIVAL', 'clock', 'lcd'],
     'jack:gubbinzfanclub': ['GUBBINZ', 'FAN CLUB', 'grot', 'lcd'], 'jack:keepoutdave': ['KEEP OUT', 'DAVE!!!', 'skull', 'check', 1], 'jack:jackamp': ['JACKAMP', 'MIDI PLAYER', 'note', 'chrome'],
     'jack:jackcarta': ['JACKCARTA', '99 CD-ROM', 'cd', 'bev', 0], 'jack:hklm': ['HKEY_', 'LOCAL_MACHINE', 'computer', 'paper'], mag: ['JACK', 'ATTACK!', 'J', 'ja'],
   };
@@ -157,7 +157,7 @@
   };
   // Jack's own hidden pages that are meant to be found (Cool Links lists them); site-data.js has the proper words if it's loaded
   const JACK = {
-    holocron: ['THE HOLOCRON', "Jack's secret Intergalactic Battles vault. Space Cadet only.", 'sw'], dave: ["Dave's Homepage (the old one)", 'Under construction since March. His cousin is doing the graphics.', 'mates'],
+    holocron: ['THE HOLOCROWN', "Jack's secret Intergalactic Battles vault. Space Cadet only.", 'sw'], dave: ["Dave's Homepage (the old one)", 'Under construction since March. His cousin is doing the graphics.', 'mates'],
     orkhole: ['The Paint Hole', "Jack's painting tips for minis, model kits and anything with a brush.", 'hobby'], y2k: ['Y2K Survival Centre', "A checklist, a countdown and Mom's beans.", 'weird'],
     gubbinzfanclub: ['The Gubbinz Fan Club', 'Official fan page for the little green helper. Signed photo: he ate it.', 'fun'], keepoutdave: ['KEEP OUT DAVE', 'A page Dave is not allowed to look at.', 'weird'],
     jackamp: ['JackAmp', "Jack's media player page. It really whips the... Mom says we can't finish that.", 'soft'], jackcarta: ['JackCarta 99', 'The multimedia encyclopedia on CD-ROM, online.', 'sci'],
@@ -604,7 +604,7 @@
     box.innerHTML = `<div class="wd-surf-h"><span class="wd-surf-t">SURF THE JACKNET!</span><span class="wd-surf-n">${Math.floor(n / 10) * 10}+ SITES!!!</span></div>
 <p class="wd-surf-p">There's a whole World Wide Web out there (well, a JackNet-wide one): my mates' homepages, shops that take Rupees, a hamster on a webcam, a town full of pixel people and FOUR search engines fighting to be the biggest. Click a button. Go on.</p>
 <div class="wd-surf-row"></div>
-<form class="wd-surf-f" autocomplete="off"><span class="wd-surf-l">Search the web with ${provLogo('waaaghooo')}</span><span class="wd-surf-in"><input type="text" maxlength="60" aria-label="Search the web with WAAAGHooo!" placeholder="hamster, cheats, Pokemon..."><button class="btn" type="submit">Search!</button></span></form>
+<form class="wd-surf-f" autocomplete="off"><span class="wd-surf-l">Search the web with ${provLogo('waaaghooo')}</span><span class="wd-surf-in"><input type="text" maxlength="60" aria-label="Search the web with WAAAGHooo!" placeholder="hamster, cheats, Pocket Critters..."><button class="btn" type="submit">Search!</button></span></form>
 <div class="wd-surf-b"><a href="#" data-go="links" class="wd-surf-all">&#9733; See ALL ${n} sites in COOL LINKS &#9733;</a><button class="btn wd-surf-rand" type="button">Surf somewhere random!</button></div>`;
     const row = box.querySelector('.wd-surf-row');
     const pool = L.slice().sort((a, b) => (pop(b) + hash(b.id + dayOfYear()) % 45) - (pop(a) + hash(a.id + dayOfYear()) % 45)); // popular sites turn up most

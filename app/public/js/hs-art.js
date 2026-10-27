@@ -18,7 +18,7 @@
   const P = {};
   // ================================================================ walls, floors, ceilings
   P.wallBlue = [256, 256, (g, w, h) => { // Jack's walls: a dusty navy emulsion, roller marks and all
-    g.fillStyle = '#3b4766'; g.fillRect(0, 0, w, h);
+    g.fillStyle = '#404c6e'; g.fillRect(0, 0, w, h);
     mottle(g, w, h, 40, 'rgba(70,86,120,.25)', 40, 11); mottle(g, w, h, 30, 'rgba(20,24,40,.2)', 30, 12);
     for (let x = 0; x < w; x += 3) { g.fillStyle = `rgba(255,255,255,${(Math.sin(x * 0.7) * 0.5 + 0.5) * 0.012})`; g.fillRect(x, 0, 2, h); }
     grain(g, w, h, 2600, 0.05, 13); grain(g, w, h, 900, 0.03, 14, true);
@@ -81,6 +81,15 @@
     g.fillStyle = '#d6cbb2'; g.fillRect(0, 0, w, h);
     const r = rnd(53); for (let i = 0; i < 1800; i++) { const x = r() * w, y = r() * h; g.fillStyle = 'rgba(255,255,245,.35)'; g.fillRect(x, y, 2 + r() * 2, 1 + r() * 2); g.fillStyle = 'rgba(90,80,60,.18)'; g.fillRect(x + 1, y + 2, 2 + r() * 2, 1); }
   }];
+  P.wallKitchen = [256, 256, (g, w, h) => { // the kitchen: cream paper with little sage sprigs and a terracotta berry (very 1990s)
+    g.fillStyle = '#ece2c4'; g.fillRect(0, 0, w, h);
+    for (let x = 0; x < w; x += 32) { g.fillStyle = 'rgba(255,250,232,.35)'; g.fillRect(x + 4, 0, 10, h); }
+    const sprig = (x, y, a) => { g.save(); g.translate(x, y); g.rotate(a); g.strokeStyle = '#8a9a70'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(0, 7); g.quadraticCurveTo(1, 0, -1, -7); g.stroke();
+      g.fillStyle = '#9aab80'; for (const [lx, ly, la] of [[-3, 2, -0.9], [3, -1, 0.9], [-2, -4, -0.6]]) { g.save(); g.translate(lx, ly); g.rotate(la); g.beginPath(); g.ellipse(0, 0, 1.6, 3.4, 0, 0, 7); g.fill(); g.restore(); }
+      g.fillStyle = '#c98a6a'; g.beginPath(); g.arc(1.5, -7.5, 1.3, 0, 7); g.fill(); g.restore(); };
+    for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) sprig(x * 64 + (y % 2) * 32 + 16, y * 64 + 32, ((x * 7 + y * 3) % 5 - 2) * 0.18);
+    grain(g, w, h, 1800, 0.03, 57); mottle(g, w, h, 16, 'rgba(150,120,70,.05)', 40, 58);
+  }];
   P.wallpaperLounge = [256, 256, (g, w, h) => { // the lounge: regency stripes, cream and sage
     for (let x = 0; x < w; x += 32) { g.fillStyle = '#e2d6b8'; g.fillRect(x, 0, 20, h); g.fillStyle = '#b8bc96'; g.fillRect(x + 20, 0, 12, h); g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(x + 20, 0, 1, h); }
     grain(g, w, h, 2000, 0.04, 54); mottle(g, w, h, 20, 'rgba(120,100,60,.06)', 40, 55);
@@ -124,6 +133,9 @@
     for (let i = 0; i < 12; i++) { const r = rnd(82 + i); g.fillStyle = '#2a5a2a'; g.beginPath(); g.arc(20 + r() * 150, 170 + r() * 70, 9, 0, 7); g.fill(); }
     g.strokeStyle = '#7a2222'; g.lineWidth = 10; g.strokeRect(5, 5, w - 10, h - 10); g.strokeStyle = '#c8c0a8'; g.lineWidth = 3; g.strokeRect(12, 12, w - 24, h - 24);
     grain(g, w, h, 6000, 0.08, 83);
+    // printed on a cheap tufted pile: knock the print colours back a little and show the rows of tufts
+    g.save(); g.globalCompositeOperation = 'saturation'; g.fillStyle = 'rgba(128,128,128,.3)'; g.fillRect(0, 0, w, h); g.restore();
+    for (let y = 0; y < h; y += 3) for (let x = (y / 3) % 2 ? 1 : 0; x < w; x += 3) { g.fillStyle = (x + y) % 2 ? 'rgba(255,250,235,.06)' : 'rgba(0,0,0,.08)'; g.fillRect(x, y, 2, 2); }
   }];
   P.beanbag = [256, 256, (g, w, h) => { g.fillStyle='#a93932';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=2)for(let x=0;x<w;x+=2){g.fillStyle=(x+y)%4?'rgba(236,172,136,.055)':'rgba(50,14,16,.055)';g.fillRect(x,y,1,1)}grain(g,w,h,7000,0.035,91);mottle(g,w,h,18,'rgba(230,130,100,.035)',22,92); }];
   P.curtain = [256, 256, (g, w, h) => { g.fillStyle = '#20356e'; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 2) { g.fillStyle = `rgba(0,0,0,${0.04 + (x % 8 === 0 ? 0.06 : 0)})`; g.fillRect(x, 0, 1, h); } for (let y = 0; y < h; y += 32) { g.fillStyle = 'rgba(255,220,120,.18)'; star(g, (y * 7) % w + 16, y + 16, 5, 5); g.fill(); } grain(g, w, h, 2000, 0.05, 93); }];
@@ -186,7 +198,7 @@
     text(g, 'TIMETABLE - YEAR 11', 128, 26, '700 15px ' + UIF, '#1a3a8a', 'center');
     const days = ['MON', 'TUE', 'WED', 'THU', 'FRI'], subj = [['Maths', 'English', 'Science', 'French', 'Games'], ['Science', 'IT', 'Maths', 'History', 'Art'], ['English', 'Maths', 'D&T', 'D&T', 'RE'], ['French', 'Science', 'English', 'Geog', 'PE'], ['Maths', 'History', 'IT', 'Science', 'Tutor']];
     g.strokeStyle = '#8a9ac8'; g.lineWidth = 1;
-    days.forEach((d, i) => { text(g, d, 10, 64 + i * 58, '700 11px ' + UIF, '#a01a1a'); subj[i].forEach((s, j) => { g.strokeRect(50 + j * 40, 46 + i * 58, 40, 50); text(g, s, 70 + j * 40, 76 + i * 58, '10px ' + HAND, '#222', 'center'); }); });
+    days.forEach((d, i) => { text(g, d, 10, 64 + i * 58, '700 11px ' + UIF, '#a01a1a'); subj[i].forEach((s, j) => { g.strokeRect(50 + j * 40, 46 + i * 58, 40, 50); text(g, s, 70 + j * 40, 76 + i * 58, '700 10.5px ' + HAND, '#1d2a52', 'center'); }); });
     text(g, 'GCSEs IN JUNE!!! (help)', 128, 350, '700 13px ' + HAND, '#c01a1a', 'center');
   }];
   P.calendar = [256, 360, (g, w, h) => { // a 1999 calendar on the wall: this month, today ringed
@@ -212,7 +224,13 @@
   P.pstop = [256, 192, (g, w, h) => { g.fillStyle = '#bab6ad'; g.fillRect(0, 0, w, h); g.fillStyle = '#a9a59c'; g.beginPath(); g.arc(88, 96, 70, 0, 7); g.fill(); g.strokeStyle = '#8f8b83'; g.lineWidth = 3; g.stroke(); g.fillStyle = '#c4c0b7'; g.beginPath(); g.arc(88, 96, 18, 0, 7); g.fill(); [[190, 60], [190, 100], [190, 140]].forEach(([x, y]) => { g.fillStyle = '#9a968e'; rr(g, x, y, 44, 26, 6); g.fill(); }); text(g, 'PLAYSPACE', 200, 182, 'italic 700 11px ' + UIF, '#777', 'center'); grain(g, w, h, 900, 0.04, 152); }];
   P.mdtop = [256, 192, (g, w, h) => { g.fillStyle = '#18181a'; g.fillRect(0, 0, w, h); g.fillStyle = '#222225'; g.beginPath(); g.arc(128, 96, 76, 0, 7); g.fill(); g.strokeStyle = '#3a3a3e'; g.lineWidth = 5; g.stroke(); g.fillStyle = '#060606'; rr(g, 80, 86, 96, 16, 3); g.fill(); text(g, '16-BIT', 216, 176, 'italic 900 14px ' + UIF, '#c8c8c8', 'center'); grain(g, w, h, 800, 0.05, 153, true); }];
   P.dctop = [256, 192, (g, w, h) => { g.fillStyle = '#efeee8'; g.fillRect(0, 0, w, h); g.fillStyle = '#e2e1da'; g.beginPath(); g.ellipse(128, 90, 90, 70, 0, 0, 7); g.fill(); g.strokeStyle = '#c8c7c0'; g.lineWidth = 3; g.stroke(); g.strokeStyle = '#ff7a00'; g.lineWidth = 7; g.beginPath(); for (let i = 0; i < 80; i++) { const a = i / 80 * Math.PI * 4, R = 3 + i / 80 * 20; g.lineTo(206 + Math.cos(a) * R, 160 + Math.sin(a) * R); } g.stroke(); grain(g, w, h, 600, 0.03, 154); }];
-  P.screenOff = [256, 192, (g, w, h) => { const gr = g.createRadialGradient(100, 70, 10, 128, 96, 170); gr.addColorStop(0, '#2c3632'); gr.addColorStop(0.6, '#121815'); gr.addColorStop(1, '#060807'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.fillStyle = 'rgba(255,255,255,.07)'; g.beginPath(); g.ellipse(80, 50, 70, 30, -0.4, 0, 7); g.fill(); }];
+  P.screenOff = [256, 192, (g, w, h) => { // a switched-off CRT: smoky green-grey glass, darker to the curved edges, the room's window and lamp faintly reflected
+    const gr = g.createRadialGradient(118, 84, 8, 128, 96, 168); gr.addColorStop(0, '#323d38'); gr.addColorStop(0.55, '#161d1a'); gr.addColorStop(1, '#050706'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    g.save(); g.transform(1, 0, -0.18, 1, 0, 0); g.fillStyle = 'rgba(220,232,255,.09)'; g.fillRect(150, 22, 46, 58); g.fillStyle = 'rgba(220,232,255,.05)'; g.fillRect(152, 84, 44, 30); g.fillStyle = 'rgba(16,22,20,.6)'; g.fillRect(171, 22, 3, 92); g.restore();
+    const lamp = g.createRadialGradient(52, 132, 1, 52, 132, 22); lamp.addColorStop(0, 'rgba(255,214,150,.22)'); lamp.addColorStop(1, 'rgba(255,214,150,0)'); g.fillStyle = lamp; g.fillRect(20, 100, 64, 64);
+    g.fillStyle = 'rgba(255,255,255,.06)'; g.beginPath(); g.ellipse(84, 46, 74, 26, -0.38, 0, 7); g.fill();
+    const r = rnd(224); for (let i = 0; i < 1400; i++) { g.fillStyle = `rgba(200,210,205,${(r() * 0.035).toFixed(3)})`; g.fillRect(r() * w, r() * h, 1, 1); }
+  }];
   P.labelLost = [128, 64, (g, w, h) => { g.fillStyle = '#fffbe0'; g.fillRect(0, 0, w, h); text(g, 'LOST GAMES', 64, 26, '700 14px ' + HAND, '#c01a1a', 'center'); text(g, '(see PC)', 64, 48, '12px ' + HAND, '#333', 'center'); }];
   P.radiator = [128, 128, (g, w, h) => { g.fillStyle = '#ece9e0'; g.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 8) { g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(x, 0, 2, h); g.fillStyle = 'rgba(255,255,255,.6)'; g.fillRect(x + 3, 0, 1, h); } g.fillStyle = 'rgba(0,0,0,.1)'; g.fillRect(0, 0, w, 6); g.fillRect(0, h - 6, w, 6); }];
   P.mag = [256, 340, (g, w, h) => { // JACK ATTACK! magazine cover
@@ -265,16 +283,58 @@
       image.src = '/art/'+(magazine?'magazines-v1/':'posters-v3/')+file+'.webp';
     });
   }));
+  // Room surfaces: real-world tile size in cm (the kit maps every face in world space, so nothing stretches),
+  // and the kind of fine detail painted at full resolution on top of the 2x-supersampled design.
+  const SURF = { wallBlue: [128], artex: [110], carpetBlue: [90, 'pile'], carpetBeige: [90, 'pile'], carpetRed: [44, 'pile'], lino: [60],
+    wallWarm: [128], wallKitchen: [48], wallpaperHall: [128], wallpaperLounge: [128], tiles: [192], mdf: [60],
+    pine: [60, 'grain'], pineDark: [60, 'grain'], deskWood: [60, 'grain'], oak: [60, 'grain'] };
+  const paintMs = { surfaces: 0 }; // (diagnostic: time spent painting the 2x surfaces)
+  const HI = new Set(['timetable', 'calendar', 'note', 'noteBlue', 'photo', 'floppyLabel', 'labelLost']);
+  // Full-resolution detail on top of a 2x surface, in one pass over the pixels. The noise is generated once
+  // and shared (each texture reads it from its own offset), so the pass costs a few milliseconds per texture.
+  let NOISE = null, STREAK = null;
+  function noiseTables() {
+    if (NOISE) return; const n = 512 * 512, r = rnd(4321); NOISE = new Float32Array(n); STREAK = new Float32Array(n);
+    for (let i = 0; i < n; i++) NOISE[i] = r() - 0.5;
+    for (let y = 0; y < 512; y++) { let run = 0, k = 0; for (let x = 0; x < 512; x++) { if (run <= 0) { run = 3 + (r() * 16) | 0; k = r() < 0.18 ? -(6 + r() * 14) : (r() - 0.5) * 4; } run--; STREAK[y * 512 + x] = k; } }
+  }
+  function detail(g, w, h, kind, seed) {
+    noiseTables();
+    const img = g.getImageData(0, 0, w, h), d = img.data, len = NOISE.length, off = (seed * 7919) % len;
+    if (kind === 'grain') { // open pores: short dark streaks along the grain (rows)
+      for (let p = 0, i = 0; i < d.length; i += 4, p++) { const k = STREAK[(p + off) % len]; d[i] += k; d[i + 1] += k * 0.85; d[i + 2] += k * 0.7; }
+    } else { // pile (carpet tufts) or a fine plaster/paper tooth
+      const amp = kind === 'pile' ? 26 : 9, dark = kind === 'pile';
+      for (let p = 0, i = 0; i < d.length; i += 4, p++) { const v = NOISE[(p + off) % len], k = v * amp + (dark && v > 0.485 ? -30 : 0); d[i] += k; d[i + 1] += k; d[i + 2] += k; }
+    }
+    g.putImageData(img, 0, 0);
+  }
   function t(name, o) {
     if (cache[name]) return cache[name];
     const p = P[name]; if (!p) { console.warn('hs-art: no', name); return null; }
+    // (phones on the Low tier keep the original 1x surfaces: the 2x pass costs a few hundred ms of start-up there)
+    const surf = SURF[name] && !(window.HouseQ === 'low' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent || '')) ? SURF[name] : null;
+    if (!surf && SURF[name]) { const tx = K.tex('art:' + name, p[0], p[1], p[2], Object.assign({}, o, { world: SURF[name][0], grain: SURF[name][1] === 'grain' })); return cache[name] = tx; }
+    if (HI.has(name)) { // small print read up close: same design at twice the pixels (crisp text, no blur)
+      const paint = g => { g.save(); g.setTransform(2, 0, 0, 2, 0, 0); p[2](g, p[0], p[1]); g.restore(); };
+      return cache[name] = K.tex('art:' + name, p[0] * 2, p[1] * 2, paint, Object.assign({}, o, { identity: name === 'photo' }));
+    }
+    if (surf) { // 2x canvas, same design, then real full-resolution detail
+      // Wood grain is drawn at 2x (its lines matter); the speckled surfaces paint at 1x and are upscaled, since
+      // their full-resolution character comes from the detail pass (far cheaper than 4x the specks).
+      const paint = g => { const t0 = performance.now();
+        if (surf[1] === 'grain') { g.save(); g.setTransform(2, 0, 0, 2, 0, 0); p[2](g, p[0], p[1]); g.restore(); }
+        else { const c1 = document.createElement('canvas'); c1.width = p[0]; c1.height = p[1]; p[2](c1.getContext('2d'), p[0], p[1]); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(c1, 0, 0, p[0] * 2, p[1] * 2); }
+        detail(g, p[0] * 2, p[1] * 2, surf[1], name.length * 977 + p[0]); paintMs.surfaces += performance.now() - t0; };
+      return cache[name] = K.tex('art:' + name, p[0] * 2, p[1] * 2, paint, Object.assign({}, o, { world: surf[0], grain: surf[1] === 'grain' }));
+    }
     const tx = K.tex('art:' + name, p[0], p[1], p[2], Object.assign({},o,{identity:name==='photo'}));
     return cache[name] = tx;
   }
   // a texture with world-scale tiling (the kit's uv option does the maths: one tile = `cm` centimetres)
   function printed(key,w,h,draw,o){const tx=K.tex(key,w,h,draw,o);window.PrintArt?.ready.then(()=>{const g=tx.userData.g;g.save();g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);draw(g,w,h);g.restore();tx.needsUpdate=true;window.House?.dirty()});return tx}
-  window.HouseArt = { P, t, printed, postersReady, posterImages, rr, star, lin, text, grain, mottle, FONT, UIF, HAND };
+  window.HouseArt = { paintMs, P, t, printed, postersReady, posterImages, rr, star, lin, text, grain, mottle, FONT, UIF, HAND };
   if(window.PrintArt)PrintArt.ready.then(()=>{for(const n of Object.keys(prints)){const tx=cache[n],p=P[n];if(tx){const g=tx.userData.g;g.clearRect(0,0,p[0],p[1]);p[2](g,p[0],p[1]);tx.needsUpdate=true}}window.House?.dirty()});
   // fonts arrive late: repaint the texts once they're in
-  try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { for (const n in cache) { const tx = cache[n], p = P[n]; if (!tx || !p) continue; const g = tx.userData.g; g.clearRect(0, 0, p[0], p[1]); try { p[2](g, p[0], p[1]); } catch (e) {} tx.needsUpdate = true; } if (window.House && House.dirty) House.dirty(); }); } catch (e) {}
+  try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { for (const n in cache) { const tx = cache[n], p = P[n]; if (!tx || !p || SURF[n]) continue; if (HI.has(n)) { const g = tx.userData.g; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, p[0] * 2, p[1] * 2); g.save(); g.setTransform(2, 0, 0, 2, 0, 0); try { p[2](g, p[0], p[1]); } catch (e) {} g.restore(); tx.needsUpdate = true; continue; } const g = tx.userData.g; g.clearRect(0, 0, p[0], p[1]); try { p[2](g, p[0], p[1]); } catch (e) {} tx.needsUpdate = true; } if (window.House && House.dirty) House.dirty(); }); } catch (e) {}
 })();

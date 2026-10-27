@@ -25,20 +25,20 @@
 .cxf .car .w.off{background:#fff;border-color:#c00;color:#c00}.cxf .car .w.new{background:#222;border-color:#ffd400}
 .cxf .car .body{position:absolute;left:56px;top:34px;width:188px;height:104px;background:#c00;border-radius:20px 50px 50px 20px;border:3px solid #000}`);
   const PN = [['/', 'The Season'], ['/pitstop.html', 'Pit Stop Challenge']];
-  const RACES = [['03-07', 'Australia', 'Eddie Irvine (Ferrari)', 'Irvine\'s first ever win!'], ['04-11', 'Brazil', 'Mika Hakkinen (McLaren)', ''], ['05-02', 'San Marino', 'Michael Schumacher (Ferrari)', ''], ['05-16', 'Monaco', 'Michael Schumacher (Ferrari)', ''],
-    ['05-30', 'Spain', 'Mika Hakkinen (McLaren)', ''], ['06-13', 'Canada', 'Mika Hakkinen (McLaren)', ''], ['06-27', 'France', 'Heinz-Harald Frentzen (Jordan)', 'In the rain!'], ['07-11', 'Britain', 'David Coulthard (McLaren)', 'Schumacher crashed on the first lap and broke his leg.'],
-    ['07-25', 'Austria', 'Eddie Irvine (Ferrari)', ''], ['08-01', 'Germany', 'Eddie Irvine (Ferrari)', ''], ['08-15', 'Hungary', 'Mika Hakkinen (McLaren)', ''], ['08-29', 'Belgium', 'David Coulthard (McLaren)', ''],
-    ['09-12', 'Italy', 'Heinz-Harald Frentzen (Jordan)', 'Hakkinen spun off while leading.'], ['09-26', 'Europe (Germany)', 'Johnny Herbert (Stewart)', 'A British winner!'], ['10-17', 'Malaysia', 'Eddie Irvine (Ferrari)', 'Schumacher came back and helped him.'], ['10-31', 'Japan', 'Mika Hakkinen (McLaren)', 'HAKKINEN IS WORLD CHAMPION!']];
+  const RACES = [['03-07', 'Australia', 'Eddie Ervine (Ferrazzi)', 'Ervine\'s first ever win!'], ['04-11', 'Brazil', 'Mika Hackinen (McLaran)', ''], ['05-02', 'San Marino', 'Michael Shoemaker (Ferrazzi)', ''], ['05-16', 'Monaco', 'Michael Shoemaker (Ferrazzi)', ''],
+    ['05-30', 'Spain', 'Mika Hackinen (McLaran)', ''], ['06-13', 'Canada', 'Mika Hackinen (McLaran)', ''], ['06-27', 'France', 'Heinz-Harald Frenzen (Jordon)', 'In the rain!'], ['07-11', 'Britain', 'David Coalhard (McLaran)', 'Shoemaker crashed on the first lap and broke his leg.'],
+    ['07-25', 'Austria', 'Eddie Ervine (Ferrazzi)', ''], ['08-01', 'Germany', 'Eddie Ervine (Ferrazzi)', ''], ['08-15', 'Hungary', 'Mika Hackinen (McLaran)', ''], ['08-29', 'Belgium', 'David Coalhard (McLaran)', ''],
+    ['09-12', 'Italy', 'Heinz-Harald Frenzen (Jordon)', 'Hackinen spun off while leading.'], ['09-26', 'Europe (Germany)', 'Johnny Hurbert (Steward)', 'A British winner!'], ['10-17', 'Malaysia', 'Eddie Ervine (Ferrazzi)', 'Shoemaker came back and helped him.'], ['10-31', 'Japan', 'Mika Hackinen (McLaran)', 'HACKINEN IS WORLD CHAMPION!']];
   def(PH, '/', c => {
     const done = RACES.filter(r => mdOf(r[0]) <= c.md), next = RACES.find(r => mdOf(r[0]) > c.md);
-    const head = c.md < 307 ? 'The new season starts in <b>Australia on 7 March</b>. Can Mika Hakkinen win the championship again? Can Ferrari stop him?'
-      : c.md < 711 ? 'The title fight is on: Hakkinen\'s McLaren against Schumacher\'s Ferrari.'
-      : c.md < 1031 ? 'Schumacher broke his leg at Silverstone, so it\'s Hakkinen against Schumacher\'s team-mate, <b>Eddie Irvine</b> from Northern Ireland! Go Eddie!'
-      : '<b>MIKA HAKKINEN IS WORLD CHAMPION AGAIN!</b> He won the last race in Japan on 31 October and beat Eddie Irvine by just two points. Ferrari won the teams\' championship. What a season.';
+    const head = c.md < 307 ? 'The new season starts in <b>Australia on 7 March</b>. Can Mika Hackinen win the championship again? Can Ferrazzi stop him?'
+      : c.md < 711 ? 'The title fight is on: Hackinen\'s McLaran against Shoemaker\'s Ferrazzi.'
+      : c.md < 1031 ? 'Shoemaker broke his leg at Silverstone, so it\'s Hackinen against Shoemaker\'s team-mate, <b>Eddie Ervine</b> from Northern Ireland! Go Eddie!'
+      : '<b>MIKA HACKINEN IS WORLD CHAMPION AGAIN!</b> He won the last race in Japan on 31 October and beat Eddie Ervine by just two points. Ferrazzi won the teams\' championship. What a season.';
     return `<div class="cxf"><h1><span>PIT LANE</span> 99</h1>${nav(c, PN)}<div class="box">${head}${next ? ` <b>Next race:</b> ${next[1]}, ${nice(next[0])} (${daysTo(c, next[0])} days).` : ''}</div>
       ${done.length ? `<table><tr><th>Date</th><th>Grand Prix</th><th>Winner</th><th></th></tr>${done.map(r => `<tr><td>${nice(r[0])}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</table>` : '<p>No races yet! The cars are being tested in Spain. Probably.</p>'}
-      ${mates(c, [['03-08', 'Jack', 'Got up early to watch Australia. Dad made bacon. Eddie Irvine won. Best Sunday.'], ['07-12', 'Callum', 'Schumacher broke his leg. Hope he\'s OK. Also: this means Irvine could win it!'], ['11-01', 'Jack', 'Hakkinen did it. Two points! TWO! I played F1 on the PlaySpace to celebrate and crashed on the first corner.']])}
-      ${c.gb([['flyingfinn', '08/03/99', 'Hakkinen will win AGAIN.'], ['tifosi_tom', '12/04/99', 'Forza Ferrari!!!']], { title: 'Pit Wall (Guestbook)' })}${foot(c)}</div>`;
+      ${mates(c, [['03-08', 'Jack', 'Got up early to watch Australia. Dad made bacon. Eddie Ervine won. Best Sunday.'], ['07-12', 'Callum', 'Shoemaker broke his leg. Hope he\'s OK. Also: this means Ervine could win it!'], ['11-01', 'Jack', 'Hackinen did it. Two points! TWO! I played F1 on the PlaySpace to celebrate and crashed on the first corner.']])}
+      ${c.gb([['flyingfinn', '08/03/99', 'Hackinen will win AGAIN.'], ['tifosi_tom', '12/04/99', 'Forza Ferrazzi!!!']], { title: 'Pit Wall (Guestbook)' })}${foot(c)}</div>`;
   });
   def(PH, '/pitstop.html', c => {
     c.after.push(() => {
@@ -51,7 +51,7 @@
         if (Object.values(state).every(v => v >= 2)) {
           running = false; const s = (performance.now() - t0) / 1000;
           if (!best || s < best) { best = s; W.E.store.set('jhp_cx_pit', +s.toFixed(2)); }
-          out.innerHTML = `LOLLIPOP UP! GO! Your stop: <b>${s.toFixed(2)} seconds</b>. Your best: ${best.toFixed(2)}s. ${s < 4 ? 'FASTER THAN McLAREN!' : 'Keep practising.'}`;
+          out.innerHTML = `LOLLIPOP UP! GO! Your stop: <b>${s.toFixed(2)} seconds</b>. Your best: ${best.toFixed(2)}s. ${s < 4 ? 'FASTER THAN McLaran!' : 'Keep practising.'}`;
           if (s < 4) { S('cx.pitstop'); sfx('solve'); } else sfx('boing');
         }
       }));
@@ -70,18 +70,18 @@
 .cxw10 .term input{background:#000;color:#3f3;border:0;font:inherit;outline:0;width:60%}`);
   const WN = [['/', 'Home'], ['/history.html', 'History'], ['/lo.html', 'The First Message']];
   def(WH, '/', c => `<div class="cxw10"><h1>THE WEB TURNS <tt>10</tt></h1>${nav(c, WN)}
-    <p>In <b>March 1989</b>, a British scientist called <b>Tim Berners-Lee</b>, working at a physics lab called CERN in Switzerland, wrote a proposal about linking documents together across computers. His boss wrote "vague, but exciting" on it. That idea turned into the <b>World Wide Web</b>. Ten years later, here we all are, with our hit counters and our animated GIFs.</p>
+    <p>In <b>March 1989</b>, a British scientist called <b>Tim Burners-Lea</b>, working at a physics lab called CERN in Switzerland, wrote a proposal about linking documents together across computers. His boss wrote "vague, but exciting" on it. That idea turned into the <b>World Wide Web</b>. Ten years later, here we all are, with our hit counters and our animated GIFs.</p>
     ${c.md >= 1029 ? '<p><b>ANOTHER BIRTHDAY!</b> On 29 October 1969, thirty years ago, the very first message was sent between two computers on the ARPANET, the great-great-grandad of the Internet. It crashed halfway through. <a href="http://' + WH + '/lo.html">Try sending it yourself.</a></p>' : '<p>And in October it\'s 30 years since the very first message on the ARPANET, the great-great-grandad of the Internet. <a href="http://' + WH + '/lo.html">Find out what it said.</a></p>'}
     <p><b>Internet or Web?</b> The <b>Internet</b> is the network: computers all over the world joined together. The <b>Web</b> is the pages and links you look at on it. E-mail goes over the Internet too, but it isn't the Web. Now you can correct your dad.</p>
-    ${c.gb([['oldsurfer', '12/03/99', 'Happy birthday Web!'], ['html_hannah', '19/04/99', 'I made my first web page in Notepad! It has a blink tag!']], { title: 'Birthday Card (Guestbook)' })}${foot(c)}</div>`);
+    ${c.gb([['oldsurfer', '12/03/99', 'Happy birthday Web!'], ['html_hannah', '19/04/99', 'I made my first web page in Jotpad! It has a blink tag!']], { title: 'Birthday Card (Guestbook)' })}${foot(c)}</div>`);
   def(WH, '/history.html', c => `<div class="cxw10"><h1>A SHORT HISTORY OF THE INTERNET</h1>${nav(c, WN)}<div class="tl">
     <p><b>1969</b> ARPANET connects its first computers in America. The first message is sent on 29 October.</p>
     <p><b>1971</b> The first e-mail between two computers on a network. The @ sign gets its big job.</p>
     <p><b>1983</b> The ARPANET switches to TCP/IP, the "language" the Internet still speaks today.</p>
-    <p><b>1989</b> Tim Berners-Lee writes his proposal at CERN (March).</p>
+    <p><b>1989</b> Tim Burners-Lea writes his proposal at CERN (March).</p>
     <p><b>1990</b> The first web browser and the first web server, at CERN.</p>
     <p><b>1991</b> The Web is opened up for anyone to use.</p>
-    <p><b>1993</b> Mosaic, a browser that shows pictures right in the page. Everyone wants one.</p>
+    <p><b>1993</b> Mosaique, a browser that shows pictures right in the page. Everyone wants one.</p>
     <p><b>1999</b> You, reading this, at 3.6 kilobytes a second, while Mom waits to use the phone.</p></div>${foot(c)}</div>`);
   def(WH, '/lo.html', c => {
     c.after.push(() => {
@@ -137,7 +137,7 @@
   const EN = [['/', 'Party Pack'], ['/scores.html', 'Score Card']];
   def(EH, '/', c => {
     const pre = c.md < 529, today = c.md === 529;
-    return `<div class="cxe"><h1>NUL POINTS!</h1>${nav(c, EN)}<div class="box">${pre ? `<b>EUROVISION 1999</b> is on <b>Saturday 29 May</b>, live from <b>Jerusalem</b>. ${daysTo(c, '05-29')} days to go! The UK is sending a girl group called <b>Precious</b>. Two big changes this year: there's no live orchestra any more, and countries can sing in any language they like.` : today ? '<b>IT\'S TONIGHT!</b> Get the snacks, get the score cards, and get Mom\'s special Eurovision voice ready.' : '<b>RESULTS:</b> <b>Sweden</b> won! Charlotte Nilsson sang "Take Me to Your Heaven". <b>Iceland</b> came second. The UK\'s Precious came <b>12th</b> with 38 points. Not nul points, so: a success!'}</div>
+    return `<div class="cxe"><h1>NUL POINTS!</h1>${nav(c, EN)}<div class="box">${pre ? `<b>EUROVIZZION 1999</b> is on <b>Saturday 29 May</b>, live from <b>Jerusalem</b>. ${daysTo(c, '05-29')} days to go! The UK is sending a girl group called <b>Precious</b>. Two big changes this year: there's no live orchestra any more, and countries can sing in any language they like.` : today ? '<b>IT\'S TONIGHT!</b> Get the snacks, get the score cards, and get Mom\'s special Eurovizzion voice ready.' : '<b>RESULTS:</b> <b>Sweden</b> won! Charlotte Nilssen sang "Take Me to Your Haven". <b>Iceland</b> came second. The UK\'s Precious came <b>12th</b> with 38 points. Not nul points, so: a success!'}</div>
       <div class="box"><b>HOW THE VOTING WORKS:</b> each country gives <b>12</b> points to its favourite, then 10, then 8, 7, 6, 5, 4, 3, 2 and 1. You can't vote for yourself. Somebody always gets "nul points" (zero). The voting takes LONGER than the songs. That is the best bit.</div>
       <div class="box"><b>PARTY PACK:</b> a bowl of crisps for every country, a score card for everyone (<a href="http://${EH}/scores.html">print ours!</a>), and one person whose job is to shout "DOUZE POINTS!" in a French accent.</div>
       ${mates(c, [['05-30', 'Jack', 'Mom gave every song a mark out of ten. Gubbinz gave Sweden douze points.'], ['05-30', 'JackK', 'I liked the one from Iceland. Don\'t tell anyone.']])}
@@ -185,7 +185,7 @@
 .cxte .sb{font:bold 18px Georgia;text-align:center}`);
   const TN = [['/', 'Centre Court'], ['/play.html', 'Play Tennis']];
   def(TH, '/', c => {
-    const st = phase(c, [['06-01', `Wimbledon starts on <b>Monday 21 June</b> (${daysTo(c, '06-21')} days!). Can Tim Henman be the first British man to win it since 1936? Everyone says THIS is the year. (Everyone said that last year too.)`], ['06-21', '<b>WIMBLEDON IS ON!</b> Tim is still in! Every match, the whole country holds its breath. Mom has stopped cooking. We are living on sandwiches.'], ['07-02', 'Tim got to the <b>semi-finals</b> again, but lost to Pete Sampras. So close. Next year, Tim. NEXT YEAR.'], ['07-04', 'Tim got to the semi-finals again, but lost to Pete Sampras. The finals: <b>Pete Sampras</b> beat Andre Agassi for his sixth Wimbledon, and <b>Lindsay Davenport</b> beat Steffi Graf in the women\'s final. Next year, Tim!']]);
+    const st = phase(c, [['06-01', `Wimbledon starts on <b>Monday 21 June</b> (${daysTo(c, '06-21')} days!). Can Tim Hen-man be the first British man to win it since 1936? Everyone says THIS is the year. (Everyone said that last year too.)`], ['06-21', '<b>WIMBLEDON IS ON!</b> Tim is still in! Every match, the whole country holds its breath. Mom has stopped cooking. We are living on sandwiches.'], ['07-02', 'Tim got to the <b>semi-finals</b> again, but lost to Pete Samprass. So close. Next year, Tim. NEXT YEAR.'], ['07-04', 'Tim got to the semi-finals again, but lost to Pete Samprass. The finals: <b>Pete Samprass</b> beat Andre Agassy for his sixth Wimbledon, and <b>Lindsay Davenham</b> beat Steffi Graph in the women\'s final. Next year, Tim!']]);
     return `<div class="cxte"><h1>COME ON <b>TIM!</b></h1>${nav(c, TN)}<div class="box">${st}</div><p>Welcome to my Wimbledon page! I love Wimbledon because it means strawberries and cream, rain delays, and Mom shouting at the telly. Fun fact: they get through thousands and thousands of tennis balls, and the balls are kept at the same temperature so they all bounce the same. Try my <a href="http://${TH}/play.html">tennis game</a>!</p>
       ${c.gb([['strawberry_sam', '21/06/99', 'COME ON TIM!!!'], ['ballgirl_bea', '25/06/99', 'I want to be a ball girl when I\'m older.']], { title: 'Sign the Scoreboard' })}${foot(c, { webmaster: 'Bea' })}</div>`;
   });
@@ -220,11 +220,11 @@
   const KN = [['/', 'The Game'], ['/puzzle.html', 'Checkmate Puzzle']];
   def(KH, '/', c => {
     const over = c.md >= 1022, n = Math.max(1, Math.min(61, 1 + Math.round((dayNo(c.key) - dayNo('06-21')) * 61 / 123)));
-    return `<div class="cxk"><h1>THE WORLD'S MOVE</h1>${nav(c, KN)}<div class="box">${over ? '<b>IT\'S OVER.</b> On 22 October, after <b>62 moves</b> and four months, the World team resigned. <b>Garry Kasparov won.</b> But the World made him work really hard for it, and everyone agrees it was one of the most amazing games ever played.' : c.md === 621 ? '<b>IT STARTS TODAY!</b> The world chess champion, <b>Garry Kasparov</b>, is playing one game against... everyone. Anyone on the Internet can vote for the World\'s next move. The most popular move gets played.' : `<b>THE GAME IS ON!</b> Garry Kasparov (the world champion) against the World (everyone on the Internet who wants to vote). The World is somewhere around <b>move ${n}</b>. One move about every day or two, decided by votes.`}</div>
-      <p>How it works: chess experts (including a 15-year-old champion called Irina Krush) suggest moves, then everyone votes, and the move with the most votes gets played. More than <b>50,000</b> people from over <b>75 countries</b> have taken part. Kasparov plays on his own. It's one brain against fifty thousand!</p>
+    return `<div class="cxk"><h1>THE WORLD'S MOVE</h1>${nav(c, KN)}<div class="box">${over ? '<b>IT\'S OVER.</b> On 22 October, after <b>62 moves</b> and four months, the World team resigned. <b>Gary Chasparov won.</b> But the World made him work really hard for it, and everyone agrees it was one of the most amazing games ever played.' : c.md === 621 ? '<b>IT STARTS TODAY!</b> The world chess champion, <b>Gary Chasparov</b>, is playing one game against... everyone. Anyone on the Internet can vote for the World\'s next move. The most popular move gets played.' : `<b>THE GAME IS ON!</b> Gary Chasparov (the world champion) against the World (everyone on the Internet who wants to vote). The World is somewhere around <b>move ${n}</b>. One move about every day or two, decided by votes.`}</div>
+      <p>How it works: chess experts (including a 15-year-old champion called Irina Crush) suggest moves, then everyone votes, and the move with the most votes gets played. More than <b>50,000</b> people from over <b>75 countries</b> have taken part. Chasparov plays on his own. It's one brain against fifty thousand!</p>
       <p>I'm not good enough to vote yet. So I made a <a href="http://${KH}/puzzle.html">checkmate puzzle</a> to practise.</p>
-      ${mates(c, [['06-22', 'JackK', 'I voted! I don\'t know if my move was any good. It didn\'t win the vote.'], ['08-10', 'Callum', 'Fifty thousand people and they still can\'t beat one man. That man is a computer. (He isn\'t. But STILL.)'], ['10-23', 'Jack', 'Kasparov won. But the World nearly had him. Teamwork!']])}
-      ${c.gb([['pawnstar', '22/06/99', 'Go World!!!'], ['knight_rider', '15/07/99', 'Kasparov is a genius.']], { title: 'Sign the Scoresheet' })}${foot(c)}</div>`;
+      ${mates(c, [['06-22', 'JackK', 'I voted! I don\'t know if my move was any good. It didn\'t win the vote.'], ['08-10', 'Callum', 'Fifty thousand people and they still can\'t beat one man. That man is a computer. (He isn\'t. But STILL.)'], ['10-23', 'Jack', 'Chasparov won. But the World nearly had him. Teamwork!']])}
+      ${c.gb([['pawnstar', '22/06/99', 'Go World!!!'], ['knight_rider', '15/07/99', 'Chasparov is a genius.']], { title: 'Sign the Scoresheet' })}${foot(c)}</div>`;
   });
   def(KH, '/puzzle.html', c => {
     // White: King g1, Rook a1, pawns f2 g2 h2. Black: King g8, pawns f7 g7 h7. White to move: Ra8 is checkmate.

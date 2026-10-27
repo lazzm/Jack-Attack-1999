@@ -280,7 +280,7 @@
   // =============================================================== ORK NAMES
   (function orks() {
     if (!$('orkName')) return;
-    const TITLE = ['Warboss', 'Big Mek', 'Nob', 'Boy', 'Painboy', 'Weirdboy', 'Runtherd', 'Kommando', 'Mekboy', 'Grot'];
+    const TITLE = ['Warlord', 'Big Mechanic', 'Nob', 'Boy', 'Paintboy', 'Weirdo', 'Runtherd', 'Kommando', 'Mekboy', 'Grot'];
     const A = ['Gut', 'Skull', 'Grim', 'Snot', 'Mork', 'Gork', 'Rok', 'Teef', 'Dakka', 'Krump', 'Zog', 'Grub', 'Bad', 'Uz', 'Naz', 'Ghaz'];
     const B = ['smasha', 'krusha', 'gob', 'tooth', 'rukk', 'snik', 'grot', 'bash', 'skrag', 'nob', 'gitz', 'fang', 'drakk', 'boot'];
     const C = ['da Unstoppable', 'da Shouty', 'Big Teef', 'da Sneaky', 'Ironjaw', 'da Loud', "Wot Dun It", 'Gitstompa', 'da Mighty', 'Red Wunz Go Fasta', 'da Kunnin', 'Squigbreff'];

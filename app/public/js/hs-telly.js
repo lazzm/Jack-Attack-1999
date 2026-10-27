@@ -21,7 +21,9 @@
   const W = 640, Hh = 480;
   const cv = document.createElement('canvas'); cv.width = W; cv.height = Hh; cv.className = 'hs-tvpic';
   const g = cv.getContext('2d');
-  const tex = new T.CanvasTexture(cv); tex.minFilter = T.LinearFilter; tex.generateMipmaps = false;
+  const tex = new T.CanvasTexture(cv); tex.minFilter = T.LinearFilter; tex.generateMipmaps = false;tex.anisotropy=1;tex.userData=tex.userData||{};tex.userData.jackLive=true;
+  const liveRaster={};
+  function uploadPicture(){const b=H.screenBudget(room()?.tvScreen,!surf,!!surf?.locked);if(!b?.visible)return;tex.image=K.liveCanvas(cv,liveRaster,'picture',b.maxSize);tex.needsUpdate=true}
   const room = () => HR.rooms.lounge;
   const st = { on: !!S.on, ch: S.ch, text: false, sub: false, vcr: S.vcr||null, play: 0, speed: [-12,0,1,10].includes(S.speed)?S.speed:0, menu: null, static: 0, osd: '', osdT: 0, mute: false };
   const savePlayback=()=>{S.on=st.on;S.vcr=st.vcr;S.speed=st.speed;S.ch=st.ch;save()};
@@ -80,7 +82,7 @@
       g.fillStyle = '#0a0a40'; g.strokeStyle = '#c8c8ff'; g.lineWidth = 2; rr(60, 300, 520, 50, 25); g.fill(); g.stroke(); txt(Q[k], W / 2, 333, 20, '#fff', 'center');
       O[k].forEach((a, i) => { const x = 60 + (i % 2) * 270, y = 362 + Math.floor(i / 2) * 50, lock = t % 10 > 7 && i === (k === 0 ? 1 : 0); g.fillStyle = lock ? '#e8a020' : '#0a0a40'; rr(x, y, 250, 40, 20); g.fill(); g.stroke(); txt('ABCD'[i] + ': ' + a, x + 20, y + 27, 17, lock ? '#000' : '#fff'); });
       txt('WHO WANTS TO WIN A FIVER?', W / 2, 50, 26, '#ffd84a', 'center'); dog(o.ch);
-      return ['Is that your final answer?', 'You could phone a friend...', 'Ask the audience?', 'We\'ll be right back after the break!'][Math.floor(t / 5) % 4];
+      return ['Is that your last answer?', 'You could ring a mate...', 'Poll the Crowd?', 'We\'ll be right back after the break!'][Math.floor(t / 5) % 4];
     },
     soap(t, o) { // COBBLE LANE: the pub, two people having words
       g.fillStyle = lin(0, 0, 0, Hh, [[0, '#4a2a1a'], [1, '#2a1a10']]); g.fillRect(0, 0, W, Hh);
@@ -202,7 +204,7 @@
       2: { night: ['lecture', 'OPEN COLLEGE'], morning: ['cartoon', 'SPACE DOG'], school: ['lecture', 'SCHOOLS PROGRAMMES'], day: ['snooker', 'WORLD SNOOKER'], after: ['kids', 'MAKE IT!'], tea: ['cartoon', 'CARTOON TIME'], evening: ['robots', 'ROBO RUMBLE'], late: ['snooker', 'SNOOKER HIGHLIGHTS'] },
       3: { night: ['pages', 'PAGES FROM TELLY-TEXT'], morning: ['news', 'GOOD MORNING TELLY'], school: ['quiz', 'WHO WANTS TO WIN A FIVER?'], day: ['kids', 'SATURDAY MAKE IT!'], after: ['kids', 'TELLY CLUB'], tea: ['news', 'THE EVENING NEWS'], evening: ['quiz', 'WHO WANTS TO WIN A FIVER?'], late: ['film', 'LATE FILM'] },
       4: { night: ['film', 'THE ALL-NIGHT FILM'], morning: ['cartoon', 'WAKE UP CARTOONS'], school: ['lecture', 'SCHOOLS: MATHS'], day: ['letters', 'LETTERS AND NUMBERS'], after: ['letters', 'LETTERS AND NUMBERS'], tea: ['soap', 'BRICK STREET'], evening: ['news', 'NEWS AT SEVEN'], late: ['film', 'LATE FILM'] },
-      5: { night: ['testcard'], morning: ['kids', 'MILKY TIME'], school: ['film', 'AFTERNOON FILM'], day: ['film', 'MATINEE'], after: ['cartoon', 'SPACE DOG (REPEAT)'], tea: ['weather', 'THE WEATHER'], evening: ['soap', 'FAMILY AFFAIRS... ER, FAIRS'], late: ['film', 'LATE FILM'] },
+      5: { night: ['testcard'], morning: ['kids', 'MILKY TIME'], school: ['film', 'AFTERNOON FILM'], day: ['film', 'MATINEE'], after: ['cartoon', 'SPACE DOG (REPEAT)'], tea: ['weather', 'THE WEATHER'], evening: ['soap', 'FAMILY MISHAPS... ER, FAIRS'], late: ['film', 'LATE FILM'] },
     }[ch] || {};
     return T[p] || ['testcard'];
   }
@@ -297,9 +299,9 @@
     if (st.volT > now) { g.fillStyle = 'rgba(0,0,0,.4)'; g.fillRect(150, 400, 340, 30); for (let i = 0; i < 10; i++) { g.fillStyle = i < S.vol ? '#3aff6a' : '#1a4a2a'; g.fillRect(160 + i * 33, 406, 28, 18); } }
     // the glass: scanlines and a soft vignette
     g.fillStyle = 'rgba(0,0,0,.12)'; for (let y = 0; y < Hh; y += 3) g.fillRect(0, y, W, 1);
-    tex.needsUpdate = true;
+    uploadPicture();
   }
-  function offPic() { g.fillStyle = '#0a0d0c'; g.fillRect(0, 0, W, Hh); const gr = g.createRadialGradient(W * 0.35, Hh * 0.3, 10, W / 2, Hh / 2, 420); gr.addColorStop(0, 'rgba(60,72,66,.5)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, Hh); g.fillStyle = 'rgba(255,255,255,.06)'; g.beginPath(); g.ellipse(200, 120, 160, 60, -0.4, 0, 7); g.fill(); tex.needsUpdate = true; }
+  function offPic() { g.fillStyle = '#0a0d0c'; g.fillRect(0, 0, W, Hh); const gr = g.createRadialGradient(W * 0.35, Hh * 0.3, 10, W / 2, Hh / 2, 420); gr.addColorStop(0, 'rgba(60,72,66,.5)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, Hh); g.fillStyle = 'rgba(255,255,255,.06)'; g.beginPath(); g.ellipse(200, 120, 160, 60, -0.4, 0, 7); g.fill(); uploadPicture(); }
   function noise(a) { const id = g.createImageData(160, 120); for (let i = 0; i < id.data.length; i += 4) { const v = Math.random() * 255 * a; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; } const c = document.createElement('canvas'); c.width = 160; c.height = 120; c.getContext('2d').putImageData(id, 0, 0); g.imageSmoothingEnabled = false; g.drawImage(c, 0, 0, W, Hh); g.imageSmoothingEnabled = true; }
   function avPic(now) { // channel 0: the video (blue screen with nothing playing, the tape with its wobbles)
     const t = TAPE[st.vcr];
@@ -438,15 +440,17 @@
   addEventListener('pagehide',savePlayback);document.addEventListener('visibilitychange',()=>{if(document.hidden)savePlayback()});
   H.ambient.add(now => {
     const r = room();if(st.on&&st.vcr&&now-lastSave>2000){lastSave=now;savePlayback()}
-    if(!r||!st.on)return;
-    const mesh=r.tvScreen,position=mesh?mesh.getWorldPosition(new T.Vector3()):null,point=position?H.toScreen(position.x,-position.y,position.z):null;
-    const visible=r.group.visible&&point&&point.x>-80&&point.y>-80&&point.x<innerWidth+80&&point.y<innerHeight+80;
-    if(!visible&&!surf){if(st.vcr&&st.speed){const dt=Math.min(.25,(now-(last||now))/1000);last=now;tapeFrame(dt)}return;}
-    if (surf) return; // (the fast loop has it)
-    if (now - lastSlow > 1000/(H.graphicsGet?.().backgroundFps||10)) { lastSlow = now; frame(now); H.dirty(); }
+    if(!r||!st.on)return false;
+    const visible=H.screenBudget(r.tvScreen,true)?.visible;
+    if(!visible&&!surf){if(st.vcr&&st.speed){const dt=Math.min(.25,(now-(last||now))/1000);last=now;tapeFrame(dt)}return false;}
+    if (surf) return false; // the watching loop owns this canvas
+    if (now - lastSlow > 1000/H.screenRate(true)) { lastSlow = now; frame(now); H.dirty();return true; }
+    return false;
   });
-  function fast(now) { loopRaf = requestAnimationFrame(fast); if (surf && st.on) frame(now); else if (surf) offPic(); }
+  let lastFast=0,offDrawn=false;
+  function fast(now) { loopRaf = requestAnimationFrame(fast);if(!surf)return;if(st.on){offDrawn=false;if(now-lastFast>=1000/H.screenRate(false)-1){lastFast=now;frame(now)}}else if(!offDrawn){offDrawn=true;offPic()} }
   loopRaf = requestAnimationFrame(fast);
+
   // ---- the TV guide on the coffee table: today's 1999 listings, the same as TELLY-TEXT p600
   function guide() {
     const show = () => { const D = window.TTXData, L = life(); if (!D) return; const n = L ? L.now99() : { dow: 3, md: 101 }, kind = n.dow === 6 ? 'sat' : n.dow === 0 ? 'sun' : 'week';

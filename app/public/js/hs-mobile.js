@@ -69,11 +69,16 @@
   }
   // the charger: a black brick in the wall socket behind the bedside table, a thin lead to the phone (drawn as part of the room)
   function charger(r) {
-    const B = K.into(r.group);
-    B.box(44, -12, BZ + 0.8, 8.6, 8.6, 1.2, M('#efece4')); B.box(43, -12, BZ + 1.5, 1.2, 1.6, 0.6, M('#ddd')); B.box(46, -12, BZ + 1.5, 1.2, 1.6, 0.6, M('#ddd')); // the double socket over the desk
-    B.rbox(44, -12, BZ + 3.6, 4.2, 5.2, 4.2, 0.6, M({ c: '#1a1a1e', sh: 30 })); // the charger brick
-    const lead = new T.CatmullRomCurve3([new T.Vector3(44, -9.6, BZ + 5), new T.Vector3(44, -2, BZ + 8), new T.Vector3(42, -0.6, BZ + 16), new T.Vector3(40, -1.1, BZ + 19.4)]);
-    B.geo(new T.TubeGeometry(lead, 24, 0.22, 5), 0, 0, 0, M('#1a1a1e'));
+    const batch = K.batch(), B = K.into(batch); // (merged: one draw per material)
+    // a switched UK socket: a moulded plate with a bevelled edge, its rocker (on: the red flash shows), screw caps
+    const plate = M('#efece4'), black = M({ c: '#1a1a1e', sh: 30 }); // (two materials: two draws for the whole fitting)
+    B.rbox(44, -12, BZ + 0.75, 8.6, 8.6, 1.5, 0.45, plate);
+    B.rbox(46.6, -14.4, BZ + 1.7, 1.7, 2.4, 0.6, 0.22, plate);
+    for (const dx of [-3.1, 3.1]) B.cyl(44 + dx, -9.6, BZ + 1.52, 0.45, 0.45, 0.12, 10, plate, { rx: 90 });
+    B.rbox(43.2, -11.6, BZ + 3.6, 4.2, 5.2, 4.2, 0.6, black); // the charger brick, plugged in
+    const lead = new T.CatmullRomCurve3([new T.Vector3(43.2, -9.2, BZ + 5), new T.Vector3(43.6, -3, BZ + 7), new T.Vector3(43, -0.5, BZ + 11), new T.Vector3(42, -0.4, BZ + 16), new T.Vector3(40, -1.1, BZ + 19.4)]);
+    B.geo(new T.TubeGeometry(lead, 24, 0.22, 6), 0, 0, 0, black);
+    batch.build(r.group);
   }
 
   // ================================================================ the thing (grabbable), and using it

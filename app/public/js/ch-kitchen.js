@@ -173,10 +173,11 @@
   const TY = GY - 76; // the table top
   // each place: its mat [x, z, w, d], the plate, the knife and fork [x, z, ry], the glass
   const PLACES = [
-    { mat: [-56, 141, 38, 22], p: [-62, 141], k: [-44, 141, 0], g: [-45, 156] },
-    { mat: [-64, 199, 38, 22], p: [-58, 199], k: [-76, 199, 0], g: [-76, 184] },
-    { mat: [-108, 178, 22, 38], p: [-108, 172], k: [-108, 190, 90], g: [-95, 189] },
-    { mat: [-12, 148, 22, 36], p: [-12, 154], k: [-12, 137, 90], g: [-25, 138] },
+    // (each mat sits 3.5 cm in from the rounded table edge, not hanging over it)
+    { mat: [-56, 144.5, 38, 22], p: [-62, 144.5], k: [-44, 144.5, 0], g: [-45, 159.5] },
+    { mat: [-64, 195.5, 38, 22], p: [-58, 195.5], k: [-76, 195.5, 0], g: [-76, 180.5] },
+    { mat: [-104.5, 178, 22, 38], p: [-104.5, 172], k: [-104.5, 190, 90], g: [-91.5, 189] },
+    { mat: [-15.5, 150, 22, 36], p: [-15.5, 156], k: [-15.5, 139, 90], g: [-28.5, 140] },
   ];
   const placeOf = (P, k) => ({ x: P[k][0], z: P[k][1] });
   const tbl = { p: [], k: [], g: [], sauce: null };
@@ -193,7 +194,7 @@
         g.fillStyle = '#6a9ac8'; g.beginPath(); g.ellipse(60, 84, 26, 7, 0, 0, 7); g.fill(); g.fillStyle = '#f4f4f4'; g.beginPath(); g.ellipse(56, 82, 4, 2.4, 0, 0, 7); g.fill();
         g.strokeStyle = '#c8a040'; g.lineWidth = 2; g.strokeRect(9, 9, w - 18, h - 18); A.grain(g, w, h, 600, 0.05, 3);
       });
-      PLACES.forEach(P => { const [x, z, w, d] = P.mat, m = new T.Group(); m.position.set(x, TY, z); K.into(m).box(0, -0.35, 0, Math.max(w, d), 0.7, Math.min(w, d), { t: M({ c: '#fff', map: matTex, sh: 30, sp: '#444' }), all: mat('#3a1a0a') }, { ry: w >= d ? 0 : 90 }); r.group.add(m); });
+      PLACES.forEach(P => { const [x, z, w, d] = P.mat, m = new T.Group(); m.position.set(x, TY, z); K.into(m).box(0, -0.35, 0, Math.max(w, d), 0.7, Math.min(w, d), { t: M({ c: '#fff', map: matTex, sh: 5, sp: '#141414' }), all: mat('#3a1a0a') }, { ry: w >= d ? 0 : 90 }); r.group.add(m); });
       const plateM = () => grp(G => { G.lathe(0, 0, 0, [[12, -1.7], [10.6, -1.3], [7.2, -0.4], [0.1, -0.4]], 28, mat('#f6f4ee', { sh: 70, sp: '#999', side: 2 })); G.lathe(0, 0, 0, [[0.1, 0], [7.2, 0], [12, -1.7]], 28, mat('#e8e4da')); G.lathe(0, 0, 0, [[10.4, -1.42], [10.8, -1.46]], 28, mat('#c8a040', { sh: 80 })); });
       const cutM = () => grp(G => { const st = mat('#d4d8de', { sh: 110, sp: '#fff' }); G.box(-1.6, -0.3, 0, 1.4, 0.4, 19, st); G.box(-1.6, -0.35, -7, 1.8, 0.5, 5, mat('#2a1a10')); G.box(1.8, -0.3, 2, 1.2, 0.4, 13, st); G.box(1.8, -0.35, -6, 1.6, 0.5, 6, mat('#2a1a10')); for (let i = 0; i < 4; i++) G.box(1.0 + i * 0.55, -0.3, 10, 0.3, 0.3, 3, st); G.shadow(0, 0, 0, 8, 22, 0.3, { sq: true }); });
       const glassM = () => grp(G => { G.cyl(0, -6, 0, 3.6, 3, 12, 18, M({ c: '#d8ecf4', o: 0.35, sh: 120, sp: '#fff', side: 2 }), { open: true }); G.disc(0, -0.4, 0, 3, M({ c: '#d8ecf4', o: 0.5, sh: 120 }), 16); G.shadow(0, 0, 0, 9, 9, 0.3); });

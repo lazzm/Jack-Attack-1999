@@ -630,7 +630,7 @@ this, I'm still waiting.)`,
     });
   }
   function bbAbout(el) {
-    bbShell(el, `<h2>What's an 88x31?</h2><div class="shw-faq"><p>An 88x31 is a little button, 88 pixels wide and 31 pixels tall. EVERY good home page has a row of them at the bottom: "Best viewed with...", "Made with Notepad", "Y2K compliant!"... It's the law of the Web.</p><p>Brag Buttons are 88x31s that show off something YOU did. The big 400x210 ones are for sending to your mates.</p><h3>How do I put one on my page?</h3><p>Save it to your computer (Save Picture As...). Homepagez PageBuilder has its own buttons in the "Badges" box, too!</p><h3>Can I make one that says I scored a MILLION?</h3><p>No! Our robots check every number on the JackNet server. If you want a million, you'll have to score a million.</p></div>`, `<a href="${U('brag')}">Home</a> &gt; About`);
+    bbShell(el, `<h2>What's an 88x31?</h2><div class="shw-faq"><p>An 88x31 is a little button, 88 pixels wide and 31 pixels tall. EVERY good home page has a row of them at the bottom: "Best viewed with...", "Made with Jotpad", "Y2K compliant!"... It's the law of the Web.</p><p>Brag Buttons are 88x31s that show off something YOU did. The big 400x210 ones are for sending to your mates.</p><h3>How do I put one on my page?</h3><p>Save it to your computer (Save Picture As...). Homepagez PageBuilder has its own buttons in the "Badges" box, too!</p><h3>Can I make one that says I scored a MILLION?</h3><p>No! Our robots check every number on the JackNet server. If you want a million, you'll have to score a million.</p></div>`, `<a href="${U('brag')}">Home</a> &gt; About`);
   }
 
   // ================================================================ Floppy Swap-O-Rama + DiskSwap 1.44 + the floppy viewer
@@ -665,7 +665,7 @@ this, I'm still waiting.)`,
   function fsHome(el) {
     const has = !window.Setup || Setup.has('share.diskswap');
     const mine = SH.disks();
-    fsShell(el, `<div class="shw-fsgrid"><div><h2>How it works</h2><ol class="shw-steps"><li><b>Download DiskSwap 1.44</b> (FREE! Only 288 KB. About a minute on a 56K modem.)</li><li><b>Write a label</b> in felt tip, pick a colour of disk and stick some stickers on it.</li><li><b>Put stuff on it:</b> your Paint pictures, Notepad files, and a shortcut to your home page.</li><li><b>Give it</b> to another JackNet member. It turns up on THEIR desktop!</li></ol>
+    fsShell(el, `<div class="shw-fsgrid"><div><h2>How it works</h2><ol class="shw-steps"><li><b>Download DiskSwap 1.44</b> (FREE! Only 288 KB. About a minute on a 56K modem.)</li><li><b>Write a label</b> in felt tip, pick a colour of disk and stick some stickers on it.</li><li><b>Put stuff on it:</b> your Paint pictures, Jotpad files, and a shortcut to your home page.</li><li><b>Give it</b> to another JackNet member. It turns up on THEIR desktop!</li></ol>
       <p class="shw-dlrow"><button type="button" class="btn shw-big" data-dl>${has ? '&#9654; Run DiskSwap 1.44' : '&#11015; Download DiskSwap 1.44 (FREE!)'}</button></p>
       ${member() ? '' : (window.Guest ? Guest.webNote('Swapping floppy disks') : '')}</div>
       <div><div class="shw-box"><h3>Disks swapped so far</h3><p class="shw-ctr"><span class="shw-odo">....</span></p></div>
@@ -675,7 +675,7 @@ this, I'm still waiting.)`,
     SH.req({ t: 'shStats' }).then(r => { const o = q(el, '.shw-odo'); if (o && r && r.disks != null) o.textContent = String(r.disks).padStart(5, '0'); });
   }
   function fsLabels(el) {
-    const EX = [{ col: '#262626', label: 'GAMES (DO NOT WIPE)', hand: 'caps', stk: ['skull'] }, { col: '#ff69b4', label: 'my pictures', hand: 'marker', stk: ['heart', 'flower'] }, { col: '#1a9a3a', label: "Dave's ORK army", hand: 'marker', stk: ['ork', 'squig'] },
+    const EX = [{ col: '#262626', label: 'GAMES (DO NOT WIPE)', hand: 'caps', stk: ['skull'] }, { col: '#ff69b4', label: 'my pictures', hand: 'marker', stk: ['heart', 'flower'] }, { col: '#1a9a3a', label: "Dave's GORK army", hand: 'marker', stk: ['ork', 'squig'] },
       { col: '#e8e8e8', label: 'Homework (honest)', hand: 'neat', stk: [] }, { col: '#e8c000', label: 'SPACE STUFF', hand: 'biro', stk: ['rocket', 'alien'] }, { col: '#40b8b8', label: 'Disk 3 of 14', hand: 'biro', stk: ['cube'] }];
     fsShell(el, `<h2>The Label Gallery</h2><p>The best-labelled disks on JackNet this week. (Ours. We labelled them.)</p><div class="shw-labels">${EX.map(d => `<div>${floppySvg(d)}</div>`).join('')}</div>`);
   }
@@ -728,7 +728,7 @@ this, I'm still waiting.)`,
       prev.innerHTML = floppySvg(D, true);
       qa(root, '.shw-col').forEach(x => x.classList.toggle('on', x.dataset.c === D.col));
       qa(root, '.shw-stk').forEach(x => x.classList.toggle('on', D.stk.includes(x.dataset.s)));
-      files.innerHTML = D.files.length ? D.files.map((f, i) => `<div class="shw-dsf"><span class="shw-fic">${f.k === 'img' ? '&#127912;' : f.k === 'url' ? '&#127760;' : '&#128196;'}</span><span class="shw-fn">${esc(f.n)}</span><span class="shw-fz">${esc(K.num(K.diskSize(f)))} bytes</span><button type="button" class="btn" data-rm="${i}" aria-label="Take off">x</button></div>`).join('') : '<div class="shw-empty">The disk is empty. Click "Put files on..." to add your Paint pictures, Notepad files and more.</div>';
+      files.innerHTML = D.files.length ? D.files.map((f, i) => `<div class="shw-dsf"><span class="shw-fic">${f.k === 'img' ? '&#127912;' : f.k === 'url' ? '&#127760;' : '&#128196;'}</span><span class="shw-fn">${esc(f.n)}</span><span class="shw-fz">${esc(K.num(K.diskSize(f)))} bytes</span><button type="button" class="btn" data-rm="${i}" aria-label="Take off">x</button></div>`).join('') : '<div class="shw-empty">The disk is empty. Click "Put files on..." to add your Paint pictures, Jotpad files and more.</div>';
       const u = used(), pct = Math.min(100, u / K.DISK.bytes * 100);
       q(root, '.shw-capbar i').style.width = pct.toFixed(1) + '%'; q(root, '.shw-capbar').classList.toggle('full', pct > 90);
       q(root, '.shw-capt').textContent = `${fmtB(u)} used, ${fmtB(Math.max(0, K.DISK.bytes - u))} free`;
@@ -753,7 +753,7 @@ this, I'm still waiting.)`,
     function addPicker() {
       const list = candidates();
       const pb = document.createElement('div'); pb.className = 'shw-addf';
-      pb.innerHTML = `<p style="margin:0 0 6px">Pick something to copy onto the disk:</p><div class="field shw-addl">${list.map((c, i) => `<button type="button" class="shw-pr" data-i="${i}"><span>${c.k === 'img' ? '&#127912;' : '&#128196;'}</span><span>${esc(c.n)}</span><small>${esc(c.where)}</small></button>`).join('')}${member() ? '<button type="button" class="shw-pr" data-hp><span>&#127760;</span><span>Shortcut to my home page.url</span><small>Homepagez</small></button>' : ''}${list.length ? '' : '<div class="shw-pmsg">No files yet! Draw something in Paint or write something in Notepad first.</div>'}</div><div class="row" style="justify-content:flex-end;margin-top:6px"><button type="button" class="btn" data-x>Close</button></div>`;
+      pb.innerHTML = `<p style="margin:0 0 6px">Pick something to copy onto the disk:</p><div class="field shw-addl">${list.map((c, i) => `<button type="button" class="shw-pr" data-i="${i}"><span>${c.k === 'img' ? '&#127912;' : '&#128196;'}</span><span>${esc(c.n)}</span><small>${esc(c.where)}</small></button>`).join('')}${member() ? '<button type="button" class="shw-pr" data-hp><span>&#127760;</span><span>Shortcut to my home page.url</span><small>Homepagez</small></button>' : ''}${list.length ? '' : '<div class="shw-pmsg">No files yet! Draw something in Paint or write something in Jotpad first.</div>'}</div><div class="row" style="justify-content:flex-end;margin-top:6px"><button type="button" class="btn" data-x>Close</button></div>`;
       const pw = A.win('Put files on the disk', pb, { w: 380, h: 360, icon: SH.ICONS.disk, noMax: true });
       on(pb, '[data-x]', 'click', pw.close);
       pb.addEventListener('click', ev => {

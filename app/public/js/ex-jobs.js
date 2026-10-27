@@ -322,7 +322,7 @@
   GJ.PIC.errands = '<svg viewBox="0 0 64 64"><path d="M10 22h44l-6 34H16z" fill="#c8a878" stroke="#5a3a1a" stroke-width="2"/><path d="M22 22c0-10 20-10 20 0" fill="none" stroke="#5a3a1a" stroke-width="3"/><rect x="18" y="10" width="10" height="18" rx="2" fill="#fff" stroke="#000"/><rect x="18" y="16" width="10" height="5" fill="#2f80ee"/><rect x="34" y="14" width="14" height="14" rx="5" fill="#e8b060" stroke="#000"/><rect x="40" y="26" width="16" height="22" fill="#ffff9a" stroke="#c8c060" transform="rotate(8 48 37)"/><path d="M43 33h9M43 37h8M42 41h9" stroke="#203080" stroke-width="1.4" transform="rotate(8 48 37)"/></svg>';
   Object.assign(GJ.NOTES, {
     shelves: [['Mr Dobbs says: "Soup with the BEANS? Crisps in the FREEZER? Go home, lad."', 'Mr Dobbs found a tin of peas in the bread bin. He is very confused.'],
-      ['Mr Dobbs says: "Not bad. Only one or two in the wrong place. Same time tomorrow."', 'Mr Dobbs gave you a Freddo for your trouble. Then charged you for it.'],
+      ['Mr Dobbs says: "Not bad. Only one or two in the wrong place. Same time tomorrow."', 'Mr Dobbs gave you a Fredo for your trouble. Then charged you for it.'],
       ['Mr Dobbs says: "Neatest shelves in the county!" He wants to put your photo up by the till.', 'Mr Dobbs says you stack faster than his nephew, and his nephew is "a professional".']],
     newsletter: [['Reverend Pugh says: "The newsletter now says the jumbel sale is on Sundey. Hmm."', 'Reverend Pugh says thank you, but the choir is still spelt QUIRE. Never mind.'],
       ['Reverend Pugh says: "Splendid! Only a few mistakes got through. Nobody reads the bottom bit anyway."', 'Reverend Pugh says it was "very nearly perfect" and gave you a custard cream.'],

@@ -7,7 +7,7 @@
  * home 6 Jun, STS-93 scrub 20 Jul at T-7s, launch 23 Jul (Eileen Collins, Chandra), night landing 27 Jul (Florida time),
  * Lunar Prospector 31 Jul, Cassini flyby 18 Aug, Mir left empty 28 Aug, Leonids peak about 02:02 UT 18 Nov, STS-103 19-27
  * Dec (all six gyroscopes). Sport: Boat Race 3 Apr (Cambridge), Grand National 10 Apr (Bobbyjo), Man Utd: league 16 May
- * (2-1 Spurs), FA Cup 22 May (2-0 Newcastle), European Cup 26 May (2-1 Bayern), Cricket World Cup 14 May-20 Jun
+ * (2-1 Spurs), FA Cup 22 May (2-0 Newcastel), European Cup 26 May (2-1 Bayern), Cricket World Cup 14 May-20 Jun
  * (Australia beat Pakistan at Lord's), Wimbledon finals 4 Jul (Sampras, Davenport), British GP 11 Jul (Coulthard),
  * the Open 18 Jul (Paul Lawrie, play-off), Ryder Cup 26 Sep (USA), Rugby World Cup 1 Oct-6 Nov (Wales hosts, Australia
  * 35-12 France), Hakkinen champion 31 Oct. Films: UK release dates from the UK box office records. */
@@ -41,39 +41,39 @@
 .pg-vote input{width:20px;height:20px}
 `);
   const CHART = [ // [Sunday it was announced, artist, song]
-    ['01-03', 'Steps', 'Heartbeat / Tragedy'], ['01-10', 'Fatboy Slim', 'Praise You'], ['01-17', '911', 'A Little Bit More'], ['01-24', 'The Offspring', 'Pretty Fly (for a White Guy)'],
-    ['01-31', 'Armand van Helden', "You Don't Know Me"], ['02-07', 'Blondie', 'Maria'], ['02-14', 'Lenny Kravitz', 'Fly Away'], ['02-21', 'Britney Spears', '...Baby One More Time'],
-    ['03-07', 'Boyzone', 'When the Going Gets Tough'], ['03-21', 'B*Witched', 'Blame It on the Weatherman'], ['03-28', 'Mr. Oizo', 'Flat Beat'], ['04-11', 'Martine McCutcheon', 'Perfect Moment'],
-    ['04-25', 'Westlife', 'Swear It Again'], ['05-09', 'Backstreet Boys', 'I Want It That Way'], ['05-16', 'Boyzone', 'You Needed Me'], ['05-23', 'Shanks &amp; Bigfoot', 'Sweet Like Chocolate'],
-    ['06-06', 'Baz Luhrmann', "Everybody's Free (To Wear Sunscreen)"], ['06-13', 'S Club 7', 'Bring It All Back'], ['06-20', 'Vengaboys', 'Boom, Boom, Boom, Boom!!'], ['06-27', 'ATB', '9 PM (Till I Come)'],
-    ['07-11', 'Ricky Martin', "Livin' la Vida Loca"], ['08-01', 'Ronan Keating', 'When You Say Nothing at All'], ['08-15', 'Westlife', 'If I Let You Go'], ['08-22', 'Geri Halliwell', 'Mi Chico Latino'],
-    ['08-29', 'Lou Bega', 'Mambo No. 5'], ['09-12', 'Vengaboys', "We're Going to Ibiza!"], ['09-19', 'Eiffel 65', 'Blue (Da Ba Dee)'], ['10-10', 'Christina Aguilera', 'Genie in a Bottle'],
-    ['10-24', 'Westlife', 'Flying Without Wings'], ['10-31', 'Five', "Keep On Movin'"], ['11-07', 'Geri Halliwell', 'Lift Me Up'], ['11-14', 'Robbie Williams', "She's the One / It's Only Us"],
-    ['11-21', 'Wamdue Project', 'King of My Castle'], ['11-28', 'Cliff Richard', 'The Millennium Prayer'], ['12-19', 'Westlife', 'I Have a Dream / Seasons in the Sun'],
+    ['01-03', 'Stairs', 'Heartbleat / Comedy'], ['01-10', 'Chubby Slim', 'Phrase You'], ['01-17', '999', 'A Little Bit Less'], ['01-24', 'The Offcuts', 'Pretty Spry (for a Tall Guy)'],
+    ['01-31', 'Armand van Hedgen', "You Don't Know Us"], ['02-07', 'Blondini', 'Marcia'], ['02-14', 'Lenny Kravitzel', 'Fly Away'], ['02-21', 'Brittany Spheres', '...Baby Two More Times'],
+    ['03-07', 'Boyzown', 'When the Going Gets Rough'], ['03-21', 'B*Stitched', 'Blame It on the Weathervane'], ['03-28', 'Mr. Ooze', 'Flat Feet'], ['04-11', 'Martina McCrutchen', 'Perfect Minute'],
+    ['04-25', 'Westloaf', 'Spare It Again'], ['05-09', 'Backalley Boys', 'I Want It This Way'], ['05-16', 'Boyzown', 'You Kneaded Me'], ['05-23', 'Shins &amp; Bigtoe', 'Sweet Like Custard'],
+    ['06-06', 'Baz Lurkman', "Everyone Is Free (To Wear Sunhats)"], ['06-13', 'Z Club 7', 'Bring Them All Back'], ['06-20', 'Vengaboats', 'Zoom, Zoom, Zoom, Zoom!!'], ['06-27', 'ATC', '9 PM (Till I Get Home)'],
+    ['07-11', 'Rickie Martini', "Livin' la Vida Cocoa"], ['08-01', 'Ronan Keeping', 'When You Say Something at All'], ['08-15', 'Westloaf', 'If I Let You Stay'], ['08-22', 'Gerri Hallowed', 'Mi Chico Bambino'],
+    ['08-29', 'Lou Bagel', 'Bongo No. 5'], ['09-12', 'Vengaboats', "We're Going to Majorca!"], ['09-19', 'Eiffle 56', 'Green (Da Ba Doo)'], ['10-10', 'Christina Aquilina', 'Genie in a Jar'],
+    ['10-24', 'Westloaf', 'Flying Without Strings'], ['10-31', 'Fyve', "Keep On Moovin'"], ['11-07', 'Gerri Hallowed', 'Lift Me Down'], ['11-14', 'Robbie Wilkins', "She's the Two / It's Only Them"],
+    ['11-21', 'Wamdoo Project', 'King of My Cottage'], ['11-28', 'Cliff Richer', 'The Millennium Plea'], ['12-19', 'Westloaf', 'I Have a Scheme / Reasons in the Sun'],
   ];
   const PG_GOSS = [
-    ['01-03', 'The first chart of 1999 is in, and it\'s <b>Steps</b>! Hand dance, everybody.'],
-    ['02-21', '<b>Britney Spears</b> goes to number one with <i>...Baby One More Time</i>. The school corridor will never be the same.'],
-    ['03-28', 'A yellow puppet called Flat Eric is number one. Well, <b>Mr. Oizo</b> is. With no words at all. This is the future.'],
-    ['04-08', '<b>S Club 7</b> have their own TV series on CBBC: <i>Miami 7</i>! They haven\'t even had a single out yet. Watch this space.'],
-    ['04-25', '<b>Westlife</b>\'s first ever single, <i>Swear It Again</i>, goes straight to number one! Five Irish lads. Many stools.'],
-    ['06-13', '<b>S Club 7</b>\'s first single <i>Bring It All Back</i> is number one! Told you to watch this space.'],
-    ['07-25', '<b>Ricky Martin</b> has been number one for three weeks. Moms everywhere are dancing with the hoover.'],
-    ['09-19', '<b>Eiffel 65</b> go to number one with <i>Blue (Da Ba Dee)</i>. It stays there THREE weeks. The whole country is blue.'],
-    ['10-25', '<b>Steps</b>\' new album <i>Steptacular</i> is out today! It has a song about a tragedy and a song about a heartbeat. We knew those already.'],
-    ['11-28', '<b>Cliff Richard</b> is number one with <i>The Millennium Prayer</i>. Christmas chart battle: is it Cliff or is it Westlife?'],
-    ['12-19', '<b>WESTLIFE ARE THE CHRISTMAS NUMBER ONE!!!</b> <i>I Have a Dream / Seasons in the Sun</i>. Cliff had three weeks at the top. The last Christmas number one of the 1900s!'],
-    ['12-26', 'Biggest-selling single of the whole of 1999: <b>Britney</b>, <i>...Baby One More Time</i>, well over a MILLION copies. Of course.'],
+    ['01-03', 'The first chart of 1999 is in, and it\'s <b>Stairs</b>! Hand dance, everybody.'],
+    ['02-21', '<b>Brittany Spheres</b> goes to number one with <i>...Baby Two More Times</i>. The school corridor will never be the same.'],
+    ['03-28', 'A yellow puppet called Flat Derek is number one. Well, <b>Mr. Ooze</b> is. With no words at all. This is the future.'],
+    ['04-08', '<b>Z Club 7</b> have their own TV series on CBBC: <i>Mallorca 7</i>! They haven\'t even had a single out yet. Watch this space.'],
+    ['04-25', '<b>Westloaf</b>\'s first ever single, <i>Spare It Again</i>, goes straight to number one! Five Irish lads. Many stools.'],
+    ['06-13', '<b>Z Club 7</b>\'s first single <i>Bring Them All Back</i> is number one! Told you to watch this space.'],
+    ['07-25', '<b>Rickie Martini</b> has been number one for three weeks. Moms everywhere are dancing with the vacuum.'],
+    ['09-19', '<b>Eiffle 56</b> go to number one with <i>Green (Da Ba Doo)</i>. It stays there THREE weeks. The whole country is blue.'],
+    ['10-25', '<b>Stairs</b>\' new album <i>Stairtacular</i> is out today! It has a song about a tragedy and a song about a heartbeat. We knew those already.'],
+    ['11-28', '<b>Cliff Richer</b> is number one with <i>The Millennium Plea</i>. Christmas chart battle: is it Cliff or is it Westloaf?'],
+    ['12-19', '<b>WESTLOAF ARE THE CHRISTMAS NUMBER ONE!!!</b> <i>I Have a Scheme / Reasons in the Sun</i>. Cliff had three weeks at the top. The last Christmas number one of the 1900s!'],
+    ['12-26', 'Biggest-selling single of the whole of 1999: <b>Brittany</b>, <i>...Baby Two More Times</i>, well over a MILLION copies. Of course.'],
   ];
   const PG_MATES = [
-    ['01-04', 'Luke', 'Steps are rubbish. (I know all the moves.)'],
-    ['02-23', 'Dave', 'My sister has played Britney 400 times. I counted. I had nothing else to do because she was playing Britney.'],
-    ['04-26', 'Callum', 'Westlife = they stand up at the key change. That\'s the whole song.'],
+    ['01-04', 'Luke', 'Stairs are rubbish. (I know all the moves.)'],
+    ['02-23', 'Dave', 'My sister has played Brittany 400 times. I counted. I had nothing else to do because she was playing Brittany.'],
+    ['04-26', 'Callum', 'Westloaf = they stand up at the key change. That\'s the whole song.'],
     ['06-21', 'JackK', 'Boom Boom Boom Boom is my favourite song because it has FOUR exclamation marks in it.'],
-    ['08-30', 'Jack', 'Mom does Mambo No. 5 at every barbecue. Every. Barbecue.'],
-    ['09-25', 'Luke', 'I\'m blue da ba dee da ba daa. Sorry. Can\'t stop. Help.'],
+    ['08-30', 'Jack', 'Mom does Bongo No. 5 at every barbecue. Every. Barbecue.'],
+    ['09-25', 'Luke', 'I\'m blue da ba doo da ba daa. Sorry. Can\'t stop. Help.'],
     ['11-29', 'Jack', 'MY MOM BOUGHT THE CLIFF SINGLE. I am moving out. To Dave\'s.'],
-    ['12-20', 'Dave', 'Westlife beat Cliff!!! My sister screamed so loud the dog hid.'],
+    ['12-20', 'Dave', 'Westloaf beat Cliff!!! My sister screamed so loud the dog hid.'],
   ];
   const chartAt = c => { let i = -1; CHART.forEach((r, j) => { if (c.past(r[0])) i = j; }); return i; };
   const pgPage = (c, body) => `<div class="pg"><div class="pg-top"><b>POP GOSSIP!</b>The weekly chart chat &middot; by Gemma (glitter is my favourite colour)</div>
@@ -138,11 +138,11 @@
     [['What is the capital city of Australia?', 'Canberra', 'Sydney', 'Melbourne', 'Perth'], ['How many squares are there on a chess board?', '64', '36', '81', '100']],
     [['In which year did people first walk on the Moon?', '1969', '1959', '1972', '1965'], ['What is the chemical symbol for gold?', 'Au', 'Go', 'Gd', 'Ag']],
     [['Which gas do plants take in from the air to make their food?', 'Carbon dioxide', 'Oxygen', 'Helium', 'Nitrogen'], ['How many bits are there in a byte?', '8', '2', '4', '16']],
-    [['Who painted the Mona Lisa?', 'Leonardo da Vinci', 'Michelangelo', 'Vincent van Gogh', 'Pablo Picasso'], ['Which is the biggest ocean on Earth?', 'The Pacific', 'The Atlantic', 'The Indian', 'The Arctic']],
+    [['Who painted the Moaner Lisa?', 'Leonardo da Vincent', 'Michaelangelo-ish', 'Vincent van Goh', 'Pablo Picasa'], ['Which is the biggest ocean on Earth?', 'The Pacific', 'The Atlantic', 'The Indian', 'The Arctic']],
     [['How many hearts does an octopus have?', '3', '1', '2', '8'], ['Which planet has a big moon called Titan?', 'Saturn', 'Mars', 'Jupiter', 'Uranus']],
     [['What was the first man-made satellite, launched in 1957, called?', 'Sputnik 1', 'Apollo 1', 'Explorer 1', 'Vostok 1'], ['Which metal has the chemical symbol Fe?', 'Iron', 'Lead', 'Tin', 'Copper']],
     [['What is the hardest natural material?', 'Diamond', 'Granite', 'Steel', 'Quartz'], ['How many bones are there in an adult human body?', '206', '186', '226', '306']],
-    [['Who was the first person to fly in space?', 'Yuri Gagarin', 'Neil Armstrong', 'John Glenn', 'Alan Shepard'], ['Roughly how fast does light travel?', '300,000 km per second', '3,000 km per second', '30,000 km per second', '3 million km per second']],
+    [['Who was the first person to fly in space?', 'Yuri Garglin', 'Neil Armweak', 'John Glimm', 'Alan Shepherd-Pie'], ['Roughly how fast does light travel?', '300,000 km per second', '3,000 km per second', '30,000 km per second', '3 million km per second']],
     [['Which planet spins tipped right over on its side?', 'Uranus', 'Venus', 'Mercury', 'Neptune'], ['What is the smallest prime number?', '2', '1', '3', '0']],
     [['Which planet in our Solar System is NOT named after a god?', 'Earth', 'Mars', 'Mercury', 'Neptune'], ['Which big galaxy can you see with just your eyes from Britain on a dark night?', 'Andromeda', 'The Whirlpool', 'The Sombrero', 'The Large Magellanic Cloud']],
   ];
@@ -152,18 +152,18 @@
   const ML_MATES = [
     ['01-09', 'Jack', 'My mom shouts the answers at the telly. She got to 64,000 last night. From the sofa.'],
     ['03-08', 'Callum', 'Apparently over 19 MILLION people watched it last night. That\'s nearly everyone who has a telly.'],
-    ['04-20', 'Dave', 'If I phone a friend it would be my mom and she would say "Dave, it\'s 9 o\'clock, why are you on a quiz show".'],
-    ['06-15', 'Luke', 'Is that your final answer? Yes. Is that your FINAL answer? YES. Is that your...'],
+    ['04-20', 'Dave', 'If I ring a mate it would be my mom and she would say "Dave, it\'s 9 o\'clock, why are you on a quiz show".'],
+    ['06-15', 'Luke', 'Is that your last answer? Yes. Is that your last answer? YES. Is that your...'],
     ['09-10', 'JackK', 'Updated the quiz. Question 15 is SO hard. Nobody will ever get it. Prove me wrong.'],
     ['11-02', 'Jack', 'Got to 32,000 on the quiz here. Phoned Dave. Dave was wrong. Thanks Dave.'],
     ['12-30', 'Luke', 'Still nobody on the real show has won the million. Next year, maybe?'],
   ];
-  N.def(MH, '/', c => mlPage(c, `<p style="text-align:center;font-size:16px"><b>Is that your final answer?</b></p>
-    <p>Welcome to my fan page for <b>Who Wants to Be a Millionaire?</b>, the quiz everyone in the country is watching on ITV. Fifteen questions. Three lifelines. One million pounds. And Chris Tarrant giving you a LOOK.</p>
-    <p>I made my own version, with my own questions: <a href="${MU('/play.html')}"><b>PLAY IT HERE!</b></a> You get <b>50:50</b>, <b>Phone a Friend</b> (my mates, so good luck) and <b>Ask the Audience</b>. If you get to &pound;1,000 or &pound;32,000 you keep it even if you get the next one wrong. Pretend pounds only.</p>
+  N.def(MH, '/', c => mlPage(c, `<p style="text-align:center;font-size:16px"><b>Is that your last answer?</b></p>
+    <p>Welcome to my fan page for <b>Who Wants to Be a Squillionaire?</b>, the quiz everyone in the country is watching on ITB. Fifteen questions. Three lifelines. One million pounds. And Chris Tarrot giving you a LOOK.</p>
+    <p>I made my own version, with my own questions: <a href="${MU('/play.html')}"><b>PLAY IT HERE!</b></a> You get <b>50:50</b>, <b>Ring a Mate</b> (my mates, so good luck) and <b>Poll the Crowd</b>. If you get to &pound;1,000 or &pound;32,000 you keep it even if you get the next one wrong. Pretend pounds only.</p>
     ${c.until('03-07') <= 0 ? '<p><b>Record!</b> On 7 March over 19 million people watched one episode. Mom was one of them. Dad was asleep but he still counts.</p>' : ''}` + N.mates(c, ML_MATES, 'FINAL ANSWERS')));
-  N.def(MH, '/facts.html', c => mlPage(c, `<h2>Show Facts</h2><ul><li>First shown on ITV on <b>4 September 1998</b>.</li><li>The host is <b>Chris Tarrant</b>.</li><li><b>15 questions</b> to the million. The money: ${LADDER.map(money).join(', ')}.</li>
-    <li>Safe at <b>&pound;1,000</b> and <b>&pound;32,000</b>: you can't go lower than those once you've got there.</li><li>Three lifelines: <b>50:50</b> (two wrong answers vanish), <b>Phone a Friend</b> and <b>Ask the Audience</b>.</li>
+  N.def(MH, '/facts.html', c => mlPage(c, `<h2>Show Facts</h2><ul><li>First shown on ITB on <b>4 September 1998</b>.</li><li>The host is <b>Chris Tarrot</b>.</li><li><b>15 questions</b> to the million. The money: ${LADDER.map(money).join(', ')}.</li>
+    <li>Safe at <b>&pound;1,000</b> and <b>&pound;32,000</b>: you can't go lower than those once you've got there.</li><li>Three lifelines: <b>50:50</b> (two wrong answers vanish), <b>Ring a Mate</b> and <b>Poll the Crowd</b>.</li>
     <li>Biggest audience of 1999: over <b>19 million</b>, on 7 March.</li><li>Has anyone won the million yet? ${c.key === '12-31' ? 'Not in 1999! Maybe in 2000.' : 'Not yet!'}</li></ul>`));
   N.def(MH, '/play.html', c => {
     if (FF && !FF.s.ended) { c.after.push(() => ffMount(c.q('.ml-ffwrap'))); return mlPage(c, '<div class="ml-ffwrap"><div class="ml-ff"></div></div>'); }
@@ -201,7 +201,7 @@
             return;
           }
           $a.querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b));
-          $m.textContent = 'Is that your FINAL answer? (Click it again to lock it in.)'; return;
+          $m.textContent = 'Is that your last answer? (Click it again to lock it in.)'; return;
         }
         const l = b.dataset.l; if (!l) return;
         if (l === 'walk') { end(`You walk away with <b>${money(S.lvl ? LADDER[S.lvl - 1] : 0)}</b>. Sensible. Your mom would be proud.`); return; }
@@ -222,7 +222,7 @@
       });
       ask();
     });
-    return mlPage(c, `<div class="ml-game"><div class="ml-main"><div class="ml-life"></div><div class="ml-q"></div><div class="ml-ans"></div><div class="ml-msg"></div></div><ol class="ml-ladder"></ol></div>${window.MP ? '<p class="ml-ffad"><b>NEW!</b> Play against your mates over JackNet: <b>FASTEST FINGER FIRST</b>. Same question, same moment. Get it in the right order first and YOU are in the hot seat! <button type="button" class="n99-btn" data-ffplay>Play with someone...</button></p>' : ''}<p><small>All questions written by me (JackK) with help from the encyclopedia. If one is wrong, it was the encyclopedia.</small></p>`);
+    return mlPage(c, `<div class="ml-game"><div class="ml-main"><div class="ml-life"></div><div class="ml-q"></div><div class="ml-ans"></div><div class="ml-msg"></div></div><ol class="ml-ladder"></ol></div>${window.MP ? '<p class="ml-ffad"><b>NEW!</b> Play against your mates over JackNet: <b>SPEEDIEST FINGER FIRST</b>. Same question, same moment. Get it in the right order first and YOU are in the hot seat! <button type="button" class="n99-btn" data-ffplay>Play with someone...</button></p>' : ''}<p><small>All questions written by me (JackK) with help from the encyclopedia. If one is wrong, it was the encyclopedia.</small></p>`);
   });
 
   // ================================================================ FASTEST FINGER FIRST (2-4 people over JackNet: an mp.js session, game 'mil.ff')
@@ -279,7 +279,7 @@
     ['lost', 'back'].forEach(e => s.on(e, () => { if (FF === F) ffRender(); }));
     const out = id => { if (FF !== F) return; if (id === s.hostId) { s.end(`${s.nick(id)} (the quizmaster) has gone home. Show's over!`); return; } if (s.host) ffGone(id); };
     s.on('gone', out); s.on('left', out);
-    s.on('end', why => { if (FF !== F) return; F.timers.forEach(clearTimeout); clearInterval(F.iv); FF = null; if (why && why !== 'You left the game.') try { Desk.toast('Fastest Finger First', why, 4000); } catch (e) {} if (F.root && F.root.isConnected) N.open(ffPlay); });
+    s.on('end', why => { if (FF !== F) return; F.timers.forEach(clearTimeout); clearInterval(F.iv); FF = null; if (why && why !== 'You left the game.') try { Desk.toast('Speediest Finger First', why, 4000); } catch (e) {} if (F.root && F.root.isConnected) N.open(ffPlay); });
     if (s.host) {
       s.state(() => F.st);
       F.iv = setInterval(() => { if (FF === F) ffClock(); }, 250);
@@ -390,7 +390,7 @@
   }
   function ffHotIn(d) {
     const st = FF.st;
-    if (d.k === 'sel' && !st.lock && [0, 1, 2, 3].includes(d.o) && !st.gone.includes(d.o)) { st.sel = d.o; st.msg = `${ffName(st.hot)} goes for ${'ABCD'[d.o]}... is that your FINAL answer?`; ffPush(); }
+    if (d.k === 'sel' && !st.lock && [0, 1, 2, 3].includes(d.o) && !st.gone.includes(d.o)) { st.sel = d.o; st.msg = `${ffName(st.hot)} goes for ${'ABCD'[d.o]}... Is that your last answer?`; ffPush(); }
     else if (d.k === 'fin' && d.o === st.sel) ffFinal();
     else if (d.k === 'life' && ['ff', 'ph', 'au'].includes(d.l)) ffLife(d.l);
     else if (d.k === 'walk') ffWalk();
@@ -426,7 +426,7 @@
       else if (x.go === 'end') { st.ph = 'end'; ffPush(); }
       else if (x.go === 'again') { FF.ffTries = 0; st.bank = {}; st.arm = {}; st.round = 0; ffStart(); }
       else if (x.go === 'inv') { if (window.MP) MP.pick('mil.ff'); }
-      else if (x.go === 'leave') { Desk.msgbox('Fastest Finger First', 'Leave the show?', 'q', [['Leave', () => { if (FF) FF.s.leave(); }], ['Stay']]); }
+      else if (x.go === 'leave') { Desk.msgbox('Speediest Finger First', 'Leave the show?', 'q', [['Leave', () => { if (FF) FF.s.leave(); }], ['Stay']]); }
       else if (x.ff != null && st.ph === 'ff' && ffIn(me) && !FF.my.sent) { // pick the next one in your order
         const k = +x.ff; if (FF.my.ord.includes(k)) return;
         FF.my.ord.push(k); N.sfx('click');
@@ -438,7 +438,7 @@
         if (st.hot === me) { if (st.sel === o) ffSend({ k: 'fin', o }); else ffSend({ k: 'sel', o }); }
         else if (ffIn(me)) { FF.armQ = st.round + ':' + st.lvl; FF.armO = o; ffSend({ k: 'arm', q: FF.armQ, o }); ffRender(); }
       } else if (x.l && st.hot === me) ffSend({ k: 'life', l: x.l });
-      else if (x.go === 'walk' && st.hot === me) Desk.msgbox('Fastest Finger First', 'Walk away with the money?', 'q', [['Walk away', () => ffSend({ k: 'walk' })], ['Keep playing']]);
+      else if (x.go === 'walk' && st.hot === me) Desk.msgbox('Speediest Finger First', 'Walk away with the money?', 'q', [['Walk away', () => ffSend({ k: 'walk' })], ['Keep playing']]);
     });
     ffRender();
   }
@@ -450,12 +450,12 @@
     const btns = a => `<div class="ml-ffbtns">${a.map(([k, t]) => `<button type="button" class="n99-btn" data-go="${k}">${t}</button>`).join('')}</div>`;
     let h = '';
     if (st.ph === 'lobby') {
-      h = `<div class="ml-q"><b>FASTEST FINGER FIRST</b><br>Same question for everybody at the same moment: put the four answers in the right order. Fastest right answer goes in the HOT SEAT. Everybody else watches (and shouts at the telly).</div>${pls}
+      h = `<div class="ml-q"><b>SPEEDIEST FINGER FIRST</b><br>Same question for everybody at the same moment: put the four answers in the right order. Fastest right answer goes in the HOT SEAT. Everybody else watches (and shouts at the telly).</div>${pls}
         ${host ? (st.pl.length < 2 ? '<div class="ml-msg">Waiting for somebody to join. Invite a mate!</div>' : '<div class="ml-msg">Everybody ready? Fingers on buzzers!</div>') + btns([['start', 'START THE SHOW!'], ['inv', 'Invite someone'], ['leave', 'Leave']]) : `<div class="ml-msg">Waiting for ${esc(s.nick(s.hostId))} to start the show...</div>` + btns([['leave', 'Leave']])}`;
     } else if (st.ph === 'ff' || st.ph === 'ffres') {
       const q = FFQ[st.ff.i] || FFQ[0], res = st.ph === 'ffres', mine = F.my.id === st.ff.id ? F.my : { ord: [], sent: false };
       const left = res ? 0 : Math.max(0, 20 - (performance.now() - (mine.t0 || performance.now())) / 1000);
-      h = `<div class="ml-ffhot">FASTEST FINGER FIRST</div><div class="ml-q">${esc(q[0])}</div>
+      h = `<div class="ml-ffhot">SPEEDIEST FINGER FIRST</div><div class="ml-q">${esc(q[0])}</div>
         <div class="ml-ans">${st.ff.ord.map((k, j) => `<button type="button" data-ff="${j}"${res || mine.sent || mine.ord.includes(j) || !ffIn(me) ? ' disabled' : ''} class="${!res && mine.ord.includes(j) ? 'sel' : ''}"><b>${'ABCD'[j]}:</b>${esc(q[1][k])}</button>`).join('')}</div>
         <div class="ml-fford">${res ? 'Right order: ' + [0, 1, 2, 3].map(k => 'ABCD'[st.ff.ord.indexOf(k)]).join(' ') : mine.ord.length ? mine.ord.map(j => 'ABCD'[j]).join(' ') + (mine.sent ? ` &middot; locked in (${(mine.ms / 1000).toFixed(2)}s)` : '') : ffIn(me) ? 'Click them in order!' : ''}</div>
         ${!res ? `<div class="ml-ffbar"><i style="width:${Math.round(left / 20 * 100)}%"></i></div>${!mine.sent && mine.ord.length ? btns([['clear', 'Start again']]) : ''}` : ''}
@@ -505,35 +505,35 @@
   const PATCH = '<svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="#1a3a9a" stroke="#ff6a00" stroke-width="3"/><path d="M28 8 L34 30 L28 26 L22 30 Z" fill="#fff"/><path d="M24 30 L28 44 L32 30" fill="#ff6a00"/><circle cx="14" cy="18" r="1.2" fill="#fff"/><circle cx="42" cy="14" r="1" fill="#fff"/><circle cx="44" cy="38" r="1.3" fill="#fff"/><path d="M6 34 Q28 50 50 34" fill="none" stroke="#3af" stroke-width="2"/></svg>';
   // [date, headline, what happened, what to look forward to (shown before it happens)]
   const LOG = [
-    ['01-03', 'Mars Polar Lander launched', 'NASA\'s Mars Polar Lander is on its way to land near the south pole of Mars in December.', 'Mars Polar Lander launch'],
+    ['01-03', 'Mars Polar Lander launched', 'NASSA\'s Mars Polar Lander is on its way to land near the south pole of Mars in December.', 'Mars Polar Lander launch'],
     ['02-07', 'Stardust launched!', 'Stardust is off to fly through the dust cloud round a comet, catch some in a sort of space sponge and bring it back to Earth.', 'Stardust launch: the comet dust catcher'],
-    ['03-01', 'Breitling Orbiter 3 takes off', 'Bertrand Piccard and Brian Jones set off from Switzerland in a giant balloon to try to go all the way round the world without stopping. Nobody has ever done it!', 'Round-the-world balloon attempt'],
-    ['03-20', 'THE BALLOON DID IT!', 'Breitling Orbiter 3 crossed the finish line over Africa: the first balloon to fly non-stop all the way round the world!', ''],
-    ['03-21', 'Balloon lands in Egypt', 'Piccard and Jones landed in the Egyptian desert after 19 days, 21 hours and 55 minutes in the air. World record!', ''],
+    ['03-01', 'Breitlung Orbiter 3 takes off', 'Bertram Piccaro and Brian Jonas set off from Switzerland in a giant balloon to try to go all the way round the world without stopping. Nobody has ever done it!', 'Round-the-world balloon attempt'],
+    ['03-20', 'THE BALLOON DID IT!', 'Breitlung Orbiter 3 crossed the finish line over Africa: the first balloon to fly non-stop all the way round the world!', ''],
+    ['03-21', 'Balloon lands in Egypt', 'Piccaro and Jones landed in the Egyptian desert after 19 days, 21 hours and 55 minutes in the air. World record!', ''],
     ['05-27', 'Discovery launched to the space station', 'Space Shuttle Discovery (mission STS-96) blasted off with supplies for the brand new International Space Station.', 'Shuttle Discovery to the space station'],
     ['05-29', 'FIRST DOCKING WITH THE ISS', 'Discovery docked with the International Space Station: the first time a shuttle has ever docked with it! The crew carried in tons of supplies.', 'First shuttle docking with the ISS'],
     ['06-06', 'Discovery home safe', 'Discovery landed in Florida after nearly ten days in space.', ''],
     ['07-20', 'Columbia launch stopped at T-7 seconds', 'The computers stopped the countdown seven seconds before launch because they spotted too much hydrogen. Better safe than sorry. Try again soon!', 'Columbia launch: first woman shuttle commander'],
-    ['07-23', 'COLUMBIA LAUNCHES! Eileen Collins makes history', 'Columbia (STS-93) launched with <b>Eileen Collins</b> in charge: the first woman ever to command a Space Shuttle! On board: the <b>Chandra X-ray Observatory</b>, a telescope that sees X-rays from space.', ''],
+    ['07-23', 'COLUMBIA LAUNCHES! Eileen Collinz makes history', 'Columbia (STS-93) launched with <b>Eileen Collinz</b> in charge: the first woman ever to command a Space Shuttle! On board: the <b>Chandra X-ray Observatory</b>, a telescope that sees X-rays from space.', ''],
     ['07-27', 'Columbia lands in the dark', 'Columbia landed in Florida in the middle of the night (Florida time). Chandra is now up there looking at black holes and exploded stars.', ''],
-    ['07-31', 'Lunar Prospector crashes into the Moon (on purpose!)', 'NASA steered the Lunar Prospector probe into a crater near the Moon\'s south pole, to see if any water ice would splash up.', 'Lunar Prospector\'s planned crash into the Moon'],
+    ['07-31', 'Lunar Prospector crashes into the Moon (on purpose!)', 'NASSA steered the Lunar Prospector probe into a crater near the Moon\'s south pole, to see if any water ice would splash up.', 'Lunar Prospector\'s planned crash into the Moon'],
     ['08-11', 'TOTAL ECLIPSE OF THE SUN', 'Total in Cornwall, a big bite out of the Sun everywhere else in Britain. See <a href="http://www.totality99.cyb/">TOTALITY!</a>', 'THE TOTAL ECLIPSE'],
     ['08-18', 'Cassini zooms past Earth', 'The Cassini probe flew past Earth to pick up speed for its trip to Saturn. It gets there in 2004.', 'Cassini flies past Earth'],
     ['08-28', 'Mir is empty', 'The crew of the Russian space station Mir came home, leaving it with nobody on board for now.', ''],
     ['11-18', 'LEONID METEOR STORM', 'Early this morning (peak at about 2am GMT) Europe got the best view of a meteor STORM: thousands of shooting stars an hour at the peak!', 'the Leonid meteor storm (best seen from Europe!)'],
-    ['12-19', 'Discovery off to fix Hubble', 'Discovery (STS-103) launched to repair the Hubble Space Telescope.', 'Shuttle mission to fix Hubble'],
-    ['12-27', 'Hubble fixed!', 'Discovery came home after the astronauts replaced all six of Hubble\'s gyroscopes on spacewalks. Hubble can point at things again!', ''],
+    ['12-19', 'Discovery off to fix Hubbly', 'Discovery (STS-103) launched to repair the Hubbly Space Telescope.', 'Shuttle mission to fix Hubbly'],
+    ['12-27', 'Hubbly fixed!', 'Discovery came home after the astronauts replaced all six of Hubbly\'s gyroscopes on spacewalks. Hubbly can point at things again!', ''],
   ];
   const SP_MATES = [
     ['02-08', 'Callum', 'A space sponge for comet dust. That is the coolest job a sponge has ever had.'],
     ['03-22', 'Luke', 'Round the world in a balloon in 20 days. It takes my dad 20 minutes to blow up ONE balloon.'],
     ['05-30', 'Dave', 'They docked with the space station! Like the bit in Goldenballs where... no, nothing like that.'],
-    ['07-24', 'JackK', 'First woman shuttle commander! My sister has put a picture of Eileen Collins on her wall.'],
+    ['07-24', 'JackK', 'First woman shuttle commander! My sister has put a picture of Eileen Collinz on her wall.'],
     ['11-18', 'Jack', 'Got up at 2am for the meteors. Saw some! Then my feet froze.'],
-    ['12-28', 'Callum', 'Hubble has six new gyroscopes. My PC still has the same fan from 1997.'],
+    ['12-28', 'Callum', 'Hubbly has six new gyroscopes. My PC still has the same fan from 1997.'],
   ];
   const spPage = (c, body) => `<div class="sp"><div class="sp-top">${PATCH}<div><b>JACK'S LAUNCH PAD</b><br><small>Space news 1999 &middot; by Jack (yes, that Jack, from JACK ATTACK!) &middot; T-minus forever</small></div></div>
-    <div class="sp-nav"><a href="${SU('/')}">Mission Control</a><a href="${SU('/launches.html')}">Launch Log 1999</a><a href="${SU('/sky.html')}">Sky Watch</a></div><div class="sp-in">${body}</div>${N.foot(c, 'JACK\'S LAUNCH PAD. Not NASA. I wish.')}</div>`;
+    <div class="sp-nav"><a href="${SU('/')}">Mission Control</a><a href="${SU('/launches.html')}">Launch Log 1999</a><a href="${SU('/sky.html')}">Sky Watch</a></div><div class="sp-in">${body}</div>${N.foot(c, 'JACK\'S LAUNCH PAD. Not NASSA. I wish.')}</div>`;
   const ROCKET = '<svg viewBox="0 0 30 90" aria-hidden="true"><path d="M15 2 C24 14 24 40 22 70 H8 C6 40 6 14 15 2Z" fill="#eee" stroke="#000"/><circle cx="15" cy="28" r="4" fill="#3af" stroke="#000"/><path d="M8 56 L1 74 L8 70 Z M22 56 L29 74 L22 70 Z" fill="#c00"/><path d="M10 72 L15 89 L20 72Z" fill="#ff9a00"/></svg>';
   N.def(SH, '/', c => {
     const next = LOG.find(r => r[3] && c.until(r[0]) >= 0), past = LOG.filter(r => c.past(r[0])).reverse().slice(0, 4);
@@ -561,26 +561,26 @@
   // [date, sport, text, preview (before)]
   const RES = [
     ['04-03', 'ROWING', 'THE BOAT RACE: Cambridge beat Oxford by three and a half lengths.', 'The Boat Race (Oxford v Cambridge)'],
-    ['04-10', 'RACING', 'THE GRAND NATIONAL at Aintree: won by BOBBYJO (10/1), ridden by Paul Carberry.', 'The Grand National'],
+    ['04-10', 'RACING', 'THE GRAND NATIONAL at Aintree: won by BOBBYJOE (10/1), ridden by Paul Carbury.', 'The Grand National'],
     ['05-14', 'CRICKET', 'The CRICKET WORLD CUP begins in England. Twelve teams. Five weeks.', 'Cricket World Cup starts in England'],
-    ['05-16', 'FOOTBALL', 'PREMIER LEAGUE, final day: Manchester Utd 2 Tottenham 1. Manchester United are CHAMPIONS. That is trophy number one.', 'Premier League final day'],
-    ['05-22', 'FOOTBALL', 'FA CUP FINAL at Wembley: Manchester Utd 2 Newcastle Utd 0 (Sheringham, Scholes). Trophy number two: the "Double".', 'FA Cup final at Wembley'],
-    ['05-26', 'FOOTBALL', 'EUROPEAN CUP FINAL in Barcelona: Manchester Utd 2 Bayern Munich 1. Two goals in injury time (Sheringham, Solskjaer)! THE TREBLE!', 'European Cup final in Barcelona'],
+    ['05-16', 'FOOTBALL', 'PREMIER LEAGUE, final day: Mancake Utd 2 Totterham 1. Mancake United are CHAMPIONS. That is trophy number one.', 'Premier League final day'],
+    ['05-22', 'FOOTBALL', 'FA CUP FINAL at Wembley: Mancake Utd 2 Newcastel Untied 0 (Sheringdon, Scoles). Trophy number two: the "Double".', 'FA Cup final at Wembley'],
+    ['05-26', 'FOOTBALL', 'EUROPEAN CUP FINAL in Barcelona: Mancake Utd 2 Bavaria Munchen 1. Two goals in injury time (Sheringdon, Solskjar)! THE TREBLE!', 'European Cup final in Barcelona'],
     ['06-20', 'CRICKET', 'WORLD CUP FINAL at Lord\'s: Australia beat Pakistan by 8 wickets. Australia are world champions.', 'Cricket World Cup final at Lord\'s'],
-    ['07-04', 'TENNIS', 'WIMBLEDON: Pete Sampras beat Andre Agassi 6-3 6-4 7-5 for his sixth Wimbledon title. Women\'s champion: Lindsay Davenport (beat Steffi Graf 6-4 7-5). Tim Henman got to the semi-finals again.', 'Wimbledon finals'],
-    ['07-11', 'MOTOR RACING', 'BRITISH GRAND PRIX at Silverstone: 1. David Coulthard 2. Eddie Irvine 3. Ralf Schumacher.', 'British Grand Prix'],
-    ['07-18', 'GOLF', 'THE OPEN at Carnoustie: Paul Lawrie of Scotland wins in a play-off! He started the last day ten shots behind: a record comeback.', 'The Open (golf)'],
+    ['07-04', 'TENNIS', 'WIMBLEDON: Pete Samprass beat Andre Agassy 6-3 6-4 7-5 for his sixth Wimbledon title. Women\'s champion: Lindsay Davenham (beat Steffi Graph 6-4 7-5). Tim Hen-man got to the semi-finals again.', 'Wimbledon finals'],
+    ['07-11', 'MOTOR RACING', 'BRITISH GRAND PRIX at Silverstone: 1. David Coalhard 2. Eddie Ervine 3. Ralf Shoemaker.', 'British Grand Prix'],
+    ['07-18', 'GOLF', 'THE OPEN at Carnoustie: Paul Lorry of Scotland wins in a play-off! He started the last day ten shots behind: a record comeback.', 'The Open (golf)'],
     ['09-26', 'GOLF', 'RYDER CUP at Brookline, USA: the United States beat Europe.', 'The Ryder Cup'],
     ['10-01', 'RUGBY', 'The RUGBY WORLD CUP kicks off, hosted by Wales, at the brand new Millennium Stadium in Cardiff.', 'Rugby World Cup kicks off in Wales'],
-    ['10-31', 'MOTOR RACING', 'JAPANESE GRAND PRIX: Mika Hakkinen wins at Suzuka and is WORLD CHAMPION for the second year running.', 'Last Grand Prix of the season'],
+    ['10-31', 'MOTOR RACING', 'JAPANESE GRAND PRIX: Mika Hackinen wins at Suzuka and is WORLD CHAMPION for the second year running.', 'Last Grand Prix of the season'],
     ['11-06', 'RUGBY', 'RUGBY WORLD CUP FINAL at the Millennium Stadium: Australia 35 France 12. Australia are world champions.', 'Rugby World Cup final in Cardiff'],
   ];
   const SD_MATES = [
     ['05-23', 'Luke', 'Two trophies down. Dad says nobody English has ever done three. Wednesday!!!'],
-    ['05-27', 'Dave', 'My dad knocked the ULTRA 64 off the telly when the second goal went in. It still works. N64s are indestructible.'],
+    ['05-27', 'Dave', 'My dad knocked the ULTRA 64 off the telly when the second goal went in. It still works. U64s are indestructible.'],
     ['07-05', 'Callum', 'Watched Wimbledon instead of playing Jaquake. That is how good it was. (I played Jaquake after.)'],
     ['10-02', 'JackK', 'The new stadium in Cardiff has a roof that closes! Like a giant tin.'],
-    ['11-01', 'Jack', 'Hakkinen won the championship. I played F1 on the PlaySpace to celebrate. Crashed at the first corner.'],
+    ['11-01', 'Jack', 'Hackinen won the championship. I played F1 on the PlaySpace to celebrate. Crashed at the first corner.'],
   ];
   const sdPage = (c, body) => `<div class="sd"><pre><span class="sd-h">THE SPORTS DESK</span>  -  results in plain text since 1996
 ${c.long.toUpperCase()}
@@ -594,7 +594,7 @@ Run by Steve. Send your scores in by e-mail.</pre>${N.mates(c, SD_MATES, 'SPORTS
     const n = ['05-16', '05-22', '05-26'].filter(k => c.past(k)).length;
     if (n === 3) N.secret('n99.treble');
     const T = ['PREMIER LEAGUE ..... ' + (n > 0 ? 'WON (16/05/99)' : 'to play for'), 'FA CUP ............. ' + (n > 1 ? 'WON (22/05/99)' : 'final 22/05/99'), 'EUROPEAN CUP ....... ' + (n > 2 ? 'WON (26/05/99)' : 'final 26/05/99')];
-    return sdPage(c, `<pre><span class="sd-h">THE TREBLE</span>\nCan any English club win the league, the FA Cup AND the European Cup in one season?\nIt has never been done.\n\nMANCHESTER UNITED 1998-99\n${T.join('\n')}\n\n${n === 3 ? 'THEY DID IT. THE TREBLE. Both goals in the final came in injury time.\nTeddy Sheringham, then Ole Gunnar Solskjaer.\nThe Camp Nou, Barcelona, Wednesday 26 May 1999. Football, eh.' : n ? `${n} down, ${3 - n} to go...` : 'The season is still going. Ask again in May.'}</pre>`);
+    return sdPage(c, `<pre><span class="sd-h">THE TREBLE</span>\nCan any English club win the league, the FA Cup AND the European Cup in one season?\nIt has never been done.\n\nMANCHESTER UNITED 1998-99\n${T.join('\n')}\n\n${n === 3 ? 'THEY DID IT. THE TREBLE. Both goals in the final came in injury time.\nTeddy Sheringdon, then Ole Gunnar Solskjar.\nThe Camp Noo, Barcelona, Wednesday 26 May 1999. Football, eh.' : n ? `${n} down, ${3 - n} to go...` : 'The season is still going. Ask again in May.'}</pre>`);
   });
   N.def(TH, '/calendar.html', c => sdPage(c, `<pre><span class="sd-h">SPORT CALENDAR 1999</span>\n${RES.map(r => `${N.short(r[0])}  ${r[1].padEnd(12)} ${c.past(r[0]) ? r[2] : r[3] + ' [to come]'}`).join('\n')}</pre>`));
 
@@ -621,23 +621,23 @@ Run by Steve. Send your scores in by e-mail.</pre>${N.mates(c, SD_MATES, 'SPORTS
 `);
   // [UK date, title, note, US date or '', buzz once out]
   const FILMS = [
-    ['01-01', 'Galaxy Walk: Insurrection', 'The Next Generation crew, film number three.', '', 'Picard does a dance. Not even joking.'],
-    ['02-05', 'A Bug\'s Life', 'Pixar\'s new one: an ant hires some circus bugs to fight grasshoppers.', '11-25 (1998)', 'Stay for the bloopers at the end!'],
-    ['05-21', 'Notting Hill', 'A man with a bookshop meets a film star. Mom has been counting down for weeks.', '', 'Moms everywhere say it is "lovely".'],
+    ['01-01', 'Galaxy Walk: Insubordination', 'The Next Instalment crew, film number three.', '', 'Pickle does a dance. Not even joking.'],
+    ['02-05', 'A Bug\'s Strife', 'Pixer\'s new one: an ant hires some circus bugs to fight grasshoppers.', '11-25 (1998)', 'Stay for the bloopers at the end!'],
+    ['05-21', 'Knotting Hill', 'A man with a bookshop meets a film star. Mom has been counting down for weeks.', '', 'Moms everywhere say it is "lovely".'],
     ['06-11', 'The Modemtrix', 'Is anything real? Kung fu, slow-motion bullets and long black coats.', '03-31', 'There is no spoon. Everyone is trying to dodge things in slow motion.'],
-    ['06-25', 'The Mummy', 'An adventure in Egypt with a mummy that comes back to life. And beetles.', '05-07', 'Scarab beetles. Sleep with the light on.'],
+    ['06-25', 'The Mommy', 'An adventure in Egypt with a mummy that comes back to life. And beetles.', '05-07', 'Scarab beetles. Sleep with the light on.'],
     ['07-16', 'Intergalactic Battles Episode I: The Phantom Nuisance', 'THE big one. The first new Intergalactic Battles film in 16 years. Out in America on 19 May. Premiere in London on 14 July.', '05-19', 'Biggest opening weekend ever in Britain: about &pound;9.5 million! Duel of the Fates is the best bit.'],
-    ['10-22', 'Tarzan', 'Disney\'s new cartoon. He surfs down tree branches.', '06-18', 'The tree surfing looks like a video game.'],
-    ['11-12', 'The Sixth Sense', 'A spooky one everyone\'s whispering about. DON\'T tell anyone the ending.', '08-06', 'Luke saw it. Luke won\'t tell us the ending. Luke is a good man.'],
-    ['11-26', 'The World Is Not Enough', 'The new James Bond.', '', 'Gadgets, a boat chase on the Thames and a big explosion. Classic.'],
+    ['10-22', 'Tarzon', 'Dizzney\'s new cartoon. He surfs down tree branches.', '06-18', 'The tree surfing looks like a video game.'],
+    ['11-12', 'The Sixth Scents', 'A spooky one everyone\'s whispering about. DON\'T tell anyone the ending.', '08-06', 'Luke saw it. Luke won\'t tell us the ending. Luke is a good man.'],
+    ['11-26', 'The World Is Plenty', 'The new James Bland.', '', 'Gadgets, a boat chase on the Thames and a big explosion. Classic.'],
   ];
   const FC_MATES = [
     ['03-12', 'Callum', 'They\'re showing the new Intergalactic Battles trailer before films in America and people are paying just to see the TRAILER.'],
     ['04-15', 'Dave', 'Saw The Modemtrix trailer on the Internet. Took 40 minutes to download. Worth it.'],
     ['06-12', 'Luke', 'THE MODEMTRIX. I tried to dodge a football in slow motion at lunch. It hit me in normal motion.'],
     ['07-17', 'Jack', 'SAW EPISODE I!!! Queued for ages. Dark Mole has a DOUBLE lightspatula. I need to lie down.'],
-    ['07-18', 'JackK', 'Pod race = best ten minutes of my life. Jar Jar Jams = the other ten minutes.'],
-    ['11-13', 'Luke', 'Saw The Sixth Sense. Not telling. Stop asking.'],
+    ['07-18', 'JackK', 'Peapod Race = best ten minutes of my life. Jar Jar Jams = the other ten minutes.'],
+    ['11-13', 'Luke', 'Saw The Sixth Scents. Not telling. Stop asking.'],
     ['11-25', 'Callum', 'Toy Storey 2 is out in America. Here? Not till 11 February. FEBRUARY.'],
   ];
   const fcPage = (c, body) => `<div class="fc"><div class="fc-top"><b>THE POPCORN COUNTDOWN</b><br><small>Films coming soon to a cinema near you (in Britain, not America) &middot; by Rachel, who sits in the middle of row G</small></div>

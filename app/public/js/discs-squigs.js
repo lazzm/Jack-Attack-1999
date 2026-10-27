@@ -30,7 +30,7 @@
   const PRESETS = [
     { name: 'Jack\'s Lot', squigs: ['Jack', 'Big Jack', 'Lil\' Jack', 'Jack Jr'] },
     { name: 'Callum\'s Crew', squigs: ['Callum', 'Frag Master', 'Turbo', 'Lag'] },
-    { name: 'ULTRA 64 Massive', squigs: ['Luke', 'Dave', 'Rumble Pak', 'Blowy'] },
+    { name: 'ULTRA 64 Massive', squigs: ['Luke', 'Dave', 'Rumble Pouch', 'Blowy'] },
     { name: 'JackK\'s Army', squigs: ['JackK', 'Jumping Jack', 'Jack-in-a-Box', 'Gubbinz'] },
   ];
   const WPN = {

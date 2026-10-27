@@ -97,7 +97,7 @@
         qs(d, '[data-x=again]').addEventListener('click', () => { d.remove(); if (G._restart) G._restart(); });
         return d;
       },
-      about() { msg('About ' + g.n, `${g.n} ${g.v || '1.0'}${G.demo ? ' (DEMO)' : ''}\n\n${g.by}\n${g.tag || ''}\n\nCopyright © 1999 ${g.by}. All rights reserved.\nLicensed to: ${(window.Net && Net.me && Net.me.member && Net.me.nick) || 'Jack'}\n\nRequires: ${g.req || 'Pentium 166, 32 MB RAM, 4x CD-ROM, DirectX 6'}`, 'info'); },
+      about() { msg('About ' + g.n, `${g.n} ${g.v || '1.0'}${G.demo ? ' (DEMO)' : ''}\n\n${g.by}\n${g.tag || ''}\n\nCopyright © 1999 ${g.by}. All rights reserved.\nLicensed to: ${(window.Net && Net.me && Net.me.member && Net.me.nick) || 'Jack'}\n\nRequires: ${g.req || 'Pent-Yum 166, 32 MB RAM, 4x CD-ROM, DirectX 6'}`, 'info'); },
       _cleanup() { if (closed) return; closed = true; G.stopMusic(); timers.forEach(id => { clearTimeout(id); clearInterval(id); }); timers.clear(); cleanups.splice(0).forEach(fn => { try { fn(); } catch (e) { console.error(e); } }); },
     };
     return G;
@@ -160,13 +160,13 @@
   document.head.appendChild(css);
 
   // ================================================================ the new games (each one a lazy discs-<file>.js)
-  const game = (id, o) => { GAMES[id] = Object.assign({ id, v: '1.0', price: '29.99', req: 'Pentium 166, 32 MB RAM, 4x CD-ROM, DirectX 6', w: 780, h: 580 }, o); return GAMES[id]; };
+  const game = (id, o) => { GAMES[id] = Object.assign({ id, v: '1.0', price: '29.99', req: 'Pent-Yum 166, 32 MB RAM, 4x CD-ROM, DirectX 6', w: 780, h: 580 }, o); return GAMES[id]; };
   game('park', { n: 'RollerJack Tycoon', file: 'park', exe: 'RJACK.EXE', rel: '12/04/99', by: 'JackLoop Software', c1: '#1a6a2a', c2: '#ffd400' });
   game('city', { n: 'JackCity 3000', file: 'city', exe: 'JCITY3K.EXE', rel: '31/01/99', by: 'Maxijack', c1: '#1a3a7a', c2: '#7fe0ff', v: '1.1', w: 960, h: 660 });
   game('squigs', { n: 'Jacks: Armageddon', file: 'squigs', exe: 'JACKS.EXE', rel: '29/01/99', by: 'Team Jack', c1: '#5a0a0a', c2: '#ff5a2a', price: '24.99' });
-  game('rts', { n: 'Age of Jackpires II', file: 'rts', exe: 'AOJ2.EXE', rel: '30/09/99', by: 'Big Jack Studios', c1: '#3a2a10', c2: '#ffcc33', price: '34.99', req: 'Pentium 166, 32 MB RAM, 8x CD-ROM, DirectX 6.1' });
-  game('boss', { n: 'Championship Boss 99/00', file: 'boss', exe: 'CB9900.EXE', rel: '03/12/99', v: '3.05', by: 'Sports Jackteractive', c1: '#0a2a5a', c2: '#ffffff', price: '24.99', req: 'Pentium 133, 32 MB RAM, 4x CD-ROM' });
-  game('keepa', { n: 'Dungeon Keepa 2', file: 'keepa', exe: 'DKEEPA2.EXE', rel: '25/06/99', by: 'Bulljack Productions', c1: '#2a0a2a', c2: '#ff3a1a', req: 'Pentium 200, 32 MB RAM, 4x CD-ROM, DirectX 6, 3D card recommended', v: '1.2', w: 880, h: 620 });
+  game('rts', { n: 'Age of Jackpires II', file: 'rts', exe: 'AOJ2.EXE', rel: '30/09/99', by: 'Big Jack Studios', c1: '#3a2a10', c2: '#ffcc33', price: '34.99', req: 'Pent-Yum 166, 32 MB RAM, 8x CD-ROM, DirectX 6.1' });
+  game('boss', { n: 'Championship Boss 99/00', file: 'boss', exe: 'CB9900.EXE', rel: '03/12/99', v: '3.05', by: 'Sports Jackteractive', c1: '#0a2a5a', c2: '#ffffff', price: '24.99', req: 'Pent-Yum 133, 32 MB RAM, 4x CD-ROM' });
+  game('keepa', { n: 'Dungeon Keepa 2', file: 'keepa', exe: 'DKEEPA2.EXE', rel: '25/06/99', by: 'Bulljack Productions', c1: '#2a0a2a', c2: '#ff3a1a', req: 'Pent-Yum 200, 32 MB RAM, 4x CD-ROM, DirectX 6, 3D card recommended', v: '1.2', w: 880, h: 620 });
 
   // game secrets (the games call G.secret('park.coaster') etc.)
   [['demo', 'Try before you buy', 'Play a demo disc right to the very end'],
@@ -407,7 +407,7 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
       sticker: ['IT\'S GOOD|TO BE|BAD!', '#ff3a1a'],
       blurb: 'Forget being the hero. Be the dungeon! Dig out your lair, put your imps to work, build rooms to attract a horde of nasty creatures and slap anyone who slacks. Then wait for the do-gooders to come knocking... and give them a nasty surprise.',
       feats: ['Dig, mine gold and build your evil empire', 'Beasts with needs, wages and favourite rooms', 'Traps, doors, spells and the Hand of Evil: pick up, drop and SLAP', 'Five realms, the Bottomless Pit, and raids on other Keepas\' dungeons over JackNet'],
-      quotes: [['"Slapping imps is the most fun I have ever had."', 'Gubbinz'], ['"Not as good as Zelda." (He hasn\'t played it.)', 'Dave']], demoOf: 'Age of Jackpires II',
+      quotes: [['"Slapping imps is the most fun I have ever had."', 'Gubbinz'], ['"Not as good as Zeldo." (He hasn\'t played it.)', 'Dave']], demoOf: 'Age of Jackpires II',
       readme: 'NOTE FROM JACK: the box says 15+ but it\'s just cartoon goblins and Mom said it\'s fine as long as I don\'t slap anything in real life. Gubbinz is not allowed to watch.' },
     { id: 'carta', pid: 'carta', app: 'carta.encyc', kind: 'big', label: 'JCARTA99_1', discs: 2, c1: '#0a1a4a', c2: '#ffd400', c3: '#2a7ad8', scene: 'carta', age: '3+', exe: 'JCARTA.EXE',
       logo: u => T(100, 36, 'JackCarta', 32, '#ffd400', '#000', { f: 'Georgia,\'Times New Roman\',serif', sw: 4, it: 1 }) + T(100, 64, '99', 28, '#fff', '#000', { f: 'Georgia,serif', sw: 4 }),
@@ -435,7 +435,7 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
       feats: ['Squad, tactics, transfers, youth team and finances', 'Live commentary AND a little highlights pitch', 'Cup Night: an online knockout against real managers', 'Unlimited "just one more match"'],
       quotes: [['"Saved Callum\'s career on it. Don\'t save over it."', 'Callum'], ['"I don\'t get it. Where is the football?"', 'Luke']],
       readme: 'NOTE FROM JACK: Callum\'s career is on here. DON\'T SAVE OVER IT. Also this is the night-time game. Mom always comes in at "just one more match".' },
-    { id: 'podracer', pid: 'podracer', app: 'games.podracer', kind: 'jewel', label: 'PODRACER', discs: 1, c1: '#a04a10', c2: '#ffe14a', c3: '#2a7ad8', age: '3+', exe: 'PODRACE.EXE',
+    { id: 'podracer', pid: 'podracer', app: 'games.podracer', kind: 'jewel', label: 'PEAPODRACER', discs: 1, c1: '#a04a10', c2: '#ffe14a', c3: '#2a7ad8', age: '3+', exe: 'PODRACE.EXE',
       logo: (u, b) => nameLogo(b, 40, '#ffe14a', '#5a1a00', '#fff', '#5a1a00'), blurb: 'Race pods through the desert at 600 mph. Unofficial. Not affiliated with any galaxy.', feats: ['Three laps', 'Two huge engines', 'One small pilot'], quotes: [['"NOW THIS IS POD RACING"', 'Jack (sorry)']], readme: 'NOTE FROM JACK: made the day after I saw the film. Twice.' },
     { id: 'grotlings', pid: 'grotlings', app: 'games.grotlings', kind: 'jewel', label: 'LEMMINGISH', discs: 1, c1: '#2a6a2a', c2: '#ffffff', c3: '#2a7ad8', age: '3+', exe: 'JACKLING.EXE',
       logo: (u, b) => nameLogo(b, 46, '#fff', '#003a00', '#ffd400', '#003a00'), blurb: 'Little guys walk off cliffs unless you give them jobs. Diggers, blockers, builders, and the big red button.', feats: ['Diggers!', 'Blockers!', 'The big red button'], quotes: [['"Oh no!"', 'Every single one of them']], readme: 'NOTE FROM JACK: the level codes are written on my hand. It rained.' },
@@ -451,7 +451,7 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
     { id: 'gquest', pid: 'grotquest', kind: 'floppy', label: 'QUEST_DISK', c1: '#2a2a2a', c2: '#fff', c3: '#e10600',
       blurb: 'A 3½" floppy disk with a handwritten label: the text adventure, "v1.2 - DISK 1 OF 1 - SHAREWARE - PLEASE COPY!". It\'s a floppy, so it goes in drive A: (and it\'s already installed).', readme: 'THE TEXT ADVENTURE\n==================\nYou are standing in a dark room. There is a floppy disk here.\n> TAKE DISK\nTaken.\n' },
     { id: 'n64', kind: 'cart', label: '{mate2.NAME}\'S', c1: '#7a7a7a', c2: '#fff', c3: '#e10600', owner: 'Luke',
-      blurb: 'A grey game cartridge with "{mate2.NAME}" written on the back in Tipp-Ex. {mate2} left it here "so {me} can borrow it" (so {mate2} has an excuse to come round). It is not a CD. It will not go in the CD-ROM drive. People have tried.', readme: '' },
+      blurb: 'A grey game cartridge with "{mate2.NAME}" written on the back in Tipp-Ox. {mate2} left it here "so {me} can borrow it" (so {mate2} has an excuse to come round). It is not a CD. It will not go in the CD-ROM drive. People have tried.', readme: '' },
   ];
   for (const b of BOXES) {
     const id = ({ Callum: 'mate3', Luke: 'mate2' })[b.owner];
@@ -469,7 +469,7 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
   // other packs own these products: show whatever they call them now
   const prodOf = b => { const id = !b.game && pidOf(b); return id && window.Setup && Setup.get ? Setup.get(id) : null; };
   const prodName = b => { const p = prodOf(b); return p ? String(p.n).replace(/ \(.*\)$/, '').replace(/ demo$/i, '').replace(/ v?\d+\.\d[\d.]*[a-z]?$/i, '') : null; };
-  const FALLBACK = { carta: 'JackCarta 99', pinball: 'Space Pinball', jaquake: 'Jaquake', jrt: 'Jackreal Tournament', podracer: 'Pod Racer', grotlings: 'Little Diggers', cover7: 'JACK ATTACK! Cover Disc 7', callumcd: '{mate3}\'s Shareware Mix (CD-R)', dx61: 'DirectX 6.1 (cover CD)', gquest: 'Text Adventure', n64: '{mate2}\'s cartridge' };
+  const FALLBACK = { carta: 'JackCarta 99', pinball: 'Space Pinball', jaquake: 'Jaquake', jrt: 'Jackreal Tournament', podracer: 'Peapod Racer', grotlings: 'Little Diggers', cover7: 'JACK ATTACK! Cover Disc 7', callumcd: '{mate3}\'s Shareware Mix (CD-R)', dx61: 'DirectX 6.1 (cover CD)', gquest: 'Text Adventure', n64: '{mate2}\'s cartridge' };
   const titleOf = b => b.ext ? b.title : b.game ? GAMES[b.game].n : b.id === 'gquest' ? (prodName(b) || FALLBACK.gquest) + ' (floppy)' : (b.mag || b.kind === 'cdr' || b.kind === 'sleeve' || b.kind === 'cart') ? Cast.t(FALLBACK[b.id]) : (prodName(b) || FALLBACK[b.id] || b.id);
   const byOf = b => b.game ? GAMES[b.game].by : (prodOf(b) && prodOf(b).by) || ({ carta: 'JackSoft Reference', jaquake: 'Id-Jack Software', jrt: 'Epic Jack Games', cover7: 'JACK ATTACK! Magazine' })[b.id] || '';
   // a two-line logo made from the product's current name
@@ -493,7 +493,7 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
     if (b.kind === 'cdr') return `<svg viewBox="0 0 200 200" class="dc-svg"><defs><radialGradient id="${u}d"><stop offset=".2" stop-color="#e8f0ff"/><stop offset=".55" stop-color="#9ab0e8"/><stop offset=".75" stop-color="#d0a0ff"/><stop offset="1" stop-color="#8ad0d0"/></radialGradient></defs><circle cx="100" cy="100" r="96" fill="url(#${u}d)" stroke="#888"/><circle cx="100" cy="100" r="20" fill="#fff" stroke="#999"/><circle cx="100" cy="100" r="8" fill="#5a3412"/>${T(100, 50, 'CALLUM\'S', 20, '#1a1aaa', null, { f: HAND, w: 700, sw: 0, t: 'rotate(-6 100 50)' })}${T(100, 74, 'SHAREWARE MIX!!!', 15, '#1a1aaa', null, { f: HAND, w: 700, sw: 0, t: 'rotate(-4 100 74)' })}${T(100, 146, 'DEMOS + LEVELS', 12, '#c00000', null, { f: HAND, w: 700, sw: 0, t: 'rotate(3 100 146)' })}${T(100, 166, 'DO NOT SCRATCH (JACK)', 11, '#c00000', null, { f: HAND, w: 700, sw: 0, t: 'rotate(3 100 166)' })}<path d="M150 120q10 6 4 14" stroke="#1a1aaa" fill="none" stroke-width="2"/></svg>`;
     if (b.kind === 'sleeve') return `<svg viewBox="0 0 200 200" class="dc-svg"><rect x="4" y="4" width="192" height="192" fill="#f4f4ec" stroke="#999"/><circle cx="100" cy="112" r="56" fill="#dde" stroke="#bbb"/><circle cx="100" cy="112" r="56" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="3 5"/><circle cx="100" cy="112" r="10" fill="#f4f4ec" stroke="#bbb"/>${T(100, 34, 'DIRECTX 6.1', 24, '#2a2aaa', null, { f: 'Arial Black,Arial,sans-serif', sw: 0 })}${T(100, 52, 'REQUIRED FOR ALL GAMES!!!', 11, '#c00000', null, { f: 'Arial,sans-serif', sw: 0 })}${T(100, 190, 'FREE WITH THIS MONTH\'S ISSUE', 9, '#666', null, { f: 'Arial,sans-serif', w: 400, sw: 0 })}</svg>`;
     if (b.kind === 'floppy') return `<svg viewBox="0 0 200 200" class="dc-svg"><path d="M14 10h160l14 14v166H14z" fill="#2a2a2a" stroke="#000" stroke-width="2"/><rect x="50" y="10" width="96" height="58" fill="#c8c8c8" stroke="#000"/><rect x="112" y="16" width="20" height="46" fill="#2a2a2a"/><rect x="34" y="94" width="132" height="92" fill="#fff" stroke="#000"/><rect x="34" y="94" width="132" height="10" fill="#e10600"/>${T(100, 130, titleOf(b).replace(/ \(floppy\)$/, '').toUpperCase().slice(0, 18) + ' v1.2', 14, '#1a1aaa', null, { f: HAND, w: 700, sw: 0 })}${T(100, 150, 'DISK 1 OF 1', 12, '#1a1aaa', null, { f: HAND, w: 700, sw: 0 })}${T(100, 170, 'SHAREWARE - PLEASE COPY!', 10, '#c00000', null, { f: HAND, w: 700, sw: 0 })}<rect x="160" y="174" width="8" height="8" fill="#000"/></svg>`;
-    if (b.kind === 'cart') return `<svg viewBox="0 0 200 200" class="dc-svg"><path d="M30 20h140v110l-10 10v40H40v-40l-10-10z" fill="#8a8a8a" stroke="#000" stroke-width="2"/><path d="M40 30h120v90H40z" fill="#7a7a7a" stroke="#555"/><path d="M50 40h100v70H50z" fill="#ddd" stroke="#555"/>${[0, 1, 2, 3, 4].map(i => `<path d="M${60 + i * 20} 150v24" stroke="#555" stroke-width="3"/>`).join('')}${T(100, 70, 'LUKE', 26, '#fff', '#000', { f: HAND, w: 700, sw: 2, t: 'rotate(-6 100 70)' })}${T(100, 98, '(TIPP-EX)', 12, '#555', null, { f: HAND, w: 700, sw: 0 })}</svg>`;
+    if (b.kind === 'cart') return `<svg viewBox="0 0 200 200" class="dc-svg"><path d="M30 20h140v110l-10 10v40H40v-40l-10-10z" fill="#8a8a8a" stroke="#000" stroke-width="2"/><path d="M40 30h120v90H40z" fill="#7a7a7a" stroke="#555"/><path d="M50 40h100v70H50z" fill="#ddd" stroke="#555"/>${[0, 1, 2, 3, 4].map(i => `<path d="M${60 + i * 20} 150v24" stroke="#555" stroke-width="3"/>`).join('')}${T(100, 70, 'LUKE', 26, '#fff', '#000', { f: HAND, w: 700, sw: 2, t: 'rotate(-6 100 70)' })}${T(100, 98, '(TIPP-OX)', 12, '#555', null, { f: HAND, w: 700, sw: 0 })}</svg>`;
     const big = b.kind === 'big', H = big ? 270 : 200;
     let s = `<svg viewBox="0 0 200 ${H}" class="dc-svg">`;
     const painted={city:'city',keepa:'dungeon',podracer:'hover'}[b.id];
@@ -521,12 +521,12 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
   // ---- the back of the box
   function back(b) {
     const g = b.game ? GAMES[b.game] : null, shots = SHOT[b.scene] ? [0, 1, 2].map(i => `<svg viewBox="0 0 160 100" class="dc-shot">${SHOT[b.scene](i)}</svg>`).join('') : '';
-    const req = g ? g.req : (b.kind === 'big' || b.kind === 'jewel') ? 'Pentium 133, 16 MB RAM, 4x CD-ROM' : '';
+    const req = g ? g.req : (b.kind === 'big' || b.kind === 'jewel') ? 'Pent-Yum 133, 16 MB RAM, 4x CD-ROM' : '';
     const free = b.demoOf ? `<div class="dc-free">Includes FREE demo of <b>${esc(b.demoOf)}</b>!</div>` : '';
     const bars = [...Array(34)].map((_, i) => `<rect x="${i * 3}" y="0" width="${1 + (i * 7 % 3 === 0 ? 1 : 0)}" height="${i % 9 ? 26 : 30}"/>`).join('');
     if (b.kind === 'cdr' || b.kind === 'sleeve' || b.kind === 'floppy' || b.kind === 'cart') return `<div class="dc-back dc-backplain"><div class="dc-bt">${esc(titleOf(b))}</div><p>${esc(b.blurb)}</p>${b.kind === 'cdr' ? `<p class="dc-hand">"if you lose this I will actually cry" - ${esc(Cast.n('mate3')[0])}</p>` : ''}</div>`;
     return `<div class="dc-back" style="--a:${b.c1};--b:${b.c2};--c:${b.c3}"><div class="dc-bt">${esc(titleOf(b))}${demoBox(b) ? ' <span class="dc-demo">DEMO</span>' : ''}</div><p class="dc-blurb">${esc(b.blurb)}</p>${shots ? `<div class="dc-shots">${shots}</div>` : ''}<ul>${(b.feats || []).map(f => `<li>${esc(f)}</li>`).join('')}</ul>${(b.quotes || []).map(q => `<div class="dc-q">${esc(q[0])} <i>- ${esc(q[1])}</i></div>`).join('')}${free}
-${req ? `<div class="dc-req"><b>MINIMUM SYSTEM REQUIREMENTS</b><br>JackOS 95 or JackOS 98. ${esc(req)}. Sound Blaster compatible sound card. Mouse.${b.discs === 2 ? ' 2 CD-ROMs.' : ''}</div>` : ''}
+${req ? `<div class="dc-req"><b>MINIMUM SYSTEM REQUIREMENTS</b><br>JackOS 95 or JackOS 98. ${esc(req)}. Sound Bluster compatible sound card. Mouse.${b.discs === 2 ? ' 2 CD-ROMs.' : ''}</div>` : ''}
 <div class="dc-keyrow">${pidOf(b) && !b.mag ? `<span class="dc-key">CD KEY<br><b>${cdKey(b)}</b></span>` : '<span></span>'}<svg viewBox="0 0 102 30" class="dc-bar">${bars}</svg></div>
 <div class="dc-fine">${g ? `${esc(g.n)} &copy; 1999 ${esc(g.by)}. ` : ''}All rights reserved. Unauthorised copying, hiring, lending (CALLUM) or public performance prohibited.${b.fine ? ' ' + esc(b.fine) : ''} Made in the UK. Ages ${esc(b.age || '3+')}.</div></div>`;
   }
@@ -579,7 +579,7 @@ ${req ? `<div class="dc-req"><b>MINIMUM SYSTEM REQUIREMENTS</b><br>JackOS 95 or 
   const readmeText = b => {
     if (b.kind === 'cdr' || b.kind === 'sleeve' || b.kind === 'floppy') return b.readme;
     const g = b.game ? GAMES[b.game] : null, n = titleOf(b);
-    return `${n.toUpperCase()}\n${'='.repeat(n.length)}\n${g ? `Version ${g.v}${demoBox(b) ? ' DEMO' : ''}   ${g.by}\n` : ''}\n${b.blurb}\n\nINSTALLING\n  Put the CD in drive D:. If AutoPlay is on, the menu appears.\n  Click Install. If it doesn't appear, run D:\\SETUP.EXE.\n${b.discs === 2 ? '  Setup will ask for Disc 2 halfway through. Have it ready.\n' : ''}${b.needCD ? '  The CD must be in the drive to play.\n' : ''}\nSYSTEM REQUIREMENTS\n  ${g ? g.req : 'Pentium 133, 16 MB RAM, 4x CD-ROM'}\n  JackOS 95 or JackOS 98, DirectX 6.1 (on this CD)\n\nKNOWN PROBLEMS\n  - If the game runs slowly, close all other programs. Especially the virtual pet.\n  - "Cannot read from drive D:": clean the disc with a soft cloth (or a jumper).\n  - If your screen goes black, wait. It's loading. It's a CD-ROM.\n${demoBox(b) ? `\nTHIS IS A DEMO\n  The full game is ${fullOut(b)}. Pester your Mom now.\n` : ''}\n${b.readme ? '----------------------------------------------\n' + b.readme + '\n' : ''}`;
+    return `${n.toUpperCase()}\n${'='.repeat(n.length)}\n${g ? `Version ${g.v}${demoBox(b) ? ' DEMO' : ''}   ${g.by}\n` : ''}\n${b.blurb}\n\nINSTALLING\n  Put the CD in drive D:. If AutoPlay is on, the menu appears.\n  Click Install. If it doesn't appear, run D:\\SETUP.EXE.\n${b.discs === 2 ? '  Setup will ask for Disc 2 halfway through. Have it ready.\n' : ''}${b.needCD ? '  The CD must be in the drive to play.\n' : ''}\nSYSTEM REQUIREMENTS\n  ${g ? g.req : 'Pent-Yum 133, 16 MB RAM, 4x CD-ROM'}\n  JackOS 95 or JackOS 98, DirectX 6.1 (on this CD)\n\nKNOWN PROBLEMS\n  - If the game runs slowly, close all other programs. Especially the virtual pet.\n  - "Cannot read from drive D:": clean the disc with a soft cloth (or a jumper).\n  - If your screen goes black, wait. It's loading. It's a CD-ROM.\n${demoBox(b) ? `\nTHIS IS A DEMO\n  The full game is ${fullOut(b)}. Pester your Mom now.\n` : ''}\n${b.readme ? '----------------------------------------------\n' + b.readme + '\n' : ''}`;
   };
   // the game-specific pages of each little booklet (keep these in step with each game's own Help > Keys)
   const MANUAL = {
@@ -955,7 +955,7 @@ JACKNET DUNGEONS
   A.register('discs.cupboard', { single: true, cmd: ['cupboard', 'discs', 'games cupboard', 'gamescupboard'], open: cupboard });
   A.addProgram(['Games', 'Games Cupboard'], 'discs.cupboard', ic16(IC.cupboard));
   A.desktopIcon('Games Cupboard', IC.cupboard, () => A.open('discs.cupboard'), 'dgIconCupboard');
-  A.fs.add('C:/My Documents', { name: 'games i have borrowed.txt', type: 'txt', date: '02/10/99', size: '1 KB', text: Cast.t(`GAMES I HAVE BORROWED (so I give them back)\n===========================================\n\nOFF {mate3.NAME}:\n  - Age of Jackpires II (both discs. disc 1 was scratched WHEN I GOT IT)\n  - Jackreal Tournament\n  - {mate3.his} shareware CD-R ({mate3.he} says "guard it with your life")\n\nOFF {mate2.NAME}:\n  - a cartridge (it's for {mate2.his} N64. I haven't got an N64. {mate2} knows this.)\n\nLENT TO {mate1.NAME}:\n  - nothing. never again. {mate1.he} still has my pod racing cover disc from MAY\n\nAll in the Games Cupboard (desktop, or type CUPBOARD in Run).\n`), secret: null });
+  A.fs.add('C:/My Documents', { name: 'games i have borrowed.txt', type: 'txt', date: '02/10/99', size: '1 KB', text: Cast.t(`GAMES I HAVE BORROWED (so I give them back)\n===========================================\n\nOFF {mate3.NAME}:\n  - Age of Jackpires II (both discs. disc 1 was scratched WHEN I GOT IT)\n  - Jackreal Tournament\n  - {mate3.his} shareware CD-R ({mate3.he} says "guard it with your life")\n\nOFF {mate2.NAME}:\n  - a cartridge (it's for {mate2.his} ULTRA 64. I haven't got an ULTRA 64. {mate2} knows this.)\n\nLENT TO {mate1.NAME}:\n  - nothing. never again. {mate1.he} still has my pod racing cover disc from MAY\n\nAll in the Games Cupboard (desktop, or type CUPBOARD in Run).\n`), secret: null });
   document.addEventListener('setup', ev => {
     const d = ev.detail || {}; if (!d.on) { redraw(); return; }
     const b = BOXES.find(x => pidOf(x) === d.id);
@@ -1219,7 +1219,7 @@ JACKNET DUNGEONS
     // ---- Age of Jackpires II (discs-rts.js)
     rts: { mp: 'rts.online', name: 'Age of Jackpires II online', kind: 'live', players: '2-4', max: 4, blurb: 'Real-time skirmish over JackNet: 1v1, free-for-all or 2v2 with computer allies. Late arrivals watch.', tableOpen: s => !s.ended && !!s.rtsOpen },
     // ---- Championship Boss 99/00 (discs-boss.js)
-    boss: { mp: 'boss.online', name: 'Championship Boss: Cup Night', kind: 'turn', players: '2-8', max: 8, blurb: 'A knockout cup between real managers over JackNet. Pick your team, set your tactics, watch it on Ceefax.', tableOpen: s => !s.ended && !!s.bossOpen },
+    boss: { mp: 'boss.online', name: 'Championship Boss: Cup Night', kind: 'turn', players: '2-8', max: 8, blurb: 'A knockout cup between real managers over JackNet. Pick your team, set your tactics, watch it on Ceefacts.', tableOpen: s => !s.ended && !!s.bossOpen },
   };
   if (window.MP && MP.game) Object.keys(ONLINE).forEach(id => {
     const d = ONLINE[id];

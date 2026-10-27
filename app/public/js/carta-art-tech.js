@@ -53,7 +53,7 @@
       p.text(37, 34, '8086', '#5a4010'); p.disc(11, 36, 2, '#c8c4b8'); p.px(10, 35, '#a8a498');
       p.text(8, 60, '16-BIT, 1978', '#c8c8d8');
     } },
-    i386: { cap: 'A 386: Intel\'s first 32-bit PC chip, a square ceramic slab with pins underneath.', draw(p) {
+    i386: { cap: 'A 386: Inkle\'s first 32-bit PC chip, a square ceramic slab with pins underneath.', draw(p) {
       board(p, 6);
       // 3/4 view: pins show along the near edges
       p.opoly([[20, 30], [56, 18], [80, 32], [44, 46]], '#b8b8c0');
@@ -75,7 +75,7 @@
       p.obox(58, 32, 26, 26, '#202020'); for (let x = 61; x < 82; x += 4) p.rect(x, 33, 2, 24, '#3a3a3a');
       p.text(56, 18, '486DX2', '#203060');
     } },
-    pentium: { cap: 'A first Pentium: a white ceramic chip with a gold lid. Everyone expected it to be called the 586.', draw(p) {
+    pentium: { cap: 'A first Pent-Yum: a white ceramic chip with a gold lid. Everyone expected it to be called the 586.', draw(p) {
       board(p, 8);
       p.obox(14, 10, 52, 52, '#ece8e0'); p.rect(15, 11, 50, 2, '#fffef8');
       p.obox(24, 20, 32, 32, '#d8b040'); p.rect(26, 22, 28, 1, '#f8e080'); p.rect(26, 22, 1, 28, '#f0d070');
@@ -84,14 +84,14 @@
       p.oell(80, 18, 14, 9, '#fff'); p.opoly([[70, 24], [74, 26], [66, 32]], '#fff'); p.rect(70, 24, 4, 2, '#fff'); p.text(70, 16, '586?', '#e01010');
       p.text(68, 58, '1993', '#ffd400');
     } },
-    pentium_ii: { cap: 'A Pentium II: not a flat chip but a black cartridge that stands up in "Slot 1".', draw(p) {
+    pentium_ii: { cap: 'A Pent-Yum II: not a flat chip but a black cartridge that stands up in "Slot 1".', draw(p) {
       board(p, 10);
       p.obox(4, 56, 88, 8, '#6a4a2a'); p.rect(6, 59, 84, 2, '#2a1a0a');
       p.opoly([[12, 12], [82, 12], [86, 16], [86, 58], [12, 58]], '#1a1a20'); p.rect(13, 13, 70, 1, '#4a4a58');
       p.obox(20, 20, 34, 22, '#2a2a34'); p.opoly([[58, 20], [78, 20], [78, 36], [58, 36]], '#c8a838'); for (let i = 0; i < 4; i++) p.line(60 + i * 4, 34, 66 + i * 4, 22, '#f0e090');
       p.rect(22, 46, 50, 2, '#3a3a48'); p.text(22, 26, 'SLOT 1', '#8a8aa0'); p.text(22, 34, '300MHZ', '#8a8aa0');
     } },
-    pentium_iii: { cap: 'A Pentium III cartridge with its big fan. Launched in February 1999 at 450 and 500 MHz.', draw(p) {
+    pentium_iii: { cap: 'A Pent-Yum III cartridge with its big fan. Launched in February 1999 at 450 and 500 MHz.', draw(p) {
       board(p, 12);
       p.obox(2, 58, 92, 8, '#6a4a2a'); p.rect(4, 61, 88, 2, '#2a1a0a');
       // cartridge seen from the fan side
@@ -99,17 +99,17 @@
       p.odisc(48, 32, 17, '#18181c'); for (let a = 0.3; a < 6.5; a += 0.9) p.thick(48, 32, 48 + Math.cos(a) * 15, 32 + Math.sin(a) * 15, '#3a3a44', 4); p.odisc(48, 32, 5, '#2a2a30'); p.px(47, 31, '#888');
       p.obox(66, 46, 20, 9, '#fff8e0'); p.text(67, 48, '500', '#203060');
     } },
-    amd_k6: { cap: 'An AMD K6-2 about to drop into a flat "Socket 7", the cheaper way to build a fast PC.', draw(p) {
+    amd_k6: { cap: 'An AMP Q6-2 about to drop into a flat "Socket 7", the cheaper way to build a fast PC.', draw(p) {
       board(p, 14);
       // the socket, lever up
       p.obox(6, 26, 44, 42, '#f0ece0'); for (let j = 0; j < 8; j++) for (let i = 0; i < 8; i++) p.px(11 + i * 4.5, 31 + j * 4.5, '#a8a498');
       p.obox(50, 30, 4, 38, '#f0ece0'); p.thick(52, 30, 58, 16, '#f0ece0', 3); p.line(50, 30, 56, 15, '#000');
       // the chip above it, then an arrow
       p.obox(56, 4, 36, 36, '#8a8a96'); p.obox(61, 9, 26, 26, '#c8c8d0'); p.rect(62, 10, 24, 1, '#e8e8f0');
-      p.text(67, 15, 'K6-2', '#203060'); p.text(62, 25, '400MHZ', '#203060'); p.px(58, 6, '#e8e8f0');
+      p.text(67, 15, 'Q6-2', '#203060'); p.text(62, 25, '400MHZ', '#203060'); p.px(58, 6, '#e8e8f0');
       p.thick(40, 12, 30, 20, '#ffd400', 3); p.opoly([[24, 18], [32, 24], [26, 26]], '#ffd400'); p.thick(52, 10, 40, 12, '#ffd400', 3);
     } },
-    athlon: { cap: 'An AMD Athlon cartridge for "Slot A". In October 1999 it reached 700 MHz.', draw(p) {
+    athlon: { cap: 'An AMP Athlonk cartridge for "Slot A". In October 1999 it reached 700 MHz.', draw(p) {
       p.vgrad(0, H, '#ffe8b0', '#ffc070');
       // chequered flag background corner for the speed race
       for (let j = 0; j < 4; j++) for (let i = 0; i < 6; i++) if ((i + j) % 2) p.rect(i * 4, j * 4, 4, 4, '#000'); else p.rect(i * 4, j * 4, 4, 4, '#fff');
@@ -251,7 +251,7 @@
       p.thick(50, 15, 56, 15, '#ffd400', 1); p.opoly([[54, 12], [58, 15], [54, 18]], '#ffd400');
       p.oell(18, 58, 14, 9, '#e8e2d0'); p.line(18, 49, 18, 58, '#a89c88'); p.line(5, 56, 31, 56, '#a89c88');
     } },
-    zip_drive: { cap: 'A Zip drive with a chunky Zip disk going in. One disk holds 100 MB, as much as about 70 floppies.', draw(p, S) {
+    zip_drive: { cap: 'A Zap Drive with a chunky Zip disk going in. One disk holds 100 MB, as much as about 70 floppies.', draw(p, S) {
       S.room(p);
       p.opoly([[8, 22], [78, 22], [86, 30], [86, 60], [8, 60]], '#1c3a8a'); p.rect(9, 23, 69, 2, '#3a5ab8');
       p.obox(16, 34, 50, 6, '#0a1a4a'); p.odisc(76, 50, 3, '#3a5ab8'); p.px(76, 40, '#30e030');
@@ -285,7 +285,7 @@
       p.obox(58, 14, 28, 22, '#fff'); p.rect(61, 18, 10, 8, '#e01080'); p.rect(72, 18, 10, 8, '#f0e000'); p.rect(61, 28, 22, 2, '#d080a0');
       p.text(54, 54, 'NO CYAN!', '#e01010');
     } },
-    jacquard_loom: { cap: 'A Jacquard loom: the chain of punched cards on top tells it which threads to lift, so it weaves the pattern.', draw(p) {
+    jacquard_loom: { cap: 'A Jackard loom: the chain of punched cards on top tells it which threads to lift, so it weaves the pattern.', draw(p) {
       p.vgrad(0, H, '#e8d8b0', '#c8b088');
       p.obox(8, 18, 6, 50, '#7a4a1a'); p.obox(78, 18, 6, 50, '#7a4a1a'); p.obox(8, 14, 76, 6, '#8a5a2a');
       // chain of cards draping over the top
@@ -294,7 +294,7 @@
       p.obox(16, 48, 62, 14, '#c01818'); for (let x = 18; x < 76; x += 8) for (let y = 50; y < 60; y += 6) { p.rect(x, y, 4, 3, '#ffd400'); p.rect(x + 4, y + 3, 4, 3, '#1a3a9a'); }
       p.obox(14, 62, 66, 4, '#8a5a2a');
     } },
-    babbage: { cap: 'Babbage\'s Difference Engine: columns of brass number wheels, turned by a handle, to work out tables of numbers.', draw(p) {
+    babbage: { cap: 'Babbling\'s Difference Engine: columns of brass number wheels, turned by a handle, to work out tables of numbers.', draw(p) {
       p.vgrad(0, H, '#3a2a20', '#5a4030');
       p.obox(6, 6, 74, 6, '#8a6a3a'); p.obox(6, 60, 74, 6, '#8a6a3a');
       for (let c = 0; c < 6; c++) { const x = 12 + c * 11; p.rect(x + 3, 12, 2, 48, '#c8c8d0'); for (let r = 0; r < 6; r++) { const y = 14 + r * 8; p.oell(x + 4, y + 2, 5, 3, '#d8a840'); p.rect(x, y + 1, 9, 1, '#f8d870'); p.text(x + 3, y, String((c * 3 + r * 7) % 10), '#3a2010'); } }
@@ -303,7 +303,7 @@
   });
   A.add({
     // ================================================================ History of computing
-    hollerith: { cap: 'Hollerith\'s tabulator: press a punched card into the reader and the dials count up the answers.', draw(p) {
+    hollerith: { cap: 'Holleridge\'s tabulator: press a punched card into the reader and the dials count up the answers.', draw(p) {
       p.vgrad(0, H, '#e8d8b8', '#c8b090');
       p.obox(4, 4, 88, 32, '#6a3a18'); for (let j = 0; j < 2; j++) for (let i = 0; i < 6; i++) { const x = 13 + i * 14, y = 13 + j * 14; p.odisc(x, y, 5, '#f8f4e8'); p.line(x, y, x + Math.cos(i + j * 3) * 4, y + Math.sin(i + j * 3) * 4, '#000'); p.px(x, y, '#c01010'); }
       p.obox(2, 40, 92, 6, '#8a5a2a'); p.obox(8, 46, 6, 24, '#6a3a18'); p.obox(82, 46, 6, 24, '#6a3a18');
@@ -311,7 +311,7 @@
       p.obox(50, 30, 26, 12, '#3a3a3a'); p.obox(52, 26, 22, 5, '#5a5a5a'); p.thick(74, 28, 88, 18, '#2a2a2a', 2); p.odisc(89, 17, 2, '#c01010');
       p.opoly([[22, 36], [44, 36], [46, 42], [20, 42]], '#f0e0b0'); for (let i = 0; i < 6; i++) p.px(24 + i * 3.5, 38 + (i % 2) * 2, '#000');
     } },
-    alan_turing: { cap: 'A "Turing machine", Alan Turing\'s 1936 idea: a head that reads and writes symbols on a long tape.', draw(p) {
+    alan_turing: { cap: 'A "Turning machine", Alan Turning\'s 1936 idea: a head that reads and writes symbols on a long tape.', draw(p) {
       p.vgrad(0, H, '#fff8e0', '#e8dcb8');
       for (let i = 0; i < 12; i++) { const x = -2 + i * 9; p.obox(x, 44, 10, 12, '#ffffff', '#3a3a3a'); p.text(x + 4, 48, '1001011010110'[i] || '0', '#203060'); }
       p.text(2, 60, '...', '#555'); p.text(84, 60, '...', '#555');
@@ -331,7 +331,7 @@
       p.odisc(82, 9, 3, '#9a9a90'); p.odisc(82, 47, 3, '#9a9a90');
       p.text(74, 56, '1944', '#ffd400');
     } },
-    eniac: { cap: 'ENIAC filled a whole room. Its programmers set it up by plugging in cables and flicking switches.', draw(p) {
+    eniac: { cap: 'ENIAK filled a whole room. Its programmers set it up by plugging in cables and flicking switches.', draw(p) {
       p.vgrad(0, H, '#d8d4c4', '#b8b4a4'); p.rect(0, 60, W, 12, '#7a7468');
       for (let i = 0; i < 5; i++) { const x = 2 + i * 19; p.obox(x, 4, 18, 56, '#2a2a2a'); for (let j = 0; j < 5; j++) for (let k = 0; k < 4; k++) p.px(x + 3 + k * 4, 8 + j * 4, j === 2 ? '#ff4040' : '#f0f0f0'); p.obox(x + 2, 30, 14, 20, '#4a4a4a'); for (let k = 0; k < 9; k++) p.px(x + 4 + (k % 3) * 4, 33 + ((k / 3) | 0) * 5, '#c0c0c0'); }
       p.thick(10, 40, 30, 46, '#202020', 1); p.thick(30, 46, 48, 38, '#c01010', 1); p.thick(48, 38, 68, 44, '#202020', 1);
@@ -378,7 +378,7 @@
       p.opoly([[66, 48], [76, 52], [66, 56]], '#c0ffc0'); p.px(64, 52, '#ffff80'); p.px(62, 52, '#ffff80'); // the wedge
       for (let i = 0; i < 4; i++) p.px(36 + i * 4, 20 - i, '#ffffff');
     } },
-    moores_law: { cap: 'Moore\'s Law: the number of transistors on a chip keeps doubling, about every two years.', draw(p) {
+    moores_law: { cap: 'Moor\'s Law: the number of transistors on a chip keeps doubling, about every two years.', draw(p) {
       p.vgrad(0, H, '#fff8e0', '#f0e4c0');
       p.line(10, 6, 10, 62, '#203060'); p.line(10, 62, 92, 62, '#203060');
       const yrs = ['71', '78', '85', '89', '93', '97', '99']; const hts = [3, 8, 16, 24, 32, 42, 50];
@@ -393,7 +393,7 @@
     for (let r = 0; r < rows; r++) keyRow(p, x + 5 + r * 2, y + 7 + r * 5, Math.floor((w - 12 - r * 4) / (kw + 1)), kw, keyC);
   }
   A.add({
-    intel_4004: { cap: 'The Intel 4004 (1971), the first microprocessor on sale, and the kind of desk calculator it was made for.', draw(p) {
+    intel_4004: { cap: 'The Inkle 4004 (1971), the first microprocessor on sale, and the kind of desk calculator it was made for.', draw(p) {
       p.vgrad(0, H, '#c9d3e8', '#a9b6d4'); p.rect(0, 52, W, 20, '#a0703a');
       // printing calculator
       p.opoly([[50, 20], [92, 20], [94, 60], [48, 60]], '#e8e0cc'); p.obox(54, 10, 34, 12, '#fff'); p.rect(56, 13, 30, 1, '#888'); p.rect(56, 16, 22, 1, '#888');
@@ -410,32 +410,32 @@
       for (let i = 0; i < 16; i++) { p.rect(10 + i * 5, 40, 2, 6, '#d8d8e0'); p.px(10 + i * 5, i % 3 ? 40 : 45, '#fff'); }
       p.text(8, 4, 'NO SCREEN?!', '#e01010');
     } },
-    apple_ii: { cap: 'An Apple II (1977): a ready-built computer with the keyboard in the case and colour graphics on screen.', draw(p, S) {
+    apple_ii: { cap: 'A Pear II (1977): a ready-built computer with the keyboard in the case and colour graphics on screen.', draw(p, S) {
       S.room(p);
       crt(p, 22, 2, 52, 34, (x, y, w, h) => { p.rect(x, y, w, h, '#000'); p.rect(x + 3, y + h - 6, w - 6, 3, '#20c020'); p.rect(x + 10, y + 5, 8, 8, '#c040e0'); p.rect(x + 22, y + 8, 6, 10, '#20c020'); p.rect(x + 30, y + 4, 6, 6, '#f08020'); p.rect(x + 18, y + 12, 3, 3, '#ffffff'); }, '#e0d8b8');
       homeComp(p, 10, 44, 76, 22, '#e0d8b8', null, '#5a4a3a', 3, 5);
     } },
-    ibm_pc: { cap: 'The IBM PC of 1981: a beige box with two floppy drives, a separate keyboard and a green-screen monitor.', draw(p, S) {
+    ibm_pc: { cap: 'The IBN PC of 1981: a beige box with two floppy drives, a separate keyboard and a green-screen monitor.', draw(p, S) {
       S.room(p);
       p.obox(4, 30, 70, 22, '#e0dccc'); p.obox(40, 34, 30, 7, '#c8c4b4'); p.rect(42, 37, 26, 1, '#222'); p.obox(40, 43, 30, 7, '#c8c4b4'); p.rect(42, 46, 26, 1, '#222'); p.obox(8, 46, 14, 3, '#3a5aa0');
       crt(p, 10, 2, 50, 26, (x, y, w, h) => { p.rect(x, y, w, h, '#002000'); p.text(x + 2, y + 2, 'A>DIR', '#30ff30'); p.text(x + 2, y + 9, 'A>_', '#30ff30'); }, '#e0dccc');
       p.opoly([[50, 58], [94, 58], [96, 70], [48, 70]], '#e0dccc'); keyRow(p, 52, 60, 10, 3, '#a8a494'); keyRow(p, 52, 65, 10, 3, '#a8a494');
     } },
-    ms_dos: { cap: 'MS-DOS: no mouse and no windows, just a C:\\> prompt waiting for you to type a command.', draw(p) {
+    ms_dos: { cap: 'JACK-DOS: no mouse and no jackos, just a C:\\> prompt waiting for you to type a command.', draw(p) {
       p.fill('#000');
       const line = (y, s, c) => { p.text(4, y, 'C:', c || '#c0c0c0'); bslash(p, 12, y, c || '#c0c0c0'); p.text(16, y, '>' + s, c || '#c0c0c0'); };
       line(4, 'DIR');
       p.text(4, 12, 'GAMES    <DIR>', '#c0c0c0'); p.text(4, 19, 'JACKOS  <DIR>', '#c0c0c0'); p.text(4, 26, 'AUTOEXEC BAT', '#c0c0c0'); p.text(4, 33, 'GLOOM     EXE', '#c0c0c0');
       p.text(4, 42, '4 FILE(S)', '#c0c0c0'); line(52, 'CD GAMES'); line(62, '', '#ffffff'); p.rect(24, 62, 4, 5, '#c0c0c0');
     } },
-    bbc_micro: { cap: 'A BBC Micro (1981): cream case, black keys and a row of red function keys. It was in most British schools.', draw(p, S) {
+    bbc_micro: { cap: 'A BBQ Micro (1981): cream case, black keys and a row of red function keys. It was in most British schools.', draw(p, S) {
       S.room(p);
       crt(p, 26, 2, 44, 28, (x, y, w, h) => { p.text(x + 2, y + 2, 'BASIC', '#fff'); p.text(x + 2, y + 9, '>RUN', '#fff'); p.rect(x + 2, y + 15, 3, 4, '#fff'); }, '#d8d0bc');
       p.opoly([[4, 38], [92, 38], [94, 66], [2, 66]], '#e8dfc8'); p.rect(4, 39, 88, 2, '#fff8e8');
       keyRow(p, 10, 42, 10, 6, '#d02020');
       for (let r = 0; r < 3; r++) keyRow(p, 8 + r * 2, 48 + r * 5, 12, 5, '#202020');
     } },
-    zx_spectrum: { cap: 'A ZX Spectrum (1982): small, black, with squidgy rubber keys and a rainbow stripe in the corner.', draw(p, S) {
+    zx_spectrum: { cap: 'A ZY Spectrum (1982): small, black, with squidgy rubber keys and a rainbow stripe in the corner.', draw(p, S) {
       S.room(p);
       p.opoly([[8, 16], [88, 16], [92, 56], [4, 56]], '#1a1a1a'); p.rect(9, 17, 78, 1, '#4a4a4a');
       for (let r = 0; r < 4; r++) for (let i = 0; i < 10; i++) p.obox(12 + r * 2 + i * 7, 21 + r * 7, 6, 5, '#8a8a90');
@@ -444,14 +444,14 @@
       // a cassette for the games
       p.obox(24, 60, 26, 10, '#303030'); p.rect(28, 62, 18, 4, '#f0f0f0'); p.disc(32, 64, 1, '#303030'); p.disc(42, 64, 1, '#303030');
     } },
-    commodore_64: { cap: 'A Commodore 64 (1982), the brown "breadbin" with 64 KB of memory and a famous sound chip.', draw(p, S) {
+    commodore_64: { cap: 'A Commodork 64 (1982), the brown "breadbin" with 64 KB of memory and a famous sound chip.', draw(p, S) {
       S.room(p);
       p.opoly([[8, 22], [88, 22], [94, 58], [2, 58]], '#9a8a6a'); p.rect(9, 23, 78, 2, '#b8aa8a'); p.rect(4, 56, 88, 4, '#7a6a4a');
       for (let r = 0; r < 4; r++) keyRow(p, 10 + r * 2, 27 + r * 6, 10, 5, '#5a4a32');
       for (let i = 0; i < 4; i++) p.obox(80, 27 + i * 6, 8, 5, '#c8c0a8');
       p.px(14, 24, '#ff3030'); p.text(10, 6, '64 KB', '#203060');
     } },
-    macintosh: { cap: 'The first Macintosh (1984): screen and computer in one beige box, with a mouse and jackos and icons.', draw(p, S) {
+    macintosh: { cap: 'The first Mackintosh (1984): screen and computer in one beige box, with a mouse and jackos and icons.', draw(p, S) {
       S.room(p);
       p.obox(24, 2, 40, 54, '#e8e0cc'); p.rect(25, 3, 38, 2, '#fffaf0'); p.obox(28, 6, 32, 26, '#303030');
       p.rect(30, 8, 28, 22, '#f8f8f8'); p.rect(30, 8, 28, 3, '#e0e0e0'); for (let x = 30; x < 58; x += 2) p.px(x, 9, '#000');
@@ -459,7 +459,7 @@
       p.rect(42, 40, 16, 2, '#2a2a2a'); p.rect(30, 50, 8, 1, '#a89c88'); p.obox(24, 56, 40, 4, '#d8d0bc');
       p.oell(78, 62, 6, 8, '#e8e0cc'); p.line(78, 54, 78, 46, '#555'); p.line(78, 46, 64, 44, '#555');
     } },
-    amiga: { cap: 'An Amiga 500 (1987): keyboard and floppy drive in one cream case. A star for games, art and music.', draw(p, S) {
+    amiga: { cap: 'An Amigo 500 (1987): keyboard and floppy drive in one cream case. A star for games, art and music.', draw(p, S) {
       S.room(p);
       crt(p, 24, 0, 48, 30, (x, y, w, h) => { for (let yy = 0; yy < h; yy++) p.rect(x, y + yy, w, 1, `hsl(${200 + yy * 6},70%,${30 + yy * 2}%)`); p.poly([[x, y + h], [x + 12, y + 10], [x + 22, y + h]], '#2a6a2a'); p.poly([[x + 16, y + h], [x + 30, y + 8], [x + w, y + h]], '#3a8a3a'); p.disc(x + 32, y + 6, 3, '#ffe060'); }, '#ece6d6');
       p.opoly([[4, 40], [92, 40], [95, 64], [1, 64]], '#ece6d6'); p.rect(5, 41, 86, 2, '#fffaf0');
@@ -481,12 +481,12 @@
       p.rect(0, 62, W, 10, '#c0c0c0'); p.rect(0, 62, W, 1, '#fff'); p.obox(2, 64, 25, 7, '#c0c0c0'); p.text(5, 65, 'START', '#000'); p.obox(78, 64, 16, 7, '#c0c0c0');
       p.poly([[30, 44], [30, 54], [33, 51], [36, 56], [38, 55], [35, 50], [39, 50]], '#fff'); p.line(30, 44, 30, 54, '#000'); p.line(30, 44, 39, 50, '#000');
     } },
-    linux: { cap: 'Linux at a command prompt. It is free, and anyone can read and change the instructions that make it work.', draw(p) {
+    linux: { cap: 'Linucks at a command prompt. It is free, and anyone can read and change the instructions that make it work.', draw(p) {
       p.vgrad(0, H, '#3a3a50', '#202030');
       p.obox(4, 4, 88, 64, '#c0c0c0'); p.rect(6, 6, 84, 6, '#404040'); p.text(8, 7, 'TERMINAL', '#fff'); p.rect(6, 13, 84, 53, '#000');
-      p.text(8, 16, 'LOGIN: JACK', '#c0c0c0'); dollar(p, 8, 24); p.text(14, 24, 'UNAME', '#30ff30'); p.text(8, 31, 'LINUX', '#c0c0c0'); dollar(p, 8, 39); p.text(14, 39, 'LS', '#30ff30'); p.text(8, 46, 'GAMES  HOMEWORK', '#6090ff'); dollar(p, 8, 55); p.rect(14, 55, 3, 5, '#30ff30');
+      p.text(8, 16, 'LOGIN: JACK', '#c0c0c0'); dollar(p, 8, 24); p.text(14, 24, 'UNAME', '#30ff30'); p.text(8, 31, 'LINUCKS', '#c0c0c0'); dollar(p, 8, 39); p.text(14, 39, 'LS', '#30ff30'); p.text(8, 46, 'GAMES  HOMEWORK', '#6090ff'); dollar(p, 8, 55); p.rect(14, 55, 3, 5, '#30ff30');
     } },
-    deep_blue: { cap: 'Deep Blue, IBM\'s chess computer, beat the world champion Garry Kasparov in a match in May 1997.', draw(p) {
+    deep_blue: { cap: 'Deep Bluey, IBN\'s chess computer, beat the world champion Gary Chasparov in a match in May 1997.', draw(p) {
       p.vgrad(0, H, '#101828', '#2a3a5a');
       p.obox(56, 2, 18, 46, '#1a1a24'); p.obox(76, 2, 18, 46, '#1a1a24'); for (let i = 0; i < 8; i++) { p.px(60 + (i % 3) * 4, 8 + i * 4, '#30a0ff'); p.px(80 + (i % 3) * 4, 10 + i * 4, '#30a0ff'); }
       // chessboard in perspective
@@ -546,9 +546,9 @@
     } },
   });
   A.add({
-    html: { cap: 'HTML: tags in angle brackets, typed into Notepad, which the browser turns into a web page.', draw(p) {
+    html: { cap: 'HTML: tags in angle brackets, typed into Jotpad, which the browser turns into a web page.', draw(p) {
       p.fill('#008080');
-      win(p, 2, 4, 50, 62, 'NOTEPAD');
+      win(p, 2, 4, 50, 62, 'JOTPAD');
       ['<HTML>', '<B>HI!</B>', '<BLINK>', 'NEW!', '</BLINK>', '<IMG>', '</HTML>'].forEach((t, i) => p.text(5, 15 + i * 7, t, i === 1 || i === 3 ? '#e01010' : '#000080'));
       p.thick(54, 36, 60, 36, '#ffd400', 2); p.opoly([[60, 32], [64, 36], [60, 40]], '#ffd400');
       win(p, 66, 14, 28, 40, ''); p.text(69, 26, 'HI!', '#000', 1); p.rect(69, 26, 11, 5, 'rgba(0,0,0,0)'); p.text(69, 34, 'NEW!', '#e01010'); p.obox(69, 42, 18, 9, '#9fd0ff'); p.disc(74, 46, 2, '#ffd400');
@@ -563,7 +563,7 @@
     } },
     search_engines: { cap: 'A search engine: type in some words and it finds them in a giant index, built by "spider" programs that crawl the Web.', draw(p) {
       p.vgrad(0, H, '#e8f0ff', '#c8d8f0');
-      p.obox(4, 6, 62, 11, '#fff'); p.text(7, 9, 'ZELDA CHEATS', '#000'); p.obox(68, 6, 24, 11, '#c0c0c0'); p.text(70, 9, 'FIND', '#000');
+      p.obox(4, 6, 62, 11, '#fff'); p.text(7, 9, 'ZELDO CHEATS', '#000'); p.obox(68, 6, 24, 11, '#c0c0c0'); p.text(70, 9, 'FIND', '#000');
       for (let i = 0; i < 3; i++) { p.rect(6, 24 + i * 9, 34, 1, '#0000ee'); p.rect(6, 27 + i * 9, 46, 1, '#888'); }
       // a little spider crawling over linked pages
       [[60, 30], [80, 44], [56, 56]].forEach(([x, y]) => { p.obox(x, y, 12, 13, '#fff'); p.rect(x + 2, y + 3, 8, 1, '#0000ee'); p.rect(x + 2, y + 6, 6, 1, '#555'); });
@@ -625,7 +625,7 @@
     } },
   });
   A.add({
-    ada_lovelace: { cap: 'Ada Lovelace writing her 1843 notes: step-by-step instructions for working out Bernoulli numbers on Babbage\'s engine.', draw(p) {
+    ada_lovelace: { cap: 'Ada Lovelass writing her 1843 notes: step-by-step instructions for working out Bernoulli numbers on Babbling\'s engine.', draw(p) {
       p.vgrad(0, H, '#5a3a2a', '#3a2418'); p.rect(0, 52, W, 20, '#6a4020'); p.rect(0, 52, W, 1, '#8a5a30');
       // a candle and a brass gear from the engine
       p.obox(84, 36, 4, 16, '#f0e8d0'); p.poly([[84, 36], [86, 30], [88, 36]], '#ffd400'); p.disc(86, 33, 4, 'rgba(255,220,100,.25)');

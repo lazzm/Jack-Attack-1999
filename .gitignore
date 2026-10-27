@@ -13,3 +13,4 @@ tools/audio/out/
 tools/audio/names/out/
 tools/audio/names/report.json
 tools/audio/listen.html
+.claude/worktrees/

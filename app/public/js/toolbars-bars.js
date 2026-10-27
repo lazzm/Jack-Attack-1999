@@ -172,24 +172,24 @@
   const SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
   function horoscope(sign) {
     const h = hash(sign + today().key);
-    const A = ['A mysterious stranger will lend you a pencil.', 'Today is a good day to finally do one whole side of the Rubrick\'s cube.', 'Beware of anyone carrying a talking toy owl.', 'Your modem will connect first time. Treasure this moment.', 'Someone will say "it\'s not a phase, Mom". It might be you.', 'A floppy disk from your past will come back to haunt you. It will say "Disk Error".', 'You will find 20p down the back of the sofa. Spend it wisely (on sweets).', 'The stars say: tidy your room. The stars sound a lot like your Mom.', 'An old friend will send you a chain e-mail. Do NOT forward it.', 'Great fortune awaits you in the bottom of a cereal box.', 'Today you will beat your high score. Or someone else will. Probably Dave.', 'A Furby will look at you funny. Do not feed it after midnight.'];
-    const B = ['Lucky colour: ' + pick2(h, ['beige (like all PCs)', 'Blueberry', 'Zapachu yellow', 'Game Lad green', 'Tangerine', 'grey (JackOS 98 grey)', 'Y2K silver']), 'Lucky number: ' + (h % 56 + 1), 'Lucky snack: ' + pick2(h >>> 3, ['crisps', 'a chocolate biscuit', 'Wotsits', 'toast', 'a whole selection box']), 'Best avoided: ' + pick2(h >>> 5, ['homework', 'the Water Temple', 'Dave\'s cat', 'dial-up during teatime', 'pressing the Turbo button'])];
+    const A = ['A mysterious stranger will lend you a pencil.', 'Today is a good day to finally do one whole side of the Rubrick\'s cube.', 'Beware of anyone carrying a talking toy owl.', 'Your modem will connect first time. Treasure this moment.', 'Someone will say "it\'s not a phase, Mom". It might be you.', 'A floppy disk from your past will come back to haunt you. It will say "Disk Error".', 'You will find 20p down the back of the sofa. Spend it wisely (on sweets).', 'The stars say: tidy your room. The stars sound a lot like your Mom.', 'An old friend will send you a chain e-mail. Do NOT forward it.', 'Great fortune awaits you in the bottom of a cereal box.', 'Today you will beat your high score. Or someone else will. Probably Dave.', 'A Furbo will look at you funny. Do not feed it after midnight.'];
+    const B = ['Lucky colour: ' + pick2(h, ['beige (like all PCs)', 'Blueberry', 'Zapachu yellow', 'Game Lad green', 'Tangerine', 'grey (JackOS 98 grey)', 'Y2K silver']), 'Lucky number: ' + (h % 56 + 1), 'Lucky snack: ' + pick2(h >>> 3, ['crisps', 'a chocolate biscuit', 'Wotsitz', 'toast', 'a whole selection box']), 'Best avoided: ' + pick2(h >>> 5, ['homework', 'the Water Tempura', 'Dave\'s cat', 'dial-up during teatime', 'pressing the Turbo button'])];
     return A[h % A.length] + ' ' + B[(h >>> 2) % B.length] + '.';
   }
   function pick2(h, a) { return a[h % a.length]; }
   const ORK_ANSWERS = ['Signs point to yes. (The signs point everywhere.)', 'Blow on the cartridge and try again.', 'Have you tried turning it off and on again?', 'Ask again after the modem stops screeching.', 'Dunno. Ask Dave, he has the strategy guide.', 'Reply hazy. Your monitor needs dusting.', "Yes. Unless it's no. Then no.", 'Only if you hold down A+B while you ask.', 'My sources say: up, up, down, down, left, right, left, right.', 'Rupees. The answer is always Rupees.'];
   function orkAnswer(q) {
     const l = q.toLowerCase();
-    if (/red|fast|quick|speed/.test(l)) return 'Red ones go faster. Ask any Micro Machines fan.';
-    if (/gun|shoot|dakka|golden/.test(l)) return 'Pick Oddjob in Goldenballs. Everyone hates it. Do it anyway.';
-    if (/food|eat|hungry|dinner|tea/.test(l)) return 'Pot Noodle. The answer is always Pot Noodle.';
+    if (/red|fast|quick|speed/.test(l)) return 'Red ones go faster. Ask any Micro Mechanics fan.';
+    if (/gun|shoot|dakka|golden/.test(l)) return 'Pick Oddbob in Goldenballs. Everyone hates it. Do it anyway.';
+    if (/food|eat|hungry|dinner|tea/.test(l)) return 'Pot Noodlez. The answer is always Pot Noodlez.';
     if (/money|cost|price|pay|quid/.test(l)) return "That'll be ten Rupees.";
     if (/y2k|millennium|2000/.test(l)) return "The Millennium Bug? Unplug the video recorder and hope.";
     if (/homework|school/.test(l)) return 'Yes. Sorry. Even this toolbar can\'t get you out of that one.';
     return pick(ORK_ANSWERS);
   }
-  const JOKES = ['Why did the racing car paint itself red? Because red ones go faster!', 'What do you call a Eggbert with no batteries? A keyring.','Why did the computer go to the doctor? It had a virus!', 'How many programmers does it take to change a light bulb? None, that is a hardware problem.', 'Knock knock. Who is there? The Millennium Bug. The Millennium Bug who? Exactly, nobody knows.', 'Why was the floppy disk sad? Nobody wanted to be its 1.44 MB-FF.', 'Why did the Game Lad go to bed? Its batteries were flat.', 'Why did the modem go to bed early? It was all worn out from the screeching.'];
-  const FACTS = ['A floppy disk holds 1.44 megabytes.', 'The Ultra 64 has 4 megabytes of memory. 8 with the Expansion Pak!', 'There are 151 Pocket Critters.', 'Red ones go faster. Science.', 'Blockology was invented in Moscow in 1984.', 'A CD-ROM holds about 650 megabytes. That is 451 floppy disks!'];
+  const JOKES = ['Why did the racing car paint itself red? Because red ones go faster!', 'What do you call an Eggbert with no batteries? A keyring.','Why did the computer go to the doctor? It had a virus!', 'How many programmers does it take to change a light bulb? None, that is a hardware problem.', 'Knock knock. Who is there? The Millennium Bug. The Millennium Bug who? Exactly, nobody knows.', 'Why was the floppy disk sad? Nobody wanted to be its 1.44 MB-FF.', 'Why did the Game Lad go to bed? Its batteries were flat.', 'Why did the modem go to bed early? It was all worn out from the screeching.'];
+  const FACTS = ['A floppy disk holds 1.44 megabytes.', 'The Ultra 64 has 4 megabytes of memory. 8 with the Expansion Pouch!', 'There are 151 Pocket Critters.', 'Red ones go faster. Science.', 'Blockology was invented in Moscow in 1984.', 'A CD-ROM holds about 650 megabytes. That is 451 floppy disks!'];
   function talk(t, who, pitch) {
     toast(who + ' says:', t, 6000);
     try { if (window.speechSynthesis && window.Sound && Sound.on) { const u = new SpeechSynthesisUtterance(t); u.pitch = pitch || 1.6; u.rate = 1.05; speechSynthesis.cancel(); Sound.speak(u); } } catch (e) {}
@@ -226,7 +226,7 @@
       menuBtn('check', 'Spell Check', [{ label: 'Check spelling on this page', act: box('MegaSpell', 'MegaSpell found 1,999 spelling mistakes on this page.\n\nMost of them were "Pocket Critters". Nobody knows where the accent goes.') }, { label: 'Spell "millennium" for me', act: box('MegaSpell', 'M-I-L-L-E-N-N-I-U-M.\n\nTwo Ls, two Ns. Everyone gets it wrong. Even the people selling Millennium Mugs.') }]),
       ad(['<b>FREE</b> 500 hours!', 'Get on-line NOW!', '<b>56K!!!</b> (ish)'], () => window.OldPC && OldPC.popup(true), 'a-blu', 120)],
     [menuBtn('news', 'News', () => calNews(6).map(p => ({ label: p.tag + ': ' + p.text.slice(0, 54) + (p.text.length > 54 ? '...' : ''), act: box('MegaNews: ' + p.tag, p.text) })).concat(['-', { label: 'More news...', act: nav('news') }])),
-      menuBtn('trophy', 'Sport', [{ label: 'Football results', act: nav('rovers') }, { label: 'Yo-yo league table', act: nav('~lee') }, { label: 'Robot fighting (on telly)', act: say('MegaSport', 'Sir Killalot won. Sir Killalot always wins.') }, { label: 'Tiddlywinks (live)', act: comingSoon('MegaSport') }]),
+      menuBtn('trophy', 'Sport', [{ label: 'Football results', act: nav('rovers') }, { label: 'Yo-yo league table', act: nav('~lee') }, { label: 'Robot fighting (on telly)', act: say('MegaSport', 'Sir Killalotta won. Sir Killalotta always wins.') }, { label: 'Tiddlywinks (live)', act: comingSoon('MegaSport') }]),
       menuBtn('pad', 'Games', [{ label: 'Play games now!', act: nav('demos') }, { label: 'Cheats & tips', act: nav('cheats') }, { label: 'Top 100 Cheats (well, 40)', act: nav('top100cheats') }, { label: 'High Score Hall of Fame', act: nav('hz-hiscore') }]),
       menuBtn('cart', 'Shopping', [{ label: 'Gem Exchange', act: nav('teef') }, { label: 'Compare prices', act: say('MegaShop', 'Everything costs more than your pocket money. Comparison complete.') }, { label: 'Install TurboCoupon Saver', act: bundle('coupon') }]),
       menuBtn('chat', 'Chat', [{ label: 'JACK ATTACK! Chat Room', act: nav('chat') }, { label: 'ChatterBox rooms', act: nav('chatterbox') }, { label: 'The Back Room', act: nav('chatroom') }]),
@@ -281,7 +281,7 @@
 
   D.askgrot = { skin: 'butler', h: 1, m: 'butler', lc: 'lg-gold', logo: 'Ask Jacksy!', rows: [[
     cust('Ask', c => `<input type="text" class="tbq" placeholder="Ask a question in plain English..." aria-label="Ask Jacksy"><button class="tbgo" data-a="${c.a(t => { const q = t.previousElementSibling, v = q.value.trim(); if (!v) return q.focus(); t.closest('.adin').querySelector('.ans').textContent = `Jacksy found 0 results for "${v.slice(0, 24)}". Did you mean: POCKET CRITTERS?`; q.value = ''; play('click'); })}">${I('mag')}<span>Ask</span></button>`, null, 'tbask'),
-    menuBtn('q', 'Popular', [{ label: 'Where is the any key?', act: box('Ask Jacksy!', 'The "any key" is whichever key you like. Jacksy recommends the big one at the bottom.') }, { label: 'Why is the sky grey?', act: box('Ask Jacksy!', 'Because it is Tuesday.') }, { label: 'How do I get rid of toolbars?', act: box('Ask Jacksy!', 'Try View > Toolbars, or the little x on each one.\n\nJacksy hopes you will not. Jacksy is a toolbar.') }, { label: 'Is Episode I good?', act: box('Ask Jacksy!', 'Podracing: yes. Everything else: the jury is out. The jury is arguing about Jar Jar Jams.') }]),
+    menuBtn('q', 'Popular', [{ label: 'Where is the any key?', act: box('Ask Jacksy!', 'The "any key" is whichever key you like. Jacksy recommends the big one at the bottom.') }, { label: 'Why is the sky grey?', act: box('Ask Jacksy!', 'Because it is Tuesday.') }, { label: 'How do I get rid of toolbars?', act: box('Ask Jacksy!', 'Try View > Toolbars, or the little x on each one.\n\nJacksy hopes you will not. Jacksy is a toolbar.') }, { label: 'Is Episode I good?', act: box('Ask Jacksy!', 'Peapodracing: yes. Everything else: the jury is out. The jury is arguing about Jar Jar Jams.') }]),
     menuBtn('house', "Jacksy's Picks", [{ label: 'Cool Site of the Day', act: nav('csotd') }, { label: 'LookHere! start page', act: nav('lookhere') }, { label: 'The JackNet Cool Site Awards', act: nav('awards') }, { label: 'JackSearch Directory', act: nav('directory') }]),
     txt('', 'ans'),
     ad(['Ask Jacksy <b>ANYTHING</b>!', 'He knows (nothing)', 'In plain English!'], nav('search'), 'a-blu', 132)]] };
@@ -303,11 +303,11 @@
 
   D.coupon = { skin: 'tickets', h: 't', m: 'piggy', lc: 'lg-pig', logo: 'Turbo<i>Coupon</i><small>Saver</small>', rows: [[
     cnt('You saved: ', () => '&pound;0.00 today!', 'tbcnt-g'),
-    menuBtn('tag', 'Coupons', [{ label: '10p off a 5p chew', act: say('TurboCoupon', 'Coupon applied! The shop now owes you 5p. Good luck getting it.') }, { label: 'Buy 1 Furby, get 1 Furby', act: say('TurboCoupon', 'You now have 2 Furbies. They are talking to each other. About you.') }, { label: '50% off a FREE CD', act: say('TurboCoupon', 'The CD is now half-free.') }, { label: 'Free hour of Internet (after midnight, Sundays)', act: say('TurboCoupon', 'Valid 3am-4am. Mom says no.') }]),
+    menuBtn('tag', 'Coupons', [{ label: '10p off a 5p chew', act: say('TurboCoupon', 'Coupon applied! The shop now owes you 5p. Good luck getting it.') }, { label: 'Buy 1 Furbo, get 1 Furbo', act: say('TurboCoupon', 'You now have 2 Furbos. They are talking to each other. About you.') }, { label: '50% off a FREE CD', act: say('TurboCoupon', 'The CD is now half-free.') }, { label: 'Free hour of Internet (after midnight, Sundays)', act: say('TurboCoupon', 'Valid 3am-4am. Mom says no.') }]),
     btn('chart', 'Compare Prices', box('TurboCoupon Price Check', 'Space Cola:\n  Shop-o-Rama    £0.99\n  Gem Exchange   12 Rupees\n  Corner shop    55p (it\'s just a can of cola)\n\nBest deal: the corner shop. Again.')),
     cnt('Cashback: ', () => '0%'),
     ad(['<b>HOT DEAL!</b>', 'Save &pound;&pound;&pound;!!!', 'Click to save!', '(you will not save)'], nav('teef'), 'a-yel', 104),
-    menuBtn('gift', 'Deal of the Day', [{ label: 'Pot Noodles: 2 for the price of 3', act: say('TurboCoupon', 'Wait. That is worse.') }, { label: 'FREE CD with every CD', act: say('TurboCoupon', 'You now own 2 CDs. Both are JackNet 56K free trial CDs.') }, { label: 'Get rich quick!', act: nav('getrich') }]),
+    menuBtn('gift', 'Deal of the Day', [{ label: 'Pot Noodlez: 2 for the price of 3', act: say('TurboCoupon', 'Wait. That is worse.') }, { label: 'FREE CD with every CD', act: say('TurboCoupon', 'You now own 2 CDs. Both are JackNet 56K free trial CDs.') }, { label: 'Get rich quick!', act: nav('getrich') }]),
     cnt('Coupons clipped: ', () => '0'),
     txt('Saving you money since last Tuesday!', 'tbad-i')]] };
 
@@ -315,7 +315,7 @@
     btn('smile', 'Tell me a joke', () => talk(pick(JOKES), 'JackBuddy')),
     btn('note', 'Sing a song', () => talk('La la la, I live in your PC, it is warm in here, tee hee, la la la.', 'JackBuddy')),
     btn('bulb', 'Fact!', () => talk('Did you know? ' + pick(FACTS), 'JackBuddy')),
-    menuBtn('grot', 'Do a trick', [{ label: 'Dance', act: () => { try { Sound.music.play('grotdance'); } catch (e) {} toast('JackBuddy', 'JackBuddy is dancing! (You can\'t see it, but trust us.)'); } }, { label: 'Burp', act: say('JackBuddy', 'BUUURP. Sorry. Fizzy Vimto.') }, { label: 'Read my e-mail', act: say('JackBuddy', 'You have 0 e-mails. Want me to write you one? Dear you. Hello. From JackBuddy.') }]),
+    menuBtn('grot', 'Do a trick', [{ label: 'Dance', act: () => { try { Sound.music.play('grotdance'); } catch (e) {} toast('JackBuddy', 'JackBuddy is dancing! (You can\'t see it, but trust us.)'); } }, { label: 'Burp', act: say('JackBuddy', 'BUUURP. Sorry. Fizzy Vimtoo.') }, { label: 'Read my e-mail', act: say('JackBuddy', 'You have 0 e-mails. Want me to write you one? Dear you. Hello. From JackBuddy.') }]),
     btn('chat', 'Talk to me', () => Desk.ask('JackBuddy', 'Say something to JackBuddy:', '', 60, v => { if (v && v.trim()) talk(pick(['Ooh, ' + v.trim().slice(0, 30) + '! Tell me more!', 'I don\'t know what that means but I LOVE it.', 'Pardon? My speakers are on mute.', 'That reminds me of a joke. ' + pick(JOKES)]), 'JackBuddy'); })),
     txt('Your FREE talking friend!!!', 'tbad-i'),
     ad(['JackBuddy GOLD!', 'Now he can SING!', 'Only 99 Rupees!'], bundle('cyberpal'), 'a-grn', 112)]] };
@@ -338,7 +338,7 @@
     tick('STARS', () => SIGNS.map(s => `<b>${s}:</b> ${esc(horoscope(s))}`), 'tk-stars', 0.7),
     menuBtn('ball', 'Crystal Ball', [{ label: 'Ask the crystal ball', act: nav('crystalball') }, { label: 'Fortune cookie', act: box('Fortune Cookie', pick(['You will soon be offered a free toolbar. Say no. (You won\'t.)', 'A man with a beard will give you a floppy disk.', 'Help! I am trapped in a fortune cookie factory. (Classic.)', 'Your lucky numbers are 1, 9, 9 and 9.'])) }, { label: 'Tonight\'s sky', act: () => { const s = tl('space')[0]; msg('StarGazer: Tonight', s ? plain(s.sky) : 'Clouds. Sorry.'); } }]),
     cnt('Moon: ', () => ['New', 'Waxing', 'First Quarter', 'Waxing Gibbous', 'Full', 'Waning Gibbous', 'Last Quarter', 'Waning'][Math.floor((((new Date(1999, today().m - 1, today().d) - new Date(1999, 0, 17)) / 864e5 % 29.53 + 29.53) % 29.53) / 3.7)])]],
-    wire(c) { const m = c.el.querySelector('.tblogo .tbm'); let n = 0; m.addEventListener('click', ev => { ev.stopPropagation(); if (++n >= 7 && !S('grotticus', 0)) { setS('grotticus', 1); setS('sign', 'Joysticus'); secret('tb.grotticus'); msg('StarGazer', 'The crystal ball goes cloudy... then GREEN, like a Game Lad screen.\n\nYou have discovered the secret 13th star sign: JOYSTICUS (the Joystick).\n\nJoysticans are up late, good at boss fights and never read the manual. Your lucky snack is a Pot Noodle.'); renderAgain(); } else play('pet'); }); } };
+    wire(c) { const m = c.el.querySelector('.tblogo .tbm'); let n = 0; m.addEventListener('click', ev => { ev.stopPropagation(); if (++n >= 7 && !S('grotticus', 0)) { setS('grotticus', 1); setS('sign', 'Joysticus'); secret('tb.grotticus'); msg('StarGazer', 'The crystal ball goes cloudy... then GREEN, like a Game Lad screen.\n\nYou have discovered the secret 13th star sign: JOYSTICUS (the Joystick).\n\nJoysticans are up late, good at boss fights and never read the manual. Your lucky snack is a Pot Noodlez.'); renderAgain(); } else play('pet'); }); } };
 
   D.booster = { skin: 'speed', h: 1, m: 'bolt', lc: 'lg-speed', logo: 'Turbo<i>Net</i>', rows: [[
     txt('Speed Booster:', 'tbsmall'),
@@ -353,9 +353,9 @@
     cnt('Your RUPEES: ', () => { const n = S('teef', 0); return window.Econ && Econ.rupees ? Econ.rupees(n) : n.toLocaleString('en-GB'); }, 'tbcnt-gold'),
     cnt('Level: ', () => { const t = S('teef', 0); return t < 50 ? 'Pebble' : t < 200 ? 'Shiny' : t < 600 ? 'Gem Hunter' : t < 1500 ? 'Gem Baron' : 'Rupee Royalty'; }),
     txt('Earn 1 Rupee for every click on a web page!', 'tbad-i'),
-    menuBtn('gem', 'Spend Rupees', () => [['A Pot Noodle', 30], ['Go-faster stripes (red ones)', 80], ['A Rainbow Rupee (bargain!)', 250], ['A whole go-kart', 5000]].map(([n, p]) => ({ label: `${n} (${p} Rupees)`, act: () => { const t = S('teef', 0); if (t < p) return toast('Rupee Companion', `You need ${p - t} more ${p - t === 1 ? 'Rupee' : 'Rupees'}. Get clicking!`); toast('Rupee Companion', `Sorry, ${n.toLowerCase()} is out of stock until the year 2000. Your Rupees have been kept. Probably.`); } })).concat(['-', { label: 'Visit the Gem Exchange', act: nav('teef') }])),
+    menuBtn('gem', 'Spend Rupees', () => [['A Pot Noodlez', 30], ['Go-faster stripes (red ones)', 80], ['A Rainbow Rupee (bargain!)', 250], ['A whole go-kart', 5000]].map(([n, p]) => ({ label: `${n} (${p} Rupees)`, act: () => { const t = S('teef', 0); if (t < p) return toast('Rupee Companion', `You need ${p - t} more ${p - t === 1 ? 'Rupee' : 'Rupees'}. Get clicking!`); toast('Rupee Companion', `Sorry, ${n.toLowerCase()} is out of stock until the year 2000. Your Rupees have been kept. Probably.`); } })).concat(['-', { label: 'Visit the Gem Exchange', act: nav('teef') }])),
     ad(['<b>2x RUPEES</b> weekend!', 'Click here!', 'Rupees Rupees Rupees'], nav('teef'), 'a-gold', 100),
-    tick('RUPEE NEWS', () => ['Mom found 3 Rupees in the washing machine', 'Exchange rate: 1 Pot Noodle = 4 Rupees (2 on Sundays)', 'Gold Rupees now worth DOUBLE', 'Tooth Fairy denies knowing the Gem Exchange', 'Warboss buys every Rupee, again'], 'tk-shop', 0.9)]] };
+    tick('RUPEE NEWS', () => ['Mom found 3 Rupees in the washing machine', 'Exchange rate: 1 Pot Noodlez = 4 Rupees (2 on Sundays)', 'Gold Rupees now worth DOUBLE', 'Tooth Fairy denies knowing the Gem Exchange', 'Warlord buys every Rupee, again'], 'tk-shop', 0.9)]] };
 
   D.midibox = { skin: 'notes', h: 't', m: 'notey', mc: 'tbbounce', lc: 'lg-neon', logo: 'Music<i>Box</i><small>MIDI</small>', rows: [[
     cust('Mini piano', c => [60, 62, 64, 65, 67, 69, 71, 72].map((n, i) => `<button class="tbkey" data-n="${n}" data-a="${c.a(t => pianoKey(+t.dataset.n, t))}" aria-label="Note ${i + 1}"></button>`).join(''), null, 'tbpiano'),
@@ -377,7 +377,7 @@
     btn('chart', 'Buy!', box('Gem Exchange', 'You bought 1 share of EGGBERT.\n\nIt went down. It always goes down when you buy it.'))]],
     init(c) { c.hist = Array.from({ length: 32 }, (x, i) => 100 + Math.sin(i / 3) * 5 + i * 0.4); c.draw = () => { const cv = c.el.querySelector('.tbspark'); if (!cv) return; const g = cv.getContext('2d'); g.fillStyle = '#001a00'; g.fillRect(0, 0, 64, 18); const mn = Math.min(...c.hist), mx = Math.max(...c.hist); g.strokeStyle = '#3f3'; g.beginPath(); c.hist.forEach((v, i) => g[i ? 'lineTo' : 'moveTo'](i * 2, 16 - (v - mn) / ((mx - mn) || 1) * 14)); g.stroke(); const l = c.hist[c.hist.length - 1], p = c.hist[c.hist.length - 2]; const b = c.el.querySelector('.tbidx'); b.textContent = l.toFixed(1) + (l >= p ? ' ▲' : ' ▼'); b.className = 'tbidx ' + (l >= p ? 'up' : 'dn'); }; c.draw(); },
     tick(c, n) { if (n % 2) return; c.hist.push(c.hist[c.hist.length - 1] + (Math.random() - 0.45) * 3); c.hist.shift(); c.draw(); } };
-  const STOCKS = [['RUPEE', 104.2, 4.2], ['POCKET CRITTERS', 31.0, 8.8], ['ULTRA 64', 212.5, 12], ['EGGBERT', 3.3, -0.5], ['POT NOODLE', 18.7, 2.1], ['RED PAINT', 99.9, 99], ['FLOPPY', 1.44, 0], ['MODEM', 56.0, -0.1], ['Y2K BEANS', 1000, 100]];
+  const STOCKS = [['RUPEE', 104.2, 4.2], ['POCKET CRITTERS', 31.0, 8.8], ['ULTRA 64', 212.5, 12], ['EGGBERT', 3.3, -0.5], ['POT NOODLEZ', 18.7, 2.1], ['RED PAINT', 99.9, 99], ['FLOPPY', 1.44, 0], ['MODEM', 56.0, -0.1], ['Y2K BEANS', 1000, 100]];
 
   D.petrescue = { skin: 'paws', h: 't', m: 'dog', mc: 'tbwobble', lc: 'lg-bubble', logo: 'Pet<i>Rescue</i>', rows: [[
     cust('Happiness', () => `<span class="tbhearts" title="Happiness"></span><span class="tbpetname">${esc(S('petname', 'Patch'))}</span>`, null, 'tbheartsw'),
@@ -396,7 +396,7 @@
 
   D.funcursor = { skin: 'rainbow', h: 1, m: 'cursorguy', lc: 'lg-rainbow', logo: 'FunCursor', rows: [[
     txt('Trail:', 'tbsmall'),
-    ...['Off', 'Sparkles', 'Stars', 'Hearts', 'Blobs', 'Rainbow'].map(l => btn(null, l, () => { setS('trail', l); document.querySelectorAll('.tb-funcursor .tbb').forEach(b => b.classList.toggle('on', b.dataset.l === S('trail', 'Sparkles'))); }, { cls: 'tbtrailb' })),
+    ...['Off', 'Sparkles', 'Stars', 'Hearts', 'Blobs', 'Rainbow', 'Seasonal'].map(l => btn(null, l, () => { setS('trail', l); document.querySelectorAll('.tb-funcursor .tbb').forEach(b => b.classList.toggle('on', b.dataset.l === S('trail', 'Sparkles'))); }, { cls: 'tbtrailb' })),
     menuBtn('cursor', 'Size', () => [{ label: 'Normal', rad: !S('big', 0), act: () => { setS('big', 0); bigCursor(); } }, { label: 'HUGE (inside web pages)', rad: !!S('big', 0), act: () => { setS('big', 1); bigCursor(); } }]),
     txt('Works inside web pages!', 'tbad-i'),
     ad(['Sparkly mouse!!!', 'Trails of <b>JOY</b>', 'Wiggle it!'], () => toast('FunCursor', 'Wiggle your mouse over a web page. Go on. Wiggle it.'), 'a-pink', 104)]],
@@ -422,7 +422,7 @@
 
   D.cyberpal = { skin: 'circuit', h: 't', m: 'robot', mc: 'tbwobble', lc: 'lg-lcd', logo: 'Cyber<i>Pal</i>', rows: [[
     txt('HELLO, HUMAN FRIEND.', 'tbsay'),
-    menuBtn('chat', 'Chat', ['Hello!', 'How are you?', 'What is your favourite game?', 'Are you a real robot?', 'Tell me a secret'].map(q => ({ label: q, act: () => palSay({ 'Hello!': 'HELLO. I AM CYBERPAL. I LIVE IN YOUR TOOLBAR. IT IS COSY.', 'How are you?': 'I AM FUNCTIONING WITHIN NORMAL PARAMETERS. ALSO I AM HAPPY.', 'What is your favourite game?': 'MINESWEEPER. I ALWAYS WIN. I CAN SEE THE MINES. DO NOT TELL ANYONE.', 'Are you a real robot?': 'YES. I AM MADE OF 100% REAL PIXELS.', 'Tell me a secret': 'THERE IS A THIRTEENTH STAR SIGN. ASK THE CRYSTAL BALL. SEVEN TIMES.' }[q]) }))),
+    menuBtn('chat', 'Chat', ['Hello!', 'How are you?', 'What is your favourite game?', 'Are you a real robot?', 'Tell me a secret'].map(q => ({ label: q, act: () => palSay({ 'Hello!': 'HELLO. I AM CYBERPAL. I LIVE IN YOUR TOOLBAR. IT IS COSY.', 'How are you?': 'I AM FUNCTIONING WITHIN NORMAL PARAMETERS. ALSO I AM HAPPY.', 'What is your favourite game?': 'BUGSWEEPER. I ALWAYS WIN. I CAN SEE THE MINES. DO NOT TELL ANYONE.', 'Are you a real robot?': 'YES. I AM MADE OF 100% REAL PIXELS.', 'Tell me a secret': 'THERE IS A THIRTEENTH STAR SIGN. ASK THE CRYSTAL BALL. SEVEN TIMES.' }[q]) }))),
     btn('bell', 'Mail', () => palSay('YOU HAVE 0 NEW MESSAGES. I CHECKED 1,999 TIMES.')),
     btn('smile', 'Joke', () => palSay(pick(JOKES).toUpperCase())),
     btn('bolt', 'Dance', (t, c) => { c.el.querySelector('.tblogo .tbm').classList.add('tbspin'); setTimeout(() => { const m = c.el.querySelector('.tblogo .tbm'); if (m) m.classList.remove('tbspin'); }, 2000); palSay('BEEP BOOP. BEEP BOOP. THIS IS THE ROBOT. I INVENTED IT.'); }),
@@ -432,7 +432,7 @@
   function palSay(t) { const s = document.querySelector('.tb-cyberpal .tbsay'); if (s) s.textContent = t; talk(t, 'CyberPal', 0.4); }
 
   D.shop = { skin: 'awning', h: 1, m: 'bag', lc: 'lg-bubble', logo: 'Shop-o-Rama', rows: [[
-    tick('TODAY ONLY', () => ['Pot Noodle 2 for 1', 'Space Cola &pound;0.99', 'Rumble Pak (rumbles a bit) &pound;2.50', 'Slightly used robot owl &pound;4', 'Box of floppies (10) &pound;3.99', 'Mystery bag (it\'s a yo-yo) &pound;1'], 'tk-shop', 0.9),
+    tick('TODAY ONLY', () => ['Pot Noodlez 2 for 1', 'Space Cola &pound;0.99', 'Rumble Pouch (rumbles a bit) &pound;2.50', 'Slightly used robot owl &pound;4', 'Box of floppies (10) &pound;3.99', 'Mystery bag (it\'s a yo-yo) &pound;1'], 'tk-shop', 0.9),
     cnt('Basket: ', () => S('basket', 0) + ' items'),
     btn('cart', 'BUY!', () => { setS('basket', S('basket', 0) + 1); toast('Shop-o-Rama', "Added to basket! Sorry, online shopping isn't available in your area. Or any area. It's 1999."); }, { cls: 'tbhot' }),
     menuBtn('tag', 'Departments', [{ label: 'Gadgets', act: nav('teef') }, { label: 'Paint', act: nav('~mek') }, { label: 'Space bricks', act: nav('brickwars') }, { label: 'Everything else', act: comingSoon('Shop-o-Rama') }])]] };
@@ -454,7 +454,7 @@
     ad(['PLAY <b>FREE</b> GAMES!', 'Bop more Blobbits!', 'High scores!!!'], nav('demos'), 'a-yel', 120)]],
     init(c) { c.st = { hits: 0, streak: 0 }; c.say = t => { const s = c.el.querySelector('.tbsqsay'); if (s) { s.textContent = t; clearTimeout(c.sayT); c.sayT = setTimeout(() => { s.textContent = ''; }, 900); } }; } };
 
-  const QUIZ = [['How many Pocket Critters are there?', ['151', '99', '1,000'], 0], ['How much does a floppy disk hold?', ['1.44 MB', '650 MB', '64 KB'], 0], ['Which console came out in Europe on 14 October 1999?', ['Daydream', 'Ultra 64', 'Game Lad Color'], 0], ['What does "www" stand for?', ['World Wide Web', 'Wibbly Wobbly Web', 'Wait, Wait, Wait'], 0], ['Where was Blockology invented?', ['Moscow', 'Tokyo', 'Bognor Regis'], 0], ['How many bits in a byte?', ['8', '10', '1.44'], 0], ['Which planet has the Great Red Spot?', ['Jupiter', 'Mars', 'Pluto'], 0], ['How many squares on a chess board?', ['64', '100', '42'], 0], ['What does CD-ROM stand for?', ['Compact Disc Read-Only Memory', 'Cool Disc Really Odd Music', 'Computer Data Room'], 0], ['How fast is the fastest Pentium III from February 1999?', ['500 MHz', '50 MHz', '5,000 MHz'], 0], ['How many sides does a Rubrick\'s cube have?', ['6', '9', '54'], 0], ['Who directed Intergalactic Battles: Episode I?', ['Gordon Lukewarm', 'Jar Jar Jams', 'Dave'], 0]];
+  const QUIZ = [['How many Pocket Critters are there?', ['151', '99', '1,000'], 0], ['How much does a floppy disk hold?', ['1.44 MB', '650 MB', '64 KB'], 0], ['Which console came out in Europe on 14 October 1999?', ['Daydream', 'Ultra 64', 'Game Lad Color'], 0], ['What does "www" stand for?', ['World Wide Web', 'Wibbly Wobbly Web', 'Wait, Wait, Wait'], 0], ['Where was Blockology invented?', ['Moscow', 'Tokyo', 'Bognor Regis'], 0], ['How many bits in a byte?', ['8', '10', '1.44'], 0], ['Which planet has the Great Red Spot?', ['Jupiter', 'Mars', 'Pluto'], 0], ['How many squares on a chess board?', ['64', '100', '42'], 0], ['What does CD-ROM stand for?', ['Compact Disc Read-Only Memory', 'Cool Disc Really Odd Music', 'Computer Data Room'], 0], ['How fast is the fastest Pent-Yum III from February 1999?', ['500 MHz', '50 MHz', '5,000 MHz'], 0], ['How many sides does a Rubrick\'s cube have?', ['6', '9', '54'], 0], ['Who directed Intergalactic Battles: Episode I?', ['Gordon Lukewarm', 'Jar Jar Jams', 'Dave'], 0]];
   D.brainbox = { skin: 'quiz', h: 't', m: 'brain', lc: 'lg-quiz', logo: 'Brain<i>Box</i>', rows: [[
     txt('', 'tbqq'),
     cust('Answers', c => ['A', 'B', 'C'].map((l, i) => `<button class="tbans" data-i="${i}" data-a="${c.a(t => answer(c, +t.dataset.i))}"><b>${l}</b><span></span></button>`).join(''), null, 'tbansw'),
@@ -653,13 +653,14 @@
   let lastT = 0, live = 0, ti = 0;
   document.addEventListener('pointermove', ev => {
     if (!trailOn || ev.pointerType === 'touch' || paused()) return;
-    const mode = S('trail', 'Sparkles'); if (mode === 'Off' || !TRAIL[mode]) return;
+    const mode = S('trail', 'Sparkles'); if (mode === 'Off' || (!TRAIL[mode] && mode !== 'Seasonal')) return;
     const now = performance.now(); if (now - lastT < 45 || live > 22) return;
     if (!ev.target.closest || !ev.target.closest('#page') || calm()) return;
     lastT = now; live++; ti++;
     const s = document.createElement('span'); s.className = 'tbtrail' + (mode === 'Squigs' || mode === 'Blobs' ? ' sq' : '');
     const p = DesktopSurface.point(ev.clientX, ev.clientY);
-    s.innerHTML = pick(TRAIL[mode]); s.style.left = p.x + 6 + 'px'; s.style.top = p.y + 8 + 'px'; s.style.color = mode === 'Hearts' ? '#ff2a7a' : mode === 'Squigs' || mode === 'Blobs' ? '#e8381b' : TCOL[ti % TCOL.length];
+    const sea = mode === 'Seasonal' && window.SeasonsWeb ? SeasonsWeb.trail() : null; // the season's own pictures (pumpkins, snowflakes...)
+    s.innerHTML = pick(sea || TRAIL[mode === 'Seasonal' ? 'Sparkles' : mode]); if (sea) s.classList.add('ssn'); s.style.left = p.x + 6 + 'px'; s.style.top = p.y + 8 + 'px'; s.style.color = mode === 'Hearts' ? '#ff2a7a' : mode === 'Squigs' || mode === 'Blobs' ? '#e8381b' : TCOL[ti % TCOL.length];
     DesktopSurface.root().appendChild(s);
     const done = () => { if (s.isConnected) { s.remove(); live--; } };
     s.addEventListener('animationend', done); setTimeout(done, 1200);

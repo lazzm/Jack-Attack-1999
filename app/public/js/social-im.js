@@ -142,7 +142,7 @@ window.SocialIM = function (X) {
   function findUser() {
     const f = h('form', 'so-find');
     f.innerHTML = `<div class="so-frow">${ico(LOGO, 32)}<div>Find people by their <b>Uh-Oh! number</b> or <b>nickname</b>. ${Net.me.member ? `Your number is <b>${myUIN()}</b>.` : 'You\'re a guest: <a href="#" class="so-join">join JackNet</a> to get your own number and a contact list.'}</div></div>
-      <div class="row" style="flex-wrap:nowrap;margin-top:8px"><input type="text" maxlength="20" style="flex:1;min-width:0" aria-label="Uh-Oh! number or nickname" placeholder="e.g. 1999037 or Squirtle99"><button class="btn" type="submit">Search</button></div>
+      <div class="row" style="flex-wrap:nowrap;margin-top:8px"><input type="text" maxlength="20" style="flex:1;min-width:0" aria-label="Uh-Oh! number or nickname" placeholder="e.g. 1999037 or Squirturtle99"><button class="btn" type="submit">Search</button></div>
       <div class="so-flab">Results:</div><div class="field so-fres" data-r="search"><div class="so-fmsg">Type a number or a nickname and press Search.</div></div>
       <div class="so-flab">Who's on JackNet right now:</div><div class="field so-fres" data-r="online"></div>`;
     const w = Apps.win('Add/Find Users', f, { w: 360, icon: LOGO16, noResize: true, noMax: true, escClose: true });

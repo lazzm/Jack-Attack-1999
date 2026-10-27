@@ -51,7 +51,9 @@
   // ================================================================ family files (content in js/family-files.js, loaded when the PC is idle)
   const PENDING = [];
   const TODAYS = [];
+  const ADDED = []; // [path, node] of everything family-files.js made, so it can be rebuilt when the player's identity changes
   function addFile(path, node) {
+    ADDED.push([path, node]);
     if (node.type === 'dir') { const d = A.fs.dir(path + '/' + node.name); Object.assign(d, node, { kids: d.kids }); return d; }
     if (node.date && !happened(node.date)) { PENDING.push([path, node]); return node; }
     if (node.date === todayStr()) TODAYS.push([path, node]);
@@ -292,7 +294,27 @@
 
   // ================================================================ export + load the family's files when the PC is idle
   window.Family = { today, happened, mdOf, todayStr, dev: DEV, addFile, addDocs, sticky, sms, saveSms, openPhone, printPage, printText, printDialog, topupCode, DAD_CODE, petName, petStats, roman, nagPhone, icons: { PHONE32, PRN32, TOMB }, goGraveyard };
-  const loadFiles = () => A.load('js/family-files.js').then(() => { announce(); }).catch(e => console.error(e));
-  (window.requestIdleCallback ? cb => requestIdleCallback(cb, { timeout: 2500 }) : cb => setTimeout(cb, 1200))(loadFiles);
+  // File names/texts go through Cast.t at load time, so they must be built AFTER the identity is bound (Net welcome / meOk),
+  // and rebuilt if it changes later (register/login in the same tab).
+  const castSig = () => [Cast.me().first, Cast.me().g, Cast.n('sister'), Cast.n('cousin'), Cast.n('mate1')].join('|');
+  let builtSig = null, rebuilds = 0, loadStarted = false;
+  const buildFiles = () => { builtSig = castSig(); return A.load('js/family-files.js' + (rebuilds ? '?r=' + rebuilds : '')).then(() => { announce(); }).catch(e => console.error(e)); };
+  function rebuildFiles() {
+    ADDED.splice(0).reverse().forEach(([path, node]) => {
+      const parent = A.fs.get(path); if (!parent || !parent.kids) return;
+      if (node.type === 'dir') parent.kids = parent.kids.filter(k => !(k.type === 'dir' && k.name === node.name && !k.kids.length));
+      else parent.kids = parent.kids.filter(k => k !== node);
+    });
+    PENDING.length = 0; TODAYS.length = 0; STICKIES.length = 0; rebuilds++;
+    return buildFiles();
+  }
+  const loadFiles = () => { if (loadStarted) return; loadStarted = true; buildFiles(); };
+  const idle = window.requestIdleCallback ? cb => requestIdleCallback(cb, { timeout: 2500 }) : cb => setTimeout(cb, 1200);
+  // wait for the first identity message (welcome); offline/slow servers fall back after 6s, and a later bind fixes the names
+  let boundOnce = !window.Net || (Net.me && Net.me.identity !== undefined && Net.me.id);
+  const go = () => idle(loadFiles);
+  if (boundOnce) go(); else { Net.on('welcome', () => setTimeout(go, 0)); setTimeout(go, 6000); }
+  const recheck = () => { if (builtSig !== null && builtSig !== castSig()) rebuildFiles(); };
+  if (window.Net) ['welcome', 'loginOk', 'meOk', 'you'].forEach(t => Net.on(t, () => setTimeout(recheck, 0)));
   addEventListener('resize', () => { if (STICKIES.length) drawStickies(); });
 })();

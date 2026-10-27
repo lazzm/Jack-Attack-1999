@@ -74,11 +74,11 @@
 
   // ================================================================ secrets
   const SEC = [
-    ['wpsave', 'Desktop publisher', 'Save a document in WordPad'],
-    ['wpbig', 'SEVENTY-TWO POINT', 'Make some words as big as WordPad allows'],
+    ['wpsave', 'Desktop publisher', 'Save a document in WordPod'],
+    ['wpbig', 'SEVENTY-TWO POINT', 'Make some words as big as WordPod allows'],
     ['wppreview', 'Saving trees', 'Look at a page before you print it'],
     ['wpplans', 'Invisible ink', 'Jack\'s plans have a part you can\'t see. Highlight everything'],
-    ['wpstamp', 'Dear Diary 1999', 'Ask WordPad what the date is, in its longest form'],
+    ['wpstamp', 'Dear Diary 1999', 'Ask WordPod what the date is, in its longest form'],
     ['wpabout', 'Roll credits', 'Click a programmer\'s face over and over'],
     ['calcsum', 'Number cruncher', 'Make the spreadsheet add something up for you'],
     ['calcchart', 'Pie in the sky', 'Turn some numbers into a picture'],
@@ -326,13 +326,13 @@
     if (menuPath) A.addProgram(menuPath, 'office.' + id, icon);
   }
   const ACC = 'Accessories';
-  prog('wordpad', 'wordpad', 'WordPad', ['wordpad', 'wordpd'], I.wordpad, [ACC, 'WordPad']);
+  prog('wordpad', 'wordpad', 'WordPod', ['wordpad', 'wordpd'], I.wordpad, [ACC, 'WordPod']);
   prog('write', 'wordpad', 'Write', ['write', 'write.exe'], I.write, null);
   prog('calc', 'sheet', 'JackCalc', ['jackcalc', 'jcalc', 'spreadsheet', 'sheet', 'wks'], I.calc, [ACC, 'Office Tools', 'JackCalc Spreadsheet']);
   prog('cardfile', 'pim', 'Cardfile', ['cardfile', 'cards file'], I.cardfile, [ACC, 'Office Tools', 'Cardfile']);
   prog('abook', 'pim', 'Address Book', ['wab', 'address book', 'addressbook', 'contacts'], I.abook, [ACC, 'Address Book']);
   prog('calendar', 'pim', 'Calendar', ['calendar', 'diary99', 'appointments'], I.cal, [ACC, 'Office Tools', 'Calendar'], true);
-  prog('hyper', 'term', 'HyperTerminal', ['hypertrm', 'hyperterminal', 'hyper terminal', 'terminal', 'bbs'], I.hyper, [ACC, 'Communications', 'HyperTerminal']);
+  prog('hyper', 'term', 'HyperTerminull', ['hypertrm', 'hyperterminal', 'hyper terminal', 'terminal', 'bbs'], I.hyper, [ACC, 'Communications', 'HyperTerminull']);
   prog('clock', 'tools', 'Clock', ['clock', 'clock.exe'], I.clock, [ACC, 'Clock']);
   prog('magnify', 'tools', 'Magnifier', ['magnify', 'magnifier', 'zoom'], I.magnify, [ACC, 'Accessibility', 'Magnifier'], true);
   prog('imaging', 'tools', 'Imaging', ['kodakimg', 'imaging', 'wangimg'], I.imaging, [ACC, 'Imaging']);
@@ -389,13 +389,13 @@
   file(HW, 'Geography - Volcanoes.doc', 'doc', '15/03/99', 'volcano');
   file(HW, 'English - persuasive letter.doc', 'doc', '27/04/99', 'persuade');
   file(HW, 'Computer Club - my web site.doc', 'doc', '09/06/99', 'website');
-  file(HW, 'Book report - The Hobbit.doc', 'doc', '06/10/99', 'hobbit');
+  file(HW, 'Book report - The Hobbet.doc', 'doc', '06/10/99', 'hobbit');
   file(SW, 'Episode I review (WRITTEN THE SAME NIGHT).doc', 'doc', '16/07/99', 'review', { secret: 'office.swreview' });
   file(SW, 'Gubbinz Wars - Episode I (a story).rtf', 'rtf', '24/07/99', 'fanfic');
   file(SW, 'Intergalactic Battles quiz for Dave.doc', 'doc', '20/05/99', 'swquiz');
   // spreadsheets
   file(SS, 'Pocket Money 1999.wks', 'wks', '31/01/99', 'money');
-  file(SS, 'Ork Paint Pots.wks', 'wks', '23/01/99', 'paint');
+  file(SS, 'Gork Paint Pots.wks', 'wks', '23/01/99', 'paint');
   file(SS, 'Blockology Scores.wks', 'wks', '02/01/99', 'tetris');
   file(SS, 'Rubrick\'s Cube Times.xls', 'xls', '03/04/99', 'rubik');
   file(SS, 'Millennium Party Budget.xls', 'xls', '01/09/99', 'party');
@@ -407,7 +407,7 @@
   file(CF, 'Intergalactic Battles Characters.crd', 'crd', '18/07/99', 'swcards');
   file('C:/JACKOS', 'Address Book.wab', 'wab', '10/12/98', null, { size: '18 KB' });
   file(MD, 'Jack\'s 1999 Diary.cal', 'cal', '01/01/99', null, { size: '6 KB' });
-  const HT = 'C:/Program Files/Accessories/HyperTerminal';
+  const HT = 'C:/Program Files/Accessories/HyperTerminull';
   A.fs.dir(HT).date = '10/12/98';
   [['The Grot Hole.ht', 'grot'], ['Starbase 1999.ht', 'star'], ['Pixel Palace.ht', 'pixel'], ['Y2K Bunker.ht', 'bunker'], ['Dave\'s PC.ht', 'dave']].forEach(([n, b]) => file(HT, n, 'ht', '12/02/99', null, { bbs: b, size: '1 KB' }));
   file(HT, 'BBS list (from the magazine).txt', 'txt', '12/02/99', null, { text: `BULLETIN BOARDS - phone numbers from the back of a computer magazine
@@ -438,7 +438,7 @@ There's supposed to be a secret one. The number is "on a door". Whatever that me
     .forEach(([n, id, size]) => A.fs.add(W31, { name: n, type: 'exe', app: 'office.' + id, date: '10/03/92', size }));
   A.fs.add(W31, { name: 'REVERSI.EXE', type: 'exe', app: 'games.reversi', date: '10/03/92', size: '15 KB' });
   const PFA = 'C:/Program Files/Accessories';
-  [['WORDPAD.EXE', 'wordpad', '205 KB'], ['HYPERTRM.EXE', 'hyper', '28 KB'], ['MAGNIFY.EXE', 'magnify', '58 KB'], ['KODAKIMG.EXE', 'imaging', '507 KB'], ['JACKCALC.EXE', 'calc', '388 KB'], ['WAB.EXE', 'abook', '36 KB'], ['FAXCOVER.EXE', 'fax', '120 KB'], ['JMEET.EXE', 'meeting', '1.2 MB']]
+  [['WORDPOD.EXE', 'wordpad', '205 KB'], ['HYPERTRM.EXE', 'hyper', '28 KB'], ['MAGNIFY.EXE', 'magnify', '58 KB'], ['KODAKIMG.EXE', 'imaging', '507 KB'], ['JACKCALC.EXE', 'calc', '388 KB'], ['WAB.EXE', 'abook', '36 KB'], ['FAXCOVER.EXE', 'fax', '120 KB'], ['JMEET.EXE', 'meeting', '1.2 MB']]
     .forEach(([n, id, size]) => A.fs.add(n === 'HYPERTRM.EXE' ? HT : PFA, { name: n, type: 'exe', app: 'office.' + id, date: '10/12/98', size }));
 
   // who's on the site right now (BBS "who's online" and JackMeeting use it)

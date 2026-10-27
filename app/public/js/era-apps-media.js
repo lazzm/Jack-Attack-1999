@@ -140,7 +140,7 @@
       } },
     { id: 'news', name: 'JackNet News', col: '#2a5ad8', url: 'pnm://news.jacknet.realjack.netz/jnn/headlines.rm', tune: '', kb: 20,
       info: 'Title: JNN - JackNet News Network   Headlines every hour (if the server is up)   Copyright: (c) 1999 JNN. Reporting live from Jack\'s bedroom.',
-      ticker: '+++ BREAKING: Y2K bug found in Dave\'s calculator +++ Frisbee spotted on school roof, nobody will go up for it +++ Freddo prices up 2p +++ Weather: rain +++ Mom says tea is ready +++ ',
+      ticker: '+++ BREAKING: Y2K bug found in Dave\'s calculator +++ Frisbee spotted on school roof, nobody will go up for it +++ Fredo prices up 2p +++ Weather: rain +++ Mom says tea is ready +++ ',
       draw(g, t) {
         px(g, 0, 0, 160, 120, '#1a3a8a'); px(g, 100, 10, 50, 36, '#0a1a4a'); g.fillStyle = '#fff'; g.font = 'bold 13px Arial'; g.fillText('JNN', 110, 33);
         robotHead(g, 56, 52, 1.6, t, true);
@@ -367,8 +367,8 @@
     ['mb.dates', 'The Millennium Bugs', 'Two Digit Dates', 0.15, true, 'A4 C5 E5 A5 G5 E5 C5 E5 | F5 - E5 - D5 - C5 - | A4 C5 E5 A5 B5 C6 B5 A5 | G#5 - - - E5 - . .', 'A2 E3 A2 E3 | D3 A2 G2 C3 | A2 E3 A2 E3 | E2 B2 E2 E2'],
     ['mom.tidy', 'Mom', 'Tidy Your Room (Acoustic)', 0.22, false, 'G5 - E5 - C5 - E5 - | G5 - - - C6 - - . | A5 - F5 - D5 - F5 - | G5 - - - - - . .', 'C3 G2 C3 G2 | E2 C3 C3 G2 | F2 C3 D3 A2 | G2 D3 G2 G2'],
   ];
-  const JACK = [['squig_pie_shuffle', 'Pot Noodle Shuffle'], ['dial_up_dreams', 'Dial-Up Dreams'], ['waaagh_anthem', 'Boss Level Anthem'], ['rubik_rag', 'Rubrick Rag'], ['millennium_countdown', 'Millennium Countdown'], ['floppy_disk_funk', 'Floppy Disk Funk'], ['gubbinz_lullaby', 'Gubbinz Lullaby'], ['pocket_money_polka', 'Pocket Money Polka'], ['y2k_bug_boogie', 'Y2K Bug Boogie'], ['bluescreen_blues', 'Bluescreen Blues']];
-  const RADIO = [['1', 'The Floppy Disks', 'Dial-Up Dreams'], ['2', 'The Floppy Disks', '56K of Love'], ['3', 'The Go-Karts', 'Red Ones Go Faster'], ['4', 'DJ Pixel', 'Pot Noodle (Remix)'], ['5', 'Mom', 'Turn That Down (live)'], ['6', 'The Millennium Bugs', 'Fatal Exception 0E'], ['7', 'The Floppy Disks', 'Podrace Pulse'], ['8', 'The Millennium Bugs', 'Y2K Bunker Boogie']];
+  const JACK = [['squig_pie_shuffle', 'Pot Noodlez Shuffle'], ['dial_up_dreams', 'Dial-Up Dreams'], ['waaagh_anthem', 'Boss Level Anthem'], ['rubik_rag', 'Rubrick Rag'], ['millennium_countdown', 'Millennium Countdown'], ['floppy_disk_funk', 'Floppy Disk Funk'], ['gubbinz_lullaby', 'Gubbinz Lullaby'], ['pocket_money_polka', 'Pocket Money Polka'], ['y2k_bug_boogie', 'Y2K Bug Boogie'], ['bluescreen_blues', 'Bluescreen Blues']];
+  const RADIO = [['1', 'The Floppy Disks', 'Dial-Up Dreams'], ['2', 'The Floppy Disks', '56K of Love'], ['3', 'The Go-Karts', 'Red Ones Go Faster'], ['4', 'DJ Pixel', 'Pot Noodlez (Remix)'], ['5', 'Mom', 'Turn That Down (live)'], ['6', 'The Millennium Bugs', 'Fatal Exception 0E'], ['7', 'The Floppy Disks', 'Peapod Race Pulse'], ['8', 'The Millennium Bugs', 'Y2K Bunker Boogie']];
   const CAT = [];
   const addCat = (id, band, title, tune, def, track) => { const r = E.rng('sqs' + id); CAT.push({ id, band, title, tune, def: !!def, track, bytes: Math.round(18000 + r() * 90000), len: Math.round(150 + r() * 150) }); };
   JACK.forEach(([id, t]) => addCat('j.' + id.slice(0, 22), 'Jack', t, 'jamp_' + id, true, id));
@@ -483,7 +483,7 @@
         const i = +tr.dataset.i;
         tr.addEventListener('click', ev => { if (!(ev.ctrlKey || ev.metaKey || ev.shiftKey)) sel.clear(); sel.has(i) && (ev.ctrlKey || ev.metaKey) ? sel.delete(i) : sel.add(i); box.querySelectorAll('tbody tr').forEach(x => x.classList.toggle('sel', sel.has(+x.dataset.i))); });
         tr.addEventListener('dblclick', () => { sel.clear(); sel.add(i); get(); });
-        tr.addEventListener('contextmenu', ev => { ev.preventDefault(); sel.clear(); sel.add(i); tr.classList.add('sel'); IE.menu([{ label: 'Get Selected Song(s)', act: get }, { label: `Add ${results[i].u.nick} to Hot List`, act: () => addHot(results[i].u.nick) }, { label: `Browse ${results[i].u.nick}'s files`, act: () => browse(results[i].u.nick) }, '-', { label: 'Send Instant Message...', act: () => Desk.msgbox('Jackster', 'Instant messages are coming in Jackster 2.0. For now, try Uh-Oh! Messenger or WinPopup.', 'info') }], ev.clientX, ev.clientY); });
+        tr.addEventListener('contextmenu', ev => { ev.preventDefault(); sel.clear(); sel.add(i); tr.classList.add('sel'); IE.menu([{ label: 'Get Selected Song(s)', act: get }, { label: `Add ${results[i].u.nick} to Hot List`, act: () => addHot(results[i].u.nick) }, { label: `Browse ${results[i].u.nick}'s files`, act: () => browse(results[i].u.nick) }, '-', { label: 'Send Instant Message...', act: () => Desk.msgbox('Jackster', 'Instant messages are coming in Jackster 2.0. For now, try Uh-Oh! Messenger or JackPopup.', 'info') }], ev.clientX, ev.clientY); });
       });
     }
     q('.sqs-form').addEventListener('submit', ev => { ev.preventDefault(); userFilter = null; sfx('click'); search(); });

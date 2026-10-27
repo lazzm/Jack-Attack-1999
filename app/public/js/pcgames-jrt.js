@@ -13,9 +13,9 @@
   const TEAMC = ['#ff3a2a', '#3a7aff'], TEAMH = [0xd83020, 0x2a5ae8];
   const DMCOL = [0x2a9a3a, 0xd8a020, 0x9a3ad8, 0x2ab8c8, 0xd85a20, 0x808890, 0xe86aa0, 0x6a8a2a, 0xc0c0d0];
   const JQCOL = [0x7a5a3a, 0x5a6a3a, 0x8a3a2a, 0x3a4a6a, 0x6a6a6a, 0x8a6a2a, 0x5a3a5a, 0x2a5a4a, 0x9a8a6a];
-  const BOTS = [['Callum', 4, ['Too easy.', 'That\'s what a 504 MHz PC does for you.', 'Get a Voodoo3, mate.', 'GG. Well, G for me.', 'I wasn\'t even trying.', 'Overclocked AND overskilled.']],
+  const BOTS = [['Callum', 4, ['Too easy.', 'That\'s what a 504 MHz PC does for you.', 'Get a Hoodoo3, mate.', 'GG. Well, G for me.', 'I wasn\'t even trying.', 'Overclocked AND overskilled.']],
     ['JackK', 3, ['Two Jacks, one winner. The one with the K.', 'Oi! That was MY health pack!', 'K is for KAPOW.', 'Nice try, Jack-without-a-K.']],
-    ['Luke', 2, ['This would be better on the ULTRA 64.', 'Where\'s the Rumble Pak?', 'I\'m only using one hand. Other one\'s on my crisps.', 'Can we play Kart Kaos after?']],
+    ['Luke', 2, ['This would be better on the ULTRA 64.', 'Where\'s the Rumble Pouch?', 'I\'m only using one hand. Other one\'s on my crisps.', 'Can we play Kart Kaos after?']],
     ['Dave', 1, ['Which button is jump?', 'Is this Goldenballs?', 'LAG! That was LAG!', 'I want to be on Callum\'s team.', 'The ULTRA 64 controller is better than a mouse.']],
     ['Jumping Jack', 2, ['Boing!', 'Can\'t catch me!', 'Jump pads are my best friends.', 'Can I have a biscuit now?']],
     ['Spudgun', 2, ['Spuds away!', 'You got mashed.', 'Chips!']],
@@ -39,7 +39,7 @@
       'A grey name on the scoreboard is away from the keyboard. Shots on them don\'t count. Be a sport.', 'The [JackNet] servers are on 24/7. If nobody\'s there, the bots will keep you company.', 'At the end of each match you vote for the next map. Press 1, 2 or 3.',
       'RIGHT click is ALT FIRE. Every gun has one. Try the Shock Jack\'s slow ball, then shoot the ball with the beam. KA-BOOM.', 'The Tournament Ladder starts with Dave. It ends with Callum. Good luck.',
       'Hit the floor with the Impact Jackhammer and it throws you up in the air: a HAMMER JUMP.', 'Flak bits bounce off walls. So do grenades. So does Dave, when he falls off the space station.',
-      'Press ` for the console. Type HELP. Do not type IDDQD. That\'s a different game.', 'Options lets you pick your HUD colour and your crosshair. Callum uses purple. Of course he does.'],
+      'Press ` for the console. Type HELP. Do not type GLDQD. That\'s a different game.', 'Options lets you pick your HUD colour and your crosshair. Callum uses purple. Of course he does.'],
     jq: ['Rocket jump: look down, jump and fire Rocket Jack at the same time. You fly. It hurts a bit.', 'The Boomstick fires seven pellets. Get close.', 'Rivets fly. Lead your target a little.',
       'Lava hurts. Slime hurts a bit. Water is fine. Mom says stay out of all three.', 'QUAD JACK hits four times as hard. Everyone will be after you.', 'Yellow Scrap Armour soaks up more than Green Tin Armour.',
       'The Mega Pie takes you over 100 health. It wears off slowly.', 'Co-op: stick together. The robots can\'t count, but they can aim.', 'Tabbed out? Your place on a server is kept for two minutes.',
@@ -334,7 +334,7 @@
     if (!AR.MAPS[pset.map] || AR.gameOf(pset.map) !== GAME) pset.map = JQ ? 'jqdm1' : 'spacegrot';
     const binds = E.bindings(cfg.keys, JQ ? null : [['alt', 'Alt fire', ['Mouse2', 'KeyF']]]);
     const ctx = E.makeCtx(host, JQ ? { base: cfg.res, band: 16, px: true, fov: cfg.fov, far: 140, fogC: [0.07, 0.05, 0.03], fogD: 0.016 } : { base: cfg.res, band: 0, px: false, fov: cfg.fov, far: 700, fogC: [0.02, 0.02, 0.05], fogD: 0.0 });
-    if (!ctx) { host.innerHTML = `<div class="pcg-ov">${JQ ? 'JAQUAKE needs a 3D card (WebGL). Your PC said no.' : 'JACKREAL TOURNAMENT needs a 3D accelerator (WebGL). Your Voodoo said no.'}</div>`; return { close() {} }; }
+    if (!ctx) { host.innerHTML = `<div class="pcg-ov">${JQ ? 'JAQUAKE needs a 3D card (WebGL). Your PC said no.' : 'JACKREAL TOURNAMENT needs a 3D accelerator (WebGL). Your Hoodoo said no.'}</div>`; return { close() {} }; }
     if (!JQ) ctx.hud.classList.remove('px');
     // dynamic lights: muzzle flashes, rockets, shock balls and explosions light up the walls round them (three at a time)
     if (!JQ) { ctx.uDlp = { value: [0, 0, 0].map(() => new T.Vector4(0, 0, 0, 0)) }; ctx.uDlc = { value: [0, 0, 0].map(() => new T.Vector3(0, 0, 0)) }; }
@@ -1776,7 +1776,7 @@
           <p class="note">Online you play as your JackNet name (${esc(myName())}). Auto-fire is for the on-screen sticks. Sound effects follow the JackOS SFX setting.</p>`;
         else if (tab === 'video') ob.innerHTML = `
           <div class="row"><label>Field of view</label><select name="fov">${[75, 80, 90, 95, 100, 110, 120].map(v => `<option ${v === st.fov ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
-          <div class="row"><label>Detail</label><select name="res">${(JQ ? [[150, 'Chunky (486)'], [200, 'Normal (Pentium)'], [240, 'High'], [300, 'Ultra (Callum\'s PC)']] : [[240, 'Low (Dave\'s PC)'], [300, 'Medium'], [400, 'High'], [600, 'Ultra (Callum\'s PC)']]).map(([v, l]) => `<option value="${v}" ${v === st.res ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+          <div class="row"><label>Detail</label><select name="res">${(JQ ? [[150, 'Chunky (486)'], [200, 'Normal (Pent-Yum)'], [240, 'High'], [300, 'Ultra (Callum\'s PC)']] : [[240, 'Low (Dave\'s PC)'], [300, 'Medium'], [400, 'High'], [600, 'Ultra (Callum\'s PC)']]).map(([v, l]) => `<option value="${v}" ${v === st.res ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
           <div class="row"><label>Show frame rate</label><select name="fps"><option value="0">No</option><option value="1" ${st.fps ? 'selected' : ''}>Yes</option></select></div>
           <p class="note">Lower detail runs faster on slower PCs (and phones). Callum runs Ultra. Of course he does.</p>`;
         else { ob.innerHTML = `<div class="jrt-keys">${binds.ACT.map(([k, n]) => `<span>${esc(n)}</span><button type="button" data-k="${k}">${esc(binds.label(k))}</button>`).join('')}</div><p class="note">Click a box, then press the new key (or click a mouse button). Weapons are always 1 to ${NW}, and the mouse wheel.</p><button type="button" class="jrt-btn" data-reset>Reset to defaults</button>`;

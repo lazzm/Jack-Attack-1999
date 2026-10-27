@@ -20,7 +20,7 @@
   const HOME = { room: 'hall', x: 224, z: 452, ry: 90 }; // (in the hall, by the lounge door)
   const SOCKET = { room: 'lounge', x: 60, y: GY - 28, z: 306.6, nx: 0, nz: 1 };
   const CRUMBS = [[-215, 385], [-150, 402], [-205, 478], [-182, 628], [-58, 386], [22, 402], [32, 498], [-92, 506], [104, 520], [60, 642], [-60, 652], [-215, 520]];
-  const KINDS = [['lego', 'A Blocko brick'], ['biscuit', 'Biscuit crumbs'], ['crisps', 'Crisp bits'], ['popcorn', 'Popcorn'], ['fluff', 'Fluff'], ['biscuit', 'Custard cream crumbs'], ['crisps', 'Quaver dust'], ['fluff', 'Cat hair (next door\'s)'], ['glitter', 'Glitter (' + CK.cast('{sister}') + '\'s)']];
+  const KINDS = [['lego', 'A Blocko brick'], ['biscuit', 'Biscuit crumbs'], ['crisps', 'Crisp bits'], ['popcorn', 'Popcorn'], ['fluff', 'Fluff'], ['biscuit', 'Custard cream crumbs'], ['crisps', 'Quavver dust'], ['fluff', 'Cat hair (next door\'s)'], ['glitter', 'Glitter (' + CK.cast('{sister}') + '\'s)']];
   let hv = null, patches = [], socketObj = null, hoovering = false;
   const V = () => (CK.S.v.hoover = CK.S.v.hoover || {});
   function hooverModel() {
@@ -56,7 +56,7 @@
     id: 'hoover', room: 'hall',
     build(hall) {
       hv = hooverModel(); hall.group.add(hv);
-      CK.spot(hall, 'ch.hoover', hv, { label: () => CK.tool.cur && CK.tool.cur.id === 'hoover' ? 'The hoover (you\'ve got it)' : 'Mom\'s new hoover (the TURBO 2000)', act: () => takeHoover() });
+      CK.spot(hall, 'ch.hoover', hv, { label: () => CK.tool.cur && CK.tool.cur.id === 'hoover' ? 'The vacuum (you\'ve got it)' : 'Mom\'s new vacuum (the TURBO 2000)', act: () => takeHoover() });
       this.sync();
     },
     also: {
@@ -64,7 +64,7 @@
         // the double socket by the telly
         socketObj = grp(G => { G.rbox(0, 0, 0, 15, 8.4, 1.4, 0.4, mat('#f2f0ea', { sh: 40 })); [-3.6, 3.6].forEach(x => { G.box(x, -1, 0.75, 1.1, 2.4, 0.2, mat('#222')); G.box(x - 1.4, 1.2, 0.75, 0.9, 0.9, 0.2, mat('#222')); G.box(x + 1.4, 1.2, 0.75, 0.9, 0.9, 0.2, mat('#222')); G.box(x, -3.2, 0.75, 1.6, 0.6, 0.3, mat('#c81a1a')); }); });
         socketObj.position.set(SOCKET.x, SOCKET.y, SOCKET.z); r.group.add(socketObj);
-        CK.spot(r, 'ch.socket', socketObj, { label: 'Plug socket', act: () => { if (CK.tool.cur && CK.tool.cur.cable) { if (CK.tool.plugged) return CK.jack('Plug socket', 'Already plugged in. Get hoovering.'); if (Math.hypot(H.W.x - SOCKET.x, H.W.z - SOCKET.z) > 200) return CK.jack('Plug socket', 'Bring the hoover over here first.'); return plugIn(); } CK.jack('Plug socket', 'A double socket. One for the telly, one for the video, and Dad says the hoover can unplug the video, "it\'ll only flash 12:00 again".'); } });
+        CK.spot(r, 'ch.socket', socketObj, { label: 'Plug socket', act: () => { if (CK.tool.cur && CK.tool.cur.cable) { if (CK.tool.plugged) return CK.jack('Plug socket', 'Already plugged in. Get hoovering.'); if (Math.hypot(H.W.x - SOCKET.x, H.W.z - SOCKET.z) > 200) return CK.jack('Plug socket', 'Bring the vacuum over here first.'); return plugIn(); } CK.jack('Plug socket', 'A double socket. One for the telly, one for the video, and Dad says the vacuum can unplug the video, "it\'ll only flash 12:00 again".'); } });
         // today's crumbs
         layCrumbs(r);
       },
@@ -80,7 +80,7 @@
     reset() { V().at = null; patches.forEach(p => { p.g.visible = true; p.g.scale.set(1, 1, 1); }); if (LR() && LR().built) { patches.forEach(p => p.g.parent && p.g.parent.remove(p.g)); patches = []; layCrumbs(LR()); } this.sync(); },
     dbg: () => patches.map(p => [p.x, p.z]),
     take() { // (the house's old hoover in the cupboard)
-      CK.jack('The old hoover', 'Not the old one: it smells of burning and Dad has banned it. Mom\'s NEW one (the TURBO 2000) is standing in the hall, by the lounge door.', 5000); return true;
+      CK.jack('The old vacuum', 'Not the old one: it smells of burning and Dad has banned it. Mom\'s NEW one (the TURBO 2000) is standing in the hall, by the lounge door.', 5000); return true;
     },
   });
   function layCrumbs(r) {
@@ -92,8 +92,8 @@
   }
   function takeHoover() {
     if (CK.tool.cur && CK.tool.cur.id === 'hoover') return;
-    if (quiet()) return CK.jack('The hoover', 'Hoovering? NOW? Everybody\'s asleep. Mom would come down in her dressing gown and that is a sight nobody needs.', 4500);
-    if (CK.done('hoover')) return CK.jack('The hoover', 'Already done the lounge today. Look at those lines in the carpet. Beautiful.');
+    if (quiet()) return CK.jack('The vacuum', 'Hoovering? NOW? Everybody\'s asleep. Mom would come down in her dressing gown and that is a sight nobody needs.', 4500);
+    if (CK.done('hoover')) return CK.jack('The vacuum', 'Already done the lounge today. Look at those lines in the carpet. Beautiful.');
     CK.begin('hoover');
     hoovering = true;
     CK.tool.take({
@@ -104,17 +104,17 @@
       unplugged: () => { CK.secret('ch.plug'); CK.jack('PING!', 'The plug shot out of the wall. The cable only goes so far. (Plug it back in at the socket by the telly.)', 4000); refreshUi(); },
       drop: () => { hoovering = false; const v = V(); v.at = [H.here, +hv.position.x.toFixed(1), +hv.position.z.toFixed(1), +hv.rotation.y.toFixed(3)]; CK.save(); CK.MODS.hoover.sync(); },
     });
-    if (!V().told) { V().told = 1; CK.save(); CK.jack('The hoover', 'Got it. It weighs a TONNE. Push it into the lounge, plug it in at the socket by the telly, then walk it over every crumb on the carpet.', 6000); }
+    if (!V().told) { V().told = 1; CK.save(); CK.jack('The vacuum', 'Got it. It weighs a TONNE. Push it into the lounge, plug it in at the socket by the telly, then walk it over every crumb on the carpet.', 6000); }
   }
   let nearHome = false, nearSock = false;
   function hint() { if (!CK.tool.plugged) return CK.touchy() ? 'Plug it in: the socket by the telly.' : 'Walk with <b>W A S D</b>. Plug it in at the socket by the telly.'; const left = patches.filter((p, i) => !CK.has('hoover', 'd' + i)).length; return left ? `Push it over the crumbs (${left} left). Mind the cable.` : 'All done! Stand it back in the hall, by the lounge door.'; }
   function buttons() { const out = []; if (!CK.tool.plugged && nearSock) out.push(['Plug it in', plugIn]); if (nearHome) out.push(['Put it away', putAway]); return out; }
   function refreshUi() { CK.tool.hint(hint()); CK.tool.buttons(); }
-  function plugIn() { if (CK.tool.plug()) { CK.step('hoover', 'plug'); CK.jack('The hoover', 'Plugged in and... VRRRRRRRRMMMMMM. Mom: "WHAT? I CAN\'T HEAR YOU, THE HOOVER\'S ON!"', 3500); refreshUi(); } }
+  function plugIn() { if (CK.tool.plug()) { CK.step('hoover', 'plug'); CK.jack('The vacuum', 'Plugged in and... VRRRRRRRRMMMMMM. Mom: "WHAT? I CAN\'T HEAR YOU, THE VACUUM\'S ON!"', 3500); refreshUi(); } }
   function putAway() {
     CK.tool.drop(true);
     hv.position.set(HOME.x, GY, HOME.z); hv.rotation.set(0, HOME.ry * D2R, 0); const v = V(); v.at = null; CK.save();
-    if (patches.every((p, i) => CK.has('hoover', 'd' + i))) CK.step('hoover', 'away'); else CK.jack('The hoover', 'Put it back... but there are still crumbs in the lounge. Mom WILL notice.', 3500);
+    if (patches.every((p, i) => CK.has('hoover', 'd' + i))) CK.step('hoover', 'away'); else CK.jack('The vacuum', 'Put it back... but there are still crumbs in the lounge. Mom WILL notice.', 3500);
     CK.MODS.hoover.sync();
   }
   function frame(head) {
@@ -128,10 +128,10 @@
       const hx = head.x + head.fx * 6, hz = head.z + head.fz * 6;
       if (Math.hypot(p.x - hx, p.z - hz) > 24) return;
       p.going = true;
-      if (p.kind === 'lego') { for (let k = 0; k < 6; k++) H.sfx.noise(0.04, 0.08, 3200, k * 0.05, 'bandpass', 2000); CK.jack('CLACK-A-CLACK-CLACK', 'The hoover ate a Blocko brick. It is rattling round inside like a maraca. That\'s fine. That\'s probably fine.', 3500); }
+      if (p.kind === 'lego') { for (let k = 0; k < 6; k++) H.sfx.noise(0.04, 0.08, 3200, k * 0.05, 'bandpass', 2000); CK.jack('CLACK-A-CLACK-CLACK', 'The vacuum ate a Blocko brick. It is rattling round inside like a maraca. That\'s fine. That\'s probably fine.', 3500); }
       else H.sfx.noise(0.25, 0.05, 2600, 0, 'highpass', 4000);
       const sx = p.g.position.x, sz = p.g.position.z;
-      CK.tween(p.g, { x: hx, z: hz, s: 0.05 }, 380).then(() => { p.g.visible = false; p.g.position.set(sx, GY, sz); p.g.scale.set(1, 1, 1); p.going = false; CK.step('hoover', 'd' + i); refreshUi(); if (patches.every((q, j) => CK.has('hoover', 'd' + j))) CK.jack('The hoover', 'Every crumb! The carpet has stripes in it now. Unplug it (just walk off) and stand it back in the hall.', 4500); });
+      CK.tween(p.g, { x: hx, z: hz, s: 0.05 }, 380).then(() => { p.g.visible = false; p.g.position.set(sx, GY, sz); p.g.scale.set(1, 1, 1); p.going = false; CK.step('hoover', 'd' + i); refreshUi(); if (patches.every((q, j) => CK.has('hoover', 'd' + j))) CK.jack('The vacuum', 'Every crumb! The carpet has stripes in it now. Unplug it (just walk off) and stand it back in the hall.', 4500); });
     });
   }
 
