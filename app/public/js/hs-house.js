@@ -920,6 +920,26 @@
     slab([[-326,-200],[60,-370],[60,-363],[-326,-193]],-82,808,tile);
     slab([[60,-370],[446,-200],[446,-193],[60,-363]],-82,808,tile);
     for(const z of [-59,701])slab([[-300,-196],[-300,-204.5],[60,-363],[420,-204.5],[420,-196]],z,2,mBrick());
+    // Both flank walls, ground to eaves. The rooms inside are hidden while you are outside (room visibility), so the
+    // exterior shell must close on its own: these butt between the back wall (z -56.6) and the front wall (z 701),
+    // outer faces on x -300 / 420 (the downpipe brackets' wall line), tops tucked into the roof slab.
+    for(const x of [-299,419])B.box(x,(GY-205)/2,(701-56.6)/2,2,GY+205,701+56.6,mBrick(),{uv:128});
+    // Side gates close both passages beside the house a metre behind the front, so you never see through to the back.
+    { const fm=mFence(),post=M({c:'#fff',map:tex('pineDark')}),iron=M({c:'#1d1e1f',sh:40,sp:'#444'}),gz=600;
+      const run=(a,b,gate)=>{ // a..b along x at gz; gate: [x0,x1] for a ledged leaf hung on its own posts
+        const posts=[a+4,b-4];if(gate)for(const x of [gate[0]-4,gate[1]+4])if(posts.every(q=>Math.abs(q-x)>1))posts.push(x);
+        for(const x of posts){B.box(x,GY-95,gz,8,190,8,post,{uv:60});B.rbox(x,GY-191,gz,9.4,2,9.4,.5,post,{uv:60})}
+        const xs=[...new Set(posts)].sort((p,q)=>p-q);
+        for(let i=1;i<xs.length;i++){const x0=xs[i-1]+4,x1=xs[i]-4;if(x1-x0<1)continue;
+          if(gate&&x0>=gate[0]-.5&&x1<=gate[1]+.5){const cx=(x0+x1)/2,w=x1-x0-1.6; // the gate leaf: boards, ledges and a brace behind, black ironmongery in front
+            B.box(cx,GY-92,gz,w,172,2.4,fm,{uv:100});for(const y of [-24,-160])B.box(cx,GY+y,gz-2.6,w-6,9,2.8,post);
+            B.box(cx,GY-92,gz-2.6,Math.hypot(w-14,128),7,2.4,post,{rz:Math.atan2(128,w-14)/D2R});
+            for(const y of [-24,-160])B.box(x0+16,GY+y,gz+1.6,30,2.2,.8,iron);B.cyl(x1-12,GY-104,gz+2.4,2.6,2.6,1.2,10,iron,{rx:90});B.box(x1-12,GY-104,gz+3.4,7,1.2,1.4,iron);
+          }else B.box((x0+x1)/2,GY-90,gz,x1-x0,180,3,fm,{uv:100});
+        }
+      };
+      run(420,734,[428,518]);run(-694,-300,[-398,-308]); // (out to next door's fences on both sides)
+    }
     B.cyl(60,-369,322,4.5,4.5,816,12,edge,{rx:90});
     for(const x of [-322,442]){B.box(x,-195,322,9,13,808,cream);B.cyl(x,-188,322,4,4,814,10,edge,{rx:90})}
     // Tile courses are thin raised battens on the slopes, never coplanar planes.
