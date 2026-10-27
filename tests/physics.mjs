@@ -41,7 +41,7 @@ try {
   const fast = on => p.evaluate(on => { House.ren.setPixelRatio(on ? .5 : 1); House.dirty(); }, on);
   // stand on a floor and look at a point (no walking): the same pose helper the story test uses
   async function look(x, z, tx, ty, tz, lvl = 'U') {
-    await p.evaluate(({x, z, tx, ty, tz, lvl}) => { House.hush(); House.cancelGlide(true); const y = House.LV[lvl] - 128; House.setWalkFrom({x, y, z, lvl, seat: 0}); House.W.vx = House.W.vz = 0; Object.assign(House.P, {x, z, y, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI}); House._.setMode('walk'); House.dirty(); }, {x, z, tx, ty, tz, lvl});
+    await p.evaluate(({x, z, tx, ty, tz, lvl}) => { House.hush(); House.cancelGlide(true); const y = House.LV[lvl] - (House.STAND || 128); House.setWalkFrom({x, y, z, lvl, seat: 0}); House.W.vx = House.W.vz = 0; Object.assign(House.P, {x, z, y, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI}); House._.setMode('walk'); House.dirty(); }, {x, z, tx, ty, tz, lvl});
     await p.waitForTimeout(350);
   }
   // hold a key for an amount of GAME time (software WebGL runs at a few frames a second; the game clock is what counts)

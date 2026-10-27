@@ -44,6 +44,8 @@ const GB_PROBE = `()=>{const t=House.THINGS.gb,o=t.obj;return{gx:o.position.x,gy
 async function settle() { await until(() => !House.gliding && !House.motion?.moving && ['walk', 'focus', 'monitor', 'inspect'].includes(House.mode)); await p.waitForTimeout(250); }
 async function aimAt(target, from, spot) {
   await fx.view(from, target); await p.evaluate(() => House._.setMode('walk')); await p.waitForTimeout(400);
+  // the eye eases up to the standing height from wherever the view put it: let it get there before anything is picked up
+  for (let i = 0, y = NaN; i < 40; i++) { const ny = await p.evaluate(() => House.P.y); if (Math.abs(ny - y) < 0.02) break; y = ny; await p.waitForTimeout(150); }
   // the walk may nudge the eye clear of furniture: re-aim from where it actually ended up
   // (and wait for the eye height to settle, so the crosshair really is on the target before F)
   for (let i = 0; i < 8; i++) {
@@ -108,6 +110,7 @@ async function capture(name, act, { ms = 1400, regions = {}, black = true, targe
   await saveFrames(frames.filter((_, i) => i % Math.max(1, Math.ceil(frames.length / 8)) === 0), `${shots}${name}`);
   const stats = await analyse(browser, frames, { regions });
   const blackFrames = black ? stats.map((s, i) => ({ i, t: Math.round(frames[i].t), mean: s.mean, black: s.black })).filter(s => s.mean < 9 || s.black > 0.7) : [];
+  await writeFile(`${shots}${name}-trace.json`, JSON.stringify(tr.frames)); // (per-frame camera/handheld trace, for diagnosing a failure)
   const cam = popsIn(tr.frames, { pos: ['x', 'y', 'z'], ang: ['rx', 'ry'] }, 'camera');
   const gb = popsIn(tr.frames.filter(f => f.gx != null), { pos: ['gx', 'gy', 'gz'] }, 'gamelad');
   const geo = await throughGeometry(tr.frames);
