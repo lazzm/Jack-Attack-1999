@@ -42,7 +42,7 @@
   const me = () => (Net.me && Net.me.member ? Net.me.nick : '');
 
   // ---- upload: chunks of 3000 base64 chars, paced so the server's rate limit is happy
-  async function upload(force) {
+  async function upload(force, now) {
     const name = me();
     if (!name || who.toLowerCase() !== name.toLowerCase() || busy || switching) return false;
     const str = JSON.stringify(snapshot()), h = hash(str);
@@ -54,7 +54,7 @@
       const id = Math.random().toString(36).slice(2, 10), n = Math.max(1, Math.ceil(data.length / 3000));
       for (let i = 0; i < n; i++) {
         if(switching||me().toLowerCase()!==name.toLowerCase())return false;
-        if (!Net.send({ t: 'rmPut', id, i, n, d: data.slice(i * 3000, (i + 1) * 3000), ts: Date.now(), enc, base: +(ls.get('jhp_roam_ts') || 0), ownerRev: +(ls.get('jhp_roam_ownerRev')||0) })) { busy = false; return false; }
+        if (!Net.send({ t: 'rmPut', id, i, n, d: data.slice(i * 3000, (i + 1) * 3000), ts: Date.now(), enc, base: +(ls.get('jhp_roam_ts') || 0), ownerRev: +(ls.get('jhp_roam_ownerRev')||0), ...(now ? { now: 1 } : {}) })) { busy = false; return false; }
         if (i % 10 === 9) await new Promise(r => setTimeout(r, 700));
       }
       const ok = await new Promise(res => { waiters.push(res); setTimeout(() => res(false), 8000); });
@@ -200,5 +200,5 @@
   setInterval(() => { upload(false); }, 45000);
   document.addEventListener('visibilitychange', () => { if (document.hidden) upload(false); });
 
-  window.Roam = { logoff, syncNow: () => upload(false), get owner() { return who; } };
+  window.Roam = { logoff, syncNow: () => upload(false, true), get owner() { return who; } };
 })();

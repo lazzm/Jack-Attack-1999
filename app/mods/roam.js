@@ -127,7 +127,7 @@ module.exports = {
     if(owner&&m.t==='rmPut'&&(+m.ownerRev||0)!==revision){
       c.roamUp=null;c.ownerReload=true;return ctx.send(ws,{t:'ownerReload',profile:read('jack')||{ts:0,enc:'raw',data:'e30='},ownerRev:revision});
     }
-    if (!c.roamRl) c.roamRl = { get: new ctx.Bucket(0.2, 3), put: new ctx.Bucket(0.05, 3) };
+    if (!c.roamRl) c.roamRl = { get: new ctx.Bucket(0.2, 3), put: new ctx.Bucket(0.05, 3), sync: new ctx.Bucket(0.05, 2) }; // sync: saves someone is waiting on (owner tools, the pause menu), so the 45 s autosave can't starve them
     if (m.t === 'rmGet') {
       if (!c.roamRl.get.take()) return;
       const p = read(c.member);
@@ -139,7 +139,7 @@ module.exports = {
       const id = String(m.id || '').slice(0, 20), i = m.i | 0, n = m.n | 0, d = typeof m.d === 'string' ? m.d : '';
       if (!id || n < 1 || n > Math.ceil(MAX / CHUNK) || i < 0 || i >= n || d.length > CHUNK || !/^[A-Za-z0-9+/=]*$/.test(d)) return;
       if (i === 0) {
-        if (!c.roamRl.put.take()) return ctx.send(ws, { t: 'rmBusy' });
+        if (!(m.now ? c.roamRl.sync : c.roamRl.put).take()) return ctx.send(ws, { t: 'rmBusy' });
         c.roamUp = { id, n, parts: new Array(n), got: 0, ts: Math.min(Date.now(), +m.ts || Date.now()), enc: m.enc === 'gzip' ? 'gzip' : 'raw', who: c.member };
       }
       const up = c.roamUp;

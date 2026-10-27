@@ -708,7 +708,7 @@
     ready = true;
     restore();
     for (const c of chars) placeRig(c);
-    kick(); H.dirty();
+    kick(); if (!still()) H.dirty(); // (a close-up redraws on its own when you leave it)
     window.st?.onChange?.(s => {
       const cur = window.st.current()?.id || null; if (cur !== lastStep) { const prev = lastStep; lastStep = cur; if (prev !== null && s && !s.flags.veteran) stepChanged(cur, prev, s); }
     });
