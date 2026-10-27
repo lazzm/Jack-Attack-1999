@@ -105,6 +105,13 @@ House physics, carrying and placement (starts its own server; docs/PHYSICS.md):
     node physics-unit.cjs   # solver: settle/stack/tunnelling/chair tuck/capsule push/ghost queries/sleep cost
     node physics.mjs        # 15 browser checks with real keys; shots and report.json in shots/physics/
 
+The family in the house (starts and stops its own server on a free port, throwaway data):
+
+    node characters.mjs                 # routines + owner clock, 3 simulated days (walls/doors/doorways), talk/jobs, bump, refresh, feet, draws, story, portraits
+    node characters.mjs --only=day      # one check: routines|day|talk|bump|refresh|feet|draws|story|shots
+
+Portraits and in-house views of Mom, Dad and the sister (idle/walking/talking) go to `shots/characters/`.
+
 Exterior/grass/door checks (disposable localhost data only):
 
     node exterior-rebuild.mjs http://localhost:18080

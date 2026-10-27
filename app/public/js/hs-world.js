@@ -1408,6 +1408,7 @@
   let lastPt = { x: 0, y: 0, ok: false, mouse: false };
   const walkingFloor=(x,z)=>{
     if(window.ChoreKit?.tool?.canWalk?.(x,z)===false)return null;
+    if(window.HouseFamily?.blocks?.(x,z,W.lvl))return null; // the family are solid too (js/np-life.js)
     const f=floorAt(x,z,W.lvl,W.fy);
     // Small thresholds are fine; stepping sideways off the flight must not
     // turn the legacy 45 cm pose-restore tolerance into a sudden camera drop.

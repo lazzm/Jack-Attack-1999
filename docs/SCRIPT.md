@@ -758,7 +758,7 @@ Not tied to a chapter. Barks fire from NPC routines (time of day, room, state). 
 | `chore.shopping.done` | mom | Shopping done | pleased | Everything where it belongs. And the carrier bags folded. A miracle. \| |
 | `chore.bins.give` | mom | Bins out | firm | The kitchen bin needs taking out. Round the back to the wheelie bin. And a new bag in. \| |
 | `chore.bins.done` | mom | Bins done | satisfied | Thank you. The kitchen smells better already. \| |
-| `chore.hoover.give` | mom | Hoover | brisk | The hoover's in the cupboard under the stairs. Every crumb, please. \| |
+| `chore.hoover.give` | mom | Hoover | brisk | The vacuum's in the cupboard under the stairs. Every crumb, please. \| |
 | `chore.hoover.done` | mom | Hoover done | pleased | Spotless. You can see the stripes. \| |
 | `chore.videos.give` | mom | Videos | patient | The videos are all over the floor. Back on the shelf, and rewind them. Be kind. \| |
 | `chore.videos.done` | mom | Videos done | warm | That's better. I can find the film I want now. \| |

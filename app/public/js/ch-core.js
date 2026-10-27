@@ -177,7 +177,8 @@
       S.done[id] = { sc: m.sc | 0, amt: m.amt | 0, cashPence:m.cashPence, bad: m.bad ? 1 : 0 }; S.ever[id] = 1; save(); refresh();
       if (m.bad) return jack(C.short, 'Mom says that was done suspiciously quickly, so she\'s not paying for it. Fair enough.');
       if (m.cashPence > 0) H.toast('+' + CC.money(m.cashPence), 'Mom paid you for: ' + C.n.toLowerCase() + '. Exchange your pocket money at JackNet Bank.');
-      setTimeout(() => mom(cast((m.mom || 'Ta, love.') + (m.sc ? ` (${m.sc}%)` : ''))), 900);
+      // Mom takes the job in herself when she's there (js/np-life.js); otherwise she calls out, as before
+      if (!window.HouseFamily?.handIn?.(id, m)) setTimeout(() => mom(cast((m.mom || 'Ta, love.') + (m.sc ? ` (${m.sc}%)` : ''))), 900);
       if (m.sc >= 100) secret('ch.gold');
       if (m.sc >= 95) secret('grind.perfect');
       if (!m.amt) setTimeout(() => jack(C.short, m.list ? 'No money for that one: that\'s all the job money the Bank of Mom pays out in one day.' : (m.want === 0 ? 'Not on Mom\'s list, and she\'s already paid me for four extra jobs today. Worth a go though.' : 'No money for that one. Mom\'s purse is empty.')), 3800);
