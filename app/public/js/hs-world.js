@@ -1776,13 +1776,28 @@
     const ly = pcOn ? 1 : 0; for (const f of frontFx) { if (f.userData.ly !== ly) { f.userData.ly = ly; f.traverse(o => o.layers.set(ly)); } if (f.visible && pcOn) front = true; }
     camera.layers.set(0); renderLit(ren);
     if (front || anyFront) {
-      if (!ren2) { ren2 = new T.WebGLRenderer({ canvas: cv2, antialias: wantsAntialias(), alpha: true, premultipliedAlpha: true }); ren2.setClearColor(0x000000, 0); ren2.localClippingEnabled = true; measure(); }
+      // (measure() resizes, and so clears, the room canvas too: draw it again, or this frame shows black)
+      if (!ren2) { makeFront(); camera.layers.set(0); renderLit(ren); }
       if (cv2.parentNode !== frontHost()) frontHost().appendChild(cv2);
       camera.layers.set(1); renderLit(ren2); camera.layers.set(0);
       anyFront = front;
     }
     if (stood || monitor) glassFit();
     for (const sf of SURF) placeSurf(sf);
+  }
+  function makeFront() { ren2 = new T.WebGLRenderer({ canvas: cv2, antialias: wantsAntialias(), alpha: true, premultipliedAlpha: true }); ren2.setClearColor(0x000000, 0); ren2.localClippingEnabled = true; measure(); }
+  // The hand-held layer has its own GL context. Create it and compile the pick-up-able things' shaders into it
+  // while nothing is happening, so the first raise/pick-up never stalls on a context or a shader link mid-move.
+  function warmFront() {
+    if (!live || ren2 || glide || mode !== 'walk' && mode !== 'monitor') return false;
+    try {
+      makeFront(); const saved = [];
+      for (const id in THINGS) THINGS[id].obj.traverse(o => { saved.push([o, o.layers.mask]); o.layers.set(1); });
+      camera.layers.set(1); renderLit(ren2); camera.layers.set(0);
+      for (const [o, m] of saved) o.layers.mask = m;
+      ren2.clear(true, true, true); need = true;
+      return true;
+    } catch (e) { console.error('front warm-up', e); return false; }
   }
   const frontFx = new Set(); // other layer-1 things (the PC's CD tray when it's out)
   const frontHost = () => stood ? html : pb;
@@ -2248,7 +2263,7 @@
     room, buildRoom, door, setDoor, walkRect, block, stairs, support, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     restoreThing, saveThings, saveWalkState, layerFor, frontFx, place,
     grab, drop, putBack, interact, suspendGrip, restoreGrip, resumeLook:wantLock, get seated(){return focusS?.o.seatId||focusS?.parent?.o.seatId||null;}, held: () => held && held.id, placement:()=>held&&THINGS[held.id].floorOnly?floorAim(THINGS[held.id]):null, act: id => act(SPOTS[id]), useAt,
-    glideTo, goStation, cancelGlide, viewFor, setWalkFrom, seatPose, sitOn, resumeSeat, fillPose, get gliding() { return !!glide; },
+    warmFront, glideTo, goStation, cancelGlide, viewFor, setWalkFrom, seatPose, sitOn, resumeSeat, fillPose, get gliding() { return !!glide; },
     motion: { get ms() { return MOTION.ms; }, get reduce() { return MOTION.reduce; }, set reduce(v) { MOTION.reduce = v; }, scale: motionMs, H5, H5d, H1, H1d, lensFov, get moving() { return movingLock; }, glideVel: () => glideVel(performance.now()), queueLock, get lockQueued() { return !!lockQueued; } },
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,

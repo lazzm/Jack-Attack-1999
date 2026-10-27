@@ -1709,7 +1709,7 @@
     if (t.st === 'fall') t.at.y = t.landY;
     const view = Object.assign({}, H.P, { rx: 0, seat: 1, lvl: H.W.lvl, zm: H.motion.reduce ? 1 : 1.1 });
     // where it is now, relative to the camera (a hand pose) or in the room (on the desk): the way back
-    const rest = grip ? null : { at: Object.assign({}, t.at), rx: t.rx || 0, rz: t.rz || 0 };
+    const rest = grip ? null : { at: Object.assign({}, t.at), rx: t.rx || 0, rz: t.rz || 0, m: objMatrix(t.obj) };
     gbPlay = { grip, rest, st: t.st, view, hand: grip ? relTo(H.P, objMatrix(t.obj)) : null, play: gbPlayPose(view) };
     t.st = 'play'; t.inspectFront = true; H.layerFor(t);
     window.Sound?.world?.('lift', { weight: 'light' });
@@ -1730,7 +1730,7 @@
       gbTween('gb-return', () => camRoot(H.P).multiply(hand), ms, { roll: -3, carry: true, follow: true, done: () => { if (!gbPlay && !H.held()) H.restoreGrip(saved.grip); } });
       return;
     }
-    const r = saved.rest, end = new T.Matrix4().compose(new T.Vector3(r.at.x, r.at.y, r.at.z), new T.Quaternion().setFromEuler(new T.Euler(r.rx * D2R, (r.at.ry || 0) * D2R, r.rz * D2R, 'YXZ')), new T.Vector3(1, 1, 1));
+    const r = saved.rest, end = r.m; // exactly where it was resting (the room's own placement, contact offsets and all)
     t.st = 'anim';
     gbTween('gb-return', () => end, ms, { roll: -3, carry: true, done: () => { if (gbPlay) return; t.at = r.at; t.rx = r.rx; t.rz = r.rz; t.st = 'rest'; t.inspectFront = false; H.place(t); H.layerFor(t); window.Sound?.world?.('handle', { weight: 'light', put: true }); } });
   }
@@ -1944,6 +1944,7 @@
     setTimeout(() => { if (!window.RoomBits) (bitsLoad = bitsLoad || loadJs('js/rm-bits.js')).catch(() => { bitsLoad = null; }); }, 5000);
     setTimeout(() => { if (!window.RoomTV) (tvLoad = tvLoad || loadJs('js/rm-tv.js')).catch(() => { tvLoad = null; }); }, 4000);
     setTimeout(warmScreens, 2500); // (the live-screen shader, compiled before anyone plays)
+    setTimeout(() => H.warmFront?.(), 3200); // (and the hand-held layer's context, before anything is raised)
     setTimeout(() => { if (!window.HouseMobile) loadJs('js/hs-mobile.js').catch(() => {}); }, 2500); // Jack's mobile, on the desk
     emit('ready');
   }

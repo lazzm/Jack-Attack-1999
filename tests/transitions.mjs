@@ -196,7 +196,9 @@ try {
   });
   await scenario('inspect', async () => {
     const [x, y, z] = await worldOf('cube');
-    await aimAt([x, y - 3, z], [x + 40, y - 50, z + 60], 'cube');
+    let aimed = false;
+    for (const [dx, dy, dz] of [[0, -42, 45], [-25, -45, 50], [40, -50, 60], [10, -35, 35]]) { try { await aimAt([x, y - 3, z], [x + dx, y + dy, z + dz], 'cube'); aimed = true; break; } catch (e) {} }
+    assert(aimed, 'could not aim at the puzzle cube');
     const probe = `()=>{const o=House.THINGS.cube.obj;return{gx:o.position.x,gy:o.position.y,gz:o.position.z,gst:House.THINGS.cube.st,panel:window.__trace.vis('.hs-inspection')}}`;
     const enter = await capture('inspect-enter', () => p.keyboard.press('f'), { ms: 700, probe, target: hasMotion ? 500 : undefined });
     await until(() => House.mode === 'inspect'); clean(enter);
