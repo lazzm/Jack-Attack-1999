@@ -302,8 +302,16 @@ html.hs-live{--game-ui:Tahoma,Arial,sans-serif}
 .hs-hkeys{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;font:13px/1.5 Tahoma,Arial,sans-serif;text-shadow:none;color:var(--game-ink)}
 .hs-hkeys>span{white-space:nowrap}.hs-carry-help{font:11px/1.4 Tahoma,Arial,sans-serif;color:#b9bcae;text-align:center}
 .hs-hold.snap{border-color:#b9cc85}.hs-hold.snap .hs-hmode{color:#cfdfa6}
+/* carrying: the panel says whether it fits where you're aiming (green ghost / red ghost / gold slot) and what the keys do now */
+.hs-hold{padding:9px 16px 10px;gap:5px}.hs-hold .hs-hname{font-size:15px}
+.hs-hold.fit{border-top-color:#8fdc6a}.hs-hold.fit .hs-hmode{color:#a9dc8c}
+.hs-hold.blocked{border-top-color:#e2553f}.hs-hold.blocked .hs-hmode{color:#f2917c}.hs-hold.blocked .hs-carry-help{color:#f0b6a8}
+.hs-hold.snap{border-top-color:#ffd84a}.hs-hold.drag{border-top-color:#d6b36a}.hs-hold.drag .hs-hmode{color:#e2c98e}
+.hs-hold .hs-hkeys kbd{min-width:1.4em;text-align:center}
+.hs-tip.carry{pointer-events:none;padding:5px 9px;font:12px/1.3 Tahoma,Arial,sans-serif;color:var(--game-ink)}
+.hs-ui.locked .hs-tip.carry{left:50%!important;top:calc(50% - 48px)!important;bottom:auto;transform:translateX(-50%)!important} /* the F prompt sits just above the crosshair */
 .hs-hbtn button{height:32px;border-radius:0;font:12px Tahoma,Arial,sans-serif}
-.hs-ui.holding .hs-tip{display:none}.hs-tip{box-sizing:border-box;max-width:min(520px,calc(100vw - 24px));white-space:normal;padding:9px 12px;font:13px/1.4 Tahoma,Arial,sans-serif}
+.hs-ui.holding .hs-tip:not(.carry){display:none}.hs-tip{box-sizing:border-box;max-width:min(520px,calc(100vw - 24px));white-space:normal;padding:9px 12px;font:13px/1.4 Tahoma,Arial,sans-serif}
 .hs-tip i{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:5px;font-size:12px}.hs-tip i>span{white-space:nowrap}.hs-tip small{display:block;margin-top:4px}
 .hs-voice{top:64px;box-sizing:border-box;width:max-content;max-width:min(560px,calc(100vw - 320px));padding:9px 16px;background:rgba(15,19,21,.88);border-left:2px solid #a79563}
 .hs-voice b{font:700 11px "Courier New",monospace;color:#e3cb89;text-shadow:none}

@@ -210,7 +210,17 @@
       const heavy=o.weight==='heavy',light=o.weight==='light';
       n(o.put?.09:.055,heavy?.09:light?.028:.055,light?2400:heavy?230:700);
       if (o.put) t(heavy?72:light?480:140,heavy?.16:.07,heavy?.12:.04,0,heavy?40:90);
-    } else if (kind === 'door') {
+    } else if (kind === 'bump') { // something landing or knocking into something: a thud scaled by weight and speed
+      const heavy=o.weight==='heavy',light=o.weight==='light',k=Math.min(1,Math.max(.25,(o.speed||200)/500));
+      n(.06,(heavy?.08:light?.03:.05)*k,light?2600:heavy?260:900);
+      t(heavy?68:light?520:150,heavy?.14:.05,(heavy?.1:.035)*k,0,heavy?42:110);
+    } else if (kind === 'roll') { // castors over carpet
+      n(.16,.022,190+Math.random()*60);n(.08,.012,700,.05);
+    } else if (kind === 'scrape') { // something heavy shoved along the carpet
+      const heavy=o.weight==='heavy';n(heavy?.22:.12,heavy?.035:.02,heavy?320:620);
+    } else if (kind === 'turn') { n(.03,.015,1600); }
+    else if (kind === 'deny') { t(150,.09,.035,0,120,'square'); }
+    else if (kind === 'door') {
       n(.07,.06,1800);n(.25,.025,430,.05);
       if (!o.open) {t(85,.16,.12,.28,40);n(.04,.06,1400,.3);}
       else t(175,.2,.012,.08,140,'triangle');

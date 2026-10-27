@@ -273,12 +273,24 @@
     H.support('bedroom', -76, -55, 76, 31, 0); // the desk top
     const L = L0(); // the PC's own surfaces (things can sit on the tower and the keyboard)
     H.support('bedroom', L.tx - 9.5, L.tz - 16.5, L.tx + 9.5, L.tz + 17.5, -42.3, {when:()=>window.StoryAccess?.available!==false||!!window.StorySnapshot?.done?.['part.tower']});
-    H.support('bedroom', L.kx - 14, 7, L.kx + 14, 16, -2.2, {when:()=>window.StoryAccess?.available!==false||!!window.StorySnapshot?.done?.['part.keys']});
+    H.support('bedroom', L.kx - 14, 7, L.kx + 14, 16, -2.2, {thick:2.2,when:()=>window.StoryAccess?.available!==false||!!window.StorySnapshot?.done?.['part.keys']});
     H.support('bedroom', 104, BZ, 140, -20, 21.6); // the bedside table
     H.support('bedroom', 150, BZ + 6, 236, 136, 30); // the bed
     H.support('bedroom', LX, 178, LX + 46, 246, -9); // the chest of drawers
     H.support('bedroom', TX - 36, -55, TX + 36, -13, 27.4); // the TV cabinet top
-    H.block('U', -76, -60, 76, 33); // the desk
+    H.block('U', -76, -60, 76, 33, { solid: false }); // the desk (for the player: you can't walk into it)
+    // For things: the real desk. A 3.2 cm top whose underside is 69.8 cm off the carpet, the left end board, the drawer
+    // unit and the modesty panel. The knee space between them is open, so the chair's seat slides under the top.
+    if (H.solid) {
+      H.solid('U', -76, -55, 76, 31, 0, 3.2, { kind: 'desk' });
+      H.solid('U', -76, -54, -72, 30, 2, FY + 1, { kind: 'desk' });
+      H.solid('U', 38, -52, 74, 31, 2, FY + 1, { kind: 'desk' });
+      H.solid('U', -72, -53.4, 38, -52, 6, 66, { kind: 'desk' });
+      H.solid('U', -69, -47, -55, -33, -36, 0, { kind: 'lamp' }); // the anglepoise's base and arm
+      const pc = part => () => window.StoryAccess?.available !== false || !!window.StorySnapshot?.done?.['part.' + part];
+      H.solid('U', L.mx - 19, -19, L.mx + 19, 1, -40, 0, { kind: 'pc', when: pc('monitor') });
+      H.solid('U', L.tx - 10, L.tz - 17, L.tx + 10, L.tz + 19, -42.3, 0, { kind: 'pc', when: pc('tower') });
+    }
     paintSky();
   }
   function borderRun(B, m, x0, z0, x1, z1, ry) { const len = Math.hypot(x1 - x0, z1 - z0); const g = new T.PlaneGeometry(len, 13); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) { uv.setX(i, uv.getX(i) * len / 120); uv.setY(i, 1 - uv.getY(i)); } B.geo(g, (x0 + x1) / 2, -96, (z0 + z1) / 2, m, { ry }); }
@@ -373,11 +385,13 @@
     const D = K.into(dg); D.rbox(0, 6.6, 30.4, 33.2, 8.6, 1.8, 0.35, dm, { uv: 60 }); deskHandle(D, 0, 6.6, 31.3); D.box(0, 10.5, 0, 32, 1, 58, M('#4a3420')); D.box(-15.5, 7, 0, 1, 8, 58, M('#4a3420')); D.box(15.5, 7, 0, 1, 8, 58, M('#4a3420'));
     D.box(0,6.5,-28.5,32,8,1,M('#4a3420'));
     D.box(-5,9.8,6,18,.25,24,M('#f4f0e0'),{ry:12});D.box(6,9.5,12,16,.25,20,M('#fffbe0'),{ry:-8}); D.box(4, 9.4, -10, 9, 0.6, 9.4, M({ c: '#fff', map: tex('floppyLabel') }));
-    H.openable('drawer', { label: 'Desk drawer', pivot: dg, type: 'slide', axis: 'z', amt: 22, base: 0, onToggle: open => { if (open) setTimeout(() => { if (H.OPEN.drawer && H.OPEN.drawer.open) bits('drawer'); }, 420); } });
+    H.openable('drawer', { label: 'Desk drawer', pivot: dg, type: 'slide', axis: 'z', amt: 22, base: 0, onToggle: open => { if (open && !H.held()) setTimeout(() => { if (H.OPEN.drawer && H.OPEN.drawer.open && !H.held()) bits('drawer'); }, 420); } }); // (hands full: it just slides open)
     // An ordinary late-90s armless task chair: woven upholstery, a separate
     // padded back, moulded shell, gas lift and five twin-wheel castors.
     const chairGroup=new T.Group();chairGroup.name='desk-chair';
-    const chairBatch=K.batch(),ch=K.into(chairBatch),chp=M({c:'#292b2f',sh:18,sp:'#24272a'}),steel=M({c:'#272a2c',sh:30}),chrome=M({c:'#90989e',sh:65,sp:'#727d83'}),rubber=M({c:'#202226',sh:2});
+    // The base (star, castors, hub) stays put; the seat, back and gas lift turn together (physics: t.swivel).
+    const chairSwivel=new T.Group();chairSwivel.name='desk-chair-swivel';chairGroup.add(chairSwivel);
+    const chairBatch=K.batch(),ch=K.into(chairBatch),seatBatch=K.batch(),sw=K.into(seatBatch),chp=M({c:'#292b2f',sh:18,sp:'#24272a'}),steel=M({c:'#272a2c',sh:30}),chrome=M({c:'#90989e',sh:65,sp:'#727d83'}),rubber=M({c:'#202226',sh:2});
     const fabric=K.tex('rm.chair.fabric',128,128,(g,w,h)=>{g.fillStyle='#555e70';g.fillRect(0,0,w,h);const rand=K.rnd(9904);for(let y=0;y<h;y+=2)for(let x=0;x<w;x+=2){g.fillStyle=rand()<.5?'rgba(19,26,40,.13)':'rgba(194,198,205,.11)';g.fillRect(x,y,1,2)}},{rep:[3,3]});
     const upholstery=M({c:'#d3d8df',map:fabric,sh:2,sp:'#090b0d'});
     const leg=new T.BoxGeometry(6,3.2,29,1,1,4),lp=leg.attributes.position;
@@ -387,21 +401,29 @@
       const caster=b.at(0,0,29.5);caster.cyl(0,-6.4,0,.9,.9,2.4,12,chrome);caster.rbox(0,-4.8,-.5,1.8,4,3.8,.6,chp);caster.cyl(0,-3,0,.65,.65,5.6,12,steel,{rz:90});
       for(const side of [-1,1]){caster.cyl(side*2,-3,0,3,3,1.8,20,rubber,{rz:90});caster.cyl(side*2.94,-3,0,1.5,1.5,.16,16,chp,{rz:90});}
     }leg.dispose();
-    ch.cyl(0,-8,0,5.5,6.4,8,24,chp);ch.cyl(0,-14,0,3.4,4.1,14,20,chp);ch.cyl(0,-25.5,0,2,2,23,20,chrome);ch.cyl(0,-35.5,0,4,3.8,4.5,20,steel);
-    ch.rbox(0,-35.3,1,22,4.8,19,1.3,steel);ch.rbox(0,-39.2,1,45,3,42,1.4,chp);ch.rbox(0,-44.5,2,45,9,43,4,upholstery);
+    ch.cyl(0,-8,0,5.5,6.4,8,24,chp);ch.cyl(0,-14,0,3.4,4.1,14,20,chp);
+    sw.cyl(0,-25.5,0,2,2,23,20,chrome);sw.cyl(0,-35.5,0,4,3.8,4.5,20,steel);
+    sw.rbox(0,-35.3,1,22,4.8,19,1.3,steel);sw.rbox(0,-39.2,1,45,3,42,1.4,chp);sw.rbox(0,-44.5,2,45,9,43,4,upholstery);
     // Backrest support stays attached to the seat pan and the rear shell.
-    ch.rbox(0,-36.4,-17,6,3,15,1,steel);ch.rbox(0,-50,-23,5,30,3.5,1,steel);
-    for(let i=0;i<8;i++)ch.box(0,-45-i*1.9,-25,5.6,.65,1.1,chp);
-    ch.cyl(0,-52,-26.5,2.5,2.5,2.8,16,chp,{rx:90});ch.box(0,-52,-28,3.5,.65,.5,steel);
-    const back=ch.at(0,-72,-20,0,{rx:-8});back.rbox(0,0,-2.2,42,33,7,3.2,chp);back.rbox(0,0,2.8,39.5,30.5,6,2.9,upholstery);
+    sw.rbox(0,-36.4,-17,6,3,15,1,steel);sw.rbox(0,-50,-23,5,30,3.5,1,steel);
+    for(let i=0;i<8;i++)sw.box(0,-45-i*1.9,-25,5.6,.65,1.1,chp);
+    sw.cyl(0,-52,-26.5,2.5,2.5,2.8,16,chp,{rx:90});sw.box(0,-52,-28,3.5,.65,.5,steel);
+    const back=sw.at(0,-72,-20,0,{rx:-8});back.rbox(0,0,-2.2,42,33,7,3.2,chp);back.rbox(0,0,2.8,39.5,30.5,6,2.9,upholstery);
     for(const x of [-12,12]){back.rbox(x,0,-5.9,1.6,17,.8,.35,chp);for(const y of [-8,8])back.cyl(x,y,-6.4,.7,.7,.2,10,steel,{rx:90});}
-    ch.cyl(17,-35,6,.55,.55,19,12,steel,{rz:90});ch.rbox(27,-35,6,7,2.4,4,1,chp);
-    for(const x of [-8,8])for(const z of [-5,7])ch.cyl(x,-32.7,z,.65,.65,.5,10,chrome);
+    sw.cyl(17,-35,6,.55,.55,19,12,steel,{rz:90});sw.rbox(27,-35,6,7,2.4,4,1,chp);
+    for(const x of [-8,8])for(const z of [-5,7])sw.cyl(x,-32.7,z,.65,.65,.5,10,chrome);
     const tag=K.tex('rm.chair.label',192,96,(g,w,h)=>{g.fillStyle='#c9c5af';g.fillRect(0,0,w,h);A.text(g,'TASKMATE',96,32,'700 22px '+A.UIF,'#272b2c','center');A.text(g,'TYPE 98 / CHECK FIXINGS',96,61,'12px '+A.UIF,'#272b2c','center');A.text(g,'HEIGHT ADJUSTMENT →',96,81,'11px '+A.UIF,'#272b2c','center')},{clamp:true});
-    ch.decal(-14,-37.66,7,8,4,M({c:'#fff',map:tag}),{rx:-90});
-    chairBatch.build(chairGroup);K.into(chairGroup).shadow(0,0,0,70,70,.52);
+    sw.decal(-14,-37.66,7,8,4,M({c:'#fff',map:tag}),{rx:-90});
+    chairBatch.build(chairGroup);seatBatch.build(chairSwivel);K.into(chairGroup).shadow(0,0,0,70,70,.52);
     chairGroup.userData.periodChair={type:'armless upholstered task chair',castors:5,wheels:10,seatHeight:44.5};
-    loose('chair',chairGroup,{room:'bedroom',x:L0().mx,y:FY,z:106,ry:180},'My office chair',{kind:'furniture',holdD:90,obstacle:true,floorOnly:true,noStack:true,seat:{eye:110,front:2},use:()=>H.sitOn('chair'),useLabel:'Sit down'});
+    // Colliders at the model's real heights: the castor star (low enough to walk over), the seat with the column under
+    // it (things can sit on it), and the back. The seat (49 cm) fits under the desk top (69.8 cm); the back (55-89 cm) can't,
+    // so pushed in, the chair stops with its back against the desk edge: tucked in. Home is tucked in (a tidy desk).
+    // (three parts are enough: the column and the back strut sit inside the seat's and back's footprints)
+    const CHAIR_PARTS=[{t:'cyl',x:0,z:0,r:30,lo:0,hi:9,player:false},
+      {t:'box',x:0,z:2,hx:22.5,hz:21.5,lo:9,hi:49,sw:true,top:true},{t:'box',x:0,z:-19.6,hx:21,hz:5.4,lo:49,hi:89,sw:true}];
+    loose('chair',chairGroup,{room:'bedroom',x:L0().mx,y:FY,z:18,ry:180},'My office chair',{kind:'furniture',holdD:90,obstacle:true,floorOnly:true,noStack:true,seat:{eye:110,front:2},swivel:chairSwivel,
+      physics:{parts:CHAIR_PARTS,mass:9,mu:.32,coast:.42,tip:0,castors:true,drag:true,swing:1.2,swDamp:.86},use:()=>H.sitOn('chair'),useLabel:'Sit down'});
     // the desk lamp (an anglepoise; it really lights the room)
     buildDeskLamp(r);
     // little things on the desk: revision books, a mug of cold tea, a pencil pot
@@ -661,7 +683,8 @@
     BG.rbox(0,-4,-26.9,7,0.7,1,0.2,M('#601b20')); // concealed refill zip and pull, above the carpet
     BG.box(3.1,-4.5,-27.1,0.7,0.25,1.1,mMetal);
     BG.shadow(0,0,0,67,60,0.65);
-    loose('beanbag',bb,{room:'bedroom',x:TX+78,y:FY,z:56,ry:-135},'The beanbag',{kind:'furniture',holdD:95,obstacle:true,floorOnly:true,noStack:true,seat:{eye:81,front:4},use:()=>H.sitOn('beanbag'),useLabel:'Sit down'});
+    loose('beanbag',bb,{room:'bedroom',x:TX+78,y:FY,z:56,ry:-135},'The beanbag',{kind:'furniture',holdD:95,obstacle:true,floorOnly:true,noStack:true,seat:{eye:81,front:4},
+      physics:{parts:[{t:'cyl',x:0,z:0,r:29,lo:0,hi:28}],mass:6,mu:1.4,coast:.05,tip:0,drag:true,noSpin:true},use:()=>H.sitOn('beanbag'),useLabel:'Sit down'});
     // the games mags on the floor
     // These magazines are individual grab-API objects, built with the reading bookcase.
     // Open media rack: twenty separate slots, with enough clearance for a disc
@@ -682,6 +705,8 @@
     RK.shadow(0, 0, 0, 36, 26, 0.7, { sq: true });
     if(sparseStarter)buildStarterClutter(r);
     H.spot('rack', { label: 'Game shelf', obj: rk }); H.block('U', TX - 74, -56, TX - 38, -31);
+    H.support('bedroom', TX - 72.6, -55, TX - 39.4, -33, FY - 81.1, { thick: 1.2 }); // the rack's top (the VCR stands on it)
+    if (H.solid) { for (const x of [TX - 72.6, TX - 40.6]) H.solid('U', x, -55, x + 1.2, -33, FY - 80.5, FY + 1, { kind: 'rack' }); H.solid('U', TX - 23, -53, TX + 23, -25, -6.6, 27.4, { kind: 'telly' }); }
     H.block('U', TX - 38, -60, TX + 38, -11); // the cabinet
     // posters over the telly and on the side wall
     poster(B, TX, -64, BZ, 34, 46, tex('posterBand'), 0); pickBox(r, 'posterband', TX, -64, BZ + 1, 34, 46, 2); H.SPOTS.posterband.label = 'Band poster';
@@ -702,7 +727,7 @@
       // a crisp packet, squashed, its silver inside showing
       BN.geo(K.thicken(new T.PlaneGeometry(7, 9, 4, 4).applyMatrix4(new T.Matrix4().makeRotationX(-0.5)), 0.15), 2.4, -27.5, -1.5, M({ c: '#e8c020', sh: 40, sp: '#777', side: 2 }), { rz: 18, ry: 30 }); }
     binBatch.build(bn); K.into(bn).shadow(0, 0, 0, 24, 24, 0.7);
-    H.spot('bin',{label:'The bin',obj:bn});loose('bin',bn,{room:'bedroom',x:-118,y:FY,z:-42,ry:0},'Wastepaper bin',{obstacle:true,floorOnly:true});
+    H.spot('bin',{label:'The bin',obj:bn});loose('bin',bn,{room:'bedroom',x:-118,y:FY,z:-42,ry:0},'Wastepaper bin',{obstacle:true,floorOnly:true,physics:{round:true,parts:[{t:'cyl',x:0,z:0,r:10.6,lo:0,hi:27.6}],mass:.8,mu:.45,coast:.3,tip:.9}});
   }
   // Ordinary belongings stay behind the reserved console bays, clear of every
   // future machine and cartridge slot. These are props, never inventory grants.
@@ -898,7 +923,8 @@
   function buildBed(B, r) {
     const pm = mPine(), x0 = 148, x1 = 238, z0 = BZ + 1, z1 = 140, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, bw = x1 - x0, bl = z1 - z0;
     B.box(cx, 57, cz, bw, 12, bl, pm, { uv: 50 }); // the base
-    [[x0 + 3, z1 - 3], [x1 - 3, z1 - 3]].forEach(([x, z]) => B.box(x, 66, z, 6, 14, 6, pm));
+    // four solid legs (the head end used to float on nothing), with a little darkness where they meet the carpet
+    [[x0 + 3, z1 - 3], [x1 - 3, z1 - 3], [x0 + 3, z0 + 7], [x1 - 3, z0 + 7]].forEach(([x, z]) => { B.box(x, 66, z, 6, 14, 6, pm); B.shadow(x, FY, z, 11, 11, 0.55); });
     B.box(cx, 26, z0 + 2, bw + 4, 48, 4, pm, { uv: 50 }); // the headboard (low, under the window)
     B.box(cx, 1.5, z0 + 2, bw + 8, 3, 6, pm, { uv: 50 });
     for (let i = 0; i < 5; i++) B.box(x0 + 12 + i * 16.5, 20, z0 + 4.4, 6, 26, 1.2, M('#b88a50'));
@@ -921,7 +947,13 @@
     const duvet=B.geo(K.thicken(dg,.8),cx,36,cz+14,M({c:'#ffffff',map:tex('duvet')}),{rx:90});
     // The chore pillow is the bed's only pillow: it starts on the floor.
     pickBox(r, 'bed', cx, 43, cz + 10, bw, 14, bl - 10);H.spot('bed',{obj:duvet});
-    H.block('U', x0 - 2, BZ, RX, z1 + 4);
+    H.block('U', x0 - 2, BZ, RX, z1 + 4, { solid: false });
+    if (H.solid) { // things: the bed is a slab from the duvet to the base, on legs; flat things fit in the 10 cm underneath
+      H.solid('U', x0, z0 - 1, x1, z1, 30, 63, { kind: 'bed' });
+      H.solid('U', x0, z1, x1, z1 + 3, 55, FY + 1, { kind: 'bed' });
+      H.solid('U', x0 - 2, z0 - 1, x1 + 2, z0 + 4, 0, FY + 1, { kind: 'bed' });
+      for (const [x, z] of [[x0 + 3, z1 - 3], [x1 - 3, z1 - 3], [x0 + 3, z0 + 7], [x1 - 3, z0 + 7]]) H.solid('U', x - 3, z - 3, x + 3, z + 3, 59, FY + 1, { kind: 'bed' });
+    }
     // the bedside table: lava lamp, the radio alarm clock (the real time), a glass of water
     const bs = B.at(122, 0, BZ + 18);
     // a pine two-drawer bedside cabinet: overhanging rounded top, drawers set in a shadowed reveal, turned knobs, recessed plinth
@@ -1152,7 +1184,7 @@
     straps.build(sb);
     SB.shadow(0, 0, 0, 38, 22, 0.6);
     H.spot('schoolbag', { label: 'School bag', obj: sb, act: () => say('School bag', ['My school bag. Inside: three exercise books, a squashed banana, a letter about the Year 11 trip, and the Maths homework that was due Friday.', 'Homework diary: "French vocab test Thursday". It is not Thursday. Is it?', 'A calculator. Type 0.7734 and turn it upside down. It says hELLO. That is the whole joke. It never gets old.'][(S.sb = ((S.sb | 0) + 1) % 3)]) });
-    loose('schoolbag',sb,{room:'bedroom',x:58,y:FY,z:226,ry:-12},'School bag',{obstacle:true,floorOnly:true,useLabel:'Look inside'});
+    loose('schoolbag',sb,{room:'bedroom',x:58,y:FY,z:226,ry:-12},'School bag',{obstacle:true,floorOnly:true,useLabel:'Look inside',physics:{mass:3.5,mu:.95,coast:.1,tip:.45}});
     const laundry=new T.Group(),lbBatch=K.batch(),lb=K.into(lbBatch);
     // a woven laundry basket (wicker-look plastic), overflowing: a jumper, a white T-shirt and a sleeve hanging over the rim
     const wicker=K.tex('rm.wicker',256,64,(g,w,h)=>{g.fillStyle='#d8cfb4';g.fillRect(0,0,w,h);for(let x=0;x<w;x+=8){g.fillStyle='rgba(120,100,60,.35)';g.fillRect(x,0,2,h)}for(let y=0;y<h;y+=8)for(let x=0;x<w;x+=16){g.fillStyle='rgba(255,250,235,.35)';g.fillRect(x+((y/8)%2)*8,y+1,8,5);g.fillStyle='rgba(90,70,40,.22)';g.fillRect(x+((y/8)%2)*8,y+6,8,1)}},{rep:[3,5]});
@@ -1162,7 +1194,7 @@
 
     H.spot('washing', { label: 'Washing basket', act: () => say('Washing basket', 'Full. Overflowing. Mom says if it doesn\'t go downstairs it doesn\'t get washed. Fair.') }); pickBox(r, 'washing', 110, FY - 22, 222, 34, 44, 34);
     lb.cyl(0,-.25,0,13.8,13.8,.5,18,M('#c8c4b9'));lb.geo(new T.TorusGeometry(16.5,.7,6,32),0,-40,0,M('#cdbf9c'),{rx:90});for(const a of [0,Math.PI])lb.rbox(Math.cos(a)*16.4,-36.5,Math.sin(a)*16.4,1.6,4,7,.6,M('#cdbf9c'));lbBatch.build(laundry);K.into(laundry).shadow(0, 0, 0, 40, 40, 0.6); // (unbatched: hidden while carried)
-    loose('washing',laundry,{room:'bedroom',x:110,y:FY,z:222,ry:0},'Washing basket',{obstacle:true,floorOnly:true,useLabel:'Look inside'});
+    loose('washing',laundry,{room:'bedroom',x:110,y:FY,z:222,ry:0},'Washing basket',{obstacle:true,floorOnly:true,useLabel:'Look inside',physics:{parts:[{t:'cyl',x:0,z:0,r:17.6,lo:0,hi:46}],mass:3,mu:.65,coast:.15,tip:.5}});
   }
 
   // Things that live on the bookcase for good (not grab props, never in a book slot): a stack of family board
@@ -1202,6 +1234,7 @@
     bookcaseDressing(G,boards);caseBatch.build(g);
     H.block('U',cx-40,cz-15,cx+40,cz+15);
     for(const y of boards.slice(1))H.support('bedroom',cx-38,cz-14,cx+38,cz+14,y-.9);
+    if(H.solid)for(const x of [cx-40,cx+38])H.solid('U',x,cz-15,x+2,cz+15,-75,FY+1,{kind:'bookcase'});
     H.spot('reading.shelf',{label:'Books and magazines',obj:g,act:()=>say('Books and magazines','E picks up a book or magazine. F reads it. Carry one towards a free highlighted slot and press E to shelve it. Your arrangement is saved.')});
     let slots;try{slots=JSON.parse(localStorage.getItem('jhp_reading_slots')||'{}')}catch(e){slots={}}
     if(!slots||typeof slots!=='object'||Array.isArray(slots))slots={};
@@ -1707,7 +1740,7 @@
     const go = () => { RoomTV.open(con, con === 'gb' ? rectOf(H.THINGS.gb.obj) : rectOf(R.tvScreen), { restoring: !!resume }); if (gameId) RoomTV.playPhysical(gameId); };
     const ready = () => window.RoomTV ? Promise.resolve() : (tvLoad = tvLoad || loadJs('js/rm-tv.js'));
     const grip=con==='gb'?H.suspendGrip('gb'):null;
-    if(H.held())H.putBack();
+    if(H.held())(H.setAside||H.putBack)();
     if(con==='gb')holdHandheld(grip);
     tvFocusCon = con;
     clearTimeout(boT);
@@ -1749,7 +1782,7 @@
   function bits(id) {
     if(id==='rack')return rackNote();
     if (POSTER_VIEW[id]) return posterFocus(id);
-    if(id==='lava'){if(H.held())H.putBack();return H.focus({x:98,y:-9,z:15,rx:-14,ry:36,lvl:'U',seat:1},{label:'Lean back',enter:()=>say('Lava lamp','Watch the real glass and wax. Q leans back; Esc opens the game menu.',4000)})}
+    if(id==='lava'){if(H.held())(H.setAside||H.putBack)();return H.focus({x:98,y:-9,z:15,rx:-14,ry:36,lvl:'U',seat:1},{label:'Lean back',enter:()=>say('Lava lamp','Watch the real glass and wax. Q leans back; Esc opens the game menu.',4000)})}
     if (!canGo() || pending || (window.RoomBits && RoomBits.open_)) return;
     H.hush();
     const request=++bitsEpoch;
@@ -1757,7 +1790,7 @@
     const ready = () => window.RoomBits ? Promise.resolve() : (bitsLoad = bitsLoad || loadJs('js/rm-bits.js'));
     const at = BITVIEW[id];
     if (!at) return ready().then(open, () => { bitsLoad = null; });
-    if (H.held()) H.putBack();
+    if (H.held()) (H.setAside || H.putBack)();
     clearTimeout(boT); pending = true;
     if (!back) back = { x: H.P.x, y: H.P.y, z: H.P.z, rx: H.P.rx, ry: H.P.ry, lvl: 'U', seat: H.W.seat };
     const [x, y, z] = at, wallBack = z <= BZ + 2, d = wallBack ? 66 : 72;

@@ -62,6 +62,11 @@ World art captures and geometry audit (each owns its own disposable server and /
 `world-quality-2.mjs` uses the full-room fixture at 1366x860, Low tier and 14:00 like the smoke canonical views, so its
 per-view draw counts compare directly; two Pixel Post parcels are shown in the hall through a page-only status message.
 
+House physics, carrying and placement (starts its own server; docs/PHYSICS.md):
+
+    node physics-unit.cjs   # solver: settle/stack/tunnelling/chair tuck/capsule push/ghost queries/sleep cost
+    node physics.mjs        # 15 browser checks with real keys; shots and report.json in shots/physics/
+
 Exterior/grass/door checks (disposable localhost data only):
 
     node exterior-rebuild.mjs http://localhost:18080
