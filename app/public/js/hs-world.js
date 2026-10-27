@@ -878,7 +878,7 @@
   function computeGhost(t, sx, sy, fresh) {
     const now = performance.now();
     if (!fresh && GP.res && GP.t === t && now - GP.at < (Q.tier === 'low' ? 80 : 40)) return GP.res;
-    const o = t.obj.position, sn = nearSnap(t, o.x, o.y, o.z, fresh);
+    const o = heldPos(), sn = nearSnap(t, o.x, o.y, o.z, fresh); // (where the hand is going, not where the lagging model still is)
     let res;
     if (sn) { const p = sn.pose || { x: sn.x, y: sn.y, z: sn.z, ry: sn.ry || 0 }; res = { snap: sn, ok: true, room: sn.room || (cur && cur.id), x: p.x, y: p.y, z: p.z, ry: p.ry || 0, rx: p.rx || 0, rz: p.rz || 0 }; }
     else res = freeGhost(t, sx, sy);
