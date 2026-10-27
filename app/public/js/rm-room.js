@@ -1729,23 +1729,74 @@
   const canGo=()=>H.mode==='walk'||H.mode==='glide'||H.mode==='focus'&&!!H.seated;
   const TV_SAVE = 'jhp_console_focus';
   let tvFocus = false, tvFocusCon = 'n64', tvRequest = 0, gbPlay = null;
+  // ---- the Game Lad play pose. One clock drives the camera and the handheld: the camera eases level and to a slightly
+  // longer lens while the Game Lad rises from the desk (or your hand) on the same minimum-jerk curve, rolls a touch
+  // mid-lift and settles square with its screen filling the view. Its target is held relative to the moving camera,
+  // so the two can never drift apart mid-move. Leaving runs the same curve backwards to exactly where it came from;
+  // an interruption (Q mid-lift) carries the handheld's current velocity into the way back.
+  const camRoot = p => new T.Matrix4().makeTranslation(p.x, p.y, p.z).multiply(new T.Matrix4().makeRotationX((p.rx || 0) * D2R).multiply(new T.Matrix4().makeRotationY((p.ry || 0) * D2R)).transpose());
+  const objMatrix = o => new T.Matrix4().compose(o.position, o.quaternion, o.scale);
+  const relTo = (p, m) => camRoot(p).invert().multiply(m);
+  function gbPlayPose(view) {
+    // the glass (4.6 x 4.14 cm, centred 3.5 cm up the body) fills ~58% of the height, or ~76% of a narrow width
+    const t = Math.tan(H.motion.lensFov(view.zm) * D2R / 2), aspect = innerWidth / innerHeight;
+    const d = Math.max(2.07 / (0.58 * t), 2.3 / (0.76 * t * aspect), 6.5);
+    const q = new T.Quaternion().setFromEuler(new T.Euler(-80 * D2R, -view.ry * D2R, 0, 'YXZ'));
+    const a = view.ry * D2R, b = (view.rx || 0) * D2R, f = new T.Vector3(Math.sin(a) * Math.cos(b), -Math.sin(b), -Math.cos(a) * Math.cos(b));
+    const glass = new T.Vector3(0, -2.97, -3.5).applyQuaternion(q);
+    const pos = new T.Vector3(view.x, view.y, view.z).addScaledVector(f, d).sub(glass);
+    return relTo(view, new T.Matrix4().compose(pos, q, new T.Vector3(1, 1, 1)));
+  }
+  const _p1 = new T.Vector3(), _q1 = new T.Quaternion(), _s1 = new T.Vector3(), _roll = new T.Quaternion(), _zAxis = new T.Vector3(0, 0, 1);
+  // tween the Game Lad from where it is now to target() (a root-frame Matrix4, re-evaluated every frame)
+  function gbTween(key, target, ms, o = {}) {
+    const t = H.THINGS.gb, M5 = H.motion, from = { p: t.obj.position.clone(), q: t.obj.quaternion.clone() };
+    const v0 = (o.carry && t.obj.userData.gbVel) ? t.obj.userData.gbVel.clone() : new T.Vector3();
+    const t0 = performance.now(), last = from.p.clone(); let lastT = t0;
+    for (const k of ['gb-pose', 'gb-return']) H.anims.delete(k);
+    H.anims.set(key, n => {
+      const s = ms ? Math.min(1, Math.max(0, (n - t0) / ms)) : 1, e = M5.H5(s);
+      target().decompose(_p1, _q1, _s1);
+      t.obj.position.copy(from.p).lerp(_p1, e).addScaledVector(v0, ms * M5.H1(s));
+      t.obj.quaternion.copy(from.q).slerp(_q1, e);
+      const roll = M5.reduce ? 0 : (o.roll || 0) * Math.sin(Math.PI * e);
+      if (roll) t.obj.quaternion.multiply(_roll.setFromAxisAngle(_zAxis, roll * D2R));
+      if (n > lastT) { t.obj.userData.gbVel = (t.obj.userData.gbVel || new T.Vector3()).copy(t.obj.position).sub(last).divideScalar(n - lastT); last.copy(t.obj.position); lastT = n; }
+      H.dirty();
+      // (a camera-relative target keeps being followed until the camera itself has landed)
+      if (s < 1 || (o.follow && H.gliding)) return true;
+      t.obj.userData.gbVel = null; if (o.done) o.done(); return false;
+    });
+  }
   function holdHandheld(grip) {
     const t = H.THINGS.gb;
-    H.anims.delete('gb-return');
-    if(t.st==='fall') t.at.y=t.landY;
-    gbPlay = {grip,at:Object.assign({},t.at),st:t.st,rx:t.rx||0,rz:t.rz||0,view:Object.assign({},H.P,{rx:0,seat:1,lvl:H.W.lvl})};
-    const view = gbPlay.view, yaw=view.ry*D2R, d=Math.max(8/(Math.tan(H.camera.fov*D2R/2)*.8),5/(Math.tan(H.camera.fov*D2R/2)*innerWidth/innerHeight*.8));
-    t.st='play';t.inspectFront=true;H.layerFor(t);
-    const pos=t.obj.position.clone(),rot=t.obj.quaternion.clone(),target=new T.Vector3(view.x+Math.sin(yaw)*d,view.y+.5,view.z-Math.cos(yaw)*d);
-    const q=new T.Quaternion().setFromEuler(new T.Euler(-80*D2R,-view.ry*D2R,0,'YXZ')),t0=performance.now();
-    H.anims.set('gb-pose',n=>{const k=Math.min(1,(n-t0)/650),e=k*k*(3-2*k);t.obj.position.lerpVectors(pos,target,e);t.obj.quaternion.copy(rot).slerp(q,e);return k<1;});
+    if (t.st === 'fall') t.at.y = t.landY;
+    const view = Object.assign({}, H.P, { rx: 0, seat: 1, lvl: H.W.lvl, zm: H.motion.reduce ? 1 : 1.1 });
+    // where it is now, relative to the camera (a hand pose) or in the room (on the desk): the way back
+    const rest = grip ? null : { at: Object.assign({}, t.at), rx: t.rx || 0, rz: t.rz || 0, m: objMatrix(t.obj) };
+    gbPlay = { grip, rest, st: t.st, view, hand: grip ? relTo(H.P, objMatrix(t.obj)) : null, play: gbPlayPose(view) };
+    t.st = 'play'; t.inspectFront = true; H.layerFor(t); H.physics?.sync?.('gb'); // (its physics body sleeps while it is in your hands)
+    window.Sound?.world?.('lift', { weight: 'light' });
+    const play = gbPlay.play;
+    // the hands lead and the eyes follow: the Game Lad arrives a beat before the camera settles on it
+    gbTween('gb-pose', () => camRoot(H.P).multiply(play), H.motion.scale(H.motion.ms.handheld) / 1.18, { roll: 4, carry: true, follow: true });
   }
   function returnHandheld() {
-    if(!gbPlay)return; const saved=gbPlay,t=H.THINGS.gb;gbPlay=null;H.anims.delete('gb-pose');
-    if(saved.grip){H.anims.delete('gb-return');H.restoreGrip(saved.grip);return;}
-    const pos=t.obj.position.clone(),q=t.obj.quaternion.clone(),target=new T.Vector3(saved.at.x,saved.at.y,saved.at.z);
-    const end=new T.Quaternion().setFromEuler(new T.Euler(saved.rx*D2R,(saved.at.ry||0)*D2R,saved.rz*D2R,'YXZ')),t0=performance.now();
-    t.st='anim';H.anims.set('gb-return',n=>{const k=Math.min(1,(n-t0)/500),e=k*k*(3-2*k);t.obj.position.lerpVectors(pos,target,e);t.obj.quaternion.copy(q).slerp(end,e);if(k<1)return true;t.at=saved.at;t.rx=saved.rx;t.rz=saved.rz;t.st='rest';t.inspectFront=false;H.place(t);H.layerFor(t);return false;});
+    if (!gbPlay) return; const saved = gbPlay, t = H.THINGS.gb; gbPlay = null;
+    // exit() runs just before the camera's return move is planned: take that move's own duration (shorter when
+    // the raise was interrupted part-way), so the handheld and the camera land on the same frame
+    Promise.resolve().then(() => { if (!gbPlay) returnTween(saved, t, H._.glide?.kind === 'unfocus' ? H._.glide.ms : H.motion.scale(H.motion.ms.unfocus)); });
+  }
+  function returnTween(saved, t, ms) {
+    if (saved.grip) {
+      // back into the hand pose it was raised from, on the camera's own return curve; then the carry takes over again
+      const hand = saved.hand;
+      gbTween('gb-return', () => camRoot(H.P).multiply(hand), ms, { roll: -3, carry: true, follow: true, done: () => { if (!gbPlay && !H.held()) H.restoreGrip(saved.grip); } });
+      return;
+    }
+    const r = saved.rest, end = r.m; // exactly where it was resting (the room's own placement, contact offsets and all)
+    t.st = 'anim'; H.physics?.sync?.('gb');
+    gbTween('gb-return', () => end, ms, { roll: -3, carry: true, done: () => { if (gbPlay) return; t.at = r.at; t.rx = r.rx; t.rz = r.rz; t.st = 'rest'; t.inspectFront = false; H.place(t); H.layerFor(t); window.Sound?.world?.('handle', { weight: 'light', put: true }); } });
   }
   function tvSession(value) { try { if (value) localStorage.setItem(TV_SAVE, JSON.stringify(value)); else localStorage.removeItem(TV_SAVE); } catch (e) {} }
   function inserted(con) { const slot='console.'+con;for(const id in mediaThings){const t=mediaThings[id];if(t&&t.st==='snap'&&t.snap===slot)return t;} }
@@ -1776,17 +1827,23 @@
     tvFocusCon = con;
     clearTimeout(boT);
     const request = ++tvRequest, p = ready().then(() => true, () => { tvLoad = null; return false; });
-    tvFocus = H.focus(() => tvPose(con), { label: 'Back to the room', ms: resume ? 350 : 750,
-      enter: () => p.then(ok => {
-        if (request !== tvRequest || !H.focused) return;
-        if (!ok) { H.unfocus(); say('The telly', 'That did not load. Try again in a minute.'); return; }
-        try { go(); } catch (e) { console.error(e); H.unfocus(); }
-      }),
+    // The screen powers on while the camera is still arriving (the last third of the move), so it is warm and
+    // lit by the time the view settles; the controls fade in only once it has.
+    let opened = false;
+    const power = () => p.then(ok => {
+      if (opened || request !== tvRequest || !H.focused) return;
+      if (!ok) { if (H.mode === 'focus') { H.unfocus(); say('The telly', 'That did not load. Try again in a minute.'); } return; }
+      opened = true;
+      try { go(); } catch (e) { console.error(e); H.unfocus(); }
+    });
+    tvFocus = H.focus(() => tvPose(con), { label: 'Back to the room', ms: resume ? 350 : (con === 'gb' ? H.motion.ms.handheld : H.motion.ms.focus), screen: true, kind: con === 'gb' ? 'handheld' : 'console',
+      at: { k: resume ? 0 : 0.64, fn: power },
+      enter: power,
       exit: () => { returnHandheld(); tvFocus = false; ++tvRequest; if (window.RoomTV && RoomTV.open_) RoomTV.close(); else if (!(window.RoomTV && RoomTV._dbg() && RoomTV._dbg().background)) tvSession(null); }
     });
     if (tvFocus) tvSession({ con, gid: gameId || '', back: H._.focusS.back });
   }
-  addEventListener('resize', () => { if (tvFocus && H.mode === 'focus') { Object.assign(H.P, tvPose(tvFocusCon)); H.dirty(); } });
+  addEventListener('resize', () => { if (tvFocus && H.mode === 'focus') { Object.assign(H.P, tvPose(tvFocusCon)); if (gbPlay && tvFocusCon === 'gb') { gbPlay.play = gbPlayPose(gbPlay.view); if (!H.anims.has('gb-pose')) camRoot(H.P).multiply(gbPlay.play).decompose(H.THINGS.gb.obj.position, H.THINGS.gb.obj.quaternion, new T.Vector3()); } H.dirty(); } });
   // ---- close-ups (js/rm-bits.js): the camera moves in close first, and back out after
   let bitsLoad = null, pending = false, boT = 0, bitsEpoch = 0;
   // Posters never open a separate picture: approach the actual paper on its wall.
@@ -1949,7 +2006,9 @@
     postCheck(); setInterval(postCheck, 5000);
     // (the close-ups and the consoles' screen are wanted soon: fetch them while nothing's happening)
     setTimeout(() => { if (!window.RoomBits) (bitsLoad = bitsLoad || loadJs('js/rm-bits.js')).catch(() => { bitsLoad = null; }); }, 5000);
-    setTimeout(() => { if (!window.RoomTV) (tvLoad = tvLoad || loadJs('js/rm-tv.js')).catch(() => { tvLoad = null; }); }, 9000);
+    setTimeout(() => { if (!window.RoomTV) (tvLoad = tvLoad || loadJs('js/rm-tv.js')).catch(() => { tvLoad = null; }); }, 4000);
+    setTimeout(warmScreens, 2500); // (the live-screen shader, compiled before anyone plays)
+    setTimeout(() => H.warmFront?.(), 3200); // (and the hand-held layer's context, before anything is raised)
     setTimeout(() => { if (!window.HouseMobile) loadJs('js/hs-mobile.js').catch(() => {}); }, 2500); // Jack's mobile, on the desk
     emit('ready');
   }
@@ -2278,6 +2337,13 @@
     where: () => H.here, T, K, House: H, ensureHouse,
     onClose(fn) { (EVS.close = EVS.close || []).push(fn); }, offClose(fn) { const a = EVS.close || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); },
     _: { ejectMedia,
+      // where the in-world glass is on screen right now (LOCK IN grows out of it and shrinks back into it)
+      screenRect(con, target) {
+        const screen = target || (con === 'gb' ? R.gbScreen : R.tvScreen); if (!screen || !H.live) return null;
+        for (let o = screen; o; o = o.parent) if (!o.visible) return null;
+        const r = rectOf(screen).getBoundingClientRect();
+        return r.width > 4 && r.height > 4 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight ? r : null;
+      },
       tvVisible(con, target) {
         const screen = target || (con === 'gb' ? R.gbScreen : R.tvScreen); if (!screen) return false;
         return !!H.screenBudget(screen,true)?.visible;
@@ -2308,22 +2374,17 @@
         // three.js caches this material's live-screen program across console
         // changes. Its compiled uniforms must keep the same object identities;
         // a fresh texture-owned object leaves the old game's HUD bound.
-        const uniforms=m.userData.rmCRTUniforms||(m.userData.rmCRTUniforms={rmHUD:{value:hud},rmLines:{value:canvas.height}});
+        const uniforms=m.userData.rmCRTUniforms||(m.userData.rmCRTUniforms={rmHUD:{value:hud},rmLines:{value:canvas.height},rmPower:{value:1},rmKind:{value:con==='gb'?0:1}});
         uniforms.rmHUD.value=hud;uniforms.rmLines.value=canvas.height;tx.userData.uniforms=uniforms;
         tx.needsUpdate = true; m.map = tx; m.color.set('#ffffff');
         if (fresh) {
-          m.onBeforeCompile = shader => {
-            Object.assign(shader.uniforms, uniforms);
-            shader.fragmentShader = 'uniform sampler2D rmHUD;\nuniform float rmLines;\n' + shader.fragmentShader;
-            shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>
-              vec4 screenHUD = texture2D(rmHUD, vUv);
-              diffuseColor.rgb = mix(diffuseColor.rgb, screenHUD.rgb, screenHUD.a);
-              diffuseColor.rgb *= 0.94 + 0.06 * step(1.0, mod(floor(vUv.y * rmLines), 2.0));
-              vec2 edge = (vUv - 0.5) * vec2(1.25, 1.0);
-              diffuseColor.rgb *= 1.0 - 0.22 * smoothstep(0.3, 0.78, length(edge));
-              diffuseColor.rgb += vec3(0.035, 0.042, 0.05) * pow((1.0-vUv.x)*(1.0-vUv.y), 3.0);`);
-          };
+          m.onBeforeCompile = liveScreenShader(uniforms);
           m.customProgramCacheKey = () => 'room-crt-live'; m.needsUpdate = true;
+          // power-on: the LCD warms up from its unlit green; the telly's tube opens out from a bright line
+          uniforms.rmKind.value = con === 'gb' ? 0 : 1; uniforms.rmPower.value = 0;
+          const t0 = performance.now(), ms = con === 'gb' ? 520 : 420;
+          H.anims.set('screen-power:' + (target ? 'surface' : con), n => { const k = Math.min(1, (n - t0) / ms); uniforms.rmPower.value = k; H.dirty(); return k < 1; });
+          if (con === 'gb') window.Sound?.world?.('power', { kind: 'lcd' }); else window.Sound?.world?.('power', { kind: 'crt' });
         }
         tx.userData.uniforms.rmLines.value = canvas.height;
         if (con !== 'gb' && !target && !LIGHT.telly) { LIGHT.telly = true; H.relight(); } H.dirty();
@@ -2333,6 +2394,47 @@
       mk: (p, c, css, html) => { const d = document.createElement('div'); d.className = c; if (css) d.style.cssText = css; if (html) d.innerHTML = html; p.appendChild(d); return d; }, pb, stage: pb.querySelector('.pc-stage'), get hud() { return H.ui.el; }, coin,
       coinToast: amt => toast('+' + amt + ' Rupees', 'For playing on the consoles') },
   };
+  // The live-screen shader (both the telly and the Game Lad). Shared so it can be compiled ahead of time: the
+  // first console go must never stall on a shader link while the camera is moving.
+  function liveScreenShader(uniforms) {
+    return shader => {
+      Object.assign(shader.uniforms, uniforms);
+      shader.fragmentShader = 'uniform sampler2D rmHUD;\nuniform float rmLines;\nuniform float rmPower;\nuniform float rmKind;\n' + shader.fragmentShader;
+      shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>
+        vec4 screenHUD = texture2D(rmHUD, vUv);
+        diffuseColor.rgb = mix(diffuseColor.rgb, screenHUD.rgb, screenHUD.a);
+        diffuseColor.rgb *= 0.94 + 0.06 * step(1.0, mod(floor(vUv.y * rmLines), 2.0));
+        vec2 edge = (vUv - 0.5) * vec2(1.25, 1.0);
+        diffuseColor.rgb *= 1.0 - 0.22 * smoothstep(0.3, 0.78, length(edge));
+        diffuseColor.rgb += vec3(0.035, 0.042, 0.05) * pow((1.0-vUv.x)*(1.0-vUv.y), 3.0);
+        if (rmPower < 1.0) {
+          float pw = clamp(rmPower, 0.0, 1.0);
+          if (rmKind < 0.5) {
+            float warm = pw * pw * (3.0 - 2.0 * pw);
+            diffuseColor.rgb = mix(vec3(0.514, 0.584, 0.424), diffuseColor.rgb * (0.82 + 0.18 * warm), warm);
+          } else {
+            float open = smoothstep(0.0, 0.55, pw), band = 1.0 - smoothstep(0.0, 0.012, abs(vUv.y - 0.5) - 0.5 * open * open);
+            diffuseColor.rgb = mix(vec3(0.02), diffuseColor.rgb * (1.0 + 1.6 * (1.0 - pw)) + vec3(0.25 * (1.0 - open)), band);
+          }
+        }`);
+    };
+  }
+  // compile the live-screen program and upload a texture through it once, out of sight, after the room is built
+  let screensWarm = false;
+  function warmScreens() {
+    if (screensWarm || !H.ren || !R.tvScreen && !R.gbScreen) return; screensWarm = true;
+    try {
+      const c = document.createElement('canvas'); c.width = c.height = 4;
+      const tx = new T.CanvasTexture(c), hud = new T.CanvasTexture(document.createElement('canvas'));
+      for (const x of [tx, hud]) { x.minFilter = x.magFilter = T.LinearFilter; x.generateMipmaps = false; }
+      const m = new T.MeshBasicMaterial({ color: 0xffffff, map: tx });
+      m.onBeforeCompile = liveScreenShader({ rmHUD: { value: hud }, rmLines: { value: 4 }, rmPower: { value: 1 }, rmKind: { value: 0 } }); m.customProgramCacheKey = () => 'room-crt-live';
+      const mesh = new T.Mesh(new T.PlaneGeometry(1, 1), m); mesh.frustumCulled = false;
+      (R.gbScreen || R.tvScreen).parent.add(mesh);
+      H.ren.compile(H.scene, H.camera); H.ren.initTexture?.(tx); H.ren.initTexture?.(hud);
+      mesh.parent.remove(mesh); mesh.geometry.dispose(); m.dispose(); tx.dispose(); hud.dispose();
+    } catch (e) { console.error('screen warm-up', e); }
+  }
   // first visit: a gentle hint (on paper, like Jack's other notes)
   function hint() {
     if (H.here !== 'bedroom') return; // an outdoor resume is not a first bedroom visit

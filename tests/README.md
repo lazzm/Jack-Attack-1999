@@ -122,6 +122,16 @@ Exterior/grass/door checks (disposable localhost data only):
 
 Review `shots/exterior/` captures from `tests/`: front/back/town, day/night, high-quality views, mowing and saved progress.
 
+Camera/transition polish (starts its own throwaway server unless given a localhost URL):
+
+    node transitions.mjs [http://localhost:PORT] [--tag=after] [--only=gb-desk,pc-sit-stand]
+
+Slow-motion capture (`transition-kit.mjs`: the page clock, timers and CSS animations run at `SLOW`, default 0.04)
+of the Game Lad raise/LOCK IN/back, an interrupted raise, T queued mid-raise, a raise from the hand, refresh mid-raise,
+inspect close-ups, the PC sit/LOCK IN/stand (W held through it) and Esc mid-move. Asserts no black frames, no camera
+path through room geometry, no pops (velocity spikes or dead stops), exact return poses, queued inputs and timing.
+Review `shots/transitions/<tag>/*-sheet.jpg` frame by frame; `timing.json` holds the per-transition numbers.
+
 Unified object interaction/seating (disposable localhost data only):
 
     node unified-interaction.mjs http://localhost:18080

@@ -15,6 +15,7 @@
  <fieldset><legend>AUDIO</legend><label><input type="checkbox" name="music"> Music</label><label><input type="checkbox" name="effects"> Sound effects &amp; voices</label><label class="hs-audio-volume">Volume <output>100%</output><input type="range" name="volume" min="0" max="100" step="1" aria-label="Overall volume"></label><p class="hs-pause-mouse">Applies throughout the house, PC and games. Saved for next time.</p></fieldset>
  <fieldset><legend>SETTINGS</legend><label class="hs-pause-check"><input type="checkbox" name="desktopFull"> LOCK IN [T]<small class="hs-lock-help">Full-screen view of the screen you are using. Press T again to return. JackOS fills the window; console and handheld screens keep their original proportions.</small></label>
  <label><input type="checkbox" name="crouchToggle"> Toggle crouch [C]<small>Off: hold C. On: press C to crouch or stand.</small></label>
+ <label><input type="checkbox" name="reduceMotion"> Reduce motion<small>Shorter, gentler camera moves into screens and close-ups; no lens change or handheld tilt.</small></label>
  <label>Guidance <select name="guidance"><option value="full">Full</option><option value="light">Light</option><option value="off">Off</option></select></label>
  <button type="button" data-pause="graphics" aria-controls="hsGraphicsMenu" aria-expanded="false">GRAPHICS OPTIONS <span class="hs-graphics-summary"></span></button>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
@@ -60,7 +61,7 @@
  function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;const graphics=button('graphics');graphics.disabled=!graphicsMenu||!H.graphicsGet||!H.graphicsSet;const preset=H.graphicsGet?.().preset;graphics.querySelector('span').textContent=window.HouseGraphicsMenu?.names[preset]||'';el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. Press T again to return. JackOS fills the window; console and handheld screens keep their original proportions.':'Use a PC, console, Game Lad or family TV, then press T to LOCK IN.';}
  function openMenu(){
   if(el.open||window.stDiary?.picking||!H.live||window.House?.god||window.OwnerTools?.active||window.AccountGate&&!AccountGate.allowed)return false;
-  previous=el.contains(document.activeElement)?null:document.activeElement;graphicsBack(false);el.querySelector('[name=crouchToggle]').checked=H.crouchSetting();
+  previous=el.contains(document.activeElement)?null:document.activeElement;graphicsBack(false);el.querySelector('[name=crouchToggle]').checked=H.crouchSetting();if(H.motion)el.querySelector('[name=reduceMotion]').checked=H.motion.reduce;
   button('owner').hidden=!window.OwnerTools?.allowed;el.querySelector('.hs-owner-key').hidden=!window.OwnerTools?.allowed;
   el.querySelector('.hs-test-reset').hidden=!(window.Net?.me.member&&Net.me.nick.toLowerCase()==='test'&&localStorage.getItem('jhp_starter')==='1');el.querySelector('.hs-test-confirm').hidden=true;
   el.querySelector('.hs-logout-confirm').hidden=true;
@@ -91,7 +92,7 @@
   }
  });
  window.Net?.on('testResetResult',m=>{el.querySelector('.hs-pause-status').textContent=m.msg;button('confirmReset').disabled=false;if(m.ok)el.querySelector('.hs-test-confirm').hidden=true});
- el.addEventListener('change',ev=>{if(ev.target.name==='desktopFull')lockScreen(ev.target.checked);else if(ev.target.name==='crouchToggle')H.crouchSetting(ev.target.checked);else if(ev.target.name==='music')Sound.musicOn=ev.target.checked;else if(ev.target.name==='effects')Sound.effectsOn=ev.target.checked});
+ el.addEventListener('change',ev=>{if(ev.target.name==='desktopFull')lockScreen(ev.target.checked);else if(ev.target.name==='crouchToggle')H.crouchSetting(ev.target.checked);else if(ev.target.name==='reduceMotion'&&H.motion)H.motion.reduce=ev.target.checked;else if(ev.target.name==='music')Sound.musicOn=ev.target.checked;else if(ev.target.name==='effects')Sound.effectsOn=ev.target.checked});
  el.addEventListener('input',ev=>{if(ev.target.name==='volume')Sound.setVolume(+ev.target.value/100)});
  document.addEventListener('fullscreenchange',()=>{button('fullscreen').textContent=document.fullscreenElement?'WINDOWED GAME':'FULL-SCREEN GAME'});
  // House's handler calls us first. This also shields later desktop/game

@@ -232,10 +232,10 @@
     if (V.result) { const g = V.cv1.getContext('2d'); g.clearRect(0, 0, V.cv1.width, V.cv1.height); resultFrame(g, V.cv1.width, V.cv1.height); }
     // LOCK IN presents the canvases themselves; the hidden room's duplicate
     // texture upload costs a GPU copy and is refreshed immediately on returning.
-    if(V.lockedIn)return;
+    if(covered())return;
     // Upload both canvases directly. Compositing in the room's material avoids
     // reading a WebGL game back through a 2D canvas every animation frame.
-    V.liveTx = _.tvLive && _.tvLive(V.cv0, V.cv1, V.con, V.surface,V.background,V.lockedIn);
+    V.liveTx = _.tvLive && _.tvLive(V.cv0, V.cv1, V.con, V.surface,V.background,covered());
     if (V.liveTx && R.House && R.House.ren.initTexture) { R.House.ren.initTexture(V.liveTx); R.House.ren.initTexture(V.liveTx.userData.hud); }
     if (V.liveTx && R.House) R.House.dirty();
   }
@@ -307,6 +307,14 @@
   }
   function close(powerOff) {
     if (!V) return;
+    // Q / Back while LOCK IN is up: shrink back into the glass first, then lean out (the camera waits for it)
+    if (V.live && powerOff !== true && !V.background && V.lockedIn && V.lockAnim !== -1) {
+      const view = V, H = R.House, ms = H?.motion ? H.motion.scale(H.motion.ms.lock) : 380;
+      lockIn(false); clearInput();
+      setTimeout(() => { if (V === view && !V.background) close(powerOff); }, ms + 40);
+      return;
+    }
+    if (V.live && powerOff !== true && V.lockAnim === -1 && !V.background) { const view = V; setTimeout(() => { if (V === view && !V.background) close(powerOff); }, 420); return; } // (still shrinking: lean out once it has)
     lockIn(false);
     if (V.live && powerOff !== true) {
       if (V.background) return;
@@ -378,7 +386,7 @@
   function idle() {
     V.st = 'shelf'; blank(V.hand ? '' : `${CAT.CONSOLES[V.con].n.toUpperCase()} - PUT A ${CAT.CONSOLES[V.con].media.toUpperCase()} IN`);
     $(V.el, '.rm-eject').hidden = true; $(V.el, '.rm-blowb').hidden = true;
-    $(V.el, '.rm-help').textContent = V.live ? 'Lean back, pick a game from the shelf, then insert it into its console.' : 'Pick a cartridge to play.';
+    $(V.el, '.rm-help').textContent = V.hand ? 'No cartridge in. Press Q to lower the Game Lad, carry a cartridge to its slot and press E to push it in.' : V.live ? 'Lean back, pick a game from the shelf, then insert it into its console.' : 'Pick a cartridge to play.';
     V.el.classList.remove('rm-playing'); $(V.el, '.rm-res').classList.remove('on');
     pad(null);
   }
@@ -799,33 +807,69 @@
   // (testing: RoomTV.test('sn.zero') opens the right console and boots the game, found or not; RoomTV.dbg() is the running game's K)
   function test(gid) { const G = CAT.GAME[gid]; if (!G) return false; if (V && V.con !== G.con) close(true); if (!V || V.background) open(G.con, null); if (!V) return false; if (V.con !== G.con) { V.con = G.con; V.el.dataset.con = G.con; conBar(); shelf(); } bootBad = false; try { sessionStorage.setItem('jhp_rm_ins', '0'); } catch (e) {} insert(gid, null); bootBad = false; return true; }
   function playPhysical(gid) { const G = CAT.GAME[gid]; if (!G || !V || V.con !== G.con) return false; if (V.gid === gid && ['game', 'boot', 'wait'].includes(V.st)) return true; insert(gid, null); bootBad = false; return true; }
+  // LOCK IN grows the screen out of its glass in the room (and shrinks it back in on the way out): the room keeps
+  // drawing underneath until the full-screen view has landed, so no frame is ever black or cut.
+  function lockMetrics() {
+    const width = V.el.clientWidth || innerWidth, height = V.el.clientHeight || innerHeight;
+    const style = getComputedStyle(V.el), number = name => parseFloat(style.getPropertyValue(name)) || 0;
+    const left = number('--rm-screen-left'), right = number('--rm-screen-right');
+    const origin = V.el.getBoundingClientRect(), toolbar = $(V.el, '.rm-tools').getBoundingClientRect();
+    const top = Math.max(number('--rm-screen-top'), toolbar.bottom - origin.top + 6);
+    const bottom = number('--rm-screen-bottom');
+    const w = Math.max(1, width - left - right), h = Math.max(1, height - top - bottom), ratio = V.cv0.width / V.cv0.height;
+    const screenWidth = Math.min(w, h * ratio);
+    V.el.style.setProperty('--lock-width', screenWidth + 'px');
+    V.el.style.setProperty('--lock-height', screenWidth / ratio + 'px');
+    V.el.style.setProperty('--lock-x', (left + w / 2) + 'px');
+    V.el.style.setProperty('--lock-y', (top + h / 2) + 'px');
+    return { x: left + w / 2, y: top + h / 2, w: screenWidth, h: screenWidth / ratio };
+  }
+  function flipFrom(src, dst) { // transform that puts the locked screen (dst) over the in-world glass (src)
+    const k = Math.max(0.02, Math.min(src.width / dst.w, src.height / dst.h));
+    return `translate(calc(-50% + ${(src.left + src.width / 2 - dst.x).toFixed(1)}px),calc(-50% + ${(src.top + src.height / 2 - dst.y).toFixed(1)}px)) scale(${k.toFixed(4)})`;
+  }
+  function lockAnimate(entering) {
+    const wrap = $(V.el, '.rm-tvwrap'), view = V, H = R.House, M5 = H?.motion;
+    clearTimeout(V.lockTimer); V.lockAnim = 0;
+    const ms = M5 ? M5.scale(M5.ms.lock) : 380, src = V.live && _.screenRect ? _.screenRect(V.con, V.surface) : null;
+    window.Sound?.world?.('lockin', { on: entering });
+    if (!src || !ms) { wrap.style.transition = ''; wrap.style.transform = ''; V.el.classList.remove('rm-lock-from', 'rm-lock-out'); if (!entering) V.el.classList.remove('rm-lockin'); return; }
+    const dst = lockMetrics(), from = flipFrom(src, dst), curve = 'cubic-bezier(.45,0,.2,1)';
+    V.lockAnim = entering ? 1 : -1;
+    if (entering) {
+      wrap.style.transition = 'none'; wrap.style.transform = from; V.el.classList.add('rm-lock-from'); void wrap.offsetWidth;
+      wrap.style.transition = `transform ${ms}ms ${curve}`; wrap.style.transform = 'translate(-50%,-50%)'; V.el.classList.remove('rm-lock-from');
+    } else {
+      V.el.classList.add('rm-lockin', 'rm-lock-out');
+      wrap.style.transition = 'none'; wrap.style.transform = 'translate(-50%,-50%)'; void wrap.offsetWidth;
+      wrap.style.transition = `transform ${ms}ms ${curve}`; wrap.style.transform = from; V.el.classList.add('rm-lock-from');
+    }
+    V.el.style.setProperty('--lock-ms', ms + 'ms');
+    V.lockTimer = setTimeout(() => {
+      if (V !== view) return; V.lockAnim = 0; wrap.style.transition = ''; wrap.style.transform = '';
+      V.el.classList.remove('rm-lock-from', 'rm-lock-out'); if (!V.lockedIn) V.el.classList.remove('rm-lockin');
+      if (R.House?.dirty) R.House.dirty();
+    }, ms + 20);
+    if (R.House?.dirty) R.House.dirty();
+  }
   function lockIn(on) {
     if (!V || V.background) return false;
     if (typeof on !== 'boolean') return !!V.lockedIn;
-    if (!!V.lockedIn !== on) clearInput();
+    const changed = !!V.lockedIn !== on;
+    if (changed) clearInput();
     V.lockedIn = on;
-    V.el.classList.toggle('rm-lockin', !!V.lockedIn);
+    if (on) V.el.classList.add('rm-lockin');
     if (R.House?.dirty) R.House.dirty();
     const button = $(V.el, '.rm-lock');
     button.setAttribute('aria-pressed', String(!!V.lockedIn)); toolLabels();
-    if (V.lockedIn) {
-      const width = V.el.clientWidth || innerWidth, height = V.el.clientHeight || innerHeight;
-      const style = getComputedStyle(V.el), number = name => parseFloat(style.getPropertyValue(name)) || 0;
-      const left = number('--rm-screen-left'), right = number('--rm-screen-right');
-      const origin = V.el.getBoundingClientRect(), toolbar = $(V.el, '.rm-tools').getBoundingClientRect();
-      const top = Math.max(number('--rm-screen-top'), toolbar.bottom - origin.top + 6);
-      const bottom = number('--rm-screen-bottom');
-      const w = Math.max(1, width - left - right), h = Math.max(1, height - top - bottom), ratio = V.cv0.width / V.cv0.height;
-      const screenWidth = Math.min(w, h * ratio);
-      V.el.style.setProperty('--lock-width', screenWidth + 'px');
-      V.el.style.setProperty('--lock-height', screenWidth / ratio + 'px');
-      V.el.style.setProperty('--lock-x', (left + w / 2) + 'px');
-      V.el.style.setProperty('--lock-y', (top + h / 2) + 'px');
-    }
+    if (V.lockedIn) lockMetrics();
+    if (changed) lockAnimate(on); else if (!on) V.el.classList.remove('rm-lockin');
     rememberSurface();
     if(!V.lockedIn)liveFrame();
     return !!V.lockedIn;
   }
+  // the room is hidden only once a LOCK IN has fully landed (never during the grow or the shrink)
+  function covered() { return !!(V && !V.background && V.lockedIn && !V.lockAnim); }
   addEventListener('resize', () => { clearInput(); if (V?.lockedIn) lockIn(true); if(V?.surface)frameSurface(200); });
 
   function restoreSurface(saved){
@@ -840,5 +884,5 @@
     if(!H.focus(pose,{ms:1,label:'Get up',enter:boot}))return false;
     R.onClose?.(done);return true;
   }
-  window.RoomTV = { restoreSurface, game(id, def) { defs[id] = def; }, defs, test, playPhysical,lockIn, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background, surface: !!V.surface }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
+  window.RoomTV = { restoreSurface, covered, game(id, def) { defs[id] = def; }, defs, test, playPhysical,lockIn, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background, surface: !!V.surface }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
 })();

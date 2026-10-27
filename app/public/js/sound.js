@@ -224,7 +224,14 @@
       n(.07,.06,1800);n(.25,.025,430,.05);
       if (!o.open) {t(85,.16,.12,.28,40);n(.04,.06,1400,.3);}
       else t(175,.2,.012,.08,140,'triangle');
-    } else if (kind === 'drawer') {n(.24,.045,650);n(.055,.06,350,.22);}
+    } else if (kind === 'lift') { // cloth and plastic: a handheld raised from the desk or a pocket
+      n(.16,.022,1500);n(.09,.018,3200,.05);t(310,.05,.012,.11,250,'triangle');
+    } else if (kind === 'power') { // a slide switch, then the screen's own faint whine/hum as it comes on
+      n(.012,.07,2600);t(1500,.014,.03);
+      if (o.kind === 'crt') { t(15200,.5,.006,.02,15600); t(55,.35,.05,.02,48); n(.18,.02,420,.03); }
+      else t(880,.06,.006,.05,1320,'triangle');
+    } else if (kind === 'lockin') { n(.05,.025,2000); t(o.on?420:300,.06,.012,0,o.on?620:200,'triangle'); }
+    else if (kind === 'drawer') {n(.24,.045,650);n(.055,.06,350,.22);}
     else if (kind === 'switch') {n(.015,.06,2700);t(1200,.012,.025);}
     else if (kind === 'kettle') {n(1.3,.045,800);n(1.4,.025,2400,.35);n(.025,.06,1600,1.8);}
     else if (kind === 'clock') {n(.012,.012,2100);t(o.side?1700:1450,.018,.008);}
