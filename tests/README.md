@@ -122,6 +122,16 @@ Exterior/grass/door checks (disposable localhost data only):
 
 Review `shots/exterior/` captures from `tests/`: front/back/town, day/night, high-quality views, mowing and saved progress.
 
+The family house's outside shell must be watertight from everywhere (the rooms inside are hidden while you are outside):
+
+    node exterior-shell.mjs http://localhost:18080 [--profiles=desktop,phone] [--tier=low] [--eye=140]
+
+From 18 spots (both sides of the front garden and the car, the gateway, the pavement, the road both ways, the back
+garden) it looks at the house left/centre/right and up at the eaves, renders with the neighbourhood and interiors
+hidden and a magenta sky, and fails if any sample whose ray enters the house's walls or roof prism shows magenta
+(glass is skipped). Failing views go to `shots/exterior-shell/<profile>-<view>.png` with the holes ringed, plus one
+normal capture per profile beside Dad's car. About 10 minutes per profile on software WebGL.
+
 Camera/transition polish (starts its own throwaway server unless given a localhost URL):
 
     node transitions.mjs [http://localhost:PORT] [--tag=after] [--only=gb-desk,pc-sit-stand]
