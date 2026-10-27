@@ -42,15 +42,21 @@ const results = [], timing = {};
 const GB_PROBE = `()=>{const t=House.THINGS.gb,o=t.obj;return{gx:o.position.x,gy:o.position.y,gz:o.position.z,gst:t.st,zm:House.P.zm||1,tv:!!window.RoomTV?.open_,lock:!!window.RoomTV?.lockIn?.(),moving:document.documentElement.classList.contains('hs-moving'),tools:window.__trace.vis('.rm-tvv .rm-tools')}}`;
 
 async function settle() { await until(() => !House.gliding && !House.motion?.moving && ['walk', 'focus', 'monitor', 'inspect'].includes(House.mode)); await p.waitForTimeout(250); }
-async function aimAt(target, from) {
+async function aimAt(target, from, spot) {
   await fx.view(from, target); await p.evaluate(() => House._.setMode('walk')); await p.waitForTimeout(400);
   // the walk may nudge the eye clear of furniture: re-aim from where it actually ended up
-  await p.evaluate(([tx, ty, tz]) => { const P = House.P; P.rx = Math.atan2(-(ty - P.y), Math.hypot(tx - P.x, tz - P.z)) * 180 / Math.PI; P.ry = Math.atan2(tx - P.x, -(tz - P.z)) * 180 / Math.PI; House.dirty(); }, target);
-  await p.waitForTimeout(400);
+  // (and wait for the eye height to settle, so the crosshair really is on the target before F)
+  for (let i = 0; i < 8; i++) {
+    await p.evaluate(([tx, ty, tz]) => { const P = House.P; P.rx = Math.atan2(-(ty - P.y), Math.hypot(tx - P.x, tz - P.z)) * 180 / Math.PI; P.ry = Math.atan2(tx - P.x, -(tz - P.z)) * 180 / Math.PI; House.dirty(); }, target);
+    await p.waitForTimeout(450);
+    if (!spot) return;
+    if (await p.evaluate(id => House.pick(innerWidth / 2, innerHeight / 2)?.spot === id, spot)) return;
+  }
+  throw Error('could not aim at ' + spot);
 }
 async function gbWorld() { return p.evaluate(() => { const o = House.THINGS.gb.obj; return [o.position.x, o.position.y, o.position.z]; }); }
 const worldOf = id => p.evaluate(id => { const v = new House.T.Vector3(); House.THINGS[id].obj.getWorldPosition(v); return [v.x, -v.y, v.z]; }, id);
-async function aimGB() { const [x, y, z] = await worldOf('gb'); await aimAt([x, y - 2, z], [x + 5, y - 45, z + 55]); }
+async function aimGB() { const [x, y, z] = await worldOf('gb'); await aimAt([x, y - 1.5, z], [x + 5, y - 45, z + 55], 'gb'); }
 const pose = () => p.evaluate(() => ({ x: House.P.x, y: House.P.y, z: House.P.z, rx: House.P.rx, ry: House.P.ry, zm: House.P.zm || 1 }));
 
 // Camera segments between consecutive frames must not cross any visible room surface.
@@ -190,7 +196,7 @@ try {
   });
   await scenario('inspect', async () => {
     const [x, y, z] = await worldOf('cube');
-    await aimAt([x, y - 3, z], [x + 40, y - 50, z + 60]);
+    await aimAt([x, y - 3, z], [x + 40, y - 50, z + 60], 'cube');
     const probe = `()=>{const o=House.THINGS.cube.obj;return{gx:o.position.x,gy:o.position.y,gz:o.position.z,gst:House.THINGS.cube.st,panel:window.__trace.vis('.hs-inspection')}}`;
     const enter = await capture('inspect-enter', () => p.keyboard.press('f'), { ms: 700, probe, target: hasMotion ? 500 : undefined });
     await until(() => House.mode === 'inspect'); clean(enter);
