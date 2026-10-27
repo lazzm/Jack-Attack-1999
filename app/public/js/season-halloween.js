@@ -924,7 +924,8 @@
     kids = { g: gr.id, n0: srv().treat?.n | 0, gr, group, list, parent, pkd: prig ? { obj: parent, rig: prig, kid: null } : null, state: walk ? 'walk' : 'wait', t0: performance.now(), answered: false, knocks: 0, lastKnock: 0, block: null };
     const pick = new T.Mesh(new T.BoxGeometry(70, 120, 46), PICKM); pick.position.set(300, GY - 60, 798); pick.userData.hwOwn = 1; group.add(pick);
     addSpot('hw.kids', { label: () => kids ? 'Trick-or-treaters (' + kids.list.length + ')' : 'Trick-or-treaters', obj: pick, room: 'drive', range: 320, act: () => handOut() });
-    if (walk) for (const k of list) { k.obj.position.z = FZ() + 50 + Math.random() * 30; k.obj.position.x = 282 + Math.random() * 16; }
+    // (walking up: they come along the pavement from down the road first, so nobody pops into view at the gate)
+    if (walk) { list.forEach((k, i) => { k.obj.position.z = FZ() + 50 - i * 6; k.obj.position.x = 290 + 420 + i * 46; k.obj.rotation.y = -Math.PI / 2; }); parent.position.x = 262 + 470; }
     // they stand on the path: keep the player out of them (never trapping anyone already there)
     if (!(H.W.lvl === 'G' && Math.abs(H.W.x - 300) < 70 && H.W.z > 750 && H.W.z < 840)) { kids.block = H.block('G', 262, 772, 338, 826); }
     for (const kd of list) if (kd.rig) { kd.h = kd.obj.rotation.y; kd.last = null; rigFollow(kd, 0); }
@@ -943,7 +944,8 @@
     const k = kids, visible = H.ROOMS.drive?.group.visible, dtk = Math.min(0.1, (now - (k.lastTick || now)) / 1000); k.lastTick = now;
     if (k.list.some(kd => kd.rig) && (k.state === 'walk' || k.state === 'leave')) setTimeout(() => { if (kids === k) { k.list.forEach(kd => rigFollow(kd, dtk)); if (k.pkd) rigFollow(k.pkd, dtk); } }, 0);
     if (k.state === 'walk') {
-      const t = Math.min(1, (now - k.t0) / 7600), z0 = FZ() + 50; // up the path from the gate (a 6 m front garden)
+      const el = now - k.t0, t1 = Math.min(1, el / 4200), t = Math.max(0, Math.min(1, (el - 4200) / 7600)), z0 = FZ() + 50; // along the pavement, then up the path from the gate (a 6 m front garden)
+      if (t1 < 1 || t === 0) { k.list.forEach((kd, i) => { kd.obj.position.x = 290 + (420 + i * 46) * (1 - ease(t1)); kd.obj.position.z = z0 - i * 6; }); k.parent.position.x = 262 + 470 * (1 - ease(t1)); H.dirty(); return true; }
       k.list.forEach((kd, i) => { const h = kd.obj.userData.home, e = ease(t); kd.obj.position.x = 290 + (h.x - 290) * e; kd.obj.position.z = z0 + (h.z - z0) * e - i * 6 * (1 - e); kd.obj.position.y = GY - 1 - Math.abs(Math.sin(now / 130 + i)) * 2 * (1 - t); });
       if (t >= 1) { k.state = 'wait'; if (!fdOpen()) knockNow(); }
     } else if (k.state === 'leave') {

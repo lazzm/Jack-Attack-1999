@@ -90,3 +90,19 @@ Legs stay long enough to sit on 45 cm seats with the feet on the floor (adults);
   https://discussions.unity.com/t/blinking-eyes-texture-animations/8105
 - Animal Crossing-style rig with swapped eye/mouth textures: https://80.lv/articles/custom-animal-crossing-villager-3d-rig-built-in-blender
 - three.js MeshToonMaterial docs: https://threejs.org/docs/pages/MeshToonMaterial.html
+
+## Behaviour rules (owner feedback, 27 Oct)
+- **Nobody pops into view.** `np-life.js` never spawns a person where the camera can see the spot (`seenAt`); they
+  wait until you look away. Coming into Jack's room (Mom's first visit, her later visits, Dad for the leads, the
+  sister's Game Lad cameo) goes through `entrance()`: they're got onto the landing behind the shut door out of sight
+  (or walk there if you can see them), knock (the sister bursts in), the door opens, and only then do they walk in.
+  On Mom's first visit the doorway is softly held from your side (the door can't be opened, walking out stops, with a
+  "Mom's coming up the stairs..." hint) until she's in and has spoken. `characters.mjs --only=entrance` checks it.
+- The trick-or-treaters come along the pavement from down the road before turning up the path.
+- **Talking to someone mid-job** (`rig.set({ engage })` while you hold a conversation): the job pauses, they turn
+  their whole body (little steps) to face you, keep one-handed things (mug, sponge, spoon, can, remote, phone), put
+  two-handed things down (paper, magazine, yo-yo, drawing), and go back to the job afterwards; seated people stay
+  seated and turn their head. `characters.mjs --only=interrupt` talks to everyone during every job in their routines.
+- Clothes: tops come down over the waistband (the hem overlaps the trousers), never a gap or a clipped seam.
+- Walk: heel-strike/toe-off, pelvis sway, roll and turn with the stride, shoulders counter-turning, arm swing with
+  relaxed elbows, a soft bob, leaning into stairs going up.
