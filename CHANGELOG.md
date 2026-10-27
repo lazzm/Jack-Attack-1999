@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.57.5 - 2026-10-27
+- Carrying looks natural: what you hold sits low and centred in two hands (jumper sleeves and mitts), sized to the thing (a game box is about an eighth of the view; big things sit lower), sways a little as you walk and turn, and never covers the crosshair, the ghost or what you're aiming at. Phones size it to the screen width. The watering can rises into view while pouring.
+- Floating labels such as "Old newspapers" hide when something is in front of their target or it's far away.
+- Fixed: the talk prompt could still show raw code while carrying something; it reads "Talk to <name>".
+
 ## 2.57.4 - 2026-10-27
 - Fixed: from the drive you could see straight through the side of the house (the roof eaves had no wall under them). Both side walls now run from the ground to the eaves, and painted side gates close the passages beside the house.
 - New test: tests/exterior-shell.mjs looks at the house from all round, day and night, and fails if the street or sky shows where the walls should be.
