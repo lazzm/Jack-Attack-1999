@@ -145,3 +145,14 @@ Reviewed 19 shots (story-opening x3, sparse-polish, identity-house, owner-tools,
 | R39 | rule | high | same | Real names on the live home page: "Final Fantasy VIII", "Gotta catch em all", "Blue (Da Ba Dee)" | Parody sweep 2 (running) + audit denylist |
 | R31 (not reproduced in the full-room fixture: shelf slots pack 5 cm boxes with 0.8 cm gaps; needs the art-gen save that leaned them) | bug | med | landing-art tests/shots/art-gallery/world/console-rack-front.png | Bottom bookshelf: red and brown PC game boxes intersect each other (leaning boxes interpenetrate) | Resolve lean/stack poses with real box extents (physics settle or solved spacing) |
 | R32 (checked wq2: the PlaySpace body ends 2.5 cm inside the shelf front; only its controller plug reaches the edge) | bug | med | same | Grey PlaySpace console overhangs the front edge of the TV-unit shelf | Clamp console placement to the shelf footprint; nudge rack slot depth |
+
+## Screenshot review 2026-10-27 (physics branch)
+| id | type | severity | screenshot | problem | fix |
+|---|---|---|---|---|---|
+| R40 | art | med | physics/17-basket-target.png, 12-ghost-green.png | "Old newspapers" read as white eggs/lumps, not folded papers | Model as a folded stack with printed (blank-columned) texture and string tie |
+| R41 | ux | low | physics/01-chair-tucked.png | "Tucked" chair still sits mostly in front of the desk (back stops at the 69.8 cm top) | Lower the back or allow the seat further in; or start it angled beside the pedestal |
+| R42 | ux | med | physics (all) | Carrying controls are keyboard-only (R/X/Shift+wheel/+/-); no touch buttons for turn/drop/nearer on phones | Mobile carry bar: Turn, Drop, Place, Return buttons (mobile pass) |
+| R43 | art | med | characters/rig-mom-face.png | Mom's fringe has a wedge-shaped notch cut into it and her brows read as cross; lips protrude | Rebuild fringe as one swept shape; softer brow angle; flatter lips |
+| R44 | perf | high | characters report | Family adds ~40k triangles on the low tier (3 people); too heavy for potato/phones | LOD meshes (far: ~2k tris, merged), cull when not in room, potato = 1 LOD only |
+| R45 | test | low | characters/dad-idle-1.png | Dad idle shot frames a plain green wall (Dad off-screen) | Frame on the rig bounds; skip when he is at work |
+| R46 | bug | med | identity-sarah gate 2026-10-27 | Lines formatted before the identity arrives say "you" for {me} ("you? Is that you coming down?", "you's mobile"); welcome fixed in hs-life.js | Audit every early Cast.t/cast() call (hs-mobile phone title, notes, toasts) to wait for identity or use a nameless line |

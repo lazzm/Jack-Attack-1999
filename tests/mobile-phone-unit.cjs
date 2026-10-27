@@ -18,7 +18,7 @@ function fixture() {
       getImageData(){return {data:this.pixels||new Uint8ClampedArray(e.width*e.height*4)}}};
     e.getContext=()=>c;return e;
   }
-  const context={console, THREE:T, Room:{}, HouseArt:{UIF:'Arial',text(c,t){texts.push(t)}},
+  const context={console, THREE:T, Room:{}, Cast:{t:s=>String(s).replace(/\{me\}/g,"Sam")}, HouseArt:{UIF:'Arial',text(c,t){texts.push(t)}},
     innerWidth:390,innerHeight:844,performance:{now:()=>now},Uint8ClampedArray,
     localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},
     document:{addEventListener(k,v){if(!events.has(k))events.set(k,[]);events.get(k).push(v)},createElement:t=>t==='canvas'?canvas():element()},
