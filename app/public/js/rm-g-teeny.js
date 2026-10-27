@@ -15,7 +15,7 @@
   const q9 = v => v <= 0 ? 0 : Math.min(252, Math.round(v / 36) * 36); // 3 bits a channel: the Mega Drive's 512 colours
   const wrapA = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
   const TAU = Math.PI * 2;
-  const mkc = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, w | 0); c.height = Math.max(1, h | 0); return c; };
+  const mkc = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, w | 0); c.height = Math.max(1, h | 0); c.getContext('2d', { willReadFrequently: true }); return c; }; // sprites/masks are read back with getImageData
   function hexRGB(c) { const n = parseInt(c.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
   const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
   // crisp a sprite: hard alpha, 9-bit colour, a dark outline
