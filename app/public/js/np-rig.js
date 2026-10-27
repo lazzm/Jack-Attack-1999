@@ -181,16 +181,25 @@
       skin: '#f5ceb0', blush: '#f09a8a', lips: '#cf7b7e', brow: '#8a6238', hair: '#b4864d', hair2: '#cba062',
       step: 0.33, speed: 96,
     },
+    // a trick-or-treater from down the road (about 7): js/season-halloween.js picks the costume, skin and hair
+    kid: {
+      H: 122, ankle: 5.8, knee: 33, hip: 60.5, hipX: 6.6, spine: 68.5, chest: 80.5, neck: 96.5, headY: 99.5,
+      sh: [12.9, 93.5, -1], elbow: [14.1, 76.5, -1.5], wrist: [14.2, 60.5, -0.4], handLen: 11,
+      head: { c: [0, 109.6, 0.7], r: [9.0, 9.7, 9.4], jaw: 0.3, chin: 0.6, drop: 0.45, flat: 1.0, cheek: 0.8, sock: 0.45 },
+      eye: { x: 3.3, y: 108.0, r: 1.92, iris: '#5a4a3a' }, foot: { len: 17, w: 6.8, h: 6, heel: -3.8 },
+      skin: '#f1c9a5', blush: '#ee9a88', lips: '#cc7b7c', brow: '#6a4a2a', hair: '#6a4426', hair2: '#80583a', hairStyle: 'short',
+      step: 0.33, speed: 88,
+    },
   };
   const BONES = ['base', 'hips', 'spine', 'chest', 'neck', 'head', 'mouth', 'jaw', 'brow', 'eyeL', 'eyeR', 'lidL', 'lidR', 'hairL', 'hairR',
     'clavL', 'armL', 'foreL', 'handL', 'clavR', 'armR', 'foreR', 'handR', 'thighL', 'shinL', 'footL', 'thighR', 'shinR', 'footR',
     'shBody', 'shL', 'shR', 'yoyo',
-    'p_paper', 'p_mug', 'p_sponge', 'p_plate', 'p_spoon', 'p_can', 'p_mag', 'p_phone', 'p_remote', 'p_crayon', 'p_pad', 'p_bag', 'p_case', 'p_string'];
+    'p_paper', 'p_mug', 'p_sponge', 'p_plate', 'p_spoon', 'p_can', 'p_mag', 'p_phone', 'p_remote', 'p_crayon', 'p_pad', 'p_bag', 'p_case', 'p_string', 'p_pail', 'p_raygun'];
   const PARENT = { hips: 'base', spine: 'hips', chest: 'spine', neck: 'chest', head: 'neck', mouth: 'head', jaw: 'head', brow: 'head', eyeL: 'head', eyeR: 'head', lidL: 'head', lidR: 'head', hairL: 'head', hairR: 'head',
     clavL: 'chest', armL: 'clavL', foreL: 'armL', handL: 'foreL', clavR: 'chest', armR: 'clavR', foreR: 'armR', handR: 'foreR',
     thighL: 'hips', shinL: 'thighL', footL: 'shinL', thighR: 'hips', shinR: 'thighR', footR: 'shinR',
     shBody: 'base', shL: 'base', shR: 'base', yoyo: 'base',
-    p_paper: 'base', p_mug: 'handR', p_sponge: 'handR', p_plate: 'handL', p_spoon: 'handR', p_can: 'handR', p_mag: 'base', p_phone: 'handR', p_remote: 'handR', p_crayon: 'handR', p_pad: 'base', p_bag: 'chest', p_case: 'handR', p_string: 'base' };
+    p_paper: 'base', p_mug: 'handR', p_sponge: 'handR', p_plate: 'handL', p_spoon: 'handR', p_can: 'handR', p_mag: 'base', p_phone: 'handR', p_remote: 'handR', p_crayon: 'handR', p_pad: 'base', p_bag: 'chest', p_case: 'handR', p_string: 'base', p_pail: 'handR', p_raygun: 'handL' };
   const PROPS = BONES.filter(b => b.startsWith('p_')).map(b => b.slice(2));
 
   // ---------------------------------------------------------------- the head: one sculpted surface
@@ -245,14 +254,15 @@
     J.p_paper = hand('L', -1.5, -L * 0.5, 2); J.p_mug = hand('R', 1.5, -L * 0.48, 2.5); J.p_sponge = hand('R', 0, -L * 0.55, 2); J.p_plate = hand('L', 0, -L * 0.55, 2);
     J.p_spoon = hand('R', 0, -L * 0.5, 2); J.p_can = hand('R', 0, -L * 0.5, 1); J.p_mag = hand('L', -1.5, -L * 0.5, 2); J.p_phone = hand('R', -1, -L * 0.48, 1);
     J.p_remote = hand('R', 0, -L * 0.52, 2); J.p_crayon = hand('R', 0, -L * 0.6, 1.5); J.p_pad = [0, 0, 0]; J.p_bag = [0, S.chest + 2, -14]; J.p_case = hand('R', 0, -L * 0.5, 0); J.p_string = hand('R', 0, -L * 0.62, 1.2);
+    J.p_pail = hand('R', 0, -L * 0.62, 1.5); J.p_raygun = hand('L', 0, -L * 0.5, 2);
     return J;
   }
 
   const blend = (v, a, b, A, B) => { const t = smooth((v - a) / (b - a)); return t <= 0 ? [[A, 1]] : t >= 1 ? [[B, 1]] : [[A, 1 - t], [B, t]]; };
 
   // ================================================================ building a person
-  function buildPerson(kind, outfit, q) {
-    const S = Object.assign({}, PEOPLE[kind]), J = joints(S), G = Geo(BONES);
+  function buildPerson(kind, outfit, q, look) {
+    const S = Object.assign({}, PEOPLE[kind], look || {}), J = joints(S), G = Geo(BONES);
     const sg = n => Math.max(6, Math.round(n * q));
     const skin = C(S.skin), lipC = C(S.lips), browC = C(S.brow), blush = C(S.blush);
     const k = side => side === 'L' ? 1 : -1;
@@ -265,7 +275,7 @@
       for (const sx of [1, -1]) { const d = Math.hypot(x - sx * (e.x + 1.3), (y - (e.y - 3.4)) * 1.25); if (d < 3.4 && z > hp.c[2] + 4) c.lerp(blush, (1 - d / 3.4) * 0.5); }
       return c;
     };
-    G.add(grid(sg(26), sg(36), S.shape.fn), faceColor, 'head');
+    G.add(grid(sg(26), sg(36), S.shape.fn), O.face ? O.face(S, faceColor) : faceColor, 'head');
     const nr = S.H > 150 ? 4.5 : 4.0;
     G.add(loft([[S.neck - 7, 0, -1.6, nr + 0.4, nr + 0.2], [S.neck - 1, 0, -1.3, nr, nr - 0.1], [S.headY + 2, 0, -0.8, nr - 0.2, nr - 0.2], [hp.c[1] - 4, 0, -0.4, nr - 0.4, nr - 0.4]], sg(14)),
       skin, (x, y) => blend(y, S.neck - 3, S.headY + 1, 'chest', 'head'));
@@ -337,7 +347,7 @@
       O.shoe(G, S, an, kk, 'foot' + sd);
     }
     O.extra && O.extra(G, S, J, sg, torso, pelvis);
-    HAIR[kind](G, S, J, sg, C(S.hair), C(S.hair2));
+    (HAIR[kind] || HAIR.kid)(G, S, J, sg, C(S.hair), C(S.hair2));
     buildProps(G, S, J, kind);
     return { geometry: G.build(), J, S, tris: G.tris };
   }
@@ -631,6 +641,129 @@
     },
   };
 
+  HAIR.kid = (G, S, J, sg, h, h2) => {
+    if (S.hairStyle === 'none') return;
+    const P = S.head, [cx, cy, cz] = P.c, long = S.hairStyle === 'bob';
+    const strand = (x, y, z) => (Math.sin(Math.atan2(x - cx, z - cz) * 14 + y * 0.2) > 0.55 ? h2 : h);
+    G.add(helmet(S, sg, {
+      face: 84, soft: 8,
+      line: (A, ab) => (long ? 14 : 22) + 14 * smooth((ab - 50) / 30),
+      end: ab => long ? -40 : (ab < 100 ? 4 : -22),
+      thick: (ab, ed) => long ? 1.0 + (ed < 0 ? 0.6 : 0) : 0.8,
+      shape: long ? (x, y, z, ab, ed) => { if (ed < 10 && ab > 70) { const t = smooth((10 - ed) / 50); y = Math.max(y, cy - 9 * t - 2); } return [x, y, z]; } : null,
+    }), strand, 'head');
+  };
+  // Costumes for the trick-or-treaters: a whole outfit each, on the same child body (one skinned mesh, one draw call).
+  const kidTorso = S => sisTorso(S).map(r => [r[0], r[1], r[2], r[3] * 0.94, r[4] * 0.94]);
+  const kidPelvis = S => [[S.hip - 4, 0, 0.2, 3.8, 4.8], [S.hip - 1.5, 0, 0.2, 10.2, 6.9], [S.hip + 4, 0, 0.4, 11.2, 7.6], [S.hip + 8, 0, 0.8, 11.1, 7.9]];
+  const fn = (c, S) => typeof c === 'function' ? (c.length === 1 ? c(S) : c) : () => C(c); // (a colour, a colour-at-a-point, or one made from the body)
+  function costume(o) {
+    return {
+      torso: kidTorso, torsoColor: S => fn(o.top, S), torsoBands: o.topBands,
+      pelvis: kidPelvis, pelvisColor: S => fn(o.bottom || o.legs, S),
+      arm: (S, a, el, wr, kk) => armRings(S, a, el, wr, kk, o.sleeveEase || 0.7), armColor: S => fn(o.sleeves || o.top, S), armBands: o.armBands,
+      leg: (S, t, kn, an, kk) => legRings(S, t, kn, an, kk, o.legEase || 1.0, true), legColor: S => fn(o.legs, S),
+      shoe: (G, S, an, kk, bone) => trainer(G, S, an, kk, bone, C(o.shoe || '#2a2a30'), C('#e8e4dc'), o.shoeTrim ? C(o.shoeTrim) : null),
+      face: o.face, extra: o.extra,
+    };
+  }
+  // a pointed hat on the head bone (cone + brim), tipped back a little
+  function coneHat(G, S, col, h, brim, dots) {
+    const P = S.head, y0 = P.c[1] + P.r[1] * 0.62, cz = P.c[2] - 1.2, rr = [];
+    for (let i = 0; i <= 8; i++) { const t = i / 8; rr.push([y0 + t * h, Math.sin(t * 2.2) * 2.6 * t, cz - t * 3.2, (P.r[0] + 0.8) * (1 - t) + 0.35, (P.r[2] + 0.8) * (1 - t) + 0.35]); }
+    const dot = C('#f6d24a'), base = C(col);
+    G.add(loft(rr, 18, { topDome: 0.6 }), dots ? (x, y, z) => (Math.sin(x * 1.3) * Math.sin(y * 1.1) * Math.sin(z * 1.2) > 0.82 ? dot : base) : base, 'head');
+    if (brim) G.add(loft([[y0 - 0.5, 0, cz, P.r[0] + brim, P.r[2] + brim], [y0 + 0.5, 0, cz, P.r[0] + brim, P.r[2] + brim]], 28), base, 'head');
+  }
+  const bones2 = (S, base) => (x, y, z) => { // a skeleton costume: white bones printed on black
+    const w = C('#ecebe4'), b = C(base || '#17171b');
+    if (z > 3 && y > S.hip + 10 && y < S.chest + 9 && Math.abs(x) < 8.5 && Math.sin((y - S.hip) * 1.25) > 0.2) return w; // ribs
+    if (z > 3 && Math.abs(x) < 1.1 && y > S.hip && y < S.neck) return w; // spine
+    if (z > 2 && y > S.hip - 1 && y < S.hip + 5 && Math.abs(x) < 9) return w; // pelvis
+    return b;
+  };
+  const limbBones = (S, base) => (x, y, z) => (z > 1.6 && Math.sin(y * 0.18) > -0.9 ? C('#ecebe4') : C(base || '#17171b'));
+  OUTFITS.kid = {
+    witch: costume({ top: '#1c1a22', legs: '#6a3a8a', shoe: '#1a1a1a', sleeves: '#1c1a22',
+      face: (S, base) => (x, y, z) => base(x, y, z).lerp(C('#8ec27a'), 0.55), // green face paint
+      extra: (G, S, J, sg, torso) => {
+        // a ragged black dress over the legs, an orange sash, the hat
+        const d = []; for (let i = 0; i <= 5; i++) { const t = i / 5; d.push([S.knee - 6 + t * (S.hip + 6 - S.knee + 6), 0, 0.4, lerp(19, 12.2, t), lerp(15, 8.4, t)]); }
+        G.add(loft(d, 24, { bottomDome: -2 }), (x, y) => y < S.knee - 3.5 && Math.sin(Math.atan2(x, 1) * 9) > 0.6 ? C('#2a2630') : C('#1c1a22'), (x, y) => blend(y, S.knee, S.hip + 4, 'hips', 'hips'));
+        const band = surfRing(torso, S.hip + 6); G.add(shell([band, surfRing(torso, S.hip + 9)], -179.9, 179.9, 24, 0.5, 0.3), C('#e8761c'), S.torsoW);
+        coneHat(G, S, '#141218', 24, 6.5);
+      } }),
+    ghost: costume({ top: '#f4f4ee', legs: '#3a3a44', shoe: '#2a2a30',
+      extra: (G, S, J) => {
+        // a bedsheet over everything: hem round the shins, two eye holes and a mouth hole
+        const P = S.head, top = P.c[1] + P.r[1] + 1.4, rr = [];
+        const rows = [[S.knee - 8, 0, 1, 23, 19], [S.hip, 0, 1, 19.5, 15], [S.chest - 4, 0, 1, 17, 13], [S.sh[1], 0, 0, 16, 11.5], [S.neck + 1, 0, 0, 11.5, 10.5], [P.c[1] - 3, 0, P.c[2], P.r[0] + 2.4, P.r[2] + 2.4], [P.c[1] + 4, 0, P.c[2], P.r[0] + 2.2, P.r[2] + 2.2], [top - 2, 0, P.c[2], P.r[0] - 1, P.r[2] - 1]];
+        for (const r of rows) rr.push(r);
+        const sheet = C('#f4f4ee'), fold = C('#dcdcd2');
+        G.add(loft(rr, 28, { topDome: 2.2, bottomDome: -3 }), (x, y) => (Math.sin(Math.atan2(x, 1) * 7 + y * 0.05) > 0.7 ? fold : sheet), (x, y) => y > S.neck ? [['head', 0.7], ['chest', 0.3]] : y > S.chest - 4 ? [['chest', 1]] : blend(y, S.hip - 4, S.chest - 4, 'hips', 'chest'));
+        const ez = P.c[2] + P.r[2] + 2.0;
+        for (const sx of [-1, 1]) G.add(ell([sx * 3.6, S.eye.y + 0.4, ez], [1.9, 2.6, 0.8], [10, 8]), C('#101012'), 'head', { noAO: true });
+        G.add(ell([0, S.eye.y - 6, ez - 0.6], [2.2, 1.5, 0.8], [10, 8]), C('#101012'), 'head', { noAO: true });
+      } }),
+    skeleton: costume({ top: S => bones2(S), sleeves: S => limbBones(S), legs: '#17171b', shoe: '#ecebe4',
+      face: (S, base) => (x, y, z) => { const e = S.eye; for (const sx of [-1, 1]) if (Math.hypot(x - sx * e.x, (y - e.y) * 0.9) < 3.1 && z > S.head.c[2]) return C('#18181c'); if (Math.abs(x) < 1.3 && y < e.y - 2 && y > e.y - 5 && z > S.head.c[2]) return C('#18181c'); return C('#eeede6'); },
+      extra: (G, S, J, sg, torso) => { for (const sd of ['L', 'R']) { const kk = sd === 'L' ? 1 : -1, t = J['thigh' + sd], kn = J['shin' + sd]; G.add(rbox([t[0], (S.hip + S.knee) / 2, 6.6], [1.8, S.hip - S.knee - 6, 0.8], 0.4), C('#ecebe4'), 'thigh' + sd); G.add(rbox([kn[0], (S.knee + S.ankle) / 2 + 2, 5.2], [1.6, S.knee - S.ankle - 8, 0.8], 0.4), C('#ecebe4'), 'shin' + sd); } } }),
+    pumpkin: costume({ top: '#2f7a34', legs: '#2f7a34', shoe: '#1d3a1e', sleeves: '#2f7a34',
+      extra: (G, S, J) => {
+        // a big round stuffed pumpkin body, ribbed, with a jack-o'-lantern face; a green stalk cap
+        const orange = C('#ef7d1c'), rib = C('#c95f12'), face = C('#2a1606');
+        const g = ell([0, (S.hip + S.chest) / 2 + 2, 1.2], [19, 17.5, 16.5], [28, 18]);
+        G.add(g, (x, y, z) => { const yy = y - ((S.hip + S.chest) / 2 + 2); if (z > 12 && ((Math.abs(x - 6) < 2.6 || Math.abs(x + 6) < 2.6) && yy > 3 && yy < 7 || Math.abs(yy + 4 + Math.cos(x * 0.5) * 1.5) < 1.4 && Math.abs(x) < 9)) return face; return Math.cos(Math.atan2(x, z) * 8) > 0.6 ? rib : orange; }, (x, y) => blend(y, S.hip + 2, S.chest, 'hips', 'chest'));
+        const P = S.head, y0 = P.c[1] + P.r[1] - 0.5;
+        G.add(loft([[y0 - 1, 0, P.c[2] - 1, 6.5, 6.5], [y0 + 0.8, 0, P.c[2] - 1, 6.6, 6.6], [y0 + 1.6, 0, P.c[2] - 1, 2.2, 2.2], [y0 + 6, 0.8, P.c[2] - 1.4, 1.4, 1.4]], 14, { topDome: 0.5 }), C('#2f7a34'), 'head');
+        G.add(ell([3.5, y0 + 2.2, P.c[2] - 1], [3.6, 0.6, 2.0], [10, 6], [0, 0, -20]), C('#3f9a3e'), 'head');
+      } }),
+    spacecadet: costume({ top: (x, y, z) => (Math.abs(y - 72) < 1.3 ? C('#d63a2c') : C('#c9ced6')), sleeves: (x, y) => (y < 65 ? C('#d63a2c') : C('#c9ced6')), legs: '#c9ced6', shoe: '#d63a2c', shoeTrim: '#ffffff',
+      extra: (G, S, J) => {
+        // a space helmet with an open visor ring and an antenna, a chest badge, a toy ray gun in the other hand
+        const P = S.head, [cx, cy, cz] = P.c, rr = [];
+        for (let i = 0; i <= 8; i++) { const t = i / 8, a = -Math.PI / 2 + t * Math.PI; rr.push([cy + Math.sin(a) * (P.r[1] + 2.4), cx, cz - 0.5, Math.cos(a) * (P.r[0] + 2.4) + 0.3, Math.cos(a) * (P.r[2] + 2.4) + 0.3]); }
+        G.add(shell(rr.slice(1, 8), 58, 302, 22, 1.2, 0), C('#e9ecf0'), 'head');
+        G.add(torusArc([cx, cy - 0.5, cz + P.r[2] * 0.55], P.r[0] * 0.92, 0.9, TAU, [0, 0, 0], [1, 1.12, 0.5], 24), C('#d63a2c'), 'head');
+        G.add(tube([cx + 5, cy + P.r[1] + 1, cz - 1], [cx + 7, cy + P.r[1] + 9, cz - 2], 0.35, 0.3, 6), C('#9aa0a8'), 'head');
+        G.add(ell([cx + 7.2, cy + P.r[1] + 9.6, cz - 2], [1.3, 1.3, 1.3], [10, 8]), C('#ff4a3a'), 'head', { noAO: true });
+        G.add(ell([5, S.chest + 3, 8.4], [2.6, 2.6, 0.6], [12, 6]), C('#f6d24a'), 'chest', { noAO: true });
+      } }),
+    wizard: costume({ top: '#2a3a9a', legs: '#20204a', shoe: '#3a2a1a', sleeves: '#2a3a9a', sleeveEase: 1.6,
+      extra: (G, S, J) => {
+        const d = []; for (let i = 0; i <= 5; i++) { const t = i / 5; d.push([S.ankle + 3 + t * (S.chest - S.ankle - 3), 0, 0.4, lerp(18, 11.4, t), lerp(14.5, 8.2, t)]); }
+        const star = C('#f6d24a'), robe = C('#2a3a9a');
+        G.add(loft(d, 24, { bottomDome: -2 }), (x, y, z) => (Math.sin(x * 1.1) * Math.sin(y * 0.9) * Math.sin(z * 1.3) > 0.85 ? star : robe), (x, y) => blend(y, S.hip - 4, S.chest - 2, 'hips', 'chest'));
+        coneHat(G, S, '#2a3a9a', 26, 4.5, true);
+        const P = S.head; G.add(ell([0, S.mouthY - 4.5, P.c[2] + P.r[2] * 0.62], [5.6, 6.5, 3.2], [14, 10], [10, 0, 0]), C('#f2f2ea'), 'head');
+      } }),
+    mummy: costume({ top: (x, y, z) => (Math.sin(y * 1.8 + x * 0.6) > 0.75 ? C('#bfb69c') : C('#e6dfca')), sleeves: (x, y) => (Math.sin(y * 1.8 + x * 0.6) > 0.75 ? C('#bfb69c') : C('#e6dfca')), legs: (x, y) => (Math.sin(y * 1.8 - x * 0.6) > 0.75 ? C('#bfb69c') : C('#e6dfca')), shoe: '#e6dfca',
+      face: (S, base) => (x, y, z) => (Math.abs(y - S.eye.y) < 2.6 && z > S.head.c[2] + 3 ? base(x, y, z) : (Math.sin(y * 1.8 + x * 0.5) > 0.75 ? C('#bfb69c') : C('#e6dfca'))) }),
+    bat: costume({ top: '#141418', legs: '#141418', shoe: '#141418', sleeves: '#141418',
+      extra: (G, S, J) => {
+        // a black hood with pointed ears, and wings from wrist to hip (thick plates on the arm bones)
+        const P = S.head, [cx, cy, cz] = P.c, rr = [];
+        for (let i = 0; i <= 8; i++) { const t = i / 8, a = -Math.PI * 0.35 + t * Math.PI * 0.85; rr.push([cy + Math.sin(a) * (P.r[1] + 1.4), cx, cz - 0.4, Math.cos(a) * (P.r[0] + 1.4) + 0.3, Math.cos(a) * (P.r[2] + 1.4) + 0.3]); }
+        G.add(shell(rr, 62, 298, 22, 1.0, 0), C('#141418'), 'head');
+        for (const sx of [-1, 1]) G.add(loft([[cy + P.r[1] * 0.7, sx * 4.6, cz - 1, 2.4, 1.2], [cy + P.r[1] + 6, sx * 5.6, cz - 1.4, 0.3, 0.3]], 8, { topDome: 0.2 }), C('#141418'), 'head');
+        for (const sd of ['L', 'R']) {
+          const kk = sd === 'L' ? 1 : -1, a = J['arm' + sd], el = J['fore' + sd], wr = J['hand' + sd];
+          G.add(rbox([a[0] + kk * 4, (a[1] + el[1]) / 2 - 3, -2.5], [9, a[1] - el[1] + 6, 0.8], 0.35), (x, y) => (Math.sin(y * 0.8) > 0.8 ? C('#2a2a34') : C('#1c1c24')), 'arm' + sd);
+          G.add(rbox([el[0] + kk * 5, (el[1] + wr[1]) / 2 - 4, -2.5], [10, el[1] - wr[1] + 4, 0.8], 0.35), (x, y) => (Math.sin(y * 0.8) > 0.8 ? C('#2a2a34') : C('#1c1c24')), 'fore' + sd);
+        }
+      } }),
+    dragon: costume({ top: (x, y, z) => (z > 5 && Math.abs(x) < 6.5 && y < 88 ? C('#e2d070') : C('#3a9a3a')), sleeves: '#3a9a3a', legs: '#3a9a3a', shoe: '#2a6a2a',
+      extra: (G, S, J) => {
+        // spikes down the back, a long tail, a hood with little horns
+        for (let i = 0; i < 5; i++) { const y = S.hip + 6 + i * 6.5; G.add(loft([[y, 0, -7.6, 1.6, 2.2], [y + 3.2, 0, -10.4, 0.2, 0.2]], 6, { topDome: 0.1 }), C('#e8a020'), y > S.chest - 4 ? 'chest' : 'spine'); }
+        G.add(tube([0, S.hip - 2, -7], [0, 8, -38], 5.2, 1.0, 12), C('#3a9a3a'), 'hips');
+        const P = S.head, [cx, cy, cz] = P.c, rr = [];
+        for (let i = 0; i <= 8; i++) { const t = i / 8, a = -Math.PI * 0.35 + t * Math.PI * 0.85; rr.push([cy + Math.sin(a) * (P.r[1] + 1.4), cx, cz - 0.4, Math.cos(a) * (P.r[0] + 1.4) + 0.3, Math.cos(a) * (P.r[2] + 1.4) + 0.3]); }
+        G.add(shell(rr, 62, 298, 22, 1.0, 0), C('#3a9a3a'), 'head');
+        for (const sx of [-1, 1]) G.add(loft([[cy + P.r[1] * 0.75, sx * 3.6, cz + 1, 1.3, 1.3], [cy + P.r[1] + 4, sx * 4.6, cz - 0.5, 0.2, 0.2]], 8, { topDome: 0.1 }), C('#f2e6b0'), 'head');
+      } }),
+  };
+
   // ---------------------------------------------------------------- props (hidden by scaling their bone to zero)
   function buildProps(G, S, J, kind) {
     const at = b => J['p_' + b];
@@ -664,6 +797,12 @@
     const Bg = at('bag'); G.add(rbox([Bg[0], Bg[1] - 6, Bg[2] + 2], [kind === 'sister' ? 20 : 24, 24, 9], 3), (x, y) => y < Bg[1] - 13 ? C('#2a4a8a') : C('#d64262'), 'p_bag');
     const Bc = at('case'); G.add(rbox([Bc[0], Bc[1] - 16, Bc[2]], [9, 30, 42], 1.2), (x, y) => y > Bc[1] - 2.5 ? C('#c9b27a') : C('#3a2618'), 'p_case');
     G.add(torusArc([Bc[0], Bc[1] - 0.8, Bc[2]], 4, 0.6, Math.PI, [0, 90, 0]), C('#2a1a10'), 'p_case');
+    // a trick-or-treat pail (an orange plastic pumpkin with a black handle) and a toy ray gun
+    const Pa = at('pail');
+    G.add(loft([[Pa[1] - 15.5, Pa[0], Pa[2] + 1, 5.4, 5.4], [Pa[1] - 13.5, Pa[0], Pa[2] + 1, 7.4, 7.4], [Pa[1] - 8, Pa[0], Pa[2] + 1, 7.8, 7.8], [Pa[1] - 4.6, Pa[0], Pa[2] + 1, 6.6, 6.6]], 18, { topDome: -1.2 }), (x, y, z) => { const yy = y - (Pa[1] - 10); return (z - Pa[2] > 5 && (Math.abs(Math.abs(x - Pa[0]) - 2.6) < 1.1 && yy > 0.5 && yy < 2.6 || Math.abs(yy + 2) < 0.7 && Math.abs(x - Pa[0]) < 3.5)) ? C('#2a1606') : C('#f07a1a'); }, 'p_pail');
+    G.add(torusArc([Pa[0], Pa[1] - 4.6, Pa[2] + 1], 6.4, 0.32, Math.PI, [0, 90, 0]), C('#1a1a1a'), 'p_pail');
+    const Rg = at('raygun');
+    G.add(rbox([Rg[0], Rg[1] + 1, Rg[2] + 4], [2.2, 3.6, 10], 1), C('#d63a2c'), 'p_raygun'); G.add(tube([Rg[0], Rg[1] + 1.5, Rg[2] + 9], [Rg[0], Rg[1] + 1.5, Rg[2] + 13], 0.9, 0.5, 8), C('#c9ced6'), 'p_raygun'); G.add(ell([Rg[0], Rg[1] + 1.5, Rg[2] + 13.4], [1.1, 1.1, 0.6], [8, 6]), C('#4af04a'), 'p_raygun', { noAO: true });
     // the yo-yo string (from the finger) and the yo-yo itself (its own bone: it goes up and down)
     const St = at('string'); G.add(tube([St[0], St[1], St[2]], [St[0], St[1] - 30, St[2]], 0.12, 0.12, 4), C('#f4f4f4'), 'p_string', { noAO: true });
     G.add(xf(new T.CylinderGeometry(2.6, 2.6, 2.4, 16), [0, 0, 0], [0, 0, 90]), (x) => Math.abs(x) < 0.4 ? C('#f4f4f4') : C('#1fb0d8'), 'yoyo');
@@ -711,7 +850,7 @@
     opts = opts || {};
     const low = opts.tier === 'low';
     const outfits = {}; let outfit = opts.outfit && OUTFITS[kind][opts.outfit] ? opts.outfit : Object.keys(OUTFITS[kind])[0];
-    const first = buildPerson(kind, outfit, low ? 0.5 : 1);
+    const first = buildPerson(kind, outfit, low ? 0.5 : 1, opts.look);
     outfits[outfit] = first.geometry;
     const S = first.S, J = first.J;
     const bones = BONES.map(n => { const b = new T.Bone(); b.name = n; return b; }), B = {};
@@ -904,6 +1043,7 @@
       mug: (t, H) => { const ph = (t + st.talkSeed * 3) % 11, sip = ph < 2.4, s = smooth(Math.min(1, ph < 1.2 ? ph / 0.7 : (2.4 - ph) / 0.7)); return { arms: { L: [6, 7, 0, 22, 0], R: { ik: sip ? [lerp(9, 3, s), lerp(H + 20, mouthAt(H) - 3, s), lerp(22, 12, s)] : [9, H + 20, 22], pole: [-0.9, -0.6, -0.3], hand: [-15, 0, 0] } }, lean: 0, props: { mug: 1 } }; },
       reach: (t, H) => ({ arms: { R: { ik: [9, H + 13, 40], pole: [-0.8, -0.6, -0.4], hand: [-10, 0, -60] } }, lean: 4, props: {} }),
       carry: (t, H) => ({ arms: { L: { ik: [-13, H + 13, 24], pole: [0.9, -0.5, -0.5], hand: [-80, 0, 0] }, R: { ik: [13, H + 13, 24], pole: [-0.9, -0.5, -0.5], hand: [-80, 0, 0] } }, lean: -3, props: {} }),
+      trick: (t, H) => ({ arms: { R: [18 + Math.sin(t * 1.3) * 3, 9, 0, 38, 0], L: st.props?.raygun ? [30, 12, 0, 45, -10] : [4, 7, 0, 16, 0] }, lean: 0, props: { pail: 1 } }),
       leave: () => ({ arms: null, props: kind === 'dad' ? { case: 1 } : kind === 'sister' ? { bag: 1 } : {} }),
     };
     function talkArm(t, sd, amp) {
@@ -1071,7 +1211,7 @@
       get outfit() { return outfit; },
       setOutfit(name) {
         if (name === outfit || !OUTFITS[kind][name]) return;
-        if (!outfits[name]) outfits[name] = buildPerson(kind, name, low ? 0.5 : 1).geometry;
+        if (!outfits[name]) outfits[name] = buildPerson(kind, name, low ? 0.5 : 1, opts.look).geometry;
         outfit = name; body.geometry = outfits[name];
       },
       set floor(fn) { floorFn.f = fn; },

@@ -853,9 +853,33 @@
   // ================================================================ the trick-or-treaters
   const KIDS = 24; for (let i = 0; i < KIDS; i++) { try { if (window.Cast?.add && !Cast.get?.('hwkid' + i)?.role?.includes('trick')) Cast.add('hwkid' + i, { role: 'a trick-or-treater from down the road (about 7)', pool: ['childF', 'childM'] }); } catch (e) {} }
   const kidName = k => { try { return Cast.n('hwkid' + k); } catch (e) { return 'a kid'; } };
-  const COST = { ghost: 'ghost', witch: 'witch', skeleton: 'skeleton', wizard: 'wizard', dragon: 'dragon', pumpkin: 'pumpkin', mummy: 'mummy', bat: 'bat' };
+  const COST = { ghost: 'ghost', witch: 'witch', skeleton: 'skeleton', wizard: 'wizard', dragon: 'dragon', pumpkin: 'pumpkin', mummy: 'mummy', bat: 'bat', spacecadet: 'space cadet' };
+  const HAIR_T = [['#6a4426', '#80583a'], ['#2a1a10', '#3a2618'], ['#c8a060', '#dab878'], ['#8a3a1a', '#a24a24'], ['#1a1410', '#2a2018']];
   const SKIN_T = ['#f1c9a5', '#e0ac7e', '#c68a5c', '#8d5a3b', '#5c3a25'];
+  // The trick-or-treaters are real children from the family's character system (js/np-rig.js): one skinned mesh each,
+  // in the whole costume, with a face that blinks and looks at you, holding the pail. kd.obj is where they should be;
+  // the person follows it with planted feet. (Without the character system: the old chunky model below.)
+  function rigKid(kid, h) {
+    const r = rnd(kid.k * 13 + 7), tone = SKIN_T[Math.floor(r() * SKIN_T.length)], hair = HAIR_T[Math.floor(r() * HAIR_T.length)];
+    const rig = NPCRig.create('kid', { tier: low() ? 'low' : 'std', outfit: kid.c, look: { skin: tone, hair: hair[0], hair2: hair[1], hairStyle: r() < 0.5 ? 'bob' : 'short', iris: ['#5a4a3a', '#4a6ea6', '#4f6b47'][Math.floor(r() * 3)] } });
+    const s = h / 122; rig.group.scale.set(s, -s, s); rig.set({ action: 'trick', props: kid.c === 'spacecadet' ? { raygun: 1 } : {} });
+    rig.floor = () => GY; rig.s = s;
+    return rig;
+  }
+  function rigFollow(kd, dt) { // the person walks to where the marker is (kids' feet stay planted; they turn to walk)
+    const rig = kd.rig; if (!rig) return;
+    const o = kd.obj.position, last = kd.last || (kd.last = { x: o.x, z: o.z }), dx = o.x - last.x, dz = o.z - last.z, d = Math.hypot(dx, dz);
+    const v = dt > 0 ? d / dt / rig.s : 0, moving = v > 6;
+    if (moving) kd.h = Math.atan2(dx, dz); else if (kd.h == null || !moving && kids?.state === 'wait') kd.h = kd.obj.rotation.y;
+    // (rig space is the child's own scale: feed it positions in that scale, then put the group where the marker is)
+    rig.root(o.x / rig.s, GY, o.z / rig.s, kd.h, moving ? Math.min(v, 140) : 0); rig.group.position.set(o.x, GY, o.z);
+    const near = Math.hypot(H.P.x - o.x, H.P.z - o.z) < 450 && H.W.lvl === 'G';
+    rig.set({ look: near ? { x: H.P.x / rig.s, y: GY - (GY - H.P.y) / rig.s, z: H.P.z / rig.s } : null });
+    rig.update(Math.max(0.001, Math.min(dt, 0.1)), near); last.x = o.x; last.z = o.z;
+  }
   function kidModel(kid, h) { // a simple, solid, chunky kid in a costume (feet at the origin, facing +z), holding a treat pail
+    if (window.NPCRig) { const g = new T.Group(); g.userData.rig = rigKid(kid, h); return g; }
+    if (kid.c === 'spacecadet') kid = Object.assign({}, kid, { c: 'wizard' });
     const g = new T.Group(), B = K.into(g), r = rnd(kid.k * 13 + 7), s = h / 120;
     const skin = M({ c: SKIN_T[Math.floor(r() * SKIN_T.length)], sh: 8 }), shoe = M({ c: ['#2a2a2e', '#7a2a2a', '#2a3a6a', '#e8e4dc'][Math.floor(r() * 4)], sh: 20 });
     const c = kid.c, m = mm();
@@ -885,7 +909,7 @@
     clearKids(true);
     const drive = H.ROOMS.drive; if (!drive?.built) return;
     const group = new T.Group(); group.name = 'hw-trick-or-treaters'; drive.group.add(group);
-    const list = gr.kids.map((kid, i) => { const h = 104 + ((kid.k * 7) % 24), o = kidModel(kid, h); const [x, z] = DOORSTEP[i]; o.position.set(x, GY - 1, z); o.rotation.y = Math.PI + (i - 2) * .12; group.add(o); o.userData.home = { x, z }; return { obj: o, kid, want: kid.want, got: [] }; });
+    const list = gr.kids.map((kid, i) => { const h = 104 + ((kid.k * 7) % 24), o = kidModel(kid, h); const [x, z] = DOORSTEP[i]; o.position.set(x, GY - 1, z); o.rotation.y = Math.PI + (i - 2) * .12; group.add(o); o.userData.home = { x, z }; const rig = o.userData.rig || null; if (rig) group.add(rig.group); return { obj: o, kid, want: kid.want, got: [], rig }; });
     const parent = parentModel(); parent.position.set(262, GY - 1.6, 1128); parent.rotation.y = Math.PI * .9; group.add(parent);
     group.traverse(o => { if (o.isMesh) o.userData.kid = 1; });
     kids = { g: gr.id, n0: srv().treat?.n | 0, gr, group, list, parent, state: walk ? 'walk' : 'wait', t0: performance.now(), answered: false, knocks: 0, lastKnock: 0, block: null };
@@ -894,15 +918,20 @@
     if (walk) for (const k of list) { k.obj.position.z = 1150 + Math.random() * 30; k.obj.position.x = 262 + Math.random() * 20; }
     // they stand on the path: keep the player out of them (never trapping anyone already there)
     if (!(H.W.lvl === 'G' && Math.abs(H.W.x - 300) < 70 && H.W.z > 750 && H.W.z < 840)) { kids.block = H.block('G', 262, 772, 338, 826); }
+    for (const kd of list) if (kd.rig) { kd.h = kd.obj.rotation.y; kd.last = null; rigFollow(kd, 0); }
     if (walk) H.anims.set('hw.kids', kidTick); H.dirty();
   }
   function fidget(now) { // a little bob while they wait (only while the front is drawn, never on Low)
-    const k = kids; if (!k || k.state !== 'wait' || low() || !H.ROOMS.drive?.group.visible) return;
+    const k = kids; if (!k || k.state !== 'wait' || !H.ROOMS.drive?.group.visible) return;
+    const dt = Math.min(0.1, (now - (k.lastFidget || now)) / 1000); k.lastFidget = now;
+    if (k.list.some(kd => kd.rig)) { k.list.forEach(kd => rigFollow(kd, dt)); H.dirty(); return; } // (the people breathe, blink and look at you)
+    if (low()) return;
     const cheer = k.cheer && now < k.cheer; k.list.forEach((kd, i) => { kd.obj.position.y = GY - 1 - Math.max(0, Math.sin(now / 260 + i * 1.7)) * (cheer ? 4 : .6); }); H.dirty();
   }
   function kidTick(now) {
     if (!kids) return false;
-    const k = kids, visible = H.ROOMS.drive?.group.visible;
+    const k = kids, visible = H.ROOMS.drive?.group.visible, dtk = Math.min(0.1, (now - (k.lastTick || now)) / 1000); k.lastTick = now;
+    if (k.list.some(kd => kd.rig) && (k.state === 'walk' || k.state === 'leave')) setTimeout(() => { if (kids === k) k.list.forEach(kd => rigFollow(kd, dtk)); }, 0);
     if (k.state === 'walk') {
       const t = Math.min(1, (now - k.t0) / 5200);
       k.list.forEach((kd, i) => { const h = kd.obj.userData.home, e = ease(t); kd.obj.position.x = 268 + (h.x - 268) * e; kd.obj.position.z = 1150 + (h.z - 1150) * e - i * 6 * (1 - e); kd.obj.position.y = GY - 1 - Math.abs(Math.sin(now / 130 + i)) * 2 * (1 - t); });
@@ -916,7 +945,7 @@
     void visible; H.dirty(); return true;
   }
   function clearKids(quiet) {
-    if (!kids) return; kids.group.parent?.remove(kids.group);
+    if (!kids) return; kids.group.parent?.remove(kids.group); for (const kd of kids.list) kd.rig?.dispose();
     if (kids.block) { kids.block.off = true; H._.grids.dirty = true; }
     H.unspot('hw.kids'); delete IT['hw.kids'];
     kids = null; if (handing) endHand(); H.anims.delete('hw.kids'); H.dirty();
@@ -972,7 +1001,7 @@
     renderHand(); hintHand();
   }
   function hintHand() { setBar('Trick or treat', 'Click a sweet in the bowl (or press 1-6) to give it to the next one. ' + kidsLine(), SWEETS.map((s, i) => [(i + 1) + '. ' + s.name + ' <i>' + ((srv().bowl || [])[i] | 0) + '</i>' + (s.nuts ? ' <small>(nuts)</small>' : ''), () => giveSweet(i), 'se-sweet se-s' + i]).concat([['Done', () => give(false)]])); }
-  function kidsLine() { return kids ? kids.list.map(k => '<span class="se-kid' + (k.got.length >= k.want ? ' ok' : '') + '">' + esc(kidName(k.kid.k)) + ' the ' + k.kid.c + (k.want > 1 ? ' (2)' : '') + (k.got.length >= k.want ? ' &#10004;' : '') + '</span>').join(' ') : ''; }
+  function kidsLine() { return kids ? kids.list.map(k => '<span class="se-kid' + (k.got.length >= k.want ? ' ok' : '') + '">' + esc(kidName(k.kid.k)) + ' the ' + (COST[k.kid.c] || k.kid.c) + (k.want > 1 ? ' (2)' : '') + (k.got.length >= k.want ? ' &#10004;' : '') + '</span>').join(' ') : ''; }
   function renderHand() { const local = (srv().bowl || []).slice(); if (handing) for (const [, si] of handing.given) local[si]--; paintBowl(local); }
   function giveSweet(si) {
     if (!handing || !kids || handing.busy) return;
