@@ -242,7 +242,7 @@
     "chore.shopping.done":["mom","Everything where it belongs. And the carrier bags folded. A miracle."],
     "chore.bins.give":["mom","The kitchen bin needs taking out. Round the back to the wheelie bin. And a new bag in."],
     "chore.bins.done":["mom","Thank you. The kitchen smells better already."],
-    "chore.hoover.give":["mom","The hoover's in the cupboard under the stairs. Every crumb, please."],
+    "chore.hoover.give":["mom","The vacuum's in the cupboard under the stairs. Every crumb, please."],
     "chore.hoover.done":["mom","Spotless. You can see the stripes."],
     "chore.videos.give":["mom","The videos are all over the floor. Back on the shelf, and rewind them. Be kind."],
     "chore.videos.done":["mom","That's better. I can find the film I want now."],

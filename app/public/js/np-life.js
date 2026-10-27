@@ -50,13 +50,14 @@
     sink: { lvl: 'G', x: -80, z: 36, face: 180, act: 'washup', look: [-80, 260, -20] },
     hob: { lvl: 'G', x: -10, z: 36, face: 180, act: 'cook' },
     kettle: { lvl: 'G', x: -192, z: 38, face: 175, act: 'mug' },
-    kmug1: { lvl: 'G', x: -150, z: 62, face: 40, act: 'mug' },
-    kmug2: { lvl: 'G', x: 45, z: 64, face: -60, act: 'mug' },
-    kmug3: { lvl: 'G', x: 110, z: 150, face: -100, act: 'mug' },
+    // (a cuppa somewhere out of the way: never in the strip in front of the worktop, never in the doorway's path)
+    kmug1: { lvl: 'G', x: -205, z: 105, face: 60, act: 'mug' },
+    kmug2: { lvl: 'G', x: 140, z: 92, face: -100, act: 'mug' },
+    kmug3: { lvl: 'G', x: 132, z: 262, face: -120, act: 'mug' },
     // lounge
-    sofaL: { lvl: 'G', act: 'telly', seat: seat({ x: -113.7, z: 563, face: 180, stand: [-113.7, 511], approach: [-150, 491] }) },
-    sofaR: { lvl: 'G', act: 'telly', seat: seat({ x: -6.3, z: 563, face: 180, stand: [-6.3, 511], approach: [24, 489] }) },
-    armchair: { lvl: 'G', act: 'paper', seat: seat({ x: 115.3, z: 432.8, face: -118, stand: [78, 413], approach: [22, 383] }) },
+    sofaL: { lvl: 'G', act: 'telly', seat: seat({ x: -113.7, z: 563, face: 180, stand: [-113.7, 506], approach: [-143.7, 461] }) },
+    sofaR: { lvl: 'G', act: 'telly', seat: seat({ x: -6.3, z: 563, face: 180, stand: [-6.3, 506], approach: [-143.7, 461], via: [[-134, 503]] }) }, // (sidle along between the coffee table and the sofa)
+    armchair: { lvl: 'G', act: 'paper', seat: seat({ x: 115.3, z: 432.8, face: -118, stand: [80, 414], approach: [10, 386] }) }, // (straight in from the front)
     floorTV: { lvl: 'G', act: 'telly', seat: { x: -172, z: 401, face: 119, h: 1, floor: true, back: false, knee: 24, stand: [-172, 401], approach: [-172, 401] } },
     phone: { lvl: 'G', x: 117, z: 611, face: 90, act: 'phone' },
     // hall, landing
@@ -95,8 +96,8 @@
       sun: [[0, 'away:bed'], [8.5, 'mug'], [9, 'armchair:paper'], [11, 'gardenLook'], [12, 'mug'], [13.5, 'armchair:doze'], [15.5, 'gardenLook'], [16.5, 'armchair:telly'], [22.5, 'away:bed']],
     },
     sister: {
-      school: [[0, 'away:bed'], [7, 'mug'], [8.33, 'away:school'], [15.67, 'floorTV:telly'], [17, ['hallYoyo', 'gardenYoyo']], [17.75, 'floorTV:telly'], [18.5, 'sofaR:telly'], [20, 'away:bed']],
-      off: [[0, 'away:bed'], [8, 'floorTV:telly'], [10.5, 'gardenYoyo'], [12, 'mug'], [12.5, 'floorTV:telly'], [14, 'hallYoyo'], [15, 'gardenYoyo'], [16.5, 'floorTV:telly'], [17.75, 'sofaR:telly'], [20.5, 'away:bed']],
+      school: [[0, 'away:bed'], [7, 'mug'], [8.33, 'away:school'], [15.67, 'sofaR:telly'], [17, ['hallYoyo', 'gardenYoyo']], [17.75, 'sofaR:telly'], [18.5, 'sofaR:telly'], [20, 'away:bed']],
+      off: [[0, 'away:bed'], [8, 'sofaR:telly'], [10.5, 'gardenYoyo'], [12, 'mug'], [12.5, 'sofaR:telly'], [14, 'hallYoyo'], [15, 'gardenYoyo'], [16.5, 'sofaR:telly'], [17.75, 'sofaR:telly'], [20.5, 'away:bed']],
     },
   };
   const AWAY_EXIT = { bed: { mom: 'parents', dad: 'parents', sister: 'sisRoom' }, work: { dad: 'car' }, school: { sister: 'street' } };
@@ -150,10 +151,11 @@
     if (parent && g.parent !== parent) parent.add(g);
     const y = NV.onFlight(c.x, c.z) && c.x > 340 ? NV.ramp(c.z) : H.LV[c.lvl];
     c.rig.root(c.x, y, c.z, c.h, c.v);
-    g.visible = c.present;
+    g.visible = c.present && !hideAll;
   }
   function spawn(c, at, h) {
     build(c);
+    const o = outfitFor(c.id, clock()); if (o) c.rig.setOutfit(o);
     c.present = true; c.x = at.x; c.z = at.z; c.lvl = at.lvl; c.h = h ?? ((at.face || 0) * D2R); c.v = 0; c.seated = null; c.plan = []; c.cur = null; c.goal = null; c.room = null;
     c.rig.set({ seat: null, action: null, look: null, props: {} }); c.rig.st.sitK = 0;
     placeRig(c); c.rig.teleport(c.x, c.rig.st.y, c.z, c.h); c.rig.group.visible = true;
@@ -161,11 +163,11 @@
   function vanish(c) { c.present = false; c.plan = []; c.cur = null; c.seated = null; if (c.rig) { c.rig.group.visible = false; c.rig.hush(); } }
 
   // ================================================================ what each of them wants to be doing now
-  let directives = {};
+  let directives = {}, hideAll = false; const manual = {}; // (tests: debug.go sends someone somewhere)
   function target(c, clk) {
+    if (c.aside) return { key: 'aside', spot: c.aside, look: 'player' }; // (letting you past comes first)
     const d = directives[c.id];
     if (d) return d;
-    if (c.aside) return { key: 'aside', spot: c.aside, look: 'player' };
     const sch = scheduled(c.id, clk);
     if (sch.raw.startsWith('away:')) { const why = sch.raw.slice(5); return { key: sch.key, away: why, exit: AWAY_EXIT[why][c.id] }; }
     const [name, act] = sch.raw.split(':');
@@ -184,11 +186,16 @@
     const s = g.spot; if (!s) return;
     if (s.seat) {
       const q = s.seat;
-      P.push({ k: 'route', to: { lvl: s.lvl, x: q.approach[0], z: q.approach[1] } });
-      if (q.approach[0] !== q.stand[0] || q.approach[1] !== q.stand[1]) P.push({ k: 'line', to: { x: q.stand[0], z: q.stand[1] } });
+      const ap = approachOf(q, s.lvl);
+      P.push({ k: 'route', to: { lvl: s.lvl, x: ap.x, z: ap.z } });
+      for (const v of q.via || []) P.push({ k: 'line', to: { x: v[0], z: v[1] } });
+      if (Math.hypot(ap.x - q.stand[0], ap.z - q.stand[1]) > 1) P.push({ k: 'line', to: { x: q.stand[0], z: q.stand[1] } });
       P.push({ k: 'face', h: q.face * D2R }, { k: 'sit', seat: q }, { k: 'act' });
-    } else P.push({ k: 'route', to: s }, { k: 'face', h: (s.face || 0) * D2R }, { k: 'act' });
+    } else P.push({ k: 'route', to: s, yielding: g.key === 'aside' }, { k: 'face', h: (s.face || 0) * D2R }, { k: 'act' }); // (getting out of your way is never blocked by you)
   }
+  // where to step off the walkable floor to reach a seat (the nearest point with full clearance)
+  // where to step off the walkable floor for a seat: its approach (snapped to full clearance if need be)
+  function approachOf(q, lvl) { if (!q.ap) q.ap = NV.clear(lvl, q.approach[0], q.approach[1]) >= NV.NEED ? { x: q.approach[0], z: q.approach[1] } : (NV.snap(lvl, q.approach[0], q.approach[1], 40) || { x: q.approach[0], z: q.approach[1] }); return q.ap; }
   function routeFrom(c, to, avoid) {
     return NV.route({ lvl: c.lvl, x: c.x, z: c.z }, to, avoid ? { avoid } : undefined);
   }
@@ -206,12 +213,12 @@
     let hit = null;
     for (let d = 10; d <= 110; d += 10) {
       const q = NV.at(r, s + d); if (s + d > r.len + 5) break;
-      for (const b of list) { const k = Math.hypot(q.x - b.x, q.z - b.z); if (k < (b.who === 'player' ? 44 : 40) && (!hit || d < hit.d)) hit = { d, b }; }
+      for (const b of list) { const k = Math.hypot(q.x - b.x, q.z - b.z); if (k < (b.who === 'player' ? 44 : b.o && b.o.v < 5 ? 25 : 30) && (!hit || d < hit.d)) hit = { d, b }; } // (family squeeze past each other, behind someone busy at the worktop; you get more room)
       if (hit) break;
     }
     return hit;
   }
-  function doorOpen(id) { const d = H.DOORS[id]; return !d || d.always || (d.open && d.ang > 0.82); }
+  function doorOpen(id) { const d = H.DOORS[id]; return !d || d.always || (d.open && (d.ang > 0.82 || simMode)); }
   function step(c, dt, clk) {
     if (!c.cur) { c.cur = c.plan.shift() || null; if (c.cur) c.cur.t = 0; }
     const s = c.cur; if (!s) return;
@@ -236,12 +243,15 @@
       const q = s.seat;
       if (!s.started) { s.started = true; c.rig?.set({ seat: null, action: null, props: {} }); }
       const k = smooth(clamp(s.t / 0.95, 0, 1)); c.x = lerp(q.x, q.stand[0], k); c.z = lerp(q.z, q.stand[1], k); c.v = 0;
-      if (s.t > 1.0) { c.seated = null; c.cur = null; c.plan.unshift({ k: 'line', to: { x: q.approach[0], z: q.approach[1] } }); }
+      if (s.t > 1.0) { c.seated = null; c.cur = null; const ap = approachOf(q, c.lvl), back = (q.via || []).slice().reverse().map(v => ({ k: 'line', to: { x: v[0], z: v[1] } })); if (Math.hypot(ap.x - q.stand[0], ap.z - q.stand[1]) > 1) back.push({ k: 'line', to: { x: ap.x, z: ap.z } }); c.plan.unshift(...back); }
     } else if (s.k === 'act') {
       c.v = 0;
       if (!s.arrived) { s.arrived = true; c.arrivedAt = nowMs(); arrive(c); }
       if (!c.seated && c.goal?.spot && Math.abs(angd(c.h, (c.goal.spot.face || 0) * D2R)) > 0.05 && !lookingAtPlayer(c)) c.h += clamp(angd(c.h, (c.goal.spot.face || 0) * D2R), -2 * dt, 2 * dt);
       stepAside(c, dt);
+    } else if (s.k === 'yield') {
+      c.v = 0; faceToward(c, s.o, dt);
+      if (s.t > 6 || !s.o.present || s.o.cur?.k !== 'route' || s.t > 0.8 && Math.hypot(s.o.x - c.x, s.o.z - c.z) > 110) c.cur = null;
     } else if (s.k === 'vanish') {
       c.v = 0;
       if (!seen(c) || s.t > 90) vanish(c);
@@ -253,28 +263,54 @@
     // doors: stop short, reach, open, go
     const d = r.doors.find(q => q.s1 + 25 > s.s);
     if (d && !doorOpen(d.id) && s.s < d.s0 + 5) {
-      stop = Math.min(stop, d.s0 - 42);
-      if (s.s >= d.s0 - 48 && c.v < 25) {
-        if (!s.reach) { s.reach = nowMs(); c.rig?.set({ action: 'reach' }); }
-        if (nowMs() - s.reach > 380 && !H.DOORS[d.id].open) { H.setDoor(d.id, true); c.opened.add(d.id); }
+      stop = Math.min(stop, d.s0 - 50);
+      if (s.s >= d.s0 - 56 && c.v < 25) {
+        if (!s.reach) { s.reach = 1e-6; c.rig?.set({ action: 'reach' }); }
+        s.reach += dt;
+        if (s.reach > 0.4 && !H.DOORS[d.id].open) { H.setDoor(d.id, true); c.opened.add(d.id); }
       }
     } else if (s.reach) { s.reach = 0; c.rig?.set({ action: travelAction(c) }); }
     // people in the way
-    const hit = ahead(c, r, s.s);
+    const hit = s.yielding ? null : ahead(c, r, s.s);
+    s.hit = hit ? hit.b.who + '@' + Math.round(hit.d) : null;
     if (hit) {
       stop = Math.min(stop, s.s + Math.max(0, hit.d - 50));
       if (c.v < 8) s.blocked = (s.blocked || 0) + dt;
-      const waitFor = hit.b.who === 'player' ? 2.2 : (hit.b.o && (hit.b.o.v < 5 || prio(c) < prio(hit.b.o))) ? 1.2 : 99;
+      // two of them face to face in a narrow bit: the younger one steps into the side and lets the other by
+      const o = hit.b.o;
+      if (o && o.cur?.k === 'route' && prio(c) < prio(o) && s.blocked > 0.3 && !s.yielded) {
+        const p = NV.at(r, s.s), nx = Math.cos(p.h), nz = -Math.sin(p.h);
+        for (const dd of [55, 70, 90, 110]) for (const side of [1, -1]) {
+          const x = c.x + nx * dd * side, z = c.z + nz * dd * side;
+          if (NV.clear(c.lvl, x, z) < NV.NEED + 1 || Math.hypot(x - o.x, z - o.z) < 60) continue;
+          s.yielded = true; s.r = null; s.s = 0; s.blocked = 0;
+          c.plan.unshift({ k: 'route', to: { lvl: c.lvl, x, z }, yielding: true }, { k: 'yield', o }, s); c.cur = null; return;
+        }
+        // no room to the side: back up the way we came and let them through
+        const back = s.s > 100 ? NV.at(r, s.s - 130) : { x: c.x - Math.sin(c.h) * 110, z: c.z - Math.cos(c.h) * 110, lvl: c.lvl };
+        if (NV.clear(back.lvl, back.x, back.z) >= NV.NEED && Math.hypot(back.x - o.x, back.z - o.z) > 90) {
+          s.yielded = true; s.r = null; s.s = 0; s.blocked = 0;
+          c.plan.unshift({ k: 'route', to: { lvl: back.lvl, x: back.x, z: back.z }, yielding: true }, { k: 'yield', o }, s); c.cur = null; return;
+        }
+      }
+      const waitFor = hit.b.who === 'player' ? 2.2 : hit.b.o && hit.b.o.v < 5 ? 0.5 : prio(c) < prio(hit.b.o) ? 1.2 : 2.5;
       if (s.blocked > waitFor) { // go round them
-        s.blocked = 0; const avoid = [{ x: hit.b.x, z: hit.b.z, r: 48 }];
+        // go round everyone nearby at once (avoiding just the one in front makes them ping-pong between two people)
+        s.blocked = 0; const pl = player(), near = [];
+        if (H.live && H.mode === 'walk' && sameFloor(c, pl) && dist(c, pl) < 320) near.push({ x: pl.x, z: pl.z, r: 48 });
+        for (const q of chars) if (q !== c && q.present && q.lvl === c.lvl && dist(c, q) < 320) near.push({ x: q.x, z: q.z, r: q.v < 5 ? 27 : 33 });
+        const avoid = near.map(q => Object.assign(q, { r: Math.max(18, Math.min(q.r, Math.hypot(c.x - q.x, c.z - q.z) - 6)) }));
         const nr = NV.route({ lvl: c.lvl, x: c.x, z: c.z }, s.to, { avoid });
         if (nr) { s.r = nr; s.s = 0; s.avoid = avoid; return; }
         // nowhere to go: don't stand in a doorway
         const dz = doorZone(c.x, c.z, c.lvl, 30);
         if (dz) { const back = NV.at(r, Math.max(0, s.s - 90)); c.plan.unshift({ k: 'route', to: { lvl: back.lvl, x: back.x, z: back.z } }, Object.assign({}, s, { r: null, t: 0, blocked: 0 })); c.cur = null; return; }
       }
-    } else s.blocked = 0;
+    } else s.blocked = Math.max(0, (s.blocked || 0) - dt * 0.5);
+    // never stuck for good: if someone's camped in the only way through and nobody's watching, slip past
     const left = stop - s.s, onFlight = NV.at(r, s.s).stairs;
+    s.waited = c.v < 5 && r.len - s.s > 1 ? (s.waited || 0) + dt : 0;
+    if (s.waited > 20 && !seen(c)) { s.s = r.len - 0.4; s.waited = 0; }
     const vmax = c.speed * (onFlight ? 0.72 : 1), want = left <= 0.5 ? 0 : Math.min(vmax, Math.sqrt(2 * 150 * left));
     c.v += clamp(want - c.v, -300 * dt, 170 * dt); if (c.v < 0) c.v = 0;
     s.s = Math.min(stop < s.s ? s.s : stop, s.s + c.v * dt);
@@ -315,7 +351,9 @@
     if ((c.pushN || 0) < 6) return;
     c.pushN = 0;
     const p = player(), dx = c.x - p.x, dz = c.z - p.z, L0 = Math.hypot(dx, dz) || 1, nx = -dz / L0, nz = dx / L0;
-    const opts = [1, -1].map(sg => ({ lvl: c.lvl, x: c.x + nx * 75 * sg + dx / L0 * 20, z: c.z + nz * 75 * sg + dz / L0 * 20 })).filter(o => NV.clear(o.lvl, o.x, o.z) >= NV.NEED + 2 && !doorZone(o.x, o.z, o.lvl, 40));
+    const opts = [];
+    for (const dd of [45, 60, 75]) for (const sg of [1, -1]) opts.push({ lvl: c.lvl, x: c.x + nx * dd * sg + dx / L0 * 15, z: c.z + nz * dd * sg + dz / L0 * 15 });
+    for (let i = opts.length - 1; i >= 0; i--) { const o = opts[i]; if (NV.clear(o.lvl, o.x, o.z) < NV.NEED || doorZone(o.x, o.z, o.lvl, 40)) opts.splice(i, 1); }
     opts.sort((a, b) => NV.clear(b.lvl, b.x, b.z) - NV.clear(a.lvl, a.x, a.z));
     if (opts[0]) { c.aside = Object.assign(opts[0], { face: Math.atan2(p.x - opts[0].x, p.z - opts[0].z) / D2R }); c.asideT = 0; c.goal = null; }
   }
@@ -342,7 +380,7 @@
     const shout = !person && (l[2] === 'downstairs' || o.call);
     if (!person && !shout) return false;
     if (o.once) { const k = 'np.once.' + member() + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
-    speech.q.push({ c, lineId, person, text: l[1], then: o.then, prio: o.prio || 0 });
+    speech.q.push({ c, lineId, person, text: l[1], then: o.then, prio: o.prio || 0, talk: !!o.talk });
     if (o.prio) speech.q.sort((a, b) => b.prio - a.prio);
     return true;
   }
@@ -368,11 +406,12 @@
   const pendingHand = {};
   function talk(id) {
     const c = C[id]; if (!c || !c.present) return;
-    if (speech.cur && speech.cur.c === c) { skip(); return; }
-    if (speech.q.some(q => q.c === c)) return;
+    if (speech.cur && speech.cur.c === c && speech.cur.talk) { skip(); return; } // F again: on to the next line
+    if (speech.q.some(q => q.c === c && q.talk)) return;
+    if (speech.cur && speech.cur.c === c) skip(); // (cut short whatever they were saying to themselves)
     const lines = talkLines(c);
     c.hold = 99;
-    lines.forEach((l, i) => say(id, typeof l === 'string' ? l : l.id, { force: true, prio: 5, then: () => { if (typeof l !== 'string' && l.then) l.then(); if (i === lines.length - 1) c.hold = 1.5; } }));
+    lines.forEach((l, i) => say(id, typeof l === 'string' ? l : l.id, { force: true, prio: 5, talk: true, then: () => { if (typeof l !== 'string' && l.then) l.then(); if (i === lines.length - 1) c.hold = 1.5; } }));
   }
   function talkLines(c) {
     const s = window.st?.getState?.(), cur = window.st?.current?.()?.id, story = s && !s.flags.veteran;
@@ -415,7 +454,7 @@
       add(act === 'phone', ['bark.mom.line1', 'bark.mom.line2']);
       if (talking) add(true, ['bark.mom.react.praise']);
     } else if (c.id === 'dad') {
-      add(t >= 17.5 && t < 18.5, ['bark.dad.tea1', 'bark.dad.tea2', 'bark.dad.tea3']);
+      add(t >= 17.5 && t < 18.5 && (room === 'kitchen' || room === 'lounge'), ['bark.dad.tea1', 'bark.dad.tea2', 'bark.dad.tea3']);
       add(clk.work && t >= 6.7 && t < 7.8, ['bark.dad.school1']);
       add(clk.dow === 6, ['bark.dad.wknd1', 'bark.dad.wknd3']); add(clk.dow === 0 && room === 'lounge', ['bark.dad.wknd2']);
       add(room === 'lounge' && (act === 'telly' || act === 'remote'), ['bark.dad.tv1', 'bark.dad.tv2', 'bark.dad.tv3']);
@@ -425,7 +464,7 @@
       add(H.mode === 'monitor' && t >= 22, ['bark.dad.bed2']);
       add(true, ['bark.dad.react.joke']);
     } else {
-      add(t >= 17.5 && t < 18.5, ['bark.sis.tea1', 'bark.sis.tea2']);
+      add(t >= 17.5 && t < 18.5 && (room === 'kitchen' || room === 'lounge'), ['bark.sis.tea1', 'bark.sis.tea2']);
       add(clk.school && t >= 7 && t < 8.4, ['bark.sis.school1', 'bark.sis.school2']);
       add(clk.dow === 6 && t < 12, ['bark.sis.wknd1']); add(clk.dow === 0, ['bark.sis.wknd2']);
       add(room === 'lounge' && act === 'telly', ['bark.sis.tv1', 'bark.sis.tv2']);
@@ -561,7 +600,7 @@
   const visible = c => c.present && c.rig && H.ROOMS[c.room]?.group.visible;
   function tick(dt) {
     const clk = clock();
-    directives = storyDirectives();
+    directives = Object.assign(storyDirectives(), manual);
     for (const c of chars) {
       const want = target(c, clk);
       if (!c.present) { maybeSpawn(c, want, clk); continue; }
@@ -569,8 +608,8 @@
       step(c, dt, clk);
       placeRig(c);
     }
-    if (simMode) return;
     outfits();
+    if (simMode) return;
     speechTick(); barks(clk); carryReactions(); gameLadCameo();
     for (const c of chars) looks(c);
     if (nowMs() - savedAt > 2000) save();
@@ -578,7 +617,7 @@
   // Dad changes after work (and into his weekend jumper) when nobody's watching
   let outfitAt = 0;
   function outfits() {
-    if (nowMs() - outfitAt < 8000) return; outfitAt = nowMs();
+    if (!simMode && nowMs() - outfitAt < 8000) return; outfitAt = nowMs();
     const clk = clock();
     for (const c of chars) { const o = outfitFor(c.id, clk); if (o && c.rig && c.rig.outfit !== o && (!c.present || !seen(c))) c.rig.setOutfit(o); }
   }
@@ -694,8 +733,11 @@
         return out;
       },
       dump() { return chars.map(c => ({ id: c.id, present: c.present, x: +c.x.toFixed(1), z: +c.z.toFixed(1), lvl: c.lvl, h: +c.h.toFixed(3), v: +c.v.toFixed(1), room: c.room, goal: c.goal?.key || null, spot: c.goal?.spotKey || null, step: c.cur?.k || null, seated: !!c.seated, sitting: !!(c.cur && (c.cur.k === 'sit' || c.cur.k === 'stand')), outfit: c.rig?.outfit || null, talking: !!c.talking })); },
+      want: id => target(C[id], clock()).key,
+      hide(v) { hideAll = !!v; for (const c of chars) placeRig(c); H.dirty(); },
+      go(id, spotKey) { if (!spotKey) delete manual[id]; else { const s = SPOT[spotKey] || EXIT[spotKey]; manual[id] = s && { key: 'debug.' + spotKey, spot: s, spotKey, act: s.act }; } },
       place(id, spotKey) { const c = C[id], s = SPOT[spotKey]; if (!c || !s) return false; spawn(c, s.seat ? { lvl: s.lvl, x: s.seat.stand[0], z: s.seat.stand[1] } : s); c.goal = null; return true; },
-      spots: SPOT, exits: EXIT, routines: ROUTINE, scheduled: (id, v) => scheduled(id, v ? mk(v.md, v.dow, v.t) : clock()), save, restore, speech, frame,
+      spots: SPOT, exits: EXIT, approachOf, routines: ROUTINE, scheduled: (id, v) => scheduled(id, v ? mk(v.md, v.dow, v.t) : clock()), save, restore, speech, frame,
     },
   };
 })();

@@ -711,7 +711,7 @@
     opts = opts || {};
     const low = opts.tier === 'low';
     const outfits = {}; let outfit = opts.outfit && OUTFITS[kind][opts.outfit] ? opts.outfit : Object.keys(OUTFITS[kind])[0];
-    const first = buildPerson(kind, outfit, low ? 0.65 : 1);
+    const first = buildPerson(kind, outfit, low ? 0.5 : 1);
     outfits[outfit] = first.geometry;
     const S = first.S, J = first.J;
     const bones = BONES.map(n => { const b = new T.Bone(); b.name = n; return b; }), B = {};
@@ -1071,7 +1071,7 @@
       get outfit() { return outfit; },
       setOutfit(name) {
         if (name === outfit || !OUTFITS[kind][name]) return;
-        if (!outfits[name]) outfits[name] = buildPerson(kind, name, low ? 0.65 : 1).geometry;
+        if (!outfits[name]) outfits[name] = buildPerson(kind, name, low ? 0.5 : 1).geometry;
         outfit = name; body.geometry = outfits[name];
       },
       set floor(fn) { floorFn.f = fn; },

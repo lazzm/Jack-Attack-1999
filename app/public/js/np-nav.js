@@ -10,7 +10,7 @@
   'use strict';
   const H = window.House;
   if (!H || !H.ok || window.NPCNav) return;
-  const GR = { x0: -360, z0: -600, cs: 5, nx: 180, nz: 360 }, NEED = 25, CHECK = 22.5, D2R = Math.PI / 180;
+  const GR = { x0: -360, z0: -600, cs: 5, nx: 180, nz: 360 }, NEED = 25.5, CHECK = 25, D2R = Math.PI / 180;
   const STAIR = { x: 371.5, top: 214, bottom: 634, z0: 250, z1: 600 }; // walk down the middle of the flight
   const field = { U: null, G: null }, sig = { v: '' };
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -25,7 +25,7 @@
     if (!o || o.at.hide || !['rest', 'snap', 'fall'].includes(o.st) || H.held() === o.id) return false;
     const r = H.ROOMS[o.at.room]; if (!r || r.id === 'bedroom' && o.at.y < 60) { /* bedroom things count too */ }
     if (!r) return false;
-    return Math.abs(o.at.y - H.LV[r.lvl]) < 4 && Math.min(o.hx, o.hz) > 5;
+    return !!o.obstacle && Math.abs(o.at.y - H.LV[r.lvl]) < 25; // the same things the player bumps into
   }
   function rebuild() {
     const g = H._.grids;
@@ -38,14 +38,6 @@
       };
       for (const w of g.walk) if (w.lvl === lvl && (!w.door || H.DOORS[w.door])) mark(w.x0, w.z0, w.x1, w.z1, 1);
       for (const b of g.block) if (b.lvl === lvl && !b.off) mark(b.x0, b.z0, b.x1, b.z1, 0);
-      // a swinging leaf needs its arc kept clear (open or shut: it may open while someone's there)
-      for (const d of Object.values(H.DOORS)) {
-        if (!d.closedBounds || !d.pivot || d.always || !d.rooms.some(id => H.ROOMS[id]?.lvl === lvl)) continue;
-        const b = d.closedBounds, px = d.pivot.position.x, pz = d.pivot.position.z, a = (d.swing || 95) * (d.dir || 1) * D2R, c = Math.cos(a), s = Math.sin(a);
-        let x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9;
-        for (const [x, z] of [[b.x0, b.z0], [b.x1, b.z0], [b.x0, b.z1], [b.x1, b.z1]]) { const dx = x - px, dz = z - pz, rx = px + dx * c + dz * s, rz = pz - dx * s + dz * c; x0 = Math.min(x0, rx); x1 = Math.max(x1, rx); z0 = Math.min(z0, rz); z1 = Math.max(z1, rz); }
-        mark(x0 - 1, z0 - 1, x1 + 1, z1 + 1, 0);
-      }
       for (const id in H.THINGS) { const o = H.THINGS[id]; if (!blocksFloor(o) || H.ROOMS[o.at.room].lvl !== lvl) continue; const a = (o.at.ry || 0) * D2R, hx = Math.abs(Math.cos(a)) * o.hx + Math.abs(Math.sin(a)) * o.hz, hz = Math.abs(Math.sin(a)) * o.hx + Math.abs(Math.cos(a)) * o.hz; mark(o.at.x - hx, o.at.z - hz, o.at.x + hx, o.at.z + hz, 0); }
       field[lvl] = distance(m);
     }
@@ -94,7 +86,7 @@
     g[s] = 0; push(s, hh(s));
     const N = [[1, 0, 1], [-1, 0, 1], [0, 1, 1], [0, -1, 1], [1, 1, 1.4142], [1, -1, 1.4142], [-1, 1, 1.4142], [-1, -1, 1.4142]];
     let it = 0;
-    while (heap.length && it++ < 80000) {
+    while (heap.length && it++ < 400000) {
       const k = pop(); if (closed[k]) continue; closed[k] = 1;
       if (k === t) break;
       const x = k % n, z = (k / n) | 0;
@@ -109,14 +101,16 @@
     if (from[t] < 0 && s !== t) return null;
     const out = []; for (let k = t; k >= 0; k = from[k]) { out.push([GR.x0 + (k % n + 0.5) * GR.cs, GR.z0 + (((k / n) | 0) + 0.5) * GR.cs]); if (k === s) break; }
     out.reverse(); out[0] = [ax, az]; out[out.length - 1] = [bx, bz];
-    return pull(lvl, out);
+    return pull(lvl, out, avoid);
   }
+  let AV = null; // people to keep clear of while planning this leg
   function sight(lvl, a, b, need) {
     const d = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.ceil(d / 2.5);
-    for (let i = 0; i <= n; i++) { const t = i / n; if (clear(lvl, a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t) < need) return false; }
+    for (let i = 0; i <= n; i++) { const t = i / n, x = a[0] + (b[0] - a[0]) * t, z = a[1] + (b[1] - a[1]) * t; if (clear(lvl, x, z) < need || AV && AV.some(q => Math.hypot(x - q.x, z - q.z) < q.r)) return false; }
     return true;
   }
-  function pull(lvl, p) { // string-pulling: keep a point only when the straight line round it would scrape something
+  function pull(lvl, p, avoid) {
+    AV = avoid || null; // string-pulling: keep a point only when the straight line round it would scrape something
     const out = [p[0]]; let i = 0;
     while (i < p.length - 1) { let j = p.length - 1; while (j > i + 1 && !sight(lvl, p[i], p[j], NEED - 0.5)) j--; out.push(p[j]); i = j; }
     return out;
@@ -132,7 +126,8 @@
       while (r > 4 && !done) {
         const p0 = [b[0] + (a[0] - b[0]) * r / l1, b[1] + (a[1] - b[1]) * r / l1], p2 = [b[0] + (c[0] - b[0]) * r / l2, b[1] + (c[1] - b[1]) * r / l2];
         const pts = []; for (let k = 0; k <= 6; k++) { const t = k / 6, u = 1 - t; pts.push([u * u * p0[0] + 2 * u * t * b[0] + t * t * p2[0], u * u * p0[1] + 2 * u * t * b[1] + t * t * p2[1]]); }
-        if (pts.every(q => clear(lvl, q[0], q[1]) >= CHECK)) { out.push(...pts); done = true; } else r *= 0.6;
+        const chain = [out[out.length - 1]].concat(pts);
+        if (chain.every((q, k) => k === 0 || sight(lvl, chain[k - 1], q, CHECK))) { out.push(...pts); done = true; } else r *= 0.6;
       }
       if (!done) out.push(b);
     }
@@ -142,7 +137,7 @@
 
   // ---------------------------------------------------------------- whole routes (stairs between the floors, doors on the way)
   const routes = new Map();
-  function leg(lvl, a, b, avoid) { const r = astar(lvl, a.x, a.z, b.x, b.z, avoid); return r ? round(lvl, r).map(q => ({ x: q[0], z: q[1], lvl })) : null; }
+  function leg(lvl, a, b, avoid) { const r = astar(lvl, a.x, a.z, b.x, b.z, avoid); AV = avoid || null; const out = r ? round(lvl, r).map(q => ({ x: q[0], z: q[1], lvl })) : null; AV = null; return out; }
   function route(from, to, opts) {
     const avoid = opts && opts.avoid;
     fresh();
@@ -182,6 +177,7 @@
   // the point (and heading) at arc length s
   function at(r, s) {
     const P = r.pts; s = clamp(s, 0, r.len);
+    if (P.length < 2) return { x: P[0].x, z: P[0].z, lvl: P[0].lvl, h: 0, stairs: !!P[0].stairs };
     let i = 1; while (i < P.length - 1 && P[i].s < s) i++;
     const a = P[i - 1], b = P[i], t = b.s > a.s ? (s - a.s) / (b.s - a.s) : 0;
     return { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t, lvl: t < 0.5 ? a.lvl : b.lvl, h: Math.atan2(b.x - a.x, b.z - a.z), stairs: !!(a.stairs || b.stairs) };
@@ -192,5 +188,5 @@
   function floor(lvl, x, z) { const s = stairs(); if (s && onFlight(x, z) && (lvl === 'U' ? z < 440 : z > 410)) return s.y(x, z); return H.LV[lvl]; }
   const ramp = z => H.LV.U + (H.LV.G - H.LV.U) * clamp((z - STAIR.z0 + 12) / (STAIR.z1 - STAIR.z0), 0, 1);
 
-  window.NPCNav = { route, at, clear, snap, floor, ramp, onFlight, rebuild, NEED, CHECK, STAIR, get ready() { return !!field.U; } };
+  window.NPCNav = { route, at, clear, snap, floor, ramp, onFlight, rebuild, field: lvl => field[lvl], GR, NEED, CHECK, STAIR, get ready() { return !!field.U; } };
 })();
