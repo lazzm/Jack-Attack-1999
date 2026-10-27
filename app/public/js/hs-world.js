@@ -131,12 +131,17 @@
     const cap=Q.tier==='potato'?350000:Q.tier==='low'&&graphics.preset!=='custom'?1024*768:Infinity;
     const base=Math.min(native,Math.sqrt(cap/(vw*vh)),graphics.retro?Math.min(640/vw,480/vh):Infinity);
     const pr=base*graphics.scale*Q.renderScale;Q.pixelRatio=pr;
-    ren.setPixelRatio(pr); ren.setSize(vw, vh, false);cv.style.imageRendering=graphics.retro?'pixelated':'';
+    // Resizing a canvas clears it. Only resize when the size really changed, and redraw at once when it did, so a
+    // resolution step (dynamic resolution, a new front layer) never shows one black frame.
+    const sized=ren.getPixelRatio()===pr&&cv.width===Math.floor(vw*pr)&&cv.height===Math.floor(vh*pr);
+    if(!sized){ren.setPixelRatio(pr); ren.setSize(vw, vh, false);}cv.style.imageRendering=graphics.retro?'pixelated':'';
     // Held paper and live screen DOM stay sharp when the room scales down.
     if (ren2) { ren2.setPixelRatio(Q.tier==='potato'?pr:Math.min(window.devicePixelRatio||1,1.5)); ren2.setSize(vw, vh, false);cv2.style.imageRendering=graphics.retro?'pixelated':''; }
     camera.aspect = vw / vh; lensZm = 0; applyLens();
     dirty();
+    if (!sized) try { if (live && !rendering && mode !== 'off') render(); } catch (e) { if (!(e instanceof ReferenceError)) console.error(e); }
   }
+  let rendering = false;
   // the lens: P.zm 1 is the walking field of view; close-ups ease to a slightly longer lens on the camera-move curve
   let lensZm = 0;
   const lensFov = zm => 2 * Math.atan(vh / 2 / (PERSP * em * (zm || 1))) / D2R;
@@ -986,7 +991,7 @@
     const vz = {}; for (const c of CH) vz[c] = v0 && ms ? v0[c] || 0 : 0;
     glide = { from, to, t0: now, ms, v0: vz, done: o.done, onCancel: o.cancel, lock: !!o.lock, arc: MOTION.reduce ? 0 : (o.arc || 0), at: o.at ? [].concat(o.at).map(a => ({ k: a.k, fn: a.fn })) : [], look: { rx: 0, ry: 0 }, kind: o.kind || '' };
     if (mode === 'walk' || mode === 'glide') mode = 'glide';
-    setMoving(glide.lock && ms > 0);
+    setMoving(ms > 0 && (glide.lock || glide.kind === 'unfocus'));
     emit('move', 'start', glide.kind, ms);
     dirty();
     return glide;
@@ -1763,7 +1768,8 @@
   }
   function backgroundCovered(){if(monitor&&desktopFull&&!glass.lockAnim||window.RoomTV?.open_&&(RoomTV.covered?RoomTV.covered():RoomTV.lockIn()))return true;for(const s of SURF)if(s.screen&&s.locked)return true;return false}
   let backgroundHidden=false;
-  function render() {
+  function render() { rendering = true; try { renderNow(); } finally { rendering = false; } }
+  function renderNow() {
     const covered=backgroundCovered();
     if(covered!==backgroundHidden||cv.style.display!==(covered?'none':'')){backgroundHidden=covered;cv.style.display=covered?'none':'';cv2.style.display=covered?'none':''}
     if(covered){if(stood||monitor)glassFit();for(const sf of SURF)placeSurf(sf);return}

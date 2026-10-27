@@ -200,8 +200,10 @@ try {
     for (const [dx, dy, dz] of [[0, -42, 45], [-25, -45, 50], [40, -50, 60], [10, -35, 35]]) { try { await aimAt([x, y - 3, z], [x + dx, y + dy, z + dz], 'cube'); aimed = true; break; } catch (e) {} }
     assert(aimed, 'could not aim at the puzzle cube');
     const probe = `()=>{const o=House.THINGS.cube.obj;return{gx:o.position.x,gy:o.position.y,gz:o.position.z,gst:House.THINGS.cube.st,panel:window.__trace.vis('.hs-inspection')}}`;
-    const enter = await capture('inspect-enter', () => p.keyboard.press('f'), { ms: 700, probe, target: hasMotion ? 500 : undefined });
+    const enter = await capture('inspect-enter', () => p.keyboard.press('f'), { ms: 700, probe });
     await until(() => House.mode === 'inspect'); clean(enter);
+    { const fr = enter.trace.filter(f => f.gx != null), last = fr.at(-1), landed = fr.find(f => Math.hypot(f.gx - last.gx, f.gy - last.gy, f.gz - last.gz) < 0.05)?.t ?? 1e9;
+      timing['inspect-enter'].span = Math.round(landed); assert(landed < 520, 'close-up should land within ~0.5 s: ' + landed); }
     const back = await capture('inspect-back', () => p.keyboard.press('q'), { ms: 700, probe });
     await until(() => House.mode === 'walk'); clean(back, { pops: false });
     await p.waitForTimeout(400); await p.keyboard.press('q'); await until(() => !House.held()); await settle();
