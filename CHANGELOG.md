@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.57.3 - 2026-10-27
+- Fixed: games on the bedroom telly, the cupboard set and the Game Lad lost their HUD, menus and text (and the power-on effect) after a console had been switched off; only the first game since loading looked right. LOCK IN was always fine. 22 games were affected.
+- Teeny Motors no longer prints a canvas warning while building its track.
+- New test: tests/games-ui.mjs boots all 23 games with the console switched off in between and checks each HUD reaches the in-room screen and LOCK IN.
+
 ## 2.57.2 - 2026-10-27
 - Fixed: things put on the bed could drop through a dip in the duvet onto the floor underneath, out of sight and out of reach. They now land and sit on the duvet's real surface, and the sleeping cat is solid.
 - Safety net: anything that ends up under a floor, through a wall, inside furniture or deep under low furniture is moved somewhere you can reach.
