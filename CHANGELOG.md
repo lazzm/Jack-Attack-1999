@@ -1,5 +1,12 @@
 # Jack's Home Page - changelog
 
+## 2.57.7 - 2026-10-27
+- Mom's first visit: she waits on the landing behind your shut door, knocks three times, the door opens and she walks in. Until she's in and has spoken you stay in your room ("Hang on, Mom's coming up the stairs..."). Dad coming up for the leads and your sister bursting in work the same way, and nobody ever appears where you can see.
+- Trick-or-treaters walk along the pavement from down the road before turning up the path.
+- Personal space: you can't walk right into someone's face; if you start talking too close they take half a step back.
+- Talking to someone mid-job (washing up, cooking, reading the paper...) blends them smoothly round to face you, keeping a mug or sponge in hand and putting the paper down, then back to the job.
+- Better walks (hip sway, counter-turning shoulders, relaxed arm swing, leaning into the stairs) and tops now overlap the waistband (no gap at the hips).
+
 ## 2.57.6 - 2026-10-27
 - Phones: the Game Lad's own buttons work by touch (checked against the 3D model itself, generous hit areas, slide between d-pad directions, d-pad + A together, hold to repeat, buttons sink with a click and a buzz).
 - Phones: press a thing to see what will happen above your thumb ("PICK UP", "OPEN", "TALK"); let go to do it, drag away to cancel. While carrying, a click puts it down at the ghost. Smoother looking, bigger and fewer buttons, and a one-time "how to play" card instead of three overlapping hints.
