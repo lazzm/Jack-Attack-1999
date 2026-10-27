@@ -1,7 +1,7 @@
 // Name call-outs: one short clip per (speaker, first name). Verified by transcription.
 // Usage: node gen-names.mjs [speaker ...]   -> out/<speaker>/<name>.mp3, report.json
 import fs from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 const HERE = new URL('.', import.meta.url).pathname;
 const KEY = fs.readFileSync(process.env.HOME + '/.secrets/gemini.env', 'utf8').match(/GEMINI_API_KEY=(\S+)/)[1];
 const API = 'https://generativelanguage.googleapis.com/v1beta/models/';
@@ -62,14 +62,15 @@ async function batch(s, list) {
   const res = await call('gemini-3.8-flash-tts', { contents: [{ parts: [{ text: `[${S.tag}, one name at a time with a long pause between each] ${text}` }] }],
     generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: S.voice } } } } });
   const data = res.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data; if (!data) throw Error('no audio');
-  const pcm = dir + '_batch.pcm', wav = dir + '_batch.wav'; fs.writeFileSync(pcm, Buffer.from(data, 'base64'));
+  const stamp = Date.now(), pcm = dir + '_batch-' + stamp + '.pcm', wav = dir + '_batch-' + stamp + '.wav'; fs.writeFileSync(pcm, Buffer.from(data, 'base64'));
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-f', 's16le', '-ar', '24000', '-ac', '1', '-i', pcm, wav]); fs.unlinkSync(pcm);
   // find speech segments between silences
-  const log = execFileSync('ffmpeg', ['-i', wav, '-af', 'silencedetect=noise=-38dB:d=0.35', '-f', 'null', '-'], { stdio: ['ignore', 'ignore', 'pipe'] }).toString();
+  // silencedetect reports on stderr (execFileSync only returns stdout)
+  const log = spawnSync('ffmpeg', ['-i', wav, '-af', 'silencedetect=noise=-38dB:d=0.35', '-f', 'null', '-'], { encoding: 'utf8' }).stderr || '';
   const dur = +execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', wav]).toString();
   const sil = [...log.matchAll(/silence_start: ([\d.]+)[\s\S]*?silence_end: ([\d.]+)/g)].map(m => [+m[1], +m[2]]);
   const segs = []; let t = 0; for (const [a, b] of sil) { if (a - t > 0.15) segs.push([t, a]); t = b; } if (dur - t > 0.15) segs.push([t, dur]);
-  if (segs.length !== list.length) { fs.unlinkSync(wav); throw Error(`segments ${segs.length} != names ${list.length}`); }
+  if (segs.length !== list.length) { fs.writeFileSync(wav + '.names', list.join('\n')); throw Error(`segments ${segs.length} != names ${list.length}`); }
   for (let i = 0; i < list.length; i++) {
     const name = list[i], base = dir + name.toLowerCase(), [a, b] = segs[i];
     execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', wav, '-ss', String(Math.max(0, a - 0.05)), '-to', String(b + 0.08), '-af', 'loudnorm=I=-18:TP=-1.5:LRA=9', '-ac', '1', '-c:a', 'libmp3lame', '-q:a', '5', base + '.mp3']);
