@@ -1833,7 +1833,7 @@
     if (d) return d.open ? (/^Shut /.test(label) ? label : 'Shut the door') : 'Open ' + (/door/i.test(label) ? low : 'the door');
     if (/(^|\.)(car)?boot\b/.test(s.id)) return H_ROOMS_boot() ? 'Close the boot' : 'Open the boot';
     if (!label) return 'Use';
-    return /^(Open|Shut|Close|Turn|Switch|Play|Read|Look|Sit|Use|Plug|Press|Answer|Pick|Put|Ring|Watch|Listen|Feed|Pet|Lie|Get|Take|Wind|Water|Empty|Check|Raid|Set|F:)/.test(label) ? label.replace(/^F:\s*/, '').replace(/^./, c => c.toUpperCase()) : 'Use ' + low.replace(/^./, c => c.toLowerCase());
+    return /^(Open|Shut|Close|Turn|Switch|Play|Read|Look|Sit|Use|Plug|Press|Answer|Pick|Put|Ring|Watch|Listen|Feed|Pet|Lie|Get|Take|Wind|Water|Empty|Check|Raid|Set|Talk|F:)/.test(label) ? label.replace(/^F:\s*/, '').replace(/^./, c => c.toUpperCase()) : 'Use ' + low.replace(/^./, c => c.toLowerCase());
   }
   const H_ROOMS_boot = () => !!ROOMS.drive?.carBoot?.open;
   function closedOpenable(s) { const o = OPEN[s.id], d = doorOf(s); if (o) return !o.open; if (d) return !d.open; if (/(^|\.)(car)?boot\b/.test(s.id)) return !H_ROOMS_boot(); return false; }

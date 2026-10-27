@@ -2,6 +2,7 @@
 
 ## 2.57.1 - 2026-10-27
 - Fixed: after the bigger car arrived, Dad's PC parts could stay where the old car's boot was (hidden behind the bumper), so the boot looked empty. Saves are now moved for the new car in one go when they load, and saves already caught by this are repaired.
+- Fixed: the prompt on Mom, Dad and your sister showed raw code ("Use mom <i><span>…") and two F actions; it now just says "Talk to Mom".
 
 ## 2.57.0 - 2026-10-27
 - Physics everywhere in the house (docs/PHYSICS.md): every prop is a physics body with real heights. Walk into things and they get shoved (light ones slide and wobble, heavy ones give way slowly and slow you down); dropped things fall, bounce a little, land, stack and settle with no jitter. Furniture has real parts: the desk chair's seat slides under the desk top, flat things fit under the bed, a box doesn't. Small light things (shopping, the bin, a dropped jumper) are kicked aside and never stop you. Nothing can trap you: anything you end up inside lets you walk straight out. Hung decorations stay put when bumped.
