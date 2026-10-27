@@ -1,5 +1,28 @@
 # Jack's Home Page - changelog
 
+## 2.57.5 - 2026-10-27
+- Carrying looks natural: what you hold sits low and centred in two hands (jumper sleeves and mitts), sized to the thing (a game box is about an eighth of the view; big things sit lower), sways a little as you walk and turn, and never covers the crosshair, the ghost or what you're aiming at. Phones size it to the screen width. The watering can rises into view while pouring.
+- Floating labels such as "Old newspapers" hide when something is in front of their target or it's far away.
+- Fixed: the talk prompt could still show raw code while carrying something; it reads "Talk to <name>".
+
+## 2.57.4 - 2026-10-27
+- Fixed: from the drive you could see straight through the side of the house (the roof eaves had no wall under them). Both side walls now run from the ground to the eaves, and painted side gates close the passages beside the house.
+- New test: tests/exterior-shell.mjs looks at the house from all round, day and night, and fails if the street or sky shows where the walls should be.
+
+## 2.57.3 - 2026-10-27
+- Fixed: games on the bedroom telly, the cupboard set and the Game Lad lost their HUD, menus and text (and the power-on effect) after a console had been switched off; only the first game since loading looked right. LOCK IN was always fine. 22 games were affected.
+- Teeny Motors no longer prints a canvas warning while building its track.
+- New test: tests/games-ui.mjs boots all 23 games with the console switched off in between and checks each HUD reaches the in-room screen and LOCK IN.
+
+## 2.57.2 - 2026-10-27
+- Fixed: things put on the bed could drop through a dip in the duvet onto the floor underneath, out of sight and out of reach. They now land and sit on the duvet's real surface, and the sleeping cat is solid.
+- Safety net: anything that ends up under a floor, through a wall, inside furniture or deep under low furniture is moved somewhere you can reach.
+- Fixed: closing a magazine, book or close-up (Q or Esc) or pressing Q to return something could leave it floating in mid-air; it now goes back where it was, resting on what's there.
+- Fixed: plates looked grey on the floor (the glaze faced the wrong way).
+- The car boot is a real space you can put things in.
+- Watering can: F waters what you aim at, the prompt says what it'll water, the thirsty plant glows while you carry the can, and the can tips when pouring.
+- New test: tests/qa-play.mjs carries things to every surface and back, refreshes, reads and closes readers, and checks nothing is lost or floating.
+
 ## 2.57.1 - 2026-10-27
 - Fixed: after the bigger car arrived, Dad's PC parts could stay where the old car's boot was (hidden behind the bumper), so the boot looked empty. Saves are now moved for the new car in one go when they load, and saves already caught by this are repaired.
 - Fixed: the prompt on Mom, Dad and your sister showed raw code ("Use mom <i><span>…") and two F actions; it now just says "Talk to Mom".

@@ -15,7 +15,7 @@
   const q9 = v => v <= 0 ? 0 : Math.min(252, Math.round(v / 36) * 36); // 3 bits a channel: the Mega Drive's 512 colours
   const wrapA = a => { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; };
   const TAU = Math.PI * 2;
-  const mkc = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, w | 0); c.height = Math.max(1, h | 0); return c; };
+  const mkc = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, w | 0); c.height = Math.max(1, h | 0); c.getContext('2d', { willReadFrequently: true }); return c; }; // sprites/masks are read back with getImageData
   function hexRGB(c) { const n = parseInt(c.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
   const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
   // crisp a sprite: hard alpha, 9-bit colour, a dark outline
@@ -225,7 +225,8 @@
   function buildTrack(T) {
     const S = T.S || (T.S = sampleTrack(T));
     const ww = T.ww, wh = T.wh;
-    const cv = mkc(ww, wh), v = cv.getContext('2d'), mcv = mkc(ww, wh), m = mcv.getContext('2d');
+    // (the track is painted pixel by pixel on a CPU canvas made for read-back, then copied once to the one drawn each frame)
+    const cv = mkc(ww, wh), v = cv.getContext('2d', { willReadFrequently: true }), mcv = mkc(ww, wh), m = mcv.getContext('2d', { willReadFrequently: true });
     const B = { T, S, v, m, cv, ramps: [], dyn: [], fish: [], deco: [], floor: null, fallOK: false, warn: [] };
     v.lineJoin = m.lineJoin = 'round'; v.lineCap = m.lineCap = 'round';
     const TH = THEMES[T.theme];
@@ -237,6 +238,7 @@
     startLine(B);
     if (TH.after) TH.after(B);
     dither16(cv);
+    B.cv = mkc(ww, wh); B.v = B.cv.getContext('2d'); B.v.drawImage(cv, 0, 0); B.v.lineJoin = 'round'; B.v.lineCap = 'round'; cv.width = cv.height = 1;
     // the material grid (2px cells), with the soft edges of the shapes cleaned up
     const MW = Math.ceil(ww / 2), MH = Math.ceil(wh / 2), M = new Uint8Array(MW * MH), md = m.getImageData(0, 0, ww, wh).data;
     for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {

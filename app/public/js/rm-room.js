@@ -957,6 +957,8 @@
     const duvet=B.geo(K.thicken(dg,.8),cx,36,cz+14,M({c:'#ffffff',map:tex('duvet')}),{rx:90});
     // The chore pillow is the bed's only pillow: it starts on the floor.
     pickBox(r, 'bed', cx, 43, cz + 10, bw, 14, bl - 10);H.spot('bed',{obj:duvet});
+    // things put on the bed lie on the rumpled duvet (or the mattress at the head end), never sunk into it
+    if (H.soft) H.soft('bedroom', x0, z0 - 1, x1, z1, 30, { base: 37, find: () => { const out = [], dt = tex('duvet'); r.group.traverse(o => { if (o.isMesh && o.material && o.material.map === dt) out.push(o); }); return out; } });
     H.block('U', x0 - 2, BZ, RX, z1 + 4, { solid: false });
     if (H.solid) { // things: the bed is a slab from the duvet to the base, on legs; flat things fit in the 10 cm underneath
       H.solid('U', x0, z0 - 1, x1, z1, 30, 63, { kind: 'bed' });
@@ -1006,6 +1008,8 @@
     CT.ball(-5, -1.6, 7, 3.4, 1.4, 2.2, wht, 10); CT.ball(-9, -1.4, 7.5, 2, 1.2, 1.8, wht, 8);
     CT.shadow(0, 0, 0, 34, 24, 0.55);
     H.spot('cat', { label: () => catName(), obj: cat });
+    // while it's curled up on the duvet the cat is solid: nothing can be put down under it (it used to swallow a plate)
+    if (H.solid) H.solid('U', 192, 59, 220, 85, 16, 30, { kind: 'cat', support: false, when: () => { for (let o = cat; o; o = o.parent) if (!o.visible) return false; return Math.hypot(cat.position.x - 206, cat.position.z - 72) < 3 && cat.position.y < 40; } });
     // a parcel on the bed (it comes after you've played five different games: a competition prize)
     const post = new T.Group(); post.position.set(170, 30, 100); post.rotation.y = 14 * D2R; r.group.add(post); R.post = post;
     const PO = K.into(post); PO.box(0, -5, 0, 24, 10, 18, M('#c8a070')); PO.plane(0, -10.05, 0, 14, 8, M({ c: '#fff', map: K.tex('rm.addr', 128, 72, (g) => { g.fillStyle = '#fff'; g.fillRect(0, 0, 128, 72); g.font='700 14px '+A.HAND;g.fillStyle='#222';g.fillText(Cast.t('{me.Mr} {me}'),10,28,108); A.text(g, 'MY ROOM', 10, 52, '13px ' + A.HAND, '#222'); g.fillStyle = '#c02020'; g.fillRect(100, 6, 20, 24); },{identity:true}) }), { rx: -90 });
@@ -2356,7 +2360,10 @@
         const m = screen.material, tx = m.map;
         if (tx && tx.userData.jackLive) {if (tx.userData.hud) tx.userData.hud.dispose(); tx.dispose();}
         m.map = con === 'gb' ? null : tex('screenOff'); m.color.set(con === 'gb' ? '#83956c' : '#ffffff');
-        m.onBeforeCompile = () => {}; m.customProgramCacheKey = () => 'room-screen-off'; m.needsUpdate = true;
+        // The dark screen's program carries the live screen's uniforms too. three.js keeps each program a material has
+        // compiled and, when it switches back to one, reuses the uniforms of whichever program was compiled LAST: an
+        // off program without rmHUD left every later game on this screen with no HUD (the picture alone).
+        m.onBeforeCompile = screenUniforms(screenCRT(m, con)); m.customProgramCacheKey = () => 'room-screen-off'; m.needsUpdate = true;
         if (con !== 'gb' && !target) LIGHT.telly = false;
         H.relight(); H.dirty();
       },
@@ -2377,7 +2384,7 @@
         // three.js caches this material's live-screen program across console
         // changes. Its compiled uniforms must keep the same object identities;
         // a fresh texture-owned object leaves the old game's HUD bound.
-        const uniforms=m.userData.rmCRTUniforms||(m.userData.rmCRTUniforms={rmHUD:{value:hud},rmLines:{value:canvas.height},rmPower:{value:1},rmKind:{value:con==='gb'?0:1}});
+        const uniforms=screenCRT(m,con);
         uniforms.rmHUD.value=hud;uniforms.rmLines.value=canvas.height;tx.userData.uniforms=uniforms;
         tx.needsUpdate = true; m.map = tx; m.color.set('#ffffff');
         if (fresh) {
@@ -2397,6 +2404,12 @@
       mk: (p, c, css, html) => { const d = document.createElement('div'); d.className = c; if (css) d.style.cssText = css; if (html) d.innerHTML = html; p.appendChild(d); return d; }, pb, stage: pb.querySelector('.pc-stage'), get hud() { return H.ui.el; }, coin,
       coinToast: amt => toast('+' + amt + ' Rupees', 'For playing on the consoles') },
   };
+  // One uniforms object per screen material, shared by every program it compiles (live and dark), so whichever program
+  // three.js reuses, rmHUD/rmPower are bound to the current game's HUD texture.
+  function screenCRT(m, con) {
+    return m.userData.rmCRTUniforms || (m.userData.rmCRTUniforms = { rmHUD: { value: null }, rmLines: { value: 480 }, rmPower: { value: 1 }, rmKind: { value: con === 'gb' ? 0 : 1 } });
+  }
+  function screenUniforms(uniforms) { return shader => { Object.assign(shader.uniforms, uniforms); }; }
   // The live-screen shader (both the telly and the Game Lad). Shared so it can be compiled ahead of time: the
   // first console go must never stall on a shader link while the camera is moving.
   function liveScreenShader(uniforms) {
