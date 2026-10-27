@@ -920,6 +920,26 @@
     slab([[-326,-200],[60,-370],[60,-363],[-326,-193]],-82,808,tile);
     slab([[60,-370],[446,-200],[446,-193],[60,-363]],-82,808,tile);
     for(const z of [-59,701])slab([[-300,-196],[-300,-204.5],[60,-363],[420,-204.5],[420,-196]],z,2,mBrick());
+    // Both flank walls, ground to eaves. The rooms inside are hidden while you are outside (room visibility), so the
+    // exterior shell must close on its own: these butt between the back wall (z -56.6) and the front wall (z 701),
+    // outer faces on x -300 / 420 (the downpipe brackets' wall line), tops tucked into the roof slab.
+    for(const x of [-299,419])B.box(x,(GY-205)/2,(701-56.6)/2,2,GY+205,701+56.6,mBrick(),{uv:128});
+    // Side gates close both passages beside the house a metre behind the front, so you never see through to the back.
+    { const fm=mFence(),post=M({c:'#fff',map:tex('pineDark')}),iron=M({c:'#1d1e1f',sh:40,sp:'#444'}),gz=600;
+      const run=(a,b,gate)=>{ // a..b along x at gz; gate: [x0,x1] for a ledged leaf hung on its own posts
+        const posts=[a+4,b-4];if(gate)for(const x of [gate[0]-4,gate[1]+4])if(posts.every(q=>Math.abs(q-x)>1))posts.push(x);
+        for(const x of posts){B.box(x,GY-95,gz,8,190,8,post,{uv:60});B.rbox(x,GY-191,gz,9.4,2,9.4,.5,post,{uv:60})}
+        const xs=[...new Set(posts)].sort((p,q)=>p-q);
+        for(let i=1;i<xs.length;i++){const x0=xs[i-1]+4,x1=xs[i]-4;if(x1-x0<1)continue;
+          if(gate&&x0>=gate[0]-.5&&x1<=gate[1]+.5){const cx=(x0+x1)/2,w=x1-x0-1.6; // the gate leaf: boards, ledges and a brace behind, black ironmongery in front
+            B.box(cx,GY-92,gz,w,172,2.4,fm,{uv:100});for(const y of [-24,-160])B.box(cx,GY+y,gz-2.6,w-6,9,2.8,post);
+            B.box(cx,GY-92,gz-2.6,Math.hypot(w-14,128),7,2.4,post,{rz:Math.atan2(128,w-14)/D2R});
+            for(const y of [-24,-160])B.box(x0+16,GY+y,gz+1.6,30,2.2,.8,iron);B.cyl(x1-12,GY-104,gz+2.4,2.6,2.6,1.2,10,iron,{rx:90});B.box(x1-12,GY-104,gz+3.4,7,1.2,1.4,iron);
+          }else B.box((x0+x1)/2,GY-90,gz,x1-x0,180,3,fm,{uv:100});
+        }
+      };
+      run(420,734,[428,518]);run(-694,-300,[-398,-308]); // (out to next door's fences on both sides)
+    }
     B.cyl(60,-369,322,4.5,4.5,816,12,edge,{rx:90});
     for(const x of [-322,442]){B.box(x,-195,322,9,13,808,cream);B.cyl(x,-188,322,4,4,814,10,edge,{rx:90})}
     // Tile courses are thin raised battens on the slopes, never coplanar planes.
@@ -1183,7 +1203,17 @@
     // pavement (the far kerb is as far as we go today).
     H.walkRect('G', 124, 704, 716, FZ + 70, { room: 'drive' }); H.walkRect('G', -340, 704, 124, FZ - 52, { room: 'drive' }); H.walkRect('G', -340, FZ - 20, 124, FZ + 70, { room: 'drive' }); H.walkRect('G', 262, 660, 338, 710, { door: 'front', room: 'drive' });
     H.block('G',-300,694,260,708);H.block('G',340,694,420,708); // no walking through front windows
-    H.block('G', frame.x - 91 * frame.s, frame.z - 205 * frame.s, frame.x + 91 * frame.s, frame.z + 205 * frame.s); // Dad's car (both sides stay walkable)
+    H.block('G', frame.x - 91 * frame.s, frame.z - 205 * frame.s, frame.x + 91 * frame.s, frame.z + 205 * frame.s, H.solid ? { solid: false } : undefined); // Dad's car (both sides stay walkable)
+    // Things: the car is solid around a hollow boot. With the lid up you can put things in on Dad's rug (the story's PC parts
+    // ride there); a shut lid closes it. (The car used to be one solid block up to the roof: nothing could go in the boot.)
+    if (H.solid) {
+      const cs = frame.s, X = lx => frame.x + lx * cs, Z = lz => frame.z + lz * cs, kind = 'car';
+      H.solid('G', X(-91), Z(-121), X(91), Z(205), GY - 133.5 * cs, GY + 1, { kind }); // bonnet, cabin, roof
+      H.solid('G', X(-91), Z(-205), X(91), Z(-121), GY - 23 * cs, GY + 1, { kind }); // the boot floor and what's under it
+      H.solid('G', X(-91), Z(-205), X(91), Z(-197), GY - 73 * cs, GY - 23 * cs, { kind, support: false }); // the rear valance
+      for (const sx of [-1, 1]) H.solid('G', X(sx < 0 ? -91 : 78.5), Z(-205), X(sx < 0 ? -78.5 : 91), Z(-121), GY - 75 * cs, GY - 23 * cs, { kind, support: false }); // the wheel-arch sides
+      H.solid('G', X(-79), Z(-197), X(79), Z(-121), GY - 79 * cs, GY - 23 * cs, { kind, support: false, when: () => !r.carBoot.open }); // the shut lid
+    }
     H.block('G', -360, FZ - 52, 224, FZ + 5); H.block('G', 644, FZ - 15, 740, FZ + 5); // the front wall, with the hedge behind it
     for (const x of FRONT_PIERS) H.block('G', x - 12, FZ - 17, x + 12, FZ + 7);
     H.block('G', FRONT_PIERS[1] - 12, FZ - 100, FRONT_PIERS[1] - 6, FZ - 17); // the open gate leaf

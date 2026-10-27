@@ -1,5 +1,37 @@
 # Jack's Home Page - changelog
 
+## 2.57.6 - 2026-10-27
+- Phones: the Game Lad's own buttons work by touch (checked against the 3D model itself, generous hit areas, slide between d-pad directions, d-pad + A together, hold to repeat, buttons sink with a click and a buzz).
+- Phones: press a thing to see what will happen above your thumb ("PICK UP", "OPEN", "TALK"); let go to do it, drag away to cancel. While carrying, a click puts it down at the ghost. Smoother looking, bigger and fewer buttons, and a one-time "how to play" card instead of three overlapping hints.
+- Console pads, the PC buttons and the in-world phone keypad checked with real touch.
+
+## 2.57.5 - 2026-10-27
+- Carrying looks natural: what you hold sits low and centred in two hands (jumper sleeves and mitts), sized to the thing (a game box is about an eighth of the view; big things sit lower), sways a little as you walk and turn, and never covers the crosshair, the ghost or what you're aiming at. Phones size it to the screen width. The watering can rises into view while pouring.
+- Floating labels such as "Old newspapers" hide when something is in front of their target or it's far away.
+- Fixed: the talk prompt could still show raw code while carrying something; it reads "Talk to <name>".
+
+## 2.57.4 - 2026-10-27
+- Fixed: from the drive you could see straight through the side of the house (the roof eaves had no wall under them). Both side walls now run from the ground to the eaves, and painted side gates close the passages beside the house.
+- New test: tests/exterior-shell.mjs looks at the house from all round, day and night, and fails if the street or sky shows where the walls should be.
+
+## 2.57.3 - 2026-10-27
+- Fixed: games on the bedroom telly, the cupboard set and the Game Lad lost their HUD, menus and text (and the power-on effect) after a console had been switched off; only the first game since loading looked right. LOCK IN was always fine. 22 games were affected.
+- Teeny Motors no longer prints a canvas warning while building its track.
+- New test: tests/games-ui.mjs boots all 23 games with the console switched off in between and checks each HUD reaches the in-room screen and LOCK IN.
+
+## 2.57.2 - 2026-10-27
+- Fixed: things put on the bed could drop through a dip in the duvet onto the floor underneath, out of sight and out of reach. They now land and sit on the duvet's real surface, and the sleeping cat is solid.
+- Safety net: anything that ends up under a floor, through a wall, inside furniture or deep under low furniture is moved somewhere you can reach.
+- Fixed: closing a magazine, book or close-up (Q or Esc) or pressing Q to return something could leave it floating in mid-air; it now goes back where it was, resting on what's there.
+- Fixed: plates looked grey on the floor (the glaze faced the wrong way).
+- The car boot is a real space you can put things in.
+- Watering can: F waters what you aim at, the prompt says what it'll water, the thirsty plant glows while you carry the can, and the can tips when pouring.
+- New test: tests/qa-play.mjs carries things to every surface and back, refreshes, reads and closes readers, and checks nothing is lost or floating.
+
+## 2.57.1 - 2026-10-27
+- Fixed: after the bigger car arrived, Dad's PC parts could stay where the old car's boot was (hidden behind the bumper), so the boot looked empty. Saves are now moved for the new car in one go when they load, and saves already caught by this are repaired.
+- Fixed: the prompt on Mom, Dad and your sister showed raw code ("Use mom <i><span>…") and two F actions; it now just says "Talk to Mom".
+
 ## 2.57.0 - 2026-10-27
 - Physics everywhere in the house (docs/PHYSICS.md): every prop is a physics body with real heights. Walk into things and they get shoved (light ones slide and wobble, heavy ones give way slowly and slow you down); dropped things fall, bounce a little, land, stack and settle with no jitter. Furniture has real parts: the desk chair's seat slides under the desk top, flat things fit under the bed, a box doesn't. Small light things (shopping, the bin, a dropped jumper) are kicked aside and never stop you. Nothing can trap you: anything you end up inside lets you walk straight out. Hung decorations stay put when bumped.
 - The desk chair: starts tucked under the desk (out of your way); push it, or press E to take hold and slide it, and it tucks in as far as its back allows. The seat and back swivel; seated, they turn with your view. F on a tucked chair rolls it out and sits you down. The beanbag is dragged the same way (heavy).

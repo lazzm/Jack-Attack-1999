@@ -80,7 +80,8 @@ const {browser, page:p, errors, until, view} = await roomFixture(base, {account,
 const shot = name => p.screenshot({path:shots + name + '.png'});
 async function wait(page, fn, arg, timeout=30000) {
   const end=Date.now()+timeout*SCALE;
-  while(Date.now()<end){if(await page.evaluate(fn,arg))return;await page.waitForTimeout(150)}
+  // (a first visit on another device may reload once while JackNet brings the account's newer profile down: js/roam.js)
+  while(Date.now()<end){try{if(await page.evaluate(fn,arg))return}catch(e){if(!/context was destroyed|navigation|Cannot find context/i.test(e.message))throw e}await page.waitForTimeout(150)}
   throw Error('State timeout: '+String(fn));
 }
 async function aim(eye, target, level='U') { await view(eye, target, {level}); await p.evaluate(() => {House.hush(); House._.setMode('walk'); HousePause.close()}); }
@@ -253,8 +254,10 @@ try {
   const mp = await mobile.newPage(); mp.on('pageerror',e=>errors.push(e.message));
   const kept = () => [JSON.parse(localStorage.getItem('jhp_hs_stand')||'null')?.p||null, localStorage.getItem('jhp_off')];
   await mp.goto(base,{waitUntil:'domcontentloaded'});
-  const mobileHouse = await mp.evaluate(kept);
   await wait(mp,() => window.AccountGate?.allowed&&window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!!window.st?.getState()&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
+  // The phone may have reloaded once to bring the desktop's latest profile down; from here on nothing may change it.
+  await mp.waitForTimeout(1500); await wait(mp,() => window.House?.live&&!document.querySelector('.hs-loading,#houseEntry'),null,60000);
+  const mobileHouse = await mp.evaluate(kept);
   assert.equal(await mp.evaluate(() => st.getState().ch), 2);
   await mp.evaluate(() => { if (!window.Magazines?.reading) House.interact('st.diary'); }); await wait(mp,() => window.Magazines?.reading?.id==='st.diary',null,30000);
   await mp.waitForTimeout(800); await mp.screenshot({path:shots+'12-mobile-diary.png'});

@@ -122,6 +122,16 @@ Exterior/grass/door checks (disposable localhost data only):
 
 Review `shots/exterior/` captures from `tests/`: front/back/town, day/night, high-quality views, mowing and saved progress.
 
+The family house's outside shell must be watertight from everywhere (the rooms inside are hidden while you are outside):
+
+    node exterior-shell.mjs http://localhost:18080 [--profiles=desktop,phone] [--tier=low] [--eye=140]
+
+From 18 spots (both sides of the front garden and the car, the gateway, the pavement, the road both ways, the back
+garden) it looks at the house left/centre/right and up at the eaves, renders with the neighbourhood and interiors
+hidden and a magenta sky, and fails if any sample whose ray enters the house's walls or roof prism shows magenta
+(glass is skipped). Failing views go to `shots/exterior-shell/<profile>-<view>.png` with the holes ringed, plus one
+normal capture per profile beside Dad's car. About 10 minutes per profile on software WebGL.
+
 Camera/transition polish (starts its own throwaway server unless given a localhost URL):
 
     node transitions.mjs [http://localhost:PORT] [--tag=after] [--only=gb-desk,pc-sit-stand]
@@ -138,6 +148,18 @@ Unified object interaction/seating (disposable localhost data only):
     node prop-interaction-models.mjs http://localhost:18080
 
 Checks F/I entry, real controls, keyboard rotation/zoom, seated reading/pet/phone/held Game Lad, return/refresh, and prop model views.
+
+Console games' own UI on the telly (starts and stops its own server, or pass a localhost URL; `--only=dc.taxi,n64.kart`):
+
+    node games-ui.mjs
+
+Boots every cartridge in the catalogue in turn (RoomTV.test), frames its physical screen (bedroom telly, Game Lad LCD,
+cupboard set; the Super Ultra's 2D telly view when it has no screen hook) and renders the real room twice in one task,
+once as-is and once with the HUD texture swapped for a blank one: the HUD must change the glass, and the compiled shader
+must be bound to this game's HUD. Then LOCK IN: both canvases shown, uncovered, the HUD canvas the game draws, native
+aspect. The console is switched off and the dark screen drawn between games, as when a player swaps discs (this caught
+three.js reusing a stale uniform list: every game after the first lost its in-room HUD). No browser errors allowed.
+Review `shots/games-ui/<game>-room.jpg` and `-lock.jpg`.
 
 Room interface regression (disposable localhost data only):
 

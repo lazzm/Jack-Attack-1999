@@ -120,11 +120,15 @@
     const blockers = [...Object.values(H.ROOMS).filter(r => r.group.visible).map(r => r.group), ...Object.values(H.DOORS).map(d => d.pivot).filter(g => g?.visible)];
     nearest.blocked = ray.intersectObjects(blockers,true).some(hit => {
       if (hit.distance >= nearest.dist - 8 || hit.object.userData.contactShadow || hit.object.userData.questRim || [].concat(hit.object.material || []).every(m => !m.visible || m.transparent && m.opacity < .2)) return false;
-      for (let o=hit.object;o;o=o.parent) { if (!o.visible || o === nearest.obj) return false; }
+      const carried = H.THINGS[H.held?.()]?.obj; // (what's in your hands never hides the place it goes)
+      for (let o=hit.object;o;o=o.parent) { if (!o.visible || o === nearest.obj || o === carried) return false; }
       return true;
     });
     sampled = nearest; nextSample = now + 200;
   }
+  // how much of the bottom of the screen the carry panel takes (read at most every quarter second)
+  let carryAt=-1e9,carryPx=0;
+  function carryTop(now,h){if(now-carryAt>250||now<carryAt){carryAt=now;const el=document.querySelector('.hs-ui .hs-hold:not([hidden])'),r=el&&el.getBoundingClientRect();carryPx=r&&r.height?Math.max(0,h-r.top+26):0;}return carryPx;}
   function keepClear(px, py, w, h) {
     // Keep ink away from the reticle and from the header, speech and carry controls.
     const dx=px-w/2, dy=py-h/2, ex=Math.min(180,w*.22), ey=Math.min(110,h*.15);
@@ -154,9 +158,12 @@
     if(sampled && full && !speech && !chapterInk) {
       const {pos,dist}=sampled, cam=pos.clone().applyMatrix4(H.camera.matrixWorldInverse), ndc=pos.clone().project(H.camera), behind=cam.z>=0;
       const w=viewW,h=viewH; // (cached on resize: reading any viewport size here forced a style/layout flush every frame)
-      const marginX=w<600?78:128, top=h<500?128:w<=900?192:142,bottom=window.GameInput?.touch&&h>=500?285:h<500?108:175; // (touch: clear of the thumb controls)
+      const marginX=w<600?78:128, top=h<500?128:w<=900?192:142,bottom=Math.max(window.GameInput?.touch&&h>=500?285:h<500?108:175,carryTop(now,h)); // (touch: clear of the thumb controls; and of the carry panel)
       let tx=(ndc.x+1)*w/2,ty=(1-ndc.y)*h/2;
       const off=behind||tx<marginX||tx>w-marginX||ty<top||ty>h-bottom;
+      // A label in the scene is only drawn when you can actually see its target: never over the telly or a wall that
+      // hides it, and not for something far across the house. Off screen, the edge arrow still points the way.
+      if(!off&&(sampled.blocked||dist>900)){activeId=null;}else{
       const dx=cam.x,dy=-cam.y;
       let targetAngle=Math.atan2(dy,Math.abs(dx)<.001&&behind?1:dx);
       if(off){
@@ -175,6 +182,7 @@
       marker.style.setProperty('--quest-scale',String(clamp(1.05-dist/2400,.82,1)));
       arrow.style.transform='rotate('+angle+'rad)';label.textContent=sampled.label;
       if(!off&&!behind&&!sampled.blocked&&dist<170){prompt.hidden=false;prompt.textContent=sampled.action;}
+      }
     }
     if(titleUntil===-1)titleUntil=Date.now()+5000;
     card.hidden=speech||titleUntil<Date.now(); if(!card.hidden)card.textContent=titleText;

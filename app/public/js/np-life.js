@@ -130,7 +130,7 @@
     const clk = clock();
     c.rig = NR.create(c.id, { tier: window.HouseQ === 'low' || window.HouseQ === 'potato' ? window.HouseQ : 'std', outfit: outfitFor(c.id, clk) });
     c.rig.floor = (x, z) => NV.floor(c.lvl, x, z);
-    H.spot('np.' + c.id, { label: () => label(c) + ' <i><span><kbd>F</kbd> Talk</span></i>', obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
+    H.spot('np.' + c.id, { label: () => 'Talk to ' + label(c), obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
   }
   function outfitFor(id, clk) {
     if (id !== 'dad') return null;
