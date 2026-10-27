@@ -81,7 +81,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     wrap: () => grp(G => { [['#d01a6a', -4, 0, 10], ['#ffd400', 3, 3, -30], ['#2a9a4a', 1, -4, 60]].forEach(([c, x, z, ry]) => { const m = mat(c, { sh: 90, sp: '#fff' }); G.ball(x, -0.8, z, 2.2, 0.8, 1.2, m, 8, { ry }); G.lathe(x + Math.cos(ry * D2R) * 2.6, -0.8, z - Math.sin(ry * D2R) * 2.6, [[0.2, -0.8], [1.2, 0.8]], 6, m, { rz: 90, ry }); }); G.shadow(0, 0, 0, 14, 12, 0.35); }),
     core: () => grp(G => { G.lathe(0, -3.5, 0, [[0.6, -4], [2.4, -3.2], [1.2, -1.5], [1.1, 0], [1.3, 1.5], [2.6, 3.2], [0.6, 4]], 12, mat('#f0e0a8'), { rz: 90 }); G.ball(-3.6, -3.5, 0, 0.9, 2.4, 2.4, mat('#a02a1a'), 8); G.ball(3.6, -3.5, 0, 0.9, 2.3, 2.3, mat('#a02a1a'), 8); G.cyl(5.4, -3.6, 0, 0.2, 0.2, 2.2, 5, mat('#5a3a1a'), { rz: 80 }); G.shadow(0, 0, 0, 12, 7, 0.4); }),
     paper: () => grp((G, g) => { const geo = new T.IcosahedronGeometry(4, 1), p = geo.attributes.position, r = rnd(31); for (let i = 0; i < p.count; i++) { const k = 0.75 + r() * 0.4; p.setXYZ(i, p.getX(i) * k, p.getY(i) * k, p.getZ(i) * k); } geo.computeVertexNormals(); geo.computeBoundingBox(); G.geo(geo, 0, -geo.boundingBox.max.y, 0, M({ c: '#f4f2ea', flat: true, sh: 4 })); G.shadow(0, 0, 0, 10, 10, 0.45); }),
-    plate: () => grp(G => { G.lathe(0, 0, 0, [[12, -1.6], [10.5, -1.3], [7, -0.4], [0.1, -0.4]], 28, mat('#f6f4ee', { sh: 60, sp: '#888' })); G.lathe(0, 0, 0, [[0.1, 0], [7, 0], [12, -1.6]], 28, mat('#e8e4da')); [[3, 2, 20], [-2, 4, -40], [1, -3, 70]].forEach(([x, z, ry]) => G.rbox(x, -1.4, z, 6, 1.2, 1.6, 0.4, mat('#a86a30'), { ry })); for (let i = 0; i < 9; i++) G.box(((i * 37) % 11) - 5, -0.6, ((i * 23) % 9) - 4, 0.6, 0.4, 0.6, mat('#c89050')); G.shadow(0, 0, 0, 26, 26, 0.45); }),
+    plate: () => grp(G => { G.lathe(0, 0, 0, [[0.1, -0.4], [7, -0.4], [10.5, -1.3], [12, -1.6]], 28, mat('#f6f4ee', { sh: 60, sp: '#888' })); G.lathe(0, 0, 0, [[12, -1.6], [7, 0], [0.1, 0]], 28, mat('#e8e4da')); /* the glaze faces up and the foot down, so the contact shadow stays under it */ [[3, 2, 20], [-2, 4, -40], [1, -3, 70]].forEach(([x, z, ry]) => G.rbox(x, -1.4, z, 6, 1.2, 1.6, 0.4, mat('#a86a30'), { ry })); for (let i = 0; i < 9; i++) G.box(((i * 37) % 11) - 5, -0.6, ((i * 23) % 9) - 4, 0.6, 0.4, 0.6, mat('#c89050')); G.shadow(0, 0, 0, 26, 26, 0.45); }),
     mug: () => grp(G => { G.cyl(0, -5, 0, 4.2, 4, 10, 18, { s: mat('#2a5ad0', { sh: 60, sp: '#888' }), t: mat('#6a4020'), u: mat('#2a5ad0') }, { open: false }); G.geo(new T.TorusGeometry(2.6, 0.7, 6, 12), 4.6, -5, 0, mat('#2a5ad0', { sh: 60 })); G.cyl(0, -9.6, 0, 3.6, 3.6, 0.3, 16, mat('#7a5030', { sh: 40 })); G.box(0, -6, 4.15, 4, 1, 0.1, mat('#fff')); G.shadow(0, 0, 0, 12, 12, 0.5); }),
     bowl: () => grp(G => { G.lathe(0, 0, 0, [[7.5, -5], [7, -2.5], [4, 0], [0.1, 0]], 22, mat('#f2ece0', { sh: 50, sp: '#666', side: 2 })); G.disc(0, -1.6, 0, 5.4, mat('#f8f4e8')); for (let i = 0; i < 6; i++) G.box(Math.cos(i) * 3, -1.9, Math.sin(i * 1.7) * 3, 1.6, 0.4, 1.3, mat('#e8a830'), { ry: i * 40 }); G.cyl(4, -6, 1, 0.4, 0.4, 9, 6, mat('#c8c8cc', { sh: 90 }), { rz: 70 }); G.shadow(0, 0, 0, 18, 18, 0.5); }),
     cd1: () => grp(G => { G.cyl(0, -0.1, 0, 6, 6, 0.2, 32, { s: mat('#ccc'), t: M({ c: '#fff', map: cdTex(), sh: 120, sp: '#fff' }), u: mat('#d8dce8', { sh: 120, sp: '#fff' }) }); G.shadow(0, 0, 0, 14, 14, 0.35); }),
@@ -176,7 +176,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       const y2 = base + (neat - base) * b + wr * (1 - duvK.t) * (1 - 0.5 * b) - duvK.lift * Math.sin(u * Math.PI) * Math.sin(v * Math.PI);
       p.setZ(i,-y2+(duv.geometry.attributes.clothDepth?.getX(i)||0));
     }
-    p.needsUpdate=true;duv.geometry.computeVertexNormals();duv.geometry.computeBoundingSphere();H.dirty();
+    p.needsUpdate=true;duv.geometry.computeVertexNormals();duv.geometry.computeBoundingSphere();duv.geometry.boundingBox=null;H.softChanged?.('bedroom');H.dirty();
   }
   function pull(which) {
     const key = { pullL: 's', pullR: 'f', smooth: 't' }[which], t0 = performance.now(), ms = 700;
@@ -194,7 +194,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       duvBase = new Float32Array(geo.attributes.position.count * 2);
       for (let i = 0; i < geo.attributes.position.count; i++) { duvBase[i * 2] = geo.attributes.position.getX(i); duvBase[i * 2 + 1] = geo.attributes.position.getY(i); }
       const g = new T.Group(); r.group.add(g);
-      duv = K.into(g).geo(geo, bcx, 36, bcz + 14, M({ c: '#fff', map: dtex, side: 2 }).clone(), { rx: 90 }); duv.userData.ch = 1;
+      duv = K.into(g).geo(geo, bcx, 36, bcz + 14, M({ c: '#fff', map: dtex, side: 2 }).clone(), { rx: 90 }); duv.userData.ch = 1; for (const s of H.softs || []) if (s.room === 'bedroom') s.meshes.push(duv);
       // The bed's only pillow starts on the floor, beside the pyjamas.
       const pil = grp(G => { G.rbox(0, -5, 0, 50, 10, 30, 4.8, M({ c: '#fff', map: A.t('pillow'), sh: 8 })); G.ball(0, -7, 0, 22, 4, 12, M({ c: '#fff', map: A.t('pillow'), sh: 8 }), 14); G.shadow(0, 0, 0, 56, 34, 0.5, { sq: true }); });
       pillowT = CK.thing('ch.pillow', { obj: pil, kind: 'pillow', label: 'Pillow (on the floor, obviously)', chore: 'bed', holdD: 70, home: { room: 'bedroom', x: 40, y: FY, z: 72, ry: 80 } });
@@ -423,6 +423,11 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
         G.shadow(0,0,0,31,13,.45);
       });
       canT = CK.thing('ch.can', { obj: can, kind: 'can', label: 'Watering can (full)', chore: 'plant', holdD: 48, home: { room: 'bedroom', x: 128, y: FY, z: 22, ry: 200 }, useLabel: 'Pour', use: () => pour() });
+      // the carry prompt says what F will do right now: water the plant when you aim at it, otherwise where to aim
+      if (canT) Object.defineProperty(canT, 'useLabel', { configurable: true, get: () => CK.has('plant', 'water') || H.held() !== 'ch.can' ? 'Pour' : nearPot(canAim()) ? "Water Gran's plant" : 'Pour (aim at the plant)' });
+      // while you carry the can and the plant is thirsty, the plant itself glows softly (its own leaves and pot, not a box)
+      const glowing = []; plant.traverse(o => { if (o.isMesh && o.material && o.material.emissive && !o.userData.contactShadow) { o.material = o.material.clone(); o.userData.e0 = o.material.emissive.clone(); glowing.push(o); } });
+      let lit = false; H.ambient.add(() => { const want = H.held() === 'ch.can' && !CK.has('plant', 'water'); if (!want && !lit) return; lit = want; const k = want ? 0.1 + 0.07 * Math.sin(performance.now() / 260) : 0; for (const o of glowing) o.material.emissive.setRGB(o.userData.e0.r + k * 0.6, o.userData.e0.g + k, o.userData.e0.b + k * 0.35); H.dirty(); });
       this.sticky = CK.sticky(r, 'plant', POT.x, POT.y - 5, POT.z + 7.4, { text: 'Water me! x the plant', size: 7, ry: 0, sign: false });
       this.sync();
     },
@@ -451,11 +456,22 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     CK.snd.rustle();
     CK.tween(plant, { ry: Math.PI }, 900).then(() => { turning = false; CK.step('plant', 'turn'); CK.jack("Gran's spider plant", 'Turned round, so the other side gets the light from the window. Plants. Who knew.', 3500); });
   }
+  // where the crosshair is (the can itself doesn't count): you water what you aim at, not what the can happens to be over
+  let aimAt = null, aimT = 0;
+  function canAim(fresh) {
+    const now = performance.now(); if (!fresh && now - aimT < 150) return aimAt; aimT = now;
+    const h = H.mode === 'walk' || H.mode === 'focus' ? H.pick(innerWidth / 2, innerHeight / 2, { far: 260, skip: m => { for (let o = m; o; o = o.parent) if (o === canT.obj || o.userData.noPick) return true; return false; } }) : null;
+    return aimAt = h ? h.p : null;
+  }
+  const nearPot = q => !!q && Math.hypot(q.x - POT.x, q.z - POT.z) < 40 && Math.abs(q.y - (POT.y - 10)) < 45;
+  const nearCactus = q => !!q && Math.hypot(q.x - 216, q.z + 53) < 25;
   function pour() {
-    if (pouring) return; const p = canT.obj.position, d = Math.hypot(p.x - POT.x, p.z - POT.z), r = H.ROOMS.bedroom;
-    const cactus = Math.hypot(p.x - 216, p.z + 53) < 45;
+    if (pouring) return; const p = canT.obj.position, aim = canAim(true), r = H.ROOMS.bedroom;
+    const d = nearPot(aim) ? 0 : Math.hypot(p.x - POT.x, p.z - POT.z), cactus = !d ? false : nearCactus(aim) || Math.hypot(p.x - 216, p.z + 53) < 45;
     CK.snd.pour(1.4); pouring = true; setTimeout(() => { pouring = false; }, 1500);
-    const to = d < 50 ? [POT.x, POT.y - 10.5, POT.z] : cactus ? [216, -16, -53] : [p.x + 8, FY - 0.3, p.z];
+    // tip it up in your hand while it pours (and back level after)
+    const t0 = performance.now(); H.anims.set('ch.can.tilt', now => { const k = Math.min(1, (now - t0) / 1500); canT.holdRoll = 38 * Math.sin(Math.min(1, k * 4) * Math.PI / 2) * (k > 0.8 ? (1 - k) / 0.2 : 1); H.dirty(); if (k < 1) return true; canT.holdRoll = 0; return false; });
+    const to = d < 50 ? [POT.x, POT.y - 10.5, POT.z] : cactus ? [216, -16, -53] : aim ? [aim.x, aim.y - 0.3, aim.z] : [p.x + 8, FY - 0.3, p.z];
     const tip = () => { const v = new T.Vector3(17.85, -16.37, 0); canT.obj.localToWorld(v); return [v.x, -v.y, v.z]; };
     let n = 0; const iv = setInterval(() => { CK.fx.stream(r, tip(), to); if (++n > 14) clearInterval(iv); }, 90);
     if (d < 50) {

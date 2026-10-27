@@ -315,7 +315,7 @@
     if (!t) return null;
     t.noSave = true; MINE[id] = t;
     const a = S.at[id];
-    if (a && H.ROOMS[a[0]]) { t.at = { room: a[0], x: a[1], y: a[2], z: a[3], ry: a[4], hide: !!a[5] }; t.st = 'rest'; const rr = H.ROOMS[a[0]]; if (t.obj.parent !== rr.things) rr.things.add(t.obj); H.place(t); H.layerFor(t); }
+    if (a && H.ROOMS[a[0]]) { t.at = { room: a[0], x: a[1], y: a[2], z: a[3], ry: a[4], hide: !!a[5] }; t.st = 'rest'; const rr = H.ROOMS[a[0]]; if (t.obj.parent !== rr.things) rr.things.add(t.obj); H.place(t); H.layerFor(t); H.rescue?.(t); }
     return t;
   }
   function keep(id) { const t = MINE[id]; if (!t) return; const a = t.at; S.at[id] = [a.room, +a.x.toFixed(1), +a.y.toFixed(1), +a.z.toFixed(1), Math.round(a.ry || 0), a.hide ? 1 : 0]; save(); }

@@ -675,7 +675,30 @@
   }
   const renderY=(t,y)=>K.restY(y)-(t.bottomOffset||0);
   const restOf=(t,objY)=>objY+K.SURFACE_LIFT+(t.bottomOffset||0); // the inverse of renderY
-  function place(t) { const a = t.at; t.obj.position.set(a.x, renderY(t,a.y), a.z); t.obj.rotation.set((t.rx || 0) * D2R, (a.ry || 0) * D2R, (t.rz || 0) * D2R, 'YXZ'); if (t.swivel) t.swivel.rotation.y = (a.sw || 0) * D2R; t.obj.visible = !a.hide; syncBody(t); dirty(); }
+  // Soft tops (the duvet): the collider is a flat slab, the cloth is rumpled. A thing resting on the slab is drawn on the
+  // cloth's real surface under its footprint (its highest point), so it never sinks out of sight or hovers over a dip.
+  const SOFT = [], SOFT_PTS = [[0, 0], [-1, -1], [1, -1], [-1, 1], [1, 1], [0, -1], [0, 1], [-1, 0], [1, 0]], softRay = new T.Raycaster(), _sd = new T.Vector3(0, -1, 0), _so = new T.Vector3();
+  function soft(rid, x0, z0, x1, z1, y, o) { const s = Object.assign({ room: rid, x0, z0, x1, z1, y, meshes: [], base: y }, o || {}); SOFT.push(s); return s; }
+  function softSurface(s, x, z) {
+    if (s.find && !s.found) { const f = s.find(); if (f.length) { s.found = true; s.meshes.push(...f); } }
+    const list = s.meshes.filter(m => { for (let o = m; o; o = o.parent) if (!o.visible) return false; return true; });
+    _so.set(x, -(s.y - 60), z); softRay.set(_so, _sd); softRay.far = 120;
+    const h = list.length ? softRay.intersectObjects(list, false)[0] : null;
+    return h ? -h.point.y : s.base;
+  }
+  function softY(t, a) {
+    if (!SOFT.length || !a || a.hide) return a.y;
+    for (const s of SOFT) {
+      if (s.room !== a.room || Math.abs(a.y - s.y) > 0.6 || a.x < s.x0 || a.x > s.x1 || a.z < s.z0 || a.z > s.z1) continue;
+      const m = t.local || { cx: 0, cz: 0, hx: t.hx, hz: t.hz }, r = (a.ry || 0) * D2R, c = Math.cos(r), sn = Math.sin(r);
+      let top = Infinity;
+      for (const [u, v] of SOFT_PTS) { const lx = m.cx + u * m.hx * 0.8, lz = m.cz + v * m.hz * 0.8; top = Math.min(top, softSurface(s, a.x + lx * c + lz * sn, a.z - lx * sn + lz * c)); }
+      return Number.isFinite(top) ? top : a.y;
+    }
+    return a.y;
+  }
+  function softChanged(rid) { for (const id in THINGS) { const t = THINGS[id]; if (t.at.room === rid && t.st === 'rest' && !t.at.hide && t.obj) t.obj.position.y = renderY(t, softY(t, t.at)); } dirty(); }
+  function place(t) { const a = t.at; t.obj.position.set(a.x, renderY(t,softY(t,a)), a.z); t.obj.rotation.set((t.rx || 0) * D2R, (a.ry || 0) * D2R, (t.rz || 0) * D2R, 'YXZ'); if (t.swivel) t.swivel.rotation.y = (a.sw || 0) * D2R; t.obj.visible = !a.hide; syncBody(t); dirty(); }
 
   // ---------------------------------------------------------------- bodies: a thing resting in the world is a physics body
   const lvlOf = t => (ROOMS[t.at.room] || ROOMS[t.home && t.home.room] || { lvl: 'U' }).lvl;
@@ -722,7 +745,7 @@
       const yaw = b.ry * D2R, lx = b.tx * Math.cos(yaw) - b.tz * Math.sin(yaw), lz = b.tx * Math.sin(yaw) + b.tz * Math.cos(yaw);
       rz += lx * D2R; rx -= lz * D2R; lift = Math.sin(Math.hypot(b.tx, b.tz) * D2R) * Math.min(b.rad, 30);
     }
-    t.obj.position.set(b.x, renderY(t, b.y) - lift, b.z); t.obj.rotation.set(rx, b.ry * D2R, rz, 'YXZ');
+    t.obj.position.set(b.x, renderY(t, b.grounded === false && PH.awake.has(b) ? b.y : softY(t, a)) - lift, b.z); t.obj.rotation.set(rx, b.ry * D2R, rz, 'YXZ');
     const air = !b.grounded && PH.awake.has(b);
     if (t.airborne !== air) { t.airborne = air; t.obj.traverse(o => { if (o.userData.contactShadow) o.visible = !air && (t.st === 'rest' || t.st === 'snap'); }); }
     dirty();
@@ -734,7 +757,7 @@
     PH.onSleep = b => {
       const t = b.user; if (!t) return; renderBody(t);
       if (t.st !== 'rest') return;
-      layerFor(t); saveThings(); emit('rest', t.id);
+      layerFor(t); saveThings(); emit('rest', t.id); rescueQ.add(t);
     };
     PH.onImpact = (b, v) => {
       const t = b.user, now = performance.now(); if (!t || now - (lastBump.get(t.id) || 0) < 140) return; lastBump.set(t.id, now);
@@ -897,7 +920,7 @@
     if (!g) { if (ghostGroup) ghostGroup.visible = false; floorGlow(null); return; }
     const mesh = ghostMesh(t);
     ghostMat.color.set(g.snap ? '#ffd84a' : g.ok ? '#8fdc6a' : '#e2553f'); ghostMat.opacity = g.ok ? 0.34 : 0.3;
-    mesh.position.set(g.x, renderY(t, g.y), g.z); mesh.rotation.set((g.rx || 0) * D2R, (g.ry || 0) * D2R, (g.rz || 0) * D2R, 'YXZ');
+    mesh.position.set(g.x, renderY(t, g.snap ? g.y : softY(t, { room: g.room, x: g.x, y: g.y, z: g.z, ry: g.ry })), g.z); mesh.rotation.set((g.rx || 0) * D2R, (g.ry || 0) * D2R, (g.rz || 0) * D2R, 'YXZ');
     mesh.visible = true;
     floorGlow(g.snap ? null : g, t);
     dirty();
@@ -919,7 +942,9 @@
     const ry = -P.ry + held.ry + (t.faceYou ? 180 : 0), R = Math.hypot(m.hx, m.hz);
     const hit = sx == null && sy == null ? carryPick() : pick(sx, sy, { skip: isHeldMesh, far: REACH });
     let x, z, fromY;
-    if (hit && hit.n && hit.n.y > 0.6) { x = hit.p.x; z = hit.p.z; fromY = hit.p.y - 0.6; }
+    if (hit && hit.n && hit.n.y > 0.6) { x = hit.p.x; z = hit.p.z; fromY = hit.p.y - 0.6;
+      // aimed at a soft top (the duvet sags below the bed's slab in places): it goes on the bed, never through it and under
+      const sf = SOFT.find(q => q.room === (cur && cur.id) && x >= q.x0 && x <= q.x1 && z >= q.z0 && z <= q.z1 && Math.abs(hit.p.y - q.y) < 12); if (sf) fromY = Math.min(fromY, sf.y - 0.6); }
     else { // a wall, or nothing within reach: lower it from your hands, kept clear of the wall you're facing
       const hp = t.obj.position; x = hp.x; z = hp.z; fromY = restOf(t, hp.y);
       if (hit) { const back = Math.max(0, R + 2 - Math.hypot(hit.p.x - x, hit.p.z - z)); x -= f.x * back; z -= f.z * back; }
@@ -998,18 +1023,18 @@
     releaseHold();
     const p0 = { x: t.obj.position.x, y: t.obj.position.y, z: t.obj.position.z, ry: t.obj.rotation.y / D2R, rx: t.obj.rotation.x / D2R, rz: t.obj.rotation.z / D2R };
     const room = g.room || (cur && cur.id); if (ROOMS[room]) moveTo(t, room);
-    t.st = 'anim'; const t0 = performance.now(), dur = ms == null ? 230 : ms;
+    t.st = 'anim'; const t0 = performance.now(), dur = ms == null ? 230 : ms, gy = renderY(t, softY(t, { room, x: g.x, y: g.y, z: g.z, ry: g.ry }));
     emit('place', t.id);
     anims.set('set:' + t.id, n => {
       const k = dur ? ease(Math.min(1, (n - t0) / dur)) : 1;
-      t.obj.position.set(lerp(p0.x, g.x, k), lerp(p0.y, renderY(t, g.y), k), lerp(p0.z, g.z, k));
+      t.obj.position.set(lerp(p0.x, g.x, k), lerp(p0.y, gy, k), lerp(p0.z, g.z, k));
       t.obj.rotation.set(lerp(p0.rx, g.rx || 0, k) * D2R, (p0.ry + angd(p0.ry, g.ry) * k) * D2R, lerp(p0.rz, g.rz || 0, k) * D2R, 'YXZ');
       if (k < 1) return true;
       t.st = 'rest'; t.at = { room, x: g.x, y: g.y, z: g.z, ry: g.ry, sw: t.at.sw || 0 }; t.rx = g.rx || 0; t.rz = g.rz || 0;
       place(t); layerFor(t);
       const b = t.body; if (b && PH.overlapping(b)) PH.wake(b); // somebody moved into the spot meanwhile: let physics sort it out
       physicalSound('handle', { weight: thingWeight(t), put: true });
-      saveThings(); emit('rest', t.id);
+      saveThings(); emit('rest', t.id); rescueQ.add(t);
       return false;
     });
     return true;
@@ -1058,6 +1083,11 @@
     releaseHold();
     if (was && SNAPS[was]) {const s=SNAPS[was];if(!s.accepts||s.accepts(t.kind,t)){t.at=f;return snapIn(t,s);}}
     const back = { room: f.room, x: f.x, y: f.y, z: f.z, ry: f.ry || 0, rx: t.rx || 0, rz: t.rz || 0 };
+    // never back into thin air: if what it stood on has gone (or it was caught mid-fall), it lands on what's there now
+    // (a thing that lives in mid-air, like a decoration hung up at home, keeps its authored pose)
+    if (!drag && ROOMS[f.room] && !(t.home && f.room === t.home.room && Math.hypot(f.x - t.home.x, f.y - t.home.y, f.z - t.home.z) < 1) && physReady()) {
+      const b = bodyFor(t); if (b) { const rest = PH.findRest(b, ROOMS[f.room].lvl, f.x, f.z, f.ry || 0, f.y - 0.5, t.id, b.sw); if (rest.y > f.y + 0.5) back.y = rest.y; }
+    }
     if (drag) { t.st = 'rest'; bodyState(t); }
     setDown(t, back, drag ? 420 : 300);
     // (if something now stands where it was, physics nudges it clear when it lands: see setDown)
@@ -1147,7 +1177,7 @@
     let any = false;
     const now = performance.now();
     // a job, the story or Mom took it out of your hands: let the grip go quietly
-    if (held && (!THINGS[held.id] || THINGS[held.id].st !== 'held')) { const t = THINGS[held.id]; releaseHold(); if (t && t.body) bodyState(t); }
+    if (held && (!THINGS[held.id] || !['held', 'settle'].includes(THINGS[held.id].st))) { const t = THINGS[held.id]; releaseHold(); if (t && t.body) bodyState(t); }
     if (!held) { snapGlow(null); if (floorHi) floorHi.visible = false; if (ghostGroup) ghostGroup.visible = false; showTargets(null); }
     if (held) {
       const t = THINGS[held.id], live = !controlsPaused && (mode === 'walk' || mode === 'glide' || mode === 'focus' && focusS?.o.seatId) && !inspection;
@@ -1159,7 +1189,7 @@
         // the hand's motion (smoothed; a camera jump is not a throw): X lets go with a little of it
         if (dt > 0) { const jump = Math.hypot(o.x - px, o.y - py, o.z - pz) > 40, s = Math.min(1, dt * 12); if (jump) held.hv.x = held.hv.y = held.hv.z = 0; else { held.hv.x += ((o.x - px) / dt - held.hv.x) * s; held.hv.y += ((o.y - py) / dt - held.hv.y) * s; held.hv.z += ((o.z - pz) / dt - held.hv.z) * s; } }
         const want = P.ry * -1 + held.ry + (t.faceYou ? 180 : 0), r0 = t.obj.rotation.y / D2R;
-        t.obj.rotation.set(Math.sin(now / 700) * 0.04, (r0 + angd(r0, want) * k) * D2R, Math.sin(now / 900) * 0.03, 'YXZ');
+        t.obj.rotation.set(Math.sin(now / 700) * 0.04, (r0 + angd(r0, want) * k) * D2R, Math.sin(now / 900) * 0.03 + (t.holdRoll || 0) * D2R, 'YXZ'); // (holdRoll: a pack tilting it in your hand, e.g. pouring)
         // Translation trails the view. Keep that intermediate path below the
         // eye too, until the whole item has cleared the near rectangle.
         if(Math.hypot(o.x-P.x,o.z-P.z)<Math.hypot(t.hx,t.hz)+camera.near+2&&o.y-t.h<P.y+4)o.y=P.y+t.h+6;
@@ -1280,6 +1310,47 @@
     }
     if (moved) saveThings();
   }
+  // The safety net: something left where nobody can see or reach it (sunk inside furniture, below the floor, through a
+  // wall) is noticed on load and after it is put down or settles, and goes somewhere reachable: nudged clear and onto its
+  // support if that's enough, else back where it lives. Authored poses (a thing still at its home) are never second-guessed.
+  const rescueQ = new Set();
+  const atHome = t => { const a = t.at, h = t.home; return !!h && a.room === h.room && Math.hypot(a.x - h.x, a.y - h.y, a.z - h.z) < 1; };
+  function lostWhy(t) {
+    const a = t.at; if (t.st !== 'rest' || a.hide || !t.obj || atHome(t)) return null;
+    const r = ROOMS[a.room]; if (!r) return 'room';
+    if (a.y > LV[r.lvl] + 0.5) return 'floor';
+    if (!Object.values(ROOMS).some(q => q.lvl === r.lvl && q.area.some(ar => a.x >= ar[0] - 15 && a.x <= ar[2] + 15 && a.z >= ar[1] - 15 && a.z <= ar[3] + 15))) return 'wall';
+    const b = t.body; if (PH && b && b.active && !t.fixed && !held?.drag && PH.overlapping(b) === 'solid') return 'inside';
+    if (underOf(t)) return 'under';
+    return null;
+  }
+  // Pushed deep under something low (the bed's base, 10 cm up): out of sight and out of reach.
+  function underOf(t) {
+    const a = t.at, r = ROOMS[a.room]; if (!r || !PH || dragged(t) || t.obstacle || t.h > 15) return null;
+    const top = a.y - t.h, L = PH.levels[r.lvl]; if (!L) return null;
+    for (const s of L.statics) {
+      if (s.bot > top + 0.5 || s.bot < top - 25) continue; // its underside is just above the thing
+      if (s.t !== 'box' || a.x < s.ax0 + 20 || a.x > s.ax1 - 20 || a.z < s.az0 + 20 || a.z > s.az1 - 20) continue; // and deep inside its plan
+      return s;
+    }
+    return null;
+  }
+  function rescue(t) {
+    const why = lostWhy(t); if (!why) return false;
+    if (why === 'inside' && t.body) { PH.settle(t.body, 45); renderBody(t); if (!lostWhy(t)) { syncBody(t); saveThings(); emit('rest', t.id); return why; } }
+    if (why === 'under') { // slide it out past the nearest edge, onto the floor in front of it
+      const s = underOf(t), a = t.at, m = Math.max(t.hx, t.hz) + 6, out = [[s.ax0 - m - a.x, 0], [s.ax1 + m - a.x, 0], [0, s.az0 - m - a.z], [0, s.az1 + m - a.z]].sort((u, v) => Math.hypot(...u) - Math.hypot(...v));
+      for (const [dx, dz] of out) { const r = roomAt(a.x + dx, a.z + dz, lvlOf(t)); if (!r || !cellOk(r.lvl, a.x + dx, a.z + dz)) continue; t.at = Object.assign({}, a, { room: r.id, x: a.x + dx, z: a.z + dz, y: LV[r.lvl] }); moveTo(t, r.id); place(t); layerFor(t); if (!lostWhy(t)) { saveThings(); emit('rest', t.id); return why; } }
+    }
+    const h = t.home; if (!h || !ROOMS[h.room]) return false;
+    t.at = Object.assign({}, h); t.snap = h.snap && SNAPS[h.snap] ? h.snap : null; t.st = t.snap ? 'snap' : 'rest';
+    moveTo(t, h.room); place(t); layerFor(t); saveThings(); emit('rest', t.id);
+    return why;
+  }
+  function rescueQueued() {
+    if (!rescueQ.size || !physReady()) return;
+    for (const t of rescueQ) { rescueQ.delete(t); if (THINGS[t.id] === t && !(held && held.id === t.id)) { const why = rescue(t); if (why) console.info('[house] ' + t.id + ' was out of reach (' + why + '): put back somewhere reachable'); } }
+  }
   function restoreThing(t) { // where this visitor left it last time
     const save = loadThings(), s = save.t[t.id]; if (!s) return;
     if (!ROOMS[s[0]]) { pendingRestores.set(t.id,t); return; }
@@ -1294,6 +1365,7 @@
     } else { t.st = 'rest'; if (save.pv0 < 3 && t.at.room === 'drive') migrateQ.add(t); }
     moveTo(t, t.at.room); place(t); layerFor(t);
     if (t.st === 'rest' && !t.at.hide && (save.pv0 ?? save.pv ?? 0) < PV) migrateQ.add(t);
+    rescueQ.add(t);
   }
   function tidy(rid) { // everything back where it lives (Mom tidied up)
     for (const id in THINGS) { const t = THINGS[id]; if (rid && t.home.room !== rid && t.at.room !== rid) continue; pendingRestores.delete(id); if (held && held.id === id) releaseHold(); t.st = t.home.snap ? 'snap' : 'rest'; t.snap = t.home.snap || null; t.at = Object.assign({}, t.home); moveTo(t, t.home.room); place(t); layerFor(t); }
@@ -1868,6 +1940,7 @@
   function inspect(id) {
     if (inspection || !(mode==='walk'||mode==='focus'&&focusS?.o.seatId) || worldLoading) return false;
     const t = THINGS[id]; if (!t || (held && held.id !== id)) return false;
+    const auto = !held; // looked at where it lies (not from your hands): closing puts it back there
     if (!held && !grab(id)) return false;
     const grip=held,seat=focusS?.o.seatId?focusS:null;held=null;t.st='inspect';unlock();
     for (const k in keys) keys[k] = false;
@@ -1881,7 +1954,7 @@
     const back = document.createElement('button'); back.type = 'button'; back.textContent='Back [Q]'; back.addEventListener('click', endInspect);
     panel.append(name, hint, back); ui.el.appendChild(panel);
     const ip = t.inspectPose || {};
-    inspection = {t, grip, seat, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null};
+    inspection = {t, grip, seat, auto, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null};
     if(t.onInspectUse){const use=document.createElement('button');use.type='button';use.textContent=(t.inspectUseLabel||'Use')+' [F]';use.dataset.inspectUse='';use.addEventListener('click',()=>{if(!controlsPaused)t.onInspectUse(t)});panel.insertBefore(use,back)}
     // the close-up eases in from where the thing was (no pop): same curve as the camera, short and quick
     { const ms=motionMs(MOTION.ms.inspect); if(ms){inspection.blend={t0:performance.now(),ms,p:t.obj.position.clone(),q:t.obj.quaternion.clone()};html.classList.add('hs-inspect-arriving');anims.set('inspect-blend',()=>{if(!inspection?.blend||mode!=='inspect'){if(inspection)inspection.blend=null;html.classList.remove('hs-inspect-arriving');return false}poseInspect();return !!inspection?.blend;});} }
@@ -1904,9 +1977,10 @@
     held=s.grip;s.t.st='held';setMode(s.seat?'focus':'walk');ui.holdBar(s.t);dirty();anims.delete('inspect-blend');html.classList.remove('hs-inspect-arriving');
     // back into the hand on an eased curve (the carry's own follow takes over once it is there)
     { const t=s.t,ms=motionMs(MOTION.ms.inspectEnd),p0=t.obj.position.clone(),q0=t.obj.quaternion.clone(),t0=performance.now(),qt=new T.Quaternion(),eu=new T.Euler(),v=new T.Vector3();
-      if(ms&&held&&!held.drag){t.st='settle';anims.set('inspect-return:'+t.id,n=>{if(t.st!=='settle'||!held||held.id!==t.id){if(t.st==='settle')t.st='held';return false}const k=clamp((n-t0)/ms,0,1),e=H5(k),hp=heldPos();t.obj.position.copy(p0).lerp(v.set(hp.x,hp.y,hp.z),e);qt.setFromEuler(eu.set(0,(-P.ry+held.ry+(t.faceYou?180:0))*D2R,0,'YXZ'));t.obj.quaternion.copy(q0).slerp(qt,e);if(k<1)return true;t.st='held';layerFor(t);return false;});} }
+      if(ms&&held&&!held.drag){t.st='settle';anims.set('inspect-return:'+t.id,n=>{if(t.st!=='settle'||!held||held.id!==t.id){if(t.st==='settle'){t.st='held';if(!held){held=s.grip;putBack();}}return false}const k=clamp((n-t0)/ms,0,1),e=H5(k),hp=heldPos();t.obj.position.copy(p0).lerp(v.set(hp.x,hp.y,hp.z),e);qt.setFromEuler(eu.set(0,(-P.ry+held.ry+(t.faceYou?180:0))*D2R,0,'YXZ'));t.obj.quaternion.copy(q0).slerp(qt,e);if(k<1)return true;t.st='held';layerFor(t);return false;});} }
     try { s.t.onInspectEnd?.(); } catch (e) { console.error(e); }
     emit('inspect-end',s.t.id);wantLock();
+    if (s.auto && held && held.id === s.t.id && !held.drag) { anims.delete('inspect-return:' + s.t.id); s.t.st = 'held'; putBack(); }
   }
   document.addEventListener('pointerdown', ev => {
     const s=inspection;if(!s||controlsPaused||ev.target.closest('button,input,select,textarea,a,summary'))return;
@@ -2143,7 +2217,7 @@
     }
     tickQueuedLock(now);
     for (const [k, fn] of anims) { let more = false; try { more = fn(now, dt); } catch (e) { console.error(e); } if (!more) anims.delete(k); moving = true; }
-    if (PH) { const t0 = performance.now(); migrateRestored(); if (tickPhysics(dt)) moving = true; physAcc += performance.now() - t0; physFrame = physAcc; physAcc = 0; physMs = physMs * 0.92 + physFrame * 0.08; }
+    if (PH) { const t0 = performance.now(); migrateRestored(); rescueQueued(); if (tickPhysics(dt)) moving = true; physAcc += performance.now() - t0; physFrame = physAcc; physAcc = 0; physMs = physMs * 0.92 + physFrame * 0.08; }
     if (tickThings(dt)) moving = true;
     if (hoverQ && frame % 3 === 0) { hoverQ = false; hover(); }
     frame++;
@@ -2798,8 +2872,8 @@
   window.House = {
     ok: true, FRONT, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
     focus, unfocus, surface, faceQuad, inspect, endInspect, get focused() { return !!focusS; },
-    room, buildRoom, door, setDoor, walkRect, block, solid, stairs, support, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
-    restoreThing, saveThings, saveWalkState, layerFor, frontFx, place,
+    room, buildRoom, door, setDoor, walkRect, block, solid, stairs, support, soft, softChanged, softs: SOFT, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
+    restoreThing, rescue: t => { if (t) rescueQ.add(t); }, lostWhy, saveThings, saveWalkState, layerFor, frontFx, place,
     grab, drop: (sx, sy) => drop(sx, sy, 'api'), placeHeld: (sx, sy) => drop(sx, sy, 'user'), letGo, setAside, putBack, interact, suspendGrip, restoreGrip, resumeLook:wantLock, get seated(){return focusS?.o.seatId||focusS?.parent?.o.seatId||null;}, held: () => held && held.id, get grip() { return held ? { id: held.id, drag: !!held.drag, d: held.d, ry: held.ry } : null; },
     placement:()=>held&&!held.drag?floorAim(THINGS[held.id]):null, ghost:()=>held&&!held.drag?computeGhost(THINGS[held.id],null,null,true):null, act: id => act(SPOTS[id]), useAt,
     // the physics world (js/hs-physics.js): bodies, stats, and a few queries the tests and packs use

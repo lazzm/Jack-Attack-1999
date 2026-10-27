@@ -957,6 +957,8 @@
     const duvet=B.geo(K.thicken(dg,.8),cx,36,cz+14,M({c:'#ffffff',map:tex('duvet')}),{rx:90});
     // The chore pillow is the bed's only pillow: it starts on the floor.
     pickBox(r, 'bed', cx, 43, cz + 10, bw, 14, bl - 10);H.spot('bed',{obj:duvet});
+    // things put on the bed lie on the rumpled duvet (or the mattress at the head end), never sunk into it
+    if (H.soft) H.soft('bedroom', x0, z0 - 1, x1, z1, 30, { base: 37, find: () => { const out = [], dt = tex('duvet'); r.group.traverse(o => { if (o.isMesh && o.material && o.material.map === dt) out.push(o); }); return out; } });
     H.block('U', x0 - 2, BZ, RX, z1 + 4, { solid: false });
     if (H.solid) { // things: the bed is a slab from the duvet to the base, on legs; flat things fit in the 10 cm underneath
       H.solid('U', x0, z0 - 1, x1, z1, 30, 63, { kind: 'bed' });
@@ -1006,6 +1008,8 @@
     CT.ball(-5, -1.6, 7, 3.4, 1.4, 2.2, wht, 10); CT.ball(-9, -1.4, 7.5, 2, 1.2, 1.8, wht, 8);
     CT.shadow(0, 0, 0, 34, 24, 0.55);
     H.spot('cat', { label: () => catName(), obj: cat });
+    // while it's curled up on the duvet the cat is solid: nothing can be put down under it (it used to swallow a plate)
+    if (H.solid) H.solid('U', 192, 59, 220, 85, 16, 30, { kind: 'cat', support: false, when: () => { for (let o = cat; o; o = o.parent) if (!o.visible) return false; return Math.hypot(cat.position.x - 206, cat.position.z - 72) < 3 && cat.position.y < 40; } });
     // a parcel on the bed (it comes after you've played five different games: a competition prize)
     const post = new T.Group(); post.position.set(170, 30, 100); post.rotation.y = 14 * D2R; r.group.add(post); R.post = post;
     const PO = K.into(post); PO.box(0, -5, 0, 24, 10, 18, M('#c8a070')); PO.plane(0, -10.05, 0, 14, 8, M({ c: '#fff', map: K.tex('rm.addr', 128, 72, (g) => { g.fillStyle = '#fff'; g.fillRect(0, 0, 128, 72); g.font='700 14px '+A.HAND;g.fillStyle='#222';g.fillText(Cast.t('{me.Mr} {me}'),10,28,108); A.text(g, 'MY ROOM', 10, 52, '13px ' + A.HAND, '#222'); g.fillStyle = '#c02020'; g.fillRect(100, 6, 20, 24); },{identity:true}) }), { rx: -90 });
