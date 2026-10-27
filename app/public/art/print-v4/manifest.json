@@ -1,0 +1,181 @@
+{
+  "method": "Built-in image_gen; original text-free illustrated bitmaps. All titles and personal lettering remain native game text.",
+  "artDirection": "Late-1990s commercial gouache and airbrush packaging; broad readable silhouettes, cohesive printed-ink palettes, original fictional subjects only.",
+  "encoding": "Aspect-preserving WebP quality 0.72 (Chromium for 512px lids; mechanical ffmpeg/libwebp Lanczos resampling for 320px scenes). GPU textures remain mipmapped, anisotropic and kit-tier limited.",
+  "quality": 0.72,
+  "assets": [
+    {
+      "key": "board.property",
+      "file": "board-property.webp",
+      "source": "exec-18ff897b-cf36-4e36-ae1e-0620092f6705.png",
+      "width": 512,
+      "prompt": "Use case: illustration-story. Create ONE text-free illustrated lid artwork for an original fictional late-1990s family property-trading board game. Wide landscape aspect about 3:2. A charming miniature town curving around a central park, warm cream terraced houses, red roof hotel, toy locomotive, tiny generic silver pawn and a few colorful paper play-money shapes with absolutely no markings. Traditional professional 1990s printed board-game packaging illustration, hand-painted gouache and soft airbrush, crisp silhouette, cheerful teal, vermilion, cream and ochre palette, subtle paper grain. Strong attractive central composition readable at 320 pixels wide, ample darker quiet areas near top and bottom for native title lettering added later. Flat artwork filling the frame, NOT a photograph of a box. NO text, letters, numerals, symbols resembling lettering, logos, real brands, known characters, watermarks or border.",
+      "review": "Accepted: clear miniature town/pawn theme, no lettering or logos, warm gouache print style. Native title panel avoids obscuring central park.",
+      "height": 341,
+      "bytes": 38108
+    },
+    {
+      "key": "board.cat",
+      "file": "board-cat.webp",
+      "source": "exec-f068b16a-cd3b-4938-bf82-6027de31cba5.png",
+      "width": 512,
+      "prompt": "Use case: illustration-story. ONE original text-free 3:2 landscape painting for the illustrated lid of a fictional late-1990s family contraption board game. A funny big-eyed orange cat surprised by a clever harmless Rube Goldberg contraption: a cheese wedge, blue and purple ramps, a red ball rolling down a chute, little wooden seesaw and a blue umbrella-like catching basket, arranged clearly as toys on a warm yellow tabletop. Professional hand-painted gouache and airbrush board-game box art, playful chunky readable silhouettes, burnt orange, cobalt blue, aubergine and golden yellow, subtle matte paper grain, not plastic CGI. Strong central composition with quiet dark purple breathing room at bottom for title added later. Artwork fills frame, NOT a photo/mockup of packaging. No text, letters, numbers, logos, watermarks, brands, known characters or violence. Cat anatomically charming, no mouse harmed, not an existing game copied.",
+      "review": "Accepted: expressive original cat and readable toy mechanism; no harm or accidental lettering; ample lower title space.",
+      "height": 341,
+      "bytes": 19502
+    },
+    {
+      "key": "board.doctor",
+      "file": "board-doctor.webp",
+      "source": "exec-a2d454b2-173f-47fd-9e06-f9599d7b3b4d.png",
+      "width": 512,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE wide 3:2 late-1990s family steady-hand board-game illustration. A cheerful original turquoise wind-up robot lies on a toy workbench with its shiny chest panel open to reveal a few chunky red and yellow gears, springs and a funny rubber duck; two small safe plastic tweezers on the table, and the smiling robot lifts one hand as though surprised by a buzzer. No humans, no injuries, no medicine, no gore. Professional hand-painted gouache and restrained airbrush printed packaging illustration, cobalt background, teal metal, sunny yellow accents, orange coil spring, broad confident readable silhouettes, subtle paper grain. Plenty of unbusy dark cobalt room along bottom for native lettering later, image fills whole frame, not a photographed package. No text, letters, numerals, words, logos, brands, known characters, watermarks, UI or border.",
+      "review": "Accepted: friendly robot, chunky gears, no gore or lettering, blue/yellow distinction from the other cartons.",
+      "height": 341,
+      "bytes": 25172
+    },
+    {
+      "key": "back.park",
+      "file": "back-park.webp",
+      "source": "exec-6bd7db78-df74-4a89-8b0a-bf53a8517a25.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. An original TEXT-FREE late-1990s PC game back-panel vignette, landscape 8:5. Confident hand-painted gouache/airbrush miniature theme park, raised isometric view: a bright red rollercoaster loops around yellow and teal tents, toy-like carousel, hedge-lined paths and tiny colorful visitors, warm summer afternoon. Chunky period strategy-game shapes, cohesive grassy green, red, gold and cream printed palette, not photoreal, not modern CGI. Compose three interesting regions across one coherent scene, important ride silhouettes clear at 320 pixels wide. No title, NO text/letters/numbers/logos/watermarks, no UI, no real rides or characters; flat full-bleed illustration, not a box mockup.",
+      "review": "Accepted: red coaster, carousel and wheel remain distinct at 320px; no lettering/logos; coherent warm miniature-park palette.",
+      "height": 200,
+      "bytes": 27020
+    },
+    {
+      "key": "back.city",
+      "file": "back-city.webp",
+      "source": "exec-77d9ab46-e58a-43ed-99bc-0ce6069a8365.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE late-1990s PC game back-panel vignette, landscape 8:5. An original imaginary riverside town in miniature isometric view, blue glass office towers, terraced houses, a little suspension bridge and yellow buses, emerald park, warm evening sky. Clear neighborhood shapes; no real skyline, no recognizable landmarks. Navy, teal, warm brick red and gold. Professional hand-painted gouache and airbrush commercial print, chunky period game shapes and broad readable silhouettes, subtle paper grain, not modern CGI or photo. Compose distinct interesting left/centre/right regions across a coherent image, readable at 320 pixels wide. Flat full-bleed artwork, no mockup. Absolutely NO text, lettering, numerals, logos, brands, watermarks, UI or existing characters.",
+      "review": "Accepted: towers, bridge and riverside neighborhoods read clearly; imaginary skyline, no labels/logos.",
+      "height": 200,
+      "bytes": 22216
+    },
+    {
+      "key": "back.squigs",
+      "file": "back-squigs.webp",
+      "source": "exec-36833565-45c0-4d06-8695-7fb2dfe69020.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE late-1990s PC game back-panel vignette, landscape 8:5. Four original purple and green jack-shaped springy toy creatures with funny round faces and tiny explorer helmets, playing on two floating grass islands joined by a rope bridge; outsized mushrooms, toy treasure chest, bright blue sky. No weapons or violence. Playful bold yellow, purple, green and sky blue. Professional hand-painted gouache and airbrush commercial print, chunky period game shapes and broad readable silhouettes, subtle paper grain, not modern CGI or photo. Compose distinct interesting left/centre/right regions across a coherent image, readable at 320 pixels wide. Flat full-bleed artwork, no mockup. Absolutely NO text, lettering, numerals, logos, brands, watermarks, UI or existing characters.",
+      "review": "Accepted: four original purple/green jack-shaped toys, clear bridge and mushroom silhouettes; no existing characters or text.",
+      "height": 200,
+      "bytes": 20932
+    },
+    {
+      "key": "back.rts",
+      "file": "back-rts.webp",
+      "source": "exec-2fcb6583-e449-46d1-b50c-3c0e8012f548.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE late-1990s PC game back-panel vignette, landscape 8:5. A miniature medieval strategy settlement from raised isometric view, stone castle with round towers, timber workshop, wheat field and a small blue-tabarded horse rider on the winding path, broad square farms, calm golden afternoon. Blank blue pennants, no heraldic logos. Ochre, navy, stone grey and forest green. No battle or violence. Professional hand-painted gouache and airbrush commercial print, chunky period game shapes, confident broad readable silhouettes, subtle paper grain, not modern CGI or photo. Distinct interesting left/centre/right regions across one coherent scene, readable at 320 pixels wide. Flat full-bleed artwork, not a packaging mockup. Absolutely NO text, letters, numerals, logos, brands, watermarks, UI or existing characters.",
+      "review": "Accepted: castle, mill and farm form clear crop regions; blank pennants, coherent ochre/navy print palette.",
+      "height": 200,
+      "bytes": 22674
+    },
+    {
+      "key": "back.keepa",
+      "file": "back-keepa.webp",
+      "source": "exec-305d14eb-ae07-4752-9bf4-2f0919090981.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE late-1990s PC game back-panel vignette, landscape 8:5. A funny original friendly green pointy-eared dungeon caretaker in leather apron, huge brass key on his belt, arranging a cozy underground stone workshop with barrels, orange lanterns, a bubbling harmless purple cauldron and a tiny pet bat; theatrical emerald, amber and purple light. Family-friendly humorous fantasy, no skulls, gore or violence. Professional hand-painted gouache and airbrush commercial print, chunky period game shapes, confident broad readable silhouettes, subtle paper grain, not modern CGI or photo. Distinct interesting left/centre/right regions across one coherent scene, readable at 320 pixels wide. Flat full-bleed artwork, not a packaging mockup. Absolutely NO text, letters, numerals, logos, brands, watermarks, UI or existing characters.",
+      "review": "Accepted: friendly original caretaker and tiny bat, distinct amber/green/purple workshop; no gore, lettering or logos.",
+      "height": 200,
+      "bytes": 16296
+    },
+    {
+      "key": "back.pinball",
+      "file": "back-pinball.webp",
+      "source": "exec-a0c0bca2-3b0c-415d-8230-e8734a0e7a3e.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE late-1990s PC game back-panel vignette, landscape 8:5. A vivid original space-themed pinball table, raised three-quarter player view, polished chrome ball above two red flippers, chunky yellow bumpers, cobalt ramps and purple galaxy playfield with painted planets and stars, no digits or score display. Confident large shapes, navy/purple, vermilion, chrome and warm gold. Professional hand-painted gouache and airbrush commercial print, visible restrained brush texture, period game shapes, broad readable silhouettes, not photoreal or modern CGI. Distinct interesting left/centre/right regions across one coherent scene, readable at 320 pixels wide. Flat full-bleed illustration, NOT a package mockup. Absolutely NO text, lettering, numbers, logos, brands, watermarks, UI or existing characters.",
+      "review": "Accepted: red flippers, chrome ball and yellow bumpers read at print scale; no generated scores or lettering.",
+      "height": 200,
+      "bytes": 22050
+    },
+    {
+      "key": "back.quake",
+      "file": "back-quake.webp",
+      "source": "exec-752b1c70-3c47-42a1-9ea6-e836ef85962e.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE late-1990s PC game back-panel vignette, landscape 8:5. An original chunky armored explorer carrying only a bright turquoise lantern, looking toward a tall arched bridge in a mysterious warm ochre stone fortress. Cool teal mist below, rusty amber masonry, atmospheric late-1990s adventure-game mood. No guns, no monsters, no violence, no skulls; broad unmistakable architecture and a clear single silhouette. Professional hand-painted gouache and airbrush commercial print, visible restrained brush texture, period game shapes, broad readable silhouettes, not photoreal or modern CGI. Distinct interesting left/centre/right regions across one coherent scene, readable at 320 pixels wide. Flat full-bleed illustration, NOT a package mockup. Absolutely NO text, lettering, numbers, logos, brands, watermarks, UI or existing characters.",
+      "review": "Accepted: lantern/explorer silhouette and fortress bridge are clear; original armor, no weapons or logos.",
+      "height": 200,
+      "bytes": 11570
+    },
+    {
+      "key": "back.jrt",
+      "file": "back-jrt.webp",
+      "source": "exec-c47eb2e0-69ae-406c-9f2d-06749e7dbb22.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE late-1990s PC game back-panel vignette, landscape 8:5. Two ORIGINAL chunky armored competitors in teal and red racing along an elevated metallic arena walkway beneath a huge orange moon, curved navy architecture, electric cyan edge lights and purple sky. Safe athletic science-fiction competition, no weapons or violence. Low-angle dynamic composition, cyan and magenta accents, clear contrasting silhouettes. Professional hand-painted gouache and restrained airbrush printed illustration, period shapes, visible subtle paper grain and broad readable silhouettes. Not a photograph or modern CGI. Interesting left/centre/right details in one coherent image, legible at 320 pixels wide. Flat full-bleed artwork, not a box mockup. Absolutely NO text, letters, numbers, logos, brands, watermarks, UI or existing characters.",
+      "review": "Accepted: contrasting teal/red original competitors and orbital arena remain readable; no weapons, lettering or logos.",
+      "height": 200,
+      "bytes": 15100
+    },
+    {
+      "key": "back.carta",
+      "file": "back-carta.webp",
+      "source": "exec-143f0f96-410e-440b-b8de-13bb993f7083.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE late-1990s PC game back-panel vignette, landscape 8:5. An educational illustrated panorama with three smoothly connected areas: a friendly stegosaur beside fern trees on the left, a brass telescope and small blue terrestrial globe centrally, a gently smoking ochre volcano and crescent moon on the right. Natural-history encyclopedia gouache plate, cream, ochre, teal and navy palette, no explosive danger or labelled diagrams. Professional hand-painted gouache and restrained airbrush printed illustration, period shapes, visible subtle paper grain and broad readable silhouettes. Not a photograph or modern CGI. Interesting left/centre/right details in one coherent image, legible at 320 pixels wide. Flat full-bleed artwork, not a box mockup. Absolutely NO text, letters, numbers, logos, brands, watermarks, UI or existing characters.",
+      "review": "Accepted: dinosaur, globe/telescope and volcano form readable educational crop regions; no embedded labels.",
+      "height": 200,
+      "bytes": 17558
+    },
+    {
+      "key": "back.boss",
+      "file": "back-boss.webp",
+      "source": "exec-8a823bce-995f-45e5-bdbc-6d0c909bf2b2.png",
+      "width": 320,
+      "prompt": "Edit target: the supplied original painted football changing-room artwork. Change ONLY the navy sports jacket and folded kit on the bench: remove every white stripe, stripe pattern and possible brand-like detail; replace those marks with uninterrupted plain navy fabric and a plain cream zipper. Preserve the hand-painted 1990s gouache style, football, tactics board with plain unmarked counters, boots, room, doorway and sunlit pitch exactly. Add no text, numerals, logos, watermarks, famous people, club emblems or other new objects.",
+      "review": "Initial output rejected for brand-like sleeve stripes. Edited final accepted: plain navy kit, clear tactics board, ball and pitch; no logos or numbers.",
+      "height": 200,
+      "bytes": 10534,
+      "originalPrompt": "Use case: illustration-story. ONE original TEXT-FREE late-1990s football-management PC game back-panel illustration, landscape 8:5. In an empty modest football changing room, a chalk-green tactics board with ONLY plain red and blue circular counters and simple white field lines, an unbranded black-and-cream football on a wooden bench, folded navy track jacket and a pair of old boots; view through the doorway onto a sunlit grass pitch and little covered stand. Professional hand-painted gouache and airbrush print illustration, quiet warm light, navy, forest green, cream and honey wood, broad shapes readable at 320 pixels wide. Correct old-fashioned football, no club crests, no famous stadium, no people. NO writing, letters, numerals, logos, brands, watermark, UI or title; no marked numbers on the counters. Flat full-bleed artwork, not a packaging mockup.",
+      "sourceParent": "exec-022c236c-6f2b-457b-a27f-b727bbdc58a0.png"
+    },
+    {
+      "key": "vhs.dog",
+      "file": "vhs-dog.webp",
+      "source": "exec-01f9fc33-590b-4668-af87-3ad20f8681cf.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE late-1990s home-video sleeve illustration, square composition. An ORIGINAL cheerful floppy-eared ginger dog in a cream bubble-helmet spacesuit, a tiny squat helper robot and a red toy-like rocket on a moon made of lavender rock. Curious playful exploration, turquoise distant planet and golden stars, friendly cartoon silhouettes. No existing characters. Professional traditional gouache and airbrush print, matte navy, teal, cream and ochre inks with broad clear silhouettes and restrained paper grain, readable at 320 pixels wide. All subjects inside central 80 percent so labels can crop without cutting off heads. Full-bleed painted artwork, not a box or photograph, no border. Absolutely NO text, letters, numbers, brands, logos, watermark, known characters or recognizable real actors, no violence.",
+      "review": "Accepted: original helmeted dog, helper robot and rocket match the tape subject; whole head retained, no lettering/logos.",
+      "height": 320,
+      "bytes": 23852
+    },
+    {
+      "key": "vhs.galaxy",
+      "file": "vhs-galaxy.webp",
+      "source": "exec-2210ab9c-8a82-4bf3-9e6d-75de1f519ff2.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE late-1990s home-video sleeve illustration, square composition. Three original friendly space explorers in simple teal, mustard and rust zip-front uniforms with NO badges, on a wonderfully old-fashioned spaceship bridge with chunky cream terminals, a blank curved view window looking at a ringed violet planet and a ridiculous little kettle floating weightlessly. Professional theatrical 1990s science-fiction VHS painting, faces clear and human, uniforms not copied from any show. Professional traditional gouache and airbrush print, matte navy, teal, cream and ochre inks with broad clear silhouettes and restrained paper grain, readable at 320 pixels wide. All subjects inside central 80 percent so labels can crop without cutting off heads. Full-bleed painted artwork, not a box or photograph, no border. Absolutely NO text, letters, numbers, brands, logos, watermark, known characters or recognizable real actors, no violence.",
+      "review": "Accepted: original zip-uniform crew without badges; floating kettle supplies the parody joke; no recognizable actors or embedded text.",
+      "height": 320,
+      "bytes": 17170
+    },
+    {
+      "key": "vhs.bash",
+      "file": "vhs-bash.webp",
+      "source": "exec-1e6ca0b8-ba71-41f4-9769-d76337fbd7e1.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. ONE original TEXT-FREE square late-1990s family television contest VHS illustration. Two cheerful adult competitors in completely plain navy and red padded tracksuits and protective helmets balancing on enormous colorful foam platforms in a theatrical indoor obstacle course; a big striped foam swinging cylinder and bright red/blue crash mats, excited indistinct crowd in background. Friendly sports-show energy, no logos, no uniforms or sets copied from a real show, no violence or injuries. Professional traditional gouache and restrained airbrush printed painting, broad readable silhouettes, navy, vermilion, golden yellow and cream. All people and platforms inside central 80 percent, legible at 320px. Flat full-bleed artwork, not photographed packaging. Absolutely no text, lettering, numerals, brands, logos, watermarks or recognizable real people.",
+      "review": "Accepted: adult competitors stand on clear padded platforms; readable red/blue/yellow contest scene, unmarked kit, no injuries.",
+      "height": 320,
+      "bytes": 20080
+    },
+    {
+      "key": "pc.boss",
+      "file": "football.webp",
+      "source": "exec-fc5600e6-6886-4b80-b676-7afd583b4d9b.png",
+      "width": 320,
+      "prompt": "Edit target: this original square gouache football-management cover illustration. Change ONLY the navy tracksuit: remove ALL cream/white sleeve stripes and stripe patterns so the clothing is completely plain navy, keeping its cream collar and plain cream zipper. Keep the football, tactics board and its unmarked red/blue circular counters, bench, pitch view, composition, old-fashioned hand-painted print style and square aspect unchanged. No new objects. No text, letters, numbers, logos, real brands or watermarks. Important: no parallel decorative stripes anywhere on the sports clothing.",
+      "review": "Accepted revision: retained the existing cover composition while removing all brand-like clothing stripes; game title remains native.",
+      "height": 320,
+      "bytes": 16872,
+      "referenceAsset": "../print-v3/office.webp"
+    }
+  ]
+}

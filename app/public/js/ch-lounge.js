@@ -138,11 +138,15 @@
   // ================================================================ TIDY THE VIDEOS (into the video tower by the telly)
   const TOWER = { x: 14, z: 322 };
   const VIDS = [['BASHIATORS - THE FINAL', '#f4f0e0'], ['DOCTOR WHEN (TAPED 1996)', '#d8e8ff'], ["CHILDREN IN KNEAD '98", '#ffe680'], ['GALAXY WALK: THE NEXT SHIFT', '#f4f0e0'], ['THE SNOWBLOKE (XMAS)', '#e0f4e0'], ['DO NOT TAPE OVER - MOM', '#ffd0e0']];
+  const VIDART = ['vhs.bash', 'space', 'band', 'vhs.galaxy', 'winter', 'city'];
   const VSPOT = [[-150, 382, 20], [-24, 398, -40], [40, 436, 60], [-142, 500, 10], [-205, 432, 80], [62, 508, -20]];
   let vids = [], towerN = 0;
   function tapeModel(i) {
     const [lab, col] = VIDS[i];
-    const lbl = K.tex('ch.vhs.l' + i, 512, 280, (q,w,h)=>{q.fillStyle='#151515';q.fillRect(0,0,w,h);q.fillStyle='#2a2a2a';q.fillRect(60,145,392,100);q.fillStyle='#777';for(const x of [160,352]){q.beginPath();q.arc(x,195,36,0,7);q.fill();q.fillStyle='#222';q.beginPath();q.arc(x,195,12,0,7);q.fill();q.fillStyle='#777'}q.fillStyle=col;q.fillRect(28,18,456,112);q.fillStyle='#152b52';q.font='700 28px "Courier New",monospace';K.wrapText(q,lab,42,59,428,36)},{clamp:true});
+    const lbl = A.printed('ch.vhs.l' + i, 512, 280, (q,w,h)=>{q.fillStyle='#151515';q.fillRect(0,0,w,h);q.fillStyle='#2a2a2a';q.fillRect(60,145,392,100);q.fillStyle='#777';for(const x of [160,352]){q.beginPath();q.arc(x,195,36,0,7);q.fill();q.fillStyle='#222';q.beginPath();q.arc(x,195,12,0,7);q.fill();q.fillStyle='#777'}q.fillStyle=col;q.fillRect(28,18,456,112);
+      const illustrated = window.PrintArt?.paint(q, VIDART[i], 34, 24, 112, 100, 'contain');
+      q.fillStyle='#152b52';q.font='700 '+(illustrated?22:28)+'px "Courier New",monospace';K.wrapText(q,lab,illustrated?158:42,illustrated?51:59,illustrated?312:428,illustrated?30:36)
+    },{clamp:true});
     const sp = K.tex('ch.vhs.s' + i,512,72,(q,w,h)=>{q.fillStyle='#151515';q.fillRect(0,0,w,h);q.fillStyle=col;q.fillRect(12,8,w-24,h-16);let size=30;do{q.font='700 '+size+'px "Courier New",monospace';if(q.measureText(lab).width<=w-40)break;size--}while(size>16);q.fillStyle='#152b52';q.fillText(lab,20,47)},{clamp:true});
     return grp(G => { G.box(0, -1.25, 0, 18.7, 2.5, 10.3, { t: M({ c: '#fff', map: lbl }), f: M({ c: '#fff', map: sp }), all: mat('#1a1a1a', { sh: 30, sp: '#333' }) }); G.shadow(0, 0, 0, 21, 12, 0.45, { sq: true }); });
   }

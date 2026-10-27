@@ -146,6 +146,8 @@ Reviewed 19 shots (story-opening x3, sparse-polish, identity-house, owner-tools,
 | R31 (not reproduced in the full-room fixture: shelf slots pack 5 cm boxes with 0.8 cm gaps; needs the art-gen save that leaned them) | bug | med | landing-art tests/shots/art-gallery/world/console-rack-front.png | Bottom bookshelf: red and brown PC game boxes intersect each other (leaning boxes interpenetrate) | Resolve lean/stack poses with real box extents (physics settle or solved spacing) |
 | R32 (checked wq2: the PlaySpace body ends 2.5 cm inside the shelf front; only its controller plug reaches the edge) | bug | med | same | Grey PlaySpace console overhangs the front edge of the TV-unit shelf | Clamp console placement to the shelf footprint; nudge rack slot depth |
 
+Art-gen continuation, 27 October: the gallery checks the visible geometry of all **20 snapped PC cases** (upright, no pairwise intersections) and captures front/oblique shelf views. Own-slot poses are normalised without moving free-placed belongings or changing the saved slot allocation. The original R31 leaning-save artifact was not provided, so that exact old save is not claimed reproduced. The fixed decorative shelf-book pair also stands upright with 1.6 cm clearance. Full reports and limits: docs/ART.md.
+
 ## Screenshot review 2026-10-27 (physics branch)
 | id | type | severity | screenshot | problem | fix |
 |---|---|---|---|---|---|

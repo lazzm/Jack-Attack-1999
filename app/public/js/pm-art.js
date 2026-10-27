@@ -31,6 +31,8 @@
   const initials = s => String(s || 'JS').split(/\s+/).filter(w => /^[A-Za-z]/.test(w)).slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'J';
   const age = it => (it.box && it.box.age) || '3+';
   const isDemo = it => { try { return it.box ? D.demoBox(it.box) : false; } catch (e) { return false; } };
+  // Resolve the physical item, not its title or scene; missing prints keep their native illustration.
+  const printed = (it, x, y, w, h) => window.PrintArt?.key ? window.PrintArt.svg(window.PrintArt.key(it), x, y, w, h) : '';
 
   // ================================================================ art: game boxes
   const ageBadge = (x, y, s, a) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-10" y="-12" width="20" height="24" rx="1.5" fill="#fff" stroke="#000" stroke-width="1.2"/><rect x="-10" y="-12" width="20" height="6" fill="#000"/>${T(0, -7.4, 'AGES', 4.2, '#fff', { f: BLACK })}${T(0, 8, a, a.length > 2 ? 9 : 11, '#000', { f: BLACK })}</g>`;
@@ -53,16 +55,24 @@
   function edgeBig(it, w, h) { const c1 = it.c1 || '#333', t = it.title.replace(/ \(.*\)$/, '').toUpperCase(); return svg(`0 0 ${w} ${h}`, `<rect width="${w}" height="${h}" fill="${tint(c1, -0.25)}"/>${h > w ? T(0, 0, t, 18, tint(it.c2 || '#fff', -0.15), { t: `translate(${w / 2 + 6} ${h / 2}) rotate(90)`, len: Math.min(h - 40, t.length * 11), op: 0.85 }) : T(w / 2, h / 2 + 6, t, 16, tint(it.c2 || '#fff', -0.15), { len: Math.min(w - 30, t.length * 10), op: 0.85 })}`); }
   function backBig(it) { // 190 x 240
     const b = it.box || {}, g = b.game ? D.GAMES[b.game] : null, c1 = it.c1 || '#222', c2 = it.c2 || '#fff', c3 = it.c3 || '#e10600', id = uid();
-    const shots = (b.scene && D.SHOT && D.SHOT[b.scene]) ? [0, 1, 2].map(i => { try { return D.SHOT[b.scene](i); } catch (e) { return ''; } }) : [];
-    const blurb = wrap(b.blurb || '', 44).slice(0, 6), feats = (b.feats || []).slice(0, 4);
+    const shots = (b.scene && D.SHOT && D.SHOT[b.scene]) ? [0, 1, 2].map(i => { try { return D.printShot ? D.printShot(b,i) : D.SHOT[b.scene](i); } catch (e) { return ''; } }) : [];
+    const blurb = wrap(b.blurb || '', 58), feats = (b.feats || []).map(f=>wrap(f,58));
+    const blurbStep=Math.min(7.6,38/Math.max(1,blurb.length));
+    const featureRows=feats.reduce((n,lines)=>n+lines.length,0)+Math.max(0,feats.length-1)*.25;
+    const featureStep=Math.min(7,42/Math.max(1,featureRows));
     const req = g ? g.req : 'Pent-Yum 133, 16 MB RAM, 4x CD-ROM';
     const bars = Array.from({ length: 30 }, (_, i) => `<rect x="${i * 1.7}" y="0" width="${[0.6, 1, 0.5, 1.2][(i * 7) % 4]}" height="${i % 9 ? 13 : 15}"/>`).join('');
     let s = `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${tint(c1, 0.05)}"/><stop offset="1" stop-color="${tint(c1, -0.7)}"/></linearGradient></defs><rect width="190" height="240" fill="url(#${id})"/>`;
-    s += `<rect y="0" width="190" height="24" fill="${tint(c1, -0.5)}"/>${T(8, 16, it.title.toUpperCase(), 14, c2, { a: 'start', len: Math.min(150, it.title.length * 8.5) })}${isDemo(it) ? `<rect x="146" y="5" width="38" height="13" rx="2" fill="#e10600"/>${T(165, 14.5, 'DEMO', 8, '#fff', { f: BLACK })}` : ''}`;
+    s += `<rect y="0" width="190" height="24" fill="${tint(c1, -0.5)}"/>${T(8, 16, it.title.toUpperCase(), 14, c2, { a: 'start', len: Math.min(isDemo(it)?130:174, it.title.length * 8.5) })}${isDemo(it) ? `<rect x="146" y="5" width="38" height="13" rx="2" fill="#e10600"/>${T(165, 14.5, 'DEMO', 8, '#fff', { f: BLACK })}` : ''}`;
     if (shots.length) shots.forEach((sh, i) => { const x = 8 + i * 59, y = 31 + (i % 2) * 3; s += `<g transform="rotate(${[-2, 1.5, -1][i]} ${x + 27} ${y + 17})"><rect x="${x - 1.2}" y="${y - 1.2}" width="56.4" height="37.4" fill="#fff"/><svg x="${x}" y="${y}" width="54" height="35" viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice">${sh}</svg></g>`; });
     else s += `<rect x="8" y="31" width="174" height="36" fill="${c3}" opacity=".35"/>${T(95, 54, it.title.toUpperCase(), 12, '#fff', { op: 0.8 })}`;
-    s += blurb.map((l, i) => T(9, 82 + i * 7.6, l, 5.6, '#fff', { f: SANS, a: 'start', w: 400 })).join('');
-    s += feats.map((f, i) => `<circle cx="11" cy="${132 + i * 8}" r="1.6" fill="${c2}"/>` + T(16, 134.2 + i * 8, f.length > 46 ? f.slice(0, 45) + '...' : f, 5.6, c2, { f: SANS, a: 'start', w: 700 })).join('');
+    s += blurb.map((l, i) => T(9, 79 + i * blurbStep, l, Math.min(5.6,blurbStep*.9), '#fff', { f: SANS, a: 'start', w: 400 })).join('');
+    let fy=123;
+    for(const lines of feats){
+      s+=`<circle cx="11" cy="${fy-1.5}" r="1.3" fill="${c2}"/>`;
+      s+=lines.map((l,i)=>T(16,fy+i*featureStep,l,Math.min(5.6,featureStep*.9),c2,{f:SANS,a:'start',w:700})).join('');
+      fy+=(lines.length+.25)*featureStep;
+    }
     s += `<rect x="8" y="168" width="174" height="34" fill="#fff"/><rect x="8" y="168" width="174" height="8" fill="#000"/>${T(95, 174, 'MINIMUM SYSTEM REQUIREMENTS', 5.4, '#fff', { f: BLACK, ls: 0.4 })}`;
     s += wrap('JackOS 95 or JackOS 98. ' + req + '. Sound Bluster compatible sound card. Mouse.' + (b.discs === 2 ? ' 2 CD-ROMs.' : ''), 58).slice(0, 3).map((l, i) => T(11, 183 + i * 6.4, l, 4.9, '#111', { f: SANS, a: 'start' })).join('');
     s += `<g transform="translate(10 210)"><rect x="-2" y="-2" width="55" height="24" fill="#fff"/><g fill="#000">${bars}</g>${T(25.5, 20, '5 0 1 9 9 9 0 ' + String(1000 + (it.title.length * 397) % 9000), 3.6, '#000', { f: SANS })}</g>`;
@@ -103,8 +113,9 @@
     else if (b.discs === 2) sub = 'DISC 1 OF 2';
     else if (b.game || b.pid || b.pidApp) sub = isDemo(it) ? 'DEMO DISC' : 'PC CD-ROM';
     const fine = `© 1999 ${pubOf(it) || 'All rights reserved'}. Unauthorised copying prohibited. Made in the UK.`;
+    const art = printed(it, 0, 0, 200, 200);
     return svg('0 0 200 200', `<defs><radialGradient id="${id}" cx=".35" cy=".3"><stop offset="0" stop-color="${tint(bg, 0.25)}"/><stop offset="1" stop-color="${tint(bg, -0.35)}"/></radialGradient><path id="${id}a" d="M100 100m-84 0a84 84 0 1 1 168 0a84 84 0 1 1-168 0"/></defs>
-      <circle cx="100" cy="100" r="99" fill="url(#${id})"/><circle cx="100" cy="100" r="92" fill="none" stroke="${acc}" stroke-width="4" opacity=".9"/>${extra}
+      <circle cx="100" cy="100" r="99" fill="url(#${id})"/>${art ? `<defs><clipPath id="${id}clip"><circle cx="100" cy="100" r="99"/></clipPath></defs><g clip-path="url(#${id}clip)">${art}</g>` : ''}<circle cx="100" cy="100" r="92" fill="none" stroke="${acc}" stroke-width="4" opacity=".9"/>${extra}
       ${T(100, it.id === 'pm.os98' ? 80 : 66, title, title.length > 12 ? 19 : 25, fg, { len: title.length > 10 ? 150 : 0, st: tint(bg, -0.6), sw: 2 })}${sub ? T(100, it.id === 'pm.os98' ? 150 : 148, sub, 8.5, '#fff', { f: BLACK, ls: 0.6 }) : ''}
       ${cdMark(78, 170, 0.8, '#fff')}<text font-family="${SANS}" font-size="5" fill="#fff" opacity=".75"><textPath href="#${id}a" startOffset="54%">${esc(fine)}</textPath></text>${ring}`);
   }
@@ -112,10 +123,10 @@
   // ---- our own discs' front inserts (200 x 200)
   function insertArt(it) {
     if (it.box) { const s = D.front(it.box); return s.replace('<svg ', '<svg preserveAspectRatio="none" '); }
-    const id = uid();
-    if (it.id === 'pm.os98') return svg('0 0 200 200', `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7ab0f0"/><stop offset=".5" stop-color="#2a6ad8"/><stop offset="1" stop-color="#0a246a"/></linearGradient></defs><rect width="200" height="200" fill="url(#${id})"/>${Array.from({ length: 7 }, (_, i) => `<ellipse cx="${30 + i * 25}" cy="${150 + (i % 3) * 8}" rx="34" ry="13" fill="#fff" opacity=".22"/>`).join('')}${flag(100, 70, 2.4)}${T(100, 140, 'JackOS', 34, '#fff', { f: 'Arial,sans-serif', w: 700, it: 1 })}${T(150, 140, '98', 34, '#ffd400', { f: 'Arial,sans-serif', w: 700, it: 1, a: 'start' })}${T(100, 162, 'COMPACT DISC · FOR DISTRIBUTION WITH A NEW PC ONLY', 6, '#fff', { f: SANS, ls: 0.4 })}${T(100, 188, 'Includes JackNet Explorer 5', 8, '#cfe0ff', { f: SANS })}`);
-    if (it.id === 'pm.gub') return svg('0 0 200 200', `<rect width="200" height="200" fill="#ff6a00"/><g opacity=".25">${Array.from({ length: 10 }, (_, i) => `<path d="M0 ${i * 22}L200 ${i * 22 - 40}" stroke="#fff" stroke-width="7"/>`).join('')}</g>${[30, 70, 130, 170].map((x, i) => `<g transform="translate(${x} ${118 + (i % 2) * 6})"><rect x="-14" y="-10" width="28" height="34" rx="3" fill="#c8ccd4" stroke="#333" stroke-width="2"/><rect x="-10" y="-30" width="20" height="18" rx="3" fill="#dde" stroke="#333" stroke-width="2"/><circle cx="-4" cy="-21" r="3" fill="#ff0"/><circle cx="4" cy="-21" r="3" fill="#ff0"/><path d="M0-30v-8" stroke="#333" stroke-width="2"/><circle cx="0" cy="-40" r="3" fill="#e10600"/></g>`).join('')}<g transform="translate(100 100)"><circle r="20" fill="#7a3"/><circle cx="-7" cy="-4" r="5" fill="#fff"/><circle cx="7" cy="-4" r="5" fill="#fff"/><circle cx="-6" cy="-4" r="2"/><circle cx="8" cy="-4" r="2"/><path d="M-8 8q8 6 16 0" stroke="#000" stroke-width="2" fill="none"/></g>${T(100, 40, 'GUBBINZ', 40, '#fff', { st: '#2a2aaa', sw: 4 })}${T(100, 58, '& THE ROBOTS', 12, '#2a2aaa', { f: BLACK })}<rect x="0" y="168" width="200" height="32" fill="#2a2aaa"/>${T(100, 190, 'GREATEST HITS', 18, '#ffd400')}<rect x="150" y="6" width="44" height="18" fill="#fff"/>${T(172, 18, 'ENHANCED CD', 5.4, '#000', { f: BLACK })}`);
-    if (it.id === 'pm.netplanet') return svg('0 0 200 200', `<defs><radialGradient id="${id}" cx=".5" cy=".4"><stop offset="0" stop-color="#3a7aff"/><stop offset="1" stop-color="#06104a"/></radialGradient></defs><rect width="200" height="200" fill="url(#${id})"/><circle cx="100" cy="92" r="46" fill="#1a8aff" stroke="#9fd0ff" stroke-width="2"/><path d="M62 80q20-14 36 0t34-4M58 104q24 10 44 0t36 4" stroke="#3ad06a" stroke-width="9" fill="none"/><ellipse cx="100" cy="92" rx="66" ry="14" fill="none" stroke="#ffd400" stroke-width="4" transform="rotate(-18 100 92)"/>${T(100, 30, 'NETPLANET 4.0', 24, '#fff', { st: '#000', sw: 3 })}<circle cx="160" cy="150" r="30" fill="#ffd400" stroke="#e10600" stroke-width="3"/>${T(160, 148, '500', 18, '#e10600', { f: BLACK })}${T(160, 160, 'FREE HOURS*', 6.5, '#e10600', { f: BLACK })}${T(60, 162, 'THE INTERNET', 13, '#fff')}${T(60, 178, 'MADE EASY!', 13, '#ffd400')}${T(100, 195, '*in your first month. Call charges apply.', 5, '#9ab', { f: SANS })}`);
+    const id = uid(), art = printed(it, 0, 0, 200, 200);
+    if (it.id === 'pm.os98') return svg('0 0 200 200', `${art || `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7ab0f0"/><stop offset=".5" stop-color="#2a6ad8"/><stop offset="1" stop-color="#0a246a"/></linearGradient></defs><rect width="200" height="200" fill="url(#${id})"/>${Array.from({ length: 7 }, (_, i) => `<ellipse cx="${30 + i * 25}" cy="${150 + (i % 3) * 8}" rx="34" ry="13" fill="#fff" opacity=".22"/>`).join('')}`}${flag(100, 70, 2.4)}${T(100, 140, 'JackOS', 34, '#fff', { f: 'Arial,sans-serif', w: 700, it: 1 })}${T(150, 140, '98', 34, '#ffd400', { f: 'Arial,sans-serif', w: 700, it: 1, a: 'start' })}${T(100, 162, 'COMPACT DISC · FOR DISTRIBUTION WITH A NEW PC ONLY', 6, '#fff', { f: SANS, ls: 0.4 })}${T(100, 188, 'Includes JackNet Explorer 5', 8, '#cfe0ff', { f: SANS })}`);
+    if (it.id === 'pm.gub') return svg('0 0 200 200', `${art || `<rect width="200" height="200" fill="#ff6a00"/><g opacity=".25">${Array.from({ length: 10 }, (_, i) => `<path d="M0 ${i * 22}L200 ${i * 22 - 40}" stroke="#fff" stroke-width="7"/>`).join('')}</g>${[30, 70, 130, 170].map((x, i) => `<g transform="translate(${x} ${118 + (i % 2) * 6})"><rect x="-14" y="-10" width="28" height="34" rx="3" fill="#c8ccd4" stroke="#333" stroke-width="2"/><rect x="-10" y="-30" width="20" height="18" rx="3" fill="#dde" stroke="#333" stroke-width="2"/><circle cx="-4" cy="-21" r="3" fill="#ff0"/><circle cx="4" cy="-21" r="3" fill="#ff0"/><path d="M0-30v-8" stroke="#333" stroke-width="2"/><circle cx="0" cy="-40" r="3" fill="#e10600"/></g>`).join('')}<g transform="translate(100 100)"><circle r="20" fill="#7a3"/><circle cx="-7" cy="-4" r="5" fill="#fff"/><circle cx="7" cy="-4" r="5" fill="#fff"/><circle cx="-6" cy="-4" r="2"/><circle cx="8" cy="-4" r="2"/><path d="M-8 8q8 6 16 0" stroke="#000" stroke-width="2" fill="none"/></g>`}${T(100, 40, 'GUBBINZ', 40, '#fff', { st: '#2a2aaa', sw: 4 })}${T(100, 58, '& THE ROBOTS', 12, '#2a2aaa', { f: BLACK })}<rect x="0" y="168" width="200" height="32" fill="#2a2aaa"/>${T(100, 190, 'GREATEST HITS', 18, '#ffd400')}<rect x="150" y="145" width="44" height="18" fill="#fff"/>${T(172, 157, 'ENHANCED CD', 5.4, '#000', { f: BLACK })}`);
+    if (it.id === 'pm.netplanet') return svg('0 0 200 200', `${art || `<defs><radialGradient id="${id}" cx=".5" cy=".4"><stop offset="0" stop-color="#3a7aff"/><stop offset="1" stop-color="#06104a"/></radialGradient></defs><rect width="200" height="200" fill="url(#${id})"/><circle cx="100" cy="92" r="46" fill="#1a8aff" stroke="#9fd0ff" stroke-width="2"/><path d="M62 80q20-14 36 0t34-4M58 104q24 10 44 0t36 4" stroke="#3ad06a" stroke-width="9" fill="none"/><ellipse cx="100" cy="92" rx="66" ry="14" fill="none" stroke="#ffd400" stroke-width="4" transform="rotate(-18 100 92)"/>`}${T(100, 30, 'NETPLANET 4.0', 24, '#fff', { st: '#000', sw: 3 })}<circle cx="160" cy="150" r="30" fill="#ffd400" stroke="#e10600" stroke-width="3"/>${T(160, 148, '500', 18, '#e10600', { f: BLACK })}${T(160, 160, 'FREE HOURS*', 6.5, '#e10600', { f: BLACK })}${T(60, 162, 'THE INTERNET', 13, '#fff')}${T(60, 178, 'MADE EASY!', 13, '#ffd400')}${T(100, 195, '*in your first month. Call charges apply.', 5, '#9ab', { f: SANS })}`);
     return svg('0 0 200 200', `<rect width="200" height="200" fill="${it.c1 || '#444'}"/>`);
   }
   // the lid of a jewel case (284 x 250): the clear polystyrene frame with its hinge ridges on the left, the booklet showing through
@@ -162,12 +173,13 @@
     return svg('0 0 90 94', `<defs><linearGradient id="${id}" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col[1]}"/><stop offset="1" stop-color="${col[0]}"/></linearGradient></defs><g transform="rotate(180 45 47)"><path d="M8 0h80a2 2 0 0 1 2 2v90a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V8z" fill="url(#${id})"/><rect x="20" y="0" width="48" height="29" fill="#b8bec6"/><circle cx="45" cy="62" r="14" fill="#9aa0a8" stroke="#666"/><rect x="42" y="56" width="6" height="8" fill="#555"/>${T(45, 88, '1.44 MB · 2HD', 6, '#fff', { f: BLACK, op: 0.6 })}</g>`);
   }
   function magCover(it, withDisc) { // 210 x 280: the JACK ATTACK! issue (js/cx-mag.js's art and cover lines)
-    const M = (window.CXMag && CXMag.META[it.m]) || { b: ['#5b16c9', '#14002e'], mc: '#ffe600', main: 'JACK ATTACK!', lines: [], cd: '#ff7a00' }, id = uid();
+    const issue=window.MagazineCat?.byId['pm.mag.'+String(it.m).padStart(2,'0')];
+    const M = Object.assign({},(window.CXMag && CXMag.META[it.m]) || { b: ['#5b16c9', '#14002e'], mc: '#ffe600', main: 'JACK ATTACK!', lines: [], cd: '#ff7a00' },issue?{main:issue.headline,lines:['REVIEWS • CHEATS','LETTERS • COMIC']}:{}), id = uid();
     let art = '';
     try { const h = window.CXMag ? CXMag.cover(it.m, {}) : ''; const mm = /<svg class="cxc-art"[^>]*>([\s\S]*?)<\/svg>/.exec(h); art = mm ? mm[1] : ''; } catch (e) {}
     const bars = Array.from({ length: 26 }, (_, i) => `<rect x="${i * 1.6}" y="0" width="${[0.6, 1, 0.5, 1.2][(i * 7 + it.m) % 4]}" height="${i % 9 ? 13 : 15}"/>`).join('');
     let s = `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${M.b[0]}"/><stop offset="1" stop-color="${M.b[1]}"/></linearGradient></defs><rect width="210" height="280" fill="url(#${id})"/>`;
-    s += `<svg x="20" y="76" width="170" height="170" viewBox="0 0 200 200">${art}</svg>`;
+    s += printed(it, 0, 72, 210, 178) || `<svg x="20" y="76" width="170" height="170" viewBox="0 0 200 200">${art}</svg>`;
     s += T(105, 52, 'JACK ATTACK!', 46, M.mc, { t: 'rotate(-2 105 40)', st: '#000', sw: 3.4, len: 196 });
     s += `<rect y="60" width="210" height="11" fill="#000"/>${T(6, 68.5, PM.MONTHS[it.m - 1].toUpperCase() + ' 1999', 7, '#fff', { f: BLACK, a: 'start' })}${T(105, 68.5, 'THE GAMES MAG WOT JACK MADE', 6, '#fff', { f: BLACK })}${T(204, 68.5, '20p', 7, '#fff', { f: BLACK, a: 'end' })}`;
     s += M.lines.slice(0, 4).map((l, i) => { const w = Math.min(96, 12 + l.length * 4.4); return `<rect x="${206 - w}" y="${80 + i * 17}" width="${w}" height="13" fill="${i % 2 ? 'rgba(0,0,0,.72)' : M.mc}"/>` + T(203, 90.5 + i * 17, l, 8.4, i % 2 ? '#fff' : '#000', { a: 'end', len: l.length > 20 ? w - 6 : 0 }); }).join('');
@@ -186,8 +198,9 @@
   function cartArt(x) {
     const id = uid(), col = x.col || '#888', con = String(x.conName || '').toUpperCase(), t = String(x.title || '').replace(/ \(.*\)$/, '').toUpperCase();
     const words = t.split(' '), l1 = words.length > 1 ? words.slice(0, Math.ceil(words.length / 2)).join(' ') : t, l2 = words.length > 1 ? words.slice(Math.ceil(words.length / 2)).join(' ') : '';
-    return svg('0 0 200 270', `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${tint(col, 0.35)}"/><stop offset="1" stop-color="${tint(col, -0.5)}"/></linearGradient></defs><rect width="200" height="270" fill="url(#${id})"/>
-      <g opacity=".22">${Array.from({ length: 7 }, (_, i) => `<circle cx="${30 + i * 28}" cy="${150 + (i % 2) * 40}" r="${26 + (i % 3) * 10}" fill="#fff"/>`).join('')}</g>
+    const art = printed(x, 0, 0, 200, 270);
+    return svg('0 0 200 270', `${art || `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${tint(col, 0.35)}"/><stop offset="1" stop-color="${tint(col, -0.5)}"/></linearGradient></defs><rect width="200" height="270" fill="url(#${id})"/>
+      <g opacity=".22">${Array.from({ length: 7 }, (_, i) => `<circle cx="${30 + i * 28}" cy="${150 + (i % 2) * 40}" r="${26 + (i % 3) * 10}" fill="#fff"/>`).join('')}</g>`}
       <rect x="0" y="0" width="200" height="26" fill="#111"/>${T(100, 18.5, con, 12, '#fff', { f: BLACK, ls: 2 })}
       ${T(100, l2 ? 118 : 136, l1, l1.length > 11 ? 24 : 32, '#fff', { st: '#000', sw: 3, len: l1.length > 11 ? 176 : 0 })}${l2 ? T(100, 154, l2, l2.length > 11 ? 24 : 32, '#ffe600', { st: '#000', sw: 3, len: l2.length > 11 ? 176 : 0 }) : ''}
       <rect x="14" y="196" width="172" height="40" rx="4" fill="rgba(0,0,0,.55)"/>${wrap(x.blurb || '', 34).slice(0, 3).map((l, i) => T(100, 210 + i * 11, l, 7.6, '#fff', { f: SANS })).join('')}
@@ -195,16 +208,16 @@
   }
   // ================================================================ the Pixel Post paper catalogue (210 x 280 pages)
   const burst = (x, y, r, fill, lines, size, rot) => { const pts = Array.from({ length: 28 }, (_, i) => { const a = i * Math.PI / 14, q = i % 2 ? r * 0.8 : r; return `${(x + Math.cos(a) * q).toFixed(1)},${(y + Math.sin(a) * q).toFixed(1)}`; }).join(' '); return `<g transform="rotate(${rot || -10} ${x} ${y})"><polygon points="${pts}" fill="${fill}" stroke="#000" stroke-width="1.5"/>${lines.map((l, i) => T(x, y - (lines.length - 1) * size * 0.55 + i * size * 1.1 + size * 0.35, l, size, '#000', { f: BLACK })).join('')}</g>`; };
-  const ppLogo = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})">${T(0, 0, 'PIXEL', 30, '#e10600', { a: 'end', st: '#000', sw: 2.2 })}${T(2, 0, 'POST', 30, '#2a2aaa', { a: 'start', st: '#000', sw: 2.2 })}</g>`;
+  const ppLogo = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})">${T(0, 0, 'PIXEL', 30, '#e10600', { a: 'end', st: '#000', sw: 2.2, len:66 })}${T(2, 0, 'POST', 30, '#2a2aaa', { a: 'start', st: '#000', sw: 2.2, len:58 })}</g>`;
   const pageHead = n => `<rect width="210" height="16" fill="#ffd400"/><rect y="16" width="210" height="2" fill="#000"/>${ppLogo(42, 13, 0.42)}${T(204, 11.5, 'GAMES BY MAIL ORDER · AUTUMN 1999 · PAGE ' + n, 5.4, '#000', { f: BLACK, a: 'end' })}`;
   const pageFoot = () => `<rect y="268" width="210" height="12" fill="#2a2aaa"/>${T(105, 276.5, 'ORDER ONLINE: www.pixelpost.jnet · PRICES IN RUPEES · FREE P&P · SAME-DAY DELIVERY!', 5, '#fff', { f: BLACK })}`;
   function catCover() {
     const id = uid();
     const art = ['park', 'keepa', 'city', 'squigs'].map((k, i) => { const b = D.BOX && D.BOX[k]; if (!b) return ''; const inner = D.front(b).replace(/^<svg [^>]*>/, '').replace(/<\/svg>$/, ''); return `<g transform="translate(${18 + i * 44} ${118 + (i % 2) * 14}) rotate(${[-8, 4, -3, 7][i]} 30 40)"><rect x="-1.5" y="-1.5" width="63" height="85" fill="#000"/><svg width="60" height="81" viewBox="0 0 200 270" preserveAspectRatio="none">${inner}</svg></g>`; }).join('');
-    return svg('0 0 210 280', `<defs><radialGradient id="${id}" cx=".5" cy=".38" r=".8"><stop offset="0" stop-color="#ffe94a"/><stop offset=".6" stop-color="#ffb000"/><stop offset="1" stop-color="#e86a00"/></radialGradient></defs><rect width="210" height="280" fill="url(#${id})"/>
-      <g opacity=".18">${Array.from({ length: 18 }, (_, i) => `<path d="M105 120 L${(105 + Math.cos(i * Math.PI / 9) * 260).toFixed(0)} ${(120 + Math.sin(i * Math.PI / 9) * 260).toFixed(0)} L${(105 + Math.cos(i * Math.PI / 9 + 0.09) * 260).toFixed(0)} ${(120 + Math.sin(i * Math.PI / 9 + 0.09) * 260).toFixed(0)}z" fill="#fff"/>`).join('')}</g>
-      ${ppLogo(110, 58, 1.55)}<rect x="12" y="68" width="186" height="16" fill="#000"/>${T(105, 80, 'THE GAMES CATALOGUE · AUTUMN / WINTER 1999', 8.4, '#ffd400', { f: BLACK, ls: 0.5 })}
-      ${T(105, 104, 'EVERY GAME BOXED, WITH THE MANUAL!', 9.5, '#2a2aaa', { f: BLACK })}${art}
+    return svg('0 0 210 280', `${printed({ id: 'pm.catalogue' }, 0, 0, 210, 280) || `<defs><radialGradient id="${id}" cx=".5" cy=".38" r=".8"><stop offset="0" stop-color="#ffe94a"/><stop offset=".6" stop-color="#ffb000"/><stop offset="1" stop-color="#e86a00"/></radialGradient></defs><rect width="210" height="280" fill="url(#${id})"/>
+      <g opacity=".18">${Array.from({ length: 18 }, (_, i) => `<path d="M105 120 L${(105 + Math.cos(i * Math.PI / 9) * 260).toFixed(0)} ${(120 + Math.sin(i * Math.PI / 9) * 260).toFixed(0)} L${(105 + Math.cos(i * Math.PI / 9 + 0.09) * 260).toFixed(0)} ${(120 + Math.sin(i * Math.PI / 9 + 0.09) * 260).toFixed(0)}z" fill="#fff"/>`).join('')}</g>`}
+      <rect width="210" height="67" fill="#fff0cf" fill-opacity=".96"/>${ppLogo(110, 58, 1.55)}<rect x="12" y="68" width="186" height="16" fill="#000"/>${T(105, 80, 'THE GAMES CATALOGUE · AUTUMN / WINTER 1999', 8.4, '#ffd400', { f: BLACK, ls: 0.5, len:174 })}
+      <rect x="8" y="90" width="194" height="22" fill="#fff0cf" fill-opacity=".96"/>${T(105, 104, 'EVERY GAME BOXED, WITH THE MANUAL!', 9.5, '#2a2aaa', { f: BLACK, len:182 })}${art}
       ${burst(168, 214, 30, '#e10600', ['FREE', 'P&P!'], 11, -12).replace(/fill="#000"/g, 'fill="#fff"')}${burst(40, 226, 26, '#7aff4a', ['PAY IN', 'RUPEES'], 8.4, 8)}
       <rect x="0" y="246" width="210" height="34" fill="#2a2aaa"/>${T(105, 262, 'SAME-DAY DELIVERY', 15, '#ffd400')}${T(105, 274, 'www.pixelpost.jnet · Unit 4, The Industrial Estate', 6, '#fff', { f: SANS })}`);
   }
@@ -217,7 +230,9 @@
   }
   function catPage(items, n) {
     const block = (x, i) => {
-      const y = 26 + i * 120, inner = x.art ? x.art.replace(/^<svg [^>]*>/, '').replace(/<\/svg>$/, '') : '';
+      // Shop magazine thumbnails are HTML images; use the native cover SVG so its bitmap embeds in WebGL too.
+      const cover = x.kind === 'mag' ? magCover(PM.item(x.id), false) : x.art || cartArt(x);
+      const y = 26 + i * 120, inner = x.kind === 'mag' ? cover.replace('<svg ', '<svg width="200" height="270" ') : cover.replace(/^<svg [^>]*>/, '').replace(/<\/svg>$/, '');
       const blurb = wrap(x.blurb, 34).slice(0, 6);
       const tag = !x.soon && x.tag ? burst(22, y + 12, 13, { new: '#7aff4a', hot: '#ff7a00', budget: '#4ad0ff' }[x.tag] || '#fff', [{ new: 'NEW!', hot: 'HOT!', budget: 'BARGAIN' }[x.tag] || ''], x.tag === 'budget' ? 5.6 : 7.4, 10) : '';
       return `<g><rect x="10" y="${y}" width="190" height="112" fill="${i ? '#f4f6ff' : '#fffaf0'}" stroke="#ccc"/><rect x="14" y="${y + 6}" width="74" height="100" fill="#000"/><svg x="16" y="${y + 8}" width="70" height="96" viewBox="0 0 200 270" preserveAspectRatio="none">${inner}</svg>

@@ -534,7 +534,8 @@
     rb.ball(-1.2, -14.4, 2, 0.7, 0.7, 0.3, M({ c: '#e8261c', e: '#600' }), 6); rb.ball(1.2, -14.4, 2, 0.7, 0.7, 0.3, M({ c: '#e8261c', e: '#600' }), 6);
     rb.box(-4.6, -9, 0, 1.6, 5, 1.8, M('#a8a8b0')); rb.box(4.6, -9, 0, 1.6, 5, 1.8, M('#a8a8b0')); rb.cyl(0, -17, 0, 0.2, 0.2, 2.4, 4, mMetal); rb.ball(0, -18.4, 0, 0.6, 0.6, 0.6, M('#f0c000'), 6);
     rb.box(0, -9, 2.3, 4, 3, 0.4, M({ c: '#2a6ae0', e: '#0a1a40' }));
-    [['#1a1a2a', 0], ['#7a1a1a', 4]].forEach(([c, dx]) => S2.rbox(-50 + dx, -12, 0, 3.6, 24, 17, 0.3, M(c), { rz: dx ? -6 : 0 }));
+    // Upright with a visible gap: the old six-degree lean intersected its neighbour.
+    [['#1a1a2a', 0], ['#7a1a1a', 5.2]].forEach(([c, dx]) => S2.rbox(-50 + dx, -12, 0, 3.6, 24, 17, 0.3, M(c)));
     H.spot('shelf', { label: 'My shelf', obj: g });
     H.spot('coaster',{label:'Buildex roller coaster',obj:coaster,act:run,wrapped:1});
     shelfLoose('coaster',coaster,{room:'bedroom',x:x0+4,y,z,ry:0},'Buildex roller coaster',[38,1,18],{use:run,useLabel:'Run the car'});
@@ -755,7 +756,16 @@
       t.rbox(0,-5.5,0,1.2,11,7,.15,M('#62676d'));
       t.box(0,-5.5,3.55,1,10.5,.12,M({c:'#fff',map:K.tex('starter.mix'+n,64,512,(c,w,h)=>{
         c.fillStyle=['#e6d9b8','#d4dbcf','#dfcbbe'][col];c.fillRect(0,0,w,h);c.translate(32,256);c.rotate(-Math.PI/2);A.text(c,'RADIO MIX '+n+' • 1999',0,9,'700 30px '+A.UIF,'#263947','center');
-      },{clamp:true})}));t.shadow(0,0,0,2,8,.45,{sq:true});
+      },{clamp:true})}));
+      const inlay=A.printed('starter.inlay'+n,256,Math.round(256*10.4/6.3),(c,w,h)=>{
+        c.fillStyle=['#e6d9b8','#d4dbcf','#dfcbbe'][col];c.fillRect(0,0,w,h);c.textAlign='center';
+        c.fillStyle='#263947';c.font='700 28px '+A.UIF;c.fillText('RADIO MIX '+n,w/2,49);
+        c.font='700 13px '+A.UIF;c.fillText('RECORDED OFF THE RADIO',w/2,75);
+        if(!window.PrintArt?.paint(c,'band',16,96,w-32,h-176)){c.fillStyle='#58677b';c.fillRect(16,96,w-32,h-176);c.strokeStyle='#c0a773';c.lineWidth=4;for(let y=116;y<h-80;y+=24){c.beginPath();c.moveTo(28,y);c.lineTo(w-28,y);c.stroke()}}
+        c.fillStyle='#263947';c.font='700 19px '+A.HAND;c.fillText('My favourites • 1999',w/2,h-42);c.textAlign='left';
+      },{clamp:true});
+      t.box(.63,-5.5,0,.06,10.4,6.3,{r:M({c:'#fff',map:inlay,sh:6}),all:paper});
+      t.shadow(0,0,0,2,8,.45,{sq:true});
     }
     // Home recordings fit behind the consoles, rather than occupying their bays.
     ['GALAXY WALK','ROBOT RUMBLE'].forEach((title,i)=>{
@@ -1200,18 +1210,31 @@
   // Things that live on the bookcase for good (not grab props, never in a book slot): a stack of family board
   // games on top and steel bookends in the end gaps, so the case reads as lived-in with only a few books.
   function bookcaseDressing(G,boards){
-    const lids=K.tex('rm.boardgames',512,512,(g,w,h)=>{
-      const band=(y,bg,fg,title,sub,draw)=>{g.fillStyle=bg;g.fillRect(0,y,w,170);g.fillStyle=fg;g.fillRect(0,y,w,10);g.fillRect(0,y+160,w,10);draw(y);
-        g.save();g.textAlign='center';g.font='64px '+A.FONT;g.lineWidth=6;g.strokeStyle='rgba(0,0,0,.55)';g.strokeText(title,w/2,y+92);g.fillStyle='#fff';g.fillText(title,w/2,y+92);g.font='700 22px '+A.UIF;g.fillStyle=fg;g.fillText(sub,w/2,y+132);g.restore();};
-      band(0,'#e9e3d2','#b3241f','MONEYOPOLY','THE PROPERTY TRADING GAME',y=>{g.fillStyle='#b3241f';g.fillRect(150,y+30,212,74);});
-      band(171,'#f2b21b','#3b2a82','CAT TRAP!','THE CRAZY CONTRAPTION GAME',y=>{g.fillStyle='#e0533a';for(let i=0;i<9;i++){g.beginPath();g.arc(30+i*56,y+148,12,0,7);g.fill();}});
-      band(342,'#2f7ac0','#ffe36a','DOCTOR DOCTOR!','THE STEADY HAND GAME - BZZT!',y=>{g.fillStyle='#ffd6b0';g.beginPath();g.ellipse(70,y+85,34,58,0,0,7);g.fill();g.fillStyle='#e02020';g.beginPath();g.arc(70,y+40,10,0,7);g.fill();});
+    // Three roughly 3:2 lids share one atlas. The old square atlas compressed
+    // each lid to 3:1, stretching pictures and lettering on the physical box.
+    const lids=A.printed('rm.boardgames',512,1024,(g,w,h)=>{
+      const rowH=h/3;
+      const band=(row,bg,fg,title,sub,key,draw)=>{
+        const y=row*rowH;g.save();g.beginPath();g.rect(0,y,w,rowH);g.clip();
+        g.fillStyle=bg;g.fillRect(0,y,w,rowH);g.save();g.translate(0,y+rowH*.12);draw(0);g.restore();
+        window.PrintArt?.paint(g,key,0,y,w,rowH);
+        const shade=g.createLinearGradient(0,y+rowH*.57,0,y+rowH);shade.addColorStop(0,'rgba(12,19,30,0)');shade.addColorStop(.45,'rgba(12,19,30,.90)');shade.addColorStop(1,'rgba(12,19,30,.96)');g.fillStyle=shade;g.fillRect(0,y+rowH*.57,w,rowH*.43);
+        g.fillStyle=fg;g.fillRect(0,y,w,5);g.fillRect(0,y+rowH-5,w,5);
+        g.textAlign='center';let size=52;do{g.font=size+'px '+A.FONT;if(g.measureText(title).width<=w-36)break;size--}while(size>24);
+        g.fillStyle='#fff4db';g.fillText(title,w/2,y+rowH-47);g.font='700 17px '+A.UIF;g.fillStyle='#f4d177';g.fillText(sub,w/2,y+rowH-21);g.restore();
+      };
+      band(0,'#e9e3d2','#b3241f','MONEYOPOLY','THE PROPERTY TRADING GAME','board.property',y=>{g.fillStyle='#b3241f';g.fillRect(150,y+30,212,74);});
+      band(1,'#f2b21b','#3b2a82','CAT TRAP!','THE CRAZY CONTRAPTION GAME','board.cat',y=>{g.fillStyle='#e0533a';for(let i=0;i<9;i++){g.beginPath();g.arc(30+i*56,y+148,12,0,7);g.fill();}});
+      band(2,'#2f7ac0','#ffe36a','DOCTOR DOCTOR!','THE STEADY HAND GAME - BZZT!','board.doctor',y=>{g.fillStyle='#ffd6b0';g.beginPath();g.ellipse(70,y+85,34,58,0,0,7);g.fill();g.fillStyle='#e02020';g.beginPath();g.arc(70,y+40,10,0,7);g.fill();});
     },{clamp:true});
     const lidM=M({c:'#fff',map:lids,sh:14,sp:'#222'});
     const lidBox=(x,y,z,w,h,d,row,ry)=>{ // a box whose lid shows one band of the atlas; its sides show the band's edge colours
-      const geo=new T.BoxGeometry(w,h,d),uv=geo.attributes.uv,per=uv.count/6,v0=row*171/512,v1=(row*171+170)/512;
+      const geo=new T.BoxGeometry(w,h,d),uv=geo.attributes.uv,per=uv.count/6,v0=row/3,v1=(row+1)/3;
       for(let f=0;f<6;f++)for(let i=f*per;i<(f+1)*per;i++){const u=uv.getX(i),v=uv.getY(i);
-        if(f===3)uv.setXY(i,u,1-(v0+(1-v)*(v1-v0)));else uv.setXY(i,0.05+u*0.9,1-(v0+0.03*(v1-v0)+(1-v)*0.004));}
+        if(f===3)uv.setXY(i,u,1-(v0+v*(v1-v0)));
+        // The five-pixel edge stripe is a solid printed carton colour. Sampling
+        // a sliver of the painting instead produced stretched vertical streaks.
+        else uv.setXY(i,.5,1-(v0+2/1024));}
       G.geo(geo,x,y,z,lidM,{ry});
     };
     const top=-77.4;
@@ -1253,7 +1276,15 @@
       if(sparseStarter&&mag)return;
       if(!Number.isInteger(slots[id])){slots[id]=used.has(index)?Array.from({length:32},(_,n)=>n).find(n=>!used.has(n)):index;used.add(slots[id]);saveSlots()}
       const n=slots[id],obj=new T.Group(),O=K.into(obj),col=['#354a65','#8b3c30','#485b41','#b08740','#554364'][index%5];
-      const print=A.printed('reading.print.'+id,256,mag?340:384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);c.font='bold 26px Georgia';K.wrapText(c,title,20,64,w-40,31);c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':id.startsWith('reading.school.')?'YEAR 11 • MY NOTES':'JACKSOFT PAPERBACKS',20,h-42);if(id.startsWith('reading.school.')){c.strokeStyle='#c8b67d';c.lineWidth=2;for(let y=170;y<h-85;y+=14){c.beginPath();c.moveTo(24,y);c.lineTo(w-24,y);c.stroke()}c.font='700 14px '+A.UIF;c.fillStyle='#eee0b6';c.textAlign='center';c.fillText(Cast.t('PROPERTY OF {me.NAME}'),w/2,h-72,w-32);return}const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):['city','space','critters','robots','space','robots'][+id.split('.').pop()];if(!window.PrintArt?.paint(c,art,20,h*.46,w-40,h*.34)){c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,h*.5+k*11,105,70)}},{clamp:true,identity:id.startsWith('reading.school.')});
+      const print=A.printed('reading.print.'+id,256,mag?340:Math.round(256*21.52/14),(c,w,h)=>{
+        c.textAlign='left';c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);
+        c.font='bold 26px Georgia';const end=K.wrapText(c,title,20,64,w-40,31);
+        c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':id.startsWith('reading.school.')?'YEAR 11 • MY NOTES':'JACKSOFT PAPERBACKS',20,h-42);
+        if(id.startsWith('reading.school.')){c.strokeStyle='#c8b67d';c.lineWidth=2;for(let y=170;y<h-85;y+=14){c.beginPath();c.moveTo(24,y);c.lineTo(w-24,y);c.stroke()}c.font='700 14px '+A.UIF;c.fillStyle='#eee0b6';c.textAlign='center';c.fillText(Cast.t('PROPERTY OF {me.NAME}'),w/2,h-72,w-32);return}
+        // Public book IDs are also the shared artwork keys; type stays native.
+        const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):id,artY=Math.max(h*.46,end+16),artH=h-72-artY;
+        if(!window.PrintArt?.paint(c,art,20,artY,w-40,artH)){c.save();c.beginPath();c.rect(20,artY,w-40,artH);c.clip();c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,artY+10+k*11,105,70);c.restore()}
+      },{clamp:true,identity:id.startsWith('reading.school.')});
       const spine=K.tex('reading.spine.'+id,64,384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.translate(w/2,h/2);c.rotate(-Math.PI/2);c.fillStyle='#f3e6c1';let size=24;c.font='bold '+size+'px Georgia';while(c.measureText(title).width>h-22&&size>10)c.font='bold '+(--size)+'px Georgia';c.textAlign='center';c.fillText(title,0,8)},{clamp:true});
       if(mag){
         const face=cover?tex(cover):print,mesh=O.box(0,-.4,0,21,.8,28,{t:M({c:'#fff',map:face,sp:'#000000'}),u:M({c:'#fff',map:face,sp:'#000000'}),l:M({c:'#fff',map:spine}),all:M('#e6dfcf')});
@@ -1925,34 +1956,28 @@
   // Real games live in individually spaced slots beside the cabinet.
   const mediaThings = {};
   function mediaLabel(g, con) {
-    return K.tex('media.print.' + g.id, 512, 320, (c, w, h) => {
-      const zipPrint=g.id==='md.zip'||g.id==='dc.dash';
-      const portrait=()=>{const cv=document.createElement('canvas');cv.width=512;cv.height=320;const ctx=cv.getContext('2d');caseScene(ctx,g);ctx.fillStyle='#70c8dd';ctx.fillRect(0,0,210,46);return cv};
-      if(zipPrint&&con.media==='disc'){
-        c.fillStyle='#582878';c.fillRect(0,0,w,h);c.strokeStyle='#a878d0';c.lineWidth=8;
-        for(let r=90;r<300;r+=44){c.beginPath();c.ellipse(w/2,h/2,r,r*.625,0,0,Math.PI*2);c.stroke()}
-        c.drawImage(portrait(),128,24,288,288,44,110,156,156);
-        c.textAlign='center';c.fillStyle='#f0e8dc';c.font='bold 23px Arial';c.fillText(con.brand,w/2,43);
-        c.fillStyle='#ffd23a';c.font='italic bold 31px Arial';c.fillText(g.title,w/2,83);
-        c.fillStyle='#f0e8dc';c.font='16px Courier New';c.fillText('ORIGINAL GAME / 1999',w/2,279);return;
-      }
+    // Match the physical sticker: square on discs, taller on Game Lad carts.
+    // HouseArt.printed repaints even cached K.tex canvases on PrintArt.ready.
+    const disc=con.media==='disc',small=g.con==='gb',height=disc?512:Math.round(512*(small?5.8:8)*.61/((small?5.4:10)*.73));
+    return A.printed('media.print.' + g.id, 512, height, (c, w, h) => {
+      c.textAlign='left';
       c.fillStyle = '#eee5cd'; c.fillRect(0, 0, w, h);
       const gr = c.createLinearGradient(0, 0, w, h); gr.addColorStop(0, g.col || '#344b6c'); gr.addColorStop(1, '#161a27');
       c.fillStyle = gr; c.fillRect(8, 8, w - 16, h - 16);
-      c.save(); c.beginPath(); c.rect(8, 8, w - 16, h - 16); c.clip();
-      c.strokeStyle = 'rgba(255,239,171,.16)'; c.lineWidth = 14;
-      for (let x = -h; x < w; x += 62) { c.beginPath(); c.moveTo(x, h); c.lineTo(x + h, 0); c.stroke(); }
-      // Zip's own illustration replaces the generic cartridge crest.
-      if(zipPrint){c.drawImage(portrait(),128,24,288,288,334,62,156,156);c.strokeStyle='#efe5c8';c.lineWidth=3;c.strokeRect(333,61,158,158)}
-      // Original printed game art for the other cartridges stays unchanged.
-      if(!zipPrint){c.fillStyle = '#f4cc5d'; c.beginPath(); c.arc(420, 100, 50, 0, Math.PI * 2); c.fill();
-      c.fillStyle = '#202634'; for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) if ((x + y) % 2) c.fillRect(380 + x * 20, 60 + y * 20, 20, 20);}
-      c.restore(); c.fillStyle = '#131722'; c.fillRect(8, 8, w - 16, 43);
-      c.fillStyle = '#efe5c8'; c.font = 'bold 23px Arial'; c.textAlign = 'left'; c.fillText(con.brand, 23, 38, w - 46);
-      c.font = 'italic bold 42px Arial'; c.fillStyle = '#fff7df'; c.shadowColor = '#121421'; c.shadowBlur = 0; c.shadowOffsetY = 3;
-      K.wrapText(c, g.title, 25, 158, zipPrint?290:455, 45); c.shadowOffsetY = 0;
-      c.fillStyle = '#e2d8bd'; c.font = '16px "Courier New"'; c.fillText('1999  •  ' + (con.media === 'disc' ? 'CD-ROM' : 'GAME PAK'), 23, 288);
-      if (g.owner) { c.fillStyle = '#fff3b5'; c.fillRect(330, 254, 159, 48); c.fillStyle = '#273a65'; c.font = 'bold 19px "Courier New"'; c.fillText(g.owner.toUpperCase() + "'S", 342, 285, 140); }
+      if(disc)caseScene(c,g,8,8,w-16,h-16);
+      c.fillStyle='#131722';c.fillRect(8,8,w-16,disc?66:43);
+      const rows=[];let line='';c.font='italic bold 32px Arial';
+      for(const word of g.title.split(' ')){const next=(line+' '+word).trim();if(line&&c.measureText(next).width>312){rows.push(line);line=word}else line=next}if(line)rows.push(line);
+      if(disc){c.fillRect(72,76,w-144,rows.length*36+14);c.fillRect(128,430,256,35)}
+      c.fillStyle='#efe5c8';c.font='bold 23px Arial';
+      if(disc){c.textAlign='center';c.fillText(con.brand,w/2,65);c.textAlign='left'}else c.fillText(con.brand,23,38);
+      // Native lettering sits above the illustration, clear of the disc hub.
+      c.font='italic bold 32px Arial';c.fillStyle='#fff7df';c.textAlign=disc?'center':'left';
+      if(disc)rows.forEach((row,i)=>c.fillText(row,w/2,109+i*36));
+      else{const artY=K.wrapText(c,g.title,25,91,w-50,36)+14;caseScene(c,g,20,artY,w-40,h-68-artY)}c.textAlign='left';
+      c.fillStyle='#e2d8bd';c.font='16px "Courier New"';c.textAlign=disc?'center':'left';
+      c.fillText('1999  •  '+(disc?'CD-ROM':'GAME PAK'),disc?w/2:23,disc?454:h-28);c.textAlign='left';
+      if(g.owner){c.fillStyle='#fff3b5';c.fillRect(330,disc?230:h-60,159,36);c.fillStyle='#273a65';c.font='bold 19px "Courier New"';c.fillText(g.owner.toUpperCase()+"'S",342,disc?254:h-36,140)}
     }, { clamp: true, identity: true });
   }
   function mediaModel(g, con) {
@@ -2000,16 +2025,14 @@
   const inOwnCase=g=>mediaThings[g]?.st==='snap'&&mediaThings[g].snap==='media.case.'+g;
   const onMediaRack=box=>Math.abs(box.at.z+43)<1&&Math.abs(box.at.x-(TX-56))<17;
   function rackPose(slot){return{room:'bedroom',x:TX-66.5+(slot%4)*7,y:7+Math.floor(slot/4)*15,z:-43,ry:90};}
-  // Small, period-style printed illustrations; lettering is drawn separately.
-  const caseArtFiles={'n64.kart':'/art/box-v1/kart.webp','n64.range':'/art/box-v1/spy.webp','ps.run':'/art/box-v1/wombat.webp','ps.grav':'/art/print-v2/hover.webp','gb.mon':'/art/print-v2/critters.webp','gb.mon2':'/art/print-v2/critters.webp'},caseArt={};
-  function printedCaseTexture(key,g,w,h,paint){
-    const tx=K.tex(key,w,h,paint,{clamp:true}),file=caseArtFiles[g.id];
-    if(file){let entry=caseArt[file];if(!entry){entry=caseArt[file]={image:new Image(),ready:false,prints:new Map()};entry.image.onload=()=>{entry.ready=true;for(const [texture,draw]of entry.prints){const canvas=texture.userData.canvas||texture.image,ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);draw(ctx,canvas.width,canvas.height);texture.needsUpdate=true}H.dirty()};entry.image.src=file}entry.prints.set(tx,paint)}
-    return tx;
+  // Preserve complete silhouettes inside the shorter title/label windows:
+  // cropping square hero art here used to cut off Zip's face and goggles.
+  function caseScene(c,g,x=0,y=0,w=512,h=320){
+    c.fillStyle=g.col||'#182d55';c.fillRect(x,y,w,h);
+    if(window.PrintArt?.paint(c,g.id,x,y,w,h,'contain'))return;
+    c.save();c.translate(x,y);c.scale(w/512,h/320);proceduralCaseScene(c,g);c.restore();
   }
-  function caseScene(c,g){
-    const art=caseArt[caseArtFiles[g.id]];
-    if(art?.ready){c.fillStyle='#18212f';c.fillRect(0,0,512,320);const im=art.image,scale=Math.min(512/im.width,320/im.height),w=im.width*scale,h=im.height*scale;c.save();c.imageSmoothingEnabled=false;c.drawImage(im,(512-w)/2,(320-h)/2,w,h);c.restore();return}
+  function proceduralCaseScene(c,g){
     const sky=c.createLinearGradient(0,0,0,320);sky.addColorStop(0,'#182d55');sky.addColorStop(1,g.col||'#ab6236');c.fillStyle=sky;c.fillRect(0,0,512,320);
     c.fillStyle='#efca78';c.beginPath();c.arc(395,60,42,0,7);c.fill();c.fillStyle='#253449';c.beginPath();c.moveTo(0,200);for(let x=0;x<=512;x+=64)c.lineTo(x,100+((x*7+g.id.length*29)%90));c.lineTo(512,320);c.lineTo(0,320);c.fill();
     if(g.id==='md.zip'||g.id==='dc.dash'){
@@ -2036,17 +2059,18 @@
     else if(/range|sneak/.test(g.id)){c.fillStyle='#d1a74b';c.beginPath();c.arc(256,176,93,0,7);c.fill();c.strokeStyle='#fff0b3';c.lineWidth=10;c.beginPath();c.arc(256,176,62,0,7);c.stroke();c.strokeStyle='#352b34';c.lineWidth=7;for(const dx of [-1,1]){c.beginPath();c.moveTo(256+dx*115,176);c.lineTo(256+dx*45,176);c.stroke()}c.fillStyle='#282c36';c.fillRect(237,143,38,110);c.beginPath();c.arc(256,119,24,0,7);c.fill()}
     else{c.fillStyle='#355c38';c.beginPath();c.ellipse(256,301,250,50,0,0,7);c.fill();c.fillStyle=/run|dash|hop|grab/.test(g.id)?'#ce793a':'#79935c';c.beginPath();c.ellipse(250,195,68,81,-.2,0,7);c.fill();for(const x of [207,291]){c.beginPath();c.ellipse(x,104,25,39,(x-250)/100,0,7);c.fill()}c.fillStyle='#f5e4bb';for(const x of [229,267]){c.beginPath();c.ellipse(x,161,15,21,0,0,7);c.fill();c.fillStyle='#202634';c.beginPath();c.arc(x+3,166,6,0,7);c.fill();c.fillStyle='#f5e4bb'}c.fillStyle='#302a2b';c.beginPath();c.ellipse(248,202,20,14,0,0,7);c.fill();c.fillStyle='#dfb45b';c.fillRect(81,236,41,40);c.fillRect(389,211,41,40)}
   }
-  function caseCover(g,con){return printedCaseTexture('media.case.cover.'+g.id,g,512,512,(c,w,h)=>{
-    c.fillStyle='#ebe0c5';c.fillRect(0,0,w,h);c.fillStyle='#18212f';c.fillRect(8,8,496,48);c.fillStyle='#eee3c4';c.font='bold 24px Arial';c.fillText(con.brand,22,40);
-    c.save();c.translate(12,64);c.scale(488/512,1);caseScene(c,g);c.restore();c.fillStyle='#15212b';c.fillRect(12,384,488,88);c.fillStyle='#fff0c5';let fs=34;const words=g.title.split(' ');while(fs>18){c.font='italic bold '+fs+'px Arial';let lines=1,line='';for(const word of words){if(c.measureText((line+' '+word).trim()).width>458){lines++;line=word}else line=(line+' '+word).trim()}if(lines<=2)break;fs--}K.wrapText(c,g.title,26,420,458,fs+5);c.fillStyle='#293849';c.font='bold 15px Courier New';c.fillText('JACKSOFT • ORIGINAL GAME • 1999',22,495);
-  });}
-  function casePrint(g,con,spine){
-    return printedCaseTexture('media.case.'+(spine?'spine.':'back.')+g.id,g,spine?640:512,spine?96:512,(c,w,h)=>{
-      c.fillStyle=g.col||'#344b6c';c.fillRect(0,0,w,h);c.fillStyle='#eee5cd';c.fillRect(0,0,w,spine?20:52);
+  function caseCover(g,con,ratio){return A.printed('media.case.cover.'+g.id,512,Math.round(512/ratio),(c,w,h)=>{
+    c.textAlign='left';c.fillStyle='#ebe0c5';c.fillRect(0,0,w,h);c.fillStyle='#18212f';c.fillRect(8,8,496,48);c.fillStyle='#eee3c4';c.font='bold 24px Arial';c.fillText(con.brand,22,40);
+    caseScene(c,g,12,64,488,h-192);c.fillStyle='#15212b';c.fillRect(12,h-128,488,88);c.fillStyle='#fff0c5';let fs=34;const words=g.title.split(' ');while(fs>18){c.font='italic bold '+fs+'px Arial';let lines=1,line='';for(const word of words){if(c.measureText((line+' '+word).trim()).width>458){lines++;line=word}else line=(line+' '+word).trim()}if(lines<=2)break;fs--}K.wrapText(c,g.title,26,h-92,458,fs+5);c.fillStyle='#293849';c.font='bold 15px Courier New';c.fillText('JACKSOFT • ORIGINAL GAME • 1999',22,h-17);
+  },{clamp:true});}
+  function casePrint(g,con,spine,ratio){
+    const width=spine?640:512;
+    return A.printed('media.case.'+(spine?'spine.':'back.')+g.id,width,Math.round(width/ratio),(c,w,h)=>{
+      c.textAlign='left';c.fillStyle=g.col||'#344b6c';c.fillRect(0,0,w,h);c.fillStyle='#eee5cd';c.fillRect(0,0,w,spine?20:52);
       c.fillStyle='#1d222b';c.font='bold '+(spine?15:22)+'px Arial';c.fillText(con.brand,spine?12:24,spine?16:34);
-      if(spine){let size=32;c.font='bold '+size+'px Arial';while(c.measureText(g.title).width>w-28&&size>12)c.font='bold '+(--size)+'px Arial';c.fillStyle='#fff6d9';c.fillText(g.title,14,64);c.fillStyle='#e8dfc7';c.font='12px Courier New';c.fillText('JACKSOFT • 1999',14,87)}
-      else{c.fillStyle='#fff3d3';c.font='bold 31px Arial';const end=K.wrapText(c,g.title,24,96,w-48,36);c.font='21px Arial';K.wrapText(c,g.blurb||'An original adventure for your console.',24,end+26,w-48,28);for(let i=0;i<3;i++){c.save();c.translate(28+i*154,312);c.scale(144/512,90/320);caseScene(c,g);c.restore()}c.fillStyle='#eee5cd';c.font='18px Courier New';c.fillText('1 PLAYER • COLOUR • SOUND',24,444);c.font='15px Courier New';c.fillText('KEEP THE INSTRUCTIONS. LOSE THE AFTERNOON.',24,475)}
-    });
+      if(spine){let size=Math.min(32,Math.floor(h*.27));c.font='bold '+size+'px Arial';while(c.measureText(g.title).width>w-28&&size>12)c.font='bold '+(--size)+'px Arial';c.fillStyle='#fff6d9';c.fillText(g.title,14,h*.67);c.fillStyle='#e8dfc7';c.font='12px Courier New';c.fillText('JACKSOFT • 1999',14,h-9)}
+      else{c.fillStyle='#fff3d3';c.font='bold 31px Arial';const end=K.wrapText(c,g.title,24,96,w-48,36);c.font='21px Arial';K.wrapText(c,g.blurb||'An original adventure for your console.',24,end+26,w-48,28);for(let i=0;i<3;i++)caseScene(c,g,28+i*154,h-200,144,90);c.fillStyle='#eee5cd';c.font='18px Courier New';c.fillText('1 PLAYER • COLOUR • SOUND',24,h-68);c.font='15px Courier New';c.fillText('KEEP THE INSTRUCTIONS. LOSE THE AFTERNOON.',24,h-37)}
+    },{clamp:true,identity:true});
   }
   function mediaCaseModel(g,con){
     const obj=new T.Group(),batch=K.batch(),B=K.into(batch),disc=con.media==='disc',w=disc?14.2:13,h=12.6,d=disc?1.5:3.2;
@@ -2056,12 +2080,12 @@
     for(const x of [-w/2+.18,w/2-.18])B.box(x,-h/2,0,.36,h,d,shell);
     for(const y of [-h+.1,-.1])B.box(0,y,0,w-.4,.2,d,shell);
     B.box(0,-h/2,-d/2+.44,w-.7,h-.7,.12,paper);
-    B.decal(0,-h/2,-d/2-.015,w-.5,h-.5,M({c:'#fff',map:casePrint(g,con,false),sh:6}),{ry:180});
-    B.decal(-w/2-.015,-h/2,0,h-.4,d*.86,M({c:'#fff',map:casePrint(g,con,true),sh:8}),{ry:-90,rz:90});
+    B.decal(0,-h/2,-d/2-.015,w-.5,h-.5,M({c:'#fff',map:casePrint(g,con,false,(w-.5)/(h-.5)),sh:6}),{ry:180});
+    B.decal(-w/2-.015,-h/2,0,h-.4,d*.86,M({c:'#fff',map:casePrint(g,con,true,(h-.4)/(d*.86)),sh:8}),{ry:-90,rz:90});
     // A real hinged front: fixed details batch together; the lid moves alone.
     const lid=new T.Group();lid.position.set(-w/2,0,d/2-.14);obj.add(lid);const L=K.into(lid);
     L.rbox(w/2,-h/2,0,w,h,.32,.12,M({c:disc?'#9eabb4':'#e4ddc8',sh:disc?70:8,sp:'#777'}));
-    L.decal(w/2,-h/2,.18,w-.65,h-.65,M({c:'#fff',map:caseCover(g,con),sh:disc?32:6}));
+    L.decal(w/2,-h/2,.18,w-.65,h-.65,M({c:'#fff',map:caseCover(g,con,(w-.65)/(h-.65)),sh:disc?32:6}));
     L.rbox(w-.25,-h/2,.22,.5,2,.24,.1,shell);
     if(disc){B.cyl(0,-h/2,.5,.9,.9,.35,16,shell,{rx:90});for(const x of [-4,4])B.box(x,-h+.8,.5,.4,1,.5,shell)}
     for(const y of [-h+1,-1])B.cyl(-w/2,y,d/2-.13,.22,.22,1.1,10,shell);

@@ -1164,7 +1164,9 @@
         t.vy += 1800 * dt; a.y += t.vy * dt;
         // (slide the last bit from where it was held to where it lands)
         const sk = Math.min(1, (now - t.t0) / 240); t.obj.position.x = lerp(t.fromX == null ? a.x : t.fromX, a.x, ease(sk)); t.obj.position.z = lerp(t.fromZ == null ? a.z : t.fromZ, a.z, ease(sk));
-        if (a.y >= t.landY) { a.y = t.landY; if (t.vy > 160) { t.vy = -t.vy * 0.22; physicalSound('handle', {weight:thingWeight(t),put:true}); } else { t.vy = 0; if (sk >= 1) { t.st = 'rest'; t.fromX = t.fromZ = null; syncBody(t); layerFor(t); saveThings(); emit('rest', id); } } }
+        // A slow frame adds up to 216 cm/s of gravity. Do not bounce forever
+        // on that numerical contact velocity (the old fixed 160 threshold did).
+        if (a.y >= t.landY) { a.y = t.landY; if (t.vy > Math.max(160,1800*dt)) { t.vy = -t.vy * 0.22; physicalSound('handle', {weight:thingWeight(t),put:true}); } else { t.vy = 0; if (sk >= 1) { t.st = 'rest'; t.fromX = t.fromZ = null; syncBody(t); layerFor(t); saveThings(); emit('rest', id); } } }
         t.obj.position.y = renderY(t,a.y);
         const r = t.obj.rotation; if(t.floorOnly){r.x=0;r.z=0}else{r.x *= 0.8; r.z *= 0.8;}
         any = true;

@@ -265,24 +265,30 @@
     };
   }
   const cache = {};
-  // Complete individual poster designs: their logos are part of the print, not
-  // a repeated UI header. Load once, repaint only when decoded; never crop type.
+  // Generated paintings contain no lettering. Each poster has its own native
+  // period print layout, so names stay sharp without baking AI lettering in.
   const posterImages = {};
   const issuePrints=Object.fromEntries(Array.from({length:6},(_,i)=>['magIssue'+(i+1),String(i+1).padStart(2,'0')]));
-  const postersReady = Promise.all(Object.entries({posterBand:'band',posterFilm:'film',posterGame:'game',posterRobot:'robot',posterShuttle:'shuttle',...issuePrints}).map(([name,file]) => {
-    const magazine=name.startsWith('magIssue'),height=magazine?512:538;
-    const image = new Image(), fallback = (P[name]||P.mag)[2];
-    P[name] = [384, height, (g,w,h) => {
-      if (image.naturalWidth) { g.drawImage(image,0,0,w,h); return; }
+  const posterNames=['posterBand','posterFilm','posterGame','posterRobot','posterShuttle',...Object.keys(issuePrints)];
+  for(const name of posterNames){
+    const magazine=name.startsWith('magIssue'),fallback=(P[name]||P.mag)[2];
+    P[name]=[magazine?384:512,magazine?512:716,(g,w,h)=>{
+      if(magazine){const issue=window.MagazineCat?.ISSUES[+issuePrints[name]-1];if(issue&&window.PrintArt?.magazine(g,issue,w,h))return}
+      else if(window.PrintArt?.has(name)){
+        PrintArt.paint(g,name,0,0,w,h);g.save();g.scale(w/512,h/716);g.textAlign='center';
+        const shade=g.createLinearGradient(0,420,0,716);shade.addColorStop(0,'rgba(8,14,24,0)');shade.addColorStop(1,'rgba(8,14,24,.96)');g.fillStyle=shade;g.fillRect(0,420,512,296);
+        const line=(s,y,size,font,col)=>{fit(g,s,474,size,font);g.lineWidth=5;g.strokeStyle='#121b2b';g.strokeText(s,256,y);g.fillStyle=col;g.fillText(s,256,y)};
+        if(name==='posterBand'){g.save();g.translate(256,78);g.rotate(-.065);g.translate(-256,-78);line('THE MODEM BOYS',78,53,'Georgia,serif','#fff2d8');g.restore();line('DIAL-UP TOUR ’99',674,22,UIF,'#ffd67a')}
+        else if(name==='posterFilm'){g.fillStyle='rgba(10,15,27,.45)';g.fillRect(0,0,512,224);line('INTERGALACTIC',72,49,'Georgia,serif','#f3d99c');line('BATTLES',144,72,'Georgia,serif','#f3d99c');line('EPISODE 0: THE PHANTOM MENU',194,25,UIF,'#fff1d6');line('IN SPACE, NOBODY CAN HEAR YOUR ORDER',695,14,UIF,'#d5bc97')}
+        else if(name==='posterGame'){line('HYPER DRIVE',76,62,FONT,'#d7f2ed');line('2000',145,75,FONT,'#f3c149');line('THE FUTURE IS FAST',677,25,UIF,'#d7f2ed')}
+        else if(name==='posterRobot'){line('ROBO',65,72,FONT,'#efba50');line('RUMBLE',136,83,FONT,'#f4e5c4');line('BUILD IT. BASH IT. BIN IT.',675,24,UIF,'#efba50')}
+        else{line('ORBITER 93',66,52,FONT,'#f2ead6');line('REACH FOR THE STARS',675,25,UIF,'#c2dce5');line('SUMMER 1999 • THE NEXT FRONTIER',702,13,UIF,'#c2dce5')}
+        g.restore();return;
+      }
       g.save();g.scale(w/(magazine?256:300),h/(magazine?340:420));fallback(g,magazine?256:300,magazine?340:420);g.restore();
     }];
-    posterImages[name] = image;
-    return new Promise(resolve => {
-      image.onload = () => { const tx = cache[name]; if (tx) { const g=tx.userData.g;g.clearRect(0,0,384,height);P[name][2](g,384,height);tx.needsUpdate=true; } window.House?.dirty();resolve(); };
-      image.onerror = () => resolve(); // Keep the painted fallback on a failed request.
-      image.src = '/art/'+(magazine?'magazines-v1/':'posters-v3/')+file+'.webp';
-    });
-  }));
+  }
+  const postersReady=Promise.resolve(window.PrintArt?.ready).then(()=>{for(const name of posterNames){if(!name.startsWith('magIssue'))posterImages[name]=window.PrintArt?.image(name);const p=P[name],tx=cache[name];if(tx){p[2](tx.userData.g,p[0],p[1]);tx.needsUpdate=true}}window.House?.dirty()});
   // Room surfaces: real-world tile size in cm (the kit maps every face in world space, so nothing stretches),
   // and the kind of fine detail painted at full resolution on top of the 2x-supersampled design.
   const SURF = { wallBlue: [128], artex: [110], carpetBlue: [90, 'pile'], carpetBeige: [90, 'pile'], carpetRed: [44, 'pile'], lino: [60],

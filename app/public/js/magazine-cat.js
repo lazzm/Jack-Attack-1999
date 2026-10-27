@@ -1,7 +1,8 @@
 /* JACK ATTACK! monthly print catalogue: January–December 1999.
  * Shared data only: no ownership, release gating, purchasing or DOM effects.
  * Prices are Rupees; rel is DD/MM in 1999; art is the basename under
- * /art/magazines-v1/ (append .webp). Keep pm.mag.MM save keys forever.
+ * /art/magazines-v2/ (append .webp; text-free illustration, native masthead).
+ * Keep pm.mag.MM save keys forever.
  * Page order: editorial, review, guide, letters, advertisement, comic script.
  * Early-month previews deliberately respect the existing game release dates.
  */
