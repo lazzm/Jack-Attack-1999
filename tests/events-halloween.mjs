@@ -102,7 +102,7 @@ try{
  await key('f');await until(()=>!!Season.st('halloween99').steps['hw-pumpkin']?.candle&&!House.focused&&!!House.THINGS['hw.lantern']);
  await page.waitForTimeout(1200);
  await aim([-20,GY-128,265],[-45,GY-88,174]);await key('e');await until(()=>House.held()==='hw.lantern');
- await aim([286,GY-128,1030],[300,GY-80,1095]);await key('e');
+ await aim([264,GY-128,1252],[236,GY-89,1295]);await key('e'); // the gatepost by the front gate (House.FRONT.FZ 1300)
  await until(()=>!!Season.st('halloween99').obj['hw-pumpkin']);
  assert.equal((await st()).paid['hw-pumpkin'],20,'pumpkin paid 20');
  log('carving: ok');
@@ -132,8 +132,8 @@ try{
  await until(()=>!!Season.st('halloween99').obj['hw-treat']);
  assert.equal((await st()).paid['hw-treat'],20,'trick-or-treat paid 20');
  await page.waitForTimeout(1500);
- await aim([140,GY-150,1080],[300,GY-90,1095]);await shot('13-lantern-on-gatepost');
- await aim([300,GY-160,980],[300,GY-80,700]);await shot('14-front-at-night');
+ await aim([90,GY-150,1215],[236,GY-95,1295]);await shot('13-lantern-on-gatepost');
+ await aim([300,GY-160,1180],[300,GY-80,700]);await shot('14-front-at-night');
  log('trick-or-treat: ok');
 
  // ---- 7. rewards: once per loop, even after the owner starts the event again

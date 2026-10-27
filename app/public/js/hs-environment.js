@@ -41,11 +41,11 @@
  function zone(name,build){const batch=K.batch(),b=K.into(batch),g=new T.Group();g.name=name;build(b);batch.build(g);group.add(g)}
  const houseDepth=[480,510,470,490];
  const plots={
-  opposite:Array.from({length:7},(_,i)=>[-2040+i*680,2360,180,i,540]),
+  opposite:Array.from({length:7},(_,i)=>[-2040+i*680,2560,180,i,540]),
   rear:Array.from({length:6},(_,i)=>[-1700+i*680,-1850,0,i+7,540]),
-  side:[[-1700,13],[-1020,14],[1060,15],[1740,16]].map(([x,n])=>[x,550,0,n,530])
+  side:[[-1700,13],[-1020,14],[1060,15],[1740,16]].map(([x,n])=>[x,550,0,n,730])
  };
- // The playable drive owns x=-600..1200, z=1100..1700. Scenery abuts
+ // The playable drive owns x=-600..1200, z=1300..1900 (js/hs-house.js FZ: the front gardens are 6 m deep). Scenery abuts
  // those exact edges. Slabs and kerbs share edges, never coplanar top faces.
  zone('street',b=>{
   // Global foundation stays below every playable road/turf surface.
@@ -69,18 +69,18 @@
    slab(x0,x1,kerb-5,kerb+5,paving,-12,12);
   }
   for(const [x0,x1] of [[-3250,-600],[1200,3250]]){
-   slab(x0,x1,1205,1695,road,0,3);pavement(x0,x1,1100,1195,1200);
-   for(let x=Math.ceil((x0+35)/180)*180;x<x1-35;x+=180)b.box(x,GY-.3,1440,70,.3,3,trim);
+   slab(x0,x1,1405,1895,road,0,3);pavement(x0,x1,1300,1395,1400);
+   for(let x=Math.ceil((x0+35)/180)*180;x<x1-35;x+=180)b.box(x,GY-.3,1640,70,.3,3,trim);
   }
-  // Opposite footpath's kerb occupies 1695..1705; road ends at 1695.
-  pavement(-3250,3250,1705,1800,1700);
+  // Opposite footpath's kerb occupies 1895..1905; road ends at 1895.
+  pavement(-3250,3250,1905,2000,1900);
   slab(-3250,3250,-1185,-695,road,0,3);
   pavement(-3250,3250,-1290,-1195,-1190);pavement(-3250,3250,-685,-590,-690);
   for(let x=-3150;x<3250;x+=180)b.box(x,GY-.3,-940,70,.3,3,trim);
   for(const x of [-2480,-1120,1600,2960]){
-   b.box(x,GY-.5,1682,32,1,18,metal);
-   for(let i=-2;i<=2;i++)b.box(x+i*5,GY-1.1,1682,2,.4,14,paving);
-   const l=b.at(x,GY,1762);l.cyl(0,-230,0,4,7,460,8,metal);
+   b.box(x,GY-.5,1882,32,1,18,metal);
+   for(let i=-2;i<=2;i++)b.box(x+i*5,GY-1.1,1882,2,.4,14,paving);
+   const l=b.at(x,GY,1962);l.cyl(0,-230,0,4,7,460,8,metal);
    l.box(0,-458,-26,8,8,56,metal);l.box(0,-461,-52,20,12,42,metal);l.box(0,-454,-52,16,2,34,lampGlass);
   }
  });
@@ -219,7 +219,7 @@
   // road. Their backs and hedges stay outside both playable rectangles.
   for(const p of plots.side)home(b,...p);
   const planted=b.at(0,GY+6,0);
-  for(const side of [-1,1])for(let i=0;i<4;i++)tree(planted,side*(2790+(i%2)*260),[-2110,-420,560,2320][i],460+(i%3)*55,i);
+  for(const side of [-1,1])for(let i=0;i<4;i++)tree(planted,side*(2790+(i%2)*260),[-2110,-420,560,2520][i],460+(i%3)*55,i);
  });
  const light=new T.Vector3(-.4,-.8,.4).normalize(),normal=new T.Vector3();
  group.traverse(o=>{o.userData.noPick=true;if(!o.geometry)return;const n=o.geometry.attributes.normal,colours=new Float32Array(n.count*3);for(let i=0;i<n.count;i++){const shade=.69+.29*Math.max(0,normal.fromBufferAttribute(n,i).dot(light));colours.fill(shade,i*3,i*3+3)}o.geometry.setAttribute('color',new T.Float32BufferAttribute(colours,3));o.material.vertexColors=true;});

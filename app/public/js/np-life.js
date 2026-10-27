@@ -61,16 +61,16 @@
     floorTV: { lvl: 'G', act: 'telly', seat: { x: -172, z: 401, face: 119, h: 1, floor: true, back: false, knee: 24, stand: [-172, 401], approach: [-172, 401] } },
     phone: { lvl: 'G', x: 117, z: 611, face: 90, act: 'phone' },
     // hall, landing
-    hallYoyo: { lvl: 'G', x: 266, z: 430, face: 15, act: 'yoyo' },
-    hallStairs: { lvl: 'G', x: 246, z: 560, face: 60 },
+    hallYoyo: { lvl: 'G', x: 238, z: 420, face: 40, act: 'yoyo' }, // (by the wall: the hall stays passable)
+    hallStairs: { lvl: 'G', x: 258, z: 626, face: 70 }, // (watching you on the stairs, clear of the lounge door and the stair foot)
     hallPost: { lvl: 'G', x: 262, z: 610, face: 160 },
     landingSis: { lvl: 'U', x: 290, z: 335, face: 150 },
     // garden, drive
     gardenWater: { lvl: 'G', x: -108, z: -455, face: -90, act: 'water' },
     gardenLook: { lvl: 'G', x: 10, z: -300, face: 200 },
     gardenYoyo: { lvl: 'G', x: 40, z: -215, face: 160, act: 'yoyo' },
-    carwash: { lvl: 'G', x: 325, z: 905, face: 90, act: 'carwash' },
-    carStory: { lvl: 'G', x: 318, z: 800, face: 200 },
+    carwash: { lvl: 'G', x: 362, z: 1000, face: 90, act: 'carwash' }, // beside Dad's car (House.ROOMS.drive.carFrame), off the path
+    carStory: { lvl: 'G', x: 364, z: 812, face: 200 }, // by the boot (js/hs-house.js CAR), off the path to the gate
     // Jack's room (story visits)
     bedDoorMom: { lvl: 'U', x: 178, z: 196, face: -95 },
     bedDad: { lvl: 'U', x: 168, z: 126, face: -110 },
@@ -78,7 +78,7 @@
     // ways out (they disappear through these when nobody's looking)
     parents: { lvl: 'G', x: 0, z: 0, exit: true }, // filled in below
   };
-  const EXIT = { parents: { lvl: 'U', x: 290, z: 662, face: 0 }, sisRoom: { lvl: 'U', x: 284, z: 490, face: -90 }, car: { lvl: 'G', x: 318, z: 965, face: 90 }, street: { lvl: 'G', x: 60, z: 1012, face: 180 } };
+  const EXIT = { parents: { lvl: 'U', x: 290, z: 662, face: 0 }, sisRoom: { lvl: 'U', x: 284, z: 490, face: -90 }, car: { lvl: 'G', x: 362, z: 1080, face: 90 }, street: { lvl: 'G', x: 290, z: 1336, face: 180 } }; // (street: out of the front gate, on the pavement)
   delete SPOT.parents;
   const MUG = ['kmug1', 'kmug2', 'kmug3'];
 
@@ -582,14 +582,29 @@
   }
 
   // ================================================================ you and them: bumping, looking, being looked at
+  // The stairs and the two corridors are one person wide: there (the flight, its head and foot, the hall beside the
+  // stairs, the landing corridor) nobody is ever solid to you; you squeeze past them, the way you do on real stairs, so
+  // the family can never stand between you and the way up or down or along the hall.
+  const SQUEEZE = [{ x0: 322, x1: 412, z0: 196, z1: 664 }, { lvl: 'G', x0: 205, x1: 330, z0: 240, z1: 600 }, { lvl: 'U', x0: 250, x1: 330, z0: 250, z1: 700 }];
+  const squeeze = (x, z, lvl) => SQUEEZE.some(q => (!q.lvl || q.lvl === lvl) && x > q.x0 && x < q.x1 && z > q.z0 && z < q.z1);
   function blocks(x, z, lvl) {
     if (!ready) return false;
+    if (squeeze(x, z, lvl)) return false;
     for (const c of chars) {
       if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z))) continue;
       const r = c.seated ? 34 : 36, d1 = Math.hypot(x - c.x, z - c.z);
       if (d1 < r && d1 < Math.hypot(H.W.x - c.x, H.W.z - c.z) - 0.01) { c.pushT = nowMs(); c.pushN = (c.pushN || 0) + 1; return true; }
     }
     return false;
+  }
+  // Who you're up against (for the walking controller's slide: you walk round people instead of stopping dead).
+  function blocker(x, z, lvl, skin) {
+    if (!ready || squeeze(x, z, lvl)) return null;
+    for (const c of chars) {
+      if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z))) continue;
+      const r = c.seated ? 34 : 36; if (Math.hypot(x - c.x, z - c.z) < r + (skin || 0)) return { x: c.x, z: c.z, r };
+    }
+    return null;
   }
   function looks(c) {
     if (!c.rig) return;
@@ -732,7 +747,7 @@
   window.HouseFamily = {
     enabled: true, get active() { return ready; }, get ready() { return ready; }, chars: C,
     present: id => !!C[id]?.present, near: (id, cm) => !!C[id] && inEarshot(C[id], cm || 400),
-    talk, say: (id, line, o) => say(id, line, o), storyLine, handIn, blocks,
+    talk, say: (id, line, o) => say(id, line, o), storyLine, handIn, blocks, blocker,
     // hs-life's random shouts give way to the people who are really there (and Dad can't shout from work)
     mute: who => { if (!ready) return false; const w = String(who).toLowerCase(); if (w.startsWith('dad')) return true; if (w.startsWith('mom')) return true; return false; },
     debug: {

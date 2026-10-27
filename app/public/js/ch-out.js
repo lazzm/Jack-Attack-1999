@@ -6,8 +6,9 @@
  *   lawn   the front lawn: the orange hover mower lives by the front door. Plug it into the outside socket and go up and
  *          down till every strip of the lawn is mown (proper stripes!), mind the gnome, then put it back.
  *   sweep  the broom leans by the front door: sweep up every pile of leaves on the drive, then tip them in the garden sack.
- * Outside: the garden x -300..215, z -560..-56; the front x -340..470, z 700..1120 (the drive x 124..282 beside Dad's car,
- * which is x 285..455, z 700..1100; the front lawn x -340..124). The ground is y 353. */
+ * Outside: the garden x -300..215, z -560..-56; the front x -340..716, z 700..1370 (House.FRONT: the front wall and the
+ * pavement at z 1300; the hardstanding x 124..248 and the path 248..332 beside Dad's car, which stands in the middle of
+ * the drive, House.ROOMS.drive.carFrame; the front lawn x -340..124). The ground is y 353. */
 (function () {
   'use strict';
   const CK = window.ChoreKit; if (!CK || CK.MODS.car) return;
@@ -65,7 +66,7 @@
   }
 
   // ================================================================ WASH DAD'S CAR (on the drive, beside the car)
-  const BUCKET = { x: 248, z: 1000 };
+  const BUCKET = { x: 214, z: 1236 }; // on the hardstanding by the pedestrian gate, clear of the path and the leaves
   const MUD = [ // Car-local coordinates: keep chore IDs stable when the model moves/scales.
     [-85.15,-48,-155,'s'],[-85.15,-55,-95,'s'],[-85.15,-46,-35,'s'],[-85.15,-58,25,'s'],[-85.15,-48,85,'s'],[-85.15,-54,155,'s'],
     [-32,-75.15,170,'t'],[32,-75.15,170,'t'],[-36,-75.15,-178,'t'],[30,-133.65,-20,'t'],
@@ -156,7 +157,7 @@
   }
 
   // ================================================================ MOW THE FRONT LAWN (the orange hover mower, the outside socket)
-  const LAWN = { x0: -330, x1: 116, z0: 712, z1: 1048 }, CELL = 14, STRIPS = 8;
+  const LAWN = { x0: -330, x1: 116, z0: 712, z1: 1246 }, CELL = 14, STRIPS = 8; // (to the hedge behind the front wall)
   const MOWHOME = { x: 196, z: 748, ry: 200 }, OSOCK = { x: 236, y: GY - 46, z: 701.6 };
   const GNOME = { x: -132, z: 884 };
   const NX = Math.ceil((LAWN.x1 - LAWN.x0) / CELL), NZ = Math.ceil((LAWN.z1 - LAWN.z0) / CELL);
@@ -313,8 +314,8 @@
   }
 
   // ================================================================ SWEEP THE DRIVE (the broom, the leaves, the garden sack)
-  const LEAVES = [[150, 742], [214, 790], [168, 860], [236, 924], [150, 980], [222, 1044], [176, 1076]];
-  const BROOM = { x: 136, z: 716, ry: 160 }, SACK = { x: 140, z: 1030 };
+  const LEAVES = [[150, 742], [214, 806], [168, 884], [232, 962], [150, 1036], [222, 1106], [168, 1172]];
+  const BROOM = { x: 136, z: 716, ry: 160 }, SACK = { x: 150, z: 1250 };
   let broom = null, piles = [], sack = null, sweeping = false;
   function broomModel() {
     const g = new T.Group(), G = K.into(g);

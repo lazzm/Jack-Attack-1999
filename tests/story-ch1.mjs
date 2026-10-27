@@ -19,7 +19,7 @@ async function bootRoundTrip(){
   const f=await roomFixture(base,{account:name,password,signup:false});
   try{
     const p=f.page;await p.evaluate(()=>House.buildRoom(House.ROOMS.drive));
-    await f.view([300,245,800],[430,312,775],{level:'G'});
+    await f.view([323,245,866],[488,301,834],{level:'G'});
     await p.evaluate(()=>{House._.setMode('walk');Sound.effectsOn=true;for(const cue of ['gravel','heavy','plug','pcfan','floppy'])Sound.play(cue);House.act('hs.carboot');House.saveWalkState();});
     await f.until(()=>House.ROOMS.drive.carBoot.hinge.rotation.x < -1.2);await p.screenshot({path:shots+'20-boot-open-persist.png'});
     const power=await p.evaluate(()=>localStorage.getItem('jhp_off'));
@@ -161,9 +161,9 @@ try {
   }
   }
   if(stage!=='first'){
-  await aim([320,245,715],[430,308,742],'G');
+  await aim([488,225,735],[488,272,830],'G'); // behind Dad's car, looking down at the boot lid (House.ROOMS.drive.carFrame)
   await waitStep('dad'); await p.waitForTimeout(700);await shot('07-dad-car');
-  await p.keyboard.press('f');await waitStep('boot');await p.waitForTimeout(800);await shot('08-boot-open');await aim([320,245,715],[430,325,775],'G');await shot('08b-boot-wide');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);await shot('08c-boot-shut');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);
+  await p.keyboard.press('f');await waitStep('boot');await p.waitForTimeout(800);await shot('08-boot-open');await aim([440,245,735],[488,300,840],'G');await shot('08b-boot-wide');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);await shot('08c-boot-shut');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);
   async function walkDistance(){
     await aim([110,-55,160],[110,-55,50]);const z=await p.evaluate(()=>House.W.z);
     await p.keyboard.down('w');await p.waitForTimeout(450);await p.keyboard.up('w');

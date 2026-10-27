@@ -15,7 +15,8 @@ for(const room of (process.argv[3]==='car'?['drive']:['bedroom','landing','hall'
 }
 await until(()=>House.SPOTS['ch.mud0']);
 assert(await p.evaluate(()=>{const f=House.ROOMS.drive.carFrame,p=House.SPOTS['ch.mud0'].obj.position;return Math.abs(p.x-(f.x-85.15*f.s-.5))<.01&&Math.abs(p.z-(f.z-155*f.s))<.01}));
-for(const [name,x,y,z,tx,ty,tz]of[['car-side',180,240,900,430,285,900],['car-front',190,230,1080,430,280,906],['car-rear',190,230,735,430,280,906]]){
+const cf=await p.evaluate(()=>House.ROOMS.drive.carFrame);
+for(const [name,x,y,z,tx,ty,tz]of[['car-side',cf.x-250,240,cf.z,cf.x,285,cf.z],['car-front',cf.x-240,230,cf.z+260,cf.x,280,cf.z],['car-rear',cf.x-240,230,cf.z-250,cf.x,280,cf.z]]){
  await p.evaluate(({x,y,z,tx,ty,tz})=>{const ry=Math.atan2(tx-x,-(tz-z))*180/Math.PI,rx=Math.atan2(-(ty-y),Math.hypot(tx-x,tz-z))*180/Math.PI;const pose={x,y,z,rx,ry,lvl:'G',seat:0};Object.assign(House.P,pose);House.setWalkFrom(pose);House._.setMode('focus');House.hush();House.dirty()},{x,y,z,tx,ty,tz});await p.waitForTimeout(500);await p.screenshot({path:`shots/review-${name}.png`});
 }
 await p.evaluate(()=>{House._.setMode('walk');House.act('ch.bucket');for(let i=0;i<3;i++)House.act('ch.mud0')});

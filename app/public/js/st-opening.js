@@ -42,7 +42,7 @@
         copy.position.set(-x,-y,-z); obj.add(copy);
         obj.traverse(o => {o.userData.noPick=false;});
       }
-      const home = {room:'drive', x:430+[-50,0,48,50][i]*.82,y:H.LV.G-23*.82,z:906+[-158,-158,-146,-185][i]*.82,ry:180};
+      const cf = H.ROOMS.drive.carFrame, home = {room:'drive', x:cf.x+[-50,0,48,50][i]*cf.s,y:cf.y-23*cf.s,z:cf.z+[-158,-158,-146,-185][i]*cf.s,ry:180}; // in the boot, on Dad's rug
       const id = 'st.pc.'+part, snap = 'st.desk.'+part;
       R.addSnap(snap,{room:'bedroom',x,y,z,r:65,box:part==='monitor'?[40,2,30]:part==='tower'?[23,2,37]:[32,2,14],pose:{room:'bedroom',x,y,z,ry:0},
         enabled:()=>!state()?.done['part.'+part],accepts:(_k,t)=>t.id===id,hint:'E: set down the '+names[part],
@@ -67,12 +67,13 @@
         Sound.play('plug');st.event('lead.'+lead);
       }}).obj;
     }
-    R.addSpot('st.boot',{room:'drive',x:430,y:H.LV.G-79*.82,z:906-170*.82,w:125,h:10,d:65,col:'#6a1a2a',label:'F: open / close the boot',range:185,act:()=>{
+    const cf=H.ROOMS.drive.carFrame;
+    R.addSpot('st.boot',{room:'drive',x:cf.x,y:cf.y-79*cf.s,z:cf.z-170*cf.s,w:152*cf.s,h:10,d:79*cf.s,col:'#6a1a2a',label:'F: open / close the boot',range:185,act:()=>{
       if(!state()?.done.dad)return;
       H.ROOMS.drive.carBoot.toggle();if(H.ROOMS.drive.carBoot.open)st.event('boot');sync();
     }}).obj.visible=false; // pick volume only; the hinged lid is the visible model
     // Invisible pick volumes are ignored by the raycaster; use a real handle instead.
-    const handle=R.addSpot('st.boot.handle',{room:'drive',x:430,y:H.LV.G-79*.82,z:906-199*.82,w:14,h:3,d:2,col:'#a3a6a8',label:'F: open / close the boot',range:185,act:()=>H.act('st.boot')});
+    const handle=R.addSpot('st.boot.handle',{room:'drive',x:cf.x,y:cf.y-79*cf.s,z:cf.z-199*cf.s,w:14,h:3,d:2,col:'#a3a6a8',label:'F: open / close the boot',range:185,act:()=>H.act('st.boot')});
     H.SPOTS['st.boot'].obj=handle.obj;
     H.ROOMS.drive.carBoot.hinge.attach(handle.obj);
     H.spot('st.boot',{obj:H.ROOMS.drive.carBoot.hinge});

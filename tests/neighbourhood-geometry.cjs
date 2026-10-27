@@ -12,7 +12,7 @@ run('hs-kit.js');
 const K=window.HouseKit,add=K.Batch.prototype.add;
 let primitives=0,triangles=0,trunks=0,roofShells=0;
 const solids=[],treeBases=[];
-const primitiveTypes=new Set(),playable=[[-340,700,470,1120],[-300,-560,215,-56]];
+const primitiveTypes=new Set(),playable=[[-340,700,716,1370],[-300,-560,215,-56]];
 K.Batch.prototype.add=function(geometry,matrix,material,uv){
  assert(matrix.elements.every(Number.isFinite),'finite primitive transform');
  assert(matrix.determinant()>0,'scenery never relies on mirrored or collapsed solids');
@@ -62,14 +62,14 @@ for(const [i,h]of E.homes.entries()){
  assert(h.front-h.depth/2>=250,'usable front garden and uninterrupted path');
  assert(h.ry===0||h.ry===180,'homes face their street, not the playable plot');
  const frontEdge=h.z+(h.ry===180?-1:1)*(h.front+20);
- assert.equal(frontEdge,i<7?1800:i<13?-1290:1100,'garden threshold meets footpath edge');
+ assert.equal(frontEdge,i<7?2000:i<13?-1290:1300,'garden threshold meets footpath edge');
  for(const other of E.homes.slice(0,i))if(h.z===other.z)
   assert(Math.abs(h.x-other.x)>=680,'separate plots do not overlap');
 }
 // Check the physical seams, not only the home metadata. Flat ground is the only
 // scenery permitted beneath the playable garden and drive.
 function surfaceAt(x,z){return solids.filter(({bb})=>bb.min.x<x&&bb.max.x>x&&bb.min.z<z&&bb.max.z>z&&bb.max.y-bb.min.y<=20&&bb.min.y>=340).sort((a,b)=>a.bb.min.y-b.bb.min.y)[0]}
-for(const [x,z,top]of [[-2000,1450,353],[2000,1450,353],[-2000,1150,352.8],[17,1750,352.8],[0,1700,341],[0,-940,353],[17,-1240,352.8],[17,-640,352.8],[0,900,359],[0,-400,359]]){
+for(const [x,z,top]of [[-2000,1650,353],[2000,1650,353],[-2000,1350,352.8],[17,1950,352.8],[0,1900,341],[0,-940,353],[17,-1240,352.8],[17,-640,352.8],[0,900,359],[0,-400,359]]){
  const solid=surfaceAt(x,z);assert(solid,`missing ground at ${x},${z}`);
  assert(Math.abs(solid.bb.min.y-top)<.01,`ground/kerb level at ${x},${z}`);
 }

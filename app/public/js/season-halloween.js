@@ -12,7 +12,7 @@
   'use strict';
   const SE = window.Season, C = window.SeasonCat, H = window.House, R = window.Room;
   if (!SE || !C || !H || !H.ok || !R || window.Halloween) return;
-  const T = H.T, K = H.K, M = K.mat, D2R = Math.PI / 180, GY = 353, GC = 95;
+  const T = H.T, K = H.K, M = K.mat, D2R = Math.PI / 180, GY = 353, GC = 95, FZ = () => H.FRONT?.FZ ?? 1300; // the front garden ends at the pavement (js/hs-world.js FRONT)
   const E = C.byId.halloween99, EID = E.id;
   const cast = s => SE.cast(s);
   const sis = () => { try { return Cast.n('sister'); } catch (e) { return 'my sister'; } };
@@ -337,7 +337,7 @@
     },
     drive(r, P) {
       const B = K.into(P.all.batch);
-      pumpkinStatic(B, 480, GY - 70, 1095, .7, 200, 'lantern');
+      pumpkinStatic(B, 632, GY - 89, FZ() - 5, .7, 200, 'lantern'); // on the gateway pier
       turnip(B, -112, 298, 708.5, 10); pumpkinStatic(B, -14, 298, 708.5, .55, -10, 'lantern2', .5); pumpkinStatic(B, 30, 298, 709, .42, 20, 'plain', .5);
       gravestone(B, 74, GY + .4, 846, 40); sheetGhost(B, -96, GY + .4, 914, 25);
       bat(B, 300, GY - 205, 712, .9, 180, 8);
@@ -645,7 +645,7 @@
     pk.root.scale.set(1, phase === 'tail' ? .86 : 1, 1); pk.mSkin.color.set(phase === 'tail' ? '#c8b8a0' : '#ffffff');
     H.dirty();
   }
-  const STEP = { x: 300, y: GY - 70, z: 1095, ry: -140 }; // the gatepost: everyone coming up the path sees it
+  const STEP = { x: 236, y: GY - 89, z: FZ() - 5, ry: -140 }; // the gatepost (the pier by the front gate): everyone coming up the path sees it
   function makeLantern() {
     if (!pk) return;
     pk.root.parent?.remove(pk.root); pk.root.position.set(0, 0, 0); pk.root.rotation.set(0, 0, 0);
@@ -918,13 +918,13 @@
     const drive = H.ROOMS.drive; if (!drive?.built) return;
     const group = new T.Group(); group.name = 'hw-trick-or-treaters'; drive.group.add(group);
     const list = gr.kids.map((kid, i) => { const h = 104 + ((kid.k * 7) % 24), o = kidModel(kid, h); const [x, z] = DOORSTEP[i]; o.position.set(x, GY - 1, z); o.rotation.y = Math.PI + (i - 2) * .12; group.add(o); o.userData.home = { x, z }; const rig = o.userData.rig || null; if (rig) group.add(rig.group); return { obj: o, kid, want: kid.want, got: [], rig }; });
-    const prig = window.NPCRig ? parentRig(gr) : null, parent = prig ? new T.Group() : parentModel(); parent.position.set(262, GY - 1.6, 1128); parent.rotation.y = Math.PI * .9; group.add(parent);
+    const prig = window.NPCRig ? parentRig(gr) : null, parent = prig ? new T.Group() : parentModel(); parent.position.set(262, GY - 1.6, FZ() + 28); parent.rotation.y = Math.PI * .9; group.add(parent);
     if (prig) group.add(prig.group);
     group.traverse(o => { if (o.isMesh) o.userData.kid = 1; });
     kids = { g: gr.id, n0: srv().treat?.n | 0, gr, group, list, parent, pkd: prig ? { obj: parent, rig: prig, kid: null } : null, state: walk ? 'walk' : 'wait', t0: performance.now(), answered: false, knocks: 0, lastKnock: 0, block: null };
     const pick = new T.Mesh(new T.BoxGeometry(70, 120, 46), PICKM); pick.position.set(300, GY - 60, 798); pick.userData.hwOwn = 1; group.add(pick);
     addSpot('hw.kids', { label: () => kids ? 'Trick-or-treaters (' + kids.list.length + ')' : 'Trick-or-treaters', obj: pick, room: 'drive', range: 320, act: () => handOut() });
-    if (walk) for (const k of list) { k.obj.position.z = 1150 + Math.random() * 30; k.obj.position.x = 262 + Math.random() * 20; }
+    if (walk) for (const k of list) { k.obj.position.z = FZ() + 50 + Math.random() * 30; k.obj.position.x = 282 + Math.random() * 16; }
     // they stand on the path: keep the player out of them (never trapping anyone already there)
     if (!(H.W.lvl === 'G' && Math.abs(H.W.x - 300) < 70 && H.W.z > 750 && H.W.z < 840)) { kids.block = H.block('G', 262, 772, 338, 826); }
     for (const kd of list) if (kd.rig) { kd.h = kd.obj.rotation.y; kd.last = null; rigFollow(kd, 0); }
@@ -943,13 +943,13 @@
     const k = kids, visible = H.ROOMS.drive?.group.visible, dtk = Math.min(0.1, (now - (k.lastTick || now)) / 1000); k.lastTick = now;
     if (k.list.some(kd => kd.rig) && (k.state === 'walk' || k.state === 'leave')) setTimeout(() => { if (kids === k) { k.list.forEach(kd => rigFollow(kd, dtk)); if (k.pkd) rigFollow(k.pkd, dtk); } }, 0);
     if (k.state === 'walk') {
-      const t = Math.min(1, (now - k.t0) / 5200);
-      k.list.forEach((kd, i) => { const h = kd.obj.userData.home, e = ease(t); kd.obj.position.x = 268 + (h.x - 268) * e; kd.obj.position.z = 1150 + (h.z - 1150) * e - i * 6 * (1 - e); kd.obj.position.y = GY - 1 - Math.abs(Math.sin(now / 130 + i)) * 2 * (1 - t); });
+      const t = Math.min(1, (now - k.t0) / 7600), z0 = FZ() + 50; // up the path from the gate (a 6 m front garden)
+      k.list.forEach((kd, i) => { const h = kd.obj.userData.home, e = ease(t); kd.obj.position.x = 290 + (h.x - 290) * e; kd.obj.position.z = z0 + (h.z - z0) * e - i * 6 * (1 - e); kd.obj.position.y = GY - 1 - Math.abs(Math.sin(now / 130 + i)) * 2 * (1 - t); });
       if (t >= 1) { k.state = 'wait'; if (!fdOpen()) knockNow(); }
     } else if (k.state === 'leave') {
-      const t = Math.min(1, (now - k.t0) / 4200);
-      k.list.forEach((kd, i) => { const h = kd.obj.userData.home; kd.obj.rotation.y = 0; kd.obj.position.z = h.z + (1160 - h.z) * ease(t); kd.obj.position.x = h.x + (268 - h.x) * ease(t); kd.obj.position.y = GY - 1 - Math.abs(Math.sin(now / 130 + i)) * 2; });
-      k.parent.position.z = 1128 + t * 40;
+      const t = Math.min(1, (now - k.t0) / 6000), z1 = FZ() + 60;
+      k.list.forEach((kd, i) => { const h = kd.obj.userData.home; kd.obj.rotation.y = 0; kd.obj.position.z = h.z + (z1 - h.z) * ease(t); kd.obj.position.x = h.x + (290 - h.x) * ease(t); kd.obj.position.y = GY - 1 - Math.abs(Math.sin(now / 130 + i)) * 2; });
+      k.parent.position.z = FZ() + 28 + t * 40;
       if (t >= 1) { clearKids(); return false; }
     } else return false; // waiting: the gentle fidget runs on the house's 20 Hz ambient tick instead
     void visible; H.dirty(); return true;

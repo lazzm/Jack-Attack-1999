@@ -45,7 +45,7 @@
     // ---- outside (the front of the house)
     { id: 'car', job: 'car', area: 'out', room: 'drive', n: "Wash Dad's car", short: 'Car', pay: 20, par: 120, min: 14, where: 'the drive',
       blurb: 'Bucket, sponge, every bit of mud. Then rinse it off. Watch out for the pigeon.' },
-    { id: 'lawn', job: 'lawn', area: 'out', room: 'drive', n: 'Mow the front lawn', short: 'Mow lawn', pay: 18, par: 100, min: 12, where: 'the front lawn',
+    { id: 'lawn', job: 'lawn', area: 'out', room: 'drive', n: 'Mow the front lawn', short: 'Mow lawn', pay: 18, par: 150, min: 12, where: 'the front lawn',
       blurb: "Plug in the mower and do nice straight stripes. Mind the cable. Mind the gnome." },
     { id: 'sweep', job: 'sweep', area: 'out', room: 'drive', n: 'Sweep the drive', short: 'Sweep', pay: 10, par: 60, min: 8, where: 'the drive',
       blurb: 'Every pile of leaves into the dustpan, and the dustpan into the dustbin.' },
