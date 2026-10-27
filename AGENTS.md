@@ -78,6 +78,10 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
   PC or opening a screen sets it down at its ghost if green, else returns it; the story/tidy taking it ends the grip.
   Never place a thing on the stairs or block a doorway/the way to the PC (the ghost turns red).
 
+- Graphics settings and the JackOS-only choice are per device and never sync between devices.
+- Front plot: `House.FRONT` (hs-world.js) is the single source of truth for the front garden depth (pavement at z 1300) and Dad's car position. Place car and drive things relative to `House.ROOMS.drive.carFrame` and `House.FRONT`, never hardcoded numbers. When room geometry moves, bump the save version and add a rule to `migratePlacement` so saved items move with it.
+- People (docs/PEOPLE.md): stylised, one level of abstraction everywhere, painted atlas faces (no 3D noses/lips); keep ~2 draw calls and <=3k triangles per person on Low/Potato.
+
 ## Owner's layout edits
 Jack exports `layout-edits.json` from god mode (name, room, file:line, original and new x/y/z/rotation). Apply each entry
 by changing the matching `B.at(...)`/position call in the named file to the new values, then test and deploy.
@@ -105,9 +109,9 @@ by changing the matching `B.at(...)`/position call in the named file to the new 
   nothing confusing, nothing that traps the player.
 - CHECK EVERYTHING YOU TOUCH, AND AROUND IT:
   1. After each change, take screenshots (tests/, Playwright) from several angles and
-     distances at desktop 1366x860 and other relevant PC sizes; check that phones/tablets
-     open JackOS only (390x844 and landscape), and actually look at the captures like a
-     harsh art director.
+     distances at desktop 1366x860 and other relevant PC sizes; run tests/mobile.mjs and
+     review shots/mobile/ at phone and tablet sizes, portrait and landscape, and actually
+     look at the captures like a harsh art director.
   2. Test every path: rapid clicks, Esc mid-animation, refresh in every state
      (a refresh must never change state or go black), rotate/resize, walk into
      everything, open/close everything, keyboard/mouse and PC gamepads where supported.
