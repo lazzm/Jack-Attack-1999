@@ -219,9 +219,10 @@ async function roomCheck(){
    await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>RoomTV.open_&&!House.gliding);assert(await page.evaluate(()=>RoomTV.dbg()===zeldoInstance),'Return keeps instance');
    // The cartridge's optional surface must release cleanly back to the old catalogue.
    await page.locator('.rm-eject').click();await f.until(()=>RoomTV._dbg().st==='shelf');assert(!await page.evaluate(()=>RoomTV._dbg().surface));assert(await page.locator('.rm-shelf').isVisible());
-   await page.evaluate(()=>RoomTV.test('sn.zero'));await f.until(()=>RoomTV._dbg().st==='game');assert(!await page.evaluate(()=>RoomTV._dbg().surface),'Unchanged cartridges retain their display route');await page.keyboard.press('Enter');await page.waitForTimeout(200);await page.screenshot({path:dir+'after-shared-formula-null.png'});
+   // Formula Null now opts into the telly itself; Street Scrapper II still has no screen hook.
+   await page.evaluate(()=>RoomTV.test('sn.fight'));await f.until(()=>RoomTV._dbg().st==='game');assert(await page.evaluate(()=>typeof RoomTV.defs['sn.fight']?.screen!=='function'),'sn.fight has no screen hook');assert(!await page.evaluate(()=>RoomTV._dbg().surface),'Unchanged cartridges retain their display route');await page.keyboard.press('Enter');await page.waitForTimeout(200);await page.screenshot({path:dir+'after-shared-unchanged-cartridge.png'});
   }
-  assert.deepEqual(f.errors,[],'Room browser errors');console.log(before?'ROOM BASELINE: legacy overlay, LOCK IN and pause':'ROOM PASS: physical telly, same-instance LOCK IN/Q, pause, analog gamepad, four viewports, cartridge change and shared Formula Null');
+  assert.deepEqual(f.errors,[],'Room browser errors');console.log(before?'ROOM BASELINE: legacy overlay, LOCK IN and pause':'ROOM PASS: physical telly, same-instance LOCK IN/Q, pause, analog gamepad, four viewports, cartridge change and unchanged Street Scrapper');
  }catch(e){console.log('ROOM FAILURE',await page.evaluate(()=>({mode:House?.mode,pose:{x:House?.P.x,z:House?.P.z,wx:House?.W.x,wz:House?.W.z},glide:House?.gliding,game:window.RoomTV?._dbg(),loading:document.querySelector('.hs-loading')?.innerText,member:AccountGate?.allowed})));await page.screenshot({path:dir+'after-room-failure.png'}).catch(()=>{});throw e;}finally{await f.browser.close()}
  if(!before)await touchCheck(account,password);
 }
