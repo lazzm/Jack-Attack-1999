@@ -1,7 +1,7 @@
 # THE MYTH OF ZELDO: THE TEMPORAL FLUTE (Ultra 64) - design spec
 
 Status: design only. Owner request 2026-10-26: a NEW full 3D game for the Ultra 64 in Jack's room, an original parody of the
-1998 3D action-adventure classic. Sister game: the SNES "The Legend of Zeldo: A Link to the Pasta" (`app/public/js/rm-g-zeldo.js`).
+1998 3D action-adventure classic. Sister game: the SNES "The Myth of Zeldo: A Link to the Pasta" (`app/public/js/rm-g-zeldo.js`).
 Everything here is original: names, characters, songs, maps and art. No real Nintendo names, characters, music or assets.
 This is a parody of the genre's famous ideas (lock-on, a song-playing instrument, two eras, a hub field), not a copy: tunes are
 new, maps are new, jokes are ours.
@@ -370,7 +370,14 @@ camera quality (indoors especially; allow a manual camera), soft-locks (era-retu
 dungeon, item and song against the reference list in a final originality check.
 
 ## 15. Open questions for the owner
-- Keep the "Moulded by cooking" era names (Dry and Boiled), or choose different ones?
-- Should the game cost 50 pounds in Pixel Post (a big-ticket item), or be a gift/unlock from a chapter?
-- Is a 12-song-count homage fine, or reduce to 10 songs?
+Series naming (owner, 2026-10-27): "The Myth of Zeldo" is the SERIES name. The SNES game is "THE MYTH OF ZELDO: A LINK TO THE PASTA"
+(`rm-g-zeldo.js`, `docs/games/zeldo.md`); this Ultra 64 game is "THE MYTH OF ZELDO: THE TEMPORAL FLUTE". "Legend of" must never
+appear in displayed text for the series (the audit catches "The Legend of Zeldo" and "The Legend of Zelda").
+
+APPROVED by the owner (2026-10-27):
+- Era names stay **Dry** and **Boiled** ("Moulded by cooking").
+- The game costs **GBP 50 in Pixel Post** (a big-ticket mail-order item), not a chapter unlock.
+- **12 songs** (plus the Bin-Man's Ditty), not 10.
+
+Still open:
 - Are the optional minor dungeons (Freezer, Drain) wanted in the first full release?

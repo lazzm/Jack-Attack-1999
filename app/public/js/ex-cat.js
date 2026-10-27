@@ -84,7 +84,7 @@
     ['spudnik', 'Spudnik', 'cosmic', 0, 1, 1, 2, 'hover', 'A potato that was launched into orbit by mistake. It beeps.', ['bean', '#c8a060', '#c0c0c0', 'two', 'o', 'antenna', 'stars']],
     ['moonmoth', 'Moonmoth', 'cosmic', 0, 2, 2, 2, 'hover', 'Only comes out when there is a full moon AND a good film on.', ['bug', '#b07af0', '#ffe680', 'sleepy', 'none', 'antenna', 'wings']],
     ['glorp', 'Glorp the Visitor', 'cosmic', 1, 3, 3, 3, 'leech', 'Came in peace. Stayed for the crisps. Has had all the cheese and onion.', ['blob', '#5ad85a', '#9a3ae0', 'three', 'grin', 'antenna', 'arms']],
-    ['starnacle', 'Starnacle', 'cosmic', 1, 2, 1, 3, 'armour', 'Sticks to the side of space shuttles and refuses to let go. Ever.', ['shell', '#d06ad0', '#ffe680', 'stalk', 'o', 'none', 'stars']],
+    ['starnacle', 'Starnacle', 'cosmic', 1, 2, 1, 3, 'armour', 'Sticks to the side of space shuttlebuses and refuses to let go. Ever.', ['shell', '#d06ad0', '#ffe680', 'stalk', 'o', 'none', 'stars']],
     ['newt', 'Nebula Newt', 'cosmic', 2, 4, 3, 4, 'cheer', 'Its spots are actual galaxies. Do not lick the newt.', ['lizard', '#6a2ab0', '#ffe680', 'two', 'smile', 'none', 'stars']],
     ['warpwhale', 'Warp Whale', 'cosmic', 3, 6, 5, 7, 'hover', 'Swims between the stars at warp factor nine, singing songs about plankton.', ['whale', '#3a2a8a', '#8ad8ff', 'two', 'smile', 'spout', 'stars']],
   ];

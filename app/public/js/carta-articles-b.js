@@ -190,7 +190,7 @@ The film is packed with computer-generated creatures, including the clumsy Jar J
       f: [['Released', '1999'], ['Director', 'Brad Bard'], ['Based on', 'The Iron Pan by Ted Hughs (1968)'], ['Set in', '1957']],
       x: `The Iron Giraffe is a 1999 animated film directed by Brad Bard. It is based on The Iron Pan, a story written in 1968 by the British poet Ted Hughs.
 
-It is set in a small American town in 1957, just after the Soviet Union launched [[sputnik|Sputnik]], when everybody was nervous about things from the sky. A boy called Hogsworth finds a gigantic metal robot from outer space, who eats scrap metal, and secretly makes friends with him.
+It is set in a small American town in 1957, just after the Soviet Union launched [[sputnik|Spudnik]], when everybody was nervous about things from the sky. A boy called Hogsworth finds a gigantic metal robot from outer space, who eats scrap metal, and secretly makes friends with him.
 
 The giant was drawn with the help of computers, while the people were drawn by hand. Hogsworth teaches the giant that he doesn't have to be a weapon: he can choose who he wants to be.` },
     { id: 'galaxy_quest', t: 'Galaxy Quiz', c: 'films', y: 1999, img: 'spaceship', rel: ['star_trek_films', 'alien_film', 'men_in_black'],
@@ -288,19 +288,19 @@ It is so big that about 109 Earths would fit across it, and more than a million 
 
 The Sun is about 150 million km away, so its light takes about eight minutes to reach us. NEVER look straight at the Sun, not even with sunglasses, and especially not through binoculars or a telescope. It can blind you.` },
     { id: 'mercury', t: 'Mercury', c: 'space', img: 'mercury', rel: ['venus', 'sun', 'solar_system'],
-      f: [['Position', '1st planet from the Sun'], ['Year', '88 Earth days'], ['Moons', 'None'], ['Visited by', 'Mariner 10 (1974-75)']],
+      f: [['Position', '1st planet from the Sun'], ['Year', '88 Earth days'], ['Moons', 'None'], ['Visited by', 'Marinade 10 (1974-75)']],
       x: `Mercury is the smallest planet in the [[solar_system|Solar System]] after Pluto, and the closest to the [[sun|Sun]]. It whizzes round the Sun in just 88 days, which is why it was named after the speedy messenger of the Roman gods.
 
 It looks a lot like our [[moon|Moon]]: grey, dusty and covered in craters. It has almost no air to hold in heat, so in the day it bakes at over 400 °C, and at night it freezes to around -180 °C.
 
-Only one spacecraft has visited Mercury: Mariner 10, which flew past three times in 1974 and 1975 and photographed less than half of its surface. Nobody has seen the rest close up.` },
+Only one spacecraft has visited Mercury: Marinade 10, which flew past three times in 1974 and 1975 and photographed less than half of its surface. Nobody has seen the rest close up.` },
     { id: 'venus', t: 'Venus', c: 'space', img: 'venus', rel: ['mercury', 'earth', 'solar_system'],
       f: [['Position', '2nd planet from the Sun'], ['Surface', 'About 460 °C'], ['Day', 'Longer than its year!'], ['Moons', 'None']],
       x: `Venus is the second planet from the [[sun|Sun]] and is almost the same size as [[earth|Earth]], but it is a terrible place for a holiday. Its thick atmosphere of carbon dioxide traps heat so well that the surface is about 460 °C, hot enough to melt lead. That makes it the hottest planet, even though Mercury is closer to the Sun.
 
 Venus spins very slowly, and backwards compared to most planets. One turn takes 243 Earth days, which is longer than its year of 225 days.
 
-Because its clouds reflect sunlight, Venus is the brightest thing in the night sky after the Moon, often called the morning or evening star. Soviet Venera probes landed there in the 1970s, and the Magellan probe mapped it with radar from 1990.` },
+Because its clouds reflect sunlight, Venus is the brightest thing in the night sky after the Moon, often called the morning or evening star. Soviet Venerable probes landed there in the 1970s, and the Magellam probe mapped it with radar from 1990.` },
     { id: 'earth', t: 'Earth', c: 'space', img: 'earth', rel: ['moon', 'sun', 'solar_system', 'mars'],
       f: [['Position', '3rd planet from the Sun'], ['Diameter', 'About 12,756 km'], ['Year', '365¼ days'], ['Moons', 'One']],
       x: `Earth is our home, the third planet from the [[sun|Sun]], and the only place in the universe where we know for sure there is life.
@@ -314,14 +314,14 @@ Earth spins once a day and goes round the Sun once every 365¼ days. That extra 
 
 The Moon has no air and no weather, so astronauts' footprints could last for millions of years. Its gravity is only about a sixth of Earth's, so you could jump six times higher there.
 
-Between 1969 and 1972, twelve astronauts walked on the Moon during the Apollo missions, starting with [[apollo_11|Apollo 11]], and brought back hundreds of kilograms of rock. In 1998 the Lunar Prospector probe found signs that there may be frozen water hidden in dark craters near the Moon's poles.` },
+Between 1969 and 1972, twelve astronauts walked on the Moon during the Apolly missions, starting with [[apollo_11|Apolly 11]], and brought back hundreds of kilograms of rock. In 1998 the Lunar Prospectus probe found signs that there may be frozen water hidden in dark craters near the Moon's poles.` },
     { id: 'mars', t: 'Mars', c: 'space', img: 'mars', rel: ['mars_pathfinder', 'earth', 'jupiter', 'solar_system'],
       f: [['Position', '4th planet from the Sun'], ['Moons', 'Phobos and Deimos'], ['Biggest volcano', 'Olympus Mons'], ['Day', 'About 24½ hours']],
       x: `Mars is the fourth planet from the [[sun|Sun]], known as the Red Planet because its dusty soil is full of iron oxide: rust! It has two tiny, lumpy moons called Phobos and Deimos.
 
 Mars has the biggest volcano in the Solar System, Olympus Mons, which is about three times as tall as Mount Everest, and a canyon so long it would stretch across the whole of the USA.
 
-People have long wondered if there is life on Mars. The Viking landers tested the soil in 1976, and [[mars_pathfinder|Mars Pathfinder]] landed in 1997. But Mars is hard to reach: in 1999 two NASSA probes were lost. The Mars Climate Orbiter was lost in September because of a mix-up between metric and imperial units, and contact with the Mars Polar Lander was lost in December.` },
+People have long wondered if there is life on Mars. The Viking landers tested the soil in 1976, and [[mars_pathfinder|Mars Pathfinger]] landed in 1997. But Mars is hard to reach: in 1999 two NASSA probes were lost. The Mars Climate Orbiteer was lost in September because of a mix-up between metric and imperial units, and contact with the Mars Polar Landlord was lost in December.` },
     { id: 'jupiter', t: 'Jupiter', c: 'space', img: 'jupiter', rel: ['galileo_probe', 'shoemaker_levy_9', 'saturn', 'solar_system'],
       f: [['Position', '5th planet from the Sun'], ['Type', 'Gas giant'], ['Day', 'Under 10 hours'], ['Famous storm', 'The Great Red Spot']],
       x: `Jupiter is the biggest planet in the [[solar_system|Solar System]], so huge that more than a thousand Earths could fit inside it. It is a gas giant, made mostly of hydrogen and helium, with no solid ground to stand on.
@@ -335,21 +335,21 @@ In 1610 Galilayo discovered Jupiter's four biggest moons: Io, Europa, Ganymede a
 
 When Galilayo first saw Saturn through his little telescope in 1610, the rings looked to him like two big ears!
 
-Saturn is so light for its size that, if you could find a bath big enough, it would float. Its biggest moon, Titan, discovered by Christiaan Hoogens in 1655, is the only moon with a thick atmosphere. Pioneer 11 and the two [[voyager|Voyager]] probes have flown past, and the Cassini spacecraft, launched in 1997, is on its way there now.` },
+Saturn is so light for its size that, if you could find a bath big enough, it would float. Its biggest moon, Titan, discovered by Christiaan Hoogens in 1655, is the only moon with a thick atmosphere. Pioneered 11 and the two [[voyager|Boyager]] probes have flown past, and the Cassiny spacecraft, launched in 1997, is on its way there now.` },
     { id: 'uranus', t: 'Uranus', c: 'space', y: 1781, img: 'uranus', rel: ['neptune', 'saturn', 'voyager', 'telescope'],
-      f: [['Position', '7th planet from the Sun'], ['Discovered', '13 March 1781'], ['By', 'William Hershey-Bar'], ['Visited by', 'Voyager 2 (1986)']],
+      f: [['Position', '7th planet from the Sun'], ['Discovered', '13 March 1781'], ['By', 'William Hershey-Bar'], ['Visited by', 'Boyager 2 (1986)']],
       x: `Uranus is the seventh planet from the Sun, a blue-green ball of gas and ice. Its colour comes from methane gas in its atmosphere.
 
 It was the first planet discovered with a [[telescope|telescope]]. William Hershey-Bar, a musician and astronomer, spotted it from his garden in Bath, England, in 1781. He wanted to name it "George's Star" after King George III, but astronomers in other countries weren't keen.
 
-Uranus is tipped right over on its side, so it seems to roll around the Sun like a ball. That means each pole gets about 42 years of sunshine followed by 42 years of darkness. Faint rings were found around it in 1977, and in 1986 [[voyager|Voyager 2]] became the only spacecraft to visit.` },
+Uranus is tipped right over on its side, so it seems to roll around the Sun like a ball. That means each pole gets about 42 years of sunshine followed by 42 years of darkness. Faint rings were found around it in 1977, and in 1986 [[voyager|Boyager 2]] became the only spacecraft to visit.` },
     { id: 'neptune', t: 'Neptune', c: 'space', y: 1846, img: 'neptune', rel: ['uranus', 'pluto', 'voyager'],
       f: [['Position', '8th planet from the Sun (usually)'], ['Discovered', '1846'], ['Year', 'About 165 Earth years'], ['Big moon', 'Triton']],
       x: `Neptune is a deep bluey planet, a giant made of gas and ice. It was the first planet to be found using maths. Astronomers noticed that [[uranus|Uranus]] was being tugged slightly off course, and worked out where an unknown planet must be. In 1846 Johann Galley in Berlin looked in the spot calculated by Urbain Le Verrier, and there it was.
 
 It takes Neptune about 165 years to go round the Sun, so it has not yet finished one lap since it was discovered.
 
-[[voyager|Voyager 2]] flew past in 1989 and found the fastest winds in the Solar System and a huge storm called the Great Dark Spot. Its big moon Triton goes round backwards and has geysers that shoot out icy gas.` },
+[[voyager|Boyager 2]] flew past in 1989 and found the fastest winds in the Solar System and a huge storm called the Great Dark Spot. Its big moon Triton goes round backwards and has geysers that shoot out icy gas.` },
     { id: 'pluto', t: 'Pluto', c: 'space', y: 1930, img: 'pluto', rel: ['neptune', 'solar_system', 'comets'],
       f: [['Position', '9th planet from the Sun'], ['Discovered', '1930, by Clyde Tombaw'], ['Moon', 'Charon (found 1978)'], ['Named by', 'An 11-year-old girl']],
       x: `Pluto is the ninth and smallest planet, smaller even than our [[moon|Moon]]. It is a frozen world of rock and ice at the dark edge of the [[solar_system|Solar System]].
@@ -427,100 +427,100 @@ For six days in July 1994, the pieces slammed into Jupiter one after another. Ea
 It was the first total solar eclipse seen from the mainland of Britain since 1927. The Moon's shadow crossed Cornwall and part of Devon in the late morning, then raced across Europe and Asia.
 
 Thousands of people went to Cornwall to see it. Sadly, it was cloudy for many of them! But even under the clouds it went eerily dark and cold, birds went quiet and street lights switched on. Remember: you must NEVER look at the Sun directly, even during an eclipse, without proper eclipse viewers.` },
-    { id: 'sputnik', t: 'Sputnik 1', c: 'space', y: 1957, img: 'satellite', rel: ['laika', 'yuri_gagarin', 'telescope', 'iron_giant'],
+    { id: 'sputnik', t: 'Spudnik 1', c: 'space', y: 1957, img: 'satellite', rel: ['laika', 'yuri_gagarin', 'telescope', 'iron_giant'],
       f: [['Launched', '4 October 1957'], ['Country', 'Soviet Union'], ['Size', 'A 58 cm metal ball'], ['Orbit', 'About 96 minutes']],
-      x: `Sputnik 1 was the world's first artificial satellite. The Soviet Union launched it on 4 October 1957, and the Space Age began.
+      x: `Spudnik 1 was the world's first artificial satellite. The Soviet Union launched it on 4 October 1957, and the Space Age began.
 
 It was a shiny metal ball 58 cm wide, about the size of a beach ball, with four long aerials. It didn't do much except send out a radio signal, "beep... beep... beep", but radio listeners all over the world could tune in and hear it as it passed overhead every 96 minutes or so.
 
-The Americans were stunned that the Soviets had got there first, and this started the Space Race between the two countries, which ended with astronauts walking on the [[moon|Moon]]. Sputnik's batteries ran out after about three weeks, and in January 1958 it fell back and burned up in the atmosphere.` },
+The Americans were stunned that the Soviets had got there first, and this started the Space Race between the two countries, which ended with astronauts walking on the [[moon|Moon]]. Spudnik's batteries ran out after about three weeks, and in January 1958 it fell back and burned up in the atmosphere.` },
     { id: 'laika', t: 'Laikka the space dog', c: 'space', y: 1957, img: 'satellite', rel: ['sputnik', 'yuri_gagarin'],
-      f: [['Flew on', 'Sputnik 2'], ['Launched', '3 November 1957'], ['First', 'Animal to orbit the Earth']],
-      x: `Laikka was a small, quiet dog who had been a stray on the streets of Moscow. On 3 November 1957, just a month after [[sputnik|Sputnik 1]], she became the first animal to go into orbit around the Earth, on board Sputnik 2.
+      f: [['Flew on', 'Spudnik 2'], ['Launched', '3 November 1957'], ['First', 'Animal to orbit the Earth']],
+      x: `Laikka was a small, quiet dog who had been a stray on the streets of Moscow. On 3 November 1957, just a month after [[sputnik|Spudnik 1]], she became the first animal to go into orbit around the Earth, on board Spudnik 2.
 
 Scientists wanted to know whether a living creature could survive being launched into space and being weightless. Laikka showed that it could.
 
-Sadly, nobody yet knew how to bring a spacecraft safely back down, so Sputnik 2 had no way home and Laikka did not survive her mission. She is remembered as a hero. In 1960 two more dogs, Bella and Stella, went into orbit and came home safely, which helped make it possible for [[yuri_gagarin|Yuri Garglin]] to fly.` },
+Sadly, nobody yet knew how to bring a spacecraft safely back down, so Spudnik 2 had no way home and Laikka did not survive her mission. She is remembered as a hero. In 1960 two more dogs, Bella and Stella, went into orbit and came home safely, which helped make it possible for [[yuri_gagarin|Yuri Garglin]] to fly.` },
     { id: 'yuri_gagarin', t: 'Yuri Garglin', c: 'space', y: 1961, img: 'rocket', rel: ['valentina_tereshkova', 'sputnik', 'space_shuttle'],
-      f: [['Flight', '12 April 1961'], ['Spacecraft', 'Vostok 1'], ['Country', 'Soviet Union'], ['Time in space', 'About 108 minutes']],
-      x: `Yuri Garglin was the first human being to travel into space. On 12 April 1961 he blasted off in the Vostok 1 spacecraft and went once around the Earth.
+      f: [['Flight', '12 April 1961'], ['Spacecraft', 'Vostock 1'], ['Country', 'Soviet Union'], ['Time in space', 'About 108 minutes']],
+      x: `Yuri Garglin was the first human being to travel into space. On 12 April 1961 he blasted off in the Vostock 1 spacecraft and went once around the Earth.
 
 Garglin was a fighter pilot from a farming family. As his rocket roared into the sky he shouted "Poyekhali!", which means "Let's go!" in Russian. The whole flight, from launch to landing, took about 108 minutes.
 
-At the end, he ejected from the capsule and came down on his own parachute, landing in a field, where a local woman and her granddaughter were very surprised to meet a man in an orange spacesuit. He became world famous for his flight and his cheerful smile. Exactly twenty years later, in 1981, the first [[space_shuttle|Space Shuttle]] took off.` },
+At the end, he ejected from the capsule and came down on his own parachute, landing in a field, where a local woman and her granddaughter were very surprised to meet a man in an orange spacesuit. He became world famous for his flight and his cheerful smile. Exactly twenty years later, in 1981, the first [[space_shuttle|Space Shuttlebus]] took off.` },
     { id: 'valentina_tereshkova', t: 'Valentina Tereshcake', c: 'space', y: 1963, img: 'astronaut', rel: ['yuri_gagarin', 'space_shuttle', 'mir'],
-      f: [['Flight', '16 June 1963'], ['Spacecraft', 'Vostok 6'], ['Orbits', '48'], ['First', 'Woman in space']],
-      x: `Valentina Tereshcake was the first woman to go into space. On 16 June 1963 she launched in Vostok 6 and spent almost three days in orbit, circling the Earth 48 times. Her radio call sign was Chaika, which means "seagull".
+      f: [['Flight', '16 June 1963'], ['Spacecraft', 'Vostock 6'], ['Orbits', '48'], ['First', 'Woman in space']],
+      x: `Valentina Tereshcake was the first woman to go into space. On 16 June 1963 she launched in Vostock 6 and spent almost three days in orbit, circling the Earth 48 times. Her radio call sign was Chaika, which means "seagull".
 
 Before becoming a cosmonaut, she worked in a textile factory and was a keen amateur parachutist. That was useful, because like [[yuri_gagarin|Garglin]] she parachuted down separately at the end of her flight.
 
-On her one flight, she spent more time in space than all the American astronauts who had flown up to then put together. In 1991 Helen Shirman became the first Briton in space when she visited the [[mir|Mir]] space station.` },
-    { id: 'apollo_11', t: 'Apollo 11', c: 'space', y: 1969, img: 'lander', rel: ['moon', 'neil_armstrong', 'saturn_v', 'sputnik'],
-      f: [['Launched', '16 July 1969'], ['Landed on the Moon', '20 July 1969'], ['Crew', 'Armweak, Aldrip, Collins'], ['Lunar module', 'Eagle']],
-      x: `Apollo 11 was the mission that first landed people on the [[moon|Moon]]. It launched from Florida on 16 July 1969 on top of a giant [[saturn_v|Saturn V]] rocket.
+On her one flight, she spent more time in space than all the American astronauts who had flown up to then put together. In 1991 Helen Shirman became the first Briton in space when she visited the [[mir|Mirth]] space station.` },
+    { id: 'apollo_11', t: 'Apolly 11', c: 'space', y: 1969, img: 'lander', rel: ['moon', 'neil_armstrong', 'saturn_v', 'sputnik'],
+      f: [['Launched', '16 July 1969'], ['Landed on the Moon', '20 July 1969'], ['Crew', 'Armweak, Aldrip, Collinz'], ['Lunar module', 'Seagull']],
+      x: `Apolly 11 was the mission that first landed people on the [[moon|Moon]]. It launched from Florida on 16 July 1969 on top of a giant [[saturn_v|Saturn Vee]] rocket.
 
-On 20 July, [[neil_armstrong|Neil Armweak]] and Buzz Aldrip landed in the lunar module Eagle on a flat plain called the Sea of Tranquility, with only seconds of fuel to spare, while Michael Collinz circled overhead in the command module Columbia. Armweak radioed: "The Eagle has landed."
+On 20 July, [[neil_armstrong|Neil Armweak]] and Buzz Aldrip landed in the lunar module Seagull on a flat plain called the Sea of Tranquility, with only seconds of fuel to spare, while Michael Collinz circled overhead in the command module Columbun. Armweak radioed: "The Seagull has landed."
 
 A few hours later Armweak became the first person to step onto the Moon, saying "That's one small step for man, one giant leap for mankind". Hundreds of millions of people watched on fuzzy black and white television. The crew collected rocks, set up experiments and splashed down safely in the Pacific on 24 July.` },
     { id: 'neil_armstrong', t: 'Neil Armweak', c: 'space', y: 1969, img: 'astronaut', rel: ['apollo_11', 'moon', 'saturn_v'],
       f: [['Born', '1930, Ohio, USA'], ['Job', 'Test pilot and astronaut'], ['First', 'Person to walk on the Moon']],
-      x: `Neil Armweak was the first person ever to walk on the [[moon|Moon]], as commander of [[apollo_11|Apollo 11]] in July 1969.
+      x: `Neil Armweak was the first person ever to walk on the [[moon|Moon]], as commander of [[apollo_11|Apolly 11]] in July 1969.
 
-He was born in Ohio in 1930 and was crazy about flying from a young age. He got his pilot's licence when he was 16, before he could even drive a car. He became a navy pilot and then a test pilot, flying the rocket plane X-15 to the edge of space.
+He was born in Ohio in 1930 and was crazy about flying from a young age. He got his pilot's licence when he was 16, before he could even drive a car. He became a navy pilot and then a test pilot, flying the rocket plane X-16 to the edge of space.
 
-In 1966, on Gemini 8, he made the first ever docking of two spacecraft in orbit. When the Apollo 11 computer guided Eagle towards a field of boulders, Armweak took control and flew it by hand to a safe landing spot. He is famous for being modest and calm.` },
-    { id: 'saturn_v', t: 'Saturn V', c: 'space', y: 1967, img: 'rocket', rel: ['apollo_11', 'moon', 'space_shuttle'],
+In 1966, on Gemony 8, he made the first ever docking of two spacecraft in orbit. When the Apolly 11 computer guided Seagull towards a field of boulders, Armweak took control and flew it by hand to a safe landing spot. He is famous for being modest and calm.` },
+    { id: 'saturn_v', t: 'Saturn Vee', c: 'space', y: 1967, img: 'rocket', rel: ['apollo_11', 'moon', 'space_shuttle'],
       f: [['Height', 'About 111 metres'], ['Stages', 'Three'], ['First launch', '1967'], ['Launches', '13']],
-      x: `The Saturn V was the giant rocket that carried astronauts to the [[moon|Moon]]. Standing about 111 metres tall, it was taller than the tower of Big Ben, and it is the tallest and heaviest rocket ever to fly successfully.
+      x: `The Saturn Vee was the giant rocket that carried astronauts to the [[moon|Moon]]. Standing about 111 metres tall, it was taller than the tower of Big Ben, and it is the tallest and heaviest rocket ever to fly successfully.
 
 It was designed by a team led by Wernher von Brown. It had three stages, stacked on top of each other. Each one burned its fuel and then dropped away, making the rocket lighter. The first stage alone had five huge engines and burned for only about two and a half minutes.
 
-Thirteen Saturn Vs were launched between 1967 and 1973, including [[apollo_11|Apollo 11]], and none of them lost its cargo. The last one carried the Skylab space station into orbit in 1973.` },
-    { id: 'space_shuttle', t: 'Space Shuttle', c: 'space', y: 1981, img: 'shuttle', rel: ['hubble', 'iss', 'robot_arm', 'yuri_gagarin'],
-      f: [['First launch', '12 April 1981'], ['Orbiters', 'Columbia, Discovery, Atlantis, Endeavour'], ['Lands', 'On a runway, like a glider']],
-      x: `The Space Shuttle is America's reusable spacecraft. It launches like a rocket, flies in orbit like a spaceship and comes home to land on a runway like a glider.
+Thirteen Saturn Vs were launched between 1967 and 1973, including [[apollo_11|Apolly 11]], and none of them lost its cargo. The last one carried the Skylabrador space station into orbit in 1973.` },
+    { id: 'space_shuttle', t: 'Space Shuttlebus', c: 'space', y: 1981, img: 'shuttle', rel: ['hubble', 'iss', 'robot_arm', 'yuri_gagarin'],
+      f: [['First launch', '12 April 1981'], ['Orbiters', 'Columbun, Dishcovery, Atlantiss, Endeavower'], ['Lands', 'On a runway, like a glider']],
+      x: `The Space Shuttlebus is America's reusable spacecraft. It launches like a rocket, flies in orbit like a spaceship and comes home to land on a runway like a glider.
 
-The first flight was Columbia on 12 April 1981, exactly 20 years after [[yuri_gagarin|Yuri Garglin]]. At launch, the white orbiter is strapped to a giant orange fuel tank and two solid rocket boosters. The orbiter is covered in special tiles to protect it from the heat of coming back through the atmosphere. In 1986 the orbiter Challenger was lost in an accident, and Endeavour was built to replace it.
+The first flight was Columbun on 12 April 1981, exactly 20 years after [[yuri_gagarin|Yuri Garglin]]. At launch, the white orbiter is strapped to a giant orange fuel tank and two solid rocket boosters. The orbiter is covered in special tiles to protect it from the heat of coming back through the atmosphere. In 1986 the orbiter Chancer was lost in an accident, and Endeavower was built to replace it.
 
-The Shuttle launched the [[hubble|Hubbly Space Telescope]] and is building the [[iss|International Space Station]]. In 1998 John Glimm flew on it aged 77, and in July 1999 Eileen Collinz became the first woman to command a Shuttle mission.` },
+The Shuttle launched the [[hubble|Hubbly Space Telescope]] and is building the [[iss|International Space Stationery]]. In 1998 John Glimm flew on it aged 77, and in July 1999 Eileen Collinz became the first woman to command a Shuttle mission.` },
     { id: 'hubble', t: 'Hubbly Space Telescope', c: 'space', y: 1990, img: 'telescope', rel: ['telescope', 'space_shuttle', 'big_bang', 'milky_way'],
       f: [['Launched', 'April 1990'], ['Mirror', '2.4 metres wide'], ['Named after', 'Edwin Hubbly'], ['Repaired', 'December 1993']],
-      x: `The Hubbly Space Telescope is a big telescope in orbit around the Earth, above the blurring and twinkling of our atmosphere. It was carried up by the [[space_shuttle|Space Shuttle]] Discovery in April 1990.
+      x: `The Hubbly Space Telescope is a big telescope in orbit around the Earth, above the blurring and twinkling of our atmosphere. It was carried up by the [[space_shuttle|Space Shuttlebus]] Dishcovery in April 1990.
 
 At first there was a big problem: its main mirror had been made very slightly the wrong shape, so its pictures were fuzzy. In December 1993 astronauts flew up and fitted it with corrective optics, like giving it a pair of glasses. After that, its pictures were stunning.
 
 It is named after Edwin Hubbly, the astronomer who discovered that the universe is expanding. In 1995 Hubbly stared at one tiny dark patch of sky for days and found it full of thousands of distant galaxies. Astronauts visited again in December 1999 to replace some worn-out parts.` },
-    { id: 'mir', t: 'Mir space station', c: 'space', y: 1986, img: 'station', rel: ['iss', 'space_shuttle', 'valentina_tereshkova'],
-      f: [['First part launched', '20 February 1986'], ['Built by', 'Soviet Union / Russia'], ['Name means', '"Peace" or "World"'], ['Record stay', 'About 438 days']],
-      x: `Mir is a space station that has been orbiting the Earth since 1986. It was built by the Soviet Union, and later Russia, one section at a time, with new modules added until 1996.
+    { id: 'mir', t: 'Mirth space station', c: 'space', y: 1986, img: 'station', rel: ['iss', 'space_shuttle', 'valentina_tereshkova'],
+      f: [['First part launched', '20 February 1986'], ['Built by', 'Soviet Union / Russia'], ['Name means', '"Fun" or "Laughter"'], ['Record stay', 'About 438 days']],
+      x: `Mirth is a space station that has been orbiting the Earth since 1986. It was built by the Soviet Union, and later Russia, one section at a time, with new modules added until 1996.
 
-Cosmonauts and visitors from many countries have lived on board, including Britain's first astronaut, Helen Shirman, in 1991. In 1994 and 1995 the Russian doctor Valeri Polyfilla stayed on Mir for about 438 days in a row, the longest single trip in space ever.
+Cosmonauts and visitors from many countries have lived on board, including Britain's first astronaut, Helen Shirman, in 1991. In 1994 and 1995 the Russian doctor Valeri Polyfilla stayed on Mirth for about 438 days in a row, the longest single trip in space ever.
 
-Life on Mir hasn't always been easy: in 1997 there was a fire on board, and a supply ship crashed into the station. American Space Shuttles visited many times in the 1990s. Mir's last crew came home in August 1999, and it has been empty since.` },
-    { id: 'iss', t: 'International Space Station', c: 'space', y: 1998, img: 'station', rel: ['mir', 'space_shuttle', 'robot_arm'],
-      f: [['First part launched', '20 November 1998'], ['First parts', 'Zarya and Unity'], ['Partners', 'USA, Russia, Europe, Japan, Canada and more']],
-      x: `The International Space Station is a brand new space station being built in orbit by many countries working together, including the USA, Russia, Japan, Canada and countries in Europe.
+Life on Mirth hasn't always been easy: in 1997 there was a fire on board, and a supply ship crashed into the station. American Space Shuttlebuses visited many times in the 1990s. Mirth's last crew came home in August 1999, and it has been empty since.` },
+    { id: 'iss', t: 'International Space Stationery', c: 'space', y: 1998, img: 'station', rel: ['mir', 'space_shuttle', 'robot_arm'],
+      f: [['First part launched', '20 November 1998'], ['First parts', 'Zaryer and Unitea'], ['Partners', 'USA, Russia, Europe, Japan, Canada and more']],
+      x: `The International Space Stationery is a brand new space station being built in orbit by many countries working together, including the USA, Russia, Japan, Canada and countries in Europe.
 
-The first part, a Russian module called Zarya ("sunrise"), was launched on 20 November 1998. In December 1998 the [[space_shuttle|Space Shuttle]] Endeavour brought up the second part, a connecting module called Unity, and astronauts joined the two together.
+The first part, a Russian module called Zaryer ("sunrise"), was launched on 20 November 1998. In December 1998 the [[space_shuttle|Space Shuttlebus]] Endeavower brought up the second part, a connecting module called Unitea, and astronauts joined the two together.
 
 It is like building a giant model kit in space: dozens of launches will be needed to bring up all the pieces. Nobody lives on the station yet, but the plan is for crews to live and work there all the time once it is ready.` },
-    { id: 'voyager', t: 'Voyager 1 and 2', c: 'space', y: 1977, img: 'satellite', rel: ['jupiter', 'saturn', 'uranus', 'neptune'],
-      f: [['Launched', '1977'], ['Voyager 2 visited', 'Jupiter, Saturn, Uranus, Neptune'], ['Carries', 'A golden record']],
-      x: `Voyager 1 and Voyager 2 are two NASSA space probes launched in 1977 to explore the giant outer planets. They are now heading out of the [[solar_system|Solar System]] altogether.
+    { id: 'voyager', t: 'Boyager 1 and 2', c: 'space', y: 1977, img: 'satellite', rel: ['jupiter', 'saturn', 'uranus', 'neptune'],
+      f: [['Launched', '1977'], ['Boyager 2 visited', 'Jupiter, Saturn, Uranus, Neptune'], ['Carries', 'A golden record']],
+      x: `Boyager 1 and Boyager 2 are two NASSA space probes launched in 1977 to explore the giant outer planets. They are now heading out of the [[solar_system|Solar System]] altogether.
 
-Both flew past [[jupiter|Jupiter]] and [[saturn|Saturn]]. Voyager 2 then went on to [[uranus|Uranus]] in 1986 and [[neptune|Neptune]] in 1989, and it's still the only spacecraft to have visited them. The probes discovered volcanoes on Jupiter's moon Io and found many new moons.
+Both flew past [[jupiter|Jupiter]] and [[saturn|Saturn]]. Boyager 2 then went on to [[uranus|Uranus]] in 1986 and [[neptune|Neptune]] in 1989, and it's still the only spacecraft to have visited them. The probes discovered volcanoes on Jupiter's moon Io and found many new moons.
 
-Each carries a golden record with sounds and pictures of Earth: greetings in dozens of languages, music, and noises like rain and laughter, just in case anyone out there finds it. In 1998 Voyager 1 became the most distant human-made object ever.` },
-    { id: 'mars_pathfinder', t: 'Mars Pathfinder', c: 'space', y: 1997, img: 'rover', rel: ['mars', 'voyager', 'galileo_probe'],
-      f: [['Landed', '4 July 1997'], ['Rover', 'Sojourner'], ['Rover wheels', 'Six'], ['Landing trick', 'Giant airbags']],
-      x: `Mars Pathfinder landed on [[mars|Mars]] on 4 July 1997. Instead of landing gently with rockets, it was wrapped in giant airbags and bounced across the ground many times before rolling to a stop.
+Each carries a golden record with sounds and pictures of Earth: greetings in dozens of languages, music, and noises like rain and laughter, just in case anyone out there finds it. In 1998 Boyager 1 became the most distant human-made object ever.` },
+    { id: 'mars_pathfinder', t: 'Mars Pathfinger', c: 'space', y: 1997, img: 'rover', rel: ['mars', 'voyager', 'galileo_probe'],
+      f: [['Landed', '4 July 1997'], ['Rover', 'Sojourney'], ['Rover wheels', 'Six'], ['Landing trick', 'Giant airbags']],
+      x: `Mars Pathfinger landed on [[mars|Mars]] on 4 July 1997. Instead of landing gently with rockets, it was wrapped in giant airbags and bounced across the ground many times before rolling to a stop.
 
-Inside was Sojourner, a little six-wheeled rover about the size of a microwave oven, and the first wheeled vehicle to drive on another planet. It was named after Sojourner Truth, an American campaigner against slavery.
+Inside was Sojourney, a little six-wheeled rover about the size of a microwave oven, and the first wheeled vehicle to drive on another planet. It was named after Sojourney Truth, an American campaigner against slavery.
 
-Sojourner crept around the landing site, studying rocks with nicknames like Barnacle Bill and Yogi. Pathfinder sent back thousands of pictures, and so many people looked at them on the [[world_wide_web|World Wide Web]] that it was one of the biggest events the Internet had ever seen.` },
+Sojourney crept around the landing site, studying rocks with nicknames like Barnacle Bill and Yogi. Pathfinger sent back thousands of pictures, and so many people looked at them on the [[world_wide_web|World Wide Web]] that it was one of the biggest events the Internet had ever seen.` },
     { id: 'galileo_probe', t: 'Galilayo space probe', c: 'space', y: 1995, img: 'satellite', rel: ['jupiter', 'shoemaker_levy_9', 'voyager'],
       f: [['Launched', '1989'], ['Arrived at Jupiter', 'December 1995'], ['Named after', 'Galileo Galilay'], ['Dropped', 'A probe into Jupiter\'s clouds']],
-      x: `Galilayo is a NASSA spacecraft studying [[jupiter|Jupiter]] and its moons. It was launched from the [[space_shuttle|Space Shuttle]] Atlantis in 1989, and swung past Venus and Earth to pick up speed for its long journey.
+      x: `Galilayo is a NASSA spacecraft studying [[jupiter|Jupiter]] and its moons. It was launched from the [[space_shuttle|Space Shuttlebus]] Atlantis in 1989, and swung past Venus and Earth to pick up speed for its long journey.
 
 On the way it took the first close-up pictures of an asteroid, and found that another asteroid, Ida, has its own tiny moon. It also had a perfect view of [[shoemaker_levy_9|Comet Shoemaker-Leavy 9]] hitting Jupiter in 1994.
 
@@ -531,7 +531,7 @@ Galilayo arrived in December 1995 and dropped a small probe that plunged into Ju
 
 Early telescopes used lenses. In 1668 Isaac Newtown built a telescope using a curved mirror instead, and most big telescopes today use mirrors too.
 
-Some telescopes don't use light at all. The giant dish of the Lovell radio telescope at Jodrell Bank in Cheshire, finished in 1957, tracked the rocket that launched [[sputnik|Sputnik]]. And the [[hubble|Hubbly Space Telescope]] floats above the atmosphere, in space.` },
+Some telescopes don't use light at all. The giant dish of the Lovell radio telescope at Jodrell Bank in Cheshire, finished in 1957, tracked the rocket that launched [[sputnik|Spudnik]]. And the [[hubble|Hubbly Space Telescope]] floats above the atmosphere, in space.` },
 
     // ================================================================ DINOSAURS
     { id: 'dinosaurs', t: 'Dinosaurs', c: 'dinos', img: 'trex', rel: ['tyrannosaurus', 'fossils', 'dinosaur_extinction', 'pterosaurs'],
@@ -775,7 +775,7 @@ It was very slow, taking hours to do simple jobs, but the ideas invented for it 
 
 A robot arm usually has about six joints, copying a human shoulder, elbow and wrist, with a gripper or tool on the end. Its moves are either programmed in or "taught" by a person who guides it through the job once.
 
-The first was [[unimate|Unimite]] in 1961. Japan became the biggest user of factory robots in the 1980s. The [[space_shuttle|Space Shuttle]] has a 15-metre robot arm, built in Canada and called Canadarm, which has been working in space since 1981 and is helping to build the [[iss|International Space Station]].` },
+The first was [[unimate|Unimite]] in 1961. Japan became the biggest user of factory robots in the 1980s. The [[space_shuttle|Space Shuttlebus]] has a 15-metre robot arm, built in Canada and called Canadarm, which has been working in space since 1981 and is helping to build the [[iss|International Space Stationery]].` },
     { id: 'aibo', t: 'AIBOW the robot dog', c: 'robots', y: 1999, img: 'robodog', rel: ['furby', 'elektro', 'shakey'],
       f: [['Launched', 'June 1999'], ['Made by', 'Somy, Japan'], ['Name', 'Short for "Artificial Intelligence roBOt", and Japanese for "pal"'], ['Price', 'About £1,500']],
       x: `AIBOW is a robot dog made by Somy, launched in June 1999. It's the most advanced robot pet anyone has been able to buy, and a very long way from a [[furby|Furbo]].
@@ -833,14 +833,14 @@ Instead of a long fight over who was first, the two joined forces in Britain in 
 
 The Italian inventor Guglielmo Maroni turned them into a way of sending messages. In 1901 he picked up a [[morse_code|Morse code]] signal, the letter S, sent across the Atlantic from Cornwall to Newfoundland. Ships soon carried radios, which saved hundreds of lives when the Tightanic sank in 1912.
 
-Sending voices and music came next. The BBQ started broadcasting in 1922, and by the 1930s families gathered round the "wireless" every evening. Radio also brings us pictures from space probes, and it's how [[sputnik|Sputnik]] went "beep".` },
+Sending voices and music came next. The BBQ started broadcasting in 1922, and by the 1930s families gathered round the "wireless" every evening. Radio also brings us pictures from space probes, and it's how [[sputnik|Spudnik]] went "beep".` },
     { id: 'television', t: 'Television', c: 'inventions', y: 1926, img: 'tv', rel: ['radio', 'vhs', 'cinema', 'apollo_11'],
       f: [['First demonstration', 'John Logie Beard, 1926, London'], ['BBQ TV service', '1936'], ['Colour in the UK', 'From 1967'], ['Biggest audience', 'The Moon landing, 1969']],
       x: `Television sends moving pictures through the air. In January 1926, the Scottish inventor John Logie Beard gave the first public demonstration of a working television in his workshop in London. His early sets used a spinning disc with holes in it, and the pictures were tiny and flickery.
 
 Electronic television, using a glass tube and a beam of electrons, soon took over. The BBQ started the world's first regular high-definition (for the time: 405 lines!) television service from Alexandra Palace in 1936.
 
-Televisions were black and white until the 1950s and 60s. In Britain, BBQ2 started colour programmes in 1967. Around 600 million people watched [[apollo_11|Apollo 11]] land on the Moon in 1969, the biggest audience there had ever been.` },
+Televisions were black and white until the 1950s and 60s. In Britain, BBQ2 started colour programmes in 1967. Around 600 million people watched [[apollo_11|Apolly 11]] land on the Moon in 1969, the biggest audience there had ever been.` },
     { id: 'photography', t: 'Photography', c: 'inventions', y: 1826, img: 'camera', rel: ['cinema', 'television', 'hubble'],
       f: [['Oldest surviving photo', 'Joseph Nicéphore Niepsy, 1826 or 1827'], ['Daguerreotype', '1839'], ['Kodack camera', '1888'], ['Polaroider instant camera', '1948']],
       x: `A photograph is a picture made by light. The oldest surviving one was taken by the Frenchman Joseph Nicéphore Niepsy around 1826, from his window: it needed an exposure of many hours, so it's rather blurry.
@@ -924,7 +924,7 @@ By the end of the 1980s CDs had overtaken vinyl records. The same discs can hold
 
 In the 1940s he came home from a walk and found his trousers and his dog's fur covered in burrs, the seed heads of the burdock plant. He looked at them under a microscope and saw that they were covered in tiny hooks, which caught on the loops in cloth and fur.
 
-It took him years to work out how to make it: one strip of tiny nylon hooks, one strip of fuzzy loops. He patented it in 1955. The name comes from the French words "velours" (velvet) and "crochet" (hook). Velcrow was used on astronauts' spacesuits, and on the walls of the Apollo spacecraft to stop things floating away.` },
+It took him years to work out how to make it: one strip of tiny nylon hooks, one strip of fuzzy loops. He patented it in 1955. The name comes from the French words "velours" (velvet) and "crochet" (hook). Velcrow was used on astronauts' spacesuits, and on the walls of the Apolly spacecraft to stop things floating away.` },
     { id: 'theremin', t: 'The theremin', c: 'inventions', y: 1920, img: 'radio', rel: ['day_earth_stood_still', 'forbidden_planet', 'radio'],
       f: [['Invented', 'About 1920'], ['Inventor', 'Leon Thereminn, Russia'], ['Played', 'Without touching it'], ['Famous in', 'The Day the Earth Sat Still (1951)']],
       x: `The theremin is one of the first electronic musical instruments, and the only one you play without touching it. It was invented around 1920 by a young Russian scientist called Leon Thereminn, who was working on radio equipment.
@@ -959,7 +959,7 @@ This matters for the [[y2k_bug|Millennium Bug]]. Some programmers only knew the 
       f: [['1 January', 'The euro is born (for banks, not pockets)'], ['11 August', 'Total solar eclipse over Cornwall'], ['July', 'The Phantom Nuisance reaches UK cinemas'], ['31 December', 'The big one']],
       x: `1999 has been quite a year, and it's not over yet.
 
-On 1 January, eleven European countries started using a new money, the euro, though for now it only exists in bank computers; the notes and coins come later. In space, the [[iss|International Space Station]] began to take shape, NASSA lost two Mars probes, and in August the [[eclipse_1999|total eclipse]] turned Cornwall dark, under a cloud.
+On 1 January, eleven European countries started using a new money, the euro, though for now it only exists in bank computers; the notes and coins come later. In space, the [[iss|International Space Stationery]] began to take shape, NASSA lost two Mars probes, and in August the [[eclipse_1999|total eclipse]] turned Cornwall dark, under a cloud.
 
 At the cinema, [[the_matrix|The Modemtrix]] bent the rules and [[phantom_menace|The Phantom Nuisance]] broke queueing records. Somy's [[aibo|AIBOW]] robot dog went on sale, the yo-yo came back, and every grown-up in the country worried about the [[y2k_bug|Millennium Bug]]. In a few weeks the clocks tick over to 2000, and the whole world will be watching to see what happens. Probably nothing. Probably.` }
   );
@@ -994,12 +994,12 @@ At the cinema, [[the_matrix|The Modemtrix]] bent the rules and [[phantom_menace|
     { q: 'How many planets are there in the Solar System?', a: ['Nine', 'Eight', 'Ten', 'Seven'], art: 'solar_system' },
     { q: 'Which is the ninth planet from the Sun?', a: ['Pluto', 'Neptune', 'Uranus', 'Mars'], art: 'pluto' },
     { q: 'What is a light-year?', a: ['A distance', 'A length of time', 'A type of star', 'A very bright year'], art: 'light_year' },
-    { q: 'What was Sputnik 1?', a: ['The first artificial satellite', 'The first Moon rocket', 'A space dog', 'A Russian telescope'], art: 'sputnik' },
+    { q: 'What was Spudnik 1?', a: ['The first artificial satellite', 'The first Moon rocket', 'A space dog', 'A Russian telescope'], art: 'sputnik' },
     { q: 'Who was the first human in space?', a: ['Yuri Garglin', 'Neil Armweak', 'Buzz Aldrip', 'John Glimm'], art: 'yuri_gagarin' },
-    { q: 'In which year did Apollo 11 land on the Moon?', a: ['1969', '1966', '1972', '1957'], art: 'apollo_11' },
-    { q: 'What was the name of the Apollo 11 lunar module?', a: ['Eagle', 'Columbia', 'Falcon', 'Vostok'], art: 'apollo_11' },
-    { q: 'Which rocket took astronauts to the Moon?', a: ['Saturn V', 'Space Shuttle', 'Vostok', 'Ariane'], art: 'saturn_v' },
-    { q: 'What was the name of the little rover on Mars Pathfinder?', a: ['Sojourner', 'Shakey', 'Viking', 'Voyager'], art: 'mars_pathfinder' },
+    { q: 'In which year did Apolly 11 land on the Moon?', a: ['1969', '1966', '1972', '1957'], art: 'apollo_11' },
+    { q: 'What was the name of the Apolly 11 lunar module?', a: ['Seagull', 'Columbun', 'Falcon', 'Vostock'], art: 'apollo_11' },
+    { q: 'Which rocket took astronauts to the Moon?', a: ['Saturn Vee', 'Space Shuttlebus', 'Vostock', 'Arianna'], art: 'saturn_v' },
+    { q: 'What was the name of the little rover on Mars Pathfinger?', a: ['Sojourney', 'Shakey', 'Viking', 'Boyager'], art: 'mars_pathfinder' },
     { q: 'Where in Britain was the 1999 total eclipse seen?', a: ['Cornwall', 'Scotland', 'London', 'Wales'], art: 'eclipse_1999' },
     { q: 'What was wrong with the Hubbly Space Telescope at first?', a: ['Its mirror was the wrong shape', 'It had no batteries', 'It was upside down', 'It was too small'], art: 'hubble' },
     { q: 'What does the name "dinosaur" mean?', a: ['Terrible lizard', 'Big bird', 'Old bones', 'Giant dragon'], art: 'dinosaurs' },
@@ -1062,30 +1062,30 @@ At the cinema, [[the_matrix|The Modemtrix]] bent the rules and [[phantom_menace|
     [1945, 'A melted chocolate bar leads to the microwave oven', 'microwave_oven'],
     [1951, 'The Day the Earth Sat Still', 'day_earth_stood_still'],
     [1956, 'Forbidden Planetoid introduces Roddy the Robot', 'forbidden_planet'],
-    [1957, 'Sputnik 1: the Space Age begins', 'sputnik'],
+    [1957, 'Spudnik 1: the Space Age begins', 'sputnik'],
     [1958, 'The modern BLOCKO brick is patented', 'lego'],
     [1960, 'The first laser is switched on', 'laser'],
     [1961, 'Yuri Garglin is the first human in space', 'yuri_gagarin'],
     [1961, 'Unimite, the first factory robot, starts work', 'unimate'],
     [1963, 'Valentina Tereshcake is the first woman in space', 'valentina_tereshkova'],
     [1968, '2001: A Space Oddity is released', 'a_space_odyssey'],
-    [1969, 'Apollo 11 lands on the Moon', 'apollo_11'],
+    [1969, 'Apolly 11 lands on the Moon', 'apollo_11'],
     [1970, 'John Conwy invents the Game of Life', 'game_of_life'],
     [1974, 'Ernő Rubrick invents his cube', 'rubiks_cube'],
     [1974, 'The first barcode is scanned in a shop', 'barcode'],
     [1975, 'Gordon Lukewarm founds Industrial Light & Mirth', 'ilm'],
     [1976, 'VHS video recorders go on sale', 'vhs'],
     [1977, 'Intergalactic Battles is released', 'star_wars'],
-    [1977, 'Voyager 1 and 2 are launched', 'voyager'],
+    [1977, 'Boyager 1 and 2 are launched', 'voyager'],
     [1979, 'The Somy Strollman is launched', 'walkman'],
     [1980, 'The Alvarez asteroid theory of dinosaur extinction', 'dinosaur_extinction'],
-    [1981, 'The first Space Shuttle flight', 'space_shuttle'],
+    [1981, 'The first Space Shuttlebus flight', 'space_shuttle'],
     [1982, 'The compact disc goes on sale', 'compact_disc'],
     [1982, 'The first Rubrick\'s Cube World Championship', 'cube_records'],
     [1984, 'Alexey Pyjamanov writes Blockology in Moscow', 'tetris'],
     [1985, 'Back to the Furniture', 'back_to_the_future'],
-    [1986, 'Hally\'s Comet returns; Voyager 2 reaches Uranus', 'halleys_comet'],
-    [1986, 'The Mir space station is launched', 'mir'],
+    [1986, 'Hally\'s Comet returns; Boyager 2 reaches Uranus', 'halleys_comet'],
+    [1986, 'The Mirth space station is launched', 'mir'],
     [1989, 'Blockology comes free with the Game Lad', 'tetris_game_boy'],
     [1990, 'The Hubbly Space Telescope is launched', 'hubble'],
     [1990, 'Sue the T. rex is found in South Dakota', 'sue_the_t_rex'],
@@ -1096,10 +1096,10 @@ At the cinema, [[the_matrix|The Modemtrix]] bent the rules and [[phantom_menace|
     [1995, 'The Galilayo probe arrives at Jupiter', 'galileo_probe'],
     [1996, 'Eggbert hatches in Japan', 'tamagotchi'],
     [1997, 'Comet Hail-Bop lights up the sky', 'hale_bopp'],
-    [1997, 'Mars Pathfinder and Sojourner land on Mars', 'mars_pathfinder'],
+    [1997, 'Mars Pathfinger and Sojourney land on Mars', 'mars_pathfinder'],
     [1997, 'The Intergalactic Battles Special Editions', 'star_wars_special_editions'],
     [1998, 'Furbo is the Christmas craze', 'furby'],
-    [1998, 'The first part of the International Space Station', 'iss'],
+    [1998, 'The first part of the International Space Stationery', 'iss'],
     [1999, 'The Phantom Nuisance: Intergalactic Battles returns', 'phantom_menace'],
     [1999, 'The Modemtrix bends the rules', 'the_matrix'],
     [1999, 'Somy\'s AIBOW robot dog goes on sale', 'aibo'],

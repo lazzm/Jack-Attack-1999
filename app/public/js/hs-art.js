@@ -153,8 +153,8 @@
     g.fillStyle = '#222'; g.beginPath(); g.moveTo(150, 92); g.quadraticCurveTo(160, 100, 161, 116); g.lineTo(139, 116); g.quadraticCurveTo(140, 100, 150, 92); g.fill();
     g.fillStyle = '#ddd'; g.beginPath(); g.moveTo(138, 226); g.lineTo(112, 270); g.lineTo(138, 270); g.fill(); g.beginPath(); g.moveTo(162, 226); g.lineTo(188, 270); g.lineTo(162, 270); g.fill();
     g.fillStyle = '#1a3a9a'; g.fillRect(144, 150, 12, 5);
-    text(g, 'STS-93', 150, 46, '40px ' + FONT, '#fff', 'center');
-    text(g, late ? 'COLUMBIA · 23 JULY 1999' : 'COLUMBIA · LAUNCHING JULY 1999!', 150, 68, '700 12px ' + UIF, '#9ad0ff', 'center');
+    text(g, 'STX-93', 150, 46, '40px ' + FONT, '#fff', 'center');
+    text(g, late ? 'COLUMBUN · 23 JULY 1999' : 'COLUMBUN · LAUNCHING JULY 1999!', 150, 68, '700 12px ' + UIF, '#9ad0ff', 'center');
     text(g, 'REACH FOR THE STARS', 150, 410, '9px ' + UIF, '#cde', 'center');
   }];
   P.posterBand = [300, 420, (g, w, h) => {

@@ -2,13 +2,13 @@
 
 The site never names a real game, band, film, show, person, brand or product: everything is a kid-friendly sound-alike or synonym. This table is the single source of truth; the same pairs drive `tests/parody-audit.cjs` (run with `node --expose-internals tests/parody-audit.cjs`; it must report 0). Grep this file before inventing a new parody, and reuse the existing one.
 
-Sources: first sweep = the pairs at the top of `tests/parody-audit.cjs`; second sweep = `tests/parody-pairs-2.cjs` (grouped below). Matching is case-insensitive on whole words, so one row covers THE NAME, The Name and the name.
+Sources: first sweep = the pairs at the top of `tests/parody-audit.cjs`; second sweep = `tests/parody-pairs-2.cjs` (grouped below), third sweep = `tests/parody-pairs-3.cjs` (space, near-real brands/towns, Zeldo rename). Matching is case-insensitive on whole words, so one row covers THE NAME, The Name and the name.
 
 ## First sweep (games, consoles, Pocket Critters, Intergalactic Battles, software, brands)
 
 | Real | Parody |
 |---|---|
-| The Legend of Zelda | The Legend of Zeldo |
+| The Legend of Zelda | The Myth of Zeldo |
 | Ocarina of Time | Kazoo of Time |
 | Super Mario 64 | Super Marlo 64 |
 | Mario Kart 64 | Kart Kaos 64 |
@@ -1580,11 +1580,117 @@ Sources: first sweep = the pairs at the top of `tests/parody-audit.cjs`; second 
 | and Banjo | and Bongo |
 | big-head Banjo | big-head Bongo |
 
+## Third sweep (space, near-real brands and towns, Zeldo series) - tests/parody-pairs-3.cjs
+
+Owner, 2026-10-27: "Parody the space missions too and stuff like that." Same audit (`node --expose-internals tests/parody-audit.cjs`). The rows marked (exact case) only match that exact spelling, so lowercase ids, CSS classes and ordinary words (a discovery, the mir variable, a unity of purpose) are never touched. Internal ids/asset names (`apollo_11`, `mir`, `iss`, `space_shuttle`, `posterShuttle`, `cx.eagle`, `games.podracer`) are unchanged; only displayed text moves.
+
+### Zeldo series: the Myth of Zeldo
+
+The series is "The Myth of Zeldo". The SNES game is THE MYTH OF ZELDO: A LINK TO THE PASTA; the planned Ultra 64 game (docs/games/myth-zeldo.md) is THE MYTH OF ZELDO: THE TEMPORAL FLUTE; the in-world 1998 game stays "The Myth of Zeldo: Kazoo of Time". "The Legend of Zeldo" and "Legend of Zelda" no longer appear in displayed text.
+
+| Real / old | Parody |
+|---|---|
+| The Legend of Zeldoo | The Myth of Zeldo |
+| The Legend of Zeldo | The Myth of Zeldo |
+| Legend of Zeldo | Myth of Zeldo |
+| Legend of Zelda | Myth of Zeldo |
+
+### Space missions, craft and agencies
+
+| Real | Parody |
+|---|---|
+| International Space Stations | International Space Stationeries |
+| International Space Station | International Space Stationery |
+| Space Shuttles | Space Shuttlebuses |
+| Space Shuttle | Space Shuttlebus |
+| Mars Polar Lander | Mars Polar Landlord |
+| Mars Climate Orbiter | Mars Climate Orbiteer |
+| Mars Global Surveyor | Mars Global Surfer |
+| Mars Pathfinder | Mars Pathfinger |
+| Pathfinder | Pathfinger |
+| Sojourner Truth | Sojourney Truth |
+| Sojourner | Sojourney |
+| Deep Space 1 | Deep Space Won |
+| Deep Space 2 | Deep Space Too |
+| Amundsen and Scott | Amundsend and Scotty |
+| Lunar Prospector | Lunar Prospectus |
+| Apollo | Apolly |
+| Sputnik | Spudnik |
+| Vostok | Vostock |
+| Soyuz | Soyuse |
+| Skylab | Skylabrador |
+| Voyager | Boyager |
+| Cassini | Cassiny |
+| Chandra | Chandruff |
+| Landsat | Landsnap |
+| Shenzhou | Shenzoo |
+| Mariner 10 | Marinade 10 |
+| Venera | Venerable |
+| Magellan probe | Magellam probe |
+| Arecibo | Arecibow |
+| Saturn V | Saturn Vee |
+| Gemini 8 | Gemony 8 |
+| Pioneer 11 | Pioneered 11 |
+| Explorer 1 | Exploder 1 |
+| Ariane 5 | Arianna 5 |
+| Proton rocket | Protein rocket |
+| Delta II | Delta Too |
+| Zarya | Zaryer |
+| STS-103 | STX-103 |
+| STS-96 | STX-96 |
+| STS-93 | STX-93 |
+| X-15 | X-16 |
+| NASA | NASSA |
+| Hermes Conrad | Hermes Conrod |
+
+### Near-real brands and towns
+
+| Real | Parody |
+|---|---|
+| Fergusson | Fergusnot |
+| Grimsby | Grimsbyte |
+| Hackney | Hackneigh |
+| Slough | Sluff |
+| Weston-super-Mare | Weston-super-Mayo |
+| Aldershot | Aldershoe |
+| Mars bar | Marsh bar |
+| Ceefax | Ceefacts |
+| Wikipedia | Wikipeedia |
+
+### Exact-case tokens (shuttles, stations, lander, probes)
+
+| Real | Parody |
+|---|---|
+| Columbia | Columbun |
+| COLUMBIA | COLUMBUN |
+| Columbia, Discovery, Atlantis, Endeavour | Columbun, Dishcovery, Atlantiss, Endeavower |
+| Discovery | Dishcovery |
+| DISCOVERY | DISHCOVERY |
+| Endeavour | Endeavower |
+| ENDEAVOUR | ENDEAVOWER |
+| ]] Atlantis | ]] Atlantiss |
+| orbiter Challenger | orbiter Chancer |
+| Mir | Mirth |
+| MIR | MIRTH |
+| ISS | ISSY |
+| Unity | Unitea |
+| UNITY | UNITEA |
+| ZARYA | ZARYER |
+| Stardust | Stardusty |
+| XMM | XMN |
+| Ariane | Arianna |
+| Collins | Collinz |
+| The Eagle has landed | The Seagull has landed |
+| Eagle | Seagull |
+| Eagle eye | Eagle eye |
+| Eagle eyes | Eagle eyes |
+
 ## Deliberately left alone
 
 - Places, countries, cities, months and days (Japan, London, Cornwall, Greenwich, Wimbledon, Silverstone, Wembley...), and the 1999 eclipse, the euro, the Millennium Dome as events/places.
 - Planets, moons, comets as natural objects, scientific names (Tyrannosaurus, Quetzalcoatlus), and folklore/public-domain figures (Father Christmas, Santa, Tooth Fairy, Guy Fawkes, Robin Hood, Sherlock Holmes, Beowulf).
-- Space missions, spacecraft and shuttles (Apollo, Sputnik, Mir, Voyager, Discovery, Columbia, International Space Station, Mars Polar Lander...). Only NASA -> NASSA and Hubble -> Hubbly were parodied. Say the word if these should go too.
+- Natural objects and long-dead people's own names are still fine (planets, comets such as Hale-Bopp, asteroids, the Sea of Tranquility, constellations, Titan); space missions, craft and agencies are now all parodied (third sweep above).
+- Big cities and ordinary UK place names (London, Leeds, Birmingham, Cardiff...) stay; the small joke towns in games (Grimsby, Hackney, Slough, Weston-super-Mare, Aldershot) are parodied.
 - Quiz answer lists also still accept the real spellings (a player may type them); the displayed answer is always the parody.
 - Generic standards and technical terms (MP3, MIDI, USB, DVD, CD-ROM, IRC, BIOS, DirectX, OpenGL, Glide), font names (Arial, Tahoma, Comic Sans MS, Helvetica...), Windows-style UI words (Recycle Bin, Control Panel, Solitaire, Paint) and internal ids, file-icon map keys (NOTEPAD.EXE etc.), hostnames (pokefacts.kidz) and regexes that match what players type.
 - Warhammer-flavoured vocabulary (WAAAGH, squig, grot, dakka, nob, Mork): the named units and Orks/Space Marines are parodied; the battle-cry vocabulary is the house style. Owner call.

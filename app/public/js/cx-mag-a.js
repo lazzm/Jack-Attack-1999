@@ -1,7 +1,7 @@
 /* cx-mag-a: the words of JACK ATTACK! back issues, January to June 1999 (lazy, loaded by js/cx.js; drawn by js/cx-mag.js).
  * Reviews are of real games with their UK release dates (each review shows from that date; where only the month is
  * known, from the last Friday that month, never early). Scores for games the main site also reviews match it.
- * Facts checked: Wikipedia infoboxes (EU/PAL/UK lines) + the EuroGold 1999 UK shop list.
+ * Facts checked: Wikipeedia infoboxes (EU/PAL/UK lines) + the EuroGold 1999 UK shop list.
  * The competition answers are NOT here: the server keeps them (mods/cx.js). Keep the question order in step with it. */
 (function () {
   'use strict';
@@ -27,7 +27,7 @@
         t: ['The worms are back and they\'ve got even sillier weapons. Two teams of worms take it in turns on a little island, and you have to wipe out the other team with bazookas, grenades, air strikes, a sheep that explodes, a banana bomb and the Holy Hand Grenade, which sings when you throw it.',
           'We played this at Callum\'s with four people on one keyboard and it was the best night ever. The Super Sheep flies when you press the button again. The Ninja Rope takes ages to learn and then you swing about like Tarzon. Made by Team18, who are British. Get in.'],
         up: 'Four players, one keyboard. The Super Sheep. The worm voices.', dn: 'Fights over who has the keyboard. Instant replays of your OWN worm falling in the sea.' },
-      { g: 'The Legend of Zeldo: Lingo\'s Awakening DX', p: 'GAME LAD COLOR', d: '01-29', s: [84, 86, 94, 92], o: 92, v: 'A massive adventure in your pocket.',
+      { g: 'The Myth of Zeldo: Lingo\'s Awakening DX', p: 'GAME LAD COLOR', d: '01-29', s: [84, 86, 94, 92], o: 92, v: 'A massive adventure in your pocket.',
         t: ['This is the old Game Lad Zeldo, but now in COLOUR on the Game Lad Color. Lingo gets shipwrecked on Kohlrabi Island and has to collect eight musical instruments to wake up the Wind Cod. It plays like the old Super Ultra Zeldo, from above, with dungeons full of keys, switches and bosses.',
           'There\'s a brand new dungeon that only works on a Game Lad Color, all about colours, and a photographer who takes pictures of you that you can print out if you\'ve got a Game Lad Printer. It still works on an old grey Game Lad too, just in black and white.'],
         up: 'Massive. Funny. The colour dungeon. Fits in your pocket.', dn: 'Batteries. I went through FOUR on Boxing Day.' },
@@ -49,7 +49,7 @@
       { from: 'A worried reader', how: 'on a postcard', t: 'Dear Jack, will my Ultra 64 still work in the year 2000? My dad says it might explode.', r: 'It will NOT explode. Games consoles don\'t care what year it is. Your dad might be thinking of the video recorder. The video recorder might explode.' },
     ],
     ch: [
-      { g: 'The Legend of Zeldo: Kazoo of Time', p: 'ULTRA 64', t: 'Not a cheat, a TIP: if you\'re stuck for money, cut the grass and smash pots everywhere. And the Gourd in Gourd City who rolls about? Drop a bomb in his way. Trust me.' },
+      { g: 'The Myth of Zeldo: Kazoo of Time', p: 'ULTRA 64', t: 'Not a cheat, a TIP: if you\'re stuck for money, cut the grass and smash pots everywhere. And the Gourd in Gourd City who rolls about? Drop a bomb in his way. Trust me.' },
       { g: 'Backpack Buddies', p: 'ULTRA 64', t: 'In Treasure Grove Cove, the sandcastle has letters on the floor. Spell words on them with Kazoobie\'s beak to type in codes. Jump on letters, don\'t walk.' },
       { g: 'Pocket Critters (if it ever comes out)', p: 'GAME LAD', t: 'People on the Internet say you can find MewOne under a truck by a boat. This is a RUMOUR and I can\'t test it because the game isn\'t out here. I\'ll test it when it is. Stay tuned.' },
       { g: 'Squirms Armageddon', p: 'PC', t: 'The Super Sheep is a missile you steer. Fire it, press the button again and it flies. Steer it with the arrow keys into the other team. Then do it again until Callum shouts.' },

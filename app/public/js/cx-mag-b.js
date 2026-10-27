@@ -1,6 +1,6 @@
 /* cx-mag-b: the words of JACK ATTACK! back issues, July to December 1999 (lazy, loaded by js/cx.js; drawn by js/cx-mag.js).
  * Same rules as cx-mag-a.js: real games, UK release dates (never early), kid's-eye opinions, no copied text.
- * Dates checked: Wikipedia (EU/PAL lines), the EuroGold 1999 UK list, NASA mission pages. Compo answers live in mods/cx.js. */
+ * Dates checked: Wikipeedia (EU/PAL lines), the EuroGold 1999 UK list, NASSA mission pages. Compo answers live in mods/cx.js. */
 (function () {
   'use strict';
   const M = window.CXMag; if (!M) return;
@@ -13,7 +13,7 @@
     blurb: { editorial: 'Intergalactic Battles! The Moon! Holidays!', reviews: 'Ape Escapade, F-1 World Grand Prix II, Attack of the Saucerbloke, Q-Type DX, Supermun 64', previews: 'Pocket Critters, Marlo Golf, the Daydream', letters: 'Strawberries and spoilers', cheats: 'Racer + Driver part 2', poster: 'The Moon: 30 years', compo: 'Win 40 Rupees' },
     ed: `<p>JULY! Three massive things this month:</p>
       <p><b>1. INTERGALACTIC BATTLES.</b> <i>The Phantom Nuisance</i> is out here on <b>Friday 16 July</b>. We've got tickets for the Saturday morning showing. Dad is taking me, Luke, Dave and JackK. Spoiler ban stays on until then. After that, ANYTHING GOES.</p>
-      <p><b>2. THE MOON.</b> On <b>20 July</b> it will be exactly <b>30 years</b> since Apollo 11 landed on the Moon and Neil Armweak and Buzz Aldrip walked on it. Michael Collinz stayed in orbit going round and round, which I think is the most patient anyone has ever been. The poster this month is all about it.</p>
+      <p><b>2. THE MOON.</b> On <b>20 July</b> it will be exactly <b>30 years</b> since Apolly 11 landed on the Moon and Neil Armweak and Buzz Aldrip walked on it. Michael Collinz stayed in orbit going round and round, which I think is the most patient anyone has ever been. The poster this month is all about it.</p>
       <p><b>3. SCHOOL'S OUT.</b> Nearly. Six weeks of games, BLOCKO and staying up late.</p>
       <p>I'm saving up for the BLOCKO Intergalactic Battles Z-Wing (<b>£29.99</b>). I'm about three car washes away. Also Wimbledon is on, so Mom is not available for anything between 2pm and 8pm.</p>`,
     revIntro: 'Summer\'s here: monkeys, racing cars, a little alien, a classic shooter, and... Supermun. Sorry.',
@@ -55,11 +55,11 @@
       { g: 'Micro Mechanics 64 Turbo', p: 'ULTRA 64', t: 'Two people per controller: one holds the left side, one holds the right. Decide who gets which side BEFORE you start. Learn from our mistakes.' },
       { g: 'Ape Escapade', p: 'PLAYSPACE', t: 'Sneak up on monkeys slowly by pushing the stick only a little bit. If their helmet light goes red, they\'ve seen you. Wait, and let it go back to normal.' },
     ],
-    poster: { title: 'THE MOON: 30 YEARS', col: '#000010', cap: '20 July 1969: Apollo 11 landed in the Sea of Tranquility. Neil Armweak and Buzz Aldrip walked on the Moon while Michael Collinz flew round it in the command module. 30 years ago this month!',
+    poster: { title: 'THE MOON: 30 YEARS', col: '#000010', cap: '20 July 1969: Apolly 11 landed in the Sea of Tranquility. Neil Armweak and Buzz Aldrip walked on the Moon while Michael Collinz flew round it in the command module. 30 years ago this month!',
       svg: `<rect width="300" height="400" fill="#000010"/>${stars(80, 7)}<circle cx="150" cy="170" r="110" fill="#c8c8c0"/><g fill="#a8a8a0">${[[110, 120, 22], [190, 150, 30], [140, 220, 18], [200, 230, 12], [96, 190, 10], [170, 100, 9]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g><circle cx="186" cy="168" r="5" fill="#ffd400" stroke="#000"/><path d="M186 168 L250 120" stroke="#ffd400" stroke-width="2"/>${T(258, 112, 12, 'SEA OF TRANQUILITY', { c: '#ffd400', a: 'end' })}${T(150, 34, 30, 'THE MOON', { c: '#fff' })}<g transform="translate(150 330)"><path d="M-30 0 h60 l-10 -26 h-40z" fill="#e8c860" stroke="#000" stroke-width="2"/><path d="M-30 0 l-14 18 M30 0 l14 18 M-10 0 l-6 18 M10 0 l6 18" stroke="#ccc" stroke-width="3"/><rect x="-14" y="-44" width="28" height="18" fill="#ddd" stroke="#000" stroke-width="2"/><circle cx="0" cy="-35" r="4" fill="#222"/></g>${T(150, 392, 12, '30 YEARS SINCE THE FIRST MOONWALK', { c: '#9fd0ff' })}` },
     compo: { intro: 'WIN 40 RUPEES! Three questions on the July issue. May the Farce be with you.',
       q: [['When is The Phantom Nuisance out in the UK?', ['16 July', '19 May', '20 July', '1 August']],
-        ['How many years since Apollo 11 landed on the Moon on 20 July?', ['25', '30', '40', '20']],
+        ['How many years since Apolly 11 landed on the Moon on 20 July?', ['25', '30', '40', '20']],
         ['How much is the BLOCKO Z-Wing Jack is saving up for?', ['£9.99', '£19.99', '£49.99', '£29.99']]] },
   });
 
@@ -68,7 +68,7 @@
     blurb: { editorial: 'The eclipse is coming!', reviews: 'Rugpats: Scavenger Hunt, Crock 2, Speed Geeks, Tiberian Moon, BLOCKO Racers', previews: 'Pocket Critters, Tony Squawk\'s, Finally Fantasy VIII', letters: 'WE SAW INTERGALACTIC BATTLES', cheats: 'Racer, Ape Escapade, BLOCKO', poster: 'Eclipse safety!', compo: 'Win 40 Rupees' },
     ed: `<p>WE SAW INTERGALACTIC BATTLES. Saturday morning, front row (bad idea, neck still hurts). The peapod race was the best ten minutes of my life. The lightspatula fight at the end with the double-ended lightspatula: jackreal. Dave cried at one bit and says he didn't. He did. Spoiler ban is now OFF.</p>
       <p>Next big thing: on <b>Wednesday 11 August</b> there's a <b>total eclipse of the Sun</b>. The Moon goes right in front of the Sun. In Cornwall it goes completely dark for about two minutes at about <b>11:11 in the morning</b>. Where we are, most of the Sun gets covered but not all of it. <b>NEVER LOOK STRAIGHT AT THE SUN</b>, not even with sunglasses. Make a pinhole viewer (see the poster) or use proper eclipse glasses.</p>
-      <p>Space news: at the end of July NASSA crashed a probe called <b>Lunar Prospector</b> into the Moon ON PURPOSE, to see if it would throw up water from ice in a crater. Nobody saw a splash. The Moon is keeping its secrets.</p>`,
+      <p>Space news: at the end of July NASSA crashed a probe called <b>Lunar Prospectus</b> into the Moon ON PURPOSE, to see if it would throw up water from ice in a crater. Nobody saw a splash. The Moon is keeping its secrets.</p>`,
     revIntro: 'The summer holidays: a crocodile, a load of karts, some BLOCKO, and Callum in a war room.',
     rev: [
       { g: 'Rugpats: Scavenger Hunt', p: 'ULTRA 64', d: '08-10', s: [70, 66, 62, 58], o: 62, v: 'For little brothers and sisters.',
@@ -113,7 +113,7 @@
     compo: { intro: 'WIN 40 RUPEES! Three questions on the August issue. Do not look at the Sun while answering.',
       q: [['At about what time is the eclipse total in Cornwall?', ['9:11am', '10:11am', '12:11pm', '11:11am']],
         ['What should you NEVER do during an eclipse?', ['Wear a hat', 'Stay indoors', 'Look straight at the Sun', 'Make a pinhole viewer']],
-        ['What did NASSA crash Lunar Prospector into?', ['The Moon', 'Mars', 'The Sun', 'The sea']]] },
+        ['What did NASSA crash Lunar Prospectus into?', ['The Moon', 'Mars', 'The Sun', 'The sea']]] },
   });
 
   // ================================================================ SEPTEMBER
@@ -303,7 +303,7 @@
     blurb: { editorial: 'The last issue of the 1900s', reviews: 'Donkey Wrong 64, Squirms Armageddon (PS), BLOCKO Rock Traders, Gauntlet Leggings, Opposing Farce, Racer on Game Lad', previews: 'Imperfect Dark, Grand Tourismo 2, PlaySpace 2', letters: 'Christmas lists', cheats: 'DW64 secrets', poster: 'WANTED: The Millennium Bug', compo: 'Win 40 Rupees' },
     ed: `<p>This is it. The <b>LAST ISSUE OF THE 1900s</b>. Next issue will be in the year 2000, if the computers don't all explode. Mom has bought 40 tins of beans just in case. Dad says that's silly. Dad has bought a torch.</p>
       <p>My Christmas list, in order: <b>1. A Daydream.</b> 2. Donkey Wrong 64. 3. BLOCKO Mindstorms. 4. A Scaletrix. 5. More red paint. Mom says "we'll see". I have asked Dad what "we'll see" means and he said "it means we'll see".</p>
-      <p>Space: on <b>3 December</b> the <b>Mars Polar Lander</b> lands near the south pole of Mars. I've had it on my calendar in red pen since it launched in January. Fingers crossed.</p>
+      <p>Space: on <b>3 December</b> the <b>Mars Polar Landlord</b> lands near the south pole of Mars. I've had it on my calendar in red pen since it launched in January. Fingers crossed.</p>
       <p>Thanks for reading JACK ATTACK! all year. Twelve issues, lots of reviews, one blister clinic, one eclipse, one Pocket Critters, zero spoilers. See you on the other side. Happy Christmas, and Happy New Millennium!</p>`,
     revIntro: 'Christmas is coming, and so are the big games. Check back as the month goes on.',
     rev: [
@@ -351,7 +351,7 @@
     poster: { title: 'WANTED: THE MILLENNIUM BUG', col: '#e8d8a8', cap: 'WANTED for messing up computers at midnight on 31 December 1999. Description: thinks it\'s 1900. Last seen: inside old computer clocks. Reward: 40 tins of beans (Mom\'s). If you see it, tell a grown-up who knows about computers.',
       svg: `<rect width="300" height="400" fill="#e8d8a8"/><rect x="10" y="10" width="280" height="380" fill="none" stroke="#5a3a1a" stroke-width="4"/>${T(150, 64, 54, 'WANTED', { c: '#5a1a00' })}${T(150, 92, 16, 'FOR MESSING UP CLOCKS', { c: '#5a1a00' })}<rect x="60" y="110" width="180" height="150" fill="#f8f0d8" stroke="#5a3a1a" stroke-width="3"/><g transform="translate(150 186)"><ellipse rx="44" ry="34" fill="#3a8a2a" stroke="#000" stroke-width="3"/><circle cx="-16" cy="-8" r="10" fill="#fff" stroke="#000"/><circle cx="16" cy="-8" r="10" fill="#fff" stroke="#000"/><circle cx="-14" cy="-6" r="4"/><circle cx="18" cy="-6" r="4"/><path d="M-14 14 q14 10 28 0" stroke="#000" stroke-width="3" fill="none"/><path d="M-30 -26 l-14 -22 M30 -26 l14 -22" stroke="#000" stroke-width="3"/><path d="M-44 0 h-14 M44 0 h14 M-40 16 l-14 10 M40 16 l14 10 M-40 -14 l-14 -10 M40 -14 l14 -10" stroke="#000" stroke-width="3"/><text y="54" text-anchor="middle" font-family="Courier New,monospace" font-size="16" font-weight="bold" fill="#e10600">01/01/00</text></g>${T(150, 290, 22, 'THE MILLENNIUM BUG', { c: '#000' })}${T(150, 318, 10, 'ALIASES: Y2K, THE BUG, "THAT THING ON THE NEWS"', { c: '#5a1a00', f: 'Arial Black,Arial' })}${T(150, 346, 20, 'REWARD: 40 TINS OF BEANS', { c: '#5a1a00' })}${T(150, 372, 11, 'SIGNED: MOM (SHERIFF OF THE KITCHEN)', { c: '#5a1a00', f: 'Arial Black,Arial' })}` },
     compo: { intro: 'WIN 40 RUPEES! The last competition of the 1900s. Make it count!',
-      q: [['When does Mars Polar Lander land on Mars?', ['1 December', '25 December', '31 December', '3 December']],
+      q: [['When does Mars Polar Landlord land on Mars?', ['1 December', '25 December', '31 December', '3 December']],
         ['What is number one on Jack\'s Christmas list?', ['A bike', 'A Daydream', 'BLOCKO Mindstorms', 'Socks']],
         ['Who is on this month\'s WANTED poster?', ['The Millennium Bug', 'Dave', 'Gubbinz', 'Father Christmas']]] },
   });

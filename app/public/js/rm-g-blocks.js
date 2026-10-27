@@ -7,7 +7,7 @@
  *           round). First to win three rounds. EASY / NORMAL, and HARD once you've beaten NORMAL.
  * A turns right, B turns left, Down drops faster, Up drops it all the way, Select holds a piece for later, Start pauses
  * (Resume / Restart / Quit). Pick the music (A, B, C, and a secret D) and the level at the start like the real thing.
- * Big scores end with a rocket launch on the pad (a space shuttle if you're brilliant). The top five on each mode are
+ * Big scores end with a rocket launch on the pad (a space shuttlebus if you're brilliant). The top five on each mode are
  * saved on the cartridge with their initials (Jack's mates got there first). A game in progress carries on after a
  * refresh (CONTINUE). Everything (the tunes, the art) is original. Old saves ({well, score, lines, level, sl, cur, next})
  * still load: the save only ever gains fields. */

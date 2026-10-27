@@ -250,7 +250,7 @@ ${sec('PK07', 'Glitches and playground rumours')}${wrap('You will hear LOTS of r
 ${sec('PK08', 'Legal')}${LEGAL('TrainerTez', 'Pocket Critters is a trademark of its owners. This guide is not official in any way.')}
 `);
 
-  add('zelda-oot', 'Ultra 64', 'The Legend of Zeldo: Kazoo of Time', 'FAQ / Dungeon Guide', 'HeroOfDave', [['20/12/98', '0.5 - Got it for Christmas early!'], ['26/01/99', '1.0 - BEAT THE WATER TEMPURA. You will too. Read on.'], ['04/05/99', '1.2 - Added warp songs and the Iron Wellies tip.']], () => `
+  add('zelda-oot', 'Ultra 64', 'The Myth of Zeldo: Kazoo of Time', 'FAQ / Dungeon Guide', 'HeroOfDave', [['20/12/98', '0.5 - Got it for Christmas early!'], ['26/01/99', '1.0 - BEAT THE WATER TEMPURA. You will too. Read on.'], ['04/05/99', '1.2 - Added warp songs and the Iron Wellies tip.']], () => `
 CONTENTS:  Dungeons [ZO01]  Songs [ZO02]  Water Tempura [ZO03]  Tips [ZO04]
 ${sec('ZO01', 'Dungeons (in order)')}
   -- AS YOUNG LINK --
@@ -487,7 +487,7 @@ ${sec('SA04', 'Legal')}${LEGAL('PurpleBlur')}
     if (!f) return page(c, '<p>FAQ not found. It may have been removed at the author\'s request (their Mom found out).</p>');
     const vers = f.ver.filter(v => { const [d, m] = v[0].split('/').map(Number), y = +v[0].split('/')[2]; return y === 98 || m * 100 + d <= c.md; });
     const ver = (vers[vers.length - 1] || f.ver[0])[1].split(' ')[0];
-    const txt = `${banner(f.short || f.game.replace(/^The Legend of Zeldo: /, 'Zeldo ').replace(/Pocket Critters Moss \/ Puddle/, 'Pocket Critters').slice(0, 13))}\n\n${f.game} - ${f.kind}\n${f.sys}\nVersion ${ver}\nBy ${f.by} (${f.by.toLowerCase()}@jackmail.webcom)\n\n${sec('VH', 'Version history')}${(vers.length ? vers : f.ver.slice(0, 1)).map(v => `  ${v[0]}  ${v[1]}`).join('\n')}\n${f.body()}\n${RULE}\n                         END OF FILE. GO PLAY OUTSIDE.\n${RULE}\n`;
+    const txt = `${banner(f.short || f.game.replace(/^The Myth of Zeldo: /, 'Zeldo ').replace(/Pocket Critters Moss \/ Puddle/, 'Pocket Critters').slice(0, 13))}\n\n${f.game} - ${f.kind}\n${f.sys}\nVersion ${ver}\nBy ${f.by} (${f.by.toLowerCase()}@jackmail.webcom)\n\n${sec('VH', 'Version history')}${(vers.length ? vers : f.ver.slice(0, 1)).map(v => `  ${v[0]}  ${v[1]}`).join('\n')}\n${f.body()}\n${RULE}\n                         END OF FILE. GO PLAY OUTSIDE.\n${RULE}\n`;
     c.after.push(() => {
       const end = c.q('.gf-end'); if (!end || !window.IntersectionObserver) return;
       const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { c.secret('eras.faq'); io.disconnect(); } }); io.observe(end); c.off(() => io.disconnect());

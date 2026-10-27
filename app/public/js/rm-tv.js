@@ -264,7 +264,7 @@
       <div class="rm-tvwrap"><div class="rm-tvbez ${hand ? 'rm-gbc' : 'rm-crt'}">
         <div class="rm-glass"><canvas class="rm-c0"></canvas><canvas class="rm-c1"></canvas><div class="rm-res"></div><i class="rm-scan"></i><i class="rm-glare"></i></div>
         ${hand ? `<i class="rm-gblogo">GAME LAD <b>C</b><b>O</b><b>L</b><b>O</b><b>U</b><b>R</b></i><i class="rm-gbpow"></i><span class="rm-gbpad"></span>`
-        : `<i class="rm-tvname">FERGUSSON</i><i class="rm-tvknob a"></i><i class="rm-tvknob b"></i><i class="rm-tvled2"></i>`}
+        : `<i class="rm-tvname">FERGUSNOT</i><i class="rm-tvknob a"></i><i class="rm-tvknob b"></i><i class="rm-tvled2"></i>`}
       </div></div>
       <div class="rm-side">
         <div class="rm-conbar"></div>

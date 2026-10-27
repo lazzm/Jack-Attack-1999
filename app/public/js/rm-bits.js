@@ -44,8 +44,8 @@
   // ================================================================ the posters
   function shuttle() {
     const late = today().md >= 723; // STS-93 went up on 23 July 1999; before that it's the big mission coming up
-    const P = late ? { m: 'STS-93', o: 'COLUMBIA', d: '23 JULY 1999', f: 'The first Space Shuttle mission with a woman in command: Eileen Collinz! It carried the Chandra X-ray telescope up to look at black holes.' }
-      : { m: 'STS-93', o: 'COLUMBIA', d: 'LAUNCHING JULY 1999!', f: 'Coming soon: Eileen Collinz will be the first woman ever to COMMAND a Space Shuttle. It\'s taking the Chandra X-ray telescope up to look at black holes. I\'m counting the days.' };
+    const P = late ? { m: 'STX-93', o: 'COLUMBUN', d: '23 JULY 1999', f: 'The first Space Shuttlebus mission with a woman in command: Eileen Collinz! It carried the Chandruff X-ray telescope up to look at black holes.' }
+      : { m: 'STX-93', o: 'COLUMBUN', d: 'LAUNCHING JULY 1999!', f: 'Coming soon: Eileen Collinz will be the first woman ever to COMMAND a Space Shuttlebus. It\'s taking the Chandruff X-ray telescope up to look at black holes. I\'m counting the days.' };
     return { P, svg: `<svg viewBox="0 0 300 420" class="rm-poster-svg"><defs><linearGradient id="rmS1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#02030a"/><stop offset=".7" stop-color="#0c1638"/><stop offset="1" stop-color="#1a2a5a"/></linearGradient>
       <radialGradient id="rmS2" cx=".5" cy=".2" r=".8"><stop offset="0" stop-color="#fffbe0"/><stop offset=".3" stop-color="#ffb23a"/><stop offset=".7" stop-color="#ff5a1a" stop-opacity=".6"/><stop offset="1" stop-color="#ff5a1a" stop-opacity="0"/></radialGradient></defs>
       <rect width="300" height="420" fill="url(#rmS1)"/>${Array.from({ length: 60 }, (_x, i) => `<circle cx="${(i * 97) % 300}" cy="${(i * 53) % 260}" r="${i % 7 ? 0.7 : 1.4}" fill="#fff" opacity="${0.4 + (i % 5) / 8}"/>`).join('')}

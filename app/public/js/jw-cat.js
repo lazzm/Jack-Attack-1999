@@ -134,7 +134,7 @@
     ['karaoke', 'Karaoke Machine', 1, 160, 1, 1, 'f', ['karaoke', '#8a4ad0'], 'Two microphones, a tiny screen and every song your mom knows.', { use: 'juke', anim: 1 }],
   ]);
   add('wall', [
-    ['p_rocket', 'Poster: Space Shuttle', 0, 25, 1, 1, 'w', ['poster', 'rocket'], 'Lift-off! Signed by nobody, but it looks official.'],
+    ['p_rocket', 'Poster: Space Shuttlebus', 0, 25, 1, 1, 'w', ['poster', 'rocket'], 'Lift-off! Signed by nobody, but it looks official.'],
     ['p_band', 'Poster: The Static Pixies', 0, 25, 1, 1, 'w', ['poster', 'band'], 'Number 14 in the charts with "Dial Me Up". You have the cassingle.'],
     ['p_film', 'Poster: STAR RAIDERS II', 0, 25, 1, 1, 'w', ['poster', 'film'], 'In a galaxy a quite long way away... Coming soon to the Odeum.'],
     ['p_ork', 'Poster: WAAAGH!', 0, 25, 1, 1, 'w', ['poster', 'ork'], 'A big green one with a big green shout. You painted it yourself.'],
@@ -215,7 +215,7 @@
     ['moonrock', 'Moon Rock (Glowing)', 3, 450, '#7ad0f0', 'Glows in the dark. That is normal for moon rocks. Isn\'t it?', { anim: 1 }],
     ['rocking', 'Rocking Unicorn', 3, 350, '#ef6fb0', 'Like a rocking horse, but with a horn and more glitter.', { sit: 1 }],
     ['crystal', 'Crystal Ball (Ice)', 3, 350, '#7ad0f0', 'Shows snow. Every time. Even in summer.', { use: 'lamp', anim: 1 }],
-    ['shuttle', 'Space Shuttle Model', 4, 650, '#eeeae0', 'A metre-long model shuttle on a launch stand. Click for lift-off!', { use: 'lamp', anim: 1, h: 66, lim: 20 }],
+    ['shuttle', 'Space Shuttlebus Model', 4, 650, '#eeeae0', 'A metre-long model shuttle on a launch stand. Click for lift-off!', { use: 'lamp', anim: 1, h: 66, lim: 20 }],
     ['snowglobe', 'Snow Globe (Christmas)', 3, 350, '#d8342c', 'A tiny Santa in a tiny sleigh. Click for snow.', { use: 'lamp', anim: 1 }],
     ['throne', 'Silver Millennium Throne', 4, 650, '#b8c0cc', 'Ready for the year 2000. Sit in it at midnight.', { sit: 1, h: 58, lim: 20 }],
     ['y2k', 'Millennium Countdown Clock', 4, 700, '#2a2a30', 'Counts down to 00:00:00 on 01/01/2000. Will your computer survive?', { anim: 1, h: 58, lim: 25 }],

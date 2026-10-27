@@ -74,7 +74,7 @@ const HINTS = {
     'The five days are: the clocks going forward (March), the Romans homework (May), Easter Sunday (April), the first day of the summer holidays (July) and the eclipse (August).',
     'Take the FIRST letter of each of those five diary entries, in the order the riddle lists them. Pirates bury their treasure in one.'],
   6: ['Your bedroom is all around the PC. Shut the computer down (Start > Shut Down) and it switches off: then you can see the room. Look round with the arrows, or by dragging.',
-    'You have a poster of a space shuttle on your wall. Click it and read the note stuck to it.',
+    'You have a poster of a space shuttlebus on your wall. Click it and read the note stuck to it.',
     'Eileen Collinz was the pilot on two shuttle flights before. On this mission she is in charge of the whole thing. What do you call the person in charge of a space mission? (Captain is close, but NASSA says something else.)'],
   7: ['The magazine is JACK ATTACK!, the site the PC opens on. Read its Cheats page and look for the playground rumour about the Hunt.',
     'The rumour says to put the most famous cheat code ever into the Hunt HQ front page: up, up, down, down, left, right, left, right, B, A. Use the keyboard, or the little pad of buttons at the bottom of the page.',

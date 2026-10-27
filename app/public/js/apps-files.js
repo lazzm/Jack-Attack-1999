@@ -531,7 +531,7 @@ Next goal: under 2 minutes. That's halving it. I've halved it before. (From 8 to
 
 A $125 MILLION spaceship. Lost because of UNITS.
 
-Mr Bell came into maths, didn't say anything, and wrote "MARS CLIMATE ORBITER" on the board and underlined it twice. Then he said "now. Who wants to tell me why we show our units?"
+Mr Bell came into maths, didn't say anything, and wrote "MARS CLIMATE ORBITEER" on the board and underlined it twice. Then he said "now. Who wants to tell me why we show our units?"
 
 He is going to go on about this until I leave school. Possibly until I die.`);
   D('09-25', `Put the MegaCube on the website!!!
@@ -857,7 +857,7 @@ Dave can't do riddles so this is safe.)
   txt(LI, 'top 10 games EVER.txt', '15/03/99', `JACK'S TOP 10 GAMES EVER (UPDATED REGULARLY)
 
 1.  Goldenballs 007 (ULTRA 64)        - the best game ever made. Facility. Slappers only.
-2.  The Legend of Zeldo: Kazoo of Time (ULTRA 64) - the bit where you grow up!!!
+2.  The Myth of Zeldo: Kazoo of Time (ULTRA 64) - the bit where you grow up!!!
 3.  Super Marlo 64 (ULTRA 64)       - 120 stars. I have 118. Two are lost forever.
 4.  Blockology (Game Lad)          - simple. perfect. thumb-destroying.
 5.  Squirms Armageddon (PC)      - the sheep. THE SHEEP.
@@ -1523,7 +1523,7 @@ Nobody has ever actually done any of these. Somebody's cousin always has.
   pic(PI, 'blockology high score PROOF.jpg', '27/06/99', 'gameboy');
   pic(PI, 'christmas 98.jpg', '25/12/98', 'xmas');
   pic(PI, "Dad's snowman.jpg", '20/01/99', 'snowman');
-  pic(PI, 'space shuttle.bmp', '29/05/99', 'shuttle');
+  pic(PI, 'space shuttlebus.bmp', '29/05/99', 'shuttle');
   pic(PI, 'my Gorks on the shelf.jpg', '27/07/99', 'shelf');
   pic(PI, 'leonids (it was cloudy).jpg', '18/11/99', 'leonids');
   pic(PI, 'halloween - space cadet again.jpg', '01/11/99', 'jedi');

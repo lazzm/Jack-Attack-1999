@@ -396,7 +396,7 @@
   // ================================================================ HANGMAN (Save the Grot)
   register({ id: 'hangman', name: 'Save the Astronaut', tag: 'Hangman, but the astronaut\'s oxygen is running out', controls: 'Type letters, or click them', fmt: s => s + ' words',
     create(api, d) {
-      const WORDS = ['ZAPACHU', 'SQUIRTURTLE', 'DAYDREAM', 'GOLDENBALLS', 'EGGBERT', 'ULTRA ENTERTAINMENT', 'PLAYSPACE', 'MILLENNIUM', 'MATRIX', 'LIGHTSPATULA', 'PEAPODRACING', 'MODEM', 'FURBO', 'ZELDO', 'KAZOOBIE', 'ASTRONAUT', 'ROCKET', 'SPUTNIK', 'WAR HAMSTER', 'BLOCKOLOGY', 'JOYSTICK', 'CARTRIDGE', 'FLOPPY', 'SCREENSAVER', 'GUESTBOOK', 'ECLIPSE', 'DINOSAUR', 'SPACESHIP', 'GAMEBOY', 'RUMBLE', 'EXPANSION', 'WORMS', 'ZIP', 'MARLO', 'DONKEY', 'METROAD', 'ROBOT', 'SPACE CADET', 'WOOKIE-COOKIE', 'TRANSFORMER', 'CYBERSPACE', 'NETSCAPEGOAT', 'MAINFRAME', 'PIXEL', 'POLYGON', 'MEGABYTE', 'PENT-YUM', 'GNAPSTER', 'WEBRING', 'HYPERLINK'];
+      const WORDS = ['ZAPACHU', 'SQUIRTURTLE', 'DAYDREAM', 'GOLDENBALLS', 'EGGBERT', 'ULTRA ENTERTAINMENT', 'PLAYSPACE', 'MILLENNIUM', 'MATRIX', 'LIGHTSPATULA', 'PEAPODRACING', 'MODEM', 'FURBO', 'ZELDO', 'KAZOOBIE', 'ASTRONAUT', 'ROCKET', 'SPUDNIK', 'WAR HAMSTER', 'BLOCKOLOGY', 'JOYSTICK', 'CARTRIDGE', 'FLOPPY', 'SCREENSAVER', 'GUESTBOOK', 'ECLIPSE', 'DINOSAUR', 'SPACESHIP', 'GAMEBOY', 'RUMBLE', 'EXPANSION', 'WORMS', 'ZIP', 'MARLO', 'DONKEY', 'METROAD', 'ROBOT', 'SPACE CADET', 'WOOKIE-COOKIE', 'TRANSFORMER', 'CYBERSPACE', 'NETSCAPEGOAT', 'MAINFRAME', 'PIXEL', 'POLYGON', 'MEGABYTE', 'PENT-YUM', 'GNAPSTER', 'WEBRING', 'HYPERLINK'];
       let word, got, wrong, streak = 0, done = 0;
       const nextWord = () => { word = WORDS[irnd(WORDS.length)]; got = new Set(); wrong = new Set(); done = 0; };
       nextWord();
