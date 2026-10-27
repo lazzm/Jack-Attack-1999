@@ -6,7 +6,7 @@ const contact=source.split('\n').find(line=>line.includes('if (a.y >= t.landY)')
 assert(contact,'Production landing branch not found');
 function settle(dt,height=3,branch=contact){
  const t={st:'fall',landY:0,vy:0,fromX:1,fromZ:1},a={y:-height},events=[],sounds=[];
- const ctx={t,a,dt,sk:1,id:'case',Math,physicalSound:event=>sounds.push(event),thingWeight:()=>1,layerFor(){},saveThings(){},emit:event=>events.push(event)};
+ const ctx={t,a,dt,sk:1,id:'case',Math,physicalSound:event=>sounds.push(event),thingWeight:()=>1,syncBody(){},layerFor(){},saveThings(){},emit:event=>events.push(event)};
  for(let i=0;i<180&&t.st==='fall';i++){t.vy+=1800*dt;a.y+=t.vy*dt;vm.runInNewContext(branch,ctx)}
  return{t,a,events,sounds};
 }
