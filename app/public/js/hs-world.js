@@ -999,7 +999,7 @@
     P.zm = g.from.zm + ((MOTION.reduce ? 1 : to.zm ?? 1) - g.from.zm) * e + g.v0.zm * h;
     if (g.arc) P.y -= Math.sin(Math.PI * e) * g.arc;
     // looking round during an unlocked move rides on top of it instead of cancelling it
-    P.rx = clamp(P.rx + g.look.rx, -78, 70); P.ry += g.look.ry;
+    if (g.look.rx || g.look.ry) { P.rx = clamp(P.rx + g.look.rx, -78, 70); P.ry += g.look.ry; }
     for (const a of g.at) if (a.fn && s >= a.k) { const fn = a.fn; a.fn = null; try { fn(); } catch (e2) { console.error(e2); } if (glide !== g) return true; }
     if (s >= 1) {
       glide = null;

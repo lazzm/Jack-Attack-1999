@@ -1674,9 +1674,9 @@
   const objMatrix = o => new T.Matrix4().compose(o.position, o.quaternion, o.scale);
   const relTo = (p, m) => camRoot(p).invert().multiply(m);
   function gbPlayPose(view) {
-    // the glass (4.6 x 4.14 cm, centred 3.5 cm up the body) fills ~64% of the height, or ~80% of a narrow width
+    // the glass (4.6 x 4.14 cm, centred 3.5 cm up the body) fills ~58% of the height, or ~76% of a narrow width
     const t = Math.tan(H.motion.lensFov(view.zm) * D2R / 2), aspect = innerWidth / innerHeight;
-    const d = Math.max(2.07 / (0.64 * t), 2.3 / (0.8 * t * aspect), 6.5);
+    const d = Math.max(2.07 / (0.58 * t), 2.3 / (0.76 * t * aspect), 6.5);
     const q = new T.Quaternion().setFromEuler(new T.Euler(-80 * D2R, -view.ry * D2R, 0, 'YXZ'));
     const a = view.ry * D2R, b = (view.rx || 0) * D2R, f = new T.Vector3(Math.sin(a) * Math.cos(b), -Math.sin(b), -Math.cos(a) * Math.cos(b));
     const glass = new T.Vector3(0, -2.97, -3.5).applyQuaternion(q);
@@ -1699,7 +1699,8 @@
       if (roll) t.obj.quaternion.multiply(_roll.setFromAxisAngle(_zAxis, roll * D2R));
       if (n > lastT) { t.obj.userData.gbVel = (t.obj.userData.gbVel || new T.Vector3()).copy(t.obj.position).sub(last).divideScalar(n - lastT); last.copy(t.obj.position); lastT = n; }
       H.dirty();
-      if (s < 1) return true;
+      // (a camera-relative target keeps being followed until the camera itself has landed)
+      if (s < 1 || (o.follow && H.gliding)) return true;
       t.obj.userData.gbVel = null; if (o.done) o.done(); return false;
     });
   }
@@ -1713,7 +1714,8 @@
     t.st = 'play'; t.inspectFront = true; H.layerFor(t);
     window.Sound?.world?.('lift', { weight: 'light' });
     const play = gbPlay.play;
-    gbTween('gb-pose', () => camRoot(H.P).multiply(play), H.motion.scale(H.motion.ms.handheld), { roll: 4, carry: true });
+    // the hands lead and the eyes follow: the Game Lad arrives a beat before the camera settles on it
+    gbTween('gb-pose', () => camRoot(H.P).multiply(play), H.motion.scale(H.motion.ms.handheld) / 1.18, { roll: 4, carry: true, follow: true });
   }
   function returnHandheld() {
     if (!gbPlay) return; const saved = gbPlay, t = H.THINGS.gb; gbPlay = null;
@@ -1725,7 +1727,7 @@
     if (saved.grip) {
       // back into the hand pose it was raised from, on the camera's own return curve; then the carry takes over again
       const hand = saved.hand;
-      gbTween('gb-return', () => camRoot(H.P).multiply(hand), ms, { roll: -3, carry: true, done: () => { if (!gbPlay && !H.held()) H.restoreGrip(saved.grip); } });
+      gbTween('gb-return', () => camRoot(H.P).multiply(hand), ms, { roll: -3, carry: true, follow: true, done: () => { if (!gbPlay && !H.held()) H.restoreGrip(saved.grip); } });
       return;
     }
     const r = saved.rest, end = new T.Matrix4().compose(new T.Vector3(r.at.x, r.at.y, r.at.z), new T.Quaternion().setFromEuler(new T.Euler(r.rx * D2R, (r.at.ry || 0) * D2R, r.rz * D2R, 'YXZ')), new T.Vector3(1, 1, 1));

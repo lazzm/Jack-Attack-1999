@@ -17,7 +17,8 @@ export async function installSlowmo(page){
     const TS=window.__TS={get scale(){return scale},now:()=>virt(pn()),real:pn,
       set(s){const r=pn();v0=virt(r);r0=r;scale=s}};
     performance.now=()=>virt(pn());
-    window.requestAnimationFrame=cb=>raf(t=>cb(virt(t)));
+    // (rAF timestamps are themselves slowed by the CDP animation rate, so read the clock instead)
+    window.requestAnimationFrame=cb=>raf(()=>cb(virt(pn())));
     window.setTimeout=(fn,ms,...a)=>st(fn,(+ms||0)/scale,...a);
     window.setInterval=(fn,ms,...a)=>si(fn,Math.max(4,(+ms||0)/scale),...a);
     void TS;
