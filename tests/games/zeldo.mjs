@@ -176,7 +176,7 @@ async function roomCheck(){
   console.log('ROOM: fixture ready');
   if(before)await page.route('**/js/rm-g-zeldo.js*',r=>r.fulfill({body:baseline,contentType:'application/javascript'}));
   await page.evaluate(()=>House.goRoom('cupboard',0));await f.until(()=>!House.gliding);
-  await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>RoomTV?.open_&&!House.gliding);
+  await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>window.RoomTV?.open_&&!House.gliding);
   await page.evaluate(()=>RoomTV.test('sn.zeldo'));await f.until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg);
   await f.until(()=>!House.gliding);await page.waitForTimeout(500);await page.screenshot({path:dir+tag+'-in-room-title.png'});
   if(!before)assert(await page.evaluate(()=>RoomTV._dbg().surface&&HouseRooms.rooms.cupboard.cupScreen.material.map.userData.jackLive),'Zeldo renders onto the cupboard telly');
@@ -222,14 +222,14 @@ async function roomCheck(){
    await page.evaluate(()=>RoomTV.test('sn.zero'));await f.until(()=>RoomTV._dbg().st==='game');assert(!await page.evaluate(()=>RoomTV._dbg().surface),'Unchanged cartridges retain their display route');await page.keyboard.press('Enter');await page.waitForTimeout(200);await page.screenshot({path:dir+'after-shared-formula-null.png'});
   }
   assert.deepEqual(f.errors,[],'Room browser errors');console.log(before?'ROOM BASELINE: legacy overlay, LOCK IN and pause':'ROOM PASS: physical telly, same-instance LOCK IN/Q, pause, analog gamepad, four viewports, cartridge change and shared Formula Null');
- }catch(e){console.log('ROOM FAILURE',await page.evaluate(()=>({mode:House?.mode,pose:{x:House?.P.x,z:House?.P.z,wx:House?.W.x,wz:House?.W.z},glide:House?.gliding,game:RoomTV?._dbg(),loading:document.querySelector('.hs-loading')?.innerText,member:AccountGate?.allowed})));await page.screenshot({path:dir+'after-room-failure.png'}).catch(()=>{});throw e;}finally{await f.browser.close()}
+ }catch(e){console.log('ROOM FAILURE',await page.evaluate(()=>({mode:House?.mode,pose:{x:House?.P.x,z:House?.P.z,wx:House?.W.x,wz:House?.W.z},glide:House?.gliding,game:window.RoomTV?._dbg(),loading:document.querySelector('.hs-loading')?.innerText,member:AccountGate?.allowed})));await page.screenshot({path:dir+'after-room-failure.png'}).catch(()=>{});throw e;}finally{await f.browser.close()}
  if(!before)await touchCheck(account,password);
 }
 
 async function touchCheck(account,password){
  const f=await roomFixture(base,{account,password,signup:false,onPage:page=>page.setDefaultTimeout(30000),touch:true,width:390,height:844}),page=f.page;
  try{
-  await page.evaluate(()=>House.goRoom('cupboard',0));await f.until(()=>!House.gliding);await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>RoomTV?.open_&&!House.gliding);await page.evaluate(()=>RoomTV.test('sn.zeldo'));await f.until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg);
+  await page.evaluate(()=>House.goRoom('cupboard',0));await f.until(()=>!House.gliding);await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>window.RoomTV?.open_&&!House.gliding);await page.evaluate(()=>RoomTV.test('sn.zeldo'));await f.until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg);
   await page.evaluate(()=>{RoomTV.dbg().dbg.start(0,'JACK');RoomTV.dbg().dbg.give({sword:1,shield:1});RoomTV.dbg().dbg.warp('south',7,6,3)});
   const control=b=>page.locator('[data-zeldo="'+b+'"]');
   async function press(b){const r=await control(b).boundingBox();assert(r,'Touch button '+b);await page.touchscreen.tap(r.x+r.width/2,r.y+r.height/2)}
