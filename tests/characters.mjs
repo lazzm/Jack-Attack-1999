@@ -11,6 +11,7 @@ import {mkdtemp, mkdir, rm} from 'node:fs/promises';
 import net from 'node:net';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
+let EYE = 128;
 import {roomFixture} from './room-fixture.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -42,6 +43,7 @@ async function check(name, fn) {
 }
 async function house(opts) {
   const f = await roomFixture(base, Object.assign({ hour: 14, timeoutScale: SCALE }, opts));
+  EYE = await f.page.evaluate(() => House.STAND || 128); // (the live standing eye height)
   for (let i = 0; i < 120 * SCALE && !(await f.page.evaluate(() => !!window.HouseFamily?.ready)); i++) await f.page.waitForTimeout(500);
   assert(await f.page.evaluate(() => !!window.HouseFamily?.ready), 'The family never arrived');
   return f;
@@ -151,7 +153,7 @@ try {
     const { browser, page, errors } = await veteran();
     try {
       await page.evaluate(async () => { await Chores.load(); await Chores.part('kitchen'); const F = HouseFamily; F.debug.clock({ md: 1012, dow: 2, t: 14.5 }); F.debug.go('mom', 'sink'); F.debug.place('mom', 'sink'); F.debug.sim(3, 0.1); });
-      await look(page, [-60, 353 - 128, 175], [-80, 353 - 150, 36], 'G');
+      await look(page, [-60, 353 - EYE, 175], [-80, 353 - 150, 36], 'G');
       await page.evaluate(() => { window.__sent = []; const s = Net.send; Net.send = m => { __sent.push(m.t); return s(m); }; });
       await page.keyboard.press('f');
       await page.waitForFunction(() => !!HouseFamily.debug.speech.cur, null, { timeout: 15000 * SCALE });
@@ -179,7 +181,7 @@ try {
     try {
       await page.evaluate(() => { const F = HouseFamily; F.debug.clock({ md: 1012, dow: 2, t: 14.5 }); F.debug.go('mom', 'hallStairs'); F.debug.place('mom', 'hallStairs'); F.debug.sim(2, 0.1); });
       // stand in front of her and walk straight at her
-      await look(page, [246, 353 - 128, 460], [246, 353 - 140, 560], 'G');
+      await look(page, [246, 353 - EYE, 460], [246, 353 - 140, 560], 'G');
       const start = await page.evaluate(() => { const m = HouseFamily.chars.mom; return { x: m.x, z: m.z }; });
       await page.keyboard.down('w'); await page.waitForTimeout(2200 * SCALE);
       const mid = await page.evaluate(() => { const m = HouseFamily.chars.mom; return { d: Math.hypot(House.W.x - m.x, House.W.z - m.z) }; });
@@ -193,10 +195,10 @@ try {
       // block the lounge doorway; Mom wants to go through it. She waits outside it, then goes round/through once it's clear.
       const r = await page.evaluate(() => {
         const F = HouseFamily, H = House;
-        H.setWalkFrom({ x: 200, y: 353 - 128, z: 520, lvl: 'G', seat: 0 }); F.debug.go('mom', 'phone'); F.debug.place('mom', 'hallYoyo');
+        H.setWalkFrom({ x: 200, y: 353 - (H.STAND || 128), z: 520, lvl: 'G', seat: 0 }); F.debug.go('mom', 'phone'); F.debug.place('mom', 'hallYoyo');
         const D = H.DOORS.lounge.closedBounds, out = { inDoor: 0, minD: 999 };
         F.debug.sim(25, 0.1, d => { const m = d.find(c => c.id === 'mom'); out.minD = Math.min(out.minD, Math.hypot(m.x - H.W.x, m.z - H.W.z)); if (m.x > D.x0 - 25 && m.x < D.x1 + 25 && m.z > D.z0 - 25 && m.z < D.z1 + 25 && Math.abs(m.v) < 5) out.inDoor += 0.1; });
-        H.setWalkFrom({ x: 300, y: 353 - 128, z: 300, lvl: 'G', seat: 0 });
+        H.setWalkFrom({ x: 300, y: 353 - (H.STAND || 128), z: 300, lvl: 'G', seat: 0 });
         F.debug.sim(60, 0.1); out.after = F.debug.dump().find(c => c.id === 'mom'); return out;
       });
       assert(r.minD >= 38, 'Mom walked into me in the doorway: ' + r.minD.toFixed(1));
@@ -289,7 +291,7 @@ try {
       await page.evaluate(() => HouseFamily.debug.sim(90, 0.1));
       const mom = await page.evaluate(() => HouseFamily.debug.dump().find(c => c.id === 'mom'));
       assert(mom.present && mom.room === 'bedroom' && mom.spot === 'bedDoorMom', 'Mom at my door: ' + JSON.stringify(mom));
-      await look(page, [60, 73 - 128, 175], [178, 73 - 150, 196], 'U');
+      await look(page, [60, 73 - EYE, 175], [178, 73 - 150, 196], 'U');
       await page.waitForTimeout(800); await shot(page, 'story-mom-at-door');
       await page.keyboard.press('f');
       await until(() => HouseFamily.debug.speech.cur?.lineId === 'c1.mom.give' || HouseFamily.debug.speech.q.some(q => q.lineId === 'c1.mom.give'));
@@ -308,9 +310,9 @@ try {
       await page.evaluate(() => { const F = HouseFamily; F.debug.clock({ md: 1012, dow: 2, t: 18.1 }); F.debug.go('mom', 'hallStairs'); F.debug.place('mom', 'hallStairs'); F.debug.go('dad', 'carStory'); F.debug.place('dad', 'carStory'); F.debug.go('sister', 'hallYoyo'); F.debug.place('sister', 'hallYoyo'); F.debug.sim(3, 0.1); });
       const G = 353;
       const views = {
-        mom: [[[250, G - 128, 420], [246, G - 148, 560]], [[320, G - 128, 680], [246, G - 148, 560]], [[296, G - 138, 470], [246, G - 150, 560]]],
-        sister: [[[262, G - 128, 560], [266, G - 113, 430]], [[300, G - 128, 300], [266, G - 113, 430]], [[222, G - 123, 330], [266, G - 113, 430]]],
-        dad: [[[300, G - 128, 690], [318, G - 153, 800]], [[200, G - 128, 900], [318, G - 153, 800]], [[255, G - 138, 735], [318, G - 158, 800]]],
+        mom: [[[250, G - EYE, 420], [246, G - 148, 560]], [[320, G - EYE, 680], [246, G - 148, 560]], [[296, G - 138, 470], [246, G - 150, 560]]],
+        sister: [[[262, G - EYE, 560], [266, G - 113, 430]], [[300, G - EYE, 300], [266, G - 113, 430]], [[222, G - 123, 330], [266, G - 113, 430]]],
+        dad: [[[300, G - EYE, 690], [318, G - 153, 800]], [[200, G - EYE, 900], [318, G - 153, 800]], [[255, G - 138, 735], [318, G - 158, 800]]],
       };
       for (const [id, vs] of Object.entries(views)) for (const [i, [eye, tgt]] of vs.entries()) { await look(page, eye, tgt, 'G'); await page.waitForTimeout(500); await shot(page, `${id}-idle-${i + 1}`); }
       // walking: the sister crosses the hall to the lounge; three frames
@@ -321,7 +323,7 @@ try {
       await look(page, [320, G - 140, 640], [246, G - 110, 560], 'G');
       for (let i = 1; i <= 3; i++) { await page.waitForTimeout(600); await shot(page, `mom-walk-${i}`); }
       // talking: Dad by the car
-      await look(page, [318, G - 128, 740], [318, G - 150, 800], 'G');
+      await look(page, [318, G - EYE, 740], [318, G - 150, 800], 'G');
       await page.evaluate(() => HouseFamily.talk('dad'));
       for (let i = 1; i <= 2; i++) { await page.waitForTimeout(900); await shot(page, `dad-talk-${i}`); }
       await page.evaluate(() => { for (const id of ['mom', 'dad', 'sister']) HouseFamily.debug.go(id, null); HouseFamily.debug.clock(null); });

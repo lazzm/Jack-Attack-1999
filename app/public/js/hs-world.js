@@ -139,13 +139,17 @@
     if(!sized){ren.setPixelRatio(pr); ren.setSize(vw, vh, false);}cv.style.imageRendering=graphics.retro?'pixelated':'';
     // Held paper and live screen DOM stay sharp when the room scales down.
     if (ren2) { ren2.setPixelRatio(Q.tier==='potato'?pr:Math.min(window.devicePixelRatio||1,1.5)); ren2.setSize(vw, vh, false);cv2.style.imageRendering=graphics.retro?'pixelated':''; }
-    camera.aspect = vw / vh; lensZm = 0; applyLens();
+    camera.aspect = vw / vh; const wz0 = WZ; WZ = walkZoom(); if (Math.abs(P.zm - wz0) < 1e-6) P.zm = WZ; lensZm = 0; applyLens();
     dirty();
     if (!sized) try { if (live && !rendering && mode !== 'off') render(); } catch (e) { if (!(e instanceof ReferenceError)) console.error(e); }
   }
   let rendering = false;
-  // the lens: P.zm 1 is the walking field of view; close-ups ease to a slightly longer lens on the camera-move curve
-  let lensZm = 0;
+  // the lens: P.zm 1 is the PC's lens (boot.js's CSS stage, perspective PERSP em: about 41 degrees vertical), used at the
+  // desk and for the fly-in. Walking uses a wider lens, WZ: about 60 degrees vertical in landscape, at least 50 degrees
+  // across in portrait (so a phone held upright still sees a room, not a slot), never wider than 95 degrees across.
+  // Close-ups ease to their own longer lens on the camera-move curve. The CSS stage follows P.zm (cssCam).
+  let lensZm = 0, WZ = 1;
+  function walkZoom() { const f = Math.max(vw / 2 / Math.tan(47.5 * D2R), Math.min(vh / 2 / Math.tan(30 * D2R), vw / 2 / Math.tan(25 * D2R))); return f / (PERSP * em); }
   const lensFov = zm => 2 * Math.atan(vh / 2 / (PERSP * em * (zm || 1))) / D2R;
   function applyLens() { const z = P.zm || 1; if (z === lensZm) return; lensZm = z; camera.fov = lensFov(z); camera.updateProjectionMatrix(); }
   function rot(rx, ry) { return _R.copy(_Rx.makeRotationX(rx * D2R)).multiply(_Ry.makeRotationY(ry * D2R)); } // CSS rotateX(rx) rotateY(ry)
@@ -156,11 +160,12 @@
     camera.updateMatrixWorld(true);
   }
   const f3 = n => (+n).toFixed(3);
-  const cssPose={x:NaN,y:NaN,z:NaN,rx:NaN,ry:NaN,transform:''};
+  const cssPose={x:NaN,y:NaN,z:NaN,rx:NaN,ry:NaN,d:'',transform:''};
   function cssCam() {
+    const d=f3(PERSP*(P.zm||1));if(cssPose.d!==d){cssPose.d=d;stage.style.perspective=d==='115.000'?'':d+'em';cssPose.x=NaN}
     if(cssPose.x===P.x&&cssPose.y===P.y&&cssPose.z===P.z&&cssPose.rx===P.rx&&cssPose.ry===P.ry&&cam.style.transform===cssPose.transform)return;
     cssPose.x=P.x;cssPose.y=P.y;cssPose.z=P.z;cssPose.rx=P.rx;cssPose.ry=P.ry;
-    cssPose.transform=`translate3d(0em,0em,${PERSP}em) rotateX(${f3(P.rx)}deg) rotateY(${f3(P.ry)}deg) translate3d(${f3(-P.x)}em,${f3(-P.y)}em,${f3(-P.z)}em)`;cam.style.transform=cssPose.transform;
+    cssPose.transform=`translate3d(0em,0em,${d}em) rotateX(${f3(P.rx)}deg) rotateY(${f3(P.ry)}deg) translate3d(${f3(-P.x)}em,${f3(-P.y)}em,${f3(-P.z)}em)`;cam.style.transform=cssPose.transform;
   }
   // view-space z of a world point (negative = in front of the camera)
   function viewZ(x, y, z) { const a = P.ry * D2R, b = P.rx * D2R, dx = x - P.x, dy = y - P.y, dz = z - P.z; const z1 = -dx * Math.sin(a) + dz * Math.cos(a); return dy * Math.sin(b) + z1 * Math.cos(b); }
@@ -185,12 +190,12 @@
   const Lb = () => (window.RoomCam && RoomCam.L) || { mx: -15, tx: 17, tz: -30, kx: -15, ux: 8, uz: 9.5, fx: 0, fy: -19, fz: -14, rx: -16, ry: -30, oy: -4, ox: 0 };
   function seatPose() {
     // A first-person seat in front of the glass, never the old side-on shot.
-    const c=monitorCentre();return{x:c.x,y:c.y-4,z:c.z+90,rx:-3,ry:0,seat:1,lvl:'U'};
+    const c=monitorCentre();return{x:c.x,y:c.y-4,z:c.z+90,rx:-3,ry:0,seat:1,lvl:'U',zm:1};
   }
   // where the camera is when the monitor's glass fills the window (the end of the fly-in)
   function fillPose() {
     const L = Lb(), kf = Math.max(vw / (GW * em), vh / (GH * em)) * 1.03;
-    return { x: L.mx, y: GY, z: 0.02 + PERSP / kf, rx: 0, ry: 0, seat: 1 };
+    return { x: L.mx, y: GY, z: 0.02 + PERSP / kf, rx: 0, ry: 0, seat: 1, zm: 1 };
   }
   // boot.js asks for our pose when the power goes on, so the fly-in starts from exactly where we are
   const RC = window.RoomCam = Object.assign(window.RoomCam || {}, { fx: 0, fy: 0, fz: 0, rx: 0, ry: 0 });
@@ -540,8 +545,8 @@
   let physAcc=0,physFrame=0;
   function bodyBlocks(x,z,lvl,feet,eye){const ph=PH&&(physDirty||grids.dirty?physReady():PH);return !!ph&&ph.playerBlocked(lvl,x,z,RAD,feet,feet-eye-HEADROOM);} // (untimed: hundreds of calls; tests/physics.mjs measures with the CPU profiler)
   function bodyContacts(x,z,radius){const ph=physReady();if(!ph)return [];const t0=performance.now(),out=ph.playerContacts(W.lvl,x,z,radius,W.fy,W.fy-W.eyeNow-W.jh-HEADROOM);for(const c of out){const b=ph.get(c.id);c.soft=!!b&&!b.fixed&&b.push>0.2}physAcc+=performance.now()-t0;return out;}
-  const W = { x: 0, z: 100, lvl: 'U', fy: 73, eye: 128, eyeNow: 100, bob: 0, bobT: 0, vx: 0, vz: 0, jh: 0, jv: 0 };
-  const STAND = 128, SITH = 100; // Jack's a 5-foot-ish kid: eyes about 128 cm up (sat: 100)
+  const W = { x: 0, z: 100, lvl: 'U', fy: 73, eye: 143, eyeNow: 108, bob: 0, bobT: 0, vx: 0, vz: 0, jh: 0, jv: 0 };
+  const STAND = 143, SITH = 108; // eye height standing (a teenager about 155 cm tall) and sitting on an ordinary chair
 
   // ================================================================ things you can click (spots), with a warm glow when you point at them
   const SPOTS = {};
@@ -1372,14 +1377,14 @@
   const H5 = s => s * s * s * (s * (s * 6 - 15) + 10), H5d = s => 30 * s * s * (s - 1) * (s - 1);
   const H1 = s => s * (1 + s * s * (-6 + s * (8 - 3 * s))), H1d = s => 1 + s * s * (-18 + s * (32 - 15 * s));
   const CH = ['x', 'y', 'z', 'rx', 'ry', 'zm'];
-  const span = (a, b) => Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) + 0.6 * (Math.abs(angd(a.ry, b.ry)) + Math.abs((b.rx || 0) - (a.rx || 0))) + 120 * Math.abs((b.zm || 1) - (a.zm || 1));
+  const span = (a, b) => Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) + 0.6 * (Math.abs(angd(a.ry, b.ry)) + Math.abs((b.rx || 0) - (a.rx || 0))) + 120 * Math.abs((b.zm || WZ) - (a.zm || WZ));
   P.zm = 1;
   let glide = null, movingLock = false;
   // pose-space velocity (units per ms) of the move in progress, for velocity-continuous retargeting
   function glideVel(now) {
     const g = glide; if (!g || !g.ms) return null;
     const s = clamp((now - g.t0) / g.ms, 0, 1), to = typeof g.to === 'function' ? g.to() : g.to, v = {}, d5 = H5d(s) / g.ms, d1 = H1d(s);
-    for (const c of CH) { const delta = c === 'ry' ? angd(g.from.ry, to.ry) : ((to[c] ?? (c === 'zm' ? 1 : g.from[c])) - g.from[c]); v[c] = delta * d5 + g.v0[c] * d1; }
+    for (const c of CH) { const delta = c === 'ry' ? angd(g.from.ry, to.ry) : ((to[c] ?? (c === 'zm' ? WZ : g.from[c])) - g.from[c]); v[c] = delta * d5 + g.v0[c] * d1; }
     if (g.arc) v.y -= Math.cos(Math.PI * H5(s)) * Math.PI * d5 * g.arc;
     return v;
   }
@@ -1388,7 +1393,7 @@
     o = o || {};
     const now = performance.now(), prev = glide, v0 = prev ? glideVel(now) : null;
     if (glide && glide.onCancel) { const f = glide.onCancel; glide.onCancel = null; try { f(); } catch (e) {} }
-    const from = { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry, zm: P.zm || 1 };
+    const from = { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry, zm: P.zm || WZ };
     const tt = typeof to === 'function' ? to() : to;
     const dist = Math.hypot(tt.x - from.x, tt.y - from.y, tt.z - from.z), turn = Math.abs(angd(from.ry, tt.ry)) + Math.abs(tt.rx - from.rx);
     let ms = o.ms != null ? o.ms : clamp(420 + dist * 2.2 + turn * 3, 500, 1500);
@@ -1408,14 +1413,14 @@
     const g = glide, s = g.ms ? clamp((now - g.t0) / g.ms, 0, 1) : 1, e = H5(s), h = g.ms * H1(s), to = typeof g.to === 'function' ? g.to() : g.to;
     for (const c of ['x', 'y', 'z', 'rx']) P[c] = g.from[c] + (to[c] - g.from[c]) * e + g.v0[c] * h;
     P.ry = g.from.ry + angd(g.from.ry, to.ry) * e + g.v0.ry * h;
-    P.zm = g.from.zm + ((MOTION.reduce ? 1 : to.zm ?? 1) - g.from.zm) * e + g.v0.zm * h;
+    P.zm = MOTION.reduce ? (to.zm ?? WZ) : g.from.zm + ((to.zm ?? WZ) - g.from.zm) * e + g.v0.zm * h; // (reduced motion: the lens cuts, it never zooms)
     if (g.arc) P.y -= Math.sin(Math.PI * e) * g.arc;
     // looking round during an unlocked move rides on top of it instead of cancelling it
     if (g.look.rx || g.look.ry) { P.rx = clamp(P.rx + g.look.rx, -78, 70); P.ry += g.look.ry; }
     for (const a of g.at) if (a.fn && s >= a.k) { const fn = a.fn; a.fn = null; try { fn(); } catch (e2) { console.error(e2); } if (glide !== g) return true; }
     if (s >= 1) {
       glide = null;
-      if (MOTION.reduce || to.zm == null) P.zm = MOTION.reduce ? 1 : P.zm;
+      if (MOTION.reduce || to.zm == null) P.zm = to.zm ?? WZ;
       const end = Object.assign({}, to, { rx: P.rx, ry: P.ry });
       // where you are now (if it's somewhere you could stand)
       setWalkFrom(end);
@@ -1614,7 +1619,7 @@
     if (tm?.on && !mx && !mz) { mx = tm.x; mz = tm.y; }
     const mag = Math.min(1, Math.hypot(mx, mz));
     const night = !!(window.HouseLife && HouseLife.quiet && HouseLife.quiet());
-    const lintel=lowDoorAt(W.x,W.z,W.lvl,6,W.fy),nearLintel=keys.crouch&&lowDoorAt(W.x,W.z,W.lvl,RAD+18,W.fy),ducking=keys.crouch||!!lintel;
+    const lintel=lowDoorAt(W.x,W.z,W.lvl,6,W.fy),nearLintel=keys.crouch&&lowDoorAt(W.x,W.z,W.lvl,RAD+40,W.fy),ducking=keys.crouch||!!lintel;
     if (!W.seat) W.eye = Math.max(60, ((cur && cur.eye) || STAND) - (keys.crouch ? 38 : 0)); // C: crouch
     if(lintel||nearLintel)W.eye=Math.min(W.eye,(lintel||nearLintel).headroom-10);
     const carrySpeed = held ? (THINGS[held.id]?.walkScale || 1) : 1;
@@ -2139,7 +2144,7 @@
       if (tickGlide(now)) moving = true;
       else if (mode === 'walk'&&!controlsPaused) { let left = dt; while (left > 1e-4) { const st = Math.min(0.03, left); left -= st; if (tickWalk(st)) moving = true; } }
       // (a lens left long by an interrupted close-up relaxes back to the walking view)
-      if (!glide && mode === 'walk' && P.zm !== 1) { P.zm += (1 - P.zm) * Math.min(1, dt * 9); if (Math.abs(P.zm - 1) < 1e-3) P.zm = 1; moving = true; }
+      if (!glide && mode === 'walk' && P.zm !== WZ) { P.zm += (WZ - P.zm) * Math.min(1, dt * 9); if (Math.abs(P.zm - WZ) < 1e-3) P.zm = WZ; moving = true; }
     }
     tickQueuedLock(now);
     for (const [k, fn] of anims) { let more = false; try { more = fn(now, dt); } catch (e) { console.error(e); } if (!more) anims.delete(k); moving = true; }
@@ -2180,8 +2185,8 @@
     screenWorld.y=-screenWorld.y;
     const depth=-viewZ(screenWorld.x,screenWorld.y,screenWorld.z);if(depth<=2)return b;
     const scale=Math.max(Math.hypot(e[0],e[1],e[2]),Math.hypot(e[4],e[5],e[6]));
-    const diameter=2*geo.boundingSphere.radius*scale*PERSP*em/depth;
-    const a=P.ry*D2R,rx=P.rx*D2R,dx=screenWorld.x-P.x,dy=screenWorld.y-P.y,dz=screenWorld.z-P.z,z1=-dx*Math.sin(a)+dz*Math.cos(a),k=PERSP*em/depth;
+    const diameter=2*geo.boundingSphere.radius*scale*PERSP*em*(P.zm||1)/depth;
+    const a=P.ry*D2R,rx=P.rx*D2R,dx=screenWorld.x-P.x,dy=screenWorld.y-P.y,dz=screenWorld.z-P.z,z1=-dx*Math.sin(a)+dz*Math.cos(a),k=PERSP*em*(P.zm||1)/depth;
     const x=vw/2+(dx*Math.cos(a)+dz*Math.sin(a))*k,y=vh/2+(dy*Math.cos(rx)-z1*Math.sin(rx))*k;
     b.pixels=diameter;b.visible=diameter>=64&&x+diameter/2>0&&y+diameter/2>0&&x-diameter/2<vw&&y-diameter/2<vh;
     const projected=Math.max(128,diameter*Q.pixelRatio*1.25);
@@ -2305,7 +2310,7 @@
     const covered=backgroundCovered();
     if(covered!==backgroundHidden||cv.style.display!==(covered?'none':'')){backgroundHidden=covered;cv.style.display=covered?'none':'';cv2.style.display=covered?'none':''}
     if(covered){if(stood||monitor)glassFit();for(const sf of SURF)placeSurf(sf);return}
-    if (mode === 'follow' || mode === 'off') P.zm = 1;
+    if (mode === 'follow' || mode === 'off') { P.zm = 1; if (cssPose.d !== '115.000') { cssPose.d = '115.000'; stage.style.perspective = ''; } }
     qualityView();applyLens();glCam(P.x, P.y, P.z, P.rx, P.ry);
     if (mode !== 'follow' && mode !== 'off') cssCam();
     pcVis(); tickPropShadows();
@@ -2546,7 +2551,7 @@
     const width = gl && gl.w || GW, height = width * 3/4;
     const availableW=vw,availableH=vh;
     const distance = Math.max(width * PERSP * em / (availableW * .88), height * PERSP * em / (availableH * .82));
-    return { x: centre.x, y: centre.y, z: centre.z + distance, rx: 0, ry: 0, seat: 1, lvl: 'U' };
+    return { x: centre.x, y: centre.y, z: centre.z + distance, rx: 0, ry: 0, seat: 1, lvl: 'U', zm: 1 };
   }
   function preparePCView() {
     if (window.Room && Room.prepare) Room.prepare();
@@ -2796,7 +2801,7 @@
 
   // ================================================================ the API
   window.House = {
-    ok: true, FRONT, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
+    ok: true, FRONT, STAND, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
     focus, unfocus, surface, faceQuad, inspect, endInspect, get focused() { return !!focusS; },
     room, buildRoom, door, setDoor, walkRect, block, solid, stairs, support, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     restoreThing, saveThings, saveWalkState, layerFor, frontFx, place,

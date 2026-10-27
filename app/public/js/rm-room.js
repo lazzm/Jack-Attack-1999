@@ -1774,7 +1774,7 @@
   function holdHandheld(grip) {
     const t = H.THINGS.gb;
     if (t.st === 'fall') t.at.y = t.landY;
-    const view = Object.assign({}, H.P, { rx: 0, seat: 1, lvl: H.W.lvl, zm: H.motion.reduce ? 1 : 1.1 });
+    const view = Object.assign({}, H.P, { rx: 0, seat: 1, lvl: H.W.lvl, zm: H.motion.reduce ? (H.P.zm || 1) : 1.1 });
     // where it is now, relative to the camera (a hand pose) or in the room (on the desk): the way back
     const rest = grip ? null : { at: Object.assign({}, t.at), rx: t.rx || 0, rz: t.rz || 0, m: objMatrix(t.obj) };
     gbPlay = { grip, rest, st: t.st, view, hand: grip ? relTo(H.P, objMatrix(t.obj)) : null, play: gbPlayPose(view) };

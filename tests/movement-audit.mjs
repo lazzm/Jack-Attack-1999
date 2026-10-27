@@ -49,7 +49,7 @@ try{
   console.log('MOVEMENT plan '+kind+' '+JSON.stringify(plan.stations));
   const report={account:kind,controllerHash,method:'10 cm collision-valid graph; real Playwright W/A/S/D and mouse movement; 0.4 s of controller updates without progress; closed doors are expected stops',renderBudget:fast?'one full draw per ten requested draws; unmodified physics/input on every RAF; full draws for screenshots':'normal rendering',routes:[],findings:[],doors:[],errors:[]};reports.push(report);
   let mouseX=683;
-  async function pose(node){await p.evaluate(n=>{House.hush();House.cancelGlide(true);House.setWalkFrom({x:n.x,z:n.z,y:n.y-128,lvl:n.lvl,seat:0,ry:0,rx:0});House.W.vx=House.W.vz=0;House.W.bob=0;House._.setMode('walk');House.dirty()},node);await p.waitForTimeout(150)}
+  async function pose(node){await p.evaluate(n=>{House.hush();House.cancelGlide(true);House.setWalkFrom({x:n.x,z:n.z,y:n.y-(House.STAND||128),lvl:n.lvl,seat:0,ry:0,rx:0});House.W.vx=House.W.vz=0;House.W.bob=0;House._.setMode('walk');House.dirty()},node);await p.waitForTimeout(150)}
   async function shot(name){const path=`${dir}/${kind}-${name}.png`;if(fast){await p.evaluate(()=>{window.movementCapture=true;House.dirty()});await p.waitForTimeout(350)}await p.screenshot({path});if(fast)await p.evaluate(()=>{window.movementCapture=false});return path}
   const modes=quick?['walk']:['walk','jog','crouch','small','large'];
   for(const mode of modes){
@@ -119,7 +119,8 @@ try{
   // Door barriers are intentional: push while shut, open with F, then cross.
   for(const d of plan.doors){
    await p.evaluate(id=>House.setDoor(id,false,true),d.id);await p.waitForTimeout(100);await pose(d.from);
-   await p.evaluate(yaw=>{House.P.ry=yaw;House.P.rx=0;House.dirty()},d.yaw);
+   // (the cupboard door is 94 cm high: from a crouch at the eye height of 143-38 you look down at it, not over it)
+   await p.evaluate(([yaw,rx])=>{House.P.ry=yaw;House.P.rx=rx;House.dirty()},[d.yaw,d.id==='cupboard'?-30:0]);
    if(d.id==='cupboard'){await p.keyboard.down('c');await p.waitForTimeout(600)}
    const before=await p.evaluate(()=>({x:House.W.x,z:House.W.z}));await p.keyboard.down('w');await p.waitForTimeout(700);await p.keyboard.up('w');
    const shut=await p.evaluate(()=>({x:House.W.x,z:House.W.z}));
@@ -199,7 +200,7 @@ function planRoutes(){
  }
  const routes={};for(let a=0;a<stations.length;a++)for(let b=0;b<stations.length;b++)if(a!==b)routes[a+':'+b]=path(a,b);
  const doors=[['bedroom',190,190,90,'U'],['kitchen',265,190,-90,'G'],['lounge',265,520,-90,'G'],['back',120,10,0,'G'],['front',300,640,180,'G'],['cupboard',285,392,90,'G']].map(([id,x,z,yaw,lvl])=>({id,yaw,barrier:H.DOORS[id].closedBounds,from:{x,z,y:heights[lvl],lvl}}));
- const hallClearance=[230,250,400,438,520,550,560,580,600].map(z=>{const runs=[];let start=null;for(let x=207;x<=329;x++){const ok=x<329&&H._.floorAt(x,z,'G',353,128)?.y===353;if(ok&&start===null)start=x;if(!ok&&start!==null){runs.push([start,x-1]);start=null}}return{z,freeBodyCentres:runs}});
+ const hallClearance=[230,250,400,438,520,550,560,580,600].map(z=>{const runs=[];let start=null;for(let x=207;x<=329;x++){const ok=x<329&&H._.floorAt(x,z,'G',353,H.STAND||128)?.y===353;if(ok&&start===null)start=x;if(!ok&&start!==null){runs.push([start,x-1]);start=null}}return{z,freeBodyCentres:runs}});
  return{stations,routes,doors,hallClearance};
 }
 function HouseRampDelta(a,b){
