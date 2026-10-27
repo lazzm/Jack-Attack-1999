@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.54.0 - 2026-10-27
+- No real names anywhere: every real game, console, band, song, film, TV show, celebrity, company, product and slogan across the magazine, the fake web, Teletext, TV listings, family files and games is now a recognisable parody (about 5,000 changes; Teletext chart layout kept). The full mapping lives in docs/PARODY-NAMES.md and an audit blocks regressions.
+- Your family's files show your own name straight away (they used to sometimes load before your identity arrived).
+- Removed two location hints.
+
 ## 2.53.0 - 2026-10-26
 - Moving around is smooth: you slide along walls and round corners instead of snagging, the stairs are a gentle ramp, doors swing into rooms, and a safety net frees you if you ever get stuck (120 test routes, zero stuck). Walls are solid (no seeing through them), objects resting on surfaces no longer flicker, the low cupboard door makes you duck, and footsteps sound different on carpet, lino, stairs, paving and grass.
 - Story fixes: chores can be done in any order (making the bed before tidying no longer strands you), anyone already stuck is recovered, the wireframe boxes are gone, only the current goal glows, a quest picker lets you choose what to track, and the arrows to your goal are smooth.
