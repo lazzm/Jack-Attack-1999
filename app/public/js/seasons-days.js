@@ -22,14 +22,9 @@
 .ssn-card{background:linear-gradient(135deg,#ffd1e8,#ff8ac4);border:3px double #c0005a;padding:14px;text-align:center;font:14px/1.5 Georgia,serif;color:#600030;margin:-4px}
 .ssn-card b{display:block;font:bold 20px "Comic Sans MS","Comic Sans",cursive;color:#c0005a;margin-bottom:6px}
 .ssn-card .from{font:11px var(--ui);color:#800040;margin-top:8px}
-body.ssn-rednose .icons .dicon,body.ssn-halloween .icons .dicon{position:relative}
+body.ssn-rednose .icons .dicon{position:relative}
 body.ssn-rednose .icons .dicon::after{content:"";position:absolute;left:calc(50% - 6px);top:13px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffb0b0,#ff1a1a 45%,#a00000);box-shadow:0 1px 1px rgba(0,0,0,.5);pointer-events:none}
 body.ssn-rednose #desktop,body.ssn-rednose #desktop .dicon,body.ssn-rednose #taskbar{cursor:${svgUrl('width="24" height="24" viewBox="0 0 24 24"><path d="M2 1v17l4-4 3 7 3-1-3-7h6z" fill="#fff" stroke="#000"/><circle cx="4" cy="4" r="3.6" fill="#e10600" stroke="#600" stroke-width=".8"/><circle cx="3" cy="3" r="1" fill="#fff" opacity=".7"/>')} 2 2,default}
-body.ssn-halloween .icons .dicon:nth-child(3n+2)::after{content:"";position:absolute;right:6px;top:18px;width:18px;height:18px;background:${svgUrl('viewBox="0 0 18 18"><path d="M9 4c-1-2 0-3 2-3" stroke="#3a6a1a" stroke-width="1.6" fill="none"/><ellipse cx="9" cy="11" rx="8" ry="6.5" fill="#ff7a00" stroke="#7a3000"/><path d="M5 5.5c-1 3-1 8 0 11M13 5.5c1 3 1 8 0 11M9 4.5v13" stroke="#c05000" fill="none"/><path d="M5 9l2 1.5-2 .5zM13 9l-2 1.5 2 .5zM5.5 13.5l1.5 1 1-1 1 1 1-1 1 1 1.5-1" fill="#200" stroke="#200" stroke-width=".8"/>')} center/contain no-repeat;pointer-events:none}
-body.ssn-halloween .disc-banner::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(255,110,0,.45),rgba(70,0,90,.65));mix-blend-mode:multiply;pointer-events:none}
-body.ssn-halloween .disc{background:#140814}
-body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="0 0 120 120"><g stroke="#b9a68a" stroke-width="1" fill="none"><path d="M120 0L40 80M120 0L70 110M120 0L10 40M120 0L100 120"/><path d="M95 25q-12 10-20-3M78 42q-18 12-30-6M62 58q-24 14-38-10M85 9q8 14 22 13M70 25q12 22 33 18M55 43q16 30 44 26"/></g>')} right top/170px 170px no-repeat,#f3e6cc}
-.ssn-spooky{position:absolute;left:46%;top:10px;z-index:3;background:#ff7a00;color:#1a001a;font:400 18px/1 var(--comic,Impact);padding:5px 10px 4px;border:3px solid #1a001a;transform:rotate(-6deg);box-shadow:3px 3px 0 #1a001a;letter-spacing:1px;pointer-events:none}
 .ssn-holly{display:flex;align-items:center}
 .ssn-holly svg{width:18px!important;height:16px!important}
 .ssn-tree32 .l{animation:ssntw 1.4s steps(1) infinite}
@@ -99,7 +94,7 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
   DAYS.newyear = (o) => {
     const off = [];
     const fl = layer('ssn-floor'); off.push(() => fl.remove());
-    off.push(fsAdd('C:/My Documents', { name: 'resolutions for 2000.txt', type: 'txt', date: '01/01/99', size: '1 KB', text: "NEW YEAR'S RESOLUTIONS FOR THE YEAR 2000\n========================================\n\n1. Finish Kazoo of Time (the Water Temple WILL fall)\n2. Get the Rubrick's cube under 2 minutes\n3. Paint 100 Gorks\n4. Beat Luke on Rainbow Road (once. just once.)\n5. Stop Callum talking about his graphics card\n\n\nUPDATE (1am): the computer says it's 1 January 1999.\nUPDATE (1:05am): so does the video recorder. And my watch.\nUPDATE (1:10am): I'll just use last year's resolutions then. They look weirdly familiar.\n" }));
+    off.push(fsAdd('C:/My Documents', { name: 'resolutions for 2000.txt', type: 'txt', date: '01/01/99', size: '1 KB', text: "NEW YEAR'S RESOLUTIONS FOR THE YEAR 2000\n========================================\n\n1. Finish Kazoo of Time (the Water Tempura WILL fall)\n2. Get the Rubrick's cube under 2 minutes\n3. Paint 100 Gorks\n4. Beat Luke on Rainbow Roadworks (once. just once.)\n5. Stop Callum talking about his graphics card\n\n\nUPDATE (1am): the computer says it's 1 January 1999.\nUPDATE (1:05am): so does the video recorder. And my watch.\nUPDATE (1:10am): I'll just use last year's resolutions then. They look weirdly familiar.\n" }));
     later(() => onceToday('newyear', () => Desk.msgbox('JackOS 98', "JackOS is running a bit slowly this morning.\n\nIt stayed up until past midnight at the Millennium party and it has a headache. (So does Dave. He had nine cans of fizzy pop.)\n\nPlease keep the volume DOWN today.", 'info')), o.now ? 100 : (SS.winked ? 18000 : 9000), off); // after the "...again?" box, if there is one
     return () => off.forEach(f => f());
   };
@@ -199,7 +194,7 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
   DAYS.rednose = (o) => {
     const off = [];
     document.body.classList.add('ssn-rednose');
-    later(() => onceToday('rednose', () => Desk.toast("It's Red Nose Day!", 'Comic Relief tonight on BBC One! Your desktop icons have put their red noses on. So has your mouse pointer.', 7000)), o.now ? 100 : 5000, off);
+    later(() => onceToday('rednose', () => Desk.toast("It's Red Nose Day!", 'Comic Reliefs tonight on BBQ One! Your desktop icons have put their red noses on. So has your mouse pointer.', 7000)), o.now ? 100 : 5000, off);
     return () => { document.body.classList.remove('ssn-rednose'); off.forEach(f => f()); };
   };
 
@@ -238,7 +233,7 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
 
   // ---- 23 July: school's out for summer
   const PLAN_ICO = A.ICON.txt;
-  const PLAN = "SUMMER HOLIDAY PLAN 1999\n========================\n\n1. Get every podracer in Episode I Racer\n2. Rubrick's cube under 5 minutes\n3. Paint 20 minis (red ones go faster)\n4. Kart Kaos tournament at Luke's (Luke and Dave vs me and JackK)\n5. Half-Loaf deathmatch round Callum's (his PC is faster than ours, he keeps saying)\n6. Do NOT go outside unless I have to\n7. Holiday homework (last week of August) (probably)\n\nTHINGS MOM SAYS I HAVE TO DO\n- tidy my room\n- \"get some fresh air\"\n- not be on the computer all day (it's the HOLIDAYS)\n";
+  const PLAN = "SUMMER HOLIDAY PLAN 1999\n========================\n\n1. Get every peapodracer in Episode I Racer\n2. Rubrick's cube under 5 minutes\n3. Paint 20 minis (red ones go faster)\n4. Kart Kaos tournament at Luke's (Luke and Dave vs me and JackK)\n5. Half-Loaf deathmatch round Callum's (his PC is faster than ours, he keeps saying)\n6. Do NOT go outside unless I have to\n7. Holiday homework (last week of August) (probably)\n\nTHINGS MOM SAYS I HAVE TO DO\n- tidy my room\n- \"get some fresh air\"\n- not be on the computer all day (it's the HOLIDAYS)\n";
   DAYS.summer = (o) => {
     const off = [];
     const ic = icon('summer plan.txt', PLAN_ICO, () => Desk.notepad('summer plan.txt', PLAN), 'ssnIconSummer'); off.push(() => ic.remove());
@@ -248,13 +243,14 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
     return () => off.forEach(f => f());
   };
 
-  // ---- 31 October: pumpkins and a spooky magazine
+  // ---- Halloween week (24/10 to 1/11; the big night is Sunday 31/10). The look is seasons-web.js; this is the hello.
   DAYS.halloween = (o) => {
-    const off = [];
+    const off = [], phase = o.phase || 'peak';
     document.body.classList.add('ssn-halloween');
-    const ban = document.querySelector('#browser .disc-banner');
-    if (ban && !ban.querySelector('.ssn-spooky')) { const s = h('div', 'ssn-spooky', 'SPOOKY EDITION!!!'); ban.appendChild(s); off.push(() => s.remove()); }
-    later(() => onceToday('halloween', () => Desk.toast('Happy Halloween!', 'The magazine has gone spooky and the pumpkins have got onto the desktop. Jack is going trick-or-treating as a Space Cadet. Again.', 7000)), o.now ? 100 : (SS.winked ? 18000 : 9000), off); // after the "...again?" box, if there is one
+    const msg = phase === 'peak' ? ['Happy Halloween!', 'The clocks went back last night, so it gets dark at half four. Trick-or-treating starts when it\'s dark. Jack is going as a Space Cadet. Again.']
+      : phase === 'tail' ? ['The morning after Halloween', 'The pumpkin has gone soft and Jack has counted his sweets (47). Bonfire Night is on Friday!']
+      : ['It\'s nearly Halloween!', `Only ${o.left || 'a few'} day${o.left === 1 ? '' : 's'} to go! The magazine has gone spooky and some pumpkins have got onto the desktop.`];
+    later(() => onceToday('halloween-' + phase, () => Desk.toast(msg[0], msg[1], 7000)), o.now ? 100 : (SS.winked ? 18000 : 9000), off); // after the "...again?" box, if there is one
     return () => { document.body.classList.remove('ssn-halloween'); off.forEach(f => f()); };
   };
 
@@ -279,11 +275,11 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
   };
 
   // ---- Children in Need (26/11/99)
-  const CIN = "SPONSOR FORM\n============\nSponsored Blockology Marathon (in aid of Children in Need)\nName: Jack\nTarget: 200 lines (on the Game Lad, no pausing)\n\nSPONSOR              PER LINE    TOTAL\n------------------------------------------\nMom                  10p         £21.20\nNan                  £1 flat     £1.00  (\"I don't understand the game, love\")\nLuke                 1p          £2.12\nDave                 2p          £4.24  (owes it)\nCallum               1p          £2.12  (\"I'm saving for a graphics card\")\nJackK                5p          £10.60\nMrs Hargreaves       £2 flat     £2.00\n------------------------------------------\nLINES DONE: 212 (!!!)\nTOTAL RAISED:                    £43.28\n\nDave did a sponsored silence. It lasted 4 minutes.\nCallum did a sponsored no-PC day. He lasted until lunch.\n";
+  const CIN = "SPONSOR FORM\n============\nSponsored Blockology Marathon (in aid of Children in Greed)\nName: Jack\nTarget: 200 lines (on the Game Lad, no pausing)\n\nSPONSOR              PER LINE    TOTAL\n------------------------------------------\nMom                  10p         £21.20\nNan                  £1 flat     £1.00  (\"I don't understand the game, love\")\nLuke                 1p          £2.12\nDave                 2p          £4.24  (owes it)\nCallum               1p          £2.12  (\"I'm saving for a graphics card\")\nJackK                5p          £10.60\nMrs Hargreaves       £2 flat     £2.00\n------------------------------------------\nLINES DONE: 212 (!!!)\nTOTAL RAISED:                    £43.28\n\nDave did a sponsored silence. It lasted 4 minutes.\nCallum did a sponsored no-PC day. He lasted until lunch.\n";
   DAYS.cin = (o) => {
     const off = [];
     const ic = icon('Sponsor Form.txt', A.ICON.txt, () => Desk.notepad('Sponsor Form.txt', CIN), 'ssnIconCin'); off.push(() => ic.remove());
-    later(() => onceToday('cin', () => Desk.toast("It's Children in Need tonight!", "Jack did a sponsored Blockology marathon: 212 lines! The sponsor form is on the desktop.", 7000)), o.now ? 100 : 6000, off);
+    later(() => onceToday('cin', () => Desk.toast("It's Children in Greed tonight!", "Jack did a sponsored Blockology marathon: 212 lines! The sponsor form is on the desktop.", 7000)), o.now ? 100 : 6000, off);
     return () => off.forEach(f => f());
   };
 
@@ -291,11 +287,11 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
   const TREE32 = '<svg viewBox="0 0 32 32" class="ssn-tree32"><path d="M16 2l-6 9h3l-6 8h4l-7 8h24l-7-8h4l-6-8h3z" fill="#1a8a2a" stroke="#0a4a10"/><rect x="13" y="27" width="6" height="4" fill="#7a4a1a" stroke="#000"/><path d="M16 0l1.2 2.4 2.6.3-1.9 1.8.5 2.6L16 5.9l-2.4 1.2.5-2.6-1.9-1.8 2.6-.3z" fill="#ffd400" stroke="#a07000" stroke-width=".6"/><circle class="l" cx="14" cy="10" r="1.5" fill="#ff2a2a"/><circle class="l" cx="19" cy="15" r="1.5" fill="#ffd400"/><circle class="l" cx="11" cy="18" r="1.5" fill="#3affff"/><circle class="l" cx="20" cy="22" r="1.5" fill="#ff4aff"/><circle class="l" cx="9" cy="24" r="1.5" fill="#ffd400"/><circle class="l" cx="15" cy="21" r="1.5" fill="#ff2a2a"/></svg>';
   const HOLLY = '<svg viewBox="0 0 18 16" aria-hidden="true"><path d="M9 9C7 4 3 5 1 3c1 3-1 4 1 6 2 1 4 0 7 0z" fill="#1a8a2a" stroke="#0a4a10" stroke-width=".7"/><path d="M9 9c2-5 6-4 8-6-1 3 1 4-1 6-2 1-4 0-7 0z" fill="#1a8a2a" stroke="#0a4a10" stroke-width=".7"/><circle cx="7.5" cy="11" r="2" fill="#e10600" stroke="#700" stroke-width=".5"/><circle cx="10.5" cy="11.5" r="2" fill="#e10600" stroke="#700" stroke-width=".5"/><circle cx="9" cy="13.5" r="2" fill="#e10600" stroke="#700" stroke-width=".5"/></svg>';
   const PRESENTS = [
-    { to: 'Jack', c: '#e10600', r: '#ffd400', g: 'Donkey Wrong 64 (with the Expansion Pak!), a Rumble Pak and a box of BLOCKO!!!', shake: 'Rattles like a game box... and something that sounds like a LOT of tiny BLOCKO bricks.' },
-    { to: 'Luke', c: '#0028c8', r: '#fff', g: 'Super Smash Bros.! Luke has already said Zapachu is "his". There will be arguments.', shake: 'Game-shaped. Luke has guessed it\'s Smash Bros. Luke is always right about presents.' },
+    { to: 'Jack', c: '#e10600', r: '#ffd400', g: 'Donkey Wrong 64 (with the Expansion Pouch!), a Rumble Pouch and a box of BLOCKO!!!', shake: 'Rattles like a game box... and something that sounds like a LOT of tiny BLOCKO bricks.' },
+    { to: 'Luke', c: '#0028c8', r: '#fff', g: 'Super Smush Bros.! Luke has already said Zapachu is "his". There will be arguments.', shake: 'Game-shaped. Luke has guessed it\'s Smush Bros. Luke is always right about presents.' },
     { to: 'Dave', c: '#1a8a2a', r: '#e10600', g: Cast.t('A fourth ULTRA 64 controller. FINALLY. No more borrowing {kidEp1}\'s for four players.'), shake: 'Controller-shaped. Dave says it\'s a "controller-shaped jumper".' },
-    { to: 'Callum', c: '#5b16c9', r: '#3affff', g: 'A Voodoo3 graphics card! He says Jaquake III will be "SO smooth" now. He showed us the box for twenty minutes.', shake: 'Heavy. Electronic. Callum is not allowed to shake it ("it\'s DELICATE").' },
-    { to: 'JackK', c: '#ff7a00', r: '#0a4a10', g: 'Pocket Critters Red! So we can trade. (He wants my Blastoise. He can\'t have my Blastoise.)', shake: 'Small and plastic. Game Lad-game-shaped. Hmmm.' },
+    { to: 'Callum', c: '#5b16c9', r: '#3affff', g: 'A Hoodoo3 graphics card! He says Jaquake III will be "SO smooth" now. He showed us the box for twenty minutes.', shake: 'Heavy. Electronic. Callum is not allowed to shake it ("it\'s DELICATE").' },
+    { to: 'JackK', c: '#ff7a00', r: '#0a4a10', g: 'Pocket Critters Moss! So we can trade. (He wants my Blastortoise. He can\'t have my Blastortoise.)', shake: 'Small and plastic. Game Lad-game-shaped. Hmmm.' },
     { to: 'Mom', c: '#ff4aff', r: '#fff', g: 'A foot spa and a big tin of chocolates. She said "you shouldn\'t have". She meant "thank you".', shake: 'Sloshes slightly? Mom says "put that DOWN".' },
   ];
   function presentGrid(el, msgEl) {
@@ -348,9 +344,11 @@ body.ssn-halloween #pane{background:${svgUrl('width="120" height="120" viewBox="
 
   // ================================================================ switching days on and off
   const on = {};
-  function set(keys) {
-    Object.keys(on).forEach(k => { if (!keys.includes(k)) { try { on[k](); } catch (e) {} delete on[k]; } });
-    keys.forEach(k => { if (!on[k] && DAYS[k]) on[k] = DAYS[k]({}); });
+  const phaseOf = {};
+  function set(keys, info) { // info: the seasons on today ({ phase, lvl, left } by key), for the days that run all season
+    info = info || {};
+    Object.keys(on).forEach(k => { const ph = info[k] ? info[k].phase : ''; if (!keys.includes(k) || phaseOf[k] !== ph) { try { on[k](); } catch (e) {} delete on[k]; } });
+    keys.forEach(k => { if (!on[k] && DAYS[k]) { phaseOf[k] = info[k] ? info[k].phase : ''; on[k] = DAYS[k](Object.assign({}, info[k] || {})); } });
   }
   function preview(k) {
     if (!DAYS[k]) return Desk.msgbox('Seasons', 'No such day: ' + k + '\n\n' + Object.keys(DAYS).join(', '), 'warn');

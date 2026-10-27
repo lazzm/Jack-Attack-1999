@@ -16,7 +16,7 @@
     const el = $('headlines');
     const esc = s => s.replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
     // ...and a hidden message, black on black, for anyone who looks REALLY closely (hover the marquee, or wait for it to pass)
-    const hidden = ' &nbsp;&#9733;&nbsp; <span class="hid">psst... there is a secret page: type HOLOCRON in the address bar. Tell nobody. Especially Dave.</span>';
+    const hidden = ' &nbsp;&#9733;&nbsp; <span class="hid">psst... there is a secret page: type HOLOCROWN in the address bar. Tell nobody. Especially Dave.</span>';
     el.innerHTML = (posts.length ? posts.map((p, i) => (i === 0 && md(p[0]) === t.md ? '<b>NEW!!!</b> ' : '') + esc(strip(p[2]).split(/(?<=[.!?])\s/)[0])).join(' &nbsp;&#9733;&nbsp; ') : 'Welcome to JACK ATTACK! Online!!! &#9733; The new site for 1999 &#9733; Sign the Letters page!!!') + hidden;
   }
   headlines(); setInterval(headlines, 60000);

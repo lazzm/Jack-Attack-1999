@@ -15,9 +15,9 @@
   if (!A || !window.IE || !IE.addSite) return;
   const SITES = window.EraSiteList = [
     // host, file, title, cat, desc, { path: page title }, dynamic path regex (pages made on demand)
-    ['www.jackdot.jnet', 'grotdot', 'Jackdot: News for nerds. Stuff that matters.', 'sci', 'The nerd news site. Linux, chips, space, games and Y2K, with hundreds of comments (scored from -1 to 5).',
+    ['www.jackdot.jnet', 'grotdot', 'Jackdot: News for nerds. Stuff that matters.', 'sci', 'The nerd news site. Linucks, chips, space, games and Y2K, with hundreds of comments (scored from -1 to 5).',
       { '/': 0, '/ask.html': 'Ask Jackdot', '/older.html': 'Older Stuff', '/about.html': 'About Jackdot', '/submit.html': 'Submit Story', '/polls.html': 'Past Polls', '/melted.html': 'Server Melted' }, /^\/articles\/[a-z0-9-]+\.html$/],
-    ['www.jackbay.webcom', 'bay', 'JackBay - The World\'s Online Marketplace', 'news', 'Online auctions! Bid on a Eggbert (slightly used), Dave\'s pog collection and more. Live, with everyone online. Pretend money only.',
+    ['www.jackbay.webcom', 'bay', 'JackBay - The World\'s Online Marketplace', 'news', 'Online auctions! Bid on an Eggbert (slightly used), Dave\'s pog collection and more. Live, with everyone online. Pretend money only.',
       { '/': 0, '/feedback.html': 'Feedback Forum', '/mybay.html': 'My JackBay', '/help.html': 'Help & Safety', '/sell.html': 'Sell Your Item' }, /^\/item\/[a-z0-9-]+\.html$/],
     ['www.squigwitch.cyb', 'witch', 'The Jack Witch Project', 'weird', 'In October 1998 three film students walked into the Hollow Hill Woods. A year later their footage was found.',
       { '/': 0, '/legend.html': 'The Legend', '/missing.html': 'The Missing', '/footage.html': 'The Footage', '/diary.html': 'The Diary', '/map.html': 'The Map', '/dossier.html': 'Case File', '/truth.html': 'What Really Happened' }],
@@ -34,9 +34,9 @@
       { '/': 0, '/base.html': 'Base Set Holos', '/jungle.html': 'Jungle Holos', '/fossil.html': 'Fossil Holos', '/fakes.html': 'Spot a Fake', '/swap.html': 'Swap Board' }],
     ['www.houserobots.cyb', 'fan2', 'HOUSE ROBOT HQ - The Unofficial Robo Rumble Fan Site', 'fans', 'Robo Rumble fan site: the house robots, the arena, the champions and a build-your-own robot fight.',
       { '/': 0, '/house.html': 'The House Robots', '/arena.html': 'The Arena', '/champs.html': 'Champions', '/build.html': 'Build a Robot' }],
-    ['www.year3000.cyb', 'fan2', 'GOOD NEWS EVERYONE! The Year 3000 Cartoon Page', 'fans', 'A fan page for Futurama, the new cartoon from America about a delivery boy frozen on New Year\'s Eve 1999.',
+    ['www.year3000.cyb', 'fan2', 'GOOD NEWS EVERYONE! The Year 3000 Cartoon Page', 'fans', 'A fan page for Futurarma, the new cartoon from America about a delivery boy frozen on New Year\'s Eve 1999.',
       { '/': 0, '/crew.html': 'The Crew', '/episodes.html': 'Episodes' }],
-    ['www.jackfax.jnet', 'fan2', 'JACKFAX - The Text Service on Your Telly', 'news', 'Teletext on the Internet! P100 index, P302 football, P470 games and more. Type a page number.',
+    ['www.jackfax.jnet', 'fan2', 'JACKFAX - The Text Service on Your Telly', 'news', 'Telly-Text on the Internet! P100 index, P302 football, P470 games and more. Type a page number.',
       { '/': 0 }],
     // ---- the dodgy corner of the 1999 web (all members of The Ring of Fire-and-Glitter; pages in era-sites-dodgy.js)
     ['www.downloadmoreram.w3b', 'dodgy', 'DOWNLOAD MORE RAM!!! FREE!!!', 'weird', 'Computer slow? DOWNLOAD MORE RAM! 16MB, 32MB, 64MB, even 1 GIGABYTE! Totally free! Totally works! (It does not.)', { '/': 0 }, null, 'fg'],
@@ -44,7 +44,7 @@
     ['www.backwardscounter.netz', 'dodgy', 'The Hit Counter That Counts BACKWARDS', 'weird', 'Every visit takes one off. When it hits zero... something will happen. Probably.', { '/': 0 }, null, 'fg'],
     ['www.free100mb.webcom', 'dodgy', 'FREE WEB SPACE!!! 100 MB!!! (12 KB)', 'comm', '100 MB of free web space* for your homepage! (*12 KB) No adverts!** (**some adverts)', { '/': 0, '/terms.html': 'Terms', '/mypage.html': 'My Free Page' }, null, 'fg'],
     ['www.ultimatecheatz.w3b', 'dodgy', 'ULTIMATE CHEAT CODES FOR EVERY GAME!!! (ALL REAL!!!)', 'games', 'Every cheat for every game! Unlock everything! 100% real! (0% real.)', { '/': 0 }, null, 'fg'],
-    ['www.pokesecretz.kidz', 'dodgy', 'POCKET CRITTERS SECRETZ!!! Mew Under The Truck And More', 'fans', 'Every playground rumour about Pocket Critters Red and Blue, tested by a professional (me). Mew! Pikablu! The truck!', { '/': 0 }, null, 'fg'],
+    ['www.pokesecretz.kidz', 'dodgy', 'POCKET CRITTERS SECRETZ!!! MewOne Under The Truck And More', 'fans', 'Every playground rumour about Pocket Critters Moss and Puddle, tested by a professional (me). MewOne! Zapablu! The truck!', { '/': 0 }, null, 'fg'],
     ['www.forwardthis.w3b', 'dodgy', 'FORWARD THIS TO 10 PEOPLE OR ELSE!!!', 'weird', 'A chain letter. Read it to the end. Then forward it. Or ELSE. (Or else what? Read it.)', { '/': 0 }, null, 'fg'],
     ['www.framemania.homepagez', 'dodgy', 'FRAME MANIA - Frames Are The Future!!!', 'weird', 'A site built with the amazing new FRAMES technology. Click the menu. Then click it again. Uh oh.', { '/': 0 }, null, 'fg'],
     ['www.nutscapeonly.netz', 'dodgy', 'Best Viewed in Nutscape Navigator', 'weird', 'This site is designed for Nutscape Navigator 4. JackNet Explorer users: you have been warned.', { '/': 0, '/enter.html': 'Enter Anyway' }, null, 'fg'],
@@ -87,7 +87,7 @@
     ['eras.moose', 'Robot talk', 'Get the talking robot to say a lot'],
     ['eras.bubble', 'Pop pop pop', 'Pop a whole sheet'],
     ['eras.robot', 'Cease!', 'Build a robot that survives the arena'],
-    ['eras.ttx', 'Hidden page', 'Teletext has pages that are not in the index'],
+    ['eras.ttx', 'Hidden page', 'Telly-Text has pages that are not in the index'],
     ['eras.ring', 'Round the 1999 Ring', 'Follow the webring all the way back to the start'],
     ['eras.holo', 'Shiny!', 'Find the holo everybody wants'],
     ['eras.ram', 'Downloaded RAM', 'Download some memory. It is free!'],

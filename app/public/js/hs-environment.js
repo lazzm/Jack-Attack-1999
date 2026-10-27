@@ -228,10 +228,11 @@
  const sky=new T.CubeTexture(faces);sky.minFilter=T.LinearFilter;sky.magFilter=T.LinearFilter;sky.generateMipmaps=false;H.scene.background=sky;
  const direction=(face,u,v)=>{const a=2*u-1,b=1-2*v;return new T.Vector3(...[[1,b,-a],[-1,b,a],[a,1,-b],[a,-1,b],[a,b,1],[-a,b,-1]][face]).normalize()};
  const sun=new T.Vector3(-.45,.58,.7).normalize(),moon=new T.Vector3(.6,.5,-.6).normalize();
- let last='',lastMinute=-1;
- function phase(){const cl=document.getElementById('bootPower')?.classList;for(const p of ['night','dusk','dawn','day'])if(cl?.contains('rm-'+p))return p;const h=(window.OwnerTools?.now()||new Date()).getHours();return h<6||h>=20?'night':h<8?'dawn':h>=18?'dusk':'day'}
- function update(){
-  const ph=phase(),minute=(window.OwnerTools?.now()||new Date()).getMinutes();if(ph===last&&minute===lastMinute)return;lastMinute=minute;if(ph===last)return;last=ph;
+ let last='',lastMinute=-1,nextUpdate=0;const phases=['night','dusk','dawn','day'];
+ function phase(){const cl=document.getElementById('bootPower')?.classList;for(const p of phases)if(cl?.contains('rm-'+p))return p;const h=(window.OwnerTools?.now()||new Date()).getHours();return h<6||h>=20?'night':h<8?'dawn':h>=18?'dusk':'day'}
+ function update(now=0){
+  if(now&&now<nextUpdate)return false;nextUpdate=now+1000;
+  const ph=phase(),minute=(window.OwnerTools?.now()||new Date()).getMinutes();if(ph===last&&minute===lastMinute)return false;lastMinute=minute;if(ph===last)return false;last=ph;
   const colours={day:['#477db1','#cedadf'],dusk:['#363a64','#d89774'],dawn:['#54577d','#ddb69a'],night:['#080f23','#26344b']}[ph],zenith=new T.Color(colours[0]),horizon=new T.Color(colours[1]),night=ph==='night';
   faces.forEach((c,face)=>{const g=c.getContext('2d'),im=g.createImageData(256,256),d=im.data;
    for(let y=0;y<256;y++)for(let x=0;x<256;x++){
@@ -243,7 +244,7 @@
   });sky.needsUpdate=true;
   const tint=new T.Color(night?'#566378':ph==='day'?'#ffffff':'#c3a8a0');for(const{m,c}of materials)m.color.copy(c).multiply(tint);
   occupied.color.set(night?'#c8a36f':'#718b96');lampGlass.color.set(night?'#edc684':'#d6cdb2');
-  H.dirty();
+  H.dirty();return true;
  }
  update();H.ambient.add(update);window.HouseEnvironment={group,sky,homes,update,get phase(){return last}};
 })();

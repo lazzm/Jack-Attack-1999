@@ -168,7 +168,7 @@
       f.addEventListener('submit', ev => {
         ev.preventDefault();
         const gbp = parseFloat(f.amt.value), cur = EURO11[+f.cur.value];
-        if (!(gbp > 0) || gbp > 1e6) { out.textContent = 'Type how many pounds. (Real pounds. Not Monopoly money.)'; return; }
+        if (!(gbp > 0) || gbp > 1e6) { out.textContent = 'Type how many pounds. (Real pounds. Not Monopolly money.)'; return; }
         const eur = gbp / r, loc = eur * cur[2];
         out.textContent = `£${gbp.toFixed(2)} = about €${eur.toFixed(2)}\n€${eur.toFixed(2)} = ${loc.toLocaleString('en-GB', { maximumFractionDigits: cur[2] > 100 ? 0 : 2 })} ${cur[1]}${loc === 1 ? '' : 's'}\n(${cur[0]})`;
         N.sfx('dice'); N.secret('n99.euro');
@@ -202,7 +202,7 @@
   const DW_DIARY = [
     ['01-01', 'Happy New Year! Only one year to go. The roof has been on since last summer (they "topped out" on 22 June 1998), so now it\'s the insides: the zones, the stage, the loos. Lots of loos.'],
     ['01-25', 'Drove past on the bus. It looks like a giant white hedgehog lying on its back. Mom says "a jellyfish". We are both right.'],
-    ['02-20', 'Did you know a Blue Peter time capsule is buried there? They put it in on 11 June 1998, to be opened in 2050. I\'ll be ancient.'],
+    ['02-20', 'Did you know a Blue Pedro time capsule is buried there? They put it in on 11 June 1998, to be opened in 2050. I\'ll be ancient.'],
     ['03-15', 'There will be <b>14 zones</b> inside, about all sorts: the body, the mind, money, playing, travel, the Earth and more.'],
     ['04-20', 'The Body Zone is a giant person you can walk through. Inside. Through the insides. I want to go and also I don\'t.'],
     ['05-14', '<b>NEW TUBE STATION!</b> North Greenwich station on the Jubilee line opened today, right next to the Dome. It is MASSIVE and very blue.'],
@@ -244,7 +244,7 @@
     <li>It's about <b>50 metres</b> high in the middle. You could fit a LOT of double-decker buses in it. We tried to work out how many. We gave up.</li>
     <li>It sits by the river Thames at Greenwich, where the Prime Meridian is: the line that time is measured from (Greenwich Mean Time!).</li>
     <li>The roof is a giant fabric tent held up by cables. It was "topped out" on <b>22 June 1998</b>.</li><li>Inside there are <b>14 zones</b>, including the Body Zone, a giant figure you can walk through.</li>
-    <li>A <b>Blue Peter</b> time capsule is buried there (since 11 June 1998), to be dug up in 2050.</li><li>It has its own new tube station: <b>North Greenwich</b>, on the Jubilee line (opened 14 May 1999).</li>
+    <li>A <b>Blue Pedro</b> time capsule is buried there (since 11 June 1998), to be dug up in 2050.</li><li>It has its own new tube station: <b>North Greenwich</b>, on the Jubilee line (opened 14 May 1999).</li>
     <li>Opening night: <b>31 December 1999</b>. Open to everyone from <b>1 January 2000</b>.</li></ul>`));
 
   // ================================================================ CRAZE WATCH (the playground hot-or-not list)
@@ -273,22 +273,22 @@
   const CRAZES = [
     ['tama', 'Eggberts', 'Came out here on 8 May 1997. Everybody\'s has died by now. RIP.', [['01-01', 1], ['02-01', 0]], 1],
     ['yoyo', 'Yo-yos', 'Last year\'s big one. Walk the Dog, Around the World, banned in the staff room.', [['01-01', 4], ['02-15', 3], ['03-03', 1], ['04-15', 0]], 1],
-    ['furby', 'Furbies', 'Christmas 1998\'s must-have (&pound;29.99). Speaks Furbish. Never sleeps.', [['01-01', 5], ['02-01', 4], ['03-15', 2], ['05-01', 1], ['12-31', 1]], 1],
-    ['robot', 'Robo Rumble', 'BBC Two. Everyone has a favourite house robot.', [['01-01', 4], ['03-05', 5], ['03-25', 3], ['11-20', 3], ['12-03', 5], ['12-31', 5]], 1],
-    ['final', '"Is that your final answer?"', 'The quiz show catchphrase. Even teachers say it. 19.2 million people watched on 7 March!', [['01-01', 3], ['03-07', 5], ['06-01', 4], ['12-31', 4]], 1],
-    ['beanie', 'Beanie Babies', 'Collect them, keep the tag on, never play with them. Then on 31 August the makers said they\'d stop making them at the end of 1999!', [['01-01', 3], ['06-01', 2], ['08-30', 2], ['08-31', 4], ['10-15', 3], ['12-31', 4]]],
-    ['britney', 'The Britney dance', '...Baby One More Time was number one for two weeks. School-corridor choreography.', [['02-14', 2], ['02-21', 5], ['04-01', 3], ['05-15', 1], ['07-01', 0]]],
-    ['flat', 'Flat Eric impressions', 'The yellow puppet from the jeans advert, nodding to Flat Beat (number one!).', [['03-20', 2], ['03-28', 5], ['04-25', 3], ['06-01', 0]]],
-    ['pokeTV', 'The Pocket Critters cartoon', 'On Sky One since 29 March. If you haven\'t got Sky, you go round to someone who has.', [['03-28', 0], ['03-29', 3], ['06-01', 4], ['10-05', 5], ['12-31', 5]]],
-    ['bob', 'Bob the Builder', 'Started on the BBC on 12 April. For little brothers and sisters. (CAN WE FIX IT?)', [['04-11', 0], ['04-12', 2], ['07-01', 3], ['12-31', 4]]],
+    ['furby', 'Furbos', 'Christmas 1998\'s must-have (&pound;29.99). Speaks Furbosh. Never sleeps.', [['01-01', 5], ['02-01', 4], ['03-15', 2], ['05-01', 1], ['12-31', 1]], 1],
+    ['robot', 'Robo Rumble', 'BBQ Two. Everyone has a favourite house robot.', [['01-01', 4], ['03-05', 5], ['03-25', 3], ['11-20', 3], ['12-03', 5], ['12-31', 5]], 1],
+    ['final', '"Is that your last answer?"', 'The quiz show catchphrase. Even teachers say it. 19.2 million people watched on 7 March!', [['01-01', 3], ['03-07', 5], ['06-01', 4], ['12-31', 4]], 1],
+    ['beanie', 'Beany Bobbles', 'Collect them, keep the tag on, never play with them. Then on 31 August the makers said they\'d stop making them at the end of 1999!', [['01-01', 3], ['06-01', 2], ['08-30', 2], ['08-31', 4], ['10-15', 3], ['12-31', 4]]],
+    ['britney', 'The Brittany dance', '...Baby Two More Times was number one for two weeks. School-corridor choreography.', [['02-14', 2], ['02-21', 5], ['04-01', 3], ['05-15', 1], ['07-01', 0]]],
+    ['flat', 'Flat Derek impressions', 'The yellow puppet from the jeans advert, nodding to Flat Feet (number one!).', [['03-20', 2], ['03-28', 5], ['04-25', 3], ['06-01', 0]]],
+    ['pokeTV', 'The Pocket Critters cartoon', 'On Sky Won since 29 March. If you haven\'t got Sky, you go round to someone who has.', [['03-28', 0], ['03-29', 3], ['06-01', 4], ['10-05', 5], ['12-31', 5]]],
+    ['bob', 'Rob the Builder', 'Started on the BBQ on 12 April. For little brothers and sisters. (CAN WE FIX IT?)', [['04-11', 0], ['04-12', 2], ['07-01', 3], ['12-31', 4]]],
     ['ep1', 'Episode I toys', 'Dark Mole is worth three Qui-Gons in a swap.', [['05-01', 2], ['05-10', 5], ['08-15', 4], ['09-30', 2], ['12-31', 2]]],
     ['saber', 'lightspatula duels', 'Wrapping-paper tubes, after you\'ve seen The Phantom Nuisance (out here 16 July).', [['07-15', 0], ['07-16', 5], ['09-01', 3], ['10-20', 1], ['11-30', 0]]],
     ['glasses', 'Eclipse glasses', 'For 11 August. DON\'T LOOK AT THE SUN.', [['07-10', 1], ['08-01', 4], ['08-11', 5], ['08-14', 1], ['08-31', 0]]],
-    ['mambo', 'Mambo No. 5', 'Number one at the end of August. Every grown-up at every barbecue.', [['08-28', 0], ['08-29', 5], ['10-10', 3], ['11-30', 1]]],
-    ['tween', 'Tweenies', 'New on BBC Two from 6 September. Little cousins LOVE it.', [['09-05', 0], ['09-06', 2], ['12-31', 3]]],
-    ['blue', 'Singing "Blue (Da Ba Dee)"', 'Number one for three weeks from late September. The music teacher has had enough.', [['09-15', 2], ['09-19', 5], ['10-31', 4], ['11-30', 2]]],
-    ['pokeGB', 'Pocket Critters Red &amp; Blue', 'Out here on 5 October. Link cables at lunch.', [['09-01', 2], ['10-04', 4], ['10-05', 5], ['12-31', 5]]],
-    ['cards', 'Pocket Critters cards', 'Holos are currency. Charizard is a legend. Some schools have banned them.', [['01-01', 0], ['03-15', 1], ['06-01', 2], ['09-01', 3], ['11-01', 5], ['12-31', 5]]],
+    ['mambo', 'Bongo No. 5', 'Number one at the end of August. Every grown-up at every barbecue.', [['08-28', 0], ['08-29', 5], ['10-10', 3], ['11-30', 1]]],
+    ['tween', 'Tweenettes', 'New on BBQ Two from 6 September. Little cousins LOVE it.', [['09-05', 0], ['09-06', 2], ['12-31', 3]]],
+    ['blue', 'Singing "Green (Da Ba Doo)"', 'Number one for three weeks from late September. The music teacher has had enough.', [['09-15', 2], ['09-19', 5], ['10-31', 4], ['11-30', 2]]],
+    ['pokeGB', 'Pocket Critters Moss &amp; Puddle', 'Out here on 5 October. Link cables at lunch.', [['09-01', 2], ['10-04', 4], ['10-05', 5], ['12-31', 5]]],
+    ['cards', 'Pocket Critters cards', 'Holos are currency. Chargrillizard is a legend. Some schools have banned them.', [['01-01', 0], ['03-15', 1], ['06-01', 2], ['09-01', 3], ['11-01', 5], ['12-31', 5]]],
     ['dc', 'The Daydream', 'Out here on 14 October. It has a MODEM in it.', [['09-09', 2], ['10-13', 3], ['10-14', 4], ['12-31', 4]]],
   ];
   const heatAt = (cr, n) => {
@@ -301,12 +301,12 @@
     <div class="cw-nav"><a href="${CU('/')}">Hot or Not</a><a href="${CU('/vote.html')}">Vote!</a><a href="${CU('/history.html')}">Craze History</a></div><div class="cw-in">${body}</div>${N.foot(c, 'CRAZE WATCH. If your teacher bans it, it was probably good.')}</div>`;
   const CW_MATES = [
     ['01-11', 'Luke', 'Yo-yos are still hot in our school. Well, warm. Well, Liam still has one.'],
-    ['02-22', 'JackK', 'Half our class did the Britney dance in the dinner queue. Dave did it too. DAVE.'],
+    ['02-22', 'JackK', 'Half our class did the Brittany dance in the dinner queue. Dave did it too. DAVE.'],
     ['04-02', 'Dave', 'Pocket Critters cartoon is the BEST. Ash is rubbish at catching though.'],
     ['05-12', 'Callum', 'Swapped my Jar Jar Jams for a Dark Mole. The kid who did that deal will regret it for ever.'],
     ['07-20', 'Jack', 'lightspatula duel at the park with wrapping-paper tubes. I lost (my tube folded).'],
-    ['09-01', 'Luke', 'My cousin heard about the Beanie Babies stopping and bought eleven in one day.'],
-    ['10-06', 'Dave', 'Red version. Charbroiler. Already naming him. He\'s called DAVE.'],
+    ['09-01', 'Luke', 'My cousin heard about the Beany Bobbles stopping and bought eleven in one day.'],
+    ['10-06', 'Dave', 'Moss version. Charbroiler. Already naming him. He\'s called DAVE.'],
     ['11-05', 'Jack', 'Our school banned Pocket Critters cards at break. Now we swap them at the bus stop instead.'],
     ['12-14', 'Callum', 'Is the Daydream a craze if only one person in our year has got one? (It\'s me. Come round.)'],
   ];

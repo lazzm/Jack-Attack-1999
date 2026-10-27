@@ -27,7 +27,7 @@
     ['ul', 'List', '\u2022', () => ({ k: 'ul', h: 'Things I like:', it: ['Video games', 'Pizza', 'My Rubrick\'s Cube'], bu: 'star' })],
     ['ring', 'Webring', '\u25ce', () => ({ k: 'ring', r: 'hpz' })],
     ['bdg', 'Badges', '\u25ad', () => ({ k: 'bdg', b: ['bvie', 'bv800', 'pgb'], a: 'c' })],
-    ['poll', 'Poll', '?', () => ({ k: 'poll', q: 'What is the best game of 1999?', o: ['Pocket Critters Red & Blue', 'Driver', 'Ape Escape'] })],
+    ['poll', 'Poll', '?', () => ({ k: 'poll', q: 'What is the best game of 1999?', o: ['Pocket Critters Moss & Puddle', 'Driver', 'Ape Escapade'] })],
     ['mail', 'E-mail me', '\u2709', () => ({ k: 'mail', t: 'E-MAIL ME!!!' })],
   ];
   const BK = {}; BLOCKS.forEach(b => { BK[b[0]] = b; });

@@ -176,14 +176,14 @@ EVERYONE:
 [x] Swimming things
 [x] Sun cream (in hope)
 [x] Travel sweets for {sister}
-[x] Cards, Connect 4, the travel Scrabble with the missing Q
+[x] Cards, Connect Fore, the travel Scrabbles with the missing Q
 
 {me.NAME}:
 [x] Game Lad + batteries (4 spare, {me.he}'ll still run out)
 [x] Rubrick's cube
 [x] {me.His} mobile (it does NOT work in the caravan field, {me.he} will find this out)
 [ ] Computer (NO. {me.He} asked. The answer is no.)
-[ ] 12 Ork models (I said TWO. {me.He} has packed seven. Compromise.)
+[ ] 12 Gork models (I said TWO. {me.He} has packed seven. Compromise.)
 
 {sister.NAME}:
 [x] Mr Snuggles
@@ -282,7 +282,7 @@ Lined tin. 140C for 3 and a half hours (YES that long). Skewer comes out clean =
 Feed it every week till Christmas.
 
 WISHES (they told me anyway):
-{sister} ..... a Furby (and a dog)
+{sister} ..... a Furbo (and a dog)
 {me} ..... "the Millennium Bug doesn't happen so the internet still works"
 Dad ...... "a quiet New Year". At {mate1}'s party. Good luck.
 Me ....... not telling
@@ -424,14 +424,14 @@ by {me}
 
 1. The ON button is the big one on the front. Not the one on the back. The one on the back is the "everything off" switch and you have to hold it for ages and it makes the computer sad.
 2. Double-click means click TWICE, FAST. Not click, wait, have a think, click again.
-3. To make a letter, open WordPad. Do NOT type it in the Run box. Run is not for letters.
+3. To make a letter, open WordPod. Do NOT type it in the Run box. Run is not for letters.
 4. The internet costs money every minute. Dial up, do your thing, hang up. Don't go and make a cup of tea while it's connected.
 5. If a box pops up saying "Are you sure?" read it. Don't just press Yes.
 6. The Recycle Bin is not where things go when they're finished. It's where things go when you DELETE them. Your tax letter was in there. I got it back.
 7. If it crashes (blue screen), do not hit it. Press any key. If nothing happens, press Ctrl+Alt+Del. If nothing happens, come and get me.
 8. Please stop calling the mouse "the mouse thing".
 9. The screensaver is not broken. That's what it's meant to do.
-10. Do NOT touch my Ork folder. It is not "taking up space". It is an ARCHIVE.
+10. Do NOT touch my Gork folder. It is not "taking up space". It is an ARCHIVE.
 
 Love {me}
 P.S. If {sister} asks to go on Paint, she's allowed, but save before she touches anything.
@@ -568,7 +568,7 @@ MOM YOU CAN READ IT
     ['07-08', '8 july. sports day I came 2nd in the egg and spoon!!! Dad cheered so loud everyone looked.'],
     ['08-11', '11 august. the eclipse. it went dark in the day time and I held Moms hand. then the sun came back. I knew it would.'],
     ['09-07', '7 sept. back to school. new teacher is nice. I wrote about my holiday on the computer at home and {me} helped with the long words.'],
-    ['10-25', '25 oct. I want a FURBY for christmas. everyone at school wants one. {me} says they are "spying on you". they are NOT.'],
+    ['10-25', '25 oct. I want a FURBO for christmas. everyone at school wants one. {me} says they are "spying on you". they are NOT.'],
     ['10-31', '31 oct. I was a witch. I got 40 sweets. Dad was a monster and a little boy cried. Dad said sorry.'],
     ['12-01', '1 dec. I wrote to Father Christmas. {me} typed it and printed it on the noisy printer. it went zzzt zzzt zzzt.'],
     ['12-25', '25 dec. A BIKE!!!! A PURPLE BIKE!!!! WITH A BELL!!!!! Father Christmas is the best. {me} winked at Dad. I dont know why.']]), { secret: 'fam.lucydiary' });
@@ -633,20 +633,20 @@ The worst bit was going home.
 **THE END**
 
 > {c=purple|by {sister}, aged 8 and three quarters}` });
-  txt(SIS, 'Christmas list (FURBY!!!).txt', '25/10/99', `MY CHRISTMAS LIST 1999
+  txt(SIS, 'Christmas list (FURBO!!!).txt', '25/10/99', `MY CHRISTMAS LIST 1999
 by {sister}
 
-1. a FURBY (the white one with the pink ears)
-2. a FURBY (in case the first one gets lost)
+1. a FURBO (the white one with the pink ears)
+2. a FURBO (in case the first one gets lost)
 3. a dog
 4. a bike (purple)
 5. glitter pens
-6. the Steps CD
+6. the Stairz CD
 7. a dog (I know I put it already)
 8. a pony (if no dog)
 9. a dog
 
-P.S. {me} says Furbys are "spy robots" and they "remember everything you say". GOOD. Mine will remember I want a dog.
+P.S. {me} says Furbos are "spy robots" and they "remember everything you say". GOOD. Mine will remember I want a dog.
 `);
   doc(SIS, 'Letter to Father Christmas.doc', '01/12/99', 'fam_santa', { font: 'Comic Sans MS', size: 14, md: `> {c=red|Dear Father Christmas}
 
@@ -656,7 +656,7 @@ I have been good this year. Mostly. I did shout at {me} but {me.he} deleted my h
 
 Please can I have:
 
-* a Furby
+* a Furbo
 * a purple bike with a bell
 * glitter pens
 * a dog (I know Mom said no but you are in charge)
@@ -676,7 +676,7 @@ Thank you very much for the **jumper with the horse on it**. It is my favourite 
 
 Father Christmas brought me a **PURPLE BIKE**. It has a bell. I rang it at 6 o'clock in the morning and Dad said "here we go".
 
-I also got a Furby. It is called **Sparkle**. It talks all the time. {me} says it is "plotting". It is not plotting, it is singing.
+I also got a Furbo. It is called **Sparkle**. It talks all the time. {me} says it is "plotting". It is not plotting, it is singing.
 
 Thank you for the treacle toffee on bonfire night too. It stuck my teeth together.
 
@@ -724,7 +724,7 @@ BATTERY
   txt(MD, 'Things {sister} has broken.txt', '14/02/99', () => gated(`THINGS {sister.NAME} HAS BROKEN (a list, for evidence)
 
 `, [['01-01', '1. My Game Lad link cable (chewed) - 1998, still counts'], ['01-01', '2. The mouse ball (she took it out to "wash it". It went down the sink.)'],
-    ['02-14', '3. My Valentine\'s card to nobody (she found it, read it out at tea, I will never recover)'], ['03-27', '4. Ork Boy no. 14 - snapped his arm off. She says he was "waving goodbye".'],
+    ['02-14', '3. My Valentine\'s card to nobody (she found it, read it out at tea, I will never recover)'], ['03-27', '4. Gork Boy no. 14 - snapped his arm off. She says he was "waving goodbye".'],
     ['05-02', '5. The CD-ROM tray. She put a biscuit in it to "see what happens". What happened: the biscuit got stuck.'], ['06-19', '6. My patience. (She says I deleted her horse picture. I did NOT. Paint crashed. Probably.)'],
     ['08-20', '7. The caravan table bed (it was already wobbly but she JUMPED on it)'], ['10-02', '8. My Rubrick\'s cube - she "solved" it by peeling the stickers off.'],
     ['11-30', '9. The silence. She has learned to whistle. She whistles all day.'], ['12-25', '10. My heart a bit - she gave me a drawing of me and Gubbinz for Christmas. It is going on my wall. Don\'t tell her.']]));
@@ -743,11 +743,11 @@ Budget: £4.50 (from my savings). Chocolates: the box with the caramel ones, not
   txt(MD, '{mate3}\'s PC specs ({mate3.he} won\'t shut up).txt', '20/03/99', () => gated(`{mate3.NAME}'S NEW PC - THE SPECS
 ({mate3} read these out to me on the phone. For 40 minutes. Mom picked up the other phone twice.)
 
-PROCESSOR ..... Pentium III, 500MHz ("FIVE HUNDRED MEGAHERTZ, {me.NAME}")
+PROCESSOR ..... Pent-Yum III, 500MHz ("FIVE HUNDRED MEGAHERTZ, {me.NAME}")
 MEMORY ........ 128MB ("you've got 32" - yes {mate3}, I know)
 HARD DRIVE .... 13GB ("thirteen GIGABYTES")
 GRAPHICS ...... a 3D card with 16MB on it
-SOUND ......... "Sound Blaster Live" with 4 speakers and a "subwoofer" that is louder than {mate3.his} mom
+SOUND ......... "Sound Bluster Live" with 4 speakers and a "subwoofer" that is louder than {mate3.his} mom
 CD ............ a DVD-ROM drive ({mate3.he} has no DVDs. {mate3.He} has ONE DVD. It came with the drive.)
 MODEM ......... 56K
 MONITOR ....... 17 inch ("SEVENTEEN, {me.NAME}")
@@ -761,7 +761,7 @@ THINGS {mate3.He} HAS SAID ABOUT MY COMPUTER:
 - "My calculator could beat it at chess"
 `, [['04-30', '\nUPDATES:\n30/04 - New graphics card. {mate3.He} showed me the box. {mate3.He} showed me the box for twenty minutes.'],
     ['06-12', '12/06 - Got RollerCoaster Rupeecoon. Built a ride that goes through the toilets. Genius, I admit it.'],
-    ['09-04', '04/09 - Tiberian Sun. {mate3.He} is "commanding the Brotherhood". {mate3.He} is commanding {mate3.his} bedroom.'],
+    ['09-04', '04/09 - Tiberian Moon. {mate3.He} is "commanding the Brotherhood". {mate3.He} is commanding {mate3.his} bedroom.'],
     ['09-01', '01/09 - {mate3.He} read in a magazine about a new "GPU" that\'s coming out. {mate3.He} says {mate3.his} card is "obsolete". It\'s FIVE MONTHS OLD.'],
     ['10-15', '15/10 - Age of Emperors II. {mate3.He} sent {mate3.his} villagers to fight my castle. {mate3}, they\'re FARMERS.'],
     ['10-30', '30/10 - New mouse. It hasn\'t got a BALL. It\'s got a little red light underneath. That\'s actually amazing. Don\'t tell {mate3.him} I said that.'],
@@ -777,20 +777,20 @@ Rules: winner stays on, loser makes the squash
   {mate2} ....... 12
   {mate1} ....... 18 (CHEATED - kept "accidentally" knocking my controller with {mate1.his} elbow)
   {mate4} ...... 3 ({mate4.he} always picks Bouncer and always comes last. Bouncer deserves better.)`],
-    ['04-10', `\nGOLDENEYE - 4 PLAYER, LICENCE TO KILL, FACILITY
+    ['04-10', `\nGOLDENBALLS - 4 PLAYER, LICENCE TO KILL, FACILITY
   Me ......... 21 kills
-  {mate1} ....... 25 (CHEATED - SCREEN WATCHING. Also picked Oddjob. Oddjob is SHORT. Everybody knows it's unfair.)
+  {mate1} ....... 25 (CHEATED - SCREEN WATCHING. Also picked Oddbob. Oddbob is SHORT. Everybody knows it's unfair.)
   {mate2} ....... 19
   {mate4} ...... 9 (spent the whole time in the toilets)
-  NEW RULE: no Oddjob. {mate1} says it's "not a rule if you only make it up after you lose".`],
+  NEW RULE: no Oddbob. {mate1} says it's "not a rule if you only make it up after you lose".`],
     ['05-29', `\nMARIO PARTY (Half term)
   {mate2} WON. {mate2} and {mate1} haven't spoken since. The mini-game where you spin the stick: I have a blister. Mom says it's "a gaming injury" and I should "stop playing it then".`],
     ['07-24', `\nEP I RACER (summer holidays)
   Me ......... 1st, 1st, 2nd, 1st !!!!!!
   {mate1} ....... claims {mate1.his} pod "had a fault". There are no faults. It's a VIDEO GAME.`],
-    ['10-23', `\nGOLDENEYE REMATCH (half term) - NO ODDJOB
+    ['10-23', `\nGOLDENBALLS REMATCH (half term) - NO ODDBOB
   {mate1} picked Jaws instead. Jaws is TALL. Somehow {mate1.he} still cheated. HOW.`],
-    ['11-27', `\nSUPER SMASH BROS - IT'S OUT!!!
+    ['11-27', `\nSUPER SMUSH BROS - IT'S OUT!!!
   {mate2} picked Zapachu and is UNBEATABLE. Zapachu shouldn't be that good. He's a mouse.
   {mate1} picked Donkey Wrong and kept throwing everybody off the edge. Not technically cheating. FEELS like cheating.`],
     ['12-29', `\nFINAL STANDINGS 1999
@@ -798,7 +798,7 @@ Rules: winner stays on, loser makes the squash
   2. Me (actual winner, morally)
   3. {mate2}
   4. {mate4} (still Bouncer)
-  Next year's tournament: the YEAR 2000 TOURNAMENT. Venue: {mate1}'s. Rules: NO ODDJOB, NO JAWS, NO ELBOWS.`]]));
+  Next year's tournament: the YEAR 2000 TOURNAMENT. Venue: {mate1}'s. Rules: NO ODDBOB, NO CHOMPERS, NO ELBOWS.`]]));
   txt(MD, 'Phone bill - my side of the story.txt', '05/05/99', `THE PHONE BILL (£94.17) - MY SIDE OF THE STORY
 for Mom and Dad, please read before you shout
 
@@ -818,8 +818,8 @@ Signed, {me}.
 
 `, [['05-08', '08/05  Lent {mate4.him} £2 for chips after football. "I\'ll pay you Monday."            OWES: £2.00'],
     ['05-10', '10/05  It is Monday. {mate4.He} said "which Monday".                                  OWES: £2.00'],
-    ['06-04', '04/06  Lent {mate4.him} 50p for the vending machine (a Twix that got stuck)            OWES: £2.50'],
-    ['06-04', '04/06  The Twix fell out later and {mate4.he} ate it. Still counts.                   OWES: £2.50'],
+    ['06-04', '04/06  Lent {mate4.him} 50p for the vending machine (a Twax that got stuck)            OWES: £2.50'],
+    ['06-04', '04/06  The Twax fell out later and {mate4.he} ate it. Still counts.                   OWES: £2.50'],
     ['07-02', '02/07  {mate4.He} paid back 20p. In 1p coins. Twenty of them. Hilarious.             OWES: £2.30'],
     ['08-19', '19/08  Lent {mate4.him} £1 for a Pocket Critters magazine (we haven\'t even GOT the game yet)   OWES: £3.30'],
     ['09-27', '27/09  {mate4.He} says I owe {mate4.Him} £1 for "the time {mate4.he} let me have {mate4.his} chips" in 1997.   OWES: £2.30 (disputed)'],
@@ -834,12 +834,12 @@ DAY        PLAN                              WHAT ACTUALLY HAPPENED
 ---------  --------------------------------  --------------------------------------------
 Mon 24     Maths: algebra (2 hours)          Algebra, 20 mins. Then "a quick go" on Snake. Score: 188.
 Tue 25     Science: the heart + lungs        Drew a diagram of the heart. It turned into Doctor Whoops. He has 2 hearts now.
-Wed 26     English: the poems                Read one poem. {sister} made me play Connect 4. She won. Again.
+Wed 26     English: the poems                Read one poem. {sister} made me play Connect Fore. She won. Again.
 Thu 27     French: verbs                     "J'ai joue a Goldenballs". That's a verb. That counts.
 Fri 28     History: World War 1              Actually did 2 hours!!! Dad helped. Dad knows LOADS about it. Who knew.
 Sat 29     REST DAY (allowed)                Marlo Party at {mate1}'s. Got a blister.
 Sun 30     Geography: rivers                 Mom made me go to the big supermarket. Saw a river from the car. Revision.
-Mon 31     Maths again                       {mate3} rang. Pentium III. 40 minutes. NO MATHS DONE.
+Mon 31     Maths again                       {mate3} rang. Pent-Yum III. 40 minutes. NO MATHS DONE.
 Tue 1      Science: electricity              Fixed the plug on {sister}'s hairdryer. PRACTICAL electricity.
 Wed 2      EVERYTHING (panic day)            Panicked. Revised. Ate a whole packet of custard creams. Felt better.
 
@@ -862,22 +862,22 @@ DECISION: card made on the computer + car wash voucher + a bag of the toffees he
 Me: BLUE. {mate2}: RED. We need each other. That's how they get you.
 Link cable: mine ({sister} chewed the old one, see "Things {sister} has broken")
 
-`, [['10-09', `09/10  Traded my Meowth for {mate2.his} Ekans. Fair. Both version exclusives. Handshake.`],
+`, [['10-09', `09/10  Traded my Meowf for {mate2.his} Snake-E. Fair. Both version exclusives. Handshake.`],
     ['10-09', `09/10  {mate2.He} picked Charbroiler. I picked Squirturtle. Squirturtle is better. ({mate2.He} disagrees. {mate2.He} is wrong.)`],
-    ['10-16', `16/10  Traded Kadabra to {mate2.him} so it evolves into ALAKABAM, then {mate2.he} traded it back. {mate2.He} "accidentally" took 20 minutes to trade it back. I watched {mate2.him} the whole time.`],
-    ['10-23', `23/10  Got {mate2.his} Oddish for my Bellsprout. They're basically the same plant. Doesn't matter. Pokedex.`],
-    ['10-30', `30/10  {mate2} says there's a MEW under the truck by the S.S. Anne. You need to use Strength. We spent ALL AFTERNOON. There is no Mew. There is a truck.`],
-    ['11-06', `06/11  Traded Graveler -> came back as GOLEM. {mate2} kept it for one night "to look after it". It came back at level 39. It was level 38. WHAT DID YOU DO, {mate2.NAME}.`],
-    ['11-13', `13/11  Swapped Scyther ({mate2.his}) for Pinsir (mine). I think I won that one.`],
-    ['11-20', `20/11  {mate1} wants to trade too but {mate1.he} hasn't got the game, just a Game Lad with no batteries and "a really good feeling about Jigglypuff".`],
-    ['12-04', `04/12  Haunter -> GENGAR. We both screamed. {sister} came in to see who was hurt.`],
-    ['12-18', `18/12  POKEDEX: 131 seen, 119 caught. {mate2}: 127 caught. {mate2.He} IS AHEAD. Need: Electabuzz ({mate2.his}). Offering: anything. ANYTHING.`],
-    ['12-28', `28/12  Got the Electabuzz. Paid: my Persian AND a promise to let {mate2.him} have first go on Donkey Wrong 64. Worth it.`]], `\n\nRULE: no trading Pocket Critters you've nicknamed after your mom. ({mate2} named {mate2.his} Chansey "MOM". Mom didn't find it funny.)\n`));
+    ['10-16', `16/10  Traded Kadabba to {mate2.him} so it evolves into ALAKABAM, then {mate2.he} traded it back. {mate2.He} "accidentally" took 20 minutes to trade it back. I watched {mate2.him} the whole time.`],
+    ['10-23', `23/10  Got {mate2.his} Oddball for my Bellsprat. They're basically the same plant. Doesn't matter. Critterdex.`],
+    ['10-30', `30/10  {mate2} says there's a MEWONE under the truck by the S.S. Annie. You need to use Strength. We spent ALL AFTERNOON. There is no MewOne. There is a truck.`],
+    ['11-06', `06/11  Traded Gravelly -> came back as GOLEM. {mate2} kept it for one night "to look after it". It came back at level 39. It was level 38. WHAT DID YOU DO, {mate2.NAME}.`],
+    ['11-13', `13/11  Swapped Scythey ({mate2.his}) for Pincer (mine). I think I won that one.`],
+    ['11-20', `20/11  {mate1} wants to trade too but {mate1.he} hasn't got the game, just a Game Lad with no batteries and "a really good feeling about Jelly Puff".`],
+    ['12-04', `04/12  Haunty -> GENGAH. We both screamed. {sister} came in to see who was hurt.`],
+    ['12-18', `18/12  CRITTERDEX: 131 seen, 119 caught. {mate2}: 127 caught. {mate2.He} IS AHEAD. Need: Electabuzzzz ({mate2.his}). Offering: anything. ANYTHING.`],
+    ['12-28', `28/12  Got the Electabuzzzz. Paid: my Purrsian AND a promise to let {mate2.him} have first go on Donkey Wrong 64. Worth it.`]], `\n\nRULE: no trading Pocket Critters you've nicknamed after your mom. ({mate2} named {mate2.his} Chancey "MOM". Mom didn't find it funny.)\n`));
   txt(MD, 'Christmas presents for the family (budget 15 quid).txt', '11/12/99', `CHRISTMAS PRESENTS 1999 - BUDGET: £15.00 (saved since October + selling my old Game Lad games to my mate {mate4})
 
 MOM ..... bath stuff from the chemist in the posh box (£4.99) + I'll make her a calendar on the computer for 2000 with photos of all of us
 DAD ..... a fancy torch for his "Y2K kit" (£3.50). He will love it. He will say "you shouldn't have". I should have.
-{sister.NAME} .... a Furby is £30. I am not made of money. Glitter pens + a dog colouring book (£3.20). And I'll teach her Snake on my phone.
+{sister.NAME} .... a Furbo is £30. I am not made of money. Glitter pens + a dog colouring book (£3.20). And I'll teach her Snake on my phone.
 GRAN .... a photo of me and {sister} in a frame (£2.00, Mom chips in)
 NAN ..... same frame, different photo (£2.00)
 {mate1.NAME} .... we said no presents this year. (I got {mate1.him} a keyring anyway, 50p. It's a tiny Goldenballs gun. {mate1.He}'ll get it.)
@@ -887,13 +887,13 @@ TOTAL: £16.19. Over budget by £1.19. {mate4} owes me 80p. Problem nearly solve
 
   // ================================================================ the sticky notes on the desktop
   F.sticky(Cast.deep([
-    { id: 's0226', date: '26/02/99', head: 'WHO\'S BEEN ON THE COMPUTER?!', text: 'There are 400 files called "ork" on here.', by: 'DAD', rot: -3 },
+    { id: 's0226', date: '26/02/99', head: 'WHO\'S BEEN ON THE COMPUTER?!', text: 'There are 400 files called "gork" on here.', by: 'DAD', rot: -3 },
     { id: 's0314', date: '14/03/99', head: 'WHO LEFT THE COMPUTER ON ALL NIGHT?!', text: 'The fan was going like a hairdryer. Electricity costs MONEY.', by: 'MOM', rot: 2 },
     { id: 's0503', date: '03/05/99', head: 'WHO\'S BEEN ON THE COMPUTER?!', text: 'The phone bill is £94.17. NINETY-FOUR POUNDS. On the internet IN THE DAYTIME.', by: 'DAD', rot: -2 },
     { id: 's0619', date: '19/06/99', head: 'WHO DELETED MY HORSE PICTURE?!', text: 'It was MY turn on the computer. I know it was you.', by: '{sister}', rot: 4 },
     { id: 's0814', date: '14/08/99', head: 'WHO\'S BEEN ON MY PHONE?!', text: 'Somebody has played Snake and got 12. TWELVE. And sent a text to {mate1} saying "hello this is {me}\'s mom". I know it was you {sister}.', by: '{me.NAME}', rot: -1 },
     { id: 's0905', date: '05/09/99', head: 'WHO SET THE CLOCK TO THE YEAR 2000??', text: '"To test it." DON\'T test it. Put it back.', by: 'DAD', rot: 3 },
-    { id: 's1031', date: '31/10/99', head: 'WHO\'S BEEN ON THE COMPUTER?!', text: 'Somebody has made the background a picture of a GOBLIN.\n(it\'s an ORK, Mom - {me})', by: 'MOM', rot: -3 },
+    { id: 's1031', date: '31/10/99', head: 'WHO\'S BEEN ON THE COMPUTER?!', text: 'Somebody has made the background a picture of a GOBLIN.\n(it\'s an GORK, Mom - {me})', by: 'MOM', rot: -3 },
     { id: 's1218', date: '18/12/99', head: 'WHO\'S BEEN ON THE COMPUTER?!', text: 'Somebody has been reading my Christmas list. Father Christmas is WATCHING.', by: 'MOM', rot: 2 },
   ]));
 

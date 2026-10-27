@@ -36,7 +36,7 @@ function P(key) {
 const QB = [
   ['How many squares are on each face of a standard Rubrick\'s cube?', '9', '4', '6', '16'],
   ['Which planet is known as the Red Planet?', 'Mars', 'Venus', 'Jupiter', 'Saturn'],
-  ['In 1969, who was the first person to walk on the Moon?', 'Neil Armstrong', 'Buzz Aldrin', 'Yuri Gagarin', 'John Glenn'],
+  ['In 1969, who was the first person to walk on the Moon?', 'Neil Armweak', 'Buzz Aldrip', 'Yuri Garglin', 'John Glimm'],
   ['How many players are on the pitch for one football team?', '11', '9', '10', '12'],
   ['What colour do you get mixing blue and yellow paint?', 'Green', 'Purple', 'Orange', 'Brown'],
   ['What does "CD" stand for in CD-ROM?', 'Compact Disc', 'Computer Data', 'Cool Disk', 'Colour Display'],
@@ -57,7 +57,7 @@ const QB = [
   ['What shape is a stop sign?', 'Octagon', 'Hexagon', 'Square', 'Circle'],
   ['Which is the tallest mountain in the world?', 'Mount Everest', 'K2', 'Ben Nevis', 'Kilimanjaro'],
   ['What is 12 times 12?', '144', '124', '122', '132'],
-  ['Who wrote Romeo and Juliet?', 'William Shakespeare', 'Charles Dickens', 'Roald Dahl', 'Jane Austen'],
+  ['Who wrote Romeo and Julio?', 'William Shakespeer', 'Charles Dickings', 'Roald Doll', 'Jane Austin'],
   ['What is the chemical symbol for gold?', 'Au', 'Ag', 'Go', 'Gd'],
   ['How many strings does a standard guitar have?', '6', '4', '5', '12'],
   ['Which country is shaped a bit like a boot?', 'Italy', 'Spain', 'Greece', 'Portugal'],

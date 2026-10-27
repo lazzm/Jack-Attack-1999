@@ -39,7 +39,7 @@
     ['hat.wizard', 'Wizard Hat', 150, 'hat', 'A tall pointy hat with stars on, for a level 20 wizard. Crackles a bit.'],
     // face things for your Hangout avatar
     ['face.shades', 'Cool Shades', 60, 'face', 'Black shades. Instantly 40% cooler.'],
-    ['face.3d', '3D Specs', 45, 'face', 'Red and blue. Everything looks 3D. Or blurry.'],
+    ['face.3d', '3D Specs', 45, 'face', 'Moss and Puddle. Everything looks 3D. Or blurry.'],
     ['face.monocle', 'Monocle', 80, 'face', 'For inspecting your share prices very carefully.'],
     ['face.tash', 'Big Moustache', 50, 'face', 'A huge stick-on moustache. Nobody will recognise you.'],
     // badges (shown on the Rich List, your bank statement, the Gazette and Jacktown)
@@ -61,7 +61,7 @@
     ['misc.ticker', 'Jack Ticker 98', 150, 'misc', 'A desktop program that shows live Jack Exchange prices in a little window.'],
     ['misc.goldtoof', 'Solid Gold Rupee', 1000, 'misc', 'A Rupee the size of your fist. It does nothing. It just sits in your stash being gold. Shows a star on the Rich List.'],
     // Rupee Wallets: purely for show (they change the wallet in your tray and on your profile). There is NO limit on Rupees.
-    ['wal.kid', "Kid's Wallet", 50, 'wal', 'A bright velcro wallet. RRRRIP! Everyone in the room knows you are paying.'],
+    ['wal.kid', "Kid's Wallet", 50, 'wal', 'A bright velcrow wallet. RRRRIP! Everyone in the room knows you are paying.'],
     ['wal.big', 'Big Wallet', 250, 'wal', 'A proper brown leather wallet, like your Dad\'s. Room for Rupees AND a bus pass.'],
     ['wal.giant', 'Giant Wallet', 1000, 'wal', 'A purple wallet so big it has its own gold clasp. Gems peek out of the top.'],
     ['wal.bag', 'Bottomless Bag', 3000, 'wal', 'A starry drawstring bag that goes on forever. Rupees go in. Nobody knows where they end up. (Your balance. They end up in your balance.)'],
@@ -114,7 +114,7 @@
     ['GUBZ', 'GUBZ', 'Gubbinz Pet Food', 30, 0.008, 0.00001, 0.005, 'Gubbinz Chow, Mushroom Cake and Bubble Soap. The official supplier to Gubbinz.'],
     ['MEKK', 'KART', 'Turbo Karts', 200, 0.007, 0.00002, 0.003, 'Go-karts and remote-control cars. Red ones go faster. Recalls are "a thing of the past".'],
     ['JNET', 'JNET', 'JackNet Online', 60, 0.016, 0.00006, 0.0, 'Dial-up Internet for everyone! A dot-com. Nobody knows what it is worth. Least of all JackNet.'],
-    ['CUBE', 'CUBE', 'Kube Toys', 90, 0.006, 0.00001, 0.004, "Puzzle cubes, yo-yos and tazos. The playground's favourite toy maker."],
+    ['CUBE', 'CUBE', 'Kube Toys', 90, 0.006, 0.00001, 0.004, "Puzzle cubes, yo-yos and tazoz. The playground's favourite toy maker."],
   ].map(([sym, ds, name, p0, vol, drift, yld, d]) => ({ sym, ds, name, p0, vol, drift, yld, d }));
   const DS = {}; for (const c of COS) DS[c.sym] = c.ds;
   const dsym = s => DS[s] || s; // internal symbol -> the one on screen

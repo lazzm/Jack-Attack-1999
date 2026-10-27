@@ -331,3 +331,12 @@ html.hs-live .rm-tvv .rm-tools .rm-b:focus-visible{outline:1px solid var(--game-
 html.hs-live .rm-live3d .rm-help{font:12px/1.5 Tahoma,Arial,sans-serif}
 
 .hs-inspect-description{max-width:620px;margin:2px 0 0;color:#d2d0bd;font:13px/1.5 Tahoma,Arial,sans-serif;text-align:center}.hs-inspection{max-width:min(760px,calc(100vw - 36px));box-sizing:border-box;max-height:40vh;overflow:auto}
+/* HUD stacking (world quality pass 2): the top-right column holds the treasure tin and the diary; toasts start below
+   them. Spoken lines (Mom shouting up the stairs) sit in the lower third, above the carry bar, clear of the story
+   objective at the top and the paper note at the bottom left. The minimap gets a solid backing so it stays legible. */
+.hs-ui .rm-toast{top:96px}
+.hs-map{opacity:1;background:#15120e;box-shadow:inset 0 0 0 1px rgba(255,240,210,.14),0 1px 4px rgba(0,0,0,.6)}
+@media (min-width:901px) and (min-aspect-ratio:3/4){
+  .hs-voice{top:auto;bottom:128px;transform:translate(-50%,10px)}
+  .hs-voice.on{transform:translate(-50%,0)}
+}

@@ -71,7 +71,7 @@
     if (saved?.id === 'st.diary' && sessionStorage.getItem('jhp_login_seat') !== '1' && !window.PCOnly?.desktopOnly) resume = saved;
   } catch (e) {}
   const HAND = '"Comic Sans MS", "Z003", "URW Chancery L", cursive';
-  const pages = [{ today: true }, ...C.chapters.filter(c => c.steps).flatMap(ch => Array.from({length:Math.ceil(ch.steps.length/4)},(_,i)=>i*4).map(start => ({ ch, steps: ch.steps.slice(start, start + 4), start })))];
+  const pages = [{ today: true }, { week: true }, ...C.chapters.filter(c => c.steps).flatMap(ch => Array.from({length:Math.ceil(ch.steps.length/4)},(_,i)=>i*4).map(start => ({ ch, steps: ch.steps.slice(start, start + 4), start })))];
   pages.push({ soon: true });
   function wrap(g, text, x, y, width, line) {
     let row = '';
@@ -100,7 +100,8 @@
     g.fillStyle = '#314568'; g.font = 'italic 25px ' + HAND; g.fillText(Cast.t("{me}'s diary / 1999"), 94, 60, w - 125);
     const veteran = p?.flags.veteran;
     g.font = 'italic 44px ' + HAND;
-    if (veteran) {
+    if (veteran && index === 1 || !veteran && pages[index]?.week) paintWeek(g, w, h);
+    else if (veteran) {
       g.fillText('1999 so far', 94, 130); g.font = 'italic 34px ' + HAND;
       wrap(g, 'Games played. Jobs done. Far too many hours on JackNet. A pretty good year, actually.', 94, 216, w - 140, 42);
       wrap(g, 'My room, my collection, my memories. Nothing to catch up on. Just see what happens next.', 94, 440, w - 140, 42);
@@ -136,10 +137,27 @@
     }
     g.fillStyle = '#7a7d77'; g.font = 'italic 22px ' + HAND; g.fillText(String(index + 1), w - 60, h - 32); g.restore();
   }
+  // "This week": the seasonal objectives (js/season.js), ticked as the server confirms them, and what's coming up
+  function paintWeek(g, w, h) {
+    g.fillStyle = '#314568'; g.font = 'italic 44px ' + HAND; g.fillText('This week...', 94, 130);
+    const rows = window.Season?.week?.() || [];
+    let y = 214;
+    if (!rows.length) { g.font = 'italic 34px ' + HAND; y = wrap(g, 'Nothing special on this week. Homework, telly, the usual.', 94, y, w - 140, 42); }
+    for (const r of rows) {
+      if (y > h - 120) break;
+      if (r.head) { g.fillStyle = '#9a2a1a'; g.font = 'italic 38px ' + HAND; y = wrap(g, r.head, 94, y + 6, w - 140, 44) + 6; continue; }
+      if (r.note) { g.fillStyle = '#586987'; g.font = 'italic 28px ' + HAND; y = wrap(g, r.note, 94, y + 8, w - 140, 36) + 4; continue; }
+      g.strokeStyle = '#536280'; g.lineWidth = 2; g.strokeRect(32, y - 23, 25, 25);
+      if (r.done) { g.strokeStyle = '#4a714b'; g.lineWidth = 4; g.beginPath(); g.moveTo(33, y - 10); g.lineTo(41, y); g.lineTo(62, y - 27); g.stroke(); }
+      g.fillStyle = r.done ? '#657568' : '#314568'; g.font = 'italic 31px ' + HAND;
+      y = wrap(g, r.text + (r.by === 'mom' ? ' (Mom did it.)' : ''), 94, y, w - 144, 40) + 18;
+    }
+    doodle(g, 560, 880, true);
+  }
   function refresh() {
     const p = window.st.getState();
     for (let i = 0; i < textures.length; i++) { const tx = textures[i]; paint(tx.userData.g, 768, 1024, i, p); tx.needsUpdate = true; }
-    if (copy && !copy.w.closed) { paint(copy.canvas.getContext('2d'), 768, 1024, copyPage, p); copy.label.textContent = (copyPage + 1) + ' / ' + (p?.flags.veteran ? 1 : pages.length); }
+    if (copy && !copy.w.closed) { paint(copy.canvas.getContext('2d'), 768, 1024, copyPage, p); copy.label.textContent = (copyPage + 1) + ' / ' + (p?.flags.veteran ? 2 : pages.length); }
     window.House?.dirty?.();
   }
   function build() {
@@ -184,7 +202,7 @@
     prev.type = next.type = 'button'; prev.textContent = '← Previous'; next.textContent = 'Next →'; nav.append(prev, label, next); el.append(paper, nav);
     const choose = document.createElement('button'); choose.type = 'button'; choose.textContent = 'Things to do'; choose.addEventListener('click', picker); el.appendChild(choose);
     copyPage = 0; const w = A.win(Cast.t("{me}'s diary"), el, { w: 480, h: 640, icon: A.ICON.txt }); copy = { w, canvas, label };
-    function turn(d) { copyPage = Math.max(0, Math.min(p.flags.veteran ? 0 : pages.length - 1, copyPage + d)); prev.disabled = copyPage === 0; next.disabled = copyPage === (p.flags.veteran ? 0 : pages.length - 1); refresh(); }
+    function turn(d) { copyPage = Math.max(0, Math.min(p.flags.veteran ? 1 : pages.length - 1, copyPage + d)); prev.disabled = copyPage === 0; next.disabled = copyPage === (p.flags.veteran ? 1 : pages.length - 1); refresh(); }
     prev.addEventListener('click', () => turn(-1)); next.addEventListener('click', () => turn(1)); turn(0);
     window.st.event('plan'); return w;
   }
@@ -215,7 +233,7 @@
       if (!H.standUp(true)) { H.off('stood', stood); restoring = false; }
     }, () => { restoring = false; });
   }, 350);
-  window.stDiary = { build, refresh, picker, handleKey, updatePicker() { if (questPage?.open) picker(true); }, get picking() { return !!questPage?.open; } };
+  window.stDiary = { build, refresh, picker, handleKey, updatePicker() { if (questPage?.open) picker(true); }, get picking() { return !!questPage?.open; }, weekPage: () => pages.findIndex(x => x.week), openCopy };
   window.st.onChange(p => { if (!p) { resume = null; closePicker(); copy?.w.close(); copy = null; } else if (questPage?.open) picker(true); build(); refresh(); });
   Apps.register('st.diary', { single: true, cmd: ['diary', 'journal'], open: openCopy });
   Apps.addProgram(['Accessories', 'My diary'], 'st.diary', Apps.ICON.txt);

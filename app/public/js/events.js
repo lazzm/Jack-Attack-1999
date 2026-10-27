@@ -218,7 +218,7 @@
   const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
   Ev.wrap99 = (title, body, o) => {
     o = o || {};
-    return ['<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">', '<HTML>', '<HEAD>', `<TITLE>${title}</TITLE>`, `<META NAME="GENERATOR" CONTENT="${o.gen || 'Notepad'}">`, `<META NAME="KEYWORDS" CONTENT="${o.kw || 'games, cheats, reviews, cool, free, 1999, best site'}">`, '<!-- made with Notepad -->', '<!-- best viewed at 800x600 with JackNet Explorer 5 -->', '</HEAD>', `<BODY BGCOLOR="${o.bg || '#FFFFFF'}" TEXT="${o.fg || '#000000'}" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000"${o.bgimg ? ` BACKGROUND="${o.bgimg}"` : ''}>`, '<CENTER><IMG SRC="images/spacer.gif" WIDTH=1 HEIGHT=8 BORDER=0></CENTER>', ...(o.top || []), body, '', o.counter === false ? '' : '<P ALIGN=CENTER><IMG SRC="/cgi-bin/counter.cgi?ft=6&amp;df=hits.dat&amp;dd=C" WIDTH=88 HEIGHT=31 ALT="hit counter"><BR>', o.counter === false ? '' : '<FONT SIZE=1 FACE="Arial">Thanks for visiting!!! <BLINK>Sign my guestbook!</BLINK></FONT></P>', '</BODY>', '</HTML>', ''].join('\n');
+    return ['<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">', '<HTML>', '<HEAD>', `<TITLE>${title}</TITLE>`, `<META NAME="GENERATOR" CONTENT="${o.gen || 'Jotpad'}">`, `<META NAME="KEYWORDS" CONTENT="${o.kw || 'games, cheats, reviews, cool, free, 1999, best site'}">`, '<!-- made with Jotpad -->', '<!-- best viewed at 800x600 with JackNet Explorer 5 -->', '</HEAD>', `<BODY BGCOLOR="${o.bg || '#FFFFFF'}" TEXT="${o.fg || '#000000'}" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000"${o.bgimg ? ` BACKGROUND="${o.bgimg}"` : ''}>`, '<CENTER><IMG SRC="images/spacer.gif" WIDTH=1 HEIGHT=8 BORDER=0></CENTER>', ...(o.top || []), body, '', o.counter === false ? '' : '<P ALIGN=CENTER><IMG SRC="/cgi-bin/counter.cgi?ft=6&amp;df=hits.dat&amp;dd=C" WIDTH=88 HEIGHT=31 ALT="hit counter"><BR>', o.counter === false ? '' : '<FONT SIZE=1 FACE="Arial">Thanks for visiting!!! <BLINK>Sign my guestbook!</BLINK></FONT></P>', '</BODY>', '</HTML>', ''].join('\n');
   };
   function source99() {
     const k = curKey();
@@ -236,7 +236,7 @@
     const np0 = Desk.notepad;
     Desk.notepad = function (name, text) {
       try {
-        if (/\[1\]\.htm$/.test(String(name)) && /^<html>\n<head>\n<title>/.test(String(text)) && /Made in Notepad\. Honest\./.test(String(text))) {
+        if (/\[1\]\.htm$/.test(String(name)) && /^<html>\n<head>\n<title>/.test(String(text)) && /Made in Jotpad\. Honest\./.test(String(text))) {
           const r = source99();
           if (r) { A.secret('evt.source'); if (curKey() === 'mag:home') Ev.argStep(1); if (/backstage/.test(typeof r === 'string' ? r : r.text)) A.secret('web.source'); /* that page's own check reads the window's text, which a textarea doesn't have */ return np0.call(this, typeof r === 'string' ? name : r.name, typeof r === 'string' ? r : r.text); }
         }
@@ -261,7 +261,7 @@
   const SITES = [
     // host, title, desc, cat, file, renderer, { path: [title, index text] }, hidden
     ['www.whatson.jnet', "WHAT'S ON? The JackNet Listings", 'This week on the JackNet: LAN Night, the Grand Quiz, the Hangout Theme Night, the Request Hour and the Cover CD Launch Party. Times, prizes and who is there now. Plus CYBERTEXT, the text service.', 'news', 'guide', 'EvGuide.page',
-      { '/': ["WHAT'S ON? This Week on the JackNet", 'listings what is on this week events lan night quiz night theme night request hour cover cd launch party prizes reminders tv guide'], '/text.html': ['CYBERTEXT - the JackNet text service', 'teletext text service pages index now and next radio pet vault page numbers fastext reveal'] }],
+      { '/': ["WHAT'S ON? This Week on the JackNet", 'listings what is on this week events lan night quiz night theme night request hour cover cd launch party prizes reminders tv guide'], '/text.html': ['CYBERTEXT - the JackNet text service', 'telly-text text service pages index now and next radio pet vault page numbers fastext reveal'] }],
     ['www.listeningparty.wubwub', 'RADIO JACK LISTENING PARTY - Everybody Hears The Same Tune!', 'Radio Jack plays ten brand new chiptunes, in sync, for everyone on the JackNet at once. Request a tune and send a dedication. Thursday 8pm: the Request Hour!', 'fun', 'radio', 'EvRadio.page',
       { '/': ['RADIO JACK LISTENING PARTY', 'radio listening party chiptunes music tunes request dedication listeners now playing playlist tuner'] }],
     ['www.bytepet.jnet', "BYTE - The JackNet's Very Own Pet", 'One pet for the whole JackNet! Feed Byte, play with Byte, give Byte a bath. Byte grows up as everyone looks after it. It never dies (it just sulks a bit).', 'kids', 'pet', 'EvPet.page',
@@ -287,7 +287,7 @@
   A.register('evt.pet', { single: true, cmd: ['epet', 'epet2000', 'epet2000.exe', 'byte'], open: () => Ev.load('pet').then(() => EvPet.win()) });
   A.register('evt.owldesk', { single: true, cmd: ['owldesk', 'owldesk.exe'], open: () => Ev.load('arg').then(() => EvArg.desk()) });
   A.addProgram([...G, "What's On This Week"], () => Ev.go('http://www.whatson.jnet/'), ICO.whatson);
-  A.addProgram([...G, 'CYBERTEXT (teletext)'], () => Ev.go('http://www.whatson.jnet/text.html'), ICO.whatson);
+  A.addProgram([...G, 'CYBERTEXT (telly-text)'], () => Ev.go('http://www.whatson.jnet/text.html'), ICO.whatson);
   A.addProgram([...G, 'Event Room'], 'evt.room', ICO.room);
   A.addProgram([...G, 'Tune-O-Rama Party Tuner'], 'evt.tuner', ICO.tuner);
   A.addProgram([...G, 'Byte (e-Pet Tray 2000)'], 'evt.pet', ICO.pet);
@@ -428,7 +428,7 @@ It opens on Y2K night. EVERYONE's opens at once. Mom says I can stay up.
   // ================================================================ secrets
   [['evt.source', 'View Source, 1999 edition', 'Have a look under the bonnet of any web page (View > Source)'],
     ['evt.whatson', 'Couch potato', 'Read the JackNet listings for this week'],
-    ['evt.ttx', 'Text service', 'Flick through a teletext service that is all about the JackNet'],
+    ['evt.ttx', 'Text service', 'Flick through a telly-text service that is all about the JackNet'],
     ['evt.event', 'Party animal', 'Be online when a weekly JackNet event starts'],
     ['evt.join', 'Turned up', 'Join a live event from the Event Room'],
     ['evt.pop', 'POP!', 'Pull a party popper at a launch party'],

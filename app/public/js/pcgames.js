@@ -41,7 +41,7 @@
       setTimeout(() => host.focus(), 30);
     }).catch(e => {
       clearInterval(fill); console.error(e);
-      if (!w.closed) host.innerHTML = `<div style="padding:20px;color:#c0c0c0;font:12px 'Courier New',monospace">${o.exe} could not start.<br><br>General Protection Fault in module 3DFX.VXD. (Or the CD is scratched. Try again.)</div>`;
+      if (!w.closed) host.innerHTML = `<div style="padding:20px;color:#c0c0c0;font:12px 'Courier New',monospace">${o.exe} could not start.<br><br>General Protection Fault in module 3DFIX.VXD. (Or the CD is scratched. Try again.)</div>`;
     });
     return w;
   }
@@ -113,8 +113,8 @@ MULTIPLAYER (new in 1.06!)
   Frags go on the weekly JackNet Rankings (members only).
 
 SYSTEM REQUIREMENTS
-  486 DX2/66 (Pentium recommended), 8 MB RAM, VGA, CD-ROM or 9 floppies,
-  Sound Blaster or 100% compatible. A mouse. A cup of squash.
+  486 DX2/66 (Pent-Yum recommended), 8 MB RAM, VGA, CD-ROM or 9 floppies,
+  Sound Bluster or 100% compatible. A mouse. A cup of squash.
 
 SHAREWARE: copy this for your mates! Episodes 2-4 cost £19.99 from
 Jackware Software, PO Box 1999. Allow 28 days for delivery.
@@ -199,8 +199,8 @@ DEMO VERSION: two maps, and a nag screen. The full game is out on
 2. Bring a network card. ISA is fine. PCI is better. Mine is PCI.
 3. Coax cable goes from PC to PC. Put the T-pieces on. Put the
    TERMINATORS on the ends or NOTHING works. I'm not explaining it again.
-4. My PC: Pentium III 450, overclocked to 504 (it's fine, I put a
-   bigger fan on), 128 MB RAM, Voodoo3 3000. 90 fps in JRT. Jack's
+4. My PC: Pent-Yum III 450, overclocked to 504 (it's fine, I put a
+   bigger fan on), 128 MB RAM, Hoodoo3 3000. 90 fps in JRT. Jack's
    does about 25. Luke's does a slideshow.
 5. Luke and Dave: it is NOT on the ULTRA 64. Stop asking. Yes I know
    Goldenballs has four player split screen. This has EIGHT and no screen
@@ -247,12 +247,12 @@ beginning with F. Frags."
     Apps.fs.add('C:/Games/Jaquake', { name: 'JAQUAKE.EXE', type: 'exe', app: 'pcgames.jaquake', size: '412 KB', date: '17/03/99' });
     Apps.fs.add('C:/Games/Jaquake', { name: 'README.TXT', type: 'txt', text: JQ_README, size: '2 KB', date: '17/03/99' });
     Apps.fs.add('C:/Games/Jaquake/ID1', { name: 'CONFIG.CFG', type: 'txt', text: JQ_CFG, size: '1 KB', date: '02/05/99' });
-    Apps.fs.add('C:/Games/Jaquake/ID1', { name: 'PAK0.PAK', type: 'txt', text: 'PACK\u0000\u0000\u0004\u00a0\u0000... (18,689 KB of robots, textures and maps. Notepad does not understand it. Neither does Jack.)', size: '18,689 KB', date: '17/03/99' });
+    Apps.fs.add('C:/Games/Jaquake/ID1', { name: 'PAK0.PAK', type: 'txt', text: 'PACK\u0000\u0000\u0004\u00a0\u0000... (18,689 KB of robots, textures and maps. Jotpad does not understand it. Neither does Jack.)', size: '18,689 KB', date: '17/03/99' });
     Apps.fs.add('C:/Games/Jaquake', { name: 'ORDER.TXT', type: 'txt', text: 'TO ORDER THE FULL VERSION OF JAQUAKE\n\nSend £19.99 (+50p p&p) by cheque or postal order to:\nJACKWARE SOFTWARE, PO Box 1999.\n\nYou get: Episodes 2, 3 and 4, 28 more maps, the Rivet Mines, the\nRobot Fortress and Jack\'s Revenge. On one CD-ROM or nine floppy disks.\nPlease ask a grown-up before sending money through the post.\n', size: '1 KB', date: '17/03/99' });
     Apps.fs.add('C:/Games/JRT', { name: 'JRT.EXE', type: 'exe', app: 'pcgames.jrt', size: '1,204 KB', date: jrtFull() ? '22/11/99' : '28/09/99' });
     Apps.fs.add('C:/Games/JRT', { name: 'README.TXT', type: 'txt', text: JRT_README, size: '3 KB', date: '28/09/99' });
     Apps.fs.add('C:/Games/JRT', { name: 'CALLUM.TXT', type: 'txt', text: CALLUM, size: '2 KB', date: '09/10/99' });
-    Apps.fs.add('C:/Games/JRT/System', { name: 'JRT.INI', type: 'txt', text: '[Engine.Engine]\nGameRenderDevice=GlideDrv.GlideRenderDevice\n; Jack: I don\'t have a 3dfx card. It works anyway?!\n[Botpack.Bots]\nBotName[0]=Callum\nBotSkill[0]=GODLIKE\nBotName[1]=JackK\nBotSkill[1]=Masterful\nBotName[2]=Luke\nBotSkill[2]=Average (busy playing Kart Kaos in his head)\nBotName[3]=Dave\nBotSkill[3]=Novice\nBotTaunt[3]="Is this on the ULTRA 64?"\n', size: '4 KB', date: '22/11/99' });
+    Apps.fs.add('C:/Games/JRT/System', { name: 'JRT.INI', type: 'txt', text: '[Engine.Engine]\nGameRenderDevice=GlideDrv.GlideRenderDevice\n; Jack: I don\'t have a 3dfix card. It works anyway?!\n[Botpack.Bots]\nBotName[0]=Callum\nBotSkill[0]=GODLIKE\nBotName[1]=JackK\nBotSkill[1]=Masterful\nBotName[2]=Luke\nBotSkill[2]=Average (busy playing Kart Kaos in his head)\nBotName[3]=Dave\nBotSkill[3]=Novice\nBotTaunt[3]="Is this on the ULTRA 64?"\n', size: '4 KB', date: '22/11/99' });
     Apps.fs.add('C:/Games/JRT', { name: 'SERVERS.TXT', type: 'txt', text: SERVERS, size: '1 KB', date: '19/10/99' });
     Apps.fs.add('C:/Program Files/JackSpy 3D', { name: 'JACKSPY.EXE', type: 'exe', app: 'pcgames.spy', size: '1,450 KB', date: '04/10/99' });
     Apps.fs.add('C:/Program Files/JackSpy 3D', { name: 'README.TXT', type: 'txt', text: SPY_README, size: '2 KB', date: '04/10/99' });

@@ -87,7 +87,7 @@
   let pal = null;
   const JOKES = [
     ['Why did the computer go to the doctor?', 'It had a VIRUS! Ha ha ha! I am hilarious!'],
-    ['What do you call a robot with a Pentium?', 'A FAST robot! HAHAHA! Get it? GET IT?'],
+    ['What do you call a robot with a Pent-Yum?', 'A FAST robot! HAHAHA! Get it? GET IT?'],
     ['Why was the mouse scared of the keyboard?', 'Because of all the KEYS! No wait. That\'s not it. Hang on.'],
     ['What is a computer\'s favourite snack?', 'Micro-CHIPS! I\'ve been saving that one!'],
     ['Why did the modem break up with the phone?', 'Because Mom kept picking it up! HAHAHAHA!'],
@@ -178,7 +178,7 @@
   E.mods.ramdbl = K => {
     const b = K.body; let mb = 32, busy = false;
     b.innerHTML = `${hdr(E.I.ramdbl, 'RAM Doubler 99', 'Unregistered version. Doubles up to 4 GB.', 'linear-gradient(90deg,#0a6a2a,#2ac85a)')}
-      <div class="group"><span class="lg">Your computer</span><div class="ed-c">Installed memory (RAM):</div><div class="ed-big ed-mb">32 MB</div><div class="ed-c small ed-sub">Pentium II 300 MHz, 32 MB RAM, 4.3 GB hard disk</div></div>
+      <div class="group"><span class="lg">Your computer</span><div class="ed-c">Installed memory (RAM):</div><div class="ed-big ed-mb">32 MB</div><div class="ed-c small ed-sub">Pent-Yum II 300 MHz, 32 MB RAM, 4.3 GB hard disk</div></div>
       ${bar()}<div class="small ed-st" style="min-height:30px">Click DOUBLE MY RAM! to begin. No screwdriver needed!</div>
       <div class="row" style="justify-content:center;margin-top:6px"><button class="btn big ed-go">DOUBLE MY RAM!</button><button class="btn ed-close">Close</button></div>`;
     const q = s => b.querySelector(s), pb = q('.ed-bar');
@@ -198,7 +198,7 @@
             return;
           }
           mb *= 2; q('.ed-mb').textContent = fmt(mb) + ' MB'; sfx('solve');
-          q('.ed-st').textContent = mb >= 1024 ? `You now have ${fmt(mb)} MB of RAM. That's more than NASA. Probably.` : mb >= 256 ? `${fmt(mb)} MB! Your computer is now TWICE as fast as before! (It is exactly the same speed.)` : `Success! You now have ${mb} MB of RAM! (System Properties still says 32 MB. It's jealous.)`;
+          q('.ed-st').textContent = mb >= 1024 ? `You now have ${fmt(mb)} MB of RAM. That's more than NASSA. Probably.` : mb >= 256 ? `${fmt(mb)} MB! Your computer is now TWICE as fast as before! (It is exactly the same speed.)` : `Success! You now have ${mb} MB of RAM! (System Properties still says 32 MB. It's jealous.)`;
           q('.ed-go').textContent = 'DOUBLE IT AGAIN!';
         }
       }, 70);
@@ -239,7 +239,7 @@
   E.mods.regfix = K => {
     const b = K.body; let scanned = false, fixed = false, wallWas = null;
     const HK = ['HKEY_LOCAL_MACHINE\\Software', 'HKEY_CURRENT_USER\\Software', 'HKEY_CLASSES_ROOT', 'HKEY_USERS\\.DEFAULT', 'HKEY_CURRENT_CONFIG\\Display'];
-    const BITS = ['JackSoft', 'JackOS\\CurrentVersion', 'JackAmp\\Playlist', 'Dave\\Homework', 'Uh-Oh\\Contacts', 'SoundBlaster16', 'Gubbinz\\Snacks', 'Explorer\\Shell Folders', 'Bugsweeper\\BestTimes', 'Fonts\\Comic Sans', 'Mom\\PhoneBill', 'Y2K\\Panic'];
+    const BITS = ['JackSoft', 'JackOS\\CurrentVersion', 'JackAmp\\Playlist', 'Dave\\Homework', 'Uh-Oh\\Contacts', 'SoundBluster16', 'Gubbinz\\Snacks', 'Explorer\\Shell Folders', 'Bugsweeper\\BestTimes', 'Fonts\\Comic Sans', 'Mom\\PhoneBill', 'Y2K\\Panic'];
     const ERRS = [['Critical', 'HKCU\\Software\\Dave\\Homework', 'Missing value (has always been missing)'], ['Severe', 'HKLM\\Software\\Gubbinz\\Snacks', 'Too many jelly babies (4,000)'], ['Critical', 'HKCR\\.doc', 'Points to a program from 1992'], ['Wobbly', 'HKCU\\Control Panel\\Desktop\\Wallpaper', 'Wallpaper is too nice'], ['Severe', 'HKLM\\Software\\JackAmp', 'Volume set to 11'], ['Critical', 'HKCU\\Software\\Mom\\PhoneBill', 'Value too large'], ['Minor', 'HKLM\\Hardware\\Mouse\\Ball', 'Fluff detected'], ['Severe', 'HKCU\\Software\\Uh-Oh\\Sounds', 'Says "uh-oh" too much'], ['Critical', 'HKLM\\System\\Clock\\Year', 'Only two digits (Y2K!)'], ['Minor', 'HKCU\\Software\\Bugsweeper', 'Best time is suspicious']];
     b.innerHTML = `${hdr(E.I.regfix, 'Registry Fixer Pro 99', 'Is your PC slow? It could be REGISTRY ERRORS!', 'linear-gradient(90deg,#00307a,#2a7ad8)')}
       <div class="row"><button class="btn big ed-scan">SCAN NOW (FREE!)</button><button class="btn ed-fix" disabled>FIX ALL ERRORS</button><span style="flex:1"></span><b class="ed-n" style="color:#c00">Errors: 0</b></div>
@@ -288,7 +288,7 @@
     const b = K.body;
     const KIT = [['beans', 'Tins of beans', 24], ['opener', 'A tin opener (DON\'T FORGET)', 1], ['water', 'Bottles of water', 12], ['torch', 'Torches', 2], ['batt', 'Batteries (big ones)', 16], ['candles', 'Candles', 10], ['gameboy', 'Game Lad + spare AA batteries', 1], ['cube', "Rubrick's cube (entertainment)", 1], ['blanket', 'Blankets', 4], ['radio', 'Wind-up radio', 1], ['biscuits', 'Biscuits (emergency)', 3], ['cash', 'Cash (in case the cash machines think it\'s 1900)', 1]];
     const got = store.get('jhp_era_y2kkit', {});
-    const APPL = [['Toaster', "Your toaster thinks it's 1900 and is making toast for Queen Victoria. FAIL."], ['Video recorder', 'The clock was already flashing 00:00. It has flashed 00:00 since 1994. PASS (no change).'], ['Microwave', 'Microwave set to 01/01/1900. It is now defrosting a pie from the past. FAIL.'], ['Digital watch', 'Watch says MO 01. It does not know which year it is. It never did. PASS.'], ['Furby', 'Furby says "me sleep". Furby does not care about the year. PASS.'], ['Eggbert', 'Eggbert is now 100 years old. It needs feeding. FAIL.'], ["Gran's Teasmade", 'Teasmade made tea at 00:00. Gran is pleased. PASS.'], ['Dad\'s car', 'The car is from 1987 and has no computer. It just has a tape deck. PASS.'], ['Gubbinz', 'Gubbinz is a desktop helper. Helpers do not use calendars. PASS (he ate the calendar).']];
+    const APPL = [['Toaster', "Your toaster thinks it's 1900 and is making toast for Queen Vickyoria. FAIL."], ['Video recorder', 'The clock was already flashing 00:00. It has flashed 00:00 since 1994. PASS (no change).'], ['Microwave', 'Microwave set to 01/01/1900. It is now defrosting a pie from the past. FAIL.'], ['Digital watch', 'Watch says MO 01. It does not know which year it is. It never did. PASS.'], ['Furbo', 'Furbo says "me sleep". Furbo does not care about the year. PASS.'], ['Eggbert', 'Eggbert is now 100 years old. It needs feeding. FAIL.'], ["Gran's Teasmade", 'Teasmade made tea at 00:00. Gran is pleased. PASS.'], ['Dad\'s car', 'The car is from 1987 and has no computer. It just has a tape deck. PASS.'], ['Gubbinz', 'Gubbinz is a desktop helper. Helpers do not use calendars. PASS (he ate the calendar).']];
     b.innerHTML = `<div class="tabs"><span data-t="0" class="on">Countdown</span><span data-t="1">Bunker Planner</span><span data-t="2">Appliance Tester</span><span data-t="3">BIOS Check</span></div><div class="tabpage ed-pg" style="min-height:250px"></div>`;
     const pg = b.querySelector('.ed-pg'); let tab = 0, tick = 0;
     K.menus([['File', [{ label: 'Print Emergency Leaflet', act: leaflet }, '-', { label: 'Exit', act: K.w.close }]], ['Help', [{ label: 'About Y2K Survival Suite', act: () => E.about('Y2K Survival Suite 99 Deluxe', E.I.y2ksuite, ['<b>Y2K Survival Suite 99 Deluxe</b> version 1.999', 'Is YOUR family ready for the Millennium Bug?', 'The "Millennium Bug" is real: some old computers store the year as two digits, so 2000 looks like 1900. Engineers have spent years fixing it. Your toaster is probably fine.']) }]]]);
@@ -355,7 +355,7 @@
       else if (a === 'Extract') extract();
       else if (a === 'New') msg('New Archive', 'Type a name for the new archive.\n\nActually, never mind. You only ever unzip things. Nobody has ever made a new archive on purpose.', 'info');
       else if (a === 'Add') msg('Add', 'Squashing files to make them smaller...\n\nThe file is now 104% of its original size. That\'s normal for pictures. Don\'t ask.', 'info');
-      else if (a === 'View') { if (!cur || sel < 0) return msg('View', 'Pick a file in the list first.', 'info'); const [n, sz] = ARCH[cur][sel]; Apps.openFile({ name: n, type: 'txt', text: /\.txt$/i.test(n) ? (n === 'excuse.txt' ? "EXCUSES FOR NOT DOING HOMEWORK (ranked)\n1. The computer crashed (blue screen) - 9/10, works every time\n2. The floppy disk was corrupted - 8/10\n3. Gubbinz ate it - 2/10, sir doesn't know who Gubbinz is\n" : n === 'cheats_DO_NOT_LOOK.txt' ? 'FLAK ATTACK! CHEATS\n\nType IDDQD at the title screen for all weapons.\n(that is the Gloom one. it does not work here.)\n(you looked.)\n' : 'Read me! Thanks for downloading.\n') : `${n} (${fmt(sz)} bytes)\n\nThis kind of file can't be shown here. WinJack has extracted it to a temporary folder you'll never find.` }); }
+      else if (a === 'View') { if (!cur || sel < 0) return msg('View', 'Pick a file in the list first.', 'info'); const [n, sz] = ARCH[cur][sel]; Apps.openFile({ name: n, type: 'txt', text: /\.txt$/i.test(n) ? (n === 'excuse.txt' ? "EXCUSES FOR NOT DOING HOMEWORK (ranked)\n1. The computer crashed (blue screen) - 9/10, works every time\n2. The floppy disk was corrupted - 8/10\n3. Gubbinz ate it - 2/10, sir doesn't know who Gubbinz is\n" : n === 'cheats_DO_NOT_LOOK.txt' ? 'FLAK ATTACK! CHEATS\n\nType GLDQD at the title screen for all weapons.\n(that is the Gloom one. it does not work here.)\n(you looked.)\n' : 'Read me! Thanks for downloading.\n') : `${n} (${fmt(sz)} bytes)\n\nThis kind of file can't be shown here. WinJack has extracted it to a temporary folder you'll never find.` }); }
       else if (a === 'CheckOut') msg('CheckOut', 'CheckOut makes a program group for everything in the archive, so you can try it out!\n\nCheckOut has made 4 new icons in your Start menu. (Not really. Your Start menu is full enough.)', 'info');
       else if (a === 'Wizard') msg('WinJack Wizard', 'Welcome to the WinJack Wizard!\n\nThe Wizard makes unsquashing easy. Click Next.\n\n...\n\nThere was no Next button. The Wizard was too easy.', 'info');
     }));
@@ -383,7 +383,7 @@
   E.mods.prank = K => {
     const b = K.body; let k = 0, dodges = 0, done = false;
     K.w.setTitle('Formatting C:\\');
-    const FILES = ['C:\\My Documents\\homework.doc', 'C:\\My Documents\\Diary\\SECRET.txt', 'C:\\JACKOS\\SYSTEM\\KERNEL32.DLL', 'C:\\Program Files\\JackAmp\\JACKAMP.EXE', 'C:\\My Documents\\My Pictures\\pikachu.bmp', 'C:\\GAMES\\JACKTRIS\\HISCORE.DAT', 'C:\\JACKOS\\EXPLORER.EXE', 'C:\\My Documents\\bugsweeper tips.txt', 'C:\\JACKATAK\\ISSUE7\\COVER.BMP', 'C:\\JACKOS\\JACKOS.INI', 'C:\\AUTOEXEC.BAT', 'C:\\CONFIG.SYS'];
+    const FILES = ['C:\\My Documents\\homework.doc', 'C:\\My Documents\\Diary\\SECRET.txt', 'C:\\JACKOS\\SYSTEM\\KERNEL32.DLL', 'C:\\Program Files\\JackAmp\\JACKAMP.EXE', 'C:\\My Documents\\My Pictures\\zapachu.bmp', 'C:\\GAMES\\JACKTRIS\\HISCORE.DAT', 'C:\\JACKOS\\EXPLORER.EXE', 'C:\\My Documents\\bugsweeper tips.txt', 'C:\\JACKATAK\\ISSUE7\\COVER.BMP', 'C:\\JACKOS\\JACKOS.INI', 'C:\\AUTOEXEC.BAT', 'C:\\CONFIG.SYS'];
     b.innerHTML = `<div class="row" style="flex-wrap:nowrap;gap:10px;align-items:flex-start"><span style="width:32px;height:32px;flex:none;display:inline-flex">${J('hdd') || E.I.prank}</span><div style="flex:1;min-width:0"><p style="margin:0 0 4px"><b>Formatting drive C:</b></p><p style="margin:0" class="small">All data on this disk will be erased.</p></div></div>${bar()}<div class="small ed-f" style="height:16px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></div><div class="row ed-run" style="justify-content:flex-end;margin-top:10px;min-height:34px"><button class="btn ed-cancel" style="min-width:80px">Cancel</button></div>`;
     function J(n) { return window.JICON && JICON.has(n) ? JICON.icon(n) : null; }
     const pb = b.querySelector('.ed-bar'), f = b.querySelector('.ed-f'), cancel = b.querySelector('.ed-cancel');

@@ -113,7 +113,7 @@
   const THEMES = {
     space: { name: 'Deep Space', bg0: '#0a0a32', bg1: '#24106a', neb: ['rgba(120,40,200,.35)', 'rgba(20,120,220,.30)', 'rgba(220,40,120,.22)'], wall: [70, 90, 190], rail: '#c8d0ff', apron: '#20204a', accent: '#ffd400', planet: ['#ff9a3a', '#a03a10'] },
     mars: { name: 'Red Planet', bg0: '#2a0806', bg1: '#6a1a0a', neb: ['rgba(255,90,20,.30)', 'rgba(255,200,60,.18)', 'rgba(120,10,40,.30)'], wall: [170, 70, 40], rail: '#ffd0b0', apron: '#3a0a06', accent: '#ffe040', planet: ['#d0e0ff', '#3050a0'] },
-    desert: { name: 'Pod Race Desert', bg0: '#6a3c10', bg1: '#d08a3a', neb: ['rgba(255,220,140,.35)', 'rgba(255,160,60,.25)', 'rgba(140,80,20,.25)'], wall: [150, 110, 60], rail: '#fff0c8', apron: '#4a2a0a', accent: '#ffe040', planet: ['#ffffff', '#c0c0d0'] },
+    desert: { name: 'Peapod Race Desert', bg0: '#6a3c10', bg1: '#d08a3a', neb: ['rgba(255,220,140,.35)', 'rgba(255,160,60,.25)', 'rgba(140,80,20,.25)'], wall: [150, 110, 60], rail: '#fff0c8', apron: '#4a2a0a', accent: '#ffe040', planet: ['#ffffff', '#c0c0d0'] },
   };
 
   // ================================================================ the music (original tunes)
@@ -130,7 +130,7 @@
 
   const MISSIONS = [
     { id: 'squig', name: 'ALIEN HUNT', goal: 'KNOCK DOWN 3 ALIEN TARGETS', need: 3, val: 75000 },
-    { id: 'pod', name: 'POD RACE', goal: 'SHOOT THE RAMP 3 LAPS IN 45 SEC', need: 3, val: 150000, time: 45 },
+    { id: 'pod', name: 'PEAPOD RACE', goal: 'SHOOT THE RAMP 3 LAPS IN 45 SEC', need: 3, val: 150000, time: 45 },
     { id: 'rocks', name: 'ASTEROID FIELD', goal: 'HIT THE BUMPERS 20 TIMES', need: 20, val: 100000 },
     { id: 'battle', name: 'SPACE BATTLE', goal: 'HIT ALL 4 SAUCER FIGHTERS', need: 4, val: 200000 },
     { id: 'hyper', name: 'HYPERSPACE', goal: 'SHOOT BOTH ORBITS', need: 2, val: 300000 },
@@ -600,7 +600,7 @@
       c.fillStyle = sg; c.beginPath(); c.arc(SAUCER.x, SAUCER.y, 26, 0, TAU); c.fill();
       c.fillStyle = '#000'; c.beginPath(); c.arc(SAUCER.x, SAUCER.y, 12, 0, TAU); c.fill();
       label(c, 'WARP', SAUCER.x, SAUCER.y + 36, 9, '#ff9aff');
-      label(c, 'POD RACE', 290, 395, 8, '#ffb060');
+      label(c, 'PEAPOD RACE', 290, 395, 8, '#ffb060');
       label(c, 'ALIENS', 82, 300, 8, '#ff8080', -Math.PI / 2 * 0);
       label(c, 'FIGHTERS', 316, 476, 8, '#80e0ff');
       label(c, 'ORBIT', 35, 490, 7, '#b0ff80'); label(c, 'ORBIT', 359, 490, 7, '#b0ff80');
@@ -1058,7 +1058,7 @@
       G.help([
         ['Welcome', 'Space Jack Pinball puts you in the pilot seat as a very small space cadet with a very big ball.\n\nScore points by hitting bumpers, targets, ramps and orbits. Finish missions to rank up, and shoot the WARP hole to cash them in.'],
         ['Controls', '- Z: left flipper\n- / (slash): right flipper\n- Space: hold to pull the plunger back, let go to launch\n- X, full stop and Up arrow: nudge the table\n- F2 new game, F3 pause, F4 full screen\n\nWith the mouse, click the left or right side of the table for the flippers, and click and hold the right side to launch the ball.'],
-        ['Missions', '- ALIEN HUNT: knock down the three alien drop targets\n- POD RACE: shoot the pod ramp three times before the timer runs out\n- ASTEROID FIELD: hit the pop bumpers 20 times (lights EXTRA BALL)\n- SPACE BATTLE: hit all four saucer fighter targets\n- HYPERSPACE: shoot the left AND right orbits\n\nWhen a mission is complete the WARP hole flashes. Shoot it to rank up and start the next mission. Complete Hyperspace for a very big bonus.'],
+        ['Missions', '- ALIEN HUNT: knock down the three alien drop targets\n- PEAPOD RACE: shoot the pod ramp three times before the timer runs out\n- ASTEROID FIELD: hit the pop bumpers 20 times (lights EXTRA BALL)\n- SPACE BATTLE: hit all four saucer fighter targets\n- HYPERSPACE: shoot the left AND right orbits\n\nWhen a mission is complete the WARP hole flashes. Shoot it to rank up and start the next mission. Complete Hyperspace for a very big bonus.'],
         ['Lanes & Multiball', 'Roll through the four J-A-C-K lanes at the top to light them. The flippers move the lit lanes along, so you can line up the dark ones.\n\nLight all four to raise the bonus multiplier. Do it twice for JACK ROCKET MULTIBALL.\n\nA lane that flashes while the ball is in the plunger is the SKILL SHOT.'],
         ['Tilt', 'You can nudge the table to save a ball. Nudge too much and the machine TILTS: the flippers go dead and you lose your bonus. The DANGER warning is your only warning.'],
         ['Ranks', RANKS.join(', ') + '.\n\nNobody has ever made Space Admiral. Well, Jack has. Once. Dave was not there to see it.'],

@@ -103,9 +103,15 @@
   K.into(closed).box(-10.53,-14,0,.1,28,.7,M(doc.color));
   const spread=new T.Group(),left=new T.Group(),right=new T.Group();
   spread.add(left,right); // Add after inspection measures the closed cover below.
-  const base=(parent,x)=>K.into(parent).box(x,-14,0,21,28,.4,{f:blank,b:paper,all:paper});
+  // Each half is a page block that curves down into the gutter at the spine (open paper never lies flat).
+  const base=(parent,x)=>{
+   const geo=new T.BoxGeometry(21,28,.4,18,1,1),pp=geo.attributes.position,uv=geo.attributes.uv,spine=x<0?10.5:-10.5;
+   for(let i=0;i<uv.count;i++)uv.setY(i,1-uv.getY(i));
+   for(let i=0;i<pp.count;i++){const d=Math.abs(pp.getX(i)-spine);pp.setZ(i,pp.getZ(i)-0.85*Math.exp(-d/2.1)+0.12*Math.min(1,d/21))}
+   geo.computeVertexNormals();const mesh=new T.Mesh(geo,[paper,paper,paper,paper,blank,paper]);mesh.position.set(x,-14,0);parent.add(mesh);return mesh;
+  };
   const leftMesh=base(left,-10.56),rightMesh=base(right,10.56);
-  K.into(spread).cyl(0,-14,-.16,.16,.16,28,12,paper);
+  K.into(spread).cyl(0,-14,-.82,.24,.24,28,12,paper);
   const old={end:t.onInspectEnd,key:t.onInspectKey,pose:t.inspectPose};
   let slot=0,requested=0,flipping=false,controls,leaf=null,pocket=null,disc=null;
   if(resume?.view==='back')slot=last;

@@ -75,7 +75,7 @@
   const GN = { jrt: 'Jackreal Tournament', jq: 'JAQUAKE' };
   const MODE = { dm: 'DeathMatch', ctf: 'Capture the Flag', coop: 'Co-op' };
   // games JackSpy "knows" but you haven't got (1999 had a LOT of shooters; these are all made up)
-  const OTHER = [['Half-Jack', 'Not installed. (It\'s scary, Mom said no.)'], ['Team Fortress Jack', 'Not installed. Ask Callum, he\'s got it.'], ['Jackfire 2', 'Not installed. It\'s on a coaster CD somewhere.'], ['Starsiege: Jackbox', 'Not installed. Too many keys to learn.']];
+  const OTHER = [['Half-Jack', 'Not installed. (It\'s scary, Mom said no.)'], ['Team Fortress Jack', 'Not installed. Ask Callum, he\'s got it.'], ['Jackfire 2', 'Not installed. It\'s on a coaster CD somewhere.'], ['Stargiege: Jackbox', 'Not installed. Too many keys to learn.']];
   const FAKE = [['=FrAgZ= 24/7 Space Station', 'jrt', 'Space Station Jack', 'dm', '8/8', 412], ['[UK] Callum\'s Old Server', 'jrt', 'Castle Jackstone', 'ctf', '0/8', 999], ['=JAQUAKE= Clan Rusty Pit 24/7', 'jq', 'DM1: The Rusty Pit', 'dm', '16/16', 380], ['Dial-Up Dan\'s JQ Box', 'jq', 'DM2: Jackstone Cloisters', 'dm', '0/4', 999]];
 
   // ---- one set of network listeners for every JackSpy window and fan page

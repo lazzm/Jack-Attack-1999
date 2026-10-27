@@ -141,7 +141,7 @@ ${sec('SP01', 'Controls')}
   and click and hold the right half to pull the plunger.
 ${sec('SP02', 'Missions')}${wrap('There are five missions. Finish one and the WARP hole flashes: shoot it to rank up and start the next mission.')}
   ALIEN HUNT ...... knock down the three alien drop targets
-  POD RACE ........ shoot the pod ramp 3 times in 45 seconds
+  PEAPOD RACE ........ shoot the pod ramp 3 times in 45 seconds
   ASTEROID FIELD .. hit the pop bumpers 20 times (lights EXTRA BALL)
   SPACE BATTLE .... hit all four saucer fighter targets
   HYPERSPACE ...... shoot BOTH orbits (left and right)
@@ -162,10 +162,10 @@ ${sec('SP06', 'Tips')}
   - Don't flap the flippers. Hold one up to catch the ball, then aim.
   - Nudge to save a ball heading down the side, but watch for DANGER:
     nudge too much and it TILTS (dead flippers, no bonus).
-  - Pod Race is the hardest mission. Start it with a full ball, not a
+  - Peapod Race is the hardest mission. Start it with a full ball, not a
     scrappy one.
   - There are three table themes in Options: Deep Space, Red Planet and
-    Pod Race Desert. They play the same. Red Planet LOOKS faster.
+    Peapod Race Desert. They play the same. Red Planet LOOKS faster.
 ${sec('SP07', 'Legal')}${LEGAL('TiltMaster')}
 `);
 
@@ -210,68 +210,68 @@ ${wrap('General tips: put a BLOCKER down early so the others walk back and forth
 ${sec('GL04', 'Legal')}${LEGAL('BlockerBob')}
 `);
 
-  add('pokemon-rb', 'Game Lad', 'Pocket Critters Red / Blue', 'FAQ / Walkthrough', 'TrainerTez', [['20/09/99', '0.8 - Written from the American version with my cousin.'], ['06/10/99', '1.0 - UK VERSION IS OUT (5 Oct)! Checked everything again.'], ['25/10/99', '1.1 - Added version exclusives and the Elite Four.']], () => `
-CONTENTS:  Basics [PK01]  Starters [PK02]  Gym Leaders [PK03]  Elite Four [PK04]
+  add('pokemon-rb', 'Game Lad', 'Pocket Critters Moss / Puddle', 'FAQ / Walkthrough', 'TrainerTez', [['20/09/99', '0.8 - Written from the American version with my cousin.'], ['06/10/99', '1.0 - UK VERSION IS OUT (5 Oct)! Checked everything again.'], ['25/10/99', '1.1 - Added version exclusives and the Fabulous Four.']], () => `
+CONTENTS:  Basics [PK01]  Starters [PK02]  Gym Leaders [PK03]  Fabulous Four [PK04]
            Red/Blue Exclusives [PK05]  Tips [PK06]  Glitches [PK07]  Legal [PK08]
-${sec('PK01', 'Basics')}${wrap('There are 151 Pocket Critters to catch. You cannot get them all in one game: some are only in Red, some only in Blue, so you have to TRADE with a mate using a Game Link Cable. Your goal: beat all eight Gym Leaders, then the Elite Four, and fill your Pokedex. Your rival is Professor Oak\'s grandson. He is very annoying. Smell ya later!')}
+${sec('PK01', 'Basics')}${wrap('There are 151 Pocket Critters to catch. You cannot get them all in one game: some are only in Moss, some only in Puddle, so you have to TRADE with a mate using a Game Link Cable. Your goal: beat all eight Gym Leaders, then the Fabulous Four, and fill your Critterdex. Your rival is Professor Acorn\'s grandson. He is very annoying. Smell ya later!')}
 ${sec('PK02', 'Starters')}
   BULBABEAST (Grass/Poison)  - easy mode for the first two gyms
-  CHARBROILER (Fire)         - hard start (Brock and Misty!), but becomes
-                              CHARIZARD, so worth it
-  SQUIRTURTLE (Water)          - good all-rounder. Beats Brock easily.
+  CHARBROILER (Fire)         - hard start (Brick and Dewy!), but becomes
+                              CHARGRILLIZARD, so worth it
+  SQUIRTURTLE (Water)          - good all-rounder. Beats Brick easily.
 ${wrap('Your rival always picks the starter that beats yours. Typical.')}
 ${sec('PK03', 'Gym Leaders (in order)')}
-  1. BROCK ....... Pewter City ...... Rock ....... Boulder Badge
-  2. MISTY ....... Cerulean City .... Water ...... Cascade Badge
-  3. LT. SURGE ... Vermilion City ... Electric ... Thunder Badge
-  4. ERIKA ....... Celadon City ..... Grass ...... Rainbow Badge
-  5. KOGA ........ Fuchsia City ..... Poison ..... Soul Badge
-  6. SABRINA ..... Saffron City ..... Psychic .... Marsh Badge
-  7. BLAINE ...... Cinnabar Island .. Fire ....... Volcano Badge
-  8. GIOVANNI .... Viridian City .... Ground ..... Earth Badge
-${wrap('Yes, Giovanni is the boss of Team Rocket AND a Gym Leader. Nobody in Viridian City noticed.')}
-${sec('PK04', 'The Elite Four')}
-  LORELEI (Ice) > BRUNO (Fighting) > AGATHA (Ghost) > LANCE (Dragon)
+  1. BRICK ......... Moss Town ....... Rock ..... Moss Badge
+  2. SOGGY ......... Pebble Bay ...... Water .... Splash Badge
+  3. LT. ZAPP ...... Fusebox Town .... Electric . Spark Badge
+  4. PETUNIA ....... Kiln Village .... Grass .... Kiln Badge
+  5. KOGGER ........ Fusty City ...... Poison ... Sock Badge
+  6. SABOTINA ...... Sellotape City .. Psychic .. Sellotape Badge
+  7. BLAME ......... Custard Island .. Fire ..... Custard Badge
+  8. DON GIOVINCO .. Gravel City ..... Ground ... Gravel Badge
+${wrap('Yes, Don Giovinco is the boss of Team Pocket AND a Gym Leader. Nobody in Gravel City noticed.')}
+${sec('PK04', 'The Fabulous Four')}
+  LORRY (Ice) > BRUISER (Fighting) > AGGIE (Ghost) > LUNCE (Dragon)
   ...and then one last battle against the Champion. Guess who.
 ${wrap('You fight all four in a row with no Pocket Critters Centre in between, so bring LOTS of potions and revives.')}
 ${sec('PK05', 'Red / Blue exclusives')}
-  Only in RED:  Ekans, Arbok, Oddish, Gloom, Vileplume, Mankey, Primeape,
-                Growlithe, Arcanine, Scyther, Electabuzz
-  Only in BLUE: Sandshrew, Sandslash, Vulpix, Ninetales, Meowth, Persian,
-                Bellsprout, Weepinbell, Victreebel, Magmar, Pinsir
+  Only in RED:  Snake-E, Arbonk, Oddball, Gloom, Vile Perfume, Manky, Primeate,
+                Growlbite, Arcaninny, Scythey, Electabuzzzz
+  Only in BLUE: Sandshoe, Sandsplash, Vulpickle, Ninetalez, Meowf, Persian,
+                Bellsprat, Weepinbill, Victory Bell, Magmaar, Pincer
 ${sec('PK06', 'Tips')}
-  - Some Pocket Critters only evolve when traded: Kadabra, Machoke, Graveler and
-    Haunter. Trade them to a mate and ask for them back. (A good mate.)
+  - Some Pocket Critters only evolve when traded: Kadabba, Machoked, Gravelly and
+    Haunty. Trade them to a mate and ask for them back. (A good mate.)
   - Save before you throw a ball at anything rare.
-  - Snorlax blocks the road twice. You need the Poke Flute to wake it up.
+  - Snorelax blocks the road twice. You need the Kazoo Flute to wake it up.
   - HM moves (Cut, Fly, Surf, Strength, Flash) can't be deleted easily,
     so don't waste a good Pocket Critters's slots on them.
-${sec('PK07', 'Glitches and playground rumours')}${wrap('You will hear LOTS of rumours at school. Here is what I know. There IS a famous glitch Pocket Critters (talk to the old man in Viridian City, then surf up and down the east coast of Cinnabar Island) but it can mess up your save file and your Hall of Fame, so I am NOT putting the steps here. Do it at your own risk and do not blame me. As for Mew: I have never seen ANY real way to catch Mew in a normal game. Ignore anyone who says it is under the truck. I pushed the truck. Well, I tried.')}
+${sec('PK07', 'Glitches and playground rumours')}${wrap('You will hear LOTS of rumours at school. Here is what I know. There IS a famous glitch Pocket Critters (talk to the old man in Gravel City, then surf up and down the east coast of Custard Island) but it can mess up your save file and your Hall of Fame, so I am NOT putting the steps here. Do it at your own risk and do not blame me. As for MewOne: I have never seen ANY real way to catch MewOne in a normal game. Ignore anyone who says it is under the truck. I pushed the truck. Well, I tried.')}
 ${sec('PK08', 'Legal')}${LEGAL('TrainerTez', 'Pocket Critters is a trademark of its owners. This guide is not official in any way.')}
 `);
 
-  add('zelda-oot', 'Ultra 64', 'The Legend of Zeldoo: Kazoo of Time', 'FAQ / Dungeon Guide', 'HeroOfDave', [['20/12/98', '0.5 - Got it for Christmas early!'], ['26/01/99', '1.0 - BEAT THE WATER TEMPLE. You will too. Read on.'], ['04/05/99', '1.2 - Added warp songs and the Iron Boots tip.']], () => `
-CONTENTS:  Dungeons [ZO01]  Songs [ZO02]  Water Temple [ZO03]  Tips [ZO04]
+  add('zelda-oot', 'Ultra 64', 'The Legend of Zeldo: Kazoo of Time', 'FAQ / Dungeon Guide', 'HeroOfDave', [['20/12/98', '0.5 - Got it for Christmas early!'], ['26/01/99', '1.0 - BEAT THE WATER TEMPURA. You will too. Read on.'], ['04/05/99', '1.2 - Added warp songs and the Iron Wellies tip.']], () => `
+CONTENTS:  Dungeons [ZO01]  Songs [ZO02]  Water Tempura [ZO03]  Tips [ZO04]
 ${sec('ZO01', 'Dungeons (in order)')}
   -- AS YOUNG LINK --
   1. Inside the Deku Tree
-  2. Dodongo's Cavern
-  3. Inside Jabu-Jabu's Belly
+  2. Dodo-ngo's Cavern
+  3. Inside Jibber-Jabber's Belly
   -- SEVEN YEARS LATER (ADULT LINK) --
-  4. Forest Temple        5. Fire Temple        6. Water Temple
-  7. Shadow Temple        8. Spirit Temple (as both young AND adult Link)
-  9. Ganon's Castle
+  4. Forest Tempura        5. Fire Tempura        6. Water Tempura
+  7. Shadow Tempura        8. Spirit Tempura (as both young AND adult Lingo)
+  9. Baron Meatballo's Castle
 ${sec('ZO02', 'Songs')}
-  Learnt songs: Zelda's Lullaby, Epona's Song, Saria's Song, Sun's Song,
-                Song of Time, Song of Storms
-  Warp songs:   Minuet of Forest, Bolero of Fire, Serenade of Water,
-                Nocturne of Shadow, Requiem of Spirit, Prelude of Light
-${wrap('The warp songs take you straight to a warp point, so you can stop running across Hyrule Field at night dodging skeletons.')}
-${sec('ZO03', 'The Water Temple (everybody is stuck)')}${wrap('Everybody gets stuck in the Water Temple. You are not stupid. It is the temple. The trick is the water level: there are three places where you can play Zelda\'s Lullaby to change it (high, middle and low), and lots of rooms only open at one level. Wear the Iron Boots to walk on the bottom, and keep switching them on and off from the menu. (Yes, from the menu. Every time. I know.) If you have gone through every door and you are still missing a key, you have missed a room at a different water level. Also: there is a room with a tiny island and a mirror image of you. Bring the Megaton Hammer? No, wait, that is another temple. Bring patience.')}
+  Learnt songs: Zeldo's Lullaby, Eponini's Song, Sarnie's Song, Sun's Song,
+                Song of Time, Song of Showers
+  Warp songs:   Minuet of Woods, Bolero of Flame, Serenade of Splash,
+                Nocturne of Gloom, Requiem of Ghost, Prelude of Glow
+${wrap('The warp songs take you straight to a warp point, so you can stop running across Lasagnia Field at night dodging skeletons.')}
+${sec('ZO03', 'The Water Tempura (everybody is stuck)')}${wrap('Everybody gets stuck in the Water Tempura. You are not stupid. It is the temple. The trick is the water level: there are three places where you can play Zeldo\'s Lullaby to change it (high, middle and low), and lots of rooms only open at one level. Wear the Iron Wellies to walk on the bottom, and keep switching them on and off from the menu. (Yes, from the menu. Every time. I know.) If you have gone through every door and you are still missing a key, you have missed a room at a different water level. Also: there is a room with a tiny island and a mirror image of you. Bring the Megaton Hammer? No, wait, that is another temple. Bring patience.')}
 ${sec('ZO04', 'Tips')}
   - Z-targeting is your friend. Lock on, then sidestep and attack.
-  - The fishing pond in Lake Hylia is the best mini-game EVER MADE.
-  - Get Epona as young Link at Lon Lon Ranch by learning her song.
+  - The fishing pond in Lake Lasagne is the best mini-game EVER MADE.
+  - Get Eponini as young Lingo at Lan Lan Ranch by learning her song.
   - Talk to everyone. Then talk to them again as an adult.
 ${sec('ZO05', 'Legal')}${LEGAL('HeroOfDave')}
 `);
@@ -293,7 +293,7 @@ ${sec('TE04', 'Legal')}${LEGAL('LongBarLarry')}
 
   const opt = o => Object.assign(FAQS[FAQS.length - 1], o);
 
-  add('goldeneye', 'Ultra 64', 'Goldenballs 007', 'FAQ / Multiplayer Guide', 'DoubleOhDave', [['02/01/99', '1.0 - First version. Christmas was spent on Facility.'], ['14/03/99', '1.1 - Added multiplayer house rules.'], ['30/07/99', '1.2 - Added the bonus levels.']], () => `
+  add('goldenballs', 'Ultra 64', 'Goldenballs 007', 'FAQ / Multiplayer Guide', 'DoubleOhDave', [['02/01/99', '1.0 - First version. Christmas was spent on Facility.'], ['14/03/99', '1.1 - Added multiplayer house rules.'], ['30/07/99', '1.2 - Added the bonus levels.']], () => `
 CONTENTS:  Levels [GE01]  Difficulty [GE02]  Cheats [GE03]  Multiplayer [GE04]
            Tips [GE05]  Legal [GE06]
 ${sec('GE01', 'The levels')}
@@ -309,7 +309,7 @@ ${sec('GE03', 'Cheats')}${wrap('There are no button codes printed here (Mom says
 ${sec('GE04', 'Multiplayer house rules')}
   - Up to 4 players, split screen. Somebody always gets the tiny corner.
   - NO SCREEN WATCHING. We all know you looked at the top-left.
-  - Nobody picks Oddjob. He is too short. It is not fair.
+  - Nobody picks Oddbob. He is too short. It is not fair.
   - Proximity mines in the Facility toilets: legal, but you are a monster.
   - "License To Kill" = one hit and you are out. Best mode. Argue below.
   - Slappers only (hands, no guns) is surprisingly brilliant.
@@ -321,17 +321,17 @@ ${sec('GE05', 'Tips')}
 ${sec('GE06', 'Legal')}${LEGAL('DoubleOhDave')}
 `); opt({ short: 'GOLDENBALLS' });
 
-  add('mk64', 'Ultra 64', 'Kart Kaos 64', 'Cup Guide & Shortcuts', 'BananaBlocker', [['22/02/99', '1.0 - Every cup, every track.'], ['09/06/99', '1.1 - Added the Wario Stadium jump. Luke showed me.']], () => `
+  add('mk64', 'Ultra 64', 'Kart Kaos 64', 'Cup Guide & Shortcuts', 'BananaBlocker', [['22/02/99', '1.0 - Every cup, every track.'], ['09/06/99', '1.1 - Added the Warlo Stadium jump. Luke showed me.']], () => `
 ${sec('MK01', 'Drivers')}
-  LIGHT:   Toad, Peach, Yosher     - fast off the line, easy to bump about
+  LIGHT:   Toad, Pear, Yosher     - fast off the line, easy to bump about
   MEDIUM:  Marlo, Louie G           - good at everything
-  HEAVY:   Bouncer, Wario, D.K.    - slow to start, top speed is huge
+  HEAVY:   Bouncer, Warlo, D.K.    - slow to start, top speed is huge
 ${sec('MK02', 'The cups')}
-  MUSHROOM: Louie G Raceway, Moo Moo Farm, Koopa Troopa Beach, Kalimari Desert
-  FLOWER:   Toad's Turnpike, Frappe Snowland, Choco Mountain, Marlo Raceway
-  STAR:     Wario Stadium, Sherbet Land, Royal Raceway, Bouncer's Castle
-  SPECIAL:  D.K.'s Jungle Parkway, Yosher Valley, Banshee Boardwalk,
-            Rainbow Road
+  MUSHROOM: Louie G Raceway, Moo Moo Meadow, Kooka Trooper Beach, Kalamari Desert
+  FLOWER:   Toadie's Turnpike, Frappe Snowdrift, Choc Mountain, Marlo Raceway
+  STAR:     Warlo Stadium, Sorbet Land, Regal Raceway, Bouncer's Castle
+  SPECIAL:  D.K.'s Jungle Parkway, Yosher Valley, Banshee Boardroom,
+            Rainbow Roadworks
 ${wrap('Win gold in every cup on 150cc and you unlock the Extra mode, where every track is back to front. It does your head in. It is brilliant.')}
 ${sec('MK03', 'Driving')}
   - Hop and power-slide round corners (R). Waggle the stick during the
@@ -340,54 +340,54 @@ ${sec('MK03', 'Driving')}
     your back.
   - The Lightning shrinks everybody except you. Use it just before a jump
     so they all fall off.
-  - The Blue Shell goes for whoever is first. If that is you: sorry.
-${sec('MK04', 'Shortcuts')}${wrap('Wario Stadium: on the first big straight there is a place where you can jump over the wall and land much further along. Takes practice (and Luke). Koopa Troopa Beach: a ramp on the right lets you jump through a little cave in the rocks. Rainbow Road is very long, and there is a way to skip a huge chunk if you are brave enough to drop off the edge at the start. We do not talk about the times it went wrong.')}
+  - The Blue Conch goes for whoever is first. If that is you: sorry.
+${sec('MK04', 'Shortcuts')}${wrap('Warlo Stadium: on the first big straight there is a place where you can jump over the wall and land much further along. Takes practice (and Luke). Kooka Trooper Beach: a ramp on the right lets you jump through a little cave in the rocks. Rainbow Roadworks is very long, and there is a way to skip a huge chunk if you are brave enough to drop off the edge at the start. We do not talk about the times it went wrong.')}
 ${sec('MK05', 'Battle mode')}${wrap('Three balloons each. Lose them all and you are out (or you turn into a little bomb and drive about getting revenge, if there are more than two of you). Block Fort is the best arena. Double Deck is the worst. Fight me.')}
 ${sec('MK06', 'Legal')}${LEGAL('BananaBlocker')}
 `); opt({ short: 'KART KAOS' });
 
-  add('banjo', 'Ultra 64', 'Backpack Buddies', 'Walkthrough (Worlds & Moves)', 'JiggyJen', [['15/11/98', '0.9 - Got to Gobi\'s Valley.'], ['10/01/99', '1.0 - 100 Jiggies! Beat Grunty!'], ['18/05/99', '1.1 - Added note totals per world.']], () => `
-${sec('BK01', 'The story')}${wrap('The witch Gruntilda has kidnapped Banjo\'s little sister Tooty, because she wants to be the prettiest in the land. Banjo the bear and Kazooie the bird (who lives in his backpack and is very rude) go up Grunty\'s lair to get her back. Bottles the mole teaches you moves along the way.')}
+  add('banjo', 'Ultra 64', 'Backpack Buddies', 'Walkthrough (Worlds & Moves)', 'JiggyJen', [['15/11/98', '0.9 - Got to Gobo\'s Valley.'], ['10/01/99', '1.0 - 100 Jigsies! Beat Grumpy!'], ['18/05/99', '1.1 - Added note totals per world.']], () => `
+${sec('BK01', 'The story')}${wrap('The witch Grumpilda has kidnapped Bongo\'s little sister Tootsie, because she wants to be the prettiest in the land. Bongo the bear and Kazoobie the bird (who lives in his backpack and is very rude) go up Grumpy\'s lair to get her back. Bottles the mole teaches you moves along the way.')}
 ${sec('BK02', 'The worlds (in order)')}
-   1. Mumbo's Mountain        2. Treasure Trove Cove
-   3. Clanker's Cavern        4. Bubblegloop Swamp
-   5. Freezeezy Peak          6. Gobi's Valley
-   7. Mad Monster Mansion     8. Rusty Bucket Bay
-   9. Click Clock Wood
-  Every world has 10 Jiggies, 100 notes and 5 Jinjos (find all 5 Jinjos
-  and they give you a Jiggy). Notes open the note doors in the lair.
+   1. Jumbo's Mountain        2. Treasure Grove Cove
+   3. Clunker's Cavern        4. Bubblegloop Pond
+   5. Freezy-Wheezy Peak          6. Gobo's Valley
+   7. Mad Monster Manor     8. Rusty Pail Bay
+   9. Clack Clock Wood
+  Every world has 10 Jigsies, 100 notes and 5 Jinjoes (find all 5 Jinjoes
+  and they give you a Jigsy). Notes open the note doors in the lair.
 ${sec('BK03', 'Collectables')}
-  JIGGIES ........ jigsaw pieces. Fill a picture to open a world.
+  JIGSIES ........ jigsaw pieces. Fill a picture to open a world.
   NOTES .......... open the note doors. Lose a life and the world's notes
                    reset, so do not die halfway through a world!
-  MUMBO TOKENS ... pay Mumbo the shaman to turn you into things
+  JUMBO TOKENS ... pay Jumbo the shaman to turn you into things
                    (a termite, a crocodile, a walrus, a pumpkin, a bee).
   HONEYCOMBS ..... six empty pieces give you an extra bit of health.
 ${sec('BK04', 'Tips')}
-  - Click Clock Wood has the same level in all four seasons. Visit them
+  - Clack Clock Wood has the same level in all four seasons. Visit them
     in order: spring, summer, autumn, winter.
   - The end is a quiz show about the WHOLE game. Pay attention to
-    everything, including what Grunty says about herself.
-  - Kazooie's Talon Trot gets you up the steep slopes.
+    everything, including what Grumpy says about herself.
+  - Kazoobie's Talon Trot gets you up the steep slopes.
 ${sec('BK05', 'Legal')}${LEGAL('JiggyJen')}
 `); opt({ short: 'BANJO' });
 
   add('mgs', 'PlaySpace', 'Metal Gear Wobbly', 'FAQ / Boss Guide', 'CardboardBox', [['14/12/98', '0.5 - Written from my cousin\'s American copy.'], ['27/02/99', '1.0 - UK VERSION IS OUT! Both discs done.'], ['20/04/99', '1.1 - Added the two endings.']], () => `
 CONTENTS:  Basics [MG01]  Bosses [MG02]  Stuck? [MG03]  Endings [MG04]
            Legal [MG05]
-${sec('MG01', 'Basics')}${wrap('You are Solid Snake, sneaking into a base on Shadow Moses Island. It is a SNEAKING game: if you are fighting all the time you are playing it wrong. Watch the radar in the corner, stay out of the guards\' view cones, knock on walls to make them come and look, and crawl under things. The cardboard box is the best item in the history of video games. Guards walk straight past a box. Nobody questions the box.')}
+${sec('MG01', 'Basics')}${wrap('You are Soggy Snake, sneaking into a base on Shadow Moss Island. It is a SNEAKING game: if you are fighting all the time you are playing it wrong. Watch the radar in the corner, stay out of the guards\' view cones, knock on walls to make them come and look, and crawl under things. The cardboard box is the best item in the history of video games. Guards walk straight past a box. Nobody questions the box.')}
 ${sec('MG02', 'Bosses (no big spoilers)')}
-  Revolver Ocelot ....... circle round the explosives, shoot when he stops
+  Revolver Ocelet ....... circle round the explosives, shoot when he stops
   The Tank .............. chaff grenades, then grenades into the top
   The Ninja ............. fists only. Punch-punch-kick when he gets close
-  Psycho Mantis ......... see MG03. Seriously, read it.
-  Sniper Wolf ........... a sniper duel. Take Diazepam to steady your aim
-  Vulcan Raven .......... in the warehouse. Use the Stinger and the crates
-  Metal Gear REX ........ two discs of story to get here. Stinger. Lots.
+  Pyjama Mantis ......... see MG03. Seriously, read it.
+  Sniper Woof ........... a sniper duel. Take Diazepam to steady your aim
+  Vulcan Ravine .......... in the warehouse. Use the Stinger and the crates
+  Metal Gear REXX ........ two discs of story to get here. Stinger. Lots.
 ${sec('MG03', 'Stuck? Read this')}
   - Meryl's codec frequency is printed on the back of the CD case.
     The GAME tells you this. It is not a joke. Look at the box.
-  - Psycho Mantis reads your mind (your memory card) and dodges every
+  - Pyjama Mantis reads your mind (your memory card) and dodges every
     attack. To stop him reading your mind, plug your controller into
     PORT 2. I am not making this up.
   - It is a long game over TWO discs. Disc 2 starts at a good point to
@@ -398,12 +398,12 @@ ${sec('MG05', 'Legal')}${LEGAL('CardboardBox')}
 
   add('halflife', 'PC (JackOS)', 'Half-Loaf', 'Walkthrough Notes & Cheats', 'CrowbarCallum', [['05/01/99', '0.8 - Up to Blast Pit. That tentacle thing.'], ['20/02/99', '1.0 - Finished! Xen is weird.'], ['11/07/99', '1.1 - Added console cheats (for after you have finished it).']], () => `
 ${sec('HL01', 'The chapters')}
-  Black Mesa Inbound        Anomalous Materials     Unforeseen Consequences
+  Dark Mesa Inbound        Anomalous Materials     Unforeseen Consequences
   Office Complex            "We've Got Hostiles"    Blast Pit
   Power Up                  On A Rail               Apprehension
   Residue Processing        Questionable Ethics     Surface Tension
-  "Forget About Freeman!"   Lambda Core             Xen
-  Gonarch's Lair            Interloper              Nihilanth
+  "Forget About Freeloader!"   Llama Core             Xen
+  Gonarchy's Lair            Interleaper              Nihilant
   Endgame
 ${sec('HL02', 'Tips')}
   - Do the Hazard Course first. It teaches you the long jump (hold crouch
@@ -424,22 +424,22 @@ ${wrap('Using cheats the first time through spoils it. You have been warned. Cal
 ${sec('HL04', 'Legal')}${LEGAL('CrowbarCallum')}
 `); opt({ short: 'HALF-LOAF' });
 
-  add('starcraft', 'PC (JackOS)', 'StarGraft', 'Beginner\'s Strategy Guide', 'ZergRushZed', [['12/12/98', '1.0 - First version.'], ['06/04/99', '1.1 - Added Brood War notes.']], () => `
+  add('starcraft', 'PC (JackOS)', 'StarGraft', 'Beginner\'s Strategy Guide', 'ZergRushZed', [['12/12/98', '1.0 - First version.'], ['06/04/99', '1.1 - Added Brood Warble notes.']], () => `
 ${sec('SC01', 'The three races')}
-  TERRAN .... humans. Buildings can lift off and fly. Bunkers, tanks,
+  TERRINE .... humans. Buildings can lift off and fly. Bunkers, tanks,
               Marines. Good for beginners.
-  ZERG ...... bugs. Everything hatches from larvae. Cheap, fast, LOTS.
-              The famous "Zerg rush" is just sending loads of Zerglings
+  ZORG ...... bugs. Everything hatches from larvae. Cheap, fast, LOTS.
+              The famous "Zorg rush" is just sending loads of Zorglings
               at you before you are ready.
-  PROTOSS ... psychic aliens. Expensive, very strong units with shields
-              that come back. Lose a Zealot and you feel it.
+  PROTOSAUCE ... psychic aliens. Expensive, very strong units with shields
+              that come back. Lose a Zealous Zed and you feel it.
 ${sec('SC02', 'Beginner tips')}
   - Keep building workers. Then build some more workers.
   - Minerals AND gas: build your gas building early.
-  - Build supply (Supply Depots / Overlords / Pylons) BEFORE you run out.
+  - Build supply (Supply Dumps / Overlorders / Pylonz) BEFORE you run out.
   - Scout! Send one worker to find the enemy base at the start.
   - Number your groups: select units and press Ctrl+1, then press 1.
-  - Want to play your mates? Battle.net on the modem, or a LAN party at
+  - Want to play your mates? Battle.nut on the modem, or a LAN party at
     Callum's (bring your own PC, and a sandwich).
 ${sec('SC03', 'Cheats (single player only)')}${wrap('Press Enter, type the code, press Enter again:')}
   show me the money ......... lots of minerals and gas
@@ -447,7 +447,7 @@ ${sec('SC03', 'Cheats (single player only)')}${wrap('Press Enter, type the code,
   black sheep wall .......... see the whole map
   operation cwal ............ build really fast
   there is no cow level ..... win the mission straight away
-${wrap('Cheats do not work on Battle.net. Obviously. Stop asking.')}
+${wrap('Cheats do not work on Battle.nut. Obviously. Stop asking.')}
 ${sec('SC04', 'Legal')}${LEGAL('ZergRushZed')}
 `); opt({ short: 'STARGRAFT' });
 
@@ -465,7 +465,7 @@ ${sec('SA03', 'Chum Garden')}
   - Chum are little pets. Find their eggs and hatch them in a garden.
   - Give them the little animals you free from robots in the levels.
     A Chum changes to look like what you give it.
-  - Plug in a VMU (the memory card with a screen) and you can take a Chum
+  - Plug in a VMG (the memory card with a screen) and you can take a Chum
     out with you in Chum Adventure. A virtual pet in your pocket. It
     beeps in class. The teacher was not impressed.
 ${sec('SA04', 'Legal')}${LEGAL('PurpleBlur')}
@@ -487,13 +487,13 @@ ${sec('SA04', 'Legal')}${LEGAL('PurpleBlur')}
     if (!f) return page(c, '<p>FAQ not found. It may have been removed at the author\'s request (their Mom found out).</p>');
     const vers = f.ver.filter(v => { const [d, m] = v[0].split('/').map(Number), y = +v[0].split('/')[2]; return y === 98 || m * 100 + d <= c.md; });
     const ver = (vers[vers.length - 1] || f.ver[0])[1].split(' ')[0];
-    const txt = `${banner(f.short || f.game.replace(/^The Legend of Zelda: /, 'Zelda ').replace(/Pokemon Red \/ Blue/, 'Pocket Critters').slice(0, 13))}\n\n${f.game} - ${f.kind}\n${f.sys}\nVersion ${ver}\nBy ${f.by} (${f.by.toLowerCase()}@jackmail.webcom)\n\n${sec('VH', 'Version history')}${(vers.length ? vers : f.ver.slice(0, 1)).map(v => `  ${v[0]}  ${v[1]}`).join('\n')}\n${f.body()}\n${RULE}\n                         END OF FILE. GO PLAY OUTSIDE.\n${RULE}\n`;
+    const txt = `${banner(f.short || f.game.replace(/^The Legend of Zeldo: /, 'Zeldo ').replace(/Pocket Critters Moss \/ Puddle/, 'Pocket Critters').slice(0, 13))}\n\n${f.game} - ${f.kind}\n${f.sys}\nVersion ${ver}\nBy ${f.by} (${f.by.toLowerCase()}@jackmail.webcom)\n\n${sec('VH', 'Version history')}${(vers.length ? vers : f.ver.slice(0, 1)).map(v => `  ${v[0]}  ${v[1]}`).join('\n')}\n${f.body()}\n${RULE}\n                         END OF FILE. GO PLAY OUTSIDE.\n${RULE}\n`;
     c.after.push(() => {
       const end = c.q('.gf-end'); if (!end || !window.IntersectionObserver) return;
       const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { c.secret('eras.faq'); io.disconnect(); } }); io.observe(end); c.off(() => io.disconnect());
     });
-    return `<div class="gf">${head}<div class="gf-txt"><pre>${esc(txt)}</pre><span class="gf-end"></span></div>${c.foot({ ring: false, ctrText: 'This FAQ has been read', ctrAfter: 'times', best: 'Plain text: best viewed in Notepad' })}</div>`;
+    return `<div class="gf">${head}<div class="gf-txt"><pre>${esc(txt)}</pre><span class="gf-end"></span></div>${c.foot({ ring: false, ctrText: 'This FAQ has been read', ctrAfter: 'times', best: 'Plain text: best viewed in Jotpad' })}</div>`;
   });
-  ES.def(H, '/board.html', c => page(c, `<h2>Message Board</h2><p>Stuck? Ask here. Please search the FAQs first. Please. PLEASE.</p>` + c.gb([['WaterTempleVictim', '27/01/99', 'HOW DO YOU GET PAST THE WATER TEMPLE. I HAVE BEEN IN HERE FOR 9 DAYS.'], ['TrainerTez', '06/10/99', 'Mew is NOT under the truck. Stop asking.'], ['QuestMasterKev', '03/05/99', 'Jack Quest: if you are stuck on the queue, just WAIT. That is all a queue is.']], { title: 'Post a Question', btn: 'Post', ph: 'e.g. how do i get past the blobbit on the bridge?' })));
+  ES.def(H, '/board.html', c => page(c, `<h2>Message Board</h2><p>Stuck? Ask here. Please search the FAQs first. Please. PLEASE.</p>` + c.gb([['WaterTempleVictim', '27/01/99', 'HOW DO YOU GET PAST THE WATER TEMPURA. I HAVE BEEN IN HERE FOR 9 DAYS.'], ['TrainerTez', '06/10/99', 'MewOne is NOT under the truck. Stop asking.'], ['QuestMasterKev', '03/05/99', 'Jack Quest: if you are stuck on the queue, just WAIT. That is all a queue is.']], { title: 'Post a Question', btn: 'Post', ph: 'e.g. how do i get past the blobbit on the bridge?' })));
   ES.def(H, '/submit.html', c => page(c, `<h2>Submit a FAQ</h2><p>Rules: plain text only. 79 characters a line. No copying other people's FAQs (we WILL find out). Put a version history at the top and a legal bit at the bottom. Spell-check it (or ask your Mom).</p><p>Send your FAQ as a .txt attachment to <b>faqs@jackfaqs.w3b</b>. Or just tell us which game you want to write about:</p>` + c.gb([['BlockerBob', '30/10/99', 'Doing a Jacklings FAQ. Level 5 is HARD.']], { title: 'FAQ Wishlist', btn: 'Add', ph: 'I want to write a FAQ for...' })));
 })();

@@ -63,6 +63,7 @@
       ...band('m', 'w', 'BEFUDDLED! THE QUIZ  P150'),
       A.w + center('Ten questions a day. Beat the brain!', 38), '',
       A.g + ' TODAY: ' + A.w + DAYS[t.dow] + ' ' + t.d + ' ' + MON[t.m - 1] + ' 1999', ''];
+    if (hallowOn()) rows.push(FLASH + A.y + ' NEW! ' + STEADY + A.r + 'HALLOWEEN' + A.w + '.......... ' + A.c + '450');
     return Object.assign({ rows }, LINKS(['News', 101], ['Sport', 300], ['Quiz', 150], ['TV', 600]));
   });
   // ---- news
@@ -96,8 +97,8 @@
   page(302, () => {
     const T = D().table, done = t99().md >= D().md(T.from);
     const rows = [...band('g', 'w', 'PREMIERSHIP'), ''];
-    if (done) { rows.push(A.y + ' FINAL TABLE 1998-99' + A.w + '        Pts'); T.top.forEach((x, i) => rows.push(A.w + ' ' + (i + 1) + '. ' + pad(x[0], 24) + A.c + x[1])); rows.push(A.w + '   ...'); rows.push(''); rows.push(A.r + ' RELEGATED: ' + A.w + T.down.join(', ')); rows.push(''); rows.push(A.g + ' Man Utd: the Treble! League, FA Cup'); rows.push(A.g + ' and European Cup.'); }
-    else { rows.push(A.w + ' The 1998-99 season is still going.'); rows.push(A.w + ' Man Utd and Arsenal are neck and'); rows.push(A.w + ' neck at the top. Final day: 16 May.'); }
+    if (done) { rows.push(A.y + ' FINAL TABLE 1998-99' + A.w + '        Pts'); T.top.forEach((x, i) => rows.push(A.w + ' ' + (i + 1) + '. ' + pad(x[0], 24) + A.c + x[1])); rows.push(A.w + '   ...'); rows.push(''); rows.push(A.r + ' RELEGATED: ' + A.w + T.down.join(', ')); rows.push(''); rows.push(A.g + ' Mancake Utd: the Treble! League, FA Cup'); rows.push(A.g + ' and European Cup.'); }
+    else { rows.push(A.w + ' The 1998-99 season is still going.'); rows.push(A.w + ' Mancake Utd and Arsenic are neck and'); rows.push(A.w + ' neck at the top. Final day: 16 May.'); }
     return Object.assign({ rows }, LINKS(['Sport', 300], ['Results', 301], ['News', 101], ['Index', 100]));
   });
   // ---- weather
@@ -135,20 +136,20 @@
     return Object.assign({ rows }, LINKS(['Charts', 501], ['Films', 502], ['Quiz', 150], ['Index', 100]));
   });
   // ---- the telly
-  const CHANS = ['BBC1', 'BBC2', 'ITV', 'C4', 'C5'];
+  const CHANS = ['BBQ1', 'BBQ2', 'ITB', 'CF', 'CV'];
   page(600, () => {
     const t = t99(), kind = t.dow === 6 ? 'sat' : t.dow === 0 ? 'sun' : 'week', sp = D().tv.special.filter(x => D().md(x[0]) === t.md);
     const rows = [...band('w', 'b', 'WHAT\'S ON TODAY'), A.c + ' ' + DAYS[t.dow] + ' ' + t.d + ' ' + MON[t.m - 1], ''];
     if (sp.length) { rows.push(FLASH + A.y + ' DON\'T MISS' + STEADY); sp.forEach(x => rows.push(A.w + ' ' + pad(x[1], 5) + A.c + pad(x[2], 8) + A.w + clip(x[3]).slice(0, 25))); rows.push(''); }
     CHANS.forEach((c, i) => rows.push(A.y + ' ' + pad(c, 6) + A.c + (601 + i)));
     rows.push(''); rows.push(A.w + ' Subtitles on page ' + A.y + '888');
-    return Object.assign({ rows }, LINKS(['BBC1', 601], ['ITV', 603], ['C4', 604], ['Index', 100]));
+    return Object.assign({ rows }, LINKS(['BBQ1', 601], ['ITB', 603], ['CF', 604], ['Index', 100]));
   });
   CHANS.forEach((c, i) => page(601 + i, () => {
     const t = t99(), kind = t.dow === 6 ? 'sat' : t.dow === 0 ? 'sun' : 'week', L = (D().tv[kind].find(x => x[0] === c) || [c, []])[1].slice();
-    if (c === 'ITV' && kind === 'week') L.push(t.md < D().md(D().tv.newsAtTenEnds) ? ['10.00', 'News at Ten'] : ['6.30', 'ITV Evening News']);
-    if (c === 'BBC1' && t.dow === 5) L.push(['7.30', 'Top of the Pops']);
-    if (c === 'BBC1' && t.dow === 6) L.push(['10.20', 'Match of the Day']);
+    if (c === 'ITB' && kind === 'week') L.push(t.md < D().md(D().tv.newsAtTenEnds) ? ['10.00', 'News at Ten'] : ['6.30', 'ITB Evening News']);
+    if (c === 'BBQ1' && t.dow === 5) L.push(['7.30', 'Top of the Pots']);
+    if (c === 'BBQ1' && t.dow === 6) L.push(['10.20', 'Match of the Day']);
     D().tv.special.filter(x => D().md(x[0]) === t.md && x[1] === c).forEach(x => L.push([x[2], x[3]]));
     const rows = [...band(['r', 'b', 'c', 'm', 'g'][i], 'w', c + ' TODAY'), A.c + ' ' + DAYS[t.dow] + ' ' + t.d + ' ' + MON[t.m - 1], ''];
     L.forEach(x => rows.push(A.y + ' ' + pad(x[0], 7) + A.w + clip(x[1]).slice(0, 30)));
@@ -156,7 +157,7 @@
     return Object.assign({ rows }, LINKS(['Next', i < 4 ? 602 + i : 601], ['All', 600], ['Charts', 501], ['Index', 100]));
   }));
   // ---- holidays (the adverts: fictional companies, fictional numbers you can ring on the landline)
-  const HOL = [['MAJORCA', '7nts S/C', '149', 'Sun! Sea! Sangria for Mum and Dad!'], ['TENERIFE', '14nts H/B', '299', 'Pool with a slide. A BIG slide.'], ['FLORIDA', '14nts villa', '399', 'Theme parks! Alligators (look, don\'t touch)'], ['CORFU', '7nts B&B', '189', 'Last minute! Fly Saturday!'], ['ISLE OF WIGHT', '3nts caravan', '59', 'Ferry included. Rain not included.'], ['EURO DISNEY', '3nts + park', '219', 'Meet the mouse!']];
+  const HOL = [['MAJORCA', '7nts S/C', '149', 'Sun! Sea! Sangria for Mum and Dad!'], ['TENERIFE', '14nts H/B', '299', 'Pool with a slide. A BIG slide.'], ['FLORIDA', '14nts villa', '399', 'Theme parks! Alligators (look, don\'t touch)'], ['CORFU', '7nts B&B', '189', 'Last minute! Fly Saturday!'], ['ISLE OF WIGHT', '3nts caravan', '59', 'Ferry included. Rain not included.'], ['EURO DIZZNEY', '3nts + park', '219', 'Meet the mouse!']];
   page(700, () => {
     const rows = [...band('c', 'b', 'HOLIDAY BARGAINS'), A.w + ' From your local airport. Prices per', A.w + ' person. Subject to availability.', ''];
     HOL.forEach(x => { rows.push(A.y + ' ' + pad(x[0], 14) + A.c + pad(x[1], 13) + A.g + 'from £' + x[2]); rows.push(A.w + '   ' + clip(x[3]).slice(0, 35)); });
@@ -183,6 +184,24 @@
     const big = String(dl);
     const rows = [...band('b', 'w', 'THE MILLENNIUM'), '', A.y + center('DAYS TO GO UNTIL 2000:', 38), '', DBL + A.c + center(big, 36), '', '', A.w + ' Will the computers cope? The', A.w + ' "Millennium Bug" (Y2K) could confuse', A.w + ' old computers that store years as', A.w + ' just two numbers: 99 then... 00!', '', A.g + ' TOP TIP: ' + A.w + 'check your video recorder', A.w + ' (it still says 12:00 anyway).'];
     return Object.assign({ rows }, LINKS(['Jokes', 801], ['Stars', 802], ['News', 101], ['Index', 100]));
+  });
+  // ---- HALLOWEEN (only while the event is on: js/season-cat.js, the owner's 1999 clock too)
+  const hallowOn = () => { try { if (window.Season) return Season.active().some(x => x.e.id === 'halloween99'); } catch (e) {} const md = t99().md; return md >= 1024 && md <= 1101; };
+  const PUMPKIN = mos(['.....##.....', '..########..', '.##########.', '##.##..##.##', '############', '###.####.###', '.###....###.', '..########..'], 'y');
+  page(450, () => {
+    if (!hallowOn()) return null;
+    const t = t99(), rows = [...band('r', 'y', 'HALLOWEEN ON TELLY-TEXT'), ...PUMPKIN.map(r => '              ' + r), ''];
+    rows.push(A.y + ' SPOOKY FACTS');
+    ['Halloween grew out of an old autumn festival marking the end of the harvest.', 'In Britain, lanterns used to be carved from turnips and swedes, not pumpkins.'].forEach(f => wrap(f, 36).forEach(l => rows.push(A.w + '  ' + l)));
+    rows.push('', A.c + ' CLOCKS GO BACK: ' + A.w + (t.md < 1031 ? 'Sun 31 Oct, 2am' : 'last night!'), A.w + '  An extra hour in bed! It gets dark', A.w + '  by about half past four now.', '');
+    rows.push(A.g + ' JOKE: ' + A.w + "What do you call a ghost's", A.w + '  mum and dad? ' + CONCEAL + A.y + 'TRANSPARENTS!', A.m + ' Press REVEAL for the answer.');
+    return Object.assign({ rows }, LINKS(['Soup', 451], ['TV', 600], ['Jokes', 801], ['Index', 100]));
+  });
+  page(451, () => {
+    if (!hallowOn()) return null;
+    const rows = [...band('y', 'r', "MOM'S PUMPKIN SOUP"), '', A.c + ' Do not waste the scooped-out bits!', ''];
+    ['1. Scoop the pumpkin flesh (not the stringy bits) into a pan with an onion and a potato.', '2. Cover with stock. Simmer for 20 minutes (a grown-up does the hob).', '3. Mash it or whizz it till smooth. A drop of milk.', '4. Seeds: rinse, pat dry, a pinch of salt, roast on a tray. Crunchy!'].forEach(f => { wrap(f, 36).forEach(l => rows.push(A.w + ' ' + l)); rows.push(''); });
+    return Object.assign({ rows }, LINKS(['Halloween', 450], ['TV', 600], ['News', 101], ['Index', 100]));
   });
   // ---- the hidden pages (not on any index)
   page(199, () => ({ hidden: true, rows: [...band('r', 'w', 'ENGINEERING TEST PAGE'), '', ...[...'RGYBMCW'].map((c, i) => G['rgybmcw'[i]] + '\x7f'.repeat(38)), '', A.w + ' If you can read this, you have found', A.w + ' the TELLY-TEXT engineers\' page. It', A.w + ' is not on any index. Well done!', '', A.c + ' Secret word for the night shift:', A.y + CONCEAL + ' "WOBBLE"  (press REVEAL)', '', A.g + ' Please do not tell the producer.'], ...DEF }));

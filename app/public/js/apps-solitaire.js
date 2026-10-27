@@ -26,8 +26,8 @@
     ['sol.undo20', 'Ctrl+Z addict', 'Change your mind. Then change it again. And again...'],
     ['sol.deal50', 'Shuffle champion', 'Deal, deal and deal some more'],
     ['sol.cheat', 'Cheaters never prosper', 'Some keys are hidden in the card games'],
-    ['sol.king', 'Royal audience', 'Poke the king in FreeCell'],
-    ['sol.fclose', 'Out of moves', 'Get completely stuck in FreeCell'],
+    ['sol.king', 'Royal audience', 'Poke the king in FreeCellar'],
+    ['sol.fclose', 'Out of moves', 'Get completely stuck in FreeCellar'],
     ['sol.highroller', 'High roller', 'Have $500 in the Vegas bank'],
     ['sol.allbacks', 'Back to back to back', 'Try every card back in the deck'],
   ].forEach(s => Apps.defineSecret(...s));
@@ -322,7 +322,7 @@
   function chequer(c, w, h, n, a, b) { const z = w / n; for (let y = 0; y * z < h; y++) for (let x = 0; x < n; x++) { c.fillStyle = (x + y) % 2 ? a : b; c.fillRect(x * z, y * z, z + 0.5, z + 0.5); } }
   function inUnits(c, cx, cy, s, fn) { c.save(); c.translate(cx, cy); c.scale(s, s); c.lineWidth = 0.035; fn(); c.restore(); }
   const BACKS = [
-    { name: 'Ork', draw(c, w, h) { chequer(c, w, h, 6, '#b01010', '#1a1a1a'); c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, 0, w, h); inUnits(c, w / 2, h * 0.52, w * 0.95, () => orkHead(c, { scar: true })); } },
+    { name: 'Gork', draw(c, w, h) { chequer(c, w, h, 6, '#b01010', '#1a1a1a'); c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, 0, w, h); inUnits(c, w / 2, h * 0.52, w * 0.95, () => orkHead(c, { scar: true })); } },
     { name: 'Blobbit', draw(c, w, h) {
       c.fillStyle = '#ffb000'; c.fillRect(0, 0, w, h); c.fillStyle = '#ffd34d'; for (let y = 0; y < 8; y++) for (let x = 0; x < 5; x++) { c.beginPath(); c.arc((x + (y % 2) * 0.5) * w / 4, y * h / 7, w * 0.06, 0, TAU); c.fill(); }
       inUnits(c, w / 2, h * 0.5, w * 0.9, () => {
@@ -759,7 +759,7 @@
       ]],
       ['Help', () => [
         { label: 'Contents', key: 'F1', act: help }, { label: 'How to Play with the Mouse', act: () => msg('Solitaire', 'Drag cards with the mouse, or click a card to pick it up and then click where it should go. Double-click to send a card up to the aces. Game > Auto-play does what right-click does.', 'info') }, '-',
-        { label: 'About Solitaire', act: () => msg('About Solitaire', 'Solitaire for JackOS 98\nVersion 4.10.1999\n\nCard art painted by Jack with the mouse, one pixel at a time. The Jacks are apprentice wizards, the Queens are robots and the Kings are Ork Warbosses (Jack painted one for his bits box), obviously.\n\nPhysical memory available to JackOS: 32,768 KB', 'info') },
+        { label: 'About Solitaire', act: () => msg('About Solitaire', 'Solitaire for JackOS 98\nVersion 4.10.1999\n\nCard art painted by Jack with the mouse, one pixel at a time. The Jacks are apprentice wizards, the Queens are robots and the Kings are Gork Warbosses (Jack painted one for his bits box), obviously.\n\nPhysical memory available to JackOS: 32,768 KB', 'info') },
       ]],
     ]);
     w.el.addEventListener('keydown', ev => {
@@ -1161,7 +1161,7 @@
     const cells = [0, 1, 2, 3].map(n => pile('cell', n)), found = [0, 1, 2, 3].map(n => pile('found', n)), tab = [0, 1, 2, 3, 4, 5, 6, 7].map(n => pile('tab', n));
     let F = null, autoT = 0, look = 0, kingBox = null, pokes = 0, pokeT = 0;
     const game = {
-      label: 'FreeCell table', back: () => solOpts.back, quick: () => fcOpts.quick,
+      label: 'FreeCellar table', back: () => solOpts.back, quick: () => fcOpts.quick,
       layout, drawSlot, drawExtra: drawKing, canPick, canDrop, move, click, dbl, tryMove,
       selectFor: h => h.pile.kind === 'tab' ? { pile: h.pile, i: h.pile.cards.length - 1, card: top(h.pile) } : { pile: h.pile, i: h.i, card: h.card },
       badDrop(d, over) { if (fcOpts.msgs && over && over !== d.from) illegal(d.cards, d.from, over); },
@@ -1170,13 +1170,13 @@
     const T = Table(game);
     T.piles = [...cells, ...found, ...tab];
     const wrap = document.createElement('div'); wrap.className = 'solwrap'; wrap.appendChild(T.cv);
-    const w = Apps.win('FreeCell', wrap, { w: 640, h: 500, icon: ICON.fc16, menubar: true, status: true, cls: 'solwin', minW: 250, minH: 230, onClose: closing });
+    const w = Apps.win('FreeCellar', wrap, { w: 640, h: 500, icon: ICON.fc16, menubar: true, status: true, cls: 'solwin', minW: 250, minH: 230, onClose: closing });
     fitWindow(w);
     const stL = w.status, stR = document.createElement('span'); stR.className = 'solst2'; stL.parentNode.appendChild(stR);
     const unhook = hookResize(T, wrap, w);
     // online races (mp.js): everybody plays the same game number at once; the first to get all 52 home wins
     const race = window.MP ? MP.hook('freecell', w, { start(seed, o, R, preview) { newGame(1 + (seed % 32000), true); if (preview) F.done = true; } }) : null;
-    const noRace = () => { if (race && race.active) { Desk.toast('FreeCell', "You're in a race! No new deals until it's over.", 2500); return false; } return true; };
+    const noRace = () => { if (race && race.active) { Desk.toast('FreeCellar', "You're in a race! No new deals until it's over.", 2500); return false; } return true; };
     // the game in progress is saved (js/gamesave.js), but not an online race (that's live)
     const racing = () => !!(race && race.active);
     const saver = Apps.gameSaver ? Apps.gameSaver('freecell', () => racing() ? undefined : (!F || !F.moved || F.done) ? null : { num: F.num, p: T.piles.map(p => p.cards.map(c => c.id)), cheated: F.cheated, undo: F.undo.slice(-40) }, { v: 1, live: true }).watch(w) : null;
@@ -1193,7 +1193,7 @@
       ]],
       ['Help', () => [
         { label: 'Contents', key: 'F1', act: help }, '-',
-        { label: 'About FreeCell', act: () => msg('About FreeCell', 'FreeCell for JackOS 98\n32,000 deals, every one shuffled by Jack\'s own shuffling machine.\n\nThe king is called Kevin. He watches you play.', 'info') },
+        { label: 'About FreeCellar', act: () => msg('About FreeCellar', 'FreeCellar for JackOS 98\n32,000 deals, every one shuffled by Jack\'s own shuffling machine.\n\nThe king is called Kevin. He watches you play.', 'info') },
       ]],
     ]);
     w.el.addEventListener('keydown', ev => {
@@ -1217,7 +1217,7 @@
       T.sel = null; T.drag = null; T.mode = 'play'; pokes = 0;
       T.piles.forEach((p, i) => { p.cards = s.p[i].map(id => { const c = deck[id]; c.up = true; c.f0 = 0; c.delay = 0; return c; }); });
       F = { num: s.num, undo: (Array.isArray(s.undo) ? s.undo : []).filter(okP), moved: true, done: false, won: false, cheated: !!s.cheated };
-      w.setTitle(`FreeCell Game #${F.num}`);
+      w.setTitle(`FreeCellar Game #${F.num}`);
       T.place(true); status();
       return true;
     }
@@ -1313,7 +1313,7 @@
       if (to.kind === 'tab' && cards.length > cap(!to.cards.length)) msg = `You've only got room to move ${cap(!to.cards.length)} card${cap(!to.cards.length) === 1 ? '' : 's'} at once, not ${cards.length}. Empty some free cells or columns first.`;
       else if (to.kind === 'cell') msg = 'That free cell is already full. One card per cell!';
       else if (to.kind === 'found') msg = to.cards.length ? `Only the ${RANK_N[top(to).r + 1] || 'nothing'} of ${SUIT_N[top(to).s]} can go there next.` : 'Only an Ace can start a home pile.';
-      Desk.toast('FreeCell', msg, 4000);
+      Desk.toast('FreeCellar', msg, 4000);
     }
     function snapshot() { F.undo.push(T.piles.map(p => p.cards.map(c => c.id))); if (F.undo.length > 300) F.undo.shift(); }
     function move(from, i, to, how, auto) {
@@ -1402,7 +1402,7 @@
       stR.textContent = `Game #${F.num}`;
     }
     function resign(then) {
-      if (F && F.moved && !F.done) msg('FreeCell', 'Do you want to resign this game? (It counts as a loss. Kevin is keeping score.)', 'q', [['Yes', () => { F.done = true; fcRecord(false); then(); }], ['No']]);
+      if (F && F.moved && !F.done) msg('FreeCellar', 'Do you want to resign this game? (It counts as a loss. Kevin is keeping score.)', 'q', [['Yes', () => { F.done = true; fcRecord(false); then(); }], ['No']]);
       else then();
     }
     function newGame(num, restart) {
@@ -1414,7 +1414,7 @@
       order.forEach((id, k) => { const c = deck[id]; c.up = true; c.f0 = 0; tab[k % 8].cards.push(c); });
       F = { num, undo: [], moved: false, done: false, won: false, cheated: false };
       if (saver && !racing()) saver.clear(); // a new deal: the old saved game goes
-      w.setTitle(`FreeCell Game #${num}`);
+      w.setTitle(`FreeCellar Game #${num}`);
       layout(T);
       // deal from the middle, like a croupier
       T.snapTo(deck, (T.cw - T.W) / 2, T.ch);
@@ -1423,32 +1423,32 @@
       status();
       if (num === DAVE) {
         secret('sol.dave');
-        Desk.toast('FreeCell', `Game #${DAVE}! Dave says this one is IMPOSSIBLE. Unbeatable. His cousin's mate tried it for a whole half-term. (Dave also says his uncle works at Ultra Entertainment.)`, 9000);
+        Desk.toast('FreeCellar', `Game #${DAVE}! Dave says this one is IMPOSSIBLE. Unbeatable. His cousin's mate tried it for a whole half-term. (Dave also says his uncle works at Ultra Entertainment.)`, 9000);
       }
       if (!restart) sfx('dice');
     }
     function selectGame() {
       Desk.ask('Game Number', 'Select a game number from 1 to 32000:', String(1 + Math.floor(Math.random() * 32000)), 5, v => {
         const n = parseInt(String(v).trim(), 10);
-        if (!(n >= 1 && n <= 32000)) return msg('FreeCell', 'Game numbers go from 1 to 32000. (Dave says there are secret minus ones. There aren\'t.)', 'warn');
+        if (!(n >= 1 && n <= 32000)) return msg('FreeCellar', 'Game numbers go from 1 to 32000. (Dave says there are secret minus ones. There aren\'t.)', 'warn');
         resign(() => newGame(n));
       });
     }
     function statsDialog() {
       const st = fcStatsGet(), pct = (a, b) => a + b ? Math.round(a / (a + b) * 100) : 0;
-      dialog('FreeCell Statistics', `<table class="soltab"><tr><th colspan="2">This session</th></tr><tr><td>won: ${fcSession.won}</td><td>lost: ${fcSession.lost}</td><td>${pct(fcSession.won, fcSession.lost)}%</td></tr>
+      dialog('FreeCellar Statistics', `<table class="soltab"><tr><th colspan="2">This session</th></tr><tr><td>won: ${fcSession.won}</td><td>lost: ${fcSession.lost}</td><td>${pct(fcSession.won, fcSession.lost)}%</td></tr>
         <tr><th colspan="2">Total</th></tr><tr><td>won: ${st.won}</td><td>lost: ${st.lost}</td><td>${pct(st.won, st.lost)}%</td></tr>
         <tr><th colspan="2">Streaks</th></tr><tr><td>wins: ${st.bestW}</td><td>losses: ${st.bestL}</td><td></td></tr><tr><td colspan="3">current: ${Math.abs(st.cur)} ${st.cur > 0 ? (st.cur === 1 ? 'win' : 'wins') : st.cur < 0 ? (st.cur === -1 ? 'loss' : 'losses') : ''}</td></tr></table>`,
-      [['OK'], ['Clear', (f, dw) => { msg('FreeCell', 'Clear all your FreeCell statistics?', 'q', [['Yes', () => { store.set('jhp_sol_fc', {}); fcSession.won = fcSession.lost = 0; }], ['No']]); }]], { icon: ICON.fc16, w: 280 });
+      [['OK'], ['Clear', (f, dw) => { msg('FreeCellar', 'Clear all your FreeCellar statistics?', 'q', [['Yes', () => { store.set('jhp_sol_fc', {}); fcSession.won = fcSession.lost = 0; }], ['No']]); }]], { icon: ICON.fc16, w: 280 });
     }
     function optionsDialog() {
-      dialog('FreeCell Options', `<div class="solchk"><label><input type="checkbox" name="msgs"${fcOpts.msgs ? ' checked' : ''}><span>Display messages on illegal moves</span></label><label><input type="checkbox" name="quick"${fcOpts.quick ? ' checked' : ''}><span>Quick play (no animation)</span></label></div>`,
+      dialog('FreeCellar Options', `<div class="solchk"><label><input type="checkbox" name="msgs"${fcOpts.msgs ? ' checked' : ''}><span>Display messages on illegal moves</span></label><label><input type="checkbox" name="quick"${fcOpts.quick ? ' checked' : ''}><span>Quick play (no animation)</span></label></div>`,
         [['OK', f => { fcOpts.msgs = f.querySelector('[name=msgs]').checked; fcOpts.quick = f.querySelector('[name=quick]').checked; store.set('jhp_sol_fcopts', fcOpts); }], ['Cancel']], { icon: ICON.fc16, w: 300 });
     }
     function cheat() {
       if (!F || F.done) return;
       secret('sol.cheat');
-      dialog('Cheat-o-Matic 98', '<p style="margin:0 0 8px">Jack\'s secret FreeCell cheat menu. (Found in a magazine. Do NOT tell Dave.)</p><p style="margin:0">What do you want to happen?</p>',
+      dialog('Cheat-o-Matic 98', '<p style="margin:0 0 8px">Jack\'s secret FreeCellar cheat menu. (Found in a magazine. Do NOT tell Dave.)</p><p style="margin:0">What do you want to happen?</p>',
         [['Win now', () => {
           F.cheated = true; snapshot(); clearTimeout(autoT); autoT = 0;
           T.piles.forEach(p => { p.cards = []; });
@@ -1457,7 +1457,7 @@
         }], ['Lose now', () => { lose(); }], ['Cancel']], { icon: ICON.fc16, w: 330 });
     }
     function help() {
-      Desk.notepad('FREECELL.HLP', `FREECELL HELP\n=============\n\nThe aim: move all 52 cards up to the four home piles (top right),\none pile per suit, from Ace up to King.\n\n* The four boxes at the top left are FREE CELLS. Each one holds a\n  single card while you get it out of the way.\n* In the columns, build down in alternating colours (red on black,\n  black on red). Any card can go in an empty column.\n* You can move a whole run of cards at once if you have enough free\n  cells and empty columns to do it one at a time. The more space,\n  the bigger the run.\n* Double-click a card to send it home, or into a free cell.\n* Cards that are safe to go home go there by themselves.\n* Click a card, then click where you want it to go. Or drag it.\n\nNearly every game can be won. NEARLY.\n(Dave says one of them can't. Dave says lots of things.)\n`);
+      Desk.notepad('FREECELLAR.HLP', `FREECELLAR HELP\n=============\n\nThe aim: move all 52 cards up to the four home piles (top right),\none pile per suit, from Ace up to King.\n\n* The four boxes at the top left are FREE CELLS. Each one holds a\n  single card while you get it out of the way.\n* In the columns, build down in alternating colours (red on black,\n  black on red). Any card can go in an empty column.\n* You can move a whole run of cards at once if you have enough free\n  cells and empty columns to do it one at a time. The more space,\n  the bigger the run.\n* Double-click a card to send it home, or into a free cell.\n* Cards that are safe to go home go there by themselves.\n* Click a card, then click where you want it to go. Or drag it.\n\nNearly every game can be won. NEARLY.\n(Dave says one of them can't. Dave says lots of things.)\n`);
     }
     // poke the king
     T.cv.addEventListener('pointerup', ev => {
@@ -1495,16 +1495,16 @@
 
   // ================================================================ desktop, Start menu, Run, files
   Apps.addProgram(['Games', 'Solitaire'], 'sol', ICON.sol16);
-  Apps.addProgram(['Games', 'FreeCell'], 'freecell', ICON.fc16);
+  Apps.addProgram(['Games', 'FreeCellar'], 'freecell', ICON.fc16);
   Apps.desktopIcon('Solitaire', ICON.sol32, () => Apps.open('sol'), 'iconSol');
-  Apps.desktopIcon('FreeCell', ICON.fc32, () => Apps.open('freecell'), 'iconFreecell');
-  Apps.cmd(['cards.dll', 'cards'], () => msg('CARDS.DLL', 'CARDS.DLL is a library of playing cards used by Solitaire and FreeCell. It contains 52 cards, 12 backs, 4 Ork Warbosses and 1 secret. It cannot be run on its own. (Nice try.)', 'info'));
-  Apps.cmd(['dave', 'dave.exe'], () => msg('dave.exe', 'Dave is not a program. Dave is a boy in Jack\'s class who knows "for a fact" that one FreeCell game can never be won. He has never said which number in the same way twice, but lately it\'s been eleven thousand and something.', 'info'));
+  Apps.desktopIcon('FreeCellar', ICON.fc32, () => Apps.open('freecell'), 'iconFreecell');
+  Apps.cmd(['cards.dll', 'cards'], () => msg('CARDS.DLL', 'CARDS.DLL is a library of playing cards used by Solitaire and FreeCellar. It contains 52 cards, 12 backs, 4 Gork Warbosses and 1 secret. It cannot be run on its own. (Nice try.)', 'info'));
+  Apps.cmd(['dave', 'dave.exe'], () => msg('dave.exe', 'Dave is not a program. Dave is a boy in Jack\'s class who knows "for a fact" that one FreeCellar game can never be won. He has never said which number in the same way twice, but lately it\'s been eleven thousand and something.', 'info'));
   try {
     Apps.fs.add('C:/JACKOS', { name: 'SOL.EXE', type: 'exe', app: 'sol', size: '64 KB', date: '11/05/98' });
-    Apps.fs.add('C:/JACKOS', { name: 'FREECELL.EXE', type: 'exe', app: 'freecell', size: '35 KB', date: '11/05/98' });
+    Apps.fs.add('C:/JACKOS', { name: 'FREECELLAR.EXE', type: 'exe', app: 'freecell', size: '35 KB', date: '11/05/98' });
     Apps.fs.add('C:/JACKOS/SYSTEM', { name: 'CARDS.DLL', type: 'dll', size: '148 KB', date: '11/05/98' });
-    Apps.fs.add('C:/My Documents', { name: 'freecell tips.txt', type: 'txt', size: '1 KB', date: '22/03/99', text: `FREECELL TIPS (by Jack, age none of your business)\n\n1. Empty columns are worth MORE than free cells.\n2. Get the Aces out first. Then the 2s.\n3. Don't fill all four free cells. Ever. That's how you lose.\n4. Kevin the king looks at whichever side you're about to cheat on.\n\nTHINGS DAVE SAYS ABOUT FREECELL\n- there's a game that can't be won. He says it's #11982.\n  (He also said that about #1. I won #1 at lunch.)\n- if you press loads of keys at once you can make it let you win\n- his uncle works at Ultra Entertainment (he doesn't)\n\nBEST STREAK: 7 (Mom made me stop for tea)\n` });
+    Apps.fs.add('C:/My Documents', { name: 'freecellar tips.txt', type: 'txt', size: '1 KB', date: '22/03/99', text: `FREECELLAR TIPS (by Jack, age none of your business)\n\n1. Empty columns are worth MORE than free cells.\n2. Get the Aces out first. Then the 2s.\n3. Don't fill all four free cells. Ever. That's how you lose.\n4. Kevin the king looks at whichever side you're about to cheat on.\n\nTHINGS DAVE SAYS ABOUT FREECELLAR\n- there's a game that can't be won. He says it's #11982.\n  (He also said that about #1. I won #1 at lunch.)\n- if you press loads of keys at once you can make it let you win\n- his uncle works at Ultra Entertainment (he doesn't)\n\nBEST STREAK: 7 (Mom made me stop for tea)\n` });
     Apps.fs.add('C:/JACKOS/SYSTEM', { name: 'vegas.ini', type: 'txt', size: '1 KB', date: '01/04/99', hidden: true, text: `[Solitaire]\nDraw=1\nScoring=Vegas\nKeepScore=1\n; my bank is "in the red" which Dad says is a grown-up way of saying\n; I owe the computer money. how do I pay a computer.\n` });
   } catch (e) {}
 })();

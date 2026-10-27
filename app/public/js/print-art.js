@@ -16,7 +16,10 @@
  for(let i=1;i<=12;i++)files['pm.mag.'+String(i).padStart(2,'0')]='/art/magazines-v2/'+String(i).padStart(2,'0')+'.webp';
  Object.assign(files,{'pc.podracer':files.pod,'pc.grotlings':'/art/print-v3/grotlings.webp','pc.cover7':files['pm.mag.07'],'pc.dx61':files['pm.os98']});
  add('posters-v4',{'posterBand':'band','posterFilm':'film','posterGame':'game','posterRobot':'robot','posterShuttle':'shuttle'});
- const aliases={park:'pc.park',city:'pc.city',squigs:'pc.squigs',rts:'pc.rts',keepa:'pc.keepa',carta:'pc.carta',pinball:'pc.pinball',jaquake:'pc.jaquake',jrt:'pc.jrt',boss:'pc.boss',cover7:'pm.mag.07',n64:'pc.jrt',callumcd:'pm.gub','pm.mix':'pm.gub','vhs.robots':'robots','vhs.charts':'band','vhs.dog':'space','vhs.mom':'city','vhs.dad':'snooker','vhs.blank':'space'};
+ add('print-v4',{'board.property':'board-property','board.cat':'board-cat','board.doctor':'board-doctor'});
+ add('print-v4',Object.fromEntries(['park','city','squigs','rts','keepa','carta','pinball','quake','jrt','boss'].map(id=>['back.'+id,'back-'+id])));
+ add('print-v4',{'pc.boss':'football','vhs.dog':'vhs-dog','vhs.galaxy':'vhs-galaxy','vhs.bash':'vhs-bash'});
+ const aliases={park:'pc.park',city:'pc.city',squigs:'pc.squigs',rts:'pc.rts',keepa:'pc.keepa',carta:'pc.carta',pinball:'pc.pinball',jaquake:'pc.jaquake',jrt:'pc.jrt',boss:'pc.boss',cover7:'pm.mag.07',n64:'pc.jrt',callumcd:'pm.gub','pm.mix':'pm.gub','vhs.robots':'robots','vhs.charts':'band','vhs.dog':'vhs.dog','vhs.mom':'city','vhs.dad':'snooker','vhs.blank':'space'};
  // Base illustration names (city, etc.) retain their original paint() meaning.
  function key(item){let id=typeof item==='string'?item:item?.id;if(id?.startsWith('cart.'))id=id.slice(5);if(id==='pc.callumcd')return 'pm.gub';if(id==='pc.gquest')return 'reading.book.0';if(id==='pc.n64')return 'n64.kart';return aliases[id]||((item?.box?.id&&files['pc.'+item.box.id])?'pc.'+item.box.id:id)}
  const images={},embedded={},pending=new Map(),status={};
@@ -42,6 +45,13 @@
   c.save();c.beginPath();c.rect(x,y,w,h);c.clip();c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(im,x+(w-dw)/2,y+(h-dh)/2,dw,dh);c.restore();return true;
  }
  function svg(id,x,y,w,h,fit='cover'){return embedded[id]?`<image x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid ${fit==='contain'?'meet':'slice'}" href="${embedded[id]}"/>`:''}
+ // Three editorial crops from one coherent illustration; these are printed
+ // scenes, not fabricated claims of actual gameplay screenshots.
+ function vignette(id,index=0){
+  if(!embedded[id])return '';
+  const n=((index%3)+3)%3,zoom=n?1.38:1,w=160*zoom,h=100*zoom;
+  return `<svg width="160" height="100" viewBox="0 0 160 100" overflow="hidden">${svg(id,n===2?160-w:0,(100-h)/2,w,h)}</svg>`;
+ }
  // Shelf, hand and reader use one cover layout: identical art, native crisp type.
  function magazine(c,issue,w,h){
   const id=issue.id||'pm.mag.'+String(issue.month||issue.issue).padStart(2,'0');if(!images[id])return false;
@@ -54,5 +64,5 @@
   do{rows=[];let line='';c.font='900 '+size+'px Impact,Arial';for(const word of words){const next=(line+' '+word).trim();if(line&&c.measureText(next).width>352){rows.push(line);line=word}else line=next}if(line)rows.push(line);if(rows.length<=2)break;size--}while(size>17);
   rows.forEach((line,i)=>c.fillText(line,192,450+i*(size+2)));c.font='bold 12px Arial';c.fillStyle='#f2d572';c.fillText('REVIEWS  •  CHEATS  •  LETTERS  •  COMIC',192,503);c.restore();return true;
  }
- window.PrintArt={ready,files,status,key,paint,svg,magazine,image:id=>images[id]||null,has:id=>!!images[id]?.naturalWidth};
+ window.PrintArt={ready,files,status,key,paint,svg,vignette,magazine,image:id=>images[id]||null,has:id=>!!images[id]?.naturalWidth};
 })();

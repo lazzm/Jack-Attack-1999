@@ -244,15 +244,15 @@
     staples: { name: 'Staples', draw: drawClip, d: 'Staples is always there to help. Whether you want help or not. He is a staple. He holds everything together. Mostly.' },
     biscuit: { name: 'Biscuit', draw: drawDog, d: 'Biscuit is a good boy. He will fetch help topics for you. He will also fetch slippers, sticks and the post (chewed).' },
     grotlin: { name: 'Wizbit', draw: drawWizard, d: 'Wizbit the Wizard knows ancient and powerful magic. Mostly how to find the Save button. He learned it from a Fighting Fantasy book.' },
-    bolt: { name: 'Bolt', draw: drawRobot, d: 'Bolt is a robot from the planet Kilobyte. Beep boop. He came all the way across the galaxy to help you with WordPad. That is his whole mission.' },
+    bolt: { name: 'Bolt', draw: drawRobot, d: 'Bolt is a robot from the planet Kilobyte. Beep boop. He came all the way across the galaxy to help you with WordPod. That is his whole mission.' },
     bouncy: { name: 'Bouncy', draw: drawSquig, d: 'Bouncy is a Blobbit. He bounces. He does not know anything about computers. But he is very happy, and that counts for something.' },
   };
   E.assistants = CHARS;
 
   // ================================================================ the tips
   const T = {
-    Notepad: ["Tip: Notes are better with more exclamation marks!!!", "Tip: To save your note, click File, then Save. To lose your note, close it without doing that. Easy!", "Tip: Notepad can open files up to 64 KB. After that it says it's too big. Like Dave's head.", "Tip: Press F5 in Notepad to put the time and date in. Then you know when you wrote it. Like a diary!"],
-    WordPad: ["Tip: You can make words BOLD by clicking the B. You can make them italic with the I. U is for underline. There is no button for SHOUTING. Use caps lock.", "Tip: Comic Sans makes everything 50% more fun. That's science.", "Tip: To make a word go away, highlight it and press Delete. To make it come back, press Ctrl+Z very quickly.", "Tip: WordPad documents can be printed! If the printer has any cyan left."],
+    Notepad: ["Tip: Notes are better with more exclamation marks!!!", "Tip: To save your note, click File, then Save. To lose your note, close it without doing that. Easy!", "Tip: Jotpad can open files up to 64 KB. After that it says it's too big. Like Dave's head.", "Tip: Press F5 in Jotpad to put the time and date in. Then you know when you wrote it. Like a diary!"],
+    WordPad: ["Tip: You can make words BOLD by clicking the B. You can make them italic with the I. U is for underline. There is no button for SHOUTING. Use caps lock.", "Tip: Comic Sans makes everything 50% more fun. That's science.", "Tip: To make a word go away, highlight it and press Delete. To make it come back, press Ctrl+Z very quickly.", "Tip: WordPod documents can be printed! If the printer has any cyan left."],
     JackCalc: ["Tip: To add up a column, type =SUM( then the cells, then ). Or count on your fingers. I can't. I'm a staple.", "Tip: Spreadsheets are for working out pocket money. 52 weeks times what you get. Then show your Mom how little that is.", "Tip: If a cell shows #####, the number is too big to fit. Like your pocket money demands."],
     Write: ["Tip: Write is very old. Be gentle with it.", "Tip: It looks like you're using a program from 1992. Would you like me to call a museum?"],
   };
@@ -262,7 +262,7 @@
     JackCalc: ["It looks like you're doing your sums!", "Would you like me to do them for you? (I can't count past 4. I have no fingers.)", ['Get help with the sums', 'Just do the sums without help']],
     Write: ["It looks like you're writing something in a very old program!", "Would you like help?", ['Get help (please be patient, I am also old)', 'Just type without help']],
   };
-  const SEARCH = ["Turning your computer off by clicking Start", "Why is the printer out of cyan?", "Making your computer go faster (paint it red)", "What to do when Mom needs the phone", "Finding the Any key", "Is it a Furby or a Eggbert? A guide", "None of the above, look for more help on the Web"];
+  const SEARCH = ["Turning your computer off by clicking Start", "Why is the printer out of cyan?", "Making your computer go faster (paint it red)", "What to do when Mom needs the phone", "Finding the Any key", "Is it a Furbo or an Eggbert? A guide", "None of the above, look for more help on the Web"];
 
   // ================================================================ the assistant on screen
   let cur = null; // { el, cv, g, raf, s, kind, char, idleT, win, mo }
@@ -412,7 +412,7 @@
         `<p>What kind of letter are you writing?</p>${KINDS.map(([v, l]) => `<label><input type="radio" name="lk" value="${v}"${o.kind === v ? ' checked' : ''}> ${esc(l)}</label>`).join('')}<label style="margin-top:8px">Page design: <select class="lstyle"><option>Full Block</option><option>Modified Block</option><option>Wavy (Comic Sans)</option></select></label>`,
         `<p>Who is the letter to?</p><label>Recipient's name:<br><input type="text" class="lto" maxlength="30" value="${esc(o.to)}" style="width:100%"></label><label>Salutation: <select class="lsal"><option>Dear</option><option>To</option><option>Oi</option><option>Greetings Earthling</option></select></label>`,
         `<p>Include:</p><label><input type="checkbox" class="lps"${o.ps ? ' checked' : ''}> P.S. at the bottom</label><label><input type="checkbox" checked disabled> Date (it's 1999, obviously)</label><label><input type="checkbox" disabled> Subject line (letters don't need subject lines, this isn't e-mail)</label>`,
-        `<p>Who is the letter from?</p><label>Your name:<br><input type="text" class="lsign" maxlength="30" value="${esc(o.sign)}" style="width:100%"></label><label>Closing: <select class="lclose"><option>Love from</option><option>Yours sincerely,</option><option>Cheers,</option><option>May the Force be with you,</option></select></label>`,
+        `<p>Who is the letter from?</p><label>Your name:<br><input type="text" class="lsign" maxlength="30" value="${esc(o.sign)}" style="width:100%"></label><label>Closing: <select class="lclose"><option>Love from</option><option>Yours sincerely,</option><option>Cheers,</option><option>May the Farce be with you,</option></select></label>`,
       ];
       b.innerHTML = `<div class="era-wiz"><div class="era-wiz-side">${STEPS.map((s, i) => `<div class="${i === step ? 'on' : ''}">${i + 1}. ${s}</div>`).join('')}</div><div class="era-wiz-main">${pages[step]}</div></div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" data-x="c">Cancel</button><button class="btn" data-x="b"${step ? '' : ' disabled'}>&lt; Back</button><button class="btn" data-x="n">${step < 3 ? 'Next &gt;' : 'Finish'}</button></div>`;
       const q = s => b.querySelector(s);
@@ -428,8 +428,8 @@
     };
     const BODY = {
       gran: "Thank you very much for the jumper. It is very warm and very orange. I have worn it twice. Once was for the photo.\n\nI am being good at school and I have nearly finished my Rubrick's cube (one side).",
-      santa: "This year I would like a new graphics card, a Daydream (it's out in October), and a Furby. I have been mostly good. Dave can confirm. Don't ask Dave.\n\nThere will be a mince pie by the fireplace. Do not let the dog have it.",
-      pen: "My name is Jack and I like computer games, sci-fi, Blockology and painting miniatures. My best mate is called Dave. My computer is a Pentium II. What's yours?\n\nPlease write back soon. Or e-mail. E-mail is faster.",
+      santa: "This year I would like a new graphics card, a Daydream (it's out in October), and a Furbo. I have been mostly good. Dave can confirm. Don't ask Dave.\n\nThere will be a mince pie by the fireplace. Do not let the dog have it.",
+      pen: "My name is Jack and I like computer games, sci-fi, Blockology and painting miniatures. My best mate is called Dave. My computer is a Pent-Yum II. What's yours?\n\nPlease write back soon. Or e-mail. E-mail is faster.",
       dave: "I am writing to complain about the state of the Game Lad you gave back to me. It has crisps in it. Inside. How.\n\nI expect a full refund (one Wham bar) by Friday.",
       mag: "I think your magazine is brilliant. Please print my letter. Here is my high score on Blockology: 112 lines. That's real, I didn't make it up.\n\nAlso can you do a feature on Robo Rumble.",
     };
@@ -454,10 +454,10 @@
     if (kind === 'summon') { setAnim('greet', 1.1); setTimeout(askBox, 900); return; }
     if (kind === 'hello') {
       v.seen.hello = 1; save(v);
-      setTimeout(() => balloon(`<h4>Hi! I'm ${esc(CHARS[charOf()].name)}, your JackOS Assistant.</h4><p>I can give you tips while you write in Notepad, WordPad and JackCalc. Right-click me any time to hide me.</p>${['Show me a tip', 'Start using ' + (ctx.prog || 'Notepad')].map((o, i) => `<button type="button" class="opt" data-o="${i}"><i></i><span>${esc(o)}</span></button>`).join('')}<div class="bb"><button type="button" class="btn" data-x="cancel">Close</button></div>`, b => wireOpts(b, null, [() => tipBalloon(ctx.prog || 'Notepad'), () => { setAnim('happy', 0.8); setTimeout(() => hide(false), 700); }])), 900);
+      setTimeout(() => balloon(`<h4>Hi! I'm ${esc(CHARS[charOf()].name)}, your JackOS Assistant.</h4><p>I can give you tips while you write in Jotpad, WordPod and JackCalc. Right-click me any time to hide me.</p>${['Show me a tip', 'Start using ' + (ctx.prog || 'Jotpad')].map((o, i) => `<button type="button" class="opt" data-o="${i}"><i></i><span>${esc(o)}</span></button>`).join('')}<div class="bb"><button type="button" class="btn" data-x="cancel">Close</button></div>`, b => wireOpts(b, null, [() => tipBalloon(ctx.prog || 'Jotpad'), () => { setAnim('happy', 0.8); setTimeout(() => hide(false), 700); }])), 900);
       return;
     }
-    const key = 'open:' + (ctx.prog || 'Notepad'), O = OPEN[ctx.prog] || OPEN.Notepad;
+    const key = 'open:' + (ctx.prog || 'Jotpad'), O = OPEN[ctx.prog] || OPEN.Notepad;
     setTimeout(() => { if (!cur) return; setAnim('attention', 1.6); balloon(optsHtml(O[0], O[1], O[2], key), b => wireOpts(b, key, [() => tipBalloon(ctx.prog), () => { setAnim('happy', 0.8); setTimeout(() => hide(false), 700); }])); }, 900);
   };
 

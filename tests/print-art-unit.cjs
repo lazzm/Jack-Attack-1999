@@ -30,6 +30,12 @@ test('cover/contain preserve image aspect and clip only the intended print recta
 test('offline readiness settles and missing generated art leaves callers their fallback',async()=>{
  const{art}=await fixture(true);assert.equal(art.has('n64.kart'),false);assert.equal(art.status['n64.kart'],'fallback');assert.equal(art.svg('n64.kart',0,0,1,1),'');assert(art.has('city'),'existing embedded generated illustration survives offline');
 });
+test('back-panel crops are clipped, aspect-preserving and distinct, with an empty offline fallback',async()=>{
+ const {art}=await fixture(),panels=[0,1,2].map(i=>art.vignette('n64.kart',i));
+ assert.equal(new Set(panels).size,3);assert(panels.every(s=>s.includes('overflow="hidden"')&&s.includes('preserveAspectRatio="xMidYMid slice"')));
+ assert.equal(art.vignette('not-present',0),'');assert.equal(art.vignette('n64.kart',3),panels[0]);
+ const offline=await fixture(true);assert.equal(offline.art.vignette('n64.kart',0),'');
+});
 test('monthly mastheads fit without clipping even with a wider fallback font',async()=>{
  const {art}=await fixture(),titles=[];
  const ctx={save(){},restore(){},scale(){},fillRect(){},beginPath(){},rect(){},clip(){},drawImage(){},font:'12px Arial',measureText(s){return{width:s.length*Number(/([\d.]+)px/.exec(this.font)?.[1]||12)*.72}},fillText(s,x,y){if(s==='JACK ATTACK!')titles.push({width:this.measureText(s).width,x,y})}};
@@ -49,4 +55,21 @@ test('already-open reading pages repaint in place when generated illustrations f
  assert(pages.every(t=>t.userData.g.generated>0&&t.needsUpdate));
  assert.equal(window.Magazines.pageTexture(book,0),pages[0],'Repaint must retain the texture used by the open reader');
  assert(pages.every(t=>t.userData.layout.bottom<t.userData.layout.footer));
+});
+function packaging(){
+ const window={Discs:{BOX:{},GAMES:{},byOf:()=> 'Jacksoft',demoBox:()=>false},PM:{}};
+ vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../app/public/js/pm-art.js'),'utf8'),{window});return window.PMArt;
+}
+test('PC back panels retain complete blurbs and every feature without ellipses or footer overlap',()=>{
+ const art=packaging(),blurb=Array.from({length:45},(_,i)=>'word'+i).join(' '),feats=Array.from({length:5},(_,i)=>'Feature '+i+' includes a long explanatory line without losing its final endmarker'+i);
+ const text=art.backBig({title:'A readable fictional game',c1:'#123456',box:{blurb,feats}});
+ const nodes=[...text.matchAll(/<text([^>]*)>([\s\S]*?)<\/text>/g)],copy=nodes.map(m=>m[2]).join(' ');
+ assert(copy.includes(blurb));for(const f of feats)assert(copy.includes(f),f);assert(!copy.includes('...'));
+ for(const node of nodes.filter(m=>/Feature|endmarker/.test(m[2]))){const y=Number(/y="([\d.]+)"/.exec(node[1])[1]);assert(y>=123&&y<168,'Feature overlaps requirements box')}
+});
+test('Pixel Post masthead and full catalogue straplines have explicit print bounds',()=>{
+ const text=packaging().catCover();
+ assert.match(text,/<text[^>]*textLength="174"[^>]*>THE GAMES CATALOGUE · AUTUMN \/ WINTER 1999<\/text>/);
+ assert.match(text,/<text[^>]*textLength="182"[^>]*>EVERY GAME BOXED, WITH THE MANUAL!<\/text>/);
+ assert(text.includes('height="67" fill="#fff0cf"'),'Masthead needs a readable ink/paper backing');
 });

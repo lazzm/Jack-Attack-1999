@@ -2,23 +2,25 @@
 
 Audit and implementation: 26 October 2026, `/opt/stacks/landing-art`, branch `art-gen`. Baseline HEAD: `3f45739f2254a1112bb9985d18f746fe883abaae` (clean at start). The detailed item rows below preserve the baseline source audit; the delivery table immediately below supersedes their historical pending/wiring statuses. No deployment, commit, push, production data or other worktree changes are part of this handoff.
 
-## Delivery status — implementation handoff
+## Delivery status — continuation after main v2.56.0 (27 October)
 
-There are now **100 PrintArt keys / 88 unique local URLs, all present**, across 105 retained/new bitmap files. **64 new accepted image_gen originals** were visually reviewed; 76 new versioned WebPs (1,775,388 bytes total) include 12 monthly crops/reuses. Seven monthly subjects reuse prior text-free generated originals; five reuse this batch. The old 29 files are retained, not overwritten. Titles, spines, dates, prices, recipient names and player writing remain native text, not generated lettering.
+There are now **116 PrintArt keys / 104 unique local URLs, all present**, across **122 retained/new bitmap files**. This continuation adds **17 accepted generated outputs: 16 original scenes and one revised cover**, saved in `print-v4` (346,706 bytes). Eighteen tool outputs were reviewed; the first football back scene was rejected for brand-like sleeve stripes and replaced. Cumulative delivery: **81 accepted generated outputs / 93 new versioned WebPs (2,122,094 bytes)**, including 12 monthly crops/reuses. Seven monthly subjects reuse prior text-free generated originals; five reuse the earlier batch. The old 29 files and superseded football painting remain retained, not overwritten. Titles, spines, dates, prices, recipient names and player writing stay native text.
+
+The five merge conflicts are resolved in the files, preserving main's surface-size/detail table, models and parody wording. The Git index remains for the manager to stage/finish; this worker does not write Git metadata or version releases. Startup loading is parser-deferred with a 60-second fetch timeout; the full-room rerun now reports no missing generated mappings. PM SVG rasters use `HouseKit.tex`, retaining authored pixels while respecting Potato/Low texture limits and `setAniso`. Final browser results and remaining limits are recorded below.
 
 | Delivered category | Files / keys and consumers | Current status |
 |---|---|---|
 | Console cases and visible cartridge/disc labels | All 23 RoomCat IDs; 17 new box-v2 originals plus six prior-art mappings; rm-room.js / PMArt.cartArt | Generated layers wired with procedural fallback. Super Ultra physical rack remains absent when its console is away; catalogue compositors still cover those IDs. |
-| PC boxes, jewel inserts, disc labels and shop pictures | Discs.front, PMArt bigBox/jewel/discLabel; every Games Cupboard identity resolves | Generated heroes wired; existing small back screenshot vignettes and technical shell/label geometry remain procedural. |
+| PC boxes, jewel inserts, disc labels and shop pictures | Discs.front/printShot, PMArt bigBox/jewel/discLabel; every Games Cupboard identity resolves | Generated heroes plus ten distinct back-panel paintings (`back.park/city/squigs/rts/keepa/carta/pinball/quake/jrt/boss`). Three clipped editorial crops per scene replace procedural thumbnails without claiming they are real gameplay screenshots. Revised football front has no brand-like stripes. Technical shell/label geometry stays procedural. |
 | Monthly magazines | magazines-v2/01–12.webp; PrintArt.magazine, Magazines, HouseArt, PMArt, CXMag | Twelve distinct text-free cover subjects with native headings. All 72 editorial pages have generated illustration hooks, but workshop/postbag/comic art is shared, not 72 independently commissioned scenes. |
 | Books, Space Kat comic, directory and TV guide | reading.book.0–5, ch.m.comic, hs.pbook, hs.tvguide | Generated cover layers and all 36 reading-page illustration hooks. Illustrations are reused per document; not a unique sequential illustration for every story page. School notebook ruling remains procedural. |
 | Wall posters | Five posters-v4 originals at 512px wide; hs-art.js | New text-free paintings plus separately typeset full fictional titles; prior lettered v3 files retained only as history. |
 | Groceries and bedroom packaging | Nine grocery products; Kitty Crunch, crisps, fizz, Spike insert | Generated product pictures wired in ch-kitchen.js / ch-bed.js, native product names preserved; original source-painted fallback retained. |
-| VHS and cassette print | Existing six playback VHS plus six chore labels; radio cassette inlays | Generated shared subject paintings, native sleeve/spine lettering. Not a unique painting for every tape. |
+| VHS and cassette print | Existing six playback VHS plus six chore labels; radio cassette inlays | New dedicated Space Dog, Galaxy Walk and Bashiators pictures replace mismatched subjects. Other tapes/inlays share generated paintings; native sleeve/spine lettering remains. Not a unique painting for every tape. |
 | Pixel Post | Catalogue cover/SKU thumbnails/parcel stamp; four hardware catalogue paintings | Generated illustrations wired in PMArt, PMGL and PM.media; personal shipping details stay native. Hardware deliveries still reveal bare hardware, not new retail-carton models. |
-| Reserved board-game / construction-kit pictures | print-v3/board-game.webp, construction.webp | Generated and reviewed, but **unwired**: matching physical retail cartons do not exist. Assembled toys were not replaced with boxes. |
+| Board-game lids / reserved construction-kit picture | Main's three stacked bookcase cartons; print-v4/board-property, board-cat, board-doctor.webp | New generated paintings wired on MONEYOPOLY, CAT TRAP! and DOCTOR DOCTOR! lids; a corrected 512×1024 shared atlas keeps each lid approximately 3:2. Main's solid models/contact shadow remain. Covered lower lids are not newly made movable. The older reserved print-v3 board-game/construction pictures remain unwired; no construction-kit retail carton exists. |
 
-**Not complete:** secondary print listed below (digital collectible cards, JackWorld furnishing print, authored stamps, school/stationery/photo decorations, some tiny household labels, older standalone music sleeves), unique narrative art for each interior page, and distinct back-of-box gameplay vignettes. These remain procedural or absent. Generated backgrounds must not replace player-created content. Source existence and unit checks are not a claim of in-game visual approval; final test results are recorded in the handoff report.
+**Not complete:** secondary print listed below (digital collectible cards, JackWorld furnishing print, authored stamps, school/stationery/photo decorations, some tiny household labels, older standalone music sleeves), unique narrative art for each interior page, unique art for every VHS/cassette, and absent toy/hardware retail-carton models. These remain procedural, shared or absent as described. Generated backgrounds must not replace player-created content. Source existence and unit checks are not a claim of in-game visual approval; final test results are recorded below.
 
 The following “Current registry refresh” section and item tables are the **earlier audit snapshot**, retained to show each original source and proposed target. Missing-file counts and “pending/unwired” claims there are historical; use the delivery table above and the actual PrintArt.files map for current targets. Proposed folders such as pc-v2/packaging-v1 were not created.
 
@@ -67,7 +69,7 @@ All paths are relative to app/public/art/. Files exist; integrated/unwired categ
 | `pc.pinball` | `print-v3/pinball.webp` |
 | `pc.jaquake` | `print-v3/explorer.webp` |
 | `pc.jrt` | `print-v3/arena.webp` |
-| `pc.boss` | `print-v3/office.webp` |
+| `pc.boss` | `print-v4/football.webp` |
 | `pm.os98` | `print-v3/desktop.webp` |
 | `pm.netplanet` | `print-v3/internet.webp` |
 | `pm.gub` | `print-v3/robot-band.webp` |
@@ -128,6 +130,22 @@ All paths are relative to app/public/art/. Files exist; integrated/unwired categ
 | `posterGame` | `posters-v4/game.webp` |
 | `posterRobot` | `posters-v4/robot.webp` |
 | `posterShuttle` | `posters-v4/shuttle.webp` |
+| `board.property` | `print-v4/board-property.webp` |
+| `board.cat` | `print-v4/board-cat.webp` |
+| `board.doctor` | `print-v4/board-doctor.webp` |
+| `back.park` | `print-v4/back-park.webp` |
+| `back.city` | `print-v4/back-city.webp` |
+| `back.squigs` | `print-v4/back-squigs.webp` |
+| `back.rts` | `print-v4/back-rts.webp` |
+| `back.keepa` | `print-v4/back-keepa.webp` |
+| `back.carta` | `print-v4/back-carta.webp` |
+| `back.pinball` | `print-v4/back-pinball.webp` |
+| `back.quake` | `print-v4/back-quake.webp` |
+| `back.jrt` | `print-v4/back-jrt.webp` |
+| `back.boss` | `print-v4/back-boss.webp` |
+| `vhs.dog` | `print-v4/vhs-dog.webp` |
+| `vhs.galaxy` | `print-v4/vhs-galaxy.webp` |
+| `vhs.bash` | `print-v4/vhs-bash.webp` |
 
 ## Current registry refresh — authoritative targets (baseline snapshot)
 
@@ -1960,9 +1978,9 @@ The following JSON is valid and self-contained. Section defaults carry shared us
 }
 ```
 
-## Verification and limits
+## Historical first-handoff verification and limits (26 October)
 
-Implementation verification (supersedes the documentation worker's earlier snapshot): all 105 manifest-listed files exist, all 100 current registry keys resolve, and nine embedded/standalone old illustrations still match. All new accepted originals were reviewed visually before export; rejected variants were not included. No old asset folders were overwritten.
+This section records the previous incomplete handoff, not the current continuation's test gate: 105 manifest-listed files existed, 100 registry keys resolved, and nine embedded/standalone old illustrations matched. All accepted originals were reviewed visually before export; rejected variants were not included. No old asset folders were overwritten.
 
 - `node --check` on all 14 modified app JS files and new test scripts: exit 0. `git diff --check`: exit 0.
 - `node tests/print-art-unit.cjs`: exit 0, 6/6 (deduplicated loading, aliases, parser deferral, aspect/clip, offline fallback, fallback-font masthead width and already-open page repaint). `node tests/art-gallery-unit.cjs`: exit 0, 7/7. Source audit: exit 0; 12 historical magazine manifests lack original PNG basenames, not new missing assets.
@@ -1973,4 +1991,19 @@ Implementation verification (supersedes the documentation worker's earlier snaps
 - All owned disposable servers were stopped; their logs have no mod failed to load, unhandled or fatal entries. No production server was restarted. Capture filenames are overwritten across runs: historical report PNG hashes must be checked before treating a file as that run's evidence.
 
 Reviewed compositor/contact-sheet samples span monthly covers, PC fronts and cover CDs, native editorial text, console cases/labels, Space Kat, packaging and posters. This is not visual approval of all 890 duplicated surfaces. All-prop physical coverage, fresh screenshots of every final layout, real-device touch, hardware FPS, full reader refresh/Esc/rapid-input paths and exhaustive model-face inspection remain unverified. No deployment, version bump, commit or push was performed. No production data or other worktree was changed.
+
+## Continuation verification — 27 October (current handoff)
+
+- All **122 bitmap files / 116 registry keys** pass the source audit (exit 0); nine legacy embedded copies still match their files. Seventeen new accepted outputs in `print-v4` were individually inspected before encoding and again in contact sheets. Manifests retain method, prompts, review notes, dimensions and byte counts. Original generation PNGs stay in the tool's generated-image cache; runtime uses only repository WebPs.
+- `node tests/print-art-unit.cjs`: **exit 0, 9/9**. `node tests/art-gallery-unit.cjs`: **exit 0, 7/7**. `node tests/art-return-unit.cjs`: **exit 0, 3/3** (includes the former low-FPS failure). `node tests/board-art-unit.cjs`: **exit 0, 2/2**, exercising the actual carton geometry builder's UVs.
+- Final `node --check`: **exit 0 on all 17 touched JS/test files**. `git diff --check`: **exit 0**. Conflict-marker scan: **none**. `node --expose-internals tests/parody-audit.cjs`: **exit 0, zero authored spans to rewrite**. The manager's merge index still needs staging; no Git write was attempted.
+- Full `tests/art-gallery.mjs --all-world`: **exit 0**, **934 bitmap/compositor exports, 81 contact sheets, 288 physical views of all 62 available selected props**. Report: `tests/shots/art-gallery/2026-10-27T01-49-39-447Z/report.json`. All 116 registry statuses were generated, the material probe reported no retained-paint errors, and the browser/server module checks were clear. Twenty snapped PC cases passed visible-geometry overlap/upright checks. All 181 tested print textures passed Potato (maximum edge 256), Low (512), High restoration (1024 in this set), mipmap and anisotropy checks.
+- That full run preceded the final typography and carton-UV refinements. A focused `--world-only --items=...` pass then covered all ten PC scene identities, Pixel Post, the formerly stuck party case and Space Dog: **exit 0**, **229 exports, 22 sheets, 77 physical views**. Report: `tests/shots/art-gallery/2026-10-27T02-12-10-340Z/report.json`. Reviewed the complete wrapped box-back copy and uncropped, paper-backed Pixel Post straplines; no browser/module errors.
+- The board-game close-ups caught a mirror flip and mip-bleeding colour strips; the final geometry maps the lid unmirrored toward the room and samples one solid-ink texel for each side. `tests/art-board-review.mjs`: **exit 0**, four real-room angles plus reload, all generated mappings present, no browser/module errors. **Final board visual evidence supersedes the earlier full/focused board images:** `tests/shots/art-gallery/board-final-2026-10-27T02-21-17-284Z/{front,left,close,right,close-after-refresh}.png`.
+- Requested **single** `SMOKE_SCALE=3 node tests/smoke.mjs`: **exit 0, 12/12** (signup, account/house, walk/refresh, PC controls, console game, phone typing, prop/refresh, Esc menu, canonical views, mobile-desktop check, browser errors and server log). Log: `tests/shots/art-gallery/smoke-scale3-2026-10-27.log`. All six fresh canonical PNGs in `tests/shots/smoke/` were viewed. Renderer: SwiftShader; draw calls were bedroom 770, desk 504, TV 385, landing 534, kitchen 357, front garden 1046. These are draw counts, **not hardware FPS**; the script's mobile check is not full real-device gameplay proof.
+- Earlier continuation attempts are retained as rejected/incomplete evidence: the 01:21 run terminated with 143; the 01:28 all-world run failed after 211 views on an indefinitely bouncing returned case. The latter exposed the actual low-frame-rate contact-settling bug, now fixed and reproduced/covered by the landing unit test and successful subsequent physical passes. No failures were hidden by changing the return state in the harness.
+- Captures include 1366×860, 1920×1080, 390×844 and 844×390. Narrow captures resize the same WebGL room; they do **not** establish real-phone startup, touch performance or the full device policy. This is sampled visual approval, not a claim that every duplicated compositor export or model face was manually inspected.
+- New runs use timestamped output folders and a latest-run pointer; old gallery reports/captures are no longer overwritten. Browser tests ran sequentially on disposable localhost servers/free ports. Owned servers are stopped; their clear module logs are copied beside the successful gallery runs. No live site, production account/data, other worktree, release version, deployment, Git commit or push was changed by this continuation. The manager must stage the resolved files/finish the existing merge.
+
+Still not finished: the secondary inventory noted at the top, independently commissioned illustrations for every interior page/tape, and missing toy/hardware retail-carton models. Lower board-game lids remain physically covered in the existing fixed stack; their artwork was checked in the native atlas, not by inventing new movable props. The original R31 leaning save was unavailable; current snapped geometry was verified, not that exact historic save. Hardware FPS, real-device touch/gamepads and exhaustive reader refresh/Esc/rapid-input paths were not verified by the art tests.
 

@@ -22,30 +22,22 @@
   // ================================================================ covers (shared generated art, native type)
   // [background top, background bottom, masthead colour, main cover line, cover lines, cover CD sticker colour]
   const META = {
-    1: { b: ['#0a2a7a', '#3a7ad8'], mc: '#ffd400', cd: '#9fd0ff', art: 'snow' },
-    2: { b: ['#2a2a2a', '#5a6a4a'], mc: '#ff3a3a', cd: '#ff8ac4', art: 'box' },
-    3: { b: ['#0a6a2a', '#7ad83a'], mc: '#fff', cd: '#ff2a2a', art: 'party' },
-    4: { b: ['#5a2a8a', '#ff8ac4'], mc: '#ffd400', cd: '#ffd400', art: 'coaster' },
-    5: { b: ['#05051a', '#2a1a5a'], mc: '#ffd400', cd: '#9ff', art: 'pod' },
-    6: { b: ['#c84a00', '#ffc040'], mc: '#fff', cd: '#e10600', art: 'car' },
-    7: { b: ['#005a7a', '#3ad0ff'], mc: '#ffd400', cd: '#ff7a00', art: 'monkey' },
-    8: { b: ['#000', '#2a2a3a'], mc: '#ffd400', cd: '#ff9a00', art: 'eclipse' },
-    9: { b: ['#1a7a2a', '#a0e060'], mc: '#fff', cd: '#e10600', art: 'golf' },
-    10: { b: ['#f0f0f0', '#9ad0ff'], mc: '#e10600', cd: '#ff7a00', art: 'monster' },
-    11: { b: ['#0a0a2a', '#5a1a5a'], mc: '#3affff', cd: '#ff4aff', art: 'fight' },
-    12: { b: ['#6a0000', '#d02020'], mc: '#fff', cd: '#3aff6a', art: 'xmas' },
+    1: { b: ['#0a2a7a', '#3a7ad8'], mc: '#ffd400', main: 'HAPPY NEW YEAR!', lines: ['ROGUE SQUADRILLA', 'SQUIRMS ARMAGEDDON!', 'WHAT I GOT FOR CHRISTMAS', '1999: THE YEAR AHEAD'], cd: '#9fd0ff', art: 'snow' },
+    2: { b: ['#2a2a2a', '#5a6a4a'], mc: '#ff3a3a', main: 'SNEAKY!!!', lines: ['METAL GEAR WOBBLY!', 'CIVIC CHAOS 3000', 'WARLO LAND II', 'VALENTINE\'S? YUCK'], cd: '#ff8ac4', art: 'box' },
+    3: { b: ['#0a6a2a', '#7ad83a'], mc: '#fff', main: 'PARTY TIME!', lines: ['MARLO PARTY: BLISTERS!', 'Z-WING ALLIANCE', 'ROLLCRATE UPSIDE DOWN', 'RED NOSE DAY'], cd: '#ff2a2a', art: 'party' },
+    4: { b: ['#5a2a8a', '#ff8ac4'], mc: '#ffd400', main: 'LOOP THE LOOP!', lines: ['ROLLERCOASTER RUPEECOON', 'RIDGE WRECKER TYPE 4', 'MICRO MECHANICS 64', 'EASTER EGGS (IN GAMES!)'], cd: '#ffd400', art: 'coaster' },
+    5: { b: ['#05051a', '#2a1a5a'], mc: '#ffd400', main: 'INTERGALACTIC BATTLES IS COMING!', lines: ['CASTLEVANILLA 64', 'STARSIEGE: TRIBBLES', 'CRICKET WORLD CUP 99', 'NO SPOILERS ZONE'], cd: '#9ff', art: 'pod' },
+    6: { b: ['#c84a00', '#ffc040'], mc: '#fff', main: 'GETAWAY!', lines: ['DRIVER: THE CAR PARK', 'EPISODE I RACER', 'DUNGEON KEEPA 2', 'SUMMER = GAMES'], cd: '#e10600', art: 'car' },
+    7: { b: ['#005a7a', '#3ad0ff'], mc: '#ffd400', main: 'SCHOOL\'S OUT!!!', lines: ['APE ESCAPADE: NET THEM!', 'SUPERMUN 64 (OH NO)', 'THE MOON: 30 YEARS', 'SIX WEEKS OF GAMES'], cd: '#ff7a00', art: 'monkey' },
+    8: { b: ['#000', '#2a2a3a'], mc: '#ffd400', main: 'TOTAL ECLIPSE!', lines: ['TIBERIAN MOON', 'CROCK 2', 'BLOCKO RACERS', 'DON\'T LOOK AT THE SUN'], cd: '#ff9a00', art: 'eclipse' },
+    9: { b: ['#1a7a2a', '#a0e060'], mc: '#fff', main: 'FORE!!!', lines: ['MARLO GOLF', 'HOVER HAVOC 3', 'RE-VAULT: TINY CARS', 'BACK TO SCHOOL (NO)'], cd: '#e10600', art: 'golf' },
+    10: { b: ['#f0f0f0', '#9ad0ff'], mc: '#e10600', main: 'THE BIGGEST MONTH EVER!', lines: ['POCKET CRITTERS IS HERE!', 'ZIP THE BADGER IN 3D!', 'FINAL FANTASTIC VIII', 'NINE REVIEWS!!!'], cd: '#ff7a00', art: 'monster' },
+    11: { b: ['#0a0a2a', '#5a1a5a'], mc: '#3affff', main: 'FIGHT!!!', lines: ['SUPER SMUSH BROS.', 'SPIKE THE STEGOSAUR 2', 'PARK PANIC WORLD', 'BONFIRE NIGHT'], cd: '#ff4aff', art: 'fight' },
+    12: { b: ['#6a0000', '#d02020'], mc: '#fff', main: 'THE LAST ISSUE OF THE 1900s!', lines: ['DONKEY WRONG 64', 'BLOCKO ROCK TRADERS', 'WORMS ON THE PLAYSPACE', 'Y2K: WILL WE SURVIVE?'], cd: '#3aff6a', art: 'xmas' },
   };
   const issueKey = m => 'pm.mag.' + String(m).padStart(2, '0');
-  const issueMeta = m => window.MagazineCat?.ISSUES.find(issue => issue.month === +m);
-  // Accessors also serve PMArt consumers if the physical catalogue loads later.
-  // Punctuation supplies short cover lines without cutting off words or titles.
-  for (const [month, meta] of Object.entries(META)) Object.defineProperties(meta, {
-    main: { enumerable: true, get: () => issueMeta(month)?.headline || 'THE GAMES SPECIAL' },
-    lines: { enumerable: true, get: () => {
-      const kicker = issueMeta(month)?.kicker || 'Original games, gigantic ideas';
-      return [...kicker.split(/[:,.!?]+/).map(line => line.trim().toUpperCase()).filter(Boolean), 'CHEATS + COMIC'];
-    } },
-  });
+  // The archive keeps its own parodied headlines and release-month cover lines.
+  // Physical MagazineCat issues use their separate native cover compositor.
   const ART = {
     snow: () => `<rect x="0" y="150" width="200" height="50" fill="#fff"/><g fill="#fff" stroke="#9ab" stroke-width="2"><circle cx="100" cy="128" r="34"/><circle cx="100" cy="76" r="24"/></g><circle cx="92" cy="70" r="3" fill="#000"/><circle cx="108" cy="70" r="3" fill="#000"/><path d="M100 77l14 4-14 3z" fill="#ff7a00"/><path d="M90 86q10 7 20 0" stroke="#000" stroke-width="2" fill="none"/><path d="M78 98h44v8H78z" fill="#e10600"/><path d="M110 102l8 24h-8z" fill="#e10600"/><rect x="82" y="44" width="36" height="8" fill="#222"/><rect x="88" y="22" width="24" height="24" fill="#222"/><path d="M58 120l-20-14M142 120l18-18" stroke="#6a3a1a" stroke-width="4"/><g transform="translate(148 86) rotate(-20)"><path d="M-14 0h28l6 10-8 14-6-8h-12l-6 8-8-14z" fill="#999" stroke="#000" stroke-width="2"/><circle cx="8" cy="4" r="3" fill="#ffd400"/><circle cx="-8" cy="4" r="3" fill="#2a7ad8"/></g><g fill="#fff">${[[20, 20], [40, 60], [170, 30], [180, 140], [24, 120], [150, 10], [70, 14]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3"/>`).join('')}</g><text x="100" y="190" text-anchor="middle" font-family="Anton,Impact" font-size="26" fill="#2a5ad8">1999</text>`,
     box: () => `<rect x="0" y="160" width="200" height="40" fill="#4a4a3a"/><g><path d="M40 168V96l60-18 60 18v72z" fill="#c89a5a" stroke="#5a3a1a" stroke-width="3"/><path d="M40 96l60 14 60-14M100 110v58" stroke="#5a3a1a" stroke-width="3" fill="none"/><rect x="58" y="120" width="30" height="9" fill="#1a1a1a"/><circle cx="66" cy="124.5" r="3" fill="#fff"/><circle cx="80" cy="124.5" r="3" fill="#fff"/><circle cx="67" cy="125" r="1.4" fill="#000"/><circle cx="81" cy="125" r="1.4" fill="#000"/><text x="128" y="148" text-anchor="middle" font-family="Arial Black,Arial" font-size="11" fill="#5a3a1a">FRAGILE</text><path d="M116 152h24" stroke="#e10600" stroke-width="2"/></g><text x="150" y="70" text-anchor="middle" font-family="Anton,Impact" font-size="60" fill="#ff3a3a" stroke="#000" stroke-width="3">!</text><g stroke="#ffd400" stroke-width="3" opacity=".8"><path d="M20 20l40 60M180 20l-40 60" /></g><circle cx="20" cy="18" r="8" fill="#ffd400"/><circle cx="180" cy="18" r="8" fill="#ffd400"/>`,
@@ -209,7 +201,7 @@
       const w = { img: 'data:image/svg+xml,' + encodeURIComponent(svg), col: P.col || '#008080', mode: 'Center' };
       const d = document.getElementById('desktop'); if (d) d.style.background = `url("${w.img}") center/auto no-repeat,${w.col}`;
       try { localStorage.setItem('jhp_prog_wall', JSON.stringify(w)); } catch (e) {}
-      Desk.toast('Display Properties', `The ${MONTHS[m - 1]} poster ("${P.title}") is on your desktop now. Blu-Tack not included.`, 4500);
+      Desk.toast('Display Properties', `The ${MONTHS[m - 1]} poster ("${P.title}") is on your desktop now. Blue-Stuck not included.`, 4500);
       sfx('solve'); secret('cx.poster');
     }
   }, true);

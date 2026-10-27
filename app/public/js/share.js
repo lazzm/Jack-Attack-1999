@@ -223,7 +223,7 @@
   A.register('share.web', { cmd: [], open(url) { SH.go(String(url || SH.url('cards'))); return null; } });
   if (window.Setup && Setup.product) Setup.product('share.diskswap', {
     n: 'DiskSwap 1.44', v: '1.44', kb: 288, lic: 'Freeware', by: 'Floppy Swap-O-Rama', cat: 'net', sq: 5, rel: '17/05/99',
-    d: 'Fill a 3½" floppy disk with your Paint pictures, Notepad files and a link to your home page, write a label in felt tip, and GIVE IT to another JackNet member. It lands on their desktop!',
+    d: 'Fill a 3½" floppy disk with your Paint pictures, Jotpad files and a link to your home page, write a label in felt tip, and GIVE IT to another JackNet member. It lands on their desktop!',
     note: 'Disks hold 1.44 MB. A Paint picture is a BIG bitmap. You have been warned.',
     apps: ['share.diskswap'], paths: ['Accessories > DiskSwap 1.44'], icons: [], def: false, launch: 'share.diskswap', exe: 'DISKSWAP.EXE', dir: 'DiskSwap',
   });
@@ -251,7 +251,7 @@ it back with "DAVE'S" written over your label. Not any more!
 HOW TO SWAP A DISK
   1. Start > Programs > Accessories > DiskSwap 1.44
   2. Write a label. Pick a colour. Stick some stickers on.
-  3. Click "Put files on..." and pick Paint pictures, Notepad files
+  3. Click "Put files on..." and pick Paint pictures, Jotpad files
      or a shortcut to your home page.
   4. Click "Give to..." and pick a JackNet member.
   5. The disk turns up on THEIR desktop. They can copy things off it.

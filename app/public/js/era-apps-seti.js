@@ -34,7 +34,7 @@
     Net.kv.watch(KEY, ev => { if (ev && ev.type === 'set' && typeof ev.v === 'number') global = ev.v; });
   }
   const VERDICTS = [
-    ["Dave's microwave", 'doing a Pot Noodle'], ["Dave's microwave", "he's doing a jacket potato"], ["Dave's microwave AGAIN", 'fish fingers this time'],
+    ["Dave's microwave", 'doing a Pot Noodlez'], ["Dave's microwave", "he's doing a jacket potato"], ["Dave's microwave AGAIN", 'fish fingers this time'],
     ["Mom's hairdryer", 'she was getting ready to go out'], ['the baby monitor next door', 'the baby was singing'], ["Dad's electric shaver", 'Sunday morning'],
     ['Gubbinz', 'chewing the TV aerial'], ['a mobile phone', "someone's Nan rang them"], ["the telescope man's walkie-talkie", 'he wanted a cup of tea'],
     ['a satellite dish', 'pointing at the wrong satellite'], ['the electric fence', 'on the farm by the telescope'],
@@ -251,7 +251,7 @@
           text('Checking the JackNet Interference Database...', W / 2, by + fs * 4, '#b8c8ff', fN);
         } else {
           text(`RESULT: it was ${ev.v[0]}.`, W / 2, by + fs * 2.2, '#7aff9a', `bold ${Math.round(fs * 1.25)}px Arial, sans-serif`);
-          text(`(${ev.v[1]}). Not aliens. Sorry, Mulder. Back to work!`, W / 2, by + fs * 4, '#fff', fN);
+          text(`(${ev.v[1]}). Not aliens. Sorry, Mudder. Back to work!`, W / 2, by + fs * 4, '#fff', fN);
         }
         g.textAlign = 'left';
       } else if (ev && ev.k === 'send' && gh > 30) {

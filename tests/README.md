@@ -34,17 +34,28 @@ No legacy script is silently executed by the smoke runner.
 copies and the actual PrintArt registry without a browser. Run
 `node tests/print-art-unit.cjs` and `node tests/art-gallery-unit.cjs` for loader,
 aspect/fallback, delayed-reader repaint, provenance and localhost-safety checks.
+`node tests/art-return-unit.cjs` checks production landing/settling at ordinary
+and software-WebGL frame times, including the old infinite-bounce reproducer.
+`node tests/board-art-unit.cjs` checks the actual board-carton builder's lettering
+orientation and solid-ink side sampling.
+`node tests/art-board-review.mjs http://localhost:PORT` captures final real-room
+angles and reload on disposable data.
 
 Start a server with a fresh `/tmp` DATA_DIR and ADMIN_TOKEN=testtoken, then run
 `node tests/art-gallery.mjs http://localhost:PORT` (or add `--all-world`). The gallery
-creates its own unique disposable account and writes `tests/shots/art-gallery/index.html`,
+creates its own unique disposable account and writes a timestamped run below
+`tests/shots/art-gallery/` (`index.html` and `latest.json` point to the newest run):
 `report.json`, individual production texture exports, contact sheets and real shelf/hand/
 inspection screenshots. Default world captures sample physical formats; `--all-world`
 selects all available physical print props. Away/date-gated/absent props are recorded,
 not silently counted as photographed. Gallery image/compositor exports alone are not
 in-world visibility or interaction proof. Inspect captures visually; the runner is not OCR.
+`--items=pmb.city,vhs.dog` selects an explicit physical subset and fails if an item
+is unavailable; it cannot be combined with `--all-world`.
 `--world-only` skips the large source export and captures fresh changed compositors plus
-the physical views; save the preceding full report separately before this focused rerun.
+the physical views; previous timestamped reports and images remain intact. The report
+also checks upright/non-intersecting PC shelf cases and Potato/Low/High print-texture
+limits, mipmaps, anisotropy and restoration of the authored canvas on High.
 `node tests/art-native.mjs http://localhost:PORT` is a fast, separate production
 magazine/poster compositor and silhouette-fit diagnostic. Its PNG is deliberately
 labelled native-fixes-current, not counted as a physical shelf/hand capture.
@@ -69,6 +80,25 @@ the repository. Do not regenerate assets from procedural drawings or silently ov
 | obsolete | `art-loading.mjs`, `artcheck.mjs`, `bookcase.mjs`, `cur3.mjs`, `discs3.mjs`, `egg.mjs`, `fps.mjs`, `fresh.mjs`, `handheld.mjs`, `house-entry.mjs`, `house-resume.mjs`, `house-review.mjs`, `house-save.mjs`, `inspect.mjs`, `integ.mjs`, `jsnt.mjs`, `lean-edges.mjs`, `lean-power.mjs`, `lean-qa.mjs`, `loot.mjs`, `n99.mjs`, `newpacks.mjs`, `newsites.mjs`, `pc-recovery.mjs`, `pc-restart.mjs`, `pcmouse.mjs`, `pwrbtn.mjs`, `resetinst.mjs`, `resetpc.mjs`, `rotate.mjs`, `shelf-layout.mjs`, `smoke3.mjs`, `standwake.mjs`, `trayprobe.mjs`, `tv-background.mjs`, `tw2.mjs`, `zrc.mjs` | Historical probes: account gate, fullscreen/mobile room, hard-coded paths or old exit controls; do not use as a deploy gate. |
 | support utilities (not tests) | `create-approved-test.mjs`, `prepare-box-art.mjs`, `prepare-posters.mjs`, `prepare-print-art.mjs`, `replicate-kart-trial.mjs`, `room-fixture.mjs` | Fixture/art preparation/account provisioning/external audio trial. Never auto-run provisioning or asset mutation. |
 
+
+Seasonal events: HALLOWEEN (disposable localhost data only; it registers the owner account "Jack" and drives the
+owner's 1999 clock, so start a fresh server with an empty DATA_DIR each run):
+
+    cd app && PORT=18197 DATA_DIR=/tmp/jhp-hw ADMIN_TOKEN=testtoken node server.js
+    cd tests && node events-halloween.mjs http://localhost:18197
+
+Checks the event is off on 10 Oct and 2 Nov, the decorations and their draw counts on 31 Oct, the porch light, filling the
+bowl, the five decorations, the full six-step carve with real mouse drags, five groups of trick-or-treaters (allergy refusal
+included), rewards paid exactly once (also after the owner's "Start this event again"), a refresh keeping every state, the
+diary's "This week" page and the morning-after wrappers. Review `tests/shots/halloween/`. Allow ~20 minutes on software WebGL.
+World art captures and geometry audit (each owns its own disposable server and /tmp data):
+
+    node world-quality-2.mjs after                      # every fixed art view -> shots/world-quality-2/<view>-after.png + after-draws.json
+    node world-quality-2.mjs before --only=kitchen      # the same camera with app/public served from origin/main (--ref=<commit>)
+    node world-audit.mjs after-wq2 --account=full       # z-fighting/see-through/camera audit (world-audit-notes.md)
+
+`world-quality-2.mjs` uses the full-room fixture at 1366x860, Low tier and 14:00 like the smoke canonical views, so its
+per-view draw counts compare directly; two Pixel Post parcels are shown in the hall through a page-only status message.
 
 Exterior/grass/door checks (disposable localhost data only):
 
@@ -309,3 +339,13 @@ console/magazine/game orders, physical F/E controls, upstairs carry, reading slo
 play/background refresh, old full-room migration and phone JackOS-only entry.
 Captures are under `shots/shop-sparse/`. Stop only the server PID listening on the
 chosen test port. These tests never deploy or read production data.
+
+Stage 0 graphics/performance matrix (owns its throwaway server):
+
+    node tests/perf/matrix.mjs --tag=after
+    node tests/perf/compare.mjs docs/perf-stage0-before-swiftshader.json docs/perf-stage0-after-swiftshader.json
+    node tests/perf/check.mjs
+
+Run from the repository root. See [perf/README.md](perf/README.md) for backend,
+CPU-throttle, sample-count and per-room gate options. Images are under
+`tests/shots/perf/`; results include the actual GPU string and host load.

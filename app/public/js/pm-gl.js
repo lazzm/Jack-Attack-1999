@@ -75,8 +75,8 @@
   }
   function svgTex(key, w, h, svg, fill) {
     if (TEX[key]) return TEX[key];
-    const c = document.createElement('canvas'); c.width = w; c.height = h;
-    const g = c.getContext('2d'); g.fillStyle = fill || '#444'; g.fillRect(0, 0, w, h);
+    const t = K.tex('pm.svg.' + key, w, h, g => {
+    g.fillStyle = fill || '#444'; g.fillRect(0, 0, w, h);
     // A readable printed cover remains if an image cannot decode; never a grey box.
     const it = PM.items().find(it => key.endsWith('.' + it.id));
     if (it) {
@@ -85,8 +85,10 @@
       g.fillStyle = it.c2 || '#f5e8c9'; g.font = `bold ${Math.max(9, Math.min(w / 9, h / 8))}px Arial`; g.textAlign = 'center';
       K.wrapText(g, it.title.toUpperCase(), w / 2, h * .3, w * .86, Math.max(12, h * .12));
     }
-    const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.ClampToEdgeWrapping; t.anisotropy = 4; t.minFilter = T.LinearMipmapLinearFilter;
-    t.userData = { g, canvas: c, raster: { w, h, svg, key }, rasterRevision: 0 };
+    }, { clamp: true });
+    // The kit retains the authored canvas while managing a 256/512px GPU
+    // raster on Potato/Low, and restores it on High or an anisotropy change.
+    t.userData.raster = { w, h, svg, key }; t.userData.rasterRevision = 0;
     QUEUE.push({ t, w, h, svg, key, revision: 0 }); pump();
     return TEX[key] = t;
   }
@@ -200,13 +202,15 @@
   let built = false;
   function buildShelf() {
     const r = H.ROOMS.bedroom, g = new T.Group();
-    const B = K.into(g).at(0, 0, 0, SHELF_RY);
+    const frame = K.batch(), B = K.into(frame).at(0, 0, 0, SHELF_RY); // merged: one draw per material
     slotG = new T.Group(); g.add(slotG); slotG.rotation.y = SHELF_RY * D2R;
-    const wood = M({ c: '#e8cfa4', map: window.HouseArt ? HouseArt.t('pine') : null }), edge = M('#e6c99a'), back = M('#5a4128');
+    const wood = M({ c: '#e8cfa4', map: window.HouseArt ? HouseArt.t('pine') : null }), back = M('#5a4128');
     const { w, d, t, boards } = SH, top = boards[0], H0 = 73 - top;
     B.box(0, (top + 73) / 2, -d / 2 + 0.4, w - 0.4, H0, 0.5, back);                                                   // hardboard back
-    for (const sx of [-1, 1]) B.box(sx * (w / 2 - t / 2), (top + 73) / 2, 0, t, H0, d, { all: wood, f: edge }, { uv: 40 }); // the sides
-    boards.forEach((y, i) => B.box(0, y - (i === 0 ? t / 2 : 0), 0, i === 0 ? w : w - 2 * t, t, d - 0.6, { all: wood, f: edge }, { uv: 40 }));
+    // Solid pine boards with softened arrises; the front edges show end-grain-free wood, not a pale painted fringe.
+    for (const sx of [-1, 1]) B.rbox(sx * (w / 2 - t / 2), (top + 73) / 2, 0, t, H0, d, 0.35, wood, { uv: 40 }); // the sides
+    boards.forEach((y, i) => B.rbox(0, y - (i === 0 ? t / 2 : 0), 0, i === 0 ? w + 0.8 : w - 2 * t, t, i === 0 ? d + 0.6 : d - 0.6, 0.3, wood, { uv: 40 }));
+    boards.slice(0, 4).forEach(y => B.ao(0, y + 0.9 + 6, -d / 2 + 0.75, w - 2 * t, 12, { a: 0.35 })); // shade on the back under each board
     B.box(0, 72, d / 2 - 1.5, w - 2 * t, 2, 1, M('#8a6a44'));                                                          // the plinth
     B.box(-w / 2 + 6.5, boards[1] + 0.1, d / 2 - 0.25, 8, 1.4, 0.1, mat('pm.dymo', 128, 24, () => A.svg('0 0 128 24', '<rect width="128" height="24" rx="3" fill="#161616"/>' + A.T(64, 17, 'GAMES!!', 15, '#fff', { f: '"Courier New",monospace', w: 700, ls: 3 }))), { rz: -2 });
     if(localStorage.getItem('jhp_starter')==='1') {
@@ -242,6 +246,7 @@
       radio.shadow(0,0,0,33,13,.45,{sq:true});batch.build(g);
     }
     B.shadow(0, 73, 4, w + 14, d + 12, 0.55, { sq: true });
+    frame.build(g);
     const spot = R.addSpot('pm.shelf', { label: 'My games shelf', x: SH.x, y: 0, z: SH.z, mesh: g, room: 'bedroom',
       view: { x: -138, y: -80, z: SH.z, rx: -28, ry: -90 }, act: () => shelfNote() });
     void spot;
@@ -384,7 +389,7 @@
         say(it.title, esc(it.owner === Cast.n('mate3') ? '{mate3}\'s. {mate3.He} wants it back. {mate3.He} keeps saying "GIVE IT BACK" at school.' : it.blurb || pick(LINE[it.kind] || LINE.jewel)), 4000); },
     });
     // Migrate only the old crowded shelf poses, never objects left elsewhere.
-    if (t.st === 'rest' && (t.at.snap === home.snap || (migrateLegacyShelf && !t.at.hide && Math.abs(t.at.x - SH.x) < 16 && Math.abs(t.at.z - SH.z) < 24 && t.at.y < 72))) {
+    if ((t.st === 'snap' && t.snap === home.snap) || (t.st === 'rest' && (t.at.snap === home.snap || (migrateLegacyShelf && !t.at.hide && Math.abs(t.at.x - SH.x) < 16 && Math.abs(t.at.z - SH.z) < 24 && t.at.y < 72)))) {
       t.st = 'snap'; t.snap = home.snap; t.at = Object.assign({room: 'bedroom'}, home); t.rx = t.rz = 0; H.place(t);
     }
     return t;
@@ -595,10 +600,13 @@
   const parcelFace = () => mat('pm.parcelf', 512, 308, () => A.svg('0 0 256 154', `<rect width="256" height="154" fill="#c49a62"/>${window.PrintArt?.svg("pm.catalogue",166,9,78,43)||""}<rect x="118" y="0" width="20" height="40" fill="#d8c690"/><g transform="rotate(-2 70 90)"><rect x="18" y="56" width="128" height="62" fill="#fff"/>${A.T(82, 76, Cast.t('{me.Mr} {me}'), 14, '#14148a', { f: "'Comic Sans MS',cursive", w: 700, len: 116 })}${A.T(82, 94, 'MY ROOM', 12, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 110, '(TOP OF THE STAIRS)', 9, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}</g><g transform="rotate(9 210 80)"><rect x="168" y="62" width="74" height="30" fill="none" stroke="#c00000" stroke-width="4"/>${A.T(205, 83, 'PIXEL POST', 12, '#c00000')}</g>${A.T(200, 140, 'SIGNED FOR: MOM', 9, '#333', { f: "'Comic Sans MS',cursive", w: 700 })}`));
   function parcelModel() {
     const g = new T.Group(), B = K.into(g), w = 30, h = 14, d = 22;
-    const card = M({ c: '#c49a62', map: window.HouseArt ? HouseArt.t('mdf') : null }), tape = M('#d8c690'), inside = M('#7a5a36');
-    B.box(0, -h / 2, 0, w, h, d, { all: card, t: inside, f: parcelFace() });
+    const card = M({ c: '#c49a62', map: window.HouseArt ? HouseArt.t('mdf') : null }), tape = M({ c: '#d9c88e', sh: 60, sp: '#666', o: 0.92, tr: true }), inside = M('#5a4128');
+    // Corrugated card with softened folds (no single-pixel edge slivers), flaps set just inside the box
+    // edges with a dark seam between them, and parcel tape running over the top and down both ends.
+    B.rbox(0, -h / 2, 0, w, h, d, 0.45, { all: card, t: inside, f: parcelFace() });
     B.box(0, -h + 1.2, 0, w - 0.8, 0.4, d - 0.8, M('#f4f4ee'));                      // polystyrene chips under the flaps
-    const flaps = [-1, 1].map(sx => { const p = new T.Group(); p.position.set(sx * w / 2, -h, 0); g.add(p); K.into(p).box(-sx * w / 4, -0.08, 0, w / 2, 0.16, d, { all: card, t: M('#b88e58') }); if (sx < 0) K.into(p).box(w / 2 - 0.3, -0.2, 0, 1.2, 0.1, d + 0.4, tape); return { p, sx }; });
+    for (const sz of [-1, 1]) B.box(0, -h + 2.6, sz * (d / 2 + 0.04), 4.6, 5.2, 0.08, tape);
+    const flaps = [-1, 1].map(sx => { const p = new T.Group(); p.position.set(sx * (w / 2 - 0.25), -h, 0); g.add(p); K.into(p).rbox(-sx * (w / 4 - 0.2), -0.09, 0, w / 2 - 0.4, 0.18, d - 0.5, 0.06, { all: card, t: M('#b88e58') }); if (sx < 0) K.into(p).box(w / 2 - 0.55, -0.2, 0, 4.6, 0.06, d + 0.1, tape); return { p, sx }; });
     const label=new T.Group();g.add(label);const wrapper=K.into(label).box(0,-h-.22,0,w-.6,.12,d-.6,{t:parcelFace(),all:card});
     const uv=wrapper.geometry.attributes.uv,face=wrapper.geometry.groups.find(g=>g.materialIndex===3),vertices=new Set();
     for(let i=face.start;i<face.start+face.count;i++)vertices.add(wrapper.geometry.index.getX(i));

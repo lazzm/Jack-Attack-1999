@@ -27,6 +27,9 @@ test('CLI requires an explicit disposable localhost port and rejects remote/prox
   assert.throws(() => gallery.parseArgs(['--deploy']));
   assert.deepEqual(gallery.parseArgs(['--source-only']), {allWorld:false,worldOnly:false,sourceOnly:true,help:false,base:null});
   assert.equal(gallery.parseArgs(['http://localhost:18080','--all-world']).allWorld,true);
+  assert.deepEqual(gallery.parseArgs(['http://localhost:18080','--world-only','--items=pmb.city,vhs.dog,pmb.city']).items,['pmb.city','vhs.dog']);
+  assert.throws(()=>gallery.parseArgs(['http://localhost:18080','--all-world','--items=pmb.city']));
+  assert.throws(()=>gallery.parseArgs(['http://localhost:18080','--items=../escape']));
 });
 
 test('manifest maps and legacy arrays resolve stable IDs and local asset URLs', () => {

@@ -36,6 +36,20 @@ async function bootRoundTrip(){
   }catch(e){console.log(await f.page.evaluate(()=>({pose:House.P,saved:localStorage.getItem('jhp_hs_stand'),boot:localStorage.getItem('jhp_car_boot'),mode:House.mode,here:House.here})));await f.page.screenshot({path:shots+'boot-failure.png'});throw e;}finally{await f.browser.close();}
 }
 if(stage==='boot'){await bootRoundTrip();process.exit(0);}
+// Owner replace actions first upload the profile; the server allows one upload per ~20s per connection, so on a busy host the
+// first confirm can answer "JackNet has not confirmed your current save". Wait out the limit and confirm again.
+async function ownerReplace(op,action,pick){
+  for(let attempt=0;;attempt++){
+    if(pick)await op.locator('[name=snapshot]').selectOption(pick);
+    await op.locator(`[data-owner=${action}]`).click();
+    const nav=op.waitForEvent('domcontentloaded',{timeout:30000*SCALE}).then(()=>true,()=>false);
+    await op.locator('[data-owner=confirm]').click();
+    if(await nav)return;
+    const msg=await op.locator('.owner-tools [role=status]').textContent();
+    assert(attempt<2&&/not confirmed/.test(msg),'Owner '+action+' did not reload: '+msg);
+    await op.waitForTimeout(21000*SCALE);
+  }
+}
 async function ownerRoundTrip(){
   const ownerReg=await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name:'Jack',pass:password})});
   assert.equal(ownerReg.status,200);
@@ -45,18 +59,16 @@ async function ownerRoundTrip(){
     assert.equal(await op.evaluate(()=>House.pcGL.visible),true);
     await op.keyboard.press('Backquote');await of.until(()=>document.querySelector('.owner-tools')?.open);
     await op.locator('[data-owner=snapshot]').click();await of.until(()=>!document.querySelector('[data-owner=snapshot]').disabled);
-    const saved=await op.locator('[name=snapshot] option').first().getAttribute('value');assert(saved);
-    await op.waitForTimeout(21000); // Respect the roaming profile's existing save limit.
-    await op.locator('[data-owner=reset]').click();
-    await Promise.all([op.waitForEvent('domcontentloaded'),op.locator('[data-owner=confirm]').click()]);
+    const saved=await op.locator('[name=snapshot] option').first().getAttribute('value',{timeout:30000*SCALE});assert(saved);
+    await op.waitForTimeout(21000*SCALE); // Respect the roaming profile's save limit (1 upload / 20s per connection); background autosaves can spend the refill on a busy host.
+    await ownerReplace(op,'reset');
     await of.until(()=>AccountGate.allowed&&House.live&&StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
     assert.equal(await op.evaluate(()=>st.current().id),'lad');assert.equal(await op.evaluate(()=>House.pcGL.visible),false);
     assert.equal(await op.evaluate(()=>House.mode),'walk');
     assert.equal(await op.evaluate(()=>document.body.classList.contains('pc-monitor')),false);
     await op.screenshot({path:shots+'18-owner-reset-no-pc.png'});
     await op.keyboard.press('Backquote');await of.until(()=>document.querySelector('.owner-tools')?.open);
-    await op.locator('[name=snapshot]').selectOption(saved);await op.locator('[data-owner=restore]').click();
-    await Promise.all([op.waitForEvent('domcontentloaded'),op.locator('[data-owner=confirm]').click()]);
+    await ownerReplace(op,'restore',saved);
     await of.until(()=>AccountGate.allowed&&House.live&&House.mode==='walk'&&!House.gliding&&st.getState()?.flags.veteran&&!document.querySelector('.hs-loading,#houseEntry'));
     assert.equal(await op.evaluate(()=>House.pcGL.visible),true);await op.screenshot({path:shots+'19-owner-restored-pc.png'});
     assert.deepEqual(of.errors,[]);

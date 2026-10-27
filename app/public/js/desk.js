@@ -153,7 +153,7 @@
     const body = document.createElement('div'); body.className = 'notepad';
     body.innerHTML = '<div class="menubar" style="margin:-4px -4px 4px"><button>File</button><button>Edit</button><button>Search</button><button>Help</button></div><textarea readonly></textarea>';
     body.querySelector('textarea').value = text;
-    openWin(name + ' - Notepad', body, 460);
+    openWin(name + ' - Jotpad', body, 460);
   }
 
   // ================================================================ pages are driven by JackNet Explorer (ie.js)
@@ -170,7 +170,7 @@
 THINGS TO TAKE TO DAVE'S
 - sleeping bag
 - ULTRA 64 + Goldenballs + 4 controllers (borrow ${window.Cast ? Cast.n('kidEp1') : 'Sam'}'s)
-- Pocket Critters Blue + link cable
+- Pocket Critters Puddle + link cable
 - party poppers
 - torch (in case of MILLENNIUM BUG)
 
@@ -287,7 +287,7 @@ back next year!!!
     WAAAGH: () => { const f = $('waaaghFlash'); $('waaaghFlashBy').textContent = 'a little WAAAGH! just for you'; f.style.display = 'flex'; document.body.classList.add('shake'); Sound.play('waaagh'); setTimeout(() => { f.style.display = 'none'; document.body.classList.remove('shake'); }, 1800); return 'WAAAGH! (only you heard that one)'; },
     BIGHEAD: () => { big = !big; if (window.Stickmen) Stickmen.bigHeads(big); return big ? 'DK Mode! The stickmen have BIG HEADS now. (Games > Stickman Stunts)' : 'Heads back to normal.'; },
     PAINTBALL: () => { paintball = !paintball; return paintball ? 'Paintball mode ON. Click anywhere on the page.' : 'Paintball mode OFF.'; },
-    MISSINGNO: () => { document.body.classList.add('glitch'); setTimeout(() => document.body.classList.remove('glitch'), 2500); return 'MISSINGNO. appeared! Your Hall of Fame is ruined.'; },
+    MISSINGNO: () => { document.body.classList.add('glitch'); setTimeout(() => document.body.classList.remove('glitch'), 2500); return 'MISSINGNOPE appeared! Your Hall of Fame is ruined.'; },
     UUDDLRLRBA: () => { rainbow = !rainbow; document.body.classList.toggle('rainbow', rainbow); return rainbow ? '+30 lives. And everything is rainbow now.' : 'Rainbow off.'; },
     BSOD: () => { bsod(); return ''; },
   };

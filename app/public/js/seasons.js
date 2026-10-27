@@ -194,9 +194,9 @@ body.ssn-autorestart .float[aria-label="Shut Down JackOS"]{visibility:hidden}
   ];
   const MAG_HTML = () => `<div class="cd">THE YEAR 2000 IN<b class="ssn-mcd">--:--:--</b>(UK time)</div><h3>MILLENNIUM EVE SPECIAL!!!</h3>
     <p style="margin:0">It's the LAST DAY OF THE 1900s. Here's the plan for tonight at Dave's:</p>
-    <ul><li><b>Luke and Dave</b> want to be racing on Rainbow Road in Kart Kaos 64 at the EXACT second it turns midnight. Four players. Nobody is allowed to pause.</li>
+    <ul><li><b>Luke and Dave</b> want to be racing on Rainbow Roadworks in Kart Kaos 64 at the EXACT second it turns midnight. Four players. Nobody is allowed to pause.</li>
     <li><b>Callum</b> is staying at home to guard his PC. He's convinced it's going to explode at midnight. He's unplugging it at 11:58 and putting a tea towel over it.</li>
-    <li><b>JackK</b> (my mate Jack) is bringing Pocket Critters Red and a link cable, so we can trade at midnight and be the first people to trade a Pocket Critters in the year 2000.</li>
+    <li><b>JackK</b> (my mate Jack) is bringing Pocket Critters Moss and a link cable, so we can trade at midnight and be the first people to trade a Pocket Critters in the year 2000.</li>
     <li><b>Mom</b> has 40 tins of beans, two torches and the wind-up radio. Just in case.</li>
     <li><b>Me:</b> save the game. Save ALL the games.</li></ul>
     <div class="watch"><b>Y2K BUG WATCH</b> (live!): <span class="ssn-mwatch"></span></div>`;
@@ -288,6 +288,7 @@ body.ssn-autorestart .float[aria-label="Shut Down JackOS"]{visibility:hidden}
     // missed the countdown (the tab was asleep)? Still do the Bug, if it's only just gone midnight
     if (lastMd === 1231 && t.md === 101 && !Y.running && !ran && n.getHours() === 0 && n.getMinutes() < 2 && booted()) { ran = true; loadY2K().then(() => SeasonsY2K.run({ drill: false, from: 0 })).catch(e => console.error(e)); }
     if (t.md !== lastMd && !Y.running) { lastMd = t.md; days(); } // a new day's bits wait until the Millennium show is over
+    if (!Y.running) seasonsWeb(); // the season's look (cheap: only does anything when the day, level or night changes)
     paintClock(); paintCounter();
     const fast = t.md === 1231 && n.getHours() === 23 && n.getMinutes() === 59;
     clearTimeout(tickT); tickT = setTimeout(safeTick, fast ? 200 : 1000);
@@ -299,19 +300,72 @@ body.ssn-autorestart .float[aria-label="Shut Down JackOS"]{visibility:hidden}
   // ================================================================ special days (seasons-days.js)
   const EVENTS = [ // [key, from MMDD, to MMDD] in 1999. Dates checked: Shrove Tuesday 16/2/99, Red Nose Day 12/3/99,
     // Easter Sunday 4/4/99 (Good Friday 2/4 to Easter Monday 5/4), Children in Need 26/11/99. School's out on 23/7 (as in calendar.js).
+    // Halloween and Bonfire Night run for their whole season (SeasonsDays gets the phase: lead, peak or tail).
     ['newyear', 101, 101], ['snowday', 128, 128], ['valentine', 214, 214], ['pancake', 216, 216], ['rednose', 312, 312], ['aprilfool', 401, 401],
-    ['easter', 402, 405], ['summer', 723, 723], ['halloween', 1031, 1031], ['bonfire', 1105, 1105], ['cin', 1126, 1126], ['xmasdeco', 1218, 1231], ['xmas', 1225, 1225],
+    ['easter', 402, 405], ['summer', 723, 723], ['halloween', 1024, 1101], ['bonfire', 1101, 1106], ['cin', 1126, 1126], ['xmasdeco', 1218, 1231], ['xmas', 1225, 1225],
   ];
   const activeKeys = md => EVENTS.filter(e => md >= e[1] && md <= e[2]).map(e => e[0]);
   let daysLoad = null;
   const loadDays = () => daysLoad = daysLoad || A.load('js/seasons-days.js');
   function days() {
-    const keys = activeKeys(today().md), k = keys.join(',');
+    const t = Desk.today99(), keys = activeKeys(t.md), info = {};
+    seasonsOn(t).forEach(s => { info[s.key] = s; });
+    const k = keys.map(x => x + ':' + (info[x] ? info[x].phase : '')).join(',');
     if (k === dayKeys) return;
     const prev = dayKeys; dayKeys = k;
     if (!keys.length && !prev && !window.SeasonsDays) return;
-    whenBooted(() => loadDays().then(() => { if (window.SeasonsDays) SeasonsDays.set(keys); }).catch(e => console.error(e)));
+    whenBooted(() => loadDays().then(() => { if (window.SeasonsDays) SeasonsDays.set(keys, info); }).catch(e => console.error(e)));
   }
+
+  // ================================================================ seasons: the big days have a lead-up, a peak and a tail
+  // [key, from MMDD, to MMDD, peak MMDD (0 = a flat season), priority]. When two overlap, the higher priority is the main
+  // theme and the other one is "also on" (1/11 hands Halloween over to Bonfire Night; 20-26/12 is Christmas with the
+  // Millennium countdown alongside). 1999 dates: Easter Sunday 4/4, the eclipse Wed 11/8, back to school Mon 6/9,
+  // Halloween Sun 31/10, Bonfire Night Fri 5/11, Christmas Sat 25/12. seasons-web.js dresses the PC and the Web for them.
+  const SEASONS = [
+    ['newyear', 101, 106, 101, 3], ['valentine', 210, 215, 214, 3], ['easter', 326, 406, 404, 3], ['summer', 723, 831, 0, 1],
+    ['eclipse', 809, 812, 811, 5], ['backtoschool', 901, 908, 906, 2], ['halloween', 1024, 1101, 1031, 3], ['bonfire', 1101, 1106, 1105, 4],
+    ['xmas', 1201, 1226, 1225, 3], ['millennium', 1220, 1231, 1231, 2],
+  ];
+  const doy = md => Math.round((new Date(1999, Math.floor(md / 100) - 1, md % 100) - new Date(1999, 0, 1)) / 864e5);
+  function seasonsOn(t) { // t = Desk.today99(); the seasons on today, main theme first
+    const d = doy(t.md);
+    return SEASONS.filter(s => t.md >= s[1] && t.md <= s[2]).map(([key, from, to, peak, prio]) => {
+      const f = doy(from), e = doy(to), p = peak ? doy(peak) : 0;
+      const phase = !peak ? 'on' : d < p ? 'lead' : d === p ? 'peak' : 'tail', left = peak ? p - d : 0;
+      // 1 = the first part of the lead-up (or the tail), 2 = building up, 3 = the day itself (and the night before a long build-up)
+      const lvl = phase === 'peak' ? 3 : phase === 'tail' ? 1 : phase === 'on' ? 2 : (left <= 1 && p - f >= 6) ? 3 : (d - f) / Math.max(1, p - f) >= 0.55 ? 2 : 1;
+      return { key, phase, lvl, left, day: d - f + 1, days: e - f + 1, prio, peakMd: peak };
+    }).sort((a, b) => b.prio - a.prio);
+  }
+  const seasonHour = () => (offset ? now() : window.OwnerTools && OwnerTools.clock ? OwnerTools.now() : new Date()).getHours();
+  function season() {
+    const t = Desk.today99(), list = seasonsOn(t), hour = seasonHour();
+    const dark = t.m >= 10 || t.m <= 2 ? 17 : t.m === 3 || t.m === 9 ? 19 : 21; // GMT winters get dark early
+    return { list, main: list[0] || null, md: t.md, m: t.m, d: t.d, hour, night: hour >= dark || hour < 7 };
+  }
+  let sswSig = '', sswLoad = null, sswCss = null;
+  function seasonsWeb() {
+    const s = season(), html = document.documentElement;
+    const sig = s.list.map(x => x.key + x.lvl + x.phase).join(',') + (s.night ? '|n' : '');
+    if (sig === sswSig) return;
+    sswSig = sig;
+    [...html.classList].forEach(c => { if (/^ssw(-|$)/.test(c)) html.classList.remove(c); });
+    if (s.main) {
+      html.classList.add('ssw', 'ssw-' + s.main.key, 'ssw-l' + s.main.lvl, 'ssw-' + s.main.phase);
+      s.list.slice(1).forEach(x => html.classList.add('ssw-also-' + x.key));
+      if (s.night) html.classList.add('ssw-night');
+      if (!sswCss) { // the season's stylesheet, stamped like everything else
+        const stamp = ((document.querySelector('script[src*="js/seasons.js"]') || {}).src || '').split('?v=')[1] || '';
+        sswCss = document.createElement('link'); sswCss.rel = 'stylesheet'; sswCss.href = 'css/seasons-web.css' + (stamp ? '?v=' + stamp : '');
+        document.head.appendChild(sswCss);
+      }
+    }
+    if (!s.main && !window.SeasonsWeb) return;
+    sswLoad = sswLoad || A.load('js/seasons-web.js');
+    sswLoad.then(() => { if (window.SeasonsWeb) SeasonsWeb.set(season()); }).catch(e => console.error(e));
+  }
+  addEventListener('ownerclock', () => { try { seasonsWeb(); days(); } catch (e) { console.error(e); } });
   function whenBooted(fn) {
     (window.BootDone || Promise.resolve()).then(() => {
       const go = () => { if (!booted() || document.querySelector('.logon')) return setTimeout(go, 1500); setTimeout(fn, 1200); };
@@ -322,11 +376,11 @@ body.ssn-autorestart .float[aria-label="Shut Down JackOS"]{visibility:hidden}
   // ================================================================ extra posts for "What's New" (each only shows on its day)
   const CAL = window.CAL;
   if (CAL && CAL.posts) CAL.posts.push(
-    ['01-01', 'SITE', "Got back from Dave's at 1am. Luke won on Rainbow Road, nothing exploded, and Callum's PC was fine (still had the tea towel on). Weird thing though: the computer's calendar says it's <b>1999</b>. Feels like I've done this year before..."],
+    ['01-01', 'SITE', "Got back from Dave's at 1am. Luke won on Rainbow Roadworks, nothing exploded, and Callum's PC was fine (still had the tea towel on). Weird thing though: the computer's calendar says it's <b>1999</b>. Feels like I've done this year before..."],
     ['01-28', 'SITE', "<b>IT SNOWED!!!</b> For about ten minutes. It didn't settle. School didn't close. Dave made a snowball that was mostly gravel."],
-    ['11-26', 'SITE', "It's <b>Children in Need</b> tonight! Our class did a sponsored Blockology marathon: I did 212 lines. Callum did a sponsored no-PC day and lasted until lunch."],
+    ['11-26', 'SITE', "It's <b>Children in Greed</b> tonight! Our class did a sponsored Blockology marathon: I did 212 lines. Callum did a sponsored no-PC day and lasted until lunch."],
     ['12-31', 'Y2K', "<b>Y2K BUG WATCH:</b> New Zealand went into the year 2000 at 11 o'clock this morning (our time) and their computers still work! Callum is unplugging his PC at 11:58 anyway."],
-    ['12-31', 'GAMES', "Midnight plan at Dave's: Luke and Dave want to be racing on <b>Rainbow Road</b> at the exact second it turns 2000. JackK is bringing Pocket Critters Red and a link cable. I'm bringing the beans."],
+    ['12-31', 'GAMES', "Midnight plan at Dave's: Luke and Dave want to be racing on <b>Rainbow Roadworks</b> at the exact second it turns 2000. JackK is bringing Pocket Critters Moss and a link cable. I'm bringing the beans."],
   );
 
   // ================================================================ after the Millennium restart: ...again?
@@ -448,7 +502,12 @@ body.ssn-autorestart .float[aria-label="Shut Down JackOS"]{visibility:hidden}
   // ================================================================ go
   window.Seasons = {
     now, today, setTime(md, t) { setTime(md, t); tick0(); }, fireworks, reduced, phone, sfx, note, pick, rnd, ri, pad, h, esc, css, got, sess, DAYS, MONTHS, Y,
-    eveOff, drill, drop, dial, booted, whenBooted, CD_ICON,
+    eveOff, drill, drop, dial, booted, whenBooted, CD_ICON, season, seasonsOn, SEASONS,
+    jump(key, when) { // testing/owner: pretend it's that season's peak day (or 'lead'/'tail' for the first/last day), keeping the time of day
+      const s = SEASONS.find(x => x[0] === key); if (!s) return false;
+      const md = when === 'lead' ? s[1] : when === 'tail' ? s[2] : s[3] || s[1];
+      setTime(pad(Math.floor(md / 100)) + '-' + pad(md % 100)); tick0(); return true;
+    },
     get offset() { return offset; }, get dropped() { return DROP.down; }, winked: !!wink,
     restart(kind) { // the proper Shut Down > Restart flow (closing windows, splash, CRT off, BIOS)
       sess.set('jhp_ssn_wink', kind || 'drill');
@@ -470,5 +529,6 @@ body.ssn-autorestart .float[aria-label="Shut Down JackOS"]{visibility:hidden}
       return loadDays().then(() => SeasonsDays.preview(name, arg));
     },
   };
+  try { seasonsWeb(); } catch (e) { console.error(e); } // the season's colours straight away (no flash of the plain site)
   setTimeout(safeTick, 500);
 })();

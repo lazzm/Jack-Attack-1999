@@ -5,10 +5,11 @@
  *   node tests/art-gallery.mjs http://localhost:18080
  *   node tests/art-gallery.mjs http://localhost:18080 --all-world
  *   node tests/art-gallery.mjs http://localhost:18080 --world-only
+ *   node tests/art-gallery.mjs http://localhost:18080 --world-only --items=pmb.city,vhs.dog
  *   node tests/art-gallery.mjs --source-only
  *
- * Output (independent of cwd): tests/shots/art-gallery/{report.json,index.html,
- * source,prints,sheets,world}. Existing output is never deleted. index.html lists
+ * Output (independent of cwd): tests/shots/art-gallery/TIMESTAMP/{report.json,
+ * index.html,source,prints,sheets,world}. Existing output is never deleted. index.html lists
  * only this run, so stale PNGs cannot masquerade as newly captured coverage.
  *
  * Default: every on-disk /art bitmap, every PrintArt.files entry, actual material
@@ -28,7 +29,8 @@ import {runInNewContext} from 'node:vm';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..');
 const PUBLIC = path.join(ROOT, 'app/public');
-const OUTPUT = path.join(HERE, 'shots/art-gallery');
+const OUTPUT_ROOT = path.join(HERE, 'shots/art-gallery');
+let OUTPUT = OUTPUT_ROOT;
 const BITMAP = /\.(?:webp|png|jpe?g|gif|avif)$/i;
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const safeName = value => String(value).replace(/[^a-zA-Z0-9._-]+/g, '-').slice(0, 120);
@@ -47,6 +49,11 @@ export function parseArgs(args) {
   const options = {allWorld:false, worldOnly:false, sourceOnly:false, help:false, base:null};
   for (const arg of args) {
     if (arg === '--all-world') options.allWorld = true;
+    else if (arg.startsWith('--items=')) {
+      const ids=arg.slice(8).split(',');
+      assert(ids.length&&ids.every(id=>/^[a-zA-Z0-9._-]+$/.test(id)),'Use comma-separated physical thing IDs');
+      options.items=[...new Set(ids)];
+    }
     else if (arg === '--world-only') options.worldOnly = true;
     else if (arg === '--source-only') options.sourceOnly = true;
     else if (arg === '--help' || arg === '-h') options.help = true;
@@ -54,6 +61,7 @@ export function parseArgs(args) {
     else throw Error('Unknown argument: ' + arg);
   }
   assert(options.help || options.sourceOnly || options.base, 'Pass http://localhost:PORT (disposable data), or --source-only');
+  assert(!(options.items&&options.allWorld),'Use either --all-world or --items, not both');
   return options;
 }
 
@@ -338,7 +346,7 @@ async function captureCatalogue(page, source) {
 async function collectMaterials(page) {
   return page.evaluate(() => {
     const G=window.__artGallery, textureKeys=new Map(Object.entries(HouseKit.TEX).map(([key,texture])=>[texture,key])), textures=new Map(), things=[];
-    const printCalls=texture=>[...(window.__artPrintProbe?.paints.get(texture?.image)?.values()||[])];
+    const printCalls=texture=>[...(window.__artPrintProbe?.paints.get(texture?.userData?.canvas||texture?.image)?.values()||[])];
     const remember=(texture,key,use)=>{
       if(!textures.has(texture))textures.set(texture,{key,texture,uses:[]});
       textures.get(texture).uses.push(use);
@@ -385,6 +393,45 @@ async function collectMaterials(page) {
   });
 }
 
+// Check solved slot poses without moving freely placed player objects.
+async function checkShelfGeometry(page) {
+  return page.evaluate(()=>{
+    const boxes=Object.values(House.THINGS).filter(t=>t.id.startsWith('pmb.')&&t.st==='snap'&&t.snap?.startsWith('pm.slot.')&&!t.at.hide);
+    const bounds=boxes.map(t=>{
+      t.obj.updateWorldMatrix(true,true);const b=new House.T.Box3();
+      t.obj.traverseVisible(o=>{if(o.isMesh&&!o.userData.contactShadow&&[].concat(o.material).some(m=>m.visible))b.expandByObject(o)});
+      return{id:t.id,rx:t.rx||0,rz:t.rz||0,bounds:b};
+    }),failures=[];
+    for(const b of bounds)if(Math.abs(b.rx)>.001||Math.abs(b.rz)>.001)failures.push('Shelf case is tilted: '+b.id);
+    for(let i=0;i<bounds.length;i++)for(let j=i+1;j<bounds.length;j++){
+      const a=bounds[i],b=bounds[j];
+      if(['x','y','z'].every(k=>Math.min(a.bounds.max[k],b.bounds.max[k])-Math.max(a.bounds.min[k],b.bounds.min[k])>.05))failures.push('Shelf cases intersect: '+a.id+' / '+b.id);
+    }
+    return{count:bounds.length,boxes:bounds.map(b=>({...b,bounds:{min:b.bounds.min.toArray(),max:b.bounds.max.toArray()}})),failures};
+  });
+}
+
+async function checkTextureTiers(page) {
+  return page.evaluate(()=>{
+    const K=HouseKit,prints=Object.entries(K.TEX).filter(([key,t])=>!t.userData.jackLive&&(key.startsWith('pm.svg.')||key==='rm.boardgames'||key.startsWith('media.case.cover.')||key.startsWith('art:poster'))),samples=[],failures=[];
+    const original=prints.map(([key,t])=>({key,t,source:t.userData.canvas||t.image}));
+    try{
+      for(const tier of ['potato','low','high']){
+        K.setQuality(tier);K.setAniso(tier==='high'?8:tier==='low'?2:1,true);
+        const cap=tier==='potato'?256:tier==='low'?512:Infinity;
+        for(const {key,t,source}of original){
+          if(Math.max(t.image.width,t.image.height)>cap)failures.push(tier+' texture exceeds budget: '+key);
+          if(tier==='high'&&(t.image.width!==source.width||t.image.height!==source.height))failures.push('High did not restore authored canvas: '+key);
+          if(!t.generateMipmaps||t.minFilter!==House.T.LinearMipmapLinearFilter)failures.push('Missing print mipmaps: '+key);
+          if(t.anisotropy!==(tier==='high'?8:tier==='low'?2:1))failures.push('Print ignores setAniso: '+key);
+        }
+        samples.push({tier,count:prints.length,maxEdge:Math.max(0,...prints.map(([,t])=>Math.max(t.image.width,t.image.height)))});
+      }
+    }finally{K.setQuality('low');K.setAniso(2,true)}
+    House.dirty();return{samples,failures};
+  });
+}
+
 const POSTERS = [
   {id:'posterfilm',eye:[-236,-96,40],target:[-236,-96,-56]},
   {id:'posterband',eye:[-178,-64,40],target:[-178,-64,-56]},
@@ -400,6 +447,7 @@ async function captureWorld(fixture, options, report) {
     await page.screenshot({path:path.join(OUTPUT,file),timeout:60000});
     report.world.push({file,...metadata,viewport:page.viewportSize(),...(await page.evaluate(()=>({mode:House.mode,held:House.held(),eye:{...House.P},
       reading:window.Magazines?.reading?{id:Magazines.reading.docId,phase:Magazines.reading.phase,page:Magazines.reading.page}:null})))});
+    if(report.world.length%5===0)await writeIndex(report);
   };
   const cleanup = async () => {
     if(await page.evaluate(()=>!!window.HousePause?.open))await page.keyboard.press('Escape');
@@ -412,7 +460,7 @@ async function captureWorld(fixture, options, report) {
       await until(()=>!House.held());
       const deadline=Date.now()+15000;
       while(!await page.evaluate(id=>['rest','snap'].includes(House.THINGS[id].st),id)){
-        assert(Date.now()<deadline,'Return animation timed out: '+id);await page.waitForTimeout(100);
+        if(Date.now()>=deadline){const state=await page.evaluate(id=>{const t=House.THINGS[id];return{st:t.st,at:t.at,landY:t.landY,vy:t.vy,hidden:document.hidden,mode:House.mode}},id);assert.fail('Return animation timed out: '+id+' '+JSON.stringify(state))}await page.waitForTimeout(100);
       }
     }
     await page.evaluate(()=>House.hush());
@@ -423,6 +471,8 @@ async function captureWorld(fixture, options, report) {
     ['pc-media-shelf-oblique',[-170,-70,85],[-265,-8,10],'U'],
     ['reading-shelf-front',[-100,-65,165],[-155,-10,234],'U'],
     ['reading-shelf-oblique',[-210,-70,170],[-155,-10,234],'U'],
+    ['board-game-lids',[-140,-150,145],[-158,-90,233],'U'],
+    ['board-game-lids-oblique',[-200,-125,185],[-158,-91,233],'U'],
     ['console-rack-front',[-180,-10,55],[-234,28,-43],'U'],
     ['console-rack-oblique',[-140,-15,0],[-234,28,-43],'U'],
     ['vhs-stack',[-30,225,410],[-33,320,342],'G']
@@ -441,13 +491,14 @@ async function captureWorld(fixture, options, report) {
   const physical=await page.evaluate(()=>Object.values(House.THINGS).filter(t=>
     !t.at.hide&&(/^(?:pmb\.|media\.box\.|reading\.(?:book|school|mag)\.|vhs\.)/.test(t.id)||['mags','pm.catalogue','hs.pbook','hs.tvguide','ch.m.comic'].includes(t.id)))
     .map(t=>({id:t.id,kind:t.kind,room:t.at.room,at:{...t.at},h:t.h||20})));
-  const representatives=['pmb.city','pmb.keepa','pmb.podracer','pmb.pm.os98','pmb.pm.gub','pmb.pm.mix','pmb.pm.netplanet',
+  const representatives=options.items||['pmb.city','pmb.keepa','pmb.podracer','pmb.pm.os98','pmb.pm.gub','pmb.pm.mix','pmb.pm.netplanet',
     'media.box.n64.kart','media.box.n64.range','media.box.ps.run','media.box.ps.grav','media.box.gb.mon','media.box.md.zip','media.box.dc.dash',
     'reading.book.0','reading.book.1','reading.book.2','pm.catalogue','hs.tvguide','hs.pbook','vhs.robots','vhs.charts','vhs.dad'];
   const issue=physical.find(t=>/^pmb\.pm\.mag\./.test(t.id))||physical.find(t=>t.id==='reading.mag.bed');
-  if(issue)representatives.push(issue.id);
+  if(issue&&!options.items)representatives.push(issue.id);
   const chosen=options.allWorld?physical:representatives.map(id=>physical.find(t=>t.id===id)).filter(Boolean);
-  report.physicalSelection={mode:options.allWorld?'all available physical art props':'representative',available:physical.map(t=>t.id),
+  if(options.items)assert.equal(chosen.length,representatives.length,'A requested physical item is absent: '+representatives.filter(id=>!physical.some(t=>t.id===id)).join(', '));
+  report.physicalSelection={mode:options.allWorld?'all available physical art props':options.items?'explicit requested items':'representative',available:physical.map(t=>t.id),
     chosen:chosen.map(t=>t.id),unavailableRepresentatives:representatives.filter(id=>!physical.some(t=>t.id===id))};
   for(const item of chosen){
     console.log('Art gallery: physical '+item.id);
@@ -541,18 +592,22 @@ async function writeIndex(report) {
     +'<h2>Actual in-world captures</h2><div class="world">'+report.world.map(w=>figure(w.file,(w.id||'room')+' · '+w.stage+' · '+w.viewport.width+'×'+w.viewport.height)).join('')+'</div>'
     +'<h2>Individual bitmap and compositor exports</h2><ul>'+report.entries.map(e=>'<li><a href="'+escapeHTML(e.file)+'">'+escapeHTML(e.key)+'</a> · '+e.width+'×'+e.height+'</li>').join('')+'</ul><h2>Limitations / observations</h2><pre>'+escapeHTML(report.notes.join('\n'))+'</pre></html>';
   await writeFile(path.join(OUTPUT,'index.html'),html);
+  const run=path.basename(OUTPUT);
+  await writeFile(path.join(OUTPUT_ROOT,'latest.json'),JSON.stringify({run,status:report.status,report:run+'/report.json'},null,2)+'\n');
+  await writeFile(path.join(OUTPUT_ROOT,'index.html'),'<!doctype html><title>Latest art gallery</title><h1>Latest art gallery</h1><a href="'+run+'/index.html">'+escapeHTML(run)+' — '+escapeHTML(report.status)+'</a>');
 }
 
 export async function main(args=process.argv.slice(2)) {
   const options=parseArgs(args);
-  if(options.help){console.log('node tests/art-gallery.mjs http://localhost:PORT [--all-world] [--world-only]\nnode tests/art-gallery.mjs --source-only\nUse disposable server data; script never starts a server.');return;}
+  if(options.help){console.log('node tests/art-gallery.mjs http://localhost:PORT [--all-world | --items=ID,ID] [--world-only]\nnode tests/art-gallery.mjs --source-only\nUse disposable server data; script never starts a server.');return;}
   const source=await auditSources();
   if(options.sourceOnly){console.log(JSON.stringify(source,null,2));assert.deepEqual(source.failures,[],'Source manifest audit failed');return;}
+  OUTPUT=path.join(OUTPUT_ROOT,new Date().toISOString().replace(/[:.]/g,'-'));
   for(const folder of ['source','prints','sheets','world'])await mkdir(path.join(OUTPUT,folder),{recursive:true});
   const report={started:new Date().toISOString(),base:options.base,status:'running',options,source,declared:null,things:[],entries:[],sheets:[],world:[],failures:[...source.failures],
     scope:['Every on-disk /art bitmap and PrintArt.files image is decoded and exported.',
       'Compositor contact sheets use production APIs and actual mesh material canvases.',
-      options.allWorld?'Physical captures cover every available selected art prop.':'Physical shelf/hand/inspection captures sample representative formats.'],
+      options.allWorld?'Physical captures cover every available selected art prop.':options.items?'Physical captures cover the explicit requested item IDs.':'Physical shelf/hand/inspection captures sample representative formats.'],
     notes:['No server is started. The supplied localhost server must use disposable data; a unique new fixture account receives QA media grants.',
       'No original generated-image directory is read; provenance is audited from repository manifests.',
       'Home views retain real placements; camera placement uses roomFixture and is not a walked-route or pickup-key test.',
@@ -574,14 +629,14 @@ export async function main(args=process.argv.slice(2)) {
     console.log('Art gallery: disposable account registered');
     // Warm software WebGL at a modest startup size; every world capture below
     // explicitly resizes to its recorded desktop/portrait dimensions.
-    fixture=await roomFixture(options.base,{account,password,signup:false,debug:true,width:640,height:480,onPage:page=>{
+    fixture=await roomFixture(options.base,{account,password,signup:false,debug:true,width:640,height:480,onPage:async page=>{
       // Avoid the legacy CSS boot-camera sway consuming software-renderer time
       // while hundreds of parser-blocking game modules are still loading.
-      page.emulateMedia({reducedMotion:'reduce'});
-      page.addInitScript(installPrintProbe);
+      await page.emulateMedia({reducedMotion:'reduce'});
+      await page.addInitScript(installPrintProbe);
       // Block redirected/external HTTP traffic before fixture writes. The game
       // derives its /ws address from this same explicitly supplied origin.
-      page.route('**/*',route=>{
+      await page.route('**/*',route=>{
         const url=new URL(route.request().url());
         if(['data:','blob:'].includes(url.protocol)||url.origin===options.base)return route.continue();
         report.notes.push('Blocked non-local resource: '+url.origin+url.pathname);return route.abort();
@@ -606,6 +661,8 @@ export async function main(args=process.argv.slice(2)) {
       for(const t of Object.values(House.THINGS))if(/^(?:pmd\.|pmf\.)/.test(t.id))t.obj.userData.ensure?.();
     });
     await until(()=>PMGL._q().n===0&&PMGL._q().busy===0);
+    report.shelfGeometry=await checkShelfGeometry(page);report.failures.push(...report.shelfGeometry.failures);
+    report.textureTiers=await checkTextureTiers(page);report.failures.push(...report.textureTiers.failures);
     await fixture.view([-120,-55,160],[-216,-5,-16]);
     await page.screenshot({path:path.join(OUTPUT,'world/initial-room.png'),timeout:60000});
     console.log('Art gallery: physical media ready; decoding catalogue');
@@ -621,7 +678,7 @@ export async function main(args=process.argv.slice(2)) {
       await page.evaluate(installGallery);
       await page.evaluate(async()=>{
         const G=window.__artGallery;
-        for(const[key,texture]of Object.entries(HouseKit.TEX))if(/^media\.(?:case\.cover\.|print\.)/.test(key))G.texture('patched-materials',key,texture);
+        for(const[key,texture]of Object.entries(HouseKit.TEX))if(/^(?:media\.(?:case\.cover\.|print\.)|pm\.svg\.|vhs\.lbl\.|ch\.vhs\.l|rm\.boardgames$)/.test(key))G.texture('patched-materials',key,texture);
         for(const issue of MagazineCat.ISSUES)G.texture('patched-covers',issue.id,Magazines.cover(issue.id));
         for(const name of ['posterFilm','posterBand','posterGame','posterRobot','posterShuttle'])G.texture('patched-posters',name,HouseArt.t(name));
         for(const id of ['podracer','grotlings','boss'])await G.svg('patched-shop',id,Discs.front(Discs.BOX[id]));
@@ -630,6 +687,7 @@ export async function main(args=process.argv.slice(2)) {
       await exportGallery(page,report);
     }
     console.log('Art gallery: contact sheets exported; capturing physical views');
+    await writeIndex(report);
     await captureWorld(fixture,options,report);
     await until(()=>PMGL._q().n===0&&PMGL._q().busy===0);
     report.notes.push('Physical source/manifest provenance is metadata only; original generation files are not validated.');

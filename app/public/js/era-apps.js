@@ -102,7 +102,7 @@
     { id: 'era.sweeper', mod: 'sweeper', file: 'sweep', title: 'Bugsweeper 2000', exe: 'SQSWEEP.EXE', icon: I.sweeper, noResize: true, noMax: true, status: false, path: ['Games', 'Bugsweeper 2000'], cmd: ['winmine', 'minesweeper', 'mines', 'squigsweeper', 'sweeper', 'sqsweep', 'winmine.exe', 'sqsweep.exe', 'bugsweeper', 'bugsweeper2000', 'bugsweeper 2000'] },
     { id: 'era.grotball', mod: 'grotball', file: 'ball', title: 'Jack Ball', exe: 'JACKBALL.EXE', icon: I.grotball, w: 560, h: 470, status: true, minW: 300, minH: 280, phoneMax: true, path: ['Games', 'Jack Ball'], cmd: ['jackball', 'jack ball', 'jackball.exe', 'grotball', 'grot ball', 'jezzball', 'jezz', 'grotball.exe'] },
     { id: 'era.revenge', mod: 'revenge', file: 'revenge', title: "Blobbit's Revenge", exe: 'SQREVNGE.EXE', icon: I.revenge, w: 520, h: 560, status: true, minW: 300, minH: 300, phoneMax: true, path: ['Games', "Blobbit's Revenge"], cmd: ['squigsrevenge', "squig's revenge", 'squigrevenge', 'rodent', 'rodentsrevenge', "rodent's revenge", 'sqrevnge', 'sqrevnge.exe', 'blobbitsrevenge', "blobbit's revenge", 'blobbitrevenge'] },
-    { id: 'era.sqhome', mod: 'sqhome', file: 'seti', title: 'JACK@home', exe: 'JACKATHOME.EXE', icon: I.sqhome, w: 660, h: 470, status: true, minW: 320, minH: 260, path: ['JACK@home', 'JACK@home'], cmd: ['jack@home', 'jackathome', 'jackhome', 'squig@home', 'squigathome', 'squighome', 'seti', 'seti@home', 'setiathome', 'sqhome'] },
+    { id: 'era.sqhome', mod: 'sqhome', file: 'seti', title: 'JACK@home', exe: 'JACKATHOME.EXE', icon: I.sqhome, w: 660, h: 470, status: true, minW: 320, minH: 260, path: ['JACK@home', 'JACK@home'], cmd: ['jack@home', 'jackathome', 'jackhome', 'squig@home', 'squigathome', 'squighome', 'seti', 'sety@home', 'setiathome', 'sqhome'] },
     { id: 'era.realsquig', mod: 'realsquig', file: 'media', title: 'RealJack Player', exe: 'RSQPLAY.EXE', icon: I.realsquig, w: 470, h: 430, status: true, minW: 300, minH: 300, path: ['RealJack', 'RealJack Player'], cmd: ['realjack', 'realjack player', 'realsquig', 'realplayer', 'realaudio', 'real', 'rsqplay', 'realsquig player'] },
     { id: 'era.squigster', mod: 'squigster', file: 'media', title: 'Jackster', exe: 'JACKSTER.EXE', icon: I.squigster, w: 640, h: 470, status: true, minW: 300, minH: 280, path: ['Jackster', 'Jackster'], cmd: ['jackster', 'jackster.exe', 'squigster', 'napster', 'squigster.exe'] },
     { id: 'era.staples', mod: 'staplesopt', file: 'staples', title: 'Staples', exe: 'STAPLES.EXE', icon: I.staples, w: 420, menubar: false, noResize: true, noMax: true, path: ['Accessories', 'Staples the Assistant'], cmd: ['staples', 'clippy', 'paperclip', 'assistant', 'office assistant'] },
@@ -275,7 +275,7 @@
     if (!E.installed('era.staples')) return;
     setTimeout(() => {
       const t = (node.querySelector('.tb .t') || {}).textContent || '';
-      const m = /- (Notepad|WordPad|JackCalc|Write)$/.exec(t); if (!m) return;
+      const m = /- (Jotpad|WordPod|JackCalc|Write)$/.exec(t); if (!m) return;
       const cfg = ST(); if (!cfg.on) return;
       const prog = m[1];
       // "Dear ..." at the start of a document always gets the famous letter offer (unless that tip was switched off)
@@ -348,7 +348,7 @@
     apps: ['era.revenge'], paths: ["Games > Blobbit's Revenge"], icons: [], def: false, launch: 'era.revenge', exe: 'SQREVNGE.EXE', dir: "Blobbit's Revenge" });
   P('maze', { n: '3D Jack Maze Screen Saver', v: '1.0', kb: 186, lic: 'Freeware', by: 'JackSoft OpenJack Team', cat: 'savers', sq: 5, rel: '15/01/99',
     d: 'Fly through an endless brick maze in REAL 3D! Find the smiley face at the end. Watch out for spinning robot heads: they turn the world upside down.',
-    note: 'Needs a 3D card? No! Runs on any Pentium. Slowly on a 486.', apps: ['era.maze'], paths: ['Accessories > Screen Savers > 3D Jack Maze', 'Accessories > Screen Savers > 3D Jack Maze Setup...'], icons: [], def: false, launch: 'era.maze', exe: 'MAZE.SCR', dir: 'Screen Savers' });
+    note: 'Needs a 3D card? No! Runs on any Pent-Yum. Slowly on a 486.', apps: ['era.maze'], paths: ['Accessories > Screen Savers > 3D Jack Maze', 'Accessories > Screen Savers > 3D Jack Maze Setup...'], icons: [], def: false, launch: 'era.maze', exe: 'MAZE.SCR', dir: 'Screen Savers' });
   P('island', { n: 'Jack Island Screen Saver', v: '2.0', kb: 420, lic: 'Freeware', by: 'Gem & Sons Desktop Pets', cat: 'savers', sq: 4, rel: '01/04/99',
     d: 'Zib the little green alien is stuck on a desert island on your desktop (his flying saucer ran out of petrol)! He fishes, builds sandcastles and sends messages in bottles. He goes to bed when it gets dark (he uses YOUR clock). Special things happen on special days.',
     apps: ['era.island'], paths: ['Accessories > Screen Savers > Jack Island'], icons: [], def: false, launch: 'era.island', exe: 'ISLAND.SCR', dir: 'Screen Savers' });
@@ -356,7 +356,7 @@
     d: 'Help search for intelligent aliens in space! Your computer analyses radio telescope data while you are not using it. Every work unit you finish is added to the JackNet grand total.',
     note: 'Possible signals are checked by a real rocket scientist. So far they have all been microwaves.', apps: ['era.sqhome'], paths: ['JACK@home >', 'Accessories > Screen Savers > JACK@home'], icons: [], def: false, launch: 'era.sqhome', exe: 'JACKATHOME.EXE', dir: 'JACK@home' });
   P('staples', { n: 'Staples the Office Assistant', v: '97', kb: 1450, lic: 'Freeware', by: 'JackSoft Office Team', cat: 'util', sq: 3, rel: '19/11/98',
-    d: 'Staples is here to help! He pops up when you write things in Notepad or WordPad and offers useful advice. Also comes with a dog, a wizard, a robot and a Blobbit.',
+    d: 'Staples is here to help! He pops up when you write things in Jotpad or WordPod and offers useful advice. Also comes with a dog, a wizard, a robot and a Blobbit.',
     note: 'You can turn him off in Options. He will be sad. He will get over it.', apps: ['era.staples'], paths: ['Accessories > Staples the Assistant'], icons: [], def: false, launch: 'era.staples', exe: 'STAPLES.EXE', dir: 'Staples' });
   P('realsquig', { n: 'RealJack Player G2', v: '6.0', kb: 4210, lic: 'Adware', by: 'RealJack Networks', cat: 'mm', sq: 2, rel: '04/02/99',
     d: 'Watch LIVE video on the Internet! Telly-o-Rama, Jack FM, the news, the weather and more, streaming straight to your desktop at up to 20 Kbps! (Buffering may occur.)',
@@ -409,7 +409,7 @@
     apps: ['era.kpt'], paths: ["Jack's Power Tools >"], icons: [], def: false, launch: 'era.kpt', exe: 'GPT3.EXE', dir: "Jack's Power Tools" });
 
   P('squigso', { n: 'Dr. Chatso', v: '2.21', kb: 96, lic: 'Freeware', by: 'Jacktive Labs', cat: 'fun', sq: 4, rel: '15/06/92',
-    d: 'The TALKING computer doctor that came free with your sound card! Tell him your problems. He will listen. Then he will ask how that makes you feel.', note: 'Requires a Sound Blaster compatible sound card. Be nice to him or he gets a PARITY ERROR.',
+    d: 'The TALKING computer doctor that came free with your sound card! Tell him your problems. He will listen. Then he will ask how that makes you feel.', note: 'Requires a Sound Bluster compatible sound card. Be nice to him or he gets a PARITY ERROR.',
     apps: ['era.squigso'], paths: ['Jacktive Labs >'], icons: [], def: false, launch: 'era.squigso', exe: 'SQUIGSO.EXE', dir: 'Jacktive Labs' });
   P('bowling', { n: 'Alien Bowling 99', v: '1.0', kb: 1640, lic: 'Freeware', by: 'Jack Logistics Ltd (Christmas promotion)', cat: 'games', sq: 5, rel: '14/12/98',
     d: 'Bowl at ten cheeky little green men! They will make fun of you. Knock them all down! A free Christmas gift: please forward to everyone you know!', note: 'Came in Dad\'s work e-mail. Nobody at his office did any work for a week.',
@@ -455,7 +455,7 @@
     ['dodgy.winsquig', 'Registered at last?', "Try a registration code from Dave's cousin"],
     ['dodgy.prank', 'Got you!', "Run Dave's joke program. If you dare"],
     ['dodgy.parity', 'PARITY ERROR', 'Be rude to a talking doctor (he is only a sound card)'],
-    ['dodgy.squigso', 'Talking cure', 'Have a proper chat with the Sound Blaster doctor'],
+    ['dodgy.squigso', 'Talking cure', 'Have a proper chat with the Sound Bluster doctor'],
     ['dodgy.strike', 'STRIKE!', 'Knock all ten little green men over with one ball'],
     ['dodgy.bowl100', 'Bowled over', 'Score 100 or more in a whole game of alien bowling'],
     ['dodgy.neko', 'Catnap', 'Stop moving the mouse and let the chasing robot have a sleep'],

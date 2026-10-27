@@ -197,7 +197,7 @@ ${Array.from({ length: 22 }, (_, i) => `<circle cx="${(i * 137) % 800}" cy="${(i
           g.fillStyle = '#ffd400'; g.fillRect(-55, -24, 9, 4);
           g.fillStyle = 'rgba(190,240,255,.85)'; g.beginPath(); g.ellipse(26, -9, 14, 10, 0, Math.PI, 0); g.fill(); g.stroke();
           g.fillStyle = '#9a9aa8'; g.fillRect(20, -16, 11, 9); g.strokeRect(20, -16, 11, 9); g.fillStyle = '#ffd400'; g.fillRect(22, -13, 3, 3); g.fillRect(27, -13, 3, 3); g.strokeStyle = '#333'; g.beginPath(); g.moveTo(25, -16); g.lineTo(25, -21); g.stroke(); g.fillStyle = '#e10600'; g.beginPath(); g.arc(25, -22, 1.8, 0, 7); g.fill();
-          g.strokeStyle = '#000'; g.fillStyle = '#fff'; g.lineWidth = 1; const msg = p.msg || (p.msg = ['BEEP BOOP!', 'EAT MY BOLTS', 'HONK HONK', 'OIL CHANGE?', 'RUST IN PEACE', 'NEEDS WD-40'][Math.floor(Math.random() * 6)]);
+          g.strokeStyle = '#000'; g.fillStyle = '#fff'; g.lineWidth = 1; const msg = p.msg || (p.msg = ['BEEP BOOP!', 'EAT MY BOLTS', 'HONK HONK', 'OIL CHANGE?', 'RUST IN PEACE', 'NEEDS WD-41'][Math.floor(Math.random() * 6)]);
           g.font = 'bold 14px Impact, Arial Black, sans-serif'; const tw = g.measureText(msg).width + 16; g.fillRect(-70 - tw - 20, -10, tw, 22); g.strokeRect(-70 - tw - 20, -10, tw, 22); g.beginPath(); g.moveTo(-90, 1); g.lineTo(-52, 2); g.stroke();
           g.fillStyle = '#e10600'; g.fillText(msg, -70 - tw - 12, 6); g.restore();
         }
