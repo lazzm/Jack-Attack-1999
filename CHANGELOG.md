@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.56.0 - 2026-10-27
+- New "Potato" graphics preset for very weak computers and phones: a small drawing buffer (optional chunky 640x480 CRT look), no per-pixel lamp lights, shorter draw distance outdoors, live screens refreshed at 12 Hz and a 30 fps cap. Graphics options gain an on-screen frame counter.
+- Smoother everywhere: shaders are prepared before you walk into a room (fewer first-visit hitches), unchanged screens aren't re-uploaded, textures use less memory, idle work is skipped and per-frame allocations were removed.
+- Benchmarks (tests/perf) measure every room per tier so future changes can be compared.
+
 ## 2.55.0 - 2026-10-27
 - Seasonal events engine (docs/EVENTS-1999.md section 1): a shared 1999 event catalogue (js/season-cat.js), Season.today()/active() that follow the owner's 1999 clock, per-account objectives and rewards held by the server (mods/season.js; once per account per event per loop, through a capped 'season' earn source), a "This week" page in your diary, seasonal objectives in the diary quest list (J) and the objective line with the usual quest guidance, event windows shared with the PC seasons (js/seasons.js), and an event's decorations built once per room and switched on and off with no per-frame cost when the event is off. Owner tools: "Jump to event" beside the 1999 clock, and "Start this event again" (rewards already paid are never paid twice).
 - HALLOWEEN (24 Oct to noon on 1 Nov): paper chains of real card loops, battery pumpkin lights, cobwebs of thin strands with solid spiders, bats with extruded wings, a cauldron of green brew, Mom's witch hat and the sweets bowl on a little table by the front door, a turnip lantern and lit pumpkins in the bay window and on the gatepost, a cardboard gravestone and a bedsheet ghost in the front garden, pumpkin lights on Dad's shed, soup on the hob and witch's-finger biscuits.
