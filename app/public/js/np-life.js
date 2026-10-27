@@ -671,6 +671,7 @@
 
   function frame(now, dt) {
     if (!ready || !H.live) return false;
+    if (still()) { tick(Math.min(dt || 0.016, 0.1)); return false; }
     lastFrame = now; tick(Math.min(dt || 0.016, 0.1));
     let need = false;
     for (const c of chars) {
@@ -681,7 +682,9 @@
     }
     return need && H.mode !== 'monitor';
   }
-  function kick() { if (ready && H.live && !H.anims.has('np') && H.mode !== 'monitor' && chars.some(visible)) H.anims.set('np', frame); }
+  // While you're looking at a screen or a close-up the family holds still (no redraws for them on weak devices).
+  const still = () => ['focus', 'inspect', 'monitor', 'pcboot', 'shutdown'].includes(H.mode);
+  function kick() { if (ready && H.live && !H.anims.has('np') && !still() && chars.some(visible)) H.anims.set('np', frame); }
   setInterval(() => {
     if (!ready || !H.live || document.hidden) return;
     const now = nowMs();
@@ -690,7 +693,7 @@
     tick(dt);
     // the far or hidden view: still pose them now and then (cheap), and wake the full-rate loop when they come into view
     let any = false;
-    for (const c of chars) if (visible(c)) { c.rig.update(dt, false); any = true; }
+    if (!still()) for (const c of chars) if (visible(c)) { c.rig.update(dt, false); any = true; }
     if (any) { H.dirty(); kick(); }
   }, 200);
 

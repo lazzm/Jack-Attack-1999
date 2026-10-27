@@ -100,7 +100,7 @@ try{
   await p.evaluate(()=>{__zipDo.go(0);__zipDo.bonus()});await frames(20);await shot('zip-special-stage');
   for(const act of [1,3,5,7,9,11]){await p.evaluate(act=>{__zipDo.go(act);__zipDo.boss()},act);await frames(210);await shot('zip-boss-'+act+'-capsule');await p.evaluate(()=>__zipDo.cap());await frames(70)}
   // Art stays native; capture the physical case print canvases, not a screenshot of source text.
-  for(const id of ['md.zip','dc.dash']){const png=await p.evaluate(id=>{const t=House.THINGS['media.box.'+id];let out; t?.obj.traverse(o=>{for(const m of (Array.isArray(o.material)?o.material:[o.material])){const c=m?.map?.image;if(!out&&c?.width===512&&c?.height===512&&c.toDataURL)out=c.toDataURL().split(',')[1]}});return out},id);assert(png,'Missing physical cover '+id);await writeFile(shots+id+'-case.png',Buffer.from(png,'base64'))}
+  for(const id of ['md.zip','dc.dash']){const png=await p.evaluate(id=>{const t=House.THINGS['media.box.'+id];let out,area=0; t?.obj.traverse(o=>{for(const m of (Array.isArray(o.material)?o.material:[o.material])){const c=m?.map?.image;if(c?.toDataURL&&c.width>=256&&c.width*c.height>area){area=c.width*c.height;out=c.toDataURL().split(',')[1]}}});return out},id);assert(png,'Missing physical cover '+id);await writeFile(shots+id+'-case.png',Buffer.from(png,'base64'))}
  }
  }
  assert.deepEqual(f.errors,[]);assert(!/mod failed to load|uncaught|EADDRINUSE/i.test(log),log);console.log('ZIP PASS');

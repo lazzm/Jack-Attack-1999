@@ -127,7 +127,7 @@ module.exports = {
     if(owner&&m.t==='rmPut'&&(+m.ownerRev||0)!==revision){
       c.roamUp=null;c.ownerReload=true;return ctx.send(ws,{t:'ownerReload',profile:read('jack')||{ts:0,enc:'raw',data:'e30='},ownerRev:revision});
     }
-    if (!c.roamRl) c.roamRl = { get: new ctx.Bucket(0.2, 3), put: new ctx.Bucket(0.05, 2) };
+    if (!c.roamRl) c.roamRl = { get: new ctx.Bucket(0.2, 3), put: new ctx.Bucket(0.05, 3) };
     if (m.t === 'rmGet') {
       if (!c.roamRl.get.take()) return;
       const p = read(c.member);
