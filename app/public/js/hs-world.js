@@ -111,7 +111,7 @@
 
   // ================================================================ the camera: one pose drives both WebGL and boot.js's CSS camera
   // pose: E (eye, cm), ry (yaw: + turns right), rx (pitch: - looks down), the CSS conventions boot.js uses
-  const P = { x: 0, y: -50, z: 100, ry: -30, rx: -16 };
+  const P = { x: 0, y: -50, z: 100, ry: -30, rx: -16, zm: 1 };
   let em = 10, vw = innerWidth, vh = innerHeight;
   const S = new T.Matrix4().makeScale(1, -1, 1), _R = new T.Matrix4(), _M = new T.Matrix4(), _Rx = new T.Matrix4(), _Ry = new T.Matrix4();
   function measure() {
@@ -125,9 +125,13 @@
     ren.setPixelRatio(pr); ren.setSize(vw, vh, false);
     // Held paper and live screen DOM stay sharp when the room scales down.
     if (ren2) { ren2.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5)); ren2.setSize(vw, vh, false); }
-    camera.aspect = vw / vh; camera.fov = 2 * Math.atan(vh / 2 / (PERSP * em)) / D2R; camera.updateProjectionMatrix();
+    camera.aspect = vw / vh; lensZm = 0; applyLens();
     dirty();
   }
+  // the lens: P.zm 1 is the walking field of view; close-ups ease to a slightly longer lens on the camera-move curve
+  let lensZm = 0;
+  const lensFov = zm => 2 * Math.atan(vh / 2 / (PERSP * em * (zm || 1))) / D2R;
+  function applyLens() { const z = P.zm || 1; if (z === lensZm) return; lensZm = z; camera.fov = lensFov(z); camera.updateProjectionMatrix(); }
   function rot(rx, ry) { return _R.copy(_Rx.makeRotationX(rx * D2R)).multiply(_Ry.makeRotationY(ry * D2R)); } // CSS rotateX(rx) rotateY(ry)
   function glCam(x, y, z, rx, ry) {
     const R = rot(rx, ry).transpose();
@@ -145,12 +149,12 @@
     const x1 = dx * Math.cos(a) + dz * Math.sin(a), z1 = -dx * Math.sin(a) + dz * Math.cos(a);
     const y2 = dy * Math.cos(b) - z1 * Math.sin(b), z2 = dy * Math.sin(b) + z1 * Math.cos(b);
     if (z2 > -1) return null;
-    const k = PERSP * em / -z2; return { x: vw / 2 + x1 * k, y: vh / 2 + y2 * k, d: -z2 };
+    const k = PERSP * em * (P.zm || 1) / -z2; return { x: vw / 2 + x1 * k, y: vh / 2 + y2 * k, d: -z2 };
   }
   const fwd = () => { const a = P.ry * D2R, b = P.rx * D2R; return new T.Vector3(Math.sin(a) * Math.cos(b), -Math.sin(b), -Math.cos(a) * Math.cos(b)); };
   // the ray through a screen point, in our (y-down) world
   function rayAt(sx, sy) {
-    const k = PERSP * em, vx = (sx - vw / 2) / k, vy = (sy - vh / 2) / k; // view direction (vx, vy, -1)
+    const k = PERSP * em * (P.zm || 1), vx = (sx - vw / 2) / k, vy = (sy - vh / 2) / k; // view direction (vx, vy, -1)
     const R = rot(P.rx, P.ry).clone().transpose(); // view -> world
     const d = new T.Vector3(vx, vy, -1).applyMatrix4(R).normalize();
     return { o: new T.Vector3(P.x, P.y, P.z), d };
@@ -747,7 +751,7 @@
     return { a, b, c, d, dep: dd / n };
   }
   function frontOf(t) {
-    if (t.st === 'held' || t.st === 'inspect' || t.inspectFront) return true;
+    if (t.st === 'held' || t.st === 'inspect' || t.st === 'settle' || t.inspectFront) return true;
     if (t.frontAnchor && THINGS[t.frontAnchor]) return frontOf(THINGS[t.frontAnchor]);
     const a = t.at; if (a.hide || a.room !== 'bedroom' || !pcOn || mode === 'follow') return false;
     const tb = scrBox(a.x - t.hx, a.y - t.h, a.z - t.hz, a.x + t.hx, a.y, a.z + t.hz); if (!tb) return false;
@@ -889,29 +893,77 @@
   // view: a close-up or the telly is open (no walking) | sit / stand: getting on or off the PC
   let mode = 'off', live = false;
   const anims = new Map(); // key -> fn(now) returning true while it wants to carry on
-  let glide = null;
+  // ================================================================ MOTION: the one camera-move curve every "enter/leave something" moment uses
+  // A move is a quintic (minimum-jerk) Hermite from the current pose to the target: it starts and lands with zero
+  // velocity AND zero acceleration (no lurch, no bump on arrival), and when a move is interrupted (Q mid-glide,
+  // a new target) the new move inherits the camera's current velocity, so it bends round instead of stopping dead.
+  // Leaving retraces the arriving path: both ends are poses on the same straight line through pose space.
+  // P.zm is the lens (1 = the walking field of view, >1 = slightly longer lens for close-ups), eased on the same curve.
+  const MOTION = (() => {
+    let reduce = ls.get('jhp_reduce_motion', null);
+    if (typeof reduce !== 'boolean') { try { reduce = !!matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { reduce = false; } }
+    // Shared timings (ms). Entering and leaving use the same duration so the reverse feels like the same move.
+    const ms = { focus: 760, unfocus: 760, seat: 700, station: null, pc: 950, stand: 1050, inspect: 360, inspectEnd: 300, lock: 380, handheld: 760, reverseMin: 280 };
+    return { ms, get reduce() { return reduce; }, set reduce(v) { reduce = !!v; ls.set('jhp_reduce_motion', reduce); html.classList.toggle('hs-reduce-motion', reduce); emit('motion', reduce); } };
+  })();
+  html.classList.toggle('hs-reduce-motion', MOTION.reduce);
+  // Reduce motion: shorter moves, no arcs, no lens change, no handheld tilt. Nothing is skipped or cut.
+  const motionMs = ms => MOTION.reduce ? Math.round(ms * 0.55) : ms;
+  const H5 = s => s * s * s * (s * (s * 6 - 15) + 10), H5d = s => 30 * s * s * (s - 1) * (s - 1);
+  const H1 = s => s * (1 + s * s * (-6 + s * (8 - 3 * s))), H1d = s => 1 + s * s * (-18 + s * (32 - 15 * s));
+  const CH = ['x', 'y', 'z', 'rx', 'ry', 'zm'];
+  const span = (a, b) => Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) + 0.6 * (Math.abs(angd(a.ry, b.ry)) + Math.abs((b.rx || 0) - (a.rx || 0))) + 120 * Math.abs((b.zm || 1) - (a.zm || 1));
+  P.zm = 1;
+  let glide = null, movingLock = false;
+  // pose-space velocity (units per ms) of the move in progress, for velocity-continuous retargeting
+  function glideVel(now) {
+    const g = glide; if (!g || !g.ms) return null;
+    const s = clamp((now - g.t0) / g.ms, 0, 1), to = typeof g.to === 'function' ? g.to() : g.to, v = {}, d5 = H5d(s) / g.ms, d1 = H1d(s);
+    for (const c of CH) { const delta = c === 'ry' ? angd(g.from.ry, to.ry) : ((to[c] ?? (c === 'zm' ? 1 : g.from[c])) - g.from[c]); v[c] = delta * d5 + g.v0[c] * d1; }
+    if (g.arc) v.y -= Math.cos(Math.PI * H5(s)) * Math.PI * d5 * g.arc;
+    return v;
+  }
+  function setMoving(on) { if (on === movingLock) return; movingLock = on; html.classList.toggle('hs-moving', on); emit('moving', on); }
   function glideTo(to, o) {
     o = o || {};
+    const now = performance.now(), prev = glide, v0 = prev ? glideVel(now) : null;
     if (glide && glide.onCancel) { const f = glide.onCancel; glide.onCancel = null; try { f(); } catch (e) {} }
-    const from = { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry };
-    const dist = Math.hypot(to.x - from.x, to.y - from.y, to.z - from.z), turn = Math.abs(angd(from.ry, to.ry)) + Math.abs(to.rx - from.rx);
-    const ms = o.ms != null ? o.ms : clamp(420 + dist * 2.2 + turn * 3, 500, 1500);
-    glide = { from, to, t0: performance.now(), ms, done: o.done, onCancel: o.cancel, lock: !!o.lock, arc: o.arc };
+    const from = { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry, zm: P.zm || 1 };
+    const tt = typeof to === 'function' ? to() : to;
+    const dist = Math.hypot(tt.x - from.x, tt.y - from.y, tt.z - from.z), turn = Math.abs(angd(from.ry, tt.ry)) + Math.abs(tt.rx - from.rx);
+    let ms = o.ms != null ? o.ms : clamp(420 + dist * 2.2 + turn * 3, 500, 1500);
+    // Interrupted part-way (a reversal, or a new target): take the time the remaining distance deserves.
+    if (prev && ms > 0) { const whole = span(prev.from, typeof prev.to === 'function' ? prev.to() : prev.to); if (whole > 1) ms = Math.max(MOTION.ms.reverseMin, ms * Math.min(1, Math.pow(span(from, tt) / whole, 0.7))); }
+    ms = motionMs(ms);
+    const vz = {}; for (const c of CH) vz[c] = v0 && ms ? v0[c] || 0 : 0;
+    glide = { from, to, t0: now, ms, v0: vz, done: o.done, onCancel: o.cancel, lock: !!o.lock, arc: MOTION.reduce ? 0 : (o.arc || 0), at: o.at ? [].concat(o.at).map(a => ({ k: a.k, fn: a.fn })) : [], look: { rx: 0, ry: 0 }, kind: o.kind || '' };
     if (mode === 'walk' || mode === 'glide') mode = 'glide';
+    setMoving(glide.lock && ms > 0);
+    emit('move', 'start', glide.kind, ms);
     dirty();
     return glide;
   }
   function tickGlide(now) {
     if (!glide) return false;
-    const g = glide, k = g.ms ? Math.min(1, (now - g.t0) / g.ms) : 1, e = ease(k), to = typeof g.to === 'function' ? g.to() : g.to;
-    P.x = lerp(g.from.x, to.x, e); P.y = lerp(g.from.y, to.y, e) - (g.arc ? Math.sin(Math.PI * e) * g.arc : 0); P.z = lerp(g.from.z, to.z, e);
-    P.rx = lerp(g.from.rx, to.rx, e); P.ry = g.from.ry + angd(g.from.ry, to.ry) * e;
-    if (k >= 1) {
+    const g = glide, s = g.ms ? clamp((now - g.t0) / g.ms, 0, 1) : 1, e = H5(s), h = g.ms * H1(s), to = typeof g.to === 'function' ? g.to() : g.to;
+    for (const c of ['x', 'y', 'z', 'rx']) P[c] = g.from[c] + (to[c] - g.from[c]) * e + g.v0[c] * h;
+    P.ry = g.from.ry + angd(g.from.ry, to.ry) * e + g.v0.ry * h;
+    P.zm = g.from.zm + ((MOTION.reduce ? 1 : to.zm ?? 1) - g.from.zm) * e + g.v0.zm * h;
+    if (g.arc) P.y -= Math.sin(Math.PI * e) * g.arc;
+    // looking round during an unlocked move rides on top of it instead of cancelling it
+    P.rx = clamp(P.rx + g.look.rx, -78, 70); P.ry += g.look.ry;
+    for (const a of g.at) if (a.fn && s >= a.k) { const fn = a.fn; a.fn = null; try { fn(); } catch (e2) { console.error(e2); } if (glide !== g) return true; }
+    if (s >= 1) {
       glide = null;
+      if (MOTION.reduce || to.zm == null) P.zm = MOTION.reduce ? 1 : P.zm;
+      const end = Object.assign({}, to, { rx: P.rx, ry: P.ry });
       // where you are now (if it's somewhere you could stand)
-      setWalkFrom(to);
+      setWalkFrom(end);
       if (mode === 'glide') mode = 'walk';
+      setMoving(false);
+      emit('move', 'settle', g.kind, g.ms);
       if (g.done) try { g.done(); } catch (e2) { console.error(e2); }
+      if (!glide) resumeHeldKeys();
     }
     return true;
   }
@@ -924,7 +976,34 @@
     roomCheck();
     W.eye = p.seat ? W.eyeNow : ((cur && cur.eye) || STAND);
   }
-  function cancelGlide(force) { if (!glide || (glide.lock && !(force && glide.onCancel))) return false; const g = glide; glide = null; setWalkFrom(P); if (mode === 'glide') mode = 'walk'; if (g.onCancel) try { g.onCancel(); } catch (e) {} return true; }
+  function cancelGlide(force) { if (!glide || (glide.lock && !(force && glide.onCancel))) return false; const g = glide; glide = null; setWalkFrom(P); if (mode === 'glide') mode = 'walk'; setMoving(false); if (g.onCancel) try { g.onCancel(); } catch (e) {} return true; }
+  // Keys held through a transition count once it lands: holding W while standing up walks you off, never a dead zone.
+  const downKeys = new Set();
+  addEventListener('keydown', ev => { if (!ev.repeat) downKeys.add(ev.key); }, true);
+  addEventListener('keyup', ev => { downKeys.delete(ev.key); downKeys.delete(ev.key.length === 1 ? (ev.key === ev.key.toLowerCase() ? ev.key.toUpperCase() : ev.key.toLowerCase()) : ev.key); }, true);
+  addEventListener('blur', () => downKeys.clear());
+  function resumeHeldKeys() {
+    if (mode !== 'walk' || controlsPaused || viewOpen()) return;
+    const typing = document.activeElement?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])');
+    if (typing) return;
+    for (const k of downKeys) if (KEYMOVE[k]) keys[KEYMOVE[k]] = true;
+    if (downKeys.has('Shift')) keys.run = true;
+  }
+  // T pressed while the screen it would fill is still arriving (raising the Game Lad, leaning in to the telly):
+  // remembered, and applied the moment that screen is up. Pressing T again before then cancels it.
+  let lockQueued = 0;
+  function queueLock() { lockQueued = lockQueued ? 0 : performance.now() + 6000; return true; }
+  // a screen you are on your way to: a focus that opens one (the consoles, the Game Lad) or sitting at the PC
+  function screenArriving() {
+    if (glide && glide.lock && (focusS?.o.screen || mode === 'sit' || mode === 'pcboot')) return true;
+    return !!(focusS?.o.screen && mode === 'focus' && !window.ScreenLock?.available);
+  }
+  function tickQueuedLock(now) {
+    if (!lockQueued) return;
+    if (now > lockQueued || controlsPaused) { lockQueued = 0; return; }
+    if (glide || !window.ScreenLock?.available) return;
+    lockQueued = 0; if (!ScreenLock.current?.locked) ScreenLock.toggle(true);
+  }
 
   // stations: the quick views of each room (room.stations: [{ id, n, x, y, z, rx, ry, seat }]; y = eye height or 'seat' for the desk)
   function stationPose(r, s) { if (s.pose) return s.pose(); return { x: s.x, y: s.y, z: s.z, rx: s.rx, ry: s.ry, seat: s.seat, lvl: r.lvl }; }
@@ -1067,7 +1146,8 @@
     const typing=ev.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]')||gameHost?.houseTyping?.();
     // Q/T belong to the house, including while a game owns the active screen.
     // Shift+T on the family TV remains its TEXT button.
-    if(ev.key.toLowerCase()==='t'&&!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&!typing&&!(ev.shiftKey&&window.ScreenLock?.current?.type==='surface')&&window.ScreenLock?.available){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)ScreenLock.toggle();return;}
+    if(ev.key.toLowerCase()==='t'&&!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&!typing&&!ev.shiftKey&&screenArriving()){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat)queueLock();return;}
+    if(ev.key.toLowerCase()==='t'&&!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&!typing&&!(ev.shiftKey&&window.ScreenLock?.current?.type==='surface')&&window.ScreenLock?.available){ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat){lockQueued=0;ScreenLock.toggle();}return;}
     if(window.HousePause&&HousePause.handleEscape(ev))return;
     if(controlsPaused)return;
     const t = ev.target; if (typing) return;
@@ -1158,7 +1238,7 @@
   pb.addEventListener('pointermove', ev => {
     if(controlsPaused||ev.pointerType&&ev.pointerType!=='mouse')return;
     if (locked()) {
-      if (mode === 'walk' || mode === 'glide'||mode==='focus'&&focusS?.o.seatId) { if (mode === 'glide') cancelGlide(); P.ry += ev.movementX * 0.1; P.rx = clamp(P.rx - ev.movementY * 0.1, -78, 70); dirty(); lastPt = { x: vw / 2, y: vh / 2, ok: true, mouse: true }; hoverQ = true; }
+      if (mode === 'walk' || mode === 'glide'||mode==='focus'&&focusS?.o.seatId) { if (mode === 'glide' && glide) { if (!glide.lock) { glide.look.ry += ev.movementX * 0.1; glide.look.rx -= ev.movementY * 0.1; } } else { P.ry += ev.movementX * 0.1; P.rx = clamp(P.rx - ev.movementY * 0.1, -78, 70); } dirty(); lastPt = { x: vw / 2, y: vh / 2, ok: true, mouse: true }; hoverQ = true; }
       return;
     }
     lastPt = { x: ev.clientX, y: ev.clientY, ok: true, mouse: ev.pointerType === 'mouse' };
@@ -1255,6 +1335,8 @@
     const ip = t.inspectPose || {};
     inspection = {t, grip, seat, centre, panel, yaw: -P.ry + (ip.yaw ?? 24), pitch: ip.pitch ?? (id === 'gb' ? -80 : -18), zoom: ip.zoom ?? 1, radius: size.length() / 2, drag: null};
     if(t.onInspectUse){const use=document.createElement('button');use.type='button';use.textContent=(t.inspectUseLabel||'Use')+' [F]';use.dataset.inspectUse='';use.addEventListener('click',()=>{if(!controlsPaused)t.onInspectUse(t)});panel.insertBefore(use,back)}
+    // the close-up eases in from where the thing was (no pop): same curve as the camera, short and quick
+    { const ms=motionMs(MOTION.ms.inspect); if(ms){inspection.blend={t0:performance.now(),ms,p:t.obj.position.clone(),q:t.obj.quaternion.clone()};html.classList.add('hs-inspect-arriving');anims.set('inspect-blend',()=>{if(!inspection?.blend){html.classList.remove('hs-inspect-arriving');return false}poseInspect();return !!inspection?.blend;});} }
     html.classList.add('hs-inspecting');layerFor(t);poseInspect();try{t.onInspectStart?.(panel)}catch(e){console.error(e)}return true;
   }
   function poseInspect() {
@@ -1264,13 +1346,17 @@
     t.obj.rotation.set(s.pitch * D2R, s.yaw * D2R, 0, 'YXZ');
     const offset = s.centre.clone().applyEuler(t.obj.rotation);
     t.obj.position.set(P.x + f.x * d - offset.x, P.y + f.y * d - offset.y, P.z + f.z * d - offset.z);
+    if (s.blend) { const b = s.blend, k = clamp((performance.now() - b.t0) / b.ms, 0, 1), e = H5(k); t.obj.position.lerpVectors(b.p, t.obj.position.clone(), e); t.obj.quaternion.copy(b.q).slerp(t.obj.quaternion.clone(), e); if (k >= 1) { s.blend = null; html.classList.remove('hs-inspect-arriving'); } }
     t.obj.updateMatrixWorld(true); dirty();
   }
   function endInspect() {
     const s = inspection; if (!s) return;
     if (s.t.obj.userData.cube) s.t.obj.userData.cube.finish();
     s.panel.remove(); inspection = null; html.classList.remove('hs-inspecting');
-    held=s.grip;s.t.st='held';setMode(s.seat?'focus':'walk');ui.holdBar(s.t);dirty();
+    held=s.grip;s.t.st='held';setMode(s.seat?'focus':'walk');ui.holdBar(s.t);dirty();anims.delete('inspect-blend');html.classList.remove('hs-inspect-arriving');
+    // back into the hand on an eased curve (the carry's own follow takes over once it is there)
+    { const t=s.t,ms=motionMs(MOTION.ms.inspectEnd),p0=t.obj.position.clone(),q0=t.obj.quaternion.clone(),t0=performance.now(),qt=new T.Quaternion(),eu=new T.Euler(),v=new T.Vector3();
+      if(ms&&held){t.st='settle';anims.set('inspect-return:'+t.id,n=>{if(t.st!=='settle'||!held||held.id!==t.id){if(t.st==='settle')t.st='held';return false}const k=clamp((n-t0)/ms,0,1),e=H5(k),hp=heldPos();t.obj.position.copy(p0).lerp(v.set(hp.x,hp.y,hp.z),e);qt.setFromEuler(eu.set(0,(-P.ry+held.ry+(t.faceYou?180:0))*D2R,0,'YXZ'));t.obj.quaternion.copy(q0).slerp(qt,e);if(k<1)return true;t.st='held';layerFor(t);return false;});} }
     try { s.t.onInspectEnd?.(); } catch (e) { console.error(e); }
     emit('inspect-end',s.t.id);wantLock();
   }
@@ -1311,7 +1397,7 @@
     if(held&&!o.seatId)putBack();
     focusS = {parent,back: { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry, lvl: W.lvl, seat: W.seat }, o };
     for (const k in keys) keys[k] = false;
-    glideTo(pose, { lock: true, ms: o.ms || 750, cancel:()=>{if(focusS)unfocus()}, done: () => { if (!focusS) return; mode = 'focus'; html.classList.add('hs-focus'); ui.focusBar(o.label || 'Get up'); if (o.enter) try { o.enter(); } catch (e) { console.error(e); } } });
+    glideTo(pose, { lock: true, ms: o.ms || MOTION.ms.focus, kind: o.kind || 'focus', at: o.at, cancel:()=>{if(focusS)unfocus()}, done: () => { if (!focusS) return; mode = 'focus'; html.classList.add('hs-focus'); ui.focusBar(o.label || 'Get up'); if (o.enter) try { o.enter(); } catch (e) { console.error(e); } } });
     return true;
   }
   function seatExit(p){
@@ -1339,7 +1425,7 @@
     if(f.o.seatId){ls.del('jhp_hs_furniture_seat');f.back=seatExit(f.back)||f.back;}
     html.classList.remove('hs-focus'); ui.focusBar(null);
     if (f.o.exit) try { f.o.exit(); } catch (e) { console.error(e); }
-    mode='walk';glideTo(f.back,{lock:!!(f.o.seatId||f.parent),ms:now?0:650,done:()=>{
+    mode='walk';glideTo(f.back,{lock:!!(f.o.seatId||f.parent),ms:now?0:(f.o.backMs||MOTION.ms.unfocus),kind:'unfocus',at:f.o.backAt,done:()=>{
       if(f.parent){focusS=f.parent;Object.assign(P,f.back);mode='focus';html.classList.add('hs-focus');ui.focusBar(focusS.o.label||'Get up');dirty()}
       else setWalkFrom(f.back);
       wantLock();
@@ -1467,7 +1553,10 @@
       if (mode === 'glide' && !glide) mode = 'walk';
       if (tickGlide(now)) moving = true;
       else if (mode === 'walk'&&!controlsPaused) { let left = dt; while (left > 1e-4) { const st = Math.min(0.03, left); left -= st; if (tickWalk(st)) moving = true; } }
+      // (a lens left long by an interrupted close-up relaxes back to the walking view)
+      if (!glide && mode === 'walk' && P.zm !== 1) { P.zm += (1 - P.zm) * Math.min(1, dt * 9); if (Math.abs(P.zm - 1) < 1e-3) P.zm = 1; moving = true; }
     }
+    tickQueuedLock(now);
     for (const [k, fn] of anims) { let more = false; try { more = fn(now, dt); } catch (e) { console.error(e); } if (!more) anims.delete(k); moving = true; }
     if (tickThings(dt)) moving = true;
     if (hoverQ && frame % 3 === 0) { hoverQ = false; hover(); }
@@ -1560,13 +1649,14 @@
       scene.background=background;renderer.autoClear=clear;scene.autoUpdate=update;renderer.info.autoReset=autoReset;
     }
   }
-  function backgroundCovered(){return !!((monitor&&desktopFull)||(window.RoomTV?.open_&&RoomTV.lockIn())||[...SURF].some(s=>s.screen&&s.locked))}
+  function backgroundCovered(){return !!((monitor&&desktopFull&&!glass.lockAnim)||(window.RoomTV?.open_&&(RoomTV.covered?RoomTV.covered():RoomTV.lockIn()))||[...SURF].some(s=>s.screen&&s.locked))}
   let backgroundHidden=false;
   function render() {
     const covered=backgroundCovered();
     if(covered!==backgroundHidden||cv.style.display!==(covered?'none':'')){backgroundHidden=covered;cv.style.display=covered?'none':'';cv2.style.display=covered?'none':''}
     if(covered){if(stood||monitor)glassFit();for(const sf of SURF)placeSurf(sf);return}
-    glCam(P.x, P.y, P.z, P.rx, P.ry);
+    if (mode === 'follow' || mode === 'off') P.zm = 1;
+    applyLens(); glCam(P.x, P.y, P.z, P.rx, P.ry);
     if (mode !== 'follow' && mode !== 'off') cssCam();
     pcVis();
     // things in front of the PC (and the one in your hands) go on the canvas above it
@@ -1630,7 +1720,7 @@
       const el = document.getElementById(id); if (el) monitorSurfaceEl.appendChild(el);
     }
     Object.assign(P, from); setMode('pcboot');
-    glideTo(monitorPose, { lock: true, ms: 950 });
+    glideTo(monitorPose, { lock: true, ms: MOTION.ms.pc, kind: 'sit' });
     return true;
   }
   function shutdownPC() {
@@ -1779,6 +1869,8 @@
   function desktopDisplay(full){
     if(typeof full!=='boolean')return desktopFull;
     const changed=desktopFull!==full;desktopFull=full;ls.set('jhp_hs_desktop_full',full);
+    // LOCK IN on the PC grows the desktop out of the monitor glass (and back in): the room stays drawn until it lands
+    if(changed&&live&&monitor&&mode==='monitor'){const ms=motionMs(MOTION.ms.lock),t0=performance.now();if(ms){glass.lockAnim={t0,ms,enter:full};html.classList.add('pc-lock-anim');physicalSound('lockin',{on:full});anims.set('pc-lock',n=>{glass.fitKey=null;dirty();if(n-t0<ms&&glass.lockAnim)return true;glass.lockAnim=null;html.classList.remove('pc-lock-anim');glass.fitKey=null;dirty();return false;});}}
     html.classList.toggle('pc-desktop-full',monitor&&desktopFull);if(live){glassFit();dirty();if(changed)dispatchEvent(new Event('resize'))}return desktopFull;
   }
   function pauseControls(on){controlsPaused=!!on;window.Sound?.worldPause?.(on);if(AC&&OUT)OUT.gain.setTargetAtTime(on?0:.5,AC.currentTime,.012);for(const k in keys)keys[k]=false;W.vx=W.vz=0;PT.clear();if(inspection){inspection.drag=null;}if(on){unlock();setHot(null);ui.tip(null)}else wantLock();dirty();}
@@ -1832,13 +1924,15 @@
     setMode('stand');
     const sp = pcExitPose();html.classList.remove('pc-desktop-full');
     const from = fp || monitorPose(); Object.assign(P, from); glass.k = 1;
-    const t0 = performance.now(), ms = now ? 0 : 1100;
-    sfx.tone(120, 0.3, 'sine', 0.05);
+    const t0 = performance.now(), ms = now ? 0 : motionMs(MOTION.ms.stand);
+    sfx.tone(120, 0.3, 'sine', 0.05); physicalSound('handle', {weight:'light'});
+    setMoving(ms > 0); emit('move', 'start', 'stand', ms);
     anims.set('stand', n => {
-      const k = ms ? Math.min(1, (n - t0) / ms) : 1, e = ease(k);
+      const k = ms ? Math.min(1, (n - t0) / ms) : 1, e = H5(k);
       P.x = lerp(from.x, sp.x, e); P.y = lerp(from.y, sp.y, e); P.z = lerp(from.z, sp.z, e); P.rx = lerp(from.rx, sp.rx, e); P.ry = from.ry + angd(from.ry, sp.ry) * e;
       if (k < 1) return true;
       standing = false; setWalkFrom(sp); setMode('walk'); stIdx = nearestStation(); ui.where();
+      setMoving(false); emit('move', 'settle', 'stand', ms); resumeHeldKeys();
       emit('stood');
       if (!ls.get('jhp_hs_stoodhint', 0)) { ls.set('jhp_hs_stoodhint', 1); ui.say('The PC is still on', 'Everything on it keeps going. Walk round, then click the monitor (or press its power button... no, DON\'T) to sit back down.', 7000); }
       return false;
@@ -1853,7 +1947,7 @@
     if (!stood || standing || mode === 'sit') return;
     rememberPCEntry();
     putAway(); setMode('sit'); ls.del('jhp_hs_stand');
-    glideTo(monitorPose, { lock: true, ms: 900, done: finishSit });
+    glideTo(monitorPose, { lock: true, ms: MOTION.ms.pc, kind: 'sit', done: finishSit });
   }
   function finishSit() {
     stood = false; standing = false; monitor = false;
@@ -1872,7 +1966,7 @@
     const moved=glass.fitKey!==key;glass.fitKey=key;
     const logicalW=full?'100%':'1024px',logicalH=full?'100%':'768px';if(monitorSurfaceEl.style.width!==logicalW)monitorSurfaceEl.style.width=logicalW;if(monitorSurfaceEl.style.height!==logicalH)monitorSurfaceEl.style.height=logicalH;
     html.classList.toggle('pc-desktop-full',full);
-    if(full){monitorSurfaceEl.style.visibility='';monitorSurfaceEl.style.clipPath='';monitorSurfaceEl.style.transform='none';return;}
+    if(full&&!glass.lockAnim){monitorSurfaceEl.style.visibility='';monitorSurfaceEl.style.clipPath='';monitorSurfaceEl.style.transform='none';return;}
     // the glass is taken from the WebGL monitor itself (rm-room.js's pcGL: wherever it was built), in the engine's own y-down frame
     const g = House.pcGL, gl = g && g.userData.glass; let cx, cy, z = 0.05, glassMatrix = null;
     if (gl) { glassMatrix = new T.Matrix4().copy(House.root.matrixWorld).invert().multiply(g.matrixWorld); const o = new T.Vector3(gl.x, gl.y, gl.z).applyMatrix4(glassMatrix); cx = o.x; cy = o.y; z = o.z + 0.01; } else { const L = Lb(); cx = L.mx; cy = GY; }
@@ -1895,7 +1989,12 @@
     if (glass.hid) { monitorSurfaceEl.style.visibility = 'hidden'; return; }
     monitorSurfaceEl.style.visibility = '';
     if(!moved&&glass.fittedKey===key)return;
-    let m = homography(sw, sh, q);
+    let m;
+    if (glass.lockAnim) { // between the glass and the whole window, on the shared curve
+      const a = glass.lockAnim, k = clamp((now - a.t0) / a.ms, 0, 1), e = H5(a.enter ? k : 1 - k), F = [[0, 0], [vw, 0], [vw, vh], [0, vh]];
+      const qi = q.map((c, i) => ({ x: lerp(c.x, F[i][0], e), y: lerp(c.y, F[i][1], e) }));
+      m = full ? homography(vw, vh, qi) : homography(sw, sh, qi);
+    } else m = homography(sw, sh, q);
     monitorSurfaceEl.style.transform = 'matrix3d(' + m.map(v => +v.toFixed(8)).join(',') + ')';
     monitorSurfaceEl.style.clipPath = '';glass.fittedKey=key;
   }
@@ -2029,6 +2128,7 @@
     restoreThing, saveThings, saveWalkState, layerFor, frontFx, place,
     grab, drop, putBack, interact, suspendGrip, restoreGrip, resumeLook:wantLock, get seated(){return focusS?.o.seatId||focusS?.parent?.o.seatId||null;}, held: () => held && held.id, placement:()=>held&&THINGS[held.id].floorOnly?floorAim(THINGS[held.id]):null, act: id => act(SPOTS[id]), useAt,
     glideTo, goStation, cancelGlide, viewFor, setWalkFrom, seatPose, sitOn, resumeSeat, fillPose, get gliding() { return !!glide; },
+    motion: { get ms() { return MOTION.ms; }, get reduce() { return MOTION.reduce; }, set reduce(v) { MOTION.reduce = v; }, scale: motionMs, H5, H5d, H1, H1d, lensFov, get moving() { return movingLock; }, glideVel: () => glideVel(performance.now()), queueLock, get lockQueued() { return !!lockQueued; } },
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,
     say: (t, x, ms) => ui.say(t, x, ms), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),

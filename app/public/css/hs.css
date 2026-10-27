@@ -65,6 +65,7 @@ html.pc-roomview body.maxed #browser,html.pc-roomview #browser.fs{left:0;top:0;b
 html.pc-roomview #monitorSurface .sizegrip{display:block}
 /* Optional, explicitly chosen PC view: same desktop and same app state. */
 html.pc-roomview.pc-desktop-full #monitorViewport{background:#050606;pointer-events:auto}
+html.pc-roomview.pc-desktop-full.pc-lock-anim #monitorViewport{background:transparent}
 html.pc-roomview.pc-desktop-full #monitorSurface{width:100%;height:100%;border-radius:0;box-shadow:none}
 html.pc-roomview.pc-desktop-full #monitorSurface .appwin.maxwin{left:0!important;top:0!important;width:100%!important;height:calc(100% - 32px)!important;max-width:none!important;max-height:none!important}
 html.pc-roomview.pc-desktop-full #browser{left:96px;top:10px;bottom:10px;width:calc(100% - 106px)}
@@ -331,3 +332,11 @@ html.hs-live .rm-tvv .rm-tools .rm-b:focus-visible{outline:1px solid var(--game-
 html.hs-live .rm-live3d .rm-help{font:12px/1.5 Tahoma,Arial,sans-serif}
 
 .hs-inspect-description{max-width:620px;margin:2px 0 0;color:#d2d0bd;font:13px/1.5 Tahoma,Arial,sans-serif;text-align:center}.hs-inspection{max-width:min(760px,calc(100vw - 36px));box-sizing:border-box;max-height:40vh;overflow:auto}
+
+/* transitions: room UI fades in once the camera has landed and out before it moves (hs-world.js MOTION) */
+.hs-getup,.hs-inspection{transition:opacity .22s ease-out .06s}
+html.hs-moving .hs-getup,html.hs-moving .hs-inspection{opacity:0;transition:opacity .1s ease-in}
+.hs-getup:not([hidden]){animation:hsUiIn .24s ease-out both}
+.hs-inspection{animation:hsUiIn .24s ease-out .3s both}
+html.hs-reduce-motion .hs-inspection{animation-delay:.18s}
+@keyframes hsUiIn{from{opacity:0}to{opacity:1}}

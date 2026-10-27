@@ -217,3 +217,11 @@
    clear of it and the PC out of LOCK IN. */
 html:has(.rm-tvv.on) .hs-menu-button{display:none!important}
 html:has(.rm-tvv.rm-lockin.on) #monitorViewport{visibility:hidden}
+
+/* LOCK IN grows out of the in-world glass and shrinks back into it (rm-tv.js lockAnimate); the backdrop fades with it */
+.rm-view.rm-tvv.rm-lockin.on{transition:background-color var(--lock-ms,.38s) cubic-bezier(.45,0,.2,1)}
+.rm-view.rm-tvv.rm-lockin.on.rm-lock-from{background:rgba(5,6,6,0)!important}
+.rm-view.rm-tvv.rm-lock-out .rm-tools{opacity:0}
+/* controls arrive after the camera settles and leave before it moves (html.hs-moving: hs-world.js) */
+.rm-tvv .rm-tools,.rm-live3d .rm-livebar{transition:opacity .22s ease-out .06s}
+html.hs-moving .rm-tvv .rm-tools,html.hs-moving .rm-live3d .rm-livebar{opacity:0;transition:opacity .1s ease-in}
