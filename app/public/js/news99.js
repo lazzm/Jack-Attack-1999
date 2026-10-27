@@ -192,7 +192,7 @@
     try { if (document.readyState === 'complete' && window.Desk && Desk.refreshNews && document.getElementById('news')) Desk.refreshNews(); /* only when loaded late: otherwise the page renders after us */ } catch (e) {}
   };
   N.POSTS = [
-    ['01-04', 'NET', `The euro had its first day of trading: one euro = about <b>71p</b>. Found a site that explains it all for kids: ${L('www.eurowatch.kidz', 'EURO WATCH')}. How many lira is a Mars bar? LOTS.`],
+    ['01-04', 'NET', `The euro had its first day of trading: one euro = about <b>71p</b>. Found a site that explains it all for kids: ${L('www.eurowatch.kidz', 'EURO WATCH')}. How many lira is a Marsh bar? LOTS.`],
     ['01-12', 'TV', `Mom shouted "FINAL ANSWER" at the telly so loudly the dog left the room. <b>Who Wants to Be a Squillionaire?</b> is the only programme she won't let anyone talk during. My mate Jack (JackK on JackNet) has made a whole ${L('www.jackmillionaire.kidz', 'fan page with a quiz')}.`],
     ['01-20', 'SPACE', `Started a countdown for the <b>total eclipse</b> on 11 August. ${L('www.totality99.cyb', 'TOTALITY!')} is the best eclipse site on the whole Internet. It has a picture of the Moon creeping across the Sun that moves every day.`],
     ['01-25', 'NET', `Found ${L('www.domewatch.jnet', 'DOME WATCH')}: a man who goes past the Millennium Dome on the bus every day and writes about it. It's 365 metres across. One metre for every day of the year!`],
@@ -210,7 +210,7 @@
     ['07-01', 'NET', "The Queen opened the new <b>Scottish Parliament</b> in Edinburgh today. The Welsh Assembly opened in May. Dad says it's history happening. I said so is Pocket Critters coming out in October. He did not agree."],
     ['07-04', 'SPORT', "Wimbledon final: <b>Pete Samprass</b> beat Andre Agassy for his SIXTH Wimbledon. Tim Hen-man got to the semis again. Mom says next year. Mom says that every year."],
     ['07-11', 'SPORT', "<b>David Coalhard</b> won the British Grand Prix at Silverstone! Played the F1 game on the PlaySpace afterwards. Came last. The car was fine, it was the driver."],
-    ['07-20', 'SPACE', "Columbia's launch was stopped at <b>T-minus 7 seconds</b> today because the computers spotted too much hydrogen. SEVEN SECONDS. I'd have been so annoyed. Eileen Collinz is going to be the first woman to command a Space Shuttle."],
+    ['07-20', 'SPACE', "Columbun's launch was stopped at <b>T-minus 7 seconds</b> today because the computers spotted too much hydrogen. SEVEN SECONDS. I'd have been so annoyed. Eileen Collinz is going to be the first woman to command a Space Shuttlebus."],
     ['07-26', 'SPACE', `Made my pinhole eclipse viewer from the instructions on ${L('www.totality99.cyb', 'TOTALITY!')}. You need a cereal box. We had to eat a whole box of cornflakes first. It's science.`],
     ['08-02', 'TOYS', `${L('www.crazewatch.kidz', 'CRAZE WATCH')} says eclipse glasses are now officially a CRAZE. Everybody has a pair. Dave wears his to look cool. He can't see anything. He walked into a bin.`],
     ['09-02', 'TOYS', "Craze report: since the Beany Bobbles news, my cousin's Beany Bobbles collection has its own shelf AND a 'do not touch' sign. Eleven new ones in one weekend."],
@@ -236,7 +236,7 @@
   // ================================================================ "1999 links" box on the magazine's Cool Links page
   const LINKS = [
     ['www.totality99.cyb', 'TOTALITY! Eclipse Countdown', 'Everything about the eclipse. Made a pinhole viewer from it. It works!'],
-    ['www.eurowatch.kidz', 'EURO WATCH', 'The new money. How many lira is a Mars bar?'],
+    ['www.eurowatch.kidz', 'EURO WATCH', 'The new money. How many lira is a Marsh bar?'],
     ['www.domewatch.jnet', 'DOME WATCH', 'The giant tent in Greenwich. Is it finished yet? (No.)'],
     ['www.popgossip.kidz', 'POP GOSSIP!', 'Who\'s number one. Mom checks it more than I do.'],
     ['www.crazewatch.kidz', 'CRAZE WATCH', 'What\'s hot in the playground this week. Vote!'],

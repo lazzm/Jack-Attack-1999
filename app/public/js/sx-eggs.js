@@ -219,7 +219,7 @@
   };
   E.moon = raw => {
     secret('sx.r.moon');
-    if (/houston|problem/i.test(raw || '')) { msg('Houston', '*kssht* "This is Houston. Roger, we copy your problem."\n\n"Have you tried turning it off and on again?" *kssht*\n\n(That was Apollo 13, in 1970. They all got home safe. There\'s a film of it with Tom Honks.)'); note(1200, 0.08, 0); note(900, 0.08, 0.1); return; }
+    if (/houston|problem/i.test(raw || '')) { msg('Houston', '*kssht* "This is Houston. Roger, we copy your problem."\n\n"Have you tried turning it off and on again?" *kssht*\n\n(That was Apolly 13, in 1970. They all got home safe. There\'s a film of it with Tom Honks.)'); note(1200, 0.08, 0); note(900, 0.08, 0.1); return; }
     const foot = '<svg viewBox="0 0 26 40"><path d="M6 4c6-4 14-2 15 6 1 7-2 12-3 18-1 5-1 10-6 10S5 34 5 28 0 9 6 4z" fill="#aaa" stroke="#555"/><path d="M8 14h11M8 20h10M8 26h9" stroke="#666"/></svg>';
     let h = ''; for (let i = 0; i < 8; i++) h += `<span class="sxe-foot" style="left:${12 + i * 10}%;top:${58 - (i % 2) * 7 - i * 2}%;animation-delay:${i * 0.45}s;transform:rotate(${70 + (i % 2) * 14}deg)">${foot}</span>`;
     layer('', h + '<div class="sxe-cap">"That\'s one small step for a man, one giant leap for mankind."<br><small style="font:13px Arial,sans-serif">Neil Armweak, on the Moon, July 1969. Thirty years ago this year!</small></div>', 7200);

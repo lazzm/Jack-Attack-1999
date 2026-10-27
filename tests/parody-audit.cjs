@@ -3,7 +3,7 @@
 const fs=require('fs'),path=require('path'),acorn=require('internal/deps/acorn/acorn/dist/acorn');
 const ROOT=path.resolve(__dirname,'../app');
 const pairs=[
- ['The Legend of Zelda','The Legend of Zeldo'],['Ocarina of Time','Kazoo of Time'],['Super Mario 64','Super Marlo 64'],['Mario Kart 64','Kart Kaos 64'],['Mario Kart','Kart Kaos'],['Super Mario','Super Marlo'],['Mario','Marlo'],['Luigi','Louie G'],['Bowser','Bouncer'],['Yoshi','Yosher'],
+ ['The Legend of Zelda','The Myth of Zeldo'],['Ocarina of Time','Kazoo of Time'],['Super Mario 64','Super Marlo 64'],['Mario Kart 64','Kart Kaos 64'],['Mario Kart','Kart Kaos'],['Super Mario','Super Marlo'],['Mario','Marlo'],['Luigi','Louie G'],['Bowser','Bouncer'],['Yoshi','Yosher'],
  ['Banjo-Kazooie','Backpack Buddies'],['Banjo-Tooie','Backpack Buddies Too'],['Diddy Kong Racing','Dinky Donk Racing'],['Diddy Kong','Dinky Donk'],['Donkey Kong','Donkey Wrong'],['Jet Force Gemini','Jet Pack Twins'],['Conker','Acorn Quest'],
  ['GoldenEye','Goldenballs'],['Perfect Dark','Imperfect Dark'],['Crash Bandicoot','Warp Wombat'],['Spyro','Spike the Stegosaur'],['Sonic Adventure','Zip Adventure'],['Sonic','Zip'],['F-Zero','Formula Null'],['Wipeout','Hover Havoc'],['Street Fighter','Street Frightener'],['Tekken','Iron Fist'],['Mortal Kombat','Immortal Combat'],['Resident Evil','Resident Weevil'],['Tomb Raider','Crypt Raider'],['Lara Croft','Clara Loft'],
  ['Half-Life','Half-Loaf'],['Unreal Tournament','Jackreal Tournament'],['Unreal','Jackreal'],['Quake','Jaquake'],['Doom','Gloom'],['Diablo','Diabolo'],['Warcraft','Waaaghcraft'],['StarCraft','StarGraft'],['Command & Conquer','Command & Confuse'],['Command and Conquer','Command and Confuse'],['Age of Empires','Age of Emperors'],['SimCity','Civic Chaos'],['Theme Park','Park Panic'],['RollerCoaster Tycoon','RollerCoaster Rupeecoon'],['Dungeon Keeper','Dungeon Keepa'],['Grand Theft Auto','Grand Theft Otter'],['Metal Gear Solid','Metal Gear Wobbly'],['Gran Turismo','Grand Tourismo'],
@@ -36,6 +36,10 @@ pairs.push(
 );
 // Second sweep (music, TV, film, people, brands, hardware...): see tests/parody-pairs-2.cjs, mapping table in docs/PARODY-NAMES.md
 pairs.push(...require('./parody-pairs-2.cjs').map(([, a, b]) => [a, b]));
+// Third sweep (space missions, near-real brands/towns, Myth of Zeldo): tests/parody-pairs-3.cjs. Its .cs list is case-sensitive.
+const P3=require('./parody-pairs-3.cjs');pairs.push(...P3.map(([, a, b]) => [a, b]));
+const csLookup=new Map(P3.cs.map(([, a, b]) => [a, b]));
+const csRe=new RegExp('(?<![\\p{L}\\p{N}_-])(?:'+[...csLookup.keys()].sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?![\\p{L}\\p{N}_-])','gu');
 // Keys with an apostrophe also match JS source where the quote is escaped (\') or an HTML entity.
 for(const [a,b] of pairs.slice())if(a.includes("'")){pairs.push([a.replace(/'/g,"\\'"),b.replace(/'/g,"\\'")]);pairs.push([a.replace(/'/g,'&#39;'),b.replace(/'/g,'&#39;')]);pairs.push([a.replace(/'/g,'\u2019'),b.replace(/'/g,'\u2019')])}
 const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -44,7 +48,7 @@ const lookup=new Map(pairs.map(([a,b])=>[a.toLowerCase(),b]));
 for(const[,b]of pairs)if(!lookup.has(b.toLowerCase()))lookup.set(b.toLowerCase(),b);
 const re=new RegExp('(?<![\\p{L}\\p{N}_])(?:'+[...lookup.keys()].sort((a,b)=>b.length-a.length).map(esc).join('|')+')(?![\\p{L}\\p{N}_])','giu');
 function words(s){return s.split(/(\[\[[^\]|]*\|)/).map((seg,i)=>i%2?seg:wordsRaw(seg)).join('')} // wiki link targets ([[id|Text]]) are ids, never rewritten
-function wordsRaw(s){return s.replace(re,(m,off,str)=>{if(m==='theme park')return m;if(/^podrace$/i.test(m)&&/^\.(?:bas|exe)\b/i.test(str.slice(off+m.length)))return m; /* PODRACE.BAS is a DOS file name: keep it */const b=lookup.get(m.toLowerCase());if(m.toLowerCase()===b.toLowerCase())return m;return m===m.toUpperCase()?b.toUpperCase():m===m.toLowerCase()?b.toLowerCase():b}).replace(/\bRare(?=\s+(?:game|studio|develop))|(?<=\bby )Rare\b/g,'Oddware')}
+function wordsRaw(s){return s.replace(csRe,m=>csLookup.get(m)).replace(re,(m,off,str)=>{if(m==='theme park')return m;if(/^podrace$/i.test(m)&&/^\.(?:bas|exe)\b/i.test(str.slice(off+m.length)))return m; /* PODRACE.BAS is a DOS file name: keep it */const b=lookup.get(m.toLowerCase());if(m.toLowerCase()===b.toLowerCase())return m;return m===m.toUpperCase()?b.toUpperCase():m===m.toLowerCase()?b.toLowerCase():b}).replace(/\bRare(?=\s+(?:game|studio|develop))|(?<=\bby )Rare\b/g,'Oddware')}
 function prose(s){return s.split(/(<\/?[A-Za-z!][^<>]*>)/g).map((part,i)=>i%2?part.replace(/\b(title|alt|aria-label|placeholder)=("[^"]*"|'[^']*')/g,(_m,k,v)=>k+'='+words(v)):words(part)).join('')}
 const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(d,e.name)):[path.join(d,e.name)]);
 // server.js is excluded: POLL_OPTIONS labels are the live poll's vote key (renaming resets visitors' votes); owner decision pending.

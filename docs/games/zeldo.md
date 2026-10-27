@@ -1,4 +1,4 @@
-# The Legend of Zeldo: A Link to the Pasta
+# The Myth of Zeldo: A Link to the Pasta
 
 ## Scope ledger — 26 October 2026, start of this run
 

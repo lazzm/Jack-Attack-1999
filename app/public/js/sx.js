@@ -342,7 +342,7 @@
     const spots = R.spots(), pick = (re, dflt) => spots.find(s => re.test(s)) || dflt;
     if (!spots.length && (tries | 0) < 40) { setTimeout(() => roomSetup((tries | 0) + 1), 1500); return; }
     const poster = pick(/shuttle|space|rocket/i, pick(/poster/i, 'poster'));
-    R.addClue(poster, { title: 'A note on the poster', when: () => avail(6) && !st.ch[6], text: '<i>"HUNT KEY 6: Eileen Collinz has flown the shuttle twice, both times as the PILOT. On this mission (STS-93, Columbia) she\'s the first woman ever IN CHARGE. Her job title is the key!"</i>' });
+    R.addClue(poster, { title: 'A note on the poster', when: () => avail(6) && !st.ch[6], text: '<i>"HUNT KEY 6: Eileen Collinz has flown the shuttle twice, both times as the PILOT. On this mission (STX-93, Columbun) she\'s the first woman ever IN CHARGE. Her job title is the key!"</i>' });
     const cork = pick(/cork/i, '');
     if (cork) R.addClue(cork, { title: 'A flyer on the cork board', once: true, when: () => !X0(), text: 'Pinned over the cheats list: a flyer, in felt tip. <b>THE GREAT JACKNET HUNT!</b> Ten keys hidden all over the JackNet. Start at Hunt HQ: <b>www.greathunt.jnet</b>' });
     const drawer = pick(/drawer/i, pick(/bed|box|wardrobe/i, 'drawer'));
@@ -445,7 +445,7 @@
     banzai: ['banzai', 'takeshis castle', "tikeshi's castle", 'takeshi'],
     goodnews: ['good news everyone', 'good news, everyone', 'good news everyone!', 'futurama'],
     thunderbirds: ['thunderbudgies are go', 'thunderbirds', 'fab', 'f.a.b.', 'f.a.b'],
-    moon: ['one small step', 'one small step for man', 'apollo', 'apollo 11', 'houston', 'houston we have a problem', 'the eagle has landed'],
+    moon: ['one small step', 'one small step for man', 'apollo', 'apolly 11', 'houston', 'houston we have a problem', 'the eagle has landed'],
     dalek: ['exterminate', 'dalek', 'daleks', 'tardis', 'doctor whoops'],
     back: ["i'll be back", 'ill be back', 'i will be back', 'hasta la vista', 'hasta la vista baby', 'terminator'],
     lego: ['lego', 'bricks', 'knex', "k'nix"],

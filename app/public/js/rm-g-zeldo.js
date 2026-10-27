@@ -1,4 +1,4 @@
-/* THE LEGEND OF ZELDO: A LINK TO THE PASTA (Super Ultra, in the cupboard). A top-down sword-and-shield adventure.
+/* THE MYTH OF ZELDO: A LINK TO THE PASTA (Super Ultra, in the cupboard). A top-down sword-and-shield adventure.
  * Princess Zeldo's secret pasta-sauce recipe has been nicked by BARON MEATBALLO. LINGO (that's you) grabs Grandad's old
  * sword, explores the kingdom of Lasagnia screen by screen (a village with a shop, fields, a lake, a graveyard, a forest
  * and the north cliffs), buys bombs to blast the rockfall and storms the COLANDER KEEP: small keys and locked doors, a map
@@ -3347,7 +3347,7 @@
         ridge(184, 18, 0.04, 0.11, '#2a6a4a', 7); ridge(200, 12, 0.05, 0.13, '#3a8a3a', 9);
         gg.fillStyle = '#2a6a2a'; gg.fillRect(0, 204, W, 20); for (let x = 0; x < W; x += 3) { gg.fillStyle = '#4aa040'; gg.fillRect(x, 203 - (hash(x, 5, 3) * 4 | 0), 1, 5); }
         LOGO = logoText('ZELDO', 46, ['#fff4b0', '#f8e070', '#f8c838', '#e8a020', '#c87818', '#a85a10'], '#2a1004');
-        LOGO2 = logoText('THE LEGEND OF', 12, ['#ffffff', '#e0e8ff', '#a8b8e8'], '#101030', 'bold 12px Georgia, "Times New Roman", serif');
+        LOGO2 = logoText('THE MYTH OF', 12, ['#ffffff', '#e0e8ff', '#a8b8e8'], '#101030', 'bold 12px Georgia, "Times New Roman", serif');
       }
       let titleT = 0;
       function updTitle() {
@@ -3588,7 +3588,7 @@
         trans = { warp: null, t: 0, n: 40, phase: 0 }; mode = 'ending'; song(null);save();
       }
       const FEAST = ['zeldo', 'mom', 'elder', 'mabel', 'nonna', 'dave', 'luke', 'cal', 'fisher', 'lady'];
-      const CREDITS = () => ['THE LEGEND OF ZELDO', 'A LINK TO THE PASTA', '', '- STARRING -', NN(), '', 'PRINCESS ZELDO', 'MOM', 'ELDER PARMESAN', 'MABEL (OF MABEL\'S)', 'NONNA ROSA', 'DAVE (STILL ON THE LAST BOSS)', 'LUKE', 'CAL (PC STILL BROKEN)', 'OLD SALTY', 'MRS PENNE AND HER HENS', '',
+      const CREDITS = () => ['THE MYTH OF ZELDO', 'A LINK TO THE PASTA', '', '- STARRING -', NN(), '', 'PRINCESS ZELDO', 'MOM', 'ELDER PARMESAN', 'MABEL (OF MABEL\'S)', 'NONNA ROSA', 'DAVE (STILL ON THE LAST BOSS)', 'LUKE', 'CAL (PC STILL BROKEN)', 'OLD SALTY', 'MRS PENNE AND HER HENS', '',
         '- THE BADDIES -', 'BARON MEATBALLO', 'THE BIG CHEESE', 'THE FORK KNIGHTS', 'THE GLOOPS', 'THE PEA POD SNAPPERS', 'GHOULASH THE GHOST', 'COUNT CROUTON (LIGHTLY TOASTED)', '', 'NO BADDIES WERE HURT IN THE', 'MAKING OF THIS GAME.', 'THEY ALL JUST WENT POOF.', '', '- BIG FORK GAMES 1999 -', '', 'THANKS FOR PLAYING!'];
       function updEnding() {
         const E2 = ending; E2.t++;

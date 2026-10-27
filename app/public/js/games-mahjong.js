@@ -53,7 +53,7 @@
     return pairs;
   }
   const keyOf = t => t === 'gub' ? 'pl' : /^pl|^fl/.test(t) ? t.slice(0, 2) : t;
-  const NAMES = { o: 'Robots', d: 'Dice', c: 'Cubes', p: ['Peapod Racer', 'Saucer', 'Rocket', 'Space Shuttle'], g: ['Alien', 'Blobbit', 'Mushroom'] };
+  const NAMES = { o: 'Robots', d: 'Dice', c: 'Cubes', p: ['Peapod Racer', 'Saucer', 'Rocket', 'Space Shuttlebus'], g: ['Alien', 'Blobbit', 'Mushroom'] };
   function tileName(t) {
     if (t === 'gub') return 'Gubbinz (a planet?!)';
     if (/^pl/.test(t)) return ['Ringed Planet', 'Red Planet', 'Blue Moon World', 'Green Gas Giant'][+t[2]] + ' (any planet matches)';

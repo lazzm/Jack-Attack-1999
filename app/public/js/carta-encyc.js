@@ -115,8 +115,8 @@
       PLANETS.forEach(([r, c, s], i) => { const a = t * 6 / Math.pow(r / 8, 1.5) + i * 1.7; const x = 64 + Math.cos(a) * r * 1.3, y = 50 + Math.sin(a) * r * 0.9; p.disc(x, y, s, c); if (i === 5) p.line(x - 4, y, x + 4, y, '#c8b888'); });
       p.text(3, 3, 'THE SOLAR SYSTEM', '#ffd400'); p.text(3, 89, 'NINE PLANETS. NOT TO SCALE!', '#9fd0ff');
     } });
-  // ---- Apollo 11 landing
-  clip('moonlanding', { title: 'Apollo 11: the landing', dur: 14,
+  // ---- Apolly 11 landing
+  clip('moonlanding', { title: 'Apolly 11: the landing', dur: 14,
     ev() { const out = []; for (let t = 0.5; t < 10; t += 1.6) out.push([t, () => sfx(2525, 0.12, 'sine')]); out.push([10.4, () => [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => sfx(f, 0.3, 'triangle'), i * 160))]); return out; },
     draw(p, t) {
       p.fill('#000'); p.stars(40, 23); p.disc(104, 16, 8, '#1a5ac8'); p.ell(102, 14, 3, 2, '#3a9a2a'); p.ell(106, 19, 2, 1, '#fff');
@@ -204,8 +204,8 @@
       p.text(3, 3, t < 6 ? 'SCRAMBLING...' : t < 10.8 ? 'SOLVING...' : 'SOLVED!', '#203060');
       p.text(3, 89, '43 QUINTILLION POSITIONS', '#7a4a1a');
     } });
-  // ---- Sputnik
-  clip('sputnik', { title: 'Sputnik 1: beep... beep...', dur: 12,
+  // ---- Spudnik
+  clip('sputnik', { title: 'Spudnik 1: beep... beep...', dur: 12,
     ev() { const out = []; for (let t = 0.5; t < 12; t += 0.6) out.push([t, () => sfx(1040, 0.3, 'sine')]); return out; },
     draw(p, t) {
       p.fill('#03030f'); p.stars(60, 31); p.disc(64, 60, 24, '#1a5ac8'); p.ell(56, 52, 8, 5, '#3a9a2a'); p.ell(72, 68, 6, 4, '#3a9a2a'); p.ell(64, 38, 6, 2, '#fff');
@@ -213,7 +213,7 @@
       for (let k = 0; k < 6.28; k += 0.08) p.px(64 + Math.cos(k) * 50, 56 + Math.sin(k) * 22, '#223355');
       if (front) { p.disc(x, y, 2.5, '#d8d8e0'); p.px(x - 1, y - 1, '#fff'); [[-7, 5], [-6, 7], [-3, 7], [-1, 7]].forEach(([dx, dy]) => p.line(x, y, x + dx, y + dy, '#aaa')); }
       const on = ((t - 0.5) % 0.6) < 0.3 && t > 0.5; if (on && front) p.ring(x, y, 5, 'rgba(255,255,160,.7)');
-      p.text(3, 3, on ? 'BEEP!' : 'SPUTNIK 1', on ? '#ffd400' : '#9fd0ff'); p.text(3, 89, '4 OCTOBER 1957', '#fff');
+      p.text(3, 3, on ? 'BEEP!' : 'SPUDNIK 1', on ? '#ffd400' : '#9fd0ff'); p.text(3, 89, '4 OCTOBER 1957', '#fff');
     } });
   // ---- Y2K rollover
   clip('y2k', { title: 'Midnight, 31 December 1999', dur: 16,

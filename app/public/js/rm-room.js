@@ -470,7 +470,7 @@
     paper(-12, -1, 0.9, 13, 18, 'calendar', -2); paper(4, -6, 1.02, 9, 8, 'note', 5); paper(13, -5, 1.14, 9, 9, 'noteBlue', -4); paper(8, 6, 1.26, 14, 10, 'photo', -3);
     [[-12, -9.5], [4, -9.5], [13, -9], [8, 1.5]].forEach(([x, y], i) => { const pin = M(['#d02a2a', '#2a8a3a', '#e8c020', '#2a5ad0'][i]); CK.cyl(x, y, 1.75, 0.9, 0.75, 0.9, 10, pin, { rx: 90 }); CK.cyl(x, y, 2.35, 0.55, 0.55, 0.5, 10, pin, { rx: 90 }); }); ckBatch.build(ck);
     H.spot('cork', { label: 'Cork board', obj: ck });
-    poster(B, -52, -82, BZ, 30, 42, tex('posterShuttle'), 0); pickBox(r, 'postershuttle', -52, -82, BZ + 1, 30, 42, 2); H.SPOTS.postershuttle.label = 'Space shuttle poster';
+    poster(B, -52, -82, BZ, 30, 42, tex('posterShuttle'), 0); pickBox(r, 'postershuttle', -52, -82, BZ + 1, 30, 42, 2); H.SPOTS.postershuttle.label = 'Space Shuttlebus poster';
     frame(B, 92, -84, BZ + 0.8, 24, 33, 1.4, M({ c: '#fff', map: tex('timetable') }), M('#2a2a2a'));
     H.spot('timetable', { label: 'School timetable', act: () => say('My timetable', 'Year 11. GCSE year. Double Maths on a Monday morning should be against the law. Tuesday has IT, the best lesson: we get to play Bugsweeper at the end if we\'re quiet.') });
     pickBox(r, 'timetable', 92, -84, BZ + 1, 24, 33, 2);
@@ -613,7 +613,7 @@
     TV.plane(18.5, -22, 11.21, 5.5, 7, M({ c: '#fff', map: K.tex('rm.grille', 32, 64, (g, w, h) => { g.fillStyle = '#3a3c42'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a1b1f'; for (let y = 2; y < h; y += 4) g.fillRect(2, y, w - 4, 2); }) }));
     TV.cyl(18.5, -12, 11.4, 1.6, 1.6, 0.8, 14, M({ c: '#2a2c30', sh: 40 }), { rx: 90 }); TV.box(18.5, -12, 11.9, 0.5, 2.2, 0.3, M('#ddd'));
     [-8.5, -6.5, -4.5].forEach(y => TV.cyl(17, y, 11.3, 0.55, 0.55, 0.6, 8, M('#111'), { rx: 90 })); [-8.5, -6.5, -4.5].forEach(y => TV.cyl(20, y, 11.3, 0.55, 0.55, 0.6, 8, M('#111'), { rx: 90 }));
-    TV.plane(-3, -3.2, 11.21, 10, 1.6, M({ c: '#fff', map: K.tex('rm.tvbrand', 128, 20, (g, w, h) => { g.fillStyle = '#4a4c52'; g.fillRect(0, 0, w, h); A.text(g, 'FERGUSSON', 64, 15, '700 13px ' + A.UIF, '#c8c8c8', 'center'); }) }));
+    TV.plane(-3, -3.2, 11.21, 10, 1.6, M({ c: '#fff', map: K.tex('rm.tvbrand', 128, 20, (g, w, h) => { g.fillStyle = '#4a4c52'; g.fillRect(0, 0, w, h); A.text(g, 'FERGUSNOT', 64, 15, '700 13px ' + A.UIF, '#c8c8c8', 'center'); }) }));
     TV.ball(18.5, -2.8, 11.1, 0.6, 0.6, 0.3, M({ c: '#e01a1a', e: '#a00' }), 6);
     TV.box(0, -34.5, -2, 10, 1.2, 8, M('#222')); TV.geo(new T.TorusGeometry(9, 0.35, 6, 24), 0, -45, -2, M('#888'));
     TV.cyl(-5, -40, -2, 0.25, 0.25, 12, 4, mMetal, { rz: 25 }); TV.cyl(5, -40, -2, 0.25, 0.25, 12, 4, mMetal, { rz: -25 });
@@ -1670,7 +1670,7 @@
     bin: ['The bin. Crisp packets, a broken pencil and a letter from school I am NOT showing Mom.'],
     rug: ['The rug. It has a road map on it. I am sixteen and I still drive Micro Mechanics round it. Don\'t tell anyone.', 'Something rolled under the rug...'],
     window: ['The view out of my window. Back gardens, the shed and the big tree.', 'If you lean right out you can see the shop. Mom says do not lean right out.'],
-    shelf: ['My shelf: the BUILDO space shuttle, the Buildex roller coaster (it works!) and my Swimming 25 Metres trophy (from when I was 7).', 'The roller coaster took three weekends. A full circuit, two rails, and about a million little blue connectors.'],
+    shelf: ['My shelf: the BUILDO space shuttlebus, the Buildex roller coaster (it works!) and my Swimming 25 Metres trophy (from when I was 7).', 'The roller coaster took three weekends. A full circuit, two rails, and about a million little blue connectors.'],
     tvback: ['Behind the telly: about forty leads, all tangled. Nobody knows which one is which.'],
     mags: ['A pile of games mags. The free demo discs are coasters now.', 'The cheats pages are the most read bit. They are falling out.'],
     clock: () => { const d = window.OwnerTools?.now() || new Date(); return `The radio alarm clock says ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}. It's tuned to the chart show. The snooze button is broken from overuse.`; },

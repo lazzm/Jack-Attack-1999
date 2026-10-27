@@ -31,7 +31,7 @@
     ['cx.ring', 'Class of \'99', 'Go all the way round a webring about 1999'],
     ['cx.chess', 'Checkmate', 'Find the winning move on a chess page'],
     ['cx.units', 'Metric hero', 'Get the units right where NASSA got them wrong'],
-    ['cx.eagle', 'The Eagle has landed', 'Land gently on the Moon'],
+    ['cx.eagle', 'The Seagull has landed', 'Land gently on the Moon'],
     ['cx.swirl', 'Spiral power', 'The swirl hides a secret'],
     ['cx.rumour', 'Insider', 'Believe every rumour (then find out which were true)'],
     ['cx.bugsafe', 'Virus-proof', 'Get every answer right in a safety quiz'],
@@ -110,7 +110,7 @@
       ['03-02', 'Somy showed off the next PlaySpace today! A site with all the rumours: <a href="#" data-cxsite="www.nextgenwatch.netz">NEXT GEN WATCH</a>'],
       ['03-26', 'There\'s a virus called Melissa going round in e-mails. This site explains it properly: <a href="#" data-cxsite="www.bugalert.netz">BUG ALERT!</a>'],
       ['06-21', 'The world chess champion is playing EVERYONE on the Internet at once! <a href="#" data-cxsite="www.worldsmove.cyb">THE WORLD\'S MOVE</a> (there\'s a checkmate puzzle)'],
-      ['07-16', '30 years ago today Apollo 11 took off for the Moon. Try to land the Eagle yourself on <a href="#" data-cxsite="www.onesmallstep.infobahn">ONE SMALL STEP</a>. It is HARD.'],
+      ['07-16', '30 years ago today Apolly 11 took off for the Moon. Try to land the Seagull yourself on <a href="#" data-cxsite="www.onesmallstep.infobahn">ONE SMALL STEP</a>. It is HARD.'],
       ['10-01', 'Meteor storm in November? This site says when to look: <a href="#" data-cxsite="www.shootingstars.infobahn">SHOOTING STAR WATCH</a>'],
     ].forEach(([k, t]) => CAL.posts.push([k, 'NET', t]));
   } catch (e) { console.error(e); }
@@ -140,7 +140,7 @@
   // host, file, title, cat, desc, { path: page title }, first day it exists (MM-DD)
   const SITES = window.CXSiteList = [
     ['www.classof99ring.homepagez', 'a', 'THE CLASS OF \'99 RING', 'comm', 'A webring of fan sites about the things everyone is talking about in 1999: space, consoles, chips, chess, telly, books and more. Join the ring!', { '/': 0 }, '01-01'],
-    ['www.onesmallstep.infobahn', 'a', 'ONE SMALL STEP - Apollo 11 at 30', 'sci', 'It\'s 30 years since people first walked on the Moon (20 July 1969). The story, a countdown to the anniversary, Moon news, and a game: can YOU land the Eagle?', { '/': 0, '/story.html': 'The Story', '/land.html': 'Land the Eagle', '/news.html': 'Moon News' }, '01-01'],
+    ['www.onesmallstep.infobahn', 'a', 'ONE SMALL STEP - Apolly 11 at 30', 'sci', 'It\'s 30 years since people first walked on the Moon (20 July 1969). The story, a countdown to the anniversary, Moon news, and a game: can YOU land the Seagull?', { '/': 0, '/story.html': 'The Story', '/land.html': 'Land the Seagull', '/news.html': 'Moon News' }, '01-01'],
     ['www.redplanet99.cyb', 'a', 'RED PLANET 99 - Mars Mission Watch', 'sci', 'Two NASSA probes are on their way to Mars this year: an orbiter and a lander for the south pole. Follow them here, and play Units Patrol.', { '/': 0, '/probes.html': 'The Probes', '/units.html': 'Units Patrol' }, '01-03'],
     ['www.spiralzone.zyne', 'a', 'THE SPIRAL ZONE - UK Daydream Fans', 'games', 'Fan news about Segue\'s new 128-bit Daydream: out in Japan, coming to Europe. Specs, games, the memory card with a screen, and a countdown.', { '/': 0, '/specs.html': 'Specs', '/games.html': 'Games' }, '01-01'],
     ['www.owlpostfans.kidz', 'a', 'THE OWL POST - A Barry Plotter Book Club', 'fans', 'A fan club for the Barry Plotter books. Book news, a no-spoilers reading club, the house quiz and a countdown to book three.', { '/': 0, '/books.html': 'The Books', '/quiz.html': 'The House Quiz' }, '01-01'],

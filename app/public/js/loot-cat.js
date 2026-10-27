@@ -132,7 +132,7 @@
   add('wall', [
     ['dots', 'Polka Dots', 0, ['dots', '#ffe8f4', '#ff7ac0', '#ffb8e0'], 'Pink dots. Mom approves.', { shop: 'pibble' }],
     ['checks', 'Chessboard', 0, ['checks', '#202020', '#3a3a3a', ''], 'Black and grey squares. Very serious. Very chess.', { shop: 'pibble' }],
-    ['stripes', 'Deckchair Stripes', 0, ['stripes', '#fff', '#2a8aff', ''], 'Like a deckchair in Weston-super-Mare. Probably.', { shop: 'pibble' }],
+    ['stripes', 'Deckchair Stripes', 0, ['stripes', '#fff', '#2a8aff', ''], 'Like a deckchair in Weston-super-Mayo. Probably.', { shop: 'pibble' }],
     ['bubbles', 'Bubble Bath', 1, ['bubbles', '#2a6ad8', '#9fd8ff', '#ffffff'], 'Blue bubbles. Smells of Mom\'s bath stuff (it does not smell).', { shop: 'pibble' }],
     ['zigzag', 'Zig Zag', 1, ['zigzag', '#1a1a3a', '#ffd400', '#ff3a6a'], 'A loud zig-zag pattern for a loud computer.', { shop: 'pibble' }],
     ['stars', 'Starry Night', 1, ['stars', '#000820', '#ffffff', '#9fd8ff'], 'Hundreds of tiny stars. Count them. Go on.'],

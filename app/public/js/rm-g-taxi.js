@@ -1990,7 +1990,7 @@
         if (licPage === 0) { // the licence card
           ol(H, 'YOUR MINICAB LICENCE', W / 2, 100, '#ffd21a', 3, 1);
           const x = 70, y = 134, w = W - 140, h = 240; H.fillStyle = '#f4ecd0'; H.fillRect(x, y, w, h); H.fillStyle = '#e8d8a8'; for (let i = 0; i < h; i += 6) H.fillRect(x, y + i, w, 2);
-          H.fillStyle = '#c8282a'; H.fillRect(x, y, w, 30); F.draw(H, 'SUNNYMOUTH BOROUGH COUNCIL', x + 12, y + 8, '#fff', 2); F.draw(H, 'HACKNEY & MINICAB', x + w - 12 - F.width('HACKNEY & MINICAB', 1), y + 12, '#ffd21a', 1);
+          H.fillStyle = '#c8282a'; H.fillRect(x, y, w, 30); F.draw(H, 'SUNNYMOUTH BOROUGH COUNCIL', x + 12, y + 8, '#fff', 2); F.draw(H, 'HACKNEIGH & MINICAB', x + w - 12 - F.width('HACKNEIGH & MINICAB', 1), y + 12, '#ffd21a', 1);
           H.fillStyle = '#9ab8d8'; H.fillRect(x + 16, y + 44, 92, 112); H.fillStyle = '#e8b890'; H.beginPath(); H.arc(x + 62, y + 86, 24, 0, 7); H.fill(); H.fillStyle = '#4a3020'; H.fillRect(x + 38, y + 58, 48, 14); H.fillStyle = '#2a3a6a'; H.fillRect(x + 30, y + 112, 64, 44); H.fillStyle = '#000'; H.fillRect(x + 52, y + 84, 4, 4); H.fillRect(x + 68, y + 84, 4, 4); H.fillRect(x + 56, y + 98, 12, 2);
           const lk = (a, b, yy, c) => { F.draw(H, a, x + 124, y + yy, '#7a6a4a', 1); F.draw(H, b, x + 124, y + yy + 11, c || '#1a1a2a', 2); };
           lk('NAME', castUp('me'), 44); lk('DRIVER', DRIVERS[sv.driver | 0].n, 76); lk('FARES DRIVEN', String(sv.fares | 0), 108); lk('BEST TAKINGS', '£' + (sv.money | 0), 140, '#2a7a2a');

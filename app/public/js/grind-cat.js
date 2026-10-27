@@ -115,7 +115,7 @@
     'Bookmark Collector', 'Surfer', 'Search Engine Scout', 'Web Ring Rider', 'MIDI Maestro', 'Shareware Junkie', 'Webmaster', 'HTML Hero',
     'Frames Fanatic', 'Hit Counter King', 'Modem Whisperer', 'Leet Haxx0r', 'Overclocker', 'Pixel Pusher', 'Bug Squasher', 'Beta Tester',
     'Power User', 'Sysop', 'Cyberpunk', 'Y2K Bug Hunter', 'Net Ninja', 'Cyber Legend', 'Info Superhighwayman', 'Packet Pilot', 'Server Sage',
-    'Bandwidth Baron', 'Megabyte Monarch', 'Gigabyte Guru', 'Mainframe Master', 'Digital Dynamo', 'Virtual Voyager', 'JackNet Elite',
+    'Bandwidth Baron', 'Megabyte Monarch', 'Gigabyte Guru', 'Mainframe Master', 'Digital Dynamo', 'Virtual Boyager', 'JackNet Elite',
     'Cyber Samurai', 'Silicon Wizard', 'Code Commander', 'Binary Bard', 'Millennium Master', 'Grand Webmaster', 'Keeper of the Big Server',
     'Captain Cyberspace', 'JackNet Immortal', 'Lord of the JackNet'];
   const MAXLV = 50;

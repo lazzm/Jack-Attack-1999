@@ -1,5 +1,5 @@
 /* PAVEMENTS OF PERIL (Mega Drive, in Jack's room): a scrolling street brawler across one long night in a 1999 British
- * seaside town. Five stages, each with its own boss: GRIMSBY STREET (Moped Mick), THE PRECINCT (Security Stan and his
+ * seaside town. Five stages, each with its own boss: GRIMSBYTE STREET (Moped Mick), THE PRECINCT (Security Stan and his
  * torch), THE PROM at sunset (Big Barry and his wheelie bin), THE PIER funfair (Candyfloss Carl) and the roof of
  * GRIMLY TOWERS, where Mr Grimly himself is waiting with his umbrella.
  * Pick KEV (big punches), SHAZ (fast feet) or, once you've finished it, NAN (handbag).
@@ -289,7 +289,7 @@
   // ---------------------------------------------------------------- the stages: three scrolling layers each (far, middle,
   // the street itself), a floor, and a few live bits (lights, the big wheel, the sea)
   const STAGES = [
-    { name: 'GRIMSBY STREET', time: 'FRIDAY 11:42 PM', len: 3400, song: 'street', boss: 'mick', floor: 'slabs',
+    { name: 'GRIMSBYTE STREET', time: 'FRIDAY 11:42 PM', len: 3400, song: 'street', boss: 'mick', floor: 'slabs',
       sky: [[0, '#0a0a30'], [0.7, '#2a1a50'], [1, '#5a2a5a']],
       waves: [{ at: 480, e: ['herb', 'herb'] }, { at: 1020, e: ['herb', 'skater', 'herb2'] }, { at: 1560, e: ['punk', 'herb', 'herb2'] }, { at: 2100, e: ['lenny', 'herb', 'skater'] }, { at: 2640, e: ['punk', 'punk', 'herb2', 'herb'] }, { at: 3180, e: ['mick', 'herb', 'herb2'], boss: 1 }],
       props: [['bin', 360, 162, 'apple'], ['phone', 760, 152, 'money'], ['bin', 1250, 196, 'chips'], ['bin', 1470, 160, 'pipe'], ['cone', 1700, 200, ''], ['crate', 1880, 200, 'roll'], ['bin', 2380, 172, 'chips'], ['crate', 2900, 188, 'tape']] },

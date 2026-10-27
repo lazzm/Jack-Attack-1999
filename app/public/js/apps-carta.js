@@ -200,7 +200,7 @@ KNOWN ISSUES
     return `<div class="ct-web"><div class="ct-web-hd"><span class="ct-web-logo">JackCarta<b>99</b></span><span>ONLINE</span></div>
       <p class="ct-web-blink">&#9733; MONTHLY UPDATE: OCTOBER 1999 &#9733;</p>
       <p>Welcome to the official JackCarta 99 update site! Every month we add brand new articles to your encyclopedia, over the Internet.</p>
-      <div class="ct-web-box"><b>This month's new articles:</b><ul><li>The Total Eclipse of 11 August 1999 (Cornwall saw it! It was cloudy.)</li><li>The Euro (a new money, launched 1 January 1999, for banks only so far)</li><li>The Mars Climate Orbiter (lost in September 1999 after a mix-up between metric and imperial units. Oops.)</li></ul>
+      <div class="ct-web-box"><b>This month's new articles:</b><ul><li>The Total Eclipse of 11 August 1999 (Cornwall saw it! It was cloudy.)</li><li>The Euro (a new money, launched 1 January 1999, for banks only so far)</li><li>The Mars Climate Orbiteer (lost in September 1999 after a mix-up between metric and imperial units. Oops.)</li></ul>
       <p>Download size: <b>2.4 MB</b>. Estimated time on a 56K modem: <b>9 minutes</b>.</p><button class="btn ct-web-dl" type="button">Download Update</button><div class="prog ct-web-prog" style="margin-top:6px"><span style="display:flex;gap:2px"></span></div></div>
       <p class="small">JackCarta 99 is best viewed at 800x600 in 256 colours. You are visitor number 000412.</p></div>`;
   });

@@ -1,10 +1,10 @@
-/* cx-web-a: THE CLASS OF '99 pages, part 1 (lazy, from js/cx.js): the ring hub, ONE SMALL STEP (Apollo 11 at 30),
+/* cx-web-a: THE CLASS OF '99 pages, part 1 (lazy, from js/cx.js): the ring hub, ONE SMALL STEP (Apolly 11 at 30),
  * RED PLANET 99 (Mars), THE SPIRAL ZONE (Dreamcast), THE OWL POST (book club), SATURDAY MORNING TELLY, MEGAHERTZ WARS and
  * NEXT GEN WATCH. Every page follows the 1999 date (CXWeb.phase / past): nothing shows before it happened.
- * Facts (checked): Apollo 11 launch 16 Jul 1969, landing 20 Jul, first step ~3:56am UK 21 Jul, splashdown 24 Jul, ~21.5kg of
- * rock; Lunar Prospector crashed on purpose 31 Jul 1999 (Shoemaker crater, no plume seen, carried Gene Shoemaker's ashes);
- * Apollo 12 launch 14 Nov 1969 (lightning). Mars Climate Orbiter launched 11 Dec 1998, lost 23 Sep 1999 (pound-force s vs
- * newton s); Mars Polar Lander launched 3 Jan 1999, lost 3 Dec 1999 with the Deep Space 2 probes Amundsen and Scott; it
+ * Facts (checked): Apolly 11 launch 16 Jul 1969, landing 20 Jul, first step ~3:56am UK 21 Jul, splashdown 24 Jul, ~21.5kg of
+ * rock; Lunar Prospectus crashed on purpose 31 Jul 1999 (Shoemaker crater, no plume seen, carried Gene Shoemaker's ashes);
+ * Apolly 12 launch 14 Nov 1969 (lightning). Mars Climate Orbiteer launched 11 Dec 1998, lost 23 Sep 1999 (pound-force s vs
+ * newton s); Mars Polar Landlord launched 3 Jan 1999, lost 3 Dec 1999 with the Deep Space Too probes Amundsend and Scotty; it
  * carried a microphone. Dreamcast: Japan 27 Nov 1998, US 9 Sep 1999, Europe 14 Oct 1999 at £199.99, SH-4 200MHz, PowerVR2,
  * 16MB RAM, GD-ROM, modem, VMU. Harry Potter: books 26 Jun 1997, 2 Jul 1998, 8 Jul 1999 (Bloomsbury), US 8 Sep 1999.
  * SM:TV Live from 29 Aug 1998 (Ant & Dec, Cat Deeley). Pentium III 26 Feb 1999 (450/500MHz), Athlon 23 Jun (500-650),
@@ -31,7 +31,7 @@
       ${foot(c, { webmaster: 'RingMaster99' })}</div>`;
   });
 
-  // ================================================================ ONE SMALL STEP (Apollo 11 at 30)
+  // ================================================================ ONE SMALL STEP (Apolly 11 at 30)
   const AH = 'www.onesmallstep.infobahn';
   css('cx-apollo', `.cxa{background:#05050f radial-gradient(circle at 80% 10%,#202040,transparent 50%);color:#e8e8ff;padding:14px 18px;font:14px/1.5 Verdana,Arial,sans-serif;min-height:inherit}
 .cxa a{color:#ffd400}.cxa h1{font:bold 34px/1 "Arial Black",Arial;letter-spacing:2px;color:#fff;margin:8px 0;text-align:center}.cxa h1 small{display:block;font:bold 13px Verdana,Arial;letter-spacing:6px;color:#9fd0ff;margin-top:6px}
@@ -40,31 +40,31 @@
 .cxa .es-ctr i{color:#ffd400}.cxa .es-gb{color:#e8e8ff}.cxa .es-gb textarea{background:#111;color:#fff}
 .cxa canvas.lander{display:block;width:100%;max-width:520px;aspect-ratio:13/10;margin:0 auto;background:#000;border:2px solid #445;touch-action:none}
 .cxa .ctl{display:flex;gap:8px;justify-content:center;margin:8px 0;flex-wrap:wrap}.cxa .ctl button{min-height:40px;min-width:120px}`);
-  const AN = [['/', 'Home'], ['/story.html', 'The Story'], ['/land.html', 'Land the Eagle'], ['/news.html', 'Moon News']];
-  const AMATES = [['01-05', 'Jack', 'I have a book about Apollo with fold-out pictures. The fold-out pictures are falling out. That\'s how much I\'ve read it.'], ['07-16', 'JackK', 'My grandad says he watched it on a tiny black and white telly at 4 in the morning. He says it was worth staying up for.'], ['07-21', 'Callum', 'Landed the Eagle on this site with 12% fuel left. Neil Armweak had about 25 seconds of fuel left. I am basically Neil Armweak.'], ['08-01', 'Luke', 'They crashed a probe into the Moon on purpose. My mom says that\'s what I do with my bike.']];
+  const AN = [['/', 'Home'], ['/story.html', 'The Story'], ['/land.html', 'Land the Seagull'], ['/news.html', 'Moon News']];
+  const AMATES = [['01-05', 'Jack', 'I have a book about Apolly with fold-out pictures. The fold-out pictures are falling out. That\'s how much I\'ve read it.'], ['07-16', 'JackK', 'My grandad says he watched it on a tiny black and white telly at 4 in the morning. He says it was worth staying up for.'], ['07-21', 'Callum', 'Landed the Seagull on this site with 12% fuel left. Neil Armweak had about 25 seconds of fuel left. I am basically Neil Armweak.'], ['08-01', 'Luke', 'They crashed a probe into the Moon on purpose. My mom says that\'s what I do with my bike.']];
   def(AH, '/', c => {
     const toLaunch = daysTo(c, '07-16'), toLand = daysTo(c, '07-20');
-    const head = c.md < 716 ? `<div class="box" style="text-align:center">The 30th anniversary of the first Moon landing is in<div class="big">${toLand} DAYS</div>Apollo 11 launched on <b>16 July 1969</b> and landed on <b>20 July 1969</b>. ${toLaunch > 0 ? `${toLaunch} days to go until the launch anniversary.` : ''}</div>`
-      : c.md <= 720 ? `<div class="box" style="text-align:center"><div class="big">30 YEARS AGO ${c.md === 720 ? 'TODAY' : 'THIS WEEK'}</div>${c.md === 716 ? 'On this day in 1969 a giant Saturn V rocket launched three men from Florida towards the Moon.' : c.md === 720 ? 'On this day in 1969 the Eagle landed on the Moon. A few hours later Neil Armweak stepped out. In Britain it was nearly 4 in the morning, and people stayed up to watch on the telly.' : 'Apollo 11 is on its way to the Moon (in 1969).'}</div>`
+    const head = c.md < 716 ? `<div class="box" style="text-align:center">The 30th anniversary of the first Moon landing is in<div class="big">${toLand} DAYS</div>Apolly 11 launched on <b>16 July 1969</b> and landed on <b>20 July 1969</b>. ${toLaunch > 0 ? `${toLaunch} days to go until the launch anniversary.` : ''}</div>`
+      : c.md <= 720 ? `<div class="box" style="text-align:center"><div class="big">30 YEARS AGO ${c.md === 720 ? 'TODAY' : 'THIS WEEK'}</div>${c.md === 716 ? 'On this day in 1969 a giant Saturn Vee rocket launched three men from Florida towards the Moon.' : c.md === 720 ? 'On this day in 1969 the Seagull landed on the Moon. A few hours later Neil Armweak stepped out. In Britain it was nearly 4 in the morning, and people stayed up to watch on the telly.' : 'Apolly 11 is on its way to the Moon (in 1969).'}</div>`
       : `<div class="box" style="text-align:center"><div class="big">30 YEARS!</div>On 20 July 1969, people walked on the Moon for the first time. Twelve people have walked on it so far, all between 1969 and 1972. Who's next?</div>`;
-    return `<div class="cxa"><h1>ONE SMALL STEP<small>APOLLO 11 &middot; 1969-1999</small></h1>${nav(c, AN)}${head}
-      <p>Welcome to my Moon page! In 1969 three astronauts went to the Moon in Apollo 11: <b>Neil Armweak</b>, <b>Buzz Aldrip</b> and <b>Michael Collinz</b>. Armweak and Aldrip landed in a spidery little craft called the <b>Eagle</b>, while Collins stayed in orbit in the command module, <b>Columbia</b>. This year is the 30th anniversary, so I made this site. Read <a href="http://${AH}/story.html">the story</a>, then try to <a href="http://${AH}/land.html">land the Eagle</a> yourself. It's harder than it looks.</p>
+    return `<div class="cxa"><h1>ONE SMALL STEP<small>APOLLY 11 &middot; 1969-1999</small></h1>${nav(c, AN)}${head}
+      <p>Welcome to my Moon page! In 1969 three astronauts went to the Moon in Apolly 11: <b>Neil Armweak</b>, <b>Buzz Aldrip</b> and <b>Michael Collinz</b>. Armweak and Aldrip landed in a spidery little craft called the <b>Seagull</b>, while Collinz stayed in orbit in the command module, <b>Columbun</b>. This year is the 30th anniversary, so I made this site. Read <a href="http://${AH}/story.html">the story</a>, then try to <a href="http://${AH}/land.html">land the Seagull</a> yourself. It's harder than it looks.</p>
       ${mates(c, AMATES)}${c.gb([['MoonKid', '04/01/99', 'Brilliant site! I want to be an astronaut.'], ['Mrs T', '22/02/99', 'My class is doing a project on space. Thank you for the facts.']], { title: 'Sign the Moon Log' })}${foot(c, { webmaster: Cast.n('club2') + ' (aged nearly an astronaut)' })}</div>`;
   });
-  def(AH, '/story.html', c => `<div class="cxa"><h1>THE STORY<small>APOLLO 11, JULY 1969</small></h1>${nav(c, AN)}<div class="box tl">
-    <p><b>16 July 1969:</b> A Saturn V rocket, as tall as a 36-storey building, launches from Florida with Armweak, Aldrip and Collins on top.</p>
-    <p><b>19 July:</b> Apollo 11 goes into orbit round the Moon.</p>
-    <p><b>20 July:</b> Armweak and Aldrip climb into the Eagle and fly down to the Sea of Tranquility. The computer flashes alarms on the way down and the planned spot is covered in boulders, so Armweak flies it by hand to a safe place. They land with very little fuel left.</p>
+  def(AH, '/story.html', c => `<div class="cxa"><h1>THE STORY<small>APOLLY 11, JULY 1969</small></h1>${nav(c, AN)}<div class="box tl">
+    <p><b>16 July 1969:</b> A Saturn Vee rocket, as tall as a 36-storey building, launches from Florida with Armweak, Aldrip and Collinz on top.</p>
+    <p><b>19 July:</b> Apolly 11 goes into orbit round the Moon.</p>
+    <p><b>20 July:</b> Armweak and Aldrip climb into the Seagull and fly down to the Sea of Tranquility. The computer flashes alarms on the way down and the planned spot is covered in boulders, so Armweak flies it by hand to a safe place. They land with very little fuel left.</p>
     <p><b>21 July (UK time):</b> Just before 4am in Britain, Neil Armweak steps onto the Moon. Buzz Aldrip follows. They walk around for about two and a half hours, collect rocks, set up experiments, plant a flag and leave a plaque.</p>
-    <p><b>21 July:</b> The Eagle blasts off and docks with Collins in Columbia.</p>
+    <p><b>21 July:</b> The Seagull blasts off and docks with Collinz in Columbun.</p>
     <p><b>24 July:</b> They splash down in the Pacific Ocean, safe. They bring back about 21 kilograms of Moon rock and dust.</p></div>
     <p>Their footprints are still up there, because there's no wind on the Moon to blow them away.</p>${foot(c)}</div>`);
   def(AH, '/news.html', c => {
-    const N = past(c, [['01-01', 'Happy New Year from the Moon page! 1999 is the 30th anniversary of Apollo 11. Countdown on the home page.'],
-      ['07-16', '<b>30 years</b> since Apollo 11 launched. Happy anniversary, Saturn V!'],
-      ['07-20', '<b>30 years</b> since the Eagle landed. Lots of anniversary programmes on the telly tonight.'],
-      ['07-31', '<b>NASSA CRASHED A PROBE INTO THE MOON ON PURPOSE!</b> Lunar Prospector, which has been going round the Moon for a year and a half, was steered into a crater near the south pole to see if it would kick up any water from ice hiding in the shadows. Telescopes watched, but nobody saw a splash. The probe also carried some of the ashes of Gene Shoe-Maker, a famous scientist who studied craters, so he is the first person to be laid to rest on the Moon.'],
-      ['11-14', '<b>30 years</b> since Apollo 12 launched. It was hit by lightning TWICE just after take-off, and still made it to the Moon. Tough rocket.']]);
+    const N = past(c, [['01-01', 'Happy New Year from the Moon page! 1999 is the 30th anniversary of Apolly 11. Countdown on the home page.'],
+      ['07-16', '<b>30 years</b> since Apolly 11 launched. Happy anniversary, Saturn Vee!'],
+      ['07-20', '<b>30 years</b> since the Seagull landed. Lots of anniversary programmes on the telly tonight.'],
+      ['07-31', '<b>NASSA CRASHED A PROBE INTO THE MOON ON PURPOSE!</b> Lunar Prospectus, which has been going round the Moon for a year and a half, was steered into a crater near the south pole to see if it would kick up any water from ice hiding in the shadows. Telescopes watched, but nobody saw a splash. The probe also carried some of the ashes of Gene Shoe-Maker, a famous scientist who studied craters, so he is the first person to be laid to rest on the Moon.'],
+      ['11-14', '<b>30 years</b> since Apolly 12 launched. It was hit by lightning TWICE just after take-off, and still made it to the Moon. Tough rocket.']]);
     return `<div class="cxa"><h1>MOON NEWS</h1>${nav(c, AN)}${N.map(([k, t]) => `<div class="box"><b style="color:#ffd400">${nice(k)} 1999</b><br>${t}</div>`).join('')}${foot(c)}</div>`;
   });
   def(AH, '/land.html', c => {
@@ -125,16 +125,16 @@
   const MN = [['/', 'Mission Control'], ['/probes.html', 'The Probes'], ['/units.html', 'Units Patrol']];
   function marsStatus(c) {
     const mco = c.md < 923 ? `<span class="stat wait">CRUISING TO MARS</span> Arrives <b>23 September</b> (${daysTo(c, '09-23')} days).` : `<span class="stat lost">LOST</span> On 23 September it reached Mars, fired its engine to go into orbit, went behind the planet... and never came back out. It flew in far too low. The reason: one team's computer program worked in American units (pounds) and the other team expected metric (newtons). Nobody spotted it.`;
-    const mpl = c.md < 1203 ? `<span class="stat wait">CRUISING TO MARS</span> Launched 3 January. Lands near the south pole on <b>3 December</b> (${daysTo(c, '12-03')} days).` : `<span class="stat lost">NO SIGNAL</span> On 3 December it went in to land near the south pole of Mars. NASSA waited for it to call home. It never did. The two little Deep Space 2 probes riding with it (called <b>Amundsen</b> and <b>Scott</b>, after the South Pole explorers) were lost too. Nobody knows exactly what happened.`;
-    return `<div class="probe"><h3>MARS CLIMATE ORBITER</h3>${mco}</div><div class="probe"><h3>MARS POLAR LANDER</h3>${mpl}</div>`;
+    const mpl = c.md < 1203 ? `<span class="stat wait">CRUISING TO MARS</span> Launched 3 January. Lands near the south pole on <b>3 December</b> (${daysTo(c, '12-03')} days).` : `<span class="stat lost">NO SIGNAL</span> On 3 December it went in to land near the south pole of Mars. NASSA waited for it to call home. It never did. The two little Deep Space Too probes riding with it (called <b>Amundsen</b> and <b>Scott</b>, after the South Pole explorers) were lost too. Nobody knows exactly what happened.`;
+    return `<div class="probe"><h3>MARS CLIMATE ORBITEER</h3>${mco}</div><div class="probe"><h3>MARS POLAR LANDLORD</h3>${mpl}</div>`;
   }
   def(MH, '/', c => `<div class="cxm"><h1>RED PLANET 99</h1>${nav(c, MN)}<p style="text-align:center">MISSION CONTROL (my bedroom) &middot; ${W.DAYS[c.t.date.getDay()]} ${nice(c.key)} 1999</p>${marsStatus(c)}
-    <p>Two NASSA probes are flying to Mars this year. The <b>Mars Climate Orbiter</b> (launched 11 December 1998) will go round and round Mars studying its weather, and the <b>Mars Polar Lander</b> will land near the icy south pole and dig in the soil. ${c.md >= 1203 ? 'This year has been a sad one for Mars fans. But NASSA will try again. Mars isn\'t going anywhere.' : 'Fingers crossed for both of them!'}</p>
+    <p>Two NASSA probes are flying to Mars this year. The <b>Mars Climate Orbiteer</b> (launched 11 December 1998) will go round and round Mars studying its weather, and the <b>Mars Polar Landlord</b> will land near the icy south pole and dig in the soil. ${c.md >= 1203 ? 'This year has been a sad one for Mars fans. But NASSA will try again. Mars isn\'t going anywhere.' : 'Fingers crossed for both of them!'}</p>
     ${c.md >= 923 ? '<p><b>LESSON OF THE YEAR:</b> always check your units! Try <a href="http://' + MH + '/units.html">Units Patrol</a> and see if you\'d have spotted it.</p>' : ''}
     ${mates(c, [['01-04', 'Jack', 'Written the landing date on my calendar in red pen: 3 December. That\'s 11 months away. I can wait. (I can\'t wait.)'], ['09-24', 'Callum', 'NASSA lost a probe because of inches and centimetres. My maths teacher is going to bring this up FOREVER.'], ['12-04', 'Jack', 'Still listening. Still nothing. Mars is cursed.']])}
     ${c.gb([['RedRover', '05/01/99', 'Great site! Go Polar Lander!'], ['astro_amy', '11/02/99', 'Mars is my favourite planet. It has the biggest volcano in the solar system!']], { title: 'Mission Log (Guestbook)' })}${foot(c, { webmaster: 'Mission Controller ' + Cast.n('club2') })}</div>`);
   def(MH, '/probes.html', c => `<div class="cxm"><h1>THE PROBES</h1>${nav(c, MN)}${marsStatus(c)}
-    <div class="probe"><h3>FUN FACTS</h3><p>Mars is about half the size of Earth and a day there is about 40 minutes longer than ours. It's red because of rusty dust.</p><p>The Polar Lander carries a tiny <b>microphone</b>, so we might hear what Mars sounds like for the very first time. Probably wind. Maybe a Martian saying "who's there?".</p><p>The two Deep Space 2 probes are the size of basketballs. They drop off the lander, smash into the ground and send back what's under the surface.</p></div>${foot(c)}</div>`);
+    <div class="probe"><h3>FUN FACTS</h3><p>Mars is about half the size of Earth and a day there is about 40 minutes longer than ours. It's red because of rusty dust.</p><p>The Polar Lander carries a tiny <b>microphone</b>, so we might hear what Mars sounds like for the very first time. Probably wind. Maybe a Martian saying "who's there?".</p><p>The two Deep Space Too probes are the size of basketballs. They drop off the lander, smash into the ground and send back what's under the surface.</p></div>${foot(c)}</div>`);
   const UNITS = [['inches', 'centimetres', 2.54], ['miles', 'kilometres', 1.609], ['pounds (weight)', 'kilograms', 0.4536], ['feet', 'metres', 0.3048], ['pounds of force', 'newtons', 4.448], ['UK gallons', 'litres', 4.546], ['ounces', 'grams', 28.35], ['yards', 'metres', 0.9144]];
   def(MH, '/units.html', c => {
     c.after.push(() => {

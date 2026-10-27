@@ -3,9 +3,9 @@
  * UK number ones of 1999 (Official Chart, given here on the Sunday each was announced), Miami 7 on CBBC 8 Apr 1999,
  * Steptacular 25 Oct 1999, Britney = best-selling single of 1999. Millionaire: ITV from 4 Sep 1998, Chris Tarrant,
  * the 15-step money ladder, safe at £1,000 and £32,000, three lifelines, 19.21m viewers on 7 Mar 1999, no million winner
- * in 1999. Space: Mars Polar Lander 3 Jan, Stardust 7 Feb, Breitling Orbiter 3 (1-21 Mar), STS-96 27 May / docked 29 May /
- * home 6 Jun, STS-93 scrub 20 Jul at T-7s, launch 23 Jul (Eileen Collins, Chandra), night landing 27 Jul (Florida time),
- * Lunar Prospector 31 Jul, Cassini flyby 18 Aug, Mir left empty 28 Aug, Leonids peak about 02:02 UT 18 Nov, STS-103 19-27
+ * in 1999. Space: Mars Polar Landlord 3 Jan, Stardusty 7 Feb, Breitling Orbiter 3 (1-21 Mar), STX-96 27 May / docked 29 May /
+ * home 6 Jun, STX-93 scrub 20 Jul at T-7s, launch 23 Jul (Eileen Collinz, Chandruff), night landing 27 Jul (Florida time),
+ * Lunar Prospectus 31 Jul, Cassiny flyby 18 Aug, Mirth left empty 28 Aug, Leonids peak about 02:02 UT 18 Nov, STX-103 19-27
  * Dec (all six gyroscopes). Sport: Boat Race 3 Apr (Cambridge), Grand National 10 Apr (Bobbyjo), Man Utd: league 16 May
  * (2-1 Spurs), FA Cup 22 May (2-0 Newcastel), European Cup 26 May (2-1 Bayern), Cricket World Cup 14 May-20 Jun
  * (Australia beat Pakistan at Lord's), Wimbledon finals 4 Jul (Sampras, Davenport), British GP 11 Jul (Coulthard),
@@ -140,7 +140,7 @@
     [['Which gas do plants take in from the air to make their food?', 'Carbon dioxide', 'Oxygen', 'Helium', 'Nitrogen'], ['How many bits are there in a byte?', '8', '2', '4', '16']],
     [['Who painted the Moaner Lisa?', 'Leonardo da Vincent', 'Michaelangelo-ish', 'Vincent van Goh', 'Pablo Picasa'], ['Which is the biggest ocean on Earth?', 'The Pacific', 'The Atlantic', 'The Indian', 'The Arctic']],
     [['How many hearts does an octopus have?', '3', '1', '2', '8'], ['Which planet has a big moon called Titan?', 'Saturn', 'Mars', 'Jupiter', 'Uranus']],
-    [['What was the first man-made satellite, launched in 1957, called?', 'Sputnik 1', 'Apollo 1', 'Explorer 1', 'Vostok 1'], ['Which metal has the chemical symbol Fe?', 'Iron', 'Lead', 'Tin', 'Copper']],
+    [['What was the first man-made satellite, launched in 1957, called?', 'Spudnik 1', 'Apolly 1', 'Exploder 1', 'Vostock 1'], ['Which metal has the chemical symbol Fe?', 'Iron', 'Lead', 'Tin', 'Copper']],
     [['What is the hardest natural material?', 'Diamond', 'Granite', 'Steel', 'Quartz'], ['How many bones are there in an adult human body?', '206', '186', '226', '306']],
     [['Who was the first person to fly in space?', 'Yuri Garglin', 'Neil Armweak', 'John Glimm', 'Alan Shepherd-Pie'], ['Roughly how fast does light travel?', '300,000 km per second', '3,000 km per second', '30,000 km per second', '3 million km per second']],
     [['Which planet spins tipped right over on its side?', 'Uranus', 'Venus', 'Mercury', 'Neptune'], ['What is the smallest prime number?', '2', '1', '3', '0']],
@@ -235,7 +235,7 @@
     ['Put these in order of size, smallest first.', ['Byte', 'Kilobyte', 'Megabyte', 'Gigabyte']],
     ['Put these coins in order of value, lowest first.', ['1p', '5p', '20p', '£1']],
     ['Put these in order, smallest number first.', ['A dozen', 'A score', 'A gross', 'A thousand']],
-    ['Put these space firsts in order, earliest first.', ['Sputnik 1 goes up', 'People walk on the Moon', 'The first Space Shuttle flight', 'The Mir space station goes up']],
+    ['Put these space firsts in order, earliest first.', ['Spudnik 1 goes up', 'People walk on the Moon', 'The first Space Shuttlebus flight', 'The Mirth space station goes up']],
     ['Put these in order, shortest first.', ['Millimetre', 'Centimetre', 'Metre', 'Kilometre']],
     ['Put these rainbow colours in order, starting from the outside.', ['Red', 'Orange', 'Yellow', 'Green']],
     ['Put these animals in order of size, smallest first.', ['Mouse', 'Cat', 'Horse', 'Elephant']],
@@ -505,24 +505,24 @@
   const PATCH = '<svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="#1a3a9a" stroke="#ff6a00" stroke-width="3"/><path d="M28 8 L34 30 L28 26 L22 30 Z" fill="#fff"/><path d="M24 30 L28 44 L32 30" fill="#ff6a00"/><circle cx="14" cy="18" r="1.2" fill="#fff"/><circle cx="42" cy="14" r="1" fill="#fff"/><circle cx="44" cy="38" r="1.3" fill="#fff"/><path d="M6 34 Q28 50 50 34" fill="none" stroke="#3af" stroke-width="2"/></svg>';
   // [date, headline, what happened, what to look forward to (shown before it happens)]
   const LOG = [
-    ['01-03', 'Mars Polar Lander launched', 'NASSA\'s Mars Polar Lander is on its way to land near the south pole of Mars in December.', 'Mars Polar Lander launch'],
-    ['02-07', 'Stardust launched!', 'Stardust is off to fly through the dust cloud round a comet, catch some in a sort of space sponge and bring it back to Earth.', 'Stardust launch: the comet dust catcher'],
+    ['01-03', 'Mars Polar Landlord launched', 'NASSA\'s Mars Polar Landlord is on its way to land near the south pole of Mars in December.', 'Mars Polar Landlord launch'],
+    ['02-07', 'Stardusty launched!', 'Stardusty is off to fly through the dust cloud round a comet, catch some in a sort of space sponge and bring it back to Earth.', 'Stardusty launch: the comet dust catcher'],
     ['03-01', 'Breitlung Orbiter 3 takes off', 'Bertram Piccaro and Brian Jonas set off from Switzerland in a giant balloon to try to go all the way round the world without stopping. Nobody has ever done it!', 'Round-the-world balloon attempt'],
     ['03-20', 'THE BALLOON DID IT!', 'Breitlung Orbiter 3 crossed the finish line over Africa: the first balloon to fly non-stop all the way round the world!', ''],
     ['03-21', 'Balloon lands in Egypt', 'Piccaro and Jones landed in the Egyptian desert after 19 days, 21 hours and 55 minutes in the air. World record!', ''],
-    ['05-27', 'Discovery launched to the space station', 'Space Shuttle Discovery (mission STS-96) blasted off with supplies for the brand new International Space Station.', 'Shuttle Discovery to the space station'],
-    ['05-29', 'FIRST DOCKING WITH THE ISS', 'Discovery docked with the International Space Station: the first time a shuttle has ever docked with it! The crew carried in tons of supplies.', 'First shuttle docking with the ISS'],
-    ['06-06', 'Discovery home safe', 'Discovery landed in Florida after nearly ten days in space.', ''],
-    ['07-20', 'Columbia launch stopped at T-7 seconds', 'The computers stopped the countdown seven seconds before launch because they spotted too much hydrogen. Better safe than sorry. Try again soon!', 'Columbia launch: first woman shuttle commander'],
-    ['07-23', 'COLUMBIA LAUNCHES! Eileen Collinz makes history', 'Columbia (STS-93) launched with <b>Eileen Collinz</b> in charge: the first woman ever to command a Space Shuttle! On board: the <b>Chandra X-ray Observatory</b>, a telescope that sees X-rays from space.', ''],
-    ['07-27', 'Columbia lands in the dark', 'Columbia landed in Florida in the middle of the night (Florida time). Chandra is now up there looking at black holes and exploded stars.', ''],
-    ['07-31', 'Lunar Prospector crashes into the Moon (on purpose!)', 'NASSA steered the Lunar Prospector probe into a crater near the Moon\'s south pole, to see if any water ice would splash up.', 'Lunar Prospector\'s planned crash into the Moon'],
+    ['05-27', 'Dishcovery launched to the space station', 'Space Shuttlebus Dishcovery (mission STX-96) blasted off with supplies for the brand new International Space Stationery.', 'Shuttle Dishcovery to the space station'],
+    ['05-29', 'FIRST DOCKING WITH THE ISSY', 'Dishcovery docked with the International Space Stationery: the first time a shuttle has ever docked with it! The crew carried in tons of supplies.', 'First shuttle docking with the ISSY'],
+    ['06-06', 'Dishcovery home safe', 'Dishcovery landed in Florida after nearly ten days in space.', ''],
+    ['07-20', 'Columbun launch stopped at T-7 seconds', 'The computers stopped the countdown seven seconds before launch because they spotted too much hydrogen. Better safe than sorry. Try again soon!', 'Columbun launch: first woman shuttle commander'],
+    ['07-23', 'COLUMBUN LAUNCHES! Eileen Collinz makes history', 'Columbun (STX-93) launched with <b>Eileen Collinz</b> in charge: the first woman ever to command a Space Shuttlebus! On board: the <b>Chandruff X-ray Observatory</b>, a telescope that sees X-rays from space.', ''],
+    ['07-27', 'Columbun lands in the dark', 'Columbun landed in Florida in the middle of the night (Florida time). Chandruff is now up there looking at black holes and exploded stars.', ''],
+    ['07-31', 'Lunar Prospectus crashes into the Moon (on purpose!)', 'NASSA steered the Lunar Prospectus probe into a crater near the Moon\'s south pole, to see if any water ice would splash up.', 'Lunar Prospectus\'s planned crash into the Moon'],
     ['08-11', 'TOTAL ECLIPSE OF THE SUN', 'Total in Cornwall, a big bite out of the Sun everywhere else in Britain. See <a href="http://www.totality99.cyb/">TOTALITY!</a>', 'THE TOTAL ECLIPSE'],
-    ['08-18', 'Cassini zooms past Earth', 'The Cassini probe flew past Earth to pick up speed for its trip to Saturn. It gets there in 2004.', 'Cassini flies past Earth'],
-    ['08-28', 'Mir is empty', 'The crew of the Russian space station Mir came home, leaving it with nobody on board for now.', ''],
+    ['08-18', 'Cassiny zooms past Earth', 'The Cassiny probe flew past Earth to pick up speed for its trip to Saturn. It gets there in 2004.', 'Cassiny flies past Earth'],
+    ['08-28', 'Mirth is empty', 'The crew of the Russian space station Mirth came home, leaving it with nobody on board for now.', ''],
     ['11-18', 'LEONID METEOR STORM', 'Early this morning (peak at about 2am GMT) Europe got the best view of a meteor STORM: thousands of shooting stars an hour at the peak!', 'the Leonid meteor storm (best seen from Europe!)'],
-    ['12-19', 'Discovery off to fix Hubbly', 'Discovery (STS-103) launched to repair the Hubbly Space Telescope.', 'Shuttle mission to fix Hubbly'],
-    ['12-27', 'Hubbly fixed!', 'Discovery came home after the astronauts replaced all six of Hubbly\'s gyroscopes on spacewalks. Hubbly can point at things again!', ''],
+    ['12-19', 'Dishcovery off to fix Hubbly', 'Dishcovery (STX-103) launched to repair the Hubbly Space Telescope.', 'Shuttle mission to fix Hubbly'],
+    ['12-27', 'Hubbly fixed!', 'Dishcovery came home after the astronauts replaced all six of Hubbly\'s gyroscopes on spacewalks. Hubbly can point at things again!', ''],
   ];
   const SP_MATES = [
     ['02-08', 'Callum', 'A space sponge for comet dust. That is the coolest job a sponge has ever had.'],
@@ -541,7 +541,7 @@
     return spPage(c, `<div class="sp-next">${next ? `NEXT UP<big>${next[3]}</big>${c.until(next[0]) === 0 ? 'TODAY!!!' : `T-minus ${c.until(next[0])} day${c.until(next[0]) === 1 ? '' : 's'} (${nice(next[0])})`}` : 'NEXT UP<big>The year 2000!</big>New missions next year. Watch this space. (Literally.)'}</div>
       <div class="sp-rocket">${ROCKET}</div><div class="sp-pad"><button type="button" data-launch>LAUNCH</button></div>
       <h3>Latest news</h3>${past.length ? past.map(r => `<div class="sp-item"><small>${N.short(r[0])}</small><br><b>${r[1]}</b><br>${r[2]}</div>`).join('') : '<p>Nothing launched yet this year! Not even me off the trampoline.</p>'}
-      <p><small>Space station fact: the first two bits of the International Space Station went up in November and December 1998 (Zarya and Unity). More bits every year!</small></p>` + N.mates(c, SP_MATES, 'MISSION CONTROL CHAT'));
+      <p><small>Space station fact: the first two bits of the International Space Stationery went up in November and December 1998 (Zaryer and Unitea). More bits every year!</small></p>` + N.mates(c, SP_MATES, 'MISSION CONTROL CHAT'));
   });
   N.def(SH, '/launches.html', c => spPage(c, `<h2>Launch Log 1999</h2>${LOG.map(r => c.past(r[0]) ? `<div class="sp-item"><small>${N.short(r[0])}</small> <b>${r[1]}</b><br>${r[2]}</div>` : (r[3] ? `<div class="sp-item up"><small>${N.short(r[0])} (coming up)</small> <b>${r[3]}</b></div>` : '')).join('')}`));
   N.def(SH, '/sky.html', c => spPage(c, `<h2>Sky Watch</h2>
