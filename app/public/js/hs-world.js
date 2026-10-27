@@ -1178,7 +1178,19 @@
   }
   // Saved as [room, x, y, z, ry, snap, hide, extra]; extra holds a chair's swivel. A carried thing saves where it came
   // from, and the grip itself is remembered so a refresh hands it straight back (jhp_hs_held).
-  const PV = 2; // placements saved since the physics pass (older ones are checked against the new colliders once)
+  const PV = 3; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden
+  // The front plot (docs/HOUSE-SCALE.md, js/hs-house.js builds it): the garden runs from the house front (z 702) to the pavement
+  // at FZ. Until pv 3 it was 4 m deep (FZ 1100) with Dad's car shrunk to 82% (OLD_CAR) to squeeze it in.
+  const FRONT = Object.freeze({ FZ: 1300, CAR: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
+  // A placement saved before pv 3: whatever was in or on the old car moves with the car (same spot in the boot or on the
+  // roof, scaled); whatever the bigger car now stands on is set down on the drive beside it. Everything else keeps its pose.
+  function migratePlacement(at) {
+    if (!at || at.room !== 'drive' || !Number.isFinite(at.x) || !Number.isFinite(at.z)) return false;
+    const { CAR, OLD_CAR, FZ } = FRONT, lx = (at.x - OLD_CAR.x) / OLD_CAR.s, lz = (at.z - OLD_CAR.z) / OLD_CAR.s;
+    if (Math.abs(lx) <= 92 && Math.abs(lz) <= 210) { const ly = (at.y - CAR.y) / OLD_CAR.s; at.x = CAR.x + lx * CAR.s; at.z = CAR.z + lz * CAR.s; at.y = CAR.y + ly * CAR.s; return true; }
+    if (Math.abs(at.x - CAR.x) < 120 * CAR.s && Math.abs(at.z - CAR.z) < 230 * CAR.s) { at.x = CAR.x - 91 * CAR.s - 32; at.z = Math.min(Math.max(at.z, 780), FZ - 60); at.y = CAR.y; return true; }
+    return false;
+  }
   function saveThings(immediate) {
     clearTimeout(saveT);
     const write = () => {
@@ -1186,6 +1198,7 @@
       // Keep records belonging to unbuilt rooms; saving the bedroom must not
       // erase the rest of the house, nor overwrite a deferred prop with its home.
       const previous = loadThings(), st = Object.assign({}, previous.t), op = Object.assign({}, previous.o);
+      if ((previous.pv || 0) < 3) for (const id in st) { const r = st[id]; if (!Array.isArray(r) || r[5]) continue; const at = { room: r[0], x: r[1], y: r[2], z: r[3] }; if (migratePlacement(at)) st[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1)].concat(r.slice(4)); }
       for (const id in THINGS) {
         const t = THINGS[id]; if (t.noSave || pendingRestores.has(id)) continue;
         const carried = held && held.id === id && !held.drag, a = carried ? held.from : t.at, y = t.st==='fall'&&Number.isFinite(t.landY)?t.landY:a.y;
@@ -1250,7 +1263,7 @@
       const p = SNAPS[s[5]].pose || SNAPS[s[5]];
       t.at.x = p.x; t.at.y = p.y; t.at.z = p.z; t.at.ry = p.ry || 0;
       t.rx = p.rx || 0; t.rz = p.rz || 0;
-    } else t.st = 'rest';
+    } else { t.st = 'rest'; if ((save.pv || 0) < 3 && migratePlacement(t.at)) migrateQ.add(t); }
     moveTo(t, t.at.room); place(t); layerFor(t);
     if (t.st === 'rest' && !t.at.hide && (save.pv || 0) < PV) migrateQ.add(t);
   }
@@ -1418,6 +1431,9 @@
     const s=onStairs(x,z),ramp=s&&x>=s.x0+RAD&&x<=s.x1-RAD&&Math.abs(s.y(x,z)-W.fy)<=45;
     const out=ramp?[]:shellContacts(x,z,W.lvl,radius);
     out.push(...doorContacts(x,z,W.fy-50,W.lvl,radius));
+    // The family are solid (js/np-life.js): a round contact, so you slide round someone instead of stopping dead.
+    const fam=window.HouseFamily?.blocker?.(x,z,W.lvl,radius-RAD+.5);
+    if(fam){const dx=x-fam.x,dz=z-fam.z,d=Math.hypot(dx,dz)||1;out.push({nx:dx/d,nz:dz/d,depth:Math.max(0,fam.r-d)})}
     // Things are physics bodies: the player's capsule meets their real parts (js/hs-physics.js).
     if(typeof bodyContacts==='function')out.push(...bodyContacts(x,z,radius));
     return out;
@@ -1452,6 +1468,16 @@
         if(!projected)break;
       }
     }
+  }
+  // The stair funnel: the flight is 75 cm between its strings, so your body (44 cm across) fits it only within the
+  // middle 33 cm. Heading into the flight off-centre (at the head of the stairs, or at the foot), you are eased
+  // sideways onto it, the way your feet find the stairs, instead of stopping dead on the top step's edge.
+  function stairFunnel(dx,dz){
+    if(Math.abs(dz)<1e-4||Math.abs(dz)<Math.abs(dx)*.35)return dx;
+    const s=grids.stairs.find(q=>W.x>q.x0-10&&W.x<q.x1+RAD&&(dz>0?W.z>q.m0-60&&W.z<q.m0+6:W.z>q.m1-6&&W.z<q.m1+60));
+    if(!s)return dx;
+    const lo=s.x0+RAD+.5,hi=s.x1-RAD-.5;if(W.x>=lo&&W.x<=hi)return dx;
+    const want=(W.x<lo?lo:hi)-W.x;return dx+Math.sign(want)*Math.min(Math.abs(want),Math.abs(dz)*.9);
   }
   let trappedTime=0;
   function recoverWalking(dt) {
@@ -1491,7 +1517,7 @@
     if (spd > 1) {
       // Walking into a thing shoves it first (js/hs-physics.js); whatever it can't give way, the sweep below stops at.
       if(typeof pushBodies==='function')pushBodies(W.vx*dt,W.vz*dt,dt);
-      moveCircle(W.vx*dt,W.vz*dt);
+      moveCircle(stairFunnel(W.vx*dt,W.vz*dt),W.vz*dt);
       spd=Math.hypot(W.x-oldX,W.z-oldZ)/dt;
       if (stIdx >= 0 && spd > 40) { stIdx = -1; ui.where(); }
       // head bob and footsteps
@@ -2613,7 +2639,7 @@
 
   // ================================================================ the API
   window.House = {
-    ok: true, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
+    ok: true, FRONT, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
     focus, unfocus, surface, faceQuad, inspect, endInspect, get focused() { return !!focusS; },
     room, buildRoom, door, setDoor, walkRect, block, solid, stairs, support, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     restoreThing, saveThings, saveWalkState, layerFor, frontFx, place,
