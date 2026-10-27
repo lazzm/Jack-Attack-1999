@@ -48,7 +48,60 @@
     window.House?.ui?.where(); window.House?.dirty?.();
   }
   if (window.Net) for (const event of ['welcome', 'loginOk', 'meOk']) Net.on(event, repaintIdentity);
-  let aniso = 4;
+  let aniso = 4,textureTier=window.HouseQ||'high';
+  const textureSources=new WeakMap(),textureRecords=new WeakMap(),qualityTextures=new Set();
+  const textureUpdate=Object.getOwnPropertyDescriptor(T.Texture.prototype,'needsUpdate').set;
+  // Keep authored canvases for repaint/context recovery. Only the GPU raster
+  // shrinks; returning to Medium/High restores the exact original pixels.
+  function qualityTexture(t){
+    if(!t||t.userData?.jackLive||!t.image||typeof t.image.getContext!=='function')return;
+    let r=textureRecords.get(t);
+    if(!r){
+      const source=textureSources.get(t.image)||t.image;r={source,small:null,tier:null};textureRecords.set(t,r);qualityTextures.add(t);
+      Object.defineProperty(t,'needsUpdate',{configurable:true,set(value){
+        if(value){
+          r.tier=textureTier;
+          const cap=textureTier==='potato'?256:textureTier==='low'?512:Infinity,scale=Math.min(1,cap/Math.max(r.source.width,r.source.height));
+          if(scale<1){
+            if(!r.small){r.small=document.createElement('canvas');textureSources.set(r.small,r.source)}
+            const w=Math.max(1,Math.floor(r.source.width*scale)),h=Math.max(1,Math.floor(r.source.height*scale));
+            if(r.small.width!==w||r.small.height!==h){r.small.width=w;r.small.height=h}
+            const g=r.small.getContext('2d');g.clearRect(0,0,w,h);g.drawImage(r.source,0,0,w,h);t.image=r.small;
+          }else {t.image=r.source;if(r.small){r.small.width=r.small.height=0;r.small=null}}
+        }
+        textureUpdate.call(t,value);
+      }});
+    }
+    const next=t.magFilter===T.NearestFilter?1:aniso;
+    if(r.tier!==textureTier||t.anisotropy!==next){t.anisotropy=next;t.needsUpdate=true;}
+  }
+  const qualityMaps=['map','emissiveMap','alphaMap','lightMap','aoMap','normalMap','roughnessMap','metalnessMap','specularMap','bumpMap'];
+  // Keep material identity (switches/props retain references) while selecting
+  // three r128's built-in matte shader. Full Phong detail returns immediately
+  // when changing to Medium/High, including after a Potato start.
+  function matteShader(shader){shader.vertexShader=T.ShaderLib.lambert.vertexShader;shader.fragmentShader=T.ShaderLib.lambert.fragmentShader}
+  function phongShader(){}
+  const matteKey=()=> 'house-matte-r128',phongKey=()=> 'house-phong-r128';
+  function surfaceQuality(m){
+    if(!m.isMeshPhongMaterial||!m.userData.houseSurface)return;
+    const spec=m.userData.spec,matte=textureTier==='potato'||textureTier==='low'&&!spec.sh,hook=matte?matteShader:phongShader;
+    if(m.onBeforeCompile!==hook){m.onBeforeCompile=hook;m.customProgramCacheKey=matte?matteKey:phongKey;m.flatShading=!matte&&!!spec.flat;m.needsUpdate=true}
+  }
+  function cloneSurface(){const m=new T.MeshPhongMaterial().copy(this);m.clone=cloneSurface;surfaceQuality(m);return m}
+  function qualityMaterial(m){surfaceQuality(m);for(const key of qualityMaps)if(m[key])qualityTexture(m[key])}
+  function setQuality(tier,scene){
+    textureTier=tier;
+    for(const key in TEX)qualityTexture(TEX[key]);
+    if(scene)scene.traverse(o=>{if(Array.isArray(o.material)){for(const m of o.material)qualityMaterial(m)}else if(o.material)qualityMaterial(o.material)});
+  }
+  // Live images stay separate from their native game/interactive DOM canvases.
+  function liveCanvas(source,cache,key,maxEdge){
+    if(!source)return null;const scale=Math.min(1,maxEdge/Math.max(source.width,source.height));if(scale>=1)return source;
+    let c=cache[key];if(!c)c=cache[key]=document.createElement('canvas');
+    const w=Math.max(1,Math.floor(source.width*scale)),h=Math.max(1,Math.floor(source.height*scale));
+    if(c.width!==w||c.height!==h){c.width=w;c.height=h}
+    const g=c.getContext('2d');g.clearRect(0,0,w,h);g.drawImage(source,0,0,w,h);return c;
+  }
   function tex(key, w, h, paint, o) {
     if (TEX[key]) return TEX[key];
     o = o || {};
@@ -66,14 +119,17 @@
       c.width = w; c.height = h;
       try { paint(g, w, h); } catch (e) { console.error('hs identity tex', key, e); }
     });
-    return TEX[key] = t;
+    qualityTexture(t);return TEX[key] = t;
   }
   // Anisotropic filtering for every mipmapped texture (the renderer's capability, capped per graphics tier).
   // refresh: also re-filter textures that already exist (one re-upload each, so only on a deliberate change).
   function setAniso(a, refresh) {
     aniso = Math.max(1, a | 0);
     if (!refresh) return;
-    for (const k in TEX) { const t = TEX[k]; if (t.minFilter === T.NearestFilter || t.anisotropy === aniso) continue; t.anisotropy = aniso; t.needsUpdate = true; }
+    const seen = new Set();
+    const apply = t => { if (!t || seen.has(t)) return; seen.add(t); const next = (t.minFilter === T.NearestFilter || t.magFilter === T.NearestFilter) ? 1 : aniso; if (t.anisotropy !== next) { t.anisotropy = next; t.needsUpdate = true; } };
+    for (const k in TEX) apply(TEX[k]);
+    for (const t of qualityTextures) apply(t); // tier-managed textures (graphics stage 0)
   }
   // a little value noise, for grain, fluff and dirt
   function rnd(seed) { let a = (seed >>> 0) || 1; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -152,12 +208,11 @@
       if (spec.e) P.emissive = new T.Color(spec.e);
       if (spec.em) { P.emissiveMap = spec.em; if (!spec.e) P.emissive = new T.Color('#ffffff'); }
       if (spec.flat) P.flatShading = true;
-      if (window.HouseQ === 'low' && !spec.sh) { delete P.shininess; delete P.specular; delete P.flatShading; m = new T.MeshLambertMaterial(P); } else // (Low graphics: the cheap, matte shader)
-      m = new T.MeshPhongMaterial(P);
+      m = new T.MeshPhongMaterial(P);m.userData.houseSurface=true;m.clone=cloneSurface;
     }
     if (spec.dw === false) m.depthWrite = false;
     if (spec.po) { m.polygonOffset = true; m.polygonOffsetFactor = spec.po; m.polygonOffsetUnits = spec.po; }
-    m.userData.spec = spec;
+    m.userData.spec = spec;surfaceQuality(m);
     return MATS[key] = m;
   }
   const shadowMat = a => mat({ c: '#000', map: blobTex(), basic: true, tr: true, o: a == null ? 0.999 : Math.min(0.999, a), dw: false, po: -2 });
@@ -461,5 +516,5 @@
   // The geometry lies flat (normal up in the y-down world), centred, w x d with an m cm fade.
   function shadowGeo(sq, w, d, m) { const g = sq ? sliceGeo(w, d, shadowMargin(w, d, m)) : ringGeo(w, d, shadowMargin(w, d, m)); g.applyMatrix4(new T.Matrix4().makeRotationX(Math.PI / 2)); return g; }
   const shadowMaterial = (sq, a) => mat({ c: '#000', map: sq ? sqBlobTex() : ringTex(), basic: true, tr: true, o: Math.min(0.999, a == null ? 0.8 : a), dw: false, po: -2, cs: 1 });
-  window.HouseKit = { T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, TEX, MATS };
+  window.HouseKit = { T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS };
 })();

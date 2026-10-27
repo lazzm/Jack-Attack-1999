@@ -1,0 +1,1605 @@
+{
+  "schema": 1,
+  "tag": "before",
+  "backend": "swiftshader",
+  "recordedAt": "2026-10-26T16:50:31.908Z",
+  "host": {
+    "cpus": 12,
+    "load": [
+      65.39,
+      62.42,
+      49.86
+    ]
+  },
+  "config": {
+    "cpuFrames": 300,
+    "fillFrames": 30,
+    "walkFrames": 600,
+    "rates": [
+      1
+    ],
+    "seed": 1999,
+    "viewport": [
+      1366,
+      860
+    ],
+    "walkViewport": [
+      854,
+      536
+    ],
+    "hour": 14,
+    "probeDOM": "hidden",
+    "walkDOM": "normal"
+  },
+  "rows": [
+    {
+      "tier": "low",
+      "view": "bedroom-door",
+      "backend": "swiftshader",
+      "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "calls": 783,
+      "triangles": 230122,
+      "textures": 193,
+      "geometries": 652,
+      "programs": 13,
+      "textureMB": 73.9,
+      "pixels": 785251,
+      "luminance": 46.72842222222222,
+      "cpu": [
+        {
+          "rate": 1,
+          "samples": 300,
+          "renderMs": {
+            "p50": 14.8,
+            "p95": 27.9,
+            "p99": 108.9
+          },
+          "submitMs": {
+            "p50": 18.7,
+            "p95": 35.2,
+            "p99": 120.6
+          },
+          "frameMs": {
+            "p50": 18.7,
+            "p95": 35.2,
+            "p99": 120.6
+          }
+        }
+      ],
+      "fill": [
+        {
+          "scale": 1,
+          "samples": 30,
+          "renderMs": {
+            "p50": 22.4,
+            "p95": 42.9,
+            "p99": 55
+          },
+          "submitMs": {
+            "p50": 28.8,
+            "p95": 49,
+            "p99": 60
+          },
+          "frameMs": {
+            "p50": 676.4,
+            "p95": 882.3,
+            "p99": 1088.4
+          }
+        },
+        {
+          "scale": 0.5,
+          "samples": 30,
+          "renderMs": {
+            "p50": 24.8,
+            "p95": 49.1,
+            "p99": 55.7
+          },
+          "submitMs": {
+            "p50": 29.8,
+            "p95": 59.7,
+            "p99": 61.2
+          },
+          "frameMs": {
+            "p50": 385.1,
+            "p95": 574.3,
+            "p99": 612.8
+          }
+        }
+      ]
+    },
+    {
+      "tier": "low",
+      "view": "desk-pc",
+      "backend": "swiftshader",
+      "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "calls": 481,
+      "triangles": 188298,
+      "textures": 193,
+      "geometries": 652,
+      "programs": 13,
+      "textureMB": 73.9,
+      "pixels": 785251,
+      "luminance": 62.55962222222221,
+      "cpu": [
+        {
+          "rate": 1,
+          "samples": 300,
+          "renderMs": {
+            "p50": 8.5,
+            "p95": 23.5,
+            "p99": 45
+          },
+          "submitMs": {
+            "p50": 12.1,
+            "p95": 29.8,
+            "p99": 48.9
+          },
+          "frameMs": {
+            "p50": 12.1,
+            "p95": 29.8,
+            "p99": 48.9
+          }
+        }
+      ],
+      "fill": [
+        {
+          "scale": 1,
+          "samples": 30,
+          "renderMs": {
+            "p50": 15.8,
+            "p95": 38.1,
+            "p99": 54.7
+          },
+          "submitMs": {
+            "p50": 21.8,
+            "p95": 43.7,
+            "p99": 66.3
+          },
+          "frameMs": {
+            "p50": 614.5,
+            "p95": 908.8,
+            "p99": 1098.3
+          }
+        },
+        {
+          "scale": 0.5,
+          "samples": 30,
+          "renderMs": {
+            "p50": 16.9,
+            "p95": 34.3,
+            "p99": 54.5
+          },
+          "submitMs": {
+            "p50": 21.7,
+            "p95": 42.8,
+            "p99": 71.3
+          },
+          "frameMs": {
+            "p50": 315.4,
+            "p95": 429.6,
+            "p99": 435.6
+          }
+        }
+      ]
+    },
+    {
+      "tier": "low",
+      "view": "tv-consoles",
+      "backend": "swiftshader",
+      "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "calls": 399,
+      "triangles": 118428,
+      "textures": 193,
+      "geometries": 652,
+      "programs": 13,
+      "textureMB": 73.9,
+      "pixels": 785251,
+      "luminance": 47.57655555555555,
+      "cpu": [
+        {
+          "rate": 1,
+          "samples": 300,
+          "renderMs": {
+            "p50": 10,
+            "p95": 22.7,
+            "p99": 38.3
+          },
+          "submitMs": {
+            "p50": 14.7,
+            "p95": 32.8,
+            "p99": 52.5
+          },
+          "frameMs": {
+            "p50": 14.7,
+            "p95": 32.8,
+            "p99": 52.5
+          }
+        }
+      ],
+      "fill": [
+        {
+          "scale": 1,
+          "samples": 30,
+          "renderMs": {
+            "p50": 12.3,
+            "p95": 21.8,
+            "p99": 29
+          },
+          "submitMs": {
+            "p50": 16.6,
+            "p95": 32.1,
+            "p99": 36.1
+          },
+          "frameMs": {
+            "p50": 648.2,
+            "p95": 866.9,
+            "p99": 888.4
+          }
+        },
+        {
+          "scale": 0.5,
+          "samples": 30,
+          "renderMs": {
+            "p50": 14,
+            "p95": 60.2,
+            "p99": 61.1
+          },
+          "submitMs": {
+            "p50": 17.9,
+            "p95": 64.8,
+            "p99": 66.4
+          },
+          "frameMs": {
+            "p50": 378.6,
+            "p95": 564.1,
+            "p99": 663.2
+          }
+        }
+      ]
+    },
+    {
+      "tier": "low",
+      "view": "landing-stairs",
+      "backend": "swiftshader",
+      "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "calls": 496,
+      "triangles": 175439,
+      "textures": 221,
+      "geometries": 1108,
+      "programs": 14,
+      "textureMB": 75.96,
+      "pixels": 785251,
+      "luminance": 130.35202222222222,
+      "cpu": [
+        {
+          "rate": 1,
+          "samples": 300,
+          "renderMs": {
+            "p50": 13.7,
+            "p95": 45.9,
+            "p99": 78.3
+          },
+          "submitMs": {
+            "p50": 17.5,
+            "p95": 56.8,
+            "p99": 80.6
+          },
+          "frameMs": {
+            "p50": 17.5,
+            "p95": 56.8,
+            "p99": 80.6
+          }
+        }
+      ],
+      "fill": [
+        {
+          "scale": 1,
+          "samples": 30,
+          "renderMs": {
+            "p50": 14.7,
+            "p95": 43.9,
+            "p99": 48.6
+          },
+          "submitMs": {
+            "p50": 17.2,
+            "p95": 46.2,
+            "p99": 51
+          },
+          "frameMs": {
+            "p50": 1191.1,
+            "p95": 1674.7,
+            "p99": 1688.1
+          }
+        },
+        {
+          "scale": 0.5,
+          "samples": 30,
+          "renderMs": {
+            "p50": 17,
+            "p95": 47.5,
+            "p99": 50.7
+          },
+          "submitMs": {
+            "p50": 19.7,
+            "p95": 49.5,
+            "p99": 52.5
+          },
+          "frameMs": {
+            "p50": 579.5,
+            "p95": 1054.8,
+            "p99": 1106.3
+          }
+        }
+      ]
+    },
+    {
+      "tier": "low",
+      "view": "kitchen",
+      "backend": "swiftshader",
+      "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "calls": 260,
+      "triangles": 109100,
+      "textures": 236,
+      "geometries": 1301,
+      "programs": 14,
+      "textureMB": 79.98,
+      "pixels": 785251,
+      "luminance": 109.56108888888888,
+      "cpu": [
+        {
+          "rate": 1,
+          "samples": 300,
+          "renderMs": {
+            "p50": 6.2,
+            "p95": 22.5,
+            "p99": 46.8
+          },
+          "submitMs": {
+            "p50": 10.6,
+            "p95": 27.1,
+            "p99": 48.8
+          },
+          "frameMs": {
+            "p50": 10.6,
+            "p95": 27.1,
+            "p99": 48.8
+          }
+        }
+      ],
+      "fill": [
+        {
+          "scale": 1,
+          "samples": 30,
+          "renderMs": {
+            "p50": 8.1,
+            "p95": 26.3,
+            "p99": 27.8
+          },
+          "submitMs": {
+            "p50": 10.4,
+            "p95": 28.5,
+            "p99": 29.9
+          },
+          "frameMs": {
+            "p50": 556.5,
+            "p95": 811.1,
+            "p99": 1088.2
+          }
+        },
+        {
+          "scale": 0.5,
+          "samples": 30,
+          "renderMs": {
+            "p50": 8,
+            "p95": 28.1,
+            "p99": 28.9
+          },
+          "submitMs": {
+            "p50": 10,
+            "p95": 34.7,
+            "p99": 36.6
+          },
+          "frameMs": {
+            "p50": 390.9,
+            "p95": 539.7,
+            "p99": 652.5
+          }
+        }
+      ]
+    },
+    {
+      "tier": "low",
+      "view": "front-garden",
+      "backend": "swiftshader",
+      "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "calls": 908,
+      "triangles": 225955,
+      "textures": 266,
+      "geometries": 1715,
+      "programs": 16,
+      "textureMB": 87.9,
+      "pixels": 785251,
+      "luminance": 114.7401333333333,
+      "cpu": [
+        {
+          "rate": 1,
+          "samples": 300,
+          "renderMs": {
+            "p50": 13.3,
+            "p95": 31.1,
+            "p99": 49.8
+          },
+          "submitMs": {
+            "p50": 16.3,
+            "p95": 35.3,
+            "p99": 53
+          },
+          "frameMs": {
+            "p50": 16.3,
+            "p95": 35.3,
+            "p99": 53
+          }
+        }
+      ],
+      "fill": [
+        {
+          "scale": 1,
+          "samples": 30,
+          "renderMs": {
+            "p50": 27.6,
+            "p95": 62.9,
+            "p99": 70.6
+          },
+          "submitMs": {
+            "p50": 35.1,
+            "p95": 73.6,
+            "p99": 74.5
+          },
+          "frameMs": {
+            "p50": 706,
+            "p95": 865,
+            "p99": 897.9
+          }
+        },
+        {
+          "scale": 0.5,
+          "samples": 30,
+          "renderMs": {
+            "p50": 20.6,
+            "p95": 41.4,
+            "p99": 42.5
+          },
+          "submitMs": {
+            "p50": 26,
+            "p95": 45,
+            "p99": 48.5
+          },
+          "frameMs": {
+            "p50": 368.8,
+            "p95": 518,
+            "p99": 547.7
+          }
+        }
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "tier": "low",
+      "room": "bedroom",
+      "calls": 417,
+      "triangles": 117142,
+      "textures": 286,
+      "geometries": 2096,
+      "programs": 16,
+      "textureMB": 93.4,
+      "pixels": 785251,
+      "luminance": 98.89162222222222
+    },
+    {
+      "tier": "low",
+      "room": "landing",
+      "calls": 496,
+      "triangles": 175439,
+      "textures": 286,
+      "geometries": 2096,
+      "programs": 16,
+      "textureMB": 93.4,
+      "pixels": 785251,
+      "luminance": 107.52511111111113
+    },
+    {
+      "tier": "low",
+      "room": "hall",
+      "calls": 496,
+      "triangles": 175439,
+      "textures": 286,
+      "geometries": 2096,
+      "programs": 16,
+      "textureMB": 93.4,
+      "pixels": 785251,
+      "luminance": 107.52511111111113
+    },
+    {
+      "tier": "low",
+      "room": "cupboard",
+      "calls": 496,
+      "triangles": 175439,
+      "textures": 286,
+      "geometries": 2096,
+      "programs": 16,
+      "textureMB": 93.65,
+      "pixels": 785251,
+      "luminance": 107.52511111111113
+    },
+    {
+      "tier": "low",
+      "room": "lounge",
+      "calls": 296,
+      "triangles": 91032,
+      "textures": 288,
+      "geometries": 2130,
+      "programs": 16,
+      "textureMB": 93.65,
+      "pixels": 785251,
+      "luminance": 111.95488888888889
+    },
+    {
+      "tier": "low",
+      "room": "garden",
+      "calls": 93,
+      "triangles": 100146,
+      "textures": 306,
+      "geometries": 2231,
+      "programs": 16,
+      "textureMB": 93.65,
+      "pixels": 785251,
+      "luminance": 81.81562222222223
+    },
+    {
+      "tier": "low",
+      "room": "drive",
+      "calls": 209,
+      "triangles": 147111,
+      "textures": 306,
+      "geometries": 2231,
+      "programs": 16,
+      "textureMB": 93.65,
+      "pixels": 785251,
+      "luminance": 109.89542222222222
+    },
+    {
+      "tier": "low",
+      "room": "kitchen",
+      "calls": 219,
+      "triangles": 104256,
+      "textures": 306,
+      "geometries": 2231,
+      "programs": 16,
+      "textureMB": 93.65,
+      "pixels": 785251,
+      "luminance": 107.47984444444444
+    }
+  ],
+  "walk": [
+    {
+      "tier": "low",
+      "renderMs": {
+        "p50": 5.1,
+        "p95": 20.5,
+        "p99": 31.1
+      },
+      "frameMs": {
+        "p50": 233.4,
+        "p95": 916.7,
+        "p99": 1266.7
+      },
+      "jank33": 94.16666666666667,
+      "jank50": 85.16666666666667,
+      "longTasks": [
+        {
+          "start": 359079.5,
+          "duration": 630
+        },
+        {
+          "start": 359975.7999997139,
+          "duration": 51
+        },
+        {
+          "start": 360223.7999997139,
+          "duration": 53
+        },
+        {
+          "start": 360452.7999997139,
+          "duration": 729
+        },
+        {
+          "start": 361203.2999997139,
+          "duration": 360
+        },
+        {
+          "start": 361956.19999980927,
+          "duration": 51
+        },
+        {
+          "start": 362079.5,
+          "duration": 396
+        },
+        {
+          "start": 363211.7999997139,
+          "duration": 51
+        },
+        {
+          "start": 363384.69999980927,
+          "duration": 50
+        },
+        {
+          "start": 363579.5,
+          "duration": 196
+        },
+        {
+          "start": 365088.7999997139,
+          "duration": 330
+        },
+        {
+          "start": 366131.69999980927,
+          "duration": 56
+        },
+        {
+          "start": 366214.39999961853,
+          "duration": 73
+        },
+        {
+          "start": 366579.5,
+          "duration": 212
+        },
+        {
+          "start": 367719.69999980927,
+          "duration": 50
+        },
+        {
+          "start": 368095.59999990463,
+          "duration": 421
+        },
+        {
+          "start": 369066.5,
+          "duration": 368
+        },
+        {
+          "start": 369579.5,
+          "duration": 270
+        },
+        {
+          "start": 370249.89999961853,
+          "duration": 67
+        },
+        {
+          "start": 371081.2999997139,
+          "duration": 276
+        },
+        {
+          "start": 371461.7999997139,
+          "duration": 50
+        },
+        {
+          "start": 372579.5,
+          "duration": 625
+        },
+        {
+          "start": 373259.69999980927,
+          "duration": 68
+        },
+        {
+          "start": 373619.69999980927,
+          "duration": 54
+        },
+        {
+          "start": 374079.7999997139,
+          "duration": 385
+        },
+        {
+          "start": 374699.5,
+          "duration": 52
+        },
+        {
+          "start": 375555.7999997139,
+          "duration": 60
+        },
+        {
+          "start": 375616.7999997139,
+          "duration": 366
+        },
+        {
+          "start": 376321.5,
+          "duration": 50
+        },
+        {
+          "start": 377079.5,
+          "duration": 495
+        },
+        {
+          "start": 378074.69999980927,
+          "duration": 55
+        },
+        {
+          "start": 378418.2999997139,
+          "duration": 54
+        },
+        {
+          "start": 378579.5,
+          "duration": 523
+        },
+        {
+          "start": 379102.7999997139,
+          "duration": 53
+        },
+        {
+          "start": 380079.5,
+          "duration": 723
+        },
+        {
+          "start": 381136.7999997139,
+          "duration": 51
+        },
+        {
+          "start": 381579.5,
+          "duration": 805
+        },
+        {
+          "start": 382756.19999980927,
+          "duration": 496
+        },
+        {
+          "start": 383371.09999990463,
+          "duration": 790
+        },
+        {
+          "start": 384195.59999990463,
+          "duration": 102
+        },
+        {
+          "start": 384579.39999961853,
+          "duration": 1551
+        },
+        {
+          "start": 386219.19999980927,
+          "duration": 1630
+        },
+        {
+          "start": 387883,
+          "duration": 1216
+        },
+        {
+          "start": 389113.09999990463,
+          "duration": 58
+        },
+        {
+          "start": 389177.2999997139,
+          "duration": 1653
+        },
+        {
+          "start": 390939.5,
+          "duration": 1881
+        },
+        {
+          "start": 392869.19999980927,
+          "duration": 1347
+        },
+        {
+          "start": 394238.2999997139,
+          "duration": 1144
+        },
+        {
+          "start": 395457.09999990463,
+          "duration": 1333
+        },
+        {
+          "start": 396820.7999997139,
+          "duration": 1344
+        },
+        {
+          "start": 398233.89999961853,
+          "duration": 1618
+        },
+        {
+          "start": 399941.2999997139,
+          "duration": 1536
+        },
+        {
+          "start": 401519.19999980927,
+          "duration": 77
+        },
+        {
+          "start": 401620.19999980927,
+          "duration": 1732
+        },
+        {
+          "start": 403462,
+          "duration": 1597
+        },
+        {
+          "start": 405081.39999961853,
+          "duration": 58
+        },
+        {
+          "start": 405142.5,
+          "duration": 1457
+        },
+        {
+          "start": 406641.09999990463,
+          "duration": 52
+        },
+        {
+          "start": 406695.59999990463,
+          "duration": 1209
+        },
+        {
+          "start": 407978.5,
+          "duration": 1462
+        },
+        {
+          "start": 409495.69999980927,
+          "duration": 832
+        },
+        {
+          "start": 410390.5,
+          "duration": 1100
+        },
+        {
+          "start": 411587.5,
+          "duration": 1175
+        },
+        {
+          "start": 413079.5,
+          "duration": 856
+        },
+        {
+          "start": 414579.5,
+          "duration": 932
+        },
+        {
+          "start": 415582.89999961853,
+          "duration": 51
+        },
+        {
+          "start": 416079.5,
+          "duration": 742
+        },
+        {
+          "start": 417579.5,
+          "duration": 819
+        },
+        {
+          "start": 419033.09999990463,
+          "duration": 506
+        },
+        {
+          "start": 419578.2999997139,
+          "duration": 347
+        },
+        {
+          "start": 420259.19999980927,
+          "duration": 54
+        },
+        {
+          "start": 420456.69999980927,
+          "duration": 52
+        },
+        {
+          "start": 420581,
+          "duration": 340
+        },
+        {
+          "start": 421144.7999997139,
+          "duration": 53
+        },
+        {
+          "start": 422079.5,
+          "duration": 387
+        },
+        {
+          "start": 422747.09999990463,
+          "duration": 51
+        },
+        {
+          "start": 423579.5,
+          "duration": 329
+        },
+        {
+          "start": 424743.7999997139,
+          "duration": 50
+        },
+        {
+          "start": 425079.89999961853,
+          "duration": 385
+        },
+        {
+          "start": 425488.89999961853,
+          "duration": 65
+        },
+        {
+          "start": 425746.59999990463,
+          "duration": 55
+        },
+        {
+          "start": 426580.2999997139,
+          "duration": 718
+        },
+        {
+          "start": 428120.89999961853,
+          "duration": 818
+        },
+        {
+          "start": 429011.7999997139,
+          "duration": 51
+        },
+        {
+          "start": 429616.89999961853,
+          "duration": 563
+        },
+        {
+          "start": 430204,
+          "duration": 57
+        },
+        {
+          "start": 431084.5,
+          "duration": 708
+        },
+        {
+          "start": 431842.09999990463,
+          "duration": 57
+        },
+        {
+          "start": 432112.09999990463,
+          "duration": 596
+        },
+        {
+          "start": 432771.69999980927,
+          "duration": 231
+        },
+        {
+          "start": 433188.89999961853,
+          "duration": 59
+        },
+        {
+          "start": 433548.59999990463,
+          "duration": 56
+        },
+        {
+          "start": 433887.19999980927,
+          "duration": 61
+        },
+        {
+          "start": 434082.19999980927,
+          "duration": 417
+        },
+        {
+          "start": 435328.39999961853,
+          "duration": 52
+        },
+        {
+          "start": 435579.59999990463,
+          "duration": 1038
+        },
+        {
+          "start": 436657,
+          "duration": 74
+        },
+        {
+          "start": 436739.89999961853,
+          "duration": 63
+        },
+        {
+          "start": 437083.59999990463,
+          "duration": 1168
+        },
+        {
+          "start": 438306,
+          "duration": 68
+        },
+        {
+          "start": 438579.5,
+          "duration": 1000
+        },
+        {
+          "start": 440079.7999997139,
+          "duration": 984
+        },
+        {
+          "start": 441601.2999997139,
+          "duration": 1316
+        },
+        {
+          "start": 443081.7999997139,
+          "duration": 892
+        },
+        {
+          "start": 443974.39999961853,
+          "duration": 96
+        },
+        {
+          "start": 444593.7999997139,
+          "duration": 1332
+        },
+        {
+          "start": 446079.5,
+          "duration": 1464
+        },
+        {
+          "start": 447672.2999997139,
+          "duration": 835
+        },
+        {
+          "start": 448507.5,
+          "duration": 75
+        },
+        {
+          "start": 449079.59999990463,
+          "duration": 1174
+        },
+        {
+          "start": 450579.5,
+          "duration": 1053
+        },
+        {
+          "start": 451733.7999997139,
+          "duration": 71
+        },
+        {
+          "start": 452079.59999990463,
+          "duration": 1374
+        },
+        {
+          "start": 453535.2999997139,
+          "duration": 52
+        },
+        {
+          "start": 453588.5,
+          "duration": 1407
+        },
+        {
+          "start": 455079.7999997139,
+          "duration": 1082
+        },
+        {
+          "start": 456219.7999997139,
+          "duration": 1245
+        },
+        {
+          "start": 457562.5,
+          "duration": 935
+        },
+        {
+          "start": 458561.5,
+          "duration": 896
+        },
+        {
+          "start": 459579.69999980927,
+          "duration": 743
+        },
+        {
+          "start": 461080.39999961853,
+          "duration": 616
+        },
+        {
+          "start": 462598.7999997139,
+          "duration": 411
+        },
+        {
+          "start": 464101.09999990463,
+          "duration": 1008
+        },
+        {
+          "start": 465152.09999990463,
+          "duration": 90
+        },
+        {
+          "start": 465579.5,
+          "duration": 783
+        },
+        {
+          "start": 466362.7999997139,
+          "duration": 59
+        },
+        {
+          "start": 466424.39999961853,
+          "duration": 60
+        },
+        {
+          "start": 467079.59999990463,
+          "duration": 888
+        },
+        {
+          "start": 468579.5,
+          "duration": 661
+        },
+        {
+          "start": 469281,
+          "duration": 62
+        },
+        {
+          "start": 470079.59999990463,
+          "duration": 736
+        },
+        {
+          "start": 471147.7999997139,
+          "duration": 73
+        },
+        {
+          "start": 471579.69999980927,
+          "duration": 717
+        },
+        {
+          "start": 472578.7999997139,
+          "duration": 68
+        },
+        {
+          "start": 472860,
+          "duration": 59
+        },
+        {
+          "start": 473086.5,
+          "duration": 510
+        },
+        {
+          "start": 474221.39999961853,
+          "duration": 88
+        },
+        {
+          "start": 474477,
+          "duration": 55
+        },
+        {
+          "start": 474579.5,
+          "duration": 940
+        },
+        {
+          "start": 475835.69999980927,
+          "duration": 60
+        },
+        {
+          "start": 476079.69999980927,
+          "duration": 579
+        },
+        {
+          "start": 476723.59999990463,
+          "duration": 813
+        },
+        {
+          "start": 477540.89999961853,
+          "duration": 55
+        },
+        {
+          "start": 477607.7999997139,
+          "duration": 476
+        },
+        {
+          "start": 478679.69999980927,
+          "duration": 68
+        },
+        {
+          "start": 479019.69999980927,
+          "duration": 78
+        },
+        {
+          "start": 479099,
+          "duration": 849
+        },
+        {
+          "start": 480587.09999990463,
+          "duration": 617
+        },
+        {
+          "start": 481883.69999980927,
+          "duration": 65
+        },
+        {
+          "start": 482082.2999997139,
+          "duration": 399
+        },
+        {
+          "start": 483139.69999980927,
+          "duration": 84
+        },
+        {
+          "start": 483579.59999990463,
+          "duration": 400
+        },
+        {
+          "start": 484487.39999961853,
+          "duration": 62
+        },
+        {
+          "start": 485081.09999990463,
+          "duration": 373
+        },
+        {
+          "start": 486400.5,
+          "duration": 50
+        },
+        {
+          "start": 486579.5,
+          "duration": 974
+        },
+        {
+          "start": 488079.59999990463,
+          "duration": 945
+        },
+        {
+          "start": 489579.5,
+          "duration": 617
+        },
+        {
+          "start": 491080.7999997139,
+          "duration": 976
+        },
+        {
+          "start": 492181.59999990463,
+          "duration": 679
+        },
+        {
+          "start": 492945.89999961853,
+          "duration": 611
+        },
+        {
+          "start": 494079.5,
+          "duration": 473
+        },
+        {
+          "start": 495121.7999997139,
+          "duration": 70
+        },
+        {
+          "start": 495579.39999961853,
+          "duration": 349
+        },
+        {
+          "start": 497079.39999961853,
+          "duration": 399
+        },
+        {
+          "start": 497779.09999990463,
+          "duration": 69
+        },
+        {
+          "start": 498528,
+          "duration": 55
+        },
+        {
+          "start": 498583.59999990463,
+          "duration": 833
+        },
+        {
+          "start": 500079.5,
+          "duration": 1393
+        },
+        {
+          "start": 501579.7999997139,
+          "duration": 1585
+        },
+        {
+          "start": 503164.89999961853,
+          "duration": 69
+        },
+        {
+          "start": 503291.09999990463,
+          "duration": 1163
+        },
+        {
+          "start": 504579.5,
+          "duration": 908
+        },
+        {
+          "start": 505506.89999961853,
+          "duration": 54
+        },
+        {
+          "start": 506079.59999990463,
+          "duration": 782
+        },
+        {
+          "start": 507579.59999990463,
+          "duration": 1310
+        },
+        {
+          "start": 509079.69999980927,
+          "duration": 877
+        },
+        {
+          "start": 510579.5,
+          "duration": 705
+        },
+        {
+          "start": 511628.69999980927,
+          "duration": 419
+        },
+        {
+          "start": 512104.69999980927,
+          "duration": 496
+        },
+        {
+          "start": 513082.2999997139,
+          "duration": 62
+        },
+        {
+          "start": 513583.69999980927,
+          "duration": 505
+        },
+        {
+          "start": 515079.69999980927,
+          "duration": 724
+        },
+        {
+          "start": 515827.2999997139,
+          "duration": 64
+        },
+        {
+          "start": 516580,
+          "duration": 1282
+        },
+        {
+          "start": 517901.7999997139,
+          "duration": 55
+        },
+        {
+          "start": 518079.7999997139,
+          "duration": 1377
+        },
+        {
+          "start": 519579.5,
+          "duration": 1347
+        },
+        {
+          "start": 520927.09999990463,
+          "duration": 50
+        },
+        {
+          "start": 521079.59999990463,
+          "duration": 1008
+        },
+        {
+          "start": 522582.09999990463,
+          "duration": 954
+        },
+        {
+          "start": 523536.89999961853,
+          "duration": 50
+        },
+        {
+          "start": 523598.89999961853,
+          "duration": 65
+        },
+        {
+          "start": 523933.39999961853,
+          "duration": 59
+        },
+        {
+          "start": 524081.2999997139,
+          "duration": 876
+        },
+        {
+          "start": 525331.6999998093,
+          "duration": 53
+        },
+        {
+          "start": 525579.5,
+          "duration": 500
+        },
+        {
+          "start": 526130.6999998093,
+          "duration": 52
+        },
+        {
+          "start": 526863.7999997139,
+          "duration": 61
+        },
+        {
+          "start": 527079.5,
+          "duration": 646
+        },
+        {
+          "start": 528047.2999997139,
+          "duration": 52
+        },
+        {
+          "start": 528364.6999998093,
+          "duration": 56
+        },
+        {
+          "start": 528579.5,
+          "duration": 419
+        },
+        {
+          "start": 529974.2999997139,
+          "duration": 57
+        },
+        {
+          "start": 530079.8999996185,
+          "duration": 803
+        },
+        {
+          "start": 531579.5,
+          "duration": 414
+        },
+        {
+          "start": 532228.1999998093,
+          "duration": 462
+        },
+        {
+          "start": 533081.3999996185,
+          "duration": 394
+        },
+        {
+          "start": 534144.6999998093,
+          "duration": 74
+        },
+        {
+          "start": 534603.8999996185,
+          "duration": 508
+        },
+        {
+          "start": 535612.2999997139,
+          "duration": 74
+        },
+        {
+          "start": 536080.0999999046,
+          "duration": 514
+        },
+        {
+          "start": 537582.3999996185,
+          "duration": 584
+        },
+        {
+          "start": 539079.7999997139,
+          "duration": 414
+        },
+        {
+          "start": 539524.5,
+          "duration": 70
+        },
+        {
+          "start": 539991.1999998093,
+          "duration": 113
+        },
+        {
+          "start": 540580.1999998093,
+          "duration": 766
+        },
+        {
+          "start": 541395.2999997139,
+          "duration": 52
+        },
+        {
+          "start": 542079.5,
+          "duration": 653
+        },
+        {
+          "start": 543579.5,
+          "duration": 431
+        },
+        {
+          "start": 544142.1999998093,
+          "duration": 50
+        },
+        {
+          "start": 545079.5999999046,
+          "duration": 626
+        },
+        {
+          "start": 546579.7999997139,
+          "duration": 465
+        }
+      ],
+      "heaps": [
+        {
+          "frame": 0,
+          "bytes": 82879712
+        },
+        {
+          "frame": 30,
+          "bytes": 82612423
+        },
+        {
+          "frame": 60,
+          "bytes": 82722813
+        },
+        {
+          "frame": 90,
+          "bytes": 83607883
+        },
+        {
+          "frame": 120,
+          "bytes": 83705721
+        },
+        {
+          "frame": 150,
+          "bytes": 82965775
+        },
+        {
+          "frame": 180,
+          "bytes": 82901942
+        },
+        {
+          "frame": 210,
+          "bytes": 82643798
+        },
+        {
+          "frame": 240,
+          "bytes": 82763092
+        },
+        {
+          "frame": 270,
+          "bytes": 83020474
+        },
+        {
+          "frame": 300,
+          "bytes": 82389649
+        },
+        {
+          "frame": 330,
+          "bytes": 82848361
+        },
+        {
+          "frame": 360,
+          "bytes": 83016353
+        },
+        {
+          "frame": 390,
+          "bytes": 83276015
+        },
+        {
+          "frame": 420,
+          "bytes": 83536638
+        },
+        {
+          "frame": 450,
+          "bytes": 83662165
+        },
+        {
+          "frame": 480,
+          "bytes": 83527473
+        },
+        {
+          "frame": 510,
+          "bytes": 83114357
+        },
+        {
+          "frame": 540,
+          "bytes": 82848441
+        },
+        {
+          "frame": 570,
+          "bytes": 82231742
+        },
+        {
+          "frame": 600,
+          "bytes": 81759678
+        }
+      ],
+      "black": [],
+      "rooms": [
+        "kitchen",
+        "bedroom",
+        "landing",
+        "hall",
+        "lounge",
+        "cupboard",
+        "garden",
+        "drive"
+      ],
+      "samples": 600,
+      "heapGrowthMB": -0.9446868896484375,
+      "allocations": [
+        {
+          "function": "join",
+          "url": "",
+          "line": 0,
+          "bytes": 65556
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "serverLogOK": true
+}

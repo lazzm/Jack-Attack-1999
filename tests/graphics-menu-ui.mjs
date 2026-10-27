@@ -41,7 +41,7 @@ try {
   assert.deepEqual(await option('Preset').locator('option').allTextContents(),['Automatic','Performance','Balanced','Quality','Custom']);
   await bounds('portrait');
   const presets={};
-  for(const preset of ['auto','low','medium','high']) {
+  for(const preset of ['auto','potato','low','medium','high']) {
     await option('Preset').selectOption(preset);const state=await get();presets[preset]=state;
     assert.equal(state.preset,preset);assert.equal(await option('Preset').inputValue(),preset);
     assert.equal(state.dynamic,preset!=='high','Preset dynamic default');
@@ -71,7 +71,7 @@ try {
   assert.equal(await page.locator('select').count(),5,'Unexpected or unimplemented graphics controls');
   // Selecting a real preset must replace prior custom tuning with its own defaults.
   await option('Preset').selectOption('low');const reset=await get();
-  for(const key of ['preset','scale','dynamic','antialias','pixelRatio','anisotropy','backgroundFps','decorations'])assert.equal(reset[key],presets.low[key],'Preset failed to reset '+key);
+  for(const key of ['preset','scale','dynamic','antialias','pixelRatio','anisotropy','backgroundFps','decorations','retro','showFps'])assert.equal(reset[key],presets.low[key],'Preset failed to reset '+key);
   // Back restores unrelated settings and focus without resuming the house.
   await page.locator('[data-gfx=back]').click();assert.equal(await p.evaluate(()=>HousePause.page),'main');assert(await p.evaluate(()=>House.paused));
   assert(await p.locator('[name=music]').isVisible());assert(await p.locator('[data-pause=logout]').isVisible());
@@ -95,7 +95,7 @@ try {
   await open();await option('Anisotropy').selectOption('16');const saved=await get();await page.locator('[data-gfx=resume]').click();
   await p.reload({waitUntil:'domcontentloaded'});await until(()=>window.House?.live&&window.AccountGate?.allowed&&!document.querySelector('.hs-loading,#houseEntry'));
   assert.equal(await p.evaluate(()=>House.mode),before.mode);await open();const restored=await get();
-  for(const key of ['preset','scale','dynamic','antialias','pixelRatio','anisotropy','backgroundFps','decorations'])assert.equal(restored[key],saved[key],'Refresh lost '+key);
+  for(const key of ['preset','scale','dynamic','antialias','pixelRatio','anisotropy','backgroundFps','decorations','retro','showFps'])assert.equal(restored[key],saved[key],'Refresh lost '+key);
   await page.locator('[data-gfx=resume]').click();
   assert.deepEqual(errors,[]);
   console.log('GRAPHICS MENU UI PASS: real presets/custom API, all controls and actual AA; mouse/keyboard, Back/Resume/Esc/native cancel, focus, saved settings, 44px desktop/ultrawide controls and screenshots.');

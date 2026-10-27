@@ -301,3 +301,13 @@ console/magazine/game orders, physical F/E controls, upstairs carry, reading slo
 play/background refresh, old full-room migration and phone JackOS-only entry.
 Captures are under `shots/shop-sparse/`. Stop only the server PID listening on the
 chosen test port. These tests never deploy or read production data.
+
+Stage 0 graphics/performance matrix (owns its throwaway server):
+
+    node tests/perf/matrix.mjs --tag=after
+    node tests/perf/compare.mjs docs/perf-stage0-before-swiftshader.json docs/perf-stage0-after-swiftshader.json
+    node tests/perf/check.mjs
+
+Run from the repository root. See [perf/README.md](perf/README.md) for backend,
+CPU-throttle, sample-count and per-room gate options. Images are under
+`tests/shots/perf/`; results include the actual GPU string and host load.
