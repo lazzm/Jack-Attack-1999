@@ -1032,54 +1032,38 @@
     }
     return best && best.s;
   }
-  let snapHi = null;
-  let floorHi=null;
+  // The footprint the ghost will stand on and the slot it will click into: drawn by showTargets (shape-hugging, js/hs-cg.js)
+  const GL = window.HouseGlow, cg = { foot: null, snap: null, decals: null, objs: new Map(), slotMesh: null, slotFor: null, list: [] };
+  const isRound = t => !!(t && (t.round || t.physics && (t.physics.round || (t.physics.parts || []).length === 1 && t.physics.parts[0].t === 'cyl')));
   function floorAim(t){ const g = computeGhost(t, null, null, true); return g && !g.snap ? { target: g.ok ? { room: g.room, x: g.x, z: g.z, y0: g.y } : null, aim: { room: g.room, x: g.x, z: g.z, y0: g.y }, ry: g.ry, ok: g.ok, why: g.why, y: g.y } : null; }
-  function floorGlow(p,t){ // the footprint the ghost will stand on
-    if(!floorHi){floorHi=new T.Mesh(new T.BoxGeometry(1,1,1),new T.MeshBasicMaterial({transparent:true,opacity:.26,depthWrite:false}));floorHi.userData.noPick=true;floorHi.renderOrder=5;root.add(floorHi)}
-    floorHi.visible=!!p;
-    if(p){const m=t.local||{cx:0,cz:0,hx:t.hx,hz:t.hz},a=p.ry*D2R,ox=m.cx*Math.cos(a)+m.cz*Math.sin(a),oz=-m.cx*Math.sin(a)+m.cz*Math.cos(a);floorHi.material.color.set(p.ok?'#8fdc6a':'#e2553f');floorHi.position.set(p.x+ox,p.y-.3,p.z+oz);floorHi.scale.set(m.hx*2+2,.4,m.hz*2+2);floorHi.rotation.set(0,a,0)}
+  function floorGlow(p,t){ // the footprint the ghost will stand on: a ring the shape of its base (a circle for round things)
+    if(!p){cg.foot=null;return}
+    const m=t.local||{cx:0,cz:0,hx:t.hx,hz:t.hz},a=p.ry*D2R,ox=m.cx*Math.cos(a)+m.cz*Math.sin(a),oz=-m.cx*Math.sin(a)+m.cz*Math.cos(a);
+    cg.foot={x:p.x+ox,y:p.y,z:p.z+oz,ry:p.ry,hx:m.hx+1,hz:m.hz+1,round:isRound(t),color:p.ok?GL.GREEN:GL.RED};
   }
-  function snapGlow(s) {
-    if (!snapHi && !s) return;
-    if (!snapHi) {
-      snapHi = new T.Mesh(new T.BoxGeometry(1, 1, 1), new T.MeshBasicMaterial({ color: 0xffd84a, transparent: true, opacity: 0.35, depthWrite: false }));
-      // A shelf preview belongs in the room's depth buffer. The foreground
-      // canvas has no walls/shelves to occlude it and makes it shine through.
-      snapHi.userData.noPick = true; snapHi.renderOrder = 5; root.add(snapHi);
-    }
-    snapHi.visible = false;
-    if (s) {
-      const p = s.pose || s, c = s.preview || p, b = s.box || [s.r * 0.9, 1.5, s.r * 0.9];
-      if (![c.x,c.y,c.z,...b].every(Number.isFinite) || b.some(n=>n<=0)) return;
-      snapHi.position.set(c.x, c.y, c.z); snapHi.scale.set(b[0], b[1], b[2]);
-      snapHi.rotation.set((p.rx || 0) * D2R, (p.ry || 0) * D2R, (p.rz || 0) * D2R, 'YXZ'); snapHi.visible = true;
-    }
-  }
+  function snapGlow(s) { cg.snap = s || null; }
 
   // ---------------------------------------------------------------- the ghost: a see-through copy where the carried thing will land
   // green = it fits there, red = something's in the way, gold = it clicks into a highlighted place. Uses the physics colliders.
   const GP = { t: null, at: 0, res: null, key: '', route: null };
-  const ghostMat = new T.MeshBasicMaterial({ color: 0x8fdc6a, transparent: true, opacity: 0.34, depthWrite: false });
+  // the ghost: a faint fill plus a fresnel rim on the carried thing's own shape (one merged geometry, two draws)
+  const ghostFill = new T.MeshBasicMaterial({ color: 0x8fdc6a, transparent: true, opacity: 0.2, depthWrite: false }), ghostRim = GL.rimMat(GL.GREEN, 0.95);
   let ghostGroup = null, ghostFor = null;
   function ghostMesh(t) {
     if (ghostGroup && ghostFor === t) return ghostGroup;
     clearGhost();
     const g = ghostGroup = new T.Group(); ghostFor = t; g.userData.noPick = true; g.matrixAutoUpdate = true;
-    t.obj.updateWorldMatrix(true, true);
-    const inv = new T.Matrix4().copy(t.obj.matrixWorld).invert();
-    t.obj.traverseVisible(o => {
-      if (!o.isMesh || o.userData.contactShadow || !o.geometry || ![].concat(o.material).some(m => m.visible)) return;
-      const m = new T.Mesh(o.geometry, ghostMat); m.matrixAutoUpdate = false; m.matrix.multiplyMatrices(inv, o.matrixWorld); m.userData.noPick = true; m.renderOrder = 6; g.add(m);
-    });
+    const geo = GL.merge(t.obj, { fresh: true });
+    for (const [mt, ro] of [[ghostFill, 6], [ghostRim, 7]]) { const m = new T.Mesh(geo, mt); m.userData.noPick = true; m.raycast = () => {}; m.renderOrder = ro; g.add(m); }
     g.visible = false; root.add(g);
     return g;
   }
-  function clearGhost() { if (ghostGroup) { ghostGroup.parent?.remove(ghostGroup); ghostGroup = null; ghostFor = null; } }
+  function clearGhost() { if (ghostGroup) { ghostGroup.parent?.remove(ghostGroup); ghostGroup.children[0]?.geometry.dispose(); ghostGroup = null; ghostFor = null; } }
   function showGhost(t, g) {
     if (!g) { if (ghostGroup) ghostGroup.visible = false; floorGlow(null); return; }
     const mesh = ghostMesh(t);
-    ghostMat.color.set(g.snap ? '#ffd84a' : g.ok ? '#8fdc6a' : '#e2553f'); ghostMat.opacity = g.ok ? 0.34 : 0.3;
+    const col = g.snap ? GL.GOLD : g.ok ? GL.GREEN : GL.RED; ghostFill.color.set(col); ghostRim.uniforms.uColor.value.set(col);
+    ghostFill.opacity = g.snap ? 0.26 : g.ok ? 0.2 : 0.24; ghostRim.uniforms.uStrength.value = g.snap ? 1.1 : 0.95;
     mesh.position.set(g.x, renderY(t, g.snap ? g.y : softY(t, { room: g.room, x: g.x, y: g.y, z: g.z, ry: g.ry })), g.z); mesh.rotation.set((g.rx || 0) * D2R, (g.ry || 0) * D2R, (g.rz || 0) * D2R, 'YXZ');
     mesh.visible = true;
     floorGlow(g.snap ? null : g, t);
@@ -1137,28 +1121,90 @@
     return null;
   }
 
-  // ---------------------------------------------------------------- the places a carried thing can go (a job's basket, a shelf slot) glow softly
+  // ---------------------------------------------------------------- the places a carried thing can go glow, in their own shape
+  // A slot that belongs to a thing (the washing basket, the bin: snap.glow = a THINGS id, an Object3D or a function giving
+  // one) gets a rim cg and an outline on that thing's own geometry plus a ring on the floor round its base. An empty slot
+  // (a shelf, a console, the desk) shows a gold see-through copy of what you carry standing in it, and a ring the slot's
+  // shape. The slot it will click into burns brighter. js/hs-cg.js; at most a handful of small draws, no extra passes.
   const TARGET_MAX = 48;
-  let targets = null, targetsAt = 0, targetCount = 0;
-  const _tm = new T.Matrix4(), _tq = new T.Quaternion(), _te = new T.Euler(), _tp = new T.Vector3(), _ts = new T.Vector3();
+  let targetsAt = 0, targetCount = 0, targetsFor = null;
+  const _tm = new T.Matrix4(), _tq = new T.Quaternion(), _te = new T.Euler(), _tp = new T.Vector3(), _ts = new T.Vector3(), _rootInv = new T.Matrix4(), _box = new T.Box3();
+  function glowTarget(s) { // { obj, foot } for a slot that belongs to something, else null
+    let g = s.glow; if (typeof g === 'function') { try { g = g(); } catch (e) { g = null; } }
+    if (typeof g === 'string') {
+      const t = THINGS[g]; if (!t || !t.obj || t.at.hide || !t.obj.visible || t.st === 'held') return null;
+      const m = t.local || measureLocal(t.obj), a = (t.at.ry || 0) * D2R, round = isRound(t), cyl = round && t.physics && t.physics.parts && t.physics.parts[0];
+      return { obj: t.obj, foot: { x: t.at.x + m.cx * Math.cos(a) + m.cz * Math.sin(a), y: t.at.y, z: t.at.z - m.cx * Math.sin(a) + m.cz * Math.cos(a), ry: t.at.ry || 0, hx: cyl ? cyl.r : m.hx, hz: cyl ? cyl.r : m.hz, round } };
+    }
+    if (g && g.isObject3D && g.visible !== false) {
+      _box.setFromObject(g); if (_box.isEmpty()) return null; // (world space: the root flips y)
+      return { obj: g, foot: { x: (_box.min.x + _box.max.x) / 2, y: -_box.min.y, z: (_box.min.z + _box.max.z) / 2, ry: 0, hx: (_box.max.x - _box.min.x) / 2, hz: (_box.max.z - _box.min.z) / 2, round: !!s.round } };
+    }
+    return null;
+  }
+  function objGlow(obj, active, now) {
+    let e = cg.objs.get(obj);
+    if (!e) {
+      const geo = GL.merge(obj, { maxTris: 6000 });
+      e = { rim: new T.Mesh(geo, GL.rimMat(GL.GOLD, 0.5, { grow: 0.12 })), hull: new T.Mesh(geo, GL.hullMat(GL.GOLD, 0.6)), used: false };
+      for (const [m, ro] of [[e.hull, 4], [e.rim, 5]]) { m.matrixAutoUpdate = false; m.userData.noPick = true; m.raycast = () => {}; m.renderOrder = ro; m.frustumCulled = false; root.add(m); }
+      cg.objs.set(obj, e);
+    }
+    e.used = true;
+    const pulse = active ? 0.86 + 0.14 * Math.sin(now / 140) : 0.72 + 0.28 * Math.sin(now / 300);
+    for (const m of [e.rim, e.hull]) { m.matrix.multiplyMatrices(_rootInv, obj.matrixWorld); m.matrixWorldNeedsUpdate = true; m.visible = true; }
+    e.rim.visible = Q.tier !== 'potato';
+    e.rim.material.uniforms.uStrength.value = (active ? 0.42 : 0.18) * pulse;
+    e.hull.material.uniforms.uStrength.value = (active ? 0.95 : 0.55) * pulse;
+    e.hull.material.uniforms.uColor.value.set(active ? '#ffe680' : GL.GOLD);
+  }
+  function slotGhosts(t, poses) { // a gold copy of what you carry in each free slot: one instanced draw
+    if (cg.slotMesh && cg.slotFor !== t) { root.remove(cg.slotMesh); cg.slotMesh.dispose && cg.slotMesh.dispose(); cg.slotMesh = null; }
+    if (!poses.length) { if (cg.slotMesh) cg.slotMesh.visible = false; return; }
+    if (!cg.slotMesh) {
+      const m = cg.slotMesh = new T.InstancedMesh(GL.merge(t.obj, { maxTris: 4000 }), GL.rimMat(GL.GOLD, 0.6), TARGET_MAX);
+      m.userData.noPick = true; m.raycast = () => {}; m.frustumCulled = false; m.renderOrder = 5; root.add(m); cg.slotFor = t;
+    }
+    const m = cg.slotMesh; let n = 0;
+    for (const p of poses) { _tp.set(p.x, renderY(t, p.y), p.z); _te.set((p.rx || 0) * D2R, (p.ry || 0) * D2R, (p.rz || 0) * D2R, 'YXZ'); _tq.setFromEuler(_te); _ts.set(1, 1, 1); m.setMatrixAt(n++, _tm.compose(_tp, _tq, _ts)); }
+    m.count = n; m.instanceMatrix.needsUpdate = true; m.visible = true;
+  }
   function showTargets(t, now) {
-    if (!t) { if (targets) targets.visible = false; targetCount = 0; return; }
-    if (!targets) { targets = new T.InstancedMesh(new T.BoxGeometry(1, 1, 1), new T.MeshBasicMaterial({ color: 0xffd84a, transparent: true, opacity: 0.16, depthWrite: false }), TARGET_MAX); targets.userData.noPick = true; targets.renderOrder = 4; targets.frustumCulled = false; root.add(targets); }
-    if (now - targetsAt > 350) {
-      targetsAt = now; targetCount = 0;
+    if (!cg.decals) { cg.decals = GL.decals(TARGET_MAX + 2); root.add(cg.decals.mesh); }
+    if (!t) {
+      cg.decals.hide(); for (const e of cg.objs.values()) e.rim.visible = e.hull.visible = false;
+      if (cg.slotMesh) cg.slotMesh.visible = false; targetCount = 0; cg.list = []; targetsFor = null; return;
+    }
+    if (now - targetsAt > 350 || targetsFor !== t) {
+      targetsAt = now; targetsFor = t; targetCount = 0; cg.list = [];
       for (const id in SNAPS) {
         if (targetCount >= TARGET_MAX) break;
         const s = SNAPS[id]; if (s.room && !visSet.has(s.room)) continue;
         if (s.enabled && !s.enabled()) continue; if (s.accepts && !s.accepts(t.kind, t)) continue;
         const p = s.pose || s, c = s.preview || p, b = s.box || [s.r * 0.9, 1.5, s.r * 0.9];
         if (![c.x, c.y, c.z, ...b].every(Number.isFinite) || Math.hypot(c.x - P.x, c.z - P.z) > 900) continue;
-        _tp.set(c.x, c.y, c.z); _te.set((p.rx || 0) * D2R, (p.ry || 0) * D2R, (p.rz || 0) * D2R, 'YXZ'); _tq.setFromEuler(_te); _ts.set(b[0] + 1, Math.max(b[1], 1.2) + 1, b[2] + 1);
-        targets.setMatrixAt(targetCount++, _tm.compose(_tp, _tq, _ts));
+        const tg = glowTarget(s);
+        // (an open slot's ring lies where the thing will rest; a hidden one's at the bottom of its box)
+        const foot = tg ? tg.foot : { x: c.x, y: !s.hide && s.pose && Number.isFinite(p.y) ? p.y : c.y + b[1] / 2, z: c.z, ry: p.ry || 0, hx: b[0] / 2, hz: b[2] / 2, round: !!s.round };
+        const pose = !tg && [p.x, p.y, p.z].every(Number.isFinite) ? { x: p.x, y: p.y, z: p.z, rx: p.rx, ry: p.ry, rz: p.rz } : null;
+        cg.list.push({ s, obj: tg && tg.obj, foot, pose }); targetCount++;
       }
-      targets.count = targetCount; targets.instanceMatrix.needsUpdate = true;
     }
-    targets.visible = targetCount > 0;
-    targets.material.opacity = 0.12 + 0.07 * Math.sin(now / 260);
+    const D = cg.decals, pulse = 0.8 + 0.2 * Math.sin(now / 260), poses = [];
+    root.updateMatrix(); _rootInv.copy(root.matrix).invert(); // (the root's parent is the scene: its matrix is its world)
+    D.begin();
+    for (const e of cg.objs.values()) e.used = false;
+    for (const it of cg.list) {
+      const active = cg.snap === it.s, f = it.foot;
+      D.add(f.x, f.y, f.z, f.ry, f.hx, f.hz, f.round, active ? '#ffe680' : GL.GOLD, active ? 1 : 0.62);
+      if (it.obj) objGlow(it.obj, active, now);
+      else if (it.pose && !active) poses.push(it.pose);
+    }
+    if (cg.foot && !cg.snap) { const f = cg.foot; D.add(f.x, f.y, f.z, f.ry, f.hx, f.hz, f.round, f.color, 0.9); }
+    D.end(pulse);
+    for (const e of cg.objs.values()) if (!e.used) e.rim.visible = e.hull.visible = false;
+    slotGhosts(t, poses);
+    if (cg.slotMesh) cg.slotMesh.material.uniforms.uStrength.value = 0.28 + 0.08 * Math.sin(now / 300);
   }
 
   // ---------------------------------------------------------------- putting things down
@@ -1340,7 +1386,7 @@
     // a job, the story or Mom took it out of your hands: let the grip go quietly
     if (held && (!THINGS[held.id] || !['held', 'settle'].includes(THINGS[held.id].st))) { const t = THINGS[held.id]; releaseHold(); if (t && t._hk && t.st !== 'inspect') { t.obj.scale.setScalar(1); t._hk = false; } if (t && t.body) bodyState(t); }
     if (!held || held.drag) hideArms();
-    if (!held) { snapGlow(null); if (floorHi) floorHi.visible = false; if (ghostGroup) ghostGroup.visible = false; showTargets(null); }
+    if (!held) { snapGlow(null); floorGlow(null); if (ghostGroup) ghostGroup.visible = false; showTargets(null); }
     if (held) {
       const t = THINGS[held.id], live = !controlsPaused && (mode === 'walk' || mode === 'glide' || mode === 'focus' && focusS?.o.seatId) && !inspection;
       if (held.drag) { if (live) dragTick(t, dt); showGhost(null); snapGlow(null); showTargets(null); ui.carry(t, { drag: true }); }

@@ -842,7 +842,7 @@
       B.box(0, -.25, 0, 4.4, .5, 2.6, col, { rz: 3 }); for (const sx of [-1, 1]) B.cyl(sx * 3, -.3, 0, .5, 1.1, 1.8, 6, col, { rz: sx * 90 });
       addThing('hw.wrap.' + (i + 1), { obj: g, home: { room: 'hall', x, y: GY, z, ry }, kind: 'hw.wrapper', label: 'A ' + sw.name + ' wrapper', holdD: 32 });
     });
-    addSnap('hw.s.kbin', { room: 'kitchen', x: 170, y: GY - 62, z: 20, r: 30, box: [34, 2, 34], pose: { x: 170, y: GY - 40, z: 20, hide: true }, hide: true, hint: 'In the bin with it', accepts: k => k === 'hw.wrapper',
+    addSnap('hw.s.kbin', { room: 'kitchen', x: 170, y: GY - 62, z: 20, r: 30, box: [34, 2, 34], glow: () => H.SPOTS['hs.bin'] && H.SPOTS['hs.bin'].obj, round: true, pose: { x: 170, y: GY - 40, z: 20, hide: true }, hide: true, hint: 'In the bin with it', accepts: k => k === 'hw.wrapper',
       onSnap: t => { const n = t.id.split('.').pop(); Season.step(EID, 'hw-clean', 'w' + n); snd.rustle(); } });
   }
   function syncWrappers() {

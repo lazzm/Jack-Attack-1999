@@ -111,11 +111,17 @@ things (a magazine on the floor). Thresholds keep the movement pass's 8 cm step.
   snapping in, inspecting and raising the Game Lad grow it back in place; X lets go of it at most ~1.2 m away.
   Slots and the ghost are still matched against your reach point (`reachPos`, held.d: +/-, Shift+wheel).
 - **Ghost preview**: a see-through copy where the thing will land, computed with the physics colliders every 40 ms
-  (80 ms on Low): green = fits, red = blocked (the panel says why), gold = clicks into a highlighted slot. A footprint
-  plate shows the base. Furniture on the floor also keeps the old placement guards (doorways, stairs, the way to the PC,
-  never sealing a passage).
-- **Targets**: every free slot that accepts what you carry (a job's basket or bin, shelf slots, console slots) glows
-  softly (one instanced draw for up to 48 targets).
+  (80 ms on Low): green = fits, red = blocked (the panel says why), gold = clicks into a highlighted slot. It is drawn as
+  a faint fill plus a fresnel rim on the thing's own merged geometry (two draws), and a ring the shape of its base lies on
+  the surface under it (a circle for round things, a rounded rectangle otherwise). Furniture on the floor also keeps the
+  old placement guards (doorways, stairs, the way to the PC, never sealing a passage).
+- **Targets** (js/hs-glow.js; nothing is a flat square over the target any more): every free slot that accepts what you
+  carry glows in its own shape. A slot that belongs to a thing (`snap.glow`: a THINGS id, an Object3D or a function giving
+  one; the washing basket and the bin) gets a soft additive rim on that thing's own geometry, an inverted-hull outline
+  pushed out along smoothed normals, and a footprint ring on the floor round its base. An empty slot (shelf, console,
+  desk, the mag pile) shows a gold see-through copy of the carried thing standing in it (one instanced draw for up to 48
+  slots) plus a ring the slot's shape. The slot it will click into burns brighter and pulses faster. All rings are one
+  instanced draw; no extra full-screen passes on any tier (Potato also drops the rim sheen and keeps the outline).
 - **E / click** sets it down exactly at the ghost (a 0.23 s glide, then asleep: no settling wobble). Red ghost: E refuses
   with a reason. **X** lets go: it leaves your hands with a little of their motion, falls, bounces and settles.
   **R** turns 45 degrees, **wheel** 15 degrees; Shift+wheel or + / - bring it nearer or further. **Q** / right click

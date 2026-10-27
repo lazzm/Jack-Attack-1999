@@ -103,8 +103,8 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
         CK.thing(id, { obj: MODELS[m.id](), kind: 'mess.' + m.kind, label: m.n, chore: 'tidy', holdD: m.kind === 'clothes' ? 60 : 45, home: { room: 'bedroom', x: 0, y: FY, z: 100, hide: true } });
       }
       // where things go
-      CK.snap('ch.s.basket', { room: 'bedroom', x: 110, y: FY - 46, z: 222, r: 34, box: [34, 2, 34], accepts: k => k === 'mess.clothes', hide: true, hint: 'Let go: in the washing basket', onSnap: t => put(t) });
-      CK.snap('ch.s.bin', { room: 'bedroom', x: -118, y: FY - 30, z: -42, r: 26, box: [22, 2, 22], accepts: k => k === 'mess.rubbish', hide: true, hint: 'Let go: in the bin', onSnap: t => put(t) });
+      CK.snap('ch.s.basket', { room: 'bedroom', x: 110, y: FY - 46, z: 222, r: 34, box: [34, 2, 34], glow: 'washing', round: true, accepts: k => k === 'mess.clothes', hide: true, hint: 'Let go: in the washing basket', onSnap: t => put(t) });
+      CK.snap('ch.s.bin', { room: 'bedroom', x: -118, y: FY - 30, z: -42, r: 26, box: [22, 2, 22], glow: 'bin', round: true, accepts: k => k === 'mess.rubbish', hide: true, hint: 'Let go: in the bin', onSnap: t => put(t) });
       CK.snap('ch.s.rack', { room: 'bedroom', x: -234, y: FY - 46, z: -30, r: 28, box: [22, 30, 6], accepts: k => k === 'mess.cd', hide: true, hint: 'Let go: back in the CD rack', onSnap: t => put(t) });
       const pile = CK.snap('ch.s.mags', { room: 'bedroom', x: -144, y: FY - 4, z: 58, r: 30, box: [24, 2, 30], accepts: k => { if (k !== 'mess.mag') return false; pile.pose = { x: -144 + magN * 0.8, y: FY - 2.8 - magN * 1.1, z: 58 + magN * 0.6, ry: -8 + magN * 7 }; return true; }, hint: 'Let go: on the pile of mags', onSnap: t => { magN++; put(t, true); } });
       const receptacles=[['ch.s.basket','washing',44],['ch.s.bin','bin',27]];
@@ -257,7 +257,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     },
     also: {
       kitchen: () => {
-        CK.snap('ch.s.kbin', { room: 'kitchen', x: 170, y: GY - 66, z: 20, r: 40, box: [30, 2, 30], accepts: k => k === 'binbag', hide: true, hint: 'Let go: in the kitchen bin', onSnap: () => {
+        CK.snap('ch.s.kbin', { room: 'kitchen', x: 170, y: GY - 66, z: 20, r: 40, box: [30, 2, 30], glow: () => H.SPOTS['hs.bin'] && H.SPOTS['hs.bin'].obj, round: true, accepts: k => k === 'binbag', hide: true, hint: 'Let go: in the kitchen bin', onSnap: () => {
           CK.snd.thud(); CK.lock('ch.binbag'); bag.home = Object.assign({}, bag.at, { hide: true });
           const kb = H.SPOTS['hs.bin'] && H.SPOTS['hs.bin'].obj; if (kb) { const s0 = kb.scale.y; CK.tween(kb, { s: 1 }, 1, {}).then(() => { kb.scale.set(1, s0 * 0.94, 1); setTimeout(() => { kb.scale.set(1, 1, 1); H.dirty(); }, 140); }); }
           CK.step('bin', 'bag'); CK.MODS.bin.sync();
