@@ -7,7 +7,8 @@
 .rm-view.rm-live3d{position:fixed;z-index:20005;pointer-events:none}
 .rm-view.rm-live3d.on{background:transparent!important}
 .rm-live3d .rm-tvwrap,.rm-live3d .rm-side{display:none}
-.rm-live3d .rm-livebar{position:absolute;left:12px;right:12px;bottom:14px;display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none}
+/* One compact row along the bottom edge, below the telly's bezel and badge (wraps on narrow screens). */
+.rm-live3d .rm-livebar{position:absolute;left:12px;right:12px;bottom:8px;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:7px;pointer-events:none}
 .rm-live3d .rm-livebar .rm-b{pointer-events:auto;border:1px solid var(--game-edge,#8c8775);border-radius:0;background:var(--game-panel,#242722);color:var(--game-ink,#eee7d3);font:12px var(--game-ui,"Courier New",monospace);min-height:36px;padding:6px 12px}
 .rm-live3d .rm-help{color:#eee7d3;text-shadow:0 1px 3px #000;max-width:90vw;padding:5px 9px;background:rgba(22,25,27,.9);font:12px "Courier New",monospace}
 .rm-live3d .rm-help small{color:#d1c9b3}

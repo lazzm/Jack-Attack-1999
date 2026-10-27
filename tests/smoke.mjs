@@ -34,7 +34,7 @@ async function dispose(){
 let stopping=false;
 async function stop(signal){if(stopping)return;stopping=true;console.log(`FAIL runner: ${signal}`);await cleanup();console.log(`SUMMARY ${results.filter(Boolean).length}/${results.length+1} passed; aborted=${signal}; renderer=${renderer}; draw calls: ${draws.join(', ')||'not sampled'}`);process.exit(1)}
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>void stop(signal));
-const watchdog=setTimeout(()=>void stop(`${180*SCALE}s total timeout`),180000*SCALE);
+const watchdog=setTimeout(()=>void stop(`${240*SCALE}s total timeout`),240000*SCALE);
 function observe(page){
   activeBrowser=page.context().browser();
   if(stopping){void activeBrowser.close();return;}
@@ -138,7 +138,7 @@ const checks=[
    const before=await page.evaluate(()=>[House.W.x,House.W.z]);await page.keyboard.down('w');await page.waitForTimeout(150);await page.keyboard.up('w');assert.deepEqual(await page.evaluate(()=>[House.W.x,House.W.z]),before);
    await page.keyboard.press('Escape');assert(!await page.evaluate(()=>HousePause.open||House.paused));
  }],
- ['canonical-views',35000,async()=>{
+ ['canonical-views',90000,async()=>{
    const f=await room(),{page}=f;await mkdir(shots,{recursive:true});
    await page.evaluate(()=>Room.ensureHouse());await until(()=>window.HouseRooms?.ready);
    // Fixed world coordinates, fixed 14:00 daylight, low tier, identical desktop viewport.
@@ -154,7 +154,7 @@ const checks=[
    for(const [name,eye,target,level,roomPoint=eye]of views){
      await f.view(eye,target,{level,roomPoint});await page.evaluate(()=>House.dirty());await page.waitForTimeout(180);
      const debug=await page.evaluate(()=>__jhpDebug());assert(debug.renderer.calls>0,`${name}: empty render`);
-     draws.push(`${name}=${debug.renderer.calls}`);await page.screenshot({path:shots+name+'.png',style:'.hs-toast,.balloon { visibility: hidden !important; }'});
+     draws.push(`${name}=${debug.renderer.calls}`);await page.screenshot({path:shots+name+'.png',timeout:30000*SCALE,style:'.hs-toast,.balloon { visibility: hidden !important; }'}); // (the exterior view is the slowest software-rendered capture)
    }
  }],
  ['mobile-desktop',25000,async()=>{

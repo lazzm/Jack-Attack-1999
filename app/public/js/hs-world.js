@@ -32,40 +32,41 @@
 
   // ================================================================ graphics quality: Low / Medium / High, picked for this machine (or chosen: G in the house,
   // or Start > Room graphics). Low: pixel ratio 1, no antialiasing, matte materials, 3 lights, only the room you're in and the next.
-  const QN = ['low', 'medium', 'high'], PRMAX = { low: 1, medium: 1.5, high: 2 };
+  const QN = ['potato', 'low', 'medium', 'high'], PRMAX = { potato: 1, low: 1, medium: 1.5, high: 2 };
   const Q = (function () {
     const want = ls.get('jhp_hs_gfx', 'auto'), n = navigator;
     const mob = false; // Device access is handled before the game loads.
     const mem = n.deviceMemory || 8, cores = n.hardwareConcurrency || 4, dpr = window.devicePixelRatio || 1;
-    const t = mob || mem <= 2 || cores <= 2 ? 'low' : mem <= 4 || cores <= 4 || (dpr > 2 && screen.width * dpr > 3800) ? 'medium' : 'high';
+    const t = mem <= 1 || cores <= 1 ? 'potato' : mob || mem <= 2 || cores <= 2 ? 'low' : mem <= 4 || cores <= 4 || (dpr > 2 && screen.width * dpr > 3800) ? 'medium' : 'high';
     return { want, auto: !QN.includes(want), tier: QN.includes(want) ? want : t, guess: t, mob, fps: 0, gpu: '', renderScale:1, pixelRatio:1, f: { n: 0, t: 0, low: 0 }, probe: 0 };
   })();
-  function graphicsDefaults(preset){return{preset,scale:1,dynamic:preset!=='high',antialias:['medium','high'].includes(preset)?'on':'off',pixelRatio:({low:1,medium:1.5,high:2})[preset]||2,anisotropy:({low:1,medium:4,high:8})[preset]||8,backgroundFps:10,decorations:false}}
+  function graphicsDefaults(preset){return{preset,scale:1,dynamic:preset!=='high',antialias:['medium','high'].includes(preset)?'on':'off',pixelRatio:PRMAX[preset]||2,anisotropy:({potato:1,low:1,medium:4,high:8})[preset]||8,backgroundFps:preset==='potato'?5:10,decorations:false,retro:false,showFps:false}}
   function cleanGraphics(value,base){
     const v=value&&typeof value==='object'?value:{};
     return{...base,scale:clamp(Number.isFinite(+v.scale)?+v.scale:base.scale,.5,1),dynamic:typeof v.dynamic==='boolean'?v.dynamic:base.dynamic,
       antialias:['auto','off','on'].includes(v.antialias)?v.antialias:base.antialias,pixelRatio:[1,1.5,2].includes(+v.pixelRatio)?+v.pixelRatio:base.pixelRatio,
       anisotropy:[1,4,8,16].includes(+v.anisotropy)?+v.anisotropy:base.anisotropy,backgroundFps:[5,10,20].includes(+v.backgroundFps)?+v.backgroundFps:base.backgroundFps,
-      decorations:typeof v.decorations==='boolean'?v.decorations:base.decorations,preset:['auto','low','medium','high','custom'].includes(v.preset)?v.preset:base.preset};
+      decorations:typeof v.decorations==='boolean'?v.decorations:base.decorations,retro:typeof v.retro==='boolean'?v.retro:base.retro,showFps:typeof v.showFps==='boolean'?v.showFps:base.showFps,preset:['auto','potato','low','medium','high','custom'].includes(v.preset)?v.preset:base.preset};
   }
   let graphics=cleanGraphics(ls.get('jhp_hs_graphics',null),graphicsDefaults(Q.want));
-  const wantsAntialias=()=>graphics.antialias==='on'||(graphics.antialias==='auto'&&!Q.auto&&Q.tier!=='low');
-  const wantedAniso=()=>Math.min(graphics.anisotropy,Q.tier==='low'&&graphics.preset!=='custom'?1:16);
+  const wantsAntialias=()=>graphics.antialias==='on'||(graphics.antialias==='auto'&&!Q.auto&&!['potato','low'].includes(Q.tier));
+  // Potato: no anisotropy. Low keeps cheap 2x filtering (floors and long walls are seen at grazing angles everywhere).
+  const wantedAniso=()=>Q.tier==='potato'?1:Q.tier==='low'&&graphics.preset!=='custom'?2:Math.min(graphics.anisotropy,16);
   window.HouseQ = Q.tier;
   // ================================================================ the renderer (a canvas under boot.js's stage, one over it)
   let cv = document.createElement('canvas'); cv.className = 'hs-gl'; cv.setAttribute('aria-hidden', 'true');
   let ren;
   try {
-    ren = new T.WebGLRenderer({ canvas: cv, antialias: wantsAntialias(), powerPreference: 'high-performance', alpha: false });
+    ren = new T.WebGLRenderer({ canvas: cv, antialias: wantsAntialias(), powerPreference: Q.tier==='potato'?'default':'high-performance', alpha: false });
     if (!ren.getContext()) throw new Error('no gl');
   } catch (e) { window.House = { ok: false }; return; }
   pb.insertBefore(cv, stage);
   try { // (a software renderer or a weak GPU: Low, whatever the rest of the machine says)
     const gl = ren.getContext(), dbg = gl.getExtension('WEBGL_debug_renderer_info'); Q.gpu = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
-    if (Q.auto && (/SwiftShader|llvmpipe|softpipe|Software|Mali-[34]|Adreno \(TM\) [345]\d\d|PowerVR SGX|GMA/i.test(Q.gpu) || ren.capabilities.maxTextureSize < 4096 || !ren.capabilities.floatFragmentTextures)) Q.tier = 'low';
+    if (Q.auto && Q.tier!=='potato' && (/SwiftShader|llvmpipe|softpipe|Software|Mali-[34]|Adreno \(TM\) [345]\d\d|PowerVR SGX|GMA/i.test(Q.gpu) || ren.capabilities.maxTextureSize < 4096 || !ren.capabilities.floatFragmentTextures)) Q.tier = 'low';
     else if (Q.auto && Q.tier === 'high' && /Intel/i.test(Q.gpu) && !/Iris|Arc/i.test(Q.gpu)) Q.tier = 'medium';
   } catch (e) {}
-  Q.guess=Q.tier;window.HouseQ = Q.tier;
+  Q.guess=Q.tier;window.HouseQ = Q.tier;K.setQuality?.(Q.tier);
   let cv2 = document.createElement('canvas'); cv2.className = 'hs-gl2'; cv2.setAttribute('aria-hidden', 'true');
   // (a lost WebGL context, e.g. too many tabs: keep the page alive and redraw when it comes back)
   let ctxLost = false;
@@ -81,7 +82,7 @@
     try {
       const oldRenderer=ren, oc = cv, par = oc.parentNode, nc = document.createElement('canvas'); nc.className = oc.className; nc.setAttribute('aria-hidden', 'true');
       try { ren.dispose(); } catch (e) {}
-      const nr = new T.WebGLRenderer({ canvas: nc, antialias: wantsAntialias(), powerPreference: 'high-performance', alpha: false });
+      const nr = new T.WebGLRenderer({ canvas: nc, antialias: wantsAntialias(), powerPreference: Q.tier==='potato'?'default':'high-performance', alpha: false });
       if (!nr.getContext() || nr.getContext().isContextLost()) return false;
       nr.setClearColor(0x050404, 1); nr.localClippingEnabled = true;
       if (par) par.replaceChild(nc, oc);
@@ -89,7 +90,7 @@
       releaseGL(oldRenderer);
       if (window.House) window.House.ren = nr;
       if (ren2 || cv2.parentNode) { const oldForeground=ren2;try { oldForeground?.dispose(); } catch (e) {} const o2 = cv2, p2 = o2.parentNode; cv2 = document.createElement('canvas'); cv2.className = o2.className; cv2.setAttribute('aria-hidden', 'true'); hookCtx(cv2); if (p2) p2.removeChild(o2); ren2 = null;releaseGL(oldForeground); }
-      K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()));
+      K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()),true);
       scene.traverse(o => { const ms = o.material ? [].concat(o.material) : []; for (const m of ms) { m.needsUpdate = true; for (const k in m) { const t = m[k]; if (t && t.isTexture) t.needsUpdate = true; } } });
       for (const k in K.MATS) K.MATS[k].needsUpdate = true;
       measure(); dirty(); return true;
@@ -107,12 +108,19 @@
   // the lights: a fixed rig (a constant number of lights means no shader rebuilds), moved to suit the rooms on show
   const hemi = new T.HemisphereLight(0x8a90a8, 0x30261c, 0.55); scene.add(hemi); hemi.layers.enableAll();
   const sun = new T.DirectionalLight(0xffffff, 0); root.add(sun); root.add(sun.target); sun.layers.enableAll();
-  const PL = Array.from({ length: Q.tier === 'low' ? 3 : 5 }, () => { const l = new T.PointLight(0xffffff, 0, 400, 2); root.add(l); l.layers.enableAll(); return l; });
+  const PL = Array.from({ length: 5 }, () => { const l = new T.PointLight(0xffffff, 0, 400, 2); root.add(l); l.layers.enableAll(); return l; });
 
   // ================================================================ the camera: one pose drives both WebGL and boot.js's CSS camera
   // pose: E (eye, cm), ry (yaw: + turns right), rx (pitch: - looks down), the CSS conventions boot.js uses
   const P = { x: 0, y: -50, z: 100, ry: -30, rx: -16 };
   let em = 10, vw = innerWidth, vh = innerHeight;
+  const outdoorFog=new T.Fog(0xcedadf,1600,3000);
+  function qualityView(){
+    const fog=Q.tier==='potato'&&cur?.outside?outdoorFog:null,far=fog?fog.far:4000;
+    scene.fog=fog;
+    if(fog){const ph=window.HouseEnvironment?.phase;fog.color.set(ph==='night'?0x26344b:ph==='dusk'?0xd89774:ph==='dawn'?0xddb69a:0xcedadf)}
+    if(camera.far!==far){camera.far=far;camera.updateProjectionMatrix()}
+  }
   const S = new T.Matrix4().makeScale(1, -1, 1), _R = new T.Matrix4(), _M = new T.Matrix4(), _Rx = new T.Matrix4(), _Ry = new T.Matrix4();
   function measure() {
     vw = pb.clientWidth || innerWidth; vh = pb.clientHeight || innerHeight;
@@ -120,11 +128,12 @@
     const native=Math.min(window.devicePixelRatio||1,graphics.preset==='custom'?graphics.pixelRatio:Math.min(PRMAX[Q.tier]||1,graphics.pixelRatio));
     // Low graphics has a pixel budget as well as a DPR cap: a large desktop
     // viewport used to cost more than a phone even at the lowest setting.
-    const base=Q.tier==='low'&&graphics.preset!=='custom'?Math.min(native,Math.sqrt(1024*768/(vw*vh))):native;
+    const cap=Q.tier==='potato'?350000:Q.tier==='low'&&graphics.preset!=='custom'?1024*768:Infinity;
+    const base=Math.min(native,Math.sqrt(cap/(vw*vh)),graphics.retro?Math.min(640/vw,480/vh):Infinity);
     const pr=base*graphics.scale*Q.renderScale;Q.pixelRatio=pr;
-    ren.setPixelRatio(pr); ren.setSize(vw, vh, false);
+    ren.setPixelRatio(pr); ren.setSize(vw, vh, false);cv.style.imageRendering=graphics.retro?'pixelated':'';
     // Held paper and live screen DOM stay sharp when the room scales down.
-    if (ren2) { ren2.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5)); ren2.setSize(vw, vh, false); }
+    if (ren2) { ren2.setPixelRatio(Q.tier==='potato'?pr:Math.min(window.devicePixelRatio||1,1.5)); ren2.setSize(vw, vh, false);cv2.style.imageRendering=graphics.retro?'pixelated':''; }
     camera.aspect = vw / vh; camera.fov = 2 * Math.atan(vh / 2 / (PERSP * em)) / D2R; camera.updateProjectionMatrix();
     dirty();
   }
@@ -136,16 +145,21 @@
     camera.updateMatrixWorld(true);
   }
   const f3 = n => (+n).toFixed(3);
-  function cssCam() { cam.style.transform = `translate3d(0em,0em,${PERSP}em) rotateX(${f3(P.rx)}deg) rotateY(${f3(P.ry)}deg) translate3d(${f3(-P.x)}em,${f3(-P.y)}em,${f3(-P.z)}em)`; }
+  const cssPose={x:NaN,y:NaN,z:NaN,rx:NaN,ry:NaN,transform:''};
+  function cssCam() {
+    if(cssPose.x===P.x&&cssPose.y===P.y&&cssPose.z===P.z&&cssPose.rx===P.rx&&cssPose.ry===P.ry&&cam.style.transform===cssPose.transform)return;
+    cssPose.x=P.x;cssPose.y=P.y;cssPose.z=P.z;cssPose.rx=P.rx;cssPose.ry=P.ry;
+    cssPose.transform=`translate3d(0em,0em,${PERSP}em) rotateX(${f3(P.rx)}deg) rotateY(${f3(P.ry)}deg) translate3d(${f3(-P.x)}em,${f3(-P.y)}em,${f3(-P.z)}em)`;cam.style.transform=cssPose.transform;
+  }
   // view-space z of a world point (negative = in front of the camera)
   function viewZ(x, y, z) { const a = P.ry * D2R, b = P.rx * D2R, dx = x - P.x, dy = y - P.y, dz = z - P.z; const z1 = -dx * Math.sin(a) + dz * Math.cos(a); return dy * Math.sin(b) + z1 * Math.cos(b); }
   // a world point to screen pixels (null when it's behind you)
-  function toScreen(x, y, z) {
+  function toScreen(x, y, z, out) {
     const a = P.ry * D2R, b = P.rx * D2R, dx = x - P.x, dy = y - P.y, dz = z - P.z;
     const x1 = dx * Math.cos(a) + dz * Math.sin(a), z1 = -dx * Math.sin(a) + dz * Math.cos(a);
     const y2 = dy * Math.cos(b) - z1 * Math.sin(b), z2 = dy * Math.sin(b) + z1 * Math.cos(b);
     if (z2 > -1) return null;
-    const k = PERSP * em / -z2; return { x: vw / 2 + x1 * k, y: vh / 2 + y2 * k, d: -z2 };
+    const k = PERSP * em / -z2,p=out||{};p.x=vw/2+x1*k;p.y=vh/2+y2*k;p.d=-z2;return p;
   }
   const fwd = () => { const a = P.ry * D2R, b = P.rx * D2R; return new T.Vector3(Math.sin(a) * Math.cos(b), -Math.sin(b), -Math.cos(a) * Math.cos(b)); };
   // the ray through a screen point, in our (y-down) world
@@ -245,7 +259,7 @@
   const windowFrustum=new T.Frustum(),windowProjection=new T.Matrix4();
   function visCalc() { // the room you're in, and the rooms you can see into through open doors (and the ones they open onto)
     const vs = new Set(); if (cur) vs.add(cur.id);
-    const walk = (r, depth) => { if (!r) return; for (const did of r.links) { const d = DOORS[did]; if (!d || !(d.open || d.ang > 0.01 || d.always)) continue; for (const o of d.rooms) if (!vs.has(o)) { vs.add(o); if (depth < (Q.tier === 'low' ? 0 : 1)) walk(ROOMS[o], depth + 1); } } };
+    const walk = (r, depth) => { if (!r) return; for (const did of r.links) { const d = DOORS[did]; if (!d || !(d.open || d.ang > 0.01 || d.always)) continue; for (const o of d.rooms) if (!vs.has(o)) { vs.add(o); if (depth < (Q.tier === 'potato' || Q.tier === 'low' ? 0 : 1)) walk(ROOMS[o], depth + 1); } } };
     walk(cur, 0);
     if (cur && (cur.id === 'hall' || cur.id === 'landing' || cur.id === 'cupboard')) { vs.add('hall'); vs.add('landing'); } // (the stairwell joins them: a wrong guess can never black the view out)
     // Glass is a permanent sight line, independent of the door beside it.
@@ -286,15 +300,16 @@
         all.push(Object.assign({key:id+':'+l.x+','+l.y+','+l.z,score:(l.i==null?1:l.i)*Math.pow(Math.max(0,1-distance/range),2)},l));
       }
       all.sort((a,b)=>b.score-a.score);
-      const remaining=all.slice(0,PL.length);
-      rig.slots.forEach(s=>{const j=remaining.findIndex(l=>l.key===s.key);s.t=j<0?null:remaining.splice(j,1)[0]});
-      rig.slots.forEach(s=>{if(!s.t&&remaining.length)s.t=remaining.shift()});
+      const active=Q.tier==='potato'?0:Q.tier==='low'?3:5,remaining=all.slice(0,active);
+      rig.slots.forEach((s,i)=>{const j=i<active?remaining.findIndex(l=>l.key===s.key):-1;s.t=j<0?null:remaining.splice(j,1)[0]});
+      rig.slots.forEach((s,i)=>{if(i<active&&!s.t&&remaining.length)s.t=remaining.shift()});
       const a=(typeof r.amb==='function'?r.amb():r.amb)||{sky:'#8a90a8',gnd:'#30261c',i:0.55};
       rig.targetSky.set(a.sky);rig.targetGround.set(a.gnd);rig.targetAmbient=a.i;
       const sl=typeof r.sun==='function'?r.sun():r.sun;rig.targetSun=sl?sl.i:0;if(sl){rig.sourceSun=Object.assign({},sl);rig.targetSunColor.set(sl.c)}
     }
     tickLights(0);
   }
+  const colorGap=(a,b)=>Math.abs(a.r-b.r)+Math.abs(a.g-b.g)+Math.abs(a.b-b.b);
   function tickLights(dt) {
     let moving=false;
     for (const rig of roomRigs.values()) {
@@ -304,10 +319,10 @@
         const target=s.t&&s.key===s.t.key?(s.t.i==null?1:s.t.i):0,d=target-s.cur;
         if(Math.abs(d)>0.003){s.cur+=d*k;moving=true}else s.cur=target;
       }
-      const colorGap=(a,b)=>Math.abs(a.r-b.r)+Math.abs(a.g-b.g)+Math.abs(a.b-b.b);
       if(colorGap(rig.sky,rig.targetSky)>0.003||colorGap(rig.ground,rig.targetGround)>0.003||colorGap(rig.sunColor,rig.targetSunColor)>0.003)moving=true;
       rig.sky.lerp(rig.targetSky,k);rig.ground.lerp(rig.targetGround,k);
-      for(const [value,target]of [['ambient','targetAmbient'],['sun','targetSun']]){const d=rig[target]-rig[value];if(Math.abs(d)>0.003){rig[value]+=d*k;moving=true}else rig[value]=rig[target]}
+      let d=rig.targetAmbient-rig.ambient;if(Math.abs(d)>0.003){rig.ambient+=d*k;moving=true}else rig.ambient=rig.targetAmbient;
+      d=rig.targetSun-rig.sun;if(Math.abs(d)>0.003){rig.sun+=d*k;moving=true}else rig.sun=rig.targetSun;
       if(rig.sourceSun)rig.sunColor.lerp(rig.targetSunColor,k);
       rig.fresh=false;
     }
@@ -315,11 +330,11 @@
   }
   function applyRoomRig(r) {
     const rig=roomRig(r);if(!rig)return;
-    hemi.color.copy(rig.sky);hemi.groundColor.copy(rig.ground);hemi.intensity=rig.ambient;
+    hemi.color.copy(rig.sky);hemi.groundColor.copy(rig.ground);hemi.intensity=Q.tier==='potato'?Math.min(1.3,rig.ambient*1.35+.12):rig.ambient;
     sun.intensity=rig.sun;sun.color.copy(rig.sunColor);
     if(rig.sourceSun){const l=rig.sourceSun;sun.position.set(l.x,l.y,l.z);sun.target.position.set(l.tx||0,l.ty||0,l.tz||0)}
     sun.updateMatrixWorld(true);sun.target.updateMatrixWorld(true);
-    PL.forEach((pl,i)=>{const s=rig.slots[i],l=s.l;pl.intensity=s.cur;if(l){pl.position.set(l.x,l.y,l.z);pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)});
+    for(let i=0;i<PL.length;i++){const pl=PL[i],s=rig.slots[i],l=s.l;pl.visible=Q.tier!=='potato'&&(Q.tier!=='low'||i<3);pl.intensity=s.cur;if(l){pl.position.set(l.x,l.y,l.z);pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)}
   }
   function lightingSnapshot(id) {
     const r=roomRigs.get(id);return r?{ambient:r.ambient,sky:r.sky.getHex(),ground:r.ground.getHex(),sun:r.sun,
@@ -330,7 +345,9 @@
       for (const id in ROOMS) buildRoom(ROOMS[id]);
       const vis = []; for (const id in ROOMS) { vis.push([ROOMS[id].group, ROOMS[id].group.visible]); ROOMS[id].group.visible = true; }
       for (const id in DOORS) if (DOORS[id].pivot) DOORS[id].pivot.visible = true;
-      try { ren.compile(scene, camera); } catch (e) {}
+      K.setQuality?.(Q.tier,scene);
+      for(let i=0;i<PL.length;i++)PL[i].visible=Q.tier!=='potato'&&(Q.tier!=='low'||i<3);
+      try { ren.compile(scene, camera); if(Q.tier==='potato'){const fog=scene.fog;scene.fog=outdoorFog;ren.compile(scene,camera);scene.fog=fog} } catch (e) {}
       scene.traverse(o => { const m = o.material; if (m) [].concat(m).forEach(mm => { for (const k in mm) { const tx = mm[k]; if (tx && tx.isTexture && ren.initTexture) { try { ren.initTexture(tx); } catch (e) {} } } }); });
       ren.render(scene, camera);
       vis.forEach(([g, v]) => { g.visible = v; }); visCalc(); ren.render(scene, camera);
@@ -877,7 +894,7 @@
   function whyText(why) { if (!why) return ''; if (why.startsWith('body:')) { const o = THINGS[why.slice(5)]; const n = o ? (typeof o.label === 'function' ? o.label() : o.label) : 'Something'; return n + ' is in the way'; } return WHY[why] || "Something's in the way"; }
   function computeGhost(t, sx, sy, fresh) {
     const now = performance.now();
-    if (!fresh && GP.res && GP.t === t && now - GP.at < (Q.tier === 'low' ? 80 : 40)) return GP.res;
+    if (!fresh && GP.res && GP.t === t && now - GP.at < (Q.tier === 'low' || Q.tier === 'potato' ? 80 : 40)) return GP.res;
     const o = heldPos(), sn = nearSnap(t, o.x, o.y, o.z, fresh); // (where the hand is going, not where the lagging model still is)
     let res;
     if (sn) { const p = sn.pose || { x: sn.x, y: sn.y, z: sn.z, ry: sn.ry || 0 }; res = { snap: sn, ok: true, room: sn.room || (cur && cur.id), x: p.x, y: p.y, z: p.z, ry: p.ry || 0, rx: p.rx || 0, rz: p.rz || 0 }; }
@@ -1084,6 +1101,35 @@
     const moved = Math.hypot(b.x - x0, b.z - z0);
     if (moved > 0.25 && performance.now() > dragSound) { dragSound = performance.now() + 170; physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed: moved / Math.max(dt, 1e-3) }); }
     if (Math.hypot(tx - b.x, tz - b.z) > reach + 55) { letGo(); ui.toast("It's caught", 'You let go of ' + (typeof t.label === 'function' ? t.label() : t.label).replace(/^(The|My) /, 'the ') + '. Press E on it to take hold again.'); }
+  }
+  // Contact shadows for grab-API props that do not model their own (phones, toys, boxes...): one instanced,
+  // depth-write-free soft rectangle per prop, a single draw call per room. Shown only while the prop rests
+  // upright on something; hidden while carried, falling, hidden or stood on edge in a shelf slot.
+  const PROP_SHADOW = { geo: null, mat: null, m: new T.Matrix4(), q: new T.Quaternion(), e: new T.Euler(), s: new T.Vector3(), p: new T.Vector3() };
+  function propShadowCandidate(t) {
+    if (t.autoShadow !== undefined) return t.autoShadow;
+    let own = false, mesh = false; t.obj.traverse(o => { if (o.userData.contactShadow) own = true; else if (o.isMesh) mesh = true; });
+    return t.autoShadow = !own && mesh && !t.noAutoShadow && t.hx * t.hz < 1600 && t.hx > 1.2 && t.hz > 1.2;
+  }
+  function tickPropShadows() {
+    for (const id in ROOMS) { const r = ROOMS[id]; if (r.propShadows) r.propShadows.userData.n = 0; }
+    for (const id in THINGS) {
+      const t = THINGS[id], r = ROOMS[t.at.room];
+      if (!r || !r.group.visible || !propShadowCandidate(t)) continue;
+      if (!(t.st === 'rest' || t.st === 'snap') || t.at.hide || !t.obj.visible || t.obj.parent !== r.things || Math.abs(t.rx || 0) > 20 || Math.abs(t.rz || 0) > 20) continue;
+      let ms = r.propShadows;
+      if (!ms) {
+        if (!PROP_SHADOW.geo) { PROP_SHADOW.geo = K.shadowGeo(true, 1, 1, 0.24); PROP_SHADOW.mat = K.shadowMaterial(true, 0.62); }
+        ms = r.propShadows = new T.InstancedMesh(PROP_SHADOW.geo, PROP_SHADOW.mat, 160); ms.name = 'prop-contact-shadows';
+        ms.frustumCulled = false; ms.renderOrder = 2; ms.userData.noPick = true; ms.userData.contactShadow = true; ms.userData.n = 0; ms.count = 0; r.things.add(ms);
+      }
+      const n = ms.userData.n; if (n >= 160) continue;
+      const o = t.obj.position, pad = Math.min(5, 0.8 + Math.min(t.hx, t.hz) * 0.35);
+      PROP_SHADOW.e.set(0, t.obj.rotation.y, 0); PROP_SHADOW.q.setFromEuler(PROP_SHADOW.e);
+      PROP_SHADOW.s.set(t.hx * 2 + pad * 2, 1, t.hz * 2 + pad * 2); PROP_SHADOW.p.set(o.x, o.y, o.z);
+      ms.setMatrixAt(n, PROP_SHADOW.m.compose(PROP_SHADOW.p, PROP_SHADOW.q, PROP_SHADOW.s)); ms.userData.n = n + 1;
+    }
+    for (const id in ROOMS) { const ms = ROOMS[id].propShadows; if (!ms) continue; if (ms.count !== ms.userData.n) { ms.count = ms.userData.n; } ms.instanceMatrix.needsUpdate = true; }
   }
   function tickThings(dt) {
     let any = false;
@@ -1907,7 +1953,8 @@
   function uiMount() { if (uiIn) return; uiIn = true; html.appendChild(ui.el); }
 
   // ================================================================ drawing
-  let need = true, raf = 0, lastT = 0, lastAmb = 0, frame = 0, budgetPose='', viewing = false, viewT = 0, physMs = 0;
+  let need = true, raf = 0, lastT = 0, lastAmb = 0, lastDraw=0, frame = 0, viewing = false, viewT = 0, physMs = 0;
+  const budgetPose={x:NaN,y:NaN,z:NaN,rx:NaN,ry:NaN};
   function dirty() { need = true; }
   const ambient = new Set(); // things that animate gently (the lava lamp, a telly): redrawn ~20 times a second
   function loop(now) {
@@ -1933,14 +1980,57 @@
     if (tickThings(dt)) moving = true;
     if (hoverQ && frame % 3 === 0) { hoverQ = false; hover(); }
     frame++;
-    const ambOn = ambient.size && now - lastAmb > (monitor?Math.max(100,1000/graphics.backgroundFps):50);
+    const ambOn = ambient.size && now - lastAmb > (monitor?Math.max(100,1000/graphics.backgroundFps):Q.tier==='potato'?1000/12:50);
     if (!moving && !need && !ambOn) return;
-    if (ambOn) { lastAmb = now; for (const fn of ambient) try { fn(now); } catch (e) {} }
+    const period=1000/(Q.tier==='potato'?30:Q.tier==='high'?120:60);
+    if(now-lastDraw<period-1){if(moving)need=true;return}
+    lastDraw=now;
+    let ambientChanged=false;
+    if (ambOn) { lastAmb = now; for (const fn of ambient) try { if(fn(now)!==false)ambientChanged=true; } catch (e) {} }
+    if(!moving&&!need&&!ambientChanged)return;
     need = false;
-    const pose=[P.x,P.y,P.z,P.rx,P.ry].join(',');
-    render(); fpsTick(now,moving||(mode==='walk'&&pose!==budgetPose)||!!(Q.probe&&now<Q.probe));budgetPose=pose;
+    const changed=P.x!==budgetPose.x||P.y!==budgetPose.y||P.z!==budgetPose.z||P.rx!==budgetPose.rx||P.ry!==budgetPose.ry;
+    const renderStart=performance.now();render();recordFrame(now,performance.now()-renderStart);
+    fpsTick(now,moving||(mode==='walk'&&changed)||!!(Q.probe&&now<Q.probe));
+    budgetPose.x=P.x;budgetPose.y=P.y;budgetPose.z=P.z;budgetPose.rx=P.rx;budgetPose.ry=P.ry;
     if (frame % 6 === 0) ui.map();
   }
+  const screenWorld=new T.Vector3(),screenBudgets=new WeakMap();
+  const screenHz={potato:12,low:20,medium:30,high:60},screenEdges={potato:256,low:512,medium:1024,high:2048};
+  function screenRate(background){return background?Math.min(screenHz[Q.tier],graphics.backgroundFps):screenHz[Q.tier]}
+  // Reused result per physical screen: visibility and footprint, with no readback.
+  function screenBudget(screen,background=false,locked=false){
+    if(!screen)return null;
+    let b=screenBudgets.get(screen);if(!b){b={visible:false,pixels:0,maxSize:128,fps:12};screenBudgets.set(screen,b)}
+    b.fps=screenRate(background);b.visible=false;
+    if(locked)return b;
+    for(let o=screen;o;o=o.parent)if(!o.visible)return b;
+    const geo=screen.geometry;if(!geo)return b;if(!geo.boundingSphere)geo.computeBoundingSphere();
+    screen.updateWorldMatrix(true,false);const e=screen.matrixWorld.elements;
+    screenWorld.copy(geo.boundingSphere.center).applyMatrix4(screen.matrixWorld);
+    // The local +Z face of both CRTs and the Game Lad points at the viewer.
+    if((P.x-screenWorld.x)*e[8]+(-P.y-screenWorld.y)*e[9]+(P.z-screenWorld.z)*e[10]<0)return b;
+    screenWorld.y=-screenWorld.y;
+    const depth=-viewZ(screenWorld.x,screenWorld.y,screenWorld.z);if(depth<=2)return b;
+    const scale=Math.max(Math.hypot(e[0],e[1],e[2]),Math.hypot(e[4],e[5],e[6]));
+    const diameter=2*geo.boundingSphere.radius*scale*PERSP*em/depth;
+    const a=P.ry*D2R,rx=P.rx*D2R,dx=screenWorld.x-P.x,dy=screenWorld.y-P.y,dz=screenWorld.z-P.z,z1=-dx*Math.sin(a)+dz*Math.cos(a),k=PERSP*em/depth;
+    const x=vw/2+(dx*Math.cos(a)+dz*Math.sin(a))*k,y=vh/2+(dy*Math.cos(rx)-z1*Math.sin(rx))*k;
+    b.pixels=diameter;b.visible=diameter>=64&&x+diameter/2>0&&y+diameter/2>0&&x-diameter/2<vw&&y-diameter/2<vh;
+    const projected=Math.max(128,diameter*Q.pixelRatio*1.25);
+    b.maxSize=Math.min(screenEdges[Q.tier],Math.pow(2,Math.ceil(Math.log2(projected))));return b;
+  }
+  const perfFrames=new Float32Array(120),perfCosts=new Float32Array(120),perfSorted=new Float32Array(120);
+  let perfIndex=0,perfCount=0,perfLast=0,perfTotal=0,perfEl=null;
+  function recordFrame(now,cost){perfFrames[perfIndex]=perfLast?now-perfLast:0;perfCosts[perfIndex]=cost;perfLast=now;perfIndex=(perfIndex+1)%120;perfCount=Math.min(120,perfCount+1);perfTotal++}
+  function framePercentile(values,p){for(let i=0;i<perfCount;i++)perfSorted[i]=values[i];const sorted=perfSorted.subarray(0,perfCount);sorted.sort();return sorted[Math.min(perfCount-1,Math.floor(perfCount*p))]||0}
+  function perfSnapshot(){return{frames:perfTotal,tier:Q.tier,scale:graphics.scale*Q.renderScale,pixels:cv.width*cv.height,calls:ren.info.render.calls,triangles:ren.info.render.triangles,programs:ren.info.programs.length,frameP50:framePercentile(perfFrames,.5),frameP95:framePercentile(perfFrames,.95),renderP50:framePercentile(perfCosts,.5)}}
+  setInterval(()=>{
+    if(!graphics.showFps||!live){if(perfEl)perfEl.hidden=true;return}
+    if(!perfEl){perfEl=document.createElement('div');perfEl.className='hs-perf';perfEl.setAttribute('aria-hidden','true');ui.el.appendChild(perfEl)}
+    perfEl.hidden=false;const s=perfSnapshot(),idle=performance.now()-perfLast>500;
+    perfEl.textContent=(idle?'IDLE':Math.round(1000/(s.frameP50||1))+' FPS')+' · '+s.frameP50.toFixed(1)+' ms (95% '+s.frameP95.toFixed(1)+')\n'+s.calls+' draws · '+s.triangles+' tris · '+s.programs+' programs\n'+s.tier.toUpperCase()+' · '+Math.round(s.scale*100)+'% · '+cv.width+' × '+cv.height;
+  },500);
   // Budget only consecutive demanded frames. Ambient animation deliberately
   // runs at 20 Hz and must not be mistaken for a struggling 20 FPS device.
   let lastR=0,goodBudget=0;
@@ -1955,15 +2045,20 @@
     if(!graphics.dynamic)return;
     if(Q.fps<28){
       goodBudget=0;
-      if(Q.auto&&Q.tier!=='low')setTier(QN[QN.indexOf(Q.tier)-1]);
-      else if(Q.renderScale>.5){Q.renderScale=Math.max(.5,Q.renderScale-.125);measure()}
-    }else if(Q.fps>52&&Q.renderScale<1){
+      if(Q.auto&&QN.indexOf(Q.tier)>0)setTier(QN[QN.indexOf(Q.tier)-1]);
+      else {const floor=Q.tier==='high'?.75:Q.tier==='low'?.5:.6;if(Q.renderScale>floor){Q.renderScale=Math.max(floor,Q.renderScale-.125);measure()}}
+    }else if(Q.fps>(Q.tier==='potato'?28:52)&&Q.renderScale<1){
       if(++goodBudget>=5){goodBudget=0;Q.renderScale=Math.min(1,Q.renderScale+.125);measure()}
     }else goodBudget=0;
   }
-  function setTier(t) {
-    Q.tier = t; window.HouseQ = t; K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()));
-    if(ren.getContext().getContextAttributes().antialias!==wantsAntialias())rebuildGL();
+  function setTier(t, refresh) {
+    const previous=Q.tier;
+    Q.tier = t; window.HouseQ = t; K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()),refresh);
+    const rebuilt=ren.getContext().getContextAttributes().antialias!==wantsAntialias();if(rebuilt)rebuildGL();
+    for(let i=0;i<PL.length;i++)PL[i].visible=t!=='potato'&&(t!=='low'||i<3);
+    K.setQuality?.(t,scene);qualityView();
+    // Compile the new light/fog variants now, rather than at the next doorway.
+    try{if(previous!==t||rebuilt){ren.compile(scene,camera);if(t==='potato'){const fog=scene.fog;scene.fog=outdoorFog;ren.compile(scene,camera);scene.fog=fog}}}catch(e){}
     measure(); visCalc(); emit('gfx', t);
   }
   const gfxName = () => graphics.preset==='custom'?'Custom ('+Q.tier+')':(Q.auto ? 'Auto (' + Q.tier[0].toUpperCase() + Q.tier.slice(1) + ')' : Q.tier[0].toUpperCase() + Q.tier.slice(1));
@@ -1971,65 +2066,80 @@
     graphics=graphicsDefaults(QN.includes(want)?want:'auto');ls.set('jhp_hs_graphics',graphics);
     Q.renderScale=1;Q.f.n=0;Q.f.t=0;lastR=0;goodBudget=0;
     Q.want = want; Q.auto = !QN.includes(want); ls.set('jhp_hs_gfx', want);
-    setTier(Q.auto ? Q.guess : want); if (Q.auto) Q.probe = performance.now() + 2000;
+    setTier(Q.auto ? Q.guess : want, true); if (Q.auto) Q.probe = performance.now() + 2000;
     const lbl = document.getElementById('smGfx'); if (lbl) lbl.lastChild.textContent = 'Room graphics: ' + gfxName();
   }
   function graphicsGet(){return{...graphics,tier:Q.tier,actualAntialias:!!ren.getContext().getContextAttributes().antialias,actualScale:graphics.scale*Q.renderScale,pixelRatioActual:Q.pixelRatio}}
   function graphicsSet(patch){
-    if(patch&&['auto','low','medium','high'].includes(patch.preset)){gfxSet(patch.preset);screenEffort();emit('graphics-options',graphicsGet());return graphicsGet()}
+    if(patch&&['auto','potato','low','medium','high'].includes(patch.preset)){gfxSet(patch.preset);screenEffort();emit('graphics-options',graphicsGet());return graphicsGet()}
     graphics=cleanGraphics({...graphics,...patch,preset:'custom'},graphics);Q.auto=false;Q.want=Q.tier;Q.probe=0;Q.renderScale=1;Q.f.n=Q.f.t=0;lastR=0;goodBudget=0;
-    ls.set('jhp_hs_gfx',Q.want);ls.set('jhp_hs_graphics',graphics);setTier(Q.tier);screenEffort();emit('graphics-options',graphicsGet());return graphicsGet();
+    ls.set('jhp_hs_gfx',Q.want);ls.set('jhp_hs_graphics',graphics);setTier(Q.tier,true);screenEffort();emit('graphics-options',graphicsGet());return graphicsGet();
   }
-  function gfxNext() { const o = ['auto', 'low', 'medium', 'high'], i = o.indexOf(Q.auto ? 'auto' : Q.tier); gfxSet(o[(i + 1) % 4]); ui.toast('Graphics: ' + gfxName(), Q.auto ? 'Picked for this computer (press G to change)' : 'Press G to change'); }
-  let anyFront = false;
+  function gfxNext() { const o = ['auto', 'potato', 'low', 'medium', 'high'], i = o.indexOf(Q.auto ? 'auto' : Q.tier); gfxSet(o[(i + 1) % o.length]); ui.toast('Graphics: ' + gfxName(), Q.auto ? 'Picked for this computer (press G to change)' : 'Press G to change'); }
+  // Scratch records survive frames. New records are only made when a model or
+  // material first appears (building, pickup highlight or an editor change).
+  let anyFront = false,litSerial=0,nodeCount=0,materialCount=0;
+  const litNodes=[],litMaterials=[],litIDs=[],litTransparentIDs=[];
+  const litNodeCache=new WeakMap(),litMaterialCache=new WeakMap(),litRooms=new WeakSet(),litDoors=new WeakSet();
+  function litNode(obj,on,owner){
+    let n=litNodeCache.get(obj);if(!n){n={obj,on:false,restore:false,owner:null};litNodeCache.set(obj,n)}
+    n.on=on;n.restore=obj.visible;n.owner=owner;litNodes[nodeCount++]=n;
+    if(on&&ROOMS[owner]&&litIDs.indexOf(owner)<0)litIDs.push(owner);
+  }
+  function litDoor(obj,d){if(!obj)return;litDoors.add(obj);let on=false;for(const id of d.rooms)if(ROOMS[id]?._renderDrawn){on=true;break}litNode(obj,obj.visible&&on,d.lightRoom||d.rooms[0])}
+  function litMaterial(m){
+    let s=litMaterialCache.get(m);if(!s){s={m,on:true,serial:0};litMaterialCache.set(m,s)}
+    if(s.serial===litSerial)return;s.serial=litSerial;s.on=m.visible;litMaterials[materialCount++]=s;
+  }
+  function litCollect(o){const ms=o.material;if(Array.isArray(ms)){for(let i=0;i<ms.length;i++)litMaterial(ms[i])}else if(ms)litMaterial(ms)}
+  function litDistance(id){const a=ROOMS[id].area[0];return a?Math.hypot((a[0]+a[2])/2-P.x,(a[1]+a[3])/2-P.z):0}
+  const litBackToFront=(a,b)=>ROOMS[b]._renderDistance-ROOMS[a]._renderDistance;
   function renderLit(renderer) {
     windowProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);windowFrustum.setFromProjectionMatrix(windowProjection);
-    const drawnRooms=new Set([...visSet].filter(id=>window.House?.god||!windowOnly.has(id)||windowOnly.get(id).some(b=>!b||windowFrustum.intersectsBox(b))));
-    const roomGroups=new Set(Object.values(ROOMS).map(r=>r.group)),doorGroups=new Map();
-    for(const d of Object.values(DOORS)){const data={owner:d.lightRoom||d.rooms[0],rooms:d.rooms};if(d.pivot)doorGroups.set(d.pivot,data);if(d.frame)doorGroups.set(d.frame,data);}
-    const nodes=[],owners=new Set();
-    for(const r of Object.values(ROOMS)){const on=r.group.visible&&drawnRooms.has(r.id);nodes.push({obj:r.group,on,restore:r.group.visible,owner:r.id});if(on)owners.add(r.id)}
-    for(const [obj,{owner,rooms}]of doorGroups){const on=obj.visible&&rooms.some(id=>drawnRooms.has(id));nodes.push({obj,on,restore:obj.visible,owner});if(on)owners.add(owner)}
-    const extraOwner=cur&&cur.id;
-    for(const obj of root.children)if(!roomGroups.has(obj)&&!doorGroups.has(obj)&&!obj.isLight&&obj!==sun.target){nodes.push({obj,on:obj.visible,owner:extraOwner});if(obj.visible)owners.add(extraOwner)}
-    for(const obj of scene.children)if(obj!==root&&!obj.isLight){nodes.push({obj,on:obj.visible,owner:extraOwner});if(obj.visible)owners.add(extraOwner)}
-    const materials=new Map();scene.traverseVisible(o=>{for(const m of o.material?[].concat(o.material):[])if(!materials.has(m))materials.set(m,m.visible)});
+    nodeCount=materialCount=0;litIDs.length=0;litTransparentIDs.length=0;litSerial++;
+    for(const id in ROOMS){
+      const r=ROOMS[id];let drawn=visSet.has(id);
+      if(drawn&&!window.House?.god&&windowOnly.has(id)){
+        drawn=false;const bounds=windowOnly.get(id);for(let i=0;i<bounds.length;i++)if(!bounds[i]||windowFrustum.intersectsBox(bounds[i])){drawn=true;break}
+      }
+      r._renderDrawn=drawn;litRooms.add(r.group);litNode(r.group,r.group.visible&&drawn,id);
+    }
+    for(const id in DOORS){const d=DOORS[id];litDoor(d.pivot,d);litDoor(d.frame,d)}
+    const owner=cur&&cur.id;
+    for(const obj of root.children)if(!litRooms.has(obj)&&!litDoors.has(obj)&&!obj.isLight&&obj!==sun.target)litNode(obj,obj.visible,owner);
+    for(const obj of scene.children)if(obj!==root&&!obj.isLight)litNode(obj,obj.visible,owner);
+    scene.traverseVisible(litCollect);
     const clear=renderer.autoClear,update=scene.autoUpdate,autoReset=renderer.info.autoReset,background=scene.background;
-    // Update static/dynamic transforms once, not once per room. Only the small
-    // reused light rig changes during the passes; the depth buffer is shared.
     scene.updateMatrixWorld(true);scene.autoUpdate=false;renderer.autoClear=false;renderer.info.autoReset=false;renderer.info.reset();
     renderer.clear(true,true,true);
-    const ids=[...owners].filter(id=>ROOMS[id]);
-    const distance=id=>{const r=ROOMS[id],a=r.area[0]||[P.x,P.z,P.x,P.z];return Math.hypot((a[0]+a[2])/2-P.x,(a[1]+a[3])/2-P.z)};
+    for(let i=0;i<litIDs.length;i++){const id=litIDs[i];ROOMS[id]._renderDistance=litDistance(id);litTransparentIDs.push(id)}
+    litTransparentIDs.sort(litBackToFront);
     try {
-      // All opaque surfaces first. Otherwise a translucent door/window in one
-      // room would blend against black instead of the room behind its glass.
-      for(const transparent of [false,true]){
-        for(const [m,on]of materials)m.visible=on&&!!m.transparent===transparent;
-        const order=transparent?ids.slice().sort((a,b)=>distance(b)-distance(a)):ids;
-        for(const id of order){
-          // The sky is drawn once, behind every room, never over the PC/front
-          // canvas and never again in a later room's lighting pass.
-          scene.background=renderer===ren&&!transparent&&id===ids[0]?background:null;
-          for(const n of nodes)n.obj.visible=n.on&&n.owner===id;
+      // All opaque surfaces before glass; depth remains shared between rooms.
+      for(let pass=0;pass<2;pass++){
+        const transparent=pass===1,order=transparent?litTransparentIDs:litIDs;
+        for(let i=0;i<materialCount;i++){const s=litMaterials[i];s.m.visible=s.on&&!!s.m.transparent===transparent}
+        for(let i=0;i<order.length;i++){
+          const id=order[i];scene.background=renderer===ren&&!transparent&&id===litIDs[0]?background:null;
+          for(let j=0;j<nodeCount;j++){const n=litNodes[j];n.obj.visible=n.on&&n.owner===id}
           applyRoomRig(ROOMS[id]);renderer.render(scene,camera);
         }
       }
     } finally {
-      for(const n of nodes)n.obj.visible=n.restore??n.on;
-      for(const [m,on]of materials)m.visible=on;
+      for(let i=0;i<nodeCount;i++){const n=litNodes[i];n.obj.visible=n.restore}
+      for(let i=0;i<materialCount;i++){const s=litMaterials[i];s.m.visible=s.on}
       scene.background=background;renderer.autoClear=clear;scene.autoUpdate=update;renderer.info.autoReset=autoReset;
     }
   }
-  function backgroundCovered(){return !!((monitor&&desktopFull)||(window.RoomTV?.open_&&RoomTV.lockIn())||[...SURF].some(s=>s.screen&&s.locked))}
+  function backgroundCovered(){if(monitor&&desktopFull||window.RoomTV?.open_&&RoomTV.lockIn())return true;for(const s of SURF)if(s.screen&&s.locked)return true;return false}
   let backgroundHidden=false;
   function render() {
     const covered=backgroundCovered();
     if(covered!==backgroundHidden||cv.style.display!==(covered?'none':'')){backgroundHidden=covered;cv.style.display=covered?'none':'';cv2.style.display=covered?'none':''}
     if(covered){if(stood||monitor)glassFit();for(const sf of SURF)placeSurf(sf);return}
-    glCam(P.x, P.y, P.z, P.rx, P.ry);
+    qualityView();glCam(P.x, P.y, P.z, P.rx, P.ry);
     if (mode !== 'follow' && mode !== 'off') cssCam();
-    pcVis();
+    pcVis(); tickPropShadows();
     // things in front of the PC (and the one in your hands) go on the canvas above it
     let front = false; for (const id in THINGS) { const t = THINGS[id]; if (t.obj.parent && t.obj.parent.parent && t.obj.parent.parent.visible) layerFor(t); if (t.front && t.obj.visible) front = true; }
     const ly = pcOn ? 1 : 0; for (const f of frontFx) { if (f.userData.ly !== ly) { f.userData.ly = ly; f.traverse(o => o.layers.set(ly)); } if (f.visible && pcOn) front = true; }
@@ -2326,28 +2436,35 @@
   }
   // the page laid onto the monitor's glass (perspective correct: a homography as a CSS matrix3d)
   const glass = { k: 1, fitKey: null, checkedAt: 0 };
+  const glassValues=new Float64Array(23),glassMatrix=new T.Matrix4(),glassPoint=new T.Vector3(),glassQuad=Array.from({length:4},()=>({x:0,y:0,d:0})),glassTransform=new Array(16);
+  let glassMode=null,glassMonitor=false,glassStood=false,glassFull=false,glassObject=null;
   function glassFit() {
     const full=monitor&&desktopFull,now=performance.now(),g0=window.House&&House.pcGL;
-    const key=[mode,monitor,stood,full,vw,vh,P.x,P.y,P.z,P.rx,P.ry,g0?.matrixWorld.elements.join(',')].join('|');
-    if(glass.fitKey===key&&(monitor||now-glass.checkedAt<150))return;
-    const moved=glass.fitKey!==key;glass.fitKey=key;
+    let moved=glass.fitKey===null||glassMode!==mode||glassMonitor!==monitor||glassStood!==stood||glassFull!==full||glassObject!==g0;
+    if(glassValues[0]!==vw||glassValues[1]!==vh||glassValues[2]!==P.x||glassValues[3]!==P.y||glassValues[4]!==P.z||glassValues[5]!==P.rx||glassValues[6]!==P.ry)moved=true;
+    const elements=g0?.matrixWorld.elements;if(elements)for(let i=0;i<16;i++)if(glassValues[i+7]!==elements[i]){moved=true;break}
+    if(!moved&&(monitor||now-glass.checkedAt<150))return;
+    if(moved){glass.fitKey=(glass.fitKey||0)+1;glassMode=mode;glassMonitor=monitor;glassStood=stood;glassFull=full;glassObject=g0;glassValues[0]=vw;glassValues[1]=vh;glassValues[2]=P.x;glassValues[3]=P.y;glassValues[4]=P.z;glassValues[5]=P.rx;glassValues[6]=P.ry;if(elements)for(let i=0;i<16;i++)glassValues[i+7]=elements[i]}
+    const key=glass.fitKey;
     const logicalW=full?'100%':'1024px',logicalH=full?'100%':'768px';if(monitorSurfaceEl.style.width!==logicalW)monitorSurfaceEl.style.width=logicalW;if(monitorSurfaceEl.style.height!==logicalH)monitorSurfaceEl.style.height=logicalH;
     html.classList.toggle('pc-desktop-full',full);
     if(full){monitorSurfaceEl.style.visibility='';monitorSurfaceEl.style.clipPath='';monitorSurfaceEl.style.transform='none';return;}
     // the glass is taken from the WebGL monitor itself (rm-room.js's pcGL: wherever it was built), in the engine's own y-down frame
-    const g = House.pcGL, gl = g && g.userData.glass; let cx, cy, z = 0.05, glassMatrix = null;
-    if (gl) { glassMatrix = new T.Matrix4().copy(House.root.matrixWorld).invert().multiply(g.matrixWorld); const o = new T.Vector3(gl.x, gl.y, gl.z).applyMatrix4(glassMatrix); cx = o.x; cy = o.y; z = o.z + 0.01; } else { const L = Lb(); cx = L.mx; cy = GY; }
+    const g = House.pcGL, gl = g && g.userData.glass; let cx, cy, z = 0.05;
+    if (gl) { glassMatrix.copy(House.root.matrixWorld).invert().multiply(g.matrixWorld); const o = glassPoint.set(gl.x, gl.y, gl.z).applyMatrix4(glassMatrix); cx = o.x; cy = o.y; z = o.z + 0.01; } else { const L = Lb(); cx = L.mx; cy = GY; }
     const sw = monitor || stood ? 1024 : vw, sh = monitor || stood ? 768 : vh;
     const screenW = gl && gl.w || 29.2, screenH = screenW * 3 / 4;
     const w = screenW / 2, h = screenH / 2;
     // the page keeps its shape and covers the glass (the spare is trimmed off by the clip)
     const cw = w, ch = h;
-    const q = [[-cw,-ch],[cw,-ch],[cw,ch],[-cw,ch]].map(([dx,dy]) => {
-      if (!glassMatrix) return toScreen(cx+dx,cy+dy,z);
-      const p = new T.Vector3(gl.x+dx,gl.y+dy,gl.z+.01).applyMatrix4(glassMatrix);
-      return toScreen(p.x,p.y,p.z);
-    });
-    if(q.some(p=>!p)||q.every(p=>p.x< -4)||q.every(p=>p.x>vw+4)||q.every(p=>p.y< -4)||q.every(p=>p.y>vh+4)){monitorSurfaceEl.style.visibility='hidden';return;}
+    const q=glassQuad;let outsideLeft=true,outsideRight=true,outsideTop=true,outsideBottom=true;
+    for(let i=0;i<4;i++){
+      const dx=i===0||i===3?-cw:cw,dy=i<2?-ch:ch;
+      let projected;if(gl){glassPoint.set(gl.x+dx,gl.y+dy,gl.z+.01).applyMatrix4(glassMatrix);projected=toScreen(glassPoint.x,glassPoint.y,glassPoint.z,q[i])}else projected=toScreen(cx+dx,cy+dy,z,q[i]);
+      if(!projected){monitorSurfaceEl.style.visibility='hidden';return}
+      if(projected.x>=-4)outsideLeft=false;if(projected.x<=vw+4)outsideRight=false;if(projected.y>=-4)outsideTop=false;if(projected.y<=vh+4)outsideBottom=false;
+    }
+    if(outsideLeft||outsideRight||outsideTop||outsideBottom){monitorSurfaceEl.style.visibility='hidden';return}
     if (now-glass.checkedAt>=150 || glass.hid == null || glass.mode!==mode || Math.hypot(P.x-(glass.eyeX??P.x),P.y-(glass.eyeY??P.y),P.z-(glass.eyeZ??P.z))>20) {
       let hid = P.z < z + 2;
       if (!hid && !monitor) { const c = toScreen(cx, cy, z); if (c) { const distance=Math.hypot(P.x-cx,P.y-cy,P.z-z),h = pick(c.x, c.y, { skip: isThingMesh,far:Math.max(6,distance-8) }); hid = !!h && h.spot !== 'pc' && h.dist < distance - 8; } }
@@ -2356,20 +2473,21 @@
     if (glass.hid) { monitorSurfaceEl.style.visibility = 'hidden'; return; }
     monitorSurfaceEl.style.visibility = '';
     if(!moved&&glass.fittedKey===key)return;
-    let m = homography(sw, sh, q);
-    monitorSurfaceEl.style.transform = 'matrix3d(' + m.map(v => +v.toFixed(8)).join(',') + ')';
+    let m = homography(sw, sh, q,glassTransform);
+    for(let i=0;i<16;i++)m[i]=Math.round(m[i]*1e8)/1e8;
+    monitorSurfaceEl.style.transform = 'matrix3d(' + m.join(',') + ')';
     monitorSurfaceEl.style.clipPath = '';glass.fittedKey=key;
   }
   // rect (0,0)-(w,h) onto the quad q (tl, tr, br, bl), as a column-major matrix3d
-  function homography(w, h, q) {
-    const [x0, y0] = [q[0].x, q[0].y], [x1, y1] = [q[1].x, q[1].y], [x2, y2] = [q[2].x, q[2].y], [x3, y3] = [q[3].x, q[3].y];
+  function homography(w, h, q, out) {
+    const x0=q[0].x,y0=q[0].y,x1=q[1].x,y1=q[1].y,x2=q[2].x,y2=q[2].y,x3=q[3].x,y3=q[3].y;
     const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3, dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
     const den = dx1 * dy2 - dx2 * dy1;
     const g = (dx3 * dy2 - dx2 * dy3) / den, hh = (dx1 * dy3 - dx3 * dy1) / den;
     const a = x1 - x0 + g * x1, b = x3 - x0 + hh * x3, c = x0, d = y1 - y0 + g * y1, e = y3 - y0 + hh * y3, f = y0;
     // unit square -> quad: [a b c; d e f; g hh 1]; then scale the page to the unit square
     const A = a / w, B = b / h, D = d / w, E = e / h, G = g / w, H = hh / h;
-    return [A, D, 0, G, B, E, 0, H, 0, 0, 1, 0, c, f, 0, 1];
+    const m=out||new Array(16);m[0]=A;m[1]=D;m[2]=0;m[3]=G;m[4]=B;m[5]=E;m[6]=0;m[7]=H;m[8]=0;m[9]=0;m[10]=1;m[11]=0;m[12]=c;m[13]=f;m[14]=0;m[15]=1;return m;
   }
   // F2 stands up immediately; Esc belongs to the game menu.
   let escT = 0;
@@ -2409,7 +2527,7 @@
   // (and back after 10 hours or more with the PC left on: you come back into the room, the PC still on; sit down to carry on)
   const unhideStand = () => { html.classList.remove('pc-standwake'); if (live) { try { dirty(); render(); } catch (e) {} } }; setTimeout(unhideStand, 4000); setTimeout(unhideStand, 9000); // (failsafe: if the room never says it's ready, show it anyway and force a render)
   // ---- watchdog: the room "goes black" on some real PCs (canvas hidden / context lost / draws nothing / something over it): notice, repair, log
-  let wdBlack = 0, wdSent = false;
+  let wdFrames=-1,wdBlack = 0, wdSent = false;
   function wdDiag(kase, extra) {
     let d = {};
     try {
@@ -2445,6 +2563,7 @@
         measure(); dirty(); render(); wdDiag('canvas-hidden', why); return;
       }
       if (glLost()) { const ok = rebuildGL(); wdDiag('context-lost', ok); return; }
+      if(perfTotal===wdFrames&&!need)return;wdFrames=perfTotal;
       const lit = wdSample();
       if (lit) wdBlack = 0;
       else if (++wdBlack >= 2) {
@@ -2480,7 +2599,7 @@
 
   // ================================================================ resizing, rotating, the tab going away
   addEventListener('resize', () => { if (!live) return; measure(); if (monitor) Object.assign(P, monitorPose()); else if (mode === 'walk' && W.seat && Math.abs(P.ry - seatPose().ry) < 1) { Object.assign(P, seatPose()); } dirty(); });
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) { lastT = 0; dirty(); } else { saveWalkState(); for (const k in keys) keys[k] = false; unlock(); } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { lastT = 0;lastDraw=0;perfLast=0;perfCount=0;lastR=0; dirty(); } else { saveWalkState(); for (const k in keys) keys[k] = false; unlock(); } });
 
   // ================================================================ the API
   window.House = {
@@ -2496,11 +2615,11 @@
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,
     say: (t, x, ms) => ui.say(t, x, ms), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),
-    dirty, relight, ambient, anims, visCalc, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
+    dirty, relight, ambient, anims, visCalc,warmRooms:prewarm, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
     desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},
-    Q,graphicsGet,graphicsSet, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
+    Q,graphicsGet,graphicsSet,screenRate,screenBudget, perf:perfSnapshot, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
-    _: { movementState:()=>({keys:{...keys},velocity:[W.vx,W.vz],contacts:movementContacts(W.x,W.z,RAD+.05),floor:walkingFloor(W.x,W.z)}),doorHeadroom:(x,z,lvl,fy)=>lowDoorAt(x,z,lvl,RAD+18,fy)?.headroom||null, whyNotStand, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
+    _: { movementState:()=>({keys:{...keys},velocity:[W.vx,W.vz],contacts:movementContacts(W.x,W.z,RAD+.05),floor:walkingFloor(W.x,W.z)}),doorHeadroom:(x,z,lvl,fy)=>lowDoorAt(x,z,lvl,RAD+18,fy)?.headroom||null, whyNotStand, renderForBenchmark:render, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
   };
   // A detached snapshot for diagnostics: no scene objects or writable references escape.
   window.__jhpDebug = () => ({

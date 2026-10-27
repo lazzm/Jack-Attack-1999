@@ -103,6 +103,9 @@
       // Read from behind the car, rather than as mirror writing through glass.
       const uv=cm.geometry.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,1-uv.getX(i));uv.needsUpdate=true;
       const boot=carPoint(20,-75.2,-178); cm.rotation.x = Math.PI / 2; cm.position.set(boot.x,boot.y,boot.z); cm.scale.setScalar(scale); cm.renderOrder = 3; r.group.add(cm); this.cleanme = cm;
+      // The boot-lid dirt and CLEAN ME ride on the lid's hinge, so opening the boot never leaves them hanging in mid-air.
+      const lid = r.carBoot && r.carBoot.hinge;
+      if (lid) { const rx = lid.rotation.x; lid.rotation.x = 0; r.group.updateMatrixWorld(true); for (const o of [mud[8].pl, mud[8].pk, cm]) lid.attach(o); lid.rotation.x = rx; lid.updateMatrixWorld(true); }
       // the bucket of soapy water, the sponge in it
       bucket = grp(G => { G.lathe(0, 0, 0, [[12.4, -28], [13, -27.4], [10.2, 0], [0.1, 0]], 22, mat('#e8c020', { sh: 50, sp: '#666', side: 2 })); G.disc(0, -23, 0, 11.6, M({ c: '#e8eef0', sh: 90, sp: '#fff' })); for (let i = 0; i < 12; i++) G.ball(Math.cos(i * 0.6) * (4 + (i % 4) * 2), -23.5, Math.sin(i * 0.6) * (4 + (i % 4) * 2), 2.4, 1.4, 2.4, M({ c: '#fff', o: 0.9, tr: true }), 8); G.geo(new T.TorusGeometry(12.6, 0.4, 5, 20, Math.PI), 0, -28, 0, mat('#888', { sh: 80 }), { rz: 180, rx: 90 }); G.shadow(0, 0, 0, 32, 32, 0.6); });
       bucket.position.set(BUCKET.x, GY, BUCKET.z); r.group.add(bucket);
@@ -215,7 +218,7 @@
     // Closed, bent blades; instanced once. No alpha cards, sorting, animation
     // loop or per-blade objects. Mowing only changes the touched cell matrices.
     const geo=grassBlade();
-    grassPerCell=H.Q.tier==='low'?8:H.Q.tier==='high'?20:14;const total=NX*NZ*grassPerCell;
+    grassPerCell=(H.Q.tier==='potato'||H.Q.tier==='low')?8:H.Q.tier==='high'?20:14;const total=NX*NZ*grassPerCell;
     grassField=new T.InstancedMesh(geo,M({c:'#fff',sh:1,sp:'#000'}),total);grassField.name='mowable-grass-blades';grassField.userData.noPick=1;grassField.instanceMatrix.setUsage(T.DynamicDrawUsage);
     grassSeeds=new Float32Array(total*4);grassPose=new T.Object3D();const rnd=K.rnd(913);
     for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++)for(let n=0;n<grassPerCell;n++){
@@ -231,7 +234,7 @@
     const random=K.rnd(721),seeds=[];
     for(let z=-545;z<-75;z+=18)for(let x=-285;x<205;x+=18){
       if(x>-220&&x<120&&z>-196||x<-130&&z<-392||x<-170&&x>-290&&z>-310&&z<-230||x>125&&z>-230&&z<-145||x>150&&z>-140)continue;
-      for(let i=0;i<(H.Q.tier==='low'?3:6);i++)seeds.push([x+random()*15,z+random()*15,2.8+random()*2.8,random()*Math.PI*2]);
+      for(let i=0;i<((H.Q.tier==='potato'||H.Q.tier==='low')?3:6);i++)seeds.push([x+random()*15,z+random()*15,2.8+random()*2.8,random()*Math.PI*2]);
     }
     const geo=grassBlade();geo.boundingSphere=new T.Sphere(new T.Vector3(-42.5,GY-3,-308),375);
     const mesh=new T.InstancedMesh(geo,M({c:'#fff',sh:1,sp:'#000'}),seeds.length),pose=new T.Object3D(),color=new T.Color();mesh.name='garden-grass-blades';mesh.userData.noPick=1;

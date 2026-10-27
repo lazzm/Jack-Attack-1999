@@ -43,8 +43,9 @@ for(const [h,fy,fixed,a0,a1,inside,expected]of [[94,353,330,362,438,false,[327.5
  assert.deepEqual(leaf.position.toArray(),expected);
  leaf.updateMatrix();const closedSlab=bounds(leaf.children[0]).applyMatrix4(leaf.matrix);
  for(const mesh of frame.children)assert(!overlap(closedSlab,bounds(mesh)),'The closed leaf must clear solid casings and jambs');
- const slab=bounds(leaf.children[0]),handles=leaf.children.filter(m=>m.material.color.getHexString()==='c8a040');assert.equal(handles.length,4);
- for(const mesh of handles){const b=bounds(mesh);assert(b.min.y>slab.min.y&&b.max.y<slab.max.y,'Handle must sit on its leaf');near(b.getCenter(new T.Vector3()).y,fy-Math.min(103,h*.55))}
+ const slab=bounds(leaf.children[0]),handles=leaf.children.filter(m=>m.material.color.getHexString()==='c8a040');assert(handles.length>=1,'Leaf has its lever handles');
+ // Both faces' levers, roses and keyhole plates are merged into one brass draw on the leaf.
+ for(const mesh of handles){const b=bounds(mesh);assert(b.min.y>slab.min.y&&b.max.y<slab.max.y,'Handle must sit on its leaf');const latch=fy-Math.min(103,h*.55);assert(b.min.y<=latch&&b.max.y>=latch,'Lever at latch height');assert(b.max.y-b.min.y<12,'Hardware stays a compact handle set')}
  for(const angle of [0,35,100]){leaf.rotation.y=angle*Math.PI/180;leaf.updateMatrixWorld(true);assert(handles.every(m=>m.parent===leaf))}
 }
 // Cushion joins have a narrow seam and solid support; the floral repeat stays
@@ -58,7 +59,7 @@ for(const w of [200,90]){
  const group=new T.Group();batch.build(group);for(const mesh of group.children)assert([...mesh.geometry.attributes.uv.array].every(Number.isFinite));
 }
 const landing=build('Landing');
-const crossRail=landing.parts.find(p=>p.kind==='box'&&p.args[0]===370&&p.args[1]===-17&&p.args[2]===600);assert(crossRail,'Keep the stairwell guard beside the parents\' door');near(crossRail.box.min.x,334.5);near(crossRail.box.max.x,405.5);
+const crossRail=landing.parts.find(p=>['box','rbox'].includes(p.kind)&&p.args[0]===370&&p.args[1]===-17&&p.args[2]===600);assert(crossRail,'Keep the stairwell guard beside the parents\' door');near(crossRail.box.min.x,334.5);near(crossRail.box.max.x,405.5);
 assert(!landing.parts.some(p=>p.kind==='box'&&p.args[0]===332.2),'No duplicate white nosing through the oak base rail');
 const bedroomCasings=landing.parts.filter(p=>p.kind==='box'&&p.args[1]===-29.5&&[146.7,233.3].includes(p.args[2]));assert.equal(bedroomCasings.length,2);assert(bedroomCasings.every(p=>p.box.min.x>=249.89),'Landing must not duplicate the bedroom casing');
 const hall=build('Hall');
