@@ -1,0 +1,20 @@
+/* Plumbo's portable controller: Super Ultra painted plastic buttons, outside the native game picture. */
+.rm-tvv:has(.plumb-controls){--rm-screen-bottom:160px}
+.plumb-controls{position:absolute;inset:0;pointer-events:none;user-select:none;-webkit-user-select:none}
+.plumb-dpad,.plumb-actions{position:absolute;bottom:max(12px,env(safe-area-inset-bottom));width:144px;height:144px;pointer-events:auto;touch-action:none}
+.plumb-dpad{left:max(12px,env(safe-area-inset-left));background:#c4c1ad;border:2px solid #55564e;box-shadow:inset 2px 2px #eee9ce,inset -3px -3px #8d8b7d}
+.plumb-dpad span{position:absolute;width:44px;height:44px;display:grid;place-items:center;background:#343d3c;border:1px solid #131c1d;box-shadow:inset 2px 2px #596363,inset -2px -2px #202928;color:#e2d9b9;font:24px 'Courier New',monospace;pointer-events:none}
+.plumb-dpad .up{left:49px;top:3px}.plumb-dpad .down{left:49px;bottom:3px}.plumb-dpad .left{left:3px;top:49px}.plumb-dpad .right{right:3px;top:49px}
+.plumb-dpad:after{content:'';position:absolute;left:49px;top:49px;width:46px;height:46px;background:#343d3c;box-shadow:inset 0 0 0 3px #465251}
+.plumb-actions{right:max(12px,env(safe-area-inset-right));display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.plumb-actions button{min-width:0;min-height:44px;padding:0;border:2px solid #64614b;box-shadow:inset 2px 2px #f2e8bc,inset -2px -2px #978958;background:#d8ca95;color:#252b2c;font:bold 11px 'Courier New',monospace;touch-action:none}
+.plumb-actions [data-plumb=b]{background:#dcb95d}.plumb-actions [data-plumb=a]{background:#c9937b}.plumb-actions [data-plumb=y]{background:#8fc2a5}.plumb-actions [data-plumb=x]{background:#8baabd}
+.plumb-actions button.pressed{box-shadow:inset 2px 2px #706b53;transform:translateY(1px)}
+.hs-paused .plumb-controls{visibility:hidden}
+@media (orientation:landscape){.rm-tvv:has(.plumb-controls){--rm-screen-bottom:8px;--rm-screen-left:170px;--rm-screen-right:170px}}
+
+.plumb-dpad.up-active .up,.plumb-dpad.down-active .down,.plumb-dpad.left-active .left,.plumb-dpad.right-active .right{background:#617267;box-shadow:inset 2px 2px #1e3029}
+.rm-tvv:has(.plumb-controls) .rm-help{display:none}
+.rm-tvv:has(.plumb-controls) .rm-livebar{bottom:174px}
+
+.plumb-actions [data-plumb=b]{background:#e2c146}.plumb-actions [data-plumb=a]{background:#d17b78}.plumb-actions [data-plumb=y]{background:#80bb95}.plumb-actions [data-plumb=select]{background:#aaa5bc}
