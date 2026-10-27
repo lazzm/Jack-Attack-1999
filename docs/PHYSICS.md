@@ -136,8 +136,8 @@ else moves on load: sleeping bodies keep their exact saved pose.
 - tests/physics.mjs measures with Chrome's CPU profiler instead (the physics share of the main thread while walking the
   chair across the room, the heaviest case: a woken body resolved every walking substep), divided by the fixed steps
   each frame caught up on. On this shared 12-core host (load average ~30 from other jobs, software WebGL at 3-7 fps):
-  about 0.27 ms per step unthrottled and 0.39 ms per step with the CPU throttled 4x as a potato stand-in (run of
-  2026-10-26; the raw numbers are in tests/shots/physics/report.json). The test guards 0.5 ms (1x) and 2 ms (4x).
+  about 0.17-0.30 ms per step unthrottled and 0.39-0.79 ms per step with the CPU throttled 4x as a potato stand-in
+  (runs of 2026-10-26/27; the raw numbers are in tests/shots/physics/report.json). The test guards 0.5 ms (1x) and 2 ms (4x).
 - Node (tests/physics-unit.cjs and a bench with the bedroom's ~60 bodies): a chair push + 12 capsule queries + a solver
   step is about 0.03-0.05 ms; a sleeping world costs well under 0.001 ms per step.
 - What keeps it cheap: only awake bodies step; the player's queries test only tall bodies within ~80 cm (a list rebuilt

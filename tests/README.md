@@ -43,6 +43,11 @@ No legacy script is silently executed by the smoke runner.
 | support utilities (not tests) | `create-approved-test.mjs`, `prepare-box-art.mjs`, `prepare-posters.mjs`, `prepare-print-art.mjs`, `replicate-kart-trial.mjs`, `room-fixture.mjs` | Fixture/art preparation/account provisioning/external audio trial. Never auto-run provisioning or asset mutation. |
 
 
+House physics, carrying and placement (starts its own server; docs/PHYSICS.md):
+
+    node physics-unit.cjs   # solver: settle/stack/tunnelling/chair tuck/capsule push/ghost queries/sleep cost
+    node physics.mjs        # 15 browser checks with real keys; shots and report.json in shots/physics/
+
 Exterior/grass/door checks (disposable localhost data only):
 
     node exterior-rebuild.mjs http://localhost:18080
