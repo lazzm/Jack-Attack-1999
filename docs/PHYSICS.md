@@ -100,8 +100,16 @@ things (a magazine on the floor). Thresholds keep the movement pass's 8 cm step.
 ---------------------------------------------------------------------
 ## 4. Carrying, placing, dragging (the host, hs-world.js)
 
-- Small things are lifted. They are held below and slightly right of the crosshair, at a distance scaled by their size,
-  so the crosshair always shows what you're aiming at (asserted in tests/physics.mjs).
+- Small things are lifted and drawn in your hands (owner, 2026-10-27: "don't hold things like that"), first-person style:
+  a scaled stand-in about 40 cm from the eye (`heldPos`), not the full-size model filling a quarter of the screen.
+  Its size comes from its projected bounding box: a game box ~12% of the view height, small things ~10%, big things
+  up to a third, held lower so they run off the bottom of the frame (portrait phones size from the width). It sits
+  low and just right of centre, tipped so you see a little of its top, with two simple mitts and jumper sleeves
+  holding its sides (`armsTick`); it lags a few degrees behind fast turns and rides your stride. It never covers the
+  crosshair (it starts below it), the ghost or the carry panel (it moves under/beside them). Seen from the eye the
+  stand-in and the full-size thing are the same picture (a scale about the eye, `heldVirtual`), so setting down,
+  snapping in, inspecting and raising the Game Lad grow it back in place; X lets go of it at most ~1.2 m away.
+  Slots and the ghost are still matched against your reach point (`reachPos`, held.d: +/-, Shift+wheel).
 - **Ghost preview**: a see-through copy where the thing will land, computed with the physics colliders every 40 ms
   (80 ms on Low): green = fits, red = blocked (the panel says why), gold = clicks into a highlighted slot. A footprint
   plate shows the base. Furniture on the floor also keeps the old placement guards (doorways, stairs, the way to the PC,

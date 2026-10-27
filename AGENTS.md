@@ -66,7 +66,10 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
   Q/T stay house controls during games. Console shoulder L uses U; PC shooters use Z for previous weapon and Y for chat. Family TV text uses Shift+T.
 - Carrying and physics (owner, 2026-10-26; docs/PHYSICS.md). Every thing in the house is a physics body with real heights:
   walking into it shoves it (small light things are kicked aside and never stop you; heavier ones give way slowly and slow you down); it never traps you.
-  Small things are lifted and held below/right of the crosshair (never covering it). While carrying, a see-through
+  Small things are held in your hands, first-person style (owner, 2026-10-27): small (game box ~12% of the view's height,
+  big things lower and partly out of frame), low and just right of centre with a slight tilt, mitts and sleeves holding
+  it, lagging/bobbing a little; never over the crosshair, the ghost or the carry panel. World labels/markers are hidden
+  when their target is behind something or far (only the edge arrow points off screen). While carrying, a see-through
   ghost shows where it will land: green fits, red blocked (the carry panel says why), gold clicks into a slot; every
   free slot that accepts it (job basket/bin, shelf/console slots) glows. E/click sets it down exactly at a green or gold
   ghost (refused on red); X lets go (it drops with your hands' motion, falls and settles); R turns 45°, wheel 15°,
