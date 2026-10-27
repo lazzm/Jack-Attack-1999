@@ -1158,7 +1158,7 @@
     const go = () => {
       const t = THINGS[g.id];
       if (held || (t && t.st !== 'rest')) { if (!held || held.id !== g.id) ls.del('jhp_hs_held'); return; }
-      if (!t || mode !== 'walk' || !live || worldLoading || standing || glide) { if (++tries < 60) setTimeout(go, 400); else ls.del('jhp_hs_held'); return; }
+      if (!t || mode !== 'walk' || !live || worldLoading || standing || glide || pb.classList.contains('on') && !stood && BOOT === 'wake') { if (++tries < 150) setTimeout(go, 400); else ls.del('jhp_hs_held'); return; }
       if (!grab(g.id, { d: g.d, ry: g.ry })) ls.del('jhp_hs_held');
     };
     setTimeout(go, 300);
@@ -2132,7 +2132,7 @@
     if (!raf) raf = requestAnimationFrame(loop);
     if (Q.auto) Q.probe = performance.now() + 2000;
     if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', '<b>W A S D</b> to walk, mouse to look. Shift to jog, <b>C</b> to crouch, Space to jump. <b>F</b> to use or play, <b>E</b> to pick up/remove/place, <b>F</b> also looks closely at objects; click their controls to use them. Click to place; <b>Esc</b>: game menu, settings and put back. <b>G</b>: graphics.', 9000); }, 1400);
-    emit('start');if(BOOT!=='wake'||stood)setTimeout(resumeSeat,0);if(!(BOOT==='wake'&&ls.get('jhp_hs_stand',null)))resumeHeld(); // (a wake-and-stand refresh hands it back once stood: below)
+    emit('start');if(BOOT!=='wake'||stood)setTimeout(resumeSeat,0);resumeHeld(); // (it waits until you're standing in the room: a wake-and-stand refresh stands up first)
   }
   // Save grounded poses (not head-bob/jump offsets). Load the destination before
   // collision validation: downstairs rooms and their grids are created lazily.

@@ -179,11 +179,11 @@ try {
   });
 
   // Today's chore mess lies on the floor (jeans, magazines): put it away so the placement checks are deterministic.
-  await p.evaluate(async () => { await Chores.load(); await Chores.part('bedroom'); for (const [id, t] of Object.entries(House.THINGS)) if (id.startsWith('ch.m.') && !t.at.hide) { t.at.hide = true; House.place(t); } });
+  await p.evaluate(async () => { await Chores.load(); await Chores.part('bedroom'); for (const [id, t] of Object.entries(House.THINGS)) { if (id.startsWith('ch.m.') && !t.at.hide) { t.at.hide = true; House.place(t); } else if (id.startsWith('ch.') && t.st === 'rest' && t.home && t.home.room === 'bedroom') { t.at = {...t.home}; House.place(t); } } });
   await check('ghost-states', async () => {
     // clear floor: green. Under the desk's 69.8 cm top: the 30 cm box fits (green, on the carpet). Into the wall: red.
     await holdBox();
-    await look(80, 170, 60, 73, 110); let g = await ghost(); let h = await hud();
+    await look(-40, 215, -40, 73, 150); let g = await ghost(); let h = await hud();
     assert(g && g.ok && Math.abs(g.y - 73) < .01, 'Clear floor should be green: ' + JSON.stringify(g)); assert.match(h.cls, /fit/); assert.match(h.keys, /E Place/);
     await shot('12-ghost-green');
     await p.evaluate(() => { const t = House.THINGS.chair; t.at = {room: 'bedroom', x: 100, y: House.LV.U, z: 90, ry: 0}; House.place(t); });
@@ -195,7 +195,7 @@ try {
     assert(g && !g.ok, 'A box half into the wall must be red: ' + JSON.stringify(g)); assert.match(h.mode, /WON'T FIT/); assert(!/E Place/.test(h.keys), 'E Place offered on a red ghost');
     await shot('13-ghost-red');
     // the crosshair is never covered by what you carry (once it has caught up with the view)
-    await look(80, 170, 60, 73, 110); await p.waitForTimeout(2500);
+    await look(-40, 215, -40, 73, 150); await p.waitForTimeout(2500);
     const cover = await p.evaluate(() => { const t = House.THINGS[House.held()], o = t.obj; o.updateMatrixWorld(true); const box = new THREE.Box3().setFromObject(o), v = new THREE.Vector3(), cam = House.camera; let y0 = 1e9; for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) { v.set(x, y, z).project(cam); y0 = Math.min(y0, (1 - v.y) / 2 * innerHeight); } return y0 - innerHeight / 2; });
     assert(cover > 2, 'The carried box covers the crosshair (top edge ' + cover.toFixed(1) + ' px below centre)');
   });
@@ -234,7 +234,8 @@ try {
     // the washing basket glows for clothes; a clothes item snaps into it
     await p.evaluate(async () => { await Chores.load(); await Chores.part('bedroom'); });
     await until(() => !!House.SNAPS['ch.s.basket'] && !!House.THINGS['ch.pjs']);
-    const id = await p.evaluate(() => Object.keys(House.THINGS).find(k => House.THINGS[k].kind === 'mess.clothes'));
+    // (a job already done today locks its things: this throwaway account just needs one to carry)
+    const id = await p.evaluate(() => { const k = Object.keys(House.THINGS).find(k => House.THINGS[k].kind === 'mess.clothes'); if (k) House.THINGS[k].canGrab = null; return k; });
     if (!id) { console.log('  (no clothes in today\'s mess: highlight checked with the pyjamas on the bed snap)'); return; }
     await p.evaluate(id => { const t = House.THINGS[id]; t.at = {room: 'bedroom', x: 60, y: House.LV.U, z: 200, ry: 0, hide: false}; t.st = 'rest'; House.place(t); }, id);
     await look(60, 160, 60, 73, 200); await p.keyboard.press('e'); await p.waitForTimeout(600); if (!await p.evaluate(id => House.held() === id, id)) { const why = await p.evaluate(id => { const t = House.THINGS[id], r = {held: House.held(), mode: House.mode, st: t.st, at: t.at, canGrab: t.canGrab ? t.canGrab() : null, seated: House.seated}; r.grab = House.grab(id); return r; }, id); assert(why.grab, 'Could not take the clothes: ' + JSON.stringify(why)); }
