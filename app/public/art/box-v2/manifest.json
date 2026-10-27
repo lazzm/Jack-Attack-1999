@@ -1,0 +1,161 @@
+{
+  "method": "Built-in image_gen. Original text-free illustrated bitmap layers; titles, spines and labels typeset separately by the game.",
+  "artDirection": "Cohesive 1990s commercial gouache and restrained airbrush, matte printed palettes, bold silhouettes at small in-world sizes. Zip is a purple badger with white face stripe, goggles and teal trainers.",
+  "encoding": "Aspect-preserving 320px-wide WebP, quality 0.72; mipmapped native canvas compositors.",
+  "quality": 0.72,
+  "assets": [
+    {
+      "file": "hop.webp",
+      "source": "exec-a2ab4267-83fa-49d0-8b06-f04f53fea2a6.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. Flat ORIGINAL late-1990s videogame box illustration, not a packaging mockup. Square edge-to-edge, focal subject central75%, recognizable at320px. Professional gouache and restrained airbrush, broad confident silhouettes, matte print palette and subtle painted texture, not modern glossy CGI or clip art. Absolutely NO text, lettering, numerals, signatures, logos, brands, watermarks, borders or existing characters. Kid-friendly, no gore.\nSubject: A round chestnut-brown squirrel adventurer with a cream muzzle and short green waistcoat joyfully bouncing between rocky platforms on a biscuit-shaped sunny island, golden acorns and distant castle. Warm ochre, turquoise sea, leafy green. Original character, not existing mascot.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 26132
+    },
+    {
+      "file": "tekno.webp",
+      "source": "exec-1a06ee6d-3745-44b1-bf97-c50942e07cc1.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. Flat ORIGINAL late-1990s videogame box illustration, not a packaging mockup. Square edge-to-edge, focal subject central75%, recognizable at320px. Professional gouache and restrained airbrush, broad confident silhouettes, matte print palette and subtle painted texture, not modern glossy CGI or clip art. Absolutely NO text, lettering, numerals, signatures, logos, brands, watermarks, borders or existing characters. Kid-friendly, no gore.\nSubject: Two original adult martial artists sparring sportingly in an industrial tournament arena: muscular woman in navy training clothes and man in red padded practice gear, dynamic clean full-body poses, warm spotlight, violet steel background. No weapons, no injury, believable anatomy.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 20218
+    },
+    {
+      "file": "blocks.webp",
+      "source": "exec-62bbd17e-7323-43f5-8d63-2074c1e84fd2.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. Flat ORIGINAL late-1990s videogame box illustration, not a packaging mockup. Square edge-to-edge, focal subject central75%, recognizable at320px. Professional gouache and restrained airbrush, broad confident silhouettes, matte print palette and subtle painted texture, not modern glossy CGI or clip art. Absolutely NO text, lettering, numerals, signatures, logos, brands, watermarks, borders or existing characters. Kid-friendly, no gore.\nSubject: chunky translucent amber, moss-green, violet and scarlet interlocking puzzle blocks tumbling into an impossible castle on a quiet graphite background, bold isometric playful falling-blocks box art, clean geometric solidity and restrained 1990 handheld palette.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 16596
+    },
+    {
+      "file": "zip.webp",
+      "source": "exec-73e8fa8d-424c-4492-9f88-80a61a86ca2e.png",
+      "width": 320,
+      "prompt": "Original painted purple badger with white face stripe, goggles, teal trainers and yellow scarf running along a grassy coastal loop. Text-free late-1990s gouache illustration.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 24972
+    },
+    {
+      "file": "rage.webp",
+      "source": "exec-9fe5c6a9-666d-4f46-a9b0-b78220ad1b06.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. Flat ORIGINAL late-1990s videogame box illustration, not a packaging mockup. Square edge-to-edge, focal subject central75%, recognizable at320px. Professional gouache and restrained airbrush, broad confident silhouettes, matte print palette and subtle painted texture, not modern glossy CGI or clip art. Absolutely NO text, lettering, numerals, signatures, logos, brands, watermarks, borders or existing characters. Kid-friendly, no gore.\nSubject: Two original adult street heroes in ordinary teal denim and magenta bomber jackets standing back to back on a rain-wet neon-lit arcade avenue, clenched padded gloves, funny round robot goons in distance, cool purple and warm peach; heroic 1994 beat-em-up illustration, no real faces.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 28778
+    },
+    {
+      "file": "taxi.webp",
+      "source": "exec-be26879d-faa3-44ff-b6ed-885ba4b1f4fa.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. Flat ORIGINAL late-1990s videogame box illustration, not a packaging mockup. Square edge-to-edge, focal subject central75%, recognizable at320px. Professional gouache and restrained airbrush, broad confident silhouettes, matte print palette and subtle painted texture, not modern glossy CGI or clip art. Absolutely NO text, lettering, numerals, signatures, logos, brands, watermarks, borders or existing characters. Kid-friendly, no gore.\nSubject: yellow 1990s unbranded compact taxi swinging round a hilly seaside city corner, excited driver in green baseball cap, passenger safely inside, striped awning and palm trees, strong perspective and tyre smoke, warm yellow and cyan, no writing or taxi signs.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 26278
+    },
+    {
+      "file": "zip-adventure.webp",
+      "source": "exec-b7a1dbd1-cf3e-492c-8e61-0432ee652e37.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. Flat ORIGINAL late-1990s videogame box illustration, not a packaging mockup. Square edge-to-edge, focal subject central75%, recognizable at320px. Professional gouache and restrained airbrush, broad confident silhouettes, matte print palette and subtle painted texture, not modern glossy CGI or clip art. Absolutely NO text, lettering, numerals, signatures, logos, brands, watermarks, borders or existing characters. Kid-friendly, no gore.\nSubject: Zip an original stocky PURPLE BADGER with WHITE FACE STRIPE, brass goggles on forehead, teal trainers and yellow scarf, leaping from a seaside loop into a colourful low-poly-like coastal city adventure, winding road, lighthouse, ocean. Purple fur, badger snout and rounded ears, no spikes or existing mascot. Bold varied perspective, full hero visible.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 25166
+    },
+    {
+      "file": "soul.webp",
+      "source": "exec-79c6feab-9d58-4dfc-bf14-2a42b81896b8.png",
+      "width": 320,
+      "prompt": "Use case: illustration-story. Flat ORIGINAL late-1990s videogame box illustration, not a packaging mockup. Square edge-to-edge, focal subject central75%, recognizable at320px. Professional gouache and restrained airbrush, broad confident silhouettes, matte print palette and subtle painted texture, not modern glossy CGI or clip art. Absolutely NO text, lettering, numerals, signatures, logos, brands, watermarks, borders or existing characters. Kid-friendly, no gore.\nSubject: Two original fantasy tournament duelists, one athletic woman with a broad bronze practice sword, one man with a long blue padded staff, crossing weapons above a ruined temple platform at sunset, flowing cloth, dramatic hair, purple gold and red, no wounds.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 23740
+    },
+    {
+      "file": "grab.webp",
+      "source": "exec-cedeeca8-83f9-4032-8178-e4edd87c4d04.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A friendly cartoon treasure explorer in broad yellow sun hat and green overalls carrying a big sack of colourful gems through tropical ruins. Broad expressive face and round nose, own original character, simple readable silhouette, ochre jungle-green cream.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 26662
+    },
+    {
+      "file": "party.webp",
+      "source": "exec-c7a634df-dd16-4377-88cf-be32747595b1.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A winding coloured board-game path on an island, four different cute round original animal pawns and a little tin robot, plain unmarked wooden dice, gold stars, teal coral mustard palette. Sky is empty painted blue; absolutely no writing anywhere.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 26134
+    },
+    {
+      "file": "gerbil.webp",
+      "source": "exec-942a1b78-6834-4aaa-9fc2-e670d0c57b21.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An original brown gerbil in olive adventure overalls and a charcoal cloth headband, hiding behind a PLAIN unmarked cardboard box in a snowy factory yard, expressive inked cartoon face, humorous secret-agent theme, no photorealism.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 18228
+    },
+    {
+      "file": "teeny.webp",
+      "source": "exec-98ddf5f1-a527-4d3b-89eb-f2f8507d3da9.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: Small ORIGINAL red open-wheeled toy buggy and blue toy pickup truck racing round an enormous cereal bowl and biscuit tunnel on a breakfast table, no vehicle badges or registration plates. Warm painted cream/teal/red, children's commercial1996 illustration.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 22184
+    },
+    {
+      "file": "formula.webp",
+      "source": "exec-8658377b-84d4-4a44-a9d2-caa548a97cab.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: Three original low wedge hover racers in orange, turquoise and purple, banking above a futuristic pink city on elevated broad track, 1992scifi motorsport airbrush paint, emphatically painted not glossy3Drender.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 18342
+    },
+    {
+      "file": "zeldo.webp",
+      "source": "exec-73c371c3-2019-4497-b118-c983a514e43d.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A storybook young adult adventurer in a BLUE tunic and brown hoodless cape holding a brass flute and a plain ROUND wooden shield at an ivy-covered ancient doorway with pasta-shaped carved stone pillars; emerald hills and violet cave. Original design, rounded ears, no famous symbols.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 25728
+    },
+    {
+      "file": "plumbo.webp",
+      "source": "exec-c2c7045c-3281-495a-b1fb-bb5f4984247f.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A kindly stocky cartoon repairman with copper moustache and a woolly red BEANIE, teal overalls, carrying a brass spanner as he bounces above biscuit hills on an original small AMBER WINGED SALAMANDER. Hand-painted storybook shapes, no peaked cap, no existing mascot.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 21476
+    },
+    {
+      "file": "toy.webp",
+      "source": "exec-3ce632e9-1c10-4bc0-b1e1-0d0fa986415c.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A red and cream toy biplane with wood propeller banks round an enormous1990s living room, a sleeping cat below, toy hangar under a chair, tiny pilot goggles, whimsical blue sky through window, original toy-flight adventure, no military markings.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 22918
+    },
+    {
+      "file": "scrapper.webp",
+      "source": "exec-9ebb57bc-c356-4849-a3b8-7c32183fc2cb.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: Two ORIGINAL adult sports martial artists bowing before a practice tournament on a bright seaside courtyard, woman in blue trousers and cream jacket and man in orange training suit, dynamic but friendly1992 arcade painting, no famous haircuts, no injuries.",
+      "review": "Accepted after visual review: no lettering/logos, original characters, kid-friendly painted silhouettes; rejected first variants are not included.",
+      "height": 320,
+      "bytes": 25572
+    }
+  ]
+}

@@ -28,6 +28,33 @@ short deploy gate; focused regressions still cover deeper paths. “Obsolete” 
 assumptions or one-off probes, requiring migration before reuse, not permission to delete.
 No legacy script is silently executed by the smoke runner.
 
+### Generated print artwork
+
+`node tests/art-gallery.mjs --source-only` audits manifests, hashes, embedded legacy
+copies and the actual PrintArt registry without a browser. Run
+`node tests/print-art-unit.cjs` and `node tests/art-gallery-unit.cjs` for loader,
+aspect/fallback, delayed-reader repaint, provenance and localhost-safety checks.
+
+Start a server with a fresh `/tmp` DATA_DIR and ADMIN_TOKEN=testtoken, then run
+`node tests/art-gallery.mjs http://localhost:PORT` (or add `--all-world`). The gallery
+creates its own unique disposable account and writes `tests/shots/art-gallery/index.html`,
+`report.json`, individual production texture exports, contact sheets and real shelf/hand/
+inspection screenshots. Default world captures sample physical formats; `--all-world`
+selects all available physical print props. Away/date-gated/absent props are recorded,
+not silently counted as photographed. Gallery image/compositor exports alone are not
+in-world visibility or interaction proof. Inspect captures visually; the runner is not OCR.
+`--world-only` skips the large source export and captures fresh changed compositors plus
+the physical views; save the preceding full report separately before this focused rerun.
+`node tests/art-native.mjs http://localhost:PORT` is a fast, separate production
+magazine/poster compositor and silhouette-fit diagnostic. Its PNG is deliberately
+labelled native-fixes-current, not counted as a physical shelf/hand capture.
+Portrait/landscape captures resize this room; they do not prove real-device touch support.
+The runner never starts/stops the supplied server; stop only your own server afterward.
+
+`prepare-generated-art.mjs` only resamples/encodes built-in image_gen originals using
+the versioned manifests; it is not an illustration generator. Original PNGs remain outside
+the repository. Do not regenerate assets from procedural drawings or silently overwrite old sets.
+
 | Classification | Scripts | When to use |
 | --- | --- | --- |
 | smoke-covered | `smoke.mjs` | Signup/WebGL, WASD/pose refresh, PC/app/Q/F2/T, physical console, phone typing, E placement/refresh, Esc, mobile-only desktop, errors/logs, six art views. |

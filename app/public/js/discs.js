@@ -496,8 +496,7 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
     if (b.kind === 'cart') return `<svg viewBox="0 0 200 200" class="dc-svg"><path d="M30 20h140v110l-10 10v40H40v-40l-10-10z" fill="#8a8a8a" stroke="#000" stroke-width="2"/><path d="M40 30h120v90H40z" fill="#7a7a7a" stroke="#555"/><path d="M50 40h100v70H50z" fill="#ddd" stroke="#555"/>${[0, 1, 2, 3, 4].map(i => `<path d="M${60 + i * 20} 150v24" stroke="#555" stroke-width="3"/>`).join('')}${T(100, 70, 'LUKE', 26, '#fff', '#000', { f: HAND, w: 700, sw: 2, t: 'rotate(-6 100 70)' })}${T(100, 98, '(TIPP-EX)', 12, '#555', null, { f: HAND, w: 700, sw: 0 })}</svg>`;
     const big = b.kind === 'big', H = big ? 270 : 200;
     let s = `<svg viewBox="0 0 200 ${H}" class="dc-svg">`;
-    const painted={city:'city',keepa:'dungeon',podracer:'hover'}[b.id];
-    s += (painted&&window.PrintArt?.svg(painted,0,0,200,H)) || (big ? SCENE[b.scene](u) : jewelArt(b, u));
+    s += window.PrintArt?.svg('pc.' + b.id, 0, 0, 200, H) || (big ? SCENE[b.scene](u) : jewelArt(b, u));
     s += `<g>${b.logo(u, b)}</g>`;
     if (b.sticker && !demoBox(b)) s += burst(158, big ? 118 : 120, big ? 27 : 22, b.sticker[1], b.sticker[0], big ? 7 : 6, -12);
     if (big) {
@@ -507,7 +506,7 @@ ${imp(58, 180, 1.15)}${imp(140, 182, 1.05, -1)}<path d="M150 196l14 0-7-10z" fil
     } else {
       s += `<rect y="186" width="200" height="14" fill="rgba(0,0,0,.7)"/>${T(6, 196, byOf(b), 8, '#fff', null, { f: 'Arial,sans-serif', w: 700, a: 'start', sw: 0 })}${T(194, 196, 'CD-ROM', 8, '#fff', null, { f: 'Arial Black,Arial,sans-serif', a: 'end', sw: 0 })}`;
     }
-    if (demoBox(b) && !big) s += `<rect y="164" width="200" height="20" fill="#e10600" stroke="#fff" stroke-width="1.5"/>${T(100, 178, 'DEMO DISC - FULL GAME ' + fullOut(b).replace(/ 1999$/, '').toUpperCase(), 10, '#fff', null, { f: 'Arial Black,Arial,sans-serif', sw: 0 })}`;
+    if (demoBox(b) && !big) s += `<rect y="164" width="200" height="20" fill="#e10600" stroke="#fff" stroke-width="1.5"/>${T(100, 172, 'DEMO DISC', 7, '#fff', null, { f: 'Arial Black,Arial,sans-serif', sw: 0 })}${T(100, 181, 'FULL GAME ' + fullOut(b).replace(/ 1999$/, '').toUpperCase(), 7, '#fff', null, { f: 'Arial Black,Arial,sans-serif', sw: 0 })}`;
     else if (demoBox(b)) s += `<g transform="rotate(32 160 40)"><rect x="96" y="28" width="140" height="22" fill="#e10600" stroke="#fff" stroke-width="2"/>${T(166, 44, 'DEMO DISC', 14, '#fff', null, { f: 'Arial Black,Arial,sans-serif', sw: 0 })}</g>`;
     if (b.houseOwner === 'mate3') s += callumSticker(big ? 168 : 150);
     return s + '</svg>';

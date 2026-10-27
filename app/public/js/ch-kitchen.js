@@ -238,10 +238,40 @@
   ];
   const WHERE = { fridge: { x: -247.5, y: GY - 62, z: 22, r: 40, n: 'in the fridge (bottom door)' }, freezer: { x: -247.5, y: GY - 140, z: 22, r: 32, n: 'in the freezer (top door)' }, cupboard: { x: -187, y: GC() + 80, z: -12, r: 32, n: 'in the cupboard' }, breadbin: { x: 40, y: WT - 12, z: -32, r: 30, n: 'in the bread bin' } };
   function GC() { return 95; }
-  const label = (key, w, h, paint, round) => M({ c: '#fff', map: K.tex('ch.shop.' + key, w, h, round ? flip(paint) : paint) });
+  const SHOPPRINT = {
+    milk: ['pack.milk', ['SEMI-SKIMMED', '4 PINTS'], '#2a9a3a'],
+    eggs: ['pack.eggs', ['FREE RANGE', '6 LARGE EGGS'], '#6a4a1a'],
+    cheese: ['pack.cheese', ['MATURE'], '#7a1a3a'],
+    peas: ['pack.peas', ['GARDEN PEAS'], '#1a6a2a'],
+    fish: ['pack.fish', ["OLD SALTY'S", 'FISH FINGERS'], '#1a3a8a'],
+    beans: ['pack.beans', ['BAKED BEANS'], '#c8401a'],
+    soup: ['pack.soup', ['CREAM OF', 'TOMATO SOUP'], '#c8101a'],
+    flakes: ['pack.cereal', ['SUNNY', 'FLAKES', 'with real sunshine*'], '#c8401a'],
+    bread: ['pack.bread', ['MEDIUM SLICED', 'WHITE'], '#1a3a8a'],
+  };
+  function shopPrint(textureKey, key, w, h, paint, round) {
+    const [art, words, ink] = SHOPPRINT[key];
+    const draw = (g, ww, hh) => {
+      g.fillStyle = '#f4f0e0'; g.fillRect(0, 0, ww, hh);
+      const tall = hh > ww, box = tall ? [6, hh * .22, ww - 12, hh * .51] : [4, 4, ww * .4, hh - 8];
+      if (!window.PrintArt?.paint(g, art, ...box, 'contain')) { paint(g, ww, hh); return; }
+      const x = tall ? ww / 2 : ww * .72, max = tall ? ww - 12 : ww * .5;
+      words.forEach((word, i) => {
+        let size = tall ? (i === 2 ? 9 : 30) : Math.min(16, hh * .25);
+        do { g.font = (tall && i < 2 ? '' : '700 ') + size + 'px ' + (i === 2 ? A.UIF : A.FONT); if (g.measureText(word).width <= max) break; size -= .5; } while (size > 5);
+        const y = tall ? [hh * .16, hh * .84, hh * .95][i] : hh * (.5 + (i - (words.length - 1) / 2) * .34) + size * .34;
+        A.text(g, word, x, y, g.font, ink, 'center');
+      });
+    };
+    // Keep the original UV orientation and fallback; only increase print resolution.
+    return A.printed(textureKey, w * 2, h * 2, (g, W, HH) => {
+      g.save(); g.scale(W / w, HH / h); (round ? flip(draw) : draw)(g, w, h); g.restore();
+    }, { clamp: true });
+  }
+  const label = (key, w, h, paint, round) => M({ c: '#fff', map: shopPrint('ch.shop.' + key, key, w, h, paint, round) });
   const SHOPM = {
     milk: () => grp(G => { G.lathe(0, 0, 0, [[0.1, -24], [1.8, -24], [1.9, -21.5], [3.4, -19], [5.2, -15], [5.4, -2], [5, 0], [0.1, 0]], 18, M({ c: '#f8f8f4', sh: 60, sp: '#888' })); G.cyl(0, -24.6, 0, 1.9, 1.9, 1.4, 12, mat('#2a9a3a', { sh: 60 })); G.cyl(0, -9, 0, 5.45, 5.45, 8, 18, label('milk', 128, 48, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#2a9a3a'; g.fillRect(0, 0, w, 12); A.text(g, 'SEMI-SKIMMED', 64, 30, '700 12px ' + A.UIF, '#2a9a3a', 'center'); A.text(g, '4 PINTS', 64, 44, '700 11px ' + A.UIF, '#333', 'center'); }, 1), { open: true }); G.shadow(0, 0, 0, 13, 13, 0.5); }),
-    eggs: () => grp(G => { G.rbox(0, -3.2, 0, 15, 6.4, 10, 1.4, M({ c: '#fff', map: K.tex('ch.eggs', 128, 96, flip((g, w, h) => { g.fillStyle = '#b8b0a0'; g.fillRect(0, 0, w, h); A.grain(g, w, h, 800, 0.1, 5); g.fillStyle = '#f4e8c0'; g.fillRect(16, 26, 96, 40); A.text(g, 'FREE RANGE', 64, 44, '700 12px ' + A.UIF, '#6a4a1a', 'center'); A.text(g, '6 LARGE EGGS', 64, 60, '700 11px ' + A.UIF, '#6a4a1a', 'center'); })) })); G.shadow(0, 0, 0, 18, 13, 0.5, { sq: true }); }),
+    eggs: () => grp(G => { G.rbox(0, -3.2, 0, 15, 6.4, 10, 1.4, M({ c: '#fff', map: shopPrint('ch.eggs', 'eggs', 128, 96, (g, w, h) => { g.fillStyle = '#b8b0a0'; g.fillRect(0, 0, w, h); A.grain(g, w, h, 800, 0.1, 5); g.fillStyle = '#f4e8c0'; g.fillRect(16, 26, 96, 40); A.text(g, 'FREE RANGE', 64, 44, '700 12px ' + A.UIF, '#6a4a1a', 'center'); A.text(g, '6 LARGE EGGS', 64, 60, '700 11px ' + A.UIF, '#6a4a1a', 'center'); }, true) })); G.shadow(0, 0, 0, 18, 13, 0.5, { sq: true }); }),
     cheese: () => grp(G => { G.box(0, -3, 0, 11, 6, 7, { t: label('cheese', 128, 80, (g, w, h) => { g.fillStyle = '#f0c040'; g.fillRect(0, 0, w, h); g.fillStyle = '#7a1a3a'; g.fillRect(0, 22, w, 36); A.text(g, 'MATURE', 64, 46, '700 16px ' + A.FONT, '#fff', 'center'); }), all: mat('#f0c040', { sh: 50 }) }); G.shadow(0, 0, 0, 13, 9, 0.5, { sq: true }); }),
     peas: () => grp(G => { G.ball(0, -3, 0, 9, 3, 12, label('peas', 128, 128, (g, w, h) => { g.fillStyle = '#1a6a2a'; g.fillRect(0, 0, w, h); g.fillStyle = '#7ad04a'; for (let i = 0; i < 26; i++) { g.beginPath(); g.arc((i * 37) % 128, (i * 61) % 128, 7, 0, 7); g.fill(); } g.fillStyle = 'rgba(255,255,255,.85)'; g.fillRect(14, 46, 100, 36); A.text(g, 'GARDEN PEAS', 64, 70, '700 14px ' + A.FONT, '#1a6a2a', 'center'); }, 1), 16); G.box(0, -1.8, 12, 16, 0.6, 1.6, mat('#1a6a2a')); G.shadow(0, 0, 0, 20, 26, 0.45); }),
     fish: () => grp(G => { G.box(0, -2.5, 0, 20, 5, 12, { t: label('fish', 192, 128, (g, w, h) => { g.fillStyle = '#1a3a8a'; g.fillRect(0, 0, w, h); g.fillStyle = '#ff9a2a'; g.fillRect(0, 84, w, 44); A.text(g, "OLD SALTY'S", 96, 36, '24px ' + A.FONT, '#fff', 'center'); A.text(g, 'FISH FINGERS', 96, 64, '700 18px ' + A.UIF, '#ffd400', 'center'); for (let i = 0; i < 4; i++) { g.fillStyle = '#e8a040'; g.fillRect(16 + i * 42, 94, 34, 22); } }), all: mat('#1a3a8a') }); G.shadow(0, 0, 0, 23, 15, 0.5, { sq: true }); }),

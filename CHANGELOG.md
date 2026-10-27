@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## Unreleased — generated print-art handoff (art-gen, 2026-10-26)
+- 64 new original text-free illustrations, exported as 76 versioned WebPs with generation manifests. Generated art now feeds console cases/media, PC packaging, five posters, twelve magazine covers and reading-page pictures, books, groceries, VHS/cassette print, mail-order print and hardware catalogue pictures. Titles and personal labels stay separately typeset; failed image loads retain source-painted fallbacks.
+- Inventory and remaining work: docs/ART.md. Not finished: secondary cards/stamps/house decoration/older music sleeves, unique sequential art for every interior page, procedural box-back gameplay thumbnails, and missing physical board-game/toy/hardware retail cartons. No release/version bump or deployment: this branch is a manager-merge handoff.
+- QA handoff: corrected cropped console silhouettes, fitted magazine mastheads/demo banners, and repainted already-open reading pages when art arrives. A heavy-startup fallback race led to parser-deferred art loading and a longer timeout; unit/native browser checks pass, but full 3D startup after that final change remains unverified. Full smoke failed on login/setup timeouts; the all-prop world gallery is incomplete. Do not treat this branch as a green deployment gate.
+
 ## 2.52.0 - 2026-10-26
 - Pocket Critters (Moss and Puddle Versions): moves now have PP and need healing items and the Critter Centre; sleep, static and pong conditions; catching depends on HP and conditions with the proper shake sequence; field moves open shortcuts; your rival comes back for a rematch; a progression journal and a proper ending. Battles, rewards, badges and the starter scene survive a refresh mid-turn. New four-shade artwork, badge ceremonies, and tidier battle and Critterdex screens. Old saves carry on.
 

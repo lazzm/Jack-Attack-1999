@@ -19,22 +19,33 @@
   const url = w => 'http://www.jackattack.jnet/' + w;
   const DATA = {}; // month number -> the issue's words (added by cx-mag-a.js / cx-mag-b.js)
 
-  // ================================================================ the covers (all drawn here)
+  // ================================================================ covers (shared generated art, native type)
   // [background top, background bottom, masthead colour, main cover line, cover lines, cover CD sticker colour]
   const META = {
-    1: { b: ['#0a2a7a', '#3a7ad8'], mc: '#ffd400', main: 'HAPPY NEW YEAR!', lines: ['ROGUE SQUADRON', 'WORMS ARMAGEDDON!', 'WHAT I GOT FOR CHRISTMAS', '1999: THE YEAR AHEAD'], cd: '#9fd0ff', art: 'snow' },
-    2: { b: ['#2a2a2a', '#5a6a4a'], mc: '#ff3a3a', main: 'SNEAKY!!!', lines: ['METAL GEAR WOBBLY!', 'CIVIC CHAOS 3000', 'WARIO LAND II', 'VALENTINE\'S? YUCK'], cd: '#ff8ac4', art: 'box' },
-    3: { b: ['#0a6a2a', '#7ad83a'], mc: '#fff', main: 'PARTY TIME!', lines: ['MARLO PARTY: BLISTERS!', 'X-WING ALLIANCE', 'ROLLCAGE UPSIDE DOWN', 'RED NOSE DAY'], cd: '#ff2a2a', art: 'party' },
-    4: { b: ['#5a2a8a', '#ff8ac4'], mc: '#ffd400', main: 'LOOP THE LOOP!', lines: ['ROLLERCOASTER RUPEECOON', 'RIDGE RACER TYPE 4', 'MICRO MACHINES 64', 'EASTER EGGS (IN GAMES!)'], cd: '#ffd400', art: 'coaster' },
-    5: { b: ['#05051a', '#2a1a5a'], mc: '#ffd400', main: 'INTERGALACTIC BATTLES IS COMING!', lines: ['CASTLEVANIA 64', 'STARSIEGE: TRIBES', 'CRICKET WORLD CUP 99', 'NO SPOILERS ZONE'], cd: '#9ff', art: 'pod' },
-    6: { b: ['#c84a00', '#ffc040'], mc: '#fff', main: 'GETAWAY!', lines: ['DRIVER: THE CAR PARK', 'EPISODE I RACER', 'DUNGEON KEEPA 2', 'SUMMER = GAMES'], cd: '#e10600', art: 'car' },
-    7: { b: ['#005a7a', '#3ad0ff'], mc: '#ffd400', main: 'SCHOOL\'S OUT!!!', lines: ['APE ESCAPE: NET THEM!', 'SUPERMAN 64 (OH NO)', 'THE MOON: 30 YEARS', 'SIX WEEKS OF GAMES'], cd: '#ff7a00', art: 'monkey' },
-    8: { b: ['#000', '#2a2a3a'], mc: '#ffd400', main: 'TOTAL ECLIPSE!', lines: ['TIBERIAN SUN', 'CROC 2', 'BLOCKO RACERS', 'DON\'T LOOK AT THE SUN'], cd: '#ff9a00', art: 'eclipse' },
-    9: { b: ['#1a7a2a', '#a0e060'], mc: '#fff', main: 'FORE!!!', lines: ['MARLO GOLF', 'HOVER HAVOC 3', 'RE-VOLT: TINY CARS', 'BACK TO SCHOOL (NO)'], cd: '#e10600', art: 'golf' },
-    10: { b: ['#f0f0f0', '#9ad0ff'], mc: '#e10600', main: 'THE BIGGEST MONTH EVER!', lines: ['POCKET CRITTERS IS HERE!', 'ZIP THE BADGER IN 3D!', 'FINAL FANTASTIC VIII', 'NINE REVIEWS!!!'], cd: '#ff7a00', art: 'monster' },
-    11: { b: ['#0a0a2a', '#5a1a5a'], mc: '#3affff', main: 'FIGHT!!!', lines: ['SUPER SMASH BROS.', 'SPIKE THE STEGOSAUR 2', 'PARK PANIC WORLD', 'BONFIRE NIGHT'], cd: '#ff4aff', art: 'fight' },
-    12: { b: ['#6a0000', '#d02020'], mc: '#fff', main: 'THE LAST ISSUE OF THE 1900s!', lines: ['DONKEY WRONG 64', 'BLOCKO ROCK RAIDERS', 'WORMS ON THE PLAYSPACE', 'Y2K: WILL WE SURVIVE?'], cd: '#3aff6a', art: 'xmas' },
+    1: { b: ['#0a2a7a', '#3a7ad8'], mc: '#ffd400', cd: '#9fd0ff', art: 'snow' },
+    2: { b: ['#2a2a2a', '#5a6a4a'], mc: '#ff3a3a', cd: '#ff8ac4', art: 'box' },
+    3: { b: ['#0a6a2a', '#7ad83a'], mc: '#fff', cd: '#ff2a2a', art: 'party' },
+    4: { b: ['#5a2a8a', '#ff8ac4'], mc: '#ffd400', cd: '#ffd400', art: 'coaster' },
+    5: { b: ['#05051a', '#2a1a5a'], mc: '#ffd400', cd: '#9ff', art: 'pod' },
+    6: { b: ['#c84a00', '#ffc040'], mc: '#fff', cd: '#e10600', art: 'car' },
+    7: { b: ['#005a7a', '#3ad0ff'], mc: '#ffd400', cd: '#ff7a00', art: 'monkey' },
+    8: { b: ['#000', '#2a2a3a'], mc: '#ffd400', cd: '#ff9a00', art: 'eclipse' },
+    9: { b: ['#1a7a2a', '#a0e060'], mc: '#fff', cd: '#e10600', art: 'golf' },
+    10: { b: ['#f0f0f0', '#9ad0ff'], mc: '#e10600', cd: '#ff7a00', art: 'monster' },
+    11: { b: ['#0a0a2a', '#5a1a5a'], mc: '#3affff', cd: '#ff4aff', art: 'fight' },
+    12: { b: ['#6a0000', '#d02020'], mc: '#fff', cd: '#3aff6a', art: 'xmas' },
   };
+  const issueKey = m => 'pm.mag.' + String(m).padStart(2, '0');
+  const issueMeta = m => window.MagazineCat?.ISSUES.find(issue => issue.month === +m);
+  // Accessors also serve PMArt consumers if the physical catalogue loads later.
+  // Punctuation supplies short cover lines without cutting off words or titles.
+  for (const [month, meta] of Object.entries(META)) Object.defineProperties(meta, {
+    main: { enumerable: true, get: () => issueMeta(month)?.headline || 'THE GAMES SPECIAL' },
+    lines: { enumerable: true, get: () => {
+      const kicker = issueMeta(month)?.kicker || 'Original games, gigantic ideas';
+      return [...kicker.split(/[:,.!?]+/).map(line => line.trim().toUpperCase()).filter(Boolean), 'CHEATS + COMIC'];
+    } },
+  });
   const ART = {
     snow: () => `<rect x="0" y="150" width="200" height="50" fill="#fff"/><g fill="#fff" stroke="#9ab" stroke-width="2"><circle cx="100" cy="128" r="34"/><circle cx="100" cy="76" r="24"/></g><circle cx="92" cy="70" r="3" fill="#000"/><circle cx="108" cy="70" r="3" fill="#000"/><path d="M100 77l14 4-14 3z" fill="#ff7a00"/><path d="M90 86q10 7 20 0" stroke="#000" stroke-width="2" fill="none"/><path d="M78 98h44v8H78z" fill="#e10600"/><path d="M110 102l8 24h-8z" fill="#e10600"/><rect x="82" y="44" width="36" height="8" fill="#222"/><rect x="88" y="22" width="24" height="24" fill="#222"/><path d="M58 120l-20-14M142 120l18-18" stroke="#6a3a1a" stroke-width="4"/><g transform="translate(148 86) rotate(-20)"><path d="M-14 0h28l6 10-8 14-6-8h-12l-6 8-8-14z" fill="#999" stroke="#000" stroke-width="2"/><circle cx="8" cy="4" r="3" fill="#ffd400"/><circle cx="-8" cy="4" r="3" fill="#2a7ad8"/></g><g fill="#fff">${[[20, 20], [40, 60], [170, 30], [180, 140], [24, 120], [150, 10], [70, 14]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3"/>`).join('')}</g><text x="100" y="190" text-anchor="middle" font-family="Anton,Impact" font-size="26" fill="#2a5ad8">1999</text>`,
     box: () => `<rect x="0" y="160" width="200" height="40" fill="#4a4a3a"/><g><path d="M40 168V96l60-18 60 18v72z" fill="#c89a5a" stroke="#5a3a1a" stroke-width="3"/><path d="M40 96l60 14 60-14M100 110v58" stroke="#5a3a1a" stroke-width="3" fill="none"/><rect x="58" y="120" width="30" height="9" fill="#1a1a1a"/><circle cx="66" cy="124.5" r="3" fill="#fff"/><circle cx="80" cy="124.5" r="3" fill="#fff"/><circle cx="67" cy="125" r="1.4" fill="#000"/><circle cx="81" cy="125" r="1.4" fill="#000"/><text x="128" y="148" text-anchor="middle" font-family="Arial Black,Arial" font-size="11" fill="#5a3a1a">FRAGILE</text><path d="M116 152h24" stroke="#e10600" stroke-width="2"/></g><text x="150" y="70" text-anchor="middle" font-family="Anton,Impact" font-size="60" fill="#ff3a3a" stroke="#000" stroke-width="3">!</text><g stroke="#ffd400" stroke-width="3" opacity=".8"><path d="M20 20l40 60M180 20l-40 60" /></g><circle cx="20" cy="18" r="8" fill="#ffd400"/><circle cx="180" cy="18" r="8" fill="#ffd400"/>`,
@@ -49,6 +60,7 @@
     fight: () => `<g>${[[40, 50, '#ff4aff'], [160, 40, '#ffd400'], [110, 20, '#3affff']].map(([x, y, c]) => Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; return `<path d="M${x} ${y}l${(Math.cos(a) * 22).toFixed(1)} ${(Math.sin(a) * 22).toFixed(1)}" stroke="${c}" stroke-width="3"/>`; }).join('')).join('')}</g><rect x="20" y="150" width="160" height="14" fill="#8a8a9a" stroke="#000" stroke-width="2"/><g transform="translate(70 120)"><circle cy="-22" r="12" fill="#ffd400" stroke="#000" stroke-width="2"/><rect x="-10" y="-10" width="20" height="26" fill="#e10600" stroke="#000" stroke-width="2"/><path d="M10 -4l20 -10" stroke="#000" stroke-width="5"/><path d="M-6 16v14M6 16v14" stroke="#000" stroke-width="5"/></g><g transform="translate(132 120)"><circle cy="-22" r="12" fill="#3aff6a" stroke="#000" stroke-width="2"/><rect x="-10" y="-10" width="20" height="26" fill="#2a7ad8" stroke="#000" stroke-width="2"/><path d="M-10 -4l-18 -12" stroke="#000" stroke-width="5"/><path d="M-6 16v14M6 16v14" stroke="#000" stroke-width="5"/></g><text x="100" y="104" text-anchor="middle" font-family="Bangers,Impact" font-size="30" fill="#fff" stroke="#000" stroke-width="2">POW!</text>`,
     xmas: () => `<path d="M100 14 L48 90 h22 L36 140 h28 L26 178 h148 L136 140 h28 L130 90 h22 Z" fill="#1a8a2a" stroke="#063a0c" stroke-width="3"/><path d="M100 4l5 11 12 1-9 8 3 12-11-7-11 7 3-12-9-8 12-1z" fill="#ffd400" stroke="#000" stroke-width="1.5"/>${[[84, 70, '#e10600'], [116, 98, '#ffd400'], [70, 122, '#3affff'], [128, 150, '#ff4aff'], [96, 158, '#e10600']].map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="6" fill="${c}" stroke="#000"/>`).join('')}<g transform="translate(46 172)"><ellipse rx="22" ry="14" fill="#8a5a2a" stroke="#000" stroke-width="2"/><path d="M-22 -4h44M-22 4h44" stroke="#5a3a1a" stroke-width="2"/></g><g transform="translate(160 178)"><path d="M-14 0 Q0 -26 14 0" stroke="#ffd400" stroke-width="7" fill="none"/><path d="M-14 0 Q0 -26 14 0" stroke="#000" stroke-width="1" fill="none"/></g><g transform="translate(150 30)"><circle r="10" fill="#e10600" stroke="#000"/><path d="M-6 -6l12 12M6 -6l-12 12" stroke="#fff" stroke-width="2"/><text y="26" text-anchor="middle" font-family="Arial Black,Arial" font-size="9" fill="#fff">Y2K BUG</text></g>`,
   };
+  const coverArt = m => window.PrintArt?.svg(issueKey(m), 0, 0, 200, 200) || ART[META[m].art]();
   function cover(m, o) {
     o = o || {};
     const M = META[m], t = t99(), locked = m > t.m, fresh = m === t.m;
@@ -56,7 +68,7 @@
     return `<div class="cxc${locked ? ' lock' : ''}${o.small ? ' sm' : ''}" style="--c1:${M.b[0]};--c2:${M.b[1]};--mc:${M.mc};--cd:${M.cd}" data-cxm="${m}">
       <div class="cxc-mast">JACK ATTACK!</div>
       <div class="cxc-strip"><span>${MONTHS[m - 1].toUpperCase()} 1999</span><span>THE GAMES MAG WOT JACK MADE</span><span>20p</span></div>
-      ${locked ? '<svg class="cxc-art" viewBox="0 0 200 200" aria-hidden="true"><text x="100" y="140" text-anchor="middle" font-family="Anton,Impact" font-size="150" fill="rgba(255,255,255,.25)">?</text></svg>' : `<svg class="cxc-art" viewBox="0 0 200 200" aria-hidden="true">${ART[M.art]()}</svg>
+      ${locked ? '<svg class="cxc-art" viewBox="0 0 200 200" aria-hidden="true"><text x="100" y="140" text-anchor="middle" font-family="Anton,Impact" font-size="150" fill="rgba(255,255,255,.25)">?</text></svg>' : `<svg class="cxc-art" viewBox="0 0 200 200" aria-hidden="true"><g data-cxcover-art="${m}">${coverArt(m)}</g></svg>
       <div class="cxc-lines">${M.lines.map(l => `<b>${esc(l)}</b>`).join('')}</div>
       <div class="cxc-main">${esc(M.main)}</div>`}
       <button type="button" class="cxc-cd" data-cxcd="${m}" title="Play this month's cover CD" aria-label="${MONTHS[m - 1]} cover CD"><span>FREE!<br>COVER<br>CD</span></button>
@@ -133,9 +145,44 @@
   function cheats(m, D) {
     return pageHead(m, 'cheats') + `<p class="kicker">Tested by me, on my own machines, at the weekend. If one doesn't work, you did it wrong. (Or Dave did.)</p><div class="cx-cheats">${D.ch.map(c => `<div class="cx-ch"><h3>${esc(c.g)} <span class="meta">${esc(c.p)}</span></h3><p>${c.t}</p></div>`).join('')}</div>`;
   }
+  const posterTypes = new Map();
+  function posterType(source) {
+    if (posterTypes.has(source)) return posterTypes.get(source);
+    const doc = new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg">${source}</svg>`, 'image/svg+xml');
+    if (doc.querySelector('parsererror')) return null;
+    // Keep every authored heading, label and instruction, including inherited
+    // group fonts/transforms. Only the illustration geometry is replaced.
+    const keep = node => {
+      if (node.localName === 'text' || node.localName === 'defs') {
+        const copy = node.cloneNode(true);
+        if (node.localName === 'text' && !node.hasAttribute('stroke')) {
+          let fill = '#000';
+          for (let parent = node; parent; parent = parent.parentElement) if (parent.hasAttribute('fill')) { fill = parent.getAttribute('fill'); break; }
+          const hex = fill.replace(/^#/, ''), expanded = hex.length === 3 ? hex.split('').map(c => c + c).join('') : hex;
+          const color = /^[\da-f]{6}$/i.test(expanded) ? parseInt(expanded, 16) : fill === 'white' ? 0xffffff : 0;
+          const light = ((color >> 16) * 299 + ((color >> 8) & 255) * 587 + (color & 255) * 114) / 1000 > 140;
+          copy.setAttribute('stroke', light ? '#101820' : '#fff2d5');
+          copy.setAttribute('stroke-width', '1.5'); copy.setAttribute('paint-order', 'stroke'); copy.setAttribute('stroke-linejoin', 'round');
+        }
+        return copy;
+      }
+      const children = [...node.children].map(keep).filter(Boolean);
+      if (!children.length) return null;
+      const copy = node.cloneNode(false); children.forEach(child => copy.appendChild(child)); return copy;
+    };
+    const serializer = new XMLSerializer(), type = [...doc.documentElement.children].map(keep).filter(Boolean).map(node => serializer.serializeToString(node)).join('');
+    posterTypes.set(source, type); return type;
+  }
+  function posterArt(m, P) {
+    const art = window.PrintArt?.svg(issueKey(m), 0, 0, 300, 400);
+    if (!art) return P.svg;
+    const type = posterType(P.svg);
+    if (type === null) return P.svg;
+    return `<rect width="300" height="400" fill="${esc(P.col || '#101820')}"/>${art}<rect width="300" height="400" fill="#101820" opacity=".14"/>${type}`;
+  }
   function poster(m, D) {
     const P = D.poster;
-    return pageHead(m, 'poster') + `<p class="kicker">Pull out the staples (carefully!) and stick it on your wall. Or your screen:</p><div class="cx-poster"><svg viewBox="0 0 300 400" role="img" aria-label="${esc(P.title)}">${P.svg}</svg></div><div class="cx-pcap"><b>${esc(P.title)}</b> ${P.cap}</div><div class="row" style="justify-content:center;margin:8px 0 14px"><button class="btn" type="button" data-cxwall="${m}">Put it on my desktop</button></div>`;
+    return pageHead(m, 'poster') + `<p class="kicker">Pull out the staples (carefully!) and stick it on your wall. Or your screen:</p><div class="cx-poster"><svg viewBox="0 0 300 400" role="img" aria-label="${esc(P.title)}"><g data-cxposter-art="${m}">${posterArt(m, P)}</g></svg></div><div class="cx-pcap"><b>${esc(P.title)}</b> ${P.cap}</div><div class="row" style="justify-content:center;margin:8px 0 14px"><button class="btn" type="button" data-cxwall="${m}">Put it on my desktop</button></div>`;
   }
   function compo(m, D) {
     const C = D.compo, W = window.CX && CX.wins, won = W && W.won && W.won.includes(m), win = W && W.win && W.win[m];
@@ -158,7 +205,7 @@
     }
     if (el.dataset.cxwall) {
       const m = +el.dataset.cxwall, P = DATA[m] && DATA[m].poster; if (!P) return;
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400">${P.svg}</svg>`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400">${posterArt(m, P)}</svg>`;
       const w = { img: 'data:image/svg+xml,' + encodeURIComponent(svg), col: P.col || '#008080', mode: 'Center' };
       const d = document.getElementById('desktop'); if (d) d.style.background = `url("${w.img}") center/auto no-repeat,${w.col}`;
       try { localStorage.setItem('jhp_prog_wall', JSON.stringify(w)); } catch (e) {}
@@ -192,5 +239,14 @@
     sfx(r.right ? 'boing' : 'uhoh');
   }
 
+  // Artwork may finish decoding after an archive page was opened. Repaint only
+  // the illustration groups: keep forms, scroll, date gates and text untouched.
+  window.PrintArt?.ready.then(() => {
+    for (const node of document.querySelectorAll('#s-secret [data-cxcover-art],#s-secret [data-cxposter-art]')) {
+      const coverMonth = +node.dataset.cxcoverArt, posterMonth = +node.dataset.cxposterArt;
+      if (coverMonth && coverMonth <= t99().m) node.innerHTML = coverArt(coverMonth);
+      else if (posterMonth && posterMonth <= t99().m && DATA[posterMonth]?.poster) node.innerHTML = posterArt(posterMonth, DATA[posterMonth].poster);
+    }
+  });
   window.CXMag = { MON, MONTHS, META, DATA, add: (m, d) => { DATA[m] = window.Cast ? Cast.deep(d) : d; } /* the visitor's own cast (js/cast.js) fills in {templates} */, archive, issue, cover, compoResult, nice, mdOf };
 })();

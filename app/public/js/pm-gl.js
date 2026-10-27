@@ -59,7 +59,7 @@
     if (busyRaster >= LANES || !QUEUE.length) return;
     busyRaster++; const job = QUEUE.shift();
     if (QUEUE.length) setTimeout(pump, 0);
-    fonts().then(F => {
+    Promise.all([fonts(), window.PrintArt?.ready]).then(([F]) => {
       let s = '';
       try { s = typeof job.svg === 'function' ? job.svg() : job.svg; } catch (e) { console.warn('[pm] art', job.key, e); busyRaster--; setTimeout(pump, 0); return; }
       const css = Object.keys(F).filter(f => s.includes(f)).map(f => F[f]).join(''); // (only the fonts it uses)
@@ -592,7 +592,7 @@
   const POST = { x: 355, y: 353, z: 650 }; // beside the front-door doormat: keep WELCOME and the walking route clear
   const PARCEL = new Map(); // order item id -> { spot, g, flaps }
   let postLoading=null;
-  const parcelFace = () => mat('pm.parcelf', 1024, 616, () => A.svg('0 0 256 154', `<rect width="256" height="154" fill="#c49a62"/><rect x="118" y="0" width="20" height="40" fill="#d8c690"/><g transform="rotate(-2 70 90)"><rect x="18" y="56" width="128" height="62" fill="#fff"/>${A.T(82, 76, Cast.t('{me.Mr} {me}'), 14, '#14148a', { f: "'Comic Sans MS',cursive", w: 700, len: 116 })}${A.T(82, 94, 'MY ROOM', 12, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 110, '(TOP OF THE STAIRS)', 9, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}</g><g transform="rotate(9 210 80)"><rect x="168" y="62" width="74" height="30" fill="none" stroke="#c00000" stroke-width="4"/>${A.T(205, 83, 'PIXEL POST', 12, '#c00000')}</g>${A.T(200, 140, 'SIGNED FOR: MOM', 9, '#333', { f: "'Comic Sans MS',cursive", w: 700 })}`));
+  const parcelFace = () => mat('pm.parcelf', 512, 308, () => A.svg('0 0 256 154', `<rect width="256" height="154" fill="#c49a62"/>${window.PrintArt?.svg("pm.catalogue",166,9,78,43)||""}<rect x="118" y="0" width="20" height="40" fill="#d8c690"/><g transform="rotate(-2 70 90)"><rect x="18" y="56" width="128" height="62" fill="#fff"/>${A.T(82, 76, Cast.t('{me.Mr} {me}'), 14, '#14148a', { f: "'Comic Sans MS',cursive", w: 700, len: 116 })}${A.T(82, 94, 'MY ROOM', 12, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 110, '(TOP OF THE STAIRS)', 9, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}</g><g transform="rotate(9 210 80)"><rect x="168" y="62" width="74" height="30" fill="none" stroke="#c00000" stroke-width="4"/>${A.T(205, 83, 'PIXEL POST', 12, '#c00000')}</g>${A.T(200, 140, 'SIGNED FOR: MOM', 9, '#333', { f: "'Comic Sans MS',cursive", w: 700 })}`));
   function parcelModel() {
     const g = new T.Group(), B = K.into(g), w = 30, h = 14, d = 22;
     const card = M({ c: '#c49a62', map: window.HouseArt ? HouseArt.t('mdf') : null }), tape = M('#d8c690'), inside = M('#7a5a36');

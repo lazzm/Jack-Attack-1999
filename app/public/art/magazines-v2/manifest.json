@@ -1,0 +1,128 @@
+{
+  "method": "Built-in image_gen paintings, five newly generated and seven reused from the original text-free print-v2 set. These files contain ONLY illustrations, not mastheads or lettering.",
+  "artDirection": "Twelve distinct late-90s games-mag cover subjects: pinball, city, industrial explorer, coaster, hoverpod, dungeon, space launch, robots, hover racing, critters, boy band and cosy winter. Native typography stays crisp at every size. Interior editorials/reviews/adverts reuse the issue's relevant key art; guide, postbag and comic use separately generated paintings.",
+  "quality": 0.72,
+  "encoding": "320px-wide aspect-preserving WebP, quality 0.72; full covers typeset at384x512 by PrintArt.magazine.",
+  "assets": [
+    {
+      "file": "01.webp",
+      "source": "exec-899a2144-36a3-4730-9e46-95ac3956e1d2.png",
+      "width": 320,
+      "issue": 1,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A space-themed pinball table fills frame diagonally, chrome silver ball in foreground, purple playfield with stylised original tiny spacecraft and planet-shaped bumpers, pink and golden lamps, silver ramps, no scoreboard, no lettering, no numeric values on playfield.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 33132
+    },
+    {
+      "file": "02.webp",
+      "source": "../print-v2/city.webp",
+      "width": 320,
+      "issue": 2,
+      "prompt": "Reuse original reviewed text-free image_gen painting 'city' from print-v2; see that manifest for the complete original prompt.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 32074
+    },
+    {
+      "file": "03.webp",
+      "source": "exec-2b2a7adf-2a1c-482b-b7da-1e966172b9d8.png",
+      "width": 320,
+      "issue": 3,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An original chunky armoured space explorer with a plain closed helmet holds a small cyan lantern in a rusty brown castle-like industrial corridor, comical round robot far away, mysterious but friendly1996shooter mood, ochre rust and teal, no gun/gore.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 21094
+    },
+    {
+      "file": "04.webp",
+      "source": "exec-9ded798f-3a20-4a26-b490-1d8f8228dd54.png",
+      "width": 320,
+      "issue": 4,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A red rollercoaster diving from a steep wooden tower above a lush miniature theme park, carousel tents balloons and tiny colourful visitors, summer sun, confident isometric1999strategy-game gouache art.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 33286
+    },
+    {
+      "file": "05.webp",
+      "source": "exec-59a25ea0-31f4-4946-90ba-40ef824d0d92.png",
+      "width": 320,
+      "issue": 5,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An ORIGINAL tiny open-cockpit hoverpod with two short chunky cobalt engines attached close to a wide orange chassis, racing above an ochre desert canyon, dust trail and dramatic rock arches, different silhouette from famous films, teal orange cream painting.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 21238
+    },
+    {
+      "file": "06.webp",
+      "source": "../print-v2/dungeon.webp",
+      "width": 320,
+      "issue": 6,
+      "prompt": "Reuse original reviewed text-free image_gen painting 'dungeon' from print-v2; see that manifest for the complete original prompt.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 25474
+    },
+    {
+      "file": "07.webp",
+      "source": "../print-v2/shuttle.webp",
+      "width": 320,
+      "issue": 7,
+      "prompt": "Reuse original reviewed text-free image_gen painting 'shuttle' from print-v2; see that manifest for the complete original prompt.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 11398
+    },
+    {
+      "file": "08.webp",
+      "source": "../print-v2/robots.webp",
+      "width": 320,
+      "issue": 8,
+      "prompt": "Reuse original reviewed text-free image_gen painting 'robots' from print-v2; see that manifest for the complete original prompt.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 24828
+    },
+    {
+      "file": "09.webp",
+      "source": "../print-v2/hover.webp",
+      "width": 320,
+      "issue": 9,
+      "prompt": "Reuse original reviewed text-free image_gen painting 'hover' from print-v2; see that manifest for the complete original prompt.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 20550
+    },
+    {
+      "file": "10.webp",
+      "source": "../print-v2/critters.webp",
+      "width": 320,
+      "issue": 10,
+      "prompt": "Reuse original reviewed text-free image_gen painting 'critters' from print-v2; see that manifest for the complete original prompt.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 27154
+    },
+    {
+      "file": "11.webp",
+      "source": "../print-v2/band.webp",
+      "width": 320,
+      "issue": 11,
+      "prompt": "Reuse original reviewed text-free image_gen painting 'band' from print-v2; see that manifest for the complete original prompt.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 17062
+    },
+    {
+      "file": "12.webp",
+      "source": "exec-cc8d1ccf-19b6-4b76-8ca1-0a910c4333ca.png",
+      "width": 320,
+      "issue": 12,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A friendly original tin robot wearing a red knitted scarf stacking plain colourful BLANK game boxes beside a beige family PC beneath hanging paper stars, warm winter lamplight, snow visible through window,1999games-mag holiday illustration, navy copper cream.",
+      "review": "Text-free illustration selected for this issue's headline; native masthead, date, price and cover lines are composited in the game.",
+      "height": 320,
+      "bytes": 22206
+    }
+  ]
+}
