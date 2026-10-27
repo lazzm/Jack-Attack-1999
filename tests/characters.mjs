@@ -160,8 +160,9 @@ try {
       assert(said.note.includes(said.line.slice(0, 20)), 'Subtitle shows the scripted line: ' + said.note);
       assert(/^chore\.\w+\.give$|^chore\.allfour$|^bark\.mom\./.test(said.id), 'Mom hands out a job (or praise): ' + said.id);
       await page.waitForTimeout(700); await shot(page, 'mom-talk-kitchen');
-      const mouth = await page.evaluate(async () => { const b = HouseFamily.chars.mom.rig.bones.mouth, s = []; for (let i = 0; i < 12; i++) { s.push(b.scale.y); await new Promise(r => setTimeout(r, 90)); } return s; });
-      assert(Math.max(...mouth) - Math.min(...mouth) > 0.2, 'Lip flap while talking: ' + mouth.map(v => v.toFixed(2)).join(','));
+      // (people v2: the mouth is painted; talking swaps the mouth frames in the face atlas)
+      const mouth = await page.evaluate(async () => { const r = HouseFamily.chars.mom.rig, s = [], f = new Set(); for (let i = 0; i < 12; i++) { s.push(r.st.mouth); f.add(r.face.mouth); await new Promise(q => setTimeout(q, 90)); } return { s, frames: [...f] }; });
+      assert(Math.max(...mouth.s) - Math.min(...mouth.s) > 0.2 && mouth.frames.length > 1, 'Mouth moves while talking: ' + mouth.s.map(v => v.toFixed(2)).join(',') + ' frames ' + mouth.frames);
       // handing a job in: Mom says the job's done line and her rating, in person
       const handed = await page.evaluate(() => HouseFamily.handIn('washup', { sc: 97 }));
       assert(handed, 'Mom takes the washing-up in herself');
@@ -265,7 +266,7 @@ try {
       const extra = withFam.calls - without.calls, tris = withFam.triangles - without.triangles;
       console.log(`  draws: kitchen at tea time ${withFam.calls} calls with the family, ${without.calls} without (+${extra}); +${tris} triangles (low tier)`);
       assert(extra <= 6, 'Each person costs at most two draw calls: +' + extra);
-      assert(tris <= 3 * 16000, 'Triangle budget: +' + tris);
+      assert(tris <= 3 * 3200, 'Triangle budget (people v2: about 3k each on Low, docs/PEOPLE.md): +' + tris);
       await shot(page, 'kitchen-tea-low');
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }

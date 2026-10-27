@@ -861,7 +861,7 @@
   // the person follows it with planted feet. (Without the character system: the old chunky model below.)
   function rigKid(kid, h) {
     const r = rnd(kid.k * 13 + 7), tone = SKIN_T[Math.floor(r() * SKIN_T.length)], hair = HAIR_T[Math.floor(r() * HAIR_T.length)];
-    const rig = NPCRig.create('kid', { tier: low() ? 'low' : 'std', outfit: kid.c, look: { skin: tone, hair: hair[0], hair2: hair[1], hairStyle: r() < 0.5 ? 'bob' : 'short', iris: ['#5a4a3a', '#4a6ea6', '#4f6b47'][Math.floor(r() * 3)] } });
+    const rig = NPCRig.create('kid', { tier: H.Q?.tier === 'potato' ? 'potato' : low() ? 'low' : 'std', outfit: kid.c, look: { skin: tone, hair: hair[0], hair2: hair[1], hairStyle: r() < 0.5 ? 'bob' : 'short', iris: ['#5a4a3a', '#4a6ea6', '#4f6b47'][Math.floor(r() * 3)] } });
     const s = h / 122; rig.group.scale.set(s, -s, s); rig.set({ action: 'trick', props: kid.c === 'spacecadet' ? { raygun: 1 } : {} });
     rig.floor = () => GY; rig.s = s;
     return rig;
@@ -902,6 +902,14 @@
     B.shadow(0, 0, 0, 34 * s, 30 * s, .55);
     return g;
   }
+  // the grown-up walking them round: a person from the family's character system (a neighbour in a duffel coat and a
+  // bobble hat, with a torch), who waits at the end of the path and looks over at you
+  function parentRig(gr) {
+    const r = rnd((gr.id | 0) * 7 + 3), tone = SKIN_T[Math.floor(r() * SKIN_T.length)], hair = HAIR_T[Math.floor(r() * HAIR_T.length)];
+    const rig = NPCRig.create('grownup', { tier: H.Q?.tier === 'potato' ? 'potato' : low() ? 'low' : 'std', outfit: 'coat', look: { skin: tone, hair: hair[0], hair2: hair[1], iris: ['#4a3a2a', '#4a6ea6', '#4f6b47'][Math.floor(r() * 3)] } });
+    rig.floor = () => GY; rig.s = 1; rig.set({ action: 'torch' });
+    return rig;
+  }
   function parentModel() { const g = new T.Group(), B = K.into(g), coat = M({ c: '#4a5a6a', sh: 6 }); for (const sx of [-1, 1]) { B.cyl(sx * 7, -40, 0, 4.4, 4, 80, 8, M('#2a2a32')); B.rbox(sx * 7, -2.4, 2, 8, 4.8, 13, 1.6, M('#1a1a1a')); } B.rbox(0, -112, 0, 38, 66, 22, 8, coat); for (const sx of [-1, 1]) B.cyl(sx * 21, -112, 0, 4, 4, 56, 8, coat, { rz: sx * 6 }); B.cyl(0, -146, 0, 5, 6, 6, 10, M('#a03a3a')); B.ball(0, -160, 0, 10, 12, 10, M({ c: '#e0b08a', sh: 8 }), 12); B.ball(0, -168, -1, 10.6, 7, 10.6, M('#3a2a20'), 10); B.cyl(-24, -96, 8, 2.6, 2.6, 12, 8, M('#222'), { rx: 70 }); B.ball(-24, -96, 15, 2.2, 2.2, .8, M({ c: '#fff4c0', e: '#ffd060' }), 6); B.shadow(0, 0, 0, 50, 36, .5); return g; }
   let kids = null; // { g:id, group, list:[{obj, kid, want, got:[]}], parent, state, at }
   const DOORSTEP = [[276, 792], [300, 784], [324, 792], [288, 812], [312, 812]];
@@ -910,28 +918,30 @@
     const drive = H.ROOMS.drive; if (!drive?.built) return;
     const group = new T.Group(); group.name = 'hw-trick-or-treaters'; drive.group.add(group);
     const list = gr.kids.map((kid, i) => { const h = 104 + ((kid.k * 7) % 24), o = kidModel(kid, h); const [x, z] = DOORSTEP[i]; o.position.set(x, GY - 1, z); o.rotation.y = Math.PI + (i - 2) * .12; group.add(o); o.userData.home = { x, z }; const rig = o.userData.rig || null; if (rig) group.add(rig.group); return { obj: o, kid, want: kid.want, got: [], rig }; });
-    const parent = parentModel(); parent.position.set(262, GY - 1.6, 1128); parent.rotation.y = Math.PI * .9; group.add(parent);
+    const prig = window.NPCRig ? parentRig(gr) : null, parent = prig ? new T.Group() : parentModel(); parent.position.set(262, GY - 1.6, 1128); parent.rotation.y = Math.PI * .9; group.add(parent);
+    if (prig) group.add(prig.group);
     group.traverse(o => { if (o.isMesh) o.userData.kid = 1; });
-    kids = { g: gr.id, n0: srv().treat?.n | 0, gr, group, list, parent, state: walk ? 'walk' : 'wait', t0: performance.now(), answered: false, knocks: 0, lastKnock: 0, block: null };
+    kids = { g: gr.id, n0: srv().treat?.n | 0, gr, group, list, parent, pkd: prig ? { obj: parent, rig: prig, kid: null } : null, state: walk ? 'walk' : 'wait', t0: performance.now(), answered: false, knocks: 0, lastKnock: 0, block: null };
     const pick = new T.Mesh(new T.BoxGeometry(70, 120, 46), PICKM); pick.position.set(300, GY - 60, 798); pick.userData.hwOwn = 1; group.add(pick);
     addSpot('hw.kids', { label: () => kids ? 'Trick-or-treaters (' + kids.list.length + ')' : 'Trick-or-treaters', obj: pick, room: 'drive', range: 320, act: () => handOut() });
     if (walk) for (const k of list) { k.obj.position.z = 1150 + Math.random() * 30; k.obj.position.x = 262 + Math.random() * 20; }
     // they stand on the path: keep the player out of them (never trapping anyone already there)
     if (!(H.W.lvl === 'G' && Math.abs(H.W.x - 300) < 70 && H.W.z > 750 && H.W.z < 840)) { kids.block = H.block('G', 262, 772, 338, 826); }
     for (const kd of list) if (kd.rig) { kd.h = kd.obj.rotation.y; kd.last = null; rigFollow(kd, 0); }
+    if (kids.pkd) { kids.pkd.h = parent.rotation.y; rigFollow(kids.pkd, 0); }
     if (walk) H.anims.set('hw.kids', kidTick); H.dirty();
   }
   function fidget(now) { // a little bob while they wait (only while the front is drawn, never on Low)
     const k = kids; if (!k || k.state !== 'wait' || !H.ROOMS.drive?.group.visible) return;
     const dt = Math.min(0.1, (now - (k.lastFidget || now)) / 1000); k.lastFidget = now;
-    if (k.list.some(kd => kd.rig)) { k.list.forEach(kd => rigFollow(kd, dt)); H.dirty(); return; } // (the people breathe, blink and look at you)
+    if (k.list.some(kd => kd.rig)) { k.list.forEach(kd => rigFollow(kd, dt)); if (k.pkd) rigFollow(k.pkd, dt); H.dirty(); return; } // (the people breathe, blink and look at you)
     if (low()) return;
     const cheer = k.cheer && now < k.cheer; k.list.forEach((kd, i) => { kd.obj.position.y = GY - 1 - Math.max(0, Math.sin(now / 260 + i * 1.7)) * (cheer ? 4 : .6); }); H.dirty();
   }
   function kidTick(now) {
     if (!kids) return false;
     const k = kids, visible = H.ROOMS.drive?.group.visible, dtk = Math.min(0.1, (now - (k.lastTick || now)) / 1000); k.lastTick = now;
-    if (k.list.some(kd => kd.rig) && (k.state === 'walk' || k.state === 'leave')) setTimeout(() => { if (kids === k) k.list.forEach(kd => rigFollow(kd, dtk)); }, 0);
+    if (k.list.some(kd => kd.rig) && (k.state === 'walk' || k.state === 'leave')) setTimeout(() => { if (kids === k) { k.list.forEach(kd => rigFollow(kd, dtk)); if (k.pkd) rigFollow(k.pkd, dtk); } }, 0);
     if (k.state === 'walk') {
       const t = Math.min(1, (now - k.t0) / 5200);
       k.list.forEach((kd, i) => { const h = kd.obj.userData.home, e = ease(t); kd.obj.position.x = 268 + (h.x - 268) * e; kd.obj.position.z = 1150 + (h.z - 1150) * e - i * 6 * (1 - e); kd.obj.position.y = GY - 1 - Math.abs(Math.sin(now / 130 + i)) * 2 * (1 - t); });
@@ -945,7 +955,7 @@
     void visible; H.dirty(); return true;
   }
   function clearKids(quiet) {
-    if (!kids) return; kids.group.parent?.remove(kids.group); for (const kd of kids.list) kd.rig?.dispose();
+    if (!kids) return; kids.group.parent?.remove(kids.group); for (const kd of kids.list) kd.rig?.dispose(); kids.pkd?.rig.dispose();
     if (kids.block) { kids.block.off = true; H._.grids.dirty = true; }
     H.unspot('hw.kids'); delete IT['hw.kids'];
     kids = null; if (handing) endHand(); H.anims.delete('hw.kids'); H.dirty();
