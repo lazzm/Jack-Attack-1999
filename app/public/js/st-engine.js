@@ -24,6 +24,9 @@
     if (!state) return [];
     const main = C.current(state), CK = window.ChoreKit, CC = window.ChoreCat;
     const out = main ? [{ ...main, key: 'story', group: 'My story' }] : [];
+    // This week's seasonal objectives (js/season.js): time-limited, so they come before the everyday jobs.
+    for (const x of window.Season?.objectives?.() || []) if (!x.done) out.push({ id: x.o.id, key: 'season.' + x.o.id, group: x.e.name, text: x.text + (x.of > 1 ? ' (' + x.n + '/' + x.of + ')' : ''), hint: x.hint, test: 'season.' + x.o.id, season: x });
+
     if (CK && CC) {
       const jobs = new Set([...CK.list(), ...Object.keys(CK.S.prog), ...(!state.flags.veteran && state.ch === 1 ? ['tidy','bed','bin'] : [])]);
       for (const id of jobs) {

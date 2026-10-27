@@ -43,6 +43,25 @@ No legacy script is silently executed by the smoke runner.
 | support utilities (not tests) | `create-approved-test.mjs`, `prepare-box-art.mjs`, `prepare-posters.mjs`, `prepare-print-art.mjs`, `replicate-kart-trial.mjs`, `room-fixture.mjs` | Fixture/art preparation/account provisioning/external audio trial. Never auto-run provisioning or asset mutation. |
 
 
+Seasonal events: HALLOWEEN (disposable localhost data only; it registers the owner account "Jack" and drives the
+owner's 1999 clock, so start a fresh server with an empty DATA_DIR each run):
+
+    cd app && PORT=18197 DATA_DIR=/tmp/jhp-hw ADMIN_TOKEN=testtoken node server.js
+    cd tests && node events-halloween.mjs http://localhost:18197
+
+Checks the event is off on 10 Oct and 2 Nov, the decorations and their draw counts on 31 Oct, the porch light, filling the
+bowl, the five decorations, the full six-step carve with real mouse drags, five groups of trick-or-treaters (allergy refusal
+included), rewards paid exactly once (also after the owner's "Start this event again"), a refresh keeping every state, the
+diary's "This week" page and the morning-after wrappers. Review `tests/shots/halloween/`. Allow ~20 minutes on software WebGL.
+World art captures and geometry audit (each owns its own disposable server and /tmp data):
+
+    node world-quality-2.mjs after                      # every fixed art view -> shots/world-quality-2/<view>-after.png + after-draws.json
+    node world-quality-2.mjs before --only=kitchen      # the same camera with app/public served from origin/main (--ref=<commit>)
+    node world-audit.mjs after-wq2 --account=full       # z-fighting/see-through/camera audit (world-audit-notes.md)
+
+`world-quality-2.mjs` uses the full-room fixture at 1366x860, Low tier and 14:00 like the smoke canonical views, so its
+per-view draw counts compare directly; two Pixel Post parcels are shown in the hall through a page-only status message.
+
 Exterior/grass/door checks (disposable localhost data only):
 
     node exterior-rebuild.mjs http://localhost:18080
