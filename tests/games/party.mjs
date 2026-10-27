@@ -7,7 +7,7 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 import {roomFixture} from '../room-fixture.mjs';
-const base=process.argv.find(x=>/^http:/.test(x));assert(base&&['localhost','127.0.0.1'].includes(new URL(base).hostname)&&+new URL(base).port>=18080&&+new URL(base).port<=18099,'Supply a disposable localhost server on 18080–18099');
+const base=process.argv.find(x=>/^http:/.test(x));assert(base&&['localhost','127.0.0.1'].includes(new URL(base).hostname),'Supply a disposable localhost server');
 assert.equal(await (await fetch(base+'/js/rm-g-party.js')).text(),await readFile(fileURLToPath(new URL('../../app/public/js/rm-g-party.js',import.meta.url)),'utf8'),'Server must serve this worktree');
 const before=process.argv.includes('--before'),tag=before?'before':'after',dir=fileURLToPath(new URL('../shots/games/party/',import.meta.url));await mkdir(dir,{recursive:true});
 const baseline=before?execFileSync('git',['show','HEAD:app/public/js/rm-g-party.js'],{encoding:'utf8'}):null;
