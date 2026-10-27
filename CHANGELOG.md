@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.57.6 - 2026-10-27
+- Phones: the Game Lad's own buttons work by touch (checked against the 3D model itself, generous hit areas, slide between d-pad directions, d-pad + A together, hold to repeat, buttons sink with a click and a buzz).
+- Phones: press a thing to see what will happen above your thumb ("PICK UP", "OPEN", "TALK"); let go to do it, drag away to cancel. While carrying, a click puts it down at the ghost. Smoother looking, bigger and fewer buttons, and a one-time "how to play" card instead of three overlapping hints.
+- Console pads, the PC buttons and the in-world phone keypad checked with real touch.
+
 ## 2.57.5 - 2026-10-27
 - Carrying looks natural: what you hold sits low and centred in two hands (jumper sleeves and mitts), sized to the thing (a game box is about an eighth of the view; big things sit lower), sways a little as you walk and turn, and never covers the crosshair, the ghost or what you're aiming at. Phones size it to the screen width. The watering can rises into view while pouring.
 - Floating labels such as "Old newspapers" hide when something is in front of their target or it's far away.
