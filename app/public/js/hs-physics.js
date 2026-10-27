@@ -45,8 +45,9 @@
       for (const b of L.statics) for (let i = Math.floor(b.ax0 / CELL); i <= Math.floor(b.ax1 / CELL); i++) for (let j = Math.floor(b.az0 / CELL); j <= Math.floor(b.az1 / CELL); j++) {
         const k = i * 4096 + j; let a = L.grid.get(k); if (!a) L.grid.set(k, a = []); a.push(b);
       }
-      // A sleeping body stays exactly where it is (authored poses survive) unless the new world overlaps it.
-      for (const b of bodies.values()) if (b.lvl === lvl && b.active && !awake.has(b) && blockedAt(b, true)) wakeBody(b);
+      // A sleeping body stays exactly where it is: authored poses survive a rebuild (the floor plan's walls are the
+      // player's walkable edge, so a prop set right against a real wall may sit a few cm "inside" them). It is only
+      // resolved when something actually touches it.
     }
     function setKinematic(id, lvl, box) {
       const L = level(lvl);
@@ -54,7 +55,7 @@
       const prev = L.kin.get(id), next = worldBox(Object.assign({ id, kind: 'kinematic' }, box));
       L.kin.set(id, next);
       if (!prev || Math.abs(prev.x - next.x) + Math.abs(prev.z - next.z) + Math.abs(prev.c - next.c) + Math.abs(prev.s - next.s) > 1e-4) {
-        for (const b of bodies.values()) if (b.lvl === lvl && b.active && !awake.has(b) && aabbHit(b, next.ax0, next.az0, next.ax1, next.az1, 2)) wakeBody(b);
+        for (const b of bodies.values()) if (b.lvl === lvl && b.active && !awake.has(b) && aabbHit(b, next.ax0, next.az0, next.ax1, next.az1, 2) && b.wp.some(w => vOverlap(w, next) > 0.3 && footprint(w, next))) wakeBody(b); // (only what the leaf really touches)
       }
     }
     let seen = 0;

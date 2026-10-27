@@ -73,7 +73,7 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
   Shift+wheel or +/- nearer/further; Q/right click returns it to its pickup point. Big furniture (desk chair, beanbag)
   is dragged along the floor instead: E takes hold / lets go, R/wheel turns it, it tucks under the desk as far as its
   back allows. F while carrying operates the door, drawer, cupboard, car boot, switch or seat under the crosshair (a
-  prompt shows the action); otherwise F uses the carried thing. F on a tucked-in chair rolls it out, then sits; seated,
+  prompt shows the action); otherwise F uses the carried thing. A thing with its own job (sweets bowl, watering can, phone) keeps F for that job and only opens shut doors/drawers/the boot. F on a tucked-in chair rolls it out, then sits; seated,
   the chair swivels with your view. Refresh: what you carry is handed back (saved at its pickup point); sitting at the
   PC or opening a screen sets it down at its ghost if green, else returns it; the story/tidy taking it ends the grip.
   Never place a thing on the stairs or block a doorway/the way to the PC (the ghost turns red).

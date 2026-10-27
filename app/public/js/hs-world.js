@@ -1231,7 +1231,8 @@
     for (const t of migrateQ) {
       migrateQ.delete(t);
       if (t.st !== 'rest' || t.at.hide || !t.body || !ROOMS[t.at.room]) continue;
-      if (!PH.overlapping(t.body) && !(t.obstacle && Math.abs(t.at.y - LV[lvlOf(t)]) > 0.01)) continue;
+      if (!t.obstacle) continue; // only furniture saved where the new furniture colliders now stand; props keep their pose
+      if (!PH.overlapping(t.body) && Math.abs(t.at.y - LV[lvlOf(t)]) <= 0.01) continue;
       const shift = PH.settle(t.body, 45); if (shift > 0.05) { renderBody(t); moved = true; }
     }
     if (moved) saveThings();
@@ -1688,6 +1689,7 @@
     return /^(Open|Shut|Close|Turn|Switch|Play|Read|Look|Sit|Use|Plug|Press|Answer|Pick|Put|Ring|Watch|Listen|Feed|Pet|Lie|Get|Take|Wind|Water|Empty|Check|Raid|Set|F:)/.test(label) ? label.replace(/^F:\s*/, '').replace(/^./, c => c.toUpperCase()) : 'Use ' + low.replace(/^./, c => c.toLowerCase());
   }
   const H_ROOMS_boot = () => !!ROOMS.drive?.carBoot?.open;
+  function closedOpenable(s) { const o = OPEN[s.id], d = doorOf(s); if (o) return !o.open; if (d) return !d.open; if (/(^|\.)(car)?boot\b/.test(s.id)) return !H_ROOMS_boot(); return false; }
   let carryAim = null, carryAimAt = 0;
   function aimedAction(fresh) {
     if (!held) return null;
@@ -1698,6 +1700,10 @@
     const th = THINGS[h.spot];
     if (th) { if (th.seat && !focusS && (!held.drag || th.id === held.id)) carryAim = { kind: 'seat', s, th, label: held.drag ? 'Sit down' : 'Sit down with it' }; return carryAim; }
     if (s.grab || !s.act || s.carry === false) return null;
+    // Something with its own job in your hands (the sweets bowl, the watering can, the phone) keeps F for that job;
+    // with it you can still open a shut door, drawer or the boot, but F never shuts one in front of you.
+    const t = THINGS[held.id];
+    if (t && t.use && !/look closely|inspect/i.test(t.useLabel || '') && !closedOpenable(s)) return null;
     carryAim = { kind: 'act', s, label: verbFor(s) };
     return carryAim;
   }

@@ -84,7 +84,7 @@ try{
  log('decorations: ok');
 
  // ---- 5. the pumpkin, all six steps, with real mouse movement
- await aim([-110,GY-128,230],[-130,GY-47,170]);await key('e');await until(()=>House.held()==='hw.paper');
+ await aim([-110,GY-128,250],[-130,GY-47,170]);await key('e'); // (stand clear of the kitchen chairs: a pose the player can really take)await until(()=>House.held()==='hw.paper');
  await aim([-45,GY-128,264],[-45,GY-78,174]);await key('e');
  await until(()=>!!Season.st('halloween99').steps['hw-pumpkin']?.paper);
  await page.waitForTimeout(1300);
@@ -101,7 +101,7 @@ try{
  await until(()=>Halloween.carving==='candle');await shot('10-carved');
  await key('f');await until(()=>!!Season.st('halloween99').steps['hw-pumpkin']?.candle&&!House.focused&&!!House.THINGS['hw.lantern']);
  await page.waitForTimeout(1200);
- await aim([-45,GY-128,264],[-45,GY-88,174]);await key('e');await until(()=>House.held()==='hw.lantern');
+ await aim([-20,GY-128,265],[-45,GY-88,174]);await key('e');await until(()=>House.held()==='hw.lantern');
  await aim([286,GY-128,1030],[300,GY-80,1095]);await key('e');
  await until(()=>!!Season.st('halloween99').obj['hw-pumpkin']);
  assert.equal((await st()).paid['hw-pumpkin'],20,'pumpkin paid 20');
@@ -151,6 +151,9 @@ try{
  for(const k of ['obj','paid','decor','bowl','porch','tin'])assert.deepEqual(after[k],snap[k],'refresh kept '+k);
  assert(await page.evaluate(()=>['bat','web','spider','lantern','ghost'].every(id=>House.THINGS['hw.decor.'+id]?.snap==='hw.s.'+id)),'decorations still up');
  assert(await page.evaluate(()=>House.THINGS['hw.lantern'].snap==='hw.s.step'&&Halloween._.pk().allCut),'lantern still carved on the gatepost');
+ // A refresh hands back what you were carrying (docs/PHYSICS.md): the sweets bowl is still in your hands.
+ await until(()=>House.held()==='hw.bowl');
+ await page.evaluate(()=>House.putBack());await until(()=>!House.held());
  log('refresh: ok');
  await page.evaluate(()=>{window.__own={};Net.on('ownerResult',m=>window.__own[m.rid]=m);window.__ec=null;Net.on('ecMe',m=>window.__ec=m);});
  await owner('season',{event:EID});await page.waitForTimeout(1200);
