@@ -307,6 +307,14 @@
   }
   function close(powerOff) {
     if (!V) return;
+    // Q / Back while LOCK IN is up: shrink back into the glass first, then lean out (the camera waits for it)
+    if (V.live && powerOff !== true && !V.background && V.lockedIn && V.lockAnim !== -1) {
+      const view = V, H = R.House, ms = H?.motion ? H.motion.scale(H.motion.ms.lock) : 380;
+      lockIn(false); clearInput();
+      setTimeout(() => { if (V === view && !V.background) close(powerOff); }, ms + 40);
+      return;
+    }
+    if (V.live && powerOff !== true && V.lockAnim === -1 && !V.background) { const view = V; setTimeout(() => { if (V === view && !V.background) close(powerOff); }, 420); return; } // (still shrinking: lean out once it has)
     lockIn(false);
     if (V.live && powerOff !== true) {
       if (V.background) return;
@@ -378,7 +386,7 @@
   function idle() {
     V.st = 'shelf'; blank(V.hand ? '' : `${CAT.CONSOLES[V.con].n.toUpperCase()} - PUT A ${CAT.CONSOLES[V.con].media.toUpperCase()} IN`);
     $(V.el, '.rm-eject').hidden = true; $(V.el, '.rm-blowb').hidden = true;
-    $(V.el, '.rm-help').textContent = V.live ? 'Lean back, pick a game from the shelf, then insert it into its console.' : 'Pick a cartridge to play.';
+    $(V.el, '.rm-help').textContent = V.hand ? 'No cartridge in. Press Q to lower the Game Lad, carry a cartridge to its slot and press E to push it in.' : V.live ? 'Lean back, pick a game from the shelf, then insert it into its console.' : 'Pick a cartridge to play.';
     V.el.classList.remove('rm-playing'); $(V.el, '.rm-res').classList.remove('on');
     pad(null);
   }

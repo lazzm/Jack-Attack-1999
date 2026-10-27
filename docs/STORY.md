@@ -147,3 +147,8 @@ The compact job-progress strip temporarily takes priority over compass ink while
 For separate browser runs, `story-order.mjs URL half-tidy-bed --skip-phone` saves the temporary account checkpoint
 to `/tmp/jhp-quest-ux-browser.json`. On the same disposable server data, `story-ch1.mjs URL pc /tmp/jhp-quest-ux-browser.json`
 checks reversed PC parts/leads and Setup; `story-order.mjs URL phone` checks the portrait/landscape touch picker.
+
+Characters (built, 2.57.0): js/np-rig.js (procedural skinned people + costumes), js/np-nav.js (walkable clearance fields, routes,
+doors, stairs), js/np-life.js (routines on the 1999 clock, talking with SCRIPT lines, Mom's jobs given and taken in, story beats in
+person, barks). Ch1 gains the `meetmom` step (test `talk.mom`: talking to Mom, or real progress past it, completes it; no 3D house
+means it completes itself). Tests: tests/characters.mjs.

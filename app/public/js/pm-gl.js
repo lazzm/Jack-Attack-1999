@@ -59,7 +59,7 @@
     if (busyRaster >= LANES || !QUEUE.length) return;
     busyRaster++; const job = QUEUE.shift();
     if (QUEUE.length) setTimeout(pump, 0);
-    fonts().then(F => {
+    Promise.all([fonts(), window.PrintArt?.ready]).then(([F]) => {
       let s = '';
       try { s = typeof job.svg === 'function' ? job.svg() : job.svg; } catch (e) { console.warn('[pm] art', job.key, e); busyRaster--; setTimeout(pump, 0); return; }
       const css = Object.keys(F).filter(f => s.includes(f)).map(f => F[f]).join(''); // (only the fonts it uses)
@@ -75,8 +75,8 @@
   }
   function svgTex(key, w, h, svg, fill) {
     if (TEX[key]) return TEX[key];
-    const c = document.createElement('canvas'); c.width = w; c.height = h;
-    const g = c.getContext('2d'); g.fillStyle = fill || '#444'; g.fillRect(0, 0, w, h);
+    const t = K.tex('pm.svg.' + key, w, h, g => {
+    g.fillStyle = fill || '#444'; g.fillRect(0, 0, w, h);
     // A readable printed cover remains if an image cannot decode; never a grey box.
     const it = PM.items().find(it => key.endsWith('.' + it.id));
     if (it) {
@@ -85,8 +85,10 @@
       g.fillStyle = it.c2 || '#f5e8c9'; g.font = `bold ${Math.max(9, Math.min(w / 9, h / 8))}px Arial`; g.textAlign = 'center';
       K.wrapText(g, it.title.toUpperCase(), w / 2, h * .3, w * .86, Math.max(12, h * .12));
     }
-    const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.ClampToEdgeWrapping; t.anisotropy = 4; t.minFilter = T.LinearMipmapLinearFilter;
-    t.userData = { g, canvas: c, raster: { w, h, svg, key }, rasterRevision: 0 };
+    }, { clamp: true });
+    // The kit retains the authored canvas while managing a 256/512px GPU
+    // raster on Potato/Low, and restores it on High or an anisotropy change.
+    t.userData.raster = { w, h, svg, key }; t.userData.rasterRevision = 0;
     QUEUE.push({ t, w, h, svg, key, revision: 0 }); pump();
     return TEX[key] = t;
   }
@@ -387,7 +389,7 @@
         say(it.title, esc(it.owner === Cast.n('mate3') ? '{mate3}\'s. {mate3.He} wants it back. {mate3.He} keeps saying "GIVE IT BACK" at school.' : it.blurb || pick(LINE[it.kind] || LINE.jewel)), 4000); },
     });
     // Migrate only the old crowded shelf poses, never objects left elsewhere.
-    if (t.st === 'rest' && (t.at.snap === home.snap || (migrateLegacyShelf && !t.at.hide && Math.abs(t.at.x - SH.x) < 16 && Math.abs(t.at.z - SH.z) < 24 && t.at.y < 72))) {
+    if ((t.st === 'snap' && t.snap === home.snap) || (t.st === 'rest' && (t.at.snap === home.snap || (migrateLegacyShelf && !t.at.hide && Math.abs(t.at.x - SH.x) < 16 && Math.abs(t.at.z - SH.z) < 24 && t.at.y < 72)))) {
       t.st = 'snap'; t.snap = home.snap; t.at = Object.assign({room: 'bedroom'}, home); t.rx = t.rz = 0; H.place(t);
     }
     return t;
@@ -595,7 +597,7 @@
   const POST = { x: 355, y: 353, z: 650 }; // beside the front-door doormat: keep WELCOME and the walking route clear
   const PARCEL = new Map(); // order item id -> { spot, g, flaps }
   let postLoading=null;
-  const parcelFace = () => mat('pm.parcelf', 1024, 616, () => A.svg('0 0 256 154', `<rect width="256" height="154" fill="#c49a62"/><rect x="118" y="0" width="20" height="40" fill="#d8c690"/><g transform="rotate(-2 70 90)"><rect x="18" y="56" width="128" height="62" fill="#fff"/>${A.T(82, 76, Cast.t('{me.Mr} {me}'), 14, '#14148a', { f: "'Comic Sans MS',cursive", w: 700, len: 116 })}${A.T(82, 94, 'MY ROOM', 12, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 110, '(TOP OF THE STAIRS)', 9, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}</g><g transform="rotate(9 210 80)"><rect x="168" y="62" width="74" height="30" fill="none" stroke="#c00000" stroke-width="4"/>${A.T(205, 83, 'PIXEL POST', 12, '#c00000')}</g>${A.T(200, 140, 'SIGNED FOR: MOM', 9, '#333', { f: "'Comic Sans MS',cursive", w: 700 })}`));
+  const parcelFace = () => mat('pm.parcelf', 512, 308, () => A.svg('0 0 256 154', `<rect width="256" height="154" fill="#c49a62"/>${window.PrintArt?.svg("pm.catalogue",166,9,78,43)||""}<rect x="118" y="0" width="20" height="40" fill="#d8c690"/><g transform="rotate(-2 70 90)"><rect x="18" y="56" width="128" height="62" fill="#fff"/>${A.T(82, 76, Cast.t('{me.Mr} {me}'), 14, '#14148a', { f: "'Comic Sans MS',cursive", w: 700, len: 116 })}${A.T(82, 94, 'MY ROOM', 12, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}${A.T(82, 110, '(TOP OF THE STAIRS)', 9, '#14148a', { f: "'Comic Sans MS',cursive", w: 700 })}</g><g transform="rotate(9 210 80)"><rect x="168" y="62" width="74" height="30" fill="none" stroke="#c00000" stroke-width="4"/>${A.T(205, 83, 'PIXEL POST', 12, '#c00000')}</g>${A.T(200, 140, 'SIGNED FOR: MOM', 9, '#333', { f: "'Comic Sans MS',cursive", w: 700 })}`));
   function parcelModel() {
     const g = new T.Group(), B = K.into(g), w = 30, h = 14, d = 22;
     const card = M({ c: '#c49a62', map: window.HouseArt ? HouseArt.t('mdf') : null }), tape = M({ c: '#d9c88e', sh: 60, sp: '#666', o: 0.92, tr: true }), inside = M('#5a4128');

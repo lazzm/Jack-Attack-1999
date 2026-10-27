@@ -177,7 +177,8 @@
       S.done[id] = { sc: m.sc | 0, amt: m.amt | 0, cashPence:m.cashPence, bad: m.bad ? 1 : 0 }; S.ever[id] = 1; save(); refresh();
       if (m.bad) return jack(C.short, 'Mom says that was done suspiciously quickly, so she\'s not paying for it. Fair enough.');
       if (m.cashPence > 0) H.toast('+' + CC.money(m.cashPence), 'Mom paid you for: ' + C.n.toLowerCase() + '. Exchange your pocket money at JackNet Bank.');
-      setTimeout(() => mom(cast((m.mom || 'Ta, love.') + (m.sc ? ` (${m.sc}%)` : ''))), 900);
+      // Mom takes the job in herself when she's there (js/np-life.js); otherwise she calls out, as before
+      if (!window.HouseFamily?.handIn?.(id, m)) setTimeout(() => mom(cast((m.mom || 'Ta, love.') + (m.sc ? ` (${m.sc}%)` : ''))), 900);
       if (m.sc >= 100) secret('ch.gold');
       if (m.sc >= 95) secret('grind.perfect');
       if (!m.amt) setTimeout(() => jack(C.short, m.list ? 'No money for that one: that\'s all the job money the Bank of Mom pays out in one day.' : (m.want === 0 ? 'Not on Mom\'s list, and she\'s already paid me for four extra jobs today. Worth a go though.' : 'No money for that one. Mom\'s purse is empty.')), 3800);
@@ -413,7 +414,7 @@
     g.fillStyle = 'rgba(0,0,0,.05)'; for (let x = 0; x < w; x += 16) { g.beginPath(); g.arc(x + 8, 6, 5, 0, 7); g.fill(); }
     A.grain(g, w, h, 1400, 0.025, 77);
     g.textBaseline = 'alphabetic';
-    A.text(g, 'JOBS FOR {me.NAME}', 84, 82, '700 46px ' + A.HAND, '#c0102a');
+    A.text(g, cast('JOBS FOR {me.NAME}'), 84, 82, '700 46px ' + A.HAND, '#c0102a');
     g.strokeStyle = '#c0102a'; g.lineWidth = 3; g.beginPath(); g.moveTo(84, 92); g.quadraticCurveTo(250, 100, 410, 90); g.stroke();
     A.text(g, date99(), w - 20, 118, '22px ' + A.HAND, '#1a3a9a', 'right');
     const L = list();
@@ -480,7 +481,7 @@
     const L = list();
     const row = (id, i) => { const C = CC.CHORE[id], d = S.done[id]; return `<li class="${d ? 'done' : ''}"><i class="ch-box"></i><b>${i + 1}. ${esc(C.n)}</b><span class="ch-where">${esc(C.blurb)}</span><span class="ch-pay">${d ? (Number.isFinite(d.cashPence) ? 'Done! '+CC.money(d.cashPence)+' cash paid' : d.amt ? d.amt+' Rupees paid (before cash wallets)' : 'Done!') : started(id) ? `Doing it: ${count(id)} of ${stepsOf(id).length}` : `${CC.money(CC.pence(id))}`}<em> &middot; ${esc(C.where)}</em></span></li>`; };
     const extras = CC.CHORES.filter(c => !L.includes(c.id) && avail(c.id));
-    return `<div class="ch-pad"><h2>JOBS FOR {me.NAME}</h2><div class="ch-date">${esc(date99())}</div><ol>${L.map(row).join('')}</ol>
+    return `<div class="ch-pad"><h2>${esc(cast('JOBS FOR {me.NAME}'))}</h2><div class="ch-date">${esc(date99())}</div><ol>${L.map(row).join('')}</ol>
       <p class="ch-ex"><b>Anything else = a bit extra!</b> ${extras.map(c => `<span class="${S.done[c.id] ? 'done' : ''}">${esc(c.short)}</span>`).join(' &middot; ')}</p>
       <p class="ch-ps">${member() ? 'ALL done = 50p BONUS. (I pay it into your JackNet Bank: 20 Rupees to the pound.)' : 'P.S. Log on to JackNet (it\'s free) and I\'ll pay it into your JackNet Bank, in Rupees!'}</p><div class="ch-sig">Love Mom x</div></div>`;
   }

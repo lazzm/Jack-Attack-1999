@@ -176,18 +176,19 @@ try {
     if(part==='monitor') {
       const heavyWalk=await walkDistance();assert(heavyWalk>0&&heavyWalk<ordinaryWalk*.8,'CRT did not slow actual walking');
       await shot('09-heavy-monitor');
-      // A refresh while carrying returns to the real drive pickup, never the room crossed last.
+      // A refresh while carrying hands the CRT straight back (docs/PHYSICS.md); its saved place stays the real drive
+      // pickup, never the room crossed last.
       await aim([150,-55,100],[20,-15,0]);
       await p.evaluate(()=>House.saveWalkState());
       await p.reload({waitUntil:'domcontentloaded'});
       await until(()=>window.House?.live&&window.StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
-      assert.equal(await p.evaluate(()=>House.held()),null);
+      await until(()=>House.held()==='st.pc.monitor');
       assert.equal(await p.evaluate(()=>House.ROOMS.drive.carBoot.open),true);
       assert.equal(await p.evaluate(()=>House.THINGS['st.pc.monitor'].at.room),'drive');
       assert.equal(await p.evaluate(()=>House.THINGS['st.pc.tower'].at.room),stage==='pc'?'drive':'bedroom');
       await p.evaluate(()=>{if(!House.ROOMS.drive.carBoot.open)House.act('st.boot')});
       await p.waitForTimeout(700);
-      assert(await p.evaluate(id=>House.grab(id),id));
+      assert(await p.evaluate(id=>House.held()===id||House.grab(id),id));
     }
     const snap=await p.evaluate(part=>{const s=House.SNAPS['st.desk.'+part];return [s.x,s.y,s.z]},part);
     await aim([snap[0],-50,70],snap);

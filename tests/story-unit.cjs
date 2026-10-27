@@ -27,6 +27,7 @@ try {
   assert.deepEqual(p.done, {});
   send('lad'); assert(p.done.lad); const stamp = p.done.lad;
   now += 2000; send('lad'); assert.equal(p.done.lad, stamp);
+  assert.equal(C.current(p).id, 'meetmom'); now += 2000; send('meetmom'); assert(p.done.meetmom, 'Talking to Mom was not recorded');
   send('tidy'); assert(!p.done.tidy, 'Unverified chore accepted');
   state.mods.ch.p.fresh = { done: { tidy: { sc: 0, bad: 1 } } }; send('sync'); assert(p.done.tidy, 'Payment refusal stranded completed physical work');
   now += 10000;
@@ -72,7 +73,7 @@ try {
   const legacy=state.mods.story.p.legacy;
   assert(legacy.flags.pcOwned&&legacy.done.power&&legacy.done.install);
   state.members.nostory={starterSparse:1};events.login({member:'NoStory'});assert(state.mods.story.p.nostory.flags.pcOwned, 'Existing sparse account without a story lost its PC');
-  assert.equal(legacy.done.lad,123); assert.equal(C.current(legacy).id,'tidy');
+  assert.equal(legacy.done.lad,123); assert(legacy.done.meetmom, 'Legacy players are past the first chat'); assert.equal(C.current(legacy).id,'tidy');
   // A cached document can miss hello before its late-loaded story listener runs.
   const vm = require('node:vm'), fs = require('node:fs'), ticks = [], clientMessages = [], clientEvents = {};
   const client = { StoryCat:C, st:{say(){}}, Date, document:{addEventListener(){},querySelector(){return null},getElementById(){return null}}, setTimeout(){}, setInterval(fn){ticks.push(fn)}, Net:{connected:true,me:{member:true},send(m){clientMessages.push(m);return true},on(e,fn){clientEvents[e]=fn}} };
@@ -80,7 +81,7 @@ try {
   vm.runInNewContext(fs.readFileSync(require.resolve('../app/public/js/st-engine.js'),'utf8'),client);
   ticks[0](); assert.equal(clientMessages.at(-1).id,'sync','Late listener never requested its missed snapshot');
   clientEvents.stState({ch:1,done:{lad:now},flags:{},trust:0,v:1});
-  assert.equal(client.st.current().id,'tidy');
+  assert.equal(client.st.current().id,'meetmom');
   // Pixel Post briefly constructs hardware at its factory dock before moving it
   // to the parcel. A stale snap ID on that carried object is not a connection.
   let opened=false, held=null, mediaChanged; const later=[];

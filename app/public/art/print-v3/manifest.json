@@ -1,0 +1,386 @@
+{
+  "method": "Built-in image_gen; original text-free gouache/airbrush illustrations. Native game code typesets all titles, spine labels, prices and personal writing.",
+  "artDirection": "Late-1990s commercial print: confident broad silhouettes and cohesive matte printed ink palettes, each product with its own relevant subject. Zip is an original purple badger with white face stripe, goggles and teal trainers.",
+  "encoding": "Aspect-preserving 320px-wide WebP at quality 0.72. Standard mipmapped, anisotropic canvas print textures; no per-frame artwork redraw.",
+  "quality": 0.72,
+  "assets": [
+    {
+      "file": "hardware-ultra.webp",
+      "source": "exec-f463414d-e2df-447a-9256-51ab88df2577.png",
+      "width": 320,
+      "prompt": "Create a text-free1999gouache advertising illustration, square: an ORIGINAL dark charcoal game console with rounded low shell, FOUR round controller ports and a top cartridge slot, beside an original three-prong charcoal controller with coloured round buttons; warm cream and navy abstract background. Hardware is a fictional parody, NOT branded, no symbols, logos, letters, numerals or writing anywhere. Not a packaging mockup. Painterly broad shapes with plausible solid proportions.",
+      "review": "Accepted after visual review: original painted imagery, no lettering/logos, kid friendly, clear print-scale composition.",
+      "height": 320,
+      "bytes": 9498
+    },
+    {
+      "file": "hardware-play.webp",
+      "source": "exec-d338b284-f009-4454-98ad-2ade026b49fb.png",
+      "width": 320,
+      "prompt": "Create a text-free1999gouache advertising illustration, square: an ORIGINAL light-grey rectangular compact CD games console with rounded corners and circular disc lid, two small memory-card doors, beside an original grey two-grip controller with plain colour buttons; teal and cream abstract background. Hardware is fictional parody, no official symbols, brands, logos, letters, numerals or writing. Not a packaging mockup, not a photo. Painted broad readable shapes.",
+      "review": "Accepted after visual review: original painted imagery, no lettering/logos, kid friendly, clear print-scale composition.",
+      "height": 320,
+      "bytes": 12270
+    },
+    {
+      "file": "hardware-segue.webp",
+      "source": "exec-28b8b50f-5f37-4398-b406-606a840f0873.png",
+      "width": 320,
+      "prompt": "Create a text-free1993gouache advertising illustration, square: an ORIGINAL black oval games console with cartridge slot, curved stepped top and small red power light, beside an original black boomerang-shaped three-button game pad with plain round unmarked buttons; red ochre cream abstract background. Fictional parody hardware, no brands or familiar logos, no letters, numerals or writing anywhere. Original painted image, not mockup or photo.",
+      "review": "Accepted after visual review: original painted imagery, no lettering/logos, kid friendly, clear print-scale composition.",
+      "height": 320,
+      "bytes": 13792
+    },
+    {
+      "file": "hardware-daydream.webp",
+      "source": "exec-f0d5d743-6744-4379-8cec-ba5256e1b58a.png",
+      "width": 320,
+      "prompt": "Create a text-free1999gouache advertising illustration, square: an ORIGINAL cream square games console with curved round top-loading lid, FOUR small front controller ports, beside an original cream chunky two-grip controller with a small BLANK central memory screen and coloured plain buttons; orange cobalt and cream abstract backdrop. Fictional parody hardware, no real brands or logos or familiar swirl marks, no letters/numerals/writing. Painted broad shapes, not photo or packaging mockup.",
+      "review": "Accepted after visual review: original painted imagery, no lettering/logos, kid friendly, clear print-scale composition.",
+      "height": 320,
+      "bytes": 14106
+    },
+    {
+      "file": "coaster.webp",
+      "source": "exec-9ded798f-3a20-4a26-b490-1d8f8228dd54.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A red rollercoaster diving from a steep wooden tower above a lush miniature theme park, carousel tents balloons and tiny colourful visitors, summer sun, confident isometric1999strategy-game gouache art.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 33286
+    },
+    {
+      "file": "jacks.webp",
+      "source": "exec-720c290b-43cc-418e-8384-a76804677951.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A team of four original purple and green jack-shaped bouncing toy creatures wearing tiny explorer hats on an island of enormous grass and mushrooms, funny long springy limbs, a round sheep nearby, mischievous1990s turn-based strategy painting.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 26862
+    },
+    {
+      "file": "kingdom.webp",
+      "source": "exec-94894556-0a40-4db5-9281-edeb19dba713.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A medieval strategy-game panorama: three original knights in deep blue and russet tabards before a stone castle with rounded towers, small timber village and wheatfield, blank banners without symbols, ochre navy and parchment, no violence.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 27780
+    },
+    {
+      "file": "encyclopedia.webp",
+      "source": "exec-ce66cb94-9122-45f1-8185-9547e49e75bd.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An educational1999encyclopedia illustration: a blue terrestrial globe beside an ammonite fossil, a brass telescope and a small open book with BLANK pages, volcano and stars in a painted background, rich navy ochre cream, no words or markings.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 25300
+    },
+    {
+      "file": "pinball.webp",
+      "source": "exec-899a2144-36a3-4730-9e46-95ac3956e1d2.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A space-themed pinball table fills frame diagonally, chrome silver ball in foreground, purple playfield with stylised original tiny spacecraft and planet-shaped bumpers, pink and golden lamps, silver ramps, no scoreboard, no lettering, no numeric values on playfield.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 33132
+    },
+    {
+      "file": "explorer.webp",
+      "source": "exec-2b2a7adf-2a1c-482b-b7da-1e966172b9d8.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An original chunky armoured space explorer with a plain closed helmet holds a small cyan lantern in a rusty brown castle-like industrial corridor, comical round robot far away, mysterious but friendly1996shooter mood, ochre rust and teal, no gun/gore.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 21094
+    },
+    {
+      "file": "arena.webp",
+      "source": "exec-535ea6d8-b672-4b8e-84a5-5669d7773ba2.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: Two original armoured futuristic athletes sprinting along a floating violet sci-fi arena walkway, cyan lights and orange planet, rounded unfamiliar helmet shapes, unbranded gear, dynamic1999multiplayer action painting, no weapons or writing.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 23884
+    },
+    {
+      "file": "office.webp",
+      "source": "exec-d6244d3c-3c25-48e6-bd47-536bf32f2cdb.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An original1999football manager still life: green chalk tactics board with unmarked round red/blue counters beside a plain leather football and a folded navy tracksuit on a wooden dugout bench, sunlit empty footballpitch beyond. NO watch, NO clock, NO numbers, NO logos, NO writing. Painted navy cream grassgreen.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 20146
+    },
+    {
+      "file": "desktop.webp",
+      "source": "exec-e3c79de9-e023-4049-84a8-1c7d3639d095.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: Original1998educational software painting: a beige CRT computer on a wooden desk with an open cream BLANK notebook and tiny origami paper kite, soft blue cloud backdrop, symbolic friendly home-computing, no operating-system symbols or interface content.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 16566
+    },
+    {
+      "file": "internet.webp",
+      "source": "exec-f9591a89-b379-4087-bf10-3eee196f6984.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: Original1999internet subscription illustration: a small blue terrestrial globe orbiting a cream spiral telephone cable and a beige external modem with tiny green lights, abstract navy starry sky, friendly technological optimism, no UI or text.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 17996
+    },
+    {
+      "file": "robot-band.webp",
+      "source": "exec-7e61e807-0c1e-4689-9af8-59e832b453a1.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A cheerful original brass tin robot band playing a trumpet, small drum kit and accordion on a little stage, stubby mechanical bodies, violet orange teal spotlights, child-friendly hand-painted1997music CD inlay, no lettering.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 22198
+    },
+    {
+      "file": "mail-order.webp",
+      "source": "exec-8a3ae87d-77cb-4d6a-bf59-2f98c9f3d8c5.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A friendly purple delivery van with a PLAIN unmarked body stopping beside a stack of kraft parcels and an original purple badger courier with white face stripe, goggles and teal trainers, warm golden postal theme, no words or logos or addresses, painted1999catalogue illustration.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 26762
+    },
+    {
+      "file": "modem-mystery.webp",
+      "source": "exec-da31c1ce-217c-4339-ac32-14ad448abe2b.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An atmospheric children's mystery still life: beige external dial-up modem with little green lights, blue notebook with BLANK page, biscuit crumbs and a brass key on a dark wooden desk, deep blue and lamplight amber, original1999paperback gouache painting.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 14914
+    },
+    {
+      "file": "radio.webp",
+      "source": "exec-561d36ee-57bf-42c6-ab14-1b5ed4abed42.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A technical-but-friendly educational painting of a cutaway 1990s portable radio with a copper tuning coil, cream speaker cone and telescopic aerial, stylised radio waves with no annotations or labels, blue navy ochre cream, no brands.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 25070
+    },
+    {
+      "file": "space-kat.webp",
+      "source": "exec-a54f646d-d3f7-48ee-b841-940d935fe95d.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An original plump tabby space-cat captain in a round cream spacesuit and bubble helmet, holding a picnic basket on a tiny pale cheese-coloured moon, a cardboard robot and smiling mouse beside a very small stubby rocket. Purple ochre turquoise storybook1995comic painting. No signs, writing or speech bubbles.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 20814
+    },
+    {
+      "file": "directory.webp",
+      "source": "exec-22491192-6ab8-4fc2-9955-542398b96080.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A cream1990scorded push-button telephone with BLANK keys rests beside a closed blue address book and a sharpened pencil on a warm wooden table, soft light, no numbers or lettering anywhere, original educational print still life.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 17410
+    },
+    {
+      "file": "telly.webp",
+      "source": "exec-a2d20fe8-ce40-4fc2-98d4-fce70303706e.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: Three original comical adult space explorers in mustard and teal practical jumpsuits seated in a homely crooked spaceship bridge, one holds a kettle, large orange planet outside round window; playful original1990sscience-fictionTV parody, no famous uniforms or actor likenesses.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 24476
+    },
+    {
+      "file": "cereal.webp",
+      "source": "exec-db7bbf21-7e1e-4abf-a0e6-9fdeaebe8b6e.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: Sunny breakfast illustration for a fictional1990scereal carton: a happy original little golden sun character with simple mitten hands presenting a blue bowl of crisp golden cornflakes and milk, wheat ears and morning sky, warm yellow cream red, no box mockup, no lettering.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 23252
+    },
+    {
+      "file": "kitty.webp",
+      "source": "exec-c2186fa2-0a0d-4e65-964e-288dcc5fd312.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A cheerful original plump ginger cat sitting beside a cream bowl of crunchy brown cat biscuits and two little silver fish, violet ochre cream advertising gouache, welcoming expressive face,1990spet-food illustration, no packaging shape and no words.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 17394
+    },
+    {
+      "file": "crisps.webp",
+      "source": "exec-fa1c4577-6e74-4c6f-9418-6b55e53fe969.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A lively1990ssnack advertising painting: curled golden potato crisps flying past a glass vinegar cruet and little pile of sea salt on a deep teal background, bold sweeping composition and cream highlights, no labels or text.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 26470
+    },
+    {
+      "file": "orange.webp",
+      "source": "exec-fc579721-f5f5-489a-a9c5-453e2bd92ca9.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: Two fresh oranges, one sliced to show juice, green leaf and a fizzing golden splash on a deep burnt-orange background, playful1990ssoft-drink advertising gouache, simple juicy forms, no bottle or can, no letters.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 20198
+    },
+    {
+      "file": "stegosaur.webp",
+      "source": "exec-cd5de738-fe14-4c60-b29e-65b07a74cc8b.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An ORIGINAL friendly small emerald stegosaur with round snout, orange broad back plates and purple satchel crossing a jungle footbridge, no shoes or existing dinosaur mascot features, sunny teal ochre green1995platform-adventure painting.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 32860
+    },
+    {
+      "file": "board-game.webp",
+      "source": "exec-cdf3c5e2-3788-4512-9852-d462900dd3e4.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An original wooden tabletop marble-and-sticks family game: a transparent round amber tower with many coloured blunt sticks and glass marbles tumbling into a wooden tray, warm orange navy cream, illustrated toy-catalogue scene, no named game branding or words.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 22748
+    },
+    {
+      "file": "construction.webp",
+      "source": "exec-6087d540-bb91-4517-938e-4a1f2bca5717.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A homemade toy rollercoaster assembled from BLUE plastic rods and connectors with a little yellow cart running round a loop on a wooden bedroom shelf, original construction kit advertising illustration, no logos or toy brand designs.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 19878
+    },
+    {
+      "file": "workshop.webp",
+      "source": "exec-49fa91e5-89f7-4254-a11c-135642a7e50f.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An overhead editorial illustration: a sharpened yellow pencil, BLANK graph paper, simple game-controller without markings, brass ruler with NO numbers, small paper isometric maze model and an eraser, teal ochre cream1990sUKgames-mag gouache, no writing.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 17432
+    },
+    {
+      "file": "postbag.webp",
+      "source": "exec-9572c216-d9bb-4ddb-b3b2-9b570a9e4f5f.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A cheerful heap of cream envelopes, blank colourful postage stamp rectangles, a purple canvas mailbag and a fountain pen on a desk, all envelopes entirely unaddressed and blank, warm teal russet cream1990sUKgames-mag painted editorial illustration.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 20722
+    },
+    {
+      "file": "comic.webp",
+      "source": "exec-72ecf5df-d75f-42fd-918f-66c4cf0321e4.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An ORIGINAL textless four-panel comic strip in a single square image:1friendly tabby space cat in cream spacesuit lands tiny cardboard rocket on cheese-coloured moon,2cat finds a wrapped sandwich,3small tin robot offers picnic basket,4cat and mouse share lunch under stars. Clean ink outlines with warm painted colour,1999children's magazine comic, all panels contain NO lettering, NO captions, NO speech bubbles, NO signs.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 34714
+    },
+    {
+      "file": "winter.webp",
+      "source": "exec-cc8d1ccf-19b6-4b76-8ca1-0a910c4333ca.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A friendly original tin robot wearing a red knitted scarf stacking plain colourful BLANK game boxes beside a beige family PC beneath hanging paper stars, warm winter lamplight, snow visible through window,1999games-mag holiday illustration, navy copper cream.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 22206
+    },
+    {
+      "file": "pod.webp",
+      "source": "exec-59a25ea0-31f4-4946-90ba-40ef824d0d92.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An ORIGINAL tiny open-cockpit hoverpod with two short chunky cobalt engines attached close to a wide orange chassis, racing above an ochre desert canyon, dust trail and dramatic rock arches, different silhouette from famous films, teal orange cream painting.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 21238
+    },
+    {
+      "file": "grotlings.webp",
+      "source": "exec-2a818c5a-be1f-4a05-bf9a-7d44ca4727cf.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A procession of five original tiny mint-green round-nosed cave workers with tufted PURPLE hair and blue work shirts crossing a homemade wooden bridge over a small stream, one carries a tiny spade, friendly clever puzzle-game1992painting, no existing character hairstyles or faces.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 24802
+    },
+    {
+      "file": "milk.webp",
+      "source": "exec-b58f2ebd-8873-4893-9d92-9f2f1223c121.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A calm wholesome1990sgrocery-label painting of a black-and-white cow grazing in a green meadow with daisies and a small PLAIN cream milk jug, blue sky, generous simple shapes, no brands no writing.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 22198
+    },
+    {
+      "file": "eggs.webp",
+      "source": "exec-61990788-cf29-4167-b884-2fd6ff1bf457.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A friendly russet hen standing on golden straw beside three large cream eggs in a simple wicker nest, green meadow beyond, warm country-market1990sgrocery advertising gouache, no lettering.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 28764
+    },
+    {
+      "file": "cheese.webp",
+      "source": "exec-ecd5f532-931c-47b8-92ba-1b2ff0c37892.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A wedge of golden mature cheese and three thick slices on a wooden board with one plain cream butter knife and green meadow behind, bold appetising1990sgrocery-label gouache, yellow cream russet, no waxseal marks or text.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 22522
+    },
+    {
+      "file": "peas.webp",
+      "source": "exec-5cf20add-ecd0-4236-8e6b-41e19479eb4a.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: An overflowing open fresh pea pod with round green peas, two leaves and a small cream bowl, dark leafy green background, simple cheerful1990sfrozen-food label illustration, no lettering.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 17298
+    },
+    {
+      "file": "fish.webp",
+      "source": "exec-ad63188a-6de3-4ba1-9be0-a766792b4c63.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: Four golden crumbed fish fingers on a cream plate beside a lemon wedge, little original red fishing boat far out at sea behind, navy gold cream1990sgrocery packaging illustration, no logos or writing.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 25288
+    },
+    {
+      "file": "beans.webp",
+      "source": "exec-977bd35d-af7c-4e0e-ac53-570d21e64668.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A cream bowl filled with orange baked beans in tomato sauce, one fresh red tomato and green leaf beside it, teal cream ochre1990sgrocery label illustration, simple legible appetising painted shapes.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 14374
+    },
+    {
+      "file": "soup.webp",
+      "source": "exec-2c2fd8d3-945a-4680-a73a-0760784b49f7.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A red tomato cut in half beside a cream bowl of velvety tomato soup with a wooden spoon, warm red and cream with a teal napkin, painted1990sgrocery-label still life, no text anywhere.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 18110
+    },
+    {
+      "file": "bread.webp",
+      "source": "exec-46cedec6-0ebb-4720-894a-d9c8cfcd3b4a.png",
+      "width": 320,
+      "prompt": "Create a TEXT-FREE PAINTED ILLUSTRATION. This is NOT a box cover layout, NOT a photo, NOT CGI. The entire image must be original hand-painted gouache/airbrush artwork with visible brushwork, broad strong shapes and matte printed1990s colours. Square illustration only, no borders. No lettering of any kind, no logos, no words, no symbols on any object, no brands or familiar characters. The title will be added later outside the image. All important shapes central75%, legible at320px.\nPaint ONLY this scene: A fresh golden sliced white loaf on a wooden bread board, two wheat ears and a checked teal tea towel, airy cream background, simple bold1990sgrocery commercial gouache illustration, no packaging, lettering or brandmarks.",
+      "review": "Visually reviewed: original painted imagery, no lettering/logos, kid-friendly; rejected variants are excluded.",
+      "height": 320,
+      "bytes": 18428
+    }
+  ]
+}

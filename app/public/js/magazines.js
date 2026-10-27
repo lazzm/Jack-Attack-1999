@@ -6,13 +6,12 @@
  const T=H.T,M=K.mat,images={},covers={},backs={},pages=new Map(),bindings=new Map();let reading=null;
  const aliases=Object.fromEntries(Object.entries(C.LEGACY_ALIASES).map(([id,issue])=>[issue,id]));
  const physicalId=id=>aliases[id]||'pmb.'+id;
- const ready=Promise.all(C.ISSUES.map(issue=>new Promise(resolve=>{
-  const im=images[issue.id]=new Image();im.onload=()=>{const tx=covers[issue.id];if(tx){tx.userData.g.drawImage(im,0,0,384,512);tx.needsUpdate=true}if(backs[issue.id]){drawBack(backs[issue.id].userData.g,384,512,issue);backs[issue.id].needsUpdate=true}H.dirty();resolve()};im.onerror=resolve;im.src='/art/magazines-v1/'+issue.art+'.webp';
- })));
- function cover(id){return covers[id]||(covers[id]=K.tex('reading:cover:'+id,384,512,(g,w,h)=>{g.fillStyle=C.byId[id].color;g.fillRect(0,0,w,h);if(images[id]?.naturalWidth)g.drawImage(images[id],0,0,w,h)},{clamp:true}))}
+ const ready=Promise.resolve(window.PrintArt?.ready).then(()=>{for(const issue of C.ISSUES){images[issue.id]=window.PrintArt?.image(issue.id);const tx=covers[issue.id];if(tx){drawCover(tx.userData.g,384,512,issue);tx.needsUpdate=true}if(backs[issue.id]){drawBack(backs[issue.id].userData.g,384,512,issue);backs[issue.id].needsUpdate=true}}for(const tx of pages.values())tx.userData.repaint?.();H.dirty()});
+ function drawCover(g,w,h,issue){if(window.PrintArt?.magazine(g,issue,w,h))return;g.fillStyle=issue.color;g.fillRect(0,0,w,h);g.fillStyle='#fff1cf';let size=48;do{g.font='bold '+size+'px Impact';if(g.measureText('JACK ATTACK!').width<w-32)break;size--}while(size>24);g.textAlign='center';g.fillText('JACK ATTACK!',w/2,64);g.textAlign='left';g.font='bold 29px Arial';K.wrapText(g,issue.headline,22,180,w-44,36)}
+ function cover(id){return covers[id]||(covers[id]=K.tex('reading:cover:'+id,384,512,(g,w,h)=>drawCover(g,w,h,C.byId[id]),{clamp:true}))}
  function drawBack(g,w,h,doc){
   g.fillStyle='#efe5c8';g.fillRect(0,0,w,h);g.fillStyle=doc.color;g.fillRect(0,0,w,88);g.fillStyle='#fff4d5';g.font='bold 42px Impact';g.textAlign='center';g.fillText('PIXEL POST',w/2,57);g.font='bold 16px Arial';g.fillText('GAMES BY MAIL • 1999',w/2,78);
-  g.fillStyle='#292c27';g.font='bold 24px Georgia';g.fillText('YOUR NEXT BIG GAME',w/2,123);if(images[doc.id]?.naturalWidth)g.drawImage(images[doc.id],106,142,172,229);
+  g.fillStyle='#292c27';g.font='bold 24px Georgia';g.fillText('YOUR NEXT BIG GAME',w/2,123);window.PrintArt?.paint(g,doc.id,106,142,172,229);
   g.font='bold 21px Georgia';let y=400;for(const line of lines(g,doc.headline,w-40).filter(Boolean)){g.fillText(line,w/2,y);y+=25}g.font='17px Arial';g.fillText('Browse the catalogue on JackNet.',w/2,469);g.font='bold 18px Courier New';g.fillText('www.pixelpost.jnet',w/2,497);g.textAlign='left';
  }
  function backCover(doc){return backs[doc.id]||(backs[doc.id]=K.tex('reading:back:'+doc.id,384,512,(g,w,h)=>drawBack(g,w,h,doc),{clamp:true}))}
@@ -20,18 +19,22 @@
  function pageTexture(doc,index){
   const compact=innerWidth<700||innerWidth/innerHeight<1.1,key=doc.id+':'+index+(C.byId[doc.id]&&compact?':narrow':'');if(pages.has(key))return pages.get(key);
   let layout;
-  const tx=K.tex('reading:page:'+key,768,1024,(g,w,h)=>{
+  const draw=(g,w,h)=>{
    if(C.byId[doc.id]){layout=editorialPage(g,w,h,doc,index,compact);return}
    const p=doc.pages[index];g.fillStyle='#f2ead7';g.fillRect(0,0,w,h);g.fillStyle=doc.color;g.fillRect(0,0,w,24);
    g.fillStyle='#33372c';g.font='bold 22px Arial';g.fillText(doc.publication+(doc.publication==='JACK ATTACK!'?' • ISSUE '+doc.issue:''),40,66);
    g.font='bold 38px Georgia';const head=lines(g,p.title,w-80).filter(Boolean);let y=130;for(const line of head){g.fillText(line,40,y);y+=44}y+=24;
+   if(window.PrintArt?.paint(g,doc.id,40,y,w-80,146)){y+=174}
    let size=29,body;do{g.font=size+'px Georgia';body=lines(g,window.Cast?Cast.t(p.body):p.body,w-80);if(y+body.length*size*1.25<h-100)break;size--}while(size>18);
    g.fillStyle='#272b25';for(const line of body){if(line)g.fillText(line,40,y);y+=size*1.25}
    layout={font:size,bottom:y,footer:h-80};
    g.fillStyle=doc.color;g.fillRect(40,h-72,w-80,2);g.font='20px Arial';g.fillText(String(index+1).padStart(2,'0'),40,h-37);
    let footer=20;do{g.font=footer+'px Arial';if(g.measureText(doc.title).width<w-130)break;footer--}while(footer>12);
    g.textAlign='right';g.fillText(doc.title,w-40,h-37);
-  },{clamp:true});tx.userData.layout=layout;pages.set(key,tx);return tx;
+  };
+  const tx=K.tex('reading:page:'+key,768,1024,draw,{clamp:true});
+  tx.userData.repaint=()=>{const g=tx.userData.g;g.save();g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,768,1024);draw(g,768,1024);g.restore();tx.userData.layout=layout;tx.needsUpdate=true};
+  tx.userData.layout=layout;pages.set(key,tx);return tx;
  }
  function editorialPage(g,w,h,doc,index,compact){
   const p=doc.pages[index],sections=['FROM THE EDITOR','UNDER REVIEW','PLAYER’S WORKSHOP','YOUR LETTERS','ADVERTISING FEATURE','THE BACK-PAGE COMIC'],section=sections[index%6];
@@ -41,26 +44,21 @@
   let y=116;for(const line of head){g.fillText(line,36,y);y+=titleSize+3}
   const top=y+6,hero=!compact&&index===4?224:180,art=['space','city','dungeon','space','robots','critters','space','city','robots','dungeon','critters','space'][(doc.month-1)%12];
   g.fillStyle='#242e34';g.fillRect(36,top,w-72,hero);
-  if(index===3){
+  const generated=window.PrintArt?.paint(g,index===2?'editorial.guide':index===3?'editorial.letters':index===5?'editorial.comic':doc.id,36,top,300,hero,index===5?'contain':'cover');
+  if(generated){/* Original text-free editorial illustration; captions stay outside it. */}
+  else if(index===3){
    // The letters desk: actual printed envelopes, stamp blocks and ruled paper.
    g.fillStyle='#e9ddbd';g.fillRect(60,top+22,252,116);g.strokeStyle='#9e8b67';g.lineWidth=2;g.strokeRect(60,top+22,252,116);g.beginPath();g.moveTo(60,top+22);g.lineTo(186,top+82);g.lineTo(312,top+22);g.stroke();g.fillStyle=doc.color;g.fillRect(268,top+34,28,34);
   }else if(index===2){
    g.strokeStyle='#9ab3a0';g.lineWidth=1;for(let x=48;x<326;x+=20){g.beginPath();g.moveTo(x,top+12);g.lineTo(x,top+hero-12);g.stroke()}for(let z=top+12;z<top+hero;z+=20){g.beginPath();g.moveTo(48,z);g.lineTo(326,z);g.stroke()}
    g.strokeStyle='#f2c354';g.lineWidth=7;g.beginPath();g.moveTo(70,top+120);g.lineTo(130,top+120);g.lineTo(130,top+60);g.lineTo(230,top+60);g.lineTo(230,top+114);g.lineTo(300,top+114);g.stroke();g.fillStyle='#fff2bf';for(const [x,z]of [[70,120],[130,60],[230,114],[300,114]])g.fillRect(x-5,top+z-5,10,10);
-  }else if(index===4&&images[doc.id]?.naturalWidth){
-   g.save();g.translate(157,top+hero/2);g.rotate(-.08);if(compact)g.scale(.76,.76);g.fillStyle='#000';g.fillRect(-69,-96,144,192);g.drawImage(images[doc.id],-74,-101,144,192);g.restore();
-  }else if((index===0||index===1)&&images[doc.id]?.naturalWidth){
-   // Use this issue's own cover illustration for its review, rather than
-   // an unrelated generic scene. Crop clear of the cover's masthead.
-   const im=images[doc.id],sh=Math.min(im.height,im.width*hero/300);
-   g.drawImage(im,0,(im.height-sh)*.58,im.width,sh,36,top,300,hero);
   }else if(!window.PrintArt?.paint(g,art,36,top,300,hero)){
    // Printed geometric illustration while the original artwork is decoding.
    g.fillStyle=doc.color;g.fillRect(36,top,300,hero);g.strokeStyle='#f0d69c';g.lineWidth=5;for(let n=0;n<4;n++)g.strokeRect(66+n*32,top+24+n*12,110,70);
   }
-  g.fillStyle='#f8e9bc';g.font='bold 26px Arial';let yy=top+35;const caption=index===0?doc.headline:index===1?'THE PLAY TEST':index===2?'PENCIL. PAPER. PRACTICE.':index===3?'THE JACK ATTACK! POSTBAG':index===4?'PAPER POWER!':'FIVE PANELS. ONE BIG MESS.';
+  g.fillStyle='#f8e9bc';g.font='bold 26px Arial';let yy=top+35;const caption=index===0?doc.headline:index===1?'THE PLAY TEST':index===2?'PENCIL. PAPER. PRACTICE.':index===3?'THE JACK ATTACK! POSTBAG':index===4?'PAPER POWER!':'SPACE KAT’S LUNAR LUNCH';
   for(const line of lines(g,caption,330).filter(Boolean)){g.fillText(line,358,yy);yy+=30}
-  g.font='19px Georgia';const sub=index===0?doc.kicker:index===1?'Read the verdict. Try the challenge. Make up your own mind.':index===2?'Keep this guide beside the keyboard.':index===3?'Your questions, our very best excuses.':index===4?'The finest mail-order nonsense of 1999.':'Starring Jack, Dave and Crystal.';
+  g.font='19px Georgia';const sub=index===0?doc.kicker:index===1?'Read the verdict. Try the challenge. Make up your own mind.':index===2?'Keep this guide beside the keyboard.':index===3?'Your questions, our very best excuses.':index===4?'The finest mail-order nonsense of 1999.':'A little illustrated nonsense before this month’s story.';
   for(const line of lines(g,sub,330).filter(Boolean)){g.fillText(line,358,yy+10);yy+=24}
   y=top+hero+34;g.fillStyle=ink;
   const columns=compact?1:2,column=compact?w-72:(w-96)/2,bottom=h-108;let font=compact?30:27,body,rows;

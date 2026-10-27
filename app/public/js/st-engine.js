@@ -132,6 +132,7 @@
     if (previous && previous.ch === 1 && state.ch === 2) window.StoryGuide?.chapter(2, 'Saving up');
     if (current && previous && C.current(previous)?.id !== current.id) {
       const dialogue = {
+        meetmom: ['Mom', 'Morning, love. Room first, then you can do what you like. Clothes in the basket, rubbish in the bin, plates down to the kitchen.'],
         tidy: ['Mom', 'First things first: clothes in the basket, rubbish in the bin. And bring your dishes down!'],
         bed: ['Mom', 'Much better. Now straighten that bed, please.'],
         bin: ['Mom', 'One last job: bring the bin bag down to the kitchen.'],
@@ -140,7 +141,11 @@
         'lead.power': ['Dad', 'Everything on the desk? Plug the leads into the matching sockets, then try the big button.'],
         pc: ['Dad', 'There you go. Your own computer. Try not to fill it with games.']
       }[current.id];
-      if (dialogue) dialogueQueue.push(['st.opening.' + current.id, ...dialogue]);
+      // The family say it in person when they're in the house (js/np-life.js); otherwise the line is a subtitle.
+      // Without the 3D family (phones), Mom's first chat completes itself so nobody waits for her.
+      const inPerson = !!window.HouseFamily?.storyLine?.(current.id);
+      if (dialogue && !inPerson) dialogueQueue.push(['st.opening.' + current.id, ...dialogue]);
+      if (current.id === 'meetmom' && !window.HouseFamily?.enabled) setTimeout(() => event('meetmom'), 4500);
     }
     for (const fn of listeners) fn(state);
     check();

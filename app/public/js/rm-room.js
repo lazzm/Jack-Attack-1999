@@ -273,12 +273,24 @@
     H.support('bedroom', -76, -55, 76, 31, 0); // the desk top
     const L = L0(); // the PC's own surfaces (things can sit on the tower and the keyboard)
     H.support('bedroom', L.tx - 9.5, L.tz - 16.5, L.tx + 9.5, L.tz + 17.5, -42.3, {when:()=>window.StoryAccess?.available!==false||!!window.StorySnapshot?.done?.['part.tower']});
-    H.support('bedroom', L.kx - 14, 7, L.kx + 14, 16, -2.2, {when:()=>window.StoryAccess?.available!==false||!!window.StorySnapshot?.done?.['part.keys']});
+    H.support('bedroom', L.kx - 14, 7, L.kx + 14, 16, -2.2, {thick:2.2,when:()=>window.StoryAccess?.available!==false||!!window.StorySnapshot?.done?.['part.keys']});
     H.support('bedroom', 104, BZ, 140, -20, 21.6); // the bedside table
     H.support('bedroom', 150, BZ + 6, 236, 136, 30); // the bed
     H.support('bedroom', LX, 178, LX + 46, 246, -9); // the chest of drawers
     H.support('bedroom', TX - 36, -55, TX + 36, -13, 27.4); // the TV cabinet top
-    H.block('U', -76, -60, 76, 33); // the desk
+    H.block('U', -76, -60, 76, 33, { solid: false }); // the desk (for the player: you can't walk into it)
+    // For things: the real desk. A 3.2 cm top whose underside is 69.8 cm off the carpet, the left end board, the drawer
+    // unit and the modesty panel. The knee space between them is open, so the chair's seat slides under the top.
+    if (H.solid) {
+      H.solid('U', -76, -55, 76, 31, 0, 3.2, { kind: 'desk' });
+      H.solid('U', -76, -54, -72, 30, 2, FY + 1, { kind: 'desk' });
+      H.solid('U', 38, -52, 74, 31, 2, FY + 1, { kind: 'desk' });
+      H.solid('U', -72, -53.4, 38, -52, 6, 66, { kind: 'desk' });
+      H.solid('U', -69, -47, -55, -33, -36, 0, { kind: 'lamp' }); // the anglepoise's base and arm
+      const pc = part => () => window.StoryAccess?.available !== false || !!window.StorySnapshot?.done?.['part.' + part];
+      H.solid('U', L.mx - 19, -19, L.mx + 19, 1, -40, 0, { kind: 'pc', when: pc('monitor') });
+      H.solid('U', L.tx - 10, L.tz - 17, L.tx + 10, L.tz + 19, -42.3, 0, { kind: 'pc', when: pc('tower') });
+    }
     paintSky();
   }
   function borderRun(B, m, x0, z0, x1, z1, ry) { const len = Math.hypot(x1 - x0, z1 - z0); const g = new T.PlaneGeometry(len, 13); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) { uv.setX(i, uv.getX(i) * len / 120); uv.setY(i, 1 - uv.getY(i)); } B.geo(g, (x0 + x1) / 2, -96, (z0 + z1) / 2, m, { ry }); }
@@ -373,11 +385,13 @@
     const D = K.into(dg); D.rbox(0, 6.6, 30.4, 33.2, 8.6, 1.8, 0.35, dm, { uv: 60 }); deskHandle(D, 0, 6.6, 31.3); D.box(0, 10.5, 0, 32, 1, 58, M('#4a3420')); D.box(-15.5, 7, 0, 1, 8, 58, M('#4a3420')); D.box(15.5, 7, 0, 1, 8, 58, M('#4a3420'));
     D.box(0,6.5,-28.5,32,8,1,M('#4a3420'));
     D.box(-5,9.8,6,18,.25,24,M('#f4f0e0'),{ry:12});D.box(6,9.5,12,16,.25,20,M('#fffbe0'),{ry:-8}); D.box(4, 9.4, -10, 9, 0.6, 9.4, M({ c: '#fff', map: tex('floppyLabel') }));
-    H.openable('drawer', { label: 'Desk drawer', pivot: dg, type: 'slide', axis: 'z', amt: 22, base: 0, onToggle: open => { if (open) setTimeout(() => { if (H.OPEN.drawer && H.OPEN.drawer.open) bits('drawer'); }, 420); } });
+    H.openable('drawer', { label: 'Desk drawer', pivot: dg, type: 'slide', axis: 'z', amt: 22, base: 0, onToggle: open => { if (open && !H.held()) setTimeout(() => { if (H.OPEN.drawer && H.OPEN.drawer.open && !H.held()) bits('drawer'); }, 420); } }); // (hands full: it just slides open)
     // An ordinary late-90s armless task chair: woven upholstery, a separate
     // padded back, moulded shell, gas lift and five twin-wheel castors.
     const chairGroup=new T.Group();chairGroup.name='desk-chair';
-    const chairBatch=K.batch(),ch=K.into(chairBatch),chp=M({c:'#292b2f',sh:18,sp:'#24272a'}),steel=M({c:'#272a2c',sh:30}),chrome=M({c:'#90989e',sh:65,sp:'#727d83'}),rubber=M({c:'#202226',sh:2});
+    // The base (star, castors, hub) stays put; the seat, back and gas lift turn together (physics: t.swivel).
+    const chairSwivel=new T.Group();chairSwivel.name='desk-chair-swivel';chairGroup.add(chairSwivel);
+    const chairBatch=K.batch(),ch=K.into(chairBatch),seatBatch=K.batch(),sw=K.into(seatBatch),chp=M({c:'#292b2f',sh:18,sp:'#24272a'}),steel=M({c:'#272a2c',sh:30}),chrome=M({c:'#90989e',sh:65,sp:'#727d83'}),rubber=M({c:'#202226',sh:2});
     const fabric=K.tex('rm.chair.fabric',128,128,(g,w,h)=>{g.fillStyle='#555e70';g.fillRect(0,0,w,h);const rand=K.rnd(9904);for(let y=0;y<h;y+=2)for(let x=0;x<w;x+=2){g.fillStyle=rand()<.5?'rgba(19,26,40,.13)':'rgba(194,198,205,.11)';g.fillRect(x,y,1,2)}},{rep:[3,3]});
     const upholstery=M({c:'#d3d8df',map:fabric,sh:2,sp:'#090b0d'});
     const leg=new T.BoxGeometry(6,3.2,29,1,1,4),lp=leg.attributes.position;
@@ -387,21 +401,29 @@
       const caster=b.at(0,0,29.5);caster.cyl(0,-6.4,0,.9,.9,2.4,12,chrome);caster.rbox(0,-4.8,-.5,1.8,4,3.8,.6,chp);caster.cyl(0,-3,0,.65,.65,5.6,12,steel,{rz:90});
       for(const side of [-1,1]){caster.cyl(side*2,-3,0,3,3,1.8,20,rubber,{rz:90});caster.cyl(side*2.94,-3,0,1.5,1.5,.16,16,chp,{rz:90});}
     }leg.dispose();
-    ch.cyl(0,-8,0,5.5,6.4,8,24,chp);ch.cyl(0,-14,0,3.4,4.1,14,20,chp);ch.cyl(0,-25.5,0,2,2,23,20,chrome);ch.cyl(0,-35.5,0,4,3.8,4.5,20,steel);
-    ch.rbox(0,-35.3,1,22,4.8,19,1.3,steel);ch.rbox(0,-39.2,1,45,3,42,1.4,chp);ch.rbox(0,-44.5,2,45,9,43,4,upholstery);
+    ch.cyl(0,-8,0,5.5,6.4,8,24,chp);ch.cyl(0,-14,0,3.4,4.1,14,20,chp);
+    sw.cyl(0,-25.5,0,2,2,23,20,chrome);sw.cyl(0,-35.5,0,4,3.8,4.5,20,steel);
+    sw.rbox(0,-35.3,1,22,4.8,19,1.3,steel);sw.rbox(0,-39.2,1,45,3,42,1.4,chp);sw.rbox(0,-44.5,2,45,9,43,4,upholstery);
     // Backrest support stays attached to the seat pan and the rear shell.
-    ch.rbox(0,-36.4,-17,6,3,15,1,steel);ch.rbox(0,-50,-23,5,30,3.5,1,steel);
-    for(let i=0;i<8;i++)ch.box(0,-45-i*1.9,-25,5.6,.65,1.1,chp);
-    ch.cyl(0,-52,-26.5,2.5,2.5,2.8,16,chp,{rx:90});ch.box(0,-52,-28,3.5,.65,.5,steel);
-    const back=ch.at(0,-72,-20,0,{rx:-8});back.rbox(0,0,-2.2,42,33,7,3.2,chp);back.rbox(0,0,2.8,39.5,30.5,6,2.9,upholstery);
+    sw.rbox(0,-36.4,-17,6,3,15,1,steel);sw.rbox(0,-50,-23,5,30,3.5,1,steel);
+    for(let i=0;i<8;i++)sw.box(0,-45-i*1.9,-25,5.6,.65,1.1,chp);
+    sw.cyl(0,-52,-26.5,2.5,2.5,2.8,16,chp,{rx:90});sw.box(0,-52,-28,3.5,.65,.5,steel);
+    const back=sw.at(0,-72,-20,0,{rx:-8});back.rbox(0,0,-2.2,42,33,7,3.2,chp);back.rbox(0,0,2.8,39.5,30.5,6,2.9,upholstery);
     for(const x of [-12,12]){back.rbox(x,0,-5.9,1.6,17,.8,.35,chp);for(const y of [-8,8])back.cyl(x,y,-6.4,.7,.7,.2,10,steel,{rx:90});}
-    ch.cyl(17,-35,6,.55,.55,19,12,steel,{rz:90});ch.rbox(27,-35,6,7,2.4,4,1,chp);
-    for(const x of [-8,8])for(const z of [-5,7])ch.cyl(x,-32.7,z,.65,.65,.5,10,chrome);
+    sw.cyl(17,-35,6,.55,.55,19,12,steel,{rz:90});sw.rbox(27,-35,6,7,2.4,4,1,chp);
+    for(const x of [-8,8])for(const z of [-5,7])sw.cyl(x,-32.7,z,.65,.65,.5,10,chrome);
     const tag=K.tex('rm.chair.label',192,96,(g,w,h)=>{g.fillStyle='#c9c5af';g.fillRect(0,0,w,h);A.text(g,'TASKMATE',96,32,'700 22px '+A.UIF,'#272b2c','center');A.text(g,'TYPE 98 / CHECK FIXINGS',96,61,'12px '+A.UIF,'#272b2c','center');A.text(g,'HEIGHT ADJUSTMENT →',96,81,'11px '+A.UIF,'#272b2c','center')},{clamp:true});
-    ch.decal(-14,-37.66,7,8,4,M({c:'#fff',map:tag}),{rx:-90});
-    chairBatch.build(chairGroup);K.into(chairGroup).shadow(0,0,0,70,70,.52);
+    sw.decal(-14,-37.66,7,8,4,M({c:'#fff',map:tag}),{rx:-90});
+    chairBatch.build(chairGroup);seatBatch.build(chairSwivel);K.into(chairGroup).shadow(0,0,0,70,70,.52);
     chairGroup.userData.periodChair={type:'armless upholstered task chair',castors:5,wheels:10,seatHeight:44.5};
-    loose('chair',chairGroup,{room:'bedroom',x:L0().mx,y:FY,z:106,ry:180},'My office chair',{kind:'furniture',holdD:90,obstacle:true,floorOnly:true,noStack:true,seat:{eye:110,front:2},use:()=>H.sitOn('chair'),useLabel:'Sit down'});
+    // Colliders at the model's real heights: the castor star (low enough to walk over), the seat with the column under
+    // it (things can sit on it), and the back. The seat (49 cm) fits under the desk top (69.8 cm); the back (55-89 cm) can't,
+    // so pushed in, the chair stops with its back against the desk edge: tucked in. Home is tucked in (a tidy desk).
+    // (three parts are enough: the column and the back strut sit inside the seat's and back's footprints)
+    const CHAIR_PARTS=[{t:'cyl',x:0,z:0,r:30,lo:0,hi:9,player:false},
+      {t:'box',x:0,z:2,hx:22.5,hz:21.5,lo:9,hi:49,sw:true,top:true},{t:'box',x:0,z:-19.6,hx:21,hz:5.4,lo:49,hi:89,sw:true}];
+    loose('chair',chairGroup,{room:'bedroom',x:L0().mx,y:FY,z:18,ry:180},'My office chair',{kind:'furniture',holdD:90,obstacle:true,floorOnly:true,noStack:true,seat:{eye:110,front:2},swivel:chairSwivel,
+      physics:{parts:CHAIR_PARTS,mass:9,mu:.32,coast:.42,tip:0,castors:true,drag:true,swing:1.2,swDamp:.86},use:()=>H.sitOn('chair'),useLabel:'Sit down'});
     // the desk lamp (an anglepoise; it really lights the room)
     buildDeskLamp(r);
     // little things on the desk: revision books, a mug of cold tea, a pencil pot
@@ -512,7 +534,8 @@
     rb.ball(-1.2, -14.4, 2, 0.7, 0.7, 0.3, M({ c: '#e8261c', e: '#600' }), 6); rb.ball(1.2, -14.4, 2, 0.7, 0.7, 0.3, M({ c: '#e8261c', e: '#600' }), 6);
     rb.box(-4.6, -9, 0, 1.6, 5, 1.8, M('#a8a8b0')); rb.box(4.6, -9, 0, 1.6, 5, 1.8, M('#a8a8b0')); rb.cyl(0, -17, 0, 0.2, 0.2, 2.4, 4, mMetal); rb.ball(0, -18.4, 0, 0.6, 0.6, 0.6, M('#f0c000'), 6);
     rb.box(0, -9, 2.3, 4, 3, 0.4, M({ c: '#2a6ae0', e: '#0a1a40' }));
-    [['#1a1a2a', 0], ['#7a1a1a', 4]].forEach(([c, dx]) => S2.rbox(-50 + dx, -12, 0, 3.6, 24, 17, 0.3, M(c), { rz: dx ? -6 : 0 }));
+    // Upright with a visible gap: the old six-degree lean intersected its neighbour.
+    [['#1a1a2a', 0], ['#7a1a1a', 5.2]].forEach(([c, dx]) => S2.rbox(-50 + dx, -12, 0, 3.6, 24, 17, 0.3, M(c)));
     H.spot('shelf', { label: 'My shelf', obj: g });
     H.spot('coaster',{label:'Buildex roller coaster',obj:coaster,act:run,wrapped:1});
     shelfLoose('coaster',coaster,{room:'bedroom',x:x0+4,y,z,ry:0},'Buildex roller coaster',[38,1,18],{use:run,useLabel:'Run the car'});
@@ -661,7 +684,8 @@
     BG.rbox(0,-4,-26.9,7,0.7,1,0.2,M('#601b20')); // concealed refill zip and pull, above the carpet
     BG.box(3.1,-4.5,-27.1,0.7,0.25,1.1,mMetal);
     BG.shadow(0,0,0,67,60,0.65);
-    loose('beanbag',bb,{room:'bedroom',x:TX+78,y:FY,z:56,ry:-135},'The beanbag',{kind:'furniture',holdD:95,obstacle:true,floorOnly:true,noStack:true,seat:{eye:81,front:4},use:()=>H.sitOn('beanbag'),useLabel:'Sit down'});
+    loose('beanbag',bb,{room:'bedroom',x:TX+78,y:FY,z:56,ry:-135},'The beanbag',{kind:'furniture',holdD:95,obstacle:true,floorOnly:true,noStack:true,seat:{eye:81,front:4},
+      physics:{parts:[{t:'cyl',x:0,z:0,r:29,lo:0,hi:28}],mass:6,mu:1.4,coast:.05,tip:0,drag:true,noSpin:true},use:()=>H.sitOn('beanbag'),useLabel:'Sit down'});
     // the games mags on the floor
     // These magazines are individual grab-API objects, built with the reading bookcase.
     // Open media rack: twenty separate slots, with enough clearance for a disc
@@ -682,6 +706,8 @@
     RK.shadow(0, 0, 0, 36, 26, 0.7, { sq: true });
     if(sparseStarter)buildStarterClutter(r);
     H.spot('rack', { label: 'Game shelf', obj: rk }); H.block('U', TX - 74, -56, TX - 38, -31);
+    H.support('bedroom', TX - 72.6, -55, TX - 39.4, -33, FY - 81.1, { thick: 1.2 }); // the rack's top (the VCR stands on it)
+    if (H.solid) { for (const x of [TX - 72.6, TX - 40.6]) H.solid('U', x, -55, x + 1.2, -33, FY - 80.5, FY + 1, { kind: 'rack' }); H.solid('U', TX - 23, -53, TX + 23, -25, -6.6, 27.4, { kind: 'telly' }); }
     H.block('U', TX - 38, -60, TX + 38, -11); // the cabinet
     // posters over the telly and on the side wall
     poster(B, TX, -64, BZ, 34, 46, tex('posterBand'), 0); pickBox(r, 'posterband', TX, -64, BZ + 1, 34, 46, 2); H.SPOTS.posterband.label = 'Band poster';
@@ -702,7 +728,7 @@
       // a crisp packet, squashed, its silver inside showing
       BN.geo(K.thicken(new T.PlaneGeometry(7, 9, 4, 4).applyMatrix4(new T.Matrix4().makeRotationX(-0.5)), 0.15), 2.4, -27.5, -1.5, M({ c: '#e8c020', sh: 40, sp: '#777', side: 2 }), { rz: 18, ry: 30 }); }
     binBatch.build(bn); K.into(bn).shadow(0, 0, 0, 24, 24, 0.7);
-    H.spot('bin',{label:'The bin',obj:bn});loose('bin',bn,{room:'bedroom',x:-118,y:FY,z:-42,ry:0},'Wastepaper bin',{obstacle:true,floorOnly:true});
+    H.spot('bin',{label:'The bin',obj:bn});loose('bin',bn,{room:'bedroom',x:-118,y:FY,z:-42,ry:0},'Wastepaper bin',{obstacle:true,floorOnly:true,physics:{round:true,parts:[{t:'cyl',x:0,z:0,r:10.6,lo:0,hi:27.6}],mass:.8,mu:.45,coast:.3,tip:.9}});
   }
   // Ordinary belongings stay behind the reserved console bays, clear of every
   // future machine and cartridge slot. These are props, never inventory grants.
@@ -730,7 +756,16 @@
       t.rbox(0,-5.5,0,1.2,11,7,.15,M('#62676d'));
       t.box(0,-5.5,3.55,1,10.5,.12,M({c:'#fff',map:K.tex('starter.mix'+n,64,512,(c,w,h)=>{
         c.fillStyle=['#e6d9b8','#d4dbcf','#dfcbbe'][col];c.fillRect(0,0,w,h);c.translate(32,256);c.rotate(-Math.PI/2);A.text(c,'RADIO MIX '+n+' • 1999',0,9,'700 30px '+A.UIF,'#263947','center');
-      },{clamp:true})}));t.shadow(0,0,0,2,8,.45,{sq:true});
+      },{clamp:true})}));
+      const inlay=A.printed('starter.inlay'+n,256,Math.round(256*10.4/6.3),(c,w,h)=>{
+        c.fillStyle=['#e6d9b8','#d4dbcf','#dfcbbe'][col];c.fillRect(0,0,w,h);c.textAlign='center';
+        c.fillStyle='#263947';c.font='700 28px '+A.UIF;c.fillText('RADIO MIX '+n,w/2,49);
+        c.font='700 13px '+A.UIF;c.fillText('RECORDED OFF THE RADIO',w/2,75);
+        if(!window.PrintArt?.paint(c,'band',16,96,w-32,h-176)){c.fillStyle='#58677b';c.fillRect(16,96,w-32,h-176);c.strokeStyle='#c0a773';c.lineWidth=4;for(let y=116;y<h-80;y+=24){c.beginPath();c.moveTo(28,y);c.lineTo(w-28,y);c.stroke()}}
+        c.fillStyle='#263947';c.font='700 19px '+A.HAND;c.fillText('My favourites • 1999',w/2,h-42);c.textAlign='left';
+      },{clamp:true});
+      t.box(.63,-5.5,0,.06,10.4,6.3,{r:M({c:'#fff',map:inlay,sh:6}),all:paper});
+      t.shadow(0,0,0,2,8,.45,{sq:true});
     }
     // Home recordings fit behind the consoles, rather than occupying their bays.
     ['GALAXY WALK','ROBOT RUMBLE'].forEach((title,i)=>{
@@ -898,7 +933,8 @@
   function buildBed(B, r) {
     const pm = mPine(), x0 = 148, x1 = 238, z0 = BZ + 1, z1 = 140, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, bw = x1 - x0, bl = z1 - z0;
     B.box(cx, 57, cz, bw, 12, bl, pm, { uv: 50 }); // the base
-    [[x0 + 3, z1 - 3], [x1 - 3, z1 - 3]].forEach(([x, z]) => B.box(x, 66, z, 6, 14, 6, pm));
+    // four solid legs (the head end used to float on nothing), with a little darkness where they meet the carpet
+    [[x0 + 3, z1 - 3], [x1 - 3, z1 - 3], [x0 + 3, z0 + 7], [x1 - 3, z0 + 7]].forEach(([x, z]) => { B.box(x, 66, z, 6, 14, 6, pm); B.shadow(x, FY, z, 11, 11, 0.55); });
     B.box(cx, 26, z0 + 2, bw + 4, 48, 4, pm, { uv: 50 }); // the headboard (low, under the window)
     B.box(cx, 1.5, z0 + 2, bw + 8, 3, 6, pm, { uv: 50 });
     for (let i = 0; i < 5; i++) B.box(x0 + 12 + i * 16.5, 20, z0 + 4.4, 6, 26, 1.2, M('#b88a50'));
@@ -921,7 +957,13 @@
     const duvet=B.geo(K.thicken(dg,.8),cx,36,cz+14,M({c:'#ffffff',map:tex('duvet')}),{rx:90});
     // The chore pillow is the bed's only pillow: it starts on the floor.
     pickBox(r, 'bed', cx, 43, cz + 10, bw, 14, bl - 10);H.spot('bed',{obj:duvet});
-    H.block('U', x0 - 2, BZ, RX, z1 + 4);
+    H.block('U', x0 - 2, BZ, RX, z1 + 4, { solid: false });
+    if (H.solid) { // things: the bed is a slab from the duvet to the base, on legs; flat things fit in the 10 cm underneath
+      H.solid('U', x0, z0 - 1, x1, z1, 30, 63, { kind: 'bed' });
+      H.solid('U', x0, z1, x1, z1 + 3, 55, FY + 1, { kind: 'bed' });
+      H.solid('U', x0 - 2, z0 - 1, x1 + 2, z0 + 4, 0, FY + 1, { kind: 'bed' });
+      for (const [x, z] of [[x0 + 3, z1 - 3], [x1 - 3, z1 - 3], [x0 + 3, z0 + 7], [x1 - 3, z0 + 7]]) H.solid('U', x - 3, z - 3, x + 3, z + 3, 59, FY + 1, { kind: 'bed' });
+    }
     // the bedside table: lava lamp, the radio alarm clock (the real time), a glass of water
     const bs = B.at(122, 0, BZ + 18);
     // a pine two-drawer bedside cabinet: overhanging rounded top, drawers set in a shadowed reveal, turned knobs, recessed plinth
@@ -1152,7 +1194,7 @@
     straps.build(sb);
     SB.shadow(0, 0, 0, 38, 22, 0.6);
     H.spot('schoolbag', { label: 'School bag', obj: sb, act: () => say('School bag', ['My school bag. Inside: three exercise books, a squashed banana, a letter about the Year 11 trip, and the Maths homework that was due Friday.', 'Homework diary: "French vocab test Thursday". It is not Thursday. Is it?', 'A calculator. Type 0.7734 and turn it upside down. It says hELLO. That is the whole joke. It never gets old.'][(S.sb = ((S.sb | 0) + 1) % 3)]) });
-    loose('schoolbag',sb,{room:'bedroom',x:58,y:FY,z:226,ry:-12},'School bag',{obstacle:true,floorOnly:true,useLabel:'Look inside'});
+    loose('schoolbag',sb,{room:'bedroom',x:58,y:FY,z:226,ry:-12},'School bag',{obstacle:true,floorOnly:true,useLabel:'Look inside',physics:{mass:3.5,mu:.95,coast:.1,tip:.45}});
     const laundry=new T.Group(),lbBatch=K.batch(),lb=K.into(lbBatch);
     // a woven laundry basket (wicker-look plastic), overflowing: a jumper, a white T-shirt and a sleeve hanging over the rim
     const wicker=K.tex('rm.wicker',256,64,(g,w,h)=>{g.fillStyle='#d8cfb4';g.fillRect(0,0,w,h);for(let x=0;x<w;x+=8){g.fillStyle='rgba(120,100,60,.35)';g.fillRect(x,0,2,h)}for(let y=0;y<h;y+=8)for(let x=0;x<w;x+=16){g.fillStyle='rgba(255,250,235,.35)';g.fillRect(x+((y/8)%2)*8,y+1,8,5);g.fillStyle='rgba(90,70,40,.22)';g.fillRect(x+((y/8)%2)*8,y+6,8,1)}},{rep:[3,5]});
@@ -1162,24 +1204,37 @@
 
     H.spot('washing', { label: 'Washing basket', act: () => say('Washing basket', 'Full. Overflowing. Mom says if it doesn\'t go downstairs it doesn\'t get washed. Fair.') }); pickBox(r, 'washing', 110, FY - 22, 222, 34, 44, 34);
     lb.cyl(0,-.25,0,13.8,13.8,.5,18,M('#c8c4b9'));lb.geo(new T.TorusGeometry(16.5,.7,6,32),0,-40,0,M('#cdbf9c'),{rx:90});for(const a of [0,Math.PI])lb.rbox(Math.cos(a)*16.4,-36.5,Math.sin(a)*16.4,1.6,4,7,.6,M('#cdbf9c'));lbBatch.build(laundry);K.into(laundry).shadow(0, 0, 0, 40, 40, 0.6); // (unbatched: hidden while carried)
-    loose('washing',laundry,{room:'bedroom',x:110,y:FY,z:222,ry:0},'Washing basket',{obstacle:true,floorOnly:true,useLabel:'Look inside'});
+    loose('washing',laundry,{room:'bedroom',x:110,y:FY,z:222,ry:0},'Washing basket',{obstacle:true,floorOnly:true,useLabel:'Look inside',physics:{parts:[{t:'cyl',x:0,z:0,r:17.6,lo:0,hi:46}],mass:3,mu:.65,coast:.15,tip:.5}});
   }
 
   // Things that live on the bookcase for good (not grab props, never in a book slot): a stack of family board
   // games on top and steel bookends in the end gaps, so the case reads as lived-in with only a few books.
   function bookcaseDressing(G,boards){
-    const lids=K.tex('rm.boardgames',512,512,(g,w,h)=>{
-      const band=(y,bg,fg,title,sub,draw)=>{g.fillStyle=bg;g.fillRect(0,y,w,170);g.fillStyle=fg;g.fillRect(0,y,w,10);g.fillRect(0,y+160,w,10);draw(y);
-        g.save();g.textAlign='center';g.font='64px '+A.FONT;g.lineWidth=6;g.strokeStyle='rgba(0,0,0,.55)';g.strokeText(title,w/2,y+92);g.fillStyle='#fff';g.fillText(title,w/2,y+92);g.font='700 22px '+A.UIF;g.fillStyle=fg;g.fillText(sub,w/2,y+132);g.restore();};
-      band(0,'#e9e3d2','#b3241f','MONEYOPOLY','THE PROPERTY TRADING GAME',y=>{g.fillStyle='#b3241f';g.fillRect(150,y+30,212,74);});
-      band(171,'#f2b21b','#3b2a82','CAT TRAP!','THE CRAZY CONTRAPTION GAME',y=>{g.fillStyle='#e0533a';for(let i=0;i<9;i++){g.beginPath();g.arc(30+i*56,y+148,12,0,7);g.fill();}});
-      band(342,'#2f7ac0','#ffe36a','DOCTOR DOCTOR!','THE STEADY HAND GAME - BZZT!',y=>{g.fillStyle='#ffd6b0';g.beginPath();g.ellipse(70,y+85,34,58,0,0,7);g.fill();g.fillStyle='#e02020';g.beginPath();g.arc(70,y+40,10,0,7);g.fill();});
+    // Three roughly 3:2 lids share one atlas. The old square atlas compressed
+    // each lid to 3:1, stretching pictures and lettering on the physical box.
+    const lids=A.printed('rm.boardgames',512,1024,(g,w,h)=>{
+      const rowH=h/3;
+      const band=(row,bg,fg,title,sub,key,draw)=>{
+        const y=row*rowH;g.save();g.beginPath();g.rect(0,y,w,rowH);g.clip();
+        g.fillStyle=bg;g.fillRect(0,y,w,rowH);g.save();g.translate(0,y+rowH*.12);draw(0);g.restore();
+        window.PrintArt?.paint(g,key,0,y,w,rowH);
+        const shade=g.createLinearGradient(0,y+rowH*.57,0,y+rowH);shade.addColorStop(0,'rgba(12,19,30,0)');shade.addColorStop(.45,'rgba(12,19,30,.90)');shade.addColorStop(1,'rgba(12,19,30,.96)');g.fillStyle=shade;g.fillRect(0,y+rowH*.57,w,rowH*.43);
+        g.fillStyle=fg;g.fillRect(0,y,w,5);g.fillRect(0,y+rowH-5,w,5);
+        g.textAlign='center';let size=52;do{g.font=size+'px '+A.FONT;if(g.measureText(title).width<=w-36)break;size--}while(size>24);
+        g.fillStyle='#fff4db';g.fillText(title,w/2,y+rowH-47);g.font='700 17px '+A.UIF;g.fillStyle='#f4d177';g.fillText(sub,w/2,y+rowH-21);g.restore();
+      };
+      band(0,'#e9e3d2','#b3241f','MONEYOPOLY','THE PROPERTY TRADING GAME','board.property',y=>{g.fillStyle='#b3241f';g.fillRect(150,y+30,212,74);});
+      band(1,'#f2b21b','#3b2a82','CAT TRAP!','THE CRAZY CONTRAPTION GAME','board.cat',y=>{g.fillStyle='#e0533a';for(let i=0;i<9;i++){g.beginPath();g.arc(30+i*56,y+148,12,0,7);g.fill();}});
+      band(2,'#2f7ac0','#ffe36a','DOCTOR DOCTOR!','THE STEADY HAND GAME - BZZT!','board.doctor',y=>{g.fillStyle='#ffd6b0';g.beginPath();g.ellipse(70,y+85,34,58,0,0,7);g.fill();g.fillStyle='#e02020';g.beginPath();g.arc(70,y+40,10,0,7);g.fill();});
     },{clamp:true});
     const lidM=M({c:'#fff',map:lids,sh:14,sp:'#222'});
     const lidBox=(x,y,z,w,h,d,row,ry)=>{ // a box whose lid shows one band of the atlas; its sides show the band's edge colours
-      const geo=new T.BoxGeometry(w,h,d),uv=geo.attributes.uv,per=uv.count/6,v0=row*171/512,v1=(row*171+170)/512;
+      const geo=new T.BoxGeometry(w,h,d),uv=geo.attributes.uv,per=uv.count/6,v0=row/3,v1=(row+1)/3;
       for(let f=0;f<6;f++)for(let i=f*per;i<(f+1)*per;i++){const u=uv.getX(i),v=uv.getY(i);
-        if(f===3)uv.setXY(i,u,1-(v0+(1-v)*(v1-v0)));else uv.setXY(i,0.05+u*0.9,1-(v0+0.03*(v1-v0)+(1-v)*0.004));}
+        if(f===3)uv.setXY(i,u,1-(v0+v*(v1-v0)));
+        // The five-pixel edge stripe is a solid printed carton colour. Sampling
+        // a sliver of the painting instead produced stretched vertical streaks.
+        else uv.setXY(i,.5,1-(v0+2/1024));}
       G.geo(geo,x,y,z,lidM,{ry});
     };
     const top=-77.4;
@@ -1202,6 +1257,7 @@
     bookcaseDressing(G,boards);caseBatch.build(g);
     H.block('U',cx-40,cz-15,cx+40,cz+15);
     for(const y of boards.slice(1))H.support('bedroom',cx-38,cz-14,cx+38,cz+14,y-.9);
+    if(H.solid)for(const x of [cx-40,cx+38])H.solid('U',x,cz-15,x+2,cz+15,-75,FY+1,{kind:'bookcase'});
     H.spot('reading.shelf',{label:'Books and magazines',obj:g,act:()=>say('Books and magazines','E picks up a book or magazine. F reads it. Carry one towards a free highlighted slot and press E to shelve it. Your arrangement is saved.')});
     let slots;try{slots=JSON.parse(localStorage.getItem('jhp_reading_slots')||'{}')}catch(e){slots={}}
     if(!slots||typeof slots!=='object'||Array.isArray(slots))slots={};
@@ -1220,7 +1276,15 @@
       if(sparseStarter&&mag)return;
       if(!Number.isInteger(slots[id])){slots[id]=used.has(index)?Array.from({length:32},(_,n)=>n).find(n=>!used.has(n)):index;used.add(slots[id]);saveSlots()}
       const n=slots[id],obj=new T.Group(),O=K.into(obj),col=['#354a65','#8b3c30','#485b41','#b08740','#554364'][index%5];
-      const print=A.printed('reading.print.'+id,256,mag?340:384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);c.font='bold 26px Georgia';K.wrapText(c,title,20,64,w-40,31);c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':id.startsWith('reading.school.')?'YEAR 11 • MY NOTES':'JACKSOFT PAPERBACKS',20,h-42);if(id.startsWith('reading.school.')){c.strokeStyle='#c8b67d';c.lineWidth=2;for(let y=170;y<h-85;y+=14){c.beginPath();c.moveTo(24,y);c.lineTo(w-24,y);c.stroke()}c.font='700 14px '+A.UIF;c.fillStyle='#eee0b6';c.textAlign='center';c.fillText(Cast.t('PROPERTY OF {me.NAME}'),w/2,h-72,w-32);return}const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):['city','space','critters','robots','space','robots'][+id.split('.').pop()];if(!window.PrintArt?.paint(c,art,20,h*.46,w-40,h*.34)){c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,h*.5+k*11,105,70)}},{clamp:true,identity:id.startsWith('reading.school.')});
+      const print=A.printed('reading.print.'+id,256,mag?340:Math.round(256*21.52/14),(c,w,h)=>{
+        c.textAlign='left';c.fillStyle=col;c.fillRect(0,0,w,h);c.fillStyle='#e6d7b0';c.fillRect(14,18,w-28,3);c.fillRect(14,h-22,w-28,3);
+        c.font='bold 26px Georgia';const end=K.wrapText(c,title,20,64,w-40,31);
+        c.font='bold 16px Courier New';c.fillText(mag?'1999 • GAMES & GADGETS':id.startsWith('reading.school.')?'YEAR 11 • MY NOTES':'JACKSOFT PAPERBACKS',20,h-42);
+        if(id.startsWith('reading.school.')){c.strokeStyle='#c8b67d';c.lineWidth=2;for(let y=170;y<h-85;y+=14){c.beginPath();c.moveTo(24,y);c.lineTo(w-24,y);c.stroke()}c.font='700 14px '+A.UIF;c.fillStyle='#eee0b6';c.textAlign='center';c.fillText(Cast.t('PROPERTY OF {me.NAME}'),w/2,h-72,w-32);return}
+        // Public book IDs are also the shared artwork keys; type stays native.
+        const art=mag?(cover==='magB'?'critters':cover==='magC'?'dungeon':'hover'):id,artY=Math.max(h*.46,end+16),artH=h-72-artY;
+        if(!window.PrintArt?.paint(c,art,20,artY,w-40,artH)){c.save();c.beginPath();c.rect(20,artY,w-40,artH);c.clip();c.strokeStyle='#c8b67d';for(let k=0;k<3;k++)c.strokeRect(35+k*23,artY+10+k*11,105,70);c.restore()}
+      },{clamp:true,identity:id.startsWith('reading.school.')});
       const spine=K.tex('reading.spine.'+id,64,384,(c,w,h)=>{c.fillStyle=col;c.fillRect(0,0,w,h);c.translate(w/2,h/2);c.rotate(-Math.PI/2);c.fillStyle='#f3e6c1';let size=24;c.font='bold '+size+'px Georgia';while(c.measureText(title).width>h-22&&size>10)c.font='bold '+(--size)+'px Georgia';c.textAlign='center';c.fillText(title,0,8)},{clamp:true});
       if(mag){
         const face=cover?tex(cover):print,mesh=O.box(0,-.4,0,21,.8,28,{t:M({c:'#fff',map:face,sp:'#000000'}),u:M({c:'#fff',map:face,sp:'#000000'}),l:M({c:'#fff',map:spine}),all:M('#e6dfcf')});
@@ -1711,7 +1775,7 @@
     // where it is now, relative to the camera (a hand pose) or in the room (on the desk): the way back
     const rest = grip ? null : { at: Object.assign({}, t.at), rx: t.rx || 0, rz: t.rz || 0, m: objMatrix(t.obj) };
     gbPlay = { grip, rest, st: t.st, view, hand: grip ? relTo(H.P, objMatrix(t.obj)) : null, play: gbPlayPose(view) };
-    t.st = 'play'; t.inspectFront = true; H.layerFor(t);
+    t.st = 'play'; t.inspectFront = true; H.layerFor(t); H.physics?.sync?.('gb'); // (its physics body sleeps while it is in your hands)
     window.Sound?.world?.('lift', { weight: 'light' });
     const play = gbPlay.play;
     // the hands lead and the eyes follow: the Game Lad arrives a beat before the camera settles on it
@@ -1731,7 +1795,7 @@
       return;
     }
     const r = saved.rest, end = r.m; // exactly where it was resting (the room's own placement, contact offsets and all)
-    t.st = 'anim';
+    t.st = 'anim'; H.physics?.sync?.('gb');
     gbTween('gb-return', () => end, ms, { roll: -3, carry: true, done: () => { if (gbPlay) return; t.at = r.at; t.rx = r.rx; t.rz = r.rz; t.st = 'rest'; t.inspectFront = false; H.place(t); H.layerFor(t); window.Sound?.world?.('handle', { weight: 'light', put: true }); } });
   }
   function tvSession(value) { try { if (value) localStorage.setItem(TV_SAVE, JSON.stringify(value)); else localStorage.removeItem(TV_SAVE); } catch (e) {} }
@@ -1758,7 +1822,7 @@
     const go = () => { RoomTV.open(con, con === 'gb' ? rectOf(H.THINGS.gb.obj) : rectOf(R.tvScreen), { restoring: !!resume }); if (gameId) RoomTV.playPhysical(gameId); };
     const ready = () => window.RoomTV ? Promise.resolve() : (tvLoad = tvLoad || loadJs('js/rm-tv.js'));
     const grip=con==='gb'?H.suspendGrip('gb'):null;
-    if(H.held())H.putBack();
+    if(H.held())(H.setAside||H.putBack)();
     if(con==='gb')holdHandheld(grip);
     tvFocusCon = con;
     clearTimeout(boT);
@@ -1806,7 +1870,7 @@
   function bits(id) {
     if(id==='rack')return rackNote();
     if (POSTER_VIEW[id]) return posterFocus(id);
-    if(id==='lava'){if(H.held())H.putBack();return H.focus({x:98,y:-9,z:15,rx:-14,ry:36,lvl:'U',seat:1},{label:'Lean back',enter:()=>say('Lava lamp','Watch the real glass and wax. Q leans back; Esc opens the game menu.',4000)})}
+    if(id==='lava'){if(H.held())(H.setAside||H.putBack)();return H.focus({x:98,y:-9,z:15,rx:-14,ry:36,lvl:'U',seat:1},{label:'Lean back',enter:()=>say('Lava lamp','Watch the real glass and wax. Q leans back; Esc opens the game menu.',4000)})}
     if (!canGo() || pending || (window.RoomBits && RoomBits.open_)) return;
     H.hush();
     const request=++bitsEpoch;
@@ -1814,7 +1878,7 @@
     const ready = () => window.RoomBits ? Promise.resolve() : (bitsLoad = bitsLoad || loadJs('js/rm-bits.js'));
     const at = BITVIEW[id];
     if (!at) return ready().then(open, () => { bitsLoad = null; });
-    if (H.held()) H.putBack();
+    if (H.held()) (H.setAside || H.putBack)();
     clearTimeout(boT); pending = true;
     if (!back) back = { x: H.P.x, y: H.P.y, z: H.P.z, rx: H.P.rx, ry: H.P.ry, lvl: 'U', seat: H.W.seat };
     const [x, y, z] = at, wallBack = z <= BZ + 2, d = wallBack ? 66 : 72;
@@ -1951,34 +2015,28 @@
   // Real games live in individually spaced slots beside the cabinet.
   const mediaThings = {};
   function mediaLabel(g, con) {
-    return K.tex('media.print.' + g.id, 512, 320, (c, w, h) => {
-      const zipPrint=g.id==='md.zip'||g.id==='dc.dash';
-      const portrait=()=>{const cv=document.createElement('canvas');cv.width=512;cv.height=320;const ctx=cv.getContext('2d');caseScene(ctx,g);ctx.fillStyle='#70c8dd';ctx.fillRect(0,0,210,46);return cv};
-      if(zipPrint&&con.media==='disc'){
-        c.fillStyle='#582878';c.fillRect(0,0,w,h);c.strokeStyle='#a878d0';c.lineWidth=8;
-        for(let r=90;r<300;r+=44){c.beginPath();c.ellipse(w/2,h/2,r,r*.625,0,0,Math.PI*2);c.stroke()}
-        c.drawImage(portrait(),128,24,288,288,44,110,156,156);
-        c.textAlign='center';c.fillStyle='#f0e8dc';c.font='bold 23px Arial';c.fillText(con.brand,w/2,43);
-        c.fillStyle='#ffd23a';c.font='italic bold 31px Arial';c.fillText(g.title,w/2,83);
-        c.fillStyle='#f0e8dc';c.font='16px Courier New';c.fillText('ORIGINAL GAME / 1999',w/2,279);return;
-      }
+    // Match the physical sticker: square on discs, taller on Game Lad carts.
+    // HouseArt.printed repaints even cached K.tex canvases on PrintArt.ready.
+    const disc=con.media==='disc',small=g.con==='gb',height=disc?512:Math.round(512*(small?5.8:8)*.61/((small?5.4:10)*.73));
+    return A.printed('media.print.' + g.id, 512, height, (c, w, h) => {
+      c.textAlign='left';
       c.fillStyle = '#eee5cd'; c.fillRect(0, 0, w, h);
       const gr = c.createLinearGradient(0, 0, w, h); gr.addColorStop(0, g.col || '#344b6c'); gr.addColorStop(1, '#161a27');
       c.fillStyle = gr; c.fillRect(8, 8, w - 16, h - 16);
-      c.save(); c.beginPath(); c.rect(8, 8, w - 16, h - 16); c.clip();
-      c.strokeStyle = 'rgba(255,239,171,.16)'; c.lineWidth = 14;
-      for (let x = -h; x < w; x += 62) { c.beginPath(); c.moveTo(x, h); c.lineTo(x + h, 0); c.stroke(); }
-      // Zip's own illustration replaces the generic cartridge crest.
-      if(zipPrint){c.drawImage(portrait(),128,24,288,288,334,62,156,156);c.strokeStyle='#efe5c8';c.lineWidth=3;c.strokeRect(333,61,158,158)}
-      // Original printed game art for the other cartridges stays unchanged.
-      if(!zipPrint){c.fillStyle = '#f4cc5d'; c.beginPath(); c.arc(420, 100, 50, 0, Math.PI * 2); c.fill();
-      c.fillStyle = '#202634'; for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) if ((x + y) % 2) c.fillRect(380 + x * 20, 60 + y * 20, 20, 20);}
-      c.restore(); c.fillStyle = '#131722'; c.fillRect(8, 8, w - 16, 43);
-      c.fillStyle = '#efe5c8'; c.font = 'bold 23px Arial'; c.textAlign = 'left'; c.fillText(con.brand, 23, 38, w - 46);
-      c.font = 'italic bold 42px Arial'; c.fillStyle = '#fff7df'; c.shadowColor = '#121421'; c.shadowBlur = 0; c.shadowOffsetY = 3;
-      K.wrapText(c, g.title, 25, 158, zipPrint?290:455, 45); c.shadowOffsetY = 0;
-      c.fillStyle = '#e2d8bd'; c.font = '16px "Courier New"'; c.fillText('1999  •  ' + (con.media === 'disc' ? 'CD-ROM' : 'GAME PAK'), 23, 288);
-      if (g.owner) { c.fillStyle = '#fff3b5'; c.fillRect(330, 254, 159, 48); c.fillStyle = '#273a65'; c.font = 'bold 19px "Courier New"'; c.fillText(g.owner.toUpperCase() + "'S", 342, 285, 140); }
+      if(disc)caseScene(c,g,8,8,w-16,h-16);
+      c.fillStyle='#131722';c.fillRect(8,8,w-16,disc?66:43);
+      const rows=[];let line='';c.font='italic bold 32px Arial';
+      for(const word of g.title.split(' ')){const next=(line+' '+word).trim();if(line&&c.measureText(next).width>312){rows.push(line);line=word}else line=next}if(line)rows.push(line);
+      if(disc){c.fillRect(72,76,w-144,rows.length*36+14);c.fillRect(128,430,256,35)}
+      c.fillStyle='#efe5c8';c.font='bold 23px Arial';
+      if(disc){c.textAlign='center';c.fillText(con.brand,w/2,65);c.textAlign='left'}else c.fillText(con.brand,23,38);
+      // Native lettering sits above the illustration, clear of the disc hub.
+      c.font='italic bold 32px Arial';c.fillStyle='#fff7df';c.textAlign=disc?'center':'left';
+      if(disc)rows.forEach((row,i)=>c.fillText(row,w/2,109+i*36));
+      else{const artY=K.wrapText(c,g.title,25,91,w-50,36)+14;caseScene(c,g,20,artY,w-40,h-68-artY)}c.textAlign='left';
+      c.fillStyle='#e2d8bd';c.font='16px "Courier New"';c.textAlign=disc?'center':'left';
+      c.fillText('1999  •  '+(disc?'CD-ROM':'GAME PAK'),disc?w/2:23,disc?454:h-28);c.textAlign='left';
+      if(g.owner){c.fillStyle='#fff3b5';c.fillRect(330,disc?230:h-60,159,36);c.fillStyle='#273a65';c.font='bold 19px "Courier New"';c.fillText(g.owner.toUpperCase()+"'S",342,disc?254:h-36,140)}
     }, { clamp: true, identity: true });
   }
   function mediaModel(g, con) {
@@ -2026,16 +2084,14 @@
   const inOwnCase=g=>mediaThings[g]?.st==='snap'&&mediaThings[g].snap==='media.case.'+g;
   const onMediaRack=box=>Math.abs(box.at.z+43)<1&&Math.abs(box.at.x-(TX-56))<17;
   function rackPose(slot){return{room:'bedroom',x:TX-66.5+(slot%4)*7,y:7+Math.floor(slot/4)*15,z:-43,ry:90};}
-  // Small, period-style printed illustrations; lettering is drawn separately.
-  const caseArtFiles={'n64.kart':'/art/box-v1/kart.webp','n64.range':'/art/box-v1/spy.webp','ps.run':'/art/box-v1/wombat.webp','ps.grav':'/art/print-v2/hover.webp','gb.mon':'/art/print-v2/critters.webp','gb.mon2':'/art/print-v2/critters.webp'},caseArt={};
-  function printedCaseTexture(key,g,w,h,paint){
-    const tx=K.tex(key,w,h,paint,{clamp:true}),file=caseArtFiles[g.id];
-    if(file){let entry=caseArt[file];if(!entry){entry=caseArt[file]={image:new Image(),ready:false,prints:new Map()};entry.image.onload=()=>{entry.ready=true;for(const [texture,draw]of entry.prints){const canvas=texture.userData.canvas||texture.image,ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);draw(ctx,canvas.width,canvas.height);texture.needsUpdate=true}H.dirty()};entry.image.src=file}entry.prints.set(tx,paint)}
-    return tx;
+  // Preserve complete silhouettes inside the shorter title/label windows:
+  // cropping square hero art here used to cut off Zip's face and goggles.
+  function caseScene(c,g,x=0,y=0,w=512,h=320){
+    c.fillStyle=g.col||'#182d55';c.fillRect(x,y,w,h);
+    if(window.PrintArt?.paint(c,g.id,x,y,w,h,'contain'))return;
+    c.save();c.translate(x,y);c.scale(w/512,h/320);proceduralCaseScene(c,g);c.restore();
   }
-  function caseScene(c,g){
-    const art=caseArt[caseArtFiles[g.id]];
-    if(art?.ready){c.fillStyle='#18212f';c.fillRect(0,0,512,320);const im=art.image,scale=Math.min(512/im.width,320/im.height),w=im.width*scale,h=im.height*scale;c.save();c.imageSmoothingEnabled=false;c.drawImage(im,(512-w)/2,(320-h)/2,w,h);c.restore();return}
+  function proceduralCaseScene(c,g){
     const sky=c.createLinearGradient(0,0,0,320);sky.addColorStop(0,'#182d55');sky.addColorStop(1,g.col||'#ab6236');c.fillStyle=sky;c.fillRect(0,0,512,320);
     c.fillStyle='#efca78';c.beginPath();c.arc(395,60,42,0,7);c.fill();c.fillStyle='#253449';c.beginPath();c.moveTo(0,200);for(let x=0;x<=512;x+=64)c.lineTo(x,100+((x*7+g.id.length*29)%90));c.lineTo(512,320);c.lineTo(0,320);c.fill();
     if(g.id==='md.zip'||g.id==='dc.dash'){
@@ -2062,17 +2118,18 @@
     else if(/range|sneak/.test(g.id)){c.fillStyle='#d1a74b';c.beginPath();c.arc(256,176,93,0,7);c.fill();c.strokeStyle='#fff0b3';c.lineWidth=10;c.beginPath();c.arc(256,176,62,0,7);c.stroke();c.strokeStyle='#352b34';c.lineWidth=7;for(const dx of [-1,1]){c.beginPath();c.moveTo(256+dx*115,176);c.lineTo(256+dx*45,176);c.stroke()}c.fillStyle='#282c36';c.fillRect(237,143,38,110);c.beginPath();c.arc(256,119,24,0,7);c.fill()}
     else{c.fillStyle='#355c38';c.beginPath();c.ellipse(256,301,250,50,0,0,7);c.fill();c.fillStyle=/run|dash|hop|grab/.test(g.id)?'#ce793a':'#79935c';c.beginPath();c.ellipse(250,195,68,81,-.2,0,7);c.fill();for(const x of [207,291]){c.beginPath();c.ellipse(x,104,25,39,(x-250)/100,0,7);c.fill()}c.fillStyle='#f5e4bb';for(const x of [229,267]){c.beginPath();c.ellipse(x,161,15,21,0,0,7);c.fill();c.fillStyle='#202634';c.beginPath();c.arc(x+3,166,6,0,7);c.fill();c.fillStyle='#f5e4bb'}c.fillStyle='#302a2b';c.beginPath();c.ellipse(248,202,20,14,0,0,7);c.fill();c.fillStyle='#dfb45b';c.fillRect(81,236,41,40);c.fillRect(389,211,41,40)}
   }
-  function caseCover(g,con){return printedCaseTexture('media.case.cover.'+g.id,g,512,512,(c,w,h)=>{
-    c.fillStyle='#ebe0c5';c.fillRect(0,0,w,h);c.fillStyle='#18212f';c.fillRect(8,8,496,48);c.fillStyle='#eee3c4';c.font='bold 24px Arial';c.fillText(con.brand,22,40);
-    c.save();c.translate(12,64);c.scale(488/512,1);caseScene(c,g);c.restore();c.fillStyle='#15212b';c.fillRect(12,384,488,88);c.fillStyle='#fff0c5';let fs=34;const words=g.title.split(' ');while(fs>18){c.font='italic bold '+fs+'px Arial';let lines=1,line='';for(const word of words){if(c.measureText((line+' '+word).trim()).width>458){lines++;line=word}else line=(line+' '+word).trim()}if(lines<=2)break;fs--}K.wrapText(c,g.title,26,420,458,fs+5);c.fillStyle='#293849';c.font='bold 15px Courier New';c.fillText('JACKSOFT • ORIGINAL GAME • 1999',22,495);
-  });}
-  function casePrint(g,con,spine){
-    return printedCaseTexture('media.case.'+(spine?'spine.':'back.')+g.id,g,spine?640:512,spine?96:512,(c,w,h)=>{
-      c.fillStyle=g.col||'#344b6c';c.fillRect(0,0,w,h);c.fillStyle='#eee5cd';c.fillRect(0,0,w,spine?20:52);
+  function caseCover(g,con,ratio){return A.printed('media.case.cover.'+g.id,512,Math.round(512/ratio),(c,w,h)=>{
+    c.textAlign='left';c.fillStyle='#ebe0c5';c.fillRect(0,0,w,h);c.fillStyle='#18212f';c.fillRect(8,8,496,48);c.fillStyle='#eee3c4';c.font='bold 24px Arial';c.fillText(con.brand,22,40);
+    caseScene(c,g,12,64,488,h-192);c.fillStyle='#15212b';c.fillRect(12,h-128,488,88);c.fillStyle='#fff0c5';let fs=34;const words=g.title.split(' ');while(fs>18){c.font='italic bold '+fs+'px Arial';let lines=1,line='';for(const word of words){if(c.measureText((line+' '+word).trim()).width>458){lines++;line=word}else line=(line+' '+word).trim()}if(lines<=2)break;fs--}K.wrapText(c,g.title,26,h-92,458,fs+5);c.fillStyle='#293849';c.font='bold 15px Courier New';c.fillText('JACKSOFT • ORIGINAL GAME • 1999',22,h-17);
+  },{clamp:true});}
+  function casePrint(g,con,spine,ratio){
+    const width=spine?640:512;
+    return A.printed('media.case.'+(spine?'spine.':'back.')+g.id,width,Math.round(width/ratio),(c,w,h)=>{
+      c.textAlign='left';c.fillStyle=g.col||'#344b6c';c.fillRect(0,0,w,h);c.fillStyle='#eee5cd';c.fillRect(0,0,w,spine?20:52);
       c.fillStyle='#1d222b';c.font='bold '+(spine?15:22)+'px Arial';c.fillText(con.brand,spine?12:24,spine?16:34);
-      if(spine){let size=32;c.font='bold '+size+'px Arial';while(c.measureText(g.title).width>w-28&&size>12)c.font='bold '+(--size)+'px Arial';c.fillStyle='#fff6d9';c.fillText(g.title,14,64);c.fillStyle='#e8dfc7';c.font='12px Courier New';c.fillText('JACKSOFT • 1999',14,87)}
-      else{c.fillStyle='#fff3d3';c.font='bold 31px Arial';const end=K.wrapText(c,g.title,24,96,w-48,36);c.font='21px Arial';K.wrapText(c,g.blurb||'An original adventure for your console.',24,end+26,w-48,28);for(let i=0;i<3;i++){c.save();c.translate(28+i*154,312);c.scale(144/512,90/320);caseScene(c,g);c.restore()}c.fillStyle='#eee5cd';c.font='18px Courier New';c.fillText('1 PLAYER • COLOUR • SOUND',24,444);c.font='15px Courier New';c.fillText('KEEP THE INSTRUCTIONS. LOSE THE AFTERNOON.',24,475)}
-    });
+      if(spine){let size=Math.min(32,Math.floor(h*.27));c.font='bold '+size+'px Arial';while(c.measureText(g.title).width>w-28&&size>12)c.font='bold '+(--size)+'px Arial';c.fillStyle='#fff6d9';c.fillText(g.title,14,h*.67);c.fillStyle='#e8dfc7';c.font='12px Courier New';c.fillText('JACKSOFT • 1999',14,h-9)}
+      else{c.fillStyle='#fff3d3';c.font='bold 31px Arial';const end=K.wrapText(c,g.title,24,96,w-48,36);c.font='21px Arial';K.wrapText(c,g.blurb||'An original adventure for your console.',24,end+26,w-48,28);for(let i=0;i<3;i++)caseScene(c,g,28+i*154,h-200,144,90);c.fillStyle='#eee5cd';c.font='18px Courier New';c.fillText('1 PLAYER • COLOUR • SOUND',24,h-68);c.font='15px Courier New';c.fillText('KEEP THE INSTRUCTIONS. LOSE THE AFTERNOON.',24,h-37)}
+    },{clamp:true,identity:true});
   }
   function mediaCaseModel(g,con){
     const obj=new T.Group(),batch=K.batch(),B=K.into(batch),disc=con.media==='disc',w=disc?14.2:13,h=12.6,d=disc?1.5:3.2;
@@ -2082,12 +2139,12 @@
     for(const x of [-w/2+.18,w/2-.18])B.box(x,-h/2,0,.36,h,d,shell);
     for(const y of [-h+.1,-.1])B.box(0,y,0,w-.4,.2,d,shell);
     B.box(0,-h/2,-d/2+.44,w-.7,h-.7,.12,paper);
-    B.decal(0,-h/2,-d/2-.015,w-.5,h-.5,M({c:'#fff',map:casePrint(g,con,false),sh:6}),{ry:180});
-    B.decal(-w/2-.015,-h/2,0,h-.4,d*.86,M({c:'#fff',map:casePrint(g,con,true),sh:8}),{ry:-90,rz:90});
+    B.decal(0,-h/2,-d/2-.015,w-.5,h-.5,M({c:'#fff',map:casePrint(g,con,false,(w-.5)/(h-.5)),sh:6}),{ry:180});
+    B.decal(-w/2-.015,-h/2,0,h-.4,d*.86,M({c:'#fff',map:casePrint(g,con,true,(h-.4)/(d*.86)),sh:8}),{ry:-90,rz:90});
     // A real hinged front: fixed details batch together; the lid moves alone.
     const lid=new T.Group();lid.position.set(-w/2,0,d/2-.14);obj.add(lid);const L=K.into(lid);
     L.rbox(w/2,-h/2,0,w,h,.32,.12,M({c:disc?'#9eabb4':'#e4ddc8',sh:disc?70:8,sp:'#777'}));
-    L.decal(w/2,-h/2,.18,w-.65,h-.65,M({c:'#fff',map:caseCover(g,con),sh:disc?32:6}));
+    L.decal(w/2,-h/2,.18,w-.65,h-.65,M({c:'#fff',map:caseCover(g,con,(w-.65)/(h-.65)),sh:disc?32:6}));
     L.rbox(w-.25,-h/2,.22,.5,2,.24,.1,shell);
     if(disc){B.cyl(0,-h/2,.5,.9,.9,.35,16,shell,{rx:90});for(const x of [-4,4])B.box(x,-h+.8,.5,.4,1,.5,shell)}
     for(const y of [-h+1,-1])B.cyl(-w/2,y,d/2-.13,.22,.22,1.1,10,shell);

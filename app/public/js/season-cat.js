@@ -50,7 +50,7 @@
         { id: 'slug', name: 'Sour Slugs', note: 'sour', col: '#7ad04a', wrap: '#e0e020' },
       ],
       fill: [8, 8, 8, 8, 8, 8], // one pour from the tin; the tin holds two pours (Dad eats one Choc Bit)
-      tinPours: 2, maxGroups: 12, costumes: ['ghost', 'witch', 'skeleton', 'wizard', 'dragon', 'pumpkin', 'mummy', 'bat'],
+      tinPours: 2, maxGroups: 12, costumes: ['ghost', 'witch', 'skeleton', 'wizard', 'dragon', 'pumpkin', 'mummy', 'bat', 'spacecadet'],
     },
     {
       // Bonfire Night: catalogued (window, phases, jump) so the engine and owner tools know it; content comes next.

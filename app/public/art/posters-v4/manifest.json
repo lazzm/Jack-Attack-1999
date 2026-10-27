@@ -1,0 +1,53 @@
+{
+  "method": "Built-in image_gen. Five original text-free portrait paintings; native typesetting draws each fictional title and print strapline, never generated lettering.",
+  "artDirection": "Distinct late-1990s wall-print genres: torn-paper boy-band portrait, painted comic space adventure, airbrush future racing, industrial robot contest, educational space launch. Original characters, no real brands/logos, preserved period hardware proportions.",
+  "encoding": "Aspect-preserving512px-wide WebP quality0.72; five larger hero prints only, all other new artwork320wide.",
+  "quality": 0.72,
+  "assets": [
+    {
+      "file": "band.webp",
+      "source": "exec-b5a4248a-29b1-4aec-97ac-23fc08635325.png",
+      "width": 512,
+      "prompt": "Create a completely TEXT-FREE original late-1990s poster PAINTING, portrait5:7. Three entirely fictional YOUNG ADULT MEN, an original boy band: one short dark-haired man, one curly-haired man and one close-cropped-haired man, wearing1999zip-up jackets, loose jeans and tinted glasses. Original faces, not celebrities. Graphic torn-paper indigo/cream/burnt-orange backdrop; quiet space at top and bottom for the game's typeset titles. Hand-painted gouache/airbrush, matte print texture, not photography or CGI. NO letters, logos, text, numerals, watermarks, signatures or real brands.",
+      "review": "Accepted after visual review: original painted imagery, no lettering/logos, kid friendly, clear print-scale composition.",
+      "height": 717,
+      "bytes": 33238
+    },
+    {
+      "file": "film.webp",
+      "source": "exec-f6b1b0b9-ced2-4e55-90f0-f86338bdcc15.png",
+      "width": 512,
+      "prompt": "Use case: illustration-story. A completely TEXT-FREE original late-1990s printed poster PAINTING, portrait aspect5:7. Full bleed artwork only, NOT a photo of a poster, NOT a magazine layout. Professional commercial gouache/airbrush, matte printed inks, broad intentional shapes, not glossy CGI. Leave quieter image areas at top and bottom for titles the game will typeset. NO lettering, logos, text, numerals, watermarks, signatures, brand symbols, real people or familiar characters. Kid friendly. Strong composition, not dense micro-detail.\nPaint ONLY this scene: A comical eccentric crew of three small practical-helmeted space travellers below a huge orange planet, watching an original crooked cargo freighter lift from a dusty violet alien town, painted1970sadventure-film poster energy reprinted1999, gold/navy/ochre, no familiar franchise ship or costume.",
+      "review": "Accepted after visual review: original painted imagery, no lettering/logos, kid friendly, clear print-scale composition.",
+      "height": 717,
+      "bytes": 37510
+    },
+    {
+      "file": "game.webp",
+      "source": "exec-5198a4ac-d64a-4eff-ab56-688f9e2b602b.png",
+      "width": 512,
+      "prompt": "Use case: illustration-story. A completely TEXT-FREE original late-1990s printed poster PAINTING, portrait aspect5:7. Full bleed artwork only, NOT a photo of a poster, NOT a magazine layout. Professional commercial gouache/airbrush, matte printed inks, broad intentional shapes, not glossy CGI. Leave quieter image areas at top and bottom for titles the game will typeset. NO lettering, logos, text, numerals, watermarks, signatures, brand symbols, real people or familiar characters. Kid friendly. Strong composition, not dense micro-detail.\nPaint ONLY this scene: Two original angular silver and teal anti-gravity racers sweep round a huge vertical elevated racing loop above an industrial future city at sunset, dynamic1998airbrush racing poster, navy cyan lime and orange, no text.",
+      "review": "Accepted after visual review: original painted imagery, no lettering/logos, kid friendly, clear print-scale composition.",
+      "height": 717,
+      "bytes": 39064
+    },
+    {
+      "file": "robot.webp",
+      "source": "exec-3d07a8b3-1584-482e-bac1-3bd97998c100.png",
+      "width": 512,
+      "prompt": "Use case: illustration-story. A completely TEXT-FREE original late-1990s printed poster PAINTING, portrait aspect5:7. Full bleed artwork only, NOT a photo of a poster, NOT a magazine layout. Professional commercial gouache/airbrush, matte printed inks, broad intentional shapes, not glossy CGI. Leave quieter image areas at top and bottom for titles the game will typeset. NO lettering, logos, text, numerals, watermarks, signatures, brand symbols, real people or familiar characters. Kid friendly. Strong composition, not dense micro-detail.\nPaint ONLY this scene: A low homemade wheeled wedge robot with ochre scuffed armour, black rubber tyres and a blunt brass lifting arm under steel arena spotlights, small sparks and rivets,1999robot contest poster painting, charcoal ochre red, no people or injury.",
+      "review": "Accepted after visual review: original painted imagery, no lettering/logos, kid friendly, clear print-scale composition.",
+      "height": 717,
+      "bytes": 36912
+    },
+    {
+      "file": "shuttle.webp",
+      "source": "exec-41b1c8ed-e1ce-4e9a-aff9-aff8ac122c45.png",
+      "width": 512,
+      "prompt": "Use case: illustration-story. A completely TEXT-FREE original late-1990s printed poster PAINTING, portrait aspect5:7. Full bleed artwork only, NOT a photo of a poster, NOT a magazine layout. Professional commercial gouache/airbrush, matte printed inks, broad intentional shapes, not glossy CGI. Leave quieter image areas at top and bottom for titles the game will typeset. NO lettering, logos, text, numerals, watermarks, signatures, brand symbols, real people or familiar characters. Kid friendly. Strong composition, not dense micro-detail.\nPaint ONLY this scene: A plausible late1990sspace shuttle stack, white delta-wing orbiter mounted on orange external tank with two white boosters, climbing above cloud deck into deep navy sky, warm exhaust, original educational aerospace painting without flags, names or agency markings, portrait composition.",
+      "review": "Accepted after visual review: original painted imagery, no lettering/logos, kid friendly, clear print-scale composition.",
+      "height": 717,
+      "bytes": 21792
+    }
+  ]
+}
