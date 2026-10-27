@@ -2245,6 +2245,7 @@
   function litDistance(id){const a=ROOMS[id].area[0];return a?Math.hypot((a[0]+a[2])/2-P.x,(a[1]+a[3])/2-P.z):0}
   const litBackToFront=(a,b)=>ROOMS[b]._renderDistance-ROOMS[a]._renderDistance;
   function renderLit(renderer) {
+    if (renderer === ren) mainDraws++;
     windowProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);windowFrustum.setFromProjectionMatrix(windowProjection);
     nodeCount=materialCount=0;litIDs.length=0;litTransparentIDs.length=0;litSerial++;
     for(const id in ROOMS){
@@ -2703,7 +2704,7 @@
   // (and back after 10 hours or more with the PC left on: you come back into the room, the PC still on; sit down to carry on)
   const unhideStand = () => { html.classList.remove('pc-standwake'); if (live) { try { dirty(); render(); } catch (e) {} } }; setTimeout(unhideStand, 4000); setTimeout(unhideStand, 9000); // (failsafe: if the room never says it's ready, show it anyway and force a render)
   // ---- watchdog: the room "goes black" on some real PCs (canvas hidden / context lost / draws nothing / something over it): notice, repair, log
-  let wdFrames=-1,wdBlack = 0, wdSent = false;
+  let wdFrames=-1,mainDraws=0,wdBlack = 0, wdSent = false; // wdFrames: the room canvas's draw count when last sampled (other layers' frames don't count)
   function wdDiag(kase, extra) {
     let d = {};
     try {
@@ -2739,8 +2740,8 @@
         measure(); dirty(); render(); wdDiag('canvas-hidden', why); return;
       }
       if (glLost()) { const ok = rebuildGL(); wdDiag('context-lost', ok); return; }
-      if(perfTotal===wdFrames&&!need)return;wdFrames=perfTotal;
-      const lit = wdSample();
+      if(mainDraws===wdFrames&&!need)return;
+      const lit = wdSample(); wdFrames=mainDraws;
       if (lit) wdBlack = 0;
       else if (++wdBlack >= 2) {
         wdBlack = 0; let fix = 'rooms';
