@@ -2140,7 +2140,7 @@
     if(!moving&&!need&&!ambientChanged)return;
     need = false;
     const changed=P.x!==budgetPose.x||P.y!==budgetPose.y||P.z!==budgetPose.z||P.rx!==budgetPose.rx||P.ry!==budgetPose.ry;
-    const renderStart=performance.now();render();recordFrame(now,performance.now()-renderStart);
+    const renderStart=performance.now();render();mainDraws++;recordFrame(now,performance.now()-renderStart);
     fpsTick(now,moving||(mode==='walk'&&changed)||!!(Q.probe&&now<Q.probe));
     budgetPose.x=P.x;budgetPose.y=P.y;budgetPose.z=P.z;budgetPose.rx=P.rx;budgetPose.ry=P.ry;
     if (frame % 6 === 0) ui.map();
@@ -2245,7 +2245,6 @@
   function litDistance(id){const a=ROOMS[id].area[0];return a?Math.hypot((a[0]+a[2])/2-P.x,(a[1]+a[3])/2-P.z):0}
   const litBackToFront=(a,b)=>ROOMS[b]._renderDistance-ROOMS[a]._renderDistance;
   function renderLit(renderer) {
-    if (renderer === ren) mainDraws++;
     windowProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);windowFrustum.setFromProjectionMatrix(windowProjection);
     nodeCount=materialCount=0;litIDs.length=0;litTransparentIDs.length=0;litSerial++;
     for(const id in ROOMS){
@@ -2704,7 +2703,7 @@
   // (and back after 10 hours or more with the PC left on: you come back into the room, the PC still on; sit down to carry on)
   const unhideStand = () => { html.classList.remove('pc-standwake'); if (live) { try { dirty(); render(); } catch (e) {} } }; setTimeout(unhideStand, 4000); setTimeout(unhideStand, 9000); // (failsafe: if the room never says it's ready, show it anyway and force a render)
   // ---- watchdog: the room "goes black" on some real PCs (canvas hidden / context lost / draws nothing / something over it): notice, repair, log
-  let wdFrames=-1,mainDraws=0,wdBlack = 0, wdSent = false; // wdFrames: the room canvas's draw count when last sampled (other layers' frames don't count)
+  let wdFrames=-1,mainDraws=0,wdStuck=0,wdBlack = 0, wdSent = false; // wdFrames: the main loop's room draws when last sampled (the watchdog's own samples and other layers don't count)
   function wdDiag(kase, extra) {
     let d = {};
     try {
@@ -2740,7 +2739,7 @@
         measure(); dirty(); render(); wdDiag('canvas-hidden', why); return;
       }
       if (glLost()) { const ok = rebuildGL(); wdDiag('context-lost', ok); return; }
-      if(mainDraws===wdFrames&&!need)return;
+      if(mainDraws===wdFrames&&!(need&&++wdStuck>=3))return;wdStuck=0; // a pending draw is the main loop's job; only sample if it stays stuck for ~4.5 s
       const lit = wdSample(); wdFrames=mainDraws;
       if (lit) wdBlack = 0;
       else if (++wdBlack >= 2) {
