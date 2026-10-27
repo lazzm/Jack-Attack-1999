@@ -92,6 +92,8 @@ things (a magazine on the floor). Thresholds keep the movement pass's 8 cm step.
 - **Kicked aside**: small light things (under 2 kg and 40 cm: a bag of shopping, the bin, a dropped jumper) never stop
   you; walking into them shoves them fully out of your way. Heavier or bigger things (the chair, the basket, the bag,
   boxes) are pushed and slow you down.
+- **Anchored**: something authored in mid-air (a Halloween bat hung from the ceiling, a thing on a surface the world
+  doesn't model) is never set falling by a bump, a door or a rebuild; only your own drop (X, or setting it down) moves it.
 - **Never trapped**: a body the player is already inside (a refresh, a door shoving it, the story placing it) is a ghost
   for the player until they are fully clear of it; the solver also never leaves a body inside the player.
 
