@@ -43,7 +43,9 @@ function verified(k, p, s) {
   }
   if (s.test.startsWith('chore.')) {
     const id = s.test.slice(6), ch = mods.ch?.p?.[k];
-    return !!(ch?.n?.[id] > 0 || ch?.done?.[id] && !ch.done[id].bad && ch.done[id].sc > 0);
+    // A rating/payment refusal does not undo the physical work. Even a zero-pay
+    // completion has consumed the pyjamas/bag and must satisfy the diary.
+    return !!(ch?.n?.[id] > 0 || ch?.finished?.[id] || own(ch?.done, id));
   }
   if (s.test === 'money.console') {
     const a = mods.econ?.acct?.[k];
@@ -61,7 +63,7 @@ function advance(k, p) {
   const completed = [];
   for (const s of CAT.steps) {
     if (own(p.done, s.id)) continue;
-    if (!verified(k, p, s)) break;
+    if (s.ch > p.ch || !CAT.ready(p, s) || !verified(k, p, s)) continue;
     p.done[s.id] = Date.now(); completed.push(s.id);
     // Mom's good books: bookkeeping only, once per story chore, no economic payout.
     if (s.test.startsWith('chore.')) p.trust = Math.min(100, p.trust + 1);
@@ -92,7 +94,7 @@ module.exports = {
     x.on('login', c => sync(c));
     x.on('story-phone', c => {
       const k = keyOf(c); if (!k) return;
-      const p = player(k); if (p.flags.veteran || p.ch !== 2 || p.flags.mate) return;
+      const p = player(k); if (p.flags.veteran || p.flags.mate) return;
       p.flags.mate = true; ctx.markDirty(); publish(k, advance(k, p));
     });
   },
@@ -113,9 +115,9 @@ module.exports = {
     // A future chapter cannot be skipped by forged observations. Within a chapter,
     // remember real actions done early (e.g. the bin bag already went downstairs).
     if (s.ch > p.ch) return;
-    // Physical assembly is ordered and permanent. Replays cannot remove a part,
-    // connect a future lead, or turn a collection of flags into money.
-    if ((s.test.startsWith('physical.') || ['dad', 'pc'].includes(s.id)) && CAT.current(p)?.id !== s.id) return;
+    // Assembly prerequisites are permanent; independent parts/leads may be fitted
+    // in either order. Observations cannot turn those flags into money.
+    if (!CAT.ready(p, s)) return;
     if (!s.test.startsWith('chore.') && !['money.console', 'order.console', 'phone.mate'].includes(s.test)) {
       if (['parcel.console', 'carry.console', 'connect.console', 'play.console'].includes(s.test) && !hardware(k).length) return;
       if (!p.flags[s.id]) { p.flags[s.id] = true; ctx.markDirty(); }

@@ -150,7 +150,7 @@
   }
 
   // ================================================================ the PC's pretend load (Task Manager, System Monitor, Resource Meter)
-  const GAME_RE = /solitaire|freecell|pinball|mine|jacktris|tetris|squig|doom|game|grotchi|jackotchi|cube|chess|reversi|snake|invaders|zone/i;
+  const GAME_RE = /solitaire|freecell|pinball|mine|jacktris|tetris|blockology|squig|doom|gloom|game|grotchi|jackotchi|cube|chess|reversi|snake|invaders|zone/i;
   let pointerBusy = 0, lastBoost = 0;
   on(document, 'pointermove', () => { pointerBusy++; }, { passive: true });
   on(document, 'keydown', () => { pointerBusy += 3; });
@@ -473,7 +473,7 @@
     dlg(it.n + ' Properties', `<div class="row sys-prtop">${mini(itemIcon(it), 32)}<b>${esc(it.n)}</b></div><hr class="sys-hr"><table class="sys-kv"><tr><td>Type:</td><td>${type}</td></tr><tr><td>Location:</td><td>C:\\JACKOS\\Desktop</td></tr><tr><td>Size:</td><td>${it.t === 'dir' ? '0 bytes' : it.t === 'txt' ? '0 bytes (it\'s new!)' : '381 bytes'}</td></tr>${extra}<tr><td>Created:</td><td>${String(t.d).padStart(2, '0')}/${String(t.m).padStart(2, '0')}/99</td></tr></table>`, [['OK'], ['Cancel']], { w: 320, icon: itemIcon(it) });
   }
   function shortcutWizard() {
-    const PROGS = [['Calculator', 'calc'], ['Character Map', 'charmap'], ['Disk Cleanup', 'cleanmgr'], ['FreeCell', 'freecell'], ['JackAmp', 'jackamp'], ['JackOS Help', 'winhelp'], ['JackOS Task Manager', 'taskmgr'], ['Notepad', 'notepad'], ['Paint', 'mspaint'], ['Scheduled Tasks', 'mstask'], ['Solitaire', 'sol'], ['Sound Recorder', 'sndrec32'], ['System Monitor', 'sysmon'], ['Gubbinz', 'gubbinz'], ['Screen saver', 'saver']];
+    const PROGS = [['Calculator', 'calc'], ['Character Map', 'charmap'], ['Disk Cleanup', 'cleanmgr'], ['FreeCellar', 'freecell'], ['JackAmp', 'jackamp'], ['JackOS Help', 'winhelp'], ['JackOS Task Manager', 'taskmgr'], ['Jotpad', 'notepad'], ['Paint', 'mspaint'], ['Scheduled Tasks', 'mstask'], ['Solitaire', 'sol'], ['Sound Recorder', 'sndrec32'], ['System Monitor', 'sysmon'], ['Gubbinz', 'gubbinz'], ['Screen saver', 'saver']];
     return wizard('Create Shortcut', window.JICON && JICON.wizArt ? JICON.wizArt('folder', 'url') : `<svg viewBox="0 0 100 160" width="100" height="160"><rect width="100" height="160" fill="#008080"/><rect x="14" y="40" width="72" height="56" fill="#c0c0c0" stroke="#000"/><rect x="14" y="40" width="72" height="10" fill="#000080"/><rect x="24" y="58" width="22" height="22" fill="#fff" stroke="#000"/><rect x="8" y="88" width="34" height="34" fill="#fff" stroke="#000" stroke-width="2"/><path d="M14 116l18-18M20 98h12v12" stroke="#000" stroke-width="4" fill="none"/></svg>`, [
       { render(pg, d) { pg.innerHTML = `<p>Type the location and name of the item you want to create a shortcut to. Or, search for the item by clicking Browse.</p><label class="sys-lbl">Command line:<div class="row" style="flex-wrap:nowrap"><input type="text" class="sys-cl" style="flex:1;min-width:0" value="${esc(d.cmd || '')}"><button type="button" class="btn sys-br">Browse...</button></div></label><div class="sys-brl field" hidden></div>`;
         const inp = qs(pg, '.sys-cl'), list = qs(pg, '.sys-brl');
@@ -564,7 +564,7 @@
   // "View As Web Page": an Active Desktop component with the Desktop News Network ticker (headlines are shared by everyone)
   let webBox = null, onnUnwatch = null;
   const ONN_KEY = 'system.onn.news';
-  const ONN_STOCK = ['KID PAINTS MICRO MACHINE RED, CLAIMS IT GOES FASTER', 'LOCAL BOY CATCHES 14 POCKET CRITTERS, "STILL NEED MEW"', 'ROBO RUMBLE: HOUSE ROBOT WINS AGAIN, NOBODY SURPRISED', 'MODEM CONNECTS AT FULL 56K FOR FIRST TIME EVER, NOBODY BELIEVES IT', 'MILLENNIUM BUG "PROBABLY FINE" SAY EXPERTS WITH TORCHES', 'DAVE BEATS JACK AT GOLDENBALLS, JACK DEMANDS RE-MATCH', 'CUBE SOLVED IN UNDER 3 MINUTES, CROWD (MOM) GOES WILD', 'PRINTER OUT OF CYAN AGAIN'];
+  const ONN_STOCK = ['KID PAINTS MICRO MACHINE RED, CLAIMS IT GOES FASTER', 'LOCAL BOY CATCHES 14 POCKET CRITTERS, "STILL NEED MEWONE"', 'ROBO RUMBLE: HOUSE ROBOT WINS AGAIN, NOBODY SURPRISED', 'MODEM CONNECTS AT FULL 56K FOR FIRST TIME EVER, NOBODY BELIEVES IT', 'MILLENNIUM BUG "PROBABLY FINE" SAY EXPERTS WITH TORCHES', 'DAVE BEATS JACK AT GOLDENBALLS, JACK DEMANDS RE-MATCH', 'CUBE SOLVED IN UNDER 3 MINUTES, CROWD (MOM) GOES WILD', 'PRINTER OUT OF CYAN AGAIN'];
   let onnLines = ONN_STOCK.slice();
   function webView(show) {
     put('web', !!show);
@@ -591,7 +591,7 @@
   // ================================================================ random 1999 happenings
   const HARDWARE = [
     ['Bug Detector (Plug and Play)', 'ok'], ['Plug and Play Monitor', 'same'], ['Unknown Device', 'crumb'], ['Gamepad (Dave\'s)', 'ok'], ['JackJet 500', 'forgot'],
-    ['Hyperdrive Motivator', 'bad'], ['PCI Toaster', 'mom'], ['Universal Serial Bus Gubbinz', 'bad'], ['Joystick (it was always there)', 'ok'], ['3dfx Voodoo2 3D Accelerator', 'ok'],
+    ['Hyperdrive Motivator', 'bad'], ['PCI Toaster', 'mom'], ['Universal Serial Bus Gubbinz', 'bad'], ['Joystick (it was always there)', 'ok'], ['3dfix Hoodoo2 3D Accelerator', 'ok'],
   ];
   function newHardware(force) {
     const [name, kind] = pick(HARDWARE);
@@ -600,7 +600,7 @@
     balloon('New Hardware Found', name, 4200);
     setTimeout(() => balloon('New Hardware Found', 'JackOS is installing the software for your new hardware...', 4200), 4600);
     setTimeout(() => {
-      const text = { ok: `${name} is installed and ready to use.`, same: 'It was the same monitor. JackOS installed it again anyway. Just to be sure.', crumb: 'The Unknown Device was a crisp crumb in the USB port. It has been installed as "Crumb (Salt & Vinegar)".', forgot: 'The printer forgot it was already installed. It is installed again now. Twice.', bad: `JackOS could not find the driver for ${name}. It has been put in Device Manager with a yellow "!" on it.`, mom: 'The PCI Toaster has been found and disabled again (by Mom).' }[kind];
+      const text = { ok: `${name} is installed and ready to use.`, same: 'It was the same monitor. JackOS installed it again anyway. Just to be sure.', crumb: 'The Unknown Device was a crisp crumb in the USB port. It has been installed as "Crumb (Salt & Pepper-ish)".', forgot: 'The printer forgot it was already installed. It is installed again now. Twice.', bad: `JackOS could not find the driver for ${name}. It has been put in Device Manager with a yellow "!" on it.`, mom: 'The PCI Toaster has been found and disabled again (by Mom).' }[kind];
       balloon(kind === 'bad' ? 'Hardware Installation' : 'Hardware Installation', text, 6500);
     }, 9600);
     if (force) S('hardware');
@@ -737,7 +737,7 @@
     ['allthemes', 'Park Panic', 'Try every single desktop theme'],
     ['galaxy', 'A long time ago...', 'Visit a galaxy far away (on your desktop)'],
     ['newfolder', 'New Folder (2)', 'Make something new on the desktop'],
-    ['orkfolder', 'Ork HQ', 'Name a desktop folder after Jack\'s favourite army'],
+    ['orkfolder', 'Gork HQ', 'Name a desktop folder after Jack\'s favourite army'],
     ['marquee', 'Lasso', 'Draw a box around lots of desktop icons'],
     ['subscribe', 'Subscriber', 'Subscribe to a channel'],
     ['onn', 'Breaking news', 'Send a headline to the Desktop News Network'],

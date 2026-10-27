@@ -1,0 +1,18 @@
+/* Zeldo's portable controller: painted plastic buttons, outside the native game picture. */
+.rm-tvv:has(.zeldo-controls){--rm-screen-bottom:160px}
+.zeldo-controls{position:absolute;inset:0;pointer-events:none;user-select:none;-webkit-user-select:none}
+.zeldo-dpad,.zeldo-actions{position:absolute;bottom:max(12px,env(safe-area-inset-bottom));width:144px;height:144px;pointer-events:auto;touch-action:none}
+.zeldo-dpad{left:max(12px,env(safe-area-inset-left));background:#c4c1ad;border:2px solid #55564e;box-shadow:inset 2px 2px #eee9ce,inset -3px -3px #8d8b7d}
+.zeldo-dpad span{position:absolute;width:44px;height:44px;display:grid;place-items:center;background:#343d3c;border:1px solid #131c1d;box-shadow:inset 2px 2px #596363,inset -2px -2px #202928;color:#e2d9b9;font:24px 'Courier New',monospace;pointer-events:none}
+.zeldo-dpad .up{left:49px;top:3px}.zeldo-dpad .down{left:49px;bottom:3px}.zeldo-dpad .left{left:3px;top:49px}.zeldo-dpad .right{right:3px;top:49px}
+.zeldo-dpad:after{content:'';position:absolute;left:49px;top:49px;width:46px;height:46px;background:#343d3c;box-shadow:inset 0 0 0 3px #465251}
+.zeldo-actions{right:max(12px,env(safe-area-inset-right));display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.zeldo-actions button{min-width:0;min-height:44px;padding:0;border:2px solid #64614b;box-shadow:inset 2px 2px #f2e8bc,inset -2px -2px #978958;background:#d8ca95;color:#252b2c;font:bold 11px 'Courier New',monospace;touch-action:none}
+.zeldo-actions [data-zeldo=b]{background:#dcb95d}.zeldo-actions [data-zeldo=a]{background:#c9937b}.zeldo-actions [data-zeldo=y]{background:#8fc2a5}.zeldo-actions [data-zeldo=x]{background:#8baabd}
+.zeldo-actions button.pressed{box-shadow:inset 2px 2px #706b53;transform:translateY(1px)}
+.hs-paused .zeldo-controls{visibility:hidden}
+@media (orientation:landscape){.rm-tvv:has(.zeldo-controls){--rm-screen-bottom:8px;--rm-screen-left:170px;--rm-screen-right:170px}}
+
+.zeldo-dpad.up-active .up,.zeldo-dpad.down-active .down,.zeldo-dpad.left-active .left,.zeldo-dpad.right-active .right{background:#617267;box-shadow:inset 2px 2px #1e3029}
+.rm-tvv:has(.zeldo-controls) .rm-help{display:none}
+.rm-tvv:has(.zeldo-controls) .rm-livebar{bottom:174px}

@@ -161,7 +161,7 @@ Grandad wonders why a space racing machine needs a road at all. We suspect the r
         { title: 'Advertisement: Galactic Breakdown Cover', body: `Two engines? One rope? A cockpit apparently assembled from a garden chair? GALACTIC BREAKDOWN COVER understands your imaginary motoring needs. Our illustrated recovery wagon can tow anything you can draw, provided the drawing fits inside this margin and the wheels do not fall off the page.
 
 This advertisement offers no actual insurance, repairs or ordering service. Instead, design a recovery vehicle for your own paper racer. It needs a visible tow point, a place for the driver and a sensible way to lift those enormous engines. Award yourself a bonus if the driver can still reach the controls while wearing mittens. Small print: recovery from the bottom of a pencil case may involve removing several pencils first.` },
-        { title: 'Comic: Pit stop at the kitchen sink', body: `Panel one: Jack's cardboard pod racer arrives at the pit. Dave wears two oven mitts and announces an engine temperature inspection. Mom immediately reclaims the mitts.
+        { title: 'Comic: Pit stop at the kitchen sink', body: `Panel one: Jack's cardboard peapod racer arrives at the pit. Dave wears two oven mitts and announces an engine temperature inspection. Mom immediately reclaims the mitts.
 
 Panel two: Crystal checks the cockpit, which contains a button labelled GO and a much smaller button labelled PERHAPS DON'T.
 
@@ -368,12 +368,12 @@ Panel five: The encore consists of putting the cardboard equipment away. Mom cal
       id: 'pm.mag.12', month: 12, title: 'December 1999: A Proper Winter Annual',
       publication: 'JACK ATTACK!', issue: 12, rel: '01/12', price: 30, art: '12',
       color: '#237c68', headline: 'THE BIG WINTER ISSUE',
-      kicker: 'The Legend of Gubbinz: Ocarina of Tea leads our year-end desk adventure.',
+      kicker: 'The Legend of Gubbinz: Kazoo of Tea leads our year-end desk adventure.',
       pages: [
-        { title: 'Editorial: Twelve issues on the shelf', body: `A complete year of JACK ATTACK! now fits in a satisfyingly uneven stack. We began with silver balls and finish with a winter adventure called The Legend of Gubbinz: Ocarina of Tea. It is our fictional paper quest about finding a missing teapot, not a promise of a cartridge that secretly exists somewhere else.
+        { title: 'Editorial: Twelve issues on the shelf', body: `A complete year of JACK ATTACK! now fits in a satisfyingly uneven stack. We began with silver balls and finish with a winter adventure called The Legend of Gubbinz: Kazoo of Tea. It is our fictional paper quest about finding a missing teapot, not a promise of a cartridge that secretly exists somewhere else.
 
 December is a good time to enjoy what is already on the shelf. Revisit a clever guide, finish a half-drawn map or invite somebody to try the game you made in September. This issue looks back only at 1999 and leaves the next calendar unopened. There is no need to rush the final page. A proper annual should last longer than the first plate of biscuits.` },
-        { title: 'Review: Ocarina of Tea, the paper quest', body: `Our winter quest places three room cards around a central hall. The pantry holds a cup, the study holds a tune, and the conservatory holds a sleeping cat. Read each room's clue before moving an object. The goal is to assemble a peaceful tea break, not defeat the furniture or wake everybody in the house.
+        { title: 'Review: Kazoo of Tea, the paper quest', body: `Our winter quest places three room cards around a central hall. The pantry holds a cup, the study holds a tune, and the conservatory holds a sleeping cat. Read each room's clue before moving an object. The goal is to assemble a peaceful tea break, not defeat the furniture or wake everybody in the house.
 
 Five warm cups out of five for the finished puzzle, provided the clue writer checks every step. Our first draft let the player lose the cup permanently, which was unfair rather than mysterious. The revised quest always lets you retrieve an object. A gentle adventure still needs firm rules; kindness and good puzzle design get on remarkably well when somebody remembers to test the ending.` },
         { title: 'Guide: Write the ending first', body: `Begin your winter adventure with the final scene: a teapot on a table, a cup beside it and a cat comfortably asleep elsewhere. List the three things needed to reach that scene. Now place each in a different room and write a clue that points towards the next useful action.

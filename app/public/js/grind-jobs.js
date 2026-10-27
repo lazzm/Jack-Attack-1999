@@ -91,7 +91,7 @@
       ['The paper shop says: "Not bad for a beginner. Same time tomorrow?"', 'Only one paper in a hedge today. Mr Khan says that is a record.'],
       ['The paper shop says: "Best paper round on the whole estate!" You get a free bag of crisps.', 'Mrs Pemberton says her paper landed right on the mat. She wants you on her round FOREVER.']],
     mow: [['Mr Grimsdale says: "My tulips! MY TULIPS!" He has gone for a lie down.', 'Mr Grimsdale says Gerald the gnome is "not the same since". Oops.'],
-      ['Mr Grimsdale says: "Very nice stripes, lad. Missed a corner."', 'Mr Grimsdale says thank you and gave you a Werther\'s Original. (He calls it "a sweet".)'],
+      ['Mr Grimsdale says: "Very nice stripes, lad. Missed a corner."', 'Mr Grimsdale says thank you and gave you a Werther\'s Originate. (He calls it "a sweet".)'],
       ['Mr Grimsdale says it is the best his lawn has looked since 1983, and Gerald the gnome agrees.', 'Mr Grimsdale says: "Stripes like Wimbledon!" He is going to sit in a deckchair on it all afternoon.']],
     dog: [['Mrs Pemberton says Biscuit came home "covered in puddle". And possibly a cat.', 'Mrs Pemberton says Biscuit is fine, but the lamppost outside No. 30 needs a lie down.'],
       ['Mrs Pemberton says: "Biscuit had a lovely time. He ate a leaf." Thank you dear!', 'Biscuit is very happy and very muddy. Mrs Pemberton says thanks, love.'],

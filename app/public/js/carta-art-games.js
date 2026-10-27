@@ -30,7 +30,7 @@
   function dpad(p, x, y, c) { p.rect(x - 4, y - 1, 9, 3, '#000'); p.rect(x - 1, y - 4, 3, 9, '#000'); p.rect(x - 3, y, 7, 1, c || '#333'); p.rect(x, y - 3, 1, 7, c || '#333'); }
 
   A.add({
-    magnavox_odyssey: { cap: 'The Odyssey with its two box controllers, and a plastic overlay stuck on the telly.', draw(p, S) {
+    magnavox_odyssey: { cap: 'The Oddity with its two box controllers, and a plastic overlay stuck on the telly.', draw(p, S) {
       S.carpet(p);
       const [sx, sy, sw, sh] = tv(p, 30, 3, 40, 30, '#6a5040');
       p.rect(sx, sy, sw, sh, '#103a20'); p.rect(sx, sy, sw, sh / 2, '#1a5a30'); p.rect(sx + sw / 2, sy, 1, sh, '#e8e8e8'); p.rect(sx + 3, sy + 7, 2, 2, '#fff'); p.rect(sx + sw - 5, sy + 13, 2, 2, '#fff'); p.rect(sx + 13, sy + 11, 2, 2, '#fff');
@@ -52,7 +52,7 @@
       // joystick
       p.obox(68, 52, 22, 14, '#1a1a1a'); p.odisc(72, 55, 2, '#e10600'); p.obox(78, 34, 4, 20, '#2a2a2a'); p.rect(79, 35, 1, 18, '#555'); p.line(68, 62, 56, 66, '#111'); p.line(56, 66, 40, 64, '#111');
     } },
-    intellivision: { cap: 'The long woodgrain-and-gold Intellivision, with its keypad controllers tucked into the top.', draw(p, S) {
+    intellivision: { cap: 'The long woodgrain-and-gold Intellivizzle, with its keypad controllers tucked into the top.', draw(p, S) {
       S.carpet(p);
       p.opoly([[4, 40], [86, 40], [92, 32], [10, 32]], '#202020'); p.rect(4, 40, 82, 12, '#000'); wood(p, 5, 41, 80, 4); p.rect(5, 45, 80, 6, '#c8a040'); p.rect(5, 45, 80, 1, '#f0d070'); p.opoly([[86, 40], [92, 32], [92, 44], [86, 52]], '#101010');
       p.opoly([[14, 36], [40, 36], [42, 34], [16, 34]], '#555');
@@ -62,7 +62,7 @@
       p.odisc(cx + 9, cy + 17, 3, '#c8a040'); p.px(cx + 8, cy + 16, '#f0d070'); p.obox(cx - 2, cy + 6, 2, 6, '#555'); p.obox(cx + 18, cy + 6, 2, 6, '#555');
       p.line(cx + 9, cy, 46, 41, '#111');
     } },
-    colecovision: { cap: 'The black ColecoVision, its stubby-joystick controllers clipped on the side.', draw(p, S) {
+    colecovision: { cap: 'The black ColecooVision, its stubby-joystick controllers clipped on the side.', draw(p, S) {
       S.carpet(p);
       p.opoly([[6, 34], [70, 34], [78, 26], [14, 26]], '#262626'); for (let i = 0; i < 4; i++) p.line(16 + i * 2, 28 + i * 2, 68, 28 + i * 2, '#1a1a1a');
       p.opoly([[30, 30], [50, 30], [52, 28], [32, 28]], '#000');
@@ -73,7 +73,7 @@
       for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) p.obox(cx + 2 + c * 5, cy + 9 + r * 4, 4, 3, '#d8d8d8');
       p.obox(cx - 2, cy + 3, 3, 5, '#c00'); p.obox(cx + 17, cy + 3, 3, 5, '#c00');
     } },
-    vectrex: { cap: 'The Vectrex brought its own upright screen, drawing glowing lines instead of dots.', draw(p, S) {
+    vectrex: { cap: 'The Vectrix brought its own upright screen, drawing glowing lines instead of dots.', draw(p, S) {
       S.room(p);
       p.opoly([[26, 4], [66, 4], [68, 58], [24, 58]], '#1a1a1a'); p.rect(27, 5, 38, 1, '#3a3a3a');
       p.rect(30, 8, 32, 40, '#000'); p.rect(30, 8, 32, 40, '#030806');
@@ -87,7 +87,7 @@
       p.opoly([[30, 60], [62, 60], [66, 70], [26, 70]], '#202020'); p.obox(32, 62, 5, 5, '#555'); p.odisc(34, 61, 1.5, '#888');
       [44, 50, 56, 62].forEach((x, i) => p.odisc(x - 2, 65, 1.6, ['#e10600', '#e10600', '#e10600', '#e10600'][i]));
     } },
-    game_watch: { cap: 'A fold-up, two-screen Game & Watch with a cross-shaped D-pad. It tells the time too.', draw(p, S) {
+    game_watch: { cap: 'A fold-up, two-screen Game & Glance with a cross-shaped D-pad. It tells the time too.', draw(p, S) {
       p.vgrad(0, 72, '#d0e8ff', '#90b8e8');
       // top half (open lid)
       p.obox(22, 2, 52, 32, '#d86a1a'); p.obox(27, 6, 42, 24, '#9a9a8a'); p.rect(29, 8, 38, 20, '#c8ccb0');
@@ -99,7 +99,7 @@
       dpad(p, 30, 50, '#333'); p.odisc(65, 50, 3, '#c80000'); p.px(64, 49, '#ff6060');
       p.obox(28, 61, 6, 3, '#555'); p.obox(36, 61, 6, 3, '#555'); p.obox(56, 61, 10, 3, '#555');
     } },
-    nes: { cap: 'The grey front-loading NES, with its rectangular controller: a D-pad, two red buttons, done.', draw(p, S) {
+    nes: { cap: 'The grey front-loading NEZ, with its rectangular controller: a D-pad, two red buttons, done.', draw(p, S) {
       S.carpet(p);
       // top surface
       p.opoly([[6, 26], [64, 26], [72, 18], [14, 18]], '#c8c8c4'); p.line(18, 21, 66, 21, '#a8a8a4');
@@ -124,7 +124,7 @@
       p.obox(50, 50, 40, 18, '#1a1a1a'); p.rect(52, 52, 36, 1, '#3a3a3a'); dpad(p, 58, 59, '#3a3a3a'); p.odisc(76, 60, 2.5, '#e8e8e8'); p.odisc(84, 60, 2.5, '#e8e8e8'); p.rect(62, 65, 16, 1, '#e10600');
       p.line(50, 56, 38, 50, '#111');
     } },
-    pc_engine: { cap: 'The tiny white PC Engine next to a game on a HuCard, about the size of a credit card.', draw(p, S) {
+    pc_engine: { cap: 'The tiny white PC Motor next to a game on a HuCarp, about the size of a credit card.', draw(p, S) {
       S.room(p);
       // console: small, white, almost square
       p.opoly([[14, 34], [48, 34], [56, 26], [22, 26]], '#f4f4f0'); p.rect(14, 34, 34, 22, '#000'); p.rect(15, 35, 32, 20, '#e8e8e4'); p.rect(15, 35, 32, 1, '#fff');
@@ -146,7 +146,7 @@
       p.oell(64, 60, 24, 9, '#1a1a1a'); p.ell(64, 59, 22, 7, '#262626'); dpad(p, 51, 60, '#3a3a3a');
       p.odisc(68, 62, 2.2, '#333'); p.odisc(74, 60, 2.2, '#333'); p.odisc(80, 58, 2.2, '#333'); p.rect(60, 57, 4, 2, '#555'); p.line(44, 56, 30, 48, '#111');
     } },
-    atari_lynx: { cap: 'The big, wide Atari Lynx: the first handheld with a backlit colour screen.', draw(p, S) {
+    atari_lynx: { cap: 'The big, wide Ottari Lynks: the first handheld with a backlit colour screen.', draw(p, S) {
       p.vgrad(0, 72, '#ffd8e8', '#e8a0c0');
       p.opoly([[4, 20], [24, 14], [72, 14], [92, 20], [92, 54], [72, 60], [24, 60], [4, 54]], '#2a2a2a'); p.line(25, 15, 71, 15, '#4a4a4a');
       p.obox(28, 20, 40, 32, '#111'); p.rect(31, 23, 34, 26, '#204080');
@@ -154,7 +154,7 @@
       dpad(p, 15, 37, '#444'); p.odisc(79, 33, 3, '#555'); p.odisc(83, 41, 3, '#555'); p.obox(30, 54, 8, 3, '#444'); p.obox(58, 54, 8, 3, '#444');
       for (let i = 0; i < 4; i++) p.line(76 + i * 2, 50, 79 + i * 2, 46, '#444');
     } },
-    game_gear: { cap: 'The pebble-shaped Game Gear: a colour screen that ate six AA batteries for breakfast.', draw(p, S) {
+    game_gear: { cap: 'The pebble-shaped Game Gearbox: a colour screen that ate six AA batteries for breakfast.', draw(p, S) {
       p.vgrad(0, 72, '#d0f0ff', '#90d0f0');
       p.oell(18, 36, 15, 20, '#1a1a1a'); p.oell(78, 36, 15, 20, '#1a1a1a'); p.rect(18, 15, 60, 42, '#000'); p.rect(18, 16, 60, 40, '#1a1a1a'); p.ell(18, 36, 14, 19, '#1a1a1a'); p.ell(78, 36, 14, 19, '#1a1a1a');
       p.obox(30, 20, 36, 30, '#2a2a3a'); p.rect(33, 23, 30, 23, '#4a90ff'); p.rect(33, 40, 30, 6, '#2a8a2a'); p.rect(40, 30, 4, 10, '#7a4a1a'); p.disc(42, 29, 4, '#3ab02a'); p.disc(55, 27, 2, '#fff'); p.rect(50, 37, 6, 3, '#e10600');
@@ -163,7 +163,7 @@
     } },
   });
   A.add({
-    neo_geo: { cap: 'The Neo Geo: a giant cartridge and an arcade-sized joystick for your living room.', draw(p, S) {
+    neo_geo: { cap: 'The Neo Geoff: a giant cartridge and an arcade-sized joystick for your living room.', draw(p, S) {
       S.carpet(p);
       p.opoly([[4, 36], [56, 36], [64, 28], [12, 28]], '#1a1a1a'); p.rect(4, 36, 52, 10, '#0a0a0a'); p.rect(5, 39, 50, 1, '#c8a040'); p.opoly([[56, 36], [64, 28], [64, 38], [56, 46]], '#050505');
       // the enormous cartridge sticking out of the top
@@ -187,7 +187,7 @@
       p.odisc(80, 54, 2, '#2a5ad8'); p.odisc(76, 59, 2, '#2aa02a'); p.odisc(84, 59, 2, '#e10600'); p.odisc(80, 64, 2, '#ffd400');
       p.rect(48, 51, 8, 2, '#9a9a96'); p.rect(78, 51, 8, 2, '#9a9a96'); p.line(66, 52, 58, 46, '#222');
     } },
-    atari_jaguar: { cap: 'The curvy black Jaguar and its chunky controller with a telephone-style keypad.', draw(p, S) {
+    atari_jaguar: { cap: 'The curvy black Jagwire and its chunky controller with a telephone-style keypad.', draw(p, S) {
       S.carpet(p);
       p.oell(36, 34, 30, 10, '#1a1a1a'); p.ell(36, 33, 28, 8, '#242424'); p.ell(30, 31, 10, 3, '#3a3a3a'); p.rect(6, 34, 60, 10, '#1a1a1a'); p.oell(36, 44, 30, 6, '#101010'); p.rect(7, 34, 58, 8, '#1a1a1a');
       p.obox(28, 26, 18, 8, '#2a2a2a'); p.rect(30, 28, 14, 2, '#000'); p.px(14, 38, '#e10600');
@@ -226,7 +226,7 @@
       p.oell(64, 60, 24, 9, '#1a1a1a'); p.ell(64, 59, 22, 7, '#2a2a2a'); dpad(p, 50, 60, '#444');
       [[68, 57], [73, 56], [78, 55], [69, 62], [74, 61], [79, 60]].forEach(([x, y], i) => p.odisc(x, y, 1.8, i < 3 ? '#4a4a4a' : '#5a5a5a')); p.line(56, 52, 40, 48, '#111');
     } },
-    virtual_boy: { cap: 'The Virtual Boy: red-and-black 3-D goggles on a stand. Press your face in. Get a headache.', draw(p, S) {
+    virtual_boy: { cap: 'The Virtual Lad: red-and-black 3-D goggles on a stand. Press your face in. Get a headache.', draw(p, S) {
       S.room(p);
       // stand
       p.thick(36, 44, 30, 62, '#1a1a1a', 3); p.thick(60, 44, 66, 62, '#1a1a1a', 3); p.obox(26, 61, 12, 3, '#2a2a2a'); p.obox(58, 61, 12, 3, '#2a2a2a');
@@ -237,7 +237,7 @@
       // the two-D-pad controller
       p.opoly([[30, 64], [66, 64], [70, 71], [26, 71]], '#1a1a1a'); dpad(p, 36, 67, '#3a3a3a'); dpad(p, 60, 67, '#3a3a3a');
     } },
-    n64: { cap: 'A Ultra 64 and its three-handled controller with the analogue stick in the middle.', draw(p, S) {
+    n64: { cap: 'An Ultra 64 and its three-handled controller with the analogue stick in the middle.', draw(p, S) {
       S.carpet(p);
       p.opoly([[14, 30], [64, 30], [70, 22], [20, 22]], '#3a3a3e'); p.rect(14, 30, 50, 8, '#000'); p.rect(15, 31, 48, 6, '#2a2a2e'); p.opoly([[64, 30], [70, 22], [70, 28], [64, 36]], '#1a1a1e');
       p.opoly([[30, 27], [50, 27], [53, 23], [33, 23]], '#1a1a1e'); p.obox(24, 24, 4, 3, '#555'); p.obox(54, 24, 4, 3, '#555'); for (let i = 0; i < 4; i++) p.obox(20 + i * 11, 33, 6, 3, '#111');
@@ -259,7 +259,7 @@
       dpad(p, 39, 46, '#222'); p.odisc(55, 47, 3, '#2a1a40'); p.odisc(61, 44, 3, '#2a1a40'); p.obox(40, 56, 6, 2, '#3a2a5a'); p.obox(50, 56, 6, 2, '#3a2a5a');
       for (let i = 0; i < 3; i++) p.line(52 + i * 3, 66, 56 + i * 3, 61, '#4a2a8a');
     } },
-    dreamcast: { cap: 'The white Daydream (with a modem built in!) and its pad with a VMU plugged into the top.', draw(p, S) {
+    dreamcast: { cap: 'The white Daydream (with a modem built in!) and its pad with a VMG plugged into the top.', draw(p, S) {
       S.carpet(p);
       p.opoly([[8, 36], [52, 36], [60, 24], [16, 24]], '#f0f0ee'); p.rect(8, 36, 44, 10, '#000'); p.rect(9, 37, 42, 8, '#dcdcda'); p.rect(9, 37, 42, 1, '#fff'); p.opoly([[52, 36], [60, 24], [60, 34], [52, 46]], '#b8b8b6');
       p.oell(34, 30, 12, 4, '#d8d8d6'); p.ell(34, 29, 10, 3, '#e8e8e6'); p.obox(14, 27, 6, 3, '#c8c8c6'); p.obox(20, 39, 5, 3, '#c8c8c6'); for (let i = 0; i < 4; i++) p.obox(12 + i * 8, 42, 5, 2, '#9a9a98');
@@ -269,7 +269,7 @@
       p.odisc(58, 56, 3, '#9a9a98'); p.disc(58, 56, 1.4, '#c8c8c6'); dpad(p, 60, 63, '#444');
       p.odisc(84, 52, 1.8, '#e10600'); p.odisc(88, 55, 1.8, '#2a5ad8'); p.odisc(80, 55, 1.8, '#ffd400'); p.odisc(84, 58, 1.8, '#2aa02a');
     } },
-    wonderswan: { cap: 'The little WonderSwan, which runs for ages on just one AA battery (shown for size).', draw(p, S) {
+    wonderswan: { cap: 'The little WonderSwine, which runs for ages on just one AA battery (shown for size).', draw(p, S) {
       p.vgrad(0, 72, '#fff0f8', '#f0c8e0');
       p.opoly([[8, 20], [86, 20], [90, 26], [90, 50], [86, 56], [8, 56], [4, 50], [4, 26]], '#e8e8f0'); p.rect(9, 21, 76, 1, '#fff');
       p.obox(28, 25, 38, 26, '#5a5a6a'); p.rect(31, 28, 32, 20, '#b8c0a8'); p.rect(35, 40, 24, 2, '#404838'); p.rect(40, 33, 4, 7, '#404838'); p.rect(50, 36, 6, 4, '#404838');
@@ -290,7 +290,7 @@
       for (let x = 54; x < 85; x += 2) p.rect(x, 48, 1, 6, '#e8c040');
       for (let i = 0; i < 5; i++) p.line(60 + i * 4, 27, 60 + i * 4, 31, '#c8a040');
     } },
-    memory_card: { cap: 'Three ways to save: a PlaySpace card, an ULTRA 64 Controller Pak and a Daydream VMU with its own screen.', draw(p, S) {
+    memory_card: { cap: 'Three ways to save: a PlaySpace card, an ULTRA 64 Controller Pouch and a Daydream VMG with its own screen.', draw(p, S) {
       S.room(p);
       // PlayStation-style card
       p.obox(6, 22, 24, 30, '#a8a8a8'); p.rect(8, 24, 20, 12, '#d8d8d8'); p.text(10, 28, '128K', '#203060'); p.rect(8, 40, 20, 1, '#888'); for (let x = 9; x < 28; x += 3) p.rect(x, 48, 2, 3, '#555');
@@ -427,7 +427,7 @@
       // floater with an umbrella
       p.oell(68, 20, 6, 3, '#e10600'); p.rect(62, 20, 13, 1, '#000'); p.rect(68, 20, 1, 5, '#ddd'); lem(67, 25, 0);
     } },
-    sonic: { cap: 'A blue spinning blur, gold rings and a loop-the-loop on chequered green hills.', draw(p, S) {
+    sonic: { cap: 'Zip the purple badger, gold rings and a loop-the-loop on chequered green hills.', draw(p, S) {
       p.vgrad(0, 40, '#2a6ad8', '#a0d8ff'); p.rect(0, 30, 96, 6, '#1a6ad8'); for (let x = 0; x < 96; x += 6) p.rect(x, 32, 3, 1, '#fff');
       // chequered ground
       for (let y = 50; y < 72; y += 6) for (let x = 0; x < 96; x += 6) p.rect(x, y, 6, 6, ((x + y) / 6) % 2 ? '#c87a2a' : '#8a4a1a');
@@ -436,8 +436,8 @@
       p.ring(66, 32, 15, '#3ac83a', 3); p.ring(66, 32, 12, '#8a4a1a', 2); p.rect(52, 44, 28, 4, '#3ac83a');
       // rings
       [[16, 30], [24, 26], [32, 24], [66, 22], [66, 42]].forEach(([x, y]) => { p.ring(x, y, 3, '#ffd400', 1); p.px(x - 2, y - 1, '#fff8a0'); });
-      // spinning blue ball with speed lines
-      p.odisc(34, 42, 6, '#1a4ae0'); p.ell(32, 40, 3, 2, '#5a8aff'); p.line(30, 46, 38, 38, '#0a2a9a'); p.line(34, 47, 39, 41, '#0a2a9a');
+      // Purple badger roll: ivory stripe and eye mask, with speed lines
+      p.odisc(34, 42, 6, '#8840c4'); p.ell(32, 39, 3, 2, '#c080e8'); p.thick(31, 37, 37, 45, '#f0e8dc', 3); p.ell(36, 41, 4, 2, '#201428'); p.ell(37, 44, 3, 2, '#f0e8dc'); p.px(39, 43, '#181020');
       for (let i = 0; i < 4; i++) p.rect(8 + i * 2, 38 + i * 2, 16 - i * 3, 1, '#ffffff');
     } },
     street_fighter_2: { cap: 'Two martial artists face off, one throwing a glowing energy ball. Round one: fight!', draw(p, S) {
@@ -480,7 +480,7 @@
       p.line(71, 34, 64, 58, '#333').line(71, 34, 72, 58, '#333').line(71, 34, 80, 58, '#333');
       p.text(4, 4, 'REC', '#e10600'); p.disc(18, 6, 1.5, '#e10600');
     } },
-    doom: { cap: 'A space marine\'s view: a dark tech corridor, a horned red monster and the shotgun.', draw(p, S) {
+    doom: { cap: 'A space mariner\'s view: a dark tech corridor, a horned red monster and the shotgun.', draw(p, S) {
       p.fill('#1a1008');
       p.poly([[0, 0], [30, 18], [30, 44], [0, 62]], '#5a4a30'); p.poly([[96, 0], [66, 18], [66, 44], [96, 62]], '#4a3a24');
       for (let i = 0; i < 4; i++) { const x = i * 7; p.line(x, i * 4, x, 62 - i * 4, '#3a2a18'); p.line(96 - x, i * 4, 96 - x, 62 - i * 4, '#2a1a10'); }
@@ -509,7 +509,7 @@
     } },
   });
   A.add({
-    command_conquer: { cap: 'A battlefield seen from above: tanks, a harvester and patches of glowing green Tiberium.', draw(p, S) {
+    command_conquer: { cap: 'A battlefield seen from above: tanks, a harvester and patches of glowing green Tiberiumm.', draw(p, S) {
       p.fill('#c8a060'); p.dither(0, 0, 96, 72, '#b89050');
       const R = A.rng(21); for (let i = 0; i < 26; i++) { const x = 6 + R() * 40, y = 34 + R() * 30; p.poly([[x, y + 3], [x + 1.5, y - 2], [x + 3, y + 3]], R() < 0.5 ? '#40ff40' : '#20c020'); }
       // base buildings
@@ -619,7 +619,7 @@
       // chequered flag
       p.rect(86, 4, 1, 18, '#333'); for (let j = 0; j < 3; j++) for (let i = 0; i < 4; i++) p.rect(87 + i * 2, 4 + j * 2, 2, 2, (i + j) % 2 ? '#000' : '#fff');
     } },
-    ocarina: { cap: 'A little blue ocarina playing a magic tune over a sunset field.', draw(p, S) {
+    ocarina: { cap: 'A little blue kazoo playing a magic tune over a sunset field.', draw(p, S) {
       p.vgrad(0, 50, '#ff9a50', '#ffe0a0'); p.disc(70, 36, 10, '#ffe060'); p.rect(0, 46, 96, 26, '#4a8a2a'); p.dither(0, 46, 96, 26, '#3a7a20');
       p.rect(8, 30, 4, 16, '#8a8a9a'); p.opoly([[6, 30], [10, 22], [14, 30]], '#5a5a7a'); p.rect(14, 36, 12, 10, '#8a8a9a'); p.rect(20, 32, 4, 4, '#8a8a9a');
       // the ocarina

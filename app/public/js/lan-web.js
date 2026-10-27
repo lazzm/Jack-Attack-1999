@@ -27,7 +27,7 @@
           <div class="ssx-you" style="margin-top:10px;padding:8px;border:2px dashed #063;background:#efe"></div></div>
       </div>
       <h3 style="margin:12px 0 4px;font:bold 15px Arial,sans-serif;color:#063">LATEST SIGHTINGS</h3><div class="ssx-log" style="font:12px 'Courier New',monospace;background:#000;color:#0f0;padding:6px;max-height:160px;overflow:auto"></div>
-      <p style="margin-top:10px"><b>What is SQUIG99?</b> A pretend e-mail worm going round JackNet. It arrives as <b>"Happy New Year 1999 !!"</b> with <b>SQUIG99.EXE</b> attached. Open it and you get fireworks... and a little worm in your clock corner, "(sent by SQUIG99)" on your e-mails, and it "posts itself" to everyone you've swapped WinPopups, files or floppies with. It's a joke version of <b>Happy99</b>, a real worm from January 1999. ${link('http://www.jackshield.netz/virus.html', 'Read more in the Virus Encyclopedia')}.</p>
+      <p style="margin-top:10px"><b>What is SQUIG99?</b> A pretend e-mail worm going round JackNet. It arrives as <b>"Happy New Year 1999 !!"</b> with <b>SQUIG99.EXE</b> attached. Open it and you get fireworks... and a little worm in your clock corner, "(sent by SQUIG99)" on your e-mails, and it "posts itself" to everyone you've swapped JackPopups, files or floppies with. It's a joke version of <b>Happy99</b>, a real worm from January 1999. ${link('http://www.jackshield.netz/virus.html', 'Read more in the Virus Encyclopedia')}.</p>
       <p><b>Got it?</b> ${link('http://www.jackshield.netz/download.html', 'Download JackClean FREE')}. One click and it's gone.</p>${ssFoot}</div></div>`;
     const fill = m => {
       const lv = el.querySelector('.ssx-level'); if (!lv) return;

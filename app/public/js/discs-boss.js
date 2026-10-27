@@ -628,7 +628,7 @@
   const NEWS = [
     c => `${c.t.n} striker ${c.p} fined two weeks' wages for turning up to training in slippers.`,
     c => `${c.t.n} chairman ${c.t.ch} promises fans "a brand new pie stand by Christmas".`,
-    c => `A runaway Furby rolled onto the pitch at ${c.t.gr} and refused to leave for twenty minutes.`,
+    c => `A runaway Furbo rolled onto the pitch at ${c.t.gr} and refused to leave for twenty minutes.`,
     c => `Floodlight failure at ${c.t.gr}: "someone plugged a kettle in," says groundsman.`,
     c => `${c.t.n} unveil their new away kit. It's brown. Nobody knows why.`,
     c => `${c.p} (${c.t.sh}) has been named Premier Jack League Player of the Month.`,

@@ -101,6 +101,7 @@
   const Q = {}; // id -> { items:[[s, o]], t, busy }
   function queue(id, s, o) {
     const q = Q[id] = Q[id] || { items: [], last: 0, busy: false };
+    if (q.items.some(item => item[0] === s)) return;
     q.items.push([s, o]); pump(id);
   }
   function pump(id) {
@@ -147,6 +148,17 @@
       if (S.day !== m.day) newDay(m.day);
       if (m.member) {
         for (const id in m.done || {}) if (!S.done[id] || S.done[id].local) { S.done[id] = m.done[id]; S.ever[id] = 1; }
+        // Server steps survive refresh/device changes even before the debounced
+        // room save. Restore consumed objects and duvet state from that evidence.
+        let tidyChanged = false;
+        for (const id of new Set([...Object.keys(m.prog || {}), ...Object.keys(m.done || {})])) {
+          const valid = stepsOf(id).map(x => x.s), got = m.done?.[id] ? valid : (m.prog[id] || []).filter(s => valid.includes(s));
+          for (const s of got) {
+            if (id === 'tidy' && !has(id,s)) tidyChanged = true;
+            (S.prog[id] ||= {})[s] ||= Date.now();
+          }
+        }
+        if (tidyChanged && MODS.tidy?._built) MODS.tidy.lay();
         // steps done here that the server never heard about (done as a guest, or the line dropped): send them again
         for (const id in S.prog) {
           if (S.done[id] && !S.done[id].local) continue;
@@ -201,11 +213,11 @@
     bin: ['My bin. It\'s mostly crisp packets. And something that used to be a banana.'],
     cat: [cast('{cat} isn\'t even our cat. {cat.He} just lives here. And eats here. And sleeps on my bed.')],
     plant: ['Gran gave me this plant \"to brighten the place up\". It has survived two years in a teenager\'s bedroom. Respect.'],
-    washup: ['The washing up. The worst job. Every plate in the house, somehow.', 'Hot water, a squirt of Fairy Liquid, and SCRUB. Rubber gloves are for wimps.'],
+    washup: ['The washing up. The worst job. Every plate in the house, somehow.', 'Hot water, a squirt of Faerie Liquid, and SCRUB. Rubber gloves are for wimps.'],
     table: ['Lay the table. Four plates, four forks, four knives. I can count to four.'],
     shopping: ['The shopping. If anything is crisps, it\'s going in my room. (It is not going in my room.)'],
     bins: ['Bins. Out the front. In my slippers. Brilliant.'],
-    hoover: ['The hoover. It weighs a TONNE and the cable is never long enough.'],
+    hoover: ['The vacuum. It weighs a TONNE and the cable is never long enough.'],
     videos: ['The videos. Half of these aren\'t even in the right boxes.'],
     cushions: ['Plump the cushions. What does that even MEAN, Mom?'],
     car: ['Wash Dad\'s car. On a SATURDAY. (Or whatever day it is. It feels like a Saturday job.)'],
@@ -221,7 +233,7 @@
     plant: ['Plant watered. It looks happier. I think. It\'s a plant.'],
     washup: ['Washing up DONE. My hands are all wrinkly.', 'Every plate clean. Well, nearly. One is still a bit eggy.'],
     table: ['Table laid. Fancy. Like a restaurant. A restaurant with ketchup.'],
-    shopping: ['Shopping away. I hid the Wagon Wheels at the back so nobody else finds them.'],
+    shopping: ['Shopping away. I hid the Wagon Wheelz at the back so nobody else finds them.'],
     bins: ['Bins out. The binmen come in the morning. Hopefully.'],
     hoover: ['Hoovered! The carpet has lines in it now. Lovely lines.'],
     videos: ['Videos tidy. All rewound. You\'re welcome, Dad.'],
@@ -319,7 +331,16 @@
   H.on('snap', (sid, id) => { if (MINE[id]) keep(id); });
   // carrying something out of the room: it comes with you (it lives in the room you're in now)
   H.on('room', rid => { const h = H.held(); if (!h || !H.THINGS[h] || !H.ROOMS[rid]) return; const t = H.THINGS[h]; if (t.obj.parent !== H.ROOMS[rid].things) H.ROOMS[rid].things.add(t.obj); });
-  function snap(id, def) { return R.addSnap(id, def); }
+  function snap(id, def) {
+    // The bedroom CD rack and kitchen draining rack historically share an ID.
+    // Keep both reachable when a later room loads, retaining the original ID
+    // on the slot record so existing saves and onSnap behaviour remain valid.
+    const prior = H.SNAPS[id];
+    if (prior?.room && def.room && prior.room !== def.room) {
+      H.SNAPS[id + '.' + prior.room] = prior;
+    }
+    return R.addSnap(id, def);
+  }
   // a spot of the house's that a job takes over: our act runs first (and falls back to the house's own when it isn't a job
   // click). The house's js/hs-life.js used to run simple chores off some of these: ours are the real ones now, so we keep
   // our act in place even if something wraps it later.

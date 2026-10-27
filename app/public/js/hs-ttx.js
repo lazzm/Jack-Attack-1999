@@ -96,8 +96,8 @@
   page(302, () => {
     const T = D().table, done = t99().md >= D().md(T.from);
     const rows = [...band('g', 'w', 'PREMIERSHIP'), ''];
-    if (done) { rows.push(A.y + ' FINAL TABLE 1998-99' + A.w + '        Pts'); T.top.forEach((x, i) => rows.push(A.w + ' ' + (i + 1) + '. ' + pad(x[0], 24) + A.c + x[1])); rows.push(A.w + '   ...'); rows.push(''); rows.push(A.r + ' RELEGATED: ' + A.w + T.down.join(', ')); rows.push(''); rows.push(A.g + ' Man Utd: the Treble! League, FA Cup'); rows.push(A.g + ' and European Cup.'); }
-    else { rows.push(A.w + ' The 1998-99 season is still going.'); rows.push(A.w + ' Man Utd and Arsenal are neck and'); rows.push(A.w + ' neck at the top. Final day: 16 May.'); }
+    if (done) { rows.push(A.y + ' FINAL TABLE 1998-99' + A.w + '        Pts'); T.top.forEach((x, i) => rows.push(A.w + ' ' + (i + 1) + '. ' + pad(x[0], 24) + A.c + x[1])); rows.push(A.w + '   ...'); rows.push(''); rows.push(A.r + ' RELEGATED: ' + A.w + T.down.join(', ')); rows.push(''); rows.push(A.g + ' Mancake Utd: the Treble! League, FA Cup'); rows.push(A.g + ' and European Cup.'); }
+    else { rows.push(A.w + ' The 1998-99 season is still going.'); rows.push(A.w + ' Mancake Utd and Arsenic are neck and'); rows.push(A.w + ' neck at the top. Final day: 16 May.'); }
     return Object.assign({ rows }, LINKS(['Sport', 300], ['Results', 301], ['News', 101], ['Index', 100]));
   });
   // ---- weather
@@ -135,20 +135,20 @@
     return Object.assign({ rows }, LINKS(['Charts', 501], ['Films', 502], ['Quiz', 150], ['Index', 100]));
   });
   // ---- the telly
-  const CHANS = ['BBC1', 'BBC2', 'ITV', 'C4', 'C5'];
+  const CHANS = ['BBQ1', 'BBQ2', 'ITB', 'CF', 'CV'];
   page(600, () => {
     const t = t99(), kind = t.dow === 6 ? 'sat' : t.dow === 0 ? 'sun' : 'week', sp = D().tv.special.filter(x => D().md(x[0]) === t.md);
     const rows = [...band('w', 'b', 'WHAT\'S ON TODAY'), A.c + ' ' + DAYS[t.dow] + ' ' + t.d + ' ' + MON[t.m - 1], ''];
     if (sp.length) { rows.push(FLASH + A.y + ' DON\'T MISS' + STEADY); sp.forEach(x => rows.push(A.w + ' ' + pad(x[1], 5) + A.c + pad(x[2], 8) + A.w + clip(x[3]).slice(0, 25))); rows.push(''); }
     CHANS.forEach((c, i) => rows.push(A.y + ' ' + pad(c, 6) + A.c + (601 + i)));
     rows.push(''); rows.push(A.w + ' Subtitles on page ' + A.y + '888');
-    return Object.assign({ rows }, LINKS(['BBC1', 601], ['ITV', 603], ['C4', 604], ['Index', 100]));
+    return Object.assign({ rows }, LINKS(['BBQ1', 601], ['ITB', 603], ['CF', 604], ['Index', 100]));
   });
   CHANS.forEach((c, i) => page(601 + i, () => {
     const t = t99(), kind = t.dow === 6 ? 'sat' : t.dow === 0 ? 'sun' : 'week', L = (D().tv[kind].find(x => x[0] === c) || [c, []])[1].slice();
-    if (c === 'ITV' && kind === 'week') L.push(t.md < D().md(D().tv.newsAtTenEnds) ? ['10.00', 'News at Ten'] : ['6.30', 'ITV Evening News']);
-    if (c === 'BBC1' && t.dow === 5) L.push(['7.30', 'Top of the Pops']);
-    if (c === 'BBC1' && t.dow === 6) L.push(['10.20', 'Match of the Day']);
+    if (c === 'ITB' && kind === 'week') L.push(t.md < D().md(D().tv.newsAtTenEnds) ? ['10.00', 'News at Ten'] : ['6.30', 'ITB Evening News']);
+    if (c === 'BBQ1' && t.dow === 5) L.push(['7.30', 'Top of the Pots']);
+    if (c === 'BBQ1' && t.dow === 6) L.push(['10.20', 'Match of the Day']);
     D().tv.special.filter(x => D().md(x[0]) === t.md && x[1] === c).forEach(x => L.push([x[2], x[3]]));
     const rows = [...band(['r', 'b', 'c', 'm', 'g'][i], 'w', c + ' TODAY'), A.c + ' ' + DAYS[t.dow] + ' ' + t.d + ' ' + MON[t.m - 1], ''];
     L.forEach(x => rows.push(A.y + ' ' + pad(x[0], 7) + A.w + clip(x[1]).slice(0, 30)));
@@ -156,7 +156,7 @@
     return Object.assign({ rows }, LINKS(['Next', i < 4 ? 602 + i : 601], ['All', 600], ['Charts', 501], ['Index', 100]));
   }));
   // ---- holidays (the adverts: fictional companies, fictional numbers you can ring on the landline)
-  const HOL = [['MAJORCA', '7nts S/C', '149', 'Sun! Sea! Sangria for Mum and Dad!'], ['TENERIFE', '14nts H/B', '299', 'Pool with a slide. A BIG slide.'], ['FLORIDA', '14nts villa', '399', 'Theme parks! Alligators (look, don\'t touch)'], ['CORFU', '7nts B&B', '189', 'Last minute! Fly Saturday!'], ['ISLE OF WIGHT', '3nts caravan', '59', 'Ferry included. Rain not included.'], ['EURO DISNEY', '3nts + park', '219', 'Meet the mouse!']];
+  const HOL = [['MAJORCA', '7nts S/C', '149', 'Sun! Sea! Sangria for Mum and Dad!'], ['TENERIFE', '14nts H/B', '299', 'Pool with a slide. A BIG slide.'], ['FLORIDA', '14nts villa', '399', 'Theme parks! Alligators (look, don\'t touch)'], ['CORFU', '7nts B&B', '189', 'Last minute! Fly Saturday!'], ['ISLE OF WIGHT', '3nts caravan', '59', 'Ferry included. Rain not included.'], ['EURO DIZZNEY', '3nts + park', '219', 'Meet the mouse!']];
   page(700, () => {
     const rows = [...band('c', 'b', 'HOLIDAY BARGAINS'), A.w + ' From your local airport. Prices per', A.w + ' person. Subject to availability.', ''];
     HOL.forEach(x => { rows.push(A.y + ' ' + pad(x[0], 14) + A.c + pad(x[1], 13) + A.g + 'from £' + x[2]); rows.push(A.w + '   ' + clip(x[3]).slice(0, 35)); });

@@ -111,7 +111,7 @@
     if (o.leaf === false) return null;
     // the leaf, hinged at a1 (or a0 with o.flip), swinging into the room on the + side
     const hinge = o.flip ? a0 : a1, pv = new T.Group();
-    const [hx, , hz] = P(hinge, 0, o.inside ? 2.5 : -2.5); pv.position.set(hx, 0, hz); r.group.add(pv);
+    const [hx, , hz] = P(hinge, 0, o.hingeNormal ?? (o.inside ? 2.5 : -2.5)); pv.position.set(hx, 0, hz); r.group.add(pv);
     const D = K.into(pv), lm = o.mat || M({ c: '#efebe2', map: tex('whiteGloss'), sh: 24, sp: '#333' });
     const sgnA = o.flip ? 1 : -1; // leaf goes from the hinge back across the opening
     const cx = along ? sgnA * dw / 2 : 0, cz = along ? 0 : sgnA * dw / 2;
@@ -350,7 +350,7 @@
     // the cupboard door (it's a small one)
     const cd = doorway(r, K.into(r.cupFrames = K.batch()), 'cupdoor', 'w', 330, 362, 438, GY, { h: 94, inside: false, flip: false, depth: 1 });
     r.cupFrames.build(r.group);
-    H.door('cupboard', { rooms: ['hall', 'cupboard'], pivot: cd, swing: 100, dir: -1 });
+    H.door('cupboard', { rooms: ['hall', 'cupboard'], pivot: cd, swing: 100, dir: -1, lintelPlane: 330 });
     H.spot('hs.cupdoor', { label: () => H.DOORS.cupboard.open ? 'Shut cupboard (C: crouch through)' : 'The cupboard under the stairs', obj: cd, act: () => { H.setDoor('cupboard', !H.DOORS.cupboard.open); } });
     H.walkRect('G', 207, 62, 408, 250, { room: 'hall' }); H.walkRect('G', 207, 250, 328, 600, { room: 'hall' }); H.walkRect('G', 207, 600, 408, 698, { room: 'hall' });
     H.block('G', 205, 80, 240, 140); // the hall table
@@ -384,7 +384,7 @@
     SN.box(-6, -36.4, -1, 4, 1, 2.4, M('#7a5aa8')); SN.box(6, -36.4, -1, 4, 1, 2.4, M('#7a5aa8')); SN.box(0, -35.6, 6.8, 10, 1, 4, M('#5a5a5e'));
     SN.rbox(-4, -28.6, 18, 14, 2.4, 6, 1, M({ c: '#c8c6c0', sh: 20 })); SN.cyl(-8, -30, 18, 1.2, 1.2, 0.4, 4, M('#333'), { ry: 45 }); [[-1, 17, '#2a8a3a'], [0.4, 18.4, '#d02a2a'], [1.8, 17, '#2a5ad0'], [0.4, 15.6, '#e8c020']].forEach(([x, z, c]) => SN.cyl(x, -30, z, 0.6, 0.6, 0.4, 8, M(c)));
     const cords = new T.CatmullRomCurve3([new T.Vector3(0, -32, -10), new T.Vector3(8, -2, -20), new T.Vector3(20, -1, -40), new T.Vector3(28, -45, -42)]); SN.geo(new T.TubeGeometry(cords, 20, 0.4, 5), 0, 0, 0, M('#1a1a1a'));
-    H.spot('snes', { label: 'The old console (Super Famicart)', obj: sn, act: snes });
+    H.spot('snes', { label: 'The old console (Super Fanicart)', obj: sn, act: snes });
     if(R.hasConsole&&!R.hasConsole('sn')){sn.visible=false;H.SPOTS.snes.off=true;}
     // the hoover, the ironing board, Dad's toolbox, wellies, a bag of old toys, a shelf of paint tins
     const hv = B.at(398, GY, 420); hv.cyl(0, -15, 0, 11, 12, 30, 18, M({ c: '#d02a2a', sh: 40, sp: '#444' })); hv.lathe(0, -30, 0, [[11, 0], [7, -6], [0.5, -9]], 18, M('#d02a2a')); hv.ball(0, -40, 0, 4, 4, 4, M('#222'), 8); hv.cyl(-10, -20, 10, 1.4, 1.4, 50, 8, M('#444'), { rx: 40, rz: 20 }); hv.shadow(0, 0, 0, 30, 30, 0.7);
@@ -401,7 +401,7 @@
     wrapSpot('hs.cup.box', { label: 'Box of old games', act: () => say('Box of old games', 'My old games box: Segue manuals with no games, a broken Segue Gear, and a Teeny Loons sticker book.') }); pickBox(r, 'hs.cup.box', 380, GY - 20, 300, 44, 44, 34);
     wrapSpot('hs.cup.bag', { label: 'Bag of old toys', act: () => say('Bag of old toys', 'Him-Bloke, a Big Trek with no batteries, half a Ker-Plonk, and every Wonder Egg toy from 1993.') }); pickBox(r, 'hs.cup.bag', 395, GY - 16, 260, 28, 32, 24);
     wrapSpot('hs.cup.shelf', { label: 'Shelf of paint tins', act: () => say('Paint tins', 'Magnolia, magnolia, "Barley White" (magnolia), and a tiny pot of the blue from my room.') }); pickBox(r, 'hs.cup.shelf', 400, GY - 128, 360, 16, 14, 60);
-    H.spot('hs.hoover', { label: 'The hoover', act: () => (window.Chores && Chores.take && Chores.take('hoover')) || loadLife().then(() => HouseLife.chore('hoover'), () => {}) }); pickBox(r, 'hs.hoover', 398, GY - 22, 420, 24, 44, 24);
+    H.spot('hs.hoover', { label: 'The vacuum', act: () => (window.Chores && Chores.take && Chores.take('hoover')) || loadLife().then(() => HouseLife.chore('hoover'), () => {}) }); pickBox(r, 'hs.hoover', 398, GY - 22, 420, 24, 44, 24);
     H.spot('hs.meter', { label: 'Electricity meter', obj: meter, act: () => say('Electricity meter', 'The little disc goes round faster when the immersion heater\'s on. Dad watches it like it\'s the Grand National.') });
     H.spot('hs.tools', { label: "Dad's toolbox", act: sayLines('hs.tools', "Dad's toolbox", ['Do NOT touch Dad\'s toolbox. (A spirit level, 400 screws, no screwdriver.)']) }); pickBox(r, 'hs.tools', 350, GY - 12, 390, 40, 24, 20);
     H.ambient.add(() => { if (r.disc && r.group.visible) r.disc.rotation.y += lit('cupboard') ? 0.08 : 0.03; });
@@ -545,7 +545,7 @@
     H.spot('hs.cabinet', { label: 'Display cabinet', act: sayLines('hs.cabinet', 'The display cabinet', ['Mom\'s best glasses, a crystal swan, and a souvenir plate from the seaside. We are not allowed to open it. We have never opened it.']) }); pickBox(r, 'hs.cabinet', -180, GY - 60, 322, 90, 120, 26);
     H.spot('hs.guide', { label: 'The TV guide', act: () => { if (window.HouseTelly) HouseTelly.guide(); else say('The TV guide', 'This week\'s telly, circled in Dad\'s biro.'); } }); pickBox(r, 'hs.guide', -88, GY - 45, 456, 24, 3, 30);
     H.spot('hs.lamp', { label:()=>standardLampOn()?'Standard lamp: switch off':'Standard lamp: switch on', act: () => { lightsOn.loungeLamp=!standardLampOn();saveHouseLights();standardLampLook(r);H.relight();window.Sound?.world('switch'); } }); pickBox(r,'hs.lamp',160,GY-100,360,42,200,42);standardLampLook(r);
-    H.spot('hs.window', { label: 'The bay window', act: () => say('The bay window', ['Through the nets: the street, the lamp-post, next door\'s Sierra.', 'The milk float hums past. Mom has a pint of gold top and a yoghurt on order.', 'Somebody\'s walking a dog. The dog has a little coat on.'][((r.wn = (r.wn | 0) + 1)) % 3]) }); pickBox(r, 'hs.window', -60, 225, 694, 220, 150, 6);
+    H.spot('hs.window', { label: 'The bay window', act: () => say('The bay window', ['Through the nets: the street, the lamp-post, next door\'s estate car.', 'The milk float hums past. Mom has a pint of gold top and a yoghurt on order.', 'Somebody\'s walking a dog. The dog has a little coat on.'][((r.wn = (r.wn | 0) + 1)) % 3]) }); pickBox(r, 'hs.window', -60, 225, 694, 220, 150, 6);
     // walking
     H.walkRect('G', -278, 307, 193, 698, { room: 'lounge' });
     H.block('G', LT.x - 48, 305, LT.x + 48, 352); // the telly
@@ -747,7 +747,7 @@
     H.spot('hs.toaster', { label: 'Toaster', act: sayLines('hs.toaster', 'Toaster', ['The toaster has two settings: still bread, and charcoal.']) }); pickBox(r, 'hs.toaster', -140, GY - 102, -36, 28, 20, 18);
     H.spot('hs.radio', { label: 'Kitchen radio', act: sayLines('hs.radio', 'Kitchen radio', ['Tuned to the local station. A man is reading out the traffic. There is no traffic.', 'Mom has it on all day. She knows all the adverts off by heart.']) });pickBox(r,'hs.radio',65,GY-100,-5,26,16,10);
     H.spot('hs.paper', { label: 'The newspaper', act: () => life('paper') }); pickBox(r, 'hs.paper', -34, GY - 77, 180, 30, 2, 40);
-    H.spot('hs.cooker', { label: 'The cooker', act: sayLines('hs.cooker', 'The cooker', ['Tonight: ' + ['fish fingers, chips and beans', 'spag bol', 'a Findus Crispy Pancake each', 'shepherd\'s pie', 'a chicken Kiev (garlic everywhere)'][new Date().getDay() % 5] + '. Mom says do NOT touch the knobs.']) }); pickBox(r, 'hs.cooker', -10, GY - 46, 3, 58, 92, 4);
+    H.spot('hs.cooker', { label: 'The cooker', act: sayLines('hs.cooker', 'The cooker', ['Tonight: ' + ['fish fingers, chips and beans', 'spag bol', 'a Fondus Crispy Pancake each', 'shepherd\'s pie', 'a chicken Kiev (garlic everywhere)'][new Date().getDay() % 5] + '. Mom says do NOT touch the knobs.']) }); pickBox(r, 'hs.cooker', -10, GY - 46, 3, 58, 92, 4);
     H.spot('hs.washer', { label: 'Washing machine', act: sayLines('hs.washer', 'Washing machine', ['It walks across the floor on the spin cycle. We have found it in the middle of the kitchen before.']) }); pickBox(r, 'hs.washer', 50, GY - 46, 3, 58, 86, 4);
     H.spot('hs.wclock', { label: 'Kitchen clock', act: () => { const d = new Date(); say('Kitchen clock', 'It says ' + d.getHours() % 12 + ':' + String(d.getMinutes()).padStart(2, '0') + '. (It\'s right. The microwave isn\'t.)'); } }); pickBox(r, 'hs.wclock', -278, GC + 50, 120, 4, 32, 32);
     H.ambient.add(() => { if (!r.group.visible) return; const d = new Date(), m = d.getMinutes() + d.getSeconds() / 60, h = (d.getHours() % 12) + m / 60; r.mh.rotation.x = -m / 60 * Math.PI * 2; r.hh.rotation.x = -h / 12 * Math.PI * 2; });
@@ -1071,7 +1071,8 @@
       }
       // the links: stairs (always open) between the landing and the hall; doors to the lounge, the kitchen, the cupboard
       H.door('stairs', { rooms: ['landing', 'hall'], always: true, open: true });
-      H.stairs({ x0: 333, z0: 200, x1: 410, z1: 650, m0: 250, m1: 600, y: (x, z) => UY + 20 * Math.max(0, Math.min(14, Math.ceil((z - 250) / 25))) });
+      // Visual treads stay solid; the body follows one continuous ramp.
+      H.stairs({ x0: 333, z0: 200, x1: 410, z1: 650, m0: 250, m1: 600, y: (x, z) => UY + .8 * Math.max(0, Math.min(350, z - 250)) });
       // the bedroom door's link to the landing (if the landing was made after it)
       if (!H.ROOMS.landing.links.includes('bedroom')) H.ROOMS.landing.links.push('bedroom');
       this.ready = true;
@@ -1080,10 +1081,12 @@
         H.buildRoom(H.ROOMS.hall);
         // the lounge and kitchen doors are built into the hall's west wall
         const hall = H.ROOMS.hall, fb = K.batch(), F = K.into(fb);
-        const kd = doorway(hall, F, 'kitdoor', 'w', 205, 150, 230, GY, { inside: true });
-        const ld = doorway(hall, F, 'loudoor', 'w', 205, 480, 560, GY, { inside: true });
+        // These leaves open into their rooms. Across the narrow hall an 80 cm
+        // open leaf left only a few centimetres of usable body clearance.
+        const kd = doorway(hall, F, 'kitdoor', 'w', 205, 150, 230, GY, { hingeNormal: -12.5 });
+        const ld = doorway(hall, F, 'loudoor', 'w', 205, 480, 560, GY, { hingeNormal: -12.5 });
         fb.build(hall.group);
-        H.door('kitchen', { rooms: ['hall', 'kitchen'], pivot: kd, swing: 95, dir: -1 }); H.door('lounge', { rooms: ['hall', 'lounge'], pivot: ld, swing: 95, dir: -1 });
+        H.door('kitchen', { rooms: ['hall', 'kitchen'], pivot: kd, swing: 95, dir: 1 }); H.door('lounge', { rooms: ['hall', 'lounge'], pivot: ld, swing: 95, dir: 1 });
         H.walkRect('G', 193, 154, 209, 226, { door: 'kitchen', room: 'hall' }); H.walkRect('G', 193, 484, 209, 556, { door: 'lounge', room: 'hall' });
         H.spot('hs.kitdoor', { label: () => H.DOORS.kitchen.open ? 'Shut the kitchen door' : 'The kitchen', obj: kd, act: () => H.setDoor('kitchen', !H.DOORS.kitchen.open) });
         H.spot('hs.loudoor', { label: () => H.DOORS.lounge.open ? 'Shut the lounge door' : 'The lounge', obj: ld, act: () => H.setDoor('lounge', !H.DOORS.lounge.open) });

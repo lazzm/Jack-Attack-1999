@@ -165,7 +165,7 @@
   ]);
   // JackAmp skins: [body, display, display text, button]
   add('amp', [
-    ['ocean', 'Deep Blue Amp', 0, ['#1a3a6a', '#000a1a', '#3ad0ff', '#4a6a9a'], 'JackAmp, but blue. Music sounds wetter.', { shop: 'fizzwick' }],
+    ['ocean', 'Deep Bluey Amp', 0, ['#1a3a6a', '#000a1a', '#3ad0ff', '#4a6a9a'], 'JackAmp, but blue. Music sounds wetter.', { shop: 'fizzwick' }],
     ['lime', 'Lime Fizz Amp', 1, ['#4a8a1a', '#0a1a00', '#c0ff3a', '#6aaa3a'], 'Sharp green. Makes every song sound like a fizzy drink.', { shop: 'fizzwick' }],
     ['lava', 'Lava Amp', 1, ['#6a1a00', '#1a0000', '#ff8a3a', '#9a3a1a'], 'Hot red. Turn it up to 11.', { shop: 'fizzwick' }],
     ['wood', "Dad's Hi-Fi Woodgrain", 2, ['#6a4020', '#1a1000', '#ffb04a', '#8a6040'], 'Real (fake) wood panelling, like the stereo in the front room.', { shop: 'fizzwick' }],
@@ -240,16 +240,16 @@
     ['jackpot', 'The Jackpot Card', 5, [22, 'jackpot', '#000'], 'A holographic card so rare that only ten were ever printed.', { lim: 10 }],
     ['phantom', 'Episode I Queue', 2, [23, 'queue', '#1a1a3a'], 'Out in the UK on 16 July 1999. Dave queued for six hours.', { sea: SEA.phantom, lim: 300 }],
     ['eclipse', 'Total Eclipse 1999', 3, [24, 'eclipsecard', '#000'], '11 August 1999. Day turned to night in Cornwall for two minutes.', { sea: SEA.eclipse, lim: 200 }],
-    ['pocket', 'Pocket Critters Fever', 2, [25, 'pokeball', '#e10600'], 'Pocket Critters Red and Blue came out here on 5 October 1999. Link cables at lunch, swaps at break!', { sea: SEA.pokemon, lim: 300 }],
+    ['pocket', 'Pocket Critters Fever', 2, [25, 'pokeball', '#e10600'], 'Pocket Critters Moss and Puddle came out here on 5 October 1999. Link cables at lunch, swaps at break!', { sea: SEA.pokemon, lim: 300 }],
     ['dreamcast', 'Console With a Modem', 2, [26, 'console', '#ff8a00'], '14 October 1999: a games console with a MODEM built in.', { sea: SEA.dreamcast, lim: 300 }],
     ['bonfire', 'Bonfire Night', 1, [27, 'bonfire', '#ff3a00'], 'Remember, remember the fifth of November. Hold your sparkler at arm\'s length.', { sea: SEA.bonfire }],
     ['pumpkin', 'Jack-o\'-Lantern', 1, [28, 'pumpkin', '#ff7a00'], 'A carved pumpkin with a candle in. Smells of burnt pumpkin.', { sea: SEA.halloween }],
-    ['xmas', 'Christmas Telly', 2, [29, 'tree', '#1a7a1a'], 'The Radio Times double issue. Circle EVERYTHING.', { sea: SEA.xmas }],
+    ['xmas', 'Christmas Telly', 2, [29, 'tree', '#1a7a1a'], 'The Radio Crimes double issue. Circle EVERYTHING.', { sea: SEA.xmas }],
     ['nye', 'Millennium Eve', 4, [30, 'firework', '#000'], '31 December 1999. The biggest New Year\'s Eve of all time.', { sea: SEA.nye, lim: 100 }],
   ]);
   add('trinket', [
     ['marble', 'Shooter Marble', 0, ['marble', '#3a8aff'], 'The big one. You do not play with this one. Too precious.', { shop: 'grumplet' }],
-    ['tazo', 'Shiny Tazo', 0, ['tazo', '#c0c0c0'], 'Came in a crisp packet. Worth more than the crisps.', { shop: 'grumplet' }],
+    ['tazo', 'Shiny Tazoz', 0, ['tazo', '#c0c0c0'], 'Came in a crisp packet. Worth more than the crisps.', { shop: 'grumplet' }],
     ['toof', 'Lucky Dice', 0, ['toof', '#fffbe8'], 'From the bottom of a proper dice bag. Blow on it for luck. (It has never once rolled a six.)', { shop: 'grumplet' }],
     ['glowyoyo', 'Glow-in-the-Dark Yo-Yo', 1, ['yoyo', '#a0ff6a'], 'Glows green under the duvet. Perfect for midnight yo-yoing.', { shop: 'grumplet' }],
     ['bitsbox', 'Bits Box Treasure', 1, ['gear', '#9a9a9a'], 'A mystery bit from the model-painting bits box. Nobody knows what it is from. Smells of glue.'],
@@ -281,7 +281,7 @@
     { id: 'xmas', n: 'Christmas Stocking', d: 'Festive things (December only).', items: ['hat.santa', 'hat.antlers', 'face.beard', 'badge.snow', 'wall.snow', 'cur.candy', 'card.xmas'], teef: 300 },
     { id: 'eclipse', n: 'Eclipse Chaser', d: 'From the total eclipse of 11 August 1999 (drops 4 to 18 August).', items: ['face.eclipse', 'badge.eclipse', 'wall.eclipse', 'card.eclipse', 'col.corona'], teef: 300 },
     { id: 'gadgets', n: 'Gadget Freak', d: 'Every everyday gadget card: Pager, Mobile, VHS, Personal Stereo, Virtual Pet and the 486.', items: ['card.pager', 'card.mobile', 'card.vhs', 'card.walkman', 'card.vpet', 'card.486'], teef: 150 },
-    { id: 'rainbow', n: 'Rainbow Road', d: 'Own something of every rarity, from Common all the way to Jackpot.', rar: true, teef: 500, give: 'badge.rainbow' },
+    { id: 'rainbow', n: 'Rainbow Roadworks', d: 'Own something of every rarity, from Common all the way to Jackpot.', rar: true, teef: 500, give: 'badge.rainbow' },
   ];
   const SET = {}; for (const s of SETS) SET[s.id] = s;
 

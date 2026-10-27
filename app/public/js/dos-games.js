@@ -73,7 +73,7 @@
         if (m) { const dmg = Math.max(1, atk + rnd(3) - 1); m.hp -= dmg; msg = `You hit the ${m.name} for ${dmg}.`; if (m.hp <= 0) { mons = mons.filter(x => x !== m); msg = `You defeat the ${m.name}!` + (m.boss ? ' The Wizard is down! The stairs are yours.' : ''); teef += m.boss ? 50 : m.ch === 's' ? 3 : 1; DOS.tone(220, 0.05); } acted = true; }
         else if (map[ny][nx] !== T.wall) { px = nx; py = ny; acted = true; msg = '';
           const it = items.find(i2 => i2.x === px && i2.y === py);
-          if (it) { items = items.filter(x => x !== it); if (it.ch === '$') { const n = 2 + rnd(5) + level; teef += n; msg = `You pick up ${n} Rupees.`; } else if (it.ch === '!') { hp = Math.min(maxhp, hp + 8); msg = 'You drink the potion. It tastes of Ribena. HP +8.'; } else if (it.ch === '/') { atk += 2; msg = 'A SWORD! Atk +2. It is big and it is rusty and it is yours.'; } else { def += 1; msg = 'You strap a saucepan lid to your front. Def +1. Mom will want that back.'; } DOS.tone(880, 0.04); }
+          if (it) { items = items.filter(x => x !== it); if (it.ch === '$') { const n = 2 + rnd(5) + level; teef += n; msg = `You pick up ${n} Rupees.`; } else if (it.ch === '!') { hp = Math.min(maxhp, hp + 8); msg = 'You drink the potion. It tastes of Ribina. HP +8.'; } else if (it.ch === '/') { atk += 2; msg = 'A SWORD! Atk +2. It is big and it is rusty and it is yours.'; } else { def += 1; msg = 'You strap a saucepan lid to your front. Def +1. Mom will want that back.'; } DOS.tone(880, 0.04); }
           if (map[py][px] === T.stairs) { if (level === 5) { if (mons.some(m2 => m2.boss)) { msg = 'The Wizard stands by the stairs. "NONE SHALL PASS." Fair.'; } else { S('crawl.win'); GS.clear('crawl'); draw(); await K.msgBox(host, `YOU WIN!\n\nYou went down five levels, beat the Wizard Gorzag and came out with ${RP(teef)} in ${turns} turns.\n\nThe goblins make you their King. It mostly means more admin.`, ['OK'], { attr: 0x70 }); return; } } else { level++; msg = `You go down the stairs. Level ${level}. It smells worse.`; gen(); keep(); draw(); continue; } }
         } else msg = 'Ouch. Wall.';
       } else if (e.key === '.' || e.ch === '.' || e.key === ' ' || e.ch === 's') { acted = true; msg = 'You wait. Something giggles.'; }
@@ -429,7 +429,7 @@
     }
     GS.clear('teefwars');
     show();
-    if (me.teef > dave.teef) { say('\n\x1b[1;32mYOU WIN GEM WARS!\x1b[0m Dave says the game is rigged. Dave says that about Monopoly too.'); S('teefwars'); }
+    if (me.teef > dave.teef) { say('\n\x1b[1;32mYOU WIN GEM WARS!\x1b[0m Dave says the game is rigged. Dave says that about Monopolly too.'); S('teefwars'); }
     else if (me.teef < dave.teef) say('\n\x1b[1;31mDAVE WINS.\x1b[0m He will mention this every day until the year 2000. Possibly after.');
     else say('\nA DRAW. Dave suggests "sudden death". You suggest tea.');
     say('\n[Door game ended. Returning to JACK\'S BBS main menu. (There is no main menu. There is DOS.)]');

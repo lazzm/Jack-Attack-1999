@@ -62,7 +62,7 @@
     const put = (html, cls) => { const d = document.createElement('div'); d.innerHTML = html; if (cls) d.className = cls; out.appendChild(d); out.scrollTop = out.scrollHeight; };
     const doc = t => { put(`<b>${esc(t)}</b>`); speak(t); };
     K.onClose(() => { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} });
-    put('<i>JACKTIVE LABS  -  DR. CHATSO  v2.21\n(C) Copyright Jacktive Technology Ltd 1992\nAll rights reserved\n\nTalking Sound Blaster Doctor. Type HELP for help, QUIT to leave.\n</i>');
+    put('<i>JACKTIVE LABS  -  DR. CHATSO  v2.21\n(C) Copyright Jacktive Technology Ltd 1992\nAll rights reserved\n\nTalking Sound Bluster Doctor. Type HELP for help, QUIT to leave.\n</i>');
     put('<b>PLEASE ENTER YOUR NAME ...</b>');
     b.querySelector('form').addEventListener('submit', ev => {
       ev.preventDefault();

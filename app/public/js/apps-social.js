@@ -164,7 +164,7 @@
     away: "I'm away from the computer. Probably getting a biscuit. Back in a bit!",
     na: "Not here. Queuing for Episode I tickets. Could be days.",
     occ: "Busy! I'm on the last level and you can't pause it. Urgent stuff only.",
-    dnd: "Do Not Disturb. Painting the eyes on a Space Marine. VERY steady hands needed.",
+    dnd: "Do Not Disturb. Painting the eyes on a Space Mariner. VERY steady hands needed.",
   };
   const UM = {
     status: (s => STAT[s] && s !== 'off' ? s : 'online')(store.get('jhp_social_st', 'online')),
@@ -941,7 +941,7 @@ Your UIN (Uh-Oh! Number) is yours forever. Well, for this computer.
       'Try "net send" from Run and message YOURSELF.', 'Stamp WAAAGH on the shared whiteboard in capital letters.',
       'Leave Uh-Oh! alone for 5 minutes and it goes Away by itself. Then come back.', 'Set your Uh-Oh! status to Invisible. Spooky.',
       'Throw a snowball when nobody else is online. What goes up...', 'Move 30 fridge magnets and you become a poet.',
-      'Episode One is out on 16 July. Type "podrace" into Start > Run. It might not exist. It might.', "Pin a note that says 'Gorks rule' on the corkboard.",
+      'Episode One is out on 16 July. Type "peapod race" into Start > Run. It might not exist. It might.', "Pin a note that says 'Gorks rule' on the corkboard.",
       'Three people listening to JackNet Radio at the same time unlocks something.', 'Bury something in the Time Capsule for the next person.',
       "Jack's cousin's band is called The Millennium Bugs. They're on the radio.", 'The parcel can go round the same two people forever. Try it.',
       'Add a JackNet member to your Uh-Oh! list and wait for them to say OK.', 'A message in a bottle washes up every few minutes. Keep an eye on the bottom of the screen.',
@@ -1031,7 +1031,7 @@ pictures. Draw something brilliant.
     Apps.load('js/social-more.js').then(() => { if (!MORE) MORE = window.SocialMore(X); MORE[which].open(); })
       .catch(() => Desk.msgbox('JackNet Hangout', 'Could not load the program. (The disk drive made a clicking noise.) Try again in a minute.', 'warn'));
   }
-  const TUNE_NAMES = [['Dial-Up Dreams', 'The Floppy Disks'], ['56K of Love', 'The Floppy Disks'], ['Red Ones Go Faster', 'The Go-Karts'], ['Pot Noodle (Remix)', 'DJ Pixel'], ['Turn That Down (live)', 'Mom'], ['Fatal Exception 0E', 'The Millennium Bugs'], ['Podrace Pulse', 'The Floppy Disks'], ['Y2K Bunker Boogie', 'The Millennium Bugs']];
+  const TUNE_NAMES = [['Dial-Up Dreams', 'The Floppy Disks'], ['56K of Love', 'The Floppy Disks'], ['Red Ones Go Faster', 'The Go-Karts'], ['Pot Noodlez (Remix)', 'DJ Pixel'], ['Turn That Down (live)', 'Mom'], ['Fatal Exception 0E', 'The Millennium Bugs'], ['Peapod Race Pulse', 'The Floppy Disks'], ['Y2K Bunker Boogie', 'The Millennium Bugs']];
 
   // ================================================================ HANGOUT MENU (the "Throw..." items and friends, no edits to other packs)
   const HANG = [['Uh-Oh! Messenger', 'social.uhoh', LOGO], ['JackNet Whiteboard', 'social.wb', I.board], ['Fridge Magnet Poetry', 'social.fridge', I.fridge], ['The Corkboard', 'social.cork', I.cork], ['JackNet Radio', 'social.radio', I.radio], ['Time Capsule', 'social.capsule', I.capsule], ['Snowball Fight', 'social.throw', I.snow], ['Pass the Parcel', 'social.parcel', I.parcel]];
@@ -1058,7 +1058,7 @@ pictures. Draw something brilliant.
   Apps.cmd(['bottle', 'message in a bottle', 'sos'], () => CAPSULE.throwBottle());
   Apps.cmd(['beach', 'seaside', 'sea'], () => { CAPSULE.washUp(true); got('beach'); });
   Apps.cmd(['nudge', 'buzz'], () => { openCL(true); Desk.toast('Uh-Oh!', 'Nudge who? Double-click someone in your contact list, then press Nudge!', 4000); });
-  Apps.cmd(['podrace', 'pod race', 'podracer'], () => { got('podrace'); Apps.open('social.radio'); Desk.toast('JackNet Radio', 'Now you\'ve done it. Requesting "Podrace Pulse"... (it plays when the schedule says so, this is RADIO)', 5000); Net.kv.put('social.radioreq', 't6', String(1 + Math.floor(Math.random() * 3))); });
+  Apps.cmd(['podrace', 'peapod race', 'podracer'], () => { got('podrace'); Apps.open('social.radio'); Desk.toast('JackNet Radio', 'Now you\'ve done it. Requesting "Peapod Race Pulse"... (it plays when the schedule says so, this is RADIO)', 5000); Net.kv.put('social.radioreq', 't6', String(1 + Math.floor(Math.random() * 3))); });
   Apps.cmd(['away', 'brb'], () => setStatus('away')); Apps.cmd(['dnd', 'do not disturb'], () => setStatus('dnd')); Apps.cmd(['invisible', 'ghost mode'], () => setStatus('inv'));
   Apps.cmd(['uin', 'my uin', 'uh-oh number'], () => Desk.msgbox('Uh-Oh!', Net.me.member ? `Your Uh-Oh! number is ${myUIN()}.\n\nWrite it on your pencil case so your mates can add you.` : `You're a guest, so your Uh-Oh! number (${myUIN()}) changes every visit. Join JackNet to get your own!`, 'info'));
 
@@ -1108,7 +1108,7 @@ pictures. Draw something brilliant.
   S('squighit', 'Blobbit attack', 'Have a Blobbit land on your window');
   S('selfsnow', 'What goes up', 'Throw a snowball when there is nobody else to throw it at');
   S('wbdraw', 'Collaborative masterpiece', 'Draw on the whiteboard while someone else is drawing');
-  S('wbtext', 'Graffiti', 'Stamp the Ork war cry on the whiteboard');
+  S('wbtext', 'Graffiti', 'Stamp the Gork war cry on the whiteboard');
   S('fridgepoet', 'Fridge poet', 'Move a lot of magnets');
   S('fridgelive', 'Poltergeist', 'Watch a magnet move by itself');
   S('fridgeread', 'Poetry corner', 'Make the fridge read itself aloud');

@@ -127,7 +127,7 @@ I('chips', 'a bag of chips', 'chips bag', 'food', { heal: 20, value: 6, desc: 'H
 I('cookie', "one of Granny Byte's cookies", 'cookie biscuit', 'food', { heal: 30, value: 4, desc: 'Chocolate chip, still warm. Heals 30 HP. Grannies make the best cookies, this is a known fact.' });
 I('mooncheese', 'a chunk of moon cheese', 'cheese chunk moon', 'food', { heal: 50, mana: 20, value: 25, desc: 'Pale green and slightly glowing. Tastes like cheddar and space.' });
 I('spacetomato', 'a space tomato', 'tomato space', 'food', { heal: 25, value: 8, desc: 'Grown in zero gravity, so it is perfectly round. Heals 25 HP.' });
-I('crisps', 'a packet of crisps', 'crisps packet', 'food', { heal: 8, value: 2, desc: 'Cheese and onion. There might be a Tazo inside. (There isn\'t.)' });
+I('crisps', 'a packet of crisps', 'crisps packet', 'food', { heal: 8, value: 2, desc: 'Cheese and onion. There might be a Tazoz inside. (There isn\'t.)' });
 // junk and treasure (sell them!)
 I('sock', 'an odd sock', 'sock odd', 'junk', { value: 2, desc: 'A single sock. Where is the other one? Nobody knows. The eternal mystery.' });
 I('feather', 'a goose feather', 'feather goose', 'junk', { value: 2, desc: 'Big, white and fluffy. Good for tickling.' });
@@ -142,7 +142,7 @@ I('chip', 'a silicon chip', 'chip silicon microchip', 'treasure', { value: 40, d
 I('ruby', 'a red ruby', 'ruby red gem', 'treasure', { value: 80, desc: 'Deep red and sparkly. Floppitha would love this.' });
 I('stardust', 'a pinch of stardust', 'stardust dust', 'treasure', { value: 60, desc: 'Twinkly silver powder in a twist of paper. Do not sneeze.' });
 I('marble', 'a glass marble', 'marble', 'junk', { value: 4, desc: 'A green cat\'s-eye marble. A good shooter.' });
-I('tazo', 'a shiny tazo', 'tazo', 'junk', { value: 3, desc: 'A round plastic disc from a crisp packet. Everyone collects these.' });
+I('tazo', 'a shiny tazoz', 'tazo', 'junk', { value: 3, desc: 'A round plastic disc from a crisp packet. Everyone collects these.' });
 I('floppy', 'a floppy disk', 'floppy disk', 'junk', { value: 2, desc: 'A 3.5" floppy disk labelled "HOMEWORK (NOT GAMES)". It is games.' });
 I('bone', 'a big bone', 'bone big', 'junk', { value: 3, desc: 'A great big bone. Some dog somewhere is very sad.' });
 // quest things
@@ -255,7 +255,7 @@ const SOCIALS = [
   ['facepalm', 'You facepalm. Doh!', '$n facepalms.', 'You facepalm at $N.', '$n facepalms at $N.', '$n facepalms at you.'],
   ['yawn', 'You yawn. Is it bedtime?', '$n yawns.', 'You yawn at $N.', '$n yawns at $N.', '$n yawns at you. Rude.'],
   ['sneeze', 'AH-CHOO!', '$n sneezes. AH-CHOO!', 'You sneeze on $N. Gross!', '$n sneezes all over $N!', '$n sneezes all over you! Gross!'],
-  ['bounce', 'You bounce around like a Tigger.', '$n bounces around.', 'You bounce around $N.', '$n bounces around $N.', '$n bounces around you.'],
+  ['bounce', 'You bounce around like a Tiggy.', '$n bounces around.', 'You bounce around $N.', '$n bounces around $N.', '$n bounces around you.'],
   ['flex', 'You flex your muscles. Impressive!', '$n flexes their muscles.', 'You flex at $N.', '$n flexes at $N.', '$n flexes at you.'],
   ['brb', 'You say you\'ll be right back (Mom needs the phone).', '$n will be right back.', 'You tell $N you\'ll be right back.', '$n tells $N they\'ll be right back.', '$n says they\'ll be right back.'],
   ['afk', 'You go AFK (away from keyboard).', '$n is AFK.', 'You tell $N you\'re going AFK.', '$n tells $N they\'re AFK.', '$n is going AFK.'],

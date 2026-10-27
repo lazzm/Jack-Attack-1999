@@ -275,7 +275,7 @@ ATH0</pre><h1 class="blink">NO CARRIER</h1><div class="nc-menu"><button data-g="
     ['The closed board', () => found('arg.log'), ['That old board\'s front page has a source too. View > Source again.', 'The comment is scrambled the old Usenet way: ROT13. Every letter moves 13 places (A&harr;N, B&harr;O, and so on).', 'It says where on YOUR computer the log went. Find it with My Computer, or type the file name into Start > Run.']],
     ['The log', () => found('arg.signal'), ['Read the sysop\'s notes in the log, line by line.', 'Look down the left-hand side of the notes. Just the first letters.', 'It spells a program. It only runs at the JACK-DOS Prompt (Start > Programs). Type its name there. And keep WORD ONE safe!']],
     ['The signal', () => (prog().s | 0) >= 5, ['The program talks in Morse code: dots and dashes.', 'In Morse, numbers are five symbols long. 1 is .---- and 2 is ..--- ... 6 is -.... and 0 is -----. Spot the pattern?', 'The three digits are a page number on CYBERTEXT, the text service at www.whatson.jnet. Type them in.']],
-    ['The page that is not in the index', () => found('arg.ttx'), ['Teletext pages can hide things.', 'Look at the buttons under the screen.', 'Press REVEAL. (And keep WORD TWO!)']],
+    ['The page that is not in the index', () => found('arg.ttx'), ['Telly-Text pages can hide things.', 'Look at the buttons under the screen.', 'Press REVEAL. (And keep WORD TWO!)']],
     ['The modem', () => found('arg.bbs'), ['Go back to the closed board. There is a picture of a modem.', 'Right-click the picture (or hold your finger on it) and pick Properties.', 'Read the picture\'s file name. "pw" means password.']],
     ['Logging on', () => found('arg.bbs'), ['You need a user name AND a password.', 'The user name is in the log on your C: drive. Who logged in at 23:41:16?', 'Log on to the board with that name and the password from the picture.']],
     ['The message base', () => found('arg.door'), ['Read the messages. The last one is from the sysop.', 'Those 1s and 0s are binary, eight at a time. Each group of eight is one letter (ASCII). 01000001 is A.', 'It tells you which door to knock on. Go to Door Games and type the number.']],
@@ -283,7 +283,7 @@ ATH0</pre><h1 class="blink">NO CARRIER</h1><div class="nc-menu"><button data-g="
     ['Somebody else\'s desk', () => found('arg.desk'), ['The decoded message says what to do: Start, then Run.', 'Type the name it gives you, exactly as written.', 'OWLDESK']],
     ['The locked drawer', () => found('arg.drawer'), ['Read the sticky notes on the desk.', 'Count the different shapes that fall in a falling-blocks game. How many faces on a cube? How many bits in a byte?', 'The numbers go in the order the notes say: first, second, third.']],
     ['The drawer', () => found('arg.nest'), ['The postcard is in a simple number code.', 'A=1, B=2, C=3... It gives you WORD THREE.', 'The floppy\'s label is jumbled. Unscramble it into two words: where an owl lives. Then it is an address.']],
-    ['The nest', () => found('arg.solved'), ['The nest wants three words, in order.', 'Word one was in the log. Word two was on the teletext. Word three was on the postcard.', 'Type all three, in order, with spaces between them.']],
+    ['The nest', () => found('arg.solved'), ['The nest wants three words, in order.', 'Word one was in the log. Word two was on the telly-text. Word three was on the postcard.', 'Type all three, in order, with spaces between them.']],
   ];
   function board(el) {
     el.className = 'pz';

@@ -10,10 +10,10 @@
     "Speedy beasts hit first. If they knock the other one out, it doesn't even get to hit back. Cheeky.", 'Hover beasts fly right over the one in front and hit the player. Unless the other one hovers too.',
     'Put your beefy beasts where the other player\'s beasts are. Put your fast ones where there\'s nobody.', "Don't blow on the cards. It doesn't help. It never helped. Not even with cartridges.",
     'Gadget cards are the Series One cards. A Floppy Disk saves the game: three Hit Points back. Lovely.', "JackK came in yesterday and beat everybody in the shop. Then Dave tried. Dave lost to the till."];
-  const head = (sub) => `<div class="ckn-top"><div class="ckn-sign"><span class="ckn-the">THE</span>CARD KORNER<small>${esc(SN())}'s Card &amp; Comic Shop &middot; Est. 1987 &middot; Comics &middot; Cards &middot; Dice &middot; Pogs</small></div>
+  const head = (sub) => `<div class="ckn-top"><div class="ckn-sign"><span class="ckn-the">THE</span>CARD KORNER<small>${esc(SN())}'s Card &amp; Comic Shop &middot; Est. 1987 &middot; Comics &middot; Cards &middot; Dice &middot; Pogz</small></div>
     <div class="ckn-nav"><a href="${U('/')}">Shop</a><a href="${U('/checklist.html')}">Checklist</a><a href="${U('/rules.html')}">Card Clash Rules</a><a href="${U('/odds.html')}">Pull Rates</a><a href="http://www.megamasters.cyb/">The League</a></div>
     <div class="ckn-tick"><span>NEW IN!!! BYTE BEASTIES SERIES TWO &middot; 38 BEASTIES TO COLLECT &middot; HOLOS IN EVERY PACKET (well, 1 in 5 cards!) &middot; FREE STARTER DECK FOR JACKNET MEMBERS &middot; CARD CLASH LEAGUE EVERY WEEK &middot; NO SWAPPING SHINIES IN THE QUEUE &middot;</span></div>${sub ? `<h2 class="ckn-h">${sub}</h2>` : ''}</div>`;
-  const foot = () => `<div class="ckn-foot">The Card Korner is a JackNet Members' Club shop &middot; Rupees only, no cheques, no IOUs, no Pogs &middot; Pull rates printed on every packet by order of Mom<br><a href="http://www.lootlings.jnet/">Lootlings</a> &middot; <a href="http://www.jackbay.webcom/rupees.html">JackBay Rupee Auctions</a> &middot; <a href="http://www.megamasters.cyb/">The Mega Masters</a> &middot; <a href="http://www.holohut.kidz/">The Holo Hut</a></div>`;
+  const foot = () => `<div class="ckn-foot">The Card Korner is a JackNet Members' Club shop &middot; Rupees only, no cheques, no IOUs, no Pogz &middot; Pull rates printed on every packet by order of Mom<br><a href="http://www.lootlings.jnet/">Lootlings</a> &middot; <a href="http://www.jackbay.webcom/rupees.html">JackBay Rupee Auctions</a> &middot; <a href="http://www.megamasters.cyb/">The Mega Masters</a> &middot; <a href="http://www.holohut.kidz/">The Holo Hut</a></div>`;
 
   // ================================================================ the shop
   W.shopHome = el => {
@@ -123,7 +123,7 @@
     el.className = 'ex-page ckn ckn-back';
     A.secret('ex.back');
     el.innerHTML = `<div class="ckn-backin"><h2>STAFF ONLY. THAT MEANS YOU.</h2><p>Oh. It's you. Well, now you're in, mind the boxes.</p>
-  <p>This is where I keep the stock. Forty boxes of Byte Beasties boosters, a crate of pogs nobody wants any more, a cardboard cut-out of a famous plumber (not for sale) and my lunch.</p>
+  <p>This is where I keep the stock. Forty boxes of Byte Beasties boosters, a crate of pogz nobody wants any more, a cardboard cut-out of a famous plumber (not for sale) and my lunch.</p>
   <p>Between you and me, the printers at the Byte Beasties factory say they only made <b>twenty-five</b> Pixel Phoenixes. TWENTY-FIVE. For the whole JackNet. If you ever pull one, keep it in a sleeve, then a toploader, then a box, then a safe. Then sit on the safe.</p>
   <p>And a tip, since you found your way back here: <b>Sprout beats Cosmic.</b> Nobody ever plays Sprouts against the aliens. Try it on JackK.</p>
   <p class="ckn-small">Things in this room: 1 kettle, 2 mugs (one says WORLD'S BEST GRANDAD), 47 boxes, 1 mouse (alive), 1 mousetrap (empty), the dust of ages.</p>

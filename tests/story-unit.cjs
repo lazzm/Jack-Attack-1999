@@ -29,7 +29,7 @@ try {
   now += 2000; send('lad'); assert.equal(p.done.lad, stamp);
   assert.equal(C.current(p).id, 'meetmom'); now += 2000; send('meetmom'); assert(p.done.meetmom, 'Talking to Mom was not recorded');
   send('tidy'); assert(!p.done.tidy, 'Unverified chore accepted');
-  state.mods.ch.p.fresh = { done: { tidy: { sc: 0, bad: 1 } } }; send('sync'); assert(!p.done.tidy);
+  state.mods.ch.p.fresh = { done: { tidy: { sc: 0, bad: 1 } } }; send('sync'); assert(p.done.tidy, 'Payment refusal stranded completed physical work');
   now += 10000;
   state.mods.ch.p.fresh = { n: { tidy: 1, bed: 1, bin: 1 }, done: {} };
   send('sync'); assert(p.done.tidy && p.done.bed && p.done.bin); assert.equal(p.trust, 3);
@@ -86,7 +86,7 @@ try {
   // to the parcel. A stale snap ID on that carried object is not a connection.
   let opened=false, held=null, mediaChanged; const later=[];
   client.setTimeout=fn=>later.push(fn);
-  client.document.createElement=()=>({setAttribute(){},classList:{toggle(){}},textContent:''});
+  client.document.createElement=()=>({setAttribute(){},addEventListener(){},classList:{toggle(){}},textContent:''});
   client.House={ok:true,live:true,mode:'walk',here:'hall',held:()=>held,THINGS:{md:{st:'rest',snap:'hardware.dock.md',at:{room:'hall'}}},on(){},ui:{el:{appendChild(){}}}};
   client.Room={on(){}};
   client.PM={on(e,fn){mediaChanged=fn},orders:()=>[{id:'hardware.md'}],owns:()=>opened};

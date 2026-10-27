@@ -100,7 +100,7 @@
   };
   W.download = el => {
     frame(el, '/download.html', `<div class="jw-box"><h2>DOWNLOAD JACKWORLD 99</h2><p>JackWorld 99 is <b>FREE</b>. It's a 3.4 MB download (about 14 minutes on a 33.6K modem, so go and make a cup of tea).</p><p style="text-align:center">${playBtn()}</p>
-      <h3>You will need</h3><ul><li>JackOS 98 (or JackOS 95/98)</li><li>A Pentium 133 or better (it works on a 486 DX4-100, but the snowballs are slow)</li><li>16 MB of RAM (32 MB recommended)</li><li>A 640x480 screen in 256 colours or more</li><li>A modem: 28.8K works, 56K is better</li><li>A JackNet account to have your own room (free!). Guests can visit the public rooms.</li></ul>
+      <h3>You will need</h3><ul><li>JackOS 98 (or JackOS 95/98)</li><li>A Pent-Yum 133 or better (it works on a 486 DX4-100, but the snowballs are slow)</li><li>16 MB of RAM (32 MB recommended)</li><li>A 640x480 screen in 256 colours or more</li><li>A modem: 28.8K works, 56K is better</li><li>A JackNet account to have your own room (free!). Guests can visit the public rooms.</li></ul>
       <h3>What's new in version 1.0</h3><ul><li>Seven public rooms (and maybe a secret one)</li><li>The Catalogue with over 150 pieces of furni</li><li>Room sizes, floors and wallpaper</li><li>Quiz Booth, Musical Chairs, Snowball Fights</li><li>Doorbells, locks and spare keys for your room</li><li>A Report button: if anybody is horrible, tell us</li></ul></div>`);
   };
   W.cat = el => {

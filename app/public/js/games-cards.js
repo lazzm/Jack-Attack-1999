@@ -226,7 +226,7 @@
   }
 
   // ================================================================ card backs
-  const BACKS = ['Starfield', 'Pod Race', 'Tartan', 'Cube', 'Blobbit Spots'];
+  const BACKS = ['Starfield', 'Peapod Race', 'Tartan', 'Cube', 'Blobbit Spots'];
   function drawBack(c, b, w, h) {
     const rad = Math.max(2, w * 0.07);
     rrect(c, 0.5, 0.5, w - 1, h - 1, rad); c.fillStyle = '#fff'; c.fill(); c.strokeStyle = '#333'; c.lineWidth = 1; c.stroke();
@@ -358,17 +358,17 @@
   const PASSN = ['Left', 'Right', 'Across', 'Hold'];
   const LINES = {
     1: { // Dave
-      deal: ['Right. Watch and learn.', 'My uncle taught me this. He works at the card factory.', "I'm basically a pro at Hearts.", 'Did you see the pod race bit? I could totally drive one of those.', 'Dave says he can do the voice. *ahem* "Win this hand, I will."'],
+      deal: ['Right. Watch and learn.', 'My uncle taught me this. He works at the card factory.', "I'm basically a pro at Hearts.", 'Did you see the peapod race bit? I could totally drive one of those.', 'Dave says he can do the voice. *ahem* "Win this hand, I will."'],
       takeQ: ['NOOOO! Not the lady!', "That's well unfair. I'm telling.", 'This is worse than when the pod engine blew up.', 'Thirteen points?! My mom will hear about this.'],
       gotPoints: ['Oi! I was just holding those.', 'Hearts? Pfft. I meant to do that.', 'That one was a tactic.'],
       other: ['Ha! Get in!', 'Unlucky, mate.', 'That was me doing a Space Cadet mind trick on you.', 'Called it.'],
       broken: ['Hearts are broken! Everyone panic!', 'Whoa, red cards incoming.'],
       win: ['I WON! I told you I was a pro.', "Undefeated champion of the world. Well, of Mom's kitchen."],
       lose: ['The cards were rigged.', "That doesn't count, I wasn't trying."],
-      idle: ['Hurry up, I want to watch the telly.', 'Have you got the new space film sticker album? I need the pod racer shiny.', 'I had a lightspatula that lit up. Mom took the batteries out.'],
+      idle: ['Hurry up, I want to watch the telly.', 'Have you got the new space film sticker album? I need the peapod racer shiny.', 'I had a lightspatula that lit up. Mom took the batteries out.'],
     },
     2: { // the cousin (KIM)
-      deal: ['Ready when you are.', "I've seen the new space film twice. Pod race is the best bit, no question.", 'Shuffle up, Jack.', 'Let\'s make this quick, I\'m going to Tasha\'s at four.'],
+      deal: ['Ready when you are.', "I've seen the new space film twice. Peapod Race is the best bit, no question.", 'Shuffle up, Jack.', 'Let\'s make this quick, I\'m going to Tasha\'s at four.'],
       takeQ: ['Oh, lovely. Thanks a LOT.', 'Fine. I wanted thirteen points anyway.', 'Nice one. Remind me to get you back.'],
       gotPoints: ['Ugh, hearts.', 'Not ideal.', "I'll survive."],
       other: ['Nice!', 'Ha, that was neat.', 'Ouch. Sorry. Not sorry.'],
@@ -378,14 +378,14 @@
       idle: ['Is this taking forever or is it just me?', 'May the cards be with you. There, I said it.', 'Gubbinz keeps looking at my hand.'],
     },
     3: { // Gubbinz
-      deal: ['It looks like you\'re playing Hearts! Would you like help losing?', 'These cards smell of Wotsits.', 'Gubbinz wants a laser sword. A double one, like the baddie in the film.', 'Gubbinz can do a pod race. Gubbinz just needs two engines and NO brakes.'],
+      deal: ['It looks like you\'re playing Hearts! Would you like help losing?', 'These cards smell of Wotsitz.', 'Gubbinz wants a laser sword. A double one, like the baddie in the film.', 'Gubbinz can do a peapod race. Gubbinz just needs two engines and NO brakes.'],
       takeQ: ['The pointy lady! Gubbinz is NOT happy.', 'Error 404: fair play not found!', 'Can Gubbinz eat this card? No? Hmph.'],
       gotPoints: ['All the red ones... into MY pile. Hmph.', 'Gubbinz collects hearts. Is that good? It is NOT good.'],
-      other: ['Hehehe!', 'Good. Gubbinz likes that.', 'Ha! Have a Blue Shell, that\'s what that was.'],
+      other: ['Hehehe!', 'Good. Gubbinz likes that.', 'Ha! Have a Blue Conch, that\'s what that was.'],
       broken: ['Ooh, red ones!'],
-      win: ['GUBBINZ IS THE BOSS!', 'WAAAGH! Gubbinz wins! Where is Gubbinz\'s prize Twix?'],
+      win: ['GUBBINZ IS THE BOSS!', 'WAAAGH! Gubbinz wins! Where is Gubbinz\'s prize Twax?'],
       lose: ['Gubbinz was letting you win.', 'Gubbinz is gonna eat the score sheet.'],
-      idle: ['Is it Gubbinz\'s go? Is it now? Is it now?', 'Gubbinz is gonna build a pod racer out of the toaster.', 'Gubbinz saw a little green fella in the film. Not as green as Gubbinz.'],
+      idle: ['Is it Gubbinz\'s go? Is it now? Is it now?', 'Gubbinz is gonna build a peapod racer out of the toaster.', 'Gubbinz saw a little green fella in the film. Not as green as Gubbinz.'],
     },
   };
   const pick = a => a[(Math.random() * a.length) | 0];
@@ -964,7 +964,7 @@
       ['Help', () => [
         { label: 'Help Topics', key: 'F1', act: help },
         { label: 'Who Are These People?', act: () => G.msg('The Players', 'DAVE (left): in Jack\'s class. Says he is a pro. Is not a pro.\n\n' + KIM.toUpperCase() + ' (across): two years older, plays cards like a shark, is going to Tasha\'s at four.\n\nGUBBINZ (right): the little green desktop helper. Has been told not to eat the cards. Has eaten some of the cards.', 'info') }, '-',
-        { label: 'About Hearts', act: () => G.about({ ver: 'Version 2.1 (Kitchen Table Edition)', blurb: 'The classic card game where hearts are bad and the Queen of Spades is worse.', credits: [['Game design', 'Jack'], ['Card art', 'Jack (in Paint, at 400% zoom)'], ['Robot Jacks', 'Jack, from a BLOCKO kit'], ['Space Queens', KIM + '\'s idea'], ['Pod-Pilot Kings', 'Jack, obviously'], ['Dave\'s voice acting', 'Dave (he insisted)'], ['Card back "Pod Race"', 'Drawn the day after the film'], ['Rules checking', 'Gran'], ['Snacks', 'Mom'], ['Cards eaten during testing', 'Gubbinz (four)']] }) },
+        { label: 'About Hearts', act: () => G.about({ ver: 'Version 2.1 (Kitchen Table Edition)', blurb: 'The classic card game where hearts are bad and the Queen of Spades is worse.', credits: [['Game design', 'Jack'], ['Card art', 'Jack (in Paint, at 400% zoom)'], ['Robot Jacks', 'Jack, from a BLOCKO kit'], ['Space Queens', KIM + '\'s idea'], ['Pod-Pilot Kings', 'Jack, obviously'], ['Dave\'s voice acting', 'Dave (he insisted)'], ['Card back "Peapod Race"', 'Drawn the day after the film'], ['Rules checking', 'Gran'], ['Snacks', 'Mom'], ['Cards eaten during testing', 'Gubbinz (four)']] }) },
       ]],
     ]);
     G.dbg = () => ({ phase: H && H.phase, turn: H && H.turn, trickNo: H && H.trickNo, hand: H && H.players[0].hand.map(cardName), scores: H && H.players.map(p => p.score), legal: H && H.phase === 'play' && H.turn === 0 ? legal(0).map(cardName) : [] });

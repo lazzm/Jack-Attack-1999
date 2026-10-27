@@ -9,7 +9,7 @@
   const CHORES = [
     { id: 'washup', n: 'Do the washing up', where: 'the kitchen sink', done: 'Washing up done. One plate is still a bit eggy. Mom will never know.' },
     { id: 'bin', n: 'Take the bin out', where: 'the kitchen bin', done: 'Bin bag out to the dustbin. It split a bit. Only a bit.' },
-    { id: 'hoover', n: 'Hoover your room', where: 'the hoover (under the stairs)', done: 'Room hoovered. Mostly round things. It ate a sock.' },
+    { id: 'hoover', n: 'Vacuum your room', where: 'the vacuum (under the stairs)', done: 'Room hoovered. Mostly round things. It ate a sock.' },
     { id: 'table', n: 'Set the table for tea', where: 'the kitchen table', done: 'Table set: four plates, four forks, the ketchup. Job done.' },
     { id: 'washing', n: 'Take your washing downstairs', where: 'your washing basket', done: 'Washing basket emptied into the machine. Mom found a tissue in a pocket. Oops.' },
     { id: 'tidy', n: 'Tidy your room (put things back where they live)', where: 'your room', done: 'Room tidy! Everything back where it lives. Mom might faint.' },

@@ -27,7 +27,7 @@
     ['Ghost', '..wwww...wwwwww.wbbwwbbwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww.ww.ww.'],
     ['Cat', 'o......ooo....oooooooooookooookooooppooo.oooooo..oooooo...o..o..'],
     ['Rocket', '...rr.....rwwr....wbbw....wwww....wwww...rwwwwr.rr.yy.rr...yy...'],
-    ['Ork', '.kkkkkk.kkkkkkkkddddddddddrddddrddddddddddwdwwdwd.dddddd...d..d..'],
+    ['Gork', '.kkkkkk.kkkkkkkkddddddddddrddddrddddddddddwdwwdwd.dddddd...d..d..'],
     ['Droid', '..bbbb...bwwwwb..bwkwwb..bbbbbb..wwwwww..wbwwbw..wwwwww..k....k.'],
     ['Ninja', '..kkkk...kkkkkk.kkkkkkkkkffffffkkfkffkfkkkkkkkkk.kkkkkk...k..k..'],
     ['Dragon', 'r.....r.rr...rr..rrrrrr.rryrryrrrrrrrrrr.rwrwrr...rrrr....r..r..'],
@@ -48,7 +48,7 @@
   const ADS = [
     ['www.hamstercam.webcom', 'HAMSTER CAM', Cast.t('LIVE!!! {hamster} is awake RIGHT NOW. Probably.'), '#ffd400', '#7a3a00'],
     ['www.gemexchange.grot', 'GEM EXCHANGE', 'Da only shop wot takes Rupees. Free delivery (by grot).', '#3aa83a', '#000'],
-    ['www.podracinghq.jnet', 'PODRACING HQ', 'Pods! Drivers! Proof that Sebulba cheats!', '#ff8a00', '#200040'],
+    ['www.podracinghq.jnet', 'PEAPODRACING HQ', 'Pods! Drivers! Proof that Sebulbar cheats!', '#ff8a00', '#200040'],
     ['www.jackmail.webcom', 'JackMail', 'FREE E-mail! 2 MB of space!!! Never delete again!', '#00e5ff', '#002a5a'],
     ['www.jacksearch.find', 'JackSearch', 'Search the whole Web. Well, this bit of it.', '#ffffff', '#5a0000'],
     ['www.jackattack.jnet', 'JACK ATTACK!', 'The games mag that Jack made. Issue 7 OUT NOW!', '#ff2a6d', '#1b0f3a'],
@@ -77,9 +77,9 @@
     [14, 2, 'Valentine\'s tournament: CANCELLED', 'Nobody signed up. Dave says he was "busy". Mom says that is fine.'],
     [1, 4, 'Ratings reset to 1,000,000!', 'April fool! They are still 1200. Dave believed it for two hours.'],
     [14, 5, 'Version 1.9 is OUT!', 'New: Battleships with sealed secret fleets, so NOBODY can move their ships halfway through. Not even Dave. ESPECIALLY not Dave.'],
-    [19, 5, 'Episode I is out in America today', 'We have to wait till 16 July here. That is 58 more days of Reversi. The Pod Race Lounge will open when the film does.'],
+    [19, 5, 'Episode I is out in America today', 'We have to wait till 16 July here. That is 58 more days of Reversi. The Peapod Race Lounge will open when the film does.'],
     [12, 6, 'Backgammon tables open', 'The Tea Room is now serving Backgammon. No doubling cube. Jack\'s Mom says it looks like gambling, and she is the boss.'],
-    [16, 7, 'EPISODE I DAY! Saber Pong is LIVE', 'It is finally out in the UK! To celebrate: Saber Pong, a real-time space duel in the Pod Race Lounge. Laser swords. A droid. Glory.'],
+    [16, 7, 'EPISODE I DAY! Spatula Pong is LIVE', 'It is finally out in the UK! To celebrate: Spatula Pong, a real-time space duel in the Peapod Race Lounge. Laser swords. A droid. Glory.'],
     [2, 8, 'Summer holidays = lag', 'Everyone is online at the same time. If it is laggy, blame the other kids. Or Mom on the phone.'],
     [11, 8, 'The eclipse!', 'The sun went out for a bit this morning. The Zone did not. That is called reliability.'],
     [3, 9, 'Back to school', 'Homework first, then Checkers. That is the rule. (Jack\'s Mom wrote this bit.)'],
@@ -349,9 +349,9 @@
   };
   R['/shame.html'] = el => {
     secret('zone.shame');
-    const W = [['Dave', 'Typed KINGME 400 times during one game of Checkers. It is not a cheat. It never was.'], ['Mr Tiddles (a cat)', 'Walked across the keyboard in the Expert Reversi room. Somehow won.'], ['Guest4471', 'Asked everyone in the lobby how old they were. JackNet Nanny took him away.'], ['Jack\'s Dad', 'Picked up the phone in the middle of a Battleships final. Modem screamed. Nobody won.'], ['Gubbinz', 'Ate a Reversi disc. Claimed it was "a biscuit with no flavour".'], ['Dave (again)', 'Unplugged his modem when losing at Connect Four. The Zone gave the other person the win. Dave now knows this.'], ['Kev', 'Tried to sink a Battleship by shouting coordinates at the monitor.'], ['Somebody', 'Named their pet rock "Checkers Champion". The rock has not played a single game.']];
+    const W = [['Dave', 'Typed KINGME 400 times during one game of Checkers. It is not a cheat. It never was.'], ['Mr Tiddles (a cat)', 'Walked across the keyboard in the Expert Reversi room. Somehow won.'], ['Guest4471', 'Asked everyone in the lobby how old they were. JackNet Nanny took him away.'], ['Jack\'s Dad', 'Picked up the phone in the middle of a Battleships final. Modem screamed. Nobody won.'], ['Gubbinz', 'Ate a Reversi disc. Claimed it was "a biscuit with no flavour".'], ['Dave (again)', 'Unplugged his modem when losing at Connect Fore. The Zone gave the other person the win. Dave now knows this.'], ['Kev', 'Tried to sink a Battleship by shouting coordinates at the monitor.'], ['Somebody', 'Named their pet rock "Checkers Champion". The rock has not played a single game.']];
     frame(el, '/shame.html', `${chrome('WALL OF SHAME')}<p>The Zone's most wanted. Cheats, quitters and people who say "lag" when they lose. <b>Rage-quits this year: <span data-live="quits">${live.quits}</span></b> <span class="jz-live">LIVE</span> (leaving a game early hands the win to the other player, so don't).</p>
-      <div class="jz-shame">${W.map(([n, t], i) => `<div class="jz-wanted"><div class="jz-wt">WANTED</div>${avatar(i * 5 + 3, 'big')}<b>${esc(n)}</b><p>${esc(t)}</p><div class="jz-reward">REWARD: 1 Pot Noodle</div></div>`).join('')}</div>
+      <div class="jz-shame">${W.map(([n, t], i) => `<div class="jz-wanted"><div class="jz-wt">WANTED</div>${avatar(i * 5 + 3, 'big')}<b>${esc(n)}</b><p>${esc(t)}</p><div class="jz-reward">REWARD: 1 Pot Noodlez</div></div>`).join('')}</div>
       <p class="jz-dim">Battleships fleets caught being moved mid-game: <b>0</b>. Every fleet is sealed with a secret code before the battle and checked afterwards. Nice try, Dave.</p>`);
   };
   R['/tournaments.html'] = el => {
@@ -392,7 +392,7 @@
       ['Does it work on a Mac?', 'Dave\'s cousin has a see-through blue one. It works on that. Probably.'], ['Why does my modem scream?', 'That\'s how it says hello to the Internet. It\'s fine. Unless someone picks up the phone.'], ['Is the Zone Y2K ready?', 'Jack says yes. Dave says the tables will turn into Noughts & Crosses at midnight. We\'ll find out on 1 January 2000.']];
     frame(el, '/help.html', `${chrome('HELP &amp; FAQ')}<div class="jz-faq">${F.map(([q, a], i) => `<details data-faq="${i}"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
       ${chrome('ZONE ETIQUETTE')}<pre class="jz-rules">${esc((Apps.fs.find('ETIQUETTE.TXT') || {}).text || '')}</pre>
-      ${chrome('SYSTEM REQUIREMENTS')}<ul class="jz-ul"><li>486DX/66 or better (Pentium recommended)</li><li>8 MB RAM (16 MB for Saber Pong)</li><li>14.4K modem (28.8K or faster recommended)</li><li>JackNet Explorer 4 or higher</li><li>A phone line nobody else wants for at least 20 minutes</li></ul>`);
+      ${chrome('SYSTEM REQUIREMENTS')}<ul class="jz-ul"><li>486DX/66 or better (Pent-Yum recommended)</li><li>8 MB RAM (16 MB for Spatula Pong)</li><li>14.4K modem (28.8K or faster recommended)</li><li>JackNet Explorer 4 or higher</li><li>A phone line nobody else wants for at least 20 minutes</li></ul>`);
     el.querySelectorAll('details').forEach(d => d.addEventListener('toggle', () => { if (d.open && /Dave a cheat/.test(d.textContent)) secret('zone.faq'); }));
   };
   R['/plugin.html'] = el => {

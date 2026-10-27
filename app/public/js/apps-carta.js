@@ -151,10 +151,10 @@ THANK YOU for installing JackCarta 99! Inside you'll find:
   * The QUIZ KEEP: answer questions, climb the castle, become ruler
 
 SYSTEM REQUIREMENTS
-  486DX2/66 or faster (Pentium recommended)
+  486DX2/66 or faster (Pent-Yum recommended)
   8 MB RAM (16 MB recommended)
   Double-speed CD-ROM drive (quad-speed recommended)
-  Sound Blaster or 100% compatible sound card
+  Sound Bluster or 100% compatible sound card
   SVGA display, 256 colours
 
 TIPS
@@ -166,9 +166,9 @@ TIPS
 KNOWN ISSUES
   * Disc 2 has a crack in it. That's not a known issue, that's Dave.
   * Some words in the encyclopedia are not real words. Those are the
-    ones in the Klingon articles. There are no Klingon articles. Yet.
+    ones in the Klingy-on articles. There are no Klingy-on articles. Yet.
 ` });
-  add(JC, { name: 'ARTICLES.DAT', type: 'txt', date: '25/12/98', size: '412 MB', text: `JCDAT\x1a\x00\x01 ¿¿¿¿¿¿ ÿØÿà ¶¶¶¶ ===\n\n[This file is 412 MB of compressed encyclopedia.\n Notepad tried to open it and had a little lie down.]\n\n\x00\x00\x00 the end of the file says, in plain text: "hello Jack, from the people who made the disc" \x00\x00\n` });
+  add(JC, { name: 'ARTICLES.DAT', type: 'txt', date: '25/12/98', size: '412 MB', text: `JCDAT\x1a\x00\x01 ¿¿¿¿¿¿ ÿØÿà ¶¶¶¶ ===\n\n[This file is 412 MB of compressed encyclopedia.\n Jotpad tried to open it and had a little lie down.]\n\n\x00\x00\x00 the end of the file says, in plain text: "hello Jack, from the people who made the disc" \x00\x00\n` });
   add(JC, { name: 'UPDATE.TXT', type: 'txt', date: '01/10/99', size: '1 KB', text: `JACKCARTA 99 MONTHLY UPDATE\n===========================\n\nNew articles are available every month from the JackCarta website!\n\nTo download them, open JackNet Explorer and type   jackcarta   into the address bar.\n\nThis month's update: 3 new articles (2.4 MB).\nEstimated download time on a 56K modem: 9 minutes.\nEstimated download time on a 56K modem while Mom is on the phone: never.\n` });
   // Media Player + videos
   const MP = PF + '/JackOS Media Player'; dir(MP, '10/12/98');

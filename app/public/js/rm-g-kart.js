@@ -33,12 +33,14 @@
   const BASE = [3000, 2400, 2000, 1700, 1400, 1200, 1000, 800];
 
   // ================================================================ the drivers: stats 1..5
+  // The player and their own mates drive (Cast house ids; the owner's account resolves to Jack, Dave, Luke, Callum, JackK).
+  const who = (id, fb) => { try { const C = window.Cast; const n = id === 'me' ? C?.me?.()?.first : C?.n?.(id); return String(n || fb).toUpperCase().replace(/[^A-Z0-9 '-]/g, '').slice(0, 9) || fb; } catch (e) { return fb; } };
   const DRIVERS = [
-    { n: 'JACK', col: 0xd8261c, col2: 0xffffff, spd: 3, acc: 3, hnd: 3, wt: 3, k: { kind: 'kid', cap: 0xd8261c, hair: 0x5a3414, shirt: 0xd8261c }, tag: 'ALL-ROUNDER', nt: 72 },
-    { n: 'DAVE', col: 0x22a03a, col2: 0xffe14a, spd: 4, acc: 2, hnd: 3, wt: 4, k: { kind: 'kid', helmet: 0xffe14a, hair: 0xe8c860, shirt: 0x22a03a, visor: 0x2a6a3a }, tag: 'ULTRA ENTERTAINMENT NUT', nt: 67 },
-    { n: 'LUKE', col: 0x2a62e0, col2: 0xffffff, spd: 3, acc: 4, hnd: 3, wt: 2, k: { kind: 'kid', helmet: 0xffffff, shirt: 0x2a62e0, visor: 0x2a3a8a }, tag: 'QUICK OFF THE LINE', nt: 69 },
-    { n: 'CALLUM', col: 0xf0b000, col2: 0x2a2a2a, spd: 5, acc: 1, hnd: 2, wt: 4, k: { kind: 'kid', hair: 0x1a1210, glasses: 1, shirt: 0x3a3a3a, skin: 0xe8b888 }, tag: 'FLAT OUT, NO BRAKES', nt: 64 },
-    { n: 'JACKK', col: 0x9a3ad8, col2: 0xff8ad0, spd: 2, acc: 4, hnd: 5, wt: 2, k: { kind: 'kid', hair: 0xd85a1a, spiky: 1, shirt: 0x9a3ad8 }, tag: 'CORNERS LIKE A CAT', nt: 74 },
+    { n: who('me', 'YOU'), col: 0xd8261c, col2: 0xffffff, spd: 3, acc: 3, hnd: 3, wt: 3, k: { kind: 'kid', cap: 0xd8261c, hair: 0x5a3414, shirt: 0xd8261c }, tag: 'ALL-ROUNDER', nt: 72 },
+    { n: who('mate1', 'DAVE'), col: 0x22a03a, col2: 0xffe14a, spd: 4, acc: 2, hnd: 3, wt: 4, k: { kind: 'kid', helmet: 0xffe14a, hair: 0xe8c860, shirt: 0x22a03a, visor: 0x2a6a3a }, tag: 'ULTRA ENTERTAINMENT NUT', nt: 67 },
+    { n: who('mate2', 'LUKE'), col: 0x2a62e0, col2: 0xffffff, spd: 3, acc: 4, hnd: 3, wt: 2, k: { kind: 'kid', helmet: 0xffffff, shirt: 0x2a62e0, visor: 0x2a3a8a }, tag: 'QUICK OFF THE LINE', nt: 69 },
+    { n: who('mate3', 'CALLUM'), col: 0xf0b000, col2: 0x2a2a2a, spd: 5, acc: 1, hnd: 2, wt: 4, k: { kind: 'kid', hair: 0x1a1210, glasses: 1, shirt: 0x3a3a3a, skin: 0xe8b888 }, tag: 'FLAT OUT, NO BRAKES', nt: 64 },
+    { n: who('mate4', 'JACKK'), col: 0x9a3ad8, col2: 0xff8ad0, spd: 2, acc: 4, hnd: 5, wt: 2, k: { kind: 'kid', hair: 0xd85a1a, spiky: 1, shirt: 0x9a3ad8 }, tag: 'CORNERS LIKE A CAT', nt: 74 },
     { n: 'GUBBINZ', col: 0x5a9a2a, col2: 0xb07a3a, spd: 2, acc: 5, hnd: 4, wt: 1, k: { kind: 'grot', fur: 0x6ab02a, shirt: 0x8a5a2a, cap: 0x5a3a1a }, tag: 'SNEAKY LITTLE GROT', nt: 79 },
     { n: 'BISCUIT', col: 0xc87a3a, col2: 0xffffff, spd: 3, acc: 3, hnd: 4, wt: 2, k: { kind: 'dog', fur: 0xc88a4a, ear: 0x7a4a22, shirt: 0x3a8ad8 }, tag: 'GOOD BOY, FAST BOY', nt: 76 },
     { n: 'MR TIBBS', col: 0x2a2a34, col2: 0xff3a3a, spd: 4, acc: 2, hnd: 2, wt: 5, k: { kind: 'cat', fur: 0x2a2a30, muzzle: 0xf0f0e8, shirt: 0xff3a3a }, tag: 'A VERY BIG CAT', nt: 62 },
@@ -265,8 +267,8 @@
       sv.drv = clamp(sv.drv | 0, 0, 7); sv.track = clamp(sv.track | 0, 0, TRACKS.length - 1); if (!Array.isArray(sv.hi)) sv.hi = []; sv.races = sv.races | 0; sv.wins = sv.wins | 0;
       const save = () => { try { K.save(sv); } catch (e) {} };
       const castN = (id, fb) => { try { const n = window.Cast && Cast.n ? Cast.n(id) : ''; return String(n || fb).toUpperCase().slice(0, 9); } catch (e) { return fb; } };
-      const MATES = [['DAVE', 16400], ['LUKE', 13900], ['CALLUM', 12100], ['JACKK', 10200], [castN('cousin', 'COUSIN'), 7900], [castN('kidPoke', 'PAL'), 6100], ['MOM', 2600], ['GRAN', 1200]];
-      const myName = () => { try { const n = String((window.Net && Net.me && Net.me.nick) || '').toUpperCase().replace(/[^A-Z0-9 ]/g, ''); return !n || /^GUEST/.test(n) ? 'YOU' : n.slice(0, 8); } catch (e) { return 'YOU'; } };
+      const MATES = [[who('mate1', 'DAVE'), 16400], [who('mate2', 'LUKE'), 13900], [who('mate3', 'CALLUM'), 12100], [who('mate4', 'JACKK'), 10200], [castN('cousin', 'COUSIN'), 7900], [castN('kidPoke', 'PAL'), 6100], ['MOM', 2600], ['GRAN', 1200]];
+      const myName = () => { try { const n = String((window.Cast?.me?.()?.first) || (window.Net && Net.me && Net.me.nick) || '').toUpperCase().replace(/[^A-Z0-9 ]/g, ''); return !n || /^GUEST/.test(n) ? 'YOU' : n.slice(0, 8); } catch (e) { return 'YOU'; } };
       const table = () => MATES.map(([n, s]) => ({ n, s, mate: 1 })).concat(sv.hi.map(x => ({ n: String(x.n || 'YOU'), s: x.s | 0 }))).sort((a, b) => b.s - a.s).slice(0, 8);
       const ghKey = i => 'jhp_rmkart_gh' + i;
       const ghLoad = i => { try { return localStorage.getItem(ghKey(i)) || ''; } catch (e) { return ''; } };

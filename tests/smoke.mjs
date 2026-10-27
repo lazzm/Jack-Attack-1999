@@ -40,7 +40,7 @@ function observe(page){
   if(stopping){void activeBrowser.close();return;}
   page.on('pageerror',e=>errors.push(e.message));
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
-  page.setDefaultTimeout(8000);
+  page.setDefaultTimeout(8000*SCALE);
 }
 async function room(){
   if(!fixture){
@@ -48,7 +48,7 @@ async function room(){
       const registered=await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})});
       assert(registered.ok,'Admin registration failed: '+registered.status);registeredAccount=true;
     }
-    fixture=await roomFixture(base,{account,password,signup:false,onPage:observe});fixture.page.setDefaultNavigationTimeout(20000);
+    fixture=await roomFixture(base,{account,password,signup:false,onPage:observe});fixture.page.setDefaultNavigationTimeout(20000*SCALE);
     renderer=await fixture.page.evaluate(()=>{const gl=House.ren.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)):'unavailable'});
   }
   return fixture;

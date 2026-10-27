@@ -86,7 +86,7 @@
       sphere(p, cx, cy, r, (nx, ny) => Math.hypot(nx - 0.2, ny + 0.3) < 0.35 ? '#b8f4f4' : '#9ae4e8');
       for (const [rx, ry] of [[25, 31], [27, 33]]) for (let a = 0; a < 6.283; a += 0.008) { const x = Math.cos(a) * rx * 0.55, y = Math.sin(a) * ry; const X = x * 0.94 - y * 0.34, Y = x * 0.34 + y * 0.94; if (X <= 0 && X * X + Y * Y <= r * r) p.px(cx + X, cy + Y, '#6a90a0'); }
     } },
-    neptune: { cap: 'Neptune: deep blue, very windy, with the Great Dark Spot seen by Voyager 2 in 1989.', draw(p, S) {
+    neptune: { cap: 'Neptune: deep bluey, very windy, with the Great Dark Spot seen by Voyager 2 in 1989.', draw(p, S) {
       S.space(p, 19);
       sphere(p, 48, 36, 26, (nx, ny) => { const g = Math.hypot((nx + 0.2) / 0.28, (ny + 0.2) / 0.15); if (g < 1) return g < 0.6 ? '#0a1a60' : '#18307a'; if (Math.abs(ny + 0.38 - nx * 0.05) < 0.03 && nx > -0.5 && nx < 0.2) return '#e0f0ff'; if (Math.abs(ny - 0.3) < 0.025 && nx > 0 && nx < 0.45) return '#c0e0ff'; return Math.sin(ny * 10) > 0.6 ? '#3a68e8' : '#2a54d8'; });
     } },
@@ -178,7 +178,7 @@
       p.disc(hx, hy, 3, '#e8f8ff'); p.disc(hx - 0.5, hy - 0.5, 1.5, '#ffffff');
       p.text(3, 3, 'SUN', '#ffd400'); p.text(70, 62, 'TAILS', '#9fd0ff');
     } },
-    halleys_comet: { cap: 'Halley\'s Comet, back about every 76 years. Its last visit was in 1986.', draw(p, S) {
+    halleys_comet: { cap: 'Hally\'s Comet, back about every 76 years. Its last visit was in 1986.', draw(p, S) {
       S.night(p, 44);
       for (let i = 0; i < 50; i++) { const k = i / 50; p.ell(30 + i * 1.1, 26 - i * 0.35, 4 * (1 - k) + 1, 2.5 * (1 - k) + 0.5, `rgba(240,240,255,${0.42 * (1 - k)})`); }
       p.disc(30, 26, 2.5, '#ffffff');
@@ -186,7 +186,7 @@
       p.rect(64, 48, 5, 9, '#081008'); p.poly([[62, 48], [66.5, 43], [71, 48]], '#081008'); p.rect(66, 51, 1, 2, '#ffd400');
       p.text(4, 4, '1986', '#ffd400');
     } },
-    hale_bopp: { cap: 'Comet Hale-Bopp over the rooftops in spring 1997, with its white dust tail and blue gas tail.', draw(p, S) {
+    hale_bopp: { cap: 'Comet Hail-Bop over the rooftops in spring 1997, with its white dust tail and blue gas tail.', draw(p, S) {
       S.night(p, 45);
       const hx = 62, hy = 20;
       for (let i = 0; i < 44; i++) { const k = i / 44; p.ell(hx + i * 0.7, hy - i * 0.55 - k * k * 6, 3.5 * (1 - k) + 1, 2.4 * (1 - k) + 0.6, `rgba(255,250,235,${0.45 * (1 - k)})`); }
@@ -195,7 +195,7 @@
       p.rect(0, 58, 96, 14, '#0a0a14');
       [[2, 46, 14], [18, 50, 12], [32, 44, 16], [50, 49, 13], [65, 45, 14], [81, 50, 15]].forEach(([x, y, w]) => { p.rect(x, y, w, 72 - y, '#141420'); p.poly([[x - 1, y], [x + w / 2, y - 6], [x + w + 1, y]], '#101018'); p.rect(x + 3, y + 4, 3, 3, '#ffd060'); if (w > 13) p.rect(x + w - 6, y + 4, 3, 3, '#ffe890'); p.rect(x + w - 4, y - 5, 2, 4, '#141420'); });
     } },
-    shoemaker_levy_9: { cap: 'Comet Shoemaker-Levy 9, torn into a "string of pearls", about to smash into Jupiter in July 1994.', draw(p, S) {
+    shoemaker_levy_9: { cap: 'Comet Shoemaker-Leavy 9, torn into a "string of pearls", about to smash into Jupiter in July 1994.', draw(p, S) {
       S.space(p, 46);
       const B = ['#f0e4cc', '#d8b48c', '#f4e8d4', '#b07850', '#ecdcc0', '#c8986a', '#f0e0c8'];
       sphere(p, 78, 40, 30, (nx, ny) => { if (Math.abs(ny - 0.42) < 0.06 && [[-0.75], [-0.6], [-0.45]].some(([x]) => Math.abs(nx - x) < 0.07)) return '#3a2010'; return B[Math.min(6, Math.floor((ny + 1) / 2 * 7))]; });
@@ -218,7 +218,7 @@
       p.disc(cx - 4, cy - 4, 2, '#ffffff'); p.ring(cx, cy, 10, '#606878');
       p.text(4, 4, 'BEEP... BEEP...', '#9fd0ff');
     } },
-    laika: { cap: 'Laika, a little dog from the streets of Moscow, looking out of Sputnik 2 in November 1957.', draw(p, S) {
+    laika: { cap: 'Laikka, a little dog from the streets of Moscow, looking out of Sputnik 2 in November 1957.', draw(p, S) {
       S.space(p, 49);
       p.opoly([[14, 66], [36, 10], [60, 10], [82, 66]], '#a8acb8'); p.rect(37, 11, 22, 2, '#d0d4e0'); for (let y = 20; y < 66; y += 9) p.line(14 + (66 - y) * 0.39 + 1, y, 82 - (66 - y) * 0.39 - 1, y, '#8a8e9a');
       p.odisc(48, 40, 17, '#505868'); p.disc(48, 40, 14, '#203048');
@@ -228,7 +228,7 @@
       p.oell(48, 47, 3, 2, '#e8dccc'); p.disc(48, 46, 1.4, '#000'); p.line(46, 49, 50, 49, '#5a4030');
       p.ring(48, 40, 15, 'rgba(200,230,255,.5)'); p.line(40, 30, 44, 27, 'rgba(255,255,255,.6)');
     } },
-    yuri_gagarin: { cap: 'Vostok 1: the ball-shaped capsule that took Yuri Gagarin once round the Earth on 12 April 1961.', draw(p, S) {
+    yuri_gagarin: { cap: 'Vostok 1: the ball-shaped capsule that took Yuri Garglin once round the Earth on 12 April 1961.', draw(p, S) {
       S.space(p, 50); earthLimb(p, 50, 100);
       p.opoly([[52, 24], [72, 16], [80, 18], [80, 46], [72, 48], [52, 40]], '#9aa0aa'); p.rect(53, 31, 26, 2, '#70767e');
       for (let i = 0; i < 6; i++) p.odisc(60 + (i % 3) * 7, 20 + Math.floor(i / 3) * 24, 2, '#c8ccd4');
@@ -236,7 +236,7 @@
       sphere(p, 40, 32, 15, (nx, ny) => (ny > 0.05 && ny < 0.35) ? '#e0e0e0' : '#7a8088', { L: [-0.6, -0.5, 0.62] });
       p.odisc(36, 27, 3, '#203048'); p.text(31, 37, 'CCCP', '#c00000');
     } },
-    valentina_tereshkova: { cap: 'Vostok 6 and a seagull: Tereshkova\'s radio call sign in June 1963 was "Chaika", Russian for seagull.', draw(p, S) {
+    valentina_tereshkova: { cap: 'Vostok 6 and a seagull: Tereshcake\'s radio call sign in June 1963 was "Chaika", Russian for seagull.', draw(p, S) {
       S.space(p, 51); earthLimb(p, 54, 110);
       sphere(p, 34, 30, 13, (nx, ny) => (ny > 0.05 && ny < 0.35) ? '#e0e0e0' : '#7a8088', { L: [-0.6, -0.5, 0.62] });
       p.odisc(30, 26, 2.5, '#203048'); p.text(26, 34, 'CCCP', '#c00000');
@@ -266,7 +266,7 @@
       p.rect(72, 30, 1, 22, '#e0e0e0'); p.rect(72, 30, 13, 1, '#e0e0e0'); for (let i = 0; i < 6; i++) p.rect(73, 31 + i, 12, 1, i % 2 ? '#ffffff' : '#c81818'); p.rect(73, 31, 5, 3, '#1a3aa0');
       [[56, 60], [60, 62], [64, 59], [68, 61], [63, 66], [58, 67]].forEach(([x, y]) => p.ell(x, y, 1.5, 0.8, '#5a5a5a'));
     } },
-    neil_armstrong: { cap: 'Stepping off the lunar module\'s ladder onto the Moon, as Neil Armstrong was first to do in July 1969.', draw(p, S) {
+    neil_armstrong: { cap: 'Stepping off the lunar module\'s ladder onto the Moon, as Neil Armweak was first to do in July 1969.', draw(p, S) {
       p.fill('#000'); p.stars(20, 54); earth(p, 14, 12, 6);
       moonGround(p, 56);
       // a lunar module leg with its ladder
@@ -304,7 +304,7 @@
       p.opoly([[56, 38], [74, 52], [56, 52]], '#f0f0f0'); p.line(57, 51, 73, 51, '#2a2a2a'); p.opoly([[56, 20], [52, 12], [56, 14]], '#e8e8e8');
       p.rect(57, 52, 7, 3, '#555'); p.poly([[57, 55], [64, 55], [60.5, 64]], '#ffe890');
     } },
-    hubble: { cap: 'The Hubble Space Telescope: a silver tube with two big solar panels, above the blur of the atmosphere.', draw(p, S) {
+    hubble: { cap: 'The Hubbly Space Telescope: a silver tube with two big solar panels, above the blur of the atmosphere.', draw(p, S) {
       S.space(p, 55); p.ell(48, 92, 80, 30, '#1a5ac8'); p.ell(30, 68, 14, 4, '#3a9a2a'); p.ell(48, 92, 80, 30, 'rgba(0,0,0,0)');
       const ang = -0.35, c = Math.cos(ang), s = Math.sin(ang), T = (u, v) => [48 + u * c - v * s, 32 + u * s + v * c];
       const quad = (u0, v0, u1, v1, col) => p.opoly([T(u0, v0), T(u1, v0), T(u1, v1), T(u0, v1)], col);
@@ -351,7 +351,7 @@
       [x + 1, x + 8, x + 15].forEach(wx => { p.odisc(wx, y + 2, 2, '#404040'); }); p.line(x + 1, y + 2, x + 15, y + 2, '#808080'); p.rect(x + 14, y - 11, 1, 4, '#888');
       p.ell(55, 56, 6, 1, '#8a3a1a');
     } },
-    galileo_probe: { cap: 'The Galileo spacecraft at Jupiter. Its big umbrella aerial got stuck half-open, so it used a small one.', draw(p, S) {
+    galileo_probe: { cap: 'The Galilayo spacecraft at Jupiter. Its big umbrella aerial got stuck half-open, so it used a small one.', draw(p, S) {
       S.space(p, 59);
       sphere(p, 82, 62, 34, (nx, ny) => ['#f0e4cc', '#d8b48c', '#f4e8d4', '#b07850', '#ecdcc0', '#c8986a'][Math.min(5, Math.floor((ny + 1) * 3))]);
       // the stuck umbrella aerial: a few ribs open, the rest bunched
@@ -362,7 +362,7 @@
       p.thick(cx, cy + 15, cx, cy + 30, '#a0a0a0', 1);
       p.odisc(62, 46, 2, '#d8a050'); p.line(60, 44, 56, 40, 'rgba(255,160,64,.6)');
     } },
-    telescope: { cap: 'A telescope on a tripod, pointed at the Moon. Galileo first did this in 1609.', draw(p, S) {
+    telescope: { cap: 'A telescope on a tripod, pointed at the Moon. Galilayo first did this in 1609.', draw(p, S) {
       S.night(p, 60); sphere(p, 80, 14, 8, (nx, ny) => Math.hypot(nx + 0.2, ny + 0.1) < 0.35 ? '#909098' : '#d8d8d8', { L: [-0.7, -0.3, 0.65] });
       p.rect(0, 62, 96, 10, '#0a1a0a');
       p.opoly([[18, 50], [60, 22], [64, 28], [22, 56]], '#f0f0f0'); p.opoly([[58, 20], [66, 15], [72, 25], [64, 30]], '#d0d0d8'); p.oell(69, 20, 2.5, 5, '#203048');
@@ -569,7 +569,7 @@
       p.thick(48, 48, 82, 40, '#f4ecd8', 4); p.odisc(48, 49, 4, '#f4ecd8', '#8a6a3a'); p.odisc(46, 44, 3, '#f4ecd8', '#8a6a3a'); p.odisc(82, 39, 4, '#f4ecd8', '#8a6a3a'); p.odisc(85, 44, 3, '#f4ecd8', '#8a6a3a');
       for (let i = 0; i < 4; i++) p.thick(60 + i * 8, 14, 66 + i * 8, 22, '#f4ecd8', 1);
     } },
-    mary_anning: { cap: 'Mary Anning hunting fossils under the crumbling cliffs at Lyme Regis, with her hammer and basket.', draw(p, S) {
+    mary_anning: { cap: 'Mary Manning hunting fossils under the crumbling cliffs at Lyme Regis, with her hammer and basket.', draw(p, S) {
       p.vgrad(0, 30, '#9ac8f0', '#d8ecff'); p.rect(0, 30, 96, 10, '#5a8ac0'); p.rect(0, 40, 96, 32, '#c8b088'); p.dither(0, 40, 96, 32, '#b89a70');
       p.opoly([[50, 0], [96, 0], [96, 52], [60, 50], [54, 30]], '#8a8070'); for (let y = 6; y < 48; y += 6) p.line(54 + y * 0.12, y, 96, y + 2, '#6a6050');
       for (let i = 0; i < 9; i++) p.odisc(70 + i * 2.5, 30 + Math.sin(i) * 1.5, 1.4, '#e8dcc0', '#5a5040'); p.oell(66, 30, 4, 2.5, '#e8dcc0', '#5a5040'); p.px(64, 29, '#5a5040');
@@ -642,7 +642,7 @@
       S.room(p); p.ell(48, 64, 30, 5, '#6a4a28');
       cube(p, 18, 26, 10, 'wyrbwgoyw'.split(''), 'rrgyrboro'.split(''), 'bgbbowgbg'.split(''));
     } },
-    cube_records: { cap: 'A solved cube and a stopwatch: Minh Thai won the first World Championship in 22.95 seconds in 1982.', draw(p, S) {
+    cube_records: { cap: 'A solved cube and a stopwatch: Minh Thay won the first World Championship in 22.95 seconds in 1982.', draw(p, S) {
       S.room(p); p.ell(30, 64, 22, 4, '#6a4a28');
       cube(p, 8, 30, 7.5, 'wwwwwwwww'.split(''), 'rrrrrrrrr'.split(''), 'bbbbbbbbb'.split(''));
       p.odisc(72, 38, 18, '#c8c8d0'); p.obox(69, 15, 6, 5, '#a8a8b0'); p.odisc(72, 38, 15, '#203020'); p.rect(59, 33, 26, 11, '#90a878'); p.text(62, 36, '22.95', '#203010'); p.text(65, 48, 'SEC', '#90a878');
@@ -698,7 +698,7 @@
       p.thick(22, 24, 34, 36, '#40e040', 1); p.poly([[34, 36], [30, 36], [34, 32]], '#40e040');
       p.text(56, 58, 'GLIDER!', '#40e040');
     } },
-    furby: { cap: 'A Furby: a furry talking toy with big blinking eyes, a beak and tall ears. It starts off speaking "Furbish".', draw(p, S) {
+    furby: { cap: 'A Furbo: a furry talking toy with big blinking eyes, a beak and tall ears. It starts off speaking "Furbosh".', draw(p, S) {
       S.carpet(p);
       const c = '#f0e8d8', sp = '#a07850';
       p.opoly([[30, 18], [22, 0], [36, 14]], c); p.opoly([[66, 18], [74, 0], [60, 14]], c); p.opoly([[30, 16], [25, 4], [34, 14]], '#ffb0c0'); p.opoly([[66, 16], [71, 4], [62, 14]], '#ffb0c0');

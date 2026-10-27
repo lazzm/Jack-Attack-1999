@@ -6,7 +6,7 @@ const base=process.argv[2]||'http://localhost:18080';
 assert(['127.0.0.1','localhost'].includes(new URL(base).hostname),'Throwaway server only');
 const shots=new URL('./shots/owner-tools/',import.meta.url).pathname;
 const password='Throwaway-1999';let f,normalBrowser;
-async function wait(page,fn){for(let i=0;i<500;i++){if(await page.evaluate(fn))return;await page.waitForTimeout(200);}throw Error('Timeout '+fn);}
+async function wait(page,fn){for(let i=0;i<500;i++){try{if(await page.evaluate(fn))return}catch(e){if(!/context was destroyed|navigation/.test(e.message))throw e}await page.waitForTimeout(200);}throw Error('Timeout '+fn);} // account-gate may reload the page after login
 async function register(name){const r=await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name,pass:password})});assert(r.ok,'Admin registration: '+r.status);}
 try{
  await register('Jack');await register('NormalOwnerTest');await mkdir(shots,{recursive:true});
@@ -37,7 +37,7 @@ try{
  await page.locator('[name=chapter]').selectOption('2');await page.locator('[name=step]').selectOption('order');await tool('storyJump');await until(()=>st.getState()?.ch===2);// story comes only from the server
  await tool('storyComplete');await until(()=>st.getState()?.ch===3);
  await page.screenshot({path:shots+'unlocks-1366.png'});
- await page.locator('[data-owner=unlock][data-kind=all]').click();await page.waitForEvent('domcontentloaded');await ready();
+ await Promise.all([page.waitForEvent('domcontentloaded'),page.locator('[data-owner=unlock][data-kind=all]').click()]);await ready();
  assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_starter')),'0');assert(await page.evaluate(()=>PM.owns('hardware.n64')&&PM.owns('cart.n64.kart')&&PM.owns('pm.mag.12')));
  console.log('Collection unlocked');await page.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);
  await panel();await tab('world');
@@ -52,14 +52,14 @@ try{
  if(await page.evaluate(()=>HouseEdit.on)){await page.keyboard.press('Escape');await until(()=>HousePause.open);}else{await page.keyboard.press('Escape');await until(()=>HousePause.open);}
  assert(await page.locator('[data-pause=owner]').isVisible());await page.locator('[data-pause=owner]').click();await until(()=>document.querySelector('.owner-tools')?.open&&!HousePause.open);
  await tab('saves');await page.locator('[data-owner=reset]').click();assert(await page.locator('.owner-confirm').isVisible());await page.locator('[data-owner=cancel]').click();assert(!await page.locator('.owner-confirm').isVisible());
- await page.locator('[data-owner=reset]').click();await page.locator('[data-owner=confirm]').click();await page.waitForEvent('domcontentloaded');await ready();
+ await page.locator('[data-owner=reset]').click();await Promise.all([page.waitForEvent('domcontentloaded'),page.locator('[data-owner=confirm]').click()]);await ready();
  assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_starter')),'1');
  console.log('Sparse reset loaded');await until(()=>window.st?.getState()?.ch===1);assert(!await page.evaluate(()=>Room.hasConsole('n64')));assert(await page.evaluate(()=>Room.hasConsole('gb')));
  assert.equal(await page.evaluate(()=>Object.keys(JSON.parse(localStorage.getItem('jhp_rm')).f).filter(id=>id.startsWith('cart.')).length),0);
  await page.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);
  await view([-120,-55,160],[-216,-5,-16]);await page.screenshot({path:shots+'reset-sparse-room.png'});
  // The fixture view uses focus mode; owner tools remain available from the PC/room.
- await panel();await page.locator('[name=snapshot]').selectOption(saved);await page.locator('[data-owner=restore]').click();await page.locator('[data-owner=confirm]').click();await page.waitForEvent('domcontentloaded');await ready();
+ await panel();await page.locator('[name=snapshot]').selectOption(saved);await page.locator('[data-owner=restore]').click();await Promise.all([page.waitForEvent('domcontentloaded'),page.locator('[data-owner=confirm]').click()]);await ready();
  assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_starter')),originalStarter);
  const restored=await page.evaluate(()=>{const t=House.THINGS.beanbag;return{room:t.at.room,x:t.at.x,y:t.at.y,z:t.at.z,ry:t.at.ry};});assert.deepEqual(restored,original);
  await page.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);await view([-120,-55,160],[-216,-5,-16]);await page.screenshot({path:shots+'restored-room.png'});
@@ -71,7 +71,7 @@ try{
  await panel();await tab('world');await page.locator('[name=event]').selectOption('tea');await page.locator('[data-owner=event]').click();await until(()=>!!document.querySelector('.hs-voice.on')?.textContent.includes('Tea is ready'));
  await panel();await page.locator('[name=parcel]').selectOption('hardware.md');await tool('parcel');await until(()=>PM.parcels().includes('hardware.md'));
  await page.locator('[name=chore]').selectOption('bed');await page.locator('[data-owner=chore]').click();await until(()=>House.here==='bedroom'&&window.ChoreKit?.started('bed'));assert(!await page.evaluate(()=>ChoreKit.done('bed')));
- await panel();await page.locator('[data-owner=rebuild]').click();await page.waitForEvent('domcontentloaded');await ready();assert.equal(await page.evaluate(()=>House.here),'bedroom');
+ await panel();await Promise.all([page.waitForEvent('domcontentloaded'),page.locator('[data-owner=rebuild]').click()]);await ready();assert.equal(await page.evaluate(()=>House.here),'bedroom');
  // A second PC size and native mobile remain usable without a house renderer.
  await panel();await page.setViewportSize({width:1024,height:768});await page.screenshot({path:shots+'progress-1024.png'});await close();
  assert.deepEqual(errors,[],'Owner UI browser errors');

@@ -11,7 +11,7 @@ const SCALE = +process.env.STORY_SCALE || Math.max(1, Math.min(4, Math.round(OS.
 assert(['localhost', '127.0.0.1'].includes(new URL(base).hostname));
 const shots = fileURLToPath(new URL('shots/story-opening/', import.meta.url)); await mkdir(shots, {recursive:true});
 const stage=process.argv[3]||'all',resumeFile=process.argv[4]||'/tmp/jhp-story-opening-browser.json';
-const resumed=stage==='second'?JSON.parse(await readFile(resumeFile,'utf8')):null;
+const resumed=['second','pc'].includes(stage)?JSON.parse(await readFile(resumeFile,'utf8')):null;
 const account = 'Story' + Date.now().toString(36), password = 'Temporary-1999';
 async function bootRoundTrip(){
   const name='Boot'+Date.now().toString(36);
@@ -36,6 +36,20 @@ async function bootRoundTrip(){
   }catch(e){console.log(await f.page.evaluate(()=>({pose:House.P,saved:localStorage.getItem('jhp_hs_stand'),boot:localStorage.getItem('jhp_car_boot'),mode:House.mode,here:House.here})));await f.page.screenshot({path:shots+'boot-failure.png'});throw e;}finally{await f.browser.close();}
 }
 if(stage==='boot'){await bootRoundTrip();process.exit(0);}
+// Owner replace actions first upload the profile; the server allows one upload per ~20s per connection, so on a busy host the
+// first confirm can answer "JackNet has not confirmed your current save". Wait out the limit and confirm again.
+async function ownerReplace(op,action,pick){
+  for(let attempt=0;;attempt++){
+    if(pick)await op.locator('[name=snapshot]').selectOption(pick);
+    await op.locator(`[data-owner=${action}]`).click();
+    const nav=op.waitForEvent('domcontentloaded',{timeout:30000*SCALE}).then(()=>true,()=>false);
+    await op.locator('[data-owner=confirm]').click();
+    if(await nav)return;
+    const msg=await op.locator('.owner-tools [role=status]').textContent();
+    assert(attempt<2&&/not confirmed/.test(msg),'Owner '+action+' did not reload: '+msg);
+    await op.waitForTimeout(21000*SCALE);
+  }
+}
 async function ownerRoundTrip(){
   const ownerReg=await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name:'Jack',pass:password})});
   assert.equal(ownerReg.status,200);
@@ -45,18 +59,16 @@ async function ownerRoundTrip(){
     assert.equal(await op.evaluate(()=>House.pcGL.visible),true);
     await op.keyboard.press('Backquote');await of.until(()=>document.querySelector('.owner-tools')?.open);
     await op.locator('[data-owner=snapshot]').click();await of.until(()=>!document.querySelector('[data-owner=snapshot]').disabled);
-    const saved=await op.locator('[name=snapshot] option').first().getAttribute('value');assert(saved);
-    await op.waitForTimeout(21000); // Respect the roaming profile's existing save limit.
-    await op.locator('[data-owner=reset]').click();
-    await Promise.all([op.waitForEvent('domcontentloaded'),op.locator('[data-owner=confirm]').click()]);
+    const saved=await op.locator('[name=snapshot] option').first().getAttribute('value',{timeout:30000*SCALE});assert(saved);
+    await op.waitForTimeout(21000*SCALE); // Respect the roaming profile's save limit (1 upload / 20s per connection); background autosaves can spend the refill on a busy host.
+    await ownerReplace(op,'reset');
     await of.until(()=>AccountGate.allowed&&House.live&&StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
     assert.equal(await op.evaluate(()=>st.current().id),'lad');assert.equal(await op.evaluate(()=>House.pcGL.visible),false);
     assert.equal(await op.evaluate(()=>House.mode),'walk');
     assert.equal(await op.evaluate(()=>document.body.classList.contains('pc-monitor')),false);
     await op.screenshot({path:shots+'18-owner-reset-no-pc.png'});
     await op.keyboard.press('Backquote');await of.until(()=>document.querySelector('.owner-tools')?.open);
-    await op.locator('[name=snapshot]').selectOption(saved);await op.locator('[data-owner=restore]').click();
-    await Promise.all([op.waitForEvent('domcontentloaded'),op.locator('[data-owner=confirm]').click()]);
+    await ownerReplace(op,'restore',saved);
     await of.until(()=>AccountGate.allowed&&House.live&&House.mode==='walk'&&!House.gliding&&st.getState()?.flags.veteran&&!document.querySelector('.hs-loading,#houseEntry'));
     assert.equal(await op.evaluate(()=>House.pcGL.visible),true);await op.screenshot({path:shots+'19-owner-restored-pc.png'});
     assert.deepEqual(of.errors,[]);
@@ -71,12 +83,13 @@ async function wait(page, fn, arg, timeout=30000) {
   while(Date.now()<end){if(await page.evaluate(fn,arg))return;await page.waitForTimeout(150)}
   throw Error('State timeout: '+String(fn));
 }
-async function aim(eye, target, level='U') { await view(eye, target, {level}); await p.evaluate(() => {House.hush(); House._.setMode('walk')}); }
+async function aim(eye, target, level='U') { await view(eye, target, {level}); await p.evaluate(() => {House.hush(); House._.setMode('walk'); HousePause.close()}); }
 async function waitStep(id) { await wait(p,id => !!st.getState()?.done[id],id,20000); }
 async function dropIn(id, snap) {
   const s = await p.evaluate(snap => {const s=House.SNAPS[snap];return {x:s.x,y:s.y,z:s.z,room:s.room,bz1:House.ROOMS[s.room].bz1}}, snap);
   for(let attempt=0;attempt<3;attempt++){
-    await aim([s.x,s.room==='kitchen'?245:-55,Math.min(s.z+55,s.bz1-28)], [s.x,s.y,s.z+8], s.room==='kitchen'?'G':'U');
+    const side = s.room === 'bedroom' && s.z > 180 ? -1 : 1;
+    await aim([s.x,s.room==='kitchen'?245:-55,s.z+55*side], [s.x,s.y,s.z+8*side], s.room==='kitchen'?'G':'U');
     assert(await p.evaluate(id => House.grab(id), id), 'Could not carry ' + id);
     // Extend the grip with the same distance controls as the carry HUD.
     for(let n=0;n<5+attempt;n++)await p.keyboard.press('+');
@@ -89,7 +102,7 @@ async function dropIn(id, snap) {
 
 try {
   await until(() => !!st.getState() && !!House.THINGS['st.diary']);
-  if(stage!=='second'){
+  if(!['second','pc'].includes(stage)){
   assert.equal(await p.evaluate(() => st.current().id), 'lad');
   assert.equal(await p.evaluate(()=>House.pcGL.visible),false);
   await until(()=>!!window.StoryOpening?.built);
@@ -157,7 +170,7 @@ try {
     return z-await p.evaluate(()=>House.W.z);
   }
   const ordinaryWalk=await walkDistance();assert(ordinaryWalk>0);
-  for(const part of ['tower','monitor','keys','speakers']) {
+  for(const part of (stage==='pc'?['speakers','keys','monitor','tower']:['tower','monitor','keys','speakers'])) {
     const id='st.pc.'+part;
     assert(await p.evaluate(id=>House.grab(id),id),'Cannot grab '+part);
     if(part==='monitor') {
@@ -167,11 +180,11 @@ try {
       await aim([150,-55,100],[20,-15,0]);
       await p.evaluate(()=>House.saveWalkState());
       await p.reload({waitUntil:'domcontentloaded'});
-      await until(()=>House?.live&&StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
+      await until(()=>window.House?.live&&window.StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
       assert.equal(await p.evaluate(()=>House.held()),null);
       assert.equal(await p.evaluate(()=>House.ROOMS.drive.carBoot.open),true);
       assert.equal(await p.evaluate(()=>House.THINGS['st.pc.monitor'].at.room),'drive');
-      assert.equal(await p.evaluate(()=>House.THINGS['st.pc.tower'].at.room),'bedroom');
+      assert.equal(await p.evaluate(()=>House.THINGS['st.pc.tower'].at.room),stage==='pc'?'drive':'bedroom');
       await p.evaluate(()=>{if(!House.ROOMS.drive.carBoot.open)House.act('st.boot')});
       await p.waitForTimeout(700);
       assert(await p.evaluate(id=>House.grab(id),id));
@@ -182,12 +195,12 @@ try {
     await p.keyboard.press('e');await waitStep('part.'+part);console.log('PC part placed:',part);
     await p.waitForTimeout(600);await shot('11-placed-'+part);
   }
-  for(const lead of ['power','video','keyboard']){
+  for(const lead of (stage==='pc'?['keyboard','video','power']:['power','video','keyboard'])){
     await aim([70,-55,80],[28,-9-['power','video','keyboard'].indexOf(lead)*8,-23]);
     await p.keyboard.press('f');await waitStep('lead.'+lead);console.log('PC lead connected:',lead);await shot('12-lead-'+lead);
   }
   await p.evaluate(()=>House.saveWalkState());await p.reload({waitUntil:'domcontentloaded'});
-  await until(()=>House.live&&StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
+  await until(()=>window.House?.live&&window.StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
   assert.equal(await p.evaluate(()=>st.current().id),'power');
   assert.equal(await p.evaluate(()=>House.pcGL.visible),false);await shot('12b-assembled-refresh');
   await aim([40,-55,85],[17,-20,-11]);
@@ -199,7 +212,7 @@ try {
     if(disk===1){
       await p.keyboard.press('Escape');assert(await p.evaluate(()=>HousePause.open));await shot('13b-setup-paused');await p.keyboard.press('Escape');
       await p.reload({waitUntil:'domcontentloaded'});
-      await until(()=>House.live&&StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
+      await until(()=>window.House?.live&&window.StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
       await button.waitFor({state:'visible',timeout:60000});await shot('13c-setup-refresh');
       assert.equal(await p.evaluate(()=>st.current().id),'install');
     }
@@ -212,6 +225,11 @@ try {
   await p.waitForTimeout(800);await shot('15-chapter-two');
   assert.equal(await p.evaluate(()=>House.pcGL.visible),true);
   assert.equal(await p.evaluate(() => st.getState().trust), 3);
+  if(stage==='pc'){
+    assert.deepEqual(errors,[]);
+    console.log('STORY PC PASS: reversed parts/leads, heavy monitor, carried/assembled/Setup refresh, installer and JackNet');
+    await browser.close();process.exit(0);
+  }
   await p.keyboard.press('Escape');await p.locator('[name=guidance]').selectOption('light');await shot('16-guidance-setting');await p.keyboard.press('Escape');
   await p.evaluate(()=>StoryGuide.setting('off'));await p.waitForTimeout(200);assert(!await p.locator('.st-marker').isVisible());await shot('17-guidance-off');
   await p.evaluate(()=>StoryGuide.setting('full'));
@@ -246,7 +264,7 @@ try {
   await vp.goto(base,{waitUntil:'domcontentloaded'});await vp.waitForSelector('#accountGate');
   await vp.locator('[name=name]').fill(veteran);await vp.locator('[name=password]').fill(password);await vp.locator('#accountGate [type=submit]').click();for(let i=0;i<100&&!(await vp.evaluate(()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst')));i++)await vp.waitForTimeout(200);if(await vp.locator('#accountFirst').count())await vp.locator('#accountGate [type=submit]').click();
   await wait(vp,() => window.House?.live&&House.mode==='monitor'&&window.PMGL?.built&&window.st?.getState()?.flags.veteran&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
-  assert.equal(await vp.locator('.st-objective').count(),0);assert.equal(await vp.evaluate(() => !!House.THINGS['st.diary']),false);
+  assert.equal(await vp.evaluate(() => st.objectives().some(s => s.key === 'story')),false);assert.equal(await vp.evaluate(() => !!House.THINGS['st.diary']),false);
   const room = await vp.evaluate(() => JSON.stringify(Object.entries(House.THINGS).map(([id,t]) => [id,t.at])));
   await vp.evaluate(() => {Net.send({t:'stEvent',id:'lad'});Net.send({t:'stEvent',id:'sync'});Apps.open('st.diary')});
   await vp.waitForTimeout(1200);await vp.screenshot({path:shots+'14-veteran-summary.png'});

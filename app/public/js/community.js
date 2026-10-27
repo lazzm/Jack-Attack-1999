@@ -27,7 +27,7 @@
     ['..........', '..aaaaaa..', '.aaaaaaaaa', 'aakaaaaraa', 'akkkaaraba', 'aakaaayaaa', '.aaaaaaaaa', '..aa..aa..', '..........', '..........'], // controller
     ['rrryyyBBB.', 'rrryyyBBB.', 'rrryyyBBB.', 'gggwwwooo.', 'gggwwwooo.', 'gggwwwooo.', 'BBBrrryyy.', 'BBBrrryyy.', 'BBBrrryyy.', '..........'], // cube
   ];
-  const AV_NAMES = ['Goblin', 'Ork', 'Blobbit', 'Space Marine', 'Robot', 'Alien', 'Ghost', 'Cat', 'Dragon', 'Smiley', 'Ninja', 'Wizard', 'Skull', 'Heart', 'Joypad', 'Cube'];
+  const AV_NAMES = ['Goblin', 'Gork', 'Blobbit', 'Space Mariner', 'Robot', 'Alien', 'Ghost', 'Cat', 'Dragon', 'Smiley', 'Ninja', 'Wizard', 'Skull', 'Heart', 'Joypad', 'Cube'];
   const avCache = {};
   function avatarURL(i) {
     i = Math.max(0, Math.min(AV.length - 1, i | 0));

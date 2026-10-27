@@ -141,73 +141,73 @@ function cwView() {
 // [question, [accepted answers (lower case, letters/numbers/spaces)], the answer as QuizJack says it]
 const Q = [
   ['POCKET CRITTERS: What colour is Zapachu?', ['yellow'], 'Yellow'],
-  ['POCKET CRITTERS: Which Pocket Critters is number 001 in the Pokedex in Red and Blue?', ['bulbasaur'], 'Bulbabeast'],
-  ['POCKET CRITTERS: Which Pocket Critters evolves into Charmeleon?', ['charmander'], 'Charbroiler'],
-  ['POCKET CRITTERS: What is the name of Ash\'s home town in the Pocket Critters cartoon?', ['pallet', 'pallet town'], 'Pallet Town'],
-  ['POCKET CRITTERS: Which professor gives you your first Pocket Critters in Red and Blue?', ['oak', 'professor oak', 'prof oak'], 'Professor Oak'],
-  ['POCKET CRITTERS: How many Pocket Critters are there in Red and Blue, counting Mew?', ['151', 'one hundred and fifty one', 'a hundred and fifty one'], '151'],
-  ['POCKET CRITTERS: Which Pocket Critters, number 150, was made in a laboratory?', ['mewtwo', 'mew two', 'mew 2'], 'MewToo'],
+  ['POCKET CRITTERS: Which Pocket Critters is number 001 in the Critterdex in Moss and Puddle?', ['bulbasaur'], 'Bulbabeast'],
+  ['POCKET CRITTERS: Which Pocket Critters evolves into Charmeleoff?', ['charmander'], 'Charbroiler'],
+  ['POCKET CRITTERS: What is the name of Ash\'s home town in the Pocket Critters cartoon?', ['pallet', 'moss town'], 'Moss Town'],
+  ['POCKET CRITTERS: Which professor gives you your first Pocket Critters in Moss and Puddle?', ['acorn', 'professor acorn', 'prof-acorn', 'oak'], 'Professor Acorn'],
+  ['POCKET CRITTERS: How many Pocket Critters are there in Moss and Puddle, counting MewOne?', ['151', 'one hundred and fifty one', 'a hundred and fifty one'], '151'],
+  ['POCKET CRITTERS: Which Pocket Critters, number 150, was made in a laboratory?', ['mewtoo', 'mew-too', 'mewtwo', 'mew-two', 'mew2'], 'MewToo'],
   ['POCKET CRITTERS: What type of Pocket Critters is Squirturtle?', ['water'], 'Water'],
-  ['POCKET CRITTERS: What is the word Pocket Critters short for?', ['pocket monsters', 'pocket monster'], 'Pocket Monsters'],
-  ['POCKET CRITTERS: What does Zapachu evolve into with a Thunder Stone?', ['raichu'], 'Raichu'],
-  ['POCKET CRITTERS: What is the name of Team Rocket\'s talking cat Pocket Critters?', ['meowth'], 'Meowth'],
-  ['POCKET CRITTERS: Which pink balloon Pocket Critters sings people to sleep?', ['jigglypuff'], 'Jigglypuff'],
+  ['POCKET CRITTERS: What is the word Pocket Critters short for?', ['pocket critters', 'pocket monster'], 'Pocket Critters'],
+  ['POCKET CRITTERS: What does Zapachu evolve into with a Thunder Rock?', ['raichu'], 'Zapachoo'],
+  ['POCKET CRITTERS: Which talking cat critter works for Team Pocket?', ['meowf', 'meowth'], 'Meowf'],
+  ['POCKET CRITTERS: Which pink balloon Pocket Critters sings people to sleep?', ['jigglypuff'], 'Jelly Puff'],
   ['POCKET CRITTERS: In the games, what do you call the trainers you beat to win badges?', ['gym leader', 'gym leaders'], 'Gym Leaders'],
   ['GAMES: What is the name of Marlo\'s brother?', ['luigi'], 'Louie G'],
-  ['GAMES: What is the name of the hero in The Legend of Zeldoo: Kazoo of Time?', ['link'], 'Link'],
-  ['GAMES: Which blue hedgehog is Segue\'s mascot?', ['sonic'], 'Zip'],
-  ['GAMES: In Metal Gear Wobbly, what is the hero\'s codename?', ['snake', 'solid snake'], 'Solid Snake'],
+  ['GAMES: What is the name of the hero in The Legend of Zeldo: Kazoo of Time?', ['link'], 'Link'],
+  ['GAMES: Which purple badger is Segue\'s mascot?', ['zip', 'zip the badger', 'sonic'], 'Zip'],
+  ['GAMES: In Metal Gear Wobbly, what is the hero\'s codename?', ['snake', 'soggy snake'], 'Soggy Snake'],
   ['GAMES: Which company makes the PlaySpace?', ['sony'], 'Somy'],
   ['GAMES: Clara Loft is the star of which series of games?', ['crypt raider'], 'Crypt Raider'],
-  ['GAMES: In Goldenballs 007 on the ULTRA 64, which actor\'s James Bond do you play as?', ['pierce brosnan', 'brosnan'], 'Pierce Brosnan'],
+  ['GAMES: In Goldenballs 007 on the ULTRA 64, which actor\'s James Bland do you play as?', ['pierce brosnut', 'brosnan'], 'Pierce Brosnut'],
   ['GAMES: How many squares make up each piece in Blockology?', ['4', 'four'], 'Four'],
   ['GAMES: What does the N in ULTRA 64 stand for?', ['nintendo'], 'Ultra Entertainment'],
-  ['GAMES: Which yellow dot-eating hero first chomped through a maze in the arcades in 1980?', ['pac man', 'pacman'], 'Pac-Man'],
+  ['GAMES: Which yellow dot-eating hero first chomped through a maze in the arcades in 1980?', ['chomp man', 'chompman', 'chomp-man', 'pac man', 'pacman'], 'Chomp-Man'],
   ['GAMES: What colour is Spike the Stegosaur the Dragon?', ['purple'], 'Purple'],
   ['GAMES: What kind of animal is Crash, of Warp Wombat? (clue: it\'s in the name)', ['bandicoot', 'a bandicoot'], 'A bandicoot'],
   ['GAMES: Segue\'s newest console came out in Japan in November 1998. What is it called?', ['dreamcast'], 'The Daydream'],
   ['GAMES: Which Ultra Entertainment handheld got a colour version in 1998?', ['game lad', 'gameboy', 'game lad color', 'gameboy color', 'game lad colour', 'gameboy colour'], 'The Game Lad (the Game Lad Color)'],
-  ['INTERGALACTIC BATTLES: Which boy from Tattyween wins a podrace in The Phantom Nuisance?', ['anakin', 'anklekin skywobbler'], 'Anklekin Skywobbler'],
-  ['INTERGALACTIC BATTLES: What is the name of the clumsy Gungan in The Phantom Nuisance?', ['jar jar jams', 'jar jar jams', 'jarjar'], 'Jar Jar Jams'],
-  ['INTERGALACTIC BATTLES: Which Sulk Lord with a double-bladed lightspatula fights Qui-Gon and Obi-Wan in Episode I?', ['dark mole', 'maul'], 'Dark Mole'],
+  ['INTERGALACTIC BATTLES: Which boy from Tattyween wins a peapod race in The Phantom Nuisance?', ['anakin', 'anklekin skywobbler'], 'Anklekin Skywobbler'],
+  ['INTERGALACTIC BATTLES: What is the name of the clumsy Gungoo in The Phantom Nuisance?', ['jar jar jams', 'jar jar jams', 'jarjar'], 'Jar Jar Jams'],
+  ['INTERGALACTIC BATTLES: Which Sulk Lord with a double-bladed lightspatula fights Qui-Gym and Obi-Wan Cannoli in Episode I?', ['dark mole', 'maul'], 'Dark Mole'],
   ['INTERGALACTIC BATTLES: Who is Qui-Gon Gym\'s apprentice in The Phantom Nuisance?', ['obi wan', 'obi wan cannoli', 'obiwan', 'kenobi'], 'Obi-Wan Cannoli'],
   ['INTERGALACTIC BATTLES: What is the name of Ham Solo\'s ship?', ['millennium pigeon', 'millenium falcon', 'the falcon', 'falcon'], 'The Millennium Pigeon'],
   ['INTERGALACTIC BATTLES: Which small green Space Cadet Master trains Luke in The Empire Strikes Out?', ['yoda'], 'Yoga'],
   ['INTERGALACTIC BATTLES: Which desert planet is Luke Skywobbler\'s home?', ['tatooine'], 'Tattyween'],
   ['INTERGALACTIC BATTLES: Who created Intergalactic Battles and directed the first film?', ['gordon lukewarm', 'lucas'], 'Gordon Lukewarm'],
-  ['INTERGALACTIC BATTLES: Which golden droid is fluent in over six million forms of communication?', ['c3po', 'c 3po', 'c3 po', 'c 3 po', 'threepio'], 'C-3PO'],
+  ['INTERGALACTIC BATTLES: Which golden droid is fluent in over six million forms of communication?', ['c3po', 'c 3po', 'c3 po', 'c 3 po', 'threepio'], 'C-4PO'],
   ['INTERGALACTIC BATTLES: What is Dark Vapour\'s real name?', ['anakin', 'anklekin skywobbler'], 'Anklekin Skywobbler'],
-  ['FILMS: In The Modemtrix, what colour is the pill that Neo takes?', ['red'], 'Red'],
-  ['FILMS: Which actor plays Neo in The Modemtrix?', ['keanu reeves', 'keanu'], 'Keanu Reeves'],
-  ['FILMS: In Toy Storey, finish Buzz Lightyear\'s catchphrase: "To infinity and..."', ['beyond'], 'Beyond!'],
-  ['FILMS: What is the name of the cowboy doll in Toy Storey?', ['woody', 'sheriff woody'], 'Woody'],
-  ['FILMS: Which 1999 Disney cartoon is about a boy raised by gorillas?', ['tarzan'], 'Tarzan'],
-  ['FILMS: Which 1998 Pixar film is about an ant called Flik?', ['a bugs life', 'bugs life'], 'A Bug\'s Life'],
-  ['FILMS: In The Mummy (1999), the lost city of Hamunaptra is in which country?', ['egypt'], 'Egypt'],
-  ['FILMS: Which 1999 film stars Hugh Grant as a London bookshop owner who meets a film star?', ['notting hill'], 'Notting Hill'],
-  ['FILMS: What is the name of Wallace\'s clever dog?', ['gromit'], 'Gromit'],
-  ['TELLY: Name the purple Teletubby with a triangle on his head.', ['tinky winky', 'tinkywinky'], 'Tinky Winky'],
-  ['TELLY: In The Simpsocks, what is the name of Bart\'s dad?', ['homer', 'homer simpson'], 'Homer'],
-  ['TELLY: What is the name of the Doctor\'s robot dog in Doctor Whoops?', ['k9', 'k 9', 'k nine'], 'K-9'],
-  ['TELLY: Who asks the questions on Who Wants to Be a Millionaire?', ['chris tarrant', 'tarrant'], 'Chris Tarrant'],
-  ['TELLY: How many questions do you have to get right to win the million on Who Wants to Be a Millionaire?', ['15', 'fifteen'], '15'],
-  ['TELLY: Which Thunderbird is the big green one?', ['2', 'two', 'thunderbird 2', 'thunderbird two'], 'Thunderbird 2'],
-  ['TELLY: Which Saturday morning show do Ant and Dec present with Cat Deeley? (four letters, then Live)', ['smtv', 'smtv live', 'sm tv', 'sm tv live'], 'SM:TV Live'],
-  ['MUSIC: Which girl group sang "Wannabe"?', ['spice girls', 'the spice girls'], 'The Spice Girls'],
-  ['MUSIC: Who had a UK number one in February 1999 with "...Baby One More Time"?', ['britney', 'britney spears'], 'Britney Spears'],
-  ['MUSIC: Which pop group had a 1999 number one with "Bring It All Back"?', ['s club 7', 's club', 's club seven', 'sclub7', 'sclub 7'], 'S Club 7'],
-  ['MUSIC: Who sings "Livin\' la Vida Loca"?', ['ricky martin'], 'Ricky Martin'],
-  ['MUSIC: Ronan Keating is the lead singer of which Irish boy band?', ['boyzone'], 'Boyzone'],
-  ['MUSIC: Which Liverpool band sang "Yellow Submarine"?', ['beatles', 'the beatles'], 'The Beatles'],
+  ['FILMS: In The Modemtrix, what colour is the pill that Neon takes?', ['red'], 'Red'],
+  ['FILMS: Which actor plays Neon in The Modemtrix?', ['keanu leaves', 'keanu'], 'Keanu Leaves'],
+  ['FILMS: In Toy Storey, finish Buzz Lightbulb\'s catchphrase: "To infinity and..."', ['beyond'], 'Beyond!'],
+  ['FILMS: What is the name of the cowboy doll in Toy Storey?', ['woodsy', 'sheriff woodsy', 'woody', 'sheriff woody'], 'Woodsy'],
+  ['FILMS: Which 1999 Dizzney cartoon is about a boy raised by gorillas?', ['tarzan'], 'Tarzon'],
+  ['FILMS: Which 1998 Pixer film is about an ant called Flick?', ['a bugs life', 'bugs life'], 'A Bug\'s Strife'],
+  ['FILMS: In The Mommy (1999), the lost city of Hamunaptrap is in which country?', ['egypt'], 'Egypt'],
+  ['FILMS: Which 1999 film stars Hugh Grunt as a London bookshop owner who meets a film star?', ['knotting hill'], 'Knotting Hill'],
+  ['FILMS: What is the name of Wallis\'s clever dog?', ['grommet', 'gromit'], 'Grommet'],
+  ['TELLY: Name the purple Telly Tumbler with a triangle on his head.', ['twinky tinky', 'tinkywinky'], 'Twinky Tinky'],
+  ['TELLY: In The Simpsocks, what is the name of Bort\'s dad?', ['hormer', 'hormer simpsock', 'homer', 'homer simpson'], 'Hormer'],
+  ['TELLY: What is the name of the Doctor\'s robot dog in Doctor Whoops?', ['k8', 'k 8', 'k eight', 'k9', 'k 9', 'k nine'], 'K-8'],
+  ['TELLY: Who asks the questions on Who Wants to Be a Squillionaire?', ['chris tarrot', 'tarrant'], 'Chris Tarrot'],
+  ['TELLY: How many questions do you have to get right to win the million on Who Wants to Be a Squillionaire?', ['15', 'fifteen'], '15'],
+  ['TELLY: Which Thunderbudgie is the big green one?', ['2', 'two', 'thunderbudgie 2', 'thunderbudgie two', 'thunderbudgie 2', 'thunderbudgie two'], 'Thunderbudgie 2'],
+  ['TELLY: Which Saturday morning show do Ant and Deck present with Cat Deeply? (four letters, then Live)', ['smtv', 'smtw live', 'sm tv', 'sm tv live'], 'SM:TW Live'],
+  ['MUSIC: Which girl group sang "Wannabee"?', ['slice girls', 'the slice girls'], 'The Slice Girls'],
+  ['MUSIC: Who had a UK number one in February 1999 with "...Baby Two More Times"?', ['britney', 'brittany spheres'], 'Brittany Spheres'],
+  ['MUSIC: Which pop group had a 1999 number one with "Bring Them All Back"?', ['z club 7', 'z club', 'z club seven', 'sclub7', 'sclub 7'], 'Z Club 7'],
+  ['MUSIC: Who sings "Livin\' la Vida Cocoa"?', ['rickie martini'], 'Rickie Martini'],
+  ['MUSIC: Ronan Keeping is the lead singer of which Irish boy band?', ['boyzone'], 'Boyzown'],
+  ['MUSIC: Which Liverpool band sang "Yellow Submersible"?', ['beatles', 'the beetles'], 'The Beetles'],
   ['SPACE: On 11 August 1999 there was a total eclipse of the Sun. Which English county had the best view? (starts with C)', ['cornwall'], 'Cornwall'],
   ['SPACE: Which planet is closest to the Sun?', ['mercury'], 'Mercury'],
   ['SPACE: Which is the biggest planet in the Solar System?', ['jupiter'], 'Jupiter'],
-  ['SPACE: Who was the first person to walk on the Moon, in 1969?', ['neil armstrong', 'armstrong'], 'Neil Armstrong'],
+  ['SPACE: Who was the first person to walk on the Moon, in 1969?', ['neil armweak', 'armstrong'], 'Neil Armweak'],
   ['SPACE: What is the name of the Russian space station that has been in orbit since 1986?', ['mir'], 'Mir'],
   ['SPACE: How many planets are there in the Solar System?', ['9', 'nine'], 'Nine'],
-  ['SPACE: Which American astronaut went back into space in 1998, aged 77?', ['john glenn', 'glenn'], 'John Glenn'],
+  ['SPACE: Which American astronaut went back into space in 1998, aged 77?', ['john glimm', 'glenn'], 'John Glimm'],
   ['SPACE: What was the name of the little rover that drove around on Mars in 1997?', ['sojourner'], 'Sojourner'],
-  ['SPACE: Which very bright comet could be seen without a telescope in 1997?', ['hale bopp', 'halebopp'], 'Hale-Bopp'],
+  ['SPACE: Which very bright comet could be seen without a telescope in 1997?', ['hale bopp', 'halebopp'], 'Hail-Bop'],
   ['SPACE: Which planet is famous for its rings?', ['saturn'], 'Saturn'],
   ['SPACE: What is the name of our galaxy?', ['milky way', 'the milky way'], 'The Milky Way'],
   ['BONUS: How many little squares are on each face of a normal Rubrick\'s Cube?', ['9', 'nine'], 'Nine'],
@@ -269,7 +269,7 @@ function quizAnswer(ws, c, raw) {
   cur.tries[c.id] = (cur.tries[c.id] | 0) + 1;
   if (cur.tries[c.id] > 3) { if (cur.tries[c.id] === 4) say(`${c.nick}: that's 3 guesses for this one. Let someone else have a go!`, 'info', ws); return; }
   const q = Q[cur.i], t = norm(text);
-  if (!q[1].some(a => t.includes(' ' + a + ' '))) return;
+  if (!q[1].some(a => t.includes(' ' + a + ' ')) && !t.includes(norm(q[2]))) return; // the answer as shown (the parody name) is always accepted too
   cur.done = true; sess.next = Date.now() + GAP_MS;
   const Qs = qsTop(), nick = String(c.nick).slice(0, 20);
   Qs.s[nick] = (Qs.s[nick] | 0) + 1; sess.sc[nick] = (sess.sc[nick] | 0) + 1; ctx.markDirty();
@@ -352,7 +352,7 @@ function handle(ws, c, m) {
     }
     // ---- WinPopup
     case 'lanPop': {
-      if (!c.member) return ctx.send(ws, { t: 'lanPopOk', ok: false, err: 'WinPopup messages are for JackNet members. Joining is FREE!' });
+      if (!c.member) return ctx.send(ws, { t: 'lanPopOk', ok: false, err: 'JackPopup messages are for JackNet members. Joining is FREE!' });
       const text = ctx.delink(ctx.clean(m.text, 200)); if (!text) return;
       const t = byId(m.to);
       // their connection only just dropped: hold the message and pop it up when they're back (same id, see server.js)
@@ -363,7 +363,7 @@ function handle(ws, c, m) {
       }
       if (!t || t[1] === c) return ctx.send(ws, { t: 'lanPopOk', ok: false, err: 'The message could not be delivered. That computer has logged off. (Probably called down for tea.)' });
       if (!rl(c, 'pop', 0.25, 3)) return ctx.send(ws, { t: 'lanPopOk', ok: false, err: 'Slow down! You can send a message every few seconds.' });
-      if (blocked(keyOf(t[1]), k)) return ctx.send(ws, { t: 'lanPopOk', ok: false, err: `The message could not be delivered to \\\\${pcName(t[1])}. (They might be busy, or have WinPopup switched off.)` });
+      if (blocked(keyOf(t[1]), k)) return ctx.send(ws, { t: 'lanPopOk', ok: false, err: `The message could not be delivered to \\\\${pcName(t[1])}. (They might be busy, or have JackPopup switched off.)` });
       ctx.send(t[0], { t: 'lanPopIn', fromId: c.id, from: c.nick, pc: pcName(c), text, ts: Date.now() });
       link(c, t[1]);
       return ctx.send(ws, { t: 'lanPopOk', ok: true, to: pcName(t[1]) });

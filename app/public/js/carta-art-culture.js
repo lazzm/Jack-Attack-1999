@@ -287,7 +287,7 @@
       for (let c = 0; c < 16; c++) { const x = 2 + c * 6, len = 6 + ((R() * 9) | 0), top = (R() * 40) | 0; for (let k = 0; k < len; k++) { const y = top + k * 5; if (y > H) break; const g = G[(c + k) % 6]; const col = k === len - 1 ? '#e0ffe0' : k > len - 4 ? '#40ff60' : '#0a8a2a'; for (let b = 0; b < 6; b++) if (g[b] === '1') p.px(x + (b % 2), y + (b >> 1), col); } }
       p.oell(36, 58, 10, 5, '#d01818'); p.ell(33, 56, 4, 2, '#ff7070'); p.oell(62, 58, 10, 5, '#1848d0'); p.ell(59, 56, 4, 2, '#70a0ff');
     } },
-    phantom_menace: { cap: 'A podracer: a tiny cockpit pulled by two enormous engines, racing across a desert planet.', draw(p, S) {
+    phantom_menace: { cap: 'A peapodracer: a tiny cockpit pulled by two enormous engines, racing across a desert planet.', draw(p, S) {
       S.desert(p, 40); p.disc(80, 10, 5, '#fff8d0'); p.disc(68, 14, 3, '#fff0c0'); p.poly([[0, 40], [10, 30], [24, 34], [36, 28], [52, 40]], '#c88a50'); p.poly([[60, 40], [80, 26], [96, 32], [96, 40]], '#b87a40');
       const eng = (x, y) => { p.opoly([[x, y], [x + 26, y - 2], [x + 30, y + 2], [x + 26, y + 6], [x, y + 5]], '#a8a0a0'); p.rect(x + 4, y + 1, 18, 1, '#e8e0e0'); p.oell(x + 1, y + 2, 2, 3, '#ff8a20'); p.opoly([[x + 10, y - 2], [x + 16, y - 5], [x + 18, y - 1]], '#c8301a'); };
       eng(46, 30); eng(42, 44);
@@ -376,7 +376,7 @@
       p.line(20, 64, 42, 30, '#40ff40'); p.line(76, 64, 54, 30, '#40ff40');
       p.rect(0, 62, W, 10, '#2a2a30'); p.rect(30, 64, 36, 6, '#101014'); p.rect(32, 66, 20, 2, '#40ff60');
     } },
-    episode_i_racer: { cap: 'Racing a podracer through a twisting canyon in the 1999 game.', draw(p) {
+    episode_i_racer: { cap: 'Racing a peapodracer through a twisting canyon in the 1999 game.', draw(p) {
       p.vgrad(0, 30, '#ff9a50', '#ffd8a0'); p.poly([[0, 0], [30, 30], [0, 72]], '#a0502a'); p.poly([[96, 0], [66, 30], [96, 72]], '#8a4020'); p.poly([[0, 72], [30, 30], [66, 30], [96, 72]], '#d8a060'); p.dither(0, 30, W, 42, '#c89050');
       for (let i = 0; i < 6; i++) { const y = 32 + i * i * 1.2; p.rect(46 - i, y, 3, 1, '#fff0c0'); }
       const e = (x, y, s) => { p.opoly([[x, y], [x + 8 * s, y], [x + 9 * s, y + 4 * s], [x - 1 * s, y + 4 * s]], '#b0a8a8'); p.oell(x + 4 * s, y + 4 * s, 3 * s, 1.5 * s, '#ff8a20'); };
@@ -434,7 +434,7 @@
       p.text(53, 36, 'I', '#000'); p.text(53, 42, 'II', '#000'); p.text(53, 48, 'III', '#000'); for (let i = 0; i < 3; i++) { p.line(60, 38 + i * 6, 67, 37 + i * 6, '#8a8a8a'); p.line(74, 37 + i * 6, 87, 38 + i * 6, '#8a8a8a'); }
       p.obox(44, 34, 8, 5, '#98a4b8'); p.obox(86, 40, 6, 5, '#98a4b8');
     } },
-    elektro: { cap: 'Elektro, the gold-coloured metal man who walked and talked at the 1939 World\'s Fair.', draw(p) {
+    elektro: { cap: 'Elektrode, the gold-coloured metal man who walked and talked at the 1939 World\'s Fair.', draw(p) {
       p.vgrad(0, H, '#20305a', '#6a80b8'); p.ell(48, 40, 34, 36, 'rgba(255,240,180,.12)');
       p.rect(0, 62, W, 10, '#4a2a5a'); p.rect(0, 62, W, 2, '#ffd400'); p.text(4, 66, '1939', '#ffd400'); p.text(76, 66, 'FAIR', '#ffd400');
       const c = '#d8b048';
@@ -452,7 +452,7 @@
       p.obox(62, 21, 4, 10, '#3a3a40'); p.line(66, 22, 70, 20, '#3a3a40'); p.line(66, 30, 70, 32, '#3a3a40');
       p.obox(68, 18, 8, 6, '#ff8a20'); p.rect(70, 19, 4, 2, '#ffe060');
       p.obox(4, 56, 22, 6, '#808088'); for (let i = 0; i < 3; i++) p.obox(6 + i * 7, 52, 6, 4, '#a0502a');
-      p.text(30, 60, 'UNIMATE', 'rgba(0,0,0,0)');
+      p.text(30, 60, 'UNIMITE', 'rgba(0,0,0,0)');
     } },
     shakey: { cap: 'Shakey, a wobbly box on wheels with a TV camera head, working out how to push a block up a ramp.', draw(p) {
       p.vgrad(0, 48, '#d8d8c8', '#b8b8a8'); p.rect(0, 48, W, 24, '#8a8a7a'); p.dither(0, 48, W, 24, '#7a7a6a');
@@ -598,7 +598,7 @@
       wheel(30, 48, 13); wheel(78, 55, 7);
       for (let i = 0; i < 3; i++) p.disc(8 - i * 3, 30 - i * 5, 2 + i, 'rgba(210,210,210,.65)');
     } },
-    aeroplane: { cap: 'The Wright brothers\' Flyer lifts off over the sand dunes of Kitty Hawk in 1903.', draw(p) {
+    aeroplane: { cap: 'The Rite brothers\' Flyer lifts off over the sand dunes of Kitty Hawk in 1903.', draw(p) {
       p.vgrad(0, 56, '#8ab8e8', '#e0f0ff'); p.rect(0, 56, W, 16, '#e8d8a8'); p.poly([[0, 56], [20, 50], [44, 56]], '#d8c890'); p.poly([[60, 56], [84, 48], [96, 52], [96, 56]], '#d8c890');
       p.rect(8, 60, 30, 2, '#8a6a4a');
       const wy1 = 18, wy2 = 32;
@@ -671,7 +671,7 @@
       p.disc(58, 38, 8, '#eef2fa'); p.ring(58, 38, 8, '#a8b0c0'); p.disc(58, 38, 3, '#2a1a5a'); p.ring(58, 38, 3, '#8890a0');
       p.line(40, 22, 50, 16, '#fff'); p.line(42, 24, 48, 20, '#fff');
     } },
-    velcro: { cap: 'Velcro under a magnifying glass: tiny hooks on one strip, fuzzy loops on the other.', draw(p) {
+    velcro: { cap: 'Velcrow under a magnifying glass: tiny hooks on one strip, fuzzy loops on the other.', draw(p) {
       p.fill('#d8dce4');
       p.rect(0, 50, W, 22, '#2a4a8a'); for (let x = 0; x < W; x += 3) { p.ring(x + 1, 52, 2, '#4a6ab8'); }
       p.rect(0, 0, W, 16, '#2a4a8a');

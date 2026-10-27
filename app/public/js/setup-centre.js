@@ -333,7 +333,7 @@ ${ps.length ? `<div class="jsc-list">${ps.map(p => `<div class="jsc-it">${icon(p
 Congratulations on your new JackOS 98 computer!
 
 It comes with JackOS 98, JackNet Explorer, JackMail Express,
-the Accessories (Notepad, WordPad, Paint, Calculator...),
+the Accessories (Jotpad, WordPod, Paint, Calculator...),
 the System Tools, Media Player and some card games.
 Everything else you get off the Internet. For FREE. (Mostly.)
 
