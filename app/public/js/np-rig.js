@@ -306,10 +306,10 @@
     // mouth: a dark inside that opens (mouth bone scales y), a hint of teeth, soft lips (lower one rides the jaw bone)
     const smile = (g, amt, x0) => { const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i) - x0; p.setY(i, p.getY(i) + amt * x * x); } g.computeVertexNormals(); return g; };
     const mw = S.H > 150 ? 2.15 : 1.75;
-    G.add(smile(ell([0, S.mouthY, S.mouthZ - 0.45], [mw, 0.95, 0.75], [14, 8]), 0.035, 0), C('#4e1a20'), 'mouth', { noAO: true });
+    G.add(smile(ell([0, S.mouthY, S.mouthZ - 0.45], [mw, 0.95, 0.75], [14, 8]), 0.07, 0), C('#4e1a20'), 'mouth', { noAO: true });
     G.add(smile(ell([0, S.mouthY + 0.55, S.mouthZ - 0.4], [mw * 0.68, 0.38, 0.5], [10, 6]), 0.03, 0), C('#efe9de'), 'mouth', { noAO: true });
-    G.add(smile(ell([0, S.mouthY + 0.5, S.mouthZ - 0.15], [mw * 1.02, 0.42, 0.6], [14, 6]), 0.04, 0), skin.clone().lerp(lipC, 0.6), 'head', { noAO: true });
-    G.add(smile(ell([0, S.mouthY - 0.55, S.mouthZ - 0.12], [mw * 0.86, 0.5, 0.62], [14, 6]), 0.03, 0), skin.clone().lerp(lipC, 0.75), 'jaw', { noAO: true });
+    G.add(smile(ell([0, S.mouthY + 0.5, S.mouthZ - 0.15], [mw * 1.02, 0.42, 0.6], [14, 6]), 0.075, 0), skin.clone().lerp(lipC, 0.6), 'head', { noAO: true });
+    G.add(smile(ell([0, S.mouthY - 0.55, S.mouthZ - 0.12], [mw * 0.86, 0.5, 0.62], [14, 6]), 0.065, 0), skin.clone().lerp(lipC, 0.75), 'jaw', { noAO: true });
 
     // ---- body
     const torsoW = (x, y) => {

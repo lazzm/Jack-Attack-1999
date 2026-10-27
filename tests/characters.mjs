@@ -126,7 +126,7 @@ try {
               const shut = Object.values(H.DOORS).find(D => !D.open && !D.always && D.closedBounds && D.rooms.some(r => H.ROOMS[r].lvl === c.lvl) && c.x > D.closedBounds.x0 - 8 && c.x < D.closedBounds.x1 + 8 && c.z > D.closedBounds.z0 - 8 && c.z < D.closedBounds.z1 + 8);
               if ((cl < 18 || shut) && out.bad.length < 20) out.bad.push([c.id, c.x, c.z, c.lvl, k, Math.round(cl), shut?.id || null]);
             }
-            if (k === 'route' && Math.abs(c.v) < 5) { st.__stuck = (st.__stuck || 0) + 0.1; if (st.__stuck > (out.stuck[c.id] || 0)) { out.stuck[c.id] = st.__stuck; out.stuckAt = out.stuckAt || {}; const cu = st.cur || {}; out.stuckAt[c.id] = [c.x, c.z, c.lvl, c.goal, F.debug.want(c.id), st.hold, st.talking, st.present, st.cur ? st.cur.k : 'nocur', st.plan.map(p => p.k).join('>'), st.hold, st.talking, cu.s, cu.r && cu.r.len, cu.r && cu.r.doors.map(d => d.id + ':' + Math.round(d.s0) + ':' + H.DOORS[d.id].open).join(' '), cu.blocked, d.filter(o => o.present && o.id !== c.id).map(o => o.id + '@' + Math.round(o.x) + ',' + Math.round(o.z)).join(' '), Math.round(H.W.x) + ',' + Math.round(H.W.z) + H.W.lvl]; } } else st.__stuck = 0;
+            if (k === 'route' && Math.abs(c.v) < 5) { st.__stuck = (st.__stuck || 0) + 0.1; if (st.__stuck > 5 && st.__stuck < 5.11 && st.cur) { out.why = out.why || []; out.why.push([c.id, Math.round(c.x), Math.round(c.z), st.cur.why, st.cur.s | 0, st.cur.r && st.cur.r.len | 0, st.cur.r && st.cur.r.doors.map(q => q.id + ':' + (q.s0 | 0) + ':' + H.DOORS[q.id].open).join(' '), JSON.stringify(st.cur.to)]); } if (st.__stuck > (out.stuck[c.id] || 0)) { out.stuck[c.id] = st.__stuck; out.stuckAt = out.stuckAt || {}; const cu = st.cur || {}; out.stuckAt[c.id] = [c.x, c.z, c.lvl, c.goal, F.debug.want(c.id), st.hold, st.talking, st.present, st.cur ? st.cur.k : 'nocur', st.plan.map(p => p.k).join('>'), st.hold, st.talking, cu.s, cu.r && cu.r.len, cu.r && cu.r.doors.map(d => d.id + ':' + Math.round(d.s0) + ':' + H.DOORS[d.id].open).join(' '), cu.blocked, cu.why, d.filter(o => o.present && o.id !== c.id).map(o => o.id + '@' + Math.round(o.x) + ',' + Math.round(o.z)).join(' '), Math.round(H.W.x) + ',' + Math.round(H.W.z) + H.W.lvl]; } } else st.__stuck = 0;
             let inDoor = null;
             for (const D of Object.values(H.DOORS)) { const b = D.closedBounds; if (b && !D.always && c.x > b.x0 - 25 && c.x < b.x1 + 25 && c.z > b.z0 - 25 && c.z < b.z1 + 25 && D.rooms.some(r => H.ROOMS[r].lvl === c.lvl)) inDoor = D.id; }
             if (inDoor && Math.abs(c.v) < 5) { dw[c.id] = (dw[c.id] || 0) + 0.1; if (dw[c.id] > (out.dwell[c.id] || 0)) { out.dwell[c.id] = dw[c.id]; out.where = out.where || {}; out.where[c.id] = [inDoor, c.x, c.z, k, c.goal]; } } else dw[c.id] = 0;
@@ -137,7 +137,7 @@ try {
         F.debug.clock(null);
         return out;
       });
-      console.log(`  day: ${r.ticks} person-ticks, min clearance ${r.min.toFixed(1)} cm, doors opened ${r.opened} / shut ${r.shut}, doorway dwell ${JSON.stringify(r.dwell)}, longest wait ${JSON.stringify(r.stuck)} ${JSON.stringify(r.stuckAt || {})} ${JSON.stringify(r.where || {})}`);
+      console.log(`  day: ${r.ticks} person-ticks, min clearance ${r.min.toFixed(1)} cm, doors opened ${r.opened} / shut ${r.shut}, doorway dwell ${JSON.stringify(r.dwell)}, longest wait ${JSON.stringify(r.stuck)} ${JSON.stringify(r.stuckAt || {})} WHY ${JSON.stringify(r.why || [])} ${JSON.stringify(r.where || {})}`);
       assert.deepEqual(r.bad, [], 'Walked into a wall, furniture or a shut door: ' + JSON.stringify(r.bad));
       assert(r.opened >= 3 && r.shut >= 2, 'Doors opened and shut behind them');
       for (const [id, s] of Object.entries(r.stuck)) assert(s < 12, id + ' stood stuck on the way for ' + s.toFixed(1) + ' s');
@@ -182,8 +182,10 @@ try {
       const start = await page.evaluate(() => { const m = HouseFamily.chars.mom; return { x: m.x, z: m.z }; });
       await page.keyboard.down('w'); await page.waitForTimeout(2200 * SCALE);
       const mid = await page.evaluate(() => { const m = HouseFamily.chars.mom; return { d: Math.hypot(House.W.x - m.x, House.W.z - m.z) }; });
-      await page.waitForTimeout(3500 * SCALE); await page.keyboard.up('w');
-      const end = await page.evaluate(() => { const m = HouseFamily.chars.mom; return { x: m.x, z: m.z, d: Math.hypot(House.W.x - m.x, House.W.z - m.z) }; });
+      let moved = 0; // (she steps aside, then goes back to her spot once I'm past: measure the furthest she went)
+      for (let i = 0; i < 14; i++) { await page.waitForTimeout(250 * SCALE); const m = await page.evaluate(() => { const m = HouseFamily.chars.mom; return { x: m.x, z: m.z }; }); moved = Math.max(moved, Math.hypot(m.x - start.x, m.z - start.z)); }
+      await page.keyboard.up('w');
+      const end = { x: start.x + moved, z: start.z };
       assert(mid.d >= 30, 'Walked through Mom: ' + mid.d.toFixed(1));
       assert(Math.hypot(end.x - start.x, end.z - start.z) > 30, 'Mom stepped aside to let me past');
       await shot(page, 'mom-step-aside');

@@ -62,6 +62,13 @@ World art captures and geometry audit (each owns its own disposable server and /
 `world-quality-2.mjs` uses the full-room fixture at 1366x860, Low tier and 14:00 like the smoke canonical views, so its
 per-view draw counts compare directly; two Pixel Post parcels are shown in the hall through a page-only status message.
 
+The family in the house (starts and stops its own server on a free port, throwaway data):
+
+    node characters.mjs                 # routines + owner clock, 3 simulated days (walls/doors/doorways), talk/jobs, bump, refresh, feet, draws, story, portraits
+    node characters.mjs --only=day      # one check: routines|day|talk|bump|refresh|feet|draws|story|shots
+
+Portraits and in-house views of Mom, Dad and the sister (idle/walking/talking) go to `shots/characters/`.
+
 Exterior/grass/door checks (disposable localhost data only):
 
     node exterior-rebuild.mjs http://localhost:18080

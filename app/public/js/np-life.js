@@ -205,7 +205,7 @@
   const dist = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const sameFloor = (c, p) => c.lvl === p.lvl || (NV.onFlight(c.x, c.z) && NV.onFlight(p.x, p.z));
   function doorZone(x, z, lvl, pad) { for (const d of Object.values(H.DOORS)) { const b = d.closedBounds; if (b && !d.always && d.rooms.some(id => H.ROOMS[id]?.lvl === lvl) && x > b.x0 - pad && x < b.x1 + pad && z > b.z0 - pad && z < b.z1 + pad) return d.id; } return null; }
-  function ahead(c, r, s) { // something in the way along the route: the player or another (moving or stood) person
+  function ahead(c, r, s, squeeze) { // something in the way along the route: the player or another (moving or stood) person
     const p = player(), list = [];
     if (H.live && H.mode === 'walk' && sameFloor(c, p)) list.push({ x: p.x, z: p.z, who: 'player' });
     for (const o of chars) if (o !== c && o.present && (o.lvl === c.lvl || NV.onFlight(o.x, o.z))) list.push({ x: o.x, z: o.z, who: o.id, o });
@@ -213,7 +213,7 @@
     let hit = null;
     for (let d = 10; d <= 110; d += 10) {
       const q = NV.at(r, s + d); if (s + d > r.len + 5) break;
-      for (const b of list) { const k = Math.hypot(q.x - b.x, q.z - b.z); if (k < (b.who === 'player' ? 44 : b.o && b.o.v < 5 ? 25 : 30) && (!hit || d < hit.d)) hit = { d, b }; } // (family squeeze past each other, behind someone busy at the worktop; you get more room)
+      for (const b of list) { const k = Math.hypot(q.x - b.x, q.z - b.z); if (k < (b.who === 'player' ? 44 : b.o && b.o.v < 5 ? (squeeze ? 17 : 25) : 30) && (!hit || d < hit.d)) hit = { d, b }; } // (family squeeze past each other, behind someone busy at the worktop; you get more room)
       if (hit) break;
     }
     return hit;
@@ -271,7 +271,7 @@
       }
     } else if (s.reach) { s.reach = 0; c.rig?.set({ action: travelAction(c) }); }
     // people in the way
-    const hit = s.yielding ? null : ahead(c, r, s.s);
+    const hit = s.yielding ? null : ahead(c, r, s.s, s.squeeze);
     s.hit = hit ? hit.b.who + '@' + Math.round(hit.d) : null;
     if (hit) {
       stop = Math.min(stop, s.s + Math.max(0, hit.d - 50));
@@ -299,8 +299,13 @@
         s.blocked = 0; const pl = player(), near = [];
         if (H.live && H.mode === 'walk' && sameFloor(c, pl) && dist(c, pl) < 320) near.push({ x: pl.x, z: pl.z, r: 48 });
         for (const q of chars) if (q !== c && q.present && q.lvl === c.lvl && dist(c, q) < 320) near.push({ x: q.x, z: q.z, r: q.v < 5 ? 27 : 33 });
-        const avoid = near.map(q => Object.assign(q, { r: Math.max(18, Math.min(q.r, Math.hypot(c.x - q.x, c.z - q.z) - 6)) }));
-        const nr = NV.route({ lvl: c.lvl, x: c.x, z: c.z }, s.to, { avoid });
+        let avoid = near.map(q => Object.assign(q, { r: Math.max(18, Math.min(q.r, Math.hypot(c.x - q.x, c.z - q.z) - 6)) }));
+        let nr = NV.route({ lvl: c.lvl, x: c.x, z: c.z }, s.to, { avoid });
+        if (!nr) { // a tight spot (behind Mom at the sink): squeeze past people who are busy, closer than we'd like
+          avoid = avoid.map(q => q.r <= 27 ? Object.assign({}, q, { r: 19 }) : q);
+          nr = NV.route({ lvl: c.lvl, x: c.x, z: c.z }, s.to, { avoid });
+          if (nr) s.squeeze = true;
+        }
         if (nr) { s.r = nr; s.s = 0; s.avoid = avoid; return; }
         // nowhere to go: don't stand in a doorway
         const dz = doorZone(c.x, c.z, c.lvl, 30);
@@ -310,6 +315,8 @@
     // never stuck for good: if someone's camped in the only way through and nobody's watching, slip past
     const left = stop - s.s, onFlight = NV.at(r, s.s).stairs;
     s.waited = c.v < 5 && r.len - s.s > 1 ? (s.waited || 0) + dt : 0;
+    s.why = hit ? 'person:' + hit.b.who : stop < r.len ? 'door' : left <= 0.5 ? 'end' : 'slow'; // (debug: why they're waiting)
+    if (s.waited > 4 && !hit && !s.replanned) { s.replanned = true; s.r = null; s.waited = 0; return; } // (no progress and nobody in the way: plan again from here)
     if (s.waited > 20 && !seen(c)) { s.s = r.len - 0.4; s.waited = 0; }
     const vmax = c.speed * (onFlight ? 0.72 : 1), want = left <= 0.5 ? 0 : Math.min(vmax, Math.sqrt(2 * 150 * left));
     c.v += clamp(want - c.v, -300 * dt, 170 * dt); if (c.v < 0) c.v = 0;
