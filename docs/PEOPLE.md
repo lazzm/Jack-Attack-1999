@@ -57,7 +57,14 @@ Legs stay long enough to sit on 45 cm seats with the feet on the floor (adults);
 - Face base cell: cheeks (soft blush), brows, a nose shadow; the nose itself is only a small smooth bump in the head.
 - Eye frames: open / half (reading, washing up) / closed (blink) / happy. Big dark ovals with two catchlights, a
   lash flick for Mom; no whites, no eyeballs. Gaze = the painted eye shifts a little (no 3D eyeballs).
-- Mouth frames: closed smile / small open / open / "oh"; talking picks frames from the line's vowels.
+- Mouth frames: closed smile / small open / open / "oh". With a recorded line playing (js/st-voice.js) the frame follows
+  the recording's loudness (an AnalyserNode on the voice chain) and the "oh" shape comes from the vowel at the current
+  point of the line; without a recording (or with sound off) it keeps time from the line's vowels and punctuation.
+- Speech bubbles (js/np-bubble.js, css/np-bubble.css): a white comic balloon with a coloured name tab hangs over the
+  speaker's head (projected each frame), its tail at the mouth, typed on in step with the audio; off-screen, behind you
+  or in another room it sits at the screen edge with its tail pointing their way. It keeps clear of the crosshair, carry
+  panel, objective line, map and touch controls. The bottom box is the "Subtitles" setting (pause menu) and the
+  fallback for lines with nobody in the house to hang a balloon on.
 - The fragment shader picks the frames from uniforms, so blinking and talking cost no geometry or texture uploads.
 
 ### Budgets

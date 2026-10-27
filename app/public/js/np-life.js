@@ -377,7 +377,7 @@
   const inEarshot = (c, cm) => c.present && H.live && sameFloor(c, player()) && dist(c, player()) < (cm || 650) && !!H.ROOMS[c.room]?.group.visible;
 
   // ================================================================ speech: one line at a time, in person or shouted
-  const speech = { q: [], cur: null, until: 0, last: 0 };
+  const speech = { q: [], cur: null, until: 0, hard: 0, last: 0, voice: null, bub: null };
   const words = t => String(t).split(/\s+/).length;
   const lineMs = t => clamp(900 + words(t) * 340, 2300, 7600);
   function say(id, lineId, o) {
@@ -388,20 +388,43 @@
     if (o.once) { const k = 'np.once.' + member() + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
     speech.q.push({ c, lineId, person, text: l[1], then: o.then, prio: o.prio || 0, talk: !!o.talk });
     if (o.prio) speech.q.sort((a, b) => b.prio - a.prio);
+    try { window.st?.prefetch?.(lineId); } catch (e) {}
     return true;
   }
+  // Where a speaker is for their speech bubble (js/np-bubble.js) and their recorded voice (js/st-voice.js, positional)
+  const seenBy = c => c.present && !!c.rig?.group.visible && !!H.ROOMS[c.room]?.group.visible && sameFloor(c, player());
+  const anchorOf = c => ({ top: v => c.rig.headTop(v), mouth: v => c.rig.mouthWorld(v), seen: () => seenBy(c), where: v => c.rig.headTop(v) });
+  let V3 = null;
   function speechTick() {
     const t = nowMs();
-    if (speech.cur && t < speech.until) return;
-    if (speech.cur) { const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); } }
+    // (a recording that started late runs to its end, within reason)
+    if (speech.cur && (t < speech.until || (speech.voice && !speech.voice.ended && speech.voice.started && t < speech.hard))) return;
+    if (speech.cur) {
+      if (speech.voice && !speech.voice.ended) speech.voice.stop(); // (F again: on to the next line)
+      if (speech.bub) { const b = speech.bub, next = speech.q[0]; if (next && next.c === speech.cur.c) b.close(true); else setTimeout(() => b.close(), 450); }
+      if (speech.cur.c.rig && speech.voice) speech.cur.c.rig.hush();
+      speech.voice = speech.bub = null;
+      const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); }
+    }
     const n = speech.q.shift(); if (!n) return;
-    const ms = lineMs(n.text);
-    const who = n.person ? label(n.c) : label(n.c) + (n.c.lvl !== H.W.lvl ? (n.c.lvl === 'G' ? ' (downstairs)' : ' (upstairs)') : ' (in the ' + (n.c.room || 'house') + ')');
-    try { window.st?.say(n.lineId, who, n.text, ms); } catch (e) { console.error(e); }
-    if (n.person && n.c.rig) { n.c.rig.talk(ms - 300, n.text); n.c.talking = true; }
-    speech.cur = n; speech.until = t + ms + 280; speech.last = t;
+    const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n.lineId);
+    const ms = rec ? clamp(rec.dur * 1000 + 450, 1500, 14000) : lineMs(n.text);
+    const place = n.person ? '' : n.c.lvl !== H.W.lvl ? (n.c.lvl === 'G' ? '(downstairs)' : '(upstairs)') : '(in the ' + (n.c.room || 'house') + ')';
+    const who = label(n.c) + (place ? ' ' + place : '');
+    const c = n.c, here = c.present && !!c.rig, anchor = here ? anchorOf(c) : null;
+    const bubble = !!(anchor && window.NPCBubble?.ok());
+    if (!V3 && window.THREE) V3 = new THREE.Vector3();
+    let voice = null;
+    try {
+      voice = window.st?.say(n.lineId, who, n.text, ms, { bubble, fx: L[n.lineId]?.[2],
+        pos: here && V3 ? () => c.rig.mouthWorld(V3) : null, through: here ? () => !seenBy(c) : null, gain: here ? 1 : 0.7 }) || null;
+    } catch (e) { console.error(e); }
+    if (bubble) speech.bub = window.NPCBubble.show({ key: c.id, who: label(c), place, text: n.text, ms, anchor, voice, shout: !n.person });
+    if (here) c.rig.talk(ms - 300, n.text, voice);
+    if (n.person) c.talking = true;
+    speech.cur = n; speech.voice = voice; speech.until = t + ms + 280; speech.hard = t + ms + 3500; speech.last = t;
   }
-  function skip() { if (speech.cur) speech.until = 0; }
+  function skip() { if (speech.cur) { speech.until = 0; speech.hard = 0; } }
 
   // ================================================================ talking (F)
   const momGive = () => {

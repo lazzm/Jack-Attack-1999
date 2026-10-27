@@ -155,9 +155,9 @@ try {
       await page.evaluate(() => { window.__sent = []; const s = Net.send; Net.send = m => { __sent.push(m.t); return s(m); }; });
       await page.keyboard.press('f');
       await page.waitForFunction(() => !!HouseFamily.debug.speech.cur, null, { timeout: 15000 * SCALE });
-      const said = await page.evaluate(() => { const c = HouseFamily.debug.speech.cur; return { id: c.lineId, line: NPCLines[c.lineId][1], who: c.c.id, person: c.person, note: document.querySelector('.hs-note.on')?.textContent || '', talking: HouseFamily.chars.mom.rig.talking }; });
+      const said = await page.evaluate(() => { const c = HouseFamily.debug.speech.cur; return { id: c.lineId, line: NPCLines[c.lineId][1], who: c.c.id, person: c.person, note: (window.NPCBubble?.live || []).find(b => b.key === 'mom')?.text || document.querySelector('.hs-note.on')?.textContent || '', talking: HouseFamily.chars.mom.rig.talking }; });
       assert.equal(said.who, 'mom'); assert(said.person, 'Said in person'); assert(said.talking, 'Her lips move');
-      assert(said.note.includes(said.line.slice(0, 20)), 'Subtitle shows the scripted line: ' + said.note);
+      assert(said.note.includes(said.line.slice(0, 20)), 'Her speech bubble (or the subtitle box) shows the scripted line: ' + said.note);
       assert(/^chore\.\w+\.give$|^chore\.allfour$|^bark\.mom\./.test(said.id), 'Mom hands out a job (or praise): ' + said.id);
       await page.waitForTimeout(700); await shot(page, 'mom-talk-kitchen');
       // (people v2: the mouth is painted; talking swaps the mouth frames in the face atlas)
