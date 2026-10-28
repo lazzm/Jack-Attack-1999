@@ -223,6 +223,7 @@
     const s = c.cur; if (!s) return;
     s.t += dt;
     if (c.hold > 0) {
+      if (c.hold > 2 && speech.cur?.c !== c && !speech.q.some(q => q.c === c)) c.hold = 1.5; // (nothing left to say: never stand there forever)
       c.hold -= dt; c.v = 0; faceToward(c, player(), dt);
       if (c.hold <= 0 && c.backHome) { c.backoff = null; if (c.cur) c.plan.unshift(c.cur); c.cur = { k: 'line', to: c.backHome, t: 0 }; c.backHome = null; return; } // (and back to what they were doing)
       if (c.backoff) { const bx = c.backoff.x - c.x, bz = c.backoff.z - c.z, bd = Math.hypot(bx, bz), k = Math.min(1, 55 * dt / (bd || 1)); if (bd < 1) c.backoff = null; else { c.x += bx * k; c.z += bz * k; c.v = 30; } } // (half a pace back, still facing you)
@@ -252,6 +253,7 @@
       c.v = 0;
       if (!s.arrived) { s.arrived = true; c.arrivedAt = nowMs(); arrive(c); }
       if (!c.seated && c.goal?.spot && Math.abs(angd(c.h, (c.goal.spot.face || 0) * D2R)) > 0.05 && !lookingAtPlayer(c)) c.h += clamp(angd(c.h, (c.goal.spot.face || 0) * D2R), -2 * dt, 2 * dt);
+      if (!c.seated && !c.aside && s.t > 0.5 && doorZone(c.x, c.z, c.lvl, 12)) { c.pushT = nowMs(); c.pushN = 6; } // (never stand about in a doorway)
       stepAside(c, dt);
     } else if (s.k === 'yield') {
       c.v = 0; faceToward(c, s.o, dt);
@@ -391,6 +393,11 @@
     const shout = !person && (l[2] === 'downstairs' || o.call);
     if (!person && !shout) return false;
     if (o.once) { const k = 'np.once.' + member() + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
+    // never the same line again within a minute (unless you asked for a story instruction again)
+    if (!o.again && c.said[lineId] && nowMs() - c.said[lineId] < 60000) return false;
+    // a scripted story line that plays by itself plays once per story step (saved: a refresh doesn't replay it)
+    if (/^c\d\./.test(lineId) && !o.talk) { const step = window.st?.current?.()?.id || '-', k = 'np.step.' + member() + '.' + step + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
+    c.said[lineId] = nowMs();
     speech.q.push({ c, lineId, person, text: l[1], then: o.then, prio: o.prio || 0, talk: !!o.talk });
     if (o.prio) speech.q.sort((a, b) => b.prio - a.prio);
     try { window.st?.prefetch?.(lineId); } catch (e) {}
@@ -466,7 +473,9 @@
         c.backoff = { x: tx, z: tz }; c.backHome = c.backHome || { x: c.x, z: c.z }; break;
       }
     }
-    lines.forEach((l, i) => say(id, typeof l === 'string' ? l : l.id, { force: true, prio: 5, talk: true, then: () => { if (typeof l !== 'string' && l.then) l.then(); if (i === lines.length - 1) c.hold = 1.5; } }));
+    const fresh = lines.filter(l => { const lid = typeof l === 'string' ? l : l.id; return /^c\d\./.test(lid) || !(c.said[lid] && nowMs() - c.said[lid] < 60000); });
+    if (!fresh.length) { c.hold = 1.2; return; } // (nothing new to say: they just turn to you)
+    fresh.forEach((l, i) => say(id, typeof l === 'string' ? l : l.id, { force: true, prio: 5, talk: true, again: true, then: () => { if (typeof l !== 'string' && l.then) l.then(); if (i === fresh.length - 1) c.hold = 1.5; } }));
   }
   function talkLines(c) {
     const s = window.st?.getState?.(), cur = window.st?.current?.()?.id, story = s && !s.flags.veteran;
@@ -559,7 +568,7 @@
     if (/^lead\./.test(cur) || ['power', 'install', 'pc'].includes(cur)) out.dad = entrance('dad', { key: 'story.dadroom', spot: SPOT.bedDad, spotKey: 'bedDad', force: true, onArrive: () => { if (window.st.current()?.id === 'lead.power') say('dad', 'c1.lead.dad', { prio: 4, force: true }); } });
     if (/^part\./.test(cur) && home('sister')) out.sister = { key: 'story.sislanding', spot: SPOT.landingSis, spotKey: 'landingSis' };
     if (cur === 'lad' && sisCameo) out.sister = entrance('sister', sisCameo, { burst: true });
-    for (const id in ent) if (!out[id]) delete ent[id];
+    for (const id in ent) if (!out[id] && !sceneDbg[id]) delete ent[id];
     return out;
   }
   // ---------------------------------------------------------------- coming into Jack's room: never popping in
@@ -567,7 +576,7 @@
   // you can see them), then knocks (the sister just bursts in), the door opens and they walk in. For Mom's first visit
   // the doorway is softly held from your side until she's in and has spoken (you can't open the door or walk out).
   const STAGE = { mom: { lvl: 'U', x: 292, z: 190, face: -90 }, dad: { lvl: 'U', x: 296, z: 172, face: -90 }, sister: { lvl: 'U', x: 292, z: 205, face: -90 } };
-  const ent = {};
+  const ent = {}, sceneDbg = {};
   const inBedroom = c => c.present && c.lvl === 'U' && c.x < 238 && c.z < 252;
   function entrance(id, d, o) {
     const c = C[id]; let e = ent[id];
@@ -577,7 +586,7 @@
   }
   function entranceTick(dt) {
     for (const id in ent) {
-      const e = ent[id], c = C[id]; e.el += dt;
+      const e = ent[id], c = C[id]; e.el += dt; e.age = (e.age || 0) + dt;
       if (e.phase === 'enter' && e.inEl < 0 && inBedroom(c)) e.inEl = 0; else if (e.inEl >= 0) e.inEl += dt;
       if (e.phase === 'come' && (!c.present || c.goal?.key === e.key + ':stage' && c.cur?.k === 'route') && !seenNow(c) && !seenAt(STAGE[id])) {
         // get them onto the landing behind the door where nobody can see it happen
@@ -601,7 +610,7 @@
   }
   // Mom's first visit: hold the doorway from the bedroom side until she's in and has said hello
   function doorHeld() {
-    const e = ent.mom; if (!e || !e.o.hold) return false;
+    const e = ent.mom; if (!e || !e.o.hold || (e.age || 0) > 12) return false; // (a safety net: never longer than ~12 s)
     if (e.phase !== 'in' && e.phase !== 'enter') return true;
     return e.inEl < 2.5;
   }
@@ -688,7 +697,7 @@
     if (lvl === 'U' && doorHeld() && x > 222 && x < 270 && z > 140 && z < 240 && H.W.x < 236) { heldHint(); return true; } // (never traps: only stops you walking out of your room)
     if (squeeze(x, z, lvl)) return false;
     for (const c of chars) {
-      if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z))) continue;
+      if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z)) || doorZone(c.x, c.z, c.lvl, 20)) continue; // (in a doorway you squeeze past: nobody can block you in)
       const r = space(c), d1 = Math.hypot(x - c.x, z - c.z);
       if (d1 < r && d1 < Math.hypot(H.W.x - c.x, H.W.z - c.z) - 0.01) { c.pushT = nowMs(); c.pushN = (c.pushN || 0) + 1; return true; }
     }
@@ -700,7 +709,7 @@
   function blocker(x, z, lvl, skin) {
     if (!ready || squeeze(x, z, lvl)) return null;
     for (const c of chars) {
-      if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z))) continue;
+      if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z)) || doorZone(c.x, c.z, c.lvl, 20)) continue;
       const r = space(c); if (Math.hypot(x - c.x, z - c.z) < r + (skin || 0)) return { x: c.x, z: c.z, r };
     }
     return null;
@@ -722,6 +731,7 @@
   function tick(dt) {
     const clk = clock();
     directives = Object.assign(storyDirectives(), manual);
+    for (const id in sceneDbg) directives[id] = entrance(id, sceneDbg[id]);
     entranceTick(dt);
     for (const c of chars) {
       const want = target(c, clk);
@@ -862,6 +872,7 @@
       dump() { return chars.map(c => ({ id: c.id, present: c.present, x: +c.x.toFixed(1), z: +c.z.toFixed(1), lvl: c.lvl, h: +c.h.toFixed(3), v: +c.v.toFixed(1), room: c.room, goal: c.goal?.key || null, spot: c.goal?.spotKey || null, step: c.cur?.k || null, seated: !!c.seated, sitting: !!(c.cur && (c.cur.k === 'sit' || c.cur.k === 'stand')), outfit: c.rig?.outfit || null, talking: !!c.talking })); },
       want: id => target(C[id], clock()).key,
       hide(v) { hideAll = !!v; for (const c of chars) placeRig(c); H.dirty(); },
+      scene(id, spotKey) { if (!spotKey) { delete sceneDbg[id]; return; } sceneDbg[id] = { key: 'debug.scene.' + spotKey, spot: SPOT[spotKey], spotKey }; }, // (tests: a scripted entrance into Jack's room)
       go(id, spotKey, act) { if (!spotKey) delete manual[id]; else { const s = SPOT[spotKey] || EXIT[spotKey]; manual[id] = s && { key: 'debug.' + spotKey + (act ? ':' + act : ''), spot: s, spotKey, act: act || s.act }; } },
       acts: () => { const o = {}; for (const id of ['mom', 'dad', 'sister']) { const set = new Set(); for (const R of Object.values(ROUTINE[id])) for (const e of R) for (const v of [].concat(e[1])) { if (v.startsWith('away:')) continue; const [k, a] = v.split(':'); const key = k === 'mug' ? 'kmug1' : k; if (SPOT[key]) set.add(key + ':' + (a || SPOT[key].act || '')); } o[id] = [...set]; } return o; },
       place(id, spotKey) { const c = C[id], s = SPOT[spotKey]; if (!c || !s) return false; spawn(c, s.seat ? { lvl: s.lvl, x: s.seat.stand[0], z: s.seat.stand[1] } : s); c.goal = null; return true; },
