@@ -4,7 +4,7 @@ import {mkdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {provisionedRoom} from './provisioned-room.mjs';
 const f=await provisionedRoom(process.argv[2],{account:'Jack',timeoutScale:3,touch:true}),{page:p,until}=f;
-const dir=fileURLToPath(new URL('shots/bedmaking/',import.meta.url));await mkdir(dir,{recursive:true});
+const dir=fileURLToPath(new URL('shots/'+(process.env.BED_SHOTS||'bedmaking')+'/',import.meta.url));await mkdir(dir,{recursive:true});
 async function shot(n){await p.screenshot({path:dir+n+'.png'});console.log('Captured',n)}
 async function walk(){await p.evaluate(()=>{House.hush();House.setWalkFrom({x:105,y:-70,z:115,lvl:'U',seat:0});House._.setMode('walk');House.P.rx=-35;House.P.ry=45;House.saveWalkState();House.dirty()});await p.waitForTimeout(400)}
 async function put(id,snap){
