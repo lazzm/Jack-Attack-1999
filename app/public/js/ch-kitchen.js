@@ -98,6 +98,7 @@
       rk.position.set(RACK.x, WT, RACK.z); r.group.add(rk);
       // the dirty things
       dishes = DISH.map(([type, mk], i) => CK.thing('ch.d.' + i, { obj: mk(), kind: 'wdish', label: DISHN[i], chore: 'washup', holdD: 45, home: { room: 'kitchen', x: PILE[i][0], y: PILE[i][1], z: PILE[i][2], ry: PILE[i][3] } }));
+      dishes.forEach(t=>{t.factoryHome=Object.assign({},t.home)});
       if(!CK.has('washup','w6')&&!CK.has('washup','r6'))updateFactoryPose(dishes[6],[6,WT,-6,-30]);
       dishes.forEach((t, i) => { if (!t) return; t.dishI = i; t.canGrab = () => canGrabDish(i); const sp = H.SPOTS[t.id]; sp.use = true; sp.act = () => dishClick(i); sp.label = () => dishLabel(i); });
       CK.snap('ch.s.wsink', { room: 'kitchen', x: SINK.x, y: SINK.y - 6, z: SINK.z, r: 36, box: [38, 2, 28], accepts: (k, t) => k === 'wdish' && filled() && inSink() < 0 && !CK.has('washup', 'w' + t.dishI), pose: { x: SINK.x, y: LOW - 0.2, z: SINK.z, ry: 15 }, hint: 'Let go: in the washing-up water', onSnap: t => { CK.snd.splash(); CK.fx.burst(KR(), SINK.x, FULL, SINK.z, { n: 14, tex: 'bub', size: 2.4, life: 1.2, spd: 18, up: 30, grav: 40 }); W().inn = t.dishI; CK.save(); if (!W().tipShown) { W().tipShown = 1; CK.jack('Washing up', 'In the water. Pick up the sponge: F scrubs till it squeaks. You can also click the dish.', 4500); } } });
@@ -130,7 +131,7 @@
       const inWater=inSink();if(inWater>=0){const t=dishes[inWater];if(Math.abs(t.at.y-(LOW-.2))>.1){t.at.y=LOW-.2;H.place(t);CK.keep(t.id)}}
       H.dirty();
     },
-    reset() { extraSuds = 0; dishes.forEach(t => { if (t) { t.rx = 0; t.rz = 0; CK.home(t.id); } }); this.sync(); },
+    reset() { extraSuds = 0; CK.S.v.wash={sc:{},inn:-1};dishes.forEach(t => { if (t) { t.rx = 0; t.rz = 0;t.home=Object.assign({},t.factoryHome);CK.home(t.id); } }); this.sync(); },
     take() { sinkClick(); return true; },
   });
   function canGrabDish(i) {

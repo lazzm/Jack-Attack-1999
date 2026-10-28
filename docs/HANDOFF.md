@@ -26,8 +26,8 @@ never anything that looks cursed.
 | /opt/stacks/landing-mobile3 | mobile-3 | shipped 2.57.15 | R98 movement/look, robust presses and case selection; R107 message stacking. Full/small/feel 3/3, phone/tablet/owner coverage, Chapter 1 and smoke green; carry regression green. Next: props-pass. |
 | /opt/stacks/landing-props | props-pass | shipped 2.57.16 | Shape-hugging targets, solid clothes/rubbish, proper football and cat/tree. Preserves shallow eligible slots, British clips and daily job IDs. PV7 clears old floor props under tree once. Final save/feeding/carry green; merged story and grip gates green. Next: gfx-best. |
 | /opt/stacks/landing-gfx | gfx-best | shipped 2.57.17 | R65 remove graphics options, best look always, real optimisation (no blur); R92 lighting incl. posters. |
-| /opt/stacks/landing-voices | voices | merged (2.57.8) + WIP | nothing urgent. |
-| (brief) ~/codex-runs/chores-polish.prompt.md | — | not started | R106 washing-up plate stays dirty/oversized; R80 bed-making hands-on; every chore visibly changes the world. |
+| /opt/stacks/landing-voices | voices | reviewed; waiting on British recordings | Three live British clips preserved; line/name timers checked for 29–31 October. No old American assets merged. |
+| /opt/stacks/landing-chores | chores-washup | R106 under QA; R80 next | R106 washing-up plate stays dirty/oversized; R80 bed-making hands-on; every chore visibly changes the world. |
 | (brief) ~/codex-runs/console-flow.prompt.md | — | not started | R84 Game Lad fills the screen when playing (keyboard), T = full screen with mouse; R85 case system (cart/disc out of case into machine, case parked, put back on eject). |
 Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md has every R-item with details.
 
@@ -118,3 +118,12 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - Static deployment; no server module, account, wallet, cap or shared-world changes. Physical Edge/Android, hardware FPS/thermal behavior and gamepads remain unverified. R108 and the broader scale audit stay open.
 - Maximum two heavy browser workers is the practical host limit; Jack's hard ceiling remains three. Voice timers were checked: 29/30 October 08:15 lines, 31 October 07:15 names. No TTS work or old American clips shipped today.
 - Next after graphics: voices read-only readiness review, then chores brief (R106 washing-up first, R80 bed next), then console-flow brief. Keep releases small.
+
+## Washing-up checkpoint (unshipped)
+- Branch chores-washup from main 2.57.17, worktree /opt/stacks/landing-chores. R106 is its own intended small release; bed-making R80 remains next.
+- Baseline /tmp/jhp-washup-baseline3.log and shots/washup/before-rack-0.png reproduce visible food after washing: actual material opacity 1 while the old stored reference fades. Kitchen and bedroom rack records share an ID; tests must choose by room.
+- ch-kitchen.js preserves each dirt mesh's own material; solid bowl/mug/glass/pan shells, carryable sponge/F scrubbing, full-sized upright plate slots, separated inverted crockery, pan handle clear of toaster, wet finish, canonical racked-save poses. Reset restores the cooker pile and food instead of reusing finished rack homes.
+- CPU/source/parody gate /tmp/gate-mKIb green before the small reset follow-up (syntax checked afterward). All seven dishes washed/racked in /tmp/jhp-washup-play3.log; its contact test used world Y instead of house Y and is superseded by the corrected test. Do not call that full run green.
+- Focused final run /tmp/jhp-washup-play6.log pending; includes keyboard and real touch buttons, geometry/contact bounds, six viewports/three close angles, refresh and disposable-owner redo. Earlier hybrid fixture attempts retained desktop pointer lock/pause; touch setup now releases it and resumes after touch mode is active.
+- Mobile /tmp/jhp-washup-mobile.log running: gate/story pass at this checkpoint. Max two heavy jobs. Still need physics/smoke/chore-story and quick QA before release. No deployment or real-account/currency/world changes.
+- tests/perf/server.mjs now chooses an OS-assigned port and fails on early child-server exit: simultaneous helpers previously raced for the same fixed port, causing an invalid revised-vs-baseline run (discard /tmp/jhp-washup-play2.log).
