@@ -433,7 +433,7 @@
     const torso = (O.torso || S.torso).map(([t, hw, hd]) => [lerp(ty0, ty1, t), 0, 0.3 + 0.9 * Math.sin(t * Math.PI) * (t < 0.9 ? 1 : 0.5), hw * (1 - 0.07 * smooth((t - 0.76) / 0.16)), hd]);
     // the hips: one rounded pelvis (a little seat at the back) wide enough to hold the tops of both thighs, so the
     // trousers follow one smooth shape (no ledge where the legs start, no wedge between them)
-    const la0 = S.limb.arm, ll0 = S.limb.leg, le0 = O.legEase || 0, pe = O.pelvisEase || 0, jx = S.hipX - 1.1;
+    const ll0 = S.limb.leg, le0 = O.legEase || 0, pe = O.pelvisEase || 0, jx = S.hipX - 1.1;
     const thighR = 6.5 * ll0 + le0 * 0.5, hw0 = torso[0][3], hd0 = torso[0][4];
     const Wp = Math.max(hw0, jx + thighR + 0.7) + pe, Dp = Math.max(hd0, thighR + 1.6) + pe;
     const pelvis = [[S.hip - 10, 0, -0.3, Wp * 0.56, Dp * 0.64], [S.hip - 7, 0, -0.6, Wp * 0.9, Dp * 0.9], [S.hip - 3, 0, -0.8, Wp, Dp], [S.hip + 1, 0, -0.4, Wp * 0.97, Dp * 0.96], [S.hip + 4, 0, 0, Wp * 0.9, Dp * 0.9]]; // (the outline the trousers make: see the legs)
@@ -447,7 +447,6 @@
     const frames = { torso: { c: circ(mid[3], mid[4]), y0: ty0 - 1.2, y1: ty1, base: O.base?.torso } };
     G.add(loft(torso, L.torso, { bottomDome: 1, topDome: 1 }), C('#ffffff'), torsoW, { cell: CELL.torso });
     frames.pelvis = { c: circ(Wp, Dp), y0: S.hip - 10, y1: S.hip + 4, base: O.base?.pelvis };
-    void la0;
     const la = S.limb.arm, ll = S.limb.leg, se = O.sleeveEase || 0, le = O.legEase || 0;
     for (const sd of ['L', 'R']) {
       const a = J['arm' + sd], el = J['fore' + sd], wr = J['hand' + sd], kk = k(sd);
@@ -477,12 +476,12 @@
         [S.hip - 10, kk * jx, 0.3, 6.2 * ll + le * 0.6, 6.5 * ll + le * 0.6], // (a gentle taper from the top of the thigh)
         // each trouser leg goes right up to the waist as one half of the seat: the halves meet at the centre seam, so the
         // hips are one smooth rounded shape (no ledge where the legs start, no wedge between them)
-        [S.hip - 5.5, kk * lerp(jx, Wp * 0.5, 0.65), -0.5, lerp(6.2 * ll + le * 0.6, Wp * 0.5 + 0.5, 0.65), lerp(6.5 * ll + le * 0.6, Dp * 0.95, 0.65)],
-        [S.hip - 1.5, kk * (Wp * 0.5 - 0.2), -0.8, Wp * 0.5 + 0.6, Dp],
-        [S.hip + 3, kk * (Wp * 0.5 - 0.4), -0.3, Wp * 0.47 + 0.5, Dp * 0.92],
+        [S.hip - 5.5, kk * lerp(jx, Wp * 0.5, 0.65), -0.5, lerp(6.2 * ll + le * 0.6, Wp * 0.5 + 0.5, 0.65), lerp(6.5 * ll + le * 0.6, Dp * 0.78, 0.65)],
+        [S.hip - 1.5, kk * Wp * 0.46, -0.3, Wp * 0.46, Dp * 0.65],
+        [S.hip + 3, kk * Wp * 0.44, 0, Wp * 0.44, Dp * 0.62],
       ];
       if (sd === 'L') frames.legs = { c: TAU * 5.6 * ll, y0: legs[0][0], y1: legs[legs.length - 1][0], base: O.base?.legs, knee: kn[1] };
-      G.add(loft(legs, L.limb + 4, { topDome: 0.8 }), C('#ffffff'), (x, y) => {
+      G.add(loft(legs, L.limb + (lod === 0 ? 4 : 1), { topDome: 0.8 }), C('#ffffff'), (x, y) => {
         if (y > S.hip - 2) return [['hips', 0.9], ['thigh' + sd, 0.1]];
         if (y > S.hip - 11) { const q = smooth((y - (S.hip - 11)) / 9); return [['thigh' + sd, 1 - q * 0.9], ['hips', q * 0.9]]; }
         if (y > kn[1] + 4) return [['thigh' + sd, 1]];
@@ -866,7 +865,7 @@
         G.add(shell(sk, -179.5, 179.5, L.torso, 0.7, 0), (x, y, z, nx, ny, nz) => (y < S.knee + 6 && ny < -0.5 ? C('#26354a') : C('#34465e')), (x, y) => [['hips', 1]]); // (a thick shell: solid from inside too)
         const nr = 0.31 * S.head.r[0], ys = S.neck - 1.5, red = C('#c23a3a'), cream = C('#efe6d2');
         const stripes = (x, y) => (Math.floor(y / 2.2) % 2 ? red : cream);
-        G.add(loft([[ys - 2, 0, -0.8, nr + 4, nr + 3.4], [ys + 1.5, 0, -0.9, nr + 3.4, nr + 2.8], [ys + 4, 0, -1, nr + 2.2, nr + 1.8]], L.limb + 4, { bottom: false, top: false }), stripes, (x, y) => [['chest', 0.7], ['neck', 0.3]]);
+        G.add(loft([[ys - 2, 0, -0.8, nr + 4, nr + 3.4], [ys + 1.5, 0, -0.9, nr + 3.4, nr + 2.8], [ys + 4, 0, -1, nr + 2.2, nr + 1.8]], L.limb + (S.lod > 0 ? 3 : 4), { bottom: false, top: false }), stripes, (x, y) => [['chest', 0.7], ['neck', 0.3]]);
         const ez = surf(torso, ys - 10, 22, 0.8);
         G.add(rbox([ez[0], ys - 9, ez[2]], [4.4, 18, 1.2], 0.5, [-6, 22, 4], 1), (x, y) => (Math.floor(y / 2.2) % 2 ? red : cream), 'chest');
       },

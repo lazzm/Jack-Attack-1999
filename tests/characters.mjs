@@ -4,7 +4,7 @@
 // paying anything herself, bumping into them, stepping aside, refresh keeping everyone in place, planted feet, the draw
 // call cost, and the story's first in-person scene (Mom gives the first jobs). Screenshots: tests/shots/characters/.
 // Starts and stops its own server on a free port with throwaway data, like smoke.mjs.
-//   node characters.mjs [--only=routines|day|talk|bump|refresh|feet|draws|story|entrance|interrupt|loop|shots] [--keep]
+//   node characters.mjs [--only=routines,day,talk,bump,refresh,feet,draws,story,entrance,interrupt,loop,space,budget,hips,shots] [--keep]
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {mkdtemp, mkdir, rm} from 'node:fs/promises';
@@ -35,7 +35,7 @@ async function stopServer() {
 for (const sig of ['SIGINT', 'SIGTERM']) process.once(sig, async () => { await stopServer(); process.exit(130); });
 async function register(name) { const r = await fetch(base + '/admin/register', { method: 'POST', headers: { 'x-admin-token': 'testtoken', 'content-type': 'application/json' }, body: JSON.stringify({ name, pass }) }); assert.equal(r.status, 200, 'register ' + name); }
 async function check(name, fn) {
-  if (only && only !== name) return;
+  if (only && !only.split(',').includes(name)) return;
   const t0 = Date.now();
   try { await fn(); results.push([name, true]); console.log(`PASS ${name} (${((Date.now() - t0) / 1000).toFixed(0)}s)`); }
   catch (e) { results.push([name, false]); console.log(`FAIL ${name}: ${String(e.stack || e).split('\n').slice(0, 4).join(' | ')}`); }
@@ -111,11 +111,16 @@ try {
     const { browser, page, errors } = await veteran();
     try {
       const r = await page.evaluate(() => {
-        const F = HouseFamily, H = House, NV = NPCNav, out = { bad: [], dwell: {}, stuck: {}, opened: 0, shut: 0, min: 99, ticks: 0 };
+        const F = HouseFamily, H = House, NV = NPCNav, out = { bad: [], overlaps: [], dwell: {}, stuck: {}, opened: 0, shut: 0, min: 99, ticks: 0 };
         H.on('door', (id, open) => { if (open) out.opened++; else out.shut++; });
         const dw = {}, prev = {};
         const check = d => {
           out.ticks++;
+          for(let i=0;i<d.length;i++)for(let j=i+1;j<d.length;j++){
+            const a=d[i],b=d[j];if(!a.present||!b.present||a.lvl!==b.lvl||[a,b].some(c=>c.seated||c.sitting||c.step==='line'))continue;
+            const gap=({mom:22,dad:25,sister:18})[a.id]+({mom:22,dad:25,sister:18})[b.id],distance=Math.hypot(a.x-b.x,a.z-b.z);
+            if(distance<gap-1&&out.overlaps.length<12)out.overlaps.push([a.id,b.id,distance,a.x,a.z,b.x,b.z,a.step,b.step]);
+          }
           for (const c of d) {
             if (!c.present) continue;
             const st = F.chars[c.id], k = st.cur?.k || prev[c.id] || null; prev[c.id] = k;
@@ -126,7 +131,7 @@ try {
               const shut = Object.values(H.DOORS).find(D => !D.open && !D.always && D.closedBounds && D.rooms.some(r => H.ROOMS[r].lvl === c.lvl) && c.x > D.closedBounds.x0 - 8 && c.x < D.closedBounds.x1 + 8 && c.z > D.closedBounds.z0 - 8 && c.z < D.closedBounds.z1 + 8);
               if ((cl < 18 || shut) && out.bad.length < 20) out.bad.push([c.id, c.x, c.z, c.lvl, k, Math.round(cl), shut?.id || null]);
             }
-            if (k === 'route' && Math.abs(c.v) < 5) { st.__stuck = (st.__stuck || 0) + 0.1; if (st.__stuck > 5 && st.__stuck < 5.11 && st.cur) { out.why = out.why || []; out.why.push([c.id, Math.round(c.x), Math.round(c.z), st.cur.why, st.cur.s | 0, st.cur.r && st.cur.r.len | 0, st.cur.r && st.cur.r.doors.map(q => q.id + ':' + (q.s0 | 0) + ':' + H.DOORS[q.id].open).join(' '), JSON.stringify(st.cur.to)]); } if (st.__stuck > (out.stuck[c.id] || 0)) { out.stuck[c.id] = st.__stuck; out.stuckAt = out.stuckAt || {}; const cu = st.cur || {}; out.stuckAt[c.id] = [c.x, c.z, c.lvl, c.goal, F.debug.want(c.id), st.hold, st.talking, st.present, st.cur ? st.cur.k : 'nocur', st.plan.map(p => p.k).join('>'), st.hold, st.talking, cu.s, cu.r && cu.r.len, cu.r && cu.r.doors.map(d => d.id + ':' + Math.round(d.s0) + ':' + H.DOORS[d.id].open).join(' '), cu.blocked, cu.why, d.filter(o => o.present && o.id !== c.id).map(o => o.id + '@' + Math.round(o.x) + ',' + Math.round(o.z)).join(' '), Math.round(H.W.x) + ',' + Math.round(H.W.z) + H.W.lvl]; } } else st.__stuck = 0;
+            if (k === 'route' && Math.abs(c.v) < 5) { st.__stuck = (st.__stuck || 0) + 0.1; if (st.__stuck > 5 && st.__stuck < 5.11 && st.cur) { out.why = out.why || []; out.why.push([c.id, Math.round(c.x), Math.round(c.z), st.cur.why, st.cur.s | 0, st.cur.r && st.cur.r.len | 0, st.cur.r && st.cur.r.doors.map(q => q.id + ':' + (q.s0 | 0) + ':' + H.DOORS[q.id].open).join(' '), JSON.stringify(st.cur.to),d.filter(o=>o.id!==c.id&&o.present).map(o=>({id:o.id,x:o.x,z:o.z,v:o.v,cur:F.chars[o.id].cur?.k,goal:F.chars[o.id].goal?.key,aside:F.chars[o.id].aside,asideFor:F.chars[o.id].asideFor?.id,hit:F.chars[o.id].cur?.hit}))]); } if (st.__stuck > (out.stuck[c.id] || 0)) { out.stuck[c.id] = st.__stuck; out.stuckAt = out.stuckAt || {}; const cu = st.cur || {}; out.stuckAt[c.id] = [c.x, c.z, c.lvl, c.goal, F.debug.want(c.id), st.hold, st.talking, st.present, st.cur ? st.cur.k : 'nocur', st.plan.map(p => p.k).join('>'), st.hold, st.talking, cu.s, cu.r && cu.r.len, cu.r && cu.r.doors.map(d => d.id + ':' + Math.round(d.s0) + ':' + H.DOORS[d.id].open).join(' '), cu.blocked, cu.why, d.filter(o => o.present && o.id !== c.id).map(o => o.id + '@' + Math.round(o.x) + ',' + Math.round(o.z)).join(' '), Math.round(H.W.x) + ',' + Math.round(H.W.z) + H.W.lvl, d.filter(o=>o.present&&o.id!==c.id).map(o=>({id:o.id,cur:F.chars[o.id].cur?.k,goal:F.chars[o.id].goal?.key,aside:F.chars[o.id].aside,asideFor:F.chars[o.id].asideFor?.id,v:o.v}))]; } } else st.__stuck = 0;
             let inDoor = null;
             for (const D of Object.values(H.DOORS)) { const b = D.closedBounds; if (b && !D.always && c.x > b.x0 - 25 && c.x < b.x1 + 25 && c.z > b.z0 - 25 && c.z < b.z1 + 25 && D.rooms.some(r => H.ROOMS[r].lvl === c.lvl)) inDoor = D.id; }
             if (inDoor && Math.abs(c.v) < 5) { dw[c.id] = (dw[c.id] || 0) + 0.1; if (dw[c.id] > (out.dwell[c.id] || 0)) { out.dwell[c.id] = dw[c.id]; out.where = out.where || {}; out.where[c.id] = [inDoor, c.x, c.z, k, c.goal]; } } else dw[c.id] = 0;
@@ -138,6 +143,7 @@ try {
         return out;
       });
       console.log(`  day: ${r.ticks} person-ticks, min clearance ${r.min.toFixed(1)} cm, doors opened ${r.opened} / shut ${r.shut}, doorway dwell ${JSON.stringify(r.dwell)}, longest wait ${JSON.stringify(r.stuck)} ${JSON.stringify(r.stuckAt || {})} WHY ${JSON.stringify(r.why || [])} ${JSON.stringify(r.where || {})}`);
+      assert.deepEqual(r.overlaps, [], 'Routine bodies overlapped: '+JSON.stringify(r.overlaps));
       assert.deepEqual(r.bad, [], 'Walked into a wall, furniture or a shut door: ' + JSON.stringify(r.bad));
       assert(r.opened >= 3 && r.shut >= 2, 'Doors opened and shut behind them');
       for (const [id, s] of Object.entries(r.stuck)) assert(s < 12, id + ' stood stuck on the way for ' + s.toFixed(1) + ' s');
@@ -264,9 +270,12 @@ try {
       const without = await measure();
       await page.evaluate(() => HouseFamily.debug.hide(false));
       const extra = withFam.calls - without.calls, tris = withFam.triangles - without.triangles;
+      const perPerson = await page.evaluate(() => Object.fromEntries(Object.entries(HouseFamily.chars).map(([id, c]) => [id, c.rig.tris])));
+      console.log('  per-person Low triangles: ' + JSON.stringify(perPerson));
+      for (const [id, count] of Object.entries(perPerson)) assert(count <= 3000, id + ' exceeds the Low/Potato 3k triangle budget: ' + count);
       console.log(`  draws: kitchen at tea time ${withFam.calls} calls with the family, ${without.calls} without (+${extra}); +${tris} triangles (low tier)`);
       assert(extra <= 6, 'Each person costs at most two draw calls: +' + extra);
-      assert(tris <= 3 * 3200, 'Triangle budget (people v2: about 3k each on Low, docs/PEOPLE.md): +' + tris);
+      assert(tris <= 3 * 3000, 'Triangle budget (people v2: about 3k each on Low, docs/PEOPLE.md): +' + tris);
       await shot(page, 'kitchen-tea-low');
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
@@ -454,6 +463,89 @@ try {
       await shot(page, 'loop-dad-arrived');
       await page.evaluate(() => { HouseFamily.debug.scene('dad', null); for (const id of ['mom', 'dad', 'sister']) HouseFamily.debug.go(id, null); HouseFamily.debug.clock(null); });
       assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+  });
+
+  // ---------------------------------------------------------------- R99: people passing each other in the kitchen and hall
+  await check('space', async () => {
+    const { browser, page, errors } = await veteran();
+    try {
+      const r = await page.evaluate(() => {
+        const F = HouseFamily, radii = {mom:22,dad:25,sister:18}, out = {min:999, overlaps:[], stuck:0, arrivals:[]};
+        F.debug.clock({md:1012,dow:2,t:18.1});
+        for (const [id, spot] of [['mom','hob'],['sister','kmug2'],['dad','gardenLook']]) { F.debug.go(id,spot); F.debug.place(id,spot); }
+        F.debug.sim(3,.1);
+        const sample = states => {
+          const present = states.filter(c => c.present);
+          for(let i=0;i<present.length;i++)for(let j=i+1;j<present.length;j++){
+            const a=present[i],b=present[j];if(a.lvl!==b.lvl)continue;
+            const distance=Math.hypot(a.x-b.x,a.z-b.z),need=radii[a.id]+radii[b.id];
+            out.min=Math.min(out.min,distance-need);
+            if(distance<need-1&&out.overlaps.length<12)out.overlaps.push([a.id,b.id,distance,need, out.phase, ...[a,b].map(c=>({state:c,route:F.chars[c.id].cur&&{k:F.chars[c.id].cur.k,s:F.chars[c.id].cur.s,hit:F.chars[c.id].cur.hit,why:F.chars[c.id].cur.why}}))]);
+          }
+          for(const c of present){const live=F.chars[c.id];live.__wait=c.step==='route'&&c.v<5?(live.__wait||0)+.1:0;if(live.__wait>out.stuck){out.stuck=live.__wait;out.stuckAt={id:c.id,phase:out.phase,hit:live.cur?.hit,states};}}
+        };
+        out.phase='kitchen-out';F.debug.go('dad','hallPost');F.debug.sim(75,.1,sample);out.arrivals.push(F.debug.dump().find(c=>c.id==='dad'));
+        out.phase='kitchen-back';F.debug.go('dad','gardenLook');F.debug.go('sister','kmug1');F.debug.sim(75,.1,sample);out.arrivals.push(F.debug.dump().find(c=>c.id==='dad'));
+        for(const [id,spot]of [['dad','hallPost'],['sister','hallYoyo']]){F.debug.go(id,spot);F.debug.place(id,spot);}F.debug.sim(2,.1);
+        out.phase='hall-cross';F.debug.go('dad','hallYoyo');F.debug.go('sister','hallPost');F.debug.sim(90,.1,sample);
+        out.arrivals.push(...F.debug.dump().filter(c=>c.id!=='mom'));
+        return out;
+      });
+      console.log('  personal space: '+JSON.stringify(r));
+      assert.deepEqual(r.overlaps,[],'Family bodies overlapped');
+      assert(r.stuck<12,'Person-person avoidance left someone waiting: '+r.stuck);
+      assert(r.arrivals.every((c,i)=>c.step==='act'&&c.goal===['debug.hallPost','debug.gardenLook','debug.hallYoyo','debug.hallPost'][i]),'Someone never reached their destination: '+JSON.stringify(r.arrivals));
+      await look(page,[300,353-128,500],[250,353-100,420],'G');await shot(page,'space-hall-after');
+      assert.deepEqual(errors,[]);
+    } finally { await browser.close(); }
+  });
+
+  await check('budget', async () => {
+    const {browser,page,errors}=await veteran();
+    try {
+      const counts=await page.evaluate(()=>{
+        const out={};
+        for(const tier of ['low','potato'])for(const kind of Object.keys(NPCRig.OUTFITS))for(const outfit of NPCRig.OUTFITS[kind]){
+          const rig=NPCRig.create(kind,{tier,outfit});
+          for(const near of [true,false]){rig.update(.1,near);out[[tier,kind,outfit,near?'near':'far'].join('.')]=rig.tris;}
+          rig.dispose();
+        }
+        return out;
+      });
+      console.log('  Low/Potato outfit triangles: '+JSON.stringify(counts));
+      for(const[id,n]of Object.entries(counts))assert(n<=3000,id+' exceeds the 3k budget: '+n);
+      assert.deepEqual(errors,[]);
+    } finally {await browser.close();}
+  });
+
+  // ---------------------------------------------------------------- R102: actual production rigs, all four sides and close hip views
+  await check('hips', async () => {
+    const { browser, page, view, errors } = await veteran({tier:'high'});
+    try {
+      await page.evaluate(() => { HouseFamily.debug.hide(true); House.buildRoom(House.ROOMS.garden); });
+      const fullView = async (eye,target) => { await view(eye,target,{level:'G'}); await page.evaluate(()=>{House.P.zm=(House.P.zm||1)*Math.tan(House.camera.fov*Math.PI/360)/Math.tan(Math.PI/6);House.dirty();});await page.waitForTimeout(250); };
+      for(const id of ['mom','dad','sister']){
+        const height=await page.evaluate(id=>{
+          window.__hipProbe?.dispose();const rig=window.__hipProbe=NPCRig.create(id,{tier:'high',outfit:id==='dad'?'home':undefined});
+          House.ROOMS.garden.group.add(rig.group);rig.floor=()=>353;rig.teleport(-70,353,-330,0);for(let i=0;i<30;i++)rig.update(1/60,true);House.dirty();return rig.S.hip;
+        },id);
+        for(const [name,a]of (process.env.HIP_SIZES_ONLY ? [] : [['front',0],['right',Math.PI/2],['back',Math.PI],['left',-Math.PI/2]])){
+          await fullView([-70+Math.sin(a)*180,353-90,-330+Math.cos(a)*180],[-70,353-90,-330]);
+          await shot(page,'hips-'+id+'-'+name);
+        }
+        await page.evaluate(()=>{House.P.zm=1;House.dirty();});
+        for(const [name,a]of (process.env.HIP_SIZES_ONLY ? [] : [['front',0],['side',Math.PI/2],['back',Math.PI]])){
+          await view([-70+Math.sin(a)*95,353-height,-330+Math.cos(a)*95],[-70,353-height,-330],{level:'G'});
+          await shot(page,'hips-'+id+'-close-'+name);
+        }
+        for(const [w,h]of [[390,844],[844,390],[768,1024],[1024,768]]){
+          await page.setViewportSize({width:w,height:h});await fullView([-70,353-90,-150],[-70,353-90,-330]);await shot(page,`hips-${id}-${w}x${h}`);
+        }
+        await page.setViewportSize({width:1366,height:860});
+      }
+      await page.evaluate(()=>window.__hipProbe.dispose());
+      assert.deepEqual(errors,[]);
     } finally { await browser.close(); }
   });
 
