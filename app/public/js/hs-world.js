@@ -828,20 +828,19 @@
   // How far in front of you a carried thing sits: small things close, big ones further, so each is a comfortable size.
   function holdDistance(t) { const m = t.local || { hx: t.hx, hz: t.hz, h: t.h }, R = Math.hypot(m.hx, m.hz, m.h / 2); return clamp(Math.max(t.holdD || 0, R * 1.9 + 18), 28, 120); }
   const _up = new T.Vector3(), _rt = new T.Vector3();
-  // ---------------------------------------------------------------- the hold pose (owner, 2026-10-27: "don't hold things like that")
-  // What you carry is drawn like a first-person game holds it: in your hands, low and a little right of centre, tilted
-  // towards you, at a size that suits it (a game box about an eighth of the view's height, a PC tower bigger and lower so
-  // it runs off the bottom of the frame). It is a scaled stand-in about 40 cm from your eyes rather than the full-size
-  // model half a metre away, which used to fill a quarter of the screen. Seen from your eyes the two are the same picture
-  // (a scale about the eye), so putting it down, dropping it or snapping it in starts from exactly what you see.
-  const HOLD = { d: 40, x: 0.035, gap: 0.075, bigGap: 0.12, widthMax: 0.42, pad: 0.012, tiltSign: -1 };
+  // ---------------------------------------------------------------- the hold pose (owner, 2026-10-27/28)
+  // What you carry is the real thing at its real size (owner: "size of things shouldn't change when holding"), held in
+  // your hands low in front of you like a first-person game: its top edge just under the crosshair, tilted towards you,
+  // big things running off the bottom of the frame, your forearms coming up to it from below ("why arms so long?").
+  // How far out depends on its size (36 cm for a mug, up to arm's length for a monitor) and stays fixed while you hold it,
+  // so it never changes size: picking it up, putting it down and inspecting only move it.
+  // low: where a small thing's bottom edge sits (a fraction of the view from the top) when nothing is in the way
+  const HOLD = { near: 36, far: 60, reach: 72, x: 0.02, gap: 0.075, low: 0.86, pad: 0.012, tiltSign: -1 };
   // tipped so you see a little of its top whichever way you look (as if your hands brought it up to show you), but
   // following your view only partly, so looking down at the floor still shows it held, not lying flat
   const holdTilt = () => clamp(24 + P.rx * 0.8, -32, 38);
-  const _hm = new T.Matrix4(), _hmi = new T.Matrix4(), _hp = new T.Vector3(), _ho = new T.Vector3(), _vb = new T.Box3();
+  const _hm = new T.Matrix4(), _hmi = new T.Matrix4(), _hp = new T.Vector3(), _ho = new T.Vector3(), _vv = new T.Vector3(), _vb = new T.Box3();
   function holdSize(t) { const m = t.local || { hx: t.hx, hz: t.hz, h: t.h }; return Math.hypot(m.hx, m.hz, m.h / 2); }
-  // how much of the view's height it should take: small things ~10%, a game box ~11-13%, big things up to a third
-  const holdFrac = R => clamp(0.07 + R * 0.0062, 0.1, 0.34);
   // its own bounding box, in its own space (from the meshes, so a flat game box is flat and a tall tower is tall)
   function localBox(t) {
     if (t._lb && t._lbObj === t.obj) return t._lb;
@@ -863,70 +862,65 @@
     return holdUi = r && r.height ? { top: r.top / vh, l: r.left / vw, r: r.right / vw } : null;
   }
   function heldPos() {
-    const t = THINGS[held.id], R = holdSize(t), now = performance.now();
-    const tanV = Math.tan(camera.fov * D2R / 2), tanH = tanV * camera.aspect, big = holdFrac(R) > 0.2;
-    // (a tall phone's view is mostly height: size it from the width there, or a game box would fill half the screen's width)
-    const s = holdFrac(R) * Math.min(1, vw * 1.25 / vh);
+    const t = THINGS[held.id], now = performance.now();
+    const tanV = Math.tan(camera.fov * D2R / 2), tanH = tanV * camera.aspect;
     // the view, as a matrix (view space: x right, y up, -z ahead), and its inverse
     _hm.makeTranslation(P.x, P.y, P.z).multiply(rot(P.rx, P.ry).transpose()); _hm.premultiply(S).multiply(S); _hmi.copy(_hm).invert();
-    // how big it looks turned the way it is now, per unit of scale, and where its middle is from its origin
+    // how big it looks turned the way it is now, and where its middle is from its origin
     t.obj.updateMatrixWorld(true);
-    const k0 = t.obj.scale.x || 1, lb = localBox(t), e = t.obj.matrixWorld.elements;
+    const lb = localBox(t), e = t.obj.matrixWorld.elements;
     let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9, z0 = 1e9, z1 = -1e9;
     for (const lx of [lb.min.x, lb.max.x]) for (const ly of [lb.min.y, lb.max.y]) for (const lz of [lb.min.z, lb.max.z]) {
       _hp.set(lx, ly, lz).applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi);
       x0 = Math.min(x0, _hp.x); x1 = Math.max(x1, _hp.x); y0 = Math.min(y0, _hp.y); y1 = Math.max(y1, _hp.y); z0 = Math.min(z0, _hp.z); z1 = Math.max(z1, _hp.z);
     }
     _ho.set(e[12], e[13], e[14]).applyMatrix4(_hmi);
-    const w = (x1 - x0) / k0, h = (y1 - y0) / k0, ocx = ((x0 + x1) / 2 - _ho.x) / k0, ocy = ((y0 + y1) / 2 - _ho.y) / k0, ocz = ((z0 + z1) / 2 - _ho.z) / k0;
-    let d = HOLD.d;
-    // the size: its larger side (a wide thing counts a little less) is s of the view's height, never wider than ~42% of it
-    const fit = d => Math.min(1, s * 2 * d * tanV / Math.max(1, h, w * 0.75), HOLD.widthMax * 2 * d * tanH / Math.max(1, w));
-    let k = fit(d);
-    const hf = h * k / (2 * d * tanV), wf = w * k / (2 * d * tanH); // its height and width, as fractions of the view
-    // where: low and just right of centre, clear of the crosshair (above it), the carry panel and the ghost; big things
-    // lower, running off the bottom of the frame
-    const panel = carryPanel(now), ghost = ghostRect();
-    const clash = (cx, top) => { const l = cx - wf / 2, r = cx + wf / 2, b = top + hf;
-      return (panel && b > panel.top - HOLD.pad && r > panel.l && l < panel.r) || (ghost && b > ghost.t && top < ghost.b && r > ghost.l && l < ghost.r); };
-    let cx = 0.5 + HOLD.x + wf / 2 * 0.3, top = big ? Math.max(0.5 + HOLD.bigGap, 1 - hf * 0.6) : 0.5 + HOLD.gap;
-    if (clash(cx, top)) {
-      const tries = [];
-      if (ghost) tries.push([cx, Math.min(1 - hf * 0.45, ghost.b + HOLD.pad)]);           // just under the ghost
-      if (panel) { const right = panel.r + HOLD.pad + wf / 2; if (right + wf / 2 < 1.04) { tries.push([right, top]); tries.push([right, Math.max(top, 1 - hf * 0.6)]); if (ghost) tries.push([right, Math.min(1 - hf * 0.45, ghost.b + HOLD.pad)]); } }
-      tries.push([cx, panel ? Math.max(0.5 + HOLD.gap, panel.top - HOLD.pad - hf) : top]);
-      const ok = tries.find(([x, y]) => !clash(x, y)); if (ok) [cx, top] = ok; else if (tries.length) [cx, top] = tries[tries.length - 1];
+    const w = x1 - x0, h = y1 - y0, ocx = (x0 + x1) / 2 - _ho.x, ocy = (y0 + y1) / 2 - _ho.y, ocz = (z0 + z1) / 2 - _ho.z;
+    // (the carry panel only matters where it is under the middle of the view: on a desktop it sits in the corner)
+    const panel = carryPanel(now), ghost = ghostRect(), mid = panel && panel.l < 0.62 && panel.r > 0.38, low = Math.min(HOLD.low, mid ? panel.top - HOLD.pad : 1), top0 = 0.5 + HOLD.gap;
+    // how far out you hold it: chosen once per grip from its size (and the view), so it never changes size in your hands.
+    // A small thing comes in close (36 cm) and sits between the crosshair and the carry panel; a big one goes out towards
+    // arm's length (60 cm) and runs off the bottom; nothing is wider than ~85% of the view (a phone held upright).
+    const key = vw + 'x' + vh;
+    if (!held.vd || held.vdKey !== key) {
+      const sz = lb.getSize(_vv), hp = Math.max(sz.y, 0.6 * Math.max(sz.x, sz.z)), wp = Math.max(sz.x, sz.z);
+      held.vd = Math.min(HOLD.reach, Math.max(clamp(hp / (2 * tanV * Math.max(0.16, low - top0)), HOLD.near, HOLD.far), wp / (2 * tanH * 0.85)));
+      held.vdKey = key;
     }
+    const d = held.vd, hf = h / (2 * d * tanV), wf = w / (2 * d * tanH); // its height and width, as fractions of the view
+    // where: just right of centre, its top just under the crosshair; a small thing low, just above the carry panel (so
+    // your forearms run down behind it). It ducks under the ghost if the ghost is in the way (keeping 45% in view).
+    let cx = 0.5 + HOLD.x, top = Math.max(top0, low - hf);
+    if (ghost && top + hf > ghost.t && top < ghost.b && cx + wf / 2 > ghost.l && cx - wf / 2 < ghost.r) top = Math.max(top, Math.min(1 - hf * 0.45, ghost.b + HOLD.pad));
     // tipping it to pour (the watering can): bring it up and in, the spout just under the crosshair, so you see the stream
     const pourK = clamp(Math.abs(t.holdRoll || 0) / 30, 0, 1);
     if (pourK) { held.pour = Math.max(held.pour || 0, pourK); }
-    if (held.pour) { const e = held.pour; cx += (0.5 - wf * 0.05 - cx) * e; top += (0.5 + 0.02 - top) * e; if (!pourK) held.pour = Math.max(0, held.pour - 0.04); }
-    // a wall right in front: hold it nearer (same size on screen)
-    const wall = pick(cx * vw, (top + hf / 2) * vh, { skip: m2 => m2.userData.spot === held.id || isThingMesh(m2), far: d + 8 });
-    if (wall && wall.dist < d + 8) { d = Math.max(camera.near + 6, wall.dist - 8); k = fit(d); }
+    if (held.pour) { const p = held.pour; cx += (0.5 - wf * 0.05 - cx) * p; top += (0.5 + 0.02 - top) * p; if (!pourK) held.pour = Math.max(0, held.pour - 0.04); }
     // your turning and steps: it trails a few degrees behind a fast turn and rides your stride
     const lagX = held.lry == null ? 0 : angd(held.lry, P.ry) * D2R, lagY = held.lrx == null ? 0 : (P.rx - held.lrx) * D2R;
     const walk = Math.min(1, Math.hypot(W.vx, W.vz) / 140), ph = (W.bobT || 0) * Math.PI;
-    const yc = top + (h * k / (2 * d * tanV)) / 2;
+    const yc = top + hf / 2;
     const vx = ((2 * cx - 1) * tanH - lagX * 0.9 + Math.sin(ph) * 0.006 * walk) * d, vy = ((1 - 2 * yc) * tanV - lagY * 0.9 - Math.abs(Math.cos(ph)) * 0.012 * walk) * d;
     // its origin, so that its middle sits there, back to the y-down world
-    _hp.set(vx - ocx * k, vy - ocy * k, -d - ocz * k).applyMatrix4(_hm);
-    held.box = { ocx, ocy, ocz, w, h, U: 2 * d * tanV * Math.min(1, vw * 1.25 / vh) };
-    return { x: _hp.x, y: -_hp.y, z: _hp.z, k, d };
+    _hp.set(vx - ocx, vy - ocy, -d - ocz).applyMatrix4(_hm);
+    held.box = { ocx, ocy, ocz, w, h };
+    return { x: _hp.x, y: -_hp.y, z: _hp.z, k: 1, d };
   }
   // ---------------------------------------------------------------- your hands, while you carry something
-  // Two plain 1999 mitts in jumper sleeves come up from the bottom of the view and hold it by its sides, thumbs on the
-  // front: that is what makes a small thing read as carried rather than lying in the room. They are drawn with it, in
-  // front of everything, sized to it (never bigger than a fifteenth of the view) and they ride its lag and bob.
-  const ARM = { skin: '#e7b28c', sleeve: '#34476f', cuff: '#45598a' };
+  // Two plain 1999 mitts hold it by its sides (palms on the sides, thumbs across the front, fingers behind it, like
+  // holding a Game Lad), and your forearms come up to them from just below the screen with the elbows bent in at your
+  // sides (no upper arm, no long reach): only a short tapered jumper sleeve and its cuff show. Real-hand sized, like the
+  // thing they hold; they ride its lag and bob. That is what makes a thing read as carried, not lying in the room.
+  const ARM = { skin: '#e7b28c', sleeve: '#34476f', cuff: '#45598a', hand: 12.5 }; // (hand: palm + fingers, cm)
   let arms = null; const _aw = new T.Vector3(), _aa = new T.Vector3(), _ad = new T.Vector3(), _ay = new T.Vector3(0, 1, 0);
   function armsMesh() {
     if (arms) return arms;
     const g = new T.Group(); g.matrixAutoUpdate = false; g.userData.noPick = true; g.visible = false;
     const skin = K.mat({ c: ARM.skin, sh: 12 }), sleeve = K.mat({ c: ARM.sleeve, sh: 4 }), cuff = K.mat({ c: ARM.cuff, sh: 4 });
-    const box = K.roundBox(1, 1, 1, 0.28, 2), tube = new T.CylinderGeometry(1, 1.5, 1, 12, 1, true), cap = new T.CylinderGeometry(1, 1, 1, 12, 1);
-    const part = (geo, m) => { const o = new T.Mesh(geo, m); o.userData.noPick = true; o.matrixAutoUpdate = true; o.layers.set(1); o.renderOrder = 7; g.add(o); return o; };
-    g.userData.sides = [-1, 1].map(sd => ({ sd, palm: part(box, skin), fingers: part(box, skin), thumb: part(box, skin), sleeve: part(tube, sleeve), cuff: part(cap, cuff) }));
+    // (the sleeve: a tube narrow at the wrist (top) and wider at the elbow; the cuff a short ribbed band)
+    const box = K.roundBox(1, 1, 1, 0.3, 2), tube = new T.CylinderGeometry(1, 1.35, 1, 14, 1, false), cap = new T.CylinderGeometry(1, 1, 1, 14, 1), wrist = new T.CylinderGeometry(1, 1, 1, 12, 1);
+    const part = (geo, m) => { const o = new T.Mesh(geo, m); o.userData.noPick = true; o.userData.hand = true; o.matrixAutoUpdate = true; o.layers.set(1); o.renderOrder = 7; g.add(o); return o; };
+    g.userData.sides = [-1, 1].map(sd => ({ sd, palm: part(box, skin), fingers: part(box, skin), thumb: part(box, skin), wrist: part(wrist, skin), sleeve: part(tube, sleeve), cuff: part(cap, cuff) }));
     root.add(g); return arms = g;
   }
   function hideArms() { if (arms && arms.visible) { arms.visible = false; dirty(); } }
@@ -935,33 +929,43 @@
     const g = armsMesh(), k = t.obj.scale.x || 1, o = t.obj.position;
     // the thing's middle and half-size, in view space (x right, y up, -z ahead), where it actually is this frame
     _aw.set(o.x, -o.y, o.z).applyMatrix4(_hmi); const cx = _aw.x + b.ocx * k, cy = _aw.y + b.ocy * k, cz = _aw.z + b.ocz * k;
-    const hw = b.w * k / 2, hh = b.h * k / 2, U = b.U;
-    const pl = clamp(Math.max(hh, hw) * 0.62, U * 0.045, U * 0.07), pw = pl * 0.62, pt = pl * 0.3, tanV = Math.tan(camera.fov * D2R / 2), tanH = tanV * camera.aspect;
+    const hh = b.h * k / 2, tanV = Math.tan(camera.fov * D2R / 2);
+    // the hand: a real hand's size, like the thing it holds
+    const L = ARM.hand, pl = L * 0.62, pw = L * 0.52, pt = L * 0.24;
     g.matrix.copy(S).multiply(_hm); g.matrixWorldNeedsUpdate = true; g.visible = true;
     // its outermost corners left and right, as it is turned now: each hand takes the one on its side
-    t.obj.updateMatrixWorld(true); const lb = localBox(t), ex = [null, null];
+    t.obj.updateMatrixWorld(true); const lb = localBox(t), ex = [null, null]; let zf = -1e9, zb = 1e9; // (its front and back, in view depth)
     for (const lx of [lb.min.x, lb.max.x]) for (const ly of [lb.min.y, lb.max.y]) for (const lz of [lb.min.z, lb.max.z]) {
-      _aw.set(lx, ly, lz).applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi);
+      _aw.set(lx, ly, lz).applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi); zf = Math.max(zf, _aw.z); zb = Math.min(zb, _aw.z);
       if (!ex[0] || _aw.x < ex[0].x - 1e-6 || Math.abs(_aw.x - ex[0].x) < 1e-6 && _aw.z > ex[0].z) ex[0] = _aw.clone();
       if (!ex[1] || _aw.x > ex[1].x + 1e-6 || Math.abs(_aw.x - ex[1].x) < 1e-6 && _aw.z > ex[1].z) ex[1] = _aw.clone();
     }
     for (const a of g.userData.sides) {
       const sd = a.sd, inn = -sd, c = ex[sd < 0 ? 0 : 1]; // (inward: towards the thing)
-      // gripping that corner from the side, a little in from it, below its middle and in front of it, leaning in
-      const px = c.x + (cx - c.x) * 0.16, py = Math.min(cy - hh * 0.15, Math.max(cy - hh * 0.6, c.y)) - pl * 0.05, pz = Math.max(c.z, cz) + pt * 0.5, lean = inn * 0.2;
-      const put = (m, lx, ly, lz, sx, sy, sz, rz = 0, rx = 0) => {
-        const c = Math.cos(lean), sn = Math.sin(lean); // (the lean turns the hand's own frame about the view's z)
-        m.position.set(px + lx * c - ly * sn, py + lx * sn + ly * c, pz + lz); m.rotation.set(rx, 0, lean + rz); m.scale.set(sx, sy, sz);
+      // the palm flat against its side at that corner, on its lower half, a little in front of its middle; never lower
+      // than 88% down the view (so a big box that runs off the bottom is still visibly held)
+      const pz = Math.min(zf, (zf + zb) / 2 + pw * 0.25), minY = -0.76 * tanV * -pz;
+      const px = c.x + sd * pt * 0.42, py = Math.min(cy + hh * 0.2, Math.max(minY, Math.min(cy - hh * 0.12, Math.max(cy - hh * 0.55, c.y + pl * 0.3)))), lean = inn * 0.12;
+      const put = (m, lx, ly, lz, sx, sy, sz, rz = 0, rx = 0, ry = 0) => {
+        const co = Math.cos(lean), sn = Math.sin(lean); // (the lean turns the hand's own frame about the view's z)
+        m.position.set(px + lx * co - ly * sn, py + lx * sn + ly * co, pz + lz); m.rotation.set(rx, ry, lean + rz); m.scale.set(sx, sy, sz);
       };
       put(a.palm, 0, 0, 0, pt, pl, pw);
-      put(a.fingers, inn * pt * 0.55, pl * 0.62, -pw * 0.08, pt * 0.95, pl * 0.5, pw * 0.92, -inn * 0.35);
-      put(a.thumb, inn * pt * 0.6, pl * 0.1, pw * 0.55, pt * 0.8, pl * 0.5, pt * 0.95, -inn * 0.5, -0.25);
-      // the wrist, and the sleeve back to somewhere off the bottom of the view, nearer you
-      const wx = px - Math.sin(lean) * -pl * 0.5, wy = py + Math.cos(lean) * -pl * 0.5;
-      const za = cz * 0.42, ax = cx * 0.42 + sd * (tanH * -za * 0.24 + hw * 0.25), ay = -tanV * -za * 1.25;
-      _aa.set(ax, ay, za); _aw.set(wx, wy, pz); _ad.subVectors(_aw, _aa); const len = _ad.length(), r = pw * 0.66;
-      a.sleeve.position.addVectors(_aa, _aw).multiplyScalar(0.5); a.sleeve.quaternion.setFromUnitVectors(_ay, _ad.normalize()); a.sleeve.scale.set(r, len, r);
-      a.cuff.position.copy(_aw).addScaledVector(_ad, -pl * 0.12); a.cuff.quaternion.copy(a.sleeve.quaternion); a.cuff.scale.set(r * 1.12, pl * 0.3, r * 1.12);
+      // fingers: round the far side, behind it (mostly hidden); the thumb lies across its front, pointing in and a bit up
+      put(a.fingers, inn * pt * 0.9, pl * 0.18, -(pz - zb) - pt * 0.3, pt * 2.2, pl * 0.62, pt * 0.9);
+      const tl = pl * 0.62, tw = pt * 0.95, tzf = zf - pz + tw * 0.55;
+      put(a.thumb, inn * (pt * 0.3 + tl * 0.42), pl * 0.22, tzf, tl, tw, tw, inn * 0.45);
+      // the wrist, then the forearm: down and back towards you to an elbow just below the bottom of the view, tucked in
+      // close (forearms only; the elbow is off screen, so there is never an upper arm or a long straight reach)
+      const wx = px + Math.sin(lean) * pl * 0.5, wy = py - Math.cos(lean) * pl * 0.5;
+      const ez = pz * 0.52, ex2 = (wx / -pz) * -ez + sd * L * 0.28, ey = -tanV * -ez * 1.08 - L * 0.2;
+      _aa.set(ex2, ey, ez); _aw.set(wx, wy, pz); _ad.subVectors(_aw, _aa); const len = _ad.length(); _ad.normalize();
+      const r = pw * 0.46, q = a.sleeve.quaternion.setFromUnitVectors(_ay, _ad);
+      // a bit of wrist, then the sleeve from just below it, its cuff at the wrist end
+      a.wrist.position.copy(_aw).addScaledVector(_ad, -L * 0.06); a.wrist.quaternion.copy(q); a.wrist.scale.set(r * 0.86, L * 0.2, r * 0.86);
+      const s0 = L * 0.16, sl = Math.max(L * 0.3, len - s0); // (from s0 below the wrist all the way to the elbow)
+      a.sleeve.position.copy(_aw).addScaledVector(_ad, -(s0 + sl / 2)); a.sleeve.scale.set(r * 1.05, sl, r * 1.05);
+      a.cuff.position.copy(_aw).addScaledVector(_ad, -(s0 + L * 0.06)); a.cuff.quaternion.copy(q); a.cuff.scale.set(r * 1.18, L * 0.14, r * 1.18);
     }
   }
   // where the ghost (where it will land) is on screen, as fractions of the view
