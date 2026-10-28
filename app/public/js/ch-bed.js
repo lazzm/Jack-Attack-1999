@@ -512,10 +512,11 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
         const docked=CK.has('bed','pillow')||v.pillowDocked;
         if(docked){pillowT.home={room:'bedroom',x:190,y:37,z:-33,ry:0};CK.lock('ch.pillow');if(Math.abs(pillowT.at.x-190)>.1||pillowT.at.y!==37)CK.home('ch.pillow');}
         else CK.lock('ch.pillow',false);
+        if(pillowT.fixed!==docked){pillowT.fixed=docked;H.physics.sync(pillowT.id);}
         if(!making?.gesture)pillowT.obj.scale.set(1,1,1);
       }
       if (pjsT) {
-        const folded=CK.has('bed','pjs');loosePjs.visible=!folded;foldedPjs.visible=folded;
+        const folded=CK.has('bed','pjs');loosePjs.visible=!folded;foldedPjs.visible=folded;pjsT.fixed=folded;
         if(folded){const y=CK.has('bed','pillow')||v.pillowDocked?26:37;pjsT.home={room:'bedroom',x:190,y,z:-33,ry:0};CK.lock('ch.pjs');if(pjsT.at.hide||pjsT.at.x!==190||pjsT.at.y!==y)CK.home('ch.pjs');}
         else CK.lock('ch.pjs',false);
         // Folding changes the real support footprint as well as the visible mesh.
