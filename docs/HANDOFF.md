@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.11: R104 doorway/dialogue hotfix plus R100/R101/R105 carry, bin and shelf-slot fixes (R83 edge labels too).
+- Live = 2.57.12: doorway/dialogue and carry/bin/slot fixes, rounded hips, person-person clearance, corrected family wrists and rebuilt first-person grips.
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
   -> `./deploy.sh` -> `curl -s https://jacklm.com/ | grep -o "v=2\.[0-9.]*-[0-9]*"` -> git commit (attribution) + `git push origin main`.
@@ -20,7 +20,7 @@ never anything that looks cursed.
 |---|---|---|---|
 | /opt/stacks/landing-loopfix | people-loopfix | shipped 2.57.10 | R104 complete. Focused gate 7/7, smoke 12/12, mobile 7/7; doorway/entrance regressions and desktop/phone/tablet screenshot review passed. Next: carry-arms. |
 | /opt/stacks/landing-arms | carry-arms | shipped 2.57.11 | R100/R101/R105 complete; R83 edge-label fix and touch carry polish included. Next: people-hips. |
-| /opt/stacks/landing-hips | people-hips | WIP | R102 everyone's hips: no waistband ledge/crotch wedge, rounded pelvis, hem drapes over hips; R99 people overlapping. |
+| /opt/stacks/landing-hips | people-hips | shipped 2.57.12 | R97/R99/R102 complete; R109 first-person grip rebuild and R110 wrist-side fix included. Next: house-round2 camera as its own small release. |
 | /opt/stacks/landing-house2 | house-round2 | 3 commits (camera 60 deg FOV + 143 cm eye) + WIP | finish + ship camera first; then R103 front door space (car further along the drive), lounge space (R90), village never ends (R88), hedge/piers/car (R86), docs/SCALE-REVIEW.md rows. |
 | /opt/stacks/landing-mobile3 | mobile-3 | 3 commits + WIP | R98 research-led mobile controls polish (docs/MOBILE-CONTROLS.md); mobile.mjs "Finger label on Mom" needs updating for personal space. |
 | /opt/stacks/landing-props | props-pass | 4 commits + WIP | shape-hugging target glows, clothes/rubbish models, crisp packet, pentagon/hexagon football, cat + cat tree (R40/R68/R74/R77/R81). |
@@ -57,3 +57,10 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - Mobile `/tmp/jhp-arms-mobile-final.log` 7/7; after touch polish `/tmp/jhp-arms-mobile-polish.log` 4/4. Focused regression `/tmp/jhp-arms-focused-v9.log` green: unchanged real model/scale, actual grip retained in every touch orientation, shallow eligible glows, rapid item switch, moved-bin refresh and tied-bag return/refresh (bin stays at its exact position, correct render layer).
 - Final captures reviewed in `tests/shots/carry-arms/`, `tests/shots/physics/`, `tests/shots/mobile/`, `tests/shots/smoke/`. Early rotation captures without a held object were replaced by assertions and real thumb-drag activation.
 - No server modules changed. Chore visual state adds binBagDocked/binRubbishAtRemoval; no cash, earning, account or shared-world records reset. Physical Edge/Android hardware and gamepads remain unverified. R107 remains for mobile-3; R108 remains pending a safe populated-state fixture and owner approval before any furniture repair.
+
+## People and hand release evidence (2.57.12)
+- Main has the people-hips merge (`cb8d38c`). R99 and R102 are complete. Three routine-day sweeps plus kitchen/hall crossings passed (`/tmp/jhp-hips-space-v14.log`): no standing-body overlap, wall/shut-door crossing or long doorway wait. Longest movement wait 0.8 s.
+- Geometry: rounded covered waists, corrected left/right wrist targets (R110). Every Low/Potato outfit, near/far, includes its six shadow triangles in the strict 3,000 limit; maximum 2,998 (`/tmp/jhp-hips-budget-final.log`). Family adds six draw calls / 8,366 triangles. Static gallery reviewed in landing-hips/tests/shots/characters; walking/seated and job captures in main's tests/shots/characters. Latest fresh-conversation animation + seated own-side hand assertion passed (`/tmp/jhp-hips-arms-final.log`, 2/2).
+- Gates: units/parody `/tmp/gate-Clwo` green. `/tmp/gate-bFn7` owner tools, identity and smoke green (12/12); its Chapter 1 hit a fresh-page 30-second timeout. `/tmp/gate-26OV` Halloween green; Chapter 1 caught the phone profile-import reload racing a bare assertion. Both fixture races corrected; final Chapter 1 `/tmp/gate-IwF3` green. Mobile six scenarios passed in `/tmp/jhp-hips-mobile.log`; its early mid-walk sample raced navigation. The revised test measures the actual pagehide position within 2 cm and passed in `/tmp/jhp-hips-mobile-story.log`.
+- Jack then rejected the shipped first-person claws (R109). Rebuilt rounded grips in hs-world.js, one hand for small items, fingers behind the object, shorter sleeves. Early carry captures were reviewed and refined. Final front-face thumb contact and real-scale carry/bin/slot/refresh checks passed (`/tmp/jhp-hands-carry-final.log`); final captures in tests/shots/carry-arms reviewed. Physics `/tmp/jhp-hands-physics.log` 15/15. Final unit/parody/smoke gate `/tmp/jhp-hands-final-gate.log` green, smoke 12/12. Mobile `/tmp/jhp-hands-mobile-final.log` passed six scenarios; owner menu caught the same profile-import race. Waiting for the real handshake passed owner and account-gate reruns 2/2 (`/tmp/jhp-hands-mobile-owner.log`).
+- Static release; no player-data migration/reset in this release. Physical Edge/Android/gamepads remain unverified. Then house-round2 camera as its own small release before front/living-room geometry.

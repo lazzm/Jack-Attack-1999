@@ -72,6 +72,15 @@ async function phone(profile, { tier = null, hour = 14 } = {}) {
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
   page.on('console', m => { if (['error', 'warning'].includes(m.type()) && !/GPU stall|ReadPixels|GL Driver/.test(m.text())) errors.push(m.type() + ': ' + m.text()); });
   page.setDefaultTimeout(30000 * SCALE);
+  await page.addInitScript(() => {
+    const bind = () => {
+      if (!window.Net?.on) { setTimeout(bind, 0); return; }
+      Net.on('rmSame', () => { window.__testProfileReady = true; });
+      Net.on('rmNone', () => { window.__testProfileReady = true; });
+      Net.on('rmData', () => { window.__testProfileReady = false; });
+    };
+    bind();
+  });
   await page.addInitScript(({ tier, hour }) => {
     if (tier) localStorage.setItem('jhp_hs_gfx', JSON.stringify(tier));
     window.auditHour = hour; Date.prototype.getHours = () => window.auditHour; Date.prototype.getMinutes = () => 0;
@@ -124,7 +133,7 @@ async function logon(p, acct, { signup = false, first = '' } = {}) {
   await page.locator('#accountGate [type=submit]').tap();
   await until(() => window.AccountGate?.allowed || !!document.querySelector('#accountFirst'), null, 60000);
   if (await page.locator('#accountFirst').count()) { if (first) await shot(first + '-identity'); await page.locator('#accountGate [type=submit]').tap(); }
-  await until(() => window.AccountGate?.allowed && window.House?.live && !document.querySelector('.hs-loading,#houseEntry'), null, 120000);
+  await until(() => window.__testProfileReady && window.AccountGate?.allowed && window.House?.live && !document.querySelector('.hs-loading,#houseEntry'), null, 120000);
 }
 // Point the camera with the scene API (like the smoke fixture); every interaction after that is a real finger.
 async function aimAt(p, eye, target, level = 'U') {
@@ -396,13 +405,16 @@ const phases = {
       await page.evaluate(() => document.querySelector('dialog.hs-pause').scrollTop = 9999); await page.waitForTimeout(200); await shot('story-08-pause-bottom');
       await page.evaluate(() => document.querySelector('dialog.hs-pause').scrollTop = 0); await page.waitForTimeout(150);
       await p.press('[data-pause="resume"]'); await until(() => !HousePause.open && !House.paused);
-      // refresh mid-walk: the pose is kept
+      // Keep moving until navigation: compare with the final departing pose, not an earlier
+      // sample taken while the finger is still held (busy renderers can move between those calls).
+      await page.evaluate(() => addEventListener('pagehide', () => sessionStorage.setItem('jhp_mobile_test_departing', JSON.stringify([House.W.x, House.W.z])), {once:true}));
       await fingers.down(1, 90, h - 160); await fingers.move(1, 90, h - 230); await page.waitForTimeout(600);
       const mid = await page.evaluate(() => { House.saveWalkState(); return [House.W.x, House.W.z]; });
       await page.reload({ waitUntil: 'domcontentloaded' }); fingers.up(1).catch(() => {});
       await until(() => window.AccountGate?.allowed && window.House?.live && !document.querySelector('.hs-loading,#houseEntry') && House.mode === 'walk', null, 120000);
-      const after = await page.evaluate(() => [House.W.x, House.W.z]);
-      assert(Math.hypot(after[0] - mid[0], after[1] - mid[1]) < 40, 'Refresh mid-walk lost the pose: ' + JSON.stringify([mid, after]));
+      const {after,departing} = await page.evaluate(() => ({after:[House.W.x,House.W.z],departing:JSON.parse(sessionStorage.getItem('jhp_mobile_test_departing')||'null')}));
+      assert(departing, 'No pagehide pose was recorded');
+      assert(Math.hypot(after[0] - departing[0], after[1] - departing[1]) < 2, 'Refresh mid-walk lost the final pose: ' + JSON.stringify({mid,departing,after}));
       await page.waitForTimeout(1200); await shot('story-09-after-refresh'); await notBlack(p, 'after refresh');
       // rotate: landscape and back, never black
       await page.setViewportSize({ width: 844, height: 390 }); await page.waitForTimeout(1200);

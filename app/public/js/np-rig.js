@@ -865,7 +865,7 @@
         G.add(shell(sk, -179.5, 179.5, L.torso, 0.7, 0), (x, y, z, nx, ny, nz) => (y < S.knee + 6 && ny < -0.5 ? C('#26354a') : C('#34465e')), (x, y) => [['hips', 1]]); // (a thick shell: solid from inside too)
         const nr = 0.31 * S.head.r[0], ys = S.neck - 1.5, red = C('#c23a3a'), cream = C('#efe6d2');
         const stripes = (x, y) => (Math.floor(y / 2.2) % 2 ? red : cream);
-        G.add(loft([[ys - 2, 0, -0.8, nr + 4, nr + 3.4], [ys + 1.5, 0, -0.9, nr + 3.4, nr + 2.8], [ys + 4, 0, -1, nr + 2.2, nr + 1.8]], L.limb + (S.lod > 0 ? 3 : 4), { bottom: false, top: false }), stripes, (x, y) => [['chest', 0.7], ['neck', 0.3]]);
+        G.add(loft([[ys - 2, 0, -0.8, nr + 4, nr + 3.4], [ys + 1.5, 0, -0.9, nr + 3.4, nr + 2.8], [ys + 4, 0, -1, nr + 2.2, nr + 1.8]], L.limb + (S.lod > 0 ? 1 : 4), { bottom: false, top: false }), stripes, (x, y) => [['chest', 0.7], ['neck', 0.3]]);
         const ez = surf(torso, ys - 10, 22, 0.8);
         G.add(rbox([ez[0], ys - 9, ez[2]], [4.4, 18, 1.2], 0.5, [-6, 22, 4], 1), (x, y) => (Math.floor(y / 2.2) % 2 ? red : cream), 'chest');
       },
@@ -1147,28 +1147,29 @@
     }
     // the actions: ACT[name](t, H) with H = the hips' height now (stood or sat). Arms are FK arrays or
     // { ik: wrist target, pole: where the elbow goes, hand: wrist rotation }. Everything in rig space.
-    const lap = H => ({ L: { ik: [-9.5, H + 9, 21], pole: [0.9, -0.3, -0.6], hand: [-70, 0, -8] }, R: { ik: [9.5, H + 9, 21], pole: [-0.9, -0.3, -0.6], hand: [-70, 0, 8] } });
+    // The skeleton has positive X on the left: hands stay on their own side.
+    const lap = H => ({ L: { ik: [9.5, H + 9, 21], pole: [0.9, -0.3, -0.6], hand: [-70, 0, -8] }, R: { ik: [-9.5, H + 9, 21], pole: [-0.9, -0.3, -0.6], hand: [-70, 0, 8] } });
     const table = H => (st.seat && st.seat.table) || H + 22;
     const mouthAt = H => S.mouthY - (S.hip + 2 - H);
     const ACT = {
-      washup: (t, H) => ({ arms: { L: { ik: [-7 + Math.sin(t * 1.1) * 1.5, H + 2, 34], pole: [0.6, -0.4, -1], hand: [-30, 0, -20] }, R: { ik: [7 + Math.cos(t * 5) * 2.6, H + 2.5 + Math.sin(t * 5) * 1.6, 35 + Math.sin(t * 5) * 2], pole: [-0.6, -0.4, -1], hand: [-30, 0, 20] } }, lean: 9, lookR: [0, H + 2, 42], props: { sponge: 1 } }),
-      cook: (t, H) => ({ arms: { L: { ik: [-17, H + 7, 27], pole: [0.8, -0.3, -1], hand: [-70, 0, 0] }, R: { ik: [7 + Math.cos(t * 3.4) * 3.2, H + 15, 33 + Math.sin(t * 3.4) * 3.2], pole: [-0.7, -0.4, -1], hand: [-10, 0, 0] } }, lean: 6, lookR: [5, H + 6, 40], props: { spoon: 1 } }),
-      wipe: (t, H) => ({ arms: { L: { ik: [-15, H - 9, 31], pole: [0.8, -0.2, -1], hand: [-75, 0, 0] }, R: { ik: [9 + Math.cos(t * 2.6) * 9, H - 9.5, 37 + Math.sin(t * 2.6) * 6], pole: [-0.7, -0.3, -1], hand: [-80, 0, 0] } }, lean: 22, lookR: [6, H - 14, 40], props: { sponge: 1 } }),
-      water: (t, H) => ({ arms: { L: [6, 8, 0, 25, 0], R: { ik: [12, H + 2 + Math.sin(t * 0.8) * 2, 30], pole: [-0.7, -0.5, -1], hand: [20 + Math.sin(t * 0.8) * 12, 0, 0] } }, lean: 6, lookR: [10, 0, 90], props: { can: 1 } }),
-      phone: (t, H) => ({ arms: { R: { ik: [9, S.neck + 7 - (S.hip + 2 - H), 3], pole: [-0.2, -1, -0.5], hand: [-15, 75, 0] }, L: talkArm(t, 'L', 0.6) }, lean: 0, props: { phone: 1 } }),
-      paper: (t, H) => ({ arms: { L: { ik: [-15, H + 24 + Math.sin(t * 0.4) * 0.6, 31], pole: [0.8, -0.6, -0.8], hand: [-60, -40, -10] }, R: { ik: [15, H + 24 + Math.sin(t * 0.4) * 0.6, 31], pole: [-0.8, -0.6, -0.8], hand: [-60, 40, 10] } }, lean: -4, lookR: [0, H + 30, 40], props: { paper: 1 } }),
-      magazine: (t, H) => ({ arms: { L: { ik: [-9, H + 18, 27], pole: [0.8, -0.6, -0.8], hand: [-60, -30, 0] }, R: { ik: [8, H + 14, 25], pole: [-0.8, -0.6, -0.8], hand: [-40, 20, 0] } }, lean: -2, lookR: [-4, H + 22, 34], props: { mag: 1 } }),
+      washup: (t, H) => ({ arms: { L: { ik: [7 - Math.sin(t * 1.1) * 1.5, H + 2, 34], pole: [0.6, -0.4, -1], hand: [-30, 0, -20] }, R: { ik: [-7 - Math.cos(t * 5) * 2.6, H + 2.5 + Math.sin(t * 5) * 1.6, 35 + Math.sin(t * 5) * 2], pole: [-0.6, -0.4, -1], hand: [-30, 0, 20] } }, lean: 9, lookR: [0, H + 2, 42], props: { sponge: 1 } }),
+      cook: (t, H) => ({ arms: { L: { ik: [17, H + 7, 27], pole: [0.8, -0.3, -1], hand: [-70, 0, 0] }, R: { ik: [-7 - Math.cos(t * 3.4) * 3.2, H + 15, 33 + Math.sin(t * 3.4) * 3.2], pole: [-0.7, -0.4, -1], hand: [-10, 0, 0] } }, lean: 6, lookR: [-5, H + 6, 40], props: { spoon: 1 } }),
+      wipe: (t, H) => ({ arms: { L: { ik: [15, H - 9, 31], pole: [0.8, -0.2, -1], hand: [-75, 0, 0] }, R: { ik: [-9 - Math.cos(t * 2.6) * 9, H - 9.5, 37 + Math.sin(t * 2.6) * 6], pole: [-0.7, -0.3, -1], hand: [-80, 0, 0] } }, lean: 22, lookR: [-6, H - 14, 40], props: { sponge: 1 } }),
+      water: (t, H) => ({ arms: { L: [6, 8, 0, 25, 0], R: { ik: [-12, H + 2 + Math.sin(t * 0.8) * 2, 30], pole: [-0.7, -0.5, -1], hand: [20 + Math.sin(t * 0.8) * 12, 0, 0] } }, lean: 6, lookR: [-10, 0, 90], props: { can: 1 } }),
+      phone: (t, H) => ({ arms: { R: { ik: [-9, S.neck + 7 - (S.hip + 2 - H), 3], pole: [-0.2, -1, -0.5], hand: [-15, 75, 0] }, L: talkArm(t, 'L', 0.6) }, lean: 0, props: { phone: 1 } }),
+      paper: (t, H) => ({ arms: { L: { ik: [15, H + 24 + Math.sin(t * 0.4) * 0.6, 31], pole: [0.8, -0.6, -0.8], hand: [-60, -40, -10] }, R: { ik: [-15, H + 24 + Math.sin(t * 0.4) * 0.6, 31], pole: [-0.8, -0.6, -0.8], hand: [-60, 40, 10] } }, lean: -4, lookR: [0, H + 30, 40], props: { paper: 1 } }),
+      magazine: (t, H) => ({ arms: { L: { ik: [9, H + 18, 27], pole: [0.8, -0.6, -0.8], hand: [-60, -30, 0] }, R: { ik: [-8, H + 14, 25], pole: [-0.8, -0.6, -0.8], hand: [-40, 20, 0] } }, lean: -2, lookR: [4, H + 22, 34], props: { mag: 1 } }),
       telly: (t, H) => ({ arms: lap(H), lean: -6, props: {} }),
-      remote: (t, H) => ({ arms: { L: lap(H).L, R: { ik: [10, H + 14, 28], pole: [-0.9, -0.5, -0.6], hand: [-30, 0, 0] } }, lean: -8, props: { remote: 1 } }),
-      tea: (t, H) => { const ph = t % 9, sip = ph < 2.4, s = smooth(Math.min(1, ph < 1.2 ? ph / 0.7 : (2.4 - ph) / 0.7)), tb = table(H); return { arms: { L: { ik: [-12, tb + 3, 27], pole: [0.9, -0.3, -0.7], hand: [-75, 0, 0] }, R: { ik: sip ? [lerp(11, 3, s), lerp(tb + 6, mouthAt(H) - 3, s), lerp(28, 12, s)] : [11, tb + 6, 28], pole: [-0.9, -0.5, -0.3], hand: [-20, 0, 0] } }, lean: 3, props: { mug: 1 } }; },
-      draw: (t, H) => { const tb = table(H); return { arms: { L: { ik: [-9, tb + 3, 26], pole: [0.9, -0.4, -0.6], hand: [-80, 0, 0] }, R: { ik: [5 + Math.sin(t * 6) * 1.6, tb + 3.6 + Math.abs(Math.sin(t * 3)) * 0.5, 27 + Math.cos(t * 4.3) * 1.6], pole: [-0.9, -0.4, -0.6], hand: [-70, 0, 0] } }, lean: 16, lookR: [2, tb, 28], props: { crayon: 1, pad: 1 } }; },
-      yoyo: (t, H) => { const ph = (t * 0.9) % 1, d = ph < 0.5 ? smooth(ph * 2) : 1 - smooth((ph - 0.5) * 2); return { arms: { L: [4, 6, 0, 14, 0], R: [42 + d * 6, 10, 0, 70 - d * 25, -10 + d * 30] }, yoyo: d, lean: 0, lookR: [8, H - 4, 30], props: { string: 1 } }; },
-      carwash: (t, H) => ({ arms: { L: { ik: [-12, H + 16, 32], pole: [0.8, -0.3, -1], hand: [-80, 0, 0] }, R: { ik: [12 + Math.cos(t * 2.4) * 8, H + 12 + Math.sin(t * 2.4) * 6, 38], pole: [-0.8, -0.3, -1], hand: [-80, 0, 0] } }, lean: 14, lookR: [10, H + 10, 50], props: { sponge: 1 } }),
+      remote: (t, H) => ({ arms: { L: lap(H).L, R: { ik: [-10, H + 14, 28], pole: [-0.9, -0.5, -0.6], hand: [-30, 0, 0] } }, lean: -8, props: { remote: 1 } }),
+      tea: (t, H) => { const ph = t % 9, sip = ph < 2.4, s = smooth(Math.min(1, ph < 1.2 ? ph / 0.7 : (2.4 - ph) / 0.7)), tb = table(H); return { arms: { L: { ik: [12, tb + 3, 27], pole: [0.9, -0.3, -0.7], hand: [-75, 0, 0] }, R: { ik: sip ? [lerp(-11, -3, s), lerp(tb + 6, mouthAt(H) - 3, s), lerp(28, 12, s)] : [-11, tb + 6, 28], pole: [-0.9, -0.5, -0.3], hand: [-20, 0, 0] } }, lean: 3, props: { mug: 1 } }; },
+      draw: (t, H) => { const tb = table(H); return { arms: { L: { ik: [9, tb + 3, 26], pole: [0.9, -0.4, -0.6], hand: [-80, 0, 0] }, R: { ik: [-5 - Math.sin(t * 6) * 1.6, tb + 3.6 + Math.abs(Math.sin(t * 3)) * 0.5, 27 + Math.cos(t * 4.3) * 1.6], pole: [-0.9, -0.4, -0.6], hand: [-70, 0, 0] } }, lean: 16, lookR: [-2, tb, 28], props: { crayon: 1, pad: 1 } }; },
+      yoyo: (t, H) => { const ph = (t * 0.9) % 1, d = ph < 0.5 ? smooth(ph * 2) : 1 - smooth((ph - 0.5) * 2); return { arms: { L: [4, 6, 0, 14, 0], R: [42 + d * 6, 10, 0, 70 - d * 25, -10 + d * 30] }, yoyo: d, lean: 0, lookR: [-8, H - 4, 30], props: { string: 1 } }; },
+      carwash: (t, H) => ({ arms: { L: { ik: [12, H + 16, 32], pole: [0.8, -0.3, -1], hand: [-80, 0, 0] }, R: { ik: [-12 - Math.cos(t * 2.4) * 8, H + 12 + Math.sin(t * 2.4) * 6, 38], pole: [-0.8, -0.3, -1], hand: [-80, 0, 0] } }, lean: 14, lookR: [-10, H + 10, 50], props: { sponge: 1 } }),
       sit: (t, H) => ({ arms: lap(H), lean: -3, props: {} }),
       doze: (t, H) => ({ arms: lap(H), lean: -8, props: {}, doze: 1 }),
-      mug: (t, H) => { const ph = (t + st.talkSeed * 3) % 11, sip = ph < 2.4, s = smooth(Math.min(1, ph < 1.2 ? ph / 0.7 : (2.4 - ph) / 0.7)); return { arms: { L: [6, 7, 0, 22, 0], R: { ik: sip ? [lerp(9, 3, s), lerp(H + 20, mouthAt(H) - 3, s), lerp(22, 12, s)] : [9, H + 20, 22], pole: [-0.9, -0.6, -0.3], hand: [-15, 0, 0] } }, lean: 0, props: { mug: 1 } }; },
-      reach: (t, H) => ({ arms: { R: { ik: [9, H + 13, 40], pole: [-0.8, -0.6, -0.4], hand: [-10, 0, -60] } }, lean: 4, props: {} }),
-      carry: (t, H) => ({ arms: { L: { ik: [-13, H + 13, 24], pole: [0.9, -0.5, -0.5], hand: [-80, 0, 0] }, R: { ik: [13, H + 13, 24], pole: [-0.9, -0.5, -0.5], hand: [-80, 0, 0] } }, lean: -3, props: {} }),
+      mug: (t, H) => { const ph = (t + st.talkSeed * 3) % 11, sip = ph < 2.4, s = smooth(Math.min(1, ph < 1.2 ? ph / 0.7 : (2.4 - ph) / 0.7)); return { arms: { L: [6, 7, 0, 22, 0], R: { ik: sip ? [lerp(-9, -3, s), lerp(H + 20, mouthAt(H) - 3, s), lerp(22, 12, s)] : [-9, H + 20, 22], pole: [-0.9, -0.6, -0.3], hand: [-15, 0, 0] } }, lean: 0, props: { mug: 1 } }; },
+      reach: (t, H) => ({ arms: { R: { ik: [-9, H + 13, 40], pole: [-0.8, -0.6, -0.4], hand: [-10, 0, -60] } }, lean: 4, props: {} }),
+      carry: (t, H) => ({ arms: { L: { ik: [13, H + 13, 24], pole: [0.9, -0.5, -0.5], hand: [-80, 0, 0] }, R: { ik: [-13, H + 13, 24], pole: [-0.9, -0.5, -0.5], hand: [-80, 0, 0] } }, lean: -3, props: {} }),
       trick: (t, H) => ({ arms: { R: [18 + Math.sin(t * 1.3) * 3, 9, 0, 38, 0], L: st.props?.raygun ? [30, 12, 0, 45, -10] : [4, 7, 0, 16, 0] }, lean: 0, props: { pail: 1 } }),
       leave: () => ({ arms: null, props: kind === 'dad' ? { case: 1 } : kind === 'sister' ? { bag: 1 } : {} }),
       torch: (t, H) => ({ arms: { L: { ik: [15, H + 4 + Math.sin(t * 0.7) * 1.2, 20], pole: [0.6, -0.6, -0.6], hand: [-60, 0, 0] }, R: [4, 7, 0, 18, 0] }, lean: 0, props: { torch: 1 } }),

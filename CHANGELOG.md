@@ -1,5 +1,13 @@
 # Jack's Home Page - changelog
 
+## 2.57.12 - 2026-10-28
+- R109: replaced the first-person blocky claws with rounded, joined grips. Small objects use one hand, fingers stay behind the item, the thumb rests on its front, and short sleeves leave more of the room visible. Turned cases use their front face for thumb contact. Objects retain their real model and scale.
+- R97/R102: rounded hips and overlapping, rolled-under hems remove the waistband ledge and extra crotch wedge. R110: corrected left/right wrist and gaze targets so seated hands rest on their own side and job poses no longer cross the arms.
+- R99: people stop before another body, walk around, ask for room or retreat to reachable open space, then resume when the way is clear. No creeping through a standing person or arriving inside somebody. The doorway/dialogue hotfix remains intact.
+- Every outfit on Low/Potato, near and far, stays below 3,000 triangles including contact shadows (maximum 2,998). The family adds six draw calls and 8,366 triangles on Low.
+- Verified: focused syntax/unit/parody gates; Chapter 1, owner tools, identity and Halloween; smoke 12/12; physics 15/15; mobile seven-scenario coverage (six passed together, owner/account-gate rerun 2/2 after waiting for the real profile handshake); three routine-day sweeps and kitchen/hall crossings; eighteen job conversations; walking/seated waist and hand close-ups; real-scale carry/bin/slot/refresh regression. Reviewed desktop 1366x860 and phone/tablet portrait/landscape captures. Tests now compare the final pagehide pose within 2 cm and allow a profile import to finish before pressing controls.
+- No account, wallet, earning-cap or shared-world resets or migrations. Physical Edge/Android hardware and gamepads remain unverified. R107 banner stacking and R108's pre-existing furniture-check startup warning remain open.
+
 ## 2.57.11 - 2026-10-28
 - R100: carry the real object at its real scale, close and low, with short forearms and hands gripping its sides. No shrinking stand-in. Drops keep the real object clear of walls and the player.
 - R101: the bin's bag, liner and note travel with the bin. Contained bags do not fight the bin's physics body; untied bags stay inside, tied bags can be removed and returned, and refresh restores the visible bag without shoving the bin. The tied bag fits inside the shell, and a fresh liner starts empty.

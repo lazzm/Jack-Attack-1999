@@ -4,7 +4,7 @@
 // paying anything herself, bumping into them, stepping aside, refresh keeping everyone in place, planted feet, the draw
 // call cost, and the story's first in-person scene (Mom gives the first jobs). Screenshots: tests/shots/characters/.
 // Starts and stops its own server on a free port with throwaway data, like smoke.mjs.
-//   node characters.mjs [--only=routines,day,talk,bump,refresh,feet,draws,story,entrance,interrupt,loop,space,budget,hips,shots] [--keep]
+//   node characters.mjs [--only=routines,day,talk,bump,refresh,feet,draws,story,entrance,interrupt,loop,space,budget,hips,hip-motion,shots] [--keep]
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {mkdtemp, mkdir, rm} from 'node:fs/promises';
@@ -142,7 +142,7 @@ try {
         F.debug.clock(null);
         return out;
       });
-      console.log(`  day: ${r.ticks} person-ticks, min clearance ${r.min.toFixed(1)} cm, doors opened ${r.opened} / shut ${r.shut}, doorway dwell ${JSON.stringify(r.dwell)}, longest wait ${JSON.stringify(r.stuck)} ${JSON.stringify(r.stuckAt || {})} WHY ${JSON.stringify(r.why || [])} ${JSON.stringify(r.where || {})}`);
+      console.log(`  day: ${r.ticks} simulation ticks, min clearance ${r.min.toFixed(1)} cm, doors opened ${r.opened} / shut ${r.shut}, doorway dwell ${JSON.stringify(r.dwell)}, longest wait ${JSON.stringify(r.stuck)} ${JSON.stringify(r.stuckAt || {})} WHY ${JSON.stringify(r.why || [])} ${JSON.stringify(r.where || {})}`);
       assert.deepEqual(r.overlaps, [], 'Routine bodies overlapped: '+JSON.stringify(r.overlaps));
       assert.deepEqual(r.bad, [], 'Walked into a wall, furniture or a shut door: ' + JSON.stringify(r.bad));
       assert(r.opened >= 3 && r.shut >= 2, 'Doors opened and shut behind them');
@@ -270,7 +270,7 @@ try {
       const without = await measure();
       await page.evaluate(() => HouseFamily.debug.hide(false));
       const extra = withFam.calls - without.calls, tris = withFam.triangles - without.triangles;
-      const perPerson = await page.evaluate(() => Object.fromEntries(Object.entries(HouseFamily.chars).map(([id, c]) => [id, c.rig.tris])));
+      const perPerson = await page.evaluate(() => Object.fromEntries(Object.entries(HouseFamily.chars).map(([id, c]) => [id, c.rig.tris+(c.rig.shadow.geometry.index?.count||c.rig.shadow.geometry.attributes.position.count)/3])));
       console.log('  per-person Low triangles: ' + JSON.stringify(perPerson));
       for (const [id, count] of Object.entries(perPerson)) assert(count <= 3000, id + ' exceeds the Low/Potato 3k triangle budget: ' + count);
       console.log(`  draws: kitchen at tea time ${withFam.calls} calls with the family, ${without.calls} without (+${extra}); +${tris} triangles (low tier)`);
@@ -375,7 +375,8 @@ try {
           return { p, seated: !!c.seated, act: c.rig.st.action };
         }, { id, spot, act });
         await page.waitForTimeout(500);
-        await page.evaluate(id => HouseFamily.talk(id), id);
+        // Test each pose with a fresh line; cooldown/history behavior has its own regressions.
+        await page.evaluate(id => { HouseFamily.chars[id].said = {}; HouseFamily.talk(id); }, id);
         await page.waitForTimeout(2200);
         const m = await page.evaluate(({ id }) => {
           const c = HouseFamily.chars[id], rig = c.rig, W = new THREE.Vector3(), pl = House.W;
@@ -508,7 +509,7 @@ try {
         const out={};
         for(const tier of ['low','potato'])for(const kind of Object.keys(NPCRig.OUTFITS))for(const outfit of NPCRig.OUTFITS[kind]){
           const rig=NPCRig.create(kind,{tier,outfit});
-          for(const near of [true,false]){rig.update(.1,near);out[[tier,kind,outfit,near?'near':'far'].join('.')]=rig.tris;}
+          for(const near of [true,false]){rig.update(.1,near);const g=rig.shadow.geometry;out[[tier,kind,outfit,near?'near':'far'].join('.')]=rig.tris+(g.index?.count||g.attributes.position.count)/3;}
           rig.dispose();
         }
         return out;
@@ -547,6 +548,36 @@ try {
       await page.evaluate(()=>window.__hipProbe.dispose());
       assert.deepEqual(errors,[]);
     } finally { await browser.close(); }
+  });
+
+  // Close clothing checks through the production walk cycle and seated blend.
+  await check('hip-motion', async () => {
+    const {browser,page,view,errors}=await veteran({tier:'high'});
+    try {
+      await page.evaluate(()=>{HouseFamily.debug.hide(true);House.buildRoom(House.ROOMS.garden);});
+      for(const id of ['mom','dad','sister']){
+        await page.evaluate(id=>{
+          window.__hipProbe?.dispose();const r=window.__hipProbe=NPCRig.create(id,{tier:'high',outfit:id==='dad'?'home':undefined});
+          House.ROOMS.garden.group.add(r.group);r.floor=()=>353;r.teleport(-70,353,-330,0);r.update(.1,true);window.__hipFrame=0;
+        },id);
+        for(const phase of [15,30]){
+          const h=await page.evaluate(phase=>{
+            const r=window.__hipProbe;for(;window.__hipFrame<phase;window.__hipFrame++){const z=-330+(window.__hipFrame+1)*r.S.speed/60;r.root(-70,353,z,0,r.S.speed);r.update(1/60,true);}House.dirty();return{y:353-r.S.hip,z:r.st.z};
+          },phase);
+          for(const[name,a]of [['front',0],['side',Math.PI/2]]){
+            await view([-70+Math.sin(a)*110,h.y,h.z+Math.cos(a)*110],[-70,h.y,h.z],{level:'G'});await shot(page,`hips-walk-${id}-${phase}-${name}`);
+          }
+        }
+        const h=await page.evaluate(()=>{
+          const r=window.__hipProbe,q=HouseFamily.debug.spots.sofaL.seat;r.teleport(-70,353,-330,0);r.set({seat:{h:q.h,back:q.back,knee:q.knee,table:q.table}});for(let i=0;i<90;i++)r.update(1/60,true);House.dirty();r.group.updateWorldMatrix(true,true);const hands=['L','R'].map(side=>r.group.worldToLocal(r.bones['hand'+side].getWorldPosition(new THREE.Vector3())).x);return {y:353-q.h-18,hands};
+        });
+        assert(h.hands[0]>0&&h.hands[1]<0,id+' crossed hands over the lap: '+h.hands);
+        for(const[name,a]of [['front',0],['side',Math.PI/2]]){
+          await view([-70+Math.sin(a)*130,h.y,-330+Math.cos(a)*130],[-70,h.y,-330],{level:'G'});await shot(page,`hips-seat-${id}-${name}`);
+        }
+      }
+      await page.evaluate(()=>window.__hipProbe.dispose());assert.deepEqual(errors,[]);
+    }finally{await browser.close();}
   });
 
   // ---------------------------------------------------------------- portraits: idle, walking and talking, several angles

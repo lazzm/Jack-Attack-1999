@@ -110,6 +110,7 @@ The family in the house (starts and stops its own server on a free port, throwaw
     node characters.mjs                 # routines + owner clock, 3 simulated days (walls/doors/doorways), talk/jobs, bump, refresh, feet, draws, story, portraits
     node characters.mjs --only=day,space # three routine days plus kitchen/hall personal-space crossings
     node characters.mjs --only=budget,hips # every outfit on Low/Potato, then four sides, waist close-ups and phone/tablet sizes
+    node characters.mjs --only=hip-motion # stride phases and seated waist/hand close-ups
 
 Portraits and in-house views of Mom, Dad and the sister (idle/walking/talking) go to `shots/characters/`. Checks accept a comma-separated `--only` list. The `hips` gallery uses a fixed 60-degree presentation lens for full figures and the game lens for waist close-ups; it does not change the walking lens. `HIP_SIZES_ONLY=1` repeats just its portrait/landscape captures. `day` also checks standing-person overlap; seated transitions are excluded from the body-circle measurement.
 

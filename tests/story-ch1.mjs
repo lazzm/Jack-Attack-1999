@@ -252,9 +252,20 @@ try {
   // diary, and (like any refresh) never rewrites the saved standing pose or the PC's power state.
   const mobile = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0 Mobile Safari/537.36',storageState});
   const mp = await mobile.newPage(); mp.on('pageerror',e=>errors.push(e.message));
+  // Wait for the real profile handshake, including the import-and-reload path.
+  // House readiness can briefly become true before a slower profile download finishes.
+  await mp.addInitScript(() => {
+    const bind = () => {
+      if (!window.Net?.on) { setTimeout(bind, 0); return; }
+      Net.on('rmSame', () => { window.__testProfileReady = true; });
+      Net.on('rmNone', () => { window.__testProfileReady = true; });
+      Net.on('rmData', () => { window.__testProfileReady = false; });
+    };
+    bind();
+  });
   const kept = () => [JSON.parse(localStorage.getItem('jhp_hs_stand')||'null')?.p||null, localStorage.getItem('jhp_off')];
-  await mp.goto(base,{waitUntil:'domcontentloaded'});
-  await wait(mp,() => window.AccountGate?.allowed&&window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!!window.st?.getState()&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
+  await mp.goto(base,{waitUntil:'domcontentloaded',timeout:90000*SCALE});
+  await wait(mp,() => window.__testProfileReady&&window.AccountGate?.allowed&&window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!!window.st?.getState()&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
   // The phone may have reloaded once to bring the desktop's latest profile down; from here on nothing may change it.
   await mp.waitForTimeout(1500); await wait(mp,() => window.House?.live&&!document.querySelector('.hs-loading,#houseEntry'),null,60000);
   const mobileHouse = await mp.evaluate(kept);
@@ -271,7 +282,7 @@ try {
   const registration = await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name:veteran,pass:password})});
   assert.equal(registration.status,200);
   const vp = await browser.newPage({viewport:{width:1366,height:860}});vp.on('pageerror',e=>errors.push(e.message));
-  await vp.goto(base,{waitUntil:'domcontentloaded'});await vp.waitForSelector('#accountGate');
+  await vp.goto(base,{waitUntil:'domcontentloaded',timeout:90000*SCALE});await vp.waitForSelector('#accountGate');
   await vp.locator('[name=name]').fill(veteran);await vp.locator('[name=password]').fill(password);await vp.locator('#accountGate [type=submit]').click();for(let i=0;i<100&&!(await vp.evaluate(()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst')));i++)await vp.waitForTimeout(200);if(await vp.locator('#accountFirst').count())await vp.locator('#accountGate [type=submit]').click();
   await wait(vp,() => window.House?.live&&House.mode==='monitor'&&window.PMGL?.built&&window.st?.getState()?.flags.veteran&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
   assert.equal(await vp.evaluate(() => st.objectives().some(s => s.key === 'story')),false);assert.equal(await vp.evaluate(() => !!House.THINGS['st.diary']),false);

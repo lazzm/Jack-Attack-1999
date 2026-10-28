@@ -907,20 +907,42 @@
     return { x: _hp.x, y: -_hp.y, z: _hp.z, k: 1, d };
   }
   // ---------------------------------------------------------------- your hands, while you carry something
-  // Two plain 1999 mitts hold it by its sides (palms on the sides, thumbs across the front, fingers behind it, like
-  // holding a Game Lad), and your forearms come up to them from just below the screen with the elbows bent in at your
+  // Rounded 1999 mitts hold it by its sides (palms behind the sides, thumbs across the front, fingers behind it, like
+  // holding a Game Lad). Small light things use one hand. Your forearms come up from below the screen, elbows at your
   // sides (no upper arm, no long reach): only a short tapered jumper sleeve and its cuff show. Real-hand sized, like the
   // thing they hold; they ride its lag and bob. That is what makes a thing read as carried, not lying in the room.
   const ARM = { skin: '#e7b28c', sleeve: '#34476f', cuff: '#45598a', hand: 12.5 }; // (hand: palm + fingers, cm)
   let arms = null; const _aw = new T.Vector3(), _aa = new T.Vector3(), _ad = new T.Vector3(), _ay = new T.Vector3(0, 1, 0);
+  function carryHandGeometry(sd) {
+    const positions = [], indices = [], inn = -sd;
+    // A closed, softly rounded palm and curled fingers, with a joined thumb web.
+    // Keeping each section in centimetres avoids stretched block-shaped fingers.
+    const loft = (rings, n) => {
+      const start = positions.length / 3;
+      const axis = new T.Vector3(), u = new T.Vector3(), v = new T.Vector3(), ref = new T.Vector3(0, 0, 1);
+      for (let i = 0; i < rings.length; i++) {
+        const r = rings[i], prev = rings[Math.max(0, i - 1)], next = rings[Math.min(rings.length - 1, i + 1)];
+        axis.set(next[0] - prev[0], next[1] - prev[1], next[2] - prev[2]).normalize();
+        u.crossVectors(axis, ref).normalize(); v.crossVectors(axis, u).normalize();
+        for (let j = 0; j < n; j++) { const t = j / n * Math.PI * 2, x = Math.cos(t) * r[3], z = Math.sin(t) * r[4]; positions.push(r[0] + u.x * x + v.x * z, (r[1] + u.y * x + v.y * z) * .86, r[2] + u.z * x + v.z * z); }
+        if (i) for (let j = 0; j < n; j++) { const a = start + (i - 1) * n + j, b = start + (i - 1) * n + (j + 1) % n, c = start + i * n + j, d = start + i * n + (j + 1) % n; indices.push(a, b, c, b, d, c); }
+      }
+      for (const end of [0, rings.length - 1]) {
+        const r = rings[end], centre = positions.length / 3; positions.push(r[0], r[1] * .86, r[2]);
+        for (let j = 0; j < n; j++) { const a = start + end * n + j, b = start + end * n + (j + 1) % n; indices.push(...(end ? [centre, a, b] : [centre, b, a])); }
+      }
+    };
+    loft([[0,-4.6,0,1.05,1.55],[0,-3.2,0,1.35,2.2],[0,-2.4,-.1,1.65,2.6],[0,-1.8,-.15,1.72,2.7],[0,-1.35,-.15,1.57,2.55],[0,-.75,-.15,1.77,2.75],[0,-.25,-.2,1.62,2.6],[inn*.05,.35,-.3,1.8,2.8],[inn*.1,.85,-.35,1.65,2.65],[inn*.2,1.5,-.5,1.75,2.6],[inn*.3,2.3,-.9,1.6,2.2],[inn*.6,3,-1.5,1.2,1.65],[inn,3.2,-2,.65,.9],[inn*1.3,3.15,-2.4,.2,.3]],12);
+    loft([[0,.4,1.0,1.05,1.15],[-inn*.75,1.0,2.15,1.0,1.1],[inn*.6,1.65,3.85,.95,.95],[inn*2.1,2.15,4.55,.85,.85],[inn*3.0,2.55,4.7,.6,.65],[inn*3.35,2.7,4.7,.16,.2]],10);
+    const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(positions, 3)); geo.setIndex(indices); geo.computeVertexNormals(); return geo;
+  }
   function armsMesh() {
     if (arms) return arms;
     const g = new T.Group(); g.matrixAutoUpdate = false; g.userData.noPick = true; g.visible = false;
-    const skin = K.mat({ c: ARM.skin, sh: 12 }), sleeve = K.mat({ c: ARM.sleeve, sh: 4 }), cuff = K.mat({ c: ARM.cuff, sh: 4 });
-    // (the sleeve: a tube narrow at the wrist (top) and wider at the elbow; the cuff a short ribbed band)
-    const box = K.roundBox(1, 1, 1, 0.3, 2), tube = new T.CylinderGeometry(1, 1.35, 1, 14, 1, false), cap = new T.CylinderGeometry(1, 1, 1, 14, 1), wrist = new T.CylinderGeometry(1, 1, 1, 12, 1);
+    const skin = K.mat({ c: ARM.skin, sh: 2 }), sleeve = K.mat({ c: ARM.sleeve, sh: 4 }), cuff = K.mat({ c: ARM.cuff, sh: 4 });
+    const tube = new T.CylinderGeometry(1, 1.25, 1, 12, 1, false), cap = new T.CylinderGeometry(1, 1, 1, 12, 1), wrist = new T.CylinderGeometry(1, 1, 1, 12, 1);
     const part = (geo, m) => { const o = new T.Mesh(geo, m); o.userData.noPick = true; o.userData.hand = true; o.matrixAutoUpdate = true; o.layers.set(1); o.renderOrder = 7; g.add(o); return o; };
-    g.userData.sides = [-1, 1].map(sd => ({ sd, palm: part(box, skin), fingers: part(box, skin), thumb: part(box, skin), wrist: part(wrist, skin), sleeve: part(tube, sleeve), cuff: part(cap, cuff) }));
+    g.userData.sides = [-1, 1].map(sd => ({ sd, palm: part(carryHandGeometry(sd), skin), wrist: part(wrist, skin), sleeve: part(tube, sleeve), cuff: part(cap, cuff) }));
     root.add(g); return arms = g;
   }
   function hideArms() { if (arms && arms.visible) { arms.visible = false; dirty(); } }
@@ -931,36 +953,44 @@
     _aw.set(o.x, -o.y, o.z).applyMatrix4(_hmi); const cx = _aw.x + b.ocx * k, cy = _aw.y + b.ocy * k, cz = _aw.z + b.ocz * k;
     const hh = b.h * k / 2, tanV = Math.tan(camera.fov * D2R / 2);
     // the hand: a real hand's size, like the thing it holds
-    const L = ARM.hand, pl = L * 0.62, pw = L * 0.52, pt = L * 0.24;
+    const L = ARM.hand, pl = L * 0.53;
     g.matrix.copy(S).multiply(_hm); g.matrixWorldNeedsUpdate = true; g.visible = true;
     // its outermost corners left and right, as it is turned now: each hand takes the one on its side
-    t.obj.updateMatrixWorld(true); const lb = localBox(t), ex = [null, null]; let zf = -1e9, zb = 1e9; // (its front and back, in view depth)
+    t.obj.updateMatrixWorld(true); const lb = localBox(t), ex = [null, null], corners = []; let zf = -1e9;
     for (const lx of [lb.min.x, lb.max.x]) for (const ly of [lb.min.y, lb.max.y]) for (const lz of [lb.min.z, lb.max.z]) {
-      _aw.set(lx, ly, lz).applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi); zf = Math.max(zf, _aw.z); zb = Math.min(zb, _aw.z);
-      if (!ex[0] || _aw.x < ex[0].x - 1e-6 || Math.abs(_aw.x - ex[0].x) < 1e-6 && _aw.z > ex[0].z) ex[0] = _aw.clone();
-      if (!ex[1] || _aw.x > ex[1].x + 1e-6 || Math.abs(_aw.x - ex[1].x) < 1e-6 && _aw.z > ex[1].z) ex[1] = _aw.clone();
+      const p = new T.Vector3(lx, ly, lz).applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi); corners.push(p); zf = Math.max(zf, p.z);
     }
+    const gripY = clamp(Math.max(cy - hh * .35, -.76 * tanV * -(zf - 1.4)), cy - hh * .8, cy + hh * .4);
+    const edge = p => { if (!ex[0] || p.x < ex[0].x - 1e-6 || Math.abs(p.x - ex[0].x) < 1e-6 && p.z > ex[0].z) ex[0] = p.clone(); if (!ex[1] || p.x > ex[1].x + 1e-6 || Math.abs(p.x - ex[1].x) < 1e-6 && p.z > ex[1].z) ex[1] = p.clone(); };
+    // Intersect the actual turned box at one grip height; opposite extreme corners can be at different heights.
+    for (let i = 0; i < 8; i++) for (const bit of [1, 2, 4]) if (!(i & bit)) {
+      const a = corners[i], b = corners[i | bit], dy = b.y - a.y;
+      if (Math.abs(dy) < 1e-6) { if (Math.abs(a.y - gripY) < 1e-4) { edge(a); edge(b); } }
+      else { const q = (gripY - a.y) / dy; if (q >= 0 && q <= 1) edge(a.clone().lerp(b, q)); }
+    }
+    if (!ex[0] || !ex[1]) for (const p of corners) edge(p);
+    const size = lb.getSize(_vv), small = size.toArray().every(n => n * k <= L * 1.5), flat = size.z < Math.min(size.x, size.y) * .45;
+    const toLocal = flat ? new T.Matrix4().copy(t.obj.matrixWorld).invert().multiply(_hm) : null;
     for (const a of g.userData.sides) {
-      const sd = a.sd, inn = -sd, c = ex[sd < 0 ? 0 : 1]; // (inward: towards the thing)
-      // the palm flat against its side at that corner, on its lower half, a little in front of its middle; never lower
-      // than 88% down the view (so a big box that runs off the bottom is still visibly held)
-      const pz = zf + pt * 0.45, minY = -0.76 * tanV * -pz;
-      const px = c.x + sd * pt * 0.42, py = Math.min(cy + hh * 0.2, Math.max(minY, Math.min(cy - hh * 0.12, Math.max(cy - hh * 0.55, c.y + pl * 0.3)))), lean = inn * 0.12;
-      const put = (m, lx, ly, lz, sx, sy, sz, rz = 0, rx = 0, ry = 0) => {
-        const co = Math.cos(lean), sn = Math.sin(lean); // (the lean turns the hand's own frame about the view's z)
-        m.position.set(px + lx * co - ly * sn, py + lx * sn + ly * co, pz + lz); m.rotation.set(rx, ry, lean + rz); m.scale.set(sx, sy, sz);
-      };
-      put(a.palm, 0, 0, 0, pt, pl, pw);
-      // fingers: round the far side, behind it (mostly hidden); the thumb lies across its front, pointing in and a bit up
-      put(a.fingers, inn * pt * 0.9, pl * 0.18, -Math.min(pz - zb, pl * 0.65) - pt * 0.3, pt * 1.5, pl * 0.62, pt * 0.9);
-      const tl = pl * 0.62, tw = pt * 0.95, tzf = zf - pz + tw * 0.55;
-      put(a.thumb, inn * (pt * 0.3 + tl * 0.42), pl * 0.22, tzf, tl, tw, tw, inn * 0.45);
+      const sd = a.sd, c = ex[sd < 0 ? 0 : 1], visible = !small || sd > 0;
+      for (const m of [a.palm, a.wrist, a.sleeve, a.cuff]) m.visible = visible;
+      if (!visible) continue;
+      const px = c.x + sd * .2, py = gripY, lean = -sd * .1;
+      let front = c.z;
+      if (toLocal) {
+        // On a turned case the outer corner can be its back corner. Put the thumb on the real front face.
+        const ray = new T.Ray(new T.Vector3(px - sd * 2.1, py + 1.6, zf + 10), new T.Vector3(0, 0, -1)).applyMatrix4(toLocal);
+        const hit = ray.intersectBox(lb, new T.Vector3());
+        if (hit) front = hit.applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi).z;
+      }
+      const pz = front - 3.8;
+      a.palm.position.set(px, py, pz); a.palm.rotation.set(0, 0, lean); a.palm.scale.setScalar(1);
       // the wrist, then the forearm: down and back towards you to an elbow just below the bottom of the view, tucked in
       // close (forearms only; the elbow is off screen, so there is never an upper arm or a long straight reach)
       const wx = px + Math.sin(lean) * pl * 0.5, wy = py - Math.cos(lean) * pl * 0.5;
-      const ez = pz * 0.52, ex2 = (wx / -pz) * -ez + sd * L * 0.28, ey = -tanV * -ez * 1.08 - L * 0.2;
+      const ez = pz * 0.85, ex2 = (wx / -pz) * -ez + sd * L * 0.16, ey = -tanV * -ez * 1.08 - L * 0.2;
       _aa.set(ex2, ey, ez); _aw.set(wx, wy, pz); _ad.subVectors(_aw, _aa); const len = _ad.length(); _ad.normalize();
-      const r = pw * 0.46, q = a.sleeve.quaternion.setFromUnitVectors(_ay, _ad);
+      const r = L * .14, q = a.sleeve.quaternion.setFromUnitVectors(_ay, _ad);
       // a bit of wrist, then the sleeve from just below it, its cuff at the wrist end
       a.wrist.position.copy(_aw).addScaledVector(_ad, -L * 0.06); a.wrist.quaternion.copy(q); a.wrist.scale.set(r * 0.86, L * 0.2, r * 0.86);
       const s0 = L * 0.16, sl = Math.max(L * 0.3, len - s0); // (from s0 below the wrist all the way to the elbow)
