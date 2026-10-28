@@ -36,7 +36,7 @@
     if (!p) {
       p = fetch(BASE + m.file, { credentials: 'same-origin' }).then(r => { if (!r.ok) throw new Error('voice ' + r.status); return r.arrayBuffer(); })
         .then(b => new Promise((res, rej) => { const q = ctx.decodeAudioData(b, res, rej); if (q && q.then) q.then(res, rej); }));
-      p.catch(() => cache.delete(id));
+      p.then(() => { p.ready = true; }, () => cache.delete(id));
       cache.set(id, p);
       while (cache.size > 16) cache.delete(cache.keys().next().value);
     } else { cache.delete(id); cache.set(id, p); }
@@ -44,11 +44,14 @@
   }
   function prefetch(id) {
     if (!on() || !info(id)) return;
-    const c = window.Sound.ctx; if (c) buffer(c, id);
+    const c = window.Sound.ctx || (window.Sound.ready && Sound.unlock && Sound.unlock()); if (c) buffer(c, id);
   }
+  // decoded and ready to start this instant (js/np-life.js holds a line back a moment for it, so voice and bubble agree)
+  const ready = id => !!(cache.get(id) && cache.get(id).ready);
 
   // ---------------------------------------------------------------- playing
-  const active = new Set();
+  const active = new Set(), log = []; // (log: the last few voice events, for tests and debugging)
+  const note = (id, ev) => { log.push(id + ' ' + ev + ' ' + Math.round(performance.now())); if (log.length > 30) log.shift(); };
   let raf = 0;
   const v3 = () => (window.THREE ? new THREE.Vector3() : null);
   const tmp = { p: null, f: null, u: null };
@@ -77,8 +80,9 @@
   }
   function play(id, o) {
     o = o || {};
-    const m = info(id); if (!m || !on()) return null;
-    const c = window.Sound.unlock && Sound.unlock(); if (!c || c.state === 'closed') return null;
+    const m = info(id); if (!m) return null;
+    if (!on()) { note(id, 'off'); return null; }
+    const c = window.Sound.unlock && Sound.unlock(); if (!c || c.state === 'closed') { note(id, 'no-context'); return null; }
     const h = { lineId: id, dur: +m.dur || 0, ctx: c, o, started: false, ended: false, t0: 0, src: null, an: null, data: null, panner: null, wall: null, wallGain: null, thru: null, peak: 0.12,
       level() {
         if (!h.started || h.ended || !h.an) return 0;
@@ -90,12 +94,12 @@
       progress() { if (!h.started) return 0; if (h.ended) return 1; return h.dur ? Math.max(0, Math.min(1, (c.currentTime - h.t0) / h.dur)) : 0; },
       stop() { h.cancelled = true; if (h.src) try { h.src.stop(); } catch (e) {} done(); },
       onstart: null, onend: null };
-    const done = () => { if (h.ended) return; h.ended = true; active.delete(h); if (!active.size) window.Sound.duck && Sound.duck(false); try { h.onend && h.onend(h); } catch (e) {} };
+    const done = why => { if (h.ended) return; note(id, typeof why === 'string' ? why : h.cancelled ? 'stopped' : 'ended'); h.ended = true; active.delete(h); if (!active.size) window.Sound.duck && Sound.duck(false); try { h.onend && h.onend(h); } catch (e) {} };
     const p = buffer(c, id); if (!p) return null;
     const asked = performance.now();
     p.then(buf => {
-      if (h.cancelled || !on()) { done(); return; }
-      if (performance.now() - asked > 1500) { done(); return; } // (too late: it would be out of step with the bubble)
+      if (h.cancelled || !on()) { done('cancelled'); return; }
+      if (performance.now() - asked > (o.late || 6000)) { done('late'); return; } // (too late: it would be out of step with the bubble)
       const src = c.createBufferSource(); src.buffer = buf; h.src = src; h.dur = buf.duration;
       const an = c.createAnalyser(); an.fftSize = 512; h.an = an;
       const g = c.createGain(); g.gain.value = o.gain || 1;
@@ -112,9 +116,10 @@
       src.onended = done;
       active.add(h); window.Sound.duck && Sound.duck(true);
       follow(); if (!raf) raf = requestAnimationFrame(follow);
-      h.t0 = c.currentTime + 0.02; src.start(h.t0); h.started = true;
+      h.t0 = c.currentTime + 0.02; src.start(h.t0); h.started = true; note(id, 'started');
       try { h.onstart && h.onstart(h); } catch (e) {}
-    }, () => done());
+    }, () => done('load-failed'));
+    note(id, 'asked');
     return h;
   }
   function stop() { for (const h of [...active]) h.stop(); }
@@ -130,12 +135,13 @@
   }
   document.addEventListener('audiochange', () => { if (!on()) stop(); });
   const api = {
-    say, play, stopVoice: stop, prefetch,
+    say, play, stopVoice: stop, prefetch, voiceReady: ready,
     voiceInfo: id => { const m = info(id); return m ? { dur: +m.dur || 0, character: m.character } : null; },
     get voice() { return manifest || {}; },
     loadVoices: loadManifest,
     get subtitles() { return subs; },
     set subtitles(v) { subs = !!v; try { localStorage.setItem('jhp_subtitles', subs ? '1' : '0'); } catch (e) {} document.dispatchEvent(new Event('subtitleschange')); },
+    get voiceLog() { return log.slice(); },
     get voicesPlaying() { return [...active].filter(h => h.started && !h.ended).map(h => h.lineId); },
   };
   if (window.st) Object.defineProperties(window.st, Object.getOwnPropertyDescriptors(api)); else window.st = api; // (getters kept)

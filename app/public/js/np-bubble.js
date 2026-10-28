@@ -37,7 +37,7 @@
   }
   // Off-screen: where the ray from the middle of the view towards direction d (unit, y down) meets the inset edge.
   function edge(d, w, h, view, keep) {
-    const m = view.m + 4, cx = view.w / 2, cy = view.h / 2, x0 = m + w / 2, x1 = view.w - m - w / 2, y0 = view.top + h / 2, y1 = view.h - m - h / 2;
+    const m = view.m + 26, cx = view.w / 2, cy = view.h / 2, x0 = m + w / 2, x1 = view.w - m - w / 2, y0 = view.top + 22 + h / 2, y1 = view.h - m - h / 2;
     const tx = d.x > 1e-4 ? (x1 - cx) / d.x : d.x < -1e-4 ? (cx - x0) / -d.x : 1e9, ty = d.y > 1e-4 ? (y1 - cy) / d.y : d.y < -1e-4 ? (cy - y0) / -d.y : 1e9;
     const t = Math.max(0, Math.min(tx, ty)), x = clamp(cx + d.x * t, x0, Math.max(x0, x1)), y = clamp(cy + d.y * t, y0, Math.max(y0, y1));
     return place({ x, y: y + h / 2 }, w, h, view, keep, 0);
@@ -84,7 +84,7 @@
     const st = getComputedStyle(H.ui.el); return st.display !== 'none' && st.visibility !== 'hidden';
   }
   // what to keep clear of (refreshed a few times a second)
-  const KEEP = '.hs-hold:not([hidden]),.st-objective:not([hidden]),.hs-top,.hs-map,.hs-tip.carry.on,.hs-touch,.hs-joy,.hs-use,.hs-jump,.hs-duck,.hs-getup:not([hidden]),.ch-chip:not([hidden]),.hs-voice.on';
+  const KEEP = '.hs-hold:not([hidden]),.st-objective:not([hidden]),.hs-top,.hs-map,.hs-tip.carry.on,.ht-acts>.ht-b,.ht-top>.ht-b,.ht-stick.on,.ht-target.on,.ht-tapmark.on,.ht-coach,.hs-getup:not([hidden]),.ch-chip:not([hidden]),.hs-voice.on';
   let keep = [], keepAt = 0, view = null;
   function refreshKeep(now) {
     if (now - keepAt < 300 && view) return; keepAt = now;
@@ -103,7 +103,14 @@
   function project(p) { // world -> {x, y, front}
     const cam = H.camera; V2.copy(p).applyMatrix4(cam.matrixWorldInverse); const front = V2.z < -1;
     V.copy(p).project(cam);
-    return { x: (V.x * 0.5 + 0.5) * view.w, y: (-V.y * 0.5 + 0.5) * view.h, front, cam: V2 };
+    return { x: (V.x * 0.5 + 0.5) * view.w, y: (-V.y * 0.5 + 0.5) * view.h, front, cam: V2.clone() };
+  }
+  const skipPick = m => !!(m.userData.npc || (m.material && m.material.visible === false) || m.userData.contactShadow);
+  function blocked(q) {
+    if (!H.pick) return false;
+    const d = q.cam.length(); let h = null;
+    try { h = H.pick(q.x, q.y, { far: d + 5, skip: skipPick }); } catch (e) { return false; }
+    return !!(h && h.dist < d - 35);
   }
   let raf = 0;
   function frame() {
@@ -114,10 +121,10 @@
     if (H.camera) H.camera.updateMatrixWorld(); // (a camera's world matrix update refreshes its inverse too)
     let bp = '', fp = '';
     const placed = [];
-    for (const b of live) {
+    for (const b of live) try {
       // the words, typed on with the voice (or the line's time when there's no recording)
       const v = b.voice, el = now - b.t0;
-      let p = v && v.started ? v.progress() * 1.06 + 0.04 : v && !v.ended && el < 1600 ? 0 : el / Math.max(600, b.ms * 0.8);
+      let p = v && v.started ? v.progress() * 1.06 + 0.04 : v && !v.ended && el < 5000 ? 0 : el / Math.max(600, b.ms * 0.8);
       if (v && v.ended) p = 1;
       const n = Math.min(b.text.length, Math.ceil(clamp(p, 0, 1) * b.text.length));
       if (n !== b.n) { b.n = n; b.said.textContent = b.text.slice(0, n); b.rest.textContent = b.text.slice(n); }
@@ -128,8 +135,13 @@
         const seen = A && A.seen && A.seen();
         if (seen && V && A.top(M)) { top = project(M); if (A.mouth && A.mouth(M)) mouth = project(M); }
         const inView = q => q && q.front && q.x > -20 && q.x < view.w + 20 && q.y > -40 && q.y < view.h + 20;
-        if (top && mouth && inView(mouth) && top.front) mode = 'head';
-        else if (V && A && (A.where ? A.where(M) : A.top(M))) { const q = project(M), c = q.cam; let dx = c.x, dy = -c.y; if (c.z > 0 && Math.abs(dx) < 1) dx = 0.001; const L = Math.hypot(dx, dy); dir = L > 1e-3 ? { x: dx / L, y: dy / L } : { x: 0, y: 1 }; if (A.below && A.below()) dir = { x: dir.x * 0.5, y: 1 }; const L2 = Math.hypot(dir.x, dir.y); dir.x /= L2; dir.y /= L2; }
+        if (top && mouth && inView(mouth) && top.front) {
+          // behind a wall or a shut door? (a ray at their mouth, a few times a second)
+          if (now - (b.occT || 0) > 280) { b.occT = now; b.occ = blocked(mouth); }
+          if (!b.occ) mode = 'head';
+        }
+        if (mode === 'head') {} // (pointing at the mouth)
+        else if (V && A && (A.where ? A.where(M) : A.top(M))) { const q = project(M), c = q.cam; let dx = c.x, dy = -c.y; if (c.z > 0) { const L0 = Math.hypot(dx, dy) || 1; dx /= L0; dy = Math.max(Math.abs(dy / L0), 0.75); } /* (behind you: the bottom of the screen, on their side) */ const L = Math.hypot(dx, dy); dir = L > 1e-3 ? { x: dx / L, y: dy / L } : { x: 0, y: 1 }; if (A.below && A.below()) dir = { x: dir.x * 0.5, y: 1 }; const L2 = Math.hypot(dir.x, dir.y); dir.x /= L2; dir.y /= L2; }
         else dir = { x: 0, y: 1 };
       } catch (e) { dir = { x: 0, y: 1 }; }
       if (mode !== b.mode) { b.mode = mode; b.el.classList.toggle('np-edge', mode === 'edge'); b.measure = true; b.w = b.el.offsetWidth; b.h = b.el.offsetHeight; }
@@ -151,7 +163,7 @@
         fp += `<path${op} d="M${(T.bx - px[0] * 0.72 + inn[0]).toFixed(1)} ${(T.by - px[1] * 0.72 + inn[1]).toFixed(1)}L${(T.bx + (T.tx - T.bx) * 0.55).toFixed(1)} ${(T.by + (T.ty - T.by) * 0.55).toFixed(1)}L${(T.bx + px[0] * 0.72 + inn[0]).toFixed(1)} ${(T.by + px[1] * 0.72 + inn[1]).toFixed(1)}Z"/>`;
       }
       b.tail = T;
-    }
+    } catch (e) { if (!b.err) { b.err = true; console.warn('np-bubble', e); } }
     back.innerHTML = bp; front.innerHTML = fp;
     raf = requestAnimationFrame(frame);
   }

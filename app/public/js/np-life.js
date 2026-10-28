@@ -397,17 +397,23 @@
   let V3 = null;
   function speechTick() {
     const t = nowMs();
+    if (speech.freeze) return; // (tests: hold the current line for a screenshot)
     // (a recording that started late runs to its end, within reason)
     if (speech.cur && (t < speech.until || (speech.voice && !speech.voice.ended && speech.voice.started && t < speech.hard))) return;
     if (speech.cur) {
       if (speech.voice && !speech.voice.ended) speech.voice.stop(); // (F again: on to the next line)
-      if (speech.bub) { const b = speech.bub, next = speech.q[0]; if (next && next.c === speech.cur.c) b.close(true); else setTimeout(() => b.close(), 450); }
+      if (speech.bub) { const b = speech.bub, next = speech.q[0]; if (next && next.c === speech.cur.c) b.close(true); else setTimeout(() => b.close(), next ? 1600 : 450); } // (a reply: the last line stays up a moment, like a comic panel)
       if (speech.cur.c.rig && speech.voice) speech.cur.c.rig.hush();
       speech.voice = speech.bub = null;
       const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); }
     }
-    const n = speech.q.shift(); if (!n) return;
-    const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n.lineId);
+    const n0 = speech.q[0]; if (!n0) return;
+    const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n0.lineId);
+    if (rec && !window.st.voiceReady?.(n0.lineId)) { // (give the recording a moment to arrive, so the words and the voice start together)
+      if (!n0.waitFrom) { n0.waitFrom = t; try { window.st.prefetch(n0.lineId); } catch (e) {} }
+      if (t - n0.waitFrom < 4000) return;
+    }
+    const n = speech.q.shift();
     const ms = rec ? clamp(rec.dur * 1000 + 450, 1500, 14000) : lineMs(n.text);
     const place = n.person ? '' : n.c.lvl !== H.W.lvl ? (n.c.lvl === 'G' ? '(downstairs)' : '(upstairs)') : '(in the ' + (n.c.room || 'house') + ')';
     const who = label(n.c) + (place ? ' ' + place : '');
@@ -421,6 +427,11 @@
     } catch (e) { console.error(e); }
     if (bubble) speech.bub = window.NPCBubble.show({ key: c.id, who: label(c), place, text: n.text, ms, anchor, voice, shout: !n.person });
     if (here) c.rig.talk(ms - 300, n.text, voice);
+    if (voice) voice.onstart = h => { // (a slow connection: the line lasts as long as the recording, from when it really starts)
+      if (speech.voice !== h) return; const end = nowMs() + h.dur * 1000;
+      speech.until = Math.max(speech.until, end + 400); speech.hard = Math.max(speech.hard, end + 1500);
+      if (here) c.rig.talk(end - nowMs(), n.text, h);
+    };
     if (n.person) c.talking = true;
     speech.cur = n; speech.voice = voice; speech.until = t + ms + 280; speech.hard = t + ms + 3500; speech.last = t;
   }
@@ -784,7 +795,7 @@
       hide(v) { hideAll = !!v; for (const c of chars) placeRig(c); H.dirty(); },
       go(id, spotKey) { if (!spotKey) delete manual[id]; else { const s = SPOT[spotKey] || EXIT[spotKey]; manual[id] = s && { key: 'debug.' + spotKey, spot: s, spotKey, act: s.act }; } },
       place(id, spotKey) { const c = C[id], s = SPOT[spotKey]; if (!c || !s) return false; spawn(c, s.seat ? { lvl: s.lvl, x: s.seat.stand[0], z: s.seat.stand[1] } : s); c.goal = null; return true; },
-      spots: SPOT, exits: EXIT, approachOf, routines: ROUTINE, scheduled: (id, v) => scheduled(id, v ? mk(v.md, v.dow, v.t) : clock()), save, restore, speech, frame,
+      spots: SPOT, exits: EXIT, approachOf, anchor: id => C[id] && C[id].rig ? anchorOf(C[id]) : null, routines: ROUTINE, scheduled: (id, v) => scheduled(id, v ? mk(v.md, v.dow, v.t) : clock()), save, restore, speech, frame,
     },
   };
 })();

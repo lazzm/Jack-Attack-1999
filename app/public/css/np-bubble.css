@@ -6,7 +6,7 @@
 .np-tails-top{z-index:2}.np-tails-top path{stroke:none;filter:none}
 .np-bub{position:absolute;left:0;top:0;z-index:1;box-sizing:border-box;width:max-content;max-width:min(320px,calc(100vw - 40px));
   padding:13px 15px 11px;background:#fffdf3;border:2.2px solid #151515;border-radius:18px/16px;box-shadow:3px 4px 0 rgba(0,0,0,.28);
-  color:#1b1712;font:700 16px/1.28 "Comic Sans MS","Comic Sans","Chalkboard SE","Comic Neue",cursive;text-align:left;
+  color:#1b1712;font:700 16px/1.28 "Comic Sans MS","Comic Sans","Chalkboard SE","Comic Neue",Tahoma,Verdana,sans-serif;text-align:left;
   will-change:transform}
 .np-bub p{margin:0}
 .np-bub .np-rest{color:transparent}
