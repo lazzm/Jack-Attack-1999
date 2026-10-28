@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.57.9 - 2026-10-28
+- Voices are British: the first batch of recordings came out with American accents (the accent wasn't asked for), so they're gone. Every line is now recorded as standard British English; the first few of Mom's lines are back today and the rest of the family (including your sister) follows over the next two days. Until then the speech bubbles show the words.
+- Speech bubbles only: the old text box in the bottom-left no longer shows as well (it's still in the pause menu as "Subtitles").
+- Prompts say what F will do: "Talk to Crystal  [F] Talk" instead of "[F] Use".
+
 ## 2.57.8 - 2026-10-28
 - The family talk out loud: recorded lines play from where the speaker is standing (quieter with distance, muffled through walls), the telly and music dip a little while someone talks, and their painted mouths move with the sound. Lines without a recording yet still show and animate.
 - Speech bubbles: a comic balloon with a name tab over whoever is talking, words appearing in step with the voice; when the speaker is behind you or in another room the balloon waits at the screen edge with an arrow ("MOM (DOWNSTAIRS)"). Bubbles keep clear of the crosshair, the carry panel, the objective and the phone buttons. The old bottom box is now a "Subtitles" option in the pause menu.

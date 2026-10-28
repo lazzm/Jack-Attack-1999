@@ -125,7 +125,8 @@
   function stop() { for (const h of [...active]) h.stop(); }
 
   // ---------------------------------------------------------------- the subtitle box (and the old one-shot API)
-  let subs = false; try { subs = localStorage.getItem('jhp_subtitles') === '1'; } catch (e) {}
+  // jhp_subtitles2: a fresh key so everyone starts with bubbles only (2.57.9)
+  let subs = false; try { subs = localStorage.getItem('jhp_subtitles2') === '1'; } catch (e) {}
   function say(lineId, who, text, ms, o) {
     o = o || {};
     if (!o.bubble || subs) window.Room?.say(String(who), esc(text), ms > 0 ? ms : 4200);
@@ -140,7 +141,7 @@
     get voice() { return manifest || {}; },
     loadVoices: loadManifest,
     get subtitles() { return subs; },
-    set subtitles(v) { subs = !!v; try { localStorage.setItem('jhp_subtitles', subs ? '1' : '0'); } catch (e) {} document.dispatchEvent(new Event('subtitleschange')); },
+    set subtitles(v) { subs = !!v; try { localStorage.setItem('jhp_subtitles2', subs ? '1' : '0'); } catch (e) {} document.dispatchEvent(new Event('subtitleschange')); },
     get voiceLog() { return log.slice(); },
     get voicesPlaying() { return [...active].filter(h => h.started && !h.ended).map(h => h.lineId); },
   };
