@@ -1,0 +1,337 @@
+{
+ "c3.hangup.dad": {
+  "file": "c3.hangup.dad.mp3",
+  "character": "dad",
+  "dur": 4.54
+ },
+ "bark.dad.bed2": {
+  "file": "bark.dad.bed2.mp3",
+  "character": "dad",
+  "dur": 5.11
+ },
+ "c1.keys.pick": {
+  "file": "c1.keys.pick.mp3",
+  "character": "dad",
+  "dur": 3.72
+ },
+ "c1.speak.pick": {
+  "file": "c1.speak.pick.mp3",
+  "character": "dad",
+  "dur": 4.08
+ },
+ "c1.lead.dad": {
+  "file": "c1.lead.dad.mp3",
+  "character": "dad",
+  "dur": 4.37
+ },
+ "c1.lead.dad.power": {
+  "file": "c1.lead.dad.power.mp3",
+  "character": "dad",
+  "dur": 4.34
+ },
+ "c1.power.dad": {
+  "file": "c1.power.dad.mp3",
+  "character": "dad",
+  "dur": 3.1
+ },
+ "c1.power.boot": {
+  "file": "c1.power.boot.mp3",
+  "character": "dad",
+  "dur": 3.14
+ },
+ "c1.floppy.dad": {
+  "file": "c1.floppy.dad.mp3",
+  "character": "dad",
+  "dur": 4.63
+ },
+ "c1.floppy.stick": {
+  "file": "c1.floppy.stick.mp3",
+  "character": "dad",
+  "dur": 2.81
+ },
+ "c1.install.done": {
+  "file": "c1.install.done.mp3",
+  "character": "dad",
+  "dur": 2.88
+ },
+ "c1.logon.dad": {
+  "file": "c1.logon.dad.mp3",
+  "character": "dad",
+  "dur": 5.88
+ },
+ "c2.pocket.dad": {
+  "file": "c2.pocket.dad.mp3",
+  "character": "dad",
+  "dur": 6.58
+ },
+ "c2.pocket.dad2": {
+  "file": "c2.pocket.dad2.mp3",
+  "character": "dad",
+  "dur": 4.51
+ },
+ "c2.pocket.dad3": {
+  "file": "c2.pocket.dad3.mp3",
+  "character": "dad",
+  "dur": 8.09
+ },
+ "c4.dd.unbox.dad": {
+  "file": "c4.dd.unbox.dad.mp3",
+  "character": "dad",
+  "dur": 3.96
+ },
+ "c4.dd.setup.dad": {
+  "file": "c4.dd.setup.dad.mp3",
+  "character": "dad",
+  "dur": 4.54
+ },
+ "c4.hal.dad": {
+  "file": "c4.hal.dad.mp3",
+  "character": "dad",
+  "dur": 3.53
+ },
+ "c4.hal.dad.carve": {
+  "file": "c4.hal.dad.carve.mp3",
+  "character": "dad",
+  "dur": 5.45
+ },
+ "c4.hal.treat.dad": {
+  "file": "c4.hal.treat.dad.mp3",
+  "character": "dad",
+  "dur": 2.5
+ },
+ "c4.xmas.gran2": {
+  "file": "c4.xmas.gran2.mp3",
+  "character": "gran",
+  "dur": 5.18
+ },
+ "c4.xmas.gran3": {
+  "file": "c4.xmas.gran3.mp3",
+  "character": "gran",
+  "dur": 3.91
+ },
+ "c4.xmas.gran4": {
+  "file": "c4.xmas.gran4.mp3",
+  "character": "gran",
+  "dur": 5.14
+ },
+ "c4.mill.gran": {
+  "file": "c4.mill.gran.mp3",
+  "character": "gran",
+  "dur": 5.95
+ },
+ "bark.gran.hello": {
+  "file": "bark.gran.hello.mp3",
+  "character": "gran",
+  "dur": 3.05
+ },
+ "bark.gran.hug": {
+  "file": "bark.gran.hug.mp3",
+  "character": "gran",
+  "dur": 4.68
+ },
+ "bark.gran.coin": {
+  "file": "bark.gran.coin.mp3",
+  "character": "gran",
+  "dur": 4.78
+ },
+ "bark.gran.plant": {
+  "file": "bark.gran.plant.mp3",
+  "character": "gran",
+  "dur": 4.97
+ },
+ "bark.gran.tea": {
+  "file": "bark.gran.tea.mp3",
+  "character": "gran",
+  "dur": 3.5
+ },
+ "bark.gran.pc": {
+  "file": "bark.gran.pc.mp3",
+  "character": "gran",
+  "dur": 4.08
+ },
+ "bark.gran.bye": {
+  "file": "bark.gran.bye.mp3",
+  "character": "gran",
+  "dur": 3.79
+ },
+ "chore.rate.70c": {
+  "file": "chore.rate.70c.mp3",
+  "character": "mom",
+  "dur": 2.54
+ },
+ "chore.rate.0a": {
+  "file": "chore.rate.0a.mp3",
+  "character": "mom",
+  "dur": 2.38
+ },
+ "chore.rate.0b": {
+  "file": "chore.rate.0b.mp3",
+  "character": "mom",
+  "dur": 3.31
+ },
+ "chore.oops": {
+  "file": "chore.oops.mp3",
+  "character": "mom",
+  "dur": 2.57
+ },
+ "chore.streak": {
+  "file": "chore.streak.mp3",
+  "character": "mom",
+  "dur": 4.1
+ },
+ "chore.allfour": {
+  "file": "chore.allfour.mp3",
+  "character": "mom",
+  "dur": 4.03
+ },
+ "chore.tidy.give": {
+  "file": "chore.tidy.give.mp3",
+  "character": "mom",
+  "dur": 4.97
+ },
+ "chore.tidy.done": {
+  "file": "chore.tidy.done.mp3",
+  "character": "mom",
+  "dur": 2.35
+ },
+ "chore.bed.give": {
+  "file": "chore.bed.give.mp3",
+  "character": "mom",
+  "dur": 4.01
+ },
+ "chore.bed.done": {
+  "file": "chore.bed.done.mp3",
+  "character": "mom",
+  "dur": 3.22
+ },
+ "chore.bin.give": {
+  "file": "chore.bin.give.mp3",
+  "character": "mom",
+  "dur": 3.53
+ },
+ "chore.bin.done": {
+  "file": "chore.bin.done.mp3",
+  "character": "mom",
+  "dur": 3.22
+ },
+ "chore.cat.give": {
+  "file": "chore.cat.give.mp3",
+  "character": "mom",
+  "dur": 5.81
+ },
+ "chore.cat.done": {
+  "file": "chore.cat.done.mp3",
+  "character": "mom",
+  "dur": 4.99
+ },
+ "chore.plant.give": {
+  "file": "chore.plant.give.mp3",
+  "character": "mom",
+  "dur": 5.3
+ },
+ "chore.plant.done": {
+  "file": "chore.plant.done.mp3",
+  "character": "mom",
+  "dur": 2.9
+ },
+ "chore.washup.give": {
+  "file": "chore.washup.give.mp3",
+  "character": "mom",
+  "dur": 4.32
+ },
+ "chore.washup.done": {
+  "file": "chore.washup.done.mp3",
+  "character": "mom",
+  "dur": 3.46
+ },
+ "chore.table.give": {
+  "file": "chore.table.give.mp3",
+  "character": "mom",
+  "dur": 4.32
+ },
+ "chore.table.done": {
+  "file": "chore.table.done.mp3",
+  "character": "mom",
+  "dur": 3.84
+ },
+ "chore.shopping.give": {
+  "file": "chore.shopping.give.mp3",
+  "character": "mom",
+  "dur": 5.06
+ },
+ "chore.shopping.done": {
+  "file": "chore.shopping.done.mp3",
+  "character": "mom",
+  "dur": 4.18
+ },
+ "chore.bins.give": {
+  "file": "chore.bins.give.mp3",
+  "character": "mom",
+  "dur": 4.51
+ },
+ "chore.bins.done": {
+  "file": "chore.bins.done.mp3",
+  "character": "mom",
+  "dur": 2.76
+ },
+ "chore.hoover.give": {
+  "file": "chore.hoover.give.mp3",
+  "character": "mom",
+  "dur": 3.41
+ },
+ "chore.hoover.done": {
+  "file": "chore.hoover.done.mp3",
+  "character": "mom",
+  "dur": 3
+ },
+ "chore.videos.give": {
+  "file": "chore.videos.give.mp3",
+  "character": "mom",
+  "dur": 6.5
+ },
+ "chore.videos.done": {
+  "file": "chore.videos.done.mp3",
+  "character": "mom",
+  "dur": 2.42
+ },
+ "chore.cushions.give": {
+  "file": "chore.cushions.give.mp3",
+  "character": "mom",
+  "dur": 4.44
+ },
+ "chore.cushions.done": {
+  "file": "chore.cushions.done.mp3",
+  "character": "mom",
+  "dur": 1.87
+ },
+ "chore.car.give": {
+  "file": "chore.car.give.mp3",
+  "character": "mom",
+  "dur": 6.26
+ },
+ "chore.car.done": {
+  "file": "chore.car.done.mp3",
+  "character": "mom",
+  "dur": 4.56
+ },
+ "chore.lawn.give": {
+  "file": "chore.lawn.give.mp3",
+  "character": "mom",
+  "dur": 4.87
+ },
+ "chore.lawn.done": {
+  "file": "chore.lawn.done.mp3",
+  "character": "mom",
+  "dur": 2.78
+ },
+ "chore.sweep.give": {
+  "file": "chore.sweep.give.mp3",
+  "character": "mom",
+  "dur": 3.98
+ },
+ "chore.sweep.done": {
+  "file": "chore.sweep.done.mp3",
+  "character": "mom",
+  "dur": 3.77
+ }
+}
