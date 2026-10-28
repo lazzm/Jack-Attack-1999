@@ -188,7 +188,7 @@ async function standAndAim(p, id) {
 async function clickThing(p, id, shotName) {
   let at = await screenOf(p, id); assert(at && at.z < 1, 'Not on screen: ' + id);
   // the nearest screen point where the room's own picking finds this thing (it may be half behind a shelf edge)
-  at = await p.page.evaluate(({ id, at }) => { for (let r = 0; r <= 120; r += 4) for (let i = 0; i < (r ? 24 : 1); i++) { const x = at.x + Math.cos(i * Math.PI / 12) * r, y = at.y + Math.sin(i * Math.PI / 12) * r; if (House.pick(x, y)?.spot === id) return { x, y }; } return at; }, { id, at });
+  at = await p.page.evaluate(({ id, at }) => { for (let r = 0; r <= 120; r += 4) for (let i = 0; i < (r ? 24 : 1); i++) { const x = at.x + Math.cos(i * Math.PI / 12) * r, y = at.y + Math.sin(i * Math.PI / 12) * r; if (House.pick(x, y)?.spot === id && document.elementFromPoint(x, y)?.classList.contains('ht-surface')) return { x, y }; } return at; }, { id, at }); // (and not under a HUD button)
   await p.fingers.down(7, at.x, at.y); await sleep(250);
   const label = await p.page.evaluate(() => { const m = document.querySelector('.ht-tapmark.on'); return m ? m.textContent : ''; });
   if (shotName) await p.shot(shotName);
@@ -345,12 +345,14 @@ const phases = {
           const fam = /^np\./.test(id) && window.HouseFamily?.debug?.dump().find(f => 'np.' + f.id === id); if (fam) { lvl = fam.lvl; c = [fam.x, lvl === 'G' ? 230 : -30, fam.z]; }
           const ey = lvl === 'G' ? 205 : -55;
         const room = fam ? H.ROOMS[fam.room] : null, inRoom = (x, z) => !room || room.area.some(q => x >= q[0] + 20 && x <= q[2] - 20 && z >= q[1] + 20 && z <= q[3] - 20);
-          const out = []; for (const d of [110, 150, 80, 190]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (H._.cellOk(lvl, x, z) && inRoom(x, z)) out.push({ e: [x, ey, z], c: [c[0], Math.min(c[1], ey + 40), c[2]], lvl }); } return out; }, id);
+          const out = []; for (const d of [150, 110, 190, 130]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (H._.cellOk(lvl, x, z) && inRoom(x, z)) out.push({ e: [x, ey, z], c: [c[0], Math.min(c[1], ey + 40), c[2]], lvl }); } return out; }, id);
         for (const q of r || []) {
           await aimAt(p, q.e, q.c, q.lvl);
           // a step with the stick lets the house notice which room you are in (and draw it), then look again
           const { height: hh } = V(p); await fingers.down(1, 90, hh - 160); await fingers.move(1, 90, hh - 200); await sleep(150); await fingers.up(1); await sleep(150);
           await aimAt(p, q.e, q.c, q.lvl);
+          // people keep their personal space (~82 cm, js/np-life.js): give her a moment to settle, then look where she is now
+          if (/^np\./.test(id)) { await sleep(1200); const now = await page.evaluate(id => { const f = window.HouseFamily?.debug?.dump().find(f => 'np.' + f.id === id); return f ? [f.x, f.lvl === 'G' ? 230 : -30, f.z] : null; }, id); if (now) await aimAt(p, q.e, now, q.lvl); }
           if (await page.evaluate(id => { for (let dy = -60; dy <= 60; dy += 20) if (House.pick(innerWidth / 2, innerHeight / 2 + dy)?.spot === id) return true; return false; }, id)) return true;
         }
         return false; };
