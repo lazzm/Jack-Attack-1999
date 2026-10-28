@@ -993,20 +993,12 @@
     CK.shadow(0, 0, 0, 18, 11, 0.6, { sq: true });
     H.spot('clock', { label: 'Radio alarm clock', obj: ck });
     const gl=B.at(126,21.6,BZ+27);gl.lathe(0,0,0,[[0,-.7],[1.9,-.7],[2.28,-9.8],[2.45,-10],[2.6,-9.8],[2.2,0],[0,0]],28,M({c:'#d8e8f0',o:.24,tr:true,sh:90,sp:'#fff'}));gl.disc(0,-3.5,0,2.12,M({c:'#9cb9c8',o:.35,tr:true,sh:60}),24);
-    // the cat (next door's): a curled-up loaf, breathing
-    const cat = new T.Group(); cat.position.set(206, 30, 72); cat.rotation.y = -34 * D2R; r.group.add(cat); R.cat = cat;
-    const CT = K.into(cat), fur = M({ c: '#1c1c22', sh: 6 }), wht = M({ c: '#e8e8e8', sh: 6 });
-    R.catBody = CT.ball(0, -6, 0, 13, 6.5, 9, fur, 16);
-    CT.ball(-11, -7, 3, 5.8, 5.2, 5.4, fur, 14); CT.ball(-14.5, -6.2, 5.6, 2.4, 1.8, 1.4, wht, 10);
-    CT.lathe(-12.5, -11.8, 0.6, [[0.1, -4], [1.8, 0]], 6, fur, { rz: -15 }); CT.lathe(-9, -11.8, 1.4, [[0.1, -4], [1.8, 0]], 6, fur, { rz: 15 });
-    CT.ball(-16.4, -6.4, 5.8, 0.42, 0.3, 0.3, M({ c: '#f0a0a8', sh: 60 }), 6); // the nose
-    [[-15.2, 3.4], [-15.2, 7.4]].forEach(([x, z]) => CT.box(x, -8.2, z, 0.6, 0.12, 1.6, M('#0a0a0c'), { rz: 0 })); // closed eyes
-    for (const sd of [-1, 1]) for (let k = 0; k < 3; k++) CT.cyl(-15.8, -5.6 + k * 0.5, 5.6 + sd * (2.2 + k * 0.3), 0.06, 0.06, 7, 3, M('#e8e8e8'), { rz: 90, ry: sd * (18 + k * 10) }); // whiskers
-    CT.ball(-13.5, -7.6, 5.4, 4, 3.2, 3.4, M({ c: '#2a2a30', sh: 6 }), 10); // the muzzle
-    const tail = new T.CatmullRomCurve3([new T.Vector3(11, -3, -3), new T.Vector3(13, -2, 4), new T.Vector3(6, -1.5, 9), new T.Vector3(-4, -1.5, 9)]);
-    CT.geo(new T.TubeGeometry(tail, 16, 1.4, 6), 0, 0, 0, fur);
-    CT.ball(-5, -1.6, 7, 3.4, 1.4, 2.2, wht, 10); CT.ball(-9, -1.4, 7.5, 2, 1.2, 1.8, wht, 8);
-    CT.shadow(0, 0, 0, 34, 24, 0.55);
+    // the cat (next door's) lives on the cat tree by the radiator now (Mom bought it so the cat would stop sleeping on
+    // the bed; the cat agreed, eventually): the top bed by day, the den at night; asleep or sat up watching you
+    const cat = catModel(); r.group.add(cat); R.cat = cat; R.catBody = cat.userData.breath;
+    const tree = catTree(B, r, -94, 224, 90); tree.out = tree.W(40, 4); tree.mid = Object.assign(tree.W(10, -12), { y: FY - 66 }); cat.userData.tree = tree; // (against the front wall, between the bookcase and the radiator)
+    { const hr = new Date().getHours(), night = hr >= 22 || hr < 7, at = night ? tree.den : tree.top, ps = night || hr % 2 ? 'sleep' : 'sit';
+      cat.position.set(at.x, at.y, at.z); cat.rotation.y = (night ? -90 : -110) * D2R; cat.userData.pose(ps); cat.userData.homePose = ps; }
     H.spot('cat', { label: () => catName(), obj: cat });
     // while it's curled up on the duvet the cat is solid: nothing can be put down under it (it used to swallow a plate)
     if (H.solid) H.solid('U', 192, 59, 220, 85, 16, 30, { kind: 'cat', support: false, when: () => { for (let o = cat; o; o = o.parent) if (!o.visible) return false; return Math.hypot(cat.position.x - 206, cat.position.z - 72) < 3 && cat.position.y < 40; } });
@@ -1387,6 +1379,97 @@
     }
     const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new T.Float32BufferAttribute(nrm, 3)); geo.setAttribute('color', new T.Float32BufferAttribute(col, 3));
     ico.dispose(); return geo;
+  }
+  // ---------------------------------------------------------------- next door's cat: a stylised low-poly tuxedo cat
+  // One level of abstraction like the people (docs/PEOPLE.md): soft rounded forms, a chunky readable silhouette, simple
+  // painted-style eyes (open or shut), big ears and a proper tail. Built from pivot groups (torso, head, four legs, a
+  // five-segment tail), each merged per material, so poses are just rotations: sleep, sit, stretch, walk(t), eat.
+  // Local frame: facing -x, y down, paws on y = 0. About 1.5k triangles drawn, ~20 draws. cat.userData.pose(name, t).
+  function catModel() {
+    const cat = new T.Group(), fur = M({ c: '#24242b', sh: 14, sp: '#3a3a44' }), wht = M({ c: '#efece4', sh: 8 }), pink = M({ c: '#e8a0ab', sh: 30 });
+    const iris = M({ c: '#d9c43c', sh: 60, sp: '#fff' }), dark = M({ c: '#0b0b0e', sh: 40 });
+    const part = (parent, x, y, z, fn) => { const g = new T.Group(); g.position.set(x, y, z); parent.add(g); const b = K.batch(); fn(K.into(b)); b.build(g); return g; };
+    const ball = (P, x, y, z, rx, ry, rz, m, w, h) => P.geo(new T.SphereGeometry(1, w, h), x, y, z, m, { sx: rx, sy: ry, sz: rz }); // (exact segment counts: the budget is ~1.5k)
+    const torso = new T.Group(); cat.add(torso);
+    const chest = part(torso, 0, 0, 0, P => { ball(P, 0, 0, 0, 12.5, 7.2, 7.4, fur, 9, 7); ball(P, -7, 0.6, 0, 7, 7, 6.6, fur, 8, 6); ball(P, 7.2, 0.8, 0, 7.6, 7.4, 7.9, fur, 8, 6); ball(P, -11.2, 3.2, 0, 3.4, 4.2, 4.6, wht, 6, 5); ball(P, -1, 5.6, 0, 7, 1.6, 4.6, wht, 6, 4); });
+    const head = part(torso, -13.5, -6.2, 0, P => {
+      ball(P, 0, 0, 0, 5.4, 4.9, 5.9, fur, 9, 7); ball(P, -3.9, 1.7, 0, 2.5, 2.0, 3.1, wht, 8, 5); ball(P, -1.6, 3.2, 0, 2.6, 1.4, 3.0, wht, 6, 4);
+      ball(P, -6.15, 0.75, 0, 0.55, 0.45, 0.8, pink, 5, 4); // nose
+      for (const s of [-1, 1]) {
+        P.lathe(0.8, -3.6, s * 3.1, [[0.05, -4.6], [2.4, 0]], 4, fur, { rx: s * 14, ry: 45 }); P.lathe(0.15, -3.5, s * 3.1, [[0.05, -3.4], [1.5, 0]], 4, pink, { rx: s * 14, ry: 45 });
+        for (let k = 0; k < 2; k++) P.cyl(-5.2, 1.4 + k * 0.6, s * 5.6, 0.05, 0.05, 6, 3, wht, { rx: 90, ry: s * (10 + k * 12) });
+      }
+    });
+    // the eyes: open (yellow, black slit) and shut (a dark curve), toggled by pose
+    const eyesOpen = part(head, 0, 0, 0, P => { for (const s of [-1, 1]) { ball(P, -4.75, -1.3, s * 2.15, 0.55, 1.15, 1.0, iris, 6, 5); ball(P, -5.18, -1.3, s * 2.15, 0.2, 0.95, 0.3, dark, 5, 4); } });
+    const eyesShut = part(head, 0, 0, 0, P => { for (const s of [-1, 1]) P.geo(new T.TorusGeometry(0.9, 0.16, 3, 8, Math.PI), -4.85, -1.0, s * 2.15, dark, { ry: 90, rx: 180 }); });
+    const legs = [[-8.6, 3.2, -3.5], [-8.6, 3.2, 3.5], [8.2, 3.6, -4.2], [8.2, 3.6, 4.2]].map(([x, y, z]) => part(torso, x, y, z, P => { P.cyl(0, 5.2, 0, 1.75, 1.4, 10.4, 6, fur, { open: true }); ball(P, -0.4, 10.6, 0, 2.0, 1.2, 1.7, wht, 6, 4); }));
+    const tail = []; let at = torso, tx = 12.6, ty = -1;
+    for (let k = 0; k < 5; k++) { const r0 = 1.55 - k * 0.15, g = part(at, tx, ty, 0, P => { P.cyl(1.7, 0, 0, r0 - 0.15, r0, 3.6, 5, fur, { rz: 90, open: true }); ball(P, 0, 0, 0, r0, r0, r0, fur, 5, 4); if (k === 4) ball(P, 3.6, 0, 0, r0 - 0.15, r0 - 0.15, r0 - 0.15, fur, 5, 4); }); tail.push(g); at = g; tx = 3.5; ty = 0; }
+    const sh = K.into(cat).shadow(0, 0, 0, 36, 22, 0.5);
+    const set = (g, rx, ry, rz) => g.rotation.set((rx || 0) * D2R, (ry || 0) * D2R, (rz || 0) * D2R);
+    const leg = (i, rz, s) => { set(legs[i], 0, 0, rz); legs[i].scale.set(1, s || 1, 1); };
+    const curl = (rzs, rys) => tail.forEach((g, k) => set(g, 0, rys[k] || 0, rzs[k] || 0));
+    function pose(name, t) {
+      t = t || 0; cat.userData.poseName = name;
+      eyesOpen.visible = name === 'sit' || name === 'walk' || name === 'eat'; eyesShut.visible = !eyesOpen.visible;
+      head.position.set(-13.5, -6.2, 0); torso.scale.set(1, 1, 1);
+      if (name === 'sleep') { // curled up: legs tucked, chin on its paws, the tail wrapped round the front
+        torso.position.set(0, -7.4, 0); set(torso, 0, 0, 0); head.position.set(-12.4, -1.2, 1.6); set(head, -8, 28, -14);
+        for (let i = 0; i < 4; i++) leg(i, i < 2 ? -86 : 86, 0.55);
+        curl([4, 6, 2, 0, 0], [40, 40, 42, 38, 30]);
+      } else if (name === 'sit') { // the loaf's alert cousin: haunches down, front legs straight, tail round the toes
+        torso.position.set(4, -11, 0); set(torso, 0, 0, 40); set(head, 0, 0, -32);
+        leg(0, -40, 1.48); leg(1, -40, 1.48); leg(2, 88, 0.66); leg(3, 88, 0.66);
+        curl([-36, 8, 6, 0, 0], [-62, -40, -38, -30, -20]);
+      } else if (name === 'stretch') { // the big one: front paws out, chest down, rump up, tail high
+        torso.position.set(1, -11.4, 0); set(torso, 0, 0, -16); set(head, 0, 0, 30); head.position.set(-14.5, -4.6, 0);
+        leg(0, -62, 1.05); leg(1, -56, 1.05); leg(2, 16, 1.25); leg(3, 16, 1.25);
+        curl([-62, 22, 18, 14, 10], [0, 0, 0, 0, 0]);
+      } else if (name === 'eat') { // crouched at the bowl, head down
+        torso.position.set(0, -11.2, 0); set(torso, 0, 0, -10); head.position.set(-13.8, -3.4, 0); set(head, 0, 0, -38 + Math.sin(t / 160) * 6);
+        leg(0, -6, 0.86); leg(1, -6, 0.86); leg(2, 40, 0.8); leg(3, 40, 0.8);
+        curl([12, 10, -14, -10, -8], [22, 14, 10, 6, 0]);
+      } else { // walk (t in ms): diagonal pairs swing, a little bob, tail up in a question mark
+        const ph = t / 170, sw = 26;
+        torso.position.set(0, -13.8 + Math.abs(Math.sin(ph)) * 0.5, 0); set(torso, 0, 0, 0); set(head, 0, 0, 4 + Math.sin(ph * 2) * 2);
+        leg(0, Math.sin(ph) * sw, 1); leg(3, Math.sin(ph) * sw, 1); leg(1, -Math.sin(ph) * sw, 1); leg(2, -Math.sin(ph) * sw, 1);
+        curl([-70, 16, 14, 18 + Math.sin(ph) * 6, 24], [0, Math.sin(ph * 0.5) * 8, 0, 0, 0]);
+      }
+    }
+    cat.userData.pose = pose; cat.userData.breath = chest; pose('sleep');
+    return cat;
+  }
+  // a 1999 cat tree from the pet shop: sisal-wrapped posts, beige carpeted platforms at three heights, a den with a round
+  // door, a cushioned bed on top and a pom-pom on a string. Base on the floor at (x, z), turned ry degrees (its own +x,
+  // the den door, faces the room). Everything stays inside a 46 cm square.
+  function catTree(B, r, x, z, ry) {
+    const carpet = M({ c: '#fff', map: K.tex('rm.cattreecarpet', 64, 64, (g, w, h) => { g.fillStyle = '#c9b494'; g.fillRect(0, 0, w, h); A.grain(g, w, h, 1600, 0.16, 71); }, { rep: [1, 1] }), sh: 2 });
+    const sisal = M({ c: '#fff', map: K.tex('rm.sisal', 32, 64, (g, w, h) => { g.fillStyle = '#c7a56a'; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 3) { g.fillStyle = y % 6 ? 'rgba(90,60,20,.35)' : 'rgba(255,240,200,.35)'; g.fillRect(0, y, w, 1.4); } A.grain(g, w, h, 300, 0.12, 72); }, { rep: [2, 6] }), sh: 6 });
+    const a = (ry || 0) * D2R, W = (lx, lz) => ({ x: x + lx * Math.cos(a) + lz * Math.sin(a), z: z - lx * Math.sin(a) + lz * Math.cos(a) });
+    const T0 = B.at(x, FY, z, ry || 0);
+    T0.rbox(0, -2, 0, 46, 4, 46, 1.2, carpet); // the base board
+    // the den: a carpeted box, open at the door side, with a round door panel
+    T0.box(-6, -16, 2, 32, 24, 34, M({ c: '#fff', map: K.tex('rm.cattreecarpet2', 64, 64, (g, w, h) => { g.fillStyle = '#c3ad8c'; g.fillRect(0, 0, w, h); A.grain(g, w, h, 1600, 0.16, 73); }, {}), sh: 2, side: 2 }), { sides: 'ltubf' });
+    const door = new T.Shape(); door.moveTo(-17, 0); door.lineTo(17, 0); door.lineTo(17, 24); door.lineTo(-17, 24); door.closePath();
+    const hole = new T.Path(); hole.absarc(0, 11, 8.5, 0, Math.PI * 2, true); door.holes.push(hole);
+    const dg = new T.ExtrudeGeometry(door, { depth: 2, bevelEnabled: false, curveSegments: 14 }); dg.rotateY(Math.PI / 2); dg.rotateX(Math.PI);
+    T0.geo(dg, 10.2, -4, 2, carpet);
+    // posts (base -> middle shelf, middle shelf -> top, den roof -> top) and the platforms
+    T0.cyl(17, -33, -16, 4.2, 4.2, 58, 12, sisal); T0.rbox(5, -63, -12, 36, 3, 24, 1, carpet);
+    T0.cyl(8, -82.3, -13, 4.2, 4.2, 36, 12, sisal); T0.cyl(-6, -64, 4, 4.6, 4.6, 72, 12, sisal);
+    T0.rbox(-4, -101.5, 2, 36, 3, 36, 1, carpet); // the top
+    T0.lathe(-4, -103, 2, [[14.5, -5], [16.5, -4], [17, -1], [16, 0]], 20, carpet); T0.cyl(-4, -103.6, 2, 14.6, 14.6, 1.2, 20, M({ c: '#b8a283', sh: 2 }));
+    // the dangling toy: a string and a red pom-pom off the middle shelf
+    T0.cyl(21, -55.5, -4, 0.12, 0.12, 12, 3, M('#e8e0c8')); T0.ball(21, -48.6, -4, 2.4, 2.4, 2.4, M({ c: '#d8283a', sh: 4 }), 8); T0.ball(21, -50.6, -4, 1.2, 0.8, 1.2, M('#ffd21f'), 6);
+    T0.shadow(0, 0, 0, 58, 58, 0.6, { sq: true });
+    const rect = (x0, z0, x1, z1) => { const p = [W(x0, z0), W(x1, z1)]; return [Math.min(p[0].x, p[1].x), Math.min(p[0].z, p[1].z), Math.max(p[0].x, p[1].x), Math.max(p[0].z, p[1].z)]; };
+    H.block('U', ...rect(-23, -23, 23, 23));
+    H.support('bedroom', ...rect(-23, -23, 23, 23), FY - 4.5, { thick: 4 }); // (the base board, round the den)
+    H.support('bedroom', ...rect(-13, -24, 23, 0), FY - 64.5, { thick: 3 });
+    H.support('bedroom', ...rect(-22, -16, 14, 20), FY - 103, { thick: 3 });
+    const top = W(-4, 2), den = W(-6, 2);
+    return { top: { x: top.x, y: FY - 104.2, z: top.z }, den: { x: den.x, y: FY - 4.6, z: den.z }, W };
   }
   // ================================================================ things you can pick up (the grab system)
   function things() {
@@ -1938,7 +2021,7 @@
     if (strokes >= 6) secret('rm.tibbs');
     let he = 'he', him = 'him'; try { he = Cast.he('cat'); him = Cast.him('cat'); } catch (e) {}
     const n = catName(), He = he[0].toUpperCase() + he.slice(1);
-    say(n, esc([`${n} from next door. ${He} comes in through the window and sleeps on my bed. Nobody knows why.`, `Stroke stroke. ${He} opened one eye. ${He} closed it again.`, `${He}'s stretching! There's something under ${him}...`, 'Prrrrrrr.', `PRRRRRRRRRRRR. ${He} likes that.`, `PRRRRRRRRRRRRRRRRRRR! ${He}'s rolled over! Best cat ever.`][Math.min(5, strokes - 1)]));
+    say(n, esc([`${n} from next door. ${He} comes in through the window and sleeps on the cat tree Mom bought so ${he} would stop sleeping on my bed. Nobody knows why ${he} picked us.`, `Stroke stroke. ${He} opened one eye. ${He} closed it again.`, `${He}'s stretching! There's something under ${him}...`, 'Prrrrrrr.', `PRRRRRRRRRRRR. ${He} likes that.`, `PRRRRRRRRRRRRRRRRRRR! ${He}'s rolled over! Best cat ever.`][Math.min(5, strokes - 1)]));
   }
   // Physical hi-fi controller. Loaded on room construction, with retries if
   // the request fails; no PC autorun or old 2D rack view is involved.
@@ -2035,7 +2118,7 @@
     H.ambient.add(now => { // the gentle stuff: the lava lamp's blobs, the cat breathing, the clock, the sky
       const visible=room.group.visible&&room._renderDrawn!==false;
       if (visible && R.blobs && LIGHT.lava) R.blobs.forEach((b, i) => { const t = now / (2600 + i * 900) + i * 2; b.position.y = -12 - (Math.sin(t) * 0.5 + 0.5) * 12; b.scale.y = 1.6 + Math.sin(t * 2.3) * 0.5; });
-      if (visible && R.catBody) R.catBody.scale.y = 6.5 + Math.sin(now / 900) * 0.25;
+      if (visible && R.catBody) R.catBody.scale.y = 1 + Math.sin(now / 900) * 0.035;
       if(now>=nextClock){nextClock=now+1000;const d=window.OwnerTools?.now()||new Date();if(d.getMinutes()!==clockMin){clockMin=d.getMinutes();paintClock(d);if(clockMin%5===0)paintSky()}}
       return !!(visible&&(R.catBody||R.blobs&&LIGHT.lava));
     });

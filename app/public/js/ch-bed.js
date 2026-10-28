@@ -514,7 +514,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       K.into(bowl).geo(K.thicken(band,.06),0,0,0,M({c:'#fff',map:nameTex,sh:14,sp:'#332631'}));
       bowlFill = grp(G => { const r2 = rnd(77); for (let i = 0; i < 26; i++) { const a = r2() * Math.PI * 2, d = Math.sqrt(r2()) * 6.2; G.ball(Math.cos(a) * d, -1.6 - r2() * 1.6 - (6.2 - d) * 0.25, Math.sin(a) * d, 1.1, 0.8, 1.1, mat(['#a0642a', '#8a4a1a', '#c08040'][i % 3], { sh: 20 }), 6); } });
       bowl.add(bowlFill); bowlFill.visible = false;
-      CK.spot(r, 'ch.bowl', bowl, { label: () => `${CK.cast('{cat}')}'s bowl`, act: () => CK.jack(CK.cast('{cat}\'s bowl'), CK.has('cat', 'pour') ? 'Full of biscuits. Now give {cat} a shout (click {cat.him} on the bed).'.replace(/\{[^}]+\}/g, x => CK.cast(x)) : CK.cast('Empty. {cat} keeps looking at it, then at me. The cat biscuits are on my desk.')) });
+      CK.spot(r, 'ch.bowl', bowl, { label: () => `${CK.cast('{cat}')}'s bowl`, act: () => CK.jack(CK.cast('{cat}\'s bowl'), CK.has('cat', 'pour') ? 'Full of biscuits. Now give {cat} a shout (click {cat.him} on the cat tree).'.replace(/\{[^}]+\}/g, x => CK.cast(x)) : CK.cast('Empty. {cat} keeps looking at it, then at me. The cat biscuits are on my desk.')) });
       // the cat biscuits
       const boxTex = A.printed('ch.catbox', 320, 480, (g, w, h) => {g.save();g.scale(w/128,h/192); g.fillStyle = '#7a2a9a'; g.fillRect(0, 0, w, h); g.fillStyle = '#ffd400'; g.fillRect(0, 0, w, 44); A.text(g, 'KITTY', 64, 34, '34px ' + A.FONT, '#7a2a9a', 'center'); A.text(g, 'CRUNCH', 64, 80, '32px ' + A.FONT, '#fff', 'center'); g.fillStyle = '#ff9a3a'; g.beginPath(); g.arc(64, 130, 30, 0, 7); g.fill(); g.fillStyle = '#ff9a3a'; g.beginPath(); g.moveTo(40, 112); g.lineTo(44, 88); g.lineTo(58, 104); g.moveTo(70, 104); g.lineTo(84, 88); g.lineTo(88, 112); g.fill(); g.fillStyle = '#111'; g.fillRect(52, 124, 6, 6); g.fillRect(70, 124, 6, 6); if(window.PrintArt?.has('pack.cat')){g.fillStyle='#7a2a9a';g.fillRect(18,86,92,80);PrintArt.paint(g,'pack.cat',18,86,92,80)}A.text(g, 'with real tuna*', 64, 182, '10px ' + A.UIF, '#ffd400', 'center');g.restore();}, {clamp:true});
       const cb = grp(G => { G.box(0, -8, 0, 11, 16, 4.5, { f: M({ c: '#fff', map: boxTex }), b: M({ c: '#fff', map: boxTex }), all: mat('#6a2a8a') }); G.box(0,-16.12,-1.12,11,.24,2.24,mat('#d4ac2c'));G.box(0,-16.17,1.1,11,.24,2.18,mat('#e5bd34'));G.box(0,-16.32,0,10.4,.15,.28,mat('#9b7927'));G.box(-5.51,-8,0,.08,15,3.6,mat('#592071')); G.shadow(0, 0, 0, 14, 8, 0.5, { sq: true }); });
@@ -540,35 +540,57 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     const r = H.ROOMS.bedroom; let n = 0;
     CK.snd.rustle(); setTimeout(CK.snd.rustle, 300); setTimeout(CK.snd.rustle, 600);
     const iv = setInterval(() => { CK.fx.burst(r, p.x, p.y + 2, p.z, { n: 5, col: '#9a5a24', size: 1.5, life: 0.9, spd: 4, up: -5, grav: 700, floor: FY - 2.5, fade: false, to: [BOWL.x, FY - 3, BOWL.z] }); if (++n >= 7) clearInterval(iv); }, 140);
-    setTimeout(() => { bowlFill.visible = true; bowlFill.scale.set(1, 0.2, 1); CK.tween(bowlFill, { s: 1 }, 400); CK.step('cat', 'pour'); CK.jack('Cat biscuits', CK.cast('Rattle rattle. One ear on the bed just twitched. Now give {cat} a shout: click {cat.him}.'), 4500); }, 900);
+    setTimeout(() => { bowlFill.visible = true; bowlFill.scale.set(1, 0.2, 1); CK.tween(bowlFill, { s: 1 }, 400); CK.step('cat', 'pour'); CK.jack('Cat biscuits', CK.cast('Rattle rattle. One ear on the cat tree just twitched. Now give {cat} a shout: click {cat.him} (on the cat tree).'), 4500); }, 900);
+  }
+  // The cat comes for its tea: a stretch, down off the cat tree (two hops), a walk across to the bowl, every last biscuit,
+  // a sit and a lick, then the walk back and up to bed again. Poses come from the model (js/rm-room.js catModel).
+  const faceTo = (from, x, z) => Math.atan2(z - from.z, -(x - from.x));
+  function walkTo(cat, x, z, speed) {
+    const P = cat.userData.pose, d = Math.hypot(x - cat.position.x, z - cat.position.z), t0 = performance.now(); let on = true;
+    cat.rotation.y = faceTo(cat.position, x, z);
+    if (P) H.anims.set('ch.catwalk', now => { if (on) P('walk', now - t0); return on; });
+    return CK.tween(cat, { x, y: FY, z }, Math.max(300, d / (speed || 70) * 1000), { linear: true }).then(() => { on = false; });
   }
   function callCat() {
     if (catBusy) return true;
     if (!CK.has('cat', 'pour') || CK.has('cat', 'ate')) return false;
     const cat = H.SPOTS.cat.obj; catBusy = true;
+    const P = cat.userData.pose || (() => {}), tree = cat.userData.tree, home = cat.userData.homePose || 'sleep';
     CK.step('cat', 'call');
     CK.jack(CK.cast('{cat}'), CK.cast('"Psss psss psss! {cat}! DINNER!" One eye opens. Then the other. Then {cat.he} remembers {cat.he}\'s a cat and takes {cat.his} time about it.'), 5000);
-    const ry = 24 * D2R;
-    setTimeout(() => {
-      CK.snd.thud();
-      CK.tween(cat, { x: BOWL.x + 19, y: FY, z: BOWL.z - 7, ry }, 650, { arc: 18 }).then(() => {
-        CK.snd.thud(); CK.fx.burst(H.ROOMS.bedroom, cat.position.x, FY - 1, cat.position.z, { n: 10, col: '#c8c0b0', size: 2.2, life: 0.8, spd: 25, up: 4, grav: 30, op: 0.5 });
-        const t0 = performance.now(), dur = 5200;
-        let lastC = 0;
-        H.anims.set('ch.eat', now => {
-          const k = Math.min(1, (now - t0) / dur);
-          cat.rotation.z = Math.sin(now / 160) * 0.05 + 0.08; cat.position.y = FY + Math.abs(Math.sin(now / 160)) * -0.4;
-          bowlFill.scale.set(1, Math.max(0.05, 1 - k), 1);
-          if (now - lastC > 420) { lastC = now; CK.snd.crunch(); }
-          if (k < 1) return true;
-          cat.rotation.z = 0; bowlFill.visible = false;
-          CK.step('cat', 'ate'); CK.snd.purr(); CK.secret('ch.purr');
-          CK.jack(CK.cast('{cat}'), CK.cast('Every last biscuit. {cat.He} licked the bowl, licked {cat.his} paws, and now {cat.he}\'s purring like a moped.'), 5000);
-          setTimeout(() => { CK.tween(cat, { x: catHome.x, y: catHome.y, z: catHome.z, ry: catHome.ry }, 700, { arc: 22 }).then(() => { catBusy = false; CK.snd.thud(); }); }, 2600);
-          return false;
-        });
+    const wait = ms => new Promise(res => setTimeout(res, ms)), up = catHome.y < FY - 20;
+    (async () => {
+      await wait(700); P('stretch'); H.dirty(); await wait(1100);
+      if (up && tree) { // down: the middle shelf, then the floor
+        P('walk', 0); cat.rotation.y = faceTo(cat.position, tree.out.x, tree.out.z);
+        await CK.tween(cat, { x: tree.mid.x, y: tree.mid.y, z: tree.mid.z }, 420, { arc: 8 }); CK.snd.thud();
+        await CK.tween(cat, { x: tree.out.x, y: FY, z: tree.out.z }, 480, { arc: 10 }); CK.snd.thud();
+      } else if (tree) await walkTo(cat, tree.out.x, tree.out.z);
+      else await CK.tween(cat, { y: FY }, 500, { arc: 14 });
+      await walkTo(cat, BOWL.x + 19, BOWL.z - 7);
+      cat.rotation.y = faceTo(cat.position, BOWL.x, BOWL.z);
+      CK.fx.burst(H.ROOMS.bedroom, cat.position.x, FY - 1, cat.position.z, { n: 6, col: '#c8c0b0', size: 2, life: 0.7, spd: 18, up: 3, grav: 30, op: 0.4 });
+      const t0 = performance.now(), dur = 5200; let lastC = 0;
+      H.anims.set('ch.eat', now => {
+        const k = Math.min(1, (now - t0) / dur);
+        P('eat', now);
+        bowlFill.scale.set(1, Math.max(0.05, 1 - k), 1);
+        if (now - lastC > 420) { lastC = now; CK.snd.crunch(); }
+        if (k < 1) return true;
+        bowlFill.visible = false; P('sit');
+        CK.step('cat', 'ate'); CK.snd.purr(); CK.secret('ch.purr');
+        CK.jack(CK.cast('{cat}'), CK.cast('Every last biscuit. {cat.He} licked the bowl, licked {cat.his} paws, and now {cat.he}\'s purring like a moped.'), 5000);
+        setTimeout(async () => {
+          if (tree) {
+            await walkTo(cat, tree.out.x, tree.out.z);
+            if (up) { P('walk', 0); await CK.tween(cat, { x: tree.mid.x, y: tree.mid.y, z: tree.mid.z }, 450, { arc: 12 }); CK.snd.thud(); }
+          }
+          await CK.tween(cat, { x: catHome.x, y: catHome.y, z: catHome.z, ry: catHome.ry }, 520, { arc: up ? 10 : 4 });
+          P(home); catBusy = false; CK.snd.thud(); H.dirty();
+        }, 2600);
+        return false;
       });
-    }, 1400);
+    })();
     return true;
   }
 
