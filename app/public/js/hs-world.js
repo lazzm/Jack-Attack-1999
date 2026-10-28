@@ -735,6 +735,7 @@
     return b;
   }
   // a body moved: the model follows it (with its tip and a chair's swivel), and it changes room when it crosses a doorway
+  const _spinAx = new T.Vector3(), _spinQ = new T.Quaternion();
   function renderBody(t) {
     const b = t.body, a = t.at; if (!b) return;
     a.x = b.x; a.y = b.y; a.z = b.z; a.ry = b.ry; if (t.swivel) { a.sw = b.sw; t.swivel.rotation.y = b.sw * D2R; }
@@ -746,6 +747,10 @@
       rz += lx * D2R; rx -= lz * D2R; lift = Math.sin(Math.hypot(b.tx, b.tz) * D2R) * Math.min(b.rad, 30);
     }
     t.obj.position.set(b.x, renderY(t, b.grounded === false && PH.awake.has(b) ? b.y : softY(t, a)) - lift, b.z); t.obj.rotation.set(rx, b.ry * D2R, rz, 'YXZ');
+    if (t.spin) { // a ball rolls: its inner group turns by the distance travelled over its radius (axis = up x motion)
+      const lp = t.spinAt || (t.spinAt = { x: b.x, z: b.z }), dx = b.x - lp.x, dz = b.z - lp.z, d = Math.hypot(dx, dz); lp.x = b.x; lp.z = b.z;
+      if (d > 0.01 && d < 60) { const yaw = b.ry * D2R, ax = -dz, az = dx, lx = ax * Math.cos(yaw) - az * Math.sin(yaw), lz = ax * Math.sin(yaw) + az * Math.cos(yaw); _spinAx.set(lx / d, 0, lz / d); _spinQ.setFromAxisAngle(_spinAx, d / (t.spinR || 10)); t.spin.quaternion.premultiply(_spinQ); }
+    }
     const air = !b.grounded && PH.awake.has(b);
     if (t.airborne !== air) { t.airborne = air; t.obj.traverse(o => { if (o.userData.contactShadow) o.visible = !air && (t.st === 'rest' || t.st === 'snap'); }); }
     dirty();

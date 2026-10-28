@@ -159,7 +159,7 @@
         const jit = (r() - 0.5) * (full ? 0.18 : 0.3) * f;
         let y = top ? 0.32 + (H * f) * (1 - (full ? 0.06 : 0.3) * Math.sin(u * 4.1 + v * 2.3)) + crease * (full ? 0.3 : 1) + jit : 0.1 + 0.08 * f;
         const x = u * L / 2, z = v * W / 2 * pinch + twist * u * u * Math.sign(u) * 1.2;
-        pos.push(x, -y, z); uv.push(top ? 0.03 + 0.44 * (u + 1) / 2 : 0.53 + 0.44 * (1 - u) / 2, (v + 1) / 2);
+        pos.push(x, -y, z); uv.push(top ? 0.03 + 0.44 * (1 - u) / 2 : 0.53 + 0.44 * (u + 1) / 2, (v + 1) / 2);
       }
       for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) { const a = base + j * (nu + 1) + i, b = a + 1, c = a + nu + 2, e = a + nu + 1; if (top) index.push(a, b, e, b, c, e); else index.push(a, e, b, b, e, c); }
     }

@@ -1361,6 +1361,33 @@
     H.dirty();
   }
 
+  // a truncated icosahedron on a sphere: each panel is a fan from its domed centre, an inner ring, and an outer ring sunk
+  // into the seam; pentagons black, hexagons white (vertex colours), radial normals so it shades as a smooth ball
+  function footballGeo(R) {
+    const ico = new T.IcosahedronGeometry(1, 0), P = ico.attributes.position, V = [], key = v => v.toArray().map(n => n.toFixed(4)).join();
+    const idx = new Map(), faces = [];
+    for (let i = 0; i < P.count; i++) { const v = new T.Vector3().fromBufferAttribute(P, i), k = key(v); if (!idx.has(k)) { idx.set(k, V.length); V.push(v); } if (i % 3 === 2) faces.push([idx.get(key(new T.Vector3().fromBufferAttribute(P, i - 2))), idx.get(key(new T.Vector3().fromBufferAttribute(P, i - 1))), idx.get(k)]); }
+    const third = (a, b) => V[a].clone().lerp(V[b], 1 / 3);
+    const panels = [];
+    V.forEach((_, vi) => { const pts = []; for (const f of faces) if (f.includes(vi)) for (const o of f) if (o !== vi) pts.push(third(vi, o)); panels.push({ pts: pts.filter((p, n) => pts.findIndex(q => q.distanceTo(p) < 1e-4) === n), dark: true }); });
+    for (const [a, b, c] of faces) panels.push({ pts: [third(a, b), third(b, a), third(b, c), third(c, b), third(c, a), third(a, c)], dark: false });
+    const pos = [], nrm = [], col = [], black = new T.Color('#16161a'), white = new T.Color('#f3f1ea'), seam = new T.Color('#55555a');
+    const push = (v, r, c) => { const n = v.clone().normalize(); pos.push(n.x * r, n.y * r, n.z * r); nrm.push(n.x, n.y, n.z); col.push(c.r, c.g, c.b); };
+    for (const pn of panels) {
+      const c = pn.pts.reduce((s, p) => s.add(p), new T.Vector3()).divideScalar(pn.pts.length), nn = c.clone().normalize();
+      const u = pn.pts[0].clone().sub(c).normalize(), w = nn.clone().cross(u); // order the corners round the centre
+      const ring = pn.pts.slice().sort((p, q) => Math.atan2(p.clone().sub(c).dot(w), p.clone().sub(c).dot(u)) - Math.atan2(q.clone().sub(c).dot(w), q.clone().sub(c).dot(u)));
+      const inner = ring.map(p => c.clone().lerp(p, 0.86)), fill = pn.dark ? black : white, n = ring.length;
+      for (let k = 0; k < n; k++) {
+        const a = inner[k], b = inner[(k + 1) % n], A = ring[k], B = ring[(k + 1) % n];
+        push(c, R * 1.012, fill); push(a, R, fill); push(b, R, fill);
+        push(a, R, fill); push(A, R * 0.982, seam); push(B, R * 0.982, seam);
+        push(a, R, fill); push(B, R * 0.982, seam); push(b, R, fill);
+      }
+    }
+    const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new T.Float32BufferAttribute(nrm, 3)); geo.setAttribute('color', new T.Float32BufferAttribute(col, 3));
+    ico.dispose(); return geo;
+  }
   // ================================================================ things you can pick up (the grab system)
   function things() {
     const add = (id, def) => { const t = H.thing(id, def); t.obj.userData.thing = 1; t.obj.traverse(o => { o.userData.thing = 1; }); H.restoreThing(t); return t; };
@@ -1368,9 +1395,12 @@
     const cube=add('cube',{home:{room:'bedroom',x:-40,y:0,z:-10,ry:25},kind:'toy',label:'Puzzle cube',obj:cubeModel(),use:()=>H.inspect('cube'),useLabel:'Solve it',holdD:34});
     if(cube.at.room==='bedroom'&&cube.st==='rest'&&Math.abs(cube.at.x+50)<.1&&Math.abs(cube.at.y)<.1&&Math.abs(cube.at.z+22)<.1&&Math.abs(cube.at.ry-25)<.1){cube.at=Object.assign({},cube.home);H.place(cube);H.saveThings()}
     add('vpet', { home: { room: 'bedroom', x: 40, y: 0, z: 24, ry: 10 }, kind: 'toy', label: 'Eggbert (my keyring pet)', obj: vpetModel(), use:()=>H.inspect('vpet'),useLabel:'Check on it',holdD:30,inspectPose:{pitch:-78,yaw:0},onInspectStart:petInspect,onInspectEnd:()=>{clearInterval(R.petTimer);R.petTimer=null},onInspectKey:ev=>{const action={a:'feed',b:'play',c:'clean'}[ev.key.toLowerCase()];if(action&&!ev.repeat)R.petAction?.(action);return!!action},onInspectClick:hit=>{const action=hit?.object.userData.inspectAction;if(action)R.petAction?.(action)} });
-    const fb = new T.Group(); K.into(fb).ball(0, -11, 0, 11, 11, 11, M({ c: '#fff', map: K.tex('rm.ball', 256, 128, (g, w, h) => { g.fillStyle = '#f4f4f0'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a1a1a'; for (let y = 0; y < 3; y++) for (let x = 0; x < 6; x++) { const cx = x * 43 + (y % 2) * 21, cy = 20 + y * 44; g.beginPath(); for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; g.lineTo(cx + Math.cos(a) * 11, cy + Math.sin(a) * 11); } g.fill(); } }), sh: 30 }), 18);
+    // The football: a real truncated icosahedron (12 black pentagons, 20 white hexagons) with inset seams and domed
+    // panels, one vertex-coloured mesh (540 triangles). It sits in a spin group so it rolls when it is kicked.
+    const fb = new T.Group(), spin = new T.Group(); spin.position.set(0, -11, 0); fb.add(spin);
+    spin.add(new T.Mesh(footballGeo(11), M({ c: '#fff', vc: true, sh: 38, sp: '#4a4a4a' })));
     K.into(fb).shadow(0, 0, 0, 24, 24, 0.5);
-    add('football', { home: { room: 'bedroom', x: -60, y: FY, z: 200, ry: 0 }, kind: 'ball', label: 'Football', obj: fb, holdD: 60 });
+    const ball = add('football', { home: { room: 'bedroom', x: -60, y: FY, z: 200, ry: 0 }, kind: 'ball', label: 'Football', obj: fb, holdD: 60, physics: { round: true, mass: 0.43, mu: 0.12, coast: 0.85 } }); ball.spin = spin; ball.spinR = 11;
     // (real floppies, discs and game boxes are Agent P's: js/pm-gl.js, through Room.grabbable)
     H.on('grab', id => { carry.id = id; carry.d = 0; });
     H.on('place', () => { carry.id = null; });
