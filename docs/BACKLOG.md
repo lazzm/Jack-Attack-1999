@@ -210,3 +210,8 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R97 | art | med | Jack 2026-10-28 | "Fix mom's hips too" (after the waist-gap fix in 2.57.7 - awaiting screenshot to confirm what is wrong) | People agent next round |
 | R98 | ux | high | Jack 2026-10-28 | Mobile controls still janky/hard - research and polish | Mobile round 3 (research-led, docs/MOBILE-CONTROLS.md) |
 | R99 | bug | low | voices/two-speakers.png | In the kitchen Dad walks into the sister and they overlap | People agent: person-person avoidance in tight spots |
+| R100 | ux | high | Jack 2026-10-28 | Held things change size (shrunk near-camera copy); arms too long, item held too far out | Physics agent (carry-arms): real-size holding |
+| R101 | bug | med | Jack 2026-10-28 | Moving the bin is glitchy | Physics agent (carry-arms) |
+| R102 | art | high | Jack 2026-10-28 | Everyone's hips: waistband ledge, crotch wedge, board-like hem | People agent (people-hips) |
+| R103 | world | high | Jack 2026-10-28 | Front door cramped by the car/open boot - need more space | House round 2 (front chunk) |
+| R104 | bug | critical | Jack 2026-10-28 | Dad parks in the bedroom doorway (blocking the player) and Dad + Mom repeat the same scene lines over and over | People agent hotfix (people-loopfix) |

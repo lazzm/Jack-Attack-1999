@@ -644,7 +644,9 @@
     const held = H.held(); if (!held || !storyOn()) return;
     const p = player();
     if (/^st\.pc\./.test(held)) {
-      if (C.mom.present && C.mom.goal?.spotKey === 'hallStairs' && dist(C.mom, p) < 260 && sameFloor(C.mom, p)) say('mom', C.mom.said['c1.mom.carry'] ? 'c1.mom.carry2' : 'c1.mom.carry', { prio: 2, range: 400 }) && (C.mom.said[C.mom.said['c1.mom.carry'] ? 'c1.mom.carry2' : 'c1.mom.carry'] = nowMs());
+      // each carry remark once (it used to repeat "carry2" every time you passed her)
+      const next = !C.mom.said['c1.mom.carry'] ? 'c1.mom.carry' : !C.mom.said['c1.mom.carry2'] ? 'c1.mom.carry2' : null;
+      if (next && C.mom.present && C.mom.goal?.spotKey === 'hallStairs' && dist(C.mom, p) < 260 && sameFloor(C.mom, p)) say('mom', next, { prio: 2, range: 400 }) && (C.mom.said[next] = nowMs());
       if (C.sister.present && C.sister.goal?.spotKey === 'landingSis' && dist(C.sister, p) < 240 && sameFloor(C.sister, p) && !C.sister.said['c1.sis.stairs']) { C.sister.said['c1.sis.stairs'] = nowMs(); say('sister', 'c1.sis.stairs', { prio: 2 }); say('sister', 'c1.sis.stairs2', { prio: 2 }); }
     }
   }
