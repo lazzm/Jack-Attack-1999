@@ -170,7 +170,13 @@ const checks=[
      localStorage.setItem('jhp_off','1');
    });
    const saved=await houseSave(desktop),beanbag=await desktop.evaluate(()=>({...House.THINGS.beanbag.at}));
-   assert(await desktop.evaluate(()=>Roam.syncNow()),'Existing account profile did not upload');
+   // An autosave can already be uploading, or have used the save bucket. Confirm the real upload before switching devices.
+   let uploaded=false;
+   for(let attempt=0;attempt<3&&!uploaded;attempt++){
+     uploaded=await desktop.evaluate(()=>Roam.syncNow());
+     if(!uploaded&&attempt<2)await desktop.waitForTimeout(21000);
+   }
+   assert(uploaded,'Existing account profile did not upload after waiting for the save allowance');
    await desktop.close(); // This is the final room check; stop software WebGL before opening the phone.
 
    const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'});

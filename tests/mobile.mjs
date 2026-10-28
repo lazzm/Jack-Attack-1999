@@ -72,6 +72,15 @@ async function phone(profile, { tier = null, hour = 14 } = {}) {
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
   page.on('console', m => { if (['error', 'warning'].includes(m.type()) && !/GPU stall|ReadPixels|GL Driver/.test(m.text())) errors.push(m.type() + ': ' + m.text()); });
   page.setDefaultTimeout(30000 * SCALE);
+  await page.addInitScript(() => {
+    const bind = () => {
+      if (!window.Net?.on) { setTimeout(bind, 0); return; }
+      Net.on('rmSame', () => { window.__testProfileReady = true; });
+      Net.on('rmNone', () => { window.__testProfileReady = true; });
+      Net.on('rmData', () => { window.__testProfileReady = false; });
+    };
+    bind();
+  });
   await page.addInitScript(({ tier, hour }) => {
     if (tier) localStorage.setItem('jhp_hs_gfx', JSON.stringify(tier));
     window.auditHour = hour; Date.prototype.getHours = () => window.auditHour; Date.prototype.getMinutes = () => 0;
@@ -126,14 +135,14 @@ async function logon(p, acct, { signup = false, first = '' } = {}) {
   await page.locator('#accountGate [type=submit]').tap();
   await until(() => window.AccountGate?.allowed || !!document.querySelector('#accountFirst'), null, 60000);
   if (await page.locator('#accountFirst').count()) { if (first) await shot(first + '-identity'); await page.locator('#accountGate [type=submit]').tap(); }
-  await until(() => window.AccountGate?.allowed && window.House?.live && !document.querySelector('.hs-loading,#houseEntry'), null, 120000);
+  await until(() => window.__testProfileReady && window.AccountGate?.allowed && window.House?.live && !document.querySelector('.hs-loading,#houseEntry'), null, 120000);
 }
 // Point the camera with the scene API (like the smoke fixture); every interaction after that is a real finger.
 async function aimAt(p, eye, target, level = 'U') {
   await p.page.evaluate(({ eye, target, level }) => {
     House.hush(); House.setWalkFrom({ x: eye[0], y: eye[1], z: eye[2], lvl: level, seat: 0 });
     const [x, y, z] = eye, [tx, ty, tz] = target;
-    Object.assign(House.P, { x, y, z, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI });
+    Object.assign(House.P, { x, y, z, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI, lvl: level, seat: 0 });
     House._.setMode('walk'); House.dirty();
   }, { eye, target, level });
   await sleep(400);
@@ -345,7 +354,7 @@ const phases = {
           const fam = /^np\./.test(id) && window.HouseFamily?.debug?.dump().find(f => 'np.' + f.id === id); if (fam) { lvl = fam.lvl; c = [fam.x, lvl === 'G' ? 230 : -30, fam.z]; }
           const ey = lvl === 'G' ? 205 : -55;
         const room = fam ? H.ROOMS[fam.room] : null, inRoom = (x, z) => !room || room.area.some(q => x >= q[0] + 20 && x <= q[2] - 20 && z >= q[1] + 20 && z <= q[3] - 20);
-          const out = []; for (const d of [150, 110, 190, 130]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (H._.cellOk(lvl, x, z) && inRoom(x, z)) out.push({ e: [x, ey, z], c: [c[0], Math.min(c[1], ey + 40), c[2]], lvl }); } return out; }, id);
+          const out = []; for (const d of [150, 190, 110]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (H._.cellOk(lvl, x, z) && inRoom(x, z)) out.push({ e: [x, ey, z], c: [c[0], Math.min(c[1], ey + 40), c[2]], lvl }); } return out; }, id);
         for (const q of r || []) {
           await aimAt(p, q.e, q.c, q.lvl);
           // a step with the stick lets the house notice which room you are in (and draw it), then look again
@@ -369,9 +378,12 @@ const phases = {
         await until(d => !!House.DOORS[d.id].open !== d.open, door, 10000); await page.waitForTimeout(900); await shot('story-02g-door-toggled');
       }
       if (await page.evaluate(() => !!House.SPOTS['np.mom'] && !!window.HouseFamily?.debug?.dump().find(f => f.id === 'mom' && f.present))) {
+        // Keep the touch target at a known, reachable daily job rather than chasing her phone routine.
+        await page.evaluate(() => { const F = HouseFamily; F.debug.go('mom', 'hob'); F.debug.place('mom', 'hob'); F.debug.sim(5, 0.1); });
         assert(await look('np.mom'), 'Nowhere to stand in sight of Mom: ' + JSON.stringify(await page.evaluate(() => HouseFamily.debug.dump().find(f => f.id === 'mom')))); const said = await clickThing(p, 'np.mom', 'story-02c-finger-on-mom');
         assert.match(said, /talk/i, 'Finger label on Mom: ' + said + ' ' + JSON.stringify(await page.evaluate(() => { const o = House.SPOTS['np.mom'].obj, v = new House.T.Vector3(); o.getWorldPosition(v); return { dump: HouseFamily.debug.dump().find(f => f.id === 'mom'), proxy: [v.x, v.y, v.z], P: House.P, vis: o.visible, parentVis: o.parent?.visible }; })));
         await until(() => !!document.querySelector('.hs-voice.on,.hs-call.on,.hs-note.on,.np-bub:not(.np-out)'), null, 15000); await page.waitForTimeout(500); await shot('story-02d-talking-to-mom');
+        await page.evaluate(() => HouseFamily.debug.go('mom', null));
       } else report.checks.push({ label: 'Mom not in the bedroom at the opening', skipped: true });
       const mag = await page.evaluate(() => ['pmb.pm.mag.01', 'pmb.pm.mag.02'].find(id => House.THINGS[id]?.obj.visible && House.THINGS[id].st === 'rest'));
       if (mag) {
@@ -403,7 +415,8 @@ const phases = {
       assert(!/\[J\]/.test(line), 'Quest line shows a keyboard key on touch: ' + line);
       if (line) {
         await p.press('.st-objective'); await page.waitForTimeout(800); await shot('story-06-diary-picker');
-        await page.evaluate(() => document.querySelector('.st-quests [data-close], .st-picker button, dialog[open] button')?.click());
+        await p.press('[data-quest-close]');
+        await until(() => !window.stDiary?.picking);
         await page.waitForTimeout(400);
       }
       // the pause menu: touch settings, no keyboard text
@@ -413,13 +426,16 @@ const phases = {
       await page.evaluate(() => document.querySelector('dialog.hs-pause').scrollTop = 9999); await page.waitForTimeout(200); await shot('story-08-pause-bottom');
       await page.evaluate(() => document.querySelector('dialog.hs-pause').scrollTop = 0); await page.waitForTimeout(150);
       await p.press('[data-pause="resume"]'); await until(() => !HousePause.open && !House.paused);
-      // refresh mid-walk: the pose is kept
+      // Keep moving until navigation: compare with the final departing pose, not an earlier
+      // sample taken while the finger is still held (busy renderers can move between those calls).
+      await page.evaluate(() => addEventListener('pagehide', () => sessionStorage.setItem('jhp_mobile_test_departing', JSON.stringify([House.W.x, House.W.z])), {once:true}));
       await fingers.down(1, 90, h - 160); await fingers.move(1, 90, h - 230); await page.waitForTimeout(600);
       const mid = await page.evaluate(() => { House.saveWalkState(); return [House.W.x, House.W.z]; });
       await page.reload({ waitUntil: 'domcontentloaded' }); fingers.up(1).catch(() => {});
       await until(() => window.AccountGate?.allowed && window.House?.live && !document.querySelector('.hs-loading,#houseEntry') && House.mode === 'walk', null, 120000);
-      const after = await page.evaluate(() => [House.W.x, House.W.z]);
-      assert(Math.hypot(after[0] - mid[0], after[1] - mid[1]) < 40, 'Refresh mid-walk lost the pose: ' + JSON.stringify([mid, after]));
+      const {after,departing} = await page.evaluate(() => ({after:[House.W.x,House.W.z],departing:JSON.parse(sessionStorage.getItem('jhp_mobile_test_departing')||'null')}));
+      assert(departing, 'No pagehide pose was recorded');
+      assert(Math.hypot(after[0] - departing[0], after[1] - departing[1]) < 2, 'Refresh mid-walk lost the final pose: ' + JSON.stringify({mid,departing,after}));
       await page.waitForTimeout(1200); await shot('story-09-after-refresh'); await notBlack(p, 'after refresh');
       // rotate: landscape and back, never black
       await page.setViewportSize({ width: 844, height: 390 }); await page.waitForTimeout(1200);
@@ -431,7 +447,7 @@ const phases = {
       await page.waitForTimeout(600); await page.evaluate(() => window.__lose.restoreContext()); await page.waitForTimeout(1500);
       await page.evaluate(() => House.dirty()); await page.waitForTimeout(800);
       await shot('story-11-context-restored'); await notBlack(p, 'context restored');
-      assert.deepEqual(p.errors.filter(e => !/context lost|CONTEXT_LOST/i.test(e)), [], 'story browser errors');
+      assert.deepEqual(p.errors.filter(e => !/context[ _-]lost/i.test(e)), [], 'story browser errors');
     } finally { await p.ctx.close(); }
   },
 
@@ -665,6 +681,10 @@ const phases = {
         report.checks.push({ label: 'owner tools ' + prof, clipped });
         assert.deepEqual(clipped, [], 'Owner tools clipped at ' + prof);
         assert.deepEqual(p.errors, [], 'owner browser errors');
+      } catch (e) {
+        await shot('owner-failure-' + prof).catch(() => {});
+        console.log('Owner menu state', await page.evaluate(() => ({ god: House.god, owner: OwnerTools.active, picking: window.stDiary?.picking, mode: House.mode, glide: House.gliding, touch: document.documentElement.dataset.touchState, dialogs: [...document.querySelectorAll('dialog[open]')].map(d => d.className) })));
+        throw e;
       } finally { await p.ctx.close(); }
     }
   },

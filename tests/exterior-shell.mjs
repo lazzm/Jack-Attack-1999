@@ -1,11 +1,12 @@
 // Exterior shell regression: no sky or street may show where the family house's walls, gables or roof should be.
-// node tests/exterior-shell.mjs http://localhost:PORT [--tier=low] [--profiles=desktop,phone] [--eye=140]
+// node tests/exterior-shell.mjs http://localhost:PORT [--tier=low] [--profiles=desktop,phone] [--eye=143]
 //
 // From every reachable spot round the house (front lawn, drive both sides of the car, the pavement, the back garden,
 // the road in both directions) it looks at the house left, centre and right, level and looking up. For each view it
-// hides the neighbourhood and every room interior, paints the sky pure magenta, renders, and samples a screen grid:
+// hides the neighbourhood (rooms stay as the game shows them: an open door or a window rightly shows the room behind),
+// paints the sky pure magenta, renders, and samples a screen grid:
 // a sample whose camera ray enters the house's solid volume (walls ground to eaves, plus the roof prism) must not be
-// magenta. Rays whose first hit is glass are skipped (the rooms behind windows are hidden on purpose).
+// magenta. Rays whose first hit is glass are skipped.
 // Writes tests/shots/exterior-shell/<profile>-<view>.png (the magenta pass, failing samples ringed) for failures,
 // and a normal-render contact image per profile for review. Exit 0 = no holes.
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -13,15 +14,15 @@ import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
 const base=process.argv[2];if(!base)throw Error('usage: node tests/exterior-shell.mjs http://localhost:PORT');
 const arg=(k,d)=>process.argv.find(a=>a.startsWith('--'+k+'='))?.slice(k.length+3)||d;
-const tier=arg('tier','low'),eyeH=+arg('eye','140'),profiles=arg('profiles','desktop,phone').split(',');
+const tier=arg('tier','low'),eyeH=+arg('eye','143'),profiles=arg('profiles','desktop,phone').split(',');
 const dir=fileURLToPath(new URL('./shots/exterior-shell/',import.meta.url));await mkdir(dir,{recursive:true});
 const GY=353,EY=GY-eyeH;
 // [name, eye x, eye z, walkable room point (x,z) or null for the eye itself]
-const SPOTS=[
- ['lawn-west-corner',-335,712],['lawn-west-gate',-335,1360],['lawn-middle',-120,1000],['hardstanding',120,712],
- ['front-path-gate',300,1360],['car-house-gap',470,712],['drive-east-corner',710,712],['drive-east-mid',710,1000],
- ['drive-gateway',700,1365],['car-front',460,1120],
- ['street-east',1150,1650,[700,1365]],['street-west',-700,1650,[-335,1360]],['opposite-pavement',60,1950,[300,1360]],
+const SPOTS=F=>[
+ ['lawn-west-corner',-335,712],['lawn-west-gate',-335,F.FZ+60],['lawn-middle',-120,1000],['hardstanding',120,712],
+ ['front-path-gate',300,F.FZ+60],['car-house-gap',470,712],['drive-east-corner',710,712],['drive-east-mid',710,1000],
+ ['drive-gateway',700,F.FZ+65],['car-front',460,F.FZ+80],
+ ['street-east',1150,(F.STREET.road[0]+F.STREET.road[1])/2,[700,F.FZ+65]],['street-west',-700,(F.STREET.road[0]+F.STREET.road[1])/2,[-335,F.FZ+60]],['opposite-pavement',60,(F.STREET.farPave[0]+F.STREET.farPave[1])/2,[300,F.FZ+60]],
  ['garden-back-west',-290,-550],['garden-back-east',205,-550],['garden-middle',-50,-300],['garden-by-door',190,-70],['garden-by-house-west',-290,-70],
 ];
 const AIM=[60,100,322]; // the middle of the house
@@ -32,7 +33,8 @@ for(const profile of profiles){
  try{
   await p.evaluate(()=>{for(const id of ['drive','garden'])House.buildRoom(House.ROOMS[id]);House.dirty()});
   await p.waitForTimeout(600);
-  for(const [name,x,z,room] of SPOTS){
+  const front=await p.evaluate(()=>House.FRONT);
+  for(const [name,x,z,room] of SPOTS(front)){
    const yaw0=Math.atan2(AIM[0]-x,-(AIM[2]-z))*180/Math.PI;
    for(const [dyaw,pitch] of [[-40,0],[0,0],[40,0],[0,32]]){
     const level=z<0?'garden':'drive',rp=room||[x,z];
@@ -43,8 +45,7 @@ for(const profile of profiles){
      const roof=House.root.children.find(o=>o.name==='family-house-roof');
      const keep=[House.ROOMS.drive.group,House.ROOMS.garden.group,roof].filter(Boolean);
      const saved=[];const hide=o=>{saved.push([o,o.visible]);o.visible=false};
-     if(window.HouseEnvironment)hide(HouseEnvironment.group);
-     for(const id in House.ROOMS)if(!['drive','garden'].includes(id))hide(House.ROOMS[id].group);
+     if(window.HouseEnvironment){hide(HouseEnvironment.group);if(HouseEnvironment.backdrop)hide(HouseEnvironment.backdrop)} // (and the horizon ring)
      for(const g of [House.ROOMS.drive.group,House.ROOMS.garden.group]){saved.push([g,g.visible]);g.visible=true}
      const bg=scene.background,fog=scene.fog;scene.background=new T.Color('#ff00ff');scene.fog=null;
      ren.render(scene,cam);

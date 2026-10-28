@@ -90,6 +90,10 @@ html[data-game-touch="true"] .hs-ui.holding .rm-note{bottom:auto;top:calc(env(sa
   html[data-game-touch="true"] .hs-ui .hs-map{display:none}
   .ht-stick{left:calc(var(--sl) + 84px);top:calc(100% - var(--sb) - 150px)}
 }
+/* Keep the landscape carry caption above the real object and forearms. */
+@media (orientation:landscape){
+  html[data-game-touch="true"] .hs-ui .hs-hold{top:calc(env(safe-area-inset-top,0px) + 96px);bottom:auto}
+}
 @media (orientation:landscape) and (max-height:500px){
   .ht-stick{left:calc(var(--sl) + 96px);top:calc(100% - var(--sb) - 104px);width:112px;height:112px;margin:-56px 0 0 -56px}
   .ht-acts{transform:scale(.88);transform-origin:100% 100%}

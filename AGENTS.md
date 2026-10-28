@@ -82,7 +82,7 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
   Never place a thing on the stairs or block a doorway/the way to the PC (the ghost turns red).
 
 - Graphics settings and the JackOS-only choice are per device and never sync between devices.
-- Front plot: `House.FRONT` (hs-world.js) is the single source of truth for the front garden depth (pavement at z 1300) and Dad's car position. Place car and drive things relative to `House.ROOMS.drive.carFrame` and `House.FRONT`, never hardcoded numbers. When room geometry moves, bump the save version and add a rule to `migratePlacement` so saved items move with it.
+- Front plot: `House.FRONT` (hs-world.js) is the single source of truth for the front garden depth (pavement at z 1400; owner approved the extra metre on 2026-10-28) and Dad's car position. Place car and drive things relative to `House.ROOMS.drive.carFrame` and `House.FRONT`, never hardcoded numbers. When room geometry moves, bump the save version and add a rule to `migratePlacement` so saved items move with it.
 - People (docs/PEOPLE.md): stylised, one level of abstraction everywhere, painted atlas faces (no 3D noses/lips); keep ~2 draw calls and <=3k triangles per person on Low/Potato.
 
 ## Owner's layout edits

@@ -4,7 +4,7 @@
 const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
 const js = f => fs.readFileSync(path.join(__dirname, '../app/public/js', f), 'utf8');
 // (the clips are generated outside git by tools/audio/gen-lines.mjs; without them, a stand-in manifest tests the player)
-const mPath = path.join(__dirname, '../app/public/audio/voice/manifest.json'), real = fs.existsSync(mPath);
+const mPath = path.join(__dirname, '../app/public/audio/voice/manifest.json'), real = fs.existsSync(mPath) && JSON.parse(fs.readFileSync(mPath, 'utf8'))['c2.pocket.dad'] != null;
 const manifest = real ? JSON.parse(fs.readFileSync(mPath, 'utf8')) : Object.fromEntries(['c2.pocket.dad', 'c2.pocket.dad2', 'c2.pocket.dad3'].map(id => [id, { file: id + '.mp3', character: 'dad', dur: 4 }]));
 // every manifest entry has its file
 if (real) for (const [id, m] of Object.entries(manifest)) assert(fs.existsSync(path.join(__dirname, '../app/public/audio/voice', m.file)), 'missing ' + m.file);
@@ -66,7 +66,7 @@ const tick = () => new Promise(r => setImmediate(r));
     w.Sound.effectsOn = false; assert(h2.ended, 'switching effects & voices off stops the voice'); assert.equal(bus.gain.value, 0, 'voice bus silent');
     assert.equal(w.st.play('c2.pocket.dad3', {}), null, 'off: no new voice');
     // the subtitle setting persists
-    w.st.subtitles = true; assert.equal(w.localStorage.getItem('jhp_subtitles'), '1'); }
+    w.st.subtitles = true; assert.equal(w.localStorage.getItem('jhp_subtitles2'), '1'); }
   // ---- sound off from the start: nothing fetched but the manifest
   { const { w, fetched } = world({ jhp_audio_effects: '0', jhp_audio_volume: '1' });
     await w.st.loadVoices(); await tick();

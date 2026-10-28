@@ -19,7 +19,7 @@
   // ================================================================ HOOVER THE LOUNGE
   const HOME = { room: 'hall', x: 224, z: 452, ry: 90 }; // (in the hall, by the lounge door)
   const SOCKET = { room: 'lounge', x: 60, y: GY - 28, z: 306.6, nx: 0, nz: 1 };
-  const CRUMBS = [[-215, 385], [-150, 402], [-205, 478], [-182, 628], [-58, 386], [22, 402], [32, 498], [-92, 506], [104, 520], [60, 642], [-60, 652], [-215, 520]];
+  const CRUMBS = [[-215, 385], [-150, 402], [-205, 478], [-182, 628], [-58, 386], [22, 402], [32, 498], [-92, 506], [104, 520], [60, 642], [-60, 534], [-215, 520]];
   const KINDS = [['lego', 'A Blocko brick'], ['biscuit', 'Biscuit crumbs'], ['crisps', 'Crisp bits'], ['popcorn', 'Popcorn'], ['fluff', 'Fluff'], ['biscuit', 'Custard cream crumbs'], ['crisps', 'Quavver dust'], ['fluff', 'Cat hair (next door\'s)'], ['glitter', 'Glitter (' + CK.cast('{sister}') + '\'s)']];
   let hv = null, patches = [], socketObj = null, hoovering = false;
   const V = () => (CK.S.v.hoover = CK.S.v.hoover || {});
@@ -166,7 +166,7 @@
   });
 
   // ================================================================ PLUMP THE CUSHIONS (three on the settee, one on Dad's chair)
-  const SEATS = [{ x: -96, z: 547, ry: 0 }, { x: -63, z: 547, ry: -4 }, { x: -30, z: 547, ry: 3 }, { x: 123, z: 425, ry: -70 }];
+  const SEATS = [{ x: -93, z: 592, ry: 0 }, { x: -60, z: 592, ry: -4 }, { x: -27, z: 592, ry: 3 }, { x: 122, z: 388, ry: -62 }];
   const CHOME = [[-182, 458, 30], [2, 500, -20], [-112, 382, 70], [-30, 395, -50]];
   const CCOL = [['#7a2a6a', '#e8b0d8'], ['#2a5a8a', '#a8d0f0'], ['#c8a020', '#fff0a0'], ['#2a7a4a', '#b0e8c0']];
   let cush = [];

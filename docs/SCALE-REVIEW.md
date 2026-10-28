@@ -10,15 +10,23 @@ re-measure before editing. Shots named `house-scale/*` were taken at eye 158 cm,
 Method note for sizes in the shots: brick course on the house front measures about 7.4 cm against the 205 cm door leaf, so the
 brick texture scale (21.5 x 6.5) is correct and is the yardstick the other rows are judged against.
 
-## Global (fix these first, they colour every row below)
+## Camera follow-up (28 October)
+
+G1/G2 are implemented on `house-camera`: standing eye 143 cm and default seated eye 108 cm; walking uses 60 degrees vertically on ordinary landscape displays, at least 50 degrees horizontally in portrait, and a 95-degree horizontal ceiling. The PC retains its original lens. CSS and WebGL use the same focal length throughout the change.
+
+`node tests/camera-lens.mjs` measures six viewports and captures bedroom, hall, lounge and drive views at the actual walking lens. Matched old-camera captures are in `tests/shots/camera-lens/before/` (`--baseline --app-root=<old app directory>`); current captures are directly in `camera-lens/`. At 1366x860 the new view is 60 degrees vertical / 85.04 horizontal; at 390x844 it is 90.52 vertical / 50 horizontal. Both rendered camera systems agree within one pixel. A standing save from the old 128 cm eye retains its location and walking mode. The live desktop also follows lens-only changes: all four DOM corners remain within 0.06 px of the WebGL glass (R111). The historical current/target columns below predate these measured results.
+
+G5: the scale, movement and character fixtures now use `House.STAND`, so their standing captures no longer silently put the camera above the player. Old audit images remain historical evidence; remaining dimensions below still need their own review.
+
+## Global (remaining rows still need review)
 
 | id | issue | where | current | target | why it feels wrong |
 |---|---|---|---|---|---|
-| G1 | Lens is a 41 degree vertical FOV | `PERSP = 115` (HW:23), `lensFov` (HW:149): 2*atan(vh/2 / (115*em)); em about 10 at 860 px high; the mobile css bumps em so it is about 38 degrees | about 41 deg vertical (about 62 horizontal at 16:9) | 58-62 deg vertical (PERSP about 76-80) | A long lens in a small house: you stand 1 m from a 192 cm wardrobe and it fills the frame, the car side fills the screen from 3 m, a 100 cm wide room feels like a corridor. Everything looks huge and close and flat at once, which is the "weird" feeling. Retune the station poses (`rm-room.js` stations, `look()` calls) and pickBox framing after widening |
-| G2 | Eye height too low for the house it lives in | `STAND = 128`, `SITH = 100` (HW:544); house-scale test used 158; `seat.eye` 110 chair / 81 beanbag | 128 standing | 142-145 standing, 108 seated, crouch -38 stays | A 12 year old's eyes are about 140-145 cm; 128 is a 9 year old. Against 205 cm doors and 258 ceilings every fixed thing is 1.5x the player. Also makes the dad/mom heads (about 175/160) tower |
+| G1 (done 2.57.13) | Lens is a 41 degree vertical FOV | `PERSP = 115` (HW:23), `lensFov` (HW:149): 2*atan(vh/2 / (115*em)); em about 10 at 860 px high; the mobile css bumps em so it is about 38 degrees | about 41 deg vertical (about 62 horizontal at 16:9) | 58-62 deg vertical (PERSP about 76-80) | A long lens in a small house: you stand 1 m from a 192 cm wardrobe and it fills the frame, the car side fills the screen from 3 m, a 100 cm wide room feels like a corridor. Everything looks huge and close and flat at once, which is the "weird" feeling. Retune the station poses (`rm-room.js` stations, `look()` calls) and pickBox framing after widening |
+| G2 (done 2.57.13) | Eye height too low for the house it lives in | `STAND = 128`, `SITH = 100` (HW:544); house-scale test used 158; `seat.eye` 110 chair / 81 beanbag | 128 standing | 142-145 standing, 108 seated, crouch -38 stays | A 12 year old's eyes are about 140-145 cm; 128 is a 9 year old. Against 205 cm doors and 258 ceilings every fixed thing is 1.5x the player. Also makes the dad/mom heads (about 175/160) tower |
 | G3 | Storey height 258 cm | ceilings `UY 73 / UC -185`, `GY 353 / GC 95` (HH:19) | 258 | 240-245 (UC -170, GC 110) | 53 cm of blank wall above a 205 cm door is the 1930s-grand look; late-90s semi is 240 with 35 cm over the door. Combined with G2 it is the main reason doors read small |
 | G4 | Detail scale is mixed: textures realistic, geometry chunky | wall skirting 9 cm (HH:~47) is right; newel, handrail, hinges, door handle and cove are fat; props (pumpkins, bowls, cereal box) are 1.2-1.4x | n/a | see rows | Brick and carpet speckle are correct size, so every chunky prop beside them looks oversized |
-| G5 | Reference shots mislead | `tests/house-scale.mjs` eye 158 vs live 128 | eye 158 | run the audit at live eye and at the new FOV | The review shots were taken from 30 cm higher than the player, so ceiling / doorway / wardrobe proportions in them look better than in game |
+| G5 (fixtures corrected 2.57.13) | Reference shots mislead | `tests/house-scale.mjs` eye 158 vs live 128 | eye 158 | run the audit at live eye and at the new FOV | The review shots were taken from 30 cm higher than the player, so ceiling / doorway / wardrobe proportions in them look better than in game |
 
 ## Prioritised findings
 
@@ -67,3 +75,27 @@ brick texture scale (21.5 x 6.5) is correct and is the yardstick the other rows 
 4. Doors and corridor: rows 9, 10, 28 (needs the east wall moved, see HOUSE-SCALE.md "Not done").
 5. Bedroom props: rows 11-18 (desk first, then posters, telly, board).
 6. Small props: leaves, mower, pumpkin, shed, washing.
+
+## Round 2 status (2026-10-28, branch house-round2)
+
+Re-shot at the new camera with `tests/house-scale.mjs` (eye 143 by default now; `--eye=`, `--width=/--height=` for phones;
+new views street-east/-west/-across, front-wall-hedge, garden-far). Done = in the round 2 commits; partial/open as noted.
+
+| id | status |
+|---|---|
+| G1 | Done. Walking lens WZ (js/hs-world.js): 60 deg vertical in landscape, at least 50 deg across in portrait, never wider than 95 across. The PC keeps its 41 deg lens (seat/monitor/fly-in poses zm 1); the CSS stage perspective follows the lens. |
+| G2 | Done. Standing eye 143, seated 108, crouch -38; ducking for a low door starts 62 cm before it. |
+| G3 | Open. 258 cm storeys stay: lowering them means re-laying the stairs and every wall/door height. |
+| G5 | Done (house-scale eye 143). |
+| 1 | Done. Wall 50 + 5 cm coping, 22 thick; clipped privet about 125 x 55 behind it, one closed softly rounded volume with leaf-scale undulations and an uneven top. |
+| 2 | Done. Piers 33 sq x 114, 42 cm cap + 34 cm cap, top 124 (House.FRONT.PIERS / PIER_TOP; the Halloween lantern sits on it). |
+| 3 | Open (next door's hedges are the shared neighbourhood ones, 72 high). |
+| 4, 7 | Partial. Glass 54 -> 47 high, roof 158 long, pillars 7/5.5 -> 5/4. Bonnet taper (5) and wheel arches (6) open. |
+| 8 | Done 2.57.14. Jack approved the 7 m plot on 28 October: FZ 1400, car x 500/z 1075, clearances 110 cm doorstep/boot and 107 cm nose/gateway. Placement pv 6 and repeated-load tests cover car, roof and lounge transfers; real touch walks both gaps. |
+| 13 | Partial. The two hero posters (shuttle, band) are A2 42 x 59.4; the others stay A3. |
+| 19 | Done. Lamp-post base 30 x 60 x 25 with its door; solid (the whole pavement is walkable now). |
+| 22 | Done. Pavement 1.45 m + kerb, road 5.6 m, far pavement 1.45 m (House.FRONT.STREET). |
+| 23 | Done. Opposite front walls 17.8 m from ours. |
+| 27 | Partial. Lounge re-laid: 1.9 m sofa back towards the bay, 86 cm armchair angled at the telly in the corner, standard lamp in the corner; 90 x 50 cm bevelled coffee table leaves 83 cm to the sofa; ways in from the door; coal-effect gas fire with brass frame, canopy and fret. Upholstery proportions unchanged. |
+| new | The village goes on: streets to +-56 m, a crossroads (side road to the back road), the corner shop (VILLAGE STORES), a green with the phone box, a pillar box, more semis both ways (simpler far houses), and a horizon ring (hills, rooftops, trees, the church spire) that travels with the camera. |
+| 9-12, 14-18, 20-21, 24-26, 28-34 | Open (landing/stairs widths, desk, telly, bedroom props, kitchen, back garden props). |
