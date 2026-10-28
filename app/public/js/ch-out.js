@@ -238,7 +238,7 @@
     // r128 does not compute InstancedMesh bounds: the base geometry must carry
     // the whole field sphere so distant blades never pop at a screen edge.
     geo.boundingSphere=new T.Sphere(new T.Vector3((LAWN.x0+LAWN.x1)/2,GY-4,(LAWN.z0+LAWN.z1)/2),Math.hypot(LAWN.x1-LAWN.x0,LAWN.z1-LAWN.z0)/2+12);
-    r.group.add(grassField);
+    grassField.frustumCulled=true;r.group.add(grassField);
   }
   CK.whenBuilt('garden',r=>{
     if(r.group.getObjectByName('garden-grass-blades'))return;
@@ -250,7 +250,7 @@
     const geo=grassBlade();geo.boundingSphere=new T.Sphere(new T.Vector3(-42.5,GY-3,-308),375);
     const mesh=new T.InstancedMesh(geo,M({c:'#fff',sh:1,sp:'#000'}),seeds.length),pose=new T.Object3D(),color=new T.Color();mesh.name='garden-grass-blades';mesh.userData.noPick=1;
     seeds.forEach(([x,z,h,a],i)=>{pose.position.set(x,GY-.02,z);pose.rotation.set(0,a,0);pose.scale.set(1,h,1);pose.updateMatrix();mesh.setMatrixAt(i,pose.matrix);color.set(['#394d2b','#435c30','#50673a'][i%3]);mesh.setColorAt(i,color)});
-    mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;r.group.add(mesh);H.dirty();
+    mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.frustumCulled=true;r.group.add(mesh);H.dirty();
   });
   function cutGrassGeometry(cells){
     if(!grassField||!cut)return;const color=new T.Color();
