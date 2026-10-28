@@ -72,6 +72,7 @@
     const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.setIndex(index); geo.computeVertexNormals();
     return geo;
   }
+  function clothGrip(geo,w,d){const p=geo.attributes.position;let best=Infinity,at=0;for(let i=0;i<p.count;i++){const n=(p.getX(i)-w*.16)**2+(p.getZ(i)+d*.35)**2;if(n<best){best=n;at=i}}return[p.getX(at),p.getY(at),p.getZ(at)]}
   // A swept tube along the floor. path: [[x, z, lift], ...]; wf(t) / hf(t): half width / half height (t 0..1 along it).
   // UV: u along the path, v round it. o.capA / o.capB close the ends (a cap's centre samples u = 0 or 1).
   function tube(path, wf, hf, o) {
@@ -106,11 +107,12 @@
   };
   function cloth(key, w, d) {
     const G0 = GARMENT[key], geo = sheet(G0.out, G0.w, G0.d, G0.o);
-    return grpB(G => {
+    const model = grpB(G => {
       G.geo(geo, 0, 0, 0, clothMat(key));
       if (key === 'jumper2') { const cord = mat('#e8e4da', { sh: 10 }); [[-2.2, 1], [2.4, -1]].forEach(([x, s]) => G.geo(tube([[x, -12, 2.4], [x + s * 0.6, -9, 1.2], [x + s * 1.5, -6, 0.5], [x + s * 1.2, -3.5, 0.3]], () => 0.28, () => 0.28, { radial: 5, capA: true, capB: true }), 0, 0, 0, cord)); }
       G.shadow(0, 0, 0, G0.w * 0.95, G0.d * 0.92, 0.42);
     });
+    model.userData.handGrips=[clothGrip(geo,G0.w,G0.d)];return model;
   }
   // SOCKS: a crumpled pair of white sports socks, red and navy hoops on ribbed cuffs, grey toes and heels (a bit grubby)
   const sockTex = () => K.tex('ch.sock3', 128, 64, (g, w, h) => {

@@ -1,5 +1,14 @@
 # Jack's Home Page - changelog
 
+## 2.57.16 - 2026-10-28
+- R68: basket and bin targets glow around their own shape; eligible empty slots have shallow rings. Only the actual placement ghost copies the carried object. Kept R105's eligibility filtering and rapid-switch clearing.
+- Rebuilt folded clothes, sports socks, foil crisp packets, can, wrappers, apple core and crumpled homework as solid models. Garment undersides and boundaries are closed; cloth grips use real fabric contacts rather than empty bounding-box corners. All seven garments use one hand. R40: old newspapers are a tied stack of printed papers. R77: the football has twelve pentagons/twenty hexagons and turns as it rolls.
+- R74/R81: a posed tuxedo cat on a carpeted, sisal-post cat tree with a den and platforms. Its feeding route stays clear of the bed, every pose keeps feet above the carpet, and it eats then returns home. Real feeding progress and PC power survive refresh.
+- Placement version 7 moves old floor props directly under the new tree into clear space once. Other rooms, raised props, media snaps and metadata stay intact. Two daily scatter points move clear of the tree; daily job item identities, progress and rewards remain unchanged.
+- Follow-up to R107: portrait discovery banners stack below the measured carry caption, with the job tracker below them. Rectangle checks prevent overlap, including longer captions.
+- Verified: syntax/unit/parody gates; real Chapter 1 tidy/bed/bin path; physics 15/15; smoke 12/12; carry/bin/slot/refresh regression; mobile eight-scenario coverage and focused final play-through. Real save fixtures check tree/car/roof/lounge migrations, metadata and two refreshes. Closed-garment and thirty cat-pose geometry checks pass. Reviewed desktop 1366x860/1920x1080, phone/tablet portrait/landscape, Low/Potato and forced High, garment grips/rotation, cat feeding and all five cat poses from multiple angles.
+- The older voice batch is excluded; the three approved British clips are preserved. No account, wallet, earning-cap or shared-world resets. Physical Edge/Android hardware and gamepads remain unverified. R108 and remaining scale-audit dimensions stay open.
+
 ## 2.57.15 - 2026-10-28
 - R98: finer slow movement, gentler look acceleration, forgiving item selection and second-finger look takeover. Buttons respond on press, keep feedback and act once even after a long rolling hold; keyboard/switch activation remains available. Room and close-up gestures stay with the game while lists still scroll.
 - Phone Potato pacing tries 60, settles at 30 after sustained misses and retries after a cooldown when frames are cheap. Idle/background animation does not count as poor performance. Physical phone frame rate is not established by the software-host tests.

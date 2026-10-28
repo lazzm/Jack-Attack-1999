@@ -1,6 +1,6 @@
 {
   "name": "jacks-home-page",
-  "version": "2.57.15",
+  "version": "2.57.16",
   "private": true,
   "description": "Jack's Home Page on the World Wide Web - est. 1999",
   "main": "server.js",

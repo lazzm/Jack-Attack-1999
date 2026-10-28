@@ -260,6 +260,15 @@
     aim = { id: s.id, label, far: h.dist > s.range, grab: !!s.grab, remove: !!s.remove && !s.grab, thing: !!t, use: t ? thingVerb(t) : (s.act ? label : '') };
     return aim;
   }
+  let messageLayoutKey='';
+  function stackCarryMessages(){
+    const toast=touchOn()&&innerHeight>innerWidth&&H.held()&&document.querySelector('.hs-ui .rm-toast.on');
+    if(!toast){if(messageLayoutKey){html.style.removeProperty('--ht-toast-top');html.style.removeProperty('--ht-job-top');messageLayoutKey=''}return}
+    const hold=document.querySelector('.hs-ui .hs-hold:not([hidden])');if(!hold)return;
+    const k=[innerWidth,innerHeight,hold.textContent,toast.textContent].join('|');if(k===messageLayoutKey)return;messageLayoutKey=k;
+    const hr=hold.getBoundingClientRect(),tr=toast.getBoundingClientRect(),top=Math.max(146,hr.bottom+8);
+    html.style.setProperty('--ht-toast-top',top+'px');html.style.setProperty('--ht-job-top',Math.max(236,top+tr.height+8)+'px');
+  }
   function render() {
     const s = syncState(); let k = s, buttons = '', caption = '';
     if (s === 'walk' || s === 'seat') {
@@ -288,6 +297,7 @@
     }
     let topButtons = btn('menu', 'menu', 'Menu', 'ht-menu');
     if (s === 'pc') { const full = !!H.desktopDisplay(); topButtons = btn('stand', 'stand', 'Stand up') + btn('lock', full ? 'room' : 'lock', full ? 'In room' : 'LOCK IN') + topButtons; k += '|pc' + full; }
+    stackCarryMessages();
     if (k === lastKey) return; lastKey = k;
     acts.innerHTML = buttons; top.innerHTML = topButtons; layout();
     target.querySelector('b').textContent = caption; target.classList.toggle('on', !!caption);

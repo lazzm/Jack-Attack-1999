@@ -980,7 +980,8 @@
     }
     if (!ex[0] || !ex[1]) for (const p of corners) edge(p);
     const size = lb.getSize(_vv), small = size.toArray().every(n => n * k <= L * 1.5), flat = size.z < Math.min(size.x, size.y) * .45;
-    const grips = t.handGrips?.length ? t.handGrips.map(p => new T.Vector3(...p).applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi)).sort((a,b)=>a.x-b.x) : null;
+    const contactPoints=t.handGrips||t.obj.userData.handGrips;
+    const grips = contactPoints?.length ? contactPoints.map(p => new T.Vector3(...p).applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi)).sort((a,b)=>a.x-b.x) : null;
     const toLocal = flat && !grips ? new T.Matrix4().copy(t.obj.matrixWorld).invert().multiply(_hm) : null;
     for (const a of g.userData.sides) {
       const sd = a.sd, c = grips ? grips[sd < 0 ? 0 : grips.length-1] : ex[sd < 0 ? 0 : 1], visible = grips ? grips.length>1 || sd>0 : !small || sd > 0;

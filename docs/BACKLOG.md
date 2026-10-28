@@ -151,7 +151,7 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 ## Screenshot review 2026-10-27 (physics branch)
 | id | type | severity | screenshot | problem | fix |
 |---|---|---|---|---|---|
-| R40 (done props-pass: tied stack of five printed papers) | art | med | physics/17-basket-target.png, 12-ghost-green.png | "Old newspapers" read as white eggs/lumps, not folded papers | Model as a folded stack with printed (blank-columned) texture and string tie |
+| R40 (done 2.57.16: tied stack of five printed papers) | art | med | physics/17-basket-target.png, 12-ghost-green.png | "Old newspapers" read as white eggs/lumps, not folded papers | Model as a folded stack with printed (blank-columned) texture and string tie |
 | R41 | ux | low | physics/01-chair-tucked.png | "Tucked" chair still sits mostly in front of the desk (back stops at the 69.8 cm top) | Lower the back or allow the seat further in; or start it angled beside the pedestal |
 | R42 (done 2.57 mobile pass) | ux | med | physics (all) | Carrying controls are keyboard-only (R/X/Shift+wheel/+/-); no touch buttons for turn/drop/nearer on phones | Mobile carry bar: Turn, Drop, Place, Return buttons (mobile pass) |
 | R43 | art | med | characters/rig-mom-face.png | Mom's fringe has a wedge-shaped notch cut into it and her brows read as cross; lips protrude | Rebuild fringe as one swept shape; softer brow angle; flatter lips |
@@ -179,20 +179,20 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R65 | graphics | high | Jack 2026-10-27 | "Lower graphics make things too blurry": remove the graphics options menu; always the best look, with major optimisation (adaptive perf must cut effects/LOD/draw distance before resolution, never blur) | Graphics overhaul after the big release |
 | R66 | content | med | Jack 2026-10-27 | Myth of Zeldo: The Temporal Flute build approved (Dry/Boiled eras, £50 Pixel Post, 12 songs); series renamed "The Myth of Zeldo" | Build the Ultra 64 game (docs/games/myth-zeldo.md) |
 | R67 | audio | med | Jack 2026-10-27 | Gran voice = take 1; wire recorded voices into the game | Voice wiring pass |
-| R68 | ux/art | high | Jack 2026-10-27 (physics/17-basket-target) | Gold/green slot highlight is a flat square drawn over a round basket; should hug the whole target. Clothes (socks = white blobs) and rubbish (newspapers = eggs) need proper 3D models | Props pass: shape-hugging target glow + rebuilt clothes/rubbish models |
+| R68 (done 2.57.16) | ux/art | high | Jack 2026-10-27 (physics/17-basket-target) | Gold/green slot highlight is a flat square drawn over a round basket; should hug the whole target. Clothes (socks = white blobs) and rubbish (newspapers = eggs) need proper 3D models | Props pass: shape-hugging target glow + rebuilt clothes/rubbish models |
 | R69 | ux | high | Jack 2026-10-27 (Dad at the car) | Talk text sits in a bottom-left box: want floating speech bubbles above whoever is talking; also "F Talk" and "F Use" both shown for Dad | Speech bubbles anchored to the speaker + single clear prompt |
 | R70 | audio | high | Jack 2026-10-27 | "I cant hear anyones voices": recorded lines not wired; only 67/313 generated (splitter needs exact pause count) | Wire voices with lip-sync + positional audio; robust splitter (n-1 longest gaps); finish generation within daily quota |
 | R71 | bug | high | Jack 2026-10-27 (story: Mom comes up the stairs) | Mom pops into the bedroom doorway the moment the door opens (looked like she came through the floor) | Stage her on the landing behind the closed door, then the door opens and she walks in; hold the player in the room (soft lock) until the scene plays |
 | R72 | art | med | same screenshot | Mom's cardigan hem and jeans waistband gap/clip at the hip; socks in the basket still blobs | People v3 polish + props pass |
 | R73 | bug | high | Jack 2026-10-27 | Put the toast plate on the bed: it hid and can no longer be moved | QA play agent: placement on every surface + retrieval |
-| R74 | art | med | Jack 2026-10-27 | Cat model needs improving | Props pass (cat) |
+| R74 (done 2.57.16) | art | med | Jack 2026-10-27 | Cat model needs improving | Props pass (cat) |
 | R75 | anim | high | Jack 2026-10-27 | People walk animations need to be better; talking to Mom while she washes up makes her pose go weird | People agent (walk cycle + interrupted-action blending + test loop) |
 | R76 | test | high | Jack 2026-10-27 | "need testing - perhaps expanding" | Exploratory QA play agent + interaction matrix tests |
-| R77 | art | high | Jack 2026-10-27 | Crisp packet needs proper work; football should be a real pentagon/hexagon ball | Props pass (crimped foil packet with parody brand; truncated-icosahedron football) |
+| R77 (done 2.57.16) | art | high | Jack 2026-10-27 | Crisp packet needs proper work; football should be a real pentagon/hexagon ball | Props pass (crimped foil packet with parody brand; truncated-icosahedron football) |
 | R78 | bug | high | Jack 2026-10-27 | Pressing Q while holding something returns it floating in mid-air | QA agent: returned items settle on a support |
 | R79 | ux | med | Jack 2026-10-27 | Watering can needs to be more intuitive | QA agent: prompts, pour stream, plant highlights, feedback |
 | R80 | ux | high | Jack 2026-10-27 | Improve making the bed (the chore) | Chores polish agent (next free slot): satisfying physical bed-making - pull duvet, plump pillow, smooth wrinkles, tuck; clear prompts and progress |
-| R81 | art | med | Jack 2026-10-27 | Cat should live on a proper cat tree with better models | Props pass (cat tree) |
+| R81 (done 2.57.16) | art | med | Jack 2026-10-27 | Cat should live on a proper cat tree with better models | Props pass (cat tree) |
 | R82 | ux | high | Jack 2026-10-27 (GOLDENBALLS box) | Carried things are drawn huge in the lower-right like glued to the camera ("dont hold things like that its weird") | Physics agent: natural hold pose sized by object |
 | R83 (done 2.57.11) | bug | med | same | World label "Old newspapers" + chevron drawn on top of the telly (labels not occluded) | Physics agent: occlusion-aware labels |
 | R84 | ux | high | Jack 2026-10-27 | Game Lad: when playing (not locked in) it should fill the screen and be keyboard-controlled; LOCK IN (T) = true full screen where the mouse can click | Transitions agent (next free slot) |
@@ -223,3 +223,6 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R110 (done 2.57.12) | anim | med | manager waist-gallery review, 28 October | Seated hands cross over the lap; most job wrist targets use the opposite X sign to the skeleton | Correct left/right wrist and gaze targets; seated own-side assertion and fresh-conversation job regressions |
 | R111 (done 2.57.13) | bug | high | camera review, tablet-02-house.png (28 October) | Live desktop drifts from the CRT bezel after a stationary lens change: glass projection cache omits P.zm | Camera release: include lens in invalidation, compare all four DOM/WebGL corners at several zooms, re-review tablet stand-up captures |
 | R112 (done 2.57.14) | bug | high | routine-day QA, 28 October | New lounge seat routes can form a three-person queue in the hall: the yielding person cannot retreat past the person behind | Request the trailing person to yield; guard request cycles and seated/talking actors. Routine days pass at <=1.7 s waiting; crossing, entrance and conversation regressions pass |
+
+| R113 (done 2.57.16) | art | high | props carry review, 28 October | Box-corner grips float beside the hollow shape of socks, hoodie and other garments | Use actual fabric contacts and one hand; review all seven garments on desktop/phone, including rotation |
+| R114 (done 2.57.16) | anim | high | cat feeding/pose review, 28 October | Eating torso intersects bed; posed paws extend below the carpet | Eat from the open side of the bowl, fit visible paw geometry to floor, verify thirty pose phases and six viewport galleries |

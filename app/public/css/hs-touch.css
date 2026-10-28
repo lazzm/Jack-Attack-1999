@@ -161,3 +161,8 @@ html.handheld-house:not([data-touch-state="pc"]) #bootPower,html.handheld-house 
 
 /* A fresh discovery or conversation may arrive after the coach was shown. Let that message be read first. */
 html[data-game-touch="true"]:has(.hs-ui .rm-toast.on,.hs-ui .rm-note.on,.hs-voice.on,.hs-call.on) .ht-coach{visibility:hidden}
+
+@media (orientation:portrait){
+  html[data-game-touch="true"] .hs-ui.holding .rm-toast{top:var(--ht-toast-top,calc(env(safe-area-inset-top,0px) + 212px))}
+  html[data-game-touch="true"] .hs-ui.holding .ch-chip{top:var(--ht-job-top,calc(env(safe-area-inset-top,0px) + 236px))}
+}

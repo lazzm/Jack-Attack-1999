@@ -5,7 +5,8 @@ const c={T,rnd(seed){let n=seed;return()=>((n=(n*1664525+1013904223)>>>0)/429496
 vm.runInContext(s.slice(s.indexOf('  const sstep ='),s.indexOf('  // A swept tube'))+s.slice(s.indexOf('  const GARMENT ='),s.indexOf('  function cloth('))+';this.garments=GARMENT;',c);
 const counts={};
 for(const [name,d] of Object.entries(c.garments)){
- const g=c.sheet(d.out,d.w,d.d,d.o),p=g.attributes.position,I=g.index.array,edges=new Map();let volume=0;
+ const g=c.sheet(d.out,d.w,d.d,d.o),grip=c.clothGrip(g,d.w,d.d),p=g.attributes.position,I=g.index.array,edges=new Map();let volume=0;
+ assert(grip.every(Number.isFinite));assert(grip[1]<=0);assert(Array.from({length:p.count},(_,i)=>[p.getX(i),p.getY(i),p.getZ(i)]).some(v=>v.every((n,i)=>n===grip[i])),name+' grip is not on actual fabric');
  for(const v of p.array)assert(Number.isFinite(v),name+' nonfinite vertex');
  for(let i=0;i<I.length;i+=3){const ids=[I[i],I[i+1],I[i+2]],v=ids.map(k=>new T.Vector3().fromBufferAttribute(p,k));volume+=v[0].dot(v[1].clone().cross(v[2]))/6;for(const [a,b] of [[ids[0],ids[1]],[ids[1],ids[2]],[ids[2],ids[0]]]){const k=Math.min(a,b)+','+Math.max(a,b);edges.set(k,(edges.get(k)||0)+1)}}
  assert([...edges.values()].every(n=>n===2),name+' has an open/nonmanifold edge');assert(volume>1,name+' lacks a closed outward-facing solid');
