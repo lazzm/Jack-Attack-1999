@@ -309,6 +309,8 @@ html.hs-live{--game-ui:Tahoma,Arial,sans-serif}
 .hs-hold.blocked{border-top-color:#e2553f}.hs-hold.blocked .hs-hmode{color:#f2917c}.hs-hold.blocked .hs-carry-help{color:#f0b6a8}
 .hs-hold.snap{border-top-color:#ffd84a}.hs-hold.drag{border-top-color:#d6b36a}.hs-hold.drag .hs-hmode{color:#e2c98e}
 .hs-hold .hs-hkeys kbd{min-width:1.4em;text-align:center}
+/* while you carry something it sits in your hands low in the middle of the view: the panel moves to the bottom-right corner, out of their way (owner, 2026-10-28) */
+html:not([data-game-touch="true"]) .hs-ui .hs-hold{left:auto;right:18px;transform:none}
 .hs-tip.carry{pointer-events:none;padding:5px 9px;font:12px/1.3 Tahoma,Arial,sans-serif;color:var(--game-ink)}
 .hs-ui.locked .hs-tip.carry{left:50%!important;top:calc(50% - 48px)!important;bottom:auto;transform:translateX(-50%)!important} /* the F prompt sits just above the crosshair */
 .hs-hbtn button{height:32px;border-radius:0;font:12px Tahoma,Arial,sans-serif}
