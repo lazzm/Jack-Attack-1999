@@ -239,6 +239,7 @@
     shBody: 'base', shL: 'base', shR: 'base', yoyo: 'base',
     p_paper: 'base', p_mug: 'handR', p_sponge: 'handR', p_plate: 'handL', p_spoon: 'handR', p_can: 'handR', p_mag: 'base', p_phone: 'handR', p_remote: 'handR', p_crayon: 'handR', p_pad: 'base', p_bag: 'chest', p_case: 'handR', p_string: 'base', p_pail: 'handR', p_raygun: 'handL', p_torch: 'handL' };
   const PROPS = BONES.filter(b => b.startsWith('p_')).map(b => b.slice(2));
+  const KEEP = new Set(['mug', 'sponge', 'spoon', 'can', 'remote', 'phone', 'pail', 'raygun', 'torch', 'case', 'bag']); // (one-handed: kept hold of while talking)
   // only the props each person actually uses are built into their mesh (hidden props still cost triangles)
   const PROPS_FOR = { mom: ['mug', 'sponge', 'spoon', 'mag', 'can', 'phone'], dad: ['paper', 'mug', 'remote', 'sponge', 'case'], sister: ['mug', 'string', 'bag', 'crayon', 'pad'], kid: ['pail', 'raygun'], grownup: ['torch'] };
 
@@ -427,14 +428,16 @@
       return blend(y, S.hip + 3, S.spine + 3, 'hips', 'spine');
     };
     S.torsoW = torsoW;
-    const ty0 = S.hip + 2, ty1 = S.neck + 0.5;
+    // the top comes down over the waistband (a hem that overlaps the trousers, never a gap or a seam at the hips)
+    const ty0 = S.hip - 1.5, ty1 = S.neck + 0.5;
     const torso = (O.torso || S.torso).map(([t, hw, hd]) => [lerp(ty0, ty1, t), 0, 0.3 + 0.9 * Math.sin(t * Math.PI) * (t < 0.9 ? 1 : 0.5), hw * (1 - 0.07 * smooth((t - 0.76) / 0.16)), hd]);
+    torso[0][3] += 0.7; torso[0][4] += 0.6; // (the hem stands just proud of the waistband)
     S.torsoRings = torso;
     const mid = surfRing(torso, lerp(ty0, ty1, 0.6));
     const frames = { torso: { c: circ(mid[3], mid[4]), y0: ty0, y1: ty1, base: O.base?.torso } };
     G.add(loft(torso, L.torso, { bottomDome: 1, topDome: 1 }), C('#ffffff'), torsoW, { cell: CELL.torso });
     const hw0 = torso[0][3], hd0 = torso[0][4], pe = O.pelvisEase || 0;
-    const pelvis = [[S.hip - 6.5, 0, 0.2, hw0 * 0.42 + pe, hd0 * 0.62 + pe], [S.hip - 2, 0, 0.2, hw0 * 0.94 + pe, hd0 * 0.88 + pe], [S.hip + 3, 0, 0.2, hw0 + 0.1 + pe, hd0 * 0.96 + pe], [S.hip + 8, 0, 0.3, hw0 + pe, hd0 + pe]];
+    const pelvis = [[S.hip - 7, 0, 0.2, hw0 * 0.5 + pe, hd0 * 0.6 + pe], [S.hip - 2.5, 0, 0.2, hw0 * 0.9 + pe, hd0 * 0.8 + pe], [S.hip + 1, 0, 0.2, hw0 * 0.97 - 0.4 + pe, hd0 * 0.93 - 0.4 + pe], [S.hip + 6, 0, 0.3, hw0 * 0.9 - 0.6 + pe, hd0 * 0.9 - 0.6 + pe]];
     frames.pelvis = { c: circ(hw0, hd0), y0: S.hip - 6.5, y1: S.hip + 8, base: O.base?.pelvis };
     G.add(loft(pelvis, L.torso, { bottomDome: 0.6, top: false }), C('#ffffff'), (x, y) => {
       if (y < S.hip + 1 && Math.abs(x) > 3) { const t = clamp((S.hip + 1 - y) / 6, 0, 0.45); return [['hips', 1 - t], [x > 0 ? 'thighL' : 'thighR', t]]; }
@@ -1008,7 +1011,7 @@
       gait: 0, walking: false,
       feet: [{ x: 0, y: 0, z: 0, yaw: 0, swing: null, side: 1, lift: 0, stance: -1 }, { x: 0, y: 0, z: 0, yaw: 0, swing: null, side: -1, lift: 0, stance: -1 }],
       placed: false,
-      action: null, seat: null, look: null, carry: false, props: {}, sitK: 0,
+      action: null, seat: null, look: null, carry: false, props: {}, sitK: 0, engage: false,
       talkUntil: 0, talkStart: 0, talkSeed: Math.floor(Math.random() * 9), talkText: '', mouth: 0,
       blinkAt: 1 + Math.random() * 3, blinkT: 0,
       gaze: { x: 0, y: 0 }, saccadeAt: 0, glanceAt: 3, glance: null,
@@ -1179,7 +1182,10 @@
       let hx = 0, hy = S.hip + 2, hz = 0, roll = 0, yaw = 0, pitch = 0;
       if (st.walking) {
         const g = st.gait * TAU, spd = clamp(st.v / S.speed, 0, 1.4);
-        hy += -Math.cos(g * 2) * 1.1 * spd - 0.8 * spd; hx = Math.sin(g) * 1.3 * spd; roll = -Math.sin(g) * 2.2 * spd; yaw = Math.sin(g) * 5 * spd; pitch = 3 * spd;
+        // the body over the planted foot: a soft bob (lowest at the double support), a side-to-side sway, the pelvis rolling
+        // and turning with the stride (the shoulders counter-turn above it), and leaning into stairs going up
+        const fw = forward(st.h), climb = clamp((floorAt(st.x - fw.x * 22, st.z - fw.z * 22) - floorAt(st.x + fw.x * 22, st.z + fw.z * 22)) / 44, -0.9, 0.9);
+        hy += -Math.cos(g * 2) * (1.2 + Math.abs(climb) * 1.2) * spd - 0.9 * spd; hx = Math.sin(g) * 1.7 * spd; roll = -Math.sin(g) * 3.0 * spd; yaw = Math.sin(g) * 7 * spd; pitch = (3 + climb * 7) * spd;
       } else {
         // weight shifts slowly from foot to foot
         // a relaxed stance: weight on one leg (each person has a favourite side), drifting slowly, now and then swapping
@@ -1201,13 +1207,16 @@
         if (hy - 2 > maxY) hy = maxY + 2;
       }
       B.hips.position.set(hx, hy, hz);
-      const act = st.action && ACT[st.action] ? ACT[st.action](t, hy) : null;
+      // engaged (you're talking to them): the job pauses: arms come out of the action into a natural talking pose (the
+      // bones blend there), things in one hand stay in it, two-handed things (the paper, the yo-yo) are put down
+      const act0 = st.action && ACT[st.action] ? ACT[st.action](t, hy) : null;
+      const act = st.engage && act0 ? { props: Object.fromEntries(Object.entries(act0.props || {}).filter(([p]) => KEEP.has(p))), lean: 0 } : act0;
       _q.setFromEuler(_e.set(pitch * D2R, yaw * D2R, roll * D2R, 'YXZ')); slerpTo('hips', _q, st.walking ? 1 : k);
       W.hips.p.copy(B.hips.position); W.hips.q.copy(B.hips.quaternion);
       // ---- spine/chest: counter-rotate the walk, lean into the action, breathe
       const lean = (act?.lean || 0) + (st.walking ? 2 : 0), breathe = Math.sin(t * 1.7) * 0.9;
-      _q.setFromEuler(_e.set((lean * 0.45 + (seat ? (seat.back ? 4 : 2) : 0)) * D2R, -yaw * 0.6 * D2R, -roll * 0.5 * D2R, 'YXZ')); slerpTo('spine', _q, k); fk('spine');
-      _q.setFromEuler(_e.set((lean * 0.55 - breathe * 0.6) * D2R, -yaw * 0.5 * D2R, -roll * 0.35 * D2R, 'YXZ')); slerpTo('chest', _q, k); fk('chest');
+      _q.setFromEuler(_e.set((lean * 0.45 + (seat ? (seat.back ? 4 : 2) : 0)) * D2R, -yaw * 0.75 * D2R, -roll * 0.5 * D2R, 'YXZ')); slerpTo('spine', _q, k); fk('spine');
+      _q.setFromEuler(_e.set((lean * 0.55 - breathe * 0.6) * D2R, -yaw * 0.8 * D2R, -roll * 0.35 * D2R, 'YXZ')); slerpTo('chest', _q, k); fk('chest');
       for (const sd of ['L', 'R']) { _q.setFromEuler(_e.set(0, 0, (sd === 'L' ? 1 : -1) * breathe * 0.5 * D2R)); slerpTo('clav' + sd, _q, k); fk('clav' + sd); }
       // ---- legs: IK to the feet (or to the floor in front of the seat)
       for (let i = 0; i < 2; i++) {
@@ -1241,7 +1250,7 @@
         if (!a && st.carry) a = ACT.carry(t, hy).arms[sd];
         if (!a && seat) a = ACT.sit(t, hy).arms[sd];
         if (!a && talking && (sd === 'R' || st.talkSeed % 2)) a = talkArm(t, sd, sd === 'R' ? 1 : 0.55);
-        if (!a) { const sw = Math.sin(g + (sd === 'L' ? Math.PI : 0)) * 19 * swing; a = [6 + sw + wob(t * 0.4, s) * 1.5, 9 + wob(t * 0.3, s + 3) * 1.2 - 2 * swing, -12 * (1 - swing * 0.5), 24 + Math.max(0, sw) * 0.8 + 6 * swing, 10, -10]; }
+        if (!a) { const sw = Math.sin(g + (sd === 'L' ? Math.PI : 0)) * 22 * swing; a = [6 + sw + wob(t * 0.4, s) * 1.5, 9 + wob(t * 0.3, s + 3) * 1.2 - 2 * swing, -12 * (1 - swing * 0.5), 24 + Math.max(0, sw) * 1.1 + 8 * swing, 10 + 6 * swing, -10]; }
         if (Array.isArray(a)) armFK(sd, a, k);
         else { tgt.set(a.ik[0], a.ik[1], a.ik[2]); pole.set(a.pole[0], a.pole[1], a.pole[2]).normalize(); armIK(sd, tgt, pole, k, eul(a.hand[0], a.hand[1], a.hand[2])); }
       }
@@ -1351,7 +1360,7 @@
       set floor(fn) { floorFn.f = fn; },
       root(x, y, z, h, v) { st.x = x; st.y = y; st.z = z; st.h = h; st.v = v || 0; group.position.set(x, y, z); group.rotation.y = h; },
       teleport(x, y, z, h) { rig.root(x, y, z, h, 0); st.walking = false; placeFeet(); st.sm = {}; },
-      set(o) { if ('action' in o) st.action = o.action || null; if ('seat' in o) st.seat = o.seat || null; if ('look' in o) st.look = o.look || null; if ('carry' in o) st.carry = !!o.carry; if ('props' in o) st.props = o.props || {}; },
+      set(o) { if ('engage' in o) st.engage = !!o.engage; if ('action' in o) st.action = o.action || null; if ('seat' in o) st.seat = o.seat || null; if ('look' in o) st.look = o.look || null; if ('carry' in o) st.carry = !!o.carry; if ('props' in o) st.props = o.props || {}; },
       // voice: the playing recording's handle (js/st-voice.js: level(), progress()); without one the mouth keeps time
       talk(ms, text, voice) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; st.talkVoice = voice || null; st.talkHeard = false; },
       hush() { st.talkUntil = 0; st.talkVoice = null; },

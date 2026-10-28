@@ -4,7 +4,7 @@
 // paying anything herself, bumping into them, stepping aside, refresh keeping everyone in place, planted feet, the draw
 // call cost, and the story's first in-person scene (Mom gives the first jobs). Screenshots: tests/shots/characters/.
 // Starts and stops its own server on a free port with throwaway data, like smoke.mjs.
-//   node characters.mjs [--only=routines|day|talk|bump|refresh|feet|draws|story|shots] [--keep]
+//   node characters.mjs [--only=routines|day|talk|bump|refresh|feet|draws|story|entrance|interrupt|shots] [--keep]
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {mkdtemp, mkdir, rm} from 'node:fs/promises';
@@ -154,15 +154,15 @@ try {
       await look(page, [-60, 353 - 128, 175], [-80, 353 - 150, 36], 'G');
       await page.evaluate(() => { window.__sent = []; const s = Net.send; Net.send = m => { __sent.push(m.t); return s(m); }; });
       await page.keyboard.press('f');
-      await page.waitForFunction(() => !!HouseFamily.debug.speech.cur, null, { timeout: 15000 * SCALE });
-      const said = await page.evaluate(() => { const c = HouseFamily.debug.speech.cur; return { id: c.lineId, line: NPCLines[c.lineId][1], who: c.c.id, person: c.person, note: (window.NPCBubble?.live || []).find(b => b.key === 'mom')?.text || document.querySelector('.hs-note.on')?.textContent || '', talking: HouseFamily.chars.mom.rig.talking }; });
+      // (read it in the same moment it's seen: under heavy load the line can finish between two round trips)
+      const said = await (await page.waitForFunction(() => { const c = HouseFamily.debug.speech.cur; return c && { id: c.lineId, line: NPCLines[c.lineId][1], who: c.c.id, person: c.person, note: (window.NPCBubble?.live || []).find(b => b.key === 'mom')?.text || document.querySelector('.hs-note.on')?.textContent || '', talking: HouseFamily.chars.mom.rig.talking }; }, null, { timeout: 15000 * SCALE })).jsonValue();
       assert.equal(said.who, 'mom'); assert(said.person, 'Said in person'); assert(said.talking, 'Her lips move');
       assert(said.note.includes(said.line.slice(0, 20)), 'Her speech bubble (or the subtitle box) shows the scripted line: ' + said.note);
       assert(/^chore\.\w+\.give$|^chore\.allfour$|^bark\.mom\./.test(said.id), 'Mom hands out a job (or praise): ' + said.id);
-      await page.waitForTimeout(700); await shot(page, 'mom-talk-kitchen');
       // (people v2: the mouth is painted; talking swaps the mouth frames in the face atlas)
       const mouth = await page.evaluate(async () => { const r = HouseFamily.chars.mom.rig, s = [], f = new Set(); for (let i = 0; i < 12; i++) { s.push(r.st.mouth); f.add(r.face.mouth); await new Promise(q => setTimeout(q, 90)); } return { s, frames: [...f] }; });
       assert(Math.max(...mouth.s) - Math.min(...mouth.s) > 0.2 && mouth.frames.length > 1, 'Mouth moves while talking: ' + mouth.s.map(v => v.toFixed(2)).join(',') + ' frames ' + mouth.frames);
+      await page.waitForTimeout(700); await shot(page, 'mom-talk-kitchen');
       // handing a job in: Mom says the job's done line and her rating, in person
       const handed = await page.evaluate(() => HouseFamily.handIn('washup', { sc: 97 }));
       assert(handed, 'Mom takes the washing-up in herself');
@@ -297,6 +297,114 @@ try {
       for (let i = 0; i < 160 && !(await page.evaluate(() => !!st.getState()?.done.meetmom)); i++) await page.waitForTimeout(250);
       assert(await page.evaluate(() => !!st.getState()?.done.meetmom), 'Talking to Mom completes the step');
       assert.equal(await page.evaluate(() => st.current().id), 'tidy');
+      assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+  });
+
+  // ---------------------------------------------------------------- Mom's entrance: behind the shut door, knock, door opens, she walks in
+  // Never visible before the door opens; the door opens before she's in the room; you're held in your room meanwhile.
+  await check('entrance', async () => {
+    const { browser, page, until, errors } = await house({ account: 'Enter' + Date.now().toString(36), password: pass, opening: true });
+    try {
+      await until(() => !!st.getState() && !!House.THINGS['st.diary']);
+      await page.evaluate(() => { House._.setMode('walk'); House.interact('gb'); });
+      await until(() => window.RoomTV?.open_);
+      await page.evaluate(() => RoomTV.playPhysical('gb.blocks'));
+      await until(() => RoomTV._dbg()?.st === 'game'); await page.keyboard.press('Enter'); await page.keyboard.press('ArrowLeft');
+      await until(() => !!st.getState()?.done.lad);
+      await page.keyboard.press('q'); await until(() => House.mode === 'walk' && !House.gliding);
+      // stand in the room looking at the door
+      await look(page, [-30, 73 - 128, 190], [240, 73 - 115, 190], 'U');
+      assert.equal(await page.evaluate(() => House.DOORS.bedroom.open), false, 'The bedroom door starts shut');
+      await page.evaluate(() => { const F = HouseFamily, m = F.chars.mom; window.__ent = []; window.__entT = setInterval(() => { const e = F.debug.entrance().mom; window.__ent.push({ seen: F.debug.seen('mom'), door: House.DOORS.bedroom.open, phase: e?.phase || null, inRoom: m.present && m.lvl === 'U' && m.x < 238 && m.z < 252 }); }, 50); });
+      const log = [], t0 = Date.now(); let held = null, n = 0;
+      while (Date.now() - t0 < 120000 * SCALE) {
+        const f = await page.evaluate(() => { const F = HouseFamily, m = F.chars.mom, e = F.debug.entrance().mom; return { seen: F.debug.seen('mom'), door: House.DOORS.bedroom.open, phase: e?.phase || null, present: m.present, x: m.x, z: m.z, lvl: m.lvl, room: m.room, spot: m.goal?.spotKey || null, step: m.cur?.k || null, held: F.doorHeld(), blocks: F.blocks(250, 190, 'U') }; });
+        log.push(f);
+        if (held === null && (f.phase === 'come' || f.phase === 'knock')) held = f.held && f.blocks;
+        if (n < 6 && (f.phase === 'knock' || f.phase === 'enter')) await shot(page, 'entrance-' + (++n)); // (a frame strip of the entrance)
+        if (f.spot === 'bedDoorMom' && f.step === 'act') break;
+        await page.waitForTimeout(120);
+      }
+      await page.waitForTimeout(900); await shot(page, 'entrance-4');
+      const rec = await page.evaluate(() => { clearInterval(window.__entT); return window.__ent; });
+      log.length = 0; log.push(...rec);
+      const first = log.findIndex(f => f.seen), opened = log.findIndex(f => f.door), inRoom = log.findIndex(f => f.inRoom);
+      console.log(`  entrance: ${log.length} samples; first seen #${first}, door opened #${opened}, in the room #${inRoom}; phases ${[...new Set(log.map(f => f.phase))].join('>')}`);
+      assert(opened >= 0 && inRoom >= 0, 'Mom came in: ' + JSON.stringify(log.slice(-3)));
+      assert(log.every(f => !f.seen || f.door), 'Mom was visible before the door opened: ' + JSON.stringify(log.find(f => f.seen && !f.door)));
+      assert(opened < inRoom, 'The door opened before she came in');
+      assert(held === true, 'The doorway is held (and the door) while Mom comes up');
+      await page.waitForTimeout(3500);
+      assert.equal(await page.evaluate(() => HouseFamily.doorHeld()), false, 'Released once she has arrived and spoken');
+      assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+  });
+
+  // ---------------------------------------------------------------- talking to them in the middle of every job they do
+  // They stop, turn (feet and all) to face you, keep one-handed things, put two-handed things down, then go back to it.
+  await check('interrupt', async () => {
+    const { browser, page, errors } = await veteran();
+    try {
+      const acts = await page.evaluate(() => HouseFamily.debug.acts());
+      const bad = []; let n = 0;
+      for (const [id, list] of Object.entries(acts)) for (const ka of list) {
+        const [spot, act] = ka.split(':');
+        const r = await page.evaluate(({ id, spot, act }) => {
+          const F = HouseFamily, H = House, c = F.chars[id];
+          F.debug.clock({ md: 1016, dow: 6, t: 14 }); for (const o of ['mom', 'dad', 'sister']) if (o !== id) F.debug.go(o, null);
+          F.debug.go(id, spot, act || undefined); F.debug.place(id, spot); F.debug.sim(5, 0.1);
+          // where the player stands: 1.4 m away on clear floor, in front of them if possible
+          const h = c.seated ? c.seated.face * Math.PI / 180 : c.h, cand = [];
+          for (let i = 0; i < 12; i++) { const a = h + i * Math.PI / 6 * (i % 2 ? 1 : -1) * Math.ceil(i / 2) / Math.max(1, Math.ceil(i / 2)); cand.push([c.x + Math.sin(h + (i ? (i % 2 ? 1 : -1) * Math.ceil(i / 2) * Math.PI / 6 : 0)) * 140, c.z + Math.cos(h + (i ? (i % 2 ? 1 : -1) * Math.ceil(i / 2) * Math.PI / 6 : 0)) * 140]); void a; }
+          const ok = ([x, z]) => { if (NPCNav.clear(c.lvl, x, z) < NPCNav.NEED) return false; const r = NPCNav.route({ lvl: c.lvl, x: c.x, z: c.z }, { lvl: c.lvl, x, z }); return !!r && r.len < 230 && !r.doors.length; }; // (in the same room: walkable and a short walk away)
+          for (const d of [110, 90]) for (let i = 0; i < 12; i++) { const a = h + (i ? (i % 2 ? 1 : -1) * Math.ceil(i / 2) * Math.PI / 6 : 0); cand.push([c.x + Math.sin(a) * d, c.z + Math.cos(a) * d]); }
+          const p = cand.find(ok) || cand[0];
+          const y = H.LV[c.lvl] - 150;
+          H.hush(); H.setWalkFrom({ x: p[0], y, z: p[1], lvl: c.lvl, seat: 0 });
+          Object.assign(H.P, { x: p[0], y, z: p[1], rx: -8, ry: Math.atan2(c.x - p[0], -(c.z - p[1])) * 180 / Math.PI, seat: 0, lvl: c.lvl }); H._.setMode('walk'); H.dirty();
+          return { p, seated: !!c.seated, act: c.rig.st.action };
+        }, { id, spot, act });
+        await page.waitForTimeout(500);
+        await page.evaluate(id => HouseFamily.talk(id), id);
+        await page.waitForTimeout(2200);
+        const m = await page.evaluate(({ id }) => {
+          const c = HouseFamily.chars[id], rig = c.rig, W = new THREE.Vector3(), pl = House.W;
+          const want = Math.atan2(pl.x - c.x, pl.z - c.z), off = Math.abs(((want - c.h) % (2 * Math.PI) + 3 * Math.PI) % (2 * Math.PI) - Math.PI) * 180 / Math.PI;
+          const ch = rig.bones.chest.getWorldPosition(new THREE.Vector3()), hands = ['handL', 'handR'].map(b => rig.bones[b].getWorldPosition(W).distanceTo(ch));
+          const feet = rig.st.feet.map(f => Math.abs(f.y - (rig.st.y)));
+          return { off, seated: !!c.seated, hold: c.hold, engage: rig.st.engage, hands, feet, lvl: c.lvl };
+        }, { id });
+        await shot(page, `talk-${id}-${spot}-${act || 'idle'}`); n++;
+        const S = await page.evaluate(id => HouseFamily.chars[id].rig.S.H, id);
+        const why = [];
+        if (!m.engage) why.push('not engaged');
+        if (!m.seated && m.off > 30) why.push('facing ' + m.off.toFixed(0) + ' deg away');
+        if (!m.seated && (Math.min(...m.feet) > 2 || Math.max(...m.feet) > 12)) why.push('feet off the floor ' + m.feet.map(v => v.toFixed(1))); // (one foot may be mid-step as they turn to you)
+        if (m.hands.some(v => v > S * 0.42)) why.push('hands far from the body ' + m.hands.map(v => v.toFixed(0)));
+        if (why.length) bad.push(id + ' ' + spot + ':' + (act || '') + ': ' + why.join(', '));
+        await page.evaluate(id => { const F = HouseFamily, c = F.chars[id], sp = F.debug.speech; sp.q.length = 0; sp.cur = null; c.hold = 0; c.talking = false; c.rig.hush(); }, id);
+      }
+      console.log(`  interrupt: talked to them during ${n} jobs`);
+      // personal space: you can't walk right up into Mom's face; talk to her from too close (in the open hall) and she
+      // steps back half a pace, then goes back to her spot afterwards
+      const ps = await page.evaluate(() => {
+        const F = HouseFamily, H = House, c = F.chars.mom; F.debug.go('mom', 'hallStairs'); F.debug.place('mom', 'hallStairs'); F.debug.sim(4, 0.1);
+        const home = { x: c.x, z: c.z }, px = c.x, pz = c.z + 52, y = H.LV[c.lvl] - 150;
+        H.hush(); H.setWalkFrom({ x: px, y, z: pz, lvl: c.lvl, seat: 0 }); Object.assign(H.P, { x: px, y, z: pz, rx: -8, ry: 180, seat: 0, lvl: c.lvl }); H._.setMode('walk');
+        return { home, blocked: F.blocks(c.x, c.z + 45, c.lvl), close: Math.hypot(H.W.x - c.x, H.W.z - c.z) };
+      });
+      assert(ps.blocked, 'Personal space: you can\'t step in to 45 cm from Mom');
+      await page.evaluate(() => HouseFamily.talk('mom')); await page.waitForTimeout(2500);
+      const [back, dbg] = await page.evaluate(() => { const c = HouseFamily.chars.mom; return [Math.hypot(House.W.x - c.x, House.W.z - c.z), JSON.stringify({ hold: c.hold, bo: c.backoff, bh: c.backHome, x: c.x, z: c.z, w: [House.W.x, House.W.z], cl: NPCNav.clear(c.lvl, c.x, c.z), cur: c.cur?.k })]; });
+      await shot(page, 'talk-too-close');
+      assert(back > ps.close + 15, 'She stepped back half a pace when talked to from too close: ' + ps.close.toFixed(0) + ' -> ' + back.toFixed(0) + ' ' + dbg);
+      await page.evaluate(() => { const F = HouseFamily, c = F.chars.mom, sp = F.debug.speech; sp.q.length = 0; sp.cur = null; c.hold = 0.01; c.talking = false; c.rig.hush(); });
+      await page.waitForTimeout(3500);
+      const ret = await page.evaluate(h => { const c = HouseFamily.chars.mom; return Math.hypot(c.x - h.x, c.z - h.z); }, ps.home);
+      assert(ret < 8, 'Back on her spot afterwards: ' + ret.toFixed(1));
+      assert.deepEqual(bad, [], 'Talking mid-job: ' + bad.join(' | '));
+      await page.evaluate(() => { for (const id of ['mom', 'dad', 'sister']) HouseFamily.debug.go(id, null); HouseFamily.debug.clock(null); });
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
   });

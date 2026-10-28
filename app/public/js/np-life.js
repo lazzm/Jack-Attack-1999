@@ -178,7 +178,7 @@
 
   // ---------------------------------------------------------------- planning: a goal becomes a list of steps
   function setGoal(c, g) {
-    c.goal = g; c.plan = []; c.cur = null;
+    c.goal = g; c.plan = []; c.cur = null; c.backHome = null; c.backoff = null;
     const P = c.plan;
     if (c.seated) { P.push({ k: 'stand', seat: c.seated }); }
     if (g.away) { const e = EXIT[g.exit]; P.push({ k: 'route', to: e }, { k: 'face', h: e.face * D2R }, { k: 'vanish' }); return; }
@@ -222,7 +222,12 @@
     if (!c.cur) { c.cur = c.plan.shift() || null; if (c.cur) c.cur.t = 0; }
     const s = c.cur; if (!s) return;
     s.t += dt;
-    if (c.hold > 0) { c.hold -= dt; c.v = 0; faceToward(c, player(), dt); return; }
+    if (c.hold > 0) {
+      c.hold -= dt; c.v = 0; faceToward(c, player(), dt);
+      if (c.hold <= 0 && c.backHome) { c.backoff = null; if (c.cur) c.plan.unshift(c.cur); c.cur = { k: 'line', to: c.backHome, t: 0 }; c.backHome = null; return; } // (and back to what they were doing)
+      if (c.backoff) { const bx = c.backoff.x - c.x, bz = c.backoff.z - c.z, bd = Math.hypot(bx, bz), k = Math.min(1, 55 * dt / (bd || 1)); if (bd < 1) c.backoff = null; else { c.x += bx * k; c.z += bz * k; c.v = 30; } } // (half a pace back, still facing you)
+      return;
+    }
     if (s.k === 'route') {
       if (!s.r) { s.r = routeFrom(c, s.to, s.avoid); s.s = 0; if (!s.r) { s.fail = (s.fail || 0) + 1; if (s.fail > 3) { c.x = s.to.x; c.z = s.to.z; c.lvl = s.to.lvl; c.cur = null; } return; } }
       follow(c, s, dt);
@@ -451,6 +456,15 @@
     if (speech.cur && speech.cur.c === c) skip(); // (cut short whatever they were saying to themselves)
     const lines = talkLines(c);
     c.hold = 99;
+    const p = player(), d = dist(c, p);
+    if (!c.seated && d < 82 && sameFloor(c, p)) { // (half a pace back if there's room: never into the worktop)
+      const a0 = Math.atan2(c.x - p.x, c.z - p.z); c.backoff = null;
+      for (const da of [0, 0.5, -0.5, 0.9, -0.9]) {
+        const a = a0 + da, step = 32, tx = c.x + Math.sin(a) * step, tz = c.z + Math.cos(a) * step;
+        if (Math.hypot(tx - p.x, tz - p.z) < d + 14 || NV.clear(c.lvl, tx, tz) < Math.min(NV.NEED - 4, NV.clear(c.lvl, c.x, c.z) - 1)) continue; // (as much room as where she stands: fine by a worktop)
+        c.backoff = { x: tx, z: tz }; c.backHome = c.backHome || { x: c.x, z: c.z }; break;
+      }
+    }
     lines.forEach((l, i) => say(id, typeof l === 'string' ? l : l.id, { force: true, prio: 5, talk: true, then: () => { if (typeof l !== 'string' && l.then) l.then(); if (i === lines.length - 1) c.hold = 1.5; } }));
   }
   function talkLines(c) {
@@ -536,16 +550,62 @@
   function storyDirectives() {
     const out = {}; if (!storyOn()) return out;
     const s = window.st.getState(), cur = window.st.current()?.id; if (s.ch !== 1 || !cur) return out;
-    if (cur === 'meetmom') out.mom = { key: 'story.momdoor', spot: SPOT.bedDoorMom, spotKey: 'bedDoorMom', onArrive: () => say('mom', 'c1.mom.up', { prio: 4, force: true }) };
-    else if (visit && visit.until > nowMs()) out[visit.id] = visit.d;
+    if (cur === 'meetmom') out.mom = entrance('mom', { key: 'story.momdoor', spot: SPOT.bedDoorMom, spotKey: 'bedDoorMom', onArrive: () => say('mom', 'c1.mom.up', { prio: 4, force: true }) }, { hold: true });
+    else if (visit && visit.until > nowMs()) out[visit.id] = entrance(visit.id, visit.d);
     else if (['tidy', 'bed', 'bin'].includes(cur)) out.mom = { key: 'story.momsink', spot: SPOT.sink, spotKey: 'sink' };
     else if (/^part\./.test(cur)) out.mom = { key: 'story.momhall', spot: SPOT.hallStairs, spotKey: 'hallStairs' };
     if (['dad', 'boot'].includes(cur) || /^part\./.test(cur)) out.dad = { key: 'story.dadcar', spot: SPOT.carStory, spotKey: 'carStory', force: true };
-    if (/^lead\./.test(cur) || ['power', 'install', 'pc'].includes(cur)) out.dad = { key: 'story.dadroom', spot: SPOT.bedDad, spotKey: 'bedDad', force: true, onArrive: () => { if (window.st.current()?.id === 'lead.power') say('dad', 'c1.lead.dad', { prio: 4, force: true }); } };
+    if (/^lead\./.test(cur) || ['power', 'install', 'pc'].includes(cur)) out.dad = entrance('dad', { key: 'story.dadroom', spot: SPOT.bedDad, spotKey: 'bedDad', force: true, onArrive: () => { if (window.st.current()?.id === 'lead.power') say('dad', 'c1.lead.dad', { prio: 4, force: true }); } });
     if (/^part\./.test(cur) && home('sister')) out.sister = { key: 'story.sislanding', spot: SPOT.landingSis, spotKey: 'landingSis' };
-    if (cur === 'lad' && sisCameo) out.sister = sisCameo;
+    if (cur === 'lad' && sisCameo) out.sister = entrance('sister', sisCameo, { burst: true });
+    for (const id in ent) if (!out[id]) delete ent[id];
     return out;
   }
+  // ---------------------------------------------------------------- coming into Jack's room: never popping in
+  // Whoever comes to Jack's room is first got onto the landing outside the shut door, out of sight (or walks there if
+  // you can see them), then knocks (the sister just bursts in), the door opens and they walk in. For Mom's first visit
+  // the doorway is softly held from your side until she's in and has spoken (you can't open the door or walk out).
+  const STAGE = { mom: { lvl: 'U', x: 292, z: 190, face: -90 }, dad: { lvl: 'U', x: 296, z: 172, face: -90 }, sister: { lvl: 'U', x: 292, z: 205, face: -90 } };
+  const ent = {};
+  const inBedroom = c => c.present && c.lvl === 'U' && c.x < 238 && c.z < 252;
+  function entrance(id, d, o) {
+    const c = C[id]; let e = ent[id];
+    if (!e || e.key !== d.key) e = ent[id] = { key: d.key, phase: inBedroom(c) ? 'in' : 'come', el: 0, o: o || {}, inEl: -1 };
+    if (e.phase === 'in' || e.phase === 'enter') return d;
+    return { key: d.key + ':stage', spot: STAGE[id], spotKey: 'stage.' + id, force: d.force, onArrive: () => { if (e.phase === 'come') { e.phase = 'knock'; e.el = 0; } } };
+  }
+  function entranceTick(dt) {
+    for (const id in ent) {
+      const e = ent[id], c = C[id]; e.el += dt;
+      if (e.phase === 'enter' && e.inEl < 0 && inBedroom(c)) e.inEl = 0; else if (e.inEl >= 0) e.inEl += dt;
+      if (e.phase === 'come' && (!c.present || c.goal?.key === e.key + ':stage' && c.cur?.k === 'route') && !seenNow(c) && !seenAt(STAGE[id])) {
+        // get them onto the landing behind the door where nobody can see it happen
+        spawn(c, STAGE[id]); c.goal = null;
+      }
+      if (e.phase === 'knock') {
+        if (!e.knocked) { e.knocked = 1; if (!e.o.burst && !H.DOORS.bedroom?.open && !simMode) knockSfx(); }
+        if (e.el > (e.o.burst ? 0.25 : 1.4)) { if (H.DOORS.bedroom && !H.DOORS.bedroom.open) { H.setDoor('bedroom', true); e.doorAt = Date.now(); } e.phase = 'enter'; }
+      }
+    }
+  }
+  function knockSfx() { const sf = H.sfx; if (!sf?.tone) return; for (let i = 0; i < 3; i++) { sf.tone(96, 0.09, 'sine', 0.15, i * 0.22, 54); sf.noise(0.05, 0.08, 700, i * 0.22, 'lowpass', 900); } }
+  const seenNow = c => c.present && seen(c);
+  // would a person standing here be on screen?
+  function seenAt(at) {
+    if (!H.live || !at) return false;
+    const r = roomAt(at.x, at.z, at.lvl); if (!r || !r.group.visible) return false;
+    H.camera.updateMatrixWorld(); pm.multiplyMatrices(H.camera.projectionMatrix, H.camera.matrixWorldInverse); frustum.setFromProjectionMatrix(pm);
+    r.group.localToWorld(wp.set(at.x, H.LV[at.lvl], at.z)); wp.y += 80; sph.set(wp, 110);
+    return frustum.intersectsSphere(sph);
+  }
+  // Mom's first visit: hold the doorway from the bedroom side until she's in and has said hello
+  function doorHeld() {
+    const e = ent.mom; if (!e || !e.o.hold) return false;
+    if (e.phase !== 'in' && e.phase !== 'enter') return true;
+    return e.inEl < 2.5;
+  }
+  let heldHintAt = 0;
+  function heldHint() { if (nowMs() - heldHintAt > 4000) { heldHintAt = nowMs(); H.ui?.say?.('Hang on', 'Mom\'s coming up the stairs...', 2600); } }
   const home = id => { const sch = scheduled(id, clock()); return !sch.raw.startsWith('away:'); };
   // A story step a person speaks has just started. True = it's being said in person (js/st-engine.js then says nothing).
   function storyLine(stepId) {
@@ -622,20 +682,23 @@
   const squeeze = (x, z, lvl) => SQUEEZE.some(q => (!q.lvl || q.lvl === lvl) && x > q.x0 && x < q.x1 && z > q.z0 && z < q.z1);
   function blocks(x, z, lvl) {
     if (!ready) return false;
+    if (lvl === 'U' && doorHeld() && x > 222 && x < 270 && z > 140 && z < 240 && H.W.x < 236) { heldHint(); return true; } // (never traps: only stops you walking out of your room)
     if (squeeze(x, z, lvl)) return false;
     for (const c of chars) {
       if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z))) continue;
-      const r = c.seated ? 34 : 36, d1 = Math.hypot(x - c.x, z - c.z);
+      const r = space(c), d1 = Math.hypot(x - c.x, z - c.z);
       if (d1 < r && d1 < Math.hypot(H.W.x - c.x, H.W.z - c.z) - 0.01) { c.pushT = nowMs(); c.pushN = (c.pushN || 0) + 1; return true; }
     }
     return false;
   }
   // Who you're up against (for the walking controller's slide: you walk round people instead of stopping dead).
+  // personal space: you can't get your face right into theirs (about 65 cm standing, less by a chair)
+  const space = c => c.seated ? 50 : 64;
   function blocker(x, z, lvl, skin) {
     if (!ready || squeeze(x, z, lvl)) return null;
     for (const c of chars) {
       if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z))) continue;
-      const r = c.seated ? 34 : 36; if (Math.hypot(x - c.x, z - c.z) < r + (skin || 0)) return { x: c.x, z: c.z, r };
+      const r = space(c); if (Math.hypot(x - c.x, z - c.z) < r + (skin || 0)) return { x: c.x, z: c.z, r };
     }
     return null;
   }
@@ -647,7 +710,7 @@
       const fwd = Math.atan2(p.x - c.x, p.z - c.z), off = Math.abs(angd(c.seated ? c.seated.face * D2R : c.h, fwd));
       if (c.talking || c.hold > 0 || off < 1.7) look = eyes();
     }
-    c.rig.set({ look });
+    c.rig.set({ look, engage: c.present && c.hold > 0 });
   }
 
   // ================================================================ the loop
@@ -656,6 +719,7 @@
   function tick(dt) {
     const clk = clock();
     directives = Object.assign(storyDirectives(), manual);
+    entranceTick(dt);
     for (const c of chars) {
       const want = target(c, clk);
       if (!c.present) { maybeSpawn(c, want, clk); continue; }
@@ -691,6 +755,7 @@
     const fresh = !!instant;
     if (fresh && !s.seat) { spawn(c, s); c.goal = want; c.plan = [{ k: 'face', h: (s.face || 0) * D2R }, { k: 'act' }]; return; }
     if (fresh && s.seat) { const q = s.seat; spawn(c, { lvl: s.lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: { h: q.h, back: q.back, knee: q.knee, table: q.table } }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; return; }
+    if (seenAt(from)) return; // (never appear where you can see it: wait until you look away)
     spawn(c, from); setGoal(c, want);
   }
   // after a refresh: everyone where they were (if it's recent), otherwise where the clock says
@@ -780,7 +845,7 @@
   window.HouseFamily = {
     enabled: true, get active() { return ready; }, get ready() { return ready; }, chars: C,
     present: id => !!C[id]?.present, near: (id, cm) => !!C[id] && inEarshot(C[id], cm || 400),
-    talk, say: (id, line, o) => say(id, line, o), storyLine, handIn, blocks, blocker,
+    talk, say: (id, line, o) => say(id, line, o), storyLine, handIn, blocks, blocker, doorHeld, heldHint,
     // hs-life's random shouts give way to the people who are really there (and Dad can't shout from work)
     mute: who => { if (!ready) return false; const w = String(who).toLowerCase(); if (w.startsWith('dad')) return true; if (w.startsWith('mom')) return true; return false; },
     debug: {
@@ -790,10 +855,12 @@
         try { for (let t = 0; t < seconds; t += dt) { tick(dt); if (check) { const r = check(this.dump(), t); if (r) out.push(r); } } } finally { simMode = was; }
         return out;
       },
+      entrance: () => JSON.parse(JSON.stringify(ent)), seenAt, seen: id => seen(C[id]),
       dump() { return chars.map(c => ({ id: c.id, present: c.present, x: +c.x.toFixed(1), z: +c.z.toFixed(1), lvl: c.lvl, h: +c.h.toFixed(3), v: +c.v.toFixed(1), room: c.room, goal: c.goal?.key || null, spot: c.goal?.spotKey || null, step: c.cur?.k || null, seated: !!c.seated, sitting: !!(c.cur && (c.cur.k === 'sit' || c.cur.k === 'stand')), outfit: c.rig?.outfit || null, talking: !!c.talking })); },
       want: id => target(C[id], clock()).key,
       hide(v) { hideAll = !!v; for (const c of chars) placeRig(c); H.dirty(); },
-      go(id, spotKey) { if (!spotKey) delete manual[id]; else { const s = SPOT[spotKey] || EXIT[spotKey]; manual[id] = s && { key: 'debug.' + spotKey, spot: s, spotKey, act: s.act }; } },
+      go(id, spotKey, act) { if (!spotKey) delete manual[id]; else { const s = SPOT[spotKey] || EXIT[spotKey]; manual[id] = s && { key: 'debug.' + spotKey + (act ? ':' + act : ''), spot: s, spotKey, act: act || s.act }; } },
+      acts: () => { const o = {}; for (const id of ['mom', 'dad', 'sister']) { const set = new Set(); for (const R of Object.values(ROUTINE[id])) for (const e of R) for (const v of [].concat(e[1])) { if (v.startsWith('away:')) continue; const [k, a] = v.split(':'); const key = k === 'mug' ? 'kmug1' : k; if (SPOT[key]) set.add(key + ':' + (a || SPOT[key].act || '')); } o[id] = [...set]; } return o; },
       place(id, spotKey) { const c = C[id], s = SPOT[spotKey]; if (!c || !s) return false; spawn(c, s.seat ? { lvl: s.lvl, x: s.seat.stand[0], z: s.seat.stand[1] } : s); c.goal = null; return true; },
       spots: SPOT, exits: EXIT, approachOf, anchor: id => C[id] && C[id].rig ? anchorOf(C[id]) : null, routines: ROUTINE, scheduled: (id, v) => scheduled(id, v ? mk(v.md, v.dow, v.t) : clock()), save, restore, speech, frame,
     },
