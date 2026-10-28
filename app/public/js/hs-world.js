@@ -275,22 +275,29 @@
     sfxDoor(d.open);
     emit('door', id, d.open);
   }
-  let visSet = new Set(), vegetationWindows = new Map();
+  let visSet = new Set(), vegetationRoutes = new Map();
   const vegetationFrustum = new T.Frustum(), vegetationProjection = new T.Matrix4(), vegetationHidden = [];
   function visCalc() {
-    const vs = new Set(); if (cur) vs.add(cur.id);
-    const walk = (r, depth) => { if (!r) return; for (const did of r.links) { const d = DOORS[did]; if (!d || !(d.open || d.ang > 0.01 || d.always)) continue; for (const other of d.rooms) if (!vs.has(other)) { vs.add(other); if (depth < (rung().far ? 0 : 1)) walk(ROOMS[other], depth + 1); } } };
-    walk(cur, 0);
-    if (cur && ['hall','landing','cupboard'].includes(cur.id)) { vs.add('hall'); vs.add('landing'); }
-    // Shared wall faces and window reveals extend beyond their apertures. Keep connected rooms intact;
-    // the renderer frustum-culls individual meshes and spatial batches without losing these surfaces.
-    const connected = new Set(vs); vegetationWindows = new Map();
+    const vs = new Set(); vegetationRoutes = new Map(); if (cur) { vs.add(cur.id); vegetationRoutes.set(cur.id,[null]); }
+    const route=(id,chain)=>{let paths=vegetationRoutes.get(id);if(!paths)vegetationRoutes.set(id,paths=[]);paths.push(chain);};
+    const walk = (r, depth, chain, visited) => {
+      if (!r) return;
+      for (const did of r.links) {
+        const d=DOORS[did];if(!d||!(d.open||d.ang>.01||d.always))continue;
+        const next=d.portal&&!d.always?chain.concat(d.portal):chain;
+        for(const other of d.rooms)if(!visited.has(other)){
+          vs.add(other);route(other,next.length?next:null);
+          if(depth<(rung().far?0:1))walk(ROOMS[other],depth+1,next,new Set([...visited,other]));
+        }
+      }
+    };
+    walk(cur,0,[],new Set(cur?[cur.id]:[]));
+    if (cur && ['hall','landing','cupboard'].includes(cur.id)) for(const id of ['hall','landing']){vs.add(id);route(id,null);}
+    // Room groups include shared wall faces: retain their architecture. Only dense vegetation uses these routes.
+    const connected = [...vs];
     for (const id of connected) for (const view of ROOMS[id]?.windowViews || []) {
-      const other = typeof view === 'string' ? view : view.room; if (!ROOMS[other]) continue; vs.add(other);
-      if (connected.has(other)) continue;
-      const boxes = vegetationWindows.get(other) || [];
-      if (!view.bounds) boxes.push(null); else for (const b of view.bounds) boxes.push(new T.Box3(new T.Vector3(b[0],-b[4],b[2]),new T.Vector3(b[3],-b[1],b[5])).expandByScalar(20));
-      vegetationWindows.set(other, boxes);
+      const other=typeof view==='string'?view:view.room;if(!ROOMS[other])continue;vs.add(other);
+      if(!view.bounds)route(other,null);else for(const b of view.bounds)route(other,[new T.Box3(new T.Vector3(b[0],-b[4],b[2]),new T.Vector3(b[3],-b[1],b[5])).expandByScalar(20)]);
     }
     for (const id in ROOMS) { const r = ROOMS[id], on = vs.has(id); if (on) buildRoom(r); r.group.visible = on; }
     for (const id in DOORS) { const d = DOORS[id], on = d.rooms.some(id => vs.has(id)); if (d.pivot) d.pivot.visible = on; if (d.frame) d.frame.visible = on; }
@@ -2668,12 +2675,12 @@
     for(let i=0;i<litIDs.length;i++){const id=litIDs[i];ROOMS[id]._renderDistance=litDistance(id);litTransparentIDs.push(id)}
     litTransparentIDs.sort(litBackToFront);
     try {
-      // Only the dense grass fields use window-aperture rejection. Walls and reveals remain intact.
-      if (vegetationWindows.size && !window.House?.god) {
+      // Only the dense grass fields use aperture rejection. Walls and reveals remain intact.
+      if (vegetationRoutes.size && !window.House?.god) {
         vegetationProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);vegetationFrustum.setFromProjectionMatrix(vegetationProjection);
-        for (const [id,boxes] of vegetationWindows) {
+        for (const [id,paths] of vegetationRoutes) {
           const r=ROOMS[id];if(!r._renderDrawn)continue;let seen=false;
-          for(const box of boxes)if(!box||vegetationFrustum.intersectsBox(box)){seen=true;break;}
+          for(const path of paths){if(!path){seen=true;break;}let all=true;for(const box of path)if(!vegetationFrustum.intersectsBox(box)){all=false;break;}if(all){seen=true;break;}}
           if(seen)continue;
           const mesh=r._grassMesh?.parent?r._grassMesh:(r._grassMesh=r.group.children.find(o=>o.name==='mowable-grass-blades'||o.name==='garden-grass-blades'));
           if(mesh?.visible){vegetationHidden[hiddenVegetation++]=mesh;mesh.visible=false;r._vegetationSkipped=true;}

@@ -38,7 +38,7 @@ look (the old High: Phong, the five-lamp rig, MSAA, full-resolution mipmapped te
   aperture-frustum rejection is unsafe for this house: room groups also own shared wall faces and window reveals.
   Keep those rooms intact and let three.js frustum-cull individual meshes and ~3 m static batches. The rendered
   doorway audit compares this result with mesh frustum rejection disabled, from both sides at three angles.
-  Dense grass fields alone may skip drawing when their room is seen only through windows that are off screen;
+  Dense grass fields alone may skip drawing when every open-door/window route to them is off screen;
   a conservative 20 cm aperture margin and a rendered-reference comparison protect window-edge views.
 - Adaptation, FPS, MSAA and batching debug settings are device-only in roam.js. House pose and inventory still roam.
 
