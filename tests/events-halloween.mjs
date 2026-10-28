@@ -103,7 +103,7 @@ try{
  await key('f');await until(()=>!!Season.st('halloween99').steps['hw-pumpkin']?.candle&&!House.focused&&!!House.THINGS['hw.lantern']);
  await page.waitForTimeout(1200);
  await aim([-20,GY-EYE,265],[-45,GY-88,174]);await key('e');await until(()=>House.held()==='hw.lantern');
- await aim([264,GY-EYE,1252],[236,GY-89,1295]);await key('e'); // the gatepost by the front gate (House.FRONT.FZ 1300)
+ await aim([264,GY-EYE,1240],[231.5,GY-124,1295]);await key('e'); // the gatepost by the front gate (House.FRONT.PIERS[0], PIER_TOP)
  await until(()=>!!Season.st('halloween99').obj['hw-pumpkin']);
  assert.equal((await st()).paid['hw-pumpkin'],20,'pumpkin paid 20');
  log('carving: ok');
@@ -133,7 +133,7 @@ try{
  await until(()=>!!Season.st('halloween99').obj['hw-treat']);
  assert.equal((await st()).paid['hw-treat'],20,'trick-or-treat paid 20');
  await page.waitForTimeout(1500);
- await aim([90,GY-150,1215],[236,GY-95,1295]);await shot('13-lantern-on-gatepost');
+ await aim([90,GY-150,1200],[231.5,GY-130,1295]);await shot('13-lantern-on-gatepost');
  await aim([300,GY-160,1180],[300,GY-80,700]);await shot('14-front-at-night');
  log('trick-or-treat: ok');
 

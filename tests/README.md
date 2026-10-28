@@ -127,9 +127,9 @@ The family house's outside shell must be watertight from everywhere (the rooms i
     node exterior-shell.mjs http://localhost:18080 [--profiles=desktop,phone] [--tier=low] [--eye=140]
 
 From 18 spots (both sides of the front garden and the car, the gateway, the pavement, the road both ways, the back
-garden) it looks at the house left/centre/right and up at the eaves, renders with the neighbourhood and interiors
-hidden and a magenta sky, and fails if any sample whose ray enters the house's walls or roof prism shows magenta
-(glass is skipped). Failing views go to `shots/exterior-shell/<profile>-<view>.png` with the holes ringed, plus one
+garden) it looks at the house left/centre/right and up at the eaves, renders with the neighbourhood and horizon
+ring hidden and a magenta sky, and fails if any sample whose ray enters the house's walls or roof prism shows magenta
+(glass is skipped; rooms show as the game shows them, through open doors and windows). Failing views go to `shots/exterior-shell/<profile>-<view>.png` with the holes ringed, plus one
 normal capture per profile beside Dad's car. About 10 minutes per profile on software WebGL.
 
 Camera/transition polish (starts its own throwaway server unless given a localhost URL):

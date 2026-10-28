@@ -1391,18 +1391,37 @@
   }
   // Saved as [room, x, y, z, ry, snap, hide, extra]; extra holds a chair's swivel. A carried thing saves where it came
   // from, and the grip itself is remembered so a refresh hands it straight back (jhp_hs_held).
-  const PV = 3; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden
+  const PV = 4; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge
   // The front plot (docs/HOUSE-SCALE.md, js/hs-house.js builds it): the garden runs from the house front (z 702) to the pavement
   // at FZ. Until pv 3 it was 4 m deep (FZ 1100) with Dad's car shrunk to 82% (OLD_CAR) to squeeze it in.
-  const FRONT = Object.freeze({ FZ: 1300, CAR: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
+  // STREET: our pavement (FZ..FZ+145, 1.45 m), its kerb, a 5.6 m road, the far kerb and pavement; the opposite houses'
+  // gardens start at farPave[1] (js/hs-environment.js builds the rest of the village from these).
+  // PIERS: the brick gate piers (x; 33 cm square, their caps' top PIER_TOP above the ground) either side of the path gate
+  // and the gateway. HEDGE: the clipped privet behind the front wall, z from HEDGE[0] to the wall's back at HEDGE[1].
+  // CAR3 is where Dad's car stood in pv 3 (2.57); pv 4 moved it 20 cm back from the gate piers.
+  const FRONT = Object.freeze({ FZ: 1300, STREET: Object.freeze({ pave: [1300, 1445], kerb: 1450, road: [1455, 2015], farKerb: 2020, farPave: [2025, 2170] }),
+    PIERS: Object.freeze([231.5, 348.5, 636.5]), PIER_TOP: 124, HEDGE: Object.freeze([1228.5, 1284]),
+    CAR: Object.freeze({ x: 488, y: 353, z: 980, s: 1.04 }), CAR3: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
   // A placement saved before pv 3: whatever was in or on the old car moves with the car (same spot in the boot or on the
   // roof, scaled); whatever the bigger car now stands on is set down on the drive beside it. Everything else keeps its pose.
-  function migratePlacement(at) {
+  // pv 4: in or on the v3 car -> the same spot on the car 20 cm further back; on the ground where the car now stands ->
+  // beside it; on the lawn where the thicker hedge now grows -> just in front of the hedge.
+  function migratePlacement(at, from = 0) {
     if (!at || at.room !== 'drive' || !Number.isFinite(at.x) || !Number.isFinite(at.z)) return false;
-    const { CAR, OLD_CAR, FZ } = FRONT, lx = (at.x - OLD_CAR.x) / OLD_CAR.s, lz = (at.z - OLD_CAR.z) / OLD_CAR.s;
-    if (Math.abs(lx) <= 92 && Math.abs(lz) <= 210) { const ly = (at.y - CAR.y) / OLD_CAR.s; at.x = CAR.x + lx * CAR.s; at.z = CAR.z + lz * CAR.s; at.y = CAR.y + ly * CAR.s; return true; }
-    if (Math.abs(at.x - CAR.x) < 120 * CAR.s && Math.abs(at.z - CAR.z) < 230 * CAR.s) { at.x = CAR.x - 91 * CAR.s - 32; at.z = Math.min(Math.max(at.z, 780), FZ - 60); at.y = CAR.y; return true; }
-    return false;
+    const { CAR, CAR3, OLD_CAR, FZ, HEDGE } = FRONT;
+    const onCar = (c, x, z, sx = 92, sz = 210) => Math.abs((x - c.x) / c.s) <= sx && Math.abs((z - c.z) / c.s) <= sz;
+    let moved = false;
+    if (from < 3) {
+      const lx = (at.x - OLD_CAR.x) / OLD_CAR.s, lz = (at.z - OLD_CAR.z) / OLD_CAR.s;
+      if (Math.abs(lx) <= 92 && Math.abs(lz) <= 210) { const ly = (at.y - CAR3.y) / OLD_CAR.s; at.x = CAR3.x + lx * CAR3.s; at.z = CAR3.z + lz * CAR3.s; at.y = CAR3.y + ly * CAR3.s; moved = true; }
+      else if (Math.abs(at.x - CAR3.x) < 120 * CAR3.s && Math.abs(at.z - CAR3.z) < 230 * CAR3.s) { at.x = CAR3.x - 91 * CAR3.s - 32; at.z = Math.min(Math.max(at.z, 780), FZ - 60); at.y = CAR3.y; moved = true; }
+    }
+    if (from < 4) {
+      if (onCar(CAR3, at.x, at.z) && (at.y < CAR3.y - 5 || moved)) { at.x += CAR.x - CAR3.x; at.z += CAR.z - CAR3.z; return true; }
+      if (onCar(CAR, at.x, at.z, 100, 214)) { at.x = CAR.x - 91 * CAR.s - 32; at.z = Math.min(Math.max(at.z, 780), FZ - 90); at.y = CAR.y; return true; }
+      if (at.x < FRONT.PIERS[0] && at.z > HEDGE[0] - 12 && at.z < FZ) { at.z = HEDGE[0] - 20; at.y = CAR.y; return true; }
+    }
+    return moved;
   }
   function saveThings(immediate) {
     clearTimeout(saveT);
@@ -1411,7 +1430,7 @@
       // Keep records belonging to unbuilt rooms; saving the bedroom must not
       // erase the rest of the house, nor overwrite a deferred prop with its home.
       const previous = loadThings(), st = Object.assign({}, previous.t), op = Object.assign({}, previous.o);
-      if ((previous.pv || 0) < 3) for (const id in st) { const r = st[id]; if (!Array.isArray(r) || r[5]) continue; const at = { room: r[0], x: r[1], y: r[2], z: r[3] }; if (migratePlacement(at)) st[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1)].concat(r.slice(4)); }
+      if ((previous.pv || 0) < PV) for (const id in st) { const r = st[id]; if (!Array.isArray(r) || r[5]) continue; const at = { room: r[0], x: r[1], y: r[2], z: r[3] }; if (migratePlacement(at, previous.pv || 0)) st[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1)].concat(r.slice(4)); }
       for (const id in THINGS) {
         const t = THINGS[id]; if (t.noSave || pendingRestores.has(id)) continue;
         const carried = held && held.id === id && !held.drag, a = carried ? held.from : t.at, y = t.st==='fall'&&Number.isFinite(t.landY)?t.landY:a.y;
@@ -1457,16 +1476,16 @@
   // (2.57.0 left Dad's PC parts behind the bumper): a raised spot on the old car that's now outside the new one.
   function migrateSave(save) {
     if (!save || !save.t || save.pv0 !== undefined) return;
-    const { CAR, OLD_CAR } = FRONT, old = (save.pv || 0) < 3; save.pv0 = save.pv || 0; // pv0: the version it was saved with (the physics nudge below still needs it)
+    const { CAR3, OLD_CAR } = FRONT, pv = save.pv || 0, old = pv < PV; save.pv0 = pv; // pv0: the version it was saved with (the physics nudge below still needs it)
     for (const id in save.t) {
       const r = save.t[id]; if (!Array.isArray(r) || r[5] || r[0] !== 'drive') continue;
       const lx = (r[1] - OLD_CAR.x) / OLD_CAR.s, lz = (r[3] - OLD_CAR.z) / OLD_CAR.s;
-      const stale = Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR.y - 5 && !(Math.abs(r[1] - CAR.x) <= 92 * CAR.s && Math.abs(r[3] - CAR.z) <= 205 * CAR.s);
+      const stale = pv === 3 && Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR3.y - 5 && !(Math.abs(r[1] - CAR3.x) <= 92 * CAR3.s && Math.abs(r[3] - CAR3.z) <= 205 * CAR3.s);
       if (!old && !stale) continue;
       const at = { room: r[0], x: r[1], y: r[2], z: r[3] };
-      if (migratePlacement(at)) save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), ...r.slice(4)];
+      if (migratePlacement(at, stale ? 0 : pv)) save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), ...r.slice(4)];
     }
-    save.pv = Math.max(save.pv || 0, 3);
+    save.pv = Math.max(pv, PV);
   }
   // Placements saved before the physics pass may now overlap a collider (furniture gained real parts): nudge them out once.
   const migrateQ = new Set();
@@ -1534,7 +1553,7 @@
       const p = SNAPS[s[5]].pose || SNAPS[s[5]];
       t.at.x = p.x; t.at.y = p.y; t.at.z = p.z; t.at.ry = p.ry || 0;
       t.rx = p.rx || 0; t.rz = p.rz || 0;
-    } else { t.st = 'rest'; if (save.pv0 < 3 && t.at.room === 'drive') migrateQ.add(t); }
+    } else { t.st = 'rest'; if (save.pv0 < PV && t.at.room === 'drive') migrateQ.add(t); }
     moveTo(t, t.at.room); place(t); layerFor(t);
     if (t.st === 'rest' && !t.at.hide && (save.pv0 ?? save.pv ?? 0) < PV) migrateQ.add(t);
     rescueQ.add(t);

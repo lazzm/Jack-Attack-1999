@@ -19,7 +19,7 @@
   const UY = 73, UC = -185, GY = 353, GC = 95;
   // The front plot (docs/HOUSE-SCALE.md; the numbers are shared with js/hs-world.js, which migrates old saves): the front
   // garden runs from the house front (z 702) to the pavement at FZ: a real 6 m semi front garden with a full-size saloon.
-  const { FZ, CAR } = H.FRONT, FRONT_PIERS = [236, 344, 632], LAMP = { x: 700, z: FZ + 88 };
+  const { FZ, CAR, STREET, HEDGE, PIER_TOP } = H.FRONT, FRONT_PIERS = H.FRONT.PIERS, LAMP = { x: 700, z: STREET.kerb - 22 };
   const tex = n => A.t(n);
   const say = (t, x, ms) => H.say(cast(t), cast(x), ms);
   const cast = s => { try { return window.Cast ? Cast.t(s) : s; } catch (e) { return s; } };
@@ -1068,10 +1068,12 @@
     // The turf bed fits the real plot. The mowable inset sits .6 cm above it.
     B.box(-110,GY+2.6,(700+FZ-15)/2,460,4,FZ-715,mGrass(),{uv:110});
     B.box(675,GY+2,(700+FZ)/2,110,4,FZ-700,mGrass(),{uv:110});
-    B.box(300,GY+1.6,FZ+50,1800,4,100,mSlab(),{uv:100});
-    B.box(300,GY+3,FZ+350,1800,4,500,mTarmac(),{uv:120});
-    B.box(300,GY-1,FZ+98,1800,6,9,M('#9a9a92'));
-    for(let x=-520;x<1200;x+=260)B.box(x,GY+.87,FZ+350,130,.2,8,M('#d2cdb6'));
+    // The street in front (js/hs-world.js FRONT.STREET; js/hs-environment.js carries it on both ways): the pavement, the kerb, the road.
+    const [pv0,pv1]=STREET.pave,[rd0,rd1]=STREET.road;
+    B.box(300,GY+1.6,(pv0+pv1)/2,1800,4,pv1-pv0,mSlab(),{uv:100});
+    B.box(300,GY+3,(rd0+rd1)/2,1800,4,rd1-rd0,mTarmac(),{uv:120});
+    B.box(300,GY-1,STREET.kerb,1800,6,rd0-pv1,M('#9a9a92'));
+    for(let x=-520;x<1200;x+=260)B.box(x,GY+.87,(rd0+rd1)/2,130,.2,8,M('#d2cdb6'));
     for(const x of [120,-340])B.box(x,GY-1,(685+FZ)/2,3,3,FZ-715,M('#8c8679'));
     // A clear pedestrian route beside the parked car.
     B.box(290,GY-.45,(752+FZ)/2,84,1,FZ-752,mSlab(),{uv:100});
@@ -1108,16 +1110,24 @@
     // a low front wall with a gate, the hedge, a lamp-post on the pavement
     // Openings: the pedestrian gate (x 248..332, on the path's line) and the wide gateway Dad drives through (356..620).
     const capM = M('#9a9a92');
-    for (const [a, b] of [[-360, 224], [644, 730]]) { B.box((a + b) / 2, GY - 35, FZ - 5, b - a, 70, 20, mBrick(), { uv: 128 }); B.box((a + b) / 2, GY - 72, FZ - 5, b - a, 4, 24, capM); }
-    for (const x of FRONT_PIERS) { B.box(x, GY - 40, FZ - 5, 24, 80, 24, mBrick(), { uv: 128 }); B.box(x, GY - 82, FZ - 5, 29, 4, 29, capM); B.box(x, GY - 86.5, FZ - 5, 18, 5, 18, capM); }
+    // A low wall (50 cm of brick under a 5 cm coping, 22 thick) between proper piers: 33 cm square, 114 cm of brick under
+    // a 42 cm stone cap and a smaller one on that (PIER_TOP above the ground: the Halloween lantern stands on it).
+    for (const [a, b] of [[-360, FRONT_PIERS[0] - 16.5], [FRONT_PIERS[2] + 16.5, 730]]) { B.box((a + b) / 2, GY - 25, FZ - 5, b - a, 50, 22, mBrick(), { uv: 128 }); B.rbox((a + b) / 2, GY - 52.5, FZ - 5, b - a, 5, 26, .8, capM); }
+    for (const x of FRONT_PIERS) { B.box(x, GY - 57, FZ - 5, 33, 114, 33, mBrick(), { uv: 128 }); B.rbox(x, GY - 117, FZ - 5, 42, 6, 42, 1, capM); B.rbox(x, GY - PIER_TOP + 2, FZ - 5, 34, 4, 34, .8, capM); }
     // The pedestrian gate: a black steel leaf standing open against the inside of its pier (it squeaks).
-    { const gt = B.at(FRONT_PIERS[1] - 10, GY, FZ - 18, -90), iron = M({ c: '#1f2122', sh: 40, sp: '#555' });
+    { const gt = B.at(FRONT_PIERS[1] - 10, GY, FZ - 25, -90), iron = M({ c: '#1f2122', sh: 40, sp: '#555' });
       for (const y of [-12, -46, -80]) gt.box(-40, y, 0, 78, 3, 3, iron);
       for (let x = -76; x <= -4; x += 9) gt.box(x, -46, 0, 1.8, 70, 1.8, iron);
       gt.box(-2, -46, 0, 3.4, 74, 3.4, iron); gt.box(-78, -46, 0, 3.4, 74, 3.4, iron); for (const y of [-20, -72]) gt.cyl(-.5, y, 0, 2, 2, 5, 8, iron);
       gt.box(-74, -52, 2.5, 3, 6, 2, M({ c: '#c8a040', sh: 70, sp: '#a08040' })); gt.shadow(-40, 0, 0, 84, 14, .35, { sq: true }); }
     const clippedHedge=M({c:'#fff',sh:2,sp:'#142316',map:K.tex('hs.hedge.leaves',128,128,(g,w,h)=>{const r=K.rnd(812);g.fillStyle='#3e5934';g.fillRect(0,0,w,h);for(let i=0;i<1900;i++){g.fillStyle=['#405a34','#48653a','#344e2d','#516d40'][(r()*4)|0];g.beginPath();g.ellipse(r()*w,r()*h,1.5+r(),.7+r()*.6,r()*Math.PI,0,Math.PI*2);g.fill()}})});
-    B.rbox(-68,GY-42,FZ-36,554,84,30,8,clippedHedge,{uv:60});
+    // Clipped privet behind the wall: 125 cm high, 55 deep, a firm clipped body with leafy clumps along the top and the
+    // faces, so the top line is gently uneven, never one flat green slab.
+    { const x0=-360,x1=FRONT_PIERS[0]-17.5,z0=HEDGE[0],z1=HEDGE[1],cz=(z0+z1)/2,r=K.rnd(1999),leaf=[clippedHedge,M({c:'#fff',sh:2,sp:'#142316',map:K.tex('hs.hedge.leaves2',128,128,(g,w,h)=>{const q=K.rnd(813);g.fillStyle='#46633a';g.fillRect(0,0,w,h);for(let i=0;i<1700;i++){g.fillStyle=['#4b6a3d','#557645','#3a5531','#5e7f4a'][(q()*4)|0];g.fillRect(q()*w,q()*h,2+q()*2,1+q())}})})];
+      B.rbox((x0+x1)/2,GY-56,cz,x1-x0,112,z1-z0-8,10,clippedHedge,{uv:60});
+      for(let x=x0+14;x<x1-10;x+=26)for(const dz of [-11,11]){const rx=17+r()*7,ry=6+r()*6;B.ball(x+r()*8-4,GY-110-r()*7,cz+dz+r()*6-3,rx,ry,15+r()*6,leaf[(r()*2)|0],8)}
+      for(let x=x0+16;x<x1-12;x+=24)B.ball(x+r()*8,GY-30-r()*66,z0+4.5,10+r()*4,9+r()*5,5,leaf[(r()*2)|0],8); // (shallow leafy swells on the clipped face)
+      B.shadow((x0+x1)/2,GY,cz-30,x1-x0,24,.35,{sq:true}); }
     // The street lamp stands at the kerb, off to the side of the plot (not across the front of the house):
     // a tapered steel column on a base with its access door, a swan-neck arm and a sodium lantern over the road.
     const lp = B.at(LAMP.x, GY, LAMP.z), col = M({ c: '#4a4f4c', sh: 30, sp: '#3a3f3c' });
@@ -1162,14 +1172,15 @@
     car.rbox(0, -78, 20, 166, 10, 240, 4, cm); // the sills/belt line
     // Build in the house's y-down frame. Baking a negative scale into a batch
     // reverses triangle winding and makes the near windows disappear.
-    { const cab = new T.BoxGeometry(150, 54, 210); const P2 = cab.attributes.position; for (let k = 0; k < P2.count; k++) if (P2.getY(k) < 0) { P2.setX(k, P2.getX(k) * 0.9); P2.setZ(k, P2.getZ(k) * 0.72 - 6); } cab.computeVertexNormals(); car.geo(cab, 0, -102, -14, gl); }
-    car.rbox(0, -131, -20, 134, 5, 150, 2, cm); // the roof
+    // The glasshouse: 47 cm of glass (a saloon's, not an aquarium's) under a saloon's roof, raked front and back.
+    { const cab = new T.BoxGeometry(150, 47, 210); const P2 = cab.attributes.position; for (let k = 0; k < P2.count; k++) if (P2.getY(k) < 0) { P2.setX(k, P2.getX(k) * 0.88); P2.setZ(k, P2.getZ(k) * 0.74 - 5); } cab.computeVertexNormals(); car.geo(cab, 0, -98.5, -14, gl); }
+    car.rbox(0, -124.4, -19, 132, 5, 158, 2, cm); // the roof
     const trim = (top,bottom,material,width=1,overlap=0) => {const a=new T.Vector3(...top),b=new T.Vector3(...bottom),delta=b.clone().sub(a),centre=a.clone().add(b).multiplyScalar(.5);const geo=new T.BoxGeometry(width,delta.length()+overlap,width);geo.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),delta.normalize())));car.geo(geo,centre.x,centre.y,centre.z,material);};
-    for(const side of [-1,1])for(const [top,bottom]of [[[side*67.5,-130,55.6],[side*75,-75,91]],[[side*67.5,-130,-95.6],[side*75,-75,-119]],[[side*67.5,-130,-14],[side*75,-75,-14]]]){trim(top,bottom,rubber,7,2);trim(top,bottom,cm,5.5,2)}
-    for(const [y,z,width]of [[-129.5,55.9,134],[-75.3,91.2,150],[-129.5,-96,134],[-75.3,-119.3,150]])trim([-width/2,y,z],[width/2,y,z],rubber,2);
+    for(const side of [-1,1])for(const [top,bottom]of [[[side*66,-122,58.7],[side*75,-75,91]],[[side*66,-122,-96.7],[side*75,-75,-119]],[[side*66,-122,-14],[side*75,-75,-14]]]){trim(top,bottom,rubber,5,2);trim(top,bottom,cm,4,2)} // slim pillars
+    for(const [y,z,width]of [[-121.6,58.9,132],[-75.3,91.2,150],[-121.6,-96.9,132],[-75.3,-119.3,150]])trim([-width/2,y,z],[width/2,y,z],rubber,2);
     // Wipers sit on the sloping windscreen, rear heater lines on the rear glass.
     for(const x of [-32,30]){trim([x-23,-81,87.7],[x+16,-88,83.2],rubber,1.2);trim([x-3,-77.5,90],[x-2,-84.5,85.6],rubber,1.5)}
-    for(let y=-90;y>=-118;y-=7){const z=-119+(y+75)*(-23.4/55)-.35;trim([-64,y,z],[64,y,z],M('#786552'),.28)}
+    for(let y=-88;y>=-116;y-=7){const z=-119+(y+75)*(-22.3/47)-.35;trim([-64,y,z],[64,y,z],M('#786552'),.28)}
     [[-80,140],[80,140],[-80,-140],[80,-140]].forEach(([x,z])=>{
       const side=x>0?1:-1;car.cyl(x,-30,z,30,30,20,24,rubber,{rz:90});
       car.geo(new T.TorusGeometry(26.5,2.8,8,24),x+side*8.5,-30,z,rubber,{ry:90});
@@ -1201,24 +1212,25 @@
     H.spot('hs.bay', { label: 'The lounge window (from outside)', act: () => say('The bay window', 'The lounge. You can see the telly flickering through the nets. Mom twitches those nets at EVERYONE who walks past.') }); pickBox(r, 'hs.bay', -60, 225, 703, 236, 160, 6);
     // The front garden: the lawn, the path and the drive, round the car on both sides, out through either gate onto the
     // pavement (the far kerb is as far as we go today).
-    H.walkRect('G', 124, 704, 716, FZ + 70, { room: 'drive' }); H.walkRect('G', -340, 704, 124, FZ - 52, { room: 'drive' }); H.walkRect('G', -340, FZ - 20, 124, FZ + 70, { room: 'drive' }); H.walkRect('G', 262, 660, 338, 710, { door: 'front', room: 'drive' });
+    H.walkRect('G', 124, 704, 716, STREET.pave[1] - 5, { room: 'drive' }); H.walkRect('G', -340, 704, 124, HEDGE[0] - 4, { room: 'drive' }); H.walkRect('G', -340, FZ - 20, 124, STREET.pave[1] - 5, { room: 'drive' }); H.walkRect('G', 262, 660, 338, 710, { door: 'front', room: 'drive' });
     H.block('G',-300,694,260,708);H.block('G',340,694,420,708); // no walking through front windows
     H.block('G', frame.x - 91 * frame.s, frame.z - 205 * frame.s, frame.x + 91 * frame.s, frame.z + 205 * frame.s, H.solid ? { solid: false } : undefined); // Dad's car (both sides stay walkable)
     // Things: the car is solid around a hollow boot. With the lid up you can put things in on Dad's rug (the story's PC parts
     // ride there); a shut lid closes it. (The car used to be one solid block up to the roof: nothing could go in the boot.)
     if (H.solid) {
       const cs = frame.s, X = lx => frame.x + lx * cs, Z = lz => frame.z + lz * cs, kind = 'car';
-      H.solid('G', X(-91), Z(-121), X(91), Z(205), GY - 133.5 * cs, GY + 1, { kind }); // bonnet, cabin, roof
+      H.solid('G', X(-91), Z(-121), X(91), Z(205), GY - 126.9 * cs, GY + 1, { kind }); // bonnet, cabin, roof (the 47 cm glasshouse)
       H.solid('G', X(-91), Z(-205), X(91), Z(-121), GY - 23 * cs, GY + 1, { kind }); // the boot floor and what's under it
       H.solid('G', X(-91), Z(-205), X(91), Z(-197), GY - 73 * cs, GY - 23 * cs, { kind, support: false }); // the rear valance
       for (const sx of [-1, 1]) H.solid('G', X(sx < 0 ? -91 : 78.5), Z(-205), X(sx < 0 ? -78.5 : 91), Z(-121), GY - 75 * cs, GY - 23 * cs, { kind, support: false }); // the wheel-arch sides
       H.solid('G', X(-79), Z(-197), X(79), Z(-121), GY - 79 * cs, GY - 23 * cs, { kind, support: false, when: () => !r.carBoot.open }); // the shut lid
     }
-    H.block('G', -360, FZ - 52, 224, FZ + 5); H.block('G', 644, FZ - 15, 740, FZ + 5); // the front wall, with the hedge behind it
-    for (const x of FRONT_PIERS) H.block('G', x - 12, FZ - 17, x + 12, FZ + 7);
-    H.block('G', FRONT_PIERS[1] - 12, FZ - 100, FRONT_PIERS[1] - 6, FZ - 17); // the open gate leaf
+    H.block('G', -360, HEDGE[0], FRONT_PIERS[0] - 16.5, FZ + 6); H.block('G', FRONT_PIERS[2] + 16.5, FZ - 16, 740, FZ + 6); // the front wall, with the hedge behind it
+    for (const x of FRONT_PIERS) H.block('G', x - 16.5, FZ - 21.5, x + 16.5, FZ + 11.5);
+    H.block('G', FRONT_PIERS[1] - 12, FZ - 104, FRONT_PIERS[1] - 6, FZ - 21.5); // the open gate leaf
     H.block('G', 716, 704, 740, FZ - 15); // next door's hedge
-    H.support('drive',frame.x-56*frame.s,frame.z-85*frame.s,frame.x+56*frame.s,frame.z+45*frame.s,GY-133.5*frame.s); H.support('drive', 265, 708, 335, 752, GY - 2);
+    H.block('G', LAMP.x - 12, LAMP.z - 12, LAMP.x + 12, LAMP.z + 12); // the lamp-post's base, now the whole pavement is walkable
+    H.support('drive',frame.x-58*frame.s,frame.z-96*frame.s,frame.x+58*frame.s,frame.z+60*frame.s,GY-126.9*frame.s); H.support('drive', 265, 708, 335, 752, GY - 2);
   }
 
   // ================================================================ the rooms, their lights, their views
@@ -1246,7 +1258,7 @@
       amb: () => outdoorAmb('#78855a'),
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: -900, tx: 0, ty: GY, tz: -300, c: '#8090c8', i: 0.15 } : { x: 400, y: -900, z: -600, tx: 0, ty: GY, tz: -300, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'patio', n: 'The garden', pose: () => look('G', 40, -90, -80, GY - 80, -420, 158) }, { id: 'shed', n: 'The shed', pose: () => look('G', -40, -300, -230, GY - 100, -470, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 20, -360, 80, 60, -56, 158) }] },
-    drive: { name: 'The front', title: 'OUT THE FRONT', lvl: 'G', area: [[-340, 700, 720, FZ + 72]], bx0: -338, bx1: 718, bz0: 702, bz1: FZ + 70, build: buildDrive, outside: true, windowViews:[{room:'lounge',bounds:bayGlass},{room:'hall',bounds:frontGlass}],
+    drive: { name: 'The front', title: 'OUT THE FRONT', lvl: 'G', area: [[-340, 700, 720, STREET.pave[1] - 3]], bx0: -338, bx1: 718, bz0: 702, bz1: STREET.pave[1] - 5, build: buildDrive, outside: true, windowViews:[{room:'lounge',bounds:bayGlass},{room:'hall',bounds:frontGlass}],
       lights: () => [{ x: 360, y: GY - 124, z: 730, c: '#ffe0a0', i: phase() === 'day' ? 0 : 0.7, d: 420 }, { x: LAMP.x - 100, y: GY - 430, z: LAMP.z, c: '#ffb860', i: phase() === 'day' ? 0 : 1.2, d: 900 }],
       amb: () => outdoorAmb('#797b70'),
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: 1700, tx: 300, ty: GY, tz: 900, c: '#8090c8', i: 0.15 } : { x: -400, y: -900, z: 1500, tx: 300, ty: GY, tz: 900, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },

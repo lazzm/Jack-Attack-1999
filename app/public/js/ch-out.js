@@ -157,7 +157,7 @@
   }
 
   // ================================================================ MOW THE FRONT LAWN (the orange hover mower, the outside socket)
-  const LAWN = { x0: -330, x1: 116, z0: 712, z1: 1246 }, CELL = 14, STRIPS = 8; // (to the hedge behind the front wall)
+  const LAWN = { x0: -330, x1: 116, z0: 712, z1: (H.FRONT?.HEDGE?.[0] ?? 1228.5) - 4 }, CELL = 14, STRIPS = 8; // (to the hedge behind the front wall)
   const MOWHOME = { x: 196, z: 748, ry: 200 }, OSOCK = { x: 236, y: GY - 46, z: 701.6 };
   const GNOME = { x: -132, z: 884 };
   const NX = Math.ceil((LAWN.x1 - LAWN.x0) / CELL), NZ = Math.ceil((LAWN.z1 - LAWN.z0) / CELL);

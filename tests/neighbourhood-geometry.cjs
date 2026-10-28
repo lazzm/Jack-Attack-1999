@@ -62,14 +62,15 @@ for(const [i,h]of E.homes.entries()){
  assert(h.front-h.depth/2>=250,'usable front garden and uninterrupted path');
  assert(h.ry===0||h.ry===180,'homes face their street, not the playable plot');
  const frontEdge=h.z+(h.ry===180?-1:1)*(h.front+20);
- assert.equal(frontEdge,i<7?2000:i<13?-1290:1300,'garden threshold meets footpath edge');
+ assert.equal(frontEdge,i<7?2170:i<13?-1290:1300,'garden threshold meets footpath edge (opposite: the far pavement, 17.8 m from our front wall)');
  for(const other of E.homes.slice(0,i))if(h.z===other.z)
   assert(Math.abs(h.x-other.x)>=680,'separate plots do not overlap');
 }
 // Check the physical seams, not only the home metadata. Flat ground is the only
 // scenery permitted beneath the playable garden and drive.
 function surfaceAt(x,z){return solids.filter(({bb})=>bb.min.x<x&&bb.max.x>x&&bb.min.z<z&&bb.max.z>z&&bb.max.y-bb.min.y<=20&&bb.min.y>=340).sort((a,b)=>a.bb.min.y-b.bb.min.y)[0]}
-for(const [x,z,top]of [[-2000,1650,353],[2000,1650,353],[-2000,1350,352.8],[17,1950,352.8],[0,1900,341],[0,-940,353],[17,-1240,352.8],[17,-640,352.8],[0,900,359],[0,-400,359]]){
+for(const [x,z,top]of [[-2000,1650,353],[2000,1650,353],[-2000,1350,352.8],[17,2100,352.8],[0,2020,341],[0,-940,353],[17,-1240,352.8],[17,-640,352.8],[0,900,359],[0,-400,359],
+  [2710,600,353],[2710,1700,353],[2710,3000,353],[2400,630,352.8],[3020,3030,352.8],[2465,1000,341],[4000,1350,352.8],[-5000,1700,353],[2200,600,354],[3300,0,354]]){
  const solid=surfaceAt(x,z);assert(solid,`missing ground at ${x},${z}`);
  assert(Math.abs(solid.bb.min.y-top)<.01,`ground/kerb level at ${x},${z}`);
 }
@@ -84,7 +85,20 @@ for(const h of E.homes){
   assert(surface&&surface.bb.min.y>=351.65&&surface.bb.min.y<=352.01,`continuous doorstep-to-footpath paving: ${h.x},${h.z},${localZ}: ${surface?.bb.min.y}`);
  }
 }
-assert.deepEqual(Array.from(E.group.children,g=>g.name),['street','opposite houses','rear houses','side houses']);
+assert.deepEqual(Array.from(E.group.children,g=>g.name),['street','opposite houses','rear houses','side houses','far houses']);
+// The village carries on: simpler far houses in every row out to the backdrop, never on the side road or the playable plot.
+assert(E.farHomes.length>=18,'the rows continue past the end of the street');
+for(const h of E.farHomes){
+ assert(h.ry===0||h.ry===180);const frontEdge=h.z+(h.ry===180?-1:1)*(h.front+20);
+ assert([2170,-1290,1300].includes(frontEdge),'far gardens meet their footpath');
+ if(h.z!==-1850)assert(h.x+330<=2370||h.x-330>=3050,'no house on the side road');
+ for(const o of [...E.homes,...E.farHomes])if(o!==h&&o.z===h.z)assert(Math.abs(o.x-h.x)>=680,'far plots do not overlap');
+}
+// The horizon ring travels with the camera and is never part of the static batches.
+const B=E.backdrop;assert(B&&B.parent===H.root&&!E.group.children.includes(B),'backdrop is its own mesh');
+assert.equal(B.frustumCulled,false);assert.equal(B.material.side,T.BackSide);assert(B.material.alphaTest>0&&!B.material.transparent);
+const ringR=B.geometry.parameters.radiusTop;assert(ringR>=3000&&ringR<4000,'inside the camera far plane (4000), outside the playable plot');
+{const cam=new T.PerspectiveCamera();cam.position.set(123,-200,456);cam.updateMatrixWorld();B.onBeforeRender(null,null,cam);assert.equal(B.position.x,123);assert.equal(B.position.z,456)}
 let meshes=0;
 E.group.traverse(o=>{
  assert.equal(o.userData.noPick,true);
@@ -95,7 +109,7 @@ E.group.traverse(o=>{
  assert.equal(g.attributes.position.count,g.attributes.normal.count);assert.equal(g.attributes.position.count,g.attributes.color.count);
  for(const name of ['position','normal','uv','color'])assert(Array.from(g.attributes[name].array).every(Number.isFinite),name+' must stay finite');
 });
-assert(meshes<=55,'bounded static draw calls');assert(triangles<64000,'bounded triangle budget including solid garden fences');
+console.log('meshes',meshes,'triangles',triangles,E.group.children.map(g=>g.name+':'+g.children.length).join(' '));assert(meshes<=84,'bounded static draw calls (55 for the near rows, about 26 for the far rows and the crossroads)');assert(triangles<90000,'bounded triangle budget including solid garden fences and the far rows');
 const before=E.group.children.flatMap(g=>g.children.map(m=>[m.uuid,m.geometry.uuid,m.geometry.attributes.position.array]));
 const meshGeometry=()=>E.group.children.flatMap(g=>g.children.map(m=>[m.uuid,m.geometry.uuid,m.geometry.attributes.position.array]));
 const allMaterials=new Set();E.group.traverse(o=>{if(o.material)allMaterials.add(o.material)});

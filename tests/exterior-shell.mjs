@@ -3,9 +3,10 @@
 //
 // From every reachable spot round the house (front lawn, drive both sides of the car, the pavement, the back garden,
 // the road in both directions) it looks at the house left, centre and right, level and looking up. For each view it
-// hides the neighbourhood and every room interior, paints the sky pure magenta, renders, and samples a screen grid:
+// hides the neighbourhood (rooms stay as the game shows them: an open door or a window rightly shows the room behind),
+// paints the sky pure magenta, renders, and samples a screen grid:
 // a sample whose camera ray enters the house's solid volume (walls ground to eaves, plus the roof prism) must not be
-// magenta. Rays whose first hit is glass are skipped (the rooms behind windows are hidden on purpose).
+// magenta. Rays whose first hit is glass are skipped.
 // Writes tests/shots/exterior-shell/<profile>-<view>.png (the magenta pass, failing samples ringed) for failures,
 // and a normal-render contact image per profile for review. Exit 0 = no holes.
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -43,8 +44,7 @@ for(const profile of profiles){
      const roof=House.root.children.find(o=>o.name==='family-house-roof');
      const keep=[House.ROOMS.drive.group,House.ROOMS.garden.group,roof].filter(Boolean);
      const saved=[];const hide=o=>{saved.push([o,o.visible]);o.visible=false};
-     if(window.HouseEnvironment)hide(HouseEnvironment.group);
-     for(const id in House.ROOMS)if(!['drive','garden'].includes(id))hide(House.ROOMS[id].group);
+     if(window.HouseEnvironment){hide(HouseEnvironment.group);if(HouseEnvironment.backdrop)hide(HouseEnvironment.backdrop)} // (and the horizon ring)
      for(const g of [House.ROOMS.drive.group,House.ROOMS.garden.group]){saved.push([g,g.visible]);g.visible=true}
      const bg=scene.background,fog=scene.fog;scene.background=new T.Color('#ff00ff');scene.fog=null;
      ren.render(scene,cam);
