@@ -54,9 +54,9 @@
     kmug2: { lvl: 'G', x: 140, z: 92, face: -100, act: 'mug' },
     kmug3: { lvl: 'G', x: 132, z: 262, face: -120, act: 'mug' },
     // lounge
-    sofaL: { lvl: 'G', act: 'telly', seat: seat({ x: -113.7, z: 563, face: 180, stand: [-113.7, 506], approach: [-143.7, 461] }) },
-    sofaR: { lvl: 'G', act: 'telly', seat: seat({ x: -6.3, z: 563, face: 180, stand: [-6.3, 506], approach: [-143.7, 461], via: [[-134, 503]] }) }, // (sidle along between the coffee table and the sofa)
-    armchair: { lvl: 'G', act: 'paper', seat: seat({ x: 115.3, z: 432.8, face: -118, stand: [80, 414], approach: [10, 386] }) }, // (straight in from the front)
+    sofaL: { lvl: 'G', act: 'telly', seat: seat({ x: -110.4, z: 608, face: 180, stand: [-110.4, 551], approach: [-110.4, 521] }) }, // (in from the way between the coffee table and the sofa)
+    sofaR: { lvl: 'G', act: 'telly', seat: seat({ x: -9.6, z: 608, face: 180, stand: [-9.6, 551], approach: [-9.6, 521] }) },
+    armchair: { lvl: 'G', act: 'paper', seat: seat({ x: 115.6, z: 397, face: -110, stand: [78.1, 383.3], approach: [4.8, 365.3] }) }, // (straight in from the front)
     floorTV: { lvl: 'G', act: 'telly', seat: { x: -172, z: 401, face: 119, h: 1, floor: true, back: false, knee: 24, stand: [-172, 401], approach: [-172, 401] } },
     phone: { lvl: 'G', x: 117, z: 611, face: 90, act: 'phone' },
     // hall, landing

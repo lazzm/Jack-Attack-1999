@@ -21,7 +21,7 @@ const GY=353,EY=GY-eyeH;
 const SPOTS=[
  ['lawn-west-corner',-335,712],['lawn-west-gate',-335,1360],['lawn-middle',-120,1000],['hardstanding',120,712],
  ['front-path-gate',300,1360],['car-house-gap',470,712],['drive-east-corner',710,712],['drive-east-mid',710,1000],
- ['drive-gateway',700,1365],['car-front',460,1120],
+ ['drive-gateway',700,1365],['car-front',460,1380],
  ['street-east',1150,1650,[700,1365]],['street-west',-700,1650,[-335,1360]],['opposite-pavement',60,1950,[300,1360]],
  ['garden-back-west',-290,-550],['garden-back-east',205,-550],['garden-middle',-50,-300],['garden-by-door',190,-70],['garden-by-house-west',-290,-70],
 ];

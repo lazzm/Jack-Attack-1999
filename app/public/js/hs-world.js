@@ -1391,38 +1391,51 @@
   }
   // Saved as [room, x, y, z, ry, snap, hide, extra]; extra holds a chair's swivel. A carried thing saves where it came
   // from, and the grip itself is remembered so a refresh hands it straight back (jhp_hs_held).
-  const PV = 4; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge
+  const PV = 5; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: Dad's car up the drive to the gateway, 1.6 m clear in front of the door
   // The front plot (docs/HOUSE-SCALE.md, js/hs-house.js builds it): the garden runs from the house front (z 702) to the pavement
   // at FZ. Until pv 3 it was 4 m deep (FZ 1100) with Dad's car shrunk to 82% (OLD_CAR) to squeeze it in.
   // STREET: our pavement (FZ..FZ+145, 1.45 m), its kerb, a 5.6 m road, the far kerb and pavement; the opposite houses'
   // gardens start at farPave[1] (js/hs-environment.js builds the rest of the village from these).
   // PIERS: the brick gate piers (x; 33 cm square, their caps' top PIER_TOP above the ground) either side of the path gate
   // and the gateway. HEDGE: the clipped privet behind the front wall, z from HEDGE[0] to the wall's back at HEDGE[1].
-  // CAR3 is where Dad's car stood in pv 3 (2.57); pv 4 moved it 20 cm back from the gate piers.
+  // CAR3 is where Dad's car stood in pv 3 (2.57); CAR4 (pv 4-5) 20 cm back from the gate piers; pv 6 drove it up to the
+  // gateway (nose between the piers) so there's 1.6 m clear between the house and the boot, in front of the door.
   const FRONT = Object.freeze({ FZ: 1300, STREET: Object.freeze({ pave: [1300, 1445], kerb: 1450, road: [1455, 2015], farKerb: 2020, farPave: [2025, 2170] }),
     PIERS: Object.freeze([231.5, 348.5, 636.5]), PIER_TOP: 124, HEDGE: Object.freeze([1228.5, 1284]),
-    CAR: Object.freeze({ x: 488, y: 353, z: 980, s: 1.04 }), CAR3: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
+    CAR: Object.freeze({ x: 500, y: 353, z: 1075, s: 1.04 }), CAR4: Object.freeze({ x: 488, y: 353, z: 980, s: 1.04 }), CAR3: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
   // A placement saved before pv 3: whatever was in or on the old car moves with the car (same spot in the boot or on the
   // roof, scaled); whatever the bigger car now stands on is set down on the drive beside it. Everything else keeps its pose.
   // pv 4: in or on the v3 car -> the same spot on the car 20 cm further back; on the ground where the car now stands ->
-  // beside it; on the lawn where the thicker hedge now grows -> just in front of the hedge.
+  // beside it; on the lawn where the thicker hedge now grows -> just in front of the hedge. pv 6: the same for the car's
+  // move up the drive (in or on it: it comes along; under it now: set down beside it).
+  // pv 5: on the lounge floor where the sofa (-155..35, 562..647) or Dad's chair (55..164, 340..450) now stands -> out
+  // in front of the sofa, on the way through.
+  const LOUNGE5 = [[-157, 560, 37, 649], [53, 338, 166, 452]];
   function migratePlacement(at, from = 0) {
+    if (at && at.room === 'lounge' && from < 5 && Number.isFinite(at.x) && Number.isFinite(at.z) && at.y >= LV.G - 6 && LOUNGE5.some(([x0, z0, x1, z1]) => at.x > x0 && at.x < x1 && at.z > z0 && at.z < z1)) { at.x = clamp(at.x, -150, 40); at.z = 521; at.y = LV.G; return true; }
     if (!at || at.room !== 'drive' || !Number.isFinite(at.x) || !Number.isFinite(at.z)) return false;
-    const { CAR, CAR3, OLD_CAR, FZ, HEDGE } = FRONT;
+    const { CAR, CAR3, CAR4, OLD_CAR, FZ, HEDGE } = FRONT;
     const onCar = (c, x, z, sx = 92, sz = 210) => Math.abs((x - c.x) / c.s) <= sx && Math.abs((z - c.z) / c.s) <= sz;
-    let moved = false;
+    const beside = c => { at.x = c.x - 91 * c.s - 32; at.z = Math.min(Math.max(at.z, 780), FZ - 90); at.y = c.y; };
+    const follow = (a, b) => { at.x += b.x - a.x; at.z += b.z - a.z; at.y += b.y - a.y; };
+    let moved = false, riding = false; // riding: in or on the car, so it moves with the car again
     if (from < 3) {
       const lx = (at.x - OLD_CAR.x) / OLD_CAR.s, lz = (at.z - OLD_CAR.z) / OLD_CAR.s;
-      if (Math.abs(lx) <= 92 && Math.abs(lz) <= 210) { const ly = (at.y - CAR3.y) / OLD_CAR.s; at.x = CAR3.x + lx * CAR3.s; at.z = CAR3.z + lz * CAR3.s; at.y = CAR3.y + ly * CAR3.s; moved = true; }
-      else if (Math.abs(at.x - CAR3.x) < 120 * CAR3.s && Math.abs(at.z - CAR3.z) < 230 * CAR3.s) { at.x = CAR3.x - 91 * CAR3.s - 32; at.z = Math.min(Math.max(at.z, 780), FZ - 60); at.y = CAR3.y; moved = true; }
+      if (Math.abs(lx) <= 92 && Math.abs(lz) <= 210) { const ly = (at.y - CAR3.y) / OLD_CAR.s; at.x = CAR3.x + lx * CAR3.s; at.z = CAR3.z + lz * CAR3.s; at.y = CAR3.y + ly * CAR3.s; moved = riding = true; }
+      else if (Math.abs(at.x - CAR3.x) < 120 * CAR3.s && Math.abs(at.z - CAR3.z) < 230 * CAR3.s) { beside(CAR3); moved = true; }
     }
     if (from < 4) {
-      if (onCar(CAR3, at.x, at.z) && (at.y < CAR3.y - 5 || moved)) { at.x += CAR.x - CAR3.x; at.z += CAR.z - CAR3.z; return true; }
-      if (onCar(CAR, at.x, at.z, 100, 214)) { at.x = CAR.x - 91 * CAR.s - 32; at.z = Math.min(Math.max(at.z, 780), FZ - 90); at.y = CAR.y; return true; }
-      if (at.x < FRONT.PIERS[0] && at.z > HEDGE[0] - 12 && at.z < FZ) { at.z = HEDGE[0] - 20; at.y = CAR.y; return true; }
+      if (riding || onCar(CAR3, at.x, at.z) && at.y < CAR3.y - 5) { follow(CAR3, CAR4); moved = riding = true; }
+      else if (onCar(CAR4, at.x, at.z, 100, 214)) { beside(CAR4); moved = true; }
+      else if (at.x < FRONT.PIERS[0] && at.z > HEDGE[0] - 12 && at.z < FZ) { at.z = HEDGE[0] - 20; at.y = CAR.y; moved = true; }
+    }
+    if (from < 6) {
+      if (riding || onCar(CAR4, at.x, at.z) && at.y < CAR4.y - 5) { follow(CAR4, CAR); moved = true; }
+      else if (onCar(CAR, at.x, at.z, 100, 214)) { beside(CAR); moved = true; }
     }
     return moved;
   }
+
   function saveThings(immediate) {
     clearTimeout(saveT);
     const write = () => {
@@ -1478,7 +1491,7 @@
     if (!save || !save.t || save.pv0 !== undefined) return;
     const { CAR3, OLD_CAR } = FRONT, pv = save.pv || 0, old = pv < PV; save.pv0 = pv; // pv0: the version it was saved with (the physics nudge below still needs it)
     for (const id in save.t) {
-      const r = save.t[id]; if (!Array.isArray(r) || r[5] || r[0] !== 'drive') continue;
+      const r = save.t[id]; if (!Array.isArray(r) || r[5] || (r[0] !== 'drive' && r[0] !== 'lounge')) continue;
       const lx = (r[1] - OLD_CAR.x) / OLD_CAR.s, lz = (r[3] - OLD_CAR.z) / OLD_CAR.s;
       const stale = pv === 3 && Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR3.y - 5 && !(Math.abs(r[1] - CAR3.x) <= 92 * CAR3.s && Math.abs(r[3] - CAR3.z) <= 205 * CAR3.s);
       if (!old && !stale) continue;
@@ -1553,7 +1566,7 @@
       const p = SNAPS[s[5]].pose || SNAPS[s[5]];
       t.at.x = p.x; t.at.y = p.y; t.at.z = p.z; t.at.ry = p.ry || 0;
       t.rx = p.rx || 0; t.rz = p.rz || 0;
-    } else { t.st = 'rest'; if (save.pv0 < PV && t.at.room === 'drive') migrateQ.add(t); }
+    } else { t.st = 'rest'; if (save.pv0 < PV && (t.at.room === 'drive' || t.at.room === 'lounge')) migrateQ.add(t); }
     moveTo(t, t.at.room); place(t); layerFor(t);
     if (t.st === 'rest' && !t.at.hide && (save.pv0 ?? save.pv ?? 0) < PV) migrateQ.add(t);
     rescueQ.add(t);
