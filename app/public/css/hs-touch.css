@@ -147,3 +147,5 @@ html.handheld-house.hs-live[data-touch-state="walk"] body,html.handheld-house.hs
 .ht-b{touch-action:none;-webkit-touch-callout:none}
 .ht-b.ht-press{background:rgba(255,216,74,.32);border-color:var(--ht-gold);transform:scale(.94)}
 .ht-acts .ht-b{transition:transform .06s}
+/* portrait touch: toasts (secrets, rewards) sit under the story line, never on top of it */
+@media (orientation:portrait){html[data-game-touch="true"] .hs-ui .rm-toast{top:calc(env(safe-area-inset-top,0px) + 146px)}}

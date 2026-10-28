@@ -12,7 +12,7 @@ import net from 'node:net';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {chromium, devices} from 'playwright';
-import {analyse} from './transition-kit.mjs';
+import {analyse, contactSheet} from './transition-kit.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url)), shots = fileURLToPath(new URL('shots/mobile/', import.meta.url));
 const args = process.argv.slice(2), given = args.find(a => /^https?:/.test(a));
@@ -148,6 +148,23 @@ async function screenOf(p, id) {
     const b = new H.T.Box3().setFromObject(o), v = b.getCenter(new H.T.Vector3()); v.project(H.camera);
     const r = H.ren.domElement.getBoundingClientRect(); return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height, z: v.z };
   }, id);
+}
+// A touch-path recording: left thumb walks forward, right thumb pans right, frames every ~120 ms into a contact sheet,
+// with the pose and the finger positions logged (report.paths[name]).
+async function recordPath(p, name) {
+  const { page, fingers } = p, { width: w, height: h } = V(p), R = Math.max(46, Math.min(70, Math.min(w, h) * .15));
+  const frames = [], log = [], t0 = Date.now(), sx = Math.min(100, w * .22), sy = h - Math.min(170, h * .3);
+  await fingers.down(1, sx, sy); await fingers.move(1, sx, sy - 14); await fingers.move(1, sx, sy - R);
+  await fingers.down(2, w - 80, h * .45);
+  for (let i = 0; i < 10; i++) {
+    await fingers.move(2, w - 80 - i * 9, h * .45);
+    frames.push({ buf: await page.screenshot({ type: 'jpeg', quality: 55 }), t: Date.now() - t0 });
+    log.push(await page.evaluate(() => ({ x: +House.W.x.toFixed(1), z: +House.W.z.toFixed(1), ry: +House.P.ry.toFixed(1), touch: House.touch.state })));
+  }
+  await fingers.up(2); await fingers.up(1);
+  await contactSheet(browser, frames, shots + name + '-path-sheet.jpg', { cols: 5, width: Math.round(1200 / 5), label: name + ': stick forward + drag right, ' + w + 'x' + h });
+  (report.paths = report.paths || {})[name] = log;
+  return log;
 }
 // The world centre of a thing (house coordinates, y down), for pointing the camera at it.
 async function centreOf(p, id) { return p.page.evaluate(id => { const H = House, o = H.THINGS[id]?.obj || H.SPOTS[id]?.obj; const v = new H.T.Box3().setFromObject(o).getCenter(new H.T.Vector3()); return [v.x, -v.y, v.z]; }, id); }
@@ -507,6 +524,7 @@ const phases = {
       await fingers.down(1, 80, h - 150); await fingers.move(1, 80, h - 215); await sleep(800); await fingers.up(1);
       await fingers.drag(2, w - 90, h * .45, w - 200, h * .45, 500);
       assert(await page.evaluate(x0 => Math.hypot(House.W.x - x0[0], House.W.z - x0[1]) > 15, x0), 'Did not walk at 360x740');
+      await aimAt(p, [40, -55, 185], [40, -55, -20]); await recordPath(p, 'small-360x740');
       await shot('small-03-walked');
       const home = await page.evaluate(() => House.THINGS['media.box.n64.kart'].at);
       await aimAt(p, [-220, -55, 35], [home.x, home.y - 6, -36]);
@@ -516,7 +534,8 @@ const phases = {
       await shot('small-05-carrying'); await layoutAudit(p, 'small carrying');
       await fingers.tap(w * .72, h * .4); await until(() => House.THINGS['media.box.n64.kart'].st === 'rest');
       await gameLad(p, 'small');
-      await page.setViewportSize({ width: 740, height: 360 }); await page.waitForTimeout(1500); await shot('small-20-house-landscape'); await layoutAudit(p, 'small landscape'); await notBlack(p, 'small landscape');
+      await page.setViewportSize({ width: 740, height: 360 }); await page.waitForTimeout(1500); await shot('small-20-house-landscape');
+      await aimAt(p, [40, -55, 185], [40, -55, -20]); await recordPath(p, 'small-740x360'); await layoutAudit(p, 'small landscape'); await notBlack(p, 'small landscape');
       assert.deepEqual(p.errors, [], 'small browser errors');
     } finally { await p.ctx.close(); }
   },
@@ -539,9 +558,10 @@ const phases = {
       const stickRow = [];
       for (const f of [.1, .2, .35, .5, .75, 1, 1.4]) {
         await aimAt(p, [40, -55, 185], [40, -55, -20]); await sleep(300); // (the bedroom, facing its far wall ~1.8 m away)
-        const x0 = 90, y0 = h - 170; await fingers.down(1, x0, y0); await fingers.move(1, x0, y0 - 14); await fingers.move(1, x0, y0 - R * f); await sleep(450);
-        // (the walking velocity itself, settled after ~0.45 s, before the far wall is reached at any speed)
-        const v = []; for (let i = 0; i < 3; i++) { v.push(await page.evaluate(() => Math.hypot(House.W.vx, House.W.vz))); await sleep(60); }
+        const x0 = 90, y0 = h - 170; await fingers.down(1, x0, y0); await fingers.move(1, x0, y0 - 14); await fingers.move(1, x0, y0 - R * f); await sleep(330); // (settled: the walk eases in with a ~0.11 s time constant)
+        // (the walking velocity itself, settled after ~0.35 s, well before the far wall at any speed)
+        const v = [], dbg = []; for (let i = 0; i < 3; i++) { const q = await page.evaluate(() => ({ v: Math.hypot(House.W.vx, House.W.vz), run: House.touch.state.run, z: House.W.z, m: House._.movementState().keys })); v.push(q.v); dbg.push(q); await sleep(40); }
+        if (f > 1.2) feel.jogSamples = dbg;
         if (f > 1.2) feel.jog = await page.evaluate(() => ({ cls: document.querySelector('.ht-stick').className, touch: House.touch.state, fingers: HouseTouch._fingers() }));
         await fingers.up(1); await sleep(350);
         stickRow.push({ deflection: f, cmPerS: Math.round(v.reduce((a, b) => a + b) / v.length) });
@@ -588,6 +608,10 @@ const phases = {
       for (let i = 0; i < 14; i++) { await fingers.move(2, w - 120 - i * 6, h * .45); await sleep(80); path.push(await page.evaluate(() => ({ t: Math.round(performance.now()), x: +House.W.x.toFixed(1), z: +House.W.z.toFixed(1), ry: +House.P.ry.toFixed(1) }))); if (i === 8) await shot('feel-01-walk-look'); }
       await fingers.up(2); await fingers.up(1);
       feel.path = path; feel.perf = await page.evaluate(() => House.perf());
+      await aimAt(p, [40, -55, 185], [40, -55, -20]); await recordPath(p, 'feel-412x915');
+      await page.setViewportSize({ width: 915, height: 412 }); await sleep(1200); await aimAt(p, [40, -55, 185], [40, -55, -20]);
+      const land = await recordPath(p, 'feel-915x412'); assert(land.some(q => q.touch.on), 'Landscape stick did not walk');
+      await page.setViewportSize({ width: 412, height: 915 }); await sleep(1000);
       // jitter: the walk speed between samples should be steady once moving (no stutter spikes beyond host noise)
       const sp = path.slice(3).map((q, i, a) => i ? Math.hypot(q.x - a[i - 1].x, q.z - a[i - 1].z) / ((q.t - a[i - 1].t) / 1000) : null).filter(v => v != null);
       feel.walkSpeedSamples = sp.map(Math.round);

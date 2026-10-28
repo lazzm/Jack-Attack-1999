@@ -193,10 +193,12 @@
   }
   const buzz = () => { try { navigator.vibrate?.(10); } catch (e) {} };
   // first time on a touchscreen: three quiet coach marks, shown once (any thumb on the room dismisses them)
-  let coachEl = null;
+  let coachEl = null, coachWait = 0;
   function coach(show) {
     if (show) {
       if (coachEl || ls.get('jhp_touch_coach', false)) return;
+      // one thing to read at a time: wait while someone is talking or a note is up (up to half a minute)
+      if (document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on') && (coachWait = (coachWait || 0) + 1) < 30) { setTimeout(() => { if (st === 'walk') coach(true); }, 1000); return; }
       coachEl = document.createElement('div'); coachEl.className = 'ht-coach'; coachEl.setAttribute('role', 'note');
       coachEl.innerHTML = '<div class="ht-coach-card"><b>HOW TO PLAY</b><p><i>LEFT THUMB</i>walk: put it down anywhere on the left and slide it (further to jog)</p><p><i>RIGHT SIDE</i>drag to look round</p><p><i>CLICK THINGS</i>to use them: doors, people, games. The big button uses what is in the middle.</p></div>';
       hud.appendChild(coachEl); setTimeout(() => coach(false), 14000); return;
