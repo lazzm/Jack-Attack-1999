@@ -4,6 +4,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const base=path.resolve(__dirname,'..'),T=require(path.join(base,'app/public/vendor/three.min.js'));
 const context2d={fillRect(){},createImageData(w,h){return{data:new Uint8ClampedArray(w*h*4)}},putImageData(){}};
 const H={ok:true,T,root:new T.Group(),scene:new T.Scene(),ambient:new Set(),dirty(){}};
+const worldSource=fs.readFileSync(path.join(base,'app/public/js/hs-world.js'),'utf8'),frontStart=worldSource.indexOf('  const FRONT = Object.freeze('),frontEnd=worldSource.indexOf('  // A placement saved before',frontStart);
+assert(frontStart>=0&&frontEnd>frontStart);H.FRONT=vm.runInNewContext(worldSource.slice(frontStart,frontEnd)+';FRONT');
 let phase='day',dirtyCalls=0;H.dirty=()=>dirtyCalls++;
 const window={THREE:T,House:H,HouseArt:{}};
 const sandbox=vm.createContext({window,document:{createElement(){return{getContext(){return context2d}}},getElementById(){return{classList:{contains:p=>p==='rm-'+phase}}}},console});
@@ -12,7 +14,7 @@ run('hs-kit.js');
 const K=window.HouseKit,add=K.Batch.prototype.add;
 let primitives=0,triangles=0,trunks=0,roofShells=0;
 const solids=[],treeBases=[];
-const primitiveTypes=new Set(),playable=[[-340,700,716,1370],[-300,-560,215,-56]];
+const primitiveTypes=new Set(),playable=[[-340,700,716,H.FRONT.STREET.pave[1]-5],[-300,-560,215,-56]];
 K.Batch.prototype.add=function(geometry,matrix,material,uv){
  assert(matrix.elements.every(Number.isFinite),'finite primitive transform');
  assert(matrix.determinant()>0,'scenery never relies on mirrored or collapsed solids');
@@ -50,7 +52,7 @@ K.Batch.prototype.add=function(geometry,matrix,material,uv){
  return add.call(this,geometry,matrix,material,uv);
 };
 run('hs-environment.js');
-const E=window.HouseEnvironment;
+const E=window.HouseEnvironment,ST=H.FRONT.STREET,frontShift=ST.pave[0]-1300;
 assert.equal(E.homes.length,17);assert.equal(H.ambient.size,1);
 assert.equal(new Set(E.homes.map(h=>h.type)).size,4,'four coherent house archetypes');
 assert(roofShells>=34,'every house has both a solid gable and a closed roof shell');
@@ -62,15 +64,15 @@ for(const [i,h]of E.homes.entries()){
  assert(h.front-h.depth/2>=250,'usable front garden and uninterrupted path');
  assert(h.ry===0||h.ry===180,'homes face their street, not the playable plot');
  const frontEdge=h.z+(h.ry===180?-1:1)*(h.front+20);
- assert.equal(frontEdge,i<7?2170:i<13?-1290:1300,'garden threshold meets footpath edge (opposite: the far pavement, 17.8 m from our front wall)');
+ assert.equal(frontEdge,i<7?ST.farPave[1]:i<13?-1290:ST.pave[0],'garden threshold meets footpath edge (opposite: the far pavement, 17.8 m from our front wall)');
  for(const other of E.homes.slice(0,i))if(h.z===other.z)
   assert(Math.abs(h.x-other.x)>=680,'separate plots do not overlap');
 }
 // Check the physical seams, not only the home metadata. Flat ground is the only
 // scenery permitted beneath the playable garden and drive.
 function surfaceAt(x,z){return solids.filter(({bb})=>bb.min.x<x&&bb.max.x>x&&bb.min.z<z&&bb.max.z>z&&bb.max.y-bb.min.y<=20&&bb.min.y>=340).sort((a,b)=>a.bb.min.y-b.bb.min.y)[0]}
-for(const [x,z,top]of [[-2000,1650,353],[2000,1650,353],[-2000,1350,352.8],[17,2100,352.8],[0,2020,341],[0,-940,353],[17,-1240,352.8],[17,-640,352.8],[0,900,359],[0,-400,359],
-  [2710,600,353],[2710,1700,353],[2710,3000,353],[2400,630,352.8],[3020,3030,352.8],[2465,1000,341],[4000,1350,352.8],[-5000,1700,353],[2200,600,354],[3300,0,354]]){
+for(const [x,z,top]of [[-2000,1650+frontShift,353],[2000,1650+frontShift,353],[-2000,1350+frontShift,352.8],[17,2100+frontShift,352.8],[0,2020+frontShift,341],[0,-940,353],[17,-1240,352.8],[17,-640,352.8],[0,900,359],[0,-400,359],
+  [2710,600,353],[2710,1700+frontShift,353],[2710,3000,353],[2400,630,352.8],[3020,3030,352.8],[2465,1000,341],[4000,1350+frontShift,352.8],[-5000,1700+frontShift,353],[2200,600,354],[3300,0,354]]){
  const solid=surfaceAt(x,z);assert(solid,`missing ground at ${x},${z}`);
  assert(Math.abs(solid.bb.min.y-top)<.01,`ground/kerb level at ${x},${z}`);
 }
@@ -90,7 +92,7 @@ assert.deepEqual(Array.from(E.group.children,g=>g.name),['street','opposite hous
 assert(E.farHomes.length>=18,'the rows continue past the end of the street');
 for(const h of E.farHomes){
  assert(h.ry===0||h.ry===180);const frontEdge=h.z+(h.ry===180?-1:1)*(h.front+20);
- assert([2170,-1290,1300].includes(frontEdge),'far gardens meet their footpath');
+ assert([ST.farPave[1],-1290,ST.pave[0]].includes(frontEdge),'far gardens meet their footpath');
  if(h.z!==-1850)assert(h.x+330<=2370||h.x-330>=3050,'no house on the side road');
  for(const o of [...E.homes,...E.farHomes])if(o!==h&&o.z===h.z)assert(Math.abs(o.x-h.x)>=680,'far plots do not overlap');
 }

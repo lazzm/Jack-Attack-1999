@@ -87,15 +87,15 @@ new views street-east/-west/-across, front-wall-hedge, garden-far). Done = in th
 | G2 | Done. Standing eye 143, seated 108, crouch -38; ducking for a low door starts 62 cm before it. |
 | G3 | Open. 258 cm storeys stay: lowering them means re-laying the stairs and every wall/door height. |
 | G5 | Done (house-scale eye 143). |
-| 1 | Done. Wall 50 + 5 cm coping, 22 thick; clipped privet 125 x 55 behind it with leafy clumps and an uneven top. |
+| 1 | Done. Wall 50 + 5 cm coping, 22 thick; clipped privet about 125 x 55 behind it, one closed softly rounded volume with leaf-scale undulations and an uneven top. |
 | 2 | Done. Piers 33 sq x 114, 42 cm cap + 34 cm cap, top 124 (House.FRONT.PIERS / PIER_TOP; the Halloween lantern sits on it). |
 | 3 | Open (next door's hedges are the shared neighbourhood ones, 72 high). |
 | 4, 7 | Partial. Glass 54 -> 47 high, roof 158 long, pillars 7/5.5 -> 5/4. Bonnet taper (5) and wheel arches (6) open. |
-| 8 | Done. Car frame z 1000 -> 980 (nose about 93 cm from the wall); save pv 4 moves things in/on the car with it. |
+| 8 | Done 2.57.14. Jack approved the 7 m plot on 28 October: FZ 1400, car x 500/z 1075, clearances 110 cm doorstep/boot and 107 cm nose/gateway. Placement pv 6 and repeated-load tests cover car, roof and lounge transfers; real touch walks both gaps. |
 | 13 | Partial. The two hero posters (shuttle, band) are A2 42 x 59.4; the others stay A3. |
 | 19 | Done. Lamp-post base 30 x 60 x 25 with its door; solid (the whole pavement is walkable now). |
 | 22 | Done. Pavement 1.45 m + kerb, road 5.6 m, far pavement 1.45 m (House.FRONT.STREET). |
 | 23 | Done. Opposite front walls 17.8 m from ours. |
-| 27 | Partial. Lounge re-laid: 1.9 m sofa back towards the bay, 86 cm armchair angled at the telly in the corner, standard lamp in the corner; 80 cm+ ways in from the door; coal-effect gas fire with brass frame, canopy and fret. Upholstery proportions unchanged. |
+| 27 | Partial. Lounge re-laid: 1.9 m sofa back towards the bay, 86 cm armchair angled at the telly in the corner, standard lamp in the corner; 90 x 50 cm bevelled coffee table leaves 83 cm to the sofa; ways in from the door; coal-effect gas fire with brass frame, canopy and fret. Upholstery proportions unchanged. |
 | new | The village goes on: streets to +-56 m, a crossroads (side road to the back road), the corner shop (VILLAGE STORES), a green with the phone box, a pillar box, more semis both ways (simpler far houses), and a horizon ring (hills, rooftops, trees, the church spire) that travels with the camera. |
 | 9-12, 14-18, 20-21, 24-26, 28-34 | Open (landing/stairs widths, desk, telly, bedroom props, kitchen, back garden props). |

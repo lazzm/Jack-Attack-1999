@@ -1,4 +1,4 @@
-/* np-life: Mom, Dad and the little sister living their 1999 day in the house (desktop house only). They follow daily
+/* np-life: Mom, Dad and the little sister living their 1999 day in the house (desktop and touch house). They follow daily
  * routines on the in-game clock (OwnerTools' clock override drives them too), walk the house through real doorways and
  * down the stairs (js/np-nav.js), open doors, step aside for you, sit, read the paper, wash up, watch telly and play;
  * look at you when you're close, and talk: F on a person plays real lines from docs/SCRIPT.md (js/np-lines.js, with the
@@ -15,6 +15,7 @@
   const OFF = { enabled: false, active: false, present: noop, near: noop, storyLine: noop, handIn: noop, blocks: noop, mute: noop, say: noop, talk: noop, chars: {} };
   if (window.HouseFamily) return;
   if (!H || !H.ok || !NR || !NV || !L || window.PCOnly?.desktopOnly) { window.HouseFamily = OFF; return; }
+  const CAR = H.FRONT.CAR;
   const T = H.T, D2R = Math.PI / 180, TAU = Math.PI * 2;
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -68,8 +69,8 @@
     gardenWater: { lvl: 'G', x: -108, z: -455, face: -90, act: 'water' },
     gardenLook: { lvl: 'G', x: 10, z: -300, face: 200 },
     gardenYoyo: { lvl: 'G', x: 40, z: -215, face: 160, act: 'yoyo' },
-    carwash: { lvl: 'G', x: 362, z: 1000, face: 90, act: 'carwash' }, // beside Dad's car (House.ROOMS.drive.carFrame), off the path
-    carStory: { lvl: 'G', x: 364, z: 812, face: 200 }, // by the boot (js/hs-house.js CAR), off the path to the gate
+    carwash: { lvl: 'G', x: CAR.x-126, z: CAR.z, face: 90, act: 'carwash' }, // beside Dad's car (House.ROOMS.drive.carFrame), off the path
+    carStory: { lvl: 'G', x: CAR.x-124, z: CAR.z-188, face: 200 }, // by the boot (js/hs-house.js CAR), off the path to the gate
     // Jack's room (story visits)
     bedDoorMom: { lvl: 'U', x: 178, z: 196, face: -95 },
     bedDad: { lvl: 'U', x: 168, z: 126, face: -110 },
@@ -77,7 +78,7 @@
     // ways out (they disappear through these when nobody's looking)
     parents: { lvl: 'G', x: 0, z: 0, exit: true }, // filled in below
   };
-  const EXIT = { parents: { lvl: 'U', x: 290, z: 662, face: 0 }, sisRoom: { lvl: 'U', x: 284, z: 490, face: -90 }, car: { lvl: 'G', x: 362, z: 1080, face: 90 }, street: { lvl: 'G', x: 290, z: 1336, face: 180 } }; // (street: out of the front gate, on the pavement)
+  const EXIT = { parents: { lvl: 'U', x: 290, z: 662, face: 0 }, sisRoom: { lvl: 'U', x: 284, z: 490, face: -90 }, car: { lvl: 'G', x: CAR.x-126, z: CAR.z+80, face: 90 }, street: { lvl: 'G', x: 290, z: H.FRONT.FZ+36, face: 180 } }; // (street: out of the front gate, on the pavement)
   delete SPOT.parents;
   const MUG = ['kmug1', 'kmug2', 'kmug3'];
 
@@ -390,6 +391,13 @@
     const avoid = peopleAvoid(c);
     const choice = c.asideFor ? opts.find(q => NV.route({lvl:c.lvl,x:c.x,z:c.z},q,{avoid})) : opts[0];
     if (choice) { c.aside = Object.assign(choice, { face: Math.atan2(p.x - choice.x, p.z - choice.z) / D2R }); c.asideT = 0; c.goal = null; }
+    else if (c.asideFor) {
+      // A queue can block its own retreat: ask the trailing person to make room first, without creating a request cycle.
+      const behind = chars.filter(q => q !== c && q !== c.asideFor && q.present && q.lvl === c.lvl && !q.seated && !q.talking && q.hold <= 0 && dist(c,q) < 160 && (q.x-c.x)*dx+(q.z-c.z)*dz > L0*12 && !(q.aside && q.asideFor === c)).sort((a,b)=>dist(c,a)-dist(c,b)).find(q=>{
+        const visited=new Set();for(let w=c;w&&!visited.has(w);w=w.asideFor){if(w===q)return false;visited.add(w)}return true;
+      });
+      if (behind) { behind.pushT=nowMs(); behind.pushN=6; behind.pushFrom={x:c.x,z:c.z,lvl:c.lvl}; behind.asideFor=c; }
+    }
   }
 
   // ================================================================ seeing and hearing

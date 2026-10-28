@@ -18,7 +18,7 @@
   const R = window.Room, CAT = window.RoomCat;
   const UY = 73, UC = -185, GY = 353, GC = 95;
   // The front plot (docs/HOUSE-SCALE.md; the numbers are shared with js/hs-world.js, which migrates old saves): the front
-  // garden runs from the house front (z 702) to the pavement at FZ: a real 6 m semi front garden with a full-size saloon.
+  // garden runs from the house front (z 702) to the pavement at FZ: the approved 7 m semi front garden with a full-size saloon.
   const { FZ, CAR, STREET, HEDGE, PIER_TOP } = H.FRONT, FRONT_PIERS = H.FRONT.PIERS, LAMP = { x: 700, z: STREET.kerb - 22 };
   const tex = n => A.t(n);
   const say = (t, x, ms) => H.say(cast(t), cast(x), ms);
@@ -528,7 +528,12 @@
     // Dad's 86 cm armchair angled at the telly in the corner: an 80 cm-plus way in from the door to the fire, the telly and the window.
     sofa(B, SOFA.x, SOFA.z, 180, SOFA.w, M({ c: '#fff', map: sofaTex(), sh: 2, sp: '#080808' }));
     sofa(B, CHAIR.x, CHAIR.z, CHAIR.ry, CHAIR.w, M({ c: '#fff', map: sofaTex(), sh: 2, sp: '#080808' }));
-    const ct = B.at(-60, GY, 450); ct.box(0, -42, 0, 100, 3, 55, M({ c: '#fff', map: tex('oak') })); [[-45, -23], [45, -23], [-45, 23], [45, 23]].forEach(([x, z]) => ct.box(x, -20.5, z, 4, 41, 4, M({ c: '#fff', map: tex('oak') }))); ct.box(0, -8, 0, 92, 2, 48, M({ c: '#fff', map: tex('oak') }));
+    const ct = B.at(-60, GY, 450), coffeeOak = M({ c: '#fff', map: tex('oak') });
+    ct.rbox(0, -42, 0, 90, 3, 50, .7, coffeeOak);
+    [[-40, -20.5], [40, -20.5], [-40, 20.5], [40, 20.5]].forEach(([x, z]) => ct.rbox(x, -20.5, z, 4, 41, 4, .4, coffeeOak));
+    for (const z of [-20.5,20.5]) ct.box(0,-37,z,78,7,2,coffeeOak);
+    for (const x of [-40,40]) ct.box(x,-37,0,2,7,39,coffeeOak);
+    ct.rbox(0, -8, 0, 82, 2, 43, .4, coffeeOak);
     if(window.Magazines)Magazines.makePaper('hs.tvguide',{room:'lounge',x:-88,y:GY-43.5,z:456,ry:-12},guideTex(),.8);
     else ct.box(-28,-44,6,21,.8,28,{t:M({c:'#fff',map:guideTex()}),all:M('#f0eee8')},{ry:-12});
     ct.box(20, -45, -6, 12, 3, 10, M({ c: '#fff', map: tex('pillow') }));
@@ -604,9 +609,9 @@
     // walking
     H.walkRect('G', -278, 307, 193, 698, { room: 'lounge' });
     H.block('G', LT.x - 48, 305, LT.x + 48, 352); // the telly
-    H.block('G',SOFA.x-SOFA.w/2-2,SOFA.z-44,SOFA.x+SOFA.w/2+2,SOFA.z+43);H.block('G',53,338,166,452);H.block('G',-115,418,-5,482); // full sofa/chair footprints, not just their seat centres
+    H.block('G',SOFA.x-SOFA.w/2-2,SOFA.z-44,SOFA.x+SOFA.w/2+2,SOFA.z+43);H.block('G',53,338,166,452);H.block('G',-107,422,-13,478); // full sofa/chair footprints, not just their seat centres
     H.block('G', 146, 588, 194, 634); H.block('G', -230, 305, -130, 342); H.block('G', -280, 420, -230, 580); H.block('G', LAMPST.x - 16, LAMPST.z - 16, LAMPST.x + 16, LAMPST.z + 16); H.block('G', -268, 646, -232, 676);
-    H.support('lounge', -110, 422, -10, 478, GY - 43.5); H.support('lounge', 150, 592, 190, 628, GY - 65.5); H.support('lounge', -280, 430, -230, 570, GY - 114);
+    H.support('lounge', -105, 425, -15, 475, GY - 43.5); H.support('lounge', 150, 592, 190, 628, GY - 65.5); H.support('lounge', -280, 430, -230, 570, GY - 114);
     H.support('lounge',152,594,188,626,GY-21); // the phone book's lower shelf
   }
   function routedCord(B,pts,col){
@@ -1132,13 +1137,23 @@
       gt.box(-2, -46, 0, 3.4, 74, 3.4, iron); gt.box(-78, -46, 0, 3.4, 74, 3.4, iron); for (const y of [-20, -72]) gt.cyl(-.5, y, 0, 2, 2, 5, 8, iron);
       gt.box(-74, -52, 2.5, 3, 6, 2, M({ c: '#c8a040', sh: 70, sp: '#a08040' })); gt.shadow(-40, 0, 0, 84, 14, .35, { sq: true }); }
     const clippedHedge=M({c:'#fff',sh:2,sp:'#142316',map:K.tex('hs.hedge.leaves',128,128,(g,w,h)=>{const r=K.rnd(812);g.fillStyle='#3e5934';g.fillRect(0,0,w,h);for(let i=0;i<1900;i++){g.fillStyle=['#405a34','#48653a','#344e2d','#516d40'][(r()*4)|0];g.beginPath();g.ellipse(r()*w,r()*h,1.5+r(),.7+r()*.6,r()*Math.PI,0,Math.PI*2);g.fill()}})});
-    // Clipped privet behind the wall: 125 cm high, 55 deep, a firm clipped body with leafy clumps along the top and the
-    // faces, so the top line is gently uneven, never one flat green slab.
-    { const x0=-360,x1=FRONT_PIERS[0]-17.5,z0=HEDGE[0],z1=HEDGE[1],cz=(z0+z1)/2,r=K.rnd(1999),leaf=[clippedHedge,M({c:'#fff',sh:2,sp:'#142316',map:K.tex('hs.hedge.leaves2',128,128,(g,w,h)=>{const q=K.rnd(813);g.fillStyle='#46633a';g.fillRect(0,0,w,h);for(let i=0;i<1700;i++){g.fillStyle=['#4b6a3d','#557645','#3a5531','#5e7f4a'][(q()*4)|0];g.fillRect(q()*w,q()*h,2+q()*2,1+q())}})})];
-      B.rbox((x0+x1)/2,GY-56,cz,x1-x0,112,z1-z0-8,10,clippedHedge,{uv:60});
-      for(let x=x0+14;x<x1-10;x+=26)for(const dz of [-11,11]){const rx=17+r()*7,ry=6+r()*6;B.ball(x+r()*8-4,GY-110-r()*7,cz+dz+r()*6-3,rx,ry,15+r()*6,leaf[(r()*2)|0],8)}
-      for(let x=x0+16;x<x1-12;x+=24)B.ball(x+r()*8,GY-30-r()*66,z0+4.5,10+r()*4,9+r()*5,5,leaf[(r()*2)|0],8); // (shallow leafy swells on the clipped face)
-      B.shadow((x0+x1)/2,GY,cz-30,x1-x0,24,.35,{sq:true}); }
+    // One closed clipped hedge: a softly rounded continuous body, with small leaf-scale undulations rather than separate balls.
+    { const x0=-360,x1=FRONT_PIERS[0]-17.5,z0=HEDGE[0],z1=HEDGE[1],width=x1-x0,height=124,depth=z1-z0,round=9;
+      const geo=new T.BoxGeometry(width,height,depth,Math.ceil(width/12),10,4),p=geo.attributes.position;
+      for(let i=0;i<p.count;i++){
+        const x=p.getX(i),y=p.getY(i),z=p.getZ(i),cx=Math.max(-width/2+round,Math.min(width/2-round,x)),cy=Math.max(-height/2+round,Math.min(height/2-round,y)),cz=Math.max(-depth/2+round,Math.min(depth/2-round,z));
+        const dx=x-cx,dy=y-cy,dz=z-cz,len=Math.hypot(dx,dy,dz)||1;
+        const bottom=Math.max(0,Math.min(1,(height/2-y)/10)),ripple=(.65*Math.sin(x*.28+z*.7)*Math.sin(y*.25)+.45*Math.sin(x*.51+y*.39+z*.3))*bottom;
+        const top=Math.max(0,Math.min(1,(-y-height/2+16)/12)),swell=(1.2*Math.sin(x*.06)+.6*Math.sin(x*.24))*top;
+        p.setXYZ(i,cx+dx/len*(round+ripple),cy+dy/len*(round+ripple)+swell,cz+dz/len*(round+ripple));
+      }
+      geo.computeVertexNormals();
+      // Box-face seams share their averaged normals, keeping the round top continuous from every walkable side.
+      const n=geo.attributes.normal,sums=new Map(),keys=[];
+      for(let i=0;i<p.count;i++){const key=[p.getX(i),p.getY(i),p.getZ(i)].map(v=>Math.round(v*1000)).join(',');keys.push(key);const q=sums.get(key)||new T.Vector3();q.x+=n.getX(i);q.y+=n.getY(i);q.z+=n.getZ(i);sums.set(key,q)}
+      for(const q of sums.values())q.normalize();for(let i=0;i<n.count;i++){const q=sums.get(keys[i]);n.setXYZ(i,q.x,q.y,q.z)}
+      B.geo(geo,(x0+x1)/2,GY-height/2,(z0+z1)/2,clippedHedge,{uv:60});
+      B.shadow((x0+x1)/2,GY,(z0+z1)/2-30,width,24,.35,{sq:true}); }
     // The street lamp stands at the kerb, off to the side of the plot (not across the front of the house):
     // a tapered steel column on a base with its access door, a swan-neck arm and a sodium lantern over the road.
     const lp = B.at(LAMP.x, GY, LAMP.z), col = M({ c: '#4a4f4c', sh: 30, sp: '#3a3f3c' });
@@ -1230,7 +1245,7 @@
     // ride there); a shut lid closes it. (The car used to be one solid block up to the roof: nothing could go in the boot.)
     if (H.solid) {
       const cs = frame.s, X = lx => frame.x + lx * cs, Z = lz => frame.z + lz * cs, kind = 'car';
-      H.solid('G', X(-91), Z(-121), X(91), Z(205), GY - 126.9 * cs, GY + 1, { kind }); // bonnet, cabin, roof (the 47 cm glasshouse)
+      H.solid('G', X(-91), Z(-121), X(91), Z(205), GY - frame.roof * cs, GY + 1, { kind }); // bonnet, cabin, roof (the 47 cm glasshouse)
       H.solid('G', X(-91), Z(-205), X(91), Z(-121), GY - 23 * cs, GY + 1, { kind }); // the boot floor and what's under it
       H.solid('G', X(-91), Z(-205), X(91), Z(-197), GY - 73 * cs, GY - 23 * cs, { kind, support: false }); // the rear valance
       for (const sx of [-1, 1]) H.solid('G', X(sx < 0 ? -91 : 78.5), Z(-205), X(sx < 0 ? -78.5 : 91), Z(-121), GY - 75 * cs, GY - 23 * cs, { kind, support: false }); // the wheel-arch sides
@@ -1241,7 +1256,7 @@
     H.block('G', FRONT_PIERS[1] - 12, FZ - 104, FRONT_PIERS[1] - 6, FZ - 21.5); // the open gate leaf
     H.block('G', 716, 704, 740, FZ - 15); // next door's hedge
     H.block('G', LAMP.x - 16, LAMP.z - 14, LAMP.x + 16, LAMP.z + 14); // the lamp-post's base, now the whole pavement is walkable
-    H.support('drive',frame.x-58*frame.s,frame.z-96*frame.s,frame.x+58*frame.s,frame.z+60*frame.s,GY-126.9*frame.s); H.support('drive', 265, 708, 335, 752, GY - 2);
+    H.support('drive',frame.x-58*frame.s,frame.z-96*frame.s,frame.x+58*frame.s,frame.z+60*frame.s,GY-frame.roof*frame.s); H.support('drive', 265, 708, 335, 752, GY - 2);
   }
 
   // ================================================================ the rooms, their lights, their views

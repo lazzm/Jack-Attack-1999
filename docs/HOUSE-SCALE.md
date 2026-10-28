@@ -11,7 +11,7 @@ semi (1930s-1970s stock), and a stairs approach test (`node tests/house-stairs.m
 
 Engine units: centimetres, y down. Upstairs floor y 73, ceiling -185; downstairs floor y 353, ceiling 95.
 
-## Findings (before -> verdict)
+## Historical findings (27 October, before -> verdict)
 
 | Area | Measured (before) | Real late-90s semi | Verdict |
 |---|---|---|---|
@@ -84,3 +84,11 @@ check for furniture (nudge at most 45 cm), as designed.
 - Landing corridor 76 -> 90 cm and stairs 75 -> 85 cm between strings: needs the east wall moved out (x 410 -> 420+)
   and every hall/landing/cupboard coordinate re-laid; a bigger job than this pass.
 - The landing's "bubbly" window shows a clear view.
+
+## Approved follow-up: 2.57.14, 28 October
+
+The historical six-metre layout is superseded by Jack's explicit approval of a seven-metre front plot. House.FRONT.FZ is 1400; the car frame is x 500/z 1075, scale 1.04, roof height 126.9 before scaling. Clearances are 109.8 cm from doorstep to boot and 106.8 cm from nose to gateway. Street/seasonal/chores/family targets share House.FRONT. Walking and NPC grids include the extended pavement.
+
+Placement version 6 transfers saved car/roof and raised lounge props once, retaining rotation and metadata. Completed mowing strips extend through the new rows without resetting progress or paying again. Browser fixtures verify roof contact, repeat refresh, real phone movement past the open boot and nose, PC power, boot state and rotation.
+
+The lounge now has a 190 cm sofa, 86 cm armchair and 90 x 50 cm coffee table, with 83 cm between table and sofa. Person queues yield from the back safely. Current captures use the actual 143 cm standing eye and shipped walking lens: `shots/house-scale/round2-approved-*`, desktop and phone/tablet portrait/landscape. Final 144 exterior views find no shell holes. Remaining advisory dimensions are explicitly open in SCALE-REVIEW.md.

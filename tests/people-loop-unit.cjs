@@ -8,15 +8,15 @@ const store = new Map();
 function load(member = 'LoopTester') {
   let time = 100000, step = 'lead.power';
   const Empty = class {};
-  const H = { ok: true, live: false, T: { Frustum: Empty, Matrix4: Empty, Sphere: Empty, Vector3: Empty }, W: { x: 100, z: 190, lvl: 'U' }, DOORS: {}, ROOMS: {} };
+  const H = { ok: true, live: false, FRONT:{FZ:1400,CAR:{x:500,z:1075}}, T: { Frustum: Empty, Matrix4: Empty, Sphere: Empty, Vector3: Empty }, W: { x: 100, z: 190, lvl: 'U' }, DOORS: {}, ROOMS: {} };
   const window = { House: H, NPCRig: {}, NPCNav: {}, Net: { me: { member: true, nick: member } },
     NPCLines: { 'c1.lead.dad': ['Dad', 'Plug the lead in.'], 'bark.dad.react.joke': ['Dad', 'A joke.'] },
     st: { current: () => ({ id: step }) } };
   const ctx = { window, document: { querySelector: () => null }, performance: { now: () => time }, localStorage: { getItem: k => store.get(k), setItem: (k, v) => store.set(k, v) }, setTimeout() {}, setInterval() {}, console };
-  vm.runInNewContext(source.replace('  boot();', '  window.testLife = { entrance, barks, speech, C, ent, step };'), ctx);
+  vm.runInNewContext(source.replace('  boot();', '  window.testLife = { entrance, barks, speech, C, ent, step, stepAside };'), ctx);
   const F = window.HouseFamily, I = window.testLife;
   const dad = I.C.dad; dad.present = true;
-  return { F, I, H, now: n => { time = n; }, step: id => { step = id; } };
+  return { F, I, H, N:window.NPCNav, now: n => { time = n; }, step: id => { step = id; } };
 }
 let f = load();
 assert(f.F.say('dad', 'c1.lead.dad', { force: true }));
@@ -49,4 +49,15 @@ Object.assign(f.I.C.dad, { x: 120, z: 190, lvl: 'U', room: 'bedroom', cur: { k: 
 f.I.barks({ t: 14, dow: 2 });
 assert.equal(f.I.speech.q.length, 1, 'Ambient barks are audible before the first fifteen minutes');
 assert.equal(f.I.speech.q[0].lineId, 'bark.dad.react.joke', 'Bark selection must not consume its own cooldown');
-console.log('PASS people-loop: scene history, account isolation, explicit help, bark cooldown and hold timeout');
+// A third person can unblock a retreat, while request chains may never become circular.
+function queuedFamily(){
+ const f=load('QueueTester');Object.assign(f.N,{clear:()=>0,NEED:24,route:()=>null});
+ const {mom,dad,sister}=f.I.C;
+ for(const c of [mom,dad,sister])Object.assign(c,{present:true,lvl:'G',x:0,hold:0,talking:false,seated:null,aside:null,asideFor:null});
+ mom.z=45;dad.z=-50;sister.z=0;sister.asideFor=mom;sister.pushFrom={x:0,z:45,lvl:'G'};sister.pushN=6;sister.pushT=100000;
+ return{f,mom,dad,sister};
+}
+let queue=queuedFamily();queue.f.I.stepAside(queue.sister,.1);assert.equal(queue.dad.asideFor,queue.sister,'The trailing person must make room for a blocked retreat');assert.equal(queue.dad.pushN,6);
+queue=queuedFamily();queue.mom.asideFor=queue.dad;queue.f.I.stepAside(queue.sister,.1);assert.equal(queue.dad.asideFor,null,'Do not make a circular yield request');
+queue=queuedFamily();queue.dad.seated={};queue.f.I.stepAside(queue.sister,.1);assert.equal(queue.dad.asideFor,null,'A passing queue must not pull someone out of their seat');
+console.log('PASS people-loop: scene history, account isolation, explicit help, bark cooldown, hold timeout and safe three-person yielding');

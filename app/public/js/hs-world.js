@@ -1425,7 +1425,7 @@
   }
   // Saved as [room, x, y, z, ry, snap, hide, extra]; extra holds a chair's swivel. A carried thing saves where it came
   // from, and the grip itself is remembered so a refresh hands it straight back (jhp_hs_held).
-  const PV = 5; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: Dad's car up the drive to the gateway, 1.6 m clear in front of the door
+  const PV = 6; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry
   // The front plot (docs/HOUSE-SCALE.md, js/hs-house.js builds it): the garden runs from the house front (z 702) to the pavement
   // at FZ. Until pv 3 it was 4 m deep (FZ 1100) with Dad's car shrunk to 82% (OLD_CAR) to squeeze it in.
   // STREET: our pavement (FZ..FZ+145, 1.45 m), its kerb, a 5.6 m road, the far kerb and pavement; the opposite houses'
@@ -1433,10 +1433,10 @@
   // PIERS: the brick gate piers (x; 33 cm square, their caps' top PIER_TOP above the ground) either side of the path gate
   // and the gateway. HEDGE: the clipped privet behind the front wall, z from HEDGE[0] to the wall's back at HEDGE[1].
   // CAR3 is where Dad's car stood in pv 3 (2.57); CAR4 (pv 4-5) 20 cm back from the gate piers; pv 6 drove it up to the
-  // gateway (nose between the piers) so there's 1.6 m clear between the house and the boot, in front of the door.
-  const FRONT = Object.freeze({ FZ: 1300, STREET: Object.freeze({ pave: [1300, 1445], kerb: 1450, road: [1455, 2015], farKerb: 2020, farPave: [2025, 2170] }),
-    PIERS: Object.freeze([231.5, 348.5, 636.5]), PIER_TOP: 124, HEDGE: Object.freeze([1228.5, 1284]),
-    CAR: Object.freeze({ x: 500, y: 353, z: 1075, s: 1.04 }), CAR4: Object.freeze({ x: 488, y: 353, z: 980, s: 1.04 }), CAR3: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
+  // drive, with the owner's approved 7 m plot: about 110 cm clear from doorstep to boot and 107 cm from nose to gateway.
+  const FRONT = Object.freeze({ FZ: 1400, STREET: Object.freeze({ pave: [1400, 1545], kerb: 1550, road: [1555, 2115], farKerb: 2120, farPave: [2125, 2270] }),
+    PIERS: Object.freeze([231.5, 348.5, 636.5]), PIER_TOP: 124, HEDGE: Object.freeze([1328.5, 1384]),
+    CAR: Object.freeze({ x: 500, y: 353, z: 1075, s: 1.04, roof: 126.9 }), CAR4: Object.freeze({ x: 488, y: 353, z: 980, s: 1.04 }), CAR3: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
   // A placement saved before pv 3: whatever was in or on the old car moves with the car (same spot in the boot or on the
   // roof, scaled); whatever the bigger car now stands on is set down on the drive beside it. Everything else keeps its pose.
   // pv 4: in or on the v3 car -> the same spot on the car 20 cm further back; on the ground where the car now stands ->
@@ -1446,7 +1446,15 @@
   // in front of the sofa, on the way through.
   const LOUNGE5 = [[-157, 560, 37, 649], [53, 338, 166, 452]];
   function migratePlacement(at, from = 0) {
-    if (at && at.room === 'lounge' && from < 5 && Number.isFinite(at.x) && Number.isFinite(at.z) && at.y >= LV.G - 6 && LOUNGE5.some(([x0, z0, x1, z1]) => at.x > x0 && at.x < x1 && at.z > z0 && at.z < z1)) { at.x = clamp(at.x, -150, 40); at.z = 521; at.y = LV.G; return true; }
+    if (at && at.room === 'lounge' && from < 5 && Number.isFinite(at.x) && Number.isFinite(at.z)) {
+      // Raised props follow the old upholstery; floor props only move if the new furniture covers them.
+      if (at.y < LV.G - 6 && at.y >= LV.G - 110) {
+        if (at.x >= -162 && at.x <= 42 && at.z >= 516 && at.z <= 606) { at.x = -60 + (at.x + 60) * .95; at.z += 45; return true; }
+        const a = -118 * Math.PI / 180, dx = at.x - 110, dz = at.z - 430, x = dx * Math.cos(a) - dz * Math.sin(a), z = dx * Math.sin(a) + dz * Math.cos(a);
+        if (Math.abs(x) <= 47 && Math.abs(z) <= 44) { const b = -110 * Math.PI / 180; at.x = 110 + x * Math.cos(b) + z * Math.sin(b); at.z = 395 - x * Math.sin(b) + z * Math.cos(b); at.ry = (at.ry || 0) + 8; return true; }
+      }
+      if (at.y >= LV.G - 6 && LOUNGE5.some(([x0, z0, x1, z1]) => at.x > x0 && at.x < x1 && at.z > z0 && at.z < z1)) { at.x = clamp(at.x, -150, 40); at.z = 521; at.y = LV.G; return true; }
+    }
     if (!at || at.room !== 'drive' || !Number.isFinite(at.x) || !Number.isFinite(at.z)) return false;
     const { CAR, CAR3, CAR4, OLD_CAR, FZ, HEDGE } = FRONT;
     const onCar = (c, x, z, sx = 92, sz = 210) => Math.abs((x - c.x) / c.s) <= sx && Math.abs((z - c.z) / c.s) <= sz;
@@ -1459,7 +1467,7 @@
       else if (Math.abs(at.x - CAR3.x) < 120 * CAR3.s && Math.abs(at.z - CAR3.z) < 230 * CAR3.s) { beside(CAR3); moved = true; }
     }
     if (from < 4) {
-      if (riding || onCar(CAR3, at.x, at.z) && at.y < CAR3.y - 5) { follow(CAR3, CAR4); moved = riding = true; }
+      if (riding || onCar(CAR3, at.x, at.z) && at.y < CAR3.y - 5) { const roof = at.y <= CAR3.y - 133.5 * CAR3.s + 2; follow(CAR3, CAR4); if (roof) at.y += (133.5 - CAR.roof) * CAR.s; moved = riding = true; }
       else if (onCar(CAR4, at.x, at.z, 100, 214)) { beside(CAR4); moved = true; }
       else if (at.x < FRONT.PIERS[0] && at.z > HEDGE[0] - 12 && at.z < FZ) { at.z = HEDGE[0] - 20; at.y = CAR.y; moved = true; }
     }
@@ -1477,7 +1485,7 @@
       // Keep records belonging to unbuilt rooms; saving the bedroom must not
       // erase the rest of the house, nor overwrite a deferred prop with its home.
       const previous = loadThings(), st = Object.assign({}, previous.t), op = Object.assign({}, previous.o);
-      if ((previous.pv || 0) < PV) for (const id in st) { const r = st[id]; if (!Array.isArray(r) || r[5]) continue; const at = { room: r[0], x: r[1], y: r[2], z: r[3] }; if (migratePlacement(at, previous.pv || 0)) st[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1)].concat(r.slice(4)); }
+      if ((previous.pv || 0) < PV) for (const id in st) { const r = st[id]; if (!Array.isArray(r) || r[5]) continue; const at = { room: r[0], x: r[1], y: r[2], z: r[3], ry: r[4] }; if (migratePlacement(at, previous.pv || 0)) st[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4]].concat(r.slice(5)); }
       for (const id in THINGS) {
         const t = THINGS[id]; if (t.noSave || pendingRestores.has(id)) continue;
         const carried = held && held.id === id && !held.drag, a = carried ? held.from : t.at, y = t.st==='fall'&&Number.isFinite(t.landY)?t.landY:a.y;
@@ -1529,8 +1537,8 @@
       const lx = (r[1] - OLD_CAR.x) / OLD_CAR.s, lz = (r[3] - OLD_CAR.z) / OLD_CAR.s;
       const stale = pv === 3 && Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR3.y - 5 && !(Math.abs(r[1] - CAR3.x) <= 92 * CAR3.s && Math.abs(r[3] - CAR3.z) <= 205 * CAR3.s);
       if (!old && !stale) continue;
-      const at = { room: r[0], x: r[1], y: r[2], z: r[3] };
-      if (migratePlacement(at, stale ? 0 : pv)) save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), ...r.slice(4)];
+      const at = { room: r[0], x: r[1], y: r[2], z: r[3], ry: r[4] };
+      if (migratePlacement(at, stale ? 0 : pv)) save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4], ...r.slice(5)];
     }
     save.pv = Math.max(pv, PV);
   }
@@ -3110,6 +3118,8 @@
   addEventListener('resize', () => { if (!live) return; measure(); if (monitor) Object.assign(P, monitorPose()); else if (mode === 'walk' && W.seat && Math.abs(P.ry - seatPose().ry) < 1) { Object.assign(P, seatPose()); } dirty(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { lastT = 0;lastDraw=0;perfLast=0;perfCount=0;lastR=0; dirty(); } else { saveWalkState(); for (const k in keys) keys[k] = false; unlock(); } });
 
+  // The diagnostic/placement grid covers the same complete plot as continuous walking and the family navigator.
+  GR.nx=Math.ceil((740-GR.x0)/GR.cs);GR.nz=Math.ceil((FRONT.STREET.pave[1]-GR.z0)/GR.cs);grids.dirty=true;
   // ================================================================ the API
   window.House = {
     ok: true, FRONT, STAND, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,

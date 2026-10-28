@@ -57,7 +57,7 @@ try{
    // Quick is one continuous full lap plus reverse. Full visits every ordered pair.
    const lap=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,0],[0,6],[6,5],[5,4],[4,3],[3,2],[2,1],[1,0],[2,7],[7,2]];
    const selectedRoute=process.argv.find(a=>a.startsWith('--route='))?.slice(8);
-   const pairs=(quick||mode!=='walk'&&!matrix?lap:plan.stations.flatMap((_,a)=>plan.stations.map((_,b)=>[a,b]).filter(([a,b])=>a!==b))).filter(([a,b])=>{const name=mode+'-'+plan.stations[a].name+'-'+plan.stations[b].name;return(!selectedRoute||plan.stations[a].name+':'+plan.stations[b].name===selectedRoute)&&(!retryNames||(resume?!passedNames.has(name):retryNames.has(name)))});
+   const pairs=(quick||mode!=='walk'&&!matrix?lap:plan.stations.flatMap((_,a)=>plan.stations.map((_,b)=>[a,b]).filter(([a,b])=>a!==b))).filter(([a,b])=>{const name=mode+'-'+plan.stations[a].name+'-'+plan.stations[b].name;return(!selectedRoute||selectedRoute.split(',').includes(plan.stations[a].name+':'+plan.stations[b].name))&&(!retryNames||(resume?!passedNames.has(name):retryNames.has(name)))});
    let previousEnd=null;
    for(const [a,b]of pairs){
     const route=plan.routes[a+':'+b],name=mode+'-'+plan.stations[a].name+'-'+plan.stations[b].name;

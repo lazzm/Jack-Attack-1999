@@ -126,7 +126,7 @@ Review `shots/exterior/` captures from `tests/`: front/back/town, day/night, hig
 
 The family house's outside shell must be watertight from everywhere (the rooms inside are hidden while you are outside):
 
-    node exterior-shell.mjs http://localhost:18080 [--profiles=desktop,phone] [--tier=low] [--eye=140]
+    node exterior-shell.mjs http://localhost:18080 [--profiles=desktop,phone] [--tier=low] [--eye=143]
 
 From 18 spots (both sides of the front garden and the car, the gateway, the pavement, the road both ways, the back
 garden) it looks at the house left/centre/right and up at the eaves, renders with the neighbourhood and horizon
@@ -417,3 +417,13 @@ Walking-camera checks and native-lens gallery (disposable server/data):
 Measures walking FOV, live standing eye height and CSS/WebGL focal alignment at desktop, phone and tablet portrait/landscape sizes. Compares all four live desktop corners with the WebGL glass during stationary lens changes, then checks an old standing save survives refresh. Captures are in `shots/camera-lens/`; an old-source comparison can use `--baseline --app-root=/absolute/path/to/old/app`.
 
 For a focused shut/open door rerun with real keyboard input and controller-time waits: `node movement-audit.mjs after-doors --doors-only`. The default runs both furnished and sparse accounts; every finding fails an `after*` audit.
+
+Approved front-plot regression (disposable localhost server and veteran fixtures only):
+
+    node front-plot.mjs http://localhost:PORT
+    node house-round2-save.mjs http://localhost:PORT
+    node placement-migration-unit.cjs
+    node grass-state-unit.cjs
+    node neighbourhood-geometry.cjs
+
+The front test sends real phone finger input behind the open boot and ahead of the car, checks both pavement grids, then refreshes and rotates with pose/power/boot assertions. CSP-safe polling uses page.evaluate rather than string evaluation. The save test checks roof contact and placement metadata over repeat refreshes. Unit checks cover migration versions 0..6 and completed mowing-strip extension. `front-clearance-preview.mjs` renders matched six/seven-metre browser-only comparisons; Jack approved seven metres on 28 October.

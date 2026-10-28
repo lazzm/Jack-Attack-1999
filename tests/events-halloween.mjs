@@ -103,7 +103,8 @@ try{
  await key('f');await until(()=>!!Season.st('halloween99').steps['hw-pumpkin']?.candle&&!House.focused&&!!House.THINGS['hw.lantern']);
  await page.waitForTimeout(1200);
  await aim([-20,GY-EYE,265],[-45,GY-88,174]);await key('e');await until(()=>House.held()==='hw.lantern');
- await aim([264,GY-EYE,1240],[231.5,GY-124,1295]);await key('e'); // the gatepost by the front gate (House.FRONT.PIERS[0], PIER_TOP)
+ const pier=await page.evaluate(()=>({x:House.FRONT.PIERS[0],y:353-House.FRONT.PIER_TOP,z:House.FRONT.FZ-5}));
+ await aim([pier.x+32.5,GY-EYE,pier.z-55],[pier.x,pier.y,pier.z]);await key('e'); // the current gatepost, shared with the physical model
 
  await until(()=>!!Season.st('halloween99').obj['hw-pumpkin']);
  assert.equal((await st()).paid['hw-pumpkin'],20,'pumpkin paid 20');

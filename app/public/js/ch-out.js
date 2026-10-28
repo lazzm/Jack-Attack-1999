@@ -157,12 +157,22 @@
   }
 
   // ================================================================ MOW THE FRONT LAWN (the orange hover mower, the outside socket)
-  const LAWN = { x0: -330, x1: 116, z0: 712, z1: (H.FRONT?.HEDGE?.[0] ?? 1228.5) - 4 }, CELL = 14, STRIPS = 8; // (to the hedge behind the front wall)
+  const LAWN = { x0: -330, x1: 116, z0: 712, z1: (H.FRONT?.HEDGE?.[0] ?? 1328.5) - 4 }, CELL = 14, STRIPS = 8; // (to the hedge behind the front wall)
   const MOWHOME = { x: 196, z: 748, ry: 200 }, OSOCK = { x: 236, y: GY - 46, z: 701.6 };
   const GNOME = { x: -132, z: 884 };
   const NX = Math.ceil((LAWN.x1 - LAWN.x0) / CELL), NZ = Math.ceil((LAWN.z1 - LAWN.z0) / CELL);
   let mowerBlock=null,mower=null,grassTex=null,cut=null,grassField=null,grassSeeds=null,grassPerCell=0,grassPose=null, mowing = false, gnome = null, lastPaint = 0, stripeDir = {};
   const LV = () => (CK.S.v.lawn = CK.S.v.lawn || {});
+  function restoreGrassCut(raw) {
+    const out=new Uint8Array(NX*NZ);for(let i=0;i<out.length&&i<raw.length;i++)out[i]=raw.charCodeAt(i);
+    // The plot grew at the far edge. Keep every old cell and every completed strip; never award or reset a job here.
+    for(let i=0;i<NX;i++){
+      if(!CK.has('lawn','l'+Math.min(STRIPS-1,Math.floor(i*STRIPS/NX))))continue;
+      let stripe=1;for(let j=Math.floor((Math.min(raw.length,out.length)-1-i)/NX);j>=0;j--){const v=out[j*NX+i];if(v){stripe=v;break}}
+      for(let j=i;j<out.length;j+=NX)if(j>=raw.length)out[j]=stripe;
+    }
+    return out;
+  }
   function mowerModel() {
     const g = new T.Group(), G = K.into(g), or = mat('#c96d2c',{sh:28,sp:'#614637'}), dk = mat('#222', { sh: 30 });
     G.lathe(0, 0, 0, [[0.1, -18], [8, -17], [16, -13], [20, -7], [21, -3], [20.6, 0], [0.1, 0]], 26, or);
@@ -184,7 +194,7 @@
       K.into(batch).box((LAWN.x0+LAWN.x1)/2,GY+1.5,(LAWN.z0+LAWN.z1)/2,LAWN.x1-LAWN.x0,3,LAWN.z1-LAWN.z0,{t:gm,all:M('#65533c')});batch.build(gp);gp.traverse(o=>o.userData.noPick=1);r.group.add(gp);
       buildGrassField(r);
       cut = new Uint8Array(NX * NZ);
-      const v = LV(); if (v.day === CK.day() && v.cut) { const raw = atob(v.cut); for (let i = 0; i < cut.length && i < raw.length; i++) cut[i] = raw.charCodeAt(i); }
+      const v = LV(); if (v.day === CK.day() && v.cut) cut=restoreGrassCut(atob(v.cut));
       paintGrass();
       // the gnome (do NOT mow the gnome)
       gnome = grp(G => { G.cyl(0, -10, 0, 4, 6, 20, 12, mat('#2a5ad0')); G.ball(0, -24, 0, 4.4, 4.4, 4.4, mat('#f0c8a0'), 12); G.ball(0, -19, 2.4, 4, 4, 2.6, mat('#f4f4f4'), 10); G.cyl(0,-34,0,.1,4.8,14,12,mat('#b6322e'));for(const x of [-2.2,2.2]){G.ball(x,-1.8,2.5,2.8,1.8,4,mat('#49372a'),8);G.ball(x*.48,-25.2,4.05,.38,.48,.4,mat('#242728'),8)}G.ball(0,-23.5,4.5,1,1.3,1,mat('#d8ae86'),8);for(const x of [-4.6,4.6])G.ball(x,-13,2,1.4,1.6,1.4,mat('#e4bb96'),8);G.cyl(7,-30,3,.3,.3,36.5,6,mat('#765537'),{rz:8});G.cyl(9.5,-32,3.2,.07,.07,31,6,mat('#b4afa0')); G.ball(2.6, -8, 3.4, 1.8, 1.8, 1.8, mat('#6a3a1a'), 8); G.shadow(0, 0, 0, 16, 16, 0.6); });
@@ -315,7 +325,7 @@
 
   // ================================================================ SWEEP THE DRIVE (the broom, the leaves, the garden sack)
   const LEAVES = [[150, 742], [214, 806], [168, 884], [232, 962], [150, 1036], [222, 1106], [168, 1172]];
-  const BROOM = { x: 136, z: 716, ry: 160 }, SACK = { x: 150, z: 1250 };
+  const BROOM = { x: 136, z: 716, ry: 160 }, SACK = { x: 150, z: (H.FRONT?.HEDGE?.[0] ?? 1328.5) - 40 };
   let broom = null, piles = [], sack = null, sweeping = false;
   function broomModel() {
     const g = new T.Group(), G = K.into(g);

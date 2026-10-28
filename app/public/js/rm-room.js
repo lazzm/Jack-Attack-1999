@@ -470,7 +470,7 @@
     paper(-12, -1, 0.9, 13, 18, 'calendar', -2); paper(4, -6, 1.02, 9, 8, 'note', 5); paper(13, -5, 1.14, 9, 9, 'noteBlue', -4); paper(8, 6, 1.26, 14, 10, 'photo', -3);
     [[-12, -9.5], [4, -9.5], [13, -9], [8, 1.5]].forEach(([x, y], i) => { const pin = M(['#d02a2a', '#2a8a3a', '#e8c020', '#2a5ad0'][i]); CK.cyl(x, y, 1.75, 0.9, 0.75, 0.9, 10, pin, { rx: 90 }); CK.cyl(x, y, 2.35, 0.55, 0.55, 0.5, 10, pin, { rx: 90 }); }); ckBatch.build(ck);
     H.spot('cork', { label: 'Cork board', obj: ck });
-    poster(B, -52, -82, BZ, 42, 59.4, tex('posterShuttle'), 0); pickBox(r, 'postershuttle', -52, -82, BZ + 1, 42, 59.4, 2); // (A2: a proper bedroom poster) H.SPOTS.postershuttle.label = 'Space Shuttlebus poster';
+    poster(B, -52, -82, BZ, 42, 59.4, tex('posterShuttle'), 0); pickBox(r, 'postershuttle', -52, -82, BZ + 1, 42, 59.4, 2); H.SPOTS.postershuttle.label = 'Space Shuttlebus poster'; // A2 bedroom poster
     frame(B, 92, -84, BZ + 0.8, 24, 33, 1.4, M({ c: '#fff', map: tex('timetable') }), M('#2a2a2a'));
     H.spot('timetable', { label: 'School timetable', act: () => say('My timetable', 'Year 11. GCSE year. Double Maths on a Monday morning should be against the law. Tuesday has IT, the best lesson: we get to play Bugsweeper at the end if we\'re quiet.') });
     pickBox(r, 'timetable', 92, -84, BZ + 1, 24, 33, 2);

@@ -42,7 +42,7 @@
  const houseDepth=[480,510,470,490];
  // The street (js/hs-world.js House.FRONT.STREET): our pavement from FZ, its kerb, a 5.6 m road, the far kerb and
  // pavement. The opposite houses' front walls stand on the far pavement's back edge, about 17.8 m from our front wall.
- const ST=(H.FRONT&&H.FRONT.STREET)||{pave:[1300,1445],kerb:1450,road:[1455,2015],farKerb:2020,farPave:[2025,2170]};
+ const ST=(H.FRONT&&H.FRONT.STREET)||{pave:[1400,1545],kerb:1550,road:[1555,2115],farKerb:2120,farPave:[2125,2270]};
  const OPP=ST.farPave[1]+560; // opposite plots: z of the house centre (front boundary 540 + 20 in front of it)
  // The village goes on past the end of our row: a crossroads to the east (the side road joins the back road), the
  // corner shop and a little green with the phone box on its corners, and more semis both ways. Past about 36 m from
@@ -52,12 +52,12 @@
  const plots={
   opposite:Array.from({length:7},(_,i)=>[-2040+i*680,OPP,180,i,540]),
   rear:Array.from({length:6},(_,i)=>[-1700+i*680,-1850,0,i+7,540]),
-  side:[[-1700,13],[-1020,14],[1060,15],[1740,16]].map(([x,n])=>[x,550,0,n,730])
+  side:[[-1700,13],[-1020,14],[1060,15],[1740,16]].map(([x,n])=>[x,550,0,n,ST.pave[0]-570])
  };
  // Further along: simpler (but still solid and closed) houses, out to where the backdrop takes over.
  const farPlots=[
   ...[-4760,-4080,-3400,-2720,3400,4080,4760].map((x,i)=>[x,OPP,180,i+17,540]),
-  ...[-4420,-3740,-3060,-2380,3780,4460].map((x,i)=>[x,550,0,i+24,730]),
+  ...[-4420,-3740,-3060,-2380,3780,4460].map((x,i)=>[x,550,0,i+24,ST.pave[0]-570]),
   ...[-4420,-3740,-3060,-2380,2380,3060,3740,4420].map((x,i)=>[x,-1850,0,i+30,540])
  ].filter(([x,z])=>z!==OPP&&z!==550||!crosses(x-330,x+330));
  zone('street',b=>{

@@ -19,7 +19,8 @@ async function bootRoundTrip(){
   const f=await roomFixture(base,{account:name,password,signup:false});
   try{
     const p=f.page;await p.evaluate(()=>House.buildRoom(House.ROOMS.drive));
-    await f.view([335,245,961],[500,301,929],{level:'G'});
+    const frame=await p.evaluate(()=>House.ROOMS.drive.carFrame);
+    await f.view([frame.x-165,245,frame.z-114],[frame.x,301,frame.z-146],{level:'G'});
     await p.evaluate(()=>{House._.setMode('walk');Sound.effectsOn=true;for(const cue of ['gravel','heavy','plug','pcfan','floppy'])Sound.play(cue);House.act('hs.carboot');House.saveWalkState();});
     await f.until(()=>House.ROOMS.drive.carBoot.hinge.rotation.x < -1.2);await p.screenshot({path:shots+'20-boot-open-persist.png'});
     const power=await p.evaluate(()=>localStorage.getItem('jhp_off'));
@@ -163,9 +164,10 @@ try {
   }
   }
   if(stage!=='first'){
-  await aim([500,225,830],[500,272,925],'G'); // behind Dad's car, looking down at the boot lid (House.ROOMS.drive.carFrame: x 500, z 1075)
+  const carFrame=await p.evaluate(()=>House.ROOMS.drive.carFrame);
+  await aim([carFrame.x,225,carFrame.z-245],[carFrame.x,272,carFrame.z-150],'G'); // behind the actual car frame, looking down at the boot lid
   await waitStep('dad'); await p.waitForTimeout(700);await shot('07-dad-car');
-  await p.keyboard.press('f');await waitStep('boot');await p.waitForTimeout(800);await shot('08-boot-open');await aim([452,245,830],[500,300,935],'G');await shot('08b-boot-wide');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);await shot('08c-boot-shut');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);
+  await p.keyboard.press('f');await waitStep('boot');await p.waitForTimeout(800);await shot('08-boot-open');await aim([carFrame.x-48,245,carFrame.z-245],[carFrame.x,300,carFrame.z-140],'G');await shot('08b-boot-wide');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);await shot('08c-boot-shut');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);
   async function walkDistance(){
     await aim([110,-55,160],[110,-55,50]);const z=await p.evaluate(()=>House.W.z);
     await p.keyboard.down('w');await p.waitForTimeout(450);await p.keyboard.up('w');
