@@ -215,3 +215,5 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R102 | art | high | Jack 2026-10-28 | Everyone's hips: waistband ledge, crotch wedge, board-like hem | People agent (people-hips) |
 | R103 | world | high | Jack 2026-10-28 | Front door cramped by the car/open boot - need more space | House round 2 (front chunk) |
 | R104 | bug | critical | Jack 2026-10-28 | Dad parks in the bedroom doorway (blocking the player) and Dad + Mom repeat the same scene lines over and over | People agent hotfix (people-loopfix) |
+| R105 | bug | high | Jack 2026-10-28 (games shelf) | Game shelf shows ~12 see-through copies of one game box while carrying a non-game item (slot previews for slots that do not accept it, drawn as fake boxes) | Physics agent (carry-arms): previews only for accepting slots, as subtle glows |
+| R106 | bug | high | Jack 2026-10-28 (kitchen) | Washed-up plate still shows food in the drying rack; plate oversized and floating in the rack prongs | Chores polish agent: washing up visuals (dirty -> soapy -> clean), correct rack slotting/scale |
