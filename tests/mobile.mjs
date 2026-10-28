@@ -131,7 +131,7 @@ async function aimAt(p, eye, target, level = 'U') {
   await p.page.evaluate(({ eye, target, level }) => {
     House.hush(); House.setWalkFrom({ x: eye[0], y: eye[1], z: eye[2], lvl: level, seat: 0 });
     const [x, y, z] = eye, [tx, ty, tz] = target;
-    Object.assign(House.P, { x, y, z, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI });
+    Object.assign(House.P, { x, y, z, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI, lvl: level, seat: 0 });
     House._.setMode('walk'); House.dirty();
   }, { eye, target, level });
   await sleep(400);
@@ -348,9 +348,12 @@ const phases = {
         await until(d => !!House.DOORS[d.id].open !== d.open, door, 10000); await page.waitForTimeout(900); await shot('story-02g-door-toggled');
       }
       if (await page.evaluate(() => !!House.SPOTS['np.mom'] && !!window.HouseFamily?.debug?.dump().find(f => f.id === 'mom' && f.present))) {
+        // Keep the touch target at a known, reachable daily job rather than chasing her phone routine.
+        await page.evaluate(() => { const F = HouseFamily; F.debug.go('mom', 'hob'); F.debug.place('mom', 'hob'); F.debug.sim(5, 0.1); });
         assert(await look('np.mom'), 'Nowhere to stand in sight of Mom: ' + JSON.stringify(await page.evaluate(() => HouseFamily.debug.dump().find(f => f.id === 'mom')))); const said = await clickThing(p, 'np.mom', 'story-02c-finger-on-mom');
         assert.match(said, /talk/i, 'Finger label on Mom: ' + said + ' ' + JSON.stringify(await page.evaluate(() => { const o = House.SPOTS['np.mom'].obj, v = new House.T.Vector3(); o.getWorldPosition(v); return { dump: HouseFamily.debug.dump().find(f => f.id === 'mom'), proxy: [v.x, v.y, v.z], P: House.P, vis: o.visible, parentVis: o.parent?.visible }; })));
         await until(() => !!document.querySelector('.hs-voice.on,.hs-call.on,.hs-note.on,.np-bub:not(.np-out)'), null, 15000); await page.waitForTimeout(500); await shot('story-02d-talking-to-mom');
+        await page.evaluate(() => HouseFamily.debug.go('mom', null));
       } else report.checks.push({ label: 'Mom not in the bedroom at the opening', skipped: true });
       const mag = await page.evaluate(() => ['pmb.pm.mag.01', 'pmb.pm.mag.02'].find(id => House.THINGS[id]?.obj.visible && House.THINGS[id].st === 'rest'));
       if (mag) {
@@ -382,7 +385,8 @@ const phases = {
       assert(!/\[J\]/.test(line), 'Quest line shows a keyboard key on touch: ' + line);
       if (line) {
         await p.press('.st-objective'); await page.waitForTimeout(800); await shot('story-06-diary-picker');
-        await page.evaluate(() => document.querySelector('.st-quests [data-close], .st-picker button, dialog[open] button')?.click());
+        await p.press('[data-quest-close]');
+        await until(() => !window.stDiary?.picking);
         await page.waitForTimeout(400);
       }
       // the pause menu: touch settings, no keyboard text
