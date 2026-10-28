@@ -815,7 +815,7 @@
     held = { id, d: clamp(o?.d || holdDistance(t), 25, 150), ry: o?.ry || 0, from: Object.assign({}, t.at), was, sx: t.at.x, sy: t.at.y, sz: t.at.z, drag, pry: P.ry, rel: (t.at.ry || 0) + P.ry, hand: null, hv: { x: 0, y: 0, z: 0 } };
     if (was) { const sn = SNAPS[was]; t.snap = null; if (sn && sn.onUnsnap) try { sn.onUnsnap(t); } catch (e) { console.error(e); } emit('unsnap', was, id); }
     t.st = 'held'; t.at.hide = false; t.obj.visible = true;
-    aimPt = null; aimT = 0; GP.res = null; // never inherit the previous object's shelf target
+    aimPt = null; aimT = 0; GP.res = null; targetsAt = -Infinity; targetCount = 0; if (targets) targets.visible = false; // never inherit the previous object's shelf targets
     const b = t.body || (drag ? bodyFor(t) : null);
     if (b) { bodyState(t); if (!drag) PH.supportGone(b); else PH.awake.delete(b); }
     layerFor(t); // update the cached front-layer state too, even before a frame renders
@@ -944,7 +944,7 @@
       const sd = a.sd, inn = -sd, c = ex[sd < 0 ? 0 : 1]; // (inward: towards the thing)
       // the palm flat against its side at that corner, on its lower half, a little in front of its middle; never lower
       // than 88% down the view (so a big box that runs off the bottom is still visibly held)
-      const pz = Math.min(zf, (zf + zb) / 2 + pw * 0.25), minY = -0.76 * tanV * -pz;
+      const pz = zf + pt * 0.45, minY = -0.76 * tanV * -pz;
       const px = c.x + sd * pt * 0.42, py = Math.min(cy + hh * 0.2, Math.max(minY, Math.min(cy - hh * 0.12, Math.max(cy - hh * 0.55, c.y + pl * 0.3)))), lean = inn * 0.12;
       const put = (m, lx, ly, lz, sx, sy, sz, rz = 0, rx = 0, ry = 0) => {
         const co = Math.cos(lean), sn = Math.sin(lean); // (the lean turns the hand's own frame about the view's z)
@@ -952,7 +952,7 @@
       };
       put(a.palm, 0, 0, 0, pt, pl, pw);
       // fingers: round the far side, behind it (mostly hidden); the thumb lies across its front, pointing in and a bit up
-      put(a.fingers, inn * pt * 0.9, pl * 0.18, -(pz - zb) - pt * 0.3, pt * 2.2, pl * 0.62, pt * 0.9);
+      put(a.fingers, inn * pt * 0.9, pl * 0.18, -Math.min(pz - zb, pl * 0.65) - pt * 0.3, pt * 1.5, pl * 0.62, pt * 0.9);
       const tl = pl * 0.62, tw = pt * 0.95, tzf = zf - pz + tw * 0.55;
       put(a.thumb, inn * (pt * 0.3 + tl * 0.42), pl * 0.22, tzf, tl, tw, tw, inn * 0.45);
       // the wrist, then the forearm: down and back towards you to an elbow just below the bottom of the view, tucked in
@@ -990,7 +990,6 @@
   // Where the full-size thing would be for the same picture (a scale about the eye), kept short of walls and of you.
   function heldVirtual(t, clampToWorld) {
     const k = t.obj.scale.x || 1, o = t.obj.position;
-    if (k === 1) return { x: o.x, y: o.y, z: o.z };
     let vx = P.x + (o.x - P.x) / k, vy = P.y + (o.y - P.y) / k, vz = P.z + (o.z - P.z) / k;
     if (clampToWorld) {
       const R = holdSize(t), dist = Math.hypot(vx - P.x, vy - P.y, vz - P.z), ux = (vx - P.x) / dist, uy = (vy - P.y) / dist, uz = (vz - P.z) / dist;
@@ -1002,9 +1001,9 @@
     }
     return { x: vx, y: vy, z: vz };
   }
-  // Grow the stand-in back to the real thing, in place as you see it: before it's put down, dropped, inspected or used.
+  // Release the held pose into the world; keep a real-size drop short of walls and the player's body.
   function unshrink(t, clampToWorld) {
-    const k = t.obj.scale.x || 1; t._hk = false; if (k === 1) return;
+    const k = t.obj.scale.x || 1; t._hk = false; if (k === 1 && !clampToWorld) return;
     const v = heldVirtual(t, clampToWorld); if (Number.isFinite(v.x + v.y + v.z)) t.obj.position.set(v.x, v.y, v.z); t.obj.scale.setScalar(1); t.obj.updateMatrixWorld(true); dirty();
   }
   const isThingMesh = m => { let o = m; while (o) { if (o.userData && o.userData.thing) return true; o = o.parent; } return false; };
@@ -1027,6 +1026,7 @@
     for (const id in SNAPS) {
       const s = SNAPS[id]; if (s.room && cur && s.room !== cur.id) continue;
       if (s.enabled && !s.enabled()) continue; if (s.accepts && !s.accepts(t.kind, t)) continue;
+      if (s.aims && !s.aims(t)) continue;
       let d = Math.hypot(x - s.x, (y - t.h / 2) - s.y, z - s.z);
       if (aimPt) d = Math.min(d, Math.hypot(aimPt.x - s.x, aimPt.y - s.y, aimPt.z - s.z) + 2); // (pointing right at the slot counts too)
       // ...and so does the crosshair passing close by it, within reach
@@ -1147,7 +1147,7 @@
   const _tm = new T.Matrix4(), _tq = new T.Quaternion(), _te = new T.Euler(), _tp = new T.Vector3(), _ts = new T.Vector3();
   function showTargets(t, now) {
     if (!t) { if (targets) targets.visible = false; targetCount = 0; return; }
-    if (!targets) { targets = new T.InstancedMesh(new T.BoxGeometry(1, 1, 1), new T.MeshBasicMaterial({ color: 0xffd84a, transparent: true, opacity: 0.16, depthWrite: false }), TARGET_MAX); targets.userData.noPick = true; targets.renderOrder = 4; targets.frustumCulled = false; root.add(targets); }
+    if (!targets) { targets = new T.InstancedMesh(new T.BoxGeometry(1, 1, 1), new T.MeshBasicMaterial({ color: 0xffd84a, transparent: true, opacity: 0.16, depthWrite: false }), TARGET_MAX); targets.name = 'accepting-slot-glows'; targets.userData.noPick = true; targets.renderOrder = 4; targets.frustumCulled = false; root.add(targets); }
     if (now - targetsAt > 350) {
       targetsAt = now; targetCount = 0;
       for (const id in SNAPS) {

@@ -414,7 +414,7 @@ const phases = {
       await page.waitForTimeout(600); await page.evaluate(() => window.__lose.restoreContext()); await page.waitForTimeout(1500);
       await page.evaluate(() => House.dirty()); await page.waitForTimeout(800);
       await shot('story-11-context-restored'); await notBlack(p, 'context restored');
-      assert.deepEqual(p.errors.filter(e => !/context lost|CONTEXT_LOST/i.test(e)), [], 'story browser errors');
+      assert.deepEqual(p.errors.filter(e => !/context[ _-]lost/i.test(e)), [], 'story browser errors');
     } finally { await p.ctx.close(); }
   },
 
@@ -557,6 +557,10 @@ const phases = {
         report.checks.push({ label: 'owner tools ' + prof, clipped });
         assert.deepEqual(clipped, [], 'Owner tools clipped at ' + prof);
         assert.deepEqual(p.errors, [], 'owner browser errors');
+      } catch (e) {
+        await shot('owner-failure-' + prof).catch(() => {});
+        console.log('Owner menu state', await page.evaluate(() => ({ god: House.god, owner: OwnerTools.active, picking: window.stDiary?.picking, mode: House.mode, glide: House.gliding, touch: document.documentElement.dataset.touchState, dialogs: [...document.querySelectorAll('dialog[open]')].map(d => d.className) })));
+        throw e;
       } finally { await p.ctx.close(); }
     }
   },
