@@ -94,3 +94,17 @@ One TTS request voices many lines/names; the response is cut into clips at silen
   `node tools/audio/gen-lines.mjs --out ~/jack-audio/lines/voice --report ~/jack-audio/lines/lines-report.json --install app/public/audio/voice`
   (copies every manifest-listed mp3 and merges `manifest.json`); also copy `~/jack-audio/lines/lines-report.json`
   over `tools/audio/lines-report.json` to keep the transcripts with the repo.
+
+## In the game (js/st-voice.js, js/np-bubble.js)
+- Manifest-driven: `audio/voice/manifest.json` (written by gen-lines / `--install`) lists the verified clips. The page
+  loads it when idle; each clip is fetched and decoded the first time it's needed (and prefetched when a line is queued).
+  A line with no clip plays as a speech bubble with the timed mouth, so new clips just start working once installed.
+- Playback: WebAudio buffer -> PannerNode at the speaker's mouth (inverse distance, ref 1.4 m) -> lowpass/quieter when
+  they're in another room or on another floor (not for clips already muffled with fx=downstairs) -> analyser -> Sound's
+  `voice` bus (on the "Sound effects & voices" switch and the volume). Music dips to 55% and effects (telly, games) to
+  70% while someone talks. Sound off, volume 0 or no user gesture yet: nothing is fetched or played.
+- np-life holds a line back up to 4 s for its clip to decode so words and voice start together; a clip that starts late
+  stretches the line to its real length. The painted mouth follows the analyser's level.
+- Speech bubbles replace the bottom subtitle box; "Subtitles" in the pause menu brings the box back as well. Lines
+  with nobody in the house to hang a bubble on (diary, narrators) still use the box.
+- Not yet: name call-out clips (`callout=` lines play the generic line only).

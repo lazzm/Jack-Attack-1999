@@ -397,7 +397,8 @@
     return true;
   }
   // Where a speaker is for their speech bubble (js/np-bubble.js) and their recorded voice (js/st-voice.js, positional)
-  const seenBy = c => c.present && !!c.rig?.group.visible && !!H.ROOMS[c.room]?.group.visible && sameFloor(c, player());
+  // (in your room, or just through a doorway: further rooms are behind walls, so their balloons go to the screen edge)
+  const seenBy = c => c.present && !!c.rig?.group.visible && !!H.ROOMS[c.room]?.group.visible && sameFloor(c, player()) && (c.room === H.here || dist(c, player()) < 450);
   const anchorOf = c => ({ top: v => c.rig.headTop(v), mouth: v => c.rig.mouthWorld(v), seen: () => seenBy(c), where: v => c.rig.headTop(v) });
   let V3 = null;
   function speechTick() {

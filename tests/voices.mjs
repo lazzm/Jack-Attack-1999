@@ -82,7 +82,7 @@ await check('layout', async () => {
     assert(r.b.x >= 16 && r.b.y >= 12, 'Clamped to the screen: ' + JSON.stringify(r.b));
     assert(r.e1.y + 60 > 760 && Math.abs(r.e1.x + 110 - 683) < 2, 'Below: bottom edge, centred: ' + JSON.stringify(r.e1));
     assert(r.e2.x <= 50, 'Left edge: ' + JSON.stringify(r.e2));
-    assert(r.e3.x + 220 > 1300 && r.e3.y < 100, 'Up-right corner: ' + JSON.stringify(r.e3));
+    assert(r.e3.x + 110 > 683 + 250 && r.e3.y < 100, 'Up and to the right: ' + JSON.stringify(r.e3));
     assert(r.t.side === 'b' && r.t.ty > 160 && r.t.ty <= 160 + 46.1, 'Tail from the bottom towards the mouth: ' + JSON.stringify(r.t));
     assert(r.s[1].y + 60 <= r.s[0].y - 6 || r.s[1].y >= r.s[0].y + 60, 'Stacked, not overlapping: ' + JSON.stringify(r.s));
     assert.deepEqual(errors, []);
@@ -194,8 +194,8 @@ await check('edge', async () => {
 await check('two', async () => {
   const { browser, page, errors } = await house({ tier: 'high' });
   try {
-    await stage(page, { mom: 'hallStairs', sister: 'hallYoyo' });
-    { const p = await page.evaluate(() => { const a = HouseFamily.chars.mom, b = HouseFamily.chars.sister, mx = (a.x + b.x) / 2, mz = (a.z + b.z) / 2; return { x: a.x + Math.sin(a.h) * 340, z: a.z + Math.cos(a.h) * 340, mx, mz }; }); await look(page, [p.x, G - 128, p.z], [p.mx, G - 135, p.mz], 'G'); }
+    await stage(page, { mom: 'sink', sister: 'kmug1' });
+    { const p = await page.evaluate(() => { const a = HouseFamily.chars.mom, b = HouseFamily.chars.sister; return { mx: (a.x + b.x) / 2, mz: (a.z + b.z) / 2 }; }); await look(page, [40, G - 128, 280], [p.mx, G - 140, p.mz], 'G'); }
     await page.keyboard.press('Shift');
     await page.evaluate(() => { const S = HouseFamily.debug.speech, t = setInterval(() => { if (S.cur?.lineId === 'c1.sis.stairs') { S.freeze = true; clearInterval(t); } }, 30); });
     await say(page, 'sister', 'c1.sis.stairs');

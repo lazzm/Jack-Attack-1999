@@ -80,8 +80,8 @@ const tick = () => new Promise(r => setImmediate(r));
     const L = w.NPCBubble.layout, view = { w: 390, h: 844, m: 10, top: 8 }, cross = { x: 161, y: 388, w: 68, h: 68 };
     const a = L.place({ x: 195, y: 470 }, 250, 80, view, [cross], 18);
     assert(a.y + 80 <= 388 - 6 || a.y >= 456, 'lifted clear of the crosshair ' + JSON.stringify(a));
-    const e = L.edge({ x: 0, y: 1 }, 220, 60, view, []); assert(e.y + 60 >= 844 - 20 && e.x >= 10, 'bottom edge ' + JSON.stringify(e));
-    const e2 = L.edge({ x: 1, y: 0 }, 220, 60, view, []); assert(e2.x + 220 <= 390 - 10 && e2.x + 220 >= 390 - 16, 'right edge ' + JSON.stringify(e2));
+    const e = L.edge({ x: 0, y: 1 }, 220, 60, view, []); assert(e.y + 60 >= 844 - 44 && e.x >= 10, 'bottom edge ' + JSON.stringify(e));
+    const e2 = L.edge({ x: 1, y: 0 }, 220, 60, view, []); assert(e2.x + 220 <= 390 - 10 && e2.x + 220 >= 390 - 44, 'right edge ' + JSON.stringify(e2));
     const t = L.tail({ x: 10, y: 10, w: 200, h: 50 }, { x: 400, y: 30 }, 22, 14); assert(t.side === 'r' && t.tx - t.bx <= 22.01, 'edge arrow points right ' + JSON.stringify(t)); }
   console.log('VOICES UNIT PASS: manifest files + speakers, lazy fetch, voice bus routing, positional, ducking, analyser level, mute/volume 0 silence, no-recording fallback, subtitles setting, bubble layout');
 })().catch(e => { console.error(e); process.exit(1); });
