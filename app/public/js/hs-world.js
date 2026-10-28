@@ -30,45 +30,49 @@
   const EVS = {}; const emit = (ev, ...a) => (EVS[ev] || []).slice().forEach(fn => { try { fn(...a); } catch (e) { console.error(e); } });
   let controlsPaused=false,desktopFull=ls.get('jhp_hs_desktop_full',false)===true;
 
-  // ================================================================ graphics quality: Low / Medium / High, picked for this machine (or chosen: G in the house,
-  // or Start > Room graphics). Low: pixel ratio 1, no antialiasing, matte materials, 3 lights, only the room you're in and the next.
-  const QN = ['potato', 'low', 'medium', 'high'], PRMAX = { potato: 1, low: 1, medium: 1.5, high: 2 };
+  // ================================================================ graphics: ONE look, the best one, on every device (owner, 2026-10-27; docs/GRAPHICS.md)
+  // No options and no tiers: full-resolution mipmapped textures with anisotropy, Phong, the 5-lamp rig, MSAA and a sharp
+  // drawing buffer (device pixels up to 2, 1.75 on handhelds). Speed comes from merging static geometry (js/hs-static.js),
+  // culling and pacing. A device that still can't keep up is adapted INVISIBLY, one rung at a time (Q.adapt, ADAPT below):
+  // draw distance, then per-pixel lamps, then screen refresh, then a small sharp resolution step (never below 0.85, and
+  // only on dense displays where 0.85 is still more than one pixel per CSS pixel). Never the blurry low-resolution look.
+  // Old per-device graphics settings (jhp_hs_gfx / jhp_hs_graphics) are dropped; the FPS counter survives as a hidden
+  // debug option (localStorage jhp_hs_fps, or House.showFps(true)).
+  const ADAPT = [
+    { far: 0, lamps: 5, screenHz: 60, scale: 1 },     // 0: everything
+    { far: 1, lamps: 5, screenHz: 30, scale: 1 },     // 1: shorter outdoor draw distance and portal depth, screens 30 Hz
+    { far: 1, lamps: 3, screenHz: 30, scale: 1 },     // 2: the three strongest lamps light per pixel
+    { far: 1, lamps: 3, screenHz: 20, scale: 1 },     // 3: screens 20 Hz
+    { far: 1, lamps: 3, screenHz: 20, scale: .925 },  // 4: a small resolution step (dense displays only)
+    { far: 1, lamps: 3, screenHz: 20, scale: .85 },   // 5: the floor
+  ];
   const Q = (function () {
-    const want = ls.get('jhp_hs_gfx', 'auto'), n = navigator;
-    // Phones start on Potato (the pixel budget and 30 Hz cap suit a small, fill-bound GPU); tablets on Low. js/hs-touch.js
-    // measures the real frame time once the house is up and only then offers JackOS on its own (js/pc-only.js).
-    const mob = !!window.PCOnly?.handheld, phone = mob && Math.min(screen.width || 1e4, screen.height || 1e4, innerWidth, innerHeight) < 600;
-    const mem = n.deviceMemory || 8, cores = n.hardwareConcurrency || 4, dpr = window.devicePixelRatio || 1;
-    const t = mem <= 1 || cores <= 1 || phone ? 'potato' : mob || mem <= 2 || cores <= 2 ? 'low' : mem <= 4 || cores <= 4 || (dpr > 2 && screen.width * dpr > 3800) ? 'medium' : 'high';
-    return { want, auto: !QN.includes(want), tier: QN.includes(want) ? want : t, guess: t, mob, fps: 0, gpu: '', renderScale:1, pixelRatio:1, f: { n: 0, t: 0, low: 0 }, probe: 0 };
+    const old = ls.get('jhp_hs_graphics', null);
+    if (old && old.showFps === true && ls.get('jhp_hs_fps', null) == null) ls.set('jhp_hs_fps', true);
+    ls.del('jhp_hs_gfx'); ls.del('jhp_hs_graphics'); // (retired settings: harmless to forget)
+    const mob = !!window.PCOnly?.handheld;
+    let gpu = '';
+    try { const c = document.createElement('canvas'), gl = c.getContext('webgl2') || c.getContext('webgl'); if (gl) { const d = gl.getExtension('WEBGL_debug_renderer_info'); gpu = d ? String(gl.getParameter(d.UNMASKED_RENDERER_WEBGL)) : ''; gl.getExtension('WEBGL_lose_context')?.loseContext(); } } catch (e) {}
+    // A software renderer is not a GPU: start it a few rungs down and without MSAA (tests run on one).
+    const soft = /SwiftShader|llvmpipe|softpipe|Software/i.test(gpu);
+    const saved = ls.get('jhp_hs_adapt', null), start = soft ? 3 : saved && saved.gpu === gpu && Number.isInteger(saved.level) ? Math.max(0, Math.min(ADAPT.length - 1, saved.level - 1)) : 0;
+    return { tier: 'high', guess: 'high', auto: true, mob, soft, fps: 0, gpu, adapt: start, pinned: false, renderScale: 1, pixelRatio: 1, f: { n: 0, t: 0, low: 0 }, probe: 0 };
   })();
-  function graphicsDefaults(preset){return{preset,scale:1,dynamic:preset!=='high',antialias:['medium','high'].includes(preset)?'on':'off',pixelRatio:PRMAX[preset]||2,anisotropy:({potato:1,low:1,medium:4,high:8})[preset]||8,backgroundFps:preset==='potato'?5:10,decorations:false,retro:false,showFps:false}}
-  function cleanGraphics(value,base){
-    const v=value&&typeof value==='object'?value:{};
-    return{...base,scale:clamp(Number.isFinite(+v.scale)?+v.scale:base.scale,.5,1),dynamic:typeof v.dynamic==='boolean'?v.dynamic:base.dynamic,
-      antialias:['auto','off','on'].includes(v.antialias)?v.antialias:base.antialias,pixelRatio:[1,1.5,2].includes(+v.pixelRatio)?+v.pixelRatio:base.pixelRatio,
-      anisotropy:[1,4,8,16].includes(+v.anisotropy)?+v.anisotropy:base.anisotropy,backgroundFps:[5,10,20].includes(+v.backgroundFps)?+v.backgroundFps:base.backgroundFps,
-      decorations:typeof v.decorations==='boolean'?v.decorations:base.decorations,retro:typeof v.retro==='boolean'?v.retro:base.retro,showFps:typeof v.showFps==='boolean'?v.showFps:base.showFps,preset:['auto','potato','low','medium','high','custom'].includes(v.preset)?v.preset:base.preset};
-  }
-  let graphics=cleanGraphics(ls.get('jhp_hs_graphics',null),graphicsDefaults(Q.want));
-  const wantsAntialias=()=>graphics.antialias==='on'||(graphics.antialias==='auto'&&!Q.auto&&!['potato','low'].includes(Q.tier));
-  // Potato: no anisotropy. Low keeps cheap 2x filtering (floors and long walls are seen at grazing angles everywhere).
-  const wantedAniso=()=>Q.tier==='potato'?1:Q.tier==='low'&&graphics.preset!=='custom'?2:Math.min(graphics.anisotropy,16);
+  const graphics = { showFps: ls.get('jhp_hs_fps', false) === true, backgroundFps: 10, decorations: false };
+  const rung = () => ADAPT[Q.adapt] || ADAPT[0];
+  const wantsAntialias = () => !Q.soft || ls.get('jhp_hs_msaa', false) === true; // (jhp_hs_msaa: benchmark MSAA on a software renderer)
+  const wantedAniso = () => 8;
   window.HouseQ = Q.tier;
   // ================================================================ the renderer (a canvas under boot.js's stage, one over it)
   let cv = document.createElement('canvas'); cv.className = 'hs-gl'; cv.setAttribute('aria-hidden', 'true');
   let ren;
   try {
-    ren = new T.WebGLRenderer({ canvas: cv, antialias: wantsAntialias(), powerPreference: Q.tier==='potato'?'default':'high-performance', alpha: false });
+    ren = new T.WebGLRenderer({ canvas: cv, antialias: wantsAntialias(), powerPreference: 'high-performance', alpha: false });
     if (!ren.getContext()) throw new Error('no gl');
   } catch (e) { window.House = { ok: false }; return; }
   pb.insertBefore(cv, stage);
-  try { // (a software renderer or a weak GPU: Low, whatever the rest of the machine says)
-    const gl = ren.getContext(), dbg = gl.getExtension('WEBGL_debug_renderer_info'); Q.gpu = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
-    if (Q.auto && Q.tier!=='potato' && (/SwiftShader|llvmpipe|softpipe|Software|Mali-[34]|Adreno \(TM\) [345]\d\d|PowerVR SGX|GMA/i.test(Q.gpu) || ren.capabilities.maxTextureSize < 4096 || !ren.capabilities.floatFragmentTextures)) Q.tier = 'low';
-    else if (Q.auto && Q.tier === 'high' && /Intel/i.test(Q.gpu) && !/Iris|Arc/i.test(Q.gpu)) Q.tier = 'medium';
-  } catch (e) {}
-  Q.guess=Q.tier;window.HouseQ = Q.tier;K.setQuality?.(Q.tier);
+  try { if (!Q.gpu) { const gl = ren.getContext(), dbg = gl.getExtension('WEBGL_debug_renderer_info'); Q.gpu = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : ''; } } catch (e) {}
+  K.setQuality?.('high');
   let cv2 = document.createElement('canvas'); cv2.className = 'hs-gl2'; cv2.setAttribute('aria-hidden', 'true');
   // (a lost WebGL context, e.g. too many tabs: keep the page alive and redraw when it comes back)
   let ctxLost = false;
@@ -84,7 +88,7 @@
     try {
       const oldRenderer=ren, oc = cv, par = oc.parentNode, nc = document.createElement('canvas'); nc.className = oc.className; nc.setAttribute('aria-hidden', 'true');
       try { ren.dispose(); } catch (e) {}
-      const nr = new T.WebGLRenderer({ canvas: nc, antialias: wantsAntialias(), powerPreference: Q.tier==='potato'?'default':'high-performance', alpha: false });
+      const nr = new T.WebGLRenderer({ canvas: nc, antialias: wantsAntialias(), powerPreference: 'high-performance', alpha: false });
       if (!nr.getContext() || nr.getContext().isContextLost()) return false;
       nr.setClearColor(0x050404, 1); nr.localClippingEnabled = true;
       if (par) par.replaceChild(nc, oc);
@@ -118,7 +122,7 @@
   let em = 10, vw = innerWidth, vh = innerHeight;
   const outdoorFog=new T.Fog(0xcedadf,1600,3000);
   function qualityView(){
-    const fog=Q.tier==='potato'&&cur?.outside?outdoorFog:null,far=fog?fog.far:4000;
+    const fog=rung().far&&cur?.outside?outdoorFog:null,far=fog?fog.far:4000;
     scene.fog=fog;
     if(fog){const ph=window.HouseEnvironment?.phase;fog.color.set(ph==='night'?0x26344b:ph==='dusk'?0xd89774:ph==='dawn'?0xddb69a:0xcedadf)}
     if(camera.far!==far){camera.far=far;camera.updateProjectionMatrix()}
@@ -127,18 +131,17 @@
   function measure() {
     vw = pb.clientWidth || innerWidth; vh = pb.clientHeight || innerHeight;
     em = parseFloat(getComputedStyle(stage).fontSize) || 10;
-    const native=Math.min(window.devicePixelRatio||1,graphics.preset==='custom'?graphics.pixelRatio:Math.min(PRMAX[Q.tier]||1,graphics.pixelRatio));
-    // Low graphics has a pixel budget as well as a DPR cap: a large desktop
-    // viewport used to cost more than a phone even at the lowest setting.
-    const cap=Q.tier==='potato'?350000:Q.tier==='low'&&graphics.preset!=='custom'?1024*768:Infinity;
-    const base=Math.min(native,Math.sqrt(cap/(vw*vh)),graphics.retro?Math.min(640/vw,480/vh):Infinity);
-    const pr=base*graphics.scale*Q.renderScale;Q.pixelRatio=pr;
+    // Sharp everywhere: device pixels up to 2 (1.75 on handhelds). The adaptive resolution step only exists on dense
+    // displays (native >= 1.5), where even the 0.85 floor stays above one drawn pixel per CSS pixel.
+    const native=Math.min(window.devicePixelRatio||1,Q.mob?1.75:2);
+    Q.renderScale=native>=1.5?rung().scale:1;
+    const pr=native*Q.renderScale;Q.pixelRatio=pr;
     // Resizing a canvas clears it. Only resize when the size really changed, and redraw at once when it did, so a
     // resolution step (dynamic resolution, a new front layer) never shows one black frame.
     const sized=ren.getPixelRatio()===pr&&cv.width===Math.floor(vw*pr)&&cv.height===Math.floor(vh*pr);
-    if(!sized){ren.setPixelRatio(pr); ren.setSize(vw, vh, false);}cv.style.imageRendering=graphics.retro?'pixelated':'';
+    if(!sized){ren.setPixelRatio(pr); ren.setSize(vw, vh, false);}
     // Held paper and live screen DOM stay sharp when the room scales down.
-    if (ren2) { ren2.setPixelRatio(Q.tier==='potato'?pr:Math.min(window.devicePixelRatio||1,1.5)); ren2.setSize(vw, vh, false);cv2.style.imageRendering=graphics.retro?'pixelated':''; }
+    if (ren2) { ren2.setPixelRatio(native); ren2.setSize(vw, vh, false); }
     camera.aspect = vw / vh; lensZm = 0; applyLens();
     dirty();
     if (!sized) try { if (live && !rendering && mode !== 'off') render(); } catch (e) { if (!(e instanceof ReferenceError)) console.error(e); }
@@ -228,6 +231,7 @@
     if (!r || r.built) return; r.built = true;
     try { if (r.build) r.build(r); } catch (e) { console.error('hs build', r.id, e); }
     emit('built', r.id);
+    setTimeout(() => mergeRoom(r), 2500); // (after late additions; prewarm merges too)
   }
   const inArea = (r, x, z, lvl) => r.lvl === lvl && r.area.some(a => x >= a[0] && x <= a[2] && z >= a[1] && z <= a[3]);
   function roomAt(x, z, lvl) { // (the smallest room that has this spot in it: a cupboard inside a hall's outline is the cupboard)
@@ -243,7 +247,7 @@
       root.add(d.pivot);
       d.pivot.rotation.y = 0; d.pivot.updateWorldMatrix(true,true);
       const b = new T.Box3().setFromObject(d.pivot);
-      if (!b.isEmpty()) d.closedBounds = {x0:b.min.x,z0:b.min.z,x1:b.max.x,z1:b.max.z};
+      if (!b.isEmpty()) { d.closedBounds = {x0:b.min.x,z0:b.min.z,x1:b.max.x,z1:b.max.z}; d.portal = b.clone().expandByScalar(15); } // (the aperture, for portal culling)
       const leaf=d.pivot.children.find(o=>o.isMesh&&o.geometry?.type==='BoxGeometry');
       if(leaf){leaf.geometry.computeBoundingBox();d.headroom=leaf.geometry.boundingBox.max.y-leaf.geometry.boundingBox.min.y;d.floorY=-b.min.y;}
       d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1);
@@ -266,23 +270,29 @@
     emit('door', id, d.open);
   }
   let visSet = new Set();
-  let windowOnly=new Map();
+  let windowOnly=new Map(),doorOnly=new Map();
   const windowFrustum=new T.Frustum(),windowProjection=new T.Matrix4();
   function visCalc() { // the room you're in, and the rooms you can see into through open doors (and the ones they open onto)
     const vs = new Set(); if (cur) vs.add(cur.id);
-    const walk = (r, depth) => { if (!r) return; for (const did of r.links) { const d = DOORS[did]; if (!d || !(d.open || d.ang > 0.01 || d.always)) continue; for (const o of d.rooms) if (!vs.has(o)) { vs.add(o); if (depth < (Q.tier === 'potato' || Q.tier === 'low' ? 0 : 1)) walk(ROOMS[o], depth + 1); } } };
-    walk(cur, 0);
-    if (cur && (cur.id === 'hall' || cur.id === 'landing' || cur.id === 'cupboard')) { vs.add('hall'); vs.add('landing'); } // (the stairwell joins them: a wrong guess can never black the view out)
+    // Portal culling: a room seen only through doorways is drawn when every doorway on some route to it is on screen
+    // (doorOnly: room -> routes, each a list of aperture boxes; a null route means always).
+    doorOnly=new Map();
+    const route=(id,chain)=>{let list=doorOnly.get(id);if(!list)doorOnly.set(id,list=[]);list.push(chain)};
+    const walk = (r, depth, chain) => { if (!r) return; for (const did of r.links) { const d = DOORS[did]; if (!d || !(d.open || d.ang > 0.01 || d.always)) continue; const next=d.portal&&!d.always?chain.concat(d.portal):chain; for (const o of d.rooms) if (o!==(cur&&cur.id)&&(!vs.has(o)||doorOnly.has(o))) { const fresh=!vs.has(o); vs.add(o); route(o,next.length?next:null); if (fresh&&depth < (rung().far ? 0 : 1)) walk(ROOMS[o], depth + 1, next); } } };
+    walk(cur, 0, []);
+    if (cur && (cur.id === 'hall' || cur.id === 'landing' || cur.id === 'cupboard')) { for (const id of ['hall','landing']) { vs.add(id); if (id!==cur.id) route(id,null); } } // (the stairwell joins them: a wrong guess can never black the view out)
     // Glass is a permanent sight line, independent of the door beside it.
     // Keep logical visibility stable; rendering may skip windows off camera.
     const connected=new Set(vs);windowOnly=new Map();
     for(const id of connected)for(const view of ROOMS[id]?.windowViews||[]){
       const other=typeof view==='string'?view:view.room;if(!ROOMS[other])continue;vs.add(other);
-      if(connected.has(other))continue;
-      const bounds=windowOnly.get(other)||[];
-      if(!view.bounds)bounds.push(null);else for(const b of view.bounds)bounds.push(new T.Box3(new T.Vector3(b[0],-b[4],b[2]),new T.Vector3(b[3],-b[1],b[5])));
+      const boxes=[];
+      if(!view.bounds)boxes.push(null);else for(const b of view.bounds)boxes.push(new T.Box3(new T.Vector3(b[0],-b[4],b[2]),new T.Vector3(b[3],-b[1],b[5])));
+      if(connected.has(other)){if(doorOnly.has(other))for(const b of boxes)route(other,b?[b]:null);continue}
+      const bounds=windowOnly.get(other)||[];bounds.push(...boxes);
       windowOnly.set(other,bounds);
     }
+    for(const [id,list] of doorOnly)if(list.includes(null))doorOnly.delete(id);
     for (const id in ROOMS) { const r = ROOMS[id], on = vs.has(id); if (on) buildRoom(r); r.group.visible = on; }
     for (const id in DOORS) { const d = DOORS[id], on = d.rooms.some(o => vs.has(o)); if (d.pivot) d.pivot.visible = on; if (d.frame) d.frame.visible = on; }
     visSet = vs; lightsFor(); dirty();
@@ -311,7 +321,7 @@
         all.push(Object.assign({key:id+':'+l.x+','+l.y+','+l.z,score:(l.i==null?1:l.i)*Math.pow(Math.max(0,1-distance/range),2)},l));
       }
       all.sort((a,b)=>b.score-a.score);
-      const active=Q.tier==='potato'?0:Q.tier==='low'?3:5,remaining=all.slice(0,active);
+      const active=rung().lamps,remaining=all.slice(0,active);
       rig.slots.forEach((s,i)=>{const j=i<active?remaining.findIndex(l=>l.key===s.key):-1;s.t=j<0?null:remaining.splice(j,1)[0]});
       rig.slots.forEach((s,i)=>{if(i<active&&!s.t&&remaining.length)s.t=remaining.shift()});
       const a=(typeof r.amb==='function'?r.amb():r.amb)||{sky:'#8a90a8',gnd:'#30261c',i:0.55};
@@ -341,11 +351,14 @@
   }
   function applyRoomRig(r) {
     const rig=roomRig(r);if(!rig)return;
-    hemi.color.copy(rig.sky);hemi.groundColor.copy(rig.ground);hemi.intensity=Q.tier==='potato'?Math.min(1.3,rig.ambient*1.35+.12):rig.ambient;
+    hemi.color.copy(rig.sky);hemi.groundColor.copy(rig.ground);hemi.intensity=rig.ambient;
     sun.intensity=rig.sun;sun.color.copy(rig.sunColor);
     if(rig.sourceSun){const l=rig.sourceSun;sun.position.set(l.x,l.y,l.z);sun.target.position.set(l.tx||0,l.ty||0,l.tz||0)}
     sun.updateMatrixWorld(true);sun.target.updateMatrixWorld(true);
-    for(let i=0;i<PL.length;i++){const pl=PL[i],s=rig.slots[i],l=s.l;pl.visible=Q.tier!=='potato'&&(Q.tier!=='low'||i<3);pl.intensity=s.cur;if(l){pl.position.set(l.x,l.y,l.z);pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)}
+    // Printed art gets a dim fill of its own picture, scaled by this room's ambient, daylight and lamps (K.PRINTS).
+    let lamps=0;for(const sl of rig.slots)lamps+=sl.cur;const fill=Math.min(.2,.02+.09*rig.ambient+.035*Math.min(3,lamps)+.04*rig.sun);
+    if(K.PRINTS)for(const m of K.PRINTS)m.emissiveIntensity=fill;
+    for(let i=0;i<PL.length;i++){const pl=PL[i],s=rig.slots[i],l=s.l;pl.visible=i<rung().lamps;pl.intensity=s.cur;if(l){pl.position.set(l.x,l.y,l.z);pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)}
   }
   function lightingSnapshot(id) {
     const r=roomRigs.get(id);return r?{ambient:r.ambient,sky:r.sky.getHex(),ground:r.ground.getHex(),sun:r.sun,
@@ -356,14 +369,31 @@
       for (const id in ROOMS) buildRoom(ROOMS[id]);
       const vis = []; for (const id in ROOMS) { vis.push([ROOMS[id].group, ROOMS[id].group.visible]); ROOMS[id].group.visible = true; }
       for (const id in DOORS) if (DOORS[id].pivot) DOORS[id].pivot.visible = true;
-      K.setQuality?.(Q.tier,scene);
-      for(let i=0;i<PL.length;i++)PL[i].visible=Q.tier!=='potato'&&(Q.tier!=='low'||i<3);
-      try { ren.compile(scene, camera); if(Q.tier==='potato'){const fog=scene.fog;scene.fog=outdoorFog;ren.compile(scene,camera);scene.fog=fog} } catch (e) {}
+      for (const id in ROOMS) mergeRoom(ROOMS[id]);
+      for (const o of root.children) if (STATIC_ROOT.includes(o.name)) { if (!staticRoot.includes(o)) staticRoot.push(o); try { HouseStatic?.merge(o); } catch (e) { console.error('hs merge', o.name, e); } }
+      K.setQuality?.('high',scene);
+      compileVariants(Q.adapt);
       scene.traverse(o => { const m = o.material; if (m) [].concat(m).forEach(mm => { for (const k in mm) { const tx = mm[k]; if (tx && tx.isTexture && ren.initTexture) { try { ren.initTexture(tx); } catch (e) {} } } }); });
       ren.render(scene, camera);
       vis.forEach(([g, v]) => { g.visible = v; }); visCalc(); ren.render(scene, camera);
     } catch (e) { console.error('hs prewarm', e); }
   }
+  // Merge each built room's static meshes (js/hs-static.js); incremental, so later additions join on the next pass.
+  const STATIC_ROOT=['neighbourhood','family-house-roof'],staticRoot=[]; // (outdoor scenery hanging off the root, drawn with the room you're in)
+  function mergeRoom(r){ if(!r||!r.built||!window.HouseStatic)return; try{ HouseStatic.merge(r.group); }catch(e){ console.error('hs merge', r.id, e); } }
+  // Programs depend on the lamp count and fog: compile the variants a rung draws ahead of time, never at a doorway.
+  const compiled=new Set();
+  // (the outdoor-fog variant is only drawn outside: compiled now when there, otherwise in idle time shortly after)
+  function compileVariants(level){
+    const a=ADAPT[level]||ADAPT[0];
+    const one=f=>{const key=a.lamps+':'+(f?1:0);if(compiled.has(key))return;compiled.add(key);const vis=PL.map(l=>l.visible),fog=scene.fog;
+      try{scene.fog=f;for(let i=0;i<PL.length;i++)PL[i].visible=i<a.lamps;ren.compile(scene,camera)}catch(e){}
+      scene.fog=fog;for(let i=0;i<PL.length;i++)PL[i].visible=vis[i]};
+    one(null);
+    if(a.far){if(cur?.outside)one(outdoorFog);else setTimeout(()=>(window.requestIdleCallback||setTimeout)(()=>one(outdoorFog)),3000)}
+  }
+  // Keep the merge fresh in idle time: re-batch a room once a scripted change has settled, adopt late additions.
+  setInterval(()=>{if(!live||document.hidden||!window.HouseStatic)return;(window.requestIdleCallback||setTimeout)(()=>{const now=performance.now();for(const id of visSet){const r=ROOMS[id];if(r&&r.built)try{HouseStatic.maintain(r.group,now)}catch(e){console.error('hs merge',id,e)}}for(const g of staticRoot)if(g.visible)try{HouseStatic.maintain(g,now)}catch(e){}})},2000);
   let warmed = 0;
   function reveal() { // hold black while everything builds and uploads (never longer than ~5 s), then fade in once, fully drawn
     ui.fade(true, 0); const t0 = performance.now();
@@ -371,6 +401,7 @@
     const go = () => { if (!window.HouseRooms && performance.now() - t0 < 1500 && window.House && !warmed) return setTimeout(go, 100); prewarm(); warmed = 1; setTimeout(uncover, 60); };
     setTimeout(go, 30); setTimeout(() => ui.fade(false, 400), 5000);
     setTimeout(prewarm, 4000); // (rooms that load lazily, warmed behind the scenes)
+    for (const ms of [10000, 30000]) setTimeout(() => (window.requestIdleCallback || setTimeout)(() => { for (const id in ROOMS) mergeRoom(ROOMS[id]); for (const o of staticRoot) try { HouseStatic.merge(o); } catch (e) {} }), ms); // (late additions: the drive, deliveries)
   }
   function relight() { lightsFor(); dirty(); }
 
@@ -906,7 +937,7 @@
   function whyText(why) { if (!why) return ''; if (why.startsWith('body:')) { const o = THINGS[why.slice(5)]; const n = o ? (typeof o.label === 'function' ? o.label() : o.label) : 'Something'; return n + ' is in the way'; } return WHY[why] || "Something's in the way"; }
   function computeGhost(t, sx, sy, fresh) {
     const now = performance.now();
-    if (!fresh && GP.res && GP.t === t && now - GP.at < (Q.tier === 'low' || Q.tier === 'potato' ? 80 : 40)) return GP.res;
+    if (!fresh && GP.res && GP.t === t && now - GP.at < 40) return GP.res;
     const o = heldPos(), sn = nearSnap(t, o.x, o.y, o.z, fresh); // (where the hand is going, not where the lagging model still is)
     let res;
     if (sn) { const p = sn.pose || { x: sn.x, y: sn.y, z: sn.z, ry: sn.ry || 0 }; res = { snap: sn, ok: true, room: sn.room || (cur && cur.id), x: p.x, y: p.y, z: p.z, ry: p.ry || 0, rx: p.rx || 0, rz: p.rz || 0 }; }
@@ -1687,7 +1718,6 @@
     if (held && (k === '+' || k === '=' || k === ']')) { held.d = clamp(held.d + 10, 25, 150); return; }
     if (held && (k === '-' || k === '_' || k === '[')) { held.d = clamp(held.d - 10, 25, 150); return; }
     if (k === 'Escape') { if (held) { putBack(); ev.preventDefault(); ev.stopImmediatePropagation(); } else if (glide) { if (cancelGlide(true)) { ev.preventDefault(); ev.stopImmediatePropagation(); } } return; }
-    if ((k === 'g' || k === 'G') && !ev.ctrlKey && !ev.metaKey) { gfxNext(); return; }
     if (k === 'Tab' && !ev.ctrlKey && !ev.altKey) { /* (Tab stays the browser's: the power button must stay reachable) */ }
   }
   function onKeyUp(ev) { const k = KEYMOVE[ev.key]; if (k) keys[k] = false; if (ev.key === 'Shift') keys.run = false; if (!crouchToggle && (ev.key === 'c' || ev.key === 'C')) keys.crouch = false; }
@@ -2130,9 +2160,9 @@
     if (tickThings(dt)) moving = true;
     if (hoverQ && frame % 3 === 0) { hoverQ = false; hover(); }
     frame++;
-    const ambOn = ambient.size && now - lastAmb > (monitor?Math.max(100,1000/graphics.backgroundFps):Q.tier==='potato'?1000/12:50);
+    const ambOn = ambient.size && now - lastAmb > (monitor?Math.max(100,1000/graphics.backgroundFps):50);
     if (!moving && !need && !ambOn) return;
-    const period=1000/(Q.tier==='potato'?30:Q.tier==='high'?120:60);
+    const period=1000/(Q.mob?60:120);
     if(now-lastDraw<period-1){if(moving)need=true;return}
     lastDraw=now;
     let ambientChanged=false;
@@ -2146,8 +2176,7 @@
     if (frame % 6 === 0) ui.map();
   }
   const screenWorld=new T.Vector3(),screenBudgets=new WeakMap();
-  const screenHz={potato:12,low:20,medium:30,high:60},screenEdges={potato:256,low:512,medium:1024,high:2048};
-  function screenRate(background){return background?Math.min(screenHz[Q.tier],graphics.backgroundFps):screenHz[Q.tier]}
+  function screenRate(background){const hz=rung().screenHz;return background?Math.min(hz,graphics.backgroundFps):hz}
   // Reused result per physical screen: visibility and footprint, with no readback.
   function screenBudget(screen,background=false,locked=false){
     if(!screen)return null;
@@ -2168,22 +2197,23 @@
     const x=vw/2+(dx*Math.cos(a)+dz*Math.sin(a))*k,y=vh/2+(dy*Math.cos(rx)-z1*Math.sin(rx))*k;
     b.pixels=diameter;b.visible=diameter>=64&&x+diameter/2>0&&y+diameter/2>0&&x-diameter/2<vw&&y-diameter/2<vh;
     const projected=Math.max(128,diameter*Q.pixelRatio*1.25);
-    b.maxSize=Math.min(screenEdges[Q.tier],Math.pow(2,Math.ceil(Math.log2(projected))));return b;
+    b.maxSize=Math.min(2048,Math.pow(2,Math.ceil(Math.log2(projected))));return b;
   }
   const perfFrames=new Float32Array(120),perfCosts=new Float32Array(120),perfSorted=new Float32Array(120);
   let perfIndex=0,perfCount=0,perfLast=0,perfTotal=0,perfEl=null;
   function recordFrame(now,cost){perfFrames[perfIndex]=perfLast?now-perfLast:0;perfCosts[perfIndex]=cost;perfLast=now;perfIndex=(perfIndex+1)%120;perfCount=Math.min(120,perfCount+1);perfTotal++}
   function framePercentile(values,p){for(let i=0;i<perfCount;i++)perfSorted[i]=values[i];const sorted=perfSorted.subarray(0,perfCount);sorted.sort();return sorted[Math.min(perfCount-1,Math.floor(perfCount*p))]||0}
-  function perfSnapshot(){return{frames:perfTotal,tier:Q.tier,scale:graphics.scale*Q.renderScale,pixels:cv.width*cv.height,calls:ren.info.render.calls,triangles:ren.info.render.triangles,programs:ren.info.programs.length,frameP50:framePercentile(perfFrames,.5),frameP95:framePercentile(perfFrames,.95),renderP50:framePercentile(perfCosts,.5)}}
+  function perfSnapshot(){return{frames:perfTotal,tier:Q.tier,adapt:Q.adapt,adaptMax:ADAPT.length-1,scale:Q.renderScale,pixels:cv.width*cv.height,calls:ren.info.render.calls,triangles:ren.info.render.triangles,programs:ren.info.programs.length,frameP50:framePercentile(perfFrames,.5),frameP95:framePercentile(perfFrames,.95),renderP50:framePercentile(perfCosts,.5)}}
   setInterval(()=>{
     if(!graphics.showFps||!live){if(perfEl)perfEl.hidden=true;return}
     if(!perfEl){perfEl=document.createElement('div');perfEl.className='hs-perf';perfEl.setAttribute('aria-hidden','true');ui.el.appendChild(perfEl)}
     perfEl.hidden=false;const s=perfSnapshot(),idle=performance.now()-perfLast>500;
-    perfEl.textContent=(idle?'IDLE':Math.round(1000/(s.frameP50||1))+' FPS')+' · '+s.frameP50.toFixed(1)+' ms (95% '+s.frameP95.toFixed(1)+')\n'+s.calls+' draws · '+s.triangles+' tris · '+s.programs+' programs\n'+s.tier.toUpperCase()+' · '+Math.round(s.scale*100)+'% · '+cv.width+' × '+cv.height;
+    perfEl.textContent=(idle?'IDLE':Math.round(1000/(s.frameP50||1))+' FPS')+' · '+s.frameP50.toFixed(1)+' ms (95% '+s.frameP95.toFixed(1)+')\n'+s.calls+' draws · '+s.triangles+' tris · '+s.programs+' programs\n'+'RUNG '+s.adapt+' · '+Math.round(s.scale*100)+'% · '+cv.width+' × '+cv.height;
   },500);
-  // Budget only consecutive demanded frames. Ambient animation deliberately
-  // runs at 20 Hz and must not be mistaken for a struggling 20 FPS device.
-  let lastR=0,goodBudget=0;
+  // Invisible adaptation. Only consecutive demanded frames count (ambient animation deliberately runs at 20 Hz and must
+  // not be mistaken for a struggling device). Down a rung after two slow windows (< 40 FPS), at most every 4 s; back up
+  // after 12 s at full pace and never within 20 s of a step down. The level is remembered per device and GPU.
+  let lastR=0,goodBudget=0,slowBudget=0,lastDown=0,lastStep=0;
   function fpsTick(now,continuous){
     const f=Q.f;
     if(!continuous||backgroundCovered()){lastR=0;f.n=0;f.t=0;return}
@@ -2192,40 +2222,30 @@
     if(Q.probe&&now<Q.probe)dirty();else if(Q.probe)Q.probe=0;
     if(f.t<.9)return;
     Q.fps=Math.round(f.n/f.t);f.n=0;f.t=0;
-    if(!graphics.dynamic)return;
-    if(Q.fps<28){
+    if(Q.pinned)return;
+    if(Q.fps<40){
       goodBudget=0;
-      if(Q.auto&&QN.indexOf(Q.tier)>0)setTier(QN[QN.indexOf(Q.tier)-1]);
-      else {const floor=Q.tier==='high'?.75:Q.tier==='low'?.5:.6;if(Q.renderScale>floor){Q.renderScale=Math.max(floor,Q.renderScale-.125);measure()}}
-    }else if(Q.fps>(Q.tier==='potato'?28:52)&&Q.renderScale<1){
-      if(++goodBudget>=5){goodBudget=0;Q.renderScale=Math.min(1,Q.renderScale+.125);measure()}
-    }else goodBudget=0;
+      if(++slowBudget>=2&&Q.adapt<ADAPT.length-1&&now-lastStep>4000){slowBudget=0;lastDown=lastStep=now;adaptTo(Q.adapt+1)}
+    }else if(Q.fps>=55&&Q.adapt>0){
+      slowBudget=0;
+      if(++goodBudget>=12&&now-lastDown>20000&&now-lastStep>4000){goodBudget=0;lastStep=now;adaptTo(Q.adapt-1)}
+    }else{goodBudget=0;slowBudget=0}
   }
-  function setTier(t, refresh) {
-    const previous=Q.tier;
-    Q.tier = t; window.HouseQ = t; K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()),refresh);
-    const rebuilt=ren.getContext().getContextAttributes().antialias!==wantsAntialias();if(rebuilt)rebuildGL();
-    for(let i=0;i<PL.length;i++)PL[i].visible=t!=='potato'&&(t!=='low'||i<3);
-    K.setQuality?.(t,scene);qualityView();
-    // Compile the new light/fog variants now, rather than at the next doorway.
-    try{if(previous!==t||rebuilt){ren.compile(scene,camera);if(t==='potato'){const fog=scene.fog;scene.fog=outdoorFog;ren.compile(scene,camera);scene.fog=fog}}}catch(e){}
-    measure(); visCalc(); emit('gfx', t);
+  function adaptTo(level,o){
+    level=clamp(level|0,0,ADAPT.length-1);o=o||{};
+    if(o.pin!==undefined)Q.pinned=!!o.pin;
+    if(level===Q.adapt&&!o.force)return Q.adapt;
+    Q.adapt=level;Q.f.n=Q.f.t=0;lastR=0;
+    if(!o.pin)ls.set('jhp_hs_adapt',{gpu:Q.gpu,level});
+    compileVariants(level);
+    for(let i=0;i<PL.length;i++)PL[i].visible=i<rung().lamps;
+    qualityView();measure();visCalc();lightsFor();emit('gfx',Q.adapt);
+    // (prepare the next rung's programs while idle, so a later step never hitches)
+    if(level<ADAPT.length-1)(window.requestIdleCallback||setTimeout)(()=>compileVariants(level+1));
+    return Q.adapt;
   }
-  const gfxName = () => graphics.preset==='custom'?'Custom ('+Q.tier+')':(Q.auto ? 'Auto (' + Q.tier[0].toUpperCase() + Q.tier.slice(1) + ')' : Q.tier[0].toUpperCase() + Q.tier.slice(1));
-  function gfxSet(want) { // 'auto' | 'low' | 'medium' | 'high', saved for next time
-    graphics=graphicsDefaults(QN.includes(want)?want:'auto');ls.set('jhp_hs_graphics',graphics);
-    Q.renderScale=1;Q.f.n=0;Q.f.t=0;lastR=0;goodBudget=0;
-    Q.want = want; Q.auto = !QN.includes(want); ls.set('jhp_hs_gfx', want);
-    setTier(Q.auto ? Q.guess : want, true); if (Q.auto) Q.probe = performance.now() + 2000;
-    const lbl = document.getElementById('smGfx'); if (lbl) lbl.lastChild.textContent = 'Room graphics: ' + gfxName();
-  }
-  function graphicsGet(){return{...graphics,tier:Q.tier,actualAntialias:!!ren.getContext().getContextAttributes().antialias,actualScale:graphics.scale*Q.renderScale,pixelRatioActual:Q.pixelRatio}}
-  function graphicsSet(patch){
-    if(patch&&['auto','potato','low','medium','high'].includes(patch.preset)){gfxSet(patch.preset);screenEffort();emit('graphics-options',graphicsGet());return graphicsGet()}
-    graphics=cleanGraphics({...graphics,...patch,preset:'custom'},graphics);Q.auto=false;Q.want=Q.tier;Q.probe=0;Q.renderScale=1;Q.f.n=Q.f.t=0;lastR=0;goodBudget=0;
-    ls.set('jhp_hs_gfx',Q.want);ls.set('jhp_hs_graphics',graphics);setTier(Q.tier,true);screenEffort();emit('graphics-options',graphicsGet());return graphicsGet();
-  }
-  function gfxNext() { const o = ['auto', 'potato', 'low', 'medium', 'high'], i = o.indexOf(Q.auto ? 'auto' : Q.tier); gfxSet(o[(i + 1) % o.length]); ui.toast('Graphics: ' + gfxName(), Q.auto ? 'Picked for this computer (press G to change)' : 'Press G to change'); }
+  function graphicsGet(){return{tier:Q.tier,adapt:Q.adapt,pinned:Q.pinned,showFps:graphics.showFps,actualAntialias:!!ren.getContext().getContextAttributes().antialias,actualScale:Q.renderScale,pixelRatioActual:Q.pixelRatio}}
+  function showFps(on){graphics.showFps=!!on;ls.set('jhp_hs_fps',graphics.showFps);return graphics.showFps}
   // Scratch records survive frames. New records are only made when a model or
   // material first appears (building, pickup highlight or an editor change).
   let anyFront = false,litSerial=0,nodeCount=0,materialCount=0;
@@ -2252,6 +2272,10 @@
       if(drawn&&!window.House?.god&&windowOnly.has(id)){
         drawn=false;const bounds=windowOnly.get(id);for(let i=0;i<bounds.length;i++)if(!bounds[i]||windowFrustum.intersectsBox(bounds[i])){drawn=true;break}
       }
+      if(drawn&&!window.House?.god&&doorOnly.has(id)){
+        drawn=false;const routes=doorOnly.get(id);
+        for(let i=0;i<routes.length&&!drawn;i++){const chain=routes[i];let all=true;for(let j=0;j<chain.length;j++)if(!windowFrustum.intersectsBox(chain[j])){all=false;break}drawn=all}
+      }
       r._renderDrawn=drawn;litRooms.add(r.group);litNode(r.group,r.group.visible&&drawn,id);
     }
     for(const id in DOORS){const d=DOORS[id];litDoor(d.pivot,d);litDoor(d.frame,d)}
@@ -2260,7 +2284,9 @@
     for(const obj of scene.children)if(obj!==root&&!obj.isLight)litNode(obj,obj.visible,owner);
     scene.traverseVisible(litCollect);
     const clear=renderer.autoClear,update=scene.autoUpdate,autoReset=renderer.info.autoReset,background=scene.background;
-    scene.updateMatrixWorld(true);scene.autoUpdate=false;renderer.autoClear=false;renderer.info.autoReset=false;renderer.info.reset();
+    scene.updateMatrixWorld(true);scene.autoUpdate=false;
+    // A merged source that moved, hid or changed dissolves its batch before this frame draws (js/hs-static.js).
+    if(window.HouseStatic&&renderer===ren){for(let i=0;i<litIDs.length;i++)HouseStatic.verify(ROOMS[litIDs[i]].group);for(let i=0;i<staticRoot.length;i++)if(staticRoot[i].visible)HouseStatic.verify(staticRoot[i])}renderer.autoClear=false;renderer.info.autoReset=false;renderer.info.reset();
     renderer.clear(true,true,true);
     for(let i=0;i<litIDs.length;i++){const id=litIDs[i];ROOMS[id]._renderDistance=litDistance(id);litTransparentIDs.push(id)}
     litTransparentIDs.sort(litBackToFront);
@@ -2407,7 +2433,7 @@
     setMode(BOOT === 'forced' || pb.classList.contains('auto') ? 'follow' : 'walk');
     stIdx = nearestStation(); ui.where();
     if (!raf) raf = requestAnimationFrame(loop);
-    if (Q.auto) Q.probe = performance.now() + 2000;
+    Q.probe = performance.now() + 2000;
     if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', '<b>W A S D</b> to walk, mouse to look. Shift to jog, <b>C</b> to crouch, Space to jump. <b>F</b> to use or play, <b>E</b> to pick up/remove/place, <b>F</b> also looks closely at objects; click their controls to use them. Click to place; <b>Esc</b>: game menu, settings and put back. <b>G</b>: graphics.', 9000); }, 1400);
     emit('start');if(BOOT!=='wake'||stood)setTimeout(resumeSeat,0);resumeHeld(); // (it waits until you're standing in the room: a wake-and-stand refresh stands up first)
   }
@@ -2684,12 +2710,11 @@
     const ready = () => { if (!window.Room) return; const tray = document.getElementById('tray'), clk = document.getElementById('clock'); if (tray) tray.insertBefore(standBtn, clk && clk.parentNode === tray ? clk : null); startItems(); standHint(); monitorDesktop(); };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready, {once:true}); else ready();
   });
-  // Start > Stand up (at the top, where you'll see it), and Start > Room graphics
+  // Start > Stand up (at the top, where you'll see it)
   function startItems() {
     const sm = document.getElementById('startMenu'), first = sm && sm.querySelector('button'); if (!first || document.getElementById('smStand')) return;
     const item = (id, svg, text, fn) => { const b = document.createElement('button'); b.id = id; b.setAttribute('role', 'menuitem'); b.innerHTML = svg; b.appendChild(document.createTextNode(text)); b.addEventListener('click', ev => { ev.stopPropagation(); sm.classList.remove('open'); const sb = document.getElementById('startBtn'); if (sb) sb.classList.remove('on'); fn(); }); sm.insertBefore(b, first); return b; };
     item('smStand', standBtn.innerHTML.replace('width="16" height="16"', 'width="32" height="32"'), 'Stand up (the PC stays on)', () => { if (canStand()) standUp(); });
-    item('smGfx', '<svg viewBox="0 0 16 16" width="32" height="32" shape-rendering="crispEdges" aria-hidden="true"><path fill="#000" d="M1 2h14v10H1z"/><path fill="#c0c0c0" d="M2 3h12v8H2z"/><path fill="#008080" d="M3 4h10v6H3z"/><path fill="#ffd84a" d="M4 8h2v1H4zM7 6h2v3H7zM10 5h2v4h-2z"/><path fill="#808080" d="M6 12h4v2H6zM4 14h8v1H4z"/></svg>', 'Room graphics: ' + gfxName(), () => { gfxNext(); });
   }
   // the first time you're sat at the desktop: how to get up
   function standHint() {
@@ -2795,7 +2820,7 @@
     dirty, relight, ambient, anims, visCalc,warmRooms:prewarm, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
     touch: { move: touchSet, look: touchLook, get moving() { return touchMove.on; } },
     desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},
-    Q,graphicsGet,graphicsSet,screenRate,screenBudget, perf:perfSnapshot, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
+    Q,graphicsGet,showFps,adapt:adaptTo,screenRate,screenBudget, perf:perfSnapshot, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
     _: { movementState:()=>({keys:{...keys},velocity:[W.vx,W.vz],contacts:movementContacts(W.x,W.z,RAD+.05),floor:walkingFloor(W.x,W.z)}),doorHeadroom:(x,z,lvl,fy)=>lowDoorAt(x,z,lvl,RAD+18,fy)?.headroom||null, whyNotStand, renderForBenchmark:render, setMode, rebuildGrids, cellOk, floorAt, grids, homography, glassFit, glass, seatPose, followCss, savedPose, finishSit, nearestStation, lightingSnapshot, get stIdx() { return stIdx; }, get glide() { return glide; }, get focusS() { return focusS; } },
   };

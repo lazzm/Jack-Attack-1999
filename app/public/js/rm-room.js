@@ -133,7 +133,7 @@
   function poster(B, x, y, z, w, h, t, ry) {
     const P = B.at(x, y, z, ry || 0);
     P.wshadow(0.6, 1.2, 0.08, w * 1.1, h * 1.08, 0.5);
-    const m = M({ c: '#ffffff', map: t, sh: 4, sp: '#000000' });
+    const m = M({ c: '#ffffff', map: t, sh: 4, sp: '#000000', pr: 1 });
     const lift = 0.25, curlH = h * 0.12;
     // Solid paper backing also closes the tiny join beneath the curled face.
     P.box(0, 0, lift - 0.09, w, h, 0.12, M({ c: '#ddd5bd', sh: 2 }));
@@ -219,7 +219,7 @@
     },
     amb: () => { const ph = skyPhase || 'day'; if (ph === 'day') return {sky: '#dcdcd8', gnd: '#86735c', i: .66 + (LIGHT.main ? .08 : 0)};
       if (LIGHT.main) return {sky: '#dfc9ad', gnd: '#75624e', i: .54};
-      return ph === 'night' ? {sky: '#8896b0', gnd: '#4d4d58', i: .38} : {sky: '#c3a9aa', gnd: '#75614f', i: .52}; },
+      return ph === 'night' ? {sky: '#8896b0', gnd: '#4d4d58', i: .45} : {sky: '#c3a9aa', gnd: '#75614f', i: .52}; },
     sun: () => { const ph = skyPhase || 'day'; return { x: 260, y: -300, z: -420, tx: 0, ty: 73, tz: 60, c: ph === 'night' ? '#a2b6dc' : ph === 'day' ? '#fff2dc' : '#ffcfac', i: ph === 'night' ? .055 : ph === 'day' ? .28 : .16 }; },
     build(r) { buildBedroom(r); },
   });
@@ -463,15 +463,15 @@
     // the cork board, the timetable
     const ck = new T.Group(); ck.position.set(42, -84, BZ + 1); r.group.add(ck); const ckBatch = K.batch(), CK = K.into(ckBatch);
     CK.wshadow(0.8, 1.4, -0.85, 47, 35, 0.5);
-    CK.box(0, 0, 0, 42, 30, 1.6, M({ c: '#ffffff', map: tex('cork') }));
+    CK.box(0, 0, 0, 42, 30, 1.6, M({ c: '#ffffff', map: tex('cork'), pr: 1 }));
     CK.box(0, -15.5, 0.4, 44, 1.6, 2.4, mPine()); CK.box(0, 15.5, 0.4, 44, 1.6, 2.4, mPine()); CK.box(-21.5, 0, 0.4, 1.6, 32, 2.4, mPine()); CK.box(21.5, 0, 0.4, 1.6, 32, 2.4, mPine());
     // Papers have real paper thickness (a card's edge, not a flat sticker), layered a hair apart, pinned through.
-    const paper = (x, y, z, w, h, t, rz) => CK.box(x, y, z, w, h, 0.1, { f: M({ c: '#fff', map: tex(t) }), all: M('#e8e3d4') }, { rz });
+    const paper = (x, y, z, w, h, t, rz) => CK.box(x, y, z, w, h, 0.1, { f: M({ c: '#fff', map: tex(t), pr: 1 }), all: M('#e8e3d4') }, { rz });
     paper(-12, -1, 0.9, 13, 18, 'calendar', -2); paper(4, -6, 1.02, 9, 8, 'note', 5); paper(13, -5, 1.14, 9, 9, 'noteBlue', -4); paper(8, 6, 1.26, 14, 10, 'photo', -3);
     [[-12, -9.5], [4, -9.5], [13, -9], [8, 1.5]].forEach(([x, y], i) => { const pin = M(['#d02a2a', '#2a8a3a', '#e8c020', '#2a5ad0'][i]); CK.cyl(x, y, 1.75, 0.9, 0.75, 0.9, 10, pin, { rx: 90 }); CK.cyl(x, y, 2.35, 0.55, 0.55, 0.5, 10, pin, { rx: 90 }); }); ckBatch.build(ck);
     H.spot('cork', { label: 'Cork board', obj: ck });
     poster(B, -52, -82, BZ, 30, 42, tex('posterShuttle'), 0); pickBox(r, 'postershuttle', -52, -82, BZ + 1, 30, 42, 2); H.SPOTS.postershuttle.label = 'Space Shuttlebus poster';
-    frame(B, 92, -84, BZ + 0.8, 24, 33, 1.4, M({ c: '#fff', map: tex('timetable') }), M('#2a2a2a'));
+    frame(B, 92, -84, BZ + 0.8, 24, 33, 1.4, M({ c: '#fff', map: tex('timetable'), pr: 1 }), M('#2a2a2a'));
     H.spot('timetable', { label: 'School timetable', act: () => say('My timetable', 'Year 11. GCSE year. Double Maths on a Monday morning should be against the law. Tuesday has IT, the best lesson: we get to play Bugsweeper at the end if we\'re quiet.') });
     pickBox(r, 'timetable', 92, -84, BZ + 1, 24, 33, 2);
   }

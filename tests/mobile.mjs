@@ -197,9 +197,9 @@ const phases = {
     try {
       const acct = { name: 'Mob' + Date.now().toString(36).slice(-6), pass: 'Throwaway-1999' };
       await logon(p, acct, { signup: true, first: 'story-01-signup' });
-      const info = await page.evaluate(() => ({ tier: House.Q.guess, touch: GameInput.touch, state: document.documentElement.dataset.touchState, handheld: PCOnly.handheld, jackos: PCOnly.desktopOnly }));
+      const info = await page.evaluate(() => ({ tier: House.Q.tier, pr: House.Q.pixelRatio, dpr: devicePixelRatio, touch: GameInput.touch, state: document.documentElement.dataset.touchState, handheld: PCOnly.handheld, jackos: PCOnly.desktopOnly }));
       assert.equal(info.handheld, true); assert.equal(info.jackos, false, 'Phone must get the house'); assert.equal(info.touch, true);
-      assert.equal(info.tier, 'potato', 'Phones start on the Potato tier');
+      assert.equal(info.tier, 'high', 'Phones get the one (best) look'); assert(info.pr >= Math.min(info.dpr, 1.75) * .85 - 1e-6, 'Phone drawing buffer stays sharp: ' + JSON.stringify(info));
       await until(() => House.mode === 'walk' && document.documentElement.dataset.touchState === 'walk', null, 60000);
       await page.waitForTimeout(2500); await shot('story-02-opening'); await notBlack(p, 'opening');
       await layoutAudit(p, 'story opening portrait');
@@ -349,7 +349,7 @@ const phases = {
       await logon(p, acct);
       await until(() => House.mode === 'monitor' && !House.gliding && window.DesktopSurface?.ready(), null, 60000);
       await page.waitForTimeout(1200); await shot('tablet-01-pc'); await layoutAudit(p, 'tablet pc');
-      assert.equal(await page.evaluate(() => House.Q.guess), 'low', 'Tablets start on Low');
+      assert.equal(await page.evaluate(() => House.Q.tier), 'high', 'Tablets get the one (best) look');
       await press('stand'); await until(() => House.mode === 'walk' && !House.gliding, null, 30000);
       await page.waitForTimeout(1200); await shot('tablet-02-house'); await layoutAudit(p, 'tablet house');
       await page.setViewportSize({ width: 1024, height: 768 }); await page.waitForTimeout(1500); await shot('tablet-03-landscape'); await notBlack(p, 'tablet landscape');
@@ -379,7 +379,7 @@ const phases = {
     }
   },
 
-  // Frame times on the phone tier: Pixel profile, emulated CPU throttling (4x by default), software WebGL.
+  // Frame times on phones (one look, invisible adaptation): Pixel profile, emulated CPU throttling (4x by default), software WebGL.
   async perf() {
     const acct = await register('Perf' + Date.now().toString(36).slice(-6));
     const p = await phone('pixel-412x915'), { page, until, fingers, press } = p;

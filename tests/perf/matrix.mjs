@@ -10,7 +10,8 @@ const root=fileURLToPath(new URL('../../',import.meta.url));
 const opt=Object.fromEntries(process.argv.slice(2).map(a=>{const [k,...v]=a.replace(/^--/,'').split('=');return[k,v.join('=')||true]}));
 const tag=String(opt.tag||'after'),backend=String(opt.backend||'swiftshader');
 assert(/^[\w-]+$/.test(tag));if(opt.app)assert(String(opt.app).startsWith('/tmp/'),'Alternate app must be a disposable /tmp snapshot');assert(['swiftshader','llvmpipe'].includes(backend));
-const tiers=String(opt.tiers||'potato,low,medium,high').split(',');
+// One look (docs/GRAPHICS.md): 'best' is adaptation rung 0 (what every capable device draws), 'floor' the last rung.
+const RUNGS={best:0,floor:5},tiers=String(opt.tiers||'best').split(',');
 const cpuFrames=+(opt.frames||300),fillFrames=+(opt['fill-frames']||30),walkFrames=+(opt['walk-frames']||600);
 const rates=String(opt['cpu-rates']||'1').split(',').map(Number);
 assert([cpuFrames,fillFrames,walkFrames,...rates].every(n=>Number.isFinite(n)&&n>0));
@@ -52,15 +53,16 @@ try{
  console.log(`Stage 0 ${tag} / ${backend}; ${cpuFrames} CPU, ${fillFrames} fill, ${walkFrames} walk frames; CPU rates ${rates}`);
  console.log('tier    view             CPU p50/p95   fill 1x/.5x p50   draws   tris  texMB');
  for(const tier of tiers){
-  assert(['potato','low','medium','high'].includes(tier));
+  assert(tier in RUNGS,'Tiers are best/floor (graphics options were removed)');
   if(opt.resume&&canonical.every(([name])=>results.rows.some(r=>r.tier===tier&&r.view===name&&r.cpu?.[0]?.samples===cpuFrames&&r.fill?.[0]?.samples===fillFrames))&&results.walk.some(w=>w.tier===tier&&w.samples===walkFrames)){console.log(tier+' complete checkpoint retained');continue}
   if(!fixture){
   const account='P0'+tier[0]+Date.now().toString(36),password='Throwaway-1999';
   const reg=await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name:account,pass:password})});assert(reg.ok);
-  fixture=await roomFixture(base,{account,password,signup:false,tier,width:opt['counts-only']?640:1366,height:opt['counts-only']?480:860,storage:{jhp_hs_graphics:{preset:tier,dynamic:false}},debug:!!opt.debug,timeoutScale:4,seed:1999,launchOptions:{args,env:{...process.env,LIBGL_ALWAYS_SOFTWARE:'1',LP_NUM_THREADS:String(opt['mesa-threads']||2)}}});
-  }else await fixture.page.evaluate(tier=>House.gfx(tier),tier);
+  fixture=await roomFixture(base,{account,password,signup:false,tier,width:opt['counts-only']?640:1366,height:opt['counts-only']?480:860,storage:opt['no-msaa']?{}:{jhp_hs_msaa:true},debug:!!opt.debug,timeoutScale:4,seed:1999,launchOptions:{args,env:{...process.env,LIBGL_ALWAYS_SOFTWARE:'1',LP_NUM_THREADS:String(opt['mesa-threads']||2)}}});
+  }
+  await fixture.page.evaluate(level=>House.adapt(level,{pin:true,force:true}),RUNGS[tier]);
   const {page:p,view,errors}=fixture;p.setDefaultTimeout(120000);if(opt['counts-only'])await p.setViewportSize({width:1366,height:860});const cdp=await p.context().newCDPSession(p);
-  await p.evaluate(tier=>{{const a=Math.min(({potato:1,low:1,medium:4,high:8})[tier],House.ren.capabilities.getMaxAnisotropy());const set=t=>{if(!t?.isTexture||t.userData?.jackLive)return;const n=t.magFilter===THREE.NearestFilter?1:a;if(t.anisotropy!==n){t.anisotropy=n;t.needsUpdate=true}};for(const k in House.K.TEX)set(House.K.TEX[k]);House.scene.traverse(o=>{const ms=Array.isArray(o.material)?o.material:o.material?[o.material]:[];for(const m of ms){set(m.map);set(m.emissiveMap)}})}House.ambient.clear();House.hush();for(const d of Object.values(House.DOORS))if(!d.always)House.setDoor(d.id,false,true)},tier);
+  await p.evaluate(tier=>{{const a=Math.min(8,House.ren.capabilities.getMaxAnisotropy());const set=t=>{if(!t?.isTexture||t.userData?.jackLive)return;const n=t.magFilter===THREE.NearestFilter?1:a;if(t.anisotropy!==n){t.anisotropy=n;t.needsUpdate=true}};for(const k in House.K.TEX)set(House.K.TEX[k]);House.scene.traverse(o=>{const ms=Array.isArray(o.material)?o.material:o.material?[o.material]:[];for(const m of ms){set(m.map);set(m.emissiveMap)}})}House.ambient.clear();House.hush();for(const d of Object.values(House.DOORS))if(!d.always)House.setDoor(d.id,false,true)},tier);
   const gpu=await p.evaluate(()=>{const gl=House.ren.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)});
   results.renderer=gpu;assert(new RegExp(backend==='swiftshader'?'SwiftShader':'llvmpipe','i').test(gpu),`Requested ${backend}, actually ${gpu}. Backend unavailable; do not compare it.`);
   // Install instrumentation outside the app. The wrapper measures all room passes

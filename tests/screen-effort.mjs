@@ -5,7 +5,7 @@ const base=new URL(process.argv[2]);base.searchParams.set('allsoft','1');
 const f=await roomFixture(base.href),{page:p,until,errors,browser,view}=f;
 const rows=[];
 try{
- await p.evaluate(()=>{House.ambient.clear();House.graphicsSet({preset:'low'});House.graphicsSet({dynamic:false,scale:.75})});
+ await p.evaluate(()=>{House.ambient.clear();House.adapt(0,{pin:true})});
  await view([-15,-55,105],[0,-17,-12]);await p.evaluate(()=>House._.setMode('walk'));
  await until(()=>document.documentElement.classList.contains('hs-screen-idle'));
  const state=await p.evaluate(async()=>{

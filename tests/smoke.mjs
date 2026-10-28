@@ -162,7 +162,7 @@ const checks=[
  }],
  ['mobile-desktop',90000,async()=>{
    // Device policy (2026-10-26): a phone plays the whole game. It gets the 3D house with touch controls and the phone
-   // tier, sharing the account's saves and PC power state; JackOS on its own is only the player's chosen fallback.
+   // sharp look, sharing the account's saves and PC power state; JackOS on its own is only the player's chosen fallback.
    const {browser,page:desktop}=await room();
    await desktop.evaluate(()=>{
      House.hush();House._.setMode('focus');
@@ -181,8 +181,8 @@ const checks=[
      await page.goto(base,{waitUntil:'domcontentloaded'});await page.locator('#accountGate form').waitFor({timeout:30000*SCALE});
      await page.locator('[name=name]').fill(account);await page.locator('[name=password]').fill(password);await page.locator('#accountGate [type=submit]').tap();
      await wait(page,house,40000);await page.waitForTimeout(1500);await wait(page,house,40000);
-     const state=await page.evaluate(()=>({handheld:PCOnly.handheld,jackos:PCOnly.desktopOnly,touch:GameInput.touch,tier:House.Q.guess,hud:!!document.querySelector('.ht-hud')}));
-     assert.deepEqual(state,{handheld:true,jackos:false,touch:true,tier:'potato',hud:true},'Phone must get the house with touch controls and the phone tier');
+     const state=await page.evaluate(()=>({handheld:PCOnly.handheld,jackos:PCOnly.desktopOnly,touch:GameInput.touch,tier:House.Q.tier,sharp:House.Q.pixelRatio>=Math.min(devicePixelRatio,1.75)*.85-1e-6,hud:!!document.querySelector('.ht-hud')}));
+     assert.deepEqual(state,{handheld:true,jackos:false,touch:true,tier:'high',sharp:true,hud:true},'Phone must get the house with touch controls and the one sharp look');
      // The same account's room on the phone: the beanbag the desktop moved (prop-refresh) is where the desktop left it.
      const moved=await page.evaluate(()=>({...House.THINGS.beanbag.at}));
      for(const key of ['x','z','ry'])assert(Math.abs((moved[key]||0)-(beanbag[key]||0))<.6,`Phone room differs from the desktop save: beanbag ${key}`);

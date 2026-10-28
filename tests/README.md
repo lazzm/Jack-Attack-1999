@@ -68,11 +68,11 @@ the repository. Do not regenerate assets from procedural drawings or silently ov
 
 | Classification | Scripts | When to use |
 | --- | --- | --- |
-| smoke-covered | `smoke.mjs` | Signup/WebGL, WASD/pose refresh, PC/app/Q/F2/T, physical console, phone typing, E placement/refresh, Esc, phone house (touch, phone tier, shared room) + chosen JackOS-only fallback, errors/logs, six art views. |
+| smoke-covered | `smoke.mjs` | Signup/WebGL, WASD/pose refresh, PC/app/Q/F2/T, physical console, phone typing, E placement/refresh, Esc, phone house (touch, sharp one-look buffer, shared room) + chosen JackOS-only fallback, errors/logs, six art views. |
 | still-useful-regression (units) | `audio-routing-unit.cjs`, `bedroom-hifi-unit.cjs`, `family-phone-private-unit.cjs`, `hs-input-unit.cjs`, `magazine-catalogue-unit.cjs`, `mobile-phone-unit.cjs`, `neighbourhood-geometry.cjs`, `parody-audit.cjs`, `pc-game-coordinates-unit.cjs`, `reading-turn-unit.cjs`, `sms-private-unit.cjs`, `starter-unit.cjs`, `wallet-unit.cjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
 | still-useful-regression (accounts/devices/live) | `account-form.mjs`, `accounts-bank.mjs`, `accounts-profile.mjs`, `accounts-sockets.mjs`, `house-model-geometry.mjs`, `live-pc-only.mjs`, `live-readonly.mjs`, `mobile-desktop.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
 | still-useful-regression (room/control/art) | `adaptive-render.mjs`, `ao-geometry.mjs`, `audio-settings.mjs`, `bedroom-hifi.mjs`, `box-art.mjs`, `chair-pc-menu.mjs`, `chair-placement.mjs`, `console-case-play.mjs`, `console-cases.mjs`, `console-switch-hud.mjs`, `controls-media.mjs`, `controls-qt.mjs`, `desk-render-controls.mjs`, `disc-shortcuts.mjs`, `door-editor-state.mjs`, `door-interaction-review.mjs`, `door-seal.mjs`, `doorway-lighting.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
-| still-useful-regression (room/control/art) | `doorway-walk-drop.mjs`, `editor-layout-safety.mjs`, `exterior-art-final.mjs`, `exterior-rebuild.mjs`, `frame-budget.mjs`, `game-ui.mjs`, `golden-movement.mjs`, `graphics-menu-ui.mjs`, `house-lights.mjs`, `house-save-startup.mjs`, `inspect-free-rotation.mjs`, `kart-recording.mjs`, `kart-ui.mjs`, `lawn-completion.mjs`, `lighting.mjs`, `lock-in-handheld.mjs`, `login-seat.mjs`, `lounge-art.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
+| still-useful-regression (room/control/art) | `doorway-walk-drop.mjs`, `editor-layout-safety.mjs`, `exterior-art-final.mjs`, `exterior-rebuild.mjs`, `frame-budget.mjs`, `game-ui.mjs`, `golden-movement.mjs`, `house-lights.mjs`, `house-save-startup.mjs`, `inspect-free-rotation.mjs`, `kart-recording.mjs`, `kart-ui.mjs`, `lawn-completion.mjs`, `lighting.mjs`, `lock-in-handheld.mjs`, `login-seat.mjs`, `lounge-art.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
 | still-useful-regression (room/control/art) | `magazine-covers.mjs`, `magazine-turning.mjs`, `media-touch.mjs`, `menu-catalogue.mjs`, `model-followup.mjs`, `object-audit.mjs`, `pc-access-and-layout.mjs`, `pc-console-controls.mjs`, `pc-game-monitor-input.mjs`, `pc-lock-in-fill.mjs`, `pc-surface-budget.mjs`, `pc-view-performance.mjs`, `physical-phone-use.mjs`, `posters-v3.mjs`, `print-light-marker.mjs`, `printed-art.mjs`, `prop-interaction-models.mjs`, `prop-placement-final.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
 | still-useful-regression (room/control/art) | `reading-cd-shelf.mjs`, `reading-motion-recording.mjs`, `reading-pages.mjs`, `reading-phone.mjs`, `release-room-pc.mjs`, `render-perf.mjs`, `review-models.mjs`, `room-props-closeups.mjs`, `room-props-controls.mjs`, `room-props-seats.mjs`, `room-render-lifecycle.mjs`, `room-render-soak.mjs`, `screen-effort.mjs`, `seated-pc-transition.mjs`, `shelf-print-polish.mjs`, `sms-private-browser.mjs`, `stand-crouch.mjs`, `starter-account.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
 | still-useful-regression (room/control/art) | `surface-audit.mjs`, `unified-interaction.mjs`, `vhs-physical.mjs`, `window-artifacts.mjs`, `window-views.mjs` | Run selectively for the changed area; read the script’s arguments first. Live scripts are read-only post-deploy checks only. |
@@ -154,7 +154,7 @@ Current device-policy and room-layout regression (disposable localhost data only
     node pc-console-controls.mjs http://localhost:18080
 
 Device policy (owner, 2026-10-26): phones and tablets play the whole game, 3D house included (js/hs-touch.js thumb
-controls, Potato tier on phones, Low on tablets). JackOS on its own (mobile-desktop.mjs) is now only the fallback a
+controls, the same one sharp look as desktop, adapted invisibly; docs/GRAPHICS.md). JackOS on its own (mobile-desktop.mjs) is now only the fallback a
 player chooses (game menu, or the too-slow offer) or a handheld without WebGL; those older scripts still describe it.
 
 Phones and tablets (starts and stops its own server, or pass a localhost URL; one browser at a time):
@@ -323,7 +323,6 @@ PC screen-performance and current-input checks (authenticated disposable localho
     node hs-input-unit.cjs
     node mobile-phone-unit.cjs
     node reading-turn-unit.cjs
-    node graphics-menu-ui.mjs http://localhost:18080
     node physical-phone-use.mjs http://localhost:18080
     node reading-cd-shelf.mjs http://localhost:18080
     node inspect-free-rotation.mjs http://localhost:18080
@@ -376,11 +375,13 @@ play/background refresh, old full-room migration and phone JackOS-only entry.
 Captures are under `shots/shop-sparse/`. Stop only the server PID listening on the
 chosen test port. These tests never deploy or read production data.
 
-Stage 0 graphics/performance matrix (owns its throwaway server):
+Graphics/performance matrix and the one-look checks (each owns its throwaway server). There are no graphics
+options: `--tiers=best` (default) is adaptation rung 0, what every capable device draws; `floor` is the last rung.
 
     node tests/perf/matrix.mjs --tag=after
+    node tests/perf/matrix.mjs --tag=quick --counts-only          # draws/triangles/programs/textures per view and room + PNGs
     node tests/perf/compare.mjs docs/perf-stage0-before-swiftshader.json docs/perf-stage0-after-swiftshader.json
-    node tests/perf/check.mjs
+    node tests/perf/check.mjs   # options removed + migrated, sharp buffers, full textures, merge self-healing, idle/pacing
 
 Run from the repository root. See [perf/README.md](perf/README.md) for backend,
 CPU-throttle, sample-count and per-room gate options. Images are under

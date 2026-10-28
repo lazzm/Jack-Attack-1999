@@ -443,7 +443,7 @@
     const geo = new T.PlaneGeometry(w, h, 6, 10); const p = geo.attributes.position, uv = geo.attributes.uv;
     for (let i = 0; i < p.count; i++) { const px = p.getX(i), py = p.getY(i); p.setZ(i, (py > h * 0.25 ? Math.pow((py - h * 0.25) / h, 2) * 4 : 0) + Math.pow(px / w, 2) * 0.6 + 0.3); uv.setY(i, 1 - uv.getY(i)); }
     geo.computeVertexNormals();
-    const sheet = new T.Mesh(geo, M({ c: '#fff', map: listTex, side: 2, sh: 6 })); grp.add(sheet);
+    const sheet = new T.Mesh(geo, M({ c: '#fff', map: listTex, side: 2, sh: 6, pr: 1 })); grp.add(sheet);
     const G = K.into(grp);
     G.wshadow(0.6, 1.2, 0.05, w * 1.08, h * 1.04, 0.45);
     if (o.magnet) { G.cyl(0, -h / 2 + 1.5, 1.4, 2.2, 2.2, 1.6, 18, M({ c: o.magnet, sh: 60, sp: '#888' }), { rx: 90 }); G.ball(-0.8, -h / 2 + 0.9, 2.3, 0.7, 0.5, 0.3, M({ c: '#fff', o: 0.6 }), 8); }

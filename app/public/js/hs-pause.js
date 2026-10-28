@@ -17,7 +17,6 @@
  <label data-input-only="keyboard"><input type="checkbox" name="crouchToggle"> Toggle crouch [C]<small>Off: hold C. On: press C to crouch or stand.</small></label>
  <label><input type="checkbox" name="reduceMotion"> Reduce motion<small>Shorter, gentler camera moves into screens and close-ups; no lens change or handheld tilt.</small></label>
  <label>Guidance <select name="guidance"><option value="full">Full</option><option value="light">Light</option><option value="off">Off</option></select></label>
- <button type="button" data-pause="graphics" aria-controls="hsGraphicsMenu" aria-expanded="false">GRAPHICS OPTIONS <span class="hs-graphics-summary"></span></button>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
  <button type="button" data-pause="owner" hidden>OWNER TOOLS <kbd>&#96;</kbd></button>
  <fieldset><legend>JACKNET ACCOUNT</legend><button type="button" data-pause="logout">LOG OUT</button><div class="hs-logout-confirm" hidden><p>Save your room and settings, then return to Log On? Your account is kept.</p><button type="button" data-pause="confirmLogout">SAVE AND LOG OUT</button><button type="button" data-pause="cancelLogout">CANCEL</button></div></fieldset>
@@ -26,10 +25,6 @@
  <p class="hs-pause-status" role="status">Movement is stopped. Online programs and the TV keep running.</p></div>`;
  document.documentElement.appendChild(el);
  const guidance=el.querySelector('[name=guidance]');guidance.value=localStorage.getItem('jhp_story_guidance')||'full';guidance.addEventListener('change',()=>window.StoryGuide?.setting(guidance.value));
- const main=el.querySelector('.hs-pause-main');let graphicsOpen=false;
- const graphicsMenu=window.HouseGraphicsMenu?.mount(el,{back:()=>graphicsBack(),resume:closeMenu});
- function graphicsBack(focus=true){graphicsOpen=false;graphicsMenu?.hide();main.hidden=false;el.querySelector('h1').textContent='PAUSE MENU';button('graphics').setAttribute('aria-expanded','false');syncSettings();el.scrollTop=0;if(focus&&el.open){button('graphics').focus({preventScroll:true});button('graphics').scrollIntoView({block:'nearest',inline:'nearest'});}}
- function openGraphics(){if(!graphicsMenu||!H.graphicsGet||!H.graphicsSet)return;graphicsOpen=true;main.hidden=true;button('graphics').setAttribute('aria-expanded','true');el.querySelector('h1').textContent='GRAPHICS';el.scrollTop=0;graphicsMenu.show();}
  const stamp=new URL(document.querySelector('script[src*="js/hs-pause.js"]')?.src||location.href).searchParams.get('v')||'',release=stamp.includes('-')?stamp.match(/^\d+\.\d+\.\d+/)?.[0]:null;
  const version=document.createElement('small');version.className='hs-pause-version';version.style.cssText='display:block;text-align:right;padding:0 16px 12px;color:#b8aa84;font:11px monospace';el.appendChild(version);
  function showVersion(v){const current=release||v||window.Net?.me.version;version.textContent=current?'VERSION '+current:'DEVELOPMENT BUILD'}showVersion();window.Net?.on('welcome',m=>showVersion(m.v));
@@ -58,10 +53,10 @@
  function quickBack(){if(H.paused||!canBack())return false;if(H.mode==='inspect')H.endInspect();else if(window.RoomTV?.open_)RoomTV.close();else if(H.focused)H.unfocus();else H.standUp();return true;}
  function syncAudio(){el.querySelector('[name=music]').checked=!!window.Sound?.musicOn;el.querySelector('[name=effects]').checked=!!window.Sound?.effectsOn;const volume=Math.round((window.Sound?.volume??1)*100);el.querySelector('[name=volume]').value=volume;el.querySelector('.hs-audio-volume output').textContent=volume+'%'}
  document.addEventListener('audiochange',syncAudio);
- function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;const graphics=button('graphics');graphics.disabled=!graphicsMenu||!H.graphicsGet||!H.graphicsSet;const preset=H.graphicsGet?.().preset;graphics.querySelector('span').textContent=window.HouseGraphicsMenu?.names[preset]||'';el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. '+(window.GameInput?.touch?'Click LOCK IN again':'Press T again')+' to return. JackOS fills the window; console and handheld screens keep their original proportions.':'Use a PC, console, Game Lad or family TV, then '+(window.GameInput?.touch?'click LOCK IN':'press T to LOCK IN')+'.';}
+ function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. '+(window.GameInput?.touch?'Click LOCK IN again':'Press T again')+' to return. JackOS fills the window; console and handheld screens keep their original proportions.':'Use a PC, console, Game Lad or family TV, then '+(window.GameInput?.touch?'click LOCK IN':'press T to LOCK IN')+'.';}
  function openMenu(){
   if(el.open||window.stDiary?.picking||!H.live||window.House?.god||window.OwnerTools?.active||window.AccountGate&&!AccountGate.allowed)return false;
-  previous=el.contains(document.activeElement)?null:document.activeElement;graphicsBack(false);el.querySelector('[name=crouchToggle]').checked=H.crouchSetting();if(H.motion)el.querySelector('[name=reduceMotion]').checked=H.motion.reduce;
+  previous=el.contains(document.activeElement)?null:document.activeElement;el.querySelector('[name=crouchToggle]').checked=H.crouchSetting();if(H.motion)el.querySelector('[name=reduceMotion]').checked=H.motion.reduce;
   button('owner').hidden=!window.OwnerTools?.allowed;el.querySelector('.hs-owner-key').hidden=!window.OwnerTools?.allowed;
   el.querySelector('.hs-test-reset').hidden=!(window.Net?.me.member&&Net.me.nick.toLowerCase()==='test'&&localStorage.getItem('jhp_starter')==='1');el.querySelector('.hs-test-confirm').hidden=true;
   el.querySelector('.hs-logout-confirm').hidden=true;
@@ -69,13 +64,12 @@
   el.querySelector('.hs-pause-status').textContent=window.RoomTV?.open_?'This console game is paused. Audio keeps playing so you can adjust it. Online programs keep running.':'Movement is stopped. Online programs and the TV keep running.';
   button('return').hidden=!H.held();H.pauseControls(true);document.documentElement.classList.add('hs-paused');el.showModal();button('resume').focus();return true;
  }
- function closeMenu(){if(!el.open||loggingOut)return;el.close();graphicsBack(false);document.documentElement.classList.remove('hs-paused');if(previous?.isConnected&&!el.contains(previous)&&previous.getClientRects().length)previous.focus({preventScroll:true});if(el.contains(document.activeElement))document.activeElement.blur();H.pauseControls(false);H.resumeLook?.();}
- function handleEscape(ev){if(window.stDiary?.handleKey?.(ev))return true;if(ev.key!=='Escape')return false;if(!el.open&&!H.live)return false;ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat){if(el.open){if(graphicsOpen)graphicsBack();else closeMenu()}else openMenu()}return true;}
- el.addEventListener('cancel',ev=>{ev.preventDefault();if(graphicsOpen)graphicsBack();else closeMenu()});
+ function closeMenu(){if(!el.open||loggingOut)return;el.close();document.documentElement.classList.remove('hs-paused');if(previous?.isConnected&&!el.contains(previous)&&previous.getClientRects().length)previous.focus({preventScroll:true});if(el.contains(document.activeElement))document.activeElement.blur();H.pauseControls(false);H.resumeLook?.();}
+ function handleEscape(ev){if(window.stDiary?.handleKey?.(ev))return true;if(ev.key!=='Escape')return false;if(!el.open&&!H.live)return false;ev.preventDefault();ev.stopImmediatePropagation();if(!ev.repeat){if(el.open)closeMenu();else openMenu()}return true;}
+ el.addEventListener('cancel',ev=>{ev.preventDefault();closeMenu()});
  el.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-pause]');if(!b)return;
   if(b.dataset.pause==='owner'){closeMenu();window.OwnerTools?.open();}
-  else if(b.dataset.pause==='graphics')openGraphics();
   else if(b.dataset.pause==='logout'){el.querySelector('.hs-logout-confirm').hidden=false;button('cancelLogout').focus();}
   else if(b.dataset.pause==='cancelLogout'){el.querySelector('.hs-logout-confirm').hidden=true;button('logout').focus();}
   else if(b.dataset.pause==='confirmLogout')logout();
@@ -111,5 +105,5 @@
   // delivering a keydown. Opening the menu here handles that path as well.
   if(was&&!now&&!el.open&&(H.mode==='walk'||H.mode==='focus'&&H._.focusS?.o.seatId)&&!document.hidden&&document.hasFocus())openMenu();
  });
- window.HousePause={show:openMenu,close:closeMenu,handleEscape,quickBack,get canBack(){return canBack()},get open(){return el.open},get page(){return graphicsOpen?'graphics':'main'}};
+ window.HousePause={show:openMenu,close:closeMenu,handleEscape,quickBack,get canBack(){return canBack()},get open(){return el.open},get page(){return'main'}};
 })();
