@@ -206,3 +206,4 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R93 | bug | high | Jack 2026-10-27 18:39 (phone, Out the front) | The side (gable end) wall of our house over the drive is missing: roof eaves with no wall under, street visible through it | House round 2, first fix |
 | R94 | bug | high | Jack 2026-10-27 18:41 (phone, Game Lad) | Game Lad on-model buttons do nothing on a phone ("Press the Game Lad's own buttons" but taps fail) | Mobile agent round 2 |
 | R95 | ux | high | same | Phone controls need to be more intuitive: walking, looking around, tapping things to interact | Mobile agent round 2 |
+| R96 | test | med | agents 2026-10-27 | story-ch1.mjs flaky under load: phone page.goto 30 s timeout and the timing-based "CRT did not slow actual walking" check | Make both load-robust (longer nav timeout scaled by STORY_SCALE; compare speeds via simulated movement, not wall-clock) |
