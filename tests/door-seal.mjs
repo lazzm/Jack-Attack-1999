@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {roomFixture} from './room-fixture.mjs';
 
 const base=process.argv[2]||'http://localhost:18464',baseline=process.argv.includes('--baseline'),controlsOnly=process.argv.includes('--controls-only');
-assert.equal(new URL(base).port,'18464','Use the existing throwaway server on 18464');
+assert(['localhost','127.0.0.1'].includes(new URL(base).hostname),'Disposable local server only');
 const tag=baseline?'before':'after';
 const {browser,page:p,errors,until,view}=await roomFixture(base);
 const sides=[['bedroom',[0,-55,100],[243,-32,190]],['landing',[300,-55,480],[243,-32,190]]];
@@ -21,15 +21,15 @@ try{
   const result=await seal();console.log('SEAL',side,result);
   if(!baseline)assert(result.every(r=>r.sealed),`${side}: open ray through closed perimeter`);
  }
- for(const tier of (controlsOnly||process.argv.includes('--doors-only')?[]:['low','high'])){
-  await p.evaluate(t=>House.gfx(t),tier);
+ for(const tier of (controlsOnly||process.argv.includes('--doors-only')?[]:[5,0])){
+  await p.evaluate(t=>House.adapt(t,{pin:true,force:true}),tier);
   for(const [name,eye]of [['front',[-52,-45,70]],['rear',[-89,-41,-51]],['left',[-145,-45,-30]],['right',[-9,-36,-30]],['above',[-52,-120,-20]],['below',[-52,-12,40]]]){
    await view(eye,[-52,-35,-30]);await shot(`lamp-${tier}-${name}`);
    assert(await p.evaluate(()=>{const o=House.SPOTS.lamp.obj.getObjectByName('lamp-shell');return o.visible&&o.geometry.index.count>0&&o.material.every(m=>m.visible)}),'Lamp shell missing');
   }
  }
  if(!baseline){
-  await p.evaluate(()=>House.gfx('low'));
+  await p.evaluate(()=>House.adapt(0,{pin:true,force:true}));
   for(const width of (controlsOnly?[]:[1366,390])){
    await p.setViewportSize({width,height:width===390?844:860});
    for(const [side,eye,target]of sides){

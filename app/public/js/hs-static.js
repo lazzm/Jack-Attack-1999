@@ -25,6 +25,8 @@
   // the colour moves into a vertex attribute. This is the big saving (rooms are hundreds of distinct paint colours).
   const MAPS = ['map', 'emissiveMap', 'alphaMap', 'lightMap', 'aoMap', 'normalMap', 'bumpMap', 'specularMap', 'envMap', 'displacementMap'];
   const CLASSES = new Map();
+  const MATERIAL_FIELDS = ['side','flatShading','shininess','depthWrite','depthTest','depthFunc','colorWrite','polygonOffset','polygonOffsetFactor','polygonOffsetUnits','alphaTest','fog','toneMapped','wireframe','vertexColors','lightMapIntensity','aoMapIntensity','bumpScale','displacementScale','displacementBias','normalMapType','reflectivity','refractionRatio'];
+  const materialKey = m => MATERIAL_FIELDS.map(k => m[k]).join(',') + '|' + hex(m.specular) + '|' + (m.normalScale ? m.normalScale.x + ',' + m.normalScale.y : '') + '|' + (m.clippingPlanes ? m.clippingPlanes.map(p => p.normal.toArray().join(',') + ',' + p.constant).join(';') : '');
   const hex = c => c ? c.getHex() : -1;
   // Textured materials join a class too when they share the same texture objects (spot/grab clones of one material,
   // the same print in two colours); printed art keeps its own material (its fill changes per room pass).
@@ -32,7 +34,7 @@
     if (!(m.isMeshPhongMaterial || m.isMeshLambertMaterial || m.isMeshBasicMaterial) || m.vertexColors || m.opacity !== 1 || m.wireframe || m.userData.print || (m.clippingPlanes && m.clippingPlanes.length)) return null;
     let maps = '';
     for (const k of MAPS) if (m[k]) { if (k === 'envMap' || !m[k].isTexture) return null; maps += k + m[k].id + ','; }
-    return [maps, m.type, m.side, m.flatShading ? 1 : 0, m.shininess, hex(m.specular), hex(m.emissive), m.emissiveIntensity, m.depthWrite ? 1 : 0, m.depthTest ? 1 : 0,
+    return [materialKey(m), maps, m.type, m.side, m.flatShading ? 1 : 0, m.shininess, hex(m.specular), hex(m.emissive), m.emissiveIntensity, m.depthWrite ? 1 : 0, m.depthTest ? 1 : 0,
       m.polygonOffset ? m.polygonOffsetFactor + ',' + m.polygonOffsetUnits : 0, m.alphaTest, m.fog ? 1 : 0, m.colorWrite ? 1 : 0, m.toneMapped ? 1 : 0, m.customProgramCacheKey ? m.customProgramCacheKey() : ''].join('|');
   }
   function classMaterial(key, m) {
@@ -40,8 +42,8 @@
     if (!c) { c = m.clone(); c.vertexColors = true; c.color.setRGB(1, 1, 1); c.userData = { staticClass: key }; c.needsUpdate = true; CLASSES.set(key, c); }
     return c;
   }
-  function matState(m) { const s = { m, color: hex(m.color), emissive: hex(m.emissive), ei: m.emissiveIntensity, visible: m.visible, opacity: m.opacity, transparent: m.transparent, maps: [] }; for (const k of MAPS) s.maps.push(m[k] || null); return s; }
-  function matChanged(t) { const m = t.m; if (hex(m.color) !== t.color || hex(m.emissive) !== t.emissive || m.emissiveIntensity !== t.ei || m.visible !== t.visible || m.opacity !== t.opacity || m.transparent !== t.transparent) return true; for (let i = 0; i < MAPS.length; i++) if ((m[MAPS[i]] || null) !== t.maps[i]) return true; return false; }
+  function matState(m) { const s = { m, version:m.version, fields:MATERIAL_FIELDS.map(k=>m[k]), specular:hex(m.specular), nx:m.normalScale?.x, ny:m.normalScale?.y, color: hex(m.color), emissive: hex(m.emissive), ei: m.emissiveIntensity, visible: m.visible, opacity: m.opacity, transparent: m.transparent, maps: [] }; for (const k of MAPS) s.maps.push(m[k] || null); return s; }
+  function matChanged(t) { const m = t.m; if(m.version!==t.version)return true; for(let i=0;i<MATERIAL_FIELDS.length;i++)if(m[MATERIAL_FIELDS[i]]!==t.fields[i])return true; if (hex(m.specular)!==t.specular || m.normalScale?.x!==t.nx || m.normalScale?.y!==t.ny || hex(m.color) !== t.color || hex(m.emissive) !== t.emissive || m.emissiveIntensity !== t.ei || m.visible !== t.visible || m.opacity !== t.opacity || m.transparent !== t.transparent) return true; for (let i = 0; i < MAPS.length; i++) if ((m[MAPS[i]] || null) !== t.maps[i]) return true; return false; }
   function signature(g) {
     if (!g || !g.isBufferGeometry || !g.attributes.position || !g.attributes.normal) return null;
     for (const k in g.morphAttributes) if (g.morphAttributes[k].length) return null;
@@ -60,9 +62,17 @@
     return o.isMesh && !o.isInstancedMesh && !o.isSkinnedMesh && o.visible && o.layers.mask === 1 && o.frustumCulled &&
       o.onBeforeRender === plainBeforeRender && !merged.has(o) && !unstable.has(o) && !o.userData.staticBatch;
   }
+  function geometryState(g) { return { attrs: Object.entries(g.attributes).map(([name,a]) => ({name,a,version:a.version})), index:g.index, indexVersion:g.index?.version, start:g.drawRange.start, count:g.drawRange.count, groups:g.groups.map(p=>({...p})) }; }
+  function geometryChanged(g,s) {
+    if (g.index !== s.index || g.index?.version !== s.indexVersion || g.drawRange.start !== s.start || g.drawRange.count !== s.count || g.groups.length !== s.groups.length) return true;
+    for(let i=0;i<g.groups.length;i++){const a=g.groups[i],b=s.groups[i];if(a.start!==b.start||a.count!==b.count||a.materialIndex!==b.materialIndex)return true;}
+    let n=0;for(const k in g.attributes)n++;if(n!==s.attrs.length)return true;
+    for (const t of s.attrs) if (g.attributes[t.name] !== t.a || t.a.version !== t.version) return true;
+    return false;
+  }
   function snapshot(o, group) {
     const chain = []; for (let p = o.parent; p && p !== group; p = p.parent) chain.push(p);
-    return { o, mask: o.layers.mask, mat: o.material, geo: o.geometry, ver: o.geometry.attributes.position.version, mw: Float64Array.from(o.matrixWorld.elements), chain, parents: chain.map(p => p.parent) };
+    return { o, mask: o.layers.mask, mat: o.material, materials:Array.isArray(o.material)?o.material.slice():null, materialVisibility:[].concat(o.material).map(m=>m?.visible), geo: o.geometry, geometryState:geometryState(o.geometry), renderOrder:o.renderOrder, frustumCulled:o.frustumCulled, mw: Float64Array.from(o.matrixWorld.elements), chain, parents: chain.map(p => p.parent) };
   }
 
   let mergeMs = 0;
@@ -182,7 +192,8 @@
 
   function changed(s, group) {
     const o = s.o;
-    if (s.dead || o.layers.mask !== HIDDEN_MASK || o.material !== s.mat || o.geometry !== s.geo || o.geometry.attributes.position.version !== s.ver || !o.visible) return true;
+    if (s.dead || o.layers.mask !== HIDDEN_MASK || o.material !== s.mat || o.geometry !== s.geo || geometryChanged(o.geometry,s.geometryState) || o.renderOrder !== s.renderOrder || o.frustumCulled !== s.frustumCulled || !o.visible) return true;
+    if(s.materials){if(o.material.length!==s.materials.length)return true;for(let i=0;i<s.materials.length;i++)if(o.material[i]!==s.materials[i]||o.material[i]?.visible!==s.materialVisibility[i])return true;}
     const chain = s.chain;
     if (o.parent !== (chain.length ? chain[0] : group)) return true;
     for (let i = 0; i < chain.length; i++) { const p = chain[i]; if (!p.visible || p.parent !== s.parents[i]) return true; }
@@ -193,7 +204,7 @@
   const REASONS = {};
   function reason(s, group) {
     const o = s.o;
-    if (o.layers.mask !== HIDDEN_MASK) return 'layers'; if (o.material !== s.mat) return 'material'; if (o.geometry !== s.geo || o.geometry.attributes.position.version !== s.ver) return 'geometry';
+    if (o.layers.mask !== HIDDEN_MASK) return 'layers'; if (o.material !== s.mat) return 'material'; if (o.geometry !== s.geo || geometryChanged(o.geometry,s.geometryState)) return 'geometry';
     if (!o.visible) return 'hidden'; if (o.parent !== (s.chain.length ? s.chain[0] : group)) return 'reparented';
     for (let i = 0; i < s.chain.length; i++) { if (!s.chain[i].visible) return 'parent-hidden'; if (s.chain[i].parent !== s.parents[i]) return 'reparented'; }
     return 'moved';
