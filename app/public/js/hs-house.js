@@ -1203,7 +1203,17 @@
     // pavement (the far kerb is as far as we go today).
     H.walkRect('G', 124, 704, 716, FZ + 70, { room: 'drive' }); H.walkRect('G', -340, 704, 124, FZ - 52, { room: 'drive' }); H.walkRect('G', -340, FZ - 20, 124, FZ + 70, { room: 'drive' }); H.walkRect('G', 262, 660, 338, 710, { door: 'front', room: 'drive' });
     H.block('G',-300,694,260,708);H.block('G',340,694,420,708); // no walking through front windows
-    H.block('G', frame.x - 91 * frame.s, frame.z - 205 * frame.s, frame.x + 91 * frame.s, frame.z + 205 * frame.s); // Dad's car (both sides stay walkable)
+    H.block('G', frame.x - 91 * frame.s, frame.z - 205 * frame.s, frame.x + 91 * frame.s, frame.z + 205 * frame.s, H.solid ? { solid: false } : undefined); // Dad's car (both sides stay walkable)
+    // Things: the car is solid around a hollow boot. With the lid up you can put things in on Dad's rug (the story's PC parts
+    // ride there); a shut lid closes it. (The car used to be one solid block up to the roof: nothing could go in the boot.)
+    if (H.solid) {
+      const cs = frame.s, X = lx => frame.x + lx * cs, Z = lz => frame.z + lz * cs, kind = 'car';
+      H.solid('G', X(-91), Z(-121), X(91), Z(205), GY - 133.5 * cs, GY + 1, { kind }); // bonnet, cabin, roof
+      H.solid('G', X(-91), Z(-205), X(91), Z(-121), GY - 23 * cs, GY + 1, { kind }); // the boot floor and what's under it
+      H.solid('G', X(-91), Z(-205), X(91), Z(-197), GY - 73 * cs, GY - 23 * cs, { kind, support: false }); // the rear valance
+      for (const sx of [-1, 1]) H.solid('G', X(sx < 0 ? -91 : 78.5), Z(-205), X(sx < 0 ? -78.5 : 91), Z(-121), GY - 75 * cs, GY - 23 * cs, { kind, support: false }); // the wheel-arch sides
+      H.solid('G', X(-79), Z(-197), X(79), Z(-121), GY - 79 * cs, GY - 23 * cs, { kind, support: false, when: () => !r.carBoot.open }); // the shut lid
+    }
     H.block('G', -360, FZ - 52, 224, FZ + 5); H.block('G', 644, FZ - 15, 740, FZ + 5); // the front wall, with the hedge behind it
     for (const x of FRONT_PIERS) H.block('G', x - 12, FZ - 17, x + 12, FZ + 7);
     H.block('G', FRONT_PIERS[1] - 12, FZ - 100, FRONT_PIERS[1] - 6, FZ - 17); // the open gate leaf

@@ -134,7 +134,46 @@ async function aimAt(p, eye, target, level = 'U') {
     Object.assign(House.P, { x, y, z, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI });
     House._.setMode('walk'); House.dirty();
   }, { eye, target, level });
-  await sleep(700);
+  await sleep(400);
+  // the walking body may settle a few cm (furniture, walls): aim again from where the eye really ended up
+  await p.page.evaluate(target => { const P = House.P, [tx, ty, tz] = target; P.rx = Math.atan2(-(ty - P.y), Math.hypot(tx - P.x, tz - P.z)) * 180 / Math.PI; P.ry = Math.atan2(tx - P.x, -(tz - P.z)) * 180 / Math.PI; House.dirty(); }, target);
+  await sleep(400);
+}
+// Where a thing is on screen: its world centre through the live camera into the WebGL canvas rectangle.
+async function screenOf(p, id) {
+  return p.page.evaluate(id => {
+    const H = House, s = H.SPOTS[id], o = (s && (s.obj || H.THINGS[id]?.obj)) || H.THINGS[id]?.obj; if (!o) return null;
+    const b = new H.T.Box3().setFromObject(o), v = b.getCenter(new H.T.Vector3()); v.project(H.camera);
+    const r = H.ren.domElement.getBoundingClientRect(); return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height, z: v.z };
+  }, id);
+}
+// The world centre of a thing (house coordinates, y down), for pointing the camera at it.
+async function centreOf(p, id) { return p.page.evaluate(id => { const H = House, o = H.THINGS[id]?.obj || H.SPOTS[id]?.obj; const v = new H.T.Box3().setFromObject(o).getCenter(new H.T.Vector3()); return [v.x, -v.y, v.z]; }, id); }
+// Point the crosshair squarely onto a thing: aim at its centre, find where the room's own picking sees it, aim there.
+async function aimOnto(p, eye, id, level = 'U') {
+  await aimAt(p, eye, await centreOf(p, id), level);
+  const hit = await p.page.evaluate(id => { const cx = innerWidth / 2, cy = innerHeight / 2; for (let r = 0; r <= 160; r += 4) for (let i = 0; i < (r ? 24 : 1); i++) { const h = House.pick(cx + Math.cos(i * Math.PI / 12) * r, cy + Math.sin(i * Math.PI / 12) * r); if (h?.spot === id) return [h.p.x, h.p.y, h.p.z]; } return null; }, id);
+  if (process.env.MOB_DEBUG) console.log('aimOnto', id, JSON.stringify({ eye, c: await centreOf(p, id), hit, P: await p.page.evaluate(() => ({ ...House.P, mode: House.mode })) }));
+  if (hit) await aimAt(p, eye, hit, level);
+  else console.log('aimOnto miss', id, JSON.stringify(await p.page.evaluate(id => { const at = (() => { const H = House, o = H.THINGS[id]?.obj; const v = new H.T.Box3().setFromObject(o).getCenter(new H.T.Vector3()); v.project(H.camera); return { x: (v.x + 1) / 2 * innerWidth, y: (1 - v.y) / 2 * innerHeight }; })(); const h = House.pick(at.x, at.y); return { at, spot: h?.spot, st: House.THINGS[id].st, busy: House.busy, mode: House.mode }; }, id)));
+  return !!hit;
+}
+// Stand somewhere walkable about 60-110 cm from a thing and put the crosshair on it (the room's own picking agrees).
+async function standAndAim(p, id) {
+  const c = await centreOf(p, id);
+  const spots = await p.page.evaluate(c => { const out = []; for (const d of [75, 95, 60, 115]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (House._.cellOk('U', x, z)) out.push([x, -55, z]); } return out; }, c);
+  for (const e of spots) if (await aimOnto(p, e, id) && await p.page.evaluate(id => House.pick(innerWidth / 2, innerHeight / 2)?.spot === id, id)) return true;
+  return false;
+}
+// A real finger press on a thing in the room: the label above the thumb names the action before letting go.
+async function clickThing(p, id, shotName) {
+  let at = await screenOf(p, id); assert(at && at.z < 1, 'Not on screen: ' + id);
+  // the nearest screen point where the room's own picking finds this thing (it may be half behind a shelf edge)
+  at = await p.page.evaluate(({ id, at }) => { for (let r = 0; r <= 120; r += 4) for (let i = 0; i < (r ? 24 : 1); i++) { const x = at.x + Math.cos(i * Math.PI / 12) * r, y = at.y + Math.sin(i * Math.PI / 12) * r; if (House.pick(x, y)?.spot === id) return { x, y }; } return at; }, { id, at });
+  await p.fingers.down(7, at.x, at.y); await sleep(250);
+  const label = await p.page.evaluate(() => { const m = document.querySelector('.ht-tapmark.on'); return m ? m.textContent : ''; });
+  if (shotName) await p.shot(shotName);
+  await p.fingers.up(7); return label;
 }
 // A screenshot of a live WebGL page is never black: mean luminance and black-pixel share over the whole frame.
 async function notBlack(p, label) {
@@ -142,6 +181,11 @@ async function notBlack(p, label) {
   const [s] = await analyse(browser, [{ buf }]);
   assert(s.mean > 14 && s.black < .6, `${label}: black frame (mean ${s.mean.toFixed(1)}, black ${(s.black * 100).toFixed(0)}%)`);
   return s;
+}
+async function analyseRGB(buf) {
+  const pg = await browser.newPage();
+  try { return [await pg.evaluate(async src => { const im = new Image(); im.src = src; await im.decode(); const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const g = c.getContext('2d'); g.drawImage(im, 0, 0); const d = g.getImageData(0, 0, c.width, c.height).data; let r = 0, gg = 0, b = 0, n = 0; for (let i = 0; i < d.length; i += 4) { r += d[i]; gg += d[i + 1]; b += d[i + 2]; n++; } return [r / n, gg / n, b / n].map(Math.round); }, 'data:image/png;base64,' + buf.toString('base64'))]; }
+  finally { await pg.close(); }
 }
 // Nothing clipped, tiny or overlapping: every visible HUD control inside the viewport, at least 40px, not covering
 // the subtitle/quest/banner boxes that are on screen.
@@ -168,6 +212,78 @@ async function layoutAudit(p, label) {
   });
   report.checks.push({ label, issues });
   assert.deepEqual(issues, [], label + ' layout');
+}
+
+// The Game Lad for real (shared by the phone sizes): a cartridge out of its case and into the slot by touch, raised by
+// putting it in, then played with the handheld's own moulded buttons through real (multi-)touch; LOCK IN; landscape.
+async function gameLad(p, pre) {
+  const { page, until, fingers, shot, press } = p, size = V(p);
+      // The Game Lad for real: Pocket Critters out of its case and into the slot by touch, raised by putting it in, then
+  // played with the handheld's own moulded buttons through real (multi-)touch, in portrait; pad wings in landscape.
+  const gid = await page.evaluate(() => { const ids = Object.keys(House.THINGS).filter(k => /^media\.box\.gb\./.test(k)).map(k => k.slice(10)); return ids.includes('gb.mon') ? 'gb.mon' : ids[0]; });
+  assert(gid, 'No Game Lad cartridge in the full room'); const gbox = 'media.box.' + gid, gcart = 'media.' + gid;
+  const gh = await page.evaluate(id => House.THINGS[id].at, gbox);
+  await aimAt(p, [gh.x + 60, -55, gh.z + 75], [gh.x, gh.y - 6, gh.z]);
+  assert.match(await clickThing(p, gbox), /pick up/i); await until(id => House.held() === id, gbox);
+  // somewhere it fits (green ghost), then a click puts it down there
+  for (const t of [[-60, 73, 160], [-40, 73, 185], [-90, 73, 175], [0, 73, 170]]) { await aimAt(p, [-60, -55, 250], t); await sleep(400); if (await page.evaluate(() => { const h = document.querySelector('.hs-ui .hs-hold'); return h && !h.classList.contains('blocked'); })) break; }
+  await shot(pre + '-13b-gamelad-box-ghost'); await fingers.tap(V(p).width * .72, V(p).height * .4);
+  await until(id => House.THINGS[id].st === 'rest', gbox);
+  const gat = await page.evaluate(id => House.THINGS[id].at, gbox);
+  assert(await standAndAim(p, gbox), 'Cannot get the Game Lad case under the crosshair'); await shot(pre + '-13c-aim-case'); await press('f'); await until(id => House.THINGS[id].caseOpen, gbox);
+  await page.waitForTimeout(600); assert(await standAndAim(p, gbox), 'Cannot get the open case under the crosshair');
+  // a click on the cartridge in its open case takes it (only when it can be seen from where the test stands)
+  const seen = await page.evaluate(id => { for (let y = 0; y < innerHeight; y += 6) for (let x = 0; x < innerWidth; x += 6) if (House.pick(x, y)?.spot === id) return true; return false; }, gcart);
+  if (seen) { assert.match(await clickThing(p, gcart, pre + '-13d-finger-on-cart'), /pick up|take/i, 'Finger label on the cartridge'); }
+  else { report.checks.push({ label: pre + ': cartridge hidden by its open case from the test camera; taken with House.grab' }); await page.evaluate(id => House.grab(id), gcart); }
+  await until(id => House.held() === id, gcart);
+  const gslot = await page.evaluate(() => { const s = House.SNAPS['console.gb'], o = House.THINGS.gb.obj, v = new House.T.Vector3(); o.getWorldPosition(v); return { s: [s.x, s.y, s.z], g: [v.x, -v.y, v.z] }; });
+  if (process.env.MOB_DEBUG) console.log('before slot', JSON.stringify(await page.evaluate(ids => ({ held: House.held(), box: House.THINGS[ids[0]].st, cart: House.THINGS[ids[1]].st, open: House.THINGS[ids[0]].caseOpen }), [gbox, gcart])));
+  await aimAt(p, [gslot.g[0] + 35, -55, gslot.g[2] + 60], gslot.s);
+  if (process.env.MOB_DEBUG) console.log('at slot', JSON.stringify(await page.evaluate(() => ({ held: House.held(), hold: document.querySelector('.hs-hold')?.className, name: document.querySelector('.hs-hname')?.textContent })))); await page.waitForTimeout(500); await shot(pre + '-14-cart-to-gamelad');
+  await fingers.tap(V(p).width * .72, V(p).height * .4); // (a click puts it in at the gold ghost: the Game Lad comes up and boots)
+  await until(g => RoomTV._dbg()?.gid === g && RoomTV._dbg().st === 'game' && !House.gliding, gid, 40000);
+  await page.waitForTimeout(3000); await shot(pre + '-15-gamelad-title');
+  // what you see is what you press: the projected buttons sit on the rendered moulding (magenta A/B, black D-pad)
+  const colourAt = async (k) => { const q = await page.evaluate(k => RoomTV._dbg().gbScreen(k), k); const buf = await page.screenshot({ clip: { x: Math.max(0, q.x - 3), y: Math.max(0, q.y - 3), width: 6, height: 6 } }); const [c] = await analyseRGB(buf); return { ...q, c }; };
+  const pa = await colourAt('a'), pb2 = await colourAt('b'), pd = await colourAt('pad');
+  report.checks.push({ label: 'Game Lad button pixels', a: pa, b: pb2, pad: pd });
+  assert(pa.c[0] > 110 && pa.c[0] > pa.c[1] * 2, 'A is not under its projected point: ' + JSON.stringify(pa));
+  assert(pd.c[0] < 70 && pd.c[1] < 70, 'D-pad is not under its projected point: ' + JSON.stringify(pd));
+  // START, then A, by real fingers
+  const gp = async k => page.evaluate(k => RoomTV._dbg().gbScreen(k), k);
+  const st0 = await gp('start'); await fingers.down(5, st0.x, st0.y); await sleep(120);
+  assert(await page.evaluate(() => RoomTV.dbg().held('start')), 'START on the model did nothing'); await fingers.up(5); await sleep(400);
+  for (let i = 0; i < 3; i++) { const q = await gp('a'); await fingers.down(5, q.x, q.y); await sleep(140); await fingers.up(5); await sleep(500); }
+  await shot(pre + '-16-gamelad-after-a');
+  // multi-touch: D-pad right held with one thumb while the other presses A; a held direction repeats
+  const pd2 = await gp('pad'), right = await page.evaluate(() => { const c = RoomTV._dbg().gbScreen('pad'); const H = House, o = H.THINGS.gb.obj, v = new H.T.Vector3(-1.2, -2.9, 2.4); o.localToWorld(v); v.project(H.camera); const r = H.ren.domElement.getBoundingClientRect(); return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height }; });
+  await fingers.down(1, right.x, right.y); await sleep(150); const qa = await gp('a'); await fingers.down(2, qa.x, qa.y); await sleep(150);
+  const both = await page.evaluate(() => ({ right: RoomTV.dbg().held('right'), a: RoomTV.dbg().held('a'), sunk: RoomTV._dbg().gbMeshes() }));
+  await shot(pre + '-17-gamelad-multitouch'); await fingers.up(2); await sleep(600); await fingers.up(1);
+  assert(both.right && both.a, 'D-pad + A together failed: ' + JSON.stringify(both));
+  // slide the D-pad thumb from right to down without lifting
+  await fingers.down(1, pd2.x, pd2.y + 2); await fingers.move(1, right.x, right.y); await sleep(100);
+  const down = await page.evaluate(() => { const c = RoomTV._dbg().gbScreen('pad'); const H = House, o = H.THINGS.gb.obj, v = new H.T.Vector3(-2.2, -2.9, 3.6); o.localToWorld(v); v.project(H.camera); const r = H.ren.domElement.getBoundingClientRect(); return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height }; });
+  await fingers.move(1, down.x, down.y); await sleep(120);
+  const slid = await page.evaluate(() => ({ down: RoomTV.dbg().held('down'), right: RoomTV.dbg().held('right') })); await fingers.up(1);
+  assert(slid.down && !slid.right, 'Sliding the D-pad thumb did not change direction: ' + JSON.stringify(slid));
+  // a phone browser's bars: the room's canvas not filling the window (56 px short) must not shift the buttons
+  await page.evaluate(() => { const pb = document.getElementById('bootPower'); pb.dataset.oldStyle = pb.getAttribute('style') || ''; pb.style.setProperty('top', '56px', 'important'); pb.style.setProperty('height', (innerHeight - 56) + 'px', 'important'); pb.style.setProperty('bottom', 'auto', 'important'); dispatchEvent(new Event('resize')); });
+  await page.waitForTimeout(1500);
+  const pa2 = await colourAt('a'); pa2.dbg = await page.evaluate(() => { const c = House.ren.domElement.getBoundingClientRect(), b = document.getElementById('bootPower').getBoundingClientRect(); return { canvas: [c.top, c.height, House.ren.domElement.height], pb: [b.top, b.height], ih: innerHeight, aspect: House.camera.aspect, wh: innerWidth / innerHeight }; }); await page.screenshot({ path: shots + 'full-17b-taller-canvas.png' }); await page.evaluate(() => { const pb = document.getElementById('bootPower'); pb.setAttribute('style', pb.dataset.oldStyle); dispatchEvent(new Event('resize')); });
+  assert(pa2.c[0] > 110 && pa2.c[0] > pa2.c[1] * 2, 'A misplaced when the canvas does not fill the window: ' + JSON.stringify(pa2));
+  await page.waitForTimeout(800);
+  // LOCK IN and back (the pad stands in for the hidden moulding), then landscape wings
+  await press('.rm-tools .rm-lock'); await until(() => !!document.querySelector('.rm-tvv .rm-pad:not([hidden]) [data-b="a"]'), null, 10000); await page.waitForTimeout(900); await shot(pre + '-18-gamelad-lockin');
+  await press('.rm-pad [data-b="a"]');
+  await press('.rm-tools .rm-lock'); await page.waitForTimeout(1500);
+  assert(await page.evaluate(() => !!document.querySelector('.rm-tvv .rm-pad[hidden]')), 'Pad left over after LOCK IN back');
+  await page.setViewportSize({ width: size.height, height: size.width }); await page.waitForTimeout(2000); await shot(pre + '-19-gamelad-landscape');
+  assert(await page.evaluate(() => !!document.querySelector('.rm-tvv .rm-pad:not([hidden]) [data-b="a"]')), 'Landscape Game Lad has no pad');
+  { const r = await page.evaluate(() => { const b = document.querySelector('.rm-pad [data-b="a"]').getBoundingClientRect(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; }); await fingers.down(6, r.x, r.y); await sleep(100); assert(await page.evaluate(() => RoomTV.dbg().held('a')), 'Landscape pad A did nothing'); await fingers.up(6); }
+  await page.setViewportSize(size); await page.waitForTimeout(1500);
+  await press('.rm-tools .rm-lean'); await until(() => House.mode === 'walk' && !House.gliding, null, 30000);
 }
 
 // ---------------------------------------------------------------- phases
@@ -203,6 +319,45 @@ const phases = {
       await until(() => House.mode === 'walk' && document.documentElement.dataset.touchState === 'walk', null, 60000);
       await page.waitForTimeout(2500); await shot('story-02-opening'); await notBlack(p, 'opening');
       await layoutAudit(p, 'story opening portrait');
+      assert(await page.evaluate(() => !!document.querySelector('.ht-coach')), 'First-time coach marks missing');
+      // Click things in the room with a real finger: Mom (talk), a magazine (pick up, then put it down at its ghost), the door.
+      // stand on a walkable spot about 1.3 m from a thing (on its floor) and look at it; returns false if nowhere fits
+      const look = async id => { const r = await page.evaluate(id => { const H = House, o = H.SPOTS[id]?.obj || H.THINGS[id]?.obj; if (!o) return null; o.updateWorldMatrix(true, true); const v = new H.T.Vector3(); o.getWorldPosition(v); let c = [v.x, -v.y, v.z], lvl = c[1] > 100 ? 'G' : 'U';
+          const fam = /^np\./.test(id) && window.HouseFamily?.debug?.dump().find(f => 'np.' + f.id === id); if (fam) { lvl = fam.lvl; c = [fam.x, lvl === 'G' ? 230 : -30, fam.z]; }
+          const ey = lvl === 'G' ? 205 : -55;
+        const room = fam ? H.ROOMS[fam.room] : null, inRoom = (x, z) => !room || room.area.some(q => x >= q[0] + 20 && x <= q[2] - 20 && z >= q[1] + 20 && z <= q[3] - 20);
+          const out = []; for (const d of [110, 150, 80, 190]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (H._.cellOk(lvl, x, z) && inRoom(x, z)) out.push({ e: [x, ey, z], c: [c[0], Math.min(c[1], ey + 40), c[2]], lvl }); } return out; }, id);
+        for (const q of r || []) {
+          await aimAt(p, q.e, q.c, q.lvl);
+          // a step with the stick lets the house notice which room you are in (and draw it), then look again
+          const { height: hh } = V(p); await fingers.down(1, 90, hh - 160); await fingers.move(1, 90, hh - 200); await sleep(150); await fingers.up(1); await sleep(150);
+          await aimAt(p, q.e, q.c, q.lvl);
+          if (await page.evaluate(id => { for (let dy = -60; dy <= 60; dy += 20) if (House.pick(innerWidth / 2, innerHeight / 2 + dy)?.spot === id) return true; return false; }, id)) return true;
+        }
+        return false; };
+      await page.evaluate(() => Room.ensureHouse()); await until(() => window.HouseRooms?.ready, null, 60000);
+      const door = await page.evaluate(() => { const d = Object.values(House.DOORS).find(d => /bed/i.test(d.id) && d.pivot); if (!d) return null; const b = new House.T.Box3().setFromObject(d.pivot), v = b.getCenter(new House.T.Vector3()); return { id: d.id, open: !!d.open, c: [v.x, -v.y, v.z] }; });
+      if (door) {
+        const stand = await page.evaluate(c => { for (const d of [120, 160, 90]) for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (House._.cellOk('U', x, z)) return [x, -55, z]; } return null; }, door.c);
+        await aimAt(p, stand, door.c);
+        const at = await page.evaluate(c => { const H = House, v = new H.T.Vector3(c[0], -c[1], c[2]); v.project(H.camera); const r = H.ren.domElement.getBoundingClientRect(), x0 = r.left + (v.x + 1) / 2 * r.width, y0 = r.top + (1 - v.y) / 2 * r.height;
+          for (let rr = 0; rr <= 120; rr += 8) for (let i = 0; i < (rr ? 16 : 1); i++) { const x = x0 + Math.cos(i * Math.PI / 8) * rr, y = y0 + Math.sin(i * Math.PI / 8) * rr, h = H.pick(x, y), s = h?.spot && H.SPOTS[h.spot]; if (s && /door/i.test(String(typeof s.label === 'function' ? s.label() : s.label))) return { x, y }; } return null; }, door.c);
+        assert(at, 'No door under the finger');
+        await fingers.down(7, at.x, at.y); await sleep(250); const said = await page.evaluate(() => document.querySelector('.ht-tapmark.on')?.textContent || ''); await shot('story-02f-finger-on-door'); await fingers.up(7);
+        assert.match(said, /open|shut/i, 'Finger label on the door: ' + said);
+        await until(d => !!House.DOORS[d.id].open !== d.open, door, 10000); await page.waitForTimeout(900); await shot('story-02g-door-toggled');
+      }
+      if (await page.evaluate(() => !!House.SPOTS['np.mom'] && !!window.HouseFamily?.debug?.dump().find(f => f.id === 'mom' && f.present))) {
+        assert(await look('np.mom'), 'Nowhere to stand in sight of Mom: ' + JSON.stringify(await page.evaluate(() => HouseFamily.debug.dump().find(f => f.id === 'mom')))); const said = await clickThing(p, 'np.mom', 'story-02c-finger-on-mom');
+        assert.match(said, /talk/i, 'Finger label on Mom: ' + said + ' ' + JSON.stringify(await page.evaluate(() => { const o = House.SPOTS['np.mom'].obj, v = new House.T.Vector3(); o.getWorldPosition(v); return { dump: HouseFamily.debug.dump().find(f => f.id === 'mom'), proxy: [v.x, v.y, v.z], P: House.P, vis: o.visible, parentVis: o.parent?.visible }; })));
+        await until(() => !!document.querySelector('.hs-voice.on,.hs-call.on,.hs-note.on'), null, 15000); await page.waitForTimeout(500); await shot('story-02d-talking-to-mom');
+      } else report.checks.push({ label: 'Mom not in the bedroom at the opening', skipped: true });
+      const mag = await page.evaluate(() => ['pmb.pm.mag.01', 'pmb.pm.mag.02'].find(id => House.THINGS[id]?.obj.visible && House.THINGS[id].st === 'rest'));
+      if (mag) {
+        await look(mag); const said = await clickThing(p, mag); assert.match(said, /pick up/i, 'Finger label on the magazine: ' + said);
+        await until(id => House.held() === id, mag); await page.waitForTimeout(400); await shot('story-02e-carrying-mag');
+        await fingers.tap(V(p).width * .72, V(p).height * .42); await until(id => !House.held() && House.THINGS[id].st !== 'held', mag, 15000);
+      }
       // walk: the left thumb, forward then a curve
       const { width: w, height: h } = V(p);
       const before = await page.evaluate(() => [House.W.x, House.W.z, House.P.ry]);
@@ -288,11 +443,13 @@ const phases = {
       await aimAt(p, [-220, -55, 35], [home.x, home.y - 6, -36]);
       await until(() => !!document.querySelector('.ht-hud [data-k="e"]'), null, 10000); await shot('full-07-aim-box');
       await layoutAudit(p, 'aiming');
-      await press('e'); await until(() => House.held() === 'media.box.n64.kart');
+      const pickLabel = await clickThing(p, 'media.box.n64.kart', 'full-07b-finger-label');
+      assert.match(pickLabel, /pick up/i, 'Finger label before picking up: ' + pickLabel);
+      await until(() => House.held() === 'media.box.n64.kart');
       await aimAt(p, [-80, -55, 220], [-130, 73, 145]); await page.waitForTimeout(400); await shot('full-08-carrying');
       await layoutAudit(p, 'carrying');
       const ry0 = await page.evaluate(() => House.grip.ry); await press('r'); await until(r => House.grip && House.grip.ry !== r, ry0);
-      await press('e'); await until(() => House.THINGS['media.box.n64.kart'].st === 'rest');
+      await fingers.tap(V(p).width * .72, V(p).height * .4); await until(() => House.THINGS['media.box.n64.kart'].st === 'rest'); // (a click puts it down at its ghost)
       // open the case (F), take the cartridge (E), put it in the console (E)
       await aimAt(p, [-80, -55, 220], [-130, 67, 146.6]); await press('f'); await until(() => House.THINGS['media.box.n64.kart'].caseOpen);
       await aimAt(p, [-80, -55, 220], [-130, 69, 146.3]); await press('e'); await until(() => House.held() === 'media.n64.kart');
@@ -312,25 +469,17 @@ const phases = {
       await page.setViewportSize({ width: 412, height: 915 }); await page.waitForTimeout(1200); await shot('full-13-console-lockin-portrait');
       await press('.rm-tools .rm-lock'); await page.waitForTimeout(800);
       await press('.rm-tools .rm-lean'); await until(() => House.mode === 'walk' && !House.gliding, null, 30000);
-      // the Game Lad: its own buttons on the model
-      const gb = await page.evaluate(() => { const o = House.THINGS.gb.obj, v = new House.T.Vector3(); o.getWorldPosition(v); return [v.x, -v.y, v.z]; });
-      await aimAt(p, [gb[0] + 40, -55, gb[2] + 70], gb); await page.waitForTimeout(300);
-      await until(() => !!document.querySelector('.ht-hud [data-k="f"]'), null, 10000); await press('f');
-      await until(() => window.RoomTV?._dbg()?.con === 'gb' && !House.gliding, null, 30000); await page.waitForTimeout(1500);
-      await shot('full-14-gamelad-empty');
-      // a cartridge in (the slot path is covered by the desktop tests), then its own moulded buttons by touch
-      await page.evaluate(() => RoomTV.playPhysical(Object.keys(RoomCat.GAME).find(g => RoomCat.GAME[g].con === 'gb')));
-      await until(() => RoomTV._dbg()?.st === 'game', null, 30000);
-      await until(() => { const b = document.querySelector('.rm-gbtouch'); return b && !b.hidden; }, null, 20000);
-      await page.waitForTimeout(2500); await shot('full-15-gamelad-buttons');
-      const a = await page.evaluate(() => { const r = document.querySelector('.rm-gbtouch [data-b="a"]').getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, w: r.width }; });
-      assert(a.w >= 44 && a.y < V(p).height - 10, 'Game Lad A button off screen or tiny: ' + JSON.stringify(a));
-      await fingers.down(4, a.x, a.y); const gotA = await page.evaluate(() => RoomTV.dbg()?.held('a')); await fingers.up(4);
-      assert(gotA, 'The Game Lad\'s own A button did not reach the game');
-      await page.setViewportSize({ width: 915, height: 412 }); await page.waitForTimeout(2000); await shot('full-16-gamelad-landscape');
-      assert(await page.evaluate(() => !!document.querySelector('.rm-tvv .rm-pad:not([hidden]) [data-b="a"]')), 'Landscape Game Lad has no pad');
-      await page.setViewportSize({ width: 412, height: 915 }); await page.waitForTimeout(1500);
-      await press('.rm-tools .rm-lean').catch(() => page.evaluate(() => RoomTV.close())); await until(() => House.mode === 'walk' && !House.gliding, null, 30000);
+      await gameLad(p, 'full');
+      // the in-world mobile phone: its own keys, pressed by finger (projected onto the model like the PC screen)
+      await page.evaluate(() => HouseMobile.use()); await until(() => window.FamilyPhone?.isOpen() && House.focused && !House.gliding, null, 30000); await page.waitForTimeout(800);
+      const keys = await page.evaluate(() => [...document.querySelectorAll('.hs-phone-key')].map(b => { const r = b.getBoundingClientRect(); return { l: b.getAttribute('aria-label'), x: r.x + r.width / 2, y: r.y + r.height / 2, w: r.width, h: r.height }; }).filter(k => k.w > 0));
+      assert(keys.length >= 10, 'Phone keys missing: ' + keys.length);
+      const before = await page.evaluate(() => JSON.stringify(FamilyPhone.state()));
+      for (const k of [keys.find(k => /ok|menu|select|enter/i.test(k.l)) || keys[0]]) { await fingers.tap(k.x, k.y); await sleep(400); }
+      const after = await page.evaluate(() => JSON.stringify(FamilyPhone.state()));
+      await shot('full-21-phone-keys'); report.checks.push({ label: 'phone keys', smallest: Math.min(...keys.map(k => Math.min(k.w, k.h))), keys: keys.length, changed: before !== after });
+      assert.notEqual(after, before, 'A finger on the phone key did nothing');
+      await press('.hs-getup'); await until(() => House.mode === 'walk' && !House.gliding, null, 30000);
       // the diary (reading) by touch, Pixel Post, chores at phone size
       await page.evaluate(() => window.stDiary?.picker?.()); await page.waitForTimeout(900); await shot('full-17-diary');
       await press('.st-quests [aria-label="Close diary"]'); await page.waitForTimeout(500);
@@ -338,6 +487,35 @@ const phases = {
       await shot('full-18-note'); await layoutAudit(p, 'note portrait');
       assert(await page.evaluate(() => GameInput.touch), 'Touch mode lost during the run');
       assert.deepEqual(p.errors, [], 'full browser errors');
+    } finally { await p.ctx.close(); }
+  },
+
+  // The smallest phone (360x740): PC LOCK IN, the room by thumb (walk, look, pick up and put down by clicking), the Game
+  // Lad with its own buttons, LOCK IN, landscape.
+  async small() {
+    const acct = await register('Sml' + Date.now().toString(36).slice(-6));
+    const p = await phone('galaxy-360x740'), { page, until, fingers, shot, press } = p;
+    try {
+      await logon(p, acct);
+      await until(() => House.mode === 'monitor' && !House.gliding && window.DesktopSurface?.ready(), null, 60000);
+      await until(() => House.desktopDisplay(), null, 30000); await page.waitForTimeout(800); await shot('small-01-jackos'); await layoutAudit(p, 'small jackos');
+      await press('stand'); await until(() => House.mode === 'walk' && !House.gliding, null, 30000); await page.waitForTimeout(1500);
+      await shot('small-02-house-coach'); await layoutAudit(p, 'small house');
+      const { width: w, height: h } = V(p), x0 = await page.evaluate(() => [House.W.x, House.W.z]);
+      await fingers.down(1, 80, h - 150); await fingers.move(1, 80, h - 215); await sleep(800); await fingers.up(1);
+      await fingers.drag(2, w - 90, h * .45, w - 200, h * .45, 500);
+      assert(await page.evaluate(x0 => Math.hypot(House.W.x - x0[0], House.W.z - x0[1]) > 15, x0), 'Did not walk at 360x740');
+      await shot('small-03-walked');
+      const home = await page.evaluate(() => House.THINGS['media.box.n64.kart'].at);
+      await aimAt(p, [-220, -55, 35], [home.x, home.y - 6, -36]);
+      assert.match(await clickThing(p, 'media.box.n64.kart', 'small-04-finger-label'), /pick up/i); await until(() => House.held() === 'media.box.n64.kart');
+      // (away from where the Game Lad case goes next)
+      for (const t of [[-110, 73, 190], [0, 73, 200], [-90, 73, 175]]) { await aimAt(p, [-60, -55, 250], t); await sleep(400); if (await page.evaluate(() => !document.querySelector('.hs-ui .hs-hold')?.classList.contains('blocked'))) break; }
+      await shot('small-05-carrying'); await layoutAudit(p, 'small carrying');
+      await fingers.tap(w * .72, h * .4); await until(() => House.THINGS['media.box.n64.kart'].st === 'rest');
+      await gameLad(p, 'small');
+      await page.setViewportSize({ width: 740, height: 360 }); await page.waitForTimeout(1500); await shot('small-20-house-landscape'); await layoutAudit(p, 'small landscape'); await notBlack(p, 'small landscape');
+      assert.deepEqual(p.errors, [], 'small browser errors');
     } finally { await p.ctx.close(); }
   },
 
