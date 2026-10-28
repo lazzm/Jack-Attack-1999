@@ -470,7 +470,7 @@
     paper(-12, -1, 0.9, 13, 18, 'calendar', -2); paper(4, -6, 1.02, 9, 8, 'note', 5); paper(13, -5, 1.14, 9, 9, 'noteBlue', -4); paper(8, 6, 1.26, 14, 10, 'photo', -3);
     [[-12, -9.5], [4, -9.5], [13, -9], [8, 1.5]].forEach(([x, y], i) => { const pin = M(['#d02a2a', '#2a8a3a', '#e8c020', '#2a5ad0'][i]); CK.cyl(x, y, 1.75, 0.9, 0.75, 0.9, 10, pin, { rx: 90 }); CK.cyl(x, y, 2.35, 0.55, 0.55, 0.5, 10, pin, { rx: 90 }); }); ckBatch.build(ck);
     H.spot('cork', { label: 'Cork board', obj: ck });
-    poster(B, -52, -82, BZ, 30, 42, tex('posterShuttle'), 0); pickBox(r, 'postershuttle', -52, -82, BZ + 1, 30, 42, 2); H.SPOTS.postershuttle.label = 'Space Shuttlebus poster';
+    poster(B, -52, -82, BZ, 42, 59.4, tex('posterShuttle'), 0); pickBox(r, 'postershuttle', -52, -82, BZ + 1, 42, 59.4, 2); H.SPOTS.postershuttle.label = 'Space Shuttlebus poster'; // A2 bedroom poster
     frame(B, 92, -84, BZ + 0.8, 24, 33, 1.4, M({ c: '#fff', map: tex('timetable'), pr: 1 }), M('#2a2a2a'));
     H.spot('timetable', { label: 'School timetable', act: () => say('My timetable', 'Year 11. GCSE year. Double Maths on a Monday morning should be against the law. Tuesday has IT, the best lesson: we get to play Bugsweeper at the end if we\'re quiet.') });
     pickBox(r, 'timetable', 92, -84, BZ + 1, 24, 33, 2);
@@ -705,12 +705,12 @@
     }
     RK.shadow(0, 0, 0, 36, 26, 0.7, { sq: true });
     if(sparseStarter)buildStarterClutter(r);
-    H.spot('rack', { label: 'Game shelf', obj: rk }); H.block('U', TX - 74, -56, TX - 38, -31);
+    H.spot('rack', { label: 'Game shelf', obj: rk, touchFallback: true }); H.block('U', TX - 74, -56, TX - 38, -31);
     H.support('bedroom', TX - 72.6, -55, TX - 39.4, -33, FY - 81.1, { thick: 1.2 }); // the rack's top (the VCR stands on it)
     if (H.solid) { for (const x of [TX - 72.6, TX - 40.6]) H.solid('U', x, -55, x + 1.2, -33, FY - 80.5, FY + 1, { kind: 'rack' }); H.solid('U', TX - 23, -53, TX + 23, -25, -6.6, 27.4, { kind: 'telly' }); }
     H.block('U', TX - 38, -60, TX + 38, -11); // the cabinet
     // posters over the telly and on the side wall
-    poster(B, TX, -64, BZ, 34, 46, tex('posterBand'), 0); pickBox(r, 'posterband', TX, -64, BZ + 1, 34, 46, 2); H.SPOTS.posterband.label = 'Band poster';
+    poster(B, TX, -66, BZ, 42, 59.4, tex('posterBand'), 0); pickBox(r, 'posterband', TX, -66, BZ + 1, 42, 59.4, 2); // (A2) H.SPOTS.posterband.label = 'Band poster';
     poster(B, TX - 58, -96, BZ, 28, 40, tex('posterFilm'), 0); pickBox(r, 'posterfilm', TX - 58, -96, BZ + 1, 28, 40, 2); H.SPOTS.posterfilm.label = 'Film poster';
     poster(B, LX, -70, 20, 32, 45, tex('posterGame'), 90); pickBox(r, 'postergame', LX + 1, -70, 20, 2, 45, 32);
     H.spot('postergame', { label: 'HYPER DRIVE 2000 poster', act: () => posterFocus('postergame') });
@@ -722,12 +722,14 @@
     BN.geo(new T.TorusGeometry(10, 0.55, 8, 32), 0, -27, 0, M({ c: '#2f62da', sh: 40, sp: '#444' }), { rx: 90 });
     BN.cyl(0,-.25,0,8.35,8.35,.5,24,M('#244898'));
     BN.disc(0, -18, 0, 9.1, M('#0f1830'), 24);
+    const contents = new T.Group(); bn.add(contents); bn.userData.binContents = contents;
+    const rubbishBatch = K.batch(), RB = K.into(rubbishBatch);
     { const crumple = (seed, r) => { const geo = new T.IcosahedronGeometry(r, 1), pp = geo.attributes.position, rr = K.rnd(seed); for (let i = 0; i < pp.count; i++) { const k = 0.78 + rr() * 0.32; pp.setXYZ(i, pp.getX(i) * k, pp.getY(i) * k, pp.getZ(i) * k); } geo.computeVertexNormals(); return geo; };
       const paperM = M({ c: '#eeeae0', flat: true, sh: 4 });
-      BN.geo(crumple(7, 3.6), -3.2, -21.5, 2.2, paperM); BN.geo(crumple(11, 3.1), 3.4, -20.8, -2.6, paperM); BN.geo(crumple(19, 2.8), 0.6, -24.2, 3.4, M({ c: '#d8e4f0', flat: true, sh: 4 }));
+      RB.geo(crumple(7, 3.6), -3.2, -21.5, 2.2, paperM); RB.geo(crumple(11, 3.1), 3.4, -20.8, -2.6, paperM); RB.geo(crumple(19, 2.8), 0.6, -24.2, 3.4, M({ c: '#d8e4f0', flat: true, sh: 4 }));
       // a crisp packet, squashed, its silver inside showing
-      BN.geo(K.thicken(new T.PlaneGeometry(7, 9, 4, 4).applyMatrix4(new T.Matrix4().makeRotationX(-0.5)), 0.15), 2.4, -27.5, -1.5, M({ c: '#e8c020', sh: 40, sp: '#777', side: 2 }), { rz: 18, ry: 30 }); }
-    binBatch.build(bn); K.into(bn).shadow(0, 0, 0, 24, 24, 0.7);
+      RB.geo(K.thicken(new T.PlaneGeometry(7, 9, 4, 4).applyMatrix4(new T.Matrix4().makeRotationX(-0.5)), 0.15), 2.4, -27.5, -1.5, M({ c: '#e8c020', sh: 40, sp: '#777', side: 2 }), { rz: 18, ry: 30 }); }
+    rubbishBatch.build(contents); binBatch.build(bn); K.into(bn).shadow(0, 0, 0, 24, 24, 0.7);
     H.spot('bin',{label:'The bin',obj:bn});loose('bin',bn,{room:'bedroom',x:-118,y:FY,z:-42,ry:0},'Wastepaper bin',{obstacle:true,floorOnly:true,physics:{round:true,parts:[{t:'cyl',x:0,z:0,r:10.6,lo:0,hi:27.6}],mass:.8,mu:.45,coast:.3,tip:.9}});
   }
   // Ordinary belongings stay behind the reserved console bays, clear of every
@@ -957,6 +959,8 @@
     const duvet=B.geo(K.thicken(dg,.8),cx,36,cz+14,M({c:'#ffffff',map:tex('duvet')}),{rx:90});
     // The chore pillow is the bed's only pillow: it starts on the floor.
     pickBox(r, 'bed', cx, 43, cz + 10, bw, 14, bl - 10);H.spot('bed',{obj:duvet});
+    // things put on the bed lie on the rumpled duvet (or the mattress at the head end), never sunk into it
+    if (H.soft) H.soft('bedroom', x0, z0 - 1, x1, z1, 30, { base: 37, find: () => { const out = [], dt = tex('duvet'); r.group.traverse(o => { if (o.isMesh && o.material && o.material.map === dt) out.push(o); }); return out; } });
     H.block('U', x0 - 2, BZ, RX, z1 + 4, { solid: false });
     if (H.solid) { // things: the bed is a slab from the duvet to the base, on legs; flat things fit in the 10 cm underneath
       H.solid('U', x0, z0 - 1, x1, z1, 30, 63, { kind: 'bed' });
@@ -991,21 +995,19 @@
     CK.shadow(0, 0, 0, 18, 11, 0.6, { sq: true });
     H.spot('clock', { label: 'Radio alarm clock', obj: ck });
     const gl=B.at(126,21.6,BZ+27);gl.lathe(0,0,0,[[0,-.7],[1.9,-.7],[2.28,-9.8],[2.45,-10],[2.6,-9.8],[2.2,0],[0,0]],28,M({c:'#d8e8f0',o:.24,tr:true,sh:90,sp:'#fff'}));gl.disc(0,-3.5,0,2.12,M({c:'#9cb9c8',o:.35,tr:true,sh:60}),24);
-    // the cat (next door's): a curled-up loaf, breathing
-    const cat = new T.Group(); cat.position.set(206, 30, 72); cat.rotation.y = -34 * D2R; r.group.add(cat); R.cat = cat;
-    const CT = K.into(cat), fur = M({ c: '#1c1c22', sh: 6 }), wht = M({ c: '#e8e8e8', sh: 6 });
-    R.catBody = CT.ball(0, -6, 0, 13, 6.5, 9, fur, 16);
-    CT.ball(-11, -7, 3, 5.8, 5.2, 5.4, fur, 14); CT.ball(-14.5, -6.2, 5.6, 2.4, 1.8, 1.4, wht, 10);
-    CT.lathe(-12.5, -11.8, 0.6, [[0.1, -4], [1.8, 0]], 6, fur, { rz: -15 }); CT.lathe(-9, -11.8, 1.4, [[0.1, -4], [1.8, 0]], 6, fur, { rz: 15 });
-    CT.ball(-16.4, -6.4, 5.8, 0.42, 0.3, 0.3, M({ c: '#f0a0a8', sh: 60 }), 6); // the nose
-    [[-15.2, 3.4], [-15.2, 7.4]].forEach(([x, z]) => CT.box(x, -8.2, z, 0.6, 0.12, 1.6, M('#0a0a0c'), { rz: 0 })); // closed eyes
-    for (const sd of [-1, 1]) for (let k = 0; k < 3; k++) CT.cyl(-15.8, -5.6 + k * 0.5, 5.6 + sd * (2.2 + k * 0.3), 0.06, 0.06, 7, 3, M('#e8e8e8'), { rz: 90, ry: sd * (18 + k * 10) }); // whiskers
-    CT.ball(-13.5, -7.6, 5.4, 4, 3.2, 3.4, M({ c: '#2a2a30', sh: 6 }), 10); // the muzzle
-    const tail = new T.CatmullRomCurve3([new T.Vector3(11, -3, -3), new T.Vector3(13, -2, 4), new T.Vector3(6, -1.5, 9), new T.Vector3(-4, -1.5, 9)]);
-    CT.geo(new T.TubeGeometry(tail, 16, 1.4, 6), 0, 0, 0, fur);
-    CT.ball(-5, -1.6, 7, 3.4, 1.4, 2.2, wht, 10); CT.ball(-9, -1.4, 7.5, 2, 1.2, 1.8, wht, 8);
-    CT.shadow(0, 0, 0, 34, 24, 0.55);
+    // the cat (next door's) lives on the cat tree by the radiator now (Mom bought it so the cat would stop sleeping on
+    // the bed; the cat agreed, eventually): the top bed by day, the den at night; asleep or sat up watching you
+    const cat = catModel(); r.group.add(cat); R.cat = cat; R.catBody = cat.userData.breath;
+    const tc=H.CAT_TREE||{x:-90,z:224,ry:90}, tree = catTree(B, r, tc.x, tc.z, tc.ry); tree.out = tree.W(40, 4); tree.mid = Object.assign(tree.W(10, -12), { y: FY - 66 }); cat.userData.tree = tree; // (against the front wall, between the bookcase and the radiator)
+    { const hr = new Date().getHours(), night = hr >= 22 || hr < 7, at = night ? tree.den : tree.top, ps = night || hr % 2 ? 'sleep' : 'sit';
+      cat.position.set(at.x, at.y, at.z); cat.rotation.y = (night ? -90 : -110) * D2R; cat.userData.pose(ps); cat.userData.homePose = ps; }
     H.spot('cat', { label: () => catName(), obj: cat });
+    // Keep placements out of the resting cat at its new home. The collider releases while it comes for its tea.
+    cat.updateWorldMatrix(true,true); const cb=new T.Box3().setFromObject(cat), catHome={x:cat.position.x,y:cat.position.y,z:cat.position.z};
+    H.solid('U',cb.min.x,cb.min.z,cb.max.x,cb.max.z,-cb.max.y,-cb.min.y,{kind:'cat',support:false,when:()=>{
+      for(let o=cat;o;o=o.parent)if(!o.visible)return false;
+      return Math.hypot(cat.position.x-catHome.x,cat.position.y-catHome.y,cat.position.z-catHome.z)<.1;
+    }});
     // a parcel on the bed (it comes after you've played five different games: a competition prize)
     const post = new T.Group(); post.position.set(170, 30, 100); post.rotation.y = 14 * D2R; r.group.add(post); R.post = post;
     const PO = K.into(post); PO.box(0, -5, 0, 24, 10, 18, M('#c8a070')); PO.plane(0, -10.05, 0, 14, 8, M({ c: '#fff', map: K.tex('rm.addr', 128, 72, (g) => { g.fillStyle = '#fff'; g.fillRect(0, 0, 128, 72); g.font='700 14px '+A.HAND;g.fillStyle='#222';g.fillText(Cast.t('{me.Mr} {me}'),10,28,108); A.text(g, 'MY ROOM', 10, 52, '13px ' + A.HAND, '#222'); g.fillStyle = '#c02020'; g.fillRect(100, 6, 20, 24); },{identity:true}) }), { rx: -90 });
@@ -1336,7 +1338,7 @@
     DP.rbox(-4.5, -40, dc + 18, 4, 70, 18, 2, M('#7a1a2a')); // a dressing gown on a hook
     DP.box(2.65, -70, dc - 4, 0.16, 14, 22, { all: M('#151515'), r: M({ c: '#fff', map: K.tex('rm.sign', 256, 160, (g, w, h) => { g.fillStyle = '#111'; g.fillRect(0, 0, w, h); g.strokeStyle = '#ffd400'; g.lineWidth = 8; g.strokeRect(6, 6, w - 12, h - 12); A.text(g, 'YOUR ROOM', 128, 66, '44px ' + A.FONT, '#ffd400', 'center'); A.text(g, 'KNOCK FIRST. YES, YOU, ' + ((window.Cast ? Cast.n('sister') : 'SIS')).toUpperCase(), 128, 120, '700 14px ' + A.UIF, '#fff', 'center'); }) }) });
     H.door('bedroom', { rooms: ['bedroom', 'landing'], pivot: dp, frame, swing: 96, dir: 1, open: false }); S.door = 0; // (always shut at the start of a visit)
-    H.spot('door', { label: () => H.DOORS.bedroom.open ? 'Shut the door' : 'The door', range: 300, obj: dp, act: () => { const o = !H.DOORS.bedroom.open; ensureHouse().then(() => { H.setDoor('bedroom', o); S.door = o ? 1 : 0; save(); }, () => say('Hmm', 'The door is stuck. Try again in a minute.')); } });
+    H.spot('door', { label: () => H.DOORS.bedroom.open ? 'Shut the door' : 'The door', range: 300, obj: dp, act: () => { if (window.HouseFamily?.doorHeld?.() && !H.DOORS.bedroom.open) { HouseFamily.heldHint(); return; } const o = !H.DOORS.bedroom.open; ensureHouse().then(() => { H.setDoor('bedroom', o); S.door = o ? 1 : 0; save(); }, () => say('Hmm', 'The door is stuck. Try again in a minute.')); } });
     const sw = new T.Group(); sw.position.set(x - 0.6, -32, z0 - 16); r.group.add(sw); const SW = K.into(sw); // the light switch
     SW.box(0, 0, 0, 1.2, 8.6, 8.6, mWhite); R.rocker = SW.box(-0.8, 0, 0, 1, 2.4, 1.4, M('#d8d4c8'));R.rocker.matrix.decompose(R.rocker.position,R.rocker.quaternion,R.rocker.scale);
     H.spot('switch', { label: 'Light switch', obj: sw, range: 260, act: () => { LIGHT.main = !LIGHT.main; saveLights(); secret('hs.lights'); lampLook(); H.relight(); H.sfx.tone(1800, 0.02, 'square', 0.06); H.sfx.noise(0.03, 0.08, 3000); } });
@@ -1357,6 +1359,140 @@
     H.dirty();
   }
 
+  // a truncated icosahedron on a sphere: each panel is a fan from its domed centre, an inner ring, and an outer ring sunk
+  // into the seam; pentagons black, hexagons white (vertex colours), radial normals so it shades as a smooth ball
+  function footballGeo(R) {
+    const ico = new T.IcosahedronGeometry(1, 0), P = ico.attributes.position, V = [], key = v => v.toArray().map(n => n.toFixed(4)).join();
+    const idx = new Map(), faces = [];
+    for (let i = 0; i < P.count; i++) { const v = new T.Vector3().fromBufferAttribute(P, i), k = key(v); if (!idx.has(k)) { idx.set(k, V.length); V.push(v); } if (i % 3 === 2) faces.push([idx.get(key(new T.Vector3().fromBufferAttribute(P, i - 2))), idx.get(key(new T.Vector3().fromBufferAttribute(P, i - 1))), idx.get(k)]); }
+    const third = (a, b) => V[a].clone().lerp(V[b], 1 / 3);
+    const panels = [];
+    V.forEach((_, vi) => { const pts = []; for (const f of faces) if (f.includes(vi)) for (const o of f) if (o !== vi) pts.push(third(vi, o)); panels.push({ pts: pts.filter((p, n) => pts.findIndex(q => q.distanceTo(p) < 1e-4) === n), dark: true }); });
+    for (const [a, b, c] of faces) panels.push({ pts: [third(a, b), third(b, a), third(b, c), third(c, b), third(c, a), third(a, c)], dark: false });
+    const pos = [], nrm = [], col = [], black = new T.Color('#16161a'), white = new T.Color('#f3f1ea'), seam = new T.Color('#55555a');
+    const push = (v, r, c) => { const n = v.clone().normalize(); pos.push(n.x * r, n.y * r, n.z * r); nrm.push(n.x, n.y, n.z); col.push(c.r, c.g, c.b); };
+    for (const pn of panels) {
+      const c = pn.pts.reduce((s, p) => s.add(p), new T.Vector3()).divideScalar(pn.pts.length), nn = c.clone().normalize();
+      const u = pn.pts[0].clone().sub(c).normalize(), w = nn.clone().cross(u); // order the corners round the centre
+      const ring = pn.pts.slice().sort((p, q) => Math.atan2(p.clone().sub(c).dot(w), p.clone().sub(c).dot(u)) - Math.atan2(q.clone().sub(c).dot(w), q.clone().sub(c).dot(u)));
+      const inner = ring.map(p => c.clone().lerp(p, 0.86)), fill = pn.dark ? black : white, n = ring.length;
+      for (let k = 0; k < n; k++) {
+        const a = inner[k], b = inner[(k + 1) % n], A = ring[k], B = ring[(k + 1) % n];
+        push(c, R * 1.012, fill); push(a, R, fill); push(b, R, fill);
+        push(a, R, fill); push(A, R * 0.982, seam); push(B, R * 0.982, seam);
+        push(a, R, fill); push(B, R * 0.982, seam); push(b, R, fill);
+      }
+    }
+    const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new T.Float32BufferAttribute(nrm, 3)); geo.setAttribute('color', new T.Float32BufferAttribute(col, 3));
+    ico.dispose(); return geo;
+  }
+  // ---------------------------------------------------------------- next door's cat: a stylised low-poly tuxedo cat
+  // One level of abstraction like the people (docs/PEOPLE.md): soft rounded forms, a chunky readable silhouette, simple
+  // painted-style eyes (open or shut), big ears and a proper tail. Built from pivot groups (torso, head, four legs, a
+  // five-segment tail), each merged per material, so poses are just rotations: sleep, sit, stretch, walk(t), eat.
+  // Local frame: facing -x, y down, paws on y = 0. About 1.5k triangles drawn, ~20 draws. cat.userData.pose(name, t).
+  function catModel() {
+    const cat = new T.Group(), fur = M({ c: '#24242b', sh: 14, sp: '#3a3a44' }), wht = M({ c: '#efece4', sh: 8 }), pink = M({ c: '#e8a0ab', sh: 30 });
+    const iris = M({ c: '#d9c43c', sh: 60, sp: '#fff' }), dark = M({ c: '#0b0b0e', sh: 40 });
+    const part = (parent, x, y, z, fn) => { const g = new T.Group(); g.position.set(x, y, z); parent.add(g); const b = K.batch(); fn(K.into(b)); b.build(g); return g; };
+    const ball = (P, x, y, z, rx, ry, rz, m, w, h) => P.geo(new T.SphereGeometry(1, w, h), x, y, z, m, { sx: rx, sy: ry, sz: rz }); // (exact segment counts: the budget is ~1.5k)
+    const torso = new T.Group(); cat.add(torso);
+    const chest = part(torso, 0, 0, 0, P => { ball(P, 0, 0, 0, 12.5, 7.2, 7.4, fur, 9, 7); ball(P, -7, 0.6, 0, 7, 7, 6.6, fur, 8, 6); ball(P, 7.2, 0.8, 0, 7.6, 7.4, 7.9, fur, 8, 6); ball(P, -11.2, 3.2, 0, 3.4, 4.2, 4.6, wht, 6, 5); ball(P, -1, 5.6, 0, 7, 1.6, 4.6, wht, 6, 4); });
+    const head = part(torso, -13.5, -6.2, 0, P => {
+      ball(P, 0, 0, 0, 5.4, 4.9, 5.9, fur, 9, 7); ball(P, -3.9, 1.7, 0, 2.5, 2.0, 3.1, wht, 8, 5); ball(P, -1.6, 3.2, 0, 2.6, 1.4, 3.0, wht, 6, 4);
+      ball(P, -6.15, 0.75, 0, 0.55, 0.45, 0.8, pink, 5, 4); // nose
+      for (const s of [-1, 1]) {
+        P.lathe(0.8, -3.6, s * 3.1, [[0.05, -4.6], [2.4, 0]], 4, fur, { rx: s * 14, ry: 45 }); P.lathe(0.15, -3.5, s * 3.1, [[0.05, -3.4], [1.5, 0]], 4, pink, { rx: s * 14, ry: 45 });
+        for (let k = 0; k < 2; k++) P.cyl(-5.2, 1.4 + k * 0.6, s * 5.6, 0.05, 0.05, 6, 3, wht, { rx: 90, ry: s * (10 + k * 12) });
+      }
+    });
+    // the eyes: open (yellow, black slit) and shut (a dark curve), toggled by pose
+    const eyesOpen = part(head, 0, 0, 0, P => { for (const s of [-1, 1]) { ball(P, -4.75, -1.3, s * 2.15, 0.55, 1.15, 1.0, iris, 6, 5); ball(P, -5.18, -1.3, s * 2.15, 0.2, 0.95, 0.3, dark, 5, 4); } });
+    const eyesShut = part(head, 0, 0, 0, P => { for (const s of [-1, 1]) P.geo(new T.TorusGeometry(0.9, 0.16, 3, 8, Math.PI), -4.85, -1.0, s * 2.15, dark, { ry: 90, rx: 180 }); });
+    const legs = [[-8.6, 3.2, -3.5], [-8.6, 3.2, 3.5], [8.2, 3.6, -4.2], [8.2, 3.6, 4.2]].map(([x, y, z]) => part(torso, x, y, z, P => { P.cyl(0, 5.2, 0, 1.75, 1.4, 10.4, 6, fur, { open: true }); ball(P, -0.4, 10.6, 0, 2.0, 1.2, 1.7, wht, 6, 4); }));
+    const tail = []; let at = torso, tx = 12.6, ty = -1;
+    for (let k = 0; k < 5; k++) { const r0 = 1.55 - k * 0.15, g = part(at, tx, ty, 0, P => { P.cyl(1.7, 0, 0, r0 - 0.15, r0, 3.6, 5, fur, { rz: 90, open: true }); ball(P, 0, 0, 0, r0, r0, r0, fur, 5, 4); if (k === 4) ball(P, 3.6, 0, 0, r0 - 0.15, r0 - 0.15, r0 - 0.15, fur, 5, 4); }); tail.push(g); at = g; tx = 3.5; ty = 0; }
+    const sh = K.into(cat).shadow(0, 0, 0, 36, 22, 0.5);
+    const set = (g, rx, ry, rz) => g.rotation.set((rx || 0) * D2R, (ry || 0) * D2R, (rz || 0) * D2R);
+    const leg = (i, rz, s) => { set(legs[i], 0, 0, rz); legs[i].scale.set(1, s || 1, 1); };
+    const curl = (rzs, rys) => tail.forEach((g, k) => set(g, 0, rys[k] || 0, rzs[k] || 0));
+    // Fit the visible paws to their local floor; curled sleeping legs stay tucked above it.
+    const floorInv=new T.Matrix4(),floorMat=new T.Matrix4(),floorV=new T.Vector3();
+    const contactMeshes=g=>{const out=[];g.traverse(m=>{if(m.isMesh&&!m.userData.contactShadow)out.push(m)});return out};
+    const chestContact=contactMeshes(chest),pawContact=legs.map(contactMeshes);
+    function groundPose(name,t){
+      cat.updateWorldMatrix(true,true);floorInv.copy(cat.matrixWorld).invert();let low=-Infinity;
+      for(const m of chestContact){floorMat.multiplyMatrices(floorInv,m.matrixWorld);const p=m.geometry.attributes.position;for(let i=0;i<p.count;i++){floorV.fromBufferAttribute(p,i).applyMatrix4(floorMat);low=Math.max(low,floorV.y)}}
+      const shift=name==='sleep'?low:Math.max(0,low);torso.position.y-=shift;
+      const active=name==='sit'?[0,1]:name==='sleep'?[]:[0,1,2,3];
+      for(const i of active){let fit=Infinity;const old=legs[i].scale.y,lift=name==='walk'?Math.max(0,Math.cos(t/170+(i===0||i===3?0:Math.PI)))*2:0;
+        for(const m of pawContact[i]){floorMat.multiplyMatrices(floorInv,m.matrixWorld);const e=floorMat.elements,p=m.geometry.attributes.position;
+          for(let k=0;k<p.count;k++){const a=e[5]/old*p.getY(k),b=e[1]*p.getX(k)+e[9]*p.getZ(k)+e[13]-shift;if(a>1e-6)fit=Math.min(fit,(-lift-b)/a)}}
+        if(Number.isFinite(fit))legs[i].scale.y=Math.max(.25,Math.min(1.8,fit));
+      }
+    }
+    function pose(name, t) {
+      t = t || 0; cat.userData.poseName = name;
+      eyesOpen.visible = name === 'sit' || name === 'walk' || name === 'eat'; eyesShut.visible = !eyesOpen.visible;
+      head.position.set(-13.5, -6.2, 0); torso.scale.set(1, 1, 1);
+      if (name === 'sleep') { // curled up: legs tucked, chin on its paws, the tail wrapped round the front
+        torso.position.set(0, -7.4, 0); set(torso, 0, 0, 0); head.position.set(-12.4, -1.2, 1.6); set(head, -8, 28, -14);
+        for (let i = 0; i < 4; i++) leg(i, i < 2 ? -86 : 86, 0.55);
+        curl([4, 6, 2, 0, 0], [40, 40, 42, 38, 30]);
+      } else if (name === 'sit') { // the loaf's alert cousin: haunches down, front legs straight, tail round the toes
+        torso.position.set(4, -11, 0); set(torso, 0, 0, 40); set(head, 0, 0, -32);
+        leg(0, -40, 1.48); leg(1, -40, 1.48); leg(2, 88, 0.66); leg(3, 88, 0.66);
+        curl([-36, 8, 6, 0, 0], [-62, -40, -38, -30, -20]);
+      } else if (name === 'stretch') { // the big one: front paws out, chest down, rump up, tail high
+        torso.position.set(1, -11.4, 0); set(torso, 0, 0, -16); set(head, 0, 0, 30); head.position.set(-14.5, 1.8, 0);
+        leg(0, -38, 1.05); leg(1, -34, 1.05); leg(2, 16, 1.25); leg(3, 16, 1.25);
+        curl([-62, 22, 18, 14, 10], [0, 0, 0, 0, 0]);
+      } else if (name === 'eat') { // crouched at the bowl, head down
+        torso.position.set(0, -11.2, 0); set(torso, 0, 0, -10); head.position.set(-13.8, 2, 0); set(head, 0, 0, -38 + Math.sin(t / 160) * 6);
+        leg(0, -6, 0.86); leg(1, -6, 0.86); leg(2, 40, 0.8); leg(3, 40, 0.8);
+        curl([12, 10, -14, -10, -8], [22, 14, 10, 6, 0]);
+      } else { // walk (t in ms): diagonal pairs swing, a little bob, tail up in a question mark
+        const ph = t / 170, sw = 26;
+        torso.position.set(0, -13.8 + Math.abs(Math.sin(ph)) * 0.5, 0); set(torso, 0, 0, 0); set(head, 0, 0, 4 + Math.sin(ph * 2) * 2);
+        leg(0, Math.sin(ph) * sw, 1); leg(3, Math.sin(ph) * sw, 1); leg(1, -Math.sin(ph) * sw, 1); leg(2, -Math.sin(ph) * sw, 1);
+        curl([-70, 16, 14, 18 + Math.sin(ph) * 6, 24], [0, Math.sin(ph * 0.5) * 8, 0, 0, 0]);
+      }
+      groundPose(name,t);
+    }
+    cat.userData.pose = pose; cat.userData.breath = chest; pose('sleep');
+    return cat;
+  }
+  // a 1999 cat tree from the pet shop: sisal-wrapped posts, beige carpeted platforms at three heights, a den with a round
+  // door, a cushioned bed on top and a pom-pom on a string. Base on the floor at (x, z), turned ry degrees (its own +x,
+  // the den door, faces the room). Everything stays inside a 46 cm square.
+  function catTree(B, r, x, z, ry) {
+    const carpet = M({ c: '#fff', map: K.tex('rm.cattreecarpet', 64, 64, (g, w, h) => { g.fillStyle = '#c9b494'; g.fillRect(0, 0, w, h); A.grain(g, w, h, 1600, 0.16, 71); }, { rep: [1, 1] }), sh: 2 });
+    const sisal = M({ c: '#fff', map: K.tex('rm.sisal', 32, 64, (g, w, h) => { g.fillStyle = '#c7a56a'; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 3) { g.fillStyle = y % 6 ? 'rgba(90,60,20,.35)' : 'rgba(255,240,200,.35)'; g.fillRect(0, y, w, 1.4); } A.grain(g, w, h, 300, 0.12, 72); }, { rep: [2, 6] }), sh: 6 });
+    const a = (ry || 0) * D2R, W = (lx, lz) => ({ x: x + lx * Math.cos(a) + lz * Math.sin(a), z: z - lx * Math.sin(a) + lz * Math.cos(a) });
+    const T0 = B.at(x, FY, z, ry || 0);
+    T0.rbox(0, -2, 0, 46, 4, 46, 1.2, carpet); // the base board
+    // the den: a carpeted box, open at the door side, with a round door panel
+    T0.box(-6, -16, 2, 32, 24, 34, M({ c: '#fff', map: K.tex('rm.cattreecarpet2', 64, 64, (g, w, h) => { g.fillStyle = '#c3ad8c'; g.fillRect(0, 0, w, h); A.grain(g, w, h, 1600, 0.16, 73); }, {}), sh: 2, side: 2 }), { sides: 'ltubf' });
+    const door = new T.Shape(); door.moveTo(-17, 0); door.lineTo(17, 0); door.lineTo(17, 24); door.lineTo(-17, 24); door.closePath();
+    const hole = new T.Path(); hole.absarc(0, 11, 8.5, 0, Math.PI * 2, true); door.holes.push(hole);
+    const dg = new T.ExtrudeGeometry(door, { depth: 2, bevelEnabled: false, curveSegments: 14 }); dg.rotateY(Math.PI / 2); dg.rotateX(Math.PI);
+    T0.geo(dg, 10.2, -4, 2, carpet);
+    // posts (base -> middle shelf, middle shelf -> top, den roof -> top) and the platforms
+    T0.cyl(17, -33, -16, 4.2, 4.2, 58, 12, sisal); T0.rbox(5, -63, -12, 36, 3, 24, 1, carpet);
+    T0.cyl(8, -82.3, -13, 4.2, 4.2, 36, 12, sisal); T0.cyl(-6, -64, 4, 4.6, 4.6, 72, 12, sisal);
+    T0.rbox(-4, -101.5, 2, 36, 3, 36, 1, carpet); // the top
+    T0.lathe(-4, -103, 2, [[14.5, -5], [16.5, -4], [17, -1], [16, 0]], 20, carpet); T0.cyl(-4, -103.6, 2, 14.6, 14.6, 1.2, 20, M({ c: '#b8a283', sh: 2 }));
+    // the dangling toy: a string and a red pom-pom off the middle shelf
+    T0.cyl(21, -55.5, -4, 0.12, 0.12, 12, 3, M('#e8e0c8')); T0.ball(21, -48.6, -4, 2.4, 2.4, 2.4, M({ c: '#d8283a', sh: 4 }), 8); T0.ball(21, -50.6, -4, 1.2, 0.8, 1.2, M('#ffd21f'), 6);
+    T0.shadow(0, 0, 0, 58, 58, 0.6, { sq: true });
+    const rect = (x0, z0, x1, z1) => { const p = [W(x0, z0), W(x1, z1)]; return [Math.min(p[0].x, p[1].x), Math.min(p[0].z, p[1].z), Math.max(p[0].x, p[1].x), Math.max(p[0].z, p[1].z)]; };
+    H.block('U', ...rect(-23, -23, 23, 23));
+    H.support('bedroom', ...rect(-23, -23, 23, 23), FY - 4.5, { thick: 4 }); // (the base board, round the den)
+    H.support('bedroom', ...rect(-13, -24, 23, 0), FY - 64.5, { thick: 3 });
+    H.support('bedroom', ...rect(-22, -16, 14, 20), FY - 103, { thick: 3 });
+    const top = W(-4, 2), den = W(-6, 2);
+    return { top: { x: top.x, y: FY - 104.2, z: top.z }, den: { x: den.x, y: FY - 4.6, z: den.z }, W };
+  }
   // ================================================================ things you can pick up (the grab system)
   function things() {
     const add = (id, def) => { const t = H.thing(id, def); t.obj.userData.thing = 1; t.obj.traverse(o => { o.userData.thing = 1; }); H.restoreThing(t); return t; };
@@ -1364,9 +1500,12 @@
     const cube=add('cube',{home:{room:'bedroom',x:-40,y:0,z:-10,ry:25},kind:'toy',label:'Puzzle cube',obj:cubeModel(),use:()=>H.inspect('cube'),useLabel:'Solve it',holdD:34});
     if(cube.at.room==='bedroom'&&cube.st==='rest'&&Math.abs(cube.at.x+50)<.1&&Math.abs(cube.at.y)<.1&&Math.abs(cube.at.z+22)<.1&&Math.abs(cube.at.ry-25)<.1){cube.at=Object.assign({},cube.home);H.place(cube);H.saveThings()}
     add('vpet', { home: { room: 'bedroom', x: 40, y: 0, z: 24, ry: 10 }, kind: 'toy', label: 'Eggbert (my keyring pet)', obj: vpetModel(), use:()=>H.inspect('vpet'),useLabel:'Check on it',holdD:30,inspectPose:{pitch:-78,yaw:0},onInspectStart:petInspect,onInspectEnd:()=>{clearInterval(R.petTimer);R.petTimer=null},onInspectKey:ev=>{const action={a:'feed',b:'play',c:'clean'}[ev.key.toLowerCase()];if(action&&!ev.repeat)R.petAction?.(action);return!!action},onInspectClick:hit=>{const action=hit?.object.userData.inspectAction;if(action)R.petAction?.(action)} });
-    const fb = new T.Group(); K.into(fb).ball(0, -11, 0, 11, 11, 11, M({ c: '#fff', map: K.tex('rm.ball', 256, 128, (g, w, h) => { g.fillStyle = '#f4f4f0'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a1a1a'; for (let y = 0; y < 3; y++) for (let x = 0; x < 6; x++) { const cx = x * 43 + (y % 2) * 21, cy = 20 + y * 44; g.beginPath(); for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; g.lineTo(cx + Math.cos(a) * 11, cy + Math.sin(a) * 11); } g.fill(); } }), sh: 30 }), 18);
+    // The football: a real truncated icosahedron (12 black pentagons, 20 white hexagons) with inset seams and domed
+    // panels, one vertex-coloured mesh (540 triangles). It sits in a spin group so it rolls when it is kicked.
+    const fb = new T.Group(), spin = new T.Group(); spin.position.set(0, -11, 0); fb.add(spin);
+    spin.add(new T.Mesh(footballGeo(11), M({ c: '#fff', vc: true, sh: 38, sp: '#4a4a4a' })));
     K.into(fb).shadow(0, 0, 0, 24, 24, 0.5);
-    add('football', { home: { room: 'bedroom', x: -60, y: FY, z: 200, ry: 0 }, kind: 'ball', label: 'Football', obj: fb, holdD: 60 });
+    const ball = add('football', { home: { room: 'bedroom', x: -60, y: FY, z: 200, ry: 0 }, kind: 'ball', label: 'Football', obj: fb, holdD: 60, physics: { round: true, mass: 0.43, mu: 0.12, coast: 0.85 } }); ball.spin = spin; ball.spinR = 11;
     // (real floppies, discs and game boxes are Agent P's: js/pm-gl.js, through Room.grabbable)
     H.on('grab', id => { carry.id = id; carry.d = 0; });
     H.on('place', () => { carry.id = null; });
@@ -1774,7 +1913,7 @@
   function holdHandheld(grip) {
     const t = H.THINGS.gb;
     if (t.st === 'fall') t.at.y = t.landY;
-    const view = Object.assign({}, H.P, { rx: 0, seat: 1, lvl: H.W.lvl, zm: H.motion.reduce ? 1 : 1.1 });
+    const view = Object.assign({}, H.P, { rx: 0, seat: 1, lvl: H.W.lvl, zm: H.motion.reduce ? (H.P.zm || 1) : 1.1 });
     // where it is now, relative to the camera (a hand pose) or in the room (on the desk): the way back
     const rest = grip ? null : { at: Object.assign({}, t.at), rx: t.rx || 0, rz: t.rz || 0, m: objMatrix(t.obj) };
     gbPlay = { grip, rest, st: t.st, view, hand: grip ? relTo(H.P, objMatrix(t.obj)) : null, play: gbPlayPose(view) };
@@ -1851,7 +1990,7 @@
   let bitsLoad = null, pending = false, boT = 0, bitsEpoch = 0;
   // Posters never open a separate picture: approach the actual paper on its wall.
   const POSTER_VIEW = {
-    postershuttle: [-52, -82, BZ, 30, 42, 0], posterband: [TX, -64, BZ, 34, 46, 0],
+    postershuttle: [-52, -82, BZ, 42, 59.4, 0], posterband: [TX, -66, BZ, 42, 59.4, 0],
     posterfilm: [TX - 58, -96, BZ, 28, 40, 0], postergame: [LX, -70, 20, 32, 45, 90],
     posterrobot: [-10, -98, FZ, 30, 42, 180]
   };
@@ -1869,7 +2008,7 @@
       enter: () => { focusedPoster = id; H.ui.tip(null); }, exit: () => { focusedPoster = null; } });
   }
   addEventListener('resize', () => { if (focusedPoster && H.mode === 'focus') { Object.assign(H.P, posterPose(focusedPoster)); H.dirty(); } });
-  const BITVIEW = { postershuttle: [-52, -82, BZ], posterband: [TX, -64, BZ], posterfilm: [TX - 58, -96, BZ], cork: [42, -84, BZ], window: [191, -63, BZ], lava: [134, 6, BZ + 21], mags: [TX + 34, FY, 58], rack: [TX - 56, 33, -44], drawer: [56, 6, 40] };
+  const BITVIEW = { postershuttle: [-52, -82, BZ], posterband: [TX, -66, BZ], posterfilm: [TX - 58, -96, BZ], cork: [42, -84, BZ], window: [191, -63, BZ], lava: [134, 6, BZ + 21], mags: [TX + 34, FY, 58], rack: [TX - 56, 33, -44], drawer: [56, 6, 40] };
   function bits(id) {
     if(id==='rack')return rackNote();
     if (POSTER_VIEW[id]) return posterFocus(id);
@@ -1904,7 +2043,7 @@
     if (strokes >= 6) secret('rm.tibbs');
     let he = 'he', him = 'him'; try { he = Cast.he('cat'); him = Cast.him('cat'); } catch (e) {}
     const n = catName(), He = he[0].toUpperCase() + he.slice(1);
-    say(n, esc([`${n} from next door. ${He} comes in through the window and sleeps on my bed. Nobody knows why.`, `Stroke stroke. ${He} opened one eye. ${He} closed it again.`, `${He}'s stretching! There's something under ${him}...`, 'Prrrrrrr.', `PRRRRRRRRRRRR. ${He} likes that.`, `PRRRRRRRRRRRRRRRRRRR! ${He}'s rolled over! Best cat ever.`][Math.min(5, strokes - 1)]));
+    say(n, esc([`${n} from next door. ${He} comes in through the window and sleeps on the cat tree Mom bought so ${he} would stop sleeping on my bed. Nobody knows why ${he} picked us.`, `Stroke stroke. ${He} opened one eye. ${He} closed it again.`, `${He}'s stretching! There's something under ${him}...`, 'Prrrrrrr.', `PRRRRRRRRRRRR. ${He} likes that.`, `PRRRRRRRRRRRRRRRRRRR! ${He}'s rolled over! Best cat ever.`][Math.min(5, strokes - 1)]));
   }
   // Physical hi-fi controller. Loaded on room construction, with retries if
   // the request fails; no PC autorun or old 2D rack view is involved.
@@ -2001,7 +2140,7 @@
     H.ambient.add(now => { // the gentle stuff: the lava lamp's blobs, the cat breathing, the clock, the sky
       const visible=room.group.visible&&room._renderDrawn!==false;
       if (visible && R.blobs && LIGHT.lava) R.blobs.forEach((b, i) => { const t = now / (2600 + i * 900) + i * 2; b.position.y = -12 - (Math.sin(t) * 0.5 + 0.5) * 12; b.scale.y = 1.6 + Math.sin(t * 2.3) * 0.5; });
-      if (visible && R.catBody) R.catBody.scale.y = 6.5 + Math.sin(now / 900) * 0.25;
+      if (visible && R.catBody) R.catBody.scale.y = 1 + Math.sin(now / 900) * 0.035;
       if(now>=nextClock){nextClock=now+1000;const d=window.OwnerTools?.now()||new Date();if(d.getMinutes()!==clockMin){clockMin=d.getMinutes();paintClock(d);if(clockMin%5===0)paintSky()}}
       return !!(visible&&(R.catBody||R.blobs&&LIGHT.lava));
     });
@@ -2180,8 +2319,9 @@
     H.ambient.add(follow);follow();return box;
   }
   function rackSlots(){
-    for(let n=0;n<20;n++){const p=rackPose(n);mediaSlots[n]=Room.addSnap('media.slot.'+n,{room:'bedroom',x:p.x,y:p.y-6,z:p.z,r:26,box:[15.2,12.6,5.6],preview:{x:p.x,y:p.y-6.3,z:p.z},pose:p,hint:'Put the box upright in this slot',
-      accepts:(kind,t)=>{if(kind!=='console-case'||!t||!inOwnCase(t.gameId)||Object.entries(mediaSlotSave||{}).some(([id,s])=>s===n&&id!==t.gameId))return false;const ray=H.rayAt(pb.clientWidth/2,pb.clientHeight/2);if(ray.d.z>=-.01)return false;const distance=(-36-ray.o.z)/ray.d.z;if(distance<0||distance>260)return false;const x=ray.o.x+ray.d.x*distance,y=ray.o.y+ray.d.y*distance;return Math.abs(x-p.x)<3.5&&Math.abs(y-(p.y-6.3))<7.5},
+    for(let n=0;n<20;n++){const p=rackPose(n);mediaSlots[n]=Room.addSnap('media.slot.'+n,{room:'bedroom',x:p.x,y:p.y-6,z:p.z,r:26,box:[15.2,.45,5.6],preview:{x:p.x,y:p.y-.4,z:p.z},pose:p,hint:'Put the box upright in this slot',
+      accepts:(kind,t)=>kind==='console-case'&&!!t&&inOwnCase(t.gameId)&&!Object.entries(mediaSlotSave||{}).some(([id,s])=>s===n&&id!==t.gameId),
+      aims:()=>{const ray=H.rayAt(pb.clientWidth/2,pb.clientHeight/2);if(ray.d.z>=-.01)return false;const distance=(-36-ray.o.z)/ray.d.z;if(distance<0||distance>260)return false;const x=ray.o.x+ray.d.x*distance,y=ray.o.y+ray.d.y*distance;return Math.abs(x-p.x)<3.5&&Math.abs(y-(p.y-6.3))<7.5},
       onBegin:(t)=>{mediaSlotSave[t.gameId]=n;caseStore.save();t.home=Object.assign({},p,{snap:'media.slot.'+n});caseLid(t,false);return true;}})}
     H.on('tidy',rid=>{if(rid&&rid!=='bedroom')return;for(const box of Object.values(mediaBoxes))caseLid(box,false);const v=window.RoomTV?._dbg();if(v?.gid&&mediaThings[v.gid]?.snap!=='console.'+v.con)RoomTV.stopPhysical(v.con);});
   }
@@ -2356,7 +2496,10 @@
         const m = screen.material, tx = m.map;
         if (tx && tx.userData.jackLive) {if (tx.userData.hud) tx.userData.hud.dispose(); tx.dispose();}
         m.map = con === 'gb' ? null : tex('screenOff'); m.color.set(con === 'gb' ? '#83956c' : '#ffffff');
-        m.onBeforeCompile = () => {}; m.customProgramCacheKey = () => 'room-screen-off'; m.needsUpdate = true;
+        // The dark screen's program carries the live screen's uniforms too. three.js keeps each program a material has
+        // compiled and, when it switches back to one, reuses the uniforms of whichever program was compiled LAST: an
+        // off program without rmHUD left every later game on this screen with no HUD (the picture alone).
+        m.onBeforeCompile = screenUniforms(screenCRT(m, con)); m.customProgramCacheKey = () => 'room-screen-off'; m.needsUpdate = true;
         if (con !== 'gb' && !target) LIGHT.telly = false;
         H.relight(); H.dirty();
       },
@@ -2377,7 +2520,7 @@
         // three.js caches this material's live-screen program across console
         // changes. Its compiled uniforms must keep the same object identities;
         // a fresh texture-owned object leaves the old game's HUD bound.
-        const uniforms=m.userData.rmCRTUniforms||(m.userData.rmCRTUniforms={rmHUD:{value:hud},rmLines:{value:canvas.height},rmPower:{value:1},rmKind:{value:con==='gb'?0:1}});
+        const uniforms=screenCRT(m,con);
         uniforms.rmHUD.value=hud;uniforms.rmLines.value=canvas.height;tx.userData.uniforms=uniforms;
         tx.needsUpdate = true; m.map = tx; m.color.set('#ffffff');
         if (fresh) {
@@ -2397,6 +2540,12 @@
       mk: (p, c, css, html) => { const d = document.createElement('div'); d.className = c; if (css) d.style.cssText = css; if (html) d.innerHTML = html; p.appendChild(d); return d; }, pb, stage: pb.querySelector('.pc-stage'), get hud() { return H.ui.el; }, coin,
       coinToast: amt => toast('+' + amt + ' Rupees', 'For playing on the consoles') },
   };
+  // One uniforms object per screen material, shared by every program it compiles (live and dark), so whichever program
+  // three.js reuses, rmHUD/rmPower are bound to the current game's HUD texture.
+  function screenCRT(m, con) {
+    return m.userData.rmCRTUniforms || (m.userData.rmCRTUniforms = { rmHUD: { value: null }, rmLines: { value: 480 }, rmPower: { value: 1 }, rmKind: { value: con === 'gb' ? 0 : 1 } });
+  }
+  function screenUniforms(uniforms) { return shader => { Object.assign(shader.uniforms, uniforms); }; }
   // The live-screen shader (both the telly and the Game Lad). Shared so it can be compiled ahead of time: the
   // first console go must never stall on a shader link while the camera is moving.
   function liveScreenShader(uniforms) {

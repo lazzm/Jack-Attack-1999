@@ -211,7 +211,7 @@
     tidy: ['Tidy my room. It IS tidy. It\'s organised mess. There\'s a system.', 'Right. Clothes in the basket, rubbish in the bin. How hard can it be?'],
     bed: ['Why make the bed? I\'m only getting back in it tonight. (Mom does not accept this argument.)'],
     bin: ['My bin. It\'s mostly crisp packets. And something that used to be a banana.'],
-    cat: [cast('{cat} isn\'t even our cat. {cat.He} just lives here. And eats here. And sleeps on my bed.')],
+    cat: [cast('{cat} isn\'t even our cat. {cat.He} just lives here. And eats here. And sleeps on the cat tree Mom bought for {cat.him}.')],
     plant: ['Gran gave me this plant \"to brighten the place up\". It has survived two years in a teenager\'s bedroom. Respect.'],
     washup: ['The washing up. The worst job. Every plate in the house, somehow.', 'Hot water, a squirt of Faerie Liquid, and SCRUB. Rubber gloves are for wimps.'],
     table: ['Lay the table. Four plates, four forks, four knives. I can count to four.'],
@@ -315,7 +315,7 @@
     if (!t) return null;
     t.noSave = true; MINE[id] = t;
     const a = S.at[id];
-    if (a && H.ROOMS[a[0]]) { t.at = { room: a[0], x: a[1], y: a[2], z: a[3], ry: a[4], hide: !!a[5] }; t.st = 'rest'; const rr = H.ROOMS[a[0]]; if (t.obj.parent !== rr.things) rr.things.add(t.obj); H.place(t); H.layerFor(t); }
+    if (a && H.ROOMS[a[0]]) { t.at = { room: a[0], x: a[1], y: a[2], z: a[3], ry: a[4], hide: !!a[5] }; t.st = 'rest'; const rr = H.ROOMS[a[0]]; if (t.obj.parent !== rr.things) rr.things.add(t.obj); H.place(t); H.layerFor(t); H.rescue?.(t); }
     return t;
   }
   function keep(id) { const t = MINE[id]; if (!t) return; const a = t.at; S.at[id] = [a.room, +a.x.toFixed(1), +a.y.toFixed(1), +a.z.toFixed(1), Math.round(a.ry || 0), a.hide ? 1 : 0]; save(); }

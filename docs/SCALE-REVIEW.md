@@ -1,0 +1,101 @@
+# Scale and proportion review (art director pass)
+
+Date: 2026-10-27. Owner note: "sizing all off weird - review keep iterating please".
+Method: read-only. Screenshots in `landing-house/tests/shots/house-scale/{before,after}/`, `landing/tests/shots/smoke/`,
+`landing-people/tests/shots/people-v2/`; dimensions read from `app/public/js/hs-house.js` (HH), `rm-room.js` (RM),
+`hs-world.js` (HW), `hs-environment.js` (HE), `ch-out.js` (CO). Units cm. "est." = estimated from a screenshot, not from code;
+re-measure before editing. Shots named `house-scale/*` were taken at eye 158 cm, the smoke/people shots at the live eye
+(128 cm), so the house-scale shots flatter the game (see global G2).
+
+Method note for sizes in the shots: brick course on the house front measures about 7.4 cm against the 205 cm door leaf, so the
+brick texture scale (21.5 x 6.5) is correct and is the yardstick the other rows are judged against.
+
+## Camera follow-up (28 October)
+
+G1/G2 are implemented on `house-camera`: standing eye 143 cm and default seated eye 108 cm; walking uses 60 degrees vertically on ordinary landscape displays, at least 50 degrees horizontally in portrait, and a 95-degree horizontal ceiling. The PC retains its original lens. CSS and WebGL use the same focal length throughout the change.
+
+`node tests/camera-lens.mjs` measures six viewports and captures bedroom, hall, lounge and drive views at the actual walking lens. Matched old-camera captures are in `tests/shots/camera-lens/before/` (`--baseline --app-root=<old app directory>`); current captures are directly in `camera-lens/`. At 1366x860 the new view is 60 degrees vertical / 85.04 horizontal; at 390x844 it is 90.52 vertical / 50 horizontal. Both rendered camera systems agree within one pixel. A standing save from the old 128 cm eye retains its location and walking mode. The live desktop also follows lens-only changes: all four DOM corners remain within 0.06 px of the WebGL glass (R111). The historical current/target columns below predate these measured results.
+
+G5: the scale, movement and character fixtures now use `House.STAND`, so their standing captures no longer silently put the camera above the player. Old audit images remain historical evidence; remaining dimensions below still need their own review.
+
+## Global (remaining rows still need review)
+
+| id | issue | where | current | target | why it feels wrong |
+|---|---|---|---|---|---|
+| G1 (done 2.57.13) | Lens is a 41 degree vertical FOV | `PERSP = 115` (HW:23), `lensFov` (HW:149): 2*atan(vh/2 / (115*em)); em about 10 at 860 px high; the mobile css bumps em so it is about 38 degrees | about 41 deg vertical (about 62 horizontal at 16:9) | 58-62 deg vertical (PERSP about 76-80) | A long lens in a small house: you stand 1 m from a 192 cm wardrobe and it fills the frame, the car side fills the screen from 3 m, a 100 cm wide room feels like a corridor. Everything looks huge and close and flat at once, which is the "weird" feeling. Retune the station poses (`rm-room.js` stations, `look()` calls) and pickBox framing after widening |
+| G2 (done 2.57.13) | Eye height too low for the house it lives in | `STAND = 128`, `SITH = 100` (HW:544); house-scale test used 158; `seat.eye` 110 chair / 81 beanbag | 128 standing | 142-145 standing, 108 seated, crouch -38 stays | A 12 year old's eyes are about 140-145 cm; 128 is a 9 year old. Against 205 cm doors and 258 ceilings every fixed thing is 1.5x the player. Also makes the dad/mom heads (about 175/160) tower |
+| G3 | Storey height 258 cm | ceilings `UY 73 / UC -185`, `GY 353 / GC 95` (HH:19) | 258 | 240-245 (UC -170, GC 110) | 53 cm of blank wall above a 205 cm door is the 1930s-grand look; late-90s semi is 240 with 35 cm over the door. Combined with G2 it is the main reason doors read small |
+| G4 | Detail scale is mixed: textures realistic, geometry chunky | wall skirting 9 cm (HH:~47) is right; newel, handrail, hinges, door handle and cove are fat; props (pumpkins, bowls, cereal box) are 1.2-1.4x | n/a | see rows | Brick and carpet speckle are correct size, so every chunky prop beside them looks oversized |
+| G5 (fixtures corrected 2.57.13) | Reference shots mislead | `tests/house-scale.mjs` eye 158 vs live 128 | eye 158 | run the audit at live eye and at the new FOV | The review shots were taken from 30 cm higher than the player, so ceiling / doorway / wardrobe proportions in them look better than in game |
+
+## Prioritised findings
+
+| id | area | object | current (cm, where in code) | target (cm) | why it looks wrong | screenshot |
+|---|---|---|---|---|---|---|
+| 1 | Front garden | Front wall and its hedge | wall 70 high x 20 thick + 4 cm cap (HH:1091); hedge `rbox` 554 x 84 x 30 centred 42 up (HH:1100), so the hedge tops the wall by only 10 cm | wall 55 high x 22 thick incl. cap; hedge 125 high x 55 thick, rounded top | A thick brick slab with a thin green fringe: the single most obvious wrong-size thing from the lawn. Real: low wall under a 1.2-1.8 m hedge | smoke/front-garden.png |
+| 2 | Front garden | Gate piers | 24 x 80 shaft + 29 sq cap + 18 sq finial = about 86 high (HH:1092) | 33 x 33 x 115 shaft, 42 sq cap 6 thick, finial to about 130 | Piers barely taller than the wall and thinner than the car door pillar; they should be the tallest brick items by the road (1.2 m, 0.33 sq) and are about 75 percent of that | house-scale/after/low-drive-gate.png |
+| 3 | Front garden | Next door's hedge | solid at x 716..740, z 704..1285 (HH:1190); shot shows about 130 high, flush against pier | match our new hedge (125) and step it back 20 cm from the pier | Neighbour hedge is clearly taller than our pier and wall; the two boundary heights fight | house-scale/after/low-drive-gate.png |
+| 4 | Car | Cabin / roof proportion | body 170 x 46 x 320 at -52 up; belt line -78; roof 134 x 5 x 150 at -131; scaled 1.04, so roof 156 long of 426 (HH:1117-1146) | cabin 190-200 long (45 percent), slightly raked screen, roof 125 wide | Reads as a flat box with a short glass lid, hearse-like from the side, "squashed" is now "stretched". A 90s family saloon's glasshouse is about 45 percent of length | house-scale/after/low-car-side.png, low-car-front-q.png |
+| 5 | Car | Bonnet and boot decks | decks at about 81 high (belt -78 x 1.04), flat, no taper at nose | bonnet 78 at the windscreen falling to 66 at the grille; nose 15 cm lower and rounded | Flat slab front looks like a van/landrover; the nose hits the pier line visually | house-scale/after/low-car-front-q.png |
+| 6 | Car | Wheels and arches | tyre r 30 x 1.04 = 31, width 20; no wheel arches cut, tyre pokes out of a straight side (HH:1156) | tyre r 31 with 3-5 cm arch lip, 20 wide, tucked 3 cm in from the sill | Wheels look bolted on the outside of a box; also wheel face is too clean white 8-spoke hub vs a 14 in steel wheel with trim | house-scale/after/low-car-side.png |
+| 7 | Car | A-pillar and window frames | black pillars about 10 cm wide x 1.04, glass panels 60+ cm tall (est. HH:1130s) | pillars 5-6 cm, glass height 45-50 | Chunky black bars make the glass look like a huge aquarium | house-scale/after/low-car-front-q.png |
+| 8 | Car | Car vs gateway and house | frame x 488, z 1000, s 1.04 (HW:1195); front bumper reaches z 1212, wall line z 1295, boot 86 from house | keep length; move frame to z 980 (nose 100 from wall, boot 64 from house) once piers grow, or reduce s to 1.0 | With the wide lens fixed it will be fine; at the current lens the nose appears to touch the pier | smoke/front-garden.png |
+| 9 | Landing | Landing corridor vs doors | corridor clear 76 (x 252..328, HOUSE-SCALE.md); door leaves 80 x 205 (HH:228) | corridor 90 clear; leaves 76 x 198 | The hall is narrower than the door that opens into it. The first thing you notice walking out of the bedroom: shoulders brush both walls | smoke/landing-stairs.png |
+| 10 | Stairs | Stair width, newel and rail | 75 between strings, risers 20, going 25 (HOUSE-SCALE.md); newel about 11 sq with a 14 ball, rail about 7 x 5.5 (est.) | 82-85 wide; newel 9 sq with 8 ball; rail 5 x 6; balusters 3 sq | Newel ball is bigger than a head-sized melon relative to a 75 cm stair; handrail chunky | smoke/landing-stairs.png, before/low-landing-top.png |
+| 11 | Bedroom | Desk | top 152 x 86, 73 high (RM:285 solid -76..76 x -55..31); three drawers on right | 130-135 x 65-70, 73 high | Adult office desk in a 12 year olds room; takes a third of the wall and hides the chair. PC, monitor, mug and a cereal box fit on 130 | smoke/desk-pc.png, before/low-bedroom-door.png |
+| 12 | Bedroom | Telly vs TV unit | telly body 46 x 34 x 14+, screen 33 x 24.75 (RM:605-611); cabinet 73 wide, top 44 above floor (RM:592) | telly 38 x 33 body, screen 28 x 21 (14 in CRT); keep cabinet 73 x 44 x 43 but add a 16 cm CRT overhang clearance | Telly nearly as wide as the unit and its screen is a 16.5 inch, so it reads as a monitor on a coffee table; the SNES/Dreamcast under it look tiny (25 cm console reads 20) | smoke/tv-consoles.png |
+| 13 | Bedroom | Posters | 30 x 42 (RM:473), 34 x 46 (RM:713), 28 x 40 (RM:714), 32 x 45 (RM:715), 30 x 42 (HH:1180) | the two hero posters A2 42 x 59; side ones A3 30 x 42; add one A1 59 x 84 over the bed | All A3-ish stamps on a 258 high wall; kids' bedrooms had A2/A1 posters. Currently smaller than the shelf | smoke/tv-consoles.png, smoke/desk-pc.png |
+| 14 | Bedroom | Wardrobe | 100 x 56 x 192 (RM:1029) | 100 x 54 x 180; add 8 cm plinth gap to ceiling is now 55-65 | Dominates every bedroom shot at eye 128 / FOV 41; with G1-G3 it becomes correct, so only shave 12 cm | smoke/tv-consoles.png, before/low-bedroom-door.png |
+| 15 | Bedroom | Chest of drawers | est. 70 x 90 high, 3 drawers, hifi stack on top | 80 x 78 x 42 | Reads as a bedside cabinet next to a 192 wardrobe; the hifi on top (speakers about 40) crowds | before/low-bedroom-door.png |
+| 16 | Bedroom | Cork board / calendar | about 85 x 55 (est.), calendar 18 x 25, photo 20 x 14 | board 60 x 45, calendar A4 21 x 30, photos 10 x 15 | Photos bigger than a hand, makes the wall feel far away | smoke/desk-pc.png |
+| 17 | Bedroom | Desk clutter | KITTY CRUNCH cereal box about 20 x 30 (est.), mug about 9 high, Tamagotchi about 8 | box 19 x 30 is right but move it off the desk to the shelf; mug 10 high; keep Tamagotchi 6 | Box taller than the monitor base, a cereal box eaten at a computer is 1:1 correct but crowds. Medium | smoke/desk-pc.png |
+| 18 | Bedroom | Pillow, bean bag | pillow about 70 x 15 (est.); beanbag 80 dia x 35 | pillow 50 x 75 x 12; beanbag 90 dia x 55 | Beanbag a flat disc; pillow too long for a single | before/low-bedroom-door.png |
+| 19 | Front garden | Lamp-post base cabinet | base `rbox` 20 x 48 x 20 (HH:1103), column 8 dia taper to 4.2 | 30 x 60 x 25 with a 16 cm column foot | Column is correct 5 m; the base cabinet is a thin door | house-scale/after/low-street-wide.png |
+| 20 | Front garden | Leaf piles | 26 leaves, each 3-4.6 radius ellipsoid, spread radius 13 (CO:327) | leaf 4-6 long, 1 thick; pile radius 25, 6 cm deep, add a few single leaves | Piles read as flat orange stickers: scattered at 70 cm pitch they look like bright confetti, not piles. Leaves 8-9 cm are fine individually; the piles are too small and too many | house-scale/after/low-drive-door.png, low-street-pavement.png |
+| 21 | Front garden | Lawn mower, bucket, sack | mower about 45 x 55 (est.), bucket about 30 high, sack 38 wide x 47 (CO:331) | mower 45 x 100 incl. handle, bucket 28, sack 45 x 70 | Mower handle rises 100 cm in the shot but body is plastic toy sized; sack stubby | house-scale/after/low-street-pavement.png |
+| 22 | Street | Pavement and kerb | pavement z 1300..1395 (95 wide), kerb 1395..1400 (HE:72), road 490 wide | pavement 150, road 560, kerb 12 high | 95 cm pavement is a path. Car door + pram width. Narrow pavement makes the road feel adjacent | house-scale/after/low-street-pavement.png |
+| 23 | Street | Opposite houses | front edges at z 2000 (HE:76, HOUSE-SCALE.md), about 4.5 m beyond their front walls (est.) | move to z 2450 (house-to-house 17-18 m) | Opposite terrace is about 12 m from our front wall in game; real 18-22 m. Looks like a back alley | house-scale/after/low-drive-gate.png |
+| 24 | Street | Opposite houses height / windows | upstairs windows about 110 x 130, eaves about 520 (est.) | keep windows, lower eaves to 480 once G3 | Skyline too tall next to our 2 storey; minor | smoke/front-garden.png |
+| 25 | Hall | Stairs vs hall | stairs 14 x 20 rise (HOUSE-SCALE.md); runner stair rods | rise 19, going 24 (15 risers, 285 rise) only if G3 lands | At eye 128 the flight is steep and tall; looks like a ladder. After G3 retune | before/low-hall-front.png |
+| 26 | Hall | Family heights vs doors | Dad about 175, Mom about 159, sister about 123 (est. people-v2/fam-front.png); head about 1.5x normal (stylised) | Dad 178, Mom 163, sister 125 (10-yo); heads 1.25x | Heads are cartoon big; at eye 128 you look up at everyone. Sister (123) is nearly eye height, so Jack at 128 eye height is 150: consistent but doors then dwarf all of them. Acceptable after G2 | people-v2/fam-front.png, before/low-hall-front.png |
+| 27 | Lounge | Armchair and sofa | arm 22 thick, seat depth about 70, back 85 (est.), cushions 40 sq | armrest 16, seat 55 deep, back 78, cushions 38 | Furniture is the right footprint but puffy; Mom looks 140 beside the armchair | before/low-lounge-corner.png |
+| 28 | Lounge | Door leaf and frame | white leaf 80 x 205, frame 12 | 76 x 198, frame 9 | At eye 128 the leaf seems to fill the room (lounge-door shot is a door in the face) | before/low-lounge-door.png |
+| 29 | Kitchen | Table, chairs, pumpkin | table about 130 x 85 x 75, chair seat about 45 sq, chair back about 95; pumpkin about 35 dia (est.) | table 120 x 80 x 74, back 88, pumpkin 28 dia | Pumpkin is bigger than the placemats stacked; chairs oversized next to the table | smoke/kitchen.png, before/low-kitchen-corner.png |
+| 30 | Kitchen | Placemats / items | placemats about 40 x 28 (est.), spoon/can small | 40 x 29 is right; add plates 26 dia, mug 8 | Mats are fine; there are no plates, so the table looks empty and the pumpkin takes over | smoke/kitchen.png |
+| 31 | Back garden | Shed | about 150 x 130 x 215 (est., HH:~1030) | 180 x 120 x 200, door 76 x 175 | Roof ridge about 215 against the 180 fence makes it a tower; the door is a tall slit | before/low-garden-patio.png |
+| 32 | Back garden | Rotary dryer and washing | arm radius about 190, clothes: jeans about 55 wide, tee about 80 long (est.) | arm radius 150; jeans 40 x 80, tee 55 x 70 | Washing is adult-size flat shapes; dryer dominates | before/low-garden-back.png |
+| 33 | Back garden | Back wall of house | roof is a single slab, kitchen window about 120 x 90 | add rafter overhang 30, gutter 10 | Back elevation reads as a big flat dark slab; not scale per se, but it makes the house feel taller | before/low-garden-back.png |
+| 34 | Mobile | HUD on small screens | minimap about 85 x 85, chips 90 x 30 | fine; check at 360 wide | At G1 the bigger FOV exposes more of the room behind the HUD; verify only | mobile/story-03-stick-walk.png |
+
+## Suggested order (iteration 1 to 3)
+
+1. G1 + G2 (+ G3 if the stairs can be re-laid): one lens/eye change retunes every row; re-shoot all views at eye 142 / FOV 60.
+2. Front plot: rows 1, 2, 3, 19, 22, 23 (wall / hedge / piers / pavement / street spacing). Cheap box dimension edits in HH:1091-1103 and HE:72-76.
+3. Car: rows 4-7 (cabin split, glass height, pillars, arches); keep overall 426 x 177 x 139.
+4. Doors and corridor: rows 9, 10, 28 (needs the east wall moved, see HOUSE-SCALE.md "Not done").
+5. Bedroom props: rows 11-18 (desk first, then posters, telly, board).
+6. Small props: leaves, mower, pumpkin, shed, washing.
+
+## Round 2 status (2026-10-28, branch house-round2)
+
+Re-shot at the new camera with `tests/house-scale.mjs` (eye 143 by default now; `--eye=`, `--width=/--height=` for phones;
+new views street-east/-west/-across, front-wall-hedge, garden-far). Done = in the round 2 commits; partial/open as noted.
+
+| id | status |
+|---|---|
+| G1 | Done. Walking lens WZ (js/hs-world.js): 60 deg vertical in landscape, at least 50 deg across in portrait, never wider than 95 across. The PC keeps its 41 deg lens (seat/monitor/fly-in poses zm 1); the CSS stage perspective follows the lens. |
+| G2 | Done. Standing eye 143, seated 108, crouch -38; ducking for a low door starts 62 cm before it. |
+| G3 | Open. 258 cm storeys stay: lowering them means re-laying the stairs and every wall/door height. |
+| G5 | Done (house-scale eye 143). |
+| 1 | Done. Wall 50 + 5 cm coping, 22 thick; clipped privet about 125 x 55 behind it, one closed softly rounded volume with leaf-scale undulations and an uneven top. |
+| 2 | Done. Piers 33 sq x 114, 42 cm cap + 34 cm cap, top 124 (House.FRONT.PIERS / PIER_TOP; the Halloween lantern sits on it). |
+| 3 | Open (next door's hedges are the shared neighbourhood ones, 72 high). |
+| 4, 7 | Partial. Glass 54 -> 47 high, roof 158 long, pillars 7/5.5 -> 5/4. Bonnet taper (5) and wheel arches (6) open. |
+| 8 | Done 2.57.14. Jack approved the 7 m plot on 28 October: FZ 1400, car x 500/z 1075, clearances 110 cm doorstep/boot and 107 cm nose/gateway. Placement pv 6 and repeated-load tests cover car, roof and lounge transfers; real touch walks both gaps. |
+| 13 | Partial. The two hero posters (shuttle, band) are A2 42 x 59.4; the others stay A3. |
+| 19 | Done. Lamp-post base 30 x 60 x 25 with its door; solid (the whole pavement is walkable now). |
+| 22 | Done. Pavement 1.45 m + kerb, road 5.6 m, far pavement 1.45 m (House.FRONT.STREET). |
+| 23 | Done. Opposite front walls 17.8 m from ours. |
+| 27 | Partial. Lounge re-laid: 1.9 m sofa back towards the bay, 86 cm armchair angled at the telly in the corner, standard lamp in the corner; 90 x 50 cm bevelled coffee table leaves 83 cm to the sofa; ways in from the door; coal-effect gas fire with brass frame, canopy and fret. Upholstery proportions unchanged. |
+| new | The village goes on: streets to +-56 m, a crossroads (side road to the back road), the corner shop (VILLAGE STORES), a green with the phone box, a pillar box, more semis both ways (simpler far houses), and a horizon ring (hills, rooftops, trees, the church spire) that travels with the camera. |
+| 9-12, 14-18, 20-21, 24-26, 28-34 | Open (landing/stairs widths, desk, telly, bedroom props, kitchen, back garden props). |

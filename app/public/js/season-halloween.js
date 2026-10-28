@@ -337,7 +337,7 @@
     },
     drive(r, P) {
       const B = K.into(P.all.batch);
-      pumpkinStatic(B, 632, GY - 89, FZ() - 5, .7, 200, 'lantern'); // on the gateway pier
+      pumpkinStatic(B, H.FRONT?.PIERS?.[2] ?? 636.5, GY - (H.FRONT?.PIER_TOP ?? 124), FZ() - 5, .7, 200, 'lantern'); // on the gateway pier
       turnip(B, -112, 298, 708.5, 10); pumpkinStatic(B, -14, 298, 708.5, .55, -10, 'lantern2', .5); pumpkinStatic(B, 30, 298, 709, .42, 20, 'plain', .5);
       gravestone(B, 74, GY + .4, 846, 40); sheetGhost(B, -96, GY + .4, 914, 25);
       bat(B, 300, GY - 205, 712, .9, 180, 8);
@@ -584,7 +584,25 @@
     pk = { root, body, outer, inner, lid, guide, guts, blobs, stencil, sten, skin, mSkin, mIn, tl, flame, news, tools, saw, spoon, sheet, bowlGuts, cut: {}, face: null, wob: [], lidOff: false };
     root.traverse(o => { if (o.isMesh) o.userData.own = 1; });
     // the newspaper bundle on the chair and the table snap it opens out on
-    const bundle = new T.Group(), BU = K.into(bundle); BU.box(0, -1.6, 0, 30, 3.2, 22, M({ c: '#fff', map: nt, sh: 2 })); BU.box(0, -3.3, 0, 30.4, .2, 22.4, M('#e8e4d6')); BU.shadow(0, 0, 0, 34, 26, .5, { sq: true });
+    // Old newspapers: a folded stack of five, printed front pages, page edges, tied with garden twine in a bow
+    const bundle = new T.Group(), BB = K.batch(), BU = K.into(BB);
+    const front = K.tex('hw.news2', 256, 192, (g, w, h) => {
+      g.fillStyle = '#ece7d8'; g.fillRect(0, 0, w, h); window.HouseArt?.grain?.(g, w, h, 900, 0.05, 61);
+      g.fillStyle = '#1c1c1c'; g.font = '900 26px Georgia,"Times New Roman",serif'; g.textAlign = 'center'; g.fillText('THE DAILY GRUMBLE', w / 2, 30, w - 16);
+      g.fillRect(8, 36, w - 16, 2); g.fillRect(8, 40, w - 16, 1); g.font = '700 9px Georgia,serif'; g.fillText('WEDNESDAY · 25p · WEATHER: GREY, THEN GREYER', w / 2, 50, w - 16);
+      g.textAlign = 'left'; g.font = '900 19px Georgia,serif'; g.fillText('BIN MEN STRIKE', 10, 72, w - 20);
+      g.fillStyle = '#9d988a'; g.fillRect(10, 80, 112, 62); g.fillStyle = '#7a7568'; g.beginPath(); g.ellipse(50, 112, 18, 22, 0, 0, 7); g.fill(); g.fillRect(74, 96, 36, 46);
+      g.fillStyle = 'rgba(30,30,30,.55)'; for (let c = 0; c < 2; c++) for (let y = 82; y < h - 8; y += 5) g.fillRect(132 + c * 60, y, 52 - ((y * 7 + c * 3) % 11 === 0 ? 20 : 0), 2);
+      for (let y = 150; y < h - 8; y += 5) g.fillRect(10, y, 112 - (y % 4 ? 0 : 14), 2);
+    }, { clamp: true });
+    const edge = K.tex('hw.newsedge', 32, 32, (g, w, h) => { g.fillStyle = '#e6e0cf'; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 2) { g.fillStyle = y % 4 ? 'rgba(90,80,60,.28)' : 'rgba(255,255,255,.5)'; g.fillRect(0, y, w, 1); } }, {});
+    const pageM = M({ c: '#fff', map: front, sh: 2 }), edgeM = M({ c: '#fff', map: edge, sh: 2 }), twine = M({ c: '#b0915a', sh: 6 });
+    [[0, 0, 2], [0.6, -0.5, -3], [-0.5, 0.4, 4], [0.3, 0.6, -1.5], [-0.2, -0.3, 1]].forEach(([dx, dz, ry], i) => BU.box(dx, -0.47 - i * 0.95, dz, 30, 0.94, 21.5, { t: pageM, all: edgeM }, { ry }));
+    const top = -4.8;
+    for (const [w, d, ry] of [[30.6, 0.5, 0], [22.1, 0.5, 90]]) { BU.box(0, top - 0.12, 0, w, 0.24, d, twine, { ry }); for (const s of [-1, 1]) { const a = ry * D2R; BU.box(s * (w / 2 + 0.1) * Math.cos(a), top / 2, -s * (w / 2 + 0.1) * Math.sin(a), 0.24, -top + 0.1, d, twine, { ry }); } }
+    BU.ball(0, top - 0.45, 0, 0.6, 0.45, 0.6, twine, 8); for (const s of [-1, 1]) BU.geo(new T.TorusGeometry(1.0, 0.16, 4, 10), s * 1.1, top - 0.45, 0.2, twine, { rx: 80, ry: s * 25, sx: 1.2 });
+    BU.box(1.6, top - 0.3, 1.6, 0.22, 0.22, 3.4, twine, { ry: 40 }); BU.box(-1.4, top - 0.3, 1.8, 0.22, 0.22, 3.0, twine, { ry: -35 });
+    BU.shadow(0, 0, 0, 34, 26, 0.5, { sq: true }); BB.build(bundle); // (merged per material: four draws)
     addThing('hw.paper', { obj: bundle, home: { room: 'kitchen', x: -130, y: GY - 45.5, z: 170, ry: 80 }, kind: 'hw.paper', label: 'Old newspapers', holdD: 44 });
     addSnap('hw.s.paper', { room: 'kitchen', x: PK.x, y: PK.y - 1, z: PK.z, r: 40, box: [50, 2, 40], pose: { x: PK.x, y: PK.y, z: PK.z, ry: 0, hide: true }, hide: true, hint: 'Spread the newspaper on the table', accepts: k => k === 'hw.paper',
       onSnap: () => { snd.rustle(); Season.step(EID, 'hw-pumpkin', 'paper'); pk.news.visible = true; say('c4.hal.dad', 'Dad', 'Right, pumpkin. How hard can it be? Mind your fingers, now.', true); H.dirty(); } });
@@ -645,7 +663,7 @@
     pk.root.scale.set(1, phase === 'tail' ? .86 : 1, 1); pk.mSkin.color.set(phase === 'tail' ? '#c8b8a0' : '#ffffff');
     H.dirty();
   }
-  const STEP = { x: 236, y: GY - 89, z: FZ() - 5, ry: -140 }; // the gatepost (the pier by the front gate): everyone coming up the path sees it
+  const STEP = { x: H.FRONT?.PIERS?.[0] ?? 231.5, y: GY - (H.FRONT?.PIER_TOP ?? 124), z: FZ() - 5, ry: -140 }; // the gatepost (the pier by the front gate): everyone coming up the path sees it
   function makeLantern() {
     if (!pk) return;
     pk.root.parent?.remove(pk.root); pk.root.position.set(0, 0, 0); pk.root.rotation.set(0, 0, 0);
@@ -842,7 +860,7 @@
       B.box(0, -.25, 0, 4.4, .5, 2.6, col, { rz: 3 }); for (const sx of [-1, 1]) B.cyl(sx * 3, -.3, 0, .5, 1.1, 1.8, 6, col, { rz: sx * 90 });
       addThing('hw.wrap.' + (i + 1), { obj: g, home: { room: 'hall', x, y: GY, z, ry }, kind: 'hw.wrapper', label: 'A ' + sw.name + ' wrapper', holdD: 32 });
     });
-    addSnap('hw.s.kbin', { room: 'kitchen', x: 170, y: GY - 62, z: 20, r: 30, box: [34, 2, 34], pose: { x: 170, y: GY - 40, z: 20, hide: true }, hide: true, hint: 'In the bin with it', accepts: k => k === 'hw.wrapper',
+    addSnap('hw.s.kbin', { room: 'kitchen', x: 170, y: GY - 62, z: 20, r: 30, box: [34, 2, 34], glow: () => H.SPOTS['hs.bin'] && H.SPOTS['hs.bin'].obj, round: true, pose: { x: 170, y: GY - 40, z: 20, hide: true }, hide: true, hint: 'In the bin with it', accepts: k => k === 'hw.wrapper',
       onSnap: t => { const n = t.id.split('.').pop(); Season.step(EID, 'hw-clean', 'w' + n); snd.rustle(); } });
   }
   function syncWrappers() {
@@ -924,7 +942,8 @@
     kids = { g: gr.id, n0: srv().treat?.n | 0, gr, group, list, parent, pkd: prig ? { obj: parent, rig: prig, kid: null } : null, state: walk ? 'walk' : 'wait', t0: performance.now(), answered: false, knocks: 0, lastKnock: 0, block: null };
     const pick = new T.Mesh(new T.BoxGeometry(70, 120, 46), PICKM); pick.position.set(300, GY - 60, 798); pick.userData.hwOwn = 1; group.add(pick);
     addSpot('hw.kids', { label: () => kids ? 'Trick-or-treaters (' + kids.list.length + ')' : 'Trick-or-treaters', obj: pick, room: 'drive', range: 320, act: () => handOut() });
-    if (walk) for (const k of list) { k.obj.position.z = FZ() + 50 + Math.random() * 30; k.obj.position.x = 282 + Math.random() * 16; }
+    // (walking up: they come along the pavement from down the road first, so nobody pops into view at the gate)
+    if (walk) { list.forEach((k, i) => { k.obj.position.z = FZ() + 50 - i * 6; k.obj.position.x = 290 + 420 + i * 46; k.obj.rotation.y = -Math.PI / 2; }); parent.position.x = 262 + 470; }
     // they stand on the path: keep the player out of them (never trapping anyone already there)
     if (!(H.W.lvl === 'G' && Math.abs(H.W.x - 300) < 70 && H.W.z > 750 && H.W.z < 840)) { kids.block = H.block('G', 262, 772, 338, 826); }
     for (const kd of list) if (kd.rig) { kd.h = kd.obj.rotation.y; kd.last = null; rigFollow(kd, 0); }
@@ -943,7 +962,8 @@
     const k = kids, visible = H.ROOMS.drive?.group.visible, dtk = Math.min(0.1, (now - (k.lastTick || now)) / 1000); k.lastTick = now;
     if (k.list.some(kd => kd.rig) && (k.state === 'walk' || k.state === 'leave')) setTimeout(() => { if (kids === k) { k.list.forEach(kd => rigFollow(kd, dtk)); if (k.pkd) rigFollow(k.pkd, dtk); } }, 0);
     if (k.state === 'walk') {
-      const t = Math.min(1, (now - k.t0) / 7600), z0 = FZ() + 50; // up the path from the gate (a 6 m front garden)
+      const el = now - k.t0, t1 = Math.min(1, el / 4200), t = Math.max(0, Math.min(1, (el - 4200) / 7600)), z0 = FZ() + 50; // along the pavement, then up the path from the gate (a 6 m front garden)
+      if (t1 < 1 || t === 0) { k.list.forEach((kd, i) => { kd.obj.position.x = 290 + (420 + i * 46) * (1 - ease(t1)); kd.obj.position.z = z0 - i * 6; }); k.parent.position.x = 262 + 470 * (1 - ease(t1)); H.dirty(); return true; }
       k.list.forEach((kd, i) => { const h = kd.obj.userData.home, e = ease(t); kd.obj.position.x = 290 + (h.x - 290) * e; kd.obj.position.z = z0 + (h.z - z0) * e - i * 6 * (1 - e); kd.obj.position.y = GY - 1 - Math.abs(Math.sin(now / 130 + i)) * 2 * (1 - t); });
       if (t >= 1) { k.state = 'wait'; if (!fdOpen()) knockNow(); }
     } else if (k.state === 'leave') {

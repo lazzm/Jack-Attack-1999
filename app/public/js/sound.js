@@ -14,10 +14,21 @@
   function output(c, channel = 'effects') {
     let bus = buses.get(c);
     if (!bus) {
-      bus = {effects:c.createGain(),music:c.createGain()}; buses.set(c,bus);
-      for (const kind of ['effects','music']) { bus[kind].gain.value = volume * (kind === 'music' ? +musicOn : +sfxOn); bus[kind].connect(c.destination); }
+      bus = {effects:c.createGain(),music:c.createGain(),voice:c.createGain()}; buses.set(c,bus);
+      for (const kind of KINDS) { bus[kind].gain.value = level(kind); bus[kind].connect(c.destination); }
     }
-    return bus[channel === 'music' ? 'music' : 'effects'];
+    return bus[channel === 'music' ? 'music' : channel === 'voice' ? 'voice' : 'effects'];
+  }
+  // The family's recorded voices have their own bus (on the "Sound effects & voices" switch); while someone speaks,
+  // music and the other sounds (the telly, the games) dip a little underneath them.
+  const KINDS = ['effects', 'music', 'voice'], DUCK = { music: 0.55, effects: 0.7, voice: 1 };
+  let ducked = false;
+  const level = kind => volume * (kind === 'music' ? +musicOn : +sfxOn) * (ducked ? DUCK[kind] : 1);
+  function apply(tc) {
+    for (const [c,bus] of buses) {
+      if (c.state === 'closed') { buses.delete(c); continue; }
+      for (const kind of KINDS) { const gain = bus[kind].gain; gain.cancelScheduledValues(c.currentTime); gain.setTargetAtTime(level(kind), c.currentTime, tc); }
+    }
   }
   function changed() {
     try {
@@ -26,14 +37,7 @@
       localStorage.setItem('jhp_audio_music', musicOn ? '1' : '0');
       localStorage.setItem('jhp_audio_volume', String(volume));
     } catch (e) {}
-    for (const [c,bus] of buses) {
-      if (c.state === 'closed') { buses.delete(c); continue; }
-      for (const kind of ['effects','music']) {
-        const gain = bus[kind].gain;
-        gain.cancelScheduledValues(c.currentTime);
-        gain.setTargetAtTime(volume * (kind === 'music' ? +musicOn : +sfxOn), c.currentTime, .012);
-      }
-    }
+    apply(.012);
     if (!sfxOn || !volume) try { window.speechSynthesis?.cancel(); } catch (e) {}
     if (sfxOn || musicOn) ac();
     document.dispatchEvent(new Event('sfxchange'));
@@ -249,6 +253,10 @@
     get ready() { return ready(); },
     output,
     world,
+    get voicesOn() { return sfxOn && volume > 0; },
+    duck(on) { on = !!on; if (on === ducked) return; ducked = on; apply(on ? .08 : .35); },
+    get ducked() { return ducked; },
+    get ctx() { return ctx; },
     worldPause(on) { worldPaused=!!on; if(ctx&&worldMaster)worldMaster.gain.setTargetAtTime(on?0:.25,ctx.currentTime,.012); },
     play(name) { if (!sfxOn) return; const v = typeof window.Sound.variant === 'function' ? window.Sound.variant(name) : null, f = (v && sfx[v]) || sfx[name]; if (f) { try { f(); } catch (e) {} } },
     variant: null, // seasons-web.js: name -> seasonal variant (e.g. 'startup' -> 'startup_halloween') while a season is on

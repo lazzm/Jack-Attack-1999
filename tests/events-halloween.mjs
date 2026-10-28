@@ -18,6 +18,7 @@ const reg=await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-To
 assert(reg.ok||reg.status===409||reg.status===400,'admin register '+reg.status);
 const f=await roomFixture(base,{account:'Jack',password,signup:false,hour:null});
 const {page,until,view,errors}=f;
+const EYE=await page.evaluate(()=>House.STAND||128); // (the live standing eye height)
 let failed=null;
 try{
  await until(()=>window.OwnerTools?.allowed);
@@ -27,7 +28,7 @@ try{
  async function clock(date,hour){await owner('clock',{date,hour});await until(`OwnerTools.clock?.date==='${date}'&&OwnerTools.clock.hour===${hour}`);await page.waitForTimeout(600);}
  async function rupees(){await page.evaluate(()=>{window.__ec=null;Net.send({t:'ecMe'})});await until(()=>window.__ec&&Number.isFinite(window.__ec.bal));return page.evaluate(()=>window.__ec.bal);}
  const st=()=>page.evaluate(id=>Season.st(id),EID);
- async function aim(eye,target,level='G'){await view(eye,target,{level});await page.evaluate(()=>{House.hush();House._.setMode('walk')});await page.waitForTimeout(250);}
+ async function aim(eye,target,level='G'){await view(eye,target,{level});await page.evaluate(t=>{House.hush();House._.setMode('walk');const P=House.P,W=House.W;if(!W.seat){W.eyeNow=W.eye;P.y=W.fy-W.eye;P.rx=Math.atan2(-(t[1]-P.y),Math.hypot(t[0]-P.x,t[2]-P.z))*180/Math.PI;P.ry=Math.atan2(t[0]-P.x,-(t[2]-P.z))*180/Math.PI;House.dirty()}},target);await page.waitForTimeout(250);} // (the eye starts at the standing height: no drift after aiming)
  async function key(k){await page.keyboard.press(k);await page.waitForTimeout(350);}
  const shot=async n=>{await page.evaluate(()=>House.hush());await page.waitForTimeout(500);await page.screenshot({path:shots+n+'.png'});log('shot',n,await page.evaluate(()=>House.ren.info.render.calls)+' draws');};
  async function drag(points,{steps=2,pause=25}={}){await page.mouse.move(points[0][0],points[0][1]);await page.mouse.down();for(const [x,y] of points){await page.mouse.move(x,y,{steps});await page.waitForTimeout(pause);}await page.mouse.up();}
@@ -52,7 +53,7 @@ try{
  const objs=await page.evaluate(()=>Season.objectives().map(o=>o.o.id));
  assert.deepEqual(objs,['hw-pumpkin','hw-decorate','hw-lights','hw-bowl','hw-treat']);
  const bal0=await rupees();log('Rupees at start',bal0);
- await aim([330,GY-128,640],[354,GY-118,697.4]);await key('f');
+ await aim([330,GY-EYE,640],[354,GY-118,697.4]);await key('f');
  await until(()=>Season.st('halloween99').porch===1&&!!Season.st('halloween99').obj['hw-lights']);
  assert.equal((await st()).paid['hw-lights'],5,'porch light paid 5');
  await aim([300,GY-150,560],[300,GY-90,700]);await shot('01-hall-front-door');
@@ -61,9 +62,9 @@ try{
 
  // ---- 3. fill the bowl from the tin under the stairs
  await page.evaluate(()=>House.setDoor('cupboard',true,true));await page.waitForTimeout(400);
- await aim([300,GY-128,421],[348,GY-8,422]);await key('e');
+ await aim([300,GY-EYE,421],[348,GY-8,422]);await key('e');
  await until(()=>House.held()==='hw.tin');
- await aim([262,GY-128,640],[224,GY-70,663]);await key('e');
+ await aim([262,GY-EYE,640],[224,GY-70,663]);await key('e');
  await until(()=>!!Season.st('halloween99').obj['hw-bowl']);
  assert.equal((await st()).bowl.reduce((a,b)=>a+b,0),47,'bowl filled (Dad ate one)');
  await page.waitForTimeout(1500);
@@ -71,24 +72,24 @@ try{
  log('bowl: ok');
 
  // ---- 4. {sister}'s decorations: five things to five glowing places
- const places={bat:[[268,GY-128,470],[268,GY-250,420]],web:[[250,GY-128,130],[216,GY-255,71]],spider:[[260,GY-128,300],[208.6,GY-182,300]],lantern:[[-180,GY-128,442],[-239,GY-116,442]],ghost:[[-60,GY-128,640],[-60,180,686]]};
+ const places={bat:[[268,GY-EYE,470],[268,GY-250,420]],web:[[250,GY-EYE,130],[216,GY-255,71]],spider:[[260,GY-EYE,300],[208.6,GY-182,300]],lantern:[[-180,GY-EYE,442],[-239,GY-116,442]],ghost:[[-60,GY-EYE,640],[-60,180,686]]};
  for(const [id,[eye,target]] of Object.entries(places)){
-  await aim([280,GY-128,360],[236,GY-12,330]);
+  await aim([280,GY-EYE,360],[236,GY-12,330]);
   await page.evaluate(id=>{House.grab('hw.decor.'+id)},id);await until(`House.held()==='hw.decor.${id}'`);
   await aim(eye,target);await key('e');
   await until(`!!Season.st('halloween99').decor['${id}']`);
  }
  await until(()=>!!Season.st('halloween99').obj['hw-decorate']);
- await aim([300,GY-128,560],[268,GY-250,420]);await shot('04-bat-and-chains');
+ await aim([300,GY-EYE,560],[268,GY-250,420]);await shot('04-bat-and-chains');
  await aim([60,GY-150,600],[-60,170,700]);await shot('05-lounge-window-ghost');
  log('decorations: ok');
 
  // ---- 5. the pumpkin, all six steps, with real mouse movement
- await aim([-110,GY-128,250],[-130,GY-47,170]);await key('e'); // (stand clear of the kitchen chairs: a pose the player can really take)await until(()=>House.held()==='hw.paper');
- await aim([-45,GY-128,264],[-45,GY-78,174]);await key('e');
+ await aim([-110,GY-EYE,250],[-130,GY-47,170]);await key('e'); // (stand clear of the kitchen chairs: a pose the player can really take)await until(()=>House.held()==='hw.paper');
+ await aim([-45,GY-EYE,264],[-45,GY-78,174]);await key('e');
  await until(()=>!!Season.st('halloween99').steps['hw-pumpkin']?.paper);
  await page.waitForTimeout(1300);
- await aim([-45,GY-128,264],[-45,GY-88,174]);await shot('06-carving-table');
+ await aim([-45,GY-EYE,264],[-45,GY-88,174]);await shot('06-carving-table');
  await key('f');await until(()=>Halloween.carving==='lid');await page.waitForTimeout(500);
  for(let pass=0;pass<3&&await page.evaluate(()=>Halloween.carving==='lid');pass++)await drag(await page.evaluate(()=>Halloween._.screen('lid')),{steps:1,pause:0});
  await shot('07-lid-cut');
@@ -101,22 +102,24 @@ try{
  await until(()=>Halloween.carving==='candle');await shot('10-carved');
  await key('f');await until(()=>!!Season.st('halloween99').steps['hw-pumpkin']?.candle&&!House.focused&&!!House.THINGS['hw.lantern']);
  await page.waitForTimeout(1200);
- await aim([-20,GY-128,265],[-45,GY-88,174]);await key('e');await until(()=>House.held()==='hw.lantern');
- await aim([264,GY-128,1252],[236,GY-89,1295]);await key('e'); // the gatepost by the front gate (House.FRONT.FZ 1300)
+ await aim([-20,GY-EYE,265],[-45,GY-88,174]);await key('e');await until(()=>House.held()==='hw.lantern');
+ const pier=await page.evaluate(()=>({x:House.FRONT.PIERS[0],y:353-House.FRONT.PIER_TOP,z:House.FRONT.FZ-5}));
+ await aim([pier.x+32.5,GY-EYE,pier.z-55],[pier.x,pier.y,pier.z]);await key('e'); // the current gatepost, shared with the physical model
+
  await until(()=>!!Season.st('halloween99').obj['hw-pumpkin']);
  assert.equal((await st()).paid['hw-pumpkin'],20,'pumpkin paid 20');
  log('carving: ok');
 
  // ---- 6. trick-or-treaters (from five o'clock)
  await clock('1999-10-31',18);
- await aim([300,GY-128,640],[300,GY-100,700]);
+ await aim([300,GY-EYE,640],[300,GY-100,700]);
  if(!await page.evaluate(()=>House.DOORS.front.open)){await key('f');await until(()=>House.DOORS.front.open);}
- await aim([262,GY-128,640],[224,GY-66,663]);await key('e');await until(()=>House.held()==='hw.bowl');
+ await aim([262,GY-EYE,640],[224,GY-66,663]);await key('e');await until(()=>House.held()==='hw.bowl');
  let refused=false;
  for(let n=0;n<5;n++){
   await until(()=>Halloween.kids?.state==='wait');
   const kids=await page.evaluate(()=>Halloween.kids);log('group',n+1,JSON.stringify(kids.list));
-  await aim([300,GY-128,650],[300,GY-100,790]);
+  await aim([300,GY-EYE,650],[300,GY-100,790]);
   if(n===0)await shot('11-trick-or-treaters');
   await key('f');await until(()=>Halloween.handing);await page.waitForTimeout(800);
   if(n===0)await shot('12-handing-out');
@@ -132,7 +135,7 @@ try{
  await until(()=>!!Season.st('halloween99').obj['hw-treat']);
  assert.equal((await st()).paid['hw-treat'],20,'trick-or-treat paid 20');
  await page.waitForTimeout(1500);
- await aim([90,GY-150,1215],[236,GY-95,1295]);await shot('13-lantern-on-gatepost');
+ await aim([90,GY-150,1200],[231.5,GY-130,1295]);await shot('13-lantern-on-gatepost');
  await aim([300,GY-160,1180],[300,GY-80,700]);await shot('14-front-at-night');
  log('trick-or-treat: ok');
 
@@ -159,7 +162,7 @@ try{
  await owner('season',{event:EID});await page.waitForTimeout(1200);
  assert.deepEqual((await st()).obj,{},'owner start-again clears progress');
  await clock('1999-10-31',16);
- await aim([330,GY-128,640],[354,GY-118,697.4]);await key('f');
+ await aim([330,GY-EYE,640],[354,GY-118,697.4]);await key('f');
  await until(()=>!!Season.st('halloween99').obj['hw-lights']);
  assert.equal(await rupees(),bal1,'no second payment after starting again');
  log('rewards once: ok');
@@ -171,7 +174,7 @@ try{
  await until(()=>Halloween.phase==='tail'&&!!House.THINGS['hw.wrap.1']);
  await aim([300,GY-150,560],[280,GY,640]);await shot('15-morning-after');
  await page.evaluate(()=>House.grab('hw.wrap.1'));await until(()=>House.held()==='hw.wrap.1');
- await aim([170,GY-128,90],[170,GY-60,20]);await key('e');
+ await aim([170,GY-EYE,90],[170,GY-60,20]);await key('e');
  await until(()=>!!Season.st('halloween99').steps['hw-clean']?.w1);
  log('tail: ok');
  await clock('1999-11-02',14);

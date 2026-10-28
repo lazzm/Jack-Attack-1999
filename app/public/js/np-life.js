@@ -1,4 +1,4 @@
-/* np-life: Mom, Dad and the little sister living their 1999 day in the house (desktop house only). They follow daily
+/* np-life: Mom, Dad and the little sister living their 1999 day in the house (desktop and touch house). They follow daily
  * routines on the in-game clock (OwnerTools' clock override drives them too), walk the house through real doorways and
  * down the stairs (js/np-nav.js), open doors, step aside for you, sit, read the paper, wash up, watch telly and play;
  * look at you when you're close, and talk: F on a person plays real lines from docs/SCRIPT.md (js/np-lines.js, with the
@@ -15,6 +15,7 @@
   const OFF = { enabled: false, active: false, present: noop, near: noop, storyLine: noop, handIn: noop, blocks: noop, mute: noop, say: noop, talk: noop, chars: {} };
   if (window.HouseFamily) return;
   if (!H || !H.ok || !NR || !NV || !L || window.PCOnly?.desktopOnly) { window.HouseFamily = OFF; return; }
+  const CAR = H.FRONT.CAR;
   const T = H.T, D2R = Math.PI / 180, TAU = Math.PI * 2;
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -54,9 +55,9 @@
     kmug2: { lvl: 'G', x: 140, z: 92, face: -100, act: 'mug' },
     kmug3: { lvl: 'G', x: 132, z: 262, face: -120, act: 'mug' },
     // lounge
-    sofaL: { lvl: 'G', act: 'telly', seat: seat({ x: -113.7, z: 563, face: 180, stand: [-113.7, 506], approach: [-143.7, 461] }) },
-    sofaR: { lvl: 'G', act: 'telly', seat: seat({ x: -6.3, z: 563, face: 180, stand: [-6.3, 506], approach: [-143.7, 461], via: [[-134, 503]] }) }, // (sidle along between the coffee table and the sofa)
-    armchair: { lvl: 'G', act: 'paper', seat: seat({ x: 115.3, z: 432.8, face: -118, stand: [80, 414], approach: [10, 386] }) }, // (straight in from the front)
+    sofaL: { lvl: 'G', act: 'telly', seat: seat({ x: -110.4, z: 608, face: 180, stand: [-110.4, 551], approach: [-110.4, 521] }) }, // (in from the way between the coffee table and the sofa)
+    sofaR: { lvl: 'G', act: 'telly', seat: seat({ x: -9.6, z: 608, face: 180, stand: [-9.6, 551], approach: [-9.6, 521] }) },
+    armchair: { lvl: 'G', act: 'paper', seat: seat({ x: 115.6, z: 397, face: -110, stand: [78.1, 383.3], approach: [4.8, 365.3] }) }, // (straight in from the front)
     floorTV: { lvl: 'G', act: 'telly', seat: { x: -172, z: 401, face: 119, h: 1, floor: true, back: false, knee: 24, stand: [-172, 401], approach: [-172, 401] } },
     phone: { lvl: 'G', x: 117, z: 611, face: 90, act: 'phone' },
     // hall, landing
@@ -68,8 +69,8 @@
     gardenWater: { lvl: 'G', x: -108, z: -455, face: -90, act: 'water' },
     gardenLook: { lvl: 'G', x: 10, z: -300, face: 200 },
     gardenYoyo: { lvl: 'G', x: 40, z: -215, face: 160, act: 'yoyo' },
-    carwash: { lvl: 'G', x: 362, z: 1000, face: 90, act: 'carwash' }, // beside Dad's car (House.ROOMS.drive.carFrame), off the path
-    carStory: { lvl: 'G', x: 364, z: 812, face: 200 }, // by the boot (js/hs-house.js CAR), off the path to the gate
+    carwash: { lvl: 'G', x: CAR.x-126, z: CAR.z, face: 90, act: 'carwash' }, // beside Dad's car (House.ROOMS.drive.carFrame), off the path
+    carStory: { lvl: 'G', x: CAR.x-124, z: CAR.z-188, face: 200 }, // by the boot (js/hs-house.js CAR), off the path to the gate
     // Jack's room (story visits)
     bedDoorMom: { lvl: 'U', x: 178, z: 196, face: -95 },
     bedDad: { lvl: 'U', x: 168, z: 126, face: -110 },
@@ -77,7 +78,7 @@
     // ways out (they disappear through these when nobody's looking)
     parents: { lvl: 'G', x: 0, z: 0, exit: true }, // filled in below
   };
-  const EXIT = { parents: { lvl: 'U', x: 290, z: 662, face: 0 }, sisRoom: { lvl: 'U', x: 284, z: 490, face: -90 }, car: { lvl: 'G', x: 362, z: 1080, face: 90 }, street: { lvl: 'G', x: 290, z: 1336, face: 180 } }; // (street: out of the front gate, on the pavement)
+  const EXIT = { parents: { lvl: 'U', x: 290, z: 662, face: 0 }, sisRoom: { lvl: 'U', x: 284, z: 490, face: -90 }, car: { lvl: 'G', x: CAR.x-126, z: CAR.z+80, face: 90 }, street: { lvl: 'G', x: 290, z: H.FRONT.FZ+36, face: 180 } }; // (street: out of the front gate, on the pavement)
   delete SPOT.parents;
   const MUG = ['kmug1', 'kmug2', 'kmug3'];
 
@@ -130,7 +131,7 @@
     const clk = clock();
     c.rig = NR.create(c.id, { tier: window.HouseQ === 'low' || window.HouseQ === 'potato' ? window.HouseQ : 'std', outfit: outfitFor(c.id, clk) });
     c.rig.floor = (x, z) => NV.floor(c.lvl, x, z);
-    H.spot('np.' + c.id, { label: () => label(c) + ' <i><span><kbd>F</kbd> Talk</span></i>', obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
+    H.spot('np.' + c.id, { label: () => 'Talk to ' + label(c), obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
   }
   function outfitFor(id, clk) {
     if (id !== 'dad') return null;
@@ -163,8 +164,8 @@
 
   // ================================================================ what each of them wants to be doing now
   let directives = {}, hideAll = false; const manual = {}; // (tests: debug.go sends someone somewhere)
-  function target(c, clk) {
-    if (c.aside) return { key: 'aside', spot: c.aside, look: 'player' }; // (letting you past comes first)
+  function target(c, clk, resume) {
+    if (c.aside && !resume) return { key: 'aside', spot: c.aside, look: 'player' }; // (letting you past comes first)
     const d = directives[c.id];
     if (d) return d;
     const sch = scheduled(c.id, clk);
@@ -178,7 +179,7 @@
 
   // ---------------------------------------------------------------- planning: a goal becomes a list of steps
   function setGoal(c, g) {
-    c.goal = g; c.plan = []; c.cur = null;
+    c.goal = g; c.plan = []; c.cur = null; c.backHome = null; c.backoff = null;
     const P = c.plan;
     if (c.seated) { P.push({ k: 'stand', seat: c.seated }); }
     if (g.away) { const e = EXIT[g.exit]; P.push({ k: 'route', to: e }, { k: 'face', h: e.face * D2R }, { k: 'vanish' }); return; }
@@ -204,15 +205,18 @@
   const dist = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
   const sameFloor = (c, p) => c.lvl === p.lvl || (NV.onFlight(c.x, c.z) && NV.onFlight(p.x, p.z));
   function doorZone(x, z, lvl, pad) { for (const d of Object.values(H.DOORS)) { const b = d.closedBounds; if (b && !d.always && d.rooms.some(id => H.ROOMS[id]?.lvl === lvl) && x > b.x0 - pad && x < b.x1 + pad && z > b.z0 - pad && z < b.z1 + pad) return d.id; } return null; }
-  function ahead(c, r, s, squeeze) { // something in the way along the route: the player or another (moving or stood) person
+  const bodyRadius = c => ({ dad: 25, mom: 22, sister: 18 })[c.id] || 20;
+  const bodyGap = (a, b) => bodyRadius(a) + bodyRadius(b);
+  const peopleAvoid = c => chars.filter(o => o !== c && o.present && o.lvl === c.lvl).map(o => ({x:o.x,z:o.z,r:Math.max(18,Math.min(bodyGap(c,o)+8,dist(c,o)-1))}));
+  function ahead(c, r, s, ignorePlayer) { // something in the way along the route: the player or another (moving or stood) person
     const p = player(), list = [];
-    if (H.live && H.mode === 'walk' && sameFloor(c, p)) list.push({ x: p.x, z: p.z, who: 'player' });
+    if (!ignorePlayer && H.live && H.mode === 'walk' && sameFloor(c, p)) list.push({ x: p.x, z: p.z, who: 'player' });
     for (const o of chars) if (o !== c && o.present && (o.lvl === c.lvl || NV.onFlight(o.x, o.z))) list.push({ x: o.x, z: o.z, who: o.id, o });
     if (!list.length) return null;
     let hit = null;
     for (let d = 10; d <= 110; d += 10) {
       const q = NV.at(r, s + d); if (s + d > r.len + 5) break;
-      for (const b of list) { const k = Math.hypot(q.x - b.x, q.z - b.z); if (k < (b.who === 'player' ? 44 : b.o && b.o.v < 5 ? (squeeze ? 17 : 25) : 30) && (!hit || d < hit.d)) hit = { d, b }; } // (family squeeze past each other, behind someone busy at the worktop; you get more room)
+      for (const b of list) { const k = Math.hypot(q.x - b.x, q.z - b.z), gap = b.who === 'player' ? 44 : bodyGap(c, b.o), current = Math.hypot(c.x - b.x, c.z - b.z); if (current < gap && k > current + 1) continue; if (k < gap && (!hit || d < hit.d)) hit = { d, b }; } // (the buffer must exceed the ten-centimetre sample spacing, so a blocked walker stops)
       if (hit) break;
     }
     return hit;
@@ -220,11 +224,27 @@
   function doorOpen(id) { const d = H.DOORS[id]; return !d || d.always || (d.open && (d.ang > 0.82 || simMode)); }
   function step(c, dt, clk) {
     if (!c.cur) { c.cur = c.plan.shift() || null; if (c.cur) c.cur.t = 0; }
-    const s = c.cur; if (!s) return;
-    s.t += dt;
-    if (c.hold > 0) { c.hold -= dt; c.v = 0; faceToward(c, player(), dt); return; }
+    const s = c.cur;
+    if (s) s.t += dt;
+    if (c.hold > 0) {
+      if (c.hold > 2 && speech.cur?.c !== c && !speech.q.some(q => q.c === c)) c.hold = 1.5; // (nothing left to say: never stand there forever)
+      c.hold -= dt; c.v = 0; faceToward(c, player(), dt);
+      if (c.hold <= 0 && c.backHome) { c.backoff = null; if (c.cur) c.plan.unshift(c.cur); c.cur = { k: 'line', to: c.backHome, t: 0 }; c.backHome = null; return; } // (and back to what they were doing)
+      if (c.backoff) { const bx = c.backoff.x - c.x, bz = c.backoff.z - c.z, bd = Math.hypot(bx, bz), k = Math.min(1, 55 * dt / (bd || 1)); if (bd < 1) c.backoff = null; else { c.x += bx * k; c.z += bz * k; c.v = 30; } } // (half a pace back, still facing you)
+      return;
+    }
+    if (!s) return;
     if (s.k === 'route') {
-      if (!s.r) { s.r = routeFrom(c, s.to, s.avoid); s.s = 0; if (!s.r) { s.fail = (s.fail || 0) + 1; if (s.fail > 3) { c.x = s.to.x; c.z = s.to.z; c.lvl = s.to.lvl; c.cur = null; } return; } }
+      if (!s.r) {
+        const avoid = s.yielding ? peopleAvoid(c) : null;
+        s.r = routeFrom(c, s.to, avoid); s.s = 0;
+        if (!s.r) {
+          if (s.yielding) { c.aside = c.asideFor = null; c.goal = c.cur = null; c.plan = []; return; }
+          s.fail = (s.fail || 0) + 1;
+          if (s.fail > 3 && !chars.some(o => o !== c && o.present && o.lvl === s.to.lvl && Math.hypot(o.x-s.to.x,o.z-s.to.z)<bodyGap(c,o))) { c.x = s.to.x; c.z = s.to.z; c.lvl = s.to.lvl; c.cur = null; }
+          return;
+        }
+      }
       follow(c, s, dt);
     } else if (s.k === 'line') {
       const d = Math.hypot(s.to.x - c.x, s.to.z - c.z); const v = Math.min(55, d * 3 + 5);
@@ -247,6 +267,7 @@
       c.v = 0;
       if (!s.arrived) { s.arrived = true; c.arrivedAt = nowMs(); arrive(c); }
       if (!c.seated && c.goal?.spot && Math.abs(angd(c.h, (c.goal.spot.face || 0) * D2R)) > 0.05 && !lookingAtPlayer(c)) c.h += clamp(angd(c.h, (c.goal.spot.face || 0) * D2R), -2 * dt, 2 * dt);
+      if (!c.seated && !c.aside && s.t > 0.5 && doorZone(c.x, c.z, c.lvl, 12)) { c.pushT = nowMs(); c.pushN = 6; } // (never stand about in a doorway)
       stepAside(c, dt);
     } else if (s.k === 'yield') {
       c.v = 0; faceToward(c, s.o, dt);
@@ -270,42 +291,30 @@
       }
     } else if (s.reach) { s.reach = 0; c.rig?.set({ action: travelAction(c) }); }
     // people in the way
-    const hit = s.yielding ? null : ahead(c, r, s.s, s.squeeze);
+    const hit = ahead(c, r, s.s, s.yielding);
     s.hit = hit ? hit.b.who + '@' + Math.round(hit.d) : null;
     if (hit) {
-      stop = Math.min(stop, s.s + Math.max(0, hit.d - 50));
+      stop = Math.min(stop, s.s + Math.max(0, hit.d - (hit.b.who === 'player' ? 50 : 12)));
       if (c.v < 8) s.blocked = (s.blocked || 0) + dt;
-      // two of them face to face in a narrow bit: the younger one steps into the side and lets the other by
       const o = hit.b.o;
-      if (o && o.cur?.k === 'route' && prio(c) < prio(o) && s.blocked > 0.3 && !s.yielded) {
-        const p = NV.at(r, s.s), nx = Math.cos(p.h), nz = -Math.sin(p.h);
-        for (const dd of [55, 70, 90, 110]) for (const side of [1, -1]) {
-          const x = c.x + nx * dd * side, z = c.z + nz * dd * side;
-          if (NV.clear(c.lvl, x, z) < NV.NEED + 1 || Math.hypot(x - o.x, z - o.z) < 60) continue;
-          s.yielded = true; s.r = null; s.s = 0; s.blocked = 0;
-          c.plan.unshift({ k: 'route', to: { lvl: c.lvl, x, z }, yielding: true }, { k: 'yield', o }, s); c.cur = null; return;
-        }
-        // no room to the side: back up the way we came and let them through
-        const back = s.s > 100 ? NV.at(r, s.s - 130) : { x: c.x - Math.sin(c.h) * 110, z: c.z - Math.cos(c.h) * 110, lvl: c.lvl };
-        if (NV.clear(back.lvl, back.x, back.z) >= NV.NEED && Math.hypot(back.x - o.x, back.z - o.z) > 90) {
-          s.yielded = true; s.r = null; s.s = 0; s.blocked = 0;
-          c.plan.unshift({ k: 'route', to: { lvl: back.lvl, x: back.x, z: back.z }, yielding: true }, { k: 'yield', o }, s); c.cur = null; return;
-        }
+      if (o && s.blocked > 0.3 && (prio(c) < prio(o) && !c.aside || c.asideFor === o)) {
+        c.pushT = nowMs(); c.pushN = 6; c.pushFrom = { x: o.x, z: o.z, lvl: o.lvl }; c.asideFor = o;
+        stepAside(c, dt);
+        if (c.goal === null && c.aside) { c.cur = null; c.plan = []; return; }
       }
       const waitFor = hit.b.who === 'player' ? 2.2 : hit.b.o && hit.b.o.v < 5 ? 0.5 : prio(c) < prio(hit.b.o) ? 1.2 : 2.5;
       if (s.blocked > waitFor) { // go round them
         // go round everyone nearby at once (avoiding just the one in front makes them ping-pong between two people)
         s.blocked = 0; const pl = player(), near = [];
         if (H.live && H.mode === 'walk' && sameFloor(c, pl) && dist(c, pl) < 320) near.push({ x: pl.x, z: pl.z, r: 48 });
-        for (const q of chars) if (q !== c && q.present && q.lvl === c.lvl && dist(c, q) < 320) near.push({ x: q.x, z: q.z, r: q.v < 5 ? 27 : 33 });
-        let avoid = near.map(q => Object.assign(q, { r: Math.max(18, Math.min(q.r, Math.hypot(c.x - q.x, c.z - q.z) - 6)) }));
+        for (const q of chars) if (q !== c && q.present && q.lvl === c.lvl && dist(c, q) < 320) near.push({ x: q.x, z: q.z, r: bodyGap(c, q) + 8 });
+        let avoid = near.map(q => Object.assign(q, { r: Math.max(18, Math.min(q.r, Math.hypot(c.x - q.x, c.z - q.z) - 1)) }));
         let nr = NV.route({ lvl: c.lvl, x: c.x, z: c.z }, s.to, { avoid });
-        if (!nr) { // a tight spot (behind Mom at the sink): squeeze past people who are busy, closer than we'd like
-          avoid = avoid.map(q => q.r <= 27 ? Object.assign({}, q, { r: 19 }) : q);
-          nr = NV.route({ lvl: c.lvl, x: c.x, z: c.z }, s.to, { avoid });
-          if (nr) s.squeeze = true;
+        if (o && o.cur?.k === 'act' && !o.seated && !o.talking && o.hold <= 0) {
+          // Ask a standing person for room instead of routing through their body.
+          o.pushT = nowMs(); o.pushN = 6; o.pushFrom = { x: c.x, z: c.z, lvl: c.lvl }; o.asideFor = c;
         }
-        if (nr) { s.r = nr; s.s = 0; s.avoid = avoid; return; }
+        if (nr) { s.r = nr; s.s = 0; return; }
         // nowhere to go: don't stand in a doorway
         const dz = doorZone(c.x, c.z, c.lvl, 30);
         if (dz) { const back = NV.at(r, Math.max(0, s.s - 90)); c.plan.unshift({ k: 'route', to: { lvl: back.lvl, x: back.x, z: back.z } }, Object.assign({}, s, { r: null, t: 0, blocked: 0 })); c.cur = null; return; }
@@ -316,7 +325,7 @@
     s.waited = c.v < 5 && r.len - s.s > 1 ? (s.waited || 0) + dt : 0;
     s.why = hit ? 'person:' + hit.b.who : stop < r.len ? 'door' : left <= 0.5 ? 'end' : 'slow'; // (debug: why they're waiting)
     if (s.waited > 4 && !hit && !s.replanned) { s.replanned = true; s.r = null; s.waited = 0; return; } // (no progress and nobody in the way: plan again from here)
-    if (s.waited > 20 && !seen(c)) { s.s = r.len - 0.4; s.waited = 0; }
+    if (s.waited > 20 && !seen(c) && !chars.some(o => o !== c && o.present && o.lvl === s.to.lvl && Math.hypot(o.x - s.to.x, o.z - s.to.z) < bodyGap(c, o))) { s.s = r.len - 0.4; s.waited = 0; }
     const vmax = c.speed * (onFlight ? 0.72 : 1), want = left <= 0.5 ? 0 : Math.min(vmax, Math.sqrt(2 * 150 * left));
     c.v += clamp(want - c.v, -300 * dt, 170 * dt); if (c.v < 0) c.v = 0;
     s.s = Math.min(stop < s.s ? s.s : stop, s.s + c.v * dt);
@@ -349,19 +358,46 @@
   }
   // stepping aside when you're trying to get past
   function stepAside(c, dt) {
-    if (c.seated || c.goal?.key === 'aside' && c.aside) {
-      if (c.aside && dist(c, player()) > 170) { c.asideT += dt; if (c.asideT > 3) { c.aside = null; c.asideT = 0; } } else c.asideT = 0;
+    if (c.seated) return;
+    if (c.goal?.key === 'aside' && c.aside && !((c.pushN || 0) >= 6 && nowMs() - c.pushT <= 600)) {
+      const o = c.asideFor, released = o ? !o.present || dist(c, o) > 90 || o.cur?.k !== 'route' : dist(c, player()) > 170;
+      c.asideT = released ? c.asideT + dt : 0;
+      if (c.asideT > 3) {
+        let room = true;
+        if (o?.present && dist(c, o) <= 90) {
+          const g = target(c, clock(), true), to = g.away ? EXIT[g.exit] : g.spot?.seat ? Object.assign({lvl:g.spot.lvl},approachOf(g.spot.seat,g.spot.lvl)) : g.spot;
+          room = to && !chars.some(q => q !== c && q.present && q.lvl === to.lvl && Math.hypot(to.x-q.x,to.z-q.z)<bodyGap(c,q)) && NV.route({lvl:c.lvl,x:c.x,z:c.z},to,{avoid:peopleAvoid(c)});
+        }
+        if (room) { c.aside = c.asideFor = null; }
+        c.asideT = 0;
+      }
       return;
     }
-    if (nowMs() - c.pushT > 600) { c.pushN = 0; return; }
+    if (nowMs() - c.pushT > 600) { c.pushN = 0; c.pushFrom = null; return; }
     if ((c.pushN || 0) < 6) return;
     c.pushN = 0;
-    const p = player(), dx = c.x - p.x, dz = c.z - p.z, L0 = Math.hypot(dx, dz) || 1, nx = -dz / L0, nz = dx / L0;
+    const p = c.pushFrom || player(); c.pushFrom = null;
+    const dx = c.x - p.x, dz = c.z - p.z, L0 = Math.hypot(dx, dz) || 1, route = c.asideFor?.cur;
+    const heading = route?.r ? NV.at(route.r, Math.min(route.r.len, route.s + 20)).h : null;
+    const nx = heading === null ? -dz / L0 : Math.cos(heading), nz = heading === null ? dx / L0 : -Math.sin(heading);
     const opts = [];
-    for (const dd of [45, 60, 75]) for (const sg of [1, -1]) opts.push({ lvl: c.lvl, x: c.x + nx * dd * sg + dx / L0 * 15, z: c.z + nz * dd * sg + dz / L0 * 15 });
-    for (let i = opts.length - 1; i >= 0; i--) { const o = opts[i]; if (NV.clear(o.lvl, o.x, o.z) < NV.NEED || doorZone(o.x, o.z, o.lvl, 40)) opts.splice(i, 1); }
-    opts.sort((a, b) => NV.clear(b.lvl, b.x, b.z) - NV.clear(a.lvl, a.x, a.z));
-    if (opts[0]) { c.aside = Object.assign(opts[0], { face: Math.atan2(p.x - opts[0].x, p.z - opts[0].z) / D2R }); c.asideT = 0; c.goal = null; }
+    for (const dd of (c.asideFor ? [55, 70, 90, 110] : [45, 60, 75])) for (const sg of [1, -1]) opts.push({ lvl: c.lvl, x: c.x + nx * dd * sg + dx / L0 * 15, z: c.z + nz * dd * sg + dz / L0 * 15 });
+    if (c.asideFor) for (const dd of [55, 80, 110, 140, 180, 240, 300]) for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) opts.push({ lvl: c.lvl, x: c.x + Math.sin(a) * dd, z: c.z + Math.cos(a) * dd });
+    for (let i = opts.length - 1; i >= 0; i--) { const o = opts[i]; if (NV.clear(o.lvl, o.x, o.z) < NV.NEED || doorZone(o.x, o.z, o.lvl, 40) || chars.some(q => q !== c && q.present && q.lvl === c.lvl && Math.hypot(o.x - q.x, o.z - q.z) < bodyGap(c, q))) opts.splice(i, 1); }
+    if (route?.r) for (let i = opts.length - 1; i >= 0; i--) {
+      for (let d = 0; d <= 200; d += 20) { const q = NV.at(route.r, Math.min(route.r.len, route.s + d)); if (Math.hypot(opts[i].x - q.x, opts[i].z - q.z) < bodyGap(c, c.asideFor) + 6) { opts.splice(i, 1); break; } }
+    }
+    opts.sort((a, b) => c.asideFor ? Math.hypot(a.x - c.x, a.z - c.z) - Math.hypot(b.x - c.x, b.z - c.z) : NV.clear(b.lvl, b.x, b.z) - NV.clear(a.lvl, a.x, a.z));
+    const avoid = peopleAvoid(c);
+    const choice = c.asideFor ? opts.find(q => NV.route({lvl:c.lvl,x:c.x,z:c.z},q,{avoid})) : opts[0];
+    if (choice) { c.aside = Object.assign(choice, { face: Math.atan2(p.x - choice.x, p.z - choice.z) / D2R }); c.asideT = 0; c.goal = null; }
+    else if (c.asideFor) {
+      // A queue can block its own retreat: ask the trailing person to make room first, without creating a request cycle.
+      const behind = chars.filter(q => q !== c && q !== c.asideFor && q.present && q.lvl === c.lvl && !q.seated && !q.talking && q.hold <= 0 && dist(c,q) < 160 && (q.x-c.x)*dx+(q.z-c.z)*dz > L0*12 && !(q.aside && q.asideFor === c)).sort((a,b)=>dist(c,a)-dist(c,b)).find(q=>{
+        const visited=new Set();for(let w=c;w&&!visited.has(w);w=w.asideFor){if(w===q)return false;visited.add(w)}return true;
+      });
+      if (behind) { behind.pushT=nowMs(); behind.pushN=6; behind.pushFrom={x:c.x,z:c.z,lvl:c.lvl}; behind.asideFor=c; }
+    }
   }
 
   // ================================================================ seeing and hearing
@@ -377,7 +413,7 @@
   const inEarshot = (c, cm) => c.present && H.live && sameFloor(c, player()) && dist(c, player()) < (cm || 650) && !!H.ROOMS[c.room]?.group.visible;
 
   // ================================================================ speech: one line at a time, in person or shouted
-  const speech = { q: [], cur: null, until: 0, last: 0 };
+  const speech = { q: [], cur: null, until: 0, hard: 0, last: 0, voice: null, bub: null };
   const words = t => String(t).split(/\s+/).length;
   const lineMs = t => clamp(900 + words(t) * 340, 2300, 7600);
   function say(id, lineId, o) {
@@ -386,22 +422,62 @@
     const shout = !person && (l[2] === 'downstairs' || o.call);
     if (!person && !shout) return false;
     if (o.once) { const k = 'np.once.' + member() + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
+    // never the same line again within a minute (unless you asked for a story instruction again)
+    if (!o.again && c.said[lineId] && nowMs() - c.said[lineId] < 60000) return false;
+    // a scripted story line that plays by itself plays once per story step (saved: a refresh doesn't replay it)
+    if (/^c\d\./.test(lineId) && !o.talk) { const step = window.st?.current?.()?.id || '-', k = 'np.step.' + member() + '.' + step + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
+    c.said[lineId] = nowMs();
     speech.q.push({ c, lineId, person, text: l[1], then: o.then, prio: o.prio || 0, talk: !!o.talk });
     if (o.prio) speech.q.sort((a, b) => b.prio - a.prio);
+    try { window.st?.prefetch?.(lineId); } catch (e) {}
     return true;
   }
+  // Where a speaker is for their speech bubble (js/np-bubble.js) and their recorded voice (js/st-voice.js, positional)
+  // (in your room, or just through a doorway: further rooms are behind walls, so their balloons go to the screen edge)
+  const seenBy = c => c.present && !!c.rig?.group.visible && !!H.ROOMS[c.room]?.group.visible && sameFloor(c, player()) && (c.room === H.here || dist(c, player()) < 450);
+  const anchorOf = c => ({ top: v => c.rig.headTop(v), mouth: v => c.rig.mouthWorld(v), seen: () => seenBy(c), where: v => c.rig.headTop(v) });
+  let V3 = null;
   function speechTick() {
     const t = nowMs();
-    if (speech.cur && t < speech.until) return;
-    if (speech.cur) { const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); } }
-    const n = speech.q.shift(); if (!n) return;
-    const ms = lineMs(n.text);
-    const who = n.person ? label(n.c) : label(n.c) + (n.c.lvl !== H.W.lvl ? (n.c.lvl === 'G' ? ' (downstairs)' : ' (upstairs)') : ' (in the ' + (n.c.room || 'house') + ')');
-    try { window.st?.say(n.lineId, who, n.text, ms); } catch (e) { console.error(e); }
-    if (n.person && n.c.rig) { n.c.rig.talk(ms - 300, n.text); n.c.talking = true; }
-    speech.cur = n; speech.until = t + ms + 280; speech.last = t;
+    if (speech.freeze) return; // (tests: hold the current line for a screenshot)
+    // (a recording that started late runs to its end, within reason)
+    if (speech.cur && (t < speech.until || (speech.voice && !speech.voice.ended && speech.voice.started && t < speech.hard))) return;
+    if (speech.cur) {
+      if (speech.voice && !speech.voice.ended) speech.voice.stop(); // (F again: on to the next line)
+      if (speech.bub) { const b = speech.bub, next = speech.q[0]; if (next && next.c === speech.cur.c) b.close(true); else setTimeout(() => b.close(), next ? 1600 : 450); } // (a reply: the last line stays up a moment, like a comic panel)
+      if (speech.cur.c.rig && speech.voice) speech.cur.c.rig.hush();
+      speech.voice = speech.bub = null;
+      const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); }
+    }
+    const n0 = speech.q[0]; if (!n0) return;
+    const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n0.lineId);
+    if (rec && !window.st.voiceReady?.(n0.lineId)) { // (give the recording a moment to arrive, so the words and the voice start together)
+      if (!n0.waitFrom) { n0.waitFrom = t; try { window.st.prefetch(n0.lineId); } catch (e) {} }
+      if (t - n0.waitFrom < 4000) return;
+    }
+    const n = speech.q.shift();
+    const ms = rec ? clamp(rec.dur * 1000 + 450, 1500, 14000) : lineMs(n.text);
+    const place = n.person ? '' : n.c.lvl !== H.W.lvl ? (n.c.lvl === 'G' ? '(downstairs)' : '(upstairs)') : '(in the ' + (n.c.room || 'house') + ')';
+    const who = label(n.c) + (place ? ' ' + place : '');
+    const c = n.c, here = c.present && !!c.rig, anchor = here ? anchorOf(c) : null;
+    const bubble = !!(anchor && window.NPCBubble?.ok());
+    if (!V3 && window.THREE) V3 = new THREE.Vector3();
+    let voice = null;
+    try {
+      voice = window.st?.say(n.lineId, who, n.text, ms, { bubble, fx: L[n.lineId]?.[2],
+        pos: here && V3 ? () => c.rig.mouthWorld(V3) : null, through: here ? () => !seenBy(c) : null, gain: here ? 1 : 0.7 }) || null;
+    } catch (e) { console.error(e); }
+    if (bubble) speech.bub = window.NPCBubble.show({ key: c.id, who: label(c), place, text: n.text, ms, anchor, voice, shout: !n.person });
+    if (here) c.rig.talk(ms - 300, n.text, voice);
+    if (voice) voice.onstart = h => { // (a slow connection: the line lasts as long as the recording, from when it really starts)
+      if (speech.voice !== h) return; const end = nowMs() + h.dur * 1000;
+      speech.until = Math.max(speech.until, end + 400); speech.hard = Math.max(speech.hard, end + 1500);
+      if (here) c.rig.talk(end - nowMs(), n.text, h);
+    };
+    if (n.person) c.talking = true;
+    speech.cur = n; speech.voice = voice; speech.until = t + ms + 280; speech.hard = t + ms + 3500; speech.last = t;
   }
-  function skip() { if (speech.cur) speech.until = 0; }
+  function skip() { if (speech.cur) { speech.until = 0; speech.hard = 0; } }
 
   // ================================================================ talking (F)
   const momGive = () => {
@@ -417,7 +493,18 @@
     if (speech.cur && speech.cur.c === c) skip(); // (cut short whatever they were saying to themselves)
     const lines = talkLines(c);
     c.hold = 99;
-    lines.forEach((l, i) => say(id, typeof l === 'string' ? l : l.id, { force: true, prio: 5, talk: true, then: () => { if (typeof l !== 'string' && l.then) l.then(); if (i === lines.length - 1) c.hold = 1.5; } }));
+    const p = player(), d = dist(c, p);
+    if (!c.seated && d < 82 && sameFloor(c, p)) { // (half a pace back if there's room: never into the worktop)
+      const a0 = Math.atan2(c.x - p.x, c.z - p.z); c.backoff = null;
+      for (const da of [0, 0.5, -0.5, 0.9, -0.9]) {
+        const a = a0 + da, step = 32, tx = c.x + Math.sin(a) * step, tz = c.z + Math.cos(a) * step;
+        if (Math.hypot(tx - p.x, tz - p.z) < d + 14 || NV.clear(c.lvl, tx, tz) < Math.min(NV.NEED - 4, NV.clear(c.lvl, c.x, c.z) - 1)) continue; // (as much room as where she stands: fine by a worktop)
+        c.backoff = { x: tx, z: tz }; c.backHome = c.backHome || { x: c.x, z: c.z }; break;
+      }
+    }
+    const fresh = lines.filter(l => { const lid = typeof l === 'string' ? l : l.id; return /^c\d\./.test(lid) || !(c.said[lid] && nowMs() - c.said[lid] < 60000); });
+    if (!fresh.length) { c.hold = 1.2; return; } // (nothing new to say: they just turn to you)
+    fresh.forEach((l, i) => say(id, typeof l === 'string' ? l : l.id, { force: true, prio: 5, talk: true, again: true, then: () => { if (typeof l !== 'string' && l.then) l.then(); if (i === fresh.length - 1) c.hold = 1.5; } }));
   }
   function talkLines(c) {
     const s = window.st?.getState?.(), cur = window.st?.current?.()?.id, story = s && !s.flags.veteran;
@@ -489,9 +576,9 @@
     for (const c of cands.sort(() => Math.random() - 0.5)) {
       const pool = barkPool(c, clk, false); if (!pool) continue;
       const near = inEarshot(c, 600);
-      const ok = pool.filter(id => L[id] && (near ? L[id][2] !== 'downstairs' : L[id][2] === 'downstairs' && c.lvl !== player().lvl) && (c.said[id] || 0) < t - 15 * 60000);
+      const ok = pool.filter(id => L[id] && (near ? L[id][2] !== 'downstairs' : L[id][2] === 'downstairs' && c.lvl !== player().lvl) && (!c.said[id] || c.said[id] < t - 15 * 60000));
       if (!ok.length) continue;
-      const id = pick(ok, c); c.said[id] = t;
+      const id = pick(ok, c);
       if (say(c.id, id, near ? {} : { call: true })) return;
     }
   }
@@ -502,16 +589,62 @@
   function storyDirectives() {
     const out = {}; if (!storyOn()) return out;
     const s = window.st.getState(), cur = window.st.current()?.id; if (s.ch !== 1 || !cur) return out;
-    if (cur === 'meetmom') out.mom = { key: 'story.momdoor', spot: SPOT.bedDoorMom, spotKey: 'bedDoorMom', onArrive: () => say('mom', 'c1.mom.up', { prio: 4, force: true }) };
-    else if (visit && visit.until > nowMs()) out[visit.id] = visit.d;
+    if (cur === 'meetmom') out.mom = entrance('mom', { key: 'story.momdoor', spot: SPOT.bedDoorMom, spotKey: 'bedDoorMom', onArrive: () => say('mom', 'c1.mom.up', { prio: 4, force: true }) }, { hold: true });
+    else if (visit && visit.until > nowMs()) out[visit.id] = entrance(visit.id, visit.d);
     else if (['tidy', 'bed', 'bin'].includes(cur)) out.mom = { key: 'story.momsink', spot: SPOT.sink, spotKey: 'sink' };
     else if (/^part\./.test(cur)) out.mom = { key: 'story.momhall', spot: SPOT.hallStairs, spotKey: 'hallStairs' };
     if (['dad', 'boot'].includes(cur) || /^part\./.test(cur)) out.dad = { key: 'story.dadcar', spot: SPOT.carStory, spotKey: 'carStory', force: true };
-    if (/^lead\./.test(cur) || ['power', 'install', 'pc'].includes(cur)) out.dad = { key: 'story.dadroom', spot: SPOT.bedDad, spotKey: 'bedDad', force: true, onArrive: () => { if (window.st.current()?.id === 'lead.power') say('dad', 'c1.lead.dad', { prio: 4, force: true }); } };
+    if (/^lead\./.test(cur) || ['power', 'install', 'pc'].includes(cur)) out.dad = entrance('dad', { key: 'story.dadroom', spot: SPOT.bedDad, spotKey: 'bedDad', force: true, onArrive: () => { if (window.st.current()?.id === 'lead.power') say('dad', 'c1.lead.dad', { prio: 4, force: true }); } });
     if (/^part\./.test(cur) && home('sister')) out.sister = { key: 'story.sislanding', spot: SPOT.landingSis, spotKey: 'landingSis' };
-    if (cur === 'lad' && sisCameo) out.sister = sisCameo;
+    if (cur === 'lad' && sisCameo) out.sister = entrance('sister', sisCameo, { burst: true });
+    for (const id in ent) if (!out[id] && !sceneDbg[id]) delete ent[id];
     return out;
   }
+  // ---------------------------------------------------------------- coming into Jack's room: never popping in
+  // Whoever comes to Jack's room is first got onto the landing outside the shut door, out of sight (or walks there if
+  // you can see them), then knocks (the sister just bursts in), the door opens and they walk in. For Mom's first visit
+  // the doorway is softly held from your side until she's in and has spoken (you can't open the door or walk out).
+  const STAGE = { mom: { lvl: 'U', x: 292, z: 190, face: -90 }, dad: { lvl: 'U', x: 296, z: 172, face: -90 }, sister: { lvl: 'U', x: 292, z: 205, face: -90 } };
+  const ent = {}, sceneDbg = {};
+  const inBedroom = c => c.present && c.lvl === 'U' && c.x < 238 && c.z < 252;
+  function entrance(id, d, o) {
+    const c = C[id]; let e = ent[id];
+    if (!e || e.key !== d.key) e = ent[id] = { key: d.key, phase: inBedroom(c) ? 'in' : 'come', started: nowMs(), el: 0, o: o || {}, inEl: -1 };
+    if (e.phase === 'in' || e.phase === 'enter') return d;
+    return { key: d.key + ':stage', spot: STAGE[id], spotKey: 'stage.' + id, force: d.force, onArrive: () => { if (e.phase === 'come') { e.phase = 'knock'; e.el = 0; } } };
+  }
+  function entranceTick(dt) {
+    for (const id in ent) {
+      const e = ent[id], c = C[id]; e.el += dt; e.age = (e.age || 0) + dt;
+      if (e.phase === 'enter' && e.inEl < 0 && inBedroom(c)) e.inEl = 0; else if (e.inEl >= 0) e.inEl += dt;
+      if (e.phase === 'come' && (!c.present || c.goal?.key === e.key + ':stage' && c.cur?.k === 'route') && !seenNow(c) && !seenAt(STAGE[id])) {
+        // get them onto the landing behind the door where nobody can see it happen
+        spawn(c, STAGE[id]); c.goal = null;
+      }
+      if (e.phase === 'knock') {
+        if (!e.knocked) { e.knocked = 1; if (!e.o.burst && !H.DOORS.bedroom?.open && !simMode) knockSfx(); }
+        if (e.el > (e.o.burst ? 0.25 : 1.4)) { if (H.DOORS.bedroom && !H.DOORS.bedroom.open) { H.setDoor('bedroom', true); e.doorAt = Date.now(); } e.phase = 'enter'; }
+      }
+    }
+  }
+  function knockSfx() { const sf = H.sfx; if (!sf?.tone) return; for (let i = 0; i < 3; i++) { sf.tone(96, 0.09, 'sine', 0.15, i * 0.22, 54); sf.noise(0.05, 0.08, 700, i * 0.22, 'lowpass', 900); } }
+  const seenNow = c => c.present && seen(c);
+  // would a person standing here be on screen?
+  function seenAt(at) {
+    if (!H.live || !at) return false;
+    const r = roomAt(at.x, at.z, at.lvl); if (!r || !r.group.visible) return false;
+    H.camera.updateMatrixWorld(); pm.multiplyMatrices(H.camera.projectionMatrix, H.camera.matrixWorldInverse); frustum.setFromProjectionMatrix(pm);
+    r.group.localToWorld(wp.set(at.x, H.LV[at.lvl], at.z)); wp.y += 80; sph.set(wp, 110);
+    return frustum.intersectsSphere(sph);
+  }
+  // Mom's first visit: hold the doorway from the bedroom side until she's in and has said hello
+  function doorHeld() {
+    const e = ent.mom; if (!e || !e.o.hold || ((e.age || 0) >= 10 || nowMs() - e.started >= 10000)) return false; // (a safety net: never longer than 10 s, even at a low frame rate)
+    if (e.phase !== 'in' && e.phase !== 'enter') return true;
+    return e.inEl < 2.5;
+  }
+  let heldHintAt = 0;
+  function heldHint() { if (nowMs() - heldHintAt > 4000) { heldHintAt = nowMs(); H.ui?.say?.('Hang on', 'Mom\'s coming up the stairs...', 2600); } }
   const home = id => { const sch = scheduled(id, clock()); return !sch.raw.startsWith('away:'); };
   // A story step a person speaks has just started. True = it's being said in person (js/st-engine.js then says nothing).
   function storyLine(stepId) {
@@ -549,15 +682,17 @@
     const held = H.held(); if (!held || !storyOn()) return;
     const p = player();
     if (/^st\.pc\./.test(held)) {
-      if (C.mom.present && C.mom.goal?.spotKey === 'hallStairs' && dist(C.mom, p) < 260 && sameFloor(C.mom, p)) say('mom', C.mom.said['c1.mom.carry'] ? 'c1.mom.carry2' : 'c1.mom.carry', { prio: 2, range: 400 }) && (C.mom.said[C.mom.said['c1.mom.carry'] ? 'c1.mom.carry2' : 'c1.mom.carry'] = nowMs());
-      if (C.sister.present && C.sister.goal?.spotKey === 'landingSis' && dist(C.sister, p) < 240 && sameFloor(C.sister, p) && !C.sister.said['c1.sis.stairs']) { C.sister.said['c1.sis.stairs'] = nowMs(); say('sister', 'c1.sis.stairs', { prio: 2 }); say('sister', 'c1.sis.stairs2', { prio: 2 }); }
+      // each carry remark once (it used to repeat "carry2" every time you passed her)
+      const next = !C.mom.said['c1.mom.carry'] ? 'c1.mom.carry' : !C.mom.said['c1.mom.carry2'] ? 'c1.mom.carry2' : null;
+      if (next && C.mom.present && C.mom.goal?.spotKey === 'hallStairs' && dist(C.mom, p) < 260 && sameFloor(C.mom, p)) say('mom', next, { prio: 2, range: 400 });
+      if (C.sister.present && C.sister.goal?.spotKey === 'landingSis' && dist(C.sister, p) < 240 && sameFloor(C.sister, p) && !C.sister.said['c1.sis.stairs']) { say('sister', 'c1.sis.stairs', { prio: 2 }); say('sister', 'c1.sis.stairs2', { prio: 2 }); }
     }
   }
   function onGrab(id) {
     if (!storyOn()) return;
     const m = { 'st.pc.tower': 'c1.tower.pick', 'st.pc.monitor': 'c1.mon.pick', 'st.pc.keys': 'c1.keys.pick', 'st.pc.speakers': 'c1.speak.pick' }[id];
-    if (m && !C.dad.said[m]) { C.dad.said[m] = nowMs(); say('dad', m, { prio: 3, range: 700 }); }
-    if (/^(md|ps|n64|dc)$/.test(id) && window.st.current()?.id === 'carry' && !C.mom.said['c2.carry.mom'] && inEarshot(C.mom, 500)) { C.mom.said['c2.carry.mom'] = nowMs(); say('mom', 'c2.carry.mom', { prio: 2 }); }
+    if (m && !C.dad.said[m]) { say('dad', m, { prio: 3, range: 700 }); }
+    if (/^(md|ps|n64|dc)$/.test(id) && window.st.current()?.id === 'carry' && !C.mom.said['c2.carry.mom'] && inEarshot(C.mom, 500)) { say('mom', 'c2.carry.mom', { prio: 2 }); }
   }
   // the sister bursts in while the Game Lad is on (only if she's home)
   function gameLadCameo() {
@@ -588,20 +723,23 @@
   const squeeze = (x, z, lvl) => SQUEEZE.some(q => (!q.lvl || q.lvl === lvl) && x > q.x0 && x < q.x1 && z > q.z0 && z < q.z1);
   function blocks(x, z, lvl) {
     if (!ready) return false;
+    if (lvl === 'U' && doorHeld() && x > 222 && x < 270 && z > 140 && z < 240 && H.W.x < 236) { heldHint(); return true; } // (never traps: only stops you walking out of your room)
     if (squeeze(x, z, lvl)) return false;
     for (const c of chars) {
-      if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z))) continue;
-      const r = c.seated ? 34 : 36, d1 = Math.hypot(x - c.x, z - c.z);
-      if (d1 < r && d1 < Math.hypot(H.W.x - c.x, H.W.z - c.z) - 0.01) { c.pushT = nowMs(); c.pushN = (c.pushN || 0) + 1; return true; }
+      if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z)) || doorZone(c.x, c.z, c.lvl, 20)) continue; // (in a doorway you squeeze past: nobody can block you in)
+      const r = space(c), d1 = Math.hypot(x - c.x, z - c.z);
+      if (d1 < r && d1 < Math.hypot(H.W.x - c.x, H.W.z - c.z) - 0.01) { c.pushFrom = null; c.asideFor = null; c.pushT = nowMs(); c.pushN = (c.pushN || 0) + 1; return true; }
     }
     return false;
   }
   // Who you're up against (for the walking controller's slide: you walk round people instead of stopping dead).
+  // personal space: you can't get your face right into theirs (about 65 cm standing, less by a chair)
+  const space = c => c.seated ? 50 : 64;
   function blocker(x, z, lvl, skin) {
     if (!ready || squeeze(x, z, lvl)) return null;
     for (const c of chars) {
-      if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z))) continue;
-      const r = c.seated ? 34 : 36; if (Math.hypot(x - c.x, z - c.z) < r + (skin || 0)) return { x: c.x, z: c.z, r };
+      if (!c.present || !(c.lvl === lvl || NV.onFlight(c.x, c.z)) || doorZone(c.x, c.z, c.lvl, 20)) continue;
+      const r = space(c); if (Math.hypot(x - c.x, z - c.z) < r + (skin || 0)) return { x: c.x, z: c.z, r };
     }
     return null;
   }
@@ -613,7 +751,7 @@
       const fwd = Math.atan2(p.x - c.x, p.z - c.z), off = Math.abs(angd(c.seated ? c.seated.face * D2R : c.h, fwd));
       if (c.talking || c.hold > 0 || off < 1.7) look = eyes();
     }
-    c.rig.set({ look });
+    c.rig.set({ look, engage: c.present && c.hold > 0 });
   }
 
   // ================================================================ the loop
@@ -622,6 +760,8 @@
   function tick(dt) {
     const clk = clock();
     directives = Object.assign(storyDirectives(), manual);
+    for (const id in sceneDbg) directives[id] = entrance(id, sceneDbg[id]);
+    entranceTick(dt);
     for (const c of chars) {
       const want = target(c, clk);
       if (!c.present) { maybeSpawn(c, want, clk); continue; }
@@ -657,6 +797,7 @@
     const fresh = !!instant;
     if (fresh && !s.seat) { spawn(c, s); c.goal = want; c.plan = [{ k: 'face', h: (s.face || 0) * D2R }, { k: 'act' }]; return; }
     if (fresh && s.seat) { const q = s.seat; spawn(c, { lvl: s.lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: { h: q.h, back: q.back, knee: q.knee, table: q.table } }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; return; }
+    if (seenAt(from)) return; // (never appear where you can see it: wait until you look away)
     spawn(c, from); setGoal(c, want);
   }
   // after a refresh: everyone where they were (if it's recent), otherwise where the clock says
@@ -746,7 +887,7 @@
   window.HouseFamily = {
     enabled: true, get active() { return ready; }, get ready() { return ready; }, chars: C,
     present: id => !!C[id]?.present, near: (id, cm) => !!C[id] && inEarshot(C[id], cm || 400),
-    talk, say: (id, line, o) => say(id, line, o), storyLine, handIn, blocks, blocker,
+    talk, say: (id, line, o) => say(id, line, o), storyLine, handIn, blocks, blocker, doorHeld, heldHint,
     // hs-life's random shouts give way to the people who are really there (and Dad can't shout from work)
     mute: who => { if (!ready) return false; const w = String(who).toLowerCase(); if (w.startsWith('dad')) return true; if (w.startsWith('mom')) return true; return false; },
     debug: {
@@ -756,12 +897,15 @@
         try { for (let t = 0; t < seconds; t += dt) { tick(dt); if (check) { const r = check(this.dump(), t); if (r) out.push(r); } } } finally { simMode = was; }
         return out;
       },
+      entrance: () => JSON.parse(JSON.stringify(ent)), seenAt, seen: id => seen(C[id]),
       dump() { return chars.map(c => ({ id: c.id, present: c.present, x: +c.x.toFixed(1), z: +c.z.toFixed(1), lvl: c.lvl, h: +c.h.toFixed(3), v: +c.v.toFixed(1), room: c.room, goal: c.goal?.key || null, spot: c.goal?.spotKey || null, step: c.cur?.k || null, seated: !!c.seated, sitting: !!(c.cur && (c.cur.k === 'sit' || c.cur.k === 'stand')), outfit: c.rig?.outfit || null, talking: !!c.talking })); },
       want: id => target(C[id], clock()).key,
       hide(v) { hideAll = !!v; for (const c of chars) placeRig(c); H.dirty(); },
-      go(id, spotKey) { if (!spotKey) delete manual[id]; else { const s = SPOT[spotKey] || EXIT[spotKey]; manual[id] = s && { key: 'debug.' + spotKey, spot: s, spotKey, act: s.act }; } },
+      scene(id, spotKey) { if (!spotKey) { delete sceneDbg[id]; return; } sceneDbg[id] = { key: 'debug.scene.' + spotKey, spot: SPOT[spotKey], spotKey }; }, // (tests: a scripted entrance into Jack's room)
+      go(id, spotKey, act) { if (!spotKey) delete manual[id]; else { const s = SPOT[spotKey] || EXIT[spotKey]; manual[id] = s && { key: 'debug.' + spotKey + (act ? ':' + act : ''), spot: s, spotKey, act: act || s.act }; } },
+      acts: () => { const o = {}; for (const id of ['mom', 'dad', 'sister']) { const set = new Set(); for (const R of Object.values(ROUTINE[id])) for (const e of R) for (const v of [].concat(e[1])) { if (v.startsWith('away:')) continue; const [k, a] = v.split(':'); const key = k === 'mug' ? 'kmug1' : k; if (SPOT[key]) set.add(key + ':' + (a || SPOT[key].act || '')); } o[id] = [...set]; } return o; },
       place(id, spotKey) { const c = C[id], s = SPOT[spotKey]; if (!c || !s) return false; spawn(c, s.seat ? { lvl: s.lvl, x: s.seat.stand[0], z: s.seat.stand[1] } : s); c.goal = null; return true; },
-      spots: SPOT, exits: EXIT, approachOf, routines: ROUTINE, scheduled: (id, v) => scheduled(id, v ? mk(v.md, v.dow, v.t) : clock()), save, restore, speech, frame,
+      spots: SPOT, exits: EXIT, approachOf, anchor: id => C[id] && C[id].rig ? anchorOf(C[id]) : null, routines: ROUTINE, scheduled: (id, v) => scheduled(id, v ? mk(v.md, v.dow, v.t) : clock()), save, restore, speech, frame,
     },
   };
 })();

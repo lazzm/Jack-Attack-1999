@@ -1,5 +1,107 @@
 # Jack's Home Page - changelog
 
+## 2.57.16 - 2026-10-28
+- R68: basket and bin targets glow around their own shape; eligible empty slots have shallow rings. Only the actual placement ghost copies the carried object. Kept R105's eligibility filtering and rapid-switch clearing.
+- Rebuilt folded clothes, sports socks, foil crisp packets, can, wrappers, apple core and crumpled homework as solid models. Garment undersides and boundaries are closed; cloth grips use real fabric contacts rather than empty bounding-box corners. All seven garments use one hand. R40: old newspapers are a tied stack of printed papers. R77: the football has twelve pentagons/twenty hexagons and turns as it rolls.
+- R74/R81: a posed tuxedo cat on a carpeted, sisal-post cat tree with a den and platforms. Its feeding route stays clear of the bed, every pose keeps feet above the carpet, and it eats then returns home. Real feeding progress and PC power survive refresh.
+- Placement version 7 moves old floor props directly under the new tree into clear space once. Other rooms, raised props, media snaps and metadata stay intact. Two daily scatter points move clear of the tree; daily job item identities, progress and rewards remain unchanged.
+- Follow-up to R107: portrait discovery banners stack below the measured carry caption, with the job tracker below them. Rectangle checks prevent overlap, including longer captions.
+- Verified: syntax/unit/parody gates; real Chapter 1 tidy/bed/bin path; physics 15/15; smoke 12/12; carry/bin/slot/refresh regression; mobile eight-scenario coverage and focused final play-through. Real save fixtures check tree/car/roof/lounge migrations, metadata and two refreshes. Closed-garment and thirty cat-pose geometry checks pass. Reviewed desktop 1366x860/1920x1080, phone/tablet portrait/landscape, Low/Potato and forced High, garment grips/rotation, cat feeding and all five cat poses from multiple angles.
+- The older voice batch is excluded; the three approved British clips are preserved. No account, wallet, earning-cap or shared-world resets. Physical Edge/Android hardware and gamepads remain unverified. R108 and remaining scale-audit dimensions stay open.
+
+## 2.57.15 - 2026-10-28
+- R98: finer slow movement, gentler look acceleration, forgiving item selection and second-finger look takeover. Buttons respond on press, keep feedback and act once even after a long rolling hold; keyboard/switch activation remains available. Room and close-up gestures stay with the game while lists still scroll.
+- Phone Potato pacing tries 60, settles at 30 after sustained misses and retries after a cooldown when frames are cheap. Idle/background animation does not count as poor performance. Physical phone frame rate is not established by the software-host tests.
+- Thin game spines now win over the surrounding shelf's general help when selecting nearby; direct door/character presses retain priority, as do wall blocking and reach limits.
+- R107: discovery banners sit below portrait objectives. The first-time controls card waits for notes, discoveries and conversations, and yields if a new message arrives. Tests explicitly choose Keep the house in the slow-device dialog and retain pose/mode; other fixtures remember that device preference.
+- Verified: syntax/unit/parody gates, Chapter 1, smoke 12/12, transitions 9/9 and carry/bin/slot/refresh regression. Eight mobile scenarios covered: account/story/full/feel/tablet/owner/performance passed together; smallest-phone failure exposed the dialog/shelf conflict and was corrected. Final full/small/feel rerun 3/3, including real offset pickup, two-finger close-up turn/zoom, one-second rolling press, discovery stacking and rotation. Production pacing/picking unit checks pass. Reviewed desktop 1366x860, phone/tablet portrait/landscape, menus, overlays and walking/looking contact sheets.
+- No account, wallet, earning-cap, world or placement migrations. Physical Edge/Android hardware and gamepads remain unverified. Broader scale audit, R96's remaining CRT test timing and R108's existing furniture-check warning stay open.
+
+## 2.57.14 - 2026-10-28
+- R86/R103: Jack approved an extra metre of front plot. The car now leaves 110 cm behind its boot and 107 cm before the gateway. Shared street, seasonal props, chores and family targets follow the new boundary; both navigation grids cover the pavement. Rebuilt clipped hedge, properly sized piers and lamp base, slimmer car pillars and lower glass.
+- R90: re-laid lounge furniture, 90 x 50 cm bevelled coffee table with an 83 cm sofa gap, matching collision/support, updated seating and a brass coal-effect gas fire. R112: people in a hall queue request room from the back, with cycle/seated/conversation guards.
+- R88: extended village streets, junction, shop, houses and a moving opaque distant skyline. R93: verified both gable walls with 144 exterior views and zero holes. Two bedroom hero posters are A2; restored a poster label accidentally disabled in the old branch.
+- Placement version 6 transfers old car/roof and raised lounge props once, preserving angles, snap/hidden records and metadata. Existing mowing cuts survive; completed strips extend through the new lawn rows without resetting progress or paying again.
+- Verified: syntax/unit/parody gates; Chapter 1, identity, owner tools and Halloween; smoke 12/12, physics 15/15, mobile 7/7 plus approved-layout full/tablet/performance 3/3; real saved roof contact and repeat refreshes; four furnished lounge routes and six door checks; family routine days, crossings, entrances, repeated dialogue and eighteen job interruptions. Real phone-finger input walks behind the open boot and ahead of the car, then preserves pose, power and boot through refresh and rotation. Reviewed desktop 1366x860 and phone/tablet portrait/landscape captures.
+- Remaining advisory dimensions are listed in SCALE-REVIEW.md; this release does not complete the whole scale audit. Physical Edge/Android hardware and gamepads remain unverified. No account, wallet, earning-cap or shared-world resets. R107 banner stacking, R108's existing furniture-check warning and R96's remaining CRT test timing await their queued work.
+
+## 2.57.13 - 2026-10-28
+- The walking camera sees more of the room: 60 degrees vertically on ordinary landscape displays, at least 50 degrees across on portrait phones, capped at 95 degrees across. Standing eye height is 143 cm; the default seated height is 108 cm. The PC keeps its original lens and screen framing.
+- R111: the live desktop now stays fitted to the CRT when the lens changes without the player moving. The new corner check reproduces 72 px drift with the old cache and keeps every corner within 0.06 px with the fix.
+- Standing capture fixtures use the game's actual eye height. Door tests wait for controller time instead of assuming a busy browser receives enough frames in a fixed wall-clock interval; their collision and crossing assertions remain intact.
+- Verified: syntax/unit/parody gates, Chapter 1, smoke 12/12, physics 15/15, transitions 9/9, mobile 7/7 plus full/tablet 2/2 after the CRT fix, real-scale carry/bin/slot checks, six viewport/lens measurements and legacy standing-save refresh. All 32 furnished/sparse walking routes completed without a stuck player; the focused twelve-door rerun has zero findings. Reviewed native-lens desktop 1366x860 and 1920x1080, phone/tablet portrait/landscape, carry, transition and CRT before/after captures.
+- No item-placement migrations, account resets, wallet/cap changes or shared-world changes. Physical Edge/Android hardware and gamepads remain unverified. R107 banner stacking and R108's existing furniture-check warning remain open.
+
+## 2.57.12 - 2026-10-28
+- R109: replaced the first-person blocky claws with rounded, joined grips. Small objects use one hand, fingers stay behind the item, the thumb rests on its front, and short sleeves leave more of the room visible. Turned cases use their front face for thumb contact. Objects retain their real model and scale.
+- R97/R102: rounded hips and overlapping, rolled-under hems remove the waistband ledge and extra crotch wedge. R110: corrected left/right wrist and gaze targets so seated hands rest on their own side and job poses no longer cross the arms.
+- R99: people stop before another body, walk around, ask for room or retreat to reachable open space, then resume when the way is clear. No creeping through a standing person or arriving inside somebody. The doorway/dialogue hotfix remains intact.
+- Every outfit on Low/Potato, near and far, stays below 3,000 triangles including contact shadows (maximum 2,998). The family adds six draw calls and 8,366 triangles on Low.
+- Verified: focused syntax/unit/parody gates; Chapter 1, owner tools, identity and Halloween; smoke 12/12; physics 15/15; mobile seven-scenario coverage (six passed together, owner/account-gate rerun 2/2 after waiting for the real profile handshake); three routine-day sweeps and kitchen/hall crossings; eighteen job conversations; walking/seated waist and hand close-ups; real-scale carry/bin/slot/refresh regression. Reviewed desktop 1366x860 and phone/tablet portrait/landscape captures. Tests now compare the final pagehide pose within 2 cm and allow a profile import to finish before pressing controls.
+- No account, wallet, earning-cap or shared-world resets or migrations. Physical Edge/Android hardware and gamepads remain unverified. R107 banner stacking and R108's pre-existing furniture-check startup warning remain open.
+
+## 2.57.11 - 2026-10-28
+- R100: carry the real object at its real scale, close and low, with short forearms and hands gripping its sides. No shrinking stand-in. Drops keep the real object clear of walls and the player.
+- R101: the bin's bag, liner and note travel with the bin. Contained bags do not fight the bin's physics body; untied bags stay inside, tied bags can be removed and returned, and refresh restores the visible bag without shoving the bin. The tied bag fits inside the shell, and a fresh liner starts empty.
+- R105: only eligible free shelf slots glow, as shallow lights. Eligibility no longer depends on cursor aim, and changing the carried item immediately clears old previews. R83: off-screen guidance shows an arrow without a label painted over other objects.
+- Carry captions stay above the object on touch screens in landscape; delayed first-time instructions stay clear once the player is carrying or using the room.
+- Verified: unit/syntax/parody gate; real Chapter 1 and physical console-case regressions; physics 15/15; smoke 12/12 after making its profile-upload confirmation tolerate an active save; mobile 7/7 plus 4/4 after touch polish; dedicated size/rotation/slot/bin/tie/return/refresh regression. Reviewed desktop 1366x860 and phone/tablet portrait/landscape captures. Physical Edge/Android hardware and gamepads remain unverified. No account, cash, earning-cap or shared-world resets.
+
+## 2.57.10 - 2026-10-28
+- R104: automatic family scene lines play once per story step, remembered across refresh. Repeated conversations no longer loop the same ambient line; asking for a story instruction still works. Mom's two PC-carry remarks each play once.
+- Family members step clear of doorways and cannot block the player in a threshold. Mom's first-visit doorway hold releases within ten real seconds, including at low frame rates. Empty conversations release people even between movement steps.
+- Regressions cover repeated talking, walking out within ten seconds, Dad finishing his entrance, Mom's staged entrance, dialogue cooldowns and account-specific refresh history. The mobile story fixture now allows personal space and uses the diary's current Close button.
+- Live follow-up: a pre-existing JackWorld startup furniture-check warning remains (R108, loot initialisation order); all mods load. No data repair was attempted.
+- Verified: focused release gate 7/7 (syntax, parody, dialogue regression, Chapter 1, owner tools, identity, smoke); smoke 12/12; mobile 7/7. Reviewed desktop 1366x860, phone and tablet portrait/landscape captures. No browser errors/warnings or failed server mods. Physical Edge/Android hardware and gamepads were not tested.
+
+## 2.57.9 - 2026-10-28
+- Voices are British: the first batch of recordings came out with American accents (the accent wasn't asked for), so they're gone. Every line is now recorded as standard British English; the first few of Mom's lines are back today and the rest of the family (including your sister) follows over the next two days. Until then the speech bubbles show the words.
+- Speech bubbles only: the old text box in the bottom-left no longer shows as well (it's still in the pause menu as "Subtitles").
+- Prompts say what F will do: "Talk to Crystal  [F] Talk" instead of "[F] Use".
+
+## 2.57.8 - 2026-10-28
+- The family talk out loud: recorded lines play from where the speaker is standing (quieter with distance, muffled through walls), the telly and music dip a little while someone talks, and their painted mouths move with the sound. Lines without a recording yet still show and animate.
+- Speech bubbles: a comic balloon with a name tab over whoever is talking, words appearing in step with the voice; when the speaker is behind you or in another room the balloon waits at the screen edge with an arrow ("MOM (DOWNSTAIRS)"). Bubbles keep clear of the crosshair, the carry panel, the objective and the phone buttons. The old bottom box is now a "Subtitles" option in the pause menu.
+
+## 2.57.7 - 2026-10-27
+- Mom's first visit: she waits on the landing behind your shut door, knocks three times, the door opens and she walks in. Until she's in and has spoken you stay in your room ("Hang on, Mom's coming up the stairs..."). Dad coming up for the leads and your sister bursting in work the same way, and nobody ever appears where you can see.
+- Trick-or-treaters walk along the pavement from down the road before turning up the path.
+- Personal space: you can't walk right into someone's face; if you start talking too close they take half a step back.
+- Talking to someone mid-job (washing up, cooking, reading the paper...) blends them smoothly round to face you, keeping a mug or sponge in hand and putting the paper down, then back to the job.
+- Better walks (hip sway, counter-turning shoulders, relaxed arm swing, leaning into the stairs) and tops now overlap the waistband (no gap at the hips).
+
+## 2.57.6 - 2026-10-27
+- Phones: the Game Lad's own buttons work by touch (checked against the 3D model itself, generous hit areas, slide between d-pad directions, d-pad + A together, hold to repeat, buttons sink with a click and a buzz).
+- Phones: press a thing to see what will happen above your thumb ("PICK UP", "OPEN", "TALK"); let go to do it, drag away to cancel. While carrying, a click puts it down at the ghost. Smoother looking, bigger and fewer buttons, and a one-time "how to play" card instead of three overlapping hints.
+- Console pads, the PC buttons and the in-world phone keypad checked with real touch.
+
+## 2.57.5 - 2026-10-27
+- Carrying looks natural: what you hold sits low and centred in two hands (jumper sleeves and mitts), sized to the thing (a game box is about an eighth of the view; big things sit lower), sways a little as you walk and turn, and never covers the crosshair, the ghost or what you're aiming at. Phones size it to the screen width. The watering can rises into view while pouring.
+- Floating labels such as "Old newspapers" hide when something is in front of their target or it's far away.
+- Fixed: the talk prompt could still show raw code while carrying something; it reads "Talk to <name>".
+
+## 2.57.4 - 2026-10-27
+- Fixed: from the drive you could see straight through the side of the house (the roof eaves had no wall under them). Both side walls now run from the ground to the eaves, and painted side gates close the passages beside the house.
+- New test: tests/exterior-shell.mjs looks at the house from all round, day and night, and fails if the street or sky shows where the walls should be.
+
+## 2.57.3 - 2026-10-27
+- Fixed: games on the bedroom telly, the cupboard set and the Game Lad lost their HUD, menus and text (and the power-on effect) after a console had been switched off; only the first game since loading looked right. LOCK IN was always fine. 22 games were affected.
+- Teeny Motors no longer prints a canvas warning while building its track.
+- New test: tests/games-ui.mjs boots all 23 games with the console switched off in between and checks each HUD reaches the in-room screen and LOCK IN.
+
+## 2.57.2 - 2026-10-27
+- Fixed: things put on the bed could drop through a dip in the duvet onto the floor underneath, out of sight and out of reach. They now land and sit on the duvet's real surface, and the sleeping cat is solid.
+- Safety net: anything that ends up under a floor, through a wall, inside furniture or deep under low furniture is moved somewhere you can reach.
+- Fixed: closing a magazine, book or close-up (Q or Esc) or pressing Q to return something could leave it floating in mid-air; it now goes back where it was, resting on what's there.
+- Fixed: plates looked grey on the floor (the glaze faced the wrong way).
+- The car boot is a real space you can put things in.
+- Watering can: F waters what you aim at, the prompt says what it'll water, the thirsty plant glows while you carry the can, and the can tips when pouring.
+- New test: tests/qa-play.mjs carries things to every surface and back, refreshes, reads and closes readers, and checks nothing is lost or floating.
+
+## 2.57.1 - 2026-10-27
+- Fixed: after the bigger car arrived, Dad's PC parts could stay where the old car's boot was (hidden behind the bumper), so the boot looked empty. Saves are now moved for the new car in one go when they load, and saves already caught by this are repaired.
+- Fixed: the prompt on Mom, Dad and your sister showed raw code ("Use mom <i><span>…") and two F actions; it now just says "Talk to Mom".
+
 ## 2.57.0 - 2026-10-27
 - Physics everywhere in the house (docs/PHYSICS.md): every prop is a physics body with real heights. Walk into things and they get shoved (light ones slide and wobble, heavy ones give way slowly and slow you down); dropped things fall, bounce a little, land, stack and settle with no jitter. Furniture has real parts: the desk chair's seat slides under the desk top, flat things fit under the bed, a box doesn't. Small light things (shopping, the bin, a dropped jumper) are kicked aside and never stop you. Nothing can trap you: anything you end up inside lets you walk straight out. Hung decorations stay put when bumped.
 - The desk chair: starts tucked under the desk (out of your way); push it, or press E to take hold and slide it, and it tucks in as far as its back allows. The seat and back swivel; seated, they turn with your view. F on a tucked chair rolls it out and sits you down. The beanbag is dragged the same way (heavy).

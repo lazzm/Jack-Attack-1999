@@ -321,13 +321,9 @@ html[data-game-touch="true"] .rm-tvv.rm-hand:not(.rm-lockin) .rm-pad{display:non
   .rm-tvv.rm-padon .rm-shelf,.rm-tvv.rm-padon .rm-conbar,.rm-tvv.rm-padon .rm-help{display:none}
 }
 .rm-tvv.rm-padon .rm-tools .rm-b{min-height:40px}
-/* the Game Lad in your hands: finger-sized hit areas over its own moulded buttons (js/rm-tv.js gbTouch) */
-.rm-gbtouch{position:fixed;inset:0;z-index:5;pointer-events:none;touch-action:none;-webkit-user-select:none;user-select:none}
-.rm-gbtouch[hidden]{display:none}
-.rm-gbtouch>*{position:fixed;pointer-events:auto;touch-action:none;display:block;border-radius:50%;box-sizing:border-box;border:2px solid rgba(255,240,210,.22);background:transparent;-webkit-tap-highlight-color:transparent}
-.rm-gbtouch .rm-gbd{border-radius:14%}
-.rm-gbtouch .rm-gbd b,.rm-gbtouch .rm-gbd i{display:none}
-.rm-gbtouch>.on,.rm-gbtouch .rm-gbd:has(.on){border-color:rgba(255,216,74,.7);background:rgba(255,216,74,.12)}
-.rm-gbtouch .rm-gbt-a,.rm-gbtouch .rm-gbt-b,.rm-gbtouch .rm-gbt-s{color:transparent;font-size:0}
-html:not([data-game-touch="true"]) .rm-gbtouch{display:none}
+/* the Game Lad in your hands: its moulded buttons are hit-tested on the model (js/rm-tv.js gbTouch); no page panning or
+   zooming may steal a thumb that is on the D-pad */
+html.rm-gb-model,html.rm-gb-model body{touch-action:none;-webkit-user-select:none;user-select:none}
 @media(max-height:500px) and (min-aspect-ratio:3/2) and (min-width:600px){.rm-tvv .rm-pad .rm-control-label{display:none}}
+.rm-gbpress{position:fixed;z-index:6;pointer-events:none;border-radius:50%;border:3px solid rgba(255,216,74,.85);box-shadow:0 0 12px rgba(255,216,74,.55),inset 0 0 10px rgba(255,216,74,.35);animation:rmGbPress .16s ease-out}
+@keyframes rmGbPress{from{transform:scale(1.35);opacity:.2}to{transform:scale(1);opacity:1}}

@@ -66,6 +66,7 @@
       const old = st; st = next; html.dataset.touchState = st;
       if (!['walk', 'seat'].includes(st)) releaseAll();
       if (st === 'pc' && old !== 'pc') pcArrived();
+      if (st === 'walk') setTimeout(() => { if (st === 'walk') coach(true); }, 1200); else coach(false);
       lastKey = ''; render();
     }
     return st;
@@ -75,7 +76,7 @@
   const pts = new Map(); let stick = null, look = null;
   const R = () => clamp(Math.min(innerWidth, innerHeight) * .15, 46, 70); // the stick's travel, in CSS px
   function releaseAll() {
-    pts.clear(); stick = look = null; H.touch.move(0, 0); stickEl.classList.remove('on', 'run');
+    pts.clear(); spare.clear(); stick = look = null; H.touch.move(0, 0); stickEl.classList.remove('on', 'run');
     knob.style.transform = ''; stickEl.style.removeProperty('left'); stickEl.style.removeProperty('top');
   }
   function stickSide(x, y) { return x < innerWidth * (innerWidth > innerHeight ? .42 : .5) && y > innerHeight * .28; }
@@ -84,20 +85,31 @@
     ev.preventDefault();
     try { surface.setPointerCapture(ev.pointerId); } catch (e) {}
     if (!stick && stickSide(ev.clientX, ev.clientY)) {
-      stick = { id: ev.pointerId, x0: ev.clientX, y0: ev.clientY };
+      // (a still, short press on this side is still a click on the thing under it: the stick only walks once it moves)
+      stick = { id: ev.pointerId, x0: ev.clientX, y0: ev.clientY, sx: ev.clientX, sy: ev.clientY, t0: performance.now(), moved: false, aim: H.held() ? null : aimPoint(ev.clientX, ev.clientY) }; tapMark(stick.aim, ev.clientX, ev.clientY);
       stickEl.classList.add('on'); stickEl.style.left = ev.clientX + 'px'; stickEl.style.top = ev.clientY + 'px'; knob.style.transform = '';
-    } else if (!look) look = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY, t0: performance.now(), moved: false };
+    } else if (look) spare.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    else if (!look) { look = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY, t0: performance.now(), moved: false }; look.aim = H.held() ? null : aimPoint(ev.clientX, ev.clientY); tapMark(look.aim, ev.clientX, ev.clientY); }
+    ls.set('jhp_touch_coach', true); coach(false);
     pts.set(ev.pointerId, true);
   });
   surface.addEventListener('pointermove', ev => {
+    const sp = spare.get(ev.pointerId);
+    if (sp) {
+      // a second finger that was resting while another looked: once that one lifts, it looks (no lost touches)
+      if (!look) { spare.delete(ev.pointerId); look = { id: ev.pointerId, x: sp.x, y: sp.y, x0: sp.x, y0: sp.y, t0: performance.now(), moved: true }; }
+      else { sp.x = ev.clientX; sp.y = ev.clientY; return; }
+    }
     if (stick && ev.pointerId === stick.id) {
       ev.preventDefault();
       const r = R(); let dx = ev.clientX - stick.x0, dy = ev.clientY - stick.y0; const d = Math.hypot(dx, dy);
       // A thumb that runs past the rim drags the stick along with it (floating), and jogs.
+      if (!stick.moved && Math.hypot(ev.clientX - stick.sx, ev.clientY - stick.sy) > 12) { stick.moved = true; tapMark(null); }
+      if (!stick.moved) return;
       const run = d > r * 1.18;
       if (d > r * 1.6) { const k = (d - r * 1.6) / d; stick.x0 += dx * k; stick.y0 += dy * k; dx = ev.clientX - stick.x0; dy = ev.clientY - stick.y0; stickEl.style.left = stick.x0 + 'px'; stickEl.style.top = stick.y0 + 'px'; }
       const m = Math.min(1, Math.hypot(dx, dy) / r), a = Math.atan2(dy, dx), dead = .14;
-      const amt = m < dead ? 0 : (m - dead) / (1 - dead);
+      const lin = m < dead ? 0 : (m - dead) / (1 - dead), amt = Math.pow(lin, 1.35); // (gentle curve: creep near the middle)
       knob.style.transform = `translate(${Math.cos(a) * Math.min(r, Math.hypot(dx, dy))}px,${Math.sin(a) * Math.min(r, Math.hypot(dx, dy))}px)`;
       stickEl.classList.toggle('run', run && amt > .5);
       if (amt && H.seated && H.mode === 'focus') { H.unfocus(); return; } // (like the keys: walking gets you up first)
@@ -107,22 +119,100 @@
     if (look && ev.pointerId === look.id) {
       ev.preventDefault();
       const dx = ev.clientX - look.x, dy = ev.clientY - look.y; look.x = ev.clientX; look.y = ev.clientY;
-      if (!look.moved && Math.hypot(ev.clientX - look.x0, ev.clientY - look.y0) > 9) look.moved = true;
-      if (look.moved) { const k = .26 * sens * 400 / clamp(Math.min(innerWidth, innerHeight), 320, 900); H.touch.look(dx * k, dy * k * .85); }
+      if (!look.moved && Math.hypot(ev.clientX - look.x0, ev.clientY - look.y0) > 9) { look.moved = true; tapMark(null); }
+      if (look.moved) {
+        // gentle acceleration: slow drags aim precisely, a quick flick turns round
+        const t = performance.now(), dt = Math.max(8, t - (look.t || t - 16)); look.t = t;
+        // A drag across the screen's short side turns about 150 degrees: slow drags stay exact (1x up to 0.5 px/ms),
+        // only a quick flick gets at most 1.5x, so the same drag always turns about the same amount.
+        const speed = Math.hypot(dx, dy) / dt, accel = 1 + clamp(speed - .5, 0, 1) * .5;
+        const k = 150 * sens * accel / clamp(Math.min(innerWidth, innerHeight), 320, 900); H.touch.look(dx * k, dy * k * .8);
+      }
     }
   });
+  const spare = new Map(); // fingers on the room that are neither the stick nor the look (yet)
   function lift(ev) {
-    if (stick && ev.pointerId === stick.id) { stick = null; H.touch.move(0, 0); stickEl.classList.remove('on', 'run'); knob.style.transform = ''; }
+    spare.delete(ev.pointerId);
+    if (stick && ev.pointerId === stick.id) {
+      const s0 = stick; stick = null; tapMark(null); H.touch.move(0, 0); stickEl.classList.remove('on', 'run'); knob.style.transform = '';
+      if (ev.type === 'pointerup' && !s0.moved && (s0.aim || performance.now() - s0.t0 < 400) && ['walk', 'seat'].includes(st) && !H.busy) {
+        if (H.held()) { const hold = document.querySelector('.hs-ui .hs-hold'); if (!hold?.classList.contains('blocked')) press('e'); }
+        else if (s0.aim) { H.useAt(s0.aim.x, s0.aim.y); if (!s0.aim.far) buzz(); }
+        lastKey = ''; setTimeout(render, 80);
+      }
+    }
     if (look && ev.pointerId === look.id) {
       const l = look; look = null;
-      // A short, still press in the room acts on what is under the finger, exactly like a mouse click.
-      if (ev.type === 'pointerup' && !l.moved && performance.now() - l.t0 < 450 && st === 'walk' && !H.held() && !H.busy) H.useAt(ev.clientX, ev.clientY);
+      tapMark(null);
+      // A short, still press in the room is a click on what is under the finger: it does what the label said (pick up,
+      // open, talk, sit...). Carrying something, a click puts it down where its ghost shows.
+      if (ev.type === 'pointerup' && !l.moved && (l.aim || H.held() || performance.now() - l.t0 < 450) && ['walk', 'seat'].includes(st) && !H.busy) { // (press, read the label, let go to do it; drag away to cancel)
+        if (H.held()) { const hold = document.querySelector('.hs-ui .hs-hold'); if (!hold?.classList.contains('blocked')) press('e'); }
+        else if (l.aim && !l.aim.far) { H.useAt(l.aim.x, l.aim.y); buzz(); }
+        else H.useAt(ev.clientX, ev.clientY); // (too far: the house says "move closer")
+        lastKey = ''; setTimeout(render, 80);
+      }
     }
     pts.delete(ev.pointerId);
   }
   for (const n of ['pointerup', 'pointercancel', 'lostpointercapture']) surface.addEventListener(n, lift);
   surface.addEventListener('contextmenu', ev => ev.preventDefault());
   addEventListener('blur', releaseAll); document.addEventListener('visibilitychange', () => { if (document.hidden) releaseAll(); });
+
+  // What a click at a screen point would do (the same picking as the mouse): a name and a verb, or null.
+  // Aim assist: a fingertip covers ~9 mm (about 35 CSS px), so a press that lands just beside a thing still means it.
+  // The exact point wins; otherwise the nearest of 16 samples on two rings (14 and 28 px) that finds a usable thing
+  // in reach. The click then happens at that sample, so the house does exactly what the label said.
+  const RING = [[0, 0]]; for (const r of [14, 28]) for (let i = 0; i < 8; i++) RING.push([Math.cos(i * Math.PI / 4 + (r > 14 ? Math.PI / 8 : 0)) * r, Math.sin(i * Math.PI / 4 + (r > 14 ? Math.PI / 8 : 0)) * r]);
+  function aimPoint(x, y) {
+    if (H.busy) return null;
+    let h = null, px = x, py = y, far = null, fallback = null;
+    try {
+      for (const [ox, oy] of RING) {
+        const q = H.pick(x + ox, y + oy), s = q && q.spot && H.SPOTS[q.spot];
+        if (!s || s.off) continue;
+        if (q.dist <= s.range) {
+          // The rack's help surface surrounds tiny spines. A visible nearby case wins over general shelf help.
+          if (s.touchFallback) { if (!fallback) fallback = { q, x:x+ox, y:y+oy }; continue; }
+          h = q; px = x + ox; py = y + oy; break;
+        }
+        if (!far && !ox && !oy) far = q; // (the thing right under the finger, out of reach: say so)
+      }
+    } catch (e) { return null; }
+    if (!h && fallback) { h = fallback.q; px = fallback.x; py = fallback.y; }
+    if (!h) h = far; if (!h) return null;
+    const s = H.SPOTS[h.spot];
+    const label = short(typeof s.label === 'function' ? s.label() : s.label), t = H.THINGS[s.id];
+    // exactly what a click does (useAt in js/hs-world.js): take out, pick up, or the spot's own action
+    let door = H.DOORS[s.id] || null; // (a door leaf: its spot's mesh hangs off the door's pivot, as hs-world's doorOf finds)
+    if (!door) for (const d of Object.values(H.DOORS)) { if (!d.pivot) continue; for (let o = s.obj || h.obj; o; o = o.parent) if (o === d.pivot) { door = d; break; } if (door) break; }
+    const verb = s.remove && !s.grab ? 'Take out' : s.grab && t && !s.use ? 'Pick up' : door ? (door.open ? 'Shut' : 'Open') : verbOf(label);
+    return { id: s.id, label, verb, far: h.dist > s.range, x: px, y: py };
+  }
+  // the finger's label: what letting go here will do (or "walk closer"), drawn just above the thumb
+  const mark = document.createElement('div'); mark.className = 'ht-tapmark'; mark.setAttribute('aria-hidden', 'true'); hud.appendChild(mark);
+  function tapMark(a, x, y) {
+    if (!a) { mark.classList.remove('on'); return; }
+    mark.innerHTML = '<b>' + esc(a.far ? 'Walk closer' : a.verb) + '</b><span>' + esc(a.label) + '</span>';
+    mark.classList.toggle('far', !!a.far); mark.style.left = clamp(x, 70, innerWidth - 70) + 'px'; mark.style.top = Math.max(60, y - 64) + 'px'; mark.classList.add('on');
+  }
+  const buzz = () => { try { navigator.vibrate?.(10); } catch (e) {} };
+  // first time on a touchscreen: three quiet coach marks, shown once (any thumb on the room dismisses them)
+  let coachEl = null, coachWait = 0;
+  function coach(show) {
+    if (show) {
+      if (H.held()) { ls.set('jhp_touch_coach', true); return; }
+      if (coachEl || ls.get('jhp_touch_coach', false)) return;
+      // one thing to read at a time: wait while someone is talking or a note is up (up to half a minute)
+      if (document.querySelector('.rm-note.on,.rm-toast.on,.hs-voice.on,.hs-call.on') && (coachWait = (coachWait || 0) + 1) < 30) { setTimeout(() => { if (st === 'walk') coach(true); }, 1000); return; }
+      coachEl = document.createElement('div'); coachEl.className = 'ht-coach'; coachEl.setAttribute('role', 'note');
+      coachEl.innerHTML = '<div class="ht-coach-card"><b>HOW TO PLAY</b><p><i>LEFT THUMB</i>walk: put it down anywhere on the left and slide it (further to jog)</p><p><i>RIGHT SIDE</i>drag to look round</p><p><i>CLICK THINGS</i>to use them: doors, people, games. The big button uses what is in the middle.</p></div>';
+      hud.appendChild(coachEl); setTimeout(() => coach(false), 14000); return;
+    }
+    if (!coachEl) return; coachEl.classList.add('bye'); const el = coachEl; coachEl = null; ls.set('jhp_touch_coach', true); setTimeout(() => el.remove(), 400);
+  }
+
+  H.on('grab', () => { if (touchOn()) { ls.set('jhp_touch_coach', true); coach(false); } });
 
   // ---------------------------------------------------------------- the contextual buttons
   const key = (k, up) => window.dispatchEvent(new KeyboardEvent(up ? 'keyup' : 'keydown', { key: k, bubbles: true, cancelable: true }));
@@ -140,8 +230,17 @@
     lastKey = ''; setTimeout(render, 60); setTimeout(render, 260);
   }
   for (const box of [acts, top]) {
-    box.addEventListener('pointerdown', ev => { if (ev.target.closest('button')) ev.preventDefault(); });
-    box.addEventListener('click', ev => { const b = ev.target.closest('button[data-k]'); if (b && !b.disabled) { ev.preventDefault(); doAction(b.dataset.k); } });
+    box.addEventListener('pointerdown', ev => {
+      const b = ev.target.closest('button[data-k]'); if (!b) return; ev.preventDefault();
+      if (b.disabled) return;
+      b.classList.add('ht-press'); try { b.setPointerCapture(ev.pointerId); } catch (e) {}
+      const up = () => { b.classList.remove('ht-press'); b.removeEventListener('pointerup', up); b.removeEventListener('pointercancel', up); b.removeEventListener('lostpointercapture', up); };
+      b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
+      buzz(); doAction(b.dataset.k);
+    });
+    // A pointer already acted on down, even if it stayed held for a long time or the HUD re-rendered.
+    // Keyboard and switch activation have zero click detail and must remain usable immediately afterwards.
+    box.addEventListener('click', ev => { const b = ev.target.closest('button[data-k]'); if (!b || b.disabled) return; ev.preventDefault(); if (ev.detail !== 0) return; doAction(b.dataset.k); });
   }
   const btn = (k, icon, label, cls = '', disabled = false) => `<button type="button" class="ht-b ${cls}" data-k="${k}"${disabled ? ' disabled' : ''} aria-label="${esc(label)}">${ICON[icon]}<span>${esc(label)}</span></button>`;
   // A spot's own label is a name ("Band poster"); the button wants a verb. Labels that already start with one keep it.
@@ -161,6 +260,15 @@
     aim = { id: s.id, label, far: h.dist > s.range, grab: !!s.grab, remove: !!s.remove && !s.grab, thing: !!t, use: t ? thingVerb(t) : (s.act ? label : '') };
     return aim;
   }
+  let messageLayoutKey='';
+  function stackCarryMessages(){
+    const toast=touchOn()&&innerHeight>innerWidth&&H.held()&&document.querySelector('.hs-ui .rm-toast.on');
+    if(!toast){if(messageLayoutKey){html.style.removeProperty('--ht-toast-top');html.style.removeProperty('--ht-job-top');messageLayoutKey=''}return}
+    const hold=document.querySelector('.hs-ui .hs-hold:not([hidden])');if(!hold)return;
+    const k=[innerWidth,innerHeight,hold.textContent,toast.textContent].join('|');if(k===messageLayoutKey)return;messageLayoutKey=k;
+    const hr=hold.getBoundingClientRect(),tr=toast.getBoundingClientRect(),top=Math.max(146,hr.bottom+8);
+    html.style.setProperty('--ht-toast-top',top+'px');html.style.setProperty('--ht-job-top',Math.max(236,top+tr.height+8)+'px');
+  }
   function render() {
     const s = syncState(); let k = s, buttons = '', caption = '';
     if (s === 'walk' || s === 'seat') {
@@ -170,7 +278,7 @@
         let use = short(hold.querySelector('[data-h=use]')?.textContent) || 'Use'; if (use.length > 12) use = use.split(/\s*\/\s*/)[0].length <= 12 ? use.split(/\s*\/\s*/)[0] : verbOf(use);
         buttons = btn('e', drag ? 'grab' : 'place', drag ? 'Let go' : snap ? 'Put in' : 'Put down', 'ht-main', blocked && !drag) +
           (drag ? '' : btn('x', 'drop', 'Drop')) + btn('r', 'turn', 'Turn') + btn('q', 'back', 'Return') + btn('f', use === 'Look closely' ? 'look' : use.startsWith('Sit') ? 'sit' : 'use', use, 'ht-use') +
-          (drag ? '' : btn('-', 'near', 'Nearer', 'ht-mini') + btn('+', 'far', 'Further', 'ht-mini'));
+          '';
         k += '|h|' + [held, drag, blocked, snap, use].join(',');
       } else {
         const a = aimed();
@@ -184,11 +292,12 @@
           k += '|a|' + [a.id, a.far, a.use, a.grab, a.remove, a.label].join(',');
         }
         if (!a || a.far || !(a.use || a.grab || a.remove)) buttons = btn('f', 'use', 'Use', 'ht-main ht-idle', true) + buttons; // (where actions appear)
-        if (s === 'walk') { const c = crouched(); buttons += btn('jump', 'jump', 'Jump', 'ht-small') + btn('crouch', 'crouch', c ? 'Stand' : 'Crouch', 'ht-small' + (c ? ' ht-on' : '')); k += '|c' + c; }
+        if (s === 'walk') { const c = crouched(); buttons += btn('jump', 'jump', 'Jump') + btn('crouch', 'crouch', c ? 'Stand' : 'Crouch', c ? 'ht-on' : ''); k += '|c' + c; }
       }
     }
     let topButtons = btn('menu', 'menu', 'Menu', 'ht-menu');
     if (s === 'pc') { const full = !!H.desktopDisplay(); topButtons = btn('stand', 'stand', 'Stand up') + btn('lock', full ? 'room' : 'lock', full ? 'In room' : 'LOCK IN') + topButtons; k += '|pc' + full; }
+    stackCarryMessages();
     if (k === lastKey) return; lastKey = k;
     acts.innerHTML = buttons; top.innerHTML = topButtons; layout();
     target.querySelector('b').textContent = caption; target.classList.toggle('on', !!caption);
@@ -197,7 +306,7 @@
   // Slot centres, measured from the cluster's bottom-right corner. The most likely action sits under the thumb's resting
   // point; Jump and Crouch never move, so the thumb learns them; carrying has its own fixed arc.
   const WALK = { main: [52, 52], second: [146, 38], jump: [34, 152], crouch: [108, 134] };
-  const CARRY = { e: [52, 52], x: [146, 40], r: [36, 150], q: [118, 132], f: [206, 112], '-': [206, 180], '+': [206, 226] };
+  const CARRY = { e: [52, 52], x: [146, 40], r: [36, 150], q: [118, 132], f: [44, 234] }; // (Use stacks above Turn: never near the walk stick on a 360 px phone)
   function layout() {
     const carrying = !!acts.querySelector('[data-k="x"],[data-k="r"]'); let n = 0;
     for (const b of acts.children) {
@@ -272,6 +381,6 @@
     html.appendChild(box); box.querySelector('button').focus();
   }
 
-  window.HouseTouch = { get state() { return st; }, get sensitivity() { return sens; }, render, releaseAll, _aim: () => aimed(), _slowOffer: slowOffer };
+  window.HouseTouch = { get state() { return st; }, get sensitivity() { return sens; }, render, releaseAll, _aim: () => aimed(), _aimAt: (x, y) => aimPoint(x, y), _fingers: () => ({ look: look?.id ?? null, stick: stick?.id ?? null, spare: [...spare.keys()] }), _slowOffer: slowOffer };
   render();
 })();

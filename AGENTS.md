@@ -66,7 +66,10 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
   Q/T stay house controls during games. Console shoulder L uses U; PC shooters use Z for previous weapon and Y for chat. Family TV text uses Shift+T.
 - Carrying and physics (owner, 2026-10-26; docs/PHYSICS.md). Every thing in the house is a physics body with real heights:
   walking into it shoves it (small light things are kicked aside and never stop you; heavier ones give way slowly and slow you down); it never traps you.
-  Small things are lifted and held below/right of the crosshair (never covering it). While carrying, a see-through
+  Small things are held in your hands, first-person style (owner, 2026-10-27): small (game box ~12% of the view's height,
+  big things lower and partly out of frame), low and just right of centre with a slight tilt, mitts and sleeves holding
+  it, lagging/bobbing a little; never over the crosshair, the ghost or the carry panel. World labels/markers are hidden
+  when their target is behind something or far (only the edge arrow points off screen). While carrying, a see-through
   ghost shows where it will land: green fits, red blocked (the carry panel says why), gold clicks into a slot; every
   free slot that accepts it (job basket/bin, shelf/console slots) glows. E/click sets it down exactly at a green or gold
   ghost (refused on red); X lets go (it drops with your hands' motion, falls and settles); R turns 45°, wheel 15°,
@@ -79,7 +82,7 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
   Never place a thing on the stairs or block a doorway/the way to the PC (the ghost turns red).
 
 - Graphics settings and the JackOS-only choice are per device and never sync between devices.
-- Front plot: `House.FRONT` (hs-world.js) is the single source of truth for the front garden depth (pavement at z 1300) and Dad's car position. Place car and drive things relative to `House.ROOMS.drive.carFrame` and `House.FRONT`, never hardcoded numbers. When room geometry moves, bump the save version and add a rule to `migratePlacement` so saved items move with it.
+- Front plot: `House.FRONT` (hs-world.js) is the single source of truth for the front garden depth (pavement at z 1400; owner approved the extra metre on 2026-10-28) and Dad's car position. Place car and drive things relative to `House.ROOMS.drive.carFrame` and `House.FRONT`, never hardcoded numbers. When room geometry moves, bump the save version and add a rule to `migratePlacement` so saved items move with it.
 - People (docs/PEOPLE.md): stylised, one level of abstraction everywhere, painted atlas faces (no 3D noses/lips); keep ~2 draw calls and <=3k triangles per person on Low/Potato.
 
 ## Owner's layout edits
