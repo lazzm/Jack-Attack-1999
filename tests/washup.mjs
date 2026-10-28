@@ -3,16 +3,19 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {provisionedRoom} from './provisioned-room.mjs';
-const base=process.argv[2],baseline=process.argv.includes('--baseline');
+const base=process.argv[2],baseline=process.argv.includes('--baseline'),tableOnly=process.argv.includes('--table-only');
 const f=await provisionedRoom(base,{account:'Jack',timeoutScale:3,touch:true}),{page:p,until}=f;
 const touch=await p.context().newCDPSession(p);
 async function touchMode(){await p.evaluate(()=>document.exitPointerLock?.());await p.waitForTimeout(200);await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:10,y:100}]});await touch.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});await until(()=>GameInput.touch);await p.evaluate(()=>HousePause.close());await until(()=>!House.paused)}
 const dir=fileURLToPath(new URL('shots/washup/',import.meta.url));await mkdir(dir,{recursive:true});
-async function aim(target){await f.view([target[0],210,target[2]+70],target,{level:'G'});await p.evaluate(t=>{House._.setMode('walk');const P=House.P,W=House.W;W.eyeNow=W.eye;P.y=W.fy-W.eye;P.rx=Math.atan2(-(t[1]-P.y),Math.hypot(t[0]-P.x,t[2]-P.z))*180/Math.PI;P.ry=Math.atan2(t[0]-P.x,-(t[2]-P.z))*180/Math.PI;House.dirty()},target)}
-async function put(id,snap){const s=await p.evaluate(id=>{const s=Object.values(House.SNAPS).find(s=>s.id===id&&s.room==='kitchen');return[s.x,s.y,s.z]},snap);for(let attempt=0;attempt<3;attempt++){await aim([s[0],s[1],s[2]+8]);assert(await p.evaluate(id=>House.held()===id||House.grab(id),id));for(let n=0;n<5+attempt;n++)await p.keyboard.press('+');await p.keyboard.press('e');await p.waitForTimeout(1100);if(await p.evaluate(({id,snap})=>House.THINGS[id].snap===snap,{id,snap}))return}console.log('Placement state',await p.evaluate(()=>({P:House.P,W:House.W,held:House.grip,ghost:House.ghost(),snaps:Object.entries(House.SNAPS).filter(([id])=>id.startsWith('ch.s.rack')).map(([key,s])=>({key,id:s.id,room:s.room,x:s.x,y:s.y,z:s.z}))})));throw Error('Missed '+snap+' with '+id)}
+async function aim(target,eye=[target[0],210,target[2]+70]){await f.view(eye,target,{level:'G'});await p.evaluate(t=>{House._.setMode('walk');const P=House.P,W=House.W;W.eyeNow=W.eye;P.y=W.fy-W.eye;P.rx=Math.atan2(-(t[1]-P.y),Math.hypot(t[0]-P.x,t[2]-P.z))*180/Math.PI;P.ry=Math.atan2(t[0]-P.x,-(t[2]-P.z))*180/Math.PI;House.dirty()},target)}
+async function put(id,snap){const s=await p.evaluate(id=>{const s=Object.values(House.SNAPS).find(s=>s.id===id&&s.room==='kitchen');return[s.x,s.y,s.z]},snap);for(let attempt=0;attempt<3;attempt++){await aim([s[0],s[1],s[2]+8],snap==='ch.s.tp0'?[-150,210,100]:undefined);assert(await p.evaluate(id=>House.held()===id||House.grab(id),id));for(let n=0;n<(snap==='ch.s.tp0'?7:5)+attempt;n++)await p.keyboard.press('+');await p.keyboard.press('e');await p.waitForTimeout(1100);if(await p.evaluate(({id,snap})=>House.THINGS[id].snap===snap,{id,snap}))return}console.log('Placement state',await p.evaluate(()=>({P:House.P,W:House.W,held:House.grip,ghost:House.ghost(),snaps:Object.entries(House.SNAPS).filter(([id])=>id.startsWith('ch.s.rack')).map(([key,s])=>({key,id:s.id,room:s.room,x:s.x,y:s.y,z:s.z}))})));throw Error('Missed '+snap+' with '+id)}
 try{
 await p.evaluate(async()=>{await Chores.load();House.buildRoom(House.ROOMS.kitchen);await Chores.part('kitchen');HouseFamily.debug.hide(true)});
 await until(()=>!!House.THINGS['ch.d.6']);
+if(tableOnly){
+ const before=await p.evaluate(()=>JSON.stringify(ChoreKit.S.v.wash));await put('ch.t.p0','ch.s.tp0');assert(await p.evaluate(()=>ChoreKit.has('table','p0')),'The real table slot did not accept the plate');assert.equal(await p.evaluate(()=>JSON.stringify(ChoreKit.S.v.wash)),before,'Laying the table changed wash-up metadata');await p.screenshot({path:dir+'table-isolation.png'});assert.deepEqual(f.errors,[]);console.log('TABLE/WASHUP ISOLATION PASS: real E/table step and unchanged drying state');
+}else{
 await f.view([-132,192,85],[-132,250,-15],{level:'G'});await p.screenshot({path:dir+(baseline?'before':'after')+'-01-kitchen.png'});
 console.log('Dirt ownership',await p.evaluate(()=>Array.from({length:7},(_,i)=>{const t=House.THINGS['ch.d.'+i],m=t.obj.userData.dirt;let owns=false;t.obj.traverse(o=>{if(o.material===m)owns=true});return{i,owns}})));
 await f.view([25,195,95],[-10,257,-24],{level:'G'});await p.screenshot({path:dir+(baseline?'before':'after')+'-dirty-pile.png'});
@@ -59,4 +62,5 @@ if(!baseline){
  console.log('WASHUP REDO PASS: factory pile, dirt, empty rack and flat poses restored');
 }
 assert.deepEqual(f.errors,[]);console.log(baseline?'WASHUP BASELINE CAPTURED':'WASHUP PASS');
+}
 }catch(e){await p.screenshot({path:dir+'failure.png'}).catch(()=>{});throw e}finally{await f.browser.close()}
