@@ -207,3 +207,5 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R94 | bug | high | Jack 2026-10-27 18:41 (phone, Game Lad) | Game Lad on-model buttons do nothing on a phone ("Press the Game Lad's own buttons" but taps fail) | Mobile agent round 2 |
 | R95 | ux | high | same | Phone controls need to be more intuitive: walking, looking around, tapping things to interact | Mobile agent round 2 |
 | R96 | test | med | agents 2026-10-27 | story-ch1.mjs flaky under load: phone page.goto 30 s timeout and the timing-based "CRT did not slow actual walking" check | Make both load-robust (longer nav timeout scaled by STORY_SCALE; compare speeds via simulated movement, not wall-clock) |
+| R97 | art | med | Jack 2026-10-28 | "Fix mom's hips too" (after the waist-gap fix in 2.57.7 - awaiting screenshot to confirm what is wrong) | People agent next round |
+| R98 | ux | high | Jack 2026-10-28 | Mobile controls still janky/hard - research and polish | Mobile round 3 (research-led, docs/MOBILE-CONTROLS.md) |
