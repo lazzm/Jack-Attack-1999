@@ -406,27 +406,37 @@ Engine and technique references (cited from memory, not re-fetched)
 Caveats: I did not run device benchmarks; every "expected impact" figure is an estimate from the measured draw counts and mechanism, to be confirmed by the Stage 0 matrix. Version details of later three.js releases (compileAsync, BatchedMesh, colour management dates) are from memory of the changelog and should be re-verified against the Migration Guide before any upgrade work.
 
 
-## One look results (2026-10-28, release review in progress)
+## One look results (2026-10-28, release gate in progress)
 
-Initial equal-quality, same-session batch/unbatch comparison on the merged 2.57.16 scene (before the conservative-visibility correction; final numbers still pending),
-SwiftShader, adaptation rung 0, all doors open, first station in each room:
+Equal-quality, same-session batch/unbatch comparison on the current scene: SwiftShader,
+adaptation rung 0, all doors open, first station in each room. Counts include the whole
+visible scene, not just the named room.
 
-| View | Unbatched draws | Batched draws |
-|---|---:|---:|
-| Bedroom | 490 | 333 |
-| Landing | 859 | 718 |
-| Hall | 855 | 674 |
-| Cupboard | 250 | 187 |
-| Lounge | 380 | 265 |
-| Garden | 107 | 59 |
-| Drive | 516 | 389 |
-| Kitchen | 270 | 205 |
+| View | Unbatched draws | Batched draws | Reduction |
+|---|---:|---:|---:|
+| Bedroom | 532 | 360 | 32.3% |
+| Landing | 870 | 729 | 16.2% |
+| Hall | 855 | 674 | 21.2% |
+| Cupboard | 273 | 210 | 23.1% |
+| Lounge | 812 | 660 | 18.7% |
+| Garden | 144 | 94 | 34.7% |
+| Drive | 544 | 408 | 25.0% |
+| Kitchen | 288 | 224 | 22.2% |
 
-Evidence: `/tmp/gate-qt1z/gfx-probe.mjs.log`, zero browser errors, 416.7 ms cumulative
-batching work during the session. Each number includes the whole visible scene,
-not just that room. This establishes draw-call reductions, not physical-device FPS.
-The older Stage 0 timing files above predate the approved plot and new props and are
-historical evidence; they are not a fair timing baseline for this release.
+Evidence: `/tmp/gate-HzG0/gfx-probe.mjs.log`, zero browser errors, 378.7 ms cumulative
+batch construction work during the session. Spatial batching can submit extra triangles
+at a cell boundary; these measurements establish fewer draw calls, not hardware FPS.
+Hall/landing remain above the aspirational draw targets in section 4. Whole-room aperture
+rejection is unsuitable for the current shared-wall geometry; only vegetation uses it.
 
-The release gate is still open: idle-render diagnostics, full mobile coverage,
-lighting review and final interaction gates must finish before deployment.
+The 72-view doorway comparison and 54 room/time/device lighting captures passed in
+`/tmp/gate-LMG5`, with zero image differences in the doorway comparisons. A focused
+follow-up covers the final vegetation path. GL-rebuild regression in `/tmp/gate-HzG0`
+retained all 235 static batches, exact camera pose/zoom and PC power; before/after captures
+in `tests/shots/gfx-context/` were reviewed and match.
+
+The Stage 0 timing files above predate the approved plot and new props and are historical
+evidence, not a timing baseline for this release. Physical Edge/Android devices, gamepads,
+thermal behaviour and an independent hardware GPU benchmark remain unverified.
+
+Final smoke and focused vegetation/small-phone follow-ups are still required before deployment.
