@@ -427,9 +427,10 @@ try {
       const said = await page.evaluate(() => { clearInterval(window.__sayT); return window.__said; });
       const rep = said.filter((a, i) => said.some((b, j) => j < i && b.who === a.who && b.id === a.id && a.t - b.t < 60000));
       const dad = await page.evaluate(() => { const d = HouseFamily.chars.dad, b = House.DOORS.bedroom.closedBounds; return { x: d.x, z: d.z, lvl: d.lvl, inDoor: d.x > b.x0 - 12 && d.x < b.x1 + 12 && d.z > b.z0 - 12 && d.z < b.z1 + 12, held: HouseFamily.doorHeld(), hold: d.hold, step: d.cur?.k, goal: d.goal?.key, entrance: HouseFamily.debug.entrance().dad, door: House.DOORS.bedroom.open }; });
+      console.log('  Dad scene state: ' + JSON.stringify(dad));
       console.log(`  loop: ${said.length} lines (${said.map(s => s.who + ':' + s.id).join(', ')}); Dad at ${Math.round(dad.x)},${Math.round(dad.z)} in the doorway: ${dad.inDoor}`);
       await shot(page, 'loop-dad-in-room');
-      await look(page, [60, 73 - 128, 205], [dad.x, 73 - 140, dad.z], 'U');
+      await look(page, [-40, 73 - 128, 120], [dad.x, 73 - 140, dad.z], 'U');
       await shot(page, 'loop-dad-oblique');
       for (const [width, height] of [[390, 844], [844, 390], [768, 1024], [1024, 768]]) {
         await page.setViewportSize({ width, height }); await page.waitForTimeout(350);
@@ -445,6 +446,12 @@ try {
       for (let i = 0; i < 40 && !out; i++) { await page.waitForTimeout(250); out = await page.evaluate(() => House.W.x > 262); }
       await page.keyboard.up('w');
       assert(out, 'You can walk out of your room within 10 s: ' + JSON.stringify(await page.evaluate(() => [House.W.x, House.W.z])));
+      await look(page, [-40, 73 - 128, 120], [-160, 73 - 128, 120], 'U');
+      await page.evaluate(() => HouseFamily.debug.sim(30, 0.1));
+      const arrived = await page.evaluate(() => HouseFamily.debug.dump().find(c => c.id === 'dad'));
+      assert(arrived.room === 'bedroom' && arrived.step === 'act', 'Dad completes his entrance once you give him room: ' + JSON.stringify(arrived));
+      await look(page, [-40, 73 - 128, 205], [arrived.x, 73 - 140, arrived.z], 'U');
+      await shot(page, 'loop-dad-arrived');
       await page.evaluate(() => { HouseFamily.debug.scene('dad', null); for (const id of ['mom', 'dad', 'sister']) HouseFamily.debug.go(id, null); HouseFamily.debug.clock(null); });
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
