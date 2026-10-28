@@ -382,7 +382,7 @@
   const inEarshot = (c, cm) => c.present && H.live && sameFloor(c, player()) && dist(c, player()) < (cm || 650) && !!H.ROOMS[c.room]?.group.visible;
 
   // ================================================================ speech: one line at a time, in person or shouted
-  const speech = { q: [], cur: null, until: 0, last: 0 };
+  const speech = { q: [], cur: null, until: 0, hard: 0, last: 0, voice: null, bub: null };
   const words = t => String(t).split(/\s+/).length;
   const lineMs = t => clamp(900 + words(t) * 340, 2300, 7600);
   function say(id, lineId, o) {
@@ -393,20 +393,55 @@
     if (o.once) { const k = 'np.once.' + member() + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
     speech.q.push({ c, lineId, person, text: l[1], then: o.then, prio: o.prio || 0, talk: !!o.talk });
     if (o.prio) speech.q.sort((a, b) => b.prio - a.prio);
+    try { window.st?.prefetch?.(lineId); } catch (e) {}
     return true;
   }
+  // Where a speaker is for their speech bubble (js/np-bubble.js) and their recorded voice (js/st-voice.js, positional)
+  // (in your room, or just through a doorway: further rooms are behind walls, so their balloons go to the screen edge)
+  const seenBy = c => c.present && !!c.rig?.group.visible && !!H.ROOMS[c.room]?.group.visible && sameFloor(c, player()) && (c.room === H.here || dist(c, player()) < 450);
+  const anchorOf = c => ({ top: v => c.rig.headTop(v), mouth: v => c.rig.mouthWorld(v), seen: () => seenBy(c), where: v => c.rig.headTop(v) });
+  let V3 = null;
   function speechTick() {
     const t = nowMs();
-    if (speech.cur && t < speech.until) return;
-    if (speech.cur) { const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); } }
-    const n = speech.q.shift(); if (!n) return;
-    const ms = lineMs(n.text);
-    const who = n.person ? label(n.c) : label(n.c) + (n.c.lvl !== H.W.lvl ? (n.c.lvl === 'G' ? ' (downstairs)' : ' (upstairs)') : ' (in the ' + (n.c.room || 'house') + ')');
-    try { window.st?.say(n.lineId, who, n.text, ms); } catch (e) { console.error(e); }
-    if (n.person && n.c.rig) { n.c.rig.talk(ms - 300, n.text); n.c.talking = true; }
-    speech.cur = n; speech.until = t + ms + 280; speech.last = t;
+    if (speech.freeze) return; // (tests: hold the current line for a screenshot)
+    // (a recording that started late runs to its end, within reason)
+    if (speech.cur && (t < speech.until || (speech.voice && !speech.voice.ended && speech.voice.started && t < speech.hard))) return;
+    if (speech.cur) {
+      if (speech.voice && !speech.voice.ended) speech.voice.stop(); // (F again: on to the next line)
+      if (speech.bub) { const b = speech.bub, next = speech.q[0]; if (next && next.c === speech.cur.c) b.close(true); else setTimeout(() => b.close(), next ? 1600 : 450); } // (a reply: the last line stays up a moment, like a comic panel)
+      if (speech.cur.c.rig && speech.voice) speech.cur.c.rig.hush();
+      speech.voice = speech.bub = null;
+      const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); }
+    }
+    const n0 = speech.q[0]; if (!n0) return;
+    const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n0.lineId);
+    if (rec && !window.st.voiceReady?.(n0.lineId)) { // (give the recording a moment to arrive, so the words and the voice start together)
+      if (!n0.waitFrom) { n0.waitFrom = t; try { window.st.prefetch(n0.lineId); } catch (e) {} }
+      if (t - n0.waitFrom < 4000) return;
+    }
+    const n = speech.q.shift();
+    const ms = rec ? clamp(rec.dur * 1000 + 450, 1500, 14000) : lineMs(n.text);
+    const place = n.person ? '' : n.c.lvl !== H.W.lvl ? (n.c.lvl === 'G' ? '(downstairs)' : '(upstairs)') : '(in the ' + (n.c.room || 'house') + ')';
+    const who = label(n.c) + (place ? ' ' + place : '');
+    const c = n.c, here = c.present && !!c.rig, anchor = here ? anchorOf(c) : null;
+    const bubble = !!(anchor && window.NPCBubble?.ok());
+    if (!V3 && window.THREE) V3 = new THREE.Vector3();
+    let voice = null;
+    try {
+      voice = window.st?.say(n.lineId, who, n.text, ms, { bubble, fx: L[n.lineId]?.[2],
+        pos: here && V3 ? () => c.rig.mouthWorld(V3) : null, through: here ? () => !seenBy(c) : null, gain: here ? 1 : 0.7 }) || null;
+    } catch (e) { console.error(e); }
+    if (bubble) speech.bub = window.NPCBubble.show({ key: c.id, who: label(c), place, text: n.text, ms, anchor, voice, shout: !n.person });
+    if (here) c.rig.talk(ms - 300, n.text, voice);
+    if (voice) voice.onstart = h => { // (a slow connection: the line lasts as long as the recording, from when it really starts)
+      if (speech.voice !== h) return; const end = nowMs() + h.dur * 1000;
+      speech.until = Math.max(speech.until, end + 400); speech.hard = Math.max(speech.hard, end + 1500);
+      if (here) c.rig.talk(end - nowMs(), n.text, h);
+    };
+    if (n.person) c.talking = true;
+    speech.cur = n; speech.voice = voice; speech.until = t + ms + 280; speech.hard = t + ms + 3500; speech.last = t;
   }
-  function skip() { if (speech.cur) speech.until = 0; }
+  function skip() { if (speech.cur) { speech.until = 0; speech.hard = 0; } }
 
   // ================================================================ talking (F)
   const momGive = () => {
@@ -828,7 +863,7 @@
       go(id, spotKey, act) { if (!spotKey) delete manual[id]; else { const s = SPOT[spotKey] || EXIT[spotKey]; manual[id] = s && { key: 'debug.' + spotKey + (act ? ':' + act : ''), spot: s, spotKey, act: act || s.act }; } },
       acts: () => { const o = {}; for (const id of ['mom', 'dad', 'sister']) { const set = new Set(); for (const R of Object.values(ROUTINE[id])) for (const e of R) for (const v of [].concat(e[1])) { if (v.startsWith('away:')) continue; const [k, a] = v.split(':'); const key = k === 'mug' ? 'kmug1' : k; if (SPOT[key]) set.add(key + ':' + (a || SPOT[key].act || '')); } o[id] = [...set]; } return o; },
       place(id, spotKey) { const c = C[id], s = SPOT[spotKey]; if (!c || !s) return false; spawn(c, s.seat ? { lvl: s.lvl, x: s.seat.stand[0], z: s.seat.stand[1] } : s); c.goal = null; return true; },
-      spots: SPOT, exits: EXIT, approachOf, routines: ROUTINE, scheduled: (id, v) => scheduled(id, v ? mk(v.md, v.dow, v.t) : clock()), save, restore, speech, frame,
+      spots: SPOT, exits: EXIT, approachOf, anchor: id => C[id] && C[id].rig ? anchorOf(C[id]) : null, routines: ROUTINE, scheduled: (id, v) => scheduled(id, v ? mk(v.md, v.dow, v.t) : clock()), save, restore, speech, frame,
     },
   };
 })();

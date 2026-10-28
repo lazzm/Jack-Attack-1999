@@ -1319,11 +1319,17 @@
       // talking: mouth frames from the line's rhythm (syllable-ish beats, rounder on o/u, closed at punctuation)
       let open = 0, ch = ' ';
       if (talking) {
-        const el = (performance.now() - st.talkStart) / 1000, text = st.talkText;
-        const ci = Math.floor(el * 13.5); ch = text[ci] || ' ';
-        const pause = /[.,!?;:]/.test(text[ci - 1] || '') || /[.,!?;:]/.test(ch);
-        const beat = Math.abs(Math.sin(el * 11.5 + Math.sin(el * 3.1) * 1.4));
-        open = pause ? 0.05 : clamp(beat * (/[aeiouAEIOU]/.test(ch) ? 1 : 0.6), 0, 1);
+        const el = (performance.now() - st.talkStart) / 1000, text = st.talkText, v = st.talkVoice;
+        if (v && v.started && !v.ended) { // a recording is playing: the mouth follows how loud it is right now
+          const ci = Math.floor(v.progress() * text.length); ch = text[ci] || ' ';
+          open = v.level(); st.talkHeard = true;
+        } else if (v && (v.ended || st.talkHeard)) open = 0; // (the recording has finished: close up, even if the timer runs on)
+        else {
+          const ci = Math.floor(el * 13.5); ch = text[ci] || ' ';
+          const pause = /[.,!?;:]/.test(text[ci - 1] || '') || /[.,!?;:]/.test(ch);
+          const beat = Math.abs(Math.sin(el * 11.5 + Math.sin(el * 3.1) * 1.4));
+          open = pause ? 0.05 : clamp(beat * (/[aeiouAEIOU]/.test(ch) ? 1 : 0.6), 0, 1);
+        }
         if (el < 0.7 && /!/.test(text) && eye === EYE.open) eye = EYE.happy; // a cheery line starts with smiling eyes
       }
       st.mouth += (open - st.mouth) * (1 - Math.exp(-dt * 22));
@@ -1341,6 +1347,7 @@
       }
     }
 
+    const _up = new T.Vector3();
     const rig = {
       kind, S, J, group, mesh: body, shadow, proxy, bones: B, st, face,
       get tris() { return outfits[outfit].tris[lodNow]; },
@@ -1354,8 +1361,15 @@
       root(x, y, z, h, v) { st.x = x; st.y = y; st.z = z; st.h = h; st.v = v || 0; group.position.set(x, y, z); group.rotation.y = h; },
       teleport(x, y, z, h) { rig.root(x, y, z, h, 0); st.walking = false; placeFeet(); st.sm = {}; },
       set(o) { if ('engage' in o) st.engage = !!o.engage; if ('action' in o) st.action = o.action || null; if ('seat' in o) st.seat = o.seat || null; if ('look' in o) st.look = o.look || null; if ('carry' in o) st.carry = !!o.carry; if ('props' in o) st.props = o.props || {}; },
-      talk(ms, text) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; },
-      hush() { st.talkUntil = 0; },
+      // voice: the playing recording's handle (js/st-voice.js: level(), progress()); without one the mouth keeps time
+      talk(ms, text, voice) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; st.talkVoice = voice || null; st.talkHeard = false; },
+      hush() { st.talkUntil = 0; st.talkVoice = null; },
+      headTop(out) { // world position just above the hair (speech bubbles hang from here)
+        B.head.updateWorldMatrix(true, false); B.head.getWorldPosition(out);
+        const up = _up.set(0, 1, 0).transformDirection(group.matrixWorld); // (the rig's up, in world space)
+        return out.addScaledVector(up, S.head.c[1] - S.headY + S.head.r[1] + 9);
+      },
+      mouthWorld(out) { B.mouth.updateWorldMatrix(true, false); return B.mouth.getWorldPosition(out); },
       get talking() { return performance.now() < st.talkUntil; },
       update(dt, near) {
         update(Math.min(dt, 0.1), near);
