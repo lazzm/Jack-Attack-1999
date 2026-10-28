@@ -597,7 +597,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
         await CK.tween(cat, { x: tree.out.x, y: FY, z: tree.out.z }, 480, { arc: 10 }); CK.snd.thud();
       } else if (tree) await walkTo(cat, tree.out.x, tree.out.z);
       else await CK.tween(cat, { y: FY }, 500, { arc: 14 });
-      await walkTo(cat, BOWL.x + 19, BOWL.z - 7);
+      await walkTo(cat, BOWL.x - 22, BOWL.z + 10);
       cat.rotation.y = faceTo(cat.position, BOWL.x, BOWL.z);
       CK.fx.burst(H.ROOMS.bedroom, cat.position.x, FY - 1, cat.position.z, { n: 6, col: '#c8c0b0', size: 2, life: 0.7, spd: 18, up: 3, grav: 30, op: 0.4 });
       const t0 = performance.now(), dur = 5200; let lastC = 0;

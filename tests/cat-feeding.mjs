@@ -18,12 +18,13 @@ try{
  assert(await p.evaluate(()=>ChoreKit.has('cat','pour')),'F did not pour: '+JSON.stringify(await p.evaluate(()=>({held:House.held(),pos:House.THINGS['ch.catbox'].obj.position.toArray(),mode:House.mode}))));
  console.log('Cat biscuits poured');
  await p.evaluate(()=>House.putBack());await p.screenshot({path:dir+'01-bowl-filled.png'});
- await p.evaluate(()=>House.act('cat'));
+ await f.view([-10,-70,110],[home.x,home.y+24,home.z]);await p.evaluate(()=>{House._.setMode('walk');window.__catPath=[];const c=House.SPOTS.cat.obj;(function sample(){__catPath.push({x:c.position.x,y:c.position.y,z:c.position.z,pose:c.userData.poseName});if(__catPath.length<900&&!ChoreKit.has('cat','ate'))requestAnimationFrame(sample)})();House.act('cat')});
  await until(()=>House.SPOTS.cat.obj.userData.poseName==='walk');
  await p.screenshot({path:dir+'02-coming-down.png'});
  await until(()=>House.SPOTS.cat.obj.userData.poseName==='eat');
- await f.view([170,-70,170],[122,61,112]);await p.screenshot({path:dir+'03-eating.png'});
+ await f.view([65,30,172],[112,65,114]);await p.screenshot({path:dir+'03-eating.png'});
  await until(()=>ChoreKit.has('cat','ate'));
+ const path=await p.evaluate(()=>__catPath);assert(path.some(v=>v.y>0&&v.y<70),'No visible intermediate descent');assert(path.filter(v=>v.pose==='eat').every(v=>v.x<120),'Eating torso overlaps the bed');
  await until(()=>{const c=House.SPOTS.cat.obj,t=c.userData.tree;return Math.hypot(c.position.x-t.top.x,c.position.z-t.top.z)<.1&&Math.abs(c.position.y-t.top.y)<.1&&c.userData.poseName===c.userData.homePose});
  await f.view([-10,-70,110],[home.x,home.y-12,home.z]);await p.screenshot({path:dir+'04-back-home.png'});
  await p.evaluate(()=>House.saveWalkState());const power=await p.evaluate(()=>localStorage.getItem('jhp_off'));

@@ -998,7 +998,7 @@
     // the cat (next door's) lives on the cat tree by the radiator now (Mom bought it so the cat would stop sleeping on
     // the bed; the cat agreed, eventually): the top bed by day, the den at night; asleep or sat up watching you
     const cat = catModel(); r.group.add(cat); R.cat = cat; R.catBody = cat.userData.breath;
-    const tc=H.CAT_TREE, tree = catTree(B, r, tc.x, tc.z, tc.ry); tree.out = tree.W(40, 4); tree.mid = Object.assign(tree.W(10, -12), { y: FY - 66 }); cat.userData.tree = tree; // (against the front wall, between the bookcase and the radiator)
+    const tc=H.CAT_TREE||{x:-90,z:224,ry:90}, tree = catTree(B, r, tc.x, tc.z, tc.ry); tree.out = tree.W(40, 4); tree.mid = Object.assign(tree.W(10, -12), { y: FY - 66 }); cat.userData.tree = tree; // (against the front wall, between the bookcase and the radiator)
     { const hr = new Date().getHours(), night = hr >= 22 || hr < 7, at = night ? tree.den : tree.top, ps = night || hr % 2 ? 'sleep' : 'sit';
       cat.position.set(at.x, at.y, at.z); cat.rotation.y = (night ? -90 : -110) * D2R; cat.userData.pose(ps); cat.userData.homePose = ps; }
     H.spot('cat', { label: () => catName(), obj: cat });
@@ -1416,6 +1416,21 @@
     const set = (g, rx, ry, rz) => g.rotation.set((rx || 0) * D2R, (ry || 0) * D2R, (rz || 0) * D2R);
     const leg = (i, rz, s) => { set(legs[i], 0, 0, rz); legs[i].scale.set(1, s || 1, 1); };
     const curl = (rzs, rys) => tail.forEach((g, k) => set(g, 0, rys[k] || 0, rzs[k] || 0));
+    // Fit the visible paws to their local floor; curled sleeping legs stay tucked above it.
+    const floorInv=new T.Matrix4(),floorMat=new T.Matrix4(),floorV=new T.Vector3();
+    const contactMeshes=g=>{const out=[];g.traverse(m=>{if(m.isMesh&&!m.userData.contactShadow)out.push(m)});return out};
+    const chestContact=contactMeshes(chest),pawContact=legs.map(contactMeshes);
+    function groundPose(name,t){
+      cat.updateWorldMatrix(true,true);floorInv.copy(cat.matrixWorld).invert();let low=-Infinity;
+      for(const m of chestContact){floorMat.multiplyMatrices(floorInv,m.matrixWorld);const p=m.geometry.attributes.position;for(let i=0;i<p.count;i++){floorV.fromBufferAttribute(p,i).applyMatrix4(floorMat);low=Math.max(low,floorV.y)}}
+      const shift=name==='sleep'?low:Math.max(0,low);torso.position.y-=shift;
+      const active=name==='sit'?[0,1]:name==='sleep'?[]:[0,1,2,3];
+      for(const i of active){let fit=Infinity;const old=legs[i].scale.y,lift=name==='walk'?Math.max(0,Math.cos(t/170+(i===0||i===3?0:Math.PI)))*2:0;
+        for(const m of pawContact[i]){floorMat.multiplyMatrices(floorInv,m.matrixWorld);const e=floorMat.elements,p=m.geometry.attributes.position;
+          for(let k=0;k<p.count;k++){const a=e[5]/old*p.getY(k),b=e[1]*p.getX(k)+e[9]*p.getZ(k)+e[13]-shift;if(a>1e-6)fit=Math.min(fit,(-lift-b)/a)}}
+        if(Number.isFinite(fit))legs[i].scale.y=Math.max(.25,Math.min(1.8,fit));
+      }
+    }
     function pose(name, t) {
       t = t || 0; cat.userData.poseName = name;
       eyesOpen.visible = name === 'sit' || name === 'walk' || name === 'eat'; eyesShut.visible = !eyesOpen.visible;
@@ -1429,11 +1444,11 @@
         leg(0, -40, 1.48); leg(1, -40, 1.48); leg(2, 88, 0.66); leg(3, 88, 0.66);
         curl([-36, 8, 6, 0, 0], [-62, -40, -38, -30, -20]);
       } else if (name === 'stretch') { // the big one: front paws out, chest down, rump up, tail high
-        torso.position.set(1, -11.4, 0); set(torso, 0, 0, -16); set(head, 0, 0, 30); head.position.set(-14.5, -4.6, 0);
-        leg(0, -62, 1.05); leg(1, -56, 1.05); leg(2, 16, 1.25); leg(3, 16, 1.25);
+        torso.position.set(1, -11.4, 0); set(torso, 0, 0, -16); set(head, 0, 0, 30); head.position.set(-14.5, 1.8, 0);
+        leg(0, -38, 1.05); leg(1, -34, 1.05); leg(2, 16, 1.25); leg(3, 16, 1.25);
         curl([-62, 22, 18, 14, 10], [0, 0, 0, 0, 0]);
       } else if (name === 'eat') { // crouched at the bowl, head down
-        torso.position.set(0, -11.2, 0); set(torso, 0, 0, -10); head.position.set(-13.8, -3.4, 0); set(head, 0, 0, -38 + Math.sin(t / 160) * 6);
+        torso.position.set(0, -11.2, 0); set(torso, 0, 0, -10); head.position.set(-13.8, 2, 0); set(head, 0, 0, -38 + Math.sin(t / 160) * 6);
         leg(0, -6, 0.86); leg(1, -6, 0.86); leg(2, 40, 0.8); leg(3, 40, 0.8);
         curl([12, 10, -14, -10, -8], [22, 14, 10, 6, 0]);
       } else { // walk (t in ms): diagonal pairs swing, a little bob, tail up in a question mark
@@ -1442,6 +1457,7 @@
         leg(0, Math.sin(ph) * sw, 1); leg(3, Math.sin(ph) * sw, 1); leg(1, -Math.sin(ph) * sw, 1); leg(2, -Math.sin(ph) * sw, 1);
         curl([-70, 16, 14, 18 + Math.sin(ph) * 6, 24], [0, Math.sin(ph * 0.5) * 8, 0, 0, 0]);
       }
+      groundPose(name,t);
     }
     cat.userData.pose = pose; cat.userData.breath = chest; pose('sleep');
     return cat;
