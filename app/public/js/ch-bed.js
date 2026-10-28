@@ -416,6 +416,16 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     const ray = H.rayAt(ev.clientX, ev.clientY), k = (35 - ray.o.y) / ray.d.y;
     return k > 0 ? { x: ray.o.x + ray.d.x * k, z: ray.o.z + ray.d.z * k } : null;
   }
+  // Idle close-ups do not schedule whole-house redraws. Watch only an active hand.
+  function bedWatch() {
+    H.anims.set('ch.bed-work',(now,dt)=>{
+      if(!making?.gesture)return false;
+      if(H.paused){bedEndGesture(false);return false;}
+      const g=making.gesture;
+      if(g.key){g.amount=CK.clamp(g.amount+Math.min(dt||.016,.05)/1.5,0,1);bedPreview(g.stage,g.amount);making.el.querySelector('progress').value=g.amount;}
+      return true;
+    });
+  }
   function bedClick() {
     if (CK.done('bed')) return false;
     if (making || H.focused) return true;
@@ -427,7 +437,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       const p = bedPoint(ev), stage = making.stage;
       if (!p || (stage === 'pillow' ? Math.abs(p.x-190)>30 || Math.abs(p.z+33)>22 : p.x<BED.x0-8 || p.x>BED.x1+8 || p.z<-20 || p.z>145)) return;
       ev.preventDefault(); el.setPointerCapture(ev.pointerId);
-      making.gesture = { stage, p, first:p, amount:0, distance:0, pointer:ev.pointerId };
+      making.gesture = { stage, p, first:p, amount:0, distance:0, pointer:ev.pointerId };bedWatch();
       CK.snd.rustle();
     };
     el.addEventListener('pointerdown', start);
@@ -447,7 +457,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     const keyDown=ev=>{
       if(ev.code!=='Space'||ev.ctrlKey||ev.metaKey||ev.altKey||H.paused||!making?.stage)return;
       ev.preventDefault(); if(ev.repeat||making.gesture)return;
-      making.gesture={stage:making.stage,amount:0,key:true};CK.snd.rustle();
+      making.gesture={stage:making.stage,amount:0,key:true};bedWatch();CK.snd.rustle();
     };
     const keyUp=ev=>{if(ev.code==='Space'&&making?.gesture?.key){ev.preventDefault();bedEndGesture(!H.paused)}};
     const cancel=()=>bedEndGesture(false);
@@ -456,13 +466,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
         making={el,stage:null,gesture:null};H.ui.el.appendChild(el);bedPrompt();
         document.addEventListener('keydown',keyDown);document.addEventListener('keyup',keyUp);
         window.addEventListener('blur',cancel);window.addEventListener('resize',cancel);document.addEventListener('visibilitychange',cancel);
-        H.anims.set('ch.bed-work',(now,dt)=>{
-          if(!making)return false;
-          if(H.paused){bedEndGesture(false);return true;}
-          const g=making.gesture;
-          if(g?.key){g.amount=CK.clamp(g.amount+Math.min(dt||.016,.05)/1.5,0,1);bedPreview(g.stage,g.amount);el.querySelector('progress').value=g.amount;}
-          return true;
-        });
+
       }, exit:()=>{
         bedEndGesture(false);making=null;el.remove();H.anims.delete('ch.bed-work');
         document.removeEventListener('keydown',keyDown);document.removeEventListener('keyup',keyUp);
