@@ -54,8 +54,8 @@ in-world visibility or interaction proof. Inspect captures visually; the runner 
 is unavailable; it cannot be combined with `--all-world`.
 `--world-only` skips the large source export and captures fresh changed compositors plus
 the physical views; previous timestamped reports and images remain intact. The report
-also checks upright/non-intersecting PC shelf cases and Potato/Low/High print-texture
-limits, mipmaps, anisotropy and restoration of the authored canvas on High.
+also checks upright/non-intersecting PC shelf cases and full-resolution print textures across adaptation levels,
+mipmaps and anisotropy.
 `node tests/art-native.mjs http://localhost:PORT` is a fast, separate production
 magazine/poster compositor and silhouette-fit diagnostic. Its PNG is deliberately
 labelled native-fixes-current, not counted as a physical shelf/hand capture.
@@ -442,3 +442,11 @@ Props (throwaway localhost data): `props-pass.mjs URL [label] [--phone] [--tier=
 `cat-pose-unit.cjs` checks visible geometry floor contact in thirty pose/phase combinations. `cat-views.mjs URL` captures the tree at native eye and every pose from front/side at six desktop/phone/tablet sizes. `garment-carry.mjs URL` reviews every rebuilt garment in first-person on desktop and phone.
 
 The all-garment review also asserts one visible grip and checks portrait discovery/carry/job rectangles for overlap. Each garment grip is a real mesh vertex; production geometry checks validate this alongside closed undersides.
+
+`node gfx-probe.mjs http://localhost:PORT` compares batched and unbatched draw counts
+in the same session and requires a reduction in every room.
+`node gfx-integrity.mjs http://localhost:PORT` checks GPU image equivalence (including
+mirrored geometry), then captures all rooms at 09:00, 13:00, 19:00 and 23:00, plus
+wide desktop and portrait/landscape phone/tablet lighting views. Review
+`shots/gfx-lighting/` visually. `node static-batch-unit.cjs` covers geometry, material,
+visibility, transform and parent changes and preserves picking of original meshes.

@@ -2606,7 +2606,7 @@
     if(Q.probe&&now<Q.probe)dirty();else if(Q.probe)Q.probe=0;
     if(f.t<.9)return;
     Q.fps=Math.round(f.n/f.t);f.n=0;f.t=0;
-    // Phones on Potato try a smooth 60 first (touch look and walking feel stepped at 30); a phone that can't hold it
+    // Phones try a smooth 60 first (touch look and walking feel stepped at 30); a phone that can't hold it
     // steadily goes back to a locked 30 (stable beats uneven), and tries 60 again later when frames are cheap.
     if(Q.mob){
       if(Q.cap===60){if(Q.fps<50){if(++Q.capMiss>=2){Q.cap=30;Q.capMiss=0;Q.capRetry=now+30000}}else Q.capMiss=0}

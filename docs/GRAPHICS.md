@@ -18,7 +18,7 @@ look (the old High: Phong, the five-lamp rig, MSAA, full-resolution mipmapped te
   The JackOS-only fallback stays: no usable WebGL, the player's own choice, or the too-slow offer on a handheld once
   every adaptation rung is in use and the median frame is still over 125 ms.
 - Invisible adaptation (`ADAPT` in hs-world.js; `Q.adapt`, `House.adapt(level, {pin})` for tests). Down one rung after
-  two ~1 s windows of continuous frames under 40 FPS (at most every 4 s); up after 12 good windows (>= 55 FPS), never
+  two ~1 s windows of continuous frames under 40 FPS (26 FPS after a phone has settled to its 30 Hz cap; at most every 4 s); up after 12 good windows (>= 55 FPS), never
   within 20 s of a step down. Remembered per device + GPU string (`jhp_hs_adapt`, starting one rung lower than saved).
   Rungs: 0 everything; 1 outdoor fog/far plane 30 m and portal depth 0, live screens 30 Hz; 2 three per-pixel lamps
   instead of five; 3 screens 20 Hz; 4 resolution 0.925; 5 resolution 0.85 (the floor). The resolution rungs apply only
@@ -399,3 +399,29 @@ Engine and technique references (cited from memory, not re-fetched)
 - Lighthouse CPU throttling guidance (4x mid-tier, 6x low-end) in the Chrome DevTools / Lighthouse docs.
 
 Caveats: I did not run device benchmarks; every "expected impact" figure is an estimate from the measured draw counts and mechanism, to be confirmed by the Stage 0 matrix. Version details of later three.js releases (compileAsync, BatchedMesh, colour management dates) are from memory of the changelog and should be re-verified against the Migration Guide before any upgrade work.
+
+
+## One look results (2026-10-28, release review in progress)
+
+First equal-quality, same-session batch/unbatch comparison on the merged 2.57.16 scene,
+SwiftShader, adaptation rung 0, all doors open, first station in each room:
+
+| View | Unbatched draws | Batched draws |
+|---|---:|---:|
+| Bedroom | 490 | 333 |
+| Landing | 859 | 718 |
+| Hall | 855 | 674 |
+| Cupboard | 250 | 187 |
+| Lounge | 380 | 265 |
+| Garden | 107 | 59 |
+| Drive | 516 | 389 |
+| Kitchen | 270 | 205 |
+
+Evidence: `/tmp/gate-qt1z/gfx-probe.mjs.log`, zero browser errors, 416.7 ms cumulative
+batching work during the session. Each number includes the whole visible scene,
+not just that room. This establishes draw-call reductions, not physical-device FPS.
+The older Stage 0 timing files above predate the approved plot and new props and are
+historical evidence; they are not a fair timing baseline for this release.
+
+The release gate is still open: idle-render diagnostics, full mobile coverage,
+lighting review and final interaction gates must finish before deployment.

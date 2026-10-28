@@ -415,19 +415,18 @@ async function checkTextureTiers(page) {
   return page.evaluate(()=>{
     const K=HouseKit,prints=Object.entries(K.TEX).filter(([key,t])=>!t.userData.jackLive&&(key.startsWith('pm.svg.')||key==='rm.boardgames'||key.startsWith('media.case.cover.')||key.startsWith('art:poster'))),samples=[],failures=[];
     const original=prints.map(([key,t])=>({key,t,source:t.userData.canvas||t.image}));
+    const before=House.graphicsGet(),aniso=Math.min(8,House.ren.capabilities.getMaxAnisotropy());
     try{
-      for(const tier of ['potato','low','high']){
-        K.setQuality(tier);K.setAniso(tier==='high'?8:tier==='low'?2:1,true);
-        const cap=tier==='potato'?256:tier==='low'?512:Infinity;
+      for(const tier of [0,5,0]){
+        House.adapt(tier,{pin:true,force:true});
         for(const {key,t,source}of original){
-          if(Math.max(t.image.width,t.image.height)>cap)failures.push(tier+' texture exceeds budget: '+key);
-          if(tier==='high'&&(t.image.width!==source.width||t.image.height!==source.height))failures.push('High did not restore authored canvas: '+key);
+          if(t.image.width!==source.width||t.image.height!==source.height)failures.push('Adaptation changed authored print resolution: '+key);
           if(!t.generateMipmaps||t.minFilter!==House.T.LinearMipmapLinearFilter)failures.push('Missing print mipmaps: '+key);
-          if(t.anisotropy!==(tier==='high'?8:tier==='low'?2:1))failures.push('Print ignores setAniso: '+key);
+          if(t.anisotropy!==aniso)failures.push('Print lost anisotropic filtering: '+key);
         }
         samples.push({tier,count:prints.length,maxEdge:Math.max(0,...prints.map(([,t])=>Math.max(t.image.width,t.image.height)))});
       }
-    }finally{K.setQuality('low');K.setAniso(2,true)}
+    }finally{House.adapt(before.adapt,{pin:before.pinned,force:true})}
     House.dirty();return{samples,failures};
   });
 }

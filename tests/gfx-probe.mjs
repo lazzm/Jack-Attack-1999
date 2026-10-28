@@ -1,6 +1,7 @@
 // One-look diagnostics: per room (first station, rung 0) draws/triangles with the static merge and without it
 // (HouseStatic.unmerge in the same session), merge statistics and cost. Disposable localhost only.
 //   node gfx-probe.mjs http://localhost:PORT [--shots=dir]
+import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {roomFixture} from './room-fixture.mjs';
 const base=process.argv[2],arg=k=>(process.argv.find(a=>a.startsWith('--'+k+'='))||'').slice(k.length+3),shots=arg('shots'),light=arg('light'),only=arg('only');
@@ -42,8 +43,9 @@ try{
  for(const row of rows){const r=await p.evaluate(id=>{House.goRoom(id,0);const target=House._.glide?.to;House.cancelGlide(true);if(target){const pose=typeof target==='function'?target():target;Object.assign(House.P,pose);House.setWalkFrom(pose)}House._.setMode('focus');House._.renderForBenchmark();const i=House.ren.info.render;return{calls:i.calls,tris:i.triangles}},row.room);row.unmergedCalls=r.calls;row.unmergedTris=r.tris}
  console.log('room        merged-draws  unmerged  batches  sources  dissolved');
  for(const r of rows)console.log(r.room.padEnd(12),String(r.calls).padStart(8),String(r.unmergedCalls).padStart(10),String(r.batches).padStart(8),String(r.sources).padStart(8),String(r.dissolved).padStart(9));
+ for(const r of rows){assert(r.calls>0&&r.tris>0,JSON.stringify(r));assert(r.calls<r.unmergedCalls,'No draw reduction: '+JSON.stringify(r))}console.log('DRAW RESULTS',JSON.stringify(rows));
  console.log('REASONS',JSON.stringify(await p.evaluate(()=>HouseStatic.REASONS)));
  console.log('merge ms total',ms.toFixed(1),'programs',await p.evaluate(()=>House.ren.info.programs.length));
  }
- console.log('errors',JSON.stringify(errors));
+ assert.deepEqual(errors,[]);console.log('errors',JSON.stringify(errors));
 }finally{await f.browser.close()}
