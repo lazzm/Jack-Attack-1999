@@ -89,7 +89,7 @@
       stick = { id: ev.pointerId, x0: ev.clientX, y0: ev.clientY, sx: ev.clientX, sy: ev.clientY, t0: performance.now(), moved: false, aim: H.held() ? null : aimPoint(ev.clientX, ev.clientY) }; tapMark(stick.aim, ev.clientX, ev.clientY);
       stickEl.classList.add('on'); stickEl.style.left = ev.clientX + 'px'; stickEl.style.top = ev.clientY + 'px'; knob.style.transform = '';
     } else if (!look) { look = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY, t0: performance.now(), moved: false }; look.aim = H.held() ? null : aimPoint(ev.clientX, ev.clientY); tapMark(look.aim, ev.clientX, ev.clientY); }
-    coach(false);
+    ls.set('jhp_touch_coach', true); coach(false);
     pts.set(ev.pointerId, true);
   });
   surface.addEventListener('pointermove', ev => {
@@ -179,6 +179,8 @@
     }
     if (!coachEl) return; coachEl.classList.add('bye'); const el = coachEl; coachEl = null; ls.set('jhp_touch_coach', true); setTimeout(() => el.remove(), 400);
   }
+
+  H.on('grab', () => { if (touchOn()) { ls.set('jhp_touch_coach', true); coach(false); } });
 
   // ---------------------------------------------------------------- the contextual buttons
   const key = (k, up) => window.dispatchEvent(new KeyboardEvent(up ? 'keyup' : 'keydown', { key: k, bubbles: true, cancelable: true }));
