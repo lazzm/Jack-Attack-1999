@@ -1,5 +1,13 @@
 # Jack's Home Page - changelog
 
+## 2.57.15 - 2026-10-28
+- R98: finer slow movement, gentler look acceleration, forgiving item selection and second-finger look takeover. Buttons respond on press, keep feedback and act once even after a long rolling hold; keyboard/switch activation remains available. Room and close-up gestures stay with the game while lists still scroll.
+- Phone Potato pacing tries 60, settles at 30 after sustained misses and retries after a cooldown when frames are cheap. Idle/background animation does not count as poor performance. Physical phone frame rate is not established by the software-host tests.
+- Thin game spines now win over the surrounding shelf's general help when selecting nearby; direct door/character presses retain priority, as do wall blocking and reach limits.
+- R107: discovery banners sit below portrait objectives. The first-time controls card waits for notes, discoveries and conversations, and yields if a new message arrives. Tests explicitly choose Keep the house in the slow-device dialog and retain pose/mode; other fixtures remember that device preference.
+- Verified: syntax/unit/parody gates, Chapter 1, smoke 12/12, transitions 9/9 and carry/bin/slot/refresh regression. Eight mobile scenarios covered: account/story/full/feel/tablet/owner/performance passed together; smallest-phone failure exposed the dialog/shelf conflict and was corrected. Final full/small/feel rerun 3/3, including real offset pickup, two-finger close-up turn/zoom, one-second rolling press, discovery stacking and rotation. Production pacing/picking unit checks pass. Reviewed desktop 1366x860, phone/tablet portrait/landscape, menus, overlays and walking/looking contact sheets.
+- No account, wallet, earning-cap, world or placement migrations. Physical Edge/Android hardware and gamepads remain unverified. Broader scale audit, R96's remaining CRT test timing and R108's existing furniture-check warning stay open.
+
 ## 2.57.14 - 2026-10-28
 - R86/R103: Jack approved an extra metre of front plot. The car now leaves 110 cm behind its boot and 107 cm before the gateway. Shared street, seasonal props, chores and family targets follow the new boundary; both navigation grids cover the pavement. Rebuilt clipped hedge, properly sized piers and lamp base, slimmer car pillars and lower glass.
 - R90: re-laid lounge furniture, 90 x 50 cm bevelled coffee table with an 83 cm sofa gap, matching collision/support, updated seating and a brass coal-effect gas fire. R112: people in a hall queue request room from the back, with cycle/seated/conversation guards.
