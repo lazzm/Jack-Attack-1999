@@ -99,6 +99,7 @@
       K.setAniso(Math.min(wantedAniso(),ren.capabilities.getMaxAnisotropy()),true);
       scene.traverse(o => { const ms = o.material ? [].concat(o.material) : []; for (const m of ms) { m.needsUpdate = true; for (const k in m) { const t = m[k]; if (t && t.isTexture) t.needsUpdate = true; } } });
       for (const k in K.MATS) K.MATS[k].needsUpdate = true;
+      compiled.clear(); compileVariants(Q.adapt);
       measure(); dirty(); return true;
     } catch (e) { console.error(e); return false; }
   }
@@ -274,7 +275,8 @@
     sfxDoor(d.open);
     emit('door', id, d.open);
   }
-  let visSet = new Set();
+  let visSet = new Set(), vegetationWindows = new Map();
+  const vegetationFrustum = new T.Frustum(), vegetationProjection = new T.Matrix4(), vegetationHidden = [];
   function visCalc() {
     const vs = new Set(); if (cur) vs.add(cur.id);
     const walk = (r, depth) => { if (!r) return; for (const did of r.links) { const d = DOORS[did]; if (!d || !(d.open || d.ang > 0.01 || d.always)) continue; for (const other of d.rooms) if (!vs.has(other)) { vs.add(other); if (depth < (rung().far ? 0 : 1)) walk(ROOMS[other], depth + 1); } } };
@@ -282,8 +284,14 @@
     if (cur && ['hall','landing','cupboard'].includes(cur.id)) { vs.add('hall'); vs.add('landing'); }
     // Shared wall faces and window reveals extend beyond their apertures. Keep connected rooms intact;
     // the renderer frustum-culls individual meshes and spatial batches without losing these surfaces.
-    const connected = [...vs];
-    for (const id of connected) for (const view of ROOMS[id]?.windowViews || []) { const other = typeof view === 'string' ? view : view.room; if (ROOMS[other]) vs.add(other); }
+    const connected = new Set(vs); vegetationWindows = new Map();
+    for (const id of connected) for (const view of ROOMS[id]?.windowViews || []) {
+      const other = typeof view === 'string' ? view : view.room; if (!ROOMS[other]) continue; vs.add(other);
+      if (connected.has(other)) continue;
+      const boxes = vegetationWindows.get(other) || [];
+      if (!view.bounds) boxes.push(null); else for (const b of view.bounds) boxes.push(new T.Box3(new T.Vector3(b[0],-b[4],b[2]),new T.Vector3(b[3],-b[1],b[5])).expandByScalar(20));
+      vegetationWindows.set(other, boxes);
+    }
     for (const id in ROOMS) { const r = ROOMS[id], on = vs.has(id); if (on) buildRoom(r); r.group.visible = on; }
     for (const id in DOORS) { const d = DOORS[id], on = d.rooms.some(id => vs.has(id)); if (d.pivot) d.pivot.visible = on; if (d.frame) d.frame.visible = on; }
     visSet = vs; lightsFor(); dirty();
@@ -2641,10 +2649,11 @@
   function litDistance(id){const a=ROOMS[id].area[0];return a?Math.hypot((a[0]+a[2])/2-P.x,(a[1]+a[3])/2-P.z):0}
   const litBackToFront=(a,b)=>ROOMS[b]._renderDistance-ROOMS[a]._renderDistance;
   function renderLit(renderer) {
+    let hiddenVegetation = 0;
     nodeCount=materialCount=0;litIDs.length=0;litTransparentIDs.length=0;litSerial++;
     for(const id in ROOMS){
       const r=ROOMS[id];let drawn=visSet.has(id);
-      r._renderDrawn=drawn;litRooms.add(r.group);litNode(r.group,r.group.visible&&drawn,id);
+      r._vegetationSkipped=false;r._renderDrawn=drawn;litRooms.add(r.group);litNode(r.group,r.group.visible&&drawn,id);
     }
     for(const id in DOORS){const d=DOORS[id];litDoor(d.pivot,d);litDoor(d.frame,d)}
     const owner=cur&&cur.id;
@@ -2659,6 +2668,17 @@
     for(let i=0;i<litIDs.length;i++){const id=litIDs[i];ROOMS[id]._renderDistance=litDistance(id);litTransparentIDs.push(id)}
     litTransparentIDs.sort(litBackToFront);
     try {
+      // Only the dense grass fields use window-aperture rejection. Walls and reveals remain intact.
+      if (vegetationWindows.size && !window.House?.god) {
+        vegetationProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);vegetationFrustum.setFromProjectionMatrix(vegetationProjection);
+        for (const [id,boxes] of vegetationWindows) {
+          const r=ROOMS[id];if(!r._renderDrawn)continue;let seen=false;
+          for(const box of boxes)if(!box||vegetationFrustum.intersectsBox(box)){seen=true;break;}
+          if(seen)continue;
+          const mesh=r._grassMesh?.parent?r._grassMesh:(r._grassMesh=r.group.children.find(o=>o.name==='mowable-grass-blades'||o.name==='garden-grass-blades'));
+          if(mesh?.visible){vegetationHidden[hiddenVegetation++]=mesh;mesh.visible=false;r._vegetationSkipped=true;}
+        }
+      }
       // All opaque surfaces before glass; depth remains shared between rooms.
       for(let pass=0;pass<2;pass++){
         const transparent=pass===1,order=transparent?litTransparentIDs:litIDs;
@@ -2670,6 +2690,7 @@
         }
       }
     } finally {
+      for(let i=0;i<hiddenVegetation;i++)vegetationHidden[i].visible=true;
       for(let i=0;i<nodeCount;i++){const n=litNodes[i];n.obj.visible=n.restore}
       for(let i=0;i<materialCount;i++){const s=litMaterials[i];s.m.visible=s.on}
       scene.background=background;renderer.autoClear=clear;scene.autoUpdate=update;renderer.info.autoReset=autoReset;

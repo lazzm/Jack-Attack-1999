@@ -19,13 +19,13 @@
 
   function plainMaterial(m) {
     return !!m && m.isMaterial && m.visible !== false && !m.transparent && !m.isShaderMaterial && !m.isRawShaderMaterial &&
-      !m.morphTargets && !m.skinning && (m.onBeforeCompile === plainCompile || !!m.userData?.houseSurface);
+      !m.morphTargets && !m.skinning && !m.displacementMap && (!m.defines || !Object.keys(m.defines).length) && (m.onBeforeCompile === plainCompile || !!m.userData?.houseSurface);
   }
   // Flat-coloured materials (no textures) that differ only in colour share one vertex-coloured material per "class":
   // the colour moves into a vertex attribute. This is the big saving (rooms are hundreds of distinct paint colours).
   const MAPS = ['map', 'emissiveMap', 'alphaMap', 'lightMap', 'aoMap', 'normalMap', 'bumpMap', 'specularMap', 'envMap', 'displacementMap'];
   const CLASSES = new Map();
-  const MATERIAL_FIELDS = ['side','flatShading','shininess','depthWrite','depthTest','depthFunc','colorWrite','polygonOffset','polygonOffsetFactor','polygonOffsetUnits','alphaTest','fog','toneMapped','wireframe','vertexColors','lightMapIntensity','aoMapIntensity','bumpScale','displacementScale','displacementBias','normalMapType','reflectivity','refractionRatio'];
+  const MATERIAL_FIELDS = ['side','flatShading','shininess','depthWrite','depthTest','depthFunc','colorWrite','polygonOffset','polygonOffsetFactor','polygonOffsetUnits','alphaTest','fog','toneMapped','wireframe','vertexColors','lightMapIntensity','aoMapIntensity','bumpScale','displacementScale','displacementBias','normalMapType','reflectivity','refractionRatio','skinning','morphTargets','morphNormals','premultipliedAlpha','alphaToCoverage','blending','blendSrc','blendDst','blendEquation','blendSrcAlpha','blendDstAlpha','blendEquationAlpha','stencilWrite','stencilFunc','stencilRef','stencilWriteMask','stencilFuncMask','stencilFail','stencilZFail','stencilZPass'];
   const materialKey = m => MATERIAL_FIELDS.map(k => m[k]).join(',') + '|' + hex(m.specular) + '|' + (m.normalScale ? m.normalScale.x + ',' + m.normalScale.y : '') + '|' + (m.clippingPlanes ? m.clippingPlanes.map(p => p.normal.toArray().join(',') + ',' + p.constant).join(';') : '');
   const hex = c => c ? c.getHex() : -1;
   // Textured materials join a class too when they share the same texture objects (spot/grab clones of one material,
@@ -42,8 +42,9 @@
     if (!c) { c = m.clone(); c.vertexColors = true; c.color.setRGB(1, 1, 1); c.userData = { staticClass: key }; c.needsUpdate = true; CLASSES.set(key, c); }
     return c;
   }
-  function matState(m) { const s = { m, version:m.version, fields:MATERIAL_FIELDS.map(k=>m[k]), specular:hex(m.specular), nx:m.normalScale?.x, ny:m.normalScale?.y, color: hex(m.color), emissive: hex(m.emissive), ei: m.emissiveIntensity, visible: m.visible, opacity: m.opacity, transparent: m.transparent, maps: [] }; for (const k of MAPS) s.maps.push(m[k] || null); return s; }
-  function matChanged(t) { const m = t.m; if(m.version!==t.version)return true; for(let i=0;i<MATERIAL_FIELDS.length;i++)if(m[MATERIAL_FIELDS[i]]!==t.fields[i])return true; if (hex(m.specular)!==t.specular || m.normalScale?.x!==t.nx || m.normalScale?.y!==t.ny || hex(m.color) !== t.color || hex(m.emissive) !== t.emissive || m.emissiveIntensity !== t.ei || m.visible !== t.visible || m.opacity !== t.opacity || m.transparent !== t.transparent) return true; for (let i = 0; i < MAPS.length; i++) if ((m[MAPS[i]] || null) !== t.maps[i]) return true; return false; }
+  // Program-upload counters can change after a context loss without changing the material appearance.
+  function matState(m) { const s = { m, compile:m.onBeforeCompile, cache:m.customProgramCacheKey, defines:{...m.defines}, clipping:m.clippingPlanes, clipCount:m.clippingPlanes?.length||0, fields:MATERIAL_FIELDS.map(k=>m[k]), specular:hex(m.specular), nx:m.normalScale?.x, ny:m.normalScale?.y, color: hex(m.color), emissive: hex(m.emissive), ei: m.emissiveIntensity, visible: m.visible, opacity: m.opacity, transparent: m.transparent, maps: [] }; for (const k of MAPS) s.maps.push(m[k] || null); return s; }
+  function matChanged(t) { const m = t.m; if(m.onBeforeCompile!==t.compile||m.customProgramCacheKey!==t.cache||m.clippingPlanes!==t.clipping||(m.clippingPlanes?.length||0)!==t.clipCount)return true;let defs=0;for(const k in m.defines){defs++;if(m.defines[k]!==t.defines[k])return true;}let savedDefs=0;for(const k in t.defines)savedDefs++;if(defs!==savedDefs)return true; for(let i=0;i<MATERIAL_FIELDS.length;i++)if(m[MATERIAL_FIELDS[i]]!==t.fields[i])return true; if (hex(m.specular)!==t.specular || m.normalScale?.x!==t.nx || m.normalScale?.y!==t.ny || hex(m.color) !== t.color || hex(m.emissive) !== t.emissive || m.emissiveIntensity !== t.ei || m.visible !== t.visible || m.opacity !== t.opacity || m.transparent !== t.transparent) return true; for (let i = 0; i < MAPS.length; i++) if ((m[MAPS[i]] || null) !== t.maps[i]) return true; return false; }
   function signature(g) {
     if (!g || !g.isBufferGeometry || g.isInstancedBufferGeometry || !g.attributes.position || !g.attributes.normal) return null;
     for (const k in g.morphAttributes) if (g.morphAttributes[k].length) return null;
