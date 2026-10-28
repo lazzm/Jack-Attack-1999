@@ -30,6 +30,7 @@ try{
  const pt=await coords(190,-33);await p.mouse.click(pt.x,pt.y);assert(!await p.evaluate(()=>ChoreKit.has('bed','pillow')),'One click completed the pillow');
  await drag([[190,-33],[190,-20],[190,-40],[190,-20],[190,-40]]);assert(await p.evaluate(()=>ChoreKit.has('bed','pillow')),'Pillow gesture did not finish');
  await leave();await put('ch.pjs','ch.s.pjs');assert(await p.evaluate(()=>ChoreKit.has('bed','pjs')&&!House.THINGS['ch.pjs'].at.hide));
+ const bundle=await p.evaluate(()=>House.physics.body('ch.pjs').parts);assert.equal(bundle.length,1);assert.deepEqual([bundle[0].hx,bundle[0].hz,bundle[0].hi],[13.5,10,4.45],'Folded pyjamas keep the loose garment collider');
  await open();await shot('03-pull-ready');
  await drag([[190,105],[190,95]]);assert(!await p.evaluate(()=>ChoreKit.has('bed','pullL')),'Short drag completed pull');
  await p.keyboard.down('Space');await p.waitForTimeout(400);await p.keyboard.press('Escape');await p.keyboard.up('Space');await until(()=>House.paused);assert(!await p.evaluate(()=>ChoreKit.has('bed','pullL')),'Pause committed partial work');
@@ -58,6 +59,7 @@ try{
  await p.evaluate(()=>{delete ChoreKit.S.prog.bed.pillow;delete ChoreKit.S.v.bed.pillowDocked;House.THINGS['ch.pjs'].at.hide=true;ChoreKit.MODS.bed.sync()});
  assert(await p.evaluate(()=>!House.THINGS['ch.pjs'].at.hide&&House.THINGS['ch.pjs'].at.y===37),'Legacy PJs float without a pillow');
  assert(await p.evaluate(()=>ChoreKit.ownerStart('bed')));assert(await p.evaluate(()=>!House.THINGS['ch.pjs'].at.hide&&House.THINGS['ch.pjs'].at.y===73&&House.THINGS['ch.pillow'].at.y===73));
+ assert(await p.evaluate(()=>House.physics.body('ch.pjs').parts[0].hz>10),'Redo kept the folded collider');
  await open();await p.keyboard.down('Space');await until(()=>document.querySelector('.ch-bed-note progress').value===1);await p.keyboard.up('Space');await until(()=>ChoreKit.has('bed','pullL'));
  assert(await p.evaluate(()=>ChoreKit.ownerStart('bed')));assert.equal(await p.locator('.ch-bed-note b').textContent(),'Pull the duvet up','Redo kept a stale bed instruction');await leave();
  assert.deepEqual(f.errors,[]);console.log('BEDMAKING PASS: actual E, mouse pull/fluff, touch tuck/cancel, touch smooth, pause, six sizes, refresh and redo');

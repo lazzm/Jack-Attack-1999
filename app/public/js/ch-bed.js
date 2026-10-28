@@ -518,6 +518,12 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
         const folded=CK.has('bed','pjs');loosePjs.visible=!folded;foldedPjs.visible=folded;
         if(folded){const y=CK.has('bed','pillow')||v.pillowDocked?26:37;pjsT.home={room:'bedroom',x:190,y,z:-33,ry:0};CK.lock('ch.pjs');if(pjsT.at.hide||pjsT.at.x!==190||pjsT.at.y!==y)CK.home('ch.pjs');}
         else CK.lock('ch.pjs',false);
+        // Folding changes the real support footprint as well as the visible mesh.
+        // Recreate only this body so cached support/radius data matches the bundle.
+        if(pjsT.bedFolded!==folded){
+          pjsT.physics=Object.assign({},pjsT.physics,{parts:folded?[{t:'box',x:0,z:0,hx:13.5,hz:10,lo:0,hi:4.45}]:undefined});
+          H.physics.world?.remove(pjsT.id);pjsT.body=null;pjsT.bedFolded=folded;H.physics.sync(pjsT.id);
+        }
       }
       if(making && !making.gesture)bedPrompt();
       void v; void dn;
