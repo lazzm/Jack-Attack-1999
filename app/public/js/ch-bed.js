@@ -454,12 +454,13 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     el.addEventListener('pointerup',ev=>{if(making?.gesture?.pointer===ev.pointerId)bedEndGesture(!H.paused)});
     el.addEventListener('pointercancel',ev=>{if(making?.gesture?.pointer===ev.pointerId)bedEndGesture(false)});
     el.addEventListener('lostpointercapture',ev=>{if(making?.gesture?.pointer===ev.pointerId)bedEndGesture(false)});
+    const uiKey=ev=>ev.target?.closest?.('button,a,input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]');
     const keyDown=ev=>{
-      if(ev.code!=='Space'||ev.ctrlKey||ev.metaKey||ev.altKey||H.paused||!making?.stage)return;
+      if(uiKey(ev)||ev.code!=='Space'||ev.ctrlKey||ev.metaKey||ev.altKey||H.paused||!making?.stage)return;
       ev.preventDefault(); if(ev.repeat||making.gesture)return;
       making.gesture={stage:making.stage,amount:0,key:true};bedWatch();CK.snd.rustle();
     };
-    const keyUp=ev=>{if(ev.code==='Space'&&making?.gesture?.key){ev.preventDefault();bedEndGesture(!H.paused)}};
+    const keyUp=ev=>{if(ev.code==='Space'&&making?.gesture?.key){ev.preventDefault();bedEndGesture(!H.paused&&!uiKey(ev))}};
     const cancel=()=>bedEndGesture(false);
     const ok=H.focus({x:193,y:-132,z:186,rx:-50,ry:0,lvl:'U',seat:1}, {
       label:'Back to the room', enter:()=>{
