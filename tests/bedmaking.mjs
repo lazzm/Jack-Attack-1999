@@ -58,5 +58,7 @@ try{
  await p.evaluate(()=>{delete ChoreKit.S.prog.bed.pillow;delete ChoreKit.S.v.bed.pillowDocked;House.THINGS['ch.pjs'].at.hide=true;ChoreKit.MODS.bed.sync()});
  assert(await p.evaluate(()=>!House.THINGS['ch.pjs'].at.hide&&House.THINGS['ch.pjs'].at.y===37),'Legacy PJs float without a pillow');
  assert(await p.evaluate(()=>ChoreKit.ownerStart('bed')));assert(await p.evaluate(()=>!House.THINGS['ch.pjs'].at.hide&&House.THINGS['ch.pjs'].at.y===73&&House.THINGS['ch.pillow'].at.y===73));
+ await open();await p.keyboard.down('Space');await until(()=>document.querySelector('.ch-bed-note progress').value===1);await p.keyboard.up('Space');await until(()=>ChoreKit.has('bed','pullL'));
+ assert(await p.evaluate(()=>ChoreKit.ownerStart('bed')));assert.equal(await p.locator('.ch-bed-note b').textContent(),'Pull the duvet up','Redo kept a stale bed instruction');await leave();
  assert.deepEqual(f.errors,[]);console.log('BEDMAKING PASS: actual E, mouse pull/fluff, touch tuck/cancel, touch smooth, pause, six sizes, refresh and redo');
 }catch(e){console.log(await p.evaluate(()=>({mode:House.mode,focus:House.focused,pose:House.P,prog:ChoreKit.S.prog.bed,v:ChoreKit.S.v.bed})));await shot('failure');throw e}finally{await f.browser.close()}

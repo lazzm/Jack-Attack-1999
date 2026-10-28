@@ -519,6 +519,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
         if(folded){const y=CK.has('bed','pillow')||v.pillowDocked?26:37;pjsT.home={room:'bedroom',x:190,y,z:-33,ry:0};CK.lock('ch.pjs');if(pjsT.at.hide||pjsT.at.x!==190||pjsT.at.y!==y)CK.home('ch.pjs');}
         else CK.lock('ch.pjs',false);
       }
+      if(making && !making.gesture)bedPrompt();
       void v; void dn;
     },
     guide() { return duv; },
