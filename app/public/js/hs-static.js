@@ -45,7 +45,7 @@
   function matState(m) { const s = { m, version:m.version, fields:MATERIAL_FIELDS.map(k=>m[k]), specular:hex(m.specular), nx:m.normalScale?.x, ny:m.normalScale?.y, color: hex(m.color), emissive: hex(m.emissive), ei: m.emissiveIntensity, visible: m.visible, opacity: m.opacity, transparent: m.transparent, maps: [] }; for (const k of MAPS) s.maps.push(m[k] || null); return s; }
   function matChanged(t) { const m = t.m; if(m.version!==t.version)return true; for(let i=0;i<MATERIAL_FIELDS.length;i++)if(m[MATERIAL_FIELDS[i]]!==t.fields[i])return true; if (hex(m.specular)!==t.specular || m.normalScale?.x!==t.nx || m.normalScale?.y!==t.ny || hex(m.color) !== t.color || hex(m.emissive) !== t.emissive || m.emissiveIntensity !== t.ei || m.visible !== t.visible || m.opacity !== t.opacity || m.transparent !== t.transparent) return true; for (let i = 0; i < MAPS.length; i++) if ((m[MAPS[i]] || null) !== t.maps[i]) return true; return false; }
   function signature(g) {
-    if (!g || !g.isBufferGeometry || !g.attributes.position || !g.attributes.normal) return null;
+    if (!g || !g.isBufferGeometry || g.isInstancedBufferGeometry || !g.attributes.position || !g.attributes.normal) return null;
     for (const k in g.morphAttributes) if (g.morphAttributes[k].length) return null;
     if (g.drawRange.start !== 0 || g.drawRange.count !== Infinity) return null;
     const names = Object.keys(g.attributes).sort(); let sig = '';

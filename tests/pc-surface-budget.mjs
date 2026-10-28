@@ -1,4 +1,4 @@
-import assert from'node:assert/strict';import{writeFile}from'node:fs/promises';import{roomFixture}from'./room-fixture.mjs';
+import assert from'node:assert/strict';import{writeFile}from'node:fs/promises';import{provisionedRoom as roomFixture}from'./provisioned-room.mjs';
 const{browser,page:p,errors,view}=await roomFixture(process.argv[2]);const rows=[];
 try{
  await p.evaluate(()=>{House.ambient.clear();House.adapt(0,{pin:true,force:true})});await view([-15,-55,105],[0,-17,-12]);await p.evaluate(()=>{House._.setMode('walk');House.ren.setPixelRatio(.75);House.ren.setSize(innerWidth,innerHeight,false)});

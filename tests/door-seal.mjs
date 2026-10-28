@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {roomFixture} from './room-fixture.mjs';
+import {provisionedRoom as roomFixture} from './provisioned-room.mjs';
 
 const base=process.argv[2]||'http://localhost:18464',baseline=process.argv.includes('--baseline'),controlsOnly=process.argv.includes('--controls-only');
 assert(['localhost','127.0.0.1'].includes(new URL(base).hostname),'Disposable local server only');

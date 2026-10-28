@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict';import {mkdir}from'node:fs/promises';import {roomFixture}from'./room-fixture.mjs';
+import assert from 'node:assert/strict';import {mkdir}from'node:fs/promises';import {provisionedRoom as roomFixture}from'./provisioned-room.mjs';
 await mkdir('shots/exterior',{recursive:true});const f=await roomFixture(process.argv[2]),{page:p,until,errors}=f;
 const shot=n=>p.screenshot({path:'shots/exterior/'+n+'.png'});
 const mask=()=>p.evaluate(()=>ChoreKit.S.v.lawn?.cut||'');
