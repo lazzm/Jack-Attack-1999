@@ -595,6 +595,15 @@ const phases = {
       const r1 = await page.evaluate(() => House.P.ry); await fingers.move(5, w - 140, h * .55); await fingers.move(5, w - 200, h * .55); await sleep(150);
       const r2 = await page.evaluate(() => House.P.ry); const fs = await page.evaluate(() => HouseTouch._fingers()); await fingers.up(5);
       feel.secondFinger = Math.round((r2 - r1) * 10) / 10; assert(Math.abs(r2 - r1) > 8, 'Second finger did not take over the look: ' + JSON.stringify({ fs, r1, r2 }));
+      // a close-up: one finger turns it, two fingers zoom it (no browser pan/zoom steals the drag)
+      assert(await page.evaluate(() => House.inspect('mug'))); await until(() => House.mode === 'inspect', null, 10000); await sleep(800); // (the mug: the cube's faces turn under a finger instead)
+      const insp = () => page.evaluate(() => { const g = House.THINGS.mug.obj; return { q: g.quaternion.toArray().map(v => +v.toFixed(3)), s: +House.camera.position.distanceTo(new House.T.Box3().setFromObject(g).getCenter(new House.T.Vector3())).toFixed(2) }; });
+      const i0 = await insp(); await fingers.drag(8, w * .3, h * .5, w * .7, h * .5, 500); await sleep(300); const i1 = await insp();
+      feel.inspectTurn = JSON.stringify(i0.q) !== JSON.stringify(i1.q); assert(feel.inspectTurn, 'One finger did not turn the close-up');
+      await fingers.down(8, w * .4, h * .5); await fingers.down(9, w * .6, h * .5); for (let i = 1; i <= 6; i++) { await fingers.move(8, w * .4 - i * 12, h * .5); await fingers.move(9, w * .6 + i * 12, h * .5); await sleep(40); }
+      await fingers.up(9); await fingers.up(8); await sleep(300); const i2 = await insp(); feel.pinch = { before: i1.s, after: i2.s };
+      assert(i2.s !== i1.s, 'Two fingers did not zoom the close-up'); await shot('feel-02-closeup');
+      await press('.hs-inspection button:last-of-type'); await until(() => House.mode === 'walk', null, 10000); if (await page.evaluate(() => !!House.held())) { await press('q'); await until(() => !House.held(), null, 10000); }
       // a thumb that rolls 16 px while pressing Crouch still presses it
       const cr0 = await page.evaluate(() => !!House._.movementState().keys.crouch);
       const cb = await page.evaluate(() => { const r = document.querySelector('.ht-hud [data-k="crouch"]').getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });

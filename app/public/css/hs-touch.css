@@ -149,3 +149,8 @@ html.handheld-house.hs-live[data-touch-state="walk"] body,html.handheld-house.hs
 .ht-acts .ht-b{transition:transform .06s}
 /* portrait touch: toasts (secrets, rewards) sit under the story line, never on top of it */
 @media (orientation:portrait){html[data-game-touch="true"] .hs-ui .rm-toast{top:calc(env(safe-area-inset-top,0px) + 146px)}}
+/* The page itself never zooms on a handheld (a two-finger touch on a note or the story line used to pinch-zoom the
+   whole game); scrolling lists, the diary and JackOS pages still pan. The 3D room's own layers own every touch, so a
+   one-finger drag on a close-up or a screen is never taken over by the browser (that fired pointercancel mid-drag). */
+html.handheld-house{touch-action:pan-x pan-y}
+html.handheld-house:not([data-touch-state="pc"]) #bootPower,html.handheld-house .hs-gl,html.handheld-house .hs-gl2{touch-action:none}

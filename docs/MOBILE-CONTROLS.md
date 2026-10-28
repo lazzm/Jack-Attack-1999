@@ -61,11 +61,21 @@ tuned below by measurement.
 | Stick output linear after the dead zone | Gentle curve (power 1.35): measured 0 / 0 / 21 / 43 / 87 / 138 cm/s at 10 / 20 / 35 / 50 / 75 / 100 % deflection, 205 cm/s (jog) past the rim |
 | A second finger resting on the look side was ignored for the rest of its touch | It takes over the look when the first finger lifts (measured: 50 deg turn from the second finger) |
 | The test harness lifted every finger at once (CDP `touchEnd` releases the points it lists) | `tests/mobile.mjs` lifts exactly one finger per `up()`; multi-touch checks now mean what they say |
+| Two fingers on a note or the story line pinch-zoomed the whole page; a one-finger drag on a close-up could be taken by the browser (pointercancel mid-turn) | `html.handheld-house{touch-action:pan-x pan-y}` (lists, the diary and JackOS still scroll; nothing zooms); the 3D layers are `touch-action:none`. Measured: one finger turns the mug close-up, two fingers zoom it |
+| Three things to read at once on a 360 px phone (coach card, "The PC is still on" note, a secret toast over the story line) | The coach card waits while a note/voice/call is up; portrait toasts sit under the story line |
 
 Kept from round 2 (already in line with the research): floating stick restricted to the left/lower area, radial dead
 zone (12 px slop + 14 %), auto-jog past the rim, contextual buttons with verbs, press-to-see-what-it-does labels with
 release to act and drag-away to cancel, pointer events with capture and `pointercancel` handling, `touch-action: none`
 on the room surface, 44 px+ targets, one-time coach card, haptics via `navigator.vibrate` where supported.
+
+How it is measured (tests/mobile.mjs `feel`, real CDP touches, Pixel profile 412x915): stick speed at 10-140 %
+deflection (settled velocity), a 200 px drag slow vs quick, aim-assist hit rates on 8 points at 0/12/24/34/48 px round
+an isolated thing (plus one real press 22 px off it that must pick it up), a second finger taking over the look, a
+16 px rolling press on Crouch, one-finger turn and two-finger zoom of a close-up, the frame cap, and touch-path
+recordings (contact sheets + pose/touch logs) at 412x915, 915x412, 360x740 and 740x360 (`*-path-sheet.jpg`,
+`report.json` `paths`). Software WebGL here cannot hold 60 Hz, so the tests see the cap fall back to 30; a real phone
+that holds 60 keeps it.
 
 Not done (and why): orientation lock (needs fullscreen; the game already plays in both orientations); gyro look (not
 1999, and a motion-permission prompt on iOS); `getCoalescedEvents` (look sums deltas, so merged samples lose nothing).
