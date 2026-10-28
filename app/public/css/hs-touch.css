@@ -138,3 +138,12 @@ html:not([data-touch-state="walk"]):not([data-touch-state="seat"]) .ht-tapmark{d
 @keyframes htCoach{from{opacity:0}to{opacity:1}}
 .ht-b.ht-main span{font-size:11px}
 html[data-game-touch="true"] .hs-ui .hs-getup kbd{display:none}
+
+/* Round 3 (docs/MOBILE-CONTROLS.md): the browser never takes a game touch. No pull-to-refresh or overscroll glow on a
+   handheld playing the house; HUD buttons own their touches (no panning/zoom from a thumb that rolls off a button);
+   no text selection or long-press callouts while walking. */
+html.handheld-house,html.handheld-house body{overscroll-behavior:none}
+html.handheld-house.hs-live[data-touch-state="walk"] body,html.handheld-house.hs-live[data-touch-state="seat"] body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.ht-b{touch-action:none;-webkit-touch-callout:none}
+.ht-b.ht-press{background:rgba(255,216,74,.32);border-color:var(--ht-gold);transform:scale(.94)}
+.ht-acts .ht-b{transition:transform .06s}

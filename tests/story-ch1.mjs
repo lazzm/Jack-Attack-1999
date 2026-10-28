@@ -256,7 +256,13 @@ try {
   await mp.goto(base,{waitUntil:'domcontentloaded'});
   await wait(mp,() => window.AccountGate?.allowed&&window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!!window.st?.getState()&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
   // The phone may have reloaded once to bring the desktop's latest profile down; from here on nothing may change it.
-  await mp.waitForTimeout(1500); await wait(mp,() => window.House?.live&&!document.querySelector('.hs-loading,#houseEntry'),null,60000);
+  // Settled means: ready, and still the same document three seconds later (a roam reload replaces it).
+  for (let i = 0; i < 6; i++) {
+    await wait(mp,() => window.AccountGate?.allowed&&window.House?.live&&!!window.st?.getState()&&!document.querySelector('.hs-loading,#houseEntry'),null,60000);
+    await mp.evaluate(() => { window.__settled = 1; }).catch(() => {});
+    await mp.waitForTimeout(3000);
+    if (await mp.evaluate(() => window.__settled === 1 && !!window.st?.getState()).catch(() => false)) break;
+  }
   const mobileHouse = await mp.evaluate(kept);
   assert.equal(await mp.evaluate(() => st.getState().ch), 2);
   await mp.evaluate(() => { if (!window.Magazines?.reading) House.interact('st.diary'); }); await wait(mp,() => window.Magazines?.reading?.id==='st.diary',null,30000);

@@ -76,7 +76,7 @@
   const pts = new Map(); let stick = null, look = null;
   const R = () => clamp(Math.min(innerWidth, innerHeight) * .15, 46, 70); // the stick's travel, in CSS px
   function releaseAll() {
-    pts.clear(); stick = look = null; H.touch.move(0, 0); stickEl.classList.remove('on', 'run');
+    pts.clear(); spare.clear(); stick = look = null; H.touch.move(0, 0); stickEl.classList.remove('on', 'run');
     knob.style.transform = ''; stickEl.style.removeProperty('left'); stickEl.style.removeProperty('top');
   }
   function stickSide(x, y) { return x < innerWidth * (innerWidth > innerHeight ? .42 : .5) && y > innerHeight * .28; }
@@ -88,11 +88,18 @@
       // (a still, short press on this side is still a click on the thing under it: the stick only walks once it moves)
       stick = { id: ev.pointerId, x0: ev.clientX, y0: ev.clientY, sx: ev.clientX, sy: ev.clientY, t0: performance.now(), moved: false, aim: H.held() ? null : aimPoint(ev.clientX, ev.clientY) }; tapMark(stick.aim, ev.clientX, ev.clientY);
       stickEl.classList.add('on'); stickEl.style.left = ev.clientX + 'px'; stickEl.style.top = ev.clientY + 'px'; knob.style.transform = '';
-    } else if (!look) { look = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY, t0: performance.now(), moved: false }; look.aim = H.held() ? null : aimPoint(ev.clientX, ev.clientY); tapMark(look.aim, ev.clientX, ev.clientY); }
+    } else if (look) spare.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    else if (!look) { look = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY, t0: performance.now(), moved: false }; look.aim = H.held() ? null : aimPoint(ev.clientX, ev.clientY); tapMark(look.aim, ev.clientX, ev.clientY); }
     coach(false);
     pts.set(ev.pointerId, true);
   });
   surface.addEventListener('pointermove', ev => {
+    const sp = spare.get(ev.pointerId);
+    if (sp) {
+      // a second finger that was resting while another looked: once that one lifts, it looks (no lost touches)
+      if (!look) { spare.delete(ev.pointerId); look = { id: ev.pointerId, x: sp.x, y: sp.y, x0: sp.x, y0: sp.y, t0: performance.now(), moved: true }; }
+      else { sp.x = ev.clientX; sp.y = ev.clientY; return; }
+    }
     if (stick && ev.pointerId === stick.id) {
       ev.preventDefault();
       const r = R(); let dx = ev.clientX - stick.x0, dy = ev.clientY - stick.y0; const d = Math.hypot(dx, dy);
@@ -102,7 +109,7 @@
       const run = d > r * 1.18;
       if (d > r * 1.6) { const k = (d - r * 1.6) / d; stick.x0 += dx * k; stick.y0 += dy * k; dx = ev.clientX - stick.x0; dy = ev.clientY - stick.y0; stickEl.style.left = stick.x0 + 'px'; stickEl.style.top = stick.y0 + 'px'; }
       const m = Math.min(1, Math.hypot(dx, dy) / r), a = Math.atan2(dy, dx), dead = .14;
-      const amt = m < dead ? 0 : (m - dead) / (1 - dead);
+      const lin = m < dead ? 0 : (m - dead) / (1 - dead), amt = Math.pow(lin, 1.35); // (gentle curve: creep near the middle)
       knob.style.transform = `translate(${Math.cos(a) * Math.min(r, Math.hypot(dx, dy))}px,${Math.sin(a) * Math.min(r, Math.hypot(dx, dy))}px)`;
       stickEl.classList.toggle('run', run && amt > .5);
       if (amt && H.seated && H.mode === 'focus') { H.unfocus(); return; } // (like the keys: walking gets you up first)
@@ -116,17 +123,21 @@
       if (look.moved) {
         // gentle acceleration: slow drags aim precisely, a quick flick turns round
         const t = performance.now(), dt = Math.max(8, t - (look.t || t - 16)); look.t = t;
-        const speed = Math.hypot(dx, dy) / dt, accel = 1 + clamp(speed - .35, 0, 1.4) * .9;
-        const k = .24 * sens * accel * 400 / clamp(Math.min(innerWidth, innerHeight), 320, 900); H.touch.look(dx * k, dy * k * .85);
+        // A drag across the screen's short side turns about 150 degrees: slow drags stay exact (1x up to 0.5 px/ms),
+        // only a quick flick gets at most 1.5x, so the same drag always turns about the same amount.
+        const speed = Math.hypot(dx, dy) / dt, accel = 1 + clamp(speed - .5, 0, 1) * .5;
+        const k = 150 * sens * accel / clamp(Math.min(innerWidth, innerHeight), 320, 900); H.touch.look(dx * k, dy * k * .8);
       }
     }
   });
+  const spare = new Map(); // fingers on the room that are neither the stick nor the look (yet)
   function lift(ev) {
+    spare.delete(ev.pointerId);
     if (stick && ev.pointerId === stick.id) {
       const s0 = stick; stick = null; tapMark(null); H.touch.move(0, 0); stickEl.classList.remove('on', 'run'); knob.style.transform = '';
       if (ev.type === 'pointerup' && !s0.moved && (s0.aim || performance.now() - s0.t0 < 400) && ['walk', 'seat'].includes(st) && !H.busy) {
         if (H.held()) { const hold = document.querySelector('.hs-ui .hs-hold'); if (!hold?.classList.contains('blocked')) press('e'); }
-        else if (s0.aim) { H.useAt(ev.clientX, ev.clientY); if (!s0.aim.far) buzz(); }
+        else if (s0.aim) { H.useAt(s0.aim.x, s0.aim.y); if (!s0.aim.far) buzz(); }
         lastKey = ''; setTimeout(render, 80);
       }
     }
@@ -137,7 +148,7 @@
       // open, talk, sit...). Carrying something, a click puts it down where its ghost shows.
       if (ev.type === 'pointerup' && !l.moved && (l.aim || H.held() || performance.now() - l.t0 < 450) && ['walk', 'seat'].includes(st) && !H.busy) { // (press, read the label, let go to do it; drag away to cancel)
         if (H.held()) { const hold = document.querySelector('.hs-ui .hs-hold'); if (!hold?.classList.contains('blocked')) press('e'); }
-        else if (l.aim && !l.aim.far) { H.useAt(ev.clientX, ev.clientY); buzz(); }
+        else if (l.aim && !l.aim.far) { H.useAt(l.aim.x, l.aim.y); buzz(); }
         else H.useAt(ev.clientX, ev.clientY); // (too far: the house says "move closer")
         lastKey = ''; setTimeout(render, 80);
       }
@@ -149,16 +160,29 @@
   addEventListener('blur', releaseAll); document.addEventListener('visibilitychange', () => { if (document.hidden) releaseAll(); });
 
   // What a click at a screen point would do (the same picking as the mouse): a name and a verb, or null.
+  // Aim assist: a fingertip covers ~9 mm (about 35 CSS px), so a press that lands just beside a thing still means it.
+  // The exact point wins; otherwise the nearest of 16 samples on two rings (14 and 28 px) that finds a usable thing
+  // in reach. The click then happens at that sample, so the house does exactly what the label said.
+  const RING = [[0, 0]]; for (const r of [14, 28]) for (let i = 0; i < 8; i++) RING.push([Math.cos(i * Math.PI / 4 + (r > 14 ? Math.PI / 8 : 0)) * r, Math.sin(i * Math.PI / 4 + (r > 14 ? Math.PI / 8 : 0)) * r]);
   function aimPoint(x, y) {
     if (H.busy) return null;
-    let h = null; try { h = H.pick(x, y); } catch (e) { return null; }
-    const s = h && h.spot && H.SPOTS[h.spot]; if (!s || s.off) return null;
+    let h = null, px = x, py = y, far = null;
+    try {
+      for (const [ox, oy] of RING) {
+        const q = H.pick(x + ox, y + oy), s = q && q.spot && H.SPOTS[q.spot];
+        if (!s || s.off) continue;
+        if (q.dist <= s.range) { h = q; px = x + ox; py = y + oy; break; }
+        if (!far && !ox && !oy) far = q; // (the thing right under the finger, out of reach: say so)
+      }
+    } catch (e) { return null; }
+    if (!h) h = far; if (!h) return null;
+    const s = H.SPOTS[h.spot];
     const label = short(typeof s.label === 'function' ? s.label() : s.label), t = H.THINGS[s.id];
     // exactly what a click does (useAt in js/hs-world.js): take out, pick up, or the spot's own action
     let door = H.DOORS[s.id] || null; // (a door leaf: its spot's mesh hangs off the door's pivot, as hs-world's doorOf finds)
     if (!door) for (const d of Object.values(H.DOORS)) { if (!d.pivot) continue; for (let o = s.obj || h.obj; o; o = o.parent) if (o === d.pivot) { door = d; break; } if (door) break; }
     const verb = s.remove && !s.grab ? 'Take out' : s.grab && t && !s.use ? 'Pick up' : door ? (door.open ? 'Shut' : 'Open') : verbOf(label);
-    return { id: s.id, label, verb, far: h.dist > s.range };
+    return { id: s.id, label, verb, far: h.dist > s.range, x: px, y: py };
   }
   // the finger's label: what letting go here will do (or "walk closer"), drawn just above the thumb
   const mark = document.createElement('div'); mark.className = 'ht-tapmark'; mark.setAttribute('aria-hidden', 'true'); hud.appendChild(mark);
@@ -195,9 +219,20 @@
     }
     lastKey = ''; setTimeout(render, 60); setTimeout(render, 260);
   }
+  let firedAt = 0;
   for (const box of [acts, top]) {
-    box.addEventListener('pointerdown', ev => { if (ev.target.closest('button')) ev.preventDefault(); });
-    box.addEventListener('click', ev => { const b = ev.target.closest('button[data-k]'); if (b && !b.disabled) { ev.preventDefault(); doAction(b.dataset.k); } });
+    box.addEventListener('pointerdown', ev => {
+      const b = ev.target.closest('button[data-k]'); if (!b) return; ev.preventDefault();
+      if (b.disabled) return;
+      b.classList.add('ht-press'); try { b.setPointerCapture(ev.pointerId); } catch (e) {}
+      const up = () => { b.classList.remove('ht-press'); b.removeEventListener('pointerup', up); b.removeEventListener('pointercancel', up); b.removeEventListener('lostpointercapture', up); };
+      b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
+      firedAt = performance.now(); buzz(); doAction(b.dataset.k);
+    });
+    // keyboard / switch access still clicks; a pointer's own click after its press is ignored
+    // (the buttons are re-drawn after an action, so that click may land on a fresh button in the same place: any click
+    // within 800 ms of a press is that press's own and is ignored)
+    box.addEventListener('click', ev => { const b = ev.target.closest('button[data-k]'); if (!b || b.disabled) return; ev.preventDefault(); if (performance.now() - firedAt < 800) return; doAction(b.dataset.k); });
   }
   const btn = (k, icon, label, cls = '', disabled = false) => `<button type="button" class="ht-b ${cls}" data-k="${k}"${disabled ? ' disabled' : ''} aria-label="${esc(label)}">${ICON[icon]}<span>${esc(label)}</span></button>`;
   // A spot's own label is a name ("Band poster"); the button wants a verb. Labels that already start with one keep it.
@@ -328,6 +363,6 @@
     html.appendChild(box); box.querySelector('button').focus();
   }
 
-  window.HouseTouch = { get state() { return st; }, get sensitivity() { return sens; }, render, releaseAll, _aim: () => aimed(), _slowOffer: slowOffer };
+  window.HouseTouch = { get state() { return st; }, get sensitivity() { return sens; }, render, releaseAll, _aim: () => aimed(), _aimAt: (x, y) => aimPoint(x, y), _fingers: () => ({ look: look?.id ?? null, stick: stick?.id ?? null, spare: [...spare.keys()] }), _slowOffer: slowOffer };
   render();
 })();

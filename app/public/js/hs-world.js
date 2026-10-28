@@ -68,7 +68,7 @@
     if (Q.auto && Q.tier!=='potato' && (/SwiftShader|llvmpipe|softpipe|Software|Mali-[34]|Adreno \(TM\) [345]\d\d|PowerVR SGX|GMA/i.test(Q.gpu) || ren.capabilities.maxTextureSize < 4096 || !ren.capabilities.floatFragmentTextures)) Q.tier = 'low';
     else if (Q.auto && Q.tier === 'high' && /Intel/i.test(Q.gpu) && !/Iris|Arc/i.test(Q.gpu)) Q.tier = 'medium';
   } catch (e) {}
-  Q.guess=Q.tier;window.HouseQ = Q.tier;K.setQuality?.(Q.tier);
+  Q.guess=Q.tier;window.HouseQ = Q.tier;K.setQuality?.(Q.tier);Q.cap=Q.mob?60:30;Q.capMiss=0;
   let cv2 = document.createElement('canvas'); cv2.className = 'hs-gl2'; cv2.setAttribute('aria-hidden', 'true');
   // (a lost WebGL context, e.g. too many tabs: keep the page alive and redraw when it comes back)
   let ctxLost = false;
@@ -2393,7 +2393,7 @@
     frame++;
     const ambOn = ambient.size && now - lastAmb > (monitor?Math.max(100,1000/graphics.backgroundFps):Q.tier==='potato'?1000/12:50);
     if (!moving && !need && !ambOn) return;
-    const period=1000/(Q.tier==='potato'?30:Q.tier==='high'?120:60);
+    const period=1000/(Q.tier==='potato'?(Q.cap||30):Q.tier==='high'?120:60);
     if(now-lastDraw<period-1){if(moving)need=true;return}
     lastDraw=now;
     let ambientChanged=false;
@@ -2435,7 +2435,7 @@
   let perfIndex=0,perfCount=0,perfLast=0,perfTotal=0,perfEl=null;
   function recordFrame(now,cost){perfFrames[perfIndex]=perfLast?now-perfLast:0;perfCosts[perfIndex]=cost;perfLast=now;perfIndex=(perfIndex+1)%120;perfCount=Math.min(120,perfCount+1);perfTotal++}
   function framePercentile(values,p){for(let i=0;i<perfCount;i++)perfSorted[i]=values[i];const sorted=perfSorted.subarray(0,perfCount);sorted.sort();return sorted[Math.min(perfCount-1,Math.floor(perfCount*p))]||0}
-  function perfSnapshot(){return{frames:perfTotal,tier:Q.tier,scale:graphics.scale*Q.renderScale,pixels:cv.width*cv.height,calls:ren.info.render.calls,triangles:ren.info.render.triangles,programs:ren.info.programs.length,frameP50:framePercentile(perfFrames,.5),frameP95:framePercentile(perfFrames,.95),renderP50:framePercentile(perfCosts,.5)}}
+  function perfSnapshot(){return{frames:perfTotal,tier:Q.tier,scale:graphics.scale*Q.renderScale,pixels:cv.width*cv.height,calls:ren.info.render.calls,triangles:ren.info.render.triangles,programs:ren.info.programs.length,frameP50:framePercentile(perfFrames,.5),frameP95:framePercentile(perfFrames,.95),renderP50:framePercentile(perfCosts,.5),cap:Q.tier==="potato"?(Q.cap||30):Q.tier==="high"?120:60}}
   setInterval(()=>{
     if(!graphics.showFps||!live){if(perfEl)perfEl.hidden=true;return}
     if(!perfEl){perfEl=document.createElement('div');perfEl.className='hs-perf';perfEl.setAttribute('aria-hidden','true');ui.el.appendChild(perfEl)}
@@ -2453,6 +2453,12 @@
     if(Q.probe&&now<Q.probe)dirty();else if(Q.probe)Q.probe=0;
     if(f.t<.9)return;
     Q.fps=Math.round(f.n/f.t);f.n=0;f.t=0;
+    // Phones on Potato try a smooth 60 first (touch look and walking feel stepped at 30); a phone that can't hold it
+    // steadily goes back to a locked 30 (stable beats uneven), and tries 60 again later when frames are cheap.
+    if(Q.mob&&Q.tier==='potato'){
+      if(Q.cap===60){if(Q.fps<50){if(++Q.capMiss>=2){Q.cap=30;Q.capMiss=0;Q.capRetry=now+30000}}else Q.capMiss=0}
+      else if(now>(Q.capRetry||0)&&Q.fps>=29&&framePercentile(perfCosts,.5)<6){Q.cap=60;Q.capMiss=0}
+    }
     if(!graphics.dynamic)return;
     if(Q.fps<28){
       goodBudget=0;
@@ -3054,7 +3060,7 @@
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,
     say: (t, x, ms) => ui.say(t, x, ms), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),
     dirty, relight, ambient, anims, visCalc,warmRooms:prewarm, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
-    touch: { move: touchSet, look: touchLook, get moving() { return touchMove.on; } },
+    touch: { move: touchSet, look: touchLook, get moving() { return touchMove.on; }, get state() { return { ...touchMove }; } },
     desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},
     Q,graphicsGet,graphicsSet,screenRate,screenBudget, perf:perfSnapshot, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },
