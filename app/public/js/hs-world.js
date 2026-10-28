@@ -718,7 +718,10 @@
   function soft(rid, x0, z0, x1, z1, y, o) { const s = Object.assign({ room: rid, x0, z0, x1, z1, y, meshes: [], base: y }, o || {}); SOFT.push(s); return s; }
   function softSurface(s, x, z) {
     if (s.find && !s.found) { const f = s.find(); if (f.length) { s.found = true; s.meshes.push(...f); } }
-    const list = s.meshes.filter(m => { for (let o = m; o; o = o.parent) if (!o.visible) return false; return true; });
+    const list = s.meshes.filter(m => { if(s.sampleHidden)return true;for (let o = m; o; o = o.parent) if (!o.visible) return false; return true; });
+    // Fixed cloth still supports saved props before its room becomes visible.
+    softRay.layers.mask=s.sampleHidden?-1:1;
+    if(s.sampleHidden)for(const m of list)m.updateWorldMatrix(true,false);
     _so.set(x, -(s.y - 60), z); softRay.set(_so, _sd); softRay.far = 120;
     const h = list.length ? softRay.intersectObjects(list, false)[0] : null;
     return h ? -h.point.y : s.base;

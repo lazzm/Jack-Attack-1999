@@ -52,6 +52,7 @@ if(!baseline){
  await p.evaluate(async()=>{await Chores.load();await Chores.part('kitchen')});await until(()=>ChoreKit.has('washup','r6'));
  assert.equal(await p.evaluate(()=>localStorage.getItem('jhp_off')),power);
  assert(await p.evaluate(()=>Array.from({length:7},(_,i)=>{const t=House.THINGS['ch.d.'+i];let clean=true;t.obj.traverse(o=>{if(o.material?.map===t.obj.userData.dirt.map&&o.material.visible)clean=false});return clean&&!t.canGrab()}).every(Boolean)),'Rack dirt/grab state failed after refresh');
+ const dryingBefore=await p.evaluate(()=>JSON.stringify(ChoreKit.S.v.wash.rackAt));await put('ch.t.p0','ch.s.tp0');assert.equal(await p.evaluate(()=>JSON.stringify(ChoreKit.S.v.wash.rackAt)),dryingBefore,'Laying the table changed washing-up drying metadata');
  assert(await p.evaluate(()=>ChoreKit.ownerStart('washup')),'Disposable owner redo did not begin');
  const reset=await p.evaluate(()=>Array.from({length:7},(_,i)=>{const t=House.THINGS['ch.d.'+i];return{i,at:t.at,dirt:t.obj.userData.dirt.opacity,visible:t.obj.userData.dirt.visible,rz:t.rz,rx:t.rx,home:t.factoryHome}}));
  for(const t of reset){assert.equal(t.dirt,1,'Redo kept the dish clean');assert(t.visible,'Redo hid the food');assert.equal(t.at.x,t.home.x);assert.equal(t.at.z,t.home.z);assert.equal(t.rx,0);assert.equal(t.rz,0)}
