@@ -54,7 +54,7 @@ const helpers = () => {
     },
     // a standing point near (x, z) from which the crosshair lands on it (and on the thing tid, if given)
     stand(x, y, z, lvl, tid, avoid) {
-      const eye = H.LV[lvl] - 128;
+      const eye = H.LV[lvl] - (H.STAND || 128);
       const ok = (sx, sz) => { if (!H._.cellOk(lvl, sx, sz)) return false; for (const dx of [-8, 8]) for (const dz of [-8, 8]) if (!H._.cellOk(lvl, sx + dx, sz + dz)) return false; return true; };
       this.why = [];
       for (const d of [75, 60, 95, 115, 50, 140, 40, 170]) for (let k = 0; k < 16; k++) {

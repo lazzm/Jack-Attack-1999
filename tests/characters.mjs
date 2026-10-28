@@ -325,7 +325,7 @@ try {
       await until(() => !!st.getState()?.done.lad);
       await page.keyboard.press('q'); await until(() => House.mode === 'walk' && !House.gliding);
       // stand in the room looking at the door
-      await look(page, [-30, 73 - 128, 190], [240, 73 - 115, 190], 'U');
+      await look(page, [-30, 73 - EYE, 190], [240, 73 - 115, 190], 'U');
       assert.equal(await page.evaluate(() => House.DOORS.bedroom.open), false, 'The bedroom door starts shut');
       await page.evaluate(() => { const F = HouseFamily, m = F.chars.mom; window.__ent = []; window.__entT = setInterval(() => { const e = F.debug.entrance().mom; window.__ent.push({ seen: F.debug.seen('mom'), door: House.DOORS.bedroom.open, phase: e?.phase || null, inRoom: m.present && m.lvl === 'U' && m.x < 238 && m.z < 252 }); }, 50); });
       const log = [], t0 = Date.now(); let held = null, n = 0;
