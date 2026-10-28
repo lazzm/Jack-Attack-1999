@@ -21,6 +21,29 @@ try{
  f=await roomFixture(base,{account,password,signup:false,touch:true});
  const{page,until,view,errors}=f;
  await page.evaluate(()=>{Room.ensureHouse();HouseFamily.debug.hide(true);});
+ // A stationary camera can still change lens. Compare the DOM's four corners with the actual WebGL glass.
+ if(!baseline){
+  const c=await page.evaluate(()=>{const g=House.pcGL,gl=g.userData.glass,m=new THREE.Matrix4().copy(House.root.matrixWorld).invert().multiply(g.matrixWorld),p=new THREE.Vector3(gl.x,gl.y,gl.z).applyMatrix4(m);return[p.x,p.y,p.z];});
+  await view([c[0],c[1]-30,c[2]+100],c);
+  for(const zoom of [1,.7,1.2,.65]){
+   const aligned=await page.evaluate(zoom=>{
+    const H=House;H.P.zm=zoom;H._.renderForBenchmark();
+    const el=document.getElementById('monitorSurface'),matrix=new DOMMatrix(getComputedStyle(el).transform),g=H.pcGL,gl=g.userData.glass;
+    const errors=[];
+    for(let i=0;i<4;i++){
+     const x=i===0||i===3?-gl.w/2:gl.w/2,y=i<2?-gl.w*3/8:gl.w*3/8;
+     const p=new THREE.Vector3(gl.x+x,gl.y+y,gl.z+.01).applyMatrix4(g.matrixWorld).project(H.camera);
+     const actual=new DOMPoint(i===0||i===3?0:1024,i<2?0:768).matrixTransform(matrix);
+     errors.push(Math.hypot(actual.x/actual.w-(p.x+1)*innerWidth/2,actual.y/actual.w-(1-p.y)*innerHeight/2));
+    }
+    return{zoom,errors,visible:getComputedStyle(el).visibility};
+   },zoom);
+   await page.screenshot({path:shots+'crt-lens-'+zoom+'.png'});
+   assert.equal(aligned.visible,'visible','Alignment fixture cannot see the live screen');
+   assert(Math.max(...aligned.errors)<1,'Live desktop detached from WebGL glass: '+JSON.stringify(aligned));
+   console.log('CRT '+JSON.stringify(aligned));
+  }
+ }
  for(const[width,height]of [[1366,860],[1920,1080],[390,844],[844,390],[768,1024],[1024,768]]){
   await page.setViewportSize({width,height});
   await page.evaluate(()=>{const H=House;H.hush();H.setWalkFrom({x:30,y:73-(H.STAND||128),z:150,lvl:'U',seat:0});H._.setMode('walk');H.dirty();});

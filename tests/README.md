@@ -414,4 +414,4 @@ Walking-camera checks and native-lens gallery (disposable server/data):
 
     node camera-lens.mjs
 
-Measures walking FOV, live standing eye height and CSS/WebGL focal alignment at desktop, phone and tablet portrait/landscape sizes, then checks an old standing save survives refresh. Captures are in `shots/camera-lens/`; an old-source comparison can use `--baseline --app-root=/absolute/path/to/old/app`.
+Measures walking FOV, live standing eye height and CSS/WebGL focal alignment at desktop, phone and tablet portrait/landscape sizes. Compares all four live desktop corners with the WebGL glass during stationary lens changes, then checks an old standing save survives refresh. Captures are in `shots/camera-lens/`; an old-source comparison can use `--baseline --app-root=/absolute/path/to/old/app`.
