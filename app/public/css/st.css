@@ -43,3 +43,6 @@ html.hs-focus .st-objective,html.hs-inspecting .st-objective,html.hs-paused .st-
 
 /* The temporary job strip owns this space while carrying on a small screen. */
 @media(max-width:900px){.hs-ui.holding:has(.ch-chip:not([hidden])) .st-objective{visibility:hidden}}
+
+/* Off-screen guidance is a compass arrow; labels belong beside visible objects. */
+.st-marker[data-state="edge"] .st-marker-label{display:none}

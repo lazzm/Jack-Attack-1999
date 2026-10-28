@@ -722,12 +722,14 @@
     BN.geo(new T.TorusGeometry(10, 0.55, 8, 32), 0, -27, 0, M({ c: '#2f62da', sh: 40, sp: '#444' }), { rx: 90 });
     BN.cyl(0,-.25,0,8.35,8.35,.5,24,M('#244898'));
     BN.disc(0, -18, 0, 9.1, M('#0f1830'), 24);
+    const contents = new T.Group(); bn.add(contents); bn.userData.binContents = contents;
+    const rubbishBatch = K.batch(), RB = K.into(rubbishBatch);
     { const crumple = (seed, r) => { const geo = new T.IcosahedronGeometry(r, 1), pp = geo.attributes.position, rr = K.rnd(seed); for (let i = 0; i < pp.count; i++) { const k = 0.78 + rr() * 0.32; pp.setXYZ(i, pp.getX(i) * k, pp.getY(i) * k, pp.getZ(i) * k); } geo.computeVertexNormals(); return geo; };
       const paperM = M({ c: '#eeeae0', flat: true, sh: 4 });
-      BN.geo(crumple(7, 3.6), -3.2, -21.5, 2.2, paperM); BN.geo(crumple(11, 3.1), 3.4, -20.8, -2.6, paperM); BN.geo(crumple(19, 2.8), 0.6, -24.2, 3.4, M({ c: '#d8e4f0', flat: true, sh: 4 }));
+      RB.geo(crumple(7, 3.6), -3.2, -21.5, 2.2, paperM); RB.geo(crumple(11, 3.1), 3.4, -20.8, -2.6, paperM); RB.geo(crumple(19, 2.8), 0.6, -24.2, 3.4, M({ c: '#d8e4f0', flat: true, sh: 4 }));
       // a crisp packet, squashed, its silver inside showing
-      BN.geo(K.thicken(new T.PlaneGeometry(7, 9, 4, 4).applyMatrix4(new T.Matrix4().makeRotationX(-0.5)), 0.15), 2.4, -27.5, -1.5, M({ c: '#e8c020', sh: 40, sp: '#777', side: 2 }), { rz: 18, ry: 30 }); }
-    binBatch.build(bn); K.into(bn).shadow(0, 0, 0, 24, 24, 0.7);
+      RB.geo(K.thicken(new T.PlaneGeometry(7, 9, 4, 4).applyMatrix4(new T.Matrix4().makeRotationX(-0.5)), 0.15), 2.4, -27.5, -1.5, M({ c: '#e8c020', sh: 40, sp: '#777', side: 2 }), { rz: 18, ry: 30 }); }
+    rubbishBatch.build(contents); binBatch.build(bn); K.into(bn).shadow(0, 0, 0, 24, 24, 0.7);
     H.spot('bin',{label:'The bin',obj:bn});loose('bin',bn,{room:'bedroom',x:-118,y:FY,z:-42,ry:0},'Wastepaper bin',{obstacle:true,floorOnly:true,physics:{round:true,parts:[{t:'cyl',x:0,z:0,r:10.6,lo:0,hi:27.6}],mass:.8,mu:.45,coast:.3,tip:.9}});
   }
   // Ordinary belongings stay behind the reserved console bays, clear of every
@@ -2184,8 +2186,9 @@
     H.ambient.add(follow);follow();return box;
   }
   function rackSlots(){
-    for(let n=0;n<20;n++){const p=rackPose(n);mediaSlots[n]=Room.addSnap('media.slot.'+n,{room:'bedroom',x:p.x,y:p.y-6,z:p.z,r:26,box:[15.2,12.6,5.6],preview:{x:p.x,y:p.y-6.3,z:p.z},pose:p,hint:'Put the box upright in this slot',
-      accepts:(kind,t)=>{if(kind!=='console-case'||!t||!inOwnCase(t.gameId)||Object.entries(mediaSlotSave||{}).some(([id,s])=>s===n&&id!==t.gameId))return false;const ray=H.rayAt(pb.clientWidth/2,pb.clientHeight/2);if(ray.d.z>=-.01)return false;const distance=(-36-ray.o.z)/ray.d.z;if(distance<0||distance>260)return false;const x=ray.o.x+ray.d.x*distance,y=ray.o.y+ray.d.y*distance;return Math.abs(x-p.x)<3.5&&Math.abs(y-(p.y-6.3))<7.5},
+    for(let n=0;n<20;n++){const p=rackPose(n);mediaSlots[n]=Room.addSnap('media.slot.'+n,{room:'bedroom',x:p.x,y:p.y-6,z:p.z,r:26,box:[15.2,.45,5.6],preview:{x:p.x,y:p.y-.4,z:p.z},pose:p,hint:'Put the box upright in this slot',
+      accepts:(kind,t)=>kind==='console-case'&&!!t&&inOwnCase(t.gameId)&&!Object.entries(mediaSlotSave||{}).some(([id,s])=>s===n&&id!==t.gameId),
+      aims:()=>{const ray=H.rayAt(pb.clientWidth/2,pb.clientHeight/2);if(ray.d.z>=-.01)return false;const distance=(-36-ray.o.z)/ray.d.z;if(distance<0||distance>260)return false;const x=ray.o.x+ray.d.x*distance,y=ray.o.y+ray.d.y*distance;return Math.abs(x-p.x)<3.5&&Math.abs(y-(p.y-6.3))<7.5},
       onBegin:(t)=>{mediaSlotSave[t.gameId]=n;caseStore.save();t.home=Object.assign({},p,{snap:'media.slot.'+n});caseLid(t,false);return true;}})}
     H.on('tidy',rid=>{if(rid&&rid!=='bedroom')return;for(const box of Object.values(mediaBoxes))caseLid(box,false);const v=window.RoomTV?._dbg();if(v?.gid&&mediaThings[v.gid]?.snap!=='console.'+v.con)RoomTV.stopPhysical(v.con);});
   }

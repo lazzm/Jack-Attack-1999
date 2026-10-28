@@ -53,23 +53,31 @@ rules the rig (`app/public/js/np-rig.js`) now follows. Keep it up to date when t
 | Trick-or-treater (7) | 122 | ~29 cm | ~4.2 | |
 Legs stay long enough to sit on 45 cm seats with the feet on the floor (adults); children's feet may dangle.
 
-### Faces (per-person 512 px atlas; 256 on Low/Potato)
+### Faces (per-person 512 px atlas; 256 on Potato)
 - Face base cell: cheeks (soft blush), brows, a nose shadow; the nose itself is only a small smooth bump in the head.
 - Eye frames: open / half (reading, washing up) / closed (blink) / happy. Big dark ovals with two catchlights, a
   lash flick for Mom; no whites, no eyeballs. Gaze = the painted eye shifts a little (no 3D eyeballs).
-- Mouth frames: closed smile / small open / open / "oh"; talking picks frames from the line's vowels.
+- Mouth frames: closed smile / small open / open / "oh". With a recorded line playing (js/st-voice.js) the frame follows
+  the recording's loudness (an AnalyserNode on the voice chain) and the "oh" shape comes from the vowel at the current
+  point of the line; without a recording (or with sound off) it keeps time from the line's vowels and punctuation.
+- Speech bubbles (js/np-bubble.js, css/np-bubble.css): a white comic balloon with a coloured name tab hangs over the
+  speaker's head (projected each frame), its tail at the mouth, typed on in step with the audio; off-screen, behind you
+  or in another room it sits at the screen edge with its tail pointing their way. It keeps clear of the crosshair, carry
+  panel, objective line, map and touch controls. The bottom box is the "Subtitles" setting (pause menu) and the
+  fallback for lines with nobody in the house to hang a balloon on.
 - The fragment shader picks the frames from uniforms, so blinking and talking cost no geometry or texture uploads.
 
 ### Budgets
 - Draw calls per person: 2 (body + contact shadow).
-- Triangles (v1 was ~13k per person on Low). Measured 2026-10-27:
-  | detail level | used for | Mom | Dad | sister | kids (by costume) | grown-up |
-  |---|---|---|---|---|---|---|
-  | 0 | Medium/High, near (< 7 m) | 4.4k | 4.8k | 4.8k | 3.5-5.0k | 5.4k |
-  | 1 | Medium/High far; Low/Potato near | 2.6k | 2.9k | 2.8k | ~2-3k | ~3.2k |
-  | 2 | Low/Potato far | 1.5k | 1.8k | 1.7k | | |
-  `tests/characters.mjs --only=draws` (Low, kitchen at tea time): +6 draw calls, +8.3k triangles for all three
-  (asserted <= 3 x 3200).
+- Low/Potato: at most **3,000 triangles per person in every outfit**, at both near and far detail. Measured 28 October with `characters.mjs --only=budget`:
+  | person | body near | body far |
+  |---|---:|---:|
+  | Mom | 2,592 | 1,576 |
+  | Dad (all three outfits) | 2,880 | 1,800 |
+  | Sister | 2,876 | 1,740 |
+  | Children (all costumes) | 2,292–2,992 | 1,488–1,822 |
+  | Grown-up in coat | 2,992 | 1,864 |
+  Each contact shadow adds six triangles; the enforced limit includes those too. Medium/High near uses the more detailed meshes. The Low kitchen `draws` regression independently asserts no more than six family draw calls and 9,000 total triangles; the outfit test enforces each person's limit.
 - Atlas: 512 px (Low and up), 256 px on Potato; one per person per outfit worn (about 1.4 MB with mips at 512).
 - Props are only built into the people who use them (Mom: mug, sponge, spoon, magazine, can, phone; Dad: paper, mug,
   remote, sponge, briefcase; sister: mug, yo-yo, bag; kids: pail, ray gun; the grown-up: a torch).
@@ -103,6 +111,9 @@ Legs stay long enough to sit on 45 cm seats with the feet on the floor (adults);
   their whole body (little steps) to face you, keep one-handed things (mug, sponge, spoon, can, remote, phone), put
   two-handed things down (paper, magazine, yo-yo, drawing), and go back to the job afterwards; seated people stay
   seated and turn their head. `characters.mjs --only=interrupt` talks to everyone during every job in their routines.
-- Clothes: tops come down over the waistband (the hem overlaps the trousers), never a gap or a clipped seam.
+- Clothes: shaped upper trouser legs meet under a rounded, rolled-under hem. Their hidden waist stays inside the top at the front, sides and back; no extra pelvis wedge, projecting waistband or rigid ledge. Dad keeps a tucked shirt and belt. `characters.mjs --only=hips` captures all sides and close waist views, plus phone/tablet portrait and landscape; `--only=hip-motion` adds real stride phases and seated views.
+- Hand targets use the skeleton’s positive-X left side and negative-X right side. Lap, paper, mug, phone and job poses keep wrists on their own side; the seated gallery asserts this so crossed forearms cannot return.
 - Walk: heel-strike/toe-off, pelvis sway, roll and turn with the stride, shoulders counter-turning, arm swing with
   relaxed elbows, a soft bob, leaning into stairs going up.
+
+- Personal space: standing bodies use radii of 25 cm (Dad), 22 cm (Mom) and 18 cm (the sister). Route sampling must stop a blocked walker rather than let them creep through another body. People walk around one another, ask a standing person to move, or retreat into reachable open space; an aside uses its checked avoidance route. They resume when the other person has passed and their destination is free. `characters.mjs --only=day,space` checks three routine days, body separation and kitchen/hall crossings; seated transitions are measured separately.

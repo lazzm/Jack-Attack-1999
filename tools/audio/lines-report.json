@@ -1,0 +1,1601 @@
+{
+ "c2.play.announcer": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "c4.dd.boot": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "c4.dd.boot2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "c4.dd.zip": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "c4.mill.tv": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "ann.start": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "ann.go": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "ann.win": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "ann.over": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "ann.continue": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "ann.press": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "ann.new": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "ann.lucky": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "c3.hangup.dad": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Oi! I need the phone. Get off the internet!"
+ },
+ "bark.dad.bed2": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "I can hear that keyboard clicking. Lights out. I mean it."
+ },
+ "c1.dad.hello": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.dad.story": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.dad.offer": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.dad.yes": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.dad.boot": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.dad.brief": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.dad.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.tower.pick": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.tower.done": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.mon.pick": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.mon.stairs": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.mon.drop": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.mon.done": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 21 != lines 13"
+ },
+ "c1.keys.pick": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Easy one. Careful with the mouse. It's got a wire on it like a tail."
+ },
+ "c1.speak.pick": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Last trip. Put one each side of the screen, like bookends."
+ },
+ "c1.lead.dad": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Now the leads. They only go one way in. If it doesn't fit, don't force it."
+ },
+ "c1.lead.dad.power": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Power. Do not plug the monitor lead into the power socket. I've seen it done."
+ },
+ "c1.power.dad": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Moment of truth. Hit the button. Fingers crossed."
+ },
+ "c1.power.boot": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "It's alive! It's alive!"
+ },
+ "c1.floppy.dad": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Setup wants the floppies. They're in that box. Number one first. They have to go in order."
+ },
+ "c1.floppy.stick": {
+  "ok": true,
+  "mode": "batch",
+  "score": 0.8,
+  "leaked": [],
+  "heard": "Disc 3, it always sticks, give it a gentle poke."
+ },
+ "c1.install.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "That's it. You're a computer owner. Look at you."
+ },
+ "c1.logon.dad": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "One more thing. It's the phone line downstairs. If I need it, you're off. Not a word. Deal?"
+ },
+ "c2.pocket.dad": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Saving up, eh? Right, here's how it works. Your mother's jobs on the list pay cash. Do all four, and there's a bonus."
+ },
+ "c2.pocket.dad2": {
+  "ok": true,
+  "mode": "batch",
+  "score": 0.95,
+  "leaked": [],
+  "heard": "And on a Saturday I'll sing you a bit extra if I'm in a good mood. Tell me nicely."
+ },
+ "c2.pocket.dad3": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "There's the big job as well. Wash the car, clear out the shed. Pays proper money. Rubbish money, obviously, but proper rubbish money."
+ },
+ "c2.pocket.dad4": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.bigjob.give": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.bigjob.shed": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.bigjob.done": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.order.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.post.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.unbox.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.connect.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.connect.done": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.phone.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c3.ask.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c3.ask.dad2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c3.ask.dad.deal": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c3.cable.shed": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.cable.found": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.run.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.run.clip": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.run.trip.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.run.done": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.isp.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.dial.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.dial.ok": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.hangup.dad2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.hangup.ok": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.hangup.late": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.bill.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 15 != lines 13"
+ },
+ "c3.end.dad": {
+  "ok": false,
+  "mode": "batch",
+  "score": 0.15,
+  "leaked": [],
+  "heard": "Not bad, proper little engineer. Don't expect me to be your bank. Anything else you want you save up for. A collector. Your mother had a thing for teaspoons. Look where that got us."
+ },
+ "c4.start.dad": {
+  "ok": false,
+  "mode": "batch",
+  "score": 0,
+  "leaked": [],
+  "heard": "Cheat codes, hints, tips? In my day we just got stuck."
+ },
+ "c4.game2.dad": {
+  "ok": false,
+  "mode": "batch",
+  "score": 0.14,
+  "leaked": [],
+  "heard": "Look at that. Wheeler-dealer! Careful, you'll end up on the telly."
+ },
+ "c4.mag.dad": {
+  "ok": false,
+  "mode": "batch",
+  "score": 0,
+  "leaked": [],
+  "heard": "Who's winning?"
+ },
+ "c4.trade.dad": {
+  "ok": false,
+  "mode": "batch",
+  "score": 0,
+  "leaked": [],
+  "heard": "No, don't tell me. I'll be disappointed either way."
+ },
+ "c4.tourney.dad": {
+  "ok": false,
+  "mode": "batch",
+  "score": 0,
+  "leaked": [],
+  "heard": "A hundred and ninety-nine pounds for a games machine? I want a holiday thrown in for that."
+ },
+ "c4.dd.dad": {
+  "ok": false,
+  "mode": "batch",
+  "score": 0,
+  "leaked": [],
+  "heard": "It does the internet too? Does it do my tax return?"
+ },
+ "c4.dd.dad2": {
+  "ok": false,
+  "mode": "batch",
+  "score": 0.15,
+  "leaked": [],
+  "heard": "No pity"
+ },
+ "c4.dd.unbox.dad": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "That's one big box. It's like a fridge."
+ },
+ "c4.dd.setup.dad": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "The phone lead goes in the back, that's the modem. Don't ring a premium number"
+ },
+ "c4.hal.dad": {
+  "ok": true,
+  "mode": "batch",
+  "score": 0.92,
+  "leaked": [],
+  "heard": "All right, pumpkin. How hard can it be? Mind your fingers now."
+ },
+ "c4.hal.dad.carve": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Is it supposed to look like that? Maybe it's meant to be scary because it is."
+ },
+ "c4.hal.treat.dad": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "What? I'm checking quality."
+ },
+ "c4.hal.night": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.bon.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.bon.dad2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.bon.end": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.xmas.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.xmas.list.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.xmas.carol.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.xmas.eve.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.xmas.morn.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.mill.dad": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.mill.dad2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.mill.count": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "c4.mill.dad.cheer": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 10 != lines 13"
+ },
+ "bark.dad.tea1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.tea2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.tea3": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.line1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.line2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.line3": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.tv1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.tv2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.tv3": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.mess1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.mess2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.bed1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.school1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 7 != lines 13"
+ },
+ "bark.dad.wknd1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 17 != lines 11"
+ },
+ "bark.dad.wknd2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 17 != lines 11"
+ },
+ "bark.dad.wknd3": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 17 != lines 11"
+ },
+ "bark.dad.cut1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 17 != lines 11"
+ },
+ "bark.dad.cut2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 17 != lines 11"
+ },
+ "bark.dad.react.garden": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 17 != lines 11"
+ },
+ "bark.dad.react.gnome": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 17 != lines 11"
+ },
+ "bark.dad.react.joke": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 17 != lines 11"
+ },
+ "bark.dad.react.pc": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 17 != lines 11"
+ },
+ "chore.saturday": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 17 != lines 11"
+ },
+ "chore.weekly.give": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 17 != lines 11"
+ },
+ "c4.xmas.gran": {
+  "ok": false,
+  "mode": "batch",
+  "score": 0.93,
+  "leaked": [
+   "delighted"
+  ],
+  "heard": "delighted. Hello, my darlings! Merry Christmas! Look at you all, you've grown a foot!"
+ },
+ "c4.xmas.gran2": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "I've brought mince pies and a bit of everything and a little something for the stocking."
+ },
+ "c4.xmas.gran3": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "What's that? The internet? Does it do crosswords?"
+ },
+ "c4.xmas.gran4": {
+  "ok": true,
+  "mode": "batch",
+  "score": 0.95,
+  "leaked": [],
+  "heard": "Games machine? In my day we had a ball and a bit of string, and we were grateful."
+ },
+ "c4.mill.gran": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Happy New Year my darlings. I've seen the fireworks on the television. Aren't they lovely?"
+ },
+ "bark.gran.hello": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Hello, my darlings. It's only me. Don't get up."
+ },
+ "bark.gran.hug": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "give your gran a cuddle Let me look at you Aren't you tall"
+ },
+ "bark.gran.coin": {
+  "ok": true,
+  "mode": "batch",
+  "score": 0.93,
+  "leaked": [],
+  "heard": "Here, here's a little something, don't tell your mother, spend it on something sensible."
+ },
+ "bark.gran.plant": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Ah, my spider plant. You've kept it going, good. It likes a chat."
+ },
+ "bark.gran.tea": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "I'll have a cup of tea and a biscuit or three"
+ },
+ "bark.gran.pc": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Is that a typewriter with a television? Whatever next!"
+ },
+ "bark.gran.bye": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Right, I'll be off. Be good for your mother. Ta-ta."
+ },
+ "c1.wake.mom.call": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 9"
+ },
+ "c1.wake.mom.shout": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 9"
+ },
+ "bark.mom.tea1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 9"
+ },
+ "bark.mom.tea2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 9"
+ },
+ "bark.mom.line3": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 9"
+ },
+ "bark.mom.mess1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 9"
+ },
+ "bark.mom.bed2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 9"
+ },
+ "bark.mom.school1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 9"
+ },
+ "bark.mom.gran": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 9"
+ },
+ "c1.wake.mom.room": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.mom.up": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.mom.give": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.mom.give2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.mom.leave": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.tidy.hint": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.tidy.done": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.bed.give": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.bed.done": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.bin.give": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.bin.done": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.car.engine": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.mom.carry": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 8 != lines 13"
+ },
+ "c1.mom.carry2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c1.logon.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.coin": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.coin2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.sell.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.order.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.post.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.carry.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.play.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c2.phone.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c3.ask.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c3.ask.mom2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c3.ask.mom.yes": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "c3.mag.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c3.run.trip": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c3.run.landing": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c3.isp.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c3.dial.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c3.hangup.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c3.bill.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c3.end.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c4.start.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c4.game2.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c4.trade.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c4.tourney.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c4.tourney.end": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 3 != lines 13"
+ },
+ "c4.dd.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.dd.mom.deal": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.dd.mom.deal2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.dd.mom.no": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.dd.shop": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.dd.unbox.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.dd.mom.end": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.hal.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.hal.treat": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.hal.treat.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.bon.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.bon.mom2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.xmas.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 1 != lines 13"
+ },
+ "c4.xmas.list.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "c4.xmas.carol": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "c4.xmas.eve": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "c4.xmas.morn.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "c4.xmas.thanks": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "c4.mill.mom": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "c4.mill.mom.yes": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "c4.mill.mom.cheer": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "bark.mom.tea3": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "bark.mom.tea4": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "bark.mom.tea5": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "bark.mom.line1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "bark.mom.line2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 20 != lines 13"
+ },
+ "bark.mom.tv1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.tv2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.mess2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.mess3": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.mess4": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.bed1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.bed3": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.school2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.school3": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.wknd1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.wknd2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.cut1": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.cut2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 2 != lines 13"
+ },
+ "bark.mom.react.praise": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "bark.mom.react.nag": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "bark.mom.react.cat": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "bark.mom.react.hoover": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "bark.mom.react.phone": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "chore.rate.95a": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "chore.rate.95b": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "chore.rate.95c": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "chore.rate.85a": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "chore.rate.85b": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "chore.rate.85c": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "chore.rate.70a": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "chore.rate.70b": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 13"
+ },
+ "chore.rate.70c": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Was that so hard? Don't answer that."
+ },
+ "chore.rate.0a": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Hmm, I'll be checking that."
+ },
+ "chore.rate.0b": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "did you actually do it, or just move it about"
+ },
+ "chore.oops": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Oh, careful! That's the good dish."
+ },
+ "chore.streak": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "A bonus. You've done it every day this week. I'm impressed."
+ },
+ "chore.allfour": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "All four done? Well, here's a little extra for you."
+ },
+ "chore.tidy.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Your room, please. Clothes in the basket, rubbish in the bin, plates down to the kitchen."
+ },
+ "chore.tidy.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 0.8,
+  "leaked": [],
+  "heard": "The carpet's visible again. Marvelous."
+ },
+ "chore.bed.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Make that bed, pillow, pyjamas, duvet, properly."
+ },
+ "chore.bed.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Lovely. Looks like a hotel. A cheap one."
+ },
+ "chore.bin.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "the bin in your room, down to the kitchen, before it walks"
+ },
+ "chore.bin.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Thank you. Smell that? That's fresh air."
+ },
+ "chore.cat.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Next door's cat is on your bed again. Feed it and then please remove it."
+ },
+ "chore.cat.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "There. Fed and happy. Now it's going to want a cuddle."
+ },
+ "chore.plant.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Gran's spider plant needs a drink, water it, and talk to it. Gran says it helps."
+ },
+ "chore.plant.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "It looks greener already. Gran would be proud."
+ },
+ "chore.washup.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "the washing-up please hot water a squirt of liquid and the pans too"
+ },
+ "chore.washup.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Not a plate left. You're a lifesaver."
+ },
+ "chore.table.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Lay the table for tea, please. Four places. And the ketchup for your father."
+ },
+ "chore.table.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Perfect, everything in the right place, for once."
+ },
+ "chore.shopping.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "The shopping needs putting away. Fridge, freezer, cupboard, not your bedroom."
+ },
+ "chore.shopping.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Everything where it belongs, and the carrier bags folded. A miracle."
+ },
+ "chore.bins.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "The kitchen bin needs taking out round the back to the wheelie bin and a new bag in"
+ },
+ "chore.bins.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Thank you. The kitchen smells better already."
+ },
+ "chore.hoover.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "The hoover's in the cupboard under the stairs. Every crumb, please."
+ },
+ "chore.hoover.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Spotless. You can see the stripes."
+ },
+ "chore.videos.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "The videos are all over the floor. Back on the shelf. And rewind them. Be kind."
+ },
+ "chore.videos.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "That's better. I can find the film I want now."
+ },
+ "chore.cushions.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "The cushions, please. Plump them. On their corners, like diamonds."
+ },
+ "chore.cushions.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "like diamonds very good"
+ },
+ "chore.car.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Your father's car is a disgrace. Bucket, sponge, rinse. Watch out for the pigeon."
+ },
+ "chore.car.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "It's shining. Your father will be thrilled, and suspicious."
+ },
+ "chore.lawn.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "The front lawn, straight stripes, please. Mind the cable. Mind the gnome."
+ },
+ "chore.lawn.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "Stripes like a cricket pitch. Very smart."
+ },
+ "chore.sweep.give": {
+  "ok": true,
+  "mode": "batch",
+  "score": 1,
+  "leaked": [],
+  "heard": "The drive's covered in leaves. Brush them up. Dustpan, dustbin."
+ },
+ "chore.sweep.done": {
+  "ok": true,
+  "mode": "batch",
+  "score": 0.88,
+  "leaked": [],
+  "heard": "Lovely and tidy. The neighbors will be jealous."
+ },
+ "c1.lad.sis.in": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c1.lad.sis.no": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c1.lad.sis.out": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c1.sis.stairs": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c1.sis.stairs2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c1.logon.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c2.sell.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c2.sell.sold": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c2.post.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c2.unbox.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c2.play.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c3.cable.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 13 != lines 12"
+ },
+ "c3.mag.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ },
+ "c3.run.trip.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ },
+ "c3.dial.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ },
+ "c4.mag.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ },
+ "c4.tourney.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ },
+ "c4.dd.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ },
+ "c4.dd.parcel": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ },
+ "c4.dd.first": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ },
+ "c4.hal.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ },
+ "c4.hal.night2": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ },
+ "c4.bon.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ },
+ "c4.xmas.sis": {
+  "ok": false,
+  "mode": "batch",
+  "err": "segments 14 != lines 12"
+ }
+}

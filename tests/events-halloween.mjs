@@ -104,6 +104,7 @@ try{
  await page.waitForTimeout(1200);
  await aim([-20,GY-EYE,265],[-45,GY-88,174]);await key('e');await until(()=>House.held()==='hw.lantern');
  await aim([264,GY-EYE,1240],[231.5,GY-124,1295]);await key('e'); // the gatepost by the front gate (House.FRONT.PIERS[0], PIER_TOP)
+
  await until(()=>!!Season.st('halloween99').obj['hw-pumpkin']);
  assert.equal((await st()).paid['hw-pumpkin'],20,'pumpkin paid 20');
  log('carving: ok');

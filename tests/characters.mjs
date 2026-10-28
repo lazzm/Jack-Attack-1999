@@ -4,7 +4,7 @@
 // paying anything herself, bumping into them, stepping aside, refresh keeping everyone in place, planted feet, the draw
 // call cost, and the story's first in-person scene (Mom gives the first jobs). Screenshots: tests/shots/characters/.
 // Starts and stops its own server on a free port with throwaway data, like smoke.mjs.
-//   node characters.mjs [--only=routines|day|talk|bump|refresh|feet|draws|story|entrance|interrupt|shots] [--keep]
+//   node characters.mjs [--only=routines,day,talk,bump,refresh,feet,draws,story,entrance,interrupt,loop,space,budget,hips,hip-motion,shots] [--keep]
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {mkdtemp, mkdir, rm} from 'node:fs/promises';
@@ -36,7 +36,7 @@ async function stopServer() {
 for (const sig of ['SIGINT', 'SIGTERM']) process.once(sig, async () => { await stopServer(); process.exit(130); });
 async function register(name) { const r = await fetch(base + '/admin/register', { method: 'POST', headers: { 'x-admin-token': 'testtoken', 'content-type': 'application/json' }, body: JSON.stringify({ name, pass }) }); assert.equal(r.status, 200, 'register ' + name); }
 async function check(name, fn) {
-  if (only && only !== name) return;
+  if (only && !only.split(',').includes(name)) return;
   const t0 = Date.now();
   try { await fn(); results.push([name, true]); console.log(`PASS ${name} (${((Date.now() - t0) / 1000).toFixed(0)}s)`); }
   catch (e) { results.push([name, false]); console.log(`FAIL ${name}: ${String(e.stack || e).split('\n').slice(0, 4).join(' | ')}`); }
@@ -113,11 +113,16 @@ try {
     const { browser, page, errors } = await veteran();
     try {
       const r = await page.evaluate(() => {
-        const F = HouseFamily, H = House, NV = NPCNav, out = { bad: [], dwell: {}, stuck: {}, opened: 0, shut: 0, min: 99, ticks: 0 };
+        const F = HouseFamily, H = House, NV = NPCNav, out = { bad: [], overlaps: [], dwell: {}, stuck: {}, opened: 0, shut: 0, min: 99, ticks: 0 };
         H.on('door', (id, open) => { if (open) out.opened++; else out.shut++; });
         const dw = {}, prev = {};
         const check = d => {
           out.ticks++;
+          for(let i=0;i<d.length;i++)for(let j=i+1;j<d.length;j++){
+            const a=d[i],b=d[j];if(!a.present||!b.present||a.lvl!==b.lvl||[a,b].some(c=>c.seated||c.sitting||c.step==='line'))continue;
+            const gap=({mom:22,dad:25,sister:18})[a.id]+({mom:22,dad:25,sister:18})[b.id],distance=Math.hypot(a.x-b.x,a.z-b.z);
+            if(distance<gap-1&&out.overlaps.length<12)out.overlaps.push([a.id,b.id,distance,a.x,a.z,b.x,b.z,a.step,b.step]);
+          }
           for (const c of d) {
             if (!c.present) continue;
             const st = F.chars[c.id], k = st.cur?.k || prev[c.id] || null; prev[c.id] = k;
@@ -128,7 +133,7 @@ try {
               const shut = Object.values(H.DOORS).find(D => !D.open && !D.always && D.closedBounds && D.rooms.some(r => H.ROOMS[r].lvl === c.lvl) && c.x > D.closedBounds.x0 - 8 && c.x < D.closedBounds.x1 + 8 && c.z > D.closedBounds.z0 - 8 && c.z < D.closedBounds.z1 + 8);
               if ((cl < 18 || shut) && out.bad.length < 20) out.bad.push([c.id, c.x, c.z, c.lvl, k, Math.round(cl), shut?.id || null]);
             }
-            if (k === 'route' && Math.abs(c.v) < 5) { st.__stuck = (st.__stuck || 0) + 0.1; if (st.__stuck > 5 && st.__stuck < 5.11 && st.cur) { out.why = out.why || []; out.why.push([c.id, Math.round(c.x), Math.round(c.z), st.cur.why, st.cur.s | 0, st.cur.r && st.cur.r.len | 0, st.cur.r && st.cur.r.doors.map(q => q.id + ':' + (q.s0 | 0) + ':' + H.DOORS[q.id].open).join(' '), JSON.stringify(st.cur.to)]); } if (st.__stuck > (out.stuck[c.id] || 0)) { out.stuck[c.id] = st.__stuck; out.stuckAt = out.stuckAt || {}; const cu = st.cur || {}; out.stuckAt[c.id] = [c.x, c.z, c.lvl, c.goal, F.debug.want(c.id), st.hold, st.talking, st.present, st.cur ? st.cur.k : 'nocur', st.plan.map(p => p.k).join('>'), st.hold, st.talking, cu.s, cu.r && cu.r.len, cu.r && cu.r.doors.map(d => d.id + ':' + Math.round(d.s0) + ':' + H.DOORS[d.id].open).join(' '), cu.blocked, cu.why, d.filter(o => o.present && o.id !== c.id).map(o => o.id + '@' + Math.round(o.x) + ',' + Math.round(o.z)).join(' '), Math.round(H.W.x) + ',' + Math.round(H.W.z) + H.W.lvl]; } } else st.__stuck = 0;
+            if (k === 'route' && Math.abs(c.v) < 5) { st.__stuck = (st.__stuck || 0) + 0.1; if (st.__stuck > 5 && st.__stuck < 5.11 && st.cur) { out.why = out.why || []; out.why.push([c.id, Math.round(c.x), Math.round(c.z), st.cur.why, st.cur.s | 0, st.cur.r && st.cur.r.len | 0, st.cur.r && st.cur.r.doors.map(q => q.id + ':' + (q.s0 | 0) + ':' + H.DOORS[q.id].open).join(' '), JSON.stringify(st.cur.to),d.filter(o=>o.id!==c.id&&o.present).map(o=>({id:o.id,x:o.x,z:o.z,v:o.v,cur:F.chars[o.id].cur?.k,goal:F.chars[o.id].goal?.key,aside:F.chars[o.id].aside,asideFor:F.chars[o.id].asideFor?.id,hit:F.chars[o.id].cur?.hit}))]); } if (st.__stuck > (out.stuck[c.id] || 0)) { out.stuck[c.id] = st.__stuck; out.stuckAt = out.stuckAt || {}; const cu = st.cur || {}; out.stuckAt[c.id] = [c.x, c.z, c.lvl, c.goal, F.debug.want(c.id), st.hold, st.talking, st.present, st.cur ? st.cur.k : 'nocur', st.plan.map(p => p.k).join('>'), st.hold, st.talking, cu.s, cu.r && cu.r.len, cu.r && cu.r.doors.map(d => d.id + ':' + Math.round(d.s0) + ':' + H.DOORS[d.id].open).join(' '), cu.blocked, cu.why, d.filter(o => o.present && o.id !== c.id).map(o => o.id + '@' + Math.round(o.x) + ',' + Math.round(o.z)).join(' '), Math.round(H.W.x) + ',' + Math.round(H.W.z) + H.W.lvl, d.filter(o=>o.present&&o.id!==c.id).map(o=>({id:o.id,cur:F.chars[o.id].cur?.k,goal:F.chars[o.id].goal?.key,aside:F.chars[o.id].aside,asideFor:F.chars[o.id].asideFor?.id,v:o.v}))]; } } else st.__stuck = 0;
             let inDoor = null;
             for (const D of Object.values(H.DOORS)) { const b = D.closedBounds; if (b && !D.always && c.x > b.x0 - 25 && c.x < b.x1 + 25 && c.z > b.z0 - 25 && c.z < b.z1 + 25 && D.rooms.some(r => H.ROOMS[r].lvl === c.lvl)) inDoor = D.id; }
             if (inDoor && Math.abs(c.v) < 5) { dw[c.id] = (dw[c.id] || 0) + 0.1; if (dw[c.id] > (out.dwell[c.id] || 0)) { out.dwell[c.id] = dw[c.id]; out.where = out.where || {}; out.where[c.id] = [inDoor, c.x, c.z, k, c.goal]; } } else dw[c.id] = 0;
@@ -139,7 +144,8 @@ try {
         F.debug.clock(null);
         return out;
       });
-      console.log(`  day: ${r.ticks} person-ticks, min clearance ${r.min.toFixed(1)} cm, doors opened ${r.opened} / shut ${r.shut}, doorway dwell ${JSON.stringify(r.dwell)}, longest wait ${JSON.stringify(r.stuck)} ${JSON.stringify(r.stuckAt || {})} WHY ${JSON.stringify(r.why || [])} ${JSON.stringify(r.where || {})}`);
+      console.log(`  day: ${r.ticks} simulation ticks, min clearance ${r.min.toFixed(1)} cm, doors opened ${r.opened} / shut ${r.shut}, doorway dwell ${JSON.stringify(r.dwell)}, longest wait ${JSON.stringify(r.stuck)} ${JSON.stringify(r.stuckAt || {})} WHY ${JSON.stringify(r.why || [])} ${JSON.stringify(r.where || {})}`);
+      assert.deepEqual(r.overlaps, [], 'Routine bodies overlapped: '+JSON.stringify(r.overlaps));
       assert.deepEqual(r.bad, [], 'Walked into a wall, furniture or a shut door: ' + JSON.stringify(r.bad));
       assert(r.opened >= 3 && r.shut >= 2, 'Doors opened and shut behind them');
       for (const [id, s] of Object.entries(r.stuck)) assert(s < 12, id + ' stood stuck on the way for ' + s.toFixed(1) + ' s');
@@ -157,9 +163,9 @@ try {
       await page.evaluate(() => { window.__sent = []; const s = Net.send; Net.send = m => { __sent.push(m.t); return s(m); }; });
       await page.keyboard.press('f');
       // (read it in the same moment it's seen: under heavy load the line can finish between two round trips)
-      const said = await (await page.waitForFunction(() => { const c = HouseFamily.debug.speech.cur; return c && { id: c.lineId, line: NPCLines[c.lineId][1], who: c.c.id, person: c.person, note: document.querySelector('.hs-note.on')?.textContent || '', talking: HouseFamily.chars.mom.rig.talking }; }, null, { timeout: 15000 * SCALE })).jsonValue();
+      const said = await (await page.waitForFunction(() => { const c = HouseFamily.debug.speech.cur; return c && { id: c.lineId, line: NPCLines[c.lineId][1], who: c.c.id, person: c.person, note: (window.NPCBubble?.live || []).find(b => b.key === 'mom')?.text || document.querySelector('.hs-note.on')?.textContent || '', talking: HouseFamily.chars.mom.rig.talking }; }, null, { timeout: 15000 * SCALE })).jsonValue();
       assert.equal(said.who, 'mom'); assert(said.person, 'Said in person'); assert(said.talking, 'Her lips move');
-      assert(said.note.includes(said.line.slice(0, 20)), 'Subtitle shows the scripted line: ' + said.note);
+      assert(said.note.includes(said.line.slice(0, 20)), 'Her speech bubble (or the subtitle box) shows the scripted line: ' + said.note);
       assert(/^chore\.\w+\.give$|^chore\.allfour$|^bark\.mom\./.test(said.id), 'Mom hands out a job (or praise): ' + said.id);
       // (people v2: the mouth is painted; talking swaps the mouth frames in the face atlas)
       const mouth = await page.evaluate(async () => { const r = HouseFamily.chars.mom.rig, s = [], f = new Set(); for (let i = 0; i < 12; i++) { s.push(r.st.mouth); f.add(r.face.mouth); await new Promise(q => setTimeout(q, 90)); } return { s, frames: [...f] }; });
@@ -266,9 +272,12 @@ try {
       const without = await measure();
       await page.evaluate(() => HouseFamily.debug.hide(false));
       const extra = withFam.calls - without.calls, tris = withFam.triangles - without.triangles;
+      const perPerson = await page.evaluate(() => Object.fromEntries(Object.entries(HouseFamily.chars).map(([id, c]) => [id, c.rig.tris+(c.rig.shadow.geometry.index?.count||c.rig.shadow.geometry.attributes.position.count)/3])));
+      console.log('  per-person Low triangles: ' + JSON.stringify(perPerson));
+      for (const [id, count] of Object.entries(perPerson)) assert(count <= 3000, id + ' exceeds the Low/Potato 3k triangle budget: ' + count);
       console.log(`  draws: kitchen at tea time ${withFam.calls} calls with the family, ${without.calls} without (+${extra}); +${tris} triangles (low tier)`);
       assert(extra <= 6, 'Each person costs at most two draw calls: +' + extra);
-      assert(tris <= 3 * 3200, 'Triangle budget (people v2: about 3k each on Low, docs/PEOPLE.md): +' + tris);
+      assert(tris <= 3 * 3000, 'Triangle budget (people v2: about 3k each on Low, docs/PEOPLE.md): +' + tris);
       await shot(page, 'kitchen-tea-low');
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
@@ -368,7 +377,8 @@ try {
           return { p, seated: !!c.seated, act: c.rig.st.action };
         }, { id, spot, act });
         await page.waitForTimeout(500);
-        await page.evaluate(id => HouseFamily.talk(id), id);
+        // Test each pose with a fresh line; cooldown/history behavior has its own regressions.
+        await page.evaluate(id => { HouseFamily.chars[id].said = {}; HouseFamily.talk(id); }, id);
         await page.waitForTimeout(2200);
         const m = await page.evaluate(({ id }) => {
           const c = HouseFamily.chars[id], rig = c.rig, W = new THREE.Vector3(), pl = House.W;
@@ -409,6 +419,167 @@ try {
       await page.evaluate(() => { for (const id of ['mom', 'dad', 'sister']) HouseFamily.debug.go(id, null); HouseFamily.debug.clock(null); });
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
+  });
+
+  // ---------------------------------------------------------------- R104: Dad coming up to Jack's room while you stand by the door
+  // (owner, 28 October: Dad parked in the open doorway repeating the same joke; Mom repeating too). Scene lines play once,
+  // no line repeats within a minute however often you press F, nobody idles in the doorway, you can walk out in 10 s.
+  await check('loop', async () => {
+    const { browser, page, errors } = await veteran();
+    try {
+      await page.evaluate(() => { const F = HouseFamily; F.debug.clock({ md: 1012, dow: 2, t: 18.1 }); F.debug.go('mom', 'hob'); F.debug.place('mom', 'hob'); F.debug.go('sister', 'sofaR'); F.debug.place('sister', 'sofaR'); F.debug.sim(2, 0.1); });
+      await look(page, [212, 73 - 128, 186], [100, 73 - 130, 186], 'U');
+      await page.evaluate(() => { const S = HouseFamily.debug.speech; let last = null; window.__said = []; window.__sayT = setInterval(() => { const c = S.cur; if (c && c !== last) { last = c; window.__said.push({ who: c.c.id, id: c.lineId, t: Date.now() }); } }, 60); });
+      await page.evaluate(() => HouseFamily.debug.scene('dad', 'bedDad'));
+      const t0 = Date.now();
+      while (Date.now() - t0 < 45000 * SCALE) { // (pressing F at him every few seconds, the way you would to get past)
+        await page.waitForTimeout(2500);
+        await page.evaluate(() => { const d = HouseFamily.chars.dad; if (d.present && d.lvl === 'U' && Math.hypot(d.x - House.W.x, d.z - House.W.z) < 260) HouseFamily.talk('dad'); });
+      }
+      const said = await page.evaluate(() => { clearInterval(window.__sayT); return window.__said; });
+      const rep = said.filter((a, i) => said.some((b, j) => j < i && b.who === a.who && b.id === a.id && a.t - b.t < 60000));
+      const dad = await page.evaluate(() => { const d = HouseFamily.chars.dad, b = House.DOORS.bedroom.closedBounds; return { x: d.x, z: d.z, lvl: d.lvl, inDoor: d.x > b.x0 - 12 && d.x < b.x1 + 12 && d.z > b.z0 - 12 && d.z < b.z1 + 12, held: HouseFamily.doorHeld(), hold: d.hold, step: d.cur?.k, goal: d.goal?.key, entrance: HouseFamily.debug.entrance().dad, door: House.DOORS.bedroom.open }; });
+      console.log('  Dad scene state: ' + JSON.stringify(dad));
+      console.log(`  loop: ${said.length} lines (${said.map(s => s.who + ':' + s.id).join(', ')}); Dad at ${Math.round(dad.x)},${Math.round(dad.z)} in the doorway: ${dad.inDoor}`);
+      await shot(page, 'loop-dad-in-room');
+      await look(page, [-40, 73 - 128, 120], [dad.x, 73 - 140, dad.z], 'U');
+      await shot(page, 'loop-dad-oblique');
+      for (const [width, height] of [[390, 844], [844, 390], [768, 1024], [1024, 768]]) {
+        await page.setViewportSize({ width, height }); await page.waitForTimeout(350);
+        await shot(page, `loop-dad-${width}x${height}`);
+      }
+      await page.setViewportSize({ width: 1366, height: 860 });
+      assert.deepEqual(rep.map(r => r.who + ':' + r.id), [], 'A line repeated within a minute');
+      assert(!dad.inDoor, 'Dad is not standing about in the doorway: ' + JSON.stringify(dad));
+      assert(!dad.held, 'Nothing holds you in');
+      // walk out of the room onto the landing
+      await look(page, [212, 73 - 128, 186], [330, 73 - 128, 186], 'U');
+      await page.keyboard.down('w'); let out = false;
+      for (let i = 0; i < 40 && !out; i++) { await page.waitForTimeout(250); out = await page.evaluate(() => House.W.x > 262); }
+      await page.keyboard.up('w');
+      assert(out, 'You can walk out of your room within 10 s: ' + JSON.stringify(await page.evaluate(() => [House.W.x, House.W.z])));
+      await look(page, [-40, 73 - 128, 120], [-160, 73 - 128, 120], 'U');
+      await page.evaluate(() => HouseFamily.debug.sim(30, 0.1));
+      const arrived = await page.evaluate(() => HouseFamily.debug.dump().find(c => c.id === 'dad'));
+      assert(arrived.room === 'bedroom' && arrived.step === 'act', 'Dad completes his entrance once you give him room: ' + JSON.stringify(arrived));
+      await look(page, [-40, 73 - 128, 205], [arrived.x, 73 - 140, arrived.z], 'U');
+      await shot(page, 'loop-dad-arrived');
+      await page.evaluate(() => { HouseFamily.debug.scene('dad', null); for (const id of ['mom', 'dad', 'sister']) HouseFamily.debug.go(id, null); HouseFamily.debug.clock(null); });
+      assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+  });
+
+  // ---------------------------------------------------------------- R99: people passing each other in the kitchen and hall
+  await check('space', async () => {
+    const { browser, page, errors } = await veteran();
+    try {
+      const r = await page.evaluate(() => {
+        const F = HouseFamily, radii = {mom:22,dad:25,sister:18}, out = {min:999, overlaps:[], stuck:0, arrivals:[]};
+        F.debug.clock({md:1012,dow:2,t:18.1});
+        for (const [id, spot] of [['mom','hob'],['sister','kmug2'],['dad','gardenLook']]) { F.debug.go(id,spot); F.debug.place(id,spot); }
+        F.debug.sim(3,.1);
+        const sample = states => {
+          const present = states.filter(c => c.present);
+          for(let i=0;i<present.length;i++)for(let j=i+1;j<present.length;j++){
+            const a=present[i],b=present[j];if(a.lvl!==b.lvl)continue;
+            const distance=Math.hypot(a.x-b.x,a.z-b.z),need=radii[a.id]+radii[b.id];
+            out.min=Math.min(out.min,distance-need);
+            if(distance<need-1&&out.overlaps.length<12)out.overlaps.push([a.id,b.id,distance,need, out.phase, ...[a,b].map(c=>({state:c,route:F.chars[c.id].cur&&{k:F.chars[c.id].cur.k,s:F.chars[c.id].cur.s,hit:F.chars[c.id].cur.hit,why:F.chars[c.id].cur.why}}))]);
+          }
+          for(const c of present){const live=F.chars[c.id];live.__wait=c.step==='route'&&c.v<5?(live.__wait||0)+.1:0;if(live.__wait>out.stuck){out.stuck=live.__wait;out.stuckAt={id:c.id,phase:out.phase,hit:live.cur?.hit,states};}}
+        };
+        out.phase='kitchen-out';F.debug.go('dad','hallPost');F.debug.sim(75,.1,sample);out.arrivals.push(F.debug.dump().find(c=>c.id==='dad'));
+        out.phase='kitchen-back';F.debug.go('dad','gardenLook');F.debug.go('sister','kmug1');F.debug.sim(75,.1,sample);out.arrivals.push(F.debug.dump().find(c=>c.id==='dad'));
+        for(const [id,spot]of [['dad','hallPost'],['sister','hallYoyo']]){F.debug.go(id,spot);F.debug.place(id,spot);}F.debug.sim(2,.1);
+        out.phase='hall-cross';F.debug.go('dad','hallYoyo');F.debug.go('sister','hallPost');F.debug.sim(90,.1,sample);
+        out.arrivals.push(...F.debug.dump().filter(c=>c.id!=='mom'));
+        return out;
+      });
+      console.log('  personal space: '+JSON.stringify(r));
+      assert.deepEqual(r.overlaps,[],'Family bodies overlapped');
+      assert(r.stuck<12,'Person-person avoidance left someone waiting: '+r.stuck);
+      assert(r.arrivals.every((c,i)=>c.step==='act'&&c.goal===['debug.hallPost','debug.gardenLook','debug.hallYoyo','debug.hallPost'][i]),'Someone never reached their destination: '+JSON.stringify(r.arrivals));
+      await look(page,[300,353-128,500],[250,353-100,420],'G');await shot(page,'space-hall-after');
+      assert.deepEqual(errors,[]);
+    } finally { await browser.close(); }
+  });
+
+  await check('budget', async () => {
+    const {browser,page,errors}=await veteran();
+    try {
+      const counts=await page.evaluate(()=>{
+        const out={};
+        for(const tier of ['low','potato'])for(const kind of Object.keys(NPCRig.OUTFITS))for(const outfit of NPCRig.OUTFITS[kind]){
+          const rig=NPCRig.create(kind,{tier,outfit});
+          for(const near of [true,false]){rig.update(.1,near);const g=rig.shadow.geometry;out[[tier,kind,outfit,near?'near':'far'].join('.')]=rig.tris+(g.index?.count||g.attributes.position.count)/3;}
+          rig.dispose();
+        }
+        return out;
+      });
+      console.log('  Low/Potato outfit triangles: '+JSON.stringify(counts));
+      for(const[id,n]of Object.entries(counts))assert(n<=3000,id+' exceeds the 3k budget: '+n);
+      assert.deepEqual(errors,[]);
+    } finally {await browser.close();}
+  });
+
+  // ---------------------------------------------------------------- R102: actual production rigs, all four sides and close hip views
+  await check('hips', async () => {
+    const { browser, page, view, errors } = await veteran({tier:'high'});
+    try {
+      await page.evaluate(() => { HouseFamily.debug.hide(true); House.buildRoom(House.ROOMS.garden); });
+      const fullView = async (eye,target) => { await view(eye,target,{level:'G'}); await page.evaluate(()=>{House.P.zm=(House.P.zm||1)*Math.tan(House.camera.fov*Math.PI/360)/Math.tan(Math.PI/6);House.dirty();});await page.waitForTimeout(250); };
+      for(const id of ['mom','dad','sister']){
+        const height=await page.evaluate(id=>{
+          window.__hipProbe?.dispose();const rig=window.__hipProbe=NPCRig.create(id,{tier:'high',outfit:id==='dad'?'home':undefined});
+          House.ROOMS.garden.group.add(rig.group);rig.floor=()=>353;rig.teleport(-70,353,-330,0);for(let i=0;i<30;i++)rig.update(1/60,true);House.dirty();return rig.S.hip;
+        },id);
+        for(const [name,a]of (process.env.HIP_SIZES_ONLY ? [] : [['front',0],['right',Math.PI/2],['back',Math.PI],['left',-Math.PI/2]])){
+          await fullView([-70+Math.sin(a)*180,353-90,-330+Math.cos(a)*180],[-70,353-90,-330]);
+          await shot(page,'hips-'+id+'-'+name);
+        }
+        await page.evaluate(()=>{House.P.zm=1;House.dirty();});
+        for(const [name,a]of (process.env.HIP_SIZES_ONLY ? [] : [['front',0],['side',Math.PI/2],['back',Math.PI]])){
+          await view([-70+Math.sin(a)*95,353-height,-330+Math.cos(a)*95],[-70,353-height,-330],{level:'G'});
+          await shot(page,'hips-'+id+'-close-'+name);
+        }
+        for(const [w,h]of [[390,844],[844,390],[768,1024],[1024,768]]){
+          await page.setViewportSize({width:w,height:h});await fullView([-70,353-90,-150],[-70,353-90,-330]);await shot(page,`hips-${id}-${w}x${h}`);
+        }
+        await page.setViewportSize({width:1366,height:860});
+      }
+      await page.evaluate(()=>window.__hipProbe.dispose());
+      assert.deepEqual(errors,[]);
+    } finally { await browser.close(); }
+  });
+
+  // Close clothing checks through the production walk cycle and seated blend.
+  await check('hip-motion', async () => {
+    const {browser,page,view,errors}=await veteran({tier:'high'});
+    try {
+      await page.evaluate(()=>{HouseFamily.debug.hide(true);House.buildRoom(House.ROOMS.garden);});
+      for(const id of ['mom','dad','sister']){
+        await page.evaluate(id=>{
+          window.__hipProbe?.dispose();const r=window.__hipProbe=NPCRig.create(id,{tier:'high',outfit:id==='dad'?'home':undefined});
+          House.ROOMS.garden.group.add(r.group);r.floor=()=>353;r.teleport(-70,353,-330,0);r.update(.1,true);window.__hipFrame=0;
+        },id);
+        for(const phase of [15,30]){
+          const h=await page.evaluate(phase=>{
+            const r=window.__hipProbe;for(;window.__hipFrame<phase;window.__hipFrame++){const z=-330+(window.__hipFrame+1)*r.S.speed/60;r.root(-70,353,z,0,r.S.speed);r.update(1/60,true);}House.dirty();return{y:353-r.S.hip,z:r.st.z};
+          },phase);
+          for(const[name,a]of [['front',0],['side',Math.PI/2]]){
+            await view([-70+Math.sin(a)*110,h.y,h.z+Math.cos(a)*110],[-70,h.y,h.z],{level:'G'});await shot(page,`hips-walk-${id}-${phase}-${name}`);
+          }
+        }
+        const h=await page.evaluate(()=>{
+          const r=window.__hipProbe,q=HouseFamily.debug.spots.sofaL.seat;r.teleport(-70,353,-330,0);r.set({seat:{h:q.h,back:q.back,knee:q.knee,table:q.table}});for(let i=0;i<90;i++)r.update(1/60,true);House.dirty();r.group.updateWorldMatrix(true,true);const hands=['L','R'].map(side=>r.group.worldToLocal(r.bones['hand'+side].getWorldPosition(new THREE.Vector3())).x);return {y:353-q.h-18,hands};
+        });
+        assert(h.hands[0]>0&&h.hands[1]<0,id+' crossed hands over the lap: '+h.hands);
+        for(const[name,a]of [['front',0],['side',Math.PI/2]]){
+          await view([-70+Math.sin(a)*130,h.y,-330+Math.cos(a)*130],[-70,h.y,-330],{level:'G'});await shot(page,`hips-seat-${id}-${name}`);
+        }
+      }
+      await page.evaluate(()=>window.__hipProbe.dispose());assert.deepEqual(errors,[]);
+    }finally{await browser.close();}
   });
 
   // ---------------------------------------------------------------- portraits: idle, walking and talking, several angles
