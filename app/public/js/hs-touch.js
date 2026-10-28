@@ -172,6 +172,7 @@
   let coachEl = null;
   function coach(show) {
     if (show) {
+      if (H.held()) { ls.set('jhp_touch_coach', true); return; }
       if (coachEl || ls.get('jhp_touch_coach', false)) return;
       coachEl = document.createElement('div'); coachEl.className = 'ht-coach'; coachEl.setAttribute('role', 'note');
       coachEl.innerHTML = '<div class="ht-coach-card"><b>HOW TO PLAY</b><p><i>LEFT THUMB</i>walk: put it down anywhere on the left and slide it (further to jog)</p><p><i>RIGHT SIDE</i>drag to look round</p><p><i>CLICK THINGS</i>to use them: doors, people, games. The big button uses what is in the middle.</p></div>';

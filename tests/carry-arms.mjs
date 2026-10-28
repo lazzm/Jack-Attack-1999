@@ -47,6 +47,7 @@ try {
       }
       await page.waitForTimeout(700);
       assert.equal(await page.evaluate(() => House.held()), id, 'Input/rotation dropped the held object');
+      assert(!await page.evaluate(() => !!document.querySelector('.ht-coach:not(.bye)')), 'Delayed tutorial covers a held object');
       assert(await page.evaluate(() => __real.scale.distanceTo(__scale) < .00001), 'Resize changed held size');
       assert(await page.evaluate(() => { const r = document.querySelector('.hs-hold').getBoundingClientRect(); return r.bottom < innerHeight / 2; }), 'Touch caption covers the held object');
       await shot(`hold-${id.replaceAll('.', '-')}-${width}x${height}`);
