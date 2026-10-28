@@ -34,8 +34,11 @@ look (the old High: Phong, the five-lamp rig, MSAA, full-resolution mipmapped te
   material, geometry and layers; any change dissolves that batch in the same frame and marks the changed mesh
   unstable (never merged again). Idle-time `maintain` re-batches a room 6 s after a dissolve and adopts late
   additions every 20 s. Also merged: the neighbourhood and the exterior roof. Kill switch: `jhp_hs_nomerge = '1'`.
-- Portal culling: rooms seen only through doorways are drawn when every door aperture on some route is in the camera
-  frustum (`doorOnly`, beside the existing `windowOnly` glass test); the stairwell rule and window sight lines stay.
+- Visibility: open-door connectivity, the stairwell and permanent window sight lines select rooms. Whole-room
+  aperture-frustum rejection is unsafe for this house: room groups also own shared wall faces and window reveals.
+  Keep those rooms intact and let three.js frustum-cull individual meshes and ~3 m static batches. The rendered
+  doorway audit compares this result with mesh frustum rejection disabled, from both sides at three angles.
+- Adaptation, FPS, MSAA and batching debug settings are device-only in roam.js. House pose and inventory still roam.
 
 Results and before/after numbers: see "One look results" at the end of this file.
 
@@ -403,7 +406,7 @@ Caveats: I did not run device benchmarks; every "expected impact" figure is an e
 
 ## One look results (2026-10-28, release review in progress)
 
-First equal-quality, same-session batch/unbatch comparison on the merged 2.57.16 scene,
+Initial equal-quality, same-session batch/unbatch comparison on the merged 2.57.16 scene (before the conservative-visibility correction; final numbers still pending),
 SwiftShader, adaptation rung 0, all doors open, first station in each room:
 
 | View | Unbatched draws | Batched draws |

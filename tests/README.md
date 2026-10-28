@@ -446,7 +446,7 @@ The all-garment review also asserts one visible grip and checks portrait discove
 `node gfx-probe.mjs http://localhost:PORT` compares batched and unbatched draw counts
 in the same session and requires a reduction in every room.
 `node gfx-integrity.mjs http://localhost:PORT` checks GPU image equivalence (including
-mirrored geometry), then captures all rooms at 09:00, 13:00, 19:00 and 23:00, plus
+mirrored geometry), compares doorway images with mesh frustum rejection disabled, then captures all rooms at 09:00, 13:00, 19:00 and 23:00, plus
 wide desktop and portrait/landscape phone/tablet lighting views. Review
 `shots/gfx-lighting/` visually. `node static-batch-unit.cjs` covers geometry, material,
 visibility, transform and parent changes and preserves picking of original meshes.

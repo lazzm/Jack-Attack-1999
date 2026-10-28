@@ -1515,10 +1515,10 @@
     G.rbox(0, -1.3, 0, 7.8, 2.6, 13.3, 0.9, m); // the body (7.8 x 13.3 cm, 2.6 thick)
     G.rbox(0, -2.7, -3.25, 6.8, 0.38, 6, 0.18, M({ c: '#2a2a34', sh: 70, sp: '#666' }));
     R.gbScreen = G.geo(crtGlass(4.6, 4.14, 0.05, 0.025), 0, -2.97, -3.5, new T.MeshBasicMaterial({ color: '#83956c' }), { rx: 90 });
-    G.plane(0, -3.02, -5.85, 4, 0.5, M({ c: '#fff', map: K.tex('rm.gblogo', 128, 16, (gg) => { gg.fillStyle = '#2a2a34'; gg.fillRect(0, 0, 128, 16); A.text(gg, 'GAME LAD COLOR', 64, 12, '700 11px ' + A.UIF, '#c8c8d8', 'center'); }) }), { rx: 90 });
+    G.plane(0, -3.02, -5.85, 4, 0.5, M({ c: '#fff', map: K.tex('rm.gblogo', 512, 64, (gg) => { gg.fillStyle = '#2a2a34'; gg.fillRect(0, 0, 512, 64); A.text(gg, 'GAME LAD COLOR', 256, 48, '700 44px ' + A.UIF, '#c8c8d8', 'center'); }), pr: 1 }), { rx: 90 });
     G.box(-2.2, -2.9, 2.4, 2.2, 0.5, 0.7, M({ c: '#222', sh: 20 })); G.box(-2.2, -2.9, 2.4, 0.7, 0.5, 2.2, M({ c: '#222', sh: 20 })); // the D-pad cross
     G.cyl(1.6, -2.95, 2.9, 0.62, 0.62, 0.5, 12, M({ c: '#b02060', sh: 60, sp: '#fff' })); G.cyl(3.0, -2.95, 2.2, 0.62, 0.62, 0.5, 12, M({ c: '#b02060', sh: 60, sp: '#fff' })); // B and A
-    G.plane(1.6, -2.65, 3.75, 0.5, 0.5, M({ c: '#fff', map: K.tex('rm.gbB', 16, 16, (gg) => { gg.fillStyle = '#6a3fb0'; gg.fillRect(0, 0, 16, 16); A.text(gg, 'B', 8, 13, '700 12px ' + A.UIF, '#ddd', 'center'); }) }), { rx: 90 });
+    for (const [letter,x,z] of [['B',1.6,3.82],['A',3,3.12]]) G.plane(x, -2.65, z, 0.5, 0.5, M({ c: '#fff', map: K.tex('rm.gb'+letter, 64, 64, (gg) => { gg.fillStyle = '#6a3fb0'; gg.fillRect(0, 0, 64, 64); A.text(gg, letter, 32, 52, '700 48px ' + A.UIF, '#ddd', 'center'); }), pr: 1 }), { rx: 90 });
     [-1, 0.2].forEach((x, i) => G.rbox(x, -2.75, 5.1, 1.4, 0.3, 0.5, 0.2, M('#4a2a88'), { ry: -25 })); // select / start, slanted
     for (let r = 0; r < 5; r++) for (let c = 0; c < 2; c++) G.cyl(2.3 + c * 0.6 - r * 0.25, -2.65, 4.3 + r * 0.42, 0.14, 0.14, 0.2, 6, M('#3a1a68')); // the speaker holes
     G.box(0, -0.6, -6.5, 2.6, 0.3, 0.6, M('#4a2a88')); G.box(0, -1.5, 6.4, 1.4, 0.5, 0.6, M('#2a2a34')); // the cartridge slot lip, the link port

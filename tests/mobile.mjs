@@ -281,13 +281,15 @@ async function gameLad(p, pre) {
   const colourAt = async (k) => { const q = await page.evaluate(k => RoomTV._dbg().gbScreen(k), k); const buf = await page.screenshot({ clip: { x: Math.max(0, q.x - 3), y: Math.max(0, q.y - 3), width: 6, height: 6 } }); const [c] = await analyseRGB(buf); return { ...q, c }; };
   const pa = await colourAt('a'), pb2 = await colourAt('b'), pd = await colourAt('pad');
   report.checks.push({ label: 'Game Lad button pixels', a: pa, b: pb2, pad: pd });
-  assert(pa.c[0] > 110 && pa.c[0] > pa.c[1] * 2, 'A is not under its projected point: ' + JSON.stringify(pa));
+  const isMagenta=c=>c[0]>60&&c[0]>c[1]*2&&c[0]>c[2]*1.6;
+  assert(isMagenta(pa.c), 'A is not under its projected point: ' + JSON.stringify(pa));
+  assert(isMagenta(pb2.c),'B is not under its projected point: '+JSON.stringify(pb2));
   assert(pd.c[0] < 70 && pd.c[1] < 70, 'D-pad is not under its projected point: ' + JSON.stringify(pd));
   // START, then A, by real fingers
   const gp = async k => page.evaluate(k => RoomTV._dbg().gbScreen(k), k);
   const st0 = await gp('start'); await fingers.down(5, st0.x, st0.y); await sleep(120);
   assert(await page.evaluate(() => RoomTV.dbg().held('start')), 'START on the model did nothing'); await fingers.up(5); await sleep(400);
-  for (let i = 0; i < 3; i++) { const q = await gp('a'); await fingers.down(5, q.x, q.y); await sleep(140); await fingers.up(5); await sleep(500); }
+  for (let i = 0; i < 3; i++) { const q = await gp('a'); await fingers.down(5, q.x, q.y); await sleep(140); assert(await page.evaluate(()=>RoomTV.dbg().held('a')),'A on the model did nothing'); await fingers.up(5); await sleep(500); }
   await shot(pre + '-16-gamelad-after-a');
   // multi-touch: D-pad right held with one thumb while the other presses A; a held direction repeats
   const pd2 = await gp('pad'), right = await page.evaluate(() => { const c = RoomTV._dbg().gbScreen('pad'); const H = House, o = H.THINGS.gb.obj, v = new H.T.Vector3(-1.2, -2.9, 2.4); o.localToWorld(v); v.project(H.camera); const r = H.ren.domElement.getBoundingClientRect(); return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height }; });
@@ -305,7 +307,7 @@ async function gameLad(p, pre) {
   await page.evaluate(() => { const pb = document.getElementById('bootPower'); pb.dataset.oldStyle = pb.getAttribute('style') || ''; pb.style.setProperty('top', '56px', 'important'); pb.style.setProperty('height', (innerHeight - 56) + 'px', 'important'); pb.style.setProperty('bottom', 'auto', 'important'); dispatchEvent(new Event('resize')); });
   await page.waitForTimeout(1500);
   const pa2 = await colourAt('a'); pa2.dbg = await page.evaluate(() => { const c = House.ren.domElement.getBoundingClientRect(), b = document.getElementById('bootPower').getBoundingClientRect(); return { canvas: [c.top, c.height, House.ren.domElement.height], pb: [b.top, b.height], ih: innerHeight, aspect: House.camera.aspect, wh: innerWidth / innerHeight }; }); await page.screenshot({ path: shots + 'full-17b-taller-canvas.png' }); await page.evaluate(() => { const pb = document.getElementById('bootPower'); pb.setAttribute('style', pb.dataset.oldStyle); dispatchEvent(new Event('resize')); });
-  assert(pa2.c[0] > 110 && pa2.c[0] > pa2.c[1] * 2, 'A misplaced when the canvas does not fill the window: ' + JSON.stringify(pa2));
+  assert(isMagenta(pa2.c), 'A misplaced when the canvas does not fill the window: ' + JSON.stringify(pa2));
   await page.waitForTimeout(800);
   // LOCK IN and back (the pad stands in for the hidden moulding), then landscape wings
   await press('.rm-tools .rm-lock'); await until(() => !!document.querySelector('.rm-tvv .rm-pad:not([hidden]) [data-b="a"]'), null, 10000); await page.waitForTimeout(900); await shot(pre + '-18-gamelad-lockin');

@@ -252,7 +252,7 @@
       root.add(d.pivot);
       d.pivot.rotation.y = 0; d.pivot.updateWorldMatrix(true,true);
       const b = new T.Box3().setFromObject(d.pivot);
-      if (!b.isEmpty()) { d.closedBounds = {x0:b.min.x,z0:b.min.z,x1:b.max.x,z1:b.max.z}; d.portal = b.clone().expandByScalar(15); } // (the aperture, for portal culling)
+      if (!b.isEmpty()) { d.closedBounds = {x0:b.min.x,z0:b.min.z,x1:b.max.x,z1:b.max.z}; d.portal = b.clone().expandByScalar(15); } // (closed aperture bounds, shared with render audits)
       const leaf=d.pivot.children.find(o=>o.isMesh&&o.geometry?.type==='BoxGeometry');
       if(leaf){leaf.geometry.computeBoundingBox();d.headroom=leaf.geometry.boundingBox.max.y-leaf.geometry.boundingBox.min.y;d.floorY=-b.min.y;}
       d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1);
@@ -275,31 +275,17 @@
     emit('door', id, d.open);
   }
   let visSet = new Set();
-  let windowOnly=new Map(),doorOnly=new Map();
-  const windowFrustum=new T.Frustum(),windowProjection=new T.Matrix4();
-  function visCalc() { // the room you're in, and the rooms you can see into through open doors (and the ones they open onto)
+  function visCalc() {
     const vs = new Set(); if (cur) vs.add(cur.id);
-    // Portal culling: a room seen only through doorways is drawn when every doorway on some route to it is on screen
-    // (doorOnly: room -> routes, each a list of aperture boxes; a null route means always).
-    doorOnly=new Map();
-    const route=(id,chain)=>{let list=doorOnly.get(id);if(!list)doorOnly.set(id,list=[]);list.push(chain)};
-    const walk = (r, depth, chain) => { if (!r) return; for (const did of r.links) { const d = DOORS[did]; if (!d || !(d.open || d.ang > 0.01 || d.always)) continue; const next=d.portal&&!d.always?chain.concat(d.portal):chain; for (const o of d.rooms) if (o!==(cur&&cur.id)&&(!vs.has(o)||doorOnly.has(o))) { const fresh=!vs.has(o); vs.add(o); route(o,next.length?next:null); if (fresh&&depth < (rung().far ? 0 : 1)) walk(ROOMS[o], depth + 1, next); } } };
-    walk(cur, 0, []);
-    if (cur && (cur.id === 'hall' || cur.id === 'landing' || cur.id === 'cupboard')) { for (const id of ['hall','landing']) { vs.add(id); if (id!==cur.id) route(id,null); } } // (the stairwell joins them: a wrong guess can never black the view out)
-    // Glass is a permanent sight line, independent of the door beside it.
-    // Keep logical visibility stable; rendering may skip windows off camera.
-    const connected=new Set(vs);windowOnly=new Map();
-    for(const id of connected)for(const view of ROOMS[id]?.windowViews||[]){
-      const other=typeof view==='string'?view:view.room;if(!ROOMS[other])continue;vs.add(other);
-      const boxes=[];
-      if(!view.bounds)boxes.push(null);else for(const b of view.bounds)boxes.push(new T.Box3(new T.Vector3(b[0],-b[4],b[2]),new T.Vector3(b[3],-b[1],b[5])));
-      if(connected.has(other)){if(doorOnly.has(other))for(const b of boxes)route(other,b?[b]:null);continue}
-      const bounds=windowOnly.get(other)||[];bounds.push(...boxes);
-      windowOnly.set(other,bounds);
-    }
-    for(const [id,list] of doorOnly)if(list.includes(null))doorOnly.delete(id);
+    const walk = (r, depth) => { if (!r) return; for (const did of r.links) { const d = DOORS[did]; if (!d || !(d.open || d.ang > 0.01 || d.always)) continue; for (const other of d.rooms) if (!vs.has(other)) { vs.add(other); if (depth < (rung().far ? 0 : 1)) walk(ROOMS[other], depth + 1); } } };
+    walk(cur, 0);
+    if (cur && ['hall','landing','cupboard'].includes(cur.id)) { vs.add('hall'); vs.add('landing'); }
+    // Shared wall faces and window reveals extend beyond their apertures. Keep connected rooms intact;
+    // the renderer frustum-culls individual meshes and spatial batches without losing these surfaces.
+    const connected = [...vs];
+    for (const id of connected) for (const view of ROOMS[id]?.windowViews || []) { const other = typeof view === 'string' ? view : view.room; if (ROOMS[other]) vs.add(other); }
     for (const id in ROOMS) { const r = ROOMS[id], on = vs.has(id); if (on) buildRoom(r); r.group.visible = on; }
-    for (const id in DOORS) { const d = DOORS[id], on = d.rooms.some(o => vs.has(o)); if (d.pivot) d.pivot.visible = on; if (d.frame) d.frame.visible = on; }
+    for (const id in DOORS) { const d = DOORS[id], on = d.rooms.some(id => vs.has(id)); if (d.pivot) d.pivot.visible = on; if (d.frame) d.frame.visible = on; }
     visSet = vs; lightsFor(); dirty();
   }
   // Each room owns its lighting state. The same small GPU rig is reused when
@@ -2655,17 +2641,9 @@
   function litDistance(id){const a=ROOMS[id].area[0];return a?Math.hypot((a[0]+a[2])/2-P.x,(a[1]+a[3])/2-P.z):0}
   const litBackToFront=(a,b)=>ROOMS[b]._renderDistance-ROOMS[a]._renderDistance;
   function renderLit(renderer) {
-    windowProjection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);windowFrustum.setFromProjectionMatrix(windowProjection);
     nodeCount=materialCount=0;litIDs.length=0;litTransparentIDs.length=0;litSerial++;
     for(const id in ROOMS){
       const r=ROOMS[id];let drawn=visSet.has(id);
-      if(drawn&&!window.House?.god&&windowOnly.has(id)){
-        drawn=false;const bounds=windowOnly.get(id);for(let i=0;i<bounds.length;i++)if(!bounds[i]||windowFrustum.intersectsBox(bounds[i])){drawn=true;break}
-      }
-      if(drawn&&!window.House?.god&&doorOnly.has(id)){
-        drawn=false;const routes=doorOnly.get(id);
-        for(let i=0;i<routes.length&&!drawn;i++){const chain=routes[i];let all=true;for(let j=0;j<chain.length;j++)if(!windowFrustum.intersectsBox(chain[j])){all=false;break}drawn=all}
-      }
       r._renderDrawn=drawn;litRooms.add(r.group);litNode(r.group,r.group.visible&&drawn,id);
     }
     for(const id in DOORS){const d=DOORS[id];litDoor(d.pivot,d);litDoor(d.frame,d)}
