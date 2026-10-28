@@ -16,9 +16,9 @@ async function put(id,snap){
 async function open(){await walk();await p.evaluate(()=>House.act('bed'));await until(()=>!!document.querySelector('.ch-bed-work'));await p.waitForTimeout(600)}
 async function leave(){await p.keyboard.press('q');await until(()=>!House.focused&&!House.gliding)}
 async function coords(x,z){return p.evaluate(([x,z])=>House.toScreen(x,35,z),[x,z])}
-async function drag(points,touch=false,cancel=false){
+async function drag(points,touch=false,cancel=false,spare=false){
  const pts=[];for(const [x,z]of points)pts.push(await coords(x,z));
- if(touch){const c=await p.context().newCDPSession(p);await c.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:pts[0].x,y:pts[0].y}]});for(const q of pts.slice(1)){await c.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:1,x:q.x,y:q.y}]});await p.waitForTimeout(45)}await c.send('Input.dispatchTouchEvent',{type:cancel?'touchCancel':'touchEnd',touchPoints:[]});await c.detach();}
+ if(touch){const c=await p.context().newCDPSession(p);await c.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:pts[0].x,y:pts[0].y}]});for(const q of pts.slice(1)){await c.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:1,x:q.x,y:q.y}]});await p.waitForTimeout(45)}if(spare){const q=pts.at(-1),main={id:1,x:q.x,y:q.y};await c.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[main,{id:2,x:20,y:100}]});await c.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[main]});assert(!await p.evaluate(()=>ChoreKit.has('bed','pullR')),'Releasing a spare finger completed the active drag')}await c.send('Input.dispatchTouchEvent',{type:cancel?'touchCancel':'touchEnd',touchPoints:[]});await c.detach();}
  else{await p.mouse.move(pts[0].x,pts[0].y);await p.mouse.down();for(const q of pts.slice(1))await p.mouse.move(q.x,q.y,{steps:8});await p.mouse.up()}
  await p.waitForTimeout(700);
 }
@@ -49,9 +49,9 @@ try{
  await drag([[190,110],[190,90],[190,70],[190,50]]);assert(await p.evaluate(()=>ChoreKit.has('bed','pullL')),'Upward drag did not pull duvet');await shot('04-pulled');
  await p.setViewportSize({width:390,height:844});await p.waitForTimeout(400);
  await drag([[170,55],[180,55],[190,55],[200,55],[215,55]],true,true);assert(!await p.evaluate(()=>ChoreKit.has('bed','pullR')),'Cancelled touch committed tuck');
- await p.evaluate(()=>HousePause.close());await drag([[170,55],[180,55],[190,55],[200,55],[215,55]],true);assert(await p.evaluate(()=>ChoreKit.has('bed','pullR')),'Touch drag did not tuck');await shot('05-phone-tucked');
+ await p.evaluate(()=>HousePause.close());await drag([[170,55],[180,55],[190,55],[200,55],[215,55]],true,false,true);assert(await p.evaluate(()=>ChoreKit.has('bed','pullR')),'Touch drag did not tuck');await shot('05-phone-tucked');
  await p.setViewportSize({width:844,height:390});await shot('06-phone-landscape');
- await drag(Array.from({length:13},(_,i)=>[i%2?215:170,60]),true);await until(()=>ChoreKit.has('bed','smooth'));await shot('07-complete-focus');await leave();
+ await drag(Array.from({length:13},(_,i)=>[i%2?215:170,60]),true);await until(()=>ChoreKit.has('bed','smooth'));await shot('07-complete-focus');await p.locator('.hs-getup').tap();await until(()=>!House.focused&&!House.gliding);
  const before=await p.evaluate(()=>({off:localStorage.getItem('jhp_off'),prog:ChoreKit.S.prog.bed}));
  for(const [width,height,name]of [[1366,860,'desktop'],[1920,1080,'wide'],[390,844,'phone'],[844,390,'phone-landscape'],[768,1024,'tablet'],[1024,768,'tablet-landscape']]){await p.setViewportSize({width,height});await f.view([100,-65,200],[193,35,40]);await shot('complete-'+name)}
  await p.setViewportSize({width:1366,height:860});
