@@ -220,8 +220,8 @@
   function doorOpen(id) { const d = H.DOORS[id]; return !d || d.always || (d.open && (d.ang > 0.82 || simMode)); }
   function step(c, dt, clk) {
     if (!c.cur) { c.cur = c.plan.shift() || null; if (c.cur) c.cur.t = 0; }
-    const s = c.cur; if (!s) return;
-    s.t += dt;
+    const s = c.cur;
+    if (s) s.t += dt;
     if (c.hold > 0) {
       if (c.hold > 2 && speech.cur?.c !== c && !speech.q.some(q => q.c === c)) c.hold = 1.5; // (nothing left to say: never stand there forever)
       c.hold -= dt; c.v = 0; faceToward(c, player(), dt);
@@ -229,6 +229,7 @@
       if (c.backoff) { const bx = c.backoff.x - c.x, bz = c.backoff.z - c.z, bd = Math.hypot(bx, bz), k = Math.min(1, 55 * dt / (bd || 1)); if (bd < 1) c.backoff = null; else { c.x += bx * k; c.z += bz * k; c.v = 30; } } // (half a pace back, still facing you)
       return;
     }
+    if (!s) return;
     if (s.k === 'route') {
       if (!s.r) { s.r = routeFrom(c, s.to, s.avoid); s.s = 0; if (!s.r) { s.fail = (s.fail || 0) + 1; if (s.fail > 3) { c.x = s.to.x; c.z = s.to.z; c.lvl = s.to.lvl; c.cur = null; } return; } }
       follow(c, s, dt);
@@ -547,9 +548,9 @@
     for (const c of cands.sort(() => Math.random() - 0.5)) {
       const pool = barkPool(c, clk, false); if (!pool) continue;
       const near = inEarshot(c, 600);
-      const ok = pool.filter(id => L[id] && (near ? L[id][2] !== 'downstairs' : L[id][2] === 'downstairs' && c.lvl !== player().lvl) && (c.said[id] || 0) < t - 15 * 60000);
+      const ok = pool.filter(id => L[id] && (near ? L[id][2] !== 'downstairs' : L[id][2] === 'downstairs' && c.lvl !== player().lvl) && (!c.said[id] || c.said[id] < t - 15 * 60000));
       if (!ok.length) continue;
-      const id = pick(ok, c); c.said[id] = t;
+      const id = pick(ok, c);
       if (say(c.id, id, near ? {} : { call: true })) return;
     }
   }
@@ -580,7 +581,7 @@
   const inBedroom = c => c.present && c.lvl === 'U' && c.x < 238 && c.z < 252;
   function entrance(id, d, o) {
     const c = C[id]; let e = ent[id];
-    if (!e || e.key !== d.key) e = ent[id] = { key: d.key, phase: inBedroom(c) ? 'in' : 'come', el: 0, o: o || {}, inEl: -1 };
+    if (!e || e.key !== d.key) e = ent[id] = { key: d.key, phase: inBedroom(c) ? 'in' : 'come', started: nowMs(), el: 0, o: o || {}, inEl: -1 };
     if (e.phase === 'in' || e.phase === 'enter') return d;
     return { key: d.key + ':stage', spot: STAGE[id], spotKey: 'stage.' + id, force: d.force, onArrive: () => { if (e.phase === 'come') { e.phase = 'knock'; e.el = 0; } } };
   }
@@ -610,7 +611,7 @@
   }
   // Mom's first visit: hold the doorway from the bedroom side until she's in and has said hello
   function doorHeld() {
-    const e = ent.mom; if (!e || !e.o.hold || (e.age || 0) > 12) return false; // (a safety net: never longer than ~12 s)
+    const e = ent.mom; if (!e || !e.o.hold || ((e.age || 0) >= 10 || nowMs() - e.started >= 10000)) return false; // (a safety net: never longer than 10 s, even at a low frame rate)
     if (e.phase !== 'in' && e.phase !== 'enter') return true;
     return e.inEl < 2.5;
   }
@@ -655,15 +656,15 @@
     if (/^st\.pc\./.test(held)) {
       // each carry remark once (it used to repeat "carry2" every time you passed her)
       const next = !C.mom.said['c1.mom.carry'] ? 'c1.mom.carry' : !C.mom.said['c1.mom.carry2'] ? 'c1.mom.carry2' : null;
-      if (next && C.mom.present && C.mom.goal?.spotKey === 'hallStairs' && dist(C.mom, p) < 260 && sameFloor(C.mom, p)) say('mom', next, { prio: 2, range: 400 }) && (C.mom.said[next] = nowMs());
-      if (C.sister.present && C.sister.goal?.spotKey === 'landingSis' && dist(C.sister, p) < 240 && sameFloor(C.sister, p) && !C.sister.said['c1.sis.stairs']) { C.sister.said['c1.sis.stairs'] = nowMs(); say('sister', 'c1.sis.stairs', { prio: 2 }); say('sister', 'c1.sis.stairs2', { prio: 2 }); }
+      if (next && C.mom.present && C.mom.goal?.spotKey === 'hallStairs' && dist(C.mom, p) < 260 && sameFloor(C.mom, p)) say('mom', next, { prio: 2, range: 400 });
+      if (C.sister.present && C.sister.goal?.spotKey === 'landingSis' && dist(C.sister, p) < 240 && sameFloor(C.sister, p) && !C.sister.said['c1.sis.stairs']) { say('sister', 'c1.sis.stairs', { prio: 2 }); say('sister', 'c1.sis.stairs2', { prio: 2 }); }
     }
   }
   function onGrab(id) {
     if (!storyOn()) return;
     const m = { 'st.pc.tower': 'c1.tower.pick', 'st.pc.monitor': 'c1.mon.pick', 'st.pc.keys': 'c1.keys.pick', 'st.pc.speakers': 'c1.speak.pick' }[id];
-    if (m && !C.dad.said[m]) { C.dad.said[m] = nowMs(); say('dad', m, { prio: 3, range: 700 }); }
-    if (/^(md|ps|n64|dc)$/.test(id) && window.st.current()?.id === 'carry' && !C.mom.said['c2.carry.mom'] && inEarshot(C.mom, 500)) { C.mom.said['c2.carry.mom'] = nowMs(); say('mom', 'c2.carry.mom', { prio: 2 }); }
+    if (m && !C.dad.said[m]) { say('dad', m, { prio: 3, range: 700 }); }
+    if (/^(md|ps|n64|dc)$/.test(id) && window.st.current()?.id === 'carry' && !C.mom.said['c2.carry.mom'] && inEarshot(C.mom, 500)) { say('mom', 'c2.carry.mom', { prio: 2 }); }
   }
   // the sister bursts in while the Game Lad is on (only if she's home)
   function gameLadCameo() {

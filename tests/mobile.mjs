@@ -326,7 +326,7 @@ const phases = {
           const fam = /^np\./.test(id) && window.HouseFamily?.debug?.dump().find(f => 'np.' + f.id === id); if (fam) { lvl = fam.lvl; c = [fam.x, lvl === 'G' ? 230 : -30, fam.z]; }
           const ey = lvl === 'G' ? 205 : -55;
         const room = fam ? H.ROOMS[fam.room] : null, inRoom = (x, z) => !room || room.area.some(q => x >= q[0] + 20 && x <= q[2] - 20 && z >= q[1] + 20 && z <= q[3] - 20);
-          const out = []; for (const d of [110, 150, 80, 190]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (H._.cellOk(lvl, x, z) && inRoom(x, z)) out.push({ e: [x, ey, z], c: [c[0], Math.min(c[1], ey + 40), c[2]], lvl }); } return out; }, id);
+          const out = []; for (const d of [150, 190, 110]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (H._.cellOk(lvl, x, z) && inRoom(x, z)) out.push({ e: [x, ey, z], c: [c[0], Math.min(c[1], ey + 40), c[2]], lvl }); } return out; }, id);
         for (const q of r || []) {
           await aimAt(p, q.e, q.c, q.lvl);
           // a step with the stick lets the house notice which room you are in (and draw it), then look again

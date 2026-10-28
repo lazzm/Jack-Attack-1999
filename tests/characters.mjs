@@ -409,8 +409,8 @@ try {
     } finally { await browser.close(); }
   });
 
-  // ---------------------------------------------------------------- R-live: Dad coming up to Jack's room while you stand by the door
-  // (owner, 2.57.7: Dad parked in the open doorway repeating the same joke; Mom repeating too). Scene lines play once,
+  // ---------------------------------------------------------------- R104: Dad coming up to Jack's room while you stand by the door
+  // (owner, 28 October: Dad parked in the open doorway repeating the same joke; Mom repeating too). Scene lines play once,
   // no line repeats within a minute however often you press F, nobody idles in the doorway, you can walk out in 10 s.
   await check('loop', async () => {
     const { browser, page, errors } = await veteran();
@@ -426,9 +426,16 @@ try {
       }
       const said = await page.evaluate(() => { clearInterval(window.__sayT); return window.__said; });
       const rep = said.filter((a, i) => said.some((b, j) => j < i && b.who === a.who && b.id === a.id && a.t - b.t < 60000));
-      const dad = await page.evaluate(() => { const d = HouseFamily.chars.dad, b = House.DOORS.bedroom.closedBounds; return { x: d.x, z: d.z, lvl: d.lvl, inDoor: d.x > b.x0 - 12 && d.x < b.x1 + 12 && d.z > b.z0 - 12 && d.z < b.z1 + 12, held: HouseFamily.doorHeld(), hold: d.hold }; });
+      const dad = await page.evaluate(() => { const d = HouseFamily.chars.dad, b = House.DOORS.bedroom.closedBounds; return { x: d.x, z: d.z, lvl: d.lvl, inDoor: d.x > b.x0 - 12 && d.x < b.x1 + 12 && d.z > b.z0 - 12 && d.z < b.z1 + 12, held: HouseFamily.doorHeld(), hold: d.hold, step: d.cur?.k, goal: d.goal?.key, entrance: HouseFamily.debug.entrance().dad, door: House.DOORS.bedroom.open }; });
       console.log(`  loop: ${said.length} lines (${said.map(s => s.who + ':' + s.id).join(', ')}); Dad at ${Math.round(dad.x)},${Math.round(dad.z)} in the doorway: ${dad.inDoor}`);
       await shot(page, 'loop-dad-in-room');
+      await look(page, [60, 73 - 128, 205], [dad.x, 73 - 140, dad.z], 'U');
+      await shot(page, 'loop-dad-oblique');
+      for (const [width, height] of [[390, 844], [844, 390], [768, 1024], [1024, 768]]) {
+        await page.setViewportSize({ width, height }); await page.waitForTimeout(350);
+        await shot(page, `loop-dad-${width}x${height}`);
+      }
+      await page.setViewportSize({ width: 1366, height: 860 });
       assert.deepEqual(rep.map(r => r.who + ':' + r.id), [], 'A line repeated within a minute');
       assert(!dad.inDoor, 'Dad is not standing about in the doorway: ' + JSON.stringify(dad));
       assert(!dad.held, 'Nothing holds you in');
