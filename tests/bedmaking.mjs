@@ -30,7 +30,12 @@ try{
  const pt=await coords(190,-33);await p.mouse.click(pt.x,pt.y);assert(!await p.evaluate(()=>ChoreKit.has('bed','pillow')),'One click completed the pillow');
  await drag([[190,-33],[190,-20],[190,-40],[190,-20],[190,-40]]);assert(await p.evaluate(()=>ChoreKit.has('bed','pillow')),'Pillow gesture did not finish');
  await leave();await put('ch.pjs','ch.s.pjs');assert(await p.evaluate(()=>ChoreKit.has('bed','pjs')&&!House.THINGS['ch.pjs'].at.hide));
- const bundle=await p.evaluate(()=>House.physics.body('ch.pjs').parts);assert.equal(bundle.length,1);assert.deepEqual([bundle[0].hx,bundle[0].hz,bundle[0].hi],[13.5,10,4.45],'Folded pyjamas keep the loose garment collider');
+ const bundle=await p.evaluate(()=>{
+  const t=House.THINGS['ch.pjs'],box=new THREE.Box3();t.obj.updateWorldMatrix(true,true);const inv=new THREE.Matrix4().copy(t.obj.matrixWorld).invert();
+  t.obj.traverseVisible(o=>{if(o.isMesh&&!o.userData.contactShadow){o.geometry.computeBoundingBox();box.union(o.geometry.boundingBox.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv,o.matrixWorld)))}});
+  return{parts:House.physics.body(t.id).parts,size:box.getSize(new THREE.Vector3()).toArray(),top:-box.min.y};
+ });
+ assert.equal(bundle.parts.length,1);for(const [actual,expected]of [[bundle.parts[0].hx,bundle.size[0]/2],[bundle.parts[0].hz,bundle.size[2]/2],[bundle.parts[0].hi,bundle.top]])assert(Math.abs(actual-expected)<.02,'Folded body differs from visible bundle: '+JSON.stringify(bundle));
  await open();await shot('03-pull-ready');
  await drag([[190,105],[190,95]]);assert(!await p.evaluate(()=>ChoreKit.has('bed','pullL')),'Short drag completed pull');
  await p.keyboard.down('Space');await p.waitForTimeout(400);await p.keyboard.press('Escape');await p.keyboard.up('Space');await until(()=>House.paused);assert(!await p.evaluate(()=>ChoreKit.has('bed','pullL')),'Pause committed partial work');
@@ -53,7 +58,7 @@ try{
  await walk();await p.evaluate(()=>House.saveWalkState());const pose=await p.evaluate(()=>({x:House.W.x,z:House.W.z}));await p.reload({waitUntil:'domcontentloaded'});await until(()=>House.live&&!document.querySelector('.hs-loading,#houseEntry'));
  await p.evaluate(async()=>{await Chores.load();await Chores.part('bedroom')});await until(()=>!!House.THINGS['ch.pjs']);
  assert.deepEqual(await p.evaluate(()=>({x:House.W.x,z:House.W.z})),pose);assert.equal(await p.evaluate(()=>localStorage.getItem('jhp_off')),before.off);
- assert(await p.evaluate(()=>['pillow','pjs','pullL','pullR','smooth'].every(s=>ChoreKit.has('bed',s))&&!House.THINGS['ch.pjs'].at.hide));
+ assert(await p.evaluate(()=>['pillow','pjs','pullL','pullR','smooth'].every(s=>ChoreKit.has('bed',s))&&!House.THINGS['ch.pjs'].at.hide&&House.physics.body('ch.pjs').fixed&&House.physics.body('ch.pillow').fixed));
  await shot('08-refresh');
  // Legacy partial save: PJs were hidden before the pillow had been placed.
  await p.evaluate(()=>{delete ChoreKit.S.prog.bed.pillow;delete ChoreKit.S.v.bed.pillowDocked;House.THINGS['ch.pjs'].at.hide=true;ChoreKit.MODS.bed.sync()});
