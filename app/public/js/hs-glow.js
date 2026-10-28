@@ -5,8 +5,7 @@
  *     plus an inverted-hull outline pushed out along smoothed normals, so the whole silhouette is ringed in gold;
  *   - a footprint ring "decal" lying on the surface under it, matching its shape (a circle for round things, a rounded
  *     rectangle otherwise), with a soft halo; all decals in ONE instanced draw;
- *   - for an empty slot (a shelf, a console, the desk), a gold see-through copy of the carried thing itself standing in
- *     every free slot that takes it (one instanced draw), so the slot glows in the shape of what goes there.
+ *   - for an empty accepting slot, a shallow footprint ring. Only the actual placement ghost copies the held model.
  * The placement ghost (green fits / red blocked / gold snaps in) uses the same fill + rim look on the carried thing.
  * Coordinates are the house's (cm, y down: the world root is flipped). */
 (function () {

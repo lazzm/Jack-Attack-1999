@@ -61,6 +61,14 @@
       const id = pos.length / 3; pos.push(x, -Math.max(0.1, h), z); uv.push(x / w + 0.5, 0.5 - z / d); idx.set(k, id); return id;
     }
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) if (cellIn(i, j)) { const a = vert(i, j), b = vert(i + 1, j), c = vert(i + 1, j + 1), e = vert(i, j + 1); index.push(a, b, e, b, c, e); }
+    // Close the underside and boundary so held clothes have thickness from every angle.
+    const topCount = pos.length / 3, topIndex = index.slice(), edges = new Map();
+    for (let i = 0; i < topCount; i++) { pos.push(pos[i*3], Math.min(0, pos[i*3+1]+.15), pos[i*3+2]); uv.push(uv[i*2],uv[i*2+1]); }
+    for (let i = 0; i < topIndex.length; i+=3) {
+      const [a,b,c] = topIndex.slice(i,i+3); index.push(c+topCount,b+topCount,a+topCount);
+      for (const [u,v] of [[a,b],[b,c],[c,a]]) { const key = Math.min(u,v)+','+Math.max(u,v); if(edges.has(key))edges.delete(key); else edges.set(key,[u,v]); }
+    }
+    for (const [a,b] of edges.values()) index.push(a,a+topCount,b,b,a+topCount,b+topCount);
     const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.setIndex(index); geo.computeVertexNormals();
     return geo;
   }
@@ -193,22 +201,6 @@
     for (let i = 0; i < p.count; i++) { const k = Math.round(p.getX(i) * 100) + ',' + Math.round(p.getY(i) * 100) + ',' + Math.round(p.getZ(i) * 100); if (!off.has(k)) off.set(k, 0.72 + r() * 0.42); const s = off.get(k); p.setXYZ(i, p.getX(i) * s, p.getY(i) * s * squash, p.getZ(i) * s); }
     geo.computeVertexNormals(); geo.computeBoundingBox(); return geo;
   }
-  // BANANA SKIN: four peel petals splayed from the stalk, yellow outside with brown freckles, cream inside, brown tips
-  const bananaTex = () => K.tex('ch.banana', 64, 64, (g, w, h) => {
-    g.fillStyle = '#f0e6c2'; g.fillRect(0, 0, w, h / 2); // inside (the underside of the sweep): cream
-    g.fillStyle = '#f2cf3a'; g.fillRect(0, h / 2, w, h / 2);
-    const r = rnd(5); g.fillStyle = 'rgba(110,70,20,.55)'; for (let i = 0; i < 26; i++) { g.beginPath(); g.ellipse(r() * w, h / 2 + r() * h / 2, 0.8 + r() * 1.6, 0.6 + r(), 0, 0, 7); g.fill(); }
-    g.fillStyle = 'rgba(150,170,60,.6)'; g.fillRect(0, h / 2, 6, h / 2);
-    const gr = g.createLinearGradient(w * 0.78, 0, w, 0); gr.addColorStop(0, 'rgba(70,40,15,0)'); gr.addColorStop(1, 'rgba(60,35,12,.95)'); g.fillStyle = gr; g.fillRect(w * 0.78, 0, w * 0.22, h);
-  }, { clamp: true });
-  // YOGHURT POT: tipped over, the foil lid peeled back, a pink smear (a parody pot: DAIRY DOO, strawberry-ish)
-  const yogTex = () => K.tex('ch.yog', 256, 64, (g, w, h) => {
-    g.fillStyle = A.lin(g, 0, 0, 0, h, [[0, '#ffffff'], [1, '#f7d6e2']]); g.fillRect(0, 0, w, h);
-    g.fillStyle = '#d9346a'; g.fillRect(0, h - 9, w, 9); g.fillRect(0, 0, w, 4);
-    for (const x of [26, 154]) { A.text(g, 'DAIRY DOO', x + 50, 30, '900 21px ' + A.FONT, '#d9346a', 'center'); A.text(g, 'STRAWBERRY-ISH', x + 50, 44, '700 9px ' + A.UIF, '#7a2244', 'center'); }
-    for (const x of [8, 112, 136, 240]) { g.fillStyle = '#e0283c'; g.beginPath(); g.ellipse(x, 30, 6, 7.5, 0, 0, 7); g.fill(); g.fillStyle = '#3a9a3a'; g.fillRect(x - 4, 21, 8, 3); }
-  }, { clamp: true });
-
   const P = {
     tshirt: (g, w, h) => { g.fillStyle = '#c0202c'; g.beginPath(); g.moveTo(34, 12); g.lineTo(52, 8); g.quadraticCurveTo(64, 20, 76, 8); g.lineTo(94, 12); g.lineTo(122, 34); g.lineTo(108, 52); g.lineTo(96, 44); g.lineTo(98, 120); g.lineTo(30, 120); g.lineTo(32, 44); g.lineTo(20, 52); g.lineTo(6, 34); g.closePath(); g.fill(); A.grain(g, w, h, 500, 0.08, 3); A.text(g, 'MODEM', 64, 70, '700 15px ' + A.FONT, '#fff', 'center'); A.text(g, 'BOYS', 64, 88, '700 15px ' + A.FONT, '#ffd400', 'center'); A.text(g, "TOUR '99", 64, 104, '9px ' + A.UIF, '#fff', 'center'); },
     jeans: (g, w, h) => { g.fillStyle = '#3a5a8a'; g.beginPath(); g.moveTo(30, 6); g.lineTo(98, 6); g.lineTo(104, 122); g.lineTo(72, 122); g.lineTo(64, 46); g.lineTo(56, 122); g.lineTo(24, 122); g.closePath(); g.fill(); for (let i = 0; i < 400; i++) { g.fillStyle = i % 2 ? 'rgba(255,255,255,.1)' : 'rgba(0,0,30,.15)'; g.fillRect((i * 37) % 128, (i * 53) % 128, 2, 1); } g.strokeStyle = '#c8a050'; g.lineWidth = 1; g.strokeRect(32, 8, 64, 8); g.fillStyle = '#c8a050'; g.fillRect(62, 18, 4, 14); },
@@ -274,18 +266,6 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       C.cyl(0, -4.9, 0, 0.16, 0.2, 1.4, 5, mat('#5a3a1a'), { rz: 8 }); C.cyl(0, 4.3, 0, 0.7, 0.2, 0.3, 5, mat('#3a2a14'));
       G.shadow(0, 0, 0, 11, 7, 0.4); }),
     paper: () => grpB(G => { const geo = crumple(3.9, 31, 0.86); G.geo(geo, 0, -geo.boundingBox.max.y, 0, M({ c: '#fff', map: homeworkTex(), flat: true, sh: 4 })); G.shadow(0, 0, 0, 10, 10, 0.45); }),
-    banana: () => grpB(G => { const m = M({ c: '#fff', map: bananaTex(), sh: 18, side: 2 }), r = rnd(77);
-      [8, 100, 188, 276].forEach((deg, k) => { const a = (deg + r() * 14) * D2R, len = 8 + r() * 1.6, curl = k % 2 ? 0.5 : 0.9, path = [];
-        for (let i = 0; i <= 8; i++) { const t = i / 8, rr = 0.6 + len * t, lift = 2.3 * Math.pow(1 - t, 2.2) + (t > 0.75 ? curl * (t - 0.75) * 2.4 : 0); path.push([Math.cos(a) * rr + Math.sin(a) * Math.sin(t * 3) * 0.6, Math.sin(a) * rr - Math.cos(a) * Math.sin(t * 3) * 0.6, lift]); }
-        G.geo(tube(path, t => 0.35 + 1.25 * Math.sin(Math.PI * (0.12 + t * 0.8)), () => 0.17, { radial: 6 }), 0, 0, 0, m); });
-      G.cyl(0, -2.6, 0, 0.55, 0.9, 1.8, 7, mat('#8a8a3a', { sh: 10 })); G.cyl(0, -3.65, 0.1, 0.45, 0.5, 0.5, 6, mat('#2a2010'), { rx: 12 });
-      G.shadow(0, 0, 0, 20, 20, 0.35); }),
-    yog: () => grpB(G => { const C = G.at(0, -3.25, 0, -30, { rz: 90 }), white = mat('#f7f4ee', { sh: 30, side: 2 }), foil = mat('#d8d8de', { sh: 110, sp: '#fff', side: 2 });
-      C.cyl(0, 0, 0, 3.2, 2.55, 6, 16, { s: M({ c: '#fff', map: yogTex(), sh: 40, sp: '#666' }) }, { open: true });
-      C.cyl(0, 0, 0, 3.0, 2.38, 5.9, 16, mat('#fbf6f2', { sh: 20, side: 1 }), { open: true });
-      C.disc(0, 2.98, 0, 2.55, white, 16, { rx: 180 }); C.geo(new T.TorusGeometry(3.25, 0.2, 4, 16), 0, -3.0, 0, white, { rx: 90 });
-      C.disc(0.2, -3.6, 3.4, 3.1, foil, 14, { rx: -55 });
-      G.disc(-4.6, -0.2, -2.6, 2.6, mat('#eba3bb', { sh: 40, sp: '#888' }), 12, { sx: 1.4 }); G.shadow(0, 0, 0, 12, 9, 0.45); }),
     plate: () => grp(G => { G.lathe(0, 0, 0, [[0.1, -0.4], [7, -0.4], [10.5, -1.3], [12, -1.6]], 28, mat('#f6f4ee', { sh: 60, sp: '#888' })); G.lathe(0, 0, 0, [[12, -1.6], [7, 0], [0.1, 0]], 28, mat('#e8e4da')); /* the glaze faces up and the foot down, so the contact shadow stays under it */ [[3, 2, 20], [-2, 4, -40], [1, -3, 70]].forEach(([x, z, ry]) => G.rbox(x, -1.4, z, 6, 1.2, 1.6, 0.4, mat('#a86a30'), { ry })); for (let i = 0; i < 9; i++) G.box(((i * 37) % 11) - 5, -0.6, ((i * 23) % 9) - 4, 0.6, 0.4, 0.6, mat('#c89050')); G.shadow(0, 0, 0, 26, 26, 0.45); }),
     mug: () => grp(G => { G.cyl(0, -5, 0, 4.2, 4, 10, 18, { s: mat('#2a5ad0', { sh: 60, sp: '#888' }), t: mat('#6a4020'), u: mat('#2a5ad0') }, { open: false }); G.geo(new T.TorusGeometry(2.6, 0.7, 6, 12), 4.6, -5, 0, mat('#2a5ad0', { sh: 60 })); G.cyl(0, -9.6, 0, 3.6, 3.6, 0.3, 16, mat('#7a5030', { sh: 40 })); G.box(0, -6, 4.15, 4, 1, 0.1, mat('#fff')); G.shadow(0, 0, 0, 12, 12, 0.5); }),
     bowl: () => grp(G => { G.lathe(0, 0, 0, [[7.5, -5], [7, -2.5], [4, 0], [0.1, 0]], 22, mat('#f2ece0', { sh: 50, sp: '#666', side: 2 })); G.disc(0, -1.6, 0, 5.4, mat('#f8f4e8')); for (let i = 0; i < 6; i++) G.box(Math.cos(i) * 3, -1.9, Math.sin(i * 1.7) * 3, 1.6, 0.4, 1.3, mat('#e8a830'), { ry: i * 40 }); G.cyl(4, -6, 1, 0.4, 0.4, 9, 6, mat('#c8c8cc', { sh: 90 }), { rz: 70 }); G.shadow(0, 0, 0, 18, 18, 0.5); }),
@@ -293,7 +273,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     cd2: () => grp(G => { G.box(0, -0.6, 0, 14.2, 1.2, 12.4, { t: M({ c: '#fff', map: psTex(), sh: 60, sp: '#666' }), all: mat('#111') }); G.shadow(0, 0, 0, 17, 15, 0.5, { sq: true }); }),
   };
   // where today's mess can lie (the floor: anything on the bed would be under the bed's own click box)
-  const SPOTS = [[-30, FY, 112, 20], [40, FY, 152, -35], [-112, FY, 140, 60], [92, FY, 82, 10], [-82, FY, 226, -20], [22, FY, 222, 45], [-150, FY, 182, 80], [-20, FY, 176, 15], [70, FY, 198, -10], [-188, FY, 124, 30], [-62, FY, 148, 30], [-104, FY, 196, -40]];
+  const SPOTS = [[-30, FY, 112, 20], [40, FY, 152, -35], [-112, FY, 140, 60], [92, FY, 82, 10], [-38, FY, 226, -20], [22, FY, 222, 45], [-150, FY, 182, 80], [-20, FY, 176, 15], [70, FY, 198, -10], [-188, FY, 124, 30], [-62, FY, 148, 30], [-104, FY, 172, -40]];
   function layout(day) { const items = CC.tidyFor(day,sparse), r = CC.rng('chpos|' + day), sp = CC.shuffle(SPOTS, r); return items.map((m, i) => ({ m, at: sp[i % sp.length] })); }
 
   // ================================================================ TIDY YOUR ROOM
@@ -305,7 +285,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       for (const m of CC.MESS) {
         if(sparse&&['mag','cd'].includes(m.kind))continue;
         const id = 'ch.m.' + m.id;
-        CK.thing(id, { obj: MODELS[m.id](), kind: 'mess.' + m.kind, label: m.n, chore: 'tidy', holdD: m.kind === 'clothes' ? 60 : 45, home: { room: 'bedroom', x: 0, y: FY, z: 100, hide: true } });
+        CK.thing(id, { obj: MODELS[m.id](), kind: 'mess.' + m.kind, label: m.n, handGrips: m.id==='socks' ? [[3.5,-2.3,-1.5]] : undefined, chore: 'tidy', holdD: m.kind === 'clothes' ? 60 : 45, home: { room: 'bedroom', x: 0, y: FY, z: 100, hide: true } });
       }
       // where things go
       CK.snap('ch.s.basket', { room: 'bedroom', x: 110, y: FY - 46, z: 222, r: 34, box: [34, 2, 34], glow: 'washing', round: true, accepts: k => k === 'mess.clothes', hide: true, hint: 'Let go: in the washing basket', onSnap: t => put(t) });

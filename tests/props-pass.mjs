@@ -9,16 +9,19 @@ import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
 const base = process.argv[2], sub = process.argv.find((a, i) => i > 2 && !a.startsWith('--')) || 'after';
 const tier = process.argv.find(a => a.startsWith('--tier='))?.slice(7) || 'low', phone = process.argv.includes('--phone');
+const quick=process.argv.includes('--grips');
+const width=+(process.argv.find(a=>a.startsWith('--width='))?.slice(8)|| (phone?390:1366)), height=+(process.argv.find(a=>a.startsWith('--height='))?.slice(9)||(phone?844:860));
 assert(base, 'Usage: node tests/props-pass.mjs http://localhost:PORT [out] [--tier=low|high] [--phone]');
 const dir = fileURLToPath(new URL('./shots/props-pass/' + sub + '/', import.meta.url));
 await mkdir(dir, {recursive: true});
 const account = 'Props' + Date.now().toString(36), password = 'Throwaway-1999';
 assert((await fetch(base + '/admin/register', {method: 'POST', headers: {'X-Admin-Token': 'testtoken', 'Content-Type': 'application/json'}, body: JSON.stringify({name: account, pass: password})})).ok);
-const fx = await roomFixture(base, {account, password, signup: false, tier, ...(phone ? {width: 390, height: 844, touch: true} : {})});
+const fx = await roomFixture(base, {account, password, signup: false, tier, width, height, ...(phone ? {touch: true} : {})});
 const {page: p, errors, view, until} = fx;
 const tag = (phone ? 'phone-' : '') + tier;
 const shot = async name => { await p.waitForTimeout(500); await p.screenshot({path: dir + tag + '-' + name + '.png'}); console.log('shot', tag + '-' + name); };
 try {
+  if (phone) { await p.touchscreen.tap(width-2,2); await until(() => GameInput.touch); }
   await p.evaluate(async () => { await Chores.load(); await Chores.part('bedroom'); });
   await until(() => !!House.SNAPS['ch.s.basket'] && !!House.THINGS['ch.m.socks']);
   const FY = 73;
@@ -35,18 +38,23 @@ try {
   }, FY);
   console.log('laid out', JSON.stringify(lay));
   await p.waitForTimeout(1200);
+  if(!quick){
   await view([10, FY - 34, 95], [10, FY - 2, 165]); await shot('01-clothes-close');
   await view([10, FY - 30, 245], [10, FY - 2, 175]); await shot('02-rubbish-close');
   await view([10, FY - 143, 70], [10, FY, 175]); await shot('03-floor-distance');
   await view([-40, FY - 22, 205], [-40, FY - 2, 178]); await shot('04-rubbish-macro');
   await view([-20, FY - 22, 125], [-20, FY - 2, 152]); await shot('05-clothes-macro');
+  }
   // carrying: socks to the washing basket
   const look = (x, z, tx, ty, tz) => p.evaluate(({x, z, tx, ty, tz}) => { House.hush(); House.cancelGlide(true); const y = House.LV.U - House.STAND; House.setWalkFrom({x, y, z, lvl: 'U', seat: 0}); House.W.vx = House.W.vz = 0; Object.assign(House.P, {x, z, y, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI}); House._.setMode('walk'); House.dirty(); }, {x, z, tx, ty, tz});
   const carry = async id => { await p.evaluate(id => { if (House.held()) House.putBack(); House.THINGS[id].canGrab = null; House.grab(id); }, id); await until(() => !!House.held()); await p.waitForTimeout(400); };
   const g = () => p.evaluate(() => { const g = House.ghost(); return g && {ok: g.ok, why: g.why, snap: g.snap && g.snap.id}; });
+  const grip=await p.evaluate(()=>{const t=House.THINGS['ch.m.socks'],point=new House.T.Vector3(...t.handGrips[0]);let near=Infinity;const inv=t.obj.matrixWorld.clone().invert();t.obj.traverse(m=>{if(!m.isMesh||m.userData.contactShadow)return;const g=m.geometry,p=g.attributes.position,I=g.index,mat=inv.clone().multiply(m.matrixWorld);for(let i=0;i<(I?I.count:p.count);i+=3){const v=[0,1,2].map(k=>new House.T.Vector3().fromBufferAttribute(p,I?I.getX(i+k):i+k).applyMatrix4(mat));near=Math.min(near,new House.T.Triangle(...v).closestPointToPoint(point,new House.T.Vector3()).distanceTo(point))}});return{near,count:t.handGrips.length}});
+  assert.equal(grip.count,1);assert(grip.near<.75,'Sock grip floats away from fabric: '+grip.near);
   await carry('ch.m.socks');
   await look(100, 150, 110, 30, 222); await p.waitForTimeout(900); console.log('basket ghost', JSON.stringify(await g())); await shot('10-carry-basket-gold');
   await look(30, 120, 110, 40, 222); await p.waitForTimeout(900); console.log('basket aside', JSON.stringify(await g())); await shot('11-carry-basket-glow');
+  if(quick){if(phone)await p.locator('.ht-hud [data-k="r"]').tap();else await p.keyboard.press('r');await p.waitForTimeout(400);await shot('11b-rotated-sock-grip');}
   await look(-70, 95, 30, 73, 105); await p.waitForTimeout(900); console.log('floor ghost', JSON.stringify(await g())); await shot('12-ghost-green');
   // rubbish to the bin
   await carry('ch.m.crisps');
@@ -61,6 +69,8 @@ try {
     await look(rs.x + 70, rs.z - 120, rs.x, rs.y, rs.z); await p.waitForTimeout(900); await shot('16-carry-shelf-aside');
   }
   await p.evaluate(() => { if (House.held()) House.putBack(); });
+  if(quick){const tc=await p.evaluate(()=>House.CAT_TREE);await view([-10,FY-143,110],[tc.x,FY-55,tc.z]);await shot('20-cat-tree');await view([-160,FY-143,150],[tc.x,FY-45,tc.z]);await shot('24-cat-tree-side');}
+  if(!quick){
   // the football, a fresh crisp packet and today's crushed one, side by side
   await p.evaluate(FY => {
     const r = House.ROOMS.bedroom, put = (k, x, z, ry) => { const t = House.THINGS[k]; if (!t) return; t.canGrab = null; t.st = 'rest'; t.snap = null; t.at = {room: 'bedroom', x, y: FY, z, ry, hide: false}; House.place(t); };
@@ -83,7 +93,8 @@ try {
   await catAt(cat.den, 'sleep', -90); await view([-86, FY - 24, 160], [-88, FY - 12, 218]); await shot('23-cat-den');
   await view([-160, FY - 143, 120], [-94, FY - 50, 224]); await shot('24-cat-tree-side');
   for (const [k, pose] of ['sit', 'stretch', 'walk', 'eat', 'sleep'].entries()) { await catAt({x: -40, y: FY, z: 150}, pose, -90); await view([-40, FY - 32, 95], [-40, FY - 12, 150]); await shot('3' + k + '-cat-' + pose); }
-  const tri = await p.evaluate(() => { const out = {}; const objs = Object.fromEntries(Object.keys(House.THINGS).filter(k => /^ch\.m\.|^ch\.pjs$|^hw\.paper$|^football$/.test(k)).map(k => [k, House.THINGS[k].obj])); objs.cat = House.SPOTS.cat.obj; objs.crispsFull = window.__full;
+  }
+  const tri = await p.evaluate(() => { const out = {}; const objs = Object.fromEntries(Object.keys(House.THINGS).filter(k => /^ch\.m\.|^ch\.pjs$|^hw\.paper$|^football$/.test(k)).map(k => [k, House.THINGS[k].obj])); objs.cat = House.SPOTS.cat.obj; if(window.__full)objs.crispsFull = window.__full;
     for (const [k, obj] of Object.entries(objs)) { let n = 0, d = 0; obj.traverse(o => { if (o.isMesh && o.geometry) { const g = o.geometry; n += (g.index ? g.index.count : g.attributes.position.count) / 3; d++; } }); out[k] = [Math.round(n), d]; } return out; });
   console.log('triangles/draws', JSON.stringify(tri));
   assert.deepEqual(errors, [], 'browser errors');

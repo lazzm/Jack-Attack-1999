@@ -998,12 +998,16 @@
     // the cat (next door's) lives on the cat tree by the radiator now (Mom bought it so the cat would stop sleeping on
     // the bed; the cat agreed, eventually): the top bed by day, the den at night; asleep or sat up watching you
     const cat = catModel(); r.group.add(cat); R.cat = cat; R.catBody = cat.userData.breath;
-    const tree = catTree(B, r, -94, 224, 90); tree.out = tree.W(40, 4); tree.mid = Object.assign(tree.W(10, -12), { y: FY - 66 }); cat.userData.tree = tree; // (against the front wall, between the bookcase and the radiator)
+    const tc=H.CAT_TREE, tree = catTree(B, r, tc.x, tc.z, tc.ry); tree.out = tree.W(40, 4); tree.mid = Object.assign(tree.W(10, -12), { y: FY - 66 }); cat.userData.tree = tree; // (against the front wall, between the bookcase and the radiator)
     { const hr = new Date().getHours(), night = hr >= 22 || hr < 7, at = night ? tree.den : tree.top, ps = night || hr % 2 ? 'sleep' : 'sit';
       cat.position.set(at.x, at.y, at.z); cat.rotation.y = (night ? -90 : -110) * D2R; cat.userData.pose(ps); cat.userData.homePose = ps; }
     H.spot('cat', { label: () => catName(), obj: cat });
-    // while it's curled up on the duvet the cat is solid: nothing can be put down under it (it used to swallow a plate)
-    if (H.solid) H.solid('U', 192, 59, 220, 85, 16, 30, { kind: 'cat', support: false, when: () => { for (let o = cat; o; o = o.parent) if (!o.visible) return false; return Math.hypot(cat.position.x - 206, cat.position.z - 72) < 3 && cat.position.y < 40; } });
+    // Keep placements out of the resting cat at its new home. The collider releases while it comes for its tea.
+    cat.updateWorldMatrix(true,true); const cb=new T.Box3().setFromObject(cat), catHome={x:cat.position.x,y:cat.position.y,z:cat.position.z};
+    H.solid('U',cb.min.x,cb.min.z,cb.max.x,cb.max.z,-cb.max.y,-cb.min.y,{kind:'cat',support:false,when:()=>{
+      for(let o=cat;o;o=o.parent)if(!o.visible)return false;
+      return Math.hypot(cat.position.x-catHome.x,cat.position.y-catHome.y,cat.position.z-catHome.z)<.1;
+    }});
     // a parcel on the bed (it comes after you've played five different games: a competition prize)
     const post = new T.Group(); post.position.set(170, 30, 100); post.rotation.y = 14 * D2R; r.group.add(post); R.post = post;
     const PO = K.into(post); PO.box(0, -5, 0, 24, 10, 18, M('#c8a070')); PO.plane(0, -10.05, 0, 14, 8, M({ c: '#fff', map: K.tex('rm.addr', 128, 72, (g) => { g.fillStyle = '#fff'; g.fillRect(0, 0, 128, 72); g.font='700 14px '+A.HAND;g.fillStyle='#222';g.fillText(Cast.t('{me.Mr} {me}'),10,28,108); A.text(g, 'MY ROOM', 10, 52, '13px ' + A.HAND, '#222'); g.fillStyle = '#c02020'; g.fillRect(100, 6, 20, 24); },{identity:true}) }), { rx: -90 });

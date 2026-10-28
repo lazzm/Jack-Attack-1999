@@ -825,7 +825,7 @@
     held = { id, d: clamp(o?.d || holdDistance(t), 25, 150), ry: o?.ry || 0, from: Object.assign({}, t.at), was, sx: t.at.x, sy: t.at.y, sz: t.at.z, drag, pry: P.ry, rel: (t.at.ry || 0) + P.ry, hand: null, hv: { x: 0, y: 0, z: 0 } };
     if (was) { const sn = SNAPS[was]; t.snap = null; if (sn && sn.onUnsnap) try { sn.onUnsnap(t); } catch (e) { console.error(e); } emit('unsnap', was, id); }
     t.st = 'held'; t.at.hide = false; t.obj.visible = true;
-    aimPt = null; aimT = 0; GP.res = null; targetsAt = -Infinity; targetCount = 0; if (targets) targets.visible = false; // never inherit the previous object's shelf targets
+    aimPt = null; aimT = 0; GP.res = null; targetsAt = -Infinity; targetCount = 0; showTargets(null); // never inherit the previous object's shelf targets
     const b = t.body || (drag ? bodyFor(t) : null);
     if (b) { bodyState(t); if (!drag) PH.supportGone(b); else PH.awake.delete(b); }
     layerFor(t); // update the cached front-layer state too, even before a frame renders
@@ -980,12 +980,13 @@
     }
     if (!ex[0] || !ex[1]) for (const p of corners) edge(p);
     const size = lb.getSize(_vv), small = size.toArray().every(n => n * k <= L * 1.5), flat = size.z < Math.min(size.x, size.y) * .45;
-    const toLocal = flat ? new T.Matrix4().copy(t.obj.matrixWorld).invert().multiply(_hm) : null;
+    const grips = t.handGrips?.length ? t.handGrips.map(p => new T.Vector3(...p).applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi)).sort((a,b)=>a.x-b.x) : null;
+    const toLocal = flat && !grips ? new T.Matrix4().copy(t.obj.matrixWorld).invert().multiply(_hm) : null;
     for (const a of g.userData.sides) {
-      const sd = a.sd, c = ex[sd < 0 ? 0 : 1], visible = !small || sd > 0;
+      const sd = a.sd, c = grips ? grips[sd < 0 ? 0 : grips.length-1] : ex[sd < 0 ? 0 : 1], visible = grips ? grips.length>1 || sd>0 : !small || sd > 0;
       for (const m of [a.palm, a.wrist, a.sleeve, a.cuff]) m.visible = visible;
       if (!visible) continue;
-      const px = c.x + sd * .2, py = gripY, lean = -sd * .1;
+      const px = c.x + sd * .2, py = grips ? c.y : gripY, lean = -sd * .1;
       let front = c.z;
       if (toLocal) {
         // On a turned case the outer corner can be its back corner. Put the thumb on the real front face.
@@ -1218,8 +1219,8 @@
         const tg = glowTarget(s);
         // (an open slot's ring lies where the thing will rest; a hidden one's at the bottom of its box)
         const foot = tg ? tg.foot : { x: c.x, y: !s.hide && s.pose && Number.isFinite(p.y) ? p.y : c.y + b[1] / 2, z: c.z, ry: p.ry || 0, hx: b[0] / 2, hz: b[2] / 2, round: !!s.round };
-        const pose = !tg && [p.x, p.y, p.z].every(Number.isFinite) ? { x: p.x, y: p.y, z: p.z, rx: p.rx, ry: p.ry, rz: p.rz } : null;
-        cg.list.push({ s, obj: tg && tg.obj, foot, pose }); targetCount++;
+
+        cg.list.push({ s, obj: tg && tg.obj, foot }); targetCount++;
       }
     }
     const D = cg.decals, pulse = 0.8 + 0.2 * Math.sin(now / 260);
@@ -1463,7 +1464,7 @@
   }
   // Saved as [room, x, y, z, ry, snap, hide, extra]; extra holds a chair's swivel. A carried thing saves where it came
   // from, and the grip itself is remembered so a refresh hands it straight back (jhp_hs_held).
-  const PV = 6; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry
+  const PV = 7; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry; 7: clear floor props from the new cat tree
   // The front plot (docs/HOUSE-SCALE.md, js/hs-house.js builds it): the garden runs from the house front (z 702) to the pavement
   // at FZ. Until pv 3 it was 4 m deep (FZ 1100) with Dad's car shrunk to 82% (OLD_CAR) to squeeze it in.
   // STREET: our pavement (FZ..FZ+145, 1.45 m), its kerb, a 5.6 m road, the far kerb and pavement; the opposite houses'
@@ -1475,6 +1476,7 @@
   const FRONT = Object.freeze({ FZ: 1400, STREET: Object.freeze({ pave: [1400, 1545], kerb: 1550, road: [1555, 2115], farKerb: 2120, farPave: [2125, 2270] }),
     PIERS: Object.freeze([231.5, 348.5, 636.5]), PIER_TOP: 124, HEDGE: Object.freeze([1328.5, 1384]),
     CAR: Object.freeze({ x: 500, y: 353, z: 1075, s: 1.04, roof: 126.9 }), CAR4: Object.freeze({ x: 488, y: 353, z: 980, s: 1.04 }), CAR3: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
+  const CAT_TREE = Object.freeze({ x: -90, z: 224, half: 23, ry: 90 });
   // A placement saved before pv 3: whatever was in or on the old car moves with the car (same spot in the boot or on the
   // roof, scaled); whatever the bigger car now stands on is set down on the drive beside it. Everything else keeps its pose.
   // pv 4: in or on the v3 car -> the same spot on the car 20 cm further back; on the ground where the car now stands ->
@@ -1484,6 +1486,9 @@
   // in front of the sofa, on the way through.
   const LOUNGE5 = [[-157, 560, 37, 649], [53, 338, 166, 452]];
   function migratePlacement(at, from = 0) {
+    if (at && at.room === 'bedroom' && from < 7 && Number.isFinite(at.x) && Number.isFinite(at.z) && at.y >= LV.U-6 && at.y <= LV.U+2 && Math.abs(at.x-CAT_TREE.x)<CAT_TREE.half && Math.abs(at.z-CAT_TREE.z)<CAT_TREE.half) {
+      at.x=CAT_TREE.x+CAT_TREE.half+29; at.z=clamp(at.z,190,224); at.y=LV.U; return true;
+    }
     if (at && at.room === 'lounge' && from < 5 && Number.isFinite(at.x) && Number.isFinite(at.z)) {
       // Raised props follow the old upholstery; floor props only move if the new furniture covers them.
       if (at.y < LV.G - 6 && at.y >= LV.G - 110) {
@@ -1571,9 +1576,9 @@
     if (!save || !save.t || save.pv0 !== undefined) return;
     const { CAR3, OLD_CAR } = FRONT, pv = save.pv || 0, old = pv < PV; save.pv0 = pv; // pv0: the version it was saved with (the physics nudge below still needs it)
     for (const id in save.t) {
-      const r = save.t[id]; if (!Array.isArray(r) || r[5] || (r[0] !== 'drive' && r[0] !== 'lounge')) continue;
+      const r = save.t[id]; if (!Array.isArray(r) || r[5] || (r[0] !== 'drive' && r[0] !== 'lounge' && r[0] !== 'bedroom')) continue;
       const lx = (r[1] - OLD_CAR.x) / OLD_CAR.s, lz = (r[3] - OLD_CAR.z) / OLD_CAR.s;
-      const stale = pv === 3 && Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR3.y - 5 && !(Math.abs(r[1] - CAR3.x) <= 92 * CAR3.s && Math.abs(r[3] - CAR3.z) <= 205 * CAR3.s);
+      const stale = r[0] === 'drive' && pv === 3 && Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR3.y - 5 && !(Math.abs(r[1] - CAR3.x) <= 92 * CAR3.s && Math.abs(r[3] - CAR3.z) <= 205 * CAR3.s);
       if (!old && !stale) continue;
       const at = { room: r[0], x: r[1], y: r[2], z: r[3], ry: r[4] };
       if (migratePlacement(at, stale ? 0 : pv)) save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4], ...r.slice(5)];
@@ -3166,7 +3171,7 @@
   GR.nx=Math.ceil((740-GR.x0)/GR.cs);GR.nz=Math.ceil((FRONT.STREET.pave[1]-GR.z0)/GR.cs);grids.dirty=true;
   // ================================================================ the API
   window.House = {
-    ok: true, FRONT, STAND, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
+    ok: true, FRONT, CAT_TREE, STAND, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
     focus, unfocus, surface, faceQuad, inspect, endInspect, get focused() { return !!focusS; },
     room, buildRoom, door, setDoor, walkRect, block, solid, stairs, support, soft, softChanged, softs: SOFT, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     restoreThing, rescue: t => { if (t) rescueQ.add(t); }, lostWhy, saveThings, saveWalkState, layerFor, frontFx, place,

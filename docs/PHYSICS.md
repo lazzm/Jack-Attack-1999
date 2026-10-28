@@ -100,16 +100,11 @@ things (a magazine on the floor). Thresholds keep the movement pass's 8 cm step.
 ---------------------------------------------------------------------
 ## 4. Carrying, placing, dragging (the host, hs-world.js)
 
-- Small things are lifted and drawn in your hands (owner, 2026-10-27: "don't hold things like that"), first-person style:
-  a scaled stand-in about 40 cm from the eye (`heldPos`), not the full-size model filling a quarter of the screen.
-  Its size comes from its projected bounding box: a game box ~12% of the view height, small things ~10%, big things
-  up to a third, held lower so they run off the bottom of the frame (portrait phones size from the width). It sits
-  low and just right of centre, tipped so you see a little of its top, with two simple mitts and jumper sleeves
-  holding its sides (`armsTick`); it lags a few degrees behind fast turns and rides your stride. It never covers the
-  crosshair (it starts below it), the ghost or the carry panel (it moves under/beside them). Seen from the eye the
-  stand-in and the full-size thing are the same picture (a scale about the eye, `heldVirtual`), so setting down,
-  snapping in, inspecting and raising the Game Lad grow it back in place; X lets go of it at most ~1.2 m away.
-  Slots and the ghost are still matched against your reach point (`reachPos`, held.d: +/-, Shift+wheel).
+- Small things use the real model at its real scale, close and low, just right of centre with a slight tilt.
+  A game box occupies about 12% of the view height; bigger things sit lower and partly out of frame. Rounded mitts
+  and short sleeves hold it (one hand for small props), with light lag and bob. No replacement or shrinking copy.
+  The crosshair, placement ghost and carry panel remain clear. Slots use the reach point, adjusted with +/- or
+  Shift+wheel. X drops it with the hands' motion; Q/right click returns it to the pickup point.
 - **Ghost preview**: a see-through copy where the thing will land, computed with the physics colliders every 40 ms
   (80 ms on Low): green = fits, red = blocked (the panel says why), gold = clicks into a highlighted slot. It is drawn as
   a faint fill plus a fresnel rim on the thing's own merged geometry (two draws), and a ring the shape of its base lies on
@@ -119,9 +114,7 @@ things (a magazine on the floor). Thresholds keep the movement pass's 8 cm step.
   carry glows in its own shape. A slot that belongs to a thing (`snap.glow`: a THINGS id, an Object3D or a function giving
   one; the washing basket and the bin) gets a soft additive rim on that thing's own geometry, an inverted-hull outline
   pushed out along smoothed normals, and a footprint ring on the floor round its base. An empty slot (shelf, console,
-  desk, the mag pile) shows a gold see-through copy of the carried thing standing in it (one instanced draw for up to 48
-  slots) plus a ring the slot's shape. The slot it will click into burns brighter and pulses faster. All rings are one
-  instanced draw; no extra full-screen passes on any tier (Potato also drops the rim sheen and keeps the outline).
+  desk, the mag pile) shows a shallow ring in the slot's shape (up to 48 slots); it never draws extra copies of the held item. The slot it will click into burns brighter and pulses faster. Target rings and the placement footprint use two small instanced draws; no extra full-screen passes on any tier (Potato also drops the rim sheen and keeps the outline).
 - **E / click** sets it down exactly at the ghost (a 0.23 s glide, then asleep: no settling wobble). Red ghost: E refuses
   with a reason. **X** lets go: it leaves your hands with a little of their motion, falls, bounces and settles.
   **R** turns 45 degrees, **wheel** 15 degrees; Shift+wheel or + / - bring it nearer or further. **Q** / right click
@@ -160,3 +153,7 @@ else moves on load: sleeping bodies keep their exact saved pose.
   once a frame); body iterations near the player reuse that list; world parts are recomputed only when a pose changes;
   moved bodies are redrawn once a frame; the chair is three colliders.
 - Not measured: real low-end PCs, phones or old laptops with hardware GPUs (the 3D house is desktop-only today).
+
+### Props follow-up (2.57.16)
+
+Placement version 7 reserves the new cat tree footprint at House.CAT_TREE and transfers old floor records directly beneath it once. Raised items, other rooms and snapped media retain their records; daily chore item IDs and progress remain unchanged. The parked cat has its own placement collider at the new home. Soft irregular props may author `handGrips` as one or two local 3D contact points; the crossed socks use one grip on real fabric rather than empty bounding-box space.

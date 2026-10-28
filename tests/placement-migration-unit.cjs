@@ -5,8 +5,8 @@ const source=fs.readFileSync(path.join(__dirname,'../app/public/js/hs-world.js')
 const start=source.indexOf('  const PV = '),end=source.indexOf('  function saveThings(',start);
 assert(start>=0&&end>start,'Production placement migration is present');
 const ms=source.indexOf('  function migrateSave(save)'),me=source.indexOf('  // Placements saved before the physics pass',ms);
-const {PV,FRONT,migratePlacement:move,migrateSave}=vm.runInNewContext(source.slice(start,end)+source.slice(ms,me)+';({PV,FRONT,migratePlacement,migrateSave})',{LV:{G:353},clamp:(n,a,b)=>Math.max(a,Math.min(b,n))});
-assert.equal(PV,6,'Latest migration version must be stamped into saves');
+const {PV,FRONT,migratePlacement:move,migrateSave}=vm.runInNewContext(source.slice(start,end)+source.slice(ms,me)+';({PV,FRONT,migratePlacement,migrateSave})',{LV:{G:353,U:73},clamp:(n,a,b)=>Math.max(a,Math.min(b,n))});
+assert.equal(PV,7,'Latest migration version must be stamped into saves');
 const near=(a,b)=>assert(Math.abs(a-b)<1e-7,`${a} differs from ${b}`);
 for(const from of [3,4,5]){
  const old=from===3?FRONT.CAR3:FRONT.CAR4;
@@ -30,5 +30,11 @@ for(const a of [null,{room:'bedroom',x:20,y:73,z:100},{room:'drive',x:-200,y:353
 }
 for(const a of [sofa,chair,underSofa,ground,hedge,roof]){const saved=JSON.stringify(a);assert(!move(a,PV));assert.equal(JSON.stringify(a),saved)}
 const record={pv:3,t:{chair:['lounge',110,308,430,10,0,0,{keep:true}],unbuilt:['bedroom',20,73,100,45,0,1,{sw:80}]},o:{drawer:1}};
-migrateSave(record);assert.equal(record.pv,6);assert.deepEqual(Array.from(record.t.chair),['lounge',110,308,395,18,0,0,{keep:true}]);assert.deepEqual(record.t.unbuilt,['bedroom',20,73,100,45,0,1,{sw:80}]);const stored=JSON.parse(JSON.stringify(record));delete stored.pv0;const snapshot=JSON.stringify(stored.t);migrateSave(stored);assert.equal(JSON.stringify(stored.t),snapshot);assert.equal(stored.o.drawer,1);
-console.log('PLACEMENT MIGRATION PASS: versions 0..6, boot/roof/floor/hedge, sofa/chair, unrelated poses and repeated loads');
+migrateSave(record);assert.equal(record.pv,PV);assert.deepEqual(Array.from(record.t.chair),['lounge',110,308,395,18,0,0,{keep:true}]);assert.deepEqual(record.t.unbuilt,['bedroom',20,73,100,45,0,1,{sw:80}]);const stored=JSON.parse(JSON.stringify(record));delete stored.pv0;const snapshot=JSON.stringify(stored.t);migrateSave(stored);assert.equal(JSON.stringify(stored.t),snapshot);assert.equal(stored.o.drawer,1);
+console.log('PLACEMENT MIGRATION PASS: versions 0..7, boot/roof/floor/hedge, sofa/chair, unrelated poses and repeated loads');
+
+for(let from=0;from<7;from++){const a={room:'bedroom',x:-94,y:73,z:224,ry:15};assert(move(a,from));assert.equal(a.x,-38);assert.equal(a.z,224);assert.equal(a.y,73);assert.equal(a.ry,15);assert(!move(a,7));}
+for(const a of [{room:'bedroom',x:-94,y:0,z:224},{room:'bedroom',x:-140,y:73,z:224},{room:'bedroom',x:-94,y:73,z:180}]){const before=JSON.stringify(a);assert(!move(a,6));assert.equal(JSON.stringify(a),before)}
+
+const treeSave={pv:6,t:{floor:['bedroom',-94,73,224,10,0,0,{keep:true}],raised:['bedroom',-94,0,224,0,0,0]}};migrateSave(treeSave);assert.deepEqual(Array.from(treeSave.t.floor),['bedroom',-38,73,224,10,0,0,{keep:true}]);assert.equal(treeSave.t.raised[1],-94);
+for(const a of [sofa,chair,underSofa,ground,hedge,roof]){const before=JSON.stringify(a);assert(!move(a,6));assert.equal(JSON.stringify(a),before,'PV7 repeated an earlier furniture move')}
