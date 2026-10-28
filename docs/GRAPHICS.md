@@ -416,14 +416,14 @@ visible scene, not just the named room.
 |---|---:|---:|---:|
 | Bedroom | 532 | 360 | 32.3% |
 | Landing | 870 | 729 | 16.2% |
-| Hall | 855 | 674 | 21.2% |
+| Hall | 854 | 673 | 21.2% |
 | Cupboard | 273 | 210 | 23.1% |
 | Lounge | 812 | 660 | 18.7% |
 | Garden | 144 | 94 | 34.7% |
 | Drive | 544 | 408 | 25.0% |
 | Kitchen | 288 | 224 | 22.2% |
 
-Evidence: `/tmp/gate-HzG0/gfx-probe.mjs.log`, zero browser errors, 378.7 ms cumulative
+Evidence: `/tmp/gate-YE1O/gfx-probe.mjs.log`, zero browser errors, 367.7 ms cumulative
 batch construction work during the session. Spatial batching can submit extra triangles
 at a cell boundary; these measurements establish fewer draw calls, not hardware FPS.
 Hall/landing remain above the aspirational draw targets in section 4. Whole-room aperture
@@ -439,4 +439,12 @@ The Stage 0 timing files above predate the approved plot and new props and are h
 evidence, not a timing baseline for this release. Physical Edge/Android devices, gamepads,
 thermal behaviour and an independent hardware GPU benchmark remain unverified.
 
-Final smoke and focused vegetation/small-phone follow-ups are still required before deployment.
+Final follow-ups passed: `/tmp/gate-YE1O` bounds, vegetation and 72 doorway images; all
+vertices in 28,160 drive and 2,862 garden instances fit inside their aggregate spheres.
+The hidden-garden test submits 169,398 instead of 198,018 triangles with zero changed
+pixels. Activating the pre-existing instance bounds also removes 281,600 front-lawn
+triangles from the hall reference view. `/tmp/jhp-gfx-mobile-fixes.log` passes story/full/small
+3/3, including ink-only A/B printing and stable discovery spacing. Other mobile phases
+passed in `/tmp/jhp-gfx-mobile-rest.log` and `/tmp/jhp-gfx-mobile-final.log`.
+`/tmp/jhp-gfx-smoke-final.log` passes all 12 checks; physics 15/15 passed in `/tmp/gate-LMG5`.
+Main's final Chapter 1 release gate is still required before deployment.

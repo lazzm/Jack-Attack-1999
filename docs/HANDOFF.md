@@ -25,7 +25,7 @@ never anything that looks cursed.
 | /opt/stacks/landing-house2 | house-round2 | shipped 2.57.14; Jack approved 7 m plot | R86/R88/R90/R93/R103 and R112 complete. Clearance 110/107 cm; save migration, real touch, exterior 144 views, NPC routines and mobile green. Remaining scale-audit rows stay open. Next: mobile-3. |
 | /opt/stacks/landing-mobile3 | mobile-3 | shipped 2.57.15 | R98 movement/look, robust presses and case selection; R107 message stacking. Full/small/feel 3/3, phone/tablet/owner coverage, Chapter 1 and smoke green; carry regression green. Next: props-pass. |
 | /opt/stacks/landing-props | props-pass | shipped 2.57.16 | Shape-hugging targets, solid clothes/rubbish, proper football and cat/tree. Preserves shallow eligible slots, British clips and daily job IDs. PV7 clears old floor props under tree once. Final save/feeding/carry green; merged story and grip gates green. Next: gfx-best. |
-| /opt/stacks/landing-gfx | gfx-best | merged through 2.57.16; under release review | R65 remove graphics options, best look always, real optimisation (no blur); R92 lighting incl. posters. |
+| /opt/stacks/landing-gfx | gfx-best | 2.57.17 candidate; main release gate next | R65 remove graphics options, best look always, real optimisation (no blur); R92 lighting incl. posters. |
 | /opt/stacks/landing-voices | voices | merged (2.57.8) + WIP | nothing urgent. |
 | (brief) ~/codex-runs/chores-polish.prompt.md | — | not started | R106 washing-up plate stays dirty/oversized; R80 bed-making hands-on; every chore visibly changes the world. |
 | (brief) ~/codex-runs/console-flow.prompt.md | — | not started | R84 Game Lad fills the screen when playing (keyboard), T = full screen with mouse; R85 case system (cart/disc out of case into machine, case parked, put back on eject). |
@@ -117,3 +117,10 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - TWO heavy browser workers maximum is now the practical host limit (three caused swap pressure); never exceed Jack's ceiling of three. Current workers: jhp-gfx-safe-culling and jhp-gfx-mobile-rest.
 - Next free graphics slot: run units/parody + gfx-integrity.mjs (new vegetation pixel/triangle assertion + doorway/lighting) + graphics-context.mjs + gfx-probe.mjs + perf/check.mjs. Then fresh main merge gate including Chapter 1/smoke. Do not deploy until green. Source tests/provisioned-room.mjs provisions complete renderer-test accounts; fresh signup fixtures correctly start the story with no PC.
 - R115 A label, R116 wall-culling differences and the small-phone toast follow-up are recorded in BACKLOG. Whole-room aperture rejection was unsafe because wall faces/reveals belong to adjacent room groups; keep walls intact. Only grass may use visibility routes. Preserve the untracked three British clips. No live data, accounts, caps or shared-world records were changed.
+
+Final graphics candidate: bounds/vegetation images and 72 doorway views green in /tmp/gate-YE1O;
+GL recovery retains all 235 batches in /tmp/gate-HzG0; final smoke 12/12 in
+/tmp/jhp-gfx-smoke-final.log. Mobile phase coverage is green across /tmp/jhp-gfx-mobile-final.log,
+/tmp/jhp-gfx-mobile-rest.log and final story/full/small 3/3 in /tmp/jhp-gfx-mobile-fixes.log.
+All 54 lighting captures and final ink-only Game Lad/phone banner captures reviewed.
+Next: main merge + Chapter 1 gate, then 2.57.17 static deploy/public check/commit/push.
