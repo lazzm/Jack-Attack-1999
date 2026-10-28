@@ -382,7 +382,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
   function bedPreview(stage, amount) {
     if (stage === 'pillow' && pillowT) {
       const squash = Math.sin(amount * Math.PI * 4) * .16;
-      pillowT.obj.scale.set(1 - squash * .22, 1 + squash, 1 - squash * .22);
+      pillowT.obj.scale.set(1 - squash * .22, .72 + amount * .28 + squash * .6, 1 - squash * .22);
     } else {
       const key = { pullL: 's', pullR: 'f', smooth: 't' }[stage];
       if (key) duvK[key] = amount;
@@ -512,7 +512,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
         const docked=CK.has('bed','pillow')||v.pillowDocked;
         if(docked){pillowT.home={room:'bedroom',x:190,y:37,z:-33,ry:0};CK.lock('ch.pillow');if(Math.abs(pillowT.at.x-190)>.1||pillowT.at.y!==37)CK.home('ch.pillow');}
         else CK.lock('ch.pillow',false);
-        if(!making?.gesture)pillowT.obj.scale.set(1,1,1);
+        if(!making?.gesture)pillowT.obj.scale.set(1,docked&&!CK.has('bed','pillow')?.72:1,1);
       }
       if (pjsT) {
         const folded=CK.has('bed','pjs');loosePjs.visible=!folded;foldedPjs.visible=folded;
