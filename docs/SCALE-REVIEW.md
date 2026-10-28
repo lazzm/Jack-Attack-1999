@@ -10,15 +10,23 @@ re-measure before editing. Shots named `house-scale/*` were taken at eye 158 cm,
 Method note for sizes in the shots: brick course on the house front measures about 7.4 cm against the 205 cm door leaf, so the
 brick texture scale (21.5 x 6.5) is correct and is the yardstick the other rows are judged against.
 
-## Global (fix these first, they colour every row below)
+## Camera follow-up (28 October)
+
+G1/G2 are implemented on `house-camera`: standing eye 143 cm and default seated eye 108 cm; walking uses 60 degrees vertically on ordinary landscape displays, at least 50 degrees horizontally in portrait, and a 95-degree horizontal ceiling. The PC retains its original lens. CSS and WebGL use the same focal length throughout the change.
+
+`node tests/camera-lens.mjs` measures six viewports and captures bedroom, hall, lounge and drive views at the actual walking lens. Matched old-camera captures are in `tests/shots/camera-lens/before/` (`--baseline --app-root=<old app directory>`); current captures are directly in `camera-lens/`. At 1366x860 the new view is 60 degrees vertical / 85.04 horizontal; at 390x844 it is 90.52 vertical / 50 horizontal. Both rendered camera systems agree within one pixel. A standing save from the old 128 cm eye retains its location and walking mode.
+
+G5: the scale, movement and character fixtures now use `House.STAND`, so their standing captures no longer silently put the camera above the player. Old audit images remain historical evidence; remaining dimensions below still need their own review.
+
+## Global (remaining rows still need review)
 
 | id | issue | where | current | target | why it feels wrong |
 |---|---|---|---|---|---|
-| G1 | Lens is a 41 degree vertical FOV | `PERSP = 115` (HW:23), `lensFov` (HW:149): 2*atan(vh/2 / (115*em)); em about 10 at 860 px high; the mobile css bumps em so it is about 38 degrees | about 41 deg vertical (about 62 horizontal at 16:9) | 58-62 deg vertical (PERSP about 76-80) | A long lens in a small house: you stand 1 m from a 192 cm wardrobe and it fills the frame, the car side fills the screen from 3 m, a 100 cm wide room feels like a corridor. Everything looks huge and close and flat at once, which is the "weird" feeling. Retune the station poses (`rm-room.js` stations, `look()` calls) and pickBox framing after widening |
-| G2 | Eye height too low for the house it lives in | `STAND = 128`, `SITH = 100` (HW:544); house-scale test used 158; `seat.eye` 110 chair / 81 beanbag | 128 standing | 142-145 standing, 108 seated, crouch -38 stays | A 12 year old's eyes are about 140-145 cm; 128 is a 9 year old. Against 205 cm doors and 258 ceilings every fixed thing is 1.5x the player. Also makes the dad/mom heads (about 175/160) tower |
+| G1 (implemented; camera release pending) | Lens is a 41 degree vertical FOV | `PERSP = 115` (HW:23), `lensFov` (HW:149): 2*atan(vh/2 / (115*em)); em about 10 at 860 px high; the mobile css bumps em so it is about 38 degrees | about 41 deg vertical (about 62 horizontal at 16:9) | 58-62 deg vertical (PERSP about 76-80) | A long lens in a small house: you stand 1 m from a 192 cm wardrobe and it fills the frame, the car side fills the screen from 3 m, a 100 cm wide room feels like a corridor. Everything looks huge and close and flat at once, which is the "weird" feeling. Retune the station poses (`rm-room.js` stations, `look()` calls) and pickBox framing after widening |
+| G2 (implemented; camera release pending) | Eye height too low for the house it lives in | `STAND = 128`, `SITH = 100` (HW:544); house-scale test used 158; `seat.eye` 110 chair / 81 beanbag | 128 standing | 142-145 standing, 108 seated, crouch -38 stays | A 12 year old's eyes are about 140-145 cm; 128 is a 9 year old. Against 205 cm doors and 258 ceilings every fixed thing is 1.5x the player. Also makes the dad/mom heads (about 175/160) tower |
 | G3 | Storey height 258 cm | ceilings `UY 73 / UC -185`, `GY 353 / GC 95` (HH:19) | 258 | 240-245 (UC -170, GC 110) | 53 cm of blank wall above a 205 cm door is the 1930s-grand look; late-90s semi is 240 with 35 cm over the door. Combined with G2 it is the main reason doors read small |
 | G4 | Detail scale is mixed: textures realistic, geometry chunky | wall skirting 9 cm (HH:~47) is right; newel, handrail, hinges, door handle and cove are fat; props (pumpkins, bowls, cereal box) are 1.2-1.4x | n/a | see rows | Brick and carpet speckle are correct size, so every chunky prop beside them looks oversized |
-| G5 | Reference shots mislead | `tests/house-scale.mjs` eye 158 vs live 128 | eye 158 | run the audit at live eye and at the new FOV | The review shots were taken from 30 cm higher than the player, so ceiling / doorway / wardrobe proportions in them look better than in game |
+| G5 (fixtures corrected; camera release pending) | Reference shots mislead | `tests/house-scale.mjs` eye 158 vs live 128 | eye 158 | run the audit at live eye and at the new FOV | The review shots were taken from 30 cm higher than the player, so ceiling / doorway / wardrobe proportions in them look better than in game |
 
 ## Prioritised findings
 

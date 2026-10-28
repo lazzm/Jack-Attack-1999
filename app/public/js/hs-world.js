@@ -3,12 +3,12 @@
  * boot.js's CSS 3D model (with the power button, the fly-in and the BIOS hand-over): it's drawn on top of the WebGL room and
  * the two cameras are kept exactly in step (in "hold" mode we drive boot.js's camera, in "follow" mode we copy it).
  *
- *   walking: W A S D / arrow keys (Shift to hurry), mouse to look, F to interact; click/E are alternatives
+ *   walking: W A S D / arrows (Shift to jog), mouse to look; F/I uses or looks closely, E/click picks up or places
  *   stations: the arrows at the sides jump to the good views of the room you're in
- *   holding: click a thing to pick it up; it floats in front of you. Click to put it down where you're looking, wheel (or
- *            the +/- buttons) to move it nearer or further, R to turn it; Esc opens the menu, including Put Back
- *   the PC: press its power button (we sit down first), or with it on, "Stand up" (Esc held down, or the chair button on the
- *           desktop) and the monitor in the room shows the live desktop; click the monitor to sit back down
+ *   holding: the real object rests in your hands; E/click places at a valid ghost, X drops, R/wheel turns, +/- moves
+ *            nearer/further, Q/right click returns it; Esc opens the game menu
+ *   the PC: press its power button (we sit down first); Q/F2 or the game menu stands up with the PC still running.
+ *           F at the monitor sits back down; T locks the active screen in without restarting it
  * The content is built by js/rm-room.js (the bedroom: window.Room is the public API for other packs) and js/hs-house.js
  * (the rest of the house), with the kit in js/hs-kit.js. This file exports window.House (see the bottom). */
 (function () {

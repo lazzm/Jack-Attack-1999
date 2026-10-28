@@ -409,3 +409,9 @@ Stage 0 graphics/performance matrix (owns its throwaway server):
 Run from the repository root. See [perf/README.md](perf/README.md) for backend,
 CPU-throttle, sample-count and per-room gate options. Images are under
 `tests/shots/perf/`; results include the actual GPU string and host load.
+
+Walking-camera checks and native-lens gallery (disposable server/data):
+
+    node camera-lens.mjs
+
+Measures walking FOV, live standing eye height and CSS/WebGL focal alignment at desktop, phone and tablet portrait/landscape sizes, then checks an old standing save survives refresh. Captures are in `shots/camera-lens/`; an old-source comparison can use `--baseline --app-root=/absolute/path/to/old/app`.
