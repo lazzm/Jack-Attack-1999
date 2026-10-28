@@ -16,7 +16,7 @@ const account = 'Story' + Date.now().toString(36), password = 'Temporary-1999';
 async function bootRoundTrip(){
   const name='Boot'+Date.now().toString(36);
   const reg=await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name,pass:password})});assert.equal(reg.status,200);
-  const f=await roomFixture(base,{account:name,password,signup:false});
+  const f=await roomFixture(base,{account:name,password,signup:false,timeoutScale:SCALE});
   try{
     const p=f.page;await p.evaluate(()=>House.buildRoom(House.ROOMS.drive));
     const frame=await p.evaluate(()=>House.ROOMS.drive.carFrame);
@@ -54,7 +54,7 @@ async function ownerReplace(op,action,pick){
 async function ownerRoundTrip(){
   const ownerReg=await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name:'Jack',pass:password})});
   assert.equal(ownerReg.status,200);
-  const of=await roomFixture(base,{account:'Jack',password,signup:false});
+  const of=await roomFixture(base,{account:'Jack',password,signup:false,timeoutScale:SCALE});
   try {
     const op=of.page;await of.until(()=>OwnerTools.allowed);
     assert.equal(await op.evaluate(()=>House.pcGL.visible),true);
@@ -77,7 +77,7 @@ async function ownerRoundTrip(){
   console.log('STORY OWNER PASS: reset removes the PC; restore brings the original PC back');
 }
 if(stage==='owner'){await ownerRoundTrip();process.exit(0);}
-const {browser, page:p, errors, until, view} = await roomFixture(base, {account, password, opening:true,resume:!!resumed,storageState:resumed||undefined});
+const {browser, page:p, errors, until, view} = await roomFixture(base, {account, password, timeoutScale:SCALE, opening:true,resume:!!resumed,storageState:resumed||undefined});
 const shot = name => p.screenshot({path:shots + name + '.png'});
 async function wait(page, fn, arg, timeout=30000) {
   const end=Date.now()+timeout*SCALE;
@@ -251,6 +251,10 @@ try {
   assert.equal(await p.evaluate(() => st.getState().ch), 2);assert.equal(await p.evaluate(()=>House.pcGL.visible),true); await shot('11-diary-refresh');
   await p.keyboard.press('q'); await p.evaluate(() => House.putBack());
   if (errors.length) console.log('Desktop errors retained for the final assertion:',errors);
+  // This is a device handover. Retire the old desktop before starting the phone:
+  // its 45-second autosave can otherwise keep publishing newer profiles while a
+  // software-rendered phone warms up, forcing repeated import/reload cycles.
+  await p.close();
   // Phones play the same game (device policy, 2026-10-26): a token resume on a phone gets the same house, story and
   // diary, and (like any refresh) never rewrites the saved standing pose or the PC's power state.
   const mobile = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0 Mobile Safari/537.36',storageState});
@@ -268,7 +272,8 @@ try {
   });
   const kept = () => [JSON.parse(localStorage.getItem('jhp_hs_stand')||'null')?.p||null, localStorage.getItem('jhp_off')];
   await mp.goto(base,{waitUntil:'domcontentloaded',timeout:90000*SCALE});
-  await wait(mp,() => window.__testProfileReady&&window.AccountGate?.allowed&&window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!!window.st?.getState()&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
+  try { await wait(mp,() => window.__testProfileReady&&window.AccountGate?.allowed&&window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!!window.st?.getState()&&!document.querySelector('.hs-loading,#houseEntry'),null,90000); }
+  catch(e){console.log('Phone resume failure',await mp.evaluate(()=>({profileReady:window.__testProfileReady,connected:window.Net?.connected,member:window.Net?.me?.member,allowed:window.AccountGate?.allowed,live:window.House?.live,desktopOnly:window.PCOnly?.desktopOnly,touch:window.GameInput?.touch,story:window.st?.getState(),loading:!!document.querySelector('.hs-loading,#houseEntry')})));await mp.screenshot({path:shots+'phone-failure.png'});throw e;}
   // The phone may have reloaded once to bring the desktop's latest profile down; from here on nothing may change it.
   // Settled means: ready, and still the same document three seconds later (a roam reload replaces it).
   for (let i = 0; i < 6; i++) {

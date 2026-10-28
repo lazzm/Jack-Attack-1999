@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.16: solid props and cloth grips, shape-hugging carry targets, rolling football, cat/tree and safe placement migration. Earlier mobile controls, approved front plot, family, hands and camera releases remain included.
+- Live = 2.57.17: one sharp authored picture, automatic device-local adaptation, static batching, bounded grass rendering and print lighting. Includes 2.57.16: solid props and cloth grips, shape-hugging carry targets, rolling football, cat/tree and safe placement migration. Earlier mobile controls, approved front plot, family, hands and camera releases remain included.
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
   -> `./deploy.sh` -> `curl -s https://jacklm.com/ | grep -o "v=2\.[0-9.]*-[0-9]*"` -> git commit (attribution) + `git push origin main`.
@@ -25,7 +25,7 @@ never anything that looks cursed.
 | /opt/stacks/landing-house2 | house-round2 | shipped 2.57.14; Jack approved 7 m plot | R86/R88/R90/R93/R103 and R112 complete. Clearance 110/107 cm; save migration, real touch, exterior 144 views, NPC routines and mobile green. Remaining scale-audit rows stay open. Next: mobile-3. |
 | /opt/stacks/landing-mobile3 | mobile-3 | shipped 2.57.15 | R98 movement/look, robust presses and case selection; R107 message stacking. Full/small/feel 3/3, phone/tablet/owner coverage, Chapter 1 and smoke green; carry regression green. Next: props-pass. |
 | /opt/stacks/landing-props | props-pass | shipped 2.57.16 | Shape-hugging targets, solid clothes/rubbish, proper football and cat/tree. Preserves shallow eligible slots, British clips and daily job IDs. PV7 clears old floor props under tree once. Final save/feeding/carry green; merged story and grip gates green. Next: gfx-best. |
-| /opt/stacks/landing-gfx | gfx-best | 2.57.17 candidate; main release gate next | R65 remove graphics options, best look always, real optimisation (no blur); R92 lighting incl. posters. |
+| /opt/stacks/landing-gfx | gfx-best | shipped 2.57.17 | R65 remove graphics options, best look always, real optimisation (no blur); R92 lighting incl. posters. |
 | /opt/stacks/landing-voices | voices | merged (2.57.8) + WIP | nothing urgent. |
 | (brief) ~/codex-runs/chores-polish.prompt.md | — | not started | R106 washing-up plate stays dirty/oversized; R80 bed-making hands-on; every chore visibly changes the world. |
 | (brief) ~/codex-runs/console-flow.prompt.md | — | not started | R84 Game Lad fills the screen when playing (keyboard), T = full screen with mouse; R85 case system (cart/disc out of case into machine, case parked, put back on eject). |
@@ -109,18 +109,12 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 
 - Final all-unit/parody/carry/smoke gate `/tmp/gate-FxYO` green (carry 124 s, smoke 12/12); final mobile full/small 2/2 (`/tmp/jhp-props-mobile-last.log`). All garment captures reviewed on desktop/phone. Next: gfx-best.
 
-## Graphics review checkpoint (unshipped; main/live still 2.57.16)
-- Current graphics candidate includes static batching, best-look-only controls, print lighting, device-local adaptation/debug keys, conservative room walls, and aperture rejection restricted to dense grass. Latest work also retains batches on GL rebuilds, warms new renderer programs, adds ink-only Game Lad A/B printing, and makes portrait discovery messages fade without vertical motion.
-- Accepted evidence: all initial units/parody in /tmp/gate-qt1z; owner-tools 1148 s, carry 405 s and cat feeding 292 s in /tmp/gate-OIrS. Graphics acceptance /tmp/jhp-gfx-perf-final.log passed sharp buffers, migration, live screens, healthy batching, zero settled idle redraws and pacing. Later context/vegetation changes require focused follow-up.
-- /tmp/gate-LMG5: image equivalence exact; 72 doorway views exact; 54 lighting captures green (494 s), reviewed /tmp/gfx-lighting-review.jpg and full poster/night/handheld images. Probe green (241 s); these precede the newest grass/context/ink changes. Physics is running, eleven cases passed at last check; smoke follows. Outer log /tmp/jhp-gfx-safe-culling.log.
-- /tmp/jhp-gfx-mobile-final.log: gate/story passed (280/351 s). Old full failed only a brightness-based button-pixel threshold; replaced with stronger hue + direct finger/B checks. /tmp/jhp-gfx-mobile-rest.log: full (483 s), feel (650 s), tablet (190 s) passed; small caught an entering-toast clearance issue now fixed in CSS; owner/perf still pending. Rerun full/small/story after this worker finishes for final ink/toast/context coverage.
-- TWO heavy browser workers maximum is now the practical host limit (three caused swap pressure); never exceed Jack's ceiling of three. Current workers: jhp-gfx-safe-culling and jhp-gfx-mobile-rest.
-- Next free graphics slot: run units/parody + gfx-integrity.mjs (new vegetation pixel/triangle assertion + doorway/lighting) + graphics-context.mjs + gfx-probe.mjs + perf/check.mjs. Then fresh main merge gate including Chapter 1/smoke. Do not deploy until green. Source tests/provisioned-room.mjs provisions complete renderer-test accounts; fresh signup fixtures correctly start the story with no PC.
-- R115 A label, R116 wall-culling differences and the small-phone toast follow-up are recorded in BACKLOG. Whole-room aperture rejection was unsafe because wall faces/reveals belong to adjacent room groups; keep walls intact. Only grass may use visibility routes. Preserve the untracked three British clips. No live data, accounts, caps or shared-world records were changed.
-
-Final graphics candidate: bounds/vegetation images and 72 doorway views green in /tmp/gate-YE1O;
-GL recovery retains all 235 batches in /tmp/gate-HzG0; final smoke 12/12 in
-/tmp/jhp-gfx-smoke-final.log. Mobile phase coverage is green across /tmp/jhp-gfx-mobile-final.log,
-/tmp/jhp-gfx-mobile-rest.log and final story/full/small 3/3 in /tmp/jhp-gfx-mobile-fixes.log.
-All 54 lighting captures and final ink-only Game Lad/phone banner captures reviewed.
-Next: main merge + Chapter 1 gate, then 2.57.17 static deploy/public check/commit/push.
+## Graphics release evidence (2.57.17)
+- Main includes gfx-best. One sharp authored look, device-local adaptation, conservative room walls, static geometry batching and bounded grass culling; no geometry/save migration. Preserves the three untracked British clips.
+- Final raster checks `/tmp/gate-YE1O`: batch/vegetation comparisons pixel-identical, 72 open/shut doorway views identical, all instanced grass vertices inside aggregate bounds. Eight-room probe reduces draw calls 16–35%; hall/landing still exceed the aspirational draw target. Physical hardware FPS/thermal behavior remains unverified.
+- `/tmp/gate-HzG0`: GL recovery retains all 235 batches and exact pose/zoom/power; performance checks green (sharp buffers, live CRTs, local settings migration, healthy batch recovery, settled idle and pacing). Reviewed before/after context captures.
+- Physics 15/15 (`/tmp/gate-LMG5`), final smoke 12/12 (`/tmp/jhp-gfx-smoke-final.log`), owner tools/carry/cat feeding (`/tmp/gate-OIrS`) green. All eight mobile phases covered across full/focused reruns; final story/full/small 3/3 (`/tmp/jhp-gfx-mobile-fixes.log`). Reviewed 54 lighting captures, ink-only Game Lad A/B printing, portrait discovery spacing and final canonical smoke gallery.
+- Root units/parody `/tmp/gate-7uzu` green. Final complete Chapter 1 `/tmp/jhp-gfx-story-handover.log` green: fresh signup, real chores, carried/assembled PC refresh, installation pause/refresh, diary/phone resume, veteran isolation and owner snapshot/reset/restore, zero browser errors/warnings. Earlier fixture failures are superseded: navigation now shares STORY_SCALE, and the completed desktop closes before phone handover (focused connected-phone confirmation `/tmp/jhp-profile-handover.log`). All behavior assertions retained.
+- Static deployment; no server module, account, wallet, cap or shared-world changes. Physical Edge/Android, hardware FPS/thermal behavior and gamepads remain unverified. R108 and the broader scale audit stay open.
+- Maximum two heavy browser workers is the practical host limit; Jack's hard ceiling remains three. Voice timers were checked: 29/30 October 08:15 lines, 31 October 07:15 names. No TTS work or old American clips shipped today.
+- Next after graphics: voices read-only readiness review, then chores brief (R106 washing-up first, R80 bed next), then console-flow brief. Keep releases small.

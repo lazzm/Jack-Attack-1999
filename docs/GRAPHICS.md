@@ -406,7 +406,7 @@ Engine and technique references (cited from memory, not re-fetched)
 Caveats: I did not run device benchmarks; every "expected impact" figure is an estimate from the measured draw counts and mechanism, to be confirmed by the Stage 0 matrix. Version details of later three.js releases (compileAsync, BatchedMesh, colour management dates) are from memory of the changelog and should be re-verified against the Migration Guide before any upgrade work.
 
 
-## One look results (2026-10-28, release gate in progress)
+## One look results (2026-10-28, release 2.57.17)
 
 Equal-quality, same-session batch/unbatch comparison on the current scene: SwiftShader,
 adaptation rung 0, all doors open, first station in each room. Counts include the whole
@@ -447,4 +447,4 @@ triangles from the hall reference view. `/tmp/jhp-gfx-mobile-fixes.log` passes s
 3/3, including ink-only A/B printing and stable discovery spacing. Other mobile phases
 passed in `/tmp/jhp-gfx-mobile-rest.log` and `/tmp/jhp-gfx-mobile-final.log`.
 `/tmp/jhp-gfx-smoke-final.log` passes all 12 checks; physics 15/15 passed in `/tmp/gate-LMG5`.
-Main's final Chapter 1 release gate is still required before deployment.
+Main's complete Chapter 1 gate passes in `/tmp/jhp-gfx-story-handover.log`, including phone handover, diary refresh, veteran isolation and owner snapshot/reset/restore. The completed desktop closes before the phone starts; all resume assertions remain intact.
