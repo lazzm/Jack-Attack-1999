@@ -9,7 +9,7 @@ async function shot(n){await p.screenshot({path:dir+n+'.png'});console.log('Capt
 async function walk(){await p.evaluate(()=>{House.hush();House.setWalkFrom({x:105,y:-70,z:115,lvl:'U',seat:0});House._.setMode('walk');House.P.rx=-35;House.P.ry=45;House.saveWalkState();House.dirty()});await p.waitForTimeout(400)}
 async function put(id,snap){
  await walk();await p.evaluate(()=>{const P=House.P;P.rx=-40;P.ry=Math.atan2(180-P.x,-(10-P.z))*180/Math.PI;House.dirty()});
- assert(await p.evaluate(id=>House.grab(id),id));
+ assert(await p.evaluate(id=>House.grab(id),id));await p.waitForTimeout(500);await shot(id==='ch.pjs'?'pyjamas-carried':'pillow-carried');
  for(let i=0;i<5;i++)await p.keyboard.press('+');await p.keyboard.press('e');await p.waitForTimeout(1300);
  const state=await p.evaluate(id=>({at:House.THINGS[id].at,snap:House.THINGS[id].snap,held:House.held(),ghost:House.ghost()}),id);assert.equal(state.snap,snap,JSON.stringify(state));
 }
