@@ -26,6 +26,7 @@ try{
  await p.evaluate(async()=>{await Chores.load();await Chores.part('bedroom');HouseFamily.debug.hide(true)});await until(()=>!!House.THINGS['ch.pjs']);
  await f.view([100,-65,200],[193,35,40]);await shot('01-before');
  await put('ch.pillow','ch.s.pillow');assert(!await p.evaluate(()=>ChoreKit.has('bed','pillow')),'Placement skipped plumping');
+ await open();await p.locator('.hs-getup').focus();await p.keyboard.press('Space');await until(()=>!House.focused&&!House.gliding);assert(!await p.evaluate(()=>ChoreKit.has('bed','pillow')),'Back-button Space committed bed work');
  await open();await shot('02-pillow-ready');
  const pt=await coords(190,-33);await p.mouse.click(pt.x,pt.y);assert(!await p.evaluate(()=>ChoreKit.has('bed','pillow')),'One click completed the pillow');
  await drag([[190,-33],[190,-20],[190,-40],[190,-20],[190,-40]]);assert(await p.evaluate(()=>ChoreKit.has('bed','pillow')),'Pillow gesture did not finish');
