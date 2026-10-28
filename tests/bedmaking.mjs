@@ -61,8 +61,9 @@ try{
  assert(await p.evaluate(()=>['pillow','pjs','pullL','pullR','smooth'].every(s=>ChoreKit.has('bed',s))&&!House.THINGS['ch.pjs'].at.hide&&House.physics.body('ch.pjs').fixed&&House.physics.body('ch.pillow').fixed));
  await shot('08-refresh');
  // Legacy partial save: PJs were hidden before the pillow had been placed.
- await p.evaluate(()=>{delete ChoreKit.S.prog.bed.pillow;delete ChoreKit.S.v.bed.pillowDocked;House.THINGS['ch.pjs'].at.hide=true;ChoreKit.MODS.bed.sync()});
+ await p.evaluate(()=>{delete ChoreKit.S.prog.bed.pillow;delete ChoreKit.S.v.bed.pillowDocked;House.THINGS['ch.pillow'].home={room:'bedroom',x:40,y:73,z:72,ry:80};ChoreKit.home('ch.pillow');House.THINGS['ch.pjs'].at.hide=true;ChoreKit.MODS.bed.sync()});
  assert(await p.evaluate(()=>!House.THINGS['ch.pjs'].at.hide&&House.THINGS['ch.pjs'].at.y===37),'Legacy PJs float without a pillow');
+ await f.view([100,-65,200],[193,35,40]);await shot('09-legacy-pjs-first');await walk();
  assert(await p.evaluate(()=>ChoreKit.ownerStart('bed')));assert(await p.evaluate(()=>!House.THINGS['ch.pjs'].at.hide&&House.THINGS['ch.pjs'].at.y===73&&House.THINGS['ch.pillow'].at.y===73));
  assert(await p.evaluate(()=>House.physics.body('ch.pjs').parts[0].hz>10),'Redo kept the folded collider');
  await open();await p.keyboard.down('Space');await until(()=>document.querySelector('.ch-bed-note progress').value===1);await p.keyboard.up('Space');await until(()=>ChoreKit.has('bed','pullL'));
