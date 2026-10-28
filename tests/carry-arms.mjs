@@ -25,6 +25,7 @@ try {
   await until(() => !!House.THINGS['ch.binbag']);
   await page.evaluate(() => { for (const t of Object.values(House.THINGS)) if (t.id.startsWith('ch.m.')) { t.at.hide = true; House.place(t); } });
   assert(!await page.evaluate(() => House.grab('ch.binbag')), 'An untied bag came out of the bin');
+  const touch = await page.context().newCDPSession(page);
   const shot = name => page.screenshot({path: shots + name + '.png'});
   const aim = async (eye, target, lvl = 'U') => { await view(eye, target, {level: lvl}); await page.evaluate(() => House._.setMode('walk')); await page.waitForTimeout(500); };
   const filledCase = await page.evaluate(() => Object.values(House.THINGS).find(t => t.kind === 'console-case' && !t.at.hide)?.id);
@@ -37,7 +38,15 @@ try {
     assert(await page.evaluate(() => [...document.querySelectorAll('.st-marker[data-state="edge"] .st-marker-label')].every(el => getComputedStyle(el).display === 'none')), 'An off-screen label is painted over the held item');
     await shot('hold-' + id.replaceAll('.', '-'));
     for (const [width, height] of [[390, 844], [844, 390], [768, 1024], [1024, 768]]) {
-      await page.setViewportSize({width, height}); await page.touchscreen.tap(15, height * .32); await page.waitForTimeout(700);
+      await page.setViewportSize({width, height});
+      if (!await page.evaluate(() => GameInput.touch)) {
+        await touch.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [{id: 1, x: 70, y: height - 150}]});
+        await touch.send('Input.dispatchTouchEvent', {type: 'touchMove', touchPoints: [{id: 1, x: 70, y: height - 185}]});
+        await page.waitForTimeout(100);
+        await touch.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []});
+      }
+      await page.waitForTimeout(700);
+      assert.equal(await page.evaluate(() => House.held()), id, 'Input/rotation dropped the held object');
       assert(await page.evaluate(() => __real.scale.distanceTo(__scale) < .00001), 'Resize changed held size');
       await shot(`hold-${id.replaceAll('.', '-')}-${width}x${height}`);
     }
