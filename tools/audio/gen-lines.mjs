@@ -41,7 +41,9 @@ if (INSTALL) {
 const SEP = ' ...  ...  ... ';
 // voice-lines.json carries a trailing ' |' (markdown table residue) on most lines: never send it to TTS
 const say = l => l.line.replace(/\s*\|\s*$/, '');
-const line1 = l => `[${l.tag}] ${say(l)}`;
+// Every line names the accent: without it Gemini's voices default to American (owner, 2026-10-28).
+const WHO = { mom: 'warm British mum', dad: 'British dad', sister: 'cheeky British girl of nine', gran: 'British grandmother', announcer: 'British game-show announcer' };
+const line1 = l => `[${l.tag}, ${WHO[l.character] || 'British'}] ${say(l)}`; // short tags: long directions get read aloud
 let G;
 // Split a batch wav into clips for ls, verify each clean clip by transcription, then apply fx -> <OUT>/<id>.mp3.
 async function processWav(ls, wav, raw, mode) {

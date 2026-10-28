@@ -131,7 +131,7 @@ async function aimAt(p, eye, target, level = 'U') {
   await p.page.evaluate(({ eye, target, level }) => {
     House.hush(); House.setWalkFrom({ x: eye[0], y: eye[1], z: eye[2], lvl: level, seat: 0 });
     const [x, y, z] = eye, [tx, ty, tz] = target;
-    Object.assign(House.P, { x, y, z, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI });
+    Object.assign(House.P, { x, y, z, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI, lvl: level, seat: 0 });
     House._.setMode('walk'); House.dirty();
   }, { eye, target, level });
   await sleep(400);
@@ -326,7 +326,7 @@ const phases = {
           const fam = /^np\./.test(id) && window.HouseFamily?.debug?.dump().find(f => 'np.' + f.id === id); if (fam) { lvl = fam.lvl; c = [fam.x, lvl === 'G' ? 230 : -30, fam.z]; }
           const ey = lvl === 'G' ? 205 : -55;
         const room = fam ? H.ROOMS[fam.room] : null, inRoom = (x, z) => !room || room.area.some(q => x >= q[0] + 20 && x <= q[2] - 20 && z >= q[1] + 20 && z <= q[3] - 20);
-          const out = []; for (const d of [110, 150, 80, 190]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (H._.cellOk(lvl, x, z) && inRoom(x, z)) out.push({ e: [x, ey, z], c: [c[0], Math.min(c[1], ey + 40), c[2]], lvl }); } return out; }, id);
+          const out = []; for (const d of [150, 190, 110]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (H._.cellOk(lvl, x, z) && inRoom(x, z)) out.push({ e: [x, ey, z], c: [c[0], Math.min(c[1], ey + 40), c[2]], lvl }); } return out; }, id);
         for (const q of r || []) {
           await aimAt(p, q.e, q.c, q.lvl);
           // a step with the stick lets the house notice which room you are in (and draw it), then look again
@@ -348,9 +348,12 @@ const phases = {
         await until(d => !!House.DOORS[d.id].open !== d.open, door, 10000); await page.waitForTimeout(900); await shot('story-02g-door-toggled');
       }
       if (await page.evaluate(() => !!House.SPOTS['np.mom'] && !!window.HouseFamily?.debug?.dump().find(f => f.id === 'mom' && f.present))) {
+        // Keep the touch target at a known, reachable daily job rather than chasing her phone routine.
+        await page.evaluate(() => { const F = HouseFamily; F.debug.go('mom', 'hob'); F.debug.place('mom', 'hob'); F.debug.sim(5, 0.1); });
         assert(await look('np.mom'), 'Nowhere to stand in sight of Mom: ' + JSON.stringify(await page.evaluate(() => HouseFamily.debug.dump().find(f => f.id === 'mom')))); const said = await clickThing(p, 'np.mom', 'story-02c-finger-on-mom');
         assert.match(said, /talk/i, 'Finger label on Mom: ' + said + ' ' + JSON.stringify(await page.evaluate(() => { const o = House.SPOTS['np.mom'].obj, v = new House.T.Vector3(); o.getWorldPosition(v); return { dump: HouseFamily.debug.dump().find(f => f.id === 'mom'), proxy: [v.x, v.y, v.z], P: House.P, vis: o.visible, parentVis: o.parent?.visible }; })));
         await until(() => !!document.querySelector('.hs-voice.on,.hs-call.on,.hs-note.on,.np-bub:not(.np-out)'), null, 15000); await page.waitForTimeout(500); await shot('story-02d-talking-to-mom');
+        await page.evaluate(() => HouseFamily.debug.go('mom', null));
       } else report.checks.push({ label: 'Mom not in the bedroom at the opening', skipped: true });
       const mag = await page.evaluate(() => ['pmb.pm.mag.01', 'pmb.pm.mag.02'].find(id => House.THINGS[id]?.obj.visible && House.THINGS[id].st === 'rest'));
       if (mag) {
@@ -382,7 +385,8 @@ const phases = {
       assert(!/\[J\]/.test(line), 'Quest line shows a keyboard key on touch: ' + line);
       if (line) {
         await p.press('.st-objective'); await page.waitForTimeout(800); await shot('story-06-diary-picker');
-        await page.evaluate(() => document.querySelector('.st-quests [data-close], .st-picker button, dialog[open] button')?.click());
+        await p.press('[data-quest-close]');
+        await until(() => !window.stDiary?.picking);
         await page.waitForTimeout(400);
       }
       // the pause menu: touch settings, no keyboard text

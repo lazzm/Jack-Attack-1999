@@ -11,10 +11,10 @@ import fs from 'node:fs';
 import { gemini, splitFile, clipOptions, cutClip, archiveRaw, listRaw, pcmToWav, probeDur, TTS_MODEL } from '../lines-lib.mjs';
 const HERE = new URL('.', import.meta.url).pathname;
 const SPEAKERS = {
-  'mom-shout': { voice: 'Sulafat', tag: 'shouting', text: n => `${n.toUpperCase()}!` },
-  'mom-call':  { voice: 'Sulafat', tag: 'warmly', text: n => `${n}, love?` },
-  'dad-shout': { voice: 'Algenib', tag: 'shouting', text: n => `${n.toUpperCase()}!` },
-  'sis-whine': { voice: 'Leda', tag: 'whining', text: n => `${n}!` },
+  'mom-shout': { voice: 'Sulafat', tag: 'shouting, British mum', text: n => `${n.toUpperCase()}!` },
+  'mom-call':  { voice: 'Sulafat', tag: 'warmly, British mum', text: n => `${n}, love?` },
+  'dad-shout': { voice: 'Algenib', tag: 'shouting, British dad', text: n => `${n.toUpperCase()}!` },
+  'sis-whine': { voice: 'Leda', tag: 'whining, British girl', text: n => `${n}!` },
 };
 const BATCH = 15;
 const args = process.argv.slice(2), flag = n => args.includes('--' + n);

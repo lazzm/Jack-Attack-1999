@@ -4,7 +4,7 @@
 // paying anything herself, bumping into them, stepping aside, refresh keeping everyone in place, planted feet, the draw
 // call cost, and the story's first in-person scene (Mom gives the first jobs). Screenshots: tests/shots/characters/.
 // Starts and stops its own server on a free port with throwaway data, like smoke.mjs.
-//   node characters.mjs [--only=routines|day|talk|bump|refresh|feet|draws|story|entrance|interrupt|shots] [--keep]
+//   node characters.mjs [--only=routines|day|talk|bump|refresh|feet|draws|story|entrance|interrupt|loop|shots] [--keep]
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {mkdtemp, mkdir, rm} from 'node:fs/promises';
@@ -405,6 +405,54 @@ try {
       assert(ret < 8, 'Back on her spot afterwards: ' + ret.toFixed(1));
       assert.deepEqual(bad, [], 'Talking mid-job: ' + bad.join(' | '));
       await page.evaluate(() => { for (const id of ['mom', 'dad', 'sister']) HouseFamily.debug.go(id, null); HouseFamily.debug.clock(null); });
+      assert.deepEqual(errors, []);
+    } finally { await browser.close(); }
+  });
+
+  // ---------------------------------------------------------------- R104: Dad coming up to Jack's room while you stand by the door
+  // (owner, 28 October: Dad parked in the open doorway repeating the same joke; Mom repeating too). Scene lines play once,
+  // no line repeats within a minute however often you press F, nobody idles in the doorway, you can walk out in 10 s.
+  await check('loop', async () => {
+    const { browser, page, errors } = await veteran();
+    try {
+      await page.evaluate(() => { const F = HouseFamily; F.debug.clock({ md: 1012, dow: 2, t: 18.1 }); F.debug.go('mom', 'hob'); F.debug.place('mom', 'hob'); F.debug.go('sister', 'sofaR'); F.debug.place('sister', 'sofaR'); F.debug.sim(2, 0.1); });
+      await look(page, [212, 73 - 128, 186], [100, 73 - 130, 186], 'U');
+      await page.evaluate(() => { const S = HouseFamily.debug.speech; let last = null; window.__said = []; window.__sayT = setInterval(() => { const c = S.cur; if (c && c !== last) { last = c; window.__said.push({ who: c.c.id, id: c.lineId, t: Date.now() }); } }, 60); });
+      await page.evaluate(() => HouseFamily.debug.scene('dad', 'bedDad'));
+      const t0 = Date.now();
+      while (Date.now() - t0 < 45000 * SCALE) { // (pressing F at him every few seconds, the way you would to get past)
+        await page.waitForTimeout(2500);
+        await page.evaluate(() => { const d = HouseFamily.chars.dad; if (d.present && d.lvl === 'U' && Math.hypot(d.x - House.W.x, d.z - House.W.z) < 260) HouseFamily.talk('dad'); });
+      }
+      const said = await page.evaluate(() => { clearInterval(window.__sayT); return window.__said; });
+      const rep = said.filter((a, i) => said.some((b, j) => j < i && b.who === a.who && b.id === a.id && a.t - b.t < 60000));
+      const dad = await page.evaluate(() => { const d = HouseFamily.chars.dad, b = House.DOORS.bedroom.closedBounds; return { x: d.x, z: d.z, lvl: d.lvl, inDoor: d.x > b.x0 - 12 && d.x < b.x1 + 12 && d.z > b.z0 - 12 && d.z < b.z1 + 12, held: HouseFamily.doorHeld(), hold: d.hold, step: d.cur?.k, goal: d.goal?.key, entrance: HouseFamily.debug.entrance().dad, door: House.DOORS.bedroom.open }; });
+      console.log('  Dad scene state: ' + JSON.stringify(dad));
+      console.log(`  loop: ${said.length} lines (${said.map(s => s.who + ':' + s.id).join(', ')}); Dad at ${Math.round(dad.x)},${Math.round(dad.z)} in the doorway: ${dad.inDoor}`);
+      await shot(page, 'loop-dad-in-room');
+      await look(page, [-40, 73 - 128, 120], [dad.x, 73 - 140, dad.z], 'U');
+      await shot(page, 'loop-dad-oblique');
+      for (const [width, height] of [[390, 844], [844, 390], [768, 1024], [1024, 768]]) {
+        await page.setViewportSize({ width, height }); await page.waitForTimeout(350);
+        await shot(page, `loop-dad-${width}x${height}`);
+      }
+      await page.setViewportSize({ width: 1366, height: 860 });
+      assert.deepEqual(rep.map(r => r.who + ':' + r.id), [], 'A line repeated within a minute');
+      assert(!dad.inDoor, 'Dad is not standing about in the doorway: ' + JSON.stringify(dad));
+      assert(!dad.held, 'Nothing holds you in');
+      // walk out of the room onto the landing
+      await look(page, [212, 73 - 128, 186], [330, 73 - 128, 186], 'U');
+      await page.keyboard.down('w'); let out = false;
+      for (let i = 0; i < 40 && !out; i++) { await page.waitForTimeout(250); out = await page.evaluate(() => House.W.x > 262); }
+      await page.keyboard.up('w');
+      assert(out, 'You can walk out of your room within 10 s: ' + JSON.stringify(await page.evaluate(() => [House.W.x, House.W.z])));
+      await look(page, [-40, 73 - 128, 120], [-160, 73 - 128, 120], 'U');
+      await page.evaluate(() => HouseFamily.debug.sim(30, 0.1));
+      const arrived = await page.evaluate(() => HouseFamily.debug.dump().find(c => c.id === 'dad'));
+      assert(arrived.room === 'bedroom' && arrived.step === 'act', 'Dad completes his entrance once you give him room: ' + JSON.stringify(arrived));
+      await look(page, [-40, 73 - 128, 205], [arrived.x, 73 - 140, arrived.z], 'U');
+      await shot(page, 'loop-dad-arrived');
+      await page.evaluate(() => { HouseFamily.debug.scene('dad', null); for (const id of ['mom', 'dad', 'sister']) HouseFamily.debug.go(id, null); HouseFamily.debug.clock(null); });
       assert.deepEqual(errors, []);
     } finally { await browser.close(); }
   });
