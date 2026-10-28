@@ -1,5 +1,12 @@
 # Jack's Home Page - changelog
 
+## 2.57.13 - 2026-10-28
+- The walking camera sees more of the room: 60 degrees vertically on ordinary landscape displays, at least 50 degrees across on portrait phones, capped at 95 degrees across. Standing eye height is 143 cm; the default seated height is 108 cm. The PC keeps its original lens and screen framing.
+- R111: the live desktop now stays fitted to the CRT when the lens changes without the player moving. The new corner check reproduces 72 px drift with the old cache and keeps every corner within 0.06 px with the fix.
+- Standing capture fixtures use the game's actual eye height. Door tests wait for controller time instead of assuming a busy browser receives enough frames in a fixed wall-clock interval; their collision and crossing assertions remain intact.
+- Verified: syntax/unit/parody gates, Chapter 1, smoke 12/12, physics 15/15, transitions 9/9, mobile 7/7 plus full/tablet 2/2 after the CRT fix, real-scale carry/bin/slot checks, six viewport/lens measurements and legacy standing-save refresh. All 32 furnished/sparse walking routes completed without a stuck player; the focused twelve-door rerun has zero findings. Reviewed native-lens desktop 1366x860 and 1920x1080, phone/tablet portrait/landscape, carry, transition and CRT before/after captures.
+- No item-placement migrations, account resets, wallet/cap changes or shared-world changes. Physical Edge/Android hardware and gamepads remain unverified. R107 banner stacking and R108's existing furniture-check warning remain open.
+
 ## 2.57.12 - 2026-10-28
 - R109: replaced the first-person blocky claws with rounded, joined grips. Small objects use one hand, fingers stay behind the item, the thumb rests on its front, and short sleeves leave more of the room visible. Turned cases use their front face for thumb contact. Objects retain their real model and scale.
 - R97/R102: rounded hips and overlapping, rolled-under hems remove the waistband ledge and extra crotch wedge. R110: corrected left/right wrist and gaze targets so seated hands rest on their own side and job poses no longer cross the arms.

@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.12: doorway/dialogue and carry/bin/slot fixes, rounded hips, person-person clearance, corrected family wrists and rebuilt first-person grips.
+- Live = 2.57.13: wider walking camera and teenager eye height, CRT projection aligned during lens changes; 2.57.12 also included doorway/dialogue and carry/bin/slot fixes, rounded hips, person-person clearance, corrected family wrists and rebuilt first-person grips.
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
   -> `./deploy.sh` -> `curl -s https://jacklm.com/ | grep -o "v=2\.[0-9.]*-[0-9]*"` -> git commit (attribution) + `git push origin main`.
@@ -20,8 +20,9 @@ never anything that looks cursed.
 |---|---|---|---|
 | /opt/stacks/landing-loopfix | people-loopfix | shipped 2.57.10 | R104 complete. Focused gate 7/7, smoke 12/12, mobile 7/7; doorway/entrance regressions and desktop/phone/tablet screenshot review passed. Next: carry-arms. |
 | /opt/stacks/landing-arms | carry-arms | shipped 2.57.11 | R100/R101/R105 complete; R83 edge-label fix and touch carry polish included. Next: people-hips. |
-| /opt/stacks/landing-hips | people-hips | shipped 2.57.12 | R97/R99/R102 complete; R109 first-person grip rebuild and R110 wrist-side fix included. Next: house-round2 camera as its own small release. |
-| /opt/stacks/landing-house2 | house-round2 | 3 commits (camera 60 deg FOV + 143 cm eye) + WIP | finish + ship camera first; then R103 front door space (car further along the drive), lounge space (R90), village never ends (R88), hedge/piers/car (R86), docs/SCALE-REVIEW.md rows. |
+| /opt/stacks/landing-hips | people-hips | shipped 2.57.12 | R97/R99/R102 complete; R109 first-person grip rebuild and R110 wrist-side fix included. Camera shipped separately in 2.57.13; next: the rest of house-round2. |
+| /opt/stacks/landing-camera | house-camera | shipped 2.57.13 | Camera G1/G2/G5 and R111 complete; native-lens and CRT corner capture review passed. |
+| /opt/stacks/landing-house2 | house-round2 | remaining front/street/lounge commits + WIP; camera already shipped | Next: R103 front door space (car further along the drive), lounge space (R90), village never ends (R88), hedge/piers/car (R86), docs/SCALE-REVIEW.md rows. |
 | /opt/stacks/landing-mobile3 | mobile-3 | 3 commits + WIP | R98 research-led mobile controls polish (docs/MOBILE-CONTROLS.md); mobile.mjs "Finger label on Mom" needs updating for personal space. |
 | /opt/stacks/landing-props | props-pass | 4 commits + WIP | shape-hugging target glows, clothes/rubbish models, crisp packet, pentagon/hexagon football, cat + cat tree (R40/R68/R74/R77/R81). |
 | /opt/stacks/landing-gfx | gfx-best | WIP (28 files) | R65 remove graphics options, best look always, real optimisation (no blur); R92 lighting incl. posters. |
@@ -64,3 +65,9 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - Gates: units/parody `/tmp/gate-Clwo` green. `/tmp/gate-bFn7` owner tools, identity and smoke green (12/12); its Chapter 1 hit a fresh-page 30-second timeout. `/tmp/gate-26OV` Halloween green; Chapter 1 caught the phone profile-import reload racing a bare assertion. Both fixture races corrected; final Chapter 1 `/tmp/gate-IwF3` green. Mobile six scenarios passed in `/tmp/jhp-hips-mobile.log`; its early mid-walk sample raced navigation. The revised test measures the actual pagehide position within 2 cm and passed in `/tmp/jhp-hips-mobile-story.log`.
 - Jack then rejected the shipped first-person claws (R109). Rebuilt rounded grips in hs-world.js, one hand for small items, fingers behind the object, shorter sleeves. Early carry captures were reviewed and refined. Final front-face thumb contact and real-scale carry/bin/slot/refresh checks passed (`/tmp/jhp-hands-carry-final.log`); final captures in tests/shots/carry-arms reviewed. Physics `/tmp/jhp-hands-physics.log` 15/15. Final unit/parody/smoke gate `/tmp/jhp-hands-final-gate.log` green, smoke 12/12. Mobile `/tmp/jhp-hands-mobile-final.log` passed six scenarios; owner menu caught the same profile-import race. Waiting for the real handshake passed owner and account-gate reruns 2/2 (`/tmp/jhp-hands-mobile-owner.log`).
 - Static release; no player-data migration/reset in this release. Physical Edge/Android/gamepads remain unverified. Then house-round2 camera as its own small release before front/living-room geometry.
+
+## Camera release evidence (2.57.13)
+- Camera isolated from house-round2 and merged before final gates. Syntax/unit/parody and Chapter 1 passed (`/tmp/gate-Xf9N`); its first smoke run was stopped after finding the CRT cache defect, then final source passed smoke 12/12 and focused syntax/parody (`/tmp/gate-sxjn`, `/tmp/gate-e7kL`).
+- Physics 15/15; transitions 9/9; carry/bin/slots/refresh pass; mobile 7/7, then full/tablet 2/2 after the screen fix. Six viewport lens/CSS measurements and legacy standing resume pass. Four live desktop corners agree with the actual WebGL glass within 0.06 px; the regression fails the old cache at 72 px.
+- Movement: 32 routes complete, zero stuck players. The initial audit flagged a 3 mm door-distance shortfall despite crossing the open plane; door waits now consume actual controller time. All twelve furnished/sparse shut/open door checks pass, zero findings (`/tmp/jhp-camera-doors.log`).
+- Reviewed `landing-camera/tests/shots/camera-lens/`, CRT before/after, transition sheets, mobile phone/tablet portrait/landscape and carry captures. R107/R108 remain open; physical Edge/Android/gamepad testing unavailable. No item migrations or account/wallet/cap/shared-world changes.
