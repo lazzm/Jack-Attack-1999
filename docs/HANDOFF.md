@@ -36,7 +36,7 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
   American clips are archived in ~/jack-audio/lines/american-*/ — never ship them.
 - Timers (linger enabled): jack-voice-lines-2 (29 Oct 08:15, 90 req) and -3 (30 Oct 08:15) re-record all 313 lines in
   ~/jack-audio/lines; jack-names-callouts-3 (31 Oct 07:15). After each run: check accent with
-  `node /tmp/claude-1000/-home-jackm/50b0f379-d7e5-5c16-a26d-8dd162bb1cc4/scratchpad/accent.mjs <clips>` (expects British),
+  `node ~/bin/accent-check.mjs <clips>` (expects British),
   then `node tools/audio/gen-lines.mjs --out ~/jack-audio/lines/voice --report ~/jack-audio/lines/lines-report.json --install app/public/audio/voice`
   and ship as a small release. Live has 3 British Mom clips.
 
