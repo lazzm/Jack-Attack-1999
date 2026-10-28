@@ -40,6 +40,7 @@ try{
  });
  for(const {row,normal,reference}of portals.bad){const name=`portal-${row.door}-${row.open}-${row.side}-${row.yaw}`;await writeFile(dir+name+'-normal.png',Buffer.from(normal,'base64'));await writeFile(dir+name+'-reference.png',Buffer.from(reference,'base64'));}console.log('PORTAL DIFFERENCES',JSON.stringify(portals.rows.filter(r=>r.changed>=.002)));
  const rows=portals.rows;assert(rows.length>=24,'Doorway coverage missing');for(const row of rows){assert(row.mean>8,'Empty doorway view: '+JSON.stringify(row));assert(row.changed<.002,'Frustum culling changed visible pixels: '+JSON.stringify(row));}console.log('FRUSTUM IMAGE PASS',rows.length,'open/shut views, both sides and three angles; worst changed ratio',Math.max(...rows.map(r=>r.changed)));
+ if(process.argv.includes('--checks-only')){assert.deepEqual(errors,[]);console.log('GFX CHECKS PASS: batch/vegetation image equivalence and 72 doorway views');}else{
  const rooms=await p.evaluate(()=>Object.keys(House.ROOMS));let count=0;
  async function station(id){await p.evaluate(id=>{House.goRoom(id,0);const t=House._.glide?.to;House.cancelGlide(true);if(t){const pose=typeof t==='function'?t():t;Object.assign(House.P,pose);House.setWalkFrom(pose)}House._.setMode('focus');House.relight();House._.renderForBenchmark()},id);await p.waitForTimeout(450);await p.evaluate(()=>House._.renderForBenchmark());}
  for(const hour of [9,13,19,23]){await p.evaluate(hour=>{window.auditHour=hour;dispatchEvent(new Event('ownerclock'));HouseEnvironment.update(0);House.relight()},hour);for(const id of rooms){await station(id);await p.screenshot({path:dir+`${id}-${hour}.png`});count++;}}
@@ -47,4 +48,5 @@ try{
  // A readable poster view at daylight and night, with its full A2 title visible.
  await p.setViewportSize({width:1366,height:860});for(const hour of [13,23]){await p.evaluate(h=>{window.auditHour=h;dispatchEvent(new Event('ownerclock'));House.relight()},hour);await f.view([-80,-70,65],[-52,-82,-56]);await p.screenshot({path:dir+`poster-${hour}.png`});}
  assert.deepEqual(errors,[]);console.log('GFX INTEGRITY PASS:',count+2,'room/device/time captures, merged geometry image equivalence, zero errors');
+ }
 }finally{await f.browser.close()}
