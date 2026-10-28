@@ -1180,7 +1180,12 @@
     // Dad's tartan travel rug, spread over the boot carpet so whatever rides in the boot sits on something soft.
     { const g=new T.PlaneGeometry(146,70,24,10),pp=g.attributes.position;for(let i=0;i<pp.count;i++){const x=pp.getX(i),y=pp.getY(i);pp.setZ(i,.35+.35*Math.sin(x*.09+y*.05)*Math.cos(y*.13)+(Math.abs(y)>31?.6:0))}
       g.computeVertexNormals();const rug=K.tex('hs.car.rug',128,128,(c,w,h)=>{c.fillStyle='#5a2226';c.fillRect(0,0,w,h);c.fillStyle='rgba(28,52,40,.75)';for(let k=0;k<w;k+=32){c.fillRect(k+6,0,12,h);c.fillRect(0,k+6,w,12)}c.fillStyle='rgba(214,190,120,.55)';for(let k=0;k<w;k+=32){c.fillRect(k+24,0,2,h);c.fillRect(0,k+24,w,2)}A.grain(c,w,h,900,.06,77)});
-      car.geo(K.thicken(g,.3),0,-23.55,-157,M({c:'#fff',map:rug,sh:2}),{rx:90}); }
+      car.geo(K.thicken(g,.3),0,-23.55,-157,M({c:'#fff',map:rug,sh:2}),{rx:90});
+      // The fabric sits above the boot's rigid floor: thin things must ride on
+      // its folds, including saved props restored while this room is hidden.
+      H.soft('drive',frame.x-73*frame.s,frame.z-192*frame.s,frame.x+73*frame.s,frame.z-122*frame.s,frame.y-23*frame.s,{sampleHidden:true,find:()=>{const meshes=[];r.group.traverse(o=>{if(o.isMesh&&!o.userData.noPick&&[].concat(o.material).some(m=>m.map===rug))meshes.push(o)});return meshes}});
+      H.on('room',id=>{if(id==='drive')H.softChanged('drive')});
+    }
     const hinge = new T.Group(); hinge.position.set(frame.x,frame.y-79*frame.s,frame.z-120*frame.s);
     hinge.scale.setScalar(frame.s); r.group.add(hinge);
     const lid=K.into(hinge);lid.rbox(0,0,-39,166,5,80,2,cm);

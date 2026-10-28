@@ -25,24 +25,26 @@
     for (let i = 0; i < 40; i++) { g.fillStyle = cols[i % cols.length]; g.fillRect(16 + r() * 96, 16 + r() * 96, 2 + r() * 3, 2 + r() * 2); }
   }, { clamp: true });
   const BEANS = ['rgba(200,80,20,.9)', 'rgba(160,60,10,.85)', 'rgba(230,180,40,.8)'], TEA = ['rgba(110,60,20,.8)', 'rgba(140,90,40,.6)'], FILM = ['rgba(255,255,255,.55)', 'rgba(240,235,220,.45)'], BURNT = ['rgba(60,30,10,.9)', 'rgba(190,70,20,.85)', 'rgba(110,50,10,.8)'];
-  function dirt(G, key, cols, seed, y, r) { const m = M({ c: '#fff', map: dirtTex(key, cols, seed), tr: true, dw: false, sh: 30 }).clone(); const d = G.disc(0, y, 0, r, m, 24); d.renderOrder = 3; return m; }
+  function dirt(G, key, cols, seed, y, r) { const m = M({ c: '#fff', map: dirtTex(key, cols, seed), tr: true, dw: false, sh: 30 }).clone(); const d = G.disc(0, y, 0, r, m, 24); d.renderOrder = 3; d.userData.own = true; d.name = 'washup-dirt-' + key; return m; }
   // the dirty things: [type, model]
   const DISH = [
     ['plate', () => grp(G => { G.lathe(0, 0, 0, [[12, -1.7], [10.6, -1.3], [7.2, -0.4], [0.1, -0.4]], 28, mat('#f6f4ee', { sh: 70, sp: '#999', side: 2 })); G.lathe(0, 0, 0, [[0.1, 0], [7.2, 0], [12, -1.7]], 28, mat('#e8e4da')); G.lathe(0, 0, 0, [[11.2, -1.62], [11.6, -1.66]], 28, mat('#2a5ad0')); G.group.userData.dirt = dirt(G, 'p0', BEANS, 3, -0.6, 9.6); })],
     ['plate', () => grp(G => { G.lathe(0, 0, 0, [[12, -1.7], [10.6, -1.3], [7.2, -0.4], [0.1, -0.4]], 28, mat('#f6f4ee', { sh: 70, sp: '#999', side: 2 })); G.lathe(0, 0, 0, [[0.1, 0], [7.2, 0], [12, -1.7]], 28, mat('#e8e4da')); G.lathe(0, 0, 0, [[11.2, -1.62], [11.6, -1.66]], 28, mat('#2a5ad0')); G.group.userData.dirt = dirt(G, 'p1', ['rgba(240,200,40,.9)', 'rgba(250,240,200,.7)', 'rgba(120,80,40,.7)'], 5, -0.6, 9.6); })],
     ['plate2', () => grp(G => { G.lathe(0, 0, 0, [[9, -1.4], [8, -1.1], [5.4, -0.4], [0.1, -0.4]], 26, mat('#f6f4ee', { sh: 70, sp: '#999', side: 2 })); G.lathe(0, 0, 0, [[0.1, 0], [5.4, 0], [9, -1.4]], 26, mat('#e8e4da')); G.group.userData.dirt = dirt(G, 'p2', ['rgba(120,70,30,.8)', 'rgba(230,200,150,.8)'], 7, -0.6, 7.4); })],
-    ['bowl', () => grp(G => { G.lathe(0, 0, 0, [[7.5, -5], [7, -2.5], [4, 0], [0.1, 0]], 24, mat('#f2ece0', { sh: 60, sp: '#888', side: 2 })); G.group.userData.dirt = dirt(G, 'b', ['rgba(250,245,230,.85)', 'rgba(230,170,50,.85)'], 9, -1.7, 5.4); })],
-    ['mug', () => grp(G => { const mm = mat('#d02a3a', { sh: 70, sp: '#999' }); G.cyl(0, -5, 0, 4.2, 4, 10, 18, { s: mm, t: mat('#efe8dc'), u: mm }); G.cyl(0, -9.95, 0, 3.6, 3.6, 0.1, 16, mat('#efe8dc')); G.geo(new T.TorusGeometry(2.6, 0.7, 6, 12), 4.6, -5, 0, mm); G.group.userData.dirt = dirt(G, 'm', TEA, 11, -10.05, 3.6); })],
-    ['glass', () => grp(G => { G.cyl(0, -6, 0, 3.4, 3, 12, 18, M({ c: '#d8ecf4', o: 0.38, sh: 120, sp: '#fff', side: 2 }), { open: true }); G.disc(0, -0.3, 0, 3, M({ c: '#d8ecf4', o: 0.5, sh: 120 }), 16); G.group.userData.dirt = dirt(G, 'g', FILM, 13, -6, 3.2); })],
-    ['pan', () => grp(G => { const al = mat('#b8bcc4', { sh: 90, sp: '#ddd', side: 2 }); G.cyl(0, -4.5, 0, 9, 9, 9, 24, al, { open: true }); G.disc(0, -0.4, 0, 9, al); G.rbox(16, -7.5, 0, 14, 1.6, 2.6, 0.6, mat('#1a1a1a', { sh: 40 })); G.group.userData.dirt = dirt(G, 'pan', BURNT, 15, -0.8, 8.6); })],
+    ['bowl', () => grp(G => { G.lathe(0, 0, 0, [[0.001, 0], [4.3, 0], [7.4, -2.5], [7.8, -5], [7.5, -5.2], [7.2, -4.8], [6.7, -2.8], [3.6, -0.6], [0.001, -0.6]], 28, mat('#f2ece0', { sh: 60, sp: '#888', side: 2 })); G.group.userData.dirt = dirt(G, 'b', ['rgba(250,245,230,.85)', 'rgba(230,170,50,.85)'], 9, -0.65, 3.4); })],
+    ['mug', () => grp(G => { const mm = mat('#d02a3a', { sh: 70, sp: '#999', side: 2 }); G.lathe(0, 0, 0, [[0.001, 0], [3.6, 0], [4.2, -0.6], [4.2, -9.6], [3.9, -10], [3.65, -9.8]], 24, mm); G.lathe(0, 0, 0, [[3.65, -9.8], [3.35, -1.2], [0.001, -1.2]], 24, mat('#efe8dc', { sh: 70, sp: '#999', side: 2 })); G.geo(new T.TorusGeometry(2.6, 0.7, 8, 16), 4.6, -5, 0, mm); G.group.userData.dirt = dirt(G, 'm', TEA, 11, -1.25, 3.2); })],
+    ['glass', () => grp(G => { G.lathe(0, 0, 0, [[0.001, 0], [3, 0], [3.4, -0.8], [3.4, -11.7], [3.2, -12], [2.95, -11.7], [2.65, -1], [0.001, -1]], 24, M({ c: '#d8ecf4', o: 0.38, sh: 120, sp: '#fff', side: 2 })); G.group.userData.dirt = dirt(G, 'g', FILM, 13, -1.05, 2.6); })],
+    ['pan', () => grp(G => { const al = mat('#b8bcc4', { sh: 90, sp: '#ddd', side: 2 }); G.lathe(0, 0, 0, [[0.001, 0], [8, 0], [9, -1], [9, -8.8], [9.2, -9], [8.6, -9], [8.4, -1.2], [0.001, -1.2]], 28, al); G.rbox(16, -7.5, 0, 14, 1.6, 2.6, 0.6, mat('#1a1a1a', { sh: 40 })); G.group.userData.dirt = dirt(G, 'pan', BURNT, 15, -1.25, 8); })],
   ];
   const DISHN = ['Dinner plate (baked beans)', 'Dinner plate (egg. EGG.)', 'Side plate (toast crusts)', 'Cereal bowl', 'Mug (tea ring)', 'Glass (milky)', 'Saucepan (burnt beans!)'];
   const PILE = [[-12, WT, -16, 0], [-12, WT - 1.8, -16, 30], [-12, WT - 3.5, -16, 70], [8, WT, -34, 0], [-26, WT, -38, 20], [-30, WT, -16, 0], [-12, WT - 4.9, -16, 0]];
-  const RACK = { x: -132, z: -12 };
+  const RACK = { x: -132, z: -9 };
   // where each one stands in the rack: plates on their edges at the back, cups upside down at the front
+  // Exact ceramic sizes: 24 cm dinner plates, 18 cm side plate. Their lower
+  // edges sit on the cross-wire, faces between the uprights, never tilted through them.
   const RPOSE = [
-    { x: -146, y: WT - 11.6, z: -17, rz: 80 }, { x: -140, y: WT - 11.6, z: -17, rz: 80 }, { x: -134, y: WT - 8.8, z: -17, rz: 80 },
-    { x: -122, y: WT - 5, z: -4, rx: 180 }, { x: -112, y: WT - 10, z: -6, rx: 180 }, { x: -142, y: WT - 12, z: -2, rx: 180 }, { x: -120, y: WT - 9, z: -20, rx: 180 },
+    { x: -152.35, y: WT - 14.32, z: -8, rz: 90 }, { x: -147.35, y: WT - 14.32, z: -8, rz: 90 }, { x: -142.35, y: WT - 11.32, z: -8, rz: 90 },
+    { x: -129.5, y: WT - 7.52, z: 0.5, rx: 180 }, { x: -116, y: WT - 12.32, z: 3, rx: 180 }, { x: -133, y: WT - 14.32, z: -19, rx: 180 }, { x: -117, y: WT - 11.32, z: -16, rx: 180, ry: 90 },
   ];
   // the washing-up bowl (red plastic, in the sink: every kitchen in 1999 had one), and the water in it
   const SINK = { x: -84, y: WT + 12, z: -26 }, LOW = SINK.y - 1, HALF = SINK.y - 5, FULL = SINK.y - 9;
@@ -50,7 +52,7 @@
   // Only known factory poses move with a layout correction. Player placements,
   // snapped dishes and finished chore steps retain their saved state.
   function updateFactoryPose(t,old){if(!t||t.at.hide||t.st!=='rest'||t.at.room!=='kitchen'||!['x','y','z','ry'].every((k,i)=>Math.abs((t.at[k]||0)-old[i])<.11))return;CK.home(t.id)}
-  let dishes = [], water = null, suds = null, tub = null, sinkSpot = null, soapBottle = null, extraSuds = 0;
+  let dishes = [], water = null, suds = null, tub = null, sinkSpot = null, soapBottle = null, extraSuds = 0, spongeBrush = null;
   const W = () => (CK.S.v.wash = CK.S.v.wash || { sc: {}, inn: -1 });
   const filled = () => CK.has('washup', 'fill');
   const inSink = () => dishes.findIndex(t => t && t.st === 'snap' && t.snap === 'ch.s.wsink');
@@ -67,23 +69,40 @@
       soapBottle = grp(G => { G.lathe(0, 0, 0, [[0.4, -25], [1.1, -24], [1.3, -21], [3.2, -18.5], [4.2, -14], [4.2, -2], [3.8, 0], [0.1, 0]], 20, mat('#f4f4f0', { sh: 90, sp: '#bbb' }), { sz: 0.7 }); G.cyl(0, -25.6, 0, 1, 1.4, 2, 12, mat('#1a9a3a', { sh: 80 })); G.plane(0, -8, 2.98, 6, 9, M({ c: '#fff', map: K.tex('ch.soap', 64, 96, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a9a3a'; g.fillRect(0, 0, w, 16); A.text(g, 'WASHING', 32, 38, '700 11px ' + A.UIF, '#1a7a2a', 'center'); A.text(g, 'UP', 32, 52, '700 11px ' + A.UIF, '#1a7a2a', 'center'); A.text(g, 'LIQUID', 32, 66, '700 11px ' + A.UIF, '#1a7a2a', 'center'); A.text(g, 'original', 32, 84, 'italic 9px ' + A.UIF, '#555', 'center'); }) }), {}); G.shadow(0, 0, 0, 10, 8, 0.5); });
       soapBottle.position.set(SINK.x+37,WT,SINK.z+14);r.group.add(soapBottle);
       CK.spot(r, 'ch.soap', soapBottle, { label: 'Washing-up liquid (shop\'s own)', act: () => { if (!CK.has('washup', 'plug')) return CK.jack('Washing up', 'Hot water first. (Click the sink: the hot tap.)'); if (!filled()) return fill(); sinkClick(); } });
+      const sponge = new T.Group();
+      spongeBrush = grp(G => {
+        const foam=M({c:'#f4c844',map:K.tex('ch.sponge',64,64,(g,w,h)=>{g.fillStyle='#f4c844';g.fillRect(0,0,w,h);const r=K.rnd(62);for(let i=0;i<220;i++){g.fillStyle=i%3?'#d6a736':'#ffe477';g.beginPath();g.ellipse(r()*w,r()*h,.5+r()*1.2,.5+r(),0,0,7);g.fill()}},{clamp:true}),sh:2,sp:'#111'});
+        G.rbox(0,-1.6,0,7,2,4.5,.55,foam);
+        G.rbox(0,-.3,0,7,.6,4.5,.15,mat('#356a41',{sh:2}));
+      });
+      sponge.add(spongeBrush);
+      CK.thing('ch.sponge',{obj:sponge,kind:'washsponge',label:'Washing-up sponge',chore:'washup',holdD:40,home:{room:'kitchen',x:-51,y:WT,z:-2,ry:-12},useLabel:'Scrub the dish',use:()=>{
+        if(H.here!=='kitchen'||Math.hypot(H.W.x-SINK.x,H.W.z-SINK.z)>125)return CK.jack('Washing up','Stand by the sink to use the sponge.');
+        const i=inSink();if(i>=0&&CK.has('washup','w'+i))return CK.jack('Washing up','Clean! Put the sponge down, then lift the dish into the rack.');
+        sinkClick();
+      }});
       // the draining rack (white plastic-coated wire, a drip tray underneath)
       const rk = grp(G => {
         const wm = mat('#f2f2ee', { sh: 70, sp: '#999' });
-        G.rbox(0, -0.6, 0, 46, 1.2, 28, 0.5, mat('#d8e4ec', { sh: 90, sp: '#fff' }));
-        for (let i = 0; i < 9; i++) G.box(-21 + i * 5.25, -2, 0, 0.5, 0.5, 26, wm);
-        for (const z of [-12, 12]) G.box(0, -7, z, 46, 0.5, 0.5, wm);
-        for (const x of [-22.5, 22.5]) for (const z of [-12, 12]) G.box(x, -4, z, 0.5, 7, 0.5, wm);
-        for (let i = 0; i < 10; i++) G.box(-21 + i * 2.6, -6, -6, 0.4, 10, 0.4, wm, { rz: 6 });
-        G.shadow(0, 0, 0, 50, 32, 0.45, { sq: true });
+        G.rbox(0, -0.6, 0, 50, 1.2, 34, 0.5, mat('#d8e4ec', { sh: 90, sp: '#fff' }));
+        // A proper wire floor, with the plate support directly under their lower edge.
+        for (const z of [-14, -10, -5, 1, 7, 12, 16]) G.cyl(0, -2.15, z, 0.25, 0.25, 48, 8, wm, { rz: 90 });
+        for (const z of [-16, 16]) G.cyl(0, -7, z, 0.3, 0.3, 49, 8, wm, { rz: 90 });
+        for (const x of [-24, 24]) for (const z of [-16, 16]) G.cyl(x, -4, z, 0.3, 0.3, 6, 8, wm);
+        for (const x of [-22, -17, -12, -7]) for (const z of [-8, 10]) {
+          G.cyl(x, -7.15, z, 0.3, 0.3, 10, 8, wm);
+          G.ball(x, -12.15, z, 0.3, 0.3, 0.3, wm, 8);
+        }
+        G.shadow(0, 0, 0, 52, 36, 0.45, { sq: true });
       });
       rk.position.set(RACK.x, WT, RACK.z); r.group.add(rk);
       // the dirty things
       dishes = DISH.map(([type, mk], i) => CK.thing('ch.d.' + i, { obj: mk(), kind: 'wdish', label: DISHN[i], chore: 'washup', holdD: 45, home: { room: 'kitchen', x: PILE[i][0], y: PILE[i][1], z: PILE[i][2], ry: PILE[i][3] } }));
+      dishes.forEach(t=>{t.factoryHome=Object.assign({},t.home)});
       if(!CK.has('washup','w6')&&!CK.has('washup','r6'))updateFactoryPose(dishes[6],[6,WT,-6,-30]);
       dishes.forEach((t, i) => { if (!t) return; t.dishI = i; t.canGrab = () => canGrabDish(i); const sp = H.SPOTS[t.id]; sp.use = true; sp.act = () => dishClick(i); sp.label = () => dishLabel(i); });
-      CK.snap('ch.s.wsink', { room: 'kitchen', x: SINK.x, y: SINK.y - 6, z: SINK.z, r: 36, box: [38, 2, 28], accepts: (k, t) => k === 'wdish' && filled() && inSink() < 0 && !CK.has('washup', 'w' + t.dishI), pose: { x: SINK.x, y: LOW - 0.2, z: SINK.z, ry: 15 }, hint: 'Let go: in the washing-up water', onSnap: t => { CK.snd.splash(); CK.fx.burst(KR(), SINK.x, FULL, SINK.z, { n: 14, tex: 'bub', size: 2.4, life: 1.2, spd: 18, up: 30, grav: 40 }); W().inn = t.dishI; CK.save(); if (!W().tipShown) { W().tipShown = 1; CK.jack('Washing up', 'In the water. Now scrub it: click it (or the sink) till it squeaks.', 4500); } } });
-      const rs = CK.snap('ch.s.rack', { room: 'kitchen', x: RACK.x, y: WT - 10, z: RACK.z, r: 38, box: [46, 2, 28], accepts: (k, t) => { if (k !== 'wdish' || !CK.has('washup', 'w' + t.dishI) || CK.has('washup', 'r' + t.dishI)) return false; rs.pose = RPOSE[t.dishI]; return true; }, hint: 'Let go: in the draining rack', onSnap: t => { CK.snd.clink(); CK.lock(t.id); t.home = Object.assign({}, t.at); CK.keep(t.id); CK.step('washup', 'r' + t.dishI); } });
+      CK.snap('ch.s.wsink', { room: 'kitchen', x: SINK.x, y: SINK.y - 6, z: SINK.z, r: 36, box: [38, 2, 28], accepts: (k, t) => k === 'wdish' && filled() && inSink() < 0 && !CK.has('washup', 'w' + t.dishI), pose: { x: SINK.x, y: LOW - 0.2, z: SINK.z, ry: 15 }, hint: 'Let go: in the washing-up water', onSnap: t => { CK.snd.splash(); CK.fx.burst(KR(), SINK.x, FULL, SINK.z, { n: 14, tex: 'bub', size: 2.4, life: 1.2, spd: 18, up: 30, grav: 40 }); W().inn = t.dishI; CK.save(); if (!W().tipShown) { W().tipShown = 1; CK.jack('Washing up', 'In the water. Pick up the sponge: F scrubs till it squeaks. You can also click the dish.', 4500); } } });
+      const rs = CK.snap('ch.s.rack', { room: 'kitchen', x: RACK.x, y: WT - 10, z: RACK.z, r: 38, box: [50, 2, 34], accepts: (k, t) => { if (k !== 'wdish' || !CK.has('washup', 'w' + t.dishI) || CK.has('washup', 'r' + t.dishI)) return false; rs.pose = RPOSE[t.dishI]; return true; }, hint: 'Let go: in the draining rack', onSnap: t => { const v=W();(v.rackAt||(v.rackAt={}))[t.dishI]=Date.now();CK.save();setTimeout(()=>{CK.MODS.washup.sync()},12100);CK.snd.clink(); CK.lock(t.id); t.home = Object.assign({}, t.at); CK.keep(t.id); CK.step('washup', 'r' + t.dishI); } });
       // the sink: hot tap, washing-up liquid, scrubbing (whatever's needed next)
       sinkSpot = CK.pickBox(r, 'ch.sink', SINK.x, WT - 7, SINK.z, 34, 16, 26, 0, { label: () => sinkLabel(), act: () => sinkClick() });
       CK.guard('hs.sink', () => { sinkClick(); return true; });
@@ -97,15 +116,22 @@
       dishes.forEach((t, i) => {
         if (!t) return; const m = t.obj.userData.dirt, sc = CK.has('washup', 'w' + i) ? 4 : (v.sc[i] | 0);
         if (m) { m.opacity = Math.max(0, 1 - sc / 4); m.visible = sc < 4; }
-        if (CK.has('washup', 'r' + i)) { t.home = Object.assign({ room: 'kitchen' }, RPOSE[i]); CK.lock(t.id); if (t.st !== 'snap' && (Math.abs(t.at.x - RPOSE[i].x) > 1 || Math.abs(t.at.z - RPOSE[i].z) > 1)) { CK.home(t.id); } t.rx = RPOSE[i].rx || 0; t.rz = RPOSE[i].rz || 0; H.place(t); }
+        if (CK.has('washup', 'r' + i)) {
+          const pose=RPOSE[i];t.home=Object.assign({room:'kitchen'},pose);CK.lock(t.id);
+          // Finished steps own the rack pose, including saves made with the old rack.
+          const moved=t.at.room!=='kitchen'||['x','y','z','ry'].some(k=>Math.abs((t.at[k]||0)-(pose[k]||0))>.01);
+          t.at=Object.assign({room:'kitchen'},pose);t.rx=pose.rx||0;t.rz=pose.rz||0;t.st='snap';t.snap='ch.s.rack';H.place(t);H.layerFor(t);if(moved)CK.keep(t.id);
+        }
         else CK.lock(t.id, false);
+        const wet=CK.has('washup','w'+i)&&(!CK.has('washup','r'+i)||v.rackAt?.[i]&&Date.now()-v.rackAt[i]<12000);
+        t.obj.traverse(o=>{if(!o.isMesh)return;for(const m of [].concat(o.material)){if(m===t.obj.userData.dirt||!m.specular)continue;const dry=m.userData.washDry||(m.userData.washDry={sh:m.shininess,sp:m.specular.clone()});m.shininess=wet?Math.max(110,dry.sh):dry.sh;m.specular.copy(dry.sp);if(wet)m.specular.lerp(new T.Color('#fff'),.45)}});
       });
       // a refresh with something in the water: back in the water
       if (v.inn >= 0 && dishes[v.inn] && inSink() < 0 && !CK.has('washup', 'r' + v.inn)) { const t = dishes[v.inn]; if (Math.abs(t.at.x - SINK.x) < 6 && Math.abs(t.at.z - SINK.z) < 6) { t.st = 'snap'; t.snap = 'ch.s.wsink'; } else v.inn = -1; }
       const inWater=inSink();if(inWater>=0){const t=dishes[inWater];if(Math.abs(t.at.y-(LOW-.2))>.1){t.at.y=LOW-.2;H.place(t);CK.keep(t.id)}}
       H.dirty();
     },
-    reset() { extraSuds = 0; dishes.forEach(t => { if (t) { t.rx = 0; t.rz = 0; CK.home(t.id); } }); this.sync(); },
+    reset() { extraSuds = 0; CK.S.v.wash={sc:{},inn:-1};dishes.forEach(t => { if (t) { t.rx = 0; t.rz = 0;t.home=Object.assign({},t.factoryHome);CK.home(t.id); } }); this.sync(); },
     take() { sinkClick(); return true; },
   });
   function canGrabDish(i) {
@@ -116,7 +142,7 @@
   }
   function dishLabel(i) { const t = dishes[i]; if (t.st === 'snap' && t.snap === 'ch.s.wsink') return CK.has('washup', 'w' + i) ? 'Clean! Into the rack with it' : DISHN[i] + ' (scrub it!)'; return CK.has('washup', 'w' + i) ? DISHN[i].replace(/ \(.*/, '') + ' (clean)' : DISHN[i]; }
   function dishClick(i) { const t = dishes[i]; if (t.st === 'snap' && t.snap === 'ch.s.wsink') return sinkClick(); if (!canGrabDish(i)) return CK.jack('Washing up', 'That one\'s done. In the rack, drip drying. Leave it.'); if (!filled()) CK.jack('Washing up', 'Water first. Click the sink: hot tap on, then the washing-up liquid.', 3000); H.grab(t.id); }
-  function sinkLabel() { if (CK.done('washup')) return 'The sink (sparkling)'; if (!CK.has('washup', 'plug')) return 'The sink (hot tap on!)'; if (!filled()) return 'The sink (washing-up liquid!)'; const i = inSink(); if (i >= 0) return CK.has('washup', 'w' + i) ? 'The sink (take it out: into the rack)' : 'The sink (scrub!)'; return 'The sink (put something in)'; }
+  function sinkLabel() { if (CK.done('washup')) return 'The sink (sparkling)'; if (!CK.has('washup', 'plug')) return 'The sink (hot tap on!)'; if (!filled()) return 'The sink (washing-up liquid!)'; const i = inSink(); if (i >= 0) return CK.has('washup', 'w' + i) ? 'The sink (take it out: into the rack)' : 'The sink (scrub with the sponge!)'; return 'The sink (put something in)'; }
   function rise(from, to, ms, each, done) { const t0 = performance.now(); H.anims.set('ch.rise', now => { const k = Math.min(1, (now - t0) / ms), y = from + (to - from) * CK.ease(k), rr = tubR(y) - 0.3; water.position.y = y; water.scale.set(rr, rr * 0.74, 1); if (each) each(k, now, y); if (k < 1) return true; if (done) done(); return false; }); }
   function sinkClick() {
     if (CK.done('washup')) return CK.jack('The sink', 'Done. The water\'s gone grey and there\'s a lone pea floating in it. Lovely.');
@@ -155,6 +181,9 @@
     v.sc[i] = (v.sc[i] | 0) + 1; CK.save();
     CK.snd.scrub(); if (v.sc[i] >= 3) CK.snd.squeak();
     const k = v.sc[i];
+    if(spongeBrush&&H.held()==='ch.sponge'){
+      const start=performance.now();H.anims.set('ch.sponge',now=>{const k=Math.min(1,(now-start)/600),wave=Math.sin(k*Math.PI*4)*Math.sin(k*Math.PI);spongeBrush.position.set(wave*1.1,-Math.abs(wave)*.5,0);spongeBrush.rotation.z=wave*.12;if(k<1)return true;spongeBrush.position.set(0,0,0);spongeBrush.rotation.z=0;return false});
+    }
     if (m) { m.opacity = Math.max(0, 1 - k / 4); }
     CK.fx.burst(KR(), t.obj.position.x + (Math.random() - 0.5) * 8, FULL - 1, t.obj.position.z + (Math.random() - 0.5) * 6, { n: 10, tex: 'bub', size: 2, life: 1, spd: 16, up: 26, grav: 30 });
     const r0 = t.obj.rotation.y; CK.tween(t.obj, { ry: r0 + 0.5 }, 160).then(() => CK.tween(t.obj, { ry: r0 }, 160));

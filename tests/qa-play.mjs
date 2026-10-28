@@ -10,12 +10,13 @@
 //   readers        magazine, diary, comic, catalogue, Game Lad: open from where they lie and from the hand, close with Q
 //                  and with Esc: nothing left floating
 //   rooms          walk every room (no errors, never inside a wall), talk to every family member who is home
-//   plate          the toast plate on the duvet (and where the cat sleeps) stays visible and can always be picked up
+//   plate          the toast plate on the duvet (including the former cat spot) stays visible and can always be picked up
 //   watering       the watering can chore played like a new player (prompts, pour, progress)
 //   story-odd      a new player does chapter 1 out of order (dishes first, refresh mid-way, the Game Lad last)
 //   world-sweep    nothing below a floor, inside a wall, hidden in furniture or hanging in the air (any time, both accounts)
 // --quick (the gate): a subset of things and surfaces. Screenshots: tests/shots/qa-play/ (fail-*.png on failure).
 import assert from 'node:assert/strict';
+import os from 'node:os';
 import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 import {mkdtemp, mkdir, rm, writeFile} from 'node:fs/promises';
@@ -23,12 +24,13 @@ import net from 'node:net';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url)), dir = root + 'tests/shots/qa-play/';
+const SCALE=+process.env.QA_SCALE||Math.max(1,Math.min(4,os.loadavg()[0]/os.cpus().length*1.3));
 const QUICK = process.argv.includes('--quick'), ONLY = (process.argv.find(a => a.startsWith('--only='))?.slice(7) || '').split(',').filter(Boolean);
 let server, data, fixture, log = '';
 const results = [], found = [];
 async function cleanup() { if (fixture) await fixture.browser.close().catch(() => {}); if (server?.exitCode === null && server.signalCode === null) { const end = once(server, 'exit'); server.kill('SIGTERM'); await end; } if (data) await rm(data, {recursive: true, force: true}); }
 for (const sig of ['SIGTERM', 'SIGINT']) process.once(sig, () => void cleanup().finally(() => process.exit(1)));
-const watchdog = setTimeout(() => { console.error('QA play timed out'); void cleanup().finally(() => process.exit(1)); }, (QUICK ? 15 : 30) * 60000);
+const watchdog = setTimeout(() => { console.error('QA play timed out'); void cleanup().finally(() => process.exit(1)); }, (QUICK ? 15 : 30) * 60000 * SCALE);
 async function check(name, fn) {
   if (ONLY.length && !ONLY.includes(name)) return;
   const t0 = Date.now();
@@ -52,8 +54,17 @@ const helpers = () => {
       let o = t.obj; for (; o; o = o.parent) if (!o.visible) break; out.drawn = !o || o === H.root || o === H.scene;
       return out;
     },
+    // Real surface points for props whose origin lies in a hole/gap (paired
+    // cutlery, handles, hollow crockery). E must still hit a visible triangle.
+    targets(id) {
+      const t=H.THINGS[id],out=[],inv=new H.T.Matrix4().copy(H.root.matrixWorld).invert();t.obj.updateWorldMatrix(true,true);
+      t.obj.traverseVisible(o=>{if(out.length>=12||!o.isMesh||o.userData.contactShadow||o.userData.noPick||![].concat(o.material).some(m=>m.visible))return;const g=o.geometry,p=g?.attributes.position;if(!p)return;const index=g.index,n=index?index.count:p.count,m=new H.T.Matrix4().multiplyMatrices(inv,o.matrixWorld);
+        for(const start of [0,Math.floor(n/6)*3]){if(start+2>=n)continue;const q=new H.T.Vector3();for(let k=0;k<3;k++)q.add(new H.T.Vector3().fromBufferAttribute(p,index?index.getX(start+k):start+k));q.multiplyScalar(1/3).applyMatrix4(m);out.push({x:q.x,y:q.y,z:q.z})}
+      });return out;
+    },
     // a standing point near (x, z) from which the crosshair lands on it (and on the thing tid, if given)
     stand(x, y, z, lvl, tid, avoid) {
+      H.root.updateMatrixWorld(true);
       const eye = H.LV[lvl] - (H.STAND || 128);
       const ok = (sx, sz) => { if (!H._.cellOk(lvl, sx, sz)) return false; for (const dx of [-8, 8]) for (const dz of [-8, 8]) if (!H._.cellOk(lvl, sx + dx, sz + dz)) return false; return true; };
       this.why = [];
@@ -87,8 +98,10 @@ const helpers = () => {
     clear(room, r = 40) {
       const R = H.ROOMS[room], fy = H.LV[R.lvl];
       for (const a of R.area) for (let x = a[0] + 30; x < a[2] - 30; x += 15) for (let z = a[1] + 30; z < a[3] - 30; z += 15) {
-        if (![[0, 0], [-35, 0], [35, 0], [0, -35], [0, 35], [-60, 0], [60, 0], [0, 60], [0, -60]].every(([dx, dz]) => H._.cellOk(R.lvl, x + dx, z + dz))) continue;
-        if (Object.values(H.THINGS).some(t => t.at.room === room && !t.at.hide && Math.hypot(t.at.x - x, t.at.z - z) < r + Math.max(t.hx, t.hz))) continue;
+        // A floor patch needs its own clearance and a reachable standing point,
+        // not a 120 cm walking circle (the furnished bedroom has none).
+        if (!H._.cellOk(R.lvl, x, z)) continue;
+        if (Object.values(H.THINGS).some(t => t.at.room === room && !t.at.hide && ['rest','snap'].includes(t.st) && Math.abs(t.at.y-fy)<5 && Math.hypot(t.at.x - x, t.at.z - z) < r + Math.max(t.hx, t.hz))) continue;
         if (!this.stand(x, fy, z, R.lvl)) continue;
         return {x, y: fy, z};
       }
@@ -118,9 +131,9 @@ try {
   assert(log.includes(`online at :${port}`), 'Server did not start: ' + log.slice(-800));
   const base = `http://127.0.0.1:${port}`, password = 'Throwaway-1999', veteran = 'Qavet' + Date.now().toString(36);
   assert((await fetch(base + '/admin/register', {method: 'POST', headers: {'X-Admin-Token': 'testtoken', 'Content-Type': 'application/json'}, body: JSON.stringify({name: veteran, pass: password})})).ok);
-  fixture = await roomFixture(base, {account: veteran, password, signup: false});
-  let {page: p, errors, until} = fixture;
-  const shot = name => p.screenshot({path: dir + name + '.png'}).catch(() => {});
+  fixture = await roomFixture(base, {account: veteran, password, signup: false,timeoutScale:SCALE});
+  let {page: p, errors, until} = fixture;p.setDefaultTimeout(30000*SCALE);
+  const shot = name => p.screenshot({path: dir + name + '.png',timeout:60000*SCALE}).catch(() => {});
   const ready = async () => {
     await p.evaluate(helpers);
     await p.evaluate(async () => { await Room.ensureHouse(); for (const id of ['landing', 'hall', 'kitchen', 'lounge', 'drive']) if (House.ROOMS[id]) House.buildRoom(House.ROOMS[id]); await Chores.load(); for (const a of ['bedroom', 'kitchen', 'lounge', 'drive']) await Chores.part(a).catch(() => {}); });
@@ -135,7 +148,8 @@ try {
     if (await p.evaluate(id => House.held() === id, id)) return true;
     const t = await state(id); if (t.missing || t.hide) return false;
     const lvl = await p.evaluate(r => House.ROOMS[r].lvl, t.room);
-    const s = await standAt(t.x, t.y - 1, t.z, lvl, id);
+    let s = await standAt(t.x, t.y - 1, t.z, lvl, id);
+    if(!s)for(const q of await p.evaluate(id=>__qa.targets(id),id)){s=await standAt(q.x,q.y,q.z,lvl,id);if(s)break;}
     if (!s) { if (process.env.QA_DEBUG) console.log('  unreachable ' + id + ' ' + JSON.stringify(t) + ' hits: ' + JSON.stringify(await p.evaluate(a => { const H = House, out = []; for (const d of [75, 95]) for (let k = 0; k < 16; k += 4) { const ang = k * 22.5 * Math.PI / 180, sx = a.x + Math.sin(ang) * d, sz = a.z + Math.cos(ang) * d; if (!H._.cellOk(a.lvl, sx, sz)) { out.push('x'); continue; } const eye = H.LV[a.lvl] - 128; H.setWalkFrom({x: sx, y: eye, z: sz, lvl: a.lvl, seat: 0}); Object.assign(H.P, {x: sx, y: eye, z: sz, rx: Math.atan2(-(a.y - eye), Math.hypot(a.x - sx, a.z - sz)) * 180 / Math.PI, ry: Math.atan2(a.x - sx, -(a.z - sz)) * 180 / Math.PI}); H.visCalc(); const h = H.pick(innerWidth / 2, innerHeight / 2, {far: 400}); out.push(h ? (h.spot || h.obj.name || h.obj.type) + '@' + [h.p.x, h.p.y, h.p.z].map(Math.round) : 'none'); } return out; }, {...t, lvl}))); return 'unreachable'; }
     await p.keyboard.press('e');
     for (let i = 0; i < 20 && !await p.evaluate(id => House.held() === id, id); i++) await p.waitForTimeout(100);
@@ -145,9 +159,9 @@ try {
   const surfaces = await p.evaluate(() => {
     const H = House, out = [];
     const add = (name, room, x, y, z, expect = 'ok') => { const r = H.ROOMS[room]; if (r) out.push({name, room, lvl: r.lvl, x, y, z, expect}); };
-    // the bed: the duvet's middle, the head end (mattress), the side edge, the foot; then the cat's spot
+    // the bed: middle, head, side, foot and the former cat spot (now clear).
     add('bed-middle', 'bedroom', 185, 30, 20); add('bed-head', 'bedroom', 195, 30, -15); add('bed-edge', 'bedroom', 158, 30, 40); add('bed-foot', 'bedroom', 215, 30, 125);
-    add('bed-under-cat', 'bedroom', 206, 30, 72, 'refuse');
+    add('bed-former-cat-spot', 'bedroom', 206, 30, 72); // Gubbinz now sleeps on the cat tree.
     add('desk', 'bedroom', 50, 0, -25); add('bedside', 'bedroom', 122, 21.6, -40); add('chest', 'bedroom', -258, -9, 222); add('tv-cabinet', 'bedroom', -175, 27.4, -30);
     add('windowsill', 'bedroom', 0, H.ROOMS.bedroom.supports.find(s => s.z0 < -60 && s.y < 0 && s.x1 - s.x0 > 100)?.y ?? -30, -58);
     add('bedroom-floor', 'bedroom', -60, 73, 190); add('landing-floor', 'landing', 290, 73, 400);
@@ -164,7 +178,7 @@ try {
   // ---------------------------------------------------------------- the toast plate on the bed (the owner's bug)
   await check('plate', async () => {
     const P = problems(), id = 'ch.m.plate';
-    await p.evaluate(id => { const c = __qa.clear('bedroom', 30), t = House.THINGS[id]; t.canGrab = null; House.SPOTS[id].off = false; t.at = {room: 'bedroom', x: c.x, y: 73, z: c.z, ry: 0}; t.st = 'rest'; House.place(t); }, id);
+    await p.evaluate(id => { const t = House.THINGS[id], c = __qa.clear('bedroom', Math.max(t.hx,t.hz)+2); if(!c)throw Error('No reachable floor patch for the toast plate'); t.canGrab = null; House.SPOTS[id].off = false; t.at = {room: 'bedroom', x: c.x, y: 73, z: c.z, ry: 0}; t.st = 'rest'; House.place(t); }, id);
     for (const s of surfaces.filter(s => s.name.startsWith('bed'))) {
       const got = await pickUp(id); if (got !== true) { P.add('could not pick the plate up before ' + s.name + ': ' + got); continue; }
       const f = s.expect === 'refuse' ? s : await p.evaluate(a => __qa.free(...a), [s.room, s.x, s.y, s.z, id]);
@@ -184,7 +198,7 @@ try {
     }
     if (await p.evaluate(id => House.held() === id, id)) { await p.keyboard.press('q'); await p.waitForTimeout(500); }
     // and the plate's glaze is white on the carpet, not grey: its contact shadow lies under it
-    const c = await p.evaluate(id => { const c = __qa.clear('bedroom', 30), t = House.THINGS[id]; t.at = {room: 'bedroom', x: c.x, y: 73, z: c.z, ry: 0}; t.st = 'rest'; House.place(t); return c; }, id);
+    const c = await p.evaluate(id => { const t = House.THINGS[id], c = __qa.clear('bedroom', Math.max(t.hx,t.hz)+2); if(!c)throw Error('No reachable floor patch for the toast plate'); t.at = {room: 'bedroom', x: c.x, y: 73, z: c.z, ry: 0}; t.st = 'rest'; House.place(t); return c; }, id);
     await fixture.view([c.x, 20, c.z + 40], [c.x, 73, c.z]); await shot('plate-floor');
     // the well, a little off-centre (between the crusts): sampled from the rendered frame
     const grey = await p.evaluate(async id => { const t = House.THINGS[id]; const c = House.toScreen(t.at.x + 4.5, t.at.y - 0.6, t.at.z - 3.5); House.ren.render(House.scene, House.camera); const url = House.ren.domElement.toDataURL(); const img = new Image(); await new Promise(r => { img.onload = r; img.src = url; }); const cv = document.createElement('canvas'); cv.width = img.width; cv.height = img.height; const g = cv.getContext('2d'); g.drawImage(img, 0, 0); const k = img.width / innerWidth; return [...g.getImageData(Math.round(c.x * k), Math.round(c.y * k), 1, 1).data]; }, id).catch(e => (console.log('  (pixel read failed: ' + e.message + ')'), null));
@@ -358,8 +372,8 @@ try {
 
   // ---------------------------------------------------------------- a brand-new player: chapter 1 in odd orders
   const fresh = 'Qanew' + Date.now().toString(36);
-  fixture = await roomFixture(base, {account: fresh, password, opening: true});
-  ({page: p, errors, until} = fixture);
+  fixture = await roomFixture(base, {account: fresh, password, opening: true,timeoutScale:SCALE});
+  ({page: p, errors, until} = fixture);p.setDefaultTimeout(30000*SCALE);
   await check('story-odd', async () => {
     const P = problems();
     await until(() => !!window.st?.getState() && !!House.THINGS['st.diary']);
@@ -413,9 +427,12 @@ try {
     const glow = await p.evaluate(() => { let e = 0; House.ROOMS.bedroom.group.traverse(o => { if (o.isMesh && o.userData.e0 && o.material.emissive) e = Math.max(e, o.material.emissive.g - o.userData.e0.g); }); return e; });
     assert(glow > 0.02, 'The thirsty plant should glow while you carry the can: ' + glow);
     await shot('watering-aim');
-    await p.keyboard.press('f'); await p.waitForTimeout(500);
-    const tilt = await p.evaluate(() => House.THINGS['ch.can'].holdRoll || 0); await shot('watering-pour');
-    assert(tilt > 10, 'The can should tip up while it pours: ' + tilt);
+    // Sample real rendered frames: a single WebDriver read 500 ms later can
+    // arrive after this 1.5-second animation on a software-rendered host.
+    await p.evaluate(()=>{window.__qaWaterPeak=0;window.__qaWaterFrames=[];const start=performance.now();(function track(){const roll=House.THINGS['ch.can'].holdRoll||0;__qaWaterPeak=Math.max(__qaWaterPeak,roll);__qaWaterFrames.push([Math.round(performance.now()-start),Math.round(roll)]);if(performance.now()-start<8000||House.anims.has('ch.can.tilt'))requestAnimationFrame(track)})();});
+    await p.keyboard.press('f'); await until(()=>ChoreKit.has('plant','water')&&!House.anims.has('ch.can.tilt'));
+    const tilt=await p.evaluate(()=>__qaWaterPeak);console.log('  watering tilt frames',await p.evaluate(()=>__qaWaterFrames));await shot('watering-pour');
+    assert(tilt > 10, 'The can should visibly tip up while it pours: ' + tilt);
     await until(() => ChoreKit.has('plant', 'water'));
     await p.waitForTimeout(1500); await shot('watering-done');
     assert.match((await hud()).keys, /F Pour\b/, 'After watering the prompt is plain again');

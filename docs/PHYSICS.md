@@ -157,3 +157,7 @@ else moves on load: sleeping bodies keep their exact saved pose.
 ### Props follow-up (2.57.16)
 
 Placement version 7 reserves the new cat tree footprint at House.CAT_TREE and transfers old floor records directly beneath it once. Raised items, other rooms and snapped media retain their records; daily chore item IDs and progress remain unchanged. The parked cat has its own placement collider at the new home. Soft irregular props may author `handGrips` as one or two local 3D contact points; the crossed socks use one grip on real fabric rather than empty bounding-box space.
+
+### Fixed cloth over rigid support
+
+The boot's tartan rug sits above its rigid floor. It uses the same visible-surface fitting as the duvet, so thin cutlery and paper rest on the folds while their saved floor coordinates stay intact. Its `sampleHidden` flag lets the fixed cloth be sampled while a room is hidden during save restoration; original mesh layers and world transforms are included. Existing duvet sampling keeps its visibility rules. Entering the drive re-fits already restored props after the room is built.
