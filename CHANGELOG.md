@@ -1,5 +1,12 @@
 # Jack's Home Page - changelog
 
+## 2.57.10 - 2026-10-28
+- R104: automatic family scene lines play once per story step, remembered across refresh. Repeated conversations no longer loop the same ambient line; asking for a story instruction still works. Mom's two PC-carry remarks each play once.
+- Family members step clear of doorways and cannot block the player in a threshold. Mom's first-visit doorway hold releases within ten real seconds, including at low frame rates. Empty conversations release people even between movement steps.
+- Regressions cover repeated talking, walking out within ten seconds, Dad finishing his entrance, Mom's staged entrance, dialogue cooldowns and account-specific refresh history. The mobile story fixture now allows personal space and uses the diary's current Close button.
+- Live follow-up: a pre-existing JackWorld startup furniture-check warning remains (R108, loot initialisation order); all mods load. No data repair was attempted.
+- Verified: focused release gate 7/7 (syntax, parody, dialogue regression, Chapter 1, owner tools, identity, smoke); smoke 12/12; mobile 7/7. Reviewed desktop 1366x860, phone and tablet portrait/landscape captures. No browser errors/warnings or failed server mods. Physical Edge/Android hardware and gamepads were not tested.
+
 ## 2.57.9 - 2026-10-28
 - Voices are British: the first batch of recordings came out with American accents (the accent wasn't asked for), so they're gone. Every line is now recorded as standard British English; the first few of Mom's lines are back today and the rest of the family (including your sister) follows over the next two days. Until then the speech bubbles show the words.
 - Speech bubbles only: the old text box in the bottom-left no longer shows as well (it's still in the pause menu as "Subtitles").

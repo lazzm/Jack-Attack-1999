@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.9 (main = e4563a5+ : one unreleased fix on main, "Mom's carry remarks play once each").
+- Live = 2.57.10: R104 doorway/dialogue hotfix, including Mom's once-only carry remarks.
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
   -> `./deploy.sh` -> `curl -s https://jacklm.com/ | grep -o "v=2\.[0-9.]*-[0-9]*"` -> git commit (attribution) + `git push origin main`.
@@ -18,7 +18,7 @@ never anything that looks cursed.
 ## Open branches (worktree -> state -> what's left)  [all committed; WIP commits marked "WIP:"]
 | worktree | branch | state | next |
 |---|---|---|---|
-| /opt/stacks/landing-loopfix | people-loopfix | WIP | URGENT R104: Dad parks in the bedroom doorway + Dad/Mom repeat scene lines forever. Once-per-step lines, bark cooldowns, never block a doorway, soft-hold releases <=10 s, regression test. Ship alone ASAP. |
+| /opt/stacks/landing-loopfix | people-loopfix | shipped 2.57.10 | R104 complete. Focused gate 7/7, smoke 12/12, mobile 7/7; doorway/entrance regressions and desktop/phone/tablet screenshot review passed. Next: carry-arms. |
 | /opt/stacks/landing-arms | carry-arms | WIP | R100 hold the REAL object at real size close+low with short forearms (no shrink/grow, no long arms), R101 bin glitch, R105 shelf shows ghost copies of a box for slots that don't accept the carried item (only accepting slots, as subtle glows). |
 | /opt/stacks/landing-hips | people-hips | WIP | R102 everyone's hips: no waistband ledge/crotch wedge, rounded pelvis, hem drapes over hips; R99 people overlapping. |
 | /opt/stacks/landing-house2 | house-round2 | 3 commits (camera 60 deg FOV + 143 cm eye) + WIP | finish + ship camera first; then R103 front door space (car further along the drive), lounge space (R90), village never ends (R88), hedge/piers/car (R86), docs/SCALE-REVIEW.md rows. |
@@ -44,3 +44,10 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - Many small releases; quality over speed; review every screenshot for bugs and log them in docs/BACKLOG.md.
 - Stylised appealing characters (docs/PEOPLE.md), no uncanny realism. British everything. No real names (parody).
 - Mobile matters a lot; he tests on Android Chrome.
+
+## Manager release evidence, 28 October
+- 2.57.10: focused gate `/tmp/gate-MFlT`, mobile `/tmp/jhp-loop-mobile-final.log`; both green. Dad walkthrough/entrance captures: `/opt/stacks/landing-loopfix/tests/shots/characters/loop-*`. Main smoke/mobile captures reviewed.
+- The first broad gate was interrupted by SIGTERM; the focused gate reran Chapter 1, owner tools, identity and full smoke successfully. All unit checks had passed in the interrupted run too.
+- R107 records the existing phone secret-banner/objective overlap for mobile-3. R83 labels still appear through some objects (seen again in mobile/small-20-house-landscape.png); retain for the carry/label work.
+- No player data migrations or account resets in this release. Tests used disposable data. Physical Edge/Android hardware and gamepads remain unverified.
+- Live 2.57.10 startup: all mods loaded; the existing `jw: furni check` hit uninitialised loot data before loot init (R108). No furniture/data repair attempted. Public health and build stamp checked after the normal 30-second container-health delay.
