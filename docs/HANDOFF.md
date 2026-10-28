@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.10: R104 doorway/dialogue hotfix, including Mom's once-only carry remarks.
+- Live = 2.57.11: R104 doorway/dialogue hotfix plus R100/R101/R105 carry, bin and shelf-slot fixes (R83 edge labels too).
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
   -> `./deploy.sh` -> `curl -s https://jacklm.com/ | grep -o "v=2\.[0-9.]*-[0-9]*"` -> git commit (attribution) + `git push origin main`.
@@ -19,7 +19,7 @@ never anything that looks cursed.
 | worktree | branch | state | next |
 |---|---|---|---|
 | /opt/stacks/landing-loopfix | people-loopfix | shipped 2.57.10 | R104 complete. Focused gate 7/7, smoke 12/12, mobile 7/7; doorway/entrance regressions and desktop/phone/tablet screenshot review passed. Next: carry-arms. |
-| /opt/stacks/landing-arms | carry-arms | WIP | R100 hold the REAL object at real size close+low with short forearms (no shrink/grow, no long arms), R101 bin glitch, R105 shelf shows ghost copies of a box for slots that don't accept the carried item (only accepting slots, as subtle glows). |
+| /opt/stacks/landing-arms | carry-arms | shipped 2.57.11 | R100/R101/R105 complete; R83 edge-label fix and touch carry polish included. Next: people-hips. |
 | /opt/stacks/landing-hips | people-hips | WIP | R102 everyone's hips: no waistband ledge/crotch wedge, rounded pelvis, hem drapes over hips; R99 people overlapping. |
 | /opt/stacks/landing-house2 | house-round2 | 3 commits (camera 60 deg FOV + 143 cm eye) + WIP | finish + ship camera first; then R103 front door space (car further along the drive), lounge space (R90), village never ends (R88), hedge/piers/car (R86), docs/SCALE-REVIEW.md rows. |
 | /opt/stacks/landing-mobile3 | mobile-3 | 3 commits + WIP | R98 research-led mobile controls polish (docs/MOBILE-CONTROLS.md); mobile.mjs "Finger label on Mom" needs updating for personal space. |
@@ -51,3 +51,9 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - R107 records the existing phone secret-banner/objective overlap for mobile-3. R83 labels still appear through some objects (seen again in mobile/small-20-house-landscape.png); retain for the carry/label work.
 - No player data migrations or account resets in this release. Tests used disposable data. Physical Edge/Android hardware and gamepads remain unverified.
 - Live 2.57.10 startup: all mods loaded; the existing `jw: furni check` hit uninitialised loot data before loot init (R108). No furniture/data repair attempted. Public health and build stamp checked after the normal 30-second container-health delay.
+
+## Carry release evidence (2.57.11)
+- Source/unit/parody gate `/tmp/gate-RA8f` green; physics `/tmp/jhp-arms-physics-final.log` 15/15. Chapter 1 and console-case tests passed in `/tmp/gate-fDE0`; its smoke run hit a one-shot profile-sync race. Updated smoke waits for real save confirmation without changing server limits; repeat gate `/tmp/gate-TpLZ` green, smoke 12/12.
+- Mobile `/tmp/jhp-arms-mobile-final.log` 7/7; after touch polish `/tmp/jhp-arms-mobile-polish.log` 4/4. Focused regression `/tmp/jhp-arms-focused-v9.log` green: unchanged real model/scale, actual grip retained in every touch orientation, shallow eligible glows, rapid item switch, moved-bin refresh and tied-bag return/refresh (bin stays at its exact position, correct render layer).
+- Final captures reviewed in `tests/shots/carry-arms/`, `tests/shots/physics/`, `tests/shots/mobile/`, `tests/shots/smoke/`. Early rotation captures without a held object were replaced by assertions and real thumb-drag activation.
+- No server modules changed. Chore visual state adds binBagDocked/binRubbishAtRemoval; no cash, earning, account or shared-world records reset. Physical Edge/Android hardware and gamepads remain unverified. R107 remains for mobile-3; R108 remains pending a safe populated-state fixture and owner approval before any furniture repair.
