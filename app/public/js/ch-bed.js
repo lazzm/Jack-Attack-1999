@@ -441,25 +441,64 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
 
   // ================================================================ EMPTY YOUR BIN
   let bag = null, bagOpen = null, bagTied = null, liner = null, binStuff = [];
+  function binBagDocked(v) {
+    if (typeof v === 'boolean' && CK.S.binBagDocked !== v) { if (!v) CK.S.binRubbishAtRemoval = tidyInBin(); CK.S.binBagDocked = v; CK.save(); }
+    return CK.S.binBagDocked === true;
+  }
+  function detachBinBag() {
+    if (!bag || bag.st !== 'attached') return;
+    const r = H.ROOMS[bag.at.room]; if (!r) return;
+    r.things.attach(bag.obj); bag.st = 'rest'; bag.frontAnchor = null;
+    bag.at = { ...bag.at, x: bag.obj.position.x, y: bag.obj.position.y, z: bag.obj.position.z, ry: bag.obj.rotation.y / D2R };
+    H.physics.sync(bag.id); H.layerFor(bag);
+  }
+  function canGrabBinBag() {
+    if (!CK.has('bin', 'tie')) return false;
+    detachBinBag(); binBagDocked(false); return true;
+  }
+  function followBinContents() {
+    const bin = H.THINGS.bin; if (!bin || !bag) return false;
+    if (binBagDocked() && !CK.has('bin', 'bag') && !CK.done('bin') && bag.st !== 'held') {
+      // Contents share the real bin transform, including its hand pose and physics tilt. They are not a second body.
+      const wasAttached = bag.st === 'attached';
+      bag.st = 'attached'; bag.frontAnchor = 'bin';
+      if (bag.obj.parent !== bin.obj) bin.obj.add(bag.obj);
+      bag.obj.position.set(0, -.5, 0); bag.obj.rotation.set(0, 0, 0); bag.obj.visible = !bin.at.hide;
+      Object.assign(bag.at, bin.at, { y: bin.at.y - .5 });
+      bag.home = { ...bag.at };
+      if (!wasAttached || bag.body?.active) H.physics.sync(bag.id);
+      if (!wasAttached || bag.front !== bin.front || bag.obj.layers.mask !== (bin.front ? 2 : 1)) { bag.front = null; H.layerFor(bag); }
+    }
+    for (const [obj, y, z] of [[liner, -.5, 0], [CK.MODS.bin.sticky, -18, 10.5]]) if (obj) {
+      if (obj.parent !== bin.obj) bin.obj.add(obj);
+      obj.position.set(0, y, z);
+    }
+    return false;
+  }
+
   CK.add({
     id: 'bin', room: 'bedroom',
     build(r) {
       const binObj = H.SPOTS.bin && H.SPOTS.bin.obj;
-      if (binObj) binObj.children.forEach(o => { if (o.isMesh && o.geometry && (o.geometry.type === 'BoxGeometry' || o.geometry.type === 'SphereGeometry')) binStuff.push(o); });
+      if (binObj?.userData.binContents) binStuff = [binObj.userData.binContents];
+      else if (binObj) binObj.children.forEach(o => { if (o.isMesh && o.geometry && (o.geometry.type === 'BoxGeometry' || o.geometry.type === 'SphereGeometry')) binStuff.push(o); });
       const bm = mat('#1c1c20', { sh: 70, sp: '#555' });
       const g = new T.Group();
       bagOpen = grp(G => { G.lathe(0, 0, 0, [[10.6, -27.4], [9.6, -26.6], [8.9, -23], [9.1, -14], [8.6, -5], [6.5, -0.8], [0.1, -0.3]], 20, bm.clone ? M({ c: '#1c1c20', sh: 70, sp: '#555', side: 2 }) : bm); G.ball(-3, -21.5, 2, 4, 2.4, 3.5, M({ c: '#fff', map: crispTex() }), 10); G.ball(3, -21, -2, 3, 2.6, 3, mat('#f4f2ea'), 8); G.box(1, -22, 4, 4, 1, 3, mat('#d01a6a', { sh: 80 }), { ry: 30 }); });
-      bagTied = grp(G => { G.lathe(0, 0, 0, [[0.6, -34], [2.2, -32], [1.4, -29.5], [5.5, -26], [9.4, -19], [9.6, -10], [8.6, -3], [6, -0.6], [0.1, -0.2]], 20, bm); G.ball(-2.4, -34.5, 0, 2.2, 1.2, 1.4, bm, 8, { rz: 30 }); G.ball(2.4, -34.5, 0, 2.2, 1.2, 1.4, bm, 8, { rz: -30 }); });
+      bagTied = grp(G => { G.lathe(0, 0, 0, [[0.6, -34], [2.2, -32], [1.4, -29.5], [5.5, -26], [8.8, -19], [8.6, -10], [7.8, -3], [6, -0.6], [0.1, -0.2]], 20, bm); G.ball(-2.4, -34.5, 0, 2.2, 1.2, 1.4, bm, 8, { rz: 30 }); G.ball(2.4, -34.5, 0, 2.2, 1.2, 1.4, bm, 8, { rz: -30 }); });
       bagTied.visible = false; g.add(bagOpen); g.add(bagTied);
       bag = CK.thing('ch.binbag', { obj: g, kind: 'binbag', label: 'Bin bag', chore: 'bin', holdD: 60, home: { room: 'bedroom', x: -118, y: FY - 0.5, z: -42, ry: 0 } });
-      bag.canGrab = () => CK.has('bin', 'tie');
+      // A carried bag is handed back at refresh. If its saved pickup point is still inside the bin, dock it again.
+      const at = CK.S.at['ch.binbag'], bin = H.THINGS.bin;
+      binBagDocked(!CK.has('bin', 'tie') || !at || !!bin && at[0] === bin.at.room && !at[5] && Math.hypot(at[1] - bin.at.x, at[3] - bin.at.z) < 6 && Math.abs(at[2] - bin.at.y) < 3);
+      bag.canGrab = canGrabBinBag;
       const sp = H.SPOTS['ch.binbag']; sp.use = true; sp.act = () => { if (!CK.has('bin', 'tie')) return tie(); H.grab('ch.binbag'); };
       sp.label = () => CK.has('bin', 'tie') ? 'Bin bag (tied up: take it downstairs)' : 'Bin bag (full: tie it up)';
       // a fresh bag goes in once the old one's out
       liner = grp(G => { G.lathe(0, 0, 0, [[10.6, -27.4], [9.6, -26.6], [8.4, -24], [8.4, -2], [0.1, -1]], 20, M({ c: '#2a2a30', sh: 70, sp: '#444', side: 2 })); });
       liner.position.set(-118, FY - 0.5, -42); liner.visible = false; r.group.add(liner);
       this.sticky = CK.sticky(r, 'bin', -118, FY - 18, -31.5, { text: 'EMPTY ME! It is ALIVE.', size: 8, rz: -6 });
-      this.sync();
+      this.sync(); followBinContents(); H.ambient.add(followBinContents);
     },
     also: {
       kitchen: () => {
@@ -473,20 +512,31 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     sync() {
       const tied = CK.has('bin', 'tie'), gone = CK.has('bin', 'bag') || CK.done('bin');
       if (bagOpen) { bagOpen.visible = !tied; bagTied.visible = tied; }
-      if (bag) { if (gone) { bag.home = { room: 'bedroom', x: -118, y: FY - 0.5, z: -42, hide: true }; CK.lock('ch.binbag'); if (!bag.at.hide && bag.st !== 'held') CK.home('ch.binbag'); } else CK.lock('ch.binbag', false); }
-      const out = gone || (bag && bag.st === 'held') || (bag && (Math.abs(bag.at.x + 118) > 6 || Math.abs(bag.at.z + 42) > 6));
+      if (bag) { if (gone) { bag.home = { room: 'bedroom', x: -118, y: FY - 0.5, z: -42, hide: true }; CK.lock('ch.binbag'); if (!bag.at.hide && bag.st !== 'held') CK.home('ch.binbag'); } else { CK.lock('ch.binbag', false); bag.canGrab = canGrabBinBag; } }
+      const out = gone || !binBagDocked() || (bag && bag.st === 'held');
       if (liner) liner.visible = !!out;
-      binStuff.forEach(o => { o.visible = !out || tidyInBin() > 0; });
+      // The bag already contains the visible rubbish. A fresh liner starts empty; only later deposits fill it.
+      if (out && !Number.isFinite(CK.S.binRubbishAtRemoval)) { CK.S.binRubbishAtRemoval = tidyInBin(); CK.save(); }
+      binStuff.forEach(o => { o.visible = out && tidyInBin() > (CK.S.binRubbishAtRemoval ?? tidyInBin()); });
       if (this.sticky) this.sticky.visible = CK.onList('bin') && !CK.done('bin');
       H.dirty();
     },
     reset() {
-      bag.home = { room: 'bedroom', x: -118, y: FY - .5, z: -42, ry: 0 };
+      detachBinBag(); binBagDocked(true);
+      const bin = H.THINGS.bin;
+      bag.home = bin ? { ...bin.at, y: bin.at.y - .5 } : { room: 'bedroom', x: -118, y: FY - .5, z: -42, ry: 0 };
       CK.home('ch.binbag'); this.sync();
     },
   });
   H.on('grab', id => { if (id === 'ch.binbag') CK.MODS.bin.sync(); });
-  H.on('rest', id => { if (id === 'ch.binbag') CK.MODS.bin.sync(); });
+  H.on('rest', id => {
+    if (id === 'ch.binbag') {
+      const bin = H.THINGS.bin;
+      if (bin && !bag.at.hide && !CK.has('bin', 'bag') && !CK.done('bin')) binBagDocked(bag.at.room === bin.at.room && Math.hypot(bag.at.x - bin.at.x, bag.at.z - bin.at.z) < 6 && Math.abs(bag.at.y - bin.at.y) < 3);
+      followBinContents(); CK.MODS.bin.sync();
+    }
+    if (id === 'bin' && binBagDocked()) { followBinContents(); CK.keep('ch.binbag'); }
+  });
   function tidyInBin() { return CC.tidyFor(CK.day(), sparse).filter(m => m.kind === 'rubbish' && CK.has('tidy', m.id)).length; }
   function tie() {
     CK.begin('bin');

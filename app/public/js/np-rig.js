@@ -431,18 +431,22 @@
     // the top comes down over the waistband (a hem that overlaps the trousers, never a gap or a seam at the hips)
     const ty0 = S.hip - 1.5, ty1 = S.neck + 0.5;
     const torso = (O.torso || S.torso).map(([t, hw, hd]) => [lerp(ty0, ty1, t), 0, 0.3 + 0.9 * Math.sin(t * Math.PI) * (t < 0.9 ? 1 : 0.5), hw * (1 - 0.07 * smooth((t - 0.76) / 0.16)), hd]);
-    torso[0][3] += 0.7; torso[0][4] += 0.6; // (the hem stands just proud of the waistband)
+    // the hips: one rounded pelvis (a little seat at the back) wide enough to hold the tops of both thighs, so the
+    // trousers follow one smooth shape (no ledge where the legs start, no wedge between them)
+    const ll0 = S.limb.leg, le0 = O.legEase || 0, pe = O.pelvisEase || 0, jx = S.hipX - 1.1;
+    const thighR = 6.5 * ll0 + le0 * 0.5, hw0 = torso[0][3], hd0 = torso[0][4];
+    const Wp = Math.max(hw0, jx + thighR + 0.7) + pe, Dp = Math.max(hd0, thighR + 1.6) + pe;
+    const pelvis = [[S.hip - 10, 0, -0.3, Wp * 0.56, Dp * 0.64], [S.hip - 7, 0, -0.6, Wp * 0.9, Dp * 0.9], [S.hip - 3, 0, -0.8, Wp, Dp], [S.hip + 1, 0, -0.4, Wp * 0.97, Dp * 0.96], [S.hip + 4, 0, 0, Wp * 0.9, Dp * 0.9]]; // (the outline the trousers make: see the legs)
+    S.pelvisRings = pelvis;
+    // the top's hem: drapes a little proud of the hips and rolls under onto them (soft, never a board)
+    const flare = O.tucked ? 0.35 : 0.9, under = surfRing(pelvis, ty0 - 1.2);
+    torso[0] = [ty0, 0, torso[0][2], Math.max(hw0, Wp * 0.99) + flare, Math.max(hd0, Dp * 0.99) + flare * 0.8];
+    torso.unshift([ty0 - 1.2, 0, under[2], under[3] + 0.15, under[4] + 0.15]);
     S.torsoRings = torso;
     const mid = surfRing(torso, lerp(ty0, ty1, 0.6));
-    const frames = { torso: { c: circ(mid[3], mid[4]), y0: ty0, y1: ty1, base: O.base?.torso } };
+    const frames = { torso: { c: circ(mid[3], mid[4]), y0: ty0 - 1.2, y1: ty1, base: O.base?.torso } };
     G.add(loft(torso, L.torso, { bottomDome: 1, topDome: 1 }), C('#ffffff'), torsoW, { cell: CELL.torso });
-    const hw0 = torso[0][3], hd0 = torso[0][4], pe = O.pelvisEase || 0;
-    const pelvis = [[S.hip - 7, 0, 0.2, hw0 * 0.5 + pe, hd0 * 0.6 + pe], [S.hip - 2.5, 0, 0.2, hw0 * 0.9 + pe, hd0 * 0.8 + pe], [S.hip + 1, 0, 0.2, hw0 * 0.97 - 0.4 + pe, hd0 * 0.93 - 0.4 + pe], [S.hip + 6, 0, 0.3, hw0 * 0.9 - 0.6 + pe, hd0 * 0.9 - 0.6 + pe]];
-    frames.pelvis = { c: circ(hw0, hd0), y0: S.hip - 6.5, y1: S.hip + 8, base: O.base?.pelvis };
-    G.add(loft(pelvis, L.torso, { bottomDome: 0.6, top: false }), C('#ffffff'), (x, y) => {
-      if (y < S.hip + 1 && Math.abs(x) > 3) { const t = clamp((S.hip + 1 - y) / 6, 0, 0.45); return [['hips', 1 - t], [x > 0 ? 'thighL' : 'thighR', t]]; }
-      return blend(y, S.hip + 4, S.spine + 3, 'hips', 'spine');
-    }, { cell: CELL.pelvis, noAO: true });
+    frames.pelvis = { c: circ(Wp, Dp), y0: S.hip - 10, y1: S.hip + 4, base: O.base?.pelvis };
     const la = S.limb.arm, ll = S.limb.leg, se = O.sleeveEase || 0, le = O.legEase || 0;
     for (const sd of ['L', 'R']) {
       const a = J['arm' + sd], el = J['fore' + sd], wr = J['hand' + sd], kk = k(sd);
@@ -468,13 +472,18 @@
         [S.ankle + 7, an[0] + kk * 0.1, an[2] + 0.2, 3.9 * ll + le * 0.7, 4.2 * ll + le * 0.7],
         [(S.ankle + kn[1]) * 0.5 + 2, kn[0] * 0.98 + an[0] * 0.02, -0.4, 4.7 * ll + le * 0.6, 5.0 * ll + le * 0.6],
         [kn[1], kn[0], kn[2] + 0.2, 4.8 * ll + le * 0.6, 5.0 * ll + le * 0.6],
-        [(kn[1] + S.hip) * 0.5, (kn[0] + t[0]) * 0.5 + kk * 0.3, 0.5, 6.2 * ll + le, 6.5 * ll + le],
-        [S.hip - 3, t[0] - kk * 0.5, 0.5, 7.4 * ll + le, 7.5 * ll + le],
-        [S.hip + 2, t[0] - kk * 0.9, 0.4, 7.6 * ll + le, 7.8 * ll + le],
+        [lerp(kn[1], S.hip, 0.4), lerp(kn[0], kk * jx, 0.4), 0.3, 5.4 * ll + le * 0.8, 5.7 * ll + le * 0.8],
+        [S.hip - 10, kk * jx, 0.3, 6.2 * ll + le * 0.6, 6.5 * ll + le * 0.6], // (a gentle taper from the top of the thigh)
+        // each trouser leg goes right up to the waist as one half of the seat: the halves meet at the centre seam, so the
+        // hips are one smooth rounded shape (no ledge where the legs start, no wedge between them)
+        [S.hip - 5.5, kk * lerp(jx, Wp * 0.5, 0.65), -0.5, lerp(6.2 * ll + le * 0.6, Wp * 0.5 + 0.5, 0.65), lerp(6.5 * ll + le * 0.6, Dp * 0.78, 0.65)],
+        [S.hip - 1.5, kk * Wp * 0.46, -0.3, Wp * 0.46, Dp * 0.65],
+        [S.hip + 3, kk * Wp * 0.44, 0, Wp * 0.44, Dp * 0.62],
       ];
-      if (sd === 'L') frames.legs = { c: TAU * 5.6 * ll, y0: legs[0][0], y1: legs[6][0], base: O.base?.legs, knee: kn[1] };
-      G.add(loft(legs, L.limb, { topDome: 0.5 }), C('#ffffff'), (x, y) => {
-        if (y > S.hip - 3) return [['thigh' + sd, 0.7], ['hips', 0.3]];
+      if (sd === 'L') frames.legs = { c: TAU * 5.6 * ll, y0: legs[0][0], y1: legs[legs.length - 1][0], base: O.base?.legs, knee: kn[1] };
+      G.add(loft(legs, L.limb + (lod === 0 ? 4 : 1), { topDome: 0.8 }), C('#ffffff'), (x, y) => {
+        if (y > S.hip - 2) return [['hips', 0.9], ['thigh' + sd, 0.1]];
+        if (y > S.hip - 11) { const q = smooth((y - (S.hip - 11)) / 9); return [['thigh' + sd, 1 - q * 0.9], ['hips', q * 0.9]]; }
         if (y > kn[1] + 4) return [['thigh' + sd, 1]];
         if (y > kn[1] - 4) return blend(y, kn[1] - 4, kn[1] + 4, 'shin' + sd, 'thigh' + sd);
         return [['shin' + sd, 1]];
@@ -563,7 +572,7 @@
   function dadShirt(home) {
     const shirt = '#bccfe6', cuff = '#a9bfdc', tieC = '#8a2232', gold = '#c9a24a';
     return {
-      sleeveEase: home ? 0.5 : 0.8, legEase: 1.4,
+      sleeveEase: home ? 0.5 : 0.8, legEase: 1.4, tucked: true,
       base: { torso: shirt, sleeve: shirt, pelvis: '#3d424b', legs: '#3d424b' },
       paint: {
         torso(g, S, fr, P) {
@@ -856,7 +865,7 @@
         G.add(shell(sk, -179.5, 179.5, L.torso, 0.7, 0), (x, y, z, nx, ny, nz) => (y < S.knee + 6 && ny < -0.5 ? C('#26354a') : C('#34465e')), (x, y) => [['hips', 1]]); // (a thick shell: solid from inside too)
         const nr = 0.31 * S.head.r[0], ys = S.neck - 1.5, red = C('#c23a3a'), cream = C('#efe6d2');
         const stripes = (x, y) => (Math.floor(y / 2.2) % 2 ? red : cream);
-        G.add(loft([[ys - 2, 0, -0.8, nr + 4, nr + 3.4], [ys + 1.5, 0, -0.9, nr + 3.4, nr + 2.8], [ys + 4, 0, -1, nr + 2.2, nr + 1.8]], L.limb + 4, { bottom: false, top: false }), stripes, (x, y) => [['chest', 0.7], ['neck', 0.3]]);
+        G.add(loft([[ys - 2, 0, -0.8, nr + 4, nr + 3.4], [ys + 1.5, 0, -0.9, nr + 3.4, nr + 2.8], [ys + 4, 0, -1, nr + 2.2, nr + 1.8]], L.limb + (S.lod > 0 ? 1 : 4), { bottom: false, top: false }), stripes, (x, y) => [['chest', 0.7], ['neck', 0.3]]);
         const ez = surf(torso, ys - 10, 22, 0.8);
         G.add(rbox([ez[0], ys - 9, ez[2]], [4.4, 18, 1.2], 0.5, [-6, 22, 4], 1), (x, y) => (Math.floor(y / 2.2) % 2 ? red : cream), 'chest');
       },
@@ -1138,28 +1147,29 @@
     }
     // the actions: ACT[name](t, H) with H = the hips' height now (stood or sat). Arms are FK arrays or
     // { ik: wrist target, pole: where the elbow goes, hand: wrist rotation }. Everything in rig space.
-    const lap = H => ({ L: { ik: [-9.5, H + 9, 21], pole: [0.9, -0.3, -0.6], hand: [-70, 0, -8] }, R: { ik: [9.5, H + 9, 21], pole: [-0.9, -0.3, -0.6], hand: [-70, 0, 8] } });
+    // The skeleton has positive X on the left: hands stay on their own side.
+    const lap = H => ({ L: { ik: [9.5, H + 9, 21], pole: [0.9, -0.3, -0.6], hand: [-70, 0, -8] }, R: { ik: [-9.5, H + 9, 21], pole: [-0.9, -0.3, -0.6], hand: [-70, 0, 8] } });
     const table = H => (st.seat && st.seat.table) || H + 22;
     const mouthAt = H => S.mouthY - (S.hip + 2 - H);
     const ACT = {
-      washup: (t, H) => ({ arms: { L: { ik: [-7 + Math.sin(t * 1.1) * 1.5, H + 2, 34], pole: [0.6, -0.4, -1], hand: [-30, 0, -20] }, R: { ik: [7 + Math.cos(t * 5) * 2.6, H + 2.5 + Math.sin(t * 5) * 1.6, 35 + Math.sin(t * 5) * 2], pole: [-0.6, -0.4, -1], hand: [-30, 0, 20] } }, lean: 9, lookR: [0, H + 2, 42], props: { sponge: 1 } }),
-      cook: (t, H) => ({ arms: { L: { ik: [-17, H + 7, 27], pole: [0.8, -0.3, -1], hand: [-70, 0, 0] }, R: { ik: [7 + Math.cos(t * 3.4) * 3.2, H + 15, 33 + Math.sin(t * 3.4) * 3.2], pole: [-0.7, -0.4, -1], hand: [-10, 0, 0] } }, lean: 6, lookR: [5, H + 6, 40], props: { spoon: 1 } }),
-      wipe: (t, H) => ({ arms: { L: { ik: [-15, H - 9, 31], pole: [0.8, -0.2, -1], hand: [-75, 0, 0] }, R: { ik: [9 + Math.cos(t * 2.6) * 9, H - 9.5, 37 + Math.sin(t * 2.6) * 6], pole: [-0.7, -0.3, -1], hand: [-80, 0, 0] } }, lean: 22, lookR: [6, H - 14, 40], props: { sponge: 1 } }),
-      water: (t, H) => ({ arms: { L: [6, 8, 0, 25, 0], R: { ik: [12, H + 2 + Math.sin(t * 0.8) * 2, 30], pole: [-0.7, -0.5, -1], hand: [20 + Math.sin(t * 0.8) * 12, 0, 0] } }, lean: 6, lookR: [10, 0, 90], props: { can: 1 } }),
-      phone: (t, H) => ({ arms: { R: { ik: [9, S.neck + 7 - (S.hip + 2 - H), 3], pole: [-0.2, -1, -0.5], hand: [-15, 75, 0] }, L: talkArm(t, 'L', 0.6) }, lean: 0, props: { phone: 1 } }),
-      paper: (t, H) => ({ arms: { L: { ik: [-15, H + 24 + Math.sin(t * 0.4) * 0.6, 31], pole: [0.8, -0.6, -0.8], hand: [-60, -40, -10] }, R: { ik: [15, H + 24 + Math.sin(t * 0.4) * 0.6, 31], pole: [-0.8, -0.6, -0.8], hand: [-60, 40, 10] } }, lean: -4, lookR: [0, H + 30, 40], props: { paper: 1 } }),
-      magazine: (t, H) => ({ arms: { L: { ik: [-9, H + 18, 27], pole: [0.8, -0.6, -0.8], hand: [-60, -30, 0] }, R: { ik: [8, H + 14, 25], pole: [-0.8, -0.6, -0.8], hand: [-40, 20, 0] } }, lean: -2, lookR: [-4, H + 22, 34], props: { mag: 1 } }),
+      washup: (t, H) => ({ arms: { L: { ik: [7 - Math.sin(t * 1.1) * 1.5, H + 2, 34], pole: [0.6, -0.4, -1], hand: [-30, 0, -20] }, R: { ik: [-7 - Math.cos(t * 5) * 2.6, H + 2.5 + Math.sin(t * 5) * 1.6, 35 + Math.sin(t * 5) * 2], pole: [-0.6, -0.4, -1], hand: [-30, 0, 20] } }, lean: 9, lookR: [0, H + 2, 42], props: { sponge: 1 } }),
+      cook: (t, H) => ({ arms: { L: { ik: [17, H + 7, 27], pole: [0.8, -0.3, -1], hand: [-70, 0, 0] }, R: { ik: [-7 - Math.cos(t * 3.4) * 3.2, H + 15, 33 + Math.sin(t * 3.4) * 3.2], pole: [-0.7, -0.4, -1], hand: [-10, 0, 0] } }, lean: 6, lookR: [-5, H + 6, 40], props: { spoon: 1 } }),
+      wipe: (t, H) => ({ arms: { L: { ik: [15, H - 9, 31], pole: [0.8, -0.2, -1], hand: [-75, 0, 0] }, R: { ik: [-9 - Math.cos(t * 2.6) * 9, H - 9.5, 37 + Math.sin(t * 2.6) * 6], pole: [-0.7, -0.3, -1], hand: [-80, 0, 0] } }, lean: 22, lookR: [-6, H - 14, 40], props: { sponge: 1 } }),
+      water: (t, H) => ({ arms: { L: [6, 8, 0, 25, 0], R: { ik: [-12, H + 2 + Math.sin(t * 0.8) * 2, 30], pole: [-0.7, -0.5, -1], hand: [20 + Math.sin(t * 0.8) * 12, 0, 0] } }, lean: 6, lookR: [-10, 0, 90], props: { can: 1 } }),
+      phone: (t, H) => ({ arms: { R: { ik: [-9, S.neck + 7 - (S.hip + 2 - H), 3], pole: [-0.2, -1, -0.5], hand: [-15, 75, 0] }, L: talkArm(t, 'L', 0.6) }, lean: 0, props: { phone: 1 } }),
+      paper: (t, H) => ({ arms: { L: { ik: [15, H + 24 + Math.sin(t * 0.4) * 0.6, 31], pole: [0.8, -0.6, -0.8], hand: [-60, -40, -10] }, R: { ik: [-15, H + 24 + Math.sin(t * 0.4) * 0.6, 31], pole: [-0.8, -0.6, -0.8], hand: [-60, 40, 10] } }, lean: -4, lookR: [0, H + 30, 40], props: { paper: 1 } }),
+      magazine: (t, H) => ({ arms: { L: { ik: [9, H + 18, 27], pole: [0.8, -0.6, -0.8], hand: [-60, -30, 0] }, R: { ik: [-8, H + 14, 25], pole: [-0.8, -0.6, -0.8], hand: [-40, 20, 0] } }, lean: -2, lookR: [4, H + 22, 34], props: { mag: 1 } }),
       telly: (t, H) => ({ arms: lap(H), lean: -6, props: {} }),
-      remote: (t, H) => ({ arms: { L: lap(H).L, R: { ik: [10, H + 14, 28], pole: [-0.9, -0.5, -0.6], hand: [-30, 0, 0] } }, lean: -8, props: { remote: 1 } }),
-      tea: (t, H) => { const ph = t % 9, sip = ph < 2.4, s = smooth(Math.min(1, ph < 1.2 ? ph / 0.7 : (2.4 - ph) / 0.7)), tb = table(H); return { arms: { L: { ik: [-12, tb + 3, 27], pole: [0.9, -0.3, -0.7], hand: [-75, 0, 0] }, R: { ik: sip ? [lerp(11, 3, s), lerp(tb + 6, mouthAt(H) - 3, s), lerp(28, 12, s)] : [11, tb + 6, 28], pole: [-0.9, -0.5, -0.3], hand: [-20, 0, 0] } }, lean: 3, props: { mug: 1 } }; },
-      draw: (t, H) => { const tb = table(H); return { arms: { L: { ik: [-9, tb + 3, 26], pole: [0.9, -0.4, -0.6], hand: [-80, 0, 0] }, R: { ik: [5 + Math.sin(t * 6) * 1.6, tb + 3.6 + Math.abs(Math.sin(t * 3)) * 0.5, 27 + Math.cos(t * 4.3) * 1.6], pole: [-0.9, -0.4, -0.6], hand: [-70, 0, 0] } }, lean: 16, lookR: [2, tb, 28], props: { crayon: 1, pad: 1 } }; },
-      yoyo: (t, H) => { const ph = (t * 0.9) % 1, d = ph < 0.5 ? smooth(ph * 2) : 1 - smooth((ph - 0.5) * 2); return { arms: { L: [4, 6, 0, 14, 0], R: [42 + d * 6, 10, 0, 70 - d * 25, -10 + d * 30] }, yoyo: d, lean: 0, lookR: [8, H - 4, 30], props: { string: 1 } }; },
-      carwash: (t, H) => ({ arms: { L: { ik: [-12, H + 16, 32], pole: [0.8, -0.3, -1], hand: [-80, 0, 0] }, R: { ik: [12 + Math.cos(t * 2.4) * 8, H + 12 + Math.sin(t * 2.4) * 6, 38], pole: [-0.8, -0.3, -1], hand: [-80, 0, 0] } }, lean: 14, lookR: [10, H + 10, 50], props: { sponge: 1 } }),
+      remote: (t, H) => ({ arms: { L: lap(H).L, R: { ik: [-10, H + 14, 28], pole: [-0.9, -0.5, -0.6], hand: [-30, 0, 0] } }, lean: -8, props: { remote: 1 } }),
+      tea: (t, H) => { const ph = t % 9, sip = ph < 2.4, s = smooth(Math.min(1, ph < 1.2 ? ph / 0.7 : (2.4 - ph) / 0.7)), tb = table(H); return { arms: { L: { ik: [12, tb + 3, 27], pole: [0.9, -0.3, -0.7], hand: [-75, 0, 0] }, R: { ik: sip ? [lerp(-11, -3, s), lerp(tb + 6, mouthAt(H) - 3, s), lerp(28, 12, s)] : [-11, tb + 6, 28], pole: [-0.9, -0.5, -0.3], hand: [-20, 0, 0] } }, lean: 3, props: { mug: 1 } }; },
+      draw: (t, H) => { const tb = table(H); return { arms: { L: { ik: [9, tb + 3, 26], pole: [0.9, -0.4, -0.6], hand: [-80, 0, 0] }, R: { ik: [-5 - Math.sin(t * 6) * 1.6, tb + 3.6 + Math.abs(Math.sin(t * 3)) * 0.5, 27 + Math.cos(t * 4.3) * 1.6], pole: [-0.9, -0.4, -0.6], hand: [-70, 0, 0] } }, lean: 16, lookR: [-2, tb, 28], props: { crayon: 1, pad: 1 } }; },
+      yoyo: (t, H) => { const ph = (t * 0.9) % 1, d = ph < 0.5 ? smooth(ph * 2) : 1 - smooth((ph - 0.5) * 2); return { arms: { L: [4, 6, 0, 14, 0], R: [42 + d * 6, 10, 0, 70 - d * 25, -10 + d * 30] }, yoyo: d, lean: 0, lookR: [-8, H - 4, 30], props: { string: 1 } }; },
+      carwash: (t, H) => ({ arms: { L: { ik: [12, H + 16, 32], pole: [0.8, -0.3, -1], hand: [-80, 0, 0] }, R: { ik: [-12 - Math.cos(t * 2.4) * 8, H + 12 + Math.sin(t * 2.4) * 6, 38], pole: [-0.8, -0.3, -1], hand: [-80, 0, 0] } }, lean: 14, lookR: [-10, H + 10, 50], props: { sponge: 1 } }),
       sit: (t, H) => ({ arms: lap(H), lean: -3, props: {} }),
       doze: (t, H) => ({ arms: lap(H), lean: -8, props: {}, doze: 1 }),
-      mug: (t, H) => { const ph = (t + st.talkSeed * 3) % 11, sip = ph < 2.4, s = smooth(Math.min(1, ph < 1.2 ? ph / 0.7 : (2.4 - ph) / 0.7)); return { arms: { L: [6, 7, 0, 22, 0], R: { ik: sip ? [lerp(9, 3, s), lerp(H + 20, mouthAt(H) - 3, s), lerp(22, 12, s)] : [9, H + 20, 22], pole: [-0.9, -0.6, -0.3], hand: [-15, 0, 0] } }, lean: 0, props: { mug: 1 } }; },
-      reach: (t, H) => ({ arms: { R: { ik: [9, H + 13, 40], pole: [-0.8, -0.6, -0.4], hand: [-10, 0, -60] } }, lean: 4, props: {} }),
-      carry: (t, H) => ({ arms: { L: { ik: [-13, H + 13, 24], pole: [0.9, -0.5, -0.5], hand: [-80, 0, 0] }, R: { ik: [13, H + 13, 24], pole: [-0.9, -0.5, -0.5], hand: [-80, 0, 0] } }, lean: -3, props: {} }),
+      mug: (t, H) => { const ph = (t + st.talkSeed * 3) % 11, sip = ph < 2.4, s = smooth(Math.min(1, ph < 1.2 ? ph / 0.7 : (2.4 - ph) / 0.7)); return { arms: { L: [6, 7, 0, 22, 0], R: { ik: sip ? [lerp(-9, -3, s), lerp(H + 20, mouthAt(H) - 3, s), lerp(22, 12, s)] : [-9, H + 20, 22], pole: [-0.9, -0.6, -0.3], hand: [-15, 0, 0] } }, lean: 0, props: { mug: 1 } }; },
+      reach: (t, H) => ({ arms: { R: { ik: [-9, H + 13, 40], pole: [-0.8, -0.6, -0.4], hand: [-10, 0, -60] } }, lean: 4, props: {} }),
+      carry: (t, H) => ({ arms: { L: { ik: [13, H + 13, 24], pole: [0.9, -0.5, -0.5], hand: [-80, 0, 0] }, R: { ik: [-13, H + 13, 24], pole: [-0.9, -0.5, -0.5], hand: [-80, 0, 0] } }, lean: -3, props: {} }),
       trick: (t, H) => ({ arms: { R: [18 + Math.sin(t * 1.3) * 3, 9, 0, 38, 0], L: st.props?.raygun ? [30, 12, 0, 45, -10] : [4, 7, 0, 16, 0] }, lean: 0, props: { pail: 1 } }),
       leave: () => ({ arms: null, props: kind === 'dad' ? { case: 1 } : kind === 'sister' ? { bag: 1 } : {} }),
       torch: (t, H) => ({ arms: { L: { ik: [15, H + 4 + Math.sin(t * 0.7) * 1.2, 20], pole: [0.6, -0.6, -0.6], hand: [-60, 0, 0] }, R: [4, 7, 0, 18, 0] }, lean: 0, props: { torch: 1 } }),

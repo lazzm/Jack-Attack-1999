@@ -35,7 +35,7 @@ try{
   for(const [name,start,targets] of LEGS){
    if(only&&name!==only)continue;
    const leg=mode+'-'+name;
-   await p.evaluate(s=>{House.hush();House.cancelGlide(true);House.setWalkFrom({x:s.x,z:s.z,y:(s.lvl==='U'?73:353)-128,lvl:s.lvl,seat:0,ry:0,rx:0});House.W.vx=House.W.vz=0;House._.setMode('walk');House.dirty()},start);
+   await p.evaluate(s=>{House.hush();House.cancelGlide(true);House.setWalkFrom({x:s.x,z:s.z,y:(s.lvl==='U'?73:353)-(House.STAND||128),lvl:s.lvl,seat:0,ry:0,rx:0});House.W.vx=House.W.vz=0;House._.setMode('walk');House.dirty()},start);
    await p.waitForTimeout(200);
    if(mode==='jog')await p.keyboard.down('Shift');if(mode==='crouch')await p.keyboard.down('c');
    let k=0,last=null,lastMove=Date.now(),t0=Date.now(),fail=null,minDist=1e9;const trace=[];

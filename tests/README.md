@@ -108,9 +108,11 @@ House physics, carrying and placement (starts its own server; docs/PHYSICS.md):
 The family in the house (starts and stops its own server on a free port, throwaway data):
 
     node characters.mjs                 # routines + owner clock, 3 simulated days (walls/doors/doorways), talk/jobs, bump, refresh, feet, draws, story, portraits
-    node characters.mjs --only=day      # one check: routines|day|talk|bump|refresh|feet|draws|story|shots
+    node characters.mjs --only=day,space # three routine days plus kitchen/hall personal-space crossings
+    node characters.mjs --only=budget,hips # every outfit on Low/Potato, then four sides, waist close-ups and phone/tablet sizes
+    node characters.mjs --only=hip-motion # stride phases and seated waist/hand close-ups
 
-Portraits and in-house views of Mom, Dad and the sister (idle/walking/talking) go to `shots/characters/`.
+Portraits and in-house views of Mom, Dad and the sister (idle/walking/talking) go to `shots/characters/`. Checks accept a comma-separated `--only` list. The `hips` gallery uses a fixed 60-degree presentation lens for full figures and the game lens for waist close-ups; it does not change the walking lens. `HIP_SIZES_ONLY=1` repeats just its portrait/landscape captures. `day` also checks standing-person overlap; seated transitions are excluded from the body-circle measurement.
 
 Exterior/grass/door checks (disposable localhost data only):
 
@@ -124,12 +126,12 @@ Review `shots/exterior/` captures from `tests/`: front/back/town, day/night, hig
 
 The family house's outside shell must be watertight from everywhere (the rooms inside are hidden while you are outside):
 
-    node exterior-shell.mjs http://localhost:18080 [--profiles=desktop,phone] [--tier=low] [--eye=140]
+    node exterior-shell.mjs http://localhost:18080 [--profiles=desktop,phone] [--tier=low] [--eye=143]
 
 From 18 spots (both sides of the front garden and the car, the gateway, the pavement, the road both ways, the back
-garden) it looks at the house left/centre/right and up at the eaves, renders with the neighbourhood and interiors
-hidden and a magenta sky, and fails if any sample whose ray enters the house's walls or roof prism shows magenta
-(glass is skipped). Failing views go to `shots/exterior-shell/<profile>-<view>.png` with the holes ringed, plus one
+garden) it looks at the house left/centre/right and up at the eaves, renders with the neighbourhood and horizon
+ring hidden and a magenta sky, and fails if any sample whose ray enters the house's walls or roof prism shows magenta
+(glass is skipped; rooms show as the game shows them, through open doors and windows). Failing views go to `shots/exterior-shell/<profile>-<view>.png` with the holes ringed, plus one
 normal capture per profile beside Dad's car. About 10 minutes per profile on software WebGL.
 
 Camera/transition polish (starts its own throwaway server unless given a localhost URL):
@@ -407,3 +409,29 @@ Stage 0 graphics/performance matrix (owns its throwaway server):
 Run from the repository root. See [perf/README.md](perf/README.md) for backend,
 CPU-throttle, sample-count and per-room gate options. Images are under
 `tests/shots/perf/`; results include the actual GPU string and host load.
+
+Walking-camera checks and native-lens gallery (disposable server/data):
+
+    node camera-lens.mjs
+
+Measures walking FOV, live standing eye height and CSS/WebGL focal alignment at desktop, phone and tablet portrait/landscape sizes. Compares all four live desktop corners with the WebGL glass during stationary lens changes, then checks an old standing save survives refresh. Captures are in `shots/camera-lens/`; an old-source comparison can use `--baseline --app-root=/absolute/path/to/old/app`.
+
+For a focused shut/open door rerun with real keyboard input and controller-time waits: `node movement-audit.mjs after-doors --doors-only`. The default runs both furnished and sparse accounts; every finding fails an `after*` audit.
+
+Approved front-plot regression (disposable localhost server and veteran fixtures only):
+
+    node front-plot.mjs http://localhost:PORT
+    node house-round2-save.mjs http://localhost:PORT
+    node placement-migration-unit.cjs
+    node grass-state-unit.cjs
+    node neighbourhood-geometry.cjs
+
+The front test sends real phone finger input behind the open boot and ahead of the car, checks both pavement grids, then refreshes and rotates with pose/power/boot assertions. CSP-safe polling uses page.evaluate rather than string evaluation. The save test checks roof contact and placement metadata over repeat refreshes. Unit checks cover migration versions 0..6 and completed mowing-strip extension. `front-clearance-preview.mjs` renders matched six/seven-metre browser-only comparisons; Jack approved seven metres on 28 October.
+
+Mobile control feel and message stacking (real CDP fingers, disposable server/data):
+
+    node tests/mobile.mjs --only=feel,small
+    node tests/mobile-frame-unit.cjs
+    node tests/touch-picking-unit.cjs
+
+Run these two commands from the repository root. Feel checks measure stick deflection, slow/quick look, selection tolerance, second-finger takeover, close-up turn/zoom and a rolling long button press. Small-phone checks capture discovery/objective/coach stacking and fail on overlap. Frame-unit checks exercise sustained 60, slow-device fallback and cooldown, plus idle/covered/desktop isolation. Software WebGL measurements do not establish physical phone performance.

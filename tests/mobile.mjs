@@ -12,7 +12,7 @@ import net from 'node:net';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {chromium, devices} from 'playwright';
-import {analyse} from './transition-kit.mjs';
+import {analyse, contactSheet} from './transition-kit.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url)), shots = fileURLToPath(new URL('shots/mobile/', import.meta.url));
 const args = process.argv.slice(2), given = args.find(a => /^https?:/.test(a));
@@ -72,8 +72,20 @@ async function phone(profile, { tier = null, hour = 14 } = {}) {
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
   page.on('console', m => { if (['error', 'warning'].includes(m.type()) && !/GPU stall|ReadPixels|GL Driver/.test(m.text())) errors.push(m.type() + ': ' + m.text()); });
   page.setDefaultTimeout(30000 * SCALE);
+  await page.addInitScript(() => {
+    const bind = () => {
+      if (!window.Net?.on) { setTimeout(bind, 0); return; }
+      Net.on('rmSame', () => { window.__testProfileReady = true; });
+      Net.on('rmNone', () => { window.__testProfileReady = true; });
+      Net.on('rmData', () => { window.__testProfileReady = false; });
+    };
+    bind();
+  });
   await page.addInitScript(({ tier, hour }) => {
     if (tier) localStorage.setItem('jhp_hs_gfx', JSON.stringify(tier));
+    // The software host can offer its slow-device choice during a long fixture. Use the retained-house preference;
+    // small() explicitly exercises that real choice so an unrelated action is never covered by a surprise dialog.
+    localStorage.setItem('jhp_touch_slow_asked', 'true');
     window.auditHour = hour; Date.prototype.getHours = () => window.auditHour; Date.prototype.getMinutes = () => 0;
   }, { tier, hour });
   const cdp = await ctx.newCDPSession(page);
@@ -82,7 +94,9 @@ async function phone(profile, { tier = null, hour = 14 } = {}) {
   const fingers = {
     async down(id, x, y) { pts.set(id, { x, y, id, radiusX: 6, radiusY: 6, force: 1 }); await send('touchStart'); },
     async move(id, x, y) { pts.set(id, { ...pts.get(id), x, y }); await send('touchMove'); },
-    async up(id) { pts.delete(id); await send('touchEnd'); },
+    // CDP (Chromium): a touchEnd releases the points it lists, so lifting one finger of several lists just that one
+    // (measured: listing the others released them instead and the lifted finger stayed down).
+    async up(id) { const q = pts.get(id); pts.delete(id); await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: q ? [q] : [] }); },
     async drag(id, x0, y0, x1, y1, ms = 400, hold = 0) {
       await this.down(id, x0, y0); const n = Math.max(4, Math.round(ms / 40));
       for (let i = 1; i <= n; i++) { await this.move(id, x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n); await sleep(ms / n); }
@@ -124,14 +138,16 @@ async function logon(p, acct, { signup = false, first = '' } = {}) {
   await page.locator('#accountGate [type=submit]').tap();
   await until(() => window.AccountGate?.allowed || !!document.querySelector('#accountFirst'), null, 60000);
   if (await page.locator('#accountFirst').count()) { if (first) await shot(first + '-identity'); await page.locator('#accountGate [type=submit]').tap(); }
-  await until(() => window.AccountGate?.allowed && window.House?.live && !document.querySelector('.hs-loading,#houseEntry'), null, 120000);
+  await until(() => window.__testProfileReady && window.AccountGate?.allowed && window.House?.live && !document.querySelector('.hs-loading,#houseEntry'), null, 120000);
 }
 // Point the camera with the scene API (like the smoke fixture); every interaction after that is a real finger.
 async function aimAt(p, eye, target, level = 'U') {
   await p.page.evaluate(({ eye, target, level }) => {
+    // Capture the shipped standing eye, rather than easing up from the old 128 cm fixture height.
+    eye = [eye[0], House.LV[level] - House.STAND, eye[2]];
     House.hush(); House.setWalkFrom({ x: eye[0], y: eye[1], z: eye[2], lvl: level, seat: 0 });
     const [x, y, z] = eye, [tx, ty, tz] = target;
-    Object.assign(House.P, { x, y, z, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI });
+    Object.assign(House.P, { x, y, z, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI, lvl: level, seat: 0 });
     House._.setMode('walk'); House.dirty();
   }, { eye, target, level });
   await sleep(400);
@@ -146,6 +162,23 @@ async function screenOf(p, id) {
     const b = new H.T.Box3().setFromObject(o), v = b.getCenter(new H.T.Vector3()); v.project(H.camera);
     const r = H.ren.domElement.getBoundingClientRect(); return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height, z: v.z };
   }, id);
+}
+// A touch-path recording: left thumb walks forward, right thumb pans right, frames every ~120 ms into a contact sheet,
+// with the pose and the finger positions logged (report.paths[name]).
+async function recordPath(p, name) {
+  const { page, fingers } = p, { width: w, height: h } = V(p), R = Math.max(46, Math.min(70, Math.min(w, h) * .15));
+  const frames = [], log = [], t0 = Date.now(), sx = Math.min(100, w * .22), sy = h - Math.min(170, h * .3);
+  await fingers.down(1, sx, sy); await fingers.move(1, sx, sy - 14); await fingers.move(1, sx, sy - R);
+  await fingers.down(2, w - 80, h * .45);
+  for (let i = 0; i < 10; i++) {
+    await fingers.move(2, w - 80 - i * 9, h * .45);
+    frames.push({ buf: await page.screenshot({ type: 'jpeg', quality: 55 }), t: Date.now() - t0 });
+    log.push(await page.evaluate(() => ({ x: +House.W.x.toFixed(1), z: +House.W.z.toFixed(1), ry: +House.P.ry.toFixed(1), touch: House.touch.state })));
+  }
+  await fingers.up(2); await fingers.up(1);
+  await contactSheet(browser, frames, shots + name + '-path-sheet.jpg', { cols: 5, width: Math.round(1200 / 5), label: name + ': stick forward + drag right, ' + w + 'x' + h });
+  (report.paths = report.paths || {})[name] = log;
+  return log;
 }
 // The world centre of a thing (house coordinates, y down), for pointing the camera at it.
 async function centreOf(p, id) { return p.page.evaluate(id => { const H = House, o = H.THINGS[id]?.obj || H.SPOTS[id]?.obj; const v = new H.T.Box3().setFromObject(o).getCenter(new H.T.Vector3()); return [v.x, -v.y, v.z]; }, id); }
@@ -169,7 +202,7 @@ async function standAndAim(p, id) {
 async function clickThing(p, id, shotName) {
   let at = await screenOf(p, id); assert(at && at.z < 1, 'Not on screen: ' + id);
   // the nearest screen point where the room's own picking finds this thing (it may be half behind a shelf edge)
-  at = await p.page.evaluate(({ id, at }) => { for (let r = 0; r <= 120; r += 4) for (let i = 0; i < (r ? 24 : 1); i++) { const x = at.x + Math.cos(i * Math.PI / 12) * r, y = at.y + Math.sin(i * Math.PI / 12) * r; if (House.pick(x, y)?.spot === id) return { x, y }; } return at; }, { id, at });
+  at = await p.page.evaluate(({ id, at }) => { for (let r = 0; r <= 120; r += 4) for (let i = 0; i < (r ? 24 : 1); i++) { const x = at.x + Math.cos(i * Math.PI / 12) * r, y = at.y + Math.sin(i * Math.PI / 12) * r; if (House.pick(x, y)?.spot === id && document.elementFromPoint(x, y)?.classList.contains('ht-surface')) return { x, y }; } return at; }, { id, at }); // (and not under a HUD button)
   await p.fingers.down(7, at.x, at.y); await sleep(250);
   const label = await p.page.evaluate(() => { const m = document.querySelector('.ht-tapmark.on'); return m ? m.textContent : ''; });
   if (shotName) await p.shot(shotName);
@@ -326,12 +359,14 @@ const phases = {
           const fam = /^np\./.test(id) && window.HouseFamily?.debug?.dump().find(f => 'np.' + f.id === id); if (fam) { lvl = fam.lvl; c = [fam.x, lvl === 'G' ? 230 : -30, fam.z]; }
           const ey = lvl === 'G' ? 205 : -55;
         const room = fam ? H.ROOMS[fam.room] : null, inRoom = (x, z) => !room || room.area.some(q => x >= q[0] + 20 && x <= q[2] - 20 && z >= q[1] + 20 && z <= q[3] - 20);
-          const out = []; for (const d of [110, 150, 80, 190]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (H._.cellOk(lvl, x, z) && inRoom(x, z)) out.push({ e: [x, ey, z], c: [c[0], Math.min(c[1], ey + 40), c[2]], lvl }); } return out; }, id);
+          const out = []; for (const d of [150, 190, 110]) for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6, x = c[0] + Math.cos(a) * d, z = c[2] + Math.sin(a) * d; if (H._.cellOk(lvl, x, z) && inRoom(x, z)) out.push({ e: [x, ey, z], c: [c[0], Math.min(c[1], ey + 40), c[2]], lvl }); } return out; }, id);
         for (const q of r || []) {
           await aimAt(p, q.e, q.c, q.lvl);
           // a step with the stick lets the house notice which room you are in (and draw it), then look again
           const { height: hh } = V(p); await fingers.down(1, 90, hh - 160); await fingers.move(1, 90, hh - 200); await sleep(150); await fingers.up(1); await sleep(150);
           await aimAt(p, q.e, q.c, q.lvl);
+          // people keep their personal space (~82 cm, js/np-life.js): give her a moment to settle, then look where she is now
+          if (/^np\./.test(id)) { await sleep(1200); const now = await page.evaluate(id => { const f = window.HouseFamily?.debug?.dump().find(f => 'np.' + f.id === id); return f ? [f.x, f.lvl === 'G' ? 230 : -30, f.z] : null; }, id); if (now) await aimAt(p, q.e, now, q.lvl); }
           if (await page.evaluate(id => { for (let dy = -60; dy <= 60; dy += 20) if (House.pick(innerWidth / 2, innerHeight / 2 + dy)?.spot === id) return true; return false; }, id)) return true;
         }
         return false; };
@@ -348,9 +383,12 @@ const phases = {
         await until(d => !!House.DOORS[d.id].open !== d.open, door, 10000); await page.waitForTimeout(900); await shot('story-02g-door-toggled');
       }
       if (await page.evaluate(() => !!House.SPOTS['np.mom'] && !!window.HouseFamily?.debug?.dump().find(f => f.id === 'mom' && f.present))) {
+        // Keep the touch target at a known, reachable daily job rather than chasing her phone routine.
+        await page.evaluate(() => { const F = HouseFamily; F.debug.go('mom', 'hob'); F.debug.place('mom', 'hob'); F.debug.sim(5, 0.1); });
         assert(await look('np.mom'), 'Nowhere to stand in sight of Mom: ' + JSON.stringify(await page.evaluate(() => HouseFamily.debug.dump().find(f => f.id === 'mom')))); const said = await clickThing(p, 'np.mom', 'story-02c-finger-on-mom');
         assert.match(said, /talk/i, 'Finger label on Mom: ' + said + ' ' + JSON.stringify(await page.evaluate(() => { const o = House.SPOTS['np.mom'].obj, v = new House.T.Vector3(); o.getWorldPosition(v); return { dump: HouseFamily.debug.dump().find(f => f.id === 'mom'), proxy: [v.x, v.y, v.z], P: House.P, vis: o.visible, parentVis: o.parent?.visible }; })));
         await until(() => !!document.querySelector('.hs-voice.on,.hs-call.on,.hs-note.on,.np-bub:not(.np-out)'), null, 15000); await page.waitForTimeout(500); await shot('story-02d-talking-to-mom');
+        await page.evaluate(() => HouseFamily.debug.go('mom', null));
       } else report.checks.push({ label: 'Mom not in the bedroom at the opening', skipped: true });
       const mag = await page.evaluate(() => ['pmb.pm.mag.01', 'pmb.pm.mag.02'].find(id => House.THINGS[id]?.obj.visible && House.THINGS[id].st === 'rest'));
       if (mag) {
@@ -382,7 +420,8 @@ const phases = {
       assert(!/\[J\]/.test(line), 'Quest line shows a keyboard key on touch: ' + line);
       if (line) {
         await p.press('.st-objective'); await page.waitForTimeout(800); await shot('story-06-diary-picker');
-        await page.evaluate(() => document.querySelector('.st-quests [data-close], .st-picker button, dialog[open] button')?.click());
+        await p.press('[data-quest-close]');
+        await until(() => !window.stDiary?.picking);
         await page.waitForTimeout(400);
       }
       // the pause menu: touch settings, no keyboard text
@@ -392,13 +431,16 @@ const phases = {
       await page.evaluate(() => document.querySelector('dialog.hs-pause').scrollTop = 9999); await page.waitForTimeout(200); await shot('story-08-pause-bottom');
       await page.evaluate(() => document.querySelector('dialog.hs-pause').scrollTop = 0); await page.waitForTimeout(150);
       await p.press('[data-pause="resume"]'); await until(() => !HousePause.open && !House.paused);
-      // refresh mid-walk: the pose is kept
+      // Keep moving until navigation: compare with the final departing pose, not an earlier
+      // sample taken while the finger is still held (busy renderers can move between those calls).
+      await page.evaluate(() => addEventListener('pagehide', () => sessionStorage.setItem('jhp_mobile_test_departing', JSON.stringify([House.W.x, House.W.z])), {once:true}));
       await fingers.down(1, 90, h - 160); await fingers.move(1, 90, h - 230); await page.waitForTimeout(600);
       const mid = await page.evaluate(() => { House.saveWalkState(); return [House.W.x, House.W.z]; });
       await page.reload({ waitUntil: 'domcontentloaded' }); fingers.up(1).catch(() => {});
       await until(() => window.AccountGate?.allowed && window.House?.live && !document.querySelector('.hs-loading,#houseEntry') && House.mode === 'walk', null, 120000);
-      const after = await page.evaluate(() => [House.W.x, House.W.z]);
-      assert(Math.hypot(after[0] - mid[0], after[1] - mid[1]) < 40, 'Refresh mid-walk lost the pose: ' + JSON.stringify([mid, after]));
+      const {after,departing} = await page.evaluate(() => ({after:[House.W.x,House.W.z],departing:JSON.parse(sessionStorage.getItem('jhp_mobile_test_departing')||'null')}));
+      assert(departing, 'No pagehide pose was recorded');
+      assert(Math.hypot(after[0] - departing[0], after[1] - departing[1]) < 2, 'Refresh mid-walk lost the final pose: ' + JSON.stringify({mid,departing,after}));
       await page.waitForTimeout(1200); await shot('story-09-after-refresh'); await notBlack(p, 'after refresh');
       // rotate: landscape and back, never black
       await page.setViewportSize({ width: 844, height: 390 }); await page.waitForTimeout(1200);
@@ -410,7 +452,7 @@ const phases = {
       await page.waitForTimeout(600); await page.evaluate(() => window.__lose.restoreContext()); await page.waitForTimeout(1500);
       await page.evaluate(() => House.dirty()); await page.waitForTimeout(800);
       await shot('story-11-context-restored'); await notBlack(p, 'context restored');
-      assert.deepEqual(p.errors.filter(e => !/context lost|CONTEXT_LOST/i.test(e)), [], 'story browser errors');
+      assert.deepEqual(p.errors.filter(e => !/context[ _-]lost/i.test(e)), [], 'story browser errors');
     } finally { await p.ctx.close(); }
   },
 
@@ -501,10 +543,27 @@ const phases = {
       await until(() => House.desktopDisplay(), null, 30000); await page.waitForTimeout(800); await shot('small-01-jackos'); await layoutAudit(p, 'small jackos');
       await press('stand'); await until(() => House.mode === 'walk' && !House.gliding, null, 30000); await page.waitForTimeout(1500);
       await shot('small-02-house-coach'); await layoutAudit(p, 'small house');
+      // R107: a discovery during first-time instruction yields the coach and stays below the live objective.
+      await page.evaluate(() => House.toast('SECRET FOUND', 'A little discovery')); await sleep(400);
+      const banners = await page.evaluate(() => {
+        const visible = e => { for (let p = e; p; p = p.parentElement) { const s = getComputedStyle(p); if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity === 0) return false; } return !!e.getBoundingClientRect().width; };
+        const box = e => { const r = e.getBoundingClientRect(); return { x:r.x,y:r.y,right:r.right,bottom:r.bottom }; };
+        const toast = document.querySelector('.hs-ui .rm-toast.on');
+        return { toast: toast && box(toast), coach: [...document.querySelectorAll('.ht-coach-card')].some(visible), objectives: [...document.querySelectorAll('.st-objective,.se-objective')].filter(visible).map(box) };
+      });
+      assert(banners.toast, 'Discovery toast missing'); assert(!banners.coach, 'Coach competes with discovery');
+      for (const r of banners.objectives) assert(banners.toast.y >= r.bottom + 4, 'Discovery overlaps objective: ' + JSON.stringify(banners));
+      report.checks.push({label:'small discovery stacking',...banners}); await shot('small-02-discovery');
+
+      const beforeChoice = await page.evaluate(() => { const p = [House.W.x,House.W.z]; HouseTouch._slowOffer(150); return p; });
+      await until(() => !!document.querySelector('.ht-slow')); await shot('small-02-slow-choice');
+      await press('.ht-slow [data-v="house"]'); await until(() => !document.querySelector('.ht-slow'));
+      assert(await page.evaluate(p => House.mode === 'walk' && !PCOnly.desktopOnly && Math.hypot(House.W.x-p[0],House.W.z-p[1]) < 1, beforeChoice), 'Keep-house choice changed pose or mode');
       const { width: w, height: h } = V(p), x0 = await page.evaluate(() => [House.W.x, House.W.z]);
       await fingers.down(1, 80, h - 150); await fingers.move(1, 80, h - 215); await sleep(800); await fingers.up(1);
       await fingers.drag(2, w - 90, h * .45, w - 200, h * .45, 500);
       assert(await page.evaluate(x0 => Math.hypot(House.W.x - x0[0], House.W.z - x0[1]) > 15, x0), 'Did not walk at 360x740');
+      await aimAt(p, [40, -55, 185], [40, -55, -20]); await recordPath(p, 'small-360x740');
       await shot('small-03-walked');
       const home = await page.evaluate(() => House.THINGS['media.box.n64.kart'].at);
       await aimAt(p, [-220, -55, 35], [home.x, home.y - 6, -36]);
@@ -514,8 +573,98 @@ const phases = {
       await shot('small-05-carrying'); await layoutAudit(p, 'small carrying');
       await fingers.tap(w * .72, h * .4); await until(() => House.THINGS['media.box.n64.kart'].st === 'rest');
       await gameLad(p, 'small');
-      await page.setViewportSize({ width: 740, height: 360 }); await page.waitForTimeout(1500); await shot('small-20-house-landscape'); await layoutAudit(p, 'small landscape'); await notBlack(p, 'small landscape');
+      await page.setViewportSize({ width: 740, height: 360 }); await page.waitForTimeout(1500); await shot('small-20-house-landscape');
+      await aimAt(p, [40, -55, 185], [40, -55, -20]); await recordPath(p, 'small-740x360'); await layoutAudit(p, 'small landscape'); await notBlack(p, 'small landscape');
       assert.deepEqual(p.errors, [], 'small browser errors');
+    } finally { await p.ctx.close(); }
+  },
+
+  // Feel metrics (round 3, docs/MOBILE-CONTROLS.md), measured with real touches on a 412x915 phone: the stick's dead
+  // zone and response curve, the look curve (slow vs quick drags), aim-assist hit rates round a thing, a second finger
+  // taking over the look, a rolling thumb on a button, the frame cap, and a recorded walk-and-look touch path.
+  async feel() {
+    const acct = await register('Fel' + Date.now().toString(36).slice(-6));
+    const p = await phone('pixel-412x915'), { page, until, fingers, shot, press } = p;
+    const feel = report.feel = {};
+    try {
+      await logon(p, acct);
+      await until(() => House.mode === 'monitor' && !House.gliding, null, 60000);
+      await press('stand'); await until(() => House.mode === 'walk' && !House.gliding, null, 30000);
+      await page.evaluate(() => Room.ensureHouse()); await until(() => window.HouseRooms?.ready, null, 60000);
+      const { width: w, height: h } = V(p);
+      // the stick: speed (cm/s) at each deflection, from the landing in the open hall
+      const R = await page.evaluate(() => Math.max(46, Math.min(70, Math.min(innerWidth, innerHeight) * .15)));
+      const stickRow = [];
+      for (const f of [.1, .2, .35, .5, .75, 1, 1.4]) {
+        await aimAt(p, [40, -55, 185], [40, -55, -20]); await sleep(300); // (the bedroom, facing its far wall ~1.8 m away)
+        const x0 = 90, y0 = h - 170; await fingers.down(1, x0, y0); await fingers.move(1, x0, y0 - 14); await fingers.move(1, x0, y0 - R * f); await sleep(330); // (settled: the walk eases in with a ~0.11 s time constant)
+        // (the walking velocity itself, settled after ~0.35 s, well before the far wall at any speed)
+        const v = [], dbg = []; for (let i = 0; i < 3; i++) { const q = await page.evaluate(() => ({ v: Math.hypot(House.W.vx, House.W.vz), run: House.touch.state.run, z: House.W.z, m: House._.movementState().keys })); v.push(q.v); dbg.push(q); await sleep(40); }
+        if (f > 1.2) feel.jogSamples = dbg;
+        if (f > 1.2) feel.jog = await page.evaluate(() => ({ cls: document.querySelector('.ht-stick').className, touch: House.touch.state, fingers: HouseTouch._fingers() }));
+        await fingers.up(1); await sleep(350);
+        stickRow.push({ deflection: f, cmPerS: Math.round(v.reduce((a, b) => a + b) / v.length) });
+      }
+      feel.stick = stickRow;
+      assert.equal(stickRow[0].cmPerS, 0, 'Dead zone: a 10% nudge must not walk');
+      assert(stickRow[3].cmPerS > 15 && stickRow[3].cmPerS < stickRow[5].cmPerS, 'Stick curve not rising: ' + JSON.stringify(stickRow));
+      assert(stickRow[6].cmPerS > stickRow[5].cmPerS * 1.2, 'Past the rim should jog: ' + JSON.stringify(stickRow));
+      // look: the same 200 px drag, slow and quick
+      const turn = async ms => { const r0 = await page.evaluate(() => House.P.ry); await fingers.drag(2, w - 60, h * .45, w - 260, h * .45, ms); await sleep(200); return Math.round((await page.evaluate(() => House.P.ry) - r0) * 10) / 10; };
+      feel.fingersAfterStick = await page.evaluate(() => HouseTouch._fingers());
+      const slow = await turn(1200); feel.fingersAfterSlow = await page.evaluate(() => HouseTouch._fingers());
+      feel.look = { slow200px: slow, quick200px: await turn(160) };
+      assert(Math.abs(feel.look.slow200px) > 50 && Math.abs(feel.look.slow200px) < 110, 'Look speed out of range: ' + JSON.stringify(feel.look));
+      assert(Math.abs(feel.look.quick200px) <= Math.abs(feel.look.slow200px) * 1.6, 'Look acceleration too strong: ' + JSON.stringify(feel.look));
+      // aim assist: hit rate round the kart box at 0..40 px from where it is on screen
+      // (a thing on its own: the puzzle cube on the desk, seen from about a metre)
+      const T = 'cube'; assert(await standAndAim(p, T), 'Cannot see the cube'); await sleep(300);
+      const c = await screenOf(p, T);
+      const hits = await page.evaluate(({ c, T }) => { const out = {}; for (const r of [0, 12, 24, 34, 48]) { let n = 0, k = 0; for (let i = 0; i < 8; i++) { const a = HouseTouch._aimAt(c.x + Math.cos(i * Math.PI / 4) * r, c.y + Math.sin(i * Math.PI / 4) * r); k++; if (a?.id === T) n++; } out[r] = n / k; } return out; }, { c, T });
+      feel.cubeOnScreenPx = await page.evaluate(T => { const H = House, b = new H.T.Box3().setFromObject(H.THINGS[T].obj), s = b.getSize(new H.T.Vector3()), c = b.getCenter(new H.T.Vector3()), r = H.ren.domElement.getBoundingClientRect(), p = v => { v.project(H.camera); return [(v.x + 1) / 2 * r.width, (1 - v.y) / 2 * r.height]; }; const a = p(c.clone().addScaledVector(new H.T.Vector3(1, 0, 0), s.x / 2)), d = p(c.clone().addScaledVector(new H.T.Vector3(1, 0, 0), -s.x / 2)); return Math.round(Math.hypot(a[0] - d[0], a[1] - d[1])); }, T);
+      feel.aimAssist = hits;
+      assert(hits[0] === 1 && hits[24] >= .75, 'Aim assist misses: ' + JSON.stringify(hits));
+      // and end to end: a real press 24 px off the box picks it up, then Return puts it back
+      await fingers.down(3, c.x + 22, c.y + 8); await sleep(120); const lab = await page.evaluate(() => document.querySelector('.ht-tapmark.on')?.textContent || ''); await fingers.up(3);
+      await until(T => House.held() === T, T, 10000); feel.offsetPress = lab;
+      await press('q'); await until(() => !House.held(), null, 10000);
+      // two fingers on the look side: the second takes over when the first lifts
+      await fingers.down(4, w - 80, h * .4); await fingers.move(4, w - 100, h * .4); await fingers.move(4, w - 130, h * .4);
+      await fingers.down(5, w - 90, h * .55); feel.fingersBefore = await page.evaluate(() => HouseTouch._fingers()); await fingers.up(4); await sleep(100);
+      const r1 = await page.evaluate(() => House.P.ry); await fingers.move(5, w - 140, h * .55); await fingers.move(5, w - 200, h * .55); await sleep(150);
+      const r2 = await page.evaluate(() => House.P.ry); const fs = await page.evaluate(() => HouseTouch._fingers()); await fingers.up(5);
+      feel.secondFinger = Math.round((r2 - r1) * 10) / 10; assert(Math.abs(r2 - r1) > 8, 'Second finger did not take over the look: ' + JSON.stringify({ fs, r1, r2 }));
+      // a close-up: one finger turns it, two fingers zoom it (no browser pan/zoom steals the drag)
+      assert(await page.evaluate(() => House.inspect('mug'))); await until(() => House.mode === 'inspect', null, 10000); await sleep(800); // (the mug: the cube's faces turn under a finger instead)
+      const insp = () => page.evaluate(() => { const g = House.THINGS.mug.obj; return { q: g.quaternion.toArray().map(v => +v.toFixed(3)), s: +House.camera.position.distanceTo(new House.T.Box3().setFromObject(g).getCenter(new House.T.Vector3())).toFixed(2) }; });
+      const i0 = await insp(); await fingers.drag(8, w * .3, h * .5, w * .7, h * .5, 500); await sleep(300); const i1 = await insp();
+      feel.inspectTurn = JSON.stringify(i0.q) !== JSON.stringify(i1.q); assert(feel.inspectTurn, 'One finger did not turn the close-up');
+      await fingers.down(8, w * .4, h * .5); await fingers.down(9, w * .6, h * .5); for (let i = 1; i <= 6; i++) { await fingers.move(8, w * .4 - i * 12, h * .5); await fingers.move(9, w * .6 + i * 12, h * .5); await sleep(40); }
+      await fingers.up(9); await fingers.up(8); await sleep(300); const i2 = await insp(); feel.pinch = { before: i1.s, after: i2.s };
+      assert(i2.s !== i1.s, 'Two fingers did not zoom the close-up'); await shot('feel-02-closeup');
+      await press('.hs-inspection button:last-of-type'); await until(() => House.mode === 'walk', null, 10000); if (await page.evaluate(() => !!House.held())) { await press('q'); await until(() => !House.held(), null, 10000); }
+      // a thumb that rolls 16 px while pressing Crouch still presses it
+      const cr0 = await page.evaluate(() => !!House._.movementState().keys.crouch);
+      const cb = await page.evaluate(() => { const r = document.querySelector('.ht-hud [data-k="crouch"]').getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
+      await fingers.down(6, cb.x, cb.y); await fingers.move(6, cb.x + 10, cb.y - 8); await fingers.move(6, cb.x + 16, cb.y - 10); await sleep(1000); await fingers.up(6); await sleep(200);
+      const cr1 = await page.evaluate(() => !!House._.movementState().keys.crouch); feel.rollingPress = cr0 !== cr1;
+      assert(cr0 !== cr1, 'A rolling thumb on Crouch was lost'); await press('crouch');
+      // frame cap and a recorded touch path: walk forward while turning right, sampled every 100 ms
+      await aimAt(p, [40, -55, 185], [40, -55, -20]); await sleep(300);
+      const path = []; await fingers.down(1, 90, h - 170); await fingers.move(1, 90, h - 185); await fingers.move(1, 90, h - 170 - R);
+      await fingers.down(2, w - 120, h * .45);
+      for (let i = 0; i < 14; i++) { await fingers.move(2, w - 120 - i * 6, h * .45); await sleep(80); path.push(await page.evaluate(() => ({ t: Math.round(performance.now()), x: +House.W.x.toFixed(1), z: +House.W.z.toFixed(1), ry: +House.P.ry.toFixed(1) }))); if (i === 8) await shot('feel-01-walk-look'); }
+      await fingers.up(2); await fingers.up(1);
+      feel.path = path; feel.perf = await page.evaluate(() => House.perf());
+      await aimAt(p, [40, -55, 185], [40, -55, -20]); await recordPath(p, 'feel-412x915');
+      await page.setViewportSize({ width: 915, height: 412 }); await sleep(1200); await aimAt(p, [40, -55, 185], [40, -55, -20]);
+      const land = await recordPath(p, 'feel-915x412'); assert(land.some(q => q.touch.on), 'Landscape stick did not walk');
+      await page.setViewportSize({ width: 412, height: 915 }); await sleep(1000);
+      // jitter: the walk speed between samples should be steady once moving (no stutter spikes beyond host noise)
+      const sp = path.slice(3).map((q, i, a) => i ? Math.hypot(q.x - a[i - 1].x, q.z - a[i - 1].z) / ((q.t - a[i - 1].t) / 1000) : null).filter(v => v != null);
+      feel.walkSpeedSamples = sp.map(Math.round);
+      assert.deepEqual(p.errors, [], 'feel browser errors');
+      console.log('FEEL', JSON.stringify({ stick: feel.stick, look: feel.look, aimAssist: feel.aimAssist, secondFinger: feel.secondFinger, rollingPress: feel.rollingPress, cap: feel.perf.cap, frameP50: feel.perf.frameP50 }));
     } finally { await p.ctx.close(); }
   },
 
@@ -553,6 +702,10 @@ const phases = {
         report.checks.push({ label: 'owner tools ' + prof, clipped });
         assert.deepEqual(clipped, [], 'Owner tools clipped at ' + prof);
         assert.deepEqual(p.errors, [], 'owner browser errors');
+      } catch (e) {
+        await shot('owner-failure-' + prof).catch(() => {});
+        console.log('Owner menu state', await page.evaluate(() => ({ god: House.god, owner: OwnerTools.active, picking: window.stDiary?.picking, mode: House.mode, glide: House.gliding, touch: document.documentElement.dataset.touchState, dialogs: [...document.querySelectorAll('dialog[open]')].map(d => d.className) })));
+        throw e;
       } finally { await p.ctx.close(); }
     }
   },

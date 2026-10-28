@@ -3,12 +3,12 @@
  * boot.js's CSS 3D model (with the power button, the fly-in and the BIOS hand-over): it's drawn on top of the WebGL room and
  * the two cameras are kept exactly in step (in "hold" mode we drive boot.js's camera, in "follow" mode we copy it).
  *
- *   walking: W A S D / arrow keys (Shift to hurry), mouse to look, F to interact; click/E are alternatives
+ *   walking: W A S D / arrows (Shift to jog), mouse to look; F/I uses or looks closely, E/click picks up or places
  *   stations: the arrows at the sides jump to the good views of the room you're in
- *   holding: click a thing to pick it up; it floats in front of you. Click to put it down where you're looking, wheel (or
- *            the +/- buttons) to move it nearer or further, R to turn it; Esc opens the menu, including Put Back
- *   the PC: press its power button (we sit down first), or with it on, "Stand up" (Esc held down, or the chair button on the
- *           desktop) and the monitor in the room shows the live desktop; click the monitor to sit back down
+ *   holding: the real object rests in your hands; E/click places at a valid ghost, X drops, R/wheel turns, +/- moves
+ *            nearer/further, Q/right click returns it; Esc opens the game menu
+ *   the PC: press its power button (we sit down first); Q/F2 or the game menu stands up with the PC still running.
+ *           F at the monitor sits back down; T locks the active screen in without restarting it
  * The content is built by js/rm-room.js (the bedroom: window.Room is the public API for other packs) and js/hs-house.js
  * (the rest of the house), with the kit in js/hs-kit.js. This file exports window.House (see the bottom). */
 (function () {
@@ -68,7 +68,7 @@
     if (Q.auto && Q.tier!=='potato' && (/SwiftShader|llvmpipe|softpipe|Software|Mali-[34]|Adreno \(TM\) [345]\d\d|PowerVR SGX|GMA/i.test(Q.gpu) || ren.capabilities.maxTextureSize < 4096 || !ren.capabilities.floatFragmentTextures)) Q.tier = 'low';
     else if (Q.auto && Q.tier === 'high' && /Intel/i.test(Q.gpu) && !/Iris|Arc/i.test(Q.gpu)) Q.tier = 'medium';
   } catch (e) {}
-  Q.guess=Q.tier;window.HouseQ = Q.tier;K.setQuality?.(Q.tier);
+  Q.guess=Q.tier;window.HouseQ = Q.tier;K.setQuality?.(Q.tier);Q.cap=Q.mob?60:30;Q.capMiss=0;
   let cv2 = document.createElement('canvas'); cv2.className = 'hs-gl2'; cv2.setAttribute('aria-hidden', 'true');
   // (a lost WebGL context, e.g. too many tabs: keep the page alive and redraw when it comes back)
   let ctxLost = false;
@@ -139,13 +139,17 @@
     if(!sized){ren.setPixelRatio(pr); ren.setSize(vw, vh, false);}cv.style.imageRendering=graphics.retro?'pixelated':'';
     // Held paper and live screen DOM stay sharp when the room scales down.
     if (ren2) { ren2.setPixelRatio(Q.tier==='potato'?pr:Math.min(window.devicePixelRatio||1,1.5)); ren2.setSize(vw, vh, false);cv2.style.imageRendering=graphics.retro?'pixelated':''; }
-    camera.aspect = vw / vh; lensZm = 0; applyLens();
+    camera.aspect = vw / vh; const wz0 = WZ; WZ = walkZoom(); if (Math.abs(P.zm - wz0) < 1e-6) P.zm = WZ; lensZm = 0; applyLens();
     dirty();
     if (!sized) try { if (live && !rendering && mode !== 'off') render(); } catch (e) { if (!(e instanceof ReferenceError)) console.error(e); }
   }
   let rendering = false;
-  // the lens: P.zm 1 is the walking field of view; close-ups ease to a slightly longer lens on the camera-move curve
-  let lensZm = 0;
+  // the lens: P.zm 1 is the PC's lens (boot.js's CSS stage, perspective PERSP em: about 41 degrees vertical), used at the
+  // desk and for the fly-in. Walking uses a wider lens, WZ: about 60 degrees vertical in landscape, at least 50 degrees
+  // across in portrait (so a phone held upright still sees a room, not a slot), never wider than 95 degrees across.
+  // Close-ups ease to their own longer lens on the camera-move curve. The CSS stage follows P.zm (cssCam).
+  let lensZm = 0, WZ = 1;
+  function walkZoom() { const f = Math.max(vw / 2 / Math.tan(47.5 * D2R), Math.min(vh / 2 / Math.tan(30 * D2R), vw / 2 / Math.tan(25 * D2R))); return f / (PERSP * em); }
   const lensFov = zm => 2 * Math.atan(vh / 2 / (PERSP * em * (zm || 1))) / D2R;
   function applyLens() { const z = P.zm || 1; if (z === lensZm) return; lensZm = z; camera.fov = lensFov(z); camera.updateProjectionMatrix(); }
   function rot(rx, ry) { return _R.copy(_Rx.makeRotationX(rx * D2R)).multiply(_Ry.makeRotationY(ry * D2R)); } // CSS rotateX(rx) rotateY(ry)
@@ -156,11 +160,12 @@
     camera.updateMatrixWorld(true);
   }
   const f3 = n => (+n).toFixed(3);
-  const cssPose={x:NaN,y:NaN,z:NaN,rx:NaN,ry:NaN,transform:''};
+  const cssPose={x:NaN,y:NaN,z:NaN,rx:NaN,ry:NaN,d:'',transform:''};
   function cssCam() {
+    const d=f3(PERSP*(P.zm||1));if(cssPose.d!==d){cssPose.d=d;stage.style.perspective=d==='115.000'?'':d+'em';cssPose.x=NaN}
     if(cssPose.x===P.x&&cssPose.y===P.y&&cssPose.z===P.z&&cssPose.rx===P.rx&&cssPose.ry===P.ry&&cam.style.transform===cssPose.transform)return;
     cssPose.x=P.x;cssPose.y=P.y;cssPose.z=P.z;cssPose.rx=P.rx;cssPose.ry=P.ry;
-    cssPose.transform=`translate3d(0em,0em,${PERSP}em) rotateX(${f3(P.rx)}deg) rotateY(${f3(P.ry)}deg) translate3d(${f3(-P.x)}em,${f3(-P.y)}em,${f3(-P.z)}em)`;cam.style.transform=cssPose.transform;
+    cssPose.transform=`translate3d(0em,0em,${d}em) rotateX(${f3(P.rx)}deg) rotateY(${f3(P.ry)}deg) translate3d(${f3(-P.x)}em,${f3(-P.y)}em,${f3(-P.z)}em)`;cam.style.transform=cssPose.transform;
   }
   // view-space z of a world point (negative = in front of the camera)
   function viewZ(x, y, z) { const a = P.ry * D2R, b = P.rx * D2R, dx = x - P.x, dy = y - P.y, dz = z - P.z; const z1 = -dx * Math.sin(a) + dz * Math.cos(a); return dy * Math.sin(b) + z1 * Math.cos(b); }
@@ -185,12 +190,12 @@
   const Lb = () => (window.RoomCam && RoomCam.L) || { mx: -15, tx: 17, tz: -30, kx: -15, ux: 8, uz: 9.5, fx: 0, fy: -19, fz: -14, rx: -16, ry: -30, oy: -4, ox: 0 };
   function seatPose() {
     // A first-person seat in front of the glass, never the old side-on shot.
-    const c=monitorCentre();return{x:c.x,y:c.y-4,z:c.z+90,rx:-3,ry:0,seat:1,lvl:'U'};
+    const c=monitorCentre();return{x:c.x,y:c.y-4,z:c.z+90,rx:-3,ry:0,seat:1,lvl:'U',zm:1};
   }
   // where the camera is when the monitor's glass fills the window (the end of the fly-in)
   function fillPose() {
     const L = Lb(), kf = Math.max(vw / (GW * em), vh / (GH * em)) * 1.03;
-    return { x: L.mx, y: GY, z: 0.02 + PERSP / kf, rx: 0, ry: 0, seat: 1 };
+    return { x: L.mx, y: GY, z: 0.02 + PERSP / kf, rx: 0, ry: 0, seat: 1, zm: 1 };
   }
   // boot.js asks for our pose when the power goes on, so the fly-in starts from exactly where we are
   const RC = window.RoomCam = Object.assign(window.RoomCam || {}, { fx: 0, fy: 0, fz: 0, rx: 0, ry: 0 });
@@ -540,8 +545,8 @@
   let physAcc=0,physFrame=0;
   function bodyBlocks(x,z,lvl,feet,eye){const ph=PH&&(physDirty||grids.dirty?physReady():PH);return !!ph&&ph.playerBlocked(lvl,x,z,RAD,feet,feet-eye-HEADROOM);} // (untimed: hundreds of calls; tests/physics.mjs measures with the CPU profiler)
   function bodyContacts(x,z,radius){const ph=physReady();if(!ph)return [];const t0=performance.now(),out=ph.playerContacts(W.lvl,x,z,radius,W.fy,W.fy-W.eyeNow-W.jh-HEADROOM);for(const c of out){const b=ph.get(c.id);c.soft=!!b&&!b.fixed&&b.push>0.2}physAcc+=performance.now()-t0;return out;}
-  const W = { x: 0, z: 100, lvl: 'U', fy: 73, eye: 128, eyeNow: 100, bob: 0, bobT: 0, vx: 0, vz: 0, jh: 0, jv: 0 };
-  const STAND = 128, SITH = 100; // Jack's a 5-foot-ish kid: eyes about 128 cm up (sat: 100)
+  const W = { x: 0, z: 100, lvl: 'U', fy: 73, eye: 143, eyeNow: 108, bob: 0, bobT: 0, vx: 0, vz: 0, jh: 0, jv: 0 };
+  const STAND = 143, SITH = 108; // eye height standing (a teenager about 155 cm tall) and sitting on an ordinary chair
 
   // ================================================================ things you can click (spots), with a warm glow when you point at them
   const SPOTS = {};
@@ -820,7 +825,7 @@
     held = { id, d: clamp(o?.d || holdDistance(t), 25, 150), ry: o?.ry || 0, from: Object.assign({}, t.at), was, sx: t.at.x, sy: t.at.y, sz: t.at.z, drag, pry: P.ry, rel: (t.at.ry || 0) + P.ry, hand: null, hv: { x: 0, y: 0, z: 0 } };
     if (was) { const sn = SNAPS[was]; t.snap = null; if (sn && sn.onUnsnap) try { sn.onUnsnap(t); } catch (e) { console.error(e); } emit('unsnap', was, id); }
     t.st = 'held'; t.at.hide = false; t.obj.visible = true;
-    aimPt = null; aimT = 0; GP.res = null; // never inherit the previous object's shelf target
+    aimPt = null; aimT = 0; GP.res = null; targetsAt = -Infinity; targetCount = 0; if (targets) targets.visible = false; // never inherit the previous object's shelf targets
     const b = t.body || (drag ? bodyFor(t) : null);
     if (b) { bodyState(t); if (!drag) PH.supportGone(b); else PH.awake.delete(b); }
     layerFor(t); // update the cached front-layer state too, even before a frame renders
@@ -833,20 +838,19 @@
   // How far in front of you a carried thing sits: small things close, big ones further, so each is a comfortable size.
   function holdDistance(t) { const m = t.local || { hx: t.hx, hz: t.hz, h: t.h }, R = Math.hypot(m.hx, m.hz, m.h / 2); return clamp(Math.max(t.holdD || 0, R * 1.9 + 18), 28, 120); }
   const _up = new T.Vector3(), _rt = new T.Vector3();
-  // ---------------------------------------------------------------- the hold pose (owner, 2026-10-27: "don't hold things like that")
-  // What you carry is drawn like a first-person game holds it: in your hands, low and a little right of centre, tilted
-  // towards you, at a size that suits it (a game box about an eighth of the view's height, a PC tower bigger and lower so
-  // it runs off the bottom of the frame). It is a scaled stand-in about 40 cm from your eyes rather than the full-size
-  // model half a metre away, which used to fill a quarter of the screen. Seen from your eyes the two are the same picture
-  // (a scale about the eye), so putting it down, dropping it or snapping it in starts from exactly what you see.
-  const HOLD = { d: 40, x: 0.035, gap: 0.075, bigGap: 0.12, widthMax: 0.42, pad: 0.012, tiltSign: -1 };
+  // ---------------------------------------------------------------- the hold pose (owner, 2026-10-27/28)
+  // What you carry is the real thing at its real size (owner: "size of things shouldn't change when holding"), held in
+  // your hands low in front of you like a first-person game: its top edge just under the crosshair, tilted towards you,
+  // big things running off the bottom of the frame, your forearms coming up to it from below ("why arms so long?").
+  // How far out depends on its size (36 cm for a mug, up to arm's length for a monitor) and stays fixed while you hold it,
+  // so it never changes size: picking it up, putting it down and inspecting only move it.
+  // low: where a small thing's bottom edge sits (a fraction of the view from the top) when nothing is in the way
+  const HOLD = { near: 36, far: 60, reach: 72, x: 0.02, gap: 0.075, low: 0.86, pad: 0.012, tiltSign: -1 };
   // tipped so you see a little of its top whichever way you look (as if your hands brought it up to show you), but
   // following your view only partly, so looking down at the floor still shows it held, not lying flat
   const holdTilt = () => clamp(24 + P.rx * 0.8, -32, 38);
-  const _hm = new T.Matrix4(), _hmi = new T.Matrix4(), _hp = new T.Vector3(), _ho = new T.Vector3(), _vb = new T.Box3();
+  const _hm = new T.Matrix4(), _hmi = new T.Matrix4(), _hp = new T.Vector3(), _ho = new T.Vector3(), _vv = new T.Vector3(), _vb = new T.Box3();
   function holdSize(t) { const m = t.local || { hx: t.hx, hz: t.hz, h: t.h }; return Math.hypot(m.hx, m.hz, m.h / 2); }
-  // how much of the view's height it should take: small things ~10%, a game box ~11-13%, big things up to a third
-  const holdFrac = R => clamp(0.07 + R * 0.0062, 0.1, 0.34);
   // its own bounding box, in its own space (from the meshes, so a flat game box is flat and a tall tower is tall)
   function localBox(t) {
     if (t._lb && t._lbObj === t.obj) return t._lb;
@@ -868,70 +872,87 @@
     return holdUi = r && r.height ? { top: r.top / vh, l: r.left / vw, r: r.right / vw } : null;
   }
   function heldPos() {
-    const t = THINGS[held.id], R = holdSize(t), now = performance.now();
-    const tanV = Math.tan(camera.fov * D2R / 2), tanH = tanV * camera.aspect, big = holdFrac(R) > 0.2;
-    // (a tall phone's view is mostly height: size it from the width there, or a game box would fill half the screen's width)
-    const s = holdFrac(R) * Math.min(1, vw * 1.25 / vh);
+    const t = THINGS[held.id], now = performance.now();
+    const tanV = Math.tan(camera.fov * D2R / 2), tanH = tanV * camera.aspect;
     // the view, as a matrix (view space: x right, y up, -z ahead), and its inverse
     _hm.makeTranslation(P.x, P.y, P.z).multiply(rot(P.rx, P.ry).transpose()); _hm.premultiply(S).multiply(S); _hmi.copy(_hm).invert();
-    // how big it looks turned the way it is now, per unit of scale, and where its middle is from its origin
+    // how big it looks turned the way it is now, and where its middle is from its origin
     t.obj.updateMatrixWorld(true);
-    const k0 = t.obj.scale.x || 1, lb = localBox(t), e = t.obj.matrixWorld.elements;
+    const lb = localBox(t), e = t.obj.matrixWorld.elements;
     let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9, z0 = 1e9, z1 = -1e9;
     for (const lx of [lb.min.x, lb.max.x]) for (const ly of [lb.min.y, lb.max.y]) for (const lz of [lb.min.z, lb.max.z]) {
       _hp.set(lx, ly, lz).applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi);
       x0 = Math.min(x0, _hp.x); x1 = Math.max(x1, _hp.x); y0 = Math.min(y0, _hp.y); y1 = Math.max(y1, _hp.y); z0 = Math.min(z0, _hp.z); z1 = Math.max(z1, _hp.z);
     }
     _ho.set(e[12], e[13], e[14]).applyMatrix4(_hmi);
-    const w = (x1 - x0) / k0, h = (y1 - y0) / k0, ocx = ((x0 + x1) / 2 - _ho.x) / k0, ocy = ((y0 + y1) / 2 - _ho.y) / k0, ocz = ((z0 + z1) / 2 - _ho.z) / k0;
-    let d = HOLD.d;
-    // the size: its larger side (a wide thing counts a little less) is s of the view's height, never wider than ~42% of it
-    const fit = d => Math.min(1, s * 2 * d * tanV / Math.max(1, h, w * 0.75), HOLD.widthMax * 2 * d * tanH / Math.max(1, w));
-    let k = fit(d);
-    const hf = h * k / (2 * d * tanV), wf = w * k / (2 * d * tanH); // its height and width, as fractions of the view
-    // where: low and just right of centre, clear of the crosshair (above it), the carry panel and the ghost; big things
-    // lower, running off the bottom of the frame
-    const panel = carryPanel(now), ghost = ghostRect();
-    const clash = (cx, top) => { const l = cx - wf / 2, r = cx + wf / 2, b = top + hf;
-      return (panel && b > panel.top - HOLD.pad && r > panel.l && l < panel.r) || (ghost && b > ghost.t && top < ghost.b && r > ghost.l && l < ghost.r); };
-    let cx = 0.5 + HOLD.x + wf / 2 * 0.3, top = big ? Math.max(0.5 + HOLD.bigGap, 1 - hf * 0.6) : 0.5 + HOLD.gap;
-    if (clash(cx, top)) {
-      const tries = [];
-      if (ghost) tries.push([cx, Math.min(1 - hf * 0.45, ghost.b + HOLD.pad)]);           // just under the ghost
-      if (panel) { const right = panel.r + HOLD.pad + wf / 2; if (right + wf / 2 < 1.04) { tries.push([right, top]); tries.push([right, Math.max(top, 1 - hf * 0.6)]); if (ghost) tries.push([right, Math.min(1 - hf * 0.45, ghost.b + HOLD.pad)]); } }
-      tries.push([cx, panel ? Math.max(0.5 + HOLD.gap, panel.top - HOLD.pad - hf) : top]);
-      const ok = tries.find(([x, y]) => !clash(x, y)); if (ok) [cx, top] = ok; else if (tries.length) [cx, top] = tries[tries.length - 1];
+    const w = x1 - x0, h = y1 - y0, ocx = (x0 + x1) / 2 - _ho.x, ocy = (y0 + y1) / 2 - _ho.y, ocz = (z0 + z1) / 2 - _ho.z;
+    // (the carry panel only matters where it is under the middle of the view: on a desktop it sits in the corner)
+    const panel = carryPanel(now), ghost = ghostRect(), mid = panel && panel.l < 0.62 && panel.r > 0.38, low = Math.min(HOLD.low, mid ? panel.top - HOLD.pad : 1), top0 = 0.5 + HOLD.gap;
+    // how far out you hold it: chosen once per grip from its size (and the view), so it never changes size in your hands.
+    // A small thing comes in close (36 cm) and sits between the crosshair and the carry panel; a big one goes out towards
+    // arm's length (60 cm) and runs off the bottom; nothing is wider than ~85% of the view (a phone held upright).
+    const key = vw + 'x' + vh;
+    if (!held.vd || held.vdKey !== key) {
+      const sz = lb.getSize(_vv), hp = Math.max(sz.y, 0.6 * Math.max(sz.x, sz.z)), wp = Math.max(sz.x, sz.z);
+      held.vd = Math.min(HOLD.reach, Math.max(clamp(hp / (2 * tanV * Math.max(0.16, low - top0)), HOLD.near, HOLD.far), wp / (2 * tanH * 0.85)));
+      held.vdKey = key;
     }
+    const d = held.vd, hf = h / (2 * d * tanV), wf = w / (2 * d * tanH); // its height and width, as fractions of the view
+    // where: just right of centre, its top just under the crosshair; a small thing low, just above the carry panel (so
+    // your forearms run down behind it). It ducks under the ghost if the ghost is in the way (keeping 45% in view).
+    let cx = 0.5 + HOLD.x, top = Math.max(top0, low - hf);
+    if (ghost && top + hf > ghost.t && top < ghost.b && cx + wf / 2 > ghost.l && cx - wf / 2 < ghost.r) top = Math.max(top, Math.min(1 - hf * 0.45, ghost.b + HOLD.pad));
     // tipping it to pour (the watering can): bring it up and in, the spout just under the crosshair, so you see the stream
     const pourK = clamp(Math.abs(t.holdRoll || 0) / 30, 0, 1);
     if (pourK) { held.pour = Math.max(held.pour || 0, pourK); }
-    if (held.pour) { const e = held.pour; cx += (0.5 - wf * 0.05 - cx) * e; top += (0.5 + 0.02 - top) * e; if (!pourK) held.pour = Math.max(0, held.pour - 0.04); }
-    // a wall right in front: hold it nearer (same size on screen)
-    const wall = pick(cx * vw, (top + hf / 2) * vh, { skip: m2 => m2.userData.spot === held.id || isThingMesh(m2), far: d + 8 });
-    if (wall && wall.dist < d + 8) { d = Math.max(camera.near + 6, wall.dist - 8); k = fit(d); }
+    if (held.pour) { const p = held.pour; cx += (0.5 - wf * 0.05 - cx) * p; top += (0.5 + 0.02 - top) * p; if (!pourK) held.pour = Math.max(0, held.pour - 0.04); }
     // your turning and steps: it trails a few degrees behind a fast turn and rides your stride
     const lagX = held.lry == null ? 0 : angd(held.lry, P.ry) * D2R, lagY = held.lrx == null ? 0 : (P.rx - held.lrx) * D2R;
     const walk = Math.min(1, Math.hypot(W.vx, W.vz) / 140), ph = (W.bobT || 0) * Math.PI;
-    const yc = top + (h * k / (2 * d * tanV)) / 2;
+    const yc = top + hf / 2;
     const vx = ((2 * cx - 1) * tanH - lagX * 0.9 + Math.sin(ph) * 0.006 * walk) * d, vy = ((1 - 2 * yc) * tanV - lagY * 0.9 - Math.abs(Math.cos(ph)) * 0.012 * walk) * d;
     // its origin, so that its middle sits there, back to the y-down world
-    _hp.set(vx - ocx * k, vy - ocy * k, -d - ocz * k).applyMatrix4(_hm);
-    held.box = { ocx, ocy, ocz, w, h, U: 2 * d * tanV * Math.min(1, vw * 1.25 / vh) };
-    return { x: _hp.x, y: -_hp.y, z: _hp.z, k, d };
+    _hp.set(vx - ocx, vy - ocy, -d - ocz).applyMatrix4(_hm);
+    held.box = { ocx, ocy, ocz, w, h };
+    return { x: _hp.x, y: -_hp.y, z: _hp.z, k: 1, d };
   }
   // ---------------------------------------------------------------- your hands, while you carry something
-  // Two plain 1999 mitts in jumper sleeves come up from the bottom of the view and hold it by its sides, thumbs on the
-  // front: that is what makes a small thing read as carried rather than lying in the room. They are drawn with it, in
-  // front of everything, sized to it (never bigger than a fifteenth of the view) and they ride its lag and bob.
-  const ARM = { skin: '#e7b28c', sleeve: '#34476f', cuff: '#45598a' };
+  // Rounded 1999 mitts hold it by its sides (palms behind the sides, thumbs across the front, fingers behind it, like
+  // holding a Game Lad). Small light things use one hand. Your forearms come up from below the screen, elbows at your
+  // sides (no upper arm, no long reach): only a short tapered jumper sleeve and its cuff show. Real-hand sized, like the
+  // thing they hold; they ride its lag and bob. That is what makes a thing read as carried, not lying in the room.
+  const ARM = { skin: '#e7b28c', sleeve: '#34476f', cuff: '#45598a', hand: 12.5 }; // (hand: palm + fingers, cm)
   let arms = null; const _aw = new T.Vector3(), _aa = new T.Vector3(), _ad = new T.Vector3(), _ay = new T.Vector3(0, 1, 0);
+  function carryHandGeometry(sd) {
+    const positions = [], indices = [], inn = -sd;
+    // A closed, softly rounded palm and curled fingers, with a joined thumb web.
+    // Keeping each section in centimetres avoids stretched block-shaped fingers.
+    const loft = (rings, n) => {
+      const start = positions.length / 3;
+      const axis = new T.Vector3(), u = new T.Vector3(), v = new T.Vector3(), ref = new T.Vector3(0, 0, 1);
+      for (let i = 0; i < rings.length; i++) {
+        const r = rings[i], prev = rings[Math.max(0, i - 1)], next = rings[Math.min(rings.length - 1, i + 1)];
+        axis.set(next[0] - prev[0], next[1] - prev[1], next[2] - prev[2]).normalize();
+        u.crossVectors(axis, ref).normalize(); v.crossVectors(axis, u).normalize();
+        for (let j = 0; j < n; j++) { const t = j / n * Math.PI * 2, x = Math.cos(t) * r[3], z = Math.sin(t) * r[4]; positions.push(r[0] + u.x * x + v.x * z, (r[1] + u.y * x + v.y * z) * .86, r[2] + u.z * x + v.z * z); }
+        if (i) for (let j = 0; j < n; j++) { const a = start + (i - 1) * n + j, b = start + (i - 1) * n + (j + 1) % n, c = start + i * n + j, d = start + i * n + (j + 1) % n; indices.push(a, b, c, b, d, c); }
+      }
+      for (const end of [0, rings.length - 1]) {
+        const r = rings[end], centre = positions.length / 3; positions.push(r[0], r[1] * .86, r[2]);
+        for (let j = 0; j < n; j++) { const a = start + end * n + j, b = start + end * n + (j + 1) % n; indices.push(...(end ? [centre, a, b] : [centre, b, a])); }
+      }
+    };
+    loft([[0,-4.6,0,1.05,1.55],[0,-3.2,0,1.35,2.2],[0,-2.4,-.1,1.65,2.6],[0,-1.8,-.15,1.72,2.7],[0,-1.35,-.15,1.57,2.55],[0,-.75,-.15,1.77,2.75],[0,-.25,-.2,1.62,2.6],[inn*.05,.35,-.3,1.8,2.8],[inn*.1,.85,-.35,1.65,2.65],[inn*.2,1.5,-.5,1.75,2.6],[inn*.3,2.3,-.9,1.6,2.2],[inn*.6,3,-1.5,1.2,1.65],[inn,3.2,-2,.65,.9],[inn*1.3,3.15,-2.4,.2,.3]],12);
+    loft([[0,.4,1.0,1.05,1.15],[-inn*.75,1.0,2.15,1.0,1.1],[inn*.6,1.65,3.85,.95,.95],[inn*2.1,2.15,4.55,.85,.85],[inn*3.0,2.55,4.7,.6,.65],[inn*3.35,2.7,4.7,.16,.2]],10);
+    const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(positions, 3)); geo.setIndex(indices); geo.computeVertexNormals(); return geo;
+  }
   function armsMesh() {
     if (arms) return arms;
     const g = new T.Group(); g.matrixAutoUpdate = false; g.userData.noPick = true; g.visible = false;
-    const skin = K.mat({ c: ARM.skin, sh: 12 }), sleeve = K.mat({ c: ARM.sleeve, sh: 4 }), cuff = K.mat({ c: ARM.cuff, sh: 4 });
-    const box = K.roundBox(1, 1, 1, 0.28, 2), tube = new T.CylinderGeometry(1, 1.5, 1, 12, 1, true), cap = new T.CylinderGeometry(1, 1, 1, 12, 1);
-    const part = (geo, m) => { const o = new T.Mesh(geo, m); o.userData.noPick = true; o.matrixAutoUpdate = true; o.layers.set(1); o.renderOrder = 7; g.add(o); return o; };
-    g.userData.sides = [-1, 1].map(sd => ({ sd, palm: part(box, skin), fingers: part(box, skin), thumb: part(box, skin), sleeve: part(tube, sleeve), cuff: part(cap, cuff) }));
+    const skin = K.mat({ c: ARM.skin, sh: 2 }), sleeve = K.mat({ c: ARM.sleeve, sh: 4 }), cuff = K.mat({ c: ARM.cuff, sh: 4 });
+    const tube = new T.CylinderGeometry(1, 1.25, 1, 12, 1, false), cap = new T.CylinderGeometry(1, 1, 1, 12, 1), wrist = new T.CylinderGeometry(1, 1, 1, 12, 1);
+    const part = (geo, m) => { const o = new T.Mesh(geo, m); o.userData.noPick = true; o.userData.hand = true; o.matrixAutoUpdate = true; o.layers.set(1); o.renderOrder = 7; g.add(o); return o; };
+    g.userData.sides = [-1, 1].map(sd => ({ sd, palm: part(carryHandGeometry(sd), skin), wrist: part(wrist, skin), sleeve: part(tube, sleeve), cuff: part(cap, cuff) }));
     root.add(g); return arms = g;
   }
   function hideArms() { if (arms && arms.visible) { arms.visible = false; dirty(); } }
@@ -940,33 +961,51 @@
     const g = armsMesh(), k = t.obj.scale.x || 1, o = t.obj.position;
     // the thing's middle and half-size, in view space (x right, y up, -z ahead), where it actually is this frame
     _aw.set(o.x, -o.y, o.z).applyMatrix4(_hmi); const cx = _aw.x + b.ocx * k, cy = _aw.y + b.ocy * k, cz = _aw.z + b.ocz * k;
-    const hw = b.w * k / 2, hh = b.h * k / 2, U = b.U;
-    const pl = clamp(Math.max(hh, hw) * 0.62, U * 0.045, U * 0.07), pw = pl * 0.62, pt = pl * 0.3, tanV = Math.tan(camera.fov * D2R / 2), tanH = tanV * camera.aspect;
+    const hh = b.h * k / 2, tanV = Math.tan(camera.fov * D2R / 2);
+    // the hand: a real hand's size, like the thing it holds
+    const L = ARM.hand, pl = L * 0.53;
     g.matrix.copy(S).multiply(_hm); g.matrixWorldNeedsUpdate = true; g.visible = true;
     // its outermost corners left and right, as it is turned now: each hand takes the one on its side
-    t.obj.updateMatrixWorld(true); const lb = localBox(t), ex = [null, null];
+    t.obj.updateMatrixWorld(true); const lb = localBox(t), ex = [null, null], corners = []; let zf = -1e9;
     for (const lx of [lb.min.x, lb.max.x]) for (const ly of [lb.min.y, lb.max.y]) for (const lz of [lb.min.z, lb.max.z]) {
-      _aw.set(lx, ly, lz).applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi);
-      if (!ex[0] || _aw.x < ex[0].x - 1e-6 || Math.abs(_aw.x - ex[0].x) < 1e-6 && _aw.z > ex[0].z) ex[0] = _aw.clone();
-      if (!ex[1] || _aw.x > ex[1].x + 1e-6 || Math.abs(_aw.x - ex[1].x) < 1e-6 && _aw.z > ex[1].z) ex[1] = _aw.clone();
+      const p = new T.Vector3(lx, ly, lz).applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi); corners.push(p); zf = Math.max(zf, p.z);
     }
+    const gripY = clamp(Math.max(cy - hh * .35, -.76 * tanV * -(zf - 1.4)), cy - hh * .8, cy + hh * .4);
+    const edge = p => { if (!ex[0] || p.x < ex[0].x - 1e-6 || Math.abs(p.x - ex[0].x) < 1e-6 && p.z > ex[0].z) ex[0] = p.clone(); if (!ex[1] || p.x > ex[1].x + 1e-6 || Math.abs(p.x - ex[1].x) < 1e-6 && p.z > ex[1].z) ex[1] = p.clone(); };
+    // Intersect the actual turned box at one grip height; opposite extreme corners can be at different heights.
+    for (let i = 0; i < 8; i++) for (const bit of [1, 2, 4]) if (!(i & bit)) {
+      const a = corners[i], b = corners[i | bit], dy = b.y - a.y;
+      if (Math.abs(dy) < 1e-6) { if (Math.abs(a.y - gripY) < 1e-4) { edge(a); edge(b); } }
+      else { const q = (gripY - a.y) / dy; if (q >= 0 && q <= 1) edge(a.clone().lerp(b, q)); }
+    }
+    if (!ex[0] || !ex[1]) for (const p of corners) edge(p);
+    const size = lb.getSize(_vv), small = size.toArray().every(n => n * k <= L * 1.5), flat = size.z < Math.min(size.x, size.y) * .45;
+    const toLocal = flat ? new T.Matrix4().copy(t.obj.matrixWorld).invert().multiply(_hm) : null;
     for (const a of g.userData.sides) {
-      const sd = a.sd, inn = -sd, c = ex[sd < 0 ? 0 : 1]; // (inward: towards the thing)
-      // gripping that corner from the side, a little in from it, below its middle and in front of it, leaning in
-      const px = c.x + (cx - c.x) * 0.16, py = Math.min(cy - hh * 0.15, Math.max(cy - hh * 0.6, c.y)) - pl * 0.05, pz = Math.max(c.z, cz) + pt * 0.5, lean = inn * 0.2;
-      const put = (m, lx, ly, lz, sx, sy, sz, rz = 0, rx = 0) => {
-        const c = Math.cos(lean), sn = Math.sin(lean); // (the lean turns the hand's own frame about the view's z)
-        m.position.set(px + lx * c - ly * sn, py + lx * sn + ly * c, pz + lz); m.rotation.set(rx, 0, lean + rz); m.scale.set(sx, sy, sz);
-      };
-      put(a.palm, 0, 0, 0, pt, pl, pw);
-      put(a.fingers, inn * pt * 0.55, pl * 0.62, -pw * 0.08, pt * 0.95, pl * 0.5, pw * 0.92, -inn * 0.35);
-      put(a.thumb, inn * pt * 0.6, pl * 0.1, pw * 0.55, pt * 0.8, pl * 0.5, pt * 0.95, -inn * 0.5, -0.25);
-      // the wrist, and the sleeve back to somewhere off the bottom of the view, nearer you
-      const wx = px - Math.sin(lean) * -pl * 0.5, wy = py + Math.cos(lean) * -pl * 0.5;
-      const za = cz * 0.42, ax = cx * 0.42 + sd * (tanH * -za * 0.24 + hw * 0.25), ay = -tanV * -za * 1.25;
-      _aa.set(ax, ay, za); _aw.set(wx, wy, pz); _ad.subVectors(_aw, _aa); const len = _ad.length(), r = pw * 0.66;
-      a.sleeve.position.addVectors(_aa, _aw).multiplyScalar(0.5); a.sleeve.quaternion.setFromUnitVectors(_ay, _ad.normalize()); a.sleeve.scale.set(r, len, r);
-      a.cuff.position.copy(_aw).addScaledVector(_ad, -pl * 0.12); a.cuff.quaternion.copy(a.sleeve.quaternion); a.cuff.scale.set(r * 1.12, pl * 0.3, r * 1.12);
+      const sd = a.sd, c = ex[sd < 0 ? 0 : 1], visible = !small || sd > 0;
+      for (const m of [a.palm, a.wrist, a.sleeve, a.cuff]) m.visible = visible;
+      if (!visible) continue;
+      const px = c.x + sd * .2, py = gripY, lean = -sd * .1;
+      let front = c.z;
+      if (toLocal) {
+        // On a turned case the outer corner can be its back corner. Put the thumb on the real front face.
+        const ray = new T.Ray(new T.Vector3(px - sd * 2.1, py + 1.6, zf + 10), new T.Vector3(0, 0, -1)).applyMatrix4(toLocal);
+        const hit = ray.intersectBox(lb, new T.Vector3());
+        if (hit) front = hit.applyMatrix4(t.obj.matrixWorld).applyMatrix4(_hmi).z;
+      }
+      const pz = front - 3.8;
+      a.palm.position.set(px, py, pz); a.palm.rotation.set(0, 0, lean); a.palm.scale.setScalar(1);
+      // the wrist, then the forearm: down and back towards you to an elbow just below the bottom of the view, tucked in
+      // close (forearms only; the elbow is off screen, so there is never an upper arm or a long straight reach)
+      const wx = px + Math.sin(lean) * pl * 0.5, wy = py - Math.cos(lean) * pl * 0.5;
+      const ez = pz * 0.85, ex2 = (wx / -pz) * -ez + sd * L * 0.16, ey = -tanV * -ez * 1.08 - L * 0.2;
+      _aa.set(ex2, ey, ez); _aw.set(wx, wy, pz); _ad.subVectors(_aw, _aa); const len = _ad.length(); _ad.normalize();
+      const r = L * .14, q = a.sleeve.quaternion.setFromUnitVectors(_ay, _ad);
+      // a bit of wrist, then the sleeve from just below it, its cuff at the wrist end
+      a.wrist.position.copy(_aw).addScaledVector(_ad, -L * 0.06); a.wrist.quaternion.copy(q); a.wrist.scale.set(r * 0.86, L * 0.2, r * 0.86);
+      const s0 = L * 0.16, sl = Math.max(L * 0.3, len - s0); // (from s0 below the wrist all the way to the elbow)
+      a.sleeve.position.copy(_aw).addScaledVector(_ad, -(s0 + sl / 2)); a.sleeve.scale.set(r * 1.05, sl, r * 1.05);
+      a.cuff.position.copy(_aw).addScaledVector(_ad, -(s0 + L * 0.06)); a.cuff.quaternion.copy(q); a.cuff.scale.set(r * 1.18, L * 0.14, r * 1.18);
     }
   }
   // where the ghost (where it will land) is on screen, as fractions of the view
@@ -991,7 +1030,6 @@
   // Where the full-size thing would be for the same picture (a scale about the eye), kept short of walls and of you.
   function heldVirtual(t, clampToWorld) {
     const k = t.obj.scale.x || 1, o = t.obj.position;
-    if (k === 1) return { x: o.x, y: o.y, z: o.z };
     let vx = P.x + (o.x - P.x) / k, vy = P.y + (o.y - P.y) / k, vz = P.z + (o.z - P.z) / k;
     if (clampToWorld) {
       const R = holdSize(t), dist = Math.hypot(vx - P.x, vy - P.y, vz - P.z), ux = (vx - P.x) / dist, uy = (vy - P.y) / dist, uz = (vz - P.z) / dist;
@@ -1003,9 +1041,9 @@
     }
     return { x: vx, y: vy, z: vz };
   }
-  // Grow the stand-in back to the real thing, in place as you see it: before it's put down, dropped, inspected or used.
+  // Release the held pose into the world; keep a real-size drop short of walls and the player's body.
   function unshrink(t, clampToWorld) {
-    const k = t.obj.scale.x || 1; t._hk = false; if (k === 1) return;
+    const k = t.obj.scale.x || 1; t._hk = false; if (k === 1 && !clampToWorld) return;
     const v = heldVirtual(t, clampToWorld); if (Number.isFinite(v.x + v.y + v.z)) t.obj.position.set(v.x, v.y, v.z); t.obj.scale.setScalar(1); t.obj.updateMatrixWorld(true); dirty();
   }
   const isThingMesh = m => { let o = m; while (o) { if (o.userData && o.userData.thing) return true; o = o.parent; } return false; };
@@ -1028,6 +1066,7 @@
     for (const id in SNAPS) {
       const s = SNAPS[id]; if (s.room && cur && s.room !== cur.id) continue;
       if (s.enabled && !s.enabled()) continue; if (s.accepts && !s.accepts(t.kind, t)) continue;
+      if (s.aims && !s.aims(t)) continue;
       let d = Math.hypot(x - s.x, (y - t.h / 2) - s.y, z - s.z);
       if (aimPt) d = Math.min(d, Math.hypot(aimPt.x - s.x, aimPt.y - s.y, aimPt.z - s.z) + 2); // (pointing right at the slot counts too)
       // ...and so does the crosshair passing close by it, within reach
@@ -1037,8 +1076,8 @@
     }
     return best && best.s;
   }
-  // The footprint the ghost will stand on and the slot it will click into: drawn by showTargets (shape-hugging, js/hs-cg.js)
-  const GL = window.HouseGlow, cg = { foot: null, snap: null, decals: null, objs: new Map(), slotMesh: null, slotFor: null, list: [] };
+  // The footprint the ghost will stand on and the slot it will click into: drawn by showTargets (shape-hugging, js/hs-glow.js)
+  const GL = window.HouseGlow, cg = { foot: null, snap: null, decals: null, objs: new Map(), floorDecals: null, list: [] };
   const isRound = t => !!(t && (t.round || t.physics && (t.physics.round || (t.physics.parts || []).length === 1 && t.physics.parts[0].t === 'cyl')));
   function floorAim(t){ const g = computeGhost(t, null, null, true); return g && !g.snap ? { target: g.ok ? { room: g.room, x: g.x, z: g.z, y0: g.y } : null, aim: { room: g.room, x: g.x, z: g.z, y0: g.y }, ry: g.ry, ok: g.ok, why: g.why, y: g.y } : null; }
   function floorGlow(p,t){ // the footprint the ghost will stand on: a ring the shape of its base (a circle for round things)
@@ -1128,9 +1167,8 @@
 
   // ---------------------------------------------------------------- the places a carried thing can go glow, in their own shape
   // A slot that belongs to a thing (the washing basket, the bin: snap.glow = a THINGS id, an Object3D or a function giving
-  // one) gets a rim cg and an outline on that thing's own geometry plus a ring on the floor round its base. An empty slot
-  // (a shelf, a console, the desk) shows a gold see-through copy of what you carry standing in it, and a ring the slot's
-  // shape. The slot it will click into burns brighter. js/hs-cg.js; at most a handful of small draws, no extra passes.
+  // one) gets a rim and outline on its own geometry plus a footprint ring. Empty accepting slots get shallow rings;
+  // the carried model appears only at its actual placement ghost. The active slot burns brighter. js/hs-glow.js.
   const TARGET_MAX = 48;
   let targetsAt = 0, targetCount = 0, targetsFor = null;
   const _tm = new T.Matrix4(), _tq = new T.Quaternion(), _te = new T.Euler(), _tp = new T.Vector3(), _ts = new T.Vector3(), _rootInv = new T.Matrix4(), _box = new T.Box3();
@@ -1163,22 +1201,11 @@
     e.hull.material.uniforms.uStrength.value = (active ? 0.95 : 0.55) * pulse;
     e.hull.material.uniforms.uColor.value.set(active ? '#ffe680' : GL.GOLD);
   }
-  function slotGhosts(t, poses) { // a gold copy of what you carry in each free slot: one instanced draw
-    if (cg.slotMesh && cg.slotFor !== t) { root.remove(cg.slotMesh); cg.slotMesh.dispose && cg.slotMesh.dispose(); cg.slotMesh = null; }
-    if (!poses.length) { if (cg.slotMesh) cg.slotMesh.visible = false; return; }
-    if (!cg.slotMesh) {
-      const m = cg.slotMesh = new T.InstancedMesh(GL.merge(t.obj, { maxTris: 4000 }), GL.rimMat(GL.GOLD, 0.6), TARGET_MAX);
-      m.userData.noPick = true; m.raycast = () => {}; m.frustumCulled = false; m.renderOrder = 5; root.add(m); cg.slotFor = t;
-    }
-    const m = cg.slotMesh; let n = 0;
-    for (const p of poses) { _tp.set(p.x, renderY(t, p.y), p.z); _te.set((p.rx || 0) * D2R, (p.ry || 0) * D2R, (p.rz || 0) * D2R, 'YXZ'); _tq.setFromEuler(_te); _ts.set(1, 1, 1); m.setMatrixAt(n++, _tm.compose(_tp, _tq, _ts)); }
-    m.count = n; m.instanceMatrix.needsUpdate = true; m.visible = true;
-  }
   function showTargets(t, now) {
-    if (!cg.decals) { cg.decals = GL.decals(TARGET_MAX + 2); root.add(cg.decals.mesh); }
+    if (!cg.decals) { cg.decals = GL.decals(TARGET_MAX); cg.decals.mesh.name = 'accepting-slot-glows'; root.add(cg.decals.mesh); cg.floorDecals = GL.decals(1); cg.floorDecals.mesh.name = 'placement-footprint'; root.add(cg.floorDecals.mesh); }
     if (!t) {
       cg.decals.hide(); for (const e of cg.objs.values()) e.rim.visible = e.hull.visible = false;
-      if (cg.slotMesh) cg.slotMesh.visible = false; targetCount = 0; cg.list = []; targetsFor = null; return;
+      cg.floorDecals.hide(); targetCount = 0; cg.list = []; targetsFor = null; return;
     }
     if (now - targetsAt > 350 || targetsFor !== t) {
       targetsAt = now; targetsFor = t; targetCount = 0; cg.list = [];
@@ -1195,7 +1222,7 @@
         cg.list.push({ s, obj: tg && tg.obj, foot, pose }); targetCount++;
       }
     }
-    const D = cg.decals, pulse = 0.8 + 0.2 * Math.sin(now / 260), poses = [];
+    const D = cg.decals, pulse = 0.8 + 0.2 * Math.sin(now / 260);
     root.updateMatrix(); _rootInv.copy(root.matrix).invert(); // (the root's parent is the scene: its matrix is its world)
     D.begin();
     for (const e of cg.objs.values()) e.used = false;
@@ -1203,13 +1230,12 @@
       const active = cg.snap === it.s, f = it.foot;
       D.add(f.x, f.y, f.z, f.ry, f.hx, f.hz, f.round, active ? '#ffe680' : GL.GOLD, active ? 1 : 0.62);
       if (it.obj) objGlow(it.obj, active, now);
-      else if (it.pose && !active) poses.push(it.pose);
     }
-    if (cg.foot && !cg.snap) { const f = cg.foot; D.add(f.x, f.y, f.z, f.ry, f.hx, f.hz, f.round, f.color, 0.9); }
     D.end(pulse);
+    const floor = cg.floorDecals; floor.begin();
+    if (cg.foot && !cg.snap) { const f = cg.foot; floor.add(f.x, f.y, f.z, f.ry, f.hx, f.hz, f.round, f.color, 0.9); }
+    floor.end(pulse);
     for (const e of cg.objs.values()) if (!e.used) e.rim.visible = e.hull.visible = false;
-    slotGhosts(t, poses);
-    if (cg.slotMesh) cg.slotMesh.material.uniforms.uStrength.value = 0.28 + 0.08 * Math.sin(now / 300);
   }
 
   // ---------------------------------------------------------------- putting things down
@@ -1437,19 +1463,59 @@
   }
   // Saved as [room, x, y, z, ry, snap, hide, extra]; extra holds a chair's swivel. A carried thing saves where it came
   // from, and the grip itself is remembered so a refresh hands it straight back (jhp_hs_held).
-  const PV = 3; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden
+  const PV = 6; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry
   // The front plot (docs/HOUSE-SCALE.md, js/hs-house.js builds it): the garden runs from the house front (z 702) to the pavement
   // at FZ. Until pv 3 it was 4 m deep (FZ 1100) with Dad's car shrunk to 82% (OLD_CAR) to squeeze it in.
-  const FRONT = Object.freeze({ FZ: 1300, CAR: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
+  // STREET: our pavement (FZ..FZ+145, 1.45 m), its kerb, a 5.6 m road, the far kerb and pavement; the opposite houses'
+  // gardens start at farPave[1] (js/hs-environment.js builds the rest of the village from these).
+  // PIERS: the brick gate piers (x; 33 cm square, their caps' top PIER_TOP above the ground) either side of the path gate
+  // and the gateway. HEDGE: the clipped privet behind the front wall, z from HEDGE[0] to the wall's back at HEDGE[1].
+  // CAR3 is where Dad's car stood in pv 3 (2.57); CAR4 (pv 4-5) 20 cm back from the gate piers; pv 6 drove it up to the
+  // drive, with the owner's approved 7 m plot: about 110 cm clear from doorstep to boot and 107 cm from nose to gateway.
+  const FRONT = Object.freeze({ FZ: 1400, STREET: Object.freeze({ pave: [1400, 1545], kerb: 1550, road: [1555, 2115], farKerb: 2120, farPave: [2125, 2270] }),
+    PIERS: Object.freeze([231.5, 348.5, 636.5]), PIER_TOP: 124, HEDGE: Object.freeze([1328.5, 1384]),
+    CAR: Object.freeze({ x: 500, y: 353, z: 1075, s: 1.04, roof: 126.9 }), CAR4: Object.freeze({ x: 488, y: 353, z: 980, s: 1.04 }), CAR3: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
   // A placement saved before pv 3: whatever was in or on the old car moves with the car (same spot in the boot or on the
   // roof, scaled); whatever the bigger car now stands on is set down on the drive beside it. Everything else keeps its pose.
-  function migratePlacement(at) {
+  // pv 4: in or on the v3 car -> the same spot on the car 20 cm further back; on the ground where the car now stands ->
+  // beside it; on the lawn where the thicker hedge now grows -> just in front of the hedge. pv 6: the same for the car's
+  // move up the drive (in or on it: it comes along; under it now: set down beside it).
+  // pv 5: on the lounge floor where the sofa (-155..35, 562..647) or Dad's chair (55..164, 340..450) now stands -> out
+  // in front of the sofa, on the way through.
+  const LOUNGE5 = [[-157, 560, 37, 649], [53, 338, 166, 452]];
+  function migratePlacement(at, from = 0) {
+    if (at && at.room === 'lounge' && from < 5 && Number.isFinite(at.x) && Number.isFinite(at.z)) {
+      // Raised props follow the old upholstery; floor props only move if the new furniture covers them.
+      if (at.y < LV.G - 6 && at.y >= LV.G - 110) {
+        if (at.x >= -162 && at.x <= 42 && at.z >= 516 && at.z <= 606) { at.x = -60 + (at.x + 60) * .95; at.z += 45; return true; }
+        const a = -118 * Math.PI / 180, dx = at.x - 110, dz = at.z - 430, x = dx * Math.cos(a) - dz * Math.sin(a), z = dx * Math.sin(a) + dz * Math.cos(a);
+        if (Math.abs(x) <= 47 && Math.abs(z) <= 44) { const b = -110 * Math.PI / 180; at.x = 110 + x * Math.cos(b) + z * Math.sin(b); at.z = 395 - x * Math.sin(b) + z * Math.cos(b); at.ry = (at.ry || 0) + 8; return true; }
+      }
+      if (at.y >= LV.G - 6 && LOUNGE5.some(([x0, z0, x1, z1]) => at.x > x0 && at.x < x1 && at.z > z0 && at.z < z1)) { at.x = clamp(at.x, -150, 40); at.z = 521; at.y = LV.G; return true; }
+    }
     if (!at || at.room !== 'drive' || !Number.isFinite(at.x) || !Number.isFinite(at.z)) return false;
-    const { CAR, OLD_CAR, FZ } = FRONT, lx = (at.x - OLD_CAR.x) / OLD_CAR.s, lz = (at.z - OLD_CAR.z) / OLD_CAR.s;
-    if (Math.abs(lx) <= 92 && Math.abs(lz) <= 210) { const ly = (at.y - CAR.y) / OLD_CAR.s; at.x = CAR.x + lx * CAR.s; at.z = CAR.z + lz * CAR.s; at.y = CAR.y + ly * CAR.s; return true; }
-    if (Math.abs(at.x - CAR.x) < 120 * CAR.s && Math.abs(at.z - CAR.z) < 230 * CAR.s) { at.x = CAR.x - 91 * CAR.s - 32; at.z = Math.min(Math.max(at.z, 780), FZ - 60); at.y = CAR.y; return true; }
-    return false;
+    const { CAR, CAR3, CAR4, OLD_CAR, FZ, HEDGE } = FRONT;
+    const onCar = (c, x, z, sx = 92, sz = 210) => Math.abs((x - c.x) / c.s) <= sx && Math.abs((z - c.z) / c.s) <= sz;
+    const beside = c => { at.x = c.x - 91 * c.s - 32; at.z = Math.min(Math.max(at.z, 780), FZ - 90); at.y = c.y; };
+    const follow = (a, b) => { at.x += b.x - a.x; at.z += b.z - a.z; at.y += b.y - a.y; };
+    let moved = false, riding = false; // riding: in or on the car, so it moves with the car again
+    if (from < 3) {
+      const lx = (at.x - OLD_CAR.x) / OLD_CAR.s, lz = (at.z - OLD_CAR.z) / OLD_CAR.s;
+      if (Math.abs(lx) <= 92 && Math.abs(lz) <= 210) { const ly = (at.y - CAR3.y) / OLD_CAR.s; at.x = CAR3.x + lx * CAR3.s; at.z = CAR3.z + lz * CAR3.s; at.y = CAR3.y + ly * CAR3.s; moved = riding = true; }
+      else if (Math.abs(at.x - CAR3.x) < 120 * CAR3.s && Math.abs(at.z - CAR3.z) < 230 * CAR3.s) { beside(CAR3); moved = true; }
+    }
+    if (from < 4) {
+      if (riding || onCar(CAR3, at.x, at.z) && at.y < CAR3.y - 5) { const roof = at.y <= CAR3.y - 133.5 * CAR3.s + 2; follow(CAR3, CAR4); if (roof) at.y += (133.5 - CAR.roof) * CAR.s; moved = riding = true; }
+      else if (onCar(CAR4, at.x, at.z, 100, 214)) { beside(CAR4); moved = true; }
+      else if (at.x < FRONT.PIERS[0] && at.z > HEDGE[0] - 12 && at.z < FZ) { at.z = HEDGE[0] - 20; at.y = CAR.y; moved = true; }
+    }
+    if (from < 6) {
+      if (riding || onCar(CAR4, at.x, at.z) && at.y < CAR4.y - 5) { follow(CAR4, CAR); moved = true; }
+      else if (onCar(CAR, at.x, at.z, 100, 214)) { beside(CAR); moved = true; }
+    }
+    return moved;
   }
+
   function saveThings(immediate) {
     clearTimeout(saveT);
     const write = () => {
@@ -1457,7 +1523,7 @@
       // Keep records belonging to unbuilt rooms; saving the bedroom must not
       // erase the rest of the house, nor overwrite a deferred prop with its home.
       const previous = loadThings(), st = Object.assign({}, previous.t), op = Object.assign({}, previous.o);
-      if ((previous.pv || 0) < 3) for (const id in st) { const r = st[id]; if (!Array.isArray(r) || r[5]) continue; const at = { room: r[0], x: r[1], y: r[2], z: r[3] }; if (migratePlacement(at)) st[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1)].concat(r.slice(4)); }
+      if ((previous.pv || 0) < PV) for (const id in st) { const r = st[id]; if (!Array.isArray(r) || r[5]) continue; const at = { room: r[0], x: r[1], y: r[2], z: r[3], ry: r[4] }; if (migratePlacement(at, previous.pv || 0)) st[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4]].concat(r.slice(5)); }
       for (const id in THINGS) {
         const t = THINGS[id]; if (t.noSave || pendingRestores.has(id)) continue;
         const carried = held && held.id === id && !held.drag, a = carried ? held.from : t.at, y = t.st==='fall'&&Number.isFinite(t.landY)?t.landY:a.y;
@@ -1503,16 +1569,16 @@
   // (2.57.0 left Dad's PC parts behind the bumper): a raised spot on the old car that's now outside the new one.
   function migrateSave(save) {
     if (!save || !save.t || save.pv0 !== undefined) return;
-    const { CAR, OLD_CAR } = FRONT, old = (save.pv || 0) < 3; save.pv0 = save.pv || 0; // pv0: the version it was saved with (the physics nudge below still needs it)
+    const { CAR3, OLD_CAR } = FRONT, pv = save.pv || 0, old = pv < PV; save.pv0 = pv; // pv0: the version it was saved with (the physics nudge below still needs it)
     for (const id in save.t) {
-      const r = save.t[id]; if (!Array.isArray(r) || r[5] || r[0] !== 'drive') continue;
+      const r = save.t[id]; if (!Array.isArray(r) || r[5] || (r[0] !== 'drive' && r[0] !== 'lounge')) continue;
       const lx = (r[1] - OLD_CAR.x) / OLD_CAR.s, lz = (r[3] - OLD_CAR.z) / OLD_CAR.s;
-      const stale = Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR.y - 5 && !(Math.abs(r[1] - CAR.x) <= 92 * CAR.s && Math.abs(r[3] - CAR.z) <= 205 * CAR.s);
+      const stale = pv === 3 && Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR3.y - 5 && !(Math.abs(r[1] - CAR3.x) <= 92 * CAR3.s && Math.abs(r[3] - CAR3.z) <= 205 * CAR3.s);
       if (!old && !stale) continue;
-      const at = { room: r[0], x: r[1], y: r[2], z: r[3] };
-      if (migratePlacement(at)) save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), ...r.slice(4)];
+      const at = { room: r[0], x: r[1], y: r[2], z: r[3], ry: r[4] };
+      if (migratePlacement(at, stale ? 0 : pv)) save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4], ...r.slice(5)];
     }
-    save.pv = Math.max(save.pv || 0, 3);
+    save.pv = Math.max(pv, PV);
   }
   // Placements saved before the physics pass may now overlap a collider (furniture gained real parts): nudge them out once.
   const migrateQ = new Set();
@@ -1580,7 +1646,7 @@
       const p = SNAPS[s[5]].pose || SNAPS[s[5]];
       t.at.x = p.x; t.at.y = p.y; t.at.z = p.z; t.at.ry = p.ry || 0;
       t.rx = p.rx || 0; t.rz = p.rz || 0;
-    } else { t.st = 'rest'; if (save.pv0 < 3 && t.at.room === 'drive') migrateQ.add(t); }
+    } else { t.st = 'rest'; if (save.pv0 < PV && (t.at.room === 'drive' || t.at.room === 'lounge')) migrateQ.add(t); }
     moveTo(t, t.at.room); place(t); layerFor(t);
     if (t.st === 'rest' && !t.at.hide && (save.pv0 ?? save.pv ?? 0) < PV) migrateQ.add(t);
     rescueQ.add(t);
@@ -1662,14 +1728,14 @@
   const H5 = s => s * s * s * (s * (s * 6 - 15) + 10), H5d = s => 30 * s * s * (s - 1) * (s - 1);
   const H1 = s => s * (1 + s * s * (-6 + s * (8 - 3 * s))), H1d = s => 1 + s * s * (-18 + s * (32 - 15 * s));
   const CH = ['x', 'y', 'z', 'rx', 'ry', 'zm'];
-  const span = (a, b) => Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) + 0.6 * (Math.abs(angd(a.ry, b.ry)) + Math.abs((b.rx || 0) - (a.rx || 0))) + 120 * Math.abs((b.zm || 1) - (a.zm || 1));
+  const span = (a, b) => Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) + 0.6 * (Math.abs(angd(a.ry, b.ry)) + Math.abs((b.rx || 0) - (a.rx || 0))) + 120 * Math.abs((b.zm || WZ) - (a.zm || WZ));
   P.zm = 1;
   let glide = null, movingLock = false;
   // pose-space velocity (units per ms) of the move in progress, for velocity-continuous retargeting
   function glideVel(now) {
     const g = glide; if (!g || !g.ms) return null;
     const s = clamp((now - g.t0) / g.ms, 0, 1), to = typeof g.to === 'function' ? g.to() : g.to, v = {}, d5 = H5d(s) / g.ms, d1 = H1d(s);
-    for (const c of CH) { const delta = c === 'ry' ? angd(g.from.ry, to.ry) : ((to[c] ?? (c === 'zm' ? 1 : g.from[c])) - g.from[c]); v[c] = delta * d5 + g.v0[c] * d1; }
+    for (const c of CH) { const delta = c === 'ry' ? angd(g.from.ry, to.ry) : ((to[c] ?? (c === 'zm' ? WZ : g.from[c])) - g.from[c]); v[c] = delta * d5 + g.v0[c] * d1; }
     if (g.arc) v.y -= Math.cos(Math.PI * H5(s)) * Math.PI * d5 * g.arc;
     return v;
   }
@@ -1678,7 +1744,7 @@
     o = o || {};
     const now = performance.now(), prev = glide, v0 = prev ? glideVel(now) : null;
     if (glide && glide.onCancel) { const f = glide.onCancel; glide.onCancel = null; try { f(); } catch (e) {} }
-    const from = { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry, zm: P.zm || 1 };
+    const from = { x: P.x, y: P.y, z: P.z, rx: P.rx, ry: P.ry, zm: P.zm || WZ };
     const tt = typeof to === 'function' ? to() : to;
     const dist = Math.hypot(tt.x - from.x, tt.y - from.y, tt.z - from.z), turn = Math.abs(angd(from.ry, tt.ry)) + Math.abs(tt.rx - from.rx);
     let ms = o.ms != null ? o.ms : clamp(420 + dist * 2.2 + turn * 3, 500, 1500);
@@ -1698,14 +1764,14 @@
     const g = glide, s = g.ms ? clamp((now - g.t0) / g.ms, 0, 1) : 1, e = H5(s), h = g.ms * H1(s), to = typeof g.to === 'function' ? g.to() : g.to;
     for (const c of ['x', 'y', 'z', 'rx']) P[c] = g.from[c] + (to[c] - g.from[c]) * e + g.v0[c] * h;
     P.ry = g.from.ry + angd(g.from.ry, to.ry) * e + g.v0.ry * h;
-    P.zm = g.from.zm + ((MOTION.reduce ? 1 : to.zm ?? 1) - g.from.zm) * e + g.v0.zm * h;
+    P.zm = MOTION.reduce ? (to.zm ?? WZ) : g.from.zm + ((to.zm ?? WZ) - g.from.zm) * e + g.v0.zm * h; // (reduced motion: the lens cuts, it never zooms)
     if (g.arc) P.y -= Math.sin(Math.PI * e) * g.arc;
     // looking round during an unlocked move rides on top of it instead of cancelling it
     if (g.look.rx || g.look.ry) { P.rx = clamp(P.rx + g.look.rx, -78, 70); P.ry += g.look.ry; }
     for (const a of g.at) if (a.fn && s >= a.k) { const fn = a.fn; a.fn = null; try { fn(); } catch (e2) { console.error(e2); } if (glide !== g) return true; }
     if (s >= 1) {
       glide = null;
-      if (MOTION.reduce || to.zm == null) P.zm = MOTION.reduce ? 1 : P.zm;
+      if (MOTION.reduce || to.zm == null) P.zm = to.zm ?? WZ;
       const end = Object.assign({}, to, { rx: P.rx, ry: P.ry });
       // where you are now (if it's somewhere you could stand)
       setWalkFrom(end);
@@ -1904,7 +1970,7 @@
     if (tm?.on && !mx && !mz) { mx = tm.x; mz = tm.y; }
     const mag = Math.min(1, Math.hypot(mx, mz));
     const night = !!(window.HouseLife && HouseLife.quiet && HouseLife.quiet());
-    const lintel=lowDoorAt(W.x,W.z,W.lvl,6,W.fy),nearLintel=keys.crouch&&lowDoorAt(W.x,W.z,W.lvl,RAD+18,W.fy),ducking=keys.crouch||!!lintel;
+    const lintel=lowDoorAt(W.x,W.z,W.lvl,6,W.fy),nearLintel=keys.crouch&&lowDoorAt(W.x,W.z,W.lvl,RAD+40,W.fy),ducking=keys.crouch||!!lintel;
     if (!W.seat) W.eye = Math.max(60, ((cur && cur.eye) || STAND) - (keys.crouch ? 38 : 0)); // C: crouch
     if(lintel||nearLintel)W.eye=Math.min(W.eye,(lintel||nearLintel).headroom-10);
     const carrySpeed = held ? (THINGS[held.id]?.walkScale || 1) : 1;
@@ -2359,7 +2425,7 @@
       say(title,text,ms){if(inspection){let description=inspection.panel.querySelector('.hs-inspect-description');if(!description){description=document.createElement('p');description.className='hs-inspect-description';inspection.panel.appendChild(description)}description.innerHTML=text;note.classList.remove('on');return;}note.querySelector('b').textContent = title; note.querySelector('p').innerHTML = text; note.classList.add('on'); clearTimeout(noteT); noteT = setTimeout(() => note.classList.remove('on'), ms || Math.max(4500, String(text).length * 70)); },
       hush() { note.classList.remove('on'); },
       toast(title, text) { toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 4200); },
-      tip(text,x,y,far,carry){if(!text||(held&&!carry)){tipEl.classList.remove('on','carry');tipKey='';return;}const content=carry?text:text+(far?' <small>(walk closer)</small>':text.includes('<kbd>E</kbd>')?'':' <small><kbd>F</kbd> Use</small>'),key=content+'|'+vw+'|'+vh;tipEl.classList.add('on');tipEl.classList.toggle('carry',!!carry);if(key!==tipKey){tipKey=key;tipEl.innerHTML=content;tipW=tipEl.offsetWidth;tipH=tipEl.offsetHeight;}tipEl.style.transform=`translate(${clamp(x+14,8,Math.max(8,vw-tipW-8))}px,${clamp(carry?y-tipH-16:y+18,8,Math.max(8,vh-tipH-8))}px)`;},
+      tip(text,x,y,far,carry){if(!text||(held&&!carry)){tipEl.classList.remove('on','carry');tipKey='';return;}const content=carry?text:text+(far?' <small>(walk closer)</small>':text.includes('<kbd>E</kbd>')?'':' <small><kbd>F</kbd> '+((/^(Talk|Open|Shut|Close|Play|Read|Sit|Watch|Listen|Feed|Pet|Water|Answer|Ring)\b/.exec(text)||['Use'])[0])+'</small>'),key=content+'|'+vw+'|'+vh;tipEl.classList.add('on');tipEl.classList.toggle('carry',!!carry);if(key!==tipKey){tipKey=key;tipEl.innerHTML=content;tipW=tipEl.offsetWidth;tipH=tipEl.offsetHeight;}tipEl.style.transform=`translate(${clamp(x+14,8,Math.max(8,vw-tipW-8))}px,${clamp(carry?y-tipH-16:y+18,8,Math.max(8,vh-tipH-8))}px)`;},
       where() {
         const r = cur; if (!r) return;
         $('.hs-title').textContent = r.title || r.name.toUpperCase(); $('.hs-where').textContent = r.stations[stIdx] ? r.stations[stIdx].n : r.sub || '';
@@ -2434,7 +2500,7 @@
       if (tickGlide(now)) moving = true;
       else if (mode === 'walk'&&!controlsPaused) { let left = dt; while (left > 1e-4) { const st = Math.min(0.03, left); left -= st; if (tickWalk(st)) moving = true; } }
       // (a lens left long by an interrupted close-up relaxes back to the walking view)
-      if (!glide && mode === 'walk' && P.zm !== 1) { P.zm += (1 - P.zm) * Math.min(1, dt * 9); if (Math.abs(P.zm - 1) < 1e-3) P.zm = 1; moving = true; }
+      if (!glide && mode === 'walk' && P.zm !== WZ) { P.zm += (WZ - P.zm) * Math.min(1, dt * 9); if (Math.abs(P.zm - WZ) < 1e-3) P.zm = WZ; moving = true; }
     }
     tickQueuedLock(now);
     for (const [k, fn] of anims) { let more = false; try { more = fn(now, dt); } catch (e) { console.error(e); } if (!more) anims.delete(k); moving = true; }
@@ -2444,7 +2510,7 @@
     frame++;
     const ambOn = ambient.size && now - lastAmb > (monitor?Math.max(100,1000/graphics.backgroundFps):Q.tier==='potato'?1000/12:50);
     if (!moving && !need && !ambOn) return;
-    const period=1000/(Q.tier==='potato'?30:Q.tier==='high'?120:60);
+    const period=1000/(Q.tier==='potato'?(Q.cap||30):Q.tier==='high'?120:60);
     if(now-lastDraw<period-1){if(moving)need=true;return}
     lastDraw=now;
     let ambientChanged=false;
@@ -2475,8 +2541,8 @@
     screenWorld.y=-screenWorld.y;
     const depth=-viewZ(screenWorld.x,screenWorld.y,screenWorld.z);if(depth<=2)return b;
     const scale=Math.max(Math.hypot(e[0],e[1],e[2]),Math.hypot(e[4],e[5],e[6]));
-    const diameter=2*geo.boundingSphere.radius*scale*PERSP*em/depth;
-    const a=P.ry*D2R,rx=P.rx*D2R,dx=screenWorld.x-P.x,dy=screenWorld.y-P.y,dz=screenWorld.z-P.z,z1=-dx*Math.sin(a)+dz*Math.cos(a),k=PERSP*em/depth;
+    const diameter=2*geo.boundingSphere.radius*scale*PERSP*em*(P.zm||1)/depth;
+    const a=P.ry*D2R,rx=P.rx*D2R,dx=screenWorld.x-P.x,dy=screenWorld.y-P.y,dz=screenWorld.z-P.z,z1=-dx*Math.sin(a)+dz*Math.cos(a),k=PERSP*em*(P.zm||1)/depth;
     const x=vw/2+(dx*Math.cos(a)+dz*Math.sin(a))*k,y=vh/2+(dy*Math.cos(rx)-z1*Math.sin(rx))*k;
     b.pixels=diameter;b.visible=diameter>=64&&x+diameter/2>0&&y+diameter/2>0&&x-diameter/2<vw&&y-diameter/2<vh;
     const projected=Math.max(128,diameter*Q.pixelRatio*1.25);
@@ -2486,7 +2552,7 @@
   let perfIndex=0,perfCount=0,perfLast=0,perfTotal=0,perfEl=null;
   function recordFrame(now,cost){perfFrames[perfIndex]=perfLast?now-perfLast:0;perfCosts[perfIndex]=cost;perfLast=now;perfIndex=(perfIndex+1)%120;perfCount=Math.min(120,perfCount+1);perfTotal++}
   function framePercentile(values,p){for(let i=0;i<perfCount;i++)perfSorted[i]=values[i];const sorted=perfSorted.subarray(0,perfCount);sorted.sort();return sorted[Math.min(perfCount-1,Math.floor(perfCount*p))]||0}
-  function perfSnapshot(){return{frames:perfTotal,tier:Q.tier,scale:graphics.scale*Q.renderScale,pixels:cv.width*cv.height,calls:ren.info.render.calls,triangles:ren.info.render.triangles,programs:ren.info.programs.length,frameP50:framePercentile(perfFrames,.5),frameP95:framePercentile(perfFrames,.95),renderP50:framePercentile(perfCosts,.5)}}
+  function perfSnapshot(){return{frames:perfTotal,tier:Q.tier,scale:graphics.scale*Q.renderScale,pixels:cv.width*cv.height,calls:ren.info.render.calls,triangles:ren.info.render.triangles,programs:ren.info.programs.length,frameP50:framePercentile(perfFrames,.5),frameP95:framePercentile(perfFrames,.95),renderP50:framePercentile(perfCosts,.5),cap:Q.tier==="potato"?(Q.cap||30):Q.tier==="high"?120:60}}
   setInterval(()=>{
     if(!graphics.showFps||!live){if(perfEl)perfEl.hidden=true;return}
     if(!perfEl){perfEl=document.createElement('div');perfEl.className='hs-perf';perfEl.setAttribute('aria-hidden','true');ui.el.appendChild(perfEl)}
@@ -2504,6 +2570,12 @@
     if(Q.probe&&now<Q.probe)dirty();else if(Q.probe)Q.probe=0;
     if(f.t<.9)return;
     Q.fps=Math.round(f.n/f.t);f.n=0;f.t=0;
+    // Phones on Potato try a smooth 60 first (touch look and walking feel stepped at 30); a phone that can't hold it
+    // steadily goes back to a locked 30 (stable beats uneven), and tries 60 again later when frames are cheap.
+    if(Q.mob&&Q.tier==='potato'){
+      if(Q.cap===60){if(Q.fps<50){if(++Q.capMiss>=2){Q.cap=30;Q.capMiss=0;Q.capRetry=now+30000}}else Q.capMiss=0}
+      else if(now>(Q.capRetry||0)&&Q.fps>=29&&framePercentile(perfCosts,.5)<6){Q.cap=60;Q.capMiss=0}
+    }
     if(!graphics.dynamic)return;
     if(Q.fps<28){
       goodBudget=0;
@@ -2600,7 +2672,7 @@
     const covered=backgroundCovered();
     if(covered!==backgroundHidden||cv.style.display!==(covered?'none':'')){backgroundHidden=covered;cv.style.display=covered?'none':'';cv2.style.display=covered?'none':''}
     if(covered){if(stood||monitor)glassFit();for(const sf of SURF)placeSurf(sf);return}
-    if (mode === 'follow' || mode === 'off') P.zm = 1;
+    if (mode === 'follow' || mode === 'off') { P.zm = 1; if (cssPose.d !== '115.000') { cssPose.d = '115.000'; stage.style.perspective = ''; } }
     qualityView();applyLens();glCam(P.x, P.y, P.z, P.rx, P.ry);
     if (mode !== 'follow' && mode !== 'off') cssCam();
     pcVis(); tickPropShadows();
@@ -2841,7 +2913,7 @@
     const width = gl && gl.w || GW, height = width * 3/4;
     const availableW=vw,availableH=vh;
     const distance = Math.max(width * PERSP * em / (availableW * .88), height * PERSP * em / (availableH * .82));
-    return { x: centre.x, y: centre.y, z: centre.z + distance, rx: 0, ry: 0, seat: 1, lvl: 'U' };
+    return { x: centre.x, y: centre.y, z: centre.z + distance, rx: 0, ry: 0, seat: 1, lvl: 'U', zm: 1 };
   }
   function preparePCView() {
     if (window.Room && Room.prepare) Room.prepare();
@@ -2919,15 +2991,16 @@
   }
   // the page laid onto the monitor's glass (perspective correct: a homography as a CSS matrix3d)
   const glass = { k: 1, fitKey: null, checkedAt: 0 };
-  const glassValues=new Float64Array(23),glassMatrix=new T.Matrix4(),glassPoint=new T.Vector3(),glassQuad=Array.from({length:4},()=>({x:0,y:0,d:0})),glassTransform=new Array(16);
+  // Cache pose (0..6), monitor matrix (7..22) and lens (23): zoom can change while the eye stays still.
+  const glassValues=new Float64Array(24),glassMatrix=new T.Matrix4(),glassPoint=new T.Vector3(),glassQuad=Array.from({length:4},()=>({x:0,y:0,d:0})),glassTransform=new Array(16);
   let glassMode=null,glassMonitor=false,glassStood=false,glassFull=false,glassObject=null;
   function glassFit() {
     const full=monitor&&desktopFull,now=performance.now(),g0=window.House&&House.pcGL;
     let moved=glass.fitKey===null||glassMode!==mode||glassMonitor!==monitor||glassStood!==stood||glassFull!==full||glassObject!==g0;
-    if(glassValues[0]!==vw||glassValues[1]!==vh||glassValues[2]!==P.x||glassValues[3]!==P.y||glassValues[4]!==P.z||glassValues[5]!==P.rx||glassValues[6]!==P.ry)moved=true;
+    if(glassValues[0]!==vw||glassValues[1]!==vh||glassValues[2]!==P.x||glassValues[3]!==P.y||glassValues[4]!==P.z||glassValues[5]!==P.rx||glassValues[6]!==P.ry||glassValues[23]!==P.zm)moved=true;
     const elements=g0?.matrixWorld.elements;if(elements)for(let i=0;i<16;i++)if(glassValues[i+7]!==elements[i]){moved=true;break}
     if(!moved&&(monitor||now-glass.checkedAt<150))return;
-    if(moved){glass.fitKey=(glass.fitKey||0)+1;glassMode=mode;glassMonitor=monitor;glassStood=stood;glassFull=full;glassObject=g0;glassValues[0]=vw;glassValues[1]=vh;glassValues[2]=P.x;glassValues[3]=P.y;glassValues[4]=P.z;glassValues[5]=P.rx;glassValues[6]=P.ry;if(elements)for(let i=0;i<16;i++)glassValues[i+7]=elements[i]}
+    if(moved){glass.fitKey=(glass.fitKey||0)+1;glassMode=mode;glassMonitor=monitor;glassStood=stood;glassFull=full;glassObject=g0;glassValues[0]=vw;glassValues[1]=vh;glassValues[2]=P.x;glassValues[3]=P.y;glassValues[4]=P.z;glassValues[5]=P.rx;glassValues[6]=P.ry;glassValues[23]=P.zm;if(elements)for(let i=0;i<16;i++)glassValues[i+7]=elements[i]}
     const key=glass.fitKey;
     const logicalW=full?'100%':'1024px',logicalH=full?'100%':'768px';if(monitorSurfaceEl.style.width!==logicalW)monitorSurfaceEl.style.width=logicalW;if(monitorSurfaceEl.style.height!==logicalH)monitorSurfaceEl.style.height=logicalH;
     html.classList.toggle('pc-desktop-full',full);
@@ -3089,9 +3162,11 @@
   addEventListener('resize', () => { if (!live) return; measure(); if (monitor) Object.assign(P, monitorPose()); else if (mode === 'walk' && W.seat && Math.abs(P.ry - seatPose().ry) < 1) { Object.assign(P, seatPose()); } dirty(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { lastT = 0;lastDraw=0;perfLast=0;perfCount=0;lastR=0; dirty(); } else { saveWalkState(); for (const k in keys) keys[k] = false; unlock(); } });
 
+  // The diagnostic/placement grid covers the same complete plot as continuous walking and the family navigator.
+  GR.nx=Math.ceil((740-GR.x0)/GR.cs);GR.nz=Math.ceil((FRONT.STREET.pave[1]-GR.z0)/GR.cs);grids.dirty=true;
   // ================================================================ the API
   window.House = {
-    ok: true, FRONT, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
+    ok: true, FRONT, STAND, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
     focus, unfocus, surface, faceQuad, inspect, endInspect, get focused() { return !!focusS; },
     room, buildRoom, door, setDoor, walkRect, block, solid, stairs, support, soft, softChanged, softs: SOFT, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     restoreThing, rescue: t => { if (t) rescueQ.add(t); }, lostWhy, saveThings, saveWalkState, layerFor, frontFx, place,
@@ -3105,7 +3180,7 @@
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,
     say: (t, x, ms) => ui.say(t, x, ms), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),
     dirty, relight, ambient, anims, visCalc,warmRooms:prewarm, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
-    touch: { move: touchSet, look: touchLook, get moving() { return touchMove.on; } },
+    touch: { move: touchSet, look: touchLook, get moving() { return touchMove.on; }, get state() { return { ...touchMove }; } },
     desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},
     Q,graphicsGet,graphicsSet,screenRate,screenBudget, perf:perfSnapshot, gfx: gfxSet, get mode() { return mode; }, get live() { return live; }, get stood() { return stood; }, get screenEffort(){return stood&&!monitor?'background':'interactive';}, get here() { return cur && cur.id; }, get busy() { return !canAct(); },
     goRoom(id, st) { const r = ROOMS[id]; if (!r) return; buildRoom(r); const s = r.stations[st || 0]; if (s) { cur = r; visCalc(); stIdx = st || 0; glideTo(stationPose(r, s), { ms: 0 }); setWalkFrom(stationPose(r, s)); ui.where(); } },

@@ -19,7 +19,8 @@ async function bootRoundTrip(){
   const f=await roomFixture(base,{account:name,password,signup:false});
   try{
     const p=f.page;await p.evaluate(()=>House.buildRoom(House.ROOMS.drive));
-    await f.view([323,245,866],[488,301,834],{level:'G'});
+    const frame=await p.evaluate(()=>House.ROOMS.drive.carFrame);
+    await f.view([frame.x-165,245,frame.z-114],[frame.x,301,frame.z-146],{level:'G'});
     await p.evaluate(()=>{House._.setMode('walk');Sound.effectsOn=true;for(const cue of ['gravel','heavy','plug','pcfan','floppy'])Sound.play(cue);House.act('hs.carboot');House.saveWalkState();});
     await f.until(()=>House.ROOMS.drive.carBoot.hinge.rotation.x < -1.2);await p.screenshot({path:shots+'20-boot-open-persist.png'});
     const power=await p.evaluate(()=>localStorage.getItem('jhp_off'));
@@ -84,7 +85,8 @@ async function wait(page, fn, arg, timeout=30000) {
   while(Date.now()<end){try{if(await page.evaluate(fn,arg))return}catch(e){if(!/context was destroyed|navigation|Cannot find context/i.test(e.message))throw e}await page.waitForTimeout(150)}
   throw Error('State timeout: '+String(fn));
 }
-async function aim(eye, target, level='U') { await view(eye, target, {level}); await p.evaluate(() => {House.hush(); House._.setMode('walk'); HousePause.close()}); }
+// (walking puts the eye at the standing height at once, still looking at the target, so a press lands where it was aimed)
+async function aim(eye, target, level='U') { await view(eye, target, {level}); await p.evaluate(t => {House.hush(); House._.setMode('walk'); HousePause.close();const P=House.P,W=House.W;if(!W.seat){W.eyeNow=W.eye;P.y=W.fy-W.eye;P.rx=Math.atan2(-(t[1]-P.y),Math.hypot(t[0]-P.x,t[2]-P.z))*180/Math.PI;P.ry=Math.atan2(t[0]-P.x,-(t[2]-P.z))*180/Math.PI;House.dirty()}}, target); }
 async function waitStep(id) { await wait(p,id => !!st.getState()?.done[id],id,20000); }
 async function dropIn(id, snap) {
   const s = await p.evaluate(snap => {const s=House.SNAPS[snap];return {x:s.x,y:s.y,z:s.z,room:s.room,bz1:House.ROOMS[s.room].bz1}}, snap);
@@ -162,9 +164,10 @@ try {
   }
   }
   if(stage!=='first'){
-  await aim([488,225,735],[488,272,830],'G'); // behind Dad's car, looking down at the boot lid (House.ROOMS.drive.carFrame)
+  const carFrame=await p.evaluate(()=>House.ROOMS.drive.carFrame);
+  await aim([carFrame.x,225,carFrame.z-245],[carFrame.x,272,carFrame.z-150],'G'); // behind the actual car frame, looking down at the boot lid
   await waitStep('dad'); await p.waitForTimeout(700);await shot('07-dad-car');
-  await p.keyboard.press('f');await waitStep('boot');await p.waitForTimeout(800);await shot('08-boot-open');await aim([440,245,735],[488,300,840],'G');await shot('08b-boot-wide');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);await shot('08c-boot-shut');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);
+  await p.keyboard.press('f');await waitStep('boot');await p.waitForTimeout(800);await shot('08-boot-open');await aim([carFrame.x-48,245,carFrame.z-245],[carFrame.x,300,carFrame.z-140],'G');await shot('08b-boot-wide');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);await shot('08c-boot-shut');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);
   async function walkDistance(){
     await aim([110,-55,160],[110,-55,50]);const z=await p.evaluate(()=>House.W.z);
     await p.keyboard.down('w');await p.waitForTimeout(450);await p.keyboard.up('w');
@@ -252,11 +255,28 @@ try {
   // diary, and (like any refresh) never rewrites the saved standing pose or the PC's power state.
   const mobile = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120.0 Mobile Safari/537.36',storageState});
   const mp = await mobile.newPage(); mp.on('pageerror',e=>errors.push(e.message));
+  // Wait for the real profile handshake, including the import-and-reload path.
+  // House readiness can briefly become true before a slower profile download finishes.
+  await mp.addInitScript(() => {
+    const bind = () => {
+      if (!window.Net?.on) { setTimeout(bind, 0); return; }
+      Net.on('rmSame', () => { window.__testProfileReady = true; });
+      Net.on('rmNone', () => { window.__testProfileReady = true; });
+      Net.on('rmData', () => { window.__testProfileReady = false; });
+    };
+    bind();
+  });
   const kept = () => [JSON.parse(localStorage.getItem('jhp_hs_stand')||'null')?.p||null, localStorage.getItem('jhp_off')];
-  await mp.goto(base,{waitUntil:'domcontentloaded'});
-  await wait(mp,() => window.AccountGate?.allowed&&window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!!window.st?.getState()&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
+  await mp.goto(base,{waitUntil:'domcontentloaded',timeout:90000*SCALE});
+  await wait(mp,() => window.__testProfileReady&&window.AccountGate?.allowed&&window.House?.live&&!window.PCOnly?.desktopOnly&&window.GameInput?.touch&&!!window.st?.getState()&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
   // The phone may have reloaded once to bring the desktop's latest profile down; from here on nothing may change it.
-  await mp.waitForTimeout(1500); await wait(mp,() => window.House?.live&&!document.querySelector('.hs-loading,#houseEntry'),null,60000);
+  // Settled means: ready, and still the same document three seconds later (a roam reload replaces it).
+  for (let i = 0; i < 6; i++) {
+    await wait(mp,() => window.AccountGate?.allowed&&window.House?.live&&!!window.st?.getState()&&!document.querySelector('.hs-loading,#houseEntry'),null,60000);
+    await mp.evaluate(() => { window.__settled = 1; }).catch(() => {});
+    await mp.waitForTimeout(3000);
+    if (await mp.evaluate(() => window.__settled === 1 && !!window.st?.getState()).catch(() => false)) break;
+  }
   const mobileHouse = await mp.evaluate(kept);
   assert.equal(await mp.evaluate(() => st.getState().ch), 2);
   await mp.evaluate(() => { if (!window.Magazines?.reading) House.interact('st.diary'); }); await wait(mp,() => window.Magazines?.reading?.id==='st.diary',null,30000);
@@ -271,7 +291,7 @@ try {
   const registration = await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name:veteran,pass:password})});
   assert.equal(registration.status,200);
   const vp = await browser.newPage({viewport:{width:1366,height:860}});vp.on('pageerror',e=>errors.push(e.message));
-  await vp.goto(base,{waitUntil:'domcontentloaded'});await vp.waitForSelector('#accountGate');
+  await vp.goto(base,{waitUntil:'domcontentloaded',timeout:90000*SCALE});await vp.waitForSelector('#accountGate');
   await vp.locator('[name=name]').fill(veteran);await vp.locator('[name=password]').fill(password);await vp.locator('#accountGate [type=submit]').click();for(let i=0;i<100&&!(await vp.evaluate(()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst')));i++)await vp.waitForTimeout(200);if(await vp.locator('#accountFirst').count())await vp.locator('#accountGate [type=submit]').click();
   await wait(vp,() => window.House?.live&&House.mode==='monitor'&&window.PMGL?.built&&window.st?.getState()?.flags.veteran&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
   assert.equal(await vp.evaluate(() => st.objectives().some(s => s.key === 'story')),false);assert.equal(await vp.evaluate(() => !!House.THINGS['st.diary']),false);

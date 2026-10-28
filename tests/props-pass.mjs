@@ -37,11 +37,11 @@ try {
   await p.waitForTimeout(1200);
   await view([10, FY - 34, 95], [10, FY - 2, 165]); await shot('01-clothes-close');
   await view([10, FY - 30, 245], [10, FY - 2, 175]); await shot('02-rubbish-close');
-  await view([10, FY - 150, 70], [10, FY, 175]); await shot('03-floor-distance');
+  await view([10, FY - 143, 70], [10, FY, 175]); await shot('03-floor-distance');
   await view([-40, FY - 22, 205], [-40, FY - 2, 178]); await shot('04-rubbish-macro');
   await view([-20, FY - 22, 125], [-20, FY - 2, 152]); await shot('05-clothes-macro');
   // carrying: socks to the washing basket
-  const look = (x, z, tx, ty, tz) => p.evaluate(({x, z, tx, ty, tz}) => { House.hush(); House.cancelGlide(true); const y = House.LV.U - 128; House.setWalkFrom({x, y, z, lvl: 'U', seat: 0}); House.W.vx = House.W.vz = 0; Object.assign(House.P, {x, z, y, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI}); House._.setMode('walk'); House.dirty(); }, {x, z, tx, ty, tz});
+  const look = (x, z, tx, ty, tz) => p.evaluate(({x, z, tx, ty, tz}) => { House.hush(); House.cancelGlide(true); const y = House.LV.U - House.STAND; House.setWalkFrom({x, y, z, lvl: 'U', seat: 0}); House.W.vx = House.W.vz = 0; Object.assign(House.P, {x, z, y, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI}); House._.setMode('walk'); House.dirty(); }, {x, z, tx, ty, tz});
   const carry = async id => { await p.evaluate(id => { if (House.held()) House.putBack(); House.THINGS[id].canGrab = null; House.grab(id); }, id); await until(() => !!House.held()); await p.waitForTimeout(400); };
   const g = () => p.evaluate(() => { const g = House.ghost(); return g && {ok: g.ok, why: g.why, snap: g.snap && g.snap.id}; });
   await carry('ch.m.socks');
@@ -69,7 +69,7 @@ try {
   }, FY);
   await p.waitForTimeout(800);
   await view([-12, FY - 30, 78], [-12, FY - 4, 120]); await shot('06-ball-crisps-close');
-  await view([-12, FY - 140, 20], [-12, FY, 120]); await shot('07-ball-crisps-floor');
+  await view([-12, FY - 143, 20], [-12, FY, 120]); await shot('07-ball-crisps-floor');
   // kick the ball: it must roll (its panels turn with it)
   const roll = await p.evaluate(async () => { const t = House.THINGS.football, q0 = t.spin.quaternion.clone(), x0 = t.at.x, z0 = t.at.z, b = House.physics.body('football'); b.vx = 420; b.vz = 60; House.physics.wake('football'); await new Promise(r => setTimeout(r, 2500)); return {angle: q0.angleTo(t.spin.quaternion), moved: Math.hypot(t.at.x - x0, t.at.z - z0)}; });
   console.log('ball roll', JSON.stringify(roll)); assert(roll.moved > 3 && roll.angle > 0.2, 'The football should turn by distance / radius as it rolls: ' + JSON.stringify(roll));
@@ -77,11 +77,11 @@ try {
   const cat = await p.evaluate(() => { const c = House.SPOTS.cat.obj, t = c.userData.tree; return {top: t.top, den: t.den, x: c.position.x, y: c.position.y, z: c.position.z}; });
   console.log('cat', JSON.stringify(cat));
   const catAt = (pos, pose, ry) => p.evaluate(({pos, pose, ry}) => { const c = House.SPOTS.cat.obj; c.position.set(pos.x, pos.y, pos.z); c.rotation.y = ry * Math.PI / 180; c.userData.pose(pose, 400); House.dirty(); }, {pos, pose, ry});
-  await catAt(cat.top, 'sit', -110); await view([-10, FY - 150, 110], [-94, FY - 55, 224]); await shot('20-cat-tree');
+  await catAt(cat.top, 'sit', -110); await view([-10, FY - 143, 110], [-94, FY - 55, 224]); await shot('20-cat-tree');
   await view([-55, FY - 122, 165], [-90, FY - 108, 218]); await shot('21-cat-top-sit');
   await catAt(cat.top, 'sleep', -110); await shot('22-cat-top-sleep');
   await catAt(cat.den, 'sleep', -90); await view([-86, FY - 24, 160], [-88, FY - 12, 218]); await shot('23-cat-den');
-  await view([-160, FY - 140, 120], [-94, FY - 50, 224]); await shot('24-cat-tree-side');
+  await view([-160, FY - 143, 120], [-94, FY - 50, 224]); await shot('24-cat-tree-side');
   for (const [k, pose] of ['sit', 'stretch', 'walk', 'eat', 'sleep'].entries()) { await catAt({x: -40, y: FY, z: 150}, pose, -90); await view([-40, FY - 32, 95], [-40, FY - 12, 150]); await shot('3' + k + '-cat-' + pose); }
   const tri = await p.evaluate(() => { const out = {}; const objs = Object.fromEntries(Object.keys(House.THINGS).filter(k => /^ch\.m\.|^ch\.pjs$|^hw\.paper$|^football$/.test(k)).map(k => [k, House.THINGS[k].obj])); objs.cat = House.SPOTS.cat.obj; objs.crispsFull = window.__full;
     for (const [k, obj] of Object.entries(objs)) { let n = 0, d = 0; obj.traverse(o => { if (o.isMesh && o.geometry) { const g = o.geometry; n += (g.index ? g.index.count : g.attributes.position.count) / 3; d++; } }); out[k] = [Math.round(n), d]; } return out; });

@@ -337,7 +337,7 @@
     },
     drive(r, P) {
       const B = K.into(P.all.batch);
-      pumpkinStatic(B, 632, GY - 89, FZ() - 5, .7, 200, 'lantern'); // on the gateway pier
+      pumpkinStatic(B, H.FRONT?.PIERS?.[2] ?? 636.5, GY - (H.FRONT?.PIER_TOP ?? 124), FZ() - 5, .7, 200, 'lantern'); // on the gateway pier
       turnip(B, -112, 298, 708.5, 10); pumpkinStatic(B, -14, 298, 708.5, .55, -10, 'lantern2', .5); pumpkinStatic(B, 30, 298, 709, .42, 20, 'plain', .5);
       gravestone(B, 74, GY + .4, 846, 40); sheetGhost(B, -96, GY + .4, 914, 25);
       bat(B, 300, GY - 205, 712, .9, 180, 8);
@@ -663,7 +663,7 @@
     pk.root.scale.set(1, phase === 'tail' ? .86 : 1, 1); pk.mSkin.color.set(phase === 'tail' ? '#c8b8a0' : '#ffffff');
     H.dirty();
   }
-  const STEP = { x: 236, y: GY - 89, z: FZ() - 5, ry: -140 }; // the gatepost (the pier by the front gate): everyone coming up the path sees it
+  const STEP = { x: H.FRONT?.PIERS?.[0] ?? 231.5, y: GY - (H.FRONT?.PIER_TOP ?? 124), z: FZ() - 5, ry: -140 }; // the gatepost (the pier by the front gate): everyone coming up the path sees it
   function makeLantern() {
     if (!pk) return;
     pk.root.parent?.remove(pk.root); pk.root.position.set(0, 0, 0); pk.root.rotation.set(0, 0, 0);

@@ -1,5 +1,5 @@
 // House scale survey: eye-height captures of every room, the stairs both ways, the drive and the street.
-// node tests/house-scale.mjs http://localhost:PORT before|after [--tier=low|medium|high] [--only=name,name]
+// node tests/house-scale.mjs http://localhost:PORT before|after [--tier=low|medium|high] [--only=name,name] [--eye=143] [--width=1366 --height=860]
 import {mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
@@ -9,7 +9,8 @@ const only=process.argv.find(a=>a.startsWith('--only='))?.slice(7)?.split(',');
 if(!/^[\w-]+$/.test(tag))throw Error('bad tag');
 const dir=fileURLToPath(new URL('./shots/house-scale/'+tag+'/',import.meta.url));
 await mkdir(dir,{recursive:true});
-const UE=73-158,GE=353-158,CE=353-112;
+const EYE=+(process.argv.find(a=>a.startsWith('--eye='))?.slice(6)||143); // the live standing eye (hs-world.js STAND)
+const UE=73-EYE,GE=353-EYE,CE=353-112;
 // [name, level, eye, target]
 const VIEWS=[
  ['bedroom-door','U',[225,UE,215],[-220,40,-20]],
@@ -38,9 +39,20 @@ const VIEWS=[
  ['street-wide','G',[-300,GE,1000],[400,180,800]],
  ['drive-overhead','G',[250,-900,1010],[250,353,1011]],
  ['street-opposite','G',[150,GE,1360],[300,150,800]],
- ['car-rear-boot','G',[380,GE,740],[488,260,900]],
+ ['car-rear-boot','G',[380,GE,760],[500,260,990]],
+ ['front-step','G',[300,GE,760],[520,250,1000]],
+ // round 2: the street carries on both ways, the crossroads and the corner shop, the far end of the back road
+ ['street-east','G',[700,GE,1430],[3000,250,1520]],
+ ['street-west','G',[-330,GE,1430],[-3000,250,1520]],
+ ['street-across','G',[300,GE,1430],[300,220,2400]],
+ ['front-wall-hedge','G',[-150,GE,1100],[-150,250,1300]],
+ ['garden-far','G',[0,GE,-300],[-600,-120,-2400]],
+ ['lounge-from-door','G',[188,GE,520],[-280,270,470]],
+ ['lounge-to-window','G',[-60,GE,375],[-60,250,700]],
+ ['lounge-fire','G',[95,GE,521],[-280,290,500]],
 ];
-const fx=await roomFixture(base,{tier,opening:true,account:'Scale'+Date.now().toString(36)});
+const W=+(process.argv.find(a=>a.startsWith('--width='))?.slice(8)||1366),Hh=+(process.argv.find(a=>a.startsWith('--height='))?.slice(9)||860);
+const fx=await roomFixture(base,{tier,opening:true,width:W,height:Hh,touch:W<800,account:'Scale'+Date.now().toString(36)});
 const {page:p,view,errors}=fx;
 const report=[];
 try{
@@ -49,7 +61,7 @@ try{
  for(const [name,lvl,eye,target] of VIEWS){
   if(only&&!only.includes(name))continue;
   await view(eye,target,{level:lvl});await p.waitForTimeout(700);
-  await p.screenshot({path:dir+tier+'-'+name+'.png'});
+  await p.screenshot({path:dir+tier+(W<800?'-phone':'')+'-'+name+'.png'});
   report.push({name,lvl,eye,target,room:await p.evaluate(()=>House.W?.room||House.cur?.id||null)});
   console.log('SHOT',name);
  }

@@ -10,7 +10,7 @@
   'use strict';
   const H = window.House;
   if (!H || !H.ok || window.NPCNav) return;
-  const GR = { x0: -360, z0: -600, cs: 5, nx: 220, nz: 400 } /* x -360..740, z -600..1400: the whole plot, front pavement included */, NEED = 25.5, CHECK = 25, D2R = Math.PI / 180;
+  const GR = { x0: -360, z0: -600, cs: 5, nx: 220, nz: Math.ceil((H.FRONT.STREET.pave[1]+600)/5) } /* x -360..740, z through the shared front pavement */, NEED = 25.5, CHECK = 25, D2R = Math.PI / 180;
   const STAIR = { x: 371.5, top: 214, bottom: 634, z0: 250, z1: 600 }; // walk down the middle of the flight
   const field = { U: null, G: null }, sig = { v: '' };
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;

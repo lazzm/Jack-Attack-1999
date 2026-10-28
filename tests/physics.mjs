@@ -41,7 +41,7 @@ try {
   const fast = on => p.evaluate(on => { House.ren.setPixelRatio(on ? .5 : 1); House.dirty(); }, on);
   // stand on a floor and look at a point (no walking): the same pose helper the story test uses
   async function look(x, z, tx, ty, tz, lvl = 'U') {
-    await p.evaluate(({x, z, tx, ty, tz, lvl}) => { House.hush(); House.cancelGlide(true); const y = House.LV[lvl] - 128; House.setWalkFrom({x, y, z, lvl, seat: 0}); House.W.vx = House.W.vz = 0; Object.assign(House.P, {x, z, y, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI}); House._.setMode('walk'); House.dirty(); }, {x, z, tx, ty, tz, lvl});
+    await p.evaluate(({x, z, tx, ty, tz, lvl}) => { House.hush(); House.cancelGlide(true); const y = House.LV[lvl] - (House.STAND || 128); House.setWalkFrom({x, y, z, lvl, seat: 0}); House.W.vx = House.W.vz = 0; Object.assign(House.P, {x, z, y, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI}); House._.setMode('walk'); House.dirty(); }, {x, z, tx, ty, tz, lvl});
     await p.waitForTimeout(350);
   }
   // hold a key for an amount of GAME time (software WebGL runs at a few frames a second; the game clock is what counts)
@@ -196,7 +196,7 @@ try {
     await shot('13-ghost-red');
     // the crosshair is never covered by what you carry (once it has caught up with the view)
     await look(-40, 215, -40, 73, 150); await p.waitForTimeout(2500);
-    const cover = await p.evaluate(() => { const t = House.THINGS[House.held()], o = t.obj; o.updateMatrixWorld(true); const box = new THREE.Box3().setFromObject(o), v = new THREE.Vector3(), cam = House.camera; let y0 = 1e9; for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) { v.set(x, y, z).project(cam); y0 = Math.min(y0, (1 - v.y) / 2 * innerHeight); } return y0 - innerHeight / 2; });
+    const cover = await p.evaluate(() => { const t = House.THINGS[House.held()], o = t.obj; o.updateMatrixWorld(true); const v = new THREE.Vector3(), cam = House.camera; let y0 = 1e9; o.traverseVisible(m => { if (!m.isMesh || m.userData.contactShadow) return; const a = m.geometry.attributes.position; for (let i = 0; i < a.count; i++) { v.fromBufferAttribute(a, i).applyMatrix4(m.matrixWorld).project(cam); y0 = Math.min(y0, (1 - v.y) / 2 * innerHeight); } }); return y0 - innerHeight / 2; });
     assert(cover > 2, 'The carried box covers the crosshair (top edge ' + cover.toFixed(1) + ' px below centre)');
   });
 
