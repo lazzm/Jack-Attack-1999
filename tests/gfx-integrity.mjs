@@ -2,7 +2,9 @@
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {roomFixture} from './room-fixture.mjs';
-const f=await roomFixture(process.argv[2],{timeoutScale:4}),{page:p,errors}=f;
+const base=process.argv[2],account='Gi'+Date.now().toString(36),password='Throwaway-1999';
+assert((await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
+const f=await roomFixture(base,{account,password,signup:false,timeoutScale:4,debug:true}),{page:p,errors}=f;
 p.setDefaultTimeout(180000);const dir=new URL('shots/gfx-lighting/',import.meta.url).pathname;await mkdir(dir,{recursive:true});
 try{
  const result=await p.evaluate(()=>{
