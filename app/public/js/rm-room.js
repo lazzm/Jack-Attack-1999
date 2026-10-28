@@ -705,7 +705,7 @@
     }
     RK.shadow(0, 0, 0, 36, 26, 0.7, { sq: true });
     if(sparseStarter)buildStarterClutter(r);
-    H.spot('rack', { label: 'Game shelf', obj: rk }); H.block('U', TX - 74, -56, TX - 38, -31);
+    H.spot('rack', { label: 'Game shelf', obj: rk, touchFallback: true }); H.block('U', TX - 74, -56, TX - 38, -31);
     H.support('bedroom', TX - 72.6, -55, TX - 39.4, -33, FY - 81.1, { thick: 1.2 }); // the rack's top (the VCR stands on it)
     if (H.solid) { for (const x of [TX - 72.6, TX - 40.6]) H.solid('U', x, -55, x + 1.2, -33, FY - 80.5, FY + 1, { kind: 'rack' }); H.solid('U', TX - 23, -53, TX + 23, -25, -6.6, 27.4, { kind: 'telly' }); }
     H.block('U', TX - 38, -60, TX + 38, -11); // the cabinet

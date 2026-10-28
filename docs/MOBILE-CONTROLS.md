@@ -54,9 +54,9 @@ tuned below by measurement.
 | Problem (measured or found in code) | Fix |
 | --- | --- |
 | Phones run Potato capped at 30 Hz: look and walking visibly step on a phone that could hold 60 | `hs-world.js`: phones on Potato start at 60 Hz; if the measured rate falls under 50 twice in a row they lock to 30 (stable), and retry 60 after 30 s when frames are cheap. `House.perf().cap` reports it |
-| Buttons fired on `click`: a thumb that rolled a few px (click slop) or a second finger made presses vanish ("buttons not working") | HUD buttons act on `pointerdown` with pointer capture, a pressed look and a short buzz; keyboard clicks still work, a pointer's own trailing click is ignored |
+| Buttons fired on `click`: a thumb that rolled a few px (click slop) or a second finger made presses vanish ("buttons not working") | HUD buttons act on `pointerdown` with pointer capture, a pressed look and a short buzz; keyboard clicks still work, a pointer's own trailing click is ignored by click detail, including long holds; keyboard/switch activation remains available immediately |
 | `touch-action: manipulation` on buttons let a rolling thumb pan or start pull-to-refresh; text selection and long-press callouts on Android | `overscroll-behavior: none` on html/body for handhelds; buttons `touch-action: none`; no user-select/callout while walking |
-| Taps had to land exactly on a thing (small things on a 412 px screen are 20-40 px) | Aim assist: exact point first, else the nearest of 16 samples on rings of 14 and 28 px (a fingertip is ~35 px) finds the thing in reach; the click happens there. Measured hit rate round the puzzle cube: 100 % at 0/12/24 px, 88 % at 34 px, 63 % at 48 px |
+| Taps had to land exactly on a thing (small things on a 412 px screen are 20-40 px) | Aim assist: exact point first, else the nearest of 16 samples on rings of 14 and 28 px (a fingertip is ~35 px) finds the thing in reach; the click happens there. Measured hit rate round the puzzle cube: 100 % at 0/12/24 px, 38 % at 34 px, 0 % at 48 px at the shipped wider lens |
 | Look speed ~95 deg per screen width with up to 2.3x acceleration: slow, and the same drag turned by different amounts | 150 deg across the short side, acceleration capped at 1.5x for flicks (1x below 0.5 px/ms). Measured: a 200 px drag turns 70 deg slow, 82 deg quick |
 | Stick output linear after the dead zone | Gentle curve (power 1.35): measured 0 / 0 / 21 / 43 / 87 / 138 cm/s at 10 / 20 / 35 / 50 / 75 / 100 % deflection, 205 cm/s (jog) past the rim |
 | A second finger resting on the look side was ignored for the rest of its touch | It takes over the look when the first finger lifts (measured: 50 deg turn from the second finger) |
@@ -79,3 +79,13 @@ that holds 60 keeps it.
 
 Not done (and why): orientation lock (needs fullscreen; the game already plays in both orientations); gyro look (not
 1999, and a motion-permission prompt on iOS); `getCoalescedEvents` (look sums deltas, so merged samples lose nothing).
+
+## Manager verification, 28 October
+
+Primary documentation checked for this release: [W3C target size](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html) defines the enhanced 44 CSS-pixel target; [Chrome overscroll guidance](https://developer.chrome.com/blog/overscroll-behavior) explains pull-to-refresh control; [MDN touch-action](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/touch-action) and [pointercancel](https://developer.mozilla.org/en-US/docs/Web/API/Element/pointercancel_event) explain browser gesture ownership and cancellation. The numerical stick/look curves above are game tuning choices measured by our fixtures, rather than standards requirements. The earlier community reading list is historical research, not an independent claim of studio best practice.
+
+Main through 2.57.14 is merged, preserving hands, coach persistence, family personal space, lens and expanded-plot migrations. The coach now also waits for the actual `.rm-note` and discovery toast, and yields visually if a new message arrives while it is visible. Portrait discovery toasts start below the objective. Physical Android/Edge behavior and perceived feel still need Jack's hardware review; software Chromium captures cannot establish real phone frame rate.
+
+The software-host run surfaced the intentional slow-device choice over an item press. General phone fixtures now remember the retained-house preference; the smallest-phone scenario separately forces the real choice and presses Keep the house, asserting pose/mode preservation. No hit-test assertion is relaxed.
+
+A 360 px case press exposed a real shelf conflict: the narrow spine's surrounding rack help won after subpixel finger rounding. The rack now marks its general help as a fallback; nearby visible cases win, while exact doors/people keep priority. A production-picker unit covers case priority, empty shelf help, direct door presses, wall occlusion and reach. The capture helper now uses House.STAND instead of easing from the old eye height.

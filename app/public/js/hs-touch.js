@@ -166,15 +166,20 @@
   const RING = [[0, 0]]; for (const r of [14, 28]) for (let i = 0; i < 8; i++) RING.push([Math.cos(i * Math.PI / 4 + (r > 14 ? Math.PI / 8 : 0)) * r, Math.sin(i * Math.PI / 4 + (r > 14 ? Math.PI / 8 : 0)) * r]);
   function aimPoint(x, y) {
     if (H.busy) return null;
-    let h = null, px = x, py = y, far = null;
+    let h = null, px = x, py = y, far = null, fallback = null;
     try {
       for (const [ox, oy] of RING) {
         const q = H.pick(x + ox, y + oy), s = q && q.spot && H.SPOTS[q.spot];
         if (!s || s.off) continue;
-        if (q.dist <= s.range) { h = q; px = x + ox; py = y + oy; break; }
+        if (q.dist <= s.range) {
+          // The rack's help surface surrounds tiny spines. A visible nearby case wins over general shelf help.
+          if (s.touchFallback) { if (!fallback) fallback = { q, x:x+ox, y:y+oy }; continue; }
+          h = q; px = x + ox; py = y + oy; break;
+        }
         if (!far && !ox && !oy) far = q; // (the thing right under the finger, out of reach: say so)
       }
     } catch (e) { return null; }
+    if (!h && fallback) { h = fallback.q; px = fallback.x; py = fallback.y; }
     if (!h) h = far; if (!h) return null;
     const s = H.SPOTS[h.spot];
     const label = short(typeof s.label === 'function' ? s.label() : s.label), t = H.THINGS[s.id];
@@ -199,7 +204,7 @@
       if (H.held()) { ls.set('jhp_touch_coach', true); return; }
       if (coachEl || ls.get('jhp_touch_coach', false)) return;
       // one thing to read at a time: wait while someone is talking or a note is up (up to half a minute)
-      if (document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on') && (coachWait = (coachWait || 0) + 1) < 30) { setTimeout(() => { if (st === 'walk') coach(true); }, 1000); return; }
+      if (document.querySelector('.rm-note.on,.rm-toast.on,.hs-voice.on,.hs-call.on') && (coachWait = (coachWait || 0) + 1) < 30) { setTimeout(() => { if (st === 'walk') coach(true); }, 1000); return; }
       coachEl = document.createElement('div'); coachEl.className = 'ht-coach'; coachEl.setAttribute('role', 'note');
       coachEl.innerHTML = '<div class="ht-coach-card"><b>HOW TO PLAY</b><p><i>LEFT THUMB</i>walk: put it down anywhere on the left and slide it (further to jog)</p><p><i>RIGHT SIDE</i>drag to look round</p><p><i>CLICK THINGS</i>to use them: doors, people, games. The big button uses what is in the middle.</p></div>';
       hud.appendChild(coachEl); setTimeout(() => coach(false), 14000); return;
@@ -224,7 +229,6 @@
     }
     lastKey = ''; setTimeout(render, 60); setTimeout(render, 260);
   }
-  let firedAt = 0;
   for (const box of [acts, top]) {
     box.addEventListener('pointerdown', ev => {
       const b = ev.target.closest('button[data-k]'); if (!b) return; ev.preventDefault();
@@ -232,12 +236,11 @@
       b.classList.add('ht-press'); try { b.setPointerCapture(ev.pointerId); } catch (e) {}
       const up = () => { b.classList.remove('ht-press'); b.removeEventListener('pointerup', up); b.removeEventListener('pointercancel', up); b.removeEventListener('lostpointercapture', up); };
       b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
-      firedAt = performance.now(); buzz(); doAction(b.dataset.k);
+      buzz(); doAction(b.dataset.k);
     });
-    // keyboard / switch access still clicks; a pointer's own click after its press is ignored
-    // (the buttons are re-drawn after an action, so that click may land on a fresh button in the same place: any click
-    // within 800 ms of a press is that press's own and is ignored)
-    box.addEventListener('click', ev => { const b = ev.target.closest('button[data-k]'); if (!b || b.disabled) return; ev.preventDefault(); if (performance.now() - firedAt < 800) return; doAction(b.dataset.k); });
+    // A pointer already acted on down, even if it stayed held for a long time or the HUD re-rendered.
+    // Keyboard and switch activation have zero click detail and must remain usable immediately afterwards.
+    box.addEventListener('click', ev => { const b = ev.target.closest('button[data-k]'); if (!b || b.disabled) return; ev.preventDefault(); if (ev.detail !== 0) return; doAction(b.dataset.k); });
   }
   const btn = (k, icon, label, cls = '', disabled = false) => `<button type="button" class="ht-b ${cls}" data-k="${k}"${disabled ? ' disabled' : ''} aria-label="${esc(label)}">${ICON[icon]}<span>${esc(label)}</span></button>`;
   // A spot's own label is a name ("Band poster"); the button wants a verb. Labels that already start with one keep it.

@@ -427,3 +427,11 @@ Approved front-plot regression (disposable localhost server and veteran fixtures
     node neighbourhood-geometry.cjs
 
 The front test sends real phone finger input behind the open boot and ahead of the car, checks both pavement grids, then refreshes and rotates with pose/power/boot assertions. CSP-safe polling uses page.evaluate rather than string evaluation. The save test checks roof contact and placement metadata over repeat refreshes. Unit checks cover migration versions 0..6 and completed mowing-strip extension. `front-clearance-preview.mjs` renders matched six/seven-metre browser-only comparisons; Jack approved seven metres on 28 October.
+
+Mobile control feel and message stacking (real CDP fingers, disposable server/data):
+
+    node tests/mobile.mjs --only=feel,small
+    node tests/mobile-frame-unit.cjs
+    node tests/touch-picking-unit.cjs
+
+Run these two commands from the repository root. Feel checks measure stick deflection, slow/quick look, selection tolerance, second-finger takeover, close-up turn/zoom and a rolling long button press. Small-phone checks capture discovery/objective/coach stacking and fail on overlap. Frame-unit checks exercise sustained 60, slow-device fallback and cooldown, plus idle/covered/desktop isolation. Software WebGL measurements do not establish physical phone performance.

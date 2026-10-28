@@ -83,6 +83,9 @@ async function phone(profile, { tier = null, hour = 14 } = {}) {
   });
   await page.addInitScript(({ tier, hour }) => {
     if (tier) localStorage.setItem('jhp_hs_gfx', JSON.stringify(tier));
+    // The software host can offer its slow-device choice during a long fixture. Use the retained-house preference;
+    // small() explicitly exercises that real choice so an unrelated action is never covered by a surprise dialog.
+    localStorage.setItem('jhp_touch_slow_asked', 'true');
     window.auditHour = hour; Date.prototype.getHours = () => window.auditHour; Date.prototype.getMinutes = () => 0;
   }, { tier, hour });
   const cdp = await ctx.newCDPSession(page);
@@ -140,6 +143,8 @@ async function logon(p, acct, { signup = false, first = '' } = {}) {
 // Point the camera with the scene API (like the smoke fixture); every interaction after that is a real finger.
 async function aimAt(p, eye, target, level = 'U') {
   await p.page.evaluate(({ eye, target, level }) => {
+    // Capture the shipped standing eye, rather than easing up from the old 128 cm fixture height.
+    eye = [eye[0], House.LV[level] - House.STAND, eye[2]];
     House.hush(); House.setWalkFrom({ x: eye[0], y: eye[1], z: eye[2], lvl: level, seat: 0 });
     const [x, y, z] = eye, [tx, ty, tz] = target;
     Object.assign(House.P, { x, y, z, rx: Math.atan2(-(ty - y), Math.hypot(tx - x, tz - z)) * 180 / Math.PI, ry: Math.atan2(tx - x, -(tz - z)) * 180 / Math.PI, lvl: level, seat: 0 });
@@ -538,6 +543,22 @@ const phases = {
       await until(() => House.desktopDisplay(), null, 30000); await page.waitForTimeout(800); await shot('small-01-jackos'); await layoutAudit(p, 'small jackos');
       await press('stand'); await until(() => House.mode === 'walk' && !House.gliding, null, 30000); await page.waitForTimeout(1500);
       await shot('small-02-house-coach'); await layoutAudit(p, 'small house');
+      // R107: a discovery during first-time instruction yields the coach and stays below the live objective.
+      await page.evaluate(() => House.toast('SECRET FOUND', 'A little discovery')); await sleep(400);
+      const banners = await page.evaluate(() => {
+        const visible = e => { for (let p = e; p; p = p.parentElement) { const s = getComputedStyle(p); if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity === 0) return false; } return !!e.getBoundingClientRect().width; };
+        const box = e => { const r = e.getBoundingClientRect(); return { x:r.x,y:r.y,right:r.right,bottom:r.bottom }; };
+        const toast = document.querySelector('.hs-ui .rm-toast.on');
+        return { toast: toast && box(toast), coach: [...document.querySelectorAll('.ht-coach-card')].some(visible), objectives: [...document.querySelectorAll('.st-objective,.se-objective')].filter(visible).map(box) };
+      });
+      assert(banners.toast, 'Discovery toast missing'); assert(!banners.coach, 'Coach competes with discovery');
+      for (const r of banners.objectives) assert(banners.toast.y >= r.bottom + 4, 'Discovery overlaps objective: ' + JSON.stringify(banners));
+      report.checks.push({label:'small discovery stacking',...banners}); await shot('small-02-discovery');
+
+      const beforeChoice = await page.evaluate(() => { const p = [House.W.x,House.W.z]; HouseTouch._slowOffer(150); return p; });
+      await until(() => !!document.querySelector('.ht-slow')); await shot('small-02-slow-choice');
+      await press('.ht-slow [data-v="house"]'); await until(() => !document.querySelector('.ht-slow'));
+      assert(await page.evaluate(p => House.mode === 'walk' && !PCOnly.desktopOnly && Math.hypot(House.W.x-p[0],House.W.z-p[1]) < 1, beforeChoice), 'Keep-house choice changed pose or mode');
       const { width: w, height: h } = V(p), x0 = await page.evaluate(() => [House.W.x, House.W.z]);
       await fingers.down(1, 80, h - 150); await fingers.move(1, 80, h - 215); await sleep(800); await fingers.up(1);
       await fingers.drag(2, w - 90, h * .45, w - 200, h * .45, 500);
@@ -625,7 +646,7 @@ const phases = {
       // a thumb that rolls 16 px while pressing Crouch still presses it
       const cr0 = await page.evaluate(() => !!House._.movementState().keys.crouch);
       const cb = await page.evaluate(() => { const r = document.querySelector('.ht-hud [data-k="crouch"]').getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
-      await fingers.down(6, cb.x, cb.y); await fingers.move(6, cb.x + 10, cb.y - 8); await fingers.move(6, cb.x + 16, cb.y - 10); await fingers.up(6); await sleep(200);
+      await fingers.down(6, cb.x, cb.y); await fingers.move(6, cb.x + 10, cb.y - 8); await fingers.move(6, cb.x + 16, cb.y - 10); await sleep(1000); await fingers.up(6); await sleep(200);
       const cr1 = await page.evaluate(() => !!House._.movementState().keys.crouch); feel.rollingPress = cr0 !== cr1;
       assert(cr0 !== cr1, 'A rolling thumb on Crouch was lost'); await press('crouch');
       // frame cap and a recorded touch path: walk forward while turning right, sampled every 100 ms
