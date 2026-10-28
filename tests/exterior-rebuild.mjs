@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict';import {mkdir}from'node:fs/promises';import {roomFixture}from'./room-fixture.mjs';
+import assert from 'node:assert/strict';import {mkdir}from'node:fs/promises';import {provisionedRoom as roomFixture}from'./provisioned-room.mjs';
 await mkdir('shots/exterior',{recursive:true});const f=await roomFixture(process.argv[2]),{page:p,until,errors}=f;
 const shot=n=>p.screenshot({path:'shots/exterior/'+n+'.png'});
 const mask=()=>p.evaluate(()=>ChoreKit.S.v.lawn?.cut||'');
@@ -22,6 +22,6 @@ try{
  await p.keyboard.down('w');await p.waitForTimeout(1400);await p.keyboard.up('w');assert(await p.evaluate(()=>ChoreKit.tool.cur.obj.position.z>=729),'Mower nose crossed the wall clearance');const wallZ=await p.evaluate(()=>House.W.z);await p.keyboard.down('s');await p.waitForTimeout(350);await p.keyboard.up('s');assert(await p.evaluate(z=>House.W.z>z+10,wallZ),'Cannot back away with mower');await shot('mower-wall-clearance');
  await p.keyboard.press('Escape');await until(()=>HousePause.open);const saved=await mask();await p.waitForTimeout(250);assert.equal(await mask(),saved);await p.keyboard.press('Escape');await p.keyboard.press('e');await until(()=>!ChoreKit.tool.cur);await p.evaluate(()=>House.saveWalkState());await shot('mown-path');
  await p.reload({waitUntil:'domcontentloaded'});await until(()=>House.live&&AccountGate.allowed&&!document.querySelector('.hs-loading,#houseEntry')&&window.ChoreKit?.MODS.lawn?._built);assert.equal(await p.evaluate(()=>House.here),'drive');assert.equal(await mask(),saved);await shot('mown-refresh');
- await p.setViewportSize({width:1920,height:1080});await p.evaluate(()=>House.graphicsSet({preset:'high'}));await f.view([300,195,760],[240,190,1450],{roomPoint:[300,195,760],level:'G'});await shot('doorstep-quality');await f.view([120,195,-120],[-120,210,-440],{roomPoint:[120,195,-120],level:'G'});await shot('garden-quality');
+ await p.setViewportSize({width:1920,height:1080});await p.evaluate(()=>House.adapt(0,{pin:true,force:true}));await f.view([300,195,760],[240,190,1450],{roomPoint:[300,195,760],level:'G'});await shot('doorstep-quality');await f.view([120,195,-120],[-120,210,-440],{roomPoint:[120,195,-120],level:'G'});await shot('garden-quality');
  assert.deepEqual(errors,[]);console.log('EXTERIOR PASS: solid roof/turf/blades, multi-angle front/back/town day/night, actual F plug/W mowing/E drop/Esc pause, saved blade heights and cut-mask refresh; zero errors');
 }catch(e){await shot('failure');console.log(await p.evaluate(()=>({mode:House.mode,room:House.here,tool:window.ChoreKit?.tool.cur?.id,plugged:window.ChoreKit?.tool.plugged,errors:window.testErrors})));throw e}finally{await f.browser.close()}

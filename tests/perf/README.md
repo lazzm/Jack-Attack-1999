@@ -1,4 +1,9 @@
-# Stage 0 graphics measurements
+# Graphics measurements
+
+Since 2026-10-27 there is one look (docs/GRAPHICS.md, "One look"): `--tiers` takes `best` (rung 0, the default)
+and `floor` (the last invisible-adaptation rung). MSAA is forced on for SwiftShader runs (`jhp_hs_msaa`) so numbers
+compare with the old High tier; pass `--no-msaa` to measure what a software renderer really draws. The Stage 0 text
+below describes the original tiered matrix.
 
 From the repository root, one command starts its own disposable server on a free
 18080–18099 port, runs the matrix serially, prints a compact table, saves six
@@ -18,9 +23,9 @@ Software timings are comparative diagnostics, not hardware FPS predictions.
 Options (use identical options for a comparison):
 
 ```
-node tests/perf/matrix.mjs --tag=throttled --cpu-rates=4,6 --tiers=potato,low
+node tests/perf/matrix.mjs --tag=throttled --cpu-rates=4,6 --tiers=best,floor
 node tests/perf/matrix.mjs --tag=mesa --backend=llvmpipe --mesa-threads=2
-node tests/perf/matrix.mjs --tag=quick --tiers=low --frames=30 --fill-frames=10 --walk-frames=100
+node tests/perf/matrix.mjs --tag=quick --tiers=best --frames=30 --fill-frames=10 --walk-frames=100
 node tests/perf/backends.mjs
 node tests/perf/check.mjs
 ```
@@ -56,7 +61,7 @@ and every 60 rendered rail frames; a sample at or below 8/255 luminance (above t
 only in the benchmark. They are diagnostic samples, not proof of every pixel in
 every frame. The app's existing black-frame/context watchdog remains active.
 
-`budgets.json` has per-tier, per-canonical-view and per-room whole-visible-scene
+`budgets.json` retains historical resource ceilings (best/floor use the former High ceilings), with per-tier, per-canonical-view and per-room whole-visible-scene
 ceilings for calls, triangles, programs, textures, geometries and referenced RGBA
 texture MB (including mip levels/cube faces). Renderer resource counts are global
 resident counts, not room-local ownership. Every metric fails above its ceiling

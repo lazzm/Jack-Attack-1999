@@ -281,13 +281,15 @@ async function gameLad(p, pre) {
   const colourAt = async (k) => { const q = await page.evaluate(k => RoomTV._dbg().gbScreen(k), k); const buf = await page.screenshot({ clip: { x: Math.max(0, q.x - 3), y: Math.max(0, q.y - 3), width: 6, height: 6 } }); const [c] = await analyseRGB(buf); return { ...q, c }; };
   const pa = await colourAt('a'), pb2 = await colourAt('b'), pd = await colourAt('pad');
   report.checks.push({ label: 'Game Lad button pixels', a: pa, b: pb2, pad: pd });
-  assert(pa.c[0] > 110 && pa.c[0] > pa.c[1] * 2, 'A is not under its projected point: ' + JSON.stringify(pa));
+  const isMagenta=c=>c[0]>60&&c[0]>c[1]*2&&c[0]>c[2]*1.6;
+  assert(isMagenta(pa.c), 'A is not under its projected point: ' + JSON.stringify(pa));
+  assert(isMagenta(pb2.c),'B is not under its projected point: '+JSON.stringify(pb2));
   assert(pd.c[0] < 70 && pd.c[1] < 70, 'D-pad is not under its projected point: ' + JSON.stringify(pd));
   // START, then A, by real fingers
   const gp = async k => page.evaluate(k => RoomTV._dbg().gbScreen(k), k);
   const st0 = await gp('start'); await fingers.down(5, st0.x, st0.y); await sleep(120);
   assert(await page.evaluate(() => RoomTV.dbg().held('start')), 'START on the model did nothing'); await fingers.up(5); await sleep(400);
-  for (let i = 0; i < 3; i++) { const q = await gp('a'); await fingers.down(5, q.x, q.y); await sleep(140); await fingers.up(5); await sleep(500); }
+  for (let i = 0; i < 3; i++) { const q = await gp('a'); await fingers.down(5, q.x, q.y); await sleep(140); assert(await page.evaluate(()=>RoomTV.dbg().held('a')),'A on the model did nothing'); await fingers.up(5); await sleep(500); }
   await shot(pre + '-16-gamelad-after-a');
   // multi-touch: D-pad right held with one thumb while the other presses A; a held direction repeats
   const pd2 = await gp('pad'), right = await page.evaluate(() => { const c = RoomTV._dbg().gbScreen('pad'); const H = House, o = H.THINGS.gb.obj, v = new H.T.Vector3(-1.2, -2.9, 2.4); o.localToWorld(v); v.project(H.camera); const r = H.ren.domElement.getBoundingClientRect(); return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height }; });
@@ -305,7 +307,7 @@ async function gameLad(p, pre) {
   await page.evaluate(() => { const pb = document.getElementById('bootPower'); pb.dataset.oldStyle = pb.getAttribute('style') || ''; pb.style.setProperty('top', '56px', 'important'); pb.style.setProperty('height', (innerHeight - 56) + 'px', 'important'); pb.style.setProperty('bottom', 'auto', 'important'); dispatchEvent(new Event('resize')); });
   await page.waitForTimeout(1500);
   const pa2 = await colourAt('a'); pa2.dbg = await page.evaluate(() => { const c = House.ren.domElement.getBoundingClientRect(), b = document.getElementById('bootPower').getBoundingClientRect(); return { canvas: [c.top, c.height, House.ren.domElement.height], pb: [b.top, b.height], ih: innerHeight, aspect: House.camera.aspect, wh: innerWidth / innerHeight }; }); await page.screenshot({ path: shots + 'full-17b-taller-canvas.png' }); await page.evaluate(() => { const pb = document.getElementById('bootPower'); pb.setAttribute('style', pb.dataset.oldStyle); dispatchEvent(new Event('resize')); });
-  assert(pa2.c[0] > 110 && pa2.c[0] > pa2.c[1] * 2, 'A misplaced when the canvas does not fill the window: ' + JSON.stringify(pa2));
+  assert(isMagenta(pa2.c), 'A misplaced when the canvas does not fill the window: ' + JSON.stringify(pa2));
   await page.waitForTimeout(800);
   // LOCK IN and back (the pad stands in for the hidden moulding), then landscape wings
   await press('.rm-tools .rm-lock'); await until(() => !!document.querySelector('.rm-tvv .rm-pad:not([hidden]) [data-b="a"]'), null, 10000); await page.waitForTimeout(900); await shot(pre + '-18-gamelad-lockin');
@@ -346,9 +348,9 @@ const phases = {
     try {
       const acct = { name: 'Mob' + Date.now().toString(36).slice(-6), pass: 'Throwaway-1999' };
       await logon(p, acct, { signup: true, first: 'story-01-signup' });
-      const info = await page.evaluate(() => ({ tier: House.Q.guess, touch: GameInput.touch, state: document.documentElement.dataset.touchState, handheld: PCOnly.handheld, jackos: PCOnly.desktopOnly }));
+      const info = await page.evaluate(() => ({ tier: House.Q.tier, pr: House.Q.pixelRatio, dpr: devicePixelRatio, touch: GameInput.touch, state: document.documentElement.dataset.touchState, handheld: PCOnly.handheld, jackos: PCOnly.desktopOnly }));
       assert.equal(info.handheld, true); assert.equal(info.jackos, false, 'Phone must get the house'); assert.equal(info.touch, true);
-      assert.equal(info.tier, 'potato', 'Phones start on the Potato tier');
+      assert.equal(info.tier, 'high', 'Phones get the one (best) look'); assert(info.pr >= Math.min(info.dpr, 1.75) * .85 - 1e-6, 'Phone drawing buffer stays sharp: ' + JSON.stringify(info));
       await until(() => House.mode === 'walk' && document.documentElement.dataset.touchState === 'walk', null, 60000);
       await page.waitForTimeout(2500); await shot('story-02-opening'); await notBlack(p, 'opening');
       await layoutAudit(p, 'story opening portrait');
@@ -676,7 +678,7 @@ const phases = {
       await logon(p, acct);
       await until(() => House.mode === 'monitor' && !House.gliding && window.DesktopSurface?.ready(), null, 60000);
       await page.waitForTimeout(1200); await shot('tablet-01-pc'); await layoutAudit(p, 'tablet pc');
-      assert.equal(await page.evaluate(() => House.Q.guess), 'low', 'Tablets start on Low');
+      assert.equal(await page.evaluate(() => House.Q.tier), 'high', 'Tablets get the one (best) look');
       await press('stand'); await until(() => House.mode === 'walk' && !House.gliding, null, 30000);
       await page.waitForTimeout(1200); await shot('tablet-02-house'); await layoutAudit(p, 'tablet house');
       await page.setViewportSize({ width: 1024, height: 768 }); await page.waitForTimeout(1500); await shot('tablet-03-landscape'); await notBlack(p, 'tablet landscape');
@@ -710,7 +712,7 @@ const phases = {
     }
   },
 
-  // Frame times on the phone tier: Pixel profile, emulated CPU throttling (4x by default), software WebGL.
+  // Frame times on phones (one look, invisible adaptation): Pixel profile, emulated CPU throttling (4x by default), software WebGL.
   async perf() {
     const acct = await register('Perf' + Date.now().toString(36).slice(-6));
     const p = await phone('pixel-412x915'), { page, until, fingers, press } = p;

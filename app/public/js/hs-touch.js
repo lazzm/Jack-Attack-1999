@@ -362,21 +362,21 @@
   }
   menuSettings(); setTimeout(menuSettings, 1500);
 
-  // ---------------------------------------------------------------- too slow even on Potato: offer JackOS on its own, never force it
+  // ---------------------------------------------------------------- too slow even fully adapted (hs-world.js ADAPT): offer JackOS on its own, never force it
   // (only real handhelds, only after the house has had a fair chance, and only once per device unless they say "ask again")
   const perfLog = []; let offered = !!ls.get('jhp_touch_slow_asked', false);
   setInterval(() => {
     if (offered || !window.PCOnly?.handheld || st !== 'walk' || document.hidden || !H.perf) return;
-    const p = H.perf(); if (!p || p.frames < 60 || p.tier !== 'potato') return;
+    const p = H.perf(); if (!p || p.frames < 60 || p.adapt < p.adaptMax) return; // (only once every invisible saving is in use)
     if (!H.touch.moving && !look) return; // (an idle room draws rarely on purpose)
     perfLog.push(p.frameP50); if (perfLog.length > 12) perfLog.shift();
     const sorted = perfLog.slice().sort((a, b) => a - b), med = sorted[sorted.length >> 1];
-    if (perfLog.length >= 8 && med > 125 && (p.scale || 1) <= .6) slowOffer(med);
+    if (perfLog.length >= 8 && med > 125) slowOffer(med);
   }, 1500);
   function slowOffer(ms) {
     offered = true; ls.set('jhp_touch_slow_asked', true);
     const box = document.createElement('div'); box.className = 'ht-slow'; box.setAttribute('role', 'alertdialog'); box.setAttribute('aria-labelledby', 'htSlowTitle');
-    box.innerHTML = `<div class="ht-slow-win"><div class="ht-slow-tb" id="htSlowTitle">This computer is struggling</div><div class="ht-slow-body"><p>The house is drawing about ${Math.max(1, Math.round(1000 / ms))} pictures a second on the lowest graphics. You can keep playing in the house, or use JackOS on its own on this device (same account, same saves).</p><div class="ht-slow-row"><button type="button" data-v="house">Keep the house</button><button type="button" data-v="jackos">JackOS only</button></div></div></div>`;
+    box.innerHTML = `<div class="ht-slow-win"><div class="ht-slow-tb" id="htSlowTitle">This computer is struggling</div><div class="ht-slow-body"><p>The house is drawing about ${Math.max(1, Math.round(1000 / ms))} pictures a second, even with everything eased off. You can keep playing in the house, or use JackOS on its own on this device (same account, same saves).</p><div class="ht-slow-row"><button type="button" data-v="house">Keep the house</button><button type="button" data-v="jackos">JackOS only</button></div></div></div>`;
     box.addEventListener('click', ev => { const b = ev.target.closest('[data-v]'); if (!b) return; box.remove(); if (b.dataset.v === 'jackos') jackosOnly(); else window.PCOnly?.choose('house'); });
     html.appendChild(box); box.querySelector('button').focus();
   }

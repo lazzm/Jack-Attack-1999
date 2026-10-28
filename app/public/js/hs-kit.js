@@ -48,49 +48,27 @@
     window.House?.ui?.where(); window.House?.dirty?.();
   }
   if (window.Net) for (const event of ['welcome', 'loginOk', 'meOk']) Net.on(event, repaintIdentity);
-  let aniso = 4,textureTier=window.HouseQ||'high';
-  const textureSources=new WeakMap(),textureRecords=new WeakMap(),qualityTextures=new Set();
-  const textureUpdate=Object.getOwnPropertyDescriptor(T.Texture.prototype,'needsUpdate').set;
-  // Keep authored canvases for repaint/context recovery. Only the GPU raster
-  // shrinks; returning to Medium/High restores the exact original pixels.
+  // One look (docs/GRAPHICS.md): every authored texture uploads at full resolution with mipmaps and the renderer's
+  // anisotropy (setAniso). There are no graphics tiers any more; setQuality() only re-applies filtering.
+  let aniso = 8;
+  const qualityTextures=new Set();
   function qualityTexture(t){
-    if(!t||t.userData?.jackLive||!t.image||typeof t.image.getContext!=='function')return;
-    let r=textureRecords.get(t);
-    if(!r){
-      const source=textureSources.get(t.image)||t.image;r={source,small:null,tier:null};textureRecords.set(t,r);qualityTextures.add(t);
-      Object.defineProperty(t,'needsUpdate',{configurable:true,set(value){
-        if(value){
-          r.tier=textureTier;
-          const cap=textureTier==='potato'?256:textureTier==='low'?512:Infinity,scale=Math.min(1,cap/Math.max(r.source.width,r.source.height));
-          if(scale<1){
-            if(!r.small){r.small=document.createElement('canvas');textureSources.set(r.small,r.source)}
-            const w=Math.max(1,Math.floor(r.source.width*scale)),h=Math.max(1,Math.floor(r.source.height*scale));
-            if(r.small.width!==w||r.small.height!==h){r.small.width=w;r.small.height=h}
-            const g=r.small.getContext('2d');g.clearRect(0,0,w,h);g.drawImage(r.source,0,0,w,h);t.image=r.small;
-          }else {t.image=r.source;if(r.small){r.small.width=r.small.height=0;r.small=null}}
-        }
-        textureUpdate.call(t,value);
-      }});
-    }
-    const next=t.magFilter===T.NearestFilter?1:aniso;
-    if(r.tier!==textureTier||t.anisotropy!==next){t.anisotropy=next;t.needsUpdate=true;}
+    if(!t||t.userData?.jackLive||!t.image)return;
+    qualityTextures.add(t);
+    const next=t.magFilter===T.NearestFilter||t.minFilter===T.NearestFilter?1:aniso;
+    if(t.anisotropy!==next){t.anisotropy=next;t.needsUpdate=true;}
   }
   const qualityMaps=['map','emissiveMap','alphaMap','lightMap','aoMap','normalMap','roughnessMap','metalnessMap','specularMap','bumpMap'];
-  // Keep material identity (switches/props retain references) while selecting
-  // three r128's built-in matte shader. Full Phong detail returns immediately
-  // when changing to Medium/High, including after a Potato start.
-  function matteShader(shader){shader.vertexShader=T.ShaderLib.lambert.vertexShader;shader.fragmentShader=T.ShaderLib.lambert.fragmentShader}
+  // House surfaces keep their material identity (switches/props retain references) and r128's Phong program.
   function phongShader(){}
-  const matteKey=()=> 'house-matte-r128',phongKey=()=> 'house-phong-r128';
+  const phongKey=()=> 'house-phong-r128';
   function surfaceQuality(m){
     if(!m.isMeshPhongMaterial||!m.userData.houseSurface)return;
-    const spec=m.userData.spec,matte=textureTier==='potato'||textureTier==='low'&&!spec.sh,hook=matte?matteShader:phongShader;
-    if(m.onBeforeCompile!==hook){m.onBeforeCompile=hook;m.customProgramCacheKey=matte?matteKey:phongKey;m.flatShading=!matte&&!!spec.flat;m.needsUpdate=true}
+    if(m.onBeforeCompile!==phongShader){m.onBeforeCompile=phongShader;m.customProgramCacheKey=phongKey;m.flatShading=!!m.userData.spec?.flat;m.needsUpdate=true}
   }
-  function cloneSurface(){const m=new T.MeshPhongMaterial().copy(this);m.clone=cloneSurface;surfaceQuality(m);return m}
+  function cloneSurface(){const m=new T.MeshPhongMaterial().copy(this);m.clone=cloneSurface;surfaceQuality(m);if(this.userData.print)PRINTS.add(m);return m}
   function qualityMaterial(m){surfaceQuality(m);for(const key of qualityMaps)if(m[key])qualityTexture(m[key])}
   function setQuality(tier,scene){
-    textureTier=tier;
     for(const key in TEX)qualityTexture(TEX[key]);
     if(scene)scene.traverse(o=>{if(Array.isArray(o.material)){for(const m of o.material)qualityMaterial(m)}else if(o.material)qualityMaterial(o.material)});
   }
@@ -187,7 +165,7 @@
   const fadeTex = () => tex('fade', 4, 64, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(0,0,0,.55)'); gr.addColorStop(0.35, 'rgba(0,0,0,.18)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h); }, { clamp: true });
 
   // ================================================================ materials (cached by their spec)
-  const MATS = {};
+  const MATS = {}, PRINTS = new Set();
   function mat(spec) {
     if (spec && spec.isMaterial) return spec;
     if (typeof spec === 'string' || typeof spec === 'number') spec = { c: spec };
@@ -208,11 +186,15 @@
       if (spec.e) P.emissive = new T.Color(spec.e);
       if (spec.em) { P.emissiveMap = spec.em; if (!spec.e) P.emissive = new T.Color('#ffffff'); }
       if (spec.flat) P.flatShading = true;
+      // printed art (posters, prints, notices): its own picture as a dim emissive "bounce" fill, scaled per room by
+      // hs-world.js (K.PRINTS) from the room's ambient and lamps, so paper reads clearly without glowing in the dark
+      if (spec.pr && spec.map) { P.emissiveMap = spec.map; P.emissive = new T.Color('#ffffff'); P.emissiveIntensity = 0; P.specular = new T.Color('#000000'); P.shininess = 2; }
       m = new T.MeshPhongMaterial(P);m.userData.houseSurface=true;m.clone=cloneSurface;
     }
     if (spec.dw === false) m.depthWrite = false;
     if (spec.po) { m.polygonOffset = true; m.polygonOffsetFactor = spec.po; m.polygonOffsetUnits = spec.po; }
     m.userData.spec = spec;surfaceQuality(m);
+    if (spec.pr && spec.map && m.isMeshPhongMaterial) { m.userData.print = true; PRINTS.add(m); }
     return MATS[key] = m;
   }
   const shadowMat = a => mat({ c: '#000', map: blobTex(), basic: true, tr: true, o: a == null ? 0.999 : Math.min(0.999, a), dw: false, po: -2 });
@@ -516,5 +498,5 @@
   // The geometry lies flat (normal up in the y-down world), centred, w x d with an m cm fade.
   function shadowGeo(sq, w, d, m) { const g = sq ? sliceGeo(w, d, shadowMargin(w, d, m)) : ringGeo(w, d, shadowMargin(w, d, m)); g.applyMatrix4(new T.Matrix4().makeRotationX(Math.PI / 2)); return g; }
   const shadowMaterial = (sq, a) => mat({ c: '#000', map: sq ? sqBlobTex() : ringTex(), basic: true, tr: true, o: Math.min(0.999, a == null ? 0.8 : a), dw: false, po: -2, cs: 1 });
-  window.HouseKit = { T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS };
+  window.HouseKit = { T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
 })();

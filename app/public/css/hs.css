@@ -321,7 +321,7 @@ html:not([data-game-touch="true"]) .hs-ui .hs-hold{left:auto;right:18px;transfor
 .hs-voice p{font:14px/1.45 Tahoma,Arial,sans-serif;text-shadow:none;margin:4px 0 0}
 .hs-inspection{gap:7px;padding:12px 18px;border-top:2px solid #dbc172;background:#161b1df2;font:13px/1.5 Tahoma,Arial,sans-serif}
 .hs-inspection b{font:700 16px Tahoma,Arial,sans-serif}.hs-inspection button{font:12px Tahoma,Arial,sans-serif}
-.hs-pause:not(.hs-graphics-open){width:min(720px,calc(100vw - 36px));font:13px/1.45 Tahoma,Arial,sans-serif}
+.hs-pause{width:min(720px,calc(100vw - 36px));font:13px/1.45 Tahoma,Arial,sans-serif}
 .hs-pause-head{padding:14px 20px}.hs-pause-main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:16px 20px}
 .hs-pause-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .hs-pause-actions button{margin:0}.hs-pause-actions [data-pause=resume]{grid-column:1/-1;background:#4a4938;border-color:#b9a976;color:#fff0bd}
@@ -334,7 +334,6 @@ html:not([data-game-touch="true"]) .hs-ui .hs-hold{left:auto;right:18px;transfor
 @media(max-width:900px){.hs-voice{top:104px;max-width:calc(100vw - 36px)}}
 @media(max-width:620px){.hs-pause-main{grid-template-columns:minmax(0,1fr)}.hs-pause-main>fieldset{grid-column:1}.hs-hold{padding:10px 12px}.hs-hkeys{gap:6px 12px}.hs-pause-head,.hs-pause-main{padding-left:14px;padding-right:14px}}
 
-.hs-pause.hs-graphics-open,.hs-graphics-menu select{font-family:Tahoma,Arial,sans-serif}
 /* Screen actions use the same room controls rather than desktop-style buttons. */
 html.hs-live .rm-tvv .rm-tools .rm-b{border:1px solid var(--game-edge);border-bottom:3px solid #101718;border-radius:0;background:var(--game-panel);color:var(--game-ink);font:700 12px/1.2 Tahoma,Arial,sans-serif;box-shadow:none}
 html.hs-live .rm-tvv .rm-tools .rm-b:hover,html.hs-live .rm-tvv .rm-tools [aria-pressed=true]{background:#465151;color:#ffe9a2}

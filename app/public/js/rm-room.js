@@ -133,7 +133,7 @@
   function poster(B, x, y, z, w, h, t, ry) {
     const P = B.at(x, y, z, ry || 0);
     P.wshadow(0.6, 1.2, 0.08, w * 1.1, h * 1.08, 0.5);
-    const m = M({ c: '#ffffff', map: t, sh: 4, sp: '#000000' });
+    const m = M({ c: '#ffffff', map: t, sh: 4, sp: '#000000', pr: 1 });
     const lift = 0.25, curlH = h * 0.12;
     // Solid paper backing also closes the tiny join beneath the curled face.
     P.box(0, 0, lift - 0.09, w, h, 0.12, M({ c: '#ddd5bd', sh: 2 }));
@@ -219,7 +219,7 @@
     },
     amb: () => { const ph = skyPhase || 'day'; if (ph === 'day') return {sky: '#dcdcd8', gnd: '#86735c', i: .66 + (LIGHT.main ? .08 : 0)};
       if (LIGHT.main) return {sky: '#dfc9ad', gnd: '#75624e', i: .54};
-      return ph === 'night' ? {sky: '#8896b0', gnd: '#4d4d58', i: .38} : {sky: '#c3a9aa', gnd: '#75614f', i: .52}; },
+      return ph === 'night' ? {sky: '#8896b0', gnd: '#4d4d58', i: .45} : {sky: '#c3a9aa', gnd: '#75614f', i: .52}; },
     sun: () => { const ph = skyPhase || 'day'; return { x: 260, y: -300, z: -420, tx: 0, ty: 73, tz: 60, c: ph === 'night' ? '#a2b6dc' : ph === 'day' ? '#fff2dc' : '#ffcfac', i: ph === 'night' ? .055 : ph === 'day' ? .28 : .16 }; },
     build(r) { buildBedroom(r); },
   });
@@ -463,15 +463,15 @@
     // the cork board, the timetable
     const ck = new T.Group(); ck.position.set(42, -84, BZ + 1); r.group.add(ck); const ckBatch = K.batch(), CK = K.into(ckBatch);
     CK.wshadow(0.8, 1.4, -0.85, 47, 35, 0.5);
-    CK.box(0, 0, 0, 42, 30, 1.6, M({ c: '#ffffff', map: tex('cork') }));
+    CK.box(0, 0, 0, 42, 30, 1.6, M({ c: '#ffffff', map: tex('cork'), pr: 1 }));
     CK.box(0, -15.5, 0.4, 44, 1.6, 2.4, mPine()); CK.box(0, 15.5, 0.4, 44, 1.6, 2.4, mPine()); CK.box(-21.5, 0, 0.4, 1.6, 32, 2.4, mPine()); CK.box(21.5, 0, 0.4, 1.6, 32, 2.4, mPine());
     // Papers have real paper thickness (a card's edge, not a flat sticker), layered a hair apart, pinned through.
-    const paper = (x, y, z, w, h, t, rz) => CK.box(x, y, z, w, h, 0.1, { f: M({ c: '#fff', map: tex(t) }), all: M('#e8e3d4') }, { rz });
+    const paper = (x, y, z, w, h, t, rz) => CK.box(x, y, z, w, h, 0.1, { f: M({ c: '#fff', map: tex(t), pr: 1 }), all: M('#e8e3d4') }, { rz });
     paper(-12, -1, 0.9, 13, 18, 'calendar', -2); paper(4, -6, 1.02, 9, 8, 'note', 5); paper(13, -5, 1.14, 9, 9, 'noteBlue', -4); paper(8, 6, 1.26, 14, 10, 'photo', -3);
     [[-12, -9.5], [4, -9.5], [13, -9], [8, 1.5]].forEach(([x, y], i) => { const pin = M(['#d02a2a', '#2a8a3a', '#e8c020', '#2a5ad0'][i]); CK.cyl(x, y, 1.75, 0.9, 0.75, 0.9, 10, pin, { rx: 90 }); CK.cyl(x, y, 2.35, 0.55, 0.55, 0.5, 10, pin, { rx: 90 }); }); ckBatch.build(ck);
     H.spot('cork', { label: 'Cork board', obj: ck });
     poster(B, -52, -82, BZ, 42, 59.4, tex('posterShuttle'), 0); pickBox(r, 'postershuttle', -52, -82, BZ + 1, 42, 59.4, 2); H.SPOTS.postershuttle.label = 'Space Shuttlebus poster'; // A2 bedroom poster
-    frame(B, 92, -84, BZ + 0.8, 24, 33, 1.4, M({ c: '#fff', map: tex('timetable') }), M('#2a2a2a'));
+    frame(B, 92, -84, BZ + 0.8, 24, 33, 1.4, M({ c: '#fff', map: tex('timetable'), pr: 1 }), M('#2a2a2a'));
     H.spot('timetable', { label: 'School timetable', act: () => say('My timetable', 'Year 11. GCSE year. Double Maths on a Monday morning should be against the law. Tuesday has IT, the best lesson: we get to play Bugsweeper at the end if we\'re quiet.') });
     pickBox(r, 'timetable', 92, -84, BZ + 1, 24, 33, 2);
   }
@@ -1515,10 +1515,10 @@
     G.rbox(0, -1.3, 0, 7.8, 2.6, 13.3, 0.9, m); // the body (7.8 x 13.3 cm, 2.6 thick)
     G.rbox(0, -2.7, -3.25, 6.8, 0.38, 6, 0.18, M({ c: '#2a2a34', sh: 70, sp: '#666' }));
     R.gbScreen = G.geo(crtGlass(4.6, 4.14, 0.05, 0.025), 0, -2.97, -3.5, new T.MeshBasicMaterial({ color: '#83956c' }), { rx: 90 });
-    G.plane(0, -3.02, -5.85, 4, 0.5, M({ c: '#fff', map: K.tex('rm.gblogo', 128, 16, (gg) => { gg.fillStyle = '#2a2a34'; gg.fillRect(0, 0, 128, 16); A.text(gg, 'GAME LAD COLOR', 64, 12, '700 11px ' + A.UIF, '#c8c8d8', 'center'); }) }), { rx: 90 });
+    G.plane(0, -3.02, -5.85, 4, 0.5, M({ c: '#fff', map: K.tex('rm.gblogo', 512, 64, (gg) => { A.text(gg, 'GAME LAD COLOR', 256, 48, '700 44px ' + A.UIF, '#c8c8d8', 'center'); }), pr: 1, tr: true, dw: false, at: .03 }), { rx: 90 });
     G.box(-2.2, -2.9, 2.4, 2.2, 0.5, 0.7, M({ c: '#222', sh: 20 })); G.box(-2.2, -2.9, 2.4, 0.7, 0.5, 2.2, M({ c: '#222', sh: 20 })); // the D-pad cross
     G.cyl(1.6, -2.95, 2.9, 0.62, 0.62, 0.5, 12, M({ c: '#b02060', sh: 60, sp: '#fff' })); G.cyl(3.0, -2.95, 2.2, 0.62, 0.62, 0.5, 12, M({ c: '#b02060', sh: 60, sp: '#fff' })); // B and A
-    G.plane(1.6, -2.65, 3.75, 0.5, 0.5, M({ c: '#fff', map: K.tex('rm.gbB', 16, 16, (gg) => { gg.fillStyle = '#6a3fb0'; gg.fillRect(0, 0, 16, 16); A.text(gg, 'B', 8, 13, '700 12px ' + A.UIF, '#ddd', 'center'); }) }), { rx: 90 });
+    for (const [letter,x,z] of [['B',1.6,3.82],['A',3,3.12]]) G.plane(x, -2.65, z, 0.5, 0.5, M({ c: '#fff', map: K.tex('rm.gb'+letter, 64, 64, (gg) => { A.text(gg, letter, 32, 52, '700 48px ' + A.UIF, '#ddd', 'center'); }), pr: 1, tr: true, dw: false, at: .03 }), { rx: 90 });
     [-1, 0.2].forEach((x, i) => G.rbox(x, -2.75, 5.1, 1.4, 0.3, 0.5, 0.2, M('#4a2a88'), { ry: -25 })); // select / start, slanted
     for (let r = 0; r < 5; r++) for (let c = 0; c < 2; c++) G.cyl(2.3 + c * 0.6 - r * 0.25, -2.65, 4.3 + r * 0.42, 0.14, 0.14, 0.2, 6, M('#3a1a68')); // the speaker holes
     G.box(0, -0.6, -6.5, 2.6, 0.3, 0.6, M('#4a2a88')); G.box(0, -1.5, 6.4, 1.4, 0.5, 0.6, M('#2a2a34')); // the cartridge slot lip, the link port

@@ -4,6 +4,47 @@ Date: 2026-10-26. Scope: better lighting and shading AND maximum FPS on phones, 
 Status of evidence: facts about THIS codebase were read from `app/public/js/hs-world.js`, `hs-kit.js` and `tests/` today. Facts about three.js r128 were checked against the r128 tag source on GitHub today (flagged "[r128 src]"). Vendor and engine references are from the named public documents; I confirmed the URLs resolve but did not re-read every page, so treat any numeric rule of thumb as a heuristic. All numeric budgets in sections 3 and 4 are my recommended targets, not vendor-stated limits.
 
 ---------------------------------------------------------------------
+## ONE LOOK (owner decision, 2026-10-27) - supersedes the tiers in sections 0, 3 and Stage 0
+
+"Lower makes things too blurry": there are no graphics options, presets or tiers any more. Every device draws the best
+look (the old High: Phong, the five-lamp rig, MSAA, full-resolution mipmapped textures with 8x anisotropy, portal depth
+1, 60 Hz live screens, full grass, the standard family rigs) and is kept fast by real optimisation instead of blur.
+
+- Drawing buffer: device pixels up to 2 on desktop, 1.75 on handhelds (`PCOnly.handheld`). No pixel caps, no CRT/retro
+  mode, no 0.5x dynamic resolution. `Q.tier` is always `'high'` for the scripts that still read it.
+- Settings: `jhp_hs_gfx` / `jhp_hs_graphics` are deleted on load (a saved "show FPS" moves to `jhp_hs_fps`). The pause
+  menu GRAPHICS OPTIONS page, Start > Room graphics and the G key are gone. The frame counter is a hidden debug option:
+  Owner tools > World / testing > Frame counter, `House.showFps(true)` or `localStorage.jhp_hs_fps = 'true'`.
+  The JackOS-only fallback stays: no usable WebGL, the player's own choice, or the too-slow offer on a handheld once
+  every adaptation rung is in use and the median frame is still over 125 ms.
+- Invisible adaptation (`ADAPT` in hs-world.js; `Q.adapt`, `House.adapt(level, {pin})` for tests). Down one rung after
+  two ~1 s windows of continuous frames under 40 FPS (26 FPS after a phone has settled to its 30 Hz cap; at most every 4 s); up after 12 good windows (>= 55 FPS), never
+  within 20 s of a step down. Remembered per device + GPU string (`jhp_hs_adapt`, starting one rung lower than saved).
+  Rungs: 0 everything; 1 outdoor fog/far plane 30 m and portal depth 0, live screens 30 Hz; 2 three per-pixel lamps
+  instead of five; 3 screens 20 Hz; 4 resolution 0.925; 5 resolution 0.85 (the floor). The resolution rungs apply only
+  where the native ratio is >= 1.5, so the floor is still more than one drawn pixel per CSS pixel (no visible blur; a
+  1x desktop never scales). Programs for the current and next rung are compiled ahead (`compileVariants`). There is
+  no shadow map and no particle system in the house, so those rungs from the brief have nothing to scale.
+  A software renderer (SwiftShader/llvmpipe: the test browsers) starts at rung 3 without MSAA; `jhp_hs_msaa` forces
+  MSAA on for like-for-like benchmarks.
+- Static merge (js/hs-static.js): after a room is built, plain opaque meshes are merged per material, render order,
+  attribute set and ~3 m cell (large shells in their own bucket) into 16-bit indexed batches. Originals stay in the
+  graph on layer 30 (never drawn; every raycaster here enables all layers), so picking, the editor, physics and held
+  references keep working. Before each frame `HouseStatic.verify` checks each source's visible chain, world matrix,
+  material, geometry and layers; any change dissolves that batch in the same frame and marks the changed mesh
+  unstable (never merged again). Idle-time `maintain` re-batches a room 6 s after a dissolve and adopts late
+  additions every 20 s. Also merged: the neighbourhood and the exterior roof. Kill switch: `jhp_hs_nomerge = '1'`.
+- Visibility: open-door connectivity, the stairwell and permanent window sight lines select rooms. Whole-room
+  aperture-frustum rejection is unsafe for this house: room groups also own shared wall faces and window reveals.
+  Keep those rooms intact and let three.js frustum-cull individual meshes and ~3 m static batches. The rendered
+  doorway audit compares this result with mesh frustum rejection disabled, from both sides at three angles.
+  Dense grass fields alone may skip drawing when every open-door/window route to them is off screen;
+  a conservative 20 cm aperture margin and a rendered-reference comparison protect window-edge views.
+- Adaptation, FPS, MSAA and batching debug settings are device-only in roam.js. House pose and inventory still roam.
+
+Results and before/after numbers: see "One look results" at the end of this file.
+
+---------------------------------------------------------------------
 ## 0. What the code already does (so the plan does not re-invent it)
 
 - `hs-world.js`: three tiers (`low/medium/high`), `PRMAX` pixel-ratio caps 1/1.5/2, auto pick from `deviceMemory`, `hardwareConcurrency`, DPR and the unmasked GPU string (SwiftShader, llvmpipe, Mali-3/4xx, Adreno 3-5xx, PowerVR SGX, GMA force Low), dynamic resolution (`renderScale` 0.5..1 in 1/8 steps; down below 28 fps, up above 52 fps after 5 good seconds), auto tier step-down, background cadence, render-on-demand (`dirty()`, `continuous`, `backgroundCovered()`), the GL canvas hidden while seated at the PC.
@@ -363,3 +404,47 @@ Engine and technique references (cited from memory, not re-fetched)
 - Lighthouse CPU throttling guidance (4x mid-tier, 6x low-end) in the Chrome DevTools / Lighthouse docs.
 
 Caveats: I did not run device benchmarks; every "expected impact" figure is an estimate from the measured draw counts and mechanism, to be confirmed by the Stage 0 matrix. Version details of later three.js releases (compileAsync, BatchedMesh, colour management dates) are from memory of the changelog and should be re-verified against the Migration Guide before any upgrade work.
+
+
+## One look results (2026-10-28, release gate in progress)
+
+Equal-quality, same-session batch/unbatch comparison on the current scene: SwiftShader,
+adaptation rung 0, all doors open, first station in each room. Counts include the whole
+visible scene, not just the named room.
+
+| View | Unbatched draws | Batched draws | Reduction |
+|---|---:|---:|---:|
+| Bedroom | 532 | 360 | 32.3% |
+| Landing | 870 | 729 | 16.2% |
+| Hall | 854 | 673 | 21.2% |
+| Cupboard | 273 | 210 | 23.1% |
+| Lounge | 812 | 660 | 18.7% |
+| Garden | 144 | 94 | 34.7% |
+| Drive | 544 | 408 | 25.0% |
+| Kitchen | 288 | 224 | 22.2% |
+
+Evidence: `/tmp/gate-YE1O/gfx-probe.mjs.log`, zero browser errors, 367.7 ms cumulative
+batch construction work during the session. Spatial batching can submit extra triangles
+at a cell boundary; these measurements establish fewer draw calls, not hardware FPS.
+Hall/landing remain above the aspirational draw targets in section 4. Whole-room aperture
+rejection is unsuitable for the current shared-wall geometry; only vegetation uses it.
+
+The 72-view doorway comparison and 54 room/time/device lighting captures passed in
+`/tmp/gate-LMG5`, with zero image differences in the doorway comparisons. A focused
+follow-up covers the final vegetation path. GL-rebuild regression in `/tmp/gate-HzG0`
+retained all 235 static batches, exact camera pose/zoom and PC power; before/after captures
+in `tests/shots/gfx-context/` were reviewed and match.
+
+The Stage 0 timing files above predate the approved plot and new props and are historical
+evidence, not a timing baseline for this release. Physical Edge/Android devices, gamepads,
+thermal behaviour and an independent hardware GPU benchmark remain unverified.
+
+Final follow-ups passed: `/tmp/gate-YE1O` bounds, vegetation and 72 doorway images; all
+vertices in 28,160 drive and 2,862 garden instances fit inside their aggregate spheres.
+The hidden-garden test submits 169,398 instead of 198,018 triangles with zero changed
+pixels. Activating the pre-existing instance bounds also removes 281,600 front-lawn
+triangles from the hall reference view. `/tmp/jhp-gfx-mobile-fixes.log` passes story/full/small
+3/3, including ink-only A/B printing and stable discovery spacing. Other mobile phases
+passed in `/tmp/jhp-gfx-mobile-rest.log` and `/tmp/jhp-gfx-mobile-final.log`.
+`/tmp/jhp-gfx-smoke-final.log` passes all 12 checks; physics 15/15 passed in `/tmp/gate-LMG5`.
+Main's final Chapter 1 release gate is still required before deployment.

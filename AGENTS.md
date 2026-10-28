@@ -53,7 +53,7 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
 - People: Jack, Dave, Luke, Callum, JackK, Crystal (Jack's little sister), Mom, Dad, Gran, Grandad, Nan and Gubbinz are fixed;
   everyone else comes from `Cast` (`Cast.n('cousin')`, `Cast.t('{teacher} ... {teacher.his}')`). Never hardcode them.
   Files that server mods `require` (e.g. `public/js/*-cat.js`) must guard browser globals: `typeof Cast !== 'undefined'`.
-- Device policy (owner, 2026-10-26, replaces the earlier JackOS-only phone rule): the WHOLE game must play well on phones and tablets too (3D house, story, chores, consoles, PC), polished, smooth and intentional, never a squeezed desktop. Touch controls: left thumb move, right drag to look, contextual action buttons; layouts designed for portrait and landscape. Weak devices fall back gracefully (lower quality tier first; JackOS-only only as a last resort with a clear choice). Desktop keeps keyboard/mouse. Wording stays 1999 PC style (click/press/drag), never "tap/swipe". Saves, house pose and PC power state are shared across devices.
+- Device policy (owner, 2026-10-26, replaces the earlier JackOS-only phone rule): the WHOLE game must play well on phones and tablets too (3D house, story, chores, consoles, PC), polished, smooth and intentional, never a squeezed desktop. Touch controls: left thumb move, right drag to look, contextual action buttons; layouts designed for portrait and landscape. Weak devices fall back gracefully (automatic reductions in rendering cost first; JackOS-only only as a last resort with a clear choice). Desktop keeps keyboard/mouse. Wording stays 1999 PC style (click/press/drag), never "tap/swipe". Saves, house pose and PC power state are shared across devices.
 - Browser tab title is always "Jack Attack 1999" (js/title.js); it's shown nowhere else.
 - The site's CSP is `script-src 'self'`: no inline scripts or inline event handlers; put code in files.
 - Controls in the house: WASD/arrows walk, Shift jog, C crouch (never Ctrl: Ctrl+W closes the tab), Space jump,
@@ -61,7 +61,7 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
   Console cases must be placed off the shelf before F opens them; E takes the visible medium and returns it to its case.
   Only filled cases go back onto the console rack. R turns, Q leans back from screens/inspection, or returns a carried item to its pickup point (not while typing); right click also returns a carried item.
   Esc opens the game menu (including return/leave actions). F2 stands up from the PC; F sits on portable seating (including with a carried item); seated players can read, use props/phone and play the held Game Lad, returning to the same seat. Q/WASD/arrows/Space/F2 gets up,
-  T toggles LOCK IN for the active in-game screen (never while typing), G graphics, F9 god mode (owner "Jack" only).
+  T toggles LOCK IN for the active in-game screen (never while typing), F9 god mode (owner "Jack" only).
   Mouse-look is automatic while walking/seated; screens, close-ups and menus release the cursor. Q/Resume restores mouse-look when the browser permits. Right click keeps its context action, not a global cursor toggle. Floor tools use F for their available action and E to let go; Esc pauses through the game menu. Keep on-screen prompts consistent; never intercept Ctrl+F. LOCK IN preserves running state. JackOS fills the browser viewport like a normal desktop; other in-game screens preserve their native aspect ratio.
   Q/T stay house controls during games. Console shoulder L uses U; PC shooters use Z for previous weapon and Y for chat. Family TV text uses Shift+T.
 - Carrying and physics (owner, 2026-10-26; docs/PHYSICS.md). Every thing in the house is a physics body with real heights:
@@ -81,7 +81,7 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
   PC or opening a screen sets it down at its ghost if green, else returns it; the story/tidy taking it ends the grip.
   Never place a thing on the stairs or block a doorway/the way to the PC (the ghost turns red).
 
-- Graphics settings and the JackOS-only choice are per device and never sync between devices.
+- Graphics adapt automatically to each device (owner decision 2026-10-27; docs/GRAPHICS.md); there is no graphics menu or G shortcut. Adaptation and the JackOS-only choice never sync between devices.
 - Front plot: `House.FRONT` (hs-world.js) is the single source of truth for the front garden depth (pavement at z 1400; owner approved the extra metre on 2026-10-28) and Dad's car position. Place car and drive things relative to `House.ROOMS.drive.carFrame` and `House.FRONT`, never hardcoded numbers. When room geometry moves, bump the save version and add a rule to `migratePlacement` so saved items move with it.
 - People (docs/PEOPLE.md): stylised, one level of abstraction everywhere, painted atlas faces (no 3D noses/lips); keep ~2 draw calls and <=3k triangles per person on Low/Potato.
 

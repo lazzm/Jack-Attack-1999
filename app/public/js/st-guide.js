@@ -191,9 +191,8 @@
   window.StoryGuide={get strength(){return mode;},setting(value){if(['full','light','off'].includes(value)){mode=value;localStorage.setItem('jhp_story_guidance',mode);nextSample=0;}tick(performance.now());return mode;},chapter(n,title){titleUntil=-1;titleText='CHAPTER '+n+' — '+title;},targets};
   // Screen ink follows the latest camera every frame; idle rim lighting only
   // requests ten room redraws per second and never redraws behind a screen.
-  // (phones and Potato draw the house at 30 Hz: the ink follows at the same rate)
   let lastFrame=0;
-  function frame(now){requestAnimationFrame(frame);if(H.Q?.tier==='potato'&&now-lastFrame<30&&now>=lastFrame)return;lastFrame=now;tick(now);}
+  function frame(now){requestAnimationFrame(frame);lastFrame=now;tick(now);}
   requestAnimationFrame(frame);
   H.on('mode',()=>tick(performance.now()));
   st.onChange(()=>{signature='';nextSample=0;tick(performance.now());});

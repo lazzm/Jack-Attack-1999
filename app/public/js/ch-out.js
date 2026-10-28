@@ -229,7 +229,7 @@
     // Closed, bent blades; instanced once. No alpha cards, sorting, animation
     // loop or per-blade objects. Mowing only changes the touched cell matrices.
     const geo=grassBlade();
-    grassPerCell=(H.Q.tier==='potato'||H.Q.tier==='low')?8:H.Q.tier==='high'?20:14;const total=NX*NZ*grassPerCell;
+    grassPerCell=20;const total=NX*NZ*grassPerCell;
     grassField=new T.InstancedMesh(geo,M({c:'#fff',sh:1,sp:'#000'}),total);grassField.name='mowable-grass-blades';grassField.userData.noPick=1;grassField.instanceMatrix.setUsage(T.DynamicDrawUsage);
     grassSeeds=new Float32Array(total*4);grassPose=new T.Object3D();const rnd=K.rnd(913);
     for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++)for(let n=0;n<grassPerCell;n++){
@@ -238,19 +238,19 @@
     // r128 does not compute InstancedMesh bounds: the base geometry must carry
     // the whole field sphere so distant blades never pop at a screen edge.
     geo.boundingSphere=new T.Sphere(new T.Vector3((LAWN.x0+LAWN.x1)/2,GY-4,(LAWN.z0+LAWN.z1)/2),Math.hypot(LAWN.x1-LAWN.x0,LAWN.z1-LAWN.z0)/2+12);
-    r.group.add(grassField);
+    grassField.frustumCulled=true;r.group.add(grassField);
   }
   CK.whenBuilt('garden',r=>{
     if(r.group.getObjectByName('garden-grass-blades'))return;
     const random=K.rnd(721),seeds=[];
     for(let z=-545;z<-75;z+=18)for(let x=-285;x<205;x+=18){
       if(x>-220&&x<120&&z>-196||x<-130&&z<-392||x<-170&&x>-290&&z>-310&&z<-230||x>125&&z>-230&&z<-145||x>150&&z>-140)continue;
-      for(let i=0;i<((H.Q.tier==='potato'||H.Q.tier==='low')?3:6);i++)seeds.push([x+random()*15,z+random()*15,2.8+random()*2.8,random()*Math.PI*2]);
+      for(let i=0;i<6;i++)seeds.push([x+random()*15,z+random()*15,2.8+random()*2.8,random()*Math.PI*2]);
     }
     const geo=grassBlade();geo.boundingSphere=new T.Sphere(new T.Vector3(-42.5,GY-3,-308),375);
     const mesh=new T.InstancedMesh(geo,M({c:'#fff',sh:1,sp:'#000'}),seeds.length),pose=new T.Object3D(),color=new T.Color();mesh.name='garden-grass-blades';mesh.userData.noPick=1;
     seeds.forEach(([x,z,h,a],i)=>{pose.position.set(x,GY-.02,z);pose.rotation.set(0,a,0);pose.scale.set(1,h,1);pose.updateMatrix();mesh.setMatrixAt(i,pose.matrix);color.set(['#394d2b','#435c30','#50673a'][i%3]);mesh.setColorAt(i,color)});
-    mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;r.group.add(mesh);H.dirty();
+    mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.frustumCulled=true;r.group.add(mesh);H.dirty();
   });
   function cutGrassGeometry(cells){
     if(!grassField||!cut)return;const color=new T.Color();

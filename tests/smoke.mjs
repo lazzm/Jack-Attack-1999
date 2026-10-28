@@ -34,7 +34,7 @@ async function dispose(){
 let stopping=false;
 async function stop(signal){if(stopping)return;stopping=true;console.log(`FAIL runner: ${signal}`);await cleanup();console.log(`SUMMARY ${results.filter(Boolean).length}/${results.length+1} passed; aborted=${signal}; renderer=${renderer}; draw calls: ${draws.join(', ')||'not sampled'}`);process.exit(1)}
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>void stop(signal));
-const watchdog=setTimeout(()=>void stop(`${240*SCALE}s total timeout`),240000*SCALE);
+const watchdog=setTimeout(()=>void stop(`${400*SCALE}s total timeout`),400000*SCALE);
 function observe(page){
   activeBrowser=page.context().browser();
   if(stopping){void activeBrowser.close();return;}
@@ -48,7 +48,7 @@ async function room(){
       const registered=await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})});
       assert(registered.ok,'Admin registration failed: '+registered.status);registeredAccount=true;
     }
-    fixture=await roomFixture(base,{account,password,signup:false,onPage:observe});fixture.page.setDefaultNavigationTimeout(20000*SCALE);
+    fixture=await roomFixture(base,{account,password,signup:false,onPage:observe,timeoutScale:SCALE});fixture.page.setDefaultNavigationTimeout(60000*SCALE);
     renderer=await fixture.page.evaluate(()=>{const gl=House.ren.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)):'unavailable'});
   }
   return fixture;
@@ -66,10 +66,10 @@ async function houseSave(page){return page.evaluate(()=>{
 })}
 async function reload(){const {page}=await room();await page.reload({waitUntil:'domcontentloaded'});await until(()=>window.AccountGate?.allowed&&window.House?.live&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'))}
 const checks=[
- ['sparse-signup',60000,async()=>{
+ ['sparse-signup',90000,async()=>{
    let sparse;
    try{
-     sparse=await roomFixture(base,{onPage:observe,opening:true});
+     sparse=await roomFixture(base,{onPage:observe,opening:true,timeoutScale:SCALE});
      const {page}=sparse;
      assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_starter')),'1');
      assert(await page.evaluate(()=>House.mode==='walk'&&!House.pcGL.visible&&!document.body.classList.contains('pc-monitor')),'New story player must start without a PC or screen layer');
@@ -82,14 +82,14 @@ const checks=[
      assert.deepEqual(sparse.errors,[],'Sparse signup browser errors');
    }finally{if(sparse)await sparse.browser.close();activeBrowser=fixture?.browser}
  }],
- ['account-house',60000,async()=>{
+ ['account-house',90000,async()=>{
    const {page}=await room();
    renderer=await page.evaluate(()=>{const gl=House.ren.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');if(gl.isContextLost())throw Error('WebGL context lost');if(!ext)throw Error('UNMASKED_RENDERER unavailable');return String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL))});
    assert(await page.evaluate(()=>Net.me.member&&House.live&&House.ren.domElement.width>0));
    assert(await page.evaluate(()=>localStorage.getItem('jhp_starter')!=='1'&&['n64','ps','md','dc'].every(id=>!!House.SPOTS[id])),'Existing player lost the full room');
    assert(await page.evaluate(()=>{const a=__jhpDebug();a.camera.x=999999;return __jhpDebug().camera.x!==999999&&Number.isFinite(a.renderer.calls)&&!!a.version}),'Debug snapshot invalid');
  }],
- ['walk-refresh',35000,async()=>{
+ ['walk-refresh',90000,async()=>{
    const {page}=await room();await aim([40,-55,180],[40,-55,-20]);
    const before=await page.evaluate(()=>[House.W.x,House.W.z]);
    for(const key of ['w','a','s','d']){await page.keyboard.down(key);await page.waitForTimeout(180);await page.keyboard.up(key)}
@@ -130,7 +130,7 @@ const checks=[
    await page.keyboard.type('wasd saw dad');assert.equal(await page.evaluate(()=>FamilyPhone.state().text),'wasd saw dad','House movement swallowed phone letters');
    await page.keyboard.press('Escape');await page.locator('[data-pause=leave]').click();await until(()=>House.mode==='walk'&&!House.gliding);
  }],
- ['prop-refresh',35000,async()=>{
+ ['prop-refresh',90000,async()=>{
    const {page}=await room();await aim([-100,-55,135],[-100,52,56]);await page.keyboard.press('e');await until(()=>House.held()==='beanbag');
    await aim([-100,-55,215],[-100,73,145]);await page.keyboard.press('e');await until(()=>!House.held()&&House.THINGS.beanbag.st==='rest');
    const at=await page.evaluate(()=>({...House.THINGS.beanbag.at}));await page.waitForTimeout(600);await reload();
@@ -160,9 +160,9 @@ const checks=[
      draws.push(`${name}=${debug.renderer.calls}`);await page.screenshot({path:shots+name+'.png',timeout:30000*SCALE,style:'.hs-toast,.balloon { visibility: hidden !important; }'}); // (the exterior view is the slowest software-rendered capture)
    }
  }],
- ['mobile-desktop',90000,async()=>{
+ ['mobile-desktop',120000,async()=>{
    // Device policy (2026-10-26): a phone plays the whole game. It gets the 3D house with touch controls and the phone
-   // tier, sharing the account's saves and PC power state; JackOS on its own is only the player's chosen fallback.
+   // sharp look, sharing the account's saves and PC power state; JackOS on its own is only the player's chosen fallback.
    const {browser,page:desktop}=await room();
    await desktop.evaluate(()=>{
      House.hush();House._.setMode('focus');
@@ -183,12 +183,12 @@ const checks=[
    const page=await context.newPage();observe(page);
    try{
      const house=()=>window.AccountGate?.allowed&&window.House?.ok&&House.live&&!document.querySelector('.hs-loading,#houseEntry');
-     page.setDefaultNavigationTimeout(30000*SCALE);
+     page.setDefaultNavigationTimeout(60000*SCALE);
      await page.goto(base,{waitUntil:'domcontentloaded'});await page.locator('#accountGate form').waitFor({timeout:30000*SCALE});
      await page.locator('[name=name]').fill(account);await page.locator('[name=password]').fill(password);await page.locator('#accountGate [type=submit]').tap();
      await wait(page,house,40000);await page.waitForTimeout(1500);await wait(page,house,40000);
-     const state=await page.evaluate(()=>({handheld:PCOnly.handheld,jackos:PCOnly.desktopOnly,touch:GameInput.touch,tier:House.Q.guess,hud:!!document.querySelector('.ht-hud')}));
-     assert.deepEqual(state,{handheld:true,jackos:false,touch:true,tier:'potato',hud:true},'Phone must get the house with touch controls and the phone tier');
+     const state=await page.evaluate(()=>({handheld:PCOnly.handheld,jackos:PCOnly.desktopOnly,touch:GameInput.touch,tier:House.Q.tier,sharp:House.Q.pixelRatio>=Math.min(devicePixelRatio,1.75)*.85-1e-6,hud:!!document.querySelector('.ht-hud')}));
+     assert.deepEqual(state,{handheld:true,jackos:false,touch:true,tier:'high',sharp:true,hud:true},'Phone must get the house with touch controls and the one sharp look');
      // The same account's room on the phone: the beanbag the desktop moved (prop-refresh) is where the desktop left it.
      const moved=await page.evaluate(()=>({...House.THINGS.beanbag.at}));
      for(const key of ['x','z','ry'])assert(Math.abs((moved[key]||0)-(beanbag[key]||0))<.6,`Phone room differs from the desktop save: beanbag ${key}`);

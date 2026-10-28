@@ -158,7 +158,7 @@
   function interiorAmb(id, dayIntensity = .64) {
     if (phase() === 'day') return {sky: '#d6dfe8', gnd: '#887d6e', i: dayIntensity};
     if (lit(id)) return {sky: '#ded1bc', gnd: '#7a6853', i: .5};
-    return phase() === 'night' ? {sky: '#7887a2', gnd: '#45464c', i: .3} : {sky: '#c1adb2', gnd: '#746251', i: .46};
+    return phase() === 'night' ? {sky: '#7887a2', gnd: '#45464c', i: .36} : {sky: '#c1adb2', gnd: '#746251', i: .46};
   }
   function outdoorAmb(ground) {
     return phase() === 'day' ? {sky: '#cfe0ff', gnd: ground, i: .78} : phase() === 'night' ? {sky: '#7283a4', gnd: '#49514e', i: .46} : {sky: '#d9b6ae', gnd: '#66654f', i: .62};
@@ -595,7 +595,7 @@
     [0, 120, 240].forEach(a => { const x = Math.cos(a * D2R) * 16, z = Math.sin(a * D2R) * 16; cl.cyl(x / 2, 30, z / 2, 0.5, 0.5, 18, 4, mBrass, { rz: 90, ry: -a }); cl.lathe(x, 28, z, [[1.5, -2], [6, 8]], 14, M({ c: '#f8f0e0', side: 2, e: '#000' })); });
     // a radiator under the window, a picture over the sofa
     B.box(-60, GY - 34, 694, 160, 54, 3.6, { all: M('#e8e5dc'), b: M({ c: '#fff', map: tex('radiator') }) });
-    const pic = B.at(-280 + 41.5, GY - 175, 500, 90); pic.wshadow(1, 2, -1.3, 86, 62, 0.5); pic.box(0, 0, 0, 80, 56, 2.4, M('#6a4a2a')); pic.plane(0, 0, 1.3, 72, 48, M({ c: '#fff', map: landTex() }));
+    const pic = B.at(-280 + 41.5, GY - 175, 500, 90); pic.wshadow(1, 2, -1.3, 86, 62, 0.5); pic.box(0, 0, 0, 80, 56, 2.4, M('#6a4a2a')); pic.plane(0, 0, 1.3, 72, 48, M({ c: '#fff', map: landTex(), pr: 1 }));
     batch.build(r.group);
     // spots
     wrapSpot('hs.sofa', { label: 'The sofa', act: sayLines('hs.sofa', 'The sofa', ['Down the back of the sofa: 37p, a hair bobble, a Buildo man and a fossilised Waver.', 'Dad\'s end, Mom\'s end, and the middle bit where the spring goes.']) }); pickBox(r, 'hs.sofa', SOFA.x, GY - 30, SOFA.z, SOFA.w, 60, 85);
@@ -759,8 +759,8 @@
     // warm white enamel (pure white blew out under the window light), a dark door seal line, and a busy door
     const fr = B.at(r.fridgeFrame.x,GY,r.fridgeFrame.z); fr.rbox(0, -85, 0, 60, 170, 64, 2, M({ c: '#e6e1d5', sh: 30, sp: '#4a4a48' })); fr.box(0, -110, 32.2, 58, 1.2, 0.8, M('#8e8a82'));
     for (const [x, y, c] of [[-18, -128, '#d02a2a'], [-9, -131, '#2a5ad0'], [3, -126, '#e8c020'], [-12, -98.5, '#2a8a3a'], [6, -101, '#d02a2a'], [-4, -64, '#e8c020'], [10, -60, '#2a5ad0']]) fr.rbox(x, y, 32.6, 2.6, 2.2, 1, 0.4, M(c)); // (same plastics as the notice-board pins: one draw each)
-    fr.box(-12, -88, 32.15, 15, 20, 0.12, M({ c: '#fff', map: tex('note') }), { rz: -3 }); fr.box(6, -92, 32.2, 13, 17, 0.12, M({ c: '#fff', map: tex('photo') }), { rz: 4 });
-    fr.box(-6, -136, 32.15, 18, 13, 0.12, M({ c: '#fff', map: tex('noteBlue') }), { rz: 2 });
+    fr.box(-12, -88, 32.15, 15, 20, 0.12, M({ c: '#fff', map: tex('note'), pr: 1 }), { rz: -3 }); fr.box(6, -92, 32.2, 13, 17, 0.12, M({ c: '#fff', map: tex('photo'), pr: 1 }), { rz: 4 });
+    fr.box(-6, -136, 32.15, 18, 13, 0.12, M({ c: '#fff', map: tex('noteBlue'), pr: 1 }), { rz: 2 });
     [[-130, 36], [-70, 46]].forEach(([y, hh]) => { fr.rbox(26, y, 33.6, 2.2, hh, 2.2, 0.8, M({ c: '#e0dcd4', sh: 60, sp: '#888' })); fr.box(26, y - hh / 2 + 1, 32.8, 2.2, 2, 1.2, M('#d0ccc4')); fr.box(26, y + hh / 2 - 1, 32.8, 2.2, 2, 1.2, M('#d0ccc4')); });
     fr.plane(-14, -160, 32.3, 16, 4, M({ c: '#fff', map: K.tex('hs.frlogo', 128, 32, (g) => { g.fillStyle = '#f4f2ec'; g.fillRect(0, 0, 128, 32); A.text(g, 'FROSTMASTER', 64, 22, '700 15px ' + A.UIF, '#8a8a8a', 'center'); }) }));
     fr.box(0, -2.1, 20, 56, 4, 24, M('#1a1a1a')); // the plinth (a hair off the floor plane the cabinet stands on)
@@ -817,13 +817,13 @@
     // a wall clock, the calendar, the cork board with Mom's lists
     const wc = B.at(-280 + 1, GC + 50, 120); wc.cyl(1, 0, 0, 16, 16, 2, 30, M('#f4f0e4'), { rz: 90 }); wc.cyl(2.2, 0, 0, 16.5, 16.5, 1, 30, M('#c83a2a'), { rz: 90 });
     r.clockHands = wc;
-    const cal = B.at(194, GY - 150, 60); cal.box(-0.25, 0, 0, 0.3, 42, 30, { l: M({ c: '#fff', map: tex('calendar') }), all: M('#e9e4d6') }); cal.cyl(-0.6, -22.5, 0, 0.35, 0.35, 0.8, 8, mMetal, { rz: 90 });
+    const cal = B.at(194, GY - 150, 60); cal.box(-0.25, 0, 0, 0.3, 42, 30, { l: M({ c: '#fff', map: tex('calendar'), pr: 1 }), all: M('#e9e4d6') }); cal.cyl(-0.6, -22.5, 0, 0.35, 0.35, 0.8, 8, mMetal, { rz: 90 });
     // Mom's notice board over the table: lists, a takeaway menu, the school photo
-    const nb = B.at(-280, GY - 150, 205, 90), corkM = M({ c: '#fff', map: tex('cork') }), nbFrame = M({ c: '#fff', map: tex('pine') });
+    const nb = B.at(-280, GY - 150, 205, 90), corkM = M({ c: '#fff', map: tex('cork'), pr: 1 }), nbFrame = M({ c: '#fff', map: tex('pine') });
     nb.wshadow(0.8, 1.2, 0.1, 58, 44, 0.45); nb.box(0, 0, 0.9, 52, 38, 1.6, corkM);
     for (const e of [-1, 1]) { nb.rbox(0, e * 19.6, 1.3, 55.2, 2, 2.6, 0.4, nbFrame); nb.rbox(e * 26.6, 0, 1.3, 2, 37.2, 2.6, 0.4, nbFrame); }
-    nb.box(-14, -2, 1.78, 15, 20, 0.12, M({ c: '#fff', map: tex('note') }), { rz: 3 }); nb.box(6, -5, 1.8, 16, 11, 0.12, M({ c: '#fff', map: tex('photo') }), { rz: -4 });
-    nb.box(16, 7, 1.76, 11, 14, 0.12, M({ c: '#fff', map: tex('noteBlue') }), { rz: 5 }); nb.box(-2, 10, 1.77, 13, 9, 0.12, M({ c: '#fff', map: tex('calendar') }), { rz: -2 });
+    nb.box(-14, -2, 1.78, 15, 20, 0.12, M({ c: '#fff', map: tex('note'), pr: 1 }), { rz: 3 }); nb.box(6, -5, 1.8, 16, 11, 0.12, M({ c: '#fff', map: tex('photo'), pr: 1 }), { rz: -4 });
+    nb.box(16, 7, 1.76, 11, 14, 0.12, M({ c: '#fff', map: tex('noteBlue'), pr: 1 }), { rz: 5 }); nb.box(-2, 10, 1.77, 13, 9, 0.12, M({ c: '#fff', map: tex('calendar'), pr: 1 }), { rz: -2 });
     [[-14, -10.5, '#d02a2a'], [6, -9.8, '#2a8a3a'], [16, -0.2, '#e8c020'], [-2, 6, '#2a5ad0']].forEach(([x, y, c]) => nb.cyl(x, y, 2.3, 0.8, 0.8, 1, 10, M(c), { rx: 90 }));
     batch.build(r.group);
     // the clock hands (they move)

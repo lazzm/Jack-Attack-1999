@@ -1,0 +1,8 @@
+// Exercise the real roaming snapshot/apply helpers: rendering choices belong to the device; house saves roam.
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const values=new Map(),localStorage={getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,String(v)),removeItem:k=>values.delete(k),key:i=>[...values.keys()][i],get length(){return values.size}};
+const s=fs.readFileSync(require.resolve('../app/public/js/roam.js'),'utf8'),c={localStorage,sessionStorage:{getItem(){return null}},window:{}};vm.createContext(c);vm.runInContext(s.slice(s.indexOf('  const LOCAL'),s.indexOf('  // ---- gzip'))+'\nthis.api={snapshot,apply};',c);
+const keys=['hs_gfx','hs_graphics','hs_adapt','hs_fps','hs_msaa','hs_nomerge','device_view','touch_slow_asked'].map(k=>'jhp_'+k);for(const k of keys)values.set(k,'local');values.set('jhp_hs_pose','standing');values.set('jhp_hs_stand','saved');values.set('jhp_rm','inventory');
+const snap=c.api.snapshot();for(const k of keys)assert(!Object.hasOwn(snap,k),k+' leaked into upload');assert.equal(snap.jhp_hs_pose,'standing');assert.equal(snap.jhp_hs_stand,'saved');assert.equal(snap.jhp_rm,'inventory');
+c.api.apply({...Object.fromEntries(keys.map(k=>[k,'remote'])),jhp_hs_pose:'new pose',jhp_rm:'new inventory'});for(const k of keys)assert.equal(values.get(k),'local',k+' was replaced or cleared');assert.equal(values.get('jhp_hs_pose'),'new pose');assert.equal(values.get('jhp_rm'),'new inventory');assert(!values.has('jhp_hs_stand'),'Old roaming pose was not replaced');
+console.log('GRAPHICS DEVICE PASS: eight device keys excluded from upload/download/wipe; standing pose and inventory still roam');
