@@ -67,3 +67,14 @@ html.hs-focus .ch-hud{display:none}
 .ch-tbtns button:first-child{background:rgba(120,90,20,.7)}
 .ch-tbtns button:hover{background:rgba(60,50,30,.7)}
 @media (hover:none),(pointer:coarse){.ch-toolbar{bottom:140px}}
+
+/* Hands work on the real duvet, with a small period-style instruction strip. */
+.ch-bed-work{position:absolute;inset:0;z-index:9;touch-action:none;cursor:grab;pointer-events:auto}
+.ch-bed-work:active{cursor:grabbing}
+.ch-bed-note{position:absolute;left:50%;bottom:70px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);box-sizing:border-box;padding:8px 12px;border:1px solid var(--game-edge);background:var(--game-panel);color:var(--game-ink);font:12px var(--game-ui);pointer-events:none}
+.ch-bed-note b,.ch-bed-note span{display:block;white-space:normal}.ch-bed-note b{margin-bottom:4px}.ch-bed-note progress{display:block;width:100%;height:7px;margin-top:7px;accent-color:#426237}
+html.hs-paused .ch-bed-work{pointer-events:none}
+@media(max-height:500px){.ch-bed-note{bottom:44px;padding:5px 9px}.ch-bed-note b{margin-bottom:2px}}
+
+html.hs-focus:has(.ch-bed-work) .hs-getup{z-index:10}
+html.hs-focus:has(.ch-bed-work) .hs-lockhint{display:none!important}

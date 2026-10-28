@@ -1,3 +1,4 @@
+import {workBed} from './bed-actions.mjs';
 // Real physical chore permutations and diary guidance on disposable localhost data.
 import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
@@ -36,10 +37,11 @@ for(const scenario of scenarios){
  async function bed(){
   await p.evaluate(()=>ChoreKit.begin('bed'));await p.waitForTimeout(1200);
   await drop('ch.pillow','ch.s.pillow');await p.waitForTimeout(1200);
+  await workBed(p,['pillow']);
   await drop('ch.pjs','ch.s.pjs');await p.waitForTimeout(1200);
   // Completed pillow/pyjamas never remain guidance targets, even before payment.
   assert(!await p.evaluate(()=>StoryGuide.targets().includes('ch.pjs')));
-  for(let i=0;i<3;i++){await p.evaluate(()=>House.act('bed'));await p.waitForTimeout(1200)}
+  await workBed(p,['pullL','pullR','smooth']);
   await done('bed');console.log(scenario,'bed complete early');
  }
  async function bin(){

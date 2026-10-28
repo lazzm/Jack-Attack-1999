@@ -38,7 +38,7 @@
         if (snaps.length) return snaps;
       }
       if (chore === 'tidy') return Object.keys(H.THINGS).filter(id => id.startsWith('ch.m.') && !H.THINGS[id].at.hide && !has('tidy', id.slice(5)));
-      if (chore === 'bed') return [...(!has('bed','pillow') ? ['ch.pillow'] : []), ...(!has('bed','pjs') ? ['ch.pjs'] : []), ...(!has('bed','smooth') ? ['bed'] : [])];
+      if (chore === 'bed') return [...(!has('bed','pillow') && !window.ChoreKit?.MODS.bed?.pillowDocked?.() ? ['ch.pillow'] : []), ...(!has('bed','pjs') && has('bed','pillow') ? ['ch.pjs'] : []), ...(!has('bed','smooth') || (!has('bed','pillow') && window.ChoreKit?.MODS.bed?.pillowDocked?.()) ? ['bed'] : [])];
       if (chore === 'bin') return has('bin','bag') ? [] : ['ch.binbag'];
       if (chore === 'cat') return !has('cat','pour') ? ['ch.catbox','ch.bowl'] : !has('cat','ate') ? ['cat'] : [];
       if (chore === 'plant') return [...(!has('plant','water') ? ['ch.can'] : []), ...['leaf0','leaf1','leaf2'].filter(id => !has('plant',id)).map(id => 'ch.'+id), ...(!has('plant','turn') ? ['ch.pot'] : [])];
@@ -65,7 +65,7 @@
     const s = st.tracked(), t = H.THINGS[id], spot = H.SPOTS[id], snap = H.SNAPS[id];
     if (id.startsWith('np.')) { const c = window.HouseFamily?.chars?.[id.slice(3)]; if (!c?.rig || !c.present) return null; const n = id === 'np.mom' ? 'Mom' : id === 'np.dad' ? 'Dad' : (window.Cast ? Cast.n('sister') : 'my sister'); return {obj:c.rig.group, label:n, action:'F: talk to ' + n}; }
     if (id === 'st.boot') return {obj:H.ROOMS.drive?.carBoot?.hinge, label:'Dad’s car boot', action:s?.id === 'dad' ? 'Meet Dad at the car' : 'F: open the boot'};
-    if (id === 'bed' && window.ChoreKit?.MODS.bed?.guide) return {obj:ChoreKit.MODS.bed.guide(),label:'The duvet',action:'F: straighten the duvet'};
+    if (id === 'bed' && window.ChoreKit?.MODS.bed?.guide) return {obj:ChoreKit.MODS.bed.guide(),label:'The duvet',action:'F: make the bed'};
     if (t && !t.at.hide) return {obj:t.obj,label:typeof t.label === 'function' ? t.label() : t.label,action:id === 'st.pc.tower' && s?.id === 'power' ? 'F: press the power button' : id === 'ch.binbag' && !has('bin','tie') ? 'F: tie the bin bag' : id === 'gb' ? 'F: play the Game Lad' : t.chore === 'cushions' && has('cushions','c'+t.cI) ? 'F: plump the cushion' : ['ch.pillow','ch.pjs'].includes(id) ? 'E: carry to the bed' : id.startsWith('ch.m.') ? 'E: carry to '+({clothes:'the washing basket',rubbish:'the bin',dish:'the kitchen sink',mag:'the magazine pile',cd:'the CD rack'}[t.kind.slice(5)] || 'its place') : t.useLabel ? 'F: '+t.useLabel.toLowerCase()+' · E: carry' : 'E: carry · F: look closely'};
     if (snap) {
       const p = snap.preview || snap.pose || snap;

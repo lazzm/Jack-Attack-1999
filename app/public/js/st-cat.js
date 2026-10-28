@@ -6,7 +6,7 @@
       { id: 'lad', text: 'One quick go on my Game Lad.', hint: 'F plays the Game Lad. E carries, R turns, Q leans back. Enter starts the game.', test: 'play.gb', targets: ['gb'] },
       { id: 'meetmom', text: 'Mom is coming up the stairs. Better look busy.', hint: 'Talk to Mom with F. She is at my bedroom door.', test: 'talk.mom', targets: ['np.mom'] },
       { id: 'tidy', text: 'Mom wants my room tidy first.', hint: 'Clothes in the basket, rubbish in the bin, dishes in the kitchen sink.', test: 'chore.tidy', targets: ['ch.list.bedroom', 'ch.s.basket', 'ch.s.bin', 'ch.s.sink'] },
-      { id: 'bed', text: 'Make the bed. A duvet heap does not count.', hint: 'E carries the pillow and pyjamas to their places. F straightens the duvet.', test: 'chore.bed', targets: ['ch.pillow', 'ch.pjs', 'bed'] },
+      { id: 'bed', text: 'Make the bed. A duvet heap does not count.', hint: 'E carries the pillow to the bed. F: plump, pull, tuck and smooth. Fold the pyjamas onto the pillow.', test: 'chore.bed', targets: ['ch.pillow', 'ch.pjs', 'bed'] },
       { id: 'bin', text: 'Take my bin bag downstairs.', hint: 'F ties the bag. E carries it to the kitchen bin; E puts it in.', test: 'chore.bin', targets: ['ch.binbag', 'ch.s.kbin'] },
       { id: 'dad', text: 'Dad is home! Meet him at the car.', hint: 'F opens doors. Follow the stairs to the hall, then the front door to the drive.', test: 'room.drive', targets: ['st.boot'] },
       { id: 'boot', text: "Open the boot of Dad's car.", hint: 'F opens the boot. There is an entire computer in there!', test: 'physical.boot', targets: ['st.boot'] },

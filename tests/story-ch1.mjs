@@ -1,3 +1,4 @@
+import {workBed} from './bed-actions.mjs';
 // Story integration through existing public gameplay APIs, real chore timing and real sockets.
 // Accepts only a disposable localhost server; never seeds or edits another mod's state.
 import assert from 'node:assert/strict';
@@ -150,8 +151,9 @@ try {
   await waitStep('tidy'); console.log('Ch1: real tidy accepted');
   await p.evaluate(() => ChoreKit.begin('bed')); await p.waitForTimeout(1200);
   await dropIn('ch.pillow','ch.s.pillow'); await p.waitForTimeout(1300);
+  await workBed(p,['pillow']);
   await dropIn('ch.pjs','ch.s.pjs'); await p.waitForTimeout(1300);
-  for(let i=0;i<3;i++){await p.evaluate(() => House.act('bed'));await p.waitForTimeout(1400)}
+  await workBed(p,['pullL','pullR','smooth']);
   await waitStep('bed'); console.log('Ch1: real bed accepted');
   await p.evaluate(() => House.act('ch.binbag')); await until(() => ChoreKit.has('bin','tie'));
   await p.waitForTimeout(5500); await dropIn('ch.binbag','ch.s.kbin');

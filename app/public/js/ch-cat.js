@@ -19,11 +19,11 @@
     { id: 'tidy', job: 'tidy', area: 'up', room: 'bedroom', n: 'Tidy your room', short: 'Tidy room', pay: 20, par: 110, min: 16, where: 'my room',
       blurb: 'Clothes in the washing basket, rubbish in the bin, mags on the pile, CDs in the rack, plates and mugs down to the kitchen sink.' },
     { id: 'bed', job: 'bed', area: 'up', room: 'bedroom', n: 'Make your bed', short: 'Make bed', pay: 12, par: 40, min: 6, where: 'my bed',
-      blurb: 'Pillow off the floor, pyjamas under it, then pull the duvet straight. Properly. Mom checks.' },
+      blurb: 'Plump the pillow, fold pyjamas on top, then pull, tuck and smooth the duvet. Properly. Mom checks.' },
     { id: 'bin', job: 'bin', area: 'up', room: 'bedroom', n: 'Empty your bin', short: 'Empty bin', pay: 10, par: 50, min: 6, where: 'my bin',
       blurb: 'Tie up the bag in your bin and take it down to the kitchen bin. Before it walks there on its own.' },
     { id: 'cat', job: 'cat', area: 'up', room: 'bedroom', n: 'Feed the cat', short: 'Feed cat', pay: 10, par: 35, min: 7, where: 'my room',
-      blurb: "Next door's cat lives on your bed. Shake some biscuits into the bowl and give a shout." },
+      blurb: "Next door's cat has claimed the cat tree. Shake some biscuits into the bowl and give a shout." },
     { id: 'plant', job: 'plant', area: 'up', room: 'bedroom', n: 'Water your plant', short: 'Water plant', pay: 8, par: 35, min: 4, where: 'my room',
       blurb: 'The spider plant Gran gave you. Water it, pick off the brown leaves, turn it to the light.' },
     // ---- the kitchen
