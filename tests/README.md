@@ -450,3 +450,10 @@ mirrored geometry), compares doorway images with mesh frustum rejection disabled
 wide desktop and portrait/landscape phone/tablet lighting views. Review
 `shots/gfx-lighting/` visually. `node static-batch-unit.cjs` covers geometry, material,
 visibility, transform and parent changes and preserves picking of original meshes.
+
+`node bedmaking.mjs http://localhost:PORT` uses a fresh disposable owner account to
+check real E placements, mouse and touch cloth gestures, cancelled and short drags,
+keyboard work through the story helper, pause, refresh during a pull, old partial
+save visibility, redo, and six desktop/phone/tablet sizes. Review `shots/bedmaking/`.
+`story-ch1.mjs` and `story-order.mjs` use `bed-actions.mjs` for the same Space-hold
+alternative; neither writes completed chore flags in place of gameplay.

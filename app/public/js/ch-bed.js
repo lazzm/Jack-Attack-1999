@@ -1,7 +1,7 @@
 /* ch-bed: Mom's jobs in JACK'S ROOM (js/ch-core.js is the engine). Five of them, all done with your hands:
  *   tidy   today's mess (clothes, rubbish, mags, a CD, a plate or a mug) goes where it lives: the washing basket, the bin,
  *          the mag pile by the telly, the CD rack, and dirty plates DOWN to the kitchen sink
- *   bed    the pillow off the floor, the pyjamas under it, then pull the duvet straight (click the bed: three goes)
+ *   bed    place and plump the pillow, fold pyjamas on top, then pull, tuck and smooth the duvet
  *   bin    tie up the bag in your bin (click it) and carry it down to the kitchen bin
  *   cat    shake the cat biscuits into the bowl, then give next door's cat a shout: it hops down and has its tea
  *   plant  water Gran's spider plant (hold the watering can over it and pour), pick off the brown leaves, turn it round
@@ -358,20 +358,123 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       const x = duvBase[i * 2], y = duvBase[i * 2 + 1], u = x / W + 0.5, v = y / L + 0.5;
       // the way it was left (js/rm-room.js draws exactly this), and the way Mom wants it
       let base = -Math.sin(u * Math.PI) * 6; if (u < 0.08) base += (0.08 - u) * 190; if (u > 0.94) base += (u - 0.94) * 140;
-      const wr = -Math.sin(v * 9 + u * 5) * 1.6 - Math.sin(u * 13 - v * 4) * 1.2;
+      const wr = -Math.sin(v * 9 + u * 5) * 3.5 - Math.sin(u * 13 - v * 4) * 2.8;
       let neat = -Math.sin(u * Math.PI) * 2.6 - 0.6; if (u < 0.07) neat += (0.07 - u) * 240; if (u > 0.95) neat += (u - 0.95) * 160; if (v > 0.97) neat += (v - 0.97) * 90;
-      const b = Math.max(0, Math.min(1, duvK.s * (1 - sstep(0.35, 0.65, u)) + duvK.f * sstep(0.35, 0.65, u)));
+      const b = Math.max(0, Math.min(1, duvK.s * .55 + duvK.f * .45));
       const y2 = base + (neat - base) * b + wr * (1 - duvK.t) * (1 - 0.5 * b) - duvK.lift * Math.sin(u * Math.PI) * Math.sin(v * Math.PI);
+      p.setY(i,y+(1-duvK.s)*22*(1-v));
       p.setZ(i,-y2+(duv.geometry.attributes.clothDepth?.getX(i)||0));
     }
     p.needsUpdate=true;duv.geometry.computeVertexNormals();duv.geometry.computeBoundingSphere();duv.geometry.boundingBox=null;H.softChanged?.('bedroom');H.dirty();
   }
-  function pull(which) {
-    const key = { pullL: 's', pullR: 'f', smooth: 't' }[which], t0 = performance.now(), ms = 700;
-    CK.snd.whoosh();
-    H.anims.set('ch.duv', now => { const k = Math.min(1, (now - t0) / ms); duvK[key] = CK.ease(k); duvK.lift = Math.sin(k * Math.PI) * (which === 'smooth' ? 1.5 : 5); duvShape(); return k < 1; });
+  let pillowT = null, pjsT = null, loosePjs = null, foldedPjs = null;
+  let making = null;
+  const bedStages = {
+    pillow: ['Plump the pillow', 'Drag up and down over the pillow.', 55],
+    pullL: ['Pull the duvet up', 'Drag the duvet towards the pillow.', 48],
+    pullR: ['Tuck the sides', 'Drag across the duvet towards either edge.', 36],
+    smooth: ['Smooth the wrinkles', 'Rub back and forth across the duvet.', 110],
+  };
+  function bedStage() {
+    if (!CK.has('bed', 'pillow') && V().pillowDocked) return 'pillow';
+    return ['pullL', 'pullR', 'smooth'].find(s => !CK.has('bed', s));
   }
-  let pillowT = null, pjsT = null;
+  function bedPreview(stage, amount) {
+    if (stage === 'pillow' && pillowT) {
+      const squash = Math.sin(amount * Math.PI * 4) * .16;
+      pillowT.obj.scale.set(1 - squash * .22, 1 + squash, 1 - squash * .22);
+    } else {
+      const key = { pullL: 's', pullR: 'f', smooth: 't' }[stage];
+      if (key) duvK[key] = amount;
+      duvK.lift = Math.sin(amount * Math.PI) * (stage === 'smooth' ? 1.2 : 4);
+      duvShape();
+    }
+    H.dirty();
+  }
+  function bedPrompt() {
+    if (!making) return;
+    const stage = bedStage(); making.stage = stage;
+    const row = stage && bedStages[stage];
+    making.el.querySelector('b').textContent = row ? row[0] : 'Duvet done!';
+    making.el.querySelector('span').textContent = row ? row[1] + (window.GameInput?.touch ? '' : ' Or hold Space.') :
+      !CK.has('bed', 'pillow') ? 'E picks up the pillow. Place it on the bed, then F plumps it.' :
+      !CK.has('bed', 'pjs') ? 'E picks up the pyjamas. Place them on the pillow to fold them.' : 'All straight. Mom will be pleased.';
+    making.el.querySelector('progress').value = 0;
+  }
+  function bedEndGesture(commit) {
+    const m = making, g = m?.gesture; if (!g) return;
+    m.gesture = null;
+    if (commit && g.amount >= 1) {
+      bedPreview(g.stage, 1); duvK.lift = 0;
+      if (g.stage === 'pillow') { pillowT.obj.scale.set(1, 1, 1); CK.snd.thud(); }
+      else CK.snd.rustle();
+      CK.step('bed', g.stage);
+    } else CK.MODS.bed.sync();
+    bedPrompt();
+  }
+  function bedPoint(ev) {
+    const ray = H.rayAt(ev.clientX, ev.clientY), k = (35 - ray.o.y) / ray.d.y;
+    return k > 0 ? { x: ray.o.x + ray.d.x * k, z: ray.o.z + ray.d.z * k } : null;
+  }
+  // Idle close-ups do not schedule whole-house redraws. Watch only an active hand.
+  function bedWatch() {
+    H.anims.set('ch.bed-work',(now,dt)=>{
+      if(!making?.gesture)return false;
+      if(H.paused){bedEndGesture(false);return false;}
+      const g=making.gesture;
+      if(g.key){g.amount=CK.clamp(g.amount+Math.min(dt||.016,.05)/1.5,0,1);bedPreview(g.stage,g.amount);making.el.querySelector('progress').value=g.amount;}
+      return true;
+    });
+  }
+  function bedClick() {
+    if (CK.done('bed')) return false;
+    if (making || H.focused) return true;
+    CK.begin('bed');
+    const el = document.createElement('div'); el.className = 'ch-bed-work';
+    el.innerHTML = '<div class="ch-bed-note" role="status"><b></b><span></span><progress max="1" value="0" aria-label="Bed-making progress"></progress></div>';
+    const start = ev => {
+      if (H.paused || !making?.stage || making.gesture || ev.button > 0) return;
+      const p = bedPoint(ev), stage = making.stage;
+      if (!p || (stage === 'pillow' ? Math.abs(p.x-190)>30 || Math.abs(p.z+33)>22 : p.x<BED.x0-8 || p.x>BED.x1+8 || p.z<-20 || p.z>145)) return;
+      ev.preventDefault(); el.setPointerCapture(ev.pointerId);
+      making.gesture = { stage, p, first:p, amount:0, distance:0, pointer:ev.pointerId };bedWatch();
+      CK.snd.rustle();
+    };
+    el.addEventListener('pointerdown', start);
+    el.addEventListener('pointermove', ev => {
+      const g=making?.gesture; if (!g || g.pointer!==ev.pointerId || H.paused) return;
+      const p=bedPoint(ev); if(!p)return;
+      const dx=p.x-g.p.x, dz=p.z-g.p.z;
+      if(g.stage==='pullL')g.distance=Math.max(g.distance,g.first.z-p.z);
+      else if(g.stage==='pullR')g.distance=Math.max(g.distance,Math.abs(p.x-g.first.x));
+      else g.distance+=Math.min(12,Math.hypot(dx,dz));
+      g.p=p;g.amount=CK.clamp(g.distance/bedStages[g.stage][2],0,1);
+      bedPreview(g.stage,g.amount);el.querySelector('progress').value=g.amount;
+    });
+    el.addEventListener('pointerup',ev=>{if(making?.gesture?.pointer===ev.pointerId)bedEndGesture(!H.paused)});
+    el.addEventListener('pointercancel',ev=>{if(making?.gesture?.pointer===ev.pointerId)bedEndGesture(false)});
+    el.addEventListener('lostpointercapture',ev=>{if(making?.gesture?.pointer===ev.pointerId)bedEndGesture(false)});
+    const keyDown=ev=>{
+      if(ev.code!=='Space'||ev.ctrlKey||ev.metaKey||ev.altKey||H.paused||!making?.stage)return;
+      ev.preventDefault(); if(ev.repeat||making.gesture)return;
+      making.gesture={stage:making.stage,amount:0,key:true};bedWatch();CK.snd.rustle();
+    };
+    const keyUp=ev=>{if(ev.code==='Space'&&making?.gesture?.key){ev.preventDefault();bedEndGesture(!H.paused)}};
+    const cancel=()=>bedEndGesture(false);
+    const ok=H.focus({x:193,y:-132,z:186,rx:-50,ry:0,lvl:'U',seat:1}, {
+      label:'Back to the room', enter:()=>{
+        making={el,stage:null,gesture:null};H.ui.el.appendChild(el);bedPrompt();
+        document.addEventListener('keydown',keyDown);document.addEventListener('keyup',keyUp);
+        window.addEventListener('blur',cancel);window.addEventListener('resize',cancel);document.addEventListener('visibilitychange',cancel);
+
+      }, exit:()=>{
+        bedEndGesture(false);making=null;el.remove();H.anims.delete('ch.bed-work');
+        document.removeEventListener('keydown',keyDown);document.removeEventListener('keyup',keyUp);
+        window.removeEventListener('blur',cancel);window.removeEventListener('resize',cancel);document.removeEventListener('visibilitychange',cancel);
+      },
+    });
+    return !!ok;
+  }
   CK.add({
     id: 'bed', room: 'bedroom',
     build(r) {
@@ -385,42 +488,58 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       duv = K.into(g).geo(geo, bcx, 36, bcz + 14, M({ c: '#fff', map: dtex, side: 2 }).clone(), { rx: 90 }); duv.userData.ch = 1; for (const s of H.softs || []) if (s.room === 'bedroom') s.meshes.push(duv);
       // The bed's only pillow starts on the floor, beside the pyjamas.
       const pil = grp(G => { G.rbox(0, -5, 0, 50, 10, 30, 4.8, M({ c: '#fff', map: A.t('pillow'), sh: 8 })); G.ball(0, -7, 0, 22, 4, 12, M({ c: '#fff', map: A.t('pillow'), sh: 8 }), 14); G.shadow(0, 0, 0, 56, 34, 0.5, { sq: true }); });
-      pillowT = CK.thing('ch.pillow', { obj: pil, kind: 'pillow', label: 'Pillow (on the floor, obviously)', chore: 'bed', holdD: 70, home: { room: 'bedroom', x: 40, y: FY, z: 72, ry: 80 } });
-      pjsT = CK.thing('ch.pjs', { obj: cloth('pjs', 34, 32, 3, P.pjs, 21), kind: 'pjs', label: 'Pyjamas', chore: 'bed', holdD: 55, home: { room: 'bedroom', x: 112, y: FY, z: 150, ry: -20 } });
-      CK.snap('ch.s.pillow', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [80, 2, 120], accepts: k => k === 'pillow', pose: { x: 190, y: 37, z: -33, ry: 0 }, hint: 'Let go: on the bed', onSnap: () => { CK.lock('ch.pillow'); CK.step('bed', 'pillow'); CK.snd.thud(); } });
-      CK.snap('ch.s.pjs', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [80, 2, 120], pose: { x: 188, y: 24, z: -30, ry: 0 }, accepts: k => k === 'pjs', hide: true, hint: 'Let go: under the pillow', onSnap: () => { CK.lock('ch.pjs'); CK.step('bed', 'pjs'); CK.snd.rustle(); } });
-      // clicking the bed straightens the duvet (once it's made, the bed is the bed again: there might be something in it)
+      pillowT = CK.thing('ch.pillow', { obj: pil, kind: 'pillow', label: () => CK.has('bed','pillow') || V().pillowDocked ? 'Pillow' : 'Pillow (on the floor, obviously)', chore: 'bed', holdD: 70, home: { room: 'bedroom', x: 40, y: FY, z: 72, ry: 80 } });
+      loosePjs = cloth('pjs', 34, 32);
+      foldedPjs = grp(G => {
+        const fabric = clothMat('pjs');
+        G.rbox(0,-1.2,0,27,2.4,20,1.1,fabric);
+        G.rbox(0,-3.2,-.6,26,1.8,18, .8,fabric);
+        G.rbox(0,-4.2,1,25,.5,14,.24,fabric);
+        G.shadow(0,0,0,29,22,.3,{sq:true});
+      });
+      foldedPjs.visible=false;const pajamas=new T.Group();pajamas.add(loosePjs,foldedPjs);pajamas.userData.handGrips=loosePjs.userData.handGrips;
+      pjsT = CK.thing('ch.pjs', { obj: pajamas, kind: 'pjs', label: 'Pyjamas', chore: 'bed', holdD: 55, home: { room: 'bedroom', x: 112, y: FY, z: 150, ry: -20 } });
+      CK.snap('ch.s.pillow', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [80, 2, 120], accepts: k => k === 'pillow', pose: { x: 190, y: 37, z: -33, ry: 0 }, hint: 'Let go: on the bed', onSnap: () => { V().pillowDocked=true;CK.save();CK.lock('ch.pillow');CK.snd.thud();CK.MODS.bed.sync();H.ui.toast('Pillow on the bed','F on the bed: plump it up.'); } });
+      CK.snap('ch.s.pjs', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [80, 2, 120], pose: { x: 190, y: 26, z: -33, ry: 0 }, accepts: k => k === 'pjs' && CK.has('bed','pillow'), hint: 'Place: fold onto the pillow', onSnap: () => { CK.lock('ch.pjs'); CK.step('bed', 'pjs'); CK.snd.rustle(); } });
+      // The close-up keeps the actual solid cloth interactive; completed beds retain their secrets.
       CK.guard('bed', () => bedClick());
       this.sync();
     },
     sync() {
       const v = V(), dn = CK.done('bed');
       duvK.s = CK.has('bed', 'pullL') ? 1 : 0; duvK.f = CK.has('bed', 'pullR') ? 1 : 0; duvK.t = CK.has('bed', 'smooth') ? 1 : 0; duvK.lift = 0; duvShape();
-      if (pillowT) { if (CK.has('bed', 'pillow')) { pillowT.home = { room: 'bedroom', x: 190, y: 37, z: -33, ry: 0 }; CK.lock('ch.pillow'); if (Math.abs(pillowT.at.x - 190) > 2 || pillowT.at.y !== 37) CK.home('ch.pillow'); } else CK.lock('ch.pillow', false); }
-      if (pjsT) { if (CK.has('bed', 'pjs')) { pjsT.home = { room: 'bedroom', x: 112, y: FY, z: 150, hide: true }; CK.lock('ch.pjs'); if (!pjsT.at.hide) CK.home('ch.pjs'); } else CK.lock('ch.pjs', false); }
+      if (pillowT) {
+        const docked=CK.has('bed','pillow')||v.pillowDocked;
+        if(docked){pillowT.home={room:'bedroom',x:190,y:37,z:-33,ry:0};CK.lock('ch.pillow');if(Math.abs(pillowT.at.x-190)>.1||pillowT.at.y!==37||pillowT.at.z!==-33||pillowT.at.ry!==0)CK.home('ch.pillow');}
+        else CK.lock('ch.pillow',false);
+        if(pillowT.fixed!==docked){pillowT.fixed=docked;H.physics.sync(pillowT.id);}
+        if(!making?.gesture)pillowT.obj.scale.set(1,1,1);
+      }
+      if (pjsT) {
+        const folded=CK.has('bed','pjs');loosePjs.visible=!folded;foldedPjs.visible=folded;pjsT.fixed=folded;
+        if(folded){const y=CK.has('bed','pillow')||v.pillowDocked?26:37;pjsT.home={room:'bedroom',x:190,y,z:-33,ry:0};CK.lock('ch.pjs');if(pjsT.at.hide||pjsT.at.x!==190||pjsT.at.y!==y||pjsT.at.z!==-33||pjsT.at.ry!==0)CK.home('ch.pjs');}
+        else CK.lock('ch.pjs',false);
+        // Folding changes the real support footprint as well as the visible mesh.
+        // Recreate only this body so cached support/radius data matches the bundle.
+        if(pjsT.bedFolded!==folded){
+          pjsT.physics=Object.assign({},pjsT.physics,{parts:folded?[{t:'box',x:0,z:0,hx:13.5,hz:10,lo:0,hi:4.45}]:undefined});
+          H.physics.world?.remove(pjsT.id);pjsT.body=null;pjsT.bedFolded=folded;H.physics.sync(pjsT.id);
+        }
+      }
+      if(making && !making.gesture)bedPrompt();
       void v; void dn;
     },
     guide() { return duv; },
+    pillowDocked() { return !!V().pillowDocked; },
     reset() {
-      // A finished chore changes these homes (the pyjamas become hidden).
+      delete V().pillowDocked;
+      // A finished chore changes these homes.
       // A new day / owner's retry must start with real, reachable objects.
       pillowT.home = { room: 'bedroom', x: 40, y: FY, z: 72, ry: 80 };
       pjsT.home = { room: 'bedroom', x: 112, y: FY, z: 150, ry: -20 };
       CK.home('ch.pillow'); CK.home('ch.pjs'); this.sync();
     },
   });
-  function bedClick() {
-    if (CK.done('bed')) return false;
-    const next = ['pullL', 'pullR', 'smooth'].find(s => !CK.has('bed', s));
-    if (!next) return false;
-    CK.begin('bed');
-    pull(next);
-    setTimeout(() => CK.step('bed', next), 380);
-    const L = { pullL: 'Grab the edge... and PULL. It flaps up like a parachute.', pullR: 'Now the other side: tuck it in down the side by the wall.', smooth: 'Smooth it all out flat. Look at that. Like a hotel.' };
-    CK.jack('Making the bed', L[next] + (next === 'smooth' && !CK.has('bed', 'pillow') ? '<br><small>(The spare pillow\'s still on the floor. And my pyjamas.)</small>' : ''), 3200);
-    return true;
-  }
-
   // ================================================================ EMPTY YOUR BIN
   let bag = null, bagOpen = null, bagTied = null, liner = null, binStuff = [];
   function binBagDocked(v) {

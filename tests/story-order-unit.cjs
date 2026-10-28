@@ -79,7 +79,7 @@ try {
   }
   selected={id:'bed',key:'chore.bed',test:'chore.bed'};house.SPOTS.bed={obj:house.THINGS.duvet.obj};change();frame(1300);
   const rims=()=>{const out=[];house.scene.traverse(o=>{if(o.userData.questRim)out.push(o)});return out};
-  assert.equal(rims().length,3);assert(rims().every(o=>!o.material.wireframe));
+  assert.equal(rims().length,2);assert(rims().every(o=>!o.material.wireframe));
   steps['bed.pjs']=1;house.THINGS['ch.pjs'].at.hide=true;frame(1600);
   assert(!guide.StoryGuide.targets().includes('ch.pjs'));assert(!rims().some(o=>o.userData.questRim==='ch.pjs'));
   held='ch.pillow';house.SNAPS['ch.s.pillow']={x:80,y:0,z:-50,hint:'Let go: on the bed',accepts:()=>true};house.THINGS[held].chore='bed';frame(1900);

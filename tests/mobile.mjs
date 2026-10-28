@@ -352,9 +352,11 @@ const phases = {
       assert.equal(info.handheld, true); assert.equal(info.jackos, false, 'Phone must get the house'); assert.equal(info.touch, true);
       assert.equal(info.tier, 'high', 'Phones get the one (best) look'); assert(info.pr >= Math.min(info.dpr, 1.75) * .85 - 1e-6, 'Phone drawing buffer stays sharp: ' + JSON.stringify(info));
       await until(() => House.mode === 'walk' && document.documentElement.dataset.touchState === 'walk', null, 60000);
+      // Check the timed card before screenshots/readback/layout work: software
+      // WebGL can spend its entire 14-second lifetime on those operations.
+      await until(() => !!document.querySelector('.ht-coach'), null, 60000);
       await page.waitForTimeout(2500); await shot('story-02-opening'); await notBlack(p, 'opening');
       await layoutAudit(p, 'story opening portrait');
-      assert(await page.evaluate(() => !!document.querySelector('.ht-coach')), 'First-time coach marks missing');
       // Click things in the room with a real finger: Mom (talk), a magazine (pick up, then put it down at its ghost), the door.
       // stand on a walkable spot about 1.3 m from a thing (on its floor) and look at it; returns false if nowhere fits
       const look = async id => { const r = await page.evaluate(id => { const H = House, o = H.SPOTS[id]?.obj || H.THINGS[id]?.obj; if (!o) return null; o.updateWorldMatrix(true, true); const v = new H.T.Vector3(); o.getWorldPosition(v); let c = [v.x, -v.y, v.z], lvl = c[1] > 100 ? 'G' : 'U';
