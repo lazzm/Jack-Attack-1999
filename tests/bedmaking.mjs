@@ -54,6 +54,7 @@ try{
  await drag(Array.from({length:13},(_,i)=>[i%2?215:170,60]),true);await until(()=>ChoreKit.has('bed','smooth'));await shot('07-complete-focus');await leave();
  const before=await p.evaluate(()=>({off:localStorage.getItem('jhp_off'),prog:ChoreKit.S.prog.bed}));
  for(const [width,height,name]of [[1366,860,'desktop'],[1920,1080,'wide'],[390,844,'phone'],[844,390,'phone-landscape'],[768,1024,'tablet'],[1024,768,'tablet-landscape']]){await p.setViewportSize({width,height});await f.view([100,-65,200],[193,35,40]);await shot('complete-'+name)}
+ await p.setViewportSize({width:1366,height:860});
  for(const [name,eye]of [['side',[95,-15,55]],['head',[110,-35,-10]],['foot',[193,-55,220]]]){await f.view(eye,[193,35,35]);await shot('complete-'+name)}
  await walk();await p.evaluate(()=>House.saveWalkState());const pose=await p.evaluate(()=>({x:House.W.x,z:House.W.z}));await p.reload({waitUntil:'domcontentloaded'});await until(()=>House.live&&!document.querySelector('.hs-loading,#houseEntry'));
  await p.evaluate(async()=>{await Chores.load();await Chores.part('bedroom')});await until(()=>!!House.THINGS['ch.pjs']);
