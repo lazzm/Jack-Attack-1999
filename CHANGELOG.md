@@ -1,5 +1,13 @@
 # Jack's Home Page - changelog
 
+## 2.57.14 - 2026-10-28
+- R86/R103: Jack approved an extra metre of front plot. The car now leaves 110 cm behind its boot and 107 cm before the gateway. Shared street, seasonal props, chores and family targets follow the new boundary; both navigation grids cover the pavement. Rebuilt clipped hedge, properly sized piers and lamp base, slimmer car pillars and lower glass.
+- R90: re-laid lounge furniture, 90 x 50 cm bevelled coffee table with an 83 cm sofa gap, matching collision/support, updated seating and a brass coal-effect gas fire. R112: people in a hall queue request room from the back, with cycle/seated/conversation guards.
+- R88: extended village streets, junction, shop, houses and a moving opaque distant skyline. R93: verified both gable walls with 144 exterior views and zero holes. Two bedroom hero posters are A2; restored a poster label accidentally disabled in the old branch.
+- Placement version 6 transfers old car/roof and raised lounge props once, preserving angles, snap/hidden records and metadata. Existing mowing cuts survive; completed strips extend through the new lawn rows without resetting progress or paying again.
+- Verified: syntax/unit/parody gates; Chapter 1, identity, owner tools and Halloween; smoke 12/12, physics 15/15, mobile 7/7 plus approved-layout full/tablet/performance 3/3; real saved roof contact and repeat refreshes; four furnished lounge routes and six door checks; family routine days, crossings, entrances, repeated dialogue and eighteen job interruptions. Real phone-finger input walks behind the open boot and ahead of the car, then preserves pose, power and boot through refresh and rotation. Reviewed desktop 1366x860 and phone/tablet portrait/landscape captures.
+- Remaining advisory dimensions are listed in SCALE-REVIEW.md; this release does not complete the whole scale audit. Physical Edge/Android hardware and gamepads remain unverified. No account, wallet, earning-cap or shared-world resets. R107 banner stacking, R108's existing furniture-check warning and R96's remaining CRT test timing await their queued work.
+
 ## 2.57.13 - 2026-10-28
 - The walking camera sees more of the room: 60 degrees vertically on ordinary landscape displays, at least 50 degrees across on portrait phones, capped at 95 degrees across. Standing eye height is 143 cm; the default seated height is 108 cm. The PC keeps its original lens and screen framing.
 - R111: the live desktop now stays fitted to the CRT when the lens changes without the player moving. The new corner check reproduces 72 px drift with the old cache and keeps every corner within 0.06 px with the fix.

@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.13: wider walking camera and teenager eye height, CRT projection aligned during lens changes; 2.57.12 also included doorway/dialogue and carry/bin/slot fixes, rounded hips, person-person clearance, corrected family wrists and rebuilt first-person grips.
+- Live = 2.57.14: owner-approved seven-metre plot, clear car/boot access, lounge circulation, village scenery and safe placement/mowing migrations. Earlier 2.57.10–13 doorway/dialogue, carry/hands/hips and camera fixes remain included.
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
   -> `./deploy.sh` -> `curl -s https://jacklm.com/ | grep -o "v=2\.[0-9.]*-[0-9]*"` -> git commit (attribution) + `git push origin main`.
@@ -22,7 +22,7 @@ never anything that looks cursed.
 | /opt/stacks/landing-arms | carry-arms | shipped 2.57.11 | R100/R101/R105 complete; R83 edge-label fix and touch carry polish included. Next: people-hips. |
 | /opt/stacks/landing-hips | people-hips | shipped 2.57.12 | R97/R99/R102 complete; R109 first-person grip rebuild and R110 wrist-side fix included. Camera shipped separately in 2.57.13; next: the rest of house-round2. |
 | /opt/stacks/landing-camera | house-camera | shipped 2.57.13 | Camera G1/G2/G5 and R111 complete; native-lens and CRT corner capture review passed. |
-| /opt/stacks/landing-house2 | house-round2 | gated for 2.57.14; Jack approved 7 m plot | R86/R88/R90/R93/R103 and R112 complete. Clearance 110/107 cm; save migration, real touch, exterior 144 views, NPC routines and mobile green. Remaining scale-audit rows stay open. Next: mobile-3. |
+| /opt/stacks/landing-house2 | house-round2 | shipped 2.57.14; Jack approved 7 m plot | R86/R88/R90/R93/R103 and R112 complete. Clearance 110/107 cm; save migration, real touch, exterior 144 views, NPC routines and mobile green. Remaining scale-audit rows stay open. Next: mobile-3. |
 | /opt/stacks/landing-mobile3 | mobile-3 | 3 commits + WIP | R98 research-led mobile controls polish (docs/MOBILE-CONTROLS.md); mobile.mjs "Finger label on Mom" needs updating for personal space. |
 | /opt/stacks/landing-props | props-pass | 4 commits + WIP | shape-hugging target glows, clothes/rubbish models, crisp packet, pentagon/hexagon football, cat + cat tree (R40/R68/R74/R77/R81). |
 | /opt/stacks/landing-gfx | gfx-best | WIP (28 files) | R65 remove graphics options, best look always, real optimisation (no blur); R92 lighting incl. posters. |
