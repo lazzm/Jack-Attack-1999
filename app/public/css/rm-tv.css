@@ -17,6 +17,8 @@
 .rm-tvv.rm-lockin .rm-tvwrap{display:block;position:absolute;left:var(--lock-x,50%);top:var(--lock-y,50%);width:var(--lock-width);height:var(--lock-height);margin:0!important;transform:translate(-50%,-50%);transition:none}
 .rm-tvv.rm-lockin .rm-tvbez{position:absolute;inset:0;width:100%;height:100%;padding:0;aspect-ratio:auto;border:0;border-radius:0;background:#000;box-shadow:none}
 .rm-tvv.rm-lockin .rm-glass{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;border-radius:0;box-shadow:none}
+/* The live canvases make the transition; no legacy bezel paint below the LCD. */
+.rm-tvv.rm-live3d.rm-lockin .rm-tvbez,.rm-tvv.rm-live3d.rm-lockin .rm-glass{background:transparent}
 .rm-tvv.rm-lockin .rm-tvwrap::after,.rm-tvv.rm-lockin .rm-tvbez::before,.rm-tvv.rm-lockin .rm-tvbez::after,.rm-tvv.rm-lockin .rm-tvbez>:not(.rm-glass),.rm-tvv.rm-lockin .rm-livebar,.rm-tvv.rm-lockin .rm-side,.rm-tvv.rm-lockin .rm-res{display:none!important}
 .rm-tvwrap{position:relative;flex:none;transform-origin:50% 50%;transition:transform .45s cubic-bezier(.2,.7,.25,1);
   --tw:min(94vw,calc((100vh - 250px) * 1.401),1000px);width:var(--tw)}

@@ -109,8 +109,13 @@ async function capture(name, act, { ms = 1400, regions = {}, black = true, targe
   const pick = frames.filter((_, i) => i % Math.max(1, Math.ceil(frames.length / 40)) === 0);
   await contactSheet(browser, pick, `${shots}${name}-sheet.jpg`, { label: `${name} (${tag}) - ${frames.length} frames over ${Math.round(frames.at(-1)?.t || 0)} ms game time` });
   await saveFrames(frames.filter((_, i) => i % Math.max(1, Math.ceil(frames.length / 8)) === 0), `${shots}${name}`);
-  const stats = await analyse(browser, frames, { regions });
-  const blackFrames = black ? stats.map((s, i) => ({ i, t: Math.round(frames[i].t), mean: s.mean, black: s.black })).filter(s => s.mean < 9 || s.black > 0.7) : [];
+  const lockedHandheld = name.startsWith('gb-lock');
+  // Native 10:9 plus its controller legitimately leaves dark fullscreen margins.
+  // The central LCD remains lit throughout this stationary grow/shrink. Also
+  // sample bare purple casing below it after the room fade: an opaque extra
+  // bezel rectangle must never cover the physical controls during the shrink.
+  const stats = await analyse(browser, frames, { regions:{...regions,...(lockedHandheld?{lcd:[.45,.30,.55,.44],casing:[.49,.73,.51,.76]}:{})} });
+  const blackFrames = black ? stats.map((s, i) => ({ i, t: Math.round(frames[i].t), mean: s.mean, black: s.black, lcd:s.reg.lcd?.mean,casing:s.reg.casing?.mean })).filter(s => s.mean < 9 || s.black > 0.7 && (!lockedHandheld || s.lcd < 18) || name==='gb-lockout'&&s.t>=200&&s.t<=450&&s.casing<8) : [];
   await writeFile(`${shots}${name}-trace.json`, JSON.stringify(tr.frames)); // (per-frame camera/handheld trace, for diagnosing a failure)
   const cam = popsIn(tr.frames, { pos: ['x', 'y', 'z'], ang: ['rx', 'ry'] }, 'camera');
   const gb = popsIn(tr.frames.filter(f => f.gx != null), { pos: ['gx', 'gy', 'gz'] }, 'gamelad');
