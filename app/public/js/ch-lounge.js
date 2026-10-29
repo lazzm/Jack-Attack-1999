@@ -235,7 +235,7 @@
     },
     reset() { const v=CV();v.seat={};v.loosePose={};cush.forEach(t=>{if(!t)return;H.anims.delete('ch.plump'+t.cI);CK.lock(t.id,false);t.fixed=false;t.home=Object.assign({},t.cushionHome);t.rx=90;t.rz=0;t.obj.userData.body.rotation.z=0;t.obj.userData.body.scale.set(1,1,1);CK.home(t.id);cushionFit(t,false)}); },
   });
-  H.on('rest',id=>{const t=H.THINGS[id];if(t?.cI==null||seatOf(t.cI)>=0&&CK.has('cushions','c'+t.cI))return;const v=CV();(v.loosePose||(v.loosePose={}))[t.cI]=[t.rx||0,t.rz||0];cushionFit(t,false);CK.save()});
+  H.on('rest',id=>{const t=H.THINGS[id];if(!t||cush[t.cI]!==t||seatOf(t.cI)>=0&&CK.has('cushions','c'+t.cI))return;const v=CV();(v.loosePose||(v.loosePose={}))[t.cI]=[t.rx||0,t.rz||0];cushionFit(t,false);CK.save()});
   function cushClick(i) {
     const t = cush[i];
     if (!CK.has('cushions', 'c' + i)) return H.grab(t.id);
