@@ -9,7 +9,7 @@ import {roomFixture} from './room-fixture.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const shots=fileURLToPath(new URL('shots/smoke/',import.meta.url));
-const args=process.argv.slice(2), only=args.find(a=>a.startsWith('--only='))?.slice(7);
+const args=process.argv.slice(2), only=args.find(a=>a.startsWith('--only='))?.slice(7).split(',');
 const keep=args.includes('--keep-shots');
 const account='Smoke'+Date.now().toString(36),password='Throwaway-1999';
 let registeredAccount=false;
@@ -58,7 +58,7 @@ async function wait(page,fn,ms=8000){const deadline=Date.now()+ms*SCALE;while(Da
   try{if(await page.evaluate(fn))return}catch(e){if(!/context was destroyed|navigation/i.test(e.message))throw e}
   await page.waitForTimeout(100)}throw Error('State timeout: '+fn+'; '+JSON.stringify(await page.evaluate(()=>({mode:window.House?.mode,held:window.House?.held?.(),phone:window.FamilyPhone?.state?.()}))))}
 async function until(fn){const {page}=await room();await wait(page,fn)}
-async function aim(eye,target){const f=await room();await f.view(eye,target);await f.page.evaluate(()=>{House.hush();House._.setMode('walk')})}
+async function aim(eye,target){const f=await room();await f.view(eye,target);await f.page.evaluate(target=>{House.hush();House._.setMode('walk');House.W.eyeNow=House.W.eye;const P=House.P;P.y=House.W.fy-House.W.eye;P.rx=Math.atan2(-(target[1]-P.y),Math.hypot(target[0]-P.x,target[2]-P.z))*180/Math.PI;P.ry=Math.atan2(target[0]-P.x,-(target[2]-P.z))*180/Math.PI;House.dirty()},target)}
 // Save timestamps advance while the desktop is open; compare the actual pose and power.
 async function houseSave(page){return page.evaluate(()=>{
   const pose=JSON.parse(localStorage.getItem('jhp_hs_pose')||'null');if(pose)delete pose.t;
@@ -116,9 +116,19 @@ const checks=[
    const {page}=await room();
    const home=await page.evaluate(()=>House.THINGS['media.box.n64.kart'].at);
    await aim([-220,-55,35],[home.x,home.y-6,-36]);await page.keyboard.press('e');await until(()=>House.held()==='media.box.n64.kart');
-   await aim([-80,-55,220],[-130,73,145]);await page.keyboard.press('e');await until(()=>House.THINGS['media.box.n64.kart'].st==='rest');
-   await aim([-80,-55,220],[-130,67,146.6]);await page.keyboard.press('f');await until(()=>House.THINGS['media.box.n64.kart'].caseOpen);
-   await aim([-80,-55,220],[-130,69,146.3]);await page.keyboard.press('e');await until(()=>House.held()==='media.n64.kart');
+   // Daily clothes can occupy the old fixed patch. Use the real green floor ghost,
+   // leaving every object in place, then follow the case's actual pose.
+   let placed=false;const refused=[];
+   for(const [x,z]of [[-130,145],[-180,145],[-180,190],[-210,145],[-150,100],[-70,120],[-30,170]]){
+     await aim([-80,-55,220],[x,73,z]);const g=await page.evaluate(()=>House.ghost());
+     if(!g?.ok||g.snap||Math.abs(g.y-73)>1){refused.push(g?.why||'not clear floor');continue}
+     await page.keyboard.press('e');await until(()=>House.THINGS['media.box.n64.kart'].st==='rest');placed=true;break;
+   }
+   assert(placed,'No clear floor ghost for the case: '+refused.join('; '));
+   await page.waitForTimeout(600);const at=await page.evaluate(()=>({...House.THINGS['media.box.n64.kart'].at}));
+   const casePoint=(dy,dz)=>[at.x+Math.sin(at.ry*Math.PI/180)*dz,at.y+dy,at.z+Math.cos(at.ry*Math.PI/180)*dz];
+   await aim([-80,-55,220],casePoint(-6,1.6));await page.keyboard.press('f');await until(()=>House.THINGS['media.box.n64.kart'].caseOpen);
+   await aim([-80,-55,220],casePoint(-4,1.3));await page.keyboard.press('e');await until(()=>House.held()==='media.n64.kart');
    const slot=await page.evaluate(()=>House.SNAPS['console.n64']);await aim([-185,-55,120],[slot.x,slot.y,slot.z]);await page.keyboard.press('e');
    await until(()=>window.RoomTV?._dbg()?.st==='game');await page.keyboard.press('Enter');await page.keyboard.down('ArrowUp');await page.waitForTimeout(600);await page.keyboard.up('ArrowUp');
    assert.equal(await page.evaluate(()=>RoomTV._dbg().gid),'n64.kart');
@@ -232,13 +242,13 @@ async function start(){
   throw Error('No free throwaway port in 18080-18099');
 }
 try{
-  assert(args.every(a=>a==='--keep-shots'||a.startsWith('--only=')),'Usage: node smoke.mjs [--keep-shots] [--only=<name>]');
-  assert(!only||checks.some(([name])=>name===only),'Unknown check '+only+'; names: '+checks.map(c=>c[0]).join(', '));
+  assert(args.every(a=>a==='--keep-shots'||a.startsWith('--only=')),'Usage: node smoke.mjs [--keep-shots] [--only=<name,name>]');
+  assert(!only||only.every(wanted=>checks.some(([name])=>name===wanted)),'Unknown check '+only+'; names: '+checks.map(c=>c[0]).join(', '));
   await start();
   if(!keep)await rm(shots,{recursive:true,force:true});await mkdir(shots,{recursive:true});
   for(const [name,timeout,run]of checks){
     if(stopping)break;
-    if(only&&name!==only)continue;
+    if(only&&!only.includes(name))continue;
     const began=Date.now();let timer;
     try{
       if(!fixture&&!['sparse-signup','account-house','browser-errors','server-log'].includes(name)){
