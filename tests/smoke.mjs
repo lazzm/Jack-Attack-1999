@@ -125,10 +125,10 @@ const checks=[
    await page.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);assert(await page.evaluate(()=>RoomTV._dbg().background));
  }],
  ['phone-typing',15000,async()=>{
-   const {page}=await room();await page.evaluate(()=>HouseMobile.use());await until(()=>window.FamilyPhone?.isOpen()&&House.focused&&!House.gliding);
-   await page.keyboard.press('Enter');await page.keyboard.press('Enter');await page.keyboard.press('Enter');await until(()=>FamilyPhone.state().id==='edit');
-   await page.keyboard.type('wasd saw dad');assert.equal(await page.evaluate(()=>FamilyPhone.state().text),'wasd saw dad','House movement swallowed phone letters');
-   await page.keyboard.press('Escape');await page.locator('[data-pause=leave]').click();await until(()=>House.mode==='walk'&&!House.gliding);
+   const {page}=await room();await page.evaluate(()=>HouseMobile.use());await until(()=>window.FamilyPhone?.isOpen()&&House.focused&&!House.gliding);console.log('phone-typing: focused');
+   await page.keyboard.press('Enter');await page.keyboard.press('Enter');await page.keyboard.press('Enter');await until(()=>FamilyPhone.state().id==='edit');console.log('phone-typing: editor');
+   await page.keyboard.type('wasd saw dad');assert.equal(await page.evaluate(()=>FamilyPhone.state().text),'wasd saw dad','House movement swallowed phone letters');console.log('phone-typing: text accepted');
+   await page.keyboard.press('Escape');await page.locator('[data-pause=leave]').click();await until(()=>House.mode==='walk'&&!House.gliding);console.log('phone-typing: left phone');
  }],
  ['prop-refresh',90000,async()=>{
    const {page}=await room();await aim([-100,-55,135],[-100,52,56]);await page.keyboard.press('e');await until(()=>House.held()==='beanbag');
@@ -248,7 +248,12 @@ try{
       results.push(true);console.log(`PASS ${name} (${((Date.now()-began)/1000).toFixed(1)}s)`);
     }catch(e){
       results.push(false);console.log(`FAIL ${name}: ${reason(e)}`);
-      if(keep&&fixture)await fixture.page.screenshot({path:shots+`failure-${name}.png`,timeout:1500}).catch(()=>{});
+      const failedPage=fixture?.page||activeBrowser?.contexts()[0]?.pages()[0];
+      if(failedPage){
+        const state=await Promise.race([failedPage.evaluate(()=>({mode:window.House?.mode,focus:!!window.House?.focused,paused:!!window.House?.paused,loading:!!document.querySelector('.hs-loading,#houseEntry'),gate:!!document.querySelector('#accountGate'),phone:window.FamilyPhone?.state?.().id,dialogs:[...document.querySelectorAll('dialog[open]')].map(d=>d.className)})).catch(()=>null),delay(3000)]);
+        console.log('Failure state',name,state);
+        if(keep)await failedPage.screenshot({path:shots+`failure-${name}.png`,timeout:15000}).catch(()=>{});
+      }
       // Closing the page cancels any in-flight Playwright operation before the next check.
       if(activeBrowser)await activeBrowser.close().catch(()=>{});activeBrowser=null;fixture=null;
     }finally{clearTimeout(timer)}
