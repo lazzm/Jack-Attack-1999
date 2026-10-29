@@ -2380,7 +2380,7 @@
     let slotCart=null,slotState=null;
     const moveGBSlot = () => {
       gb.obj.updateWorldMatrix(true,false);
-      const t=inserted('gb'),elements=gb.obj.matrixWorld.elements;let changed=false;for(let i=0;i<16;i++)if(slotPrevious[i]!==elements[i]){changed=true;break}if(!changed&&t===slotCart&&gb.st===slotState)return false;slotCart=t;slotState=gb.st;for(let i=0;i<16;i++)slotPrevious[i]=elements[i];
+      const t=inserted('gb'),elements=gb.obj.matrixWorld.elements;let changed=gbSlot.room!==gb.at.room||!!(t&&t.obj.parent!==gb.obj.parent);for(let i=0;i<16;i++)if(slotPrevious[i]!==elements[i]){changed=true;break}if(!changed&&t===slotCart&&gb.st===slotState)return false;slotCart=t;slotState=gb.st;for(let i=0;i<16;i++)slotPrevious[i]=elements[i];
       const base=slotBase.copy(H.root.matrixWorld).invert().multiply(gb.obj.matrixWorld);
       const matrix=slotMatrix.copy(base).multiply(slotLocal);slotAim.set(0,-.2,-6.5).applyMatrix4(base);
       const pos=slotPos,q=slotQ,scale=slotScale;matrix.decompose(pos,q,scale);const rot=slotRotation.setFromQuaternion(q,'YXZ');
