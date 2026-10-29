@@ -2459,7 +2459,7 @@
 
   // rm-tv.js and rm-bits.js say when they shut: back out of the close-up
   // (but not if another one opened straight away: switching consoles, or one close-up leading to another)
-  (EVS.close = EVS.close || []).push(() => { if(H.here!=='bedroom'){clearTimeout(boT);back=null;pending=false;return;} if (tvFocus) { H.unfocus(); return; } clearTimeout(boT); boT = setTimeout(() => { if (pending || (window.RoomTV && RoomTV.open_) || (window.RoomBits && RoomBits.open_) || pb.querySelector(':scope > .rm-view:not(.bye)')) return; backOut(); }, 160); });
+  (EVS.close = EVS.close || []).push(() => { if (tvFocus) { H.unfocus(); return; } if(H.here!=='bedroom'){clearTimeout(boT);back=null;pending=false;return;} clearTimeout(boT); boT = setTimeout(() => { if (pending || (window.RoomTV && RoomTV.open_) || (window.RoomBits && RoomBits.open_) || pb.querySelector(':scope > .rm-view:not(.bye)')) return; backOut(); }, 160); });
   (EVS.open = EVS.open || []).push(() => clearTimeout(boT));
   H.on('room', (id, old) => { if(id!=='bedroom'){++bitsEpoch;clearTimeout(boT);back=null;pending=false;} emit('room', id, old); if (id && id !== 'bedroom') ensureHouse().catch(() => {}); pb.classList.toggle('rm-away', id !== 'bedroom'); });
   H.on('station', (rid, sid) => { pb.classList.toggle('rm-away', !(rid === 'bedroom' && sid === 'desk')); if (rid === 'bedroom' && sid !== 'desk') secret('rm.room'); });
