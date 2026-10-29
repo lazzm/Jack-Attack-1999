@@ -245,3 +245,5 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 
 ## Carry sizing follow-up (found during console review, 29 October)
 - R124: a settled console case currently occupies roughly a quarter of the view; the standing target is about12%. Ship a separate carry-polish release after console-flow. Keep hand/object proportions and solid grip contacts, low placement, clear crosshair/ghost/panel, and unchanged physical size, gold placement, X drop and Q return. Compare desktop and portrait/landscape phone captures before accepting. Do not silently scale only the object while leaving full-sized hands.
+
+| R125 | art/bug | high | games/plumb/after/unchanged-cartridge.png,29October manager review | The physical cupboard TV is cropped at the right for cartridges without a screenPose hook | console-flow candidate: derive a fitted camera from the real screen normal and full bezel dimensions; verify six mouse/touch viewports and native resume. |
