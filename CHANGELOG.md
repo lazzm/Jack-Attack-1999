@@ -1,5 +1,12 @@
 # Jack's Home Page - changelog
 
+## 2.57.27 - 2026-10-29
+- R124: game and disc cases settle at about12% of the view height, low and just right of centre. Hands and cases retain their real models, physical sizes and grip proportions. Other props keep their approved holding poses.
+- A touch caption above the crosshair no longer forces a case upwards; the lower pose leaves the thumb controls clear and shows less sleeve. Placement reach, gold-slot insertion, rotation, dropping and returning keep their existing controls.
+- Verified: six desktop/phone/tablet sizes with actual silhouette measurements11.4–11.9%, real R/Q, native gold E insertion/game start/E eject/refilled case, phone/tablet gameplay2/2 and final watering contacts/pour/touch/refresh. Physics coverage passes eleven interaction checks plus four focused save/model/cost/error checks; its refresh test now waits for account readiness. All36 units, syntax and parody audit pass; final root check/parody gate is green. Reviewed case, watering and save/drop/stack captures. Exact gate timing and failed/repeated runs are recorded in HANDOFF.
+- Full smoke passed12/12 with no browser/server errors. Its test harness now waits for actual JackNet profile responses before exercising controls after entry/refresh; no account or save application code changed. Earlier timeout and profile-navigation failures are recorded honestly in HANDOFF.
+- No server/account/wallet/shared-world changes or resets. Approved British recordings preserved. Physical Edge/Android hardware, physical gamepads and hardware performance remain unverified. British voice recordings are next for accent/provenance review.
+
 ## 2.57.26 - 2026-10-29
 - R128: Dad takes his car to work and brings it home; weekends, holidays and story visits keep it parked. The car, shadow, boot, washing marks, interactions and walking/physics obstacles follow the same state. Departure and return wait until out of view; return also waits for people and dropped objects to clear the bay.
 - Boot and roof contents keep their exact saved positions while away, including Q returns. Refreshing inside the empty parking space preserves the player and PC power. Correct the closed lid's collider to a real hollow boot, seal its visible rim gap and migrate old lid/rim placements once (PV9). Car washing explains an absent car without changing progress or payments; its sponge target stays separate from the kitchen sponge.

@@ -244,7 +244,7 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R123 (done 2.57.22) | art/physics | high | table-clear/complete-close.png,29 October | Placemat and carving-sheet art appears through plate centres; restored completed pieces lose their fixed-slot body state | Closed plate profile with a real foot, solid centre clearance and restored fixed slots. Check all four rendered centres, mat contact and collider heights after refresh. |
 
 ## Carry sizing follow-up (found during console review, 29 October)
-- R124: a settled console case currently occupies roughly a quarter of the view; the standing target is about12%. Ship a separate carry-polish release after console-flow. Keep hand/object proportions and solid grip contacts, low placement, clear crosshair/ghost/panel, and unchanged physical size, gold placement, X drop and Q return. Compare desktop and portrait/landscape phone captures before accepting. Do not silently scale only the object while leaving full-sized hands.
+- R124 DONE2.57.27: game/disc cases measure11.4–11.9% view height in6sizes, unchanged real model/hand scale and proportions. Low touch pose respects the upper caption/thumb controls; other props retain original approved grips. Native R/Q/gold E insert/eject, physics coverage, mobile2/2, final watering and full smoke12/12 green. Desktop/portrait/landscape phone/tablet and nearby prop captures reviewed.
 
 | R125 (done 2.57.23) | art/bug | high | games/plumb/after/unchanged-cartridge.png,29October manager review | The physical cupboard TV is cropped at the right for cartridges without a screenPose hook | Shipped: full bezel framing from its real centre/normal, actual controller clearance in six mouse/touch sizes, native Q/resume verified. |
 

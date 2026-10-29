@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.26: Dad takes his car to work; exact travelling cargo, safe empty-bay refresh/return, solid hollow boot and PV9 lid/rim saves. Includes lounge25 and all earlier fixes. Next: carry-case sizing R124, then British voices.
+- Live = 2.57.27: compact game/disc carrying cases, roughly12% view height with unchanged real models/hands; proper low touch pose. Includes car26, lounge25 and all earlier fixes. Next: British voice accent/provenance audit and release;311 generated clips available.
 - Previous live22: visible table ketchup, solid plate centres, safe completed saves and proper redo; cushions fit the seats and F reaches Dad’s chair cushion; proper watering-can grip contacts and accurate chore destinations; includes hands-on bed-making, washing-up and boot-rug fixes. Includes all earlier graphics, props/hands, phone, family, camera and approved 7 m plot releases.
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
@@ -33,7 +33,8 @@ never anything that looks cursed.
 | /opt/stacks/landing-chores-feedback | chores-feedback | shipped 2.57.20/21/22 | R118–R123 complete: can handle/body contacts and real chore destinations. Chore audit complete; final table regression and smoke green. Next: console-flow. |
 | /opt/stacks/landing-console-flow | console-flow | shipped 2.57.23 | R84/R85/R125 complete; physical cases, native handheld/TV framing and refresh green. |
 | /opt/stacks/landing-lounge | lounge-access | shipped 2.57.24/25 | R126/R127 complete; wider routes, single post mat, PV8/precise chair parts and cold-entry token correction. |
-| /opt/stacks/landing-car-routine | car-routine | shipped 2.57.26 | R128 complete; work schedule, exact cargo, safe arrival/refresh, solid boot and PV9 migration. Next R124 carry size. |
+| /opt/stacks/landing-car-routine | car-routine | shipped 2.57.26 | R128 complete; work schedule, exact cargo, safe arrival/refresh, solid boot and PV9 migration. |
+| /opt/stacks/landing-carry-size | carry-size | shipped 2.57.27 | R124 complete; measured12% cases, low touch pose, original noncase grips retained. Next British voice audit. |
 Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md has every R-item with details.
 
 ## Voices (British only!)
@@ -455,3 +456,11 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 
 - Scoped source3ec3ffb final36units /tmp/jhp-carry-size-scoped-units.log, parody0 /tmp/jhp-carry-size-scoped-parody.log, syntax and root gate /tmp/gate-5SSP check/parody PASS. Native n64 /tmp/jhp-carry-size-case.log PASS (real gold E insert, case fixed, game start, real E eject/refilled case). Its case formula is identical before/after scope correction. Final scoped /tmp/jhp-carry-size-scoped-water.log PASS; reviewed restored substantial can/short forearms on desktop and phone plus both grip contacts. No noncase pose change ships.
 - Smoke retry /tmp/jhp-carry-size-smoke-retry.log passed sparse227.7s (proves initial198s budget too short), existing account76.3s and walk-refresh45.3s, then PC-controls hit Execution context destroyed during a profile navigation. Stopped; not a clean smoke gate. Test-only smoke observer now registers actual rmSame/rmNone/rmData responses when Net loads and waits for profile-ready after room entry/refresh; no account/profile application code changed. New jhp-carry-size-smoke-profile-final -> /tmp/jhp-carry-size-smoke-profile-final.log with SMOKE_SCALE3/FIXTURE_DEBUG1/--keep-shots. tests/smoke.mjs changes not yet committed/root-merged; no27version/deploy until12/12. Watering worker finished; only smoke heavy now. Next British voice accent/provenance audit after27, with311 generatedmp3s available read-only.
+
+
+## Carry27 accepted release gates,29October14:53 UTC
+- Final app3ec3ffb, smoke test011bae7. /tmp/jhp-carry-size-smoke-profile-final.log full12/12 PASS: actual profile-response guard resolved premature controls across the deliberate profile reload; sparse165.3s, existing account71.5s, walk refresh30.5s, PC26.2s, console23.2s, phone23.8s, props21.5s, Esc2.7s, views56.8s, mobile/desktop40.5s; no browser/server errors. Draws593/411/235/518/394/878 match26. Reviewed final TV and phone landscape captures, plus all accepted case/prop/watering/physics images above. No further app changes.
+- Other accepted gates: final scoped36units/parody/syntax/root /tmp/gate-5SSP; measured six-size case silhouette11.4–11.9% and R/Q; native n64 gold E insert/game/E eject; mobile full/tablet2/2; physics first11 + focused4/4; final scoped watering grip/pour/touch/refresh. Exact failed runs and gate timing versus scope correction recorded above; not claiming a single full15/15 physics run or pre-correction can artwork as final.
+- Preparing27 static deploy from root; public health/build/hash/live-readonly and sanitized docker/voice byte checks required before commit/push. No realdata/account/wallet/shared-world edits. Physical Edge/Android/gamepads/hardware FPS unavailable. British clip readiness read-only311mp3s; next create fresh branch from27, audit provenance/accent before any install. Original3British live clips remain preserved through27. No agents; all heavy jobs finished.
+
+- Public27 deployed2.57.27-261029145313: home/health200 and hs-world hash matches; runtime4approvedBritish voice bytes unchanged; docker10min mod/uncaught/reference counts0. /tmp/jhp-carry-live27.log LIVE READ-ONLY PASS (mandatory account gate/version27, no bypass/errors/warnings); public capture reviewed. Commit/push follows immediately; then fresh British-voices branch and audit. No active heavy jobs.
