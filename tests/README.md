@@ -190,7 +190,7 @@ Playwright device profiles (isMobile, hasTouch, mobile user agents) at 360x740, 
 story -> stick walk/jog -> drag look -> quest line/diary -> pause menu touch settings -> refresh mid-walk (pose kept)
 -> rotate -> WebGL context loss/restore (never black); PC logon (phones LOCK IN, monitor-chin buttons), JackOS by
 touch with the phone keyboard, carry (Pick up/Turn/Put down), case/cartridge/console by touch buttons, the console
-pad portrait/landscape/LOCK IN, the Game Lad's own moulded buttons (portrait) and pad wings (landscape); tablet;
+pad portrait/landscape/LOCK IN, the Game Lad's own moulded buttons in portrait and landscape; tablet;
 owner tools; frame times with emulated CPU throttling. Every state is a PNG in shots/mobile/ plus report.json
 (layout audit: clipped, tiny <36px or overlapping controls fail the run; perf numbers are software WebGL).
 
@@ -325,7 +325,7 @@ Authenticated object/control regressions (localhost only; run from `tests/`):
     node controls-qt.mjs http://localhost:18080 # Q/T shortcuts, typing/delete/modifier guards, console conflicts, desktop/phone captures
     node chair-pc-menu.mjs http://localhost:18080 # chair angles, Esc menu, first-person PC and 4:3 LOCK IN/refresh
     node chair-placement.mjs http://localhost:18080 # F/E/click furniture drops near feet, rotated clearance, PC safety and refresh
-    node console-cases.mjs http://localhost:18080 # real F pickup/open, custom slots, media return, tidy/refresh and full nineteen-box rack
+    node console-cases.mjs http://localhost:18080 # real E pickup/insertion, custom slots, media return, tidy/refresh and full nineteen-box rack
     node console-case-play.mjs http://localhost:18080 # physical box-to-console play, Q/background refresh, eject and own-box return
     node console-switch-hud.mjs http://localhost:18080 # paused Daydream/kart → Goldenballs, actual compiled HUD bindings and LOCK IN captures
     node room-props-controls.mjs http://localhost:18080 # F repeats, furniture collision, safe placement, inspection and pillow refresh
@@ -471,3 +471,11 @@ pieces through the real gold-slot/E path, then checks the old completed ketchup
 pose, refresh, seasonal clearance, six viewport sizes and three viewing angles.
 It also exercises owner redo and the phone's actual E button. Captures are in
 `tests/shots/table-clear/`; no production account or season progress is changed.
+
+Physical case and handheld regression (throwaway data only):
+
+    node case-flow.mjs                    # all six consoles and a PC case; --only=sn.zero,pc narrows scope
+    node console-case-play.mjs            # native E insert/eject films and atomic refresh recovery
+    node gamelad-frame.mjs                # whole handheld at six sizes; same running game through T and mouse controls
+
+Case movies use a test-only slow animation clock. Captures are in `shots/console-case-play/`; review the open case, exposed medium, insertion and closed parked case. `--inspect` retains a failed browser temporarily on localhost:19545 for diagnosis; it is not release evidence.
