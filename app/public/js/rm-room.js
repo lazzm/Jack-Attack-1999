@@ -1917,6 +1917,9 @@
     const rest = grip ? null : { at: Object.assign({}, t.at), rx: t.rx || 0, rz: t.rz || 0, m: objMatrix(t.obj) };
     gbPlay = { grip, rest, st: t.st, view, hand: grip ? relTo(H.P, objMatrix(t.obj)) : null, play: gbPlayPose(view) };
     t.st = 'play'; t.inspectFront = true; H.layerFor(t); H.physics?.sync?.('gb'); // (its physics body sleeps while it is in your hands)
+    // Raising it can interrupt a dropped body's sleep/save callback. Keep the
+    // real resting pose even when the physics solver never gets to finish.
+    if (!grip) H.saveThings();
     window.Sound?.world?.('lift', { weight: 'light' });
     const play = gbPlay.play;
     // the hands lead and the eyes follow: the Game Lad arrives a beat before the camera settles on it
@@ -1937,7 +1940,7 @@
     }
     const r = saved.rest, end = r.m; // exactly where it was resting (the room's own placement, contact offsets and all)
     t.st = 'anim'; H.physics?.sync?.('gb');
-    gbTween('gb-return', () => end, ms, { roll: -3, carry: true, done: () => { if (gbPlay) return; t.at = r.at; t.rx = r.rx; t.rz = r.rz; t.st = 'rest'; t.inspectFront = false; H.place(t); H.layerFor(t); window.Sound?.world?.('handle', { weight: 'light', put: true }); } });
+    gbTween('gb-return', () => end, ms, { roll: -3, carry: true, done: () => { if (gbPlay) return; t.at = r.at; t.rx = r.rx; t.rz = r.rz; t.st = 'rest'; t.inspectFront = false; H.place(t); H.layerFor(t); H.saveThings(); window.Sound?.world?.('handle', { weight: 'light', put: true }); } });
   }
   function tvSession(value) { try { if (value) localStorage.setItem(TV_SAVE, JSON.stringify(value)); else localStorage.removeItem(TV_SAVE); } catch (e) {} }
   function inserted(con) { const slot='console.'+con;for(const id in mediaThings){const t=mediaThings[id];if(t&&t.st==='snap'&&t.snap===slot)return t;} }

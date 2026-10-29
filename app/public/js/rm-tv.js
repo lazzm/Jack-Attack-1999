@@ -568,6 +568,11 @@
   function frameSurface(ms) {
     const def=V&&defs[V.gid],H=R.House;
     if(!V?.surface || V.background || V.restoreBackground || !H?.focused || typeof def?.screenPose!=='function')return;
+    // Reopening a running surface happens before the house's focus glide lands.
+    // Replacing that glide invokes its cancel handler, which closes this screen.
+    // Finish the focus move first, and abandon framing if the player leaves.
+    clearTimeout(V.frameTimer);
+    if(H.gliding){const view=V;V.frameTimer=setTimeout(()=>{if(V===view)frameSurface(ms)},50);return;}
     const pose=def.screenPose(V.surface);if(pose)H.glideTo(pose,{ms:ms||250,lock:true});
   }
   function releaseSurface() {
