@@ -70,5 +70,8 @@ try{
  assert(await p.evaluate(()=>House.physics.body('ch.pjs').parts[0].hz>10),'Redo kept the folded collider');
  await open();await p.keyboard.down('Space');await until(()=>document.querySelector('.ch-bed-note progress').value===1);await p.keyboard.up('Space');await until(()=>ChoreKit.has('bed','pullL'));
  assert(await p.evaluate(()=>ChoreKit.ownerStart('bed')));assert.equal(await p.locator('.ch-bed-note b').textContent(),'Pull the duvet up','Redo kept a stale bed instruction');await leave();
+ await p.setViewportSize({width:390,height:844});await p.evaluate(()=>document.exitPointerLock?.());
+ const phoneInput=await p.context().newCDPSession(p);await phoneInput.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:10,y:100}]});await phoneInput.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});await until(()=>GameInput.touch);await p.evaluate(()=>HousePause.close());await until(()=>!House.paused);
+ assert(await p.evaluate(()=>House.grab('ch.pjs')));await p.waitForTimeout(500);await shot('pyjamas-carried-phone');await p.setViewportSize({width:844,height:390});await p.waitForTimeout(500);await shot('pyjamas-carried-phone-landscape');await p.evaluate(()=>House.putBack());await phoneInput.detach();
  assert.deepEqual(f.errors,[]);console.log('BEDMAKING PASS: actual E, mouse pull/fluff, touch tuck/cancel, touch smooth, pause, six sizes, refresh and redo');
 }catch(e){console.log(await p.evaluate(()=>({mode:House.mode,focus:House.focused,pose:House.P,prog:ChoreKit.S.prog.bed,v:ChoreKit.S.v.bed})));await shot('failure');throw e}finally{await f.browser.close()}
