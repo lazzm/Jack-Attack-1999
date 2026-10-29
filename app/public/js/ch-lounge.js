@@ -166,7 +166,7 @@
   });
 
   // ================================================================ PLUMP THE CUSHIONS (three on the settee, one on Dad's chair)
-  const SEATS = [{ x: -93, z: 592, ry: 0 }, { x: -60, z: 592, ry: -4 }, { x: -27, z: 592, ry: 3 }, { x: 122, z: 388, ry: -62 }];
+  let SEATS = [];
   const CHOME = [[-182, 458, 30], [2, 500, -20], [-112, 382, 70], [-30, 395, -50]];
   const CCOL = [['#7a2a6a', '#e8b0d8'], ['#2a5a8a', '#a8d0f0'], ['#c8a020', '#fff0a0'], ['#2a7a4a', '#b0e8c0']];
   let cush = [];
@@ -174,6 +174,10 @@
   const seatOf = i => { const s = CV().seat || {}; return s[i] == null ? -1 : s[i]; };
   const seatFree = k => !Object.values(CV().seat || {}).includes(k);
   function seatSet(i, k) { const v = CV(); v.seat = v.seat || {}; v.seat[i] = k; CK.save(); }
+  function cushionSeats() {
+    const sofa=H.SPOTS['hs.sofa'].obj,chair=H.SPOTS['hs.chair'].obj,ry=chair.rotation.y;
+    return [-45,0,45].map((dx,i)=>({x:sofa.position.x+dx,z:sofa.position.z-13,ry:[0,-4,3][i]})).concat({x:chair.position.x-9*Math.sin(ry),z:chair.position.z-9*Math.cos(ry),ry:ry/D2R});
+  }
   function cushionModel(i) {
     const [c1, c2] = CCOL[i];
     const tex = K.tex('ch.cush' + i, 128, 128, (q, w, h) => { q.fillStyle = c1; q.fillRect(0, 0, w, h); q.strokeStyle = c2; q.lineWidth = 6; for (let k = -2; k < 6; k++) { q.beginPath(); q.moveTo(k * 32, 0); q.lineTo(k * 32 + 128, 128); q.stroke(); } q.fillStyle = c2; q.beginPath(); q.arc(64, 64, 12, 0, 7); q.fill(); A.grain(q, w, h, 900, 0.08, i + 4); });
@@ -182,39 +186,59 @@
     B.rbox(0, 0, 0, 30, 30, 9, 4.2, m);
     B.geo(new T.TorusGeometry(20.6, 0.8, 6, 4), 0, 0, 0, mat(c2, { sh: 30 }), { rz: 45 }); // (the piping round the edge)
     [-1, 1].forEach(s => B.cyl(0, 0, s * 4.6, 1.4, 1.4, 1, 10, mat(c2), { rx: 90 }));
+    // Cache the solid's vertices once. Plumping only rotates/scales this small
+    // set; its lowest point stays on the seat through the whole animation.
+    g.updateWorldMatrix(true,true);const inv=body.matrixWorld.clone().invert(),points=[];
+    body.traverse(o=>{if(!o.isMesh||!o.geometry)return;const p=o.geometry.attributes.position,m=inv.clone().multiply(o.matrixWorld),v=new T.Vector3();for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i).applyMatrix4(m);points.push(v.x,v.y,v.z)}});
+    g.userData.cushionPoints=new Float32Array(points);
     return g;
+  }
+  function cushionFit(t,placed) {
+    const b=t.obj.userData.body,p=t.obj.userData.cushionPoints,ca=Math.cos(b.rotation.z),sa=Math.sin(b.rotation.z),cr=Math.cos(t.rx*D2R),sr=Math.sin(t.rx*D2R);
+    let x0=Infinity,y0=Infinity,z0=Infinity,x1=-Infinity,y1=-Infinity,z1=-Infinity;
+    for(let i=0;i<p.length;i+=3){const x=p[i]*b.scale.x,y=p[i+1]*b.scale.y,z=p[i+2]*b.scale.z,X=x*ca-y*sa+b.position.x,Y=x*sa+y*ca+b.position.y,Z=z+b.position.z,yy=Y*cr-Z*sr,zz=Y*sr+Z*cr;x0=Math.min(x0,X);x1=Math.max(x1,X);y0=Math.min(y0,yy);y1=Math.max(y1,yy);z0=Math.min(z0,zz);z1=Math.max(z1,zz)}
+    t.bottomOffset=placed?y1:0;
+    const part={t:'box',x:(x0+x1)/2,z:(z0+z1)/2,hx:(x1-x0)/2,hz:(z1-z0)/2,lo:placed?0:-y1,hi:placed?y1-y0:-y0};
+    const key=[part.x,part.z,part.hx,part.hz,part.lo,part.hi].map(n=>n.toFixed(4)).join(',');
+    if(t.cushionShape!==key){t.physics=Object.assign({},t.physics,{parts:[part],tip:.2});H.physics.world?.remove(t.id);t.body=null;t._lb=null;t.cushionShape=key;}
+    H.place(t);
   }
   CK.add({
     id: 'cushions', room: 'lounge',
     build(r) {
+      SEATS=cushionSeats();
       cush = CCOL.map((c, i) => {
         const t = CK.thing('ch.c.' + i, { obj: cushionModel(i), kind: 'cushion', label: 'Cushion', chore: 'cushions', holdD: 55, home: { room: 'lounge', x: CHOME[i][0], y: GY - 4.5, z: CHOME[i][1], ry: CHOME[i][2] } });
         if (!t) return null;
-        t.cI = i; const sp = H.SPOTS[t.id]; sp.use = true; sp.act = () => cushClick(i);
+        t.cI = i;t.cushionHome=Object.assign({},t.home); const sp = H.SPOTS[t.id]; sp.use = true; sp.act = () => cushClick(i);
         sp.label = () => CK.has('cushions', 'p' + i) ? 'Cushion (plumped, perfect)' : seatOf(i) >= 0 ? 'Cushion (plump it!)' : 'Cushion (on the floor)';
         return t;
       });
-      SEATS.forEach((S, k) => CK.snap('ch.s.cush' + k, { room: 'lounge', x: S.x, y: GY - 55, z: S.z - (k === 3 ? 0 : 6), r: 34, box: [28, 2, 8], ry: S.ry, accepts: kind => kind === 'cushion' && seatFree(k), pose: { x: S.x, y: GY - 45, z: S.z, ry: S.ry, rx: 12 }, hint: k === 3 ? 'Let go: on Dad\'s chair' : 'Let go: on the settee', onSnap: t => { CK.snd.thud(); CK.fx.burst(LR(), S.x, GY - 50, S.z, { n: 8, col: '#e8e0d0', size: 2, life: 0.8, spd: 14, up: 8, grav: 10, op: 0.5 }); seatSet(t.cI, k); CK.step('cushions', 'c' + t.cI); } }));
+      SEATS.forEach((S, k) => CK.snap('ch.s.cush' + k, { room: 'lounge', x: S.x, y: GY - 55, z: S.z - (k === 3 ? 0 : 6), r: 34, box: [28, 2, 8], ry: S.ry, accepts: kind => kind === 'cushion' && seatFree(k), pose: { x: S.x, y: GY - 45, z: S.z, ry: S.ry, rx: 12 }, hint: k === 3 ? 'Let go: on Dad\'s chair' : 'Let go: on the settee', onSnap: t => { CK.snd.thud(); CK.fx.burst(LR(), S.x, GY - 50, S.z, { n: 8, col: '#e8e0d0', size: 2, life: 0.8, spd: 14, up: 8, grav: 10, op: 0.5 }); seatSet(t.cI, k); CK.step('cushions', 'c' + t.cI);CK.MODS.cushions.sync(); } }));
       this.sync();
     },
     sync() {
       const v = CV();
       cush.forEach((t, i) => {
-        if (!t) return; const k = seatOf(i);
-        if (k >= 0 && CK.has('cushions', 'c' + i)) { const S = SEATS[k]; t.home = { room: 'lounge', x: S.x, y: GY - 45, z: S.z, ry: S.ry }; t.rx = 12; t.rz = 0; if (t.st !== 'snap' && t.st !== 'held' && (Math.abs(t.at.x - S.x) > 1 || Math.abs(t.at.z - S.z) > 1 || Math.abs(t.at.y - (GY - 45)) > 1)) CK.home(t.id); t.rx = 12; H.place(t); }
-        else if (!CK.S.at[t.id] && t.st !== 'held') { t.rx = 90; H.place(t); }
-        t.obj.userData.body.rotation.z = CK.has('cushions', 'p' + i) ? Math.PI / 4 : 0;
+        if (!t||H.anims.has('ch.plump'+i)) return; const k = seatOf(i),placed=!!SEATS[k]&&CK.has('cushions','c'+i),b=t.obj.userData.body;
+        t.fixed=placed;b.scale.set(1,1,1);b.rotation.z=placed&&CK.has('cushions','p'+i)?Math.PI/4:0;
+        if(t.st!=='held'&&t.st!=='anim'){
+          if(placed){const S=SEATS[k];t.home={room:'lounge',x:S.x,y:GY-45,z:S.z,ry:S.ry};t.rx=12;t.rz=0;const moved=Math.abs(t.at.x-S.x)>.01||Math.abs(t.at.z-S.z)>.01||t.at.y!==GY-45||t.at.ry!==S.ry;Object.assign(t.at,t.home,{hide:false});if(t.obj.parent!==LR().things)LR().things.add(t.obj);cushionFit(t,true);if(moved)CK.keep(t.id);}
+          else{const pose=v.loosePose?.[i];t.rx=pose?pose[0]:!CK.S.at[t.id]||Math.abs(t.at.y-(GY-4.5))<.6?90:0;t.rz=pose?pose[1]:0;cushionFit(t,false);}
+        }
         CK.lock(t.id, CK.has('cushions', 'c' + i) ? undefined : false);
         const sp = H.SPOTS[t.id]; if (sp && CK.has('cushions', 'c' + i)) sp.off = false; // (placed ones still take a click: to plump them)
       });
       void v; H.dirty();
     },
-    reset() { CV().seat = {}; cush.forEach(t => { if (t) { CK.lock(t.id, false); t.rx = 90; t.rz = 0; t.obj.userData.body.rotation.z = 0; CK.home(t.id); t.rx = 90; H.place(t); } }); },
+    reset() { const v=CV();v.seat={};v.loosePose={};cush.forEach(t=>{if(!t)return;H.anims.delete('ch.plump'+t.cI);CK.lock(t.id,false);t.fixed=false;t.home=Object.assign({},t.cushionHome);t.rx=90;t.rz=0;t.obj.userData.body.rotation.z=0;t.obj.userData.body.scale.set(1,1,1);CK.home(t.id);cushionFit(t,false)}); },
   });
+  H.on('rest',id=>{const t=H.THINGS[id];if(t?.cI==null||seatOf(t.cI)>=0&&CK.has('cushions','c'+t.cI))return;const v=CV();(v.loosePose||(v.loosePose={}))[t.cI]=[t.rx||0,t.rz||0];cushionFit(t,false);CK.save()});
   function cushClick(i) {
     const t = cush[i];
     if (!CK.has('cushions', 'c' + i)) return H.grab(t.id);
     if (CK.has('cushions', 'p' + i)) return CK.jack('Cushion', 'Plumped. On its corner. Like a diamond. Don\'t touch it, or Mom will know.');
+    if(H.anims.has('ch.plump'+i))return true;
     CK.begin('cushions');
     const b = t.obj.userData.body, t0 = performance.now();
     CK.snd.thud(); setTimeout(CK.snd.thud, 180);
@@ -222,8 +246,9 @@
       const k = Math.min(1, (now - t0) / 700), e = CK.ease(k);
       const sq = Math.sin(k * Math.PI * 3) * (1 - k) * 0.22;
       b.scale.set(1 + sq, 1 - sq, 1 + sq * 1.5); b.rotation.z = e * Math.PI / 4;
+      cushionFit(t,true);
       if (k < 1) return true;
-      b.scale.set(1, 1, 1); CK.step('cushions', 'p' + i); return false;
+      b.scale.set(1, 1, 1);cushionFit(t,true); CK.step('cushions', 'p' + i);CK.keep(t.id); return false;
     });
     const p = t.obj.position; CK.fx.burst(LR(), p.x, p.y - 15, p.z, { n: 12, col: '#e8e0d0', size: 1.6, life: 1.2, spd: 16, up: 6, grav: 4, op: 0.45 });
     if (!CV().told) { CV().told = 1; CK.save(); CK.jack('Plumping', 'Punch punch, fluff fluff, and stand it on its corner. Mom says it\'s "how they do it in the magazines".', 4000); }
