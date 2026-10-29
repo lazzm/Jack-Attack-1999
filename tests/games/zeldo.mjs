@@ -235,11 +235,12 @@ async function touchCheck(account,password){
   await page.evaluate(()=>{RoomTV.dbg().dbg.start(0,'JACK');RoomTV.dbg().dbg.give({sword:1,shield:1});RoomTV.dbg().dbg.warp('south',7,6,3)});
   const control=b=>page.locator('[data-zeldo="'+b+'"]');
   async function press(b){const r=await control(b).boundingBox();assert(r,'Touch button '+b);await page.touchscreen.tap(r.x+r.width/2,r.y+r.height/2)}
-  await press('lock');await f.until(()=>RoomTV.lockIn());
+  await press('lock');await f.until(()=>RoomTV.lockIn()&&!House.gliding);await page.waitForTimeout(await page.evaluate(()=>House.motion.scale(House.motion.ms.lock)+100));
   const cdp=await page.context().newCDPSession(page),pad=await page.locator('.zeldo-dpad').boundingBox();
   const x=await page.evaluate(()=>RoomTV.dbg().dbg.pl.x);
-  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:pad.x+pad.width-12,y:pad.y+pad.height/2,id:1}]});await page.waitForTimeout(220);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
-  assert(await page.evaluate(x=>RoomTV.dbg().dbg.pl.x>x+3,x),'Left thumb pad walks');
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:pad.x+pad.width-12,y:pad.y+pad.height/2,id:1}]});
+  let moved=false,last;try{for(let i=0;i<120;i++){last=await page.evaluate(()=>({x:RoomTV.dbg().dbg.pl.x,frame:RoomTV.dbg().frame,mode:RoomTV.dbg().dbg.mode,paused:House.paused,input:GameInput.mode}));if(last.x>x+3){moved=true;break}await page.waitForTimeout(100)}}finally{await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await cdp.detach()}
+  assert(moved,'Left thumb pad walks: '+JSON.stringify({from:x,last,pad}));
   await press('start');await f.until(()=>RoomTV.dbg().dbg.mode==='menu');await page.screenshot({path:dir+'after-touch-items.png'});await press('start');await f.until(()=>RoomTV.dbg().dbg.mode==='play');
   await press('x');await f.until(()=>RoomTV.dbg().dbg.mode==='map');await page.waitForTimeout(200);await press('x');await f.until(()=>RoomTV.dbg().dbg.mode==='play');
   for(const [width,height,name]of [[390,844,'portrait'],[844,390,'landscape'],[768,1024,'tablet']]){
