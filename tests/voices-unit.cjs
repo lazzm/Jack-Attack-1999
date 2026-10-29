@@ -72,7 +72,7 @@ const tick = () => new Promise(r => setImmediate(r));
     await w.st.loadVoices(); await tick();
     assert.equal(w.st.say('c2.pocket.dad', 'Dad', 'x', 2000, { bubble: true }), null); assert.equal(w.st.prefetch('c2.pocket.dad'), undefined);
     for (let i = 0; i < 3; i++) await tick();
-    assert(!fetched.some(u => /\.mp3$/.test(u)), 'no clip fetched with sound off: ' + fetched); }
+    assert(!fetched.some(u => /\.mp3(?:\?|$)/.test(u)), 'no clip fetched with sound off: ' + fetched); }
   // ---- volume 0 counts as muted
   { const { w } = world({ jhp_audio_effects: '1', jhp_audio_volume: '0' }); await w.st.loadVoices(); assert.equal(w.st.play('c2.pocket.dad', {}), null, 'volume 0: silent'); }
   // ---- bubble layout maths
