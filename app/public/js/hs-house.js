@@ -599,7 +599,7 @@
     batch.build(r.group);
     // spots
     wrapSpot('hs.sofa', { label: 'The sofa', act: sayLines('hs.sofa', 'The sofa', ['Down the back of the sofa: 37p, a hair bobble, a Buildo man and a fossilised Waver.', 'Dad\'s end, Mom\'s end, and the middle bit where the spring goes.']) }); pickBox(r, 'hs.sofa', SOFA.x, GY - 30, SOFA.z, SOFA.w, 60, 85);
-    H.spot('hs.chair', { label: "Dad's chair", act: sayLines('hs.chair', "Dad's chair", ['Dad\'s chair. Nobody sits in Dad\'s chair. It is the law.', 'It has a dent in the exact shape of Dad.']) });pickBox(r,'hs.chair',CHAIR.x,GY-47,CHAIR.z,CHAIR.w,94,88,CHAIR.ry);
+    H.spot('hs.chair', { label: "Dad's chair", act: sayLines('hs.chair', "Dad's chair", ['Dad\'s chair. Nobody sits in Dad\'s chair. It is the law.', 'It has a dent in the exact shape of Dad.']) });pickChair(r);
     H.spot('hs.fire', { label: 'The gas fire', act: () => { r.fireOn = !r.fireOn;lightsOn.loungeFire=r.fireOn;saveHouseLights(); H.relight(); say('The gas fire', r.fireOn ? 'Click click click WHUMP. The fake coals glow orange. Toasty.' : 'Off. Mom says not to leave it on, it costs a fortune.'); } }); pickBox(r, 'hs.fire', -280 + 44, GY - 50, 500, 6, 100, 104);
     H.spot('hs.mantel', { label: 'The mantelpiece', act: sayLines('hs.mantel', 'The mantelpiece', ['A carriage clock (ten minutes fast, on purpose, so we\'re never late), my school photo from Year 7 (bowl haircut, braces), and {sister}\'s ballet certificate.', 'The school photo. Mom refuses to take it down. I have asked. Many times.']) }); pickBox(r, 'hs.mantel', -280 + 44, GY - 124, 500, 10, 22, 140);
     H.spot('hs.cabinet', { label: 'Display cabinet', act: sayLines('hs.cabinet', 'The display cabinet', ['Mom\'s best glasses, a crystal swan, and a souvenir plate from the seaside. We are not allowed to open it. We have never opened it.']) }); pickBox(r, 'hs.cabinet', -180, GY - 60, 322, 90, 120, 26);
@@ -613,6 +613,19 @@
     H.block('G', 146, 588, 194, 634); H.block('G', -230, 305, -130, 342); H.block('G', -280, 420, -230, 580); H.block('G', LAMPST.x - 16, LAMPST.z - 16, LAMPST.x + 16, LAMPST.z + 16); H.block('G', -268, 646, -232, 676);
     H.support('lounge', -105, 425, -15, 475, GY - 43.5); H.support('lounge', 150, 592, 190, 628, GY - 65.5); H.support('lounge', -280, 430, -230, 570, GY - 114);
     H.support('lounge',152,594,188,626,GY-21); // the phone book's lower shelf
+  }
+  // Follow the solid upholstery, leaving the air over the seat pickable.
+  // The former full-height box intercepted F on the cushion inside it.
+  function pickChair(r){
+    const g=new T.Group(),P=K.into(g),w=CHAIR.w,e=.12;
+    g.name='chair-upholstery-pick';g.position.set(CHAIR.x,GY-47,CHAIR.z);g.rotation.y=CHAIR.ry*D2R;
+    P.rbox(0,29,4,w-4+e,24+e,74+e,5,PICK);
+    P.rbox(0,-9,-36,w+e,56+e,12+e,6,PICK);
+    P.rbox(0,10,2,w-40+e,16+e,62+e,7,PICK);
+    P.rbox(0,-17,-26,w-40+e,44+e,16+e,7,PICK,{rx:8});
+    for(const side of [-1,1]){P.rbox(side*(w/2-9),11,4,18+e,40+e,78+e,8,PICK);P.rbox(side*(w/2-9),-11,4,20+e,8+e,80+e,4,PICK)}
+    for(const x of [-1,1])for(const z of [-1,1])P.cyl(x*(w/2-10),44,4+z*34,3.06,3.66,6.12,10,PICK);
+    g.traverse(o=>{if(o.isMesh)o.userData.spot='hs.chair'});r.group.add(g);H.spot('hs.chair',Object.assign({},H.SPOTS['hs.chair'],{obj:g}));
   }
   function routedCord(B,pts,col){
     const points=pts.map(p=>new T.Vector3(...p)),curve=new T.CurvePath();let from=points[0];
