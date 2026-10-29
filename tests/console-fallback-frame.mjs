@@ -15,7 +15,12 @@ try{
  for(const [width,height]of[[1366,860],[1920,1080],[390,844],[844,390],[768,1024],[1024,768]]){
   await p.setViewportSize({width,height});await until(()=>!House.gliding);await p.waitForTimeout(250);
   const bounds=await p.evaluate(()=>{const screen=House.ROOMS.cupboard.cupScreen;screen.parent.updateWorldMatrix(true,false);const points=[[-17,0,7.5],[17,0,7.5],[-17,-28,7.5],[17,-28,7.5]].map(a=>{const p=new THREE.Vector3(...a).applyMatrix4(screen.parent.matrixWorld);return House.toScreen(p.x,-p.y,p.z)});return {points,same:RoomTV.dbg()===fallbackInstance,surface:RoomTV._dbg().surface,hook:typeof RoomTV.defs['sn.fight'].screenPose}});
-  if(touch)assert(await p.locator('.rm-tvv .rm-pad').isVisible(),'Touch controller missing');
+  if(touch){
+   assert(await p.locator('.rm-tvv .rm-pad').isVisible(),'Touch controller missing');
+   const panels=await p.locator('.rm-tvv .rm-pl,.rm-tvv .rm-pr,.rm-tvv .rm-pm,.rm-tvv .rm-livebar').evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,visible:getComputedStyle(n).display!=='none'&&r.width>0&&r.height>0}}).filter(r=>r.visible));
+   const tv={x0:Math.min(...bounds.points.map(p=>p.x)),x1:Math.max(...bounds.points.map(p=>p.x)),y0:Math.min(...bounds.points.map(p=>p.y)),y1:Math.max(...bounds.points.map(p=>p.y))};
+   for(const r of panels)assert(r.x+r.w<=tv.x0||r.x>=tv.x1||r.y+r.h<=tv.y0||r.y>=tv.y1,`Controller covers portable TV at ${width}x${height}: ${JSON.stringify({tv,panel:r})}`);
+  }
   assert(bounds.same&&bounds.surface);assert.equal(bounds.hook,'undefined');for(const q of bounds.points)assert(q&&q.x>=0&&q.x<=width&&q.y>=48&&q.y<=height,`Portable TV cropped at ${width}x${height}: ${JSON.stringify(bounds.points)}`);
   await p.screenshot({path:`shots/console-fallback-frame/${tag}${width}x${height}.png`,timeout:180000});
  }

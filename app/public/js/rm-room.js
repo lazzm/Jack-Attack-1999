@@ -1950,8 +1950,11 @@
     if (con === 'sn') {
       const screen=H.ROOMS.cupboard.cupScreen;screen.updateWorldMatrix(true,false);
       const v=screen.getWorldPosition(new T.Vector3()),n=new T.Vector3(0,0,1).transformDirection(screen.matrixWorld);
-      const touch=navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches,portrait=innerHeight>=innerWidth;
-      const side=touch&&!portrait?170:8,bottom=touch&&portrait?160:8,top=touch?58:52;
+      const touch=navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches;
+      // Match the controller's actual two-wing breakpoint. Tablets with more
+      // height keep the full pad and its buttons below the physical set.
+      const wings=matchMedia('(max-height:500px) and (min-aspect-ratio:3/2) and (min-width:600px)').matches;
+      const side=touch&&wings?174:8,bottom=touch?(wings?64:300):80,top=58;
       const aw=Math.max(.2,(innerWidth-side*2)/innerWidth),ah=Math.max(.2,(innerHeight-top-bottom)/innerHeight);
       const d=Math.max(14/(Math.tan(fov)*ah*.84),17/(Math.tan(fov)*aspect*aw*.84));
       const x=v.x+n.x*d,y=-v.y-n.y*d,z=v.z+n.z*d,off=(bottom-top)*d*Math.tan(fov)/innerHeight;
