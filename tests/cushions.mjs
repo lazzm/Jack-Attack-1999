@@ -49,6 +49,7 @@ await withTestServer(async base=>{
   await contacts();await refresh();await contacts();
   for(const [width,height,name]of [[1366,860,'desktop'],[1920,1080,'wide'],[390,844,'phone'],[844,390,'phone-landscape'],[768,1024,'tablet'],[1024,768,'tablet-landscape']]){await p.setViewportSize({width,height});if(width===390)await touchMode();await view([-60,230,450],[-60,290,590],{level:'G'});await p.evaluate(()=>HousePause.close());await shot('complete-'+name)}
   await p.setViewportSize({width:1366,height:860});for(const[name,eye,target]of[['left',[-130,230,500],[-60,290,590]],['right',[40,230,520],[-60,290,590]],['chair',[10,210,380],[118,290,398]],['chair-side',[60,210,460],[118,290,398]]]){await view(eye,target,{level:'G'});await shot('complete-'+name)}
+  for(const [width,height,name]of [[1366,860,'desktop'],[1920,1080,'wide'],[390,844,'phone'],[844,390,'phone-landscape'],[768,1024,'tablet'],[1024,768,'tablet-landscape']]){await p.setViewportSize({width,height});await view([100,210,650],[-70,300,430],{level:'G'});await shot('lounge-route-'+name)}
   await redo();await refresh();const loose=await inspectGeometry();assert(loose.every(c=>c.rx===90&&!c.fixed));await shot('02-redo-refresh');
   assert.deepEqual(errors,[]);console.log('CUSHIONS PASS: legacy/current solid contact, native F/rapid presses, actual E slots, refresh placed/mid-plump/completed, six sizes and owner redo');
  }catch(e){await shot('failure').catch(()=>{});throw e}finally{await f.browser.close()}
