@@ -6,6 +6,7 @@ import {loadavg,availableParallelism} from 'node:os';
 import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from '../room-fixture.mjs';
+import {playCase} from '../case-actions.mjs';
 const root=fileURLToPath(new URL('../../',import.meta.url)),baseline=process.argv.includes('--baseline'),quick=process.argv.includes('--quick'),flows=process.argv.includes('--flows'),shared=process.argv.includes('--shared'),gallery=process.argv.includes('--gallery');
 const shots=root+'tests/shots/games/zip/'+(baseline?'before':'after')+'/',port=+(process.env.ZIP_PORT||18088);
 assert(port>=18080&&port<=18099);let server,browser,data,log='';
@@ -22,14 +23,14 @@ try{
  const base='http://127.0.0.1:'+port,account='Zip'+Date.now().toString(36),password='Throwaway-1999';
  assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
  console.log('ZIP server ready');
- const f=await roomFixture(base,{account,password,signup:false,onPage:p=>browser=p.context().browser()}),p=f.page;browser=f.browser;
+ const f=await roomFixture(base,{account,password,signup:false,timeoutScale:3,onPage:p=>browser=p.context().browser()}),p=f.page;browser=f.browser;
  if(baseline)for(const name of ['rm-g-zip.js','rm-g-dash.js'])await p.route('**/js/'+name+'*',async r=>r.fulfill({contentType:'application/javascript',body:await readFile('/tmp/zip-before/'+name,'utf8')}));
  await p.evaluate(()=>{if(!Room.owned('dc.dash'))Room._.search('dcbox')});
  const until=async fn=>{for(let i=0;i<600;i++){assert.deepEqual(f.errors,[]);if(await p.evaluate(fn))return;await delay(100)}throw Error('Timeout '+fn)};
  async function frames(n){await p.evaluate(n=>window.zipFrame=RoomTV.dbg().frame+n,n);await until(()=>RoomTV.dbg().frame>=zipFrame)}
  async function press(key){await p.keyboard.press(key);await frames(4)}
  async function shot(name){console.log('SHOT '+name);await p.screenshot({path:shots+name+'.png'});const png=await p.evaluate(()=>{const k=RoomTV.dbg();k._three?.render();const c=document.createElement('canvas');c.width=k.W;c.height=k.H;const g=c.getContext('2d');g.drawImage(k.cv,0,0,c.width,c.height);g.drawImage(k.hud.canvas,0,0,c.width,c.height);return c.toDataURL().split(',')[1]});await writeFile(shots+name+'-native.png',Buffer.from(png,'base64'))}
- async function boot(id){await until(()=>window.RoomTV&&window.House?.live);await p.evaluate(id=>{House.hush();RoomTV.test(id)},id);await until(()=>RoomTV.dbg()&&RoomTV._dbg().st==='game');await frames(40);await p.evaluate(()=>RoomTV.lockIn(true))}
+ async function boot(id){if(await p.evaluate(()=>!!window.RoomTV?.open_)){await p.keyboard.press('q');await f.until(()=>!House.focused&&!House.gliding)}await p.evaluate(()=>{HousePause.close();House.pauseControls(false)});await playCase(f,id);await frames(40);await p.evaluate(()=>RoomTV.lockIn(true))}
  async function perf(name){const result=await p.evaluate(async()=>{const k=RoomTV.dbg(),t=k._three,draw=[];if(t){const gl=t.ren.getContext(),pixel=new Uint8Array(4);for(let i=0;i<35;i++){const s=performance.now();t.render();gl.readPixels(0,0,1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);if(i>9)draw.push(performance.now()-s)}}let prev;const raf=[];await new Promise(r=>{function tick(t){if(prev)raf.push(t-prev);prev=t;if(raf.length===90)r();else requestAnimationFrame(tick)}requestAnimationFrame(tick)});const stats=a=>{a.sort((a,b)=>a-b);return a.length?{mean:a.reduce((s,v)=>s+v,0)/a.length,p50:a[Math.floor(a.length*.5)],p95:a[Math.floor(a.length*.95)]}:null};const gl=t?.ren.getContext(),ext=gl?.getExtension('WEBGL_debug_renderer_info');return{camera:t?{p:t.cam.position.toArray(),q:t.cam.quaternion.toArray(),fov:t.cam.fov}:null,calls:t?.ren.info.render.calls,triangles:t?.ren.info.render.triangles,native:[k.cv.width,k.cv.height],hud:[k.W,k.H],renderer:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'Canvas 2D',draw:stats(draw),raf:stats(raf)}});result.host={loadavg:loadavg(),cpus:availableParallelism()};console.log('PERF '+name+' '+JSON.stringify(result));await writeFile(shots+name+'-performance.json',JSON.stringify(result,null,2))}
  if(gallery){
   await boot('md.zip');await frames(1000);await shot('zip-attract');await press('Enter');
