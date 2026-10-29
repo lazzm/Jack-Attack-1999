@@ -1,5 +1,13 @@
 # Jack's Home Page - changelog
 
+## 2.57.24 - 2026-10-29
+- R126: open the living-room route by moving Dad's chair towards the side wall and making the coffee table slightly shallower. The usable central walking band grows from about 20 cm to 55 cm; table legs, shelf, contact shadow, supports and seasonal props follow the new layout.
+- Replace the chair's invisible ceiling-height physics block with real-height seat, back, arms and feet. Family sitting/approach positions and cushion destinations follow the chair. Placement version 8 moves old saved table/chair props once and clears newly covered floor positions, preserving hidden props, filled slots and save metadata.
+- R127: remove the duplicate outdoor WELCOME mat. Keep the indoor post mat, its interaction and the solid tiled doorstep.
+- Verified: all 36 unit checks, changed-file syntax/parody, native keyboard and phone-thumbstick routes, actual old-save restoration and repeat refresh, physics 15/15, phone/tablet gameplay, full cushion placement/plumping/redo/refresh and three-day family movement/crossing gates. Reviewed desktop 1366x860/1920x1080, portrait/landscape phone and tablet room views, saved-prop contact and both sides of the front door. Full smoke passed 12/12 with no browser/server errors.
+- Public fresh-entry verification caught an early lazy-load cache defect: before JackOS loads, the bedroom requested an unversioned downstairs pack, allowing an old cached layout to mix with the new seasonal code. Immediate follow-up 2.57.25 corrects that path; 24 alone is not a clean release.
+- No server, account, wallet/cap or shared-world resets. Approved British clips preserved. Physical Edge/Android hardware, physical gamepads and hardware performance remain unverified. Dad's work/car mismatch R128 and carried-case size R124 remain for their own releases.
+
 ## 2.57.23 - 2026-10-29
 - R84: frame the complete Game Lad, including its shell, buttons and cartridge, in every orientation. Keyboard and the device's own touch buttons control the in-room game; LOCK IN adds the full-screen picture and desktop mouse controls without restarting it.
 - R85: carry filled game cases straight to their machines. Real cases open, transfer their medium and park closed at fixed locations; eject returns the medium to its own case and makes that case carryable again. Covers all six consoles and physical PC disc cases, including saved custom shelf slots and interrupted-animation refresh. Story clues follow the new flow.
