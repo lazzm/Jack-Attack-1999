@@ -2868,6 +2868,7 @@
     if (!validPose(s)) return false;
     const lvl = s.lvl || 'U', r = roomAt(s.x, s.z, lvl); if (!r) return false;
     buildRoom(r);
+    r.preparePose?.(s);
     if (s.d && typeof s.d === 'object') for (const id in DOORS) {
       const d = DOORS[id]; if (d.always || typeof s.d[id] !== 'boolean') continue;
       d.open = s.d[id]; d.ang = d.open ? 1 : 0; anims.delete('door:' + id);

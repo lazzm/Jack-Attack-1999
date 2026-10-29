@@ -69,7 +69,7 @@
   const BUCKET = { x: 214, z: 1236 }; // on the hardstanding by the pedestrian gate, clear of the path and the leaves
   const MUD = [ // Car-local coordinates: keep chore IDs stable when the model moves/scales.
     [-85.15,-48,-155,'s'],[-85.15,-55,-95,'s'],[-85.15,-46,-35,'s'],[-85.15,-58,25,'s'],[-85.15,-48,85,'s'],[-85.15,-54,155,'s'],
-    [-32,-75.15,170,'t'],[32,-75.15,170,'t'],[-36,-75.15,-178,'t'],[30,-133.65,-20,'t'],
+    [-32,-75.15,170,'t'],[32,-75.15,170,'t'],[-36,-81.65,-178,'t'],[30,-127.05,-20,'t'],
   ];
   function carPoint(x,y,z) {const f=R('drive').carFrame; return {x:f.x+x*f.s,y:f.y+y*f.s,z:f.z+z*f.s};}
   let mud = [], sponge = null, bucket = null, carTool = null;
@@ -94,8 +94,8 @@
         const m = M({ c: '#fff', map: mudTex(i, i === 9), tr: true, dw: false, sh: 10 }).clone();
         const pl = new T.Mesh(new T.PlaneGeometry(i === 9 ? 18 : 30, i === 9 ? 18 : 24), m); pl.renderOrder = 3;
         pl.position.set(x, y, z); pl.scale.setScalar(scale); if (f === 's') pl.rotation.y = -Math.PI / 2; else pl.rotation.x = Math.PI / 2;
-        r.group.add(pl);
-        const pk = new T.Mesh(new T.BoxGeometry(f === 's' ? 3 : 32, f === 's' ? 26 : 3, f === 's' ? 32 : 26), new T.MeshBasicMaterial({ visible: false })); pk.position.set(f === 's' ? x - .5 : x, f === 's' ? y : y - .5, z); pk.scale.setScalar(scale); r.group.add(pk);
+        (r.car?.group||r.group).add(pl);
+        const pk = new T.Mesh(new T.BoxGeometry(f === 's' ? 3 : 32, f === 's' ? 26 : 3, f === 's' ? 32 : 26), new T.MeshBasicMaterial({ visible: false })); pk.position.set(f === 's' ? x - .5 : x, f === 's' ? y : y - .5, z); pk.scale.setScalar(scale); (r.car?.group||r.group).add(pk);
         H.spot('ch.mud' + i, { obj: pk, room: 'drive', range: 260, label: i === 9 ? 'Pigeon business (on the roof)' : 'Mud', act: () => scrubMud(i) });
         mud.push({ pl, m, pk });
       });
@@ -103,7 +103,7 @@
       const cm = new T.Mesh(new T.PlaneGeometry(60, 26), M({ c: '#fff', map: K.tex('ch.cleanme', 256, 112, (g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(120,96,60,.55)'; g.fillRect(0, 0, w, h); g.globalCompositeOperation = 'destination-out'; g.font = '700 46px "Comic Sans MS",cursive'; g.textAlign = 'center'; g.fillStyle = '#000'; g.fillText('CLEAN ME', 128, 72); g.font = '20px "Comic Sans MS",cursive'; g.fillText(CK.cast('(also, {mate1} woz ere)'), 128, 100); g.globalCompositeOperation = 'source-over'; }, { clamp: true }), tr: true, dw: false }).clone());
       // Read from behind the car, rather than as mirror writing through glass.
       const uv=cm.geometry.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,1-uv.getX(i));uv.needsUpdate=true;
-      const boot=carPoint(20,-75.2,-178); cm.rotation.x = Math.PI / 2; cm.position.set(boot.x,boot.y,boot.z); cm.scale.setScalar(scale); cm.renderOrder = 3; r.group.add(cm); this.cleanme = cm;
+      const boot=carPoint(20,-81.7,-178); cm.rotation.x = Math.PI / 2; cm.position.set(boot.x,boot.y,boot.z); cm.scale.setScalar(scale); cm.renderOrder = 3; (r.car?.group||r.group).add(cm); this.cleanme = cm;
       // The boot-lid dirt and CLEAN ME ride on the lid's hinge, so opening the boot never leaves them hanging in mid-air.
       const lid = r.carBoot && r.carBoot.hinge;
       if (lid) { const rx = lid.rotation.x; lid.rotation.x = 0; r.group.updateMatrixWorld(true); for (const o of [mud[8].pl, mud[8].pk, cm]) lid.attach(o); lid.rotation.x = rx; lid.updateMatrixWorld(true); }
@@ -116,8 +116,8 @@
       this.sync();
     },
     sync() {
-      const v = CV();
-      mud.forEach((p, i) => { const sc = CK.has('car', 'm' + i) ? 3 : (v.sc[i] | 0); p.m.opacity = Math.max(0, 1 - sc / 3); p.pl.visible = sc < 3; const s = H.SPOTS['ch.mud' + i]; if (s) { s.off = sc >= 3; p.pk.visible = sc < 3; } });
+      const v = CV(), present=R('drive').car?.present!==false;
+      mud.forEach((p, i) => { const sc = CK.has('car', 'm' + i) ? 3 : (v.sc[i] | 0); p.m.opacity = Math.max(0, 1 - sc / 3); p.pl.visible = sc < 3; const s = H.SPOTS['ch.mud' + i]; if (s) { s.off = !present || sc >= 3; p.pk.visible = sc < 3; } });
       if (this.cleanme) this.cleanme.visible = !CK.has('car', 'rinse') && !CK.done('car');
       H.dirty();
     },
@@ -131,12 +131,14 @@
     if (!CK.has('car', 'bucket')) CK.step('car', 'bucket');
   }
   function bucketClick() {
+    if(R('drive').car?.present===false)return CK.jack("Dad's car","Dad's car is away. I'll wash it when it's back.");
     if (CK.done('car')) return CK.jack('The bucket', 'Empty. And so is the car of mud. Gleaming.');
     if (mud.every((x, i) => CK.has('car', 'm' + i))) return rinse();
     if (!carTool) { takeSponge(); return CK.jack("Dad's car", 'Sponge out of the bucket. Warm soapy water (Mom\'s good washing-up liquid, don\'t tell her). Now the mud.', 4000); }
     CK.snd.splash(); CK.jack('The bucket', 'Dunk. Squeeze. Full of suds again.');
   }
   function scrubMud(i) {
+    if(R('drive').car?.present===false)return;
     if (CK.has('car', 'm' + i)) return;
     if (!carTool) return CK.jack("Dad's car", i === 9 ? 'A pigeon has been on the roof. A BIG pigeon. I need the sponge (it\'s in the bucket).' : 'Mud everywhere. Dad drove through a puddle "on purpose, to test the suspension". I need the sponge out of the bucket.', 4000);
     const v = CV(); v.sc[i] = (v.sc[i] | 0) + 1; CK.save();

@@ -29,3 +29,13 @@ assert.equal(doorContext.headFitsDoor(327,392,'G',353,84),true,'Crouched player 
 assert.equal(doorContext.headFitsDoor(327,392,'G',213,128),true,'Stair flight mistaken for ground-floor opening');
 assert.equal(doorContext.headFitsDoor(327,340,'G',353,128),true,'Outside opening falsely restricted');
 console.log('LOW LINTEL PASS: standing/crouched clearance and floor/doorway bounds');
+
+// Dynamic room state must be prepared before validating an exact outdoor pose.
+{
+ const c=fixture(300),r=c.roomAt(200,200,'G');let prepared=false;
+ const floor=c.floorAt;c.floorAt=(...args)=>prepared?floor(...args):null;
+ r.preparePose=p=>{assert.equal(p.x,200);assert.equal(p.z,200);prepared=true};
+ assert(c.restorePose({x:200,y:241,z:200,rx:0,ry:0,lvl:'G',seat:0}));
+ assert(prepared);assert.equal(c.W.x,200);assert.equal(c.W.z,200);
+ console.log('ROOM PREPARE PASS: dynamic vehicle state precedes exact saved-pose validation');
+}

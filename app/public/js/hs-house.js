@@ -1202,7 +1202,7 @@
     // Dad's car: a burgundy family saloon (no real make), on the drive, nose to the street
     const frame = r.carFrame = Object.assign({}, CAR);
     const carBatch = K.batch(), carGroup = new T.Group();carGroup.name = 'Dads car';carGroup.userData.staticBatch = true;r.group.add(carGroup);
-    const parked = r.car = { present: !window.HouseFamily?.carAway, known: !!window.HouseFamily, travelled: false };
+    const parked = r.car = { present: !window.HouseFamily?.carAway, known: !!window.HouseFamily, travelled: false, group: carGroup };
     const riding = t => t.at.room === 'drive' && ['rest','snap'].includes(t.st) && H.held() !== t.id && !t.at.hide && t.at.y < GY-6 && t.at.y >= GY-170 && Math.abs(t.at.x-frame.x)<=91*frame.s && Math.abs(t.at.z-frame.z)<=205*frame.s;
     r.awayThing = t => !parked.present && riding(t);
     const car = K.into(carBatch).at(frame.x, frame.y, frame.z, 0, { sx: frame.s, sy: frame.s, sz: frame.s }), cm = M({ c: '#6a1a2a', sh: 35, sp: '#30282d' });
@@ -1326,7 +1326,7 @@
     };
     const apply = present => {
       parked.present=present;carGroup.visible=present;carBlock.off=!present;
-      for(const id of ['hs.car','hs.carboot'])H.SPOTS[id].off=!present;
+      for(const id of ['hs.car','hs.carboot'])H.SPOTS[id].off=!present;window.ChoreKit?.MODS.car?.sync();
       // Dad shuts the lid before taking the car. The contents keep their own save records.
       if(parked.travelled){r.carBoot.open=false;hinge.rotation.x=0;try{localStorage.setItem('jhp_car_boot','0')}catch{}}
       for(const id in H.THINGS){const t=H.THINGS[id];if(riding(t))H.place(t);}
@@ -1340,6 +1340,11 @@
       // Wait for a clear parking space; never materialise a car on a person or their things.
       if(present&&bayOccupied())return;
       apply(present);
+    };
+    // A car returning while the player was away waits for a clear bay. This
+    // runs before saved-pose collision checks, so refresh cannot move the player.
+    r.preparePose = p => {
+      if(p.lvl==='G'&&p.x>carBlock.x0-30&&p.x<carBlock.x1+30&&p.z>carBlock.z0-30&&p.z<carBlock.z1+30)apply(false);
     };
     apply(parked.present);
     let nextCar=0;H.ambient.add(now=>{if(now<nextCar)return false;nextCar=now+250;parked.update();return false;});

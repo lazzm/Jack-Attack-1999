@@ -2119,7 +2119,12 @@
   function ensureHouse() {
     if (houseP) return houseP; // init marks ready before its door-registration microtask finishes
     if (window.HouseRooms && HouseRooms.ready) return Promise.resolve();
-    if (!houseP) houseP = loadJs('js/hs-house.js').then(() => { if (!window.HouseRooms) throw new Error('no house'); return HouseRooms.init(); }).then(()=>{H.warmRooms();}).catch(e => { houseP = null; throw e; });
+    if (!houseP) houseP = loadJs('js/hs-house.js').then(async () => {
+      // Family/story policy is defined by the remaining startup scripts. An outdoor
+      // saved pose must see the correct car state before collision validation.
+      if (!window.HouseFamily && document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, {once:true}));
+      if (!window.HouseRooms) throw new Error('no house'); return HouseRooms.init();
+    }).then(()=>{H.warmRooms();}).catch(e => { houseP = null; throw e; });
     return houseP;
   }
 
