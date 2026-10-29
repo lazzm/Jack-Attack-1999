@@ -10,6 +10,7 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
  await onPage?.(page);
  if(seed!==undefined)await page.addInitScript(seed=>{let s=seed>>>0;Math.random=()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}},seed);
  page.setDefaultNavigationTimeout(90000*timeoutScale);
+ page.setDefaultTimeout(30000*timeoutScale);
  page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(['warning','error'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});
  if(debug){page.on('pageerror',e=>console.log('Fixture page error:',e.message));page.on('console',m=>{if(['warning','error'].includes(m.type()))console.log('Fixture console:',m.text())})}
  await page.addInitScript(({hour,tier,storage})=>{if(Object.keys(storage).length&&!localStorage.getItem('jhp_test_seeded')){for(const[k,v]of Object.entries(storage))localStorage.setItem(k,JSON.stringify(v));localStorage.setItem('jhp_test_seeded','1')}localStorage.setItem('jhp_hs_gfx',JSON.stringify(tier));window.auditHour=hour;window.auditMinute=0;if(hour!==null){Date.prototype.getHours=()=>window.auditHour;Date.prototype.getMinutes=()=>window.auditMinute}},{hour,tier,storage});
