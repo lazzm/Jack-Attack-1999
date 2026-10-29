@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.27: compact game/disc carrying cases, roughly12% view height with unchanged real models/hands; proper low touch pose. Includes car26, lounge25 and all earlier fixes. Next: British voice accent/provenance audit and release;311 generated clips available.
+- Live = 2.57.27; release28 is fully gated and preparing deployment:289 audited British recordings,24 withheld for new recordings on30October. Includes compact cases27, car26 and lounge25.
 - Previous live22: visible table ketchup, solid plate centres, safe completed saves and proper redo; cushions fit the seats and F reaches Dad’s chair cushion; proper watering-can grip contacts and accurate chore destinations; includes hands-on bed-making, washing-up and boot-rug fixes. Includes all earlier graphics, props/hands, phone, family, camera and approved 7 m plot releases.
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
@@ -27,7 +27,7 @@ never anything that looks cursed.
 | /opt/stacks/landing-mobile3 | mobile-3 | shipped 2.57.15 | R98 movement/look, robust presses and case selection; R107 message stacking. Full/small/feel 3/3, phone/tablet/owner coverage, Chapter 1 and smoke green; carry regression green. Next: props-pass. |
 | /opt/stacks/landing-props | props-pass | shipped 2.57.16 | Shape-hugging targets, solid clothes/rubbish, proper football and cat/tree. Preserves shallow eligible slots, British clips and daily job IDs. PV7 clears old floor props under tree once. Final save/feeding/carry green; merged story and grip gates green. Next: gfx-best. |
 | /opt/stacks/landing-gfx | gfx-best | shipped 2.57.17 | R65 remove graphics options, best look always, real optimisation (no blur); R92 lighting incl. posters. |
-| /opt/stacks/landing-voices | voices | reviewed; waiting on British recordings | Three live British clips preserved; line/name timers checked for 29–31 October. No old American assets merged. |
+| /opt/stacks/landing-voices | voices | reviewed; waiting on British recordings | Superseded by voices-british below; original three British clips preserved. No old American assets merged. |
 | /opt/stacks/landing-chores | chores-washup | shipped 2.57.18 | R106/R117 complete; R80 shipped separately19. Remaining visible chore feedback from ~/codex-runs/chores-polish.prompt.md. |
 | /opt/stacks/landing-bed | chores-bed | shipped 2.57.19 | R80 complete. Focused bed, smoke, physics, mobile, story/owner and QA gates accepted; remaining chores feedback next. |
 | /opt/stacks/landing-chores-feedback | chores-feedback | shipped 2.57.20/21/22 | R118–R123 complete: can handle/body contacts and real chore destinations. Chore audit complete; final table regression and smoke green. Next: console-flow. |
@@ -35,6 +35,7 @@ never anything that looks cursed.
 | /opt/stacks/landing-lounge | lounge-access | shipped 2.57.24/25 | R126/R127 complete; wider routes, single post mat, PV8/precise chair parts and cold-entry token correction. |
 | /opt/stacks/landing-car-routine | car-routine | shipped 2.57.26 | R128 complete; work schedule, exact cargo, safe arrival/refresh, solid boot and PV9 migration. |
 | /opt/stacks/landing-carry-size | carry-size | shipped 2.57.27 | R124 complete; measured12% cases, low touch pose, original noncase grips retained. Next British voice audit. |
+| /opt/stacks/landing-voices-british | voices-british | gated for2.57.28 |289 audited clips,24 withheld; final story/owner, mobile, smoke and actual audio checks green. |
 Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md has every R-item with details.
 
 ## Voices (British only!)
@@ -44,8 +45,8 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - Timers (linger enabled): jack-voice-lines-2 (29 Oct 08:15, 90 req) and -3 (30 Oct 08:15) re-record all 313 lines in
   ~/jack-audio/lines; jack-names-callouts-3 (31 Oct 07:15). After each run: check accent with
   `node ~/bin/accent-check.mjs <clips>` (expects British),
-  then `node tools/audio/gen-lines.mjs --out ~/jack-audio/lines/voice --report ~/jack-audio/lines/lines-report.json --install app/public/audio/voice`
-  and ship as a small release. Live has 3 British Mom clips.
+  then perform the exact-byte transcript/provenance/hash audit in tools/audio/audit-release.mjs. NEVER blind-install the generator directory: it contains rejected files and different versions of the three approved clips. Install only the accepted release-ledger entries, preserving the original three bytes.
+- Batch28 accepts289/313. The24 withheld IDs and precise reasons are in tools/audio/releases/british-2026-10-29.json. They retain text/mouth fallback. Today has reached the100-request cap; no further TTS today. The30Oct08:15 job plans24 single retakes using the strict boundary verifier; names remain31Oct07:15. Fresh accent/hash/transcript review is mandatory before a subsequent small release; nothing auto-publishes.
 
 ## Owner preferences learned
 - Many small releases; quality over speed; review every screenshot for bugs and log them in docs/BACKLOG.md.
@@ -479,3 +480,12 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 
 - Candidate0794998 committed (audio remains untracked); late prompt correction still WT-only: label-only change produced Dad F Use because generic tooltip derives the verb from its label. Restored original np-life Talk-to label and changed hs-world tooltip to a single F Talk to Dad, leaving other controls unchanged. Muted focused PASS170s on full289set; its initial failure sampled after an interval, corrected capture observes active bubble before sampling while keeping timed-mouth/no-fetch/no-audio checks. Old focused worker then failed prompt and stopped; do not count it as allgreen. Current jhp-british-final-ui-v2 -> /tmp/jhp-british-focused-v2.log runs prompt/phone, then /tmp/jhp-british-mobile-final.log and /tmp/jhp-british-smoke-final.log. Story worker stillactive, realtidy accepted at15:34. Twoheavyjobs; allsource/audio frozen except late tooltip correction. Root/origin/live27 untouched, still no28bump/deploy.
 - Final289manifest is installed only inWT:289mp3s+manifest, exact release-ledger SHA and ffmpeg decode passed, original3retained. Generatorreport/manifest quality rejects24 and plans24single retakes tomorrow; rawarchiveunchanged. Original3immutablebackup ~/jack-audio/lines/audit-backups/approved-live-2.57.27 plus private /tmp/jhp-british-audit-input.json now points audit at that backup, not mutable future rootmanifest. Full exact-hash accent audit complete; all7American originals replaced by British single-line retakes, unnamedcaller replacementBritish95, DadfullrawBritish95/canonicaltranscript1.0. No more TTS today (scheduled90+manualcap10upper bound100). All36unit/parody logs pass; final touched-file syntax and unit rerun needed for tooltip/mutedURLregex. Original voice suite5/7 plus correctedmuted1/1 accepted; prompt/phone final pending.
+
+
+## British28 final accepted gates,29October
+- Final application1d6f8e1: hs-world shows one F Talk to Dad action; np-life is unchanged from27. np-lines keeps the generic caller under the same ID; st-voice versions both manifest and clips. Earlier label-only Dad/F Use attempt failed and was corrected before release.
+- Accepted voice suite evidence: initial5/7 /tmp/jhp-british-voice-paths.log; corrected muted170s /tmp/jhp-british-focused-final.log, corrected prompt167s /tmp/jhp-british-focused-v2.log. Actual CDP touch114s /tmp/jhp-british-phone-touch-v4.log verifies real touch controls, clear bubbles and matching script/manifest/MP3 build tokens. A ResourceTiming buffer missed the earlier manifest; request observation before navigation fixed that test.
+- Full phone/tablet gameplay2/2 (535s/148s) /tmp/jhp-british-mobile-final.log; smoke12/12 /tmp/jhp-british-smoke-final.log, no browser/server errors, draws593/411/235/518/394/878. Reviewed canonical, mobile, talk-prompt, Dad near/phone and Mom edge/two-speaker captures.
+- All five actual character recordings pass real WebAudio decoding/source/analyser/panner/duck on an isolated private audio page: /tmp/jhp-british-five-voices-page.log. No mocks. Earlier full-house runs stalled under softwareGL and missed the short audio measurement; isolated media avoids GPU timing bias while the in-world suite separately covers mouths/positioning/touch. Two setup404s were corrected before the clean pass. No physical speaker/headphone or human accent listening claim.
+- Full staged Chapter1 /tmp/jhp-british-staged-story.log PASS: real chores, actual PC parts/leads/recovery/JackNet, diary/pose/power/mobile/veteran isolation and owner reset/restore, zero browser errors/warnings and server mod failures. Its owned private server stopped automatically. Initial wall-time CRT assertion failed (R96), then a late key listener missed consumed W; final test measures displacement over actual clamped simulation frames after native keydown:79.6475cm normal versus38.2308cm carrying CRT over0.6s (ratio0.48). Product walking code unchanged.
+- All36 units, parody0, split/boundary regression and syntax pass (/tmp/jhp-british-final-units.log, -parody.log, -split.log). Exact289 ledger hashes, full ffmpeg decode and British confidence80+ provenance checked;3 originals byte-identical,24 excluded. Audio runtime files intentionally outsideGit; committed release ledger reproduces accepted bytes. No real accounts/data/wallet/shared-world modifications. Physical Edge/Android/gamepads/hardware performance unavailable.

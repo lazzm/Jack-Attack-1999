@@ -193,17 +193,31 @@ try {
   await aim([carFrame.x,225,carFrame.z-245],[carFrame.x,272,carFrame.z-150],'G'); // behind the actual car frame, looking down at the boot lid
   await waitStep('dad'); await p.waitForTimeout(700);await shot('07-dad-car');
   await p.keyboard.press('f');await waitStep('boot');await p.waitForTimeout(800);await shot('08-boot-open');await aim([carFrame.x-48,245,carFrame.z-245],[carFrame.x,300,carFrame.z-140],'G');await shot('08b-boot-wide');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);await shot('08c-boot-shut');await p.evaluate(()=>House.act('st.boot'));await p.waitForTimeout(750);
-  async function walkDistance(){
-    await aim([110,-55,160],[110,-55,50]);const z=await p.evaluate(()=>House.W.z);
-    await p.keyboard.down('w');await p.waitForTimeout(450);await p.keyboard.up('w');
-    return z-await p.evaluate(()=>House.W.z);
+  async function walkSpeed(){
+    // A clear stretch of the front path isolates weight from bedroom furniture and kicked props.
+    const lane=await p.evaluate(()=>({x:(House.FRONT.PIERS[0]+House.FRONT.PIERS[1])/2,z:House.FRONT.FZ-150,y:House.LV.G-House.STAND}));
+    await aim([lane.x,lane.y,lane.z],[lane.x,lane.y,lane.z-160],'G');
+    await p.evaluate(()=>{House.W.vx=House.W.vz=0});
+    let measured;
+    try{
+      await p.keyboard.down('w');
+      measured=await p.evaluate(()=>new Promise((resolve,reject)=>{
+        let last=0,start=0,seconds=0,done=false;const timer=setTimeout(()=>{done=true;reject(Error('No walking frames'))},90000);
+        requestAnimationFrame(function tick(now){if(done)return;
+          if(!last)start=House.W.z;else seconds+=Math.min(.12,(now-last)/1000);last=now;
+          if(seconds>=.6){done=true;clearTimeout(timer);resolve({seconds,distance:start-House.W.z})}else requestAnimationFrame(tick);
+        });
+      }));
+    }finally{await p.keyboard.up('w')}
+    console.log('Real W walking measurement:',JSON.stringify(measured));
+    return measured.distance/measured.seconds;
   }
-  const ordinaryWalk=await walkDistance();assert(ordinaryWalk>0);
+  const ordinaryWalk=await walkSpeed();assert(ordinaryWalk>0);
   for(const part of (stage==='pc'?['speakers','keys','monitor','tower']:['tower','monitor','keys','speakers'])) {
     const id='st.pc.'+part;
     assert(await p.evaluate(id=>House.grab(id),id),'Cannot grab '+part);
     if(part==='monitor') {
-      const heavyWalk=await walkDistance();assert(heavyWalk>0&&heavyWalk<ordinaryWalk*.8,'CRT did not slow actual walking');
+      const heavyWalk=await walkSpeed();assert(heavyWalk>0&&heavyWalk<ordinaryWalk*.8,'CRT did not slow simulation-time walking: '+JSON.stringify({ordinaryWalk,heavyWalk}));
       await shot('09-heavy-monitor');
       // A refresh while carrying hands the CRT straight back (docs/PHYSICS.md); its saved place stays the real drive
       // pickup, never the room crossed last.

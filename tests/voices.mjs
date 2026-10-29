@@ -230,15 +230,27 @@ await check('prompt', async () => {
 
 // ---------------------------------------------------------------- phone portrait
 await check('phone', async () => {
-  const { browser, page, errors } = await house({ tier: 'low', width: 390, height: 844, touch: true });
+  const resources=[];
+  const { browser, page, errors } = await house({ tier: 'low', width: 390, height: 844, touch: true, onPage:p=>p.on('request',r=>{if(r.url().includes('/audio/voice/'))resources.push(r.url())}) });
   try {
+    await page.setViewportSize({width:1366,height:860});
     await stage(page, { dad: 'carStory', mom: 'sink' });
     await face(page, 'dad', 300, 70);
-    await page.mouse.click(5, 5);
+    await page.mouse.move(683,430);await page.waitForTimeout(700);await shot(page,'talk-prompt');
+    await page.setViewportSize({width:390,height:844});
+    const touch=await page.context().newCDPSession(page);
+    await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:195,y:2}]});
+    await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await waitFor(page,()=>GameInput.touch,10000*SCALE);
+    await face(page,'dad',300,70);
+    const urls={manifest:resources.find(u=>u.includes('/audio/voice/manifest.json')),script:await page.evaluate(()=>document.querySelector('script[src*="st-voice.js"]')?.src)};
+    assert(urls.manifest&&urls.script,'Voice loader resources recorded');
+    const stamp=new URL(urls.script).searchParams.get('v');assert(stamp&&new URL(urls.manifest).searchParams.get('v')===stamp,'Manifest uses current script build');
     await say(page, 'dad', 'c2.pocket.dad');
     await waitFor(page, () => NPCBubble.live.some(b => b.key === 'dad' && b.mode === 'head' && b.said.length > 20), 15000 * SCALE);
     await page.evaluate(() => { HouseFamily.debug.speech.freeze = true; });
     const b = (await live(page))[0];
+    assert(resources.some(u=>new URL(u).pathname.endsWith('/c2.pocket.dad.mp3')&&new URL(u).searchParams.get('v')===stamp),'Real recording uses current build token');
     assert(b.x >= 8 && b.x + b.w <= 390 - 8, 'Inside the phone screen: ' + JSON.stringify(b));
     assert(crossClear(b, 390, 844), 'Clear of the crosshair');
     const keep = await page.evaluate(() => [...document.querySelectorAll('.ht-acts .ht-b, .ht-stick, .st-objective:not([hidden])')].map(e => e.getBoundingClientRect()).filter(r => r.width).map(r => ({ x: r.left, y: r.top, w: r.width, h: r.height })));
