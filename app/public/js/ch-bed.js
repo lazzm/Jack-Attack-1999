@@ -785,6 +785,8 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       // the watering can
       const can=grp((G,model)=>{
         model.name='watering-can';
+        // Grip the closed handle and support the body, not the hollow outer bounds.
+        model.userData.handGrips=[[-13.7,-9.6,.75],[5.8,-4,2.8]];
         const green=mat('#387b4e',{sh:28,sp:'#354d3c'}),dark=mat('#285c3a',{sh:20}),brass=mat('#ab925b',{sh:38,sp:'#5d5643'});
         // A closed wall section: rolled fill opening, inner wall and solid base.
         G.lathe(0,0,0,[[0,0],[5.6,0],[6.4,-1.2],[7,-4],[7,-11],[6.2,-14.6],[4.6,-16],[3.5,-16],[3.5,-15.3],[5.55,-14],[6.3,-10.8],[6.3,-4],[5.65,-1],[0,-1],[0,0]].reverse(),28,green,{sz:.72});
