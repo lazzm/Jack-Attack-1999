@@ -1,5 +1,12 @@
 # Jack's Home Page - changelog
 
+## 2.57.23 - 2026-10-29
+- R84: frame the complete Game Lad, including its shell, buttons and cartridge, in every orientation. Keyboard and the device's own touch buttons control the in-room game; LOCK IN adds the full-screen picture and desktop mouse controls without restarting it.
+- R85: carry filled game cases straight to their machines. Real cases open, transfer their medium and park closed at fixed locations; eject returns the medium to its own case and makes that case carryable again. Covers all six consoles and physical PC disc cases, including saved custom shelf slots and interrupted-animation refresh. Story clues follow the new flow.
+- Loaded Game Lads retain their cartridge, room and resting position when carried downstairs, raised before physics finishes, returned and refreshed. Cupboard games resume without cancelling their own camera move. R125: cartridges without a camera hook frame the whole physical TV clear of phone/tablet controls. LOCK OUT no longer paints a black rectangle over the Game Lad's buttons.
+- Verified: all 36 unit checks, syntax/parody, full smoke 12/12, physics 15/15, transitions 9/9 and full Chapter 1 including real chores, PC installation, phone handover and owner restore. Console/PC case transactions, native insertion/ejection films, six-size handheld/TV framing, keyboard/mouse/touch/gamepad simulation and cartridge gameplay regressions passed. Reviewed final desktop, phone/tablet, case-animation and transition captures; no caused browser/server errors. Failed fixture iterations and accepted reruns are recorded in HANDOFF.
+- No server/account/wallet/cap/shared-world resets; approved British clips preserved. Physical Edge/Android hardware, physical gamepads and hardware performance remain unverified. Jack's new living-room/doormat reports R126/R127, then carried-case sizing R124, remain for separate small releases.
+
 ## 2.57.22 - 2026-10-29
 - R121: ketchup stays visible beside the seasonal pumpkin, clear of the carving bowl and all four place settings. Old completed placements move to the corrected fixed slot without changing progress or payments.
 - R122: completed table saves build safely before the placement helper is used. Owner redo returns all thirteen pieces to their original worktop homes.
