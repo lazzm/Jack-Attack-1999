@@ -384,6 +384,7 @@ try {
   await check('veteran-errors', async () => { assert.deepEqual(errors, [], 'Browser errors (veteran)'); });
   await fixture.browser.close(); fixture = null;
 
+  if(!ONLY.length||ONLY.some(name=>['story-odd','watering','new-errors'].includes(name))){
   // ---------------------------------------------------------------- a brand-new player: chapter 1 in odd orders
   const fresh = 'Qanew' + Date.now().toString(36);
   fixture = await roomFixture(base, {account: fresh, password, opening: true,timeoutScale:SCALE});
@@ -454,6 +455,8 @@ try {
   });
 
   await check('new-errors', async () => { assert.deepEqual(errors, [], 'Browser errors (new player)'); assert(!/mod failed to load/.test(log), 'Server reported a module failure'); });
+  }
+  assert(!/mod failed to load/.test(log),'Server reported a module failure');
 } catch (e) { console.log('FAIL setup: ' + (e.stack || e)); results.push(['setup', false]); try { await fixture?.page.screenshot({path: dir + 'fail-setup.png'}); } catch (_) {} }
 finally {
   clearTimeout(watchdog);
