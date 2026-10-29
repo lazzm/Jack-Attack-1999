@@ -184,7 +184,9 @@
     const g = new T.Group(), body = new T.Group(); body.position.set(0, -15, 0); g.add(body); g.userData.body = body;
     const B = K.into(body), m = M({ c: '#fff', map: tex, sh: 10 });
     B.rbox(0, 0, 0, 30, 30, 9, 4.2, m);
-    B.geo(new T.TorusGeometry(20.6, 0.8, 6, 4), 0, 0, 0, mat(c2, { sh: 30 }), { rz: 45 }); // (the piping round the edge)
+    const path=new T.CurvePath(),v=(x,y)=>new T.Vector3(x,y,0),a=15,r=4.2,points=[[-a+r,-a],[a-r,-a],[a,-a+r],[a,a-r],[a-r,a],[-a+r,a],[-a,a-r],[-a,-a+r]],corners=[[a,-a],[a,a],[-a,a],[-a,-a]];
+    for(let k=0;k<8;k++){const p=v(...points[k]),q=v(...points[(k+1)%8]);path.add(k%2?new T.CubicBezierCurve3(p,p.clone().lerp(v(...corners[(k-1)/2]),.55228475),q.clone().lerp(v(...corners[(k-1)/2]),.55228475),q):new T.LineCurve3(p,q))}
+    B.geo(new T.TubeGeometry(path,32,.2,6,true),0,0,0,mat(c2,{sh:8}));
     [-1, 1].forEach(s => B.cyl(0, 0, s * 4.6, 1.4, 1.4, 1, 10, mat(c2), { rx: 90 }));
     // Cache the solid's vertices once. Plumping only rotates/scales this small
     // set; its lowest point stays on the seat through the whole animation.
