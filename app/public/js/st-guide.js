@@ -22,7 +22,7 @@
 
     const held = H.held(), CK = window.ChoreKit, chore = s.test?.startsWith('chore.') ? s.test.slice(6) : null;
     if (chore && CK?.done(chore)) return [];
-    if(s.id==='lad'){if(window.HouseCases?.inserted('console.gb'))return ['gb'];const box=Object.values(H.THINGS).find(t=>t.kind==='console-case'&&t.gameId?.startsWith('gb.')&&!t.at.hide);return box?[held===box.id?'console.gb':box.id]:['gb'];}
+    if(s.id==='lad'){if(window.HouseCases?.inserted('console.gb'))return ['gb'];const box=Object.values(H.THINGS).find(t=>t.kind==='console-case'&&t.gameId?.startsWith('gb.')&&!t.at.hide&&H.THINGS['media.'+t.gameId]?.snap==='media.case.'+t.gameId);if(box)return [held===box.id?'console.gb':box.id];const loose=Object.values(H.THINGS).find(t=>t.gameId?.startsWith('gb.')&&t.kind==='cart'&&!t.at.hide);return loose?[held===loose.id?'console.gb':loose.id]:['gb'];}
     if (s.id.startsWith('part.')) {
       // Whichever real component was picked up, guide it to its own desk spot.
       if (held?.startsWith('st.pc.')) return ['st.desk.' + held.slice(6)];
@@ -70,7 +70,7 @@
     if (t && !t.at.hide) return {obj:t.obj,label:typeof t.label === 'function' ? t.label() : t.label,action:id === 'st.pc.tower' && s?.id === 'power' ? 'F: press the power button' : id === 'ch.binbag' && !has('bin','tie') ? 'F: tie the bin bag' : id === 'gb' ? 'F: play the Game Lad' : t.chore === 'cushions' && has('cushions','c'+t.cI) ? 'F: plump the cushion' : ['ch.pillow','ch.pjs'].includes(id) ? 'E: carry to the bed' : id.startsWith('ch.m.') ? 'E: carry to '+({clothes:'the washing basket',rubbish:'the bin',dish:'the kitchen sink',mag:'the magazine pile',cd:'the CD rack'}[t.kind.slice(5)] || 'its place') : t.useLabel ? 'F: '+t.useLabel.toLowerCase()+' · E: carry' : 'E: carry · F: look closely'};
     if (snap) {
       const p = snap.preview || snap.pose || snap;
-      const object = {'ch.s.basket':'washing','ch.s.bin':'bin','ch.s.kbin':'hs.bin','ch.s.sink':'hs.sink','ch.s.pillow':'bed','ch.s.pjs':'bed'}[id];
+      const object = {'ch.s.basket':'washing','ch.s.bin':'bin','ch.s.kbin':'hs.bin','ch.s.sink':'hs.sink','ch.s.pillow':'bed','ch.s.pjs':'bed','console.gb':'gb'}[id];
       return {point:new T.Vector3(p.x,-p.y,p.z),obj:object ? H.THINGS[object]?.obj || H.SPOTS[object]?.obj : null,label:(snap.hint || 'Put it here').replace(/^Let go:\s*/i,''),action:snap.hint?.replace(/^Let go:/,'E:') || 'E: place here'};
     }
     if (spot?.obj) return {obj:spot.obj,label:typeof spot.label === 'function' ? spot.label() : spot.label,action:id.startsWith('st.lead.') ? 'F: connect the '+id.slice(8)+' lead' : 'F: use / look closely'};
