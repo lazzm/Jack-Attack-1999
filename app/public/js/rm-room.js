@@ -1959,6 +1959,7 @@
     if (!canGo() || pending || H.focused&&!H.seated || (window.RoomTV && RoomTV.open_)) return;
     if (con === 'dc' && !R.dcOut) return;
     const loaded = inserted(con); gameId = gameId || (loaded && loaded.gameId);
+    if(!gameId){toast(CAT.CONSOLES[con].n,'Pick up a filled game case and put it into the highlighted slot.');return;}
     if (con !== 'gb') lastCon = con;
     H.hush();
     const go = () => { RoomTV.open(con, con === 'gb' ? rectOf(H.THINGS.gb.obj) : rectOf(con==='sn'?H.ROOMS.cupboard.cupScreen:R.tvScreen), { restoring: !!resume }); if (gameId) RoomTV.playPhysical(gameId); };
@@ -2372,7 +2373,7 @@
       onBegin:t=>{if(t.kind==='console-case'){HouseCases.insert(t.id);return false}return true},
       enabled: () => (gb.st === 'rest' || gb.st === 'snap') && !inserted('gb'), hint: 'Click/E to insert into the Game Lad', onSnap: t => {HouseCases.reconcile();tvOpen('gb', t.gameId)},
       onUnsnap: t => {t.frontAnchor=null;if (window.RoomTV) RoomTV.stopPhysical('gb');} });
-    const slotLocal=new T.Matrix4().makeRotationX(Math.PI/2);slotLocal.setPosition(0,.28,-2);
+    const slotLocal=new T.Matrix4().makeRotationX(Math.PI/2);slotLocal.setPosition(0,-.65,-2);
     const slotBase=new T.Matrix4(),slotAim=new T.Vector3();
     const slotMatrix=new T.Matrix4(),slotPos=new T.Vector3(),slotQ=new T.Quaternion(),slotScale=new T.Vector3(),slotRotation=new T.Euler(),slotPrevious=new Float64Array(16);
     let slotCart=null,slotState=null;

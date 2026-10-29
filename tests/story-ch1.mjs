@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
+import {insertCase} from './case-actions.mjs';
 const base = process.argv[2] || 'http://localhost:18099';
 // Stretch waits on a busy host (same rule as smoke.mjs; STORY_SCALE overrides).
 const OS = await import('node:os');
@@ -146,9 +147,11 @@ try {
   await p.keyboard.press('Escape'); await p.keyboard.press('q'); await p.evaluate(() => House.putBack());
   assert.equal(await p.evaluate(() => House.THINGS['st.diary'].obj.children.length>4), true);
   // Play the existing owned cartridge. No stEvent packets are fabricated by this test.
-  await p.evaluate(() => {House._.setMode('walk');House.interact('gb')});
-  await until(() => window.RoomTV?.open_);
-  await p.evaluate(() => RoomTV.playPhysical('gb.blocks'));
+  await p.evaluate(()=>House._.setMode('walk'));
+  assert.deepEqual(await p.evaluate(()=>StoryGuide.targets()),['media.box.gb.blocks']);
+  await insertCase({page:p,view},'media.box.gb.blocks','console.gb');
+  await until(()=>window.RoomTV?.open_&&!HouseCases.busy);
+  assert.equal(await p.evaluate(()=>House.THINGS['media.gb.blocks'].snap),'console.gb');
   await until(() => RoomTV._dbg()?.st==='game'); await p.keyboard.press('Enter'); await p.keyboard.press('ArrowLeft');
   await waitStep('lad'); assert(!await p.locator('.st-objective').isVisible());await p.waitForTimeout(200);assert(!await p.locator('.st-marker').isVisible());await p.keyboard.press('t');await shot('05-game-lad-lock-in');assert(!await p.locator('.st-prompt').isVisible());await p.keyboard.press('t');
   await p.keyboard.press('q'); await until(() => House.mode==='walk'&&!House.gliding);

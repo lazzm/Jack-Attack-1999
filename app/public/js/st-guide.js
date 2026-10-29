@@ -22,6 +22,7 @@
 
     const held = H.held(), CK = window.ChoreKit, chore = s.test?.startsWith('chore.') ? s.test.slice(6) : null;
     if (chore && CK?.done(chore)) return [];
+    if(s.id==='lad'){if(window.HouseCases?.inserted('console.gb'))return ['gb'];const box=Object.values(H.THINGS).find(t=>t.kind==='console-case'&&t.gameId?.startsWith('gb.')&&!t.at.hide);return box?[held===box.id?'console.gb':box.id]:['gb'];}
     if (s.id.startsWith('part.')) {
       // Whichever real component was picked up, guide it to its own desk spot.
       if (held?.startsWith('st.pc.')) return ['st.desk.' + held.slice(6)];
