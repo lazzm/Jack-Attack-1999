@@ -1,5 +1,11 @@
 # Jack's Home Page - changelog
 
+## 2.57.21 - 2026-10-29
+- R120: plumped cushions rest on the actual seat throughout rotation, with matching solid physics bounds and room between the three settee cushions. Dad's cushion follows the real chair angle. Rounded piping stays against the fabric. Completed and loose poses survive refresh; owner redo restores the original flat cushions.
+- Chair picking follows the actual upholstery, arms and feet, so F can reach the cushion above its seat. Existing chore IDs, progress and payments remain intact.
+- Verified: all 35 unit checks, syntax/parody, smoke12/12, focused native keyboard/touch plumping, real E slots, rapid presses, placed/mid-plump/completed refresh and owner redo. Reviewed six viewport sizes and front/side/chair views. Physics covers all15 checks across the full run and successful pose-refresh rerun (the first reload exceeded its90s fixture timeout). Phone/tablet gameplay2/2 green, including rotation, live games and touch controls. Canonical smoke and mobile captures reviewed.
+- No server, account, wallet/cap or shared-world changes. Approved British voice files preserved. Physical Edge/Android hardware, gamepads and hardware FPS/thermal remain unverified. R121 seasonal ketchup overlap, console R84/R85, R108 and broader scale rows remain open.
+
 ## 2.57.20 - 2026-10-29
 - R118: watering-can hands grip the real handle and support the solid body, replacing empty bounding-box corners. The same contacts follow rotation and pouring on desktop, phone and tablet.
 - R119: chore clues now point to the actual video tower beside the telly and green garden sack by the hedge.

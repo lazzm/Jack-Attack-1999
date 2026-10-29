@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.20: proper watering-can grip contacts and accurate chore destinations; includes hands-on bed-making, washing-up and boot-rug fixes. Includes all earlier graphics, props/hands, phone, family, camera and approved 7 m plot releases.
+- Live = 2.57.21: cushions fit the seats and F reaches Dad’s chair cushion; proper watering-can grip contacts and accurate chore destinations; includes hands-on bed-making, washing-up and boot-rug fixes. Includes all earlier graphics, props/hands, phone, family, camera and approved 7 m plot releases.
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
   -> `./deploy.sh` -> `curl -s https://jacklm.com/ | grep -o "v=2\.[0-9.]*-[0-9]*"` -> git commit (attribution) + `git push origin main`.
@@ -29,7 +29,7 @@ never anything that looks cursed.
 | /opt/stacks/landing-voices | voices | reviewed; waiting on British recordings | Three live British clips preserved; line/name timers checked for 29–31 October. No old American assets merged. |
 | /opt/stacks/landing-chores | chores-washup | shipped 2.57.18 | R106/R117 complete; R80 shipped separately19. Remaining visible chore feedback from ~/codex-runs/chores-polish.prompt.md. |
 | /opt/stacks/landing-bed | chores-bed | shipped 2.57.19 | R80 complete. Focused bed, smoke, physics, mobile, story/owner and QA gates accepted; remaining chores feedback next. |
-| /opt/stacks/landing-chores-feedback | chores-feedback | shipped 2.57.20 | R118/R119 complete: can handle/body contacts and real chore destinations. Remaining chore before/after audit, then console-flow. |
+| /opt/stacks/landing-chores-feedback | chores-feedback | shipped 2.57.20/21 | R118/R119/R120 complete: can handle/body contacts and real chore destinations. Remaining chore before/after audit, then console-flow. |
 | (brief) ~/codex-runs/console-flow.prompt.md | — | not started | R84 Game Lad fills the screen when playing (keyboard), T = full screen with mouse; R85 case system (cart/disc out of case into machine, case parked, put back on eject). |
 Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md has every R-item with details.
 
@@ -176,3 +176,20 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - ACTIVE heavy2: jhp-cushions-touch.service → /tmp/jhp-cushions-touch.log (WT tests/cushions.mjs, started03:33:24UTC, RuntimeMaxSec3600). Currently native placements/plumps0..2 PASS, c3 placed; checking placed/mid-plump/completed refresh, actual phone F, six-size/angle gallery, owner redo and loose refresh. Every refresh reloads lazy chore/room modules. Also jhp-cushion-motion.service → /tmp/jhp-cushion-motion.log (temp /tmp/jhp-cushion-motion.mjs, started03:35:55, RuntimeMaxSec1800): one actual E placement, production plump callback and independent per-rendered-frame seat/collider samples. No motion result yet. Keep<=2 in practice, Jack max3.
 - WT source check/parody /tmp/jhp-cushions-units.log PASS (/tmp/gate-jGUR) before chair-picker addition; story-order-unit PASS. Recheck latest two app JS, all touched mjs and parody before release. After final focused art/gameplay green: merge root main into WT, merge WT to root, main full physics15/smoke12/mobile relevant full+tablet, refine only concrete failures. Ship21 as soon green: version/changelog/R120done, root static deploy/public health/build/readonly/logcounts/voice hashes, commit/push.
 - Still need review storage videos/shopping/table before/after images (workflow passed; those captures not yet art-reviewed). Outside car/vacuum/sweep/lawn four before/after pairs reviewed and PASS; tools audit explicitly not walking/wage evidence. Once cushion fix shipped and remaining captures reviewed, chores brief done, then start console-flow R84/R85. Console implementation not started. No subagents. Voice timers future29/30Oct08:15 and31Oct07:15; preserve approved4files, no American assets. Physical Edge/Android/gamepad/hardware FPS/thermal unavailable.
+
+## R120 final candidate, 03:44 UTC
+- Root main now includes chores-feedback through9001873; package/live still2.57.20. Focused /tmp/jhp-cushions-touch.log fully PASS: native keyboard F, actual phone F, real E slots, rapid presses, placed/mid-plump/completed refresh, six sizes and owner redo/loose refresh. Final desktop/wide/phone/tablet and three-angle gallery reviewed, including chair side and redo; no buried tips or protruding trim. Sampled motion probe /tmp/jhp-cushion-motion.log PASS for observed rendered frames, not a hardware frame-rate claim.
+- Final syntax and parody PASS (/tmp/jhp-cushions-parody-final.log). Full physics first attempt failed before browser startup: IPv4-only port probe accepted a port already bound on IPv6. Probe now checks the same wildcard binding as the child server. Retry /tmp/jhp-cushions-physics-retry.log and smoke /tmp/jhp-cushions-smoke.log active; mobile full/tablet next. This is a test helper change, not an application failure.
+- Baseline storage audit fully PASS; videos/shopping/table before/after captures now reviewed. Table review exposes a potential seasonal overlap: sauce slot(-54,172), pumpkin centre(-45,174), radius15. Confirm rendered bottle before finishing the wider chores audit; keep any concrete correction separate from R120 release.
+
+## R120 release gate,04:08 UTC
+- Final root checks: all35 current *-unit.cjs PASS (/tmp/jhp-cushions-all-units.log); syntax for every changed JS/mjs PASS; parody PASS (/tmp/jhp-cushions-parody-final.log). Smoke12/12 PASS (/tmp/jhp-cushions-smoke.log), canonical/mobile captures reviewed.
+- Physics /tmp/jhp-cushions-physics-retry.log14/15: only failure was90s navigation timeout; model/performance/browser/server checks passed. Focused unchanged-app rerun /tmp/jhp-cushions-refresh.log PASS1/1 with fixture timeoutScale3; all15 behavior assertions now covered. Physics helper supports --only and uses wildcard port probe. Original test assertions retained.
+- Mobile /tmp/jhp-cushions-mobile.log full phone PASS554s, tablet still running. Phone gameplay captures reviewed, including console and Game Lad portrait/landscape. Cushion six-size/three-angle art and native touch regression already green. App version bumped21 and release notes drafted; DO NOT deploy until tablet green and notes finalised. Root app source still same tested candidate; only version/docs/test helper changed during gates. Runtime British hashes4/4 unchanged.
+- R121 confirmed in completed table screenshot: ketchup completely hidden inside pumpkin. Finish/gate/ship R120 first; then separate table correction before console brief. No console implementation started.
+
+- Final tablet PASS136s, mobile2/2; portrait/landscape captures reviewed. All release gates accepted. Shipping21 now; R121 next, then console-flow.
+
+- Deployed2.57.21-261029040844: public health/home200, correct build, five-minute fatal/unhandled/mod-failure log counts0. Approved runtime voice hashes4/4 match root and served copy. Public read-only browser check running; then commit/push. Python’s default urllib client received403, while curl public checks200; no site change made for client filtering.
+
+- Public read-only browser check PASS for2.57.21: mandatory account form, no guest bypass, zero browser errors/warnings. All post-deploy checks accepted.

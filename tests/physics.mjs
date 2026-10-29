@@ -1,4 +1,4 @@
-// House physics in the real game: node tests/physics.mjs [--keep] [--throttle=4]
+// House physics in the real game: node tests/physics.mjs [--keep] [--throttle=4] [--only=check-name,...]
 // Starts its own server on a free port in 18080-18099 with a fresh /tmp data directory (never production data),
 // registers a throwaway account and drives the room with real keys (W/S, E, F, X, R) and the public House API.
 // Checks: push the chair, tuck it under the desk, pull it out and sit, the chair can never trap the player, carry a box
@@ -13,6 +13,7 @@ import net from 'node:net';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url)), dir = root + 'tests/shots/physics/';
+const only = process.argv.find(a => a.startsWith('--only='))?.slice(7).split(',');
 const throttle = +(process.argv.find(a => a.startsWith('--throttle='))?.slice(11) || 4);
 let server, data, fixture, log = '';
 const results = [], perf = {};
@@ -20,13 +21,14 @@ async function cleanup() { if (fixture) await fixture.browser.close().catch(() =
 for (const sig of ['SIGTERM', 'SIGINT']) process.once(sig, () => void cleanup().finally(() => process.exit(1)));
 const watchdog = setTimeout(() => { console.error('Physics test timed out'); void cleanup().finally(() => process.exit(1)); }, 2700000);
 async function check(name, fn) {
+  if (only && !only.includes(name)) return;
   const t0 = Date.now();
   try { await fn(); results.push([name, true]); console.log(`PASS ${name} (${((Date.now() - t0) / 1000).toFixed(1)}s)`); }
   catch (e) { results.push([name, false]); console.log(`FAIL ${name}: ${String(e.stack || e).split('\n').slice(0, 3).join(' | ')}`); try { await fixture.page.screenshot({path: dir + 'fail-' + name + '.png'}); } catch (_) {} }
 }
 try {
   await mkdir(dir, {recursive: true}); data = await mkdtemp('/tmp/jhp-physics-');
-  let port; for (let p = 18080; p <= 18099; p++) { const s = net.createServer(); if (await new Promise(r => { s.once('error', () => r(false)); s.listen(p, '127.0.0.1', () => s.close(() => r(true))); })) { port = p; break; } }
+  let port; for (let p = 18080; p <= 18099; p++) { const s = net.createServer(); if (await new Promise(r => { s.once('error', () => r(false)); s.listen(p, () => s.close(() => r(true))); })) { port = p; break; } }
   assert(port, 'No free test port');
   server = spawn(process.execPath, ['server.js'], {cwd: root + 'app', env: {...process.env, PORT: String(port), DATA_DIR: data, ADMIN_TOKEN: 'testtoken'}, stdio: ['ignore', 'pipe', 'pipe']});
   for (const out of [server.stdout, server.stderr]) out.on('data', c => log += c);
@@ -34,7 +36,7 @@ try {
   assert(log.includes(`online at :${port}`), 'Server did not start: ' + log.slice(-800));
   const base = `http://127.0.0.1:${port}`, account = 'Physics' + Date.now().toString(36), password = 'Throwaway-1999';
   assert((await fetch(base + '/admin/register', {method: 'POST', headers: {'X-Admin-Token': 'testtoken', 'Content-Type': 'application/json'}, body: JSON.stringify({name: account, pass: password})})).ok);
-  fixture = await roomFixture(base, {account, password, signup: false});
+  fixture = await roomFixture(base, {account, password, signup: false, timeoutScale: 3});
   const {page: p, errors, view, until} = fixture;
   await p.evaluate(() => Room.ensureHouse()); await until(() => window.HouseRooms?.ready);
   const shot = name => p.screenshot({path: dir + name + '.png'});
@@ -248,6 +250,8 @@ try {
   });
 
   await check('refresh-keeps-poses', async () => {
+    // A focused refresh rerun still includes a movable box in the saved pose set.
+    if (only) await p.evaluate(() => { const B = HouseKit, g = new THREE.Group(); B.into(g).rbox(0, -15, 0, 40, 30, 32, 1.2, B.mat('#b8925c')); House.thing('physics.box', {obj: g, label: 'Cardboard box', home: {room: 'bedroom', x: 100, y: House.LV.U, z: 200, ry: 0}}); });
     // swivel the chair out in the room, hold the mug, then reload
     await p.evaluate(() => { const t = House.THINGS.chair; t.at = {room: 'bedroom', x: 20, y: House.LV.U, z: 120, ry: 160, sw: 35}; House.place(t); House.saveThings(true); });
     await look(46, 120, 0, 40, 60);

@@ -235,4 +235,6 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 
 | R119 (done 2.57.20) | ux | med | chore catalogue review, 29 October | Chore diary gives obsolete destinations: dustpan/dustbin for leaves, shelf under the TV for tapes | Point to the real green garden sack and video tower beside the telly; chore IDs/payments unchanged |
 
-| R120 | art | high | chore-feedback/cushion-plumped-1.png, 29 October | Plumped diamond cushion tips disappear into the settee seat; the plump rotation does not adjust support height | Fit the actual rotated solid to the seat throughout plumping, check spacing and physics bounds, preserve completed chore states and refresh |
+| R120 (done 2.57.21) | art | high | chore-feedback/cushion-plumped-1.png, 29 October | Plumped diamond cushion tips disappear into the settee seat; Dad-chair picking intercepts the cushion | Actual rotated-solid seat fitting, matching physics bounds, proper chair alignment/picking; native F/touch, spacing, refresh and owner redo verified |
+
+| R121 | art | med | chore-feedback/table-after.png, 29 October | Completed ketchup placement is inside the seasonal carving pumpkin: sauce(-54,172), pumpkin(-45,174), radius15 | Give the bottle a clear table position in every season; preserve completed job flags, refresh and carving progress. Separate release after R120. |
