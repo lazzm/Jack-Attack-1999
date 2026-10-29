@@ -481,3 +481,7 @@ Physical case and handheld regression (throwaway data only):
 Case movies use a test-only slow animation clock. Captures are in `shots/console-case-play/`; review the open case, exposed medium, insertion and closed parked case. `--inspect` retains a failed browser temporarily on localhost:19545 for diagnosis; it is not release evidence.
 
 `node tests/console-surface-unit.cjs` exercises the production physical-screen framing callback: it waits for the house focus move, coalesces retries, and abandons closed or replaced screens. This catches the background-resume cancellation without a browser.
+
+`node tests/gamelad-portable-case.mjs` starts its own disposable server and checks a loaded Game Lad carried into the kitchen: real X drop, cartridge room/visibility, the same running game, exact Q return, a saved kitchen pose and two refreshes. Its original empty case must remain fixed in the bedroom.
+
+`node tests/console-fallback-frame.mjs http://localhost:PORT [--touch]` uses a caller-owned disposable server and a fresh veteran account. It inserts the actual Street Scrapper case, checks the whole physical cupboard TV in six viewport sizes, and preserves the same game through Q/resume. `--touch` performs a real finger press after keyboard setup and requires visible controls with no TV overlap. Camera fixtures position the player; this does not test walking a house route.
