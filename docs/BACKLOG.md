@@ -242,3 +242,6 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R122 (done 2.57.22) | bug | high | table-clear completed-save regression,29 October | Refreshing a completed table can call isPlaced before initialization; redo reuses completed positions as factory homes | Initialize the placement helper before eager builds and retain original worktop homes. Verify completed refresh and actual owner redo with all pieces. |
 
 | R123 (done 2.57.22) | art/physics | high | table-clear/complete-close.png,29 October | Placemat and carving-sheet art appears through plate centres; restored completed pieces lose their fixed-slot body state | Closed plate profile with a real foot, solid centre clearance and restored fixed slots. Check all four rendered centres, mat contact and collider heights after refresh. |
+
+## Carry sizing follow-up (found during console review, 29 October)
+- R124: a settled console case currently occupies roughly a quarter of the view; the standing target is about12%. Ship a separate carry-polish release after console-flow. Keep hand/object proportions and solid grip contacts, low placement, clear crosshair/ghost/panel, and unchanged physical size, gold placement, X drop and Q return. Compare desktop and portrait/landscape phone captures before accepting. Do not silently scale only the object while leaving full-sized hands.
