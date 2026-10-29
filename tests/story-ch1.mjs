@@ -215,15 +215,15 @@ try {
   await until(()=>House.mode==='monitor'||House.mode==='pcboot');await shot('13-first-boot');
   for(let disk=1;disk<=3;disk++){
     const button=p.getByRole('button',{name:'Insert Disk '+disk,exact:true});
-    await button.waitFor({state:'visible',timeout:60000});
+    await button.waitFor({state:'visible',timeout:60000*SCALE});
     if(disk===1){
       await p.keyboard.press('Escape');assert(await p.evaluate(()=>HousePause.open));await shot('13b-setup-paused');await p.keyboard.press('Escape');
       await p.reload({waitUntil:'domcontentloaded'});
       await until(()=>window.House?.live&&window.StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
-      await button.waitFor({state:'visible',timeout:60000});await shot('13c-setup-refresh');
+      await button.waitFor({state:'visible',timeout:60000*SCALE});await shot('13c-setup-refresh');
       assert.equal(await p.evaluate(()=>st.current().id),'install');
     }
-    await shot('14-setup-disk-'+disk);await button.click();
+    console.log('Recovery disk ready:',disk);await shot('14-setup-disk-'+disk);await button.click();
   }
   await waitStep('install');
   await until(()=>House.mode==='monitor'&&!House.gliding&&DesktopSurface.ready());await waitStep('pc');
