@@ -191,7 +191,7 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R77 (done 2.57.16) | art | high | Jack 2026-10-27 | Crisp packet needs proper work; football should be a real pentagon/hexagon ball | Props pass (crimped foil packet with parody brand; truncated-icosahedron football) |
 | R78 | bug | high | Jack 2026-10-27 | Pressing Q while holding something returns it floating in mid-air | QA agent: returned items settle on a support |
 | R79 | ux | med | Jack 2026-10-27 | Watering can needs to be more intuitive | QA agent: prompts, pour stream, plant highlights, feedback |
-| R80 | ux | high | Jack 2026-10-27 | Improve making the bed (the chore) | Chores polish agent (next free slot): satisfying physical bed-making - pull duvet, plump pillow, smooth wrinkles, tuck; clear prompts and progress |
+| R80 (done 2.57.19) | ux | high | Jack 2026-10-27 | Improve making the bed (the chore) | Chores polish agent (next free slot): satisfying physical bed-making - pull duvet, plump pillow, smooth wrinkles, tuck; clear prompts and progress |
 | R81 (done 2.57.16) | art | med | Jack 2026-10-27 | Cat should live on a proper cat tree with better models | Props pass (cat tree) |
 | R82 | ux | high | Jack 2026-10-27 (GOLDENBALLS box) | Carried things are drawn huge in the lower-right like glued to the camera ("dont hold things like that its weird") | Physics agent: natural hold pose sized by object |
 | R83 (done 2.57.11) | bug | med | same | World label "Old newspapers" + chevron drawn on top of the telly (labels not occluded) | Physics agent: occlusion-aware labels |
@@ -230,3 +230,5 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R116 (done 2.57.17) | graphics | high | graphics doorway image comparison, 28 October | New portal culling changes visible pixels near the shut lounge door (hall, oblique view) | Retain conservative room connectivity and cull meshes/spatial batches; compare with mesh culling disabled across open/shut doors, both sides and three angles |
 
 | R117 (done 2.57.18) | bug | med | qa-play cutlery/boot regression, 28 October | Very flat props disappear beneath Dad's travel rug in the car boot and remain unpickable after refresh | Register the real cloth surface, including hidden-room restoration, without changing saved poses; verify real E/touch pickup and refresh |
+
+| R118 | art | high | qa-play/watering-done.png, manager review 29 October | First-person watering-can grips use hollow bounding-box corners: hands float beside the handle and spout | Next chore-feedback pass: real handle/body contact grips, desktop/phone pour and rotation captures |
