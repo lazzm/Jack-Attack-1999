@@ -16,3 +16,16 @@ export async function insertCase(f,id,sid,{press}={}){
  }
  throw Error('No accepting gold case target '+id+' -> '+sid+': '+missed.slice(-20).join(','));
 }
+
+// Provision through the real, capped discovery protocol on the caller's disposable veteran account.
+// Then insert its own physical case; no profile edits, currency grants or ownership bypasses.
+export async function playCase(f,gid,options={}){
+ const {page:p,until}=f,sid='console.'+gid.split('.')[0],box='media.box.'+gid;
+ await p.evaluate(gid=>{if(!Room.owned(gid)){Net.send({t:'rmFind',id:'cart.'+gid});Net.send({t:'rmMe'})}},gid);
+ let ready=false;for(let i=0;i<450;i++){if(await p.evaluate(gid=>Room.owned(gid),gid)){ready=true;break}await p.waitForTimeout(200)}assert(ready,'Fixture did not discover '+gid);
+ await p.evaluate(()=>Room.syncMedia());
+ const loaded=await p.evaluate(sid=>HouseCases.inserted(sid)?.medium.gameId,sid);
+ if(loaded&&loaded!==gid){assert(await p.evaluate(sid=>HouseCases.eject(sid),sid));await until(()=>!HouseCases.busy);if(await p.evaluate(()=>!!House.held()))await p.evaluate(()=>House.putBack());await until(()=>!House.held())}
+ if(loaded===gid)await p.evaluate(con=>House.act(con==='sn'?'snes':con),gid.split('.')[0]);else await insertCase(f,box,sid,options);
+ await until(()=>window.RoomTV?._dbg()?.st==='game'&&!HouseCases.busy&&!House.gliding);assert.equal(await p.evaluate(()=>RoomTV._dbg().gid),gid);
+}

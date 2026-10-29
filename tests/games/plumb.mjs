@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 import {execFileSync} from 'node:child_process';
 import {roomFixture} from '../room-fixture.mjs';
+import {playCase} from '../case-actions.mjs';
 const base=process.argv.find(x=>/^http:/.test(x));
 assert(base&&['localhost','127.0.0.1'].includes(new URL(base).hostname),'Supply a throwaway localhost URL');
 const before=process.argv.includes('--before'),tag=before?'before':'after';
@@ -176,7 +177,7 @@ async function roomCheck(){
  try{
  if(before)await page.route('**/js/rm-g-plumb.js*',r=>r.fulfill({body:baseline,contentType:'application/javascript'}));
  await page.evaluate(()=>House.goRoom('cupboard',0));await f.until(()=>!House.gliding);
- await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>window.RoomTV?.open_&&!House.gliding);
+ await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk')});await playCase(f,'sn.plumb');
  await page.evaluate(()=>RoomTV.test('sn.plumb'));await f.until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg&&!House.gliding);await page.screenshot({path:dir+'in-room-title.png'});
  if(!before)assert(await page.evaluate(()=>RoomTV._dbg().surface&&HouseRooms.rooms.cupboard.cupScreen.material.map.userData.jackLive),'Game draws on physical telly');
  await page.evaluate(()=>{RoomTV.dbg().dbg.warp(1,4,19);window.plumbInstance=RoomTV.dbg()});await page.waitForTimeout(800);await page.screenshot({path:dir+'in-room-game.png'});
@@ -194,8 +195,8 @@ async function roomCheck(){
   await page.keyboard.press('Enter');await f.until(()=>!RoomTV.dbg().dbg.st().paused);await page.evaluate(()=>window.plumbInstance=RoomTV.dbg());await page.keyboard.press('t');assert(await page.evaluate(()=>!RoomTV.lockIn()&&RoomTV.dbg()===plumbInstance));await page.keyboard.press('q');await f.until(()=>House.mode==='walk'&&!House.gliding);assert(await page.evaluate(()=>RoomTV._dbg().background&&RoomTV.dbg()===plumbInstance));await page.screenshot({path:dir+'lean-back.png'});
   const back=await page.evaluate(()=>({x:House.W.x,z:House.W.z,power:localStorage.getItem('jhp_off')}));await page.reload({waitUntil:'domcontentloaded'});await f.until(()=>window.AccountGate?.allowed&&window.RoomTV?._dbg()?.background&&!!RoomTV.dbg()?.dbg&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'));
   assert(await page.evaluate(b=>House.mode==='walk'&&Math.abs(House.W.x-b.x)<1&&Math.abs(House.W.z-b.z)<1&&localStorage.getItem('jhp_off')===b.power,back));await page.screenshot({path:dir+'room-refresh-standing.png'});
-  await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>RoomTV.open_&&!House.gliding);await page.locator('.rm-eject').click();await f.until(()=>RoomTV._dbg().st==='shelf');assert(!await page.evaluate(()=>RoomTV._dbg().surface));assert.equal(await page.locator('.plumb-controls').count(),0);
-  await page.evaluate(()=>RoomTV.test('sn.fight'));await f.until(()=>RoomTV._dbg().st==='game');assert(!await page.evaluate(()=>RoomTV._dbg().surface),'Unchanged cartridge (no screen hook) keeps the old display route');await page.keyboard.press('Enter');await page.waitForTimeout(250);await page.screenshot({path:dir+'unchanged-cartridge.png'});
+  await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>RoomTV.open_&&!House.gliding);await page.locator('.rm-eject').click();await f.until(()=>!HouseCases.busy&&!RoomTV.open_);assert.equal(await page.evaluate(()=>House.THINGS['media.sn.plumb'].snap),'media.case.sn.plumb');if(await page.evaluate(()=>!!House.held()))await page.evaluate(()=>House.putBack());await f.until(()=>!House.held());assert.equal(await page.locator('.plumb-controls').count(),0);
+  await playCase(f,'sn.fight');await f.until(()=>RoomTV._dbg().st==='game');assert(await page.evaluate(()=>RoomTV._dbg().surface),'Cartridge without a screen hook uses the physical cupboard telly');await page.keyboard.press('Enter');await page.waitForTimeout(250);await page.screenshot({path:dir+'unchanged-cartridge.png'});
 
  }
  assert.deepEqual(f.errors,[]);console.log('ROOM '+tag+' PASS');
@@ -206,7 +207,7 @@ async function roomCheck(){
 async function touchCheck(account,password){
  const f=await roomFixture(base,{account,password,signup:false,width:390,height:844,touch:true}),page=f.page;
  try{
-  await page.evaluate(()=>House.goRoom('cupboard',0));await f.until(()=>!House.gliding);await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>window.RoomTV?.open_&&!House.gliding);await page.evaluate(()=>RoomTV.test('sn.plumb'));await f.until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg&&!House.gliding);
+  await page.evaluate(()=>House.goRoom('cupboard',0));await f.until(()=>!House.gliding);await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk')});await playCase(f,'sn.plumb');await page.evaluate(()=>RoomTV.test('sn.plumb'));await f.until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg&&!House.gliding);
   await page.evaluate(()=>RoomTV.dbg().dbg.warp(1,4,19));
   const control=b=>page.locator('[data-plumb="'+b+'"]');
   async function press(b){const r=await control(b).boundingBox();assert(r);await page.touchscreen.tap(r.x+r.width/2,r.y+r.height/2)}

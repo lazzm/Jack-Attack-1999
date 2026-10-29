@@ -6,6 +6,7 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 import {roomFixture} from '../room-fixture.mjs';
+import {playCase} from '../case-actions.mjs';
 const base=process.argv.find(x=>/^http:/.test(x));
 assert(base&&['localhost','127.0.0.1'].includes(new URL(base).hostname),'Supply a throwaway localhost URL');
 const before=process.argv.includes('--before'),tag=before?'before':'after';
@@ -176,7 +177,7 @@ async function roomCheck(){
   console.log('ROOM: fixture ready');
   if(before)await page.route('**/js/rm-g-zeldo.js*',r=>r.fulfill({body:baseline,contentType:'application/javascript'}));
   await page.evaluate(()=>House.goRoom('cupboard',0));await f.until(()=>!House.gliding);
-  await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>window.RoomTV?.open_&&!House.gliding);
+  await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk')});await playCase(f,'sn.zeldo');
   await page.evaluate(()=>RoomTV.test('sn.zeldo'));await f.until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg);
   await f.until(()=>!House.gliding);await page.waitForTimeout(500);await page.screenshot({path:dir+tag+'-in-room-title.png'});
   if(!before)assert(await page.evaluate(()=>RoomTV._dbg().surface&&HouseRooms.rooms.cupboard.cupScreen.material.map.userData.jackLive),'Zeldo renders onto the cupboard telly');
@@ -218,9 +219,9 @@ async function roomCheck(){
    await page.evaluate(()=>window.zeldoInstance=RoomTV.dbg());await page.screenshot({path:dir+'after-refresh-background.png'});
    await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>RoomTV.open_&&!House.gliding);assert(await page.evaluate(()=>RoomTV.dbg()===zeldoInstance),'Return keeps instance');
    // The cartridge's optional surface must release cleanly back to the old catalogue.
-   await page.locator('.rm-eject').click();await f.until(()=>RoomTV._dbg().st==='shelf');assert(!await page.evaluate(()=>RoomTV._dbg().surface));assert(await page.locator('.rm-shelf').isVisible());
+   await page.locator('.rm-eject').click();await f.until(()=>!HouseCases.busy&&!RoomTV.open_);assert.equal(await page.evaluate(()=>House.THINGS['media.sn.zeldo'].snap),'media.case.sn.zeldo');if(await page.evaluate(()=>!!House.held()))await page.evaluate(()=>House.putBack());await f.until(()=>!House.held());assert(await page.evaluate(()=>House.THINGS['media.box.sn.zeldo'].canGrab()),'Ejected case is carryable');
    // Formula Null now opts into the telly itself; Street Scrapper II still has no screen hook.
-   await page.evaluate(()=>RoomTV.test('sn.fight'));await f.until(()=>RoomTV._dbg().st==='game');assert(await page.evaluate(()=>typeof RoomTV.defs['sn.fight']?.screen!=='function'),'sn.fight has no screen hook');assert(!await page.evaluate(()=>RoomTV._dbg().surface),'Unchanged cartridges retain their display route');await page.keyboard.press('Enter');await page.waitForTimeout(200);await page.screenshot({path:dir+'after-shared-unchanged-cartridge.png'});
+   await playCase(f,'sn.fight');await f.until(()=>RoomTV._dbg().st==='game');assert(await page.evaluate(()=>typeof RoomTV.defs['sn.fight']?.screen!=='function'),'sn.fight has no screen hook');assert(await page.evaluate(()=>RoomTV._dbg().surface),'Cartridges without a screen hook use the physical cupboard telly');await page.keyboard.press('Enter');await page.waitForTimeout(200);await page.screenshot({path:dir+'after-shared-unchanged-cartridge.png'});
   }
   assert.deepEqual(f.errors,[],'Room browser errors');console.log(before?'ROOM BASELINE: legacy overlay, LOCK IN and pause':'ROOM PASS: physical telly, same-instance LOCK IN/Q, pause, analog gamepad, four viewports, cartridge change and unchanged Street Scrapper');
  }catch(e){console.log('ROOM FAILURE',await page.evaluate(()=>({mode:House?.mode,pose:{x:House?.P.x,z:House?.P.z,wx:House?.W.x,wz:House?.W.z},glide:House?.gliding,game:window.RoomTV?._dbg(),loading:document.querySelector('.hs-loading')?.innerText,member:AccountGate?.allowed})));await page.screenshot({path:dir+'after-room-failure.png'}).catch(()=>{});throw e;}finally{await f.browser.close()}
@@ -230,7 +231,7 @@ async function roomCheck(){
 async function touchCheck(account,password){
  const f=await roomFixture(base,{account,password,signup:false,onPage:page=>page.setDefaultTimeout(30000),touch:true,width:390,height:844}),page=f.page;
  try{
-  await page.evaluate(()=>House.goRoom('cupboard',0));await f.until(()=>!House.gliding);await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>window.RoomTV?.open_&&!House.gliding);await page.evaluate(()=>RoomTV.test('sn.zeldo'));await f.until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg);
+  await page.evaluate(()=>House.goRoom('cupboard',0));await f.until(()=>!House.gliding);await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk')});await playCase(f,'sn.zeldo');await page.evaluate(()=>RoomTV.test('sn.zeldo'));await f.until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg);
   await page.evaluate(()=>{RoomTV.dbg().dbg.start(0,'JACK');RoomTV.dbg().dbg.give({sword:1,shield:1});RoomTV.dbg().dbg.warp('south',7,6,3)});
   const control=b=>page.locator('[data-zeldo="'+b+'"]');
   async function press(b){const r=await control(b).boundingBox();assert(r,'Touch button '+b);await page.touchscreen.tap(r.x+r.width/2,r.y+r.height/2)}

@@ -10,6 +10,7 @@ import {execFileSync} from 'node:child_process';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from '../room-fixture.mjs';
+import {playCase} from '../case-actions.mjs';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const base=process.argv.find(a=>/^https?:\/\//.test(a))||'http://localhost:18080';
 assert(['localhost','127.0.0.1'].includes(new URL(base).hostname),'Use a throwaway localhost server');
@@ -37,7 +38,7 @@ try{
  }
  // ---- into the cupboard: the Super Ultra, the cartridge, the telly
  await D(()=>House.goRoom('cupboard',0));await until(()=>!House.gliding);
- await D(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await until(()=>window.RoomTV?.open_&&!House.gliding);
+ await D(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk')});await playCase(f,'sn.zero');
  await D(()=>RoomTV.test('sn.zero'));await until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg&&!House.gliding);
  await frames(40);await shot('in-room-title',true);
  if(!before)assert(await D(()=>RoomTV._dbg().surface&&HouseRooms.rooms.cupboard.cupScreen.material.map.userData.jackLive),'game draws on the physical telly');
