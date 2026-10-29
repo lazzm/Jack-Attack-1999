@@ -15,12 +15,15 @@
 (function () {
   'use strict';
   const BASE = 'audio/voice/';
+  const build = (document.currentScript?.src || '').match(/[?&]v=([^&]+)/);
+  const stamp = build ? '?v=' + build[1] : '';
+  const asset = file => BASE + file + stamp;
   let manifest = null, loading = null;
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const own = (o, k) => !!o && Object.prototype.hasOwnProperty.call(o, k);
   function loadManifest() {
     if (manifest || loading) return loading;
-    loading = fetch(BASE + 'manifest.json', { credentials: 'same-origin' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))
+    loading = fetch(asset('manifest.json'), { credentials: 'same-origin' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))
       .then(m => { manifest = m && typeof m === 'object' ? m : {}; return manifest; });
     return loading;
   }
@@ -34,7 +37,7 @@
     const m = info(id); if (!m) return null;
     let p = cache.get(id);
     if (!p) {
-      p = fetch(BASE + m.file, { credentials: 'same-origin' }).then(r => { if (!r.ok) throw new Error('voice ' + r.status); return r.arrayBuffer(); })
+      p = fetch(asset(m.file), { credentials: 'same-origin' }).then(r => { if (!r.ok) throw new Error('voice ' + r.status); return r.arrayBuffer(); })
         .then(b => new Promise((res, rej) => { const q = ctx.decodeAudioData(b, res, rej); if (q && q.then) q.then(res, rej); }));
       p.then(() => { p.ready = true; }, () => cache.delete(id));
       cache.set(id, p);

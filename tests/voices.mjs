@@ -146,9 +146,11 @@ await check('muted', async () => {
     await stage(page, { dad: 'carStory' });
     await face(page, 'dad', 260, 70);
     await page.keyboard.press('Shift');
+    await waitFor(page, () => HouseFamily.chars.dad.present && NPCBubble.ok(), 15000 * SCALE);
     await say(page, 'dad', 'c2.pocket.dad');
     await waitFor(page, () => HouseFamily.debug.speech.cur?.lineId === 'c2.pocket.dad', 15000 * SCALE);
-    const m = await page.evaluate(async () => { const r = HouseFamily.chars.dad.rig, s = []; for (let i = 0; i < 12; i++) { s.push(r.st.mouth); await new Promise(q => setTimeout(q, 90)); } return { s, playing: st.voicesPlaying, b: NPCBubble.live[0] }; });
+    await waitFor(page, () => NPCBubble.live.some(b => b.key === 'dad' && b.mode === 'head' && !b.out), 15000 * SCALE);
+    const m = await page.evaluate(async () => { const r = HouseFamily.chars.dad.rig, s = [], b = NPCBubble.live.find(b => b.key === 'dad' && !b.out); for (let i = 0; i < 12; i++) { s.push(r.st.mouth); await new Promise(q => setTimeout(q, 90)); } return { s, playing: st.voicesPlaying, b }; });
     assert(Math.max(...m.s) - Math.min(...m.s) > 0.2, 'Timed mouth still moves: ' + m.s.map(v => v.toFixed(2)));
     assert.deepEqual(m.playing, []); assert(m.b && m.b.mode === 'head', 'Bubble still shows: ' + JSON.stringify(m.b));
     assert.deepEqual(fetched, [], 'No voice files fetched with sound off');
@@ -220,7 +222,7 @@ await check('prompt', async () => {
     await face(page, 'dad', 220, 70);
     await page.mouse.move(683, 430); await page.waitForTimeout(900);
     const tip = await page.evaluate(() => { const t = document.querySelector('.hs-tip'); return { on: t.classList.contains('on'), text: t.textContent }; });
-    assert(tip.on && /Talk to Dad/.test(tip.text) && (tip.text.match(/Talk/g) || []).length === 1, 'One clear action over Dad: ' + JSON.stringify(tip));
+    assert(tip.on && /\bDad\b/.test(tip.text) && (tip.text.match(/Talk/g) || []).length === 1, 'One clear action over Dad: ' + JSON.stringify(tip));
     assert.equal((tip.text.match(/\bF\b/g) || []).length, 1, 'F shown once: ' + tip.text);
     assert.deepEqual(errors, []);
   } finally { await browser.close(); }

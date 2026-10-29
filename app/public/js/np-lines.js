@@ -285,7 +285,7 @@
     "bark.sis.tea2":["sister","Can I leave the table? I've finished. I mean I've pushed it round."],
     "bark.sis.tea3":["sister","They're looking at me! Mom, they're looking at me!"],
     "bark.sis.line1":["sister","I'll get it! I'll get it! Hello? Who's calling?"],
-    "bark.sis.line2":["sister","Mom, it's for you. Somebody called Doreen. She talks a lot."],
+    "bark.sis.line2":["sister","Mom, it's for you. Someone who talks a lot."],
     "bark.sis.tv1":["sister","I want cartoons! It's my turn! You had it yesterday!"],
     "bark.sis.tv2":["sister","I can't hear it. Turn it up. Turn it UP."],
     "bark.sis.mess1":["sister","Mom! They left their socks in the lounge again!"],

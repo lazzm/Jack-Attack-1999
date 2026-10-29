@@ -145,6 +145,12 @@ assert.equal(verify('warmly', 'Come and sit down.', 'Come and sit down.').ok, tr
 assert.equal(verify('warmly', 'Come and sit down.', 'Warmly. Come and sit down.').ok, false, 'leaked tag word');
 assert.equal(verify('firm', 'Be firm with it.', 'Be firm with it.').ok, true, 'tag word that is in the line is fine');
 assert.equal(verify('wry', 'Come and sit down.', 'Come and').ok, false);
+assert.equal(verify('warm', 'And I know what your room looks like, do not think I do not.', 'And I know what your room looks like, do not think I do not. Morning love.').ok,false,'neighbouring line at the end');
+assert.equal(verify('plain', 'A collector. Your mother had a thing for teaspoons. Look where that got us.', 'Your mother had a thing for teaspoons. Look where that got us.').ok,false,'missing opening phrase');
+assert.equal(verify('proud', 'Is it supposed to look like that? Maybe it is meant to be scary. Because it is.', 'Is it supposed to look like that? Maybe it is meant to be scary. Because it is. Excited British dad.').ok,false,'next speaker direction');
+assert.equal(verify('plain', 'The carpet\'s visible again. Marvellous.', 'The carpet\'s visible again. Marvelous.').ok,true,'equivalent transcript spelling');
+// ---- one utterance keeps its full duration, including speech after a natural pause
+{ const wav=makeWav([['t',1.2],['s',1.4],['t',.8]]),s=splitFile(wav,['One line with a pause and an ending.']);assert.equal(s.setting,'single-full');assert.equal(s.best.clips[0].a,0);assert.equal(s.best.clips[0].b,s.dur);assert(s.dur>3,'Final phrase retained'); }
 // ---- fx chains are valid ffmpeg filters
 { const wav = makeWav([['t', 1.2]]); for (const [k, f] of Object.entries(FX)) { ff('-i', wav, '-af', f, '-t', '1', dir + `/${k}.wav`); assert.ok(fs.statSync(dir + `/${k}.wav`).size > 1000, k); } }
 fs.rmSync(dir, { recursive: true }); console.log('all tests passed');

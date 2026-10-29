@@ -28,11 +28,11 @@ function world(storage) {
   const store = new Map(Object.entries(storage)), fetched = [], events = {};
   const w = {
     localStorage: { getItem: k => store.has(k) ? store.get(k) : null, setItem: (k, v) => store.set(k, String(v)) },
-    document: { dispatchEvent: e => (events[e.type] || []).forEach(f => f(e)), addEventListener: (t, f) => (events[t] = events[t] || []).push(f), removeEventListener() {} },
+    document: { currentScript: { src: 'http://localhost/js/st-voice.js?v=unit-build' }, dispatchEvent: e => (events[e.type] || []).forEach(f => f(e)), addEventListener: (t, f) => (events[t] = events[t] || []).push(f), removeEventListener() {} },
     Event: class { constructor(type) { this.type = type; } }, setInterval: () => 1, clearInterval() {}, setTimeout: f => { f(); return 1; },
     navigator: { userActivation: { hasBeenActive: true } }, AudioContext: Ctx, performance: { now: () => 0 },
     requestAnimationFrame: () => 1, requestIdleCallback: f => f(),
-    fetch: async url => { fetched.push(url); if (/manifest\.json$/.test(url)) return { ok: true, json: async () => manifest }; return { ok: true, arrayBuffer: async () => new ArrayBuffer(16) }; },
+    fetch: async url => { fetched.push(url); if (/manifest\.json(?:\?|$)/.test(url)) return { ok: true, json: async () => manifest }; return { ok: true, arrayBuffer: async () => new ArrayBuffer(16) }; },
     speechSynthesis: { cancel() {} }, console,
   };
   w.window = w; vm.createContext(w);
@@ -44,12 +44,12 @@ const tick = () => new Promise(r => setImmediate(r));
   // ---- sound on: the line plays on the voice bus, positional, ducking music/effects while it lasts
   { const { w, fetched } = world({ jhp_audio_effects: '1', jhp_audio_music: '1', jhp_audio_volume: '0.8' });
     await w.st.loadVoices(); await tick();
-    const id = 'c2.pocket.dad'; assert(w.st.voiceInfo(id), 'manifest lists ' + id);
-    assert.equal(w.st.voiceInfo('c1.wake.mom.shout'), null, 'no recording: no info');
-    assert.equal(w.st.play('c1.wake.mom.shout', {}), null, 'no recording: no handle (bubble + timed mouth)');
+    const id = 'c2.pocket.dad'; assert(w.st.voiceInfo(id), 'manifest lists ' + id); assert(fetched.includes('audio/voice/manifest.json?v=unit-build'), 'Manifest inherits its script build token');
+    assert.equal(w.st.voiceInfo('unit.no-recording'), null, 'no recording: no info');
+    assert.equal(w.st.play('unit.no-recording', {}), null, 'no recording: no handle (bubble + timed mouth)');
     const h = w.st.say(id, 'Dad', 'Saving up', 3000, { bubble: true, pos: () => ({ x: 1, y: 2, z: 3 }), through: () => true });
     assert(h, 'handle'); for (let i = 0; i < 5; i++) await tick();
-    assert(fetched.some(u => u.endsWith(id + '.mp3')), 'fetched the clip lazily');
+    assert(fetched.some(u => u.endsWith(id + '.mp3?v=unit-build')), 'fetched the clip lazily');
     const c = ctxs.at(-1), src = c.sources.at(-1);
     assert(h.started && src && src.startedAt !== undefined, 'buffer source started');
     assert(h.panner, 'positional panner');

@@ -150,6 +150,8 @@ export function detectSegments(file, dur, gap = 0.9, noise = '-38dB') { return s
 // Robust split of a batch wav into texts.length clips. Settings with too few gaps are skipped; if all are, { error }.
 export function splitFile(file, texts, o) {
   const dur = probeDur(file);
+  // A single utterance has no inter-line boundary. Internal pauses must never cut its ending off.
+  if(texts.length===1)return {dur,best:{clips:[{a:0,b:dur}],cuts:[],suspects:0},alts:[],setting:'single-full'};
   const results = SETTINGS.map(s => ({ setting: `d=${s.d} ${s.noise}`, span: internalGaps(detectSilences(file, dur, s.d, s.noise), dur) }));
   const usable = results.filter(r => r.span.gaps.length >= texts.length - 1);
   return { dur, ...chooseSplit(usable.length ? usable : results, texts, o) };
@@ -199,9 +201,23 @@ export function leakedTagWords(tag, want, heard) {
   const wl = new Set(words(want)), hl = new Set(words(heard));
   return words(tag).filter(t => hl.has(t) && !wl.has(t));
 }
+// Transcribers vary contractions, number spelling and harmless opening vocalisations.
+// Keep content at both boundaries: a high overlap score alone can accept a neighbour's words.
+export function lineEdges(text) {
+  let s = String(text).toLowerCase().replace(/’/g, "'");
+  const contractions = { "i'm":'i am', "i'll":'i will', "it's":'it is', "that's":'that is', "don't":'do not', "they're":'they are', "aren't":'are not', "what's":'what is', "who's":'who is', "there's":'there is', "he's":'he is', "she's":'she is', "you'll":'you will', "isn't":'is not', "can't":'cannot', "we're":'we are', "wasn't":'was not', "haven't":'have not', "won't":'will not', 'wanna':'want to', 'pleeease':'please', "'em":'them', "country's":'country is' };
+  for (const [a,b] of Object.entries(contractions)) s=s.replaceAll(a,b);
+  s=s.replace(/\b(\d{1,2}):00\b/g,'$1');
+  const numbers=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
+  const w=words(s).map(v=>numbers.includes(v)?String(numbers.indexOf(v)):({programme:'program',marvellous:'marvelous',disk:'disc'}[v]||v));
+  while(w.length>2&&['oh','ah','ha','hmm','hm','mmm','mm','ooh','oooh','uh','a','the'].includes(w[0]))w.shift();
+  return {first:w.slice(0,2).join(' '),last:w.slice(-2).join(' ')};
+}
 export function verify(tag, want, heard, min = 0.8) {
   const score = similarity(want, heard), leaked = leakedTagWords(tag, want, heard);
-  return { ok: score >= min && !leaked.length, score: +score.toFixed(2), leaked };
+  if (/\bbritish\b/i.test(heard) && !/\bbritish\b/i.test(want)) leaked.push('British direction');
+  const a=lineEdges(want),b=lineEdges(heard),boundaries=a.first===b.first&&a.last===b.last;
+  return { ok: score >= min && !leaked.length && boundaries, score: +score.toFixed(2), leaked, boundaries };
 }
 
 // ---------------------------------------------------------------- Gemini client
