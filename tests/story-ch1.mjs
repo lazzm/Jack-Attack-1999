@@ -56,7 +56,21 @@ async function ownerReplace(op,action,pick){
       await op.waitForTimeout(200);
     }
     assert(attempt<2&&/not confirmed/.test(msg),'Owner '+action+' did not reload: '+msg);
-    await op.waitForTimeout(21000*SCALE);
+    await op.waitForTimeout(21000);
+  }
+}
+async function ownerSnapshot(op){
+  for(let attempt=0;attempt<4;attempt++){
+    await op.locator('[data-owner=snapshot]').click();
+    const deadline=Date.now()+30000*SCALE;let status='';
+    while(Date.now()<deadline){
+      const state=await op.evaluate(()=>({saved:document.querySelector('[name=snapshot] option')?.value,status:document.querySelector('.owner-tools [role=status]')?.textContent||''}));
+      if(state.saved)return state.saved;status=state.status;
+      if(/not confirmed/.test(status))break;
+      await op.waitForTimeout(200);
+    }
+    assert(attempt<3&&/not confirmed/.test(status),'Owner snapshot failed: '+status);
+    await op.waitForTimeout(21000);
   }
 }
 async function ownerRoundTrip(){
@@ -67,8 +81,7 @@ async function ownerRoundTrip(){
     const op=of.page;await of.until(()=>OwnerTools.allowed);
     assert.equal(await op.evaluate(()=>House.pcGL.visible),true);
     await op.keyboard.press('Backquote');await of.until(()=>document.querySelector('.owner-tools')?.open);
-    await op.locator('[data-owner=snapshot]').click();await of.until(()=>!document.querySelector('[data-owner=snapshot]').disabled);
-    const saved=await op.locator('[name=snapshot] option').first().getAttribute('value',{timeout:30000*SCALE});assert(saved);
+    const saved=await ownerSnapshot(op);assert(saved);console.log('Owner snapshot saved');
     await op.waitForTimeout(21000*SCALE); // Respect the roaming profile's save limit (1 upload / 20s per connection); background autosaves can spend the refill on a busy host.
     await ownerReplace(op,'reset');
     await of.until(()=>AccountGate.allowed&&House.live&&StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
