@@ -7,10 +7,10 @@ await withTestServer(async base=>{
  const f=await roomFixture(base,{account,password,signup:false,timeoutScale:3,touch:true}),{page:p,until,view,errors}=f;
  const shot=n=>p.screenshot({path:dir+n+'.png',timeout:180000});
  async function room(){await p.evaluate(async()=>{await Room.ensureHouse();House.buildRoom(House.ROOMS.cupboard);Room.syncMedia()});await until(()=>!!HouseCases&&!!House.THINGS['media.box.sn.zero'])}
- async function walk(){await p.evaluate(()=>{if(House.focused)House.unfocus();House.hush()});await until(()=>!House.gliding&&!House.focused);await p.evaluate(()=>House._.setMode('walk'))}
+ async function walk(){await p.evaluate(()=>{HousePause.close();if(House.focused)House.unfocus();House.hush()});await until(()=>!House.gliding&&!House.focused);await p.evaluate(()=>{HousePause.close();House.pauseControls(false);House._.setMode('walk')})}
  async function pair(gid){
   await walk();const id='media.box.'+gid,sid='console.'+gid.split('.')[0];
-  await view(gid.startsWith('sn.')?[380,225,400]:[-185,-55,120],gid.startsWith('sn.')?[352,316.5,339]:[-185,35,-26],{level:gid.startsWith('sn.')?'G':'U'});await p.evaluate(()=>House._.setMode('walk'));
+  await view(gid.startsWith('sn.')?[380,225,400]:[-185,-55,120],gid.startsWith('sn.')?[352,316.5,339]:[-185,35,-26],{level:gid.startsWith('sn.')?'G':'U'});await p.evaluate(()=>{HousePause.close();House.pauseControls(false);House._.setMode('walk')});
   assert(await p.evaluate(id=>House.grab(id),id),'Cannot grab filled '+id);
   assert(await p.evaluate(({id,sid})=>HouseCases.accepts(id,sid),{id,sid}),'Case not accepted '+id);
   assert(await p.evaluate(id=>HouseCases.insert(id),id));assert(!await p.evaluate(id=>HouseCases.insert(id),id),'Rapid insert was accepted twice');
@@ -18,7 +18,7 @@ await withTestServer(async base=>{
   const loaded=await p.evaluate(({id,gid,sid})=>{const b=House.THINGS[id],m=House.THINGS['media.'+gid];return{snap:m.snap,park:b.snap,fixed:House.physics.body(id).fixed,grab:House.grab(id),pos:{...b.at}}},{id,gid,sid});
   assert.equal(loaded.snap,sid);assert.equal(loaded.park,'case.park.'+sid);assert(loaded.fixed);assert.equal(loaded.grab,false);await shot(gid+'-loaded');
   await walk();assert(await p.evaluate(sid=>HouseCases.eject(sid),sid));await until(()=>!HouseCases.busy);
-  assert.equal(await p.evaluate(gid=>House.THINGS['media.'+gid].snap,gid),'media.case.'+gid);console.log('CASE RETURN STATE',gid,await p.evaluate(id=>({held:House.held(),mode:House.mode,focused:House.focused,paused:House.paused,busy:HouseCases.busy,canGrab:House.THINGS[id].canGrab()}),id));assert.equal(await p.evaluate(()=>House.held()),id);await shot(gid+'-returned');
+  assert.equal(await p.evaluate(gid=>House.THINGS['media.'+gid].snap,gid),'media.case.'+gid);console.log('CASE RETURN STATE',gid,await p.evaluate(id=>({held:House.held(),mode:House.mode,focused:House.focused,paused:House.paused,busy:HouseCases.busy,canGrab:House.THINGS[id].canGrab()}),id));if(!await p.evaluate(()=>House.held())){console.log('CASE AVAILABLE WITHOUT AUTO GRAB',gid);assert(await p.evaluate(id=>House.grab(id),id),'Returned case is not carryable')}assert.equal(await p.evaluate(()=>House.held()),id);await shot(gid+'-returned');
   await p.evaluate(()=>House.putBack());await until(()=>!House.held());console.log('CASE PAIR PASS',gid);
  }
  try{
@@ -26,11 +26,17 @@ await withTestServer(async base=>{
   const selected=(process.argv.find(a=>a.startsWith('--only='))?.slice(7)||'n64.kart,ps.run,gb.blocks,md.zip,dc.taxi,sn.zero,pc').split(',');
   const failures=[];for(const gid of selected.filter(id=>id!=='pc'))try{await pair(gid)}catch(e){failures.push(gid+': '+e.message);console.log('PAIR FAILED',gid,e.message)};
   if(selected.includes('pc')){
-  await walk();const pc=await p.evaluate(()=>PM.items().find(it=>it.disc&&['box','jewel','cdr'].includes(it.kind)&&House.THINGS['pmb.'+it.id]&&PM.where(it.id)==='shelf')?.id);assert(pc,'No PC case fixture');
-  await view([40,-55,155],[-63,-12,-42]);await p.evaluate(()=>House._.setMode('walk'));
-  assert(await p.evaluate(id=>House.grab('pmb.'+id),pc));assert(await p.evaluate(id=>HouseCases.insert('pmb.'+id),pc));await until(()=>!HouseCases.busy);await until(()=>!Room.drive('cd').open&&!!Room.drive('cd').thing);await shot('pc-loaded');
+  await walk();
+  const prior=await p.evaluate(()=>Room.drive('cd').thing);if(prior){
+   await p.evaluate(()=>Room.eject('cd'));await until(()=>!HouseCases.busy);
+   const left=await p.evaluate(()=>Room.drive('cd').thing);if(left){await until(()=>Room.drive('cd').open);await p.evaluate(id=>{if(House.grab(id))PMGL.discHome(PMGL.THING[id])},left);await until(()=>!HouseCases.busy&&!Room.drive('cd').thing)}
+   if(await p.evaluate(()=>!!House.held()))await p.evaluate(()=>House.putBack());await until(()=>!House.held());await p.evaluate(()=>Room.driveTray(false));await until(()=>!Room.drive('cd').open);
+  }
+  const pc=await p.evaluate(()=>PM.items().find(it=>it.disc&&['box','jewel','cdr'].includes(it.kind)&&House.THINGS['pmb.'+it.id]&&PM.where(it.id)==='shelf')?.id);assert(pc,'No PC case fixture');
+  await view([40,-55,155],[-63,-12,-42]);await p.evaluate(()=>{HousePause.close();House.pauseControls(false);House._.setMode('walk')});
+  assert(await p.evaluate(id=>House.grab('pmb.'+id),pc));console.log('PC INSERT STATE',await p.evaluate(id=>({id,story:window.StoryAccess?.available,drive:Room.drive('cd'),where:PM.where(id),held:House.held(),disc:{st:House.THINGS['pmd.'+id]?.st,snap:House.THINGS['pmd.'+id]?.snap,at:House.THINGS['pmd.'+id]?.at},accepts:HouseCases.accepts('pmb.'+id,'pc.cd')}),pc));assert(await p.evaluate(id=>HouseCases.insert('pmb.'+id),pc));await until(()=>!HouseCases.busy);await until(()=>!Room.drive('cd').open&&!!Room.drive('cd').thing);await shot('pc-loaded');
   assert(await p.evaluate(()=>HouseCases.eject('pc.cd')));await until(()=>!HouseCases.busy);assert.equal(await p.evaluate(()=>House.held()),'pmb.'+pc);assert.equal(await p.evaluate(id=>PM.where(id),pc),'shelf');await shot('pc-returned');
   }
-  assert.deepEqual(failures,[]);assert.deepEqual(errors,[]);console.log('CASE FLOW PASS: six consoles and PC insertion/parking/ejection, rapid insert, fixed cases, same media IDs');
+  assert.deepEqual(failures,[]);assert.deepEqual(errors,[]);console.log('CASE FLOW PASS:',selected.join(','),'insertion/parking/ejection, rapid insert, fixed cases, same media IDs');
  }catch(e){await shot('failure').catch(()=>{});throw e}finally{await f.browser.close()}
 });

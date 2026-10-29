@@ -9,8 +9,8 @@ export async function insertCase(f,id,sid,{press}={}){
   const y=await p.evaluate(lvl=>House.LV[lvl]-House.STAND,s.lvl);await view([x,y,z],[s.x,s.y,s.z],{level:s.lvl});await p.evaluate(()=>{House._.setMode('walk');House.hush()});
   if(await p.evaluate(()=>House.held())!==id)assert(await p.evaluate(id=>House.grab(id),id),'Cannot grip '+id);
   for(let j=0;j<10;j++){
-   const g=await p.evaluate(()=>{const g=House.ghost();return g&&{snap:g.snap?.id,why:g.why}});
-   if(g?.snap==='case.insert.'+sid){if(press)await press();else await p.keyboard.press('e');assert(await p.evaluate(({id,sid})=>House.THINGS[id].snap==='case.park.'+sid,{id,sid}),'Native E did not commit the case');return}
+   const g=await p.evaluate(()=>{const g=House.ghost();return g&&{snap:g.snap?.id,why:g.why,x:g.x,y:g.y,z:g.z}});
+   if(g?.snap==='case.insert.'+sid){if(press)await press();else await p.keyboard.press('e');assert(await p.evaluate(({id,sid})=>House.THINGS[id].snap==='case.park.'+sid,{id,sid}),'Native E did not commit the case');assert(await p.evaluate(({id,g})=>{const a=House.THINGS[id].at;return Math.hypot(a.x-g.x,a.y-g.y,a.z-g.z)<.11},{id,g}),'Case did not land at its gold ghost');return}
    missed.push(g?.snap||g?.why||'no ghost');await p.keyboard.press('+');
   }
  }

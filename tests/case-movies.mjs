@@ -1,0 +1,33 @@
+// Native filled-case flow, slow-motion art captures and atomic refresh recovery.
+import assert from 'node:assert/strict';import{mkdir}from'node:fs/promises';import{fileURLToPath}from'node:url';
+import{roomFixture}from'./room-fixture.mjs';import{withTestServer}from'./perf/server.mjs';import{insertCase}from'./case-actions.mjs';
+const dir=fileURLToPath(new URL('shots/console-case-play/',import.meta.url));await mkdir(dir,{recursive:true});
+async function run(base){
+ const account='Film'+Date.now().toString(36),password='Throwaway-1999';assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
+ const f=await roomFixture(base,{account,password,signup:false,timeoutScale:3,launchOptions:process.argv.includes('--inspect')?{args:['--enable-unsafe-swiftshader','--remote-debugging-port=19545']}:undefined}),{page:p,until,view,errors}=f;
+ const shot=n=>p.screenshot({path:dir+n+'.png',timeout:180000});
+ async function walk(){await p.evaluate(()=>{HousePause.close();if(House.focused)House.unfocus()});await until(()=>!House.gliding&&!House.focused);await p.evaluate(()=>{House.pauseControls(false);House._.setMode('walk')})}
+ async function frames(name){let i=0;while(await p.evaluate(()=>HouseCases.busy)){await shot(name+'-'+String(i++).padStart(2,'0'));assert(i<45,'Animation never completed')}assert(i>1,'No usable animation frames');await p.evaluate(()=>House.motion.scale=window.normalCaseScale)}
+ async function slow(){await p.evaluate(()=>{window.normalCaseScale=House.motion.scale;House.motion.scale=ms=>normalCaseScale(ms)*(ms===1450?20:1)})}
+ async function reload(){const before=await p.evaluate(()=>({off:localStorage.getItem('jhp_off'),pose:{x:House.W.x,z:House.W.z,lvl:House.W.lvl}}));await p.evaluate(()=>House.saveWalkState());await p.reload({waitUntil:'domcontentloaded'});await until(()=>AccountGate.allowed&&House?.live&&House.THINGS?.['media.n64.kart']&&!document.querySelector('.hs-loading,#houseEntry'));assert.equal(await p.evaluate(()=>localStorage.getItem('jhp_off')),before.off);assert(await p.evaluate(b=>House.W.lvl===b.lvl&&Math.hypot(House.W.x-b.x,House.W.z-b.z)<2,before.pose),'Refresh moved standing player')}
+ try{
+  const selected=(process.argv.find(a=>a.startsWith('--only='))?.slice(7)||'n64.kart,ps.run,gb.blocks,refresh').split(',');
+  for(const gid of selected.filter(x=>x!=='refresh')){
+   await walk();const box='media.box.'+gid,sid='console.'+gid.split('.')[0];
+   await slow();await insertCase(f,box,sid);await frames(gid+'-insert');await until(()=>RoomTV?._dbg()?.st==='game'&&!House.gliding);await shot(gid+'-playing');
+   assert(await p.evaluate(({box,sid})=>House.THINGS[box].snap==='case.park.'+sid&&House.physics.body(box).fixed,{box,sid}));assert(!await p.evaluate(box=>House.grab(box),box));
+   await walk();const s=await p.evaluate(sid=>{const s=House.SNAPS[sid],c=null;return{x:s.x,y:s.y,z:s.z,c,eye:House.LV.U-House.STAND}},sid);
+   if(gid.startsWith('gb.')){const a=await p.evaluate(()=>{const g=House.THINGS.gb,v=new THREE.Vector3(0,.28,-7.2);g.obj.localToWorld(v);House.root.worldToLocal(v);return{at:g.at,p:v.toArray()}});await view([a.at.x-50,s.eye,a.at.z],a.p);await p.evaluate(()=>House._.setMode('walk'));assert.equal(await p.evaluate(()=>House.pick(innerWidth/2,innerHeight/2)?.spot),'media.'+gid,'E must target the exposed cartridge')}
+   else { await view([-185,s.eye,120],[s.x,s.y-3,s.z]);await p.evaluate(()=>{House.pauseControls(false);House._.setMode('walk')});await p.keyboard.down('c');await until(()=>House.W.eye<House.STAND-20&&Math.abs(House.W.eyeNow-House.W.eye)<.5);const eye=await p.evaluate(()=>House.P.y);await view([-185,eye,120],gid.startsWith('ps.')?[s.x,47.1,s.z+10.5]:[s.x,s.y-3,s.z]); }await p.evaluate(()=>{House.pauseControls(false);House._.setMode('walk')});
+   console.log('EJECT AIM',gid,await p.evaluate(()=>({hit:House.pick(innerWidth/2,innerHeight/2)?.spot,eye:House.P.y,paused:House.paused})));await slow();await p.keyboard.press('e');assert(await p.evaluate(()=>HouseCases.busy),'Native E did not eject '+gid);await frames(gid+'-eject');await p.keyboard.up('c');await until(()=>House.held()===box);assert.equal(await p.evaluate(gid=>House.THINGS['media.'+gid].snap,gid),'media.case.'+gid);await shot(gid+'-filled');await p.evaluate(()=>House.putBack());await until(()=>!House.held());
+   console.log('NATIVE CASE/FILM PASS',gid);
+  }
+  if(selected.includes('refresh')){
+  await walk();const box='media.box.n64.kart',sid='console.n64';assert(await p.evaluate(id=>House.grab(id),box));assert(await p.evaluate(id=>HouseCases.insert(id),box));await reload();assert.equal(await p.evaluate(()=>House.THINGS['media.n64.kart'].snap),sid);assert.equal(await p.evaluate(()=>House.THINGS['media.box.n64.kart'].snap),'case.park.'+sid);assert(!await p.evaluate(()=>HouseCases.busy));await shot('refresh-mid-insert');
+  assert(await p.evaluate(()=>HouseCases.eject('console.n64')));await reload();assert.equal(await p.evaluate(()=>House.THINGS['media.n64.kart'].snap),'media.case.n64.kart');assert(await p.evaluate(()=>House.grab('media.box.n64.kart')));await p.evaluate(()=>House.putBack());await until(()=>!House.held());await shot('refresh-mid-eject');
+  await insertCase(f,box,sid);await until(()=>RoomTV?._dbg()?.st==='game');await p.keyboard.press('q');await until(()=>RoomTV?._dbg()?.background&&!House.gliding);await reload();await until(()=>RoomTV?._dbg()?.background&&RoomTV._dbg().gid==='n64.kart');await shot('refresh-playing');
+  }
+  assert.deepEqual(errors,[]);console.log('CONSOLE CASE PLAY PASS: native E, fixed cases, three insert/eject films, same IDs, mid-insert/eject/playing refresh and standing/power');
+ }catch(e){console.log('NATIVE DIAGNOSTIC',await p.evaluate(()=>({p:House.P,cam:House.camera.matrixWorld.elements,canvas:House.ren.domElement.getBoundingClientRect().toJSON(),slot:House.SNAPS['console.n64'],ray:House.rayAt(innerWidth/2,innerHeight/2),box:House.THINGS['media.n64.kart'].obj.position.toArray(),paused:House.paused,classes:document.getElementById('bootPower').className})));await shot('failure').catch(()=>{});if(process.argv.includes('--inspect')){console.log('CASE INSPECT READY :19545');await p.waitForTimeout(600000)}throw e}finally{await f.browser.close()}
+}
+const base=process.argv.find(a=>/^https?:/.test(a));if(base){assert(['localhost','127.0.0.1'].includes(new URL(base).hostname));await run(base)}else await withTestServer(run);

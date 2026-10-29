@@ -1880,10 +1880,10 @@
     // Frame the complete handheld, including its moulded controls, on every device.
     const t = Math.tan(H.motion.lensFov(view.zm) * D2R / 2), aspect = innerWidth / innerHeight;
     const fit = Math.min(.86,.95*Math.max(1,innerHeight-66)/innerHeight);
-    const d = Math.max(7.1 / (fit * t), 4.1 / (0.9 * t * aspect), 6.5);
+    const d = Math.max(7.5 / (fit * t), 4.1 / (0.9 * t * aspect), 6.5);
     const q = new T.Quaternion().setFromEuler(new T.Euler(-80 * D2R, -view.ry * D2R, 0, 'YXZ'));
     const a = view.ry * D2R, b = (view.rx || 0) * D2R, f = new T.Vector3(Math.sin(a) * Math.cos(b), -Math.sin(b), -Math.cos(a) * Math.cos(b));
-    const glass = new T.Vector3(0, -2.6, 0.2).applyQuaternion(q);
+    const glass = new T.Vector3(0, -2.6, -0.6).applyQuaternion(q);
     const pos = new T.Vector3(view.x, view.y, view.z).addScaledVector(f, d).sub(glass);
     pos.y += d*t*50/innerHeight;
     return relTo(view, new T.Matrix4().compose(pos, q, new T.Vector3(1, 1, 1)));
@@ -2372,15 +2372,17 @@
       onBegin:t=>{if(t.kind==='console-case'){HouseCases.insert(t.id);return false}return true},
       enabled: () => (gb.st === 'rest' || gb.st === 'snap') && !inserted('gb'), hint: 'Click/E to insert into the Game Lad', onSnap: t => {HouseCases.reconcile();tvOpen('gb', t.gameId)},
       onUnsnap: t => {t.frontAnchor=null;if (window.RoomTV) RoomTV.stopPhysical('gb');} });
-    const slotLocal=new T.Matrix4().makeRotationX(-Math.PI/2);slotLocal.setPosition(0,.28,-6.5);
+    const slotLocal=new T.Matrix4().makeRotationX(Math.PI/2);slotLocal.setPosition(0,.28,-2);
+    const slotBase=new T.Matrix4(),slotAim=new T.Vector3();
     const slotMatrix=new T.Matrix4(),slotPos=new T.Vector3(),slotQ=new T.Quaternion(),slotScale=new T.Vector3(),slotRotation=new T.Euler(),slotPrevious=new Float64Array(16);
     let slotCart=null,slotState=null;
     const moveGBSlot = () => {
       gb.obj.updateWorldMatrix(true,false);
       const t=inserted('gb'),elements=gb.obj.matrixWorld.elements;let changed=false;for(let i=0;i<16;i++)if(slotPrevious[i]!==elements[i]){changed=true;break}if(!changed&&t===slotCart&&gb.st===slotState)return false;slotCart=t;slotState=gb.st;for(let i=0;i<16;i++)slotPrevious[i]=elements[i];
-      const matrix=slotMatrix.copy(H.root.matrixWorld).invert().multiply(gb.obj.matrixWorld).multiply(slotLocal);
+      const base=slotBase.copy(H.root.matrixWorld).invert().multiply(gb.obj.matrixWorld);
+      const matrix=slotMatrix.copy(base).multiply(slotLocal);slotAim.set(0,-.2,-6.5).applyMatrix4(base);
       const pos=slotPos,q=slotQ,scale=slotScale;matrix.decompose(pos,q,scale);const rot=slotRotation.setFromQuaternion(q,'YXZ');
-      gbSlot.x=pos.x;gbSlot.y=pos.y;gbSlot.z=pos.z;const sp=gbSlot.pose;sp.x=pos.x;sp.y=pos.y;sp.z=pos.z;sp.rx=rot.x/D2R;sp.ry=rot.y/D2R;sp.rz=rot.z/D2R;
+      gbSlot.x=slotAim.x;gbSlot.y=slotAim.y;gbSlot.z=slotAim.z;const sp=gbSlot.pose;sp.x=pos.x;sp.y=pos.y;sp.z=pos.z;sp.rx=rot.x/D2R;sp.ry=rot.y/D2R;sp.rz=rot.z/D2R;
       if(t){t.frontAnchor='gb';t.obj.position.copy(pos);t.obj.quaternion.copy(q);H.layerFor(t);if(gb.st==='rest'||gb.st==='snap'){Object.assign(t.at,gbSlot.pose);t.at.room=gb.at.room;t.rx=rot.x/D2R;t.rz=rot.z/D2R;}}
       if(gb.st==='held'||gb.st==='inspect'||gb.st==='play'||gb.st==='anim')H.anims.set('gb-slot',gbSlotAnimation);
     };

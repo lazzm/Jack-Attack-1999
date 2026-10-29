@@ -30,7 +30,7 @@ never anything that looks cursed.
 | /opt/stacks/landing-chores | chores-washup | shipped 2.57.18 | R106/R117 complete; R80 shipped separately19. Remaining visible chore feedback from ~/codex-runs/chores-polish.prompt.md. |
 | /opt/stacks/landing-bed | chores-bed | shipped 2.57.19 | R80 complete. Focused bed, smoke, physics, mobile, story/owner and QA gates accepted; remaining chores feedback next. |
 | /opt/stacks/landing-chores-feedback | chores-feedback | shipped 2.57.20/21/22 | R118–R123 complete: can handle/body contacts and real chore destinations. Chore audit complete; final table regression and smoke green. Next: console-flow. |
-| (brief) ~/codex-runs/console-flow.prompt.md | — | not started | R84 Game Lad fills the screen when playing (keyboard), T = full screen with mouse; R85 case system (cart/disc out of case into machine, case parked, put back on eject). |
+| /opt/stacks/landing-console-flow | console-flow | in progress; not deployed | R84 Game Lad fills the screen when playing (keyboard), T = full screen with mouse; R85 case system (cart/disc out of case into machine, case parked, put back on eject). |
 Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md has every R-item with details.
 
 ## Voices (British only!)

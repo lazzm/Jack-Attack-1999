@@ -43,7 +43,7 @@
     const b=e.box,m=e.medium,s=slot(e),ps=park(e),pp={...ps.pose,room:ps.room};
     const beginBox=pose(b),beginMedium=pose(m),wasHeld=H.held()===b.id;
     if(H.held()&&(!inserting||!wasHeld))return false;
-    if(wasHeld)H.suspendGrip(b.id);
+    if(wasHeld)H.releaseGrip(b.id);
     for(const t of [b,m])for(const key of ['snap:','return:','case.lid.'])H.anims.delete(key+t.id);
     const work={...pp,z:pp.z+30,ry:0,rx:0,rz:0},workBox=render(b,work),parkBox=render(b,pp);
     const home=inside(e,work),homeMedium=render(m,home),target=render(m,{...s.pose,room:s.room});

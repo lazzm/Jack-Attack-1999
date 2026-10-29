@@ -555,13 +555,11 @@
     setTimeout(() => { if (!H.grab(disc.id)) { disc.at.hide = false; H.place(disc); } }, 30);
   }
   // let go of what you're holding without it clicking into a drive (putBack would put it back IN the drive it came from)
-  function release() {
-    const saved = {}; for (const id in H.SNAPS) { saved[id] = H.SNAPS[id].enabled; H.SNAPS[id].enabled = () => false; }
-    try { H.drop(); } finally { for (const id in saved) H.SNAPS[id].enabled = saved[id]; }
-  }
+  function release() { if(H.held())H.releaseGrip(H.held()); }
   function discHome(it) { // back in its case (wherever the case is)
     const disc = H.THINGS[td(it.id)], box = H.THINGS[tb(it.id)]; if (!disc) return;
     if (H.held() === disc.id) release();
+    PM.take(it.id);
     setTimeout(() => {
       disc.st = 'rest'; disc.snap = null; disc.at = Object.assign({}, box ? box.at : disc.home, { hide: true }); H.place(disc); disc.obj.visible = false;
       if (it.kind === 'mag' && box) box.obj.userData.cover && box.obj.userData.cover(true);

@@ -13,6 +13,7 @@ import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {chromium, devices} from 'playwright';
 import {analyse, contactSheet} from './transition-kit.mjs';
+import {insertCase} from './case-actions.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url)), shots = fileURLToPath(new URL('shots/mobile/', import.meta.url));
 const args = process.argv.slice(2), given = args.find(a => /^https?:/.test(a));
@@ -258,23 +259,8 @@ async function gameLad(p, pre) {
   const gh = await page.evaluate(id => House.THINGS[id].at, gbox);
   await aimAt(p, [gh.x + 60, -55, gh.z + 75], [gh.x, gh.y - 6, gh.z]);
   assert.match(await clickThing(p, gbox), /pick up/i); await until(id => House.held() === id, gbox);
-  // somewhere it fits (green ghost), then a click puts it down there
-  for (const t of [[-60, 73, 160], [-40, 73, 185], [-90, 73, 175], [0, 73, 170]]) { await aimAt(p, [-60, -55, 250], t); await sleep(400); if (await page.evaluate(() => { const h = document.querySelector('.hs-ui .hs-hold'); return h && !h.classList.contains('blocked'); })) break; }
-  await shot(pre + '-13b-gamelad-box-ghost'); await fingers.tap(V(p).width * .72, V(p).height * .4);
-  await until(id => House.THINGS[id].st === 'rest', gbox);
-  const gat = await page.evaluate(id => House.THINGS[id].at, gbox);
-  assert(await standAndAim(p, gbox), 'Cannot get the Game Lad case under the crosshair'); await shot(pre + '-13c-aim-case'); await press('f'); await until(id => House.THINGS[id].caseOpen, gbox);
-  await page.waitForTimeout(600); assert(await standAndAim(p, gbox), 'Cannot get the open case under the crosshair');
-  // a click on the cartridge in its open case takes it (only when it can be seen from where the test stands)
-  const seen = await page.evaluate(id => { for (let y = 0; y < innerHeight; y += 6) for (let x = 0; x < innerWidth; x += 6) if (House.pick(x, y)?.spot === id) return true; return false; }, gcart);
-  if (seen) { assert.match(await clickThing(p, gcart, pre + '-13d-finger-on-cart'), /pick up|take/i, 'Finger label on the cartridge'); }
-  else { report.checks.push({ label: pre + ': cartridge hidden by its open case from the test camera; taken with House.grab' }); await page.evaluate(id => House.grab(id), gcart); }
-  await until(id => House.held() === id, gcart);
-  const gslot = await page.evaluate(() => { const s = House.SNAPS['console.gb'], o = House.THINGS.gb.obj, v = new House.T.Vector3(); o.getWorldPosition(v); return { s: [s.x, s.y, s.z], g: [v.x, -v.y, v.z] }; });
-  if (process.env.MOB_DEBUG) console.log('before slot', JSON.stringify(await page.evaluate(ids => ({ held: House.held(), box: House.THINGS[ids[0]].st, cart: House.THINGS[ids[1]].st, open: House.THINGS[ids[0]].caseOpen }), [gbox, gcart])));
-  await aimAt(p, [gslot.g[0] + 35, -55, gslot.g[2] + 60], gslot.s);
-  if (process.env.MOB_DEBUG) console.log('at slot', JSON.stringify(await page.evaluate(() => ({ held: House.held(), hold: document.querySelector('.hs-hold')?.className, name: document.querySelector('.hs-hname')?.textContent })))); await page.waitForTimeout(500); await shot(pre + '-14-cart-to-gamelad');
-  await fingers.tap(V(p).width * .72, V(p).height * .4); // (a click puts it in at the gold ghost: the Game Lad comes up and boots)
+  await insertCase({page,view:(eye,target,o)=>aimAt(p,eye,target,o?.level||'U')},gbox,'console.gb',{press:()=>press('e')});
+  await shot(pre+'-14-case-to-gamelad');
   await until(g => RoomTV._dbg()?.gid === g && RoomTV._dbg().st === 'game' && !House.gliding, gid, 40000);
   await page.waitForTimeout(3000); await shot(pre + '-15-gamelad-title');
   // what you see is what you press: the projected buttons sit on the rendered moulding (magenta A/B, black D-pad)
@@ -302,7 +288,7 @@ async function gameLad(p, pre) {
   const down = await page.evaluate(() => { const c = RoomTV._dbg().gbScreen('pad'); const H = House, o = H.THINGS.gb.obj, v = new H.T.Vector3(-2.2, -2.9, 3.6); o.localToWorld(v); v.project(H.camera); const r = H.ren.domElement.getBoundingClientRect(); return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height }; });
   await fingers.move(1, down.x, down.y); await sleep(120);
   const slid = await page.evaluate(() => ({ down: RoomTV.dbg().held('down'), right: RoomTV.dbg().held('right') })); await fingers.up(1);
-  assert(slid.down && !slid.right, 'Sliding the D-pad thumb did not change direction: ' + JSON.stringify(slid));
+  assert(slid.down && !slid.right, 'Sliding the D-pad thumb did not change direction: ' + JSON.stringify({slid,pd2,right,down,hit:await page.evaluate(q=>RoomTV._dbg().gbHit(q.x,q.y),down),viewport:V(p)}));
   // a phone browser's bars: the room's canvas not filling the window (56 px short) must not shift the buttons
   await page.evaluate(() => { const pb = document.getElementById('bootPower'); pb.dataset.oldStyle = pb.getAttribute('style') || ''; pb.style.setProperty('top', '56px', 'important'); pb.style.setProperty('height', (innerHeight - 56) + 'px', 'important'); pb.style.setProperty('bottom', 'auto', 'important'); dispatchEvent(new Event('resize')); });
   await page.waitForTimeout(1500);
@@ -315,8 +301,8 @@ async function gameLad(p, pre) {
   await press('.rm-tools .rm-lock'); await page.waitForTimeout(1500);
   assert(await page.evaluate(() => !!document.querySelector('.rm-tvv .rm-pad[hidden]')), 'Pad left over after LOCK IN back');
   await page.setViewportSize({ width: size.height, height: size.width }); await page.waitForTimeout(2000); await shot(pre + '-19-gamelad-landscape');
-  assert(await page.evaluate(() => !!document.querySelector('.rm-tvv .rm-pad:not([hidden]) [data-b="a"]')), 'Landscape Game Lad has no pad');
-  { const r = await page.evaluate(() => { const b = document.querySelector('.rm-pad [data-b="a"]').getBoundingClientRect(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; }); await fingers.down(6, r.x, r.y); await sleep(100); assert(await page.evaluate(() => RoomTV.dbg().held('a')), 'Landscape pad A did nothing'); await fingers.up(6); }
+  assert(await page.evaluate(()=>!document.querySelector('.rm-tvv .rm-pad:not([hidden])')),'Landscape Game Lad covered by an overlay pad');
+  {const r=await gp('a');await fingers.down(6,r.x,r.y);await sleep(100);assert(await page.evaluate(()=>RoomTV.dbg().held('a')),'Landscape moulded A did nothing');await fingers.up(6)}
   await page.setViewportSize(size); await page.waitForTimeout(1500);
   await press('.rm-tools .rm-lean'); await until(() => House.mode === 'walk' && !House.gliding, null, 30000);
 }
@@ -506,14 +492,10 @@ const phases = {
       assert(placed,'No clear mobile case footprint: '+refused.join('; '));
       // Follow actual visible triangles after the case has turned and settled.
       assert(await standAndAim(p,'media.box.n64.kart'),'No real crosshair hit on the placed case');
-      console.log('mobile full: placed case aimed');
-      await press('f');await until(()=>House.THINGS['media.box.n64.kart'].caseOpen);
-      assert(await standAndAim(p,'media.n64.kart'),'No real crosshair hit on the visible cartridge');
-      await press('e');await until(()=>House.held()==='media.n64.kart');
-      console.log('mobile full: cartridge taken');
-      const slot = await page.evaluate(() => House.SNAPS['console.n64']); await aimAt(p, [-185, -55, 120], [slot.x, slot.y, slot.z]);
-      await page.waitForTimeout(400); await shot('full-09-insert-cart');
-      await press('e'); await until(() => window.RoomTV?._dbg()?.st === 'game', null, 30000);
+      await press('e');await until(()=>House.held()==='media.box.n64.kart');
+      await insertCase({page,view:(eye,target,o)=>aimAt(p,eye,target,o?.level||'U')},'media.box.n64.kart','console.n64',{press:()=>press('e')});
+      await shot('full-09-insert-case');
+      await until(() => window.RoomTV?._dbg()?.st === 'game', null, 30000);
       await until(() => !!document.querySelector('.rm-tvv .rm-pad:not([hidden]) [data-b="start"]'), null, 15000);
       await page.waitForTimeout(1500); await shot('full-10-console-pad'); await layoutAudit(p, 'console pad portrait');
       await press('.rm-pad [data-b="start"]'); await page.waitForTimeout(500);

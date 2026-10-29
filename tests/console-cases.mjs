@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {roomFixture} from './room-fixture.mjs';
+import {insertCase} from './case-actions.mjs';
 const base = process.argv[2] || 'http://localhost:18461';
 assert(['localhost', '127.0.0.1'].includes(new URL(base).hostname), 'Disposable server only');
 const account = 'Cases' + Date.now().toString(36), password = 'Throwaway-1999';
@@ -23,15 +24,13 @@ try{
  await walk([-220,-55,35],[target.x,target.y-6,-36]);await p.waitForTimeout(350);await p.keyboard.press('e');assert.equal(await p.evaluate(()=>House.held()),null,'Shelf target did not accept box');await until(()=>House.THINGS['media.box.ps.run'].st==='snap');
  assert.equal(await p.evaluate(()=>House.THINGS['media.box.ps.run'].snap),'media.slot.19');assert.equal(await p.evaluate(()=>Apps.store.get('jhp_console_slots',{})['ps.run']),19);
  console.log('Custom slot saved');
- // Both media types come out only after placing/opening the actual case.
+ // Filled disc and cartridge cases use the same physical machine transaction.
  for(const item of [box,cart]){
-  const disc=item.game==='ps.run',x=disc?-130:-80,at=await p.evaluate(id=>House.THINGS[id].at,item.id);
-  await walk([-220,-55,35],[at.x,at.y-6,-36]);await p.keyboard.press('e');assert.equal(await p.evaluate(()=>House.held()),item.id);
-  await walk([x,-55,220],[x,73,145]);await p.keyboard.press('e');await p.waitForTimeout(600);
-  await walk([x,-55,220],[x,67,146.6]);await p.keyboard.press('f');await p.waitForTimeout(400);
-  await walk([x,-55,220],[x+(disc?2:0),disc?67:69,disc?145.1:146.3]);await p.keyboard.press('e');assert.equal(await p.evaluate(()=>House.held()),'media.'+item.game);
-  await p.evaluate(()=>House.putBack());await p.waitForTimeout(600);assert.equal(await p.evaluate(id=>House.THINGS['media.'+id].snap,item.game),'media.case.'+item.game);
-  await p.evaluate(id=>{House.grab(id);House.putBack()},item.id);await p.waitForTimeout(600);
+  await p.evaluate(()=>{HousePause.close();House.pauseControls(false)});
+  const sid='console.'+item.game.split('.')[0];await insertCase({page:p,view},item.id,sid);await until(()=>!HouseCases.busy&&RoomTV?._dbg()?.st==='game');
+  assert(await p.evaluate(id=>House.physics.body(id).fixed,item.id));await p.keyboard.press('q');await until(()=>!House.gliding&&!House.focused);await p.evaluate(()=>{HousePause.close();House.pauseControls(false);House._.setMode('walk')});
+  assert(await p.evaluate(sid=>HouseCases.eject(sid),sid));await until(()=>!HouseCases.busy);assert.equal(await p.evaluate(id=>House.THINGS['media.'+id].snap,item.game),'media.case.'+item.game);
+  if(!await p.evaluate(()=>House.held()))assert(await p.evaluate(id=>House.grab(id),item.id));assert.equal(await p.evaluate(()=>House.held()),item.id);await p.evaluate(()=>House.putBack());await until(()=>!House.held());
  }
  // Tidy follows the user's newly assigned slot, including after refresh.
  await p.evaluate(()=>{Room.tidy();House.saveThings(true)});assert.equal(await p.evaluate(()=>House.THINGS['media.box.ps.run'].at.y),target.y);
@@ -40,7 +39,7 @@ try{
  await view([-165,-5,60],[rackX,32,-43]);await p.screenshot({path:'shots/console-cases-custom-refresh.png'});
  await p.evaluate(()=>{House.hush();House._.setMode('walk');House.grab('media.box.ps.run');House.inspect('media.box.ps.run')});await p.waitForTimeout(400);await p.screenshot({path:'shots/console-case-inspect-front.png'});await p.mouse.move(600,400);await p.mouse.down();await p.mouse.move(1100,450,{steps:20});await p.mouse.up();await p.screenshot({path:'shots/console-case-inspect-reverse.png'});await p.keyboard.press('q');await p.evaluate(()=>House.putBack());
  await p.evaluate(()=>{for(const g of RoomCat.GAMES.filter(g=>!RoomCat.CONSOLES[g.con].away)){Room._.S.f['cart.'+g.id]=1;Room._.emit('find','cart.'+g.id)}Room.tidy()});
- const full=await p.evaluate(()=>Object.values(House.THINGS).filter(t=>t.kind==='console-case').map(t=>({home:t.home,h:t.h,hx:t.hx,hz:t.hz})));assert.equal(full.length,19);assert.equal(new Set(full.map(t=>t.home.snap)).size,19);assert(full.every(t=>t.h<14&&t.hz<2&&t.hx<7.3));
+ const full=await p.evaluate(()=>Object.values(House.THINGS).filter(t=>t.kind==='console-case'&&t.home.room==='bedroom').map(t=>({home:t.home,h:t.h,hx:t.hx,hz:t.hz})));assert.equal(full.length,19);assert.equal(new Set(full.map(t=>t.home.snap)).size,19);assert(full.every(t=>t.h<14&&t.hz<2&&t.hx<7.3));
  await view([-180,-10,55],[rackX,28,-43]);await p.screenshot({path:'shots/console-cases-full-rack.png'});await p.setViewportSize({width:390,height:844});await p.screenshot({path:'shots/console-cases-full-rack-narrow.png'});
- assert.deepEqual(errors,[]);console.log('CONSOLE CASES PASS: owned games boxed, solid hinged models, custom slot via E, floor-first F opening, disc/cartridge out and back, tidy and refresh');
+ assert.deepEqual(errors,[]);console.log('CONSOLE CASES PASS: owned games boxed, solid hinged models, custom slot via E, filled-case insertion, fixed parking, disc/cartridge return to same case, tidy and refresh');
 }finally{await browser.close()}
