@@ -44,10 +44,17 @@ async function ownerReplace(op,action,pick){
   for(let attempt=0;;attempt++){
     if(pick)await op.locator('[name=snapshot]').selectOption(pick);
     await op.locator(`[data-owner=${action}]`).click();
-    const nav=op.waitForEvent('domcontentloaded',{timeout:30000*SCALE}).then(()=>true,()=>false);
+    const origin=await op.evaluate(()=>performance.timeOrigin);
     await op.locator('[data-owner=confirm]').click();
-    if(await nav)return;
-    const msg=await op.locator('.owner-tools [role=status]').textContent();
+    const deadline=Date.now()+90000*SCALE;let msg='';
+    while(Date.now()<deadline){
+      try{
+        const state=await op.evaluate(()=>({origin:performance.timeOrigin,status:document.querySelector('.owner-tools [role=status]')?.textContent||''}));
+        if(state.origin!==origin){console.log('Owner replacement reloaded:',action);return;}
+        msg=state.status;if(/not confirmed/.test(msg))break;
+      }catch(e){if(!/context was destroyed|navigation|Cannot find context/i.test(e.message))throw e;}
+      await op.waitForTimeout(200);
+    }
     assert(attempt<2&&/not confirmed/.test(msg),'Owner '+action+' did not reload: '+msg);
     await op.waitForTimeout(21000*SCALE);
   }
