@@ -27,5 +27,5 @@ export async function playCase(f,gid,options={}){
  const loaded=await p.evaluate(sid=>HouseCases.inserted(sid)?.medium.gameId,sid);
  if(loaded&&loaded!==gid){assert(await p.evaluate(sid=>HouseCases.eject(sid),sid));await until(()=>!HouseCases.busy);if(await p.evaluate(()=>!!House.held()))await p.evaluate(()=>House.putBack());await until(()=>!House.held())}
  if(loaded===gid)await p.evaluate(con=>House.act(con==='sn'?'snes':con),gid.split('.')[0]);else await insertCase(f,box,sid,options);
- await until(()=>window.RoomTV?._dbg()?.st==='game'&&!HouseCases.busy&&!House.gliding);assert.equal(await p.evaluate(()=>RoomTV._dbg().gid),gid);
+ await until(()=>window.RoomTV?._dbg()?.st==='game'&&!HouseCases.busy&&!House.gliding);assert.equal(await p.evaluate(()=>RoomTV._dbg().gid),gid);if(gid.startsWith('sn.'))assert.equal(await p.evaluate(gid=>House.THINGS['media.'+gid].at.room,gid),'cupboard','Super Ultra media must belong to the ground-floor cupboard');
 }

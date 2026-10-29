@@ -2355,7 +2355,7 @@
   }
   function consoleMediaSlot(id,c) {
       if(H.SPOTS[id])H.SPOTS[id].remove=()=>inserted(id)?ejectMedia(id):sparseStarter?H.grab(id):H.toast(CAT.CONSOLES[id].n,'No game is inserted. F plays / uses it; E removes media.');
-      Room.addSnap('console.' + id, { x: c.x, y: c.y, z: c.z, r: 14, box: c.disc ? [12, 0.4, 12] : [10, 4, 3],
+      Room.addSnap('console.' + id, { room:id==='sn'?'cupboard':'bedroom', x: c.x, y: c.y, z: c.z, r: 14, box: c.disc ? [12, 0.4, 12] : [10, 4, 3],
         pose: { x: c.x, y: c.y + (c.disc ? -0.14 : 1), z: c.z + (c.disc ? 6 : 0), ry: c.ry||0, rx: c.disc ? 90 : 0 }, hide: c.disc,
         accepts: (kind, t) => kind===(c.disc?'console-disc':'cart')&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === id), onBegin:t=>{if(t.kind==='console-case'){HouseCases.insert(t.id);return false}return true}, enabled: () => consoleConnected(id)&&!inserted(id),
         hint: 'Click/E to insert into the ' + CAT.CONSOLES[id].n,
