@@ -27,6 +27,7 @@ const root = fileURLToPath(new URL('../', import.meta.url)), dir = root + 'tests
 const SCALE=+process.env.QA_SCALE||Math.max(1,Math.min(4,os.loadavg()[0]/os.cpus().length*1.3));
 const QUICK = process.argv.includes('--quick'), ONLY = (process.argv.find(a => a.startsWith('--only='))?.slice(7) || '').split(',').filter(Boolean);
 let server, data, fixture, log = '';
+const ITEMS=(process.argv.find(a=>a.startsWith('--items='))?.slice(8)||'').split(',').filter(Boolean);
 const results = [], found = [];
 async function cleanup() { if (fixture) await fixture.browser.close().catch(() => {}); if (server?.exitCode === null && server.signalCode === null) { const end = once(server, 'exit'); server.kill('SIGTERM'); await end; } if (data) await rm(data, {recursive: true, force: true}); }
 for (const sig of ['SIGTERM', 'SIGINT']) process.once(sig, () => void cleanup().finally(() => process.exit(1)));
@@ -153,7 +154,9 @@ try {
     if (!s) { if (process.env.QA_DEBUG) console.log('  unreachable ' + id + ' ' + JSON.stringify(t) + ' hits: ' + JSON.stringify(await p.evaluate(a => { const H = House, out = []; for (const d of [75, 95]) for (let k = 0; k < 16; k += 4) { const ang = k * 22.5 * Math.PI / 180, sx = a.x + Math.sin(ang) * d, sz = a.z + Math.cos(ang) * d; if (!H._.cellOk(a.lvl, sx, sz)) { out.push('x'); continue; } const eye = H.LV[a.lvl] - 128; H.setWalkFrom({x: sx, y: eye, z: sz, lvl: a.lvl, seat: 0}); Object.assign(H.P, {x: sx, y: eye, z: sz, rx: Math.atan2(-(a.y - eye), Math.hypot(a.x - sx, a.z - sz)) * 180 / Math.PI, ry: Math.atan2(a.x - sx, -(a.z - sz)) * 180 / Math.PI}); H.visCalc(); const h = H.pick(innerWidth / 2, innerHeight / 2, {far: 400}); out.push(h ? (h.spot || h.obj.name || h.obj.type) + '@' + [h.p.x, h.p.y, h.p.z].map(Math.round) : 'none'); } return out; }, {...t, lvl}))); return 'unreachable'; }
     await p.keyboard.press('e');
     for (let i = 0; i < 20 && !await p.evaluate(id => House.held() === id, id); i++) await p.waitForTimeout(100);
-    return p.evaluate(id => House.held() === id, id);
+    const held = await p.evaluate(id => House.held() === id, id);
+    if(!held)console.log('  pickup aim diagnostic',await p.evaluate(({id,s})=>{const H=House,h=H.pick(innerWidth/2,innerHeight/2,{far:400}),t=H.THINGS[id];return {id,stand:s,mode:H.mode,held:H.held(),pose:{...H.P},eye:H.W.eye,eyeNow:H.W.eyeNow,hit:h&&{spot:h.spot,point:{...h.p}},target:{...t.at},off:H.SPOTS[id]?.off,grabbable:!t.canGrab||t.canGrab()};},{id,s}));
+    return held;
   }
   // ---------------------------------------------------------------- the surfaces to try (computed from the rooms themselves)
   const surfaces = await p.evaluate(() => {
@@ -209,7 +212,8 @@ try {
 
   // ---------------------------------------------------------------- every carryable thing, every surface, Q back
   const things = await p.evaluate(() => Object.keys(House.THINGS).filter(id => { const t = House.THINGS[id]; const r = House.ROOMS[t.at.room]; return r?.built && ['rest', 'snap'].includes(t.st) && !t.at.hide && !(t.physics?.drag || t.drag) && !(t.canGrab && !t.canGrab()) && !House.SPOTS[id]?.off; }));
-  const pickThings = QUICK ? things.filter((_, i) => i % Math.ceil(things.length / 10) === 0) : things;
+  const pickThings = ITEMS.length ? things.filter(id=>ITEMS.includes(id)) : QUICK ? things.filter((_, i) => i % Math.ceil(things.length / 10) === 0) : things;
+  if(ITEMS.length)assert.equal(pickThings.length,ITEMS.length,'Requested pickup fixtures must exist and be carryable');
   console.log(`Carryable things: ${things.length} (testing ${pickThings.length})`);
   const placed = {};
   await check('carry-matrix', async () => {
