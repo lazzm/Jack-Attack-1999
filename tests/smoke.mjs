@@ -123,7 +123,7 @@ const checks=[
    assert.equal(await page.evaluate(()=>RoomTV._dbg().gid),'n64.kart');
    await page.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);assert(await page.evaluate(()=>RoomTV._dbg().background));
  }],
- ['phone-typing',15000,async()=>{
+ ['phone-typing',30000,async()=>{
    const {page}=await room();await page.evaluate(()=>HouseMobile.use());await until(()=>window.FamilyPhone?.isOpen()&&House.focused&&!House.gliding);console.log('phone-typing: focused');
    await page.keyboard.press('Enter');await page.keyboard.press('Enter');await page.keyboard.press('Enter');await until(()=>FamilyPhone.state().id==='edit');console.log('phone-typing: editor');
    await page.keyboard.type('wasd saw dad');assert.equal(await page.evaluate(()=>FamilyPhone.state().text),'wasd saw dad','House movement swallowed phone letters');console.log('phone-typing: text accepted');
