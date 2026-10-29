@@ -1949,7 +1949,7 @@
     const aspect = innerWidth / innerHeight, fov = H.camera.fov * D2R / 2;
     if (con === 'sn') {
       const screen=H.ROOMS.cupboard.cupScreen;screen.updateWorldMatrix(true,false);
-      const v=screen.getWorldPosition(new T.Vector3()),n=new T.Vector3(0,0,1).transformDirection(screen.matrixWorld);
+      const v=new T.Vector3(0,-14,7.5).applyMatrix4(screen.parent.matrixWorld),n=new T.Vector3(0,0,1).transformDirection(screen.matrixWorld);
       const touch=navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches;
       // Match the controller's actual two-wing breakpoint. Tablets with more
       // height keep the full pad and its buttons below the physical set.
