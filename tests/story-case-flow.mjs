@@ -13,7 +13,7 @@ await withTestServer(async base=>{
   await until(()=>window.StoryGuide&&st.current()?.id==='lad');
   assert.deepEqual(await p.evaluate(()=>StoryGuide.targets()),['media.box.gb.blocks']);
   await view([-56,-70,80],[-56,-1.3,18]);await p.evaluate(()=>House._.setMode('walk'));
-  await p.keyboard.press('f');assert(!await p.evaluate(()=>!!window.RoomTV?.open_),'Empty handheld opened the retired game picker');
+  await p.waitForTimeout(500);assert.equal(await p.evaluate(()=>House.pick(innerWidth/2,innerHeight/2)?.spot),'gb','Tutorial F must reach the real handheld');await p.keyboard.press('f');assert(!await p.evaluate(()=>!!window.RoomTV?.open_),'Empty handheld opened the retired game picker');
   await shot('01-filled-case-guidance');
   assert(await p.evaluate(()=>House.grab('media.box.gb.blocks')));
   assert.deepEqual(await p.evaluate(()=>StoryGuide.targets()),['console.gb']);await shot('02-slot-guidance');
