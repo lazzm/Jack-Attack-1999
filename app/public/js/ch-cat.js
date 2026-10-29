@@ -39,7 +39,7 @@
     { id: 'hoover', job: 'hoover', area: 'lounge', room: 'lounge', n: 'Vacuum the lounge', short: 'Vacuum', pay: 18, par: 90, min: 10, where: 'the lounge',
       blurb: 'The vacuum stands in the hall by the lounge door. Plug it in, get every crumb, put it back.' },
     { id: 'videos', job: 'videos', area: 'lounge', room: 'lounge', n: 'Tidy the videos', short: 'Videos', pay: 8, par: 40, min: 5, where: 'the lounge',
-      blurb: 'Every tape back on the shelf under the telly. Rewound. Be kind.' },
+      blurb: 'Every tape back in the video tower beside the telly. Be kind, rewind.' },
     { id: 'cushions', job: 'cushions', area: 'lounge', room: 'lounge', n: 'Plump the cushions', short: 'Cushions', pay: 8, par: 40, min: 5, where: 'the lounge',
       blurb: 'Cushions back on the settee and plumped. Mom likes them on their corners, like diamonds.' },
     // ---- outside (the front of the house)
