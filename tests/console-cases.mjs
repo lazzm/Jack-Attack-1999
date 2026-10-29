@@ -7,7 +7,7 @@ const account = 'Cases' + Date.now().toString(36), password = 'Throwaway-1999';
 assert((await fetch(base + '/admin/register', {method: 'POST', headers: {'x-admin-token': 'testtoken', 'content-type': 'application/json'}, body: JSON.stringify({name: account, pass: password})})).ok);
 const{browser,page:p,errors,view}=await roomFixture(base,{account,password,signup:false});
 async function until(fn){for(let i=0;i<150;i++){if(await p.evaluate(fn))return;await p.waitForTimeout(150)}throw Error('Timeout '+fn+' state '+JSON.stringify(await p.evaluate(()=>({held:House.held(),box:House.THINGS['media.box.ps.run'].st,media:House.THINGS['media.ps.run'].st,snap:House.THINGS['media.ps.run'].snap}))))}
-async function walk(eye,target){await view(eye,target);await p.evaluate(()=>{House.hush();House._.setMode('walk')})}
+async function walk(eye,target){await view(eye,target);await p.evaluate(()=>{House.hush();House._.setMode('walk')});await until(()=>Math.abs(House.W.eyeNow-House.W.eye)<.05);await p.evaluate(([tx,ty,tz])=>{const P=House.P;P.rx=Math.atan2(-(ty-P.y),Math.hypot(tx-P.x,tz-P.z))*180/Math.PI;P.ry=Math.atan2(tx-P.x,-(tz-P.z))*180/Math.PI;House.dirty()},target);await p.waitForTimeout(200)}
 try{
  const boxes=await p.evaluate(()=>Object.values(House.THINGS).filter(t=>t.kind==='console-case').map(t=>({id:t.id,game:t.gameId,at:t.at,home:t.home,details:!!t.obj.userData.mediaCase})));
  assert(boxes.length>=5);assert(boxes.every(t=>t.details));assert.equal(new Set(boxes.map(t=>t.home.snap)).size,boxes.length);
