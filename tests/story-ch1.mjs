@@ -18,7 +18,7 @@ const account = 'Story' + Date.now().toString(36), password = 'Temporary-1999';
 async function bootRoundTrip(){
   const name='Boot'+Date.now().toString(36);
   const reg=await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name,pass:password})});assert.equal(reg.status,200);
-  const f=await roomFixture(base,{account:name,password,signup:false,timeoutScale:SCALE});
+  const f=await roomFixture(base,{account:name,password,signup:false,hour:18,timeoutScale:SCALE});
   try{
     const p=f.page;await p.evaluate(()=>House.buildRoom(House.ROOMS.drive));
     const frame=await p.evaluate(()=>House.ROOMS.drive.carFrame);

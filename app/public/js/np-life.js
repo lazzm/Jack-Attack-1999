@@ -769,6 +769,7 @@
       step(c, dt, clk);
       placeRig(c);
     }
+    H.ROOMS.drive?.car?.update();
     outfits();
     if (simMode) return;
     speechTick(); barks(clk); carryReactions(); gameLadCameo();
@@ -886,6 +887,8 @@
   // ================================================================ the API
   window.HouseFamily = {
     enabled: true, get active() { return ready; }, get ready() { return ready; }, chars: C,
+    // Bedtime keeps the car at home; work follows the real routine and story/home-day exceptions.
+    get carAway() { return !C.dad.present && scheduled('dad', clock()).raw === 'away:work' && !storyDirectives().dad && !manual.dad && !sceneDbg.dad; },
     present: id => !!C[id]?.present, near: (id, cm) => !!C[id] && inEarshot(C[id], cm || 400),
     talk, say: (id, line, o) => say(id, line, o), storyLine, handIn, blocks, blocker, doorHeld, heldHint,
     // hs-life's random shouts give way to the people who are really there (and Dad can't shout from work)

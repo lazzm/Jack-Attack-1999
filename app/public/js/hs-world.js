@@ -710,6 +710,8 @@
     spot(id, Object.assign({ label: t.label, obj: t.obj, grab: true, range: t.range || 230 }, def.spot || {}));
     return t;
   }
+  // A vehicle can be away with its contents: saved coordinates stay at its parking position.
+  const isAway = t => !!ROOMS[t.at.room]?.awayThing?.(t);
   const renderY=(t,y)=>K.restY(y)-(t.bottomOffset||0);
   const restOf=(t,objY)=>objY+K.SURFACE_LIFT+(t.bottomOffset||0); // the inverse of renderY
   // Soft tops (the duvet): the collider is a flat slab, the cloth is rumpled. A thing resting on the slab is drawn on the
@@ -738,7 +740,7 @@
     return a.y;
   }
   function softChanged(rid) { for (const id in THINGS) { const t = THINGS[id]; if (t.at.room === rid && t.st === 'rest' && !t.at.hide && t.obj) t.obj.position.y = renderY(t, softY(t, t.at)); } dirty(); }
-  function place(t) { const a = t.at; t.obj.position.set(a.x, renderY(t,softY(t,a)), a.z); t.obj.rotation.set((t.rx || 0) * D2R, (a.ry || 0) * D2R, (t.rz || 0) * D2R, 'YXZ'); if (t.swivel) t.swivel.rotation.y = (a.sw || 0) * D2R; t.obj.visible = !a.hide; syncBody(t); dirty(); }
+  function place(t) { const a = t.at; t.obj.position.set(a.x, renderY(t,softY(t,a)), a.z); t.obj.rotation.set((t.rx || 0) * D2R, (a.ry || 0) * D2R, (t.rz || 0) * D2R, 'YXZ'); if (t.swivel) t.swivel.rotation.y = (a.sw || 0) * D2R; t.obj.visible = !a.hide && !isAway(t); syncBody(t); dirty(); }
 
   // ---------------------------------------------------------------- bodies: a thing resting in the world is a physics body
   const lvlOf = t => (ROOMS[t.at.room] || ROOMS[t.home && t.home.room] || { lvl: 'U' }).lvl;
@@ -759,7 +761,7 @@
   function bodyState(t) {
     const b = t.body; if (!b) return;
     const drag = held && held.id === t.id && held.drag;
-    const on = drag || ((t.st === 'rest' || t.st === 'snap') && !t.at.hide && !!ROOMS[t.at.room]);
+    const on = drag || ((t.st === 'rest' || t.st === 'snap') && !t.at.hide && !isAway(t) && !!ROOMS[t.at.room]);
     b.fixed = !!drag || !!t.fixed || t.st === 'snap'; // clicked into a slot: solid, but nothing shoves it out
     if (on !== b.active || !on) PH.setActive(b, on);
   }
@@ -842,7 +844,7 @@
   function supportsAt(rid, x, z, except) { // every surface under (x, z): the room's own, and the tops of things resting there
     const out = []; const r = ROOMS[rid]; if (!r) return out;
     for (const s of r.supports) if (x >= s.x0 && x <= s.x1 && z >= s.z0 && z <= s.z1 && !(s.when && !s.when())) out.push(s.y);
-    for (const id in THINGS) { const o = THINGS[id]; if (o === except || o.st !== 'rest' || o.at.room !== rid || o.at.hide || o.noStack) continue; if (Math.abs(x - o.at.x) <= o.hx && Math.abs(z - o.at.z) <= o.hz) out.push(o.at.y - o.h); }
+    for (const id in THINGS) { const o = THINGS[id]; if (o === except || o.st !== 'rest' || o.at.room !== rid || o.at.hide || isAway(o) || o.noStack) continue; if (Math.abs(x - o.at.x) <= o.hx && Math.abs(z - o.at.z) <= o.hz) out.push(o.at.y - o.h); }
     out.push(LV[r.lvl]); // the floor
     return out;
   }
@@ -851,7 +853,7 @@
   function snapDef(id, def) { return SNAPS[id] = Object.assign({ id, r: 14 }, def); }
   const dragged = t => !!(t && (t.physics?.drag || t.drag));
   function grab(id, o) {
-    const t = THINGS[id]; if (!t || held) return false;
+    const t = THINGS[id]; if (!t || held || isAway(t)) return false;
     if (focusS?.o.seatId===id || t.canGrab && !t.canGrab()) return false;
     pendingRestores.delete(id); // a new grab supersedes an old deferred placement
     anims.delete('snap:' + id); anims.delete('set:' + id);
@@ -1360,7 +1362,7 @@
     const back = { room: f.room, x: f.x, y: f.y, z: f.z, ry: f.ry || 0, rx: t.rx || 0, rz: t.rz || 0 };
     // never back into thin air: if what it stood on has gone (or it was caught mid-fall), it lands on what's there now
     // (a thing that lives in mid-air, like a decoration hung up at home, keeps its authored pose)
-    if (!drag && ROOMS[f.room] && !(t.home && f.room === t.home.room && Math.hypot(f.x - t.home.x, f.y - t.home.y, f.z - t.home.z) < 1) && physReady()) {
+    if (!drag && ROOMS[f.room] && !isAway(Object.assign({}, t, {st:'rest',at:f})) && !(t.home && f.room === t.home.room && Math.hypot(f.x - t.home.x, f.y - t.home.y, f.z - t.home.z) < 1) && physReady()) {
       const b = bodyFor(t); if (b) { const rest = PH.findRest(b, ROOMS[f.room].lvl, f.x, f.z, f.ry || 0, f.y - 0.5, t.id, b.sw); if (rest.y > f.y + 0.5) back.y = rest.y; }
     }
     if (drag) { t.st = 'rest'; bodyState(t); }
@@ -1396,6 +1398,7 @@
     return false;
   }
   function layerFor(t) {
+    if (isAway(t)) t.obj.visible = false;
     const shadowKey = t.st + (t.airborne ? '~' : '');
     if (t.shadowState !== shadowKey) {t.shadowState = shadowKey; t.obj.traverse(o => {if (o.userData.contactShadow) o.visible = !t.airborne && (t.st === 'rest' || t.st === 'snap' || (t.st === 'held' && held && held.id === t.id && held.drag));});}
     const f = frontOf(t); if (f === t.front) return; t.front = f; t.obj.traverse(o => o.layers.set(f ? 1 : 0));
@@ -1641,7 +1644,7 @@
     let moved = false;
     for (const t of migrateQ) {
       migrateQ.delete(t);
-      if (t.st !== 'rest' || t.at.hide || !t.body || !ROOMS[t.at.room]) continue;
+      if (t.st !== 'rest' || t.at.hide || isAway(t) || !t.body || !ROOMS[t.at.room]) continue;
       if (!t.obstacle) continue; // only furniture saved where the new furniture colliders now stand; props keep their pose
       if (!PH.overlapping(t.body) && Math.abs(t.at.y - LV[lvlOf(t)]) <= 0.01) continue;
       const shift = PH.settle(t.body, 45); if (shift > 0.05) { renderBody(t); moved = true; }
@@ -1654,7 +1657,7 @@
   const rescueQ = new Set();
   const atHome = t => { const a = t.at, h = t.home; return !!h && a.room === h.room && Math.hypot(a.x - h.x, a.y - h.y, a.z - h.z) < 1; };
   function lostWhy(t) {
-    const a = t.at; if (t.st !== 'rest' || a.hide || !t.obj || atHome(t)) return null;
+    const a = t.at; if (t.st !== 'rest' || a.hide || isAway(t) || !t.obj || atHome(t)) return null;
     const r = ROOMS[a.room]; if (!r) return 'room';
     if (a.y > LV[r.lvl] + 0.5) return 'floor';
     if (!Object.values(ROOMS).some(q => q.lvl === r.lvl && q.area.some(ar => a.x >= ar[0] - 15 && a.x <= ar[2] + 15 && a.z >= ar[1] - 15 && a.z <= ar[3] + 15))) return 'wall';
@@ -3223,7 +3226,7 @@
     ok: true, FRONT, CAT_TREE, STAND, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
     focus, unfocus, surface, faceQuad, inspect, endInspect, get focused() { return !!focusS; },
     room, buildRoom, door, setDoor, walkRect, block, solid, stairs, support, soft, softChanged, softs: SOFT, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
-    restoreThing, rescue: t => { if (t) rescueQ.add(t); }, lostWhy, saveThings, saveWalkState, layerFor, frontFx, place,
+    isAway, restoreThing, rescue: t => { if (t) rescueQ.add(t); }, lostWhy, saveThings, saveWalkState, layerFor, frontFx, place,
     grab, drop: (sx, sy) => drop(sx, sy, 'api'), placeHeld: (sx, sy) => drop(sx, sy, 'user'), letGo, setAside, putBack, interact, releaseGrip, suspendGrip, restoreGrip, resumeLook:wantLock, get seated(){return focusS?.o.seatId||focusS?.parent?.o.seatId||null;}, held: () => held && held.id, get grip() { return held ? { id: held.id, drag: !!held.drag, d: held.d, ry: held.ry } : null; },
     placement:()=>held&&!held.drag?floorAim(THINGS[held.id]):null, ghost:()=>held&&!held.drag?computeGhost(THINGS[held.id],null,null,true):null, act: id => act(SPOTS[id]), useAt,
     // the physics world (js/hs-physics.js): bodies, stats, and a few queries the tests and packs use

@@ -1201,7 +1201,11 @@
     lp.shadow(0, 0, 0, 40, 36, 0.45, { sq: true });
     // Dad's car: a burgundy family saloon (no real make), on the drive, nose to the street
     const frame = r.carFrame = Object.assign({}, CAR);
-    const car = B.at(frame.x, frame.y, frame.z, 0, { sx: frame.s, sy: frame.s, sz: frame.s }), cm = M({ c: '#6a1a2a', sh: 35, sp: '#30282d' });
+    const carBatch = K.batch(), carGroup = new T.Group();carGroup.name = 'Dads car';carGroup.userData.staticBatch = true;r.group.add(carGroup);
+    const parked = r.car = { present: !window.HouseFamily?.carAway, known: !!window.HouseFamily, travelled: false };
+    const riding = t => t.at.room === 'drive' && ['rest','snap'].includes(t.st) && H.held() !== t.id && !t.at.hide && t.at.y < GY-6 && t.at.y >= GY-170 && Math.abs(t.at.x-frame.x)<=91*frame.s && Math.abs(t.at.z-frame.z)<=205*frame.s;
+    r.awayThing = t => !parked.present && riding(t);
+    const car = K.into(carBatch).at(frame.x, frame.y, frame.z, 0, { sx: frame.s, sy: frame.s, sz: frame.s }), cm = M({ c: '#6a1a2a', sh: 35, sp: '#30282d' });
     const rubber=M({c:'#24262a',sh:9,sp:'#17191b'}),chrome=M({c:'#a3a6a8',sh:48,sp:'#8b9399'});
     const glassPrint=K.tex('hs.car.glass',128,128,(g,w,h)=>{const sky=g.createLinearGradient(0,0,w*.3,h);sky.addColorStop(0,'#526b79');sky.addColorStop(.52,'#3b5260');sky.addColorStop(1,'#263d4a');g.fillStyle=sky;g.fillRect(0,0,w,h);const sheen=g.createLinearGradient(0,0,w,h*.55);sheen.addColorStop(0,'rgba(180,199,207,0)');sheen.addColorStop(.38,'rgba(180,199,207,.13)');sheen.addColorStop(.52,'rgba(180,199,207,.04)');sheen.addColorStop(1,'rgba(180,199,207,0)');g.fillStyle=sheen;g.fillRect(0,0,w,h)},{clamp:true});
     const gl=M({c:'#fff',map:glassPrint,sh:58,sp:'#6c7c85'});
@@ -1222,7 +1226,7 @@
       H.on('room',id=>{if(id==='drive')H.softChanged('drive')});
     }
     const hinge = new T.Group(); hinge.position.set(frame.x,frame.y-79*frame.s,frame.z-120*frame.s);
-    hinge.scale.setScalar(frame.s); r.group.add(hinge);
+    hinge.scale.setScalar(frame.s); carGroup.add(hinge);
     const lid=K.into(hinge);lid.rbox(0,0,-39,166,5,80,2,cm);
     lid.box(0,2.9,-39,150,1.2,68,M('#423137'));
     for(const x of [-53,53])lid.box(x,4,-20,3,4,34,M('#55333d'));
@@ -1230,6 +1234,7 @@
     let bootOpen=false;try{bootOpen=localStorage.getItem('jhp_car_boot')==='1';}catch(e){}
     hinge.rotation.x=bootOpen?-1.25:0;
     r.carBoot={hinge,open:bootOpen,toggle(){
+      if (!parked.present) return false;
       this.open=!this.open;try{localStorage.setItem('jhp_car_boot',this.open?'1':'0');}catch(e){} const from=hinge.rotation.x,to=this.open?-1.25:0,start=performance.now();
       window.Sound?.play(this.open?'carboot':'carclose');
       H.anims.set('story-car-boot',now=>{const t=Math.min(1,(now-start)/650);hinge.rotation.x=from+(to-from)*t*t*(3-2*t);H.dirty();return t<1});
@@ -1270,9 +1275,10 @@
     for(const side of [-1,1]){car.box(side*76,-92,65,10,2.4,3,rubber);car.rbox(side*83,-94,65,8,8,17,1.5,rubber);car.box(side*87.1,-94,65,.4,5.8,13.8,M({c:'#8199a4',sh:80,sp:'#b7c9cf'}));}
     car.ball(0, -84, -96, 8, 6, 8, M('#c8a060'), 8); // inside the rear glazing, not poking through it
     car.shadow(0, 0, 0, 200, 430, 0.7, { sq: true });
+    carBatch.build(carGroup);
     batch.build(r.group);
     H.spot('hs.carboot',{obj:r.carBoot.hinge,label:'Car boot',range:185,act:()=>r.carBoot.toggle()});
-    H.spot('hs.car', { label: "Dad's car", act: sayLines('hs.car', "Dad's car", ['Dad\'s car. Burgundy. It has a cassette player and a tin of travel sweets that are all stuck together.', 'Dad washes it every Sunday "because it\'s a nice thing to do". It is never a nice thing to do.', 'There\'s a nodding dog on the parcel shelf. ' + 'My sister' + ' named it.']) }); pickBox(r,'hs.car',frame.x,GY-70*frame.s,frame.z+40*frame.s,170*frame.s,120*frame.s,300*frame.s);
+    H.spot('hs.car', { label: "Dad's car", act: sayLines('hs.car', "Dad's car", ['Dad\'s car. Burgundy. It has a cassette player and a tin of travel sweets that are all stuck together.', 'Dad washes it every weekend "because it\'s a nice thing to do". It is never a nice thing to do.', 'There\'s a nodding dog on the parcel shelf. ' + 'My sister' + ' named it.']) }); pickBox(r,'hs.car',frame.x,GY-70*frame.s,frame.z+40*frame.s,170*frame.s,120*frame.s,300*frame.s);
     H.spot('hs.gate', { label: 'The front gate', act: sayLines('hs.gate', 'The front gate', ['The gate squeaks. Dad says he\'ll oil it. The gate has squeaked since 1991.', 'Beyond the gate: the street, the lamp-post, the postbox at the end. We don\'t go further than that today.']) }); pickBox(r, 'hs.gate', 290, GY - 40, FZ - 5, 84, 80, 20);
     H.spot('hs.lamppost', { label: 'The lamp-post', act: sayLines('hs.lamppost', 'The lamp-post', ['The lamp-post. Orange at night. Moths love it. We used it as the goal for about six years.']) }); pickBox(r, 'hs.lamppost', LAMP.x, GY - 260, LAMP.z, 18, 520, 18);
     H.spot('hs.bay', { label: 'The lounge window (from outside)', act: () => say('The bay window', 'The lounge. You can see the telly flickering through the nets. Mom twitches those nets at EVERYONE who walks past.') }); pickBox(r, 'hs.bay', -60, 225, 703, 236, 160, 6);
@@ -1280,23 +1286,63 @@
     // pavement (the far kerb is as far as we go today).
     H.walkRect('G', 124, 704, 716, STREET.pave[1] - 5, { room: 'drive' }); H.walkRect('G', -340, 704, 124, HEDGE[0] - 4, { room: 'drive' }); H.walkRect('G', -340, FZ - 20, 124, STREET.pave[1] - 5, { room: 'drive' }); H.walkRect('G', 262, 660, 338, 710, { door: 'front', room: 'drive' });
     H.block('G',-300,694,260,708);H.block('G',340,694,420,708); // no walking through front windows
-    H.block('G', frame.x - 91 * frame.s, frame.z - 205 * frame.s, frame.x + 91 * frame.s, frame.z + 205 * frame.s, H.solid ? { solid: false } : undefined); // Dad's car (both sides stay walkable)
+    const carBlock = H.block('G', frame.x - 91 * frame.s, frame.z - 205 * frame.s, frame.x + 91 * frame.s, frame.z + 205 * frame.s, { solid: false, off: !parked.present }); // Dad's car (both sides stay walkable)
     // Things: the car is solid around a hollow boot. With the lid up you can put things in on Dad's rug (the story's PC parts
     // ride there); a shut lid closes it. (The car used to be one solid block up to the roof: nothing could go in the boot.)
     if (H.solid) {
       const cs = frame.s, X = lx => frame.x + lx * cs, Z = lz => frame.z + lz * cs, kind = 'car';
-      H.solid('G', X(-91), Z(-121), X(91), Z(205), GY - frame.roof * cs, GY + 1, { kind }); // bonnet, cabin, roof (the 47 cm glasshouse)
-      H.solid('G', X(-91), Z(-205), X(91), Z(-121), GY - 23 * cs, GY + 1, { kind }); // the boot floor and what's under it
-      H.solid('G', X(-91), Z(-205), X(91), Z(-197), GY - 73 * cs, GY - 23 * cs, { kind, support: false }); // the rear valance
-      for (const sx of [-1, 1]) H.solid('G', X(sx < 0 ? -91 : 78.5), Z(-205), X(sx < 0 ? -78.5 : 91), Z(-121), GY - 75 * cs, GY - 23 * cs, { kind, support: false }); // the wheel-arch sides
-      H.solid('G', X(-79), Z(-197), X(79), Z(-121), GY - 79 * cs, GY - 23 * cs, { kind, support: false, when: () => !r.carBoot.open }); // the shut lid
+      H.solid('G', X(-91), Z(-121), X(91), Z(205), GY - frame.roof * cs, GY + 1, { kind, when: () => parked.present }); // bonnet, cabin, roof (the 47 cm glasshouse)
+      H.solid('G', X(-91), Z(-205), X(91), Z(-121), GY - 23 * cs, GY + 1, { kind, when: () => parked.present }); // the boot floor and what's under it
+      H.solid('G', X(-91), Z(-205), X(91), Z(-197), GY - 73 * cs, GY - 23 * cs, { kind, support: false, when: () => parked.present }); // the rear valance
+      for (const sx of [-1, 1]) H.solid('G', X(sx < 0 ? -91 : 78.5), Z(-205), X(sx < 0 ? -78.5 : 91), Z(-121), GY - 75 * cs, GY - 23 * cs, { kind, support: false, when: () => parked.present }); // the wheel-arch sides
+      H.solid('G', X(-79), Z(-197), X(79), Z(-121), GY - 81.5 * cs, GY - 76.5 * cs, { kind, when: () => parked.present && !r.carBoot.open }); // the 5 cm lid, leaving the storage space hollow
     }
     H.block('G', -360, HEDGE[0], FRONT_PIERS[0] - 16.5, FZ + 6); H.block('G', FRONT_PIERS[2] + 16.5, FZ - 16, 740, FZ + 6); // the front wall, with the hedge behind it
     for (const x of FRONT_PIERS) H.block('G', x - 16.5, FZ - 21.5, x + 16.5, FZ + 11.5);
     H.block('G', FRONT_PIERS[1] - 12, FZ - 104, FRONT_PIERS[1] - 6, FZ - 21.5); // the open gate leaf
     H.block('G', 716, 704, 740, FZ - 15); // next door's hedge
     H.block('G', LAMP.x - 16, LAMP.z - 14, LAMP.x + 16, LAMP.z + 14); // the lamp-post's base, now the whole pavement is walkable
-    H.support('drive',frame.x-58*frame.s,frame.z-96*frame.s,frame.x+58*frame.s,frame.z+60*frame.s,GY-frame.roof*frame.s); H.support('drive', 265, 708, 335, 752, GY - 2);
+    H.support('drive',frame.x-58*frame.s,frame.z-96*frame.s,frame.x+58*frame.s,frame.z+60*frame.s,GY-frame.roof*frame.s,{when:()=>parked.present}); H.support('drive', 265, 708, 335, 752, GY - 2);
+    // The shell, lid, contact shadow and picks leave together. The separate batch
+    // keeps scenery merging from baking the parked car permanently into the drive.
+    const carPick = H.SPOTS['hs.car'].obj;carGroup.add(carPick);
+    const carBounds = new T.Box3(), frustum = new T.Frustum(), projection = new T.Matrix4();
+    const nearCar = margin => H.W.lvl === 'G' && H.W.x > carBlock.x0-margin && H.W.x < carBlock.x1+margin && H.W.z > carBlock.z0-margin && H.W.z < carBlock.z1+margin;
+    const onScreen = () => {
+      if (!r.group.visible) return false;
+      carGroup.updateWorldMatrix(true,true);carBounds.setFromObject(carGroup);
+      H.camera.updateMatrixWorld();projection.multiplyMatrices(H.camera.projectionMatrix,H.camera.matrixWorldInverse);frustum.setFromProjectionMatrix(projection);
+      return frustum.intersectsBox(carBounds);
+    };
+    const bayOccupied = () => {
+      for(const c of Object.values(window.HouseFamily?.chars||{}))if(c.present&&c.lvl==='G'&&c.x>carBlock.x0-28&&c.x<carBlock.x1+28&&c.z>carBlock.z0-28&&c.z<carBlock.z1+28)return true;
+      for (const id in H.THINGS) {
+        const t=H.THINGS[id];if(t.at.room!=='drive'||t.at.hide||riding(t)||H.held()===id)continue;
+        const b=H.physics.body(id);if(!b?.active)continue;
+        if(b.ax1>carBlock.x0&&b.ax0<carBlock.x1&&b.az1>carBlock.z0&&b.az0<carBlock.z1&&b.y>GY-6)return true;
+      }
+      if(H.held()){const g=H.placement()?.aim;if(g?.room==='drive'&&g.x>carBlock.x0&&g.x<carBlock.x1&&g.z>carBlock.z0&&g.z<carBlock.z1)return true;}
+      return false;
+    };
+    const apply = present => {
+      parked.present=present;carGroup.visible=present;carBlock.off=!present;
+      for(const id of ['hs.car','hs.carboot'])H.SPOTS[id].off=!present;
+      // Dad shuts the lid before taking the car. The contents keep their own save records.
+      if(parked.travelled){r.carBoot.open=false;hinge.rotation.x=0;try{localStorage.setItem('jhp_car_boot','0')}catch{}}
+      for(const id in H.THINGS){const t=H.THINGS[id];if(riding(t))H.place(t);}
+      H._.rebuildGrids();H.physics.rebuild();window.NPCNav?.rebuild();H.softChanged('drive');H.dirty();
+    };
+    parked.update = () => {
+      const family=window.HouseFamily;if(!family||H.paused)return;
+      const present=!family.carAway,initial=!parked.known;parked.known=true;if(family.ready&&!present)parked.travelled=true;
+      if(present===parked.present)return;
+      if(!(initial&&(!H.live||window.AccountGate?.blocked))&&(onScreen()||nearCar(present?40:185)||(!present&&H.anims.has('story-car-boot'))))return;
+      // Wait for a clear parking space; never materialise a car on a person or their things.
+      if(present&&bayOccupied())return;
+      apply(present);
+    };
+    apply(parked.present);
+    let nextCar=0;H.ambient.add(now=>{if(now<nextCar)return false;nextCar=now+250;parked.update();return false;});
   }
 
   // ================================================================ the rooms, their lights, their views

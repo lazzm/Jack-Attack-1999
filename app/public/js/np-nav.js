@@ -22,7 +22,7 @@
     return g.walk.length + '|' + g.block.filter(b => !b.off).length + '|' + t.join(';');
   }
   function blocksFloor(o) { // things standing on a floor (furniture, a parcel, a dropped chair) block the way; small bits don't
-    if (!o || o.at.hide || !['rest', 'snap', 'fall'].includes(o.st) || H.held() === o.id) return false;
+    if (!o || o.at.hide || H.isAway(o) || !['rest', 'snap', 'fall'].includes(o.st) || H.held() === o.id) return false;
     const r = H.ROOMS[o.at.room]; if (!r || r.id === 'bedroom' && o.at.y < 60) { /* bedroom things count too */ }
     if (!r) return false;
     return !!o.obstacle && Math.abs(o.at.y - H.LV[r.lvl]) < 25; // the same things the player bumps into
