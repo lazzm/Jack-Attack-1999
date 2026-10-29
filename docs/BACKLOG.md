@@ -232,3 +232,5 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R117 (done 2.57.18) | bug | med | qa-play cutlery/boot regression, 28 October | Very flat props disappear beneath Dad's travel rug in the car boot and remain unpickable after refresh | Register the real cloth surface, including hidden-room restoration, without changing saved poses; verify real E/touch pickup and refresh |
 
 | R118 | art | high | qa-play/watering-done.png, manager review 29 October | First-person watering-can grips use hollow bounding-box corners: hands float beside the handle and spout | Next chore-feedback pass: real handle/body contact grips, desktop/phone pour and rotation captures |
+
+| R119 | ux | med | chore catalogue review, 29 October | Sweeping diary asks for a dustpan/dustbin that do not exist; the real broom empties into the garden sack | Correct the clue to the green garden sack by the hedge; chore IDs/payments unchanged |
