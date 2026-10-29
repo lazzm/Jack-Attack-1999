@@ -193,3 +193,8 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - Deployed2.57.21-261029040844: public health/home200, correct build, five-minute fatal/unhandled/mod-failure log counts0. Approved runtime voice hashes4/4 match root and served copy. Public read-only browser check running; then commit/push. Python’s default urllib client received403, while curl public checks200; no site change made for client filtering.
 
 - Public read-only browser check PASS for2.57.21: mandatory account form, no guest bypass, zero browser errors/warnings. All post-deploy checks accepted.
+
+## Table clearance candidate (R121),04:12 UTC
+- 2.57.21 shipped and pushed c686d2e, build2.57.21-261029040844. All post-deploy checks green, approved British hashes4/4 preserved.
+- Only active implementation branch: chores-table-clear, WT /opt/stacks/landing-table-clear. ch-kitchen.js moves the fixed bottle target to(-84,165), clear of pumpkin and all four settings. Corrects only old canonical completed/snap positions; loose placements and chore flags remain. Table redo retains true factory homes rather than completed table positions. No room geometry/save-version/server changes.
+- Focused tests/table-clear.mjs active /tmp/jhp-table-clear.log: actual13 E slots, old completed pose/progress, refresh, seasons, six sizes/three angles, owner redo and actual phone E. Shared placeChore helper accepts an optional placement-button driver. Smoke active /tmp/jhp-table-smoke.log, max2 heavy workers. Units/syntax/parody running. Need review captures, mobile full/tablet, then merge/gate/ship small22. Never deploy WT dependency symlinks or commit approved untracked voice files.

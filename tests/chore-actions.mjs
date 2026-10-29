@@ -1,6 +1,6 @@
 // Place through the actual production ghost and E control; never force a saved pose.
 import assert from 'node:assert/strict';
-export async function placeChore(f,id,sid){
+export async function placeChore(f,id,sid,{place}={}){
  const {page:p,until,view}=f;
   const s=await p.evaluate(sid=>{const s=House.SNAPS[sid];return{x:s.x,y:s.y,z:s.z,room:s.room}},sid);
   if(await p.evaluate(()=>!!House.held()))await p.evaluate(()=>House.putBack());
@@ -20,7 +20,7 @@ export async function placeChore(f,id,sid){
    for(let i=0;i<9;i++){
     const g=await p.evaluate(()=>{const g=House.ghost();return g&&{ok:g.ok,snap:g.snap?.id,why:g.why}});
     if(g?.snap===sid){
-     await p.keyboard.press('e');const deadline=Date.now()+30000;
+     if(place)await place();else await p.keyboard.press('e');const deadline=Date.now()+30000;
      while(Date.now()<deadline&&!await p.evaluate(id=>House.THINGS[id].st==='snap',id))await p.waitForTimeout(100);
      assert(await p.evaluate(({id,sid})=>House.THINGS[id].st==='snap'&&House.THINGS[id].snap===sid,{id,sid}),'Snap animation did not commit '+id);
      console.log('STORED',id,sid);return;

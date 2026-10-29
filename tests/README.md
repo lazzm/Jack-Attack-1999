@@ -465,3 +465,9 @@ before/after car washing, vacuum crumbs, leaf sweeping and a mown grass strip in
 `tests/shots/chore-feedback/`. It exercises production action callbacks and tool-head
 inputs. This is a rendered-feedback diagnostic, not a walking-reachability or wage
 audit; the normal smoke, story, physics and mobile suites cover their respective paths.
+
+`node tests/table-clear.mjs` uses disposable owner data to place all thirteen
+pieces through the real gold-slot/E path, then checks the old completed ketchup
+pose, refresh, seasonal clearance, six viewport sizes and three viewing angles.
+It also exercises owner redo and the phone's actual E button. Captures are in
+`tests/shots/table-clear/`; no production account or season progress is changed.

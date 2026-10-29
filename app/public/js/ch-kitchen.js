@@ -200,6 +200,8 @@
 
   // ================================================================ LAY THE TABLE
   const TY = GY - 76; // the table top
+  // Clear of all four place settings and the seasonal carving pumpkin.
+  const SAUCE = {room: 'kitchen', x: -84, y: TY, z: 165, ry: 0};
   // each place: its mat [x, z, w, d], the plate, the knife and fork [x, z, ry], the glass
   const PLACES = [
     // (each mat sits 3.5 cm in from the rounded table edge, not hanging over it)
@@ -209,7 +211,7 @@
     { mat: [-15.5, 150, 22, 36], p: [-15.5, 156], k: [-15.5, 139, 90], g: [-28.5, 140] },
   ];
   const placeOf = (P, k) => ({ x: P[k][0], z: P[k][1] });
-  const tbl = { p: [], k: [], g: [], sauce: null };
+  const tbl = { p: [], k: [], g: [], sauce: null }, tableHomes = {};
   CK.add({
     id: 'table', room: 'kitchen',
     build(r) {
@@ -238,6 +240,7 @@
       const ketchup = grp(G => { G.lathe(0, 0, 0, [[0.1, -19], [1.6, -18.6], [1.8, -16], [3.6, -12.5], [3.8, -3], [3.4, 0], [0.1, 0]], 18, M({ c: '#c8100a', sh: 90, sp: '#fff' })); G.cyl(0, -19.5, 0, 1.4, 1.6, 1.6, 12, mat('#f4f4f4')); G.cyl(0, -8, 0, 3.86, 3.86, 7, 18, M({ c: '#fff', map: K.tex('ch.ketchup', 128, 48, flip((g, w, h) => { g.fillStyle = '#f4f0e0'; g.fillRect(0, 0, w, h); A.text(g, 'TOMATO', 64, 22, '700 15px ' + A.FONT, '#c8100a', 'center'); A.text(g, 'KETCHUP', 64, 42, '700 15px ' + A.FONT, '#1a6a1a', 'center'); })) }), { open: true }); G.shadow(0, 0, 0, 10, 10, 0.4); });
       tbl.sauce = CK.thing('ch.t.sauce', { obj: ketchup, kind: 'sauce', label: 'Ketchup', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -168, y: WT, z: -20, ry: 0 } });
       if(!CK.has('table','sauce'))updateFactoryPose(tbl.sauce,[-156,WT,4,0]);
+      for (const t of [...tbl.p, ...tbl.k, ...tbl.g, tbl.sauce]) tableHomes[t.id] = Object.assign({}, t.home);
       // where they go
       PLACES.forEach((P, i) => {
         for (const [k, kind, n] of [['p', 'tplate', 'a plate'], ['k', 'tcut', 'the knife and fork'], ['g', 'tglass', 'a glass']]) {
@@ -245,15 +248,24 @@
           CK.snap('ch.s.t' + k + i, { room: 'kitchen', x: q.x, y: TY - (k === 'g' ? 6 : 2), z: q.z, r: k === 'p' ? 22 : 16, ry: kr, box: k === 'p' ? [24, 1.5, 24] : k === 'k' ? [8, 1.5, 20] : [8, 1.5, 8], accepts: kk => kk === kind && !CK.has('table', k + i), pose: { x: q.x, y: TY - (k === 'g' ? 0 : 0.7), z: q.z, ry: kr }, hint: 'Let go: ' + n + ' for ' + ['Dad', 'Mom', CK.cast('{sister}'), 'me'][i], onSnap: t => { CK.snd.clink(); CK.lock(t.id); t.home = Object.assign({}, t.at); CK.keep(t.id); CK.step('table', k + i); } });
         }
       });
-      CK.snap('ch.s.sauce', { room: 'kitchen', x: -54, y: TY - 8, z: 172, r: 20, box: [10, 1.5, 10], accepts: k => k === 'sauce', pose: { x: -54, y: TY, z: 172, ry: 0 }, hint: 'Let go: ketchup in the middle', onSnap: t => { CK.snd.thud(); CK.lock(t.id); t.home = Object.assign({}, t.at); CK.keep(t.id); CK.step('table', 'sauce'); CK.secret('ch.ketchup'); CK.jack('Ketchup', 'Ketchup in the middle. Dad will put it on EVERYTHING. Including the trifle, probably.', 3500); } });
+      CK.snap('ch.s.sauce', { room: 'kitchen', x: SAUCE.x, y: TY - 8, z: SAUCE.z, r: 20, box: [10, 1.5, 10], accepts: k => k === 'sauce', pose: Object.assign({}, SAUCE), hint: 'Let go: ketchup on the table', onSnap: t => { CK.snd.thud(); CK.lock(t.id); t.home = Object.assign({}, t.at); CK.keep(t.id); CK.step('table', 'sauce'); CK.secret('ch.ketchup'); CK.jack('Ketchup', 'Ketchup in the middle. Dad will put it on EVERYTHING. Including the trifle, probably.', 3500); } });
       this.sync();
     },
     sync() {
       const lockIf = (t, s) => { if (!t) return; if (CK.has('table', s)) CK.lock(t.id); };
       ['p', 'k', 'g'].forEach(k => tbl[k].forEach(t => { if (t && CK.S.at[t.id] && Object.keys(CK.S.prog.table || {}).length && isPlaced(t)) CK.lock(t.id); }));
-      lockIf(tbl.sauce, 'sauce');
+      const t = tbl.sauce;
+      // Old completed jobs restore as rest objects. Move only the former fixed
+      // table position, leaving loose bottles and every progress flag intact.
+      if (t && ['rest', 'snap'].includes(t.st) && t.at.room === 'kitchen' && !t.at.hide &&
+          (t.snap === 'ch.s.sauce' || CK.has('table', 'sauce') && Math.abs(t.at.x + 54) < .11 && Math.abs(t.at.z - 172) < .11 && Math.abs(t.at.y - TY) < .11)) {
+        const moved = ['x', 'y', 'z', 'ry'].some(k => Math.abs((t.at[k] || 0) - SAUCE[k]) > .01);
+        if (moved) { Object.assign(t.at, SAUCE); H.place(t); H.layerFor(t); CK.keep(t.id); }
+        t.home = Object.assign({}, SAUCE);
+      }
+      lockIf(t, 'sauce');
     },
-    reset() { ['p', 'k', 'g'].forEach(k => tbl[k].forEach(t => t && (CK.lock(t.id, false), CK.home(t.id)))); if (tbl.sauce) { CK.lock(tbl.sauce.id, false); CK.home(tbl.sauce.id); } },
+    reset() { for (const t of [...tbl.p, ...tbl.k, ...tbl.g, tbl.sauce]) if (t) { t.home = Object.assign({}, tableHomes[t.id]); CK.lock(t.id, false); CK.home(t.id); } },
   });
   const isPlaced = t => Math.abs(t.at.y - TY) < 1.5 && t.at.x > -125 && t.at.x < 5 && t.at.z > 125 && t.at.z < 215;
   CK.whenBuilt('kitchen', () => CK.guard('hs.ktable', () => { if (CK.done('table')) return false; CK.jack('The kitchen table', CK.started('table') ? 'Plate in the middle of each mat, knife and fork by it, a glass. Ketchup in the middle.' : 'Tea\'s at six. The plates, knives and forks and glasses are on the worktop by the kettle. Four of everything.', 4000); return true; }));
