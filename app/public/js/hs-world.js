@@ -924,7 +924,9 @@
     _ho.set(e[12], e[13], e[14]).applyMatrix4(_hmi);
     const w = x1 - x0, h = y1 - y0, ocx = (x0 + x1) / 2 - _ho.x, ocy = (y0 + y1) / 2 - _ho.y, ocz = (z0 + z1) / 2 - _ho.z;
     // (the carry panel only matters where it is under the middle of the view: on a desktop it sits in the corner)
-    const panel = carryPanel(now), ghost = ghostRect(), mid = panel && panel.l < 0.62 && panel.r > 0.38, low = Math.min(HOLD.low, mid ? panel.top - HOLD.pad : 1), top0 = 0.5 + HOLD.gap;
+    const panel = carryPanel(now), ghost = ghostRect(), mid = panel && panel.l < 0.62 && panel.r > 0.38, top0 = 0.5 + HOLD.gap;
+    // Touch captions sit above the crosshair. They must not push the hands up; leave room below for thumb buttons.
+    const low = Math.min(window.GameInput?.touch ? 0.78 : HOLD.low, mid && panel.top > top0 ? panel.top - HOLD.pad : 1);
     // how far out you hold it: chosen once per grip from its size (and the view), so it never changes size in your hands.
     // A game case occupies about 12% of the view's height. The real object and real hands share this pose, with no
     // rescaling; larger things reach the distance limit and run off the bottom. Tiny props retain a minimum distance.
