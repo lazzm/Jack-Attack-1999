@@ -1947,7 +1947,16 @@
   function tvPose(con) {
     // Fit the whole portable set, including its bezel, in either orientation.
     const aspect = innerWidth / innerHeight, fov = H.camera.fov * D2R / 2;
-    if (con === 'sn') return {x:368,y:291,z:350,rx:-6,ry:-18,lvl:'G',seat:1};
+    if (con === 'sn') {
+      const screen=H.ROOMS.cupboard.cupScreen;screen.updateWorldMatrix(true,false);
+      const v=screen.getWorldPosition(new T.Vector3()),n=new T.Vector3(0,0,1).transformDirection(screen.matrixWorld);
+      const touch=navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches,portrait=innerHeight>=innerWidth;
+      const side=touch&&!portrait?170:8,bottom=touch&&portrait?160:8,top=touch?58:52;
+      const aw=Math.max(.2,(innerWidth-side*2)/innerWidth),ah=Math.max(.2,(innerHeight-top-bottom)/innerHeight);
+      const d=Math.max(14/(Math.tan(fov)*ah*.84),17/(Math.tan(fov)*aspect*aw*.84));
+      const x=v.x+n.x*d,y=-v.y-n.y*d,z=v.z+n.z*d,off=(bottom-top)*d*Math.tan(fov)/innerHeight;
+      return {x,y,z,rx:-Math.atan2(-v.y+off-y,Math.hypot(v.x-x,v.z-z))/D2R,ry:Math.atan2(v.x-x,-(v.z-z))/D2R,lvl:'G',seat:1};
+    }
     if (con === 'gb') {
       if (gbPlay) return gbPlay.view;
       const a = H.THINGS.gb.at, yaw = (a.ry || 0) * D2R;
