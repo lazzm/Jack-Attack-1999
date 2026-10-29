@@ -808,7 +808,7 @@
     C.decal(0, -h - K.SURFACE_LIFT, 0, w - 1.6, d - 1.6, M({ c: '#fff', map: tex(top) }), { rx: 90 });
     const slotY = y - h - 0.24;
     R.consoles = R.consoles || {};
-    const machine = R.consoles[id] = { obj: g, x, baseY:y, portX:x-w*.29, y: slotY, z: z - 1, disc: CAT.CONSOLES[id].media === 'disc' };
+    const machine = R.consoles[id] = { obj: g, x, w, h, d, baseY:y, portX:x-w*.29, y: slotY, z: z - 1, disc: CAT.CONSOLES[id].media === 'disc' };
     if (machine.disc) {
       C.cyl(0, -h - 0.14, -1, 6.8, 6.8, 0.2, 40, M('#292a2d'));
       C.cyl(0, -h - 0.28, -1, 0.7, 0.7, 0.4, 12, M('#777b80'));
@@ -846,7 +846,7 @@
     if(mediaThings._ready) consoleMediaSlot(id,machine);
   }
   function consoleConnected(id) {
-    return hasConsole(id)&&(!sparseStarter||id==='gb'||H.THINGS[id]?.st==='snap'&&H.THINGS[id]?.snap==='hardware.dock.'+id);
+    return hasConsole(id)&&(id==='sn'||!sparseStarter||id==='gb'||H.THINGS[id]?.st==='snap'&&H.THINGS[id]?.snap==='hardware.dock.'+id);
   }
   function hardwareWiring(id) {
     const c=R.consoles?.[id];if(!c||!sparseStarter)return;
@@ -1677,8 +1677,8 @@
     pcModel(L, r);
     pickBox(r, 'pc.power', L.tx, -19.7, L.tz + 19, 6.5, 6.5, 2); H.spot('pc.power', { label: () => H.stood ? 'Power button (no! sit down instead)' : 'Power button', range: 400, act: () => { if (H.stood) return H.sitDown(); if (H.live) pb.querySelector('.powerbtn').click(); } });
     // click targets on the tower's front (boot.js's PC itself takes no clicks)
-    pickBox(r, 'pc.cdej', L.tx + 6.5, -37.4, front + 0.6, 4, 2, 1.4); H.spot('pc.cdej', { label: 'CD eject button', range: 200, act: () => trayMove(!drv.cd.open) });
-    pickBox(r, 'pc.cdtray', L.tx, -39.2, front + 0.4, 16, 2.4, 1.2); H.spot('pc.cdtray', { label: 'CD-ROM drive', range: 200, act: () => trayMove(!drv.cd.open) });
+    pickBox(r, 'pc.cdej', L.tx + 6.5, -37.4, front + 0.6, 4, 2, 1.4); H.spot('pc.cdej', { label: 'CD eject button', range: 200, act: () => {if(!window.HouseCases?.eject('pc.cd'))trayMove(!drv.cd.open)} });
+    pickBox(r, 'pc.cdtray', L.tx, -39.2, front + 0.4, 16, 2.4, 1.2); H.spot('pc.cdtray', { label: 'CD-ROM drive', range: 200, act: () => {if(!window.HouseCases?.eject('pc.cd'))trayMove(!drv.cd.open)} });
     pickBox(r, 'pc.fdd', L.tx, -30, front + 0.4, 11, 3, 1.2); H.spot('pc.fdd', { label: 'Floppy drive', range: 200, act: () => { if (drv.floppy.thing) ejectFloppy(); else say('Floppy drive', 'A 1.44MB floppy drive. Pick up a floppy disk and put it in.'); } });
     pickBox(r, 'pc', L.mx, -24, -6, 38, 38, 22); H.spot('pc', { label: () => H.stood ? 'The PC (sit down)' : 'The PC', range: 400, act: () => { if (H.stood) return H.sitDown(); if (!H.live) return; const pw = pb.querySelector('.powerbtn'); if (pw) return pw.click(); H.glideTo(H.seatPose, { ms: 900, done: () => H.setWalkFrom(Object.assign({ seat: 1, lvl: 'U' }, H.seatPose())) }); say('The family PC', 'Press the power button on the tower to switch it on. (The big one. NOT Reset.)', 5000); } });
     pickBox(r, 'pc.tower', L.tx, -21, L.tz, 20, 42, 34); H.spot('pc.tower', { label: () => H.stood ? 'The PC (sit down)' : 'The PC', range: 400, act: () => H.act('pc') });
@@ -1877,15 +1877,12 @@
   const objMatrix = o => new T.Matrix4().compose(o.position, o.quaternion, o.scale);
   const relTo = (p, m) => camRoot(p).invert().multiply(m);
   function gbPlayPose(view) {
-    // the glass (4.6 x 4.14 cm, centred 3.5 cm up the body) fills ~58% of the height, or ~76% of a narrow width
+    // Frame the complete handheld, including its moulded controls, on every device.
     const t = Math.tan(H.motion.lensFov(view.zm) * D2R / 2), aspect = innerWidth / innerHeight;
-    // A portrait touchscreen frames the whole handheld (screen AND its moulded buttons, which are the touch controller:
-    // js/rm-tv.js gbTouch); otherwise the glass fills the view and the pad (or the keys) does the rest.
-    const whole = !!window.GameInput?.touch && innerHeight > innerWidth * 1.1;
-    const d = whole ? Math.max(7.1 / (0.86 * t), 4.1 / (0.9 * t * aspect), 6.5) : Math.max(2.07 / (0.58 * t), 2.3 / (0.76 * t * aspect), 6.5);
+    const d = Math.max(7.1 / (0.86 * t), 4.1 / (0.9 * t * aspect), 6.5);
     const q = new T.Quaternion().setFromEuler(new T.Euler(-80 * D2R, -view.ry * D2R, 0, 'YXZ'));
     const a = view.ry * D2R, b = (view.rx || 0) * D2R, f = new T.Vector3(Math.sin(a) * Math.cos(b), -Math.sin(b), -Math.cos(a) * Math.cos(b));
-    const glass = (whole ? new T.Vector3(0, -2.6, 0.2) : new T.Vector3(0, -2.97, -3.5)).applyQuaternion(q);
+    const glass = new T.Vector3(0, -2.6, 0.2).applyQuaternion(q);
     const pos = new T.Vector3(view.x, view.y, view.z).addScaledVector(f, d).sub(glass);
     return relTo(view, new T.Matrix4().compose(pos, q, new T.Vector3(1, 1, 1)));
   }
@@ -1945,6 +1942,7 @@
   function tvPose(con) {
     // Fit the whole portable set, including its bezel, in either orientation.
     const aspect = innerWidth / innerHeight, fov = H.camera.fov * D2R / 2;
+    if (con === 'sn') return {x:368,y:291,z:350,rx:-6,ry:-18,lvl:'G',seat:1};
     if (con === 'gb') {
       if (gbPlay) return gbPlay.view;
       const a = H.THINGS.gb.at, yaw = (a.ry || 0) * D2R;
@@ -1961,7 +1959,7 @@
     const loaded = inserted(con); gameId = gameId || (loaded && loaded.gameId);
     if (con !== 'gb') lastCon = con;
     H.hush();
-    const go = () => { RoomTV.open(con, con === 'gb' ? rectOf(H.THINGS.gb.obj) : rectOf(R.tvScreen), { restoring: !!resume }); if (gameId) RoomTV.playPhysical(gameId); };
+    const go = () => { RoomTV.open(con, con === 'gb' ? rectOf(H.THINGS.gb.obj) : rectOf(con==='sn'?H.ROOMS.cupboard.cupScreen:R.tvScreen), { restoring: !!resume }); if (gameId) RoomTV.playPhysical(gameId); };
     const ready = () => window.RoomTV ? Promise.resolve() : (tvLoad = tvLoad || loadJs('js/rm-tv.js'));
     const grip=con==='gb'?H.suspendGrip('gb'):null;
     if(H.held())(H.setAside||H.putBack)();
@@ -2055,7 +2053,7 @@
   }
   function hifi() { ensureHiFi().then(player=>player?.use(),()=>toast('Hi-fi','Could not load the CD player. Click again to retry.')); }
   function rackNote() {
-    say('Console game shelf','These are physical game cases. E / Click picks one up; place it off the shelf, then F opens it. E takes the disc or cartridge. Audio CDs live on the wooden games shelf beside the TV and play in the hi-fi.',8500);
+    say('Console game shelf','E / Click picks up a filled case. Aim at its highlighted console and press E: the game goes in and the empty case parks beside it. E at the console returns the game to its case. F reads the cover. Audio CDs live on the wooden shelf beside the TV.',8500);
   }
 
   // ================================================================ the treasure tin on the HUD
@@ -2301,13 +2299,32 @@
     if(!mediaSlotSave){const saved=caseStore.get();mediaSlotSave=saved&&typeof saved==='object'&&!Array.isArray(saved)?saved:{};const used=new Set();for(const [id,n] of Object.entries(mediaSlotSave)){if(!CAT.GAME[id]||!Number.isInteger(n)||n<0||n>=20||used.has(n))delete mediaSlotSave[id];else used.add(n)}}
     if(!Number.isInteger(mediaSlotSave[g.id])){const used=new Set(Object.values(mediaSlotSave)),n=Array.from({length:20},(_,i)=>(i%5)*4+Math.floor(i/5)).find(n=>!used.has(n));if(n==null)return null;mediaSlotSave[g.id]=n;caseStore.save()}return mediaSlotSave[g.id];
   }
+  function consoleCasePark(id){
+    if(id==='sn')return{room:'cupboard',x:379,y:353,z:345,ry:0};
+    if(id==='gb'){
+      const a=H.THINGS.gb.at;if(a.room==='bedroom')return{room:'bedroom',x:-68,y:0,z:-22,ry:0};
+      const r=H.ROOMS[a.room],lvl=r?.lvl||'G';for(const [dx,dz]of [[18,0],[-18,0],[0,18],[0,-18]])if(H._.cellOk(lvl,a.x+dx,a.z+dz))return{room:a.room,x:a.x+dx,y:H.LV[lvl],z:a.z+dz,ry:0};
+      return{room:a.room,x:a.x+18,y:H.LV[lvl],z:a.z,ry:0};
+    }
+    const c=R.consoles[id];return{room:'bedroom',x:TX+(c.x<TX?-2.1:1.1),y:c.baseY,z:c.z,ry:90};
+  }
+  function snMediaReady(){
+    const r=H.ROOMS.cupboard;if(!r?.built||!r.snesObj||H.SNAPS['console.sn'])return;
+    const a=15*D2R;R.consoles=R.consoles||{};const c=R.consoles.sn={obj:r.snesObj,x:352-Math.sin(a),y:316.5,z:340-Math.cos(a),ry:15,baseY:325,disc:false};
+    K.into(r.snesObj).rbox(0,-36.2,-1,10.5,.35,2.8,.1,M('#292a30'));
+    consoleMediaSlot('sn',c);H.SPOTS.snes.remove=()=>ejectMedia('sn');H.SPOTS.snes.act=()=>inserted('sn')?tvOpen('sn'):toast('Super Ultra','Pick up a filled game case from beside the console, then E at its highlighted slot.');
+  }
   function addMediaBox(g,con){
-    const n=boxSlot(g);if(n==null)return null;
-    const pose=rackPose(n),id='media.box.'+g.id;
-    const box=Room.grabbable(id,{obj:mediaCaseModel(g,con),kind:'console-case',gameId:g.id,label:g.title+(con.media==='disc'?' — jewel case':' — game box'),home:Object.assign({},pose,{snap:'media.slot.'+n}),holdD:38,useLabel:'Open / close case',
+    const snGame=g.con==='sn',n=snGame?CAT.GAMES.filter(x=>x.con==='sn').indexOf(g):boxSlot(g);if(n==null)return null;
+    const pose=snGame?{room:'cupboard',x:385+n*4,y:353,z:370,ry:90}:rackPose(n),id='media.box.'+g.id;
+    if(snGame&&!H.ROOMS.cupboard?.built)return null;
+    HouseCases.parking('console.'+g.con,consoleCasePark(g.con));
+    const rackId=snGame?'media.sn.slot.'+n:'media.slot.'+n;
+    if(snGame&&!H.SNAPS[rackId])Room.addSnap(rackId,{...pose,r:25,pose:{...pose},box:[4,13,14],accepts:(kind,t)=>t?.id===id&&inOwnCase(g.id),hint:'Put the filled case back with the old games'});
+    const box=Room.grabbable(id,{obj:mediaCaseModel(g,con),kind:'console-case',gameId:g.id,label:g.title+(con.media==='disc'?' — jewel case':' — game box'),home:Object.assign({},pose,{snap:rackId}),holdD:38,useLabel:'Read the case',
       onGrab:()=>caseLid(box,false),
       canPlace:target=>{if(!inOwnCase(g.id)&&target.room==='bedroom'&&target.z< -26&&Math.abs(target.x-(TX-56))<21){H.toast(g.title,'Return its '+(con.media==='disc'?'disc':'cartridge')+' before putting the case on the shelf.');return false}return true},
-      use:()=>{if(H.held()===id){H.toast(g.title,'E / Click: place the case on the floor or a surface first. Then F opens it.');return}if(onMediaRack(box)){H.toast(g.title,'E: pick up the case. Place it down off the shelf, then F opens it.');return}caseLid(box,!box.caseOpen);H.saveThings()}});
+      use:()=>{if(!HouseCases.busy)H.inspect(id)}});
     mediaBoxes[g.id]=box;
     const sn=Room.addSnap('media.case.'+g.id,{room:'bedroom',x:pose.x,y:pose.y-6,z:pose.z,r:26,box:[14,12,2],pose:Object.assign({},pose),hide:true,accepts:(kind,t)=>t?.id==='media.'+g.id,enabled:()=>['rest','snap'].includes(box.st)&&!box.at.hide,hint:'Return to its own '+(con.media==='disc'?'jewel case':'game box'),onSnap:()=>caseLid(box,false)});
     const follow=()=>{
@@ -2326,6 +2343,7 @@
     H.on('tidy',rid=>{if(rid&&rid!=='bedroom')return;for(const box of Object.values(mediaBoxes))caseLid(box,false);const v=window.RoomTV?._dbg();if(v?.gid&&mediaThings[v.gid]?.snap!=='console.'+v.con)RoomTV.stopPhysical(v.con);});
   }
   function ejectMedia(con) {
+    if(window.HouseCases?.eject('console.'+con))return;
     const t = inserted(con); if (!t) return;
     lidSet(con, true);
     // The grab API owns unsnapping, visibility, rotation and persistence.
@@ -2334,22 +2352,23 @@
   function consoleMediaSlot(id,c) {
       if(H.SPOTS[id])H.SPOTS[id].remove=()=>inserted(id)?ejectMedia(id):sparseStarter?H.grab(id):H.toast(CAT.CONSOLES[id].n,'No game is inserted. F plays / uses it; E removes media.');
       Room.addSnap('console.' + id, { x: c.x, y: c.y, z: c.z, r: 14, box: c.disc ? [12, 0.4, 12] : [10, 4, 3],
-        pose: { x: c.x, y: c.y + (c.disc ? -0.14 : 1), z: c.z + (c.disc ? 6 : 0), ry: 0, rx: c.disc ? 90 : 0 }, hide: c.disc,
-        accepts: (kind, t) => kind===(c.disc?'console-disc':'cart')&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === id), enabled: () => consoleConnected(id)&&!inserted(id),
+        pose: { x: c.x, y: c.y + (c.disc ? -0.14 : 1), z: c.z + (c.disc ? 6 : 0), ry: c.ry||0, rx: c.disc ? 90 : 0 }, hide: c.disc,
+        accepts: (kind, t) => kind==='console-case'?HouseCases.accepts(t.id,'console.'+id):kind===(c.disc?'console-disc':'cart')&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === id), onBegin:t=>{if(t.kind==='console-case'){HouseCases.insert(t.id);return false}return true}, enabled: () => consoleConnected(id)&&!inserted(id),
         hint: 'Click/E to insert into the ' + CAT.CONSOLES[id].n,
-        onSnap: t => { lidSet(id, false); tvOpen(id, t.gameId); }, onUnsnap: () => {lidSet(id, true); if (window.RoomTV) RoomTV.stopPhysical(id);} });
+        onSnap: t => { HouseCases.reconcile();lidSet(id, false); tvOpen(id, t.gameId); }, onUnsnap: () => {lidSet(id, true); if (window.RoomTV) RoomTV.stopPhysical(id);} });
   }
   function mediaShelf() {
     if (mediaThings._ready) {mediaThings.sync?.();return;}
     mediaThings._ready = 1;
-    const games = CAT.GAMES.filter(g => !CAT.CONSOLES[g.con].away);
+    const games = CAT.GAMES.slice();
     rackSlots();
     const owns = g => isOut(g.from || CAT.CONSOLES[g.con].from) && gameOwned(g);
     for (const [id,c] of Object.entries(R.consoles || {})) consoleMediaSlot(id,c);
     const gb = H.THINGS.gb;
     const gbSlot = Room.addSnap('console.gb', { x: 0, y: 0, z: 0, r: 10, box: [5.5, 1, 2], pose: {},
-      accepts: (kind, t) => kind==='cart'&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === 'gb'),
-      enabled: () => (gb.st === 'rest' || gb.st === 'snap') && !inserted('gb'), hint: 'Click/E to insert into the Game Lad', onSnap: t => tvOpen('gb', t.gameId),
+      accepts: (kind, t) => kind==='console-case'?HouseCases.accepts(t.id,'console.gb'):kind==='cart'&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === 'gb'),
+      onBegin:t=>{if(t.kind==='console-case'){HouseCases.insert(t.id);return false}return true},
+      enabled: () => (gb.st === 'rest' || gb.st === 'snap') && !inserted('gb'), hint: 'Click/E to insert into the Game Lad', onSnap: t => {HouseCases.reconcile();tvOpen('gb', t.gameId)},
       onUnsnap: t => {t.frontAnchor=null;if (window.RoomTV) RoomTV.stopPhysical('gb');} });
     const slotLocal=new T.Matrix4().makeRotationX(-Math.PI/2);slotLocal.setPosition(0,.28,-6.5);
     const slotMatrix=new T.Matrix4(),slotPos=new T.Vector3(),slotQ=new T.Quaternion(),slotScale=new T.Vector3(),slotRotation=new T.Euler(),slotPrevious=new Float64Array(16);
@@ -2373,6 +2392,10 @@
         kind: con.media === 'disc' ? 'console-disc' : 'cart', label: `${g.title} (${con.n})`, gameId: g.id,
         home, holdD: 34 });
       mediaThings[g.id] = t;
+      HouseCases.register({box,medium:t,slot:'console.'+g.con,homeSlot:shelf,park:()=>consoleCasePark(g.con),enabled:()=>consoleConnected(g.con)&&!inserted(g.con),
+        lid:k=>{box.obj.userData.mediaCase.lid.rotation.y=-115*D2R*k},openState:open=>{box.caseOpen=open;openCases[g.id]=open;try{localStorage.setItem('jhp_console_open',JSON.stringify(openCases))}catch(e){}},
+        afterInsert:()=>{lidSet(g.con,false);tvOpen(g.con,g.id)},commitEject:()=>H.SNAPS['console.'+g.con]?.onUnsnap?.(t)});
+
       // Migrate only the previous assigned rack location; retain loose media
       // elsewhere and anything already inserted into a running console.
       const old=games.indexOf(g),oldX=TX-66.5+(old%4)*7,oldY=7+Math.floor(old/4)*15;
@@ -2380,7 +2403,8 @@
       if(openCases[g.id]&&!onMediaRack(box))caseLid(box,true);
       if (t.st === 'snap' && t.snap === 'console.' + g.con) { const c = R.consoles?.[g.con]; if (c && c.lid) c.lid.rotation.x = 0; }
     };
-    mediaThings.sync=()=>games.forEach(add);
+    mediaThings.sync=()=>{snMediaReady();games.forEach(add)};
+    H.on('built',id=>{if(id==='cupboard')mediaThings.sync()});
     mediaThings.sync();
     (EVS.find = EVS.find || []).push(id => { if (id && id.startsWith('cart.')) { const g = CAT.GAME[id.slice(5)]; if (g) add(g); } });
     if (window.PM && PM.on) PM.on('change', () => games.forEach(add));
@@ -2472,7 +2496,8 @@
     },
     addSnap(id, def) { return H.snap(id, Object.assign({ room: 'bedroom' }, def)); },
     drive: name => { const d = drv[name]; return d ? { open: !!d.open, thing: d.thing } : null; },
-    eject: name => { if (name === 'cd') trayMove(!drv.cd.open); else if (name === 'floppy') ejectFloppy(); },
+    driveTray: open => trayMove(open),
+    eject: name => { if(name==='cd'&&window.HouseCases?.eject('pc.cd'))return;if (name === 'cd') trayMove(!drv.cd.open); else if (name === 'floppy') ejectFloppy(); },
     held: () => H.held(), tidy: rid => H.tidy(rid || 'bedroom'),
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); if (['grab', 'place', 'snap', 'unsnap'].includes(ev)) H.on(ev, fn); },
     say, toast, look(n) { const i = STN[n]; if (i != null) H.goStation(i); }, get station() { const i = H._.stIdx; return (room.stations[i] || {}).id || ''; },

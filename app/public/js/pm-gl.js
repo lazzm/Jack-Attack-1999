@@ -258,7 +258,7 @@
   function shelfNote() {
     secret('disc.cupboard');
     const n = PM.items().filter(x => x.kind !== 'floppy').length;
-    say('My games shelf', `${n} games, CDs and mags. Click to pick one up; <b>F</b> opens it. Point at an unassigned gap and release to make it that item's new home. Marked slots stay reserved for their games. Return loose discs to their own cases first. Tidying keeps your arrangement. <button type="button" class="pm-tidy-shelf">Put everything back</button>${PM.parcels().length ? ' <b>There\'s a parcel on the floor!</b>' : ''}`, 12000);
+    say('My games shelf', `${n} games, CDs and mags. E picks up a filled case; E at the highlighted PC drive inserts its disc and parks the case. F reads the cover. Point at an unassigned gap and release to make it that item's new home. Marked slots stay reserved for their games. Return loose discs to their own cases first. Tidying keeps your arrangement. <button type="button" class="pm-tidy-shelf">Put everything back</button>${PM.parcels().length ? ' <b>There\'s a parcel on the floor!</b>' : ''}`, 12000);
     const button = document.querySelector('.pm-tidy-shelf');
     if (button) button.addEventListener('click', ev => {ev.stopPropagation(); Room.tidy(); H.hush();});
   }
@@ -369,6 +369,7 @@
   }
   function caseThing(it, home) {
     const id = tb(it.id); THING[id] = it.id;
+    if(it.disc&&it.kind!=='mag'&&it.kind!=='cart')HouseCases.parking('pc.cd',{room:'bedroom',x:-63,y:0,z:-42,ry:90});
     if (H.THINGS[id]) return H.THINGS[id];
     const obj = (MODEL[it.kind] || jewel)(it);
     // Every face is prepared before the first grab, not swapped in while it is in your hands.
@@ -383,8 +384,8 @@
     const hasDisc = !!it.disc && it.kind !== 'cart';
     const t = R.grabbable(id, { obj, kind: it.kind === 'mag' ? 'reading.mag' : it.kind === 'cart' ? 'cart' : 'case', label: it.kind === 'mag' ? `JACK ATTACK! ${PM.MONTHS[it.m - 1]} (cover CD taped on)` : it.title,
       home: Object.assign({ room: 'bedroom' }, home), holdD: it.kind === 'box' ? 52 : 40,
-      use: it.id === 'pm.netplanet' ? () => { secret('pm.coaster'); say('A coaster!', 'Perfect. A coaster for my squash. That\'s what these are for. (I have nine.) Mom says it\'s "not a coaster, it\'s litter".', 5000); } : hasDisc ? () => takeDisc(it) : it.kind === 'cart' ? () => say(it.title, 'It\'s a cartridge. It goes in an ULTRA 64, not the PC. ({mate2} says if you blow on it, it\'ll go in the CD tray. {mate2} is wrong.)') : null,
-      useLabel: it.id === 'pm.netplanet' ? 'Use it as a coaster' : it.kind === 'mag' ? 'Peel the CD off' : it.kind === 'sleeve' ? 'Slide the disc out' : 'Take the disc out',
+      use: it.id === 'pm.netplanet' ? () => { secret('pm.coaster'); say('A coaster!', 'Perfect. A coaster for my squash. That\'s what these are for. (I have nine.) Mom says it\'s "not a coaster, it\'s litter".', 5000); } : hasDisc ? () => it.kind==='mag'?takeDisc(it):H.inspect(id) : it.kind === 'cart' ? () => say(it.title, 'It\'s a cartridge. It goes in an ULTRA 64, not the PC. ({mate2} says if you blow on it, it\'ll go in the CD tray. {mate2} is wrong.)') : null,
+      useLabel: it.id === 'pm.netplanet' ? 'Use it as a coaster' : it.kind === 'mag' ? 'Peel the CD off' : 'Read the case',
       onGrab: () => { if (it.kind === 'box') { secret('pm.shelf'); secret('disc.cupboard'); } if (obj.userData.lazy) { obj.userData.lazy(); obj.userData.lazy = null; bump(it.id); } const b = obj.userData.back; if (b) { obj.userData.back = null; try { const mesh = obj.children.find(m => m.isMesh && Array.isArray(m.material)); if (mesh) { mesh.material = mesh.material.slice(); mesh.material[5] = b(); if (obj.userData.edges) { const [r, u] = obj.userData.edges(); mesh.material[0] = r; mesh.material[2] = u; } bump(it.id); H.dirty(); } } catch (e) {} }
         say(it.title, esc(it.owner === Cast.n('mate3') ? '{mate3}\'s. {mate3.He} wants it back. {mate3.He} keeps saying "GIVE IT BACK" at school.' : it.blurb || pick(LINE[it.kind] || LINE.jewel)), 4000); },
     });
@@ -466,7 +467,7 @@
       }
       const t = caseThing(it, it.kind==='mag'?(R.readingSlot(tb(it.id))||homeOf(it.id)):HOMES[it.id] || homeOf(it.id));
       if (t && HOMES[it.id]) {t.home = Object.assign({ room: 'bedroom' }, HOMES[it.id]); shelfSlot(it,HOMES[it.id],t.obj);}
-      if (it.disc && it.kind !== 'cart') { const dt = discThing(it); if (it.kind === 'mag' && t.obj.userData.cover) t.obj.userData.cover(dt.st === 'rest' && !!dt.at.hide && PM.where(it.id) === 'shelf'); }
+      if (it.disc && it.kind !== 'cart') { const dt = discThing(it);if(it.kind!=='mag')registerCase(it,t,dt); if (it.kind === 'mag' && t.obj.userData.cover) t.obj.userData.cover(dt.st === 'rest' && !!dt.at.hide && PM.where(it.id) === 'shelf'); }
     }
     R.syncMedia(); fillRow(); drives(); parcels(); window.Magazines?.sync(); H.saveThings();
   }
@@ -514,6 +515,26 @@
       freeSlots.push(s);
     }
     H.on('grab',updateFreeSlots);H.ambient.add(updateFreeSlots);
+  }
+
+  const pcCases=new Set();let driveCaseHook=false;
+  function registerCase(it,box,disc){
+    pcCases.add(it.id);const sn=H.SNAPS['pc.cd'];if(!sn)return;
+    if(!driveCaseHook){
+      driveCaseHook=true;const accept=sn.accepts,enabled=sn.enabled,begin=sn.onBegin;
+      sn.accepts=(kind,t)=>kind==='case'?HouseCases.accepts(t.id,'pc.cd'):accept(kind,t);
+      sn.enabled=()=>HouseCases.busy?false:H.held()&&H.THINGS[H.held()]?.kind==='case'?window.StoryAccess?.available!==false&&!R.drive('cd').thing:enabled();
+      sn.onBegin=(t,p)=>{if(t.kind==='case'){HouseCases.insert(t.id);return false}return !begin||begin(t,p)};
+      for(const id of ['pc.cdej','pc.cdtray']){const sp=H.SPOTS[id];if(sp)sp.remove=()=>HouseCases.eject('pc.cd')}
+    }
+    const homeSlot='pm.case.'+it.id,cs=H.SNAPS[homeSlot];if(cs){cs.room=box.at.room;cs.pose={...box.at,hide:true};}
+    const unclipped=()=>disc.obj.traverse(o=>{if(o.material)for(const m of [].concat(o.material)){m.clippingPlanes=[];m.needsUpdate=true}});
+    HouseCases.register({box,medium:disc,slot:'pc.cd',homeSlot,park:()=>({room:'bedroom',x:-63,y:0,z:-42,ry:90}),
+      own:()=>disc.at.hide&&disc.snap!=='pc.cd'&&PM.where(it.id)==='shelf',enabled:()=>window.StoryAccess?.available!==false&&!R.drive('cd').thing,
+      inside:p=>({...p,y:p.y-(it.kind==='box'?12:6.25),z:p.z+.25,rx:90}),lid:k=>setLid(box.obj,k),
+      commitInsert:()=>{if(!R.drive('cd').open)R.driveTray(true);sn.onSnap(disc);unclipped();PM.insert(it.id,{room:true})},
+      afterInsert:()=>{sn.onSnap(disc);H.hush();R.driveTray(false)},
+      commitEject:()=>{sn.onUnsnap(disc);PM.ejectD();R.driveTray(true)},afterEject:()=>R.driveTray(false)});
   }
 
   // ---- the disc: out of its case and into your hand, and back again
@@ -710,5 +731,5 @@
   go(); setTimeout(go, 500); setTimeout(go, 2000);
   PM.on('change', () => { if (built) setTimeout(sync, 0); });
 
-  window.PMGL = { _q: () => ({ n: QUEUE.length, busy: busyRaster, keys: QUEUE.slice(0, 5).map(j => j.key) }), sync, drives, takeDisc: id => takeDisc(PM.item(id)), discHome: id => discHome(PM.item(id)), openParcel, get built() { return built; }, homes: () => HOMES, THING, setLid };
+  window.PMGL = { _q: () => ({ n: QUEUE.length, busy: busyRaster, keys: QUEUE.slice(0, 5).map(j => j.key) }), sync, drives, insertCase:id=>pcCases.has(id)?HouseCases.insert(tb(id)):null, takeDisc: id => takeDisc(PM.item(id)), discHome: id => discHome(PM.item(id)), openParcel, get built() { return built; }, homes: () => HOMES, THING, setLid };
 })();

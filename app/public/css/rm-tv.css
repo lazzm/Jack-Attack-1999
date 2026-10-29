@@ -310,6 +310,7 @@ html.hs-moving .rm-tvv .rm-tools,html.hs-moving .rm-live3d .rm-livebar{opacity:0
 [data-con=md] .rm-pad .rm-fb[data-b=a]{left:0;right:auto;top:auto;bottom:0}
 .rm-tvv .rm-pad{display:none}
 html[data-game-touch="true"] .rm-tvv .rm-pad:not([hidden]){display:block}
+.rm-tvv.rm-hand.rm-lockin .rm-pad:not([hidden]){display:block}
 html[data-game-touch="true"] .rm-tvv.rm-hand:not(.rm-lockin) .rm-pad{display:none}
 /* portrait: the controller sits under the telly; the back/menu bar rides above the controller */
 @media (max-aspect-ratio:3/4){

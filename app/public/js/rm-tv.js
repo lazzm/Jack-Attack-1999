@@ -787,7 +787,7 @@
   // Cartridges that bring their own touch controller (Plumbo, Wobble Party, Zeldo, the PlaySpace platformer) keep theirs.
   // A portrait screen shows the whole Game Lad in your hands, so its own moulded buttons are the controller; on a
   // landscape screen the glass fills the height and the pad's wings stand either side of it.
-  const gbModelButtons = () => !!V?.live && innerHeight > innerWidth * 1.1;
+  const gbModelButtons = () => !!V?.live;
   const ownPad = () => !!V && (!!V.el.querySelector('.plumb-controls,.party-controls,.zeldo-controls') || V.el.classList.contains('ww-touch-game'));
   // Each pointer owns its own contribution. Releasing one finger never releases another finger (or the keyboard).
   function syncTouch() {
@@ -812,7 +812,7 @@
     const P = $(V.el, '.rm-pad'), con = V.con, L = LOOK[con];
     touchPads.get(P)?.destroy();
     V.el.classList.remove('rm-padon', 'rm-dual');
-    if (!def || !touchy() || (V.hand && !V.lockedIn && gbModelButtons()) || ownPad()) { P.hidden = true; P.innerHTML = ''; if (V.lockedIn) lockIn(true); return; }
+    if (!def || (!touchy() && !(V.hand && V.lockedIn)) || (V.hand && !V.lockedIn && gbModelButtons()) || ownPad()) { P.hidden = true; P.innerHTML = ''; if (V.lockedIn) lockIn(true); return; }
     const bs = [...new Set(def.buttons || ['a', 'b'])].filter(b => L.keys[b] || b === 'c' || b === 'x');
     // A game that declares independent WASD movement (Goldenballs) keeps K.stick as its aim.
     const dual = ['KeyW', 'KeyS', 'KeyA', 'KeyD'].every(k => def.keyboard?.[k]);
@@ -1040,13 +1040,15 @@
     const changed = !!V.lockedIn !== on;
     if (changed) clearInput();
     V.lockedIn = on;
+    // Lay out the locked controller before measuring the grow destination.
+    if(changed&&on&&V.hand&&V.st==='game')pad(defs[V.gid]);
     if (on) V.el.classList.add('rm-lockin');
     if (R.House?.dirty) R.House.dirty();
     const button = $(V.el, '.rm-lock');
     button.setAttribute('aria-pressed', String(!!V.lockedIn)); toolLabels();
     if (V.lockedIn) lockMetrics();
     if (changed) lockAnimate(on); else if (!on) V.el.classList.remove('rm-lockin');
-    if (changed && V.hand && V.st === 'game') pad(defs[V.gid]); // (LOCK IN hides the Game Lad's own buttons: the pad stands in)
+    if (changed && !on && V.hand && V.st === 'game') pad(defs[V.gid]); // (LOCK IN hides the Game Lad's own buttons: the pad stands in)
     rememberSurface();
     if(!V.lockedIn)liveFrame();
     return !!V.lockedIn;

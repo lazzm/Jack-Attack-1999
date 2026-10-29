@@ -217,6 +217,7 @@
     return false;
   }
   function insert(id, o) {
+    if(!o?.room&&window.PMGL?.insertCase){const handled=PMGL.insertCase(id);if(handled!==null)return handled}
     o = o || {};
     const it = item(id); if (!it || !owns(id)) return false;
     if (it.a) return insertA(id, o);
@@ -229,7 +230,7 @@
     return true;
   }
   const pcOn = () => !!(document.body && document.body.classList.contains('online')) && !roomLive();
-  function ejectD() { if (!D.drive) return false; D.eject(); pollD(); return true; }
+  function ejectD() { if(window.HouseCases?.inserted('pc.cd')&&HouseCases.eject('pc.cd'))return true;if (!D.drive) return false; D.eject(); pollD(); return true; }
   function take(id) { if (S.tray === id) { S.tray = ''; changed('tray', id); } }
   function insertA(id, o) {
     if (!S.fl[id] && id !== 'gquest') return false;
@@ -504,7 +505,7 @@
       const L = items(), groups = {};
       L.forEach(x => { (groups[KN[x.kind] || 'Other'] = groups[KN[x.kind] || 'Other'] || []).push(x); });
       const dIt = item(discItem(D.drive)), aIt = item(S.a);
-      body.innerHTML = `<div class="pmd-gw-tip"><b>Your discs are on the shelf behind you.</b> Press Q or F2 to stand up; the PC stays on. E picks up a PC game case and F takes out its disc. Aim at the highlighted PC tray and press E to insert it. Or choose a disc here:</div>
+      body.innerHTML = `<div class="pmd-gw-tip"><b>Your discs are on the shelf behind you.</b> Press Q or F2 to stand up; the PC stays on. E picks up a PC game case. Aim at the highlighted PC drive and press E: the disc goes in and the case parks beside it. Or choose a disc here:</div>
         <div class="pmd-gw-dr"><div><b>D:</b> ${dIt ? esc(dIt.title) : '<i>empty</i>'} <button type="button" class="btn" data-e="D"${D.drive ? '' : ' disabled'}>Eject</button></div><div><b>A:</b> ${aIt ? esc(aIt.label || 'blank floppy') : '<i>empty</i>'} <button type="button" class="btn" data-e="A"${S.a ? '' : ' disabled'}>Eject</button></div></div>
         <div class="field pmd-gw-l">${Object.keys(groups).map(g => `<div class="pmd-gw-g">${esc(g)}</div>` + groups[g].map(x => `<button type="button" class="pmd-gw-i${sel === x.id ? ' sel' : ''}" data-id="${esc(x.id)}"><span class="pmd-gw-ic pmd-ic-${x.kind}" style="--a:${x.c1 || '#888'};--b:${x.c3 || '#444'}"></span><span class="pmd-gw-n">${esc(x.kind === 'floppy' ? (x.label || 'Blank floppy disk') : x.title)}</span><span class="pmd-gw-w">${esc(WHERE[x.where])}</span></button>`).join('')).join('')}</div>
         <div class="pmd-gw-b"><button type="button" class="btn" data-a="in" ${sel ? '' : 'disabled'}>Put it in the drive</button><button type="button" class="btn" data-a="rd" ${sel && item(sel) && (item(sel).box || MINE[sel]) ? '' : 'disabled'}>Read Me</button><button type="button" class="btn" data-a="cat">Order games...</button>${parcels().length ? '<span>Parcel waiting by the front door</span>' : ''}</div>`;

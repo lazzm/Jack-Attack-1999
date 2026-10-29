@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';import{fileURLToPath}from'node:url';
+import {withTestServer} from './perf/server.mjs';import{roomFixture}from'./room-fixture.mjs';
+const dir=fileURLToPath(new URL('shots/case-flow/',import.meta.url));await mkdir(dir,{recursive:true});
+await withTestServer(async base=>{
+ const account='Case'+Date.now().toString(36),password='Throwaway-1999';assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
+ const f=await roomFixture(base,{account,password,signup:false,timeoutScale:3,touch:true}),{page:p,until,view,errors}=f;
+ const shot=n=>p.screenshot({path:dir+n+'.png',timeout:180000});
+ async function room(){await p.evaluate(async()=>{await Room.ensureHouse();House.buildRoom(House.ROOMS.cupboard);Room.syncMedia()});await until(()=>!!HouseCases&&!!House.THINGS['media.box.sn.zero'])}
+ async function walk(){await p.evaluate(()=>{if(House.focused)House.unfocus();House.hush()});await until(()=>!House.gliding&&!House.focused);await p.evaluate(()=>House._.setMode('walk'))}
+ async function pair(gid){
+  await walk();const id='media.box.'+gid,sid='console.'+gid.split('.')[0];
+  await view(gid.startsWith('sn.')?[380,225,400]:[-185,-55,120],gid.startsWith('sn.')?[352,316.5,339]:[-185,35,-26],{level:gid.startsWith('sn.')?'G':'U'});await p.evaluate(()=>House._.setMode('walk'));
+  assert(await p.evaluate(id=>House.grab(id),id),'Cannot grab filled '+id);
+  assert(await p.evaluate(({id,sid})=>HouseCases.accepts(id,sid),{id,sid}),'Case not accepted '+id);
+  assert(await p.evaluate(id=>HouseCases.insert(id),id));assert(!await p.evaluate(id=>HouseCases.insert(id),id),'Rapid insert was accepted twice');
+  await until(()=>!HouseCases.busy);await until(()=>RoomTV?._dbg()?.st==='game');
+  const loaded=await p.evaluate(({id,gid,sid})=>{const b=House.THINGS[id],m=House.THINGS['media.'+gid];return{snap:m.snap,park:b.snap,fixed:House.physics.body(id).fixed,grab:House.grab(id),pos:{...b.at}}},{id,gid,sid});
+  assert.equal(loaded.snap,sid);assert.equal(loaded.park,'case.park.'+sid);assert(loaded.fixed);assert.equal(loaded.grab,false);await shot(gid+'-loaded');
+  await walk();assert(await p.evaluate(sid=>HouseCases.eject(sid),sid));await until(()=>!HouseCases.busy);
+  assert.equal(await p.evaluate(gid=>House.THINGS['media.'+gid].snap,gid),'media.case.'+gid);assert.equal(await p.evaluate(()=>House.held()),id);await shot(gid+'-returned');
+  await p.evaluate(()=>House.putBack());await until(()=>!House.held());console.log('CASE PAIR PASS',gid);
+ }
+ try{
+  await room();console.log('CASE WORLD READY',await p.evaluate(()=>Object.keys(House.THINGS).filter(id=>id.startsWith('media.box.'))));
+  for(const gid of ['n64.kart','ps.run','gb.blocks','md.zip','dc.dash','sn.zero'])await pair(gid);
+  await walk();const pc=await p.evaluate(()=>PM.items().find(it=>it.disc&&['box','jewel','cdr'].includes(it.kind)&&House.THINGS['pmb.'+it.id]&&PM.where(it.id)==='shelf')?.id);assert(pc,'No PC case fixture');
+  assert(await p.evaluate(id=>House.grab('pmb.'+id),pc));assert(await p.evaluate(id=>HouseCases.insert('pmb.'+id),pc));await until(()=>!HouseCases.busy);await until(()=>!Room.drive('cd').open&&!!Room.drive('cd').thing);await shot('pc-loaded');
+  assert(await p.evaluate(()=>HouseCases.eject('pc.cd')));await until(()=>!HouseCases.busy);assert.equal(await p.evaluate(()=>House.held()),'pmb.'+pc);assert.equal(await p.evaluate(id=>PM.where(id),pc),'shelf');await shot('pc-returned');
+  assert.deepEqual(errors,[]);console.log('CASE FLOW PASS: six consoles and PC insertion/parking/ejection, rapid insert, fixed cases, same media IDs');
+ }catch(e){await shot('failure').catch(()=>{});throw e}finally{await f.browser.close()}
+});

@@ -58,7 +58,7 @@ multiplayer bits (JackWorld, JackMUD, arenas) and hundreds of secrets. Live at h
 - The site's CSP is `script-src 'self'`: no inline scripts or inline event handlers; put code in files.
 - Controls in the house: WASD/arrows walk, Shift jog, C crouch (never Ctrl: Ctrl+W closes the tab), Space jump,
   F uses/plays/opens or looks closely at the real object; close-ups remain interactive. I is an alias for that same interaction, not a separate passive view. E/click picks up, removes or places (including insertion at highlighted slots).
-  Console cases must be placed off the shelf before F opens them; E takes the visible medium and returns it to its case.
+  Carry a filled console/PC case to its highlighted machine and press E: it opens, inserts the medium and parks the empty case at its fixed spot. E at the machine returns the medium to its case; F reads a case. Bare floppies and magazine cover discs retain their own insertion controls.
   Only filled cases go back onto the console rack. R turns, Q leans back from screens/inspection, or returns a carried item to its pickup point (not while typing); right click also returns a carried item.
   Esc opens the game menu (including return/leave actions). F2 stands up from the PC; F sits on portable seating (including with a carried item); seated players can read, use props/phone and play the held Game Lad, returning to the same seat. Q/WASD/arrows/Space/F2 gets up,
   T toggles LOCK IN for the active in-game screen (never while typing), F9 god mode (owner "Jack" only).
