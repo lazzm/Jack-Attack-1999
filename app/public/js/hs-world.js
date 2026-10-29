@@ -882,7 +882,7 @@
   // How far out depends on its size and stays fixed while you hold it,
   // so it never changes size: picking it up, putting it down and inspecting only move it.
   // low: where a small thing's bottom edge sits (a fraction of the view from the top) when nothing is in the way
-  const HOLD = { near: 36, far: 120, reach: 144, height: 0.12, x: 0.02, gap: 0.075, low: 0.86, pad: 0.012, tiltSign: -1 };
+  const HOLD = { near: 36, far: 60, reach: 72, caseFar: 120, caseReach: 144, height: 0.12, x: 0.02, gap: 0.075, low: 0.86, pad: 0.012, tiltSign: -1 };
   // tipped so you see a little of its top whichever way you look (as if your hands brought it up to show you), but
   // following your view only partly, so looking down at the floor still shows it held, not lying flat
   const holdTilt = () => clamp(24 + P.rx * 0.8, -32, 38);
@@ -909,7 +909,7 @@
     return holdUi = r && r.height ? { top: r.top / vh, l: r.left / vw, r: r.right / vw } : null;
   }
   function heldPos() {
-    const t = THINGS[held.id], now = performance.now();
+    const t = THINGS[held.id], now = performance.now(), compact = t.kind === 'console-case' || t.kind === 'case';
     const tanV = Math.tan(camera.fov * D2R / 2), tanH = tanV * camera.aspect;
     // the view, as a matrix (view space: x right, y up, -z ahead), and its inverse
     _hm.makeTranslation(P.x, P.y, P.z).multiply(rot(P.rx, P.ry).transpose()); _hm.premultiply(S).multiply(S); _hmi.copy(_hm).invert();
@@ -925,15 +925,16 @@
     const w = x1 - x0, h = y1 - y0, ocx = (x0 + x1) / 2 - _ho.x, ocy = (y0 + y1) / 2 - _ho.y, ocz = (z0 + z1) / 2 - _ho.z;
     // (the carry panel only matters where it is under the middle of the view: on a desktop it sits in the corner)
     const panel = carryPanel(now), ghost = ghostRect(), mid = panel && panel.l < 0.62 && panel.r > 0.38, top0 = 0.5 + HOLD.gap;
-    // Touch captions sit above the crosshair. They must not push the hands up; leave room below for thumb buttons.
-    const low = Math.min(window.GameInput?.touch ? 0.78 : HOLD.low, mid && panel.top > top0 ? panel.top - HOLD.pad : 1);
+    // Case captions above the crosshair must not push the hands up; leave room below for thumb buttons.
+    const low = compact ? Math.min(window.GameInput?.touch ? 0.78 : HOLD.low, mid && panel.top > top0 ? panel.top - HOLD.pad : 1) : Math.min(HOLD.low, mid ? panel.top - HOLD.pad : 1);
     // how far out you hold it: chosen once per grip from its size (and the view), so it never changes size in your hands.
-    // A game case occupies about 12% of the view's height. The real object and real hands share this pose, with no
-    // rescaling; larger things reach the distance limit and run off the bottom. Tiny props retain a minimum distance.
+    // Game/disc cases occupy about 12% of the view's height. The real object and real hands share this pose, with no
+    // rescaling. Other props keep their approved grips and distances; larger things run off the bottom.
     const key = vw + 'x' + vh;
     if (!held.vd || held.vdKey !== key) {
       const sz = lb.getSize(_vv), hp = Math.max(sz.y, 0.6 * Math.max(sz.x, sz.z)), wp = Math.max(sz.x, sz.z);
-      held.vd = Math.min(HOLD.reach, Math.max(clamp(hp / (2 * tanV * HOLD.height), HOLD.near, HOLD.far), wp / (2 * tanH * 0.85)));
+      const span = compact ? HOLD.height : Math.max(0.16, low - top0);
+      held.vd = Math.min(compact ? HOLD.caseReach : HOLD.reach, Math.max(clamp(hp / (2 * tanV * span), HOLD.near, compact ? HOLD.caseFar : HOLD.far), wp / (2 * tanH * 0.85)));
       held.vdKey = key;
     }
     const d = held.vd, hf = h / (2 * d * tanV), wf = w / (2 * d * tanH); // its height and width, as fractions of the view
