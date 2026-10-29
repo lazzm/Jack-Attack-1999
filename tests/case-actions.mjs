@@ -2,11 +2,11 @@ import assert from 'node:assert/strict';
 // Find a real gold target from a clear standing position, then use the normal E path.
 export async function insertCase(f,id,sid,{press}={}){
  const {page:p,view}=f,s=await p.evaluate(sid=>{const s=House.SNAPS[sid];return{x:s.x,y:s.y,z:s.z,room:s.room||'bedroom',lvl:House.ROOMS[s.room||'bedroom'].lvl}},sid);
- const missed=[];
- for(const r of [70,100,135,165])for(let i=0;i<12;i++){
-  const a=i*Math.PI/6,x=s.x+Math.sin(a)*r,z=s.z+Math.cos(a)*r;
-  if(!await p.evaluate(({x,z,lvl})=>House._.cellOk(lvl,x,z),{x,z,lvl:s.lvl}))continue;
-  const y=await p.evaluate(({x,z,lvl})=>{const area=r=>(r.area||[]).reduce((n,a)=>n+(a[2]-a[0])*(a[3]-a[1]),0);const r=Object.values(House.ROOMS).filter(r=>r.lvl===lvl&&(r.area||[]).some(a=>x>=a[0]&&x<=a[2]&&z>=a[1]&&z<=a[3])).sort((a,b)=>area(a)-area(b))[0];return House.LV[lvl]-(r?.eye||House.STAND)},{x,z,lvl:s.lvl});await view([x,y,z],[s.x,s.y,s.z],{level:s.lvl});await p.evaluate(()=>{House._.setMode('walk');House.hush()});
+ const missed=[],candidates=await p.evaluate(s=>{const r=House.ROOMS[s.room];return s.room==='cupboard'?(r.stations||[]).map(t=>typeof t.pose==='function'?t.pose():t.pose).filter(Boolean).map(p=>({x:p.x,z:p.z})):[]},s);
+ for(const r of [70,100,135,165])for(let i=0;i<12;i++){const a=i*Math.PI/6;candidates.push({x:s.x+Math.sin(a)*r,z:s.z+Math.cos(a)*r})}
+ for(const{x,z}of candidates){
+  const stand=await p.evaluate(({x,z,lvl})=>{const area=r=>(r.area||[]).reduce((n,a)=>n+(a[2]-a[0])*(a[3]-a[1]),0);const r=Object.values(House.ROOMS).filter(r=>r.lvl===lvl&&(r.area||[]).some(a=>x>=a[0]&&x<=a[2]&&z>=a[1]&&z<=a[3])).sort((a,b)=>area(a)-area(b))[0],eye=r?.eye||House.STAND,floor=House._.floorAt(x,z,lvl,House.LV[lvl],eye);return floor&&floor.lvl===lvl&&Math.abs(floor.y-House.LV[lvl])<1?{y:floor.y-eye}:null},{x,z,lvl:s.lvl});if(!stand)continue;
+  await view([x,stand.y,z],[s.x,s.y,s.z],{level:s.lvl});await p.evaluate(()=>{House._.setMode('walk');House.hush()});
   if(await p.evaluate(()=>House.held())!==id)assert(await p.evaluate(id=>House.grab(id),id),'Cannot grip '+id);
   for(let j=0;j<10;j++){
    const g=await p.evaluate(()=>{const g=House.ghost();return g&&{snap:g.snap?.id,why:g.why,x:g.x,y:g.y,z:g.z}});
