@@ -6,7 +6,7 @@ const start=source.indexOf('  const PV = '),end=source.indexOf('  function saveT
 assert(start>=0&&end>start,'Production placement migration is present');
 const ms=source.indexOf('  function migrateSave(save)'),me=source.indexOf('  // Placements saved before the physics pass',ms);
 const {PV,FRONT,migratePlacement:move,migrateSave}=vm.runInNewContext(source.slice(start,end)+source.slice(ms,me)+';({PV,FRONT,migratePlacement,migrateSave})',{LV:{G:353,U:73},clamp:(n,a,b)=>Math.max(a,Math.min(b,n))});
-assert.equal(PV,8,'Latest migration version must be stamped into saves');
+assert.equal(PV,9,'Latest migration version must be stamped into saves');
 const near=(a,b)=>assert(Math.abs(a-b)<1e-7,`${a} differs from ${b}`);
 for(const from of [3,4,5]){
  const old=from===3?FRONT.CAR3:FRONT.CAR4;
@@ -47,6 +47,14 @@ for(const from of [5,6,7]){const a={room:'lounge',x:115,y:308,z:397,ry:-110};ass
 for(const [x,z]of [[185,430],[-115,455]]){const a={room:'lounge',x,y:353,z,ry:25};assert(move(a,7));near(a.x,50);near(a.z,520);assert.equal(a.ry,25);assert(!move(a,8));}
 for(const a of [{room:'lounge',x:-60,y:353,z:520},{room:'lounge',x:-60,y:353,z:450},{room:'lounge',x:110,y:308,z:395,hide:true}]){const before=JSON.stringify(a);assert(!move(a,7));assert.equal(JSON.stringify(a),before)}
 const current={pv:7,t:{table:['lounge',-60,309.5,450,15,0,0,{keep:'table'}],chair:['lounge',115,308,397,-110,0,0],hidden:['lounge',110,308,395,0,0,1,{keep:'hidden'}],snapped:['lounge',110,308,395,0,'ch.s.cush3',0,{keep:'slot'}]},o:{'hall.front':1}};
-migrateSave(current);assert.equal(current.pv,8);assert.deepEqual(Array.from(current.t.table),['lounge',-72,309.5,456.5,15,0,0,{keep:'table'}]);assert.deepEqual(Array.from(current.t.chair),['lounge',141,308,402,-110,0,0]);assert.deepEqual(current.t.hidden,['lounge',110,308,395,0,0,1,{keep:'hidden'}]);assert.deepEqual(current.t.snapped,['lounge',110,308,395,0,'ch.s.cush3',0,{keep:'slot'}]);assert.equal(current.o['hall.front'],1);
+migrateSave(current);assert.equal(current.pv,9);assert.deepEqual(Array.from(current.t.table),['lounge',-72,309.5,456.5,15,0,0,{keep:'table'}]);assert.deepEqual(Array.from(current.t.chair),['lounge',141,308,402,-110,0,0]);assert.deepEqual(current.t.hidden,['lounge',110,308,395,0,0,1,{keep:'hidden'}]);assert.deepEqual(current.t.snapped,['lounge',110,308,395,0,'ch.s.cush3',0,{keep:'slot'}]);assert.equal(current.o['hall.front'],1);
 const again=JSON.parse(JSON.stringify(current));delete again.pv0;const stable=JSON.stringify(again);migrateSave(again);delete again.pv0;assert.equal(JSON.stringify(again),stable,'PV8 repeated a furniture move');
 console.log('PV8 lounge PASS: historical chain, table/chair/floor, hidden/slot metadata and repeat loads');
+
+// PV9 follows only the corrected lid/rims, with hidden/slot metadata preserved.
+for(const [x,z,old,now]of [[0,-160,79,81.5],[-85,-160,75,79.5],[85,-160,75,79.5],[0,-201,73,79.5]]){
+ const a={room:'drive',x:FRONT.CAR.x+x*FRONT.CAR.s,z:FRONT.CAR.z+z*FRONT.CAR.s,y:FRONT.CAR.y-old*FRONT.CAR.s,ry:20};assert(move(a,8));near(a.y,FRONT.CAR.y-now*FRONT.CAR.s);assert.equal(a.ry,20);const once=JSON.stringify(a);assert(!move(a,9));assert.equal(JSON.stringify(a),once);
+}
+for(const [x,z,h]of [[0,-160,23],[0,0,126.9],[0,-160,75],[0,170,79],[-85,100,75]]){const a={room:'drive',x:FRONT.CAR.x+x*FRONT.CAR.s,z:FRONT.CAR.z+z*FRONT.CAR.s,y:FRONT.CAR.y-h*FRONT.CAR.s};const before=JSON.stringify(a);assert(!move(a,8));assert.equal(JSON.stringify(a),before)}
+const c=FRONT.CAR,hidden={pv:8,t:{hidden:['drive',c.x,c.y-79*c.s,c.z-160*c.s,0,0,1,{keep:true}],slot:['drive',c.x,c.y-79*c.s,c.z-160*c.s,0,'fixed-slot',0,{keep:true}]}};const before=JSON.stringify(hidden.t);migrateSave(hidden);assert.equal(hidden.pv,9);assert.equal(JSON.stringify(hidden.t),before);
+console.log('PV9 CAR PASS: old lid/rims once; exact boot/roof/unrelated/hidden/slot poses preserved');

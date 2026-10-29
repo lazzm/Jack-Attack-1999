@@ -1503,7 +1503,7 @@
   }
   // Saved as [room, x, y, z, ry, snap, hide, extra]; extra holds a chair's swivel. A carried thing saves where it came
   // from, and the grip itself is remembered so a refresh hands it straight back (jhp_hs_held).
-  const PV = 8; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry; 7: clear floor props from the new cat tree; 8: wider lounge routes, table/chair props follow their furniture
+  const PV = 9; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry; 7: clear floor props from the new cat tree; 8: wider lounge routes, table/chair props follow their furniture; 9: car lid/rim heights
   // The front plot (docs/HOUSE-SCALE.md, js/hs-house.js builds it): the garden runs from the house front (z 702) to the pavement
   // at FZ. Until pv 3 it was 4 m deep (FZ 1100) with Dad's car shrunk to 82% (OLD_CAR) to squeeze it in.
   // STREET: our pavement (FZ..FZ+145, 1.45 m), its kerb, a 5.6 m road, the far kerb and pavement; the opposite houses'
@@ -1569,6 +1569,14 @@
     if (from < 6) {
       if (riding || onCar(CAR4, at.x, at.z) && at.y < CAR4.y - 5) { follow(CAR4, CAR); moved = true; }
       else if (onCar(CAR, at.x, at.z, 100, 214)) { beside(CAR); moved = true; }
+    }
+    if(from<9&&!at.hide){
+      const x=(at.x-CAR.x)/CAR.s,z=(at.z-CAR.z)/CAR.s,h=(CAR.y-at.y)/CAR.s;
+      const near=n=>Math.abs(h-n)<.25;
+      // Only old support heights on the lid/rims; boot-floor/roof cargo stays exact.
+      if(Math.abs(x)<=79&&z>=-197&&z<=-121&&near(79)){at.y=CAR.y-81.5*CAR.s;moved=true;}
+      else if(Math.abs(x)>=78.5&&Math.abs(x)<=91&&z>=-205&&z<=-121&&near(75)){at.y=CAR.y-79.5*CAR.s;moved=true;}
+      else if(Math.abs(x)<=91&&z>=-205&&z<=-197&&near(73)){at.y=CAR.y-79.5*CAR.s;moved=true;}
     }
     return moved;
   }

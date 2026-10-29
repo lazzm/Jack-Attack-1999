@@ -1212,9 +1212,9 @@
     car.rbox(0, -52, 40, 170, 46, 320, 9, cm);
     // Hollow boot: a solid floor, wheel-side walls and rear valance under a hinged lid.
     car.box(0,-20,-157,166,5,86,cm);
-    car.box(0,-47,-199,166,52,4,cm);
-    car.box(0,-47,-119,160,52,4,cm);
-    for(const x of [-81,81])car.box(x,-48,-158,5,54,80,cm);
+    car.box(0,-50.25,-199,166,58.5,4,cm);
+    car.box(0,-50.25,-119,160,58.5,4,cm);
+    for(const x of [-81,81])car.box(x,-50.25,-158,5,58.5,80,cm);
     car.box(0,-23,-157,154,1,76,M('#343235'));
     // Dad's tartan travel rug, spread over the boot carpet so whatever rides in the boot sits on something soft.
     { const g=new T.PlaneGeometry(146,70,24,10),pp=g.attributes.position;for(let i=0;i<pp.count;i++){const x=pp.getX(i),y=pp.getY(i);pp.setZ(i,.35+.35*Math.sin(x*.09+y*.05)*Math.cos(y*.13)+(Math.abs(y)>31?.6:0))}
@@ -1293,8 +1293,8 @@
       const cs = frame.s, X = lx => frame.x + lx * cs, Z = lz => frame.z + lz * cs, kind = 'car';
       H.solid('G', X(-91), Z(-121), X(91), Z(205), GY - frame.roof * cs, GY + 1, { kind, when: () => parked.present }); // bonnet, cabin, roof (the 47 cm glasshouse)
       H.solid('G', X(-91), Z(-205), X(91), Z(-121), GY - 23 * cs, GY + 1, { kind, when: () => parked.present }); // the boot floor and what's under it
-      H.solid('G', X(-91), Z(-205), X(91), Z(-197), GY - 73 * cs, GY - 23 * cs, { kind, support: false, when: () => parked.present }); // the rear valance
-      for (const sx of [-1, 1]) H.solid('G', X(sx < 0 ? -91 : 78.5), Z(-205), X(sx < 0 ? -78.5 : 91), Z(-121), GY - 75 * cs, GY - 23 * cs, { kind, support: false, when: () => parked.present }); // the wheel-arch sides
+      H.solid('G', X(-91), Z(-205), X(91), Z(-197), GY - 79.5 * cs, GY - 23 * cs, { kind, support: false, when: () => parked.present }); // the rear valance
+      for (const sx of [-1, 1]) H.solid('G', X(sx < 0 ? -91 : 78.5), Z(-205), X(sx < 0 ? -78.5 : 91), Z(-121), GY - 79.5 * cs, GY - 23 * cs, { kind, support: false, when: () => parked.present }); // the wheel-arch sides
       H.solid('G', X(-79), Z(-197), X(79), Z(-121), GY - 81.5 * cs, GY - 76.5 * cs, { kind, when: () => parked.present && !r.carBoot.open }); // the 5 cm lid, leaving the storage space hollow
     }
     H.block('G', -360, HEDGE[0], FRONT_PIERS[0] - 16.5, FZ + 6); H.block('G', FRONT_PIERS[2] + 16.5, FZ - 16, 740, FZ + 6); // the front wall, with the hedge behind it
