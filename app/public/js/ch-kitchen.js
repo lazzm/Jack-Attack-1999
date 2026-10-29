@@ -201,7 +201,7 @@
   // ================================================================ LAY THE TABLE
   const TY = GY - 76; // the table top
   // Clear of all four place settings and the seasonal carving pumpkin.
-  const SAUCE = {room: 'kitchen', x: -84, y: TY, z: 165, ry: 0};
+  const SAUCE = {room: 'kitchen', x: -87, y: TY, z: 165, ry: 0};
   // each place: its mat [x, z, w, d], the plate, the knife and fork [x, z, ry], the glass
   const PLACES = [
     // (each mat sits 3.5 cm in from the rounded table edge, not hanging over it)
