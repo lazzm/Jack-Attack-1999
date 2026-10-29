@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.25: wider lounge routes, one indoor post mat, real-height armchair physics and PV8 saved-prop migration; corrected pre-JackOS cache tokens. Includes console23 and all earlier fixes. Next: Dad/car routine R128, then carry-case sizing R124, then British voices.
+- Live = 2.57.26: Dad takes his car to work; exact travelling cargo, safe empty-bay refresh/return, solid hollow boot and PV9 lid/rim saves. Includes lounge25 and all earlier fixes. Next: carry-case sizing R124, then British voices.
 - Previous live22: visible table ketchup, solid plate centres, safe completed saves and proper redo; cushions fit the seats and F reaches Dad’s chair cushion; proper watering-can grip contacts and accurate chore destinations; includes hands-on bed-making, washing-up and boot-rug fixes. Includes all earlier graphics, props/hands, phone, family, camera and approved 7 m plot releases.
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
@@ -32,7 +32,8 @@ never anything that looks cursed.
 | /opt/stacks/landing-bed | chores-bed | shipped 2.57.19 | R80 complete. Focused bed, smoke, physics, mobile, story/owner and QA gates accepted; remaining chores feedback next. |
 | /opt/stacks/landing-chores-feedback | chores-feedback | shipped 2.57.20/21/22 | R118–R123 complete: can handle/body contacts and real chore destinations. Chore audit complete; final table regression and smoke green. Next: console-flow. |
 | /opt/stacks/landing-console-flow | console-flow | shipped 2.57.23 | R84/R85/R125 complete; physical cases, native handheld/TV framing and refresh green. |
-| /opt/stacks/landing-lounge | lounge-access | shipped 2.57.24/25 | R126/R127 complete; wider routes, single post mat, PV8/precise chair parts and cold-entry token correction. Next R128 car routine, then R124 carry size. |
+| /opt/stacks/landing-lounge | lounge-access | shipped 2.57.24/25 | R126/R127 complete; wider routes, single post mat, PV8/precise chair parts and cold-entry token correction. |
+| /opt/stacks/landing-car-routine | car-routine | shipped 2.57.26 | R128 complete; work schedule, exact cargo, safe arrival/refresh, solid boot and PV9 migration. Next R124 carry size. |
 Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md has every R-item with details.
 
 ## Voices (British only!)
@@ -425,3 +426,11 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - All broader gates accepted: /tmp/jhp-car-mobile-final.log full/tablet2/2; /tmp/jhp-car-people-final.log day/space2/2; /tmp/jhp-car-smoke-final.log12/12; /tmp/jhp-car-front-boot-corrected.log native E/Q away return, real touch empty-bay/evening refresh, story boot and kitchen washing-up; /tmp/jhp-car-entry-corrected.log poisoned-cache entry4/4. Full Chapter1 and physics accepted with timing limits recorded above.
 - Late rear-angle art review caught a real closed-lid gap showing the rug. Extend the existing boot walls to meet the rounded lid; retain the hollow storage space and true5cm lid slab. PV9 selectively follows exact old lid/rim heights once, preserving boot floor/roof/hidden/slot metadata. All36units and syntax pass /tmp/jhp-car-sealed-units.log; final parody0 /tmp/jhp-car-sealed-parody.log (must use node --expose-internals; plain node cannot load the audit parser).
 - Final source-specific checks active: jhp-car-sealed-final runs car-routine then car-details with fresh six-size and four-angle captures; jhp-car-height-final runs real PV8 lid-save entry/contact and repeat refresh. No deploy until these and screenshot review pass. No account/server/wallet/shared-world changes; runtime4British files untouched. Next release26 then separate R124, British voices and low-priority R129. No agents;2heavy jobs.
+
+
+## Car26 release gates,29October14:05 UTC
+- Final sealed source d902540: /tmp/jhp-car-sealed-final.log CAR ROUTINE PASS (actual work/weekend/holiday/home-day, native F/W, six-size home/away, floor/player arrival protection, exact boot/roof cargo and two refreshes); /tmp/jhp-car-sealed-details.log CAR DETAILS PASS (native away-wash refusal, partial/completed progress and kitchen sponge unchanged, all four angles); /tmp/jhp-car-height-final.log CAR SAVE HEIGHT PASS (real PV8 lid entry/contact, repeat refresh). Reviewed final rear/front/both sides, migrated mug on closed lid, open boot, empty drive, phone and tablet views. Closed boot gap is gone.
+- All36 final units /tmp/jhp-car-sealed-units.log, parody0 /tmp/jhp-car-sealed-parody.log, manual changed JS syntax against origin/main and root gate /tmp/gate-1l0d check/parody PASS. Broader mobile/people/smoke/story/physics/native return/front/boot/washup/entry evidence and exact timing are recorded above. No further app changes after final sealed tests.
+- Release26 prepared; deploy from root --static then mandatory public health/build/hash/live-readonly and docker error counts before commit/push. Physical Edge/Android/gamepads/hardware FPS unavailable. Runtime4British voice files preserved; no realdata/account/wallet/shared-world changes.
+
+- Public26 deployed build2.57.26-261029140511: home/health200, all6changed JS hashes match; approved4voice bytes unchanged; docker10min mod/uncaught/reference error counts0. /tmp/jhp-car-live26.log LIVE READ-ONLY PASS (mandatory account screen/version26, no bypass or browser errors/warnings); public desktop capture reviewed. Commit/push follows immediately. Next R124 separate branch.
