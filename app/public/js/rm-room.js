@@ -36,6 +36,8 @@
  * where things are: Apps.saveGame('hs.things'). */
 (function () {
   'use strict';
+  // Before JackOS loads, use this pack's build token for its own lazy dependencies.
+  const PACK_STAMP = new URL(document.currentScript?.src || location.href, location.href).searchParams.get('v');
   if(window.PCOnly?.desktopOnly)return;
   // in the PC: Start > Run "room" stands you up from the PC (it stays on)
   document.addEventListener('DOMContentLoaded', () => {
@@ -1859,7 +1861,7 @@
 
   // ---- the consoles: the camera goes right up to the telly (or you hold the Game Lad), then the screen takes over (js/rm-tv.js)
   let tvLoad = null, lastCon = 'n64', back = null;
-  const loadJs = src => (window.Apps && Apps.load) ? Apps.load(src) : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+  const loadJs = src => (window.Apps && Apps.load) ? Apps.load(src) : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = PACK_STAMP ? src + (src.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(PACK_STAMP) : src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
   const rectOf = obj => { // where a thing is on the screen (rm-tv.js zooms out of it)
     const b = new T.Box3().setFromObject(obj); let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
     for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) { const p = H.toScreen(x, -y, z); if (!p) continue; x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }

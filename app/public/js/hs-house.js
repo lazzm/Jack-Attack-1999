@@ -13,6 +13,8 @@
  * 'snes': it opens RoomTV.open('snes', ...) once rm-tv.js knows the console (RoomCat.CONSOLES.snes + RoomTV.LOOK.snes). */
 (function () {
   'use strict';
+  // Before JackOS loads, use this pack's build token for its own lazy dependencies.
+  const PACK_STAMP = new URL(document.currentScript?.src || location.href, location.href).searchParams.get('v');
   const H = window.House; if (!H || !H.ok || window.HouseRooms) return;
   const K = H.K, T = H.T, A = window.HouseArt, M = K.mat, D2R = Math.PI / 180;
   const R = window.Room, CAT = window.RoomCat;
@@ -473,7 +475,7 @@
     };
     if (window.RoomTV) go(); else loadJs('js/rm-tv.js').then(go, () => say('Hmm', 'Try that again in a minute.'));
   }
-  const loadJs = src => (window.Apps && Apps.load) ? Apps.load(src) : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+  const loadJs = src => (window.Apps && Apps.load) ? Apps.load(src) : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = PACK_STAMP ? src + (src.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(PACK_STAMP) : src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
   const rectOf = obj => { const b = new T.Box3().setFromObject(obj); let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const x of [b.min.x, b.max.x]) for (const y of [b.min.y, b.max.y]) for (const z of [b.min.z, b.max.z]) { const p = H.toScreen(x, -y, z); if (!p) continue; x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); } return { getBoundingClientRect: () => ({ left: x0, top: y0, width: Math.max(0, x1 - x0), height: Math.max(0, y1 - y0), right: x1, bottom: y1 }) }; };
 
   // ================================================================ THE LOUNGE (the family telly, the video, the phone, the fire)
