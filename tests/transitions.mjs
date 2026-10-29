@@ -12,6 +12,7 @@ import net from 'node:net';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
+import {insertCase} from './case-actions.mjs';
 import {installSlowmo, slowmo, startTrace, stopTrace, captureFrames, contactSheet, saveFrames, analyse, motion} from './transition-kit.mjs';
 
 const args = process.argv.slice(2), tag = args.find(a => a.startsWith('--tag='))?.slice(6) || 'after';
@@ -137,6 +138,9 @@ const GBREG = { centre: [.38, .3, .62, .7] };
 const hasMotion = await p.evaluate(() => !!House.motion);
 
 try {
+  await insertCase(fx,'media.box.gb.blocks','console.gb');
+  await until(()=>RoomTV?._dbg()?.st==='game'&&!House.gliding&&!HouseCases.busy);
+  await p.keyboard.press('q');await until(()=>!RoomTV.open_&&!House.gliding&&House.mode==='walk');
   await p.evaluate(() => { Sound.effectsOn = true; });
   await scenario('gb-desk', async () => {
     await aimGB(); const start = await pose(), home = await p.evaluate(() => ({ ...House.THINGS.gb.at }));
