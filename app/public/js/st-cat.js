@@ -22,7 +22,7 @@
       { id: 'unbox', text: 'My parcel! Open it by the front door.', hint: 'Stand up from the PC. F opens the Pixel Post parcel in the hall.', test: 'parcel.console' },
       { id: 'carry', text: 'Carry my new console up to my room.', hint: 'E picks it up. Walk upstairs with it. Q returns a carried thing to where I picked it up.', test: 'carry.console' },
       { id: 'connect', text: 'Set it up beside the telly.', hint: 'Carry the console to the highlighted place beside my telly, then E connects it.', test: 'connect.console' },
-      { id: 'play', text: 'First game on my own console. YES.', hint: 'Order a matching game if I need one. Put its case down, F opens it, E takes the game. E inserts it in the highlighted console slot; F plays.', test: 'play.console' },
+      { id: 'play', text: 'First game on my own console. YES.', hint: 'Order a matching game if I need one. Carry its filled case to the highlighted console slot. E inserts the game and parks the case; F plays.', test: 'play.console' },
       { id: 'mate', text: 'Add a mate to my phonebook. They need to hear about this.', hint: 'F uses my phone. Ask a JackNet mate for their private number, then Phonebook > Add name. Sending a text works too.', test: 'phone.mate' },
     ] },
     { id: 3, title: 'Getting online upstairs', soon: true },
