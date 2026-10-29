@@ -495,10 +495,20 @@ const phases = {
       await aimAt(p, [-80, -55, 220], [-130, 73, 145]); await page.waitForTimeout(400); await shot('full-08-carrying');
       await layoutAudit(p, 'carrying');
       const ry0 = await page.evaluate(() => House.grip.ry); await press('r'); await until(r => House.grip && House.grip.ry !== r, ry0);
-      await fingers.tap(V(p).width * .72, V(p).height * .4); await until(() => House.THINGS['media.box.n64.kart'].st === 'rest'); // (a click puts it down at its ghost)
+      // The daily scatter can occupy the old fixed patch. Find an actual green
+      // floor ghost after turning, and follow the case's real placed pose.
+      let placed=false;const refused=[];
+      for(const [x,z]of [[-130,145],[-180,145],[-180,190],[-210,145],[-150,100],[-70,120],[-30,170]]){
+        await aimAt(p,[-80,-55,220],[x,73,z]);const g=await page.evaluate(()=>House.ghost());
+        if(!g?.ok||g.snap||Math.abs(g.y-73)>1){refused.push(g?.why||'not clear floor');continue;}
+        await press('e');await until(()=>House.THINGS['media.box.n64.kart'].st==='rest');placed=true;break;
+      }
+      assert(placed,'No clear mobile case footprint: '+refused.join('; '));
+      const at=await page.evaluate(()=>({...House.THINGS['media.box.n64.kart'].at}));
+      const casePoint=(dy,dz)=>[at.x+Math.sin(at.ry*Math.PI/180)*dz,at.y+dy,at.z+Math.cos(at.ry*Math.PI/180)*dz];
       // open the case (F), take the cartridge (E), put it in the console (E)
-      await aimAt(p, [-80, -55, 220], [-130, 67, 146.6]); await press('f'); await until(() => House.THINGS['media.box.n64.kart'].caseOpen);
-      await aimAt(p, [-80, -55, 220], [-130, 69, 146.3]); await press('e'); await until(() => House.held() === 'media.n64.kart');
+      await aimAt(p, [-80, -55, 220], casePoint(-6,1.6)); await press('f'); await until(() => House.THINGS['media.box.n64.kart'].caseOpen);
+      await aimAt(p, [-80, -55, 220], casePoint(-4,1.3)); await press('e'); await until(() => House.held() === 'media.n64.kart');
       const slot = await page.evaluate(() => House.SNAPS['console.n64']); await aimAt(p, [-185, -55, 120], [slot.x, slot.y, slot.z]);
       await page.waitForTimeout(400); await shot('full-09-insert-cart');
       await press('e'); await until(() => window.RoomTV?._dbg()?.st === 'game', null, 30000);
