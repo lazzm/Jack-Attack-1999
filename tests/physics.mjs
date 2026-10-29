@@ -24,7 +24,7 @@ async function check(name, fn) {
   if (only && !only.includes(name)) return;
   const t0 = Date.now();
   try { await fn(); results.push([name, true]); console.log(`PASS ${name} (${((Date.now() - t0) / 1000).toFixed(1)}s)`); }
-  catch (e) { results.push([name, false]); console.log(`FAIL ${name}: ${String(e.stack || e).split('\n').slice(0, 3).join(' | ')}`); try { await fixture.page.screenshot({path: dir + 'fail-' + name + '.png'}); } catch (_) {} }
+  catch (e) { results.push([name, false]); console.log(`FAIL ${name}: ${String(e.stack || e)}`); try { await fixture.page.screenshot({path: dir + 'fail-' + name + '.png'}); } catch (_) {} }
 }
 try {
   await mkdir(dir, {recursive: true}); data = await mkdtemp('/tmp/jhp-physics-');
@@ -258,9 +258,9 @@ try {
     const before = await p.evaluate(() => Object.fromEntries(['chair', 'physics.box', 'books', 'beanbag', 'bin'].filter(id => House.THINGS[id]).map(id => { const a = House.THINGS[id].at; return [id, [a.room, a.x.toFixed(1), a.y.toFixed(1), a.z.toFixed(1), Math.round(a.ry || 0), Math.round(a.sw || 0)].join()]; })));
     await p.evaluate(() => { House.grab('mug'); House.saveWalkState(); });
     await p.reload({waitUntil: 'domcontentloaded'});
-    await until(() => window.House?.live && House.mode === 'walk' && !document.querySelector('.hs-loading,#houseEntry'));
+    await until(() => window.AccountGate?.allowed && window.House?.live && House.mode === 'walk' && !document.querySelector('.hs-loading,#houseEntry'));
     await p.evaluate(() => { const B = HouseKit, g = new THREE.Group(), b = B.into(g); b.rbox(0, -15, 0, 40, 30, 32, 1.2, B.mat('#b8925c')); House.thing('physics.box', {obj: g, label: 'Cardboard box', home: {room: 'bedroom', x: 100, y: House.LV.U, z: 200, ry: 0}}); House.restoreThing(House.THINGS['physics.box']); });
-    await until(() => House.held() === 'mug');
+    await until(() => window.AccountGate?.allowed && window.House?.held?.() === 'mug');
     const after = await p.evaluate(() => Object.fromEntries(['chair', 'physics.box', 'books', 'beanbag', 'bin'].filter(id => House.THINGS[id]).map(id => { const a = House.THINGS[id].at; return [id, [a.room, a.x.toFixed(1), a.y.toFixed(1), a.z.toFixed(1), Math.round(a.ry || 0), Math.round(a.sw || 0)].join()]; })));
     assert.deepEqual(after, before, 'A refresh moved something');
     assert.equal(await p.evaluate(() => House.physics.awake), 0, 'Bodies woke up on refresh');
