@@ -6,6 +6,7 @@ import {mkdtemp, mkdir, rm} from 'node:fs/promises';
 import net from 'node:net';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
+import {insertCase} from './case-actions.mjs';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
 const shots=fileURLToPath(new URL('shots/smoke/',import.meta.url));
@@ -112,24 +113,12 @@ const checks=[
    await aim([40,-55,155],[-15,-24,0]);await page.keyboard.press('f');await until(()=>House.mode==='monitor'&&!House.gliding);
    await page.keyboard.press('F2');await until(()=>House.mode==='walk'&&!House.gliding);
  }],
- ['console-game',20000,async()=>{
-   const {page}=await room();
+ ['console-game',60000,async()=>{
+   const f=await room(),{page}=f;
    const home=await page.evaluate(()=>House.THINGS['media.box.n64.kart'].at);
    await aim([-220,-55,35],[home.x,home.y-6,-36]);await page.keyboard.press('e');await until(()=>House.held()==='media.box.n64.kart');
-   // Daily clothes can occupy the old fixed patch. Use the real green floor ghost,
-   // leaving every object in place, then follow the case's actual pose.
-   let placed=false;const refused=[];
-   for(const [x,z]of [[-130,145],[-180,145],[-180,190],[-210,145],[-150,100],[-70,120],[-30,170]]){
-     await aim([-80,-55,220],[x,73,z]);const g=await page.evaluate(()=>House.ghost());
-     if(!g?.ok||g.snap||Math.abs(g.y-73)>1){refused.push(g?.why||'not clear floor');continue}
-     await page.keyboard.press('e');await until(()=>House.THINGS['media.box.n64.kart'].st==='rest');placed=true;break;
-   }
-   assert(placed,'No clear floor ghost for the case: '+refused.join('; '));
-   await page.waitForTimeout(600);const at=await page.evaluate(()=>({...House.THINGS['media.box.n64.kart'].at}));
-   const casePoint=(dy,dz)=>[at.x+Math.sin(at.ry*Math.PI/180)*dz,at.y+dy,at.z+Math.cos(at.ry*Math.PI/180)*dz];
-   await aim([-80,-55,220],casePoint(-6,1.6));await page.keyboard.press('f');await until(()=>House.THINGS['media.box.n64.kart'].caseOpen);
-   await aim([-80,-55,220],casePoint(-4,1.3));await page.keyboard.press('e');await until(()=>House.held()==='media.n64.kart');
-   const slot=await page.evaluate(()=>House.SNAPS['console.n64']);await aim([-185,-55,120],[slot.x,slot.y,slot.z]);await page.keyboard.press('e');
+   await insertCase(f,'media.box.n64.kart','console.n64');
+   await until(()=>!HouseCases.busy);assert(await page.evaluate(()=>House.THINGS['media.box.n64.kart'].snap==='case.park.console.n64'&&House.physics.body('media.box.n64.kart').fixed));
    await until(()=>window.RoomTV?._dbg()?.st==='game');await page.keyboard.press('Enter');await page.keyboard.down('ArrowUp');await page.waitForTimeout(600);await page.keyboard.up('ArrowUp');
    assert.equal(await page.evaluate(()=>RoomTV._dbg().gid),'n64.kart');
    await page.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);assert(await page.evaluate(()=>RoomTV._dbg().background));
