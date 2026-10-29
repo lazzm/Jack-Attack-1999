@@ -328,7 +328,7 @@
       chain(B, [-278, GC + 41, 307.5], [-120, GC + 41, 307.5], 20); chain(B, [-120, GC + 41, 307.5], [40, GC + 41, 307.5], 20); chain(B, [40, GC + 41, 307.5], [193, GC + 41, 307.5], 20);
       const hub = cobweb(B, [194.5, GC + .5, 699.5], [-1, 0, 0], [0, 0, -1], 34, 11); spider(B, hub.x - 1, hub.y + 1, hub.z + .5, 1, -20);
       cobweb(B, [-279.5, GC + .5, 699.5], [1, 0, 0], [0, 0, -1], 26, 17);
-      cauldron(B, -62, GY - 43.5, 433);
+      cauldron(B, r.coffeeFrame.x-2, GY - 43.5, r.coffeeFrame.z-8);
     },
     kitchen(r, P) {
       const B = K.into(P.all.batch);
@@ -1094,7 +1094,7 @@
   }
   function leave(how, m) {
     if (!kids || kids.state === 'leave') return;
-    if (how === 'treat') { const thanks = ['THANK YOU! Happy Halloween!', 'Thank yooou! Nice costume! (I\'m not wearing a costume.)', 'Thanks! Your house is the best one on the road!', 'Thank you! ...Mum, can we go home now? My bag is FULL.'][kids.g % 4]; H.say('Trick-or-treaters', esc(thanks), 4200); kidsTalk(thanks.split(/(?<=[!.])\s/)[0], thanks.split(/(?<=[!.])\s/).slice(1).join(' ') || null); if (m?.h === 5) setTimeout(() => say('hw.mom.five', 'Mom', 'Five lots! The neighbours will think we\'re ever so organised.', true), 4600); }
+    if (how === 'treat') { const thanks = ['THANK YOU! Happy Halloween!', 'Thank yooou! Nice costume! (I\'m not wearing a costume.)', 'Thanks! Your house is the best one on the road!', 'Thank you! ...Mom, can we go home now? My bag is FULL.'][kids.g % 4]; H.say('Trick-or-treaters', esc(thanks), 4200); kidsTalk(thanks.split(/(?<=[!.])\s/)[0], thanks.split(/(?<=[!.])\s/).slice(1).join(' ') || null); if (m?.h === 5) setTimeout(() => say('hw.mom.five', 'Mom', 'Five lots! The neighbours will think we\'re ever so organised.', true), 4600); }
     else if (how === 'trick') { H.say('Trick-or-treaters', 'Aww! ...TRICK, then! <i>(Something rubbery lands on the doormat.)</i>', 4600); kidsTalk('Aww! ...TRICK, then!'); rubberSpider(); }
     kids.state = 'leave'; kids.t0 = performance.now(); if (kids.block) { kids.block.off = true; H._.grids.dirty = true; kids.block = null; }
     H.unspot('hw.kids'); delete IT['hw.kids']; H.anims.set('hw.kids', kidTick);
@@ -1120,7 +1120,7 @@
       if (rid === 'drive') { const i = L.findIndex(l => l.x === 360 && l.z === 730); if (i >= 0) L[i] = Object.assign({}, L[i], { c: '#ffb45a', i: porchOn() ? (dark() ? 1 : .25) : 0, d: 440 }); else if (porchOn()) L.push({ x: 360, y: GY - 124, z: 730, c: '#ffb45a', i: dark() ? 1 : .25, d: 440 }); if (litLantern()) L.push({ x: STEP.x, y: STEP.y - 30, z: STEP.z - 20, c: '#ff8a2a', i: dark() ? .55 : 0, d: 220 }); L.push({ x: 480, y: GY - 100, z: 1080, c: '#ff8a2a', i: dark() ? .3 : 0, d: 220 }, { x: -60, y: 280, z: 730, c: '#ff9a3a', i: dark() ? .3 : 0, d: 200 }); }
       if (rid === 'garden') L.push({ x: 20, y: GY - 30, z: -90, c: '#ff8a2a', i: dark() ? .5 : 0, d: 220 }, { x: -212, y: GY - 205, z: -380, c: '#ffa040', i: dark() ? .4 : 0, d: 260 });
       if (rid === 'hall') L.push({ x: 300, y: GC + 30, z: 680, c: '#ff9a40', i: dark() ? .35 : .12, d: 260 });
-      if (rid === 'lounge') L.push({ x: -62, y: GY - 70, z: 433, c: '#7ad86a', i: dark() ? .18 : 0, d: 160 });
+      if (rid === 'lounge') { const c=H.ROOMS.lounge.coffeeFrame;L.push({ x: c.x-2, y: GY - 70, z: c.z-8, c: '#7ad86a', i: dark() ? .18 : 0, d: 160 }); }
       return L;
     };
     r.amb = () => {

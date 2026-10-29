@@ -1500,7 +1500,7 @@
   }
   // Saved as [room, x, y, z, ry, snap, hide, extra]; extra holds a chair's swivel. A carried thing saves where it came
   // from, and the grip itself is remembered so a refresh hands it straight back (jhp_hs_held).
-  const PV = 7; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry; 7: clear floor props from the new cat tree
+  const PV = 8; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry; 7: clear floor props from the new cat tree; 8: wider lounge routes, table/chair props follow their furniture
   // The front plot (docs/HOUSE-SCALE.md, js/hs-house.js builds it): the garden runs from the house front (z 702) to the pavement
   // at FZ. Until pv 3 it was 4 m deep (FZ 1100) with Dad's car shrunk to 82% (OLD_CAR) to squeeze it in.
   // STREET: our pavement (FZ..FZ+145, 1.45 m), its kerb, a 5.6 m road, the far kerb and pavement; the opposite houses'
@@ -1525,14 +1525,27 @@
     if (at && at.room === 'bedroom' && from < 7 && Number.isFinite(at.x) && Number.isFinite(at.z) && at.y >= LV.U-6 && at.y <= LV.U+2 && Math.abs(at.x-CAT_TREE.x)<CAT_TREE.half && Math.abs(at.z-CAT_TREE.z)<CAT_TREE.half) {
       at.x=CAT_TREE.x+CAT_TREE.half+29; at.z=clamp(at.z,190,224); at.y=LV.U; return true;
     }
-    if (at && at.room === 'lounge' && from < 5 && Number.isFinite(at.x) && Number.isFinite(at.z)) {
-      // Raised props follow the old upholstery; floor props only move if the new furniture covers them.
-      if (at.y < LV.G - 6 && at.y >= LV.G - 110) {
-        if (at.x >= -162 && at.x <= 42 && at.z >= 516 && at.z <= 606) { at.x = -60 + (at.x + 60) * .95; at.z += 45; return true; }
-        const a = -118 * Math.PI / 180, dx = at.x - 110, dz = at.z - 430, x = dx * Math.cos(a) - dz * Math.sin(a), z = dx * Math.sin(a) + dz * Math.cos(a);
-        if (Math.abs(x) <= 47 && Math.abs(z) <= 44) { const b = -110 * Math.PI / 180; at.x = 110 + x * Math.cos(b) + z * Math.sin(b); at.z = 395 - x * Math.sin(b) + z * Math.cos(b); at.ry = (at.ry || 0) + 8; return true; }
+    if (at && at.room === 'lounge' && Number.isFinite(at.x) && Number.isFinite(at.z)) {
+      let moved=false;
+      if(from<5){
+        // Apply historical upholstery moves before the current layout change.
+        if(at.y<LV.G-6&&at.y>=LV.G-110){
+          if(at.x>=-162&&at.x<=42&&at.z>=516&&at.z<=606){at.x=-60+(at.x+60)*.95;at.z+=45;moved=true;}
+          else{const a=-118*Math.PI/180,dx=at.x-110,dz=at.z-430,x=dx*Math.cos(a)-dz*Math.sin(a),z=dx*Math.sin(a)+dz*Math.cos(a);
+            if(Math.abs(x)<=47&&Math.abs(z)<=44){const b=-110*Math.PI/180;at.x=110+x*Math.cos(b)+z*Math.sin(b);at.z=395-x*Math.sin(b)+z*Math.cos(b);at.ry=(at.ry||0)+8;moved=true;}}
+        }
+        if(at.y>=LV.G-6&&LOUNGE5.some(([x0,z0,x1,z1])=>at.x>x0&&at.x<x1&&at.z>z0&&at.z<z1)){at.x=clamp(at.x,-150,40);at.z=521;at.y=LV.G;moved=true;}
       }
-      if (at.y >= LV.G - 6 && LOUNGE5.some(([x0, z0, x1, z1]) => at.x > x0 && at.x < x1 && at.z > z0 && at.z < z1)) { at.x = clamp(at.x, -150, 40); at.z = 521; at.y = LV.G; return true; }
+      if(from<8&&!at.hide){
+        const inside=(x0,z0,x1,z1)=>at.x>=x0&&at.x<=x1&&at.z>=z0&&at.z<=z1;
+        if(at.y<LV.G-6&&at.y>=LV.G-110){
+          if(inside(-105,425,-15,475)){at.x-=12;at.z+=6.5;moved=true;}
+          else if(inside(53,338,166,452)){at.x+=26;at.z+=5;moved=true;}
+        }else if(at.y>=LV.G-6&&at.y<=LV.G+2&&((inside(79,343,192,457)&&!inside(53,338,166,452))||(inside(-119,432.5,-25,480.5)&&!inside(-107,422,-13,478)))){
+          at.x=50;at.z=520;at.y=LV.G;moved=true;
+        }
+      }
+      return moved;
     }
     if (!at || at.room !== 'drive' || !Number.isFinite(at.x) || !Number.isFinite(at.z)) return false;
     const { CAR, CAR3, CAR4, OLD_CAR, FZ, HEDGE } = FRONT;
@@ -1564,7 +1577,7 @@
       // Keep records belonging to unbuilt rooms; saving the bedroom must not
       // erase the rest of the house, nor overwrite a deferred prop with its home.
       const previous = loadThings(), st = Object.assign({}, previous.t), op = Object.assign({}, previous.o);
-      if ((previous.pv || 0) < PV) for (const id in st) { const r = st[id]; if (!Array.isArray(r) || r[5]) continue; const at = { room: r[0], x: r[1], y: r[2], z: r[3], ry: r[4] }; if (migratePlacement(at, previous.pv || 0)) st[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4]].concat(r.slice(5)); }
+      if ((previous.pv || 0) < PV) for (const id in st) { const r = st[id]; if (!Array.isArray(r) || r[5]) continue; const at = { room: r[0], x: r[1], y: r[2], z: r[3], ry: r[4], hide: !!r[6] }; if (migratePlacement(at, previous.pv || 0)) st[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4]].concat(r.slice(5)); }
       for (const id in THINGS) {
         const t = THINGS[id]; if (t.noSave || pendingRestores.has(id)) continue;
         const carried = held && held.id === id && !held.drag, a = carried ? held.from : t.at, y = t.st==='fall'&&Number.isFinite(t.landY)?t.landY:a.y;
@@ -1616,7 +1629,7 @@
       const lx = (r[1] - OLD_CAR.x) / OLD_CAR.s, lz = (r[3] - OLD_CAR.z) / OLD_CAR.s;
       const stale = r[0] === 'drive' && pv === 3 && Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR3.y - 5 && !(Math.abs(r[1] - CAR3.x) <= 92 * CAR3.s && Math.abs(r[3] - CAR3.z) <= 205 * CAR3.s);
       if (!old && !stale) continue;
-      const at = { room: r[0], x: r[1], y: r[2], z: r[3], ry: r[4] };
+      const at = { room: r[0], x: r[1], y: r[2], z: r[3], ry: r[4], hide: !!r[6] };
       if (migratePlacement(at, stale ? 0 : pv)) save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4], ...r.slice(5)];
     }
     save.pv = Math.max(pv, PV);

@@ -479,7 +479,7 @@
   // ================================================================ THE LOUNGE (the family telly, the video, the phone, the fire)
   const LT = { x: -60, z: 340 }; // the telly
   // The lounge's big furniture (also js/np-life.js seats, js/ch-lounge.js cushions; js/hs-world.js pv 5 moved saved things clear).
-  const SOFA = { x: -60, z: 605, w: 190 }, CHAIR = { x: 110, z: 395, ry: -110, w: 86 }, LAMPST = { x: 176, z: 324 };
+  const SOFA = { x: -60, z: 605, w: 190 }, CHAIR = { x: 136, z: 400, ry: -110, w: 86 }, COFFEE = { x: -72, z: 456.5, w: 90, d: 44 }, LAMPST = { x: 176, z: 324 };
   function buildLounge(r) {
     r.fireOn=lightsOn.loungeFire===true;
     const batch = K.batch(), B = K.into(batch);
@@ -524,21 +524,21 @@
     // the family telly on its stand, the video underneath, the tapes
     buildTelly(r, B);
     // the sofa (3-seater, floral) facing the telly, Dad's armchair, the coffee table
-    // A real 1.9 m three-seater back towards the bay (45 cm clear of the radiator), 84 cm in front of it to the coffee table, and
-    // Dad's 86 cm armchair angled at the telly in the corner: an 80 cm-plus way in from the door to the fire, the telly and the window.
+    // Keep the main chair/table aisle over a metre wide, with 80 cm crossways
+    // between the slimmer table, telly and settee. Dad's chair stays angled at the screen.
     sofa(B, SOFA.x, SOFA.z, 180, SOFA.w, M({ c: '#fff', map: sofaTex(), sh: 2, sp: '#080808' }));
     sofa(B, CHAIR.x, CHAIR.z, CHAIR.ry, CHAIR.w, M({ c: '#fff', map: sofaTex(), sh: 2, sp: '#080808' }));
-    const ct = B.at(-60, GY, 450), coffeeOak = M({ c: '#fff', map: tex('oak') });
-    ct.rbox(0, -42, 0, 90, 3, 50, .7, coffeeOak);
-    [[-40, -20.5], [40, -20.5], [-40, 20.5], [40, 20.5]].forEach(([x, z]) => ct.rbox(x, -20.5, z, 4, 41, 4, .4, coffeeOak));
-    for (const z of [-20.5,20.5]) ct.box(0,-37,z,78,7,2,coffeeOak);
-    for (const x of [-40,40]) ct.box(x,-37,0,2,7,39,coffeeOak);
-    ct.rbox(0, -8, 0, 82, 2, 43, .4, coffeeOak);
-    if(window.Magazines)Magazines.makePaper('hs.tvguide',{room:'lounge',x:-88,y:GY-43.5,z:456,ry:-12},guideTex(),.8);
+    const ct = B.at(COFFEE.x, GY, COFFEE.z), coffeeOak = M({ c: '#fff', map: tex('oak') });
+    ct.rbox(0, -42, 0, COFFEE.w, 3, COFFEE.d, .7, coffeeOak);
+    [[-40, -17.5], [40, -17.5], [-40, 17.5], [40, 17.5]].forEach(([x, z]) => ct.rbox(x, -20.5, z, 4, 41, 4, .4, coffeeOak));
+    for (const z of [-17.5,17.5]) ct.box(0,-37,z,78,7,2,coffeeOak);
+    for (const x of [-40,40]) ct.box(x,-37,0,2,7,33,coffeeOak);
+    ct.rbox(0, -8, 0, 82, 2, 37, .4, coffeeOak);
+    if(window.Magazines)Magazines.makePaper('hs.tvguide',{room:'lounge',x:COFFEE.x-28,y:GY-43.5,z:COFFEE.z+6,ry:-12},guideTex(),.8);
     else ct.box(-28,-44,6,21,.8,28,{t:M({c:'#fff',map:guideTex()}),all:M('#f0eee8')},{ry:-12});
     ct.box(20, -45, -6, 12, 3, 10, M({ c: '#fff', map: tex('pillow') }));
     ct.lathe(28,-43.5,10,[[0,-0.7],[4.4,-0.7],[6.4,-2.4],[7.7,-4.3],[8,-4.2],[8.2,-3.9],[6.8,-1.7],[4.8,0],[0,0]],32,M({c:'#c9d7de',sh:65,sp:'#777f84'}));
-    ct.shadow(0, 0, 0, 108, 62, 0.65, { sq: true });
+    ct.shadow(0, 0, 0, 106, 56, 0.65, { sq: true });
     // the phone table by the door, a standard lamp, the display cabinet, a rubber plant
     const pt = B.at(170, GY, 610); pt.box(0, -64, 0, 40, 3, 36, M({ c: '#fff', map: tex('oak') })); [[-17, -15], [17, -15], [-17, 15], [17, 15]].forEach(([x, z]) => pt.box(x, -31, z, 3, 62, 3, M({ c: '#fff', map: tex('oak') }))); pt.box(0, -20, 0, 36, 2, 32, M({ c: '#fff', map: tex('oak') }));
     const directory=A.printed('hs.pbook',320,400,(g,w,h)=>{g.fillStyle='#ead28b';g.fillRect(0,0,w,h);window.PrintArt?.paint(g,'hs.pbook',14,126,w-28,210);A.text(g,'PHONE BOOK',w/2,66,'45px '+A.FONT,'#273849','center');A.text(g,'JACKNET • 1999',w/2,102,'bold 18px '+A.UIF,'#273849','center');A.text(g,'THE FAMILY DIRECTORY',w/2,376,'bold 16px '+A.UIF,'#273849','center')},{clamp:true});
@@ -603,15 +603,15 @@
     H.spot('hs.fire', { label: 'The gas fire', act: () => { r.fireOn = !r.fireOn;lightsOn.loungeFire=r.fireOn;saveHouseLights(); H.relight(); say('The gas fire', r.fireOn ? 'Click click click WHUMP. The fake coals glow orange. Toasty.' : 'Off. Mom says not to leave it on, it costs a fortune.'); } }); pickBox(r, 'hs.fire', -280 + 44, GY - 50, 500, 6, 100, 104);
     H.spot('hs.mantel', { label: 'The mantelpiece', act: sayLines('hs.mantel', 'The mantelpiece', ['A carriage clock (ten minutes fast, on purpose, so we\'re never late), my school photo from Year 7 (bowl haircut, braces), and {sister}\'s ballet certificate.', 'The school photo. Mom refuses to take it down. I have asked. Many times.']) }); pickBox(r, 'hs.mantel', -280 + 44, GY - 124, 500, 10, 22, 140);
     H.spot('hs.cabinet', { label: 'Display cabinet', act: sayLines('hs.cabinet', 'The display cabinet', ['Mom\'s best glasses, a crystal swan, and a souvenir plate from the seaside. We are not allowed to open it. We have never opened it.']) }); pickBox(r, 'hs.cabinet', -180, GY - 60, 322, 90, 120, 26);
-    H.spot('hs.guide', { label: 'The TV guide', act: () => { if (window.HouseTelly) HouseTelly.guide(); else say('The TV guide', 'This week\'s telly, circled in Dad\'s biro.'); } }); pickBox(r, 'hs.guide', -88, GY - 45, 456, 24, 3, 30);
+    H.spot('hs.guide', { label: 'The TV guide', act: () => { if (window.HouseTelly) HouseTelly.guide(); else say('The TV guide', 'This week\'s telly, circled in Dad\'s biro.'); } }); pickBox(r, 'hs.guide', COFFEE.x-28, GY - 45, COFFEE.z+6, 24, 3, 30);
     H.spot('hs.lamp', { label:()=>standardLampOn()?'Standard lamp: switch off':'Standard lamp: switch on', act: () => { lightsOn.loungeLamp=!standardLampOn();saveHouseLights();standardLampLook(r);H.relight();window.Sound?.world('switch'); } }); pickBox(r,'hs.lamp',LAMPST.x,GY-100,LAMPST.z,42,200,42);standardLampLook(r);
     H.spot('hs.window', { label: 'The bay window', act: () => say('The bay window', ['Through the nets: the street, the lamp-post, next door\'s estate car.', 'The milk float hums past. Mom has a pint of gold top and a yoghurt on order.', 'Somebody\'s walking a dog. The dog has a little coat on.'][((r.wn = (r.wn | 0) + 1)) % 3]) }); pickBox(r, 'hs.window', -60, 225, 694, 220, 150, 6);
     // walking
     H.walkRect('G', -278, 307, 193, 698, { room: 'lounge' });
     H.block('G', LT.x - 48, 305, LT.x + 48, 352); // the telly
-    H.block('G',SOFA.x-SOFA.w/2-2,SOFA.z-44,SOFA.x+SOFA.w/2+2,SOFA.z+43);H.block('G',53,338,166,452);H.block('G',-107,422,-13,478); // full sofa/chair footprints, not just their seat centres
+    H.block('G',SOFA.x-SOFA.w/2-2,SOFA.z-44,SOFA.x+SOFA.w/2+2,SOFA.z+43);H.block('G',79,343,192,457);H.block('G',COFFEE.x-47,COFFEE.z-24,COFFEE.x+47,COFFEE.z+24); // full sofa/chair footprints, not just their seat centres
     H.block('G', 146, 588, 194, 634); H.block('G', -230, 305, -130, 342); H.block('G', -280, 420, -230, 580); H.block('G', LAMPST.x - 16, LAMPST.z - 16, LAMPST.x + 16, LAMPST.z + 16); H.block('G', -268, 646, -232, 676);
-    H.support('lounge', -105, 425, -15, 475, GY - 43.5); H.support('lounge', 150, 592, 190, 628, GY - 65.5); H.support('lounge', -280, 430, -230, 570, GY - 114);
+    H.support('lounge', COFFEE.x-45, COFFEE.z-22, COFFEE.x+45, COFFEE.z+22, GY - 43.5); H.support('lounge', 150, 592, 190, 628, GY - 65.5); H.support('lounge', -280, 430, -230, 570, GY - 114);
     H.support('lounge',152,594,188,626,GY-21); // the phone book's lower shelf
   }
   // Follow the solid upholstery, leaving the air over the seat pickable.
@@ -1128,7 +1128,7 @@
     B.box(256.8, GY - 102, 703, 5.6, 204, 3, mWhite); B.box(343.2, GY - 102, 703, 5.6, 204, 3, mWhite); B.box(300, GY - 206, 703, 92, 6, 3, mWhite);
     B.box(300, GY - 215, 704, 100, 14, 40, M('#e8e4dc')); B.box(300, GY - 222, 724, 100, 2, 2, M('#9a9a92')); // the porch roof
     B.plane(340, GY - 180, 702.6, 16, 20, M({ c: '#fff', map: K.tex('hs.numb', 64, 80, (g) => { g.fillStyle = '#1a1a1a'; g.fillRect(0, 0, 64, 80); A.text(g, '42', 32, 58, '48px ' + A.FONT, '#f0d080', 'center'); }) }));
-    B.rbox(300, GY - 1, 730, 70, 2, 44, 0.7, { t: M({ c: '#fff', map: matTex() }), all: M('#8a6232') });
+    // The single WELCOME mat is inside the hall, where the post lands.
     // a black coach lantern on the wall beside the front door (the old free-standing post stood in front of the car boot)
     { const ln = B.at(354, GY - 176, 703), black = M({ c: '#1d1e1f', sh: 40, sp: '#444' }), lit = phase() === 'night' ? '#a08040' : '#000';
       ln.rbox(0, 0, 1.2, 7, 15, 2.4, 0.6, black); ln.cyl(0, -1, 6.6, 0.8, 0.8, 9, 8, black, { rx: 90 });
@@ -1292,7 +1292,7 @@
       lights: () => [{ x: 370, y: 150, z: 290, c: '#ffe4b8', i: lit('cupboard') ? 1.1 : 0, d: 260 }, { x: 336, y: 290, z: 400, c: '#e8e0d0', i: H.DOORS.cupboard && H.DOORS.cupboard.open ? (phase() === 'day' ? .65 : .25) : 0, d: 220 }],
       amb: () => ({ sky: lit('cupboard') ? '#b2a18b' : '#7d8190', gnd: '#5b5145', i: lit('cupboard') ? .46 : (H.DOORS.cupboard && H.DOORS.cupboard.open ? .3 : .22) }),
       stations: [{ id: 'snes', n: 'The old console', pose: () => look('G', 362, 400, 358, GY - 38, 330, 112) }] },
-    lounge: { name: 'The lounge', title: 'THE LOUNGE', lvl: 'G', area: [[-280, 305, 195, 700]], bx0: -278, bx1: 193, bz0: 307, bz1: 698, build: buildLounge, windowViews:[{room:'drive',bounds:bayGlass}],
+    lounge: { coffeeFrame: COFFEE, name: 'The lounge', title: 'THE LOUNGE', lvl: 'G', area: [[-280, 305, 195, 700]], bx0: -278, bx1: 193, bz0: 307, bz1: 698, build: buildLounge, windowViews:[{room:'drive',bounds:bayGlass}],
       lights: () => { const L = [{ x: -60, y: GC + 30, z: 500, c: '#fff0d0', i: lit('lounge') ? 0.95 : 0, d: 700 }, { x: -60, y: 220, z: 690, c: phase() === 'day' ? '#e8f0ff' : '#4a5a8a', i: phase() === 'day' ? 1.1 : 0.2, d: 650 }]; const lamp = lightsOn.loungeLamp == null ? phase() !== 'day' : lightsOn.loungeLamp; if (lamp) L.push({ x: LAMPST.x, y: GY - 160, z: LAMPST.z, c: '#ffd8a0', i: 0.8, d: 380 }); if (HouseRooms.rooms.lounge.fireOn) L.push({ x: -240, y: GY - 30, z: 500, c: '#ff8a40', i: 0.9, d: 300 }); if (window.HouseTelly && HouseTelly.on) L.push({ x: LT.x, y: GY - 80, z: LT.z + 60, c: '#8aa8ff', i: 0.55, d: 320 }); return L; },
       amb: () => interiorAmb('lounge', .6),
       sun: () => phase() === 'day' ? { x: -60, y: -100, z: 1200, tx: -60, ty: GY, tz: 400, c: '#fff4e0', i: 0.35 } : null,

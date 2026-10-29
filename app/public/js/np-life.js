@@ -57,7 +57,7 @@
     // lounge
     sofaL: { lvl: 'G', act: 'telly', seat: seat({ x: -110.4, z: 608, face: 180, stand: [-110.4, 551], approach: [-110.4, 521] }) }, // (in from the way between the coffee table and the sofa)
     sofaR: { lvl: 'G', act: 'telly', seat: seat({ x: -9.6, z: 608, face: 180, stand: [-9.6, 551], approach: [-9.6, 521] }) },
-    armchair: { lvl: 'G', act: 'paper', seat: seat({ x: 115.6, z: 397, face: -110, stand: [78.1, 383.3], approach: [4.8, 365.3] }) }, // (straight in from the front)
+    armchair: { lvl: 'G', act: 'paper', seat: seat({ x: 141.6, z: 402, face: -110, stand: [104.1, 388.3], approach: [30.8, 370.3] }) }, // (straight in from the front)
     floorTV: { lvl: 'G', act: 'telly', seat: { x: -172, z: 401, face: 119, h: 1, floor: true, back: false, knee: 24, stand: [-172, 401], approach: [-172, 401] } },
     phone: { lvl: 'G', x: 117, z: 611, face: 90, act: 'phone' },
     // hall, landing
