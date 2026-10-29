@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.21: cushions fit the seats and F reaches Dad’s chair cushion; proper watering-can grip contacts and accurate chore destinations; includes hands-on bed-making, washing-up and boot-rug fixes. Includes all earlier graphics, props/hands, phone, family, camera and approved 7 m plot releases.
+- Live = 2.57.22: visible table ketchup, solid plate centres, safe completed saves and proper redo; cushions fit the seats and F reaches Dad’s chair cushion; proper watering-can grip contacts and accurate chore destinations; includes hands-on bed-making, washing-up and boot-rug fixes. Includes all earlier graphics, props/hands, phone, family, camera and approved 7 m plot releases.
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
   -> `./deploy.sh` -> `curl -s https://jacklm.com/ | grep -o "v=2\.[0-9.]*-[0-9]*"` -> git commit (attribution) + `git push origin main`.
@@ -29,7 +29,7 @@ never anything that looks cursed.
 | /opt/stacks/landing-voices | voices | reviewed; waiting on British recordings | Three live British clips preserved; line/name timers checked for 29–31 October. No old American assets merged. |
 | /opt/stacks/landing-chores | chores-washup | shipped 2.57.18 | R106/R117 complete; R80 shipped separately19. Remaining visible chore feedback from ~/codex-runs/chores-polish.prompt.md. |
 | /opt/stacks/landing-bed | chores-bed | shipped 2.57.19 | R80 complete. Focused bed, smoke, physics, mobile, story/owner and QA gates accepted; remaining chores feedback next. |
-| /opt/stacks/landing-chores-feedback | chores-feedback | shipped 2.57.20/21 | R118/R119/R120 complete: can handle/body contacts and real chore destinations. Remaining chore before/after audit, then console-flow. |
+| /opt/stacks/landing-chores-feedback | chores-feedback | shipped 2.57.20/21/22 | R118–R123 complete: can handle/body contacts and real chore destinations. Chore audit complete; final table regression and smoke green. Next: console-flow. |
 | (brief) ~/codex-runs/console-flow.prompt.md | — | not started | R84 Game Lad fills the screen when playing (keyboard), T = full screen with mouse; R85 case system (cart/disc out of case into machine, case parked, put back on eject). |
 Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md has every R-item with details.
 
@@ -209,3 +209,11 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - ACTIVE2: jhp-table-solid.service /tmp/jhp-table-solid.log final renderer-save/art/redo/touch test; adds independent four plate ray/foot/collider/fixed assertions. jhp-table-mobile.service /tmp/jhp-table-mobile.log full/tablet; phone has reached real cartridge handling. Source beyond36985eb not yet committed. Need final geometry/art pass then merge, version22/changelog and static deploy/push when green.
 - Smoke accepted first3 from /tmp/jhp-table-smoke.log; stopped its failed-PC continuation. Final tail9/9 /tmp/jhp-table-smoke-final.log green with close-window wait, clean browser/server checks. All12 sections covered across accepted runs; do not label either original full run all-green. Final units35/35 /tmp/jhp-table-final-units.log before the last plate refinement; fresh syntax/parody/units next.
 - Last art clearance refinement: bottle at(-87,165) gives >2cm clear of both pumpkin and the carving bowl at(-71,162), radius9.8. Added independent bowl clearance assertion. Stopped jhp-table-solid before completion; not accepted. Final unchanged-scope replacement jhp-table-solid-final → /tmp/jhp-table-solid-final.log active. Final phone full PASS525s; tablet running in /tmp/jhp-table-mobile.log. Still only2heavy workers.
+
+## Final table candidate,04:53 UTC
+- /tmp/jhp-table-solid-final.log FULL PASS: all4 solid ceramic centres, real mat foot contact, matching collider height/fixed body after completed refresh; original completed bottle migration retains flags; six sizes/three angles; in/out season; real owner redo and actual phone E plus refresh. Final gallery including current touch-bottle reviewed. Earlier real13 E actions accepted separately. All35 units, syntax/parody green; phone/tablet2/2 /tmp/jhp-table-mobile.log.
+- Merged chores-table-clear64e1a0d into root main. Version22/changelog drafted, NOT deployed. Live remains21/c686d2e. One heavy job remains jhp-table-smoke-release.service → /tmp/jhp-table-smoke-release.log (full final plate source, started04:47:18UTC), currently signup PASS. Earlier split smoke3+9 accepted, but full final-source run is final release gate. Keep candidate unchanged, ship22 immediately once green, then console-flow R84/R85. No subagents, no risky data actions.
+
+- Final-source full smoke12/12 PASS /tmp/jhp-table-smoke-release.log, zero browser/server errors. All release gates accepted. Shipping22, then console-flow next; preserve physical-hardware limitations and approved voices.
+
+- Shipped2.57.22-261029045900. Public health/home200 and build correct; live read-only PASS mandatory account/no bypass/errors/warnings; five-minute mod-failure/unhandled/fatal counts0; approved root/served British voice hashes4/4 unchanged. Final smoke and tablet captures reviewed. Committing/pushing release; next console-flow.

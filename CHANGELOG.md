@@ -1,5 +1,12 @@
 # Jack's Home Page - changelog
 
+## 2.57.22 - 2026-10-29
+- R121: ketchup stays visible beside the seasonal pumpkin, clear of the carving bowl and all four place settings. Old completed placements move to the corrected fixed slot without changing progress or payments.
+- R122: completed table saves build safely before the placement helper is used. Owner redo returns all thirteen pieces to their original worktop homes.
+- R123: solid plates have closed ceramic profiles and real feet resting on the mats; their centres cover the underlying placemat/carving artwork. Completed table pieces regain fixed slot bodies after refresh, with matching plate collider heights.
+- Verified: actual thirteen E placements; final completed-save regression covers old pose/progress, refresh, four independently measured plate centres/foot contacts/colliders, six viewport sizes and three angles, seasonal views, owner redo and actual phone E. All35 unit checks, syntax/parody and phone/tablet gameplay2/2 green. Final table, close-up, seasonal and touch captures reviewed. Full final-source smoke12/12 green, with clean browser/server checks.
+- No server, account, wallet/cap or shared-world changes. Approved British voice files preserved. Physical Edge/Android hardware, gamepads and hardware FPS/thermal remain unverified. Console R84/R85, R108 and broader scale rows remain open.
+
 ## 2.57.21 - 2026-10-29
 - R120: plumped cushions rest on the actual seat throughout rotation, with matching solid physics bounds and room between the three settee cushions. Dad's cushion follows the real chair angle. Rounded piping stays against the fabric. Completed and loose poses survive refresh; owner redo restores the original flat cushions.
 - Chair picking follows the actual upholstery, arms and feet, so F can reach the cushion above its seat. Existing chore IDs, progress and payments remain intact.
