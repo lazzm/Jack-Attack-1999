@@ -37,7 +37,7 @@
       blurb: 'Tie up the kitchen bin bag, take it out the back door to the wheelie bin, then a new bag in the kitchen bin.' },
     // ---- the lounge
     { id: 'hoover', job: 'hoover', area: 'lounge', room: 'lounge', n: 'Vacuum the lounge', short: 'Vacuum', pay: 18, par: 90, min: 10, where: 'the lounge',
-      blurb: 'The vacuum is in the cupboard under the stairs. Plug it in, get every crumb, put it back.' },
+      blurb: 'The vacuum stands in the hall by the lounge door. Plug it in, get every crumb, put it back.' },
     { id: 'videos', job: 'videos', area: 'lounge', room: 'lounge', n: 'Tidy the videos', short: 'Videos', pay: 8, par: 40, min: 5, where: 'the lounge',
       blurb: 'Every tape back on the shelf under the telly. Rewound. Be kind.' },
     { id: 'cushions', job: 'cushions', area: 'lounge', room: 'lounge', n: 'Plump the cushions', short: 'Cushions', pay: 8, par: 40, min: 5, where: 'the lounge',
