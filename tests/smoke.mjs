@@ -36,12 +36,24 @@ let stopping=false;
 async function stop(signal){if(stopping)return;stopping=true;console.log(`FAIL runner: ${signal}`);await cleanup();console.log(`SUMMARY ${results.filter(Boolean).length}/${results.length+1} passed; aborted=${signal}; renderer=${renderer}; draw calls: ${draws.join(', ')||'not sampled'}`);process.exit(1)}
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>void stop(signal));
 const watchdog=setTimeout(()=>void stop(`${400*SCALE}s total timeout`),400000*SCALE);
-function observe(page){
+async function observe(page){
   activeBrowser=page.context().browser();
   if(stopping){void activeBrowser.close();return;}
   page.on('pageerror',e=>errors.push(e.message));
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
   page.setDefaultTimeout(8000*SCALE);
+  // Observe the real profile response before driving the room: rmData deliberately reloads once.
+  // A rendered room can precede that response, especially on software WebGL.
+  await page.addInitScript(()=>{
+    window.__smokeProfileReady=false;window.__smokeProfileEvents=[];
+    const attach=()=>{
+      if(!window.Net||window.__smokeProfileAttached)return;
+      window.__smokeProfileAttached=true;
+      for(const type of ['rmSame','rmNone','rmData'])Net.on(type,()=>{__smokeProfileEvents.push(type);__smokeProfileReady=type!=='rmData'});
+    };
+    document.addEventListener('load',attach,true);
+    document.addEventListener('DOMContentLoaded',attach,{once:true});
+  });
 }
 async function room(){
   if(!fixture){
@@ -50,6 +62,7 @@ async function room(){
       assert(registered.ok,'Admin registration failed: '+registered.status);registeredAccount=true;
     }
     fixture=await roomFixture(base,{account,password,signup:false,onPage:observe,timeoutScale:SCALE});fixture.page.setDefaultNavigationTimeout(60000*SCALE);
+    await fixture.until(()=>window.__smokeProfileReady&&window.AccountGate?.allowed&&window.House?.live&&!document.querySelector('.hs-loading,#houseEntry'));
     renderer=await fixture.page.evaluate(()=>{const gl=House.ren.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)):'unavailable'});
   }
   return fixture;
@@ -65,13 +78,14 @@ async function houseSave(page){return page.evaluate(()=>{
   const pose=JSON.parse(localStorage.getItem('jhp_hs_pose')||'null');if(pose)delete pose.t;
   return{pose,stand:JSON.parse(localStorage.getItem('jhp_hs_stand')||'null')?.p,power:localStorage.getItem('jhp_off')};
 })}
-async function reload(){const {page}=await room();await page.reload({waitUntil:'domcontentloaded'});await until(()=>window.AccountGate?.allowed&&window.House?.live&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'))}
+async function reload(){const {page}=await room();await page.reload({waitUntil:'domcontentloaded'});await until(()=>window.__smokeProfileReady&&window.AccountGate?.allowed&&window.House?.live&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'))}
 const checks=[
  ['sparse-signup',90000,async()=>{
    let sparse;
    try{
      sparse=await roomFixture(base,{onPage:observe,opening:true,timeoutScale:SCALE});
      const {page}=sparse;
+     await sparse.until(()=>window.__smokeProfileReady&&window.AccountGate?.allowed&&window.House?.live&&!document.querySelector('.hs-loading,#houseEntry'));
      assert.equal(await page.evaluate(()=>localStorage.getItem('jhp_starter')),'1');
      assert(await page.evaluate(()=>House.mode==='walk'&&!House.pcGL.visible&&!document.body.classList.contains('pc-monitor')),'New story player must start without a PC or screen layer');
      assert(await page.evaluate(()=>House.THINGS.gb?.obj.visible),'Game Lad missing');
