@@ -879,10 +879,10 @@
   // What you carry is the real thing at its real size (owner: "size of things shouldn't change when holding"), held in
   // your hands low in front of you like a first-person game: its top edge just under the crosshair, tilted towards you,
   // big things running off the bottom of the frame, your forearms coming up to it from below ("why arms so long?").
-  // How far out depends on its size (36 cm for a mug, up to arm's length for a monitor) and stays fixed while you hold it,
+  // How far out depends on its size and stays fixed while you hold it,
   // so it never changes size: picking it up, putting it down and inspecting only move it.
   // low: where a small thing's bottom edge sits (a fraction of the view from the top) when nothing is in the way
-  const HOLD = { near: 36, far: 60, reach: 72, x: 0.02, gap: 0.075, low: 0.86, pad: 0.012, tiltSign: -1 };
+  const HOLD = { near: 36, far: 120, reach: 144, height: 0.12, x: 0.02, gap: 0.075, low: 0.86, pad: 0.012, tiltSign: -1 };
   // tipped so you see a little of its top whichever way you look (as if your hands brought it up to show you), but
   // following your view only partly, so looking down at the floor still shows it held, not lying flat
   const holdTilt = () => clamp(24 + P.rx * 0.8, -32, 38);
@@ -926,12 +926,12 @@
     // (the carry panel only matters where it is under the middle of the view: on a desktop it sits in the corner)
     const panel = carryPanel(now), ghost = ghostRect(), mid = panel && panel.l < 0.62 && panel.r > 0.38, low = Math.min(HOLD.low, mid ? panel.top - HOLD.pad : 1), top0 = 0.5 + HOLD.gap;
     // how far out you hold it: chosen once per grip from its size (and the view), so it never changes size in your hands.
-    // A small thing comes in close (36 cm) and sits between the crosshair and the carry panel; a big one goes out towards
-    // arm's length (60 cm) and runs off the bottom; nothing is wider than ~85% of the view (a phone held upright).
+    // A game case occupies about 12% of the view's height. The real object and real hands share this pose, with no
+    // rescaling; larger things reach the distance limit and run off the bottom. Tiny props retain a minimum distance.
     const key = vw + 'x' + vh;
     if (!held.vd || held.vdKey !== key) {
       const sz = lb.getSize(_vv), hp = Math.max(sz.y, 0.6 * Math.max(sz.x, sz.z)), wp = Math.max(sz.x, sz.z);
-      held.vd = Math.min(HOLD.reach, Math.max(clamp(hp / (2 * tanV * Math.max(0.16, low - top0)), HOLD.near, HOLD.far), wp / (2 * tanH * 0.85)));
+      held.vd = Math.min(HOLD.reach, Math.max(clamp(hp / (2 * tanV * HOLD.height), HOLD.near, HOLD.far), wp / (2 * tanH * 0.85)));
       held.vdKey = key;
     }
     const d = held.vd, hf = h / (2 * d * tanV), wf = w / (2 * d * tanH); // its height and width, as fractions of the view
