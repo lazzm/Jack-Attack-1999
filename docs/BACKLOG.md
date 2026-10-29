@@ -240,3 +240,5 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R121 | art | med | chore-feedback/table-after.png, 29 October | Completed ketchup placement is inside the seasonal carving pumpkin: sauce(-54,172), pumpkin(-45,174), radius15 | Give the bottle a clear table position in every season; preserve completed job flags, refresh and carving progress. Separate release after R120. |
 
 | R122 | bug | high | table-clear completed-save regression,29 October | Refreshing a completed table can call isPlaced before initialization; redo reuses completed positions as factory homes | Initialize the placement helper before eager builds and retain original worktop homes. Verify completed refresh and actual owner redo with all pieces. |
+
+| R123 | art/physics | high | table-clear/complete-close.png,29 October | Placemat and carving-sheet art appears through plate centres; restored completed pieces lose their fixed-slot body state | Closed plate profile with a real foot, solid centre clearance and restored fixed slots. Check all four rendered centres, mat contact and collider heights after refresh. |

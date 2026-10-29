@@ -226,7 +226,7 @@
         g.strokeStyle = '#c8a040'; g.lineWidth = 2; g.strokeRect(9, 9, w - 18, h - 18); A.grain(g, w, h, 600, 0.05, 3);
       });
       PLACES.forEach(P => { const [x, z, w, d] = P.mat, m = new T.Group(); m.position.set(x, TY, z); K.into(m).box(0, -0.35, 0, Math.max(w, d), 0.7, Math.min(w, d), { t: M({ c: '#fff', map: matTex, sh: 5, sp: '#141414' }), all: mat('#3a1a0a') }, { ry: w >= d ? 0 : 90 }); r.group.add(m); });
-      const plateM = () => grp(G => { G.lathe(0, 0, 0, [[12, -1.7], [10.6, -1.3], [7.2, -0.4], [0.1, -0.4]], 28, mat('#f6f4ee', { sh: 70, sp: '#999', side: 2 })); G.lathe(0, 0, 0, [[0.1, 0], [7.2, 0], [12, -1.7]], 28, mat('#e8e4da')); G.lathe(0, 0, 0, [[10.4, -1.42], [10.8, -1.46]], 28, mat('#c8a040', { sh: 80 })); });
+      const plateM = () => grp(G => { G.lathe(0, 0, 0, [[.001, -.6], [7.1, -.6], [10.6, -1.3], [12, -1.7], [12.05, -1.3], [10.65, -.8], [7.3, .05], [7, .45], [6.5, .45], [6.3, .1], [.001, .1]], 28, mat('#f6f4ee', { sh: 70, sp: '#999' })); G.lathe(0, 0, 0, [[10.4, -1.272], [10.8, -1.369]], 28, mat('#c8a040', { sh: 80 })); });
       const cutM = () => grp(G => { const st = mat('#d4d8de', { sh: 110, sp: '#fff' }); G.box(-1.6, -0.3, 0, 1.4, 0.4, 19, st); G.box(-1.6, -0.35, -7, 1.8, 0.5, 5, mat('#2a1a10')); G.box(1.8, -0.3, 2, 1.2, 0.4, 13, st); G.box(1.8, -0.35, -6, 1.6, 0.5, 6, mat('#2a1a10')); for (let i = 0; i < 4; i++) G.box(1.0 + i * 0.55, -0.3, 10, 0.3, 0.3, 3, st); G.shadow(0, 0, 0, 8, 22, 0.3, { sq: true }); });
       const glassM = () => grp(G => { G.cyl(0, -6, 0, 3.6, 3, 12, 18, M({ c: '#d8ecf4', o: 0.35, sh: 120, sp: '#fff', side: 2 }), { open: true }); G.disc(0, -0.4, 0, 3, M({ c: '#d8ecf4', o: 0.5, sh: 120 }), 16); G.shadow(0, 0, 0, 9, 9, 0.3); });
       for (let i = 0; i < 4; i++) {
@@ -253,15 +253,22 @@
     },
     sync() {
       const lockIf = (t, s) => { if (!t) return; if (CK.has('table', s)) CK.lock(t.id); };
-      ['p', 'k', 'g'].forEach(k => tbl[k].forEach(t => { if (t && CK.S.at[t.id] && Object.keys(CK.S.prog.table || {}).length && isPlaced(t)) CK.lock(t.id); }));
+      ['p', 'k', 'g'].forEach(k => tbl[k].forEach((t, i) => {
+        if (!t || !CK.has('table', k + i) || !['rest', 'snap'].includes(t.st) || !isPlaced(t)) return;
+        const s = H.SNAPS['ch.s.t' + k + i];
+        const moved = ['x', 'y', 'z', 'ry'].some(key => Math.abs((t.at[key] || 0) - (s.pose[key] || 0)) > .01);
+        Object.assign(t.at, s.pose); t.rx = t.rz = 0; t.st = 'snap'; t.snap = s.id;
+        t.home = Object.assign({}, t.at); CK.lock(t.id); H.place(t); H.layerFor(t); if (moved) CK.keep(t.id);
+      }));
       const t = tbl.sauce;
       // Old completed jobs restore as rest objects. Move only the former fixed
       // table position, leaving loose bottles and every progress flag intact.
       if (t && ['rest', 'snap'].includes(t.st) && t.at.room === 'kitchen' && !t.at.hide &&
-          (t.snap === 'ch.s.sauce' || CK.has('table', 'sauce') && Math.abs(t.at.x + 54) < .11 && Math.abs(t.at.z - 172) < .11 && Math.abs(t.at.y - TY) < .11)) {
+          (t.snap === 'ch.s.sauce' || CK.has('table', 'sauce') && Math.abs(t.at.y - TY) < .11 &&
+            (Math.abs(t.at.x + 54) < .11 && Math.abs(t.at.z - 172) < .11 || Math.abs(t.at.x - SAUCE.x) < .11 && Math.abs(t.at.z - SAUCE.z) < .11))) {
         const moved = ['x', 'y', 'z', 'ry'].some(k => Math.abs((t.at[k] || 0) - SAUCE[k]) > .01);
         if (moved) { Object.assign(t.at, SAUCE); H.place(t); H.layerFor(t); CK.keep(t.id); }
-        t.home = Object.assign({}, SAUCE);
+        t.home = Object.assign({}, SAUCE); t.st = 'snap'; t.snap = 'ch.s.sauce'; H.place(t);
       }
       lockIf(t, 'sauce');
     },
