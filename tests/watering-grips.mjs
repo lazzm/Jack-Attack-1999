@@ -23,12 +23,12 @@ await withTestServer(async base=>{
    const H=House,T=H.T,t=H.THINGS['ch.can'],grips=t.obj.userData.handGrips||[];
    t.obj.updateWorldMatrix(true,true);const inv=t.obj.matrixWorld.clone().invert();
    return grips.map(point=>{let nearest=Infinity;const q=new T.Vector3(...point);
-    t.obj.traverse(o=>{if(!o.isMesh||o.userData.contactShadow)return;const g=o.geometry,p=g.attributes.position,I=g.index,m=inv.clone().multiply(o.matrixWorld);for(let i=0;i<(I?I.count:p.count);i+=3){const v=[0,1,2].map(k=>new T.Vector3().fromBufferAttribute(p,I?I.getX(i+k):i+k).applyMatrix4(m));nearest=Math.min(nearest,new T.Triangle(...v).closestPointToPoint(q,new T.Vector3()).distanceTo(q))}});return nearest;
+    t.obj.traverse(o=>{if(!o.isMesh||o.userData.contactShadow)return;const g=o.geometry,p=g.attributes.position,I=g.index,m=inv.clone().multiply(o.matrixWorld);for(let i=0;i<(I?I.count:p.count);i+=3){const v=[0,1,2].map(k=>new T.Vector3().fromBufferAttribute(p,I?I.getX(i+k):i+k).applyMatrix4(m));const tri=new T.Triangle(...v);if(tri.getArea()>1e-10){const d=tri.closestPointToPoint(q,new T.Vector3()).distanceTo(q);if(Number.isFinite(d))nearest=Math.min(nearest,d)}}});return nearest;
    });
   });
   assert.equal(fit.length,2,'A full can needs a handle grip and body support');
-  assert(fit.every(d=>d<1),'A grip is floating away from the real can: '+fit);
   console.log('Rendered can contact distances (cm):',fit);
+  assert(fit.every(d=>d<1),'A grip is floating away from the real can: '+fit);
   for(const turn of [0,45,90]){
    if(turn)await p.keyboard.press('r');await p.waitForTimeout(700);
    assert.equal(await p.evaluate(()=>House.held()),'ch.can');
