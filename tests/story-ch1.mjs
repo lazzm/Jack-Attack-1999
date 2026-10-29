@@ -84,14 +84,14 @@ async function ownerRoundTrip(){
     const saved=await ownerSnapshot(op);assert(saved);console.log('Owner snapshot saved');
     await op.waitForTimeout(21000*SCALE); // Respect the roaming profile's save limit (1 upload / 20s per connection); background autosaves can spend the refill on a busy host.
     await ownerReplace(op,'reset');
-    await of.until(()=>AccountGate.allowed&&House.live&&StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
+    await of.until(()=>window.AccountGate?.allowed&&window.House?.live&&window.StoryOpening?.built&&!document.querySelector('.hs-loading,#houseEntry'));
     assert.equal(await op.evaluate(()=>st.current().id),'lad');assert.equal(await op.evaluate(()=>House.pcGL.visible),false);
     assert.equal(await op.evaluate(()=>House.mode),'walk');
     assert.equal(await op.evaluate(()=>document.body.classList.contains('pc-monitor')),false);
     await op.screenshot({path:shots+'18-owner-reset-no-pc.png'});
     await op.keyboard.press('Backquote');await of.until(()=>document.querySelector('.owner-tools')?.open);
     await ownerReplace(op,'restore',saved);
-    await of.until(()=>AccountGate.allowed&&House.live&&House.mode==='walk'&&!House.gliding&&st.getState()?.flags.veteran&&!document.querySelector('.hs-loading,#houseEntry'));
+    await of.until(()=>window.AccountGate?.allowed&&window.House?.live&&House.mode==='walk'&&!House.gliding&&window.st?.getState()?.flags.veteran&&!document.querySelector('.hs-loading,#houseEntry'));
     assert.equal(await op.evaluate(()=>House.pcGL.visible),true);await op.screenshot({path:shots+'19-owner-restored-pc.png'});
     assert.deepEqual(of.errors,[]);
   } catch(e){await of.page.screenshot({path:shots+'owner-failure.png'});throw e;}finally {await of.browser.close();}
