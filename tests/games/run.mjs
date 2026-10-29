@@ -8,6 +8,7 @@ import {fileURLToPath} from 'node:url';
 import {loadavg} from 'node:os';
 import {chromium} from 'playwright';
 import {roomFixture} from '../room-fixture.mjs';
+import {playCase} from '../case-actions.mjs';
 const root=fileURLToPath(new URL('../../',import.meta.url)),before=process.argv.includes('--baseline'),tag=before?'before':'after';
 const baselineSource=before?await readFile(process.env.RUN_BASELINE||'/tmp/warp-wombat-before/rm-g-run.js','utf8').catch(e=>{if(process.env.RUN_BASELINE)throw e;return execFileSync('git',['show','HEAD:app/public/js/rm-g-run.js'],{cwd:root,encoding:'utf8'})}):null;
 const shots=root+'tests/shots/games/run/'+tag+'/';
@@ -277,12 +278,7 @@ async function roomCheck(base,touch=false){
  const roomUntil=async(fn,timeout=20000)=>{const end=Date.now()+timeout;while(Date.now()<end){assert.deepEqual(f.errors,[],'Room browser errors');if(await p.evaluate(fn))return;await p.waitForTimeout(80)}throw Error('Room timeout '+fn)};console.log('Room standing');
  if(before)await p.route('**/js/rm-g-run.js*',async r=>r.fulfill({body:baselineSource,contentType:'application/javascript'}));
  const aim=async(eye,target)=>{await f.view(eye,target);await p.evaluate(()=>{House.hush();House._.setMode('walk')})};
- const home=await p.evaluate(()=>House.THINGS['media.box.ps.run'].at);
- await aim([-220,-55,35],[home.x,home.y-6,-36]);await p.keyboard.press('e');await roomUntil(()=>House.held()==='media.box.ps.run');
- await aim([-130,-55,220],[-130,73,145]);await p.keyboard.press('e');await roomUntil(()=>House.THINGS['media.box.ps.run'].st==='rest');
- await aim([-130,-55,220],[-130,67,146.6]);await p.keyboard.press('f');await roomUntil(()=>House.THINGS['media.box.ps.run'].caseOpen);await p.waitForTimeout(350);
- await aim([-130,-55,220],[-128,67,145.1]);await p.keyboard.press('e');await roomUntil(()=>House.held()==='media.ps.run');
- const slot=await p.evaluate(()=>House.SNAPS['console.ps']);await aim([-185,-55,120],[slot.x,slot.y,slot.z]);await p.keyboard.press('e');
+ await playCase(f,'ps.run');
  await roomUntil(()=>RoomTV.open_&&House.focused&&!House.gliding&&window.__runDbg?.mode==='title');assert.equal(await p.evaluate(()=>House.THINGS['media.ps.run'].snap),'console.ps');
  await p.waitForTimeout(300);await p.screenshot({path:shots+(touch?'touch-room-':'')+'in-room.png'});
 

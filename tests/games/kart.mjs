@@ -11,6 +11,7 @@ import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises';
 import {loadavg,availableParallelism} from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from '../room-fixture.mjs';
+import {playCase} from '../case-actions.mjs';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const port=+(process.env.KART_PORT||18089);assert(port>=18080&&port<=18099);
 const physicsOnly=process.argv.includes('--physics');
@@ -83,12 +84,7 @@ try{
  }
  // Real shelf -> open case -> cartridge -> console, as in the smoke fixture.
  console.log('Physical cartridge setup');
- const home=await p.evaluate(()=>House.THINGS['media.box.n64.kart'].at);
- await aim([-220,-55,35],[home.x,home.y-6,-36]);await p.keyboard.press('e');await until(()=>House.held()==='media.box.n64.kart');
- await aim([-80,-55,220],[-130,73,145]);await p.keyboard.press('e');await until(()=>House.THINGS['media.box.n64.kart'].st==='rest');
- await aim([-80,-55,220],[-130,67,146.6]);await p.keyboard.press('f');await until(()=>House.THINGS['media.box.n64.kart'].caseOpen);
- await aim([-80,-55,220],[-130,69,146.3]);await p.keyboard.press('e');await until(()=>House.held()==='media.n64.kart');
- const slot=await p.evaluate(()=>House.SNAPS['console.n64']);await aim([-185,-55,120],[slot.x,slot.y,slot.z]);await p.keyboard.press('e');
+ await playCase(f,'n64.kart');
  await until(()=>window.__kartDbg?.st.mode==='title');await p.evaluate(()=>House.act('n64'));await until(()=>House.focused&&RoomTV.open_);await frames(5);await shot('title-room');
  await p.keyboard.press('t');await frames(3);await shot('title');if(!focused)for(let n=0;n<3;n++){await frames(18);await shot('sequence-title-'+n)}
  if(benchmark){await p.evaluate(()=>{__kartDbg.race('vs',0,1);__kartDbg.go();window.__rmAuto=true});await frames(240);await measurePerf();await shot('benchmark-race');}else{

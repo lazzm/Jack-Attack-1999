@@ -12,6 +12,7 @@ import {fileURLToPath} from 'node:url';
 import {loadavg} from 'node:os';
 import {chromium} from 'playwright';
 import {roomFixture} from '../room-fixture.mjs';
+import {playCase} from '../case-actions.mjs';
 const root=fileURLToPath(new URL('../../',import.meta.url)),before=process.argv.includes('--baseline'),tag=before?'before':'after';
 const baselineSource=before?execFileSync('git',['show','HEAD:app/public/js/rm-g-taxi.js'],{cwd:root,encoding:'utf8'}):null;
 const shots=root+'tests/shots/games/taxi/'+tag+'/';
@@ -130,12 +131,7 @@ async function roomCheck(base){
  const until=async(fn,t=30000)=>{const end=Date.now()+t;while(Date.now()<end){assert.deepEqual(f.errors,[],'Room browser errors');if(await p.evaluate(fn))return;await p.waitForTimeout(100)}throw Error('Room timeout '+fn)};
  // the real disc: off the shelf, case opened, disc into the Daydream (so a refresh restores it like a player's would)
  const aim=async(eye,target)=>{await f.view(eye,target);await p.evaluate(()=>{House.hush();House._.setMode('walk')})};
- const home=await p.evaluate(()=>House.THINGS['media.box.dc.taxi']?.at);assert(home,'Mad Minicab case on the shelf');
- await aim([-220,-55,35],[home.x,home.y-6,-36]);await p.keyboard.press('e');await until(()=>House.held()==='media.box.dc.taxi');
- await aim([-130,-55,220],[-130,73,145]);await p.keyboard.press('e');await until(()=>House.THINGS['media.box.dc.taxi'].st==='rest');
- await aim([-130,-55,220],[-130,67,146.6]);await p.keyboard.press('f');await until(()=>House.THINGS['media.box.dc.taxi'].caseOpen);await p.waitForTimeout(350);
- await aim([-130,-55,220],[-128,67,145.1]);await p.keyboard.press('e');await until(()=>House.held()==='media.dc.taxi');
- const slot=await p.evaluate(()=>House.SNAPS['console.dc']);await aim([-185,-55,120],[slot.x,slot.y,slot.z]);await p.keyboard.press('e');
+ await playCase(f,'dc.taxi');
  await until(()=>RoomTV.open_&&House.focused&&!House.gliding&&window.__taxiDbg?.()?.mode==='title',60000);await p.waitForTimeout(1500);
  await p.screenshot({path:shots+'in-room.png'});
  for(let i=0;i<6&&await p.evaluate(()=>__taxiDbg().mode!=='menu');i++){await p.keyboard.press('Enter');await p.waitForTimeout(700)}assert.equal(await p.evaluate(()=>__taxiDbg().mode),'menu');

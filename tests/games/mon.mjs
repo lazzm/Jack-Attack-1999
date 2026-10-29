@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import {chromium} from 'playwright';
 import {roomFixture} from '../room-fixture.mjs';
+import {playCase} from '../case-actions.mjs';
 const base=process.argv.find(x=>/^http:/.test(x));
 assert(base,'Supply the URL of a throwaway localhost server (PORT 18080–18099, DATA_DIR under /tmp).');
 assert(['localhost','127.0.0.1'].includes(new URL(base).hostname));
@@ -45,9 +46,10 @@ async function nativePage(browser){
 let browser,p,errors=[];
 if(nativeOnly){browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});({page:p,errors}=await nativePage(browser));}
 else {
- const fixture=await roomFixture(base,{opening:true,onPage:page=>{if(before)page.route('**/js/rm-g-mon.js*',route=>route.fulfill({body:original,contentType:'application/javascript'}))}});
+ const account='Mon'+Date.now().toString(36),password='Throwaway-1999';assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
+ const fixture=await roomFixture(base,{account,password,signup:false,onPage:page=>{if(before)page.route('**/js/rm-g-mon.js*',route=>route.fulfill({body:original,contentType:'application/javascript'}))}});
  browser=fixture.browser;const page=fixture.page;
- await page.evaluate(async()=>{await Apps.load('js/rm-tv.js');House.grab('gb')});await page.keyboard.press('f');await fixture.until(()=>RoomTV.open_&&House.mode==='focus'&&!House.gliding);await page.evaluate(()=>RoomTV.test('gb.mon'));await fixture.until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg);
+ await playCase(fixture,'gb.mon');await page.keyboard.press('q');await fixture.until(()=>House.mode==='walk'&&!House.gliding);assert(await page.evaluate(()=>House.grab('gb')));await page.keyboard.press('f');await fixture.until(()=>RoomTV.open_&&House.mode==='focus'&&!House.gliding);await page.evaluate(()=>RoomTV.test('gb.mon'));await fixture.until(()=>RoomTV._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg);
  await page.waitForTimeout(300);await page.screenshot({path:`${dir}${tag}-in-room.png`});
  await page.evaluate(()=>window.monInstance=RoomTV.dbg());await page.keyboard.press('t');assert(await page.evaluate(()=>RoomTV.lockIn()&&RoomTV.dbg()===monInstance));await page.waitForTimeout(300);await page.screenshot({path:`${dir}${tag}-lock-in.png`});
  if(!before){await page.evaluate(()=>{const b=Array.from({length:16},()=>({pressed:false,value:0}));b[9]={pressed:true,value:1};window.monPad={id:'Review standard pad',index:0,connected:true,mapping:'standard',buttons:b,axes:[0,0,0,0]};Object.defineProperty(navigator,'getGamepads',{configurable:true,value:()=>[monPad]})});await fixture.until(()=>RoomTV.dbg().dbg.mode==='world');await page.evaluate(()=>{monPad.buttons[9]={pressed:false,value:0}});}

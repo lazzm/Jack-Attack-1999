@@ -7,6 +7,7 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 import {roomFixture} from '../room-fixture.mjs';
+import {playCase} from '../case-actions.mjs';
 const base=process.argv.find(x=>/^http:/.test(x));assert(base&&['localhost','127.0.0.1'].includes(new URL(base).hostname),'Supply a disposable localhost server');
 assert.equal(await (await fetch(base+'/js/rm-g-party.js')).text(),await readFile(fileURLToPath(new URL('../../app/public/js/rm-g-party.js',import.meta.url)),'utf8'),'Server must serve this worktree');
 const before=process.argv.includes('--before'),tag=before?'before':'after',dir=fileURLToPath(new URL('../shots/games/party/',import.meta.url));await mkdir(dir,{recursive:true});
@@ -201,13 +202,7 @@ async function room(){
  const f=await roomFixture(base,{account,password,signup:false,touch:true});browser=f.browser;p=f.page;
  const aim=async(eye,target)=>{await f.view(eye,target);await p.evaluate(()=>{House.hush();House._.setMode('walk')})};
  // Discover this lost cartridge on the disposable account, then use its real case and slot.
- await p.evaluate(()=>Room._.foundIt(RoomCat.FIND['cart.n64.party']));await f.until(()=>!!House.THINGS['media.box.n64.party']);
- const home=await p.evaluate(()=>House.THINGS['media.box.n64.party'].at);
- await aim([-220,-55,35],[home.x,home.y-6,-36]);await p.keyboard.press('e');await f.until(()=>House.held()==='media.box.n64.party');
- await aim([-80,-55,220],[-130,73,145]);await p.keyboard.press('e');await f.until(()=>House.THINGS['media.box.n64.party'].st==='rest');
- await aim([-80,-55,220],[-130,67,146.6]);await p.keyboard.press('f');await f.until(()=>House.THINGS['media.box.n64.party'].caseOpen);
- await aim([-80,-55,220],[-130,69,146.3]);await p.keyboard.press('e');await f.until(()=>House.held()==='media.n64.party');
- const slot=await p.evaluate(()=>House.SNAPS['console.n64']);await aim([-185,-55,120],[slot.x,slot.y,slot.z]);await p.keyboard.press('e');await f.until(()=>RoomTV?._dbg()?.st==='game'&&!!RoomTV.dbg()?.dbg);
+ await playCase(f,'n64.party');
  await p.waitForTimeout(1200);await p.screenshot({path:dir+tag+'-in-room.png'});
  await p.evaluate(()=>window.partyInstance=RoomTV.dbg());await p.keyboard.press('t');await p.waitForTimeout(500);assert(await p.evaluate(()=>RoomTV.dbg()===partyInstance),'LOCK IN keeps cartridge instance');await p.screenshot({path:dir+tag+'-lock-in.png'});assert.equal(await p.evaluate(()=>RoomTV._dbg().gid),'n64.party');
  const rstate=()=>p.evaluate(()=>{const k=RoomTV.dbg(),d=k?.dbg;return{mode:d?.mode,A:d?.A&&{id:d.A.id,phase:d.A.phase,t:d.A.t,sc:d.A.sc},paused:d?.paused,frame:k?.frame,instance:k?.id,background:RoomTV._dbg()?.background}});
