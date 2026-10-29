@@ -7,7 +7,7 @@ with screenshots. He wants MANY small deployments (ship each finished fix on its
 never anything that looks cursed.
 
 ## Live
-- Live = 2.57.27; release28 is fully gated and preparing deployment:289 audited British recordings,24 withheld for new recordings on30October. Includes compact cases27, car26 and lounge25.
+- Live = 2.57.28:289 audited British recordings,24 withheld for new recordings on30October. Includes compact cases27, car26 and lounge25.
 - Previous live22: visible table ketchup, solid plate centres, safe completed saves and proper redo; cushions fit the seats and F reaches Dad’s chair cushion; proper watering-can grip contacts and accurate chore destinations; includes hands-on bed-making, washing-up and boot-rug fixes. Includes all earlier graphics, props/hands, phone, family, camera and approved 7 m plot releases.
 - Release flow per fix: merge branch into main -> `~/bin/gate /opt/stacks/landing [extra tests]` (ONLY="a b"/SKIP="a b"
   filters; e.g. `ONLY="check parody smoke" ~/bin/gate /opt/stacks/landing`) -> bump app/package.json + CHANGELOG.md entry
@@ -35,7 +35,7 @@ never anything that looks cursed.
 | /opt/stacks/landing-lounge | lounge-access | shipped 2.57.24/25 | R126/R127 complete; wider routes, single post mat, PV8/precise chair parts and cold-entry token correction. |
 | /opt/stacks/landing-car-routine | car-routine | shipped 2.57.26 | R128 complete; work schedule, exact cargo, safe arrival/refresh, solid boot and PV9 migration. |
 | /opt/stacks/landing-carry-size | carry-size | shipped 2.57.27 | R124 complete; measured12% cases, low touch pose, original noncase grips retained. Next British voice audit. |
-| /opt/stacks/landing-voices-british | voices-british | gated for2.57.28 |289 audited clips,24 withheld; final story/owner, mobile, smoke and actual audio checks green. |
+| /opt/stacks/landing-voices-british | voices-british | shipped2.57.28 |289 audited clips,24 withheld pending30October quota; final story/owner, mobile, smoke and actual audio checks green. |
 Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md has every R-item with details.
 
 ## Voices (British only!)
@@ -489,3 +489,6 @@ Each branch: `git -C <worktree> merge main` before final tests; docs/BACKLOG.md 
 - All five actual character recordings pass real WebAudio decoding/source/analyser/panner/duck on an isolated private audio page: /tmp/jhp-british-five-voices-page.log. No mocks. Earlier full-house runs stalled under softwareGL and missed the short audio measurement; isolated media avoids GPU timing bias while the in-world suite separately covers mouths/positioning/touch. Two setup404s were corrected before the clean pass. No physical speaker/headphone or human accent listening claim.
 - Full staged Chapter1 /tmp/jhp-british-staged-story.log PASS: real chores, actual PC parts/leads/recovery/JackNet, diary/pose/power/mobile/veteran isolation and owner reset/restore, zero browser errors/warnings and server mod failures. Its owned private server stopped automatically. Initial wall-time CRT assertion failed (R96), then a late key listener missed consumed W; final test measures displacement over actual clamped simulation frames after native keydown:79.6475cm normal versus38.2308cm carrying CRT over0.6s (ratio0.48). Product walking code unchanged.
 - All36 units, parody0, split/boundary regression and syntax pass (/tmp/jhp-british-final-units.log, -parody.log, -split.log). Exact289 ledger hashes, full ffmpeg decode and British confidence80+ provenance checked;3 originals byte-identical,24 excluded. Audio runtime files intentionally outsideGit; committed release ledger reproduces accepted bytes. No real accounts/data/wallet/shared-world modifications. Physical Edge/Android/gamepads/hardware performance unavailable.
+
+- Public28 build2.57.28-261029163452: home/health200, all3changed JS match local bytes, exact289 manifest keys and all289 public MP3 SHA hashes match committed ledger (including original3),24 absent. Initial Python urllib fetch was rejected403 by edge; Node fetch verified all resources successfully. Root gate /tmp/gate-PpEM check/parody PASS, manual all-changed syntax plus root voice units/split regression PASS. Mandatory root live-readonly28 PASS and account screenshot reviewed; docker last10min mod/uncaught/reference counts0. Static deployment used root deploy.sh with automatic snapshot. No real account/data changes.
+- Original HANDOFF branch queue shipped through28; remaining voice24 await30October generation/audit and name callouts31October. R129 low-priority owner source-cache audit remains a separate backlog item, not part of this voice release. Do not exceed today's TTS cap or blindly install generator output.
