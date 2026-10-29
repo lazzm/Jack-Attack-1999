@@ -7,7 +7,7 @@ const base=process.argv[2];assert(base&&['localhost','127.0.0.1'].includes(new U
 const shots=fileURLToPath(new URL('shots/front-plot/',import.meta.url));await mkdir(shots,{recursive:true});
 const account='Front'+Date.now().toString(36),password='Throwaway-1999';
 assert((await fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
-const f=await roomFixture(base,{account,password,signup:false,touch:true,width:390,height:844});
+const f=await roomFixture(base,{account,password,signup:false,touch:true,width:390,height:844,hour:18});
 try{
  const {page,until,view,errors}=f,cdp=await page.context().newCDPSession(page);
  await page.evaluate(()=>{for(const r of Object.values(House.ROOMS))House.buildRoom(r);HouseFamily.debug.hide(true)});
@@ -31,5 +31,15 @@ try{
  const after=await page.evaluate(()=>({x:House.W.x,z:House.W.z,power:localStorage.getItem('jhp_off'),boot:House.ROOMS.drive.carBoot.open}));
  assert(Math.hypot(before.x-after.x,before.z-after.z)<2,'Refresh moved the standing player');assert.equal(after.power,before.power);assert(after.boot,'Refresh closed the boot');
  for(const[width,height]of [[844,390],[768,1024],[1024,768]]){await page.setViewportSize({width,height});await page.waitForTimeout(600);await page.screenshot({path:shots+'resume-'+width+'x'+height+'.png'})}
+ // The same real thumbstick walks into the empty bay on a work day.
+ await page.setViewportSize({width:390,height:844});await view([-40,-70,150],[-40,0,0]);await page.evaluate(()=>{HouseFamily.debug.clock({md:1029,dow:5,t:14});HouseFamily.debug.sim(300,.1)});await until(()=>!House.ROOMS.drive.car.present);
+ const car=await page.evaluate(()=>House.FRONT.CAR);await page.evaluate(x=>window.__frontTarget=x,car.x);await cross('workday-empty-bay',car.x-180,car.z,car.x);
+ await page.evaluate(async()=>{House.saveWalkState();await Roam.syncNow()});const empty=await page.evaluate(()=>({x:House.W.x,z:House.W.z,power:localStorage.getItem('jhp_off')}));
+ // Lock the fixture clock to evening before every startup script, irrespective
+ // of the order Playwright runs its document-start clock initializers.
+ await page.addInitScript(()=>Object.defineProperty(window,'auditHour',{configurable:true,get:()=>18,set(){}}));
+ await page.reload({waitUntil:'domcontentloaded',timeout:180000});await until(()=>window.AccountGate?.allowed&&window.House?.live&&House.mode==='walk'&&window.HouseFamily?.ready&&!document.querySelector('.hs-loading,#houseEntry'));
+ const evening=await page.evaluate(()=>({x:House.W.x,z:House.W.z,power:localStorage.getItem('jhp_off'),present:House.ROOMS.drive.car.present,away:HouseFamily.carAway}));assert(Math.hypot(empty.x-evening.x,empty.z-evening.z)<2,'Evening refresh moved the player');assert.equal(evening.power,empty.power);assert(!evening.away&&!evening.present,'Returning car did not wait for its occupied bay');await page.screenshot({path:shots+'evening-refresh-occupied-bay.png'});
+ await view([-40,-70,150],[-40,0,0]);await page.evaluate(()=>{HouseFamily.debug.sim(180,.1);House.ROOMS.drive.car.update()});await until(()=>House.ROOMS.drive.car.present);console.log('TOUCH EMPTY BAY / EVENING RESUME PASS: actual thumbstick, exact pose/power and safe deferred return');
  assert.deepEqual(errors,[]);console.log('FRONT PLOT PASS: approved clearances, real touch behind open boot and ahead of car, pavement, refresh/power/boot and rotation');
 }catch(e){console.log(await f.page.evaluate(()=>({mode:House.mode,input:GameInput.mode,state:document.documentElement.dataset.touchState,paused:House.paused,walk:{...House.W}})).catch(()=>({})));await f.page.screenshot({path:shots+'failure.png'}).catch(()=>{});throw e}finally{await f.browser.close()}

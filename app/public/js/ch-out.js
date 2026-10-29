@@ -113,6 +113,7 @@
       sponge = grp(G => { G.rbox(0, -3, 0, 14, 6, 9, 2.2, mat('#ffd23a', { sh: 6 })); G.rbox(0, -6.2, 0, 13.6, 1.4, 8.6, 0.6, mat('#2a8a3a', { sh: 20 })); });
       const sIn = sponge; sIn.position.set(BUCKET.x + 3, GY - 25, BUCKET.z - 2); sIn.rotation.z = 0.3; r.group.add(sIn);
       CK.spot(r, 'ch.bucket', bucket, { label: () => carTool ? (mud.every((x, i) => CK.has('car', 'm' + i)) ? 'The bucket (chuck it over the car!)' : 'The bucket (dunk the sponge)') : 'Bucket of soapy water (and a sponge)', act: () => bucketClick() });
+      CK.spot(r, 'ch.car-sponge', sponge, { label: () => carTool ? 'The sponge' : 'Sponge in the bucket', act: () => bucketClick() });
       this.sync();
     },
     sync() {
