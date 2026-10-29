@@ -47,8 +47,9 @@ await withTestServer(async base=>{
   const cdp=await p.context().newCDPSession(p);
   for(const [width,height]of [[390,844],[844,390],[768,1024],[1024,768],[1920,1080]]){
    await p.setViewportSize({width,height});
-   if(width===390){await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:width-4,y:4}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[{id:1,x:width-4,y:4}]});}
-   await p.waitForTimeout(700);assert.equal(await p.evaluate(()=>House.held()),'ch.can');
+   if(width===390){await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:width/2,y:2}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[{id:1,x:width/2,y:2}]});}
+   await p.evaluate(()=>HousePause.close());await p.waitForTimeout(700);assert.equal(await p.evaluate(()=>House.held()),'ch.can');
+   assert(!await p.evaluate(()=>HousePause.open),'Carry gallery is obscured by the menu');
    await shot('held-'+width+'x'+height);
    if(width===390){await p.locator('.ht-b[data-k="r"]').tap();await p.waitForTimeout(500);await shot('phone-turned');}
   }
