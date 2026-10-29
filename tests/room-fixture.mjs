@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import os from 'node:os';
 const fixtureScale=Math.max(1,Math.min(4,os.loadavg()[0]/os.cpus().length*1.3));
 // signup:false logs into an existing account; provisioning stays with the caller.
-export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860,storage={},account='Review'+Date.now().toString(36),password='Throwaway-1999',touch=false,signup=true,opening=false,resume=false,storageState,debug=false,recordVideo,onPage,launchOptions={},seed,timeoutScale=fixtureScale}={}){
+export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860,storage={},account='Review'+Date.now().toString(36),password='Throwaway-1999',touch=false,signup=true,opening=false,resume=false,storageState,debug=process.env.FIXTURE_DEBUG==='1',recordVideo,onPage,launchOptions={},seed,timeoutScale=fixtureScale}={}){
  assert(['localhost','127.0.0.1'].includes(new URL(base).hostname),'Use throwaway localhost data');
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader'],...launchOptions});
  const page=await browser.newPage({viewport:{width,height},hasTouch:touch,...(storageState?{storageState}:{}),...(recordVideo?{recordVideo}:{})}),errors=[];
