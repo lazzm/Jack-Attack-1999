@@ -144,9 +144,19 @@ try {
   await ready();
   const state = id => p.evaluate(id => __qa.state(id), id);
   const settleAll = () => until(() => House.physics.awake === 0 && !House.held() || House.physics.awake === 0);
-  async function standAt(x, y, z, lvl, tid, avoid) { const s = await p.evaluate(a => __qa.stand(...a), [x, y, z, lvl, tid || null, avoid || 0]); if (s) await p.evaluate(() => { House._.setMode('walk'); House.dirty(); }); await p.waitForTimeout(250); return s; }
+  async function standAt(x, y, z, lvl, tid, avoid) {
+    const s = await p.evaluate(a => __qa.stand(...a), [x, y, z, lvl, tid || null, avoid || 0]);
+    if(s){
+      await p.evaluate(()=>{House._.setMode('walk');House.dirty()});await p.waitForTimeout(250);
+      // The walking controller can recover a candidate from a nearby body.
+      // Aim from the resulting pose, rather than the pre-recovery coordinates.
+      await p.evaluate(({x,y,z})=>{const H=House,P=H.P,W=H.W;W.eyeNow=W.eye;P.x=W.x;P.y=W.fy-W.eye;P.z=W.z;P.rx=Math.atan2(-(y-P.y),Math.hypot(x-P.x,z-P.z))*180/Math.PI;P.ry=Math.atan2(x-P.x,-(z-P.z))*180/Math.PI;H.dirty()},{x,y,z});
+    }
+    return s;
+  }
   async function pickUp(id) { // like a player: stand where you can see it, aim at it, press E
     if (await p.evaluate(id => House.held() === id, id)) return true;
+    if(await p.evaluate(()=>!!House.held())){await p.keyboard.press('q');await p.waitForTimeout(500);}
     const t = await state(id); if (t.missing || t.hide) return false;
     const lvl = await p.evaluate(r => House.ROOMS[r].lvl, t.room);
     let s = await standAt(t.x, t.y - 1, t.z, lvl, id);
