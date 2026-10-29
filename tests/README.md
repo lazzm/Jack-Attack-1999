@@ -479,3 +479,5 @@ Physical case and handheld regression (throwaway data only):
     node gamelad-frame.mjs                # whole handheld at six sizes; same running game through T and mouse controls
 
 Case movies use a test-only slow animation clock. Captures are in `shots/console-case-play/`; review the open case, exposed medium, insertion and closed parked case. `--inspect` retains a failed browser temporarily on localhost:19545 for diagnosis; it is not release evidence.
+
+`node tests/console-surface-unit.cjs` exercises the production physical-screen framing callback: it waits for the house focus move, coalesces retries, and abandons closed or replaced screens. This catches the background-resume cancellation without a browser.
