@@ -48,10 +48,15 @@ await withTestServer(async base=>{
   for(const [width,height]of [[390,844],[844,390],[768,1024],[1024,768],[1920,1080]]){
    await p.setViewportSize({width,height});
    if(width===390){await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:width/2,y:2}]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[{id:1,x:width/2,y:2}]});}
-   await p.evaluate(()=>HousePause.close());await p.waitForTimeout(700);assert.equal(await p.evaluate(()=>House.held()),'ch.can');
+   await p.evaluate(()=>{HousePause.close();if(document.pointerLockElement)document.exitPointerLock()});await p.waitForTimeout(700);assert.equal(await p.evaluate(()=>House.held()),'ch.can');
    assert(!await p.evaluate(()=>HousePause.open),'Carry gallery is obscured by the menu');
    await shot('held-'+width+'x'+height);
-   if(width===390){await p.locator('.ht-b[data-k="r"]').tap();await p.waitForTimeout(500);await shot('phone-turned');}
+   if(width===390){
+    const before=await p.evaluate(()=>House.grip.ry),point=await p.locator('.ht-hud .ht-b[data-k="r"]').evaluate(el=>{const r=el.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2,id:30,radiusX:6,radiusY:6,force:1}});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});await p.waitForTimeout(60);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[point]});
+    await p.waitForTimeout(500);
+    const after=await p.evaluate(()=>House.grip.ry);assert(Math.abs(after-before)===45,'A real touch did not turn the can exactly once');await shot('phone-turned');
+   }
   }
   await p.keyboard.press('q');await until(()=>!House.held());
   await p.evaluate(()=>House.saveWalkState());
