@@ -504,11 +504,13 @@ const phases = {
         await press('e');await until(()=>House.THINGS['media.box.n64.kart'].st==='rest');placed=true;break;
       }
       assert(placed,'No clear mobile case footprint: '+refused.join('; '));
-      const at=await page.evaluate(()=>({...House.THINGS['media.box.n64.kart'].at}));
-      const casePoint=(dy,dz)=>[at.x+Math.sin(at.ry*Math.PI/180)*dz,at.y+dy,at.z+Math.cos(at.ry*Math.PI/180)*dz];
-      // open the case (F), take the cartridge (E), put it in the console (E)
-      await aimAt(p, [-80, -55, 220], casePoint(-6,1.6)); await press('f'); await until(() => House.THINGS['media.box.n64.kart'].caseOpen);
-      await aimAt(p, [-80, -55, 220], casePoint(-4,1.3)); await press('e'); await until(() => House.held() === 'media.n64.kart');
+      // Follow actual visible triangles after the case has turned and settled.
+      assert(await standAndAim(p,'media.box.n64.kart'),'No real crosshair hit on the placed case');
+      console.log('mobile full: placed case aimed');
+      await press('f');await until(()=>House.THINGS['media.box.n64.kart'].caseOpen);
+      assert(await standAndAim(p,'media.n64.kart'),'No real crosshair hit on the visible cartridge');
+      await press('e');await until(()=>House.held()==='media.n64.kart');
+      console.log('mobile full: cartridge taken');
       const slot = await page.evaluate(() => House.SNAPS['console.n64']); await aimAt(p, [-185, -55, 120], [slot.x, slot.y, slot.z]);
       await page.waitForTimeout(400); await shot('full-09-insert-cart');
       await press('e'); await until(() => window.RoomTV?._dbg()?.st === 'game', null, 30000);

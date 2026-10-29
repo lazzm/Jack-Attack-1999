@@ -62,6 +62,7 @@ await withTestServer(async base=>{
   await p.evaluate(()=>House.saveWalkState());
   const pose=await p.evaluate(()=>({x:House.W.x,z:House.W.z,power:localStorage.getItem('jhp_off'),water:ChoreKit.has('plant','water')}));
   await p.reload({waitUntil:'domcontentloaded'});await until(()=>window.AccountGate?.allowed&&window.House?.live&&House.mode==='walk'&&!document.querySelector('.hs-loading,#houseEntry'));
+  await p.evaluate(async()=>{await Chores.load();await Chores.part('bedroom')});
   await until(()=>!!window.ChoreKit?.MODS.plant?._built);
   assert.equal(await p.evaluate(()=>ChoreKit.has('plant','water')),pose.water);
   assert.equal(await p.evaluate(()=>House.held()),null);
