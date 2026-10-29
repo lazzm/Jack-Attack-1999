@@ -19,8 +19,15 @@ await withTestServer(async base=>{
  async function refresh(){const before=await state();await p.evaluate(()=>{House.saveWalkState();ChoreKit.save()});await p.reload({waitUntil:'domcontentloaded'});await until(()=>AccountGate.allowed&&House?.live&&!document.querySelector('.hs-loading,#houseEntry'));await load();const after=await state();assert.deepEqual(after.flags,before.flags);assert.deepEqual(after.at,before.at);assert.equal(after.power,before.power);await clear()}
  try{
   await load();await clock('1999-10-29');await redo();
-  for(let i=0;i<4;i++)for(const k of ['p','k','g'])await placeChore(f,'ch.t.'+k+i,'ch.s.t'+k+i);
-  await placeChore(f,'ch.t.sauce','ch.s.sauce');await clear();assert(await p.evaluate(()=>Object.keys(ChoreKit.S.prog.table).length===13));console.log('TABLE: thirteen real E placements PASS');
+  if(process.argv.includes('--resume-fixture')){
+   // Isolated completed-save regression, distinct from the real-placement run.
+   await p.evaluate(()=>{const C=ChoreKit,H=House;C.S.prog.table={};for(let i=0;i<4;i++)for(const k of ['p','k','g']){const t=H.THINGS['ch.t.'+k+i],s=H.SNAPS['ch.s.t'+k+i];t.at=Object.assign({room:'kitchen'},s.pose);t.st='rest';t.snap=null;C.S.prog.table[k+i]=1;H.place(t);C.keep(t.id)}const t=H.THINGS['ch.t.sauce'];t.at=Object.assign({},H.SNAPS['ch.s.sauce'].pose);t.st='rest';t.snap=null;C.S.prog.table.sauce=1;H.place(t);C.keep(t.id);C.MODS.table.sync()});
+   console.log('TABLE: completed-save renderer fixture ready');
+  }else{
+   for(let i=0;i<4;i++)for(const k of ['p','k','g'])await placeChore(f,'ch.t.'+k+i,'ch.s.t'+k+i);
+   await placeChore(f,'ch.t.sauce','ch.s.sauce');console.log('TABLE: thirteen real E placements PASS');
+  }
+  await clear();assert(await p.evaluate(()=>Object.keys(ChoreKit.S.prog.table).length===13));
   const completed=await state();
   // Renderer-only old completed position; migration must retain earned flags and seasonal progress.
   await p.evaluate(()=>{const t=House.THINGS['ch.t.sauce'];t.st='rest';t.snap=null;t.at={room:'kitchen',x:-54,y:277,z:172,ry:0};House.place(t);ChoreKit.keep(t.id);ChoreKit.MODS.table.sync()});

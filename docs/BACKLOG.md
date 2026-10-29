@@ -238,3 +238,5 @@ Art-gen continuation, 27 October: the gallery checks the visible geometry of all
 | R120 (done 2.57.21) | art | high | chore-feedback/cushion-plumped-1.png, 29 October | Plumped diamond cushion tips disappear into the settee seat; Dad-chair picking intercepts the cushion | Actual rotated-solid seat fitting, matching physics bounds, proper chair alignment/picking; native F/touch, spacing, refresh and owner redo verified |
 
 | R121 | art | med | chore-feedback/table-after.png, 29 October | Completed ketchup placement is inside the seasonal carving pumpkin: sauce(-54,172), pumpkin(-45,174), radius15 | Give the bottle a clear table position in every season; preserve completed job flags, refresh and carving progress. Separate release after R120. |
+
+| R122 | bug | high | table-clear completed-save regression,29 October | Refreshing a completed table can call isPlaced before initialization; redo reuses completed positions as factory homes | Initialize the placement helper before eager builds and retain original worktop homes. Verify completed refresh and actual owner redo with all pieces. |

@@ -267,7 +267,7 @@
     },
     reset() { for (const t of [...tbl.p, ...tbl.k, ...tbl.g, tbl.sauce]) if (t) { t.home = Object.assign({}, tableHomes[t.id]); CK.lock(t.id, false); CK.home(t.id); } },
   });
-  const isPlaced = t => Math.abs(t.at.y - TY) < 1.5 && t.at.x > -125 && t.at.x < 5 && t.at.z > 125 && t.at.z < 215;
+  function isPlaced(t) { return Math.abs(t.at.y - TY) < 1.5 && t.at.x > -125 && t.at.x < 5 && t.at.z > 125 && t.at.z < 215; }
   CK.whenBuilt('kitchen', () => CK.guard('hs.ktable', () => { if (CK.done('table')) return false; CK.jack('The kitchen table', CK.started('table') ? 'Plate in the middle of each mat, knife and fork by it, a glass. Ketchup in the middle.' : 'Tea\'s at six. The plates, knives and forks and glasses are on the worktop by the kettle. Four of everything.', 4000); return true; }));
 
   // ================================================================ PUT THE SHOPPING AWAY

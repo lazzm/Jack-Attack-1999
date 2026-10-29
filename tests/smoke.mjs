@@ -107,7 +107,7 @@ const checks=[
    assert.equal(await page.locator('.appwin').count(),1);
    await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.press('t');await until(()=>House.desktopDisplay());
    await page.keyboard.press('t');assert(!await page.evaluate(()=>House.desktopDisplay()));
-   await page.evaluate(()=>document.querySelector('.appwin [data-w=close]').click());assert.equal(await page.locator('.appwin').count(),0);
+   await page.evaluate(()=>document.querySelector('.appwin [data-w=close]').click());await until(()=>!document.querySelector('.appwin'));assert.equal(await page.locator('.appwin').count(),0);
    await page.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);
    await aim([40,-55,155],[-15,-24,0]);await page.keyboard.press('f');await until(()=>House.mode==='monitor'&&!House.gliding);
    await page.keyboard.press('F2');await until(()=>House.mode==='walk'&&!House.gliding);
