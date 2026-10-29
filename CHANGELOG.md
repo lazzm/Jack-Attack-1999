@@ -1,5 +1,11 @@
 # Jack's Home Page - changelog
 
+## 2.57.20 - 2026-10-29
+- R118: watering-can hands grip the real handle and support the solid body, replacing empty bounding-box corners. The same contacts follow rotation and pouring on desktop, phone and tablet.
+- R119: chore clues now point to the actual video tower beside the telly and green garden sack by the hedge.
+- Verified: syntax/parody and story-order checks; smoke12/12; full phone gameplay and tablet gameplay; focused can regression with real R/F/Q and touch Turn, six sizes, three rotation views, watering progress and standing/power preserved through refresh. Reviewed the final desktop/phone/tablet grip gallery and mobile captures. New mobile test helpers choose a clear floor ghost and aim at actual visible media triangles; game placement and controls are unchanged.
+- No physics, save format, server/economy or account changes. Approved British clips preserved. Physical Edge/Android hardware, gamepads and hardware FPS/thermal remain unverified. Remaining chore feedback audit, console R84/R85, R108 and broader scale rows remain open.
+
 ## 2.57.19 - 2026-10-29
 - R80: F opens an interactive view of the real bed. Mouse/touch gestures plump the pillow, pull the duvet up, tuck its sides and smooth the wrinkles; holding Space provides the keyboard alternative. Short/cancelled drags, spare fingers, pause and resize leave unfinished work uncommitted. The idle bed view adds no redraw loop.
 - Pyjamas fold visibly onto the pillow instead of disappearing underneath it. Their solid folded model has a matching physics body; placed linen stays fixed after refresh. Older pyjamas-first saves rest the bundle on the mattress until the pillow arrives. Existing step IDs, payout formulas and server earning caps remain unchanged.
