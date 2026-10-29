@@ -457,3 +457,11 @@ keyboard work through the story helper, pause, refresh during a pull, old partia
 save visibility, redo, and six desktop/phone/tablet sizes. Review `shots/bedmaking/`.
 `story-ch1.mjs` and `story-order.mjs` use `bed-actions.mjs` for the same Space-hold
 alternative; neither writes completed chore flags in place of gameplay.
+
+### Chore feedback review
+
+`node tests/chore-feedback-tools.mjs` starts its own disposable server and captures
+before/after car washing, vacuum crumbs, leaf sweeping and a mown grass strip in
+`tests/shots/chore-feedback/`. It exercises production action callbacks and tool-head
+inputs. This is a rendered-feedback diagnostic, not a walking-reachability or wage
+audit; the normal smoke, story, physics and mobile suites cover their respective paths.
