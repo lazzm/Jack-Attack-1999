@@ -1959,6 +1959,7 @@
     if (!canGo() || pending || H.focused&&!H.seated || (window.RoomTV && RoomTV.open_)) return;
     if (con === 'dc' && !R.dcOut) return;
     const loaded = inserted(con); gameId = gameId || (loaded && loaded.gameId);
+    const running=window.RoomTV?._dbg?.();if(!gameId&&running?.background&&running.con===con)gameId=running.gid; // retain an already running legacy save
     if(!gameId){toast(CAT.CONSOLES[con].n,'Pick up a filled game case and put it into the highlighted slot.');return;}
     if (con !== 'gb') lastCon = con;
     H.hush();
