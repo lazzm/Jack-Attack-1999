@@ -1879,11 +1879,13 @@
   function gbPlayPose(view) {
     // Frame the complete handheld, including its moulded controls, on every device.
     const t = Math.tan(H.motion.lensFov(view.zm) * D2R / 2), aspect = innerWidth / innerHeight;
-    const d = Math.max(7.1 / (0.86 * t), 4.1 / (0.9 * t * aspect), 6.5);
+    const fit = Math.min(.86,.95*Math.max(1,innerHeight-66)/innerHeight);
+    const d = Math.max(7.1 / (fit * t), 4.1 / (0.9 * t * aspect), 6.5);
     const q = new T.Quaternion().setFromEuler(new T.Euler(-80 * D2R, -view.ry * D2R, 0, 'YXZ'));
     const a = view.ry * D2R, b = (view.rx || 0) * D2R, f = new T.Vector3(Math.sin(a) * Math.cos(b), -Math.sin(b), -Math.cos(a) * Math.cos(b));
     const glass = new T.Vector3(0, -2.6, 0.2).applyQuaternion(q);
     const pos = new T.Vector3(view.x, view.y, view.z).addScaledVector(f, d).sub(glass);
+    pos.y += d*t*50/innerHeight;
     return relTo(view, new T.Matrix4().compose(pos, q, new T.Vector3(1, 1, 1)));
   }
   const _p1 = new T.Vector3(), _q1 = new T.Quaternion(), _s1 = new T.Vector3(), _roll = new T.Quaternion(), _zAxis = new T.Vector3(0, 0, 1);
@@ -2353,7 +2355,7 @@
       if(H.SPOTS[id])H.SPOTS[id].remove=()=>inserted(id)?ejectMedia(id):sparseStarter?H.grab(id):H.toast(CAT.CONSOLES[id].n,'No game is inserted. F plays / uses it; E removes media.');
       Room.addSnap('console.' + id, { x: c.x, y: c.y, z: c.z, r: 14, box: c.disc ? [12, 0.4, 12] : [10, 4, 3],
         pose: { x: c.x, y: c.y + (c.disc ? -0.14 : 1), z: c.z + (c.disc ? 6 : 0), ry: c.ry||0, rx: c.disc ? 90 : 0 }, hide: c.disc,
-        accepts: (kind, t) => kind==='console-case'?HouseCases.accepts(t.id,'console.'+id):kind===(c.disc?'console-disc':'cart')&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === id), onBegin:t=>{if(t.kind==='console-case'){HouseCases.insert(t.id);return false}return true}, enabled: () => consoleConnected(id)&&!inserted(id),
+        accepts: (kind, t) => kind===(c.disc?'console-disc':'cart')&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === id), onBegin:t=>{if(t.kind==='console-case'){HouseCases.insert(t.id);return false}return true}, enabled: () => consoleConnected(id)&&!inserted(id),
         hint: 'Click/E to insert into the ' + CAT.CONSOLES[id].n,
         onSnap: t => { HouseCases.reconcile();lidSet(id, false); tvOpen(id, t.gameId); }, onUnsnap: () => {lidSet(id, true); if (window.RoomTV) RoomTV.stopPhysical(id);} });
   }
@@ -2366,7 +2368,7 @@
     for (const [id,c] of Object.entries(R.consoles || {})) consoleMediaSlot(id,c);
     const gb = H.THINGS.gb;
     const gbSlot = Room.addSnap('console.gb', { x: 0, y: 0, z: 0, r: 10, box: [5.5, 1, 2], pose: {},
-      accepts: (kind, t) => kind==='console-case'?HouseCases.accepts(t.id,'console.gb'):kind==='cart'&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === 'gb'),
+      accepts: (kind, t) => kind==='cart'&&!!(t && CAT.GAME[t.gameId] && CAT.GAME[t.gameId].con === 'gb'),
       onBegin:t=>{if(t.kind==='console-case'){HouseCases.insert(t.id);return false}return true},
       enabled: () => (gb.st === 'rest' || gb.st === 'snap') && !inserted('gb'), hint: 'Click/E to insert into the Game Lad', onSnap: t => {HouseCases.reconcile();tvOpen('gb', t.gameId)},
       onUnsnap: t => {t.frontAnchor=null;if (window.RoomTV) RoomTV.stopPhysical('gb');} });
@@ -2392,7 +2394,7 @@
         kind: con.media === 'disc' ? 'console-disc' : 'cart', label: `${g.title} (${con.n})`, gameId: g.id,
         home, holdD: 34 });
       mediaThings[g.id] = t;
-      HouseCases.register({box,medium:t,slot:'console.'+g.con,homeSlot:shelf,park:()=>consoleCasePark(g.con),enabled:()=>consoleConnected(g.con)&&!inserted(g.con),
+      HouseCases.register({box,medium:t,slot:'console.'+g.con,homeSlot:shelf,park:()=>consoleCasePark(g.con),enabled:()=>consoleConnected(g.con)&&!inserted(g.con)&&(g.con!=='gb'||['rest','snap'].includes(H.THINGS.gb.st)),
         lid:k=>{box.obj.userData.mediaCase.lid.rotation.y=-115*D2R*k},openState:open=>{box.caseOpen=open;openCases[g.id]=open;try{localStorage.setItem('jhp_console_open',JSON.stringify(openCases))}catch(e){}},
         afterInsert:()=>{lidSet(g.con,false);tvOpen(g.con,g.id)},commitEject:()=>H.SNAPS['console.'+g.con]?.onUnsnap?.(t)});
 

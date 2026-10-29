@@ -18,15 +18,19 @@ await withTestServer(async base=>{
   const loaded=await p.evaluate(({id,gid,sid})=>{const b=House.THINGS[id],m=House.THINGS['media.'+gid];return{snap:m.snap,park:b.snap,fixed:House.physics.body(id).fixed,grab:House.grab(id),pos:{...b.at}}},{id,gid,sid});
   assert.equal(loaded.snap,sid);assert.equal(loaded.park,'case.park.'+sid);assert(loaded.fixed);assert.equal(loaded.grab,false);await shot(gid+'-loaded');
   await walk();assert(await p.evaluate(sid=>HouseCases.eject(sid),sid));await until(()=>!HouseCases.busy);
-  assert.equal(await p.evaluate(gid=>House.THINGS['media.'+gid].snap,gid),'media.case.'+gid);assert.equal(await p.evaluate(()=>House.held()),id);await shot(gid+'-returned');
+  assert.equal(await p.evaluate(gid=>House.THINGS['media.'+gid].snap,gid),'media.case.'+gid);console.log('CASE RETURN STATE',gid,await p.evaluate(id=>({held:House.held(),mode:House.mode,focused:House.focused,paused:House.paused,busy:HouseCases.busy,canGrab:House.THINGS[id].canGrab()}),id));assert.equal(await p.evaluate(()=>House.held()),id);await shot(gid+'-returned');
   await p.evaluate(()=>House.putBack());await until(()=>!House.held());console.log('CASE PAIR PASS',gid);
  }
  try{
   await room();console.log('CASE WORLD READY',await p.evaluate(()=>Object.keys(House.THINGS).filter(id=>id.startsWith('media.box.'))));
-  for(const gid of ['n64.kart','ps.run','gb.blocks','md.zip','dc.dash','sn.zero'])await pair(gid);
+  const selected=(process.argv.find(a=>a.startsWith('--only='))?.slice(7)||'n64.kart,ps.run,gb.blocks,md.zip,dc.taxi,sn.zero,pc').split(',');
+  const failures=[];for(const gid of selected.filter(id=>id!=='pc'))try{await pair(gid)}catch(e){failures.push(gid+': '+e.message);console.log('PAIR FAILED',gid,e.message)};
+  if(selected.includes('pc')){
   await walk();const pc=await p.evaluate(()=>PM.items().find(it=>it.disc&&['box','jewel','cdr'].includes(it.kind)&&House.THINGS['pmb.'+it.id]&&PM.where(it.id)==='shelf')?.id);assert(pc,'No PC case fixture');
+  await view([40,-55,155],[-63,-12,-42]);await p.evaluate(()=>House._.setMode('walk'));
   assert(await p.evaluate(id=>House.grab('pmb.'+id),pc));assert(await p.evaluate(id=>HouseCases.insert('pmb.'+id),pc));await until(()=>!HouseCases.busy);await until(()=>!Room.drive('cd').open&&!!Room.drive('cd').thing);await shot('pc-loaded');
   assert(await p.evaluate(()=>HouseCases.eject('pc.cd')));await until(()=>!HouseCases.busy);assert.equal(await p.evaluate(()=>House.held()),'pmb.'+pc);assert.equal(await p.evaluate(id=>PM.where(id),pc),'shelf');await shot('pc-returned');
-  assert.deepEqual(errors,[]);console.log('CASE FLOW PASS: six consoles and PC insertion/parking/ejection, rapid insert, fixed cases, same media IDs');
+  }
+  assert.deepEqual(failures,[]);assert.deepEqual(errors,[]);console.log('CASE FLOW PASS: six consoles and PC insertion/parking/ejection, rapid insert, fixed cases, same media IDs');
  }catch(e){await shot('failure').catch(()=>{});throw e}finally{await f.browser.close()}
 });

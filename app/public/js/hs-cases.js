@@ -72,14 +72,23 @@
     if(inserted(e)){const p=park(e);set(e.box,{...p.pose,room:p.room},p.id,false);e.openState?.(false);e.lid?.(0)}
     else if(e.box.snap==='case.park.'+e.slot){e.box.st='rest';e.box.snap=null;H.place(e.box);e.lid?.(0)}
   }
+  function target(id){
+    const s=H.SNAPS[id];if(!s)return;const key='case.insert.'+id;
+    const q=H.SNAPS[key]||H.snap(key,{room:s.room||'bedroom',x:s.x,y:s.y,z:s.z,r:s.r,box:s.box,pose:{...s.pose},hint:'E: insert the game and park its case',
+      accepts:(kind,t)=>{const e=t&&entries.get(t.id);if(kind!==t?.kind||!e||e.slot!==id||active.size||!filled(e)||e.enabled?.()===false)return false;q.pose={...e.park()};return true},
+      enabled:()=>!active.size&&[...entries.values()].some(e=>e.slot===id&&e.enabled?.()!==false&&!inserted(e)),
+      onBegin:t=>{move(entries.get(t.id),true);return false}});
+    Object.assign(q,{x:s.x,y:s.y,z:s.z,r:s.r,room:s.room||'bedroom'});return q;
+  }
   function register(o){
     if(entries.has(o.box.id))return entries.get(o.box.id);
     const e=o;entries.set(e.box.id,e);media.set(e.medium.id,e);
     const bg=e.box.canGrab,mg=e.medium.canGrab;
     e.box.canGrab=()=>!active.size&&!inserted(e)&&(!bg||bg()!==false);
     e.medium.canGrab=()=>{if(active.size)return false;if(inserted(e)){move(e,false);return false}return !mg||mg()!==false};
-    reconcile(e);return e;
+    target(e.slot);reconcile(e);return e;
   }
+  H.ambient.add(()=>{if(entries.has(H.held()))target(entries.get(H.held()).slot);return false});
   H.on('built',()=>{for(const e of entries.values())reconcile(e)});
   H.on('tidy',()=>{for(const e of entries.values()){H.anims.delete('case.flow.'+e.slot);active.delete(e.slot);reconcile(e)}});
   window.HouseCases={register,parking,insert:id=>{const e=entries.get(id);return !!e&&move(e,true)},eject:id=>{const e=entries.get(id)||media.get(id)||[...entries.values()].find(o=>o.slot===id&&inserted(o));return !!e&&move(e,false)},

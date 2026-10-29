@@ -328,3 +328,6 @@ html.rm-gb-model,html.rm-gb-model body{touch-action:none;-webkit-user-select:non
 @media(max-height:500px) and (min-aspect-ratio:3/2) and (min-width:600px){.rm-tvv .rm-pad .rm-control-label{display:none}}
 .rm-gbpress{position:fixed;z-index:6;pointer-events:none;border-radius:50%;border:3px solid rgba(255,216,74,.85);box-shadow:0 0 12px rgba(255,216,74,.55),inset 0 0 10px rgba(255,216,74,.35);animation:rmGbPress .16s ease-out}
 @keyframes rmGbPress{from{transform:scale(1.35);opacity:.2}to{transform:scale(1);opacity:1}}
+
+/* The real handheld needs its full face; the game menu owns extra controls. */
+.rm-tvv.rm-live3d.rm-hand:not(.rm-lockin) .rm-livebar{display:none}

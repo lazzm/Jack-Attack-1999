@@ -273,7 +273,7 @@
         <div class="rm-btns"><button type="button" class="rm-b rm-back">&larr; Back to my room</button><button type="button" class="rm-b rm-eject" hidden>Eject</button><button type="button" class="rm-b rm-blowb" hidden>Blow on it</button><button type="button" class="rm-b rm-snd"></button></div>
       </div>
       <div class="rm-pad" hidden></div>
-      <div class="rm-tools" aria-label="Console controls"><button type="button" class="rm-b rm-lean" title="Leave the game running">Q · BACK</button><button type="button" class="rm-b rm-menu" title="Game menu">ESC · MENU</button><button type="button" class="rm-b rm-lock" title="Keep playing at the screen’s native shape" aria-pressed="false">T · LOCK IN</button></div>`, 'rm-view rm-tvv' + (hand && !live ? ' rm-hand' : '') + (live ? ' rm-live3d' : ''));
+      <div class="rm-tools" aria-label="Console controls"><button type="button" class="rm-b rm-lean" title="Leave the game running">Q · BACK</button><button type="button" class="rm-b rm-menu" title="Game menu">ESC · MENU</button><button type="button" class="rm-b rm-lock" title="Keep playing at the screen’s native shape" aria-pressed="false">T · LOCK IN</button></div>`, 'rm-view rm-tvv' + (hand ? ' rm-hand' : '') + (live ? ' rm-live3d' : ''));
     el.dataset.con = con;
     (live ? document.documentElement : pb).appendChild(el);
     V = { el, con, hand, live, restoring: !!(options && options.restoring), game: null, gid: '', st: 'shelf', cv0: $(el, '.rm-c0'), cv1: $(el, '.rm-c1') };
@@ -434,7 +434,7 @@
     V.el.classList.add('rm-blowing'); setTimeout(() => view.el.classList.remove('rm-blowing'), 600);
     setTimeout(() => { if (V === view && V.bootEpoch === epoch && V.gid === G.id) boot(V.ready || Promise.resolve()); }, 650);
   }
-  function eject() { if (!V) return; if(V.surface){stopGame();shelf();idle();return;} if (V.live) { const con = V.con; close(); if (_.ejectMedia) _.ejectMedia(con); return; } stopGame(); $(V.el, '.rm-shelf').querySelectorAll('.rm-pick').forEach(b => b.classList.remove('in')); idle(); }
+  function eject() { if (!V) return; if(window.HouseCases?.inserted('console.'+V.con)){const con=V.con,view=V;close();if(R.House.focused)R.House.unfocus();let tries=0;const start=()=>{if(V&&V!==view)return;if(R.House.gliding||R.House.focused){if(++tries<100)setTimeout(start,80);return}HouseCases.eject('console.'+con)};start();return} if(V.surface){stopGame();shelf();idle();return;} if (V.live) { const con = V.con; close(); if (_.ejectMedia) _.ejectMedia(con); return; } stopGame(); $(V.el, '.rm-shelf').querySelectorAll('.rm-pick').forEach(b => b.classList.remove('in')); idle(); }
 
   // the start-up screens (t: seconds; draw on g, a 2D context the console's size). Return true when done.
   const BOOTS = {
@@ -557,8 +557,8 @@
     try{localStorage.setItem('jhp_console_focus',state);sessionStorage.setItem('jhp_surface_session',state);}catch(e){}
   }
   function attachSurface(def) {
-    if(V.live || typeof def.screen!=='function')return;
-    const screen=def.screen();if(!screen||!_.tvLive)return;
+    if(V.live)return;
+    const screen=typeof def.screen==='function'?def.screen():V.con==='sn'?R.House.ROOMS.cupboard?.cupScreen:null;if(!screen||!_.tvLive)return;
     V.surface=screen;V.live=true;V.el.classList.add('rm-live3d');
     document.documentElement.appendChild(V.el);
     const bar=h('','rm-livebar');bar.appendChild($(V.el,'.rm-help'));bar.appendChild($(V.el,'.rm-btns'));V.el.appendChild(bar);

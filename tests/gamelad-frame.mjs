@@ -14,9 +14,9 @@ await withTestServer(async base=>{
    assert(b.every(q=>q&&q.x>=-2&&q.x<=w+2&&q.y>=-2&&q.y<=h+2),'Handheld cropped '+name+': '+JSON.stringify(b));const height=Math.max(...b.map(q=>q.y))-Math.min(...b.map(q=>q.y));assert(height>h*.65,'Handheld too small '+name+': '+height/h);await shot(name);
   }
   await p.setViewportSize({width:1366,height:860});await p.keyboard.press('ArrowLeft');assert(await p.evaluate(()=>RoomTV.dbg()===handSession));
-  await p.keyboard.press('t');await until(()=>RoomTV._dbg()?.lockedIn);assert(await p.evaluate(()=>RoomTV.dbg()===handSession));await shot('locked-mouse');
+  await p.keyboard.press('t');await until(()=>RoomTV.lockIn());assert(await p.evaluate(()=>RoomTV.dbg()===handSession));await shot('locked-mouse');
   const button=p.locator('.rm-tvv .rm-pad:not([hidden]) [data-b=a]');await button.waitFor({state:'visible'});const r=await button.boundingBox();await p.mouse.move(r.x+r.width/2,r.y+r.height/2);await p.mouse.down();assert(await p.evaluate(()=>RoomTV.dbg().held('a')),'Mouse A did not reach locked game');await p.mouse.up();
-  await p.keyboard.press('t');await until(()=>!RoomTV._dbg().lockedIn);assert(await p.evaluate(()=>RoomTV.dbg()===handSession));await shot('returned');
+  await p.keyboard.press('t');await until(()=>!RoomTV.lockIn());assert(await p.evaluate(()=>RoomTV.dbg()===handSession));await shot('returned');
   assert.deepEqual(errors,[]);console.log('GAME LAD FRAME PASS: native case/E, six fitted views, same running game through keyboard/T/mouse controls');
  }catch(e){await shot('failure').catch(()=>{});throw e}finally{await f.browser.close()}
 });

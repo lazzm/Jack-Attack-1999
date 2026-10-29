@@ -522,7 +522,7 @@
     pcCases.add(it.id);const sn=H.SNAPS['pc.cd'];if(!sn)return;
     if(!driveCaseHook){
       driveCaseHook=true;const accept=sn.accepts,enabled=sn.enabled,begin=sn.onBegin;
-      sn.accepts=(kind,t)=>kind==='case'?HouseCases.accepts(t.id,'pc.cd'):accept(kind,t);
+      sn.accepts=(kind,t)=>accept(kind,t);
       sn.enabled=()=>HouseCases.busy?false:H.held()&&H.THINGS[H.held()]?.kind==='case'?window.StoryAccess?.available!==false&&!R.drive('cd').thing:enabled();
       sn.onBegin=(t,p)=>{if(t.kind==='case'){HouseCases.insert(t.id);return false}return !begin||begin(t,p)};
       for(const id of ['pc.cdej','pc.cdtray']){const sp=H.SPOTS[id];if(sp)sp.remove=()=>HouseCases.eject('pc.cd')}
@@ -534,7 +534,7 @@
       inside:p=>({...p,y:p.y-(it.kind==='box'?12:6.25),z:p.z+.25,rx:90}),lid:k=>setLid(box.obj,k),
       commitInsert:()=>{if(!R.drive('cd').open)R.driveTray(true);sn.onSnap(disc);unclipped();PM.insert(it.id,{room:true})},
       afterInsert:()=>{sn.onSnap(disc);H.hush();R.driveTray(false)},
-      commitEject:()=>{sn.onUnsnap(disc);PM.ejectD();R.driveTray(true)},afterEject:()=>R.driveTray(false)});
+      commitEject:()=>{sn.onUnsnap(disc);PM.ejectD();PM.take(it.id);R.driveTray(true)},afterEject:()=>R.driveTray(false)});
   }
 
   // ---- the disc: out of its case and into your hand, and back again

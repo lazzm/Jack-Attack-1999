@@ -10,7 +10,7 @@ export async function insertCase(f,id,sid,{press}={}){
   if(await p.evaluate(()=>House.held())!==id)assert(await p.evaluate(id=>House.grab(id),id),'Cannot grip '+id);
   for(let j=0;j<10;j++){
    const g=await p.evaluate(()=>{const g=House.ghost();return g&&{snap:g.snap?.id,why:g.why}});
-   if(g?.snap===sid){if(press)await press();else await p.keyboard.press('e');assert(await p.evaluate(({id,sid})=>House.THINGS[id].snap==='case.park.'+sid,{id,sid}),'Native E did not commit the case');return}
+   if(g?.snap==='case.insert.'+sid){if(press)await press();else await p.keyboard.press('e');assert(await p.evaluate(({id,sid})=>House.THINGS[id].snap==='case.park.'+sid,{id,sid}),'Native E did not commit the case');return}
    missed.push(g?.snap||g?.why||'no ghost');await p.keyboard.press('+');
   }
  }
