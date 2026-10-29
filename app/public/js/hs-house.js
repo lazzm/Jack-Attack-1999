@@ -609,7 +609,7 @@
     // walking
     H.walkRect('G', -278, 307, 193, 698, { room: 'lounge' });
     H.block('G', LT.x - 48, 305, LT.x + 48, 352); // the telly
-    H.block('G',SOFA.x-SOFA.w/2-2,SOFA.z-44,SOFA.x+SOFA.w/2+2,SOFA.z+43);H.block('G',79,343,192,457);H.block('G',COFFEE.x-47,COFFEE.z-24,COFFEE.x+47,COFFEE.z+24); // full sofa/chair footprints, not just their seat centres
+    H.block('G',SOFA.x-SOFA.w/2-2,SOFA.z-44,SOFA.x+SOFA.w/2+2,SOFA.z+43);H.block('G',79,343,192,457,{solid:false});H.block('G',COFFEE.x-47,COFFEE.z-24,COFFEE.x+47,COFFEE.z+24); // full sofa/chair footprints, not just their seat centres
     H.block('G', 146, 588, 194, 634); H.block('G', -230, 305, -130, 342); H.block('G', -280, 420, -230, 580); H.block('G', LAMPST.x - 16, LAMPST.z - 16, LAMPST.x + 16, LAMPST.z + 16); H.block('G', -268, 646, -232, 676);
     H.support('lounge', COFFEE.x-45, COFFEE.z-22, COFFEE.x+45, COFFEE.z+22, GY - 43.5); H.support('lounge', 150, 592, 190, 628, GY - 65.5); H.support('lounge', -280, 430, -230, 570, GY - 114);
     H.support('lounge',152,594,188,626,GY-21); // the phone book's lower shelf
@@ -655,6 +655,26 @@
     });
     if(n===3){S.rbox(-w/2+34,-58,-13,26,28,10,4.5,M({c:'#7a2a2a',sh:8}),{ry:12,rx:12,rz:6});S.rbox(w/2-40,-58,-13,26,28,10,4.5,M({c:'#c8a850',sh:8}),{ry:-18,rx:12,rz:-4})}
     [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => S.cyl(a * (w / 2 - 10), -3, 4 + b * 34, 3, 3.6, 6, 10, M('#3a2414'))); // feet
+    if (n === 1) {
+      // Keep the walking footprint, but let carried objects reach the real seat
+      // rather than meeting the former invisible floor-to-ceiling block.
+      const a = ry * Math.PI / 180, c = Math.cos(a), sn = Math.sin(a);
+      const part = (lx, cy, lz, width, height, depth) => H.solid('G', null, null, null, null,
+        GY + cy - height / 2, GY + cy + height / 2, {
+          x: x + lx * c + lz * sn, z: z - lx * sn + lz * c,
+          hx: width / 2, hz: depth / 2, ry, kind: 'lounge-chair'
+        });
+      part(0, -18, 4, w - 4, 24, 74);
+      part(0, -56, -36, w, 56, 12);
+      part(0, -37, 2, cw, 16, 62);
+      const tilt = 8 * Math.PI / 180;
+      part(0, -64, -26, cw, 44 * Math.cos(tilt) + 16 * Math.sin(tilt), 16 * Math.cos(tilt) + 44 * Math.sin(tilt));
+      for (const side of [-1, 1]) {
+        part(side * (w / 2 - 9), -36, 4, 18, 40, 78);
+        part(side * (w / 2 - 9), -58, 4, 20, 8, 80);
+        for (const end of [-1, 1]) part(side * (w / 2 - 10), -3, 4 + end * 34, 7.2, 6, 7.2);
+      }
+    }
     S.shadow(0, 0, 4, w + 12, 88, 0.75, { sq: true });
   }
   function cushionPiping(B,x,y,z,w,d,r,m){
