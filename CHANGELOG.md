@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.57.25 - 2026-10-29
+- Correct fresh entry before JackOS loads: the bedroom and downstairs loaders inherit their own build token for lazy scripts. Cached files from the previous release can no longer replace the new living-room layout or break Halloween decoration/lighting setup. Includes all 2.57.24 living-room and single-doormat changes.
+- Verified: all 36 unit checks, changed-file syntax and parody audit. A regression deliberately poisons unversioned executable house files: the old loader fails, the corrected loader passes desktop and phone first entry plus refresh, with the current table frame, mandatory account gate and no browser/server errors. Reviewed both entry captures. The unchanged furniture, saves, native controls and gameplay passed 24's full smoke12/12, physics15/15, cushion, family and mobile gates; no claim that 24's failed public startup check passed.
+- No server/account/wallet/shared-world changes or resets. Approved British clips preserved. Physical Edge/Android hardware and gamepads remain unverified. R128 car routine, then R124 carried-case sizing, follow separately.
+
 ## 2.57.24 - 2026-10-29
 - R126: open the living-room route by moving Dad's chair towards the side wall and making the coffee table slightly shallower. The usable central walking band grows from about 20 cm to 55 cm; table legs, shelf, contact shadow, supports and seasonal props follow the new layout.
 - Replace the chair's invisible ceiling-height physics block with real-height seat, back, arms and feet. Family sitting/approach positions and cushion destinations follow the chair. Placement version 8 moves old saved table/chair props once and clears newly covered floor positions, preserving hidden props, filled slots and save metadata.
