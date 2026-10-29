@@ -500,8 +500,8 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       });
       foldedPjs.visible=false;const pajamas=new T.Group();pajamas.add(loosePjs,foldedPjs);pajamas.userData.handGrips=loosePjs.userData.handGrips;
       pjsT = CK.thing('ch.pjs', { obj: pajamas, kind: 'pjs', label: 'Pyjamas', chore: 'bed', holdD: 55, home: { room: 'bedroom', x: 112, y: FY, z: 150, ry: -20 } });
-      CK.snap('ch.s.pillow', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [80, 2, 120], accepts: k => k === 'pillow', pose: { x: 190, y: 37, z: -33, ry: 0 }, hint: 'Let go: on the bed', onSnap: () => { V().pillowDocked=true;CK.save();CK.lock('ch.pillow');CK.snd.thud();CK.MODS.bed.sync();H.ui.toast('Pillow on the bed','F on the bed: plump it up.'); } });
-      CK.snap('ch.s.pjs', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [80, 2, 120], pose: { x: 190, y: 26, z: -33, ry: 0 }, accepts: k => k === 'pjs' && CK.has('bed','pillow'), hint: 'Place: fold onto the pillow', onSnap: () => { CK.lock('ch.pjs'); CK.step('bed', 'pjs'); CK.snd.rustle(); } });
+      CK.snap('ch.s.pillow', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [52, 2, 32], accepts: k => k === 'pillow', pose: { x: 190, y: 37, z: -33, ry: 0 }, hint: 'Let go: on the bed', onSnap: () => { V().pillowDocked=true;CK.save();CK.lock('ch.pillow');CK.snd.thud();CK.MODS.bed.sync();H.ui.toast('Pillow on the bed','F on the bed: plump it up.'); } });
+      CK.snap('ch.s.pjs', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [50, 2, 30], pose: { x: 190, y: 26, z: -33, ry: 0 }, accepts: k => k === 'pjs' && CK.has('bed','pillow'), hint: 'Place: fold onto the pillow', onSnap: () => { CK.lock('ch.pjs'); CK.step('bed', 'pjs'); CK.snd.rustle(); } });
       // The close-up keeps the actual solid cloth interactive; completed beds retain their secrets.
       CK.guard('bed', () => bedClick());
       this.sync();
