@@ -2384,8 +2384,8 @@
       const base=slotBase.copy(H.root.matrixWorld).invert().multiply(gb.obj.matrixWorld);
       const matrix=slotMatrix.copy(base).multiply(slotLocal);slotAim.set(0,-.2,-6.5).applyMatrix4(base);
       const pos=slotPos,q=slotQ,scale=slotScale;matrix.decompose(pos,q,scale);const rot=slotRotation.setFromQuaternion(q,'YXZ');
-      gbSlot.x=slotAim.x;gbSlot.y=slotAim.y;gbSlot.z=slotAim.z;const sp=gbSlot.pose;sp.x=pos.x;sp.y=pos.y;sp.z=pos.z;sp.rx=rot.x/D2R;sp.ry=rot.y/D2R;sp.rz=rot.z/D2R;
-      if(t){t.frontAnchor='gb';t.obj.position.copy(pos);t.obj.quaternion.copy(q);H.layerFor(t);if(gb.st==='rest'||gb.st==='snap'){Object.assign(t.at,gbSlot.pose);t.at.room=gb.at.room;t.rx=rot.x/D2R;t.rz=rot.z/D2R;}}
+      gbSlot.room=gb.at.room;gbSlot.x=slotAim.x;gbSlot.y=slotAim.y;gbSlot.z=slotAim.z;const sp=gbSlot.pose;sp.x=pos.x;sp.y=pos.y;sp.z=pos.z;sp.rx=rot.x/D2R;sp.ry=rot.y/D2R;sp.rz=rot.z/D2R;
+      if(t){t.frontAnchor='gb';if(t.obj.parent!==gb.obj.parent)gb.obj.parent.add(t.obj);t.obj.position.copy(pos);t.obj.quaternion.copy(q);H.layerFor(t);if(gb.st==='rest'||gb.st==='snap'){Object.assign(t.at,gbSlot.pose);t.at.room=gb.at.room;t.rx=rot.x/D2R;t.rz=rot.z/D2R;}}
       if(gb.st==='held'||gb.st==='inspect'||gb.st==='play'||gb.st==='anim')H.anims.set('gb-slot',gbSlotAnimation);
     };
     function gbSlotAnimation(){moveGBSlot();return gb.st==='held'||gb.st==='inspect'||gb.st==='play'||gb.st==='anim'}
