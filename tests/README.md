@@ -485,3 +485,35 @@ Case movies use a test-only slow animation clock. Captures are in `shots/console
 `node tests/gamelad-portable-case.mjs` starts its own disposable server and checks a loaded Game Lad carried into the kitchen: real X drop, cartridge room/visibility, the same running game, exact Q return, a saved kitchen pose and two refreshes. Its original empty case must remain fixed in the bedroom.
 
 `node tests/console-fallback-frame.mjs http://localhost:PORT [--touch]` uses a caller-owned disposable server and a fresh veteran account. It inserts the actual Street Scrapper case, checks the whole physical cupboard TV in six viewport sizes, and preserves the same game through Q/resume. `--touch` performs a real finger press after keyboard setup and requires visible controls with no TV overlap. Camera fixtures position the player; this does not test walking a house route.
+
+Bonfire Night source-checkout review: recorded voice files are a generated, ignored pack. To test the
+subtitle-only checkout without changing `app/server.js`, use `tests/bonfire-server.cjs` as the disposable
+server (PORT 18080–18099, DATA_DIR under `/tmp`). Start it in the same shell as the browser test and stop
+only that server PID. `NODE_OPTIONS=--require=/opt/stacks/landing-bonfire/tests/browser-budget.cjs` monitors
+that runner's own Chromium renderers and closes the browser if one exceeds 3 GiB. For self-starting suites,
+also preload `tests/bonfire-server.cjs` through NODE_OPTIONS: only their disposable server receives the
+empty voice manifest. No production files, generated voices or account data are changed by this fixture.
+`events-bonfire.mjs` exercises the owner clock, physical preparations, Friday's display and late return,
+Saturday's leftovers, persistence, once-only rewards and a non-owner cast. Captures and frame samples go to
+`tests/shots/bonfire/`. `BONFIRE_NO_SHOTS=1` skips captures for a faster gameplay-only regression;
+`BONFIRE_RESUME_WOOD=1` / `BONFIRE_RESUME_PREP=1` continue a previously interrupted disposable playthrough.
+
+`node tests/bonfire-art.mjs http://localhost:PORT` is a separate **visual fixture**, not a gameplay test.
+It uses browser-local seasonal snapshots and disables all objective/reward sends. Its route instrumentation
+only resets the effects between scenes; production code has no new test switch. The test pins Bonfire effects independently of software-renderer adaptation: desktop effect rung 0 / cap 1000,
+genuine touch phone context effect rung 2 / cap 430, desktop potato effect rung 5 / cap 120.
+The house is pinned to rung 3 (three lamps, native pixels); this keeps the software renderer practical without
+reducing the fireworks tier. Both the house rung and effects rung are recorded in each capture.
+Only one browser/context is rendered at a time. `BONFIRE_ART_MODES=desktop,phone,potato` selects captures,
+which are labelled in `tests/shots/bonfire/pinned-<mode>-<cap>/`; `pinned-review.json` records cap, input mode,
+quality pin and same-scene frame comparisons with the shared particle pool hidden (including fire particles). Software-renderer timings do not establish hardware phone FPS.
+
+Run one `BONFIRE_ART_MODES=desktop`, `phone` or `potato` invocation at a time. The fixture writes only disposable
+auth/pose storage to `/tmp/bf-art-storage.json`; `BONFIRE_ART_RESUME=1` reuses it on the same throwaway data directory
+without registering the account again. This is separate from gameplay continuation (`BONFIRE_RESUME_PREP`).
+
+`bonfire-login.mjs` authenticates through the normal WebSocket login/profile protocol on the disposable server,
+then provides a standing token-resume fixture. `BONFIRE_RESUME_LOGIN=1` uses it in the gameplay suite.
+Visual photographs freeze the actual effects buffers at capture time so slow screenshot readback does not
+consume their three-second afterglow; frame measurements resume animation. `BONFIRE_ART_ONLY` selects comma-separated
+shot names for a focused recheck. Visual scene snapshots settle family routes with the existing NPC simulator.

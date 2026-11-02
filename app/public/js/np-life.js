@@ -168,6 +168,7 @@
     if (c.aside && !resume) return { key: 'aside', spot: c.aside, look: 'player' }; // (letting you past comes first)
     const d = directives[c.id];
     if (d) return d;
+    const seasonal = window.Bonfire?.familyGoal?.(c.id); if (seasonal) return seasonal;
     const sch = scheduled(c.id, clk);
     if (sch.raw.startsWith('away:')) { const why = sch.raw.slice(5); return { key: sch.key, away: why, exit: AWAY_EXIT[why][c.id] }; }
     const [name, act] = sch.raw.split(':');
@@ -197,6 +198,7 @@
   // where to step off the walkable floor for a seat: its approach (snapped to full clearance if need be)
   function approachOf(q, lvl) { if (!q.ap) q.ap = NV.clear(lvl, q.approach[0], q.approach[1]) >= NV.NEED ? { x: q.approach[0], z: q.approach[1] } : (NV.snap(lvl, q.approach[0], q.approach[1], 40) || { x: q.approach[0], z: q.approach[1] }); return q.ap; }
   function routeFrom(c, to, avoid) {
+    const reserve=window.Bonfire?.familySpace?.()||0,p=player();if(reserve&&sameFloor(c,p)){avoid=(avoid||[]).concat({x:p.x,z:p.z,r:Math.max(18,Math.min(reserve+8,dist(c,p)-2))});}
     return NV.route({ lvl: c.lvl, x: c.x, z: c.z }, to, avoid ? { avoid } : undefined);
   }
 
@@ -216,7 +218,7 @@
     let hit = null;
     for (let d = 10; d <= 110; d += 10) {
       const q = NV.at(r, s + d); if (s + d > r.len + 5) break;
-      for (const b of list) { const k = Math.hypot(q.x - b.x, q.z - b.z), gap = b.who === 'player' ? 44 : bodyGap(c, b.o), current = Math.hypot(c.x - b.x, c.z - b.z); if (current < gap && k > current + 1) continue; if (k < gap && (!hit || d < hit.d)) hit = { d, b }; } // (the buffer must exceed the ten-centimetre sample spacing, so a blocked walker stops)
+      for (const b of list) { const k = Math.hypot(q.x - b.x, q.z - b.z), gap = b.who === 'player' ? (window.Bonfire?.familySpace?.()||44) : bodyGap(c, b.o), current = Math.hypot(c.x - b.x, c.z - b.z); if (current < gap && k > current + 1) continue; if (k < gap && (!hit || d < hit.d)) hit = { d, b }; } // (the buffer must exceed the ten-centimetre sample spacing, so a blocked walker stops)
       if (hit) break;
     }
     return hit;
@@ -306,7 +308,7 @@
       if (s.blocked > waitFor) { // go round them
         // go round everyone nearby at once (avoiding just the one in front makes them ping-pong between two people)
         s.blocked = 0; const pl = player(), near = [];
-        if (H.live && H.mode === 'walk' && sameFloor(c, pl) && dist(c, pl) < 320) near.push({ x: pl.x, z: pl.z, r: 48 });
+        if (H.live && H.mode === 'walk' && sameFloor(c, pl) && dist(c, pl) < 320) near.push({ x: pl.x, z: pl.z, r: (window.Bonfire?.familySpace?.()||44)+4 });
         for (const q of chars) if (q !== c && q.present && q.lvl === c.lvl && dist(c, q) < 320) near.push({ x: q.x, z: q.z, r: bodyGap(c, q) + 8 });
         let avoid = near.map(q => Object.assign(q, { r: Math.max(18, Math.min(q.r, Math.hypot(c.x - q.x, c.z - q.z) - 1)) }));
         let nr = NV.route({ lvl: c.lvl, x: c.x, z: c.z }, s.to, { avoid });
@@ -417,7 +419,7 @@
   const words = t => String(t).split(/\s+/).length;
   const lineMs = t => clamp(900 + words(t) * 340, 2300, 7600);
   function say(id, lineId, o) {
-    o = o || {}; const c = C[id], l = L[lineId]; if (!c || !l) return false;
+    o = o || {}; const c = C[id], l = L[lineId] || (typeof o.text === 'string' ? [id, o.text] : null); if (!c || !l) return false;
     const person = c.present && (o.force || inEarshot(c, o.range));
     const shout = !person && (l[2] === 'downstairs' || o.call);
     if (!person && !shout) return false;
@@ -491,6 +493,7 @@
     if (speech.cur && speech.cur.c === c && speech.cur.talk) { skip(); return; } // F again: on to the next line
     if (speech.q.some(q => q.c === c && q.talk)) return;
     if (speech.cur && speech.cur.c === c) skip(); // (cut short whatever they were saying to themselves)
+    if (window.Bonfire?.talk?.(id)) { c.hold = 3; return; }
     const lines = talkLines(c);
     c.hold = 99;
     const p = player(), d = dist(c, p);
@@ -734,7 +737,7 @@
   }
   // Who you're up against (for the walking controller's slide: you walk round people instead of stopping dead).
   // personal space: you can't get your face right into theirs (about 65 cm standing, less by a chair)
-  const space = c => c.seated ? 50 : 64;
+  const space = c => Math.max(c.seated ? 50 : 64, window.Bonfire?.familySpace?.() || 0);
   function blocker(x, z, lvl, skin) {
     if (!ready || squeeze(x, z, lvl)) return null;
     for (const c of chars) {
@@ -890,7 +893,7 @@
     // Bedtime keeps the car at home; work follows the real routine and story/home-day exceptions.
     get carAway() { return !C.dad.present && scheduled('dad', clock()).raw === 'away:work' && !storyDirectives().dad && !manual.dad && !sceneDbg.dad; },
     present: id => !!C[id]?.present, near: (id, cm) => !!C[id] && inEarshot(C[id], cm || 400),
-    talk, say: (id, line, o) => say(id, line, o), storyLine, handIn, blocks, blocker, doorHeld, heldHint,
+    talk, say: (id, line, o) => say(id, line, o), speak: (id, line, text) => say(id, line, { text, force: true, again: true, prio: 4 }), storyLine, handIn, blocks, blocker, doorHeld, heldHint,
     // hs-life's random shouts give way to the people who are really there (and Dad can't shout from work)
     mute: who => { if (!ready) return false; const w = String(who).toLowerCase(); if (w.startsWith('dad')) return true; if (w.startsWith('mom')) return true; return false; },
     debug: {

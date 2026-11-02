@@ -330,7 +330,7 @@ body.ssn-autorestart .float[aria-label="Shut Down JackOS"]{visibility:hidden}
   const doy = md => Math.round((new Date(1999, Math.floor(md / 100) - 1, md % 100) - new Date(1999, 0, 1)) / 864e5);
   function seasonsOn(t) { // t = Desk.today99(); the seasons on today, main theme first
     const d = doy(t.md);
-    return SEASONS.filter(s => t.md >= s[1] && t.md <= s[2]).map(([key, from, to, peak, prio]) => {
+    return SEASONS.filter(s => t.md >= s[1] && t.md <= s[2] && !(s[0] === 'bonfire' && (t.md === 1101 && seasonHour() < 12 || t.md === 1106 && seasonHour() >= 23)) && !(s[0] === 'halloween' && t.md === 1101 && seasonHour() >= 12)).map(([key, from, to, peak, prio]) => {
       const f = doy(from), e = doy(to), p = peak ? doy(peak) : 0;
       const phase = !peak ? 'on' : d < p ? 'lead' : d === p ? 'peak' : 'tail', left = peak ? p - d : 0;
       // 1 = the first part of the lead-up (or the tail), 2 = building up, 3 = the day itself (and the night before a long build-up)

@@ -43,7 +43,7 @@ async function stop() {
 
 // [label, MM-DD, season key or '' for none, phase]
 const SEASONS = [
-  ['halloween-lead', '10-26', 'halloween', 'lead'], ['halloween', '10-31', 'halloween', 'peak'], ['bonfire', '11-05', 'bonfire', 'peak'],
+  ['halloween-lead', '10-26', 'halloween', 'lead'], ['halloween', '10-31', 'halloween', 'peak'], ['bonfire-lead', '11-02', 'bonfire', 'lead'], ['bonfire', '11-05', 'bonfire', 'peak'],
   ['xmas-lead', '12-15', 'xmas', 'lead'], ['xmas', '12-25', 'xmas', 'peak'], ['millennium', '12-29', 'millennium', 'lead'], ['newyear', '01-01', 'newyear', 'peak'],
   ['valentine', '02-14', 'valentine', 'peak'], ['easter', '04-04', 'easter', 'peak'], ['summer', '08-01', 'summer', 'on'], ['eclipse', '08-11', 'eclipse', 'peak'],
   ['backtoschool', '09-06', 'backtoschool', 'peak'], ['none', '06-15', '', ''],
@@ -61,6 +61,8 @@ try {
   // house by default, so this context makes the player's own per-device JackOS-only choice (js/pc-only.js).
   await ctx.addInitScript(() => localStorage.setItem('jhp_device_view', 'jackos'));
   const p = await ctx.newPage(), errors = [];
+  p.setDefaultNavigationTimeout(120000);
+  p.setDefaultTimeout(90000);
   p.on('pageerror', e => errors.push('pageerror: ' + e.message));
   p.on('console', m => { if (['error', 'warning'].includes(m.type()) && !/swiftshader|WebGL|GPU stall|ReadPixels/i.test(m.text())) errors.push(m.type() + ': ' + m.text()); });
   const ev = async (fn, arg) => { try { return await p.evaluate(fn, arg); } catch (e) { if (/context was destroyed|navigation/i.test(e.message)) return undefined; throw e; } };
@@ -195,6 +197,32 @@ try {
     await ev(() => Seasons.jump('halloween'));
     await until(() => document.documentElement.classList.contains('ssw-halloween') && !!document.querySelector('.ssw-ld-witchhat'), 8000);
     assert.deepEqual(errors, [], 'console errors');
+  });
+
+  await check('bonfire web and house calendar handover', async () => {
+    for (const [md, time, key] of [['11-01', '09:00:00', 'halloween'], ['11-01', '12:00:00', 'bonfire'], ['11-06', '09:00:00', 'bonfire'], ['11-06', '12:00:00', 'bonfire'], ['11-06', '19:00:00', 'bonfire'], ['11-06', '23:00:00', '']]) {
+      await p.goto(`${base}/?date99=${md}&time=${time}`, {waitUntil:'networkidle'});
+      await until(() => !!(AccountGate.allowed && DesktopSurface.ready()));
+      await delay(1200);
+      assert.equal(await ev(() => Seasons.season().main?.key || ''), key, md + ' ' + time);
+      assert.equal(await ev(() => Season.active()[0]?.e.web || ''), key, 'same house calendar');
+    }
+    await p.goto(`${base}/?date99=11-05&time=19:00:00`, {waitUntil:'networkidle'});
+    await until(() => !!document.querySelector('.ssw-bonfire .ssw-ban'));
+    await hideBalloons(); await tidy(); await delay(2500);
+    const family=await ev(()=>({sister:Cast.n('sister'),guy:Season.cast(SeasonCat.byId.bonfire99.objById['bf-guy'].text)}));assert.notEqual(family.sister,'Crystal');assert(family.guy.includes(family.sister)&&!family.guy.includes('{sister}'),'Non-owner family name resolves');
+    for (const [url, sel, name] of [['http://www.jackgle.find/', '.ssw-doodle', 'search'], ['http://www.jsn.jnet/', '.ssw-sitebar', 'jsn'], ['http://www.pixelpost.jnet/', '.ssw-sitebar', 'pixelpost'], ['http://www.davesplace.jnet/', '.ssw-dave', 'dave']]) {
+      await ev(u => {document.querySelector('#browser').classList.remove('min'); IE.navigate(u);}, url);
+      try { await until(s => !!document.querySelector('#s-secret ' + s), 30000, sel); } catch (e) { throw Error(name + ': ' + e.message); }
+      await p.screenshot({path:shots+'bonfire-'+name+'.png'});
+    }
+    await ev(() => {IE.go('home');document.querySelector('#page').scrollTop=0;});await delay(700);
+    assert(!await ev(() => /\{cat/.test(document.querySelector('.ssw-news').textContent)), 'Cast templates resolved');
+    assert(await ev(() => /bucket of water|gloves/i.test(document.querySelector('.ssw-news').textContent)), 'safety in the magazine');
+    await p.setViewportSize({width:390,height:844});await delay(800);await p.screenshot({path:shots+'bonfire-phone-mag.png'});
+    assert(!await ev(() => document.documentElement.scrollWidth>innerWidth+1));
+    await p.setViewportSize({width:844,height:390});await delay(800);await p.screenshot({path:shots+'bonfire-phone-landscape.png'});
+    await p.setViewportSize({width:1366,height:860});
   });
 
   // ---- a phone (portrait) still reads well

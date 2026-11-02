@@ -400,8 +400,8 @@
   faces.forEach((c,face)=>{const g=c.getContext('2d'),im=g.createImageData(256,256),d=im.data;
    for(let y=0;y<256;y++)for(let x=0;x<256;x++){
     const v=direction(face,(x+.5)/256,(y+.5)/256),h=Math.max(0,v.y),col=horizon.clone().lerp(zenith,Math.pow(h,.6));
-    if(!night){const cloud=Math.sin(v.x*18+v.z*9)+Math.sin(v.z*24-v.x*11)+Math.sin(v.x*32+v.z*27);const alpha=Math.max(0,Math.min(.54,(cloud-1.2)*.35))*Math.max(0,Math.min(1,(h-.06)*6))*Math.max(0,1-h);col.lerp(new T.Color('#f1e9db'),alpha);const glow=Math.pow(Math.max(0,v.dot(sun)),250);col.lerp(new T.Color('#fff0c7'),glow)}
-    else{const dot=v.dot(moon);if(dot>.9993)col.set('#e5e0cc');const seed=Math.sin(Math.floor(v.x*700)*127.1+Math.floor(v.y*700)*311.7+Math.floor(v.z*700)*74.7)*43758.5453;if(h>.08&&seed-Math.floor(seed)>.9993)col.lerp(new T.Color('#d5dded'),.6)}
+    if(!night){const cloud=Math.sin(v.x*12+v.z*9+v.y*51)+Math.sin(v.z*17-v.x*11+v.y*73)+Math.sin(v.x*24+v.z*21-v.y*91);const alpha=Math.max(0,Math.min(.27,(cloud-1.2)*.2))*Math.max(0,Math.min(1,(h-.06)*6))*Math.max(0,1-h);col.lerp(new T.Color('#f1e9db'),alpha);const glow=Math.pow(Math.max(0,v.dot(sun)),250);col.lerp(new T.Color('#fff0c7'),glow)}
+    else{const dot=v.dot(moon),edge=Math.max(0,Math.min(1,(dot-.99914)/.00022));col.lerp(new T.Color('#e5e0cc'),edge*edge*(3-2*edge));const gx=Math.floor(x/8),gy=Math.floor(y/8),seed=Math.sin(gx*127.1+gy*311.7+face*74.7)*43758.5453,hash=seed-Math.floor(seed),dx=x%8-2-hash*3,dy=y%8-2-hash*2;if(h>.08&&hash>.945){const star=Math.exp(-(dx*dx+dy*dy)*1.6);col.lerp(new T.Color('#d5dded'),star*.8)}}
     const i=(y*256+x)*4;d[i]=col.r*255;d[i+1]=col.g*255;d[i+2]=col.b*255;d[i+3]=255;
    }g.putImageData(im,0,0);
   });sky.needsUpdate=true;

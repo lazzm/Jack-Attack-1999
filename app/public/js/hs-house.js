@@ -1061,7 +1061,7 @@
     sh.box(-40,-120,60.5,40,36,.5,M({c:'#6c7f84',sh:75,sp:'#bac8cc'}));for(const x of [-61,-19])sh.box(x,-120,61.5,2,40,2,mWhite);for(const y of [-139,-101])sh.box(-40,y,61.5,40,2,2,mWhite);sh.box(-40,-120,61.8,1.5,36,1,mWhite);
     for(const y of [-145,-40]){sh.box(7,y,63,9,2,1,mMetal);sh.cyl(3,y,63,1,1,5,10,mMetal)}sh.rbox(50,-84,65.4,4,5,2,.5,mMetal);sh.cyl(50,-83.5,66.5,.35,.35,.3,8,M('#282a2b'),{rx:90});
     sh.shadow(0, 0, 0, 170, 140, 0.6, { sq: true });
-    const wl=B.at(80,GY,-280);wl.cyl(0,-100,0,2,2.4,200,10,mMetal);wl.cyl(0,-201,0,3,3,5,12,mMetal);
+    const washingBatch=K.batch(),wl=K.into(washingBatch).at(80,GY,-280);wl.cyl(0,-100,0,2,2.4,200,10,mMetal);wl.cyl(0,-201,0,3,3,5,12,mMetal);
     for(let i=0;i<4;i++)wl.geo(new T.TorusGeometry(40+i*28,.5,4,32),0,-196+i*4,0,M('#ddd'),{rx:90});
     for(let i=0;i<4;i++){
       const angle=i*Math.PI/2,a=new T.Vector3(0,-202,0),b=new T.Vector3(Math.cos(angle)*126,-183.71,Math.sin(angle)*126),d=b.clone().sub(a),mid=a.clone().add(b).multiplyScalar(.5),arm=new T.CylinderGeometry(.8,.8,d.length(),8);
@@ -1083,6 +1083,7 @@
       for(const x of [-peg,peg]){C.rbox(x,.5,0,1.3,4,1.4,.3,M('#b69a68'));C.cyl(x,.3,.8,.45,.45,.25,8,mMetal,{rx:90})}
     });
     wl.shadow(0, 0, 0, 40, 40, 0.5);
+    r.washingLine=new T.Group();r.washingLine.name='garden:washing-line';washingBatch.build(r.washingLine);r.group.add(r.washingLine);
     const wb=B.at(r.wheelie.x,GY,r.wheelie.z),green=M({c:'#2a5a2a',sh:20,sp:'#333'});
     wb.rbox(0,-61,0,58,98,70,4,green);wb.rbox(0,-112,4,60,6,74,2,M('#245024'));
     for(const x of [-22,22]){wb.cyl(x,-12,-28,12,12,7,24,M('#202224'),{rz:90});wb.cyl(x+(x<0?-3.6:3.6),-12,-28,4,4,.4,14,M('#777b7c'),{rz:90});wb.box(x,-6,26,4,12,5,green)}

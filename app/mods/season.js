@@ -56,7 +56,7 @@ function view(k) {
     const ph = phase(k, e), s = S(k, e), g = s.treat.g;
     if (g && Date.now() - g.at > 240000) { s.treat.g = null; s.treat.trick++; s.treat.n++; ctx.markDirty(); }
     out[e.id] = { phase: ph, open: gate(k, e), obj: s.obj, paid: s.paid, steps: s.steps, carve: s.carve || null, bowl: s.bowl, tin: s.tin, porch: s.porch,
-      treat: { n: s.treat.n, happy: s.treat.happy, trick: s.treat.trick, g: s.treat.g }, decor: s.decor };
+      art: s.art || null, display: s.display || 'friday', treat: { n: s.treat.n, happy: s.treat.happy, trick: s.treat.trick, g: s.treat.g }, decor: s.decor };
   }
   return { t: 'seMe', today: { mm: t.mm, dd: t.dd, hour: t.hour, owner: t.owner }, loop: loopOf(), ev: out };
 }
@@ -96,6 +96,33 @@ function step(ws, c, k, m) {
     ctx.send(ws, { t: 'seStep', e: e.id, o: o.id, s: sid, ok: true, porch: s.porch, done: own(s.obj, o.id), amt });
     return toAll(k, view(k));
   }
+  // Bonfire safety is account state, checked here as well as at the physical objects. A reconnect resumes the
+  // same display epoch; duplicate messages cannot restart it, skip the three minutes or pay a second reward.
+  if (e.id === 'bonfire99') {
+    const has = (id, st) => !!s.steps[id]?.[st], fail = why => ctx.send(ws, { t: 'seStep', e: e.id, o: o.id, s: sid, ok: false, why });
+    if (o.id === 'bf-wood' && !['paper', 'kindling'].includes(sid) && (!has('bf-wood', 'paper') || !has('bf-wood', 'kindling'))) return fail('tinder');
+    if (o.id === 'bf-wood' && sid === 'kindling' && !has('bf-wood', 'paper')) return fail('tinder');
+    if (o.id === 'bf-code' && sid === 'taper' && !['tin', 'water', 'pets', 'line'].every(x => has('bf-code', x))) return fail('checks');
+    if (o.id === 'bf-light') {
+      const td = today(k), hour = td.hour, saturday = td.mm === 11 && td.dd === 6; // (the server's clock, never the client's: a whole hour here, the house opens the torch at half past)
+      if (sid === 'start') {
+        if (!Number.isFinite(hour) || hour < 18 || hour >= 22 || !(ph === 'day' || ph === 'tail' && saturday)) return fail('hour');
+        if (own(s.obj, o.id)) return fail('finished');
+        if (!saturday && !['bf-code', 'bf-wood'].every(x => own(s.obj, x))) return fail('checks');
+        if (saturday && s.display !== 'leftovers') { s.steps['bf-light'] = {}; s.display = 'leftovers'; ctx.markDirty(); }
+      }
+      const waits = s.display === 'leftovers' ? { fountain: 15000, wheel: 30000, rocket: 50000, finale: 90000 } : { fountain: 35000, wheel: 70000, rocket: 110000, finale: 180000 };
+      if (sid !== 'start' && (!has('bf-light', 'start') || Date.now() - s.steps['bf-light'].start < waits[sid])) return fail('wait');
+    }
+    if (o.id === 'bf-sparkler') {
+      if (ph !== 'day' || !own(s.obj, 'bf-code') || (sid !== 'gloves' && !own(s.obj, 'bf-light'))) return fail('checks');
+      if (sid === 'write' && (!Array.isArray(m.x) || m.x.length < 12 || m.x.length > 160 || !m.x.every(p => Array.isArray(p) && p.length === 2 && p.every(n => Number.isFinite(n) && n >= 0 && n <= 1)))) return fail('drawing');
+    }
+    if (o.id === 'bf-clean' && today(k).hour >= 12) return fail('hour');
+    if (o.id === 'bf-bucket' && !own(s.obj, 'bf-sparkler')) return fail('sparkler');
+    if (o.id === 'bf-guy' && sid === 'face' && (!Array.isArray(m.x) || m.x.length < 12 || m.x.length > 160 || !m.x.every(p => Array.isArray(p) && p.length === 2 && p.every(n => Number.isFinite(n) && n >= 0 && n <= 1)))) return fail('drawing');
+    if (o.id === 'bf-food' && sid === 'gloves' && (!has('bf-food', 'oven') || Date.now() - s.steps['bf-food'].oven < 6000)) return fail('oven');
+  }
   if (own(s.obj, o.id)) return ctx.send(ws, { t: 'seStep', e: e.id, o: o.id, s: sid, ok: true, again: 1 });
   const got = s.steps[o.id] && typeof s.steps[o.id] === 'object' ? s.steps[o.id] : (s.steps[o.id] = {});
   if (own(got, sid)) return ctx.send(ws, { t: 'seStep', e: e.id, o: o.id, s: sid, ok: true, again: 1 });
@@ -112,6 +139,7 @@ function step(ws, c, k, m) {
     if (!w.every(p => Array.isArray(p) && p.length === 2 && p.every(n => Number.isInteger(n) && n >= -20 && n <= 20))) return;
     s.carve = { face: s.carve?.face || 'grin', wob: w };
   }
+  if (e.id === 'bonfire99' && ((o.id === 'bf-guy' && sid === 'face') || (o.id === 'bf-sparkler' && sid === 'write'))) { if (!s.art) s.art = {}; s.art[o.id === 'bf-guy' ? 'face' : 'sparkler'] = m.x; }
   if (o.id === 'hw-decorate') s.decor[sid] = now;
   got[sid] = now; ctx.markDirty();
   let amt = 0, done = false;

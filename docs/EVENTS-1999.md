@@ -9,8 +9,7 @@ HALLOWEEN (`js/season-halloween.js`): objectives `hw-pumpkin`, `hw-decorate`, `h
 10), `hw-clean` (tail). Deviations: the sweets bowl sits on a small side table by the front door (the hall table holds the
 keys bowl); the carved lantern goes on the front gatepost (the mower parks by the doorstep); the loop is one real year of
 play until the 4.14 glitch exists. Not built yet: 2.3 C-F, `hw-crystal`, `hw-video`, keepsakes, Crystal's own trip, the
-joke tax, Gran's visit, the loft fright, recorded audio for the new `hw.*` lines; Bonfire Night is catalogued (window,
-phases, owner jump) with no content.
+joke tax, Gran's visit, the loft fright, recorded audio for the new `hw.*` lines; Bonfire Night is implemented in `season-bonfire.js` (see the implementation note below).
 
 Read first: `AGENTS.md` (hard rules), `docs/STORY.md` (chapters, quest guidance, chores 2.0 "seasonal jobs"),
 `docs/GRAPHICS.md` (draw-call and light budgets), `docs/AUDIO.md`. Existing dated content: `app/public/js/calendar.js`
@@ -243,7 +242,7 @@ screensaver (floating pumpkins), and a magazine secret (see mag).
 
 ---
 
-## 3. BONFIRE NIGHT / GUY FAWKES NIGHT (Friday 5 Nov 1999; window 31 Oct to 7 Nov; peak 17:30 to 20:30)
+## 3. BONFIRE NIGHT / GUY FAWKES NIGHT (Friday 5 Nov 1999; window 1 Nov noon to 6 Nov 23:00; displays 18:30 to 22:00)
 
 Tone: cold, smoky, crackly, cosy. Friday night after school or college, a hot meal in the garden, the family together. The
 Fireworks Code is the game rule (Dad's lessons are real gameplay, with a "Dad's safety check" gating each step). Facts:
@@ -259,120 +258,99 @@ water (they stay hot); no fireworks in pockets; never throw fireworks; one adult
 a guard. In the 1990s Dad's torch and "Safety first" leaflet on the box are period-correct.
 
 ### 3.1 What changes (by phase)
-**Lead (31 Oct to 4 Nov)**
-- The garden: a **bonfire** built from real objects (pallets, branches, an old chair, boxes; Dad assembles it over days from
-  the garden clear-out chore), a **Guy** in old clothes (stuffed trousers, shirt, a hat, a newspaper-ball head with a face)
-  sitting on a garden chair or wheelbarrow in the front garden for "Penny for the Guy", two **buckets (water, sand)** and the hose,
-  a **firework box** locked in the shed (Dad has the key).
-- House: a smell-of-smoke window glow (orange flicker on the garden-facing windows), jacket potatoes in the oven, parkin in
-  the tin, a mug rack with bowls of soup, Mom's flask and gloves on the radiator.
-- Mood: fog denser and warmer in the garden; low orange glow near the bonfire; the sky almost black by 17:00; neighbours'
-  fireworks pop and whistle in the distance from 30 Oct (ambient loops with random timing; "Crystal flinches, Dad says it's
-  just next door").
-- Audio: distant bangs, whistles, crackling fire, kids cheering; cat hiding under the stairs (a tiny gag).
-- Magazine/TV promos: "Where's your nearest display?" (a fake local public display advert that never names a place).
+**Lead (1 Nov noon to 4 Nov):** Dad's daily foundation grows into a dense cone of branches, with paper,
+kindling and cardboard tucked into its base. Ten carried pieces add to it. Old clothes and newspaper wait
+on the kitchen work mat; the finished Guy sits in the back garden. A closed Fizzle & Pop tin rests on a
+bracketed high shed-wall shelf. The rope, water bucket, sparkler pack, wellies, hats and gloves are physical
+props. Parkin and treacle toffee sit on a separate kitchen side unit with a small handwritten card.
 
-**Day (Fri 5 Nov)** - the build-up all day at school/college (summary), then the evening: Dad comes home at 17:00, the bonfire is
-lit at 18:00, fireworks at 18:30 to 19:30, then supper. Neighbours' fireworks go off too. A big red-glow sky.
+**Friday 5 Nov:** preparations remain available. From 18:30, the checked stack and Firework Code let the
+player hold Dad's torch at the rope for a three-minute display. Fountains, Catherine wheel, peony/ring/crackle
+rockets and staggered gold willow volleys end in a final bang and pause. Additive sprites and trailing dots
+share bounded buffers; weaker devices use fewer, larger sprites. Sound follows the flash after a distance-based
+delay. Layered flames, embers, slow smoke and flickering light warm the grass, fence and family; the stack
+burns down over the display. Neighbourhood fireworks continue in the evening. The cat hides under the bed.
 
-**Tail (6 to 7 Nov)** - Saturday morning: ash and burnt matches, the black smudge on the lawn (a lawn mark decal that becomes
-a thin, thick dark patch object), the stick of a burnt rocket in the flower bed (a pick-up-and-bin clean-up chore), leftover
-fireworks (sparklers, a fountain) for next weekend (Sat 6 Nov), at which Dad lets Jack do a second smaller display.
+**Saturday 6 Nov, ending at 23:00:** Dad has damped and checked the remains. An irregular soft scorch mark,
+dark ash, broken charred sticks, faint smoke and dull embers replace the stack. Six small cold rocket sticks
+and wrappers can be carried to the bin before noon. After noon completed accounts see only the ash patch.
+Unfinished accounts may watch Dad's 90-second leftovers display from 18:30 to 22:00 (details below).
 
-### 3.2 What the family does
-- **Dad** is chief of the display: shed key, taper, torch, wellies, flat cap; he reads the box instructions aloud and
-  gives the safety talk. He lights the fireworks; Jack helps by carrying and positioning (never lighting alone).
-- **Mom**: hot food and drinks, sparkler gloves, keeps Crystal back, reminds everyone to wrap up warm. Brings the tray of
-  jacket potatoes with cheese and beans; the toffee apples.
-- **Crystal**: makes the Guy with Jack (a sidequest), writes her name in the air with a sparkler, wants a "Catherine wheel" and is
-  scared of the bangers, so Dad moves her to Mom's side and she holds her ears. She falls asleep on the sofa at the end.
-- **Gran/Grandad/Nan (optional)**: come round for the bonfire; Grandad tells the rhyme and the Gunpowder Plot story in one
-  funny breath.
-- **Mates**: phone call, "we're having ours in the field, you coming?" - a brief alternative/optional social night
-  (a cutscene), always with "Mom said no", then they come round and join the garden display on Saturday.
+### 3.2 Family and safety
+Dad handles all lighting. Mom handles the hot oven and reminds everyone about warm clothes. The player's
+sister helps with the Guy and reacts to the bangs; her name is resolved through `{sister}` for each account.
+The family watches from the sides of the rope, choosing the opposite bank when the player changes ends.
+Their routes reserve about 1.5 metres around the player; walking into them uses the existing yielding system.
+The Guy has stuffed shirt sleeves and trousers, newspaper at collar/cuffs, a crumpled paper bag tied at the
+neck, the player's own drawn face and Dad's old hat. He stays on his chair.
 
-### 3.3 Interactive activities and mini-games
-**A. Build the bonfire (Dad's chore).** Carry branches and pallets from the shed and the side path; place them on the pile in
-the right pattern: stack in a wigwam shape with tinder (newspaper, kindling) at the middle; Dad inspects it ("a bonfire's only
-as good as its stack"). A star rating by stability (physics-lite: the pile wobbles if you place heavy items on top).
-Rule: no aerosols, no glass, no fireworks, no paraffin (shown on a "Don't burn" board; placing a forbidden item makes Dad
-say "Not that!" and the item bounces away, with no penalty).
+The history line briefly explains the stopped Gunpowder Plot of 1605. Safety checks cover closed storage,
+water, pets indoors, the watching line and Dad's taper. Adults light fireworks; stand back, never return to
+a firework, wear sparkler gloves and put hot wires into water. New lines use bubbles/subtitles and existing
+voice ids where available; no TTS requests.
 
-**B. Make the Guy.** At the kitchen table: stuff an old shirt and trousers with newspaper (stuffing mini-game), tie the ends
-with string (knot tracing), draw a face on the paper-bag head, add a hat, sit him on the chair. Optional **Penny for the Guy**
-at the front gate (a bored Guy and Jack): passers-by (via `Cast`) may give a few pence (small capped pence reward, 1999
-sums like 10p and 20p; never real money), but only with Mom watching. Hand over the Guy to Dad at the bonfire: he sits on
-top (a lift with a ladder). He doesn't burn in-game; he "goes up in smoke" with a funny send-off line, because it's a doll, not a person.
+### 3.3 Physical activities and saved objectives
+| Objective | Real steps | Rupees |
+| --- | --- | ---: |
+| `bf-wood` | E carries paper, kindling, branches and old boxes to ten stack slots | 20 |
+| `bf-guy` | Drag newspaper, trace string, draw the bag face, add the hat, carry to the chair | 15 |
+| `bf-food` | Wash, prick all four potatoes, wrap foil, Mom's oven, oven gloves, carry supper out | 15 |
+| `bf-code` | F checks the tin, water, cat, rope notice and taper | 10 |
+| `bf-light` | Friday torch/watch sequence or Saturday watch-only leftovers | 15 |
+| `bf-sparkler` | Put gloves on, let Dad light one, draw a name or shape in the dark | 10 |
+| `bf-bucket` | Carry the used hot wire and lower its end into water | 5 |
+| `bf-clean` | Saturday morning: carry six checked cold sticks/wrappers to the bin | 5 |
 
-**C. The jacket potato and sausages.** In the kitchen: wash, prick with a fork (so they don't burst; a prick-the-skin
-mini-game), rub with oil and salt, put on the oven tray, set the timer, take them out with oven gloves (oven-glove rule: pulling out
-without them = a short ouch and a penalty to stars; no injury). Foil-wrapped potatoes in the embers by the fire later (Dad
-raking). Hot dogs on sticks over the fire with a guard and gloves. Toffee apple dip: use the pan on the hob with Mom (hot sugar
-= Mom does the hot part; Jack dips the apples on lolly sticks and twirls them). Parkin: measure, mix, bake.
+Rewards use the existing capped seasonal path and paid ledger, once per objective/account/year-loop.
+The server validates order, safety and elapsed display time. Custom face and sparkler ink persist across
+refresh. A short oven timer swaps the tray for Mom's earlier batch, rather than claiming instant baking.
+The sparkler's bright tip follows the player's input, with a visible mitten, sleeve and three-second trail.
 
-**D. The Firework Code (Dad's briefing).** A short interactive rehearsal: Dad's leaflet on the shed door; Jack must
-tick 5 safety items (close the box, stand back, bucket ready, pets in, taper not lighter) before Dad gives permission. Skipping
-means Dad says "Not until we've done it properly". It teaches and makes every later step safe.
+### 3.4 Display continuity and catch-up
+Leaving the rope explicitly says the display carries on. The start epoch survives refresh; returning after
+the three minutes still completes the watching objective. Saturday's leftovers are only for unfinished
+`bf-light` accounts, last about 90 seconds, require no stack, safety preparations or held torch, and pay the
+same once-only reward. An owner restart preserves that paid ledger. There is no new cash path.
 
-**E. The display (viewed from the garden).** Jack and Crystal stand at the line (a rope on pegs, a solid line) behind
-which Dad lights fireworks. Types, appropriate to 1999 boxes: *fountains*, *Roman candles* (a series of coloured balls),
-*Catherine wheels* (pinned to the fence post; spin with sparks), *rockets* (stick in a bottle; whistle then burst),
-*mines* and *cakes* (multi-shot), *banger strings* (rare, Dad refuses the loud ones), and a **finale box**. Rendered as
-particle bursts/streaks (emissive spheres, additive, high in the sky), reflections on windows, shadows pulsing from the bonfire,
-and the crowd noises "oooh" and "aaah". The player's job:
-- hand Dad the next firework (choose from the box in order of the cheat sheet on the lid: "light the small ones first, big
-  ones last");
-- hold the torch for Dad (move the beam), or watch the sky with a free camera (look up);
-- count bursts for Crystal ("how many reds?" mini-quiz for stars);
-- put out stray sparks with the bucket if a firework is a dud (Dad: "never go back"; Jack waits the full 5 minutes, a fun
-  waiting gag; then Dad pours water on it with the hose).
-A **dud** firework occurs once (real: it happens); a quick lesson: "stay away" shown by a UI hint, then the water.
-
-**F. Sparklers.** Gloves on (wardrobe pick-up), light from a taper held by Dad (safety), wave and write letters in the air
-(a short-exposure trail, each letter lights up fading; draw your name or a shape; "write JACK" earns a star). Put each used
-sparkler tip-down in the bucket of water (they stay hot). 2 sparklers at a time maximum; Crystal's turn with Mom. The **sparkler
-photo** mini-game: Mom with the disposable camera; tilt to frame, click; the photo is saved as an in-house item (a pinboard
-photo).
-
-**G. Penny for the Guy / Guy competition.** Optional: the road's Guy competition on the fake neighbourhood noticeboard (cast
-neighbours' Guy images are described). The best Guy gets a prize voucher. Skip if the street isn't walkable.
-
-**H. Catherine wheel pin (precision).** Pin the wheel to the post with a single nail: aim and tap (a hammer mini-game
-where the wheel must spin freely); wrong nailing (too tight) makes the wheel stick; learn from Dad.
-
-### 3.4 Objectives for the quest system
-1. `bf-guy`: "Make a Guy for the bonfire." -> place on the chair/wheelbarrow. Reward 15 Rupees.
-2. `bf-wood`: "Help Dad build the bonfire (10 pieces)." -> Dad's sticker + 25 Rupees.
-3. `bf-code`: "Learn the Firework Code with Dad." (the checklist) -> Mom's good books +1.
-4. `bf-food`: "Get the jacket potatoes and parkin ready by 6 o'clock." (oven timer)
-5. `bf-light`: "Hold the torch for Dad during the display." (hold 3 minutes) -> unlocks the finale.
-6. `bf-sparkler`: "Write your name with a sparkler." (letters recognised or free-draw accepted)
-7. `bf-bucket`: "Put all sparklers in the water bucket." (no leftover lit item)
-8. `bf-clean`: (tail) "Tidy up the garden: burnt matches, rocket sticks, wrappers." (chore, +pence)
-Rewards: ~70 to 100 Rupees (capped), a **Bonfire keepsake** (a toasted marshmallow on a stick for the shelf? safer: a "Guy"
-plush model for Crystal's shelf and a burnt-edge bonfire photo on Jack's wall), Hangout "firework" hat/effect, JackOS firework
-screensaver, Mom's good books +1, a magazine secret.
-
-### 3.5 TV, Teletext, radio, magazine
-- **TV**: the news has a "firework safety" public-information film (a parody character called "Captain Cinder" who spoke to
-  kids), the Friday night films, and a parody kids' sketch show with a "sparkler spelling" gag. Bonfire Night on Friday
-  means Fri night TV is on in the background of the garden window.
-- **Teletext**: page "Bonfire Night safety and recipes" with parkin and toffee; a short quiz about the Gunpowder Plot and the
-  Firework Code. Weather page: "cold, clear, perfect for fireworks" or "wet, display moved to Saturday" (an alternate
-  deterministic outcome; the weather outcome is stored per account so a refresh never changes it).
-- **Radio Jack**: "Bonfire Beats" evening show with an original music loop and a countdown "5, 4, 3, 2, 1" synced to the display
-  start.
-- **Magazine**: the Nov issue's Bonfire special: "Make your own sparkler-safe controller cover" or "Guy Fawkes in games", a
-  cut-out Guy mask. Mention "Spike the Stegosaur 2 is out today" (already in `calendar.js` 11-05) and use it as the TV/PC
-  distraction (Jack wants to play it instead; Dad insists on the display first: a gentle family choice).
+### 3.5 JackOS and the fake web
+The existing seasonal-web system supplies the Bonfire palette, pixel artwork, sparkler cursor, desktop
+ornament, sound variants and saver. The magazine, search, JSN, Pixel Post and Dave's page get themed copy.
+The news describes the family display, closed high-shelf tin, pets indoors and Saturday leftovers. House
+and web share the 1 November noon to 6 November 23:00 window. Optional radio/TV/Teletext additions, donations,
+visiting relatives, dud handling, wheel hammering and photo keepsakes remain unimplemented.
 
 ### 3.6 Start and end by date, owner clock
-- Lead from 31 Oct 17:00 (right after Halloween ends so the decor swap is clean), peak 5 Nov, tail 6 to 7 Nov (the second small
-  display on Sat 6 Nov at 18:00 with the leftover fireworks), gone by 8 Nov 06:00.
-- Owner clock: set 1999-11-05 hour 19 for the display; the gate (Dad's code) still applies for the owner so the flow is
-  testable; a "skip to finale" debug button appears only for the owner.
-- If the player is in the PC or elsewhere during the display, the sky outside the window still shows the fireworks, the sound
-  plays quietly, and the bonfire glows.
+- Owner brief for this implementation: **1 November noon to 6 November 23:00**. Halloween owns the morning of 1 November;
+  Bonfire takes over at noon. Lead through 4 November, day on Friday 5 November, tail on Saturday 6 November. The cold-stick chore remains morning-only.
+- House and web use these same hour boundaries. Owner jump choices include preparations, night, morning-after, Saturday leftovers and after.
+- Dad's code and completed dry stack gate the display even for the owner. The display has one server-held start timestamp;
+  reload resumes that display. Leaving the rope keeps the display running; returning after its final bang still completes the watching objective. The torch returns to its pickup point under the ordinary carry refresh rule.
+- Three minutes of fountains, Catherine wheel, rockets and gold finale; the player holds the torch behind the rope.
+  Neighbourhood bursts continue all evening and are visible from the kitchen and bedroom windows.
+
+Implementation: `season-bonfire.js`, shared objectives in `season-cat.js`, safety/order/time validation in `mods/season.js`.
+Ten real carries build the stack; Dad's foundation grows each day. The kitchen close-up covers stuffing, string, a drawn
+paper-bag face and hat; carry the Guy to his chair. Supper covers washing, pricking, foil, Mom's hot oven and oven gloves,
+then a carried tray. The six-second timer exchanges the player's tray for Mom's **earlier batch**; it does not imply a
+potato bakes in seconds. Parkin and treacle toffee are already made, on a separate solid side unit. The worktop stays clear until the hot tray is served. Five physical safety checks precede the display.
+Gloves, Dad lighting one sparkler, free writing and a carried hot wire into water are separate persisted steps.
+The cat stays indoors under the bed during the bangs. F at the cat bowl checks the pet and allows a quiet look under the bed. Dad checks and damps the remains; six cold sticks/wrappers are a
+morning chore paid through the existing capped seasonal Rupee path (no new cash path). Custom Guy face and sparkler ink
+are persisted. Owner restart preserves the paid record. New lines use subtitles/bubbles; no TTS is requested.
+
+Saturday catch-up: between 18:30 and 22:00 Dad offers a 90-second leftovers display to accounts without `bf-light`.
+No stack, safety-check or torch prerequisites: watch from behind the rope. It uses the same objective and once-only
+paid ledger, including after an owner restart. Completed accounts see only the ash patch after noon, never another show.
+The website theme remains until 23:00. Halloween’s 1 November noon handover is unchanged.
+
+Not implemented from the optional design sketches: dud waiting sequence, penny donations, visiting grandparents/mates, bake-from-scratch parkin, toffee-apple dipping, wheel hammering,
+sparkler-photo keepsake, rewards in cash, radio/TV/Teletext additions. JackOS, magazine and fake-site themes use the
+existing Bonfire pixel artwork, saver, sound variants and cursor; their copy now matches the physical event.
+
+Safety copy follows the Firework Code: adults handle lighting, closed storage, stand back, never return, pets inside,
+gloves and hot ends into water. Historical source: UK Parliament, The Gunpowder Plot (1605). Safety source: London Fire
+Brigade, Fireworks (general sparklers/adult supervision guidance; modern product markings are deliberately not authored
+into the 1999 world).
 
 ---
 
@@ -547,3 +525,37 @@ cold.
 - Should seasonal Rupee rewards be tuned against the existing daily earn caps? (Proposal: events add up to 100 Rupees per event
   per loop outside the daily cap, but never convert to pounds.)
 - Is Remembrance appropriate to include at all? (Low-key and optional; easy to cut.)
+
+Implementation review (2 Nov 2026, round 5): the fresh real-input Bonfire regression completed all eight
+objectives without gameplay continuation flags. It covered Friday leave/late return, refresh, Saturday's
+90-second no-preparation/no-torch catch-up, the once-only paid ledger, phone-size layouts and a separate
+non-owner account (whose sister was Molly). No application errors were recorded; peak renderer RSS was
+1264 MiB. Servers used disposable `/tmp` data, ports 18080–18099, and the source-checkout voice fixture;
+`app/server.js` is unchanged.
+
+Desktop/no-touch, portrait/touch and potato photographs are labelled under
+`tests/shots/bonfire/pinned-desktop-1000/`, `pinned-phone-430/` and `pinned-potato-120/`.
+The house stays at rung 3, independently of the pinned particle cap. The revised bag head, small glove,
+soft ash patch and correctly scaled rocket sticks were viewed on desktop and phone. Both rope ends and
+the centre passed 145 cm minimum-distance assertions after walking the NPC simulator; a real Friday
+sample had all three family members at least 189 cm away. The final desktop fire photograph shows the
+whole family, lit faces and fence, without clipped meshes. The fresh potato finale still reads as a gold
+firework. Art-run peak renderer RSS stayed below 800 MiB. Photographs freeze only the real effects buffers
+at capture time so software screenshot readback does not consume the afterglow; gameplay remains live.
+
+`pinned-review.json` retains the separately pinned software-renderer frame comparisons: approximately
+350/333 ms desktop and 217/217 ms phone-size median, finale versus the same scene with the shared particle
+pool hidden (including fire particles). The fresh adaptive gameplay run reached cap 120 and measured
+400/383 ms. These are shared-host software-renderer samples, not hardware phone FPS; real-device performance
+still needs the manager's release check. Fixed buffers and the 3 GiB renderer guard remain enabled.
+
+Final regression results: seasonal web passed **17/17**; `bonfire-unit`, `bonfire-geometry-unit` and
+`season-cat-unit` passed; the parody audit found **0** authored replacements; `node --check` passed for
+every touched JS/CJS/MJS file. The geometry check covers 263 meshes / 43,756 triangles and rope-end goals.
+
+The fresh Halloween regression reached the pumpkin stencil, then exceeded its **900-second limit during
+face tracing (exit 124)**. Its subsequent browser-close error came from that timeout; no earlier application
+error or renderer-budget breach was recorded (peak 834 MiB). This is incomplete verification, not an
+established application failure. The branch remains **not release-ready** until the required Halloween
+regression completes on the manager's quiet host. No deployment, version bump, commit, production-data
+edit or TTS request was made.

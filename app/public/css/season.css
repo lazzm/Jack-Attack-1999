@@ -26,3 +26,10 @@ html.hs-focus .se-objective,html.hs-inspecting .se-objective,html.hs-paused .se-
 .se-kid{display:inline-block;margin:0 4px;color:#d8ceb4}.se-kid.ok{color:#c7dc9b}
 html.hs-paused .se-bar{display:none}
 @media(max-width:700px){.se-bar{bottom:150px;padding:6px 8px}.se-btns button{min-height:36px}}
+/* A landscape close-up leaves the work surface free above this shallow instruction strip. */
+@media (max-height:500px) and (min-width:600px){.bf-bar{bottom:8px;max-width:calc(100vw - 170px);padding:5px 10px;gap:3px}.bf-bar>b{font-size:12px}.bf-bar .se-hint{font-size:11px}.bf-bar .se-btns button{min-height:36px}}
+
+@media(max-width:700px){.bf-bar .se-btns button{min-height:42px;min-width:90px}}
+
+/* Leave the held mitten and wire clear to the right of the portrait work card. */
+@media(max-width:600px){.bf-bar.bf-sparkler{left:10px;transform:none;max-width:180px;bottom:105px}}

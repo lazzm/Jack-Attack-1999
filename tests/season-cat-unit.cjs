@@ -15,7 +15,7 @@ const on = (mm, dd, hour) => C.active({ mm, dd, hour }).map(x => x.e.id + ':' + 
 assert.equal(on(10, 10, 14), '');
 assert.equal(on(10, 24, 9), 'halloween99:lead');
 assert.equal(on(10, 31, 18), 'halloween99:day');
-assert.equal(on(11, 1, 9), 'halloween99:tail,bonfire99:lead');
+assert.equal(on(11, 1, 9), 'halloween99:tail');
 assert.equal(on(11, 1, 12), 'bonfire99:lead'); // Halloween decor goes at noon on 1 Nov
 assert.equal(on(11, 2, 14), 'bonfire99:lead');
 assert.equal(C.near(C.byId.halloween99, { mm: 10, dd: 23, hour: 23 }), 'lead', 'a day either side for time zones');
@@ -28,3 +28,21 @@ assert.deepEqual(H.objectives.map(o => o.id), ['hw-pumpkin', 'hw-decorate', 'hw-
 assert(H.objectives.reduce((a, o) => a + o.reward, 0) + H.objById['hw-treat'].bonus.amt <= 100, 'event rewards stay within 100 Rupees');
 assert.equal(H.fill.reduce((a, b) => a + b, 0) * H.tinPours >= H.maxGroups * 3, true, 'enough sweets for the night');
 console.log('season-cat-unit: PASS');
+
+assert.equal(on(11, 6, 9), 'bonfire99:tail');
+assert.equal(on(11, 6, 12), 'bonfire99:tail');
+assert.equal(on(11, 6, 22), 'bonfire99:tail');
+assert.equal(on(11, 6, 23), '');
+const B=C.byId.bonfire99; assert.equal(B.objectives.reduce((a,o)=>a+o.reward,0),95); assert(B.pack&&!B.soon);
+
+// Objective hours keep the morning chore and the evening catch-up discoverable without pointing at hidden props.
+const vm=require('node:vm'),handlers={};
+const browser={SeasonCat:C,OwnerTools:{clock:{date:'1999-11-06',hour:9}},st:{getState:()=>({flags:{veteran:true}})},Net:{on:(id,fn)=>handlers[id]=fn,send(){}},document:{readyState:'complete',querySelector:()=>null},setInterval(){},addEventListener(){},console};browser.window=browser;vm.createContext(browser);vm.runInContext(fs.readFileSync(require.resolve('../app/public/js/season.js'),'utf8'),browser);
+const eventState={open:true,obj:{},steps:{},display:'friday'};handlers.seMe({ev:{bonfire99:eventState}});
+const visible=()=>Array.from(browser.Season.objectives(),x=>x.o.id);
+assert(visible().includes('bf-clean'));assert(!visible().includes('bf-light'));
+browser.OwnerTools.clock.hour=12;assert(!visible().includes('bf-clean'));assert(!visible().includes('bf-light'));
+browser.OwnerTools.clock.hour=19;assert(visible().includes('bf-light'));assert(!visible().includes('bf-clean'));
+browser.OwnerTools.clock.hour=22;assert(!visible().includes('bf-light'));
+eventState.display='leftovers';eventState.steps['bf-light']={start:1};assert(visible().includes('bf-light'),'Started leftovers can finish after ten');
+browser.OwnerTools.clock.hour=23;assert.equal(visible().length,0);console.log('season objective hours: PASS');

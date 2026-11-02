@@ -26,17 +26,20 @@
     if (oc && /^1999-\d\d-\d\d$/.test(oc.date)) { const mm = +oc.date.slice(5, 7), dd = +oc.date.slice(8, 10); return { mm, dd, md: mm * 100 + dd, dow: C.DOW(mm, dd), hour: oc.hour | 0, owner: true }; }
     let mm, dd; try { const t = Desk.today99(); mm = t.m; dd = t.d; } catch (e) { const d = new Date(); mm = d.getMonth() + 1; dd = d.getDate(); }
     if (mm === 2 && dd === 29) dd = 28;
-    return { mm, dd, md: mm * 100 + dd, dow: C.DOW(mm, dd), hour: new Date().getHours(), owner: false };
+    return { mm, dd, md: mm * 100 + dd, dow: C.DOW(mm, dd), hour: (window.Seasons?.now?.() || new Date()).getHours(), owner: false };
   }
   const active = () => C.active(today()).filter(x => !x.e.soon);
   const st = id => srv?.ev?.[id] || null;
   const storyOpen = e => { const p = window.st?.getState?.(); return !p || p.flags?.veteran || (p.ch | 0) >= (e.needs?.chapter || 1); };
   function objectives() {
-    const out = [];
+    const t=today(), out = [];
     for (const { e, phase } of active()) {
       const s = st(e.id); if (!s || !s.open || !storyOpen(e)) continue;
       for (const o of e.objectives) {
         if (!o.phases.includes(phase)) continue;
+        const hours=o.hours?.[phase], hour=t.hour+(t.owner?0:(window.Seasons?.now?.()||new Date()).getMinutes()/60);
+        const finishingLeftovers=o.id==='bf-light'&&s.display==='leftovers'&&!!s.steps?.[o.id]?.start&&!s.obj?.[o.id];
+        if(hours && (hour<hours[0] || hour>=hours[1]) && !finishingLeftovers)continue;
         const done = !!s.obj?.[o.id], got = s.steps?.[o.id] || {};
         const n = o.count ? Math.min(o.count, s.treat?.happy | 0) : o.steps ? o.steps.filter(x => got[x]).length : 0, of = o.count || (o.steps ? o.steps.length : 1);
         out.push({ e, o, phase, text: cast(o.text), hint: cast(o.hint), done, by: s.obj?.[o.id]?.by, n, of });

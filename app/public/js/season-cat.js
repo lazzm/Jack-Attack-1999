@@ -53,12 +53,28 @@
       tinPours: 2, maxGroups: 12, costumes: ['ghost', 'witch', 'skeleton', 'wizard', 'dragon', 'pumpkin', 'mummy', 'bat', 'spacecadet'],
     },
     {
-      // Bonfire Night: catalogued (window, phases, jump) so the engine and owner tools know it; content comes next.
-      id: 'bonfire99', web: 'bonfire', name: 'Bonfire Night', from: '11-01', to: '11-06', peak: '11-05', soon: true,
+      id: 'bonfire99', web: 'bonfire', name: 'Bonfire Night', from: '11-01', to: '11-06', peak: '11-05', startHour: 12, endHour: 23,
       phases: [{ id: 'lead', from: '11-01' }, { id: 'day', from: '11-05' }, { id: 'tail', from: '11-06' }],
-      needs: { chapter: 2 }, decor: null, pack: null,
-      jump: [{ id: 'peak', label: 'Bonfire Night (Fri 5 Nov, 19:00) - coming soon', date: '11-05', hour: 19 }],
-      objectives: [],
+      needs: { chapter: 2 }, decor: 'bonfire', pack: 'js/season-bonfire.js',
+      jump: [
+        { id: 'lead', label: 'Building the bonfire (Tue 2 Nov, 16:00)', date: '11-02', hour: 16 },
+        { id: 'dusk', label: 'Bonfire Night preparations (Fri 5 Nov, 17:00)', date: '11-05', hour: 17 },
+        { id: 'peak', label: 'Bonfire Night (Fri 5 Nov, 19:00)', date: '11-05', hour: 19 },
+        { id: 'tail', label: 'The morning after (Sat 6 Nov, 9:00)', date: '11-06', hour: 9 },
+        { id: 'catchup', label: 'Dad’s leftovers (Sat 6 Nov, 19:00)', date: '11-06', hour: 19 },
+        { id: 'after', label: 'All tidied away (Sat 6 Nov, 23:00)', date: '11-06', hour: 23 },
+      ],
+      objectives: [
+        { id: 'bf-wood', text: "Help Dad build the bonfire (10 pieces).", hint: 'E carries dry branches and old boxes from beside the shed to the golden stack. Paper and kindling first. No aerosols, glass or rubbish. Dad checks for animals before lighting.', phases: ['lead', 'day'], reward: 20, gap: .6,
+          steps: ['paper', 'kindling', 'branch1', 'branch2', 'box1', 'branch3', 'box2', 'branch4', 'branch5', 'box3'] },
+        { id: 'bf-guy', text: 'Make a Guy with {sister}.', hint: "F at the kitchen table: stuff Dad's old clothes, tie the string, draw a face and add his old hat. E carries the finished Guy to the garden chair.", phases: ['lead', 'day'], reward: 15, ordered: true, gap: .6, steps: ['stuff', 'tie', 'face', 'hat', 'place'] },
+        { id: 'bf-food', text: "Help Mom get the bonfire supper ready.", hint: 'F at the kitchen tray: wash and prick the potatoes, wrap them in foil, let Mom do the oven, put on oven gloves, then carry the tray out. Parkin and treacle toffee are ready in the tin.', phases: ['lead', 'day'], reward: 15, ordered: true, gap: .7, steps: ['wash', 'prick', 'foil', 'oven', 'gloves', 'serve'] },
+        { id: 'bf-code', text: "Do Dad's Firework Code checks.", hint: 'Read the closed tin on the high shed-wall shelf, fill the bucket at the water butt, check the cat indoors, read the rope-line notice and check the taper. Nobody lights anything until all five are done.', phases: ['lead', 'day'], reward: 10, gap: .6, steps: ['tin', 'water', 'pets', 'line', 'taper'] },
+        { id: 'bf-light', text: 'Hold the torch for Dad at the watching line.', hint: 'Friday, from 6:30pm: F on the torch behind the rope. Dad checks the stack, lights one firework at a time and comes back. Stay behind the rope; never go back to a firework. The three-minute display carries on if you leave; return to the rope to finish. Missed Friday? Dad has a shorter leftovers display on Saturday, 6:30–10pm, with no preparations needed.', phases: ['day', 'tail'], hours: {tail:[18.5,22]}, reward: 15, ordered: true, gap: 1, steps: ['start', 'fountain', 'wheel', 'rocket', 'finale'] },
+        { id: 'bf-sparkler', text: 'Write your name with a sparkler.', hint: 'After the display: F on the gloves by the back door, then F on the sparkler pack at the watching line. Dad lights one. Hold it at full arm length and drag to write your name in the dark.', phases: ['day'], reward: 10, ordered: true, gap: .6, steps: ['gloves', 'light', 'write'] },
+        { id: 'bf-bucket', text: 'Put the used sparkler in the water.', hint: 'The wire stays hot. E carries it to the water bucket by the watching line; E lowers it hot end first into the water.', phases: ['day'], reward: 5, steps: ['cool'] },
+        { id: 'bf-clean', text: 'Help Dad tidy the cold rocket sticks.', hint: 'Saturday morning: Dad has checked and damped everything. E carries the six cold sticks and wrappers to the garden bin. Leave the ash patch alone: Dad checks it again.', phases: ['tail'], hours: {tail:[0,12]}, reward: 5, gap: .6, steps: ['c1', 'c2', 'c3', 'c4', 'c5', 'c6'] },
+      ],
     },
   ];
   const byId = Object.fromEntries(EVENTS.map(e => [e.id, e]));

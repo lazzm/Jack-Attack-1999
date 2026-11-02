@@ -704,6 +704,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     return CK.tween(cat, { x, y: FY, z }, Math.max(300, d / (speed || 70) * 1000), { linear: true }).then(() => { on = false; });
   }
   function callCat() {
+    if (window.Bonfire?.catHiding) { window.Bonfire.petCheck(); return true; }
     if (catBusy) return true;
     if (!CK.has('cat', 'pour') || CK.has('cat', 'ate')) return false;
     const cat = H.SPOTS.cat.obj; catBusy = true;
