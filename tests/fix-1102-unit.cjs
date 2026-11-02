@@ -1,7 +1,7 @@
 // Timing regressions use the production functions, without WebGL or changing test limits.
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const world=fs.readFileSync('app/public/js/hs-world.js','utf8');
+const world=fs.readFileSync(require('node:path').join(__dirname,'..','app/public/js/hs-world.js'),'utf8');
 const doorCode=world.slice(world.indexOf('  function setDoor('),world.indexOf('  let visSet ='));
 let time=1000;
 const d={open:false,ang:0,ms:650,swing:100,dir:-1,rooms:[],pivot:{rotation:{y:0}}};
@@ -19,7 +19,7 @@ ctx.setDoor('back',false,true);assert.equal(d.ang,0);assert.equal(Math.abs(d.piv
 time=2000;ctx.setDoor('back',true);ctx.anims.get('door:back')(2325);
 ctx.setDoor('back',true,true);assert.equal(d.ang,1,'Instant restore settles an already requested open door');assert(!ctx.anims.has('door:back'));
 console.log('PASS door: stale frame timestamp, reversal, immediate open/shut and interrupted restore');
-const life=fs.readFileSync('app/public/js/np-life.js','utf8');
+const life=fs.readFileSync(require('node:path').join(__dirname,'..','app/public/js/np-life.js'),'utf8');
 assert(!/L\[n0?\.lineId\]\[1\]/.test(life),'Lines with no script entry must not crash the speech queue');
 const opening=life.slice(life.indexOf('  const firstBeat ='),life.indexOf('  function storyDirectives()')) + '\nif(firstBeat())setTimeout(openingCall,7000);';
 let state,current,timer,hour,calls;
@@ -62,7 +62,7 @@ assert.equal(routeCalls[0],blocker);assert.equal(routeCalls.length,2);assert.equ
 console.log('PASS aside resume: checked body avoidance before returning to the routine');
 // The back leaf must sit within the shallow exterior casing, rather than
 // exposing several centimetres of dark recess in a pitched garden view.
-const house=fs.readFileSync('app/public/js/hs-house.js','utf8');
+const house=fs.readFileSync(require('node:path').join(__dirname,'..','app/public/js/hs-house.js'),'utf8');
 const doorwayCode=house.slice(house.indexOf('  function doorway('),house.indexOf('  const pickBox ='));
 const hinge=Number(house.match(/'backdoor', 'n', -56, 80, 160, GY, \{ inside: true, hingeNormal: ([\d.-]+)/)[1]);
 const frame={T:{Group:class{constructor(){this.position={set:(x,y,z)=>Object.assign(this.position,{x,y,z})}}}},K:{into:()=>({}),doorLeaf:(p,o)=>p.leaf=o},M:v=>v,tex:()=>null,mBrass:{}};vm.createContext(frame);vm.runInContext(doorwayCode,frame);
