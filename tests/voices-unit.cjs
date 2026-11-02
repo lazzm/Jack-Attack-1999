@@ -31,7 +31,7 @@ for (const [id, l] of Object.entries(nameLines)) if (!manifest[id]) manifest[id]
 // and every recorded family line is one the people can say (np-lines.js), with the same speaker
 { const w = {}; vm.runInNewContext(js('np-lines.js'), { window: w }); for (const [id, m] of Object.entries(manifest)) if (['mom', 'dad', 'sister', 'gran'].includes(m.character)) { assert(w.NPCLines[id], 'recorded line not in np-lines: ' + id); assert.equal(w.NPCLines[id][0], m.character, id); } }
 
-class Param { constructor(v = 1) { this.value = v; } setValueAtTime(v) { this.value = v; } setTargetAtTime(v) { this.value = v; } cancelScheduledValues() {} linearRampToValueAtTime(v) { this.value = v; } exponentialRampToValueAtTime(v) { this.value = v; } }
+class Param { constructor(v = 1) { this.value = v; this.events=[]; } setValueAtTime(v,t) { this.value = v; this.events.push(['set',v,t]); } setTargetAtTime(v,t,k) { this.value = v; this.events.push(['target',v,t,k]); } cancelScheduledValues() {} linearRampToValueAtTime(v) { this.value = v; } exponentialRampToValueAtTime(v) { this.value = v; } }
 class Node { constructor(kind) { this.kind = kind; this.gain = new Param(); this.frequency = new Param(); this.Q = new Param(); this.connections = []; } connect(n) { this.connections.push(n); return n; } disconnect() {} start(t) { this.startedAt = t; } stop() { if (this.onended) this.onended(); } }
 let ctxs = [];
 class Ctx {
@@ -116,6 +116,10 @@ const tick = () => new Promise(r => setImmediate(r));
     }
     const warm=fetched.length, repeated=w.st.play('c1.wake.mom.shout',{});for(let i=0;i<6;i++)await tick();
     assert(repeated.started);assert.equal(fetched.length,warm,'a repeated call-out reuses both decoded clips');repeated.stop();
+    const muffled=w.st.play('c1.wake.mom.call',{through:()=>true,fx:'downstairs'});for(let i=0;i<6;i++)await tick();
+    assert(muffled.started);assert.equal(muffled.nameDur,2.5,'name boundary uses decoded duration, not MP3 padding metadata');
+    assert.deepEqual(muffled.wall.frequency.events.map(e=>e.slice(0,3)),[['set',900,muffled.t0],['target',18000,muffled.t0+2.55]],'filter transition is scheduled without a render frame');
+    assert.deepEqual(muffled.wallGain.gain.events.map(e=>e.slice(0,3)),[['set',0.62,muffled.t0],['target',1,muffled.t0+2.55]]);muffled.stop();
     const before=fetched.filter(u=>u.includes('/names/')&&u.includes('.mp3')).length;
     w.first='UnknownPerson'; assert.equal(w.st.voiceName('c1.wake.mom.shout'),null); assert.equal(w.st.voiceText('c1.wake.mom.shout','Breakfast!'),'Breakfast!');
     const h=w.st.play('c1.wake.mom.shout',{});for(let i=0;i<6;i++)await tick(); assert(h.started);assert.equal(h.nameId,null);assert.equal(h.dur,2.5);h.stop();

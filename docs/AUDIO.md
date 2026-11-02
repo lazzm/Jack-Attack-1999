@@ -165,6 +165,17 @@ external report was overwritten. Final-byte hashes and exclusions are recorded i
 
 ### Candidate verification, 2 November
 
+Name regression follow-up: the downstairs name filter now uses scheduled AudioParam events, with the name boundary
+from the decoded buffer. A delayed render frame can no longer leave the already-muffled generic line filtered twice.
+The names browser case uses a silent audio-thread observer (`js/voice-name-meter.js`, loaded only by this test), checks
+actual signal during the name interval, stages speakers indoors, and drains/resets speech between cases. It verifies
+the warm Mom call with its real once-only guard, then refuses a repeat; the guard itself is unchanged. Captures wait for
+the real named balloon and fully typed text. Phone setup dismisses the touch coach through real finger input.
+Verification remains incomplete: an earlier fixture completed the names case (525 seconds), but its first phone
+capture still showed the touch coach. The revised fixture has not completed three consecutive runs. Later runs
+stalled around the muted-case cleanup; the final natural-end freeze guard and corrected phone capture need a fresh
+browser run. The last run was stopped at the manager's time limit; do not treat its partial log as a pass.
+
 - `tests/voices-unit.cjs` checks every accepted runtime hash against the release ledgers, withheld manifest entries,
   all four Jack styles, case/phonetic aliases, unknown-name fallback, combined-buffer cancellation, warm-cache reuse,
   mute, volume zero and the no-gesture gate. Syntax checks and the authored-text parody audit (0) pass.

@@ -195,59 +195,155 @@ await check('muted', async () => {
 // ---------------------------------------------------------------- real name recordings, owner identity, aliases, generic fallback and silence
 await check('names', async () => {
   await register('Jack');
-  const {browser,page,errors}=await house({account:'Jack',password:pass,signup:false,tier:'low'});
+  const {browser,page,errors}=await house({account:'Jack',password:pass,signup:false,tier:'low',touch:true});
   try {
     const requests=[];page.on('request',r=>{if(/audio\/voice\/.+\.mp3/.test(r.url()))requests.push(r.url());});
-    await stage(page,{mom:'sink',dad:'carStory',sister:'kmug1'});
-    await face(page,'dad',260,70);await page.keyboard.press('Shift');
+    // A silent parallel observer measures the actual post-panner/filter signal on the audio thread. A render stall
+    // cannot hide a short name from it. It never replaces the source, analyser, voice bus or lifecycle callbacks.
+    await page.keyboard.press('Shift');
+    await page.evaluate(async base=>{
+      Sound.effectsOn=true;Sound.setVolume(1);Sound.unlock();await Sound.ctx.resume();
+      await Sound.ctx.audioWorklet.addModule(base+'/js/voice-name-meter.js');
+      const S=HouseFamily.debug.speech;
+      window.__nameIdle=setInterval(()=>{S.last=performance.now();},100);
+      window.__nameOriginalSay=st.say;
+      st.say=function(id,...args){
+        const h=__nameOriginalSay.call(this,id,...args),run=window.__nameRun;
+        if(h&&run&&run.id===id){
+          run.voice=h;let appStart=null;
+          const appEnd=h.onend;
+          h.onend=voice=>{appEnd?.(voice);if(!voice.cancelled&&!run.finishing)S.freeze=true;};
+          Object.defineProperty(h,'onstart',{configurable:true,set(f){appStart=f;},get(){return voice=>{
+            appStart?.(voice);
+            const meter=new AudioWorkletNode(h.ctx,'name-meter'),silent=h.ctx.createGain();silent.gain.value=0;
+            h.an.connect(meter);meter.connect(silent);silent.connect(h.ctx.destination);
+            run.meter=meter;run.silent=silent;
+            meter.port.onmessage=e=>{run.proof[e.data.phase]=e.data;};
+            meter.port.postMessage({t0:h.t0,nameDur:h.nameDur});
+          };}});
+        }
+        return h;
+      };
+      window.__nameWatch=setInterval(()=>{
+        const r=window.__nameRun;if(!r||r.captured||r.freezing)return;
+        const h=r.voice,b=NPCBubble.live.find(b=>b.key===r.speaker&&!b.out);
+        if(h?.started&&!h.ended&&!b)r.missing=true;
+        const audible=r.muted||r.proof.line;
+        if(b?.mode==='head'&&b.text===r.text&&b.said.startsWith(r.prefix)&&audible&&
+            (r.muted||h?.started&&!h.cancelled&&b.said===b.text)){
+          r.freezing=true;S.freeze=true;r.pausedAt=performance.now();
+          if(r.muted||h.ended)r.captured=true;
+          else {r.pausedAudio=true;Sound.ctx.suspend().then(()=>{r.captured=true;});}
+        }
+      },10);
+    },base);
     const owner=await page.evaluate(()=>({first:Cast.me().first,clip:st.voiceName('bark.dad.bed2')}));
-    assert.equal(owner.first,'Jack');assert.equal(owner.clip?.id,'dad-shout/jack','owner gets JACK!');
-    await page.evaluate(()=>{Sound.effectsOn=true;Sound.setVolume(1);Sound.unlock();window.__nameSamples=[];
-      window.__nameTimer=setInterval(()=>{const v=HouseFamily.debug.speech.voice,b=NPCBubble.live.find(b=>!b.out);if(v?.started&&!v.ended)__nameSamples.push({id:v.lineId,name:v.nameId,dur:v.dur,level:v.level(),pos:!!v.panner,text:b?.text,said:b?.said});},30);});
-    await say(page,'dad','bark.dad.bed2',{again:true});
-    await waitFor(page,()=>__nameSamples.some(s=>s.id==='bark.dad.bed2'&&s.name==='dad-shout/jack'&&s.level>0.2),25000*SCALE);
-    await page.evaluate(()=>{HouseFamily.debug.speech.freeze=true;Sound.ctx.suspend();});await page.waitForTimeout(300);
-    const b=(await live(page)).find(b=>b.key==='dad');assert(b?.text.startsWith('JACK! I can hear'),JSON.stringify(b));
-    assert(crossClear(b,1366,860),'named balloon clear of crosshair');await shot(page,'name-owner-jack');
-    await page.evaluate(()=>{HouseFamily.debug.speech.freeze=false;Sound.ctx.resume();});
-    await waitFor(page,()=>!st.voicesPlaying.length,25000*SCALE);
-    const samples=await page.evaluate(()=>__nameSamples);
-    assert(samples.some(s=>s.pos&&s.name==='dad-shout/jack'));assert(samples.some(s=>s.said?.startsWith('JACK!')));
-    assert(requests.some(u=>u.includes('/names/dad-shout/jack.mp3')),'real static name asset fetched');
-    // Identity changes here are browser-only fixtures; no real or disposable account profile is overwritten.
+    assert.equal(owner.first,'Jack');assert.equal(owner.clip?.id,'dad-shout/jack');
+
+    async function reset(speaker){
+      await page.evaluate(speaker=>{
+        const F=HouseFamily,S=F.debug.speech,r=window.__nameRun;
+        if(r){r.meter?.disconnect();r.silent?.disconnect();}
+        window.__nameRun=null;st.stopVoice();S.q.length=0;S.cur=null;S.voice=null;S.bub=null;
+        S.until=0;S.hard=0;S.freeze=true;S.last=performance.now();NPCBubble.clear();
+        F.debug.clock({md:1012,dow:2,t:18.1});
+        for(const [id,spot]of Object.entries({mom:'sink',dad:'carStory',sister:'floorTV'})){
+          const c=F.chars[id];c.rig.hush();c.talking=false;c.hold=0;c.backoff=c.backHome=c.aside=c.asideFor=null;
+          F.debug.go(id,id===speaker?'bedDad':spot);F.debug.place(id,id===speaker?'bedDad':spot);
+        }
+        House.hush();const y=House.LV.U-(House.STAND||128);
+        House.setWalkFrom({x:-15,y,z:250,lvl:'U',seat:0});
+        Object.assign(House.P,{x:-15,y,z:250,lvl:'U',seat:0,rx:Math.atan2(-((House.LV.U-150)-y),Math.hypot(183,124))*180/Math.PI,ry:Math.atan2(183,124)*180/Math.PI});
+        House._.setMode('walk');House.dirty();
+      },speaker);
+      await waitFor(page,()=>House.here==='bedroom'&&HouseFamily.debug.seen(window.__nameSpeaker)&&NPCBubble.ok(),120000*SCALE);
+    }
+    async function finish(){
+      await page.evaluate(async()=>{
+        const r=__nameRun,S=HouseFamily.debug.speech;r.finishing=true;
+        const held=performance.now()-r.pausedAt;S.until+=held;S.hard+=held;S.freeze=false;if(r.pausedAudio)await Sound.ctx.resume();
+      });
+      await waitFor(page,()=>!__nameRun.voice||__nameRun.voice.ended,120000*SCALE);
+      assert.equal(await page.evaluate(()=>!!__nameRun.voice?.cancelled),false,'recording reaches its natural end');
+      await waitFor(page,()=>!HouseFamily.debug.speech.cur,120000*SCALE);
+      assert.equal(await page.evaluate(()=>!!__nameRun.missing),false,'balloon remains throughout actual playback');
+    }
+    async function capture(name){
+      await waitFor(page,()=>{
+        const r=__nameRun,b=NPCBubble.live.find(b=>b.key===r.speaker&&!b.out);
+        return r.captured&&b?.mode==='head'&&b.said===b.text&&b.x>=8&&b.y>=8&&b.x+b.w<=innerWidth-8&&b.y+b.h<=innerHeight-8&&
+          (b.x>innerWidth/2+34||b.x+b.w<innerWidth/2-34||b.y>innerHeight/2+34||b.y+b.h<innerHeight/2-34);
+      },120000*SCALE);
+      const proof=await page.evaluate(()=>{
+        const r=__nameRun,b=NPCBubble.live.find(b=>b.key===r.speaker&&!b.out),c=HouseFamily.chars[r.speaker];
+        const el=document.querySelector('.np-bub:not(.np-out) p');
+        return {b,room:House.here,actorRoom:c.room,seen:HouseFamily.debug.seen(r.speaker),name:r.voice?.nameId,
+          proof:r.proof,missing:r.missing,clipped:el.scrollWidth>el.clientWidth+1||el.scrollHeight>el.clientHeight+1};
+      });
+      assert.equal(proof.room,'bedroom');assert.equal(proof.actorRoom,'bedroom');assert(proof.seen);
+      assert(!proof.clipped,'all balloon text fits');assert(!proof.missing,'no early balloon close');
+      console.log('NAME CAPTURE',name,JSON.stringify(proof));
+      if(!['name-generic-fallback','name-muted-jack','name-zero-volume-jack'].includes(name))await shot(page,name);
+    }
+    async function line(speaker,id,kind,name,{muted=false,once=false,generic=false}={}){
+      await page.evaluate(s=>window.__nameSpeaker=s,speaker);await reset(speaker);
+      const selected=await page.evaluate(({id,muted,generic})=>{
+        Cast.bind(generic?'voice-fixture':'Jack',{first:generic?'Qzxqzx':'Jack',g:'m'});
+        Sound.effectsOn=muted!=='off';Sound.setVolume(muted==='zero'?0:1);return st.voiceName(id);
+      },{id,muted,generic});
+      if(!generic)assert.equal(selected?.id,kind+'/jack');else assert.equal(selected,null);
+      if(!muted){await page.evaluate(id=>st.prefetch(id),id);await waitFor(page,()=>st.voiceReady(window.__nameId),120000*SCALE);}
+      const before=requests.length;
+      const accepted=await page.evaluate(({speaker,id,muted,once,generic})=>{
+        const S=HouseFamily.debug.speech;
+        if(once){const member=String(Net.me.nick).toLowerCase();localStorage.removeItem('np.once.'+member+'.'+id);
+          const step=st.current?.()?.id||'-';localStorage.removeItem('np.step.'+member+'.'+step+'.'+id);}
+        const prefix=generic?'I can hear':st.voiceName(id).text;
+        window.__nameRun={speaker,id,muted,prefix,text:st.voiceText(id,NPCLines[id][1]),proof:{},missing:false};
+        S.freeze=false;
+        return HouseFamily.say(speaker,id,{force:true,prio:9,again:true,call:true,once,talk:!once});
+      },{speaker,id,muted,once,generic});
+      assert(accepted,'requested line was accepted: '+id);
+      await capture(name);
+      const state=await page.evaluate(()=>({proof:__nameRun.proof,name:__nameRun.voice?.nameId,voice:!!__nameRun.voice,
+        nameDur:__nameRun.voice?.nameDur,t0:__nameRun.voice?.t0,filter:__nameRun.voice?.wallGain?.gain.value}));
+      if(muted){assert(!state.voice);assert.deepEqual(await page.evaluate(()=>st.voicesPlaying),[]);assert.equal(requests.length,before,'muted means no MP3 fetch');}
+      else{
+        assert(state.proof.line?.rms>0.003,'real generic recording is audible');
+        if(!generic){assert.equal(state.name,kind+'/jack');assert(state.proof.name?.rms>0.003,'real name portion is audible');
+          assert(state.proof.name.t>=state.t0&&state.proof.name.t<state.t0+state.nameDur,'measured during actual name portion');
+          if(await page.evaluate(id=>NPCLines[id][2]==='downstairs',id))assert(state.filter>0.99,'following muffled line is not filtered twice');
+        }else assert.equal(state.name,null);
+      }
+      if(once)assert.equal(await say(page,speaker,id,{call:true,once:true,again:true}),false,'production once guard refuses a repeat');
+      await finish();
+    }
+    async function runLine(speaker,id,kind,name,options){await page.evaluate(id=>window.__nameId=id,id);await line(speaker,id,kind,name,options);}
+    const cases=[['dad','bark.dad.bed2','dad-shout','owner-jack'],['mom','bark.mom.tea1','mom-shout','mom-shout'],
+      ['mom','c1.wake.mom.call','mom-call','mom-call'],['sister','c1.sis.stairs','sis-whine','sis-whine']];
+    for(const [speaker,id,kind,name]of cases)await runLine(speaker,id,kind,'name-'+name,{once:kind==='mom-call'});
     const aliases=await page.evaluate(()=>['Jak','Jac','Jakk','Jaque'].map(first=>{Cast.bind('voice-fixture',{first,g:'m'});return st.voiceName('bark.dad.bed2')?.id;}));
     assert.deepEqual(aliases,Array(4).fill('dad-shout/jack'));
-    for(const [speaker,id,kind] of [['mom','bark.mom.tea1','mom-shout'],['mom','c1.wake.mom.call','mom-call'],['sister','c1.sis.stairs','sis-whine']]) {
-      const selected=await page.evaluate(id=>{Cast.bind('voice-fixture',{first:'Jack',g:'m'});return st.voiceName(id);},id);
-      // A speaker without an audited Jack recording must use the generic line, never another accent/name.
-      if(!selected){console.log('NAME FALLBACK: no approved '+kind+'/jack');continue;}
-      await face(page,speaker,270,60);
-      await page.evaluate(()=>{HouseFamily.debug.speech.until=0;HouseFamily.debug.speech.hard=0;HouseFamily.debug.speech.q.length=0;st.stopVoice();__nameSamples.length=0;});
-      await say(page,speaker,id,{again:true});
-      await page.evaluate(id=>window.__nameWant=id,id);
-      await waitFor(page,()=>__nameSamples.some(s=>s.id===__nameWant&&!!s.name&&s.level>0.2),25000*SCALE);
-      assert((await live(page)).some(b=>b.text.startsWith(selected.text)),'name in '+speaker+' balloon');
-      await page.evaluate(()=>{HouseFamily.debug.speech.freeze=true;Sound.ctx.suspend();});await page.waitForTimeout(300);
-      await shot(page,'name-'+kind);await page.evaluate(()=>{HouseFamily.debug.speech.freeze=false;Sound.ctx.resume();});
-    }
-    await page.evaluate(()=>{st.stopVoice();HouseFamily.debug.speech.until=0;HouseFamily.debug.speech.hard=0;HouseFamily.debug.speech.q.length=0;Cast.bind('voice-fixture',{first:'Qzxqzx',g:'m'});});
-    const before=requests.filter(u=>u.includes('/names/')).length;
-    assert.equal(await page.evaluate(()=>st.voiceName('bark.dad.bed2')),null);
-    await say(page,'dad','bark.dad.bed2',{again:true});
-    await waitFor(page,()=>HouseFamily.debug.speech.cur?.lineId==='bark.dad.bed2'&&HouseFamily.debug.speech.voice?.started,25000*SCALE);
-    assert.equal(await page.evaluate(()=>HouseFamily.debug.speech.voice.nameId),null);
-    assert((await live(page)).some(b=>b.text.startsWith('I can hear')),'generic balloon has no invented name');
-    assert.equal(requests.filter(u=>u.includes('/names/')).length,before,'fallback fetches no name');
-    for(const mode of ['off','zero']){
-      await page.evaluate(mode=>{st.stopVoice();const s=HouseFamily.debug.speech;s.cur=null;s.voice=null;s.bub=null;s.until=0;s.hard=0;s.q.length=0;NPCBubble.clear();Cast.bind('Jack',{first:'Sarah',g:'f'});Sound.effectsOn=mode!=='off';Sound.setVolume(mode==='zero'?0:1);},mode);
-      const start=requests.length;
-      await say(page,'dad','bark.dad.bed2',{again:true});
-      await waitFor(page,()=>NPCBubble.live.some(b=>b.key==='dad'&&!b.out&&b.text.startsWith('JACK!')),15000*SCALE);
-      assert.deepEqual(await page.evaluate(()=>st.voicesPlaying),[]);await page.waitForTimeout(500);
-      assert.equal(requests.length,start,'muted call-out fetches no audio');
-    }
-    await shot(page,'name-muted-jack');await page.evaluate(()=>clearInterval(__nameTimer));assert.deepEqual(errors,[]);
-  } finally {await browser.close();}
+    await runLine('dad','bark.dad.bed2','dad-shout','name-generic-fallback',{generic:true});
+    await runLine('dad','bark.dad.bed2','dad-shout','name-muted-jack',{muted:'off'});
+    await runLine('dad','bark.dad.bed2','dad-shout','name-zero-volume-jack',{muted:'zero'});
+    await page.setViewportSize({width:390,height:844});
+    const touch=await page.context().newCDPSession(page);
+    await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:1,x:195,y:2}]});
+    await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await waitFor(page,()=>GameInput.touch,30000*SCALE);
+    await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:2,x:50,y:700}]});
+    await touch.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:2,x:50,y:680}]});
+    await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await waitFor(page,()=>!document.querySelector('.ht-coach'),30000*SCALE);
+    for(const [speaker,id,kind,name]of cases)await runLine(speaker,id,kind,'phone-name-'+name);
+    await page.setViewportSize({width:844,height:390});
+    await runLine('dad','bark.dad.bed2','dad-shout','phone-name-landscape');
+    assert.deepEqual(errors,[]);
+  } finally {
+    await page.evaluate(()=>{clearInterval(window.__nameWatch);clearInterval(window.__nameIdle);st.stopVoice();st.say=window.__nameOriginalSay||st.say;HouseFamily.debug.speech.freeze=false;Sound.ctx?.resume();}).catch(()=>{});
+    await browser.close();
+  }
 });
 
 // ---------------------------------------------------------------- off-screen / downstairs: an edge balloon pointing their way

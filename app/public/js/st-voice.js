@@ -89,12 +89,14 @@
     if (cache.has(key)) return cache.get(key);
     // One continuous source keeps mouth, bubble timing, positional sound, cancellation and ducking in step.
     // Short static clips cost two requests on first use; the shared name is then reused across all calling lines.
-    return remember(key, Promise.all([decoded(ctx, 'name:' + n.id, 'names/' + n.file), decoded(ctx, id, m.file)]).then(([a, b]) => {
+    const joinedClip = Promise.all([decoded(ctx, 'name:' + n.id, 'names/' + n.file), decoded(ctx, id, m.file)]).then(([a, b]) => {
+      joinedClip.nameDur = a.duration;
       const gap = Math.round(ctx.sampleRate * 0.10), channels = Math.max(a.numberOfChannels, b.numberOfChannels);
       const joined = ctx.createBuffer(channels, a.length + gap + b.length, ctx.sampleRate);
       for (let i = 0; i < channels; i++) { const d = joined.getChannelData(i); d.set(a.getChannelData(Math.min(i, a.numberOfChannels - 1))); d.set(b.getChannelData(Math.min(i, b.numberOfChannels - 1)), a.length + gap); }
       return joined;
-    }));
+    });
+    return remember(key, joinedClip);
   }
   function prefetch(id) {
     if (!on() || !info(id)) return;
@@ -128,7 +130,7 @@
         let p = null; try { p = h.o.pos(); } catch (e) {}
         if (p) { if (h.panner.positionX) { setParam(h.panner.positionX, p.x, c); setParam(h.panner.positionY, p.y, c); setParam(h.panner.positionZ, p.z, c); } else h.panner.setPosition(p.x, p.y, p.z); }
       }
-      if (h.wall) { let t = false; try { t = h.o.fx === 'downstairs' ? !!h.nameId && c.currentTime < h.t0 + h.nameDur : !!(h.o.through && h.o.through()); } catch (e) {} if (t !== h.thru) { h.thru = t; setParam(h.wall.frequency, t ? 900 : 18000, c); setParam(h.wallGain.gain, t ? 0.62 : 1, c); } }
+      if (h.wall && h.o.fx !== 'downstairs') { let t = false; try { t = !!(h.o.through && h.o.through()); } catch (e) {} if (t !== h.thru) { h.thru = t; setParam(h.wall.frequency, t ? 900 : 18000, c); setParam(h.wallGain.gain, t ? 0.62 : 1, c); } }
     }
     raf = requestAnimationFrame(follow);
   }
@@ -156,7 +158,7 @@
     p.then(buf => {
       if (h.cancelled || !on()) { done('cancelled'); return; }
       if (performance.now() - asked > (o.late || 6000)) { done('late'); return; } // (too late: it would be out of step with the bubble)
-      const src = c.createBufferSource(); src.buffer = buf; h.src = src; h.dur = buf.duration;
+      const src = c.createBufferSource(); src.buffer = buf; h.src = src; h.dur = buf.duration; h.nameDur = n ? p.nameDur : 0;
       const an = c.createAnalyser(); an.fftSize = 512; h.an = an;
       const g = c.createGain(); g.gain.value = o.gain || 1;
       let node = src;
@@ -172,6 +174,12 @@
       src.onended = done;
       pending.delete(h); active.add(h); window.Sound.duck && Sound.duck(true);
       h.t0 = c.currentTime + 0.02;
+      if (h.wall && o.fx === 'downstairs') {
+        // Run this on the audio clock: a slow render frame must not muffle the already-filtered following line.
+        h.wall.frequency.setValueAtTime(900, h.t0); h.wallGain.gain.setValueAtTime(0.62, h.t0);
+        h.wall.frequency.setTargetAtTime(18000, h.t0 + h.nameDur + 0.05, 0.01);
+        h.wallGain.gain.setTargetAtTime(1, h.t0 + h.nameDur + 0.05, 0.01);
+      }
       follow(); if (!raf) raf = requestAnimationFrame(follow);
       src.start(h.t0); h.started = true; note(id, 'started');
       try { h.onstart && h.onstart(h); } catch (e) {}
