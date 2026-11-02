@@ -20,7 +20,12 @@ const args = process.argv.slice(2), only = args.find(a => a.startsWith('--only='
 const SCALE = +process.env.SMOKE_SCALE || Math.max(1, Math.min(4, Math.round(os.loadavg()[0] / os.cpus().length * 13) / 10));
 const pass = 'Throwaway-1999', results = [];
 let server, data, base;
-const freePort = () => new Promise((res, rej) => { const s = net.createServer(); s.listen(0, () => { const p = s.address().port; s.close(() => res(p)); }); s.on('error', rej); });
+async function freePort() {
+  for (let port = 18080; port <= 18099; port++) {
+    if (await new Promise(resolve => { const s = net.createServer(); s.once('error', () => resolve(false)); s.listen(port, '127.0.0.1', () => s.close(() => resolve(true))); })) return port;
+  }
+  throw Error('No free throwaway port in 18080-18099');
+}
 async function startServer() {
   data = await mkdtemp(os.tmpdir() + '/jhp-characters-'); const port = await freePort();
   server = spawn(process.execPath, ['server.js'], { cwd: root + 'app', env: { ...process.env, PORT: String(port), DATA_DIR: data, ADMIN_TOKEN: 'testtoken' }, stdio: ['ignore', 'pipe', 'pipe'] });

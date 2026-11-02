@@ -238,8 +238,12 @@
     if (!s) return;
     if (s.k === 'route') {
       if (!s.r) {
-        const avoid = s.yielding ? peopleAvoid(c) : null;
+        const avoid = s.yielding || c.resumeAvoid ? peopleAvoid(c) : null;
         s.r = routeFrom(c, s.to, avoid); s.s = 0;
+        // Resume around the body we just yielded to. Going straight back onto
+        // the cached centre line can meet the same standing person forever.
+        if (!s.r && c.resumeAvoid && !s.yielding) s.r = routeFrom(c, s.to);
+        if (s.r && !s.yielding) c.resumeAvoid = false;
         if (!s.r) {
           if (s.yielding) { c.aside = c.asideFor = null; c.goal = c.cur = null; c.plan = []; return; }
           s.fail = (s.fail || 0) + 1;
@@ -299,7 +303,10 @@
       stop = Math.min(stop, s.s + Math.max(0, hit.d - (hit.b.who === 'player' ? 50 : 12)));
       if (c.v < 8) s.blocked = (s.blocked || 0) + dt;
       const o = hit.b.o;
-      if (o && s.blocked > 0.3 && (prio(c) < prio(o) && !c.aside || c.asideFor === o)) {
+      // An aside is still a walk: somebody else can block its escape route.
+      // Re-choose the aside for that blocker too, rather than waiting for the
+      // original person while a second walker waits for us (kitchen deadlock).
+      if (o && s.blocked > 0.3 && (prio(c) < prio(o) || c.asideFor === o)) {
         c.pushT = nowMs(); c.pushN = 6; c.pushFrom = { x: o.x, z: o.z, lvl: o.lvl }; c.asideFor = o;
         stepAside(c, dt);
         if (c.goal === null && c.aside) { c.cur = null; c.plan = []; return; }
@@ -370,7 +377,7 @@
           const g = target(c, clock(), true), to = g.away ? EXIT[g.exit] : g.spot?.seat ? Object.assign({lvl:g.spot.lvl},approachOf(g.spot.seat,g.spot.lvl)) : g.spot;
           room = to && !chars.some(q => q !== c && q.present && q.lvl === to.lvl && Math.hypot(to.x-q.x,to.z-q.z)<bodyGap(c,q)) && NV.route({lvl:c.lvl,x:c.x,z:c.z},to,{avoid:peopleAvoid(c)});
         }
-        if (room) { c.aside = c.asideFor = null; }
+        if (room) { c.aside = c.asideFor = null; c.resumeAvoid = true; }
         c.asideT = 0;
       }
       return;
@@ -419,11 +426,13 @@
   const words = t => String(t).split(/\s+/).length;
   const lineMs = t => clamp(900 + words(t) * 340, 2300, 7600);
   function say(id, lineId, o) {
-    o = o || {}; const c = C[id], l = L[lineId] || (typeof o.text === 'string' ? [id, o.text] : null); if (!c || !l) return false;
+    // Unrecorded script variants use st.say's existing subtitle/bubble fallback.
+    // Give them their own ids so an older, differently worded clip never plays.
+    o = o || {}; const c = C[id], l = L[lineId] || (o.text ? [id, o.text] : null); if (!c || !l) return false;
     const person = c.present && (o.force || inEarshot(c, o.range));
     const shout = !person && (l[2] === 'downstairs' || o.call);
     if (!person && !shout) return false;
-    if (o.once) { const k = 'np.once.' + member() + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
+    if (o.once) { const k = 'np.once.' + member() + '.' + (o.onceId || lineId); if (ls.get(k)) return false; ls.set(k, 1); }
     // never the same line again within a minute (unless you asked for a story instruction again)
     if (!o.again && c.said[lineId] && nowMs() - c.said[lineId] < 60000) return false;
     // a scripted story line that plays by itself plays once per story step (saved: a refresh doesn't replay it)
@@ -452,6 +461,8 @@
       const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); }
     }
     const n0 = speech.q[0]; if (!n0) return;
+    n0.base = n0.base || n0.text; // (lines with no script entry bring their own words)
+    n0.text = window.st?.voiceText?.(n0.lineId, n0.base) || n0.base;
     const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n0.lineId);
     if (rec && !window.st.voiceReady?.(n0.lineId)) { // (give the recording a moment to arrive, so the words and the voice start together)
       if (!n0.waitFrom) { n0.waitFrom = t; try { window.st.prefetch(n0.lineId); } catch (e) {} }
@@ -562,7 +573,7 @@
     } else {
       add(t >= 17.5 && t < 18.5 && (room === 'kitchen' || room === 'lounge'), ['bark.sis.tea1', 'bark.sis.tea2']);
       add(clk.school && t >= 7 && t < 8.4, ['bark.sis.school1', 'bark.sis.school2']);
-      add(clk.dow === 6 && t < 12, ['bark.sis.wknd1']); add(clk.dow === 0, ['bark.sis.wknd2']);
+      add(clk.dow === 6 && t >= 7 && t < 12, ['bark.sis.wknd1']); add(clk.dow === 0, ['bark.sis.wknd2']);
       add(room === 'lounge' && act === 'telly', ['bark.sis.tv1', 'bark.sis.tv2']);
       add(room === 'hall', ['bark.sis.react.lounge', 'bark.sis.mess2']);
       add(t >= 20 && t < 21, ['bark.sis.bed1', 'bark.sis.bed2']);
@@ -589,6 +600,15 @@
   // ================================================================ the story, in person
   let lastStep = null, visit = null;
   const storyOn = () => { const s = window.st?.getState?.(); return !!(s && !s.flags.veteran); };
+  const firstBeat = () => storyOn() && window.st.current()?.id === 'lad' && !Object.keys(window.st.getState().done).length;
+  function openingCall() {
+    if (!firstBeat()) return false;
+    const t = clock().t, id = 'c1.wake.mom.call', o = { call: true, once: true, onceId: id, prio: 1 };
+    if (t >= 6 && t < 12) return say('mom', id, o);
+    if (t >= 12 && t < 18) return say('mom', id + '.day', Object.assign(o, { text: "The afternoon's going by! One quick game, then come and see me!" }));
+    if (t >= 18 && t < 22) return say('mom', id + '.evening', Object.assign(o, { text: "Evening already! Come and see me before it gets too late!" }));
+    return say('mom', id + '.night', Object.assign(o, { text: "Still awake? Keep it down, it's late. Come and see me when you're ready." }));
+  }
   function storyDirectives() {
     const out = {}; if (!storyOn()) return out;
     const s = window.st.getState(), cur = window.st.current()?.id; if (s.ch !== 1 || !cur) return out;
@@ -760,6 +780,13 @@
   // ================================================================ the loop
   let ready = false, lastT = 0, lastFrame = 0, simMode = false;
   const visible = c => c.present && c.rig && H.ROOMS[c.room]?.group.visible;
+  function dialogueHeld(c) {
+    if (c.hold > 0) return true;
+    const line = speech.cur;
+    // A passing remark can continue while its speaker steps out of the way.
+    // It is not a conversation lock, and must not leave a yielded goal null.
+    return !!(c.talking && line?.c === c && (line.talk || !/^bark\./.test(line.lineId)));
+  }
   function tick(dt) {
     const clk = clock();
     directives = Object.assign(storyDirectives(), manual);
@@ -768,7 +795,7 @@
     for (const c of chars) {
       const want = target(c, clk);
       if (!c.present) { maybeSpawn(c, want, clk); continue; }
-      if (!c.goal || want.key !== c.goal.key) { if (!c.talking && c.hold <= 0) setGoal(c, want); }
+      if ((!c.goal || want.key !== c.goal.key) && !dialogueHeld(c)) setGoal(c, want);
       step(c, dt, clk);
       placeRig(c);
     }
@@ -877,8 +904,9 @@
     H.on('door', () => kick());
     H.on('mode', () => kick());
     addEventListener('ownerclock', () => { for (const c of chars) { c.goal = null; } });
-    // the very first morning: Mom calls up the stairs
-    if (storyOn() && window.st.current()?.id === 'lad' && !Object.keys(window.st.getState().done).length) setTimeout(() => { say('mom', 'c1.wake.mom.call', { call: true, once: true, prio: 1 }); }, 7000);
+    // Mom calls up at the start, using the in-game hour when she actually speaks.
+    // Recheck after the delay: early/out-of-order progress must not get a stale call.
+    if (firstBeat()) setTimeout(openingCall, 7000);
   }
   function boot() {
     if (ready) return;
@@ -897,6 +925,7 @@
     // hs-life's random shouts give way to the people who are really there (and Dad can't shout from work)
     mute: who => { if (!ready) return false; const w = String(who).toLowerCase(); if (w.startsWith('dad')) return true; if (w.startsWith('mom')) return true; return false; },
     debug: {
+      openingCall,
       clock(v) { dbgClock = v || null; for (const c of chars) c.goal = null; },
       sim(seconds, dt, check) { // fast-forward the routines without drawing (tests)
         const was = simMode; simMode = true; const out = [];
