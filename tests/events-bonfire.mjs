@@ -59,7 +59,7 @@ try {
  // Guy: stuff, tie, draw, hat, then E carries him to his actual chair.
  if(!(process.env.BONFIRE_RESUME_PREP==='1' && (await state()).obj['bf-guy'])){
  await aim([-60,GY-eye,260],[-60,GY-88,150]);await key('f');await until(()=>Bonfire.step==='stuff');await page.waitForTimeout(700);
- for(const step of ['stuff','tie','face']){await until(`Bonfire.step==='${step}'`);for(let i=0;i<3&&await page.evaluate(s=>Bonfire.step===s,step);i++)await draw();await got('bf-guy',step);await shot('04-guy-'+step);}
+ for(const step of ['stuff','tie','face']){await until(`Bonfire.step==='${step}'||!!Season.st('bonfire99')?.steps?.['bf-guy']?.['${step}']`);for(let i=0;i<3&&await page.evaluate(s=>Bonfire.step===s,step);i++)await draw();await got('bf-guy',step);await shot('04-guy-'+step);}
  await key('f');await got('bf-guy','hat');await until(()=>!House.focused);
  await aim([-15,GY-eye,285],[-60,GY-52-76,201]);await key('e');await until(()=>House.held()==='bf.guy.ready');
  await aim([-112,GY-eye,-136],[-154,GY-64,-201]);await key('e');await got('bf-guy','place');await aim([-55,GY-eye,-90],[-154,GY-100,-201]);await shot('05-guy-chair');

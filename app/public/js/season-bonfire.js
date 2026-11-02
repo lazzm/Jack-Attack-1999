@@ -293,7 +293,7 @@
     const next = plan(work.kind).find(s => !got(oid(work.kind), s));
     if (!next) { if (H.focused) H.unfocus(); return; }
     if (work.step === next) return;
-    work.step = next; work.n = 0; work.ink = []; work.sectors = new Set(); work.last = null; work.pending = false;
+    work.step = next; work.n = 0; work.ink = []; work.sectors = new Set(); work.last = null; work.pending = false; work.down = false; // (each job takes its own press: a long drag can't finish the next one too)
     const text = {
       stuff: ['Stuff the old clothes', 'Hold and drag newspaper into the shirt and trousers. Fill both legs and sleeves.'],
       tie: ['Tie the string', 'Drag a loop round the blue shirt, then cross the ends. No stuffing escaping!'],
