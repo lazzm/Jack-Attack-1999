@@ -144,7 +144,8 @@
   const lightsOn = Object.create(null), lightKeys=['landing','hall','cupboard','lounge','kitchen','loungeLamp','loungeFire'];
   try {const saved=JSON.parse(localStorage.getItem('jhp_hs_house_lights')||'{}');for(const id of lightKeys)if(typeof saved[id]==='boolean')lightsOn[id]=saved[id]}catch(e){}
   const saveHouseLights=()=>{try{localStorage.setItem('jhp_hs_house_lights',JSON.stringify(lightsOn))}catch(e){}};
-  const lit = id => lightsOn[id] != null ? lightsOn[id] : (phase() !== 'day');
+  // No window under the stairs: daylight must not switch its bulb off.
+  const lit = id => lightsOn[id] != null ? lightsOn[id] : (id === 'cupboard' || phase() !== 'day');
   const standardLampOn=()=>lightsOn.loungeLamp==null?phase()!=='day':lightsOn.loungeLamp;
   function standardLampLook(r){if(r&&r.standardBulbMaterial){r.standardBulbMaterial.emissive.set(standardLampOn()?'#c89b58':'#000000');r.standardBulbMaterial.userData.e0=r.standardBulbMaterial.emissive.clone();H.dirty()}}
   const ceilingSwitches=new Map();
@@ -406,15 +407,27 @@
   // ================================================================ THE CUPBOARD UNDER THE STAIRS (the old SNES lives here)
   function buildCupboard(r) {
     const batch = K.batch(), B = K.into(batch);
-    const yAt = z => UY + (z - 250) / 350 * 280 + 22; // the sloping ceiling (the underside of the stairs)
-    const wall = M({ c: '#d8d0bc', map: tex('wallWarm') });
     // enclosed under the flight: back wall (hall build), front wall (hall build), the east wall is the stairwell's own (x 410), the sloping soffit is the ceiling
-    const wallD = M({ c: '#d8d0bc', map: tex('wallWarm'), side: 2 }), yU = z => UY + 0.8 * (z - 250) + 23.5, zF = 250 + (GY - UY - 23.5) / 0.8;
+    const yU = z => UY + 0.8 * (z - 250) + 23.5, zF = 250 + (GY - UY - 23.5) / 0.8;
+    const plaster = M({c:'#fff',map:K.tex('hs.cupboard.plaster',128,128,g=>{g.fillStyle='#c8bfab';g.fillRect(0,0,128,128);const rand=K.rnd(188);for(let i=0;i<1800;i++){g.fillStyle=rand()<.5?'rgba(255,255,245,.035)':'rgba(75,65,48,.035)';g.fillRect(rand()*128,rand()*128,1,1)}}),sh:2,side:2});
+    // Independent inner lining: finer painted plaster in this tiny space only.
+    // Keep the hall's wallpaper and its texture scale on the outside faces.
+    const lining=(x,pts)=>poly(B,pts.map(([z,y])=>[x,y,z]),plaster);
+    lining(331,[[251.2,GY],[251.2,yU(251.2)],[362,yU(362)],[362,GY]]);
+    lining(331,[[362,yU(362)],[438,yU(438)],[438,GY-94],[362,GY-94]]);
+    lining(331,[[438,GY],[438,yU(438)],[zF,GY]]);
+    lining(409,[[251.2,GY],[251.2,yU(251.2)],[zF,GY]]);
+    B.panel(370,(yU(251.2)+GY)/2,251.2,78,GY-yU(251.2),.6,plaster,{uv:28});
     B.panel(370, GY, (250.5 + 441) / 2, 80, 441 - 250.5, 2, M({ c: '#fff', map: tex('carpetBeige') }), { rx: 90, uv: 90 });
-    poly(B, [[330, yU(250.5), 250.5], [410, yU(250.5), 250.5], [410, GY, zF], [330, GY, zF]], M({ c: '#d8d2c4', side: 2 }));
+    // A closed plaster slab, with separate face normals and real-scale grain.
+    // Its lower face follows the old headroom plane; thickness goes into the
+    // stair structure, clear of the treads and both strings.
+    const pitch = Math.atan(.8), midZ = (250.5 + zF) / 2, soffitDepth = 1.8;
+    B.box(370, yU(midZ) - Math.cos(pitch) * soffitDepth / 2, midZ + Math.sin(pitch) * soffitDepth / 2,
+      80, soffitDepth, Math.hypot(zF - 250.5, yU(zF) - yU(250.5)), plaster, { rx: -pitch / D2R, uv: 28 });
     // a bare bulb on a pull cord, the electricity meter (its disc really spins), the fuse box
-    B.cyl(370, 125.5, 290, 2, 2, 6, 10, mWhite); r.bulb = B.group ? null : null;
-    const meter = new T.Group(); meter.position.set(410, GY - 125, 300); r.group.add(meter); const MT = K.into(meter);
+    B.cyl(370, 152.8, 320, 3.5, 3.5, 1.2, 12, mWhite, {rx:-pitch/D2R});
+    const meter = new T.Group(); meter.position.set(410, GY - 145, 300); r.group.add(meter); const MT = K.into(meter);
     MT.box(-2, 0, 0, 4, 26, 18, M('#2a2a2a')); MT.plane(-4.1, -4, 0, 14, 10, M({ c: '#fff', map: K.tex('hs.meter', 128, 96, (g) => { g.fillStyle = '#f0ece0'; g.fillRect(0, 0, 128, 96); A.text(g, 'kWh', 64, 20, '700 14px ' + A.UIF, '#222', 'center'); g.fillStyle = '#111'; g.fillRect(14, 30, 100, 26); g.fillStyle = '#fff'; [0, 4, 7, 2, 9].forEach((n, i) => A.text(g, String(n), 26 + i * 19, 50, '700 18px "Courier New",monospace', '#fff', 'center')); A.text(g, 'ELECTRICITY BOARD', 64, 84, '9px ' + A.UIF, '#555', 'center'); }) }), { ry: -90 });
     r.disc = MT.cyl(-4.6, 6, 0, 5, 5, 0.3, 24, M({ c: '#c8c8c8', sh: 80, sp: '#fff', map: K.tex('hs.disc', 64, 64, (g) => { g.fillStyle = '#c8c8cc'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#c01a1a'; g.fillRect(28, 0, 8, 12); }) }), { rz: 90 });
     // the old portable telly on a box, the SNES on another, a tangle of leads
@@ -434,15 +447,31 @@
     if(R.hasConsole&&!R.hasConsole('sn')){sn.visible=false;H.SPOTS.snes.off=true;}
     // the hoover, the ironing board, Dad's toolbox, wellies, a bag of old toys, a shelf of paint tins
     const hv = B.at(398, GY, 420); hv.cyl(0, -15, 0, 11, 12, 30, 18, M({ c: '#d02a2a', sh: 40, sp: '#444' })); hv.lathe(0, -30, 0, [[11, 0], [7, -6], [0.5, -9]], 18, M('#d02a2a')); hv.ball(0, -40, 0, 4, 4, 4, M('#222'), 8); hv.cyl(-10, -20, 10, 1.4, 1.4, 50, 8, M('#444'), { rx: 40, rz: 20 }); hv.shadow(0, 0, 0, 30, 30, 0.7);
-    B.box(346, GY - 70, 260, 32, 140, 3, M('#9aa0a8'), { rx: -12 }); B.box(346, GY - 70, 262, 34, 4, 3, M('#7a7a80'), { rx: -12 });
+    // Folded ironing board: rounded padded nose, woven cover and the folded
+    // steel frame behind it. Lean the top towards the wall, with the foot on
+    // the carpet; the old rectangle leaned through the wall and read as a slab.
+    const ib = B.at(346, GY - 66 * Math.cos(12 * D2R) - .1, 267, 0, { rx: 12 });
+    const outline = new T.Shape();
+    outline.moveTo(-15.5, 62); outline.lineTo(-15.5, -40);
+    outline.quadraticCurveTo(-15.5, -69, 0, -69); outline.quadraticCurveTo(15.5, -69, 15.5, -40);
+    outline.lineTo(15.5, 62); outline.quadraticCurveTo(15.5, 66, 11.5, 66); outline.lineTo(-11.5, 66); outline.quadraticCurveTo(-15.5, 66, -15.5, 62);
+    outline.closePath();
+    const cover = K.tex('hs.ironing.cover',128,128,g=>{g.fillStyle='#b9c9c6';g.fillRect(0,0,128,128);g.strokeStyle='rgba(76,100,104,.2)';g.lineWidth=1;for(let n=0;n<128;n+=8){g.beginPath();g.moveTo(n,0);g.lineTo(n,128);g.moveTo(0,n);g.lineTo(128,n);g.stroke()}});
+    ib.geo(new T.ExtrudeGeometry(outline,{depth:1.4,bevelEnabled:true,bevelSize:.8,bevelThickness:.5,bevelSegments:2,curveSegments:10}),0,0,0,M({c:'#fff',map:cover,sh:2}),{uv:24});
+    for(const sg of [-1,1]){ib.cyl(0,13,-2,.8,.8,96,10,M('#a3aaa7'),{rz:sg*13});ib.rbox(sg*11,59,-2,6,3,3,.7,M('#656c6b'));}
+    ib.cyl(0,13,-3.3,2,2,1.2,12,mMetal,{rx:90});
+    ib.rbox(0,7,2.1,2.2,6,.8,.3,M('#888b80'));
+    B.shadow(346,GY,281,35,9,.35,{sq:true});
     const tb = B.at(350, GY, 390); tb.box(0, -10, 0, 40, 20, 20, M({ c: '#c82a1a', sh: 50, sp: '#555' })); tb.box(0, -22, 0, 30, 4, 4, M('#333')); tb.shadow(0, 0, 0, 46, 26, 0.6, { sq: true });
     const bg = B.at(395, GY, 260); bg.ball(0, -16, 0, 14, 16, 12, M({ c: '#e8e4dc', sh: 30, sp: '#555' }), 12); bg.box(-8, -30, 0, 4, 8, 4, M('#5a8ad0')); bg.ball(6, -32, 2, 4, 4, 4, M('#f0c000'), 8); bg.shadow(0, 0, 0, 30, 26, 0.6);
     const sh = B.at(410, GY - 120, 360); sh.box(-8, 0, 0, 16, 2, 60, M({ c: '#fff', map: tex('pine') })); [[-8, -16], [-8, 0], [-8, 16]].forEach(([x, z], i) => sh.cyl(x, -7, z, 5, 5, 12, 14, M(['#e8e4dc', '#a8c8e0', '#f0d080'][i])));
     batch.build(r.group);
     // the light (a pull cord)
-    const bl = new T.Group(); bl.position.set(370, 127, 290); r.group.add(bl); const BL = K.into(bl);
-    BL.cyl(0, 6, 0, 0.3, 0.3, 12, 4, M('#eee')); r.bulbMesh = BL.ball(0, 15, 0, 3.4, 4.4, 3.4, M({ c: '#f4f0e0', e: '#000' }).clone(), 12);
-    BL.cyl(6, 40, 0, 0.15, 0.15, 74, 4, M('#ddd')); BL.ball(6, 78, 0, 0.9, 1.4, 0.9, M('#e8e0c8'), 8);
+    const bl = new T.Group(); bl.position.set(370, 153, 320); r.group.add(bl); const BL = K.into(bl);
+    BL.cyl(0, 17, 0, .3, .3, 34, 6, M('#eee')); BL.cyl(0,37,0,2,2,6,12,mWhite);
+    BL.cyl(0,42,0,1.25,1.25,4,12,M('#e8e2d4'));
+    r.bulbMesh = BL.ball(0, 47, 0, 3.4, 4.4, 3.4, M({ c: '#f4f0e0', e: '#000' }).clone(), 16);
+    BL.cyl(6, 46, 0, .15, .15, 90, 6, M('#ddd')); BL.ball(6, 92, 0, .9, 1.4, .9, M('#e8e0c8'), 8);
     H.spot('hs.cord', { label: 'Light cord', obj: bl, act: () => { lightsOn.cupboard = !lit('cupboard');saveHouseLights(); secret('hs.cupboard'); cupLight(r); H.relight(); window.Sound?.world('switch'); } });
     wrapSpot('hs.cup.box', { label: 'Box of old games', act: () => say('Box of old games', 'My old games box: Segue manuals with no games, a broken Segue Gear, and a Teeny Loons sticker book.') }); pickBox(r, 'hs.cup.box', 380, GY - 20, 300, 44, 44, 34);
     wrapSpot('hs.cup.bag', { label: 'Bag of old toys', act: () => say('Bag of old toys', 'Him-Bloke, a Big Trek with no batteries, half a Ker-Plonk, and every Wonder Egg toy from 1993.') }); pickBox(r, 'hs.cup.bag', 395, GY - 16, 260, 28, 32, 24);
@@ -1362,8 +1391,14 @@
       amb: () => interiorAmb('hall', .68),
       stations: [{ id: 'stairs', n: 'Bottom of the stairs', pose: () => look('G', 268, 660, 370, 230, 380, 158) }, { id: 'back', n: 'The hall', pose: () => look('G', 300, 640, 260, 260, 150, 158) }] },
     cupboard: { name: 'Under the stairs', title: 'UNDER THE STAIRS', lvl: 'G', area: [[332, 252, 408, 440]], bx0: 334, bx1: 406, bz0: 254, bz1: 438, eye: 112, ceilingAt:(x,z)=>UY+.8*(z-250)+23.5, build: buildCupboard, noMap: false,
-      lights: () => [{ x: 370, y: 150, z: 290, c: '#ffe4b8', i: lit('cupboard') ? 1.1 : 0, d: 260 }, { x: 336, y: 290, z: 400, c: '#e8e0d0', i: H.DOORS.cupboard && H.DOORS.cupboard.open ? (phase() === 'day' ? .65 : .25) : 0, d: 220 }],
-      amb: () => ({ sky: lit('cupboard') ? '#b2a18b' : '#7d8190', gnd: '#5b5145', i: lit('cupboard') ? .46 : (H.DOORS.cupboard && H.DOORS.cupboard.open ? .3 : .22) }),
+      lights: () => [
+        { x: 370, y: 205, z: 320, c: '#ffdda0', i: lit('cupboard') ? 1.3 : 0, d: 300, flicker: .012 },
+        // Warm plaster bounce reaches the fronts of the CRT and stored things;
+        // the bare bulb above/behind them otherwise only lights their backs.
+        { x: 368, y: 258, z: 386, c: '#e8c99a', i: lit('cupboard') ? .28 : 0, d: 260 },
+        { x: 336, y: 290, z: 400, c: '#e8e0d0', i: H.DOORS.cupboard && H.DOORS.cupboard.open ? (phase() === 'day' ? .65 : .25) : 0, d: 220 }
+      ],
+      amb: () => ({ sky: lit('cupboard') ? '#c6b392' : '#7d8190', gnd: '#77654c', i: lit('cupboard') ? .5 : (H.DOORS.cupboard && H.DOORS.cupboard.open ? .34 : .22) }),
       stations: [{ id: 'snes', n: 'The old console', pose: () => look('G', 362, 400, 358, GY - 38, 330, 112) }] },
     lounge: { coffeeFrame: COFFEE, name: 'The lounge', title: 'THE LOUNGE', lvl: 'G', area: [[-280, 305, 195, 700]], bx0: -278, bx1: 193, bz0: 307, bz1: 698, build: buildLounge, windowViews:[{room:'drive',bounds:bayGlass}],
       lights: () => { const L = [{ x: -60, y: GC + 30, z: 500, c: '#fff0d0', i: lit('lounge') ? 0.95 : 0, d: 700 }, { x: -60, y: 220, z: 690, c: phase() === 'day' ? '#e8f0ff' : '#4a5a8a', i: phase() === 'day' ? 1.1 : 0.2, d: 650 }]; const lamp = lightsOn.loungeLamp == null ? phase() !== 'day' : lightsOn.loungeLamp; if (lamp) L.push({ x: LAMPST.x, y: GY - 160, z: LAMPST.z, c: '#ffd8a0', i: 0.8, d: 380 }); if (HouseRooms.rooms.lounge.fireOn) L.push({ x: -240, y: GY - 30, z: 500, c: '#ff8a40', i: 0.9, d: 300 }); if (window.HouseTelly && HouseTelly.on) L.push({ x: LT.x, y: GY - 80, z: LT.z + 60, c: '#8aa8ff', i: 0.55, d: 320 }); return L; },
@@ -1420,7 +1455,10 @@
         
         // outside: the back door (kitchen -> garden) and the front door (hall -> drive). The doors are the painted ones already there: they swing
         const kit = H.ROOMS.kitchen, kb = K.batch(), KB = K.into(kb);
-        const bd = doorway(kit, KB, 'backdoor', 'n', -56, 80, 160, GY, { inside: true, noframe: true, glass: true, mat: M({ c: '#f2f0ea', sh: 40, sp: '#444' }), deco: (Dd, g2) => { Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, -1.9, 50, 70, M({ c: '#c8e0f0', o: 0.4, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, 1.9, 50, 70, M({ c: '#c8e0f0', o: 0.4, tr: true, sh: 100, sp: '#fff' })); } });
+        // Seat the shut leaf inside the shallow exterior casing. The default
+        // inside hinge offset left its outer face nearly 5 cm behind that
+        // casing, exposing a dark, apparently skewed gap in the pitched view.
+        const bd = doorway(kit, KB, 'backdoor', 'n', -56, 80, 160, GY, { inside: true, hingeNormal: -1, noframe: true, glass: true, mat: M({ c: '#f2f0ea', sh: 40, sp: '#444' }), deco: (Dd, g2) => { Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, -1.9, 50, 70, M({ c: '#c8e0f0', o: 0.4, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, 1.9, 50, 70, M({ c: '#c8e0f0', o: 0.4, tr: true, sh: 100, sp: '#fff' })); } });
         kb.build(kit.group);
         const gl = () => M({ c: '#dfe8ee', o: 0.7, tr: true, sh: 90, sp: '#fff' });
         const fd2 = doorway(hall, K.into(fb), 'frontdoor', 's', 700, 260, 340, GY, { inside: true, leaf: true, noframe: true, glass: true, panel: M({ c: '#27402f', sh: 8, sp: '#1a1a1a' }), mat: M({ c: '#2f4d3a', sh: 10, sp: '#1a1a1a' }), deco: (Dd, g2) => { const cx = g2.sgnA * g2.dw / 2;
