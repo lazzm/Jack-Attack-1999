@@ -414,7 +414,7 @@
     g.fillStyle = 'rgba(0,0,0,.05)'; for (let x = 0; x < w; x += 16) { g.beginPath(); g.arc(x + 8, 6, 5, 0, 7); g.fill(); }
     A.grain(g, w, h, 1400, 0.025, 77);
     g.textBaseline = 'alphabetic';
-    A.text(g, cast('JOBS FOR {me.NAME}'), 84, 82, '700 46px ' + A.HAND, '#c0102a');
+    { const ttl = cast('JOBS FOR {me.NAME}'); let px = 46; g.font = '700 46px ' + A.HAND; const tw = g.measureText(ttl).width; if (tw > w - 100) px = Math.max(26, Math.floor(46 * (w - 100) / tw)); A.text(g, ttl, 84, 82, '700 ' + px + 'px ' + A.HAND, '#c0102a'); }
     g.strokeStyle = '#c0102a'; g.lineWidth = 3; g.beginPath(); g.moveTo(84, 92); g.quadraticCurveTo(250, 100, 410, 90); g.stroke();
     A.text(g, date99(), w - 20, 118, '22px ' + A.HAND, '#1a3a9a', 'right');
     const L = list();
