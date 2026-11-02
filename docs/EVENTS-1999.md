@@ -556,6 +556,4 @@ every touched JS/CJS/MJS file. The geometry check covers 263 meshes / 43,756 tri
 The fresh Halloween regression reached the pumpkin stencil, then exceeded its **900-second limit during
 face tracing (exit 124)**. Its subsequent browser-close error came from that timeout; no earlier application
 error or renderer-budget breach was recorded (peak 834 MiB). This is incomplete verification, not an
-established application failure. The branch remains **not release-ready** until the required Halloween
-regression completes on the manager's quiet host. No deployment, version bump, commit, production-data
-edit or TTS request was made.
+established application failure. Released as 2.59.0 after full gates on 2 Nov 2026 (Bonfire end to end, websites 17/17, Halloween, Chapter 1, owner tools, mobile 8/8, smoke 12/12). Real phone hardware frame rate remains unmeasured.

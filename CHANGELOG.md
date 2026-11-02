@@ -1,5 +1,14 @@
 # Jack's Home Page - changelog
 
+## 2.59.0 - 2026-11-02
+- Bonfire Night 1999 runs from 1 November noon to 6 November 23:00, in the house and on the websites.
+- Build the bonfire with Dad (ten real carries, paper and kindling first), make a Guy with your sister (stuff the clothes, tie the string, draw his face on the paper bag, carry him to his chair) and get supper ready with Mom (wash, prick, wrap, oven gloves, carry the tray out).
+- Do Dad's five Firework Code checks, then hold the torch at the rope on Friday evening from 6:30pm for a three-minute display: fountain, Catherine wheel, rockets and a gold willow finale, with the neighbours' fireworks in the sky all evening and the cat hiding under your bed.
+- Missed Friday? Dad lets off his leftovers on Saturday evening, a shorter show for anyone who hasn't watched yet.
+- Write your name with a sparkler, cool the hot wire in the bucket, and help tidy the cold rocket sticks on Saturday morning. The Guy's face and your sparkler drawing are saved. 95 Rupees in all, paid once through the seasonal path.
+- Fireworks scale by device with fewer, bigger sparks rather than blur. The washing line is packed away during the event. Fixed tall pale streaks in the dusk sky.
+- Verified: parody 0, all unit checks, Bonfire end to end with real inputs (all eight objectives, refresh, dates, phone sizes, non-owner cast), websites 17/17, Halloween, Chapter 1, owner tools, mobile 8/8, smoke 12/12. Not tested on real phone hardware. No real account, wallet or shared-world changes; new lines use bubbles, with no new recordings.
+
 ## 2.58.0 - 2026-11-02
 - Family now call you by name. Mom, Dad and your sister use a shared recording of your first name before lines that call you ("JACK! I can hear that keyboard clicking."). 402 audited name clips (3.25 MB), with sound-alike spellings and the generic line as fallback; two small requests on first use, nothing fetched when muted.
 - 20 more British retakes, taking the family to 309 lines. Four lines stay withheld for re-recording: c2.pocket.dad4, c2.unbox.dad, c1.mom.up, c4.hal.sis.

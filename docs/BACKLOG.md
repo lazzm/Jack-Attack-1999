@@ -303,3 +303,8 @@ Method: throwaway server + Playwright (system Chromium, SwiftShader, tier low, 1
 - name-mom-shout.png: test camera in the back garden facing a wall.
 - characters.mjs --only=talk mouth-animation check is flaky or failing on unchanged 2.57.28 (eleven zero samples, then one moving); investigate.
 - phone-name-owner-jack.png: the WALK joystick ring is partly off the left edge after the touch coach is dismissed by touch.
+
+## Noted 2026-11-02 Bonfire review
+- During the display the family look at the player rather than at the fire and sky; turn them towards the show.
+- Check the washing line returns properly after the event ends on 6 Nov.
+- Measure Bonfire finale frame rate on a real phone: software rendering can't show it (222 ms median at potato tier in tests, against 200 ms with the fireworks hidden).
