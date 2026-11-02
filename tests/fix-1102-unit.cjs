@@ -20,6 +20,7 @@ time=2000;ctx.setDoor('back',true);ctx.anims.get('door:back')(2325);
 ctx.setDoor('back',true,true);assert.equal(d.ang,1,'Instant restore settles an already requested open door');assert(!ctx.anims.has('door:back'));
 console.log('PASS door: stale frame timestamp, reversal, immediate open/shut and interrupted restore');
 const life=fs.readFileSync('app/public/js/np-life.js','utf8');
+assert(!/L\[n0?\.lineId\]\[1\]/.test(life),'Lines with no script entry must not crash the speech queue');
 const opening=life.slice(life.indexOf('  const firstBeat ='),life.indexOf('  function storyDirectives()')) + '\nif(firstBeat())setTimeout(openingCall,7000);';
 let state,current,timer,hour,calls;
 const speech={storyOn:()=>!state.flags.veteran,window:{st:{current:()=>({id:current}),getState:()=>state}},setTimeout:f=>{timer=f},clock:()=>({t:hour}),say:(id,line,opts)=>calls.push({id,line,...opts})};

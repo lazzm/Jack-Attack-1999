@@ -459,7 +459,8 @@
       const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); }
     }
     const n0 = speech.q[0]; if (!n0) return;
-    n0.text = window.st?.voiceText?.(n0.lineId, L[n0.lineId][1]) || L[n0.lineId][1];
+    n0.base = n0.base || n0.text; // (lines with no script entry bring their own words)
+    n0.text = window.st?.voiceText?.(n0.lineId, n0.base) || n0.base;
     const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n0.lineId);
     if (rec && !window.st.voiceReady?.(n0.lineId)) { // (give the recording a moment to arrive, so the words and the voice start together)
       if (!n0.waitFrom) { n0.waitFrom = t; try { window.st.prefetch(n0.lineId); } catch (e) {} }
