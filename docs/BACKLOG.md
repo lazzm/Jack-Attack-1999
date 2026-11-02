@@ -297,3 +297,9 @@ Method: throwaway server + Playwright (system Chromium, SwiftShader, tier low, 1
 | R164 | art/lighting | med | qa-sweep2/c-drive-night.png | Night street: the player's own house shows no lit windows and no porch lamp glow, there are no street lamps or pools of light on the pavement, and the hedge/bin read as black masses; only three neighbour windows glow | Add a porch lamp light (the wall lantern exists but casts nothing), warm window glow from rooms with someone in them, two street lamps with a faint ground pool, and a slightly raised ambient so the hedge keeps its colour |
 | R165 | art/bug | med | qa-sweep2/c-garden-night.png | At night the back door (seen from the garden) is rendered tilted, its frame skewed against the wall as if ajar or mis-pivoted, with a dark gap along its edge; in daytime (b-garden-9-180.png) the same door is square. Door glass is again a flat grey rectangle | Check the back-door open state/pivot for the cold-start save; keep it shut on load and square to the frame |
 | R166 | ux | low | qa-sweep2/c-lounge-night.png | A "SECRET FOUND! Downstairs" toast appears the moment the lounge is entered by a new account, with no context; the name "Downstairs" tells the player nothing about what was found | Name the secret ("Found: the lounge"?) with a one-line why, and delay it until the opening objective is complete so it doesn't compete with the first-time hints |
+
+## Noted 2026-11-02 (manager review)
+- after-mom-23.png: faint thin rectangle lines on the bedroom desk surface round the items (possible slot outlines showing when nothing is held).
+- name-mom-shout.png: test camera in the back garden facing a wall.
+- characters.mjs --only=talk mouth-animation check is flaky or failing on unchanged 2.57.28 (eleven zero samples, then one moving); investigate.
+- phone-name-owner-jack.png: the WALK joystick ring is partly off the left edge after the touch coach is dismissed by touch.
