@@ -308,3 +308,12 @@ Method: throwaway server + Playwright (system Chromium, SwiftShader, tier low, 1
 - During the display the family look at the player rather than at the fire and sky; turn them towards the show.
 - Check the washing line returns properly after the event ends on 6 Nov.
 - Measure Bonfire finale frame rate on a real phone: software rendering can't show it (217 ms median at the lowest tier in tests, against 200 ms with the fireworks hidden).
+
+## Sweep 2026-11-02b
+Method: qa-sweep3 worker, throwaway server + Playwright (system Chromium, SwiftShader, tier low, hour forced at load), real CDP touch on a Pixel-7 profile at 412x915 portrait and 915x412 landscape, desktop 1366x860 for JackOS/consoles/story. Shots in `tests/shots/qa-sweep3/`. The host was loaded (load 20-30) so every capture took minutes; frame times are not reported. Not covered: see `docs/QA-SWEEP-2026-11-02b.md`. Polish-1102 (HUD, landing, hall) and fixes2-1102 (night street, kitchen) own overlapping areas, so those are not listed as defects.
+
+| ID | type | severity | screenshot | problem | fix |
+|---|---|---|---|---|---|
+| R167 | ux | med | qa-sweep3/p03-after-signup.png | Phone first view: the "HOW TO PLAY" card fills a third of the portrait view and sits over the room; the hover label "BLOCKOLOGY - game box" floats grey on the TV mid-screen; the big USE button is greyed with nothing to use, so the first thing shown is a wall of text plus a dead button | Shrink the card to three one-line icons (thumb left / drag right / tap things), dock it above the thumb zone, hide pick labels while it is up, hide USE until something is usable |
+| R168 | ux | low | qa-sweep3/p06-looked-left.png | The objective bubble says "One quick go on my Game Lad." but the only guide is a small tan chevron at screen edge; on a phone nothing says where the Game Lad is | Show the objective's target as a screen-edge arrow with distance, large enough to read at 412 px (extends R131) |
+| R169 | ux | low | qa-sweep3/00-signup-phone-identity.png | The "I am a..." Boy/Girl radios render as white blobs with a clipped ring (Girl radio looks half-erased); big empty gap above the buttons | Draw the 98-style radio as a clean 13 px circle with a dot; remove the dead gap |
