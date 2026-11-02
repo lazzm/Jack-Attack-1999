@@ -24,15 +24,20 @@ Owner approved the Gemini test tape (2026-10-26): "voices and audio is great".
 | Game announcers | Fenrir | + crunchy console filter. |
 
 ## Name call-outs
-Lines where family call the player by name ("JACK! Tea's ready!") are recorded once per first name in the Cast name
-pools plus the most common 1999 UK first names, as `audio/voice/<lineId>.name-<lowercase first>.mp3`. Playback picks
-the variant matching the player's chosen first name (any player called Jack gets the Jack version, not only the owner),
-else falls back to the generic `<lineId>.mp3` that uses no name ("Tea's ready! Down you come!").
+Lines where family call the player by name ("JACK! Tea's ready!") use a shared short recording per speaker and first
+name: `audio/voice/names/<speaker>/<lowercase first>.mp3`. `names/manifest.json` contains only audited recordings,
+grouped by `mom-shout`, `mom-call`, `dad-shout` and `sis-whine`, with file and duration. `callout` in the script catalogue
+is preserved as the fourth NPCLines field. Playback matches `Cast.me().first` case-insensitively, prefixes the bubble
+with that spelling, and joins the name and generic line with a 100 ms pause in one WebAudio buffer. Mom's warm call
+says "<Name>, love?"; the other styles say "<NAME>!" / "<Name>!". The owner identity always supplies Jack. A missing or
+rejected name recording leaves the original generic voice and bubble unchanged.
 - Matching is by SOUND, not spelling (owner: "or Jak or Jaque you know variation"): names are reduced to a phonetic key
-  (Double-Metaphone style, plus a small alias table for cases it misses), so Jack/Jak/Jac/Jakk/Jaque all hit the Jack
-  recording. Files are named by the phonetic key's canonical name.
+  (Metaphone-style rules, a conservative first-vowel check and an alias table), so Jack/Jak/Jac/Jakk/Jaque all hit the Jack recording.
+  Exact recorded spellings win; ambiguous phonetic matches fall back instead of speaking somebody else's name.
+  Alias groups share a canonical spelling; no guessed asset URL or browser speech synthesis is used.
 - A nightly job (outside the live container; key stays in ~/.secrets) lists chosen first names with no matching
-  recording and generates their call-outs, verified by transcription, so new players hear their own name by the next day.
+  recording and generates their call-outs, verified by transcription. Generation never publishes: new recordings still
+  need an exact-byte accent, transcript and level audit before they enter the runtime manifest.
 - Generator: `tools/audio/names/gen-names.mjs` (batched by default, robust splitter + raw archive, see below). The
   scheduled copy runs in `~/jack-audio/names/` (gen-names.mjs + `../lines-lib.mjs` = `~/jack-audio/lines-lib.mjs`;
   copy both after changing them). Timer `jack-names-callouts-2` (2026-10-28 07:15, env `MAX_REQ=70`, log
@@ -94,6 +99,10 @@ One TTS request voices many lines/names; the response is cut into clips at silen
   `node tools/audio/gen-lines.mjs --out ~/jack-audio/lines/voice --report ~/jack-audio/lines/lines-report.json --install app/public/audio/voice`
   (copies every manifest-listed mp3 and merges `manifest.json`); also copy `~/jack-audio/lines/lines-report.json`
   over `tools/audio/lines-report.json` to keep the transcripts with the repo.
+  **Release audit takes precedence over generator `ok`: do not blindly install all generator output.** Preserve the
+  accepted 289 clips from `releases/british-2026-10-29.json` by SHA-256, including the three original approved clips;
+  install subsequent clips only from the audited release ledger. The staging report can still mark rejected accents
+  or incomplete boundary transcripts `ok`.
 
 ## In the game (js/st-voice.js, js/np-bubble.js)
 - Manifest-driven: `audio/voice/manifest.json` (written by gen-lines / `--install`) lists the verified clips. The page
@@ -107,4 +116,71 @@ One TTS request voices many lines/names; the response is cut into clips at silen
   stretches the line to its real length. The painted mouth follows the analyser's level.
 - Speech bubbles replace the bottom subtitle box; "Subtitles" in the pause menu brings the box back as well. Lines
   with nobody in the house to hang a bubble on (diary, narrators) still use the box.
-- Not yet: name call-out clips (`callout=` lines play the generic line only).
+- Name call-outs share this same voice bus, panner, analyser, cancellation and mute gate. Clean names get the room/floor
+  muffle before an already-muffled downstairs line; that line is not filtered twice. No MP3 is fetched with sound off,
+  volume zero, or before the browser permits audio. A name is fetched once and reused across calling lines; combined
+  buffers include the player's name in their cache key, so changing identity cannot reuse another name's recording.
+
+## Final voice audit (1 November 2026, working-tree candidate)
+
+- No new TTS requests. All 24 withheld retakes were checked with `node ~/bin/accent-check.mjs <mp3s>`; all classified
+  British, but three had regional classifications. Transcript boundaries, raw British provenance, decoding and loudness were
+  checked individually. Twenty retakes are installed, giving 309 generic clips; all previous 289 hashes are preserved.
+- `c4.mill.count` had lost "Ten" in its staged cut. Recovered the whole single-line raw recording, transcribed the full
+  10-to-1 countdown, and audited its final MP3 as British / Received Pronunciation / 95. No new performance was generated.
+- Five retakes were normalised again to -18 LUFS with headroom before MP3 encoding; the final measured levels are
+  -17.94..-17.15 LUFS and true peaks -3.24..-2.22 dBTP. Every changed final MP3 received a fresh British accent audit.
+
+These four remain absent from the manifest and retain the timed bubble/mouth fallback. They need new standard British
+recordings in a separately authorised generation run:
+
+| ID | Reason withheld |
+|---|---|
+| `c2.pocket.dad4` | Extra opening "shh"; also classified British / London. |
+| `c2.unbox.dad` | British / Cockney: a regional accent. |
+| `c1.mom.up` | British / Northern English: a regional accent. |
+| `c4.hal.sis` | Says "Ooh" instead of the scripted opening "Wooooo"; boundary transcript differs. |
+
+Name assets are selected from the 794 staging `ok` entries by strict whole-utterance name matching and standard British
+accent checks, not by `ok` alone. Failed, regional, uncertain and non-British recordings are withheld. Jack's four styles
+were recovered from untouched 28 October raw batches and individually transcribed and accent checked; the 31 October
+Mom shout cut was the wrong name, and several other Jack candidates were regional or non-British. No source archive or
+external report was overwritten. Final-byte hashes and exclusions are recorded in the release ledger alongside assets.
+
+- Final inventory: **402 name MP3s, 3,375,480 bytes (3.22 MiB)**: Mom shout 109, Mom call 33, Dad shout 111, sister 149.
+  The 31,702-byte manifest brings the complete name asset addition to **3,407,182 bytes (3.25 MiB)**.
+  All four include Jack. Of 795 candidates (the 794 staging entries plus recovered Mom shout Jack), 393 are withheld;
+  `tools/audio/releases/voices-final-2026-11-01.json` lists every rejection and exact accepted SHA-256. Withheld names
+  use the generic line, including names that passed transcription but failed their final accent audit. No unverified
+  recording or rejected accent is reachable through the runtime name manifest.
+- Original names totalled 6,880,480 bytes before selection. Separate cached clips keep a first call to two small MP3
+  requests; an audio sprite would make a player download other people's names. No sprite or extra dependency is needed.
+  Final name levels measure -19.86..-16.00 LUFS and true peaks below 0 dBTP; the shortest Ian clip uses a padded meter
+  window because it is shorter than a loudness analysis block. Four name candidates received additional headroom
+  work; Declan remains withheld after its uncertain final accent check. Final-byte accent checks were repeated for
+  every changed encoding.
+- Final transcript review re-transcribed seventeen questionable names without generating new speech. Five were
+  confirmed; twelve uncertain pronunciations were removed. Their exact hashes and both transcripts are in the ledger.
+  Runtime phonetic matching also distinguishes the first vowel, so an unknown "Bath" cannot select "Beth".
+
+### Candidate verification, 2 November
+
+- `tests/voices-unit.cjs` checks every accepted runtime hash against the release ledgers, withheld manifest entries,
+  all four Jack styles, case/phonetic aliases, unknown-name fallback, combined-buffer cancellation, warm-cache reuse,
+  mute, volume zero and the no-gesture gate. Syntax checks and the authored-text parody audit (0) pass.
+- `voices.mjs --only=audio` passes with real Chromium WebAudio: all four Jack recordings decode and play with an
+  analyser, positional routing and ducking; an unknown name really plays the generic recording; mute and volume zero
+  play nothing and fetch no MP3. This isolated audio page does not establish an in-house visual pass.
+- The quiet-host single `characters.mjs --only=day` check still fails on the sister's 20.1-second wait. A separate
+  unchanged HEAD checkout, using the original 289 audio clips, reproduces the exact same coordinates and wait. This
+  is an existing navigation defect, not a load-only failure or a voice regression. No navigation change is included.
+- The focused characters rerun (`talk,bump,refresh,feet`) passes refresh and feet; talk and bump time out during page
+  loading. The in-house name/phone voice attempt reaches standing but hits its 600-second limit before acceptance.
+  Name-bubble desktop/phone screenshots and a complete voice UI suite are therefore not verified.
+- The Chapter 1 rerun reaches standing but stops at its 600-second bound; no complete chapter pass is claimed.
+  The mobile full/tablet run captures logon, JackOS, typing, the physical PC and standing, then reaches its 600-second
+  bound before the full phase finishes; tablet and landscape acceptance are unverified. Reviewed portrait captures
+  `tests/shots/mobile/full-02-jackos-locked.png` and `full-06-stood-up.png`; these do not verify name balloons.
+- Smoke passes eight checks: existing-account entry, walk/refresh, PC controls, console play, phone typing, prop
+  refresh, Esc menu and canonical views. Sparse signup times out at 270 seconds; the overall run hits its
+  1,000-second bound before the complete gate finishes. No full smoke pass is claimed.

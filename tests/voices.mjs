@@ -5,11 +5,12 @@
 // never overlap, the bubble keeps clear of the crosshair, the prompt over a person is one action ("Talk to Dad"),
 // and with sound off nothing is fetched or played (bubble + timed mouth only), with no errors.
 // Screenshots (desktop 1366x860 and phone portrait 390x844): tests/shots/voices/.
-//   node voices.mjs http://localhost:PORT [--only=layout|speak|muted|edge|two|prompt|phone]
+//   node voices.mjs http://localhost:PORT [--only=audio|layout|speak|muted|edge|two|prompt|phone|names]
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
+import {chromium} from 'playwright';
 import {roomFixture} from './room-fixture.mjs';
 
 const base = process.argv[2] && /^https?:/.test(process.argv[2]) ? process.argv[2] : 'http://localhost:18080';
@@ -20,10 +21,10 @@ const pass = 'Throwaway-1999', results = [];
 const G = 353;
 async function register(name) { const r = await fetch(base + '/admin/register', { method: 'POST', headers: { 'x-admin-token': 'testtoken', 'content-type': 'application/json' }, body: JSON.stringify({ name, pass }) }); assert.equal(r.status, 200, 'register ' + name); }
 async function check(name, fn) {
-  if (only && only !== name) return;
+  if (only && !only.split(',').includes(name)) return;
   const t0 = Date.now();
   try { await fn(); results.push([name, true]); console.log(`PASS ${name} (${((Date.now() - t0) / 1000).toFixed(0)}s)`); }
-  catch (e) { results.push([name, false]); console.log(`FAIL ${name}: ${String(e.stack || e).split('\n').slice(0, 5).join(' | ')}`); }
+  catch (e) { results.push([name, false]); console.log(`FAIL ${name}: ${String(e.stack || e).split('\n').slice(0, 30).join(' | ')}`); }
 }
 async function house(opts = {}) {
   const name = 'Voi' + Date.now().toString(36); await register(name);
@@ -64,6 +65,37 @@ const crossClear = (b, vw, vh) => b.x > vw / 2 + 30 || b.x + b.w < vw / 2 - 30 |
 
 await mkdir(shots, { recursive: true });
 const watchdog = setTimeout(() => { console.log('FAIL runner: total timeout'); process.exit(1); }, 900000 * SCALE);
+
+// Real audio coverage isolated from software WebGL startup; the house cases below cover positioning and balloons.
+await check('audio', async () => {
+  const browser=await chromium.launch({executablePath:'/usr/bin/chromium'});
+  try {
+    const page=await browser.newPage(),errors=[],requests=[];
+    page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));
+    await page.route('**/__voice-audit.html',r=>r.fulfill({contentType:'text/html',body:'<!doctype html><title>Voice test</title>'+['sound','cast','np-lines','st-voice'].map(n=>'<script src="/js/'+n+'.js?v=voice-audit"></script>').join('')}));
+    await page.goto(base+'/__voice-audit.html');await page.keyboard.press('Shift');
+    await page.evaluate(async()=>{await st.loadVoices();Cast.bind('Jack');Sound.effectsOn=true;Sound.setVolume(1);Sound.unlock();});
+    for(const [id,speaker] of [['c1.wake.mom.shout','mom-shout'],['c1.wake.mom.call','mom-call'],['bark.dad.bed2','dad-shout'],['c1.sis.stairs','sis-whine']]) {
+      await page.evaluate(id=>{window.__audioId=id;st.prefetch(id);},id);await waitFor(page,()=>st.voiceReady(__audioId),20000*SCALE);
+      await page.evaluate(id=>{window.__audioVoice=st.play(id,{pos:()=>({x:50,y:0,z:0}),through:()=>true,fx:NPCLines[id][2]});window.__audioLevels=[];window.__audioSampler=setInterval(()=>__audioLevels.push(__audioVoice.level()),20);},id);
+      await waitFor(page,()=>__audioVoice?.started&&__audioLevels.some(n=>n>0.15),15000*SCALE);
+      const proof=await page.evaluate(()=>({name:__audioVoice.nameId,pos:!!__audioVoice.panner,duck:Sound.ducked,text:st.voiceText(__audioId,NPCLines[__audioId][1])}));
+      assert.equal(proof.name,speaker+'/jack');assert(proof.pos&&proof.duck);assert(proof.text.startsWith(speaker==='mom-call'?'Jack, love?':speaker==='sis-whine'?'Jack!':'JACK!'));
+      await page.evaluate(()=>{clearInterval(__audioSampler);st.stopVoice();});
+    }
+    const fallback=await page.evaluate(()=>{Cast.bind('audio-fixture',{first:'Qzxqzx',g:'m'});return {name:st.voiceName('bark.dad.bed2'),text:st.voiceText('bark.dad.bed2','Generic')};});
+    assert.equal(fallback.name,null);assert.equal(fallback.text,'Generic');
+    await page.evaluate(()=>{window.__audioVoice=st.play('bark.dad.bed2',{});});
+    await waitFor(page,()=>__audioVoice?.started,15000*SCALE);
+    assert.equal(await page.evaluate(()=>__audioVoice.nameId),null,'the fallback really plays the generic recording');
+    await page.evaluate(()=>st.stopVoice());
+    for(const mode of ['off','zero']){const before=requests.filter(u=>u.includes('.mp3')).length;
+      const silent=await page.evaluate(mode=>{Cast.bind('Jack');Sound.effectsOn=mode!=='off';Sound.setVolume(mode==='zero'?0:1);st.prefetch('bark.dad.bed2');return st.play('bark.dad.bed2',{});},mode);
+      assert.equal(silent,null);assert.equal(requests.filter(u=>u.includes('.mp3')).length,before);
+    }
+    assert.deepEqual(errors,[]);
+  }finally{await browser.close();}
+});
 
 // ---------------------------------------------------------------- pure placement maths
 await check('layout', async () => {
@@ -160,6 +192,64 @@ await check('muted', async () => {
   } finally { await browser.close(); }
 });
 
+// ---------------------------------------------------------------- real name recordings, owner identity, aliases, generic fallback and silence
+await check('names', async () => {
+  await register('Jack');
+  const {browser,page,errors}=await house({account:'Jack',password:pass,signup:false,tier:'low'});
+  try {
+    const requests=[];page.on('request',r=>{if(/audio\/voice\/.+\.mp3/.test(r.url()))requests.push(r.url());});
+    await stage(page,{mom:'sink',dad:'carStory',sister:'kmug1'});
+    await face(page,'dad',260,70);await page.keyboard.press('Shift');
+    const owner=await page.evaluate(()=>({first:Cast.me().first,clip:st.voiceName('bark.dad.bed2')}));
+    assert.equal(owner.first,'Jack');assert.equal(owner.clip?.id,'dad-shout/jack','owner gets JACK!');
+    await page.evaluate(()=>{Sound.effectsOn=true;Sound.setVolume(1);Sound.unlock();window.__nameSamples=[];
+      window.__nameTimer=setInterval(()=>{const v=HouseFamily.debug.speech.voice,b=NPCBubble.live.find(b=>!b.out);if(v?.started&&!v.ended)__nameSamples.push({id:v.lineId,name:v.nameId,dur:v.dur,level:v.level(),pos:!!v.panner,text:b?.text,said:b?.said});},30);});
+    await say(page,'dad','bark.dad.bed2',{again:true});
+    await waitFor(page,()=>__nameSamples.some(s=>s.id==='bark.dad.bed2'&&s.name==='dad-shout/jack'&&s.level>0.2),25000*SCALE);
+    await page.evaluate(()=>{HouseFamily.debug.speech.freeze=true;Sound.ctx.suspend();});await page.waitForTimeout(300);
+    const b=(await live(page)).find(b=>b.key==='dad');assert(b?.text.startsWith('JACK! I can hear'),JSON.stringify(b));
+    assert(crossClear(b,1366,860),'named balloon clear of crosshair');await shot(page,'name-owner-jack');
+    await page.evaluate(()=>{HouseFamily.debug.speech.freeze=false;Sound.ctx.resume();});
+    await waitFor(page,()=>!st.voicesPlaying.length,25000*SCALE);
+    const samples=await page.evaluate(()=>__nameSamples);
+    assert(samples.some(s=>s.pos&&s.name==='dad-shout/jack'));assert(samples.some(s=>s.said?.startsWith('JACK!')));
+    assert(requests.some(u=>u.includes('/names/dad-shout/jack.mp3')),'real static name asset fetched');
+    // Identity changes here are browser-only fixtures; no real or disposable account profile is overwritten.
+    const aliases=await page.evaluate(()=>['Jak','Jac','Jakk','Jaque'].map(first=>{Cast.bind('voice-fixture',{first,g:'m'});return st.voiceName('bark.dad.bed2')?.id;}));
+    assert.deepEqual(aliases,Array(4).fill('dad-shout/jack'));
+    for(const [speaker,id,kind] of [['mom','bark.mom.tea1','mom-shout'],['mom','c1.wake.mom.call','mom-call'],['sister','c1.sis.stairs','sis-whine']]) {
+      const selected=await page.evaluate(id=>{Cast.bind('voice-fixture',{first:'Jack',g:'m'});return st.voiceName(id);},id);
+      // A speaker without an audited Jack recording must use the generic line, never another accent/name.
+      if(!selected){console.log('NAME FALLBACK: no approved '+kind+'/jack');continue;}
+      await face(page,speaker,270,60);
+      await page.evaluate(()=>{HouseFamily.debug.speech.until=0;HouseFamily.debug.speech.hard=0;HouseFamily.debug.speech.q.length=0;st.stopVoice();__nameSamples.length=0;});
+      await say(page,speaker,id,{again:true});
+      await page.evaluate(id=>window.__nameWant=id,id);
+      await waitFor(page,()=>__nameSamples.some(s=>s.id===__nameWant&&!!s.name&&s.level>0.2),25000*SCALE);
+      assert((await live(page)).some(b=>b.text.startsWith(selected.text)),'name in '+speaker+' balloon');
+      await page.evaluate(()=>{HouseFamily.debug.speech.freeze=true;Sound.ctx.suspend();});await page.waitForTimeout(300);
+      await shot(page,'name-'+kind);await page.evaluate(()=>{HouseFamily.debug.speech.freeze=false;Sound.ctx.resume();});
+    }
+    await page.evaluate(()=>{st.stopVoice();HouseFamily.debug.speech.until=0;HouseFamily.debug.speech.hard=0;HouseFamily.debug.speech.q.length=0;Cast.bind('voice-fixture',{first:'Qzxqzx',g:'m'});});
+    const before=requests.filter(u=>u.includes('/names/')).length;
+    assert.equal(await page.evaluate(()=>st.voiceName('bark.dad.bed2')),null);
+    await say(page,'dad','bark.dad.bed2',{again:true});
+    await waitFor(page,()=>HouseFamily.debug.speech.cur?.lineId==='bark.dad.bed2'&&HouseFamily.debug.speech.voice?.started,25000*SCALE);
+    assert.equal(await page.evaluate(()=>HouseFamily.debug.speech.voice.nameId),null);
+    assert((await live(page)).some(b=>b.text.startsWith('I can hear')),'generic balloon has no invented name');
+    assert.equal(requests.filter(u=>u.includes('/names/')).length,before,'fallback fetches no name');
+    for(const mode of ['off','zero']){
+      await page.evaluate(mode=>{st.stopVoice();const s=HouseFamily.debug.speech;s.cur=null;s.voice=null;s.bub=null;s.until=0;s.hard=0;s.q.length=0;NPCBubble.clear();Cast.bind('Jack',{first:'Sarah',g:'f'});Sound.effectsOn=mode!=='off';Sound.setVolume(mode==='zero'?0:1);},mode);
+      const start=requests.length;
+      await say(page,'dad','bark.dad.bed2',{again:true});
+      await waitFor(page,()=>NPCBubble.live.some(b=>b.key==='dad'&&!b.out&&b.text.startsWith('JACK!')),15000*SCALE);
+      assert.deepEqual(await page.evaluate(()=>st.voicesPlaying),[]);await page.waitForTimeout(500);
+      assert.equal(requests.length,start,'muted call-out fetches no audio');
+    }
+    await shot(page,'name-muted-jack');await page.evaluate(()=>clearInterval(__nameTimer));assert.deepEqual(errors,[]);
+  } finally {await browser.close();}
+});
+
 // ---------------------------------------------------------------- off-screen / downstairs: an edge balloon pointing their way
 await check('edge', async () => {
   const { browser, page, errors } = await house({ tier: 'high' });
@@ -246,16 +336,20 @@ await check('phone', async () => {
     const urls={manifest:resources.find(u=>u.includes('/audio/voice/manifest.json')),script:await page.evaluate(()=>document.querySelector('script[src*="st-voice.js"]')?.src)};
     assert(urls.manifest&&urls.script,'Voice loader resources recorded');
     const stamp=new URL(urls.script).searchParams.get('v');assert(stamp&&new URL(urls.manifest).searchParams.get('v')===stamp,'Manifest uses current script build');
-    await say(page, 'dad', 'c2.pocket.dad');
+    await page.evaluate(()=>Cast.bind('voice-phone',{first:'Jaque',g:'m'}));
+    await say(page, 'dad', 'bark.dad.bed2');
     await waitFor(page, () => NPCBubble.live.some(b => b.key === 'dad' && b.mode === 'head' && b.said.length > 20), 15000 * SCALE);
     await page.evaluate(() => { HouseFamily.debug.speech.freeze = true; });
     const b = (await live(page))[0];
-    assert(resources.some(u=>new URL(u).pathname.endsWith('/c2.pocket.dad.mp3')&&new URL(u).searchParams.get('v')===stamp),'Real recording uses current build token');
+    assert(b.text.startsWith('JAQUE!'),'Sound-alike name is shown on phone');
+    for(const file of ['/bark.dad.bed2.mp3','/names/dad-shout/jack.mp3'])assert(resources.some(u=>new URL(u).pathname.endsWith(file)&&new URL(u).searchParams.get('v')===stamp),'Recording uses current build token: '+file);
     assert(b.x >= 8 && b.x + b.w <= 390 - 8, 'Inside the phone screen: ' + JSON.stringify(b));
     assert(crossClear(b, 390, 844), 'Clear of the crosshair');
     const keep = await page.evaluate(() => [...document.querySelectorAll('.ht-acts .ht-b, .ht-stick, .st-objective:not([hidden])')].map(e => e.getBoundingClientRect()).filter(r => r.width).map(r => ({ x: r.left, y: r.top, w: r.width, h: r.height })));
     for (const k of keep) assert(!(b.x < k.x + k.w && b.x + b.w > k.x && b.y < k.y + k.h && b.y + b.h > k.y), 'Bubble clear of touch control ' + JSON.stringify(k) + ' ' + JSON.stringify(b));
     await shot(page, 'phone-dad-near');
+    await page.setViewportSize({width:844,height:390});await page.waitForTimeout(500);await shot(page,'phone-name-landscape');
+    await page.setViewportSize({width:390,height:844});
     await page.evaluate(() => { House.setWalkFrom({ x: 300, y: -20, z: 400, lvl: 'U', seat: 0 }); House._.setMode('walk'); House.dirty(); const S = HouseFamily.debug.speech; S.freeze = false; S.until = 0; S.hard = 0; });
     await page.waitForTimeout(800 * SCALE);
     await say(page, 'mom', 'c1.wake.mom.shout', { force: false, call: true });
@@ -270,4 +364,4 @@ await check('phone', async () => {
 clearTimeout(watchdog);
 const bad = results.filter(r => !r[1]);
 console.log(`SUMMARY ${results.length - bad.length}/${results.length} passed; shots in tests/shots/voices/`);
-process.exit(bad.length ? 1 : 0);
+process.exit(bad.length || !results.length ? 1 : 0);

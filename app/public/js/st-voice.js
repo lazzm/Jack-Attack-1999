@@ -7,7 +7,8 @@
  *                                     speaker's head; o.through() -> true when they're in another room or on another
  *                                     floor (muffled and quieter); o.fx = the clip's own filter ('downstairs' is already muffled).
  *   handle: { lineId, dur, started, ended, level() 0..1 (loudness right now, for the painted mouth), progress() 0..1, stop() }
- *   st.voiceInfo(lineId) -> { dur } when a verified recording exists; st.prefetch(lineId) warms the cache.
+ *   st.voiceInfo(lineId) -> { dur } including an available name call-out; st.prefetch(lineId) warms the cache.
+ *   st.voiceText(lineId, text) prefixes the chosen first name only when that speaker has an audited recording.
  * Lazy: the manifest (a few KB) loads when the page is idle; each clip is fetched and decoded the first time it's needed.
  * Everything goes through Sound's "voice" bus (on the "Sound effects & voices" switch and the volume), and music and
  * effects dip a little while someone talks. With sound off, muted or not yet allowed, nothing is fetched or played and
@@ -18,42 +19,92 @@
   const build = (document.currentScript?.src || '').match(/[?&]v=([^&]+)/);
   const stamp = build ? '?v=' + build[1] : '';
   const asset = file => BASE + file + stamp;
-  let manifest = null, loading = null;
+  let manifest = null, names = null, loading = null;
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const own = (o, k) => !!o && Object.prototype.hasOwnProperty.call(o, k);
   function loadManifest() {
     if (manifest || loading) return loading;
-    loading = fetch(asset('manifest.json'), { credentials: 'same-origin' }).then(r => r.ok ? r.json() : {}).catch(() => ({}))
-      .then(m => { manifest = m && typeof m === 'object' ? m : {}; return manifest; });
+    const get = file => fetch(asset(file), { credentials: 'same-origin' }).then(r => r.ok ? r.json() : {}).catch(() => ({}));
+    loading = Promise.all([get('manifest.json'), get('names/manifest.json')]).then(([m, n]) => {
+      manifest = m && typeof m === 'object' ? m : {}; names = n && typeof n === 'object' ? n : {}; return manifest;
+    });
     return loading;
   }
   (window.requestIdleCallback || (f => setTimeout(f, 1500)))(() => loadManifest(), { timeout: 4000 });
   const info = id => manifest && own(manifest, id) && manifest[id] && manifest[id].file ? manifest[id] : null;
   const on = () => !!(window.Sound && Sound.voicesOn);
 
+  // Exact spelling first, then known sound-alikes, then an unambiguous phonetic match. Never guess between
+  // two recorded names with the same consonants (Jack/Jake, for example). Cast.me keeps owner Jack fixed.
+  const normalName = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, '');
+  const aliases = { jak: 'jack', jac: 'jack', jakk: 'jack', jaque: 'jack', shawn: 'sean', shaun: 'sean',
+    steven: 'stephen', jon: 'john', neal: 'neil', sofie: 'sophie', aimee: 'amy', zac: 'zach', zak: 'zach', zack: 'zach',
+    ciaran: 'kieran', kieron: 'kieran', keiran: 'kieran', ciara: 'keira', kiera: 'keira', geoff: 'jeff', geoffrey: 'jeffrey',
+    rachael: 'rachel', ashleigh: 'ashley', sara: 'sarah', rhys: 'reece', reese: 'reece' };
+  function nameKey(s) {
+    const n = normalName(s), vowel = (n.match(/[aeiouy]/) || [''])[0];
+    return vowel + ':' + n.replace(/^(kn|gn)/, 'n').replace(/^wr/, 'r').replace(/ph/g, 'f').replace(/sh|ch/g, 'X')
+      .replace(/th/g, '0').replace(/ck|qu/g, 'k').replace(/c(?=[eiy])/g, 's').replace(/c/g, 'k')
+      .replace(/dg(?=[eiy])/g, 'j').replace(/g(?=[eiy])/g, 'j').replace(/h(?![aeiou])/g, '').replace(/(.)\1+/g, '$1').replace(/(?!^)[aeiouy]/g, '');
+  }
+  function nameInfo(id) {
+    const speaker = window.NPCLines?.[id]?.[3], pool = speaker && names && own(names, speaker) && names[speaker];
+    if (!pool || !info(id)) return null;
+    const first = window.Cast?.me?.().first, key = normalName(first);
+    if (!key || key === 'you') return null;
+    let canonical = own(pool, key) ? key : aliases[key];
+    if (!canonical || !own(pool, canonical)) {
+      const sound = nameKey(aliases[key] || key), matches = Object.keys(pool).filter(n => nameKey(aliases[n] || n) === sound);
+      const groups = [...new Set(matches.map(n => aliases[n] || n))];
+      if (groups.length !== 1) return null;
+      canonical = matches.includes(groups[0]) ? groups[0] : matches[0];
+    }
+    const m = pool[canonical];
+    if (!m || !/^[a-z-]+\/[a-z]+\.mp3$/.test(m.file) || !(m.dur > 0)) return null;
+    return { ...m, id: speaker + '/' + canonical, text: speaker === 'mom-call' ? first + ', love?' : (speaker === 'sis-whine' ? first : first.toUpperCase()) + '!' };
+  }
+  const voiceText = (id, text) => { const n = nameInfo(id); return n && !String(text).startsWith(n.text + ' ') ? n.text + ' ' + text : text; };
+  const cacheKey = id => { const n = nameInfo(id); return n ? id + '@' + n.id : id; };
+
   // ---------------------------------------------------------------- decoded clips (a small cache)
   const cache = new Map();
+  function decoded(ctx, key, file) {
+    let p = cache.get(key);
+    if (!p) {
+      p = fetch(asset(file), { credentials: 'same-origin' }).then(r => { if (!r.ok) throw new Error('voice ' + r.status); return r.arrayBuffer(); })
+        .then(b => new Promise((res, rej) => { const q = ctx.decodeAudioData(b, res, rej); if (q && q.then) q.then(res, rej); }));
+      remember(key, p);
+    } else { cache.delete(key); cache.set(key, p); }
+    return p;
+  }
+  function remember(key, p) {
+    p.then(() => { p.ready = true; }, () => cache.delete(key)); cache.set(key, p);
+    while (cache.size > 24) cache.delete(cache.keys().next().value);
+    return p;
+  }
   function buffer(ctx, id) {
     const m = info(id); if (!m) return null;
-    let p = cache.get(id);
-    if (!p) {
-      p = fetch(asset(m.file), { credentials: 'same-origin' }).then(r => { if (!r.ok) throw new Error('voice ' + r.status); return r.arrayBuffer(); })
-        .then(b => new Promise((res, rej) => { const q = ctx.decodeAudioData(b, res, rej); if (q && q.then) q.then(res, rej); }));
-      p.then(() => { p.ready = true; }, () => cache.delete(id));
-      cache.set(id, p);
-      while (cache.size > 16) cache.delete(cache.keys().next().value);
-    } else { cache.delete(id); cache.set(id, p); }
-    return p;
+    const n = nameInfo(id), key = n ? id + '@' + n.id : id;
+    if (!n) return decoded(ctx, key, m.file);
+    if (cache.has(key)) return cache.get(key);
+    // One continuous source keeps mouth, bubble timing, positional sound, cancellation and ducking in step.
+    // Short static clips cost two requests on first use; the shared name is then reused across all calling lines.
+    return remember(key, Promise.all([decoded(ctx, 'name:' + n.id, 'names/' + n.file), decoded(ctx, id, m.file)]).then(([a, b]) => {
+      const gap = Math.round(ctx.sampleRate * 0.10), channels = Math.max(a.numberOfChannels, b.numberOfChannels);
+      const joined = ctx.createBuffer(channels, a.length + gap + b.length, ctx.sampleRate);
+      for (let i = 0; i < channels; i++) { const d = joined.getChannelData(i); d.set(a.getChannelData(Math.min(i, a.numberOfChannels - 1))); d.set(b.getChannelData(Math.min(i, b.numberOfChannels - 1)), a.length + gap); }
+      return joined;
+    }));
   }
   function prefetch(id) {
     if (!on() || !info(id)) return;
     const c = window.Sound.ctx || (window.Sound.ready && Sound.unlock && Sound.unlock()); if (c) buffer(c, id);
   }
   // decoded and ready to start this instant (js/np-life.js holds a line back a moment for it, so voice and bubble agree)
-  const ready = id => !!(cache.get(id) && cache.get(id).ready);
+  const ready = id => !!(cache.get(cacheKey(id)) && cache.get(cacheKey(id)).ready);
 
   // ---------------------------------------------------------------- playing
-  const active = new Set(), log = []; // (log: the last few voice events, for tests and debugging)
+  const active = new Set(), pending = new Set(), log = []; // (log: the last few voice events, for tests and debugging)
   const note = (id, ev) => { log.push(id + ' ' + ev + ' ' + Math.round(performance.now())); if (log.length > 30) log.shift(); };
   let raf = 0;
   const v3 = () => (window.THREE ? new THREE.Vector3() : null);
@@ -77,7 +128,7 @@
         let p = null; try { p = h.o.pos(); } catch (e) {}
         if (p) { if (h.panner.positionX) { setParam(h.panner.positionX, p.x, c); setParam(h.panner.positionY, p.y, c); setParam(h.panner.positionZ, p.z, c); } else h.panner.setPosition(p.x, p.y, p.z); }
       }
-      if (h.wall) { let t = false; try { t = !!(h.o.through && h.o.through()); } catch (e) {} if (t !== h.thru) { h.thru = t; setParam(h.wall.frequency, t ? 900 : 18000, c); setParam(h.wallGain.gain, t ? 0.62 : 1, c); } }
+      if (h.wall) { let t = false; try { t = h.o.fx === 'downstairs' ? !!h.nameId && c.currentTime < h.t0 + h.nameDur : !!(h.o.through && h.o.through()); } catch (e) {} if (t !== h.thru) { h.thru = t; setParam(h.wall.frequency, t ? 900 : 18000, c); setParam(h.wallGain.gain, t ? 0.62 : 1, c); } }
     }
     raf = requestAnimationFrame(follow);
   }
@@ -86,7 +137,8 @@
     const m = info(id); if (!m) return null;
     if (!on()) { note(id, 'off'); return null; }
     const c = window.Sound.unlock && Sound.unlock(); if (!c || c.state === 'closed') { note(id, 'no-context'); return null; }
-    const h = { lineId: id, dur: +m.dur || 0, ctx: c, o, started: false, ended: false, t0: 0, src: null, an: null, data: null, panner: null, wall: null, wallGain: null, thru: null, peak: 0.12,
+    const n = nameInfo(id);
+    const h = { lineId: id, nameId: n?.id || null, nameDur: n?.dur || 0, dur: (+m.dur || 0) + (n ? n.dur + 0.10 : 0), ctx: c, o, started: false, ended: false, t0: 0, src: null, an: null, data: null, panner: null, wall: null, wallGain: null, thru: null, peak: 0.12,
       level() {
         if (!h.started || h.ended || !h.an) return 0;
         const d = h.data || (h.data = new Float32Array(h.an.fftSize)); h.an.getFloatTimeDomainData(d);
@@ -97,8 +149,9 @@
       progress() { if (!h.started) return 0; if (h.ended) return 1; return h.dur ? Math.max(0, Math.min(1, (c.currentTime - h.t0) / h.dur)) : 0; },
       stop() { h.cancelled = true; if (h.src) try { h.src.stop(); } catch (e) {} done(); },
       onstart: null, onend: null };
-    const done = why => { if (h.ended) return; note(id, typeof why === 'string' ? why : h.cancelled ? 'stopped' : 'ended'); h.ended = true; active.delete(h); if (!active.size) window.Sound.duck && Sound.duck(false); try { h.onend && h.onend(h); } catch (e) {} };
+    const done = why => { if (h.ended) return; note(id, typeof why === 'string' ? why : h.cancelled ? 'stopped' : 'ended'); h.ended = true; active.delete(h); pending.delete(h); if (!active.size) window.Sound.duck && Sound.duck(false); try { h.onend && h.onend(h); } catch (e) {} };
     const p = buffer(c, id); if (!p) return null;
+    pending.add(h);
     const asked = performance.now();
     p.then(buf => {
       if (h.cancelled || !on()) { done('cancelled'); return; }
@@ -111,27 +164,29 @@
         const pn = c.createPanner(); pn.panningModel = 'equalpower'; pn.distanceModel = 'inverse'; pn.refDistance = 140; pn.rolloffFactor = 0.65; pn.maxDistance = 6000;
         h.panner = pn; node.connect(pn); node = pn;
       }
-      if (o.through && o.fx !== 'downstairs') { // walls and floors take the top off and some of the level
+      if (o.through && (o.fx !== 'downstairs' || n)) { // names are clean; the following downstairs recording is already muffled
         const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 18000; lp.Q.value = 0.5; const wg = c.createGain();
         h.wall = lp; h.wallGain = wg; node.connect(lp); lp.connect(wg); node = wg;
       }
       node.connect(g); g.connect(an); an.connect(window.Sound.output(c, 'voice'));
       src.onended = done;
-      active.add(h); window.Sound.duck && Sound.duck(true);
+      pending.delete(h); active.add(h); window.Sound.duck && Sound.duck(true);
+      h.t0 = c.currentTime + 0.02;
       follow(); if (!raf) raf = requestAnimationFrame(follow);
-      h.t0 = c.currentTime + 0.02; src.start(h.t0); h.started = true; note(id, 'started');
+      src.start(h.t0); h.started = true; note(id, 'started');
       try { h.onstart && h.onstart(h); } catch (e) {}
     }, () => done('load-failed'));
     note(id, 'asked');
     return h;
   }
-  function stop() { for (const h of [...active]) h.stop(); }
+  function stop() { for (const h of [...active, ...pending]) h.stop(); }
 
   // ---------------------------------------------------------------- the subtitle box (and the old one-shot API)
   // jhp_subtitles2: a fresh key so everyone starts with bubbles only (2.57.9)
   let subs = false; try { subs = localStorage.getItem('jhp_subtitles2') === '1'; } catch (e) {}
   function say(lineId, who, text, ms, o) {
     o = o || {};
+    text = voiceText(lineId, text);
     if (!o.bubble || subs) window.Room?.say(String(who), esc(text), ms > 0 ? ms : 4200);
     if (o.audio === false) return null;
     if (!o.keep) stop();
@@ -139,8 +194,8 @@
   }
   document.addEventListener('audiochange', () => { if (!on()) stop(); });
   const api = {
-    say, play, stopVoice: stop, prefetch, voiceReady: ready,
-    voiceInfo: id => { const m = info(id); return m ? { dur: +m.dur || 0, character: m.character } : null; },
+    say, play, stopVoice: stop, prefetch, voiceReady: ready, voiceText, voiceName: nameInfo,
+    voiceInfo: id => { const m = info(id), n = nameInfo(id); return m ? { dur: (+m.dur || 0) + (n ? n.dur + 0.10 : 0), character: m.character } : null; },
     get voice() { return manifest || {}; },
     loadVoices: loadManifest,
     get subtitles() { return subs; },

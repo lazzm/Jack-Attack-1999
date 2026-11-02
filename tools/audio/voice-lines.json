@@ -166,7 +166,8 @@
    "context": "The player has been online for 5 minutes, Dad downstairs, muffled",
    "fx": "downstairs",
    "chapter": "3",
-   "batch": "dad-downstairs-01"
+   "batch": "dad-downstairs-01",
+   "callout": "dad-shout"
   },
   {
    "id": "bark.dad.bed2",
@@ -176,7 +177,8 @@
    "context": "22:00, the player still on the PC",
    "fx": "downstairs",
    "chapter": "5",
-   "batch": "dad-downstairs-01"
+   "batch": "dad-downstairs-01",
+   "callout": "dad-shout"
   },
   {
    "id": "c1.dad.hello",
@@ -464,7 +466,8 @@
    "line": "That'll be the postie. Go on, don't leave it on the mat. |",
    "context": "Dad from the lounge",
    "chapter": "2",
-   "batch": "dad-plain-03"
+   "batch": "dad-plain-03",
+   "callout": "dad-shout"
   },
   {
    "id": "c2.unbox.dad",
@@ -500,7 +503,8 @@
    "line": "Oi! I'm expecting a call! Don't tie up the line! |",
    "context": "Dad when the player picks up the hall phone while he is waiting for a call",
    "chapter": "2",
-   "batch": "dad-plain-03"
+   "batch": "dad-plain-03",
+   "callout": "dad-shout"
   },
   {
    "id": "c3.ask.dad",
@@ -1212,7 +1216,8 @@
    "context": "Downstairs, calling up at the very start, muffled through the floor",
    "fx": "downstairs",
    "chapter": "1",
-   "batch": "mom-downstairs-01"
+   "batch": "mom-downstairs-01",
+   "callout": "mom-call"
   },
   {
    "id": "c1.wake.mom.shout",
@@ -1222,7 +1227,8 @@
    "context": "Downstairs, if the player is still standing in the doorway after 30 seconds",
    "fx": "downstairs",
    "chapter": "1",
-   "batch": "mom-downstairs-01"
+   "batch": "mom-downstairs-01",
+   "callout": "mom-shout"
   },
   {
    "id": "bark.mom.tea1",
@@ -1232,7 +1238,8 @@
    "context": "Kitchen, 17:30 to 18:30, the player upstairs, muffled",
    "fx": "downstairs",
    "chapter": "5",
-   "batch": "mom-downstairs-01"
+   "batch": "mom-downstairs-01",
+   "callout": "mom-shout"
   },
   {
    "id": "bark.mom.tea2",
@@ -1242,7 +1249,8 @@
    "context": "Same",
    "fx": "downstairs",
    "chapter": "5",
-   "batch": "mom-downstairs-01"
+   "batch": "mom-downstairs-01",
+   "callout": "mom-shout"
   },
   {
    "id": "bark.mom.line3",
@@ -1252,7 +1260,8 @@
    "context": "Hall, call for the player",
    "fx": "downstairs",
    "chapter": "5",
-   "batch": "mom-downstairs-01"
+   "batch": "mom-downstairs-01",
+   "callout": "mom-shout"
   },
   {
    "id": "bark.mom.mess1",
@@ -1262,7 +1271,8 @@
    "context": "Landing, bedroom door open, mess on the floor",
    "fx": "downstairs",
    "chapter": "5",
-   "batch": "mom-downstairs-01"
+   "batch": "mom-downstairs-01",
+   "callout": "mom-shout"
   },
   {
    "id": "bark.mom.bed2",
@@ -1272,7 +1282,8 @@
    "context": "21:30",
    "fx": "downstairs",
    "chapter": "5",
-   "batch": "mom-downstairs-01"
+   "batch": "mom-downstairs-01",
+   "callout": "mom-call"
   },
   {
    "id": "bark.mom.school1",
@@ -1282,7 +1293,8 @@
    "context": "Kitchen, morning, muffled",
    "fx": "downstairs",
    "chapter": "5",
-   "batch": "mom-downstairs-01"
+   "batch": "mom-downstairs-01",
+   "callout": "mom-shout"
   },
   {
    "id": "bark.mom.gran",
@@ -1346,7 +1358,8 @@
    "line": "Are you tidying or are you reading comics? I can hear the pages turning!",
    "context": "From downstairs, 90 seconds after tidy begins with no progress",
    "chapter": "1",
-   "batch": "mom-plain-01"
+   "batch": "mom-plain-01",
+   "callout": "mom-shout"
   },
   {
    "id": "c1.tidy.done",
@@ -1841,7 +1854,8 @@
    "line": "I'm not calling again! It's on the table!",
    "context": "Second call after 60 seconds",
    "chapter": "5",
-   "batch": "mom-plain-05"
+   "batch": "mom-plain-05",
+   "callout": "mom-shout"
   },
   {
    "id": "bark.mom.tea4",
@@ -1886,7 +1900,8 @@
    "line": "Turn that down! I can hear it from the kitchen!",
    "context": "Lounge, TV volume high",
    "chapter": "5",
-   "batch": "mom-plain-06"
+   "batch": "mom-plain-06",
+   "callout": "mom-shout"
   },
   {
    "id": "bark.mom.tv2",
@@ -1958,7 +1973,8 @@
    "line": "Coat! Scarf! Don't forget your lunch! Have a good day! |",
    "context": "Hall, door",
    "chapter": "5",
-   "batch": "mom-plain-06"
+   "batch": "mom-plain-06",
+   "callout": "mom-call"
   },
   {
    "id": "bark.mom.wknd1",
@@ -2444,7 +2460,8 @@
    "line": "Ooh, what are you playing? Can I have a go? Go on, go on, go on! |",
    "context": "Bedroom door bursts open while the Game Lad is on",
    "chapter": "1",
-   "batch": "sister-plain-01"
+   "batch": "sister-plain-01",
+   "callout": "sis-whine"
   },
   {
    "id": "c1.lad.sis.no",
@@ -2453,7 +2470,8 @@
    "line": "You never let me do anything! I'm telling! |",
    "context": "After the player's reply, in the doorway",
    "chapter": "1",
-   "batch": "sister-plain-01"
+   "batch": "sister-plain-01",
+   "callout": "sis-whine"
   },
   {
    "id": "c1.lad.sis.out",
@@ -2471,7 +2489,8 @@
    "line": "Is that a computer? Is it mine? I want a go! It's not fair! |",
    "context": "The sister blocks the landing when the player carries a part",
    "chapter": "1",
-   "batch": "sister-plain-01"
+   "batch": "sister-plain-01",
+   "callout": "sis-whine"
   },
   {
    "id": "c1.sis.stairs2",
@@ -2489,7 +2508,8 @@
    "line": "Wow. Can I come in? Pleeeease? When can I have a go? |",
    "context": "The sister peers round the door as the desktop appears",
    "chapter": "1",
-   "batch": "sister-plain-01"
+   "batch": "sister-plain-01",
+   "callout": "sis-whine"
   },
   {
    "id": "c2.sell.sis",
@@ -2498,7 +2518,8 @@
    "line": "That's mine! You said I could have that! |",
    "context": "The sister sees a particular toy on the list",
    "chapter": "2",
-   "batch": "sister-plain-01"
+   "batch": "sister-plain-01",
+   "callout": "sis-whine"
   },
   {
    "id": "c2.sell.sold",
@@ -2588,7 +2609,8 @@
    "line": "I want to play! I'll be quiet! I'll be good! Pleeease! |",
    "context": "The sister wants in",
    "chapter": "4",
-   "batch": "sister-plain-02"
+   "batch": "sister-plain-02",
+   "callout": "sis-whine"
   },
   {
    "id": "c4.dd.sis",
@@ -2606,7 +2628,8 @@
    "line": "IT'S HERE! IT'S HERE! IT'S THE BIG ONE! |",
    "context": "Sister at the door when the parcel arrives",
    "chapter": "4",
-   "batch": "sister-plain-02"
+   "batch": "sister-plain-02",
+   "callout": "sis-whine"
   },
   {
    "id": "c4.dd.first",
@@ -2660,7 +2683,8 @@
    "line": "HE'S BEEN! HE'S BEEN! GET UP! GET UP! |",
    "context": "25/12 very early, sister at the door",
    "chapter": "4",
-   "batch": "sister-plain-03"
+   "batch": "sister-plain-03",
+   "callout": "sis-whine"
   },
   {
    "id": "c4.mill.sis",
@@ -2732,7 +2756,8 @@
    "line": "I want cartoons! It's my turn! You had it yesterday! |",
    "context": "Lounge",
    "chapter": "5",
-   "batch": "sister-plain-03"
+   "batch": "sister-plain-03",
+   "callout": "sis-whine"
   },
   {
    "id": "bark.sis.tv2",
@@ -2741,7 +2766,8 @@
    "line": "I can't hear it. Turn it up. Turn it UP. |",
    "context": "Lounge",
    "chapter": "5",
-   "batch": "sister-plain-03"
+   "batch": "sister-plain-03",
+   "callout": "sis-whine"
   },
   {
    "id": "bark.sis.mess1",
@@ -2840,7 +2866,8 @@
    "line": "Nobody ever plays with me! |",
    "context": "Hall",
    "chapter": "5",
-   "batch": "sister-plain-04"
+   "batch": "sister-plain-04",
+   "callout": "sis-whine"
   },
   {
    "id": "bark.sis.react.peek",
@@ -2858,7 +2885,8 @@
    "line": "Look at my picture! It's a dog. Or a horse. You choose. |",
    "context": "Showing a drawing",
    "chapter": "5",
-   "batch": "sister-plain-04"
+   "batch": "sister-plain-04",
+   "callout": "sis-whine"
   },
   {
    "id": "bark.sis.react.console",
@@ -2867,7 +2895,8 @@
    "line": "Can I be player two? I'll let you win. Maybe. |",
    "context": "Beside the console",
    "chapter": "5",
-   "batch": "sister-plain-04"
+   "batch": "sister-plain-04",
+   "callout": "sis-whine"
   }
  ]
 }
