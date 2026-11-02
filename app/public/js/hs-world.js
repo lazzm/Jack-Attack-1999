@@ -262,18 +262,23 @@
     return d;
   }
   function setDoor(id, open, now) {
-    const d = DOORS[id]; if (!d || d.open === !!open) return;
+    const d = DOORS[id]; if (!d || d.open === !!open && !now) return;
+    const changed = d.open !== !!open;
     d.open = !!open; grids.dirty = true;
     if (d.open) d.rooms.forEach(rid => buildRoom(ROOMS[rid]));
     const from = d.ang, to = d.open ? 1 : 0, t0 = performance.now(), ms = now ? 0 : d.ms;
-    anims.set('door:' + id, n => {
-      const k = ms ? Math.min(1, (n - t0) / ms) : 1; d.ang = from + (to - from) * ease(k);
+    const move = n => {
+      // Family actions can add this animation during an already-running frame.
+      // Its frame-start timestamp then predates t0, especially on a busy device:
+      // negative cubic easing used to swing the leaf past its closed frame.
+      const k = ms ? clamp((n - t0) / ms, 0, 1) : 1; d.ang = from + (to - from) * ease(k);
       if (d.pivot) d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1);
       if (k >= 1) { visCalc(); return false; } return true;
-    });
+    };
+    if (now) { anims.delete('door:' + id); move(t0); dirty(); }
+    else anims.set('door:' + id, move);
     if (d.open) visCalc();
-    sfxDoor(d.open);
-    emit('door', id, d.open);
+    if (changed) { sfxDoor(d.open); emit('door', id, d.open); }
   }
   let visSet = new Set(), vegetationRoutes = new Map();
   const vegetationFrustum = new T.Frustum(), vegetationProjection = new T.Matrix4(), vegetationHidden = [];
@@ -364,7 +369,12 @@
     // Printed art gets a dim fill of its own picture, scaled by this room's ambient, daylight and lamps (K.PRINTS).
     let lamps=0;for(const sl of rig.slots)lamps+=sl.cur;const fill=Math.min(.2,.02+.09*rig.ambient+.035*Math.min(3,lamps)+.04*rig.sun);
     if(K.PRINTS)for(const m of K.PRINTS)m.emissiveIntensity=fill;
-    for(let i=0;i<PL.length;i++){const pl=PL[i],s=rig.slots[i],l=s.l;pl.visible=i<rung().lamps;pl.intensity=s.cur;if(l){pl.position.set(l.x,l.y,l.z);pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)}
+    const time=performance.now();
+    for(let i=0;i<PL.length;i++){const pl=PL[i],s=rig.slots[i],l=s.l;pl.visible=i<rung().lamps;
+      // Optional bulb shimmer uses the existing slots, with no new lights,
+      // material changes, re-sorting or shader variants per frame.
+      const shimmer=l?.flicker?1+l.flicker*(Math.sin(time*.0061)+.35*Math.sin(time*.0173))/1.35:1;
+      pl.intensity=s.cur*shimmer;if(l){pl.position.set(l.x,l.y,l.z);pl.color.set(l.c||'#fff');pl.distance=l.d||400;pl.decay=2}pl.updateMatrixWorld(true)}
   }
   function lightingSnapshot(id) {
     const r=roomRigs.get(id);return r?{ambient:r.ambient,sky:r.sky.getHex(),ground:r.ground.getHex(),sun:r.sun,
