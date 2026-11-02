@@ -1,5 +1,15 @@
 # Jack's Home Page - changelog
 
+## 2.58.0 - 2026-11-02
+- Family now call you by name. Mom, Dad and your sister use a shared recording of your first name before lines that call you ("JACK! I can hear that keyboard clicking."). 402 audited name clips (3.25 MB), with sound-alike spellings and the generic line as fallback; two small requests on first use, nothing fetched when muted.
+- 20 more British retakes, taking the family to 309 lines. Four lines stay withheld for re-recording: c2.pocket.dad4, c2.unbox.dad, c1.mom.up, c4.hal.sis.
+- Your sister no longer stands stuck for 20 seconds when a second person blocks her side-step (longest wait now 1.2 s), and Mom no longer stays stuck after giving way.
+- Mom's first call suits the hour: no more "lovely morning, up you get" at 23:00.
+- The back door sits properly in its frame and can't swing past shut on a slow frame.
+- The cupboard under the stairs is lit and readable, day or night, with a visible bulb, a real ironing board and a closed underside to the stairs.
+- Longer names fit the chore sheet title. Sweep findings R130-R166 logged in docs/BACKLOG.md.
+- Verified: parody 0, all unit checks, owner tools, voices 9/9 with real audio, mobile 8/8, smoke 12/12, family routes day/bump/refresh/feet, Chapter 1 end to end. No real account, wallet or shared-world changes. Audio runtime files remain outside Git; tools/audio/releases/voices-final-2026-11-01.json records their hashes.
+
 ## 2.57.28 - 2026-10-29
 - Add289 checked British recordings across the five family/story voices; preserve the original three approved recordings byte for byte. Every new clip has exact-byte accent, transcript-boundary, provenance, duration and decode checks in tools/audio/releases/british-2026-10-29.json. Seven American takes were replaced before publication.
 - Version both voice manifest and clip requests with the executing script build, so a cached old three-line manifest cannot hide new recordings. Show a single F Talk action; keep the unnamed caller's dialogue and recording consistent under its existing save key.
