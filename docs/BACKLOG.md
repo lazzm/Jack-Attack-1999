@@ -307,4 +307,4 @@ Method: throwaway server + Playwright (system Chromium, SwiftShader, tier low, 1
 ## Noted 2026-11-02 Bonfire review
 - During the display the family look at the player rather than at the fire and sky; turn them towards the show.
 - Check the washing line returns properly after the event ends on 6 Nov.
-- Measure Bonfire finale frame rate on a real phone: software rendering can't show it (222 ms median at potato tier in tests, against 200 ms with the fireworks hidden).
+- Measure Bonfire finale frame rate on a real phone: software rendering can't show it (217 ms median at the lowest tier in tests, against 200 ms with the fireworks hidden).
