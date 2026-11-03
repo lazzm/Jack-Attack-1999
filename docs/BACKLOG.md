@@ -308,3 +308,7 @@ Method: throwaway server + Playwright (system Chromium, SwiftShader, tier low, 1
 - During the display the family look at the player rather than at the fire and sky; turn them towards the show.
 - Check the washing line returns properly after the event ends on 6 Nov.
 - Measure Bonfire finale frame rate on a real phone: software rendering can't show it (217 ms median at the lowest tier in tests, against 200 ms with the fireworks hidden).
+
+## Noted 2026-11-03 manager review
+- Night street: the new lamps barely light the road and pavement (after-street-night.png); add soft pools of light under each lamp, and porch lights on neighbours' doors.
+- Faint dotted line across the far kitchen wall (after-kitchen-wide.png), same family as the hall seam dots; check after polish-1102.

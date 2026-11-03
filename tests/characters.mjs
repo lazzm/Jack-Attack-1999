@@ -7,7 +7,7 @@
 //   node characters.mjs [--only=routines,day,talk,bump,refresh,feet,draws,story,entrance,interrupt,loop,space,budget,hips,hip-motion,shots] [--keep]
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
-import {mkdtemp, mkdir, rm} from 'node:fs/promises';
+import {mkdtemp, mkdir, rm, writeFile} from 'node:fs/promises';
 import net from 'node:net';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
@@ -47,7 +47,7 @@ async function check(name, fn) {
   catch (e) { results.push([name, false]); console.log(`FAIL ${name}: ${String(e.stack || e).split('\n').slice(0, 4).join(' | ')}`); }
 }
 async function house(opts) {
-  const f = await roomFixture(base, Object.assign({ hour: 14, timeoutScale: SCALE }, opts));
+  const f = await roomFixture(base, Object.assign({ hour: 14, timeoutScale: SCALE, debug: process.env.FIXTURE_DEBUG === '1' }, opts));
   EYE = await f.page.evaluate(() => House.STAND || 128); // (the live standing eye height)
   for (let i = 0; i < 120 * SCALE && !(await f.page.evaluate(() => !!window.HouseFamily?.ready)); i++) await f.page.waitForTimeout(500);
   assert(await f.page.evaluate(() => !!window.HouseFamily?.ready), 'The family never arrived');
@@ -161,25 +161,57 @@ try {
 
   // ---------------------------------------------------------------- talking, giving jobs, taking them in (and paying nothing)
   await check('talk', async () => {
-    const { browser, page, errors } = await veteran();
+    const { browser, page, errors, until } = await veteran();
     try {
-      await page.evaluate(async () => { await Chores.load(); await Chores.part('kitchen'); const F = HouseFamily; F.debug.clock({ md: 1012, dow: 2, t: 14.5 }); F.debug.go('mom', 'sink'); F.debug.place('mom', 'sink'); F.debug.sim(3, 0.1); });
-      await look(page, [-60, 353 - EYE, 175], [-80, 353 - 150, 36], 'G');
+      await page.evaluate(async () => { Seasons.setTime('10-12','14:30');Season.evaluate(true);await Chores.load(); await Chores.part('kitchen'); const F = HouseFamily; F.debug.clock({ md: 1012, dow: 2, t: 14.5 }); F.debug.go('mom', 'sink'); F.debug.place('mom', 'sink'); F.debug.sim(3, 0.1); });
+      // The old camera stood inside the table's collision box; its recovery
+      // could turn the F target into the worktop or an ambient line. Use the aisle.
+      await look(page, [40, 353 - EYE, 100], [-80, 353 - 150, 36], 'G');
+      const aimed=await page.evaluate(()=>{const p=House.pick(innerWidth/2,innerHeight/2);return{spot:p?.spot||null,dist:p?.dist||0,mom:HouseFamily.debug.dump().find(c=>c.id==='mom'),pose:{x:House.P.x,y:House.P.y,z:House.P.z,rx:House.P.rx,ry:House.P.ry}}});
+      console.log('  talk aim:',JSON.stringify(aimed));assert.equal(aimed.spot,'np.mom','F must target Mom from clear floor');
       await page.evaluate(() => { window.__sent = []; const s = Net.send; Net.send = m => { __sent.push(m.t); return s(m); }; });
+      // Observe actual displayed frames from before F until this requested line
+      // finishes. Wall-clock timers can read the same stale pose eleven times
+      // on software WebGL, or sample only the recording's opening silence.
+      await page.evaluate(() => {
+        window.__talkSample = { said: null, s: [], frames: [], times: [], poseTimes: [], old: [], done: false };
+        const sample = __talkSample; let line, start=0;
+        const arm=e=>{if(e.key.toLowerCase()==='f'){start=performance.now();removeEventListener('keyup',arm,true)}};addEventListener('keyup',arm,true);
+        function frame() {
+          const n = HouseFamily.debug.speech.cur, r = HouseFamily.chars.mom.rig;
+          if (!line && n?.c.id === 'mom' && n.talk && n.person) {
+            line = n;
+            sample.said = { id: n.lineId, line: NPCLines[n.lineId]?.[1] || n.text, who: n.c.id, person: n.person,
+              note: (window.NPCBubble?.live || []).find(b => b.key === 'mom')?.text || document.querySelector('.hs-note.on')?.textContent || '', talking: r.talking };
+            // Diagnostic comparison only; this no longer decides the assertion.
+            const oldSample=()=>{sample.old.push({at:performance.now(),pose:r.st.t,mouth:r.st.mouth});if(sample.old.length<12)setTimeout(oldSample,90)};oldSample();
+          }
+          if (line && n === line && r.talking) { sample.s.push(r.st.mouth); sample.frames.push(r.face.mouth); sample.times.push(performance.now()); sample.poseTimes.push(r.st.t); }
+          if (line && (n !== line || !r.talking) || start && performance.now() - start > 30000) { sample.done = true; return; }
+          requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      });
       await page.keyboard.press('f');
       // (read it in the same moment it's seen: under heavy load the line can finish between two round trips)
-      const said = await (await page.waitForFunction(() => { const c = HouseFamily.debug.speech.cur; return c && { id: c.lineId, line: NPCLines[c.lineId][1], who: c.c.id, person: c.person, note: (window.NPCBubble?.live || []).find(b => b.key === 'mom')?.text || document.querySelector('.hs-note.on')?.textContent || '', talking: HouseFamily.chars.mom.rig.talking }; }, null, { timeout: 15000 * SCALE })).jsonValue();
+      await until(() => !!window.__talkSample.said || !!window.__talkSample.done);
+      const said = await page.evaluate(() => window.__talkSample.said);
+      assert(said,'F did not start the requested Mom conversation');
       assert.equal(said.who, 'mom'); assert(said.person, 'Said in person'); assert(said.talking, 'Her lips move');
       assert(said.note.includes(said.line.slice(0, 20)), 'Her speech bubble (or the subtitle box) shows the scripted line: ' + said.note);
       assert(/^chore\.\w+\.give$|^chore\.allfour$|^bark\.mom\./.test(said.id), 'Mom hands out a job (or praise): ' + said.id);
       // (people v2: the mouth is painted; talking swaps the mouth frames in the face atlas)
-      const mouth = await page.evaluate(async () => { const r = HouseFamily.chars.mom.rig, s = [], f = new Set(); for (let i = 0; i < 12; i++) { s.push(r.st.mouth); f.add(r.face.mouth); await new Promise(q => setTimeout(q, 90)); } return { s, frames: [...f] }; });
+      await until(() => !!window.__talkSample.done);
+      const mouth = await page.evaluate(() => ({s:__talkSample.s,frames:[...new Set(__talkSample.frames)],times:__talkSample.times,poseTimes:__talkSample.poseTimes,old:__talkSample.old}));
+      await mkdir(new URL('shots/fixes2-1102/',import.meta.url),{recursive:true});
+      await writeFile(new URL('shots/fixes2-1102/talk-samples.json',import.meta.url),JSON.stringify({said,mouth},null,2));
+      console.log('  mouth rendered samples:', mouth.s.length, 'range', Math.min(...mouth.s), Math.max(...mouth.s), 'frames', mouth.frames);
       assert(Math.max(...mouth.s) - Math.min(...mouth.s) > 0.2 && mouth.frames.length > 1, 'Mouth moves while talking: ' + mouth.s.map(v => v.toFixed(2)).join(',') + ' frames ' + mouth.frames);
       await page.waitForTimeout(700); await shot(page, 'mom-talk-kitchen');
       // handing a job in: Mom says the job's done line and her rating, in person
       const handed = await page.evaluate(() => HouseFamily.handIn('washup', { sc: 97 }));
       assert(handed, 'Mom takes the washing-up in herself');
-      await page.waitForFunction(() => HouseFamily.debug.speech.q.some(q => q.lineId === 'chore.washup.done') || HouseFamily.debug.speech.cur?.lineId === 'chore.washup.done', null, { timeout: 30000 * SCALE });
+      await until(() => HouseFamily.debug.speech.q.some(q => q.lineId === 'chore.washup.done') || HouseFamily.debug.speech.cur?.lineId === 'chore.washup.done');
       const sent = await page.evaluate(() => __sent);
       assert(!sent.some(t => /^(ch|ec|hs|gr)/.test(t)), 'Talking never pays or starts a job by itself: ' + sent.join(','));
       assert.deepEqual(errors, []);
