@@ -19,7 +19,7 @@ try{
   for(const id of ids){
    await aim([40,-85,180],[20,-55,-100],'U');
    assert(await p.evaluate(id=>{if(House.held())House.putBack();const t=House.THINGS[id];t.canGrab=null;t.at.hide=false;House.place(t);return House.grab(id)},id));
-   await p.waitForTimeout(500);await shot((id==='ch.m.mug'?'r197':'r195')+'-touch-'+width+'x'+height+'-'+id.replaceAll('.','-'));
+   await p.waitForTimeout(500);await p.evaluate(()=>House.hush());await shot((id==='ch.m.mug'?'r197':'r195')+'-touch-'+width+'x'+height+'-'+id.replaceAll('.','-'));
    await p.evaluate(()=>House.putBack());
   }
  }

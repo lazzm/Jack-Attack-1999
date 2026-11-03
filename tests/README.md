@@ -548,3 +548,10 @@ without changing CSS layout, camera coordinates or assertions. Leave it unset fo
 `REGRESSION_NO_SHOTS=1` in physics/Halloween/story omits optional galleries while retaining functional checks and
 failure captures. The dedicated sizing/Bonfire art fixtures still capture native-resolution evidence.
 Standing-resume fixtures also complete the normal About You form for freshly provisioned accounts, when present.
+
+R200: `node tests/case-eject-unit.cjs` drives the production TV ejection function through its deferred camera return.
+The previous wait (`!HouseCases.busy && !RoomTV.open_`) passes before ejection starts. `caseEjected` also requires the
+medium back in its own case and the case carryable, so it rejects both that idle gap and a committed, unfinished animation.
+`node tests/games/zeldo.mjs URL --room-only` covers the real eject/change path and touch controls without the native campaign.
+The native review browser closes before the house fixture starts. The focused Chapter 1 PC route followed by
+`node tests/story-ch1.mjs URL owner` prepares the used-server history much faster than replaying the entire opening.

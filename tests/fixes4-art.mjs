@@ -34,8 +34,9 @@ try{
  await aim([40,-85,180],[20,30,245],'U');
  await p.evaluate(()=>{House.act('ch.binbag')});await f.until(()=>!!ChoreKit.has('bin','tie'));await p.waitForTimeout(1000);
  for(const id of ['ch.m.mug','ch.m.wrap','ch.binbag','st.pc.keys','ch.m.socks','media.box.gb.blocks']){
-  await aim([40,-85,180],[20,30,245],'U');
-  const ok=await p.evaluate(id=>{if(House.held())House.putBack();House._.setMode('walk');HousePause.close();const t=House.THINGS[id];t.canGrab=null;t.at.hide=false;House.place(t);return House.grab(id)},id);assert(ok,'Cannot carry '+id);await p.waitForTimeout(500);
+  // Keep the camera level so even the wide keyboard and both grips remain in view.
+  await aim([40,-85,180],[40,-85,40],'U');
+  const ok=await p.evaluate(id=>{if(House.held())House.putBack();House._.setMode('walk');HousePause.close();const t=House.THINGS[id];t.canGrab=null;t.at.hide=false;House.place(t);return House.grab(id)},id);assert(ok,'Cannot carry '+id);await p.waitForTimeout(500);await p.evaluate(()=>House.hush());
   await shot((id==='ch.m.mug'?'r197':'r195')+'-'+id.replaceAll('.','-'));
   report[id]=await p.evaluate(id=>{const t=House.THINGS[id],g=House.root.children.find(g=>g.userData.sides);return{grips:t.handGrips||t.obj.userData.handGrips||null,hands:g?.userData.sides.filter(s=>s.palm.visible).length}},id);
   if(tag==='after'&&['ch.m.wrap','ch.binbag'].includes(id))assert.equal(report[id].hands,1,id+' must use one hand');

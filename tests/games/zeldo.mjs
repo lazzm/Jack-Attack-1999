@@ -6,16 +6,17 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 import {roomFixture} from '../room-fixture.mjs';
-import {playCase} from '../case-actions.mjs';
+import {playCase,caseEjected} from '../case-actions.mjs';
 const base=process.argv.find(x=>/^http:/.test(x));
 assert(base&&['localhost','127.0.0.1'].includes(new URL(base).hostname),'Supply a throwaway localhost URL');
 const before=process.argv.includes('--before'),tag=before?'before':'after';
 assert.equal(await (await fetch(base+'/js/rm-g-zeldo.js')).text(),await readFile(fileURLToPath(new URL('../../app/public/js/rm-g-zeldo.js',import.meta.url)),'utf8'),'Throwaway server must serve this worktree');
 const dir=fileURLToPath(new URL('../shots/games/zeldo/',import.meta.url));await mkdir(dir,{recursive:true});
 const baseline=before?(process.env.ZELDO_BASELINE?await readFile(process.env.ZELDO_BASELINE,'utf8'):execFileSync('git',['show','HEAD:app/public/js/rm-g-zeldo.js'],{encoding:'utf8'})):null;
-const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
+let browser;
 let p;const errors=[];
 async function makePage(){
+ browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
  p=await browser.newPage({viewport:{width:1366,height:860}});
  p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(['warning','error'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});
  await p.route('**/__zeldo-review',r=>r.fulfill({contentType:'text/html',body:'<!doctype html><title>Cartridge review</title><link rel="icon" href="data:,"><body style="background:#101828">'}));
@@ -61,9 +62,11 @@ try{
  if(!before)await chapter();
  const perf=await performanceSample();await writeFile(dir+tag+'-performance.json',JSON.stringify(perf,null,2));console.log('PERFORMANCE',JSON.stringify(perf));
  }
+ // The native runner and the full-house fixture must never hold two browsers.
+ await browser?.close();browser=null;
  if(!process.argv.includes('--native'))await roomCheck();
  assert.deepEqual(errors,[],'Browser errors');console.log('ZELDO '+tag.toUpperCase()+' PASS');
-}catch(e){if(p&&!p.isClosed()){console.log('FAIL STATE',JSON.stringify(await state()).slice(0,3000));await shot('failure').catch(()=>{});}throw e}finally{await browser.close()}
+}catch(e){if(p&&!p.isClosed()){console.log('FAIL STATE',JSON.stringify(await state()).slice(0,3000));await shot('failure').catch(()=>{});}throw e}finally{await browser?.close()}
 async function chapter(){
  // The second chapter is a post-credits branch. Seed only the completed first chapter;
  // keep the new dungeon's entire inventory, locks, puzzles, tools and boss unearned.
@@ -219,12 +222,17 @@ async function roomCheck(){
    await page.evaluate(()=>window.zeldoInstance=RoomTV.dbg());await page.screenshot({path:dir+'after-refresh-background.png'});
    await page.evaluate(()=>{House.setWalkFrom({...House.P,lvl:'G',seat:0});House._.setMode('walk');House.act('snes')});await f.until(()=>RoomTV.open_&&!House.gliding);assert(await page.evaluate(()=>RoomTV.dbg()===zeldoInstance),'Return keeps instance');
    // The cartridge's optional surface must release cleanly back to the old catalogue.
-   await page.locator('.rm-eject').click();await f.until(()=>!HouseCases.busy&&!RoomTV.open_);assert.equal(await page.evaluate(()=>House.THINGS['media.sn.zeldo'].snap),'media.case.sn.zeldo');if(await page.evaluate(()=>!!House.held()))await page.evaluate(()=>House.putBack());await f.until(()=>!House.held()&&House.THINGS['media.box.sn.zeldo'].st==='rest');assert(await page.evaluate(()=>House.THINGS['media.box.sn.zeldo'].canGrab()),'Ejected case is carryable');
+   await page.locator('.rm-eject').click();
+   await f.until(caseEjected,'sn.zeldo');
+   assert.equal(await page.evaluate(()=>House.THINGS['media.sn.zeldo'].snap),'media.case.sn.zeldo');
+   if(await page.evaluate(()=>!!House.held()))await page.evaluate(()=>House.putBack());
+   await f.until(()=>!House.held()&&House.THINGS['media.box.sn.zeldo'].st==='rest');
+   assert(await page.evaluate(()=>House.THINGS['media.box.sn.zeldo'].canGrab()),'Ejected case is carryable');
    // Formula Null now opts into the telly itself; Street Scrapper II still has no screen hook.
    await playCase(f,'sn.fight');await f.until(()=>RoomTV._dbg().st==='game');assert(await page.evaluate(()=>typeof RoomTV.defs['sn.fight']?.screen!=='function'),'sn.fight has no screen hook');assert(await page.evaluate(()=>RoomTV._dbg().surface),'Cartridges without a screen hook use the physical cupboard telly');await page.keyboard.press('Enter');await page.waitForTimeout(200);await page.screenshot({path:dir+'after-shared-unchanged-cartridge.png'});
   }
   assert.deepEqual(f.errors,[],'Room browser errors');console.log(before?'ROOM BASELINE: legacy overlay, LOCK IN and pause':'ROOM PASS: physical telly, same-instance LOCK IN/Q, pause, analog gamepad, four viewports, cartridge change and unchanged Street Scrapper');
- }catch(e){console.log('ROOM FAILURE',await page.evaluate(()=>({mode:House?.mode,pose:{x:House?.P.x,z:House?.P.z,wx:House?.W.x,wz:House?.W.z},glide:House?.gliding,game:window.RoomTV?._dbg(),loading:document.querySelector('.hs-loading')?.innerText,member:AccountGate?.allowed})));await page.screenshot({path:dir+'after-room-failure.png'}).catch(()=>{});throw e;}finally{await f.browser.close()}
+ }catch(e){console.log('ROOM FAILURE',await page.evaluate(()=>({mode:House?.mode,pose:{x:House?.P.x,z:House?.P.z,wx:House?.W.x,wz:House?.W.z},glide:House?.gliding,game:window.RoomTV?._dbg(),loading:document.querySelector('.hs-loading')?.innerText,member:AccountGate?.allowed,cases:HouseCases.state(),held:House.held(),media:['sn.zeldo','sn.fight'].map(id=>{const b=House.THINGS['media.box.'+id],m=House.THINGS['media.'+id];return{id,box:b&&{state:b.st,snap:b.snap,canGrab:b.canGrab?.(),at:b.at},medium:m&&{state:m.st,snap:m.snap},registered:HouseCases.inserted('console.sn')?.medium.gameId}})})));await page.screenshot({path:dir+'after-room-failure.png'}).catch(()=>{});throw e;}finally{await f.browser.close()}
  if(!before)await touchCheck(account,password);
 }
 
