@@ -29,6 +29,13 @@
  const render=paint('#d6ceba'),occupied=paint('#718b96'),lampGlass=paint('#d6cdb2');
  const roof=paint('#68544a'),slate=paint('#4d575b'),trim=paint('#ddd8c9'),glass=paint('#718b96'),glassShade=paint('#3e5763'),door=paint('#334747'),road=paint('#4c4d4e'),grass=paint('#547044'),hedge=paint('#405f38'),leaf=paint('#657645'),paving=paint('#aaa79d'),earth=paint('#655543'),metal=paint('#383e3d');
  roof.map=slate.map=tiles;
+ // Pavement joints belong to the solid slab's surface. The former 0.3 cm
+ // high, many-metre groove boxes produced raster slivers through indoor walls
+ // at grazing angles (their shaded earth colour was visible as dotted lines).
+ paving.map=K.tex('env.paving.joints',256,256,(g,w,h)=>{
+  g.fillStyle='#ffffff';g.fillRect(0,0,w,h);
+  g.fillStyle='#978a6d';g.fillRect(0,0,2,h);g.fillRect(0,0,w,2);
+ },{rep:[100/60,100/60]});
  const fence=paint('#9b876c');
  fence.map=K.tex('env.fence',128,128,(g,w,h)=>{
   g.fillStyle='#dbd1bc';g.fillRect(0,0,w,h);
@@ -78,15 +85,13 @@
   };
   function pavement(x0,x1,z0,z1,kerb){
    slab(x0,x1,z0,z1,paving,-.2,3);
-   // Actual shallow grooves separate slab rows, wholly above the pavement.
-   for(let x=Math.ceil(x0/60)*60;x<x1;x+=60)b.box(x,GY-.35,(z0+z1)/2,.55,.3,z1-z0-4,earth);
-   b.box((x0+x1)/2,GY-.35,(z0+z1)/2,x1-x0,.3,.55,earth);
+   // Subtle joint ink on the solid concrete surface.
+   // The continuous closed slab carries the joint texture; no thin overlay boxes.
    if(kerb!=null)slab(x0,x1,kerb-5,kerb+5,paving,-12,12);
   }
   function pavementZ(x0,x1,z0,z1,kerb){ // the same, running along z (the side road's footpaths)
    slab(x0,x1,z0,z1,paving,-.2,3);
-   for(let z=Math.ceil(z0/60)*60;z<z1;z+=60)b.box((x0+x1)/2,GY-.35,z,x1-x0-4,.3,.55,earth);
-   b.box((x0+x1)/2,GY-.35,(z0+z1)/2,.55,.3,z1-z0,earth);
+   // Same jointed solid surface on the side road.
    slab(kerb-5,kerb+5,z0,z1,paving,-12,12);
   }
   // Main road: both sides of the playable drive's own stretch (x -600..1200, js/hs-house.js), through the crossroads.

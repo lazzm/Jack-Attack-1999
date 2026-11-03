@@ -106,9 +106,9 @@ html.hs-paused .hs-ui{pointer-events:none!important}
 html.hs-live .hs-ui{display:block}
 html.hs-viewing .hs-ui,html.hs-follow .hs-ui{opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s .25s}
 .hs-ui button{pointer-events:auto;cursor:pointer;font-family:inherit}
-.hs-top{position:absolute;left:14px;top:12px;display:flex;flex-direction:column;gap:2px}
+.hs-top{position:absolute;left:10px;top:8px;display:flex;flex-direction:column;gap:2px;padding:4px 7px;border:1px solid #80745b;background:rgba(22,25,27,.92);max-width:calc(100vw - 150px);box-sizing:border-box}
 .hs-title{font:400 18px var(--mag);letter-spacing:.12em;color:#e2d9c2;text-shadow:0 2px 8px #000,0 0 2px #000}
-.hs-where{font:11px var(--ui);color:#a49b86;letter-spacing:.05em;text-shadow:0 1px 4px #000}
+.hs-where{font:11px var(--ui);color:#eee4ca;letter-spacing:.05em;text-shadow:0 1px #000}
 .hs-map{position:absolute;left:10px;top:56px;width:84px;height:84px;opacity:.85;border-radius:6px;background:rgba(10,8,6,.35);box-shadow:inset 0 0 0 1px rgba(255,240,210,.08)}
 .hs-arrow{position:absolute;top:50%;min-width:46px;height:64px;margin-top:-32px;border:1px solid rgba(255,240,210,.18);border-radius:4px;background:rgba(20,16,12,.32);color:#e2d9c2;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 8px;transition:background .15s,opacity .3s;box-sizing:border-box}
 .hs-arrow span{font:400 13px var(--mag);letter-spacing:.08em;text-transform:uppercase;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .25s}
@@ -270,7 +270,7 @@ html.hs-live{--game-ui:"Courier New",monospace;--game-panel:rgba(22,25,27,.94);-
 .hs-ui .ch-chip b,.hs-ui .ch-chip>i,.hs-ui .ch-tname,.hs-ui .ch-thint{font-family:var(--game-ui)}
 .hs-ui .ch-dots i{border-radius:0}
 .hs-ui.locked .hs-hbtn{display:none}
-.hs-ui.locked .hs-tip{left:50%!important;top:auto;bottom:94px;transform:translateX(-50%)!important}
+.hs-ui.locked .hs-tip{left:50%!important;top:calc(50% + 28px);bottom:auto;transform:translateX(-50%)!important}
 .hs-tip,.hs-lockhint{border:1px solid var(--game-edge);border-radius:0;background:var(--game-panel);color:var(--game-ink);font:12px/1.4 var(--game-ui);box-shadow:none}
 .hs-tip i,.hs-tip small{color:var(--game-accent)}
 .hs-ui .rm-note{left:18px;bottom:20px;top:auto;width:min(380px,calc(100vw - 36px));transform:translateY(12px)}

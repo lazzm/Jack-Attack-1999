@@ -471,11 +471,28 @@
   //      leverDir (+1/-1 along the width: the way the lever points), hingeA, hingeSide (+1/-1 face), glass (no top panels) }
   function doorLeaf(pv, o) {
     const along = o.along !== false, t2 = o.t / 2, w = o.w, h = o.h;
-    const slab = into(pv).box(o.cx, o.cy, o.cz, along ? w : o.t, h, along ? o.t : w, o.leaf);
+    let slab;
+    if(o.glazing){
+      const g=o.glazing,shape=new T.Shape(),hole=new T.Path();
+      shape.moveTo(-w/2,-h/2);shape.lineTo(w/2,-h/2);shape.lineTo(w/2,h/2);shape.lineTo(-w/2,h/2);shape.closePath();
+      hole.moveTo(-g.w/2,g.y-g.h/2);hole.lineTo(-g.w/2,g.y+g.h/2);hole.lineTo(g.w/2,g.y+g.h/2);hole.lineTo(g.w/2,g.y-g.h/2);hole.closePath();shape.holes.push(hole);
+      const geo=new T.ExtrudeGeometry(shape,{depth:o.t,steps:1,bevelEnabled:false,curveSegments:1});geo.translate(0,0,-t2);
+      slab=into(pv).at(o.cx,o.cy,o.cz,along?0:90).geo(geo,0,0,0,o.leaf);
+    }else slab = into(pv).box(o.cx, o.cy, o.cz, along ? w : o.t, h, along ? o.t : w, o.leaf);
     const batch = new Batch(), B = into(batch).at(o.cx, o.cy, o.cz, along ? 0 : 90);
     const U = a => along ? a - o.cx : o.cz - a, dir = d => along ? d : -d;
     const panels = o.glass ? [[-0.17, 0.2], [0.17, 0.2]] : [[-0.17, -0.25], [0.17, -0.25], [-0.17, 0.2], [0.17, 0.2]];
     const ph = (h - 1) * 0.38, pw = w * 0.34, mw = 1.5, mt = 0.7;
+    if(o.glazing){
+      const g=o.glazing;
+      // Real edge thickness, one shared glass material, and a bead on each face.
+      B.box(0,g.y,0,g.w,g.h,.65,g.material);
+      for(const s of [-1,1]){
+        const z=s*(t2+.4),bead=o.mould;
+        for(const x of [-1,1])B.rbox(x*(g.w/2+.5),g.y,z,1.4,g.h+2.4,1,.25,bead);
+        for(const y of [-1,1])B.rbox(0,g.y+y*(g.h/2+.5),z,g.w,1.4,1,.25,bead);
+      }
+    }
     for (const s of [-1, 1]) {
       for (const [pu, pv2] of panels) {
         const px = pu * w * 1.5, py = (h - 1) * pv2, z = s * (t2 + mt / 2 - 0.15);
