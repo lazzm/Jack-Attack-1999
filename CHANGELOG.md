@@ -1,5 +1,18 @@
 # Jack's Home Page - changelog
 
+## 2.60.0 - 2026-11-03
+- Guidance is easy to see: a clear yellow arrow at the screen edge points at your objective and hides once it's in view. Room names and pick labels stay readable on any wall.
+- The landing and hall are lived in: carpet runner, family photos, varied coats on proper hooks, a rucksack, turned stair spindles and a green front door with patterned glass. Faint dotted lines on walls are gone.
+- The kitchen gets a solid cooker hood, plates on their own worktop and a dressed wall, and Mom gives you room at the sink. The night street has lamps.
+- During Bonfire Night's displays the family watch the fire and the sky, glancing at you only when they speak.
+- LOCK IN on the bedroom TV now shows the game whatever the PC is doing, and stays locked in after a refresh.
+- Anti-Grav's repair lane is painted bays instead of a bright green strip, Goldenballs' booth roof no longer shows as a black slab, and Tekno Fist's boot text no longer overlaps.
+- Sound now starts on your first press or click if you've never chosen a setting; saved choices are kept.
+- More parody names replace real ones in authored text, and the audit now catches them. Pixel Post's film copy now suits the date you read it.
+- Fixed a JackWorld startup error: the furniture check crashed on every boot. It now never removes anything from a player's room, and on current data it changes nothing.
+- Backlog gains QA findings from phones, JackOS, the fake web and 11 console games.
+- Verified: parody 0, all unit checks, Chapter 1, owner tools, Halloween, Bonfire end to end, voices 9/9, websites 17/17, mobile 8/8, smoke 12/12, family routes, LOCK IN on desktop and phone. No real account, wallet or shared-world changes.
+
 ## 2.59.0 - 2026-11-02
 - Bonfire Night 1999 runs from 1 November noon to 6 November 23:00, in the house and on the websites.
 - Build the bonfire with Dad (ten real carries, paper and kindling first), make a Guy with your sister (stuff the clothes, tie the string, draw his face on the paper bag, carry him to his chair) and get supper ready with Mom (wash, prick, wrap, oven gloves, carry the tray out).
