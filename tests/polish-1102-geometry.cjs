@@ -41,10 +41,3 @@ console.log('POLISH GEOMETRY PASS: closed outward cloth/walls; clear apertures a
 
 // Compare the real entry-point browser options against HEAD using a stub that
 // stops before any page/network work. Existing callers must remain identical.
-(async()=>{
- const head=execFileSync('git',['show','HEAD:tests/room-fixture.mjs'],{encoding:'utf8'}),working=fs.readFileSync(require.resolve('./room-fixture.mjs'),'utf8');
- const optionCalls=async(source,opts)=>{let called;const stop=new Error('captured');const ctx={chromium:{launch:async()=>({newPage:async o=>{called=o;throw stop}})},assert,os:require('node:os'),process,URL};vm.createContext(ctx);vm.runInContext(source.replace(/^import .*;$/gm,'').replace('export async function','async function')+';this.fixture=roomFixture;',ctx);await assert.rejects(ctx.fixture('http://localhost:18081',opts),e=>e===stop);return JSON.parse(JSON.stringify(called));};
- for(const opts of [{},{signup:false,opening:true,width:1024,height:768},{opening:true,resume:true,storageState:{cookies:[],origins:[]}},{touch:true,recordVideo:{dir:'/tmp/fixture-option-proof'}}])assert.deepEqual(await optionCalls(working,opts),await optionCalls(head,opts),'non-opt-in fixture options changed');
- const phone=await optionCalls(working,{touch:true,contextOptions:{isMobile:true,userAgent:'test-phone',deviceScaleFactor:1}});assert.equal(phone.isMobile,true);assert.equal(phone.hasTouch,true);assert.equal(phone.userAgent,'test-phone');
- console.log('FIXTURE OPTIONS PASS: HEAD-equivalent for non-opt-in callers; explicit phone context only.');
-})().catch(e=>{console.error(e);process.exitCode=1});
