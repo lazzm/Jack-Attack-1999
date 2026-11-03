@@ -109,7 +109,7 @@ async function wait(page, fn, arg, timeout=30000) {
 }
 // (walking puts the eye at the standing height at once, still looking at the target, so a press lands where it was aimed)
 async function aim(eye, target, level='U') { await view(eye, target, {level}); await p.evaluate(t => {House.hush(); House._.setMode('walk'); HousePause.close();const P=House.P,W=House.W;if(!W.seat){W.eyeNow=W.eye;P.y=W.fy-W.eye;P.rx=Math.atan2(-(t[1]-P.y),Math.hypot(t[0]-P.x,t[2]-P.z))*180/Math.PI;P.ry=Math.atan2(t[0]-P.x,-(t[2]-P.z))*180/Math.PI;House.dirty()}}, target); }
-async function waitStep(id) { await wait(p,id => !!st.getState()?.done[id],id,20000); }
+async function waitStep(id, timeout=20000) { await wait(p,id => !!st.getState()?.done[id],id,timeout); }
 async function dropIn(id, snap) {
   const s = await p.evaluate(snap => {const s=House.SNAPS[snap];return {x:s.x,y:s.y,z:s.z,room:s.room,bz1:House.ROOMS[s.room].bz1}}, snap);
   for(let attempt=0;attempt<3;attempt++){
@@ -262,7 +262,9 @@ try {
     }
     console.log('Recovery disk ready:',disk);await shot('14-setup-disk-'+disk);await button.click();
   }
-  await waitStep('install');
+  // The final disk still copies files after its button closes. Allow the same
+  // slow-host budget as the disk prompt; require the real server acknowledgement.
+  await waitStep('install',90000);
   await until(()=>House.mode==='monitor'&&!House.gliding&&DesktopSurface.ready());await waitStep('pc');
   assert.equal(await p.evaluate(()=>st.getState().ch),2);
   await p.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);
