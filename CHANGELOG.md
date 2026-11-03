@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.61.0 - 2026-11-03
+- Blockology gets its full depth: a proper Game Lad screen, better controls with reliable repeat, saves for every mode, a 60-flight progression with a rocket ending and credits, and four original tunes. Existing scores are kept.
+- In every console game, the first touch on the on-screen pad is no longer lost when the game switches from keyboard to touch.
+- Verified: parody 0, all unit checks, Blockology's full flow test, LOCK IN on desktop and phone, mobile 8/8 and smoke 12/12 across a quiet re-run of the checks that timed out under load. No real account, wallet or shared-world changes.
+
 ## 2.60.0 - 2026-11-03
 - Guidance is easy to see: a clear yellow arrow at the screen edge points at your objective and hides once it's in view. Room names and pick labels stay readable on any wall.
 - The landing and hall are lived in: carpet runner, family photos, varied coats on proper hooks, a rucksack, turned stair spindles and a green front door with patterned glass. Faint dotted lines on walls are gone.
