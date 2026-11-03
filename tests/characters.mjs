@@ -166,7 +166,7 @@ try {
       await page.evaluate(async () => { Seasons.setTime('10-12','14:30');Season.evaluate(true);await Chores.load(); await Chores.part('kitchen'); const F = HouseFamily; F.debug.clock({ md: 1012, dow: 2, t: 14.5 }); F.debug.go('mom', 'sink'); F.debug.place('mom', 'sink'); F.debug.sim(3, 0.1); });
       // The old camera stood inside the table's collision box; its recovery
       // could turn the F target into the worktop or an ambient line. Use the aisle.
-      await look(page, [40, 353 - EYE, 100], [-80, 353 - 150, 36], 'G');
+      await look(page, [80, 353 - EYE, 30], [-80, 353 - 150, -84], 'G');
       const aimed=await page.evaluate(()=>{const p=House.pick(innerWidth/2,innerHeight/2);return{spot:p?.spot||null,dist:p?.dist||0,mom:HouseFamily.debug.dump().find(c=>c.id==='mom'),pose:{x:House.P.x,y:House.P.y,z:House.P.z,rx:House.P.rx,ry:House.P.ry}}});
       console.log('  talk aim:',JSON.stringify(aimed));assert.equal(aimed.spot,'np.mom','F must target Mom from clear floor');
       await page.evaluate(() => { window.__sent = []; const s = Net.send; Net.send = m => { __sent.push(m.t); return s(m); }; });

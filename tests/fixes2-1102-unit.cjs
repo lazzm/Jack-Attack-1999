@@ -20,7 +20,7 @@ const scene={enabled:()=>true,phase:'day',catchup:()=>false,leftover:()=>false,s
 vm.createContext(scene);vm.runInContext(family,scene);
 for(const saturday of [false,true]){
  scene.phase=saturday?'tail':'day';scene.leftover=()=>saturday;scene.catchup=()=>saturday;
- for(const stage of ['fountain','wheel','rocket','finale','over']){scene.stageAt=()=>stage;const p=scene.familyLook();assert(p);assert.equal(p.z,['rocket','finale'].includes(stage)?-650:-402,`${saturday?'Saturday':'Friday'} ${stage}`);}
+ for(const stage of ['fountain','wheel','rocket','finale','over']){scene.stageAt=()=>stage;const p=scene.familyLook();assert(p);assert.equal(p.z,['rocket','finale'].includes(stage)?-1708.1:-1068.5,`${saturday?'Saturday':'Friday'} ${stage}`);}
 }
 scene.H.here='kitchen';assert(scene.familyLook(),'Spectators keep watching when the player looks through a window');scene.SE.today=()=>({hour:22});assert.equal(scene.familyLook(),null,'Return to ordinary routines at ten');
 console.log('PASS family gaze: Friday/Saturday fire and sky, speaking-only glance, recovery, ordinary routines');
@@ -48,8 +48,8 @@ const kitchen=read('ch-kitchen.js');
 const poses=kitchen.slice(kitchen.indexOf('  const OLD_PILE'),kitchen.indexOf('  const RACK'));
 const layout={WT:260};vm.createContext(layout);vm.runInContext(poses+'\nthis.poses=PILE;this.old=OLD_PILE',layout);
 const [p0,p1,p2,bowl,mug,glass,pan]=layout.poses;
-assert.equal(pan[0],-24);assert.equal(pan[2],-14);assert.equal(pan[1],258.1);
-for(const p of [p0,p1,p2]){assert(p[0]-12>=20&&p[0]+12<48,'Plate fits the worktop and clears the bread bin');assert(Math.hypot(p[0]-40,p[2]+4)>23,'Plate clears the biscuit tin');assert(p[0]-12>0,'Plate clears Bonfire food preparation');assert(Math.hypot(p[0]-pan[0],p[2]-pan[2])>24);}
+assert.equal(pan[0],-24);assert.equal(pan[2],-134);assert.equal(pan[1],258.1);
+for(const p of [p0,p1,p2]){assert(p[0]-12>=20&&p[0]+12<48,'Plate fits the worktop and clears the bread bin');assert(Math.hypot(p[0]-40,p[2]+124)>23,'Plate clears the biscuit tin');assert(p[0]-12>0,'Plate clears Bonfire food preparation');assert(Math.hypot(p[0]-pan[0],p[2]-pan[2])>24);}
 for(const [a,ar,b,br]of [[pan,9,bowl,8],[pan,9,mug,4.2],[pan,9,glass,3.4],[bowl,8,mug,4.2],[bowl,8,glass,3.4]])assert(Math.hypot(a[0]-b[0],a[2]-b[2])>ar+br);
 const migration=kitchen.slice(kitchen.indexOf('  function updateFactoryPose'),kitchen.indexOf('  let dishes'));
 let moved=[];const migrate={CK:{home:id=>moved.push(id)}};vm.createContext(migrate);vm.runInContext(migration,migrate);
@@ -70,3 +70,6 @@ assert(strongest.some(({l})=>l.x===354),'Phone three-lamp rig must retain the po
 assert(strongest.filter(({l})=>l.x!==354).length===2,'Phone keeps two sodium light pools');
 lightCtx.phase=()=> 'day';assert.equal(lightCtx.getLights().length,0);
 console.log('PASS lighting: existing rig only, three-slot phone porch + two street lamps, daylight off');
+
+// Historical factory corrections still recognise their poses after the rear-counter transfer.
+const shiftedHome=[];const shifted={CK:{H:{REAR:{extension:120}},home:id=>shiftedHome.push(id)}};vm.createContext(shifted);vm.runInContext(migration,shifted);shifted.updateFactoryPose({...dish,at:{...dish.at,z:dish.at.z-120}},layout.old[0]);assert.deepEqual(shiftedHome,['d']);

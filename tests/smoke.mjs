@@ -163,7 +163,7 @@ const checks=[
      ['desk-pc',[65,-55,140],[-15,-24,0],'U'],
      ['tv-consoles',[-120,-55,160],[-216,-5,-16],'U'],
      ['landing-stairs',[300,-85,175],[370,220,520],'U'],
-     ['kitchen',[120,205,260],[-60,287,170],'G'],
+     ['kitchen',[120,205,260],[-60,277,110],'G'],
      ['front-garden',[80,95,1950],[60,25,700],'G',[220,195,1040]],
    ];
    await page.evaluate(()=>{RoomTV.close();for(const d of Object.values(House.DOORS))if(!d.always)House.setDoor(d.id,false,true)});

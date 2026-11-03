@@ -47,9 +47,9 @@
   const seat = o => Object.assign({ h: 45, back: true }, o);
   const SPOT = {
     // kitchen
-    sink: { lvl: 'G', x: -80, z: 36, face: 180, act: 'washup', look: [-80, 260, -20] },
-    hob: { lvl: 'G', x: -10, z: 36, face: 180, act: 'cook' },
-    kettle: { lvl: 'G', x: -192, z: 38, face: 175, act: 'mug' },
+    sink: { lvl: 'G', x: -80, z: -84, face: 180, act: 'washup', look: [-80, 260, -140] },
+    hob: { lvl: 'G', x: -10, z: -84, face: 180, act: 'cook' },
+    kettle: { lvl: 'G', x: -192, z: -82, face: 175, act: 'mug' },
     // (a cuppa somewhere out of the way: never in the strip in front of the worktop, never in the doorway's path)
     kmug1: { lvl: 'G', x: -205, z: 105, face: 60, act: 'mug' },
     kmug2: { lvl: 'G', x: 140, z: 92, face: -100, act: 'mug' },
@@ -66,9 +66,9 @@
     hallPost: { lvl: 'G', x: 262, z: 610, face: 160 },
     landingSis: { lvl: 'U', x: 290, z: 335, face: 150 },
     // garden, drive
-    gardenWater: { lvl: 'G', x: -108, z: -455, face: -90, act: 'water' },
-    gardenLook: { lvl: 'G', x: 10, z: -300, face: 200 },
-    gardenYoyo: { lvl: 'G', x: 40, z: -215, face: 160, act: 'yoyo' },
+    gardenWater: { lvl: 'G', x: -80, z: -700, face: -90, act: 'water' },
+    gardenLook: { lvl: 'G', x: 10, z: -850, face: 200 },
+    gardenYoyo: { lvl: 'G', x: 40, z: -540, face: 160, act: 'yoyo' },
     carwash: { lvl: 'G', x: CAR.x-126, z: CAR.z, face: 90, act: 'carwash' }, // beside Dad's car (House.ROOMS.drive.carFrame), off the path
     carStory: { lvl: 'G', x: CAR.x-124, z: CAR.z-188, face: 200 }, // by the boot (js/hs-house.js CAR), off the path to the gate
     // Jack's room (story visits)
@@ -849,7 +849,7 @@
   let savedAt = 0;
   function save() {
     savedAt = nowMs(); if (simMode) return;
-    const o = { t: Date.now(), c: {} };
+    const o = { pv:10, t: Date.now(), c: {} };
     for (const c of chars) o.c[c.id] = c.present ? { p: 1, x: Math.round(c.x), z: Math.round(c.z), lvl: c.lvl, h: +c.h.toFixed(2), g: c.goal?.key || null, seat: c.seated ? SPOT_OF(c.seated) : null } : { p: 0 };
     // Resume the spoken exchange as well as the people. Functions are rebuilt from
     // the current story's talkLines; no reward or story event is replayed on load.
@@ -859,6 +859,10 @@
   const SPOT_OF = q => Object.keys(SPOT).find(k => SPOT[k].seat === q) || null;
   function restore() {
     const o = ls.get(SKEY()), clk = clock();
+    if(o && (o.pv||0)<10)for(const sv of Object.values(o.c||{}))if(sv.p&&sv.lvl==='G'){
+      if(sv.z< -56&&sv.z> -240&&sv.x<215)sv.z-=120;
+      else if(sv.x<83&&sv.z>=16&&sv.z<=65)sv.z-=120;
+    }
     for (const c of chars) {
       const want = target(c, clk), sv = o && Date.now() - o.t < 10 * 60000 ? o.c[c.id] : null;
       if (sv && sv.p && !want.away && sv.g === want.key) { // carry on exactly where they were

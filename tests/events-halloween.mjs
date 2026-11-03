@@ -85,11 +85,12 @@ try{
  log('decorations: ok');
 
  // ---- 5. the pumpkin, all six steps, with real mouse movement
- await aim([-110,GY-EYE,250],[-130,GY-47,170]);await key('e'); // (stand clear of the kitchen chairs: a pose the player can really take)await until(()=>House.held()==='hw.paper');
- await aim([-45,GY-EYE,264],[-45,GY-78,174]);await key('e');
+ await aim([-180,GY-EYE,190],[-130,GY-47,110]);await key('e'); // (stand clear of the kitchen chairs: a pose the player can really take)
+ await until(()=>House.held()==='hw.paper');
+ await aim([-45,GY-EYE,210],[-45,GY-78,114]);await key('e');
  await until(()=>!!Season.st('halloween99').steps['hw-pumpkin']?.paper);
  await page.waitForTimeout(1300);
- await aim([-45,GY-EYE,264],[-45,GY-88,174]);await shot('06-carving-table');
+ await aim([-45,GY-EYE,210],[-45,GY-88,114]);await shot('06-carving-table');
  await key('f');await until(()=>Halloween.carving==='lid');await page.waitForTimeout(500);
  for(let pass=0;pass<3&&await page.evaluate(()=>Halloween.carving==='lid');pass++)await drag(await page.evaluate(()=>Halloween._.screen('lid')),{steps:1,pause:0});
  await shot('07-lid-cut');
@@ -102,7 +103,7 @@ try{
  await until(()=>Halloween.carving==='candle');await shot('10-carved');
  await key('f');await until(()=>!!Season.st('halloween99').steps['hw-pumpkin']?.candle&&!House.focused&&!!House.THINGS['hw.lantern']);
  await page.waitForTimeout(1200);
- await aim([-20,GY-EYE,265],[-45,GY-88,174]);await key('e');await until(()=>House.held()==='hw.lantern');
+ await aim([-20,GY-EYE,205],[-45,GY-88,114]);await key('e');await until(()=>House.held()==='hw.lantern');
  const pier=await page.evaluate(()=>({x:House.FRONT.PIERS[0],y:353-House.FRONT.PIER_TOP,z:House.FRONT.FZ-5}));
  await aim([pier.x+32.5,GY-EYE,pier.z-55],[pier.x,pier.y,pier.z]);await key('e'); // the current gatepost, shared with the physical model
 

@@ -43,6 +43,19 @@
   function fresh(d) { const ever = S.ever || {}, seen = S.seen || {}, said = S.said || {}; S = { day: d, prog: {}, done: {}, oops: {}, at: {}, v: {}, t0: {}, ever, seen, said }; }
   if (S.day !== day()) fresh(day());
   for (const k of ['prog', 'done', 'oops', 'at', 'v', 't0', 'ever', 'seen', 'said']) if (!S[k] || typeof S[k] !== 'object') S[k] = {};
+  // Daily job props have their own save, including baskets in rooms not built yet.
+  // Reuse the house migration once without touching progress, timers or rewards.
+  function migrateChorePlacements() {
+    if(!H.migratePlacement || (S.pv||0)>=H.placementVersion)return;
+    for(const [id,r] of Object.entries(S.at)){
+      if(!Array.isArray(r))continue;
+      const at={room:r[0],x:r[1],y:r[2],z:r[3],ry:r[4],hide:!!r[5]};
+      if(H.migratePlacement(at,Math.max(9,S.pv||0)))S.at[id]=[r[0],+at.x.toFixed(1),+at.y.toFixed(1),+at.z.toFixed(1),...r.slice(4)];
+    }
+    S.pv=H.placementVersion;save();
+  }
+  migrateChorePlacements();
+
 
   // ================================================================ the jobs (each part of the house adds its own)
   const MODS = {}, ORDER = [];

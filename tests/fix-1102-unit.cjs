@@ -64,8 +64,8 @@ console.log('PASS aside resume: checked body avoidance before returning to the r
 // exposing several centimetres of dark recess in a pitched garden view.
 const house=fs.readFileSync(require('node:path').join(__dirname,'..','app/public/js/hs-house.js'),'utf8');
 const doorwayCode=house.slice(house.indexOf('  function doorway('),house.indexOf('  const pickBox ='));
-const hinge=Number(house.match(/'backdoor', 'n', -56, 80, 160, GY, \{ inside: true, hingeNormal: ([\d.-]+)/)[1]);
+const hinge=Number(house.match(/'backdoor', 'n', REAR\.z1, 80, 160, GY, \{ inside: true, hingeNormal: ([\d.-]+)/)[1]);
 const frame={T:{Group:class{constructor(){this.position={set:(x,y,z)=>Object.assign(this.position,{x,y,z})}}}},K:{into:()=>({}),doorLeaf:(p,o)=>p.leaf=o},M:v=>v,tex:()=>null,mBrass:{}};vm.createContext(frame);vm.runInContext(doorwayCode,frame);
-const leaf=frame.doorway({group:{add(){}}},{},'backdoor','n',-56,80,160,353,{inside:true,hingeNormal:hinge,noframe:true,mat:{}});
-const recess=leaf.position.z-leaf.leaf.t/2-(-60);assert(recess>=0&&recess<=1.5,'Closed leaf sits behind the shallow casing: '+recess);
+const leaf=frame.doorway({group:{add(){}}},{},'backdoor','n',-176,80,160,353,{inside:true,hingeNormal:hinge,noframe:true,mat:{}});
+const recess=leaf.position.z-leaf.leaf.t/2-(-180);assert(recess>=0&&recess<=1.5,'Closed leaf sits behind the shallow casing: '+recess);
 console.log('PASS back-door seating: exterior-face recess '+recess.toFixed(1)+' cm');

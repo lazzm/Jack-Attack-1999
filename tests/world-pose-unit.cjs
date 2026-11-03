@@ -5,7 +5,7 @@ const save=source.slice(source.indexOf('  function walkingPose() {'),source.inde
 const restore=source.slice(source.indexOf('  function restorePose(s) {'),source.indexOf('  function saveStood()'));
 assert(save.includes('function validPose'));assert(restore.includes('return true'));
 function fixture(limit){
- const room={id:'cupboard',eye:112},context={P:{x:0,y:0,z:0,rx:0,ry:90},W:{x:214.999999999,z:392,fy:353,eyeNow:112,seat:false},STAND:128,LV:{U:73,G:353},D2R:Math.PI/180,
+ const room={id:'cupboard',eye:112},context={PV:10,RAD:22,REAR:{kitchenBlocks:[[-124,66,4,154],[-80,26,-40,62],[-80,158,-40,194],[-156,90,-116,130],[-4,90,36,130]]},P:{x:0,y:0,z:0,rx:0,ry:90},W:{x:214.999999999,z:392,fy:353,eyeNow:112,seat:false},STAND:128,LV:{U:73,G:353},D2R:Math.PI/180,
   DOORS:{cupboard:{open:false,ang:0,swing:100,pivot:{rotation:{y:0}}}},anims:new Map(),grids:{dirty:false},cur:null,stIdx:-1,
   roomAt:(x,z,lvl)=>lvl==='G'&&x>0&&x<400&&z>0&&z<500?room:null,
   floorAt:(x,z,lvl,y)=>x<limit&&lvl==='G'&&Math.abs(y-353)<1?{y:353,lvl:'G'}:null,
@@ -38,4 +38,18 @@ console.log('LOW LINTEL PASS: standing/crouched clearance and floor/doorway boun
  assert(c.restorePose({x:200,y:241,z:200,rx:0,ry:0,lvl:'G',seat:0}));
  assert(prepared);assert.equal(c.W.x,200);assert.equal(c.W.z,200);
  console.log('ROOM PREPARE PASS: dynamic vehicle state precedes exact saved-pose validation');
+}
+
+// A pre-extension garden save remains outside; the new table cannot cover an old standing pose.
+{
+ const c=fixture(500),garden={id:'garden',eye:143},kitchen={id:'kitchen',eye:143};
+ c.roomAt=(x,z,lvl)=>lvl!=='G'?null:z< -176?garden:kitchen;
+ c.floorAt=()=>({y:353,lvl:'G'});
+ const old={x:120,y:210,z:-100,rx:0,ry:0,seat:0,lvl:'G',d:{cupboard:false}};
+ assert(c.restorePose(old));assert.equal(c.cur.id,'garden');assert.equal(c.P.z,-220);assert.equal(old.z,-100);
+ const current={...old,z:c.P.z,pv:10};assert(c.restorePose(current));assert.equal(c.P.z,-220,'Repeat refresh moved the outdoor pose');
+ assert(c.restorePose({...old,x:-60,z:44}));assert.equal(c.P.x,-205,'New chair trapped the old player');assert.equal(c.cur.id,'kitchen');
+ assert(c.restorePose({...old,x:150,z:100}));assert.equal(c.P.x,150,'Clear standing pose moved unnecessarily');
+ assert.equal(c.walkingPose().pv,10,'New standing saves must identify the completed layout migration');
+ console.log('REAR POSE PASS: one-time outdoor and furniture transfers, exact repeat refresh and clear-pose preservation');
 }
