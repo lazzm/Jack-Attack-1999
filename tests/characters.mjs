@@ -13,6 +13,7 @@ import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 let EYE = 128;
 import {roomFixture} from './room-fixture.mjs';
+import {bonfireLogin as loginFixture} from './bonfire-login.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const shots = fileURLToPath(new URL('shots/characters/', import.meta.url));
@@ -47,6 +48,8 @@ async function check(name, fn) {
   catch (e) { results.push([name, false]); console.log(`FAIL ${name}: ${String(e.stack || e).split('\n').slice(0, 4).join(' | ')}`); }
 }
 async function house(opts) {
+  // Use the real login/profile protocol and the ordinary standing resume for routine tests.
+  if(opts?.signup===false&&opts.account)opts={...opts,resume:true,opening:true,storageState:await loginFixture(base,pass,opts.account,{pv:10,x:40,y:-70,z:155,rx:0,ry:0,lvl:'U',seat:0})};
   const f = await roomFixture(base, Object.assign({ hour: 14, timeoutScale: SCALE, debug: process.env.FIXTURE_DEBUG === '1' }, opts));
   EYE = await f.page.evaluate(() => House.STAND || 128); // (the live standing eye height)
   for (let i = 0; i < 120 * SCALE && !(await f.page.evaluate(() => !!window.HouseFamily?.ready)); i++) await f.page.waitForTimeout(500);

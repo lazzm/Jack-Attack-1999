@@ -165,3 +165,87 @@ trick-or-treating passed; it has no full passing result. The first attempt recei
 The mobile `--only=gate,full` attempt also received SIGTERM without a complete result. Full `physics.mjs`,
 `story-ch1.mjs`, `smoke.mjs`, Halloween and mobile regression results remain outstanding. Real hardware performance
 and the remaining Stage 3 rows (including G3/G4) remain unverified/open. No live deployment is part of this branch.
+
+
+## Sizing round 2 (3 November 2026, merged base a7d88c5)
+
+The gloves stool and `bf.gloves` target move together from (44, 53) to (174, -148), in the nook to the right of the
+back door. Its ID and all server progress keys stay unchanged. The stool clears the outward door leaf and the
+central approach. Existing saved cactus positions still fit the enlarged sill; the default cactus and gathered
+right curtain now leave each other clear, and the pole ends before the bedroom side wall.
+
+| Opening | World bounds (cm, y down) | Interior / backing |
+|---|---|---|
+| Jack's main rear window | x 148..232, y -137..-14 | Real 84 × 123 cm casement; shared inside/outside aperture and glass |
+| High bedroom window | x -245..-115, y -166..-126 | Real 130 × 40 cm fanlight, above the existing posters and TV |
+| Kitchen extension side window | z -160..-80, y 143..235, x about 195..206 | Real 80 × 92 cm casement facing the side garden, clear of the stool and appliances |
+| Upper unmodeled rear room | x 270..380, y -137..-14 | Recessed frame, glass and solid pleated closed curtains with opaque backing |
+| Lower unmodeled rear room | x 270..380, y 143..253 | Same closed construction; no view into an absent room |
+
+`House.REAR.bedroomWindows` drives the bedroom walls, exterior holes and both directions of portal bounds.
+The kitchen's side aperture is also in both room portal lists. Glass and frames have thickness; the extension has
+a lead flashing strip at its junction with the original wall. Furniture and posters retain their positions.
+The merged fence boards and rails are retained; matching solid weeds now follow both long sides and short returns.
+The merged trees remain rooted at y 353, and their contact shadows were inspected in the garden captures.
+
+Matched day/night, desktop/phone counts from `tests/shots/sizing/round2/{before,after}/report.json`:
+
+| View | Before calls | After calls | Before triangles | After triangles |
+|---|---:|---:|---:|---:|
+| Desktop day, rear from far end | 1143 | 1144 | 349748 | 357538 |
+| Desktop night, rear from far end | 1163 | 1165 | 349816 | 357606 |
+| Desktop day, garden from back door | 149 | 149 | 145672 | 151694 |
+| Phone day, garden from back door | 143 | 144 | 143914 | 151454 |
+| Desktop day, kitchen doorway | 388 | 395 | 216318 | 231012 |
+| Phone day, kitchen doorway | 303 | 314 | 199908 | 216426 |
+
+The peak among the 12 paired views changes from 1164 to 1165 calls; peak triangles rise about 2.2%.
+No new scene lights are added. Static batching and portal culling remain active.
+
+Verification method: native-resolution before/after art captures; Bonfire art requests desktop/phone/potato coverage;
+functional regression fixtures can use `FIXTURE_RASTER_RATIO=0.5` on the shared software-renderer host. This only
+caps canvas raster pixels; CSS viewport coordinates, geometry, gameplay assertions and real inputs remain intact.
+`REGRESSION_NO_SHOTS=1` skips optional galleries in physics/Halloween/story, retaining their checks and failure
+captures. Character/physics/Halloween setup reuses the existing real WebSocket login/profile helper and ordinary
+standing token resume. Fresh resumed fixture accounts complete the normal About You form before gameplay. Explicit browser logon remains in smoke/mobile/story. The first full Bonfire attempt completed gameplay but its final non-owner wait hit the CSP; polling through `evaluate` fixed the fixture and the complete rerun passed. The production CSP is unchanged.
+
+### Round 2 verification ledger
+
+Only disposable localhost servers and `/tmp` state are used. Each browser runs serially. Tests still absent below are **not verified**, even if queued.
+
+| Check | Actual result |
+|---|---|
+| Syntax: `node --check` on every touched JS/MJS/CJS, including `tests/sizing-round2.mjs` | exit 0 |
+| `for f in tests/*-unit.cjs; do node "$f" || exit; done` | exit 0; 44 files, including PV10 old-save/repeated-load tests |
+| `node --expose-internals tests/parody-audit.cjs` | exit 0; zero authored spans |
+| `node tests/neighbourhood-geometry.cjs` | exit 0; 83 meshes / 76146 triangles |
+| `node tests/sizing-round2.mjs <throwaway URL> before/after` | before/after exits 0; 12 matched pairs, 24 after shots |
+| `events-bonfire.mjs` | exit 0 |
+| `bonfire-art.mjs (default attempt)` | exit 143; runner terminated during desktop capture; full default suite incomplete |
+| `bonfire-art.mjs (focused phone)` | exit 0; objective target, crosshair pick, real touch F, gold-willow framing/gaze |
+| `events-halloween.mjs` | exit 0 |
+| `characters.mjs --only=day,space,bump` | exit 0 |
+| `physics.mjs` | exit 0 |
+| `story-ch1.mjs <throwaway URL>` | exit 124; time-budget cutoff after real tidy accepted; full story remains unverified |
+| `smoke.mjs` | NOT RUN |
+| `mobile.mjs --only=gate,full` | NOT RUN |
+
+Earlier attempts: full Bonfire first exit 1 (final non-owner fixture CSP wait, subsequently corrected); characters setup interrupted with exit 130 (fresh account About You form, fixture corrected). No production identity/save or CSP rules changed.
+
+Exact browser commands actually issued (see results above; an entry without a result may only have been queued near the cutoff):
+
+```sh
+env BONFIRE_RESUME_LOGIN=1 BONFIRE_NO_SHOTS=1 FIXTURE_DEBUG=1 node tests/events-bonfire.mjs http://localhost:18089
+env FIXTURE_RASTER_RATIO=0.5 BONFIRE_RESUME_LOGIN=1 BONFIRE_NO_SHOTS=1 FIXTURE_DEBUG=1 node tests/events-bonfire.mjs http://localhost:18089
+env FIXTURE_DEBUG=1 FIXES2_ART_TAG=sizing-round2 node tests/bonfire-art.mjs http://localhost:18089
+env FIXTURE_RASTER_RATIO=0.5 REGRESSION_NO_SHOTS=1 FIXTURE_DEBUG=1 node tests/events-halloween.mjs http://localhost:18089
+env FIXTURE_RASTER_RATIO=0.5 FIXTURE_DEBUG=1 node tests/characters.mjs --only=day\,space\,bump
+env FIXTURE_DEBUG=1 FIXES2_ART_TAG=sizing-round2 BONFIRE_ART_MODES=phone BONFIRE_ART_ONLY=06-gloves-by-back-door\,15-gold-willows node tests/bonfire-art.mjs http://localhost:18089
+env FIXTURE_RASTER_RATIO=0.5 FIXTURE_DEBUG=1 node tests/characters.mjs --only=day\,space\,bump
+env FIXTURE_RASTER_RATIO=0.5 REGRESSION_NO_SHOTS=1 node tests/physics.mjs
+env FIXTURE_RASTER_RATIO=0.5 REGRESSION_NO_SHOTS=1 FIXTURE_DEBUG=1 node tests/story-ch1.mjs http://localhost:18089
+env FIXTURE_RASTER_RATIO=0.5 FIXTURE_DEBUG=1 node tests/smoke.mjs
+node tests/mobile.mjs --only=gate\,full
+```
+
+Evidence: `tests/shots/sizing/round2/{before,after}/`, `bonfire-desktop/`, `bonfire-phone/`. Captures are native resolution and personally reviewed. Full default Bonfire art coverage, including Potato, requires a completed rerun; a focused pass is not a full-suite pass. G3/G4 and other open stage-3 rows remain open.

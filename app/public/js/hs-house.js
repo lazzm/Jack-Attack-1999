@@ -942,10 +942,20 @@
   function buildKitchen(r) {
     const batch = K.batch(), B = K.into(batch);
     const wall = M({ c: '#fff', map: tex('wallKitchen') });
-    shell(B, { x0: -280, z0: REAR.z1, x1: 195, z1: 295, fy: GY, cy: GC, wall, uv: 48, cove: true, thin: { n: 0.7 }, floor: M({ c: '#fff', map: tex('lino') }), fuv: 60, holes: { e: [[150, 230, GY - 205, GY]], n: [[-160, -40, 143, 253], [80, 160, GY - 205, GY]] } });
+    shell(B, { x0: -280, z0: REAR.z1, x1: 195, z1: 295, fy: GY, cy: GC, wall, uv: 48, cove: true, thin: { n: 0.7 }, floor: M({ c: '#fff', map: tex('lino') }), fuv: 60, holes: { e: [[-160,-80,143,235],[150, 230, GY - 205, GY]], n: [[-160, -40, 143, 253], [80, 160, GY - 205, GY]] } });
     // the window over the sink and the back door (half glass): the garden outside
     // Shared sky/neighbourhood; no overlapping bedroom/kitchen sky cards.
     winFrame(B, -160, -40, 143, 253, REAR.z1);
+    // Real side casement in the extension: shared geometry is visible from the side garden.
+    const sideFrame=M({c:'#f2f0ea',sh:40,sp:'#444'});
+    for(const y of [146,232])B.box(202,y,-120,8,6,80,sideFrame);
+    for(const z of [-157,-120,-83])B.box(202,189,z,8,86,z===-120?5:6,sideFrame);
+    for(const y of [143,235])B.box(198,y,-120,10,.8,80,M('#d8d4c8'));
+    for(const z of [-160,-80])B.box(198,189,z,10,92,.8,M('#d0ccc0'));
+    B.box(201.8,189,-120,.35,86,74,M({c:'#c8d8f0',o:.12,tr:true,sh:90,sp:'#fff'}));
+    B.rbox(195,236.5,-120,20,3,88,.8,sideFrame);
+    H.support('kitchen',185,-164,205,-76,235);
+
     doorway(r, B, 'backframe', 'n', REAR.z1, 80, 160, GY, { leaf: false, depth: 1, frameSides: [1] });
     const WB = B.at(0,0,-REAR.extension);
     // the units along the back wall: base cupboards, the worktop, wall cupboards, the sink, the cooker, the washing machine
@@ -1285,25 +1295,37 @@
     const paving=mSlab();for(const [a,b,c,d]of REAR.paving)B.box((a+c)/2,GY+1.7,(b+d)/2,c-a,4,d-b,paving,{uv:100});
     // the back of the house: brick, the kitchen window and the back door from outside, Jack's window up above
     // Original upper rear elevation; the kitchen below now projects 1.2 m under a shallow felt roof.
-    solidWall(B,60,-62.6,180,[[-360,-196],[360,-196],[360,94],[-360,94]],mBrick(),.8,[[[96,-112],[166,-112],[166,-14],[96,-14]]]);
-    B.box(312.5,225.5,-57.4,215,261,1.6,mBrick(),{uv:128});
+    solidWall(B,60,-62.6,180,[[-360,-196],[360,-196],[360,94],[-360,94]],mBrick(),.8,[...REAR.bedroomWindows.map(w=>[[w.x0-60,w.y0],[w.x1-60,w.y0],[w.x1-60,w.y1],[w.x0-60,w.y1]]),[[210,-137],[320,-137],[320,-14],[210,-14]]]);
+    solidWall(B,312.5,-57.4,180,[[-107.5,95],[107.5,95],[107.5,356],[-107.5,356]],mBrick(),1.6,[[[-42.5,143],[67.5,143],[67.5,253],[-42.5,253]]]);
     solidWall(B,-47.5,-177,180,[[-252.5,95],[252.5,95],[252.5,356],[207.5,356],[207.5,GY-205],[127.5,GY-205],[127.5,356],[-252.5,356]],mBrick(),.8,[[[-112.5,143],[7.5,143],[7.5,253],[-112.5,253]]]);
-    for(const [x,w]of [[-292.5,15],[203,6]])B.box(x,225,-116.6,w,260,121.2,mBrick(),{uv:128});
+    B.box(-292.5,225,-116.6,15,260,121.2,mBrick(),{uv:128});
+    for(const [y,h]of [[119,48],[295,120]])B.box(203,y,-116.6,6,h,121.2,mBrick(),{uv:128});
+    for(const [z,d]of [[-168.6,17.2],[-68,24]])B.box(203,189,z,6,92,d,mBrick(),{uv:128});
     const felt=M({c:'#535650',sh:3}),fascia=M('#ded9cd');
+    B.box(-47.5,77,-64,525,2,20,M('#414842')); // lead flashing up to the old rear wall
     B.box(-47.5,86,-121,525,16,150,felt); // solid roof including soffit, fall carried by its thick front fascia
     B.box(-47.5,94,-195,525,12,4,fascia);
     for(const x of [-308,213])B.box(x,94,-121,4,12,144,fascia);
     B.cyl(-47.5,99,-199,4,4,529,10,M('#414842'),{rz:90});
     B.cyl(207,224,-193,3.5,3.5,250,10,M('#414842'));
     {const a=new T.Vector3(207,218,-193),b=new T.Vector3(REAR.butt.x,GY-92,REAR.butt.z),d=b.clone().sub(a),mid=a.clone().add(b).multiplyScalar(.5),pipe=new T.CylinderGeometry(2.2,2.2,d.length(),8);pipe.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),d.normalize())));B.geo(pipe,mid.x,mid.y,mid.z,M('#414842'));}
-    B.box(300,-67,-58.5,70,80,2,M({c:'#789095',sh:28,sp:'#879a9b'}));
-    for(const x of [263,337])B.box(x,-67,-60,5,88,5,mWhite);for(const y of [-109,-25])B.box(300,y,-60,70,4,5,mWhite);B.box(300,-69,-61,70,3,3,mWhite);B.box(300,-20,-63,82,5,10,M('#bbb5a5'));
+    // The rooms behind the east rear wall are not walkable: deep closed curtains seal their reveals.
+    const closedRearWindow=(cx,y0,y1,z)=>{
+      const w=110,h=y1-y0,cy=(y0+y1)/2,frame=M({c:'#f2f0ea',sh:40,sp:'#444'}),fabric=M('#d9d1bb');
+      B.box(cx,cy,z+7,w-4,h-4,2,M('#827b70'));
+      for(let i=0;i<16;i++)B.rbox(cx-w/2+5+i*(w-10)/15,cy,z+3+(i%2)*1.3,8,h-7,3,1,fabric);
+      for(const x of [cx-w/2+3,cx,cx+w/2-3])B.box(x,cy,z-3,6,h,9,frame);
+      for(const y of [y0+3,y1-3])B.box(cx,y,z-3,w,6,9,frame);
+      for(const x of [cx-w/2,cx+w/2])B.box(x,cy,z+2,1,h,14,M('#c5bfb0'));
+      B.box(cx,cy,z-4,w-6,h-6,.35,M({c:'#c8d8f0',o:.14,tr:true,sh:90,sp:'#fff'}));
+      B.rbox(cx,y1+2,z-4,w+12,4,16,.8,frame);
+    };
+    closedRearWindow(325,-137,-14,-66);closedRearWindow(325,143,253,-61);
     const EW = B.at(0,0,-120);
     for(const x of [-158,-42,-100])EW.box(x,198,-59,4,x===-100?102:110,3,mWhite);
     for(const y of [145,251])EW.box(-100,y,-59,112,4,3,mWhite);
     EW.plane(-100,198,-61.2,112,102,M({c:'#c8d8f0',o:.12,tr:true,sh:80,sp:'#7c8f99'}),{ry:180});
     EW.box(76.8,GY-102,-58.5,5.6,204,3,mWhite);EW.box(163.2,GY-102,-58.5,5.6,204,3,mWhite);EW.box(120,GY-206,-58.5,92,6,3,mWhite);EW.box(120,GY-.8,-58,80,1.6,8,M('#9a9a92'));
-    B.plane(191,-63,-57.5,70,98,M({c:'#c8d8f0',o:.12,tr:true,sh:80,sp:'#7c8f99'}),{ry:180});
 
     // fences down both sides and across the end, the gate at the end, next door's roofs over the top
     const fm = mFence();
@@ -1339,6 +1361,10 @@
     for(let i=0;i<18;i++){const x=left+12+i*(right-left-24)/17,z=rear+8+(i%3)*1.2;
       for(let j=0;j<3;j++)B.ball(x+(j-1)*2.1,GY-3-(j%2)*1.5,z,1.5,4+j,1.2,weed,5,{rz:(j-1)*23});
     }
+    for(const [x,end]of [[left+8,front-12],[right-8,-72]])for(let z=rear+45;z<end;z+=140){
+      for(let j=0;j<3;j++)B.ball(x+(j%2)*1.3,GY-3-(j%2)*1.5,z+(j-1)*2.1,1.2,4+j,1.5,weed,5,{rx:(j-1)*23});
+    }
+    for(const [x,z]of [[-318,-186],[-306,-186],[428,-69]])for(let j=0;j<3;j++)B.ball(x+(j-1)*2.1,GY-3-(j%2)*1.5,z,1.5,4+j,1.2,weed,5,{rz:(j-1)*23});
     // the shed (Dad's), the whirly washing line, the wheelie bin, a flower bed, the water butt, a tree
     const sh=B.at(REAR.shed.x,GY,REAR.shed.z,0,{sx:1.2,sy:.9}),shw=shedWood();
     sh.box(0,-100,0,150,200,120,shw,{uv:60});
@@ -1653,7 +1679,7 @@
   }
 
   // ================================================================ the rooms, their lights, their views
-  const rearGlass=[[-160,143,-186,-40,253,-174],[95,167,-180,145,245,-174]],bedroomGlass=[[156,-112,-60,226,-14,-54]],bayGlass=[[-170,150,696,50,300,710]],frontGlass=[[279,167,698,321,245,706]];
+  const rearGlass=[[-160,143,-186,-40,253,-174],[95,167,-180,145,245,-174],[193,143,-160,207,235,-80]],bedroomGlass=REAR.bedroomWindows.map(w=>[w.x0,w.y0,-74,w.x1,w.y1,-50]),bayGlass=[[-170,150,696,50,300,710]],frontGlass=[[279,167,698,321,245,706]];
   const ROOMDEF = {
     landing: { name: 'The landing', title: 'THE LANDING', lvl: 'U', area: [[250, 130, 410, 250], [250, 250, 330, 700], [330, 250, 410, 700]], bx0: 252, bx1: 408, bz0: 132, bz1: 698, build: buildLanding, windowViews:[{room:'drive',bounds:[[410,-80,400,420,60,480]]}],
       lights: () => [{ x: 300, y: -150, z: 400, c: '#fff0d8', i: lit('landing') ? 0.9 : 0, d: 520 }, { x: 390, y: -10, z: 440, c: phase() === 'day' ? '#e8f0ff' : '#5a6a9a', i: phase() === 'day' ? 1.3 : 0.25, d: 560 }, { x: 300, y: -60, z: 180, c: '#f0ece0', i: phase() === 'day' ? 0.4 : 0.1, d: 320 }],

@@ -9,6 +9,7 @@
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {roomFixture} from './room-fixture.mjs';
+import {bonfireLogin as loginFixture} from './bonfire-login.mjs';
 const base=process.argv[2]||'http://localhost:18197';
 assert(['127.0.0.1','localhost'].includes(new URL(base).hostname),'Throwaway localhost server only');
 const shots=new URL('./shots/halloween/',import.meta.url).pathname;await mkdir(shots,{recursive:true});
@@ -16,7 +17,7 @@ const password='Throwaway-1999',GY=353,EID='halloween99';
 const t0=Date.now(),log=(...a)=>console.log(((Date.now()-t0)/1000).toFixed(1).padStart(6)+'s',...a);
 const reg=await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:'Jack',pass:password})});
 assert(reg.ok||reg.status===409||reg.status===400,'admin register '+reg.status);
-const f=await roomFixture(base,{account:'Jack',password,signup:false,hour:null});
+const f=await roomFixture(base,{account:'Jack',password,signup:false,hour:null,resume:true,opening:true,storageState:await loginFixture(base,password,'Jack',{pv:10,x:40,y:-70,z:155,rx:0,ry:0,lvl:'U',seat:0})});
 const {page,until,view,errors}=f;
 const EYE=await page.evaluate(()=>House.STAND||128); // (the live standing eye height)
 let failed=null;
@@ -30,7 +31,7 @@ try{
  const st=()=>page.evaluate(id=>Season.st(id),EID);
  async function aim(eye,target,level='G'){await view(eye,target,{level});await page.evaluate(t=>{House.hush();House._.setMode('walk');const P=House.P,W=House.W;if(!W.seat){W.eyeNow=W.eye;P.y=W.fy-W.eye;P.rx=Math.atan2(-(t[1]-P.y),Math.hypot(t[0]-P.x,t[2]-P.z))*180/Math.PI;P.ry=Math.atan2(t[0]-P.x,-(t[2]-P.z))*180/Math.PI;House.dirty()}},target);await page.waitForTimeout(250);} // (the eye starts at the standing height: no drift after aiming)
  async function key(k){await page.keyboard.press(k);await page.waitForTimeout(350);}
- const shot=async n=>{await page.evaluate(()=>House.hush());await page.waitForTimeout(500);await page.screenshot({path:shots+n+'.png'});log('shot',n,await page.evaluate(()=>House.ren.info.render.calls)+' draws');};
+ const shot=async n=>{await page.evaluate(()=>House.hush());await page.waitForTimeout(500);if(process.env.REGRESSION_NO_SHOTS!=='1')await page.screenshot({path:shots+n+'.png'});log('checkpoint',n,await page.evaluate(()=>House.ren.info.render.calls)+' draws');};
  async function drag(points,{steps=2,pause=25}={}){await page.mouse.move(points[0][0],points[0][1]);await page.mouse.down();for(const [x,y] of points){await page.mouse.move(x,y,{steps});await page.waitForTimeout(pause);}await page.mouse.up();}
 
  // ---- 1. before the window: nothing at all

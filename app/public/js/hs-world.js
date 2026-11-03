@@ -1530,6 +1530,7 @@
     CAR: Object.freeze({ x: 500, y: 353, z: 1075, s: 1.04, roof: 126.9 }), CAR4: Object.freeze({ x: 488, y: 353, z: 980, s: 1.04 }), CAR3: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
   // Rear plot and extension: shared by geometry, navigation, chores and events (cm).
   const REAR = Object.freeze({ x0:-340, x1:440, z0:-1476, z1:-176, extension:120, tableShift:60,
+    bedroomWindows:Object.freeze([{x0:-245,x1:-115,y0:-166,y1:-126},{x0:148,x1:232,y0:-137,y1:-14}].map(Object.freeze)),
     shed:Object.freeze({x:-230,z:-1330}), dryer:Object.freeze({x:250,z:-650}),
     paving:Object.freeze([[-215,-376,195,-181],[-320,-1270,-230,-376],[-330,-1325,-130,-1195],[-320,-376,-215,-286]].map(Object.freeze)),
     kitchenBlocks:Object.freeze([[-124,66,4,154],[-80,26,-40,62],[-80,158,-40,194],[-156,90,-116,130],[-4,90,36,130]].map(Object.freeze)),

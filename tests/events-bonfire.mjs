@@ -104,7 +104,7 @@ try {
  await aim([160,GY-eye,-186.3],[0,-350,-1140.7]);const wait=183000-(Date.now()-started);if(wait>0)await page.waitForTimeout(wait);
  await aim([-60,GY-eye,-302.4],[0,-330,-1218.1]);await got('bf-light','finale');await shot('15-display-finished',{pair:false});
  await key('q');await until(()=>!House.held());
- await aim([50,GY-eye,110],[44,GY-57,53]);await key('f');await got('bf-sparkler','gloves');await shot('16-warm-clothes');
+ await aim([120,GY-eye,-65],[174,GY-57,-148]);await key('f');await got('bf-sparkler','gloves');await shot('16-warm-clothes');
  await aim([-20,GY-eye,-347.9],[-23,GY-54,-384.9]);await key('f');await until(()=>Bonfire.step==='write');await page.waitForTimeout(700);await draw();await shot('17-sparkler-writing');await key('f');await got('bf-sparkler','write');await until(()=>!House.focused);
  await aim([-20,GY-eye,-347.9],[-23,GY-65,-384.9]);await key('e');await until(()=>House.held()==='bf.spent');
  await aim([12,GY-eye,-340.9],[12,GY-20,-384.9]);await key('e');await got('bf-bucket','cool');await shot('18-hot-end-water');
@@ -133,9 +133,10 @@ try {
  await page.close();const context=await f.browser.newContext({viewport:{width:390,height:844},hasTouch:true});await context.addInitScript(()=>localStorage.setItem('jhp_device_view','jackos'));const normal=await context.newPage();
  // This page bypasses roomFixture; give it the same navigation allowance on software WebGL.
  normal.setDefaultNavigationTimeout(90000*fixtureScale);
+ const normalUntil=async fn=>{const end=Date.now()+90000*fixtureScale;while(Date.now()<end){if(await normal.evaluate(fn))return;await normal.waitForTimeout(150)}throw Error('Non-owner state timeout: '+fn)};
  await normal.goto(base+'/?date99=11-02&time=19:00:00',{waitUntil:'domcontentloaded'});await normal.locator('[name=name]').fill(family);await normal.locator('[name=password]').fill(password);await normal.locator('#accountGate [type=submit]').click();
- await normal.waitForFunction(()=>!!(window.AccountGate?.allowed||document.querySelector('#accountFirst')));if(await normal.locator('#accountFirst').count())await normal.locator('#accountGate [type=submit]').click();
- await normal.waitForFunction(()=>!!(AccountGate.allowed&&window.Cast&&window.Season));const cast=await normal.evaluate(()=>({sister:Cast.n('sister'),task:Season.cast(SeasonCat.byId.bonfire99.objById['bf-guy'].text)}));assert.notEqual(cast.sister,'Crystal');assert(cast.task.includes(cast.sister));assert(!cast.task.includes('{sister}'));log('non-owner cast',JSON.stringify(cast));await normal.screenshot({path:shots+'25-non-owner-cast.png'});await context.close();log('PASS bonfire: all eight objectives, real inputs, refresh, dates and phone sizes');
+ await normalUntil(()=>!!(window.AccountGate?.allowed||document.querySelector('#accountFirst')));if(await normal.locator('#accountFirst').count())await normal.locator('#accountGate [type=submit]').click();
+ await normalUntil(()=>!!(AccountGate.allowed&&window.Cast&&window.Season));const cast=await normal.evaluate(()=>({sister:Cast.n('sister'),task:Season.cast(SeasonCat.byId.bonfire99.objById['bf-guy'].text)}));assert.notEqual(cast.sister,'Crystal');assert(cast.task.includes(cast.sister));assert(!cast.task.includes('{sister}'));log('non-owner cast',JSON.stringify(cast));await normal.screenshot({path:shots+'25-non-owner-cast.png'});await context.close();log('PASS bonfire: all eight objectives, real inputs, refresh, dates and phone sizes');
 } catch(e) { failed=e;console.error(e.stack);await page.screenshot({path:shots+'FAIL.png'}).catch(()=>{});console.error('STATE',JSON.stringify(await page.evaluate(()=>({s:Season.st('bonfire99'),mode:House.mode,held:House.held(),step:Bonfire?.step,hot:House.ui.el.textContent.slice(-1200)})).catch(()=>null))); }
 finally {await f.browser.close();}
 if(failed)process.exit(1);

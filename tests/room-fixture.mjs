@@ -8,6 +8,14 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader'],...launchOptions});
  const page=await browser.newPage({...contextOptions,viewport:{width,height},hasTouch:touch,...(storageState?{storageState}:{}),...(recordVideo?{recordVideo}:{})}),errors=[];
  await onPage?.(page);
+ // Optional CPU-host raster cap for functional regressions; layout and input stay in CSS pixels.
+ const rasterCap=Number(process.env.FIXTURE_RASTER_RATIO);
+ if(rasterCap>0&&rasterCap<=1)await page.addInitScript(cap=>{
+  const timer=setInterval(()=>{const r=window.House?.ren;if(!r)return;clearInterval(timer);
+   const set=r.setPixelRatio.bind(r);r.setPixelRatio=n=>set(n===undefined?n:Math.min(n,cap));r.setPixelRatio(r.getPixelRatio());
+  },20);
+ },rasterCap);
+
  if(seed!==undefined)await page.addInitScript(seed=>{let s=seed>>>0;Math.random=()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}},seed);
  page.setDefaultNavigationTimeout(90000*timeoutScale);
  page.setDefaultTimeout(30000*timeoutScale);
@@ -25,6 +33,10 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
   await page.locator('#accountGate [type=submit]').click();
   await until(()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst'));
   if(await page.locator('#accountFirst').count())await page.locator('#accountGate [type=submit]').click();
+  }
+  if(resume){
+    await until(()=>!!(window.AccountGate?.allowed||document.querySelector('#accountFirst')));
+    if(await page.locator('#accountFirst').count())await page.locator('#accountGate [type=submit]').click();
   }
   await until(()=>window.AccountGate?.allowed&&window.House?.live&&window.PMGL?.built&&!document.querySelector('.hs-loading,#houseEntry'));
   if(debug)console.log('Fixture room built',await page.evaluate(()=>House.mode));

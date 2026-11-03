@@ -118,3 +118,7 @@ only the listed rows; the remaining open rows above stay open.
 The central lawn is intentionally available for play; the path, flower bed, laundry area, shed apron, trees and
 patio occupy its edges. Bonfire preparation, spectators, launch area and shed shelf have been spread along its depth.
 Tree/fence artwork, the mower, lamps and house number remain for the separate fixes3 worker.
+
+## Sizing round 2 follow-up (3 November 2026)
+
+Rear elevation row 33 is reviewed after the rel-263 merge: two matching real bedroom apertures, a real kitchen side casement and two deep closed-curtain windows in the unmodelled east rooms now articulate the rear wall. The extension roof retains its fascia, gutter and downpipe, with added flashing at the old wall. See `HOUSE-SCALE.md` and `shots/sizing/round2/`. G3, G4 and the other open furniture/stair rows remain open; this follow-up prioritises Bonfire and regression testing.

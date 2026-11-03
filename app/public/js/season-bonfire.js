@@ -243,11 +243,11 @@
       if (!['tin', 'water', 'pets', 'line'].every(s => got('bf-code', s))) return say('code.wait', 'Dad', 'Closed tin, water, pets indoors, watching line. Check all four first. Then we can talk about the taper.');
       SE.step(EID, 'bf-code', 'taper'); say('taper', 'Dad', 'A long taper, at arm length. One adult in charge: me. Check! We light the bonfire after checking it for animals. No petrol or paraffin. All ready for Friday evening.');
     });
-    DEC.gear = group('warm-clothes', 'kitchen', 44, GY, 53, B => {
+    DEC.gear = group('warm-clothes', 'kitchen', 174, GY, -148, B => {
       wellies(B, 0, 0); B.box(0, -51, 0, 34, 4, 22, mat.wood); for (const x of [-14, 14]) B.box(x, -25, 0, 3, 50, 3, mat.wood);
       glove(B, -8, -54, 0); glove(B, 5, -54, 0); B.ball(2, -57, -7, 11, 7, 9, mat.red, 10); B.cyl(2, -54, -7, 11, 11, 4, 12, mat.red); B.ball(2, -64, -7, 3, 3, 3, mat.string, 7);
     });
-    spot('bf.gloves', 'kitchen', 44, GY - 57, 53, 35, 20, 27, 'Put on warm gloves and hat', () => {
+    spot('bf.gloves', 'kitchen', 174, GY - 57, -148, 35, 20, 27, 'Put on warm gloves and hat', () => {
       if (!done('bf-code') || phase !== 'day') return say('gloves.wait', 'Mom', 'Hat, gloves, wellies. It will be cold tonight. Do the Firework Code with Dad before the sparklers.');
       SE.step(EID, 'bf-sparkler', 'gloves'); say('c4.bon.mom', 'Mom', 'Gloves on! And nobody waves one near anyone else.');
     });
