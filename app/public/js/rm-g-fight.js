@@ -1,4 +1,4 @@
-/* TEKNO FIST (PlayStation, in Jack's room): a 3D one-on-one fighter in the late-90s style. Ten fighters (plus GUBBINZ,
+/* TEKNO FIST (PlaySpace, in Jack's room): a 3D one-on-one fighter in the late-90s style. Ten fighters (plus GUBBINZ,
  * hidden, and the TEKNO KING, the boss), nine stages, Arcade (a story, a rival, a boss and an ending for everybody),
  * Versus CPU, Survival, Time Attack and Training with move lists. Wobbly polygons, wonky textures, 15-bit dither.
  * The engine is js/rm-g-fightkit.js (shared with SOUL SABRE): this file is the cast, their moves, the stages and the tunes.
@@ -6,7 +6,7 @@
  * Down crouches (and guards lows), press Up / Down quickly to sidestep, hold Up to jump, press forward twice to dash.
  * Two buttons together throw: ★+@ and #+~. Press back just as a hit lands: PARRY.
  * Secrets: rm.fight.perfect (in rm-cat.js), rm.fight.champ (finish Arcade), rm.fight.combo (an 8-hit combo).
- * The save (rm.ps.fight, v1): options, unlocked fighters/costumes/stages, endings seen, the high-score table.
+ * The v1 card (rm.ps.fight) keeps options, unlocks, endings, scores and an additive live checkpoint.
  * Everything (models, textures, music, story) is original and made in code. */
 (function () {
   'use strict';
@@ -75,7 +75,7 @@
     const T = (n, kind, dmg) => ({ n, kind, dmg });
     // ---------------------------------------------------------------- the fighters
     const roster = [
-      { id: 'rico', n: 'RICO TURBO', s: 'TURBO KARATE', from: 'BIRMINGHAM, ENGLAND', stats: [3, 4, 3], home: 'dojo', rival: 'stone', trail: '#ff6a2a',
+      { id: 'rico', n: 'RICO TURBO', s: 'TURBO KARATE', from: 'BURGERHAM, ENGLAND', stats: [3, 4, 3], home: 'dojo', rival: 'stone', trail: '#ff6a2a',
         body: { h: 1.0, w: 1.0, chest: 1.05 }, hair: 'band', top: 'gi', pants: 'gi', sleeves: 'short', shoes: 'bare', extra: ['belt', 'beltTails'], emblem: 'circle', emblemBack: true, emblemY: 18,
         face: { brow: 'angry', mouth: 'flat', fringe: 'zig' },
         col: { skin: '#e8b48a', hair: '#1a1a1a', top: '#f4f4f0', top2: '#d8d8d0', sleeve: '#f4f4f0', pants: '#f4f4f0', belt: '#141414', extra: '#e01a1a', band2: '#e01a1a', emblem: '#e01a1a', beltOn: 1 },
@@ -107,7 +107,7 @@
         throws: [T('BODY SLAM', 'slam', 26), T('BARRY PANCAKE', 'pancake', 28)],
         story: ['Big Barry wrestles every Saturday at the Grimsbyte Pound-Shop Wrestling Federation. Entry: one pound. Hot dogs: also one pound.', 'He wants the Tekno Fist prize money to buy a proper ring. With ropes and everything.'],
         ending: ['Barry carried the trophy home on the train. It took up two seats.', 'The Pound-Shop Wrestling Federation got its new ring, with real ropes and a little bell.', 'Tickets went up to two pounds. Nobody minded.'] },
-      { id: 'volt', n: 'MISS VOLT', s: 'LIGHTNING KICKBOXING', from: 'LEEDS, ENGLAND', stats: [2, 5, 3], home: 'rooftop', rival: 'kapow', spd: 1.25, pow: 0.86, bounce: 1, trail: '#7ad8ff', ai: { agg: 1.15 },
+      { id: 'volt', n: 'MISS VOLT', s: 'LIGHTNING KICKBOXING', from: 'LEAKS, ENGLAND', stats: [2, 5, 3], home: 'rooftop', rival: 'kapow', spd: 1.25, pow: 0.86, bounce: 1, trail: '#7ad8ff', ai: { agg: 1.15 },
         body: { h: 0.97, w: 0.86, chest: 0.92, limb: 0.9 }, hair: 'pony', top: 'tank', pants: 'stripe', sleeves: 'none', shoes: 'trainer', emblem: 'bolt', emblemY: 24, emblemS: 6,
         face: { brow: 'angry', mouth: 'smirk', lash: 1, fringe: 'side' },
         col: { skin: '#c88a5a', hair: '#ffe14a', top: '#1a1a1a', top2: '#ffe14a', pants: '#1a1a1a', stripe: '#ffe14a', shoe: '#f4f4f4', sole: '#ffe14a', glove: '#ffe14a', band: '#ffe14a', emblem: '#ffe14a', lip: '#a02a3a' },
@@ -171,8 +171,8 @@
           SP('y', 'f', { n: 'SAWN IN HALF', su: 14, ac: 6, re: 24, dmg: 16, rng: 1.6, ht: 'm', launch: true, fx: 'magic', trail: 'hdL', A: P({ y: -0.1, lean: -0.1, sl: [2.8, 0.4], el: 0.3, sr: [2.8, 0.4], er: 0.3 }), B: P({ y: -0.3, lean: 0.7, sl: [1.2, 0.1], el: 0.1, sr: [1.2, 0.1], er: 0.1, fw: 0.2 }) })],
         throws: [T('VANISHING ACT', 'magic', 24), T('PANDA FLIP', 'flip', 22)],
         story: ['The Great Pandini has done the same magic show at the end of the pier for twenty summers.', 'Is he a panda? Is he a man in a panda suit? He will not say. That is the magic.'],
-        ending: ['For his greatest trick, The Great Pandini made the Tekno King disappear.', 'He has not been able to make him come back yet.', 'The pier show sold out until the year 2000. Ta-daaa!'] },
-      { id: 'kapow', n: 'KID KAPOW', s: 'SKATEPARK CAPOEIRA', from: 'SOUTHAMPTON, ENGLAND', stats: [2, 4, 4], home: 'carpark', rival: 'volt', spd: 1.15, pow: 0.9, bounce: 1, trail: '#7aff7a', ai: { agg: 1.1 },
+        ending: ['For his greatest trick, The Great Pandini made the Tekno King disappear.', 'He has not been able to make him come back yet.', 'The pier show sold out for the rest of 1999. Ta-daaa!'] },
+      { id: 'kapow', n: 'KID KAPOW', s: 'SKATEPARK CAPOEIRA', from: 'SOUTHAMSTRUM, ENGLAND', stats: [2, 4, 4], home: 'carpark', rival: 'volt', spd: 1.15, pow: 0.9, bounce: 1, trail: '#7aff7a', ai: { agg: 1.1 },
         body: { h: 0.95, w: 0.92, limb: 0.92, head: 1.05 }, hair: 'cap', top: 'tee', pants: 'jeans', sleeves: 'short', shoes: 'trainer', baggy: 1, rips: 1, emblem: 'star', emblemY: 22, emblemS: 6,
         face: { brow: 'flat', mouth: 'grin', freckles: 1, fringe: 'bangs', hairY: 9 },
         col: { skin: '#e0b090', hair: '#8a4a1a', hat: '#e01a1a', top: '#2a9a4a', top2: '#1a6a2a', sleeve: '#2a9a4a', pants: '#3a5aa0', shoe: '#f4f4f4', sole: '#e01a1a', emblem: '#ffe040', band: '#1a1a1a' },
@@ -187,7 +187,7 @@
           SP('y', 'f', { n: 'OLLIE STOMP', su: 16, ac: 5, re: 20, dmg: 14, rng: 1.4, ht: 'm', hop: 1.0, kd: true, dash: 0.07, crush: 'low', A: POSE.jump, B: P({ y: -0.1, lean: 0.3, sl: [1.6, 0.8], el: 0.6, sr: [1.6, 0.8], er: 0.6, hl: [0.9, 0.1], kl: 0.4, hr: [0.3, 0.1], kr: 1.4 }) })],
         throws: [T('MONKEY FLIP', 'flip', 22), T('SKATE PUSH', 'toss', 18)],
         story: ['Kid Kapow taught himself to fight by doing cartwheels at the skatepark until the park keeper gave up.', 'He is only in the tournament because he lied about his age. Do NOT tell his mom.'],
-        ending: ['Kid Kapow won the whole tournament and got home in time for tea.', 'His mom found the trophy under his bed and asked where it came from.', '"Er... school?" said Kid Kapow. He is grounded until 2001.'] },
+        ending: ['Kid Kapow won the whole tournament and got home in time for tea.', 'His mom found the trophy under his bed and asked where it came from.', '"Er... school?" said Kid Kapow. He is grounded until the end of term.'] },
       { id: 'stone', n: 'SERGEANT STONE', s: 'ARMY PT BOXING', from: 'ALDERSHOE, ENGLAND', stats: [4, 3, 3], home: 'gym', rival: 'rico', spd: 0.95, pow: 1.1, ai: { agg: 1.05 },
         body: { h: 1.06, w: 1.15, chest: 1.15, limb: 1.15 }, hair: 'beret', top: 'camo', pants: 'camo', sleeves: 'short', shoes: 'boot', extra: ['belt'],
         face: { brow: 'thick', mouth: 'frown', stubble: '#3a2a1a', hairY: 9.5, scar: 1 },
@@ -204,7 +204,7 @@
         throws: [T('ARMY SUPLEX', 'suplex', 26), T('HEADBUTT DRILL', 'head', 22)],
         story: ['Sergeant Stone has run the Saturday boot camp at the school gym for twenty years. He has never once smiled.', 'He has entered Tekno Fist to "sort out this Tekno King character". Left, right, left, right.'],
         ending: ['Sergeant Stone saluted the trophy. The trophy did not salute back, so he made it do press-ups.', 'Some people say that, just for a moment, at the very end, he smiled.', 'He denies this completely.'] },
-      { id: 'lotus', n: 'LADY LOTUS', s: 'CRANE TAI CHI', from: 'A GARDEN IN KEW', stats: [3, 4, 4], home: 'temple', rival: 'pandini', spd: 1.05, trail: '#ffb0d0',
+      { id: 'lotus', n: 'LADY LOTUS', s: 'CRANE TAI CHI', from: 'A GARDEN IN QUEUE', stats: [3, 4, 4], home: 'temple', rival: 'pandini', spd: 1.05, trail: '#ffb0d0',
         body: { h: 0.98, w: 0.88, chest: 0.92, limb: 0.9 }, hair: 'long', top: 'robe', pants: 'plain', sleeves: 'long', shoes: 'shoe', extra: ['sash'],
         face: { brow: 'flat', eyes: 'narrow', mouth: 'smirk', lash: 1, fringe: 'bangs', backY: 30 },
         col: { skin: '#f0d0b0', hair: '#141414', top: '#c01a2a', top2: '#ffd040', inner: '#f4e8d0', sleeve: '#c01a2a', pants: '#2a1a1a', shoe: '#2a1a1a', sash: '#ffd040', lip: '#c0102a' },
@@ -271,8 +271,8 @@
         SP('y', 'b', { n: 'ROYAL WHIRL', su: 13, ac: 8, re: 20, dmg: 15, rng: 1.7, ht: 'h', kd: true, hop: 0.4, spin: Math.PI * 2, trail: 'ftR', A: whirl, B: whirl }),
         SP('y', 'f', { n: 'CROWN CANNON', su: 22, ac: 6, re: 24, dmg: 18, rng: 2.6, ht: 'm', push: 0.2, kd: true, fx: 'gold', trail: 'hdR', A: P({ y: -0.2, lean: -0.2, sl: [1.0, 0.3], el: 2.0, sr: [1.0, 0.3], er: 2.0, hl: [0.6, 0.2], kl: 1.0, hr: [-0.4, 0.2], kr: 0.8 }), B: P({ y: -0.2, lean: 0.4, sl: [1.6, 0.0], el: 0, sr: [1.6, 0.0], er: 0, wl: 1.3, wr: 1.3, fw: 0.2 }) })],
       throws: [T('ROYAL SLAM', 'slam', 28), T('THRONE SUPLEX', 'suplex', 28)],
-      story: ['Nobody has ever seen the Tekno King\'s face. Some say there is nothing behind the golden mask. Some say it is a very ordinary man called Keith.', 'He built Tekno Tower, he runs the tournament, and he has never, ever lost.'],
-      ending: ['The Tekno King beat... himself? He won his own tournament. Again.', 'Then he took off the golden mask. Underneath was a very ordinary man called Keith.', '"Same time next year?" said Keith.'] };
+      story: ['Nobody has ever seen the Tekno King\'s face. Some say there is nothing behind the golden mask. Some say it is the carpet-shop assistant.', 'He built Tekno Tower, he runs the tournament, and he has never, ever lost.'],
+      ending: ['The Tekno King beat... himself? He won his own tournament. Again.', 'Then he took off the golden mask. Underneath was the carpet-shop assistant.', '"Same time next week?" said the assistant.'] };
     // ---------------------------------------------------------------- the stages (each one: a sky, a painted skyline, a floor, props, lights)
     const PI = Math.PI;
     const R = seed => RF.prng(seed);
@@ -291,7 +291,7 @@
     function lamp(b, e, x, z, h, col) { b.cyl(0.07, 0.1, h, 6, { x, y: h / 2, z, col: '#2a2a30' }); b.box(0.5, 0.08, 0.1, { x: x + 0.22, y: h, z, col: '#2a2a30' }); e.ball(0.18, 8, 6, { x: x + 0.45, y: h - 0.12, z, col }); }
     function people(n, cx, cz, rad, a0, a1, y, seed, face) { const r = R(seed || 3), out = []; for (let i = 0; i < n; i++) { const a = a0 + (a1 - a0) * (i + r() * 0.6) / n, rr = rad + (r() - 0.5) * 1.2; out.push([cx + Math.sin(a) * rr, y || 0, cz + Math.cos(a) * rr, face != null ? face : a + PI]); } return out; }
     function row(n, x0, x1, z, y, face, jit, seed) { const r = R(seed || 5), out = []; for (let i = 0; i < n; i++) out.push([x0 + (x1 - x0) * (i + 0.5) / n + (r() - 0.5) * (jit || 0.3), y, z + (r() - 0.5) * (jit || 0.3), face]); return out; }
-    const signTex = (SB, text, bg, fg, w, h) => SB.tex(w || 128, h || 32, (g, W2, H2) => { g.fillStyle = bg; g.fillRect(0, 0, W2, H2); g.strokeStyle = fg; g.lineWidth = 2; g.strokeRect(2, 2, W2 - 4, H2 - 4); g.fillStyle = fg; g.font = `bold ${H2 * 0.62}px Arial,sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, W2 / 2, H2 / 2 + 1); }, { clamp: true });
+    const signTex = (SB, text, bg, fg, w, h) => SB.tex(w || 128, h || 32, (g, W2, H2) => { g.fillStyle = bg; g.fillRect(0, 0, W2, H2); g.strokeStyle = fg; g.lineWidth = 2; g.strokeRect(2, 2, W2 - 4, H2 - 4); g.fillStyle = fg; g.font = `bold ${H2 * 0.62}px Arial,sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; const fit = Math.min(1, (W2 - 12) / Math.max(1, g.measureText(text).width)); g.font = `bold ${H2 * 0.62 * fit}px Arial,sans-serif`; g.fillText(text, W2 / 2, H2 / 2 + 1); }, { clamp: true });
     const stages = [
       { id: 'rooftop', n: 'NEON ROOFTOP', d: 'Midnight above the city. Mind the drop.', music: 'fight1', build(SB) {
         SB.sky([[0, '#05030f'], [0.5, '#1a0a3a'], [0.85, '#5a1a5a'], [1, '#c04a6a']], { lift: 0.05 }); SB.stars(140); SB.fog(0x1a0a2a, 18, 70);
@@ -485,7 +485,7 @@
         SB.light({ amb: 0.6, sky: 0xff8a8a, ground: 0x200810, sun: 0.85, sunCol: 0xffc8a0, dir: [0.3, 1, 0.6], rim: 1.0, rimCol: 0xff3a1a });
         return { wall: 8.6, dustCol: '#5a4a50' };
       } },
-      { id: 'bedroom', n: 'BEDROOM FLOOR', d: 'Fighting on Jack\'s carpet. Everything is ENORMOUS.', music: 'fight1', lock: 'surv', build(SB) {
+      { id: 'bedroom', n: 'BEDROOM FLOOR', d: 'The family carpet. Everything is ENORMOUS.', music: 'fight1', lock: 'surv', build(SB) {
         SB.sky([[0, '#5a6a8a'], [1, '#8a7a6a']]); SB.fog(0x6a5a50, 30, 120);
         const cp = SB.tex(64, 64, (g, w, h) => { g.fillStyle = '#5a6aa0'; g.fillRect(0, 0, w, h); const r = R(3); for (let i = 0; i < 900; i++) { g.fillStyle = `rgba(${r() < 0.5 ? '255,255,255' : '0,0,0'},${r() * 0.12})`; g.fillRect(r() * w | 0, r() * h | 0, 1, 1); } g.strokeStyle = 'rgba(255,220,120,.35)'; g.lineWidth = 2; g.strokeRect(6, 6, w - 12, h - 12); });
         SB.bucket({ map: cp }).plane(200, 200, { rx: -PI / 2, wuv: 6 });
@@ -528,8 +528,8 @@
     const pickN = (n, ex) => { const ids = [...Array(roster.length).keys()].filter(i => i !== ex); for (let i = ids.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [ids[i], ids[j]] = [ids[j], ids[i]]; } return ids.slice(0, n); };
     return {
       title: 'TEKNO FIST', sub: 'THE TEKNO KING\'S TOURNAMENT', copy: '(C) 1999 BIG BANG SOFTWARE', licence: 'LICENSED BY PLAYSPACE ENTERTAINMENT', look: 'ps1', fov: 42, logoGrad: ['#fff8d0', '#ffd040', '#ff8a10', '#a02000'], logoDeep: '#4a0a00', logoSize: 44, panelEdge: '#c08a20',
-      roster, hidden, boss, stages, base, jumps, throwBtns: [['a', 'b'], ['x', 'y']], music, how, dbgName: 'tekno', masterName: 'TEKNO MASTER', defaultName: 'JACK',
-      hitCol: '#ffe080', guardCol: '#80c0ff', barCol: '#ffd84a', trailCol: '#ffd27a', maxScore: 50000, rate: 400, arcadeLen: 5, selCols: 6, hiTop: 26000,
+      roster, hidden, boss, stages, base, jumps, throwBtns: [['a', 'b'], ['x', 'y']], music, how, dbgName: 'tekno', masterName: 'TEKNO MASTER', defaultName: 'YOU',
+      hitCol: '#ffe080', guardCol: '#80c0ff', barCol: '#ffd84a', trailCol: '#ffd27a', maxScore: 50000, rate: 400, arcadeLen: 9, taLen: 10, deep: true, persist: true, selCols: 6, hiTop: 26000,
       perfectSecret: 'rm.fight.perfect', comboSecret: 'rm.fight.combo', comboSecretN: 8, champSecret: 'rm.fight.champ',
       show: { top: '#05060c', mid: '#1a0a2a', bot: '#3a1010', pool: '#7a4a2a', beam: 'rgba(255,190,120,.35)', dust: '#ffb070', rim: '#ff8a3a', fog: '#0a0608' },
     };
