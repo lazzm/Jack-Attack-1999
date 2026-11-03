@@ -276,7 +276,7 @@
       <div class="rm-tools" aria-label="Console controls"><button type="button" class="rm-b rm-lean" title="Leave the game running">Q · BACK</button><button type="button" class="rm-b rm-menu" title="Game menu">ESC · MENU</button><button type="button" class="rm-b rm-lock" title="Keep playing at the screen’s native shape" aria-pressed="false">T · LOCK IN</button></div>`, 'rm-view rm-tvv' + (hand ? ' rm-hand' : '') + (live ? ' rm-live3d' : ''));
     el.dataset.con = con;
     (live ? document.documentElement : pb).appendChild(el);
-    V = { el, con, hand, live, restoring: !!(options && options.restoring), game: null, gid: '', st: 'shelf', cv0: $(el, '.rm-c0'), cv1: $(el, '.rm-c1') };
+    V = { el, con, hand, live, restoring: !!(options && options.restoring), restoreLocked: !!options?.locked, game: null, gid: '', st: 'shelf', cv0: $(el, '.rm-c0'), cv1: $(el, '.rm-c1') };
     if (live) {
       const bar = h('', 'rm-livebar'); bar.appendChild($(el, '.rm-help')); bar.appendChild($(el, '.rm-btns')); el.appendChild(bar);
       $(el, '.rm-back').textContent = 'Back to the room'; $(el, '.rm-eject').textContent = 'Change game';
@@ -344,7 +344,16 @@
     loop.stop();
     if (!wasBackground) _.emit('close');
   }
-  function sndBtn() { if (!V) return; const on = !!(window.Sound && Sound.on); const b = $(V.el, '.rm-snd'); b.innerHTML = on ? '&#128266; Sound on' : '&#128263; Sound off'; b.classList.toggle('off', !on); }
+  function sndBtn() {
+    if (!V) return;
+    const on = !!window.Sound?.on, waiting = on && !Sound.ready, b = $(V.el, '.rm-snd');
+    b.textContent = on ? 'Sound on' : 'Sound off';
+    b.title = on ? 'Switch music and sound effects off' : 'Switch music and sound effects on';
+    b.setAttribute('aria-pressed', String(on)); b.classList.toggle('off', !on);
+    let hint = $(V.el, '.rm-sound-start');
+    if (waiting && !hint) { hint = h('Sound starts on your first press or click.', 'rm-sound-start', 'small'); b.before(hint); }
+    if (hint) hint.hidden = !waiting;
+  }
   document.addEventListener('audiochange',()=>{sndBtn();if(!window.Sound?.on)music(null);else if(V?.song&&Sound.ready&&(!mus.song||(mus.song.audio&&!mus.source))&&!document.hidden)music(V.song)});
   // which console (the real telly's input is selected by the cartridge on the shelf)
   function conBar() {
@@ -550,9 +559,15 @@
   // only a cartridge supplying a screen opts into the existing in-world/LOCK IN path.
   let surfaceLeaving=false;
   function rememberSurface(){
-    if(!V?.surface)return;
+    if(!V)return;
     const H=R.House;let old;try{old=JSON.parse(localStorage.getItem('jhp_console_focus')||'null');}catch(e){}
     const back=H?._.focusS?.back || old?.back;
+    if(!V.surface){
+      // Bedroom TV/Game Lad focus uses the same save as its in-room camera.
+      // Remember its presentation too; otherwise a refresh silently leaves LOCK IN.
+      if(V.live)try{localStorage.setItem('jhp_console_focus',JSON.stringify({con:V.con,gid:V.gid,background:!!V.background,locked:!!V.lockedIn,back}));}catch(e){}
+      return;
+    }
     const state=JSON.stringify({con:V.con,gid:V.gid,surface:true,owner:window.Net?.me?.nick||'',background:!!V.background,locked:!!V.lockedIn,pose:{...H.P,lvl:'G',seat:1},back});
     try{localStorage.setItem('jhp_console_focus',state);sessionStorage.setItem('jhp_surface_session',state);}catch(e){}
   }

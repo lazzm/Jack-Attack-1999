@@ -1,4 +1,4 @@
-/* Diary guidance: only the tracked task, soft surface light and a quiet compass. */
+/* Diary guidance: only the tracked task, soft surface light and an edge compass. */
 (function () {
   'use strict';
   const H = window.House, st = window.st;
@@ -10,6 +10,9 @@
   const prompt = document.createElement('div'), card = document.createElement('div');
   marker.className = 'st-marker'; arrow.className = 'st-arrow'; label.className = 'st-marker-label';
   arrow.setAttribute('aria-hidden', 'true'); marker.append(arrow, label);
+  // Chunky printed game-manual ink: a pale keyline, dark outline and yellow face
+  // stay legible against both the night sky and magnolia walls.
+  arrow.innerHTML = '<svg viewBox="0 0 40 34" aria-hidden="true"><path d="M5 11H21V4L35 17 21 30V23H5Z" fill="none" stroke="#fff8dd" stroke-width="7" stroke-linejoin="round"/><path d="M5 11H21V4L35 17 21 30V23H5Z" fill="#ffe36c" stroke="#161c24" stroke-width="3" stroke-linejoin="round"/></svg>';
   prompt.className = 'st-prompt'; card.className = 'st-chapter';
   for (const el of [marker, prompt, card]) { el.hidden = true; H.ui.el.appendChild(el); }
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -117,6 +120,11 @@
       if (!nearest || score < nearest.score) nearest = {...m,pos,dist,score};
     }
     if (!nearest) { sampled = null; return; }
+    // The border compass needs a direction, not an expensive house raycast.
+    // Occlusion matters only for the nearby action prompt once the object is
+    // on screen. Do not scan thousands of wall triangles for a distant task.
+    const cam=nearest.pos.clone().applyMatrix4(H.camera.matrixWorldInverse),ndc=nearest.pos.clone().project(H.camera);
+    if(nearest.dist>=170||cam.z>=0||Math.abs(ndc.x)>1||Math.abs(ndc.y)>1){nearest.blocked=true;sampled=nearest;nextSample=now+200;return;}
     ray.set(eye, nearest.pos.clone().sub(eye).normalize());
     const blockers = [...Object.values(H.ROOMS).filter(r => r.group.visible).map(r => r.group), ...Object.values(H.DOORS).map(d => d.pivot).filter(g => g?.visible)];
     nearest.blocked = ray.intersectObjects(blockers,true).some(hit => {
@@ -126,17 +134,6 @@
       return true;
     });
     sampled = nearest; nextSample = now + 200;
-  }
-  // how much of the bottom of the screen the carry panel takes (read at most every quarter second)
-  let carryAt=-1e9,carryPx=0;
-  function carryTop(now,h){if(now-carryAt>250||now<carryAt){carryAt=now;const el=document.querySelector('.hs-ui .hs-hold:not([hidden])'),r=el&&el.getBoundingClientRect();carryPx=r&&r.height?Math.max(0,h-r.top+26):0;}return carryPx;}
-  function keepClear(px, py, w, h) {
-    // Keep ink away from the reticle and from the header, speech and carry controls.
-    const dx=px-w/2, dy=py-h/2, ex=Math.min(180,w*.22), ey=Math.min(110,h*.15);
-    if (Math.abs(dx)<ex && Math.abs(dy)<ey) {
-      if (Math.abs(dx)/ex > Math.abs(dy)/ey) px=w/2+(dx<0?-ex:ex); else py=h/2+(dy<0?-ey:ey);
-    }
-    return [px,py];
   }
   // (media queries made once; the speech check is DOM work, so at most ten times a second: this runs every frame)
   const coarseMQ=matchMedia('(pointer:coarse)'), reduceMQ=matchMedia('(prefers-reduced-motion: reduce)');
@@ -159,30 +156,39 @@
     if(sampled && full && !speech && !chapterInk) {
       const {pos,dist}=sampled, cam=pos.clone().applyMatrix4(H.camera.matrixWorldInverse), ndc=pos.clone().project(H.camera), behind=cam.z>=0;
       const w=viewW,h=viewH; // (cached on resize: reading any viewport size here forced a style/layout flush every frame)
-      const marginX=w<600?78:128, top=h<500?128:w<=900?192:142,bottom=Math.max(window.GameInput?.touch&&h>=500?285:h<500?108:175,carryTop(now,h)); // (touch: clear of the thumb controls; and of the carry panel)
+      const marginX=25,top=25,bottom=25;
       let tx=(ndc.x+1)*w/2,ty=(1-ndc.y)*h/2;
-      const off=behind||tx<marginX||tx>w-marginX||ty<top||ty>h-bottom;
-      // A label in the scene is only drawn when you can actually see its target: never over the telly or a wall that
-      // hides it, and not for something far across the house. Off screen, the edge arrow still points the way.
-      if(!off&&(sampled.blocked||dist>900)){activeId=null;}else{
-      const dx=cam.x,dy=-cam.y;
-      let targetAngle=Math.atan2(dy,Math.abs(dx)<.001&&behind?1:dx);
+      const off=behind||Math.abs(ndc.x)>1||Math.abs(ndc.y)>1;
+      // Only the border gets an arrow. Seeing the target removes the compass,
+      // and an intervening wall never gets a floating label of its own.
+      if(!off){activeId='';if(!sampled.blocked&&dist<170){prompt.hidden=false;prompt.textContent=sampled.action;}}else{
+      // Behind you means turn round, rather than look through the floor at a
+      // low shelf. Choose a consistent right turn when exactly back-to-back.
+      const dx=behind?(Math.abs(cam.x)<.001?1:cam.x):cam.x,dy=behind?0:-cam.y;
+      const targetAngle=Math.atan2(dy,dx);
       if(off){
         const vx=Math.cos(targetAngle),vy=Math.sin(targetAngle),cx=w/2,cy=h/2;
         const k=Math.min((w/2-marginX)/Math.max(.001,Math.abs(vx)),(vy<0?cy-top:h-bottom-cy)/Math.max(.001,Math.abs(vy)));
         tx=cx+vx*k;ty=cy+vy*k;
       }
-      [tx,ty]=keepClear(clamp(tx,marginX,w-marginX),clamp(ty,top,h-bottom),w,h);
+      tx=clamp(tx,marginX,w-marginX);ty=clamp(ty,top,h-bottom);
+      // Slide along the border past the room plate/map and the phone's thumbs;
+      // never move the compass into the room itself.
+      if(tx<=marginX+1||tx>=w-marginX-1){const low=156,high=h-(window.GameInput?.touch?(h<500?200:270):55);ty=clamp(ty,Math.min(low,high),Math.max(low,high));}
+      else if(ty<=top+1){
+        if(window.GameInput?.touch&&w<600){if(w<350){tx=marginX;ty=156;}else tx=w-135;}
+        else tx=clamp(tx,Math.min(240,w/2),Math.max(w/2,w-150));
+      }
+      else if(window.GameInput?.touch){tx=h>w?84:w/2;}
       if(activeId!==sampled.id){activeId=sampled.id;x=tx;y=ty;angle=targetAngle;alpha=0;}
       const ease=1-Math.exp(-dt*12);
-      x+=(tx-x)*ease;y+=(ty-y)*ease;angle+=Math.atan2(Math.sin(targetAngle-angle),Math.cos(targetAngle-angle))*ease;
-      [x,y]=keepClear(x,y,w,h);
-      alpha+=(clamp(.64+dist/1800,.64,.94)-alpha)*(1-Math.exp(-dt*7));
-      marker.hidden=false;marker.dataset.state=off?'edge':sampled.blocked?'occluded':'target';
+      // Position is pinned immediately: interpolating between edges would send
+      // the arrow across the middle of the screen during a quick turn.
+      x=tx;y=ty;angle+=Math.atan2(Math.sin(targetAngle-angle),Math.cos(targetAngle-angle))*ease;
+      alpha+=(1-alpha)*(1-Math.exp(-dt*12));
+      marker.hidden=false;marker.dataset.state='edge';
       marker.style.left=x+'px';marker.style.top=y+'px';marker.style.opacity=alpha.toFixed(3);
-      marker.style.setProperty('--quest-scale',String(clamp(1.05-dist/2400,.82,1)));
       arrow.style.transform='rotate('+angle+'rad)';label.textContent=sampled.label;
-      if(!off&&!behind&&!sampled.blocked&&dist<170){prompt.hidden=false;prompt.textContent=sampled.action;}
       }
     }
     if(titleUntil===-1)titleUntil=Date.now()+5000;

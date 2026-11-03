@@ -48,7 +48,7 @@
   P('midi', 'MIDI HEAVEN', 2, 'fun', 'Nothing but MIDI. Press play. Turn the speakers up. Sorry, Mom.', 1, 'www.midiheaven.wubwub');
   // file 3: a galaxy far, far away
   P('~sam', "{kidEp1.NAME}'S EPISODE I COUNTDOWN", 3, 'sw', 'The Phantom Nuisance countdown page! Trailer download stories, the queue and what next.', 1, 'www.episode1countdown.jnet');
-  P('jarjar', 'IS JAR JAR JAMS RUINING IT? The Great Debate', 3, 'sw', 'Has one floppy-eared alien ruined the whole film? Vote and argue (nicely).', 1, 'jarjardebate.kidz');
+  P('jarjar', 'IS BLAH BLAH BLINKS RUINING IT? The Great Debate', 3, 'sw', 'Has one floppy-eared alien ruined the whole film? Vote and argue (nicely).', 1, 'jarjardebate.kidz');
   P('podracing', 'PEAPODRACING HQ', 3, 'sw', 'The Boomta Eve race, the pods, the drivers and why Sebulbar is a cheat.', 1, 'www.podracinghq.jnet');
   P('swrumours', 'THE RUMOUR MILL: Episode I', 3, 'sw', 'Every playground rumour from 1998 and 1999, checked against the actual film.', 1, 'rumourmill.infobahn');
   P('brickwars', 'My Space Brick Wishlist 1999', 3, 'sw', 'The first Intergalactic Battles BLOCKO sets came out this year. Here is my wishlist (all of them).', 1, 'www.brickwishlist.kidz');
@@ -589,7 +589,7 @@
   S('cubetime', 'Speedcuber', 'Time a solve on the cube records page and post it to the league');
   S('pin', 'One, two, THREE!', 'Win a match in Bedroom Championship Wrestling');
   S('setlist', 'Encore!', 'Shout for an encore on the worst band\'s website');
-  S('jarjar', 'Mesa voted', 'Have your say in the Great Jar Jar Jams Debate');
+  S('jarjar', 'Mesa voted', 'Have your say in the Great Blah Blah Blinks Debate');
   S('podrace', 'Now THIS is peapodracing', 'Win a peapod race on the peapodracing fan page');
   S('saber', 'Duel of the fates (and Dave)', 'Watch the whole lightspatula duel photo album');
   S('countdown', 'It\'s finally out', 'Visit the Episode I countdown page and press the big button');

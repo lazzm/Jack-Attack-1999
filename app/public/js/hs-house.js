@@ -29,6 +29,8 @@
   const secret = id => { try { R._.secret(id); } catch (e) {} };
   const mWhite = M({ c: '#efece4', sh: 20, sp: '#222' }), mSkirt = M({ c: '#efebe0', map: tex('whiteGloss'), sh: 30, sp: '#333' });
   const mBrass = M({ c: '#c8a040', sh: 70, sp: '#a08040' }), mMetal = M({ c: '#9a9aa0', sh: 60, sp: '#888' }), mDark = M({ c: '#1b1b1e', sh: 20, sp: '#222' });
+  // Same gloss class as the casings: static batching shares their draw calls.
+  const mSpindle = M({ c: '#f5f1e7', sh: 20, sp: '#222' });
   const PICK = new T.MeshBasicMaterial({ visible: false });
   const SECRETS = [
     ['hs.downstairs', 'Downstairs', 'Leave your room and go downstairs.'],
@@ -87,6 +89,22 @@
     const n = g.attributes.normal;
     return B.geo(K.thicken(g, .6, [n.getX(0),n.getY(0),n.getZ(0)]), 0, 0, 0, m, { uv: 128 });
   }
+  // One closed, triangulated wall around its openings. Separate touching boxes
+  // left subpixel cracks above the doors; overlapping their faces would flicker.
+  function solidWall(B, x, z, ry, outline, material, depth, holes) {
+    const shape = new T.Shape(), sign = ry === 90 || ry === 180 ? -1 : 1;
+    const path = (p, points) => { points.forEach(([a,y],i) => i ? p.lineTo(a*sign,y) : p.moveTo(a*sign,y)); p.closePath(); return p; };
+    path(shape, outline);
+    for (const points of holes || []) shape.holes.push(path(new T.Path(), points));
+    const geo = new T.ExtrudeGeometry(shape,{depth,steps:1,bevelEnabled:false,curveSegments:1});
+    geo.translate(0,0,-depth); B.geo(geo,x,0,z,material,{ry,uv:128});
+  }
+  function doorWall(B,x,z,ry,a0,a1,cy,fy,doors,material,depth=4) {
+    const mid = ry === 0 || ry === 180 ? x : z;
+    const outline=[[a0-mid,cy],[a1-mid,cy],[a1-mid,fy]];
+    for(const [a,b,top] of [...doors].sort((p,q)=>q[0]-p[0]))outline.push([b-mid,fy],[b-mid,top],[a-mid,top],[a-mid,fy]);
+    outline.push([a0-mid,fy]); solidWall(B,x,z,ry,outline,material,depth);
+  }
   // a door in a wall, on a hinge (k: n/s/e/w side of the room it's built in; a0..a1 along the wall)
   function doorway(r, B, id, k, fixed, a0, a1, fy, o) {
     o = o || {};
@@ -125,9 +143,21 @@
     // A low cupboard needs its own latch height, measured from its floor.
     const ha = sgnA * (dw - 7), hy = fy - Math.min(103, hgt * 0.55);
     K.doorLeaf(pv, { cx, cy: top + 0.3 + (hgt - 0.2) / 2, cz, w: dw, h: hgt - 0.2, t: 3.6, along, leaf: lm, mould: o.panel ? lm : M({ c: '#ece8de', sh: 18, sp: '#2a2a2a' }), field: o.panel || M('#dcd7cb'),
-      brass: mBrass, hinge: M({ c: '#a8884a', sh: 50, sp: '#806a3a' }), handleA: ha, handleY: hy, leverDir: -sgnA, hingeA: -sgnA * 0.4, hingeSide: o.inside ? 1 : -1, glass: !!o.glass });
+      brass: mBrass, hinge: M({ c: '#a8884a', sh: 50, sp: '#806a3a' }), handleA: ha, handleY: hy, leverDir: -sgnA, hingeA: -sgnA * 0.4, hingeSide: o.inside ? 1 : -1, glass: !!o.glass,
+      glazing: o.glass ? { w: o.glass.w || 44, h: 78, y: top + 58 - (top + .3 + (hgt - .2)/2), material: doorGlass() } : null });
     if (o.deco) o.deco(D, { along, sgnA, dw, top, hgt, fy });
     return pv;
+  }
+  function doorGlass() {
+    return M({c:'#fff',map:K.tex('hs.door.reeded',128,256,(g,w,h)=>{
+      g.fillStyle='#c8d3c5';g.fillRect(0,0,w,h);
+      // Fine vertical reeds and a small amber/green leaded diamond. The real
+      // world is visible through it; no bloom or opaque panel behind the glass.
+      for(let x=0;x<w;x+=4){g.fillStyle='rgba(255,255,235,.25)';g.fillRect(x,0,1,h);g.fillStyle='rgba(66,89,83,.16)';g.fillRect(x+2,0,1,h);}
+      const diamond=(cx,cy,rx,ry,c)=>{g.beginPath();g.moveTo(cx,cy-ry);g.lineTo(cx+rx,cy);g.lineTo(cx,cy+ry);g.lineTo(cx-rx,cy);g.closePath();g.fillStyle=c;g.fill();g.strokeStyle='#59615a';g.lineWidth=2.5;g.stroke();};
+      diamond(w/2,h/2,27,57,'#bca36b');diamond(w/2,h/2,14,32,'#6d8c78');
+      g.strokeStyle='rgba(237,241,218,.7)';g.lineWidth=2;g.strokeRect(5,5,w-10,h-10);
+    },{clamp:true}),o:.58,tr:true,dw:false,sh:36,sp:'#4d5e59'});
   }
   const pickBox = (r, id, x, y, z, w, h, d, ry) => { const m = new T.Mesh(new T.BoxGeometry(w, h, d), PICK); m.position.set(x, y, z); m.rotation.y = (ry || 0) * D2R; r.group.add(m); m.userData.spot = id; const s = H.SPOTS[id]; H.spot(id, Object.assign({}, s || { label: id }, { obj: m })); return m; };
   const look = (lvl, fx, fz, tx, ty, tz, eye) => { const fy = lvl === 'U' ? UY : GY, ey = fy - (eye || 158); return { x: fx, y: ey, z: fz, ry: Math.atan2(tx - fx, -(tz - fz)) / D2R, rx: Math.atan2(-(ty - ey), Math.hypot(tx - fx, tz - fz)) / D2R, lvl }; };
@@ -147,9 +177,15 @@
   // No window under the stairs: daylight must not switch its bulb off.
   const lit = id => lightsOn[id] != null ? lightsOn[id] : (id === 'cupboard' || phase() !== 'day');
   const standardLampOn=()=>lightsOn.loungeLamp==null?phase()!=='day':lightsOn.loungeLamp;
-  function standardLampLook(r){if(r&&r.standardBulbMaterial){r.standardBulbMaterial.emissive.set(standardLampOn()?'#c89b58':'#000000');r.standardBulbMaterial.userData.e0=r.standardBulbMaterial.emissive.clone();H.dirty()}}
+  function standardLampLook(r){if(r&&r.standardBulbMaterial){r.standardBulbMaterial.emissive.set(standardLampOn()?'#c89b58':'#000000');r.standardBulbMaterial.userData.e0=r.standardBulbMaterial.emissive.clone();exteriorLightLook(HouseRooms.rooms.drive);H.dirty()}}
   const ceilingSwitches=new Map();
-  function switchLook(){for(const [id,rocker]of ceilingSwitches){rocker.rotation.x=(lit(id)?-12:12)*D2R;rocker.updateMatrix()}H.dirty()}
+  function exteriorLightLook(r){
+    if(!r)return;const night=phase()!=='day';
+    for(const [m,on,c]of [[r.porchGlow,night,'#ffd08a'],[r.streetGlow,night,'#ffb24a'],[r.bayGlow,night&&(lit('lounge')||standardLampOn()||HouseRooms.rooms.lounge?.fireOn),'#916039']]){
+      if(!m)continue;m.emissive.set(on?c:'#000');m.userData.e0=m.emissive.clone();
+    }
+  }
+  function switchLook(){for(const [id,rocker]of ceilingSwitches){rocker.rotation.x=(lit(id)?-12:12)*D2R;rocker.updateMatrix()}exteriorLightLook(HouseRooms.rooms.drive);H.dirty()}
   function ceilingSwitch(r,id,x,y,z,ry){
     const group=new T.Group();group.position.set(x,y,z);group.rotation.y=ry*D2R;group.name='ceiling-switch-'+id;r.group.add(group);const B=K.into(group);
     B.rbox(0,0,0,8,10,1.2,0.35,mWhite);
@@ -164,7 +200,7 @@
     return phase() === 'night' ? {sky: '#7887a2', gnd: '#45464c', i: .36} : {sky: '#c1adb2', gnd: '#746251', i: .46};
   }
   function outdoorAmb(ground) {
-    return phase() === 'day' ? {sky: '#cfe0ff', gnd: ground, i: .78} : phase() === 'night' ? {sky: '#7283a4', gnd: '#49514e', i: .46} : {sky: '#d9b6ae', gnd: '#66654f', i: .62};
+    return phase() === 'day' ? {sky: '#cfe0ff', gnd: ground, i: .78} : phase() === 'night' ? {sky: '#8795af', gnd: '#57604f', i: .52} : {sky: '#d9b6ae', gnd: '#66654f', i: .62};
   }
   const sky = () => K.TEX['rm.sky'];
   const phaseTextures = new Set();
@@ -172,6 +208,98 @@
     const t = K.tex(key, w, h, paint, options);
     t.userData.repaintPhase = () => {paint(t.userData.g, w, h); t.needsUpdate = true;};
     phaseTextures.add(t); return t;
+  }
+
+  // Shared print sheet: framed family snaps, engraved door plates, bound rug
+  // and address book. All sit on closed meshes; no floating picture cards.
+  function hallPrints() { return M({c:'#fff',pr:true,map:K.tex('hs.family.prints',1024,512,(g)=>{
+    const tile=(i,paint)=>{g.save();g.translate(i%4*256,Math.floor(i/4)*256);paint();g.restore();};
+    const title=(s,y,size=30)=>{g.fillStyle='#344b53';g.textAlign='center';g.font='bold '+size+'px Georgia';while(g.measureText(s).width>224&&size>10)g.font='bold '+(--size)+'px Georgia';g.fillText(s,128,y);};
+    for(let i=0;i<3;i++)tile([0,1,4][i],()=>{
+      g.fillStyle='#f2e6cb';g.fillRect(0,0,256,256);g.fillStyle=i?'#9aa99a':'#9eb6bf';g.fillRect(17,17,222,180);
+      g.fillStyle=i?'#697a62':'#6f9398';g.fillRect(17,101,222,62);g.fillStyle=i?'#87916b':'#c9b991';g.fillRect(17,157,222,40);
+      if(!i){g.fillStyle='#d7d5bf';g.fillRect(17,138,222,5);}
+      if(i===2){g.strokeStyle='#b2a17c';g.lineWidth=4;for(let x=35;x<240;x+=38){g.beginPath();g.moveTo(x,20);g.lineTo(x,194);g.stroke();}for(let y=45;y<170;y+=34){g.beginPath();g.moveTo(18,y);g.lineTo(238,y);g.stroke();}for(let n=0;n<20;n++){g.fillStyle='#7f9b69';g.beginPath();g.ellipse(37+(n*43)%193,61+(n*17)%110,8,12,.5,0,7);g.fill();g.fillStyle='#a9583b';g.beginPath();g.arc(37+(n*43)%193,65+(n*17)%110,5,0,7);g.fill();}}
+      const people=i===2?[[104,50,137,'#58637b']]:i?[[95,70,88,'#566782'],[164,98,63,'#a66b78']]:[[62,58,130,'#58637b'],[111,72,116,'#a67d70'],[158,99,88,'#6b8060'],[197,126,61,'#a66b78']];
+      for(const [x,y,h,c]of people){g.fillStyle=c;g.beginPath();g.moveTo(x-12,y+27);g.lineTo(x+12,y+27);g.lineTo(x+18,y+h);g.lineTo(x-18,y+h);g.fill();g.lineWidth=9;g.strokeStyle=c;g.beginPath();g.moveTo(x-13,y+34);g.lineTo(x-22,y+h*.8);g.moveTo(x+13,y+34);g.lineTo(x+23,y+h*.8);g.stroke();g.fillStyle='#b88d6b';g.beginPath();g.ellipse(x,y+13,11,15,0,0,7);g.fill();g.fillStyle='#544638';g.beginPath();g.ellipse(x,y+4,11,7,0,Math.PI,Math.PI*2);g.fill();g.fillStyle='#493e35';g.fillRect(x-5,y+13,2,2);g.fillRect(x+3,y+13,2,2);g.fillRect(x-3,y+21,6,1);}
+      g.fillStyle='rgba(243,221,179,.13)';g.fillRect(17,17,222,180);g.textAlign='center';let size=21;g.font='italic '+size+'px Georgia';const caption=['A day at the seaside','First day back, 1998',"Dad's prize tomatoes"][i];while(g.measureText(caption).width>222)g.font='italic '+(--size)+'px Georgia';g.fillStyle='#685749';g.fillText(caption,128,230);
+    });
+    ['BATHROOM','MOM & DAD'].forEach((s,j)=>tile(j+2,()=>{g.fillStyle='#d8c794';g.fillRect(0,0,256,256);g.strokeStyle='#938157';g.lineWidth=4;g.strokeRect(9,18,238,220);g.translate(0,128);g.scale(1,3.4);title(s,11,30);}));
+    tile(5,()=>{g.fillStyle='#e9dfc2';g.fillRect(0,0,256,256);title('PHONE',104,34);title('NUMBERS',154,34);g.strokeStyle='#ad9472';g.lineWidth=3;g.strokeRect(12,12,232,232);});
+    tile(6,()=>{g.fillStyle='#69433a';g.fillRect(0,0,256,256);g.fillStyle='#b59a69';g.fillRect(9,4,238,248);g.fillStyle='#344b50';g.fillRect(17,8,222,240);g.fillStyle='#9b7957';g.fillRect(29,14,198,228);g.fillStyle='#6e493e';g.fillRect(36,17,184,222);for(let y=29;y<242;y+=33){g.strokeStyle='#c5ad7f';g.lineWidth=3;g.beginPath();g.moveTo(128,y-11);g.lineTo(159,y);g.lineTo(128,y+11);g.lineTo(97,y);g.closePath();g.stroke();}const rand=K.rnd(1199);for(let n=0;n<9000;n++){g.fillStyle=rand()<.5?'#ffffff0b':'#0000000b';g.fillRect(rand()*256,rand()*256,1,1);}});
+    tile(7,()=>{g.fillStyle='#f2e6cb';g.fillRect(0,0,256,256);g.fillStyle='#b5a58c';g.fillRect(17,17,222,180);g.fillStyle='#704e46';g.fillRect(17,157,222,40);g.strokeStyle='#8a7350';g.lineWidth=14;g.beginPath();g.moveTo(149,159);g.bezierCurveTo(218,196,213,157,189,151);g.stroke();g.fillStyle='#967d55';g.beginPath();g.ellipse(129,151,35,29,0,0,7);g.ellipse(129,113,24,23,0,0,7);g.fill();for(const s of [-1,1]){g.beginPath();g.moveTo(129+s*20,108);g.lineTo(129+s*21,82);g.lineTo(129+s*7,96);g.fill();g.fillStyle='#4a4935';g.fillRect(129+s*9-2,111,4,4);g.fillStyle='#967d55';g.fillRect(129+s*10-4,157,8,28);}g.fillStyle='#d1b99a';g.beginPath();g.ellipse(129,124,8,5,0,0,7);g.fill();g.fillStyle='#5e513c';g.fillRect(127,121,4,3);g.strokeStyle='#64583f';g.lineWidth=2;for(const s of [-1,1])for(let y=0;y<3;y++){g.beginPath();g.moveTo(129+s*7,123+y);g.lineTo(129+s*33,117+y*5);g.stroke();}g.textAlign='center';g.font='italic 20px Georgia';g.fillStyle='#685749';g.fillText('Caught sitting still!',128,230);});
+  },{clamp:true,identity:true})}); }
+  function printBlock(B,x,y,z,w,h,d,tile,o) {
+    const geo=new T.BoxGeometry(w,h,d),uv=geo.attributes.uv;
+    for(let i=0;i<uv.count;i++)uv.setXY(i,(tile%4+uv.getX(i))/4,(2-Math.floor(tile/4)-uv.getY(i))/2);
+    return B.geo(geo,x,y,z,hallPrints(),o);
+  }
+  function familyFrame(B,x,y,z,w,h,tile,ry=0) {
+    const F=B.at(x,y,z,ry),oak=M({c:'#fff',map:tex('oak')});
+    F.rbox(0,0,1.1,w,h,2.2,.4,oak);
+    // The image is inset into a solid frame; a millimetre lip catches the light.
+    printBlock(F,0,0,2.25,w-4,h-4,.3,tile);
+    for(const s of [-1,1]){F.box(s*(w/2-1),0,2.6,1.7,h,1.2,oak);F.box(0,s*(h/2-1),2.6,w-3,1.7,1.2,oak);}
+    F.wshadow(0,1,-.1,w+5,h+5,.24,{m:3});
+  }
+  function doorPlate(D,at,w,tile,ry=0) {
+    const P=D.at(...at,ry);P.rbox(0,0,0,w,9,.8,.35,mBrass);printBlock(P,0,0,.45,w-1,7.6,.15,tile);
+    for(const s of [-1,1])P.cyl(s*(w/2-1.2),0,.6,.33,.33,.25,6,mDark,{rx:90});
+  }
+  function runner(B,x,fy,z,w,d) {
+    // Bound wool, 5 mm thick. It rides on the carpet, never changes the floor
+    // height/collision and stops well before every doorway and stair tread.
+    printBlock(B,x,fy-.25,z,w,d,.5,6,{rx:90});B.shadow(x,fy,z,w+2,d+2,.24,{sq:true,m:1.4});
+  }
+  // Closed rings give hung cloth a round back, shoulders, tapered cuffs and a
+  // weighted hem. Low segment counts replace the old heavily bevelled slab.
+  function clothBody(B,rings,material) {
+    const n=12,pos=[],idx=[];
+    for(let r=0;r<rings.length;r++){
+      const [x,y,z,rx,rz]=rings[r];
+      for(let i=0;i<n;i++){const a=i/n*Math.PI*2,fold=1+.055*Math.cos(a*6);pos.push(x+Math.cos(a)*rx*fold,y+(r===rings.length-1?Math.sin(a*3)*.45:0),z+Math.sin(a)*rz*fold);}
+    }
+    for(let r=0;r<rings.length-1;r++)for(let i=0;i<n;i++){const a=r*n+i,b=r*n+(i+1)%n,c=b+n,d=a+n;idx.push(a,d,b,b,d,c);}
+    // Caps close both ends; they are tucked inside the collar / sleeve cuffs.
+    for(const [r,reverse]of [[0,false],[rings.length-1,true]]){const center=pos.length/3;pos.push(...rings[r].slice(0,3));for(let i=0;i<n;i++){const a=r*n+i,b=r*n+(i+1)%n;idx.push(center,reverse?b:a,reverse?a:b);}}
+    const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setIndex(idx);geo.computeVertexNormals();
+    B.geo(geo,0,0,0,material);
+  }
+  function hallCoat(B,c,h,w,type) {
+    const cloth=M({c,sh:2,sp:'#080808'}),scale=w/9.2,hood=type==='anorak'||type==='child',mac=type==='mac';
+    B.geo(new T.TorusGeometry(2.7*scale,.55,6,12),0,0,0,cloth);
+    clothBody(B,[[0,3,0,4*scale,2.4],[0,8,0,w,4.5],[0,h*.35,.6,w-(mac?2:1.2),4],[0,h-6,1,w+(mac?.8:0),5],[0,h,1,w-(mac?0:1),4.1]],cloth);
+    for(const side of [-1,1]){
+      const cuff=h*(type==='anorak'?.91:type==='child'?.86:.68);
+      clothBody(B,[[side*(w-2*scale),8,0,3.9*scale,3.8*scale],[side*(w+3*scale),h*.29,1,3.5*scale,3.6*scale],[side*(w+2.8*scale),cuff-4,2,2.5*scale,2.7*scale],[side*(w+2*scale),cuff,2.2,2.3*scale,2.5*scale]],cloth);
+      B.rbox(side*w*.5,h*(mac?.65:.7),5.2,w*.67,6*scale,1,.6,cloth,{rz:side*(mac?-3:-9)});
+      if(!hood)B.rbox(side*(mac?3.2:2.5)*scale,mac?8:4.5,4,4*scale,mac?13:7,1.5,.6,cloth,{rz:side*(mac?20:30)});
+    }
+    if(hood){
+      clothBody(B,[[0,-4*scale,-1,1.8*scale,1.8*scale],[0,-scale,-1,5.1*scale,4*scale],[0,6*scale,-1.3,5.8*scale,4.2*scale],[0,12*scale,-1.2,3.8*scale,3*scale]],cloth);
+      B.rbox(0,3*scale,3*scale,5*scale,7*scale,.5,1,M({c:'#222b31',sh:2,sp:'#080808'}));
+    }
+    const front=y=>y<h*.35?4.5:4.6+(y-h*.35)/(h*.65)*1.4;
+    B.geo(new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(0,8,4.6),new T.Vector3(0,h*.35,4.7),new T.Vector3(0,h-7,6)]),8,.25,4,false),0,0,0,cloth);
+    B.ball(0,8,4.6,.25,.25,.25,cloth,6);B.ball(0,h-7,6,.25,.25,.25,cloth,6);
+    for(let y=mac?22:15;y<h-8;y+=mac?16:13)for(const x of mac?[-2.3,2.3]:[1])B.ball(x,y,front(y)+.15,.55,.55,.3,mDark,6);
+    if(mac)B.rbox(0,h*.46,5.2,w*1.65,1.8,.8,.25,cloth);
+  }
+  function hallMirror() {
+    return M({c:'#fff',basic:true,map:phaseTex('hs.mirror.hall',256,384,(g,w,h)=>{
+      const night=phase()==='night',wall=night?'#686351':'#a29d89';
+      g.fillStyle=wall;g.fillRect(0,0,w,h);
+      // The opposite stairwell, its high window, carpet and oak rail. This
+      // intentionally cheap silvered silhouette costs no reflection camera.
+      g.fillStyle=night?'#4a493f':'#898775';g.beginPath();g.moveTo(0,15);g.lineTo(172,54);g.lineTo(172,305);g.lineTo(0,384);g.fill();
+      g.fillStyle=night?'#737469':'#bbc1b0';g.fillRect(190,48,39,103);g.strokeStyle=night?'#8a8570':'#d0c9b5';g.lineWidth=5;g.strokeRect(190,48,39,103);
+      g.fillStyle=night?'#5d5342':'#8e8066';g.beginPath();g.moveTo(0,384);g.lineTo(172,284);g.lineTo(256,314);g.lineTo(256,384);g.fill();
+      for(let x=18;x<251;x+=27){const top=90+x*.7;g.fillStyle=night?'#918a72':'#d5d0b8';g.fillRect(x,top,5,260-top);g.fillRect(x-1,top+22,7,5);}
+      g.strokeStyle=night?'#4b3828':'#6f5137';g.lineWidth=12;g.beginPath();g.moveTo(-8,80);g.lineTo(265,271);g.stroke();
+      g.fillStyle=night?'#6c5339':'#93724e';g.fillRect(149,218,13,110);g.beginPath();g.arc(155,214,9,0,7);g.fill();
+      const silver=g.createLinearGradient(0,0,w,h);silver.addColorStop(0,'rgba(211,221,207,.14)');silver.addColorStop(.48,'rgba(220,223,204,.03)');silver.addColorStop(1,'rgba(80,91,83,.13)');g.fillStyle=silver;g.fillRect(0,0,w,h);
+      g.strokeStyle='rgba(218,225,211,.24)';g.lineWidth=2;g.strokeRect(2,2,w-4,h-4);
+    },{clamp:true})});
   }
 
   // ================================================================ THE LANDING (and the stairs going down)
@@ -185,26 +313,24 @@
     // walls
     const wl = (x, y, z, w, h, ry) => B.panel(x, y, z, w, h, 4, wall, { ry, uv: 128 });
     // west wall x 250: doors to Jack's room (150..230), the bathroom (300..380), the little sister's room (450..530)
-    [[130, 150], [230, 300], [380, 450], [530, 700]].forEach(([a, b]) => wl(250, (UC + UY) / 2, (a + b) / 2, b - a, UY - UC, 90));
-    [[150, 230], [300, 380], [450, 530]].forEach(([a, b]) => wl(250, (UC - 132) / 2, (a + b) / 2, b - a, -132 - UC, 90));
+    doorWall(B,250,415,90,130,700,UC,UY,[[150,230,-132],[300,380,-132],[450,530,-132]],wall);
     wl(330, (UC + UY) / 2, 130, 160, UY - UC, 0); // the end wall (north)
     // east wall x 410: right down the stairwell to the hall floor, with a little window halfway
     // The hall owns the lower portions; do not draw them twice with two rigs.
-    wl(410, (UC + GC) / 2, 190, 120, GC - UC, -90); wl(410, (UC + GC) / 2, 650, 100, GC - UC, -90);
-    wl(410, (UC + GY) / 2, (250 + 400) / 2, 150, GY - UC, -90); wl(410, (UC + GY) / 2, (480 + 600) / 2, 120, GY - UC, -90);
-    wl(410, (UC - 80) / 2, 440, 80, -80 - UC, -90); wl(410, (60 + GY) / 2, 440, 80, GY - 60, -90);
+    solidWall(B,410,415,-90,[[-285,UC],[285,UC],[285,GC],[185,GC],[185,GY],[-165,GY],[-165,GC],[-285,GC]],wall,4,[[[-15,-80],[65,-80],[65,60],[-15,60]]]);
     // the landing window (frosted, bubbly 70s glass Dad never replaced)
-    B.plane(410.8, -10, 440, 80, 140, M({ c: '#fff', o: 0.62, tr: true, sh: 80, sp: '#fff', map: K.tex('hs.obscureglass', 128, 128, (g, w, h) => { // 1970s "bubble" obscure glass: dimples catch the light
+    B.box(414, -10, 440, .65, 140, 80, M({ c: '#fff', o: 0.62, tr: true, dw:false, sh: 26, sp: '#53635e', map: K.tex('hs.obscureglass', 128, 128, (g, w, h) => { // 1970s "bubble" obscure glass: dimples catch the light
       g.fillStyle = '#d4dde6'; g.fillRect(0, 0, w, h); const r = K.rnd(4410);
       for (let i = 0; i < 260; i++) { const x = r() * w, y = r() * h, rr = 2 + r() * 5, gr = g.createRadialGradient(x - rr * 0.3, y - rr * 0.3, 0, x, y, rr); gr.addColorStop(0, 'rgba(255,255,255,.55)'); gr.addColorStop(0.6, 'rgba(190,205,220,.25)'); gr.addColorStop(1, 'rgba(120,140,160,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, rr, 0, 7); g.fill(); }
-    }, { rep: [3, 5] }) }), { ry: -90 });
+    }, { rep: [3, 5] }) }));
     // The common outdoor scene is visible through the frosted glass.
     [[400, -80, 440, 1, 6, 80], [400, 60, 440, 1, 6, 80], [400, -10, 400, 1, 146, 6], [400, -10, 480, 1, 146, 6]].forEach(([x, y, z, w, h, d]) => B.box(x + 8.75, y, z, 1.5, h, d, mWhite));
     B.rbox(408.5, 62, 440, 3, 3, 90, 0.8, mWhite);
+    for(const z of [400,480])B.box(414,-10,z,8.2,140,1,mWhite);
+    for(const y of [-80,60])B.box(414,y,440,8.2,1,80,mWhite);
     // Cut the parents' doorway out of the wallpaper, as for the west doors.
     // (the front wall is only 0.8 thick so it never shows through the brick skin at z 701..703)
-    for (const [a, b] of [[250, 260], [340, 410]]) B.panel((a + b) / 2, (UC + UY) / 2, 700, b - a, UY - UC, 0.8, wall, { ry: 180, uv: 128 });
-    B.panel(300, (UC - 132) / 2, 700, 80, -132 - UC, 0.8, wall, { ry: 180, uv: 128 });
+    doorWall(B,330,700,180,250,410,UC,UY,[[260,340,-132]],wall,.8);
     // the ceiling (with a loft hatch) and the stairwell's upper walls
     B.panel(330, UC, 190, 160, 120, 2, M({ c: '#fff', map: tex('artex') }), { rx: -90, uv: 110 }); B.panel(330, UC, 475, 160, 450, 2, M({ c: '#fff', map: tex('artex') }), { rx: -90, uv: 110 });
     B.box(290, UC + 0.5, 600, 60, 1.6, 70, mWhite); B.box(290, UC + 1.2, 600, 56, 0.6, 66, M('#d8d4c8'));
@@ -223,14 +349,17 @@
     stairs(B);
     // ao along the landing walls
     [[130,150],[230,300],[380,450],[530,700]].forEach(([a,b])=>B.ao(250.3,UY-16,(a+b)/2,b-a,32,{ry:90,rx:180,a:0.5}));B.ao(330, UY - 16, 130.3, 160, 32, { rx: 180, a: 0.5 });
+    familyFrame(B,330,-75,130.15,58,44,0);
+    familyFrame(B,250.15,-83,415,36,43,1,90);
+    runner(B,289,UY,466,44,296);
     batch.build(r.group);
     // doors: Jack's (already there: js/rm-room.js), the bathroom, the little sister's room, Mom and Dad's
     const Bd = K.into(K.batch()); // (frames go in the batch below)
     const fb = K.batch(), F = K.into(fb);
     doorway(r, F, 'jackframe', 'w', 250, 150, 230, UY, { leaf: false, noreveal:true, frameSides: [1] }); // bedroom owns the shared reveal and reverse casing
-    doorway(r, F, 'bath', 'w', 250, 300, 380, UY, { leaf: true, inside: true });
-    const sd = doorway(r, F, 'sis', 'w', 250, 450, 530, UY, { inside: true, deco: (D, g) => { D.box(g.along ? 0 : 2.65, -64, g.sgnA * g.dw / 2, 0.16, 20, 30, { r: M({ c: '#fff', map: sisSign() }), all: M('#f2a6cf') }, { rz: 2 }); } });
-    const md = doorway(r, F, 'mum', 's', 700, 260, 340, UY, { inside: true });
+    doorway(r, F, 'bath', 'w', 250, 300, 380, UY, { leaf: true, inside: true, deco:(D,g)=>doorPlate(D,[2.4,-76,g.sgnA*g.dw/2],29,2,90) });
+    const sd = doorway(r, F, 'sis', 'w', 250, 450, 530, UY, { inside: true, deco: (D, g) => { D.box(g.along ? 0 : 2.65, -64, g.sgnA * g.dw / 2, .8, 20, 30, { r: M({ c: '#fff', map: sisSign() }), all: M('#f2a6cf') }, { rx: 2 }); } });
+    const md = doorway(r, F, 'mum', 's', 700, 260, 340, UY, { inside: true, deco:(D,g)=>doorPlate(D,[g.sgnA*g.dw/2,-76,-2.4],31,3,180) });
     fb.build(r.group); void Bd;
     H.spot('hs.bath', { label: 'The bathroom', act: sayLines('hs.bath', 'The bathroom', ['Somebody is in there. Somebody is ALWAYS in there.', 'Mom says the bath is for Sunday nights and the immersion heater is not made of money.', 'There is a queue. There is only one bathroom. There are four of us. Maths.']) }); pickBox(r, 'hs.bath', 250, -30, 340, 6, 200, 80);
     H.spot('hs.sis', { label: () => sis() + "'s room", act: () => { secret('hs.sister'); say(sis() + "'s room", cast(['"KEEP OUT. THIS MEANS YOU {me.NAME}." There is a drawing of me with horns.', '{sister} is in there playing {sister.his} Seasoning Girls tape. Again. On repeat. Since 4 o\'clock.', 'I knocked. A voice said "GO AWAY". Fair enough.'][((H.SPOTS['hs.sis'].n = (H.SPOTS['hs.sis'].n | 0) + 1) - 1) % 3])); } }); pickBox(r, 'hs.sis', 250, -30, 490, 6, 200, 80);
@@ -242,14 +371,37 @@
     H.walkRect('U', 252, 132, 408, 250, { room: 'landing' }); H.walkRect('U', 252, 250, 328, 698, { room: 'landing' }); H.walkRect('U', 332, 602, 408, 698, { room: 'landing' });
     H.block('U', 324, 250, 336, 600); H.block('U', 330, 596, 410, 606); // the banisters
   }
-  function sisSign() { return K.tex('hs.sissign', 256, 170, (g, w, h) => { g.fillStyle = '#ff9ad0'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; for (let i = 0; i < 18; i++) { A.star(g, (i * 53) % w, (i * 37) % h, 6, 5); g.fill(); } A.text(g, cast("{sister}'S ROOM").toUpperCase(), 128, 60, '34px ' + A.FONT, '#b0106a', 'center'); A.text(g, 'KEEP OUT!!!', 128, 104, '30px ' + A.FONT, '#c00', 'center'); A.text(g, '(this means YOU!)', 128, 140, '700 16px ' + A.HAND, '#333', 'center'); }); }
+  function sisSign() { return K.tex('hs.sissign', 256, 170, (g, w, h) => { g.fillStyle = '#ff9ad0'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; for (let i = 0; i < 18; i++) { A.star(g, (i * 53) % w, (i * 37) % h, 6, 5); g.fill(); } const title=cast("{sister}'S ROOM").toUpperCase();let size=34;g.font=size+'px '+A.FONT;while(g.measureText(title).width>w-20&&size>12)g.font=(--size)+'px '+A.FONT;A.text(g,title,128,60,g.font,'#b0106a','center'); A.text(g, 'KEEP OUT!!!', 128, 104, '30px ' + A.FONT, '#c00', 'center'); A.text(g, '(this means YOU!)', 128, 140, '700 16px ' + A.HAND, '#333', 'center'); }); }
   // A turned softwood spindle (painted): square ends where it is housed into the rail and string, a lathe-turned
   // shaft with a vase and two beads between. len = the clear height between string/base rail and handrail.
   function spindle(B, x, yTop, z, len, m) {
-    const sq = Math.min(7, len * 0.12), shaft = len - sq * 2;
-    B.rbox(x, yTop + sq / 2, z, 3.2, sq, 3.2, 0.35, m); B.rbox(x, yTop + len - sq / 2, z, 3.2, sq, 3.2, 0.35, m);
-    const f = t => yTop + sq + shaft * t;
-    B.lathe(x, 0, z, [[1.15, f(0)], [1.55, f(0.03)], [1.05, f(0.07)], [1.0, f(0.3)], [1.25, f(0.55)], [1.5, f(0.68)], [1.2, f(0.78)], [1.0, f(0.86)], [1.55, f(0.93)], [1.15, f(1)]], 10, m);
+    // One closed piece of painted stock. Square ends and turned rings share
+    // the exact centreline; broad shoulders blend into the shaft, not caps.
+    const sq=Math.min(15,len*.2),turn=len-2*sq,n=8,rings=[
+      [0,1.65,true],[sq,1.65,true],[sq+.8,1.4,false],
+      [sq+turn*.18,1.62,false],[sq+turn*.3,1.3,false],
+      [sq+turn*.7,1.3,false],[sq+turn*.82,1.62,false],
+      [len-sq-.8,1.4,false],[len-sq,1.65,true],[len,1.65,true]
+    ],pos=[],idx=[];
+    for(const[y,r,square]of rings)for(let i=0;i<n;i++){
+      const a=i/n*Math.PI*2,c=Math.cos(a),s=Math.sin(a),k=square?r/Math.max(Math.abs(c),Math.abs(s)):r;
+      pos.push(c*k,y,s*k);
+    }
+    for(let j=0;j<rings.length-1;j++)for(let i=0;i<n;i++){
+      const a=j*n+i,b=j*n+(i+1)%n,c=b+n,d=a+n;idx.push(a,d,b,b,d,c);
+    }
+    for(const[j,reverse]of [[0,false],[rings.length-1,true]]){
+      const c=pos.length/3;pos.push(0,rings[j][0],0);
+      for(let i=0;i<n;i++){const a=j*n+i,b=j*n+(i+1)%n;idx.push(c,reverse?b:a,reverse?a:b);}
+    }
+    const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setIndex(idx);geo.computeVertexNormals();
+    // Keep the square blocks' faces flat; the turned middle stays smooth.
+    const flat=geo.toNonIndexed(),P=flat.attributes.position,N=flat.attributes.normal;
+    for(let i=0;i<P.count;i+=3){const y=(P.getY(i)+P.getY(i+1)+P.getY(i+2))/3;if(y>sq&&y<len-sq)continue;
+      const a=new T.Vector3().fromBufferAttribute(P,i),b=new T.Vector3().fromBufferAttribute(P,i+1),c=new T.Vector3().fromBufferAttribute(P,i+2),normal=b.sub(a).cross(c.sub(a)).normalize();
+      for(let k=0;k<3;k++)N.setXYZ(i+k,normal.x,normal.y,normal.z);
+    }
+    geo.dispose();B.geo(flat,x,yTop,z,m);
   }
   // A newel post: a chamfered square post, a moulded collar where the rails meet, a capping and a turned ball
   // finial (the y passed is the floor it stands on; the post is 104 cm to the cap like the old one).
@@ -264,11 +416,11 @@
   }
   // spindles and a handrail along a run of points (on the landing, round the stairwell)
   function banister(B, pts, fy) {
-    const wood = M({ c: '#fff', map: tex('oak') }), spin = M({ c: '#f0ece2', sh: 30 });
+    const wood = M({ c: '#fff', map: tex('oak') }), spin = mSpindle;
     for (let i = 0; i < pts.length - 1; i++) {
       const [x0, z0] = pts[i], [x1, z1] = pts[i + 1], len = Math.hypot(x1 - x0, z1 - z0), ry = Math.atan2(x1 - x0, z1 - z0) / D2R;
-      B.rbox((x0 + x1) / 2, fy - 90, (z0 + z1) / 2, 6.4, 5.2, len - 9, 1.6, wood, { ry, uv: 60 }); // handrail (moulded), housed into the newel shoulders
-      B.rbox((x0 + x1) / 2, fy - 3, (z0 + z1) / 2, 6, 6, len - 9, 0.6, wood, { ry, uv: 60 }); // base rail
+      B.rbox((x0 + x1) / 2, fy - 90, (z0 + z1) / 2, 6.4, 5.2, len - 7, 1.6, wood, { ry, uv: 60 }); // housed 1 cm into the newel shoulders
+      B.rbox((x0 + x1) / 2, fy - 3, (z0 + z1) / 2, 7, 6, len - 7, 0.6, wood, { ry, uv: 60 }); // a continuous base rail under every square foot
       const n = Math.floor(len / 12);
       for (let k = 1; k < n; k++) { const t = k / n; spindle(B, x0 + (x1 - x0) * t, fy - 87.4, z0 + (z1 - z0) * t, 81.4, spin); }
     }
@@ -278,7 +430,7 @@
   // painted wall string on the wall side, turned spindles under a moulded handrail, a proper newel at the foot
   function stairs(B) {
     // ONE flight: 13 treads of going 25 and rise 20, between the string on the banister side (x 327..333) and the wall string (x 407.6..410).
-    const carpet = tex('carpetBeige'), tread = M({ c: '#fff', map: carpet }), riser = M({ c: '#d9cfbd', map: carpet }), wood = M({ c: '#fff', map: tex('oak') }), spin = M({ c: '#f0ece2', sh: 30 });
+    const carpet = tex('carpetBeige'), tread = M({ c: '#fff', map: carpet }), riser = M({ c: '#d9cfbd', map: carpet }), wood = M({ c: '#fff', map: tex('oak') }), spin = mSpindle;
     const X0 = 333, X1 = 407.6, XC = (X0 + X1) / 2, XW = X1 - X0, pitch = z => UY + 0.8 * (z - 250);
     for (let k = 1; k <= 13; k++) {
       const z0 = 250 + 25 * k - 25, y = UY + 20 * k;
@@ -313,7 +465,7 @@
     B.rbox(330, (edgeBottom + pitch(zDrop) - 4) / 2, zDrop, 9, pitch(zDrop) - 4 - edgeBottom, 9, 0.7, wood, { uv: 60 });
     B.lathe(330, 0, zDrop, [[3.4, pitch(zDrop) - 4.2], [2.2, pitch(zDrop) - 1.5], [3, pitch(zDrop) + 1.5], [0.05, pitch(zDrop) + 2.6]], 16, wood); // the drop's turned pendant
     { const zs = [286, zDrop], top = GC - 1.95; poly(B, [[330, top, zs[0]], [330, top, zs[1]], [330, pitch(zs[1]) - 6, zs[1]], [330, pitch(zs[0]) - 6, zs[0]]], M({ c: '#fff', map: tex('wallpaperHall'), side: 2 })); }
-    const rail0 = zDrop + 4.5, rail1 = z2 - 5, railMid = (rail0 + rail1) / 2;
+    const rail0 = zDrop + 3.5, rail1 = z2 - 3, railMid = (rail0 + rail1) / 2;
     B.rbox(330, pitch(railMid) - 92, railMid, 6.4, 5.2, Math.hypot(rail1 - rail0, 0.8 * (rail1 - rail0)), 1.6, wood, { rx: -ang, uv: 60 });
     // Turned spindles, plumb, two per tread, from the string to the underside of the handrail.
     for (let k = 1; k <= 26; k++) { const z = 250 + 12.5 * k - 6.25; if (z > z2 - 6 || z < zDrop + 6) continue; spindle(B, 330, pitch(z) - 89.3, z, 84.4, spin); }
@@ -331,21 +483,18 @@
     B.panel(307.5, GC, 155, 205, 190, 2, art, { rx: -90, uv: 110 }); B.panel(267.5, GC, 425, 125, 350, 2, art, { rx: -90, uv: 110 }); B.panel(370, GC, 650, 80, 100, 2, art, { rx: -90, uv: 110 }); B.panel(267.5, GC, 650, 125, 100, 2, art, { rx: -90, uv: 110 });
     const wl = (x, y, z, w, h, ry) => B.panel(x, y, z, w, h, 4, wall, { ry, uv: 128 });
     // west wall x 205: the kitchen door (150..230), the lounge door (480..560)
-    [[60, 150], [230, 480], [560, 700]].forEach(([a, b]) => wl(205, (GC + GY) / 2, (a + b) / 2, b - a, GY - GC, 90));
-    [[150, 230], [480, 560]].forEach(([a, b]) => wl(205, (GC + GY - 205) / 2, (a + b) / 2, b - a, GY - 205 - GC, 90));
+    doorWall(B,205,380,90,60,700,GC,GY,[[150,230,GY-205],[480,560,GY-205]],wall);
     wl(307.5, (GC + GY) / 2, 60, 205, GY - GC, 0); // the back wall
     wl(410, (GC + GY) / 2, 155, 190, GY - GC, -90); // the east wall (the back bit)
     // the wall under the stairs (the cupboard), with its little door (360..440)
     // the cupboard's front wall (x 330) follows the slope of the flight; the open stairs show above it; the back wall (z 250.5) closes it from the hall
-    const yU = z => UY + 0.8 * (z - 250) + 23.5, zF = 250 + (GY - UY - 23.5) / 0.8, wall2 = M({ c: '#fff', map: tex('wallpaperHall'), side: 2 }), ZB = 250.5;
-    const pw = pts => poly(B, pts.map(([z, y]) => [330, y, z]), wall2);
-    pw([[ZB, GY], [ZB, yU(ZB)], [362, yU(362)], [362, GY]]); pw([[362, yU(362)], [438, yU(438)], [438, GY - 94], [362, GY - 94]]); pw([[438, GY], [438, yU(438)], [zF, GY]]);
-    poly(B, [[330, GC, ZB], [410, GC, ZB], [410, GY, ZB], [330, GY, ZB]], wall2);
+    const yU = z => UY + 0.8 * (z - 250) + 23.5, zF = 250 + (GY - UY - 23.5) / 0.8, ZB = 250.5;
+    solidWall(B,329.7,0,-90,[[ZB,yU(ZB)],[zF,GY],[438,GY],[438,GY-94],[362,GY-94],[362,GY],[ZB,GY]],wall,.6);
+    B.panel(370,(GC+GY)/2,ZB+.3,80,GY-GC,.9,wall); // overlaps the return inside the stair wall's thickness
     // the fuse box: on the hall's east wall, flush with it
     const fz = B.at(410, GY - 165, 130); fz.box(-3, 0, 0, 6, 26, 20, M('#efece4')); fz.box(-6.15, 0, 0, 0.5, 21, 16, M('#d8d4c8')); fz.box(-6.5, 0, 0, 0.3, 2, 4, M('#555'));
     // the front: the front door (260..340), the bottom of the stairs, the east wall down there
-    [[205, 260], [340, 410]].forEach(([a, b]) => B.panel((a + b) / 2, (GC + GY) / 2, 700, b - a, GY - GC, 0.8, wall, { ry: 180, uv: 128 }));
-    B.panel(300, (GC + GY - 210) / 2, 700, 80, GY - 210 - GC, 0.8, wall, { ry: 180, uv: 128 });
+    doorWall(B,307.5,700,180,205,410,GC,GY,[[260,340,GY-205]],wall,.8);
     wl(410, (GC + GY) / 2, 650, 100, GY - GC, -90);
     // skirting
     [[60, 143.7], [236.3, 473.7], [566.3, 700]].forEach(([a, b]) => B.rbox(205.8, GY - 4.5, (a + b) / 2, 1.6, 9, b - a, 0.55, mSkirt));
@@ -361,23 +510,30 @@
     fd.rbox(0, -1, -42, 70, 2, 44, 0.7, { t: M({ c: '#fff', map: matTex() }), all: M('#8a6232') }); // a coir mat: printed top, bristly bound edges
     B.shadow(300, GY, 660, 74, 48, 0.5, { sq: true });
     // coat hooks with coats, a mirror, a radiator, the hall table with the keys bowl, a ceiling light
+    runner(B,268,GY,402,68,242);
+    familyFrame(B,309,GC+99,60.15,66,50,7);
+    familyFrame(B,205.15,GY-157,580,26,33,4,90);
     const ch = B.at(206, GY - 170, 640);
     ch.box(2, 0, 0, 3, 8, 80, M({ c: '#fff', map: tex('oak') }));
-    // Coats hang from real pegs: closed, softly bevelled silhouettes with
-    // shoulders, sleeves, a neck opening and a hem, rather than padded blocks.
-    [['#2a3a5a', -29, 74], ['#967a59', -8, 81], ['#363c47', 13, 64], ['#a96379', 31, 53]].forEach(([c, z, h], i) => {
-      const reach = 9 + i * 1.2, C = ch.at(reach, -1, z, 90), cloth = M({ c, sh: 2, sp: '#080808' });
-      ch.cyl((3.5 + reach) / 2, -1, z, .65, .65, reach - 3.5, 10, mBrass, { rz: 90 });
-      ch.ball(reach, -2, z, 1, 1.4, 1, mBrass, 8);
-      const w = i === 3 ? 8 : 10, shape = new T.Shape();
-      [[-3,0],[-w,4],[-w-5,25],[-w+1,28],[-w+3,19],[-w+1,h-1],[0,h],[w-1,h-1],[w-3,19],[w-1,28],[w+5,25],[w,4],[3,0],[2,3],[-2,3]].forEach(([x,y],j) => j ? shape.lineTo(x,y) : shape.moveTo(x,y));
-      shape.closePath();
-      C.geo(new T.ExtrudeGeometry(shape, { depth: 3.6, steps: 1, bevelEnabled: true, bevelSegments: 2, bevelSize: .8, bevelThickness: .7, curveSegments: 1 }), 0, 0, -1.8, cloth);
-      C.rbox(0, h / 2 + 2, 2.7, .7, h - 8, .6, .25, M({ c, sh: 4 }));
-      for (let y = 12; y < h - 9; y += 12) C.ball(1, y, 3.1, .6, .6, .3, mDark, 6);
-      for (const x of [-w*.5, w*.5]) C.rbox(x, h*.6, 2.7, w*.65, 1, .6, .25, M({ c, sh: 4 }));
+    [['#35475b',-29,49,10,1,'anorak'],['#9d8366',-7,86,10.1,-7,'mac'],['#4b4e52',15,65,8.2,0,'coat'],['#b57887',34,39,6.4,15,'child']].forEach(([c,z,h,w,hookY,type],i)=>{
+      const reach=10+i*1.1,C=ch.at(reach,hookY-1,z,90),oak=M({c:'#fff',map:tex('oak')});
+      // Short solid mounting straps stagger the pegs; the child's is lower.
+      ch.box(2,hookY/2,z,3,Math.abs(hookY)+6,6,oak);
+      ch.rbox(2,hookY-1,z,3,8,9,.6,oak);
+      ch.cyl((3.5+reach)/2,hookY-3,z,.7,.7,reach-3.5,8,mBrass,{rz:90});ch.ball(reach,hookY-4,z,1.4,1.4,1.4,mBrass,8);
+      hallCoat(C,c,h,w,type);
+      ch.wshadow(-.75,hookY+h*.5,z,27,h+10,.26,{ry:90,m:5});
     });
-    const mi = B.at(206, GY - 150, 300); mi.box(1, 0, 0, 2, 60, 40, M({ c: '#fff', map: tex('oak') })); mi.plane(2.2, 0, 0, 36, 56, M({ c: '#a8b8c8', sh: 120, sp: '#fff' }), { ry: 90 });
+    const mi=B.at(205.15,GY-150,300,90),oak=M({c:'#fff',map:tex('oak')});
+    mi.rbox(0,0,1.3,40,60,2.6,.5,oak);mi.box(0,0,2.75,35,55,.5,hallMirror());
+    for(const side of [-1,1]){mi.rbox(side*19,0,3.1,2,60,1.2,.3,oak);mi.rbox(0,side*29,3.1,36,2,1.2,.3,oak);}
+    mi.wshadow(0,1,-.1,45,65,.24,{m:3});
+    const bag=B.at(214,GY-100,579,90),canvas=M({c:'#5a6554',sh:2,sp:'#080808'});
+    bag.rbox(0,0,1,21,30,11,3,canvas);bag.rbox(0,6,7.5,17,13,3,1.5,canvas);bag.rbox(0,-6,7,19,13,1.4,1,canvas);
+    for(const x of [-6,6])bag.rbox(x,2,9.1,2,14,.7,.3,mDark);
+    bag.geo(new T.TorusGeometry(3,.75,6,12,Math.PI),0,-15,0,canvas,{rz:180});
+    B.box(206.1,GY-116,579,2,7,5,oak);B.cyl(210.6,GY-116.5,579,.7,.7,7.5,8,mBrass,{rz:90});B.ball(214.5,GY-116.5,579,1.3,1.3,1.3,mBrass,8);
+    B.wshadow(205.15,GY-100,579,28,38,.26,{ry:90,m:5});
     const rd = B.at(206, GY - 36, 400); rd.box(4, 0, 0, 3.6, 56, 90, { all: M('#e8e5dc'), r: M({ c: '#fff', map: tex('radiator'), sh: 40 }) });
     const ht = B.at(222, GY, 110); ht.box(0, -76, 0, 30, 3, 60, M({ c: '#fff', map: tex('oak') })); [[-12, -26], [12, -26], [-12, 26], [12, 26]].forEach(([x, z]) => ht.box(x, -37, z, 3, 74, 3, M({ c: '#fff', map: tex('oak') })));
     // A closed ceramic bowl with a rounded lip and inner basin, not an open
@@ -385,6 +541,7 @@
     ht.lathe(0,-78,-10,[[0,-.5],[3,-.5],[5,-1.4],[7.2,-4.6],[7.8,-4.8],[8.2,-4.5],[7.7,-3],[5,0],[2.8,.2],[0,.2]],24,M({c:'#b68b59',sh:35,sp:'#333',side:2}));ht.shadow(0,-77.5,-10,18,18,.25);
     const keys=ht.at(4,-77.9,12,22);keys.geo(new T.TorusGeometry(1.7,.3,6,18),0,0,0,mMetal,{rx:90});
     for(const [x,ry,material]of [[-1,-20,mMetal],[1,30,mBrass]]){const key=keys.at(x,0,1,ry);key.cyl(0,.1,0,1.05,1.05,.4,12,material);key.box(0,.1,3,.75,.4,4.3,material);for(const z of [3.6,4.7])key.box(.55,.1,z,.7,.4,.65,material)}
+    const book=ht.at(0,-77.5,-23);book.rbox(0,-1,0,16,2,11,.4,M('#e3d9b9'));printBlock(book,0,-2.15,0,17,12,.3,5,{rx:90});book.shadow(0,0,0,19,14,.25,{sq:true});
     ht.shadow(0, 0, 0, 36, 66, 0.6, { sq: true });
     B.cyl(300, GC + 1.5, 200, 6, 6, 3, 14, mWhite); B.cyl(300, GC + 15, 200, 0.3, 0.3, 26, 4, M('#eee')); B.lathe(300, GC + 26, 200, [[2, -2], [14, 10]], 18, M({ c: '#f0e0b8', sh: 10, side: 2, e: '#000' }));
     batch.build(r.group);
@@ -401,6 +558,7 @@
     H.spot('hs.cupdoor', { label: () => H.DOORS.cupboard.open ? 'Shut cupboard (C: crouch through)' : 'The cupboard under the stairs', obj: cd, act: () => { H.setDoor('cupboard', !H.DOORS.cupboard.open); } });
     H.walkRect('G', 207, 62, 408, 250, { room: 'hall' }); H.walkRect('G', 207, 250, 328, 600, { room: 'hall' }); H.walkRect('G', 207, 600, 408, 698, { room: 'hall' });
     H.block('G', 205, 80, 240, 140); // the hall table
+    H.solid('G',205,565,227,692,GY-185,GY-81,{kind:'fixed'}); // wall-mounted coats and school bag
   }
   function matTex() { return K.tex('hs.mat', 256, 160, (g, w, h) => { g.fillStyle = '#8a5a2a'; g.fillRect(0, 0, w, h); const r = K.rnd(5); for (let i = 0; i < 5000; i++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,.25)' : 'rgba(255,220,160,.15)'; g.fillRect(r() * w, r() * h, 1, 2); } A.text(g, 'WELCOME', 128, 96, '44px ' + A.FONT, '#3a1a0a', 'center'); }); }
 
@@ -796,7 +954,12 @@
     // the fruit motifs round instead of stretching them across the wall.
     // Leave the actual window and back-door opening clear. The old single
     // strip also hid most of the window and fought the door casing for depth.
-    for(const [x0,x1]of [[-280,-140],[-20,73.5]])B.plane((x0+x1)/2,GY-120,-55.8,x1-x0,56,M({c:'#fff',map:tex('tiles')}),{uv:192});
+    const splash=K.tex('hs.kitchen-plain-tiles',256,256,(g,w,h)=>{
+      g.fillStyle='#efece4';g.fillRect(0,0,w,h);g.strokeStyle='#b8b2a2';g.lineWidth=1.2;
+      for(let i=0;i<=16;i++){g.beginPath();g.moveTo(i*16,0);g.lineTo(i*16,h);g.stroke();g.beginPath();g.moveTo(0,i*16);g.lineTo(w,i*16);g.stroke()}
+      A.mottle(g,w,h,20,'rgba(255,255,255,.2)',20,56);
+    },{world:192});
+    for(const [x0,x1]of [[-280,-140],[-20,73.5]])B.plane((x0+x1)/2,GY-120,-55.8,x1-x0,56,M({c:'#fff',map:splash,sh:22}),{uv:192});
     const wu = (x0, x1) => { const cx = (x0 + x1) / 2; B.box(cx, GC + 80, -40, x1 - x0, 70, 32, { f: M({ c: '#d9cba6', sh: 18, sp: '#222' }), all: M('#e8e2d0') }); unitDoors(B, cx, GC + 80, -24, x1 - x0, 69, 1, true); };
     wu(-214.5,-160);wu(20,71.5); // 2.2 cm clear of the door casing
     B.shadow(-110, GY, -26, 270, 70, 0.7, { sq: true });
@@ -811,9 +974,15 @@
     for(const [x,c]of [[-6,'#c54b40'],[6,'#3f6999']]){sk.cyl(x,-7.3,-16,1.7,1.7,0.6,12,mWhite);sk.cyl(x,-7.7,-16,0.7,0.7,0.25,12,M(c))}
     // the cooker (freestanding, four rings, an eye-level grill), the washing machine
     const ck = B.at(-10, GY, -26); ck.box(0, -46, 0, 58, 92, 58, { f: M({ c: '#fff', map: cookerTex() }), all: M('#e8e8e4') }); ck.box(0, -93, 0, 58, 2, 58, M({ c: '#efefec', sh: 60 })); [[-14, -12], [14, -12], [-14, 12], [14, 12]].forEach(([x, z]) => ck.cyl(x, -94.6, z, 8, 8, 0.6, 18, M('#2a2a2a')));
-    ck.box(0, -150, -18, 58, 20, 24, M('#e8e8e4'));
-    for(const x of [-26,26])ck.box(x,-121,-25,2.4,58,3,M('#aaa9a4'));
-    ck.box(0,-148,-5.8,48,11,0.6,M('#333335'));ck.box(0,-142.3,-4,48,0.8,7,mMetal);ck.cyl(0,-146,-1,0.8,0.8,42,10,mMetal,{rz:90});
+    // Wall-mounted enamel extractor, with a solid flue to the ceiling. Its
+    // underside clears the window head; nothing stands down in the hob rings.
+    const hood=M({c:'#e1ded5',sh:32,sp:'#555'});
+    ck.rbox(0,-184,-12,58,12,36,1.2,hood);
+    ck.box(0,(GC+GY-190)/2-GY,-22,24,GY-190-GC,16,hood);
+    ck.box(0,-177.7,-12,49,.6,25,M('#595d59'));
+    for(const x of [-16,-8,0,8,16])ck.box(x,-177.25,-12,.8,.3,22,mMetal);
+    ck.box(0,-183,6.3,54,3,.6,M('#4a4b46'));
+    for(const x of [17,22])ck.box(x,-183,6.8,2,1.5,.5,mWhite);
     for (let i = 0; i < 5; i++) { ck.cyl(-20 + i * 10, -84, 29.3, 2.4, 2.4, 1.4, 12, M({ c: '#2a2a2a', sh: 40 }), { rx: 90 }); ck.box(-20 + i * 10, -84, 30.2, 0.6, 2.2, 0.4, M('#ddd')); }
     ck.cyl(0, -52, 30.4, 1, 1, 46, 8, mMetal, { rz: 90 }); ck.plane(0, -45, 29.2, 44, 22, M({ c: '#1a1a1a', sh: 90, sp: '#888', o: 0.9, tr: true }));
     const wm = B.at(50, GY, -26); wm.geo(new T.TorusGeometry(13, 1.6, 8, 28), 0, -45, 29.4, M({ c: '#c8ccd0', sh: 60, sp: '#888' })); wm.cyl(0, -45, 29.2, 11.5, 11.5, 0.6, 28, M({ c: '#2a3440', sh: 120, sp: '#fff' }), { rx: 90 }); wm.cyl(0, -45, 29.6, 8, 8, 0.3, 24, M({ c: '#7a8a9a', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { rx: 90 });
@@ -836,7 +1005,7 @@
     kt.geo(new T.TorusGeometry(7.3,1.15,8,24,Math.PI),-8.8,-12,0,handle,{rz:90});
     kt.cyl(10,-18,0,2.2,3,8,18,enamel,{rz:45});kt.cyl(12.83,-20.83,0,1.5,1.5,0.4,16,M('#4b4f50'),{rz:45});kt.rbox(-9,-3,0,2,1,3,0.3,handle);kt.shadow(0,0,0,26,24,0.5);
     const ts = B.at(-140, GY - 93, -36); ts.rbox(0, -9, 0, 26, 18, 16, 3, M({ c: '#d8d8d4', sh: 70, sp: '#888' })); ts.box(-5, -18.4, 0, 3, 1, 12, M('#111')); ts.box(5, -18.4, 0, 3, 1, 12, M('#111')); ts.shadow(0, 0, 0, 30, 20, 0.6, { sq: true });
-    const bb = B.at(40, GY - 93, -36); bb.rbox(0, -12, 0, 34, 24, 24, 6, M({ c: '#c83a2a', sh: 40, sp: '#555' }));bb.rbox(0,-11,12.1,24,0.4,0.4,0.15,M('#76291f'));bb.rbox(0,-8,12.8,8,1.3,1.2,0.4,mMetal);bb.shadow(0, 0, 0, 38, 28, 0.6, { sq: true });
+    const bb = B.at(63, GY - 93, -36); bb.rbox(0, -12, 0, 30, 24, 24, 6, M({ c: '#c83a2a', sh: 40, sp: '#555' }));bb.rbox(0,-11,12.1,24,0.4,0.4,0.15,M('#76291f'));bb.rbox(0,-8,12.8,8,1.3,1.2,0.4,mMetal);bb.shadow(0, 0, 0, 34, 28, 0.6, { sq: true });
     const rd = B.at(65,GY-93,-5); rd.rbox(0,-7,0,24,14,8,2,M('#3a3a3e')); rd.cyl(6,-7,4.2,4,4,0.4,16,M('#555'),{rx:90});rd.box(-5,-9,4.2,8,3,0.4,M({c:'#d8a040',e:'#3a2000'}));rd.cyl(-8,-21,-2,0.3,0.3,20,6,mMetal,{rz:20});
     // the microwave: the clock is flashing 12:00
     const mw = new T.Group();mw.name='kitchen-microwave';mw.position.set(r.fridgeFrame.x,GY-169,-20);r.group.add(mw);const MW=K.into(mw);r.mw=mw;
@@ -879,20 +1048,34 @@
     kt2.shadow(0, 0, 0, 130, 90, 0.7, { sq: true });
     [[-60, 104, 0], [-60, 236, 180], [-136, 170, 90], [16, 170, -90]].forEach(([x, z, ry]) => chair(B, x, z, ry)); // (set 6 cm back: legs clear of the table legs and aprons)
     // a wall clock, the calendar, the cork board with Mom's lists
-    const wc = B.at(-280 + 1, GC + 50, 120); wc.cyl(1, 0, 0, 16, 16, 2, 30, M('#f4f0e4'), { rz: 90 }); wc.cyl(2.2, 0, 0, 16.5, 16.5, 1, 30, M('#c83a2a'), { rz: 90 });
-    r.clockHands = wc;
-    const cal = B.at(194, GY - 150, 60); cal.box(-0.25, 0, 0, 0.3, 42, 30, { l: M({ c: '#fff', map: tex('calendar'), pr: 1 }), all: M('#e9e4d6') }); cal.cyl(-0.6, -22.5, 0, 0.35, 0.35, 0.8, 8, mMetal, { rz: 90 });
+    const wc = B.at(-154, GY-181, 293.5, 180);wc.wshadow(.6,1,-1.45,39,39,.35);
+    wc.cyl(0,0,0,18,18,3,40,M({c:'#9e352a',sh:45}),{rx:90});
+    wc.cyl(0,0,1.7,16.5,16.5,.6,40,M('#f4f0e4'),{rx:90});
+    const dial=K.tex('hs.kitchen-dial',256,256,(g,w,h)=>{
+      g.fillStyle='#f4f0e4';g.fillRect(0,0,w,h);
+      for(let i=0;i<60;i++){const a=i*Math.PI/30;g.strokeStyle='#433e32';g.lineWidth=i%5?1:3;g.beginPath();g.moveTo(128+Math.sin(a)*(i%5?114:108),128-Math.cos(a)*(i%5?114:108));g.lineTo(128+Math.sin(a)*119,128-Math.cos(a)*119);g.stroke()}
+      for(let i=1;i<=12;i++){const a=i*Math.PI/6;A.text(g,String(i),128+Math.sin(a)*91,136-Math.cos(a)*91,'700 22px '+A.UIF,'#352f27','center')}
+    },{clamp:true});
+    const dialFace=new T.CircleGeometry(16.3,40);flipUV(dialFace);wc.geo(dialFace,0,0,2.08,M({c:'#fff',map:dial,pr:1}));
+    const cal = B.at(35,GY-160,294.4,180);r.calendarTex=tex('calendar');
+    cal.box(0,0,0,32,46,1,{f:M({c:'#fff',map:r.calendarTex,pr:1}),all:M('#e9e4d6')});
+    cal.cyl(0,-24,0,.65,.65,1.2,10,mMetal,{rx:90});
+    for(let x=-12;x<=12;x+=3)cal.cyl(x,-22,.8,.25,.25,3,6,mMetal);
     // Mom's notice board over the table: lists, a takeaway menu, the school photo
-    const nb = B.at(-280, GY - 150, 205, 90), corkM = M({ c: '#fff', map: tex('cork'), pr: 1 }), nbFrame = M({ c: '#fff', map: tex('pine') });
+    const nb = B.at(-60,GY-157,294.8,180,{sx:1.4,sy:1.4}), corkM = M({ c: '#fff', map: tex('cork'), pr: 1 }), nbFrame = M({ c: '#fff', map: tex('pine') });
     nb.wshadow(0.8, 1.2, 0.1, 58, 44, 0.45); nb.box(0, 0, 0.9, 52, 38, 1.6, corkM);
     for (const e of [-1, 1]) { nb.rbox(0, e * 19.6, 1.3, 55.2, 2, 2.6, 0.4, nbFrame); nb.rbox(e * 26.6, 0, 1.3, 2, 37.2, 2.6, 0.4, nbFrame); }
-    nb.box(-14, -2, 1.78, 15, 20, 0.12, M({ c: '#fff', map: tex('note'), pr: 1 }), { rz: 3 }); nb.box(6, -5, 1.8, 16, 11, 0.12, M({ c: '#fff', map: tex('photo'), pr: 1 }), { rz: -4 });
-    nb.box(16, 7, 1.76, 11, 14, 0.12, M({ c: '#fff', map: tex('noteBlue'), pr: 1 }), { rz: 5 }); nb.box(-2, 10, 1.77, 13, 9, 0.12, M({ c: '#fff', map: tex('calendar'), pr: 1 }), { rz: -2 });
+    const memo=(key,col,lines)=>K.tex('hs.memo.'+key,192,256,(g,w,h)=>{g.fillStyle=col;g.fillRect(0,0,w,h);lines.forEach((line,i)=>A.text(g,line,w/2,49+i*41,'700 23px '+A.HAND,'#293c52','center'))},{clamp:true});
+    nb.box(-14,-2,1.9,15,20,.18,M({c:'#fff',map:memo('jobs','#fff1b0',['JOBS','ON THE','FRIDGE','Mom x']),pr:1}),{rz:3});
+    nb.box(6,-5,1.9,16,11,.18,M({c:'#fff',map:tex('photo'),pr:1}),{rz:-4});
+    nb.box(16,7,1.9,11,14,.18,M({c:'#fff',map:memo('school','#c5e4e3',['PE KIT','MONDAY','WASH IT!']),pr:1}),{rz:5});
+    nb.box(-2,10,1.9,13,9,.18,M({c:'#fff',map:tex('calendar'),pr:1}),{rz:-2});
     [[-14, -10.5, '#d02a2a'], [6, -9.8, '#2a8a3a'], [16, -0.2, '#e8c020'], [-2, 6, '#2a5ad0']].forEach(([x, y, c]) => nb.cyl(x, y, 2.3, 0.8, 0.8, 1, 10, M(c), { rx: 90 }));
     batch.build(r.group);
     // the clock hands (they move)
-    const hands = new T.Group(); hands.position.set(-280 + 3.6, GC + 50, 120); r.group.add(hands); const HN = K.into(hands);
-    r.hh = new T.Group(); hands.add(r.hh); K.into(r.hh).box(0.3, -4, 0, 0.6, 8, 1.4, M('#111')); r.mh = new T.Group(); hands.add(r.mh); K.into(r.mh).box(0.6, -6, 0, 0.6, 12, 0.9, M('#111')); void HN;
+    const hands = new T.Group(); hands.name='kitchen-clock-hands';hands.position.set(-154,GY-181,291.2);hands.rotation.y=Math.PI;r.group.add(hands);
+    r.hh=new T.Group();hands.add(r.hh);K.into(r.hh).box(0,-4,0,1,8,.5,M('#292824'));
+    r.mh=new T.Group();hands.add(r.mh);K.into(r.mh).box(0,-6,.4,.65,12,.4,M('#292824'));K.into(hands).cyl(0,0,.9,.8,.8,.8,12,mMetal,{rx:90});
     // the biscuit tin (a daily raid: js/hs-life.js asks the server)
     const tin = new T.Group();tin.position.set(40,GY-93,-4);r.group.add(tin);const TN=K.into(tin);
     TN.cyl(0, -9, 0, 11, 11, 18, 24, M({ c: '#fff', map: tinTex(), sh: 60, sp: '#888' }));
@@ -906,12 +1089,14 @@
     H.spot('hs.paper', { label: 'The newspaper', act: () => life('paper') }); pickBox(r, 'hs.paper', -22, GY - 77, 189, 30, 2, 38);
     H.spot('hs.cooker', { label: 'The cooker', act: sayLines('hs.cooker', 'The cooker', ['Tonight: ' + ['fish fingers, chips and beans', 'spag bol', 'a Fondus Crispy Pancake each', 'shepherd\'s pie', 'a chicken Kiev (garlic everywhere)'][new Date().getDay() % 5] + '. Mom says do NOT touch the knobs.']) }); pickBox(r, 'hs.cooker', -10, GY - 46, 3, 58, 92, 4);
     H.spot('hs.washer', { label: 'Washing machine', act: sayLines('hs.washer', 'Washing machine', ['It walks across the floor on the spin cycle. We have found it in the middle of the kitchen before.']) }); pickBox(r, 'hs.washer', 50, GY - 46, 3, 58, 86, 4);
-    H.spot('hs.wclock', { label: 'Kitchen clock', act: () => { const d = new Date(); say('Kitchen clock', 'It says ' + d.getHours() % 12 + ':' + String(d.getMinutes()).padStart(2, '0') + '. (It\'s right. The microwave isn\'t.)'); } }); pickBox(r, 'hs.wclock', -278, GC + 50, 120, 4, 32, 32);
-    H.ambient.add(() => { if (!r.group.visible) return; const d = new Date(), m = d.getMinutes() + d.getSeconds() / 60, h = (d.getHours() % 12) + m / 60; r.mh.rotation.x = -m / 60 * Math.PI * 2; r.hh.rotation.x = -h / 12 * Math.PI * 2; });
+    H.spot('hs.wclock', { label: 'Kitchen clock', act: () => { const d=window.OwnerTools?.now()||new Date();say('Kitchen clock','It says '+(d.getHours()%12||12)+':'+String(d.getMinutes()).padStart(2,'0')+'. (It\'s right. The microwave isn\'t.)'); } });pickBox(r,'hs.wclock',-154,GY-181,290,36,36,5);
+    H.spot('hs.kcalendar',{label:"Mom's calendar",act:()=>{const d=window.OwnerTools?.now()||new Date(),t=window.Desk?.today99?.()||{m:d.getMonth()+1,d:d.getDate()},day=t.m===2?Math.min(28,t.d):t.d;say("Mom's calendar",day+'/'+t.m+'/1999. Today is ringed in red. Mom: "Your jobs are on the fridge. Do those before you go out!"')}});pickBox(r,'hs.kcalendar',35,GY-160,291,33,48,3);
+    H.spot('hs.kboard',{label:"Mom's notice board",act:()=>{const next=window.st?.objectives?.().find(o=>!o.done);say("Mom's notice board",'PE kit on Monday. School photo. Three pins missing. '+(next?next.hint||next.text:'Mom: "Jobs first, then games. Your list is on the fridge."'),6500)}});pickBox(r,'hs.kboard',-60,GY-157,290,78,57,4);
     H.walkRect('G', -278, -54, 193, 293, { room: 'kitchen' });
     H.block('G', -280, -56, 82, 6); H.block('G', -280, -56, -218, 14); H.block('G', -124, 126, 4, 214); H.block('G', -80, 86, -40, 122); H.block('G', -80, 218, -40, 254); H.block('G', -156, 150, -116, 190); H.block('G', -4, 150, 36, 190);
     H.support('kitchen',-214.5,-56,-103,10,GY-93);H.support('kitchen',-57,-56,-40,10,GY-93);H.support('kitchen',-103,-56,-57,-44,GY-93);H.support('kitchen',-103,-8,-57,10,GY-93);H.support('kitchen',-103,-44,-57,-8,GY-81);
     H.support('kitchen',-39,-55,19,3,GY-94);H.support('kitchen',20,-56,80,10,GY-93);H.support('kitchen',-277.5,-52,-217.5,12,GY-170);H.support('kitchen',-120,130,0,210,GY-76);
+    for(const x of [-24,4])for(const z of [-38,-14])H.support('kitchen',x-8,z-8,x+8,z+8,GY-94.9);
   }
   function winFrame(B, x0, x1, y0, y1, z) { const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, w = x1 - x0, h = y1 - y0, fm = M({ c: '#f2f0ea', sh: 40, sp: '#444' }), fz = z - 8; B.box(cx, y0 + 3, fz, w, 6, 6, fm); B.box(cx, y1 - 3, fz, w, 6, 6, fm); B.box(x0 + 3, cy, fz, 6, h, 6, fm); B.box(x1 - 3, cy, fz, 6, h, 6, fm); B.box(cx, cy, fz, 5, h, 6, fm); B.plane(cx, cy, fz - 1, w - 6, h - 6, M({ c: '#c8d8f0', o: 0.12, tr: true, sh: 120, sp: '#fff' })); B.panel(cx, y0, z - 6, w, 12, .4, M('#d8d4c8'), { rx: -90 }); B.panel(x0, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: 90 }); B.panel(x1, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: -90 }); B.rbox(cx, y1 + 1.5, z + 2, w + 10, 3, 10, 0.8, M('#efece4')); }
   // a lathe-turned table/chair leg with a square top block (for the aprons) and a turned lower part
@@ -1003,7 +1188,10 @@
     // Both flank walls, ground to eaves. The rooms inside are hidden while you are outside (room visibility), so the
     // exterior shell must close on its own: these butt between the back wall (z -56.6) and the front wall (z 701),
     // outer faces on x -300 / 420 (the downpipe brackets' wall line), tops tucked into the roof slab.
-    for(const x of [-299,419])B.box(x,(GY-205)/2,(701-56.6)/2,2,GY+205,701+56.6,mBrick(),{uv:128});
+    B.box(-299,(GY-205)/2,(701-56.6)/2,2,GY+205,701+56.6,mBrick(),{uv:128});
+    // The landing window continues through the outer skin, rather than looking
+    // straight into a brick wall ten centimetres behind its frosted pane.
+    solidWall(B,420,322.2,90,[[-378.8,-205],[378.8,-205],[378.8,GY],[-378.8,GY]],mBrick(),2,[[[77.8,-80],[157.8,-80],[157.8,60],[77.8,60]]]);
     // Side gates close both passages beside the house a metre behind the front, so you never see through to the back.
     { const fm=mFence(),post=M({c:'#fff',map:tex('pineDark')}),iron=M({c:'#1d1e1f',sh:40,sp:'#444'}),gz=600;
       const run=(a,b,gate)=>{ // a..b along x at gz; gate: [x0,x1] for a ledged leaf hung on its own posts
@@ -1014,7 +1202,10 @@
           if(gate&&x0>=gate[0]-.5&&x1<=gate[1]+.5){const cx=(x0+x1)/2,w=x1-x0-1.6; // the gate leaf: boards, ledges and a brace behind, black ironmongery in front
             B.box(cx,GY-92,gz,w,172,2.4,fm,{uv:100});for(const y of [-24,-160])B.box(cx,GY+y,gz-2.6,w-6,9,2.8,post);
             B.box(cx,GY-92,gz-2.6,Math.hypot(w-14,128),7,2.4,post,{rz:Math.atan2(128,w-14)/D2R});
-            for(const y of [-24,-160])B.box(x0+16,GY+y,gz+1.6,30,2.2,.8,iron);B.cyl(x1-12,GY-104,gz+2.4,2.6,2.6,1.2,10,iron,{rx:90});B.box(x1-12,GY-104,gz+3.4,7,1.2,1.4,iron);
+            for(const y of [-24,-160]){B.box(x0+16,GY+y,gz+1.6,30,2.2,.8,iron);B.cyl(x0+1.4,GY+y,gz+2.7,1,1,12,8,iron);}
+            B.cyl(x1-12,GY-104,gz+2.4,2.6,2.6,1.2,10,iron,{rx:90});
+            B.geo(new T.TorusGeometry(2.4,.55,6,12),x1-12,GY-99,gz+4.3,iron);
+            B.rbox(x1-6,GY-104,gz+3.3,20,1.7,1.8,.4,iron);B.rbox(x1+3,GY-104,gz+3.1,3.2,5,2.4,.4,iron);
           }else B.box((x0+x1)/2,GY-90,gz,x1-x0,180,3,fm,{uv:100});
         }
       };
@@ -1052,12 +1243,7 @@
     B.box((x0+x1)/2,GY+2,(z0+z1)/2,x1-x0,4,z1-z0,mGrass(),{uv:110});
     B.box(-50,GY+1.7,-126,330,4,130,mSlab(),{uv:100}); // the patio by the back door
     // the back of the house: brick, the kitchen window and the back door from outside, Jack's window up above
-    const openings=[[-140,-20,195,290],[80,160,GY-205,356],[156,226,-112,-14]],cuts=[...new Set([-300,420,...openings.flatMap(h=>h.slice(0,2))])].sort((a,b)=>a-b);
-    for(let i=0;i<cuts.length-1;i++){
-      const x0=cuts[i],x1=cuts[i+1],holes=openings.filter(h=>h[0]<x1&&h[1]>x0).sort((a,b)=>a[2]-b[2]);let top=-196;
-      const wall=(a,b)=>{if(b>a)B.panel((x0+x1)/2,(a+b)/2,-57,x1-x0,b-a,.8,mBrick(),{ry:180,uv:128})};
-      for(const h of holes){wall(top,h[2]);top=Math.max(top,h[3])}wall(top,356);
-    }
+    solidWall(B,60,-57,180,[[-360,-196],[360,-196],[360,356],[100,356],[100,GY-205],[20,GY-205],[20,356],[-360,356]],mBrick(),.8,[[[-200,195],[-80,195],[-80,290],[-200,290]],[[96,-112],[166,-112],[166,-14],[96,-14]]]);
 
     B.box(300,-67,-58.5,70,80,2,M({c:'#789095',sh:28,sp:'#879a9b'}));
     for(const x of [263,337])B.box(x,-67,-60,5,88,5,mWhite);for(const y of [-109,-25])B.box(300,y,-60,70,4,5,mWhite);B.box(300,-69,-61,70,3,3,mWhite);B.box(300,-20,-63,82,5,10,M('#bbb5a5'));
@@ -1160,11 +1346,7 @@
     B.box(290,GY-.45,(752+FZ)/2,84,1,FZ-752,mSlab(),{uv:100});
     for(const x of [246.5,333.5])B.box(x,GY-.7,(752+FZ)/2,3,1.5,FZ-752,M('#8c8679')); // a brick-on-edge border each side
     // the front of the house: brick, the bay window, the front door from outside, the number
-    const holes=[[-170,50,150,300],[260,340,GY-205,GY]],cuts=[-300,-170,50,260,340,420];
-    for(let i=0;i<cuts.length-1;i++){const a=cuts[i],b=cuts[i+1];let y=-196;
-      const wall=(top,bottom)=>{if(bottom>top)B.box((a+b)/2,(top+bottom)/2,702,b-a,bottom-top,2,mBrick(),{uv:128})};
-      for(const h of holes.filter(h=>h[0]<b&&h[1]>a).sort((a,b)=>a[2]-b[2])){wall(y,h[2]);y=h[3]}wall(y,GY);
-    }
+    solidWall(B,60,703,0,[[-360,-196],[360,-196],[360,GY],[280,GY],[280,GY-205],[200,GY-205],[200,GY],[-360,GY]],mBrick(),2,[[[-230,150],[-10,150],[-10,300],[-230,300]]]);
     // Recessed upstairs glazing is framed on all sides, with proper sill depth.
     const upperGlass=M({c:'#fff',sh:42,sp:'#809294',map:K.tex('hs.upperglass',128,128,(g,w,h)=>{const c=g.createLinearGradient(0,0,30,h);c.addColorStop(0,'#71828a');c.addColorStop(.5,'#4c626a');c.addColorStop(1,'#344d59');g.fillStyle=c;g.fillRect(0,0,w,h);g.fillStyle='rgba(208,199,172,.2)';g.fillRect(2,0,15,h);g.fillRect(w-17,0,15,h);g.fillStyle='rgba(215,227,221,.1)';g.beginPath();g.moveTo(0,24);g.lineTo(w,65);g.lineTo(w,75);g.lineTo(0,34);g.fill()},{clamp:true})});
     for(const [x,w]of [[-175,108],[55,108],[330,72]]){B.box(x,-57,703.3,w+10,138,2,M('#383c38'));B.box(x,-57,705,w,128,1.2,upperGlass);
@@ -1174,17 +1356,19 @@
     // Open frame, not a solid white panel hiding the lounge window.
     for(const x of [-174,54])B.box(x,225,704.3,8,160,8,mWhite);
     for(const y of [147.2,302.5])B.box(-60,y,704.3,220,5,8,mWhite); // no coplanar underside with the lounge's frame
-    B.plane(-60,225,708.5,220,150,M({c:'#1a2a3a',o:.28,tr:true,sh:100,sp:'#fff'}));
+    r.bayGlow=M({c:'#1a2a3a',o:.28,tr:true,sh:100,sp:'#fff'}).clone();
+    B.plane(-60,225,708.5,220,150,r.bayGlow);
     // a deep stone sill under the lounge window and a concrete lintel over it, both proud of the brick
     B.rbox(-60,308.5,709.5,240,6,15,0.8,M('#b8b4a5'));B.box(-60,143.6,704.2,232,7,2.4,M('#a59d8f'));
     B.box(256.8, GY - 102, 703, 5.6, 204, 3, mWhite); B.box(343.2, GY - 102, 703, 5.6, 204, 3, mWhite); B.box(300, GY - 206, 703, 92, 6, 3, mWhite);
-    B.box(300, GY - 215, 704, 100, 14, 40, M('#e8e4dc')); B.box(300, GY - 222, 724, 100, 2, 2, M('#9a9a92')); // the porch roof
+    B.box(300, GY - 215, 715, 100, 14, 26, M('#e8e4dc')); B.box(300, GY - 222, 728, 100, 2, 2, M('#9a9a92')); // the porch roof, housed into the outer brickwork
     B.plane(340, GY - 180, 702.6, 16, 20, M({ c: '#fff', map: K.tex('hs.numb', 64, 80, (g) => { g.fillStyle = '#1a1a1a'; g.fillRect(0, 0, 64, 80); A.text(g, '42', 32, 58, '48px ' + A.FONT, '#f0d080', 'center'); }) }));
     // The single WELCOME mat is inside the hall, where the post lands.
     // a black coach lantern on the wall beside the front door (the old free-standing post stood in front of the car boot)
-    { const ln = B.at(354, GY - 176, 703), black = M({ c: '#1d1e1f', sh: 40, sp: '#444' }), lit = phase() === 'night' ? '#a08040' : '#000';
+    { const ln = B.at(354, GY - 176, 703), black = M({ c: '#1d1e1f', sh: 40, sp: '#444' });
       ln.rbox(0, 0, 1.2, 7, 15, 2.4, 0.6, black); ln.cyl(0, -1, 6.6, 0.8, 0.8, 9, 8, black, { rx: 90 });
-      ln.cyl(0, 9, 11.5, 6.2, 5, 16, 4, M({ c: '#f2e7c6', e: lit, o: 0.86, tr: true, sh: 80, sp: '#fff' }), { ry: 45 });
+      r.porchGlow=M({c:'#f2e7c6',o:.86,tr:true,sh:80,sp:'#fff'}).clone();
+      ln.cyl(0, 9, 11.5, 6.2, 5, 16, 4, r.porchGlow, { ry: 45 });
       ln.cyl(0, 0.2, 11.5, 1.4, 8.6, 4.4, 4, black, { ry: 45 }); ln.cyl(0, 17.6, 11.5, 5.4, 5.4, 1.8, 4, black, { ry: 45 }); ln.ball(0, -2.6, 11.5, 1.3, 1.3, 1.3, black, 8); ln.cyl(0, 20, 11.5, 0.5, 1.2, 3, 8, black);
       for (const [dx, dz] of [[-4.1, 0], [4.1, 0], [0, -4.1], [0, 4.1]]) ln.box(dx, 9, 11.5 + dz, 0.6, 16, 0.6, black, { ry: 45 }); }
     // Next door is a complete solid model in the shared neighbourhood.
@@ -1229,6 +1413,7 @@
     r.streetGlow = M({ c: '#f3c98a', e: phase() === 'day' ? '#000' : '#ffb24a', sh: 60, sp: '#fff' }).clone();
     lp.rbox(0, -519, 73, 14, 3, 38, 1.2, r.streetGlow, { rx: -12 });
     lp.shadow(0, 0, 0, 40, 36, 0.45, { sq: true });
+    exteriorLightLook(r);
     // Dad's car: a burgundy family saloon (no real make), on the drive, nose to the street
     const frame = r.carFrame = Object.assign({}, CAR);
     const carBatch = K.batch(), carGroup = new T.Group();carGroup.name = 'Dads car';carGroup.userData.staticBatch = true;r.group.add(carGroup);
@@ -1381,9 +1566,9 @@
   }
 
   // ================================================================ the rooms, their lights, their views
-  const rearGlass=[[-140,195,-66,-20,290,-54],[95,163,-60,145,233,-54]],bedroomGlass=[[156,-112,-60,226,-14,-54]],bayGlass=[[-170,150,696,50,300,710]],frontGlass=[[285,167,698,315,213,706]];
+  const rearGlass=[[-140,195,-66,-20,290,-54],[95,167,-60,145,245,-54]],bedroomGlass=[[156,-112,-60,226,-14,-54]],bayGlass=[[-170,150,696,50,300,710]],frontGlass=[[279,167,698,321,245,706]];
   const ROOMDEF = {
-    landing: { name: 'The landing', title: 'THE LANDING', lvl: 'U', area: [[250, 130, 410, 250], [250, 250, 330, 700], [330, 250, 410, 700]], bx0: 252, bx1: 408, bz0: 132, bz1: 698, build: buildLanding,
+    landing: { name: 'The landing', title: 'THE LANDING', lvl: 'U', area: [[250, 130, 410, 250], [250, 250, 330, 700], [330, 250, 410, 700]], bx0: 252, bx1: 408, bz0: 132, bz1: 698, build: buildLanding, windowViews:[{room:'drive',bounds:[[410,-80,400,420,60,480]]}],
       lights: () => [{ x: 300, y: -150, z: 400, c: '#fff0d8', i: lit('landing') ? 0.9 : 0, d: 520 }, { x: 390, y: -10, z: 440, c: phase() === 'day' ? '#e8f0ff' : '#5a6a9a', i: phase() === 'day' ? 1.3 : 0.25, d: 560 }, { x: 300, y: -60, z: 180, c: '#f0ece0', i: phase() === 'day' ? 0.4 : 0.1, d: 320 }],
       amb: () => interiorAmb('landing', .68),
       stations: [{ id: 'top', n: 'Top of the stairs', pose: () => look('U', 300, 175, 370, 220, 520, 158) }, { id: 'doors', n: 'Landing', pose: () => look('U', 310, 640, 250, -40, 420, 158) }] },
@@ -1412,7 +1597,11 @@
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: -900, tx: 0, ty: GY, tz: -300, c: '#8090c8', i: 0.15 } : { x: 400, y: -900, z: -600, tx: 0, ty: GY, tz: -300, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'patio', n: 'The garden', pose: () => look('G', 40, -90, -80, GY - 80, -420, 158) }, { id: 'shed', n: 'The shed', pose: () => look('G', -40, -300, -230, GY - 100, -470, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 20, -360, 80, 60, -56, 158) }] },
     drive: { name: 'The front', title: 'OUT THE FRONT', lvl: 'G', area: [[-340, 700, 720, STREET.pave[1] - 3]], bx0: -338, bx1: 718, bz0: 702, bz1: STREET.pave[1] - 5, build: buildDrive, outside: true, windowViews:[{room:'lounge',bounds:bayGlass},{room:'hall',bounds:frontGlass}],
-      lights: () => [{ x: 360, y: GY - 124, z: 730, c: '#ffe0a0', i: phase() === 'day' ? 0 : 0.7, d: 420 }, { x: LAMP.x - 100, y: GY - 430, z: LAMP.z, c: '#ffb860', i: phase() === 'day' ? 0 : 1.2, d: 900 }],
+      lights: () => phase()==='day'?[]:[
+        {x:354,y:GY-167,z:724,c:'#ffda9d',i:1.25,d:750},
+        {x:LAMP.x,y:GY-519,z:LAMP.z+73,c:'#ffbd70',i:1.8,d:1350},
+        ...(window.HouseEnvironment?.streetLamps||[])
+      ],
       amb: () => outdoorAmb('#797b70'),
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: 1700, tx: 300, ty: GY, tz: 900, c: '#8090c8', i: 0.15 } : { x: -400, y: -900, z: 1500, tx: 300, ty: GY, tz: 900, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'car', n: "Dad's car", pose: () => look('G', 290, FZ - 50, CAR.x, GY - 70, CAR.z, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 180, FZ - 70, 150, 120, 700, 158) }, { id: 'street', n: 'The street', pose: () => look('G', 200, 760, 240, GY - 120, FZ + 300, 158) }] },
@@ -1459,11 +1648,10 @@
         // Seat the shut leaf inside the shallow exterior casing. The default
         // inside hinge offset left its outer face nearly 5 cm behind that
         // casing, exposing a dark, apparently skewed gap in the pitched view.
-        const bd = doorway(kit, KB, 'backdoor', 'n', -56, 80, 160, GY, { inside: true, hingeNormal: -1, noframe: true, glass: true, mat: M({ c: '#f2f0ea', sh: 40, sp: '#444' }), deco: (Dd, g2) => { Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, -1.9, 50, 70, M({ c: '#c8e0f0', o: 0.4, tr: true, sh: 100, sp: '#fff' }), { ry: 180 }); Dd.plane(g2.sgnA * g2.dw / 2, g2.top + 50, 1.9, 50, 70, M({ c: '#c8e0f0', o: 0.4, tr: true, sh: 100, sp: '#fff' })); } });
+        const bd = doorway(kit, KB, 'backdoor', 'n', -56, 80, 160, GY, { inside: true, hingeNormal: -1, noframe: true, glass: {w:50}, mat: M({ c: '#f2f0ea', sh: 40, sp: '#444' }) });
         kb.build(kit.group);
-        const gl = () => M({ c: '#dfe8ee', o: 0.7, tr: true, sh: 90, sp: '#fff' });
-        const fd2 = doorway(hall, K.into(fb), 'frontdoor', 's', 700, 260, 340, GY, { inside: true, leaf: true, noframe: true, glass: true, panel: M({ c: '#27402f', sh: 8, sp: '#1a1a1a' }), mat: M({ c: '#2f4d3a', sh: 10, sp: '#1a1a1a' }), deco: (Dd, g2) => { const cx = g2.sgnA * g2.dw / 2;
-          for (const sg of [-1, 1]) { Dd.plane(cx, g2.top + 42, sg * 1.9, 30, 46, gl(), sg < 0 ? { ry: 180 } : {}); Dd.box(cx, g2.fy - 100, sg * 2.1, 24, 4, 0.8, mBrass); Dd.box(cx, g2.fy - 100, sg * 2.5, 20, 1.2, 0.4, M('#3a2a10')); Dd.box(cx, g2.fy - 80, sg * 2.2, 4, 8, 1, mBrass); } } });
+        const fd2 = doorway(hall, K.into(fb), 'frontdoor', 's', 700, 260, 340, GY, { inside: true, leaf: true, noframe: true, glass: {w:42}, panel: M({ c: '#27402f', sh: 8, sp: '#1a1a1a' }), mat: M({ c: '#2f4d3a', sh: 10, sp: '#1a1a1a' }), deco: (Dd, g2) => { const cx = g2.sgnA * g2.dw / 2;
+          for (const sg of [-1, 1]) { Dd.box(cx, g2.fy - 100, sg * 2.1, 24, 4, 0.8, mBrass); Dd.box(cx, g2.fy - 100, sg * 2.5, 20, 1.2, 0.4, M('#3a2a10')); Dd.box(cx, g2.fy - 80, sg * 2.2, 4, 8, 1, mBrass); } } });
         fb.build(hall.group);
         H.door('back', { rooms: ['kitchen', 'garden'], pivot: bd, swing: 100, dir: -1 }); H.door('front', { rooms: ['hall', 'drive'], pivot: fd2, swing: 100, dir: 1 });
         H.spot('hs.backdoor', { label: () => H.DOORS.back.open ? 'Shut the back door' : 'The back door (to the garden)', obj: bd, act: () => { const o = !H.DOORS.back.open; H.setDoor('back', o); if (o && phase() !== 'day') say('The back door', 'Brrr. It\'s dark out there. Mind the step.'); } });
@@ -1485,14 +1673,19 @@
       lastPhase = ph;
       for (const t of phaseTextures) t.userData.repaintPhase();
       const drive = HouseRooms.rooms.drive;
-      if (drive && drive.streetGlow) drive.streetGlow.emissive.set(ph === 'day' ? '#000' : '#ffb24a');
+      exteriorLightLook(drive);
       const cupboard = HouseRooms.rooms.cupboard; if (cupboard) cupLight(cupboard);
       standardLampLook(HouseRooms.rooms.lounge);
       switchLook();
       H.relight();
     }
     const blink = Math.floor(now / 600) % 2 === 0;
-    if(!clockDate||now>=clockNext){clockNext=now+1000;clockDate=window.OwnerTools?.now()||new Date()}
+    if(!clockDate||now>=clockNext){
+      clockNext=now+1000;clockDate=window.OwnerTools?.now()||new Date();
+      const r=HouseRooms.rooms.kitchen;
+      if(r?.hh){const m=clockDate.getMinutes()+clockDate.getSeconds()/60,h=clockDate.getHours()%12+m/60;r.mh.rotation.z=m/60*Math.PI*2;r.hh.rotation.z=h/12*Math.PI*2;}
+      if(r?.calendarTex){const t=window.Desk?.today99?.()||{m:clockDate.getMonth()+1,d:clockDate.getDate()},key=t.m+'-'+t.d;if(r.calendarDay!==key){r.calendarDay=key;const tx=r.calendarTex,g=tx.userData.g,p=A.P.calendar;g.save();g.setTransform(tx.image.width/p[0],0,0,tx.image.height/p[1],0,0);p[2](g,p[0],p[1]);g.restore();tx.needsUpdate=true;H.dirty()}}
+    }
     for (const [rid, key, set] of clockDisplays) {
       const r = HouseRooms.rooms[rid]; if (!r || !r[key] || !r.group.visible) continue;
       const d = clockDate, txt = (window.HouseLife && HouseLife[set] && HouseLife[set]()) ? (d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0')) : (blink ? '12:00' : '');

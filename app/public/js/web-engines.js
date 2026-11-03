@@ -109,7 +109,7 @@
     '~ellie': ['POCKET CRITTERS', 'ALL 151!', 'star', 'sunset', 13], '~blockhead': ['BLOCK', 'SHRINE', 'block', 'lcd'], cubetimes: ['CUBE', 'RECORDS', 'cube', 'check', 10], '~zed': [CT("{club1.FIRST}'S"), 'SCI-FI ZONE', 'ufo', 'stars'],
     '~gaz': ['MILLENNIUM', 'BUNKER', 'clock', 'neon', 8], top100cheats: ['TOP 100', 'CHEATS!!!', 'joy', 'neon', 10], '~mike': ['MEGAHERTZ', 'MIKE', 'computer', 'chrome'], '~mek': ['MINI', 'PAINTING', 'paint', 'dbl', 2],
     '~ash': [CT("{club2.FIRST}'S"), 'SPACE PAGE', 'planet', 'stars'], fanfic: ['FAN-FIC', 'ARCHIVE', 'book', 'paper', 9], ascii: ['ASCII', 'ART  :-)', 'computer', 'lcd'], midi: ['MIDI', 'HEAVEN', 'note', 'sunset', 4],
-    '~sam': ['EPISODE I', 'COUNTDOWN', 'saber', 'stars'], jarjar: ['JAR JAR JAMS?', 'THE DEBATE', 'eye', 'bev', 7], podracing: ['PEAPODRACING', 'HQ', 'pod', 'stripe', 7], swrumours: ['RUMOUR', 'MILL', 'eye', 'neon', 10],
+    '~sam': ['EPISODE I', 'COUNTDOWN', 'saber', 'stars'], jarjar: ['BLAH BLAH BLINKS?', 'THE DEBATE', 'eye', 'bev', 7], podracing: ['PEAPODRACING', 'HQ', 'pod', 'stripe', 7], swrumours: ['RUMOUR', 'MILL', 'eye', 'neon', 10],
     brickwars: ['BRICK', 'WISHLIST', 'brick', 'bev', 3], saberduel: ['ME vs DAVE', 'SABER DUEL', 'saber', 'neon', 1], news: ['JACKNET', 'NEWS', 'news', 'chrome'], weather: ['JACKNET', 'WEATHER', 'rain', 'bev', 6],
     teef: ['GEM', 'EXCHANGE', 'gem', 'dbl', 12], hamstercam: ['HAMSTER', 'CAM - LIVE!', 'hamster', 'neon', 1], jokes: ['JOKE OF', 'THE DAY', 'grin', 'check', 3], jackmail: ['JackMail', 'FREE E-MAIL', 'mail', 'bev', 0],
     chatroom: ['THE BACK', 'ROOM CHAT', 'chat', 'check', 4], counters: ['COUNTER', 'MANIA', 'eye', 'lcd'], lost: ['404', 'NOT FOUND', 'mag', 'paper'], downloads: ['FREE', 'DOWNLOADS!!!', 'floppy', 'fire'],

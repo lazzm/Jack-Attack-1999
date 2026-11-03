@@ -1,16 +1,18 @@
 /* Sound Rumbler 16 (procedural Web Audio). Nothing plays until the visitor clicks something. */
 (function () {
   let ctx = null, master = null, musicMaster = null, worldMaster = null, worldPaused = false;
-  let sfxOn = false, musicOn = false, volume = 1;
+  let sfxOn = true, musicOn = true, volume = 1;
   try {
-    const legacy = localStorage.getItem('jhp_sfx') === '1';
+    const savedLegacy = localStorage.getItem('jhp_sfx');
+    const legacy = savedLegacy == null ? true : savedLegacy === '1';
     sfxOn = localStorage.getItem('jhp_audio_effects') == null ? legacy : localStorage.getItem('jhp_audio_effects') === '1';
     musicOn = localStorage.getItem('jhp_audio_music') == null ? legacy : localStorage.getItem('jhp_audio_music') === '1';
     const saved = Number(localStorage.getItem('jhp_audio_volume') ?? 1);
     volume = Number.isFinite(saved) ? Math.max(0, Math.min(1, saved)) : 1;
   } catch (e) {}
   const buses = new Map();
-  const ready = () => typeof navigator === 'undefined' || !navigator.userActivation || navigator.userActivation.hasBeenActive;
+  let gestured = false;
+  const ready = () => typeof navigator === 'undefined' || gestured || !!navigator.userActivation?.hasBeenActive;
   function output(c, channel = 'effects') {
     let bus = buses.get(c);
     if (!bus) {
@@ -262,17 +264,20 @@
     variant: null, // seasons-web.js: name -> seasonal variant (e.g. 'startup' -> 'startup_halloween') while a season is on
     has: name => !!sfx[name],
     setVolume(v) { if (!Number.isFinite(+v)) return; volume = Math.max(0, Math.min(1, +v)); changed(); },
-    speak(utterance) { if (sfxOn && volume && window.speechSynthesis) { utterance.volume *= volume; speechSynthesis.speak(utterance); } },
+    // Retain the old callers' API without enabling synthesized voices when
+    // sound starts. Spoken audio uses the game's recordings.
+    speak() {},
     note(f, d, type) { if (sfxOn) tone(f, d || 0.25, type || 'square', 0.15); },
     music, addTune, tunes: () => Object.keys(TUNES),
     unlock: ac,
   };
-  function wake() {
+  function wake(ev) {
+    if (ev?.isTrusted) gestured = true;
     if (!ready()) return;
     if (sfxOn || musicOn) ac();
     if (music.playing && !musicTimer) music.play(music.playing);
     document.dispatchEvent(new Event('audiochange'));
-    document.removeEventListener('pointerdown',wake,true);document.removeEventListener('keydown',wake,true);
+    document.removeEventListener('pointerdown',wake,true);document.removeEventListener('keydown',wake,true);document.removeEventListener('touchstart',wake,true);
   }
-  document.addEventListener('pointerdown',wake,true);document.addEventListener('keydown',wake,true);
+  document.addEventListener('pointerdown',wake,true);document.addEventListener('keydown',wake,true);document.addEventListener('touchstart',wake,{capture:true,passive:true});
 })();

@@ -2,7 +2,7 @@
 // Owner actions only move the 1999 clock; diagnostic helpers supply camera poses and projected object coordinates.
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
-import {roomFixture} from './room-fixture.mjs';
+import {roomFixture,fixtureScale} from './room-fixture.mjs';
 import {bonfireLogin} from './bonfire-login.mjs';
 const base = process.argv[2] || 'http://localhost:18089';
 assert(['localhost','127.0.0.1'].includes(new URL(base).hostname));
@@ -131,6 +131,8 @@ try {
  // A second real account gets its own cast. Close the house first to keep one rendered page alive.
  const family='Family'+Date.now().toString(36);await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:family,pass:password})});
  await page.close();const context=await f.browser.newContext({viewport:{width:390,height:844},hasTouch:true});await context.addInitScript(()=>localStorage.setItem('jhp_device_view','jackos'));const normal=await context.newPage();
+ // This page bypasses roomFixture; give it the same navigation allowance on software WebGL.
+ normal.setDefaultNavigationTimeout(90000*fixtureScale);
  await normal.goto(base+'/?date99=11-02&time=19:00:00',{waitUntil:'domcontentloaded'});await normal.locator('[name=name]').fill(family);await normal.locator('[name=password]').fill(password);await normal.locator('#accountGate [type=submit]').click();
  await normal.waitForFunction(()=>!!(window.AccountGate?.allowed||document.querySelector('#accountFirst')));if(await normal.locator('#accountFirst').count())await normal.locator('#accountGate [type=submit]').click();
  await normal.waitForFunction(()=>!!(AccountGate.allowed&&window.Cast&&window.Season));const cast=await normal.evaluate(()=>({sister:Cast.n('sister'),task:Season.cast(SeasonCat.byId.bonfire99.objById['bf-guy'].text)}));assert.notEqual(cast.sister,'Crystal');assert(cast.task.includes(cast.sister));assert(!cast.task.includes('{sister}'));log('non-owner cast',JSON.stringify(cast));await normal.screenshot({path:shots+'25-non-owner-cast.png'});await context.close();log('PASS bonfire: all eight objectives, real inputs, refresh, dates and phone sizes');

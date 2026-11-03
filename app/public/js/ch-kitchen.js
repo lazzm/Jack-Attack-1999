@@ -1,6 +1,6 @@
 /* ch-kitchen: Mom's jobs in THE KITCHEN (js/ch-core.js is the engine; the kitchen itself is js/hs-house.js).
  *   washup    click the sink: the hot tap into the washing-up bowl, then a squirt of washing-up liquid (bubbles!). Each dirty
- *             thing off the cooker goes in the water (one at a time), gets scrubbed (click it, four goes) and stands in
+ *             thing off the cooker or worktop goes in the water (one at a time), gets scrubbed (click it, four goes) and stands in
  *             the draining rack.
  *   table     four places at the kitchen table: a plate, a knife and fork and a glass on each mat, and the ketchup in the
  *             middle (Dad insists). They're stacked on the worktop by the kettle.
@@ -37,7 +37,11 @@
     ['pan', () => grp(G => { const al = mat('#b8bcc4', { sh: 90, sp: '#ddd', side: 2 }); G.lathe(0, 0, 0, [[0.001, 0], [8, 0], [9, -1], [9, -8.8], [9.2, -9], [8.6, -9], [8.4, -1.2], [0.001, -1.2]], 28, al); G.rbox(16, -7.5, 0, 14, 1.6, 2.6, 0.6, mat('#1a1a1a', { sh: 40 })); G.group.userData.dirt = dirt(G, 'pan', BURNT, 15, -1.25, 8); })],
   ];
   const DISHN = ['Dinner plate (baked beans)', 'Dinner plate (egg. EGG.)', 'Side plate (toast crusts)', 'Cereal bowl', 'Mug (tea ring)', 'Glass (milky)', 'Saucepan (burnt beans!)'];
-  const PILE = [[-12, WT, -16, 0], [-12, WT - 1.8, -16, 30], [-12, WT - 3.5, -16, 70], [8, WT, -34, 0], [-26, WT, -38, 20], [-30, WT, -16, 0], [-12, WT - 4.9, -16, 0]];
+  const OLD_PILE = [[-12, WT, -16, 0], [-12, WT - 1.8, -16, 30], [-12, WT - 3.5, -16, 70], [8, WT, -34, 0], [-26, WT, -38, 20], [-30, WT, -16, 0], [-12, WT - 4.9, -16, 0]];
+  // Plates on the clear worktop beside the cooker (the left counter is also
+  // used for Bonfire supper). Each remaining
+  // dish has its own cold hob ring; the saucepan rests directly on its ring.
+  const PILE = [[33, WT, -36, 0], [33, WT - 1.8, -36, 30], [33, WT - 3.5, -36, 70], [4, WT - 1.9, -38, 0], [-24, WT - 1.9, -38, 20], [4, WT - 1.9, -14, 0], [-24, WT - 1.9, -14, 0]];
   const RACK = { x: -132, z: -9 };
   // where each one stands in the rack: plates on their edges at the back, cups upside down at the front
   // Exact ceramic sizes: 24 cm dinner plates, 18 cm side plate. Their lower
@@ -99,6 +103,7 @@
       // the dirty things
       dishes = DISH.map(([type, mk], i) => CK.thing('ch.d.' + i, { obj: mk(), kind: 'wdish', label: DISHN[i], chore: 'washup', holdD: 45, home: { room: 'kitchen', x: PILE[i][0], y: PILE[i][1], z: PILE[i][2], ry: PILE[i][3] } }));
       dishes.forEach(t=>{t.factoryHome=Object.assign({},t.home)});
+      dishes.forEach((t,i)=>{if(!CK.has('washup','w'+i)&&!CK.has('washup','r'+i))updateFactoryPose(t,OLD_PILE[i]);});
       if(!CK.has('washup','w6')&&!CK.has('washup','r6'))updateFactoryPose(dishes[6],[6,WT,-6,-30]);
       dishes.forEach((t, i) => { if (!t) return; t.dishI = i; t.canGrab = () => canGrabDish(i); const sp = H.SPOTS[t.id]; sp.use = true; sp.act = () => dishClick(i); sp.label = () => dishLabel(i); });
       CK.snap('ch.s.wsink', { room: 'kitchen', x: SINK.x, y: SINK.y - 6, z: SINK.z, r: 36, box: [38, 2, 28], accepts: (k, t) => k === 'wdish' && filled() && inSink() < 0 && !CK.has('washup', 'w' + t.dishI), pose: { x: SINK.x, y: LOW - 0.2, z: SINK.z, ry: 15 }, hint: 'Let go: in the washing-up water', onSnap: t => { CK.snd.splash(); CK.fx.burst(KR(), SINK.x, FULL, SINK.z, { n: 14, tex: 'bub', size: 2.4, life: 1.2, spd: 18, up: 30, grav: 40 }); W().inn = t.dishI; CK.save(); if (!W().tipShown) { W().tipShown = 1; CK.jack('Washing up', 'In the water. Pick up the sponge: F scrubs till it squeaks. You can also click the dish.', 4500); } } });
@@ -152,7 +157,7 @@
     if (i < 0) {
       extraSuds++; CK.snd.pop(); CK.fx.burst(KR(), SINK.x, FULL - 1, SINK.z, { n: 20, tex: 'bub', size: 2.6, life: 1.4, spd: 14, up: 24, grav: 20 }); CK.MODS.washup.sync();
       if (extraSuds >= 4) CK.secret('ch.rinse');
-      return CK.jack('Washing up', extraSuds >= 4 ? 'BUBBLES! Bubbles everywhere! (Now actually wash something: the dirty stuff is on the cooker.)' : 'Swish swish. Now put something in: the dirty stuff is piled up on the cooker.', 3500);
+      return CK.jack('Washing up', extraSuds >= 4 ? 'BUBBLES! Bubbles everywhere! (Now actually wash something: look on the cooker and the worktop beside it.)' : 'Swish swish. Now put something in: the dirty stuff is on the cooker and the worktop beside it.', 3500);
     }
     if (CK.has('washup', 'w' + i)) { H.grab(dishes[i].id); return; }
     scrub(i);
@@ -174,7 +179,7 @@
       suds.position.y = y; suds.scale.set(0.3 + 0.7 * k, 0.05 + 0.95 * k, 0.3 + 0.7 * k);
       if (now - last > 90) { last = now; if (k < 0.45) CK.fx.burst(r, soapBottle.position.x - 3, WT - 23, soapBottle.position.z, { n: 3, col: '#5ae86a', size: 1.2, life: 0.5, spd: 10, up: -5, grav: 600, to: [SINK.x + 4, y, SINK.z] }); CK.fx.burst(r, SINK.x + (Math.random() - 0.5) * 16, y - 1, SINK.z + (Math.random() - 0.5) * 10, { n: 3, tex: 'bub', size: 2.2, life: 1, spd: 8, up: 18, grav: 10 }); }
     }, () => { running = false; CK.step('washup', 'fill'); v.full = 1; CK.save(); CK.MODS.washup.sync(); });
-    CK.jack('Washing up', 'A big squirt of washing-up liquid. BUBBLES. Now the dirty stuff off the cooker, one at a time, into the water.', 5000);
+    CK.jack('Washing up', 'A big squirt of washing-up liquid. BUBBLES. Now the dirty stuff off the cooker and the worktop beside it, one at a time, into the water.', 5000);
   }
   function scrub(i) {
     const v = W(), t = dishes[i], m = t.obj.userData.dirt;
@@ -285,7 +290,7 @@
     ['beans', 'Baked beans', 'cupboard'], ['soup', 'Tomato soup', 'cupboard'], ['flakes', 'Cornflakes', 'cupboard'],
     ['bread', 'Sliced white', 'breadbin'],
   ];
-  const WHERE = { fridge: { x: -247.5, y: GY - 62, z: 22, r: 40, n: 'in the fridge (bottom door)' }, freezer: { x: -247.5, y: GY - 140, z: 22, r: 32, n: 'in the freezer (top door)' }, cupboard: { x: -187, y: GC() + 80, z: -12, r: 32, n: 'in the cupboard' }, breadbin: { x: 40, y: WT - 12, z: -32, r: 30, n: 'in the bread bin' } };
+  const WHERE = { fridge: { x: -247.5, y: GY - 62, z: 22, r: 40, n: 'in the fridge (bottom door)' }, freezer: { x: -247.5, y: GY - 140, z: 22, r: 32, n: 'in the freezer (top door)' }, cupboard: { x: -187, y: GC() + 80, z: -12, r: 32, n: 'in the cupboard' }, breadbin: { x: 63, y: WT - 12, z: -32, r: 30, n: 'in the bread bin' } };
   function GC() { return 95; }
   const SHOPPRINT = {
     milk: ['pack.milk', ['SEMI-SKIMMED', '4 PINTS'], '#2a9a3a'],

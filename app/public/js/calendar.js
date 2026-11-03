@@ -86,7 +86,7 @@ window.CAL = {
     // ---------------------------------------------------------------- July
     ["07-03", "SITE", "Added <b>Blobbit Lob</b> to the Games page. Pull back the catapult, let go. Bounce off the mushrooms!"],
     ["07-14", "FILMS", "The Phantom Nuisance premiere in London tonight! Prince Charlie went. TWO DAYS TO GO!!!"],
-    ["07-16", "FILMS", "<b>SAW THE PHANTOM NUISANCE!!!</b> Dark Mole's double lightspatula. The peapod race. 'Duel of the Fates.' AMAZING. Jar Jar Jams was... Jar Jar Jams."],
+    ["07-16", "FILMS", "<b>SAW THE PHANTOM NUISANCE!!!</b> Dark Mole's double lightspatula. The peapod race. 'Duel of the Fates.' AMAZING. Blah Blah Blinks was... Blah Blah Blinks."],
     ["07-21", "TECH", "Pear made a laptop called the iBrook that looks like a clamshell. <b>300MHz</b>, <b>3.2GB</b> hard drive, and it goes on the Internet with NO WIRES at <b>11 megabits a second</b>. That's like 200 times faster than our modem!!!"],
     ["07-23", "SPACE", "Eileen Collinz became the first woman to command a Space Shuttlebus! Columbun took up the Chandruff X-ray telescope."],
     ["07-23", "SITE", "<b>SCHOOL'S OUT FOR SUMMER!!!</b> Six weeks of ULTRA 64, BLOCKO, Game Lad and staying up late. Updates every day (probably)."],
@@ -187,7 +187,7 @@ window.CAL = {
     ["09-30", "GAMES", "<b>Age of Emperors II</b> is out in America. Castles, trebuchets and Joan of Ark. The first one ate my Easter holidays, so this one is getting the Christmas ones."],
     ["10-19", "GAMES", "<b>Pocket Critters Mustard</b> is out in America: Zapachu follows you around OUTSIDE its ball. We've had Moss and Puddle for exactly two weeks. TWO WEEKS. Dave won't shut up about <b>Warp Wombat Racing</b>, which is Kart Kaos with a bandicoot."],
     ["11-10", "GAMES", "<b>Medal of Honk</b> is out in America on the PlaySpace, a World War Two shooter with Stevie Spielburger's name on the box. Mom says I'm too young for war games. Mom. MOM."],
-    ["11-16", "SW", "Four months since Episode I and the Dark Mole figure STILL sells out before I get to the shop. Got a Jar Jar Jams instead. Gubbinz is minding it. Gubbinz has already chewed it."],
+    ["11-16", "SW", "Four months since Episode I and the Dark Mole figure STILL sells out before I get to the shop. Got a Blah Blah Blinks instead. Gubbinz is minding it. Gubbinz has already chewed it."],
     ["12-10", "Y2K", "Y2K TEST: I set the BIOS clock to 31/12/99 23:59 and waited one minute. It rolled over to <b>01/01/2000</b>. Then I set it back. The PC is fine. Dad's work one, they're not so sure about."],
   ],
   hype: [

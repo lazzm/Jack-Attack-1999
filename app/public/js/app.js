@@ -430,7 +430,7 @@
     "A letter! An actual letter! Gubbinz is doing a little dance.",
     "Red ones go faster, and so do people who write in. Fact.",
     "Have you done the Nerd Quiz yet? I bet you'd get ten out of ten. Prove it.",
-    "Jar Jar Jams would've written something longer. Yours is better.",
+    "Blah Blah Blinks would've written something longer. Yours is better.",
     "Dave says he wrote one too. Dave's letter is not here. Draw your own conclusions.",
   ];
   let gb = [], gbTotal = 0, gbShown = 6;

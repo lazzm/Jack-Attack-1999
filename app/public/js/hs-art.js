@@ -78,8 +78,9 @@
     g.fillStyle = '#d8ccb0'; g.fillRect(0, 0, w, h); mottle(g, w, h, 40, 'rgba(160,140,100,.12)', 40, 51); grain(g, w, h, 2400, 0.04, 52);
   }];
   P.wallpaperHall = [256, 256, (g, w, h) => { // the hall: woodchip paper, painted over twice
-    g.fillStyle = '#d6cbb2'; g.fillRect(0, 0, w, h);
-    const r = rnd(53); for (let i = 0; i < 1800; i++) { const x = r() * w, y = r() * h; g.fillStyle = 'rgba(255,255,245,.35)'; g.fillRect(x, y, 2 + r() * 2, 1 + r() * 2); g.fillStyle = 'rgba(90,80,60,.18)'; g.fillRect(x + 1, y + 2, 2 + r() * 2, 1); }
+    g.fillStyle = '#d9cfb8'; g.fillRect(0, 0, w, h);
+    // Twice-painted woodchip has a quiet relief, not white plaster splats.
+    const r = rnd(53); for (let i = 0; i < 1400; i++) { const x = r() * w, y = r() * h; g.fillStyle = 'rgba(255,252,235,.075)'; g.fillRect(x, y, 1 + r() * 1.5, .7 + r()); g.fillStyle = 'rgba(90,80,60,.035)'; g.fillRect(x + .5, y + 1, 1 + r(), .6); }
   }];
   P.wallKitchen = [256, 256, (g, w, h) => { // the kitchen: cream paper with little sage sprigs and a terracotta berry (very 1990s)
     g.fillStyle = '#ece2c4'; g.fillRect(0, 0, w, h);

@@ -10,11 +10,12 @@ html.hs-focus .st-objective,html.hs-inspecting .st-objective,html.hs-paused .st-
 .st-copy canvas{display:block;width:100%;height:auto}
 .st-copy nav{display:flex;justify-content:space-between;align-items:center;gap:8px;font:12px Tahoma,Arial,sans-serif}
 .st-copy button{font:inherit;background:#c0c0c0;border:2px outset #fff;padding:3px 8px;color:#000}
-/* Brass compass ink; the room and its lettering stay in charge. */
-.st-marker{position:absolute;transform:translate(-50%,-50%) scale(var(--quest-scale,1));width:190px;text-align:center;color:#edddb2;font:12px/1.35 "Courier New",monospace;pointer-events:none;text-shadow:0 1px 2px #000,1px 0 2px #000,-1px 0 2px #000;will-change:left,top,opacity}
-.st-arrow{display:block;box-sizing:border-box;width:15px;height:15px;margin:0 auto 8px;border-top:3px solid #e2c994;border-right:3px solid #e2c994;rotate:45deg;filter:drop-shadow(0 1px 1px #171811);transform-origin:center}
-.st-marker[data-state="target"] .st-arrow{width:8px;height:8px;border:1px solid #ead3a0;rotate:45deg;background:#b69a6060}
-.st-marker[data-state="target"] .st-arrow{transform:none!important}
+/* A game-manual arrow at the border, with a crisp light/dark keyline. */
+.st-marker{position:absolute;transform:translate(-50%,-50%);width:40px;height:34px;pointer-events:none;will-change:left,top,opacity}
+.st-arrow{display:block;width:40px;height:34px;transform-origin:center}
+.st-arrow svg{display:block;width:100%;height:100%;animation:st-compass-pulse 1.6s ease-in-out infinite}
+@keyframes st-compass-pulse{50%{transform:scale(.86)}}
+@media(prefers-reduced-motion:reduce){.st-arrow svg{animation:none}}
 .st-marker-label{display:inline-block;max-width:100%;padding:2px 5px;background:#1d211fc4;overflow-wrap:anywhere}
 .st-prompt{position:absolute;right:26px;bottom:174px;max-width:260px;padding:5px 9px;color:#eee2bd;background:#20231ec9;border-left:2px solid #b8a16b;font:12px/1.4 "Courier New",monospace;pointer-events:none}
 .st-chapter{position:absolute;left:26px;top:158px;max-width:calc(100% - 52px);padding:12px 18px;border-top:1px solid #bda66b;border-bottom:1px solid #807455;background:#21251fec;color:#eddeb9;letter-spacing:2px;font:bold 19px/1.4 "Courier New",monospace;pointer-events:none}
@@ -35,7 +36,7 @@ html.hs-focus .st-objective,html.hs-inspecting .st-objective,html.hs-paused .st-
 .st-quest-check{font-size:20px;line-height:1.1;color:#78866b;min-width:22px;padding-top:1px}
 .st-quests button:focus-visible{outline:2px dotted #576a7a;outline-offset:-3px}
 .st-quests footer{padding:18px 0;font-size:11px;color:#76735f}
-@media(max-width:600px){.st-objective{min-height:44px;padding:7px 10px}.st-marker{width:140px;font-size:11px}.st-prompt{right:18px;bottom:192px;max-width:190px;font-size:11px}.st-quests{padding:0 16px 0 22px}.st-quest-list>button{padding-top:14px;padding-bottom:16px}.st-quests h1{font-size:28px}}
+@media(max-width:600px){.st-objective{min-height:44px;padding:7px 10px}.st-prompt{right:18px;bottom:192px;max-width:190px;font-size:11px}.st-quests{padding:0 16px 0 22px}.st-quest-list>button{padding-top:14px;padding-bottom:16px}.st-quests h1{font-size:28px}}
 @media(max-height:500px){.st-objective{top:48px;max-width:calc(100vw - 200px)}.st-quests{max-height:calc(100dvh - 16px)}.st-quests header{padding-top:14px}.st-prompt{bottom:112px}}
 #monitorSurface.st-recovering{background:#537a7a!important}
 #monitorSurface.st-recovering>:not(.st-recovery){visibility:hidden!important}

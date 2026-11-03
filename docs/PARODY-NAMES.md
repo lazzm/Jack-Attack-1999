@@ -104,8 +104,8 @@ Sources: first sweep = the pairs at the top of `tests/parody-audit.cjs`; second 
 | Qui-Gon Jinn | Qui-Gon Gym |
 | Darth Vader | Dark Vapour |
 | Darth Maul | Dark Mole |
-| Jar Jar Binks | Jar Jar Jams |
-| Jar Jar | Jar Jar Jams |
+| Jar Jar Binks | Blah Blah Blinks |
+| Jar Jar | Blah Blah Blinks |
 | Han Solo | Ham Solo |
 | Chewbacca | Chew Biscuit |
 | Millennium Falcon | Millennium Pigeon |
@@ -1694,3 +1694,5 @@ The series is "The Myth of Zeldo". The SNES game is THE MYTH OF ZELDO: A LINK TO
 - Quiz answer lists also still accept the real spellings (a player may type them); the displayed answer is always the parody.
 - Generic standards and technical terms (MP3, MIDI, USB, DVD, CD-ROM, IRC, BIOS, DirectX, OpenGL, Glide), font names (Arial, Tahoma, Comic Sans MS, Helvetica...), Windows-style UI words (Recycle Bin, Control Panel, Solitaire, Paint) and internal ids, file-icon map keys (NOTEPAD.EXE etc.), hostnames (pokefacts.kidz) and regexes that match what players type.
 - Warhammer-flavoured vocabulary (WAAAGH, squig, grot, dakka, nob, Mork): the named units and Orks/Space Marines are parodied; the battle-cry vocabulary is the house style. Owner call.
+
+Sweep 2026-11-02b: retire the partial parody “Jar Jar Jams” in favour of **Blah Blah Blinks** everywhere in authored copy. Plural toy references use “Blah Blah Blinks figures”. Keep internal `jarjar` IDs, vote/save keys and link targets. The fictional JackBay seller `tetris_tim` is now `blockology_tim`; the high-scores file calls the falling-block game **Blockology**.

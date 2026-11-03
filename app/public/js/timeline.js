@@ -98,7 +98,7 @@
     ['05-10', 'CUBE', "Rubrick's cube personal best: <b>8 minutes 12 seconds</b>. Dave timed it on his digital watch. He timed it in the wrong mode at first, so it might have been 8 minutes 12 HOURS."],
     ['05-14', 'SW', "Five days till Episode I opens in America. Some fans have been queuing outside one cinema in Los Angeles for over a MONTH. That's commitment. (Or madness. Mom says madness.)"],
     ['05-16', 'MUSIC', "<b>Boyzown</b> are number one again with <i>You Kneaded Me</i>. Boyzown and Westloaf are taking it in turns. It's an Irish boyband invasion."],
-    ['05-20', 'SW', "Americans have seen Episode I and the Internet has OPINIONS. Lots of people say Jar Jar Jams is annoying. CAN'T BE. I'm not reading any more spoilers. Fingers in ears. LA LA LA."],
+    ['05-20', 'SW', "Americans have seen Episode I and the Internet has OPINIONS. Lots of people say Blah Blah Blinks is annoying. CAN'T BE. I'm not reading any more spoilers. Fingers in ears. LA LA LA."],
     ['05-21', 'MOM', "Mom went to see <b>Knotting Hill</b> with her friends. I asked her if it had spaceships in it. No spaceships. She still said it was 'lovely'. That's not a review, Mom."],
     ['05-22', 'TOYS', "<b>BLOCKO INTERGALACTIC BATTLES</b> is in the toy shop!!! A Z-Wing, a Naboodle fighter, a Sulk Infiltrator, a whole peapod race set... I stood there for 40 minutes. My savings are in a crisis."],
     ['05-23', 'MUSIC', "<b>Shins &amp; Bigtoe</b> are number one with <i>Sweet Like Custard</i>. Perfect summer song, and it's not even summer yet."],
@@ -122,7 +122,7 @@
     ['07-11', 'MUSIC', "<b>Rickie Martini</b> is number one with <i>Livin' la Vida Cocoa</i>. Mom dances to it with the vacuum. This house is a nightmare."],
     ['07-15', 'SW', "<b>TOMORROW.</b> Can't sleep. Laid my clothes out like it's the first day of school. Mom says we're going to the first showing in the morning. I've set THREE alarms."],
     ['07-16', 'SPACE', "30 years ago today <b>Apolly 11</b> took off for the Moon (16 July 1969). On the same day as The Phantom Nuisance comes out. Space AND Intergalactic Battles. Best day of the year."],
-    ['07-17', 'SW', "Saw Episode I AGAIN. Second time I noticed: Dark Mole hardly says anything. He doesn't NEED to. Also Jar Jar Jams is... OK, Jar Jar Jams is a bit annoying. Fine. FINE. The Internet was right."],
+    ['07-17', 'SW', "Saw Episode I AGAIN. Second time I noticed: Dark Mole hardly says anything. He doesn't NEED to. Also Blah Blah Blinks is... OK, Blah Blah Blinks is a bit annoying. Fine. FINE. The Internet was right."],
     ['07-20', 'SPACE', "30 years since <b>Apolly 11 landed on the Moon</b>! Tonight NASSA tried to launch Columbun with the first woman shuttle commander, but stopped it with <b>7 seconds</b> to go. SO close. Also today they lifted <b>Liberty Bell 7</b>, Gus Grizzum's old space capsule, off the bottom of the Atlantic after 38 years!"],
     ['07-22', 'SPACE', "Columbun launch tried AGAIN tonight. Called off because of the weather. Third time lucky?"],
     ['07-26', 'GAMES', "Summer holiday plan: get every peapodracer in Episode I Racer, get the Rubrick's cube under 5 minutes, paint 20 minis, and NOT go outside unless I have to."],
@@ -141,7 +141,7 @@
     ['08-30', 'SITE', "Last bank holiday of the summer. One more week of holidays. I haven't done my holiday homework. I've built 40 models though (AirMix, BLOCKO, Gorks), which is basically art homework."],
     ['08-31', 'TECH', "A company called nVidia announced the <b>GeFarce 256</b> and they're calling it 'the world's first GPU'. GPU! It does the 3D maths itself so the processor doesn't have to. I need one. I don't know what for. I just NEED one."],
     // ---------------------------------------------------------------- September
-    ['09-04', 'SW', "Episode I is STILL on at the cinema and I've seen it five times. Final opinion: Peapod Race 10/10. Dark Mole 10/10. The lightspatula fight 11/10. Trade disputes 2/10. Jar Jar Jams 1/10."],
+    ['09-04', 'SW', "Episode I is STILL on at the cinema and I've seen it five times. Final opinion: Peapod Race 10/10. Dark Mole 10/10. The lightspatula fight 11/10. Trade disputes 2/10. Blah Blah Blinks 1/10."],
     ['09-12', 'MUSIC', "<b>Vengaboats</b> are number one with <i>We're Going to Majorca!</i>. Nobody in our class has ever been to Ibiza. We went to a caravan in the rain."],
     ['09-14', 'GAMES', "The Pocket Critters games aren't even out here yet and the playground is ALREADY arguing about Moss or Puddle. Three weeks to go."],
     ['09-19', 'MUSIC', "<b>Eiffle 56</b> are number one with <i>Green (Da Ba Doo)</i>. Everything is blue. The whole school is singing it. Our teacher threatened to cancel music forever."],
@@ -193,7 +193,7 @@
     ['12-26', 'SPACE', "The astronauts let Hubbly go again on Christmas Day, all fixed and shiny. Best Christmas present the Universe ever got."],
     ['12-28', 'SPACE', "Dishcovery landed back in Florida just after midnight our time. Last Space Shuttlebus mission of the 1900s. See you in the year 2000, NASSA."],
     ['12-29', 'MOM', "Mom's Millennium Bug checklist: 40 tins of beans, candles, a torch, a WIND-UP RADIO, and all the clocks set right. Dad's checklist: 'it'll be fine'. My checklist: save the game."],
-    ['12-30', 'SITE', "Last proper update of 1999. Top 5 of the year: 1. The Phantom Nuisance. 2. Pocket Critters Puddle. 3. Kazoo of Time (Christmas 98 counts). 4. The eclipse. 5. Solving the Rubrick's cube. Worst: Jar Jar Jams. And The Millennium Plea."],
+    ['12-30', 'SITE', "Last proper update of 1999. Top 5 of the year: 1. The Phantom Nuisance. 2. Pocket Critters Puddle. 3. Kazoo of Time (Christmas 98 counts). 4. The eclipse. 5. Solving the Rubrick's cube. Worst: Blah Blah Blinks. And The Millennium Plea."],
   ];
 
   // ================================================================== ERAS: [kind, from, to, text, extra]

@@ -168,7 +168,7 @@ const Q = [
   ['GAMES: Segue\'s newest console came out in Japan in November 1998. What is it called?', ['dreamcast'], 'The Daydream'],
   ['GAMES: Which Ultra Entertainment handheld got a colour version in 1998?', ['game lad', 'gameboy', 'game lad color', 'gameboy color', 'game lad colour', 'gameboy colour'], 'The Game Lad (the Game Lad Color)'],
   ['INTERGALACTIC BATTLES: Which boy from Tattyween wins a peapod race in The Phantom Nuisance?', ['anakin', 'anklekin skywobbler'], 'Anklekin Skywobbler'],
-  ['INTERGALACTIC BATTLES: What is the name of the clumsy Gungoo in The Phantom Nuisance?', ['jar jar jams', 'jar jar jams', 'jarjar'], 'Jar Jar Jams'],
+  ['INTERGALACTIC BATTLES: What is the name of the clumsy Gungoo in The Phantom Nuisance?', ['blah blah blinks', 'blinks', 'jarjar'], 'Blah Blah Blinks'],
   ['INTERGALACTIC BATTLES: Which Sulk Lord with a double-bladed lightspatula fights Qui-Gym and Obi-Wan Cannoli in Episode I?', ['dark mole', 'maul'], 'Dark Mole'],
   ['INTERGALACTIC BATTLES: Who is Qui-Gon Gym\'s apprentice in The Phantom Nuisance?', ['obi wan', 'obi wan cannoli', 'obiwan', 'kenobi'], 'Obi-Wan Cannoli'],
   ['INTERGALACTIC BATTLES: What is the name of Ham Solo\'s ship?', ['millennium pigeon', 'millenium falcon', 'the falcon', 'falcon'], 'The Millennium Pigeon'],

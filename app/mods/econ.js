@@ -409,7 +409,7 @@ const TOWN_EV = [
   { id: 'rain', t: 2, hap: -3, h: 'IT RAINED', b: () => 'It rained all day in Jacktown. Again. Everyone stayed in and played on their computers.' },
   { id: 'sun', t: 2, hap: 5, h: 'SUNNY SPELL!', b: () => 'The sun came out for an entire afternoon. Dads were seen in shorts. It was not pretty.' },
   { id: 'tourists', need: s => s.statue > 0, t: 3, rent: 0.25, h: 'COACH-LOAD OF TOURISTS', b: () => "A coach-load of tourists arrived to try and solve the giant Rubrick's Cube statue. Nobody managed it, but the shops and cafes did very well." },
-  { id: 'premiere', need: s => s.cinema > 0, t: 3, hap: 6, h: 'EPISODE I SOLD OUT AGAIN', b: s => `Every seat at Jacktown's ${s.cinema} cinema${s.cinema > 1 ? 's' : ''} sold out again. One boy has now seen it 41 times. "Jar Jar Jams is my favourite," he said, bravely.` },
+  { id: 'premiere', need: s => s.cinema > 0, t: 3, hap: 6, h: 'EPISODE I SOLD OUT AGAIN', b: s => `Every seat at Jacktown's ${s.cinema} cinema${s.cinema > 1 ? 's' : ''} sold out again. One boy has now seen it 41 times. "Blah Blah Blinks is my favourite," he said, bravely.` },
   { id: 'y2k', t: 2, hap: -4, h: 'Y2K DRILL AT TOWN HALL', b: () => 'The council practised for the Millennium Bug by switching everything off and on again. Mostly it came back on.' },
   { id: 'fair', t: 3, hap: 8, rent: 0.1, h: 'FUNFAIR COMES TO TOWN', b: () => 'A funfair set up on the green: dodgems, a big wheel and a candyfloss stall. The arcade was NOT happy about the competition.' },
 ];

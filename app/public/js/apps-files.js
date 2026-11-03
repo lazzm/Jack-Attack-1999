@@ -456,7 +456,7 @@ The peapod race was the best bit. Sebulbar is a cheater.
 
 The music in the big fight at the end is called Duel of the Fates and it's got a choir singing in it and it's the most epic thing I have ever heard. I've got the CD. I've played it 40 times. Mom has asked me to play it 39 fewer times.
 
-Jar Jar Jams was... Jar Jar Jams.
+Blah Blah Blinks was... Blah Blah Blinks.
 
 Dad fell asleep in the bit with the Senate. He says he was resting his eyes. For twenty minutes.`);
   D('07-23', `SCHOOL'S OUT FOR SUMMER!!!
@@ -873,7 +873,7 @@ Finally Fantasy VIII, the Daydream, and anything with Intergalactic Battles in i
   txt(LI, 'top 10 films of 1999.txt', '20/12/99', `TOP 10 FILMS OF 1999 (that I saw)
 
 1. The Modemtrix              - there is no spoon
-2. The Phantom Nuisance      - Dark Mole. Peapod Race. Jar Jar Jams (minus 1 point)
+2. The Phantom Nuisance      - Dark Mole. Peapod Race. Blah Blah Blinks (minus 1 point)
 3. A Bug's Strife            - bloopers!
 4. The Mommy               - scarab beetles (never again)
 5. Galaxy Walk: Insubordination - Pickle does a dance
