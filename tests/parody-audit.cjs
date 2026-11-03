@@ -3,6 +3,7 @@
 const fs=require('fs'),path=require('path'),acorn=require('internal/deps/acorn/acorn/dist/acorn');
 const ROOT=path.resolve(__dirname,'../app');
 const pairs=[
+ ['ScanDisk','Disk Snitch'],
  ['The Legend of Zelda','The Myth of Zeldo'],['Ocarina of Time','Kazoo of Time'],['Super Mario 64','Super Marlo 64'],['Mario Kart 64','Kart Kaos 64'],['Mario Kart','Kart Kaos'],['Super Mario','Super Marlo'],['Mario','Marlo'],['Luigi','Louie G'],['Bowser','Bouncer'],['Yoshi','Yosher'],
  ['Banjo-Kazooie','Backpack Buddies'],['Banjo-Tooie','Backpack Buddies Too'],['Diddy Kong Racing','Dinky Donk Racing'],['Diddy Kong','Dinky Donk'],['Donkey Kong','Donkey Wrong'],['Jet Force Gemini','Jet Pack Twins'],['Conker','Acorn Quest'],
  ['GoldenEye','Goldenballs'],['Perfect Dark','Imperfect Dark'],['Crash Bandicoot','Warp Wombat'],['Spyro','Spike the Stegosaur'],['Sonic Adventure','Zip Adventure'],['Sonic','Zip'],['F-Zero','Formula Null'],['Wipeout','Hover Havoc'],['Street Fighter','Street Frightener'],['Tekken','Iron Fist'],['Mortal Kombat','Immortal Combat'],['Resident Evil','Resident Weevil'],['Tomb Raider','Crypt Raider'],['Lara Croft','Clara Loft'],
@@ -48,11 +49,16 @@ const lookup=new Map(pairs.map(([a,b])=>[a.toLowerCase(),b]));
 for(const[,b]of pairs)if(!lookup.has(b.toLowerCase()))lookup.set(b.toLowerCase(),b);
 const re=new RegExp('(?<![\\p{L}\\p{N}_])(?:'+[...lookup.keys()].sort((a,b)=>b.length-a.length).map(esc).join('|')+')(?![\\p{L}\\p{N}_])','giu');
 function words(s){return s.split(/(\[\[[^\]|]*\|)/).map((seg,i)=>i%2?seg:wordsRaw(seg)).join('')} // wiki link targets ([[id|Text]]) are ids, never rewritten
-function wordsRaw(s){return s.replace(/(\\[nrt])(Tetris|Jar Jar(?: Jams| Binks|s)?)\b/gi,(_m,escape,name)=>escape+wordsRaw(name)).replace(csRe,m=>csLookup.get(m)).replace(re,(m,off,str)=>{if(m==='theme park')return m;if(/^podrace$/i.test(m)&&/^\.(?:bas|exe)\b/i.test(str.slice(off+m.length)))return m; /* PODRACE.BAS is a DOS file name: keep it */const b=lookup.get(m.toLowerCase());if(m.toLowerCase()===b.toLowerCase())return m;return m===m.toUpperCase()?b.toUpperCase():m===m.toLowerCase()?b.toLowerCase():b}).replace(/\bRare(?=\s+(?:game|studio|develop))|(?<=\bby )Rare\b/g,'Oddware')}
-function prose(s){return s.split(/(<\/?[A-Za-z!][^<>]*>)/g).map((part,i)=>i%2?part.replace(/\b(title|alt|aria-label|placeholder)=("[^"]*"|'[^']*')/g,(_m,k,v)=>k+'='+words(v)):words(part)).join('')}
+function wordsRaw(s){return s.replace(/(\\[nrt])(Tetris|ScanDisk|Jar Jar(?: Jams| Binks|s)?)\b/gi,(_m,escape,name)=>escape+wordsRaw(name)).replace(csRe,m=>csLookup.get(m)).replace(re,(m,off,str)=>{if(m==='theme park'||m==='SCANDISK')return m; /* uppercase SCANDISK is the retained DOS command */if(/^podrace$/i.test(m)&&/^\.(?:bas|exe)\b/i.test(str.slice(off+m.length)))return m; /* PODRACE.BAS is a DOS file name: keep it */const b=lookup.get(m.toLowerCase());if(m.toLowerCase()===b.toLowerCase())return m;return m===m.toUpperCase()?b.toUpperCase():m===m.toLowerCase()?b.toLowerCase():b}).replace(/\bRare(?=\s+(?:game|studio|develop))|(?<=\bby )Rare\b/g,'Oddware')}
+function prose(s){return s.split(/(<code\b[^>]*>[\s\S]*?<\/code>|<\/?[A-Za-z!][^<>]*>)/g).map((part,i)=>{
+ if(i%2===0)return words(part);
+ if(part.startsWith('<code'))return part.replace(/>([\s\S]*)<\/code>$/,(_m,code)=>'>'+words(code.replace(/\bscandisk\b/g,'__kept_disk_command__')).replaceAll('__kept_disk_command__','scandisk')+'</code>');
+ return part.replace(/\b(title|alt|aria-label|placeholder)=("[^"]*"|'[^']*')/g,(_m,k,v)=>k+'='+words(v));
+}).join('')}
+
 // Regression examples: escaped newlines are source characters here, and the
 // former partial parody must never protect the real character's first name.
-for(const [input,want] of [[String.raw`\nTetris: 112 lines`,String.raw`\nBlockology: 112 lines`],['tetris_tim','blockology_tim'],['Jar Jar Jams','Blah Blah Blinks'],['JAR JAR','BLAH BLAH BLINKS'],['two Jar Jars','two Blah Blah Blinks figures'],['<a href="/jarjar">Jar Jar Jams</a>','<a href="/jarjar">Blah Blah Blinks</a>']]){
+for(const [input,want] of [[String.raw`\nScanDisk checks`,String.raw`\nDisk Snitch checks`],['SCANDISK.EXE','SCANDISK.EXE'],['<code>scandisk Tetris</code>','<code>scandisk Blockology</code>'],[String.raw`\nTetris: 112 lines`,String.raw`\nBlockology: 112 lines`],['tetris_tim','blockology_tim'],['Jar Jar Jams','Blah Blah Blinks'],['JAR JAR','BLAH BLAH BLINKS'],['two Jar Jars','two Blah Blah Blinks figures'],['<a href="/jarjar">Jar Jar Jams</a>','<a href="/jarjar">Blah Blah Blinks</a>']]){
  if(prose(input)!==want)throw Error('Parody audit regression: '+input);
 }
 const walk=d=>fs.readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(d,e.name)):[path.join(d,e.name)]);
@@ -66,7 +72,7 @@ for(const file of files){const src=fs.readFileSync(file,'utf8'),edits=[];
    let a,b;
    if(n.type==='Literal'&&typeof n.value==='string'){a=n.start+1;b=n.end-1;if(parent?.type==='Property'&&key==='key')return;if(['id','key','slug','icon','img','href','url','path'].includes(parent?.key?.name||parent?.key?.value))return;}
    else if(n.type==='TemplateElement'){a=n.start;b=n.end;}
-   if(a!=null){const raw=src.slice(a,b);if(raw!=='tetris_tim'&&/^[a-z0-9_.\/#:-]+$/.test(raw)||/^(?:https?:\/\/|(?:\.\.\/)?(?:js|css|fonts|images)\/)|\.(?:js|css|png|svg|jpg|woff2?|gif|webp|mp3|ogg)$/i.test(raw)||/MS Sans Serif|Microsoft Sans Serif|userAgent/.test(raw)||raw==='Ork Green'/* legacy saved colour-scheme value, migrated in apps-programs.js */)return;const out=prose(raw);if(out!==raw)edits.push({a,b,v:out});return;}
+   if(a!=null){const raw=src.slice(a,b);if(raw!=='tetris_tim'&&/^[a-z0-9_.\/#:-]+$/.test(raw)||/^(?:https?:\/\/|(?:\.\.\/)?(?:js|css|fonts|images)\/)|\.(?:js|css|png|svg|jpg|woff2?|gif|webp|mp3|ogg)$/i.test(raw)||/MS Sans Serif|Microsoft Sans Serif|userAgent/.test(raw)||/^app:[a-z0-9_.>:-]+$/.test(raw)||/^(?:SCANDISK|SCANDISK\.(?:LOG|EXE))$/.test(raw)/* DOS command and existing filesystem key */||raw==='Ork Green'/* legacy saved colour-scheme value, migrated in apps-programs.js */)return;const out=prose(raw);if(out!==raw)edits.push({a,b,v:out});return;}
    for(const[k,v]of Object.entries(n)){if(k==='start'||k==='end')continue;if(Array.isArray(v))v.forEach(x=>visit(x,n,k));else if(v&&typeof v==='object')visit(v,n,k)}
   }visit(ast,null,'');
  }

@@ -240,7 +240,7 @@ back next year!!!
     const w = openWin('Shut Down JackOS', f, 340);
     const [, cancel, help] = f.querySelectorAll('.btn');
     cancel.addEventListener('click', w.close);
-    help.addEventListener('click', () => msgbox('Help', 'Shut down: switch the PC off properly (no ScanDisk next time!).\nRestart: turn it off and on again.\nStand by: nap mode, wiggle the mouse to wake it.', 'info'));
+    help.addEventListener('click', () => msgbox('Help', 'Shut down: switch the PC off properly (no Disk Snitch next time!).\nRestart: turn it off and on again.\nStand by: nap mode, wiggle the mouse to wake it.', 'info'));
     f.addEventListener('submit', ev => {
       ev.preventDefault(); w.close();
       const v = f.querySelector('input:checked').value;

@@ -426,11 +426,11 @@
   P.scandisk = (sh, args) => screenProg(sh, async (host, s) => {
     S('scandisk');
     const W = s.cols, H = s.rows; host.setMouse(false);
-    s.clear(0x17); s.fill(0, 0, W, 1, ' ', 0x70); s.print(1, 0, 'JackOS ScanDisk', 0x70);
+    s.clear(0x17); s.fill(0, 0, W, 1, ' ', 0x70); s.print(1, 0, 'JackOS Disk Snitch', 0x70);
     s.box(2, 2, W - 4, 10, 0x1f, true, 'Drive C: (JACKS PC)');
     const steps = ['Media descriptor', 'File allocation tables', 'Directory structure', 'File system', 'Lost clusters (one chain, half a spaceship)', 'Surface scan'];
     const draw = n => steps.forEach((st, i) => s.print(5, 4 + i, (i < n ? '\u221a ' : i === n ? '\u25ba ' : '  ') + pad(st, 50), i < n ? 0x1a : i === n ? 0x1e : 0x1f));
-    s.fill(0, H - 1, W, 1, ' ', 0x30); s.print(1, H - 1, 'ScanDisk is checking drive C: for errors.  Esc = Stop', 0x30);
+    s.fill(0, H - 1, W, 1, ' ', 0x30); s.print(1, H - 1, 'Disk Snitch is checking drive C: for errors.  Esc = Stop', 0x30);
     s.cur.on = false;
     for (let i = 0; i < 5; i++) { draw(i); await sleep(host, 550); const k = host.pollKey(); if (k && k.key === 'Escape') return; }
     draw(5);
@@ -443,7 +443,7 @@
       if (i % 9 === 0) { await sleep(host, 12); const k = host.pollKey(); if (k && k.key === 'Escape') return; }
       if (i === grumpy) { s.fill(0, H - 1, W, 1, ' ', 0x30); s.print(1, H - 1, `Cluster ${U.commas(i * 4096)}: "would rather not". Marking as grumpy. Moving on.`, 0x30); await sleep(host, 900); }
     }
-    await K.msgBox(host, 'ScanDisk did not find any errors on this drive.\n\nChecked: 5,311 MB.  Bad clusters: 0.  Grumpy clusters: 1.\nLost clusters: 1 chain, saved as FILE0000.CHK (half a drawing of a spaceship).', ['OK'], { attr: 0x70, left: true, width: 68 });
+    await K.msgBox(host, 'Disk Snitch did not find any errors on this drive.\n\nChecked: 5,311 MB.  Bad clusters: 0.  Grumpy clusters: 1.\nLost clusters: 1 chain, saved as FILE0000.CHK (half a drawing of a spaceship).', ['OK'], { attr: 0x70, left: true, width: 68 });
   });
 
   // ================================================================ FDISK (scary)
@@ -618,7 +618,7 @@
   // ================================================================ DOSSHELL: a menu for people who don't like typing
   P.dosshell = (sh) => DOS.screenProg(sh, async (host, s) => {
     const W = s.cols, H = s.rows;
-    const progs = [['Jack Crawl', 'JACKCRAWL'], ['Flak Attack!', 'DAKKA'], ['Chip Van Tycoon', 'SQUIGPIE'], ['Alien Hunt', 'SQUIGHUNT'], ['Turbo Racer', 'TRUKKRACE'], ['Gem Wars', 'GEMWARS'], ['JACK INTRO (demo)', 'INTRO'], ['Jack Quest (adventure)', 'JACKQUEST'], ['JBASIC', 'JBASIC'], ['JACK-DOS Editor', 'EDIT'], ['Jack Commander', 'GC'], ['Text Paint', 'TPAINT'], ['JackTrak (music)', 'JACKTRAK'], ['Hex Editor', 'HEXED'], ['Calculator', 'CALC'], ['Disk Defragmenter', 'DEFRAG'], ['ScanDisk', 'SCANDISK'], ['Diagnostics (MSD)', 'MSD'], ['Command Prompt', 'COMMAND'], ['Exit', null]];
+    const progs = [['Jack Crawl', 'JACKCRAWL'], ['Flak Attack!', 'DAKKA'], ['Chip Van Tycoon', 'SQUIGPIE'], ['Alien Hunt', 'SQUIGHUNT'], ['Turbo Racer', 'TRUKKRACE'], ['Gem Wars', 'GEMWARS'], ['JACK INTRO (demo)', 'INTRO'], ['Jack Quest (adventure)', 'JACKQUEST'], ['JBASIC', 'JBASIC'], ['JACK-DOS Editor', 'EDIT'], ['Jack Commander', 'GC'], ['Text Paint', 'TPAINT'], ['JackTrak (music)', 'JACKTRAK'], ['Hex Editor', 'HEXED'], ['Calculator', 'CALC'], ['Disk Defragmenter', 'DEFRAG'], ['Disk Snitch', 'SCANDISK'], ['Diagnostics (MSD)', 'MSD'], ['Command Prompt', 'COMMAND'], ['Exit', null]];
     let sel = 0;
     const draw = () => {
       s.clear(0x17); s.fill(0, 0, W, 1, ' ', 0x70); s.print(1, 0, 'File  Options  View  Tree  Help', 0x70); s.print(W - 16, 0, 'JackOS Shell', 0x70);

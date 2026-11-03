@@ -273,7 +273,7 @@
   A.fs.dir('C:/JACKOS/TEMP').date = '10/12/98';
   put('C:/JACKOS/TEMP', { name: '~FUNNY.COM', type: 'exe', date: '01/04/99', size: '2 KB', hidden: true, app: 'dos.run', arg: 'VIRUS', dosprog: 'virus' });
   txt('C:/JACKOS/TEMP', '~DF3A1.TMP', '14/10/99', 'temporary file. contents: temporary. (it has been here since February.)\n', { hidden: true });
-  txt('C:/JACKOS/TEMP', 'SCANDISK.LOG', '12/10/99', 'ScanDisk log (DOS)\nSurface scan: 0 bad clusters. 1 grumpy cluster. Cluster 4,096 "would rather not".\n', {});
+  txt('C:/JACKOS/TEMP', 'SCANDISK.LOG', '12/10/99', 'Disk Snitch log (DOS)\nSurface scan: 0 bad clusters. 1 grumpy cluster. Cluster 4,096 "would rather not".\n', {});
 
   // ---- C:\JBASIC: Jack's BASIC and the sample programs
   const JB = 'C:/JBASIC'; A.fs.dir(JB).date = '14/02/99';
@@ -1072,7 +1072,7 @@ SLEEP
     ['gc', 'Jack Commander', 'Open the two-pane file manager'],
     ['gc.view', 'F3 View', 'View a file in Jack Commander'],
     ['defrag', 'DEFRAG (DOS)', 'Watch the little blocks move about from DOS'],
-    ['scandisk', 'SCANDISK (DOS)', 'Check the surface of the disk from DOS, find the grumpy cluster'],
+    ['scandisk', 'Disk Snitch (DOS)', 'Check the surface of the disk from DOS, find the grumpy cluster'],
     ['fdisk', 'FDISK', 'Open the scariest program on the computer and then close it'],
     ['msd', 'MSD', 'Jacksoft-style Diagnostics: find out what the computer thinks it is'],
     ['matrix', 'Green rain', 'Make the DOS screen do the thing from the film'],

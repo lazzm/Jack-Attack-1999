@@ -80,6 +80,10 @@
   };
   const EXIT = { parents: { lvl: 'U', x: 290, z: 662, face: 0 }, sisRoom: { lvl: 'U', x: 284, z: 490, face: -90 }, car: { lvl: 'G', x: CAR.x-126, z: CAR.z+80, face: 90 }, street: { lvl: 'G', x: 290, z: H.FRONT.FZ+36, face: 180 } }; // (street: out of the front gate, on the pavement)
   delete SPOT.parents;
+  // A child's shorter thighs need the front of the cushion and dangling feet.
+  // Keep the adult anchors (and the sofa itself) exactly where they are.
+  for(const key of ['sofaL','sofaR'])SPOT[key].childSeat={...SPOT[key].seat,z:590,back:false,footH:24};
+  const seatFor = (c, spot) => c.id==='sister' && spot.childSeat || spot.seat;
   const MUG = ['kmug1', 'kmug2', 'kmug3'];
 
   // ================================================================ daily routines: [from hour, spot(:action) or [choices], ...]
@@ -186,7 +190,7 @@
     if (g.away) { const e = EXIT[g.exit]; P.push({ k: 'route', to: e }, { k: 'face', h: e.face * D2R }, { k: 'vanish' }); return; }
     const s = g.spot; if (!s) return;
     if (s.seat) {
-      const q = s.seat;
+      const q = seatFor(c, s);
       const ap = approachOf(q, s.lvl);
       P.push({ k: 'route', to: { lvl: s.lvl, x: ap.x, z: ap.z } });
       for (const v of q.via || []) P.push({ k: 'line', to: { x: v[0], z: v[1] } });
@@ -263,7 +267,7 @@
       if (Math.abs(d) < 0.04 || s.t > 2.5) { c.h = s.h; c.cur = null; }
     } else if (s.k === 'sit') {
       const q = s.seat;
-      if (!s.from) { s.from = { x: c.x, z: c.z }; c.rig?.set({ seat: { h: q.h, back: q.back, knee: q.knee, table: q.table } }); }
+      if (!s.from) { s.from = { x: c.x, z: c.z }; c.rig?.set({ seat: { h: q.h, back: q.back, knee: q.knee, table: q.table, footH: q.footH } }); }
       const k = smooth(clamp(s.t / 1.1, 0, 1)); c.x = lerp(s.from.x, q.x, k); c.z = lerp(s.from.z, q.z, k); c.v = 0; c.h = q.face * D2R;
       if (s.t > 1.15) { c.seated = q; c.cur = null; }
     } else if (s.k === 'stand') {
@@ -548,7 +552,7 @@
       const clk = clock(); if (clk.dow === 6 && window.ChoreKit && !window.ChoreKit.done('car') && clk.t > 9 && clk.t < 17) return ['chore.weekly.give', 'c2.bigjob.give'];
       return [pick(barkPool(c, clk, true) || ['bark.dad.react.joke'], c)];
     }
-    return [pick(barkPool(c, clock(), true) || ['bark.sis.react.console', 'bark.sis.react.drawing', 'bark.sis.react.peek'], c)];
+    return [pick(barkPool(c, clock(), true) || ['bark.sis.react.console', 'bark.sis.react.drawing'], c)];
   }
   function pick(list, c) { const L2 = list.filter(id => L[id] && id !== c.lastBarkId); const id = (L2.length ? L2 : list)[Math.floor(Math.random() * (L2.length || list.length))]; c.lastBarkId = id; return id; }
   const eyes = () => ({ x: H.P.x, y: H.P.y, z: H.P.z });
@@ -586,7 +590,8 @@
       add(room === 'lounge' && act === 'telly', ['bark.sis.tv1', 'bark.sis.tv2']);
       add(room === 'hall', ['bark.sis.react.lounge', 'bark.sis.mess2']);
       add(t >= 20 && t < 21, ['bark.sis.bed1', 'bark.sis.bed2']);
-      add(true, ['bark.sis.react.peek', 'bark.sis.react.drawing', 'bark.sis.react.console']);
+      add(!c.seated, ['bark.sis.react.peek']);
+      add(true, ['bark.sis.react.drawing', 'bark.sis.react.console']);
     }
     return pool.length ? pool : null;
   }
@@ -840,7 +845,7 @@
     // straight to the spot if nobody would see it happen (a refresh, a long time away)
     const fresh = !!instant;
     if (fresh && !s.seat) { spawn(c, s); c.goal = want; c.plan = [{ k: 'face', h: (s.face || 0) * D2R }, { k: 'act' }]; return; }
-    if (fresh && s.seat) { const q = s.seat; spawn(c, { lvl: s.lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: { h: q.h, back: q.back, knee: q.knee, table: q.table } }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; return; }
+    if (fresh && s.seat) { const q = seatFor(c, s); spawn(c, { lvl: s.lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: { h: q.h, back: q.back, knee: q.knee, table: q.table, footH: q.footH } }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; return; }
     if (seenAt(from)) return; // (never appear where you can see it: wait until you look away)
     spawn(c, from); setGoal(c, want);
   }
@@ -856,13 +861,13 @@
     o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n?.talk).slice(0,12).map(n=>({id:n.c.id,line:n.lineId,text:n.text}))};
     ls.set(SKEY(), o);
   }
-  const SPOT_OF = q => Object.keys(SPOT).find(k => SPOT[k].seat === q) || null;
+  const SPOT_OF = q => Object.keys(SPOT).find(k => SPOT[k].seat === q || SPOT[k].childSeat === q) || null;
   function restore() {
     const o = ls.get(SKEY()), clk = clock();
     for (const c of chars) {
       const want = target(c, clk), sv = o && Date.now() - o.t < 10 * 60000 ? o.c[c.id] : null;
       if (sv && sv.p && !want.away && sv.g === want.key) { // carry on exactly where they were
-        if (sv.seat && SPOT[sv.seat]?.seat) { const q = SPOT[sv.seat].seat; spawn(c, { lvl: SPOT[sv.seat].lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: { h: q.h, back: q.back, knee: q.knee, table: q.table } }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; }
+        if (sv.seat && SPOT[sv.seat]?.seat) { const q = seatFor(c, SPOT[sv.seat]); spawn(c, { lvl: SPOT[sv.seat].lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: { h: q.h, back: q.back, knee: q.knee, table: q.table, footH: q.footH } }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; }
         else { spawn(c, { lvl: sv.lvl, x: sv.x, z: sv.z }, sv.h); c.goal = null; }
         continue;
       }
@@ -911,9 +916,17 @@
   }, 200);
 
   // ================================================================ start up (after the rest of the house exists)
+  function storyHome() {
+    const s=window.st?.getState?.()||window.StorySnapshot,clk=clock();
+    // The hand-me-down keeps Dad home even on a resumed weekday. The spoken
+    // arrival cue is once-only, so it cannot be the only source of this state.
+    if(s?.ch===1&&!s.flags.veteran&&s.done.bin&&dadHomeDay()!==clk.md)ls.set('jhp_np_dadhome',clk.md);
+  }
   async function start() {
     if (ready) return;
     try { await window.Room?.ensureHouse?.(); } catch (e) { return; }
+    storyHome();
+    directives = Object.assign(storyDirectives(), manual);
     for (const id in H.ROOMS) H.buildRoom(H.ROOMS[id]);
     await new Promise(r => setTimeout(r, 50));
     NV.rebuild();
@@ -923,6 +936,7 @@
     for (const c of chars) placeRig(c);
     kick(); if (!still()) H.dirty(); // (a close-up redraws on its own when you leave it)
     window.st?.onChange?.(s => {
+      storyHome();
       const cur = window.st.current()?.id || null; if (cur !== lastStep) { const prev = lastStep; lastStep = cur; if (prev !== null && s && !s.flags.veteran) stepChanged(cur, prev, s); }
     });
     lastStep = window.st?.current?.()?.id || null;
@@ -947,7 +961,13 @@
     enabled: true, get active() { return ready; }, get ready() { return ready; }, chars: C,
     get speaking() { return !!speech.cur || speech.q.length > 0; },
     // Bedtime keeps the car at home; work follows the real routine and story/home-day exceptions.
-    get carAway() { return !C.dad.present && scheduled('dad', clock()).raw === 'away:work' && !storyDirectives().dad && !manual.dad && !sceneDbg.dad; },
+    get carAway() {
+      const s=window.st?.getState?.()||window.StorySnapshot;
+      // AccountGate can receive the authoritative snapshot before st-engine is
+      // loaded. An unknown story must not send the hand-me-down away to work.
+      const openingHome=s?.ch===1&&!s.flags?.veteran&&s.done?.bin;
+      return !!s&&!openingHome&&!C.dad.present&&scheduled('dad',clock()).raw==='away:work'&&!storyDirectives().dad&&!manual.dad&&!sceneDbg.dad;
+    },
     present: id => !!C[id]?.present, near: (id, cm) => !!C[id] && inEarshot(C[id], cm || 400),
     talk, say: (id, line, o) => say(id, line, o), speak: (id, line, text) => say(id, line, { text, force: true, again: true, prio: 4 }), storyLine, handIn, blocks, blocker, doorHeld, heldHint,
     // hs-life's random shouts give way to the people who are really there (and Dad can't shout from work)

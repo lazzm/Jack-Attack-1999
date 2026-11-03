@@ -1234,7 +1234,7 @@
         hipP.set(J['thigh' + sd][0] - J.hips[0], J['thigh' + sd][1] - J.hips[1], J['thigh' + sd][2] - J.hips[2]).applyQuaternion(W.hips.q).add(W.hips.p);
         if (seat && sitK > 0.001) {
           const kz = seat.knee || (segs['thigh' + sd].L * 0.95);
-          tgt.set(s * (S.hipX + 1.5), S.ankle, hz + kz + 3);
+          tgt.set(s * (S.hipX + 1.5), seat.footH ?? S.ankle, hz + kz + 3);
           toRig(tmp, f.x, f.y, f.z); tmp.y += S.ankle;
           tgt.lerp(tmp, 1 - sitK);
         } else {
