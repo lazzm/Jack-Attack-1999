@@ -303,7 +303,7 @@
     ['01-11', 'Luke', 'Yo-yos are still hot in our school. Well, warm. Well, Liam still has one.'],
     ['02-22', 'JackK', 'Half our class did the Brittany dance in the dinner queue. Dave did it too. DAVE.'],
     ['04-02', 'Dave', 'Pocket Critters cartoon is the BEST. Ash is rubbish at catching though.'],
-    ['05-12', 'Callum', 'Swapped my Jar Jar Jams for a Dark Mole. The kid who did that deal will regret it for ever.'],
+    ['05-12', 'Callum', 'Swapped my Blah Blah Blinks for a Dark Mole. The kid who did that deal will regret it for ever.'],
     ['07-20', 'Jack', 'lightspatula duel at the park with wrapping-paper tubes. I lost (my tube folded).'],
     ['09-01', 'Luke', 'My cousin heard about the Beany Bobbles stopping and bought eleven in one day.'],
     ['10-06', 'Dave', 'Moss version. Charbroiler. Already naming him. He\'s called DAVE.'],

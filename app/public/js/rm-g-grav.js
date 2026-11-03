@@ -112,7 +112,13 @@
     rock(g, w, h) { g.fillStyle = '#9a5a3a'; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 6) { g.fillStyle = `rgba(${y % 12 ? '120,60,30' : '200,120,70'},.5)`; g.fillRect(0, y, w, 3); } blot(g, w, h, 8, 'rgba(60,20,10,.4)', 3, 8); dith(g, w, h); },
     chev(g, w, h) { g.fillStyle = '#ff7a00'; g.fillRect(0, 0, w, h); g.fillStyle = '#ffe14a'; for (let y = 0; y < 2; y++) { g.beginPath(); g.moveTo(0, y * 16 + 14); g.lineTo(w / 2, y * 16 + 4); g.lineTo(w, y * 16 + 14); g.lineTo(w, y * 16 + 10); g.lineTo(w / 2, y * 16); g.lineTo(0, y * 16 + 10); g.fill(); } },
     wpad(g, w, h) { g.fillStyle = '#0a1a6a'; g.fillRect(0, 0, w, h); g.fillStyle = '#2a8aff'; g.fillRect(2, 2, w - 4, h - 4); g.fillStyle = '#0a1a6a'; g.fillRect(5, 5, w - 10, h - 10); g.fillStyle = '#8ad8ff'; g.font = 'bold 14px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('?', w / 2, h / 2 + 1); },
-    pit(g, w, h) { g.fillStyle = '#0a3a1a'; g.fillRect(0, 0, w, h); g.fillStyle = '#3aff6a'; g.fillRect(0, 0, 3, h); g.fillRect(w - 3, 0, 3, h); for (let y = 4; y < h; y += 16) { g.fillStyle = 'rgba(58,255,106,.5)'; g.fillRect(6, y, w - 12, 6); } },
+    pit(g, w, h) { // painted repair bays, distinct from the orange chevron boost pads
+      g.fillStyle = '#26363c'; g.fillRect(0, 0, w, h);
+      for (let y = 0; y < h; y += 4) { g.fillStyle = y % 8 ? '#304248' : '#223238'; g.fillRect(2, y, w - 4, 1); }
+      g.fillStyle = '#6fb88f'; g.fillRect(1, 0, 1, h); g.fillRect(w - 2, 0, 1, h);
+      g.fillStyle = '#b7ddc6'; g.fillRect(w / 2 - 2, h / 2 - 7, 4, 14); g.fillRect(w / 2 - 7, h / 2 - 2, 14, 4);
+      g.fillStyle = '#507466'; g.fillRect(5, 0, w - 10, 1);
+    },
   };
   // the far-off scenery painted round the sky
   const PANO = {
@@ -246,7 +252,7 @@
         const gt = T3.mat({ color: th.wall, lit: false, fog: false });
         for (const s of [-1, 1]) ribbon(i => !FL.gap[i] && !FL.tube[i] && !FL.tun[i], i => s * (hw(i) + 0.45), i => s * (hw(i) + 0.45), { ya: i => 2.3 + rampH(i), yb: i => 2.5 + rampH(i), v: 6, face: -s }, gt);
         // the pit lane (green, on the right by the start) and its row of little lights
-        addW(RK.strip(T, L, i => hw(i) - 4.6, i => hw(i) - 0.1, { ya: 0.07, from: pitA, to: pitB, v: 16 }), T3.mat({ map: T3.tex(32, 32, PAINT.pit), lit: false }));
+        addW(RK.strip(T, L, i => hw(i) - 4.6, i => hw(i) - 0.1, { ya: 0.07, from: pitA, to: pitB, v: 5 }), T3.mat({ map: T3.tile(T3.tex(32, 32, PAINT.pit), 1, 1) }));
         // the start line
         const chk = T3.tex(32, 8, (g, w, h) => { for (let x = 0; x < 8; x++) for (let y = 0; y < 2; y++) { g.fillStyle = (x + y) % 2 ? '#111' : '#fff'; g.fillRect(x * 4, y * 4, 4, 4); } });
         addW(RK.strip(T, L, i => -hw(i), hw, { ya: 0.08, from: 0, to: 1, v: 2.5 }), T3.mat({ map: chk, lit: false }));

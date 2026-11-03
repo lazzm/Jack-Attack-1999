@@ -53,19 +53,21 @@
   function state() {
     if (!H.live || !touchOn() || H.paused || window.HousePause?.open || html.classList.contains('account-required') || document.querySelector('.hs-loading,#houseEntry')) return 'off';
     if (H.mode === 'inspect') return 'inspect';
-    if (['monitor', 'pcboot', 'sit', 'stand', 'shutdown'].includes(H.mode) || document.body.classList.contains('pc-monitor')) return 'pc';
+    if (['monitor', 'pcboot', 'sit', 'stand', 'shutdown'].includes(H.mode)) return 'pc';
     if (window.RoomTV?.open_) return 'console';
     if (H.mode === 'focus') return H.seated ? 'seat' : 'screen';
     if (H.mode === 'walk' || H.mode === 'glide') return 'walk';
     return 'off';
   }
-  let st = 'off';
+  let st = 'off', lastActiveState = 'off';
   function syncState() {
     const next = state();
     if (next !== st) {
-      const old = st; st = next; html.dataset.touchState = st;
+      st = next; html.dataset.touchState = st;
       if (!['walk', 'seat'].includes(st)) releaseAll();
-      if (st === 'pc' && old !== 'pc') pcArrived();
+      // Pausing hides the controls; it does not constitute sitting down again.
+      if (st === 'pc' && lastActiveState !== 'pc') pcArrived();
+      if (st !== 'off') { lastActiveState = st; if (st !== 'pc') preserveFirstPCView = false; }
       if (st === 'walk') setTimeout(() => { if (st === 'walk') coach(true); }, 1200); else coach(false);
       lastKey = ''; render();
     }
@@ -320,12 +322,20 @@
   document.addEventListener('game-input-change', () => { releaseAll(); lastKey = ''; render(); });
 
   // ---------------------------------------------------------------- the PC: phones LOCK IN on sitting down, so JackOS is finger-sized
-  let autoLocked = false;
+  let autoLocked = false, preserveFirstPCView = window.JHPBoot === 'wake' && ls.get('jhp_hs_desktop_full', null) !== null;
+  let pcViewVersion = 0, pcFull = H.desktopDisplay();
+  addEventListener('resize', () => { const full = H.desktopDisplay(); if (full !== pcFull) { pcFull = full; pcViewVersion++; } });
+  // Explicit logon enters the PC. A token resume keeps the saved screen view.
+  window.Net?.on('loginOk', () => { preserveFirstPCView = false; });
   function pcArrived() {
     if (!phone()) return;
-    let tries = 0;
+    if (preserveFirstPCView) { preserveFirstPCView = false; return; }
+    let tries = 0; const version = pcViewVersion;
     const go = () => {
-      if (st !== 'pc') return;
+      // A player may choose In room while the cold boot is still settling.
+      // Its delayed automatic lock must not overwrite that newer choice.
+      if (version !== pcViewVersion) return;
+      if (st !== 'pc') { if (['monitor','pcboot','sit'].includes(H.mode) && ++tries < 600) setTimeout(go,150); return; }
       if (H.mode !== 'monitor' || H.gliding || !window.DesktopSurface?.ready?.()) { if (++tries < 600) setTimeout(go, 150); return; } // (a cold boot can take a while)
       if (!H.desktopDisplay()) { H.desktopDisplay(true); autoLocked = true; }
     };

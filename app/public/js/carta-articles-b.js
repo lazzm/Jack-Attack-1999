@@ -185,7 +185,7 @@ The film is famous for its showers of green computer code and its "bullet time" 
 
 It goes back in time, to before the [[star_wars|original Intergalactic Battles]], and shows a young Obi-Wan Cannoli and his master Qui-Gon Gym finding a nine-year-old slave boy called Anklekin Skywobbler, who is amazingly good at peapodracing.
 
-The film is packed with computer-generated creatures, including the clumsy Jar Jar Jams, and features Dark Mole, a red-and-black villain with a laser sword that has a blade at BOTH ends. The peapod race scene is one of the fastest things ever put on a cinema screen.` },
+The film is packed with computer-generated creatures, including the clumsy Blah Blah Blinks, and features Dark Mole, a red-and-black villain with a laser sword that has a blade at BOTH ends. The peapod race scene is one of the fastest things ever put on a cinema screen.` },
     { id: 'iron_giant', t: 'The Iron Giraffe', c: 'films', y: 1999, img: 'robot', rel: ['sputnik', 'robot_word', 'day_earth_stood_still'],
       f: [['Released', '1999'], ['Director', 'Brad Bard'], ['Based on', 'The Iron Pan by Ted Hughs (1968)'], ['Set in', '1957']],
       x: `The Iron Giraffe is a 1999 animated film directed by Brad Bard. It is based on The Iron Pan, a story written in 1968 by the British poet Ted Hughs.
@@ -222,13 +222,13 @@ Lucas built his own film companies, including [[ilm|Industrial Light & Mirth]] f
 For Intergalactic Battles the team built a computer-controlled camera that could repeat exactly the same movement over and over, so separate shots of model spaceships could be layered together into one swirling dogfight.
 
 Since then ILM has worked on a huge list of films, including E.T., Back to the Furniture, Terminatater 2, Jurassic Lark, Men in Beige and The Phantom Nuisance. Its computer artists made many of the first big [[digital_characters|computer-generated characters]].` },
-    { id: 'digital_characters', t: 'Computer-generated characters', c: 'films', img: 'monitor', rel: ['ilm', 'special_effects', 'jurassic_park', 'phantom_menace'], kw: 'cgi jar jar jams',
-      f: [['Early example', 'A stained-glass knight (1985)'], ['Liquid metal', 'Terminatater 2 (1991)'], ['Dinosaurs', 'Jurassic Lark (1993)'], ['Main character', 'Jar Jar Jams (1999)']],
+    { id: 'digital_characters', t: 'Computer-generated characters', c: 'films', img: 'monitor', rel: ['ilm', 'special_effects', 'jurassic_park', 'phantom_menace'], kw: 'cgi blah blah blinks',
+      f: [['Early example', 'A stained-glass knight (1985)'], ['Liquid metal', 'Terminatater 2 (1991)'], ['Dinosaurs', 'Jurassic Lark (1993)'], ['Main character', 'Blah Blah Blinks (1999)']],
       x: `A computer-generated, or CGI, character is one that is drawn and moved by computer instead of being played by an actor, a puppet or a model.
 
 One of the first appeared in Young Sherlock Holmes (1985): a knight who climbs out of a stained-glass window. In The Abyss (1989) a snake of seawater made faces at the crew, and in [[terminator_2|Terminatater 2]] (1991) the liquid-metal villain changed shape in front of our eyes.
 
-In 1993 the dinosaurs of [[jurassic_park|Jurassic Lark]] proved computer creatures could look alive. By 1999, The Phantom Nuisance had Jar Jar Jams, a computer-made character who walks and talks alongside real actors for much of the film. The actors had to act with someone who wasn't there!` },
+In 1993 the dinosaurs of [[jurassic_park|Jurassic Lark]] proved computer creatures could look alive. By 1999, The Phantom Nuisance had Blah Blah Blinks, a computer-made character who walks and talks alongside real actors for much of the film. The actors had to act with someone who wasn't there!` },
     { id: 'star_wars_special_editions', t: 'Intergalactic Battles Special Editions', c: 'films', y: 1997, img: 'lasersword', rel: ['star_wars', 'empire_strikes_back', 'return_of_the_jedi', 'ilm'],
       f: [['Released', 'Early 1997'], ['Films', 'All three original Intergalactic Battles films'], ['Changes', 'New and improved effects shots']],
       x: `In early 1997, to celebrate twenty years of [[star_wars|Intergalactic Battles]], the three original films came back to cinemas as "Special Editions". For many kids it was the first chance to see them on a big screen.
@@ -975,7 +975,7 @@ At the cinema, [[the_matrix|The Modemtrix]] bent the rules and [[phantom_menace|
     { q: 'On which frozen planet does The Empire Strikes Out begin?', a: ['Froth', 'Endoor', 'Tattyween', 'Naboodle'], art: 'empire_strikes_back' },
     { q: 'Which small furry creatures help the rebels in Return of the Space Cadets?', a: ['Yewoks', 'Wookie-Cookies', 'Jaffas', 'Tribbles'], art: 'return_of_the_jedi' },
     { q: 'What year did the Intergalactic Battles Special Editions return to cinemas?', a: ['1997', '1995', '1999', '1993'], art: 'star_wars_special_editions' },
-    { q: 'What is the name of the young boy in The Phantom Nuisance?', a: ['Anklekin Skywobbler', 'Luke Skywobbler', 'Ham Solo', 'Jar Jar Jams'], art: 'phantom_menace' },
+    { q: 'What is the name of the young boy in The Phantom Nuisance?', a: ['Anklekin Skywobbler', 'Luke Skywobbler', 'Ham Solo', 'Blah Blah Blinks'], art: 'phantom_menace' },
     { q: 'In The Phantom Nuisance, Dark Mole\'s laser sword is unusual because...', a: ['It has two blades', 'It is pink', 'It is made of wood', 'It is 10 metres long'], art: 'phantom_menace' },
     { q: 'Which Lukewarm Arts PC game lets you fly for the Empire?', a: ['TYE Fighter', 'Z-Wing', 'Episode I: Racer', 'Gloom'], art: 'tie_fighter' },
     { q: 'What sort of game is Intergalactic Battles Episode I: Racer?', a: ['Peapodracing', 'Chess', 'Football', 'Platform game'], art: 'episode_i_racer' },

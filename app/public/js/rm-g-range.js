@@ -398,8 +398,10 @@
         for (const x of [-18, 18]) B.box('dirt', x, 0, -70, 2, 2.2, 140, 0xa08860, { ts: 3 });
         // the booth: sandbags, a counter, posts and a roof
         B.box('crate', 0, 0, -1.25, 8, 1.05, 0.7, 0xe0d0a0, { ts: 1 }); B.box('wood', 0, 1.05, -1.25, 8.2, 0.08, 0.9, 0x8a5a30);
-        for (const x of [-4.2, 4.2]) B.box('wood', x, 0, -1.4, 0.35, 3.3, 0.35, 0x8a6038); B.box('wood', 0, 3.3, -0.6, 9.2, 0.25, 3.2, 0x7a5030);
-        for (const x of [-4.2, 4.2]) B.box('wood', x, 0, 1.5, 0.35, 3.3, 0.35, 0x8a6038);
+        // Keep the solid canopy on its four posts, above even the upper aiming
+        // limit. Its old forward overhang obscured the sky like a black HUD bar.
+        for (const x of [-4.2, 4.2]) B.box('wood', x, 0, -1.4, 0.35, 3.6, 0.35, 0x8a6038); B.box('wood', 0, 3.6, 0.05, 9.2, 0.25, 3.4, 0x7a5030);
+        for (const x of [-4.2, 4.2]) B.box('wood', x, 0, 1.5, 0.35, 3.6, 0.35, 0x8a6038);
         // lane posts and distance boards, target rails
         for (const d of [10, 25, 50, 100]) for (const x of [-14, 14]) { B.box('metal', x, 0, -d, 0.15, 1, 0.15, 0x666666); B.box('sign', x, 1, -d, 2.4, 1.1, 0.1, 0xffffff, { ts: 2.4 }); X.label(x, 1.55, -d + 0.06, d + 'M'); }
         for (let z = 12; z <= 34; z += 11) B.box('metal', 0, 0, -z - 0.6, 24, 0.12, 0.12, 0x7a7a7a);

@@ -2178,7 +2178,9 @@
         g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
         const lines = hi ? ['VISUAL MEMORY GIZMO', 'CONTROLLER A, SLOT 1', '', G.t < 40 ? 'CHECKING...' : SV.n ? CFG.title + ' FILE FOUND (8 BLOCKS)' : 'NO ' + CFG.title + ' FILE. ONE WILL BE MADE.', G.t > 100 ? 'OK!' : '']
           : ['MEMORY CARD CHECK', 'MEMORY CARD (SLOT 1)', '', G.t < 40 ? 'CHECKING...' : SV.n ? 'LOADING ' + CFG.title + ' DATA (1 BLOCK)' : 'NO SAVE DATA. ONE WILL BE MADE (1 BLOCK).', G.t > 100 ? 'COMPLETE.' : ''];
-        lines.forEach((l, i) => tx(l, W / 2, H * 0.32 + i * U(13), { col: i === 0 ? '#ffd84a' : '#ddd', al: 'c', k: i === 0 && !hi ? 2 : 1 }));
+        // The PlaySpace heading is 16 pixels high; the small lines need their
+        // own baseline below it (the Daydream uses a different font and scale).
+        lines.forEach((l, i) => tx(l, W / 2, H * 0.32 + i * U(13) + (i && !hi ? U(9) : 0), { col: i === 0 ? '#ffd84a' : '#ddd', al: 'c', k: i === 0 && !hi ? 2 : 1 }));
         cardIcon(W / 2 - U(14), H * 0.12, G.t > 40 && G.t < 100 && (G.t >> 3) % 2);
         return true;
       }

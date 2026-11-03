@@ -3,7 +3,9 @@
  'use strict';
  const H=window.House;if(!H||!H.ok||window.HousePause)return;
  function activeScreen(){
-  if(['monitor','pcboot'].includes(H.mode)||document.body.classList.contains('pc-monitor'))return{type:'pc',locked:H.desktopDisplay()};
+  // The body class describes the PC's presentation and can outlive its focus
+  // (notably the legacy follow camera). Input ownership comes from house mode.
+  if(['monitor','pcboot'].includes(H.mode))return{type:'pc',locked:H.desktopDisplay()};
   if(window.RoomTV?.open_)return{type:'console',locked:RoomTV.lockIn()};
   const s=H.surfaceScreen();return s?{type:'surface',locked:s.locked}:null;
  }
@@ -56,6 +58,7 @@
  function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. '+(window.GameInput?.touch?'Click LOCK IN again':'Press T again')+' to return. JackOS fills the window; console and handheld screens keep their original proportions.':'Use a PC, console, Game Lad or family TV, then '+(window.GameInput?.touch?'click LOCK IN':'press T to LOCK IN')+'.';}
  function openMenu(){
   if(el.open||window.stDiary?.picking||!H.live||window.House?.god||window.OwnerTools?.active||window.AccountGate&&!AccountGate.allowed)return false;
+  syncSettings();
   previous=el.contains(document.activeElement)?null:document.activeElement;el.querySelector('[name=crouchToggle]').checked=H.crouchSetting();if(H.motion)el.querySelector('[name=reduceMotion]').checked=H.motion.reduce;
   button('owner').hidden=!window.OwnerTools?.allowed;el.querySelector('.hs-owner-key').hidden=!window.OwnerTools?.allowed;
   el.querySelector('.hs-test-reset').hidden=!(window.Net?.me.member&&Net.me.nick.toLowerCase()==='test'&&localStorage.getItem('jhp_starter')==='1');el.querySelector('.hs-test-confirm').hidden=true;
