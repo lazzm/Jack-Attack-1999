@@ -13,10 +13,10 @@
     { id: 'squigs', title: 'Jacks: Armageddon', price: 240, rel: '29/01', tag: '', blurb: 'Little teams of jacks with bazookas, sheep and banana bombs, taking turns. The best game for four people and one mouse.' },
     { id: 'carta', title: 'JackCarta 99', price: 350, rel: '01/10', tag: '', blurb: 'The whole encyclopedia on two CDs. Videos! Sounds! Your homework, done (well, copied out). Mom will say yes to this one.' },
     { id: 'jaquake', title: 'Jaquake (full version)', price: 200, rel: '17/03', tag: 'budget', blurb: 'The scary 3D shooter, all of it, not just the shareware bit. Play it with the lights off. Then turn the lights back on.' },
-    { id: 'podracer', title: 'Pod Jack Racer', price: 260, rel: '19/05', tag: 'new', blurb: 'Pods, deserts, 600 mph. The film is out this summer. Practise now so you can tell everyone you could do it in real life.' },
+    { id: 'podracer', title: 'Pod Jack Racer', price: 260, rel: '19/05', tag: 'new', blurb: 'Pods, deserts, 600 mph. Peapod racing from The Phantom Nuisance. Practise so you can tell everyone you could do it in real life.' },
     { id: 'grotlings', title: 'Jacklings', price: 110, rel: '01/04', tag: 'budget', blurb: 'Lead the little guys home before they walk off a cliff. The big red button is the best and worst bit.' },
     { id: 'pinball', title: 'Space Jack Pinball', price: 90, rel: '01/02', tag: 'budget', blurb: 'A whole pinball table in your PC. Tilt it. It tells you off. Tilt it again.' },
-    { id: 'boss', title: 'Championship Boss 99/00', price: 290, rel: '03/12', tag: 'new', blurb: 'Be the manager! Buy players, shout at the ref, get sacked in October. The new season, every stat, every club.' },
+    { id: 'boss', title: 'Championship Boss 99/00', price: 290, rel: '03/12', tag: 'new', blurb: 'Be the manager! Buy players, shout at the ref, get sacked before half-time. The 1999/2000 season, every stat, every club.' },
   ];
   const magazines = typeof module !== 'undefined' && module.exports ? require('./magazine-cat.js') : root.MagazineCat;
   for (const issue of magazines?.ISSUES || []) ITEMS.push({id:issue.id,title:issue.publication+' — '+issue.title,price:issue.price,rel:issue.rel,kind:'mag',tag:'',blurb:issue.headline+' — six original pages, with its cover CD.'});
@@ -28,6 +28,8 @@
   const C = {
     ITEMS, byId, DAYMAX, CART_BASE, md,
     out: (x, todayMd) => !x.rel || md(x.rel) <= todayMd,
+    newIn: (x, todayMd) => x.tag === 'new' && !!x.rel && md(x.rel) <= todayMd && Math.floor(md(x.rel) / 100) === Math.floor(todayMd / 100),
+    blurb: (x, todayMd) => x.id === 'podracer' ? 'Pods, deserts, 600 mph. ' + (todayMd < 716 ? 'The film reaches cinemas on 16 July.' : 'The film is out now.') + ' Practise so you can tell everyone you could do it in real life.' : x.blurb,
     // carts from js/rm-cat.js (the browser only; the server reads them too if rm-cat is requireable)
     addCarts(cat) {
       if (!cat || !cat.GAME) return;

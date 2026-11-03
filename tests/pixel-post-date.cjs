@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const C=require('../app/public/js/pm-cat.js'),pod=C.byId.podracer,boss=C.byId.boss;
+assert(!/this summer|out now/i.test(pod.blurb),'Printed packaging stays timeless');
+for(const md of [101,519,715])assert.match(C.blurb(pod,md),/reaches cinemas on 16 July/);
+for(const md of [716,1102,1231])assert.match(C.blurb(pod,md),/out now/);
+assert(!C.out(pod,518));assert(C.out(pod,519));
+assert(C.newIn(pod,519));assert(C.newIn(pod,531));assert(!C.newIn(pod,601));assert(!C.newIn(pod,1102));
+assert(!C.newIn(boss,1102));assert(!C.newIn(boss,1202));assert(C.newIn(boss,1203));
+assert(!/in October|new season/.test(boss.blurb));
+console.log('PIXEL POST DATE PASS: film release boundary, timeless packaging, monthly new stock and December season copy');

@@ -636,7 +636,7 @@ Run by Steve. Send your scores in by e-mail.</pre>${N.mates(c, SD_MATES, 'SPORTS
     ['04-15', 'Dave', 'Saw The Modemtrix trailer on the Internet. Took 40 minutes to download. Worth it.'],
     ['06-12', 'Luke', 'THE MODEMTRIX. I tried to dodge a football in slow motion at lunch. It hit me in normal motion.'],
     ['07-17', 'Jack', 'SAW EPISODE I!!! Queued for ages. Dark Mole has a DOUBLE lightspatula. I need to lie down.'],
-    ['07-18', 'JackK', 'Peapod Race = best ten minutes of my life. Jar Jar Jams = the other ten minutes.'],
+    ['07-18', 'JackK', 'Peapod Race = best ten minutes of my life. Blah Blah Blinks = the other ten minutes.'],
     ['11-13', 'Luke', 'Saw The Sixth Scents. Not telling. Stop asking.'],
     ['11-25', 'Callum', 'Toy Storey 2 is out in America. Here? Not till 11 February. FEBRUARY.'],
   ];

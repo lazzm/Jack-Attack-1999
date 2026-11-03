@@ -90,7 +90,7 @@
   });
 
   // ================================================================ THE OUTER RIM FAN CLUB (a galaxy far, far away)
-  const SWF = ['Episode I opened in America on 19 May 1999 and in the UK on 16 July 1999.', 'Qui-Gon Gym is played by Liam Kneesun. Young Obi-Wan Cannoli is Ewan McGreaser.', 'Queen Amidolly is played by Natalie Porkman.', 'Dark Mole\'s lightspatula has a blade at BOTH ends.', 'Tattyween has two suns.', 'Jar Jar Jams is a Gungoo, from the underwater city of Otoh Gungoo.', 'The big peapod race in Episode I is the Boomta Eve Classic.', 'Yoga is 900 years old in Return of the Space Cadets.', 'The first Intergalactic Battles film came out in America in 1977.', 'The Millennium Pigeon made the Kettle Run in less than twelve parsecs.'];
+  const SWF = ['Episode I opened in America on 19 May 1999 and in the UK on 16 July 1999.', 'Qui-Gon Gym is played by Liam Kneesun. Young Obi-Wan Cannoli is Ewan McGreaser.', 'Queen Amidolly is played by Natalie Porkman.', 'Dark Mole\'s lightspatula has a blade at BOTH ends.', 'Tattyween has two suns.', 'Blah Blah Blinks is a Gungoo, from the underwater city of Otoh Gungoo.', 'The big peapod race in Episode I is the Boomta Eve Classic.', 'Yoga is 900 years old in Return of the Space Cadets.', 'The first Intergalactic Battles film came out in America in 1977.', 'The Millennium Pigeon made the Kettle Run in less than twelve parsecs.'];
   add('outerrim', {
     mono: 1,
     from: 'The Outer Hem Fan Club <holonet@outerrimfans.jnet>', addrs: ['holonut@outerrimfans.jnet'], news: 'outerrim', noreply: 1,
@@ -202,7 +202,7 @@
   // ================================================================ FORUM NOTIFICATIONS
   const TOPICS = c => {
     const t = ['BEST ULTRA 64 GAME EVER?', 'Post your Jacktris high score!', 'Robo Rumble: best robot ever?', 'Is the Rubrick\'s cube actually possible?', 'What\'s on your Christmas list? (yes, already)', 'Favourite crisps (serious topic)'];
-    if (c.md >= 301 && c.md <= 930) t.push('IS JAR JAR JAMS RUINING IT?', 'Episode I: how many times have you seen it?', 'Dark Mole figure: where can I find one??');
+    if (c.md >= 301 && c.md <= 930) t.push('IS BLAH BLAH BLINKS RUINING IT?', 'Episode I: how many times have you seen it?', 'Dark Mole figure: where can I find one??');
     if (c.md >= 801 && c.md <= 1031) t.push('MOSS OR PUDDLE?', 'Pocket Critters: who did you pick first?');
     if (c.md >= 901) t.push('DAYDREAM: worth £199?', 'Smush Bros: who is the best character?');
     if (c.md >= 1101) t.push('Y2K: are we doomed?', 'What are you doing for the Millennium?');

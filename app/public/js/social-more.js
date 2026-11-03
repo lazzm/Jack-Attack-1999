@@ -348,7 +348,7 @@ window.SocialMore = function (X) {
       'Traffic and travel: the dial-up is busy, someone is downloading a 2 MB picture. Expect delays on all lines.',
       'Weather: it is raining on the keyboard. Please stop eating crisps over it.',
       "Shout-out to everyone who finished Zeldo this week. Green tunics are the new green.",
-      "Ask-the-DJ: 'Is Jar-Jar...' NO. Next question.",
+      "Ask-the-DJ: 'Is Blah Blah Blinks...' NO. Next question.",
       'Request line is open! Pick a tune in the Requests box and it might get played. Might.',
       "Y2K watch: 1999 is going fine so far. Jack has a torch and three tins of beans, just in case.",
       'This station is powered by a 56K modem and the sheer willpower of a little green helper called Gubbinz.',

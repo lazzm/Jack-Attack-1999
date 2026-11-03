@@ -452,7 +452,7 @@
     const room=thing?.at?.room;
     const location=thing?.st==='held'?'IN YOUR HANDS':x.kind==='hardware'?(legacy||thing?.snap==='hardware.dock.'+x.console?'CONNECTED TO YOUR TELLY':room==='hall'?'UNBOXED — IN THE HALL':room==='bedroom'?'UNBOXED — IN YOUR ROOM':'UNBOXED — IN THE HOUSE'):x.kind==='mag'?(room==='hall'?'UNBOXED — IN THE HALL':room&&room!=='bedroom'?'IN THE HOUSE':String(thing?.snap||'').startsWith('reading.slot.')?'ON YOUR BOOKSHELF':'IN YOUR ROOM'):'ON YOUR SHELF';
     const lend = b && b.owner ? ` <span class="ppo-lent">(you've got ${esc(b.owner)}'s)</span>` : '';
-    return `<div class="ppo-it${have ? ' have' : ''}${out ? '' : ' soon'}" data-pp="${esc(x.id)}">${x.tag && out ? `<span class="ppo-flag ${x.tag}">${{ new: 'NEW IN!', hot: 'HOT!', budget: 'BUDGET' }[x.tag] || ''}</span>` : ''}<div class="ppo-art">${art}</div><div class="ppo-tx"><b>${esc(titleOfShop(x.id))}</b><small>${esc(x.blurb)}</small>
+    return `<div class="ppo-it${have ? ' have' : ''}${out ? '' : ' soon'}" data-pp="${esc(x.id)}">${x.tag && out && (x.tag !== 'new' || CAT.newIn(x, md99())) ? `<span class="ppo-flag ${x.tag}">${{ new: 'NEW IN!', hot: 'HOT!', budget: 'BUDGET' }[x.tag] || ''}</span>` : ''}<div class="ppo-art">${art}</div><div class="ppo-tx"><b>${esc(titleOfShop(x.id))}</b><small>${esc(CAT.blurb(x, md99()))}</small>
       <span class="ppo-pr">${x.price} <i class="ppo-rp"></i> Rupees</span>${waiting ? `<span class="ppo-got">&#9993; DELIVERED (order ${esc(mine.no)}): it's by the front door, waiting to be opened!</span>` : have ? `<span class="ppo-got">&#10004; ${location}${mine ? ' (order ' + esc(mine.no) + ')' : ''}${lend}</span>` : !out ? `<span class="ppo-soon">COMING SOON: in the shops ${esc(fmtDate(x.rel))}</span>` : `<button type="button" class="ppo-buy" data-buy="${esc(x.id)}">ORDER IT</button>`}</div></div>`;
   }
   function shopPage() {
@@ -460,7 +460,7 @@
     let flash = '';
     const draw = () => {
       const member = !!(window.Net && Net.me && Net.me.member), L = CAT.ITEMS.slice();
-      const newIn = L.filter(x => isOut(x) && x.tag === 'new'), soon = L.filter(x => !isOut(x)), rest = L.filter(x => isOut(x) && x.tag !== 'new');
+      const newIn = L.filter(x => CAT.newIn(x, md99())), soon = L.filter(x => !isOut(x)), rest = L.filter(x => isOut(x) && !CAT.newIn(x, md99()));
       const n = parcels().length;
       el.innerHTML = `<div class="ppo-top"><div class="ppo-logo">PIXEL<b>POST</b></div><div class="ppo-tag">Games, consoles & magazines by mail order &middot; every game boxed, with the manual &middot; FREE P&amp;P &middot; Est. 1994</div></div>
         <div class="ppo-strip"><marquee scrollamount="4">*** ORDER ONLINE WITH RUPEES *** SAME-DAY DELIVERY (IT'S QUICKER IN JACKNET) *** NO SECONDHAND DISCS *** ${CAT.DAYMAX} ORDERS A DAY PER CUSTOMER (MOM'S RULES) ***</marquee></div>

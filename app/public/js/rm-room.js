@@ -1971,7 +1971,7 @@
     const d = Math.max(17.5 / (Math.tan(fov) * 0.83), 24 / (Math.tan(fov) * aspect * 0.88));
     return { x: TX - 1, y: 8.4, z: -24 + d, rx: 0, ry: 0, seat: 1, lvl: 'U' };
   }
-  function tvOpen(con, gameId, resume) {
+  function tvOpen(con, gameId, resume, locked) {
     if(!consoleConnected(con)){toast('No console connected','Place your console in its highlighted TV-rack slot and press E to connect it.');return;}
     if (!canGo() || pending || H.focused&&!H.seated || (window.RoomTV && RoomTV.open_)) return;
     if (con === 'dc' && !R.dcOut) return;
@@ -1980,7 +1980,7 @@
     if(!gameId){toast(CAT.CONSOLES[con].n,'Pick up a filled game case and put it into the highlighted slot.');return;}
     if (con !== 'gb') lastCon = con;
     H.hush();
-    const go = () => { RoomTV.open(con, con === 'gb' ? rectOf(H.THINGS.gb.obj) : rectOf(con==='sn'?H.ROOMS.cupboard.cupScreen:R.tvScreen), { restoring: !!resume }); if (gameId) RoomTV.playPhysical(gameId); };
+    const go = () => { RoomTV.open(con, con === 'gb' ? rectOf(H.THINGS.gb.obj) : rectOf(con==='sn'?H.ROOMS.cupboard.cupScreen:R.tvScreen), { restoring: !!resume, locked: !!locked }); if (gameId) RoomTV.playPhysical(gameId); };
     const ready = () => window.RoomTV ? Promise.resolve() : (tvLoad = tvLoad || loadJs('js/rm-tv.js'));
     const grip=con==='gb'?H.suspendGrip('gb'):null;
     if(H.held())(H.setAside||H.putBack)();
@@ -2002,7 +2002,7 @@
       enter: power,
       exit: () => { returnHandheld(); tvFocus = false; ++tvRequest; if (window.RoomTV && RoomTV.open_) RoomTV.close(); else if (!(window.RoomTV && RoomTV._dbg() && RoomTV._dbg().background)) tvSession(null); }
     });
-    if (tvFocus) tvSession({ con, gid: gameId || '', back: H._.focusS.back });
+    if (tvFocus) tvSession({ con, gid: gameId || '', back: H._.focusS.back, locked: !!locked });
   }
   addEventListener('resize', () => { if (tvFocus && H.mode === 'focus') { Object.assign(H.P, tvPose(tvFocusCon)); if (gbPlay && tvFocusCon === 'gb') { gbPlay.play = gbPlayPose(gbPlay.view); if (!H.anims.has('gb-pose')) camRoot(H.P).multiply(gbPlay.play).decompose(H.THINGS.gb.obj.position, H.THINGS.gb.obj.quaternion, new T.Vector3()); } H.dirty(); } });
   // ---- close-ups (js/rm-bits.js): the camera moves in close first, and back out after
@@ -2470,7 +2470,7 @@
         }
         const b = saved.back;
         if (b && [b.x, b.y, b.z, b.rx, b.ry].every(Number.isFinite) && b.x > LX && b.x < RX && b.z > BZ && b.z < FZ) { Object.assign(H.P, b); H.setWalkFrom(b); }
-        tvOpen(saved.con, saved.gid, true);
+        tvOpen(saved.con, saved.gid, true, saved.locked);
       };
       setTimeout(resume, 150);
     }

@@ -79,7 +79,7 @@ P.S. I've invented a little green character called Gubbinz. One day he's going t
 * A graphics card with 16MB on it (I'll write down which one. Don't let the shop man choose.)
 * Batteries (for the Game Lad, the torch, and the Y2K emergency radio)
 * An Intergalactic Battles lightspatula. A proper one. With the noise.
-* ${md() >= 1019 ? 'Anything Episode I that I haven\'t already got. (See Intergalactic Battles Toys.wks.)' : 'Episode I toys (see Intergalactic Battles Toys.wks so you don\'t get me two Jar Jars)'}
+* ${md() >= 1019 ? 'Anything Episode I that I haven\'t already got. (See Intergalactic Battles Toys.wks.)' : 'Episode I toys (see Intergalactic Battles Toys.wks so you don\'t get me two Blah Blah Blinks figures)'}
 * **NOT** another jumper. (Sorry Nan. Unless it's red.)
 
 ## For other people (so it's fair)
@@ -263,8 +263,8 @@ The peapod race is the best thing I have ever seen in a cinema. Anklekin flies a
 ## DARK MOLE
 Red and black face, horns, yellow eyes and a lightspatula with **two blades**. TWO. One on each end. He barely says anything, he just does flips. He's the best baddie since the one in the black helmet. The music in the big lightspatula fight at the end has a choir singing in it, and every hair on my arms stood up.
 
-## JAR JAR JAMS
-Jar Jar Jams is a Gungoo. He's clumsy and he talks funny. Dave thinks he is the funniest thing ever made. I think he is... a lot. Half the cinema laughed. The other half went very quiet. We have agreed not to talk about it.
+## BLAH BLAH BLINKS
+Blah Blah Blinks is a Gungoo. He's clumsy and he talks funny. Dave thinks he is the funniest thing ever made. I think he is... a lot. Half the cinema laughed. The other half went very quiet. We have agreed not to talk about it.
 
 ## THE BITS I DIDN'T GET
 * Some of it is about taxes and trade routes and a lot of people sitting in a big round room arguing. Dad said "that's what politics is like". If that's what politics is like I'm going to be a peapod racer.
@@ -276,7 +276,7 @@ Jar Jar Jams is a Gungoo. He's clumsy and he talks funny. Dave thinks he is the 
 \tDarth Maul:\t{b|10/10}
 \tLightsaber fight:\t{b|11/10} (allowed, it's my magazine)
 \tSpace battle:\t{b|8/10}
-\tJar Jar:\t{b|?/10} (Dave says 10. I say we agreed not to talk about it)
+\tBlah Blah Blinks:\t{b|?/10} (Dave says 10. I say we agreed not to talk about it)
 \tPoliticians in a round room:\t{b|3/10}
 
 > {f=Impact;s=36;c=green|9/10}
@@ -478,7 +478,7 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
   }, colW: { A: 160, B: 70, C: 76, D: 72, E: 240 }, fmt: { A1: 'b c=#800080', 'A2:E2': 'b bg=#ffd0ff', 'C3:D13': 'cur', 'A12:D14': 'b', D14: 'num0 b c=#ff0000' } };
   D.swtoys = () => {
     const R = upto([[508, 'Qui-Gon Gym', '08/05/99', 5.99, 'NO', 8], [515, 'Obi-Wan Cannoli (Space Cadet)', '15/05/99', 5.99, 'NO', 9], [522, 'Battle Toaster', '22/05/99', 4.99, 'YES', 7],
-      [529, 'Jar Jar Jams', '29/05/99', 0, 'YES', 3], [605, 'Wotto', '05/06/99', 5.99, 'NO', 6], [619, 'Anklekin Skywobbler (Tattyween)', '19/06/99', 5.99, 'NO', 8], [626, 'Queen Amidolly', '26/06/99', 5.99, 'YES', 6],
+      [529, 'Blah Blah Blinks', '29/05/99', 0, 'YES', 3], [605, 'Wotto', '05/06/99', 5.99, 'NO', 6], [619, 'Anklekin Skywobbler (Tattyween)', '19/06/99', 5.99, 'NO', 8], [626, 'Queen Amidolly', '26/06/99', 5.99, 'YES', 6],
       [710, 'Sebulbar\'s peapod racer', '10/07/99', 14.99, 'NO', 9], [717, 'Anklekin\'s peapod racer', '17/07/99', 14.99, 'NO', 10], [904, 'R2-B2 (the old one, from a car boot sale)', '04/09/99', 1.5, 'NO', 9], [1116, 'Dark Mole (FINALLY!!!)', '16/11/99', 5.99, 'NO', 10]]);
     const c = { A1: 'MY INTERGALACTIC BATTLES COLLECTION', A2: 'Figure', B2: 'Got it', C2: 'Price', D2: 'Still in box?', E2: 'Coolness /10' };
     R.forEach((r, i) => { const n = i + 3; c['A' + n] = r[0]; c['B' + n] = r[1]; c['C' + n] = r[2]; c['D' + n] = r[3]; c['E' + n] = r[4]; });
@@ -501,7 +501,7 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
 
   // ================================================================ cardfiles
   D.mates = { cards: Cast.deep([
-    ['DAVE', 'Best mate. Lives round the corner.\nPhone: 01632 960123 (his Mom answers. Always.)\nFave game: Goldenballs. Always picks Oddbob. (Banned in our house.)\nFave film: Episode I. Fave character: Jar Jar Jams. (We don\'t talk about it.)\nGood at: Kart Kaos, eating\nBad at: riddles, giving floppy disks back\nOwes me: 1 floppy disk, £1 (Y2K bet), 3 Pocket Critters cards'],
+    ['DAVE', 'Best mate. Lives round the corner.\nPhone: 01632 960123 (his Mom answers. Always.)\nFave game: Goldenballs. Always picks Oddbob. (Banned in our house.)\nFave film: Episode I. Fave character: Blah Blah Blinks. (We don\'t talk about it.)\nGood at: Kart Kaos, eating\nBad at: riddles, giving floppy disks back\nOwes me: 1 floppy disk, £1 (Y2K bet), 3 Pocket Critters cards'],
     ['COUSIN {cousin.NAME}', 'Older cousin. Has a PlaySpace AND a CD Strollman.\nLends me CDs if I promise not to scratch them.\nCan do the robot dance. Badly.\nSays the Internet is "for nerds". Uses it every day.\nPhone: 01632 960404 (ask for {cousin}, not {uncle})'],
     ['COUSIN RYAN', 'Thinks he knows EVERYTHING about computers.\nSent us a virus by e-mail and said it wasn\'t him.\nTips for computers: "turn it off and on again" (that\'s all of them)\nPhone: 01632 960356'],
     ['{kidEp1.NAME}', 'Computer Club. Makes web pages in Jotpad, like me.\n{kidEp1.His} site has a MIDI that plays the second you open it. Loud.\nWants to be a games programmer. Me too. We\'re going to start a company.\nCompany name ideas: Pixel Soft, Blobbit Games, Jack & {kidEp1} Ltd (my idea, {kidEp1.he} wants {kidEp1} & Jack Ltd)'],
@@ -528,7 +528,7 @@ Top of the wardrobe, behind the suitcase. If anyone is reading this: they are NO
     ['OBI-WAN CANNOLI', 'Young in Episode I! Qui-Gym\'s apprentice.\nBlue lightspatula. Has a little plait in his hair (Space Cadet learners have them).\nOld Obi-Wan Cannoli is the one in the first film who goes "use the Force" (sort of).'],
     ['ANKLEKIN SKYWOBBLER', 'A slave boy on Tattyween who builds his own peapod racer.\nWins the Boomta Eve peapod race against Sebulbar.\nBUILT C-4PO HIMSELF out of bits!!!\nGrows up to be... you know who. (Heavy breathing.)'],
     ['QUEEN AMIDOLLY', 'Queen of Naboodle. Elected! (She\'s a teenager. A teenage queen!)\nHas about fifty amazing outfits and a face painted white.\nHas handmaidens who look a LOT like her. That\'s a clue.'],
-    ['JAR JAR JAMS', 'A Gungoo from Naboodle. Floppy ears, long tongue.\nClumsy. Banished from the underwater city by Boss Gnash.\nDave\'s favourite. We have agreed not to talk about it.'],
+    ['BLAH BLAH BLINKS', 'A Gungoo from Naboodle. Floppy ears, long tongue.\nClumsy. Banished from the underwater city by Boss Gnash.\nDave\'s favourite. We have agreed not to talk about it.'],
     ['WOTTO', 'Junk dealer in Mos Espresso on Tattyween.\nA Toydarling: flies with tiny fast wings, like a blue flying pot belly.\nOwns Anklekin and his mom. Bets on peapod races. Grumpy.\nJedi mind tricks don\'t work on him!'],
     ['SEBULBAR', 'Peapod Racer. A Dug (walks on his hands!).\nBig orange pod. CHEATS. Always.\nGets his pod broken in the end. Serves him right.'],
     ['R2-B2', 'Astromech droid (the little blue and white one that beeps).\nIn Episode I he fixes the Queen\'s ship\'s shields under fire and gets a medal (well, a thank you).\nFavourite droid. Doesn\'t talk. Doesn\'t need to.'],
