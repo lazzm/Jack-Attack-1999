@@ -17,6 +17,7 @@
 .np-bub.np-shout{border-width:3px;padding:12px 15px 10px}
 .np-bub.np-shout p{font-size:1.04em}
 .np-bub.np-edge{max-width:min(260px,calc(100vw - 48px));font-size:14px;padding:11px 13px 9px}
+.np-bub.np-edge{border-radius:3px;width:min(380px,calc(100vw - 32px));max-width:calc(100vw - 32px);font:700 14px/1.4 "Courier New",monospace}
 .np-bub.np-out{animation:np-outk .22s ease-in both}
 @keyframes np-in{from{opacity:0;scale:.55}60%{opacity:1}to{opacity:1;scale:1}}
 @keyframes np-outk{to{opacity:0;scale:.85}}

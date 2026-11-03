@@ -462,12 +462,13 @@
     if (speech.cur && (t < speech.until || (speech.voice && !speech.voice.ended && speech.voice.started && t < speech.hard))) return;
     if (speech.cur) {
       if (speech.voice && !speech.voice.ended) speech.voice.stop(); // (F again: on to the next line)
-      if (speech.bub) { const b = speech.bub, next = speech.q[0]; if (next && next.c === speech.cur.c) b.close(true); else setTimeout(() => b.close(), next ? 1600 : 450); } // (a reply: the last line stays up a moment, like a comic panel)
+      if (speech.bub) speech.bub.close(true);
       if (speech.cur.c.rig && speech.voice) speech.cur.c.rig.hush();
       speech.voice = speech.bub = null;
       const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); }
     }
     const n0 = speech.q[0]; if (!n0) return;
+    if (document.querySelector('.rm-note.on,.hs-voice.on,.hs-call.on')) return;
     n0.base = n0.base || n0.text; // (lines with no script entry bring their own words)
     n0.text = window.st?.voiceText?.(n0.lineId, n0.base) || n0.base;
     const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n0.lineId);
@@ -496,6 +497,7 @@
     };
     if (n.person) c.talking = true;
     speech.cur = n; speech.voice = voice; speech.until = t + ms + 280; speech.hard = t + ms + 3500; speech.last = t;
+    save(); // Make even an immediate refresh resume this line, before the periodic profile save.
   }
   function skip() { if (speech.cur) { speech.until = 0; speech.hard = 0; } }
 
@@ -849,6 +851,9 @@
     savedAt = nowMs(); if (simMode) return;
     const o = { t: Date.now(), c: {} };
     for (const c of chars) o.c[c.id] = c.present ? { p: 1, x: Math.round(c.x), z: Math.round(c.z), lvl: c.lvl, h: +c.h.toFixed(2), g: c.goal?.key || null, seat: c.seated ? SPOT_OF(c.seated) : null } : { p: 0 };
+    // Resume the spoken exchange as well as the people. Functions are rebuilt from
+    // the current story's talkLines; no reward or story event is replayed on load.
+    o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n?.talk).slice(0,12).map(n=>({id:n.c.id,line:n.lineId,text:n.text}))};
     ls.set(SKEY(), o);
   }
   const SPOT_OF = q => Object.keys(SPOT).find(k => SPOT[k].seat === q) || null;
@@ -864,7 +869,18 @@
       if (sv && sv.p && !want.away) { spawn(c, { lvl: sv.lvl, x: sv.x, z: sv.z }, sv.h); c.goal = null; continue; } // then walk on to where the clock says
       if (!want.away) maybeSpawn(c, want, clk, true);
     }
+    const conversation=o&&Date.now()-o.t<10*60000&&o.conversation;
+    if(conversation && conversation.step===(window.st?.current?.()?.id||null) && Array.isArray(conversation.lines)) {
+      const lines=conversation.lines.filter(n=>C[n.id]?.present&&typeof n.line==='string'&&typeof n.text==='string');
+      lines.forEach((n,i)=>{
+        const c=C[n.id],script=talkLines(c).find(l=>(typeof l==='string'?l:l.id)===n.line);
+        c.hold=99;
+        say(n.id,n.line,{text:n.text,force:true,again:true,talk:true,prio:5,then:()=>{if(script&&typeof script!=='string')script.then?.();if(i===lines.length-1)c.hold=1.5;}});
+      });
+    }
   }
+  addEventListener('pagehide',()=>{if(ready)save();});
+  document.addEventListener('visibilitychange',()=>{if(ready&&document.hidden)save();});
 
   function frame(now, dt) {
     if (!ready || !H.live) return false;
@@ -929,6 +945,7 @@
   // ================================================================ the API
   window.HouseFamily = {
     enabled: true, get active() { return ready; }, get ready() { return ready; }, chars: C,
+    get speaking() { return !!speech.cur || speech.q.length > 0; },
     // Bedtime keeps the car at home; work follows the real routine and story/home-day exceptions.
     get carAway() { return !C.dad.present && scheduled('dad', clock()).raw === 'away:work' && !storyDirectives().dad && !manual.dad && !sceneDbg.dad; },
     present: id => !!C[id]?.present, near: (id, cm) => !!C[id] && inEarshot(C[id], cm || 400),

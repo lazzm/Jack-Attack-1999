@@ -1,8 +1,8 @@
 /* np-bubble: comic speech bubbles over the family's heads when they talk (js/np-life.js), like the talky late-90s
  * adventure games: a white balloon with a little name tab, hung above the speaker's head in 3D (projected to the
  * screen every frame), its tail pointing at their mouth, the words typed on in step with the recording (js/st-voice.js).
- * When the speaker is off-screen, behind you or in another room (Mom shouting from downstairs) the balloon sits at the
- * edge of the screen on the side they are, with its tail as an arrow pointing their way. Balloons keep clear of the
+ * When the speaker is off-screen, behind you or in another room (Mom shouting from downstairs), a named subtitle stays
+ * in a stable place with no tail pointing at an unrelated prop. Balloons keep clear of the
  * crosshair, the carry panel, the objective line, the map and the touch controls, and of each other.
  *   NPCBubble.show({ key, who, text, ms, anchor, voice, shout, color }) -> { close(), el }
  *     anchor: { top(v3) -> v3|null (world, above the hair), mouth(v3) -> v3|null, seen() -> bool (in a room you can
@@ -19,8 +19,9 @@
   const hit = (a, b, pad) => a.x < b.x + b.w + pad && a.x + a.w + pad > b.x && a.y < b.y + b.h + pad && a.y + a.h + pad > b.y;
   // Put a w x h balloon above point p (the head top) inside the view, out of the keep-out rects. Returns {x, y} (top-left).
   function place(p, w, h, view, keep, gap) {
-    const m = view.m, minY = view.top;
+    const m = view.m, minY = view.top + 12; // room for the speaker's name tab
     let x = clamp(p.x - w / 2, m, view.w - m - w), y = clamp(p.y - gap - h, minY, view.h - m - h);
+    const preferred={x,y};
     for (let pass = 0; pass < 4; pass++) {
       const r = { x, y, w, h }, k = keep.find(k => hit(r, k, 6)); if (!k) break;
       const up = k.y - 8 - h, down = k.y + k.h + 8, left = k.x - 8 - w, right = k.x + k.w + 8;
@@ -32,6 +33,16 @@
       if (!opts.length) break;
       opts.sort((a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y));
       ({ x, y } = opts[0]);
+    }
+    // Greedy moves can bounce between a header and the carry panel. Search their
+    // clear edges as a whole before accepting an overlap, including the name tab.
+    const clear=(x,y)=>x>=m&&x+w<=view.w-m&&y>=minY&&y+h<=view.h-m&&!keep.some(k=>hit({x,y:y-12,w,h:h+12},k,6));
+    if(!clear(x,y)){
+      const xs=[preferred.x,m,view.w-m-w],ys=[preferred.y,minY,view.h-m-h];
+      for(const k of keep){xs.push(k.x-w-8,k.x+k.w+8);ys.push(k.y-h-8,k.y+k.h+18);}
+      let best=null;
+      for(const nx of xs)for(const ny of ys)if(clear(nx,ny)){const d=(nx-preferred.x)**2+(ny-preferred.y)**2;if(!best||d<best.d)best={x:nx,y:ny,d};}
+      if(best){x=best.x;y=best.y;}
     }
     return { x, y };
   }
@@ -84,7 +95,7 @@
     const st = getComputedStyle(H.ui.el); return st.display !== 'none' && st.visibility !== 'hidden';
   }
   // what to keep clear of (refreshed a few times a second)
-  const KEEP = '.hs-hold:not([hidden]),.st-objective:not([hidden]),.hs-top,.hs-map,.hs-tip.carry.on,.ht-acts>.ht-b,.ht-top>.ht-b,.ht-stick.on,.ht-target.on,.ht-tapmark.on,.ht-coach,.hs-getup:not([hidden]),.ch-chip:not([hidden]),.hs-voice.on';
+  const KEEP = '.hs-hold:not([hidden]),.st-objective:not([hidden]),.hs-top,.hs-map,.hs-tip.carry.on,.ht-acts>.ht-b,.ht-top>.ht-b,.ht-stick.on,.ht-target.on,.ht-tapmark.on,.ht-coach-card,.hs-getup:not([hidden]),.ch-chip:not([hidden]),.hs-voice.on,.rm-note.on,.rm-toast.on';
   let keep = [], keepAt = 0, view = null;
   function refreshKeep(now) {
     if (now - keepAt < 300 && view) return; keepAt = now;
@@ -146,13 +157,18 @@
       } catch (e) { dir = { x: 0, y: 1 }; }
       if (mode !== b.mode) { b.mode = mode; b.el.classList.toggle('np-edge', mode === 'edge'); b.measure = true; b.w = b.el.offsetWidth; b.h = b.el.offsetHeight; }
       const others = keep.concat(placed);
-      const pos = mode === 'head' ? place({ x: top.x, y: Math.min(top.y, mouth.y - 30) }, b.w, b.h, view, others, 18) : edge(dir, b.w, b.h, view, others);
+      // A voice out of view gets a stable subtitle, never a balloon over an unrelated prop.
+      b.el.querySelector('.np-bub-name').textContent = b.who + (mode === 'edge' ? b.place || ' (nearby)' : '');
+      const subtitleY=Math.min(view.h-b.h-16,view.w<600?100:view.h<500?76:view.h-b.h-54);
+      const pos = mode === 'head' ? place({ x: top.x, y: Math.min(top.y, mouth.y - 30) }, b.w, b.h, view, others, 18) :
+        place({x:view.w/2,y:subtitleY+b.h},b.w,b.h,view,others,0);
       const r = { x: pos.x, y: pos.y, w: b.w, h: b.h };
       // ease towards the new place (people bob and the view turns; balloons shouldn't jitter)
       if (b.x == null || b.jump) { b.x = r.x; b.y = r.y; b.jump = false; } else { const k = 1 - Math.exp(-(now - (b.lastT || now)) / 70); b.x += (r.x - b.x) * k; b.y += (r.y - b.y) * k; }
       b.lastT = now; r.x = b.x; r.y = b.y;
       placed.push(r);
       b.el.style.transform = `translate(${r.x.toFixed(1)}px,${r.y.toFixed(1)}px)`;
+      if (mode === 'edge') { b.tail = null; continue; }
       const target = mode === 'head' ? mouth : { x: r.x + r.w / 2 + dir.x * 400, y: r.y + r.h / 2 + dir.y * 400 };
       const T = tail(r, target, mode === 'head' ? 46 : 22, 14);
       const bw = mode === 'head' ? 9 : 11, px = T.side === 'b' || T.side === 't' ? [bw, 0] : [0, bw], inn = T.side === 'b' ? [0, -3] : T.side === 't' ? [0, 3] : T.side === 'l' ? [3, 0] : [-3, 0];
@@ -169,19 +185,23 @@
   }
   function show(o) {
     if (!ok()) return null;
-    for (const b of live) if (b.key === o.key) b.close(true);
+    for (const b of live) b.close(true);
     const el = document.createElement('div'); el.className = 'np-bub' + (o.shout ? ' np-shout' : '');
     el.style.setProperty('--np-tab', o.color || COLORS[o.key] || '#6b5a3a');
     el.innerHTML = '<b class="np-bub-name"></b><p><span class="np-said"></span><span class="np-rest"></span></p>';
     el.querySelector('.np-bub-name').textContent = o.who + (o.place ? ' ' + o.place : '');
-    const b = { key: o.key, el, text: String(o.text || ''), ms: o.ms || 3000, t0: performance.now(), voice: o.voice || null, anchor: o.anchor || null, shout: !!o.shout,
+    const b = { key: o.key, who:o.who, place:o.place, el, text: String(o.text || ''), ms: o.ms || 3000, t0: performance.now(), voice: o.voice || null, anchor: o.anchor || null, shout: !!o.shout,
       said: el.querySelector('.np-said'), rest: el.querySelector('.np-rest'), n: -1, measure: true, mode: '', x: null, y: null, jump: true, out: false,
       close(now) {
-        if (b.out) return; b.out = true; el.classList.add('np-out');
+        if (b.out) return; clearTimeout(b.expiry); b.out = true; el.classList.add('np-out');
+        if (now) el.hidden=true;
         setTimeout(() => { el.remove(); live.delete(b); }, now ? 0 : 240);
       } };
     b.rest.textContent = b.text; // (the whole line is laid out from the start, so the balloon never grows while typing)
     layer.appendChild(el); live.add(b);
+    // Family animation normally closes the line. A stopped render loop must not
+    // leave a balloon blocking queued notes or diary instructions forever.
+    b.expiry = setTimeout(() => b.close(true), 45000);
     sr.textContent = o.who + ': ' + b.text;
     if (!raf) raf = requestAnimationFrame(frame);
     return b;

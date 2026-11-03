@@ -92,7 +92,6 @@
       stickEl.classList.add('on'); stickEl.style.left = ev.clientX + 'px'; stickEl.style.top = ev.clientY + 'px'; knob.style.transform = '';
     } else if (look) spare.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
     else if (!look) { look = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, x0: ev.clientX, y0: ev.clientY, t0: performance.now(), moved: false }; look.aim = H.held() ? null : aimPoint(ev.clientX, ev.clientY); tapMark(look.aim, ev.clientX, ev.clientY); }
-    ls.set('jhp_touch_coach', true); coach(false);
     pts.set(ev.pointerId, true);
   });
   surface.addEventListener('pointermove', ev => {
@@ -106,7 +105,7 @@
       ev.preventDefault();
       const r = R(); let dx = ev.clientX - stick.x0, dy = ev.clientY - stick.y0; const d = Math.hypot(dx, dy);
       // A thumb that runs past the rim drags the stick along with it (floating), and jogs.
-      if (!stick.moved && Math.hypot(ev.clientX - stick.sx, ev.clientY - stick.sy) > 12) { stick.moved = true; tapMark(null); }
+      if (!stick.moved && Math.hypot(ev.clientX - stick.sx, ev.clientY - stick.sy) > 12) { stick.moved = true; tapMark(null); coachStep(1); }
       if (!stick.moved) return;
       const run = d > r * 1.18;
       if (d > r * 1.6) { const k = (d - r * 1.6) / d; stick.x0 += dx * k; stick.y0 += dy * k; dx = ev.clientX - stick.x0; dy = ev.clientY - stick.y0; stickEl.style.left = stick.x0 + 'px'; stickEl.style.top = stick.y0 + 'px'; }
@@ -121,7 +120,7 @@
     if (look && ev.pointerId === look.id) {
       ev.preventDefault();
       const dx = ev.clientX - look.x, dy = ev.clientY - look.y; look.x = ev.clientX; look.y = ev.clientY;
-      if (!look.moved && Math.hypot(ev.clientX - look.x0, ev.clientY - look.y0) > 9) { look.moved = true; tapMark(null); }
+      if (!look.moved && Math.hypot(ev.clientX - look.x0, ev.clientY - look.y0) > 9) { look.moved = true; tapMark(null); coachStep(2); }
       if (look.moved) {
         // gentle acceleration: slow drags aim precisely, a quick flick turns round
         const t = performance.now(), dt = Math.max(8, t - (look.t || t - 16)); look.t = t;
@@ -136,7 +135,7 @@
   function lift(ev) {
     spare.delete(ev.pointerId);
     if (stick && ev.pointerId === stick.id) {
-      const s0 = stick; stick = null; tapMark(null); H.touch.move(0, 0); stickEl.classList.remove('on', 'run'); knob.style.transform = '';
+      const s0 = stick; stick = null; tapMark(null); H.touch.move(0, 0); stickEl.classList.remove('on', 'run'); knob.style.transform = ''; stickEl.style.removeProperty('left'); stickEl.style.removeProperty('top');
       if (ev.type === 'pointerup' && !s0.moved && (s0.aim || performance.now() - s0.t0 < 400) && ['walk', 'seat'].includes(st) && !H.busy) {
         if (H.held()) { const hold = document.querySelector('.hs-ui .hs-hold'); if (!hold?.classList.contains('blocked')) press('e'); }
         else if (s0.aim) { H.useAt(s0.aim.x, s0.aim.y); if (!s0.aim.far) buzz(); }
@@ -166,6 +165,14 @@
   // The exact point wins; otherwise the nearest of 16 samples on two rings (14 and 28 px) that finds a usable thing
   // in reach. The click then happens at that sample, so the house does exactly what the label said.
   const RING = [[0, 0]]; for (const r of [14, 28]) for (let i = 0; i < 8; i++) RING.push([Math.cos(i * Math.PI / 4 + (r > 14 ? Math.PI / 8 : 0)) * r, Math.sin(i * Math.PI / 4 + (r > 14 ? Math.PI / 8 : 0)) * r]);
+  function aimedDoor(s, obj) {
+    if (H.DOORS[s.id]) return H.DOORS[s.id];
+    for (const d of Object.values(H.DOORS)) {
+      if (!d.pivot) continue;
+      for (let o=s.obj||obj;o;o=o.parent) if (o===d.pivot) return d;
+    }
+    return null;
+  }
   function aimPoint(x, y) {
     if (H.busy) return null;
     let h = null, px = x, py = y, far = null, fallback = null;
@@ -186,8 +193,7 @@
     const s = H.SPOTS[h.spot];
     const label = short(typeof s.label === 'function' ? s.label() : s.label), t = H.THINGS[s.id];
     // exactly what a click does (useAt in js/hs-world.js): take out, pick up, or the spot's own action
-    let door = H.DOORS[s.id] || null; // (a door leaf: its spot's mesh hangs off the door's pivot, as hs-world's doorOf finds)
-    if (!door) for (const d of Object.values(H.DOORS)) { if (!d.pivot) continue; for (let o = s.obj || h.obj; o; o = o.parent) if (o === d.pivot) { door = d; break; } if (door) break; }
+    const door = aimedDoor(s,h.obj);
     const verb = s.remove && !s.grab ? 'Take out' : s.grab && t && !s.use ? 'Pick up' : door ? (door.open ? 'Shut' : 'Open') : verbOf(label);
     return { id: s.id, label, verb, far: h.dist > s.range, x: px, y: py };
   }
@@ -199,19 +205,28 @@
     mark.classList.toggle('far', !!a.far); mark.style.left = clamp(x, 70, innerWidth - 70) + 'px'; mark.style.top = Math.max(60, y - 64) + 'px'; mark.classList.add('on');
   }
   const buzz = () => { try { navigator.vibrate?.(10); } catch (e) {} };
-  // first time on a touchscreen: three quiet coach marks, shown once (any thumb on the room dismisses them)
-  let coachEl = null, coachWait = 0;
+  // First session: one short practice hint at a time; moving and looking advance it, picking up finishes it.
+  let coachEl = null, coachWait = 0, lesson = 0;
+  const lessons = ['Drag on the left to walk.', 'Drag on the right to look round.', 'Click the Blockology box to pick it up.'];
+  function coachStep(step) {
+    lesson = Math.max(lesson, step);
+    if (coachEl) coachEl.querySelector('p').textContent = lessons[lesson];
+  }
   function coach(show) {
     if (show) {
+      const story = window.st?.getState?.();
+      if (!story || story.flags.veteran || story.ch !== 1 || story.done.lad) return;
       if (H.held()) { ls.set('jhp_touch_coach', true); return; }
       if (coachEl || ls.get('jhp_touch_coach', false)) return;
       // one thing to read at a time: wait while someone is talking or a note is up (up to half a minute)
-      if (document.querySelector('.rm-note.on,.rm-toast.on,.hs-voice.on,.hs-call.on') && (coachWait = (coachWait || 0) + 1) < 30) { setTimeout(() => { if (st === 'walk') coach(true); }, 1000); return; }
+      if (document.querySelector('.rm-note.on,.rm-toast.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out)')) { if (++coachWait < 30) setTimeout(() => { if (st === 'walk') coach(true); }, 1000); return; }
       coachEl = document.createElement('div'); coachEl.className = 'ht-coach'; coachEl.setAttribute('role', 'note');
-      coachEl.innerHTML = '<div class="ht-coach-card"><b>HOW TO PLAY</b><p><i>LEFT THUMB</i>walk: put it down anywhere on the left and slide it (further to jog)</p><p><i>RIGHT SIDE</i>drag to look round</p><p><i>CLICK THINGS</i>to use them: doors, people, games. The big button uses what is in the middle.</p></div>';
-      hud.appendChild(coachEl); setTimeout(() => coach(false), 14000); return;
+      coachEl.innerHTML = '<div class="ht-coach-card"><b>GETTING STARTED</b><p>' + lessons[lesson] + '</p></div>';
+      hud.appendChild(coachEl); html.classList.add('ht-learning'); setTimeout(() => coach(false), 8000); return;
     }
-    if (!coachEl) return; coachEl.classList.add('bye'); const el = coachEl; coachEl = null; ls.set('jhp_touch_coach', true); setTimeout(() => el.remove(), 400);
+    if (!coachEl) { if(!hud.querySelector('.ht-coach'))html.classList.remove('ht-learning');return; }
+    coachEl.classList.add('bye'); const el = coachEl; coachEl = null; ls.set('jhp_touch_coach', true);
+    setTimeout(() => {el.remove();if(!coachEl)html.classList.remove('ht-learning');},200);
   }
 
   H.on('grab', () => { if (touchOn()) { ls.set('jhp_touch_coach', true); coach(false); } });
@@ -220,6 +235,7 @@
   const key = (k, up) => window.dispatchEvent(new KeyboardEvent(up ? 'keyup' : 'keydown', { key: k, bubbles: true, cancelable: true }));
   const press = k => { key(k); key(k, true); };
   const crouched = () => !!H._?.movementState?.().keys.crouch;
+  let carryMore = false, carryId = null;
   function doAction(k) {
     switch (k) {
       case 'menu': window.HousePause?.show(); break;
@@ -228,8 +244,9 @@
       case 'crouch': if (H.crouchSetting()) key('c'); else if (crouched()) key('c', true); else key('c'); break;
       case 'stand': window.HousePause?.quickBack(); break;
       case 'lock': window.ScreenLock?.toggle(); break;
+      case 'more': carryMore = !carryMore; break;
     }
-    lastKey = ''; setTimeout(render, 60); setTimeout(render, 260);
+    lastKey = ''; aimAt=0;aimPose='';setTimeout(render, 60); setTimeout(render, 260);
   }
   for (const box of [acts, top]) {
     box.addEventListener('pointerdown', ev => {
@@ -259,7 +276,8 @@
     let h = null; try { const id = H.held(); h = H.pick(innerWidth / 2, innerHeight / 2, id ? { skip: o => o.userData.spot === id } : undefined); } catch (e) { return null; }
     const s = h && h.spot && H.SPOTS[h.spot]; if (!s || s.off) return null;
     const label = short(typeof s.label === 'function' ? s.label() : s.label), t = H.THINGS[s.id];
-    aim = { id: s.id, label, far: h.dist > s.range, grab: !!s.grab, remove: !!s.remove && !s.grab, thing: !!t, use: t ? thingVerb(t) : (s.act ? label : '') };
+    const door=aimedDoor(s,h.obj);
+    aim = { id: s.id, label, far: h.dist > s.range, grab: !!s.grab, remove: !!s.remove && !s.grab, thing: !!t, use: door ? door.open ? 'Shut' : 'Open' : t ? thingVerb(t) : s.act ? s.id==='pc'?'Sit down':s.id==='telly'?'Watch':label : '' };
     return aim;
   }
   let messageLayoutKey='';
@@ -275,25 +293,31 @@
     const s = syncState(); let k = s, buttons = '', caption = '';
     if (s === 'walk' || s === 'seat') {
       const held = H.held(), hold = document.querySelector('.hs-ui .hs-hold');
+      if (held !== carryId) { carryId = held; carryMore = false; }
       if (held && hold && !hold.hidden) {
         const drag = hold.classList.contains('drag'), blocked = hold.classList.contains('blocked'), snap = hold.classList.contains('snap');
         let use = short(hold.querySelector('[data-h=use]')?.textContent) || 'Use'; if (use.length > 12) use = use.split(/\s*\/\s*/)[0].length <= 12 ? use.split(/\s*\/\s*/)[0] : verbOf(use);
+        const ownUse = H.THINGS[held]?.use && !/^(Inspect|Read|Look closely)\b/i.test(H.THINGS[held].useLabel || 'Inspect');
+        const contextualUse = ownUse || /^(Open|Shut|Close|Sit|Answer|Water|Feed|Eat|Drink|Wash|Mow|Empty)/i.test(use);
         buttons = btn('e', drag ? 'grab' : 'place', drag ? 'Let go' : snap ? 'Put in' : 'Put down', 'ht-main', blocked && !drag) +
-          (drag ? '' : btn('x', 'drop', 'Drop')) + btn('r', 'turn', 'Turn') + btn('q', 'back', 'Return') + btn('f', use === 'Look closely' ? 'look' : use.startsWith('Sit') ? 'sit' : 'use', use, 'ht-use') +
-          '';
-        k += '|h|' + [held, drag, blocked, snap, use].join(',');
+          (!snap ? btn('r', 'turn', 'Turn', 'ht-secondary') : '') + btn('q', 'back', 'Return', 'ht-secondary') + btn('more', 'menu', carryMore ? 'Less' : 'More', 'ht-secondary');
+        if (contextualUse || carryMore) buttons += btn('f', use === 'Look closely' ? 'look' : use.startsWith('Sit') ? 'sit' : 'use', use, 'ht-use');
+        if (carryMore && !drag) buttons += btn('x', 'drop', 'Drop', 'ht-extra');
+        k += '|h|' + [held, drag, blocked, snap, use, carryMore, contextualUse].join(',');
       } else {
         const a = aimed();
         if (a) {
           caption = a.label + (a.far ? ' · walk closer' : '');
           if (!a.far) {
-            if (a.use) { const v = a.thing ? a.use : verbOf(a.use); buttons += btn('f', v === 'Look closely' ? 'look' : /^Sit/.test(v) ? 'sit' : 'use', v.length > 13 ? verbOf(v) : v, 'ht-main'); }
-            if (a.grab) buttons += btn('e', 'grab', 'Pick up', a.use ? '' : 'ht-main');
+            const pickFirst=a.grab&&window.st?.current?.()?.id==='lad'&&H.THINGS[a.id]?.gameId?.startsWith('gb.');
+            k+='|pick'+!!pickFirst;
+            if(pickFirst)buttons+=btn('e','grab','Pick up','ht-main');
+            if (a.use) { const v = a.thing ? a.use : verbOf(a.use); buttons += btn('f', v === 'Look closely' ? 'look' : /^Sit/.test(v) ? 'sit' : 'use', v.length > 13 ? verbOf(v) : v, pickFirst?'':'ht-main'); }
+            if (a.grab&&!pickFirst) buttons += btn('e', 'grab', 'Pick up', a.use ? '' : 'ht-main');
             else if (a.remove) buttons += btn('e', 'grab', 'Take out');
           }
           k += '|a|' + [a.id, a.far, a.use, a.grab, a.remove, a.label].join(',');
         }
-        if (!a || a.far || !(a.use || a.grab || a.remove)) buttons = btn('f', 'use', 'Use', 'ht-main ht-idle', true) + buttons; // (where actions appear)
         if (s === 'walk') { const c = crouched(); buttons += btn('jump', 'jump', 'Jump') + btn('crouch', 'crouch', c ? 'Stand' : 'Crouch', c ? 'ht-on' : ''); k += '|c' + c; }
       }
     }
@@ -301,20 +325,20 @@
     if (s === 'pc') { const full = !!H.desktopDisplay(); topButtons = btn('stand', 'stand', 'Stand up') + btn('lock', full ? 'room' : 'lock', full ? 'In room' : 'LOCK IN') + topButtons; k += '|pc' + full; }
     stackCarryMessages();
     if (k === lastKey) return; lastKey = k;
-    acts.innerHTML = buttons; top.innerHTML = topButtons; layout();
+    acts.innerHTML = buttons; acts.classList.toggle('ht-carrying',!!H.held()); top.innerHTML = topButtons; layout();
     target.querySelector('b').textContent = caption; target.classList.toggle('on', !!caption);
     hud.dataset.state = s;
   }
   // Slot centres, measured from the cluster's bottom-right corner. The most likely action sits under the thumb's resting
-  // point; Jump and Crouch never move, so the thumb learns them; carrying has its own fixed arc.
+  // point; Jump and Crouch never move; carrying keeps its secondary actions in a short row.
   const WALK = { main: [52, 52], second: [146, 38], jump: [34, 152], crouch: [108, 134] };
-  const CARRY = { e: [52, 52], x: [146, 40], r: [36, 150], q: [118, 132], f: [44, 234] }; // (Use stacks above Turn: never near the walk stick on a 360 px phone)
+  const CARRY = { e: [52, 104], x: [202, 104], r: [182, 26], q: [112, 26], more: [42, 26], f: [132, 104] };
   function layout() {
-    const carrying = !!acts.querySelector('[data-k="x"],[data-k="r"]'); let n = 0;
+    const carrying = acts.classList.contains('ht-carrying'); let n = 0;
     for (const b of acts.children) {
-      const k = b.dataset.k, w = b.offsetWidth || 58;
+      const k = b.dataset.k, w = b.offsetWidth || 58, h = b.offsetHeight || w;
       const at = carrying ? CARRY[k] || CARRY.f : k === 'jump' || k === 'crouch' ? WALK[k] : n++ ? WALK.second : WALK.main;
-      b.style.right = (at[0] - w / 2) + 'px'; b.style.bottom = (at[1] - w / 2) + 'px';
+      b.style.right = (at[0] - w / 2) + 'px'; b.style.bottom = (at[1] - h / 2) + 'px';
     }
   }
   setInterval(render, 150);
@@ -348,7 +372,7 @@
     dlg.querySelector('.hs-pause-controls')?.setAttribute('data-input-only', 'keyboard');
     dlg.querySelectorAll('.hs-pause-mouse').forEach(p => { if (/^Mouse:/.test(p.textContent)) p.setAttribute('data-input-only', 'keyboard'); });
     const f = document.createElement('fieldset'); f.className = 'ht-settings'; f.setAttribute('data-input-only', 'touch');
-    f.innerHTML = `<legend>TOUCH CONTROLS</legend>
+    f.innerHTML = `<legend>LOOK CONTROLS</legend>
       <label class="ht-sens">Look speed <output></output><input type="range" name="touchLook" min="40" max="250" step="5" aria-label="Look speed"></label>
       ${window.PCOnly?.handheld ? '<button type="button" data-touch="jackos">PLAY JACKOS ONLY ON THIS DEVICE</button><div class="ht-jackos-confirm" hidden><p>Skip the house on this device and go straight to the JackOS desktop? Your room, saves and the PC stay exactly as they are; you can come back from the desktop\'s power screen.</p><button type="button" data-touch="jackosYes">YES, JACKOS ONLY</button><button type="button" data-touch="jackosNo">CANCEL</button></div>' : ''}`;
     const keysBox = main.querySelector('.hs-pause-controls'); main.insertBefore(f, keysBox || null);
@@ -362,7 +386,7 @@
       else if (b.dataset.touch === 'jackosYes') jackosOnly();
     });
     const help = document.createElement('details'); help.className = 'hs-pause-controls ht-help'; help.setAttribute('data-input-only', 'touch');
-    help.innerHTML = '<summary>HOW TO PLAY BY TOUCH</summary><p class="hs-pause-keys">Left thumb: walk · push further: jog<br>Right thumb: drag to look · click a thing: use it<br>Use [F] · Pick up / Put down [E] · Turn [R]<br>Drop [X] · Return [Q] · Jump · Crouch · Menu<br>At the PC: Stand up · LOCK IN · JackOS takes your fingers directly<br>Close-ups: drag to turn · two fingers to zoom</p>';
+    help.innerHTML = '<summary>HOW TO PLAY</summary><p class="hs-pause-keys">Drag on the left: walk · further: jog<br>Drag on the right: look · click a thing: use it<br>Use [F] · Pick up / Put down [E] · Turn [R]<br>Drop [X] · Return [Q] · Jump · Crouch · Menu<br>At the PC: Stand up · LOCK IN<br>Close-ups: drag to turn · + / - to zoom</p>';
     main.insertBefore(help, keysBox ? keysBox.nextSibling : null);
   }
   function jackosOnly() {

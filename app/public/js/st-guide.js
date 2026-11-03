@@ -72,9 +72,9 @@
     if (id === 'bed' && window.ChoreKit?.MODS.bed?.guide) return {obj:ChoreKit.MODS.bed.guide(),label:'The duvet',action:'F: make the bed'};
     if (t && !t.at.hide) return {obj:t.obj,label:typeof t.label === 'function' ? t.label() : t.label,action:id === 'st.pc.tower' && s?.id === 'power' ? 'F: press the power button' : id === 'ch.binbag' && !has('bin','tie') ? 'F: tie the bin bag' : id === 'gb' ? 'F: play the Game Lad' : t.chore === 'cushions' && has('cushions','c'+t.cI) ? 'F: plump the cushion' : ['ch.pillow','ch.pjs'].includes(id) ? 'E: carry to the bed' : id.startsWith('ch.m.') ? 'E: carry to '+({clothes:'the washing basket',rubbish:'the bin',dish:'the kitchen sink',mag:'the magazine pile',cd:'the CD rack'}[t.kind.slice(5)] || 'its place') : t.useLabel ? 'F: '+t.useLabel.toLowerCase()+' · E: carry' : 'E: carry · F: look closely'};
     if (snap) {
-      const p = snap.preview || snap.pose || snap;
+      const p = id==='console.gb' ? snap : snap.preview || snap.pose || snap;
       const object = {'ch.s.basket':'washing','ch.s.bin':'bin','ch.s.kbin':'hs.bin','ch.s.sink':'hs.sink','ch.s.pillow':'bed','ch.s.pjs':'bed','console.gb':'gb'}[id];
-      return {point:new T.Vector3(p.x,-p.y,p.z),obj:object ? H.THINGS[object]?.obj || H.SPOTS[object]?.obj : null,label:(snap.hint || 'Put it here').replace(/^Let go:\s*/i,''),action:snap.hint?.replace(/^Let go:/,'E:') || 'E: place here'};
+      return {point:new T.Vector3(p.x,-p.y,p.z),obj:object ? H.THINGS[object]?.obj || H.SPOTS[object]?.obj : null,label:id==='console.gb'?'Game Lad slot':(snap.hint || 'Put it here').replace(/^Let go:\s*/i,''),action:id==='console.gb'?(window.GameInput?.touch?'Aim at the gold slot. Press PUT IN.':'Aim at the gold slot. E: put the game in.'):snap.hint?.replace(/^Let go:/,'E:') || 'E: place here'};
     }
     if (spot?.obj) return {obj:spot.obj,label:typeof spot.label === 'function' ? spot.label() : spot.label,action:id.startsWith('st.lead.') ? 'F: connect the '+id.slice(8)+' lead' : 'F: use / look closely'};
     return null;
@@ -139,7 +139,7 @@
   const coarseMQ=matchMedia('(pointer:coarse)'), reduceMQ=matchMedia('(prefers-reduced-motion: reduce)');
   let speechAt=0, speechNow=false, viewW=window.innerWidth||0, viewH=window.innerHeight||0;
   window.addEventListener?.('resize',()=>{viewW=window.innerWidth;viewH=window.innerHeight;});
-  function speaking(now){if(now-speechAt>=100||now<speechAt){speechAt=now;speechNow=!!document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on') || (window.innerWidth<=900 || coarseMQ.matches) && !!document.querySelector('.ch-chip:not([hidden])');}return speechNow;}
+  function speaking(now){if(now-speechAt>=100||now<speechAt){speechAt=now;speechNow=!!document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out),.ht-coach:not(.bye)') || (window.innerWidth<=900 || coarseMQ.matches) && !!document.querySelector('.ch-chip:not([hidden])');}return speechNow;}
   function tick(now) {
     const dt=Math.min(.05,(now-(previous||now))/1000); previous=now;
     const visible=show() && mode!=='off', speech=visible&&speaking(now);
@@ -161,7 +161,7 @@
       const off=behind||Math.abs(ndc.x)>1||Math.abs(ndc.y)>1;
       // Only the border gets an arrow. Seeing the target removes the compass,
       // and an intervening wall never gets a floating label of its own.
-      if(!off){activeId='';if(!sampled.blocked&&dist<170){prompt.hidden=false;prompt.textContent=sampled.action;}}else{
+      if(!off){activeId='';if(!sampled.blocked&&dist<170&&!H.held()&&!window.GameInput?.touch){prompt.hidden=false;prompt.textContent=sampled.action;}}else{
       // Behind you means turn round, rather than look through the floor at a
       // low shelf. Choose a consistent right turn when exactly back-to-back.
       const dx=behind?(Math.abs(cam.x)<.001?1:cam.x):cam.x,dy=behind?0:-cam.y;
@@ -174,9 +174,9 @@
       tx=clamp(tx,marginX,w-marginX);ty=clamp(ty,top,h-bottom);
       // Slide along the border past the room plate/map and the phone's thumbs;
       // never move the compass into the room itself.
-      if(tx<=marginX+1||tx>=w-marginX-1){const low=156,high=h-(window.GameInput?.touch?(h<500?200:270):55);ty=clamp(ty,Math.min(low,high),Math.max(low,high));}
+      if(tx<=marginX+1||tx>=w-marginX-1){const low=window.GameInput?.touch&&H.held()&&h>w?236:156,high=h-(window.GameInput?.touch?(h<500?200:270):55);ty=clamp(ty,Math.min(low,high),Math.max(low,high));}
       else if(ty<=top+1){
-        if(window.GameInput?.touch&&w<600){if(w<350){tx=marginX;ty=156;}else tx=w-135;}
+        if(window.GameInput?.touch){tx=w-marginX;ty=H.held()&&h>w?260:180;}
         else tx=clamp(tx,Math.min(240,w/2),Math.max(w/2,w-150));
       }
       else if(window.GameInput?.touch){tx=h>w?84:w/2;}
@@ -188,7 +188,9 @@
       alpha+=(1-alpha)*(1-Math.exp(-dt*12));
       marker.hidden=false;marker.dataset.state='edge';
       marker.style.left=x+'px';marker.style.top=y+'px';marker.style.opacity=alpha.toFixed(3);
-      arrow.style.transform='rotate('+angle+'rad)';label.textContent=sampled.label;
+      marker.dataset.side=x>w/2?'right':'left';
+      marker.dataset.border=y>=h-bottom-1?'bottom':'side';
+      arrow.style.transform='rotate('+angle+'rad)';label.textContent=sampled.label+' · '+Math.max(1,Math.round(dist/100))+'m';
       }
     }
     if(titleUntil===-1)titleUntil=Date.now()+5000;

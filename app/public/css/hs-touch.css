@@ -10,12 +10,12 @@ html[data-game-touch="true"][data-touch-state="off"] .ht-hud,html.hs-paused .ht-
   --sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px);--sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px);
   position:fixed;inset:0;z-index:20020;pointer-events:none;font:700 10px/1.1 "Courier New",monospace;color:var(--ht-ink);-webkit-user-select:none;user-select:none}
 
-/* the floating stick: a faint resting ring shows where the left thumb goes; it jumps to the thumb when pressed */
+/* the floating stick exists only while pressed; releasing it clears the ring and its position */
 .ht-stick{position:absolute;left:calc(var(--sl) + 92px);top:calc(100% - var(--sb) - 132px);width:124px;height:124px;margin:-62px 0 0 -62px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,240,210,.04) 0 52%,rgba(255,240,210,.10) 53% 100%);box-shadow:inset 0 0 0 2px rgba(255,240,210,.20),0 0 0 1px rgba(0,0,0,.25);opacity:.55;transition:opacity .15s}
+  background:radial-gradient(circle,rgba(255,240,210,.04) 0 52%,rgba(255,240,210,.10) 53% 100%);box-shadow:inset 0 0 0 2px rgba(255,240,210,.20),0 0 0 1px rgba(0,0,0,.25);opacity:0;visibility:hidden;transition:opacity .15s}
 .ht-stick::after{content:"WALK";position:absolute;left:0;right:0;top:calc(100% + 6px);text-align:center;letter-spacing:.12em;color:rgba(238,228,202,.62);text-shadow:0 1px 2px #000}
 .ht-stick i{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(255,250,235,.62),rgba(190,180,160,.38));box-shadow:0 2px 8px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.25)}
-.ht-stick.on{opacity:1}
+.ht-stick.on{opacity:1;visibility:visible}
 .ht-stick.on::after{opacity:0}
 .ht-stick.run{box-shadow:inset 0 0 0 3px rgba(255,216,74,.75),0 0 14px rgba(255,216,74,.35)}
 .ht-stick.run::after{content:"JOG";opacity:1;color:var(--ht-gold)}
@@ -42,6 +42,9 @@ html:not([data-touch-state="walk"]):not([data-touch-state="seat"]) .ht-stick{dis
 /* the action cluster: bottom right; js/hs-touch.js lays the buttons on an arc round the first (most likely) one */
 .ht-acts{position:absolute;right:calc(var(--sr) + 12px);bottom:calc(var(--sb) + 14px);width:236px;height:230px;pointer-events:none}
 .ht-acts .ht-b{position:absolute}
+.ht-acts .ht-secondary{width:64px;height:44px;border-radius:3px;display:flex;gap:4px}
+.ht-acts .ht-secondary svg{width:16px;height:16px}
+.ht-acts .ht-secondary span{font-size:9px}
 
 /* what the crosshair is on, just under the crosshair (never on top of the thing itself) */
 .ht-target{position:absolute;left:50%;top:calc(50% + 26px);transform:translateX(-50%);max-width:min(78vw,420px);padding:4px 9px;background:rgba(20,23,25,.70);border:1px solid rgba(216,207,184,.30);
@@ -74,6 +77,7 @@ html[data-game-touch="true"][data-touch-state="inspect"] .ht-top,html[data-game-
 /* the house HUD around the thumbs: the carry panel and notes move clear of the buttons; keyboard-only hints go */
 html[data-game-touch="true"] .hs-ui .hs-hold{left:50%;right:auto;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);max-width:calc(100vw - 420px);min-width:180px}
 html[data-game-touch="true"] .hs-ui .hs-hold .hs-hkeys,html[data-game-touch="true"] .hs-ui .hs-hold .hs-carry-help,html[data-game-touch="true"] .hs-ui .hs-hold .hs-hbtn{display:none!important}
+html[data-game-touch="true"] .hs-ui .hs-hold.blocked .hs-carry-help{display:block!important;font-size:11px;line-height:1.35}
 html[data-game-touch="true"] .hs-lockhint{display:none!important}
 html[data-game-touch="true"] .hs-ui .hs-getup{min-height:44px;padding:8px 14px;touch-action:manipulation}
 html[data-game-touch="true"] .hs-inspection button{min-height:44px;min-width:64px;touch-action:manipulation}
@@ -133,12 +137,12 @@ html.handheld-house .account-identity fieldset label,html.mobile-desktop .accoun
 html:not([data-touch-state="walk"]):not([data-touch-state="seat"]) .ht-tapmark{display:none}
 /* first-time coach marks (shown once): where the thumbs go */
 .ht-coach{position:absolute;inset:0;pointer-events:none;animation:htCoach .5s ease-out both}
-.ht-coach.bye{opacity:0;transition:opacity .35s}
-.ht-coach-card{position:absolute;left:50%;top:calc(var(--st) + 146px);transform:translateX(-50%);width:min(88vw,380px);box-sizing:border-box;padding:10px 14px 8px;background:rgba(20,23,25,.9);border:1px dashed rgba(255,216,74,.75);font:700 12px/1.35 "Courier New",monospace;color:var(--ht-ink);text-shadow:0 1px 1px #000}
-.ht-coach-card b{display:block;margin-bottom:6px;font-size:13px;letter-spacing:.12em;color:var(--ht-gold)}
+.ht-coach.bye{animation:none;opacity:0;transition:opacity .18s}
+.ht-coach-card{position:absolute;left:12px;bottom:calc(var(--sb) + 238px);width:min(calc(100vw - 24px),340px);box-sizing:border-box;padding:8px 10px;background:rgba(20,23,25,.9);border-left:2px solid #d7bc70;font:700 12px/1.35 "Courier New",monospace;color:var(--ht-ink);text-shadow:0 1px 1px #000}
+.ht-coach-card b{display:block;margin-bottom:3px;font-size:10px;letter-spacing:.12em;color:var(--ht-gold)}
 .ht-coach-card p{margin:0 0 6px}
 .ht-coach-card i{display:block;font-style:normal;color:var(--ht-gold);letter-spacing:.06em}
-@media (orientation:landscape) and (max-height:500px){.ht-coach-card{top:calc(var(--st) + 64px);width:min(48vw,400px)}}
+@media (orientation:landscape) and (max-height:500px){.ht-coach-card{left:50%;transform:translateX(-50%);bottom:18px;width:min(42vw,340px)}}
 @keyframes htCoach{from{opacity:0}to{opacity:1}}
 .ht-b.ht-main span{font-size:11px}
 html[data-game-touch="true"] .hs-ui .hs-getup kbd{display:none}
@@ -160,7 +164,8 @@ html.handheld-house{touch-action:pan-x pan-y}
 html.handheld-house:not([data-touch-state="pc"]) #bootPower,html.handheld-house .hs-gl,html.handheld-house .hs-gl2{touch-action:none}
 
 /* A fresh discovery or conversation may arrive after the coach was shown. Let that message be read first. */
-html[data-game-touch="true"]:has(.hs-ui .rm-toast.on,.hs-ui .rm-note.on,.hs-voice.on,.hs-call.on) .ht-coach{visibility:hidden}
+html[data-game-touch="true"]:has(.hs-ui .rm-toast.on,.hs-ui .rm-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out)) .ht-coach{visibility:hidden}
+html.ht-learning .ht-target,html.ht-learning .hs-tip:not(.carry),html.ht-learning .st-objective,html.ht-learning .st-prompt{visibility:hidden}
 
 @media (orientation:portrait){
   html[data-game-touch="true"] .hs-ui.holding .rm-toast{top:var(--ht-toast-top,calc(env(safe-area-inset-top,0px) + 212px))}
