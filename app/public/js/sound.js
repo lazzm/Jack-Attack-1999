@@ -12,7 +12,7 @@
   } catch (e) {}
   const buses = new Map();
   let gestured = false;
-  const ready = () => gestured || (typeof navigator !== 'undefined' && !!navigator.userActivation?.hasBeenActive);
+  const ready = () => typeof navigator === 'undefined' || gestured || !!navigator.userActivation?.hasBeenActive;
   function output(c, channel = 'effects') {
     let bus = buses.get(c);
     if (!bus) {
