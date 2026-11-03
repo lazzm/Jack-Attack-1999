@@ -2489,7 +2489,17 @@
     const $ = s => el.querySelector(s);
     let noteT=0,toastT=0,holdKey='',snapKey='',tipKey='',tipW=0,tipH=0;
     const note = $('.hs-note'), toastEl = $('.hs-toast'), tipEl = $('.hs-tip'), hold = $('.hs-hold');
-    note.querySelector('.rm-x').addEventListener('click', () => note.classList.remove('on'));
+    const notes = []; let notePumpT = 0;
+    function pumpNote() {
+      clearTimeout(notePumpT);
+      if (!notes.length) return;
+      if (inspection || note.classList.contains('on') || document.querySelector('.np-bub:not(.np-out),.hs-voice.on,.hs-call.on')) { notePumpT=setTimeout(pumpNote,200); return; }
+      const n=notes.shift();
+      note.querySelector('b').textContent=n.title;note.querySelector('p').innerHTML=n.text;note.classList.add('on');
+      clearTimeout(noteT);noteT=setTimeout(()=>{note.classList.remove('on');pumpNote();},n.ms);
+      n.onShow?.();
+    }
+    note.querySelector('.rm-x').addEventListener('click', () => { note.classList.remove('on'); clearTimeout(noteT); pumpNote(); });
     hold.addEventListener('click', ev => {
       const b = ev.target.closest('[data-h]'); if (!b || !held) return; const a = b.dataset.h, t = THINGS[held.id];
       if (a === 'near') held.d = clamp(held.d - 12, 25, 150); else if (a === 'far') held.d = clamp(held.d + 12, 25, 150);
@@ -2500,8 +2510,8 @@
     let crossT = 0;
     return {
       el,
-      say(title,text,ms){if(inspection){let description=inspection.panel.querySelector('.hs-inspect-description');if(!description){description=document.createElement('p');description.className='hs-inspect-description';inspection.panel.appendChild(description)}description.innerHTML=text;note.classList.remove('on');return;}note.querySelector('b').textContent = title; note.querySelector('p').innerHTML = text; note.classList.add('on'); clearTimeout(noteT); noteT = setTimeout(() => note.classList.remove('on'), ms || Math.max(4500, String(text).length * 70)); },
-      hush() { note.classList.remove('on'); },
+      say(title,text,ms,onShow){if(inspection&&!onShow){let description=inspection.panel.querySelector('.hs-inspect-description');if(!description){description=document.createElement('p');description.className='hs-inspect-description';inspection.panel.appendChild(description)}description.innerHTML=text;note.classList.remove('on');return;}if(notes.some(n=>n.title===title&&n.text===text)||note.classList.contains('on')&&note.querySelector('b').textContent===title&&note.querySelector('p').innerHTML===text)return;notes.push({title,text,onShow,ms:ms||Math.max(4500,String(text).length*70)});pumpNote();},
+      hush() { note.classList.remove('on');notes.length=0;clearTimeout(notePumpT);clearTimeout(noteT); },
       toast(title, text) { toastEl.innerHTML = `<b>${esc(title)}</b><span>${esc(text)}</span>`; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 4200); },
       tip(text,x,y,far,carry){if(!text||(held&&!carry)){tipEl.classList.remove('on','carry');tipKey='';return;}const content=carry?text:/^Talk\b/.test(text)?'<kbd>F</kbd> '+text+(far?' <small>(walk closer)</small>':''):text+(far?' <small>(walk closer)</small>':text.includes('<kbd>E</kbd>')?'':' <small><kbd>F</kbd> '+((/^(Talk|Open|Shut|Close|Play|Read|Sit|Watch|Listen|Feed|Pet|Water|Answer|Ring)\b/.exec(text)||['Use'])[0])+'</small>'),key=content+'|'+vw+'|'+vh;tipEl.classList.add('on');tipEl.classList.toggle('carry',!!carry);if(key!==tipKey){tipKey=key;tipEl.innerHTML=content;tipW=tipEl.offsetWidth;tipH=tipEl.offsetHeight;}tipEl.style.transform=`translate(${clamp((vw-tipW)/2,8,Math.max(8,vw-tipW-8))}px,${clamp(vh/2+(carry?-tipH-22:28),8,Math.max(8,vh-tipH-8))}px)`;},
       where() {
@@ -2529,7 +2539,7 @@
         const key=[t.id,label,mode,cls,help,keys.map(k=>k.join(':')).join(',')].join('|');
         if(key===holdKey)return;holdKey=key;snapKey=cls==='snap'?key:'';
         for(const c of ['snap','fit','blocked','drag'])hold.classList.toggle(c,c===cls);
-        hold.querySelector('.hs-hmode').textContent=mode;hold.querySelector('.hs-hname').textContent=label;
+        hold.querySelector('.hs-hmode').textContent=cls!=='blocked'&&window.st?.current?.()?.id==='lad'&&t.gameId?.startsWith('gb.')?'PUT THIS IN YOUR GAME LAD':mode;hold.querySelector('.hs-hname').textContent=label;
         hold.querySelector('.hs-hkeys').innerHTML=keys.map(([k,v])=>'<span><kbd>'+k+'</kbd> '+esc(v)+'</span>').join('');
         hold.querySelector('.hs-carry-help').textContent=help;
         const use=hold.querySelector('[data-h=use]');use.hidden=false;use.textContent=f+' [F]';
@@ -2871,7 +2881,7 @@
     stIdx = nearestStation(); ui.where();
     if (!raf) raf = requestAnimationFrame(loop);
     Q.probe = performance.now() + 2000;
-    if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0)) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', '<b>W A S D</b> to walk, mouse to look. Shift to jog, <b>C</b> to crouch, Space to jump. <b>F</b> to use or play, <b>E</b> to pick up/remove/place, <b>F</b> also looks closely at objects; click their controls to use them. Click to place; <b>Esc</b>: game menu and put back.', 9000); }, 1400);
+    if (!ls.get('jhp_hs_walkhint', 0) && mode === 'walk') setTimeout(() => { if (mode !== 'walk' || ls.get('jhp_hs_walkhint', 0) || window.GameInput?.touch || window.StorySnapshot?.flags?.veteran) return; ls.set('jhp_hs_walkhint', 1); ui.say('Have a look round', '<b>W A S D</b> to walk, mouse to look. Shift to jog, <b>C</b> to crouch, Space to jump. <b>F</b> to use or play, <b>E</b> to pick up/remove/place, <b>F</b> also looks closely at objects; click their controls to use them. Click to place; <b>Esc</b>: game menu and put back.', 9000); }, 1400);
     emit('start');if(BOOT!=='wake'||stood)setTimeout(resumeSeat,0);resumeHeld(); // (it waits until you're standing in the room: a wake-and-stand refresh stands up first)
   }
   // Save grounded poses (not head-bob/jump offsets). Load the destination before
@@ -3046,7 +3056,7 @@
       standing = false; setWalkFrom(sp); setMode('walk'); stIdx = nearestStation(); ui.where();
       setMoving(false); emit('move', 'settle', 'stand', ms); resumeHeldKeys();
       emit('stood');
-      if (!ls.get('jhp_hs_stoodhint', 0)) { ls.set('jhp_hs_stoodhint', 1); ui.say('The PC is still on', 'Everything on it keeps going. Walk round, then click the monitor (or press its power button... no, DON\'T) to sit back down.', 7000); }
+      if (!ls.get('jhp_hs_stoodhint', 0) && !window.StorySnapshot?.flags?.veteran) { ls.set('jhp_hs_stoodhint', 1); ui.say('The PC is still on', 'Everything on it keeps going. Walk round, then click the monitor (or press its power button... no, DON\'T) to sit back down.', 7000); }
       return false;
     });
     ls.set('jhp_hs_stand', { t: Date.now() });
@@ -3157,11 +3167,13 @@
   }
   // the first time you're sat at the desktop: how to get up
   function standHint() {
-    if (ls.get('jhp_hs_standhint', 0) || stood) return; ls.set('jhp_hs_standhint', 1);
+    if (ls.get('jhp_hs_standhint', 0) || stood || window.StorySnapshot?.flags?.veteran) return; ls.set('jhp_hs_standhint', 1);
     const b = document.createElement('div'); b.className = 'hs-standtip'; b.setAttribute('role', 'status');
     b.style.cssText = 'position:fixed;left:6px;bottom:36px;z-index:30000;max-width:250px;padding:8px 26px 8px 10px;background:#ffffe1;color:#000;border:1px solid #000;font:11px Tahoma,Verdana,sans-serif;box-shadow:2px 2px 0 rgba(0,0,0,.35);cursor:pointer';
-    b.innerHTML = '<b>Want a look round your room?</b><br>'+(window.GameInput?.touch?'Click STAND UP under the screen to walk around. The PC stays on. Walk back to the monitor and click USE to sit down.':'Press Q to lean back and walk around. The PC stays on. Walk back and press F at the monitor to sit down. F2, the chair button and Esc &gt; Back to the room also work.')+'<span style="position:absolute;right:6px;top:4px;font-weight:700">&times;</span>';
-    b.addEventListener('click', () => b.remove()); monitorSurfaceEl.appendChild(b); setTimeout(() => b.remove(), 14000);
+    b.innerHTML = '<b>Want a look round your room?</b><br>'+(window.GameInput?.touch?'Click STAND UP under the screen to walk around. The PC stays on. Walk back to the monitor and click SIT DOWN.':'Press Q to lean back and walk around. The PC stays on. Walk back and press F at the monitor to sit down. F2, the chair button and Esc &gt; Back to the room also work.')+'<span style="position:absolute;right:6px;top:4px;font-weight:700">&times;</span>';
+    let timer;
+    const dismiss=()=>{b.remove();clearTimeout(timer);document.removeEventListener('jhp-window-focus',dismiss);};
+    b.addEventListener('click', dismiss);document.addEventListener('jhp-window-focus',dismiss); monitorSurfaceEl.appendChild(b); timer=setTimeout(dismiss,8000);
   }
   // a refresh while standing up: the PC wakes up as normal, and we stand straight back up
   // (and back after 10 hours or more with the PC left on: you come back into the room, the PC still on; sit down to carry on)
@@ -3257,7 +3269,7 @@
     motion: { get ms() { return MOTION.ms; }, get reduce() { return MOTION.reduce; }, set reduce(v) { MOTION.reduce = v; }, scale: motionMs, H5, H5d, H1, H1d, lensFov, get moving() { return movingLock; }, glideVel: () => glideVel(performance.now()), queueLock, get lockQueued() { return !!lockQueued; } },
     toScreen, viewZ, pick, rayAt, fwd,
     on(ev, fn) { (EVS[ev] = EVS[ev] || []).push(fn); }, off(ev, fn) { const a = EVS[ev] || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); }, emit,
-    say: (t, x, ms) => ui.say(t, x, ms), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),
+    say: (t, x, ms, onShow) => ui.say(t, x, ms, onShow), toast: (t, x) => ui.toast(t, x), hush: () => ui.hush(),
     dirty, relight, ambient, anims, visCalc,warmRooms:prewarm, start, standUp, sitDown, canStand, monitor: monitorDesktop, bootPC, shutdownPC, finishShutdown,
     touch: { move: touchSet, look: touchLook, get moving() { return touchMove.on; }, get state() { return { ...touchMove }; } },
     desktopDisplay,surfaceScreen,pauseControls,crouchSetting,get paused(){return controlsPaused;},

@@ -61,9 +61,11 @@
   function updateLine() {
     if (!line) return;
     const s = tracked(), tick = celebration && Date.now() < tickUntil;
-    line.hidden = !visible() || window.StoryGuide?.strength === 'off' || (!s && !tick);
+    const carryingFirst = s?.id === 'lad' && window.House?.THINGS[House.held()]?.gameId?.startsWith('gb.');
+    line.hidden = !visible() || carryingFirst || window.StoryGuide?.strength === 'off' || (!s && !tick) || !!document.querySelector('.rm-note.on,.rm-toast.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out),.ht-coach:not(.bye)');
     line.classList.toggle('st-tick', !!tick);
-    const text = tick ? '✓ ' + C.byId[celebration].text : s ? '› ' + s.text + (window.GameInput?.touch ? '' : '  [J]') : '';
+    const firstText = s?.id === 'lad' ? window.HouseCases?.inserted('console.gb') ? 'Play the Game Lad on my desk.' : 'Pick up the Blockology game box.' : s?.text;
+    const text = tick ? '✓ ' + C.byId[celebration].text : s ? '› ' + firstText + (window.GameInput?.touch ? '' : '  [J]') : '';
     if (line.textContent !== text) line.textContent = text;
     line.title = s ? s.hint + ' — J: choose an objective.' : '';
   }
@@ -81,13 +83,13 @@
     if (window.PM && !mediaHooked) { PM.on('change', () => setTimeout(observe, 100)); mediaHooked = true; }
     observe();
     if (N.connected && Date.now() - lastSync > 9000) { lastSync = Date.now(); N.send({ t: 'stEvent', id: 'sync' }); }
-    if (dialogueQueue.length && visible() && !document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on')) {
+    if (dialogueQueue.length && visible() && !document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out)')) {
       const d = dialogueQueue.shift(); window.st.say(...d);
     }
-    if (celebration && visible() && !tickUntil && !document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on')) {
+    if (celebration && visible() && !tickUntil && !document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out)') && !window.HouseFamily?.speaking) {
       tickUntil = Date.now() + 2200;
       window.Sound?.play('join');
-      window.st.say('st.done.' + celebration, 'My diary', C.byId[celebration].text + ' Done.');
+      window.st.say('st.done.' + celebration, 'My diary', C.byId[celebration].text + ' Done.', 3000, {audio:false});
     }
     if (tickUntil && Date.now() > tickUntil) { celebration = null; tickUntil = 0; }
     updateLine();

@@ -15,11 +15,11 @@
 
 
   // ================================================================ balloons (system-tray tips)
-  // They queue: at most 2 on screen (1 on a phone), the rest wait their turn, and in the first half minute after
+  // They queue: one on screen, the rest wait their turn, and in the first half minute after
   // switching on they come out a few seconds apart instead of all at once. toast() returns the balloon element.
   const toastQ = []; let toastLast = 0, toastGone = 0, toastTimer = 0, bootAt = 0, deskAt = 0;
   document.addEventListener('DOMContentLoaded', () => (window.BootDone || Promise.resolve()).then(() => { bootAt = Date.now(); }));
-  const toastMax = () => (DesktopSurface.width() < 600 ? 1 : 2);
+  const toastMax = () => 1;
   function toastPump() {
     clearTimeout(toastTimer); toastTimer = 0;
     const wrap = $('toastWrap'); if (!wrap || !toastQ.length) return;
@@ -49,7 +49,6 @@
     if (toastQ.some(q => q.key === key) || (wrap && [...wrap.children].some(x => x._key === key))) return b;
     b._key = key;
     toastQ.push({ b, ms, key });
-    while (toastQ.length > 6) toastQ.shift(); // nobody reads a seventh one
     toastPump();
     try { document.dispatchEvent(new CustomEvent('jhp-toast', { detail: { title, text } })); } catch (e) {}
     return b;
@@ -70,6 +69,7 @@
   }
   function activate(el) {
     if (!el) return;
+    document.dispatchEvent(new Event('jhp-window-focus'));
     if (+el.style.zIndex !== window.JZ) el.style.zIndex = nz();
     winEls().forEach(e => e.classList.toggle('inactive', e !== el));
     document.querySelectorAll('#tasks .tbtn').forEach(t => t.classList.toggle('on', t === el._task));
@@ -87,7 +87,7 @@
   };
   let TASKICO = '<svg viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="12" fill="#c0c0c0" stroke="#000"/><rect x="2" y="3" width="12" height="3" fill="#000080"/></svg>';
   document.addEventListener('DOMContentLoaded', () => { if (window.JICON) TASKICO = JICON.get('app', 16); });
-  function openWin(title, body, width) {
+  function openWin(title, body, width, options = {}) {
     const w = document.createElement('div');
     w.className = 'win float'; w.style.width = Math.min(width || 340, DesktopSurface.width() - 8) + 'px';
     w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', title);
@@ -98,15 +98,15 @@
     ctl.appendChild(x); tb.append(t, ctl);
     const bd = document.createElement('div'); bd.className = 'body'; bd.appendChild(body);
     w.append(tb, bd);
-    DesktopSurface.root().appendChild(w);
+    if (!options.defer) DesktopSurface.root().appendChild(w);
     const r = DesktopSurface.rect(w);
     place(w, (DesktopSurface.width() - r.width) / 2 + (Math.random() * 40 - 20), (DesktopSurface.height() - 32 - r.height) / 2 - 20 + (Math.random() * 40 - 20));
     // taskbar button: click it to bring the window forward, again to tuck it away
     const task = document.createElement('button'); task.className = 'tbtn'; task.innerHTML = `<span class="tico">${TASKICO}</span><span></span>`; task.lastChild.textContent = title; task.title = title;
-    $('tasks').appendChild(task); w._task = task;
+    if (!options.defer) $('tasks').appendChild(task); w._task = task;
     task.addEventListener('click', () => { if (w.style.display === 'none') { w.style.display = ''; activate(w); } else if (isActive(w)) { w.style.display = 'none'; activateTop(); } else activate(w); });
     w.addEventListener('pointerdown', () => activate(w), true);
-    activate(w);
+    if (!options.defer) activate(w);
     // drag by the title bar
     let drag = null;
     tb.addEventListener('pointerdown', ev => { if (ev.button > 0 || ev.target.closest('button')) return; const p = DesktopSurface.point(ev.clientX, ev.clientY); drag = { dx: p.x - w.offsetLeft, dy: p.y - w.offsetTop }; tb.setPointerCapture(ev.pointerId); });
@@ -119,24 +119,30 @@
     tb.addEventListener('pointerup', () => { drag = null; });
     tb.addEventListener('pointercancel', () => { drag = null; });
     let closed = false;
-    const close = () => { if (closed) return; closed = true; w.remove(); task.remove(); activateTop(); };
+    const close = () => { if (closed) return; closed = true; w.remove(); task.remove(); activateTop(); options.onClose?.(); };
     x.addEventListener('click', close);
     w.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !ev.defaultPrevented) { ev.preventDefault(); close(); } });
-    return { el: w, body: bd, close };
+    return { el: w, body: bd, close, show() { if(closed||w.isConnected)return;DesktopSurface.root().appendChild(w);$('tasks').appendChild(task);const r=DesktopSurface.rect(w);place(w,(DesktopSurface.width()-r.width)/2,(DesktopSurface.height()-r.height-32)/2-20);activate(w);setTimeout(()=>w.querySelector('.dflt')?.focus(),30); } };
+  }
+  const dialogs = new Map(), dialogQ = [];
+  function pumpDialogs() {
+    let count=[...dialogs.values()].filter(w=>w.el.isConnected).length;
+    while(count<2&&dialogQ.length){dialogQ.shift().show();count++;Sound.play('uhoh');}
   }
   function msgbox(title, text, icon, buttons) {
+    const key=title+'\n'+text+'\n'+(buttons||[['OK']]).map(b=>b[0]).join('|');
+    if(dialogs.has(key))return dialogs.get(key);
     const body = document.createElement('div');
     body.className = 'msgbox';
     body.innerHTML = '<div class="row" style="flex-wrap:nowrap;align-items:flex-start;gap:12px">' + (mbIcon(icon || 'info')) + '<div class="txt" style="padding-top:8px;white-space:pre-line"></div></div><div class="row btns" style="justify-content:center;margin-top:14px"></div>';
     body.querySelector('.txt').textContent = text;
-    const win = openWin(title, body, 330);
+    const win = openWin(title, body, 330, {defer:true,onClose(){dialogs.delete(key);const i=dialogQ.indexOf(win);if(i>=0)dialogQ.splice(i,1);setTimeout(pumpDialogs,120);}});
     (buttons || [['OK']]).forEach(([label, fn], i) => {
       const b = document.createElement('button'); b.className = 'btn' + (i ? '' : ' dflt'); b.type = 'button'; b.textContent = label;
       b.addEventListener('click', () => { win.close(); if (fn) fn(); });
       body.querySelector('.btns').appendChild(b);
-      if (i === 0) setTimeout(() => b.focus(), 30);
     });
-    Sound.play('uhoh');
+    dialogs.set(key,win);dialogQ.push(win);pumpDialogs();
     return win;
   }
   function ask(title, text, def, maxlen, cb) {

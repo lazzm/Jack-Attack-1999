@@ -12,7 +12,7 @@ function load(member = 'LoopTester') {
   const window = { House: H, NPCRig: {}, NPCNav: {}, Net: { me: { member: true, nick: member } },
     NPCLines: { 'c1.lead.dad': ['Dad', 'Plug the lead in.'], 'bark.dad.react.joke': ['Dad', 'A joke.'] },
     st: { current: () => ({ id: step }) } };
-  const ctx = { window, document: { querySelector: () => null }, performance: { now: () => time }, localStorage: { getItem: k => store.get(k), setItem: (k, v) => store.set(k, v) }, setTimeout() {}, setInterval() {}, console };
+  const ctx = { window, addEventListener() {}, document: { querySelector: () => null, addEventListener() {}, hidden: false }, performance: { now: () => time }, localStorage: { getItem: k => store.get(k), setItem: (k, v) => store.set(k, v) }, setTimeout() {}, setInterval() {}, console };
   vm.runInNewContext(source.replace('  boot();', '  window.testLife = { entrance, barks, speech, C, ent, step, stepAside };'), ctx);
   const F = window.HouseFamily, I = window.testLife;
   const dad = I.C.dad; dad.present = true;

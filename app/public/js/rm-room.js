@@ -2643,9 +2643,11 @@
   // first visit: a gentle hint (on paper, like Jack's other notes)
   function hint() {
     if (H.here !== 'bedroom') return; // an outdoor resume is not a first bedroom visit
+    if (window.st?.getState?.()?.flags.veteran || window.StorySnapshot?.flags?.veteran) return;
     if (S.seen._hint2) return; S.seen._hint2 = 1; save();
     const touch = !!(window.matchMedia && (matchMedia('(hover:none)').matches || matchMedia('(pointer:coarse)').matches));
     if(window.StoryAccess?.available===false){
+      if(touch)return; // The short, learn-by-doing card owns the first instruction.
       say('My room', touch ? 'One quick go on my Game Lad first. It is on the desk. Walk round with the stick (bottom left), drag to look, and press on things to use them.' : 'One quick go on my Game Lad first. It is on the desk. WASD walks; mouse looks. F plays or uses, E carries, R turns and Q backs out.', 8000);
       return;
     }

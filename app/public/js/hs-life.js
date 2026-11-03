@@ -45,15 +45,15 @@
 
   // ================================================================ voices: Mom shouting up the stairs (and Dad, and the little sister)
   const ui = H.ui.el;
-  const voiceEl = document.createElement('div'); voiceEl.className = 'hs-voice'; voiceEl.innerHTML = '<b></b><p></p>'; ui.appendChild(voiceEl);
-  let voiceT = 0, lastVoice = 0;
+  let lastVoice = 0;
   function voice(who, text, ms) {
     who = cast(who); text = cast(text);
-    voiceEl.querySelector('b').textContent = who; voiceEl.querySelector('p').textContent = text;
-    voiceEl.classList.add('on'); clearTimeout(voiceT); voiceT = setTimeout(() => voiceEl.classList.remove('on'), ms || Math.max(4200, text.length * 75));
+    // All seasons and family welcomes share the same reading space and lifetime.
+    H.say(who, esc(text), ms || Math.max(4200, text.length * 75), () => {
+      // The muffled shout starts when its words appear, after any earlier note.
+      const c = H.sfx.ac && H.sfx.ac(); if (c) { const n = Math.min(10, Math.ceil(text.length / 7)); for (let i = 0; i < n; i++) H.sfx.tone(180 + Math.random() * 90, 0.09, 'sawtooth', 0.015, i * 0.11, 150); }
+    });
     lastVoice = Date.now();
-    // a muffled shout from somewhere else in the house (just the shape of it)
-    const c = H.sfx.ac && H.sfx.ac(); if (c) { const n = Math.min(10, Math.ceil(text.length / 7)); for (let i = 0; i < n; i++) H.sfx.tone(180 + Math.random() * 90, 0.09, 'sawtooth', 0.015, i * 0.11, 150); }
   }
   const where = () => H.here || 'bedroom';
   const away = () => where() === 'bedroom' || where() === 'landing' ? ' (shouting up the stairs)' : '';

@@ -4,6 +4,8 @@
 .st-objective[hidden]{display:none}.st-objective.st-tick{color:#c7dc9b;border-color:#9bb572}
 html.hs-focus .st-objective,html.hs-inspecting .st-objective,html.hs-paused .st-objective{display:none}
 .hs-ui:has(.hs-voice.on) .st-objective,.hs-ui:has(.hs-call.on) .st-objective{visibility:hidden}
+.hs-ui:has(.rm-note.on,.rm-toast.on,.np-bub:not(.np-out)) .st-objective{visibility:hidden}
+.hs-ui:has(.np-bub:not(.np-out),.hs-voice.on,.hs-call.on) .hs-hold:not(.blocked) .hs-hmode{visibility:hidden}
 @media(max-width:900px){.st-objective{top:92px;max-width:calc(100vw - 40px);width:max-content}}
 .st-copy{height:100%;display:flex;flex-direction:column;gap:6px;background:#e6dfc8;padding:8px;box-sizing:border-box}
 .st-copy-paper{flex:1;min-height:0;overflow:auto}
@@ -45,5 +47,10 @@ html.hs-focus .st-objective,html.hs-inspecting .st-objective,html.hs-paused .st-
 /* The temporary job strip owns this space while carrying on a small screen. */
 @media(max-width:900px){.hs-ui.holding:has(.ch-chip:not([hidden])) .st-objective{visibility:hidden}}
 
-/* Off-screen guidance is a compass arrow; labels belong beside visible objects. */
-.st-marker[data-state="edge"] .st-marker-label{display:none}
+/* The label sits inside the border, beside the compass, never outside the view. */
+.st-marker[data-state="edge"] .st-marker-label{position:absolute;top:2px;left:44px;max-width:min(180px,calc(100vw - 100px));width:max-content;padding:5px 7px;border:1px solid #8c7e59;color:#fff0be;background:#20231eef;font:700 11px/1.3 "Courier New",monospace;overflow-wrap:normal}
+.st-marker[data-side="right"] .st-marker-label{left:auto;right:44px}
+.st-marker[data-border="bottom"] .st-marker-label{top:auto;bottom:64px}
+
+/* A dismissed note yields its reading space immediately, before its opacity fade. */
+.hs-ui .hs-note:not(.on){visibility:hidden}

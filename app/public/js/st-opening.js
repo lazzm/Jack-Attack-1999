@@ -28,11 +28,8 @@
     built = true;
     const B = K.into(H.ROOMS.bedroom.group);
     dust = new T.Group(); H.ROOMS.bedroom.group.add(dust);
-    const D = K.into(dust), dm = M({c:'#c6b99a',o:.19,tr:true});
-    // Thin dusty edges and a real cable grommet leave the desktop invitingly empty.
-    for (const [x,z,w,d] of [[-15,-8,38,28],[17,-30,22,36]]) {
-      for (const side of [-1,1]) { D.box(x+side*w/2,-.025,z,.35,.04,d,dm); D.box(x,-.025,z+side*d/2,w,.04,.35,dm); }
-    }
+    const D = K.into(dust);
+    // The real cable grommet stays; accepting-slot outlines belong to the carry system.
     D.cyl(65,-.12,-44,2.3,2.3,.25,24,M('#3c3830'));
     D.cyl(65,-.3,-44,1.6,1.6,.14,24,M('#181b1a'));
     for (const [i, part] of Object.keys(names).entries()) {

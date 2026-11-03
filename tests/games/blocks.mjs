@@ -29,6 +29,13 @@ state().cheat.setRow();state().cheat.iPiece();state().cheat.lines(6);key('up');a
 for(const [index,type]of [[0,'A'],[1,'U'],[2,'L'],[3,'B'],[4,'V']]){
  saved=null;boot();choose(index);if(type==='B'||type==='V')key('a');frames(130);key('start');assert.equal(state().gtype,type);const before=JSON.stringify(saved.cart);boot();assert.equal(state().gtype,type);assert(state().paused);assert.equal(state().stat.games,1);assert.equal(JSON.stringify(saved.cart),before);
 }
+// A first round left alone must top out naturally, finish, and accept Retry.
+saved=null;boot();choose(0);let idleFrames=0;
+while(state().mode==='play'&&idleFrames<36000){frames();idleFrames++;}
+assert(idleFrames<36000,'An idle first round never ends');frames(150);
+assert.equal(state().mode,'result');assert.equal(state().score,0);assert.equal(state().lines,0);
+assert.equal(state().stat.games,1);frames(70);key('a');assert.equal(state().mode,'play');assert.equal(state().stat.games,2);
+console.log('IDLE FIRST ROUND PASS: '+idleFrames+' frames, zero score/lines, native Retry');
 // Top-out paths retain a native result, never grant a clear stamp or unlock a CPU win.
 for(const index of [0,1,2,3]){saved=null;boot();choose(index);if(index===3)key('a');state().cheat.die();frames(145);assert.equal(state().mode,'result');assert.equal(Object.keys(state().flights).length,0);game.end();boot();assert.equal(state().mode,'result');frames(70);key('b');assert.equal(state().mode,'menu')}
 saved=null;boot();choose(4);key('a');frames(130);for(let i=0;i<3;i++){state().cheat.die();frames(i<2?280:350)}assert.equal(state().mode,'result');assert.equal(state().vs.them,3);assert.equal(state().un.hard,0);assert.equal(state().stat.wins,0);

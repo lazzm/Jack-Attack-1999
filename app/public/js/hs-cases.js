@@ -78,7 +78,9 @@
       accepts:(kind,t)=>{const e=t&&entries.get(t.id);if(kind!==t?.kind||!e||e.slot!==id||active.size||!filled(e)||e.enabled?.()===false)return false;q.pose={...e.park()};return true},
       enabled:()=>!active.size&&[...entries.values()].some(e=>e.slot===id&&e.enabled?.()!==false&&!inserted(e)),
       onBegin:t=>{move(entries.get(t.id),true);return false}});
-    Object.assign(q,{x:s.x,y:s.y,z:s.z,r:s.r,room:s.room||'bedroom'});return q;
+    // Insertion happens at the machine; pose is where the empty case is parked afterwards.
+    // A separate preview keeps the accepting glow off the games rack.
+    Object.assign(q,{x:s.x,y:s.y,z:s.z,r:s.r,room:s.room||'bedroom',preview:s.preview||{...s.pose,x:s.x,y:s.y,z:s.z},glow:s.glow||H.THINGS[id.slice(8)]?.obj});return q;
   }
   function register(o){
     if(entries.has(o.box.id))return entries.get(o.box.id);
