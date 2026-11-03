@@ -2,7 +2,7 @@
  * localStorage) is stored on the server, so it follows them to any computer they log on from.
  * Profiles live in DATA_DIR/profiles/<sha256(name)>.json, not in state.json, so the 5-second state save stays small.
  *   client -> { t:'rmGet', since }                    -> { t:'rmData', ts, enc, data } | { t:'rmSame', ts } | { t:'rmNone' }
- *   client -> { t:'rmPut', id, i, n, d, ts, enc }      (base64 chunks, d <= 3000 chars) -> { t:'rmSaved', ts } when complete
+ *   client -> { t:'rmPut', id, i, n, d, ts, enc }      (base64 chunks, d <= 3000 chars) -> { t:'rmSaved', id, ts } when complete
  */
 const fs = require('fs');
 const path = require('path');
@@ -139,7 +139,7 @@ module.exports = {
       const id = String(m.id || '').slice(0, 20), i = m.i | 0, n = m.n | 0, d = typeof m.d === 'string' ? m.d : '';
       if (!id || n < 1 || n > Math.ceil(MAX / CHUNK) || i < 0 || i >= n || d.length > CHUNK || !/^[A-Za-z0-9+/=]*$/.test(d)) return;
       if (i === 0) {
-        if (!(m.now ? c.roamRl.sync : c.roamRl.put).take()) return ctx.send(ws, { t: 'rmBusy' });
+        if (!(m.now ? c.roamRl.sync : c.roamRl.put).take()) return ctx.send(ws, { t: 'rmBusy', id });
         c.roamUp = { id, n, parts: new Array(n), got: 0, ts: Math.min(Date.now(), +m.ts || Date.now()), enc: m.enc === 'gzip' ? 'gzip' : 'raw', who: c.member };
       }
       const up = c.roamUp;
@@ -148,12 +148,12 @@ module.exports = {
       if (up.got < n) return;
       c.roamUp = null;
       const data = up.parts.join('');
-      if (data.length > MAX) return ctx.send(ws, { t: 'rmErr', msg: 'Your profile is too big to roam (over 900 KB).' });
+      if (data.length > MAX) return ctx.send(ws, { t: 'rmErr', id, msg: 'Your profile is too big to roam (over 900 KB).' });
       const ts = Date.now();
       const cur = read(up.who);
       if (cur && cur.reset && !(+m.base >= cur.reset)) return ctx.send(ws, { t: 'rmData', ts: cur.ts, enc: cur.enc, data: cur.data }); // an upload from before a reset: the reset wins (the client applies it and reloads)
-      try { write(up.who, { ts, enc: up.enc, data, starterClean:cur?.starterClean, reset: cur && cur.reset || undefined }); } catch (e) { console.error('roam: save failed', e.message); return ctx.send(ws, { t: 'rmErr', msg: 'JackNet could not save your profile.' }); }
-      return ctx.send(ws, { t: 'rmSaved', ts });
+      try { write(up.who, { ts, enc: up.enc, data, starterClean:cur?.starterClean, reset: cur && cur.reset || undefined }); } catch (e) { console.error('roam: save failed', e.message); return ctx.send(ws, { t: 'rmErr', id, msg: 'JackNet could not save your profile.' }); }
+      return ctx.send(ws, { t: 'rmSaved', id, ts });
     }
   },
 };

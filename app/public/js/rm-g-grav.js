@@ -1,16 +1,11 @@
-/* ANTI-GRAV 3000 (PlayStation, in Jack's room): hover racing at silly speeds to thumping music. All original.
- *   CHAMPIONSHIP: five tracks, eight ships, points for every place, a podium. SINGLE RACE on any open track. TIME TRIAL
- *   with a saved ghost and a track record to beat on every track. Two speed classes: SUB-SONIC, then SUPERSONIC (win the
- *   SUB-SONIC championship), which also opens the bonus track PHANTOM ZONE. Win SUPERSONIC to unlock the NULLPOINT ship.
- *   Four teams (two pilots each) with their own ships and stats: speed, thrust, handling, shield.
- *   Speed pads (orange chevrons), weapon pads (blue squares: BOLTS, SEEKER, MINES, SHIELD, TURBO, QUAKE), airbrakes (L1/R1)
- *   for the tight bits, your shield energy goes down when you hit walls or get shot: drive through the PIT LANE (green, by
- *   the start) to fill it up, or ABSORB a weapon (square) for energy. Run out and you're out of the race.
- *   Big elevation, tunnels, glass tubes under the sea, and gaps to jump (go fast, or fall in). Stick up/down in the air
- *   to dive or float. PS1 look: wobbly vertices, wonky textures (rm-3d), dithered 15-bit textures, neon.
- * Secrets: rm.grav.lap (beat a lap record), rm.grav.champ (win a championship), rm.grav.air (stay in the air 2 seconds).
- * Save (rm.ps.grav, v1): { best (the old Neon Bay best lap, still kept), lap:{i}, tt:{i}, champ:{cls: place}, unl:{sup, bonus, nullp},
- *   opt:{mus, cam}, team, hi:[{n, s}], races }. Ghosts: localStorage jhp_rmgrav_gh<i>. Test hooks: window.__rmAuto, window.__gravDbg. */
+/* ANTI-GRAV 3000 (PlaySpace): original hover racer, native 320x240.
+ * Eight league circuits, four secret blueprints, eight teams, four speed classes; an eight-round league with endings/credits,
+ * single-race medals, class-specific ghost trials, checkpoint attack, respawning combat and 24 licences.
+ * Z thrust, arrows steer/pitch, X fire, C absorb, U/E independent airbrakes (both scrub speed), Enter pause.
+ * Legacy rm.ps.grav v1 lap/score/unlock keys remain valid; live v2 snapshots resume races paused.
+ * All art, hulls and music are original. Rival names resolve from the visitor's Cast.
+ * Developer review hooks: __gravDbg and __rmAuto (autopilot uses the production physics).
+ */
 (function () {
   'use strict';
   const TV = window.RoomTV; if (!TV) return;
@@ -24,48 +19,78 @@
   const wrapA = a => { if (!isFinite(a)) return 0; while (a > Math.PI) a -= TAU; while (a < -Math.PI) a += TAU; return a; };
   const fmt = t => { if (!(t > 0) || t > 5999) return '-:--.--'; return `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}.${String(Math.floor(t * 100) % 100).padStart(2, '0')}`; };
   const hexs = c => '#' + (c >>> 0).toString(16).padStart(6, '0');
-  const ORD = ['1ST', '2ND', '3RD', '4TH', '5TH', '6TH', '7TH', '8TH'];
-  const PTS = [9, 7, 5, 4, 3, 2, 1, 0];
-  const BASE = [3200, 2600, 2100, 1700, 1400, 1100, 900, 700];
+  const ORD = ['1ST', '2ND', '3RD', '4TH', '5TH', '6TH', '7TH', '8TH', '9TH', '10TH', '11TH', '12TH'];
+  const PTS = [15,12,10,9,8,7,6,5,4,3,2,1];
+  const BASE = [3200,2600,2100,1700,1400,1100,900,700,600,500,400,300];
 
   // ================================================================ teams (two pilots each) and their ships: stats 1..5
   const TEAMS = [
-    { n: 'VELOCE', col: 0xe8261c, trim: 0xffe14a, glow: 0xffb040, kind: 0, spd: 3, thr: 3, hnd: 3, shd: 3, pilots: ['NOVA', 'RAZOR'], tag: 'ITALIAN SPEED, ALL ROUND' },
-    { n: 'KAITO', col: 0xf4f4f8, trim: 0x2a5ae0, glow: 0x6ad8ff, kind: 1, spd: 2, thr: 4, hnd: 5, shd: 2, pilots: ['KIRA', 'ZEPHYR'], tag: 'TWIN HULLS, TURNS ON A YEN' },
-    { n: 'OBERON', col: 0x6a2ab0, trim: 0xe8c21a, glow: 0xff5aff, kind: 2, spd: 5, thr: 2, hnd: 2, shd: 5, pilots: ['VORTEX', 'TITAN'], tag: 'HEAVY. FAST. HARD TO STOP.' },
-    { n: 'SOLSTICE', col: 0x2ac86a, trim: 0xff8a1a, glow: 0x9aff6a, kind: 3, spd: 4, thr: 5, hnd: 3, shd: 1, pilots: ['PULSE', 'QUASAR'], tag: 'OFF THE LINE LIKE A ROCKET' },
-    { n: 'NULLPOINT', col: 0x50505e, trim: 0xe8c21a, glow: 0xffe14a, kind: 4, spd: 5, thr: 4, hnd: 4, shd: 3, pilots: ['NULL', 'VOID'], tag: 'THE SECRET PROTOTYPE', locked: 1 },
+    { n: 'FEESAR', col: 0xe8261c, trim: 0xffe14a, glow: 0xffb040, kind: 0, spd: 3, thr: 3, hnd: 3, shd: 3, pilots: ['mate1', 'mate2'], tag: 'FAST. SMALL PRINT APPLIES.' },
+    { n: 'AGGRO', col: 0xf4f4f8, trim: 0x2a5ae0, glow: 0x6ad8ff, kind: 1, spd: 2, thr: 4, hnd: 5, shd: 2, pilots: ['mate3', 'mate4'], tag: 'TWO HULLS. ONE BAD MOOD.' },
+    { n: 'Q-TECH', col: 0x6a2ab0, trim: 0xe8c21a, glow: 0xff5aff, kind: 2, spd: 5, thr: 2, hnd: 2, shd: 5, pilots: ['sister', 'mate1'], tag: 'HEAVY. FAST. VOID WARRANTY.' },
+    { n: 'PIE RANHA', col: 0x2ac86a, trim: 0xff8a1a, glow: 0x9aff6a, kind: 3, spd: 4, thr: 5, hnd: 3, shd: 1, pilots: ['mate2', 'mate3'], tag: 'HOT FILLING. HANDLE WITH CARE.' },
+    { n: 'NULLPOINT', col: 0x50505e, trim: 0xe8c21a, glow: 0xffe14a, kind: 4, spd: 5, thr: 4, hnd: 4, shd: 3, pilots: ['mate4', 'sister'], tag: 'THE SECRET PROTOTYPE', locked: 1 },
   ];
-  const CLASSES = [{ n: 'SUB-ZIP', top: 50, ai: 0.95, mult: 1 }, { n: 'SUPERSONIC', top: 62, ai: 1.0, mult: 1.2 }];
+  TEAMS.push(
+    { n:'ASSAY-GUY',col:0x16bbaa,trim:0xffe7b0,glow:0x60ffff,kind:5,spd:3,thr:4,hnd:5,shd:2,pilots:['mate4','sister'],tag:'WE CHECKED. IT IS QUITE FAST.',locked:2 },
+    { n:'ICARNT',col:0xee56a8,trim:0xfff4de,glow:0xff92e0,kind:6,spd:5,thr:3,hnd:3,shd:1,pilots:['mate1','mate3'],tag:'YES YOU CAN. MIND THE WALL.',locked:3 },
+    { n:'GOT-A-CON',col:0x2355bc,trim:0xffbe28,glow:0x65adff,kind:7,spd:4,thr:2,hnd:4,shd:4,pilots:['mate2','mate4'],tag:'EVERY EXTRA COSTS EXTRA.',locked:4 }
+  );
+  const FIELD=TEAMS.map((t,n)=>[n,t.pilots[0]]).concat(TEAMS.slice(0,4).map((t,n)=>[n,t.pilots[1]+'#3']));
+  const CLASSES = [{ n: 'SUB-ZIP', top: 58, ai: 0.94, mult: 1 }, { n: 'SUPERSONIC', top: 70, ai: 0.97, mult: 1.2 }, { n: 'HYPERACTIVE', top: 82, ai: 1, mult: 1.4 }, { n: 'LUDICROUS', top: 94, ai: 1.01, mult: 1.6 }];
 
   // ================================================================ the tracks: [x, z, height, width, bank]
   const TRACKS = [
-    { n: 'NEON BAY', th: 'neon', rec: 34.5, by: 'T.BOLT',
+    { n: 'NEON BAY', th: 'neon', rec: 34.5,
       pts: [[0, 0, 0, 16, 0], [150, -10, 0, 16, 0], [260, 30, 6, 16, -18], [300, 140, 14, 15, -20], [240, 240, 24, 15, -14], [120, 260, 28, 16, 0], [40, 210, 20, 15, 16], [-20, 130, 6, 15, 18], [-110, 140, 2, 15, 0], [-200, 210, 10, 15, -18], [-300, 170, 16, 16, -20], [-310, 60, 10, 16, -12], [-230, -20, 2, 16, 0], [-120, -30, 0, 16, 8]],
       pads: [[0.06, 0], [0.2, -3], [0.33, 4], [0.52, 0], [0.62, -4], [0.78, 3]], wpads: [[0.12, 4], [0.12, -4], [0.55, 0], [0.55, 5], [0.84, -3], [0.84, 3]], tunnel: [[0.36, 0.42]], kick: [[0.445, 14, 2.4]], gap: [[0.46, 0.474]] },
-    { n: 'FROSTLINE', th: 'frost', rec: 33.0, by: 'K.HOLT',
+    { n: 'FROSTLINE', th: 'frost', rec: 33.0,
       pts: [[0, 0, 0, 16, 0], [160, 0, 4, 16, 0], [260, 60, 12, 16, -15], [280, 180, 24, 15, -18], [200, 260, 30, 15, 0], [80, 240, 26, 15, 15], [0, 280, 20, 16, 0], [-120, 300, 14, 16, -10], [-240, 240, 22, 15, -18], [-280, 120, 30, 15, -12], [-220, 20, 18, 16, 0], [-120, -40, 4, 16, 10]],
       pads: [[0.05, 0], [0.22, 3], [0.45, -3], [0.6, 0], [0.86, 3]], wpads: [[0.15, -4], [0.15, 4], [0.52, 0], [0.68, -4], [0.68, 4]], tunnel: [[0.72, 0.8]], kick: [[0.338, 14, 2.4]], gap: [[0.355, 0.368]] },
-    { n: 'RUST VALLEY', th: 'rust', rec: 38.0, by: 'M.CRUZ',
+    { n: 'RUST VALLEY', th: 'rust', rec: 38.0,
       pts: [[0, 0, 10, 17, 0], [200, 0, 14, 17, 0], [320, 60, 20, 16, -14], [340, 200, 16, 16, -18], [260, 300, 8, 16, 0], [120, 300, 20, 16, 0], [0, 250, 8, 16, 14], [-80, 320, 14, 16, 18], [-200, 300, 6, 16, 0], [-300, 200, 10, 16, -16], [-280, 60, 18, 16, -12], [-160, -20, 14, 17, 0]],
       pads: [[0.04, 0], [0.18, -3], [0.4, 3], [0.55, 0], [0.75, -3], [0.88, 0]], wpads: [[0.1, -4], [0.1, 4], [0.36, 0], [0.62, -4], [0.62, 4], [0.82, 0]], tunnel: [[0.22, 0.27]], kick: [[0.432, 14, 2.6], [0.83, 14, 2.6]], gap: [[0.448, 0.464], [0.846, 0.86]], trench: 1 },
-    { n: 'HELIX TOWERS', th: 'helix', rec: 36.5, by: 'J.VANCE',
+    { n: 'HELIX TOWERS', th: 'helix', rec: 36.5,
       pts: [[0, -100, 0, 16, 0], [150, -110, 2, 16, 0], [230, -60, 6, 15, -12], [260, 10, 10, 15, -15], [220, 70, 14, 15, -15], [150, 60, 18, 15, -15], [130, 0, 22, 15, -15], [170, -50, 26, 15, -15], [240, -30, 30, 15, -15], [250, 40, 34, 15, -15], [190, 90, 38, 15, -10], [80, 110, 30, 16, 0], [-20, 90, 16, 16, 0], [-120, 120, 6, 16, 10], [-220, 60, 4, 16, 14], [-240, -40, 8, 16, 10], [-160, -110, 4, 16, 0]],
       pads: [[0.05, 0], [0.18, 3], [0.33, -3], [0.47, 0], [0.62, 0], [0.8, -3]], wpads: [[0.1, -4], [0.1, 4], [0.4, 0], [0.7, -4], [0.7, 4]], tunnel: [[0.88, 0.94]], kick: [[0.518, 14, 2.4]], gap: [[0.534, 0.548]], tower: 1 },
-    { n: 'AQUA DOME', th: 'aqua', rec: 31.5, by: 'S.REEF',
+    { n: 'AQUA DOME', th: 'aqua', rec: 31.5,
       pts: [[0, 0, -10, 16, 0], [150, -20, -14, 16, 0], [260, 40, -22, 16, -14], [250, 160, -30, 16, -16], [150, 220, -26, 16, 0], [40, 180, -18, 16, 14], [-40, 240, -24, 16, 12], [-160, 230, -34, 16, 0], [-250, 150, -28, 16, -14], [-230, 40, -20, 16, -12], [-140, -20, -12, 16, 0]],
       pads: [[0.04, 0], [0.2, 3], [0.36, -3], [0.5, 0], [0.66, 3], [0.82, -3]], wpads: [[0.1, -4], [0.1, 4], [0.44, 0], [0.58, -4], [0.58, 4], [0.74, 0]], tube: [[0.08, 0.3], [0.42, 0.62], [0.72, 0.88]] },
-    { n: 'PHANTOM ZONE', th: 'phantom', rec: 32.0, by: '???', bonus: 1,
+    { n: 'PHANTOM ZONE', th: 'phantom', rec: 32.0, bonus: 1,
       pts: [[0, 0, 40, 18, 0], [200, 30, 50, 18, -10], [300, 160, 30, 18, -20], [200, 280, 10, 18, 0], [0, 240, 30, 18, 15], [-120, 320, 50, 18, 0], [-260, 220, 30, 18, -20], [-240, 60, 10, 18, -10], [-120, -30, 20, 18, 0]],
       pads: [[0.05, 0], [0.15, -3], [0.15, 3], [0.32, 0], [0.5, -3], [0.5, 3], [0.7, 0], [0.86, 0]], wpads: [[0.1, 0], [0.42, -4], [0.42, 4], [0.76, 0]], tunnel: [[0.4, 0.47]], kick: [[0.185, 14, 2.6], [0.585, 14, 2.6]], gap: [[0.2, 0.214], [0.6, 0.614]] },
   ];
-  const CHAMP = [0, 1, 2, 3, 4]; // the championship tracks
+  TRACKS.push(
+    { n: 'BISCUIT WORKS', th: 'rust', rec: 35.0,
+      pts: [[0,0,8,18,0],[180,0,12,18,0],[280,65,24,17,-18],[230,160,38,17,-22],[100,150,44,17,0],[20,210,30,18,18],[-80,240,18,18,0],[-160,160,6,17,-18],[-260,160,2,17,0],[-320,50,18,18,-22],[-220,-50,26,18,0],[-100,-30,10,18,12]],
+      pads:[[.04,0],[.22,-3],[.4,3],[.62,0],[.81,-3]], wpads:[[.1,-4],[.1,4],[.33,0],[.54,-4],[.54,4],[.85,0]], tunnel:[[.25,.34],[.7,.79]], kick:[[.446,14,2.4]], gap:[[.462,.475]] },
+    { n: 'CLOUD NINE', th: 'helix', rec: 37.0,
+      pts: [[0,0,70,18,0],[180,-20,76,18,0],[320,60,92,17,-18],[320,200,116,17,-24],[220,280,128,17,-18],[100,240,114,18,16],[50,140,92,17,18],[-50,120,82,17,0],[-100,230,68,17,-18],[-230,250,54,18,-18],[-340,130,44,18,-20],[-310,-10,54,17,-16],[-180,-70,66,18,0]],
+      pads:[[.05,0],[.19,-3],[.35,3],[.53,0],[.7,-3],[.88,0]], wpads:[[.11,-4],[.11,4],[.3,0],[.6,-4],[.6,4],[.8,0]], kick:[[.39,16,2.8],[.74,16,2.8]], gap:[[.407,.421],[.757,.77]], tunnel:[[.82,.88]] }
+  );
+  // The four secret wireframe test courses are earned, one per speed-class medal sweep.
+  TRACKS.push(
+    { n:'BETA BLOCKER',th:'lab',proto:0,rec:30,
+      pts:[[0,0,0,18,0],[160,0,0,18,0],[260,80,18,17,-18],[200,200,32,17,-20],[80,180,22,18,12],[0,260,8,18,12],[-140,240,0,18,-18],[-260,100,20,17,-22],[-220,-40,26,17,-12],[-100,-60,8,18,0]],
+      pads:[[.05,0],[.23,-3],[.45,0],[.64,3],[.86,0]],wpads:[[.12,-4],[.12,4],[.4,0],[.7,-4],[.7,4]],tunnel:[[.55,.62]] },
+    { n:'TEAPOT LOOP',th:'lab',proto:1,rec:32,
+      pts:[[0,0,4,18,0],[180,-20,10,18,0],[300,80,30,17,-22],[260,220,54,17,-24],[120,260,70,17,-20],[0,180,76,17,-18],[40,80,62,17,-22],[160,100,48,17,-22],[180,220,32,17,-22],[40,320,18,18,0],[-160,220,8,18,-18],[-240,60,0,18,-16],[-120,-50,4,18,0]],
+      pads:[[.04,0],[.18,3],[.36,-3],[.54,0],[.74,3],[.9,0]],wpads:[[.1,-4],[.1,4],[.46,0],[.68,4],[.68,-4]] },
+    { n:'NULL AND VOID',th:'lab',proto:2,rec:31,
+      pts:[[0,0,20,18,0],[200,0,20,18,0],[280,100,38,17,-20],[200,220,42,17,-20],[60,200,28,18,0],[-20,120,12,18,18],[-100,200,0,18,18],[-240,240,10,17,0],[-320,100,32,17,-24],[-240,-40,38,17,-18],[-100,-60,22,18,0]],
+      pads:[[.04,0],[.2,-3],[.38,0],[.56,3],[.72,-3],[.9,0]],wpads:[[.1,-4],[.1,4],[.45,0],[.8,-4],[.8,4]],kick:[[.59,16,2.8]],gap:[[.607,.619]] },
+    { n:'UNSIGNED OFF',th:'lab',proto:3,rec:34,
+      pts:[[0,0,0,18,0],[200,0,8,18,0],[320,100,26,17,-22],[240,220,44,17,-22],[100,180,56,17,16],[20,280,46,17,18],[-120,300,28,18,0],[-220,180,10,17,-20],[-180,60,0,17,-20],[-280,-20,14,17,16],[-220,-140,30,18,14],[-80,-100,16,18,0]],
+      pads:[[.04,0],[.18,-3],[.36,3],[.54,0],[.7,-3],[.9,0]],wpads:[[.11,-4],[.11,4],[.4,0],[.62,-4],[.62,4],[.84,0]],tunnel:[[.72,.8]] }
+  );
+  const CHAMP = [0, 1, 2, 6, 3, 4, 7, 5]; // the championship tracks
   const THEMES = {
     neon: { sky: [[0, '#05020f'], [0.6, '#2a0a4a'], [1, '#c02a8a']], fog: 0x1a0830, fogN: 60, fogF: 320, amb: 0.6, sun: 0.55, skyL: 0xc8b8ff, gndL: 0x302040, track: ['#4a4a5e', '#3a3a4c', '#5a5a70'], edge: '#ff2a8a', edge2: '#ffd0f0', wall: 0x3a8aff, pano: 'city', gnd: 'grid', gy: -30, song: 0, props: 'city' },
-    frost: { sky: [[0, '#1a2a5a'], [0.6, '#5a7ab0'], [1, '#d8e4f4']], fog: 0xb8c8e0, fogN: 70, fogF: 330, amb: 0.7, sun: 0.75, skyL: 0xe8f0ff, gndL: 0x6a7a9a, track: ['#c8d0e0', '#a8b4c8', '#dce4f0'], edge: '#2ae0ff', edge2: '#e0ffff', wall: 0x8ad8ff, pano: 'aurora', gnd: 'snow', gy: -8, song: 1, props: 'frost' },
+    frost: { sky: [[0, '#1a2a5a'], [0.6, '#5a7ab0'], [1, '#d8e4f4']], fog: 0xb8c8e0, fogN: 70, fogF: 330, amb: 0.7, sun: 0.75, skyL: 0xe8f0ff, gndL: 0x6a7a9a, track: ['#8495af', '#687d99', '#a4b3c8'], edge: '#2ae0ff', edge2: '#e0ffff', wall: 0x8ad8ff, pano: 'aurora', gnd: 'snow', gy: -8, song: 1, props: 'frost' },
     rust: { sky: [[0, '#4a1a3a'], [0.5, '#e85a2a'], [1, '#ffd08a']], fog: 0xe0905a, fogN: 80, fogF: 360, amb: 0.65, sun: 0.95, skyL: 0xffe0b0, gndL: 0x8a3a1a, sunCol: 0xffd0a0, track: ['#8a5a3a', '#6a4028', '#a06a48'], edge: '#ffd02a', edge2: '#fff8c0', wall: 0xffb040, pano: 'sunset', gnd: 'desert', gy: 0, song: 2, props: 'rust' },
-    helix: { sky: [[0, '#1a6ad8'], [0.6, '#7ac8f0'], [1, '#e0f4ff']], fog: 0xa8d8f0, fogN: 90, fogF: 380, amb: 0.7, sun: 0.9, skyL: 0xffffff, gndL: 0x5a6a7a, track: ['#e0e4ec', '#c8ccd8', '#f0f2f8'], edge: '#ff7a1a', edge2: '#fff0d0', wall: 0x5ad0ff, pano: 'skyline', gnd: 'city', gy: -2, song: 3, props: 'helix' },
+    helix: { sky: [[0, '#1a6ad8'], [0.6, '#7ac8f0'], [1, '#e0f4ff']], fog: 0xa8d8f0, fogN: 90, fogF: 380, amb: 0.7, sun: 0.9, skyL: 0xffffff, gndL: 0x5a6a7a, track: ['#7e90a6', '#61748e', '#a1afc0'], edge: '#ff7a1a', edge2: '#fff0d0', wall: 0x5ad0ff, pano: 'skyline', gnd: 'city', gy: -2, song: 3, props: 'helix' },
     aqua: { sky: [[0, '#02121a'], [0.6, '#0a3a4a'], [1, '#1a6a6a']], fog: 0x0a3a44, fogN: 30, fogF: 200, amb: 0.6, sun: 0.6, skyL: 0x8affe8, gndL: 0x0a2a2a, sunCol: 0xa0fff0, track: ['#3a5a6a', '#2a4858', '#4a6e7e'], edge: '#3affa0', edge2: '#e0fff0', wall: 0x3affd0, pano: 'deep', gnd: 'seabed', gy: -46, song: 4, props: 'aqua' },
+    lab: {sky:[[0,'#00020a'],[.7,'#061020'],[1,'#173044']],fog:0x030912,fogN:80,fogF:330,amb:.65,sun:.55,skyL:0xaad8ee,gndL:0x10283a,track:['#101c2c','#081020','#1b3044'],edge:'#64d8ef',edge2:'#e0ffff',wall:0x54a8d4,pano:'void',gy:-30,song:5,props:'lab',wire:'#328ab0'},
     phantom: { sky: [[0, '#000000'], [0.7, '#0a0010'], [1, '#2a0a1a']], fog: 0x000000, fogN: 80, fogF: 360, amb: 0.5, sun: 0.5, skyL: 0xffffff, gndL: 0x200010, track: ['#101014', '#08080a', '#18181e'], edge: '#ff2a2a', edge2: '#ffffff', wall: 0xff2a2a, pano: 'void', gnd: 'wire', gy: -10, song: 5, props: 'phantom', wire: 1 },
   };
 
@@ -100,7 +125,7 @@
   function blot(g, w, h, n, col, r0, r1) { for (let i = 0; i < n; i++) { const x = Math.random() * w, y = Math.random() * h, r = r0 + Math.random() * (r1 - r0); const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); } }
   const PAINT = {
     panels: (cols, wire) => (g, w, h) => { g.fillStyle = cols[1]; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 16) for (let x = 0; x < w; x += 16) { const gr = g.createLinearGradient(x, y, x + 16, y + 16); gr.addColorStop(0, cols[2]); gr.addColorStop(1, cols[0]); g.fillStyle = gr; g.fillRect(x + 1, y + 1, 14, 14); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(x + 3, y + 3, 2, 2); g.fillRect(x + 11, y + 11, 2, 2); }
-      if (wire) { g.fillStyle = '#000'; g.fillRect(0, 0, w, h); g.strokeStyle = '#ff2a2a'; g.lineWidth = 1; for (let k = 0; k <= w; k += 16) { g.beginPath(); g.moveTo(k + 0.5, 0); g.lineTo(k + 0.5, h); g.stroke(); g.beginPath(); g.moveTo(0, k + 0.5); g.lineTo(w, k + 0.5); g.stroke(); } }
+      if (wire) { g.fillStyle = '#000'; g.fillRect(0, 0, w, h); g.strokeStyle = typeof wire==='string'?wire:'#ff2a2a'; g.lineWidth = 1; for (let k = 0; k <= w; k += 16) { g.beginPath(); g.moveTo(k + 0.5, 0); g.lineTo(k + 0.5, h); g.stroke(); g.beginPath(); g.moveTo(0, k + 0.5); g.lineTo(w, k + 0.5); g.stroke(); } }
       else { g.fillStyle = 'rgba(255,255,255,.55)'; g.fillRect(w / 2 - 1, 0, 2, h / 2); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(0, 0, 2, h); g.fillRect(w - 2, 0, 2, h); } dith(g, w, h); },
     grid(g, w, h) { g.fillStyle = '#0a0418'; g.fillRect(0, 0, w, h); g.fillStyle = '#7a2ab0'; g.fillRect(0, 0, w, 1); g.fillRect(0, 0, 1, h); g.fillStyle = 'rgba(122,42,176,.3)'; g.fillRect(0, 1, w, 1); g.fillRect(1, 0, 1, h); },
     wire(g, w, h) { g.fillStyle = '#000'; g.fillRect(0, 0, w, h); g.fillStyle = '#ff2a2a'; g.fillRect(0, 0, w, 1); g.fillRect(0, 0, 1, h); },
@@ -134,9 +159,9 @@
     void(g, w, h, hy) { g.strokeStyle = 'rgba(255,40,40,.5)'; for (let y = hy; y > hy * 0.5; y -= (hy - y) * 0.3 + 3) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); } for (let x = 0; x < w; x += 16) { g.beginPath(); g.moveTo(x, hy); g.lineTo(x, hy * 0.55); g.stroke(); } for (let i = 0; i < 100; i++) { g.fillStyle = '#fff'; g.fillRect(Math.random() * w, Math.random() * hy * 0.5, 1, 1); } },
   };
   // weapon icons for the HUD
-  const WEPS = ['BOLTS', 'SEEKER', 'MINES', 'SHIELD', 'TURBO', 'JAQUAKE'];
-  const WEP_INFO = { BOLTS: 'THREE ROCKETS STRAIGHT AHEAD', SEEKER: 'CHASES THE SHIP IN FRONT', MINES: 'DROPPED BEHIND YOU', SHIELD: 'NOTHING CAN HURT YOU', TURBO: 'A BIG BURST OF SPEED', QUAKE: 'A SHOCKWAVE DOWN THE TRACK' };
-  const WCOL = { BOLTS: '#ffe14a', SEEKER: '#ff5a2a', MINES: '#ff2a8a', SHIELD: '#5ad8ff', TURBO: '#ff9a1a', QUAKE: '#c08aff' };
+  const WEPS = ['BOLTS', 'SEEKER', 'MINES', 'SHIELD', 'TURBO', 'RUMBLE'];
+  const WEP_INFO = { BOLTS: 'THREE ROCKETS STRAIGHT AHEAD', SEEKER: 'CHASES THE SHIP IN FRONT', MINES: 'DROPPED BEHIND YOU', SHIELD: 'BLOCKS WEAPONS AND WALL DAMAGE', TURBO: 'A BIG BURST OF SPEED', RUMBLE: 'A SHOCKWAVE DOWN THE TRACK' };
+  const WCOL = { BOLTS: '#ffe14a', SEEKER: '#ff5a2a', MINES: '#ff2a8a', SHIELD: '#5ad8ff', TURBO: '#ff9a1a', RUMBLE: '#c08aff' };
   const ICON = {};
   function icons() {
     if (ICON.BOLTS) return;
@@ -146,32 +171,46 @@
     mk('MINES', g => { for (const [x, y] of [[8, 8], [16, 10], [10, 16]]) { g.beginPath(); g.arc(x, y, 3.5, 0, TAU); g.fill(); g.fillRect(x - 5, y - 0.5, 10, 1); g.fillRect(x - 0.5, y - 5, 1, 10); } });
     mk('SHIELD', g => { g.beginPath(); g.moveTo(12, 3); g.lineTo(20, 6); g.lineTo(19, 14); g.lineTo(12, 21); g.lineTo(5, 14); g.lineTo(4, 6); g.closePath(); g.lineWidth = 2; g.stroke(); g.globalAlpha = 0.4; g.fill(); g.globalAlpha = 1; });
     mk('TURBO', g => { for (const y of [6, 12]) { g.beginPath(); g.moveTo(4, y + 6); g.lineTo(12, y - 2); g.lineTo(20, y + 6); g.lineTo(20, y + 9); g.lineTo(12, y + 1); g.lineTo(4, y + 9); g.fill(); } });
-    mk('JAQUAKE', g => { g.lineWidth = 2; g.beginPath(); for (let x = 3; x <= 21; x++) g.lineTo(x, 12 + Math.sin(x * 0.9) * 6); g.stroke(); });
+    mk('RUMBLE', g => { g.lineWidth = 2; g.beginPath(); for (let x = 3; x <= 21; x++) g.lineTo(x, 12 + Math.sin(x * 0.9) * 6); g.stroke(); });
   }
 
   // ================================================================ the disc
   TV.game('ps.grav', {
-    three: true, stick: true, buttons: ['a', 'b', 'x', 'l', 'r'],
-    help: 'Steer: arrows. Thrust: Z. Fire: X. Absorb weapon: C. Airbrakes: U and E. Pause: Enter.',
+    three: true, stick: true, buttons: ['a', 'b', 'x', 'y', 'l', 'r'],
+    help: 'Arrows steer. Z thrust. X fire. C absorb. V hyperthrust. U/E airbrakes. Enter pause.',
     make(K) {
       const T3 = K.three({ far: 900, fogCol: 0x1a0830, fogNear: 60, fogFar: 320 }), T = T3.T, H = K.hud, F = K.font, W = K.W, HH = K.H;
       icons();
       let RK = window.RoomRK;
       // ---------------------------------------------------------------- the save (the old one was just { best })
       const sv = (() => { const s = K.load(); return s && typeof s === 'object' ? s : {}; })();
-      for (const k of ['lap', 'tt', 'champ', 'unl']) if (!sv[k] || typeof sv[k] !== 'object') sv[k] = {};
+      for (const k of ['lap', 'tt', 'attack', 'champ', 'unl', 'ghMeta']) if (!sv[k] || typeof sv[k] !== 'object') sv[k] = {};
       if (sv.best > 0 && !sv.lap[0]) sv.lap[0] = sv.best;
       sv.opt = Object.assign({ mus: 1, cam: 0 }, sv.opt && typeof sv.opt === 'object' ? sv.opt : {});
+      sv.medals = sv.medals && typeof sv.medals === 'object' ? sv.medals : {}; sv.challenges = sv.challenges && typeof sv.challenges === 'object' ? sv.challenges : {};
       sv.team = clamp(sv.team | 0, 0, TEAMS.length - 1); if (!Array.isArray(sv.hi)) sv.hi = []; sv.races = sv.races | 0;
       const save = () => { if (sv.lap[0] && (!sv.best || sv.lap[0] < sv.best)) sv.best = sv.lap[0]; try { K.save(sv); } catch (e) {} saveCard(); };
       let saveCard = () => {};
-      const castN = (id, fb) => { try { const n = window.Cast && Cast.n ? Cast.n(id) : ''; return String(n || fb).toUpperCase().slice(0, 9); } catch (e) { return fb; } };
-      const MATES = [['CALLUM', 17200], ['DAVE', 14600], ['JACKK', 12300], ['LUKE', 10400], [castN('kidCalc', 'MATT'), 8200], [castN('cousin', 'KIM'), 6400], ['DAD', 3100], ['MOM', 900]];
-      const myName = () => { try { const n = String((window.Net && Net.me && Net.me.nick) || '').toUpperCase().replace(/[^A-Z0-9 ]/g, ''); return !n || /^GUEST/.test(n) ? 'YOU' : n.slice(0, 8); } catch (e) { return 'YOU'; } };
-      const table = () => MATES.map(([n, s]) => ({ n, s, mate: 1 })).concat(sv.hi.map(x => ({ n: String(x.n || 'YOU'), s: x.s | 0 }))).sort((a, b) => b.s - a.s).slice(0, 8);
-      const ghLoad = i => { try { return localStorage.getItem('jhp_rmgrav_gh' + i) || ''; } catch (e) { return ''; } };
-      const ghSave = (i, s) => { try { localStorage.setItem('jhp_rmgrav_gh' + i, s); } catch (e) {} };
-      const supOpen = () => !!sv.unl.sup || !!window.__gravCheatAll, trackOpen = i => !TRACKS[i].bonus || !!sv.unl.bonus || !!window.__gravCheatAll, teamOpen = i => !TEAMS[i].locked || !!sv.unl.nullp;
+      const castN = id => { try { const c = window.Cast; return String(c ? (id === 'me' ? c.me().first : c.n(id)) : 'PILOT').toUpperCase().slice(0, 12); } catch (e) { return 'PILOT'; } };
+      const MATES = ['mate1','mate2','mate3','mate4','sister','mate1','mate2','mate3'].map((id, i) => [id, 17200 - i * 2400]);
+      const myName = () => castN('me');
+      const pilotName=(id,team)=>castN(id.split('#')[0])+(id.includes('#3')?' III':team>4?' II':'');
+      const table = () => MATES.map(([id, s]) => ({ n: castN(id), s, mate: 1 })).concat(sv.hi.map(x => ({ n: castN(x.id||'me'), s: x.s | 0 }))).sort((a, b) => b.s - a.s).slice(0, 8);
+      // Old personal entries keep their saved name verbatim; rendering resolves their owner through Cast.
+      const recordKey=()=>cfg.cls?cfg.track+':'+cfg.cls:cfg.track;
+      const ghKey=i=>'rm.ps.grav.ghost.'+i;
+      const ghLocal=i=>'jhp_rmgrav_gh_'+encodeURIComponent(window.Net?.me?.nick||'local')+'_'+i;
+      const ghHash=s=>{let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return h>>>0;};
+      const ghLoad=i=>{try {const roaming=window.Apps&&Apps.loadGame&&Apps.loadGame(ghKey(i),1),local=localStorage.getItem(ghLocal(i)),legacy=sv.tt[i]>0?localStorage.getItem('jhp_rmgrav_gh'+i):'';const values=[roaming,local,legacy].filter(s=>typeof s==='string'&&s);return(sv.ghMeta[i]!=null?values.find(s=>ghHash(s)===sv.ghMeta[i]):values[0])||'';}catch(e){return '';}};
+      const ghSave=(i,s)=>{try {
+        sv.ghMeta[i]=ghHash(s);localStorage.setItem(ghLocal(i),s);
+        // Use spare small-save space only: ghosts must never evict another game's large save.
+        const key='jhp_gs_'+ghKey(i).replace(/[^A-Za-z0-9._-]/g,'_');let used=0;
+        for(let n=0;n<localStorage.length;n++){const k=localStorage.key(n);if(k.startsWith('jhp_gs_')&&k!==key)used+=k.length+(localStorage.getItem(k)||'').length;}
+        if(s.length<18000&&used+s.length+key.length+300<170000&&window.Apps&&Apps.saveGame)Apps.saveGame(ghKey(i),s,{v:1,max:20000});
+      }catch(e){}};
+      const classOpen = i => i === 0 || !!sv.unl['class' + i] || (i === 1 && !!sv.unl.sup) || !!window.__gravCheatAll;
+      const supOpen = () => classOpen(1), trackOpen = i => !!window.__gravCheatAll || (TRACKS[i].proto!=null?!!sv.unl['proto'+TRACKS[i].proto]:!TRACKS[i].bonus||!!sv.unl.bonus), teamOpen = i => !TEAMS[i].locked || (i===4 ? !!sv.unl.nullp : !!sv.unl['team'+i]) || !!window.__gravCheatAll;
 
       // ---------------------------------------------------------------- 3D bits that last all game
       const LIT = T3.lights({ amb: 0.7, sun: 0.7, dir: [0.3, 1, 0.5] });
@@ -181,10 +220,11 @@
       const matGhost = T3.mat({ vcol: true, transparent: true, opacity: 0.35, lit: false });
       const shadowTex = T3.tex(32, 32, (g, w, h) => { const gr = g.createRadialGradient(w / 2, h / 2, 1, w / 2, h / 2, w / 2); gr.addColorStop(0, 'rgba(0,0,0,.6)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
       const shadowMat = T3.mat({ map: shadowTex, transparent: true, lit: false }); shadowMat.depthWrite = false; shadowMat.polygonOffset = true; shadowMat.polygonOffsetFactor = -4;
+      const shieldGeo=T3.keep(new T.IcosahedronGeometry(2.7,1));shieldGeo.scale(.85,.48,1.25);const shieldMat=T3.mat({color:0x65dfff,lit:false,transparent:true,opacity:.13});shieldMat.depthWrite=false;
       const shadowGeo = T3.keep(new T.PlaneGeometry(3.6, 5.2)); shadowGeo.rotateX(-Math.PI / 2);
-      const shadows = new T.InstancedMesh(shadowGeo, shadowMat, 9); shadows.frustumCulled = false; T3.add(shadows);
+      const shadows = new T.InstancedMesh(shadowGeo, shadowMat, 13); shadows.frustumCulled = false; T3.add(shadows);
       let shipGeo = [], fxN = null, fxA = null;
-      const M4 = new T.Matrix4(), Q = new T.Quaternion(), V1 = new T.Vector3(), V2 = new T.Vector3(), V3 = new T.Vector3(), V4 = new T.Vector3(), ZERO = new T.Matrix4().makeScale(0, 0, 0);
+      const M4 = new T.Matrix4(), Q = new T.Quaternion(), Q2=new T.Quaternion(), UP=new T.Vector3(0,1,0), V1 = new T.Vector3(), V2 = new T.Vector3(), V3 = new T.Vector3(), V4 = new T.Vector3(), ZERO = new T.Matrix4().makeScale(0, 0, 0);
       let sky = null, world = null, L = null, TR = null, TH = null, FL = null, padTex = null, pads = [], wpads = [], ramps = [], turbines = [], spinners = [], pitA = 0, pitB = 0, groundY = 0, starfield = null;
       let cfg = { kind: 'race', cls: 0, track: 0 };
       let ships = [], me = null, shots = [], mode = 'load', mt = 0;
@@ -255,7 +295,7 @@
         addW(RK.strip(T, L, i => hw(i) - 4.6, i => hw(i) - 0.1, { ya: 0.07, from: pitA, to: pitB, v: 5 }), T3.mat({ map: T3.tile(T3.tex(32, 32, PAINT.pit), 1, 1) }));
         // the start line
         const chk = T3.tex(32, 8, (g, w, h) => { for (let x = 0; x < 8; x++) for (let y = 0; y < 2; y++) { g.fillStyle = (x + y) % 2 ? '#111' : '#fff'; g.fillRect(x * 4, y * 4, 4, 4); } });
-        addW(RK.strip(T, L, i => -hw(i), hw, { ya: 0.08, from: 0, to: 1, v: 2.5 }), T3.mat({ map: chk, lit: false }));
+        const stripe = new T.PlaneGeometry(L.W[0], .7); stripe.applyMatrix4(new T.Matrix4().makeBasis(L.R[0],L.D[0],L.U[0]).setPosition(L.at(0,0,.08))); addW(stripe,T3.mat({map:chk,lit:false}));
         // tunnels: walls, roof, neon strips; tubes: glass rings under the sea
         const tunWall = T3.mat({ map: T3.tile(T3.tex(32, 32, PAINT.panels(['#2a2a3a', '#1a1a26', '#3a3a4e'])), 1, 1), side: T.DoubleSide });
         ribbon(i => !!FL.tun[i], i => -hw(i) - 0.6, i => -hw(i) - 0.6, { ya: 0, yb: 7, v: 8, face: 1 }, tunWall);
@@ -311,32 +351,35 @@
         gantry(L.wrap(2), true);
         for (let i = 40; i < N - 20; i += 70) if (!FL.gap[i] && !FL.tun[i] && !FL.tube[i] && !ramps.some(r => Math.abs(i - r.i0) < 20)) gantry(i, false);
         if (ban.length) { addW(RK.merge(T, ban), T3.mat({ map: bannerTex, lit: false, side: T.DoubleSide })); ban.forEach(b => b.geo.dispose()); }
+        // Three sculpted corner chevrons at hard bends, well outside the racing envelope.
+        for(let i=20;i<N-20;i+=12){const curve=L.C[i];if(Math.abs(curve)<.012)continue;const side=Math.sign(curve),j=L.wrap(i-10),p=L.at(j,-side*(FL.hw[j]+2.4),2.5),yaw=Math.atan2(L.D[j].x,L.D[j].z);for(let q=0;q<3;q++){const off=(q-1)*1.3,rr=L.R[j];add(box(.95,1.9,.28),p.x+rr.x*off,p.y,p.z+rr.z*off,yaw,0x17202e);add(box(.12,2.4,.12),p.x+rr.x*off,p.y-1.2,p.z+rr.z*off,yaw,0x42485c);glow(box(.16,1.1,.12),p.x+rr.x*off,p.y+.35,p.z+rr.z*off,yaw,0xffcf4a,1,1,1,0,-side*.65);glow(box(.16,1.1,.12),p.x+rr.x*off,p.y-.35,p.z+rr.z*off,yaw,0xffcf4a,1,1,1,0,side*.65);}}
         // pit lane lights
-        for (let k = 0, i = pitA; k < ((pitB - pitA + L.N) % L.N); k += 3, i = L.wrap(pitA + k)) { const p = L.at(i, FL.hw[i] - 4.9, 0.3); glow(box(0.3, 0.6, 0.3), p.x, p.y, p.z, 0, 0x3aff6a); }
+        for (let k = 0, i = pitA; k < ((pitB - pitA + L.N) % L.N); k += 3, i = L.wrap(pitA + k)) { const p = L.at(i, FL.hw[i] - .45, .09); glow(box(.18, .12, .28), p.x, p.y, p.z, 0, 0x3aff6a); }
         // start lights to light up (kept so the count can switch them)
         const p0 = L.P[L.wrap(2)], u0 = L.U[L.wrap(2)], r0 = L.R[L.wrap(2)]; startLights = [0, 1, 2, 3, 4].map(q => V2.copy(p0).addScaledVector(r0, (q - 2) * 1.2).addScaledVector(u0, 9.6).clone());
         // ---- the place
-        if (tr.props === 'city' || tr.props === 'helix') {
-          scatter(tr.props === 'city' ? 80 : 70, 30, 160, (x, y, z) => { const w = 10 + R() * 16, h = 20 + R() * (tr.props === 'city' ? 80 : 110); win(box(w, h, w), x, y + h / 2, z, R() * 0.4, pick(tr.props === 'city' ? [0x8a8aa8, 0x7a90b8, 0xa88aa8] : [0xc8d8e8, 0xa8c0d8, 0xe0e8f0])); add(box(w * 1.04, 1.2, w * 1.04), x, y + h, z, 0, 0x2a2a3a); if (R() < 0.4) glow(box(w * 0.7, 3, 0.3), x, y + h * 0.8, z + w / 2 + 0.2, 0, pick([0xff2a8a, 0x2ae0ff, 0xffe14a, 0x9aff5a])); if (R() < 0.3) { add(cyl(0.2, 0.2, 8, 4), x, y + h + 4, z, 0, 0x888888); glow(ball(0.5, 6), x, y + h + 8.2, z, 0, 0xff2a2a); } });
+        if (th.props === 'city' || th.props === 'helix') {
+          scatter(th.props === 'city' ? 80 : 70, 30, 160, (x, y, z) => { const w = 10 + R() * 16, h = 20 + R() * (th.props === 'city' ? 80 : 110); win(box(w, h, w), x, y + h / 2, z, R() * 0.4, pick(th.props === 'city' ? [0x8a8aa8, 0x7a90b8, 0xa88aa8] : [0xc8d8e8, 0xa8c0d8, 0xe0e8f0])); add(box(w * 1.04, 1.2, w * 1.04), x, y + h, z, 0, 0x2a2a3a); if (R() < 0.4) glow(box(w * 0.7, 3, 0.3), x, y + h * 0.8, z + w / 2 + 0.2, 0, pick([0xff2a8a, 0x2ae0ff, 0xffe14a, 0x9aff5a])); if (R() < 0.3) { add(cyl(0.2, 0.2, 8, 4), x, y + h + 4, z, 0, 0x888888); glow(ball(0.5, 6), x, y + h + 8.2, z, 0, 0xff2a2a); } });
           if (tr.tower) { const cx = 190, cz = 15; win(cyl(26, 30, 110, 12), cx, groundY + 55, cz, 0, 0xd0d8e8); for (let k = 0; k < 6; k++) glow(new T.TorusGeometry(28.5 - k * 0.6, 0.6, 4, 24), cx, groundY + 14 + k * 18, cz, 0, k % 2 ? 0x2ae0ff : 0xff7a1a, 1, 1, 1, Math.PI / 2); add(cone(30, 16, 12), cx, groundY + 118, cz, 0, 0x5a6a7a); add(cyl(0.6, 0.6, 30, 6), cx, groundY + 140, cz, 0, 0xcccccc); glow(ball(1.4, 8), cx, groundY + 156, cz, 0, 0xff2a2a); }
-          if (tr.tunnel) { const [a, b] = tr.tunnel[0], ia = Math.round(a * N), ib = Math.round(b * N), mid = L.wrap(Math.round((ia + ib) / 2)), p = L.P[mid], yaw = Math.atan2(L.D[mid].x, L.D[mid].z), len = (ib - ia) * L.step; win(box(46, p.y - groundY + 40, len + 8), p.x, (p.y + groundY + 40) / 2 + 5, p.z, yaw, 0x9a9ab8); glow(box(30, 6, 0.4), p.x - Math.sin(yaw) * (len / 2 + 4.3), p.y + 16, p.z - Math.cos(yaw) * (len / 2 + 4.3), yaw, 0xff2a8a); }
-        } else if (tr.props === 'frost') {
+          if (tr.tunnel) { const [a, b] = tr.tunnel[0], ia = Math.round(a * N), ib = Math.round(b * N), mid = L.wrap(Math.round((ia + ib) / 2)), p = L.P[mid], yaw = Math.atan2(L.D[mid].x, L.D[mid].z), len = (ib - ia) * L.step; win(box(36, 12, len + 8), p.x, p.y + 15, p.z, yaw, 0x9a9ab8); for(const side of [-1,1]) { const r=L.R[mid],hh=Math.max(8,p.y-groundY+9);add(box(3,hh,3),p.x+r.x*side*16,groundY+hh/2,p.z+r.z*side*16,yaw,0x4a5068); } glow(box(30, 6, 0.4), p.x - Math.sin(yaw) * (len / 2 + 4.3), p.y + 16, p.z - Math.cos(yaw) * (len / 2 + 4.3), yaw, 0xff2a8a); }
+        } else if (th.props === 'frost') {
           for (let k = 0; k < 22; k++) { const a = k / 22 * TAU + R() * 0.2, r = 380 + R() * 80, h = 80 + R() * 70; add(cone(70 + R() * 40, h, 7), Math.cos(a) * r, groundY + h / 2 - 4, Math.sin(a) * r + 120, R() * 6, 0x6a7aa0); add(cone(28 + R() * 10, h * 0.35, 7), Math.cos(a) * r, groundY + h * 0.84, Math.sin(a) * r + 120, 0, 0xf0f6ff); }
           scatter(140, 12, 140, (x, y, z, s) => { add(cyl(0.4 * s, 0.5 * s, 2 * s, 5), x, y + s, z, 0, 0x4a3020); add(cone(3 * s, 5 * s, 6), x, y + 4 * s, z, R() * 6, 0x1e4a3a); add(cone(2.2 * s, 4 * s, 6), x, y + 6.4 * s, z, 0, 0xe8f0ff); });
           scatter(14, 16, 120, (x, y, z, s) => { for (let q = 0; q < 3; q++) glow(cone(1.6 * s, (10 + q * 6) * s, 5), x + (q - 1) * 3 * s, y + (5 + q * 3) * s, z, R() * 6, 0x8ae8ff, 1, 1, 1, (q - 1) * 0.25); });
           const d = spot(30, 80); if (d) { add(cyl(14, 14, 10, 12), d.x, groundY + 5, d.z, 0, 0xd8d8e0); add(new T.SphereGeometry(14, 14, 8, 0, TAU, 0, Math.PI / 2), d.x, groundY + 10, d.z, 0, 0xe8e8f0); glow(box(4, 18, 0.5), d.x, groundY + 16, d.z, 0.5, 0x2a2a3a); }
-        } else if (tr.props === 'rust') {
+        } else if (th.props === 'rust') {
           scatter(26, 30, 220, (x, y, z) => { const w = 18 + R() * 28, h = 20 + R() * 40; add(cyl(w, w * 1.2, h, 7), x, y + h / 2, z, R() * 6, 0xb05a32); add(cyl(w * 1.02, w * 1.02, 3, 7), x, y + h * 0.6, z, 0, 0x8a3a22); add(cyl(w * 0.96, w, 2, 7), x, y + h, z, 0, 0xc87a4a); });
           scatter(30, 10, 100, (x, y, z) => add(new T.DodecahedronGeometry(2 + R() * 3, 0), x, y + 1, z, R() * 6, 0x8a4a2a, 1, 0.7, 1));
           for (let k = 0; k < 6; k++) { const p = spot(26, 90); if (!p) continue; add(cyl(0.8, 1.2, 30, 6), p.x, groundY + 15, p.z, 0, 0xe8e8e8); add(box(2, 2, 3), p.x, groundY + 30, p.z, 0, 0xd8d8d8); const bl = []; for (let q = 0; q < 3; q++) bl.push({ geo: new T.BoxGeometry(1.2, 13, 0.3), m: RK.M(T, Math.sin(q * TAU / 3) * 6.5, Math.cos(q * TAU / 3) * 6.5, 0, 0, 1, 1, 1, 0, -q * TAU / 3), c: 0xf0f0f0 }); const m = new T.Mesh(RK.merge(T, bl), matV); bl.forEach(b => b.geo.dispose()); m.position.set(p.x, groundY + 30, p.z + 1.6); m.rotation.y = R() * 0.6; world.add(m); turbines.push(m); }
           for (const [a] of tr.gap || []) { const i = Math.round(a * N), p = L.P[i]; add(box(400, 2, 26), p.x, groundY - 0.5, p.z, Math.atan2(L.R[i].x, L.R[i].z) + Math.PI / 2, 0x2a0a06); }
-        } else if (tr.props === 'aqua') {
+        } else if (th.props === 'aqua') {
           scatter(90, 16, 120, (x, y, z, s) => { const h = (14 + R() * 24) * s; for (let q = 0; q < 4; q++) add(box(0.5, h / 4, 1.4), x + Math.sin(q) * 0.6, y + h / 8 + q * h / 4, z, q * 0.4, q % 2 ? 0x2a8a3a : 0x3a9a2a, 1, 1, 1, Math.sin(q * 1.7) * 0.15); });
           scatter(40, 10, 100, (x, y, z, s) => { const c = pick([0xff6a8a, 0xffa03a, 0xc06aff, 0xffe14a]); for (let q = 0; q < 4; q++) add(ball((1 + R() * 1.4) * s, 7), x + (R() - 0.5) * 3, y + R() * 1.5, z + (R() - 0.5) * 3, 0, c); });
           scatter(30, 12, 120, (x, y, z) => add(new T.DodecahedronGeometry(3 + R() * 5, 0), x, y, z, R() * 6, 0x3a4a48, 1, 0.6, 1));
           scatter(24, 14, 80, (x, y, z) => { const yy = y + 14 + R() * 30; glow(ball(1.2, 8), x, yy, z, 0, pick([0x8affff, 0xff8aff, 0xc8ff8a]), 1, 0.6, 1); for (let q = 0; q < 4; q++) glow(box(0.08, 2.2, 0.08), x + Math.sin(q * 1.6) * 0.6, yy - 1.4, z + Math.cos(q * 1.6) * 0.6, 0, 0x8affff); });
           const sh = spot(40, 80); if (sh) { add(box(14, 10, 60), sh.x, groundY + 3, sh.z, 0.4, 0x5a3a2a, 1, 1, 1, 0, 0.3); add(cyl(1, 1, 20, 6), sh.x, groundY + 14, sh.z, 0.4, 0x4a2a1a, 1, 1, 1, 0, 0.3); }
-        } else if (tr.props === 'phantom') {
+        } else if(th.props==='lab'){scatter(18,30,100,(x,y,z,s)=>{const h=12+s*24;add(box(5,h,5),x,y+h/2,z,0,0x101f32);for(let j=0;j<4;j++)glow(box(5.1,.2,5.1),x,y+3+j*h/4,z,0,0x64d8ef);});
+        } else if (th.props === 'phantom') {
           scatter(50, 16, 160, (x, y, z, s) => { const h = 4 + R() * 40; glow(box(8 * s, 8 * s, 8 * s), x, y + h, z, R() * 6, pick([0xff2a2a, 0xffffff, 0x8a0a0a]), 1, 1, 1, R() * 6, R() * 6); });
           scatter(20, 20, 160, (x, y, z, s) => { add(cone(14 * s, 24 * s, 4), x, y + 12 * s, z, R(), 0x0a0a0e); glow(cone(14.3 * s, 0.4, 4), x, y + 0.2, z, 0, 0xff2a2a); });
         }
@@ -350,35 +393,39 @@
 
       // ---------------------------------------------------------------- the ships
       const shipsG = new T.Group(); T3.scene.add(shipsG);
-      function shipMesh(team, ghostly) { const g = shipGeo[team], grp = new T.Group(); grp.add(new T.Mesh(g.body, ghostly ? matGhost : matV)); const gl = new T.Mesh(g.glow, matGlow); grp.add(gl); grp.glow = gl; shipsG.add(grp); return grp; }
+      const fleetG=new T.Group();T3.scene.add(fleetG);let fleetBody=[],fleetGlow=[];
+      function shipMesh(team, ghostly) { const g = shipGeo[team], grp = new T.Group(); const body=new T.Mesh(g.body,ghostly?matGhost:matV);grp.add(body);grp.body=body; const gl = new T.Mesh(g.glow, matGlow); grp.add(gl); grp.glow = gl; const field=new T.Mesh(shieldGeo,shieldMat);field.visible=false;grp.add(field);grp.field=field;shipsG.add(grp); return grp; }
       function clearShips() { while (shipsG.children.length) shipsG.remove(shipsG.children[0]); ships = []; for (const s of shots) if (s.m) T3.scene.remove(s.m); shots = []; }
       function mkShip(team, pilot, ai, skill) {
         const tm = TEAMS[team], cls = CLASSES[cfg.cls];
-        return { team, tm, n: ai ? pilot : myName(), ai, skill: skill || 1, aiMul: 1, mesh: shipMesh(team), fi: 0, d: 0, a: 0, v: 0, y: 0, vy: 0, air: false, airT: 0, prog: 0, lap: 0, done: false, ft: 0, out: false,
-          energy: 100, wep: '', boost: 0, shield: 0, slow: 0, roll: 0, lane: (Math.random() - 0.5) * 5, wob: Math.random() * 6, cool: 2 + Math.random() * 3, hits: 0, laps: [], lapStart: 0, bestLap: 0, place: 0,
+        return { id:ai?team+':'+pilot:'@me',team, tm, n: ai ? pilotName(pilot,team) : myName(), pilot: pilot || 'me', ai, skill: skill || 1, aiMul: 1, mesh: shipMesh(team), fi: 0, d: 0, a: 0, v: 0, y: 0, vy: 0, air: false, airT: 0, prog: 0, lap: 0, done: false, ft: 0, out: false,
+          kos:0,revive:0,energy: 100, wep: '', boost: 0, shield: 0, slow: 0, roll: 0, lane: (Math.random() - 0.5) * 5, wob: Math.random() * 6, cool: 2 + Math.random() * 3, hits: 0, laps: [], lapStart: 0, bestLap: 0, place: 0,
           top: cls.top * (0.94 + tm.spd * 0.025), thr: 15 + tm.thr * 3.2, hnd: 1.15 + tm.hnd * 0.13, dmg: 0.55 + (5 - tm.shd) * 0.14, respawn: 0, pitT: 0, mines: 0, flash: 0 };
       }
       function gridUp(list) { list.forEach((s, n) => { s.fi = L.N - 4 - Math.floor(n / 2) * 6; s.d = (n % 2 ? 1 : -1) * 3.4; s.a = 0; s.v = 0; s.prog = s.fi - L.N; s.y = trackY(s.fi, s.d) + 1.1; s.vy = 0; s.air = false; s.mesh.visible = true; }); }
       function trackY(fi, d) { const i0 = Math.floor(fi), f = fi - i0, a = L.wrap(i0), b = L.wrap(i0 + 1), pa = L.P[a], pb = L.P[b]; return pa.y + (pb.y - pa.y) * f + (L.R[a].y + (L.R[b].y - L.R[a].y) * f) * d + rampH(a) + (rampH(b) - rampH(a)) * f; }
       let rankC = [];
       const rank = () => rankC;
-      function doRank() { rankC = ships.slice().sort((a, b) => (b.done ? 1e7 - b.ft : b.out ? -1e7 + b.prog : b.prog) - (a.done ? 1e7 - a.ft : a.out ? -1e7 + a.prog : a.prog)); rankC.forEach((s, n) => { s.place = n; }); }
+      function doRank() { if(cfg.kind==='elim'){rankC=ships.slice().sort((a,b)=>(b.kos||0)-(a.kos||0)||b.prog-a.prog);rankC.forEach((s,n)=>s.place=n);return;} rankC = ships.slice().sort((a, b) => (b.done ? 1e7 - b.ft : b.out ? -1e7 + b.prog : b.prog) - (a.done ? 1e7 - a.ft : a.out ? -1e7 + a.prog : a.prog)); rankC.forEach((s, n) => { s.place = n; }); }
       let shake = 0, hitFlash = 0;
       // ---- one ship, one step. inp: { steer, thrust, ab, fire, absorb, pitch }
       function fly(s, inp, dt) {
+        if(s.out||s.respawn>0)return;
         const N = L.N; let thr = inp.thrust, steer = inp.steer, ab = inp.ab;
         if (s.out || s.respawn > 0) { thr = 0; steer = 0; ab = 0; }
         if (s.slow > 0) { s.slow -= dt; thr *= 0.4; }
         if (s.shield > 0) s.shield -= dt; if (s.flash > 0) s.flash -= dt;
-        const top = s.top * s.aiMul + (s.boost > 0 ? 16 : 0);
+        s.hyper=!!inp.hyper&&s.energy>12&&s.v>18&&s.boost<=0; if(s.hyper){s.energy=Math.max(12,s.energy-8*dt);s.v+=25*dt;}
+        const top = s.top * s.aiMul + (s.boost > 0 ? 16 : s.hyper ? 12 : 0);
         if (s.boost > 0) { s.boost -= dt; s.v = Math.min(top, s.v + 45 * dt); }
         if (thr) s.v += (s.v < top ? s.thr * (1 - s.v / (top * 1.08)) + 2 : -20) * dt; else s.v -= Math.min(s.v, 7 * dt);
         if (s.v > top && s.boost <= 0) s.v -= Math.min(s.v - top, 20 * dt);
-        if (ab) s.v -= s.v * 0.3 * Math.abs(ab) * dt;
-        s.v = clamp(s.v, 0, 95);
+        if (ab) s.v -= s.v * 0.22 * Math.abs(ab) * dt; if(inp.brake)s.v-=s.v*0.8*dt;
+        s.v = clamp(s.v, 0, 125);
         let i = L.wrap(Math.round(s.fi));
         const rate = s.hnd * clamp(s.v / 20, 0.3, 1);
-        s.a += (steer * rate + ab * 1.25) * dt * (s.air ? 0.6 : 1);
+        s.turn=lerp(s.turn||0,steer,Math.min(1,dt*14));
+        s.a += (s.turn * rate + ab * 1.5) * dt * (s.air ? 0.6 : 1);
         s.a -= L.C[i] * s.v * dt * Math.cos(s.a);
         s.a = clamp(s.a, -1.2, 1.2); if (!steer && !ab) s.a *= 1 - Math.min(1, dt * 1.1);
         s.roll += ((steer + ab * 0.8) * 0.5 - s.roll) * Math.min(1, dt * 6);
@@ -388,7 +435,7 @@
         // the walls (none over a gap)
         const lim = FL.hw[i] - 1.3;
         if (!FL.gap[i] && Math.abs(s.d) > lim && s.respawn <= 0) {
-          const imp = s.v * Math.abs(Math.sin(s.a)), sd = Math.sign(s.d); s.d = sd * lim; s.a *= -0.25; s.v *= 0.93 - Math.min(0.2, imp * 0.008);
+          const imp = s.v * Math.abs(Math.sin(s.a)), sd = Math.sign(s.d); s.d = sd * lim; s.a *= -0.25; s.v *= imp>5 ? 0.93-Math.min(.2,imp*.008) : Math.exp(-1.4*dt);
           if (imp > 5) { hurt(s, imp * 0.32, null); if (fxA) { const p = L.atf(s.fi, s.d + sd * 1.2, 0.6, V1); for (let k = 0; k < 8; k++) fxA.emit(p.x, p.y, p.z, (Math.random() - 0.5) * 10, Math.random() * 6, (Math.random() - 0.5) * 10, 0.3, 0xffd040, 2, { g: 12 }); } if (!s.ai) { K.sfx.noise(0.18, 0.18, 2500, 0, 'highpass'); shake = Math.max(shake, 0.25); } }
         }
         // up and down: hover over the track, fly off crests and kickers, fall into the gaps
@@ -408,12 +455,12 @@
           }
           if (FL.gap[i] && s.y < L.P[i].y - 14) { respawn(s); return; }
         }
-        if (s.respawn > 0) return;
+        if (s.respawn > 0 || s.out) return;
         // pads, the pit lane
         if (!s.air) {
           for (const p of pads) { let di = i - p.i; if (di > N / 2) di -= N; if (di < -N / 2) di += N; if (di >= -1 && di <= 1 && Math.abs(s.d - p.lat) < 2.3 && s.boost < 0.3) { s.boost = 0.75; if (!s.ai) K.sfx.noise(0.5, 0.14, 600, 0, 'bandpass', 3000); } }
-          for (const p of wpads) { let di = i - p.i; if (di > N / 2) di -= N; if (di < -N / 2) di += N; if (di >= -1 && di <= 1 && Math.abs(s.d - p.lat) < 2.3 && !s.wep && cfg.kind !== 'tt') { s.wep = pickWep(s); if (!s.ai) { K.sfx.seq([[88, 0.25], [93, 0.5]], { bpm: 500, vol: 0.08 }); say(s.wep, 0.9); } } }
-          if (FL.pit[i] && s.d > FL.hw[i] - 5 && s.energy < 100) { s.energy = Math.min(100, s.energy + 26 * dt); s.pitT += dt; if (fxA && K.frame % 3 === 0) { const p = L.atf(s.fi, s.d, 1, V1); fxA.emit(p.x, p.y, p.z, 0, 6, 0, 0.5, 0x3aff6a, 1.2); } if (!s.ai && K.frame % 8 === 0) K.sfx.tone(600 + s.energy * 6, 0.06, 'sine', 0.05); }
+          for (const p of wpads) { let di = i - p.i; if (di > N / 2) di -= N; if (di < -N / 2) di += N; if (di >= -1 && di <= 1 && Math.abs(s.d - p.lat) < 2.3 && !s.wep && cfg.kind !== 'tt' && cfg.kind !== 'attack') { s.wep = pickWep(s); if (!s.ai) { K.sfx.seq([[88, 0.25], [93, 0.5]], { bpm: 500, vol: 0.08 }); say(s.wep, 0.9); } } }
+          if (cfg.kind !== 'elim' && FL.pit[i] && s.d > FL.hw[i] - 5 && s.energy < 100) { s.energy = Math.min(100, s.energy + 26 * dt); s.pitT += dt; if (fxA && K.frame % 3 === 0) { const p = L.atf(s.fi, s.d, 1, V1); fxA.emit(p.x, p.y, p.z, 0, 6, 0, 0.5, 0x3aff6a, 1.2); } if (!s.ai && K.frame % 8 === 0) K.sfx.tone(600 + s.energy * 6, 0.06, 'sine', 0.05); }
         }
         if (inp.absorb && s.wep) { s.energy = Math.min(100, s.energy + 18); s.wep = ''; if (!s.ai) { K.sfx.tone(300, 0.3, 'sine', 0.08, 0, 900); say('ENERGY +18', 0.8); } }
         else if (inp.fire && s.wep) fire(s);
@@ -427,18 +474,18 @@
       function hurt(s, amt, by) {
         if (s.out || s.done) return;
         if (s.shield > 0) { if (!s.ai) K.sfx.tone(1200, 0.08, 'triangle', 0.06); return; }
-        s.energy -= amt * s.dmg; s.flash = 0.25;
+        s.energy -= amt * s.dmg * (cfg.kind==='elim'?1.5:1); s.flash = 0.25;
         if (by && by !== s && by === me) me.hits++;
         if (!s.ai) { hitFlash = 0.3; }
-        if (s.energy <= 0) kill(s);
+        if (s.energy <= 0) { if(by && by !== s) by.kos=(by.kos||0)+1; kill(s); }
       }
       function kill(s) {
-        s.energy = 0; s.out = true; s.v = 0; s.mesh.visible = false; boom(s, 40);
+        s.energy = 0; s.out = true; s.v = 0; s.mesh.visible = false; boom(s, 40); if(cfg.kind==='elim')s.revive=2;
         if (s === me) { say('ELIMINATED!', 3); K.sfx.noise(1.2, 0.3, 800, 0, 'lowpass', 60); } else say(s.n + ' IS OUT!', 1.5);
       }
       function boom(s, n) { if (!fxA) return; const p = L.atf(s.fi, s.d, 1, V1); for (let k = 0; k < n; k++) fxA.emit(p.x, p.y, p.z, (Math.random() - 0.5) * 22, Math.random() * 14, (Math.random() - 0.5) * 22, 0.8, [0xffffff, 0xffd040, 0xff5a1a][k % 3], 3, { g: 8, grow: 1 }); K.sfx.noise(0.5, 0.2, 900, 0, 'lowpass', 100); }
       // ---- weapons
-      function pickWep(s) { const p = s.place / 7; const w = [5 - p * 2, 1 + p * 4, 4 - p * 3, 2 + p, 1 + p * 4, p * 3]; let tot = w.reduce((a, b) => a + b, 0), r = Math.random() * tot; for (let n = 0; n < w.length; n++) { r -= w[n]; if (r < 0) return WEPS[n]; } return 'BOLTS'; }
+      function pickWep(s) { const p = s.place / 11; const w = [5 - p * 2, 1 + p * 4, 4 - p * 3, 2 + p, 1 + p * 4, p * 3]; let tot = w.reduce((a, b) => a + b, 0), r = Math.random() * tot; for (let n = 0; n < w.length; n++) { r -= w[n]; if (r < 0) return WEPS[n]; } return 'BOLTS'; }
       const WG = {};
       function wepGeo(k) {
         if (WG[k]) return WG[k];
@@ -457,7 +504,7 @@
         if (w === 'BOLTS') { for (const o of [-1.6, 0, 1.6]) shots.push({ k: 'bolt', fi: s.fi + 2, d: s.d + o, v: s.v + 70, life: 2.2, owner: s, m: shotMesh('bolt') }); if (!s.ai) K.sfx.noise(0.3, 0.15, 2000, 0, 'bandpass', 500); return; }
         if (w === 'SEEKER') { const p = rank().indexOf(s), t = p > 0 ? rank()[p - 1] : null; shots.push({ k: 'seeker', fi: s.fi + 2, d: s.d, v: Math.max(80, s.v + 35), life: 5, owner: s, tgt: t, m: shotMesh('seeker') }); if (!s.ai) K.sfx.tone(500, 0.4, 'sawtooth', 0.06, 0, 1500); else if (t === me) say('SEEKER LOCKED ON YOU!', 1.2); return; }
         if (w === 'MINES') { s.mines = 5; s.mineT = 0; if (!s.ai) say('MINES DROPPED', 0.8); return; }
-        if (w === 'JAQUAKE') { shots.push({ k: 'quake', fi: s.fi + 3, d: 0, v: 110, life: 3.5, owner: s, hit: new Set([s]), m: shotMesh('quake') }); K.sfx.noise(1.5, 0.2, 200, 0, 'lowpass', 40); shake = Math.max(shake, 0.35); if (!s.ai) say('JAQUAKE!', 1); }
+        if (w === 'RUMBLE') { shots.push({ k: 'quake', fi: s.fi + 3, d: 0, v: 110, life: 3.5, owner: s, hit: new Set([s]), m: shotMesh('quake') }); K.sfx.noise(1.5, 0.2, 200, 0, 'lowpass', 40); shake = Math.max(shake, 0.35); if (!s.ai) say('RUMBLE!', 1); }
       }
       function shotsStep(dt) {
         const N = L.N;
@@ -468,7 +515,7 @@
           x.fi = (x.fi + x.v * dt / L.step + N) % N;
           const i = L.wrap(Math.round(x.fi));
           if (x.k === 'quake') { const p = L.atf(x.fi, 0, 0.3 + Math.sin(x.t * 20) * 0.3, x.m.position); M4.makeBasis(V4.copy(L.R[i]).negate(), L.U[i], L.D[i]); x.m.quaternion.setFromRotationMatrix(M4); x.m.scale.set(FL.hw[i] / 9, 1 + Math.sin(x.t * 30) * 0.3, 1); if (fxA && K.frame % 2 === 0) fxA.emit(p.x + L.R[i].x * (Math.random() - 0.5) * FL.hw[i] * 2, p.y + 1, p.z + L.R[i].z * (Math.random() - 0.5) * FL.hw[i] * 2, 0, 8, 0, 0.4, 0xc08aff, 2);
-            for (const s of ships) if (!x.hit.has(s) && !s.air) { let df = (s.fi - x.fi) * L.step; if (df > L.L / 2) df -= L.L; if (df < -L.L / 2) df += L.L; if (Math.abs(df) < 4) { x.hit.add(s); hurt(s, 20, x.owner); s.slow = 0.8; s.v *= 0.6; if (s === me) { shake = 0.5; say('QUAKED!', 1); } } }
+            for (const s of ships) if (!x.hit.has(s) && !s.air) { let df = (s.fi - x.fi) * L.step; if (df > L.L / 2) df -= L.L; if (df < -L.L / 2) df += L.L; if (Math.abs(df) < 4) { x.hit.add(s); hurt(s, 20, x.owner); if(s.shield<=0){s.slow = 0.8; s.v *= 0.6;} if (s === me) { shake = 0.5; say('RUMBLED!', 1); } } }
             for (const y of shots) if (y.k === 'mine' && y.life > 0) { let df = (y.fi - x.fi) * L.step; if (df > L.L / 2) df -= L.L; if (Math.abs(df) < 4) y.life = 0; }
             continue; }
           L.atf(x.fi, x.d, x.k === 'mine' ? 0.7 + rampH(i) : 1.0 + rampH(i), x.m.position);
@@ -478,7 +525,7 @@
             if (s.out || (s === x.owner && x.t < 1) || s.respawn > 0) continue;
             let df = (s.fi - x.fi) * L.step; if (df > L.L / 2) df -= L.L; if (df < -L.L / 2) df += L.L;
             if (Math.abs(df) < (x.k === 'mine' ? 2.2 : 3) && Math.abs(s.d - x.d) < 2.0 && Math.abs(s.y - (trackY(x.fi, x.d) + 1.1)) < 3) {
-              hurt(s, x.k === 'bolt' ? 10 : x.k === 'seeker' ? 18 : 9, x.owner); s.slow = x.k === 'seeker' ? 1 : 0.6; s.v *= x.k === 'seeker' ? 0.5 : 0.75; x.life = 0;
+              hurt(s, x.k === 'bolt' ? 10 : x.k === 'seeker' ? 18 : 9, x.owner); if(s.shield<=0){s.slow = x.k === 'seeker' ? 1 : 0.6; s.v *= x.k === 'seeker' ? 0.5 : 0.75;} x.life = 0;
               if (fxA) for (let q = 0; q < 16; q++) fxA.emit(x.m.position.x, x.m.position.y, x.m.position.z, (Math.random() - 0.5) * 14, Math.random() * 8, (Math.random() - 0.5) * 14, 0.5, q % 2 ? 0xffd040 : 0xff3a1a, 2.4, { g: 10 });
               if (s === me) { shake = Math.max(shake, 0.35); say(s.shield > 0 ? 'SHIELDED!' : 'HIT!', 0.8); K.sfx.noise(0.4, 0.2, 900, 0, 'lowpass', 100); } else if (x.owner === me) { say(s.n + ' HIT!', 0.9); K.sfx.seq([[81, 0.25], [76, 0.5]], { bpm: 400, vol: 0.08 }); }
               break;
@@ -507,12 +554,14 @@
         // weapons
         if (s.wep) { s.cool -= dt; if (s.cool <= 0) { s.cool = 0.5 + Math.random() * 0.8; const p = s.place, ahead = rank()[p - 1], behind = rank()[p + 1];
           const gapA = ahead ? ((ahead.prog - s.prog) * L.step) : 1e9, gapB = behind ? ((s.prog - behind.prog) * L.step) : 1e9;
-          if ((s.wep === 'BOLTS' && gapA < 70 && Math.abs(ahead.d - s.d) < 3) || (s.wep === 'SEEKER' && gapA < 130) || (s.wep === 'MINES' && gapB < 45) || (s.wep === 'TURBO' && Math.abs(curv) < 0.008) || (s.wep === 'SHIELD' && (s.energy < 50 || shots.some(x => x.tgt === s))) || (s.wep === 'JAQUAKE' && p > 1)) inp.fire = true;
+          if ((s.wep === 'BOLTS' && gapA < 70 && Math.abs(ahead.d - s.d) < 3) || (s.wep === 'SEEKER' && gapA < 130) || (s.wep === 'MINES' && gapB < 45) || (s.wep === 'TURBO' && Math.abs(curv) < 0.008) || (s.wep === 'SHIELD' && (s.energy < 50 || shots.some(x => x.tgt === s))) || (s.wep === 'RUMBLE' && p > 1)) inp.fire = true;
           if (s.energy < 28 && s.wep !== 'SHIELD') { inp.fire = false; inp.absorb = true; } } }
         return inp;
       }
 
       // ---------------------------------------------------------------- game state and flow
+      let challengeSel = 0, challenge = null, eliminatorTarget = 5;
+      let attackLeft = 30, liveAcc = 0, restoring = false, endingPage = 0, resultPage=0;
       let msg = '', msgT = 0, paused = false, psel = 0, idle = 0, count = 0, raceT = 0, finT = 0, reported = false, results = null, champ = null, introT = 0, demoT = 0, demoCam = 0, finalLap = false, trackPrev = -1, ghost = null, ghRec = null, ghostMesh = null;
       const sel = { main: 0, cls: 0, team: sv.team, trk: 0, opt: 0, how: 0, rec: 0 };
       let flow = 'champ';
@@ -534,44 +583,48 @@
       let showcase = null;
       function showShip(team, at) { if (showcase) shipsG.remove(showcase); showcase = shipMesh(team); showcase.position.copy(at); showcase.scale.setScalar(1.4); return showcase; }
       function goTitle() {
-        mode = 'title'; mt = 0; idle = 0; paused = false; champ = null; results = null; cfg.kind = 'title';
+        mode = 'title'; mt = 0; sv.live = null; if (!restoring) save(); idle = 0; paused = false; champ = null; challenge = null; results = null; cfg.kind = 'title';
         if (trackPrev !== 0 || !L) { buildTrack(0); trackPrev = 0; }
-        clearShips(); if (showcase) { shipsG.remove(showcase); showcase = null; }
-        ships = TEAMS.slice(0, 4).flatMap((t, n) => t.pilots.map(p => mkShip(n, p, true))); gridUp(ships); doRank();
+        if(viewObj){T3.scene.remove(viewObj);viewObj=null;}clearShips(); if (showcase) { shipsG.remove(showcase); showcase = null; }
+        ships = FIELD.map(([n,p])=>mkShip(n,p,true)); gridUp(ships); doRank();
         music(song(6));
       }
       function startDemo() {
         mode = 'demo'; demoT = 0; cfg.kind = 'demo'; cfg.cls = 0;
         const open = TRACKS.map((t, i) => i).filter(trackOpen), ti = open[(Math.random() * open.length) | 0];
         buildTrack(ti); trackPrev = ti; clearShips();
-        ships = TEAMS.slice(0, 4).flatMap((t, n) => t.pilots.map(p => mkShip(n, p, true, 0.96 + Math.random() * 0.05))); ships.sort(() => Math.random() - 0.5); gridUp(ships); me = ships[0]; doRank();
-        raceT = 0; music(song(TH.song));
+        ships = FIELD.map(([n,p])=>mkShip(n,p,true,.96+Math.random()*.05)); ships.sort(() => Math.random() - 0.5); gridUp(ships); me = ships[0]; doRank();
+        raceT = 0; attackLeft = 30; music(song(TH.song));
       }
       function setupRace() {
         reported = false; results = null; finalLap = false; if (showcase) { shipsG.remove(showcase); showcase = null; }
         const ti = cfg.track; if (trackPrev !== ti) { buildTrack(ti); trackPrev = ti; } else { for (const s of shots) T3.scene.remove(s.m); shots = []; }
         clearShips(); const cls = CLASSES[cfg.cls];
-        if (cfg.kind === 'tt') { me = mkShip(sel.team, '', false); ships = [me]; }
+        if ((cfg.kind === 'tt' || cfg.kind === 'attack')) { me = mkShip(sel.team, '', false); ships = [me]; }
         else {
-          const field = []; TEAMS.slice(0, 4).forEach((t, n) => t.pilots.forEach(p => field.push([n, p])));
+          const field = FIELD.map(x=>x.slice());
           let mine = field.findIndex(f => f[0] === sel.team); if (mine < 0) mine = 0; field.splice(mine, 1); // (you take one of your team's seats)
           let order = champ && champ.order ? champ.order.slice() : null;
           const all = field.map(([t, p]) => mkShip(t, p, true, cls.ai * (0.96 + Math.random() * 0.05)));
           me = mkShip(sel.team, '', false); all.push(me);
-          if (order) all.sort((a, b) => order.indexOf(a.n) - order.indexOf(b.n)); else { const rest = all.filter(s => s !== me).sort(() => Math.random() - 0.5); rest.push(me); all.splice(0, all.length, ...rest); }
+          if (order) all.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id)); else { const rest = all.filter(s => s !== me).sort(() => Math.random() - 0.5); rest.push(me); all.splice(0, all.length, ...rest); }
           ships = all;
         }
         gridUp(ships); doRank();
         ghost = null; ghRec = null; if (ghostMesh) { shipsG.remove(ghostMesh); ghostMesh = null; }
-        if (cfg.kind === 'tt') { ghRec = RK.ghost.rec(); const s = ghLoad(ti), bar = s.indexOf('|'); if (bar > 0) { const tm = clamp(+s.slice(0, bar) | 0, 0, TEAMS.length - 1); ghost = RK.ghost.play(s.slice(bar + 1)); if (ghost.n > 20) ghostMesh = shipMesh(tm, true); else ghost = null; } }
-        mode = 'loading'; loadT = 0; introT = 0; music(null);
+        if ((cfg.kind === 'tt' || cfg.kind === 'attack')) { ghRec = RK.ghost.rec(); const s = ghLoad(recordKey()), bar = s.indexOf('|'); if (bar > 0) { const tm = clamp(+s.slice(0, bar) | 0, 0, TEAMS.length - 1); ghost = RK.ghost.play(s.slice(bar + 1)); if (ghost.n > 20) ghostMesh = shipMesh(tm, true); else ghost = null; } }
+        paused = false; attackLeft = Math.ceil(TRACKS[cfg.track].rec * 1.15); mode = 'loading'; loadT = 0; introT = 0; music(null); if (!restoring) { K.resume && K.resume(); checkpoint(); }
       }
       function startCount() { mode = 'count'; count = 3.8; raceT = 0; me.early = null; }
-      function newChamp() { champ = { cls: cfg.cls, race: 0, pts: {}, order: null, scores: [] }; cfg.kind = 'champ'; cfg.track = CHAMP[0]; setupRace(); }
+      function newChamp() { challenge=null;champ = { cls: cfg.cls, race: 0, pts: {}, names:{}, order: null, scores: [] }; cfg.kind = 'champ'; cfg.track = CHAMP[0]; setupRace(); }
       function finishRace() {
-        mode = 'finish'; finT = 0; music(null); const pos = me.place;
-        if (me.out) say('ELIMINATED', 3); else { say(cfg.kind === 'tt' ? 'FINISHED' : pos === 0 ? 'WINNER!' : ORD[pos] + ' PLACE', 3); K.sfx.seq(pos === 0 ? [[69, 0.5], [76, 0.5], [81, 0.5], [88, 1.5]] : [[69, 0.5], [76, 0.5], [81, 1.5]], { bpm: 200, vol: 0.1, wave: 'sawtooth' }); }
-        if (me.bestLap && (!sv.lap[cfg.track] || me.bestLap < sv.lap[cfg.track])) sv.lap[cfg.track] = Math.round(me.bestLap * 100) / 100;
+        doRank();mode = 'finish'; finT = 0; music(null); const pos = me.place;
+        if(cfg.kind==='race' && !me.out && pos<3){const key=cfg.cls+':'+cfg.track+':'+sel.team;sv.medals[key]=Math.min(sv.medals[key]||4,pos+1);if(pos===0&&[0,1,2,3].every(t=>sv.medals[cfg.cls+':'+cfg.track+':'+t]===1)){sv.unl.team5=1;sv.unl.team6=1;sv.unl.team7=1;}if(pos===0&&Array.from({length:8},(_,i)=>[0,1,2,3].every(t=>sv.medals[cfg.cls+':'+i+':'+t]===1)).every(Boolean))sv.unl['proto'+cfg.cls]=1;}
+        if(challenge){const pass=challenge.type===2?(me.kos||0)>=challenge.target:challenge.type===1?!me.out&&me.ft<=challenge.target:!me.out&&pos<3;if(pass){sv.challenges[challenge.id]=1;for(let band=0;band<3;band++)if(Array.from({length:8},(_,i)=>sv.challenges[i*3+band]).every(Boolean))sv.unl['team'+(5+band)]=1;}say(pass?'LICENCE PASSED!':'LICENCE INCOMPLETE',3);}
+        if (me.out) say('ELIMINATED', 3); else { say((cfg.kind === 'tt' || cfg.kind === 'attack') ? 'FINISHED' : pos === 0 ? 'WINNER!' : ORD[pos] + ' PLACE', 3); K.sfx.seq(pos === 0 ? [[69, 0.5], [76, 0.5], [81, 0.5], [88, 1.5]] : [[69, 0.5], [76, 0.5], [81, 1.5]], { bpm: 200, vol: 0.1, wave: 'sawtooth' }); }
+        if(challenge)say(sv.challenges[challenge.id]?'LICENCE PASSED!':'LICENCE INCOMPLETE',3);
+        checkpoint();
+        if (me.bestLap && (!sv.lap[recordKey()] || me.bestLap < sv.lap[recordKey()])) sv.lap[recordKey()] = Math.round(me.bestLap * 100) / 100;
         sv.races++; save();
       }
       function settle() { for (const s of ships) if (!s.done && !s.out) { const left = Math.max(0, 3 * L.N - s.prog), sp = Math.max(1, s.prog) / Math.max(1, raceT); s.ft = raceT + left / Math.max(sp, 4) + Math.random() * 0.3; s.done = true; } doRank(); }
@@ -579,26 +632,68 @@
       function endRace() {
         settle(); const rows = rank().map((s, n) => ({ n: s.n, team: s.team, t: s.ft, out: s.out, me: s === me, add: s.out ? 0 : PTS[n] }));
         results = { rows, t: 0, sc: raceScore() };
-        if (champ) { rank().forEach((s, n) => { champ.pts[s.n] = (champ.pts[s.n] || 0) + (s.out ? 0 : PTS[n]); champ.teamOf = champ.teamOf || {}; champ.teamOf[s.n] = s.team; }); champ.scores.push(results.sc); champ.order = rank().map(s => s.n).reverse(); }
-        mode = 'results'; mt = 0; music(song(6));
+        if (champ) { rank().forEach((s, n) => { champ.pts[s.id] = (champ.pts[s.id] || 0) + (s.out ? 0 : PTS[n]); champ.teamOf = champ.teamOf || {}; champ.teamOf[s.id] = s.team;champ.names[s.id]=s.n; }); champ.scores.push(results.sc); champ.order = rank().map(s => s.id).reverse(); }
+        resultPage=Math.floor(me.place/6);mode = 'results'; mt = 0; checkpoint(); music(song(6));
       }
       function endChamp() {
-        const st = Object.keys(champ.pts).map(n => ({ n, p: champ.pts[n], team: champ.teamOf[n] })).sort((a, b) => b.p - a.p);
-        const place = st.findIndex(x => x.n === me.n), msgs = [];
+        const st = Object.keys(champ.pts).map(id=>({id,n:champ.names[id],p:champ.pts[id],team:champ.teamOf[id]})).sort((a, b) => b.p - a.p);
+        const place = st.findIndex(x => x.id === me.id), msgs = [];
         if (place < 3) { const was = sv.champ[champ.cls] | 0; if (!was || place + 1 < was) sv.champ[champ.cls] = place + 1; }
         if (place === 0) { K.secret('rm.grav.champ'); if (champ.cls === 0 && !sv.unl.sup) { sv.unl.sup = 1; sv.unl.bonus = 1; msgs.push('SUPERSONIC CLASS AND PHANTOM ZONE UNLOCKED!'); } if (champ.cls === 1 && !sv.unl.nullp) { sv.unl.nullp = 1; msgs.push('THE NULLPOINT SHIP IS YOURS!'); } }
+        if (place === 0 && champ.cls < CLASSES.length - 1 && !classOpen(champ.cls + 1)) { sv.unl['class' + (champ.cls + 1)] = 1; msgs.push(CLASSES[champ.cls + 1].n + ' CLASS UNLOCKED!'); }
         champ.final = st; champ.place = place; champ.msgs = msgs; champ.total = Math.round(champ.scores.reduce((a, b) => a + b, 0) + (place < 3 ? [4000, 2500, 1500][place] * CLASSES[champ.cls].mult : 0)); save();
-        mode = 'podium'; mt = 0; buildGarage(); clearShips();
+        mode = 'podium'; mt = 0; buildGarage(); const seasonShips=ships;clearShips();ships=seasonShips;
         if (!garage.pod) { const P = [], G = []; [[0, 3.2], [-9, 2.2], [9, 1.4]].forEach(([x, h], n) => { P.push({ geo: new T.BoxGeometry(7, h, 6), m: RK.M(T, x, h / 2, 0), c: 0x22223a }); G.push({ geo: new T.BoxGeometry(7.1, 0.2, 6.1), m: RK.M(T, x, h, 0), c: [0xffe14a, 0xd8d8f0, 0xff8a3a][n] }); G.push({ geo: new T.BoxGeometry(1.6, 1.4, 0.1), m: RK.M(T, x, h / 2, 3.02), c: [0xffe14a, 0xd8d8f0, 0xff8a3a][n] }); });
           garage.pod = new T.Group(); garage.pod.add(new T.Mesh(RK.merge(T, P), matV)); garage.pod.add(new T.Mesh(RK.merge(T, G), matG)); P.concat(G).forEach(p => p.geo.dispose()); garage.add(garage.pod); }
         garage.pod.visible = true;
         st.slice(0, 3).forEach((x, n) => { const m = shipMesh(x.team); m.position.set([0, -9, 9][n], -300 + [3.2, 2.2, 1.4][n], 0); m.rotation.y = Math.PI + (n - 1) * 0.3; m.scale.setScalar(1.3); });
-        music(null); K.sfx.seq([[69, 0.5], [72, 0.5], [76, 0.5], [81, 1.5], [79, 0.5], [83, 0.5], [88, 2]], { bpm: 190, vol: 0.1, wave: 'sawtooth' });
+        checkpoint();music(null); K.sfx.seq([[69, 0.5], [72, 0.5], [76, 0.5], [81, 1.5], [79, 0.5], [83, 0.5], [88, 2]], { bpm: 190, vol: 0.1, wave: 'sawtooth' });
       }
-      function report(score, title, text) { if (reported) return; reported = true; const sc = scoreCap(score); if (sc > 0) { sv.hi.push({ n: myName(), s: sc }); sv.hi.sort((a, b) => b.s - a.s); sv.hi.length = Math.min(sv.hi.length, 5); save(); } K.over(sc, { title, text }); }
+      const ENDINGS = [
+        ['THE INVOICE ARRIVES', 'FIRST PLACE. LAST TO PAY THE ENTRY FEE.', 'FEESAR CALLS IT A SOUND INVESTMENT.'],
+        ['TWO HULLS. ZERO MANNERS.', 'AGGRO WINS THE LEAGUE AND THE ARGUMENT.', 'THE AIRBRAKES FILE A NOISE COMPLAINT.'],
+        ['WARRANTY EXPIRED', 'Q-TECH CLAIMS THE TROPHY IS TOO LIGHT.', 'THE ENGINEERS FIT FOUR MORE ENGINES.'],
+        ['CAUTION: HOT CHAMPION', 'PIE RANHA CELEBRATES AT FULL THRUST.', 'THE PODIUM SMELLS FAINTLY OF GRAVY.'],
+        ['NOTHING TO SEE HERE', 'NULLPOINT WINS BEFORE IT WAS ENTERED.', 'THE TIMEKEEPER ASKS FOR A HOLIDAY.']
+      ];
+      function startEnding() { mode = 'ending'; endingPage = 0, resultPage=0; mt = 0; checkpoint(); music(song(6)); }
+      function finishSeason() { const p = champ.place; sv.live = null; save(); report(champ.total, p === 0 ? 'CHAMPION!' : p < 3 ? ORD[p] + ' OVERALL' : 'SEASON OVER', CLASSES[champ.cls].n + ' LEAGUE  ' + (champ.pts[me.id] | 0) + ' POINTS'); }
+      function report(score, title, text) { if (reported) return; reported = true; sv.live = null; const sc = scoreCap(score); if (sc > 0) { sv.hi.push({ id: 'me', s: sc }); sv.hi.sort((a, b) => b.s - a.s); sv.hi.length = Math.min(sv.hi.length, 5); save(); } K.over(sc, { title, text }); }
+
+      // Race snapshots contain plain simulation values; meshes and GPU resources are rebuilt.
+      const SHIP_FIELDS = ['fi','d','a','v','y','vy','air','airT','prog','lap','done','ft','out','energy','wep','boost','shield','slow','roll','lane','wob','cool','hits','laps','lapStart','bestLap','place','respawn','pitT','mines','mineT','flash','early','skill','aiMul','kos','revive','turn','hyper'];
+      const LIVE_MODES = ['loading','intro','count','race','finish','results','standings','ttres','podium','ending','credits'];
+      function checkpoint() {
+        if (restoring || !me || !LIVE_MODES.includes(mode) || reported || cfg.kind === 'demo') return;
+        sv.live = { v: 2, cfg: {...cfg}, team: sel.team, mode, count, raceT, finT, mt, loadT, introT, attackLeft, finalLap, champ: champ && JSON.parse(JSON.stringify(champ)), results,
+          endingPage,resultPage, challenge, me: ships.indexOf(me), ships: ships.map(s=>({team:s.team,pilot:s.pilot,ai:s.ai,values:SHIP_FIELDS.map(k=>s[k] == null ? null : s[k])})),
+          gh: ghRec ? ghRec.str() : null, shots: shots.map(x=>({k:x.k,fi:x.fi,d:x.d,v:x.v,life:x.life,t:x.t||0,owner:ships.indexOf(x.owner),tgt:ships.indexOf(x.tgt),hit:x.hit ? [...x.hit].map(s=>ships.indexOf(s)) : null})) };
+        const card=saveT;save();saveT=card;
+      }
+      function restoreRace() {
+        const v = sv.live;
+        if (!v || v.v !== 2 || !TRACKS[v.cfg?.track] || !CLASSES[v.cfg?.cls] || !Array.isArray(v.ships) || v.ships.length < 1 || v.ships.length > 12 || !LIVE_MODES.includes(v.mode)) return false;
+        try {
+          restoring = true; cfg = {...v.cfg}; sel.team = clamp(v.team|0,0,TEAMS.length-1); champ = v.champ; setupRace(); clearShips();
+          ships = v.ships.map(x=>{const s=mkShip(clamp(x.team|0,0,TEAMS.length-1),x.pilot,!!x.ai);SHIP_FIELDS.forEach((k,i)=>{const a=x.values[i];if(a !== null && (typeof a !== 'number' || Number.isFinite(a)))s[k]=a;});return s;});
+          if(champ&&!champ.names){const pts={},teamOf={},names={};for(const s of ships){if(champ.pts[s.n]!=null){pts[s.id]=champ.pts[s.n];teamOf[s.id]=s.team;names[s.id]=s.n;}}champ.order=ships.slice().sort((a,b)=>(champ.order||[]).indexOf(a.n)-(champ.order||[]).indexOf(b.n)).map(s=>s.id);champ.pts=pts;champ.teamOf=teamOf;champ.names=names;}
+          if(ghostMesh)shipsG.add(ghostMesh);
+          me = ships[v.me|0]; if (!me) throw Error('bad grid');
+          mode=v.mode;count=+v.count||0;raceT=+v.raceT||0;finT=+v.finT||0;mt=+v.mt||0;loadT=+v.loadT||0;introT=+v.introT||0;attackLeft=+v.attackLeft||0;finalLap=!!v.finalLap;results=v.results;endingPage=v.endingPage|0;resultPage=v.resultPage|0;challenge=v.challenge||null;
+          if(ghRec && typeof v.gh==='string'){const prev=[0,0,0,0];v.gh.split(',').forEach((s,i)=>{const n=parseInt(s,36);if(Number.isFinite(n)){prev[i%4]+=n;ghRec.d.push(prev[i%4]);}});}else if(ghRec&&Array.isArray(v.gh))ghRec.d.push(...v.gh);
+          if(ghRec&&ghRec.d.length){const n=ghRec.d.length;ghRec.add(((raceT%.1)+.1)%.1,0,0,0,0);ghRec.d.length=n;}
+          for(const x of v.shots||[]) if(ships[x.owner]) shots.push({...x,owner:ships[x.owner],tgt:ships[x.tgt]||null,hit:x.hit?new Set(x.hit.map(i=>ships[i])):undefined,m:shotMesh(x.k)});
+          if (['podium','ending','credits'].includes(mode)) { const cm=champ,m=mode;endChamp();champ=cm;mode=m; }
+          paused = ['count','race'].includes(mode); psel=0;doRank();placeShips();camera(1);music(paused||['loading','intro','finish'].includes(mode)?null:song(6));return true;
+        } catch(e) { sv.live=null;return false; } finally { restoring=false; }
+      }
+      const saveOnLeave = () => checkpoint();
+      addEventListener('pagehide',saveOnLeave);
+      const saveOnHide = () => { if(document.hidden)checkpoint(); };
+      document.addEventListener('visibilitychange',saveOnHide);
 
       // ---------------------------------------------------------------- menus
-      const MAIN = ['CHAMPIONSHIP', 'SINGLE RACE', 'TIME TRIAL', 'RECORDS', 'OPTIONS', 'HOW TO PLAY'];
+      const MAIN = ['CHAMPIONSHIP', 'SINGLE RACE', 'TIME TRIAL', 'TIME ATTACK', 'ELIMINATOR', 'CHALLENGES', 'RECORDS', 'OPTIONS', 'HOW TO PLAY'];
       const nav = (n, cur) => { if (K.pressed('up')) { K.sfx.tone(1200, 0.03, 'square', 0.04); return (cur + n - 1) % n; } if (K.pressed('down')) { K.sfx.tone(1200, 0.03, 'square', 0.04); return (cur + 1) % n; } return cur; };
       const ok = () => K.pressed('a') || K.pressed('start'), back = () => K.pressed('b');
       const beep = () => K.sfx.tone(1600, 0.05, 'square', 0.05), boop = () => K.sfx.tone(300, 0.08, 'square', 0.05);
@@ -617,22 +712,25 @@
         if (mode === 'title') { idle += dt; if (K.any()) { idle = 0; if (ok()) { beep(); mode = 'main'; mt = 0; } } if (idle > 16) startDemo(); return; }
         if (mode === 'demo') { demoT += dt; if (K.any() || demoT > 40) goTitle(); return; }
         if (mode === 'main') { sel.main = nav(MAIN.length, sel.main); if (back()) { boop(); goTitle(); return; }
-          if (ok()) { beep(); const m = MAIN[sel.main]; mt = 0; if (m === 'CHAMPIONSHIP') { flow = 'champ'; mode = 'cls'; } else if (m === 'SINGLE RACE') { flow = 'race'; mode = 'cls'; } else if (m === 'TIME TRIAL') { flow = 'tt'; cfg.cls = 0; toTeam(); } else if (m === 'RECORDS') { mode = 'records'; sel.rec = 0; } else if (m === 'OPTIONS') { mode = 'options'; sel.opt = 0; } else { mode = 'how'; sel.how = 0; } } return; }
-        if (mode === 'cls') { sel.cls = nav(2, sel.cls); if (back()) { boop(); mode = 'main'; return; } if (ok()) { if (sel.cls === 1 && !supOpen()) { boop(); say('WIN THE SUB-ZIP CHAMPIONSHIP FIRST', 2); return; } beep(); cfg.cls = sel.cls; toTeam(); } return; }
+          if (ok()) { beep(); const m = MAIN[sel.main]; mt = 0; if (m === 'CHAMPIONSHIP') { flow = 'champ'; mode = 'cls'; } else if (m === 'SINGLE RACE') { flow = 'race'; mode = 'cls'; } else if (m === 'TIME TRIAL' || m === 'TIME ATTACK') { flow = m === 'TIME TRIAL' ? 'tt' : 'attack'; mode = 'cls'; } else if (m === 'ELIMINATOR') { flow = 'elim'; mode = 'cls'; } else if (m === 'CHALLENGES') { mode = 'challenge'; } else if (m === 'RECORDS') { mode = 'records'; sel.rec = 0; } else if (m === 'OPTIONS') { mode = 'options'; sel.opt = 0; } else { mode = 'how'; sel.how = 0; } } return; }
+        if (mode === 'cls') { sel.cls = nav(CLASSES.length, sel.cls); if (back()) { boop(); mode = 'main'; return; } if (ok()) { if (!classOpen(sel.cls)) { boop(); say('WIN THE PREVIOUS CLASS CHAMPIONSHIP', 2); return; } beep(); cfg.cls = sel.cls; toTeam(); } return; }
         if (mode === 'team') {
           const c = sel.team; if (K.pressed('left')) sel.team = (sel.team + TEAMS.length - 1) % TEAMS.length; if (K.pressed('right') || K.pressed('down') || K.pressed('up')) sel.team = (sel.team + 1) % TEAMS.length;
           if (c !== sel.team) { K.sfx.tone(700 + sel.team * 120, 0.05, 'square', 0.05); showShip(sel.team, V1.set(0, -298.6, 0)); }
-          if (back()) { boop(); mode = flow === 'tt' ? 'main' : 'cls'; if (showcase) { shipsG.remove(showcase); showcase = null; } return; }
-          if (ok()) { if (!teamOpen(sel.team)) { boop(); say('WIN THE SUPERSONIC CHAMPIONSHIP TO FLY IT', 2); return; } beep(); K.sfx.noise(0.6, 0.1, 400, 0, 'bandpass', 3000); sv.team = sel.team; save(); if (showcase) { shipsG.remove(showcase); showcase = null; }
+          if (back()) { boop(); mode = 'cls'; if (showcase) { shipsG.remove(showcase); showcase = null; } return; }
+          if (ok()) { if (!teamOpen(sel.team)) { boop(); say(sel.team===4?'WIN THE SUPERSONIC LEAGUE':'COMPLETE EIGHT MATCHING LICENCES',2); return; } beep(); K.sfx.noise(0.6, 0.1, 400, 0, 'bandpass', 3000); sv.team = sel.team; save(); if (showcase) { shipsG.remove(showcase); showcase = null; }
             if (flow === 'champ') newChamp(); else { mode = 'track'; sel.trk = trackOpen(sel.trk) ? sel.trk : 0; previewT = 0.2; mt = 0; } }
           if (showcase) showcase.rotation.y = K.t * 0.6;
           return;
         }
         if (mode === 'track') { const c = sel.trk; sel.trk = nav(TRACKS.length, sel.trk); if (c !== sel.trk) previewT = 0.35;
           if (previewT > 0) { previewT -= dt; if (previewT <= 0 && trackOpen(sel.trk) && trackPrev !== sel.trk) { buildTrack(sel.trk); trackPrev = sel.trk; clearShips(); } }
-          if (back()) { boop(); toTeam(); return; } if (ok()) { if (!trackOpen(sel.trk)) { boop(); say('WIN THE SUB-ZIP CHAMPIONSHIP TO OPEN IT', 2); return; } beep(); cfg.track = sel.trk; cfg.kind = flow; champ = null; setupRace(); } return; }
+          if (back()) { boop(); toTeam(); return; } if (ok()) { if (!trackOpen(sel.trk)) { boop(); say(TRACKS[sel.trk].proto!=null?'GOLD: ALL EIGHT TRACKS, FOUR STARTER SHIPS':'WIN THE SUB-ZIP LEAGUE TO OPEN IT',2); return; } beep(); cfg.track = sel.trk; cfg.kind = flow; champ = null; challenge=null; setupRace(); } return; }
+        if (mode === 'challenge') {
+          let row=Math.floor(challengeSel/3),col=challengeSel%3;row=nav(8,row);if(K.pressed('left'))col=(col+2)%3;if(K.pressed('right'))col=(col+1)%3;challengeSel=row*3+col;
+          if(back()){mode='main';boop();return;}if(ok()){beep();challenge={id:challengeSel,type:col,target:col===2?3:TRACKS[row].rec*3.6};cfg.cls=0;cfg.track=row;cfg.kind=col===2?'elim':col===1?'tt':'race';champ=null;setupRace();}return; }
         if (mode === 'options') { sel.opt = nav(4, sel.opt); if (back()) { boop(); mode = 'main'; save(); return; } if (ok() || K.pressed('left') || K.pressed('right')) { beep(); if (sel.opt === 0) { sv.opt.mus = sv.opt.mus ? 0 : 1; music(song(6)); } else if (sel.opt === 1) sv.opt.cam = sv.opt.cam ? 0 : 1; else if (sel.opt === 2) sv.opt.auto = sv.opt.auto ? 0 : 1; else if (ok()) mode = 'main'; save(); } return; }
-        if (mode === 'records') { if (K.pressed('left') || K.pressed('right')) { sel.rec = 1 - sel.rec; beep(); } if (back() || ok()) { boop(); mode = 'main'; } return; }
+        if (mode === 'records') { sel.cls=nav(CLASSES.length,sel.cls); if (K.pressed('left') || K.pressed('right')) { sel.rec=(sel.rec+(K.pressed('left')?2:1))%3;beep(); } if (back() || ok()) { boop(); mode = 'main'; } return; }
         if (mode === 'how') { if (K.pressed('right') || ok()) { if (sel.how < 2) { sel.how++; beep(); } else if (ok()) { mode = 'main'; beep(); } } if (K.pressed('left') && sel.how > 0) { sel.how--; beep(); } if (back()) { boop(); mode = 'main'; } return; }
       }
       function toTeam() { mode = 'team'; mt = 0; buildGarage(); if (garage.pod) garage.pod.visible = false; clearShips(); showShip(sel.team, V1.set(0, -298.6, 0)); }
@@ -641,14 +739,16 @@
       function playerInput() {
         if (window.__rmAuto) return aiInput(me, 1 / 60);
         const s = K.stick();
-        return { steer: clamp(s.x, -1, 1), thrust: K.held('a') || sv.opt.auto ? 1 : 0, ab: (K.held('r') ? 1 : 0) - (K.held('l') ? 1 : 0), fire: K.pressed('b'), absorb: K.pressed('x'), pitch: s.y };
+        return { steer: clamp(s.x, -1, 1), thrust: K.held('a') || sv.opt.auto ? 1 : 0, hyper:K.held('y'), brake:K.held('r')&&K.held('l'), ab: (K.held('r') ? 1 : 0) - (K.held('l') ? 1 : 0), fire: K.pressed('b'), absorb: K.pressed('x'), pitch: s.y };
       }
       function raceStep(dt) {
         const kind = cfg.kind;
         if (mode === 'race' || mode === 'finish' || mode === 'demo') raceT += dt;
+        if (mode === 'race' && kind === 'attack') { attackLeft -= dt; if (attackLeft <= 0) { kill(me); finishRace(); } }
         for (const s of ships) {
           if (s.respawn > 0) { s.respawn -= dt; }
           let inp;
+          if(cfg.kind==='elim' && s.out && mode==='race'){s.revive-=dt;if(s.revive<=0){s.out=false;s.energy=100;s.wep=pickWep(s);respawn(s);s.energy=100;}}
           if (mode === 'count' || s.out) inp = { steer: 0, thrust: mode === 'count' && K.held('a') && s === me ? 0 : 0, ab: 0 };
           else if (s.ai || kind === 'demo' || s.done || mode === 'finish') inp = aiInput(s, dt);
           else inp = playerInput();
@@ -656,12 +756,13 @@
           fly(s, inp, dt);
           if (!s.done && !s.out && (mode === 'race' || mode === 'demo')) {
             const lap = Math.floor(s.prog / L.N) + 1;
-            if (lap > s.lap && s.lap > 0) { const lt = raceT - s.lapStart; s.laps.push(lt); s.lapStart = raceT; if (!s.bestLap || lt < s.bestLap) s.bestLap = lt;
-              if (s === me && kind !== 'demo') { if (lt < TRACKS[cfg.track].rec) { K.secret('rm.grav.lap'); say('LAP RECORD! ' + fmt(lt), 2.2); K.sfx.seq([[81, 0.25], [85, 0.25], [88, 0.25], [93, 1]], { bpm: 400, vol: 0.1 }); } else if (lap === 3) { say('FINAL LAP', 2); finalLap = true; music(raceSong()); } else if (lap < 4) say('LAP ' + lap + '  ' + fmt(lt), 1.6); } }
+            if (lap > s.lap && s.lap > 0) { if (s === me && kind === 'attack' && lap < 4) { attackLeft += Math.max(18, TRACKS[cfg.track].rec - cfg.cls * 2); say('CHECKPOINT! TIME EXTENDED', 1.6); }  const lt = raceT - s.lapStart; s.laps.push(lt); s.lapStart = raceT; if (!s.bestLap || lt < s.bestLap) s.bestLap = lt;
+              if (s === me && kind !== 'demo') { if (lt < TRACKS[cfg.track].rec) { K.secret('rm.grav.lap'); say('LAP RECORD! ' + fmt(lt), 2.2); K.sfx.seq([[81, 0.25], [85, 0.25], [88, 0.25], [93, 1]], { bpm: 400, vol: 0.1 }); } if (lap === 3) { say('FINAL LAP', 2); finalLap = true; music(raceSong()); } else if (lap < 4 && lt>=TRACKS[cfg.track].rec) say('LAP ' + lap + '  ' + fmt(lt), 1.6); } }
             s.lap = Math.max(s.lap, lap);
-            if (lap >= 4) { s.done = true; s.ft = raceT; if (s === me && kind !== 'demo') finishRace(); }
+            if (lap >= 4 && kind !== 'elim') { s.done = true; s.ft = raceT; if (s === me && kind !== 'demo') {doRank();finishRace();} }
           }
-          if (s === me && s.out && mode === 'race') finishRace();
+          if (s === me && s.out && mode === 'race' && kind !== 'elim') finishRace();
+          if (kind === 'elim' && mode === 'race' && (s.kos||0) >= (challenge?challenge.target:eliminatorTarget)) {doRank();s.place=0;me.place=s===me?0:1;me.done=true;me.ft=raceT;finishRace();}
         }
         // ships nudge each other
         for (let a = 0; a < ships.length; a++) for (let b = a + 1; b < ships.length; b++) {
@@ -674,32 +775,35 @@
       }
       function update(dt) {
         if (mode === 'load' || mode === 'view') return;
+        if (!paused && LIVE_MODES.includes(mode)) { liveAcc += dt; if (liveAcc >= 2) { liveAcc = 0; checkpoint(); } }
         if (shake > 0) shake = Math.max(0, shake - dt); if (hitFlash > 0) hitFlash -= dt; if (saveT > 0) saveT -= dt; if (msgT > 0) msgT -= dt;
-        if (padTex) padTex.offset.y -= dt * 3;
-        for (const t of turbines) t.rotation.z += dt * 1.6;
+        if (!paused && padTex) padTex.offset.y -= dt * 3;
+        if(!paused)for (const t of turbines) t.rotation.z += dt * 1.6;
         if (fxN && TH && K.frame % 4 === 0) { const c = T3.cam.position; if (TH.props === 'aqua') fxN.emit(c.x + (Math.random() - 0.5) * 60, c.y - 10, c.z + (Math.random() - 0.5) * 60, 0, 5, 0, 5, 0xbfffff, 0.6, { a: 0.6 }); if (TR && TR.th === 'frost') fxN.emit(c.x + (Math.random() - 0.5) * 60, c.y + 16, c.z + (Math.random() - 0.5) * 60, 0, -5, 0, 4, 0xffffff, 0.45); }
-        if (['title', 'main', 'cls', 'team', 'track', 'options', 'records', 'how', 'demo'].includes(mode)) { menuStep(dt); if (mode === 'demo' && L) raceStep(dt); return; }
+        if (['title', 'main', 'cls', 'team', 'track', 'options', 'records', 'how', 'challenge', 'demo'].includes(mode)) { menuStep(dt); if (mode === 'demo' && L) raceStep(dt); return; }
         if (mode === 'loading') { loadT += dt; if (loadT > 1.7) mode = 'intro'; return; }
         if (mode === 'card') { cardT += dt; if (cardT > 2.6 || (cardT > 0.8 && ok())) goTitle(); return; }
         if (mode === 'intro') { introT += dt; if (introT > 3.6 || (introT > 0.4 && ok())) startCount(); return; }
         if (mode === 'podium') { mt += dt; if (fxA && K.frame % 30 === 0) { const x = (Math.random() - 0.5) * 30, y = -288 + Math.random() * 6; for (let q = 0; q < 26; q++) fxA.emit(x, y, -10, Math.cos(q / 26 * TAU) * 7, Math.sin(q / 26 * TAU) * 7, 0, 1, [0xff2a8a, 0x2ae0ff, 0xffe14a][(K.frame / 30 | 0) % 3], 1.5, { g: 3 }); K.sfx.noise(0.3, 0.06, 1500); }
-          const done = mt > 4 && ok(); if (done || mt > 14) { const p = champ.place; report(champ.total, p === 0 ? 'CHAMPION!' : p < 3 ? ORD[p] + ' OVERALL' : 'SEASON OVER', `${CLASSES[champ.cls].n} CHAMPIONSHIP  ${ORD[p]} WITH ${champ.pts[me.n] | 0} POINTS` + (champ.msgs.length ? '  ' + champ.msgs.join(' ') : '')); } return; }
-        if (mode === 'results') { mt += dt; results.t += dt; if (mt > 1 && ok()) { beep(); if (cfg.kind === 'champ') { mode = 'standings'; mt = 0; } else report(results.sc, me.out ? 'ELIMINATED' : me.place === 0 ? 'WINNER!' : ORD[me.place] + ' PLACE', `${TRACKS[cfg.track].n}  ${CLASSES[cfg.cls].n}  TIME ${fmt(me.ft)}  BEST LAP ${fmt(me.bestLap)}`); } return; }
-        if (mode === 'standings') { mt += dt; if (mt > 1 && ok()) { beep(); champ.race++; if (champ.race >= CHAMP.length) endChamp(); else { cfg.track = CHAMP[champ.race]; setupRace(); } } return; }
+          const done = mt > 4 && ok(); if (done || mt > 14) { startEnding(); } return; }
+        if (mode === 'ending') { mt += dt; if (mt > 1 && ok()) { endingPage++; mt = 0; if (endingPage > 1) { mode = 'credits'; mt = 0; } checkpoint(); } return; }
+        if (mode === 'credits') { mt += dt; if (mt > 24 || (mt > 3 && ok())) finishSeason(); return; }
+        if (mode === 'results') { mt += dt;if(K.pressed('left')||K.pressed('right')||K.pressed('up')||K.pressed('down'))resultPage=1-resultPage; results.t += dt; if (mt > 1 && ok()) { beep(); if (cfg.kind === 'champ') { mode = 'standings'; mt = 0; checkpoint(); } else report(results.sc, me.out ? 'ELIMINATED' : me.place === 0 ? 'WINNER!' : ORD[me.place] + ' PLACE', `${TRACKS[cfg.track].n}  ${CLASSES[cfg.cls].n}  TIME ${fmt(me.ft)}  BEST LAP ${fmt(me.bestLap)}`); } return; }
+        if (mode === 'standings') { mt += dt;if(K.pressed('left')||K.pressed('right')||K.pressed('up')||K.pressed('down'))resultPage=1-resultPage; if (mt > 1 && ok()) { beep(); champ.race++; if (champ.race >= CHAMP.length) endChamp(); else { cfg.track = CHAMP[champ.race]; setupRace(); } } return; }
         if (mode === 'ttres') { mt += dt; if (mt > 1 && ok()) { beep(); report(results.sc, results.title, results.text); } return; }
-        if (K.pressed('start') && (mode === 'race' || mode === 'count')) { paused = !paused; psel = 0; K.sfx.tone(paused ? 440 : 880, 0.06); if (paused) music(null); else if (mode === 'race') music(raceSong()); return; }
-        if (paused) { psel = nav(3, psel); if (back()) { paused = false; if (mode === 'race') music(raceSong()); }
-          if (K.pressed('a')) { beep(); paused = false; if (psel === 0) { if (mode === 'race') music(raceSong()); } else if (psel === 1) { trackPrev = -1; setupRace(); } else goTitle(); } return; }
+        if (K.pressed('start') && (mode === 'race' || mode === 'count')) { paused = !paused; if (!paused && K.resume) K.resume(); checkpoint(); psel = 0; K.sfx.tone(paused ? 440 : 880, 0.06); if (paused) music(null); else if (mode === 'race') music(raceSong()); return; }
+        if (paused) { psel = nav(3, psel); if (back()) { paused = false; if(K.resume)K.resume();if (mode === 'race') music(raceSong()); }
+          if (K.pressed('a')) { beep(); paused = false; if(K.resume)K.resume(); if (psel === 0) { if (mode === 'race') music(raceSong()); } else if (psel === 1) { trackPrev = -1; setupRace(); } else goTitle(); } return; }
         if (mode === 'count') { const c0 = Math.ceil(count); count -= dt; const c1 = Math.ceil(count); if (c1 !== c0 && c1 >= 1 && c1 <= 3) K.sfx.tone(330, 0.25, 'sawtooth', 0.08);
           if (K.pressed('a') && me.early == null) me.early = count;
-          if (count <= 0) { mode = 'race'; K.sfx.tone(660, 0.6, 'sawtooth', 0.1); music(raceSong()); if (K.held('a') && me.early != null && me.early < 1.0) { me.boost = 1.0; say('BOOST START!', 1.2); } for (const s of ships) if (s.ai && Math.random() < 0.5) s.boost = 0.6; } }
+          if (count <= 0) { mode = 'race'; if(cfg.kind==='tt')me.wep='TURBO'; K.sfx.tone(660, 0.6, 'sawtooth', 0.1); music(raceSong()); if (K.held('a') && me.early != null && me.early < 1.0) { me.boost = 1.0; say('BOOST START!', 1.2); } for (const s of ships) if (s.ai && Math.random() < 0.5) s.boost = 0.6; } }
         raceStep(dt);
         if (!me.done && !me.out && mode === 'race' && K.frame % 6 === 0) K.sfx.tone(55 + me.v * 2.4 + (me.boost > 0 ? 30 : 0), 0.11, 'triangle', 0.03);
         if (me.energy < 25 && !me.out && mode === 'race' && K.frame % 40 === 0) K.sfx.tone(1400, 0.08, 'square', 0.04);
         if (mode === 'finish') { finT += dt; if (finT > 4) {
-          if (cfg.kind === 'tt') { const t = me.ft, old = sv.tt[cfg.track] || 0, rec = !me.out && (!old || t < old), r3 = TRACKS[cfg.track].rec * 3;
-            if (rec) { sv.tt[cfg.track] = Math.round(t * 100) / 100; ghSave(cfg.track, sel.team + '|' + ghRec.str()); } save();
-            results = { sc: me.out ? 300 : Math.round(clamp(4200 + (r3 - t) * 120, 600, 9000)), title: me.out ? 'ELIMINATED' : rec ? 'NEW RECORD!' : 'TIME TRIAL', text: `${TRACKS[cfg.track].n}  ${fmt(t)}  BEST LAP ${fmt(me.bestLap)}`, t, rec, old, laps: me.laps.slice() };
+          if ((cfg.kind === 'tt' || cfg.kind === 'attack')) { const store=cfg.kind==='attack'?sv.attack:sv.tt;const t = me.ft, old = store[recordKey()] || 0, rec = !me.out && (!old || t < old), r3 = TRACKS[cfg.track].rec * 3;
+            if (rec) { store[recordKey()] = Math.round(t * 100) / 100; if(cfg.kind==='tt')ghSave(recordKey(),sel.team+'|'+ghRec.str()); } save();
+            results = { sc: me.out ? 300 : Math.round(clamp(4200 + (r3 - t) * 120, 600, 9000)), title: me.out ? 'TIME EXPIRED' : rec ? 'NEW RECORD!' : cfg.kind==='attack'?'TIME ATTACK':'TIME TRIAL', text: `${TRACKS[cfg.track].n}  ${fmt(t)}  BEST LAP ${fmt(me.bestLap)}`, t, rec, old, laps: me.laps.slice() };
             mode = 'ttres'; mt = 0; music(song(6)); }
           else endRace(); } }
       }
@@ -715,26 +819,34 @@
         const side = V3.crossVectors(U, fwd).normalize(), up2 = new T.Vector3().crossVectors(fwd, side).normalize();
         M4.makeBasis(side, up2, fwd); s.mesh.quaternion.setFromRotationMatrix(M4); s.mesh.rotateZ(-s.roll * 0.6);
         s.mesh.visible = !s.out && !(s.respawn > 0 && (K.frame >> 2) % 2) && !(s.flash > 0 && (K.frame >> 1) % 2);
-        s.mesh.glow.visible = s.boost > 0 || (K.frame + t) % 3 !== 0;
-        if (fxA && !s.out && s.v > 10 && (s === me || (K.frame + t) % 2 === 0)) { const b = V3.copy(fwd).multiplyScalar(-2.3).add(p); fxA.emit(b.x, b.y + 0.35, b.z, -fwd.x * 4, -fwd.y * 4, -fwd.z * 4, 0.12, cheat.rainbow ? [0xff3a3a, 0xffb000, 0xffe14a, 0x3ad04a, 0x2ab0ff, 0xc03ae0][(K.frame + t) % 6] : s.boost > 0 ? 0xffe14a : s.tm.glow, s.boost > 0 ? 0.32 : 0.2, { grow: 0.04, a: 0.8 }); }
-        if (s.shield > 0 && fxA && K.frame % 2 === 0) fxA.emit(p.x + (Math.random() - 0.5) * 4, p.y + Math.random() * 1.5, p.z + (Math.random() - 0.5) * 4, 0, 0, 0, 0.25, 0x5ad8ff, 0.5);
+        if(s.mesh.field)s.mesh.field.visible=s.shield>0;
+        s.mesh.glow.visible = s.boost > 0 || s.hyper || (K.frame + t) % 3 !== 0;
+        if (!paused && fxA && !s.out && s.v > 10 && (s === me || (K.frame + t) % 2 === 0)) { const b = V3.copy(fwd).multiplyScalar(-2.3).add(p); fxA.emit(b.x, b.y + 0.35, b.z, -fwd.x * 4, -fwd.y * 4, -fwd.z * 4, 0.12, cheat.rainbow ? [0xff3a3a, 0xffb000, 0xffe14a, 0x3ad04a, 0x2ab0ff, 0xc03ae0][(K.frame + t) % 6] : s.boost > 0 || s.hyper ? 0xffe14a : s.tm.glow, s.boost > 0 || s.hyper ? .32 : .2, { grow: 0.04, a: 0.8 }); }
+        if (!paused && s.shield > 0 && fxA && K.frame % 2 === 0) fxA.emit(p.x + (Math.random() - 0.5) * 4, p.y + Math.random() * 1.5, p.z + (Math.random() - 0.5) * 4, 0, 0, 0, 0.25, 0x5ad8ff, 0.5);
       }
       function placeShips() {
+        const used=TEAMS.map(()=>0);
         let sn = 0;
-        ships.forEach((s, t) => { pose(s, t); if (!s.out && sn < 9) { const gy = FL.gap[L.wrap(Math.round(s.fi))] ? -1e4 : trackY(s.fi, s.d); if (gy > -1e3) { const p = s.mesh.position; M4.compose(V1.set(p.x, gy + 0.08, p.z), Q.setFromEuler(new T.Euler(0, Math.atan2(L.D[L.wrap(Math.round(s.fi))].x, L.D[L.wrap(Math.round(s.fi))].z) + s.a, 0)), V2.setScalar(clamp(1 - (s.y - gy - 1.1) * 0.06, 0.3, 1))); shadows.setMatrixAt(sn++, M4); } } });
-        for (let n = sn; n < 9; n++) shadows.setMatrixAt(n, ZERO); shadows.instanceMatrix.needsUpdate = true;
+        ships.forEach((s, t) => { pose(s, t);
+          if(fleetBody.length){const n=used[s.team]++;s.mesh.updateMatrix();fleetBody[s.team].setMatrixAt(n,s.mesh.visible?s.mesh.matrix:ZERO);fleetGlow[s.team].setMatrixAt(n,s.mesh.visible&&s.mesh.glow.visible?s.mesh.matrix:ZERO);s.mesh.body.visible=false;s.mesh.glow.visible=false;}
+          if (!s.out && sn < 13) { const gy = FL.gap[L.wrap(Math.round(s.fi))] ? -1e4 : trackY(s.fi, s.d); if (gy > -1e3) { const p = s.mesh.position; const i=L.wrap(Math.round(s.fi));M4.makeBasis(V4.copy(L.R[i]).negate(),L.U[i],L.D[i]);Q.setFromRotationMatrix(M4).multiply(Q2.setFromAxisAngle(UP,-s.a));M4.compose(V1.set(p.x,gy+.08,p.z),Q,V2.setScalar(clamp(1-(s.y-gy-1.1)*.06,.3,1))); shadows.setMatrixAt(sn++, M4); } } });
+        for(let i=0;i<fleetBody.length;i++){for(const mesh of [fleetBody[i],fleetGlow[i]]){mesh.count=used[i];mesh.visible=used[i]>0;mesh.instanceMatrix.needsUpdate=true;}}
+        for (let n = sn; n < 13; n++) shadows.setMatrixAt(n, ZERO); shadows.instanceMatrix.needsUpdate = true;
         if (ghost && ghostMesh && (mode === 'race' || mode === 'count' || mode === 'finish')) { const g = ghost.at(mode === 'count' ? 0 : raceT); if (g) { const fake = { fi: ((g.x % L.N) + L.N) % L.N, d: g.z, a: g.a, y: g.y, air: false, roll: 0, wob: 0, v: 0, out: false, respawn: 0, flash: 0, boost: 0, shield: 0, tm: TEAMS[0], mesh: ghostMesh }; const f0 = fxA; fxA = null; pose(fake, 1); fxA = f0; } }
       }
       function camera(dt) {
         const C = T3.cam; let fv = 70;
+        fleetG.visible=!['team','podium','ending','credits','view','loading','card'].includes(mode);
+        if (garage) garage.visible = ['team','podium','ending','credits','view'].includes(mode);
+        shadows.visible = !['team','podium','ending','credits','view','title','main','cls','track','options','records','how','challenge','card','loading'].includes(mode);
         if (mode === 'view') { const [a, e, d] = view3; C.up.set(0, 1, 0); C.position.set(Math.sin(a) * Math.cos(e) * d, -298.6 + Math.sin(e) * d, Math.cos(a) * Math.cos(e) * d); C.lookAt(0, -298.6, 0); sky && sky.follow(C); C.fov = 50; C.updateProjectionMatrix(); return; }
         if (mode === 'team') { C.up.set(0, 1, 0); C.position.set(5, -295.2, 11); C.lookAt(-3.4, -298.6, 0); sky && sky.follow(C); C.fov = 55; C.updateProjectionMatrix(); return; }
-        if (mode === 'podium') { const a = Math.sin(mt * 0.3) * 0.5; C.up.set(0, 1, 0); C.position.set(Math.sin(a) * 22, -292, Math.cos(a) * 22 - 4); C.lookAt(0, -297.5, 0); sky && sky.follow(C); C.fov = 55; C.updateProjectionMatrix(); return; }
+        if (['podium','ending','credits'].includes(mode)) { const a = Math.sin(mt * 0.3) * 0.5; C.up.set(0, 1, 0); C.position.set(Math.sin(a) * 22, -292, Math.cos(a) * 22 - 4); C.lookAt(0, -297.5, 0); sky && sky.follow(C); C.fov = 55; C.updateProjectionMatrix(); return; }
         if (!L) return;
         let follow = me;
-        if (['title', 'main', 'cls', 'track', 'options', 'records', 'how', 'card', 'loading'].includes(mode) || mode === 'intro') {
-          const fi = mode === 'intro' ? (L.N * 0.4 + introT * 20) % L.N : (K.t * 12) % L.N;
-          const p = L.atf(fi, Math.sin(K.t * 0.3) * 5, 5, V1), q = L.atf((fi + 14) % L.N, 0, 1.5, V2);
+        if (['title', 'main', 'cls', 'track', 'options', 'records', 'how', 'challenge', 'card', 'loading'].includes(mode) || mode === 'intro') {
+          const fi = mode === 'intro' ? (L.N * 0.4 + introT * 20) % L.N : (L.N*.13 + K.t*3) % L.N;
+          const p = L.atf(fi, mode==='intro'?Math.sin(K.t*.3)*5:22, mode==='intro'?5:18, V1), q = L.atf((fi + 14) % L.N, 0, 1.5, V2);
           if (mode === 'intro' && introT > 2.3) { const k = clamp((introT - 2.3) / 1.2, 0, 1); p.lerp(L.atf((me.fi - 3 + L.N) % L.N, me.d, 2.8, V3), k); q.lerp(L.atf((me.fi + 5) % L.N, me.d, 1.2, V4), k); }
           C.up.set(0, 1, 0); C.position.copy(p); C.lookAt(q); sky && sky.follow(C); return;
         }
@@ -744,14 +856,14 @@
         }
         const s = follow, i = L.wrap(Math.floor(s.fi)), far = sv.opt.cam ? 1 : 0;
         const back = L.atf((s.fi - (far ? 3.4 : 2.6) + L.N) % L.N, s.d - Math.sin(s.a) * 4, 0, V1); back.y = Math.max(s.y + (far ? 3.2 : 2.3), back.y + 1.5);
-        C.position.lerp(back, Math.min(1, dt * 12)); if (shake > 0) { C.position.x += (Math.random() - 0.5) * shake; C.position.y += (Math.random() - 0.5) * shake; }
+        C.position.lerp(back, Math.min(1, dt * 18)); C.position.y=Math.max(C.position.y,back.y-.35); if (shake > 0) { C.position.x += (Math.random() - 0.5) * shake; C.position.y += (Math.random() - 0.5) * shake; }
         camUp.lerp(L.U[i], Math.min(1, dt * 6)); C.up.copy(camUp);
         const look = L.atf((s.fi + 5) % L.N, s.d + Math.sin(s.a) * 6, 0, V2); look.y = Math.max(s.y + 0.2, look.y + 1.2); C.lookAt(look);
-        fv = 70 + clamp((s.v - 40) * 0.25, 0, 10) + (s.boost > 0 ? 6 : 0); if (Math.abs(C.fov - fv) > 0.1) { C.fov += (fv - C.fov) * Math.min(1, dt * 4); C.updateProjectionMatrix(); }
+        fv = 70 + clamp((s.v - 30) * 0.23, 0, 13) + (s.boost > 0 || s.hyper ? 6 : 0); if (Math.abs(C.fov - fv) > 0.1) { C.fov += (fv - C.fov) * Math.min(1, dt * 4); C.updateProjectionMatrix(); }
         sky && sky.follow(C);
       }
 
-      // ---------------------------------------------------------------- the 2D bits on top (a chunky neon PlayStation HUD)
+      // ---------------------------------------------------------------- the 2D bits on top (a chunky neon PlaySpace HUD)
       function big(s, x, y, size, c1, c2, align, stroke) {
         H.save(); H.font = `italic 900 ${size}px "Arial Black", Arial, sans-serif`; H.textAlign = align || 'center'; H.textBaseline = 'middle'; H.lineJoin = 'miter';
         H.lineWidth = Math.max(2, size / 6); H.strokeStyle = stroke || '#000'; H.strokeText(s, x, y);
@@ -759,7 +871,10 @@
       }
       function panel(x, y, w, h, edge) { H.fillStyle = 'rgba(4,2,16,.78)'; H.beginPath(); H.moveTo(x + 8, y); H.lineTo(x + w, y); H.lineTo(x + w, y + h - 8); H.lineTo(x + w - 8, y + h); H.lineTo(x, y + h); H.lineTo(x, y + 8); H.closePath(); H.fill(); H.strokeStyle = edge || '#2ae0ff'; H.lineWidth = 1.5; H.stroke(); }
       const txt = (s, x, y, c, k) => F.draw(H, s, x, y, c || '#fff', k || 1, '#000');
+      const fit = (s,x,y,w,c,k=1) => { H.save();H.translate(x,y);H.scale(Math.min(1,w/(String(s).length*6*k)),1);F.draw(H,s,0,0,c||'#fff',k,'#000');H.restore(); };
       const ctr = (s, y, c, k) => F.center(H, s, W / 2, y, c || '#fff', k || 1, '#000');
+      const padInput=()=>!!window.GameInput&&(GameInput.touch||GameInput.mode==='gamepad');
+      const btn=b=>padInput()?K.label(b):K.keyLabel?K.keyLabel(b):K.label(b);
       const blink = r => ((K.t * (r || 2)) | 0) % 2 === 0;
       let mini = null, miniFor = -1;
       function minimap() {
@@ -782,96 +897,128 @@
             if (cardT > 1.1) { const has = sv.races > 0 || Object.keys(sv.lap).length; H.fillStyle = '#2a2a6a'; H.fillRect(62, 114, 16, 20); H.fillStyle = '#ff2a8a'; H.fillRect(65, 117, 10, 6); txt(has ? 'ANTI-GRAV 3000 DATA FOUND' : 'NO ANTI-GRAV 3000 DATA', 86, 116, has ? '#9affa0' : '#ffe14a'); txt(has ? 'LOADED FROM BLOCK 1' : 'A NEW SAVE WILL USE 1 BLOCK', 86, 128, '#fff'); } return; }
           const t = loadT, cx = W - 46, cy = HH - 30; H.save(); H.translate(cx, cy); H.rotate(t * 7); H.fillStyle = '#333'; H.beginPath(); H.arc(0, 0, 12, 0, TAU); H.fill(); H.fillStyle = '#9aa0c0'; H.beginPath(); H.arc(0, 0, 11, 0, 1.2); H.lineTo(0, 0); H.fill(); H.fillStyle = '#000'; H.beginPath(); H.arc(0, 0, 3, 0, TAU); H.fill(); H.restore();
           txt('NOW LOADING' + '...'.slice(0, (t * 4 | 0) % 4), W - 170, HH - 34, '#fff'); txt(TRACKS[cfg.track].n, W - 170, HH - 22, '#8a8aa8'); return; }
-        if (mode === 'title') { H.fillStyle = 'rgba(4,0,16,.35)'; H.fillRect(0, 0, W, HH); logo(52);
+        if (mode === 'title') { H.fillStyle = 'rgba(4,0,16,.35)'; H.fillRect(0, 0, W, HH); const shade=H.createLinearGradient(0,8,0,112);shade.addColorStop(0,'rgba(4,2,16,.95)');shade.addColorStop(1,'rgba(4,2,16,0)');H.fillStyle=shade;H.fillRect(0,0,W,112);logo(52);
           if (((mt / 6) | 0) % 2 === 1) { panel(70, 106, 180, 104, '#ff2a8a'); ctr('PILOT RANKINGS', 114, '#ff8ad0'); table().forEach((r, n) => { txt((n + 1) + '. ' + r.n, 84, 128 + n * 10, r.mate ? '#fff' : '#9affa0'); txt(String(r.s).padStart(6, ' '), 200, 128 + n * 10, '#2ae0ff'); }); }
           else if (blink(2)) ctr('PRESS START', 160, '#fff', 2);
           if (msgT > 0) ctr(msg, 186, '#9affa0');
-          ctr('(C) 1999 PSYCHOFLUX INTERACTIVE', HH - 24, '#8a8aa8'); ctr('PUBLISHED UNDER LICENCE BY COMPUTER FUN ENTERTAINMENT', HH - 13, '#6a6a88'); return; }
+          ctr('(C) 1999 PSYCHOFLUX INTERACTIVE', HH - 34, '#8a8aa8'); ctr('PUBLISHED UNDER LICENCE BY', HH - 23, '#6a6a88'); ctr('COMPUTER FUN ENTERTAINMENT', HH - 12, '#6a6a88'); return; }
         if (mode === 'demo') { raceHud(true); ctr('DEMO', 60, '#2ae0ff', 2); if (blink(2)) ctr('PRESS START', HH - 30, '#fff'); return; }
-        if (mode === 'main') { H.fillStyle = 'rgba(4,0,16,.4)'; H.fillRect(0, 0, W, HH); logo(36); panel(86, 86, 148, MAIN.length * 16 + 12);
-          MAIN.forEach((s, n) => ctr((n === sel.main ? '> ' : '') + s + (n === sel.main ? ' <' : ''), 94 + n * 16, n === sel.main ? '#2ae0ff' : '#fff'));
-          ctr(['FIVE TRACKS. POINTS. GLORY.', 'ONE RACE, ANY TRACK', 'YOU, THE CLOCK, YOUR GHOST', 'RANKINGS AND LAP TIMES', 'MUSIC AND CAMERA', 'CONTROLS AND WEAPONS'][sel.main], 196, '#ff8ad0'); ctr(K.label('a') + ' SELECT   ' + K.label('b') + ' BACK', HH - 14, '#8a8aa8'); if (msgT > 0) ctr(msg, 210, '#ff5a5a'); return; }
-        if (mode === 'cls') { H.fillStyle = 'rgba(4,0,16,.45)'; H.fillRect(0, 0, W, HH); big('SPEED CLASS', W / 2, 34, 20, '#e8f8ff', '#3a8ad8'); panel(70, 60, 180, 70);
-          CLASSES.forEach((c, n) => { const on = n === sel.cls, open = n === 0 || supOpen(); ctr((on ? '> ' : '') + c.n + (open ? '' : ' (LOCKED)') + (on ? ' <' : ''), 74 + n * 26, !open ? '#666' : on ? '#2ae0ff' : '#fff', on ? 2 : 1); });
-          ctr(sel.cls ? 'SERIOUSLY FAST. HOLD ON TO SOMETHING.' : 'FAST ENOUGH FOR MOST PILOTS', 146, '#ff8ad0'); if (msgT > 0) ctr(msg, 164, '#ff5a5a'); return; }
+        if (mode === 'challenge') { H.fillStyle='rgba(4,0,16,.85)';H.fillRect(0,0,W,HH);big('FLIGHT LICENCES',W/2,20,18,'#fff','#2ae0ff');txt('CIRCUIT',24,37,'#ff8ad0');txt('RACE  TIME  K.O.',196,37,'#ff8ad0');TRACKS.slice(0,8).forEach((t,i)=>{txt(t.n,24,55+i*17,'#fff');for(let j=0;j<3;j++){const id=i*3+j,x=202+j*33,y=51+i*17;H.fillStyle=id===challengeSel?'#2ae0ff':'#28334b';H.fillRect(x,y,24,13);txt(sv.challenges[id]?'*':'-',x+9,y+3,sv.challenges[id]?'#ffe14a':'#fff');}});ctr(['FINISH IN THE TOP THREE','FINISH UNDER '+fmt(TRACKS[Math.floor(challengeSel/3)].rec*3.6),'SCORE THREE KNOCKOUTS'][challengeSel%3],200,'#ffe14a');ctr(btn('a')+' START  '+(padInput()?'STICK':'ARROWS')+' CHOOSE  '+btn('b')+' BACK',226,'#8a8aa8');return; }
+        if (mode === 'main') { H.fillStyle = 'rgba(4,0,16,.4)'; H.fillRect(0, 0, W, HH); logo(25); panel(70, 70, 180, MAIN.length * 14 + 10);
+          MAIN.forEach((s, n) => ctr((n === sel.main ? '> ' : '') + s + (n === sel.main ? ' <' : ''), 78 + n * 14, n === sel.main ? '#2ae0ff' : '#fff'));
+          ctr(['EIGHT CIRCUITS. FOUR CLASSES. GLORY.', 'ONE RACE, ANY TRACK', 'YOU, THE CLOCK, YOUR GHOST', 'BEAT THE CHECKPOINT CLOCK', 'FIVE KNOCKOUTS. REBUILD. REPEAT.', '24 TESTS OF PILOT SKILL', 'RANKINGS AND LAP TIMES', 'MUSIC AND CAMERA', 'CONTROLS AND WEAPONS'][sel.main], 211, '#ff8ad0'); ctr(btn('a') + ' SELECT   ' + btn('b') + ' BACK', HH - 14, '#8a8aa8'); if (msgT > 0) ctr(msg, 210, '#ff5a5a'); return; }
+        if (mode === 'cls') { H.fillStyle = 'rgba(4,0,16,.45)'; H.fillRect(0, 0, W, HH); big('SPEED CLASS', W / 2, 34, 20, '#e8f8ff', '#3a8ad8'); panel(55, 54, 210, 112);
+          CLASSES.forEach((c, n) => { const on = n === sel.cls, open = classOpen(n); ctr((on ? '> ' : '') + c.n + (open ? '' : ' (LOCKED)') + (on ? ' <' : ''), 66 + n * 25, !open ? '#666' : on ? '#2ae0ff' : '#fff', on ? 2 : 1); });
+          ctr(sel.cls ? 'SERIOUSLY FAST. HOLD ON TO SOMETHING.' : 'FAST ENOUGH FOR MOST PILOTS', 182, '#ff8ad0'); if (msgT > 0) ctr(msg, 198, '#ff5a5a'); return; }
         if (mode === 'team') { const t = TEAMS[sel.team], open = teamOpen(sel.team); big('SELECT TEAM', W / 2, 16, 18, '#e8f8ff', '#3a8ad8'); panel(6, 30, 116, 128, hexs(t.col === 0x50505e ? 0xe8c21a : t.col));
-          txt(open ? t.n : '????????', 14, 38, open ? '#fff' : '#666', 2); txt(open ? t.tag.slice(0, 18) : 'LOCKED', 14, 58, '#ff8ad0'); if (open && t.tag.length > 18) txt(t.tag.slice(18), 14, 67, '#ff8ad0');
+          fit(open ? t.n : '????????', 14, 38, 100,open ? '#fff' : '#666', 2); if(open){const words=t.tag.split(' '),lines=[''];for(const w of words){const k=lines.length-1;if((lines[k]+' '+w).trim().length>16)lines.push(w);else lines[k]=(lines[k]+' '+w).trim();}lines.forEach((l,n)=>txt(l,14,58+n*9,'#ff8ad0'));}else txt('LOCKED',14,58,'#ff8ad0');
           [['SPEED', t.spd], ['THRUST', t.thr], ['HANDLING', t.hnd], ['SHIELD', t.shd]].forEach(([l, v], n) => { txt(l, 14, 82 + n * 17, '#fff'); for (let p = 0; p < 5; p++) { H.fillStyle = p < v && open ? ['#2ae0ff', '#ffe14a', '#9aff6a', '#ff2a8a'][n] : 'rgba(255,255,255,.15)'; H.beginPath(); H.moveTo(14 + p * 12, 99 + n * 17); H.lineTo(24 + p * 12, 99 + n * 17); H.lineTo(22 + p * 12, 94 + n * 17); H.lineTo(12 + p * 12, 94 + n * 17); H.fill(); } });
-          if (open) ctr('PILOTS: ' + t.pilots.join(' + '), 184, '#8ad8ff'); TEAMS.forEach((tt, n) => { H.fillStyle = n === sel.team ? '#2ae0ff' : 'rgba(255,255,255,.3)'; H.fillRect(W / 2 - 40 + n * 17, 200, 12, 4); });
-          if (msgT > 0) ctr(msg, 170, '#ff5a5a'); ctr('< > CHOOSE   ' + K.label('a') + ' OK', HH - 12, '#8a8aa8'); return; }
-        if (mode === 'track') { H.fillStyle = 'rgba(4,0,16,.35)'; H.fillRect(0, 0, W, HH); big(flow === 'tt' ? 'TIME TRIAL' : 'SINGLE RACE', W / 2, 20, 18, '#e8f8ff', '#3a8ad8'); panel(20, 36, 280, 120);
-          TRACKS.forEach((t, n) => { const on = n === sel.trk, open = trackOpen(n), y = 46 + n * 17; if (on) { H.fillStyle = 'rgba(42,224,255,.16)'; H.fillRect(24, y - 3, 272, 14); } txt((on ? '>' : ' ') + (open ? t.n : '? BONUS TRACK ?'), 28, y, !open ? '#666' : on ? '#2ae0ff' : '#fff'); if (open) txt(fmt(flow === 'tt' ? sv.tt[n] : sv.lap[n]), 226, y, '#ff8ad0'); });
-          if (trackOpen(sel.trk)) ctr('LAP RECORD ' + fmt(TRACKS[sel.trk].rec) + '  ' + TRACKS[sel.trk].by, 168, '#ffe14a'); if (msgT > 0) ctr(msg, 184, '#ff5a5a'); ctr(K.label('a') + ' OK   ' + K.label('b') + ' BACK', HH - 14, '#8a8aa8'); return; }
+          if (!open) ctr(sel.team===4?'WIN THE SUPERSONIC LEAGUE':'COMPLETE ALL EIGHT '+['RACE','TIME','COMBAT'][sel.team-5]+' LICENCES',172,'#ffe14a');
+          if (open) ctr('PILOTS: ' + t.pilots.map(castN).join(' + '), 184, '#8ad8ff'); TEAMS.forEach((tt, n) => { H.fillStyle = n === sel.team ? '#2ae0ff' : 'rgba(255,255,255,.3)'; H.fillRect(W / 2 - 65 + n * 17, 200, 12, 4); });
+          if (msgT > 0) ctr(msg, 172, '#ff5a5a'); ctr('< > CHOOSE   ' + btn('a') + ' OK', HH - 12, '#8a8aa8'); return; }
+        if (mode === 'track') { H.fillStyle = 'rgba(4,0,16,.35)'; H.fillRect(0, 0, W, HH); big(flow === 'attack' ? 'TIME ATTACK' : flow === 'tt' ? 'TIME TRIAL' : 'SINGLE RACE', W / 2, 20, 18, '#e8f8ff', '#3a8ad8'); panel(20, 36, 280, 132);
+          TRACKS.slice(Math.floor(sel.trk/8)*8,Math.floor(sel.trk/8)*8+8).forEach((t, row) => {const n=Math.floor(sel.trk/8)*8+row; const on = n === sel.trk, open = trackOpen(n), y = 44 + row * 15; if (on) { H.fillStyle = 'rgba(42,224,255,.16)'; H.fillRect(24, y - 3, 272, 14); } txt((on ? '>' : ' ') + (open?t.n:t.proto!=null?'? BLUEPRINT '+(t.proto+1)+' ?':'? BONUS TRACK ?'), 28, y, !open ? '#666' : on ? '#2ae0ff' : '#fff'); if (open) txt(fmt((flow==='attack'?sv.attack:flow==='tt'?sv.tt:sv.lap)[cfg.cls?n+':'+cfg.cls:n]), 226, y, '#ff8ad0'); });
+          ctr('CIRCUITS '+(Math.floor(sel.trk/8)*8+1)+'-'+Math.min(TRACKS.length,Math.floor(sel.trk/8)*8+8)+' / '+TRACKS.length,166,'#8a8aa8');
+          if (trackOpen(sel.trk)) ctr('LAP RECORD ' + fmt(TRACKS[sel.trk].rec) + '  ' + castN(['mate1','mate2','mate3','mate4','sister'][sel.trk % 5]), 180, '#ffe14a'); if (msgT > 0) ctr(msg, 194, '#ff5a5a'); ctr(btn('a') + ' OK   ' + btn('b') + ' BACK', HH - 14, '#8a8aa8'); return; }
         if (mode === 'options') { H.fillStyle = 'rgba(4,0,16,.5)'; H.fillRect(0, 0, W, HH); big('OPTIONS', W / 2, 34, 20, '#e8f8ff', '#3a8ad8'); panel(70, 56, 180, 92);
           [['MUSIC', sv.opt.mus ? 'ON' : 'OFF'], ['CAMERA', sv.opt.cam ? 'FAR' : 'CLOSE'], ['AUTO THRUST', sv.opt.auto ? 'ON' : 'OFF'], ['DONE', '']].forEach(([a, b], n) => { txt((n === sel.opt ? '> ' : '  ') + a, 84, 66 + n * 20, n === sel.opt ? '#2ae0ff' : '#fff'); if (b) txt(b, 206, 66 + n * 20, '#9affa0'); }); ctr(sel.opt === 2 ? 'THE ENGINE STAYS ON: JUST STEER' : '(SOUND FX: THE SPEAKER BUTTON BY THE TELLY)', 162, '#8a8aa8'); return; }
         if (mode === 'records') { H.fillStyle = 'rgba(4,0,16,.6)'; H.fillRect(0, 0, W, HH);
           if (sel.rec === 0) { big('PILOT RANKINGS', W / 2, 24, 18, '#e8f8ff', '#3a8ad8'); panel(60, 40, 200, 108); table().forEach((r, n) => { txt((n + 1) + '. ' + r.n, 74, 50 + n * 12, r.mate ? '#fff' : '#9affa0'); txt(String(r.s).padStart(6, ' '), 196, 50 + n * 12, '#2ae0ff'); });
-            CLASSES.forEach((c, n) => ctr(c.n + ' CHAMPIONSHIP: ' + (sv.champ[n] ? ORD[sv.champ[n] - 1] : '-'), 160 + n * 12, '#ffe14a')); }
-          else { big('LAP TIMES', W / 2, 24, 18, '#e8f8ff', '#3a8ad8'); panel(16, 40, 288, 130); txt('TRACK', 24, 48, '#ff8ad0'); txt('3 LAPS', 150, 48, '#ff8ad0'); txt('LAP', 214, 48, '#ff8ad0'); txt('RECORD', 256, 48, '#ff8ad0');
-            TRACKS.forEach((t, n) => { const open = trackOpen(n); txt(open ? t.n : '?????', 24, 64 + n * 16, open ? '#fff' : '#666'); if (open) { txt(fmt(sv.tt[n]), 150, 64 + n * 16, '#2ae0ff'); txt(fmt(sv.lap[n]), 214, 64 + n * 16, sv.lap[n] && sv.lap[n] < t.rec ? '#9affa0' : '#2ae0ff'); txt(fmt(t.rec), 256, 64 + n * 16, '#ffe14a'); } }); }
-          ctr('< > PAGE   ' + K.label('b') + ' BACK', HH - 14, '#8a8aa8'); return; }
+            CLASSES.forEach((c, n) => ctr(c.n + ': ' + (sv.champ[n] ? ORD[sv.champ[n] - 1] : '-'), 155 + n * 12, '#ffe14a')); }
+          else if(sel.rec===1) { big(CLASSES[sel.cls].n+' TIMES', W / 2, 24, 18, '#e8f8ff', '#3a8ad8'); panel(16, 40, 288, 148); txt('TRACK', 24, 48, '#ff8ad0'); txt('3 LAPS', 150, 48, '#ff8ad0'); txt('LAP', 214, 48, '#ff8ad0'); txt('RECORD', 256, 48, '#ff8ad0');
+            TRACKS.slice(0,8).forEach((t, n) => { const open = trackOpen(n); txt(open ? t.n : '?????', 24, 62 + n * 15, open ? '#fff' : '#666'); if (open) { const rk=sel.cls?n+':'+sel.cls:n;txt(fmt(sv.tt[rk]), 150, 62 + n * 15, '#2ae0ff'); txt(fmt(sv.lap[rk]), 214, 62 + n * 15, sv.lap[rk] && sv.lap[rk] < t.rec ? '#9affa0' : '#2ae0ff'); txt(fmt(t.rec), 256, 62 + n * 15, '#ffe14a'); } }); }
+          else {big('MEDAL BOARD',W/2,20,18,'#fff','#2ae0ff');ctr(CLASSES[sel.cls].n+' / UP-DOWN CLASS',36,'#ff8ad0');TRACKS.slice(0,8).forEach((t,i)=>{txt(t.n,12,64+i*17,'#fff');for(let team=0;team<TEAMS.length;team++){const x=184+team*16,y=60+i*17,m=sv.medals[sel.cls+':'+i+':'+team];H.fillStyle=m?[0,'#ffe14a','#c8d8ef','#e68b4c'][m]:'#263044';H.fillRect(x,y,10,11);if(m)txt(String(m),x+2,y+2,'#101020');}});for(let n=0;n<8;n++)txt(String(n+1),186+n*16,49,hexs(TEAMS[n].col));const golds=Array.from({length:8},(_,i)=>[0,1,2,3].filter(t=>sv.medals[sel.cls+':'+i+':'+t]===1).length).reduce((a,b)=>a+b,0);ctr(golds+'/32 STARTER GOLDS: BLUEPRINT '+(sel.cls+1)+(sv.unl['proto'+sel.cls]?' OPEN':''),207,'#ffe14a');}
+          ctr('< > PAGE   ' + btn('b') + ' BACK', HH - 14, '#8a8aa8'); return; }
         if (mode === 'how') { H.fillStyle = 'rgba(4,0,16,.8)'; H.fillRect(0, 0, W, HH);
-          if (sel.how === 0) { big('CONTROLS', W / 2, 20, 18, '#e8f8ff', '#3a8ad8'); [['STEER', 'ARROWS / STICK'], ['THRUST', K.label('a') + ' (HOLD)'], ['FIRE WEAPON', K.label('b')], ['ABSORB WEAPON', K.label('x') + ' (= ENERGY)'], ['AIRBRAKES', K.label('l') + ' AND ' + K.label('r')], ['IN THE AIR', 'UP/DOWN: DIVE / FLOAT'], ['PAUSE', 'START']].forEach(([a, b], n) => { txt(a, 24, 40 + n * 16, '#2ae0ff'); txt(b, 130, 40 + n * 16, '#fff'); });
+          if (sel.how === 0) { big('CONTROLS', W / 2, 20, 18, '#e8f8ff', '#3a8ad8'); [['STEER', 'ARROWS / STICK'], ['THRUST', btn('a') + ' (HOLD)'], ['FIRE WEAPON', btn('b')], ['ABSORB WEAPON', btn('x') + ' (= ENERGY)'], ['HYPERTHRUST', btn('y')+' (USES SHIELD)'], ['AIRBRAKES', btn('l') + ' AND ' + btn('r')], ['IN THE AIR', 'UP FLOAT / DOWN DIVE'], ['PAUSE', btn('start')]].forEach(([a, b], n) => { txt(a, 24, 40 + n * 14, '#2ae0ff'); txt(b, 130, 40 + n * 14, '#fff'); });
             ['USE AN AIRBRAKE TO SWING THE BACK ROUND', 'THE SHARP BENDS. HOLD THRUST ON THE LAST', 'LIGHT FOR A BOOST START.'].forEach((l, n) => ctr(l, 160 + n * 11, '#ff8ad0')); }
           else if (sel.how === 1) { big('WEAPONS', W / 2, 18, 18, '#e8f8ff', '#3a8ad8'); WEPS.forEach((w, n) => { const y = 34 + n * 28; H.drawImage(ICON[w], 24, y, 22, 22); txt(w, 54, y + 2, WCOL[w]); txt(WEP_INFO[w], 54, y + 12, '#fff'); }); }
-          else { big('TIPS', W / 2, 20, 18, '#e8f8ff', '#3a8ad8'); ['ORANGE CHEVRONS: SPEED BOOST.', 'BLUE SQUARES: A WEAPON.', 'WALLS AND WEAPONS DRAIN YOUR SHIELD.', 'NO SHIELD LEFT = OUT OF THE RACE!', 'DRIVE IN THE GREEN PIT LANE BY THE', 'START LINE TO RECHARGE.', 'GAPS IN THE TRACK: KEEP YOUR SPEED UP', 'OR YOU WILL FALL IN.', '', 'WIN A CHAMPIONSHIP TO UNLOCK MORE!'].forEach((l, n) => ctr(l, 40 + n * 15, n > 8 ? '#9affa0' : '#fff')); }
-          ctr('< ' + (sel.how + 1) + '/3 >   ' + K.label('b') + ' BACK', HH - 14, '#8a8aa8'); return; }
+          else { big('TIPS', W / 2, 20, 18, '#e8f8ff', '#3a8ad8'); ['ORANGE CHEVRONS: SPEED BOOST.', 'BLUE SQUARES: A WEAPON.', 'WALLS AND WEAPONS DRAIN YOUR SHIELD.', 'RACE: OUT. COMBAT: REBUILD AT ZERO.', 'DRIVE OVER THE REPAIR CROSSES BY THE', 'START LINE TO RECHARGE.', 'GAPS IN THE TRACK: KEEP YOUR SPEED UP', 'OR YOU WILL FALL IN.', '', 'WIN A CHAMPIONSHIP TO UNLOCK MORE!'].forEach((l, n) => ctr(l, 40 + n * 15, n > 8 ? '#9affa0' : '#fff')); }
+          ctr('< ' + (sel.how + 1) + '/3 >   ' + btn('b') + ' BACK', HH - 14, '#8a8aa8'); return; }
+        if (mode === 'ending' || mode === 'credits') { H.fillStyle = 'rgba(3,2,16,.78)'; H.fillRect(0,0,W,HH);
+          if (mode === 'ending') { const e = champ.place===0 ? ENDINGS[sel.team] || ['THE CONTRACT IS COMPLETE',TEAMS[sel.team].n+' WINS THE LEAGUE.', 'THE ENGINEERS REQUEST A TEA BREAK.'] : [champ.place<3?'ON THE PODIUM':'NEXT SEASON',ORD[champ.place]+' IN THE LEAGUE. BACK TO THE TEST TRACK.', 'THE AIRBRAKES GET A WELL EARNED REST.']; big(endingPage ? 'THE NEXT MORNING' : e[0], W/2, 48, 18, '#fff', '#2ae0ff'); ctr(myName() + ' / ' + TEAMS[sel.team].n, 76, '#ffe14a'); ctr(e[endingPage + 1], 108, '#fff'); ctr(endingPage ? 'THE LEAGUE WILL RETURN.' : CLASSES[champ.cls].n + ' LEAGUE COMPLETE', 140, '#ff8ad0'); if (mt > 1) ctr(btn('a') + ' CONTINUE', 206, '#2ae0ff'); }
+          else { big('FLUX CAPACITY', W/2, 26, 22, '#fff', '#2ae0ff'); ctr('AN ORIGINAL 1999 RACING PRODUCTION', 44, '#ff8ad0'); ['CIRCUIT TESTING / ' + castN('mate1'), 'AERODYNAMICS / ' + castN('mate2'), 'WEAPON SAFETY / ' + castN('mate3'), 'MUSIC DEPARTMENT / ' + castN('mate4'), 'BISCUIT SUPPLY / ' + castN('sister'), 'CHIEF TEST PILOT / ' + myName(), 'THANK YOU FOR RACING'].forEach((s,n)=>ctr(s,70+n*17,n===6?'#ffe14a':'#fff')); if(mt>3)ctr(btn('a')+' FINISH',218,'#2ae0ff'); } return; }
         if (mode === 'podium') { big(CLASSES[champ.cls].n, W / 2, 20, 16, '#e8f8ff', '#3a8ad8'); ctr('CHAMPIONSHIP RESULTS', 36, '#fff');
           champ.final.slice(0, 3).forEach((x, n) => ctr(ORD[n] + '  ' + x.n + '  ' + x.p + ' PTS', 150 + n * 11, n === 0 ? '#ffe14a' : '#fff'));
           if (mt > 2) { big(champ.place === 0 ? 'CHAMPION!' : champ.place < 3 ? ORD[champ.place] + ' OVERALL' : 'NEXT SEASON...', W / 2, HH - 46, 20, '#ffffff', champ.place === 0 ? '#ffe14a' : '#2ae0ff'); champ.msgs.forEach((m, n) => { if (blink(2)) ctr(m, HH - 30 + n * 10, '#9affa0'); }); }
-          if (mt > 4 && blink(2)) ctr('PRESS ' + K.label('a'), HH - 10, '#fff'); return; }
+          if (mt > 4 && blink(2)) ctr('PRESS ' + btn('a'), HH - 10, '#fff'); return; }
         raceHud(false);
-        if (saveT > 0 && ['results', 'standings', 'podium', 'ttres', 'options'].includes(mode)) { panel(W / 2 - 110, HH - 40, 220, 22, '#ffe14a'); ctr('SAVING TO MEMORY CARD' + '...'.slice(0, (K.t * 4 | 0) % 4) + ' DO NOT REMOVE', HH - 33, '#ffe14a'); }
+        if (saveT > 0 && ['results', 'standings', 'podium', 'ttres', 'options'].includes(mode)) { panel(W / 2 - 110, HH - 18, 220, 14, '#ffe14a'); ctr('SAVING TO MEMORY CARD' + '...'.slice(0, (K.t * 4 | 0) % 4) + ' DO NOT REMOVE', HH - 14, '#ffe14a'); }
       }
       function raceHud(demo) {
-        if (mode === 'intro') { panel(30, HH - 70, 260, 52, '#ff2a8a'); ctr(cfg.kind === 'champ' ? 'CHAMPIONSHIP  RACE ' + (champ.race + 1) + '/' + CHAMP.length : cfg.kind === 'tt' ? 'TIME TRIAL' : 'SINGLE RACE', HH - 62, '#ff8ad0'); big(TRACKS[cfg.track].n, W / 2, HH - 40, 18, '#e8f8ff', '#3a8ad8'); ctr(CLASSES[cfg.cls].n + '   LAP RECORD ' + fmt(TRACKS[cfg.track].rec), HH - 28, '#fff'); return; }
+        if (mode === 'intro') { panel(30, HH - 70, 260, 52, '#ff2a8a'); ctr(cfg.kind === 'champ' ? 'CHAMPIONSHIP  RACE ' + (champ.race + 1) + '/' + CHAMP.length : (cfg.kind === 'tt' || cfg.kind === 'attack') ? 'TIME TRIAL' : 'SINGLE RACE', HH - 62, '#ff8ad0'); big(TRACKS[cfg.track].n, W / 2, HH - 40, 18, '#e8f8ff', '#3a8ad8'); ctr(CLASSES[cfg.cls].n + '   LAP RECORD ' + fmt(TRACKS[cfg.track].rec), HH - 28, '#fff'); return; }
         if (hitFlash > 0) { H.fillStyle = `rgba(255,30,30,${hitFlash})`; H.fillRect(0, 0, W, HH); }
         // lap and times
         panel(4, 4, 96, 40); txt('LAP', 10, 9, '#ff8ad0'); big(clamp(me.lap || 1, 1, 3) + '/3', 52, 20, 16, '#e8f8ff', '#3a8ad8', 'left'); txt(fmt(me.done ? me.ft : raceT), 10, 32, '#fff');
         if (!demo) me.laps.slice(-3).forEach((t, n) => txt('L' + (me.laps.length - Math.min(3, me.laps.length) + n + 1) + ' ' + fmt(t), 8, 48 + n * 9, t === me.bestLap ? '#9affa0' : '#8ad8ff'));
-        if (cfg.kind !== 'tt') { panel(W - 70, 4, 66, 40); txt('POS', W - 64, 9, '#ff8ad0'); big(String(me.place + 1), W - 36, 26, 24, '#ffffff', '#ff2a8a', 'center'); txt('/' + ships.length, W - 22, 30, '#fff'); }
+        if (cfg.kind !== 'tt' && cfg.kind !== 'attack') { panel(W - 70, 4, 66, 40); txt('POS', W - 64, 9, '#ff8ad0'); big(String(me.place + 1), W - 36, 26, 24, '#ffffff', '#ff2a8a', 'center'); txt('/' + ships.length, W - 22, 30, '#fff'); }
         else if (ghost) txt('GHOST', W - 50, 10, '#c8b0ff');
         if (!demo) {
           // weapon
-          if (me.wep) { panel(W / 2 - 34, 4, 68, 32, WCOL[me.wep]); H.drawImage(ICON[me.wep], W / 2 - 30, 8, 24, 24); txt(me.wep, W / 2 - 3, 12, WCOL[me.wep]); if (blink(3)) txt(K.label('b'), W / 2 - 3, 22, '#fff'); }
+          if (me.wep) { panel(W / 2 - 34, 4, 68, 32, WCOL[me.wep]); H.drawImage(ICON[me.wep], W / 2 - 30, 8, 24, 24); txt(me.wep, W / 2 - 3, 12, WCOL[me.wep]); if (blink(3)) txt(btn('b'), W / 2 - 3, 22, '#fff'); }
           // shield energy
           const e = clamp(me.energy / 100, 0, 1); panel(4, HH - 26, 120, 22, e < 0.3 ? '#ff2a2a' : '#2ae0ff'); txt('SHIELD', 10, HH - 21, '#fff');
           for (let k = 0; k < 16; k++) { if (k / 16 >= e) break; H.fillStyle = e < 0.3 ? (blink(4) ? '#ff2a2a' : '#801010') : e < 0.6 ? '#ffe14a' : '#3aff6a'; H.fillRect(52 + k * 4.2, HH - 22, 3, 12); }
+          if(me.hyper&&e>=.3)ctr('HYPERTHRUST',HH-40,'#ffe14a');
           if (e < 0.3 && !me.out && blink(2)) ctr('LOW SHIELD! USE THE PIT LANE', HH - 40, '#ff5a5a');
           // speed
-          const sp = Math.round(me.v * 6); big(String(sp), W - 40, HH - 22, 20, '#e8f8ff', me.boost > 0 ? '#ffe14a' : '#3a8ad8', 'right'); txt('KM/H', W - 36, HH - 18, '#ff8ad0');
-          for (let k = 0; k < 12; k++) { if (k / 12 > me.v / 75) break; H.fillStyle = k < 7 ? '#2ae0ff' : k < 10 ? '#ffe14a' : '#ff2a8a'; H.fillRect(W - 112 + k * 6, HH - 8, 5, 4); }
+          const sp = Math.round(me.v * 12); big(String(sp), W - 40, HH - 22, 20, '#e8f8ff', me.boost > 0 ? '#ffe14a' : '#3a8ad8', 'right'); txt('KM/H', W - 36, HH - 18, '#ff8ad0');
+          for (let k = 0; k < 12; k++) { if (k / 12 > me.v / 110) break; H.fillStyle = k < 7 ? '#2ae0ff' : k < 10 ? '#ffe14a' : '#ff2a8a'; H.fillRect(W - 112 + k * 6, HH - 8, 5, 4); }
+          if (cfg.kind==='elim') {txt('K.O. '+(me.kos||0)+'/'+(challenge?challenge.target:eliminatorTarget),W/2-28,48,'#ffe14a');}
+          if (cfg.kind === 'attack') { big(Math.max(0, attackLeft).toFixed(1), W / 2, 54, 22, '#fff', attackLeft < 10 ? '#ff3a2a' : '#ffe14a'); }
           if (me.air && me.airT > 0.6) ctr('AIR ' + me.airT.toFixed(1), 110, '#9affa0');
         }
         if (L) minimap();
+        if (mode==='count') ctr(btn('a')+' THRUST / '+(padInput()?'STICK':'ARROWS')+' STEER / '+btn('l')+'-'+btn('r')+' AIRBRAKES',HH-42,'#8ad8ff');
         if (mode === 'count') { for (let q = 0; q < 3; q++) { const on = 3 - Math.ceil(count) >= q; H.fillStyle = on ? '#ff2a2a' : '#300808'; H.fillRect(W / 2 - 40 + q * 28, 50, 24, 10); } const c = Math.ceil(count); if (c >= 1 && c <= 3) big(String(c), W / 2, 100, 46, '#ffffff', '#2ae0ff'); }
         else if (mode === 'race' && raceT < 1.2 && !demo) big('GO!', W / 2, 100, 46, '#ffffff', '#ff2a8a');
         if (msgT > 0 && msg && !demo) big(msg, W / 2, 140, msg.length > 14 ? 13 : 18, '#ffffff', '#2ae0ff');
         if (mode === 'finish' && finT > 0.5 && !demo) big(me.out ? 'ELIMINATED' : 'RACE OVER', W / 2, 72, 24, '#ffffff', me.out ? '#ff2a2a' : '#2ae0ff');
         if (mode === 'results') { panel(36, 24, 248, 178); big('RESULTS', W / 2, 38, 16, '#e8f8ff', '#3a8ad8');
-          results.rows.forEach((r, n) => { if (results.t < n * 0.15) return; const y = 54 + n * 17; if (r.me) { H.fillStyle = 'rgba(42,224,255,.18)'; H.fillRect(40, y - 3, 240, 14); } txt(ORD[n], 44, y, n === 0 ? '#ffe14a' : '#fff'); H.fillStyle = hexs(TEAMS[r.team].col); H.fillRect(74, y - 1, 6, 9); txt(r.n, 84, y, r.me ? '#2ae0ff' : '#fff'); txt(r.out ? 'OUT' : fmt(r.t), 170, y, r.out ? '#ff5a5a' : '#ff8ad0'); if (champ) txt('+' + r.add, 250, y, '#9affa0'); });
-          if (mt > 1 && blink(2)) ctr('PRESS ' + K.label('a'), 206, '#fff'); }
-        if (mode === 'standings') { panel(36, 24, 248, 178); big('POINTS', W / 2, 38, 16, '#e8f8ff', '#3a8ad8'); const st = Object.keys(champ.pts).map(n => ({ n, p: champ.pts[n], team: champ.teamOf[n] })).sort((a, b) => b.p - a.p);
-          st.forEach((r, n) => { const y = 54 + n * 17, mine = r.n === me.n; if (mine) { H.fillStyle = 'rgba(42,224,255,.18)'; H.fillRect(40, y - 3, 240, 14); } txt(ORD[n], 44, y, '#fff'); H.fillStyle = hexs(TEAMS[r.team].col); H.fillRect(74, y - 1, 6, 9); txt(r.n, 84, y, mine ? '#2ae0ff' : '#fff'); H.fillStyle = TH.edge; H.fillRect(170, y, Math.min(60, r.p * 1.4) * Math.min(1, mt * 1.5), 6); txt(String(r.p), 252, y, '#9affa0'); });
-          ctr('RACE ' + (champ.race + 1) + ' OF ' + CHAMP.length, 194, '#ff8ad0'); if (mt > 1 && blink(2)) ctr('PRESS ' + K.label('a'), 206, '#fff'); }
+          results.rows.slice(resultPage*6,resultPage*6+6).forEach((r, row) => {const n=resultPage*6+row; if (results.t < row * 0.15) return; const y = 54 + row * 21; if (r.me) { H.fillStyle = 'rgba(42,224,255,.18)'; H.fillRect(40, y - 3, 240, 14); } txt(ORD[n], 44, y, n === 0 ? '#ffe14a' : '#fff'); H.fillStyle = hexs(TEAMS[r.team].col); H.fillRect(74, y - 1, 6, 9); fit(r.n,84,y,80,r.me?'#2ae0ff':'#fff'); txt(r.out ? 'OUT' : fmt(r.t), 170, y, r.out ? '#ff5a5a' : '#ff8ad0'); if (champ) txt('+' + r.add, 250, y, '#9affa0'); });
+          ctr('< > PLACES '+(resultPage*6+1)+'-'+Math.min(ships.length,resultPage*6+6),182,'#8a8aa8');if (mt > 1 && blink(2)) ctr('PRESS ' + btn('a'), 206, '#fff'); }
+        if (mode === 'standings') { panel(36, 24, 248, 178); big('POINTS', W / 2, 38, 16, '#e8f8ff', '#3a8ad8'); const st = Object.keys(champ.pts).map(id=>({id,n:champ.names[id],p:champ.pts[id],team:champ.teamOf[id]})).sort((a, b) => b.p - a.p);
+          st.slice(resultPage*6,resultPage*6+6).forEach((r,row) => {const n=resultPage*6+row; const y = 54 + row * 21, mine = r.id === me.id; if (mine) { H.fillStyle = 'rgba(42,224,255,.18)'; H.fillRect(40, y - 3, 240, 14); } txt(ORD[n], 44, y, '#fff'); H.fillStyle = hexs(TEAMS[r.team].col); H.fillRect(74, y - 1, 6, 9); fit(r.n,84,y,80,mine?'#2ae0ff':'#fff'); H.fillStyle = TH.edge; H.fillRect(170, y, Math.min(60, r.p * 1.4) * Math.min(1, mt * 1.5), 6); txt(String(r.p), 252, y, '#9affa0'); });
+          ctr('RACE ' + (champ.race + 1) + ' OF ' + CHAMP.length, 194, '#ff8ad0'); ctr('< > PLACES '+(resultPage*6+1)+'-'+Math.min(ships.length,resultPage*6+6),182,'#8a8aa8');if (mt > 1 && blink(2)) ctr('PRESS ' + btn('a'), 206, '#fff'); }
         if (mode === 'ttres') { const r = results; panel(50, 30, 220, 160); big(r.title, W / 2, 46, 18, '#e8f8ff', '#3a8ad8'); r.laps.forEach((t, n) => { txt('LAP ' + (n + 1), 70, 66 + n * 13); txt(fmt(t), 190, 66 + n * 13, t === me.bestLap ? '#9affa0' : '#2ae0ff'); });
-          txt('TOTAL', 70, 112); txt(fmt(r.t), 190, 112, '#2ae0ff'); txt('YOUR BEST', 70, 128, '#ff8ad0'); txt(fmt(r.rec ? r.t : r.old), 190, 128, '#ff8ad0'); txt('LAP RECORD', 70, 144, '#ffe14a'); txt(fmt(TRACKS[cfg.track].rec), 190, 144, '#ffe14a'); if (r.rec) ctr('GHOST SAVED', 166, '#c8b0ff'); if (mt > 1 && blink(2)) ctr('PRESS ' + K.label('a'), 196, '#fff'); }
+          txt('TOTAL', 70, 112); txt(fmt(r.t), 190, 112, '#2ae0ff'); txt('YOUR BEST', 70, 128, '#ff8ad0'); txt(fmt(r.rec ? r.t : r.old), 190, 128, '#ff8ad0'); txt('LAP RECORD', 70, 144, '#ffe14a'); txt(fmt(TRACKS[cfg.track].rec), 190, 144, '#ffe14a'); if (r.rec) ctr(cfg.kind==='tt'?'GHOST SAVED':'TIME SAVED', 166, '#c8b0ff'); if (mt > 1 && blink(2)) ctr('PRESS ' + btn('a'), 196, '#fff'); }
         if (paused) { H.fillStyle = 'rgba(4,0,16,.65)'; H.fillRect(0, 0, W, HH); big('PAUSED', W / 2, 70, 26, '#e8f8ff', '#3a8ad8'); panel(100, 90, 120, 66); ['CONTINUE', 'RESTART', 'QUIT'].forEach((s, n) => ctr((n === psel ? '> ' : '') + s + (n === psel ? ' <' : ''), 100 + n * 18, n === psel ? '#2ae0ff' : '#fff')); }
       }
 
       // ---------------------------------------------------------------- off we go
       function init() {
         RK = window.RoomRK; RKd = RK;
-        shipGeo = TEAMS.map(t => RK.ship2(T, { col: t.col, trim: t.trim, kind: t.kind, glow: t.glow }));
-        fxN = RK.fx(T3, { n: 400, scale: HH * 0.85, square: true }); fxA = RK.fx(T3, { n: 500, add: true, scale: HH * 0.85, square: true });
-        mode = 'card'; cardT = 0; buildTrack(0); trackPrev = 0;
+        shipGeo = TEAMS.map(t => {
+          if(t.kind<5)return RK.ship2(T,{col:t.col,trim:t.trim,kind:t.kind,glow:t.glow});
+          const base=RK.ship2(T,{col:t.col,trim:t.trim,kind:[1,3,2][t.kind-5],glow:t.glow});
+          // merge() preserves positions/normals but assigns colours: keep the base's painted vertices below.
+          const additions=[];
+          const pod=(x,z,len,col)=>{const ring=(w,h,y)=>[[-w*.35,y-h*.5],[w*.35,y-h*.5],[w*.5,y-h*.3],[w*.5,y+h*.3],[w*.35,y+h*.5],[-w*.35,y+h*.5],[-w*.5,y+h*.3],[-w*.5,y-h*.3]];additions.push({geo:RK.loft(T,[{z:z+len*.5,p:ring(.08,.1,.35)},{z:z+len*.2,p:ring(.48,.36,.35)},{z:z-len*.5,p:ring(.4,.3,.35)}]).translate(x,0,0),c:col});};
+          const add=(w,h,d,x,y,z,c,ry=0)=>additions.push({geo:new T.BoxGeometry(w,h,d),m:RK.M(T,x,y,z,ry),c});
+          if(t.kind===5){for(const f of [-1,1]){pod(f*1.65,-.4,2.4,t.trim);add(.14,.8,.8,f*1.95,.9,-1.3,t.col);}}
+          if(t.kind===6){add(2.8,.13,.9,0,.5,-1.4,t.trim);for(const f of [-1,1]){add(.5,.55,1.6,f*1.1,.45,-1.25,t.col);add(.3,.3,.08,f*1.1,.45,-2.08,0x20202c);}}
+          if(t.kind===7){for(const f of [-1,1]){pod(f*1.9,.15,3.6,t.trim);add(.3,.24,.1,f*1.62,.25,1.96,0x20202c);}add(.14,.65,2.2,0,1.35,-.8,t.col);}
+          const extra=RK.merge(T,additions),painted=base.body;
+          // Concatenate the original vertex colours as well as the new details (no material/draw-call cost).
+          const body=new T.BufferGeometry();for(const key of ['position','normal','uv','color']){const a=painted.attributes[key],b=extra.attributes[key],v=new Float32Array(a.array.length+b.array.length);v.set(a.array);v.set(b.array,a.array.length);body.setAttribute(key,new T.BufferAttribute(v,a.itemSize));}
+          additions.forEach(p=>p.geo.dispose());extra.dispose();painted.dispose();return{body,glow:base.glow};
+        });
+        fleetBody=shipGeo.map(g=>new T.InstancedMesh(g.body,matV,3));fleetGlow=shipGeo.map(g=>new T.InstancedMesh(g.glow,matGlow,3));for(const mesh of fleetBody.concat(fleetGlow)){mesh.count=0;mesh.frustumCulled=false;mesh.instanceMatrix.setUsage(T.DynamicDrawUsage);fleetG.add(mesh);}
+        // Exhaust sprites pass close to the chase camera. Unbounded point size made a pale slab cover the road.
+        fxN = RK.fx(T3, { n: 220, scale: HH * 0.85, maxPx:8, square: true }); fxA = RK.fx(T3, { n: 300, add: true, scale: HH * 0.85, maxPx:14, square: true });
+        mode = 'card'; cardT = 0; buildTrack(0); trackPrev = 0; restoreRace();
       }
       if (RK) init(); else kitReady.then(() => { if (mode === 'load') init(); }, () => {});
       window.__gravDbg = {
-        get st() { return { mode, kind: cfg.kind, cls: cfg.cls, track: cfg.track, raceT, me: me && { fi: me.fi, d: me.d, y: me.y, v: me.v, lap: me.lap, prog: me.prog, place: me.place, wep: me.wep, energy: me.energy, out: me.out, done: me.done, ft: me.ft, air: me.air }, ships: ships.map(s => ({ n: s.n, prog: Math.round(s.prog), place: s.place, done: s.done, out: s.out, e: Math.round(s.energy), v: Math.round(s.v), lap: s.lap, best: s.bestLap })), champ: champ && { race: champ.race, pts: champ.pts, total: champ.total }, sv }; },
-        race(kind, n, cls) { cfg.cls = cls | 0; sel.team = sv.team; if (kind === 'champ') newChamp(); else { cfg.track = n | 0; cfg.kind = kind || 'race'; champ = null; setupRace(); } },
-        go() { if (mode === 'intro' || mode === 'loading') startCount(); count = 0.01; },
-        give(w) { if (me) me.wep = w; },
+        get st() { return { mode, paused, attackLeft, tracks: TRACKS.map(t=>t.n), classes: CLASSES.map(c=>c.n), team:sel.team, kind: cfg.kind, cls: cfg.cls, track: cfg.track, ghost:!!ghost, raceT, me: me && { kos:me.kos, shield:me.shield,boost:me.boost,hyper:me.hyper, a:me.a, fi: me.fi, d: me.d, y: me.y, v: me.v, lap: me.lap, prog: me.prog, place: me.place, wep: me.wep, energy: me.energy, respawn:me.respawn, out: me.out, done: me.done, ft: me.ft, air: me.air }, ships: ships.map(s => ({ n: s.n, prog: Math.round(s.prog), place: s.place, done: s.done, out: s.out, e: Math.round(s.energy), v: Math.round(s.v), lap: s.lap, best: s.bestLap })), champ: champ && { race: champ.race, pts: champ.pts, total: champ.total }, sv }; },
+        race(kind, n, cls) { challenge=null;cfg.cls = cls | 0; sel.team = sv.team; if (kind === 'champ') newChamp(); else { cfg.track = n | 0; cfg.kind = kind || 'race'; champ = null; setupRace(); } },
+        go() { if (mode === 'intro' || mode === 'loading') startCount(); count = 0.01;camera(1); },
+        give(w) { if (me && WEPS.includes(w)) me.wep = w; },
+        target() {const s=ships.find(s=>s!==me&&!s.done);if(!s)return false;s.out=false;s.respawn=0;s.energy=4;s.fi=(me.fi+4)%L.N;s.d=me.d;s.a=0;s.turn=0;s.v=me.v;s.vy=0;s.slow=0;s.boost=0;s.flash=0;s.y=trackY(s.fi,s.d)+1.1;s.air=false;s.shield=0;s.wep='';return true;},
+        save:checkpoint,
+        at(f,d,v) { if(!me)return;me.fi=((f%1)+1)%1*L.N;me.prog=Math.floor(Math.max(0,me.prog)/L.N)*L.N+me.fi;me.d=d||0;me.a=0;me.v=v||0;me.y=trackY(me.fi,me.d)+1.1;me.vy=0;me.air=false;me.respawn=0;camera(1); },
+        bench() {const a=performance.now();for(let n=0;n<30;n++)T3.render();const draw=(performance.now()-a)/30;return{drawSubmitMs:draw,calls:T3.ren.info.render.calls,triangles:T3.ren.info.render.triangles};},
+        names() {return{scores:table().map(x=>x.n),rivals:ships.map(x=>x.n),records:TRACKS.map((t,i)=>castN(['mate1','mate2','mate3','mate4','sister'][i%5]))};},
         skipLaps(n) { if (me) me.prog += L.N * (n || 1); },
         lastRace() { if (champ) champ.race = CHAMP.length - 1; },
         hurt(n) { if (me) hurt(me, n || 50, null); },
@@ -880,9 +1027,9 @@
         viewWep(k, a, e, d) { buildGarage(); mode = 'view'; clearShips(); if (viewObj) T3.scene.remove(viewObj); viewObj = shotMesh(k); viewObj.position.set(0, -298.6, 0); view3 = [a == null ? 0.6 : a, e == null ? 0.25 : e, d || 6]; return true; },
       };
       return {
-        update(dt) { update(dt); if (mode !== 'load') { if (L && ships.length && !['team', 'podium', 'view'].includes(mode)) placeShips(); camera(dt); if (fxN) { fxN.update(dt); fxA.update(dt); } } },
+        update(dt) { update(dt); if (mode !== 'load') { if (L && ships.length && !['team', 'podium', 'ending', 'credits', 'view'].includes(mode)) placeShips(); camera(paused?0:dt); if (fxN && !paused) { fxN.update(dt); fxA.update(dt); } } },
         draw() { if (mode !== 'load') T3.render(); hud(); },
-        end() { K.music(null); try { delete window.__gravDbg; delete window.__gravCheatAll; } catch (e) {} },
+        end() { checkpoint();mode='ended';removeEventListener('pagehide',saveOnLeave);document.removeEventListener('visibilitychange',saveOnHide);K.music(null); try { delete window.__gravDbg; delete window.__gravCheatAll; } catch (e) {} },
       };
     },
   });

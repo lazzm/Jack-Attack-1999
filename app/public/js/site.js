@@ -1170,7 +1170,11 @@
         if (window.Sound && Sound.music) Sound.music.stop();
         overlay().innerHTML = '<div class="jlsave">Saving your settings...</div>'; sfx('shutdown');
         const t0 = Date.now();
-        try { if (window.Roam && me().member) await Roam.logoff(); } catch (e) {} // members: upload their roaming profile, give the PC back to the guest
+        if (me().member && (!window.Roam || !await Roam.logoff())) {
+          finish(false);
+          Desk.msgbox('Still logged on', 'JackNet could not confirm your save. Your files are still on this PC. Reconnect and try logging off again.', 'info');
+          return;
+        }
         if (me().member) Net.send({ t: 'logoff', token: Net.store.get('jhp_token') });
         try { sessionStorage.setItem('jhp_site_relogon', '1'); } catch (e) {}
         setTimeout(() => location.reload(), Math.max(300, 1500 - (Date.now() - t0))); // a clean desktop, then the logon screen again

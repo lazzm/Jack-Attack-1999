@@ -51,7 +51,7 @@
  // pavement. The opposite houses' front walls stand on the far pavement's back edge, about 17.8 m from our front wall.
  const ST=(H.FRONT&&H.FRONT.STREET)||{pave:[1400,1545],kerb:1550,road:[1555,2115],farKerb:2120,farPave:[2125,2270]};
  // Nearby sodium columns share their emitter positions with the house's fixed
- // light rig. Solid pavement/tarmac receives its light, with no glow cards.
+ // light rig. Warm ground ink supplements it without another real light.
  const streetLamps=[-420,960].map(x=>({x,y:GY-454,z:ST.farKerb+10,c:'#ffc078',i:1.7,d:1650}));
  const OPP=ST.farPave[1]+560; // opposite plots: z of the house centre (front boundary 540 + 20 in front of it)
  // The village goes on past the end of our row: a crossroads to the east (the side road joins the back road), the
@@ -148,6 +148,7 @@
   }
   b.cyl(0,peak,0,7,7,length+40,8,tile,{rx:90});
  }
+ const porchPools=[];
  const homes=[];
  function windowBay(b,x,y,z,ry,w,h,n){
   const f=b.at(x,y,z,ry),lit=n%4===1;
@@ -210,6 +211,13 @@
   entry.box(0,-153,10,48,64,2,glassShade);entry.box(0,-59,10,48,50,2,door);
   entry.box(0,-101,12,24,4,3,trim);entry.cyl(25,-91,12,2,2,3,7,trim,{rx:90});
   entry.box(0,-3,24,96,6,62,paving);
+  // Solid coach lantern: dark backplate/cap surround a warm glass chamber.
+  const lantern=entry.at(58,-162,8);
+  lantern.box(0,0,0,7,20,2,metal);lantern.box(0,1,5,8,13,7,lampGlass);
+  for(const xx of [-4.5,4.5])lantern.box(xx,1,5,1,15,8,metal);
+  lantern.box(0,-7,5,12,3,11,metal);lantern.box(0,9,5,10,2,9,metal);
+  if(n<17)porchPools.push({x,z,ry,doorX,face});
+
   // Small pitched porch, supported on its brick cheeks, on alternate houses.
   if(type===1||type===2){
    const porch=entry.at(0,0,28);porch.box(-49,-100,0,10,200,58,wall,{uv:100});porch.box(49,-100,0,10,200,58,wall,{uv:100});
@@ -353,6 +361,51 @@
  const light=new T.Vector3(-.4,-.8,.4).normalize(),normal=new T.Vector3();
  group.traverse(o=>{o.userData.noPick=true;if(!o.geometry)return;const n=o.geometry.attributes.normal,colours=new Float32Array(n.count*3);for(let i=0;i<n.count;i++){const shade=.69+.29*Math.max(0,normal.fromBufferAttribute(n,i).dot(light));colours.fill(shade,i*3,i*3+3)}o.geometry.setAttribute('color',new T.Float32BufferAttribute(colours,3));o.material.vertexColors=true;});
 
+ // Painted sodium falloff, clipped to each receiving surface and batched once.
+ // No blur, real lights, moving buffers or per-frame work; depth testing stays on.
+ const nightInk=new T.Group();nightInk.name='night-light-pools';H.root.add(nightInk);
+ const inkBatch=K.batch(),ink=K.into(inkBatch);
+ const poolMap=K.tex('env.warm.pool',128,128,(g,w,h)=>{
+  const im=g.createImageData(w,h);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+   const radius=Math.hypot((x+.5-w/2)/(w/2),(y+.5-h/2)/(h/2));
+   const t=Math.max(0,1-radius),a=t*t*(3-2*t),i=(y*w+x)*4;
+   im.data[i]=255;im.data[i+1]=205;im.data[i+2]=134;im.data[i+3]=Math.round(a*255);
+  }g.putImageData(im,0,0);
+ },{clamp:true});
+ const poolM=new T.MeshBasicMaterial({color:'#ffca88',map:poolMap,transparent:true,opacity:.42,blending:T.AdditiveBlending,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+ poolM.userData.lightDecal=true;
+ function groundPool(x,z,w,d,z0,z1,top){
+  const lo=Math.max(z-d/2,z0),hi=Math.min(z+d/2,z1);if(lo>=hi)return;
+  const geo=new T.PlaneGeometry(w,hi-lo),uv=geo.attributes.uv;
+  for(let i=0;i<uv.count;i++)uv.setY(i,(lo+(hi-lo)*uv.getY(i)-(z-d/2))/d);
+  ink.geo(geo,x,GY+top-.18,(lo+hi)/2,poolM,{rx:90});
+ }
+ const lampXs=[-4300,-2480,-1120,...streetLamps.map(l=>l.x),1600,3300,4700];
+ for(const x of lampXs){
+  const z=ST.farKerb-100;
+  groundPool(x,z,860,860,...ST.road,0);
+  groundPool(x,z,860,860,...ST.farPave,-.2);
+  groundPool(x,z,860,860,ST.farKerb-5,ST.farKerb+5,-12);
+ }
+ // The family's near-side column, anchored to the same FRONT kerb as its solid model.
+ for(const [z0,z1,top]of [[...ST.road,0],[...ST.pave,-.2],[ST.kerb-5,ST.kerb+5,-12]])groundPool(700,ST.kerb+110,850,900,z0,z1,top);
+ // A porch casts a small wash on its wall and a pool over its actual threshold.
+ function porchInk(x,z,ry,doorX,face){
+  const b=ink.at(x,GY+1,z,ry);
+  b.geo(new T.PlaneGeometry(110,150),doorX+58,-142,face+1.5,poolM);
+  b.geo(new T.PlaneGeometry(94,120),doorX,-1.25,face+79,poolM,{rx:90});
+ }
+ for(const p of porchPools)porchInk(p.x,p.z,p.ry,p.doorX,p.face);
+ // Our own lantern uses the same surface wash; keep it clear of the opening.
+ const porchWall=new T.PlaneGeometry(46,150),porchUV=porchWall.attributes.uv;
+ for(let i=0;i<porchUV.count;i++)porchUV.setX(i,.425+.575*porchUV.getX(i));
+ ink.geo(porchWall,371,GY-163,703.18,poolM);
+ ink.geo(new T.PlaneGeometry(70,44),300,GY-2.18,730,poolM,{rx:90});
+ groundPool(320,755,130,150,752,830,0);
+ inkBatch.build(nightInk);
+ nightInk.traverse(o=>{o.userData.noPick=true;o.userData.lightDecal=true});
+
  // The horizon: a painted ring 36 m out that travels with the camera (like the sky), so whichever way you look past the
  // last houses there are fields, hedgerows, more rooftops, the church spire and low hills fading into the haze, never
  // the edge of the world. Depth-tested, so everything nearer stands in front of it; drawn once per phase change.
@@ -415,7 +468,8 @@
   paintBackdrop(ph,horizon);
   const tint=new T.Color(night?'#566378':ph==='day'?'#ffffff':'#c3a8a0');for(const{m,c}of materials)m.color.copy(c).multiply(tint);
   occupied.color.set(night?'#c8a36f':'#718b96');lampGlass.color.set(night?'#ffd093':'#d6cdb2');
+  nightInk.visible=ph!=='day';poolM.opacity=night?.42:.18;
   H.dirty();return true;
  }
- update();H.ambient.add(update);window.HouseEnvironment={group,sky,homes,farHomes,backdrop,street:ST,streetLamps,update,get phase(){return last}};
+ update();H.ambient.add(update);window.HouseEnvironment={group,nightInk,sky,homes,farHomes,backdrop,street:ST,streetLamps,update,get phase(){return last}};
 })();

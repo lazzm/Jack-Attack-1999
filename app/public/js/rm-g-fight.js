@@ -2,9 +2,9 @@
  * hidden, and the TEKNO KING, the boss), nine stages, Arcade (a story, a rival, a boss and an ending for everybody),
  * Versus CPU, Survival, Time Attack and Training with move lists. Wobbly polygons, wonky textures, 15-bit dither.
  * The engine is js/rm-g-fightkit.js (shared with SOUL SABRE): this file is the cast, their moves, the stages and the tunes.
- * Controls: Z (✕) left punch, C (□) right punch, X (○) left kick, V (△) right kick. Back (or standing still) guards,
- * Down crouches (and guards lows), tap Up / Down to sidestep, hold Up to jump, tap forward twice to dash.
- * Two buttons together throw: ✕+○ and □+△. Tap back just as a hit lands: PARRY.
+ * Controls: Z (★) left punch, C (#) right punch, X (@) left kick, V (~) right kick. Back (or standing still) guards,
+ * Down crouches (and guards lows), press Up / Down quickly to sidestep, hold Up to jump, press forward twice to dash.
+ * Two buttons together throw: ★+@ and #+~. Press back just as a hit lands: PARRY.
  * Secrets: rm.fight.perfect (in rm-cat.js), rm.fight.champ (finish Arcade), rm.fight.combo (an 8-hit combo).
  * The save (rm.ps.fight, v1): options, unlocked fighters/costumes/stages, endings seen, the high-score table.
  * Everything (models, textures, music, story) is original and made in code. */
@@ -520,8 +520,8 @@
       ending: { bpm: 84, wave: 'triangle', vol: 0.08, lead: mel('C5 - - - E5 - G5 - A5 - - - G5 - - - F5 - - - E5 - D5 - E5 - - - - - - - C5 - - - E5 - G5 - C6 - - - B5 - - - A5 - - - G5 - F5 - G5 - - - - - - -'), bass: mel('C3 . . . G2 . . . A2 . . . E2 . . . F2 . . . C2 . . . G2 . . . G2 . . .') },
     };
     const how = K => [
-      ['THE BUTTONS', `!${K.label('a')} LEFT PUNCH   ${K.label('x')} RIGHT PUNCH`, `!${K.label('b')} LEFT KICK    ${K.label('y')} RIGHT KICK`, 'MOVE WITH THE ARROWS. FORWARD = TOWARDS THEM.', 'TAP FORWARD TWICE TO DASH IN (BACK TWICE TO HOP AWAY)', 'HOLD UP TO JUMP. PUNCH OR KICK IN THE AIR.', 'TAP UP OR DOWN QUICKLY TO SIDESTEP INTO OR OUT OF', 'THE SCREEN: STRAIGHT ATTACKS WHOOSH RIGHT PAST YOU.', `PAUSE: START (MOVE LISTS ARE IN THE PAUSE MENU)`],
-      ['GUARDING', '!STANDING STILL OR HOLDING BACK GUARDS HIGH + MID.', '!HOLD DOWN TO CROUCH: IT GUARDS LOWS AND DUCKS HIGHS.', 'MID ATTACKS HIT CROUCHERS. LOW ATTACKS HIT STANDERS.', 'SO: WATCH THEIR FEET, AND MIX IT UP YOURSELF.', '!PARRY: TAP BACK JUST AS A HIGH OR MID HIT LANDS.', 'THEY STAGGER: HIT THEM WHILE THEY ARE OPEN!', 'COUNTER HIT: HIT THEM WHILE THEY START AN ATTACK', 'FOR EXTRA DAMAGE.'],
+      ['THE BUTTONS', `!${K.label('a')} LEFT PUNCH   ${K.label('x')} RIGHT PUNCH`, `!${K.label('b')} LEFT KICK    ${K.label('y')} RIGHT KICK`, 'MOVE WITH THE ARROWS. FORWARD = TOWARDS THEM.', 'PRESS FORWARD TWICE: DASH. BACK TWICE: HOP.', 'HOLD UP TO JUMP. PUNCH OR KICK IN THE AIR.', 'PRESS UP/DOWN QUICKLY TO SIDESTEP INTO OR OUT OF', 'THE SCREEN: STRAIGHT ATTACKS WHOOSH RIGHT PAST YOU.', `PAUSE: START (MOVE LISTS ARE IN THE PAUSE MENU)`],
+      ['GUARDING', '!STANDING STILL OR HOLDING BACK GUARDS HIGH + MID.', '!HOLD DOWN TO CROUCH: IT GUARDS LOWS AND DUCKS HIGHS.', 'MID ATTACKS HIT CROUCHERS. LOW ATTACKS HIT STANDERS.', 'SO: WATCH THEIR FEET, AND MIX IT UP YOURSELF.', '!PARRY: PRESS BACK AS A HIGH OR MID HIT LANDS.', 'THEY STAGGER: HIT THEM WHILE THEY ARE OPEN!', 'COUNTER HIT: HIT THEM WHILE THEY START AN ATTACK', 'FOR EXTRA DAMAGE.'],
       ['THROWS AND COMBOS', `!${K.label('a')}+${K.label('b')} OR ${K.label('x')}+${K.label('y')} TOGETHER: THROW`, 'EVERY FIGHTER THROWS IN THEIR OWN WAY.', '!BREAK A THROW: PRESS THE SAME BUTTONS AS IT GRABS.', 'YOU CAN\'T THROW SOMEBODY WHO IS CROUCHING.', `!↓+${K.label('x')} UPPERCUT LAUNCHES THEM INTO THE AIR:`, 'HIT THEM AGAIN BEFORE THEY LAND = A JUGGLE!', `STRINGS: ${K.label('a')},${K.label('a')},${K.label('x')} AND MORE. PRESS THE NEXT`, 'BUTTON JUST AS THE LAST HIT LANDS.'],
       ['SPECIAL MOVES', `!→+${K.label('x')}  ←+${K.label('y')}  →+${K.label('y')}`, 'EVERY FIGHTER HAS THREE SPECIALS ON THOSE.', 'SEE THEM ON THE SELECT SCREEN AND IN THE', 'PAUSE MENU MOVE LIST (YELLOW).', 'SOME SPECIALS GLOW: THOSE CANNOT BE GUARDED.', 'GET OUT OF THE WAY!', '', '!WIN ARCADE TO UNLOCK FIGHTERS AND COSTUMES.'],
     ];
@@ -537,7 +537,7 @@
 
   TV.game('ps.fight', {
     buttons: ['a', 'b', 'x', 'y'],
-    help: 'Move: arrows (back guards, tap Up/Down to sidestep, hold Up to jump). Punches: Z / C. Kicks: X / V. Throws: Z+X or C+V. Pause: Enter.',
+    help: 'Move: arrows (back guards, press Up/Down quickly to sidestep, hold Up to jump). Punches: Z / C. Kicks: X / V. Throws: Z+X or C+V. Pause: Enter.',
     three: true,
     make(K) {
       let inner = null;

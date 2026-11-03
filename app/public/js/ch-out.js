@@ -177,13 +177,24 @@
     return out;
   }
   function mowerModel() {
-    const g = new T.Group(), G = K.into(g), or = mat('#c96d2c',{sh:28,sp:'#614637'}), dk = mat('#222', { sh: 30 });
-    G.lathe(0, 0, 0, [[0.1, -18], [8, -17], [16, -13], [20, -7], [21, -3], [20.6, 0], [0.1, 0]], 26, or);
-    G.rbox(0,-21,0,16,9,18,2.4,dk);for(let z=-6;z<=6;z+=2)G.box(0,-25.61,z,12,.2,.65,mat('#111512'));G.geo(new T.TorusGeometry(20.9,.55,6,28),0,-3,0,or,{rx:90});for(const x of [-11,11])G.cyl(x,-12,-14,2.5,2.5,3,12,dk,{rz:90}); G.box(0, -17, 14, 14, 3, 6, M({ c: '#fff', map: K.tex('ch.mowlogo', 128, 32, (q, w, h) => { q.fillStyle = '#f07a10'; q.fillRect(0, 0, w, h); A.text(q, 'HOVER-MO', 64, 23, '700 18px ' + A.FONT, '#111', 'center'); }) }), { rx: -20 });
+    const g = new T.Group(), deck=K.batch(), G = K.into(deck), or = mat('#bd6027',{sh:15,sp:'#514132'}), dk = mat('#25292a', { sh: 15 });
+    // A shallow moulded hover deck with squared shoulders and a separate motor
+    // cover. The old conical bell hid the blade skirt and read as a flying saucer.
+    G.rbox(0,-2.1,0,40,4.2,42,2,dk);
+    G.rbox(0,-7.2,0,42,9,44,3.4,or);
+    G.rbox(0,-13,-2,29,10,29,3.2,or);
+    G.rbox(0,-20,-3,17,8,18,2,dk);
+    for(let z=-9;z<=3;z+=2)G.box(0,-24.1,z,12,.2,.65,dk);
+    for(const x of [-11,11]){G.cyl(x,-12,-14,2.5,2.5,3,12,dk,{rz:90});G.cyl(x*1.75,-5,8,.7,.7,1.1,8,dk,{rz:90});}
+    G.box(0,-11.875,15,17,.35,6,{all:or,t:M({c:'#fff',map:K.tex('ch.mowlogo',192,64,(q,w,h)=>{
+      q.fillStyle='#e5c57d';q.fillRect(0,0,w,h);A.text(q,'HOVER-MO',w/2,44,'bold 28px '+A.UIF,'#25292a','center');
+    },{clamp:true})})});
     G.shadow(0, 0, 0, 46, 46, 0.6);
-    const pv = new T.Group(); pv.position.set(0, -12, -14); g.add(pv); g.userData.pivot = pv; const P = K.into(pv);
+    deck.build(g);
+    const pv = new T.Group(); pv.position.set(0, -12, -14); g.add(pv); g.userData.pivot = pv; const handle=K.batch(),P=K.into(handle);
     [-11, 11].forEach(x => P.cyl(x,-37,-9,1.1,1.1,Math.hypot(74,18),10,mat('#a9afb0',{sh:45,sp:'#697273'}),{rx:Math.atan2(18,74)/D2R}));
     P.cyl(0,-74,-18,1.8,1.8,26,12,dk,{rz:90});P.cyl(0,-78,-18,0.55,0.55,22,8,mat('#a83b31'),{rz:90});for(const x of [-10,10])P.cyl(x,-76,-18,.55,.55,4,8,mat('#a83b31'));P.rbox(9,-70,-16,4,8,4,.6,mat('#b32e27'));
+    P.cyl(8,-39,-10,.4,.4,70,6,dk,{rx:14});handle.build(pv);
     return g;
   }
   CK.add({
@@ -337,7 +348,16 @@
     const pv = new T.Group(); pv.position.set(0, -6, 0); g.add(pv); g.userData.pivot = pv; K.into(pv).cyl(0, -62, -2, 1.3, 1.3, 124, 8, mat('#c8a060', { sh: 20 }));
     return g;
   }
-  function pileModel(seed) { const g = new T.Group(), G = K.into(g), r = K.rnd(seed); for (let i = 0; i < 26; i++) { const a = r() * 7, d = Math.sqrt(r()) * 13, c = ['#c8601a', '#e0a020', '#a8401a', '#8a6a2a', '#d8802a'][i % 5]; G.ball(Math.cos(a) * d, -0.6 - r() * 2.5 * (1 - d / 14), Math.sin(a) * d, 3 + r() * 1.6, 0.4, 2 + r(), mat(c, { side: 2 }), 6, { ry: r() * 180 }); } G.shadow(0, 0, 0, 30, 30, 0.35); return g; }
+  function pileModel(seed) {
+    const g=new T.Group(),batch=K.batch(),G=K.into(batch),r=K.rnd(seed);
+    for(let i=0;i<26;i++){
+      const a=r()*Math.PI*2,d=Math.sqrt(r())*13,x=Math.cos(a)*d,z=Math.sin(a)*d;
+      const h=.36+(1-d/14)*1.25,c=['#b97532','#c69839','#90522e','#82703c','#bd8536'][i%5];
+      G.ball(x,-h,z,3+r()*1.6,.32,2+r(),mat(c),6,{ry:r()*180,rz:(r()-.5)*8});
+    }
+    G.shadow(0,0,0,30,30,.46);batch.build(g);return g;
+  }
+
   CK.add({
     id: 'sweep', room: 'drive',
     build(r) {
