@@ -309,7 +309,8 @@ html.hs-moving .rm-tvv .rm-tools,html.hs-moving .rm-live3d .rm-livebar{opacity:0
 [data-con=sn] .rm-pad .rm-dia .rm-fb[data-b=y]{left:0;top:41px;bottom:auto}
 [data-con=sn] .rm-pad .rm-dia .rm-fb[data-b=a]{left:auto;right:0;top:41px;bottom:auto}
 [data-con=sn] .rm-pad .rm-dia .rm-fb[data-b=b]{left:41px;right:auto;top:auto;bottom:0}
-[data-con=md] .rm-pad .rm-fb[data-b=a]{left:0;right:auto;top:auto;bottom:0}
+[data-con=md] .rm-pad .rm-pad-n3 .rm-fb[data-b=a]{left:0;right:auto;top:auto;bottom:8px}
+[data-con=md] .rm-pad .rm-pad-n3 .rm-fb[data-b=c]{left:auto;right:0;top:auto;bottom:8px}
 .rm-tvv .rm-pad{display:none}
 html[data-game-touch="true"] .rm-tvv .rm-pad:not([hidden]){display:block}
 .rm-tvv.rm-hand.rm-lockin .rm-pad:not([hidden]){display:block}

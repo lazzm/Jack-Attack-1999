@@ -370,7 +370,7 @@
     ownerEvent(id) {
       if(!window.OwnerTools?.allowed)return false;
       if(id==='phone'){const was=ring;startRing();return !!ring&&!was;}
-      const lines={tea:'Tea is ready! Come and get it before it goes cold!',bedtime:'Time for bed, Jack. Save your game.',school:'School! Shoes on, bag ready, out you go!',pocket:'Saturday pocket money! Check with me when your jobs are done.'};
+      const lines={tea:'Tea is ready! Come and get it before it goes cold!',bedtime:'Time for bed, {me}. Save your game.',school:'School! Shoes on, bag ready, out you go!',pocket:'Saturday pocket money! Check with me when your jobs are done.'};
       if(!lines[id])return false;voice('MOM',lines[id]);return true;
     },
     vcrSet: () => S.vcr != null, mwSet: () => S.mw != null, mwClock: clockMw,

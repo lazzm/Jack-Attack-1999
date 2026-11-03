@@ -14,7 +14,7 @@
  *   });
  *   K: id, con, def, W, H, cv (main canvas), g (its 2D context; null for 3D), hud (a 2D context layered on top: clear it yourself)
  *      three() -> the 3D kit (see rm-3d.js), t (seconds since make), frame
- *      held(b) pressed(b) (this step only) any() stick() -> {x, y} (-1..1; arrows count too), label(b) ('✕' on a PlayStation)
+ *      held(b) pressed(b) (this step only) any() stick() -> {x, y} (-1..1; arrows count too), label(b) ('★' on a PlaySpace)
  *        buttons: up down left right a b c x y l r start select. Keys: arrows/WASD, Z/Space=a, X=b, C=c and x, V=y, U=l, E=r,
  *        Enter=start, Shift=select. Gamepads work too.
  *      over(score, { title, text, keep }) the go is over (the runtime shows the score card, sends the score, pays Rupees);
@@ -41,7 +41,7 @@
   // ================================================================ the consoles
   const LOOK = {
     n64: { res: [320, 240], smooth: true, keys: { a: 'A', b: 'B', c: 'Z', l: 'L', r: 'R', start: 'START' }, cols: { a: '#2a5ad0', b: '#1a9a3a', c: '#888', start: '#c41a1a' } },
-    ps: { res: [320, 240], smooth: false, keys: { a: '✕', b: '○', x: '□', y: '△', l: 'L1', r: 'R1', start: 'START', select: 'SELECT' }, cols: { a: '#7a9af0', b: '#f07a7a', x: '#f08ad8', y: '#4ad0a8' } },
+    ps: { res: [320, 240], smooth: false, keys: { a: '★', b: '@', x: '#', y: '~', l: 'L1', r: 'R1', start: 'START', select: 'SELECT' }, names: { a: 'Starfish', b: 'Snail', x: 'Waffle', y: 'Worm' }, cols: { a: '#f0c253', b: '#63c7b8', x: '#ed9b70', y: '#b3a2ef' } },
     gb: { res: [160, 144], smooth: false, keys: { a: 'A', b: 'B', start: 'START', select: 'SELECT' }, cols: { a: '#b01a5a', b: '#b01a5a' } },
     md: { res: [320, 224], smooth: false, keys: { a: 'A', b: 'B', c: 'C', start: 'START' }, cols: { a: '#333', b: '#333', c: '#333' } },
     dc: { res: [640, 480], smooth: true, keys: { a: 'A', b: 'B', x: 'X', y: 'Y', l: 'L', r: 'R', start: 'START' }, cols: { a: '#e03a3a', b: '#3a6ae0', x: '#f0c020', y: '#2aa04a' } },
@@ -60,7 +60,7 @@
     ' ': '0000000', '!': '4444404', '?': 'EH12404', '.': '00000CC', ',': '0000C48', ':': '0CC0CC0', ';': '0CC0C48', '-': '000E000', '+': '044V440', '_': '000000V',
     "'": '4480000', '"': 'AA00000', '/': '11248GG', '\\': 'GG84211', '(': '2488842', ')': '8422248', '[': 'E88888E', ']': 'E22222E', '=': '00V0V00',
     '*': '04LEL40', '#': 'AAVAVAA', '%': 'OP248J3', '&': 'CIK8LID', '<': '248G842', '>': '8421248', '@': 'EH1DLLE', '$': '4FKE5U4', '£': '698S88V', '~': '008L200', '^': '4AH0000', '|': '4444444',
-    '✕': '0HA4AH0', '○': '0EHHHE0', '□': '0VHHHV0', '△': '04AAHV0', '♥': '0ALVVE4', '→': '042V240', '←': '048V840', '↑': '4EL4444', '↓': '4444LE4',
+    '✕': '0HA4AH0', '○': '0EHHHE0', '★': '04LVEA0', '♥': '0ALVVE4', '→': '042V240', '←': '048V840', '↑': '4EL4444', '↓': '4444LE4',
   };
   const GLYPH = {}; for (const k of Object.keys(FONT)) GLYPH[k] = [...FONT[k]].slice(0, 7).map(ch => B32.indexOf(ch));
   const atlases = {};
@@ -187,7 +187,7 @@
     if (down) { if (!isHeld(b)) pend[b] = true; } // (an edge: only when it wasn't already held)
   }
   const isHeld = b => !!(held[b] || hardwareHeld[b] || gpHeld[b] || padHeld[b] || gbHeld[b]);
-  // 'c' doubles as 'x' (the PlayStation's square, the Dreamcast's X)
+  // 'c' doubles as 'x' (PlaySpace's Waffle, Daydream's X)
   const alias = b => b === 'x' ? ['x', 'c'] : b === 'c' ? ['c', 'x'] : [b];
   function stick() {
     if (!V || V.background || R.House.paused) return { x: 0, y: 0 };
@@ -846,7 +846,7 @@
     touchPads.get(P)?.destroy(); V.el.classList.remove('rm-padon', 'rm-dual');
     const direction = '<div class="rm-dpad" aria-label="Direction pad"><b data-b="up"></b><b data-b="left"></b><b data-b="right"></b><b data-b="down"></b><i></i></div>';
     const analog = '<div class="rm-stick" aria-label="Analogue stick"><i></i></div>';
-    const button = (b, cls) => `<button type="button" class="${cls}" data-b="${b}" style="--bc:${L.cols[b] || '#555'}" aria-label="${esc(L.keys[b] || b.toUpperCase())}">${esc(L.keys[b] || (b === 'x' ? L.keys.c : '') || b.toUpperCase())}</button>`;
+    const button = (b, cls) => `<button type="button" class="${cls}" data-b="${b}" style="--bc:${L.cols[b] || '#555'}" aria-label="${esc(L.names?.[b] || L.keys[b] || b.toUpperCase())}" title="${esc(L.names?.[b] || L.keys[b] || b.toUpperCase())}">${esc(L.keys[b] || (b === 'x' ? L.keys.c : '') || b.toUpperCase())}</button>`;
     const face = bs.filter(b => !['l', 'r', 'start', 'select'].includes(b));
     P.innerHTML = `<div class="rm-padname">${esc(CAT.CONSOLES[con].n)} · CONTROL PAD</div>
       <div class="rm-pl"><span class="rm-control-label">${dual ? 'MOVE' : def.stick ? 'CONTROL STICK' : 'DIRECTION'}</span>${dual || !def.stick ? direction : analog}</div>

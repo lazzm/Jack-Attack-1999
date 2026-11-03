@@ -17,6 +17,12 @@ const solids=[],treeBases=[];
 const primitiveTypes=new Set(),playable=[[-340,700,716,H.FRONT.STREET.pave[1]-5],[-300,-560,215,-56]];
 K.Batch.prototype.add=function(geometry,matrix,material,uv){
  assert(matrix.elements.every(Number.isFinite),'finite primitive transform');
+ if(material.userData.lightDecal){
+  assert.equal(geometry.type,'PlaneGeometry','Only explicitly painted light may be a decal');
+  assert.equal(material.depthWrite,false);assert.equal(material.depthTest,true);
+  assert.equal(material.blending,T.AdditiveBlending);
+  return add.call(this,geometry,matrix,material,uv);
+ }
  assert(matrix.determinant()>0,'scenery never relies on mirrored or collapsed solids');
  const p=geometry.attributes.position,idx=geometry.index?.array,edges=new Map();let volume=0;
  const v=i=>new T.Vector3().fromBufferAttribute(p,i);
@@ -53,6 +59,9 @@ K.Batch.prototype.add=function(geometry,matrix,material,uv){
 };
 run('hs-environment.js');
 const E=window.HouseEnvironment,ST=H.FRONT.STREET,frontShift=ST.pave[0]-1300;
+assert.equal(E.nightInk.children.length,1,'All warm surface washes share one draw');
+assert.equal(E.nightInk.visible,false,'Light ink is off in daylight');
+E.nightInk.traverse(o=>{assert(o.userData.noPick);assert(o.userData.lightDecal);assert(!o.isLight);});
 assert.equal(E.homes.length,17);assert.equal(H.ambient.size,1);
 assert.equal(new Set(E.homes.map(h=>h.type)).size,4,'four coherent house archetypes');
 assert(roofShells>=34,'every house has both a solid gable and a closed roof shell');
@@ -119,7 +128,7 @@ const daylight=Array.from(allMaterials,m=>m.color.getHex());
 assert.equal(H.scene.background,E.sky,'translation-free cubemap remains the scene background');
 E.group.traverse(o=>assert(!o.isLight,'scenery uses no lights'));
 for(const ph of ['night','dusk','dawn','day']){
- phase=ph;E.update();assert.equal(E.phase,ph);
+ phase=ph;E.update();assert.equal(E.phase,ph);assert.equal(E.nightInk.visible,ph!=='day');
  assert.deepEqual(meshGeometry(),before,'phase changes never replace meshes, geometry or buffers');
  assert.equal(H.ambient.size,1,'one sky updater throughout phase changes');
  if(ph==='night')assert.notDeepEqual(Array.from(allMaterials,m=>m.color.getHex()),daylight,'night tint applies');
