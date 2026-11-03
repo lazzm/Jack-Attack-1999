@@ -2,8 +2,8 @@
  * JackNet member, those keys are uploaded to the server (gzip + base64, in chunks) and downloaded again when they
  * log on from another computer, so their desktop, files, settings, secrets and saves follow them about.
  * A guest who signs up keeps what they made as a guest: it becomes their profile.
- *   Roam.logoff() -> Promise: saves the profile now, then gives the PC back to the guest (call before reloading).
- *   Roam.syncNow() -> Promise: uploads straight away (if anything changed). */
+ *   Roam.logoff() -> Promise<boolean>: gives back the PC only after a confirmed save; false keeps the profile.
+ *   Roam.syncNow() -> Promise<boolean>: waits for an upload, then confirms any newer local changes. */
 (function () {
   // device-only keys never roam: who this browser is, boot state, window geometry, the roaming bookkeeping itself, and
   // what this device can draw (a desktop's High graphics must never land on a phone; js/pc-only.js device choice too)
@@ -39,33 +39,77 @@
     return new TextDecoder().decode(bytes);
   }
 
-  let who = ls.get('jhp_roam_who') || '', busy = false, lastHash = ls.get('jhp_roam_hash') || '', waiters = [],switching=false;
+  let who = ls.get('jhp_roam_who') || '', busy = false, lastHash = ls.get('jhp_roam_hash') || '', inFlight = null, receipt = null, retryWake = null, uploadSerial = 0, switching=false;
   const me = () => (Net.me && Net.me.member ? Net.me.nick : '');
 
-  // ---- upload: chunks of 3000 base64 chars, paced so the server's rate limit is happy
+  // One writer per browser. Explicit save checks join an autosave, then capture
+  // any edits made while it was sending. Never mark a hash saved before its receipt.
   async function upload(force, now) {
     const name = me();
-    if (!name || who.toLowerCase() !== name.toLowerCase() || busy || switching) return false;
-    const str = JSON.stringify(snapshot()), h = hash(str);
+    if (!name || !Net.connected || who.toLowerCase() !== name.toLowerCase() || switching) return false;
+    if (busy && !inFlight) return false;
+    while (inFlight) {
+      if (!now && !force) return (await inFlight) === true;
+      const previous = await inFlight;
+      if (previous !== true && previous !== 'busy') return false;
+    }
+    if (!Net.connected || switching || me().toLowerCase() !== name.toLowerCase()) return false;
+    let str = JSON.stringify(snapshot()), h = hash(str);
     if (!force && h === lastHash) return true;
     busy = true;
-    try {
-      const { enc, data } = await pack(str);
-      if(switching)return false;
-      const id = Math.random().toString(36).slice(2, 10), n = Math.max(1, Math.ceil(data.length / 3000));
-      for (let i = 0; i < n; i++) {
-        if(switching||me().toLowerCase()!==name.toLowerCase())return false;
-        if (!Net.send({ t: 'rmPut', id, i, n, d: data.slice(i * 3000, (i + 1) * 3000), ts: Date.now(), enc, base: +(ls.get('jhp_roam_ts') || 0), ownerRev: +(ls.get('jhp_roam_ownerRev')||0), ...(now ? { now: 1 } : {}) })) { busy = false; return false; }
-        if (i % 10 === 9) await new Promise(r => setTimeout(r, 700));
-      }
-      const ok = await new Promise(res => { waiters.push(res); setTimeout(() => res(false), 8000); });
-      if (ok) { lastHash = h; ls.set('jhp_roam_hash', h); }
-      return ok;
-    } finally { busy = false; }
+    inFlight = (async () => {
+      try {
+        // A throttled server asks us to wait for its 20-second bucket refill.
+        // Rejected uploads never change lastHash or the local profile.
+        let busyRetries = 0;
+        for (;;) {
+          if (switching || !Net.connected || me().toLowerCase() !== name.toLowerCase()) return false;
+          const { enc, data } = await pack(str);
+          if (switching || !Net.connected || me().toLowerCase() !== name.toLowerCase()) return false;
+          const id = Date.now().toString(36) + '-' + (++uploadSerial).toString(36), n = Math.max(1, Math.ceil(data.length / 3000));
+          let finish, timer, settled = false;
+          const ack = new Promise(resolve => {
+            finish = result => { if (settled) return; settled = true; clearTimeout(timer); if (receipt?.id === id) receipt = null; resolve(result); };
+            receipt = { id, finish };
+          });
+          for (let i = 0; i < n; i++) {
+            if (switching || me().toLowerCase() !== name.toLowerCase() ||
+              !Net.send({ t: 'rmPut', id, i, n, d: data.slice(i * 3000, (i + 1) * 3000), ts: Date.now(), enc, base: +(ls.get('jhp_roam_ts') || 0), ownerRev: +(ls.get('jhp_roam_ownerRev')||0), ...(now ? { now: 1 } : {}) })) { finish(false); break; }
+            if (i % 10 === 9) await new Promise(r => setTimeout(r, 700));
+            if (!receipt || receipt.id !== id) break;
+          }
+          // The acknowledgement gets a full minute after the last paced chunk.
+          if (!settled) timer = setTimeout(() => finish(false), 60000);
+          const ok = await ack;
+          if (ok === 'busy' && now && ++busyRetries <= 5) { // (a bound: a save check must always answer in the end)
+            await new Promise(resolve => {
+              const timer = setTimeout(() => finishRetry(), 20500);
+              const finishRetry = () => { clearTimeout(timer); retryWake = null; resolve(); };
+              retryWake = finishRetry;
+            });
+            str = JSON.stringify(snapshot()); h = hash(str);
+            continue;
+          }
+          if (ok !== true) return ok === 'busy' ? 'busy' : false;
+          lastHash = h; ls.set('jhp_roam_hash', h);
+          return true;
+        }
+      } catch (e) { return false; }
+      finally { if (receipt) receipt.finish(false); busy = false; inFlight = null; }
+    })();
+    const ok = await inFlight;
+    // Confirm this operation's snapshot. Bookkeeping timestamps keep ticking
+    // while it sends; chasing every later write would never finish on a slow line.
+    // lastHash stays tied to the confirmed bytes, so later edits remain dirty.
+    return ok === true;
   }
-  Net.on('rmSaved', m => { ls.set('jhp_roam_ts', String(m.ts)); const w = waiters; waiters = []; w.forEach(f => f(true)); });
-  Net.on('rmErr', m => { const w = waiters; waiters = []; w.forEach(f => f(false)); if (window.Desk) Desk.toast('Roaming profile', m.msg, 5000); });
-  Net.on('rmBusy', () => { const w = waiters; waiters = []; w.forEach(f => f(false)); });
+  Net.on('rmSaved', m => {
+    if (!receipt || m.id !== receipt.id || !Number.isFinite(m.ts) || m.ts <= 0) return;
+    ls.set('jhp_roam_ts', String(m.ts)); receipt.finish(true);
+  });
+  Net.on('rmErr', m => { if (receipt && m.id === receipt.id) { receipt.finish(false); if (window.Desk) Desk.toast('Roaming profile', m.msg, 5000); } });
+  Net.on('rmBusy', m => { if (receipt && m.id === receipt.id) receipt.finish('busy'); });
+  Net.on('_close', () => { if (receipt) receipt.finish(false); if (retryWake) retryWake(); });
 
   // ---- what a guest made on this PC: so signing up can say what it's copying, and logging on to an old account can ask
   const J = s => { try { return JSON.parse(s); } catch (e) { return null; } };
@@ -111,10 +155,10 @@
     const w = Desk.openWin('Copying to JackNet', b, 380);
     const bar = b.querySelector('.rm-bar'), st = b.querySelector('.rm-st'), btn = b.querySelector('button'), t0 = Date.now();
     const iv = setInterval(() => { if (bar.children.length < 22) bar.appendChild(document.createElement('i')); }, 90);
-    let closed = false; const fin = ok => { if (closed) return; closed = true; w.close(); if (done) done(ok); };
-    btn.addEventListener('click', () => fin(true));
+    let closed = false, copied = false; const fin = ok => { if (closed) return; closed = true; w.close(); if (done) done(ok); };
+    btn.addEventListener('click', () => fin(copied));
     up.then(ok => setTimeout(() => {
-      clearInterval(iv); while (ok && bar.children.length < 26) bar.appendChild(document.createElement('i'));
+      copied = ok; clearInterval(iv); while (ok && bar.children.length < 26) bar.appendChild(document.createElement('i'));
       const sv = b.querySelector('svg g'); if (sv) sv.remove();
       b.querySelector('.rm-h').innerHTML = ok ? '<b>Done!</b> Your stuff is on JackNet now.' : '<b>JackNet is busy.</b> Your stuff is safe on this PC.';
       st.textContent = ok ? 'Log on from any computer and your desktop, files, high scores and secrets will be there.' : 'JackOS will try copying it again in a minute. (Somebody probably picked up the phone.)';
@@ -196,7 +240,7 @@
     apply(g); ls.del('jhp_roam_guest');
     who = ''; ls.del('jhp_roam_who'); ls.del('jhp_roam_ts'); ls.del('jhp_roam_hash'); lastHash = '';
   }
-  async function logoff() { try { await upload(true); } catch (e) {} giveBack(); }
+  async function logoff() { try { window.Apps?.flushGames?.(); window.House?.saveWalkState?.(); if (!await upload(false, true)) return false; giveBack(); return true; } catch (e) { return false; } }
 
   setInterval(() => { upload(false); }, 45000);
   document.addEventListener('visibilitychange', () => { if (document.hidden) upload(false); });

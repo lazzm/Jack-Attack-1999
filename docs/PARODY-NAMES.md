@@ -1696,3 +1696,12 @@ The series is "The Myth of Zeldo". The SNES game is THE MYTH OF ZELDO: A LINK TO
 - Warhammer-flavoured vocabulary (WAAAGH, squig, grot, dakka, nob, Mork): the named units and Orks/Space Marines are parodied; the battle-cry vocabulary is the house style. Owner call.
 
 Sweep 2026-11-02b: retire the partial parody “Jar Jar Jams” in favour of **Blah Blah Blinks** everywhere in authored copy. Plural toy references use “Blah Blah Blinks figures”. Keep internal `jarjar` IDs, vote/save keys and link targets. The fictional JackBay seller `tetris_tim` is now `blockology_tim`; the high-scores file calls the falling-block game **Blockology**.
+
+PlaySpace face buttons use **Starfish ★**, **Snail @**, **Waffle #** and
+**Worm ~**, in gold, sea green, peach and lilac. These original doodles replace
+the real console's geometric face-button set on the phone pad and every game
+help/menu/HUD through `RoomTV.LOOK.ps.keys` / `K.label`. Keyboard mappings and
+save IDs stay the same: Z/Space = Starfish, X = Snail, C = Waffle, V = Worm.
+The shared bitmap font includes all four doodles. The solid controller caps
+use the same colours. Other console pads retain
+their lettered buttons (A/B/C/X/Y/Z) and existing comfortable control sizes.

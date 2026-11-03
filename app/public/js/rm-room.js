@@ -460,7 +460,7 @@
     const shY = -128, sh = B.at(-14, shY, BZ + 9);
     sh.rbox(0, 0, 0, 104, 2.4, 18, 0.4, mPine(), { uv: 50 });
     [-40, 40].forEach(x => { sh.box(x, 4, -7, 1.6, 6, 3, mMetal); sh.box(x, 3, -3, 1.6, 1.4, 9, mMetal); });
-    B.wshadow(-14, shY + 9, BZ + 0.1, 108, 16, 0.5);
+    B.wshadow(-14, shY + 4.5, BZ + 0.1, 108, 13, 0.28, {m:6.4});
     shelfModels(r, -14, shY - 1.2, BZ + 9);
     // the cork board, the timetable
     const ck = new T.Group(); ck.position.set(42, -84, BZ + 1); r.group.add(ck); const ckBatch = K.batch(), CK = K.into(ckBatch);
@@ -714,7 +714,7 @@
     // posters over the telly and on the side wall
     poster(B, TX, -66, BZ, 42, 59.4, tex('posterBand'), 0); pickBox(r, 'posterband', TX, -66, BZ + 1, 42, 59.4, 2); // (A2) H.SPOTS.posterband.label = 'Band poster';
     poster(B, TX - 58, -96, BZ, 28, 40, tex('posterFilm'), 0); pickBox(r, 'posterfilm', TX - 58, -96, BZ + 1, 28, 40, 2); H.SPOTS.posterfilm.label = 'Film poster';
-    poster(B, LX, -70, 20, 32, 45, tex('posterGame'), 90); pickBox(r, 'postergame', LX + 1, -70, 20, 2, 45, 32);
+    poster(B, LX, -88, 20, 32, 45, tex('posterGame'), 90); pickBox(r, 'postergame', LX + 1, -88, 20, 2, 45, 32);
     H.spot('postergame', { label: 'HYPER DRIVE 2000 poster', act: () => posterFocus('postergame') });
     // the bin (round, a crisp packet poking out)
     const bn = new T.Group(); bn.position.set(-118, FY, -42); r.group.add(bn); const binBatch = K.batch(), BN = K.into(binBatch);
@@ -897,7 +897,7 @@
     const s=new T.Shape();s.moveTo(-6.5,-5);s.quadraticCurveTo(-9,-5,-9,0);s.lineTo(-8,7);s.quadraticCurveTo(-7,10,-5,7);s.lineTo(-3,3);s.quadraticCurveTo(0,2,3,3);s.lineTo(5,7);s.quadraticCurveTo(7,10,8,7);s.lineTo(9,0);s.quadraticCurveTo(9,-5,6.5,-5);s.quadraticCurveTo(0,-6.5,-6.5,-5);s.closePath();
     padShell(P,s,'#c2bfb7');dpad(P,-5.2,-1);
     P.cyl(5,-2.9,-1,2.6,2.6,0.18,24,M('#a29e98'));
-    [[5,-2.7,'#589e8f'],[6.7,-1,'#bb6869'],[5,0.7,'#687db0'],[3.3,-1,'#a4769c']].forEach(([x,z,c])=>P.cyl(x,-3.12,z,0.68,0.68,0.65,16,M({c,sh:28})));
+    [[5,-2.7,'#b3a2ef'],[6.7,-1,'#63c7b8'],[5,0.7,'#f0c253'],[3.3,-1,'#ed9b70']].forEach(([x,z,c])=>P.cyl(x,-3.12,z,0.68,0.68,0.65,16,M({c,sh:28})));
     [-1,1].forEach(x=>P.rbox(x,-3.02,-0.8,1.3,0.45,0.65,0.2,M('#56585c'),{ry:-12}));
     for(const x of [-2.3,2.3]){P.cyl(x,-2.95,3.2,1.55,1.55,0.4,20,M('#8d8a84'));P.cyl(x,-3.35,3.2,0.45,0.45,0.7,12,M('#33363a'));P.ball(x,-3.85,3.2,1.1,0.45,1.1,M({c:'#36383c',sh:6}),16)}
     P.shadow(0,0,1,23,22,0.5);
@@ -1056,6 +1056,7 @@
       const dr = new T.Group(); dr.position.set(x1 + 0.6, 0, hz); r.group.add(dr); const drBatch = K.batch(), DR = K.into(drBatch); // (one draw per material per door)
       const mid=(top+FY)/2+2, height=FY-top-16, dz=s*24.6;
       DR.box(.6,mid,dz,1.35,height,48.4,pm,{uv:50});
+      if(i===0)DR.box(-.7,mid,s*48.8,1.1,height-2,4.2,M('#443726'));
       // A real panelled door on both faces: rounded stiles and rails proud of two sunk, darker fields
       // (grain runs up the stiles and across the rails), so it reads as joinery, not a flat slab.
       const fieldM=M({c:'#d6ad7c',map:tex('pine')}), top0=mid-height/2, midRail=top0+height*.42;
@@ -1337,7 +1338,20 @@
     K.doorLeaf(dp, { cx: 0, cy: y0 + 0.5 + dh / 2, cz: dc, w: dw, h: dh, t: 3.6, along: false, leaf: M({ c: '#efebe2', map: tex('whiteGloss'), sh: 24, sp: '#333' }),
       mould: M({ c: '#ece8de', sh: 18, sp: '#2a2a2a' }), field: M('#dcd7cb'), brass: mBrass, hinge: M({ c: '#a8884a', sh: 50, sp: '#806a3a' }),
       handleA: dc - dw / 2 + 7, handleY: -30, leverDir: 1, hingeA: 0.3, hingeSide: -1 });
-    DP.rbox(-4.5, -40, dc + 18, 4, 70, 18, 2, M('#7a1a2a')); // a dressing gown on a hook
+    // A soft towelling dressing gown, gathered at its brass hook. Closed
+    // rounded volumes give the hem, sleeves and belt thickness from either side.
+    const gown=new T.Group(),robeBatch=K.batch();gown.name='door-dressing-gown';dp.add(gown);
+    const robe=K.into(robeBatch).at(-2.4,-78,dc+18,-90),terry=M({c:'#85404a',sh:2}),fold=M({c:'#71323f',sh:2});
+    robe.box(0,-2,-.2,5,8,1.3,mBrass);
+    robe.geo(new T.TorusGeometry(2.4,.55,6,14),0,.4,1.2,mBrass,{rz:155});
+    robe.rbox(0,10,2.5,15,21,6,3,terry);
+    for(let i=0;i<5;i++)robe.rbox(-8+i*4,47+(i%2)*1.4,3+(i%2)*1.2,5.8,56,5.2,2.2,i%2?fold:terry,{rz:(i-2)*1.4});
+    for(const side of [-1,1]){
+      robe.rbox(side*11,27,2,8,35,6,2.8,terry,{rz:-side*13});
+      robe.rbox(side*4.2,12,6,4,21,1.8,.7,fold,{rz:side*19});
+    }
+    robe.rbox(0,34,6,20,3,2,.8,fold);
+    robe.rbox(2,42,7.2,2.2,18,1.8,.7,terry,{rz:-12});robeBatch.build(gown);
     DP.box(2.65, -70, dc - 4, 0.16, 14, 22, { all: M('#151515'), r: M({ c: '#fff', map: K.tex('rm.sign', 256, 160, (g, w, h) => { g.fillStyle = '#111'; g.fillRect(0, 0, w, h); g.strokeStyle = '#ffd400'; g.lineWidth = 8; g.strokeRect(6, 6, w - 12, h - 12); A.text(g, 'YOUR ROOM', 128, 66, '44px ' + A.FONT, '#ffd400', 'center'); A.text(g, 'KNOCK FIRST. YES, YOU, ' + ((window.Cast ? Cast.n('sister') : 'SIS')).toUpperCase(), 128, 120, '700 14px ' + A.UIF, '#fff', 'center'); }) }) });
     H.door('bedroom', { rooms: ['bedroom', 'landing'], pivot: dp, frame, swing: 96, dir: 1, open: false }); S.door = 0; // (always shut at the start of a visit)
     H.spot('door', { label: () => H.DOORS.bedroom.open ? 'Shut the door' : 'The door', range: 300, obj: dp, act: () => { if (window.HouseFamily?.doorHeld?.() && !H.DOORS.bedroom.open) { HouseFamily.heldHint(); return; } const o = !H.DOORS.bedroom.open; ensureHouse().then(() => { H.setDoor('bedroom', o); S.door = o ? 1 : 0; save(); }, () => say('Hmm', 'The door is stuck. Try again in a minute.')); } });
