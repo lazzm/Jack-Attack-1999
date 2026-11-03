@@ -177,9 +177,15 @@
   // No window under the stairs: daylight must not switch its bulb off.
   const lit = id => lightsOn[id] != null ? lightsOn[id] : (id === 'cupboard' || phase() !== 'day');
   const standardLampOn=()=>lightsOn.loungeLamp==null?phase()!=='day':lightsOn.loungeLamp;
-  function standardLampLook(r){if(r&&r.standardBulbMaterial){r.standardBulbMaterial.emissive.set(standardLampOn()?'#c89b58':'#000000');r.standardBulbMaterial.userData.e0=r.standardBulbMaterial.emissive.clone();H.dirty()}}
+  function standardLampLook(r){if(r&&r.standardBulbMaterial){r.standardBulbMaterial.emissive.set(standardLampOn()?'#c89b58':'#000000');r.standardBulbMaterial.userData.e0=r.standardBulbMaterial.emissive.clone();exteriorLightLook(HouseRooms.rooms.drive);H.dirty()}}
   const ceilingSwitches=new Map();
-  function switchLook(){for(const [id,rocker]of ceilingSwitches){rocker.rotation.x=(lit(id)?-12:12)*D2R;rocker.updateMatrix()}H.dirty()}
+  function exteriorLightLook(r){
+    if(!r)return;const night=phase()!=='day';
+    for(const [m,on,c]of [[r.porchGlow,night,'#ffd08a'],[r.streetGlow,night,'#ffb24a'],[r.bayGlow,night&&(lit('lounge')||standardLampOn()||HouseRooms.rooms.lounge?.fireOn),'#916039']]){
+      if(!m)continue;m.emissive.set(on?c:'#000');m.userData.e0=m.emissive.clone();
+    }
+  }
+  function switchLook(){for(const [id,rocker]of ceilingSwitches){rocker.rotation.x=(lit(id)?-12:12)*D2R;rocker.updateMatrix()}exteriorLightLook(HouseRooms.rooms.drive);H.dirty()}
   function ceilingSwitch(r,id,x,y,z,ry){
     const group=new T.Group();group.position.set(x,y,z);group.rotation.y=ry*D2R;group.name='ceiling-switch-'+id;r.group.add(group);const B=K.into(group);
     B.rbox(0,0,0,8,10,1.2,0.35,mWhite);
@@ -194,7 +200,7 @@
     return phase() === 'night' ? {sky: '#7887a2', gnd: '#45464c', i: .36} : {sky: '#c1adb2', gnd: '#746251', i: .46};
   }
   function outdoorAmb(ground) {
-    return phase() === 'day' ? {sky: '#cfe0ff', gnd: ground, i: .78} : phase() === 'night' ? {sky: '#7283a4', gnd: '#49514e', i: .46} : {sky: '#d9b6ae', gnd: '#66654f', i: .62};
+    return phase() === 'day' ? {sky: '#cfe0ff', gnd: ground, i: .78} : phase() === 'night' ? {sky: '#8795af', gnd: '#57604f', i: .52} : {sky: '#d9b6ae', gnd: '#66654f', i: .62};
   }
   const sky = () => K.TEX['rm.sky'];
   const phaseTextures = new Set();
@@ -948,7 +954,12 @@
     // the fruit motifs round instead of stretching them across the wall.
     // Leave the actual window and back-door opening clear. The old single
     // strip also hid most of the window and fought the door casing for depth.
-    for(const [x0,x1]of [[-280,-140],[-20,73.5]])B.plane((x0+x1)/2,GY-120,-55.8,x1-x0,56,M({c:'#fff',map:tex('tiles')}),{uv:192});
+    const splash=K.tex('hs.kitchen-plain-tiles',256,256,(g,w,h)=>{
+      g.fillStyle='#efece4';g.fillRect(0,0,w,h);g.strokeStyle='#b8b2a2';g.lineWidth=1.2;
+      for(let i=0;i<=16;i++){g.beginPath();g.moveTo(i*16,0);g.lineTo(i*16,h);g.stroke();g.beginPath();g.moveTo(0,i*16);g.lineTo(w,i*16);g.stroke()}
+      A.mottle(g,w,h,20,'rgba(255,255,255,.2)',20,56);
+    },{world:192});
+    for(const [x0,x1]of [[-280,-140],[-20,73.5]])B.plane((x0+x1)/2,GY-120,-55.8,x1-x0,56,M({c:'#fff',map:splash,sh:22}),{uv:192});
     const wu = (x0, x1) => { const cx = (x0 + x1) / 2; B.box(cx, GC + 80, -40, x1 - x0, 70, 32, { f: M({ c: '#d9cba6', sh: 18, sp: '#222' }), all: M('#e8e2d0') }); unitDoors(B, cx, GC + 80, -24, x1 - x0, 69, 1, true); };
     wu(-214.5,-160);wu(20,71.5); // 2.2 cm clear of the door casing
     B.shadow(-110, GY, -26, 270, 70, 0.7, { sq: true });
@@ -963,9 +974,15 @@
     for(const [x,c]of [[-6,'#c54b40'],[6,'#3f6999']]){sk.cyl(x,-7.3,-16,1.7,1.7,0.6,12,mWhite);sk.cyl(x,-7.7,-16,0.7,0.7,0.25,12,M(c))}
     // the cooker (freestanding, four rings, an eye-level grill), the washing machine
     const ck = B.at(-10, GY, -26); ck.box(0, -46, 0, 58, 92, 58, { f: M({ c: '#fff', map: cookerTex() }), all: M('#e8e8e4') }); ck.box(0, -93, 0, 58, 2, 58, M({ c: '#efefec', sh: 60 })); [[-14, -12], [14, -12], [-14, 12], [14, 12]].forEach(([x, z]) => ck.cyl(x, -94.6, z, 8, 8, 0.6, 18, M('#2a2a2a')));
-    ck.box(0, -150, -18, 58, 20, 24, M('#e8e8e4'));
-    for(const x of [-26,26])ck.box(x,-121,-25,2.4,58,3,M('#aaa9a4'));
-    ck.box(0,-148,-5.8,48,11,0.6,M('#333335'));ck.box(0,-142.3,-4,48,0.8,7,mMetal);ck.cyl(0,-146,-1,0.8,0.8,42,10,mMetal,{rz:90});
+    // Wall-mounted enamel extractor, with a solid flue to the ceiling. Its
+    // underside clears the window head; nothing stands down in the hob rings.
+    const hood=M({c:'#e1ded5',sh:32,sp:'#555'});
+    ck.rbox(0,-184,-12,58,12,36,1.2,hood);
+    ck.box(0,(GC+GY-190)/2-GY,-22,24,GY-190-GC,16,hood);
+    ck.box(0,-177.7,-12,49,.6,25,M('#595d59'));
+    for(const x of [-16,-8,0,8,16])ck.box(x,-177.25,-12,.8,.3,22,mMetal);
+    ck.box(0,-183,6.3,54,3,.6,M('#4a4b46'));
+    for(const x of [17,22])ck.box(x,-183,6.8,2,1.5,.5,mWhite);
     for (let i = 0; i < 5; i++) { ck.cyl(-20 + i * 10, -84, 29.3, 2.4, 2.4, 1.4, 12, M({ c: '#2a2a2a', sh: 40 }), { rx: 90 }); ck.box(-20 + i * 10, -84, 30.2, 0.6, 2.2, 0.4, M('#ddd')); }
     ck.cyl(0, -52, 30.4, 1, 1, 46, 8, mMetal, { rz: 90 }); ck.plane(0, -45, 29.2, 44, 22, M({ c: '#1a1a1a', sh: 90, sp: '#888', o: 0.9, tr: true }));
     const wm = B.at(50, GY, -26); wm.geo(new T.TorusGeometry(13, 1.6, 8, 28), 0, -45, 29.4, M({ c: '#c8ccd0', sh: 60, sp: '#888' })); wm.cyl(0, -45, 29.2, 11.5, 11.5, 0.6, 28, M({ c: '#2a3440', sh: 120, sp: '#fff' }), { rx: 90 }); wm.cyl(0, -45, 29.6, 8, 8, 0.3, 24, M({ c: '#7a8a9a', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { rx: 90 });
@@ -988,7 +1005,7 @@
     kt.geo(new T.TorusGeometry(7.3,1.15,8,24,Math.PI),-8.8,-12,0,handle,{rz:90});
     kt.cyl(10,-18,0,2.2,3,8,18,enamel,{rz:45});kt.cyl(12.83,-20.83,0,1.5,1.5,0.4,16,M('#4b4f50'),{rz:45});kt.rbox(-9,-3,0,2,1,3,0.3,handle);kt.shadow(0,0,0,26,24,0.5);
     const ts = B.at(-140, GY - 93, -36); ts.rbox(0, -9, 0, 26, 18, 16, 3, M({ c: '#d8d8d4', sh: 70, sp: '#888' })); ts.box(-5, -18.4, 0, 3, 1, 12, M('#111')); ts.box(5, -18.4, 0, 3, 1, 12, M('#111')); ts.shadow(0, 0, 0, 30, 20, 0.6, { sq: true });
-    const bb = B.at(40, GY - 93, -36); bb.rbox(0, -12, 0, 34, 24, 24, 6, M({ c: '#c83a2a', sh: 40, sp: '#555' }));bb.rbox(0,-11,12.1,24,0.4,0.4,0.15,M('#76291f'));bb.rbox(0,-8,12.8,8,1.3,1.2,0.4,mMetal);bb.shadow(0, 0, 0, 38, 28, 0.6, { sq: true });
+    const bb = B.at(63, GY - 93, -36); bb.rbox(0, -12, 0, 30, 24, 24, 6, M({ c: '#c83a2a', sh: 40, sp: '#555' }));bb.rbox(0,-11,12.1,24,0.4,0.4,0.15,M('#76291f'));bb.rbox(0,-8,12.8,8,1.3,1.2,0.4,mMetal);bb.shadow(0, 0, 0, 34, 28, 0.6, { sq: true });
     const rd = B.at(65,GY-93,-5); rd.rbox(0,-7,0,24,14,8,2,M('#3a3a3e')); rd.cyl(6,-7,4.2,4,4,0.4,16,M('#555'),{rx:90});rd.box(-5,-9,4.2,8,3,0.4,M({c:'#d8a040',e:'#3a2000'}));rd.cyl(-8,-21,-2,0.3,0.3,20,6,mMetal,{rz:20});
     // the microwave: the clock is flashing 12:00
     const mw = new T.Group();mw.name='kitchen-microwave';mw.position.set(r.fridgeFrame.x,GY-169,-20);r.group.add(mw);const MW=K.into(mw);r.mw=mw;
@@ -1031,20 +1048,34 @@
     kt2.shadow(0, 0, 0, 130, 90, 0.7, { sq: true });
     [[-60, 104, 0], [-60, 236, 180], [-136, 170, 90], [16, 170, -90]].forEach(([x, z, ry]) => chair(B, x, z, ry)); // (set 6 cm back: legs clear of the table legs and aprons)
     // a wall clock, the calendar, the cork board with Mom's lists
-    const wc = B.at(-280 + 1, GC + 50, 120); wc.cyl(1, 0, 0, 16, 16, 2, 30, M('#f4f0e4'), { rz: 90 }); wc.cyl(2.2, 0, 0, 16.5, 16.5, 1, 30, M('#c83a2a'), { rz: 90 });
-    r.clockHands = wc;
-    const cal = B.at(194, GY - 150, 60); cal.box(-0.25, 0, 0, 0.3, 42, 30, { l: M({ c: '#fff', map: tex('calendar'), pr: 1 }), all: M('#e9e4d6') }); cal.cyl(-0.6, -22.5, 0, 0.35, 0.35, 0.8, 8, mMetal, { rz: 90 });
+    const wc = B.at(-154, GY-181, 293.5, 180);wc.wshadow(.6,1,-1.45,39,39,.35);
+    wc.cyl(0,0,0,18,18,3,40,M({c:'#9e352a',sh:45}),{rx:90});
+    wc.cyl(0,0,1.7,16.5,16.5,.6,40,M('#f4f0e4'),{rx:90});
+    const dial=K.tex('hs.kitchen-dial',256,256,(g,w,h)=>{
+      g.fillStyle='#f4f0e4';g.fillRect(0,0,w,h);
+      for(let i=0;i<60;i++){const a=i*Math.PI/30;g.strokeStyle='#433e32';g.lineWidth=i%5?1:3;g.beginPath();g.moveTo(128+Math.sin(a)*(i%5?114:108),128-Math.cos(a)*(i%5?114:108));g.lineTo(128+Math.sin(a)*119,128-Math.cos(a)*119);g.stroke()}
+      for(let i=1;i<=12;i++){const a=i*Math.PI/6;A.text(g,String(i),128+Math.sin(a)*91,136-Math.cos(a)*91,'700 22px '+A.UIF,'#352f27','center')}
+    },{clamp:true});
+    const dialFace=new T.CircleGeometry(16.3,40);flipUV(dialFace);wc.geo(dialFace,0,0,2.08,M({c:'#fff',map:dial,pr:1}));
+    const cal = B.at(35,GY-160,294.4,180);r.calendarTex=tex('calendar');
+    cal.box(0,0,0,32,46,1,{f:M({c:'#fff',map:r.calendarTex,pr:1}),all:M('#e9e4d6')});
+    cal.cyl(0,-24,0,.65,.65,1.2,10,mMetal,{rx:90});
+    for(let x=-12;x<=12;x+=3)cal.cyl(x,-22,.8,.25,.25,3,6,mMetal);
     // Mom's notice board over the table: lists, a takeaway menu, the school photo
-    const nb = B.at(-280, GY - 150, 205, 90), corkM = M({ c: '#fff', map: tex('cork'), pr: 1 }), nbFrame = M({ c: '#fff', map: tex('pine') });
+    const nb = B.at(-60,GY-157,294.8,180,{sx:1.4,sy:1.4}), corkM = M({ c: '#fff', map: tex('cork'), pr: 1 }), nbFrame = M({ c: '#fff', map: tex('pine') });
     nb.wshadow(0.8, 1.2, 0.1, 58, 44, 0.45); nb.box(0, 0, 0.9, 52, 38, 1.6, corkM);
     for (const e of [-1, 1]) { nb.rbox(0, e * 19.6, 1.3, 55.2, 2, 2.6, 0.4, nbFrame); nb.rbox(e * 26.6, 0, 1.3, 2, 37.2, 2.6, 0.4, nbFrame); }
-    nb.box(-14, -2, 1.78, 15, 20, 0.12, M({ c: '#fff', map: tex('note'), pr: 1 }), { rz: 3 }); nb.box(6, -5, 1.8, 16, 11, 0.12, M({ c: '#fff', map: tex('photo'), pr: 1 }), { rz: -4 });
-    nb.box(16, 7, 1.76, 11, 14, 0.12, M({ c: '#fff', map: tex('noteBlue'), pr: 1 }), { rz: 5 }); nb.box(-2, 10, 1.77, 13, 9, 0.12, M({ c: '#fff', map: tex('calendar'), pr: 1 }), { rz: -2 });
+    const memo=(key,col,lines)=>K.tex('hs.memo.'+key,192,256,(g,w,h)=>{g.fillStyle=col;g.fillRect(0,0,w,h);lines.forEach((line,i)=>A.text(g,line,w/2,49+i*41,'700 23px '+A.HAND,'#293c52','center'))},{clamp:true});
+    nb.box(-14,-2,1.9,15,20,.18,M({c:'#fff',map:memo('jobs','#fff1b0',['JOBS','ON THE','FRIDGE','Mom x']),pr:1}),{rz:3});
+    nb.box(6,-5,1.9,16,11,.18,M({c:'#fff',map:tex('photo'),pr:1}),{rz:-4});
+    nb.box(16,7,1.9,11,14,.18,M({c:'#fff',map:memo('school','#c5e4e3',['PE KIT','MONDAY','WASH IT!']),pr:1}),{rz:5});
+    nb.box(-2,10,1.9,13,9,.18,M({c:'#fff',map:tex('calendar'),pr:1}),{rz:-2});
     [[-14, -10.5, '#d02a2a'], [6, -9.8, '#2a8a3a'], [16, -0.2, '#e8c020'], [-2, 6, '#2a5ad0']].forEach(([x, y, c]) => nb.cyl(x, y, 2.3, 0.8, 0.8, 1, 10, M(c), { rx: 90 }));
     batch.build(r.group);
     // the clock hands (they move)
-    const hands = new T.Group(); hands.position.set(-280 + 3.6, GC + 50, 120); r.group.add(hands); const HN = K.into(hands);
-    r.hh = new T.Group(); hands.add(r.hh); K.into(r.hh).box(0.3, -4, 0, 0.6, 8, 1.4, M('#111')); r.mh = new T.Group(); hands.add(r.mh); K.into(r.mh).box(0.6, -6, 0, 0.6, 12, 0.9, M('#111')); void HN;
+    const hands = new T.Group(); hands.name='kitchen-clock-hands';hands.position.set(-154,GY-181,291.2);hands.rotation.y=Math.PI;r.group.add(hands);
+    r.hh=new T.Group();hands.add(r.hh);K.into(r.hh).box(0,-4,0,1,8,.5,M('#292824'));
+    r.mh=new T.Group();hands.add(r.mh);K.into(r.mh).box(0,-6,.4,.65,12,.4,M('#292824'));K.into(hands).cyl(0,0,.9,.8,.8,.8,12,mMetal,{rx:90});
     // the biscuit tin (a daily raid: js/hs-life.js asks the server)
     const tin = new T.Group();tin.position.set(40,GY-93,-4);r.group.add(tin);const TN=K.into(tin);
     TN.cyl(0, -9, 0, 11, 11, 18, 24, M({ c: '#fff', map: tinTex(), sh: 60, sp: '#888' }));
@@ -1058,12 +1089,14 @@
     H.spot('hs.paper', { label: 'The newspaper', act: () => life('paper') }); pickBox(r, 'hs.paper', -22, GY - 77, 189, 30, 2, 38);
     H.spot('hs.cooker', { label: 'The cooker', act: sayLines('hs.cooker', 'The cooker', ['Tonight: ' + ['fish fingers, chips and beans', 'spag bol', 'a Fondus Crispy Pancake each', 'shepherd\'s pie', 'a chicken Kiev (garlic everywhere)'][new Date().getDay() % 5] + '. Mom says do NOT touch the knobs.']) }); pickBox(r, 'hs.cooker', -10, GY - 46, 3, 58, 92, 4);
     H.spot('hs.washer', { label: 'Washing machine', act: sayLines('hs.washer', 'Washing machine', ['It walks across the floor on the spin cycle. We have found it in the middle of the kitchen before.']) }); pickBox(r, 'hs.washer', 50, GY - 46, 3, 58, 86, 4);
-    H.spot('hs.wclock', { label: 'Kitchen clock', act: () => { const d = new Date(); say('Kitchen clock', 'It says ' + d.getHours() % 12 + ':' + String(d.getMinutes()).padStart(2, '0') + '. (It\'s right. The microwave isn\'t.)'); } }); pickBox(r, 'hs.wclock', -278, GC + 50, 120, 4, 32, 32);
-    H.ambient.add(() => { if (!r.group.visible) return; const d = new Date(), m = d.getMinutes() + d.getSeconds() / 60, h = (d.getHours() % 12) + m / 60; r.mh.rotation.x = -m / 60 * Math.PI * 2; r.hh.rotation.x = -h / 12 * Math.PI * 2; });
+    H.spot('hs.wclock', { label: 'Kitchen clock', act: () => { const d=window.OwnerTools?.now()||new Date();say('Kitchen clock','It says '+(d.getHours()%12||12)+':'+String(d.getMinutes()).padStart(2,'0')+'. (It\'s right. The microwave isn\'t.)'); } });pickBox(r,'hs.wclock',-154,GY-181,290,36,36,5);
+    H.spot('hs.kcalendar',{label:"Mom's calendar",act:()=>{const d=window.OwnerTools?.now()||new Date(),t=window.Desk?.today99?.()||{m:d.getMonth()+1,d:d.getDate()},day=t.m===2?Math.min(28,t.d):t.d;say("Mom's calendar",day+'/'+t.m+'/1999. Today is ringed in red. Mom: "Your jobs are on the fridge. Do those before you go out!"')}});pickBox(r,'hs.kcalendar',35,GY-160,291,33,48,3);
+    H.spot('hs.kboard',{label:"Mom's notice board",act:()=>{const next=window.st?.objectives?.().find(o=>!o.done);say("Mom's notice board",'PE kit on Monday. School photo. Three pins missing. '+(next?next.hint||next.text:'Mom: "Jobs first, then games. Your list is on the fridge."'),6500)}});pickBox(r,'hs.kboard',-60,GY-157,290,78,57,4);
     H.walkRect('G', -278, -54, 193, 293, { room: 'kitchen' });
     H.block('G', -280, -56, 82, 6); H.block('G', -280, -56, -218, 14); H.block('G', -124, 126, 4, 214); H.block('G', -80, 86, -40, 122); H.block('G', -80, 218, -40, 254); H.block('G', -156, 150, -116, 190); H.block('G', -4, 150, 36, 190);
     H.support('kitchen',-214.5,-56,-103,10,GY-93);H.support('kitchen',-57,-56,-40,10,GY-93);H.support('kitchen',-103,-56,-57,-44,GY-93);H.support('kitchen',-103,-8,-57,10,GY-93);H.support('kitchen',-103,-44,-57,-8,GY-81);
     H.support('kitchen',-39,-55,19,3,GY-94);H.support('kitchen',20,-56,80,10,GY-93);H.support('kitchen',-277.5,-52,-217.5,12,GY-170);H.support('kitchen',-120,130,0,210,GY-76);
+    for(const x of [-24,4])for(const z of [-38,-14])H.support('kitchen',x-8,z-8,x+8,z+8,GY-94.9);
   }
   function winFrame(B, x0, x1, y0, y1, z) { const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, w = x1 - x0, h = y1 - y0, fm = M({ c: '#f2f0ea', sh: 40, sp: '#444' }), fz = z - 8; B.box(cx, y0 + 3, fz, w, 6, 6, fm); B.box(cx, y1 - 3, fz, w, 6, 6, fm); B.box(x0 + 3, cy, fz, 6, h, 6, fm); B.box(x1 - 3, cy, fz, 6, h, 6, fm); B.box(cx, cy, fz, 5, h, 6, fm); B.plane(cx, cy, fz - 1, w - 6, h - 6, M({ c: '#c8d8f0', o: 0.12, tr: true, sh: 120, sp: '#fff' })); B.panel(cx, y0, z - 6, w, 12, .4, M('#d8d4c8'), { rx: -90 }); B.panel(x0, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: 90 }); B.panel(x1, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: -90 }); B.rbox(cx, y1 + 1.5, z + 2, w + 10, 3, 10, 0.8, M('#efece4')); }
   // a lathe-turned table/chair leg with a square top block (for the aprons) and a turned lower part
@@ -1323,7 +1356,8 @@
     // Open frame, not a solid white panel hiding the lounge window.
     for(const x of [-174,54])B.box(x,225,704.3,8,160,8,mWhite);
     for(const y of [147.2,302.5])B.box(-60,y,704.3,220,5,8,mWhite); // no coplanar underside with the lounge's frame
-    B.plane(-60,225,708.5,220,150,M({c:'#1a2a3a',o:.28,tr:true,sh:100,sp:'#fff'}));
+    r.bayGlow=M({c:'#1a2a3a',o:.28,tr:true,sh:100,sp:'#fff'}).clone();
+    B.plane(-60,225,708.5,220,150,r.bayGlow);
     // a deep stone sill under the lounge window and a concrete lintel over it, both proud of the brick
     B.rbox(-60,308.5,709.5,240,6,15,0.8,M('#b8b4a5'));B.box(-60,143.6,704.2,232,7,2.4,M('#a59d8f'));
     B.box(256.8, GY - 102, 703, 5.6, 204, 3, mWhite); B.box(343.2, GY - 102, 703, 5.6, 204, 3, mWhite); B.box(300, GY - 206, 703, 92, 6, 3, mWhite);
@@ -1331,9 +1365,10 @@
     B.plane(340, GY - 180, 702.6, 16, 20, M({ c: '#fff', map: K.tex('hs.numb', 64, 80, (g) => { g.fillStyle = '#1a1a1a'; g.fillRect(0, 0, 64, 80); A.text(g, '42', 32, 58, '48px ' + A.FONT, '#f0d080', 'center'); }) }));
     // The single WELCOME mat is inside the hall, where the post lands.
     // a black coach lantern on the wall beside the front door (the old free-standing post stood in front of the car boot)
-    { const ln = B.at(354, GY - 176, 703), black = M({ c: '#1d1e1f', sh: 40, sp: '#444' }), lit = phase() === 'night' ? '#a08040' : '#000';
+    { const ln = B.at(354, GY - 176, 703), black = M({ c: '#1d1e1f', sh: 40, sp: '#444' });
       ln.rbox(0, 0, 1.2, 7, 15, 2.4, 0.6, black); ln.cyl(0, -1, 6.6, 0.8, 0.8, 9, 8, black, { rx: 90 });
-      ln.cyl(0, 9, 11.5, 6.2, 5, 16, 4, M({ c: '#f2e7c6', e: lit, o: 0.86, tr: true, sh: 80, sp: '#fff' }), { ry: 45 });
+      r.porchGlow=M({c:'#f2e7c6',o:.86,tr:true,sh:80,sp:'#fff'}).clone();
+      ln.cyl(0, 9, 11.5, 6.2, 5, 16, 4, r.porchGlow, { ry: 45 });
       ln.cyl(0, 0.2, 11.5, 1.4, 8.6, 4.4, 4, black, { ry: 45 }); ln.cyl(0, 17.6, 11.5, 5.4, 5.4, 1.8, 4, black, { ry: 45 }); ln.ball(0, -2.6, 11.5, 1.3, 1.3, 1.3, black, 8); ln.cyl(0, 20, 11.5, 0.5, 1.2, 3, 8, black);
       for (const [dx, dz] of [[-4.1, 0], [4.1, 0], [0, -4.1], [0, 4.1]]) ln.box(dx, 9, 11.5 + dz, 0.6, 16, 0.6, black, { ry: 45 }); }
     // Next door is a complete solid model in the shared neighbourhood.
@@ -1378,6 +1413,7 @@
     r.streetGlow = M({ c: '#f3c98a', e: phase() === 'day' ? '#000' : '#ffb24a', sh: 60, sp: '#fff' }).clone();
     lp.rbox(0, -519, 73, 14, 3, 38, 1.2, r.streetGlow, { rx: -12 });
     lp.shadow(0, 0, 0, 40, 36, 0.45, { sq: true });
+    exteriorLightLook(r);
     // Dad's car: a burgundy family saloon (no real make), on the drive, nose to the street
     const frame = r.carFrame = Object.assign({}, CAR);
     const carBatch = K.batch(), carGroup = new T.Group();carGroup.name = 'Dads car';carGroup.userData.staticBatch = true;r.group.add(carGroup);
@@ -1561,7 +1597,11 @@
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: -900, tx: 0, ty: GY, tz: -300, c: '#8090c8', i: 0.15 } : { x: 400, y: -900, z: -600, tx: 0, ty: GY, tz: -300, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'patio', n: 'The garden', pose: () => look('G', 40, -90, -80, GY - 80, -420, 158) }, { id: 'shed', n: 'The shed', pose: () => look('G', -40, -300, -230, GY - 100, -470, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 20, -360, 80, 60, -56, 158) }] },
     drive: { name: 'The front', title: 'OUT THE FRONT', lvl: 'G', area: [[-340, 700, 720, STREET.pave[1] - 3]], bx0: -338, bx1: 718, bz0: 702, bz1: STREET.pave[1] - 5, build: buildDrive, outside: true, windowViews:[{room:'lounge',bounds:bayGlass},{room:'hall',bounds:frontGlass}],
-      lights: () => [{ x: 360, y: GY - 124, z: 730, c: '#ffe0a0', i: phase() === 'day' ? 0 : 0.7, d: 420 }, { x: LAMP.x - 100, y: GY - 430, z: LAMP.z, c: '#ffb860', i: phase() === 'day' ? 0 : 1.2, d: 900 }],
+      lights: () => phase()==='day'?[]:[
+        {x:354,y:GY-167,z:724,c:'#ffda9d',i:1.25,d:750},
+        {x:LAMP.x,y:GY-519,z:LAMP.z+73,c:'#ffbd70',i:1.8,d:1350},
+        ...(window.HouseEnvironment?.streetLamps||[])
+      ],
       amb: () => outdoorAmb('#797b70'),
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: 1700, tx: 300, ty: GY, tz: 900, c: '#8090c8', i: 0.15 } : { x: -400, y: -900, z: 1500, tx: 300, ty: GY, tz: 900, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'car', n: "Dad's car", pose: () => look('G', 290, FZ - 50, CAR.x, GY - 70, CAR.z, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 180, FZ - 70, 150, 120, 700, 158) }, { id: 'street', n: 'The street', pose: () => look('G', 200, 760, 240, GY - 120, FZ + 300, 158) }] },
@@ -1633,14 +1673,19 @@
       lastPhase = ph;
       for (const t of phaseTextures) t.userData.repaintPhase();
       const drive = HouseRooms.rooms.drive;
-      if (drive && drive.streetGlow) drive.streetGlow.emissive.set(ph === 'day' ? '#000' : '#ffb24a');
+      exteriorLightLook(drive);
       const cupboard = HouseRooms.rooms.cupboard; if (cupboard) cupLight(cupboard);
       standardLampLook(HouseRooms.rooms.lounge);
       switchLook();
       H.relight();
     }
     const blink = Math.floor(now / 600) % 2 === 0;
-    if(!clockDate||now>=clockNext){clockNext=now+1000;clockDate=window.OwnerTools?.now()||new Date()}
+    if(!clockDate||now>=clockNext){
+      clockNext=now+1000;clockDate=window.OwnerTools?.now()||new Date();
+      const r=HouseRooms.rooms.kitchen;
+      if(r?.hh){const m=clockDate.getMinutes()+clockDate.getSeconds()/60,h=clockDate.getHours()%12+m/60;r.mh.rotation.z=m/60*Math.PI*2;r.hh.rotation.z=h/12*Math.PI*2;}
+      if(r?.calendarTex){const t=window.Desk?.today99?.()||{m:clockDate.getMonth()+1,d:clockDate.getDate()},key=t.m+'-'+t.d;if(r.calendarDay!==key){r.calendarDay=key;const tx=r.calendarTex,g=tx.userData.g,p=A.P.calendar;g.save();g.setTransform(tx.image.width/p[0],0,0,tx.image.height/p[1],0,0);p[2](g,p[0],p[1]);g.restore();tx.needsUpdate=true;H.dirty()}}
+    }
     for (const [rid, key, set] of clockDisplays) {
       const r = HouseRooms.rooms[rid]; if (!r || !r[key] || !r.group.visible) continue;
       const d = clockDate, txt = (window.HouseLife && HouseLife[set] && HouseLife[set]()) ? (d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0')) : (blink ? '12:00' : '');

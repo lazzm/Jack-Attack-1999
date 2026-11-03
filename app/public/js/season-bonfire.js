@@ -712,6 +712,13 @@
   }
   // np-life uses these goals through its normal routes, doors, personal space and arrival animations.
   let watchBank='right';
+  const watchFire = {x:-65,y:255,z:-402}, watchSky = {x:0,y:-180,z:-650};
+  function familyLook() {
+    if (!enabled() || !(phase==='day'||catchup()||leftover()&&showStart()) || !showStart()) return null;
+    const hour=SE.today().hour;if(hour<17||hour>=22)return null;
+    const stage = stageAt();
+    return stage === 'rocket' || stage === 'finale' ? watchSky : watchFire;
+  }
   function familySpace(){return enabled() && (phase==='day'||catchup()||leftover()&&showStart()) && SE.today().hour>=17 && H.here==='garden'?150:0;}
   function familyGoal(id) {
     if (!enabled() || !(phase === 'day' || catchup() || leftover() && showStart()) || SE.today().hour < 17 || SE.today().hour >= 22) return null;
@@ -740,7 +747,7 @@
     if (m.ok && work?.pending) setTimeout(() => { if (work) { work.pending = false; nextWork(); } }, 100);
     if (m.ok && m.o === 'bf-light' && m.s === 'finale') { sync(); say('end', 'Dad', 'All finished. I am making everything safe. Stay here while I check. Thank you for watching from the rope!'); }
   });
-  window.Bonfire = { get on() { return on; }, get phase() { return phase; }, get activity() { return work?.kind || null; }, get step() { return work?.step || null; }, get catHiding() { return !!catHome; }, familyGoal, familySpace, talk, petCheck, DEC,
+  window.Bonfire = { get on() { return on; }, get phase() { return phase; }, get activity() { return work?.kind || null; }, get step() { return work?.step || null; }, get catHiding() { return !!catHome; }, familyGoal, familyLook, familySpace, talk, petCheck, DEC,
     _: { WOOD, woodHome, PILE, TABLE, stageAt, workBounds, potatoPoints: () => foodPotatoes.map(g => {const p = new T.Vector3(0, -5, 0);g.localToWorld(p);return project(p.x, p.y, p.z);}), get fxCount() { return (fx?.userData.dg.drawRange.count || 0)/DOTS; }, get fxLimit() { return cap(); }, path() {
       const b = workBounds(); if (!b) return [];
       const p = []; for (let j = 0; j < 5; j++) for (let i = 0; i < 12; i++) p.push([b.x + b.w * (.18 + .64 * (j % 2 ? 1 - i / 11 : i / 11)), b.y + b.h * (.2 + j * .15)]); return p;

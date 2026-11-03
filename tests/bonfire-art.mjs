@@ -2,6 +2,7 @@
 // It does not prove gameplay. events-bonfire.mjs separately drives every real input.
 import assert from 'node:assert/strict';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
 import {bonfireLogin} from './bonfire-login.mjs';
 import {roomFixture} from './room-fixture.mjs';
 const base=process.argv[2]||'http://localhost:18095',password='Throwaway-1999';
@@ -13,8 +14,11 @@ if(!savedState)savedState=await bonfireLogin(base,password);
 
 for(const mode of modes){
  const phone=mode==='phone',tier=mode==='potato'?5:phone?2:0,cap=mode==='potato'?120:phone?430:1000;
- const directory=new URL(`./shots/bonfire/pinned-${mode}-${cap}/`,import.meta.url).pathname;await mkdir(directory,{recursive:true});
- const f=await roomFixture(base,{account:'Jack',password,signup:false,hour:null,resume:!!savedState,storageState:savedState,opening:!!savedState,touch:phone,width:phone?390:1366,height:phone?844:860,debug:process.env.FIXTURE_DEBUG==='1',onPage:async p=>{await p.addInitScript(q=>window.__bfFXQ=q,{adapt:tier,mob:phone,tier:mode==='potato'?'potato':'high'});await p.route('**/js/season-bonfire.js*',async route=>{const response=await route.fetch();let body=await response.text();body=body.replaceAll('H.Q?.','window.__bfFXQ.');body=body.replace('function tick(now, dt) {','function tick(now, dt) { if(window.__bfPhotoFreeze)return true;');body=body.replace('  window.Bonfire =',"  window.__bfPhoto=()=>{window.__bfPhotoFreeze=false;tick(performance.now(),0);window.__bfPhotoFreeze=true;};window.__bfResume=()=>window.__bfPhotoFreeze=false;window.__bfReset=()=>{window.__bfPhotoFreeze=false;nextFire=0;nextSky=performance.now()+60000;tick.lastBang=0;for(const p of particles)p.life=0;for(const key of H.anims.keys())if(key.startsWith('bf.rocket.'))H.anims.delete(key);};\n  window.Bonfire =");await route.fulfill({response,body});});}});
+ const reviewTag=process.env.FIXES2_ART_TAG;
+ const directory=new URL(reviewTag?`./shots/fixes2-1102/${reviewTag}-bonfire-${mode}/`:`./shots/bonfire/pinned-${mode}-${cap}/`,import.meta.url).pathname;await mkdir(directory,{recursive:true});
+ const f=await roomFixture(base,{account:'Jack',password,signup:false,hour:null,resume:!!savedState,storageState:savedState,opening:!!savedState,touch:phone,width:phone?390:1366,height:phone?844:860,debug:process.env.FIXTURE_DEBUG==='1',onPage:async p=>{
+ if(reviewTag==='before')for(const file of ['np-life.js','hs-house.js','hs-environment.js','ch-kitchen.js'])await p.route('**/js/'+file+'*',r=>r.fulfill({body:execFileSync('git',['show','HEAD:app/public/js/'+file],{encoding:'utf8'}),contentType:'application/javascript'}));
+ await p.addInitScript(q=>window.__bfFXQ=q,{adapt:tier,mob:phone,tier:mode==='potato'?'potato':'high'});await p.route('**/js/season-bonfire.js*',async route=>{const response=await route.fetch();let body=reviewTag==='before'?execFileSync('git',['show','HEAD:app/public/js/season-bonfire.js'],{encoding:'utf8'}):await response.text();body=body.replaceAll('H.Q?.','window.__bfFXQ.');body=body.replace('function tick(now, dt) {','function tick(now, dt) { if(window.__bfPhotoFreeze)return true;');body=body.replace('  window.Bonfire =',"  window.__bfPhoto=()=>{window.__bfPhotoFreeze=false;tick(performance.now(),0);window.__bfPhotoFreeze=true;};window.__bfResume=()=>window.__bfPhotoFreeze=false;window.__bfReset=()=>{window.__bfPhotoFreeze=false;nextFire=0;nextSky=performance.now()+60000;tick.lastBang=0;for(const p of particles)p.life=0;for(const key of H.anims.keys())if(key.startsWith('bf.rocket.'))H.anims.delete(key);};\n  window.Bonfire =");await route.fulfill({response,body});});}});
  const {page,until}=f;let rid=0;
  try{
  await until(()=>!!window.OwnerTools?.allowed);
@@ -36,7 +40,10 @@ for(const mode of modes){
   },{ms,morning,leftovers});
  }
  async function shot(name){
- let info=await page.evaluate(()=>{HousePause.close();House.hush();window.__bfPhoto?.();return{cap:Bonfire._.fxLimit,particles:Bonfire._.fxCount,houseRung:House.Q.adapt,effectsRung:window.__bfFXQ.adapt,pinned:House.Q.pinned,touch:GameInput.touch,draws:House.ren.info.render.calls,family:HouseFamily.debug.dump()}});
+ let info=await page.evaluate(()=>{HousePause.close();House.hush();window.__bfPhoto?.();return{cap:Bonfire._.fxLimit,particles:Bonfire._.fxCount,houseRung:House.Q.adapt,effectsRung:window.__bfFXQ.adapt,pinned:House.Q.pinned,touch:GameInput.touch,draws:House.ren.info.render.calls,family:HouseFamily.debug.dump(),gazes:Object.values(HouseFamily.chars).filter(c=>c.present&&c.goal?.key?.startsWith('bf.')).map(c=>({id:c.id,speaking:!!(HouseFamily.debug.speech.cur?.c===c&&c.rig.talking),look:c.rig.st.look?{x:c.rig.st.look.x,y:c.rig.st.look.y,z:c.rig.st.look.z}:null})),show:Bonfire.familyLook?.()||null}});
+ if(reviewTag!=='before'&&info.show&&['16-burning-fire-family','15-gold-willows','24-saturday-catchup'].includes(name)){
+  const idle=info.gazes.filter(c=>!c.speaking);assert(idle.length,'At least one silent spectator');for(const c of idle)assert.deepEqual(c.look,info.show,c.id+' watches the show');
+ }
  if(info.touch!==phone){await inputMode();info.touch=await page.evaluate(()=>GameInput.touch);}assert.equal(info.touch,phone);assert.equal(info.cap,cap);await page.screenshot({path:directory+name+'.png'});const old=manifest.findIndex(r=>r.mode===mode&&r.name===name);if(old>=0)manifest.splice(old,1);manifest.push({mode,name,...info});console.log('ART',mode,name,JSON.stringify(info));
  }
  async function measure(name,hidden){await page.evaluate(()=>window.__bfResume?.());await page.evaluate(hidden=>House.root.getObjectByName('bonfire-sky').visible=!hidden,hidden);const samples=await page.evaluate(()=>new Promise(resolve=>{let last=performance.now();const a=[];function step(t){a.push(t-last);last=t;if(a.length<12)requestAnimationFrame(step);else resolve(a.slice(5).sort((a,b)=>a-b))}requestAnimationFrame(step)}));const old=manifest.findIndex(r=>r.mode===mode&&r.name===name);if(old>=0)manifest.splice(old,1);manifest.push({mode,name,median:samples[Math.floor(samples.length*.5)],p95:samples[Math.floor(samples.length*.95)]});await page.evaluate(()=>House.root.getObjectByName('bonfire-sky').visible=true);}

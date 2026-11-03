@@ -1,0 +1,89 @@
+JackWorld startup furniture check
+
+Cause: server.js initialises mods in alphabetical order. jw.js calls loot.api.P
+before loot.js init has assigned its module-local D. P immediately reads D.p,
+throwing the reported TypeError. The single catch encloses every room, so the
+first eligible owner's room aborts the rest of the check.
+
+Before: for rooms whose owner still had a member record, filter each placement
+against that owner's chest. An unlocked matching item acquired lk='jw'; a
+missing item, or an item with another lock, lost its room placement. Deleted
+owners' rooms were skipped. When an exception occurred inside a filter, that
+room's replacement array was not assigned, but earlier lock mutations and any
+earlier completed room filters could remain. On the confirmed cold startup,
+the first loot.P call throws before filtering that first eligible room.
+
+After: read existing saved loot records directly, independent of mod init order.
+Never create a chest and never filter/rewrite a room or placement at startup.
+Only an unambiguous positive integer item UID with a known private furniture
+ID matching its saved placement, owned by the existing room owner, can acquire
+a missing jw lock. Missing/malformed records, unknown IDs, duplicates and other
+locks are skipped and preserved. Later valid records still get checked.
+Existing correctly locked rooms and all room placements are unchanged. A valid
+unlocked placed item's lock is the only intended persisted change (markDirty).
+Unresolved stale references remain for explicit gameplay handling; startup
+does not guess whether missing data means a trade or a damaged save.
+No live state or data/ was opened, copied or modified for this task.
+
+Talk regression sampling
+
+The original predicate accepted any current family speech (including an ambient
+subtitle-only variant with no NPCLines entry), then sampled twelve wall-clock
+90 ms timers. This can sample the opening silence of a recorded line and can
+read the same rendered pose repeatedly on software WebGL. The replacement
+observer starts before the real F press, latches the requested in-person Mom
+conversation, and observes displayed frames for the full utterance. It retains
+both assertions: mouth range > 0.2 and more than one painted atlas frame. A
+frozen mouth still fails. It does not call rig.update, fake audio or synthesize
+speech. The original twelve timer reads and rig pose times are retained as
+non-asserting diagnostics in shots/fixes2-1102/talk-samples.json. Boolean fixture
+polling avoids the CSP-sensitive waitForFunction eval path.
+The old talk camera (-60,175) also lay inside the kitchen table collision box
+(-124..4,126..214). The corrected test stands in the clear aisle and asserts a
+plain pick result of 'np.mom' before the real F key. Its observer is armed by
+that actual key release, so browser dispatch latency cannot expire it beforehand.
+
+The family debug clock did not pin the seasonal calendar. On the host date
+2 November, Bonfire.talk intercepted F with a subtitle-only seasonal line, not
+the ordinary scripted chore conversation this test expects. The talk setup now
+uses the existing Seasons.setTime API to pin the full calendar to 12 October
+as well as the family routine clock. Seasonal dialogue is separately covered
+by events-bonfire.mjs; no production mouth code was changed.
+Verified talk run: chore.bin.give, six displayed samples over 3.87 seconds;
+range 0.0092955..0.4983139, two painted mouth frames. The test passes the
+unchanged >0.2 movement range and >1 atlas-frame requirements. Timer diagnostics
+were delayed by seconds on this software renderer; they are not animation frames.
+The final furniture guard also requires an existing member record, a known
+room model and canonical floor/wall coordinates, rotation and state. A valid
+UID alone must not lock a player's item into an unusable malformed placement.
+Tests include missing fields, out-of-bounds positions, bad rotation/state/model
+metadata and a valid wall item, with all room entries retained byte-for-byte.
+
+Final kitchen refinement: dirty plates are at x=33 on the right worktop. The
+bread bin is x=63, 30 cm wide; its shopping snap follows it. This keeps plates
+clear of the seasonal potato preparation, biscuit tin and hob. The old exact
+factory poses migrate; moved, held, hidden, snapped or finished dishes do not.
+
+Verification limits at worker handoff
+
+No deploy, version/changelog edit, commit, push, docker, site/ or data/ access.
+The complete Bonfire gameplay sequence passed through Friday and Saturday;
+the command exited 1 at the final separate-account page-load timeout. That
+timeout was reproduced alone, then the same cast assertions passed alone with
+the fixture's normal longer navigation allowance. The full command has not
+been repeated after aligning its navigation budget.
+Day and bump passed in the combined characters run; talk then passed alone
+after the sampling correction. The combined command was not repeated.
+story-ch1 and smoke were interrupted during lengthy initial setup, without
+completed checks. They remain unverified, not diagnosed as application failures.
+All visual checks used host Chromium/software WebGL, not physical hardware.
+Pinned Bonfire captures retain existing bin occlusion and some actors still
+arriving; numeric assertions verify gaze without changing their routes.
+Exact commands, including unsuccessful diagnostics, are in
+tests/shots/fixes2-1102/test-history.txt.
+Final kitchen review passed after the plate/bread-bin refinement: four captures
+personally inspected, shopping snap verified, Mom clears the sink and returns.
+mobile.mjs --only=tablet --throttle=1 passed (192s), including real touch PC,
+standing, portrait/landscape, pause, layout and browser-error assertions. All
+four tablet images were inspected and copied into shots/fixes2-1102. Remaining
+mobile phases and physical-phone performance have not been verified.

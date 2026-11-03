@@ -230,7 +230,9 @@
     if (s) s.t += dt;
     if (c.hold > 0) {
       if (c.hold > 2 && speech.cur?.c !== c && !speech.q.some(q => q.c === c)) c.hold = 1.5; // (nothing left to say: never stand there forever)
-      c.hold -= dt; c.v = 0; faceToward(c, player(), dt);
+      c.hold -= dt; c.v = 0;
+      const show=c.goal?.key?.startsWith('bf.')?window.Bonfire?.familyLook?.():null;
+      faceToward(c,show&&!displaySpeaking(c)?show:player(),dt);
       if (c.hold <= 0 && c.backHome) { c.backoff = null; if (c.cur) c.plan.unshift(c.cur); c.cur = { k: 'line', to: c.backHome, t: 0 }; c.backHome = null; return; } // (and back to what they were doing)
       if (c.backoff) { const bx = c.backoff.x - c.x, bz = c.backoff.z - c.z, bd = Math.hypot(bx, bz), k = Math.min(1, 55 * dt / (bd || 1)); if (bd < 1) c.backoff = null; else { c.x += bx * k; c.z += bz * k; c.v = 30; } } // (half a pace back, still facing you)
       return;
@@ -357,7 +359,8 @@
   const prio = c => ({ mom: 3, dad: 2, sister: 1 })[c.id];
   const travelAction = c => c.goal?.away && c.goal.away !== 'bed' ? 'leave' : null;
   function faceToward(c, p, dt) { if (c.seated) return; const want = Math.atan2(p.x - c.x, p.z - c.z); c.h += clamp(angd(c.h, want), -3.5 * dt, 3.5 * dt); }
-  function lookingAtPlayer(c) { return c.hold > 0 || c.talking; }
+  function displaySpeaking(c) { return speech.cur?.c === c && !!c.rig?.talking; }
+  function lookingAtPlayer(c) { return c.goal?.key?.startsWith('bf.') ? displaySpeaking(c) : c.hold > 0 || c.talking; }
   // at the spot: the action, the props
   function arrive(c) {
     const g = c.goal; if (!c.rig || !g) return;
@@ -368,6 +371,10 @@
   // stepping aside when you're trying to get past
   function stepAside(c, dt) {
     if (c.seated) return;
+    // Make room at the sink before a stationary player has to push into Mom.
+    // Reuse the normal checked aside route and its return-to-work behaviour.
+    const sinkGuest = c.id === 'mom' && c.goal?.spot === SPOT.sink && c.cur?.k === 'act' && !dialogueHeld(c) && sameFloor(c, player()) && dist(c, player()) < 90;
+    if (sinkGuest) { c.pushT = nowMs(); c.pushN = 6; c.pushFrom = null; c.asideFor = null; }
     if (c.goal?.key === 'aside' && c.aside && !((c.pushN || 0) >= 6 && nowMs() - c.pushT <= 600)) {
       const o = c.asideFor, released = o ? !o.present || dist(c, o) > 90 || o.cur?.k !== 'route' : dist(c, player()) > 170;
       c.asideT = released ? c.asideT + dt : 0;
@@ -392,7 +399,7 @@
     const opts = [];
     for (const dd of (c.asideFor ? [55, 70, 90, 110] : [45, 60, 75])) for (const sg of [1, -1]) opts.push({ lvl: c.lvl, x: c.x + nx * dd * sg + dx / L0 * 15, z: c.z + nz * dd * sg + dz / L0 * 15 });
     if (c.asideFor) for (const dd of [55, 80, 110, 140, 180, 240, 300]) for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) opts.push({ lvl: c.lvl, x: c.x + Math.sin(a) * dd, z: c.z + Math.cos(a) * dd });
-    for (let i = opts.length - 1; i >= 0; i--) { const o = opts[i]; if (NV.clear(o.lvl, o.x, o.z) < NV.NEED || doorZone(o.x, o.z, o.lvl, 40) || chars.some(q => q !== c && q.present && q.lvl === c.lvl && Math.hypot(o.x - q.x, o.z - q.z) < bodyGap(c, q))) opts.splice(i, 1); }
+    for (let i = opts.length - 1; i >= 0; i--) { const o = opts[i]; if (sinkGuest && Math.hypot(o.x-p.x,o.z-p.z)<100 || NV.clear(o.lvl, o.x, o.z) < NV.NEED || doorZone(o.x, o.z, o.lvl, 40) || chars.some(q => q !== c && q.present && q.lvl === c.lvl && Math.hypot(o.x - q.x, o.z - q.z) < bodyGap(c, q))) opts.splice(i, 1); }
     if (route?.r) for (let i = opts.length - 1; i >= 0; i--) {
       for (let d = 0; d <= 200; d += 20) { const q = NV.at(route.r, Math.min(route.r.len, route.s + d)); if (Math.hypot(opts[i].x - q.x, opts[i].z - q.z) < bodyGap(c, c.asideFor) + 6) { opts.splice(i, 1); break; } }
     }
@@ -769,10 +776,14 @@
   function looks(c) {
     if (!c.rig) return;
     const p = player(), d = dist(c, p);
-    let look = null;
-    if (c.present && sameFloor(c, p) && (c.talking || c.hold > 0 || d < 330)) {
+    // A display keeps their attention; the existing speaking animation glances
+    // at you, then returns to the show. No new animation loop or route changes.
+    const show = c.goal?.key?.startsWith('bf.') ? window.Bonfire?.familyLook?.() : null;
+    const speaking = !!show && displaySpeaking(c);
+    let look = show || null;
+    if ((!show || speaking) && c.present && sameFloor(c, p) && (c.talking || c.hold > 0 || d < 330)) {
       const fwd = Math.atan2(p.x - c.x, p.z - c.z), off = Math.abs(angd(c.seated ? c.seated.face * D2R : c.h, fwd));
-      if (c.talking || c.hold > 0 || off < 1.7) look = eyes();
+      if (speaking || c.talking || c.hold > 0 || off < 1.7) look = eyes();
     }
     c.rig.set({ look, engage: c.present && c.hold > 0 });
   }

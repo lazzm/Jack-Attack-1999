@@ -54,6 +54,39 @@ function initData() {
   for (const k of ['reports', 'rotw']) if (!Array.isArray(D[k])) D[k] = [];
   if (!D.wk || typeof D.wk !== 'object') D.wk = { no: 0, likes: {}, vis: {} };
 }
+// jw loads alphabetically before loot. Inspect the saved chest directly: loot.P
+// is not ready yet and would also create a chest when one is missing. Startup
+// must never infer lost ownership from an absent/malformed record and prune a
+// player's room. Only restore a lock for an unambiguous, matching owned item.
+function checkFurni(state, rooms) {
+  if (!state || !rooms || typeof rooms !== 'object') return 0;
+  const players = state.mods && state.mods.loot && state.mods.loot.p;
+  if (!players || typeof players !== 'object' || Array.isArray(players)) return 0;
+  let changed = 0;
+  for (const R of Object.values(rooms)) {
+    if (!R || typeof R.o !== 'string' || keyOf(R.o) !== R.o || !own(state.members, R.o) || !Array.isArray(R.f) || !own(players, R.o) || typeof R.md !== 'string' || !own(MODEL, R.md)) continue;
+    const member = state.members[R.o];
+    if (!member || typeof member !== 'object' || Array.isArray(member)) continue;
+    const p = players[R.o];
+    if (!p || !Array.isArray(p.it)) continue;
+    for (const f of R.f) {
+      if (!f || !isInt(f.u, 1, 1e12) || typeof f.id !== 'string' || !own(C.FURNI, f.id) || C.FURNI[f.id].pub) continue;
+      const F = C.FURNI[f.id], model = MODEL[R.md], W = model.map[0].length, H = model.map.length;
+      if (!Number.isSafeInteger(f.s) || f.s < 0) continue;
+      if (F.k === 'w') {
+        if (!['L', 'R'].includes(f.w) || !isInt(f.x, 0, W - F.w) || f.y !== 0 || !isInt(f.z, -24, 16)) continue;
+      } else {
+        if (f.w != null || (f.r !== 0 && f.r !== 1) || !isInt(f.x, 0, W - (f.r ? F.d : F.w)) || !isInt(f.y, 0, H - (f.r ? F.w : F.d))) continue;
+      }
+      const matches = p.it.filter(it => it && it.u === f.u);
+      if (matches.length !== 1) continue;
+      const it = matches[0];
+      if (it.id !== f.id || (it.lk != null && it.lk !== '')) continue;
+      it.lk = 'jw'; changed++;
+    }
+  }
+  return changed;
+}
 const keyOf = name => { const k = String(name || '').toLowerCase(); return k && !BADKEY.test(k) ? k : null; };
 const keyOfC = c => (c && c.member ? keyOf(c.member) : null);
 const memberName = key => { const m = ctx.state.members[key]; return m ? m.name : null; };
@@ -877,13 +910,12 @@ module.exports = {
     ctx = x; D = x.data; initData();
     E = ECON.api; if (!E || !E.earnA) { console.error('jw: econ is missing'); return; }
     for (const k in EARN_ADD) if (!ECAT.EARN[k]) ECAT.EARN[k] = EARN_ADD[k];
-    // furni that went missing from a room owner's chest (traded away, deleted member) leaves their room on start-up
-    try { const L = LA(); if (L) for (const R of Object.values(D.rooms)) { if (!ctx.state.members[R.o]) continue; const lp = L.P(R.o); R.f = R.f.filter(f => { const it = L.findItem(lp, f.u); if (it && !it.lk) it.lk = 'jw'; return !!it && it.lk === 'jw'; }); } } catch (e) { console.error('jw: furni check', e); }
+    if (checkFurni(ctx.state, D.rooms)) ctx.markDirty();
     x.on('close', c => { if (c.jwRoom) leave(c); });
     x.on('login', c => { for (const [ws, cc] of ctx.clients) if (cc === c) ctx.send(ws, meView(c)); });
     setInterval(tick, 150);
     setInterval(() => { try { weekly(); } catch (e) { console.error('jw weekly', e); } }, 60000); setTimeout(weekly, 3000);
   },
   handle,
-  _test: { get D() { return D; }, LIVE, posAt, inst, weekly, fits },
+  _test: { get D() { return D; }, LIVE, posAt, inst, weekly, fits, checkFurni },
 };

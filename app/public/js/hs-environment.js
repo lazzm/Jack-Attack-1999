@@ -7,7 +7,7 @@
  // Keep distant rows independently frustum-cullable, without per-house meshes
  // or any visibility work in the animation loop. All palettes are shared.
  const materials=[];
- const paint=(c)=>{const m=new T.MeshBasicMaterial({color:c});materials.push({m,c:new T.Color(c)});return m};
+ const paint=(c,lit=false)=>{const m=lit?new T.MeshPhongMaterial({color:c,shininess:4,specular:0x161512}):new T.MeshBasicMaterial({color:c});materials.push({m,c:new T.Color(c)});return m};
  // All texture work happens once. Brick courses and roof tiles use real centimetre
  // UV scales, rather than stretching a few giant bricks across every facade.
  const brick=K.tex('env.brick',256,128,(g,w,h)=>{
@@ -27,7 +27,7 @@
  const masonry=paint('#ffffff');masonry.map=brick;
  const paleBrick=paint('#d5c9b5');paleBrick.map=brick;
  const render=paint('#d6ceba'),occupied=paint('#718b96'),lampGlass=paint('#d6cdb2');
- const roof=paint('#68544a'),slate=paint('#4d575b'),trim=paint('#ddd8c9'),glass=paint('#718b96'),glassShade=paint('#3e5763'),door=paint('#334747'),road=paint('#4c4d4e'),grass=paint('#547044'),hedge=paint('#405f38'),leaf=paint('#657645'),paving=paint('#aaa79d'),earth=paint('#655543'),metal=paint('#383e3d');
+ const roof=paint('#68544a'),slate=paint('#4d575b'),trim=paint('#ddd8c9'),glass=paint('#718b96'),glassShade=paint('#3e5763'),door=paint('#334747'),road=paint('#4c4d4e',true),grass=paint('#547044'),hedge=paint('#405f38'),leaf=paint('#657645'),paving=paint('#aaa79d',true),earth=paint('#655543'),metal=paint('#383e3d');
  roof.map=slate.map=tiles;
  // Pavement joints belong to the solid slab's surface. The former 0.3 cm
  // high, many-metre groove boxes produced raster slivers through indoor walls
@@ -50,6 +50,9 @@
  // The street (js/hs-world.js House.FRONT.STREET): our pavement from FZ, its kerb, a 5.6 m road, the far kerb and
  // pavement. The opposite houses' front walls stand on the far pavement's back edge, about 17.8 m from our front wall.
  const ST=(H.FRONT&&H.FRONT.STREET)||{pave:[1400,1545],kerb:1550,road:[1555,2115],farKerb:2120,farPave:[2125,2270]};
+ // Nearby sodium columns share their emitter positions with the house's fixed
+ // light rig. Solid pavement/tarmac receives its light, with no glow cards.
+ const streetLamps=[-420,960].map(x=>({x,y:GY-454,z:ST.farKerb+10,c:'#ffc078',i:1.7,d:1650}));
  const OPP=ST.farPave[1]+560; // opposite plots: z of the house centre (front boundary 540 + 20 in front of it)
  // The village goes on past the end of our row: a crossroads to the east (the side road joins the back road), the
  // corner shop and a little green with the phone box on its corners, and more semis both ways. Past about 36 m from
@@ -118,7 +121,7 @@
   }
   // Give way: double broken white lines across the side road where it meets our street and the back road.
   for(const z of [r0-14,r0-28,r1+14,r1+28,-680,-666])for(let x=X[2]+20;x<X[3]-30;x+=60)b.box(x+15,GY-.3,z,30,.3,6,trim);
-  for(const x of [-4300,-2480,-1120,1600,3300,4700]){
+  for(const x of [-4300,-2480,-1120,...streetLamps.map(l=>l.x),1600,3300,4700]){
    b.box(x,GY-.5,ST.farKerb-18,32,1,18,metal);
    for(let i=-2;i<=2;i++)b.box(x+i*5,GY-1.1,ST.farKerb-18,2,.4,14,paving);
    const l=b.at(x,GY,ST.farKerb+62);l.cyl(0,-230,0,4,7,460,8,metal);
@@ -412,8 +415,8 @@
   });sky.needsUpdate=true;
   paintBackdrop(ph,horizon);
   const tint=new T.Color(night?'#566378':ph==='day'?'#ffffff':'#c3a8a0');for(const{m,c}of materials)m.color.copy(c).multiply(tint);
-  occupied.color.set(night?'#c8a36f':'#718b96');lampGlass.color.set(night?'#edc684':'#d6cdb2');
+  occupied.color.set(night?'#c8a36f':'#718b96');lampGlass.color.set(night?'#ffd093':'#d6cdb2');
   H.dirty();return true;
  }
- update();H.ambient.add(update);window.HouseEnvironment={group,sky,homes,farHomes,backdrop,street:ST,update,get phase(){return last}};
+ update();H.ambient.add(update);window.HouseEnvironment={group,sky,homes,farHomes,backdrop,street:ST,streetLamps,update,get phase(){return last}};
 })();
