@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {roomFixture} from './room-fixture.mjs';
+import {playCase} from './case-actions.mjs';
 import {devices} from 'playwright';
 const base=process.argv[2],before=process.argv.includes('--before'),powerOnly=process.argv.includes('--power-only');
 assert(['localhost','127.0.0.1'].includes(new URL(base).hostname));
@@ -17,15 +18,15 @@ for(const touch of (before?[false]:[false,true]).filter(t=>!profile||profile===(
   if(touch){const c=await p.context().newCDPSession(p);await c.send('Emulation.setUserAgentOverride',{userAgent:devices['Pixel 7'].userAgent,platform:'Android'});await c.send('Emulation.setDeviceMetricsOverride',{width:412,height:915,deviceScaleFactor:1,mobile:true});}
  }});
  const {page:p,until}=f,tag=(before?'before':'after')+'-'+(touch?'phone':'desktop');
+ const state=()=>p.evaluate(()=>({mode:House.mode,paused:House.paused,menu:HousePause.open,focused:House.focused,tv:RoomTV._dbg(),pointer:!!document.pointerLockElement}));
  const shot=async name=>p.screenshot({path:shots+tag+'-'+name+'.png'});
  try{
   console.log(tag,'room ready');await p.evaluate(()=>Apps.load('js/rm-tv.js'));console.log(tag,'TV loaded');
   if(!before){await p.evaluate(()=>{Net.send({t:'rmFind',id:'cart.ps.grav'});Net.send({t:'rmMe'})});await until(()=>Room.owned('ps.grav'));await p.evaluate(()=>Room.syncMedia());}
   if(before){await p.evaluate(()=>House.sitDown());await until(()=>House.mode==='monitor'&&!House.gliding)}
-  await p.evaluate(()=>RoomTV.test('ps.grav'));
+  if(before)await p.evaluate(()=>RoomTV.test('ps.grav'));else await playCase(f,'ps.grav');
   await until(()=>RoomTV._dbg()?.st==='game');console.log(tag,'cartridge running',await p.evaluate(()=>House.mode));
   await until(()=>!House.gliding);
-  if(!before){await p.evaluate(()=>RoomTV.close());await until(()=>House.mode==='walk'&&!House.gliding);await p.evaluate(()=>House.act('ps'));}
   await until(()=>RoomTV.open_&&!House.gliding);
   // QA's direct cartridge launch left the legacy PC camera following its boot
   // model. Reproduce that reported state explicitly; normal use is checked below.
@@ -54,7 +55,7 @@ for(const touch of (before?[false]:[false,true]).filter(t=>!profile||profile===(
     await wait(mode=>House.mode===mode&&!House.gliding,mode);
     assert.equal(await p.evaluate(()=>localStorage.getItem('jhp_off')==='1'),off,'Refresh preserves PC power');
    };
-   const resumeMenu=async()=>{await p.waitForTimeout(250);if(await p.evaluate(()=>HousePause.open))await press('.hs-pause [data-pause=resume]')};
+   const resumeMenu=async()=>{if(await p.evaluate(()=>HousePause.open))await press('.hs-pause [data-pause=resume]');await wait(()=>!HousePause.open&&!House.paused)};
    if(!powerOnly){
    // PC preference on/off cannot redirect the TV's lock. Running instance survives.
    await p.evaluate(()=>window.focusGame=RoomTV.dbg());
@@ -78,8 +79,7 @@ for(const touch of (before?[false]:[false,true]).filter(t=>!profile||profile===(
    await p.keyboard.press('q');await wait(()=>House.mode==='walk'&&!House.gliding);
    // PC first, then a different bedroom-TV console, with PC's lock preference retained.
    await p.evaluate(()=>RoomTV.close(true));await p.waitForTimeout(400);
-   await p.evaluate(()=>RoomTV.test('n64.kart'));await wait(()=>RoomTV._dbg()?.st==='game');
-   await p.evaluate(()=>RoomTV.close());await tv('n64');
+   await playCase(f,'n64.kart');
    await lock();assert.equal(await p.evaluate(()=>ScreenLock.current.type),'console');await shot('pc-first-kart-lock');await back();
    // Shut JackOS down through its real form, leaving the TV powered.
    await p.evaluate(()=>House.sitDown());await wait(()=>House.mode==='monitor'&&!House.gliding);
@@ -99,8 +99,12 @@ for(const touch of (before?[false]:[false,true]).filter(t=>!profile||profile===(
    // game running, then boot JackOS and return to that same TV instance.
    if(await p.evaluate(()=>HousePause.open))await p.keyboard.press('Escape');
    console.log(tag,'power TV first, PC off');
-   await p.evaluate(()=>RoomTV.test('n64.kart'));await resumeMenu();await wait(()=>RoomTV._dbg()?.st==='game');
-   await p.evaluate(()=>RoomTV.close());await tv('n64');await back();
+   // A player inserts/uses the physical cartridge through house focus first.
+   // RoomTV.test() bypasses that focus: releasing mouse-look in walk mode
+   // correctly opens Pause, freezing a directly-created cartridge boot.
+   await playCase(f,'n64.kart');
+   assert(await p.evaluate(()=>House.mode==='focus'&&House.focused&&!HousePause.open&&!House.paused&&HouseCases.inserted('console.n64')?.medium.gameId==='n64.kart'));
+   console.log(tag,'physical power-order start',await state());await shot('power-order-native-focus');await back();
    await p.evaluate(()=>window.powerOrderGame=RoomTV.dbg());
    await p.evaluate(()=>document.querySelector('#bootPower .powerbtn').click());
    await wait(()=>House.mode==='monitor'&&!House.gliding&&!localStorage.getItem('jhp_off'));
@@ -118,5 +122,5 @@ for(const touch of (before?[false]:[false,true]).filter(t=>!profile||profile===(
    console.log('SCREEN FOCUS PASS '+tag+(powerOnly?': TV-first power, PC boot, same running game, saved PC In room and staged QA focus':': TV/PC first, both PC preferences, PC on/off, TV on/off, reload focused PC/TV, one-press Q, same game, phone rotation and touch menu'));
   }
   assert.deepEqual(f.errors,[]);
- }catch(e){await shot('failure');throw e}finally{await f.browser.close()}
+ }catch(e){console.log('FAILURE STATE',await state());console.log('ERRORS',f.errors);await shot('failure');throw e}finally{await f.browser.close()}
 }
