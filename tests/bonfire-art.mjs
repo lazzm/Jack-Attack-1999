@@ -15,7 +15,7 @@ if(!savedState)savedState=await bonfireLogin(base,password);
 for(const mode of modes){
  const phone=mode==='phone',tier=mode==='potato'?5:phone?2:0,cap=mode==='potato'?120:phone?430:1000;
  const reviewTag=process.env.FIXES2_ART_TAG;
- const directory=new URL(reviewTag?`./shots/fixes2-1102/${reviewTag}-bonfire-${mode}/`:`./shots/bonfire/pinned-${mode}-${cap}/`,import.meta.url).pathname;await mkdir(directory,{recursive:true});
+ const directory=new URL(reviewTag==='sizing-round2'?`./shots/sizing/round2/bonfire-${mode}/`:reviewTag?`./shots/fixes2-1102/${reviewTag}-bonfire-${mode}/`:`./shots/bonfire/pinned-${mode}-${cap}/`,import.meta.url).pathname;await mkdir(directory,{recursive:true});
  const f=await roomFixture(base,{account:'Jack',password,signup:false,hour:null,resume:!!savedState,storageState:savedState,opening:!!savedState,touch:phone,width:phone?390:1366,height:phone?844:860,debug:process.env.FIXTURE_DEBUG==='1',onPage:async p=>{
  if(reviewTag==='before')for(const file of ['np-life.js','hs-house.js','hs-environment.js','ch-kitchen.js'])await p.route('**/js/'+file+'*',r=>r.fulfill({body:execFileSync('git',['show','HEAD:app/public/js/'+file],{encoding:'utf8'}),contentType:'application/javascript'}));
  await p.addInitScript(q=>window.__bfFXQ=q,{adapt:tier,mob:phone,tier:mode==='potato'?'potato':'high'});await p.route('**/js/season-bonfire.js*',async route=>{const response=await route.fetch();let body=reviewTag==='before'?execFileSync('git',['show','HEAD:app/public/js/season-bonfire.js'],{encoding:'utf8'}):await response.text();body=body.replaceAll('H.Q?.','window.__bfFXQ.');body=body.replace('function tick(now, dt) {','function tick(now, dt) { if(window.__bfPhotoFreeze)return true;');body=body.replace('  window.Bonfire =',"  window.__bfPhoto=()=>{window.__bfPhotoFreeze=false;tick(performance.now(),0);window.__bfPhotoFreeze=true;};window.__bfResume=()=>window.__bfPhotoFreeze=false;window.__bfReset=()=>{window.__bfPhotoFreeze=false;nextFire=0;nextSky=performance.now()+60000;tick.lastBang=0;for(const p of particles)p.life=0;for(const key of H.anims.keys())if(key.startsWith('bf.rocket.'))H.anims.delete(key);};\n  window.Bonfire =");await route.fulfill({response,body});});}});
@@ -40,30 +40,49 @@ for(const mode of modes){
   },{ms,morning,leftovers});
  }
  async function shot(name){
- let info=await page.evaluate(async()=>{HousePause.close();House.hush();window.__bfPhoto?.();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const line=HouseFamily.debug.speech.cur;return{cap:Bonfire._.fxLimit,particles:Bonfire._.fxCount,houseRung:House.Q.adapt,effectsRung:window.__bfFXQ.adapt,pinned:House.Q.pinned,touch:GameInput.touch,draws:House.ren.info.render.calls,family:HouseFamily.debug.dump(),gazes:Object.values(HouseFamily.chars).filter(c=>c.present&&c.goal?.key?.startsWith('bf.')).map(c=>({id:c.id,talking:!!c.talking,hold:c.hold||0,goal:c.goal?.key,line:line?.lineId||null,lineBy:line?.c?.id||null,speaking:!!(line?.c===c&&c.talking&&(line.talk||!/^bark\./.test(line.lineId))),look:c.rig.st.look?{x:c.rig.st.look.x,y:c.rig.st.look.y,z:c.rig.st.look.z}:null})),show:Bonfire.familyLook?.()||null}});
+ let info=await page.evaluate(async()=>{HousePause.close();House.hush();window.__bfPhoto?.();await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const line=HouseFamily.debug.speech.cur;return{cap:Bonfire._.fxLimit,particles:Bonfire._.fxCount,houseRung:House.Q.adapt,effectsRung:window.__bfFXQ.adapt,pinned:House.Q.pinned,touch:GameInput.touch,draws:House.ren.info.render.calls,family:HouseFamily.debug.dump(),gazes:Object.values(HouseFamily.chars).filter(c=>c.present&&c.goal?.key?.startsWith('bf.')).map(c=>({id:c.id,talking:!!c.talking,hold:c.hold||0,goal:c.goal?.key,line:line?.lineId||null,lineBy:line?.c?.id||null,speaking:!!(line?.c===c&&c.talking),look:c.rig.st.look?{x:c.rig.st.look.x,y:c.rig.st.look.y,z:c.rig.st.look.z}:null})),show:Bonfire.familyLook?.()||null}});
  if(reviewTag!=='before'&&info.show&&['16-burning-fire-family','15-gold-willows','24-saturday-catchup'].includes(name)){
   const idle=info.gazes.filter(c=>!c.speaking);assert(idle.length,'At least one silent spectator');for(const c of idle)assert.deepEqual(c.look,info.show,c.id+' watches the show '+JSON.stringify(info.gazes));
  }
  if(info.touch!==phone){await inputMode();info.touch=await page.evaluate(()=>GameInput.touch);}assert.equal(info.touch,phone);assert.equal(info.cap,cap);await page.screenshot({path:directory+name+'.png'});const old=manifest.findIndex(r=>r.mode===mode&&r.name===name);if(old>=0)manifest.splice(old,1);manifest.push({mode,name,...info});console.log('ART',mode,name,JSON.stringify(info));
  }
  async function measure(name,hidden){await page.evaluate(()=>window.__bfResume?.());await page.evaluate(hidden=>House.root.getObjectByName('bonfire-sky').visible=!hidden,hidden);const samples=await page.evaluate(()=>new Promise(resolve=>{let last=performance.now();const a=[];function step(t){a.push(t-last);last=t;if(a.length<12)requestAnimationFrame(step);else resolve(a.slice(5).sort((a,b)=>a-b))}requestAnimationFrame(step)}));const old=manifest.findIndex(r=>r.mode===mode&&r.name===name);if(old>=0)manifest.splice(old,1);manifest.push({mode,name,median:samples[Math.floor(samples.length*.5)],p95:samples[Math.floor(samples.length*.95)]});await page.evaluate(()=>House.root.getObjectByName('bonfire-sky').visible=true);}
- if(mode!=='potato'&&take('03-finished-stack-side')){await scene();await aim([-145,210,-240],[-65,275,-402]);await shot('03-finished-stack-side');}if(mode!=='potato'&&take('05-guy-chair')){await scene();await aim([-175,210,-60],[-154,280,-201]);await shot('05-guy-chair');}
+ if(mode!=='potato'&&take('03-finished-stack-side')){await scene();await aim([-145,210,-906.5],[-65,275,-1068.5]);await shot('03-finished-stack-side');}if(mode!=='potato'&&take('05-guy-chair')){await scene();await aim([-175,210,-409],[-154,280,-550]);await shot('05-guy-chair');}
+ if(take('06-gloves-by-back-door')){
+  await scene();assert(await page.evaluate(()=>Season.targets().includes('bf.gloves')),'Objective marker must find the gloves');
+  await aim([180,210,220],[174,296,-148]);await shot('06-gloves-doorway');
+  await aim([120,210,-65],[174,296,-148]);await inputMode();
+  assert.equal(await page.evaluate(()=>House.pick(innerWidth/2,innerHeight/2)?.spot),'bf.gloves','Gloves reachable from clear floor');
+  await shot('06-gloves-close');
+  await page.evaluate(()=>{window.__r2Steps=[];Season.step=(...a)=>__r2Steps.push(a)});
+  if(phone){await until(()=>{const b=document.querySelector('.ht-hud [data-k="f"]');return !!(b&&!b.disabled&&b.getBoundingClientRect().width>0)});const p=await page.evaluate(()=>{const r=document.querySelector('.ht-hud [data-k="f"]').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2}});await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[p]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}
+  else await page.keyboard.press('f');
+  await until(()=>__r2Steps.some(a=>a[0]==='bonfire99'&&a[1]==='bf-sparkler'&&a[2]==='gloves'));
+  await page.evaluate(()=>{Season.step=()=>{};document.querySelector('.hs-note.on .rm-x')?.click()});
+ }
+ if(take('07-side-window-outside')){await scene();await aim([350,210,-110],[195,189,-120]);assert(await page.evaluate(()=>House.ROOMS.kitchen.group.visible),'Side-window portal must reveal the kitchen');await shot('07-side-window-outside');}
+ if(take('08-bedroom-window')){await scene();await f.view([75,-70,145],[190,-65,-56],{level:'U'});await shot('08-bedroom-window');}
+ if(mode!=='potato'&&take('09-mower-and-pools')){
+  await page.evaluate(async()=>{House.buildRoom(House.ROOMS.drive);await Chores.load();await Chores.part('drive')});await until(()=>!!House.SPOTS['ch.mower']);
+  await f.view([115,210,820],[196,315,748],{level:'G'});await shot('09-mower-close');
+  await f.view([570,210,1770],[700,352,1528],{level:'G',roomPoint:[570,210,1500]});await shot('09-street-pools');
+ }
  for(const [name,ms]of[['14-fountain',18000],['15-wheel',47000],['15-rockets',90000],['15-gold-willows',140000],['15-last-volley',172000]]){
-  if(!take(name))continue;if(mode==='potato'&&!['14-fountain','15-gold-willows','15-last-volley'].includes(name))continue;await scene(ms);await aim([-60,210,name==='15-wheel'?-169:-74],[0,130,-650]);await page.waitForTimeout(name==='15-last-volley'?2600:name==='15-gold-willows'?1900:3200);await shot(name);
+  if(!take(name))continue;if(mode==='potato'&&!['14-fountain','15-gold-willows','15-last-volley'].includes(name))continue;await scene(ms);await aim([-60,210,name==='15-wheel'?-467.5:-222.4],[0,130,-1708.1]);await page.waitForTimeout(name==='15-last-volley'?2600:name==='15-gold-willows'?1900:3200);await shot(name);
   if(name==='15-gold-willows'){await measure('finale',false);await measure('same-scene-no-fireworks',true);}
  }
- if(take('16-burning-fire-family')){await scene(25000);await aim([-60,210,-74],phone?[-45,264,-370]:[80,244,-260]);await page.evaluate(()=>HouseFamily.debug.sim(60,.1));await page.waitForTimeout(2500);await shot('16-burning-fire-family');}
- if(mode!=='potato'&&take('18-rope-spacing')){await scene(140000);for(const x of [-126,-60,20]){await aim([x,210,-170],[0,130,-650]);await page.evaluate(()=>HouseFamily.debug.sim(60,.1));await page.waitForTimeout(700);const actors=await page.evaluate(()=>HouseFamily.debug.dump().map(c=>({id:c.id,d:Math.hypot(c.x-House.P.x,c.z-House.P.z)})));assert(actors.every(c=>c.d>=145),JSON.stringify(actors));await shot('18-rope-spacing-'+x);}}
+ if(take('16-burning-fire-family')){await scene(25000);await aim([-60,210,-240],phone?[-45,264,-1068.5]:[230,244,-650]);await page.evaluate(()=>HouseFamily.debug.sim(60,.1));await page.waitForTimeout(2500);await shot('16-burning-fire-family');}
+ if(mode!=='potato'&&take('18-rope-spacing')){await scene(140000);for(const x of [-126,-60,20]){await aim([x,210,-470],[0,130,-1708.1]);await page.evaluate(()=>HouseFamily.debug.sim(60,.1));await page.waitForTimeout(700);const actors=await page.evaluate(()=>HouseFamily.debug.dump().map(c=>({id:c.id,d:Math.hypot(c.x-House.P.x,c.z-House.P.z)})));assert(actors.every(c=>c.d>=145),JSON.stringify(actors));await shot('18-rope-spacing-'+x);}}
  // These real pointer gestures exercise the same held-tip mapping as the gameplay suite.
  if(take('17-sparkler-writing')){await scene();await page.evaluate(()=>{const s=Season.server.ev.bonfire99;s.steps['bf-sparkler']={gloves:1,light:1};Season.emit('state')});
- await aim([-20,210,-100],[-23,299,-137]);await page.evaluate(()=>House.act('bf.sparklers'));await until(()=>Bonfire.step==='write');await page.waitForTimeout(1000);
+ await aim([-20,210,-347.9],[-23,299,-384.9]);await page.evaluate(()=>House.act('bf.sparklers'));await until(()=>Bonfire.step==='write');await page.waitForTimeout(1000);
  const b=await page.evaluate(()=>Bonfire._.workBounds()),path=[[.18,.25],[.33,.25],[.30,.65],[.25,.72],[.20,.65],[.36,.70],[.43,.26],[.50,.70],[.395,.52],[.465,.52],[.66,.31],[.60,.26],[.53,.36],[.53,.60],[.60,.70],[.66,.65],[.72,.25],[.72,.70],[.72,.48],[.84,.25],[.72,.48],[.84,.70]];
  const pts=path.map(([x,y])=>({x:b.x+b.w*x,y:b.y+b.h*(phone?y*.32+.2:y)}));
  if(phone){await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[pts[0]]});for(const p of pts)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[p]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});}
  else {await cdp.send('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',buttons:1,clickCount:1,...pts[0]});for(const p of pts)await cdp.send('Input.dispatchMouseEvent',{type:'mouseMoved',buttons:1,...p});await cdp.send('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',buttons:0,clickCount:1,...pts.at(-1)});}
  await shot('17-sparkler-writing');await page.keyboard.press('q');await until(()=>!House.focused);}
- if(mode!=='potato'&&take('19-morning-after')){await clock('1999-11-06',9);await scene(null,{morning:true});await aim([-60,210,-170],[-65,337,-402]);await shot('19-morning-after');}
- if(mode!=='potato'&&take('24-saturday-catchup')){await clock('1999-11-06',20);await scene(65000,{leftovers:true});await aim([-60,210,-74],[0,130,-650]);await page.waitForTimeout(4500);await shot('24-saturday-catchup');}
+ if(mode!=='potato'&&take('19-morning-after')){await clock('1999-11-06',9);await scene(null,{morning:true});await aim([-60,210,-836.5],[-65,337,-1068.5]);await shot('19-morning-after');}
+ if(mode!=='potato'&&take('24-saturday-catchup')){await clock('1999-11-06',20);await scene(65000,{leftovers:true});await aim([-60,210,-222.4],[0,130,-1708.1]);await page.waitForTimeout(4500);await shot('24-saturday-catchup');}
  await clock('1999-11-05',20);assert.deepEqual(f.errors,[]);console.log('PASS ART',mode);
  }finally{savedState=await page.context().storageState().catch(()=>undefined);if(savedState)await writeFile('/tmp/bf-art-storage.json',JSON.stringify(savedState));await f.browser.close();await writeFile(new URL('./shots/bonfire/pinned-review.json',import.meta.url),JSON.stringify(manifest,null,2));}
 }

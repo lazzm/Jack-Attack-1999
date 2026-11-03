@@ -542,3 +542,9 @@ Run browsers serially. `NODE_OPTIONS=--require=$PWD/tests/browser-budget.cjs` ca
 Evidence is in `tests/shots/fixes4/`. The boot/art `before` and `after` arguments label artifacts; they do not change the
 checkout's application source. The original pre-fix boot test failed and its two PNGs are retained alongside the passing
 post-fix reload/native-pickup evidence. All individual unit commands/results are in `fixes4/unit-results.txt` under shots.
+
+Shared software-renderer hosts: `FIXTURE_RASTER_RATIO=0.5` optionally caps raster resolution in `room-fixture.mjs`
+without changing CSS layout, camera coordinates or assertions. Leave it unset for art/pixel reviews.
+`REGRESSION_NO_SHOTS=1` in physics/Halloween/story omits optional galleries while retaining functional checks and
+failure captures. The dedicated sizing/Bonfire art fixtures still capture native-resolution evidence.
+Standing-resume fixtures also complete the normal About You form for freshly provisioned accounts, when present.

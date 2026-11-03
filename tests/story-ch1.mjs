@@ -100,7 +100,7 @@ async function ownerRoundTrip(){
 }
 if(stage==='owner'){await ownerRoundTrip();process.exit(0);}
 const {browser, page:p, errors, until, view} = await roomFixture(base, {account, password, timeoutScale:SCALE, opening:true,resume:!!resumed,storageState:resumed||undefined});
-const shot = name => p.screenshot({path:shots + name + '.png'});
+const shot = name => process.env.REGRESSION_NO_SHOTS==='1'?p.waitForTimeout(250):p.screenshot({path:shots + name + '.png'});
 async function wait(page, fn, arg, timeout=30000) {
   const end=Date.now()+timeout*SCALE;
   // (a first visit on another device may reload once while JackNet brings the account's newer profile down: js/roam.js)

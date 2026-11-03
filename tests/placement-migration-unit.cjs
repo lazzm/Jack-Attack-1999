@@ -6,7 +6,7 @@ const start=source.indexOf('  const PV = '),end=source.indexOf('  function saveT
 assert(start>=0&&end>start,'Production placement migration is present');
 const ms=source.indexOf('  function migrateSave(save)'),me=source.indexOf('  // Placements saved before the physics pass',ms);
 const {PV,FRONT,migratePlacement:move,migrateSave}=vm.runInNewContext(source.slice(start,end)+source.slice(ms,me)+';({PV,FRONT,migratePlacement,migrateSave})',{LV:{G:353,U:73},clamp:(n,a,b)=>Math.max(a,Math.min(b,n))});
-assert.equal(PV,9,'Latest migration version must be stamped into saves');
+assert.equal(PV,10,'Latest migration version must be stamped into saves');
 const near=(a,b)=>assert(Math.abs(a-b)<1e-7,`${a} differs from ${b}`);
 for(const from of [3,4,5]){
  const old=from===3?FRONT.CAR3:FRONT.CAR4;
@@ -47,7 +47,7 @@ for(const from of [5,6,7]){const a={room:'lounge',x:115,y:308,z:397,ry:-110};ass
 for(const [x,z]of [[185,430],[-115,455]]){const a={room:'lounge',x,y:353,z,ry:25};assert(move(a,7));near(a.x,50);near(a.z,520);assert.equal(a.ry,25);assert(!move(a,8));}
 for(const a of [{room:'lounge',x:-60,y:353,z:520},{room:'lounge',x:-60,y:353,z:450},{room:'lounge',x:110,y:308,z:395,hide:true}]){const before=JSON.stringify(a);assert(!move(a,7));assert.equal(JSON.stringify(a),before)}
 const current={pv:7,t:{table:['lounge',-60,309.5,450,15,0,0,{keep:'table'}],chair:['lounge',115,308,397,-110,0,0],hidden:['lounge',110,308,395,0,0,1,{keep:'hidden'}],snapped:['lounge',110,308,395,0,'ch.s.cush3',0,{keep:'slot'}]},o:{'hall.front':1}};
-migrateSave(current);assert.equal(current.pv,9);assert.deepEqual(Array.from(current.t.table),['lounge',-72,309.5,456.5,15,0,0,{keep:'table'}]);assert.deepEqual(Array.from(current.t.chair),['lounge',141,308,402,-110,0,0]);assert.deepEqual(current.t.hidden,['lounge',110,308,395,0,0,1,{keep:'hidden'}]);assert.deepEqual(current.t.snapped,['lounge',110,308,395,0,'ch.s.cush3',0,{keep:'slot'}]);assert.equal(current.o['hall.front'],1);
+migrateSave(current);assert.equal(current.pv,10);assert.deepEqual(Array.from(current.t.table),['lounge',-72,309.5,456.5,15,0,0,{keep:'table'}]);assert.deepEqual(Array.from(current.t.chair),['lounge',141,308,402,-110,0,0]);assert.deepEqual(current.t.hidden,['lounge',110,308,395,0,0,1,{keep:'hidden'}]);assert.deepEqual(current.t.snapped,['lounge',110,308,395,0,'ch.s.cush3',0,{keep:'slot'}]);assert.equal(current.o['hall.front'],1);
 const again=JSON.parse(JSON.stringify(current));delete again.pv0;const stable=JSON.stringify(again);migrateSave(again);delete again.pv0;assert.equal(JSON.stringify(again),stable,'PV8 repeated a furniture move');
 console.log('PV8 lounge PASS: historical chain, table/chair/floor, hidden/slot metadata and repeat loads');
 
@@ -56,5 +56,24 @@ for(const [x,z,old,now]of [[0,-160,79,81.5],[-85,-160,75,79.5],[85,-160,75,79.5]
  const a={room:'drive',x:FRONT.CAR.x+x*FRONT.CAR.s,z:FRONT.CAR.z+z*FRONT.CAR.s,y:FRONT.CAR.y-old*FRONT.CAR.s,ry:20};assert(move(a,8));near(a.y,FRONT.CAR.y-now*FRONT.CAR.s);assert.equal(a.ry,20);const once=JSON.stringify(a);assert(!move(a,9));assert.equal(JSON.stringify(a),once);
 }
 for(const [x,z,h]of [[0,-160,23],[0,0,126.9],[0,-160,75],[0,170,79],[-85,100,75]]){const a={room:'drive',x:FRONT.CAR.x+x*FRONT.CAR.s,z:FRONT.CAR.z+z*FRONT.CAR.s,y:FRONT.CAR.y-h*FRONT.CAR.s};const before=JSON.stringify(a);assert(!move(a,8));assert.equal(JSON.stringify(a),before)}
-const c=FRONT.CAR,hidden={pv:8,t:{hidden:['drive',c.x,c.y-79*c.s,c.z-160*c.s,0,0,1,{keep:true}],slot:['drive',c.x,c.y-79*c.s,c.z-160*c.s,0,'fixed-slot',0,{keep:true}]}};const before=JSON.stringify(hidden.t);migrateSave(hidden);assert.equal(hidden.pv,9);assert.equal(JSON.stringify(hidden.t),before);
+const c=FRONT.CAR,hidden={pv:8,t:{hidden:['drive',c.x,c.y-79*c.s,c.z-160*c.s,0,0,1,{keep:true}],slot:['drive',c.x,c.y-79*c.s,c.z-160*c.s,0,'fixed-slot',0,{keep:true}]}};const before=JSON.stringify(hidden.t);migrateSave(hidden);assert.equal(hidden.pv,10);assert.equal(JSON.stringify(hidden.t),before);
 console.log('PV9 CAR PASS: old lid/rims once; exact boot/roof/unrelated/hidden/slot poses preserved');
+
+// PV10: old counter/table supports follow the rear extension; old lawn is retained.
+const rear={pv:9,t:{counter:['kitchen',-174,260,-18,17,0,0,{keep:'counter'}],table:['kitchen',-60,277,170,23,0,0],floor:['kitchen',-60,353,100,45,0,0],patio:['garden',40,353,-100,75,0,0],lid:['garden',160,238,-190,10,0,0],lawn:['garden',20,353,-400,9,0,0],snap:['kitchen',-80,271,-26,15,'ch.s.wsink',0,{keep:'slot'}]},o:{back:true}};
+migrateSave(rear);assert.equal(rear.pv,10);
+for(const [id,x,z]of [['counter',-174,-138],['table',-60,110],['floor',-205,100],['patio',40,-220],['lid',370,-280],['lawn',20,-400]]){assert.equal(rear.t[id][1],x,id);assert.equal(rear.t[id][3],z,id);}
+assert.equal(rear.t.counter[7].keep,'counter');assert.equal(rear.t.snap[5],'ch.s.wsink');assert(rear.o.back);
+const rearAgain=JSON.parse(JSON.stringify(rear));delete rearAgain.pv0;const rearExact=JSON.stringify(rearAgain);migrateSave(rearAgain);delete rearAgain.pv0;assert.equal(JSON.stringify(rearAgain),rearExact,'Rear layout moved a save twice');
+console.log('PV10 REAR PASS: counter, table, floor, patio, bin lid, retained lawn, slot metadata and repeated load');
+
+// The daily chore save has its own placement records and must migrate before lazy builders restore them.
+const choreSource=fs.readFileSync(path.join(__dirname,'../app/public/js/ch-core.js'),'utf8');
+const choreCode=choreSource.slice(choreSource.indexOf('  function migrateChorePlacements()'),choreSource.indexOf('  migrateChorePlacements();'));
+let saves=0;const choreCtx={H:{migratePlacement:move,placementVersion:PV},save:()=>saves++,S:{at:{basket:['garden',40,353,-100,45,0,{keep:true}],plate:['kitchen',-201,260,-4,7,0]},prog:{washup:{plug:123}},done:{bins:{sc:100,amt:5}},v:{wash:{sc:{0:2}}},t0:{washup:99},ever:{bins:1}}};
+const progress=JSON.stringify([choreCtx.S.prog,choreCtx.S.done,choreCtx.S.v,choreCtx.S.t0,choreCtx.S.ever]);vm.createContext(choreCtx);vm.runInContext(choreCode,choreCtx);choreCtx.migrateChorePlacements();assert.equal(choreCtx.S.pv,PV);assert.equal(choreCtx.S.at.basket[3],-220);assert.equal(choreCtx.S.at.plate[3],-124);assert(choreCtx.S.at.basket[6].keep);assert.equal(JSON.stringify([choreCtx.S.prog,choreCtx.S.done,choreCtx.S.v,choreCtx.S.t0,choreCtx.S.ever]),progress);const choreOnce=JSON.stringify(choreCtx.S);choreCtx.migrateChorePlacements();assert.equal(JSON.stringify(choreCtx.S),choreOnce);assert.equal(saves,1);
+console.log('DAILY JOB MIGRATION PASS: unbuilt basket/counter records once; flags, partial washing, scores, timers and metadata retained');
+
+for(const [x,z]of [[-60,104],[-60,234],[-136,170],[16,170]]){const item={room:"kitchen",x,y:308,z,ry:15};assert(move(item,9));assert.equal(item.z,z-60);assert.equal(item.y,308);assert.equal(item.ry,15);const once=JSON.stringify(item);assert(!move(item,10));assert.equal(JSON.stringify(item),once)}
+
+for(const [x,z]of [[-275,-450],[-290,-330],[-230,-1220]]){const at={room:"garden",x,y:353,z,ry:11};assert(move(at,9));assert.equal(at.y,352.7);assert.equal(at.x,x);assert.equal(at.z,z);assert(!move(at,10))}

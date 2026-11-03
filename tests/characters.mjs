@@ -13,6 +13,7 @@ import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 let EYE = 128;
 import {roomFixture} from './room-fixture.mjs';
+import {bonfireLogin as loginFixture} from './bonfire-login.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const shots = fileURLToPath(new URL('shots/characters/', import.meta.url));
@@ -47,6 +48,8 @@ async function check(name, fn) {
   catch (e) { results.push([name, false]); console.log(`FAIL ${name}: ${String(e.stack || e).split('\n').slice(0, 4).join(' | ')}`); }
 }
 async function house(opts) {
+  // Use the real login/profile protocol and the ordinary standing resume for routine tests.
+  if(opts?.signup===false&&opts.account)opts={...opts,resume:true,opening:true,storageState:await loginFixture(base,pass,opts.account,{pv:10,x:40,y:-70,z:155,rx:0,ry:0,lvl:'U',seat:0})};
   const f = await roomFixture(base, Object.assign({ hour: 14, timeoutScale: SCALE, debug: process.env.FIXTURE_DEBUG === '1' }, opts));
   EYE = await f.page.evaluate(() => House.STAND || 128); // (the live standing eye height)
   for (let i = 0; i < 120 * SCALE && !(await f.page.evaluate(() => !!window.HouseFamily?.ready)); i++) await f.page.waitForTimeout(500);
@@ -166,7 +169,7 @@ try {
       await page.evaluate(async () => { Seasons.setTime('10-12','14:30');Season.evaluate(true);await Chores.load(); await Chores.part('kitchen'); const F = HouseFamily; F.debug.clock({ md: 1012, dow: 2, t: 14.5 }); F.debug.go('mom', 'sink'); F.debug.place('mom', 'sink'); F.debug.sim(3, 0.1); });
       // The old camera stood inside the table's collision box; its recovery
       // could turn the F target into the worktop or an ambient line. Use the aisle.
-      await look(page, [40, 353 - EYE, 100], [-80, 353 - 150, 36], 'G');
+      await look(page, [80, 353 - EYE, 30], [-80, 353 - 150, -84], 'G');
       const aimed=await page.evaluate(()=>{const p=House.pick(innerWidth/2,innerHeight/2);return{spot:p?.spot||null,dist:p?.dist||0,mom:HouseFamily.debug.dump().find(c=>c.id==='mom'),pose:{x:House.P.x,y:House.P.y,z:House.P.z,rx:House.P.rx,ry:House.P.ry}}});
       console.log('  talk aim:',JSON.stringify(aimed));assert.equal(aimed.spot,'np.mom','F must target Mom from clear floor');
       await page.evaluate(() => { window.__sent = []; const s = Net.send; Net.send = m => { __sent.push(m.t); return s(m); }; });

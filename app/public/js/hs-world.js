@@ -422,7 +422,7 @@
   function relight() { lightsFor(); dirty(); }
 
   // ================================================================ walking: a grid per floor (5 cm cells), the stairs between them
-  const GR = { x0: -360, z0: -600, cs: 5, nx: 180, nz: 360 }, RAD = 22;
+  const GR = { x0: -360, z0: -1500, cs: 5, nx: 220, nz: 610 }, RAD = 22;
   const grids = { U: null, G: null, dirty: true, walk: [], block: [], stairs: [], shells: {} };
   function walkRect(lvl, x0, z0, x1, z1, o) { grids.walk.push(Object.assign({ lvl, x0, z0, x1, z1 }, o || {})); grids.dirty = true; }
   function block(lvl, x0, z0, x1, z1, o) { const b = Object.assign({ lvl, x0, z0, x1, z1 }, o || {}); grids.block.push(b); grids.dirty = true; return b; }
@@ -1516,7 +1516,7 @@
   }
   // Saved as [room, x, y, z, ry, snap, hide, extra]; extra holds a chair's swivel. A carried thing saves where it came
   // from, and the grip itself is remembered so a refresh hands it straight back (jhp_hs_held).
-  const PV = 9; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry; 7: clear floor props from the new cat tree; 8: wider lounge routes, table/chair props follow their furniture; 9: car lid/rim heights
+  const PV = 10; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry; 7: clear floor props from the new cat tree; 8: wider lounge routes, table/chair props follow their furniture; 9: car lid/rim heights; 10: rear extension, kitchen table and garden layout
   // The front plot (docs/HOUSE-SCALE.md, js/hs-house.js builds it): the garden runs from the house front (z 702) to the pavement
   // at FZ. Until pv 3 it was 4 m deep (FZ 1100) with Dad's car shrunk to 82% (OLD_CAR) to squeeze it in.
   // STREET: our pavement (FZ..FZ+145, 1.45 m), its kerb, a 5.6 m road, the far kerb and pavement; the opposite houses'
@@ -1528,6 +1528,13 @@
   const FRONT = Object.freeze({ FZ: 1400, STREET: Object.freeze({ pave: [1400, 1545], kerb: 1550, road: [1555, 2115], farKerb: 2120, farPave: [2125, 2270] }),
     PIERS: Object.freeze([231.5, 348.5, 636.5]), PIER_TOP: 124, HEDGE: Object.freeze([1328.5, 1384]),
     CAR: Object.freeze({ x: 500, y: 353, z: 1075, s: 1.04, roof: 126.9 }), CAR4: Object.freeze({ x: 488, y: 353, z: 980, s: 1.04 }), CAR3: Object.freeze({ x: 488, y: 353, z: 1000, s: 1.04 }), OLD_CAR: Object.freeze({ x: 430, z: 906, s: .82 }) });
+  // Rear plot and extension: shared by geometry, navigation, chores and events (cm).
+  const REAR = Object.freeze({ x0:-340, x1:440, z0:-1476, z1:-176, extension:120, tableShift:60,
+    bedroomWindows:Object.freeze([{x0:-245,x1:-115,y0:-166,y1:-126},{x0:148,x1:232,y0:-137,y1:-14}].map(Object.freeze)),
+    shed:Object.freeze({x:-230,z:-1330}), dryer:Object.freeze({x:250,z:-650}),
+    paving:Object.freeze([[-215,-376,195,-181],[-320,-1270,-230,-376],[-330,-1325,-130,-1195],[-320,-376,-215,-286]].map(Object.freeze)),
+    kitchenBlocks:Object.freeze([[-124,66,4,154],[-80,26,-40,62],[-80,158,-40,194],[-156,90,-116,130],[-4,90,36,130]].map(Object.freeze)),
+    flowers:Object.freeze({x:-170,z:-700}), wheelie:Object.freeze({x:370,z:-280}), butt:Object.freeze({x:235,z:-222}) });
   const CAT_TREE = Object.freeze({ x: -90, z: 224, half: 23, ry: 90 });
   // A placement saved before pv 3: whatever was in or on the old car moves with the car (same spot in the boot or on the
   // roof, scaled); whatever the bigger car now stands on is set down on the drive beside it. Everything else keeps its pose.
@@ -1538,6 +1545,25 @@
   // in front of the sofa, on the way through.
   const LOUNGE5 = [[-157, 560, 37, 649], [53, 338, 166, 452]];
   function migratePlacement(at, from = 0) {
+    if(at && from<10 && Number.isFinite(at.x) && Number.isFinite(at.z)) {
+      if(at.room==='kitchen') {
+        // Loose things on the old rear run follow their supporting unit. Snaps use their current anchors.
+        if(at.x<83 && at.z>=-60 && at.z<=16 && at.y<LV.G-25){at.z-=REAR.extension;return true;}
+        if(at.y<LV.G-6&&REAR.kitchenBlocks.some(([x0,z0,x1,z1])=>at.x>=x0&&at.x<=x1&&at.z>=z0+REAR.tableShift&&at.z<=z1+REAR.tableShift)){at.z-=REAR.tableShift;return true;}
+        // The table moves north: old floor things under its new footprint go into the clear west aisle.
+        if(at.y>=LV.G-6&&REAR.kitchenBlocks.some(([x0,z0,x1,z1])=>at.x>x0-25&&at.x<x1+25&&at.z>z0-25&&at.z<z1+25)){at.x=-205;return true;}
+      }
+      if(at.room==='garden') {
+        // Preserve objects on the patio and bin lid; other old lawn coordinates remain valid.
+        if(at.x>=129&&at.x<=191&&at.z>=-232&&at.z<=-147&&at.y<LV.G-80){at.x+=210;at.z-=90;return true;}
+        if(at.x>=152&&at.x<=208&&at.z>=-130&&at.z<=-70&&at.y<LV.G-70){at.x+=55;at.z-=120;return true;}
+        if(at.z>-196&&at.x<215){at.z-=120;if(Math.abs(at.x-REAR.butt.x)<50&&Math.abs(at.z-REAR.butt.z)<50)at.x=110;if(Math.abs(at.y-LV.G)<.6&&REAR.paving.some(([x0,z0,x1,z1])=>at.x>=x0&&at.x<=x1&&at.z>=z0&&at.z<=z1))at.y=LV.G-.3;return true;}
+        if(Math.abs(at.y-LV.G)<.6&&REAR.paving.some(([x0,z0,x1,z1])=>at.x>=x0&&at.x<=x1&&at.z>=z0&&at.z<=z1)){at.y=LV.G-.3;return true;}
+        // The relocated flower bed occupies this old patch of open grass.
+        if(at.x>-235&&at.x<-105&&at.z>-740&&at.z<-660){at.x=-70;return true;}
+      }
+    }
+
     if (at && at.room === 'bedroom' && from < 7 && Number.isFinite(at.x) && Number.isFinite(at.z) && at.y >= LV.U-6 && at.y <= LV.U+2 && Math.abs(at.x-CAT_TREE.x)<CAT_TREE.half && Math.abs(at.z-CAT_TREE.z)<CAT_TREE.half) {
       at.x=CAT_TREE.x+CAT_TREE.half+29; at.z=clamp(at.z,190,224); at.y=LV.U; return true;
     }
@@ -1649,7 +1675,7 @@
     if (!save || !save.t || save.pv0 !== undefined) return;
     const { CAR3, OLD_CAR } = FRONT, pv = save.pv || 0, old = pv < PV; save.pv0 = pv; // pv0: the version it was saved with (the physics nudge below still needs it)
     for (const id in save.t) {
-      const r = save.t[id]; if (!Array.isArray(r) || r[5] || (r[0] !== 'drive' && r[0] !== 'lounge' && r[0] !== 'bedroom')) continue;
+      const r = save.t[id]; if (!Array.isArray(r) || r[5] || (r[0] !== 'drive' && r[0] !== 'lounge' && r[0] !== 'bedroom' && r[0] !== 'kitchen' && r[0] !== 'garden')) continue;
       const lx = (r[1] - OLD_CAR.x) / OLD_CAR.s, lz = (r[3] - OLD_CAR.z) / OLD_CAR.s;
       const stale = r[0] === 'drive' && pv === 3 && Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR3.y - 5 && !(Math.abs(r[1] - CAR3.x) <= 92 * CAR3.s && Math.abs(r[3] - CAR3.z) <= 205 * CAR3.s);
       if (!old && !stale) continue;
@@ -1771,14 +1797,14 @@
     const stair=onStairs(W.x,W.z);
     if(stair&&W.z>stair.m0&&W.z<stair.m1)return 'stairs';
     if(cur?.id==='kitchen')return 'lino';
-    if(cur?.outside){const grass=cur.id==='garden'?W.x<150&&W.z< -190:W.x< -25&&W.z>770;return grass?'grass':'paving';}
+    if(cur?.outside){const grass=cur.id==='garden'?!REAR.paving.some(([x0,z0,x1,z1])=>W.x>=x0&&W.x<=x1&&W.z>=z0&&W.z<=z1):W.x< -25&&W.z>770;return grass?'grass':'paving';}
     return 'carpet'; // The hall and landing are visibly carpeted, like the bedroom.
   }
   function sfxStep() { if (cur?.id === 'drive') { window.Sound?.play('gravel'); return; } physicalSound('step',{surface:footSurface()}); }
   let nextClock=0,nextOutside=0,clockSide=0;
   function tickWorldSound(now) {
     if(controlsPaused||!['walk','focus','glide'].includes(mode)||!window.Sound?.effectsOn)return;
-    if(now>=nextClock){nextClock=now+1000;const c=cur?.id==='kitchen'?[-278,145,120]:cur?.id==='lounge'?[-236,229,500]:null;if(c&&Math.hypot(P.x-c[0],P.y-c[1],P.z-c[2])<220)physicalSound('clock',{side:clockSide++%2});}
+    if(now>=nextClock){nextClock=now+1000;const c=cur?.id==='kitchen'?[-154,172,290]:cur?.id==='lounge'?[-236,229,500]:null;if(c&&Math.hypot(P.x-c[0],P.y-c[1],P.z-c[2])<220)physicalSound('clock',{side:clockSide++%2});}
     if(now>=nextOutside){nextOutside=now+7000+Math.random()*8000;if(cur?.outside){physicalSound('road');const hour=new Date().getHours();if(hour>=7&&hour<20)physicalSound('bird');}}
   }
 
@@ -2396,7 +2422,7 @@
     if(!r)return null;
     for(let distance=0;distance<=90;distance+=5)for(let i=0;i<(distance?16:1);i++){
       const a=i*Math.PI/8,x=p.x+Math.sin(a)*distance,z=p.z+Math.cos(a)*distance;
-      if(roomAt(x,z,lvl)?.id===r.id&&floorAt(x,z,lvl,LV[lvl]))return Object.assign({},p,{x,z,y:LV[lvl]-STAND,seat:0,lvl});
+      if(roomAt(x,z,lvl)?.id===r.id&&floorAt(x,z,lvl,LV[lvl]))return Object.assign({},p,{pv:PV,x,z,y:LV[lvl]-STAND,seat:0,lvl});
     }return null;
   }
   // Is a seat tucked under something (the desk top over the chair's seat)? Then it rolls out towards you before you sit.
@@ -2424,7 +2450,7 @@
     const pose={x:at.x+Math.sin(a)*front,y:at.y-t.seat.eye,z:at.z+Math.cos(a)*front,rx:-4,ry:180-yaw,seat:1,lvl:cur.lvl};
     if(Number.isFinite(saved?.rx)&&Number.isFinite(saved?.ry)){pose.rx=saved.rx;pose.ry=saved.ry;}
     if(saved?.pulled)saved=null;
-    const back=seatExit(saved?.back&&validPose(saved.back)?saved.back:Object.assign({},P,{lvl:W.lvl}));
+    const back=seatExit(saved?.back&&validPose(saved.back)?migrateWalkPose(saved.back):Object.assign({},P,{lvl:W.lvl,pv:PV}));
     if(!back){ui.toast('No room to stand','Clear some floor beside the seat first.');return false;}
     if(!focus(pose,{seatId:id,label:'Stand up / WASD',enter:()=>{wantLock();dirty()}}))return false;
     if(back)focusS.back=back;
@@ -2553,7 +2579,7 @@
       map() { // a tiny plan of the floor you're on, with you on it
         const r = cur; if (!r) return; const w = 84, h = 84;
         mg.clearRect(0, 0, w, h);
-        const lvl = W.lvl, sc = 0.105, ox = 34, oz = 14; // (cm to px)
+        const lvl = W.lvl, sc = lvl==='G' ? .025 : .105, ox = 34, oz = lvl==='G' ? 41 : 14; // (cm to px)
         mg.fillStyle = 'rgba(255,240,210,.07)'; mg.strokeStyle = 'rgba(216,207,184,.35)'; mg.lineWidth = 1;
         for (const id in ROOMS) { const q = ROOMS[id]; if (q.lvl !== lvl || q.noMap) continue; for (const a of q.area) { const x = ox + a[0] * sc, y = oz + a[1] * sc; mg.fillStyle = q === r ? 'rgba(255,216,74,.18)' : 'rgba(255,240,210,.06)'; mg.fillRect(x, y, (a[2] - a[0]) * sc, (a[3] - a[1]) * sc); mg.strokeRect(x + 0.5, y + 0.5, (a[2] - a[0]) * sc - 1, (a[3] - a[1]) * sc - 1); } }
         const x = ox + W.x * sc, y = oz + W.z * sc, a = P.ry * D2R;
@@ -2890,13 +2916,22 @@
   function walkingPose() {
     const d = {}; for (const id in DOORS) if (!DOORS[id].always) d[id] = !!DOORS[id].open;
     // Do not round across a collision-cell boundary while leaning on a wall.
-    return {x:W.x, y:+(W.fy - W.eyeNow).toFixed(1), z:W.z, rx:+P.rx.toFixed(1), ry:+P.ry.toFixed(1), seat:W.seat ? 1 : 0, lvl:W.lvl, d};
+    return {pv:PV, x:W.x, y:+(W.fy - W.eyeNow).toFixed(1), z:W.z, rx:+P.rx.toFixed(1), ry:+P.ry.toFixed(1), seat:W.seat ? 1 : 0, lvl:W.lvl, d};
   }
   function validPose(s) { return !!s && ['x','y','z','rx','ry'].every(k => Number.isFinite(s[k])) && ['U','G'].includes(s.lvl || 'U') && Math.abs(s.y) < 1000 && Math.abs(s.rx) <= 90; }
+  function migrateWalkPose(s) {
+    // Old outdoor poses near the old wall follow the patio; never turn into an indoor spawn.
+    if((s.pv||0)<10 && s.lvl==='G' && !s.seat){
+      if(s.z< -56 && s.z> -240 && s.x<215)s=Object.assign({},s,{z:s.z-120,pv:PV});
+      else if(REAR.kitchenBlocks.some(([x0,z0,x1,z1])=>s.x>x0-RAD&&s.x<x1+RAD&&s.z>z0-RAD&&s.z<z1+RAD))s=Object.assign({},s,{x:-205,pv:PV});
+    }
+    return s;
+  }
   function savePose() { if (!['walk','glide'].includes(mode) || stood) return; ls.set('jhp_hs_pose', Object.assign(walkingPose(), {t:Date.now()})); }
   function savedPose() { const s = ls.get('jhp_hs_pose', null); return BOOT !== 'forced' && validPose(s) ? s : null; }
   function restorePose(s) {
     if (!validPose(s)) return false;
+    s=migrateWalkPose(s);
     const lvl = s.lvl || 'U', r = roomAt(s.x, s.z, lvl); if (!r) return false;
     buildRoom(r);
     r.preparePose?.(s);
@@ -3257,7 +3292,7 @@
   GR.nx=Math.ceil((740-GR.x0)/GR.cs);GR.nz=Math.ceil((FRONT.STREET.pave[1]-GR.z0)/GR.cs);grids.dirty=true;
   // ================================================================ the API
   window.House = {
-    ok: true, FRONT, CAT_TREE, STAND, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
+    ok: true, FRONT, REAR, placementVersion:PV, migratePlacement, CAT_TREE, STAND, T, K, scene, root, camera, ren, P, W, LV, ROOMS, DOORS, SPOTS, THINGS, SNAPS, OPEN, sfx, ui,
     focus, unfocus, surface, faceQuad, inspect, endInspect, get focused() { return !!focusS; },
     room, buildRoom, door, setDoor, walkRect, block, solid, stairs, support, soft, softChanged, softs: SOFT, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     isAway, restoreThing, rescue: t => { if (t) rescueQ.add(t); }, lostWhy, saveThings, saveWalkState, layerFor, frontFx, place,

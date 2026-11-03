@@ -318,7 +318,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       CK.guard('washing', () => { CK.jack('Washing basket', CK.done('tidy') ? 'Full of my clothes. Mom does the washing on a Monday. Or whenever the basket explodes.' : 'Clothes off the floor go in here. (That\'s half of tidying my room.)'); return true; });
     },
     also: {
-      kitchen: () => CK.snap('ch.s.sink', { room: 'kitchen', x: -80, y: GY - 96, z: -26, r: 32, box: [40, 2, 30], accepts: k => k === 'mess.dish', hide: true, hint: 'Let go: in the sink', onSnap: t => { CK.snd.splash(); put(t); } }),
+      kitchen: () => CK.snap('ch.s.sink', { room: 'kitchen', x: -80, y: GY - 96, z: -26-(H.REAR?.extension||0), r: 32, box: [40, 2, 30], accepts: k => k === 'mess.dish', hide: true, hint: 'Let go: in the sink', onSnap: t => { CK.snd.splash(); put(t); } }),
     },
     lay() { // today's mess (and anything already put away stays put away)
       const d = CK.day(), L = layout(d), on = new Set(L.map(x => x.m.id));

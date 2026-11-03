@@ -39,103 +39,104 @@ try {
  }
 
  if(process.env.BONFIRE_CATCHUP_ONLY==='1'){
-  await clock('1999-11-06',17);await until(()=>!!(window.Bonfire?.on&&House.THINGS['bf.torch']));await aim([-53,GY-eye,-112],[-53,GY-62,-178]);await key('f');assert(!(await state()).steps['bf-light']?.start,'No daylight catch-up');
-  await clock('1999-11-06',19);await aim([-53,GY-eye,-112],[-53,GY-62,-178]);await key('f');await got('bf-light','start');const start=(await state()).steps['bf-light'].start;assert.equal((await state()).display,'leftovers');assert(!(await state()).obj['bf-code']);assert(!(await state()).obj['bf-wood']);assert.equal(await page.evaluate(()=>House.held()),null);
-  for(const [stage,ms]of[['fountain',8000],['wheel',25000],['rocket',46000],['gold-willows',65000],['last-volley',81000]]){const delay=ms-(Date.now()-start);if(delay>0)await page.waitForTimeout(delay);await aim([-53,GY-eye,-112],[0,175,-600]);await shot('24-catchup-'+stage,{pair:false});}
+  await clock('1999-11-06',17);await until(()=>!!(window.Bonfire?.on&&House.THINGS['bf.torch']));await aim([-53,GY-eye,-424.7],[-53,GY-62,-490.7]);await key('f');assert(!(await state()).steps['bf-light']?.start,'No daylight catch-up');
+  await clock('1999-11-06',19);await aim([-53,GY-eye,-424.7],[-53,GY-62,-490.7]);await key('f');await got('bf-light','start');const start=(await state()).steps['bf-light'].start;assert.equal((await state()).display,'leftovers');assert(!(await state()).obj['bf-code']);assert(!(await state()).obj['bf-wood']);assert.equal(await page.evaluate(()=>House.held()),null);
+  for(const [stage,ms]of[['fountain',8000],['wheel',25000],['rocket',46000],['gold-willows',65000],['last-volley',81000]]){const delay=ms-(Date.now()-start);if(delay>0)await page.waitForTimeout(delay);await aim([-53,GY-eye,-320.4],[0,175,-1579.2]);await shot('24-catchup-'+stage,{pair:false});}
   await got('bf-light','finale');assert.equal((await state()).paid['bf-light'],15);await shot('24-catchup-finished',{pair:false});await clock('1999-11-06',23);assert(!await page.evaluate(()=>Bonfire.on));assert.deepEqual(errors,[]);log('PASS Saturday catch-up: real rope input, no preparations/torch, 90 seconds, same reward, night and phone captures');await f.browser.close();process.exit(0);
  }
  assert.equal(await page.evaluate(() => SeasonCat.phaseOf(SeasonCat.byId.bonfire99,{mm:11,dd:1,hour:9})),null,'Halloween owns the morning');
  await clock('1999-11-02',17);await until(()=>window.Bonfire?.on&&Bonfire.phase==='lead'&&!!House.THINGS['bf.wood.paper']);
- await aim([-5,GY-eye,-230],[-65,GY-50,-402]);await shot('01-lead-stack');
- await aim([-60,GY-eye,-128],[-184,GY-173,-370]);await shot('02-tin-and-rope');
+ await aim([-5,GY-eye,-896.5],[-65,GY-50,-1068.5]);await shot('01-lead-stack');
+ await aim([-60,GY-eye,-996],[-184,GY-173,-1238]);await shot('02-tin-and-rope');
  // One real carry per piece, with all ten independent server acknowledgements.
  for(const id of await page.evaluate(()=>Bonfire._.WOOD)){
   if(process.env.BONFIRE_RESUME_WOOD==='1' && (await state()).steps['bf-wood']?.[id]){log('resume already placed',id);continue;}
   const p=await page.evaluate(id=>{const t=House.THINGS['bf.wood.'+id];return {...t.at}},id);
   await aim([p.x+43,GY-eye,p.z+60],[p.x,p.y-6,p.z]);log('pick',id);await key('e');await until(`House.held()==='bf.wood.${id}'`);
-  await aim([-55,GY-eye,-300],[-65,GY-12,-402]);await key('e');await got('bf-wood',id);log('stacked',id);await shot('03-stack-'+id);
+  await aim([-55,GY-eye,-966.5],[-65,GY-12,-1068.5]);await key('e');await got('bf-wood',id);log('stacked',id);await shot('03-stack-'+id);
  }
- assert((await state()).obj['bf-wood']);await aim([30,GY-eye,-210],[-65,GY-70,-402]);await shot('03-finished-stack');await aim([-155,GY-eye,-260],[-65,GY-65,-402]);await shot('03-finished-stack-side');
+ assert((await state()).obj['bf-wood']);await aim([30,GY-eye,-876.5],[-65,GY-70,-1068.5]);await shot('03-finished-stack');await aim([-155,GY-eye,-926.5],[-65,GY-65,-1068.5]);await shot('03-finished-stack-side');
  // Guy: stuff, tie, draw, hat, then E carries him to his actual chair.
  if(!(process.env.BONFIRE_RESUME_PREP==='1' && (await state()).obj['bf-guy'])){
- await aim([-60,GY-eye,260],[-60,GY-88,150]);await key('f');await until(()=>Bonfire.step==='stuff');await page.waitForTimeout(700);
+ await aim([-60,GY-eye,200],[-60,GY-88,90]);await key('f');await until(()=>Bonfire.step==='stuff');await page.waitForTimeout(700);
  for(const step of ['stuff','tie','face']){await until(`Bonfire.step==='${step}'||!!Season.st('bonfire99')?.steps?.['bf-guy']?.['${step}']`);for(let i=0;i<3&&await page.evaluate(s=>Bonfire.step===s,step);i++)await draw();await got('bf-guy',step);await shot('04-guy-'+step);}
  await key('f');await got('bf-guy','hat');await until(()=>!House.focused);
- await aim([-15,GY-eye,285],[-60,GY-52-76,201]);await key('e');await until(()=>House.held()==='bf.guy.ready');
- await aim([-112,GY-eye,-136],[-154,GY-64,-201]);await key('e');await got('bf-guy','place');await aim([-55,GY-eye,-90],[-154,GY-100,-201]);await shot('05-guy-chair');
+ await aim([-15,GY-eye,225],[-60,GY-52-76,141]);await key('e');await until(()=>House.held()==='bf.guy.ready');
+ await aim([-112,GY-eye,-485],[-154,GY-64,-550]);await key('e');await got('bf-guy','place');await aim([-55,GY-eye,-439],[-154,GY-100,-550]);await shot('05-guy-chair');
  }
  // Mom's supper: wash, prick all four, foil, oven/timer, oven gloves, carry outside.
  if(!(process.env.BONFIRE_RESUME_PREP==='1' && (await state()).obj['bf-food'])){
- await aim([-174,GY-eye,82],[-174,GY-99,-18]);await key('f');await until(()=>Bonfire.step==='wash');await page.waitForTimeout(700);await draw();await got('bf-food','wash');await shot('06-potatoes-washed');
+ await aim([-174,GY-eye,-38],[-174,GY-99,-138]);await key('f');await until(()=>Bonfire.step==='wash');await page.waitForTimeout(700);await draw();await got('bf-food','wash');await shot('06-potatoes-washed');
  await until(()=>Bonfire.step==='prick');
  const potatoes=await page.evaluate(()=>Bonfire._.potatoPoints());for(const [x,y] of potatoes){await page.mouse.click(x,y);await page.waitForTimeout(100);}
  await got('bf-food','prick');await shot('07-potatoes-pricked');await draw();await got('bf-food','foil');await shot('08-potatoes-foil');
  await key('f');await got('bf-food','oven');await page.waitForTimeout(6200);await shot('09-oven-gloves');await key('f');await got('bf-food','gloves');await until(()=>!House.focused);
- await aim([-174,GY-eye,82],[-174,GY-99,-18]);await key('e');await until(()=>House.held()==='bf.tray');
- await aim([-45,GY-eye,-105],[-108,GY-66,-106]);await key('e');await got('bf-food','serve');await shot('10-supper');await aim([-165,GY-eye,350],[-246,GY-101,300]);await shot('10-parkin-worktop');
+ await aim([-174,GY-eye,-38],[-174,GY-99,-138]);await key('e');await until(()=>House.held()==='bf.tray');
+ await aim([-45,GY-eye,-304],[-108,GY-66,-305]);await key('e');await got('bf-food','serve');await shot('10-supper');await aim([-165,GY-eye,350],[-246,GY-101,300]);await shot('10-parkin-worktop');
  }
  // Physical safety checks; the taper refuses until the other four have been checked.
- await aim([-70,GY-eye,-311],[-176,GY-77,-351]);if(!(await state()).obj['bf-code']){await key('f');assert(!(await state()).steps['bf-code']?.taper);}
- await aim([-105,GY-eye,-333],[-184,GY-173,-370]);await key('f');await got('bf-code','tin');await shot('11-code-tin');
- await aim([112,GY-eye,-111],[180,GY-18,-76]);await key('f');await got('bf-code','water');await shot('11-bucket');
+ await aim([-70,GY-eye,-1179],[-176,GY-77,-1219]);if(!(await state()).obj['bf-code']){await key('f');assert(!(await state()).steps['bf-code']?.taper);}
+ await aim([-105,GY-eye,-1201],[-184,GY-173,-1238]);await key('f');await got('bf-code','tin');await shot('11-code-tin');
+ await aim([300,GY-eye,-231],[235,GY-18,-196]);await key('f');await got('bf-code','water');await shot('11-bucket');
  await aim([75,73-eye,170],[122,70,112],'U');await key('f');await got('bf-code','pets');await shot('12-cat-check');await key('q');await until(()=>!House.focused);
- await aim([-53,GY-eye,-112],[-53,GY-62,-178]);await key('f');await got('bf-code','line');await shot('12-code-line');
- await aim([-70,GY-eye,-311],[-176,GY-77,-351]);await key('f');await got('bf-code','taper');await shot('12-code-taper');
+ await aim([-53,GY-eye,-424.7],[-53,GY-62,-490.7]);await key('f');await got('bf-code','line');await shot('12-code-line');
+ await aim([-70,GY-eye,-1179],[-176,GY-77,-1219]);await key('f');await got('bf-code','taper');await shot('12-code-taper');
  if(process.env.BONFIRE_PREP_ONLY==='1'){const saved=await state();assert(['bf-wood','bf-guy','bf-food','bf-code'].every(id=>!!saved.obj[id]));await page.reload({waitUntil:'domcontentloaded'});await until(()=>!!(window.Bonfire?.on&&House.live&&AccountGate.allowed&&House.THINGS['bf.parkin']));const restored=await state();assert.deepEqual(restored.paid,saved.paid);assert.deepEqual(restored.art.face,saved.art.face);assert.deepEqual(errors,[]);log('PASS bonfire fresh preparations: every carry/gesture, counter clearance, art and refresh');await f.browser.close();process.exit(0);}
 
  await clock('1999-11-05',17);await aim([75,73-eye,170],[122,70,112],'U');await key('f');await page.waitForTimeout(750);assert(await page.evaluate(()=>Bonfire.catHiding));await shot('13-cat-hiding');await key('q');await until(()=>!House.focused);
- await aim([-20,GY-eye,-100],[-60,GY-48,-143]);await key('f');assert(!(await state()).steps['bf-light']?.start,'too early');
+ await aim([-20,GY-eye,-357.4],[-60,GY-48,-400.4]);await key('f');assert(!(await state()).steps['bf-light']?.start,'too early');
  await clock('1999-11-05',19);
- await aim([-60,GY-eye,-105],[0,-350,-430]);await frameTime('desktop-quiet');
- await aim([-60,GY-eye,-105],[-60,GY-48,-143]);await key('f');await got('bf-light','start');assert.equal(await page.evaluate(()=>House.held()),'bf.torch');await shot('14-display-fountain');
+ await aim([-60,GY-eye,-302.4],[0,-350,-1140.7]);await frameTime('desktop-quiet');
+ await aim([-60,GY-eye,-362.4],[-60,GY-48,-400.4]);await key('f');await got('bf-light','start');assert.equal(await page.evaluate(()=>House.held()),'bf.torch');await shot('14-display-fountain');
  const started=(await state()).steps['bf-light'].start;
  // Leave the rope during the show, then return after its clock has elapsed.
- await key('q');await aim([75,GY-eye,-75],[0,-350,-430]);
+ await key('q');await aim([75,GY-eye,-225],[0,-350,-1140.7]);
  for(const [stage,ms]of[['fountain',18000],['wheel',45000],['rocket',85000],['finale',125000],['gold-willows',151000],['last-volley',169000]]){
   const wait=ms-(Date.now()-started);if(wait>0)await page.waitForTimeout(wait);
-  await aim([-60,GY-eye,-105],[0,175,-600]);
+  await aim([-60,GY-eye,-302.4],[0,175,-1579.2]);
   if(stage==='finale'){await frameTime('desktop-finale');await page.evaluate(()=>House.root.getObjectByName('bonfire-sky').visible=false);await frameTime('desktop-finale-no-fireworks');await page.evaluate(()=>House.root.getObjectByName('bonfire-sky').visible=true);}
   await shot('15-display-'+stage,{pair:false});assert(await page.evaluate(()=>Bonfire._.fxCount<=Bonfire._.fxLimit));
  }
  // The show keeps its epoch across a reload. The held torch is put back by the existing grab refresh rule.
  await page.reload({waitUntil:'domcontentloaded'});await until(()=>window.Bonfire?.on&&AccountGate.allowed&&House.live&&!!House.THINGS['bf.torch']&&!document.querySelector('.hs-loading,#houseEntry'));
  assert.equal((await state()).steps['bf-light'].start,started,'display epoch survives refresh');assert.equal(await page.evaluate(()=>House.mode),'walk');
- await aim([-60,GY-eye,-105],[-60,GY-48,-143]);await key('f');await until(()=>House.held()==='bf.torch'||!!Season.st('bonfire99').obj['bf-light']);
- await aim([160,GY-eye,-60],[0,-350,-430]);const wait=183000-(Date.now()-started);if(wait>0)await page.waitForTimeout(wait);
- await aim([-60,GY-eye,-105],[0,-330,-460]);await got('bf-light','finale');await shot('15-display-finished',{pair:false});
+ await aim([-60,GY-eye,-362.4],[-60,GY-48,-400.4]);await key('f');await until(()=>House.held()==='bf.torch'||!!Season.st('bonfire99').obj['bf-light']);
+ await aim([160,GY-eye,-186.3],[0,-350,-1140.7]);const wait=183000-(Date.now()-started);if(wait>0)await page.waitForTimeout(wait);
+ await aim([-60,GY-eye,-302.4],[0,-330,-1218.1]);await got('bf-light','finale');await shot('15-display-finished',{pair:false});
  await key('q');await until(()=>!House.held());
- await aim([50,GY-eye,110],[44,GY-57,53]);await key('f');await got('bf-sparkler','gloves');await shot('16-warm-clothes');
- await aim([-20,GY-eye,-100],[-23,GY-54,-137]);await key('f');await until(()=>Bonfire.step==='write');await page.waitForTimeout(700);await draw();await shot('17-sparkler-writing');await key('f');await got('bf-sparkler','write');await until(()=>!House.focused);
- await aim([-20,GY-eye,-100],[-23,GY-65,-137]);await key('e');await until(()=>House.held()==='bf.spent');
- await aim([12,GY-eye,-93],[12,GY-20,-137]);await key('e');await got('bf-bucket','cool');await shot('18-hot-end-water');
+ await aim([120,GY-eye,-65],[174,GY-57,-148]);await key('f');await got('bf-sparkler','gloves');await shot('16-warm-clothes');
+ await aim([-20,GY-eye,-347.9],[-23,GY-54,-384.9]);await key('f');await until(()=>Bonfire.step==='write');await page.waitForTimeout(700);await draw();await shot('17-sparkler-writing');await key('f');await got('bf-sparkler','write');await until(()=>!House.focused);
+ await aim([-20,GY-eye,-347.9],[-23,GY-65,-384.9]);await key('e');await until(()=>House.held()==='bf.spent');
+ await aim([12,GY-eye,-340.9],[12,GY-20,-384.9]);await key('e');await got('bf-bucket','cool');await shot('18-hot-end-water');
  let paid=JSON.stringify((await state()).paid);await page.reload({waitUntil:'domcontentloaded'});await until(()=>window.Bonfire?.on&&AccountGate.allowed&&House.live&&!!House.THINGS['bf.torch']&&!document.querySelector('.hs-loading,#houseEntry'));
  assert.equal(JSON.stringify((await state()).paid),paid);assert((await state()).art.face.length>=12);assert((await state()).art.sparkler.length>=12);
- await clock('1999-11-06',9);await until(()=>Bonfire.phase==='tail');await aim([-20,GY-eye,-242],[-65,GY-5,-402]);await shot('19-morning-ashes');
+ await clock('1999-11-06',9);await until(()=>Bonfire.phase==='tail');await aim([-20,GY-eye,-908.5],[-65,GY-5,-1068.5]);await shot('19-morning-ashes');
  for(let i=1;i<=6;i++){
   const p=await page.evaluate(i=>House.THINGS['bf.clean.'+i].at,i);await aim([p.x+35,GY-eye,p.z+48],[p.x,p.y-2,p.z]);await key('e');await until(`House.held()==='bf.clean.${i}'`);
-  await aim([96,GY-eye,-130],[160,GY-113,-190]);await key('e');await got('bf-clean','c'+i);await shot('20-tidy-'+i,{pair:false});
+  await aim([306,GY-eye,-220],[370,GY-113,-280]);await key('e');await got('bf-clean','c'+i);await shot('20-tidy-'+i,{pair:false});
  }
  await shot('20-garden-tidied');assert.equal(Object.keys((await state()).obj).length,8);
  paid=JSON.stringify((await state()).paid);await clock('1999-11-06',19);assert(await page.evaluate(()=>Bonfire.on));assert(!await page.evaluate(()=>Bonfire.DEC.line.visible),'Finished players see ash after noon');await shot('23-saturday-finished-ashes',{pair:false});
  // Owner restart preserves the paid ledger and models an account which missed Friday. No wood/code jobs.
  await page.evaluate(()=>{window.__reset=null;Net.on('ownerResult',m=>{if(m.rid==='bf-reset')window.__reset=m});Net.send({t:'ownerAction',rid:'bf-reset',action:'season',event:'bonfire99'});});
  await until(()=>!!window.__reset);assert(await page.evaluate(()=>window.__reset.ok));
- await aim([-53,GY-eye,-112],[-53,GY-62,-178]);await key('f');await got('bf-light','start');const catchStart=(await state()).steps['bf-light'].start;assert.equal((await state()).display,'leftovers');assert(!(await state()).obj['bf-code']);
- for(const [name,ms]of[['fountain',8000],['wheel',25000],['rocket',46000],['gold-finale',66000],['last-bang',81000]]){const wait=ms-(Date.now()-catchStart);if(wait>0)await page.waitForTimeout(wait);await aim([-53,GY-eye,-112],[0,175,-600]);await shot('24-catchup-'+name,{pair:false});}
+ await aim([-53,GY-eye,-424.7],[-53,GY-62,-490.7]);await key('f');await got('bf-light','start');const catchStart=(await state()).steps['bf-light'].start;assert.equal((await state()).display,'leftovers');assert(!(await state()).obj['bf-code']);
+ for(const [name,ms]of[['fountain',8000],['wheel',25000],['rocket',46000],['gold-finale',66000],['last-bang',81000]]){const wait=ms-(Date.now()-catchStart);if(wait>0)await page.waitForTimeout(wait);await aim([-53,GY-eye,-320.4],[0,175,-1579.2]);await shot('24-catchup-'+name,{pair:false});}
  await got('bf-light','finale');assert.equal(JSON.stringify((await state()).paid),paid,'Catch-up does not pay twice');
  await clock('1999-11-06',23);assert(!await page.evaluate(()=>Bonfire.on));
  // Re-enter at night: phone portrait and landscape, physical touch action and touch drawing in a restart.
- await clock('1999-11-05',19);await page.setViewportSize({width:390,height:844});await aim([-60,GY-eye,-105],[0,-350,-430]);await shot('21-phone-night');assert(!await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1));
- await page.setViewportSize({width:844,height:390});await aim([-60,GY-eye,-105],[0,-350,-430]);await shot('22-phone-landscape');
+ await clock('1999-11-05',19);await page.setViewportSize({width:390,height:844});await aim([-60,GY-eye,-302.4],[0,-350,-1140.7]);await shot('21-phone-night');assert(!await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1));
+ await page.setViewportSize({width:844,height:390});await aim([-60,GY-eye,-302.4],[0,-350,-1140.7]);await shot('22-phone-landscape');
  await writeFile(shots+'frame-times.json',JSON.stringify(perf,null,2));assert.deepEqual(errors,[]);
  // A second real account gets its own cast. Close the house first to keep one rendered page alive.
  const family='Family'+Date.now().toString(36);await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:family,pass:password})});
  await page.close();const context=await f.browser.newContext({viewport:{width:390,height:844},hasTouch:true});await context.addInitScript(()=>localStorage.setItem('jhp_device_view','jackos'));const normal=await context.newPage();
  // This page bypasses roomFixture; give it the same navigation allowance on software WebGL.
  normal.setDefaultNavigationTimeout(90000*fixtureScale);
+ const normalUntil=async fn=>{const end=Date.now()+90000*fixtureScale;while(Date.now()<end){if(await normal.evaluate(fn))return;await normal.waitForTimeout(150)}throw Error('Non-owner state timeout: '+fn)};
  await normal.goto(base+'/?date99=11-02&time=19:00:00',{waitUntil:'domcontentloaded'});await normal.locator('[name=name]').fill(family);await normal.locator('[name=password]').fill(password);await normal.locator('#accountGate [type=submit]').click();
- await normal.waitForFunction(()=>!!(window.AccountGate?.allowed||document.querySelector('#accountFirst')));if(await normal.locator('#accountFirst').count())await normal.locator('#accountGate [type=submit]').click();
- await normal.waitForFunction(()=>!!(AccountGate.allowed&&window.Cast&&window.Season));const cast=await normal.evaluate(()=>({sister:Cast.n('sister'),task:Season.cast(SeasonCat.byId.bonfire99.objById['bf-guy'].text)}));assert.notEqual(cast.sister,'Crystal');assert(cast.task.includes(cast.sister));assert(!cast.task.includes('{sister}'));log('non-owner cast',JSON.stringify(cast));await normal.screenshot({path:shots+'25-non-owner-cast.png'});await context.close();log('PASS bonfire: all eight objectives, real inputs, refresh, dates and phone sizes');
+ await normalUntil(()=>!!(window.AccountGate?.allowed||document.querySelector('#accountFirst')));if(await normal.locator('#accountFirst').count())await normal.locator('#accountGate [type=submit]').click();
+ await normalUntil(()=>!!(AccountGate.allowed&&window.Cast&&window.Season));const cast=await normal.evaluate(()=>({sister:Cast.n('sister'),task:Season.cast(SeasonCat.byId.bonfire99.objById['bf-guy'].text)}));assert.notEqual(cast.sister,'Crystal');assert(cast.task.includes(cast.sister));assert(!cast.task.includes('{sister}'));log('non-owner cast',JSON.stringify(cast));await normal.screenshot({path:shots+'25-non-owner-cast.png'});await context.close();log('PASS bonfire: all eight objectives, real inputs, refresh, dates and phone sizes');
 } catch(e) { failed=e;console.error(e.stack);await page.screenshot({path:shots+'FAIL.png'}).catch(()=>{});console.error('STATE',JSON.stringify(await page.evaluate(()=>({s:Season.st('bonfire99'),mode:House.mode,held:House.held(),step:Bonfire?.step,hot:House.ui.el.textContent.slice(-1200)})).catch(()=>null))); }
 finally {await f.browser.close();}
 if(failed)process.exit(1);
