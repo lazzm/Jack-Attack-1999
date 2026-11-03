@@ -4,7 +4,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {roomFixture} from './room-fixture.mjs';
 import {insertCase} from './case-actions.mjs';
 const base=process.argv[2],tag=process.argv[3]||'after',profile=process.argv[4]||'phone';
-const guidanceOnly=process.argv.includes('--only=guidance');
+const guidanceOnly=process.argv.includes('--only=guidance'),idleRound=process.argv.includes('--idle'),roundOnly=process.argv.includes('--only=round');
 assert(['localhost','127.0.0.1'].includes(new URL(base).hostname));
 const dir=new URL('shots/onboard/',import.meta.url);await mkdir(dir,{recursive:true});
 const phone=profile.startsWith('phone'),landscape=profile==='phone-landscape';
@@ -47,14 +47,19 @@ try{
   await p.evaluate(([x,y,z])=>{const P=House.P;P.rx=Math.atan2(-(y-P.y),Math.hypot(x-P.x,z-P.z))*180/Math.PI;P.ry=Math.atan2(x-P.x,-(z-P.z))*180/Math.PI;House.dirty();},boxPoint.point);
   await p.waitForTimeout(600);await p.evaluate(()=>HouseTouch.render());await shot('04b-case-actions');
   assert(await p.locator('.ht-acts [data-k=e].ht-main').isVisible(),'The first objective must make Pick up the primary action');await press('e');
- }else await p.mouse.click(boxPoint.x,boxPoint.y);
+ }else {
+  // Use the same public grab API as case-actions.mjs to stage the cartridge.
+  // Pointer picking is covered separately; this flow verifies native game keys
+  // and refresh after the complete first round, independent of a moving camera.
+  assert(await p.evaluate(()=>House.grab('media.box.gb.blocks')),'Could not take the visible first case');
+ }
  for(let n=0;n<30&&!await p.evaluate(()=>House.held()==='media.box.gb.blocks');n++)await p.waitForTimeout(250);
  assert.equal(await p.evaluate(()=>House.held()),'media.box.gb.blocks','Native case pickup failed');await shot('05-carry');
  results.carry=await p.evaluate(()=>({targets:StoryGuide.targets(),buttons:[...document.querySelectorAll('.ht-acts [data-k]')].map(b=>b.dataset.k),glows:House.scene.getObjectByName('accepting-slot-glows')?.count}));
  if(phone){await press('more');assert(await p.locator('.ht-acts [data-k=f]').isVisible());assert(await p.locator('.ht-acts [data-k=x]').isVisible());await shot('05c-more-actions');await press('more');assert.equal(await p.locator('.ht-acts [data-k=x]').count(),0);}
  // A genuine family line while the first case is held must clear the carry caption.
  await p.evaluate(()=>HouseFamily.say('mom','c1.mom.give',{call:true,again:true}));
- await until(()=>!!document.querySelector('.np-bub:not(.np-out)'));await p.evaluate(()=>{HouseFamily.debug.speech.freeze=true});await p.waitForTimeout(750);await shot('05b-carry-speech');
+ await until(()=>HouseFamily.debug.speech.cur?.lineId==='c1.mom.give'&&!!document.querySelector('.np-bub:not(.np-out)'));await p.evaluate(()=>{HouseFamily.debug.speech.freeze=true});await p.waitForTimeout(750);await shot('05b-carry-speech');
  const speechLayout=await p.evaluate(()=>{const a=document.querySelector('.np-bub:not(.np-out)').getBoundingClientRect(),b=document.querySelector('.hs-hold').getBoundingClientRect();return{overlap:a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top,bottom:a.bottom,height:innerHeight};});
  assert(!speechLayout.overlap&&speechLayout.bottom<speechLayout.height,'Speech covers the carried item caption');await p.evaluate(()=>{HouseFamily.debug.speech.freeze=false});
  await until(()=>!document.querySelector('.np-bub:not(.np-out)'));
@@ -69,14 +74,36 @@ try{
  await until(()=>window.RoomTV?._dbg()?.st==='game'&&!House.gliding&&!HouseCases.busy);
  if(!guidanceOnly){
  await shot('07-game-title');
- await gb('start');for(let i=0;i<3;i++)await gb('a');await until(()=>!!RoomTV.dbg().load()?.well);await shot('08-game-play');
- assert.equal(await p.evaluate(()=>RoomTV.dbg().load()?.stat.games),1,'A real first round must start');
+ results.menu=[];
+ for(let n=0;n<9;n++){
+  const mode=await p.evaluate(()=>window.__blocksDbg?.().mode);results.menu.push(mode);
+  if(mode==='play')break;
+  assert(['title','demo','hiscores','menu','music','level'].includes(mode),'Unexpected first-round screen: '+mode);
+  await gb(['title','demo','hiscores'].includes(mode)?'start':'a');
+  for(let j=0;j<60&&await p.evaluate(()=>window.__blocksDbg?.().mode)===mode;j++)await p.waitForTimeout(100);
+ }
+ await until(()=>window.__blocksDbg?.().mode==='play'&&!!__blocksDbg().cur);console.log('Blockology menu flow',JSON.stringify(results.menu));
+ assert.equal(await p.evaluate(()=>__blocksDbg().stat.games),1,'A real first round must start');
+ // Prove desktop input reaches the falling piece, independently of battery checkpoints.
+ if(!phone&&!idleRound){const x=await p.evaluate(()=>__blocksDbg().cur.x);await p.keyboard.press('ArrowLeft');let moved=false;for(let n=0;n<60;n++){moved=await p.evaluate(x=>__blocksDbg().cur?.x<x,x);if(moved)break;await p.waitForTimeout(100);}assert(moved,'ArrowLeft did not move the falling piece');results.input={key:'ArrowLeft',from:x,to:await p.evaluate(()=>__blocksDbg().cur.x)};}
+ await shot('08-game-play');
  // Play a complete first round through the game's own input (hard drops, no story packets).
- for(let i=0;i<28;i++)await gb('up');
+ if(idleRound){
+  console.log('Leaving the first round idle: no directions, rotations or drops');const deadline=Date.now()+360000;
+  while(Date.now()<deadline&&await p.evaluate(()=>__blocksDbg().mode==='play'))await p.waitForTimeout(250);
+ }else for(let i=0;i<28;i++)await gb('up');
  await p.waitForTimeout(4500);await shot('09-game-finished');
- assert(await p.evaluate(()=>!RoomTV.dbg().load()?.well),'First round did not finish');
+ assert(await p.evaluate(()=>['over','result','entry','rocket','afterRocket'].includes(__blocksDbg().mode)),'First round did not finish');
+ assert.equal(await p.evaluate(()=>__blocksDbg().lines),0,'The first-round test must cover a zero-line finish');
+ await until(()=>!!st.getState()?.done.lad);assert.equal(await p.evaluate(()=>st.current()?.id),'meetmom','A zero-line round must lead to Mom');
+ results.firstRound=await p.evaluate(()=>({mode:__blocksDbg().mode,score:__blocksDbg().score,lines:__blocksDbg().lines,games:__blocksDbg().stat.games,objective:st.current()?.id}));
+ if(idleRound){
+  assert.equal(results.firstRound.score,0,'An idle first round must earn no score');
+  await until(()=>__blocksDbg().mode==='result');for(let n=0;n<4&&await p.evaluate(()=>__blocksDbg().mode==='result');n++){await p.waitForTimeout(1100);await gb('a');}await until(()=>__blocksDbg().mode==='play'&&__blocksDbg().stat.games===2);await shot('09b-play-again');
+ }
  if(phone){await p.setViewportSize({width:size.height,height:size.width});await p.waitForTimeout(700);await shot('10-game-landscape');await p.setViewportSize(size);}
  if(phone)await p.locator('.rm-tools .rm-lean').tap();else await p.keyboard.press('q');await until(()=>House.mode==='walk'&&!House.gliding);await p.waitForTimeout(600);await shot('11-back-in-room');
+ if(!roundOnly){
  // insertCase positions the camera beside the tiny slot. Validate the entire
  // walking route against real physics bodies: cellOk alone ignores loose furniture.
  const route=await p.evaluate(()=>{for(const [x,z] of [[40,155],[0,155],[0,200],[-20,300]]){let fits=true;for(let dx=0;dx>=-60;dx-=5)if(!House._.floorAt(x+dx,z,'U',House.LV.U,House.STAND)){fits=false;break;}if(fits)return[x,House.LV.U-House.STAND,z];}return null;});
@@ -101,7 +128,8 @@ try{
  assert.equal(results.seatRefresh.after.mode,'focus');for(const k of ['seat','x','z','off'])assert.equal(results.seatRefresh.after[k],seat[k],'Seated refresh changed '+k);
  await until(()=>!!st.getState().done.meetmom);
  }
+ }
  if(phone&&tag!=='before'){assert.equal(results.arrival.deadUse,false);assert.equal(results.stick.opacity,'0');assert(!results.carry.buttons.includes('x'),'Drop should wait under More');}
  assert.deepEqual(errors,[]);console.log(JSON.stringify(results,null,2));
-}catch(e){await shot('failure').catch(()=>{});console.log('State',await p.evaluate(()=>({mode:window.House?.mode,held:window.House?.held(),speech:!!window.HouseFamily?.debug,story:window.st?.getState()})).catch(()=>null));throw e;}
+}catch(e){await shot('failure').catch(()=>{});console.log('State',await p.evaluate(()=>({mode:window.House?.mode,held:window.House?.held(),speech:!!window.HouseFamily?.debug,blocks:window.__blocksDbg?{mode:__blocksDbg().mode,paused:__blocksDbg().paused,score:__blocksDbg().score,lines:__blocksDbg().lines,pieces:__blocksDbg().pieces}:null,story:window.st?.getState()})).catch(()=>null));throw e;}
 finally{await writeFile(new URL(`${tag}-${profile}-report.json`,dir),JSON.stringify({results,errors},null,2));await browser.close();}

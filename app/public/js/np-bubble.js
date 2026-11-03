@@ -66,10 +66,11 @@
     return { side, bx, by, tx: bx + dx * k, ty: by + dy * k };
   }
   // Two balloons on top of each other: the newer one moves up (or down when there's no room above).
-  function separate(rects, view) {
-    for (let i = 1; i < rects.length; i++) for (let j = 0; j < i; j++) {
-      const a = rects[j], b = rects[i]; if (!hit(a, b, 6)) continue;
-      const up = a.y - 8 - b.h; if (up >= view.top) b.y = up; else b.y = a.y + a.h + 8;
+  function separate(rects, view, keep = []) {
+    for (let i = 1; i < rects.length; i++) {
+      const b = rects[i], previous = rects.slice(0, i).map(a => ({x:a.x,y:a.y-12,w:a.w,h:a.h+12}));
+      if (!previous.some(a => hit({x:b.x,y:b.y-12,w:b.w,h:b.h+12},a,6))) continue;
+      Object.assign(b,place({x:b.x+b.w/2,y:b.y+b.h},b.w,b.h,view,keep.concat(previous),0));
     }
     return rects;
   }
@@ -166,6 +167,8 @@
       // ease towards the new place (people bob and the view turns; balloons shouldn't jitter)
       if (b.x == null || b.jump) { b.x = r.x; b.y = r.y; b.jump = false; } else { const k = 1 - Math.exp(-(now - (b.lastT || now)) / 70); b.x += (r.x - b.x) * k; b.y += (r.y - b.y) * k; }
       b.lastT = now; r.x = b.x; r.y = b.y;
+      // Easing must not carry a reply through the previous speaker's panel.
+      separate(placed.concat(r), view, keep); b.x = r.x; b.y = r.y;
       placed.push(r);
       b.el.style.transform = `translate(${r.x.toFixed(1)}px,${r.y.toFixed(1)}px)`;
       if (mode === 'edge') { b.tail = null; continue; }
@@ -185,7 +188,7 @@
   }
   function show(o) {
     if (!ok()) return null;
-    for (const b of live) b.close(true);
+    for (const b of live) if (b.key === o.key) b.close(true);
     const el = document.createElement('div'); el.className = 'np-bub' + (o.shout ? ' np-shout' : '');
     el.style.setProperty('--np-tab', o.color || COLORS[o.key] || '#6b5a3a');
     el.innerHTML = '<b class="np-bub-name"></b><p><span class="np-said"></span><span class="np-rest"></span></p>';

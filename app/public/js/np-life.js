@@ -462,7 +462,7 @@
     if (speech.cur && (t < speech.until || (speech.voice && !speech.voice.ended && speech.voice.started && t < speech.hard))) return;
     if (speech.cur) {
       if (speech.voice && !speech.voice.ended) speech.voice.stop(); // (F again: on to the next line)
-      if (speech.bub) speech.bub.close(true);
+      if (speech.bub) { const b = speech.bub, next = speech.q[0]; if (next && next.c === speech.cur.c) b.close(true); else setTimeout(() => b.close(), next ? 1600 : 450); } // let the last speaker's comic panel linger through a reply
       if (speech.cur.c.rig && speech.voice) speech.cur.c.rig.hush();
       speech.voice = speech.bub = null;
       const f = speech.cur.then; speech.cur.c.talking = speech.q.some(q => q.c === speech.cur.c); speech.cur = null; if (f) try { f(); } catch (e) { console.error(e); }
