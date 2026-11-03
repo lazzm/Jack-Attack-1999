@@ -593,6 +593,7 @@
   let barkAt = nowMs() + 25000;
   function barks(clk) {
     const t = nowMs();
+    if (window.Bonfire?.familyLook?.()) return; // (nobody asks about the landing light while the fireworks are going)
     if (t < barkAt || speech.cur || speech.q.length || t - speech.last < 25000 || H.mode !== 'walk' || H.paused || document.querySelector('.hs-voice.on,.hs-call.on')) return;
     barkAt = t + 30000 + Math.random() * 40000;
     const cands = chars.filter(c => c.present && !c.talking && c.cur && (c.cur.k === 'act' || c.cur.k === 'route'));
