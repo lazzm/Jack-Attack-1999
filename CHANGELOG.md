@@ -1,5 +1,15 @@
 # Jack's Home Page - changelog
 
+## 2.62.0 - 2026-11-03
+- A new player's first minutes are clearer, especially on phones. A small card teaches one thing at a time and gets out of the way, instead of a big help panel.
+- The Game Lad slot glows with a named arrow showing how far away it is, and the first objective tells you exactly what to do.
+- Only useful carry buttons show, with the rest under More. The thumb ring clears when you lift your thumb.
+- One message at a time on arrival: family speech, diary notes and seasonal notes no longer stack up, duplicates merge, and off-screen speakers get a clear named line. A speaker's balloon still lingers while someone replies.
+- Refreshing in the middle of a conversation now resumes that line. Walking and seated refreshes stay exactly where they were.
+- Faint outlines no longer sit on the empty desk. Slots only glow when you're carrying something that fits. Stuck speech balloons can't hold up the message queue.
+- Accounts that already know the game skip the first-time help.
+- Verified: parody 0, all unit checks, first-five-minutes tests on phone and desktop, Chapter 1, owner tools, voices 9/9, mobile 8/8, smoke 12/12, family checks. No real account, wallet or shared-world changes.
+
 ## 2.61.0 - 2026-11-03
 - Blockology gets its full depth: a proper Game Lad screen, better controls with reliable repeat, saves for every mode, a 60-flight progression with a rocket ending and credits, and four original tunes. Existing scores are kept.
 - In every console game, the first touch on the on-screen pad is no longer lost when the game switches from keyboard to touch.
