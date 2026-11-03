@@ -517,3 +517,10 @@ then provides a standing token-resume fixture. `BONFIRE_RESUME_LOGIN=1` uses it 
 Visual photographs freeze the actual effects buffers at capture time so slow screenshot readback does not
 consume their three-second afterglow; frame measurements resume animation. `BONFIRE_ART_ONLY` selects comma-separated
 shot names for a focused recheck. Visual scene snapshots settle family routes with the existing NPC simulator.
+
+
+Shared software-renderer hosts: `FIXTURE_RASTER_RATIO=0.5` optionally caps raster resolution in `room-fixture.mjs`
+without changing CSS layout, camera coordinates or assertions. Leave it unset for art/pixel reviews.
+`REGRESSION_NO_SHOTS=1` in physics/Halloween/story omits optional galleries while retaining functional checks and
+failure captures. The dedicated sizing/Bonfire art fixtures still capture native-resolution evidence.
+Standing-resume fixtures also complete the normal About You form for freshly provisioned accounts, when present.

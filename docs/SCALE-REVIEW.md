@@ -99,3 +99,26 @@ new views street-east/-west/-across, front-wall-hedge, garden-far). Done = in th
 | 27 | Partial. Lounge re-laid: 1.9 m sofa back towards the bay, 86 cm armchair angled at the telly in the corner, standard lamp in the corner; 90 x 50 cm bevelled coffee table leaves 83 cm to the sofa; ways in from the door; coal-effect gas fire with brass frame, canopy and fret. Upholstery proportions unchanged. |
 | new | The village goes on: streets to +-56 m, a crossroads (side road to the back road), the corner shop (VILLAGE STORES), a green with the phone box, a pillar box, more semis both ways (simpler far houses), and a horizon ring (hills, rooftops, trees, the church spire) that travels with the camera. |
 | 9-12, 14-18, 20-21, 24-26, 28-34 | Open (landing/stairs widths, desk, telly, bedroom props, kitchen, back garden props). |
+
+## Sizing follow-up (3 November 2026, branch sizing)
+
+The garden/kitchen pass uses the live 143 cm eye and walking lens. Matched before/after desktop and portrait-phone
+views are in `tests/shots/sizing/`; `HOUSE-SCALE.md` records the plan and measured clearances. Status below supersedes
+only the listed rows; the remaining open rows above stay open.
+
+| id | status |
+|---|---|
+| 29 | Done for the kitchen layout. The existing table measures 120 × 80 cm, top 76 cm high, chair crest about 90 cm. Moving it 60 cm north and extending the rear wall 120 cm gives 101–159 cm between chair backs and surrounding walls/units. These measured furniture sizes are retained; the former 41 cm south passage is removed. |
+| 31 | Done. Shed moved to the far corner, 180 × 120 cm with a roughly 200 cm ridge and a 76 × 175 cm door; hardstanding and a 90 cm path reach its front. |
+| 32 | Done after re-measurement: the existing dryer radius is 126 cm, not the historical estimate of 190 cm. It now occupies a separate east-side laundry area, clear of the patio and central lawn. Existing garment artwork retained. |
+| 33 | Done. Solid rear extension with felt roof, soffit/fascia, gutter and downpipe. Exterior brickwork covers the bedroom wallpaper's exposed back. Rear window corrected from a 158 cm head / 63 cm sill to 210 / 100 cm, with its openings, frames and culling bounds aligned. |
+| G3 | Open. Storeys remain 258 cm; the 280 cm floor-to-floor and existing stair geometry are retained. A whole-house ceiling/stair change is separate from the rear extension. |
+| G4 | Open outside the revised shed door/window proportions. No stair, handle or bedroom furniture scale change is claimed in this pass. |
+
+The central lawn is intentionally available for play; the path, flower bed, laundry area, shed apron, trees and
+patio occupy its edges. Bonfire preparation, spectators, launch area and shed shelf have been spread along its depth.
+Tree/fence artwork, the mower, lamps and house number remain for the separate fixes3 worker.
+
+## Sizing round 2 follow-up (3 November 2026)
+
+Rear elevation row 33 is reviewed after the rel-263 merge: two matching real bedroom apertures, a real kitchen side casement and two deep closed-curtain windows in the unmodelled east rooms now articulate the rear wall. The extension roof retains its fascia, gutter and downpipe, with added flashing at the old wall. See `HOUSE-SCALE.md` and `shots/sizing/round2/`. G3, G4 and the other open furniture/stair rows remain open; this follow-up prioritises Bonfire and regression testing.

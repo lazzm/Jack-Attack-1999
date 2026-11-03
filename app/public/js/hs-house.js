@@ -6,7 +6,7 @@
  * The plan (cm, y down). Upstairs floor y 73, ceiling y -185; downstairs floor y 353, ceiling y 95.
  *   upstairs:   Jack's room x -280..240, z -56..250 | the landing x 250..410, z 130..250 and x 250..330, z 250..700
  *   the stairs: x 330..410, from the landing at z 250 (y 73) down to the hall at z 600 (y 353)
- *   downstairs: the kitchen x -280..195, z -56..295 | the lounge x -280..195, z 305..700 | the hall x 205..410 (round the stairs)
+ *   downstairs: the kitchen x -280..195, z -176..295 | the lounge x -280..195, z 305..700 | the hall x 205..410 (round the stairs)
  *               the cupboard under the stairs x 332..408, z 252..440 (mind your head)
  * For other packs: spot ids here start 'hs.' (Room.addClue works on them too); finds can hide in 'hs.cup.box',
  * 'hs.cup.bag', 'hs.cup.shelf' (the cupboard), 'hs.sofa', 'hs.kit.drawer' via RoomCat FINDS (spot: id). The SNES spot is
@@ -22,6 +22,7 @@
   // The front plot (docs/HOUSE-SCALE.md; the numbers are shared with js/hs-world.js, which migrates old saves): the front
   // garden runs from the house front (z 702) to the pavement at FZ: the approved 7 m semi front garden with a full-size saloon.
   const { FZ, CAR, STREET, HEDGE, PIER_TOP } = H.FRONT, FRONT_PIERS = H.FRONT.PIERS, LAMP = { x: 700, z: STREET.kerb - 22 };
+  const REAR = H.REAR;
   const tex = n => A.t(n);
   const say = (t, x, ms) => H.say(cast(t), cast(x), ms);
   const cast = s => { try { return window.Cast ? Cast.t(s) : s; } catch (e) { return s; } };
@@ -941,24 +942,35 @@
   function buildKitchen(r) {
     const batch = K.batch(), B = K.into(batch);
     const wall = M({ c: '#fff', map: tex('wallKitchen') });
-    shell(B, { x0: -280, z0: -56, x1: 195, z1: 295, fy: GY, cy: GC, wall, uv: 48, cove: true, thin: { n: 0.7 }, floor: M({ c: '#fff', map: tex('lino') }), fuv: 60, holes: { e: [[150, 230, GY - 205, GY]], n: [[-140, -20, 195, 290], [80, 160, GY - 205, GY]] } });
+    shell(B, { x0: -280, z0: REAR.z1, x1: 195, z1: 295, fy: GY, cy: GC, wall, uv: 48, cove: true, thin: { n: 0.7 }, floor: M({ c: '#fff', map: tex('lino') }), fuv: 60, holes: { e: [[-160,-80,143,235],[150, 230, GY - 205, GY]], n: [[-160, -40, 143, 253], [80, 160, GY - 205, GY]] } });
     // the window over the sink and the back door (half glass): the garden outside
     // Shared sky/neighbourhood; no overlapping bedroom/kitchen sky cards.
-    winFrame(B, -140, -20, 195, 290, -56);
-    doorway(r, B, 'backframe', 'n', -56, 80, 160, GY, { leaf: false, depth: 1, frameSides: [1] });
+    winFrame(B, -160, -40, 143, 253, REAR.z1);
+    // Real side casement in the extension: shared geometry is visible from the side garden.
+    const sideFrame=M({c:'#f2f0ea',sh:40,sp:'#444'});
+    for(const y of [146,232])B.box(202,y,-120,8,6,80,sideFrame);
+    for(const z of [-157,-120,-83])B.box(202,189,z,8,86,z===-120?5:6,sideFrame);
+    for(const y of [143,235])B.box(198,y,-120,10,.8,80,M('#d8d4c8'));
+    for(const z of [-160,-80])B.box(198,189,z,10,92,.8,M('#d0ccc0'));
+    B.box(201.8,189,-120,.35,86,74,M({c:'#c8d8f0',o:.12,tr:true,sh:90,sp:'#fff'}));
+    B.rbox(195,236.5,-120,20,3,88,.8,sideFrame);
+    H.support('kitchen',185,-164,205,-76,235);
+
+    doorway(r, B, 'backframe', 'n', REAR.z1, 80, 160, GY, { leaf: false, depth: 1, frameSides: [1] });
+    const WB = B.at(0,0,-REAR.extension);
     // the units along the back wall: base cupboards, the worktop, wall cupboards, the sink, the cooker, the washing machine
     const doorM = M({ c: '#fff', map: unitTex() }), top = M({ c: '#fff', map: worktopTex(), sh: 40, sp: '#555' });
     const unit = (x0, x1, appliance) => { const cx=(x0+x1)/2,w=x1-x0,carcass=M('#e8e2d0');
       // The washer bay's rear corner clears the back-door architrave.
       const rear = appliance ? -53 : -55;
-      for(const x of [x0+1,x1-1])B.box(x,GY-46,(rear+3)/2,2,86,3-rear,carcass);
-      B.box(cx,GY-46,rear+1,w-4,86,2,carcass);B.box(cx,GY-5,-26,w-4,2,54,carcass);
-      if(appliance)B.box(cx,GY-46,2,w-4,84,2,M({c:'#eeeae2',sh:24}));else{B.box(cx,GY-46,1.6,w-4,84,1.2,M({ c: '#d9cba6', sh: 18, sp: '#222' }));unitDoors(B,cx,GY-46,2.2,w-4,83,1);}
-      B.box(cx,GY-4,-3,w-4,8,2,M('#3a3a3a')); // solid recessed kickboard
+      for(const x of [x0+1,x1-1])WB.box(x,GY-46,(rear+3)/2,2,86,3-rear,carcass);
+      WB.box(cx,GY-46,rear+1,w-4,86,2,carcass);WB.box(cx,GY-5,-26,w-4,2,54,carcass);
+      if(appliance)WB.box(cx,GY-46,2,w-4,84,2,M({c:'#eeeae2',sh:24}));else{WB.box(cx,GY-46,1.6,w-4,84,1.2,M({ c: '#d9cba6', sh: 18, sp: '#222' }));unitDoors(WB,cx,GY-46,2.2,w-4,83,1);}
+      WB.box(cx,GY-4,-3,w-4,8,2,M('#3a3a3a')); // solid recessed kickboard
     };
     unit(-214.5,-160);unit(-160,-40);unit(20,80,true);
     // Reserve the fridge bay and cut a real opening for the sink bowl.
-    const work=(x0,x1,z0,z1)=>B.box((x0+x1)/2,GY-91.5,(z0+z1)/2,x1-x0,3,z1-z0,top);
+    const work=(x0,x1,z0,z1)=>WB.box((x0+x1)/2,GY-91.5,(z0+z1)/2,x1-x0,3,z1-z0,top);
     work(-214.5,-103,-56,10);work(-57,-40,-56,10);work(-103,-57,-56,-44);work(-103,-57,-8,10);work(20,73.5,-56,10);work(73.5,80,-53,10);
     // Sixteen 12 cm tiles per texture: world UVs keep the grout square and
     // the fruit motifs round instead of stretching them across the wall.
@@ -969,12 +981,12 @@
       for(let i=0;i<=16;i++){g.beginPath();g.moveTo(i*16,0);g.lineTo(i*16,h);g.stroke();g.beginPath();g.moveTo(0,i*16);g.lineTo(w,i*16);g.stroke()}
       A.mottle(g,w,h,20,'rgba(255,255,255,.2)',20,56);
     },{world:192});
-    for(const [x0,x1]of [[-280,-140],[-20,73.5]])B.plane((x0+x1)/2,GY-120,-55.8,x1-x0,56,M({c:'#fff',map:splash,sh:22}),{uv:192});
-    const wu = (x0, x1) => { const cx = (x0 + x1) / 2; B.box(cx, GC + 80, -40, x1 - x0, 70, 32, { f: M({ c: '#d9cba6', sh: 18, sp: '#222' }), all: M('#e8e2d0') }); unitDoors(B, cx, GC + 80, -24, x1 - x0, 69, 1, true); };
-    wu(-214.5,-160);wu(20,71.5); // 2.2 cm clear of the door casing
-    B.shadow(-110, GY, -26, 270, 70, 0.7, { sq: true });
+    for(const [x0,x1]of [[-280,-160],[-40,73.5]])WB.plane((x0+x1)/2,GY-120,-55.8,x1-x0,56,M({c:'#fff',map:splash,sh:22}),{uv:192});
+    const wu = (x0, x1) => { const cx = (x0 + x1) / 2; WB.box(cx, GC + 80, -40, x1 - x0, 70, 32, { f: M({ c: '#d9cba6', sh: 18, sp: '#222' }), all: M('#e8e2d0') }); unitDoors(WB, cx, GC + 80, -24, x1 - x0, 69, 1, true); };
+    wu(-214.5,-166);wu(20,71.5); // 2.2 cm clear of the door casing
+    WB.shadow(-110, GY, -26, 270, 70, 0.7, { sq: true });
     // the sink (stainless steel), the taps, the washing-up
-    const sk=B.at(-80,GY-93,-26),steel=M({c:'#b4bcc4',sh:70,sp:'#aab4bd'});
+    const sk=WB.at(-80,GY-93,-26),steel=M({c:'#b4bcc4',sh:70,sp:'#aab4bd'});
     for(const x of [-24,24])sk.rbox(x,-0.3,0,2,0.6,40,0.25,steel);
     for(const z of [-19,19])sk.rbox(0,-0.3,z,46,0.6,2,0.25,steel);
     sk.box(0,13,0,46,2,36,steel);for(const x of [-22.5,22.5])sk.box(x,6,0,1,12,36,steel);for(const z of [-17.5,17.5])sk.box(0,6,z,44,12,1,steel);
@@ -983,7 +995,7 @@
     sk.cyl(-6,-10,-16,0.9,0.9,18,12,mMetal);sk.cyl(-6,-18,-10,0.8,0.8,12,12,mMetal,{rx:90});sk.cyl(6,-4,-16,1.6,1.6,6,12,mMetal);
     for(const [x,c]of [[-6,'#c54b40'],[6,'#3f6999']]){sk.cyl(x,-7.3,-16,1.7,1.7,0.6,12,mWhite);sk.cyl(x,-7.7,-16,0.7,0.7,0.25,12,M(c))}
     // the cooker (freestanding, four rings, an eye-level grill), the washing machine
-    const ck = B.at(-10, GY, -26); ck.box(0, -46, 0, 58, 92, 58, { f: M({ c: '#fff', map: cookerTex() }), all: M('#e8e8e4') }); ck.box(0, -93, 0, 58, 2, 58, M({ c: '#efefec', sh: 60 })); [[-14, -12], [14, -12], [-14, 12], [14, 12]].forEach(([x, z]) => ck.cyl(x, -94.6, z, 8, 8, 0.6, 18, M('#2a2a2a')));
+    const ck = WB.at(-10, GY, -26); ck.box(0, -46, 0, 58, 92, 58, { f: M({ c: '#fff', map: cookerTex() }), all: M('#e8e8e4') }); ck.box(0, -93, 0, 58, 2, 58, M({ c: '#efefec', sh: 60 })); [[-14, -12], [14, -12], [-14, 12], [14, 12]].forEach(([x, z]) => ck.cyl(x, -94.6, z, 8, 8, 0.6, 18, M('#2a2a2a')));
     // Wall-mounted enamel extractor, with a solid flue to the ceiling. Its
     // underside clears the window head; nothing stands down in the hob rings.
     const hood=M({c:'#e1ded5',sh:32,sp:'#555'});
@@ -995,12 +1007,12 @@
     for(const x of [17,22])ck.box(x,-183,6.8,2,1.5,.5,mWhite);
     for (let i = 0; i < 5; i++) { ck.cyl(-20 + i * 10, -84, 29.3, 2.4, 2.4, 1.4, 12, M({ c: '#2a2a2a', sh: 40 }), { rx: 90 }); ck.box(-20 + i * 10, -84, 30.2, 0.6, 2.2, 0.4, M('#ddd')); }
     ck.cyl(0, -52, 30.4, 1, 1, 46, 8, mMetal, { rz: 90 }); ck.plane(0, -45, 29.2, 44, 22, M({ c: '#1a1a1a', sh: 90, sp: '#888', o: 0.9, tr: true }));
-    const wm = B.at(50, GY, -26); wm.geo(new T.TorusGeometry(13, 1.6, 8, 28), 0, -45, 29.4, M({ c: '#c8ccd0', sh: 60, sp: '#888' })); wm.cyl(0, -45, 29.2, 11.5, 11.5, 0.6, 28, M({ c: '#2a3440', sh: 120, sp: '#fff' }), { rx: 90 }); wm.cyl(0, -45, 29.6, 8, 8, 0.3, 24, M({ c: '#7a8a9a', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { rx: 90 });
+    const wm = WB.at(50, GY, -26); wm.geo(new T.TorusGeometry(13, 1.6, 8, 28), 0, -45, 29.4, M({ c: '#c8ccd0', sh: 60, sp: '#888' })); wm.cyl(0, -45, 29.2, 11.5, 11.5, 0.6, 28, M({ c: '#2a3440', sh: 120, sp: '#fff' }), { rx: 90 }); wm.cyl(0, -45, 29.6, 8, 8, 0.3, 24, M({ c: '#7a8a9a', o: 0.5, tr: true, sh: 100, sp: '#fff' }), { rx: 90 });
     wm.box(-14, -82, 29.4, 16, 5, 1.2, M('#d8d8d4')); wm.cyl(12, -82, 29.8, 2.2, 2.2, 1.2, 14, M({ c: '#333', sh: 40 }), { rx: 90 }); [4, 18, 22].forEach(x => wm.box(x - 10, -82, 29.6, 1.2, 1.2, 0.5, M('#1a8a3a')));
     // the fridge-freezer (the magnets and notes are the fridge door: js/hs-life.js)
-    r.fridgeFrame={x:-247.5,z:-20,w:60,h:170,d:64};
+    r.fridgeFrame={x:-247.5,z:-140,w:60,h:170,d:64};
     // warm white enamel (pure white blew out under the window light), a dark door seal line, and a busy door
-    const fr = B.at(r.fridgeFrame.x,GY,r.fridgeFrame.z); fr.rbox(0, -85, 0, 60, 170, 64, 2, M({ c: '#e6e1d5', sh: 30, sp: '#4a4a48' })); fr.box(0, -110, 32.2, 58, 1.2, 0.8, M('#8e8a82'));
+    const fr = WB.at(r.fridgeFrame.x,GY,-20); fr.rbox(0, -85, 0, 60, 170, 64, 2, M({ c: '#e6e1d5', sh: 30, sp: '#4a4a48' })); fr.box(0, -110, 32.2, 58, 1.2, 0.8, M('#8e8a82'));
     for (const [x, y, c] of [[-18, -128, '#d02a2a'], [-9, -131, '#2a5ad0'], [3, -126, '#e8c020'], [-12, -98.5, '#2a8a3a'], [6, -101, '#d02a2a'], [-4, -64, '#e8c020'], [10, -60, '#2a5ad0']]) fr.rbox(x, y, 32.6, 2.6, 2.2, 1, 0.4, M(c)); // (same plastics as the notice-board pins: one draw each)
     fr.box(-12, -88, 32.15, 15, 20, 0.12, M({ c: '#fff', map: tex('note'), pr: 1 }), { rz: -3 }); fr.box(6, -92, 32.2, 13, 17, 0.12, M({ c: '#fff', map: tex('photo'), pr: 1 }), { rz: 4 });
     fr.box(-6, -136, 32.15, 18, 13, 0.12, M({ c: '#fff', map: tex('noteBlue'), pr: 1 }), { rz: 2 });
@@ -1009,16 +1021,16 @@
     fr.box(0, -2.1, 20, 56, 4, 24, M('#1a1a1a')); // the plinth (a hair off the floor plane the cabinet stands on)
     fr.shadow(0, 0, 0, 68, 70, 0.7, { sq: true });
     // things on the worktop: the kettle, the toaster, the bread bin, the microwave, the radio (the biscuit tin is its own)
-    const kt=B.at(-200,GY-93,-36),enamel=M({c:'#ecece5',sh:35,sp:'#666'}),handle=M({c:'#343638',sh:24});
+    const kt=WB.at(-200,GY-93,-36),enamel=M({c:'#ecece5',sh:35,sp:'#666'}),handle=M({c:'#343638',sh:24});
     kt.lathe(0,0,0,[[0,-22],[6,-22],[8,-20],[10,-14],[9.6,-2],[9,-1],[0,-1]],28,enamel);kt.cyl(0,-0.5,0,10.8,10.8,1,28,handle);
     kt.cyl(0,-22.3,0,5.6,5.6,0.6,24,handle);kt.rbox(0,-23.4,0,3.2,1.8,2,0.5,handle);
     kt.geo(new T.TorusGeometry(7.3,1.15,8,24,Math.PI),-8.8,-12,0,handle,{rz:90});
     kt.cyl(10,-18,0,2.2,3,8,18,enamel,{rz:45});kt.cyl(12.83,-20.83,0,1.5,1.5,0.4,16,M('#4b4f50'),{rz:45});kt.rbox(-9,-3,0,2,1,3,0.3,handle);kt.shadow(0,0,0,26,24,0.5);
-    const ts = B.at(-140, GY - 93, -36); ts.rbox(0, -9, 0, 26, 18, 16, 3, M({ c: '#d8d8d4', sh: 70, sp: '#888' })); ts.box(-5, -18.4, 0, 3, 1, 12, M('#111')); ts.box(5, -18.4, 0, 3, 1, 12, M('#111')); ts.shadow(0, 0, 0, 30, 20, 0.6, { sq: true });
-    const bb = B.at(63, GY - 93, -36); bb.rbox(0, -12, 0, 30, 24, 24, 6, M({ c: '#c83a2a', sh: 40, sp: '#555' }));bb.rbox(0,-11,12.1,24,0.4,0.4,0.15,M('#76291f'));bb.rbox(0,-8,12.8,8,1.3,1.2,0.4,mMetal);bb.shadow(0, 0, 0, 34, 28, 0.6, { sq: true });
-    const rd = B.at(65,GY-93,-5); rd.rbox(0,-7,0,24,14,8,2,M('#3a3a3e')); rd.cyl(6,-7,4.2,4,4,0.4,16,M('#555'),{rx:90});rd.box(-5,-9,4.2,8,3,0.4,M({c:'#d8a040',e:'#3a2000'}));rd.cyl(-8,-21,-2,0.3,0.3,20,6,mMetal,{rz:20});
+    const ts = WB.at(-140, GY - 93, -36); ts.rbox(0, -9, 0, 26, 18, 16, 3, M({ c: '#d8d8d4', sh: 70, sp: '#888' })); ts.box(-5, -18.4, 0, 3, 1, 12, M('#111')); ts.box(5, -18.4, 0, 3, 1, 12, M('#111')); ts.shadow(0, 0, 0, 30, 20, 0.6, { sq: true });
+    const bb = WB.at(63, GY - 93, -36); bb.rbox(0, -12, 0, 30, 24, 24, 6, M({ c: '#c83a2a', sh: 40, sp: '#555' }));bb.rbox(0,-11,12.1,24,0.4,0.4,0.15,M('#76291f'));bb.rbox(0,-8,12.8,8,1.3,1.2,0.4,mMetal);bb.shadow(0, 0, 0, 34, 28, 0.6, { sq: true });
+    const rd = WB.at(65,GY-93,-5); rd.rbox(0,-7,0,24,14,8,2,M('#3a3a3e')); rd.cyl(6,-7,4.2,4,4,0.4,16,M('#555'),{rx:90});rd.box(-5,-9,4.2,8,3,0.4,M({c:'#d8a040',e:'#3a2000'}));rd.cyl(-8,-21,-2,0.3,0.3,20,6,mMetal,{rz:20});
     // the microwave: the clock is flashing 12:00
-    const mw = new T.Group();mw.name='kitchen-microwave';mw.position.set(r.fridgeFrame.x,GY-169,-20);r.group.add(mw);const MW=K.into(mw);r.mw=mw;
+    const mw = new T.Group();mw.name='kitchen-microwave';mw.position.set(r.fridgeFrame.x,GY-169,-140);r.group.add(mw);const MW=K.into(mw);r.mw=mw;
     MW.rbox(0, -16, 0, 46, 30, 34, 1.4, M({ c: '#e8e6e0', sh: 30 })); MW.plane(-6, -16, 17.1, 30, 22, M({ c: '#2a2a2a', sh: 90, sp: '#888' }));
     r.mwTex = K.tex('hs.mwclock', 128, 40, () => {}, { clamp: true });
     const md = new T.Mesh(new T.PlaneGeometry(9, 3), new T.MeshBasicMaterial({ map: r.mwTex })); flipUV(md.geometry); md.position.set(15, -26, 17.12); mw.add(md);
@@ -1031,13 +1043,13 @@
     H.spot('hs.micro', { label: 'Microwave', obj: mw, act: () => life('micro') });
     // the kitchen table and chairs, a fruit bowl, the newspaper
     // A 1990s pine farmhouse table: rounded top, aprons under it, turned legs.
-    const kt2 = B.at(-60, GY, 170), pineM = M({ c: '#fff', map: tex('pine') });
+    const kt2 = B.at(-60, GY, 110), pineM = M({ c: '#fff', map: tex('pine') });
     kt2.rbox(0, -74, 0, 120, 4, 80, 1.2, pineM, { uv: 50, seg: 2 });
     kt2.box(0, -68.5, -33.4, 103, 7, 2.2, pineM, { uv: 50 }); kt2.box(0, -68.5, 33.4, 103, 7, 2.2, pineM, { uv: 50 });
     kt2.box(-52.4, -68.5, 0, 2.2, 7, 62, pineM, { uv: 50 }); kt2.box(52.4, -68.5, 0, 2.2, 7, 62, pineM, { uv: 50 });
     [[-54, -34], [54, -34], [-54, 34], [54, 34]].forEach(([x, z]) => turnedLeg(kt2, x, -72, z, 72, 5.6, pineM));
     // the fruit bowl: a glazed stoneware bowl on a foot ring, with real fruit in it (it is never eaten)
-    const tprops = new T.Group(); tprops.position.set(-60, GY, 170); r.group.add(tprops); r.tableProps = tprops; /* (a group of its own so the Halloween carving can clear the table) */ const KT = K.into(tprops);
+    const tprops = new T.Group(); tprops.position.set(-60, GY, 110); r.group.add(tprops); r.tableProps = tprops; /* (a group of its own so the Halloween carving can clear the table) */ const KT = K.into(tprops);
     const bowl = KT.at(-20, -76, -8);
     bowl.lathe(0, 0, 0, [[12.2, -6.6], [12.4, -6.2], [11.6, -3.4], [9, -1.6], [6.2, -0.9], [6, 0], [0.05, 0], [0.05, -1.4], [4.6, -1.6], [8.4, -2.6], [10.8, -4.6], [11.7, -6.4], [12.2, -6.6]], 28, M({ c: '#c9b48c', sh: 40, sp: '#555' }));
     bowl.lathe(0, 0, 0, [[12.25, -6.7], [12.45, -6.3]], 28, M({ c: '#6b4a2a', sh: 40 }));
@@ -1056,7 +1068,7 @@
       g.computeVertexNormals(); paper.geo(K.thicken(g, 0.08), 0.4, -0.3, 0.6, print, { rx: 90, ry: 180 }); }
     paper.shadow(0, 0, 0, 31, 39, 0.35, { sq: true });
     kt2.shadow(0, 0, 0, 130, 90, 0.7, { sq: true });
-    [[-60, 104, 0], [-60, 236, 180], [-136, 170, 90], [16, 170, -90]].forEach(([x, z, ry]) => chair(B, x, z, ry)); // (set 6 cm back: legs clear of the table legs and aprons)
+    [[-60, 44, 0], [-60, 176, 180], [-136, 110, 90], [16, 110, -90]].forEach(([x, z, ry]) => chair(B, x, z, ry)); // (set 6 cm back: legs clear of the table legs and aprons)
     // a wall clock, the calendar, the cork board with Mom's lists
     const wc = B.at(-154, GY-181, 293.5, 180);wc.wshadow(.6,1,-1.45,39,39,.35);
     wc.cyl(0,0,0,18,18,3,40,M({c:'#9e352a',sh:45}),{rx:90});
@@ -1087,26 +1099,26 @@
     r.hh=new T.Group();hands.add(r.hh);K.into(r.hh).box(0,-4,0,1,8,.5,M('#292824'));
     r.mh=new T.Group();hands.add(r.mh);K.into(r.mh).box(0,-6,.4,.65,12,.4,M('#292824'));K.into(hands).cyl(0,0,.9,.8,.8,.8,12,mMetal,{rx:90});
     // the biscuit tin (a daily raid: js/hs-life.js asks the server)
-    const tin = new T.Group();tin.position.set(40,GY-93,-4);r.group.add(tin);const TN=K.into(tin);
+    const tin = new T.Group();tin.position.set(40,GY-93,-124);r.group.add(tin);const TN=K.into(tin);
     TN.cyl(0, -9, 0, 11, 11, 18, 24, M({ c: '#fff', map: tinTex(), sh: 60, sp: '#888' }));
     const lid = new T.Group(); lid.position.set(0, -18, -11); tin.add(lid); K.into(lid).cyl(0, -0.8, 11, 11.6, 11.6, 2.2, 24, M({ c: '#2a5ab0', sh: 60, sp: '#888' })); r.tinLid = lid;
     TN.shadow(0, 0, 0, 26, 26, 0.6);
     H.spot('hs.tin', { label: 'The biscuit tin', obj: tin, act: () => life('tin') });
-    H.spot('hs.fridge', { label: 'The fridge', act: () => life('fridge') });pickBox(r,'hs.fridge',r.fridgeFrame.x,GY-85,14,60,170,4);
-    H.spot('hs.kettle', { label: 'The kettle', act: () => { window.Sound?.world('kettle'); say('The kettle', ['On it goes. In 1999 the kettle is the most important thing in any house.', 'Mom: "Put the kettle on, love." It is always on. The kettle never rests.'][((r.kn = (r.kn | 0) + 1)) % 2]); } }); pickBox(r, 'hs.kettle', -200, GY - 104, -36, 24, 24, 22);
-    H.spot('hs.toaster', { label: 'Toaster', act: sayLines('hs.toaster', 'Toaster', ['The toaster has two settings: still bread, and charcoal.']) }); pickBox(r, 'hs.toaster', -140, GY - 102, -36, 28, 20, 18);
-    H.spot('hs.radio', { label: 'Kitchen radio', act: sayLines('hs.radio', 'Kitchen radio', ['Tuned to the local station. A man is reading out the traffic. There is no traffic.', 'Mom has it on all day. She knows all the adverts off by heart.']) });pickBox(r,'hs.radio',65,GY-100,-5,26,16,10);
-    H.spot('hs.paper', { label: 'The newspaper', act: () => life('paper') }); pickBox(r, 'hs.paper', -22, GY - 77, 189, 30, 2, 38);
-    H.spot('hs.cooker', { label: 'The cooker', act: sayLines('hs.cooker', 'The cooker', ['Tonight: ' + ['fish fingers, chips and beans', 'spag bol', 'a Fondus Crispy Pancake each', 'shepherd\'s pie', 'a chicken Kiev (garlic everywhere)'][new Date().getDay() % 5] + '. Mom says do NOT touch the knobs.']) }); pickBox(r, 'hs.cooker', -10, GY - 46, 3, 58, 92, 4);
-    H.spot('hs.washer', { label: 'Washing machine', act: sayLines('hs.washer', 'Washing machine', ['It walks across the floor on the spin cycle. We have found it in the middle of the kitchen before.']) }); pickBox(r, 'hs.washer', 50, GY - 46, 3, 58, 86, 4);
+    H.spot('hs.fridge', { label: 'The fridge', act: () => life('fridge') });pickBox(r,'hs.fridge',r.fridgeFrame.x,GY-85,-106,60,170,4);
+    H.spot('hs.kettle', { label: 'The kettle', act: () => { window.Sound?.world('kettle'); say('The kettle', ['On it goes. In 1999 the kettle is the most important thing in any house.', 'Mom: "Put the kettle on, love." It is always on. The kettle never rests.'][((r.kn = (r.kn | 0) + 1)) % 2]); } }); pickBox(r, 'hs.kettle', -200, GY - 104, -156, 24, 24, 22);
+    H.spot('hs.toaster', { label: 'Toaster', act: sayLines('hs.toaster', 'Toaster', ['The toaster has two settings: still bread, and charcoal.']) }); pickBox(r, 'hs.toaster', -140, GY - 102, -156, 28, 20, 18);
+    H.spot('hs.radio', { label: 'Kitchen radio', act: sayLines('hs.radio', 'Kitchen radio', ['Tuned to the local station. A man is reading out the traffic. There is no traffic.', 'Mom has it on all day. She knows all the adverts off by heart.']) });pickBox(r,'hs.radio',65,GY-100,-125,26,16,10);
+    H.spot('hs.paper', { label: 'The newspaper', act: () => life('paper') }); pickBox(r, 'hs.paper', -22, GY - 77, 129, 30, 2, 38);
+    H.spot('hs.cooker', { label: 'The cooker', act: sayLines('hs.cooker', 'The cooker', ['Tonight: ' + ['fish fingers, chips and beans', 'spag bol', 'a Fondus Crispy Pancake each', 'shepherd\'s pie', 'a chicken Kiev (garlic everywhere)'][new Date().getDay() % 5] + '. Mom says do NOT touch the knobs.']) }); pickBox(r, 'hs.cooker', -10, GY - 46, -117, 58, 92, 4);
+    H.spot('hs.washer', { label: 'Washing machine', act: sayLines('hs.washer', 'Washing machine', ['It walks across the floor on the spin cycle. We have found it in the middle of the kitchen before.']) }); pickBox(r, 'hs.washer', 50, GY - 46, -117, 58, 86, 4);
     H.spot('hs.wclock', { label: 'Kitchen clock', act: () => { const d=window.OwnerTools?.now()||new Date();say('Kitchen clock','It says '+(d.getHours()%12||12)+':'+String(d.getMinutes()).padStart(2,'0')+'. (It\'s right. The microwave isn\'t.)'); } });pickBox(r,'hs.wclock',-154,GY-181,290,36,36,5);
     H.spot('hs.kcalendar',{label:"Mom's calendar",act:()=>{const d=window.OwnerTools?.now()||new Date(),t=window.Desk?.today99?.()||{m:d.getMonth()+1,d:d.getDate()},day=t.m===2?Math.min(28,t.d):t.d;say("Mom's calendar",day+'/'+t.m+'/1999. Today is ringed in red. Mom: "Your jobs are on the fridge. Do those before you go out!"')}});pickBox(r,'hs.kcalendar',35,GY-160,291,33,48,3);
     H.spot('hs.kboard',{label:"Mom's notice board",act:()=>{const next=window.st?.objectives?.().find(o=>!o.done);say("Mom's notice board",'PE kit on Monday. School photo. Three pins missing. '+(next?next.hint||next.text:'Mom: "Jobs first, then games. Your list is on the fridge."'),6500)}});pickBox(r,'hs.kboard',-60,GY-157,290,78,57,4);
-    H.walkRect('G', -278, -54, 193, 293, { room: 'kitchen' });
-    H.block('G', -280, -56, 82, 6); H.block('G', -280, -56, -218, 14); H.block('G', -124, 126, 4, 214); H.block('G', -80, 86, -40, 122); H.block('G', -80, 218, -40, 254); H.block('G', -156, 150, -116, 190); H.block('G', -4, 150, 36, 190);
-    H.support('kitchen',-214.5,-56,-103,10,GY-93);H.support('kitchen',-57,-56,-40,10,GY-93);H.support('kitchen',-103,-56,-57,-44,GY-93);H.support('kitchen',-103,-8,-57,10,GY-93);H.support('kitchen',-103,-44,-57,-8,GY-81);
-    H.support('kitchen',-39,-55,19,3,GY-94);H.support('kitchen',20,-56,80,10,GY-93);H.support('kitchen',-277.5,-52,-217.5,12,GY-170);H.support('kitchen',-120,130,0,210,GY-76);
-    for(const x of [-24,4])for(const z of [-38,-14])H.support('kitchen',x-8,z-8,x+8,z+8,GY-94.9);
+    H.walkRect('G', -278, REAR.z1+2, 193, 293, { room: 'kitchen' });
+    H.block('G', -280, -176, 82, -114); H.block('G', -280, -176, -218, -106); for(const box of REAR.kitchenBlocks)H.block('G',...box);
+    H.support('kitchen',-214.5,-176,-103,-110,GY-93);H.support('kitchen',-57,-176,-40,-110,GY-93);H.support('kitchen',-103,-176,-57,-164,GY-93);H.support('kitchen',-103,-128,-57,-110,GY-93);H.support('kitchen',-103,-164,-57,-128,GY-81);
+    H.support('kitchen',-39,-175,19,-117,GY-94);H.support('kitchen',20,-176,80,-110,GY-93);H.support('kitchen',-277.5,-172,-217.5,-108,GY-170);H.support('kitchen',-120,70,0,150,GY-76);
+    for(const x of [-24,4])for(const z of [-158,-134])H.support('kitchen',x-8,z-8,x+8,z+8,GY-94.9);
   }
   function winFrame(B, x0, x1, y0, y1, z) { const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, w = x1 - x0, h = y1 - y0, fm = M({ c: '#f2f0ea', sh: 40, sp: '#444' }), fz = z - 8; B.box(cx, y0 + 3, fz, w, 6, 6, fm); B.box(cx, y1 - 3, fz, w, 6, 6, fm); B.box(x0 + 3, cy, fz, 6, h, 6, fm); B.box(x1 - 3, cy, fz, 6, h, 6, fm); B.box(cx, cy, fz, 5, h, 6, fm); B.plane(cx, cy, fz - 1, w - 6, h - 6, M({ c: '#c8d8f0', o: 0.12, tr: true, sh: 120, sp: '#fff' })); B.panel(cx, y0, z - 6, w, 12, .4, M('#d8d4c8'), { rx: -90 }); B.panel(x0, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: 90 }); B.panel(x1, cy, z - 6, 12, h, .4, M('#d0ccc0'), { ry: -90 }); B.rbox(cx, y1 + 1.5, z + 2, w + 10, 3, 10, 0.8, M('#efece4')); }
   // a lathe-turned table/chair leg with a square top block (for the aprons) and a turned lower part
@@ -1221,14 +1233,14 @@
     // Complete solid roof across both storeys, shared by front/back views.
     slab([[-326,-200],[60,-370],[60,-363],[-326,-193]],-82,808,tile);
     slab([[60,-370],[446,-200],[446,-193],[60,-363]],-82,808,tile);
-    for(const z of [-59,701])slab([[-300,-196],[-300,-204.5],[60,-363],[420,-204.5],[420,-196]],z,2,mBrick());
+    for(const z of [-62.6,701])slab([[-300,-196],[-300,-204.5],[60,-363],[420,-204.5],[420,-196]],z,2,mBrick());
     // Both flank walls, ground to eaves. The rooms inside are hidden while you are outside (room visibility), so the
     // exterior shell must close on its own: these butt between the back wall (z -56.6) and the front wall (z 701),
     // outer faces on x -300 / 420 (the downpipe brackets' wall line), tops tucked into the roof slab.
-    B.box(-299,(GY-205)/2,(701-56.6)/2,2,GY+205,701+56.6,mBrick(),{uv:128});
+    B.box(-299,(GY-205)/2,(701-62.6)/2,2,GY+205,701+62.6,mBrick(),{uv:128});
     // The landing window continues through the outer skin, rather than looking
     // straight into a brick wall ten centimetres behind its frosted pane.
-    solidWall(B,420,322.2,90,[[-378.8,-205],[378.8,-205],[378.8,GY],[-378.8,GY]],mBrick(),2,[[[77.8,-80],[157.8,-80],[157.8,60],[77.8,60]]]);
+    solidWall(B,420,319.2,90,[[-381.8,-205],[381.8,-205],[381.8,GY],[-381.8,GY]],mBrick(),2,[[[80.8,-80],[160.8,-80],[160.8,60],[80.8,60]]]);
     // Side gates close both passages beside the house a metre behind the front, so you never see through to the back.
     { const fm=mFence(),post=M({c:'#fff',map:tex('pineDark')}),iron=M({c:'#1d1e1f',sh:40,sp:'#444'}),gz=600;
       const run=(a,b,gate)=>{ // a..b along x at gz; gate: [x0,x1] for a ledged leaf hung on its own posts
@@ -1275,38 +1287,66 @@
   function buildGarden(r) {
     houseRoof();
     const batch = K.batch(), B = K.into(batch);
-    const x0 = -300, x1 = 215, z0 = -560, z1 = -56; // (behind the kitchen; the back wall of the house is z = -56)
-    r.wheelie={x:160,z:-190};r.waterButt={x:180,z:-102};
+    const {x0,x1,z0,z1} = REAR; // (behind the kitchen; the extension rear wall is z = -176)
+    r.wheelie=REAR.wheelie;r.waterButt=REAR.butt;
     B.box((x0+x1)/2,GY+2,(z0+z1)/2,x1-x0,4,z1-z0,mGrass(),{uv:110});
-    B.box(-50,GY+1.7,-126,330,4,130,mSlab(),{uv:100}); // the patio by the back door
+    B.box((205+x1)/2,GY+2,(z1-56)/2,x1-205,4,-56-z1,mGrass(),{uv:110});
+    // Patio, 90 cm path, shed apron and the short turn joining path to patio. Adjacent edges share no faces.
+    const paving=mSlab();for(const [a,b,c,d]of REAR.paving)B.box((a+c)/2,GY+1.7,(b+d)/2,c-a,4,d-b,paving,{uv:100});
     // the back of the house: brick, the kitchen window and the back door from outside, Jack's window up above
-    solidWall(B,60,-57,180,[[-360,-196],[360,-196],[360,356],[100,356],[100,GY-205],[20,GY-205],[20,356],[-360,356]],mBrick(),.8,[[[-200,195],[-80,195],[-80,290],[-200,290]],[[96,-112],[166,-112],[166,-14],[96,-14]]]);
-
-    B.box(300,-67,-58.5,70,80,2,M({c:'#789095',sh:28,sp:'#879a9b'}));
-    for(const x of [263,337])B.box(x,-67,-60,5,88,5,mWhite);for(const y of [-109,-25])B.box(300,y,-60,70,4,5,mWhite);B.box(300,-69,-61,70,3,3,mWhite);B.box(300,-20,-63,82,5,10,M('#bbb5a5'));
-    for(const x of [-138,-22,-80])B.box(x,242.5,-59,4,x===-80?87:95,3,mWhite);
-    for(const y of [197,288])B.box(-80,y,-59,112,4,3,mWhite);
-    B.plane(-80,242.5,-61.2,112,87,M({c:'#c8d8f0',o:.12,tr:true,sh:80,sp:'#7c8f99'}),{ry:180});
-    B.box(76.8, GY - 102, -58.5, 5.6, 204, 3, mWhite); B.box(163.2, GY - 102, -58.5, 5.6, 204, 3, mWhite); B.box(120, GY - 206, -58.5, 92, 6, 3, mWhite); B.box(120, GY - 0.8, -58, 80, 1.6, 8, M('#9a9a92')); // trim clears the shared interior reveals
-    B.plane(191,-63,-57.5,70,98,M({c:'#c8d8f0',o:.12,tr:true,sh:80,sp:'#7c8f99'}),{ry:180}); // the real bedroom remains visible behind the glass
+    // Original upper rear elevation; the kitchen below now projects 1.2 m under a shallow felt roof.
+    solidWall(B,60,-62.6,180,[[-360,-196],[360,-196],[360,94],[-360,94]],mBrick(),.8,[...REAR.bedroomWindows.map(w=>[[w.x0-60,w.y0],[w.x1-60,w.y0],[w.x1-60,w.y1],[w.x0-60,w.y1]]),[[210,-137],[320,-137],[320,-14],[210,-14]]]);
+    solidWall(B,312.5,-57.4,180,[[-107.5,95],[107.5,95],[107.5,356],[-107.5,356]],mBrick(),1.6,[[[-42.5,143],[67.5,143],[67.5,253],[-42.5,253]]]);
+    solidWall(B,-47.5,-177,180,[[-252.5,95],[252.5,95],[252.5,356],[207.5,356],[207.5,GY-205],[127.5,GY-205],[127.5,356],[-252.5,356]],mBrick(),.8,[[[-112.5,143],[7.5,143],[7.5,253],[-112.5,253]]]);
+    B.box(-292.5,225,-116.6,15,260,121.2,mBrick(),{uv:128});
+    for(const [y,h]of [[119,48],[295,120]])B.box(203,y,-116.6,6,h,121.2,mBrick(),{uv:128});
+    for(const [z,d]of [[-168.6,17.2],[-68,24]])B.box(203,189,z,6,92,d,mBrick(),{uv:128});
+    const felt=M({c:'#535650',sh:3}),fascia=M('#ded9cd');
+    B.box(-47.5,77,-64,525,2,20,M('#414842')); // lead flashing up to the old rear wall
+    B.box(-47.5,86,-121,525,16,150,felt); // solid roof including soffit, fall carried by its thick front fascia
+    B.box(-47.5,94,-195,525,12,4,fascia);
+    for(const x of [-308,213])B.box(x,94,-121,4,12,144,fascia);
+    B.cyl(-47.5,99,-199,4,4,529,10,M('#414842'),{rz:90});
+    B.cyl(207,224,-193,3.5,3.5,250,10,M('#414842'));
+    {const a=new T.Vector3(207,218,-193),b=new T.Vector3(REAR.butt.x,GY-92,REAR.butt.z),d=b.clone().sub(a),mid=a.clone().add(b).multiplyScalar(.5),pipe=new T.CylinderGeometry(2.2,2.2,d.length(),8);pipe.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0,1,0),d.normalize())));B.geo(pipe,mid.x,mid.y,mid.z,M('#414842'));}
+    // The rooms behind the east rear wall are not walkable: deep closed curtains seal their reveals.
+    const closedRearWindow=(cx,y0,y1,z)=>{
+      const w=110,h=y1-y0,cy=(y0+y1)/2,frame=M({c:'#f2f0ea',sh:40,sp:'#444'}),fabric=M('#d9d1bb');
+      B.box(cx,cy,z+7,w-4,h-4,2,M('#827b70'));
+      for(let i=0;i<16;i++)B.rbox(cx-w/2+5+i*(w-10)/15,cy,z+3+(i%2)*1.3,8,h-7,3,1,fabric);
+      for(const x of [cx-w/2+3,cx,cx+w/2-3])B.box(x,cy,z-3,6,h,9,frame);
+      for(const y of [y0+3,y1-3])B.box(cx,y,z-3,w,6,9,frame);
+      for(const x of [cx-w/2,cx+w/2])B.box(x,cy,z+2,1,h,14,M('#c5bfb0'));
+      B.box(cx,cy,z-4,w-6,h-6,.35,M({c:'#c8d8f0',o:.14,tr:true,sh:90,sp:'#fff'}));
+      B.rbox(cx,y1+2,z-4,w+12,4,16,.8,frame);
+    };
+    closedRearWindow(325,-137,-14,-66);closedRearWindow(325,143,253,-61);
+    const EW = B.at(0,0,-120);
+    for(const x of [-158,-42,-100])EW.box(x,198,-59,4,x===-100?102:110,3,mWhite);
+    for(const y of [145,251])EW.box(-100,y,-59,112,4,3,mWhite);
+    EW.plane(-100,198,-61.2,112,102,M({c:'#c8d8f0',o:.12,tr:true,sh:80,sp:'#7c8f99'}),{ry:180});
+    EW.box(76.8,GY-102,-58.5,5.6,204,3,mWhite);EW.box(163.2,GY-102,-58.5,5.6,204,3,mWhite);EW.box(120,GY-206,-58.5,92,6,3,mWhite);EW.box(120,GY-.8,-58,80,1.6,8,M('#9a9a92'));
 
     // fences down both sides and across the end, the gate at the end, next door's roofs over the top
     const fm = mFence();
     // One post per corner; panel ends butt against post shoulders. The old
     // full-length panels and two offset corner posts shared exposed faces.
     const left = x0 + 4, right = x1 - 4, rear = z0 + 4, front = z1 - 4;
-    const postM = M({ c: '#fff', map: tex('pineDark') }), zs = [rear, -390, -224, front];
+    const postM = M({ c: '#fff', map: tex('pineDark') }), zs = Array.from({length:9},(_,i)=>rear+(front-rear)*i/8);
     const post = (x,z) => { B.box(x,GY-94,z,8,188,8,postM,{uv:60}); B.rbox(x,GY-189,z,9.2,2,9.2,.5,postM,{uv:60}); };
     for (const x of [left, right]) {
-      for (const z of zs) post(x,z);
-      for (let i=1;i<zs.length;i++) {
-        const px=x===left?x0+1.5:x1-1.5,cz=(zs[i-1]+zs[i])/2,len=zs[i]-zs[i-1]-8,inside=x===left?1:-1;
+      const run=x===right?zs.map((z,i)=>z+120*i/(zs.length-1)):zs;
+      for (const z of run) post(x,z);
+      for (let i=1;i<run.length;i++) {
+        const px=x===left?x0+1.5:x1-1.5,cz=(run[i-1]+run[i])/2,len=run[i]-run[i-1]-8,inside=x===left?1:-1;
         B.box(px,GY-90,cz,3,180,len,fm,{uv:100});
         B.box(px+inside*1.5,GY-6,cz,5,12,len,M('#827c6b'));
         B.rbox(px,GY-181,cz,5,3,len+1,.5,postM,{uv:60});
         for(const yy of [-48,-139])B.box(px+inside*3.2,GY+yy,cz,3.2,7,len,postM,{uv:60});
       }
     }
+    B.box(-316,GY-90,-178,32,180,3,fm,{uv:100});
+    post(424,-60);B.box(430,GY-90,-61.5,4,180,3,fm,{uv:100});
     const xs = [left, left+(right-left)/3, left+2*(right-left)/3, right];
     for (let i=1;i<xs.length-1;i++) post(xs[i],rear);
     for (let i=1;i<xs.length;i++) {
@@ -1321,16 +1361,20 @@
     for(let i=0;i<18;i++){const x=left+12+i*(right-left-24)/17,z=rear+8+(i%3)*1.2;
       for(let j=0;j<3;j++)B.ball(x+(j-1)*2.1,GY-3-(j%2)*1.5,z,1.5,4+j,1.2,weed,5,{rz:(j-1)*23});
     }
+    for(const [x,end]of [[left+8,front-12],[right-8,-72]])for(let z=rear+45;z<end;z+=140){
+      for(let j=0;j<3;j++)B.ball(x+(j%2)*1.3,GY-3-(j%2)*1.5,z+(j-1)*2.1,1.2,4+j,1.5,weed,5,{rx:(j-1)*23});
+    }
+    for(const [x,z]of [[-318,-186],[-306,-186],[428,-69]])for(let j=0;j<3;j++)B.ball(x+(j-1)*2.1,GY-3-(j%2)*1.5,z,1.5,4+j,1.2,weed,5,{rz:(j-1)*23});
     // the shed (Dad's), the whirly washing line, the wheelie bin, a flower bed, the water butt, a tree
-    const sh=B.at(-212,GY,-462),shw=shedWood();
-    sh.box(0,-95,0,150,190,120,shw,{uv:60});
-    const gable=new T.Shape();gable.moveTo(-75,-190);gable.lineTo(0,-221);gable.lineTo(75,-190);gable.closePath();sh.geo(new T.ExtrudeGeometry(gable,{depth:120,bevelEnabled:false}),0,0,-60,shw,{uv:60});
-    const roof=new T.Shape();roof.moveTo(-81,-190);roof.lineTo(0,-224);roof.lineTo(81,-190);roof.lineTo(81,-184);roof.lineTo(0,-218);roof.lineTo(-81,-184);roof.closePath();sh.geo(new T.ExtrudeGeometry(roof,{depth:132,bevelEnabled:false}),0,0,-66,M({c:'#3d4140',sh:5}));
-    sh.box(30, -90, 61, 50, 160, 3, shw, { uv: 60 }); sh.box(30, -90, 63, 44, 150, 1, shedWood()); sh.box(50, -90, 64, 3, 10, 2, mMetal);
-    sh.box(-40,-120,60.5,40,36,.5,M({c:'#6c7f84',sh:75,sp:'#bac8cc'}));for(const x of [-61,-19])sh.box(x,-120,61.5,2,40,2,mWhite);for(const y of [-139,-101])sh.box(-40,y,61.5,40,2,2,mWhite);sh.box(-40,-120,61.8,1.5,36,1,mWhite);
-    for(const y of [-145,-40]){sh.box(7,y,63,9,2,1,mMetal);sh.cyl(3,y,63,1,1,5,10,mMetal)}sh.rbox(50,-84,65.4,4,5,2,.5,mMetal);sh.cyl(50,-83.5,66.5,.35,.35,.3,8,M('#282a2b'),{rx:90});
+    const sh=B.at(REAR.shed.x,GY,REAR.shed.z,0,{sx:1.2,sy:.9}),shw=shedWood();
+    sh.box(0,-100,0,150,200,120,shw,{uv:60});
+    const gable=new T.Shape();gable.moveTo(-75,-200);gable.lineTo(0,-221);gable.lineTo(75,-200);gable.closePath();sh.geo(new T.ExtrudeGeometry(gable,{depth:120,bevelEnabled:false}),0,0,-60,shw,{uv:60});
+    const roof=new T.Shape();roof.moveTo(-81,-200);roof.lineTo(0,-224);roof.lineTo(81,-200);roof.lineTo(81,-194);roof.lineTo(0,-218);roof.lineTo(-81,-194);roof.closePath();sh.geo(new T.ExtrudeGeometry(roof,{depth:132,bevelEnabled:false}),0,0,-66,M({c:'#3d4140',sh:5}));
+    sh.box(20, -99, 61, 63.33, 194.4, 3, shw, { uv: 60 }); sh.box(20, -99, 63, 59, 186, 1, shedWood()); sh.box(50, -90, 64, 3, 10, 2, mMetal);
+    sh.box(-48,-120,60.5,30,36,.5,M({c:'#6c7f84',sh:75,sp:'#bac8cc'}));for(const x of [-64,-32])sh.box(x,-120,61.5,2,40,2,mWhite);for(const y of [-139,-101])sh.box(-48,y,61.5,30,2,2,mWhite);sh.box(-48,-120,61.8,1.5,36,1,mWhite);
+    for(const y of [-160,-40]){sh.box(-10,y,63,9,2,1,mMetal);sh.cyl(-12,y,63,1,1,5,10,mMetal)}sh.rbox(50,-84,65.4,4,5,2,.5,mMetal);sh.cyl(50,-83.5,66.5,.35,.35,.3,8,M('#282a2b'),{rx:90});
     sh.shadow(0, 0, 0, 170, 140, 0.6, { sq: true });
-    const washingBatch=K.batch(),wl=K.into(washingBatch).at(80,GY,-280);wl.cyl(0,-100,0,2,2.4,200,10,mMetal);wl.cyl(0,-201,0,3,3,5,12,mMetal);
+    const washingBatch=K.batch(),wl=K.into(washingBatch).at(REAR.dryer.x,GY,REAR.dryer.z);wl.cyl(0,-100,0,2,2.4,200,10,mMetal);wl.cyl(0,-201,0,3,3,5,12,mMetal);
     for(let i=0;i<4;i++)wl.geo(new T.TorusGeometry(40+i*28,.5,4,32),0,-196+i*4,0,M('#ddd'),{rx:90});
     for(let i=0;i<4;i++){
       const angle=i*Math.PI/2,a=new T.Vector3(0,-202,0),b=new T.Vector3(Math.cos(angle)*126,-183.71,Math.sin(angle)*126),d=b.clone().sub(a),mid=a.clone().add(b).multiplyScalar(.5),arm=new T.CylinderGeometry(.8,.8,d.length(),8);
@@ -1357,7 +1401,7 @@
     wb.rbox(0,-61,0,58,98,70,4,green);wb.rbox(0,-112,4,60,6,74,2,M('#245024'));
     for(const x of [-22,22]){wb.cyl(x,-12,-28,12,12,7,24,M('#202224'),{rz:90});wb.cyl(x+(x<0?-3.6:3.6),-12,-28,4,4,.4,14,M('#777b7c'),{rz:90});wb.box(x,-6,26,4,12,5,green)}
     wb.cyl(0,-12,-28,1.2,1.2,49,12,mMetal,{rz:90});for(const x of [-18,18]){wb.box(x,-60,35.2,1.2,74,.8,M('#245024'));wb.box(x,-109,-37,3,8,7,green)}wb.cyl(0,-112,-40,1.4,1.4,39,12,green,{rz:90});wb.shadow(0,0,0,70,84,.6,{sq:true});
-    const fb=B.at(-230,GY,-270);
+    const fb=B.at(REAR.flowers.x,GY,REAR.flowers.z);
     // Soil meets the inner faces; end boards fit BETWEEN the side boards.
     fb.box(0,-4,0,106,8,56,M('#3a2a1a'));
     for(const x of [-55,55])fb.box(x,-5,0,4,10,64,M('#725437'));
@@ -1365,20 +1409,23 @@
     for(let i=0;i<12;i++){const x=-46+i*8.3,z=-16+(i%3)*16,c=['#cf4e5d','#e2bd45','#c97ba0','#e4dfd0','#d78441'][i%5],petal=M(c);fb.cyl(x,-15,z,.35,.35,14,6,M('#376f39'));for(let k=0;k<5;k++){const a=k*Math.PI*2/5;fb.ball(x+Math.cos(a)*2.4,-22,z+Math.sin(a)*2.4,2.1,.7,1.4,petal,8,{ry:-a/D2R})}fb.ball(x,-22.5,z,1.1,.7,1.1,M('#d0a542'),8);for(const s of [-1,1])fb.ball(x+s*1.9,-15,z,2.4,.3,1,M('#4c8249'),8,{rz:s*25})}
     const wbt=B.at(r.waterButt.x,GY,r.waterButt.z);wbt.cyl(0,-45,0,26,24,90,28,M({c:'#315d39',sh:15}));wbt.cyl(0,-91,0,27,27,2,28,M('#24482c'));
     for(const y of [-20,-68])wbt.geo(new T.TorusGeometry(y===-20?24.5:25.5,.65,6,40),0,y,0,M('#284b30'),{rx:90});wbt.cyl(0,-14,25.5,1.4,1.4,6,12,M('#292d2e'),{rx:90});wbt.box(0,-17,29,7,1.3,2,M('#292d2e'));wbt.shadow(0,0,0,58,58,.5);
-    tree(B,145,-500,250,58); tree(B, -40, -540, 240, 55);
-    B.box(-50,GY-1,-66,330,2,2,M('#6a6a62')); // grounded edging, not a floating bar
+    tree(B,330,-1335,250,58); tree(B,90,-1400,240,55);
+    B.box(-10,GY-1,-181,410,2,2,M('#6a6a62')); // grounded edging, not a floating bar
     natureColours(batch.build(r.group));
-    H.spot('hs.shed', { label: "Dad's shed", act: sayLines('hs.shed', "Dad's shed", ['Dad\'s shed. Padlocked. Inside: the lawnmower, 200 jam jars of screws, and a radio tuned to the cricket.', 'Dad goes in the shed "to sort it out". He has been sorting it out since 1994.']) });pickBox(r,'hs.shed',-212,GY-95,-462,150,190,120);
+    H.spot('hs.shed', { label: "Dad's shed", act: sayLines('hs.shed', "Dad's shed", ['Dad\'s shed. Padlocked. Inside: the lawnmower, 200 jam jars of screws, and a radio tuned to the cricket.', 'Dad goes in the shed "to sort it out". He has been sorting it out since 1994.']) });pickBox(r,'hs.shed',REAR.shed.x,GY-90,REAR.shed.z,180,180,120);
     H.spot('hs.wheelie', { label: 'The wheelie bin', act: sayLines('hs.wheelie', 'The wheelie bin', ['Bin day is Tuesday. Dad wheels it out at 6am like it\'s a race.', 'It smells. It always smells. Don\'t open it.']) });pickBox(r,'hs.wheelie',r.wheelie.x,GY-55,r.wheelie.z,60,116,82);
-    H.spot('hs.washline', { label: 'The washing line', act: sayLines('hs.washline', 'The washing line', ['The whirly washing line. Mom\'s sheets, Dad\'s work shirts, and my PE kit, flapping about for the whole street to see.', 'If you spin it fast enough the pegs fly off. Don\'t.']) }); pickBox(r, 'hs.washline', 80, GY - 150, -280, 190, 110, 190);
-    H.spot('hs.flowers', { label: "Mom's flower bed", act: sayLines('hs.flowers', "Mom's flower bed", ['Mom\'s flowers. Do NOT kick the football near Mom\'s flowers. (I have kicked the football into Mom\'s flowers.)']) });pickBox(r,'hs.flowers',-230,GY-14,-270,114,28,64);
+    H.spot('hs.washline', { label: 'The washing line', act: sayLines('hs.washline', 'The washing line', ['The whirly washing line. Mom\'s sheets, Dad\'s work shirts, and my PE kit, flapping about for the whole street to see.', 'If you spin it fast enough the pegs fly off. Don\'t.']) }); pickBox(r, 'hs.washline', REAR.dryer.x, GY - 150, REAR.dryer.z, 190, 110, 190);
+    H.spot('hs.flowers', { label: "Mom's flower bed", act: sayLines('hs.flowers', "Mom's flower bed", ['Mom\'s flowers. Do NOT kick the football near Mom\'s flowers. (I have kicked the football into Mom\'s flowers.)']) });pickBox(r,'hs.flowers',REAR.flowers.x,GY-14,REAR.flowers.z,114,28,64);
     H.spot('hs.butt', { label: 'The water butt', act: sayLines('hs.butt', 'The water butt', ['The water butt. Full of rainwater and one very confused frog.']) });pickBox(r,'hs.butt',r.waterButt.x,GY-45,r.waterButt.z,56,94,60);
     H.spot('hs.jackwin', { label: 'My window (from outside)', act: () => say("My window", 'That\'s my room up there. You can see the posters. {mate1} throws stones at it when my Mom won\'t let {mate1.him} ring the bell.') }); pickBox(r, 'hs.jackwin', 191, -63, -58, 70, 98, 4);
-    H.walkRect('G', x0 + 6, z0 + 6, x1 - 6, z1 - 2, { room: 'garden' }); H.walkRect('G', 84, -60, 156, -50, { door: 'back', room: 'garden' });
-    H.block('G',-300,-64,80,-48);H.block('G',160,-64,420,-48); // solid rear wall; the back-door corridor stays open
-    H.block('G',-289,-524,-135,-400);H.block('G',129,-232,191,-147);
-    H.block('G',-287,-302,-173,-238);H.block('G',152,-130,208,-70);H.block('G',77,-283,83,-277);H.block('G',134,-511,156,-489);H.block('G',-51,-551,-29,-529);
-    H.support('garden',-215,-191,115,-61,GY-.3);H.support('garden',129,-223,191,-149,GY-115);
+    H.walkRect('G',x0+6,z0+6,x1-6,z1-2,{room:'garden'});
+    H.walkRect('G',205,z1-2,x1-6,-58,{room:'garden'});
+    H.walkRect('G',84,z1-4,156,z1+6,{door:'back',room:'garden'});
+    H.block('G',-300,z1-8,80,z1+8);H.block('G',160,z1-8,205,z1+8);
+    H.block('G',-322,-1392,-138,-1268);H.block('G',339,-322,401,-237);
+    H.block('G',-227,-732,-113,-668);H.block('G',207,-250,263,-190,{top:GY-92});H.block('G',247,-653,253,-647);
+    H.block('G',319,-1346,341,-1324);H.block('G',79,-1411,101,-1389);
+    H.support('garden',217,-240,253,-204,GY-92);for(const p of REAR.paving)H.support('garden',...p,GY-.3);H.support('garden',339,-313,401,-239,GY-115);
   }
   function buildDrive(r) {
     houseRoof();
@@ -1632,7 +1679,7 @@
   }
 
   // ================================================================ the rooms, their lights, their views
-  const rearGlass=[[-140,195,-66,-20,290,-54],[95,167,-60,145,245,-54]],bedroomGlass=[[156,-112,-60,226,-14,-54]],bayGlass=[[-170,150,696,50,300,710]],frontGlass=[[279,167,698,321,245,706]];
+  const rearGlass=[[-160,143,-186,-40,253,-174],[95,167,-180,145,245,-174],[193,143,-160,207,235,-80]],bedroomGlass=REAR.bedroomWindows.map(w=>[w.x0,w.y0,-74,w.x1,w.y1,-50]),bayGlass=[[-170,150,696,50,300,710]],frontGlass=[[279,167,698,321,245,706]];
   const ROOMDEF = {
     landing: { name: 'The landing', title: 'THE LANDING', lvl: 'U', area: [[250, 130, 410, 250], [250, 250, 330, 700], [330, 250, 410, 700]], bx0: 252, bx1: 408, bz0: 132, bz1: 698, build: buildLanding, windowViews:[{room:'drive',bounds:[[410,-80,400,420,60,480]]}],
       lights: () => [{ x: 300, y: -150, z: 400, c: '#fff0d8', i: lit('landing') ? 0.9 : 0, d: 520 }, { x: 390, y: -10, z: 440, c: phase() === 'day' ? '#e8f0ff' : '#5a6a9a', i: phase() === 'day' ? 1.3 : 0.25, d: 560 }, { x: 300, y: -60, z: 180, c: '#f0ece0', i: phase() === 'day' ? 0.4 : 0.1, d: 320 }],
@@ -1657,11 +1704,11 @@
       amb: () => interiorAmb('lounge', .6),
       sun: () => phase() === 'day' ? { x: -60, y: -100, z: 1200, tx: -60, ty: GY, tz: 400, c: '#fff4e0', i: 0.35 } : null,
       stations: [{ id: 'telly', n: 'The telly', pose: () => look('G', -50, 521, LT.x, GY - 70, LT.z, 150) }, { id: 'fire', n: 'The fireplace', pose: () => look('G', 100, 521, -270, GY - 90, 500, 158) }, { id: 'window', n: 'The window', pose: () => look('G', 70, 521, -60, 230, 700, 158) }] },
-    garden: { name: 'The back garden', title: 'THE BACK GARDEN', lvl: 'G', area: [[-300, -560, 215, -56]], bx0: -298, bx1: 213, bz0: -558, bz1: -58, build: buildGarden, outside: true, windowViews:[{room:'bedroom',bounds:bedroomGlass},{room:'kitchen',bounds:rearGlass}],
-      lights: () => [{ x: 120, y: GY - 230, z: -70, c: '#ffe0a0', i: phase() === 'day' ? 0 : 0.7, d: 500 }],
+    garden: { name: 'The back garden', title: 'THE BACK GARDEN', lvl: 'G', area: [[-340,-1476,440,-176],[205,-176,440,-56]], bx0:-338, bx1:438, bz0:-1474, bz1:-58, build: buildGarden, outside: true, windowViews:[{room:'bedroom',bounds:bedroomGlass},{room:'kitchen',bounds:rearGlass}],
+      lights: () => [{ x: 120, y: GY - 230, z: -190, c: '#ffe0a0', i: phase() === 'day' ? 0 : 0.7, d: 500 }],
       amb: () => outdoorAmb('#78855a'),
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: -900, tx: 0, ty: GY, tz: -300, c: '#8090c8', i: 0.15 } : { x: 400, y: -900, z: -600, tx: 0, ty: GY, tz: -300, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
-      stations: [{ id: 'patio', n: 'The garden', pose: () => look('G', 190, -480, -140, GY - 128, -240, 143) }, { id: 'shed', n: 'The shed', pose: () => look('G', -40, -300, -230, GY - 100, -470, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 20, -360, 80, 60, -56, 158) }] },
+      stations: [{ id: 'patio', n: 'The garden', pose: () => look('G',120,-260,-40,GY-80,-1000,H.STAND) }, { id: 'shed', n: 'The shed', pose: () => look('G',-180,-1120,-230,GY-100,-1330,H.STAND) }, { id: 'house', n: 'The house', pose: () => look('G',20,-900,80,60,-176,H.STAND) }] },
     drive: { name: 'The front', title: 'OUT THE FRONT', lvl: 'G', area: [[-340, 700, 720, STREET.pave[1] - 3]], bx0: -338, bx1: 718, bz0: 702, bz1: STREET.pave[1] - 5, build: buildDrive, outside: true, windowViews:[{room:'lounge',bounds:bayGlass},{room:'hall',bounds:frontGlass}],
       lights: () => phase()==='day'?[]:[
         {x:354,y:GY-167,z:724,c:'#ffda9d',i:1.25,d:750},
@@ -1671,11 +1718,11 @@
       amb: () => outdoorAmb('#797b70'),
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: 1700, tx: 300, ty: GY, tz: 900, c: '#8090c8', i: 0.15 } : { x: -400, y: -900, z: 1500, tx: 300, ty: GY, tz: 900, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'car', n: "Dad's car", pose: () => look('G', 290, FZ - 50, CAR.x, GY - 70, CAR.z, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 180, FZ - 70, 150, 120, 700, 158) }, { id: 'street', n: 'The street', pose: () => look('G', 200, 760, 240, GY - 120, FZ + 300, 158) }] },
-    kitchen: { name: 'The kitchen', title: 'THE KITCHEN', lvl: 'G', area: [[-280, -56, 195, 295]], bx0: -278, bx1: 193, bz0: -54, bz1: 293, build: buildKitchen, windowViews:[{room:'garden',bounds:rearGlass}],
-      lights: () => [{ x: -60, y: GC + 10, z: 120, c: '#f4f8ff', i: lit('kitchen') ? .9 : 0, d: 700 }, { x: -80, y: 240, z: -40, c: phase() === 'day' ? '#e8f0ff' : '#4a5a8a', i: phase() === 'day' ? .72 : .16, d: 600 }],
+    kitchen: { name: 'The kitchen', title: 'THE KITCHEN', lvl: 'G', area: [[-280,-176,195,295]], bx0:-278, bx1:193, bz0:-174, bz1:293, build: buildKitchen, windowViews:[{room:'garden',bounds:rearGlass}],
+      lights: () => [{ x: -60, y: GC + 10, z: 120, c: '#f4f8ff', i: lit('kitchen') ? .9 : 0, d: 700 }, { x: -100, y: 198, z: -160, c: phase() === 'day' ? '#e8f0ff' : '#4a5a8a', i: phase() === 'day' ? .72 : .16, d: 600 }],
       amb: () => interiorAmb('kitchen', .64),
       sun: () => phase() === 'day' ? { x: -80, y: -100, z: -800, tx: -80, ty: GY, tz: 120, c: '#fff4e0', i: 0.3 } : null,
-      stations: [{ id: 'fridge', n: 'The fridge', pose: () => look('G', -120, 160, -250, GY - 110, -10, 158) }, { id: 'sink', n: 'The sink', pose: () => look('G', -40, 180, -80, GY - 110, -56, 158) }, { id: 'table', n: 'The table', pose: () => look('G', 120, 260, -60, GY - 76, 170, 158) }] },
+      stations: [{ id: 'fridge', n: 'The fridge', pose: () => look('G', -120, 160, -250, GY - 110, -130, H.STAND) }, { id: 'sink', n: 'The sink', pose: () => look('G', -40, 180, -80, GY - 110, -176, H.STAND) }, { id: 'table', n: 'The table', pose: () => look('G', 120, 260, -60, GY - 76, 110, H.STAND) }] },
   };
   const HouseRooms = window.HouseRooms = {
     rooms: {}, ready: false, lightsOn, lit, phase,
@@ -1714,7 +1761,7 @@
         // Seat the shut leaf inside the shallow exterior casing. The default
         // inside hinge offset left its outer face nearly 5 cm behind that
         // casing, exposing a dark, apparently skewed gap in the pitched view.
-        const bd = doorway(kit, KB, 'backdoor', 'n', -56, 80, 160, GY, { inside: true, hingeNormal: -1, noframe: true, glass: {w:50}, mat: M({ c: '#f2f0ea', sh: 40, sp: '#444' }) });
+        const bd = doorway(kit, KB, 'backdoor', 'n', REAR.z1, 80, 160, GY, { inside: true, hingeNormal: -1, noframe: true, glass: {w:50}, mat: M({ c: '#f2f0ea', sh: 40, sp: '#444' }) });
         kb.build(kit.group);
         const fd2 = doorway(hall, K.into(fb), 'frontdoor', 's', 700, 260, 340, GY, { inside: true, leaf: true, noframe: true, glass: {w:42}, panel: M({ c: '#27402f', sh: 8, sp: '#1a1a1a' }), mat: M({ c: '#2f4d3a', sh: 10, sp: '#1a1a1a' }), deco: (Dd, g2) => { const cx = g2.sgnA * g2.dw / 2;
           for (const sg of [-1, 1]) { Dd.box(cx, g2.fy - 100, sg * 2.1, 24, 4, 0.8, mBrass); Dd.box(cx, g2.fy - 100, sg * 2.5, 20, 1.2, 0.4, M('#3a2a10')); Dd.box(cx, g2.fy - 80, sg * 2.2, 4, 8, 1, mBrass); } } });

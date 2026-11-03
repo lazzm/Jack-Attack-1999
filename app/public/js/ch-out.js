@@ -6,7 +6,7 @@
  *   lawn   the front lawn: the orange hover mower lives by the front door. Plug it into the outside socket and go up and
  *          down till every strip of the lawn is mown (proper stripes!), mind the gnome, then put it back.
  *   sweep  the broom leans by the front door: sweep up every pile of leaves on the drive, then tip them in the garden sack.
- * Outside: the garden x -300..215, z -560..-56; the front x -340..716, z 700..1370 (House.FRONT: the front wall and the
+ * Outside: the garden x -340..440, z -1476..-176; the front x -340..716, z 700..1370 (House.FRONT: the front wall and the
  * pavement at z 1300; the hardstanding x 124..248 and the path 248..332 beside Dad's car, which stands in the middle of
  * the drive, House.ROOMS.drive.carFrame; the front lawn x -340..124). The ground is y 353. */
 (function () {
@@ -257,11 +257,11 @@
   CK.whenBuilt('garden',r=>{
     if(r.group.getObjectByName('garden-grass-blades'))return;
     const random=K.rnd(721),seeds=[];
-    for(let z=-545;z<-75;z+=18)for(let x=-285;x<205;x+=18){
-      if(x>-220&&x<120&&z>-196||x<-130&&z<-392||x<-170&&x>-290&&z>-310&&z<-230||x>125&&z>-230&&z<-145||x>150&&z>-140)continue;
-      for(let i=0;i<6;i++)seeds.push([x+random()*15,z+random()*15,2.8+random()*2.8,random()*Math.PI*2]);
+    for(let z=-1455;z<-185;z+=32)for(let x=-320;x<420;x+=32){
+      if(x>-225&&x<205&&z>-386||x<-220&&z>-1330||x<-130&&z<-1250||x>-235&&x<-105&&z>-740&&z<-660||x>330&&z>-330&&z<-230||x>140&&x<220&&z>-260)continue;
+      for(let i=0;i<4;i++)seeds.push([Math.min((H.REAR?.x1||440)-10,x+random()*28),z+random()*28,2.8+random()*2.8,random()*Math.PI*2]);
     }
-    const geo=grassBlade();geo.boundingSphere=new T.Sphere(new T.Vector3(-42.5,GY-3,-308),375);
+    const geo=grassBlade();geo.boundingSphere=new T.Sphere(new T.Vector3(50,GY-3,-826),770);
     const mesh=new T.InstancedMesh(geo,M({c:'#fff',sh:1,sp:'#000'}),seeds.length),pose=new T.Object3D(),color=new T.Color();mesh.name='garden-grass-blades';mesh.userData.noPick=1;
     seeds.forEach(([x,z,h,a],i)=>{pose.position.set(x,GY-.02,z);pose.rotation.set(0,a,0);pose.scale.set(1,h,1);pose.updateMatrix();mesh.setMatrixAt(i,pose.matrix);color.set(['#394d2b','#435c30','#50673a'][i%3]);mesh.setColorAt(i,color)});
     mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;mesh.frustumCulled=true;r.group.add(mesh);H.dirty();

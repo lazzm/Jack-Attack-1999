@@ -332,7 +332,7 @@
     },
     kitchen(r, P) {
       const B = K.into(P.all.batch);
-      soupPot(B, -24, GY - 95.2, -38); fingersTray(B, -172, GY - 93, -13, 4);
+      soupPot(B, -24, GY - 95.2, -158); fingersTray(B, -172, GY - 93, -133, 4);
       cobweb(B, [-279.5, GC + .5, 292.5], [1, 0, 0], [0, 0, -1], 24, 23);
     },
     drive(r, P) {
@@ -345,9 +345,9 @@
     },
     garden(r, P) {
       const B = K.into(P.all.batch);
-      pumpkinLights(B, swag([-293, GY - 187, -394.5], [-212, GY - 221, -394.5], 6, 16), 9); pumpkinLights(B, swag([-212, GY - 221, -394.5], [-131, GY - 187, -394.5], 6, 16), 9);
-      pumpkinStatic(B, 30, GY - .3, -82, .85, 200, 'lantern2'); pumpkinStatic(B, -14, GY - .3, -86, .7, 160, 'plain');
-      P.blocks.push(H.block('G', 14, -98, 46, -66, { off: true }), H.block('G', -28, -100, 0, -72, { off: true }));
+      pumpkinLights(B, swag([-327, GY - 168, -1262.5], [-230, GY - 199, -1262.5], 6, 16), 9); pumpkinLights(B, swag([-230, GY - 199, -1262.5], [-133, GY - 168, -1262.5], 6, 16), 9);
+      pumpkinStatic(B, 30, GY - .3, -202, .85, 200, 'lantern2'); pumpkinStatic(B, -14, GY - .3, -206, .7, 160, 'plain');
+      P.blocks.push(H.block('G', 14, -218, 46, -186, { off: true }), H.block('G', -28, -220, 0, -192, { off: true }));
     },
   };
   function buildDecor(rid) {
@@ -535,7 +535,7 @@
   }
 
   // ---------------------------------------------------------------- the carved pumpkin (the kitchen table) and its six steps
-  const PK = { R: 15, Hh: 12, vLid: .2, x: -45, z: 174, y: GY - 77 };
+  const PK = { R: 15, Hh: 12, vLid: .2, x: -45, z: 114, y: GY - 77 };
   let pk = null; // the model and its state
   function buildPumpkin() {
     const kit = H.ROOMS.kitchen; if (!kit || pk) return;
@@ -603,7 +603,7 @@
     BU.ball(0, top - 0.45, 0, 0.6, 0.45, 0.6, twine, 8); for (const s of [-1, 1]) BU.geo(new T.TorusGeometry(1.0, 0.16, 4, 10), s * 1.1, top - 0.45, 0.2, twine, { rx: 80, ry: s * 25, sx: 1.2 });
     BU.box(1.6, top - 0.3, 1.6, 0.22, 0.22, 3.4, twine, { ry: 40 }); BU.box(-1.4, top - 0.3, 1.8, 0.22, 0.22, 3.0, twine, { ry: -35 });
     BU.shadow(0, 0, 0, 34, 26, 0.5, { sq: true }); BB.build(bundle); // (merged per material: four draws)
-    addThing('hw.paper', { obj: bundle, home: { room: 'kitchen', x: -130, y: GY - 45.5, z: 170, ry: 80 }, kind: 'hw.paper', label: 'Old newspapers', holdD: 44 });
+    addThing('hw.paper', { obj: bundle, home: { room: 'kitchen', x: -130, y: GY - 47, z: 110, ry: 80 }, kind: 'hw.paper', label: 'Old newspapers', holdD: 44 });
     addSnap('hw.s.paper', { room: 'kitchen', x: PK.x, y: PK.y - 1, z: PK.z, r: 40, box: [50, 2, 40], pose: { x: PK.x, y: PK.y, z: PK.z, ry: 0, hide: true }, hide: true, hint: 'Spread the newspaper on the table', accepts: k => k === 'hw.paper',
       onSnap: () => { snd.rustle(); Season.step(EID, 'hw-pumpkin', 'paper'); pk.news.visible = true; say('c4.hal.dad', 'Dad', 'Right, pumpkin. How hard can it be? Mind your fingers, now.', true); H.dirty(); } });
     addSpot('hw.pumpkin', { label: () => pumpkinLabel(), obj: pk.root, room: 'kitchen', range: 220, act: () => carve() });
@@ -1118,7 +1118,7 @@
     r.lights = () => {
       const L = (typeof L0 === 'function' ? L0() : L0 || []).slice(); if (!on) return L;
       if (rid === 'drive') { const i = L.findIndex(l => l.x === 360 && l.z === 730); if (i >= 0) L[i] = Object.assign({}, L[i], { c: '#ffb45a', i: porchOn() ? (dark() ? 1 : .25) : 0, d: 440 }); else if (porchOn()) L.push({ x: 360, y: GY - 124, z: 730, c: '#ffb45a', i: dark() ? 1 : .25, d: 440 }); if (litLantern()) L.push({ x: STEP.x, y: STEP.y - 30, z: STEP.z - 20, c: '#ff8a2a', i: dark() ? .55 : 0, d: 220 }); L.push({ x: 480, y: GY - 100, z: 1080, c: '#ff8a2a', i: dark() ? .3 : 0, d: 220 }, { x: -60, y: 280, z: 730, c: '#ff9a3a', i: dark() ? .3 : 0, d: 200 }); }
-      if (rid === 'garden') L.push({ x: 20, y: GY - 30, z: -90, c: '#ff8a2a', i: dark() ? .5 : 0, d: 220 }, { x: -212, y: GY - 205, z: -380, c: '#ffa040', i: dark() ? .4 : 0, d: 260 });
+      if (rid === 'garden') L.push({ x: 20, y: GY - 30, z: -210, c: '#ff8a2a', i: dark() ? .5 : 0, d: 220 }, { x: -230, y: GY - 185, z: -1248, c: '#ffa040', i: dark() ? .4 : 0, d: 260 });
       if (rid === 'hall') L.push({ x: 300, y: GC + 30, z: 680, c: '#ff9a40', i: dark() ? .35 : .12, d: 260 });
       if (rid === 'lounge') { const c=H.ROOMS.lounge.coffeeFrame;L.push({ x: c.x-2, y: GY - 70, z: c.z-8, c: '#7ad86a', i: dark() ? .18 : 0, d: 160 }); }
       return L;

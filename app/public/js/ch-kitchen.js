@@ -6,7 +6,7 @@
  *             middle (Dad insists). They're stacked on the worktop by the kettle.
  *   shopping  two carrier bags on the floor: milk, eggs and cheese in the fridge (the bottom door), peas and fish fingers
  *             in the freezer (the top door), tins and cereal in the cupboard, the bread in the bread bin. Then fold the bags.
- * Mom's list is stuck on the freezer door with a magnet. Kitchen: x -280..195, z -56..295, floor y 353, worktop y 260. */
+ * Mom's list is stuck on the freezer door with a magnet. Kitchen: x -280..195, z -176..295, floor y 353, worktop y 260. */
 (function () {
   'use strict';
   const CK = window.ChoreKit; if (!CK || CK.MODS.washup) return;
@@ -42,7 +42,8 @@
   // used for Bonfire supper). Each remaining
   // dish has its own cold hob ring; the saucepan rests directly on its ring.
   const PILE = [[33, WT, -36, 0], [33, WT - 1.8, -36, 30], [33, WT - 3.5, -36, 70], [4, WT - 1.9, -38, 0], [-24, WT - 1.9, -38, 20], [4, WT - 1.9, -14, 0], [-24, WT - 1.9, -14, 0]];
-  const RACK = { x: -132, z: -9 };
+  PILE.forEach(p=>p[2]-=120);
+  const RACK = { x: -132, z: -129 };
   // where each one stands in the rack: plates on their edges at the back, cups upside down at the front
   // Exact ceramic sizes: 24 cm dinner plates, 18 cm side plate. Their lower
   // edges sit on the cross-wire, faces between the uprights, never tilted through them.
@@ -50,12 +51,13 @@
     { x: -152.35, y: WT - 14.32, z: -8, rz: 90 }, { x: -147.35, y: WT - 14.32, z: -8, rz: 90 }, { x: -142.35, y: WT - 11.32, z: -8, rz: 90 },
     { x: -129.5, y: WT - 7.52, z: 0.5, rx: 180 }, { x: -116, y: WT - 12.32, z: 3, rx: 180 }, { x: -133, y: WT - 14.32, z: -19, rx: 180 }, { x: -117, y: WT - 11.32, z: -16, rx: 180, ry: 90 },
   ];
+  RPOSE.forEach(p=>p.z-=120);
   // the washing-up bowl (red plastic, in the sink: every kitchen in 1999 had one), and the water in it
-  const SINK = { x: -84, y: WT + 12, z: -26 }, LOW = SINK.y - 1, HALF = SINK.y - 5, FULL = SINK.y - 9;
+  const SINK = { x: -84, y: WT + 12, z: -146 }, LOW = SINK.y - 1, HALF = SINK.y - 5, FULL = SINK.y - 9;
   const tubR = y => 11.5 + Math.min(1, (SINK.y - y) / 12.8) * 2.7;
   // Only known factory poses move with a layout correction. Player placements,
   // snapped dishes and finished chore steps retain their saved state.
-  function updateFactoryPose(t,old){if(!t||t.at.hide||t.st!=='rest'||t.at.room!=='kitchen'||!['x','y','z','ry'].every((k,i)=>Math.abs((t.at[k]||0)-old[i])<.11))return;CK.home(t.id)}
+  function updateFactoryPose(t,old){const expected=old.map((v,i)=>i===2?v-(CK.H?.REAR?.extension||0):v);if(!t||t.at.hide||t.st!=='rest'||t.at.room!=='kitchen'||!['x','y','z','ry'].every((k,i)=>Math.abs((t.at[k]||0)-expected[i])<.11))return;CK.home(t.id)}
   let dishes = [], water = null, suds = null, tub = null, sinkSpot = null, soapBottle = null, extraSuds = 0, spongeBrush = null;
   const W = () => (CK.S.v.wash = CK.S.v.wash || { sc: {}, inn: -1 });
   const filled = () => CK.has('washup', 'fill');
@@ -80,7 +82,7 @@
         G.rbox(0,-.3,0,7,.6,4.5,.15,mat('#356a41',{sh:2}));
       });
       sponge.add(spongeBrush);
-      CK.thing('ch.sponge',{obj:sponge,kind:'washsponge',label:'Washing-up sponge',chore:'washup',holdD:40,home:{room:'kitchen',x:-51,y:WT,z:-2,ry:-12},useLabel:'Scrub the dish',use:()=>{
+      CK.thing('ch.sponge',{obj:sponge,kind:'washsponge',label:'Washing-up sponge',chore:'washup',holdD:40,home:{room:'kitchen',x:-51,y:WT,z:-122,ry:-12},useLabel:'Scrub the dish',use:()=>{
         if(H.here!=='kitchen'||Math.hypot(H.W.x-SINK.x,H.W.z-SINK.z)>125)return CK.jack('Washing up','Stand by the sink to use the sponge.');
         const i=inSink();if(i>=0&&CK.has('washup','w'+i))return CK.jack('Washing up','Clean! Put the sponge down, then lift the dish into the rack.');
         sinkClick();
@@ -206,7 +208,7 @@
   // ================================================================ LAY THE TABLE
   const TY = GY - 76; // the table top
   // Clear of all four place settings and the seasonal carving pumpkin.
-  const SAUCE = {room: 'kitchen', x: -87, y: TY, z: 165, ry: 0};
+  const SAUCE = {room: 'kitchen', x: -87, y: TY, z: 105, ry: 0};
   // each place: its mat [x, z, w, d], the plate, the knife and fork [x, z, ry], the glass
   const PLACES = [
     // (each mat sits 3.5 cm in from the rounded table edge, not hanging over it)
@@ -215,6 +217,7 @@
     { mat: [-104.5, 178, 22, 38], p: [-104.5, 172], k: [-104.5, 190, 90], g: [-91.5, 189] },
     { mat: [-15.5, 150, 22, 36], p: [-15.5, 156], k: [-15.5, 139, 90], g: [-28.5, 140] },
   ];
+  PLACES.forEach(p=>{for(const key of ['mat','p','k','g'])p[key][1]-=60;});
   const placeOf = (P, k) => ({ x: P[k][0], z: P[k][1] });
   const tbl = { p: [], k: [], g: [], sauce: null }, tableHomes = {};
   CK.add({
@@ -235,15 +238,15 @@
       const cutM = () => grp(G => { const st = mat('#d4d8de', { sh: 110, sp: '#fff' }); G.box(-1.6, -0.3, 0, 1.4, 0.4, 19, st); G.box(-1.6, -0.35, -7, 1.8, 0.5, 5, mat('#2a1a10')); G.box(1.8, -0.3, 2, 1.2, 0.4, 13, st); G.box(1.8, -0.35, -6, 1.6, 0.5, 6, mat('#2a1a10')); for (let i = 0; i < 4; i++) G.box(1.0 + i * 0.55, -0.3, 10, 0.3, 0.3, 3, st); G.shadow(0, 0, 0, 8, 22, 0.3, { sq: true }); });
       const glassM = () => grp(G => { G.cyl(0, -6, 0, 3.6, 3, 12, 18, M({ c: '#d8ecf4', o: 0.35, sh: 120, sp: '#fff', side: 2 }), { open: true }); G.disc(0, -0.4, 0, 3, M({ c: '#d8ecf4', o: 0.5, sh: 120 }), 16); G.shadow(0, 0, 0, 9, 9, 0.3); });
       for (let i = 0; i < 4; i++) {
-        tbl.p[i] = CK.thing('ch.t.p' + i, { obj: plateM(), kind: 'tplate', label: 'Dinner plate', chore: 'table', holdD: 45, home: { room: 'kitchen', x: -201, y: WT - i * 1.8, z: -4, ry: i * 20 } });
-        tbl.k[i] = CK.thing('ch.t.k' + i, { obj: cutM(), kind: 'tcut', label: 'Knife and fork', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -186 + (i % 2) * 6, y: WT - Math.floor(i / 2) * 0.8, z: -2, ry: 0 } });
-        tbl.g[i] = CK.thing('ch.t.g' + i, { obj: glassM(), kind: 'tglass', label: 'Glass', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -170 + (i % 2) * 8, y: WT, z: -6 + Math.floor(i / 2) * 8, ry: 0 } });
+        tbl.p[i] = CK.thing('ch.t.p' + i, { obj: plateM(), kind: 'tplate', label: 'Dinner plate', chore: 'table', holdD: 45, home: { room: 'kitchen', x: -201, y: WT - i * 1.8, z: -124, ry: i * 20 } });
+        tbl.k[i] = CK.thing('ch.t.k' + i, { obj: cutM(), kind: 'tcut', label: 'Knife and fork', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -186 + (i % 2) * 6, y: WT - Math.floor(i / 2) * 0.8, z: -122, ry: 0 } });
+        tbl.g[i] = CK.thing('ch.t.g' + i, { obj: glassM(), kind: 'tglass', label: 'Glass', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -170 + (i % 2) * 8, y: WT, z: -126 + Math.floor(i / 2) * 8, ry: 0 } });
         if(!CK.has('table','p'+i))updateFactoryPose(tbl.p[i],[-214,WT-i*1.8,-2,i*20]);
         if(!CK.has('table','k'+i))updateFactoryPose(tbl.k[i],[-190+(i%2)*6,WT-Math.floor(i/2)*.8,-2,-10+i*8]);
         if(!CK.has('table','g'+i))updateFactoryPose(tbl.g[i],[-172+(i%2)*8,WT,-6+Math.floor(i/2)*8,0]);
       }
       const ketchup = grp(G => { G.lathe(0, 0, 0, [[0.1, -19], [1.6, -18.6], [1.8, -16], [3.6, -12.5], [3.8, -3], [3.4, 0], [0.1, 0]], 18, M({ c: '#c8100a', sh: 90, sp: '#fff' })); G.cyl(0, -19.5, 0, 1.4, 1.6, 1.6, 12, mat('#f4f4f4')); G.cyl(0, -8, 0, 3.86, 3.86, 7, 18, M({ c: '#fff', map: K.tex('ch.ketchup', 128, 48, flip((g, w, h) => { g.fillStyle = '#f4f0e0'; g.fillRect(0, 0, w, h); A.text(g, 'TOMATO', 64, 22, '700 15px ' + A.FONT, '#c8100a', 'center'); A.text(g, 'KETCHUP', 64, 42, '700 15px ' + A.FONT, '#1a6a1a', 'center'); })) }), { open: true }); G.shadow(0, 0, 0, 10, 10, 0.4); });
-      tbl.sauce = CK.thing('ch.t.sauce', { obj: ketchup, kind: 'sauce', label: 'Ketchup', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -168, y: WT, z: -20, ry: 0 } });
+      tbl.sauce = CK.thing('ch.t.sauce', { obj: ketchup, kind: 'sauce', label: 'Ketchup', chore: 'table', holdD: 40, home: { room: 'kitchen', x: -168, y: WT, z: -140, ry: 0 } });
       if(!CK.has('table','sauce'))updateFactoryPose(tbl.sauce,[-156,WT,4,0]);
       for (const t of [...tbl.p, ...tbl.k, ...tbl.g, tbl.sauce]) tableHomes[t.id] = Object.assign({}, t.home);
       // where they go
@@ -279,7 +282,7 @@
     },
     reset() { for (const t of [...tbl.p, ...tbl.k, ...tbl.g, tbl.sauce]) if (t) { t.home = Object.assign({}, tableHomes[t.id]); CK.lock(t.id, false); CK.home(t.id); } },
   });
-  function isPlaced(t) { return Math.abs(t.at.y - TY) < 1.5 && t.at.x > -125 && t.at.x < 5 && t.at.z > 125 && t.at.z < 215; }
+  function isPlaced(t) { return Math.abs(t.at.y - TY) < 1.5 && t.at.x > -125 && t.at.x < 5 && t.at.z > 65 && t.at.z < 155; }
   CK.whenBuilt('kitchen', () => CK.guard('hs.ktable', () => { if (CK.done('table')) return false; CK.jack('The kitchen table', CK.started('table') ? 'Plate in the middle of each mat, knife and fork by it, a glass. Ketchup in the middle.' : 'Tea\'s at six. The plates, knives and forks and glasses are on the worktop by the kettle. Four of everything.', 4000); return true; }));
 
   // ================================================================ PUT THE SHOPPING AWAY
@@ -291,6 +294,7 @@
     ['bread', 'Sliced white', 'breadbin'],
   ];
   const WHERE = { fridge: { x: -247.5, y: GY - 62, z: 22, r: 40, n: 'in the fridge (bottom door)' }, freezer: { x: -247.5, y: GY - 140, z: 22, r: 32, n: 'in the freezer (top door)' }, cupboard: { x: -187, y: GC() + 80, z: -12, r: 32, n: 'in the cupboard' }, breadbin: { x: 63, y: WT - 12, z: -32, r: 30, n: 'in the bread bin' } };
+  Object.values(WHERE).forEach(p=>p.z-=120);
   function GC() { return 95; }
   const SHOPPRINT = {
     milk: ['pack.milk', ['SEMI-SKIMMED', '4 PINTS'], '#2a9a3a'],
@@ -370,5 +374,5 @@
   }
 
   // ================================================================ Mom's list, on the freezer door (under a magnet shaped like a strawberry)
-  CK.add({ id: '_list.kitchen', room: 'kitchen', build(r) { CK.paper(r, -257, GY - 140, 16.6, 0, { id: 'ch.list.kitchen', w: 22, magnet: '#e02a3a' }); } });
+  CK.add({ id: '_list.kitchen', room: 'kitchen', build(r) { CK.paper(r, -257, GY - 140, -103.4, 0, { id: 'ch.list.kitchen', w: 22, magnet: '#e02a3a' }); } });
 })();

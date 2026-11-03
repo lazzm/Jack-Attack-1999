@@ -6,6 +6,8 @@
   const SE = window.Season, H = window.House, R = window.Room, C = window.SeasonCat;
   if (!SE || !H?.ok || !R || window.Bonfire) return;
   const T = H.T, K = H.K, M = K.mat, EID = 'bonfire99', GY = 353, D = Math.PI / 180;
+  // Keep metres of separation between the patio spectators and Dad's display.
+  const gardenZ = z => Math.round((-176+(z+56)*1300/504)*10)/10;
   const state = () => SE.st(EID) || {}, got = (o, s) => !!state().steps?.[o]?.[s], done = o => !!state().obj?.[o];
   const ITEMS = {}, DEC = {}, PARTS = [], low = () => H.Q?.adapt >= 3 || H.Q?.mob || /low|potato/.test(H.Q?.tier), enabled = () => on && state().open;
   let on = false, phase = null, built = false, building = false, work = null, catHome = null, catAct0 = null, nextSky = 0, nextFire = 0, lastStage = '', lastCrackle = 0;
@@ -103,8 +105,8 @@
     H.ROOMS[t.at.room].things.add(t.obj); H.place(t); H.layerFor(t);
   }
   const WOOD = ['paper', 'kindling', 'branch1', 'branch2', 'box1', 'branch3', 'box2', 'branch4', 'branch5', 'box3'];
-  const PILE = { x: -65, y: GY, z: -402 }, TABLE = { x: -60, y: GY - 76, z: 201 }, WHEEL = {x:-20,z:-520};
-  const woodHome = i => ({ x: -116 + i % 2 * 75, y: GY, z: -350 + Math.floor(i / 2) * 33 });
+  const PILE = { x: -65, y: GY, z: -1068.5 }, TABLE = { x: -60, y: GY - 76, z: 141 }, WHEEL = {x:-20,z:-1372.8};
+  const woodHome = i => ({ x: -116 + i % 2 * 75, y: GY, z: gardenZ(-350 + Math.floor(i / 2) * 33) });
   function woodModel(B, id, i) {
     if (id === 'paper') newspaper(B, 0, 0, 0, 1.2);
     else if (id.startsWith('box')) { B.box(0, -9, 0, 29, 18, 24, mat.card); B.box(0, -18.2, 0, 3, .3, 24, mat.string); for (const z of [-12.2, 12.2]) B.box(0, -8, z, 14, 4, .3, mat.paper); }
@@ -177,12 +179,12 @@
     const b = K.batch(), A = K.into(b); A.cyl(27, 9, -35, 11, 11, 2, 12, mat.dark); A.cyl(27, 4.5, -35, 6.8, 7.8, 7, 12, mat.dark); b.build(guy);
     spot('bf.guy', 'kitchen', TABLE.x, TABLE.y - 10, TABLE.z - 20, 58, 36, 80, () => done('bf-guy') ? 'The newspaper work mat' : SE.cast('Make the Guy with {sister}'), () => openWork('guy'));
     thing('bf.guy.ready', 'kitchen', TABLE.x, TABLE.y, TABLE.z, 'Our finished Guy', 'bf.guy', B => { guyModel(B, true); }, { canGrab: () => got('bf-guy', 'hat') && !done('bf-guy') });
-    guyChair = group('guy-chair', 'garden', -154, GY, -201, B => {
+    guyChair = group('guy-chair', 'garden', -154, GY, -550, B => {
       B.box(0, -42, 0, 37, 4, 35, mat.wood); for (const x of [-15, 15]) for (const z of [-14, 14]) B.box(x, -22, z, 3, 44, 3, mat.wood);
       for (const x of [-15, 15]) B.box(x, -63, -14, 3, 39, 3, mat.wood); for (const y of [-64, -79]) B.box(0, y, -14, 30, 7, 3, mat.wood); B.shadow(0, 0, 0, 50, 50, .45);
     });
-    DEC.guySeated = group('guy-seated', 'garden', -154, GY - 43, -201, B => { guyModel(B, 'seated'); }); DEC.guySeated.rotation.y = 15 * D;
-    snap('bf.s.guy', 'garden', -154, GY - 44, -201, [42, 70, 38], 'bf.guy', 'Sit the Guy on his chair', () => { SE.step(EID, 'bf-guy', 'place'); say('guy.ready', '{sister}', "He looks just like Dad on a Sunday. Can we keep him? Penny for the Guy! He only takes pretend pennies."); }, { y: GY - 43, ry: 15, hide: true });
+    DEC.guySeated = group('guy-seated', 'garden', -154, GY - 43, -550, B => { guyModel(B, 'seated'); }); DEC.guySeated.rotation.y = 15 * D;
+    snap('bf.s.guy', 'garden', -154, GY - 44, -550, [42, 70, 38], 'bf.guy', 'Sit the Guy on his chair', () => { SE.step(EID, 'bf-guy', 'place'); say('guy.ready', '{sister}', "He looks just like Dad on a Sunday. Can we keep him? Penny for the Guy! He only takes pretend pennies."); }, { y: GY - 43, ry: 15, hide: true });
   }
   function potato(B, x, y, z, foil) {
     B.ball(x, y - 4, z, 7, 4, 5, foil ? mat.foil : mat.potato, 9);
@@ -193,7 +195,7 @@
     for (const x of [-8, 8]) for (const z of [-6, 6]) potato(B, x, -2, z, true); B.shadow(0, 0, 0, 43, 32, .3);
   }
   function makeFood() {
-    DEC.food = group('food-work', 'kitchen', -174, GY - 93, -18, B => {
+    DEC.food = group('food-work', 'kitchen', -174, GY - 93, -138, B => {
       B.box(0, -.6, 0, 36, 1.2, 27, mat.wood);
       const bowl = B.at(35, 0, 0); bowl.lathe(0, 0, 0, [[0, 0], [8, 0], [11, -8], [10, -8], [7, -1], [0, -1]], 14, mat.paper); bowl.cyl(0, -5, 0, 9.4, 9.4, .5, 14, mat.water);
       B.box(18, -1.5, 13, 3, 2, 12, mat.wood); for (const x of [17, 18, 19]) B.cyl(x, -1.5, 5, .2, .2, 5, 5, mat.metal, { rx: 90 });
@@ -205,10 +207,10 @@
       const b = K.batch(), B = K.into(b); for (let j = 0; j < 4; j++) B.cyl(-3 + j * 2, -8.6, 0, .35, .35, .25, 5, mat.ink); b.build(mark); mark.position.set(x, 0, z); DEC.food.add(mark);
       foodPotatoes.push(raw); foilPotatoes.push(foil); prickMarks.push(mark); foil.visible = false; mark.visible = false;
     }
-    spot('bf.food', 'kitchen', -174, GY - 99, -18, 44, 20, 32, 'Prepare the jacket potatoes with Mom', () => openWork('food'));
-    foodTray = thing('bf.tray', 'kitchen', -174, GY - 93, -18, "Mom's hot supper tray (oven gloves on)", 'bf.food', trayModel, { canGrab: () => got('bf-food', 'gloves') && !done('bf-food') });
-    snap('bf.s.supper', 'garden', -108, GY - 66, -106, [68, 12, 42], 'bf.food', 'Put supper on the garden table', () => { SE.step(EID, 'bf-food', 'serve'); say('supper', 'Mom', "Cheese and beans in your jacket potato? Parkin in the tin, treacle toffee on the plate. Mind your teeth. Hot sugar is my job, thank you."); });
-    DEC.supper = group('supper-table', 'garden', -108, GY, -106, B => { B.box(0, -64, 0, 70, 4, 43, mat.wood); for (const x of [-29, 29]) for (const z of [-15, 15]) B.box(x, -31, z, 4, 62, 4, mat.wood); B.shadow(0, 0, 0, 80, 54, .4); });
+    spot('bf.food', 'kitchen', -174, GY - 99, -138, 44, 20, 32, 'Prepare the jacket potatoes with Mom', () => openWork('food'));
+    foodTray = thing('bf.tray', 'kitchen', -174, GY - 93, -138, "Mom's hot supper tray (oven gloves on)", 'bf.food', trayModel, { canGrab: () => got('bf-food', 'gloves') && !done('bf-food') });
+    snap('bf.s.supper', 'garden', -108, GY - 66, -305, [68, 12, 42], 'bf.food', 'Put supper on the garden table', () => { SE.step(EID, 'bf-food', 'serve'); say('supper', 'Mom', "Cheese and beans in your jacket potato? Parkin in the tin, treacle toffee on the plate. Mind your teeth. Hot sugar is my job, thank you."); });
+    DEC.supper = group('supper-table', 'garden', -108, GY, -305, B => { B.box(0, -64, 0, 70, 4, 43, mat.wood); for (const x of [-29, 29]) for (const z of [-15, 15]) B.box(x, -31, z, 4, 62, 4, mat.wood); B.shadow(0, 0, 0, 80, 54, .4); });
     const cakeUnit = thing('bf.parkin', 'kitchen', -246, GY, 300, 'Parkin and treacle toffee on the side unit', 'bf.supper-unit', B => {
       B.box(0,-91,0,56,4,72,mat.wood);for(const x of [-23,23])for(const z of [-30,30])B.box(x,-45,z,4,90,4,mat.wood); B.box(0,-18,0,49,3,64,mat.wood);B.shadow(0,0,0,64,80,.4);B=B.at(0,-93,0);
       B.box(0, -2, 0, 32, 4, 26, mat.metal); for (const x of [-9, 0, 9]) for (const z of [-6, 5]) B.rbox(x, -5.5, z, 8, 7, 9, .5, mat.cake);
@@ -218,43 +220,43 @@
     DEC.cakes = cakeUnit.obj;
   }
   function makeCode() {
-    DEC.tin = group('tin', 'garden', -184, GY - 156, -383, B => {
+    DEC.tin = group('tin', 'garden', -184, GY - 156, -1251, B => {
       B.box(0, 2, -3, 61, 4, 30, mat.wood); for (const x of [-22, 22]) { B.box(x, 13, -18.5, 3, 25, 3, mat.metal); B.box(x, 11, -4, 3, 3, 28, mat.metal, {rx:-40}); } B.rbox(0, -15, -3, 49, 30, 25, 2, mat.metal); B.box(0, -32, -3, 51, 3, 27, mat.dark);
       sign(B, 'tin', 0, -17, 10, ['FIZZLE & POP', 'FAMILY SELECTION', 'DAD KEEPS THE KEY'], 45, 24); B.box(17, -25, 11, 4, 6, 2, mat.metal);
     });
-    spot('bf.tin', 'garden', -184, GY - 173, -370, 51, 34, 8, 'Closed tin on the high shed-wall shelf — Dad keeps the key', () => { SE.step(EID, 'bf-code', 'tin'); say('tin', 'Dad', 'Shop-bought, in their closed tin, up out of reach. No fireworks in pockets. I read the instructions and light one at a time. You watch from behind the rope.'); });
-    DEC.bucketEmpty = group('bucket-empty', 'garden', 12, GY, -137, B => bucket(B, false));
-    DEC.bucketFull = group('bucket-full', 'garden', 12, GY, -137, B => { bucket(B, true); sign(B, 'bucket', 0, -13, 12, ['WATER', 'HOT ENDS DOWN'], 18, 10); });
-    spot('bf.water', 'garden', 180, GY - 18, -76, 20, 28, 12, 'Fill the sparkler bucket from the water butt', () => { SE.step(EID, 'bf-code', 'water'); sound.hiss(); say('water', 'Dad', 'Bucket filled and parked behind the rope. Used sparklers go in hot end first. The wire stays hot, even when it looks cold.'); });
+    spot('bf.tin', 'garden', -184, GY - 173, -1238, 51, 34, 8, 'Closed tin on the high shed-wall shelf — Dad keeps the key', () => { SE.step(EID, 'bf-code', 'tin'); say('tin', 'Dad', 'Shop-bought, in their closed tin, up out of reach. No fireworks in pockets. I read the instructions and light one at a time. You watch from behind the rope.'); });
+    DEC.bucketEmpty = group('bucket-empty', 'garden', 12, GY, -384.9, B => bucket(B, false));
+    DEC.bucketFull = group('bucket-full', 'garden', 12, GY, -384.9, B => { bucket(B, true); sign(B, 'bucket', 0, -13, 12, ['WATER', 'HOT ENDS DOWN'], 18, 10); });
+    spot('bf.water', 'garden', 235, GY - 18, -196, 20, 28, 12, 'Fill the sparkler bucket from the water butt', () => { SE.step(EID, 'bf-code', 'water'); sound.hiss(); say('water', 'Dad', 'Bucket filled and parked behind the rope. Used sparklers go in hot end first. The wire stays hot, even when it looks cold.'); });
     const butt=H.SPOTS['hs.butt'];if(butt){const original=butt.act;butt.act=()=>enabled()&&phase!=='tail'?H.SPOTS['bf.water'].act():original?.();}
-    DEC.line = group('watching-line', 'garden', 0, GY, -181, B => {
+    DEC.line = group('watching-line', 'garden', 0, GY, -498.4, B => {
       for (const x of [-126, 20]) { B.cyl(x, -32, 0, 2, 2.5, 64, 8, mat.wood); B.shadow(x, 0, 0, 10, 10, .3); }
       B.cyl(-53, -52, 0, .65, .65, 146, 6, mat.string, { rz: 90 });
       sign(B, 'line', -53, -60, 1, ['WATCH FROM HERE', 'STAND WELL BACK', 'NEVER GO BACK'], 65, 30, '#dfcb86');
     });
-    spot('bf.line', 'garden', -53, GY - 62, -178, 67, 34, 3, () => catchup() ? 'Watch Dad’s leftovers from the rope' : 'Read the watching-line notice', () => { if (catchup()) return startDisplay(); SE.step(EID, 'bf-code', 'line'); say('line', 'Dad', 'Everyone stays behind the rope. Always follow the distance on the box. Never throw fireworks and NEVER go back to one, even if it has gone quiet. Leave it to me.'); });
-    DEC.taper = group('taper', 'garden', -176, GY - 73, -351, B => {
+    spot('bf.line', 'garden', -53, GY - 62, -490.7, 67, 34, 3, () => catchup() ? 'Watch Dad’s leftovers from the rope' : 'Read the watching-line notice', () => { if (catchup()) return startDisplay(); SE.step(EID, 'bf-code', 'line'); say('line', 'Dad', 'Everyone stays behind the rope. Always follow the distance on the box. Never throw fireworks and NEVER go back to one, even if it has gone quiet. Leave it to me.'); });
+    DEC.taper = group('taper', 'garden', -176, GY - 73, -1219, B => {
       B.box(0, 0, 0, 27, 3, 16, mat.wood); for (const x of [-10, 10]) B.box(x, 36, 0, 3, 72, 3, mat.wood);
       B.cyl(0, -3, 0, .6, .6, 24, 6, mat.string, { rz: 90 }); B.cyl(0, -3, -5, 1.6, 1.6, 12, 8, mat.dark, { rz: 90 });
     });
-    spot('bf.taper', 'garden', -176, GY - 77, -351, 32, 15, 20, "Dad's taper and torch", () => {
+    spot('bf.taper', 'garden', -176, GY - 77, -1219, 32, 15, 20, "Dad's taper and torch", () => {
       if (!['tin', 'water', 'pets', 'line'].every(s => got('bf-code', s))) return say('code.wait', 'Dad', 'Closed tin, water, pets indoors, watching line. Check all four first. Then we can talk about the taper.');
       SE.step(EID, 'bf-code', 'taper'); say('taper', 'Dad', 'A long taper, at arm length. One adult in charge: me. Check! We light the bonfire after checking it for animals. No petrol or paraffin. All ready for Friday evening.');
     });
-    DEC.gear = group('warm-clothes', 'kitchen', 44, GY, 53, B => {
+    DEC.gear = group('warm-clothes', 'kitchen', 174, GY, -148, B => {
       wellies(B, 0, 0); B.box(0, -51, 0, 34, 4, 22, mat.wood); for (const x of [-14, 14]) B.box(x, -25, 0, 3, 50, 3, mat.wood);
       glove(B, -8, -54, 0); glove(B, 5, -54, 0); B.ball(2, -57, -7, 11, 7, 9, mat.red, 10); B.cyl(2, -54, -7, 11, 11, 4, 12, mat.red); B.ball(2, -64, -7, 3, 3, 3, mat.string, 7);
     });
-    spot('bf.gloves', 'kitchen', 44, GY - 57, 53, 35, 20, 27, 'Put on warm gloves and hat', () => {
+    spot('bf.gloves', 'kitchen', 174, GY - 57, -148, 35, 20, 27, 'Put on warm gloves and hat', () => {
       if (!done('bf-code') || phase !== 'day') return say('gloves.wait', 'Mom', 'Hat, gloves, wellies. It will be cold tonight. Do the Firework Code with Dad before the sparklers.');
       SE.step(EID, 'bf-sparkler', 'gloves'); say('c4.bon.mom', 'Mom', 'Gloves on! And nobody waves one near anyone else.');
     });
-    DEC.sparklers = group('sparklers', 'garden', -23, GY - 48, -137, B => {
+    DEC.sparklers = group('sparklers', 'garden', -23, GY - 48, -384.9, B => {
       B.box(0, 1, 0, 28, 2, 20, mat.wood); for (const x of [-10, 10]) B.box(x, 24, 0, 3, 48, 3, mat.wood);
       B.box(0, -1.5, 0, 22, 3, 9, mat.blue); sign(B, 'sparklers', 0, -4, 4.7, ['STAR SCRIBBLERS', 'GLOVES ON!'], 22, 7);
       for (let i = 0; i < 3; i++) B.cyl(-6 + i * 4, -4, -1, .23, .23, 25, 5, mat.metal, { rz: 90 });
     });
-    spot('bf.sparklers', 'garden', -23, GY - 54, -137, 30, 17, 21, 'Dad lights one sparkler', () => {
+    spot('bf.sparklers', 'garden', -23, GY - 54, -384.9, 30, 17, 21, 'Dad lights one sparkler', () => {
       if (!done('bf-light')) return say('sparkler.wait', 'Dad', 'Display first, sparklers afterwards. I have not forgotten.');
       if (!got('bf-sparkler', 'gloves')) return say('sparkler.gloves', 'Mom', 'Gloves first! They are on the stool by the back door.');
       if (done('bf-sparkler')) return say('sparkler.done', 'Dad', done('bf-bucket') ? 'That was lovely. All the hot wires are in the water. Supper time.' : 'Hot wire into the bucket now, please.');
@@ -262,19 +264,19 @@
       say('c4.bon.dad', 'Dad', 'Right. Sparklers. Gloves on, everyone. Hold it by the bottom, point it away, stay back.');
       openWork('sparkler');
     });
-    thing('bf.spent', 'garden', -23, GY - 50, -137, 'Used sparkler — still hot! Hold the cool end', 'bf.spent', B => { B.cyl(0, -9, 0, .3, .3, 18, 5, mat.metal); B.cyl(0, -22, 0, .7, .7, 9, 6, mat.coal); }, { canGrab: () => done('bf-sparkler') && !done('bf-bucket') });
-    snap('bf.s.bucket', 'garden', 12, GY - 20, -137, [24, 20, 24], 'bf.spent', 'Lower the hot end into the water', () => { SE.step(EID, 'bf-bucket', 'cool'); sound.hiss(); say('cooled', 'Dad', 'Hot end down. Lovely. You remembered the important bit. Leave the wires in the water.'); }, { hide: true });
-    DEC.torchStool = group('torch-stool', 'garden', -60, GY, -143, B => { B.cyl(0, -45, 0, 16, 16, 3, 12, mat.wood); for (const a of [0, 2.094, 4.189]) B.cyl(Math.cos(a) * 10, -22, Math.sin(a) * 10, 1.8, 2.5, 44, 8, mat.wood); B.shadow(0, 0, 0, 39, 39, .4); });
-    DEC.torch = group('torch', 'garden', -60, GY - 47, -143, B => { B.cyl(0, 0, 0, 2.2, 3.2, 19, 10, mat.dark, { rx: 90 }); B.cyl(0, 0, 10, 3.4, 3.4, 2, 10, mat.metal, { rx: 90 }); B.cyl(0, 0, 11.2, 2.8, 2.8, .5, 10, mat.yellow, { rx: 90 }); });
-    const torch = R.grabbable('bf.torch', { obj: DEC.torch, noSave: true, home: { room: 'garden', x: -60, y: GY - 47, z: -143, ry: 0 }, kind: 'bf.torch', label: 'Hold the torch for Dad / watch the display', holdD: 35, useLabel: 'Hold the torch for Dad', use: startDisplay, canGrab: () => phase === 'day' && done('bf-code') && done('bf-wood') });
+    thing('bf.spent', 'garden', -23, GY - 50, -384.9, 'Used sparkler — still hot! Hold the cool end', 'bf.spent', B => { B.cyl(0, -9, 0, .3, .3, 18, 5, mat.metal); B.cyl(0, -22, 0, .7, .7, 9, 6, mat.coal); }, { canGrab: () => done('bf-sparkler') && !done('bf-bucket') });
+    snap('bf.s.bucket', 'garden', 12, GY - 20, -384.9, [24, 20, 24], 'bf.spent', 'Lower the hot end into the water', () => { SE.step(EID, 'bf-bucket', 'cool'); sound.hiss(); say('cooled', 'Dad', 'Hot end down. Lovely. You remembered the important bit. Leave the wires in the water.'); }, { hide: true });
+    DEC.torchStool = group('torch-stool', 'garden', -60, GY, -400.4, B => { B.cyl(0, -45, 0, 16, 16, 3, 12, mat.wood); for (const a of [0, 2.094, 4.189]) B.cyl(Math.cos(a) * 10, -22, Math.sin(a) * 10, 1.8, 2.5, 44, 8, mat.wood); B.shadow(0, 0, 0, 39, 39, .4); });
+    DEC.torch = group('torch', 'garden', -60, GY - 47, -400.4, B => { B.cyl(0, 0, 0, 2.2, 3.2, 19, 10, mat.dark, { rx: 90 }); B.cyl(0, 0, 10, 3.4, 3.4, 2, 10, mat.metal, { rx: 90 }); B.cyl(0, 0, 11.2, 2.8, 2.8, .5, 10, mat.yellow, { rx: 90 }); });
+    const torch = R.grabbable('bf.torch', { obj: DEC.torch, noSave: true, home: { room: 'garden', x: -60, y: GY - 47, z: -400.4, ry: 0 }, kind: 'bf.torch', label: 'Hold the torch for Dad / watch the display', holdD: 35, useLabel: 'Hold the torch for Dad', use: startDisplay, canGrab: () => phase === 'day' && done('bf-code') && done('bf-wood') });
     torch.noSave = true; ITEMS['bf.torch'] = 'thing';
     spot('bf.petcheck', 'bedroom', 122, 70, 112, 25, 10, 25, 'Check the cat is safe indoors', () => { SE.step(EID, 'bf-code', 'pets'); say('cat', 'Mom', '{cat} is indoors with the curtains shut. Let {cat.him} hide under the bed; keep the noise down in here. No need to pull {cat.him} out.'); });
     // The cold rubbish is available only after Dad's morning inspection, never during the display.
     for (let i = 1; i <= 6; i++) {
-      const x = -150 + i % 3 * 35, z = -300 - Math.floor((i - 1) / 3) * 42;
+      const x = -150 + i % 3 * 35, z = gardenZ(-300 - Math.floor((i - 1) / 3) * 42);
       thing('bf.clean.' + i, 'garden', x, GY, z, i % 2 ? 'A cold spent rocket stick (Dad checked it)' : 'A cold supper wrapper', 'bf.rubbish', B => { if (i % 2) {const A=B.at(0,0,0,i*34);A.box(0,-.5,2,.65,.65,43,mat.wood);A.box(0,-.55,-15,.7,.7,9,mat.coal);A.cyl(0,-1.65,-14,1.15,1.05,6,10,M('#4a4035'),{rx:90});A.cyl(0,-1.65,-17.1,.8,.8,.2,10,mat.coal,{rx:90});B.box(0,-2,0,8,6,45,new T.MeshBasicMaterial({visible:false})); } else B.box(0, -.5, 0, 10, 1, 8, mat.foil, { rz: 5 }); B.shadow(0, 0, 0, 17, 35, .25); }, { canGrab: () => phase === 'tail' && !got('bf-clean', 'c' + i) });
     }
-    R.addSnap('bf.s.bin', { room: 'garden', x: 160, y: GY - 113, z: -190, r: 52, box: [58, 5, 70], hide: true, pose: { x: 160, y: GY - 90, z: -190, hide: true }, hint: 'Dad checked these: into the bin', accepts: k => k === 'bf.rubbish' && phase === 'tail', onSnap: t => SE.step(EID, 'bf-clean', 'c' + t.id.split('.').pop()) }); ITEMS['bf.s.bin'] = 'snap';
+    R.addSnap('bf.s.bin', { room: 'garden', x: 370, y: GY - 113, z: -280, r: 52, box: [58, 5, 70], hide: true, pose: { x: 370, y: GY - 90, z: -280, hide: true }, hint: 'Dad checked these: into the bin', accepts: k => k === 'bf.rubbish' && phase === 'tail', onSnap: t => SE.step(EID, 'bf-clean', 'c' + t.id.split('.').pop()) }); ITEMS['bf.s.bin'] = 'snap';
   }
 
   // ------------------------------------------------ close-ups: gestures land on physical work surfaces, never a 2D mini-game canvas.
@@ -316,9 +318,9 @@
     if (kind !== 'sparkler' && done(oid(kind))) return say('already', kind === 'food' ? 'Mom' : '{sister}', kind === 'food' ? 'Supper is on the garden table. Help yourself.' : 'Our Guy is sitting in the garden, guarding the parkin.');
     if (kind === 'guy' && got('bf-guy', 'hat')) return say('carry.guy', '{sister}', 'E carries him out to his garden chair. Careful with his head!');
     if (kind === 'food' && got('bf-food', 'gloves')) return say('carry.food', 'Mom', 'E carries the tray to the little garden table. Gloves on, mind.');
-    const p = kind === 'guy' ? { x: -65, y: TABLE.y - 76, z: 220, rx: -48, ry: 0, lvl: 'G' }
-      : kind === 'food' ? { x: -174, y: GY - 161, z: 69, rx: -46, ry: 0, lvl: 'G' }
-        : { x: -60, y: GY - 143, z: -135, rx: 3, ry: 0, lvl: 'G' };
+    const p = kind === 'guy' ? { x: -65, y: TABLE.y - 76, z: 160, rx: -48, ry: 0, lvl: 'G' }
+      : kind === 'food' ? { x: -174, y: GY - 161, z: -51, rx: -46, ry: 0, lvl: 'G' }
+        : { x: -60, y: GY - 143, z: -379.8, rx: 3, ry: 0, lvl: 'G' };
     bar.classList.toggle('bf-sparkler',kind==='sparkler');
     work = { kind, step: null, down: false, ink: [], n: 0, sectors: new Set() };
     if (!H.focus({ ...p, seat: 1 }, { ms: 650, label: 'Put the tools down', enter: nextWork, exit: closeWork })) { work = null; return; }
@@ -456,13 +458,13 @@
       const a = geometry.attributes.position; for (let j = 0; j < a.count; j++) { const y = a.getY(j), k = (height/2-y)/height; a.setXYZ(j, a.getX(j)+Math.sin(k*6+i)*k*5, y, a.getZ(j)+Math.cos(k*5+i)*k*4); } geometry.computeVertexNormals();
       const m = new T.Mesh(geometry, i % 3 ? mat.flame : mat.yellow); m.position.set(Math.sin(i*2.4)*23, -height/2+5, Math.cos(i*2.4)*23); m.userData.noPick = true; fire.add(m); tongues.push(m);
     }
-    DEC.launch = group('launch-area', 'garden', 38, GY, -455, B => { B = B.at(0,0,0);  B.cyl(0, -5, 0, 1, 4.5, 10, 10, mat.red); B.cyl(0, -10.5, 0, .3, .3, 1.3, 6, mat.string); B.cyl(18, -7, 0, 8, 9, 14, 12, mat.metal); B.cyl(18, -14.2, 0, 7.2, 7.2, .5, 12, mat.end); B.cyl(18, -21, 0, .45, .45, 28, 8, mat.dark); B.cyl(18, -36, 0, 1.8, 1.8, 10, 8, mat.blue); B.cyl(18, -43, 0, .1, 2, 4, 8, mat.red); B.shadow(8, 0, 0, 44, 33, .4); });
+    DEC.launch = group('launch-area', 'garden', 38, GY, -1205.2, B => { B = B.at(0,0,0);  B.cyl(0, -5, 0, 1, 4.5, 10, 10, mat.red); B.cyl(0, -10.5, 0, .3, .3, 1.3, 6, mat.string); B.cyl(18, -7, 0, 8, 9, 14, 12, mat.metal); B.cyl(18, -14.2, 0, 7.2, 7.2, .5, 12, mat.end); B.cyl(18, -21, 0, .45, .45, 28, 8, mat.dark); B.cyl(18, -36, 0, 1.8, 1.8, 10, 8, mat.blue); B.cyl(18, -43, 0, .1, 2, 4, 8, mat.red); B.shadow(8, 0, 0, 44, 33, .4); });
     DEC.wheel = group('wheel', 'garden', WHEEL.x, GY - 160, WHEEL.z, B => { B.box(0, 75, 0, 6, 170, 6, mat.wood); B.cyl(0, 0, 4, 14, 14, 3, 16, mat.card, { rx: 90 }); B.cyl(0, 0, 6, 2, 2, 3, 8, mat.metal, { rx: 90 }); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2; B.cyl(Math.cos(a) * 9, Math.sin(a) * 9, 6, 1.5, 1.5, 9, 8, mat.red, { rz: i * 90 }); } });
     // A shared exclusion for the hot area; switched off outside the display, never across the back-door route.
     DEC.smoke = new T.Group(); DEC.smoke.name = 'bonfire-smoulder'; DEC.smoke.position.set(PILE.x, GY - 7, PILE.z); H.ROOMS.garden.group.add(DEC.smoke);
     for (let i = 0; i < 3; i++) { const m = new T.Mesh(new T.IcosahedronGeometry(1, 1), new T.MeshBasicMaterial({ color: '#adb0a8', transparent: true, opacity: .08, depthWrite: false })); m.userData.noPick = true; DEC.smoke.add(m); }
     H.ambient.add(now => { if (!on || !(phase === 'tail' || showStart()) || !H.ROOMS.garden.group.visible || now < (DEC.smoke.userData.next || 0)) return false; DEC.smoke.userData.next = now + 150; DEC.smoke.children.forEach((m, i) => { const k = (now / 5500 + i / 3) % 1; m.position.set(k * 13 + Math.sin(i * 7) * 8, -k * (phase === 'tail' ? 54 : 190), Math.cos(i * 7) * 8); m.scale.set(4 + k * 12, 3 + k * 8, 4 + k * 10); m.material.opacity = Math.sin(k * Math.PI) * (phase === 'tail' ? .065 : .11); }); return true; });
-    const guard = H.block('G', -132, -478, 15, -311, { off: true }); DEC.guard = guard;
+    const guard = H.block('G', -132, gardenZ(-478), 15, gardenZ(-311), { off: true }); DEC.guard = guard;
   }
   const eveningHour = () => { const t = SE.today(); return t.hour + (t.owner ? 0 : (window.Seasons?.now?.() || new Date()).getMinutes() / 60); };
   const showStart = () => state().steps?.['bf-light']?.start || 0;
@@ -478,7 +480,7 @@
     if (phase === 'day' && H.held() !== 'bf.torch' && (H.held() || !H.grab('bf.torch'))) return;
     if (starting) { SE.step(EID, 'bf-light', 'start', { hour: eveningHour() }); nextFire = 0; lastStage = ''; say('display.start', 'Dad', catchup() ? 'Missed Friday? I saved a few. No jobs tonight: just stay behind the rope and watch. I do all the lighting. The show carries on if you leave; come back here to finish.' : 'I have checked for animals. Torch this way, everyone behind the rope. I light one, then come back. The display carries on if you leave; come back to the rope to finish.'); }
     else say('display.resume', 'Dad', stageAt() === 'over' ? 'You are back! All finished safely. Stay at the rope while I check everything.' : 'The display carried on. Come back behind the rope and look up.');
-    if(H.here==='garden' && H.P.z>-220 && H.P.z<30) H.glideTo({x:-60,y:GY-H.STAND,z:-74,rx:8,ry:0,lvl:'G',seat:0},{ms:650,kind:'bonfire-watch'}); else {H.P.rx=8;H.P.ry=0;H.dirty();}
+    if(H.here==='garden' && H.P.z>gardenZ(-220) && H.P.z< -200) H.glideTo({x:-60,y:GY-H.STAND,z:-405,rx:8,ry:0,lvl:'G',seat:0},{ms:650,kind:'bonfire-watch'}); else {H.P.rx=8;H.P.ry=0;H.dirty();}
   }
   function stageAt() { if (!showStart() || phase === 'tail' && !leftover()) return null; const s = (Date.now() - showStart()) / duration(); return s < .195 ? 'fountain' : s < .39 ? 'wheel' : s < .612 ? 'rocket' : s < 1 ? 'finale' : 'over'; }
   function tick(now, dt) {
@@ -486,15 +488,15 @@
     const frameSeconds=Math.min(2,Math.max(.001,(now-(tick.lastTime||now-16))/1000));tick.lastTime=now;
     const t = SE.today(), night = t.hour >= 17 && t.hour < 24, visible = H.ROOMS.garden?.group.visible || H.ROOMS.bedroom?.group.visible || H.ROOMS.kitchen?.group.visible;
     const stage = night ? stageAt() : null;
-    if (night && visible && now > nextSky) { nextSky = now + (low() ? 10500 : 7000) + Math.random() * 5000; rocket(-600 + Math.random() * 1500, -900 - Math.random() * 750, Math.floor(Math.random() * 5), true); }
+    if (night && visible && now > nextSky) { nextSky = now + (low() ? 10500 : 7000) + Math.random() * 5000; rocket(-600 + Math.random() * 1500, -1900 - Math.random() * 750, Math.floor(Math.random() * 5), true); }
     if (stage && stage !== 'over' && visible && now > nextFire) {
       const elapsed = Date.now() - showStart(), remaining = duration() - elapsed;
       nextFire = now + (stage === 'finale' ? 6800 : 5200);
-      if (stage === 'rocket') rocket(56, -455, shellIndex++ % 4);
+      if (stage === 'rocket') rocket(56, -1205.2, shellIndex++ % 4);
       if (stage === 'finale' && remaining > 11500) {
-        for (let i = 0; i < 3; i++) rocket(-80+i*85, -455-i%2*45, 1, false, i*420, true);
+        for (let i = 0; i < 3; i++) rocket(-80+i*85, -1205.2-i%2*45, 1, false, i*420, true);
       } else if (stage === 'finale' && tick.lastBang !== showStart() && remaining <= 11500 && remaining > 5000) {
-        tick.lastBang = showStart(); rocket(10, -480, 1, false, 0, true); rocket(-85, -460, 3, false, 350, true); rocket(95, -460, 1, false, 700, true);
+        tick.lastBang = showStart(); rocket(10, -1269.7, 1, false, 0, true); rocket(-85, -1218.1, 3, false, 350, true); rocket(95, -1218.1, 1, false, 700, true);
       }
       if (stage !== lastStage) { lastStage = stage; if (stage === 'wheel') say('wheel', '{sister}', 'A Catherine wheel! It is doing cartwheels!'); if (stage === 'rocket') say('rocket', 'Dad', 'Here comes the rocket. Stay back. Never go back to a firework, even if it seems to have stopped.'); if (stage === 'finale') say('finale', 'Mom', 'Ooooh! Look at those gold ones. Like golden rain!'); }
     }
@@ -503,7 +505,7 @@
       for (let i = 0; i < n; i++) {
         const a = now / 75 + i * 1.9;
         if (stage === 'wheel') emit(WHEEL.x + Math.cos(a) * 15, GY - 160 + Math.sin(a) * 15, WHEEL.z + 6, Math.cos(a) * 120, Math.sin(a) * 120, 20 + Math.random() * 15, palette[i % 2], .9, 70);
-        else emit(38, GY - 15, -455, (Math.random() - .5) * 90, -110 - Math.random() * 150, (Math.random() - .5) * 65, palette[0], 1.2, 140);
+        else emit(38, GY - 15, -1205.2, (Math.random() - .5) * 90, -110 - Math.random() * 150, (Math.random() - .5) * 65, palette[0], 1.2, 140);
       }
     }
     for (const c of crackles) if(c.at && now>=c.at){c.at=0;for(let i=0;i<(low()?4:8);i++){const a=i*Math.PI*2/(low()?4:8);emit(c.x,c.y,c.z,Math.cos(a)*40,Math.sin(a)*40,Math.cos(a*3)*25,sparkWhite,.5,25,.08);}if(H.here==='garden')H.sfx.noise(.08,.008,1800,Math.hypot(c.x-H.P.x,c.y-H.P.y,c.z-H.P.z)/34300,'highpass',3500);}
@@ -531,11 +533,11 @@
       emit(v.x, v.y, v.z, 0, 0, 0, sparkWhite, .07, 0);
       for (let i=0;i<(low()?2:4);i++) emit(v.x, v.y, v.z, (Math.random()-.5)*65, -Math.random()*45, (Math.random()-.5)*45, i%2 ? sparkWhite : palette[0], .35+Math.random()*.35, 90);
     }
-    const watching = H.here === 'garden' && H.P.z > -181 && H.P.z < -70 && Math.abs(H.P.x + 60) < 120;
+    const watching = H.here === 'garden' && H.P.z > -498.4 && H.P.z < gardenZ(-70) && Math.abs(H.P.x + 60) < 120;
     if (tick.watching && !watching && stage && stage !== 'over' && !done('bf-light')) say('display.away', 'Dad', 'The display will carry on. Come back behind the rope when you are ready; you can still finish watching.');
     tick.watching = watching;
     // Collect elapsed milestones at the rope, including after returning from elsewhere or after the last bang.
-    if (stage && !done('bf-light') && H.here === 'garden' && H.P.z > -181 && H.P.z < -70 && Math.abs(H.P.x + 60) < 120 && !H.paused && H.mode === 'walk') {
+    if (stage && !done('bf-light') && H.here === 'garden' && H.P.z > -498.4 && H.P.z < gardenZ(-70) && Math.abs(H.P.x + 60) < 120 && !H.paused && H.mode === 'walk') {
       const s = Date.now() - showStart(), order = leftover() ? [['fountain', 15000], ['wheel', 30000], ['rocket', 50000], ['finale', 90000]] : [['fountain', 35000], ['wheel', 70000], ['rocket', 110000], ['finale', 180000]];
       const next = order.find(([id]) => !got('bf-light', id));
       if (next && s >= next[1] && now > (tick.nextAck || 0)) { tick.nextAck = now + 1300; SE.step(EID, 'bf-light', next[0], { hour: eveningHour() }); }
@@ -619,7 +621,7 @@
     guy.visible = on && !ready && phase !== 'tail';
     if (gt.st !== 'held' && gt.st !== 'anim') {
       if (!placed && gt.st === 'snap') at(gt, gt.home);
-      if (placed) at(gt, { room: 'garden', x: -154, y: GY - 43, z: -201, ry: 15 }, 'bf.s.guy');
+      if (placed) at(gt, { room: 'garden', x: -154, y: GY - 43, z: -550, ry: 15 }, 'bf.s.guy');
       gt.at.hide = !on || !ready || placed || phase === 'tail'; H.place(gt);
     }
     H.SPOTS[gt.id].off = !on || !ready || placed || phase === 'tail';
@@ -630,7 +632,7 @@
     for (let i = 0; i < foodPotatoes.length; i++) { foodPotatoes[i].visible = !got('bf-food', 'foil'); foilPotatoes[i].visible = got('bf-food', 'foil'); prickMarks[i].visible = got('bf-food', 'prick') && !got('bf-food', 'foil'); }
     if (foodTray.st !== 'held' && foodTray.st !== 'anim') {
       if (!served && foodTray.st === 'snap') at(foodTray, foodTray.home);
-      if (served) at(foodTray, { room: 'garden', x: -108, y: GY - 66, z: -106 }, 'bf.s.supper');
+      if (served) at(foodTray, { room: 'garden', x: -108, y: GY - 66, z: -305 }, 'bf.s.supper');
       foodTray.at.hide = !on || !cooked || phase === 'tail'; H.place(foodTray);
     }
     H.SPOTS['bf.tray'].off = !on || !cooked || served || phase === 'tail'; H.SPOTS['bf.food'].off = !on || cooked || phase === 'tail';
@@ -671,7 +673,7 @@
     for (let i = 0; i < 4; i++) DEC['foundation' + i] = group('dad-stack.' + i, 'garden', PILE.x, GY - 4 - i * 6, PILE.z, B => { for (let j = 0; j < 8; j++) { const a = (i * 8 + j) * 2.39996; branch(B, [Math.cos(a)*46, i*6, Math.sin(a)*46], [Math.cos(a+.2)*9, -70-i*10, Math.sin(a+.2)*9], 2.0+j%3*.4); } for(let j=0;j<9;j++) log(B,Math.sin(j*9)*19,-5-j*4,Math.cos(j*9)*19,j*37,35+j%3*9,1.4); newspaper(B,0,-8-i*8,0,1.5); });
     const r = H.ROOMS.garden, a0 = r.amb, l0 = r.lights;
     r.amb = () => { const a = typeof a0 === 'function' ? a0() : a0; return on && SE.today().hour >= 17 ? { ...a, sky: '#777b9c', gnd: '#625347', i: Math.max(a?.i || .2, .33) } : a; };
-    r.lights = () => { const a = (typeof l0 === 'function' ? l0() : l0 || []).slice(); if (on && SE.today().hour >= 17) { const burning = phase === 'day' && showStart() && stageAt() !== 'over'; a.push({x:PILE.x,y:GY-95,z:PILE.z+55,c:'#ff963f',i:burning ? 2.7+Math.sin(performance.now()/83)*.3 : .15,d:650}); if (flash > .02) a.push({x:0,y:GY-170,z:-220,c:'#ffe5b4',i:flash*1.8,d:850});if(work?.kind==='sparkler')a.push({x:H.P.x+12,y:H.P.y+12,z:H.P.z-40,c:'#ffe1a4',i:1,d:200}); } return a; };
+    r.lights = () => { const a = (typeof l0 === 'function' ? l0() : l0 || []).slice(); if (on && SE.today().hour >= 17) { const burning = phase === 'day' && showStart() && stageAt() !== 'over'; a.push({x:PILE.x,y:GY-95,z:PILE.z+55,c:'#ff963f',i:burning ? 2.7+Math.sin(performance.now()/83)*.3 : .15,d:650}); if (flash > .02) a.push({x:0,y:GY-170,z:gardenZ(-220),c:'#ffe5b4',i:flash*1.8,d:850});if(work?.kind==='sparkler')a.push({x:H.P.x+12,y:H.P.y+12,z:H.P.z-40,c:'#ffe1a4',i:1,d:200}); } return a; };
     building = false;
     H.on('grab', id => { if (id.startsWith('bf.')) H.dirty(); });
   }
@@ -712,7 +714,7 @@
   }
   // np-life uses these goals through its normal routes, doors, personal space and arrival animations.
   let watchBank='right';
-  const watchFire = {x:-65,y:255,z:-402}, watchSky = {x:0,y:-180,z:-650};
+  const watchFire = {x:-65,y:255,z:-1068.5}, watchSky = {x:0,y:-180,z:-1708.1};
   function familyLook() {
     if (!enabled() || !(phase==='day'||catchup()||leftover()&&showStart()) || !showStart()) return null;
     const hour=SE.today().hour;if(hour<17||hour>=22)return null;
@@ -723,11 +725,11 @@
   function familyGoal(id) {
     if (!enabled() || !(phase === 'day' || catchup() || leftover() && showStart()) || SE.today().hour < 17 || SE.today().hour >= 22) return null;
     const showing = showStart() && stageAt() !== 'over', elapsed = showStart() ? (Date.now() - showStart()) / 1000 : 0;
-    if (id === 'mom' && !showStart()) return { key: 'bf.mom.supper', spot: { lvl: 'G', x: -10, z: 36, face: 180 }, act: 'cook' };
+    if (id === 'mom' && !showStart()) return { key: 'bf.mom.supper', spot: { lvl: 'G', x: -10, z: -84, face: 180 }, act: 'cook' };
     const px=H.P?.x??-60;if(watchBank==='right'&&px>-40)watchBank='left';else if(watchBank==='left'&&px< -50)watchBank='right';
-    const bank=watchBank==='right'?{mom:[175,-75,220],dad:[125,-120,190],sister:[175,-165,215]}:{mom:[-255,-75,140],dad:[-205,-120,170],sister:[-255,-165,155]};
+    const bank=watchBank==='right'?{mom:[300,-310,220],dad:[250,-370,190],sister:[300,-450,215]}:{mom:[-290,-310,140],dad:[-240,-370,170],sister:[-290,-450,155]};
     const lighting = showing && elapsed % 16 < 7;
-    const p = id === 'dad' && lighting ? (stageAt() === 'wheel' ? [150,-480,236] : [155,-413,180]) : bank[id];
+    const p = id === 'dad' && lighting ? (stageAt() === 'wheel' ? [150,-1269.7,236] : [155,-1096.9,180]) : bank[id];
     return { key: 'bf.' + id + (lighting && id === 'dad' ? '.light.' + stageAt() : '.watch.'+watchBank), spot: { lvl: 'G', x: p[0], z: p[1], face: p[2] }, act: lighting && id === 'dad' ? 'reach' : null };
   }
   function talk(id) {

@@ -9,6 +9,7 @@
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {roomFixture} from './room-fixture.mjs';
+import {bonfireLogin as loginFixture} from './bonfire-login.mjs';
 const base=process.argv[2]||'http://localhost:18197';
 assert(['127.0.0.1','localhost'].includes(new URL(base).hostname),'Throwaway localhost server only');
 const shots=new URL('./shots/halloween/',import.meta.url).pathname;await mkdir(shots,{recursive:true});
@@ -16,7 +17,7 @@ const password='Throwaway-1999',GY=353,EID='halloween99';
 const t0=Date.now(),log=(...a)=>console.log(((Date.now()-t0)/1000).toFixed(1).padStart(6)+'s',...a);
 const reg=await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:'Jack',pass:password})});
 assert(reg.ok||reg.status===409||reg.status===400,'admin register '+reg.status);
-const f=await roomFixture(base,{account:'Jack',password,signup:false,hour:null});
+const f=await roomFixture(base,{account:'Jack',password,signup:false,hour:null,resume:true,opening:true,storageState:await loginFixture(base,password,'Jack',{pv:10,x:40,y:-70,z:155,rx:0,ry:0,lvl:'U',seat:0})});
 const {page,until,view,errors}=f;
 const EYE=await page.evaluate(()=>House.STAND||128); // (the live standing eye height)
 let failed=null;
@@ -30,7 +31,7 @@ try{
  const st=()=>page.evaluate(id=>Season.st(id),EID);
  async function aim(eye,target,level='G'){await view(eye,target,{level});await page.evaluate(t=>{House.hush();House._.setMode('walk');const P=House.P,W=House.W;if(!W.seat){W.eyeNow=W.eye;P.y=W.fy-W.eye;P.rx=Math.atan2(-(t[1]-P.y),Math.hypot(t[0]-P.x,t[2]-P.z))*180/Math.PI;P.ry=Math.atan2(t[0]-P.x,-(t[2]-P.z))*180/Math.PI;House.dirty()}},target);await page.waitForTimeout(250);} // (the eye starts at the standing height: no drift after aiming)
  async function key(k){await page.keyboard.press(k);await page.waitForTimeout(350);}
- const shot=async n=>{await page.evaluate(()=>House.hush());await page.waitForTimeout(500);await page.screenshot({path:shots+n+'.png'});log('shot',n,await page.evaluate(()=>House.ren.info.render.calls)+' draws');};
+ const shot=async n=>{await page.evaluate(()=>House.hush());await page.waitForTimeout(500);if(process.env.REGRESSION_NO_SHOTS!=='1')await page.screenshot({path:shots+n+'.png'});log('checkpoint',n,await page.evaluate(()=>House.ren.info.render.calls)+' draws');};
  async function drag(points,{steps=2,pause=25}={}){await page.mouse.move(points[0][0],points[0][1]);await page.mouse.down();for(const [x,y] of points){await page.mouse.move(x,y,{steps});await page.waitForTimeout(pause);}await page.mouse.up();}
 
  // ---- 1. before the window: nothing at all
@@ -85,11 +86,12 @@ try{
  log('decorations: ok');
 
  // ---- 5. the pumpkin, all six steps, with real mouse movement
- await aim([-110,GY-EYE,250],[-130,GY-47,170]);await key('e'); // (stand clear of the kitchen chairs: a pose the player can really take)await until(()=>House.held()==='hw.paper');
- await aim([-45,GY-EYE,264],[-45,GY-78,174]);await key('e');
+ await aim([-180,GY-EYE,190],[-130,GY-47,110]);await key('e'); // (stand clear of the kitchen chairs: a pose the player can really take)
+ await until(()=>House.held()==='hw.paper');
+ await aim([-45,GY-EYE,210],[-45,GY-78,114]);await key('e');
  await until(()=>!!Season.st('halloween99').steps['hw-pumpkin']?.paper);
  await page.waitForTimeout(1300);
- await aim([-45,GY-EYE,264],[-45,GY-88,174]);await shot('06-carving-table');
+ await aim([-45,GY-EYE,210],[-45,GY-88,114]);await shot('06-carving-table');
  await key('f');await until(()=>Halloween.carving==='lid');await page.waitForTimeout(500);
  for(let pass=0;pass<3&&await page.evaluate(()=>Halloween.carving==='lid');pass++)await drag(await page.evaluate(()=>Halloween._.screen('lid')),{steps:1,pause:0});
  await shot('07-lid-cut');
@@ -102,7 +104,7 @@ try{
  await until(()=>Halloween.carving==='candle');await shot('10-carved');
  await key('f');await until(()=>!!Season.st('halloween99').steps['hw-pumpkin']?.candle&&!House.focused&&!!House.THINGS['hw.lantern']);
  await page.waitForTimeout(1200);
- await aim([-20,GY-EYE,265],[-45,GY-88,174]);await key('e');await until(()=>House.held()==='hw.lantern');
+ await aim([-20,GY-EYE,205],[-45,GY-88,114]);await key('e');await until(()=>House.held()==='hw.lantern');
  const pier=await page.evaluate(()=>({x:House.FRONT.PIERS[0],y:353-House.FRONT.PIER_TOP,z:House.FRONT.FZ-5}));
  await aim([pier.x+32.5,GY-EYE,pier.z-55],[pier.x,pier.y,pier.z]);await key('e'); // the current gatepost, shared with the physical model
 

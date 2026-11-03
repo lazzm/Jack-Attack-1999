@@ -117,7 +117,7 @@
   // ================================================================ the room: walls x -280..240, z -56..250, floor y 73, ceiling y -185
   const BZ = -56, LX = -280, RX = 240, FZ = 250, FY = 73, CY = -185;
   const TX = -178; // the telly corner
-  const WIN = { x0: 156, x1: 226, y0: -112, y1: -14 }; // the window in the back wall
+  const REAR_WINDOWS = H.REAR.bedroomWindows, WIN = REAR_WINDOWS[1]; // the window in the back wall
   const DOOR = { z0: 150, z1: 230, y0: -132 }; // the door in the right-hand wall (to the landing)
   const tex = n => A.t(n);
   const repT = (n, rx, ry) => { const t = tex(n).clone(); t.needsUpdate = true; t.repeat.set(rx, ry); return t; };
@@ -206,7 +206,7 @@
   const R = {}; // the bits we need later (meshes, materials)
   let pcPowered = mode === 'wake';
   const room = H.room('bedroom', {
-    name: "Your room", title: "YOUR ROOM", lvl: 'U', area: [[LX, BZ, RX, FZ]], windowViews:[{room:'garden',bounds:[[156,-112,-60,226,-14,-54]]}],
+    name: "Your room", title: "YOUR ROOM", lvl: 'U', area: [[LX, BZ, RX, FZ]], windowViews:[{room:'garden',bounds:REAR_WINDOWS.map(w=>[w.x0,w.y0,-74,w.x1,w.y1,-50])}],
     bx0: LX + 2, bx1: RX - 2, bz0: BZ + 2, bz1: FZ - 2,
     lights: () => {
       const L = [];
@@ -234,10 +234,13 @@
     // ---- walls (the back one has the window in it, the right one the door), floor, Artex ceiling
     const wm = mWall();
     const wall = (x, y, z, w, h, ry) => B.panel(x, y, z, w, h, 4, wm, { ry, uv: 128 });
-    wall((LX + WIN.x0) / 2, (CY + FY) / 2, BZ, WIN.x0 - LX, FY - CY, 0);
-    wall((WIN.x1 + RX) / 2, (CY + FY) / 2, BZ, RX - WIN.x1, FY - CY, 0);
-    wall((WIN.x0 + WIN.x1) / 2, (CY + WIN.y0) / 2, BZ, WIN.x1 - WIN.x0, WIN.y0 - CY, 0);
-    wall((WIN.x0 + WIN.x1) / 2, (WIN.y1 + FY) / 2, BZ, WIN.x1 - WIN.x0, FY - WIN.y1, 0);
+    let rearX=LX;
+    for(const w of REAR_WINDOWS){
+      wall((rearX+w.x0)/2,(CY+FY)/2,BZ,w.x0-rearX,FY-CY,0);
+      wall((w.x0+w.x1)/2,(CY+w.y0)/2,BZ,w.x1-w.x0,w.y0-CY,0);
+      wall((w.x0+w.x1)/2,(w.y1+FY)/2,BZ,w.x1-w.x0,FY-w.y1,0);rearX=w.x1;
+    }
+    wall((rearX+RX)/2,(CY+FY)/2,BZ,RX-rearX,FY-CY,0);
     wall(LX, (CY + FY) / 2, (BZ + FZ) / 2, FZ - BZ, FY - CY, 90);
     wall((LX + RX) / 2, (CY + FY) / 2, FZ, RX - LX, FY - CY, 180);
     wall(RX, (CY + FY) / 2, (BZ + DOOR.z0) / 2, DOOR.z0 - BZ, FY - CY, -90);
@@ -263,14 +266,14 @@
     aoF((LX + RX) / 2, BZ + 15, RX - LX, 30, 180); aoF(LX + 15, (BZ + FZ) / 2, FZ - BZ, 30, -90); aoF((LX + RX) / 2, FZ - 15, RX - LX, 30, 0);
     [[BZ,DOOR.z0],[DOOR.z1,FZ]].forEach(([a,b])=>aoF(RX-15,(a+b)/2,b-a,30,90));
     const aoC = (x, z, w, ry) => B.ao(x, CY + 14, z, w, 28, { ry, a: 0.35 });
-    aoC((LX + RX) / 2, BZ + 0.3, RX - LX, 0); aoC(LX + 0.3, (BZ + FZ) / 2, FZ - BZ, 90); aoC((LX + RX) / 2, FZ - 0.3, RX - LX, 180); aoC(RX - 0.3, (BZ + FZ) / 2, FZ - BZ, -90);
+    aoC((LX-245)/2,BZ+.3,-245-LX,0);aoC((-115+RX)/2,BZ+.3,RX+115,0);B.ao(-180,CY+8,BZ+.3,130,16,{a:.35}); aoC(LX + 0.3, (BZ + FZ) / 2, FZ - BZ, 90); aoC((LX + RX) / 2, FZ - 0.3, RX - LX, 180); aoC(RX - 0.3, (BZ + FZ) / 2, FZ - BZ, -90);
 
-    buildWindow(B, r); buildDesk(B, r); buildTellyCorner(B, r); buildBed(B, r); buildWardrobe(B, r); buildFront(B, r); buildDoor(B, r); buildCeiling(B, r);
+    buildWindow(B); buildWindow(B, REAR_WINDOWS[0], true); buildDesk(B, r); buildTellyCorner(B, r); buildBed(B, r); buildWardrobe(B, r); buildFront(B, r); buildDoor(B, r); buildCeiling(B, r);
     batch.build(r.group);
     // where you can walk (the furniture is in the way: see the blocks in each part)
     H.walkRect('U', LX, BZ, RX, FZ, { room: 'bedroom' });
     H.walkRect('U', RX - 6, DOOR.z0 + 4, RX + 16, DOOR.z1 - 4, { door: 'bedroom', room: 'bedroom' });
-    H.support('bedroom',WIN.x0-7,BZ-8,WIN.x1+7,BZ+10,WIN.y1); // real windowsill top
+    for(const w of REAR_WINDOWS)H.support('bedroom',w.x0-7,BZ-8,w.x1+7,BZ+10,w.y1); // real windowsill top
     H.support('bedroom',-66,BZ,38,BZ+18,-129.2); // ornament shelf top
     H.support('bedroom', -76, -55, 76, 31, 0); // the desk top
     const L = L0(); // the PC's own surfaces (things can sit on the tower and the keyboard)
@@ -298,24 +301,25 @@
   function borderRun(B, m, x0, z0, x1, z1, ry) { const len = Math.hypot(x1 - x0, z1 - z0); const g = new T.PlaneGeometry(len, 13); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) { uv.setX(i, uv.getX(i) * len / 120); uv.setY(i, 1 - uv.getY(i)); } B.geo(g, (x0 + x1) / 2, -96, (z0 + z1) / 2, m, { ry }); }
 
   // ---------------------------------------------------------------- the window (UPVC, double glazed, 1999), the curtains
-  function buildWindow(B) {
-    const cx = (WIN.x0 + WIN.x1) / 2, cy = (WIN.y0 + WIN.y1) / 2, w = WIN.x1 - WIN.x0, h = WIN.y1 - WIN.y0, dep = 14;
+  function buildWindow(B, W = WIN, high = false) {
+    const cx = (W.x0 + W.x1) / 2, cy = (W.y0 + W.y1) / 2, w = W.x1 - W.x0, h = W.y1 - W.y0, dep = 14;
     // the reveal (the wall is thick) and the outside
-    B.panel(cx, WIN.y0, BZ - dep / 2, w, dep, .4, M('#d8d4c8'), { rx: -90 });
-    B.panel(cx, WIN.y1, BZ - dep / 2, w, dep, .4, M('#d8d4c8'), { rx: 90 });
-    B.panel(WIN.x0, cy, BZ - dep / 2, dep, h, .4, M('#d0ccc0'), { ry: 90 });
-    B.panel(WIN.x1, cy, BZ - dep / 2, dep, h, .4, M('#d0ccc0'), { ry: -90 });
+    B.panel(cx, W.y0, BZ - dep / 2, w, dep, .4, M('#d8d4c8'), { rx: -90 });
+    B.panel(cx, W.y1, BZ - dep / 2, w, dep, .4, M('#d8d4c8'), { rx: 90 });
+    B.panel(W.x0, cy, BZ - dep / 2, dep, h, .4, M('#d0ccc0'), { ry: 90 });
+    B.panel(W.x1, cy, BZ - dep / 2, dep, h, .4, M('#d0ccc0'), { ry: -90 });
     // Outside is shared with the kitchen: never stack two sky cards here.
     // UPVC frame: outer frame, mullion, transom with a top opener
     const fm = M({ c: '#f2f0ea', sh: 40, sp: '#444' }), fz = BZ - dep + 3;
-    B.box(cx, WIN.y0 + 3, fz, w, 6, 6, fm); B.box(cx, WIN.y1 - 3, fz, w, 6, 6, fm);
-    B.box(WIN.x0 + 3, cy, fz, 6, h, 6, fm); B.box(WIN.x1 - 3, cy, fz, 6, h, 6, fm);
-    B.box(cx, cy, fz, 5, h, 6, fm); B.box(cx, WIN.y0 + 30, fz, w, 5, 6, fm);
-    B.box(cx + 18, WIN.y0 + 36, fz + 3.5, 8, 2, 2, mWhite); B.box(cx - 18, WIN.y0 + 36, fz + 3.5, 8, 2, 2, mWhite);
-    B.plane(cx, cy, fz - 1, w - 6, h - 6, M({ c: '#c8d8f0', o: 0.12, sh: 120, sp: '#ffffff', tr: true }), {});
+    B.box(cx, W.y0 + 3, fz, w, 6, 6, fm); B.box(cx, W.y1 - 3, fz, w, 6, 6, fm);
+    B.box(W.x0 + 3, cy, fz, 6, h, 6, fm); B.box(W.x1 - 3, cy, fz, 6, h, 6, fm);
+    B.box(cx, cy, fz, 5, h, 6, fm); if(!high)B.box(cx, W.y0 + 30, fz, w, 5, 6, fm);
+    B.box(cx + 18, W.y0 + 36, fz + 3.5, 8, 2, 2, mWhite); B.box(cx - 18, W.y0 + 36, fz + 3.5, 8, 2, 2, mWhite);
+    B.box(cx, cy, fz - 1, w - 6, h - 6, .35, M({ c: '#c8d8f0', o: 0.12, sh: 120, sp: '#ffffff', tr: true }), {});
     // the sill: a dead cactus on it
-    B.rbox(cx, WIN.y1 + 1.6, BZ + 1, w + 14, 3.2, 10 + dep - 6, 0.8, mWhite);
-    B.shadow(cx, WIN.y1 + 3.4, BZ + 8, w + 10, 6, 0.4, { sq: true });
+    B.rbox(cx, W.y1 + 1.6, BZ + 1, w + 14, 3.2, 10 + dep - 6, 0.8, mWhite);
+    B.shadow(cx, W.y1 + 3.4, BZ + 8, w + 10, 6, 0.4, { sq: true });
+    if(high)return;
     const cactus=new T.Group(),pot=K.into(cactus);
     // Closed terracotta base sits exactly on the sill; the old open cone
     // stopped four units above it and the cactus floated above its rim.
@@ -323,15 +327,16 @@
     pot.disc(0,-8.1,0,3.15,M('#4b3524'),20);
     pot.cyl(0,-12.05,0,1.6,2,8,10,M({c:'#5a7a3a',flat:true}));pot.ball(0,-17,0,1.6,1.4,1.6,M('#5a7a3a'),8);
     pot.shadow(0,0,0,10,10,.5);
-    loose('cactus',cactus,{room:'bedroom',x:WIN.x1-10,y:WIN.y1,z:BZ+3,ry:0},'Windowsill cactus');
+    loose('cactus',cactus,{room:'bedroom',x:W.x1-20,y:W.y1,z:BZ+3,ry:0},'Windowsill cactus');
     // the curtain pole and the curtains, gathered at the sides (real folds, not a flat sheet)
-    B.cyl(cx, WIN.y0 - 12, BZ + 6, 1.4, 1.4, w + 70, 10, mBrass, { rz: 90 });
-    B.ball(cx - w / 2 - 37, WIN.y0 - 12, BZ + 6, 2.6, 2.6, 2.6, mBrass, 10); B.ball(cx + w / 2 + 37, WIN.y0 - 12, BZ + 6, 2.6, 2.6, 2.6, mBrass, 10);
+    const pole0=W.x0-38,pole1=RX-6,rightCurtain=RX-10;
+    B.cyl((pole0+pole1)/2,W.y0-12,BZ+6,1.4,1.4,pole1-pole0,10,mBrass,{rz:90});
+    B.ball(pole0-2, W.y0 - 12, BZ + 6, 2.6, 2.6, 2.6, mBrass, 10); B.ball(pole1+2, W.y0 - 12, BZ + 6, 2.6, 2.6, 2.6, mBrass, 10);
     const cm = M({ c: '#ffffff', map: tex('curtain'), side: 2 });
-    curtain(B, WIN.x0 - 20, WIN.y0 - 10, BZ + 7, 32, 128, cm);
-    curtain(B, WIN.x1 + 20, WIN.y0 - 10, BZ + 7, 32, 128, cm);
+    curtain(B, W.x0 - 20, W.y0 - 10, BZ + 7, 32, h + 30, cm);
+    curtain(B, rightCurtain, W.y0 - 10, BZ + 7, 16, h + 30, cm);
     // brass rings carry each curtain on the pole
-    for (const x0 of [WIN.x0 - 20, WIN.x1 + 20]) for (let k = 0; k < 7; k++) B.geo(new T.TorusGeometry(2.1, 0.32, 6, 16), x0 - 14 + k * 4.67, WIN.y0 - 12, BZ + 6, mBrass, { ry: 90 });
+    for (const [x0,cw] of [[W.x0-20,32],[rightCurtain,16]]) for (let k = 0; k < 7; k++) B.geo(new T.TorusGeometry(2.1, 0.32, 6, 16), x0-cw/2+3+k*(cw-6)/6, W.y0 - 12, BZ + 6, mBrass, { ry: 90 });
   }
   function curtain(B, x, y, z, w, h, m) { // gathered fabric: soft pleats, a little fuller at the bottom
     const g = new T.PlaneGeometry(w, h, 48, 12), p = g.attributes.position, u = g.attributes.uv;
@@ -2041,7 +2046,7 @@
       enter: () => { focusedPoster = id; H.ui.tip(null); }, exit: () => { focusedPoster = null; } });
   }
   addEventListener('resize', () => { if (focusedPoster && H.mode === 'focus') { Object.assign(H.P, posterPose(focusedPoster)); H.dirty(); } });
-  const BITVIEW = { postershuttle: [-52, -82, BZ], posterband: [TX, -66, BZ], posterfilm: [TX - 58, -96, BZ], cork: [42, -84, BZ], window: [191, -63, BZ], lava: [134, 6, BZ + 21], mags: [TX + 34, FY, 58], rack: [TX - 56, 33, -44], drawer: [56, 6, 40] };
+  const BITVIEW = { postershuttle: [-52, -82, BZ], posterband: [TX, -66, BZ], posterfilm: [TX - 58, -96, BZ], cork: [42, -84, BZ], window: [(WIN.x0+WIN.x1)/2,(WIN.y0+WIN.y1)/2,BZ], lava: [134, 6, BZ + 21], mags: [TX + 34, FY, 58], rack: [TX - 56, 33, -44], drawer: [56, 6, 40] };
   function bits(id) {
     if(id==='rack')return rackNote();
     if (POSTER_VIEW[id]) return posterFocus(id);
@@ -2169,7 +2174,7 @@
     // (the landing comes first, so the door knows where it goes; js/hs-house.js fills it in)
     if (!H.ROOMS.landing) H.room('landing', { name: 'The landing', lvl: 'U', area: [[250, 130, 410, 250], [250, 250, 330, 700]], stations: [], build() {} });
     H.buildRoom(room);
-    pickBox(room, 'window', 191, -63, BZ - 4, 70, 98, 4); H.SPOTS.window.label = 'The window';
+    pickBox(room,'window',(WIN.x0+WIN.x1)/2,(WIN.y0+WIN.y1)/2,BZ-4,WIN.x1-WIN.x0,WIN.y1-WIN.y0,4); H.SPOTS.window.label = 'The window';
     things(); drives(); wire(); mediaShelf(); hudExtras();
     ensureHiFi().catch(()=>{});
     // Prepare the lazy downstairs pack while the initial room is revealing.

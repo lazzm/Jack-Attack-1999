@@ -92,3 +92,160 @@ The historical six-metre layout is superseded by Jack's explicit approval of a s
 Placement version 6 transfers saved car/roof and raised lounge props once, retaining rotation and metadata. Completed mowing strips extend through the new rows without resetting progress or paying again. Browser fixtures verify roof contact, repeat refresh, real phone movement past the open boot and nose, PC power, boot state and rotation.
 
 The lounge now has a 190 cm sofa, 86 cm armchair and 90 x 50 cm coffee table, with 83 cm between table and sofa. Person queues yield from the back safely. Current captures use the actual 143 cm standing eye and shipped walking lens: `shots/house-scale/round2-approved-*`, desktop and phone/tablet portrait/landscape. Final 144 exterior views find no shell holes. Remaining advisory dimensions are explicitly open in SCALE-REVIEW.md.
+
+## Rear plot and kitchen sizing pass (3 November 2026, branch sizing)
+
+Units are centimetres, y down; standing eye remains 143 cm. `House.REAR` in `hs-world.js` defines the rear plot.
+The house and front drive stay in place. The back road and its rear row move 10 m north together; neighbour meshes
+remain in the same static batches, and the camera-relative horizon continues beyond them.
+
+| Plan element | Before x / z | Revised x / z | Size / clearance |
+|---|---|---|---|
+| Rear garden, main rectangle | -300..215 / -560..-56 | -340..440 / -1476..-176 | 7.8 × 13 m, full house width with side margins |
+| Kitchen interior | -280..195 / -56..295 | -280..195 / -176..295 | 4.75 × 4.71 m; rear extension 1.2 m |
+| Kitchen table | centre -60 / 170 | centre -60 / 110 | Existing 120 × 80 cm pine table, four chairs |
+| Kitchen walkways, including chair backs | south 41 cm; north 76 cm | south 101 cm; north 136 cm | West 124 cm, east 159 cm; measured to collision footprints |
+| Rear window | head 158 cm; sill 63 cm | head 210 cm; sill 100 cm | 120 × 110 cm, clear of cooker hood and wall cupboards |
+| Rear worktop / sink / cooker / fridge | z -56..14 | z -176..-106 | Whole run, appliances, controls, chores and props move 120 cm |
+| Patio | -215..115 / -191..-61 | -215..195 / -376..-181 | 4.10 × 1.95 m, directly outside the door |
+| Path and shed hardstanding | none | -320..-230 / -1270..-376 | 90 cm path with paved turn into patio; 2 × 1.3 m shed apron |
+| Shed | centre -212 / -462 | centre -230 / -1330 | 180 × 120 cm; ridge about 200 cm; 76 × 175 cm door |
+| Rotary dryer | centre 80 / -280 | centre 250 / -650 | Existing 252 cm spread, separate from the central play lawn |
+| Flower bed | centre -230 / -270 | centre -170 / -700 | Beside the path, with Mom standing on the lawn side |
+| Trees | 145 / -500; -40 / -540 | 330 / -1335; 90 / -1400 | Existing art, moved to the far boundary |
+| Wheelie bin / water butt | 160 / -190; 180 / -102 | 370 / -280; 235 / -222 | Beside the patio; butt clears the entire outward door swing |
+| Bonfire watching rope / stack / launch / wheel | z -181 / -402 / -455 / -520 | z -498.4 / -1068.5 / -1205.2 / -1372.8 | 5.7 m rope-to-stack and 7.1 m rope-to-launch |
+
+A rearrangement alone could not provide 90 cm on both sides of the four chairs in the old kitchen depth. The 1.2 m
+extension and a 60 cm table move provide those clearances without widening the house or moving the hall door. It has
+solid brick returns, a closed felt roof, fascia, gutter and downpipe, visible below the bedroom window. The original
+upper-storey footprint and stair geometry remain unchanged.
+
+Placement version 10 moves old counter/table/chair-supported objects, the bin lid and objects on the new paving once. Objects on the
+old open lawn retain their coordinates. Snapped things follow their new anchors, metadata and chore progress remain,
+and old standing poses just outside the back door remain outside. The family cache also migrates old counter poses. Daily chore placements use the same transfer, retaining partial
+washing, job timers and completed steps. Portable seats keep a migrated standing return point.
+Evidence and final verification status are recorded in `tests/shots/sizing/` and the task report; open scale rows are
+retained in `SCALE-REVIEW.md` rather than assumed complete.
+
+Rear geometry budget: the neighbourhood remains **80 static meshes**, **74,862 → 74,922 triangles** (+60, 0.08%).
+The longer connecting road accounts for the extra stripe geometry. Extending the neighbour gardens adds no meshes.
+The rear grass stays **one instanced draw**, **2,862 → 2,772 blades** (31,482 → 30,492 triangles); texture repeats remain
+in centimetres. Fence posts, paving and the extension are built into the existing room batches. Per-view renderer
+counts are included in the screenshot reports, since the number of visible rooms and frustum direction affect totals.
+
+Matched 1366 × 860 daytime views (full draw totals, including rooms, neighbourhood and the open event):
+
+| Camera | Before calls → after | Before triangles → after |
+|---|---|---|
+| Garden from back door | 73 → 149 | 127,702 → 137,172 |
+| Garden from far end | 1,073 → 1,142 | 337,512 → 338,540 |
+| Bedroom window | 146 → 190 | 148,024 → 157,022 |
+| Kitchen hall doorway | 562 → 668 | 257,330 → 260,770 |
+| Kitchen back doorway | 338 → 219 | 210,754 → 158,886 |
+| Kitchen with Mom at sink | 315 → 330 | 187,444 → 191,382 |
+
+Across all 24 matched day/night desktop/phone views, peak calls are **1,094 → 1,163 (+6%)** and peak triangles
+**337,512 → 338,540 (+0.3%)**. Individual garden views render more of the relocated event props and backdrop;
+the back-door view's call count rises substantially, as the table above shows. The final small paved path/patio join adds 12 triangles to the garden batch. Room portals and static batches remain
+in use. These are software-renderer geometry counts; real-device frame-rate performance remains unverified.
+
+The final far-end captures include the filled bucket from the real Firework Code input. The new paved turn has
+separate desktop/phone detail views (`after/*-day-path-turn-detail.png`); its joints and contact were inspected.
+
+Verification handoff at the worker time limit: syntax checks, all 42 unit scripts, parody audit (0 spans),
+neighbourhood geometry, characters `--only=day,space,bump`, all eight real Bonfire objectives, 20 selected Bonfire
+art views across desktop/phone/potato, and the old-save/two-refresh fixture passed. All 24 matched before and after
+views, the Bonfire captures and final paving details were visually reviewed. The complete Bonfire run preceded the
+final butt-clearance/paving touch-ups; the final real F at the relocated butt received the server acknowledgement,
+and the added paving migrations pass the production-function unit checks.
+
+The full Halloween run was interrupted at the budget boundary after all six carving steps and the start of
+trick-or-treating passed; it has no full passing result. The first attempt received SIGTERM before connecting.
+The mobile `--only=gate,full` attempt also received SIGTERM without a complete result. Full `physics.mjs`,
+`story-ch1.mjs`, `smoke.mjs`, Halloween and mobile regression results remain outstanding. Real hardware performance
+and the remaining Stage 3 rows (including G3/G4) remain unverified/open. No live deployment is part of this branch.
+
+
+## Sizing round 2 (3 November 2026, merged base a7d88c5)
+
+The gloves stool and `bf.gloves` target move together from (44, 53) to (174, -148), in the nook to the right of the
+back door. Its ID and all server progress keys stay unchanged. The stool clears the outward door leaf and the
+central approach. Existing saved cactus positions still fit the enlarged sill; the default cactus and gathered
+right curtain now leave each other clear, and the pole ends before the bedroom side wall.
+
+| Opening | World bounds (cm, y down) | Interior / backing |
+|---|---|---|
+| Jack's main rear window | x 148..232, y -137..-14 | Real 84 × 123 cm casement; shared inside/outside aperture and glass |
+| High bedroom window | x -245..-115, y -166..-126 | Real 130 × 40 cm fanlight, above the existing posters and TV |
+| Kitchen extension side window | z -160..-80, y 143..235, x about 195..206 | Real 80 × 92 cm casement facing the side garden, clear of the stool and appliances |
+| Upper unmodeled rear room | x 270..380, y -137..-14 | Recessed frame, glass and solid pleated closed curtains with opaque backing |
+| Lower unmodeled rear room | x 270..380, y 143..253 | Same closed construction; no view into an absent room |
+
+`House.REAR.bedroomWindows` drives the bedroom walls, exterior holes and both directions of portal bounds.
+The kitchen's side aperture is also in both room portal lists. Glass and frames have thickness; the extension has
+a lead flashing strip at its junction with the original wall. Furniture and posters retain their positions.
+The merged fence boards and rails are retained; matching solid weeds now follow both long sides and short returns.
+The merged trees remain rooted at y 353, and their contact shadows were inspected in the garden captures.
+
+Matched day/night, desktop/phone counts from `tests/shots/sizing/round2/{before,after}/report.json`:
+
+| View | Before calls | After calls | Before triangles | After triangles |
+|---|---:|---:|---:|---:|
+| Desktop day, rear from far end | 1143 | 1144 | 349748 | 357538 |
+| Desktop night, rear from far end | 1163 | 1165 | 349816 | 357606 |
+| Desktop day, garden from back door | 149 | 149 | 145672 | 151694 |
+| Phone day, garden from back door | 143 | 144 | 143914 | 151454 |
+| Desktop day, kitchen doorway | 388 | 395 | 216318 | 231012 |
+| Phone day, kitchen doorway | 303 | 314 | 199908 | 216426 |
+
+The peak among the 12 paired views changes from 1164 to 1165 calls; peak triangles rise about 2.2%.
+No new scene lights are added. Static batching and portal culling remain active.
+
+Verification method: native-resolution before/after art captures; Bonfire art requests desktop/phone/potato coverage;
+functional regression fixtures can use `FIXTURE_RASTER_RATIO=0.5` on the shared software-renderer host. This only
+caps canvas raster pixels; CSS viewport coordinates, geometry, gameplay assertions and real inputs remain intact.
+`REGRESSION_NO_SHOTS=1` skips optional galleries in physics/Halloween/story, retaining their checks and failure
+captures. Character/physics/Halloween setup reuses the existing real WebSocket login/profile helper and ordinary
+standing token resume. Fresh resumed fixture accounts complete the normal About You form before gameplay. Explicit browser logon remains in smoke/mobile/story. The first full Bonfire attempt completed gameplay but its final non-owner wait hit the CSP; polling through `evaluate` fixed the fixture and the complete rerun passed. The production CSP is unchanged.
+
+### Round 2 verification ledger
+
+Only disposable localhost servers and `/tmp` state are used. Each browser runs serially. Tests still absent below are **not verified**, even if queued.
+
+| Check | Actual result |
+|---|---|
+| Syntax: `node --check` on every touched JS/MJS/CJS, including `tests/sizing-round2.mjs` | exit 0 |
+| `for f in tests/*-unit.cjs; do node "$f" || exit; done` | exit 0; 44 files, including PV10 old-save/repeated-load tests |
+| `node --expose-internals tests/parody-audit.cjs` | exit 0; zero authored spans |
+| `node tests/neighbourhood-geometry.cjs` | exit 0; 83 meshes / 76146 triangles |
+| `node tests/sizing-round2.mjs <throwaway URL> before/after` | before/after exits 0; 12 matched pairs, 24 after shots |
+| `events-bonfire.mjs` | exit 0 |
+| `bonfire-art.mjs (default attempt)` | exit 143; runner terminated during desktop capture; full default suite incomplete |
+| `bonfire-art.mjs (focused phone)` | exit 0; objective target, crosshair pick, real touch F, gold-willow framing/gaze |
+| `events-halloween.mjs` | exit 0 |
+| `characters.mjs --only=day,space,bump` | exit 0 |
+| `physics.mjs` | exit 0 |
+| `story-ch1.mjs <throwaway URL>` | exit 124; time-budget cutoff after real tidy accepted; full story remains unverified |
+| `smoke.mjs` | NOT RUN |
+| `mobile.mjs --only=gate,full` | NOT RUN |
+
+Earlier attempts: full Bonfire first exit 1 (final non-owner fixture CSP wait, subsequently corrected); characters setup interrupted with exit 130 (fresh account About You form, fixture corrected). No production identity/save or CSP rules changed.
+
+Exact browser commands actually issued (see results above; an entry without a result may only have been queued near the cutoff):
+
+```sh
+env BONFIRE_RESUME_LOGIN=1 BONFIRE_NO_SHOTS=1 FIXTURE_DEBUG=1 node tests/events-bonfire.mjs http://localhost:18089
+env FIXTURE_RASTER_RATIO=0.5 BONFIRE_RESUME_LOGIN=1 BONFIRE_NO_SHOTS=1 FIXTURE_DEBUG=1 node tests/events-bonfire.mjs http://localhost:18089
+env FIXTURE_DEBUG=1 FIXES2_ART_TAG=sizing-round2 node tests/bonfire-art.mjs http://localhost:18089
+env FIXTURE_RASTER_RATIO=0.5 REGRESSION_NO_SHOTS=1 FIXTURE_DEBUG=1 node tests/events-halloween.mjs http://localhost:18089
+env FIXTURE_RASTER_RATIO=0.5 FIXTURE_DEBUG=1 node tests/characters.mjs --only=day\,space\,bump
+env FIXTURE_DEBUG=1 FIXES2_ART_TAG=sizing-round2 BONFIRE_ART_MODES=phone BONFIRE_ART_ONLY=06-gloves-by-back-door\,15-gold-willows node tests/bonfire-art.mjs http://localhost:18089
+env FIXTURE_RASTER_RATIO=0.5 FIXTURE_DEBUG=1 node tests/characters.mjs --only=day\,space\,bump
+env FIXTURE_RASTER_RATIO=0.5 REGRESSION_NO_SHOTS=1 node tests/physics.mjs
+env FIXTURE_RASTER_RATIO=0.5 REGRESSION_NO_SHOTS=1 FIXTURE_DEBUG=1 node tests/story-ch1.mjs http://localhost:18089
+env FIXTURE_RASTER_RATIO=0.5 FIXTURE_DEBUG=1 node tests/smoke.mjs
+node tests/mobile.mjs --only=gate\,full
+```
+
+Evidence: `tests/shots/sizing/round2/{before,after}/`, `bonfire-desktop/`, `bonfire-phone/`. Captures are native resolution and personally reviewed. Full default Bonfire art coverage, including Potato, requires a completed rerun; a focused pass is not a full-suite pass. G3/G4 and other open stage-3 rows remain open.

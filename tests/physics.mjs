@@ -12,6 +12,7 @@ import {mkdtemp, mkdir, rm, writeFile} from 'node:fs/promises';
 import net from 'node:net';
 import {fileURLToPath} from 'node:url';
 import {roomFixture} from './room-fixture.mjs';
+import {bonfireLogin as loginFixture} from './bonfire-login.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url)), dir = root + 'tests/shots/physics/';
 const only = process.argv.find(a => a.startsWith('--only='))?.slice(7).split(',');
 const throttle = +(process.argv.find(a => a.startsWith('--throttle='))?.slice(11) || 4);
@@ -36,10 +37,10 @@ try {
   assert(log.includes(`online at :${port}`), 'Server did not start: ' + log.slice(-800));
   const base = `http://127.0.0.1:${port}`, account = 'Physics' + Date.now().toString(36), password = 'Throwaway-1999';
   assert((await fetch(base + '/admin/register', {method: 'POST', headers: {'X-Admin-Token': 'testtoken', 'Content-Type': 'application/json'}, body: JSON.stringify({name: account, pass: password})})).ok);
-  fixture = await roomFixture(base, {account, password, signup: false, timeoutScale: 3});
+  fixture = await roomFixture(base, {account,password,signup:false,resume:true,opening:true,storageState:await loginFixture(base,password,account,{pv:10,x:40,y:-70,z:155,rx:0,ry:0,lvl:'U',seat:0}),timeoutScale:3});
   const {page: p, errors, view, until} = fixture;
   await p.evaluate(() => Room.ensureHouse()); await until(() => window.HouseRooms?.ready);
-  const shot = name => p.screenshot({path: dir + name + '.png'});
+  const shot = name => process.env.REGRESSION_NO_SHOTS==='1'?p.waitForTimeout(250):p.screenshot({path: dir + name + '.png'});
   const fast = on => p.evaluate(on => { House.ren.setPixelRatio(on ? .5 : 1); House.dirty(); }, on);
   // stand on a floor and look at a point (no walking): the same pose helper the story test uses
   async function look(x, z, tx, ty, tz, lvl = 'U') {

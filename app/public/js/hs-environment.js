@@ -61,14 +61,14 @@
  const crosses=(x0,x1)=>x1>X[0]&&x0<X[5];
  const plots={
   opposite:Array.from({length:7},(_,i)=>[-2040+i*680,OPP,180,i,540]),
-  rear:Array.from({length:6},(_,i)=>[-1700+i*680,-1850,0,i+7,540]),
+  rear:Array.from({length:6},(_,i)=>[-1700+i*680,-2850,0,i+7,540]),
   side:[[-1700,13],[-1020,14],[1060,15],[1740,16]].map(([x,n])=>[x,550,0,n,ST.pave[0]-570])
  };
  // Further along: simpler (but still solid and closed) houses, out to where the backdrop takes over.
  const farPlots=[
   ...[-4760,-4080,-3400,-2720,3400,4080,4760].map((x,i)=>[x,OPP,180,i+17,540]),
   ...[-4420,-3740,-3060,-2380,3780,4460].map((x,i)=>[x,550,0,i+24,ST.pave[0]-570]),
-  ...[-4420,-3740,-3060,-2380,2380,3060,3740,4420].map((x,i)=>[x,-1850,0,i+30,540])
+  ...[-4420,-3740,-3060,-2380,2380,3060,3740,4420].map((x,i)=>[x,-2850,0,i+30,540])
  ].filter(([x,z])=>z!==OPP&&z!==550||!crosses(x-330,x+330));
  zone('street',b=>{
   // Global foundation stays below every playable road/turf surface.
@@ -77,7 +77,7 @@
   // Keep every lawn in the existing ground batch, rather than adding one
   // material batch to each house row. Plot bases reach the global foundation.
   for(const [x,z,ry,n,front]of [...plots.opposite,...plots.rear,...plots.side,...farPlots]){
-   const rear=-houseDepth[n%4]/2-326,end=front+20;
+   const rear=z===550?-1476-z-6:-houseDepth[n%4]/2-326,end=front+20;
    b.at(x,GY+1,z,ry).box(0,2.5,(rear+end)/2,668,5,end-rear,grass);
   }
   // The corner plots either side of the side road: the green (west) and the shop's yard (east).
@@ -106,21 +106,21 @@
   for(const [x0,x1] of [[-5600,-600],[1200,X[1]],[X[4],5600]]){pavement(x0,x1,p0,p1,null);slab(x0,x1,ST.kerb-5,ST.kerb+5,paving,-12,12)}
   for(const [x0,x1] of [[-5600,X[1]],[X[4],5600]]){pavement(x0,x1,f0,f1,null);slab(x0,x1,ST.farKerb-5,ST.farKerb+5,paving,-12,12)}
   // The back road, its footpaths (the north one stops at the side road's mouth: a T-junction).
-  slab(-5600,5600,-1185,-695,road,0,3);
-  pavement(-5600,5600,-1290,-1195,-1190);
-  for(const [x0,x1] of [[-5600,X[1]],[X[4],5600]])pavement(x0,x1,-685,-590,-690);
-  for(let x=-5490;x<5600;x+=180)b.box(x,GY-.3,-940,70,.3,3,trim);
+  slab(-5600,5600,-2185,-1695,road,0,3);
+  pavement(-5600,5600,-2290,-2195,-2190);
+  for(const [x0,x1] of [[-5600,X[1]],[X[4],5600]])pavement(x0,x1,-1685,-1590,-1690);
+  for(let x=-5490;x<5600;x+=180)b.box(x,GY-.3,-1940,70,.3,3,trim);
   // The side road: from the back road, across our street, on north past the opposite row.
-  for(const [z0,z1] of [[-695,r0],[r1,4400]]){
+  for(const [z0,z1] of [[-1695,r0],[r1,4400]]){
    slab(X[2],X[3],z0,z1,road,0,3);
    for(let z=Math.ceil((z0+80)/180)*180;z<z1-80;z+=180)b.box((X[2]+X[3])/2,GY-.3,z,3,.3,70,trim);
   }
-  for(const [z0,z1,k0,k1] of [[-590,p0,-695,ST.kerb+5],[f1,4400,ST.farKerb-5,4400]]){
+  for(const [z0,z1,k0,k1] of [[-1590,p0,-1695,ST.kerb+5],[f1,4400,ST.farKerb-5,4400]]){
    pavementZ(X[0],X[1],z0,z1,(X[1]+X[2])/2);pavementZ(X[4],X[5],z0,z1,(X[3]+X[4])/2);
    for(const kx of [(X[1]+X[2])/2,(X[3]+X[4])/2]){slab(kx-5,kx+5,k0,z0,paving,-12,12);if(k1>z1)slab(kx-5,kx+5,z1,k1,paving,-12,12)} // (the kerb turns the corner)
   }
   // Give way: double broken white lines across the side road where it meets our street and the back road.
-  for(const z of [r0-14,r0-28,r1+14,r1+28,-680,-666])for(let x=X[2]+20;x<X[3]-30;x+=60)b.box(x+15,GY-.3,z,30,.3,6,trim);
+  for(const z of [r0-14,r0-28,r1+14,r1+28,-1680,-1666])for(let x=X[2]+20;x<X[3]-30;x+=60)b.box(x+15,GY-.3,z,30,.3,6,trim);
   for(const x of [-4300,-2480,-1120,...streetLamps.map(l=>l.x),1600,3300,4700]){
    b.box(x,GY-.5,ST.farKerb-18,32,1,18,metal);
    for(let i=-2;i<=2;i++)b.box(x+i*5,GY-1.1,ST.farKerb-18,2,.4,14,paving);
@@ -252,7 +252,7 @@
   }
   // Fenced rear gardens complete the plots from upstairs and oblique views.
   // Panels have thickness and capped posts; no single-sided scenery cards.
-  const rear=-face-320;
+  const rear=z===550?-1476-z:-face-320;
   b.box(0,-63,rear,648,126,8,fence,{uv:140});
   for(const side of [-1,1]){
    b.box(side*322,-63,(rear+face)/2,8,126,face-rear-8,fence,{uv:140});
@@ -302,7 +302,7 @@
   b.box(doorX,-3,face+26,96,6,28,paving);
   for(const [lo,hi] of [[-318,doorX-58],[doorX+58,318]]){b.box((lo+hi)/2,-29,front,hi-lo,58,18,wall,{uv:100});b.box((lo+hi)/2,-60,front,hi-lo+4,4,24,paving)}
   for(const side of [-1,1]){b.box(side*321,-36,(face+front)/2,18,72,front-face-12,hedge);b.box(side*321,-2,(face+front)/2,26,4,front-face-12,earth)}
-  const rear=-face-320;b.box(0,-63,rear,648,126,8,fence,{uv:140});
+  const rear=z===550?-1476-z:-face-320;b.box(0,-63,rear,648,126,8,fence,{uv:140});
   for(const side of [-1,1])b.box(side*322,-63,(rear+face)/2,8,126,face-rear-8,fence,{uv:140});
   if(n%3===0)tree(b,-240,-face-105,365+(n%2)*60,n);
  }
@@ -354,8 +354,7 @@
   // These are the neighbours on Jack's street, with fronts towards the SAME
   // road. Their backs and hedges stay outside both playable rectangles.
   for(const p of plots.side)home(b,...p);
-  const planted=b.at(0,GY+6,0);
-  for(const [x,z,i] of [[-3400,-300,0],[-1900,-330,1],[1300,-320,2],[3700,-300,3],[-3000,3550,4],[-1400,3600,5],[200,3520,6],[1700,3580,7],[3800,3540,8]])tree(planted,x,z,460+(i%3)*55,i);
+  for(const [x,z,i] of [[-3400,-300,0],[-1900,-330,1],[1300,-320,2],[3700,-300,3],[-3000,3550,4],[-1400,3600,5],[200,3520,6],[1700,3580,7],[3800,3540,8]]){const onPlot=[...plots.side,...farPlots.filter(p=>p[1]===550)].some(p=>Math.abs(x-p[0])<334&&z>=-1482&&z<=p[1]+p[4]+20);tree(b.at(0,GY+(onPlot?1:6),0),x,z,460+(i%3)*55,i);}
  });
  // (one batch for the far rows and the crossroads, so the extra village costs as few draw calls as possible)
  zone('far houses',b=>{for(const p of farPlots)farHome(b,...p);cornerShop(b);green(b)});
