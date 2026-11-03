@@ -1,5 +1,5 @@
-/* BLOCKOLOGY (Game Lad COLOUR, in Jack's room): falling blocks on a 10 x 18 well, the proper handheld way, in full colour
- * (every piece its own colour, a brick frame, a colour title) with a CLASSIC four-shade option in OPTIONS.
+/* BLOCKOLOGY (Game Lad COLOUR): falling blocks on a 10 x 18 well, with chunky patterned pieces
+ * and a four-shade LCD default. OPTIONS also has the colour cartridge's jewel blocks and brick frame.
  *   MARATHON  clear lines, level up every ten, see how long you last (the score that goes to JackNet's table).
  *   ULTRA     the biggest score you can get in three minutes.      40 LINES  clear forty lines as fast as you can.
  *   B-TYPE  25 lines to clear from a starting level and a starting HEIGHT of junk. Clear it for a rocket launch.
@@ -8,9 +8,9 @@
  * A turns right, B turns left, Down drops faster, Up drops it all the way, Select holds a piece for later, Start pauses
  * (Resume / Restart / Quit). Pick the music (A, B, C, and a secret D) and the level at the start like the real thing.
  * Big scores end with a rocket launch on the pad (a space shuttlebus if you're brilliant). The top five on each mode are
- * saved on the cartridge with their initials (Jack's mates got there first). A game in progress carries on after a
- * refresh (CONTINUE). Everything (the tunes, the art) is original. Old saves ({well, score, lines, level, sl, cur, next})
- * still load: the save only ever gains fields. */
+ * saved on the cartridge with their initials (your cast got there first). A game in progress carries on after a
+ * refresh, including timed and CPU games, clears and endings (CONTINUE). The tunes and art are original.
+ * Legacy flat batteries ({well, score, lines, level, sl, cur, next}) migrate without changing scores or preferences. */
 (function () {
   'use strict';
   const TV = window.RoomTV; if (!TV) return;
@@ -76,32 +76,43 @@
     buttons: ['a', 'b'],
     help: 'Move: arrows. Turn: Z / X. Drop: Down (faster) or Up (all the way). Hold: Shift. Pause: Enter.',
     make(K) {
-      const g = K.g, W = K.W, H = K.H, F = K.font, sfx = K.sfx; let P = K.pal;
+      const g = K.g, W = K.W, H = K.H, F = K.font;
+      const sfx = Object.fromEntries(['tone', 'noise', 'seq'].map(name => [name, (...args) => { if (ST.opt.sfx) K.sfx[name](...args); }]));
+      const music = song => K.music(ST.opt.music ? song : null); let P = K.pal;
       const OX = 16, OY = 0, CS = 8;
       const mkc = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
-      const fr = (c, x, y, w, h) => { g.fillStyle = P[c]; g.fillRect(x, y, w, h); };
+      const fr = (c, x, y, w, h) => { g.fillStyle = P[c]; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
       const txt = (s, x, y, c) => F.draw(g, s, x, y, P[c == null ? 3 : c]);
       const ctr = (s, y, c, cx) => F.center(g, s, cx == null ? W / 2 : cx, y, P[c == null ? 3 : c]);
 
       // ============================================================ the cartridge's battery save
       const loaded = K.load() || {};
-      const pick = (id, fb) => { try { const n = window.Cast && Cast.first ? Cast.first(id) : ''; return String(n || fb).toUpperCase().replace(/[^A-Z]/g, '').slice(0, 6) || fb; } catch (e) { return fb; } };
-      const SEEDS = { A: [['DAVE', 31250, 9], ['LUKE', 22400, 7], ['CALLUM', 15800, 6], ['JACKK', 9600, 4], [pick('cousin', 'KIM'), 4200, 2]],
-        B: [['JACKK', 21500, 7], ['DAVE', 17200, 6], ['LUKE', 12900, 5], [pick('kidPoke', 'SAM'), 8400, 3], ['CALLUM', 5100, 2]],
-        U: [['JACKK', 18400, 31], ['DAVE', 15100, 27], ['CALLUM', 12650, 24], ['LUKE', 9800, 19], [pick('cousin2', 'GEMMA'), 5200, 12]],
-        L: [['DAVE', 2400, 0, 118.4], ['JACKK', 2100, 0, 141.2], ['LUKE', 1800, 0, 166.0], ['CALLUM', 1500, 0, 189.5], [pick('sister', 'AMY'), 1200, 0, 233.0]] };
-      const seedHi = t => SEEDS[t].map(([n, s, l, tm]) => tm ? { n, s, l, t: tm } : { n, s, l });
-      const hiOf = t => Array.isArray(loaded.hi && loaded.hi[t]) ? loaded.hi[t].slice(0, 5) : seedHi(t);
+      const castName = id => { try { return String(window.Cast && (id === 'me' ? Cast.me().name : Cast.n(id)) || (id === 'me' ? 'YOU' : 'PAL')).toUpperCase(); } catch (e) { return id === 'me' ? 'YOU' : 'PAL'; } };
+      const initials = id => castName(id).replace(/[^A-Z]/g, '').slice(0, 3).padEnd(3, '.');
+      const SEEDS = { A: [[31250, 9], [22400, 7], [15800, 6], [9600, 4], [4200, 2]],
+        B: [[21500, 7], [17200, 6], [12900, 5], [8400, 3], [5100, 2]],
+        U: [[18400, 31], [15100, 27], [12650, 24], [9800, 19], [5200, 12]],
+        L: [[2400, 0, 118.4], [2100, 0, 141.2], [1800, 0, 166], [1500, 0, 189.5], [1200, 0, 233]] };
+      const seedHi = type => SEEDS[type].map(([s, l, t], i) => ({ n: initials(['mate1', 'mate2', 'mate3', 'mate4', 'sister'][i]), s, l, ...(t ? { t } : {}), cast: ['mate1', 'mate2', 'mate3', 'mate4', 'sister'][i] }));
+      // Only replace untouched factory records from old cartridges; player initials/scores stay exactly as entered.
+      const hiOf = type => Array.isArray(loaded.hi && loaded.hi[type]) ? loaded.hi[type].slice(0, 5).map(e => {
+        const i = SEEDS[type].findIndex(([s, l, t]) => e.s === s && e.l === l && (t || 0) === (e.t || 0));
+        return e.cast ? { ...e, n: initials(e.cast) } : i >= 0 && String(e.n).length > 3 ? seedHi(type)[i] : e;
+      }) : seedHi(type);
       const ST = {
+        flights: Object.assign({}, loaded.flights || {}),
         hi: { A: hiOf('A'), B: hiOf('B'), U: hiOf('U'), L: hiOf('L') }, pb: Object.assign({ A: 0, B: 0, U: 0, L: 0, V: 0 }, loaded.pb || {}),
-        opt: Object.assign({ ghost: 1, hold: 1, pal: 0 }, loaded.opt || {}), mus: loaded.mus | 0, lv: loaded.lv | 0, bh: loaded.bh | 0, cpu: loaded.cpu == null ? 1 : loaded.cpu | 0,
-        un: Object.assign({ d: 0, hard: 0 }, loaded.un || {}), stat: Object.assign({ games: 0, lines: 0, blockos: 0, wins: 0 }, loaded.stat || {}),
+        opt: Object.assign({ ghost: 1, hold: 1, pal: 1, music: 1, sfx: 1 }, loaded.opt || {}), mus: loaded.mus | 0, lv: loaded.lv | 0, bh: loaded.bh | 0, cpu: loaded.cpu == null ? 1 : loaded.cpu | 0,
+        un: Object.assign({ d: 0, hard: 0, ending: 0, rocket: 0 }, loaded.un || {}), stat: Object.assign({ games: 0, lines: 0, blockos: 0, wins: 0 }, loaded.stat || {}),
       };
       const colour = () => !ST.opt.pal;
       function setPal() { P = colour() ? UI_COL : K.pal; for (const k in ART) delete ART[k]; }
-      let resume = Array.isArray(loaded.well) && loaded.well.length === ROWS && loaded.cur ? loaded : null; // a game in progress (old saves too)
+      const legacyWell = Array.isArray(loaded.well) && loaded.well.length === ROWS && loaded.well.every(row => Array.isArray(row) && row.length === COLS) && loaded.cur;
+      // Resume contains only the run, never old copies of preferences or high scores.
+      let resume = loaded.cart ? { cart: loaded.cart } : legacyWell ? Object.fromEntries(['well', 'score', 'lines', 'level', 'sl', 'cur', 'next', 'hold', 'gt', 'bh'].map(k => [k, loaded[k]])) : null;
+
       function persist(progress) {
-        const o = { hi: ST.hi, pb: ST.pb, opt: ST.opt, mus: ST.mus, lv: ST.lv, bh: ST.bh, cpu: ST.cpu, un: ST.un, stat: ST.stat };
+        const o = { ui: { mode: ACTIVE.includes(mode) ? 'title' : mode, menuI, sub, gtype, logLv, logH }, flights: ST.flights, hi: ST.hi, pb: ST.pb, opt: ST.opt, mus: ST.mus, lv: ST.lv, bh: ST.bh, cpu: ST.cpu, un: ST.un, stat: ST.stat };
         if (progress) Object.assign(o, progress);
         K.save(o);
       }
@@ -150,10 +161,14 @@
       // ============================================================ a well (yours, the computer's, or the attract demo's)
       function makeWell(o) {
         o = o || {};
-        let seed = o.seed || ((Math.random() * 1e9) | 0);
-        const w = { grid: emptyGrid(), cur: null, next: null, hold: null, canHold: true, bag: [], rnd: K.rnd(seed), score: 0, lines: 0, level: o.level | 0, sl: o.level | 0,
+        const seed = o.seed || ((Math.random() * 1e9) | 0);
+        // Keep the stream state in the battery record: a refresh must not deal a new bag or junk pattern.
+        let rngState = seed >>> 0 || 1;
+        const random = () => { rngState = (Math.imul(rngState, 1664525) + 1013904223) >>> 0; w.rng = rngState; return rngState / 4294967296; };
+        const w = { grid: emptyGrid(), cur: null, next: null, hold: null, canHold: true, bag: [], rng: rngState, rnd: random, score: 0, lines: 0, level: o.level | 0, sl: o.level | 0,
           fall: 0, lock: 0, lockN: 0, das: 0, dasDir: 0, clearing: null, clearT: 0, are: 0, dead: false, btype: !!o.btype, bh: o.bh | 0, junkIn: 0, pieces: 0, blockos: 0,
           pops: [], dust: [], allowHold: o.hold !== false, me: !!o.me, done: false, onClear: o.onClear || null, onDead: o.onDead || null, onLock: o.onLock || null };
+        w.restoreRng = n => { rngState = n >>> 0; w.rng = rngState; };
         if (w.btype && w.bh) { // B-TYPE: junk up to the starting height (never a full row)
           for (let y = ROWS - HEIGHTS[w.bh]; y < ROWS; y++) { for (let x = 0; x < COLS; x++) if (w.rnd() < 0.55) w.grid[y][x] = 1 + (w.rnd() * 8 | 0); if (w.grid[y].every(c => c)) w.grid[y][w.rnd() * COLS | 0] = 0; }
         }
@@ -197,7 +212,7 @@
           if (full.length === 4) w.blockos++;
           w.pops.push({ s: '+' + pts, x: OX + 40, y: OY + full[0] * CS, t: 0 });
           if (w.onClear) w.onClear(w, full.length);
-          if (!w.btype) { const lv = Math.max(w.sl, Math.floor(w.lines / 10)); if (lv > w.level) { w.level = lv; if (w.me) levelUp(); } }
+          if (!w.btype) { const lv = w.sl + Math.floor(w.lines / 10); if (lv > w.level) { w.level = lv; if (w.me) levelUp(); } }
         } else w.are = 2;
       }
       function collapse(w) { for (const y of w.clearing) { w.grid.splice(y, 1); w.grid.unshift(Array(COLS).fill(0)); } w.clearing = null; w.are = 6; }
@@ -218,13 +233,17 @@
         if (w.dead) return;
         for (const p of w.pops) p.t += 1 / 60; w.pops = w.pops.filter(p => p.t < 1);
         for (const d of w.dust) { d.t += 1 / 60; d.x += d.vx; d.y += d.vy; d.vy += 0.08; } w.dust = w.dust.filter(d => d.t < 0.5);
-        if (w.clearing) { w.clearT += 1 / 60; if (w.clearT > 0.5) collapse(w); return; }
+        if (w.clearing) { w.clearT += 1 / 60; if (w.clearT > 0.34) collapse(w); return; }
         if (w.done) return;
         if (!w.cur) { if (w.are > 0) w.are--; if (!w.are) spawn(w); return; }
         if (inp.hold && doHold(w)) { if (w.me) sfx.tone(660, 0.05, 'square', 0.06, 0, 990); return; }
         // left/right: a tap moves one, holding repeats after a moment (like the D-pad)
-        if (inp.pl || inp.pr) { w.dasDir = inp.pl ? -1 : 1; w.das = 0; if (tryMove(w, w.dasDir, 0)) { if (w.me) sfx.tone(300, 0.02, 'square', 0.04); resetLock(w); } }
-        else { const d = inp.l ? -1 : inp.r ? 1 : 0; if (d && d === w.dasDir) { w.das++; if (w.das > 14 && (w.das - 14) % 3 === 0 && tryMove(w, d, 0)) resetLock(w); } else w.dasDir = d; }
+        const d = inp.pl ? -1 : inp.pr ? 1 : inp.l && !inp.r ? -1 : inp.r && !inp.l ? 1 : 0;
+        if (!d) { w.das = 0; w.dasDir = 0; }
+        else if (inp.pl || inp.pr || d !== w.dasDir) {
+          w.dasDir = d; w.das = 0;
+          if (tryMove(w, d, 0)) { if (w.me) sfx.tone(300, 0.02, 'square', 0.04); resetLock(w); }
+        } else if (++w.das >= 14 && (w.das - 14) % 3 === 0 && tryMove(w, d, 0)) resetLock(w);
         if (inp.ra && tryMove(w, 0, 0, 1)) { if (w.me) sfx.tone(520, 0.03, 'square', 0.05); resetLock(w); }
         if (inp.rb && tryMove(w, 0, 0, -1)) { if (w.me) sfx.tone(470, 0.03, 'square', 0.05); resetLock(w); }
         if (inp.hd) return hardDrop(w);
@@ -256,7 +275,7 @@
           let bump = 0; for (let cx = 1; cx < COLS; cx++) bump += Math.abs(hts[cx] - hts[cx - 1]);
           const agg = hts.reduce((a, b) => a + b, 0), top = Math.max(...hts);
           let v = -0.51 * agg + 0.76 * lines * (lines === 4 ? 1.6 : 1) - 0.36 * holes * 2 - 0.18 * bump - (top > 14 ? 3 : 0);
-          if (sloppy) v += (Math.random() - 0.5) * sloppy;
+          if (sloppy) v += (w.rnd() - 0.5) * sloppy;
           if (!best || v > best.v) best = { r, x, v };
         }
         return best || { r: 0, x: 3, v: 0 };
@@ -280,7 +299,10 @@
       // ============================================================ sounds and juice
       let shake = 0, flashT = 0, banner = '', bannerT = 0;
       const jingle = (notes, bpm, wave) => sfx.seq(notes, { bpm: bpm || 300, vol: 0.09, wave: wave || 'square' });
-      function levelUp() { banner = 'LEVEL ' + you.level + '!'; bannerT = 1.6; jingle([[72, 0.25], [76, 0.25], [79, 0.25], [84, 0.75]], 320); }
+      function levelUp() {
+        if (banner === 'BLOCKOLOGY!' && bannerT > 0) bannerSub = 'LEVEL ' + you.level + '!';
+        else { banner = 'LEVEL ' + you.level + '!'; bannerSub = ''; bannerT = 1.6; jingle([[72, 0.25], [76, 0.25], [79, 0.25], [84, 0.75]], 320); }
+      }
       function clearSfx(n) {
         if (n === 4) { jingle([[72, 0.25], [76, 0.25], [79, 0.25], [84, 0.25], [88, 0.25], [91, 1]], 340); sfx.noise(0.5, 0.1, 5000, 0, 'highpass'); }
         else if (n === 3) jingle([[76, 0.25], [79, 0.25], [84, 0.5]]); else if (n === 2) jingle([[79, 0.25], [84, 0.5]]); else jingle([[84, 0.4]]);
@@ -289,21 +311,48 @@
       // ============================================================ the game state
       let mode = 'title', T = 0, idleT = 0, menuI = 0, sub = 0, gtype = 'A', you = null, cpu = null, cpuC = null, paused = false, pauseI = 0;
       let vs = null; // { lv: CPU level index, me: wins, them: wins, round, msgT, roundOver }
-      let runT = 0, overT = 0, result = null, saveT = 0, danger = false, entry = null, rocket = null, reported = false, demo = null, attract = 0, logoT = 0;
+      let runT = 0, overT = 0, result = null, saveT = 0, danger = false, entry = null, rocket = null, reported = false, demo = null, logoT = 0;
       const tune = () => ST.mus < TUNES.length ? TUNES[ST.mus] : null;
-      function playTune() { const t = tune(); if (!t) return K.music(null); K.music(danger ? Object.assign({}, t, { bpm: t.bpm * 1.3 }) : t); }
-      const progress = () => (mode === 'play' && you && !you.dead && !you.clearing && you.cur && (gtype === 'A' || gtype === 'B'))
-        ? { well: you.grid, score: you.score, lines: you.lines, level: you.level, sl: you.sl, cur: you.cur, next: you.next, hold: you.hold, gt: gtype, bh: you.bh } : null;
+      function resumeScoring() { if (K.restoring) { K.t = 0; if (K.resume) K.resume(); } if (ST.un.rocket) K.secret('rm.blocks.rocket'); }
+      function playTune() { const t = tune(); if (!t) return music(null); music(danger ? Object.assign({}, t, { bpm: t.bpm * 1.3 }) : t); }
+      const WELL_KEYS = ['grid', 'cur', 'next', 'hold', 'canHold', 'bag', 'rng', 'score', 'lines', 'level', 'sl', 'fall', 'lock', 'lockN', 'das', 'dasDir', 'clearing', 'clearT', 'are', 'dead', 'btype', 'bh', 'junkIn', 'pieces', 'blockos', 'allowHold', 'done', 'heart'];
+      const packWell = w => w && Object.fromEntries(WELL_KEYS.map(k => [k, w[k]]));
+      function unpackWell(w, saved) {
+        for (const k of WELL_KEYS) if (saved[k] !== undefined) w[k] = JSON.parse(JSON.stringify(saved[k]));
+        w.restoreRng(saved.rng == null ? 1 : saved.rng); w.das = 0; w.dasDir = 0; return w;
+      }
+      const ACTIVE = ['play', 'over', 'rocket', 'entry', 'result', 'vsend', 'credits'];
+      const progress = () => (you || mode === 'credits') && ACTIVE.includes(mode) ? { cart: {
+        v: 2, mode, gtype, you: packWell(you), cpu: packWell(cpu), cpuC, vs, runT, overT, result, entry, rocket: rocket && { size: rocket.size, t: rocket.t },
+        reported, unlockMsg, myRow, banner, bannerSub, bannerT, flashT, heartOn, creditT, creditBack, creditPrior, counted, startScoreTime: K.t,
+      } } : null;
+      function checkpoint() {
+        const pr = progress();
+        if (pr) { persist(pr); resume = JSON.parse(JSON.stringify(pr)); }
+        else persist(resume);
+      }
+      function restoreCart(c) {
+        if (!c || c.v !== 2 || !ACTIVE.includes(c.mode)) return false;
+        if (!c.you) { if (c.mode !== 'credits') return false; mode = 'credits'; creditT = c.creditT || 0; creditBack = c.creditBack || 'flights'; creditPrior = c.creditPrior || null; music(TUNES[3]); return true; }
+        vs = c.vs ? { ...c.vs } : null; startGame(c.gtype, { cart: c });
+        unpackWell(you, c.you); if (c.cpu && cpu) unpackWell(cpu, c.cpu);
+        cpuC = c.cpuC || cpuC; vs = c.vs; runT = c.runT || 0; overT = c.overT || 0; result = c.result;
+        entry = c.entry; rocket = c.rocket; reported = !!c.reported; unlockMsg = c.unlockMsg || ''; myRow = c.myRow && (tbl().find(e => e.n === c.myRow.n && e.s === c.myRow.s && e.t === c.myRow.t) || c.myRow);
+        banner = c.banner || ''; bannerSub = c.bannerSub || ''; bannerT = c.bannerT || 0; flashT = c.flashT || 0;
+        heartOn = !!c.heartOn; counted = !!c.counted; creditT = c.creditT || 0; creditBack = c.creditBack || 'afterOver'; creditPrior = c.creditPrior || null; mode = c.mode;
+        K.t = K.restoring ? 0 : Math.max(K.t, c.startScoreTime || 0); paused = mode === 'play'; pauseI = 0;
+        music(mode === 'credits' ? TUNES[3] : null); return true;
+      }
 
       function startGame(type, seedWell) {
-        gtype = type; paused = false; danger = false; overT = 0; result = null; reported = false; banner = ''; bannerT = 0; flashT = 0; runT = 0; bannerSub = '';
+        gtype = type; paused = false; counted = false; unlockMsg = ''; danger = false; overT = 0; result = null; reported = false; banner = ''; bannerT = 0; flashT = 0; runT = 0; bannerSub = '';
         const common = { me: true, hold: type !== 'V' && !!ST.opt.hold, onClear: (w, n) => {
           clearSfx(n);
-          if (n === 4) { flashT = 0.2; shake = 8; banner = 'BLOCKOLOGY!'; bannerSub = '4 LINES!'; bannerT = 1.8; K.secret('rm.blocks.tetra'); ST.stat.blockos++; if (!ST.un.d) { ST.un.d = 1; bannerT = 2.6; unlockMsg = 'MUSIC D UNLOCKED!'; } }
+          if (n === 4) { flashT = 0.16; shake = 3; banner = 'BLOCKOLOGY!'; bannerSub = '4 LINES!'; bannerT = 1.8; K.secret('rm.blocks.tetra'); ST.stat.blockos++; if (!ST.un.d) { ST.un.d = 1; bannerT = 2.6; unlockMsg = 'MUSIC D UNLOCKED!'; } }
           else if (n >= 2) { banner = n === 3 ? 'TRIPLE!' : 'DOUBLE!'; bannerSub = ''; bannerT = 0.9; }
           if (gtype === 'V') sendJunk(you, cpu, n); if (gtype === 'B' && w.lines >= 25) bClear(); if (gtype === 'L' && w.lines >= SPRINT) timedEnd(true); },
           onDead: () => youDied() };
-        if (seedWell) { // carry on a saved game
+        if (seedWell && !seedWell.cart) { // carry on a saved game
           you = makeWell(Object.assign({ level: seedWell.sl | 0 }, common));
           you.grid = seedWell.well.map(r => r.slice(0, COLS).map(c => c | 0)); you.score = seedWell.score | 0; you.lines = seedWell.lines | 0; you.level = seedWell.level | 0;
           you.cur = Object.assign({}, seedWell.cur); you.next = KINDS.includes(seedWell.next) ? seedWell.next : draw7(you); you.hold = KINDS.includes(seedWell.hold) ? seedWell.hold : null;
@@ -322,48 +371,53 @@
           } else cpu = null;
           if (type === 'B') { banner = `B-TYPE ${ST.lv}-${ST.bh}`; bannerT = 1.6; }
           if (type === 'U') { banner = '3 MINUTES!'; bannerSub = 'GO GO GO!'; bannerT = 1.6; }
-          if (type === 'L') { banner = 'CLEAR 40 LINES'; bannerSub = 'AS FAST AS YOU CAN'; bannerT = 1.6; }
+          if (type === 'L') { banner = '40 LINES'; bannerSub = 'RACE CLOCK'; bannerT = 1.6; }
         }
-        mode = 'play'; ST.stat.games++;
-        if (!paused) playTune(); else K.music(null);
+        mode = 'play'; if (!seedWell) ST.stat.games++;
+        if (!paused) playTune(); else music(null);
+        if (!seedWell) { K.t = 0; resumeScoring(); checkpoint(); }
       }
       let unlockMsg = '', bannerSub = '', heartOn = false;
       function timedEnd(won) { // ULTRA: the clock ran out; 40 LINES: all forty cleared
-        you.done = true; you.cur = null; mode = 'over'; overT = 0; K.music(null); persist(null);
-        result = { won, time: runT, timed: true };
+        you.done = true; you.cur = null; mode = 'over'; overT = 0; music(null);
+        result = { won, time: runT, timed: true }; checkpoint();
         jingle(won ? [[72, 0.25], [76, 0.25], [79, 0.25], [84, 0.25], [88, 1]] : [[84, 0.25], [79, 0.25], [76, 0.25], [72, 1]], 260);
       }
       function sendJunk(from, to, n) { let s = SEND[n]; if (!s) return; if (from.junkIn > 0) { const c = Math.min(from.junkIn, s); from.junkIn -= c; s -= c; } to.junkIn += s; }
       function youDied() {
         if (gtype === 'V') return roundOver(false);
-        mode = 'over'; overT = 0; K.music(null); persist(null); resume = null;
+        mode = 'over'; overT = 0; music(null); resume = null;
         jingle([[72, 0.5], [67, 0.5], [64, 0.5], [60, 1.5]], 180, 'triangle');
-        result = { won: false };
+        result = { won: false }; checkpoint();
       }
       function bClear() {
         const bonus = 1000 * (you.level + 1) + 1500 * you.bh;
         you.score += bonus; you.done = true; you.cur = null;
-        mode = 'over'; overT = 0; K.music(null); persist(null); resume = null;
+        mode = 'over'; overT = 0; music(null); resume = null;
         jingle([[72, 0.25], [76, 0.25], [79, 0.25], [84, 0.25], [88, 1]], 260);
-        result = { won: true, bonus };
+        const flight = you.sl + '-' + you.bh;
+        ST.flights[flight] = Math.max(ST.flights[flight] || 0, you.score);
+        if (you.sl === 9 && you.bh === 5) ST.un.ending = 1;
+        result = { won: true, bonus }; checkpoint();
       }
       function roundOver(youWon) {
         if (vs.roundOver) return;
         vs.roundOver = 1; vs.won = youWon; vs.endT = 0;
         if (youWon) vs.me++; else vs.them++;
         you.done = true; cpu.done = true; you.cur = null; cpu.cur = null;
-        K.music(null);
+        music(null);
+        checkpoint();
         if (youWon) jingle([[72, 0.25], [76, 0.25], [79, 0.25], [84, 1]], 260); else jingle([[67, 0.5], [63, 0.5], [60, 1]], 200, 'triangle');
       }
       function nextRound() {
         vs.lines += you.lines;
         if (vs.me >= 3 || vs.them >= 3) {
           const won = vs.me >= 3;
+          ST.stat.lines += vs.lines;
           if (won) { ST.stat.wins++; if (ST.cpu === 1 && !ST.un.hard) { ST.un.hard = 1; unlockMsg = 'HARD CPU UNLOCKED!'; } if (ST.cpu === 2) K.secret('rm.blocks.cpu'); }
-          persist(null);
           mode = 'vsend'; overT = 0; vs.matchWon = won;
           vs.total = Math.min(99999, vs.lines * 100 + vs.me * 2000 + (won ? 3000 * (ST.cpu + 1) : 0));
-          return;
+          ST.pb.V = Math.max(ST.pb.V || 0, vs.total); checkpoint(); return;
         }
         vs.round++;
         startGame('V');
@@ -378,15 +432,15 @@
       function afterOver() {
         const s = you.score;
         // a rocket for a big go (B-TYPE: a clear from a high level and height)
-        const size = gtype === 'B' ? (result.won ? (you.level + you.bh >= 14 ? 3 : you.level + you.bh >= 9 ? 2 : you.level + you.bh >= 5 ? 1 : 0) : 0)
+        const size = gtype === 'B' ? (result.won ? (you.level + you.bh >= 14 ? 3 : you.level + you.bh >= 9 ? 2 : 1) : 0)
           : gtype === 'L' ? (result.won ? (runT < 120 ? 3 : runT < 180 ? 2 : 1) : 0) : gtype === 'U' ? (s >= 40000 ? 3 : s >= 20000 ? 2 : s >= 8000 ? 1 : 0)
           : s >= 100000 ? 3 : s >= 50000 ? 2 : s >= 20000 ? 1 : 0;
         // personal bests per mode
         if (gtype === 'L') { if (result.won && (!ST.pb.L || runT < ST.pb.L)) ST.pb.L = Math.round(runT * 10) / 10; } else if (s > (ST.pb[gtype] | 0)) ST.pb[gtype] = s;
-        persist(null);
-        if (size && !rocket) { rocket = { size, t: 0 }; mode = 'rocket'; K.music(null); return; }
-        if (qualifies() && !entry) { entry = { name: [0, 0, 0], i: 0, done: false }; mode = 'entry'; K.music(TITLE_TUNE); return; }
-        mode = 'result'; overT = 0;
+        if (size && !rocket) { rocket = { size, t: 0 }; mode = 'rocket'; music(null); checkpoint(); return; }
+        if (gtype === 'B' && result.won && you.sl === 9 && you.bh === 5 && !result.credits) { result.credits = true; startCredits(); return; }
+        if (qualifies() && !entry) { entry = { name: [...initials('me')].map(ch => Math.max(0, ABC.indexOf(ch))), i: 0, done: false }; mode = 'entry'; music(TITLE_TUNE); checkpoint(); return; }
+        mode = 'result'; overT = 0; checkpoint();
       }
       function report() {
         if (reported) return; reported = true;
@@ -395,26 +449,31 @@
         const title = gtype === 'V' ? (vs.matchWon ? 'YOU BEAT THE GAME LAD!' : 'THE GAME LAD WINS') : gtype === 'B' ? (result.won ? 'B-TYPE CLEARED!' : 'GAME OVER')
           : gtype === 'U' ? 'TIME UP!' : gtype === 'L' ? (result.won ? `40 LINES IN ${clock(runT, 1)}!` : 'GAME OVER') : 'GAME OVER';
         const text = gtype === 'V' ? `VS CPU (${CPU_LV[ST.cpu].n}): ${vs.me} - ${vs.them}` : `${MODE_N[gtype]}  LEVEL ${you.level}  LINES ${you.lines}${you.blockos ? `  BLOCKOLOGIES ${you.blockos}` : ''}`;
-        K.over(cap, { title, text });
+        K.over(cap, { title, text, keep: true }); K.t = 0; checkpoint();
       }
 
       // ============================================================ the rocket launch (a reward, like the old handheld)
+      function pixelOval(c, x, y, rx, ry) {
+        x = Math.round(x); y = Math.round(y); rx = Math.round(rx); ry = Math.round(ry);
+        for (let j = -ry; j <= ry; j++) { const half = Math.floor(rx * Math.sqrt(Math.max(0, 1 - j * j / (ry * ry)))); fr(c, x - half, y + j, half * 2 + 1, 1); }
+      }
       function drawRocket() {
         const R = rocket, t = R.t;
         fr(3, 0, 0, W, H);
         for (let i = 0; i < 40; i++) { const sx = (i * 53) % W, sy = (i * 29) % 100; fr((i + (K.frame >> 4)) % 5 ? 1 : 0, sx, sy, 1, 1); }
-        g.fillStyle = P[1]; g.beginPath(); g.arc(130, 22, 9, 0, 7); g.fill(); fr(2, 126, 18, 3, 3); fr(2, 132, 25, 2, 2); // the moon
-        const lift = t < 3 ? 0 : Math.pow(t - 3, 2.2) * 9, sh = t > 2 && t < 6 ? ((K.frame >> 1) % 2) * 2 - 1 : 0;
+        pixelOval(1, 130, 22, 9, 9); fr(2, 126, 18, 3, 3); fr(2, 132, 25, 2, 2); // the moon
+        const lift = t < 3 ? 0 : Math.round(Math.pow(t - 3, 2.2) * 9), sh = t > 2 && t < 6 ? ((K.frame >> 1) % 2) * 2 - 1 : 0;
         g.save(); g.translate(sh, 0);
         fr(2, 0, 118, W, 26); fr(1, 0, 118, W, 2); for (let x = 0; x < W; x += 6) fr(3, x, 124 + (x * 7) % 12, 2, 1);
         // the gantry tower
-        fr(3, 100, 40, 3, 78); fr(3, 110, 40, 3, 78); for (let y = 42; y < 118; y += 8) { g.fillStyle = P[3]; g.beginPath(); g.moveTo(100, y); g.lineTo(113, y + 8); g.lineTo(113, y + 6); g.lineTo(100, y - 2); g.fill(); fr(3, 100, y, 13, 1); }
-        if (lift < 2) { fr(3, 88, 60, 12, 2); fr(3, 88, 80, 12, 2); }
+        fr(2, 100, 40, 3, 78); fr(2, 110, 40, 3, 78); for (let y = 42; y < 118; y += 8) { g.fillStyle = P[2]; g.beginPath(); g.moveTo(100, y); g.lineTo(113, y + 8); g.lineTo(113, y + 6); g.lineTo(100, y - 2); g.fill(); fr(2, 100, y, 13, 1); }
+        fr(1, 100, 40, 13, 1); fr(1, 101, 41, 1, 77);
+        if (lift < 2) { fr(2, 88, 60, 12, 2); fr(2, 88, 80, 12, 2); }
         fr(3, 60, 114, 50, 4);
         // the rocket
         const bx = 76, by = 114 - lift;
         if (R.size === 3) { // the space shuttle: a big tank, two boosters, the orbiter
-          fr(3, bx - 6, by - 64, 13, 62); fr(2, bx - 5, by - 62, 11, 58); fr(1, bx - 4, by - 62, 3, 58); g.fillStyle = P[3]; g.beginPath(); g.ellipse(bx, by - 64, 6.5, 8, 0, 0, 7); g.fill(); g.fillStyle = P[2]; g.beginPath(); g.ellipse(bx, by - 63, 5, 7, 0, 0, 7); g.fill();
+          fr(3, bx - 6, by - 64, 13, 62); fr(2, bx - 5, by - 62, 11, 58); fr(1, bx - 4, by - 62, 3, 58); pixelOval(3, bx, by - 64, 6, 8); pixelOval(2, bx, by - 63, 5, 7);
           for (const s of [-10, 8]) { fr(3, bx + s, by - 54, 5, 52); fr(0, bx + s + 1, by - 52, 3, 50); g.fillStyle = P[3]; g.beginPath(); g.moveTo(bx + s, by - 54); g.lineTo(bx + s + 2.5, by - 60); g.lineTo(bx + s + 5, by - 54); g.fill(); }
           fr(3, bx + 13, by - 46, 9, 40); fr(0, bx + 14, by - 44, 7, 36); fr(3, bx + 15, by - 41, 3, 3); g.fillStyle = P[3]; g.beginPath(); g.moveTo(bx + 13, by - 46); g.lineTo(bx + 17, by - 54); g.lineTo(bx + 22, by - 46); g.fill();
           g.beginPath(); g.moveTo(bx + 22, by - 20); g.lineTo(bx + 30, by - 6); g.lineTo(bx + 22, by - 6); g.fill(); fr(2, bx + 14, by - 12, 7, 6);
@@ -422,7 +481,7 @@
           const hgt = R.size === 2 ? 52 : 36, wd = R.size === 2 ? 11 : 9, x0 = bx - (wd >> 1);
           fr(3, x0, by - hgt, wd, hgt - 2); fr(0, x0 + 1, by - hgt + 2, wd - 2, hgt - 6); fr(1, x0 + wd - 3, by - hgt + 2, 2, hgt - 6);
           fr(3, x0 + 2, by - hgt + 8, wd - 4, 4); fr(1, x0 + 3, by - hgt + 9, wd - 6, 2); // a window
-          if (R.size === 2) { fr(2, x0 + 1, by - 26, wd - 2, 3); txt('J', x0 + 3, by - 22, 3); }
+          if (R.size === 2) { fr(2, x0 + 1, by - 26, wd - 2, 3); txt(initials('me')[0], x0 + 3, by - 22, 3); }
           g.fillStyle = P[3]; g.beginPath(); g.moveTo(x0, by - hgt); g.lineTo(bx + 0.5, by - hgt - 10); g.lineTo(x0 + wd, by - hgt); g.fill();
           g.beginPath(); g.moveTo(x0, by - 14); g.lineTo(x0 - 5, by - 2); g.lineTo(x0, by - 4); g.fill(); g.beginPath(); g.moveTo(x0 + wd, by - 14); g.lineTo(x0 + wd + 5, by - 2); g.lineTo(x0 + wd, by - 4); g.fill();
         }
@@ -433,7 +492,7 @@
           g.fillStyle = P[1]; g.beginPath(); g.moveTo(bx - 2, by); g.lineTo(bx, by + fl * 0.6); g.lineTo(bx + 2, by); g.fill();
           if (R.size === 3) for (const s of [-8, 10]) { g.fillStyle = P[0]; g.beginPath(); g.moveTo(bx + s - 2, by); g.lineTo(bx + s, by + fl); g.lineTo(bx + s + 2, by); g.fill(); }
         }
-        for (const c of R.smoke || []) { g.fillStyle = P[c.c]; g.beginPath(); g.arc(c.x, c.y, c.r, 0, 7); g.fill(); }
+        for (const c of R.smoke || []) pixelOval(c.c, c.x, c.y, c.r, c.r * 0.7);
         g.restore();
         if (t < 2.4) { const n = 3 - Math.floor(t / 0.8); box(4, 40, 58, 24); ctr(n > 0 ? String(n) : 'IGNITION', 48, 3, 33); }
         if (t > 4.5) { box(16, 8, 128, 30); ctr(R.size === 3 ? 'SHUTTLE LAUNCH!' : R.size === 2 ? 'BIG ROCKET!' : 'LIFT-OFF!', 14, 3); ctr(R.size === 3 ? 'BLOCKOLOGY CHAMPION' : 'WELL PLAYED!', 25, 2); }
@@ -445,7 +504,8 @@
         if (R.smoke.length > 80) R.smoke.splice(0, R.smoke.length - 80);
         if (R.t > 2 && R.t < 6 && K.frame % 4 === 0) sfx.noise(0.12, 0.08 + R.size * 0.02, 300 + R.t * 120);
         if (Math.abs(R.t - 2) < 1 / 120) sfx.noise(1.5, 0.15, 800, 0, 'lowpass', 200);
-        if (Math.abs(R.t - 4.6) < 1 / 120) { jingle([[72, 0.5], [76, 0.5], [79, 0.5], [84, 0.5], [88, 0.5], [91, 2]], 240); if (R.size === 3) K.secret('rm.blocks.rocket'); }
+        if (Math.abs(R.t - 4.6) < 1 / 120) { jingle([[72, 0.5], [76, 0.5], [79, 0.5], [84, 0.5], [88, 0.5], [91, 2]], 240); }
+        if (R.size === 3 && R.t >= 4.6 && !ST.un.rocket) { ST.un.rocket = 1; K.secret('rm.blocks.rocket'); checkpoint(); }
         if (R.t > 3 && (K.pressed('a') || K.pressed('start'))) { mode = 'afterRocket'; afterOver(); }
         if (R.t > 11) afterOver();
       }
@@ -459,12 +519,12 @@
           const cl = w.clearing, ct = w.clearT;
           for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
             const k = w.grid[y][x]; if (!k) continue;
-            if (cl && cl.includes(y)) { if (ct < 0.28) { blk(((ct * 14) | 0) % 2 ? 9 : k, ox + x * cs, oy + y * cs); continue; } const gone = Math.floor((ct - 0.28) / 0.22 * 6); if (Math.abs(x - 4.5) < gone) continue; blk(9, ox + x * cs, oy + y * cs); continue; }
+            if (cl && cl.includes(y)) { if (ct < 0.16) { blk(((ct * 14) | 0) % 2 ? 9 : k, ox + x * cs, oy + y * cs); continue; } const gone = Math.floor((ct - 0.16) / 0.18 * 6); if (Math.abs(x - 4.5) < gone) continue; blk(9, ox + x * cs, oy + y * cs); continue; }
             blk(k, ox + x * cs, oy + y * cs);
           }
           if (w.cur && !w.dead) {
             if (ST.opt.ghost) { const gy = ghostY(w); if (gy > w.cur.y) for (const [x, y] of cellsOf({ k: w.cur.k, r: w.cur.r, x: w.cur.x, y: gy })) if (y >= 0) blk(10, ox + x * cs, oy + y * cs); }
-            const flash = w.lock > 18 && (K.frame >> 2) % 2;
+            const flash = w.lock > 18 && (K.frame >> 3) % 2;
             for (const [x, y] of cellsOf(w.cur)) if (y >= 0) blk(flash ? 9 : PAT[w.cur.k], ox + x * cs, oy + y * cs);
           }
           for (const d of w.dust) fr(2, d.x | 0, d.y | 0, 1, 1);
@@ -501,7 +561,7 @@
         }
         if (gtype === 'L') { box(x0, 2, w0, 22); txt('TIME', x0 + 4, 5, 2); txt(clock(runT, 1).padStart(6, ' '), x0 + 6, 14); }
         else { box(x0, 2, w0, 22); txt('SCORE', x0 + 4, 5, 2); txt(pad6(Math.min(999999, you.score)), x0 + 6, 14); }
-        box(x0, 26, w0, 22); txt('LEVEL ' + you.level + (you.heart ? '♥' : ''), x0 + 4, 29); txt(gtype === 'B' ? 'LEFT ' + Math.max(0, 25 - you.lines) : gtype === 'L' ? 'LEFT ' + Math.max(0, SPRINT - you.lines) : 'LINE ' + you.lines, x0 + 4, 38);
+        box(x0, 26, w0, 22); txt((you.heart ? 'LV♥ ' : you.level >= 10 ? 'LV ' : 'LEVEL ') + you.level, x0 + 4, 29); txt(gtype === 'B' ? 'LEFT ' + Math.max(0, 25 - you.lines) : gtype === 'L' ? 'LEFT ' + Math.max(0, SPRINT - you.lines) : 'LINE ' + you.lines, x0 + 4, 38);
         box(x0, 50, w0, 36); txt('NEXT', x0 + 4, 53, 2); if (you.next) pieceAt(you.next, x0 + w0 / 2, 74, 8);
         if (you.allowHold) { box(x0, 88, w0, 32); txt('HOLD', x0 + 4, 91, 2); if (you.hold) pieceAt(you.hold, x0 + w0 / 2, 109, 8); else txt('SEL', x0 + 17, 104, 1); }
         else { box(x0, 88, w0, 32); txt('BLOCKO', x0 + 4, 91, 2); txt(String(you.blockos), x0 + 4, 104); }
@@ -512,13 +572,13 @@
       }
       function drawPlay() {
         const sx = shake > 0 ? Math.round((Math.random() - 0.5) * shake) : 0, sy = shake > 0 ? Math.round((Math.random() - 0.5) * shake * 0.6) : 0;
-        g.save(); g.translate(sx, sy);
-        drawFrame();
+        drawFrame(); fr(0, OX, OY, COLS * CS, H);
+        g.save(); g.beginPath(); g.rect(OX, 0, COLS * CS, H); g.clip(); g.translate(sx, sy);
         drawWell(you, OX, OY, CS, paused);
+        g.restore();
         if (gtype === 'V' && you.junkIn) { fr(3, 3, H - you.junkIn * 8, 10, you.junkIn * 8); fr((K.frame >> 3) % 2 ? 0 : 1, 4, H - you.junkIn * 8 + 1, 8, you.junkIn * 8 - 2); }
         drawPanel();
-        g.restore();
-        if (flashT > 0) { g.fillStyle = P[3]; g.globalAlpha = 0.6; g.fillRect(OX, 0, COLS * CS, H); g.globalAlpha = 1; }
+        if (flashT > 0) { g.fillStyle = P[3]; g.globalAlpha = 0.3; g.fillRect(OX, 0, COLS * CS, H); g.globalAlpha = 1; }
         if (bannerT > 0 && !paused) {
           const y = 46, um = unlockMsg && bannerT < 1.4, sb = !um && bannerSub, bounce = Math.round(Math.max(0, bannerT - 1.5) * 20);
           box(OX + 2, y - bounce, COLS * CS - 4, um ? 38 : sb ? 28 : 16); ctr(banner, y + 4 - bounce, 3, OX + 40);
@@ -528,8 +588,8 @@
         if (gtype === 'V' && vs.msgT > 0 && !vs.roundOver) { box(OX + 6, 52, 68, 30); ctr('ROUND ' + vs.round, 57, 3, OX + 40); ctr(vs.msgT > 0.6 ? 'READY' : 'GO!', 69, 2, OX + 40); }
         if (gtype === 'V' && vs.roundOver) { box(OX + 4, 44, 72, 42); ctr(vs.won ? 'YOU WIN' : 'CPU WINS', 49, 3, OX + 40); ctr('THE ROUND', 59, 3, OX + 40); ctr(`${vs.me} - ${vs.them}`, 72, 2, OX + 40); }
         if (paused) {
-          box(OX + 4, 34, 72, 66); ctr('PAUSE', 39, 3, OX + 40);
-          ['RESUME', 'RESTART', 'QUIT'].forEach((s, i) => txt((i === pauseI ? '>' : ' ') + s, OX + 14, 54 + i * 12, i === pauseI ? 3 : 2));
+          box(OX + 2, 23, 76, 98); ctr('PAUSE', 29, 3, OX + 40);
+          ['RESUME', 'MUSIC ' + (ST.opt.music ? 'ON' : 'OFF'), 'FX ' + (ST.opt.sfx ? 'ON' : 'OFF'), 'RESTART', 'SAVE+QUIT'].forEach((s, i) => txt((i === pauseI ? '>' : ' ') + s, OX + 8, 46 + i * 14, i === pauseI ? 3 : 2));
         }
         if (mode === 'over' && result && result.timed && overT > 0.3) { box(OX + 2, 40, 76, 44); ctr(gtype === 'U' ? 'TIME UP!' : result.won ? 'CLEAR!' : 'OOPS!', 45, 3, OX + 40); ctr(gtype === 'U' ? 'SCORE' : 'TIME', 58, 2, OX + 40); ctr(gtype === 'U' ? String(you.score) : clock(runT, 1), 69, 3, OX + 40); }
         else if (mode === 'over' && !(result && result.won)) { const n = Math.min(ROWS, overT * 22 | 0); for (let y = ROWS - n; y < ROWS; y++) for (let x = 0; x < COLS; x++) blk(1 + ((x + y) % 7), OX + x * CS, OY + y * CS); if (overT > 1) { box(OX + 6, 56, 68, 22); ctr('GAME OVER', 63, 3, OX + 40); } }
@@ -593,13 +653,13 @@
         ctr(type === 'L' ? 'FASTEST 40 LINES' : type === 'U' ? 'MOST IN 3 MINUTES' : 'TOP SCORES', 90, 2);
         drawSkyline();
       }
-      const MENU = () => (resume ? ['CONTINUE'] : []).concat(['MARATHON', 'ULTRA', '40 LINES', 'B-TYPE', 'VS CPU', 'HALL OF FAME', 'OPTIONS', 'HOW TO PLAY']);
+      const MENU = () => (resume ? ['CONTINUE'] : []).concat(['MARATHON', 'ULTRA', '40 LINES', 'B-TYPE', 'VS CPU', 'FLIGHT LOG', 'HALL OF FAME', 'OPTIONS', 'HOW TO PLAY']);
       const MODE_OF = { MARATHON: 'A', ULTRA: 'U', '40 LINES': 'L', 'B-TYPE': 'B', 'VS CPU': 'V' };
       function drawMenu() {
         sky(); fr(3, 0, 0, W, 14); ctr('BLOCKOLOGY', 3, 0);
-        const items = MENU(); box(14, 17, W - 28, items.length * 11 + 7);
-        items.forEach((s, i) => { const y = 21 + i * 11; if (i === menuI) fr(1, 16, y - 2, W - 32, 10); txt((i === menuI ? '→ ' : '  ') + s, 22, y, i === menuI ? 3 : 2); const m = MODE_OF[s]; if (m && m !== 'V') { const b = m === 'L' ? (ST.pb.L ? clock(ST.pb.L, 1) : '') : (ST.pb[m] ? String(ST.pb[m]) : ''); if (b) txt(b.padStart(7, ' '), 98, y, 2); } });
-        const tip = { CONTINUE: 'CARRY ON WHERE YOU WERE', MARATHON: 'LEVELS GET FASTER', ULTRA: 'BIG SCORE IN 3 MINUTES', '40 LINES': 'RACE THE CLOCK', 'B-TYPE': 'CLEAR 25 LINES OF JUNK', 'VS CPU': 'BEAT THE GAME LAD', 'HALL OF FAME': 'THE HIGH-SCORE TABLES', OPTIONS: 'COLOURS, GHOST, HOLD', 'HOW TO PLAY': 'THE CONTROLS' }[items[menuI]];
+        const items = MENU(); box(14, 17, W - 28, items.length * 10 + 7);
+        items.forEach((s, i) => { const y = 21 + i * 10; if (i === menuI) fr(1, 16, y - 2, W - 32, 10); txt((i === menuI ? '→ ' : '  ') + s, 22, y, i === menuI ? 3 : 2); });
+        const tip = { CONTINUE: 'CARRY ON WHERE YOU WERE', MARATHON: 'LEVELS GET FASTER', ULTRA: 'BIG SCORE IN 3 MINUTES', '40 LINES': 'RACE THE CLOCK', 'B-TYPE': 'CLEAR 25 LINES OF JUNK', 'VS CPU': 'BEAT THE GAME LAD', 'HALL OF FAME': 'THE HIGH-SCORE TABLES', 'FLIGHT LOG': '60 STAMPS TO COLLECT', OPTIONS: 'PICTURE, MUSIC, SOUND', 'HOW TO PLAY': 'THE CONTROLS' }[items[menuI]];
         box(0, 126, W, 18); ctr(tip || '', 131, 3);
         if (menuI === 0 && !resume) {} // (nothing to carry on)
       }
@@ -619,7 +679,7 @@
         txt('LEVEL', 8, 20, 2);
         for (let i = 0; i < 10; i++) { const x = 8 + (i % 5) * 14, y = 30 + (i / 5 | 0) * 14, on = i === ST.lv; box(x, y, 13, 13); if (on && (sub === 0 ? (K.frame >> 3) % 2 : 1)) fr(3, x + 1, y + 1, 11, 11); txt(String(i), x + 4, y + 3, on && (sub === 0 ? (K.frame >> 3) % 2 : 1) ? 0 : 3); }
         if (gtype === 'B') {
-          txt('HIGH', 90, 20, 2);
+          txt('HEIGHT', 88, 20, 2);
           for (let i = 0; i < 6; i++) { const x = 90 + (i % 3) * 22, y = 30 + (i / 3 | 0) * 14, on = i === ST.bh; box(x, y, 20, 13); if (on && (sub === 1 ? (K.frame >> 3) % 2 : 1)) fr(3, x + 1, y + 1, 18, 11); txt(String(i), x + 7, y + 3, on && (sub === 1 ? (K.frame >> 3) % 2 : 1) ? 0 : 3); }
         }
         if (gtype === 'V') {
@@ -627,24 +687,59 @@
           CPU_LV.forEach((c, i) => { const y = 30 + i * 12, on = i === ST.cpu, locked = i === 2 && !ST.un.hard; if (on && sub === 1) fr(3, 88, y - 2, 70, 11); txt((locked ? 'HARD ?' : c.n), 92, y, on && sub === 1 ? 0 : locked ? 1 : on ? 3 : 2); });
           box(0, 70, W, 50); ctr('CLEAR 2, 3 OR 4 LINES', 76, 3); ctr('TO DUMP JUNK ON THE', 86, 3); ctr('CPU. FIRST TO 3 WINS.', 96, 3); ctr(`MATCHES WON: ${ST.stat.wins}`, 108, 2);
         } else {
-          if (gtype !== 'B') { box(88, 26, 66, 34); txt(gtype === 'U' ? '3 MINUTES' : gtype === 'L' ? '40 LINES' : 'ENDLESS', 92, 32, 3); txt(gtype === 'L' ? 'FAST AS' : gtype === 'U' ? 'SCORE BIG' : 'HOW LONG', 92, 42, 2); txt(gtype === 'L' ? 'YOU CAN!' : gtype === 'U' ? 'QUICK!' : 'CAN YOU GO?', 92, 50, 2); }
+          if (gtype !== 'B') { box(88, 26, 66, 34); txt(gtype === 'U' ? '3 MINUTES' : gtype === 'L' ? '40 LINES' : 'ENDLESS', 92, 32, 3); txt(gtype === 'L' ? 'FAST AS' : gtype === 'U' ? 'SCORE BIG' : 'KEEP ON', 92, 42, 2); txt(gtype === 'L' ? 'YOU CAN!' : gtype === 'U' ? 'QUICK!' : 'STACKING!', 92, 50, 2); }
           box(0, 62, W, 58); ctr('TOP 3', 66, 2); drawHiTable(gtype, 78, 3);
           const pb = gtype === 'L' ? (ST.pb.L ? clock(ST.pb.L, 1) : '-') : String(ST.pb[gtype] || 0); ctr('YOUR BEST ' + pb, 110, 2);
         }
         box(0, 122, W, 22); ctr(gtype === 'B' || gtype === 'V' ? (sub === 0 ? 'A: NEXT   B: BACK' : 'A: START   B: BACK') : 'A: START   B: BACK', 129, 3);
       }
       function drawOptions() {
-        sky(); fr(3, 0, 0, W, 14); ctr('OPTIONS', 3, 0);
-        const rows = [['COLOURS', colour() ? 'COLOUR' : 'CLASSIC'], ['GHOST PIECE', ST.opt.ghost ? 'ON' : 'OFF'], ['HOLD (SELECT)', ST.opt.hold ? 'ON' : 'OFF'], ['BACK', '']];
-        rows.forEach(([a, b], i) => { const y = 24 + i * 16; if (i === sub) fr(1, 6, y - 3, W - 12, 14); txt((i === sub ? '>' : ' ') + a, 10, y); if (b) txt(b, W - 8 - F.width(b), y, 2); });
-        if (sub === 0) for (let k = 1; k <= 7; k++) blk(k, 26 + k * 12, 84);
-        box(0, 94, W, 50);
-        ctr(`GAMES PLAYED ${ST.stat.games}`, 100, 3); ctr(`BLOCKOLOGIES ${ST.stat.blockos}`, 112, 3); ctr(`MUSIC D ${ST.un.d ? 'GOT!' : 'LOCKED'}  HARD ${ST.un.hard ? 'GOT!' : 'LOCKED'}`, 124, 2);
+        sky(); fr(3, 0, 0, W, 14); ctr('CARTRIDGE OPTIONS', 3, 0);
+        const rows = [['PICTURE', colour() ? 'COLOUR' : 'CLASSIC'], ['GHOST', ST.opt.ghost ? 'ON' : 'OFF'], ['HOLD', ST.opt.hold ? 'ON' : 'OFF'], ['MUSIC', ST.opt.music ? 'ON' : 'OFF'], ['SOUND FX', ST.opt.sfx ? 'ON' : 'OFF'], ['BACK', '']];
+        rows.forEach(([a, b], i) => { const y = 23 + i * 15; if (i === sub) fr(1, 6, y - 3, W - 12, 13); txt((i === sub ? '>' : ' ') + a, 10, y); if (b) txt(b, W - 10 - F.width(b), y, 3); });
+        box(4, 116, W - 8, 25); ctr('LINES ' + ST.stat.lines, 120, 3); ctr('FOUR-ROWS ' + ST.stat.blockos, 131, 2);
+      }
+      function drawFlights() {
+        sky(); fr(3, 0, 0, W, 14); ctr('B-TYPE FLIGHT LOG', 3, 0);
+        txt('LV', 3, 20, 2); for (let lv = 0; lv < 10; lv++) txt(String(lv), 26 + lv * 13, 20, 3);
+        for (let h = 0; h < 6; h++) {
+          txt(String(h), 9, 34 + h * 13, 2);
+          for (let lv = 0; lv < 10; lv++) {
+            const x = 24 + lv * 13, y = 31 + h * 13, on = logLv === lv && logH === h, done = ST.flights[lv + '-' + h];
+            fr(3, x, y, 11, 11); fr(on ? 3 : done ? 1 : 0, x + 1, y + 1, 9, 9);
+            if (done) txt('*', x + 3, y + 2, on ? 0 : 3); else if (on) txt('>', x + 3, y + 2, 0);
+          }
+        }
+        const n = Object.keys(ST.flights).length;
+        ctr(n + '/60 FLIGHTS CLEARED', 112, 3);
+        ctr(ST.un.ending ? 'SELECT: ENDING' : '9-5: SHUTTLE FINALE', 123, 2);
+        ctr('A: FLY   B: BACK', 135, 3);
+      }
+      const credits = () => [
+        'BLOCKOLOGY', 'THE BRICKWORKS CREW', '',
+        'CHIEF BLOCKOLOGIST', castName('me'), '',
+        'STACK INSPECTORS', castName('mate1'), castName('mate2'), '',
+        'GRAVITY DEPARTMENT', castName('mate3'), castName('mate4'), '',
+        'QUALITY CONTROL', castName('sister'), '',
+        'MUSIC AND MACHINERY', 'THE SOUND CHIP', '',
+        'NO BRICKS WERE HARMED', 'JUST REARRANGED.', '',
+        Object.keys(ST.flights).length === 60 ? 'ALL 60 FLIGHTS CLEARED!' : 'THE SHUTTLE IS HOME!',
+        'THANKS FOR PLAYING', '', 'BRICKWORKS 1999', 'THE END',
+      ];
+      function startCredits(back) { creditPrior = back === 'flights' && resume && resume.cart ? resume.cart.mode : null; mode = 'credits'; creditT = 0; creditBack = back || 'afterOver'; music(TUNES[3]); checkpoint(); }
+      function drawCredits() {
+        fr(3, 0, 0, W, H);
+        for (let i = 0; i < 30; i++) fr(i % 3 ? 1 : 0, (i * 53) % W, ((i * 29 + creditT * 3) % H) | 0, 1, 1);
+        const lines = credits(), offset = Math.min(creditT * 12, lines.length * 14 + 36);
+        lines.forEach((line, i) => { const y = Math.round(130 + i * 14 - offset); if (y > 18 && y < 126) ctr(line, y, i % 3 === 0 ? 1 : 0); });
+        fr(3, 0, 0, W, 16); ctr('FLIGHT COMPLETE', 4, 0);
+        if (creditT > 4) { fr(3, 0, 132, W, 12); ctr(creditBack === 'flights' ? 'A / START: FLIGHT LOG' : 'A / START: RESULTS', 135, 1); }
       }
       const HOW = [
-        ['HOW TO PLAY  1/3', 'BLOCKS FALL DOWN THE', 'WELL. FILL A WHOLE ROW', 'AND IT DISAPPEARS.', '', 'FOUR ROWS AT ONCE IS A', 'BLOCKOLOGY: BIG POINTS!', 'DON\'T LET THEM REACH', 'THE TOP!'],
-        ['CONTROLS  2/3', '← →   MOVE', 'A     TURN RIGHT', 'B     TURN LEFT', '↓     DROP FASTER', '↑     DROP ALL THE WAY', 'SELECT  HOLD A PIECE', 'START   PAUSE'],
-        ['GAME TYPES  3/3', 'MARATHON: KEEP GOING,', ' LEVEL UP EVERY 10 LINES', 'ULTRA: TOP SCORE IN 3 MIN', '40 LINES: BEAT THE CLOCK', 'B-TYPE: 25 LINES OF JUNK', 'VS CPU: FIRST TO 3 WINS', 'BIG SCORES = ROCKETS!'],
+        ['HOW TO PLAY  1/4', 'BLOCKS FALL DOWN THE', 'WELL. FILL A WHOLE ROW', 'AND IT DISAPPEARS.', '', 'FOUR ROWS AT ONCE IS A', 'BLOCKOLOGY: BIG POINTS!', 'DON\'T LET THEM REACH', 'THE TOP!'],
+        ['CONTROLS  2/4', '← →   MOVE', 'A     TURN RIGHT', 'B     TURN LEFT', '↓     DROP FASTER', '↑     DROP ALL THE WAY', 'SELECT  HOLD A PIECE', 'START   PAUSE'],
+        ['GAME TYPES  3/4', 'MARATHON: KEEP GOING,', ' LEVEL UP EVERY 10 LINES', 'ULTRA: TOP SCORE IN 3 MIN', '40 LINES: BEAT THE CLOCK', 'B-TYPE: 25 LINES OF JUNK', 'VS CPU: FIRST TO 3 WINS', 'BIG SCORES = ROCKETS!'],
+        ['FLIGHT SCHOOL  4/4', 'B-TYPE HAS 60 FLIGHTS.', 'PICK A LEVEL AND HEIGHT.', 'CLEAR 25 LINES FOR A', 'STAMP IN YOUR FLIGHT LOG.', 'THEN TRY THE NEXT FLIGHT.', '9-5: THE SHUTTLE FINALE!', 'A FOUR-ROW UNLOCKS TUNE D.'],
       ];
       function drawHow() {
         sky(); const pg = HOW[sub];
@@ -672,12 +767,18 @@
         if (fame) fireworks();
         if (gtype === 'V') { ctr(vs.matchWon ? 'YOU BEAT THE GAME LAD!' : 'THE GAME LAD WINS!', 26, 3); ctr(`${vs.me} - ${vs.them}`, 40, 3); ctr('LINES ' + vs.lines, 54, 2); ctr('SCORE ' + vs.total, 66, 2); if (unlockMsg) ctr(unlockMsg, 82, 3); }
         else { ctr(gtype === 'L' ? 'TIME ' + (result && result.won ? clock(runT, 1) : '--') : 'SCORE ' + you.score, 20, 3); ctr(`LEVEL ${you.level}  LINES ${you.lines}`, 30, 2); drawHiTable(gtype, 44, 5, myRow); if (unlockMsg) ctr(unlockMsg, 98, 3); }
-        drawSkyline();
+        if (gtype === 'B' && result && result.won) {
+          fr(0, 0, 96, W, 32); ctr('FLIGHT ' + you.sl + '-' + you.bh + ' STAMPED!', 99, 3);
+          ctr(Object.keys(ST.flights).length + '/60 CLEARED', 111, 2);
+          if (you.sl === 9 && you.bh === 5) ctr('SELECT: CREDITS', 122, 2);
+        }
+        box(0, 130, W, 14); ctr(gtype === 'B' && result && result.won ? 'A: NEXT   B: MENU' : 'A: RETRY  B: MENU', 134, 3);
       }
-      let myRow = null;
+      let axisX = 0, axisY = 0;
+      let myRow = null, creditT = 0, creditBack = 'afterOver', creditPrior = null, counted = false, logLv = ST.lv, logH = ST.bh;
 
       // ============================================================ the attract demo (the computer plays on its own)
-      function startDemo() { demo = { w: makeWell({ level: 5, hold: false }), c: { lv: CPU_LV[1] }, t: 0 }; spawn(demo.w); mode = 'demo'; K.music(null); }
+      function startDemo() { demo = { w: makeWell({ level: 5, hold: false }), c: { lv: CPU_LV[1] }, t: 0 }; spawn(demo.w); mode = 'demo'; music(null); }
       function drawDemo() {
         drawFrame(); drawWell(demo.w, OX, OY, CS);
         const x0 = 106; box(x0, 2, 52, 22); txt('SCORE', x0 + 4, 5, 2); txt(pad6(demo.w.score), x0 + 6, 14);
@@ -688,24 +789,38 @@
       }
 
       // ============================================================ the loop
-      window.__blocksDbg = () => ({ mode, gtype, paused, score: you && you.score, lines: you && you.lines, level: you && you.level, junk: you && you.junkIn, cpu: cpu && { lines: cpu.lines, junk: cpu.junkIn, top: stackTop(cpu) }, vs, hi: ST.hi, un: ST.un, opt: ST.opt, resume: !!resume, entry: entry && entry.name.map(i => ABC[i]).join(''), rocket: rocket && rocket.size,
-        cheat: { time: t => { runT = t; }, iPiece: () => { you.cur = { k: 'I', r: 1, x: 7, y: 0 }; }, finish: () => { if (gtype === 'L') { you.lines = SPRINT; timedEnd(true); } else runT = ULTRA_T; }, top: () => { you.grid = emptyGrid().map((r, y) => { if (y < 2) return r; const a = Array(COLS).fill(JUNK); a[y % COLS] = 0; return a; }); }, lines: n => { you.lines = n; }, score: s => { you.score = s; }, die: () => die(you), cpuDie: () => cpu && die(cpu), setRow: () => { for (let y = ROWS - 4; y < ROWS; y++) { you.grid[y] = Array(COLS).fill(8); you.grid[y][9] = 0; } } } });
+      window.__blocksDbg = () => ({ mode, gtype, paused, menuI, sub, runT, creditT, flights: ST.flights, cur: you && you.cur, next: you && you.next, hold: you && you.hold, canHold: you && you.canHold, clearing: you && you.clearing, grid: you && you.grid, pieces: you && you.pieces, stat: ST.stat, score: you && you.score, lines: you && you.lines, level: you && you.level, junk: you && you.junkIn, cpu: cpu && { lines: cpu.lines, junk: cpu.junkIn, top: stackTop(cpu) }, vs, hi: ST.hi, un: ST.un, opt: ST.opt, resume: !!resume, entry: entry && entry.name.map(i => ABC[i]).join(''), rocket: rocket && rocket.size,
+        cheat: { hint: () => you && you.cur ? plan(you, you.cur.k, 0) : null, time: t => { runT = t; }, iPiece: () => { you.cur = { k: 'I', r: 1, x: 7, y: 0 }; }, finish: () => { if (gtype === 'L') { you.lines = SPRINT; timedEnd(true); } else runT = ULTRA_T; }, top: () => { you.grid = emptyGrid().map((r, y) => { if (y < 2) return r; const a = Array(COLS).fill(JUNK); a[y % COLS] = 0; return a; }); }, lines: n => { you.lines = n; }, score: s => { you.score = s; }, die: () => die(you), cpuDie: () => cpu && die(cpu), setRow: () => { you.grid = emptyGrid(); for (let y = ROWS - 4; y < ROWS; y++) { you.grid[y] = Array(COLS).fill(8); you.grid[y][9] = 0; } } } });
       setPal();
-      K.music(TITLE_TUNE);
+      if (!(loaded.cart && !loaded.cart.parked && restoreCart(loaded.cart))) {
+        if (loaded.ui && ['title', 'menu', 'music', 'level', 'opts', 'how', 'flights', 'hiscores'].includes(loaded.ui.mode)) {
+          mode = loaded.ui.mode; menuI = loaded.ui.menuI || 0; sub = loaded.ui.sub || 0; gtype = loaded.ui.gtype || 'A';
+          logLv = loaded.ui.logLv || 0; logH = loaded.ui.logH || 0;
+        }
+        music(mode === 'music' ? tune() : TITLE_TUNE);
+      }
+      const onHide = () => { if (document.hidden) checkpoint(); };
+      addEventListener('beforeunload', checkpoint);
+      addEventListener('pagehide', checkpoint);
+      document.addEventListener('visibilitychange', onHide);
       return {
         update() {
           T += 1 / 60; logoT += 1 / 60;
-          if (shake > 0) shake = Math.max(0, shake - 0.4); if (flashT > 0) flashT -= 1 / 60; if (bannerT > 0) { bannerT -= 1 / 60; if (bannerT <= 0) unlockMsg = mode === 'play' ? '' : unlockMsg; }
+          saveT += 1 / 60; if (saveT >= 1) { saveT = 0; checkpoint(); }
+          if (!paused && shake > 0) shake = Math.max(0, shake - 0.4); if (!paused && flashT > 0) flashT -= 1 / 60; if (!paused && bannerT > 0) { bannerT -= 1 / 60; if (bannerT <= 0) unlockMsg = mode === 'play' ? '' : unlockMsg; }
           const ok = K.pressed('a') || K.pressed('start'), back = K.pressed('b');
-          const up = K.pressed('up'), dn = K.pressed('down'), lf = K.pressed('left'), rt = K.pressed('right'), mv = up || dn || lf || rt;
+          const stick = K.stick ? K.stick() : { x: 0, y: 0 }, ax = Math.abs(stick.x) > 0.55 ? Math.sign(stick.x) : 0, ay = Math.abs(stick.y) > 0.55 ? Math.sign(stick.y) : 0;
+          const up = K.pressed('up') || ay === -1 && axisY !== -1, dn = K.pressed('down') || ay === 1 && axisY !== 1;
+          const lf = K.pressed('left') || ax === -1 && axisX !== -1, rt = K.pressed('right') || ax === 1 && axisX !== 1, mv = up || dn || lf || rt;
+          axisX = ax; axisY = ay;
           const beep = (f) => sfx.tone(f || 880, 0.03, 'square', 0.05);
           if (mode === 'title' || mode === 'hiscores' || mode === 'demo') {
             idleT += 1 / 60;
             if (mode === 'hiscores' && (lf || rt)) { idleT = (Math.floor(idleT / 4) + (rt ? 1 : BOARDS.length - 1)) % BOARDS.length * 4; beep(); return; }
             if (mode === 'demo') { stepWell(demo.w, cpuInput(demo.c, demo.w)); demo.t += 1 / 60; if (demo.w.dead || demo.t > 30) { mode = 'hiscores'; idleT = 0; } }
             if (mode === 'title' && idleT > 9) { startDemo(); idleT = 0; }
-            if (mode === 'hiscores' && idleT > 16) { mode = 'title'; idleT = 0; logoT = 0; K.music(TITLE_TUNE); }
-            if (ok || back || mv || K.pressed('select')) { if (mode !== 'title') { mode = 'title'; idleT = 0; K.music(TITLE_TUNE); return; } if (ok) { mode = 'menu'; menuI = 0; sfx.tone(1320, 0.08); } idleT = 0; }
+            if (mode === 'hiscores' && idleT > 16) { mode = 'title'; idleT = 0; logoT = 0; music(TITLE_TUNE); }
+            if (ok || back || mv || K.pressed('select')) { if (mode !== 'title') { mode = 'title'; idleT = 0; music(TITLE_TUNE); return; } if (ok) { mode = 'menu'; menuI = 0; sfx.tone(1320, 0.08); } idleT = 0; }
             return;
           }
           if (mode === 'menu') {
@@ -714,9 +829,10 @@
             if (back) { mode = 'title'; idleT = 0; return; }
             if (ok) {
               const it = items[menuI]; sfx.tone(1320, 0.06);
-              if (it === 'CONTINUE') return startGame('A', resume);
+              if (it === 'CONTINUE') return resume.cart ? restoreCart(resume.cart) : startGame('A', resume);
               if (MODE_OF[it]) { gtype = MODE_OF[it]; mode = 'music'; previewTune(); }
               else if (it === 'HALL OF FAME') { mode = 'hiscores'; idleT = 0; }
+              else if (it === 'FLIGHT LOG') { mode = 'flights'; logLv = ST.lv; logH = ST.bh; }
               else if (it === 'OPTIONS') { mode = 'opts'; sub = 0; }
               else if (it === 'HOW TO PLAY') { mode = 'how'; sub = 0; }
             }
@@ -724,8 +840,8 @@
           }
           if (mode === 'music') {
             const n = TUNES.length + 1, okI = i => !(i < TUNES.length && TUNES[i].lock && !ST.un.d);
-            if (up || dn) { let i = ST.mus; do { i = (i + (up ? n - 1 : 1)) % n; } while (!okI(i)); ST.mus = i; beep(); previewTune(); }
-            if (back) { mode = 'menu'; K.music(TITLE_TUNE); return; }
+            if (up || dn) { let i = ST.mus; do { i = (i + (up ? n - 1 : 1)) % n; } while (!okI(i)); ST.mus = i; beep(); previewTune(); persist(resume); }
+            if (back) { mode = 'menu'; music(TITLE_TUNE); return; }
             if (ok) { mode = 'level'; sub = 0; beep(1320); }
             return;
           }
@@ -737,23 +853,47 @@
             if (ok) {
               beep(1320);
               if ((gtype === 'B' || gtype === 'V') && sub === 0) { sub = 1; return; }
-              persist(null);
+              persist(resume);
               if (gtype === 'V') { vs = { me: 0, them: 0, round: 1, lines: 0, msgT: 2, roundOver: 0 }; }
-              entry = null; rocket = null; unlockMsg = ''; myRow = null; sparks = []; heartOn = K.held('down') && gtype !== 'V'; // (the old secret: hold Down as you start for HEART mode)
+              entry = null; rocket = null; unlockMsg = ''; myRow = null; sparks = []; heartOn = (K.held('down') || ay === 1) && gtype !== 'V'; // (the old secret: hold Down as you start for HEART mode)
               startGame(gtype);
             }
             return;
           }
           if (mode === 'opts') {
-            if (up) { sub = (sub + 3) % 4; beep(); } if (dn) { sub = (sub + 1) % 4; beep(); }
-            const keep = () => persist(resume && resume.well ? pickProgress(resume) : null);
+            if (up) { sub = (sub + 5) % 6; beep(); } if (dn) { sub = (sub + 1) % 6; beep(); }
+            const keep = () => persist(resume);
             if ((ok || lf || rt) && sub === 0) { ST.opt.pal = ST.opt.pal ? 0 : 1; setPal(); beep(1100); keep(); }
             else if ((ok || lf || rt) && sub === 1) { ST.opt.ghost = ST.opt.ghost ? 0 : 1; beep(1100); keep(); }
             else if ((ok || lf || rt) && sub === 2) { ST.opt.hold = ST.opt.hold ? 0 : 1; beep(1100); keep(); }
-            else if ((ok && sub === 3) || back) { mode = 'menu'; beep(500); }
+            else if ((ok || lf || rt) && sub === 3) { ST.opt.music = ST.opt.music ? 0 : 1; music(TITLE_TUNE); beep(); keep(); }
+            else if ((ok || lf || rt) && sub === 4) { ST.opt.sfx = ST.opt.sfx ? 0 : 1; beep(); keep(); }
+            else if ((ok && sub === 5) || back) { mode = 'menu'; beep(500); }
             return;
           }
           if (mode === 'how') { if (ok || rt) { sub++; beep(); if (sub >= HOW.length) { mode = 'menu'; sub = 0; } } if (back || lf) { if (sub) sub--; else mode = 'menu'; beep(500); } return; }
+          if (mode === 'flights') {
+            if (lf) logLv = (logLv + 9) % 10; if (rt) logLv = (logLv + 1) % 10;
+            if (up) logH = (logH + 5) % 6; if (dn) logH = (logH + 1) % 6;
+            if (mv) beep();
+            if (back) mode = 'menu';
+            if (K.pressed('select') && ST.un.ending) startCredits('flights');
+            if (ok) { ST.lv = logLv; ST.bh = logH; gtype = 'B'; mode = 'music'; previewTune(); }
+            return;
+          }
+          if (mode === 'credits') {
+            creditT += 1 / 60;
+            if ((creditT > 4 && ok) || creditT > 45) {
+              if (creditBack === 'afterOver' && you && result) afterOver();
+              else {
+                // Replaying the staff roll must preserve the parked game behind the log.
+                const toResult = creditBack === 'result' && you;
+                if (!toResult) { const pr = creditPrior ? progress() : null; if (pr) { pr.cart.mode = creditPrior; pr.cart.parked = true; } resume = pr; }
+                mode = toResult ? 'result' : 'flights'; overT = 0; music(TITLE_TUNE); checkpoint();
+              }
+            }
+            return;
+          }
           if (mode === 'rocket') return stepRocket();
           if (mode === 'entry') {
             const e = entry;
@@ -767,28 +907,39 @@
           if (mode === 'result' || mode === 'vsend') {
             overT += 1 / 60;
             if (mode === 'vsend' && overT > 2.5 && !entry) { mode = 'result'; overT = 0; return; }
-            if (mode === 'result' && overT > (myRow ? 4 : 1.6)) report();
+            if (mode === 'result' && overT > 1) {
+              report();
+              if (K.pressed('select') && ST.un.ending) { startCredits('result'); return; }
+              if (back) { resume = null; you = null; mode = 'menu'; menuI = 0; music(TITLE_TUNE); persist(null); return; }
+              if (ok) {
+                if (gtype === 'B' && result && result.won) { const n = (you.sl * 6 + you.bh + 1) % 60; ST.lv = Math.floor(n / 6); ST.bh = n % 6; }
+                if (gtype === 'V') vs = { me: 0, them: 0, round: 1, lines: 0, msgT: 2, roundOver: 0 };
+                entry = null; rocket = null; myRow = null; unlockMsg = ''; startGame(gtype);
+              }
+            }
             return;
           }
           if (mode === 'over') {
             overT += 1 / 60; stepWell(you, {});
-            if (overT > 2.2) { ST.stat.lines += you.lines; afterOver(); }
+            if (overT > 2.2) { if (!counted) { ST.stat.lines += you.lines; counted = true; } afterOver(); }
             return;
           }
           if (mode !== 'play') return;
           // ---------------------------------------------------------------- playing
           if (paused) {
-            if (K.pressed('start')) { paused = false; playTune(); return; }
-            if (up) { pauseI = (pauseI + 2) % 3; beep(); } if (dn) { pauseI = (pauseI + 1) % 3; beep(); }
+            if (K.pressed('start')) { paused = false; resumeScoring(); playTune(); return; }
+            if (up) { pauseI = (pauseI + 4) % 5; beep(); } if (dn) { pauseI = (pauseI + 1) % 5; beep(); }
             if (K.pressed('a')) {
-              if (pauseI === 0) { paused = false; playTune(); }
-              else if (pauseI === 1) { if (gtype === 'V') vs = { me: 0, them: 0, round: 1, lines: 0, msgT: 2, roundOver: 0 }; resume = null; startGame(gtype); }
-              else { const pr = progress(); persist(pr); resume = pr ? Object.assign({}, pr) : null; mode = 'title'; logoT = 0; idleT = 0; paused = false; K.music(TITLE_TUNE); }
+              if (pauseI === 0) { paused = false; resumeScoring(); playTune(); }
+              else if (pauseI === 1) { ST.opt.music = ST.opt.music ? 0 : 1; checkpoint(); }
+              else if (pauseI === 2) { ST.opt.sfx = ST.opt.sfx ? 0 : 1; checkpoint(); }
+              else if (pauseI === 3) { entry = null; rocket = null; myRow = null; if (gtype === 'V') vs = { me: 0, them: 0, round: 1, lines: 0, msgT: 2, roundOver: 0 }; resume = null; startGame(gtype); }
+              else { checkpoint(); if (resume && resume.cart) resume.cart.parked = true; persist(resume); mode = 'title'; logoT = 0; idleT = 0; paused = false; music(TITLE_TUNE); }
               beep(1200);
             }
             return;
           }
-          if (K.pressed('start') && !(gtype === 'V' && (vs.msgT > 0 || vs.roundOver))) { paused = true; pauseI = 0; K.music(null); sfx.tone(440, 0.06); return; }
+          if (K.pressed('start')) { paused = true; pauseI = 0; music(null); sfx.tone(440, 0.06); checkpoint(); return; }
           if (gtype === 'V') {
             if (vs.msgT > 0) { vs.msgT -= 1 / 60; return; }
             if (vs.roundOver) { vs.endT += 1 / 60; stepWell(you, {}); stepWell(cpu, {}); if (vs.endT > 2.4) nextRound(); return; }
@@ -796,13 +947,12 @@
           runT += 1 / 60;
           if (gtype === 'U' && runT >= ULTRA_T && !you.clearing) return timedEnd(true);
           if (gtype === 'U' && ULTRA_T - runT < 10 && K.frame % 60 === 0) sfx.tone(1200, 0.05, 'square', 0.06);
-          const inp = { l: K.held('left'), r: K.held('right'), dn: K.held('down'), pl: lf, pr: rt, ra: K.pressed('a'), rb: K.pressed('b'), hd: up, hold: K.pressed('select') };
+          const inp = { l: K.held('left') || ax === -1, r: K.held('right') || ax === 1, dn: K.held('down') || ay === 1, pl: lf, pr: rt, ra: K.pressed('a'), rb: K.pressed('b'), hd: up, hold: K.pressed('select') };
           stepWell(you, inp);
           if (gtype === 'V' && cpu && mode === 'play' && !vs.roundOver) stepWell(cpu, cpuInput(cpuC, cpu));
           if (mode !== 'play') return;
           const dz = stackTop(you) < 5;
           if (dz !== danger) { danger = dz; playTune(); }
-          saveT += 1 / 60; if (saveT > 3) { saveT = 0; const pr = progress(); if (pr) { persist(pr); resume = Object.assign({}, pr); } }
         },
         draw() {
           if (mode === 'title') drawTitle();
@@ -812,22 +962,23 @@
           else if (mode === 'music') drawMusic();
           else if (mode === 'level') drawLevel();
           else if (mode === 'opts') drawOptions();
+          else if (mode === 'flights') drawFlights();
+          else if (mode === 'credits') drawCredits();
           else if (mode === 'how') drawHow();
           else if (mode === 'rocket' && rocket) drawRocket();
           else if (mode === 'entry') drawEntry();
           else if (mode === 'result') drawResult();
           else if (you) drawPlay();
         },
-        end() { const pr = progress(); if (pr) persist(pr); K.music(null); },
+        end() { checkpoint(); music(null); removeEventListener('beforeunload', checkpoint); removeEventListener('pagehide', checkpoint); document.removeEventListener('visibilitychange', onHide); },
       };
-      function pickProgress(r) { return { well: r.well, score: r.score, lines: r.lines, level: r.level, sl: r.sl, cur: r.cur, next: r.next, hold: r.hold, gt: r.gt, bh: r.bh }; }
-      function previewTune() { const t = ST.mus < TUNES.length ? TUNES[ST.mus] : null; K.music(t); }
+      function previewTune() { const t = ST.mus < TUNES.length ? TUNES[ST.mus] : null; music(t); }
       function finishEntry() {
-        const n = entry.name.map(i => ABC[i]).join('') || 'JAK';
+        const n = entry.name.map(i => ABC[i]).join('') || initials('me');
         const L = tbl(); myRow = Object.assign({ n }, myEntry()); L.push(myRow);
         L.sort((a, b) => gtype === 'L' ? a.t - b.t : b.s - a.s); L.length = Math.min(L.length, 5);
-        persist(null); jingle([[72, 0.25], [76, 0.25], [79, 0.25], [84, 0.25], [79, 0.25], [84, 1]], 280);
-        mode = 'result'; overT = 0;
+        jingle([[72, 0.25], [76, 0.25], [79, 0.25], [84, 0.25], [79, 0.25], [84, 1]], 280);
+        mode = 'result'; overT = 0; checkpoint();
       }
     },
   });

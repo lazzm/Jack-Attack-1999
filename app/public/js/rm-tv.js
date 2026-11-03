@@ -830,12 +830,20 @@
   function pad(def) {
     if (!V) return;
     const P = $(V.el, '.rm-pad'), con = V.con, L = LOOK[con];
-    touchPads.get(P)?.destroy();
-    V.el.classList.remove('rm-padon', 'rm-dual');
-    if (!def || (!touchy() && !(V.hand && V.lockedIn)) || (V.hand && !V.lockedIn && gbModelButtons()) || ownPad()) { P.hidden = true; P.innerHTML = ''; if (V.lockedIn) lockIn(true); return; }
+    const hide = !def || (!touchy() && !(V.hand && V.lockedIn)) || (V.hand && !V.lockedIn && gbModelButtons()) || ownPad();
+    if (hide) {
+      touchPads.get(P)?.destroy(); V.el.classList.remove('rm-padon', 'rm-dual');
+      P.hidden = true; P.innerHTML = ''; if (V.lockedIn) lockIn(true); return;
+    }
     const bs = [...new Set(def.buttons || ['a', 'b'])].filter(b => L.keys[b] || b === 'c' || b === 'x');
-    // A game that declares independent WASD movement (Goldenballs) keeps K.stick as its aim.
+    // A game that declares independent WASD movement keeps K.stick as its aim.
     const dual = ['KeyW', 'KeyS', 'KeyA', 'KeyD'].every(k => def.keyboard?.[k]);
+    const layout = JSON.stringify([con, V.gid, bs, !!def.stick, def.keyboard || null]);
+    // Input-mode changes run during pointerdown's capture phase. Rebuilding an
+    // identical visible pad here detaches its target before the first finger or
+    // mouse press reaches the controls. Preserve its DOM and listeners instead.
+    if (!P.hidden && touchPads.get(P)?.layout === layout) { if (V.lockedIn) lockIn(true); return; }
+    touchPads.get(P)?.destroy(); V.el.classList.remove('rm-padon', 'rm-dual');
     const direction = '<div class="rm-dpad" aria-label="Direction pad"><b data-b="up"></b><b data-b="left"></b><b data-b="right"></b><b data-b="down"></b><i></i></div>';
     const analog = '<div class="rm-stick" aria-label="Analogue stick"><i></i></div>';
     const button = (b, cls) => `<button type="button" class="${cls}" data-b="${b}" style="--bc:${L.cols[b] || '#555'}" aria-label="${esc(L.keys[b] || b.toUpperCase())}">${esc(L.keys[b] || (b === 'x' ? L.keys.c : '') || b.toUpperCase())}</button>`;
@@ -846,6 +854,7 @@
       <div class="rm-pr">${dual ? '<div class="rm-aim"><span class="rm-control-label">AIM</span>' + analog + '</div>' : ''}<div class="rm-face ${['ps', 'sn', 'dc'].includes(con) ? 'rm-dia ' : ''}rm-pad-n${face.length}">${face.map(b => button(b, 'rm-fb')).join('')}</div></div>`;
     P.hidden = false; V.el.classList.add('rm-padon'); V.el.classList.toggle('rm-dual', dual);
     padTouch(P, dual ? def.keyboard : null);
+    touchPads.get(P).layout = layout;
     if (V.lockedIn) lockIn(true);
   }
   function padTouch(P, movement) {
