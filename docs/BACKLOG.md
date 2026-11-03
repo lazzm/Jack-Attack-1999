@@ -346,3 +346,7 @@ Method: qa-sweep3 worker, throwaway server + Playwright (system Chromium, SwiftS
 - Anti-Grav: while racing a big flat pale block and a black and white strip fill the bottom of the view (games-1102 after-grav-moving.png and before-grav-moving.png are identical, so it's old). A green oval also sits at the bottom centre on the start grid (after-grav-start.png). Top item for the Anti-Grav depth pass.
 - Anti-Grav title: the green gantry sign collides with the 3000 logo (after-desktop-tv-pc-on-lock.png).
 - Small marks at the landing carpet and wall junction remain (polish-1102 report).
+
+## Noted 2026-11-03 Bonfire art check (tests/bonfire-art.mjs, intermittent; the family and Bonfire code is unchanged since 2.62.0)
+- R191: During the display, a family member not counted as speaking sometimes looks at the player instead of the show (16-burning-fire-family, once in four runs). The failure message now prints each person's state. Recheck after the sizing release.
+- R192: At the rope with the player at x 20, the sister can stay at (120,-120), 1.1 m away, when the family should change banks and keep 1.45 m clear (phone run of 18-rope-spacing). She may be blocked from crossing past the player. Recheck after sizing moves the family's viewing spots.
