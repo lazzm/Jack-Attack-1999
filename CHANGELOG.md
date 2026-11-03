@@ -1,5 +1,13 @@
 # Jack's Home Page - changelog
 
+## 2.63.0 - 2026-11-03
+- Anti-Grav 3000 gets its full single-player depth: 12 tracks, 8 ships, twelve-ship grids, weapons, hyperthrust, league endings and credits. The pale block, start strip and title overlap are fixed. Saves, lap records and unlocks are kept.
+- Saves confirm reliably. A busy server gets longer to answer, and if a save can't be confirmed when you log off, your profile stays on the device instead of being dropped.
+- The PlaySpace pad and help screens use the console's own parody symbols.
+- The night street has warm pools of light under the lamps and lit porches next door. The mower, hedge, net curtains and fence look better, and the bedroom's hard shelf shadow, door slab and wardrobe seam are fixed.
+- Family lines use your own name.
+- Verified: parody 0, all unit checks, Chapter 1, owner tools, mobile 8/8, screen focus, voices 9/9, smoke 12/12, Anti-Grav's full flow and 48-race simulation, Bonfire end to end. No real account, wallet or shared-world changes.
+
 ## 2.62.0 - 2026-11-03
 - A new player's first minutes are clearer, especially on phones. A small card teaches one thing at a time and gets out of the way, instead of a big help panel.
 - The Game Lad slot glows with a named arrow showing how far away it is, and the first objective tells you exactly what to do.
