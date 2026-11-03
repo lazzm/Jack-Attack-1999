@@ -1,5 +1,14 @@
 # Jack's Home Page - changelog
 
+## 2.64.0 - 2026-11-03
+- The back garden is properly garden-sized: 7.8 m wide and 14 m long, with a lawn to play on, a path, a patio, and the shed, washing line and flower bed spread out instead of crammed together. Next door's houses and the back road have moved so the view still works from the kitchen and bedroom.
+- The kitchen is bigger: 4.75 x 4.7 m, thanks to a single-storey rear extension with a felt roof, gutter and downpipe. The table has moved, and you and Mom can pass each other, with at least a metre to walk around it.
+- Saved placements from the old layout move with the house, so nothing ends up inside a wall or lost.
+- Bonfire Night is re-laid out for the bigger garden: stack, rope, launch area and family viewing spots all have room. The gloves stool is now by the back door, where Mom says it is. The family don't make unrelated remarks during the display.
+- The rear of the house has real windows: a bigger bedroom window, a high bedroom window, a kitchen side window, and curtained windows on the rooms you can't enter. Both sides match.
+- Still open: the storey height and chunky-detail rows in docs/SCALE-REVIEW.md. The new windows add some draw calls (desk view 460 to 507, kitchen 329 to 362), so that goes in the weak-phone performance work. Bonfire's frame rate on a real phone is still unmeasured.
+- Verified: parody 0, all unit checks including old-save migration, Chapter 1, owner tools, Halloween, Bonfire end to end, Bonfire art on all three modes, mobile 8/8, screen focus, voices, family routes, identity, seasons, Zip, Kart, performance, physics, smoke 12/12. Zeldo's room check passes on a fresh server but fails when run after Chapter 1 on the same server; the same failure happens on 2.63.0, so it isn't from this release, and it's logged as R200. No real account, wallet or shared-world changes.
+
 ## 2.63.0 - 2026-11-03
 - Anti-Grav 3000 gets its full single-player depth: 12 tracks, 8 ships, twelve-ship grids, weapons, hyperthrust, league endings and credits. The pale block, start strip and title overlap are fixed. Saves, lap records and unlocks are kept.
 - Saves confirm reliably. A busy server gets longer to answer, and if a save can't be confirmed when you log off, your profile stays on the device instead of being dropped.
