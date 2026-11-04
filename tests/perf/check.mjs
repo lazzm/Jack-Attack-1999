@@ -46,7 +46,7 @@ await withTestServer(async base=>{
   assert(merge.st.batches>10&&merge.st.sources>100,JSON.stringify(merge));assert(merge.healed,'Moved source draws again');assert(merge.after.dissolved>merge.st.dissolved,'Batch dissolved');
   const fire=await p.evaluate(()=>{House.goRoom('lounge',0);const r=House.ROOMS.lounge;House._.renderForBenchmark();const tick=()=>{for(const fn of stage0Ambient)fn(performance.now())};if(!r.fireOn)House.act('hs.fire');tick();const on=r.flames.some(f=>f.material.opacity>0);House.act('hs.fire');tick();return{on,off:r.flames.every(f=>f.material.opacity===0)}});assert(fire.on&&fire.off,'Gas fire retained its lit flames');
   // Live CRT: sized to its footprint, no mipmaps, throttled, nothing off camera.
-  await view([-120,-55,160],[-216,-5,-16]);
+  await p.evaluate(()=>House.goRoom('bedroom',0));await view([-120,-55,160],[-216,-5,-16]);
   // The previous step stood in the lounge: the bedroom only comes back into view on the next rendered frame.
   await p.evaluate(()=>{House._.renderForBenchmark();return new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>r(true))))});
   const live=await p.evaluate(async()=>{
