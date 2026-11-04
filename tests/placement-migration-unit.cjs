@@ -6,7 +6,7 @@ const start=source.indexOf('  const PV = '),end=source.indexOf('  function saveT
 assert(start>=0&&end>start,'Production placement migration is present');
 const ms=source.indexOf('  function migrateSave(save)'),me=source.indexOf('  // Placements saved before the physics pass',ms);
 const {PV,FRONT,migratePlacement:move,migrateSave}=vm.runInNewContext(source.slice(start,end)+source.slice(ms,me)+';({PV,FRONT,migratePlacement,migrateSave})',{LV:{G:353,U:73},clamp:(n,a,b)=>Math.max(a,Math.min(b,n))});
-assert.equal(PV,11,'Latest migration version must be stamped into saves');
+assert.equal(PV,12,'Latest migration version must be stamped into saves');
 const near=(a,b)=>assert(Math.abs(a-b)<1e-7,`${a} differs from ${b}`);
 for(const from of [3,4,5]){
  const old=from===3?FRONT.CAR3:FRONT.CAR4;
@@ -98,3 +98,20 @@ vm.runInContext(caseSource.slice(caseSource.indexOf('  function parking('),caseS
 let anchor=parkCtx.parking('console.gb',{});assert.equal(anchor.pose.x,-56);assert.equal(anchor.pose.z,-12);assert.equal(anchor.pose.ry,7);assert.equal(anchor.pose.keep,'case');
 anchor=parkCtx.parking('console.gb',{});assert.equal(anchor.pose.x,-56);assert.equal(parkSaves,1,'Saved empty case parking migrated twice');
 console.log('PV11 CASE PARK PASS: persisted Game Lad anchor, rotation/metadata and one-time migration');
+
+// PV12: only newly occupied floor and moved supports in the cupboard move.
+const cup={pv:11,t:{chest:['cupboard',380,309,300,20,0,0,{keep:'chest'}],console:['cupboard',352,325,340,15,0,0],floor:['cupboard',370,353,275,25,0,0],aisle:['cupboard',370,353,410,7,0,0],rack:['cupboard',389,353,370,90,'media.sn.slot.1',0],hidden:['cupboard',380,309,300,0,0,1]},o:{cupboard:1}};
+migrateSave(cup);assert.equal(cup.pv,12);
+assert.deepEqual(Array.from(cup.t.chest),['cupboard',385,309,273,20,0,0,{keep:'chest'}]);
+assert.deepEqual(Array.from(cup.t.console),['cupboard',348,325,275,15,0,0]);
+assert.deepEqual(Array.from(cup.t.floor),['cupboard',370,353,337,25,0,0]);
+assert.equal(cup.t.aisle[3],410);assert.equal(cup.t.rack[5],'media.sn.slot.1');assert.equal(cup.t.rack[3],370);assert.equal(cup.t.hidden[3],300);assert.equal(cup.o.cupboard,1);
+const cupAgain=JSON.parse(JSON.stringify(cup));delete cupAgain.pv0;const cupBefore=JSON.stringify(cupAgain);migrateSave(cupAgain);delete cupAgain.pv0;assert.equal(JSON.stringify(cupAgain),cupBefore);
+for(const at of [{room:'hall',x:370,y:353,z:275},{room:'cupboard',x:370,y:353,z:400}]){const before=JSON.stringify(at);assert(!move(at,11));assert.equal(JSON.stringify(at),before)}
+console.log('PV12 CUPBOARD PASS: supported items, newly covered floor, unchanged aisle/rack/hidden/metadata/open state and exact repeated migration');
+parkState.parks['console.sn']={room:'cupboard',x:379,y:353,z:345,ry:0,keep:'sn'};
+anchor=parkCtx.parking('console.sn',{});assert.equal(anchor.pose.x,397);assert.equal(anchor.pose.z,311);assert.equal(anchor.pose.ry,90);assert.equal(anchor.pose.keep,'sn');
+const parkOnce=parkSaves;parkCtx.parking('console.sn',{});assert.equal(parkSaves,parkOnce);
+parkState.parks['console.sn']={room:'cupboard',x:377,y:353,z:405,ry:25,keep:'custom'};
+anchor=parkCtx.parking('console.sn',{});assert.equal(anchor.pose.x,377);assert.equal(anchor.pose.z,405);assert.equal(anchor.pose.ry,25);assert.equal(parkSaves,parkOnce);
+console.log('PV12 CASE PARK PASS: factory park follows console once, custom park and metadata survive');

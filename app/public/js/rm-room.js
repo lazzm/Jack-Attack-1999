@@ -2352,7 +2352,7 @@
     if(!Number.isInteger(mediaSlotSave[g.id])){const used=new Set(Object.values(mediaSlotSave)),n=Array.from({length:20},(_,i)=>(i%5)*4+Math.floor(i/5)).find(n=>!used.has(n));if(n==null)return null;mediaSlotSave[g.id]=n;caseStore.save()}return mediaSlotSave[g.id];
   }
   function consoleCasePark(id){
-    if(id==='sn')return{room:'cupboard',x:379,y:353,z:345,ry:0};
+    if(id==='sn')return{room:'cupboard',x:397,y:353,z:311,ry:90};
     if(id==='gb'){
       const a=H.THINGS.gb.at;if(a.room==='bedroom')return{room:'bedroom',x:-56,y:0,z:-12,ry:0};
       const r=H.ROOMS[a.room],lvl=r?.lvl||'G';for(const [dx,dz]of [[18,0],[-18,0],[0,18],[0,-18]])if(H._.cellOk(lvl,a.x+dx,a.z+dz))return{room:a.room,x:a.x+dx,y:H.LV[lvl],z:a.z+dz,ry:0};
@@ -2362,7 +2362,7 @@
   }
   function snMediaReady(){
     const r=H.ROOMS.cupboard;if(!r?.built||!r.snesObj||H.SNAPS['console.sn'])return;
-    const a=15*D2R;R.consoles=R.consoles||{};const c=R.consoles.sn={obj:r.snesObj,x:352-Math.sin(a),y:316.5,z:340-Math.cos(a),ry:15,baseY:325,disc:false};
+    const a=0;R.consoles=R.consoles||{};const c=R.consoles.sn={obj:r.snesObj,x:348-Math.sin(a),y:316.5,z:275-Math.cos(a),ry:0,baseY:325,disc:false};
     K.into(r.snesObj).rbox(0,-36.2,-1,10.5,.35,2.8,.1,M('#292a30'));
     consoleMediaSlot('sn',c);H.SPOTS.snes.remove=()=>ejectMedia('sn');H.SPOTS.snes.act=()=>inserted('sn')?tvOpen('sn'):toast('Super Ultra','Pick up a filled game case from beside the console, then E at its highlighted slot.');
   }

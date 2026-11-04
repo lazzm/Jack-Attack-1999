@@ -11,6 +11,8 @@
     const old=state().parks[id];if(old&&typeof old.room==='string'&&['x','y','z'].every(k=>Number.isFinite(old[k])))p=old;
     // The retained parking record outranks the new factory pose. Move only that old desk-edge anchor once.
     if(id==='console.gb'&&H.placementVersion>=11&&p.room==='bedroom'&&Math.abs(p.x+68)<.1&&Math.abs(p.y)<.1&&Math.abs(p.z+22)<.1){p={...p,x:-56,z:-12};savePark(id,p)}
+    // PV12: follow only the old Super Ultra factory parking point. Custom parks survive.
+    if(id==='console.sn'&&H.placementVersion>=12&&p.room==='cupboard'&&Math.abs(p.x-379)<.1&&Math.abs(p.y-353)<.1&&Math.abs(p.z-345)<.1){p={...p,x:397,z:311,ry:90};savePark(id,p)}
     const key='case.park.'+id;return H.SNAPS[key]||H.snap(key,{...p,pose:{...p},accepts:()=>false,enabled:()=>false,box:[1,1,1]});
   }
 

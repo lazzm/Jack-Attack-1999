@@ -390,3 +390,40 @@ captures were inspected in full. A final no-refresh bedding-only retry is report
 The final `SIZING3_REFRESHES=0 FIXTURE_RASTER_RATIO=0.35 node tests/sizing3-save.mjs` bedding-only retry was
 interrupted at the 90-minute stop (exit 130); **not verified**. The whole corrected save gate, full smoke gate and
 final complete physics rerun must pass before shipping. Working tree left uncommitted and undeployed.
+
+## Under-stairs cupboard, PV12 (4 November, branch cupboard; unreleased)
+
+Jack's request was read as reclaiming the enclosed wedge without moving the flight, and giving the entrance real
+headroom and a clear swing. The hall side has its existing mirror, radiator, coats, photos and school bag; no hall
+alcove was cut into the low wedge. Keeping that volume inside gives useful shallow storage without narrowing the
+121 cm hall. Units below are centimetres, plan coordinates x/z; floor y 353, standing eye 143.
+
+| Top-down plan / clearance | PV11 | PV12 |
+| --- | --- | --- |
+| Stair footprint (unchanged) | x 332..408 | x 332..408 |
+| Cupboard plan area | x 332..408, z 252..440: 76 × 188 | x 332..408, z 252..548: 76 × 296 (+57% plan area) |
+| Clear floor definition | x 334..406, z 254..423: 72 × 169 | x 334..406, z 254..548: 72 × 294 (+74% floor length) |
+| Lowest end | floor beyond z 441 outside cupboard; sealed wedge | back board z 548; tree carton ends z 545; about 18 cm headroom there (reach-in storage) |
+| Door opening in x 330 wall | z 362..438, 76 wide, 94 high | z 270..346, 76 wide, slope-cut: about 234..173 high; no C hint at entrance |
+| Door swing | 100° inward into stored objects | 180° outward around projected butt hinge x 324.5, z 270; stops for the player |
+| Leaf over carpet | bottom near floor y 353 | bottom y 351, clear of carpet at y 352 |
+| Hall route fully open | cupboard leaf in cupboard | leaf folds along east side at x about 322; hall furniture unchanged |
+| Tea chest / portable telly | (380,300) / (380,296), telly yaw −20° | (385,273) / (385,275); chest 40 cm wide, telly yaw 0° |
+| Super Ultra box / insertion | (352,340), yaw 15° | (348,275), yaw 0°; insertion follows console |
+| Filled-case rack | x 385..393, z 370 | unchanged IDs, slots and coordinates |
+| Empty-case parking | (379,345), yaw 0° | (397,311), yaw 90°; only old factory park migrates |
+| Tall / low storage | ironing board high end, vacuum (398,420), toolbox (350,390) | board against x 403 at z 359; vacuum (345,450), wellies z 476/490, toolbox (352,517), toy bag (393,508), tree (383,533) |
+| Player head | fixed 112 eye throughout | normal 143 at entrance; eye lowers under slope with 16 cm margin ahead of capsule |
+
+The soffit remains `73 + 0.8*(z-250) + 23.5`; the last part is storage, not standing space. The existing meter,
+bulb/pull switch, paint shelf, loot spot IDs and Halloween sweets tin at (348,422) remain available. The map follows
+the room area; the old hall rectangle under the enclosed flight now begins at the slope's floor intersection.
+PV12 moves only objects supported by the relocated chest/console box and loose floor records covered by their new
+positions. Existing aisle placements and rack snaps stay put. A PV11 player on the newly covered floor resumes
+standing in the clear entrance at (370,337); door state is retained. Other save versions and rooms keep their rules.
+
+Geometry evidence: `node tests/cupboard-geometry-unit.cjs` builds both production versions with the real three.js
+and HouseKit. Unculled authored draw submissions before runtime merging: hall **46 → 43**, cupboard **62 → 67**,
+combined **108 → 110 (+2)**. This is a model submission count, not hardware FPS. The same test checks 91 leaf angles
+and all 11,476 solid prop vertices against the side/end lining, carpet and soffit. It caught and corrected the meter
+back mounting, the console lead dipping below carpet, and the folded board's bevel touching the floor.
