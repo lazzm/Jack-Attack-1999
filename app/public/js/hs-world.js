@@ -40,7 +40,7 @@
   // debug option (localStorage jhp_hs_fps, or House.showFps(true)).
   const ADAPT = [
     { far: 0, lamps: 5, screenHz: 60, scale: 1 },     // 0: everything
-    { far: 1, lamps: 5, screenHz: 30, scale: 1 },     // 1: shorter outdoor draw distance and portal depth, screens 30 Hz
+    { far: 1, lamps: 5, screenHz: 30, scale: 1 },     // 1: outdoor atmosphere, fewer portal routes, screens 30 Hz
     { far: 1, lamps: 3, screenHz: 30, scale: 1 },     // 2: the three strongest lamps light per pixel
     { far: 1, lamps: 3, screenHz: 20, scale: 1 },     // 3: screens 20 Hz
     { far: 1, lamps: 3, screenHz: 20, scale: .925 },  // 4: a small resolution step (dense displays only)
@@ -111,7 +111,7 @@
   const root = new T.Group(); root.scale.set(1, -1, 1); scene.add(root); // y is down in here (see hs-kit.js)
   // Two centimetres preserves depth precision while keeping the entire near
   // rectangle comfortably inside the player's 22 cm collision clearance.
-  const camera = new T.PerspectiveCamera(45, 1, 2, 4000); camera.matrixAutoUpdate = false; camera.layers.set(0);
+  const camera = new T.PerspectiveCamera(45, 1, 2, 11000); camera.matrixAutoUpdate = false; camera.layers.set(0);
   // the lights: a fixed rig (a constant number of lights means no shader rebuilds), moved to suit the rooms on show
   const hemi = new T.HemisphereLight(0x8a90a8, 0x30261c, 0.55); scene.add(hemi); hemi.layers.enableAll();
   const sun = new T.DirectionalLight(0xffffff, 0); root.add(sun); root.add(sun.target); sun.layers.enableAll();
@@ -121,9 +121,12 @@
   // pose: E (eye, cm), ry (yaw: + turns right), rx (pitch: - looks down), the CSS conventions boot.js uses
   const P = { x: 0, y: -50, z: 100, ry: -30, rx: -16, zm: 1 };
   let em = 10, vw = innerWidth, vh = innerHeight;
-  const outdoorFog=new T.Fog(0xcedadf,1600,3000);
+  // Clear local air: brick stays brick throughout the visible street. Only
+  // a gentle atmospheric tint begins beyond 50 m; solid bends close the view
+  // well before either the distant silhouette or the clipping plane.
+  const outdoorFog=new T.Fog(0xcedadf,5000,35000);
   function qualityView(){
-    const fog=rung().far&&cur?.outside?outdoorFog:null,far=fog?fog.far:4000;
+    const fog=rung().far&&cur?.outside?outdoorFog:null,far=11000;
     scene.fog=fog;
     if(fog){const ph=window.HouseEnvironment?.phase;fog.color.set(ph==='night'?0x26344b:ph==='dusk'?0xd89774:ph==='dawn'?0xddb69a:0xcedadf)}
     if(camera.far!==far){camera.far=far;camera.updateProjectionMatrix()}
@@ -254,8 +257,9 @@
       d.pivot.rotation.y = 0; d.pivot.updateWorldMatrix(true,true);
       const b = new T.Box3().setFromObject(d.pivot);
       if (!b.isEmpty()) { d.closedBounds = {x0:b.min.x,z0:b.min.z,x1:b.max.x,z1:b.max.z}; d.portal = b.clone().expandByScalar(15); } // (closed aperture bounds, shared with render audits)
-      const leaf=d.pivot.children.find(o=>o.isMesh&&o.geometry?.type==='BoxGeometry');
-      if(leaf){leaf.geometry.computeBoundingBox();d.headroom=leaf.geometry.boundingBox.max.y-leaf.geometry.boundingBox.min.y;d.floorY=-b.min.y;}
+      // The whole closed door, not its first box: a glazed leaf's slab isn't a box, so that found a trim bead and
+      // called the front door a 6 cm hole. Only a door that's really short (the cupboard) makes you crouch.
+      if(!b.isEmpty()){d.headroom=b.max.y-b.min.y;d.floorY=-b.min.y;}
       d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1);
     } // (the leaf is drawn whenever either room is: see visCalc)
     if (d.frame) root.add(d.frame); // shared static jambs never rotate with the leaf
@@ -2007,8 +2011,9 @@
     const out=ramp?[]:shellContacts(x,z,W.lvl,radius);
     out.push(...doorContacts(x,z,W.fy-50,W.lvl,radius));
     // The family are solid (js/np-life.js): a round contact, so you slide round someone instead of stopping dead.
-    const fam=window.HouseFamily?.blocker?.(x,z,W.lvl,radius-RAD+.5);
-    if(fam){const dx=x-fam.x,dz=z-fam.z,d=Math.hypot(dx,dz)||1;out.push({nx:dx/d,nz:dz/d,depth:Math.max(0,fam.r-d)})}
+    const family=window.HouseFamily;
+    const people=family?.blockers?.(x,z,W.lvl,radius-RAD+.5)||[family?.blocker?.(x,z,W.lvl,radius-RAD+.5)].filter(Boolean);
+    for(const fam of people){const dx=x-fam.x,dz=z-fam.z,d=Math.hypot(dx,dz)||1;out.push({nx:dx/d,nz:dz/d,depth:Math.max(0,fam.r-d)})}
     // Things are physics bodies: the player's capsule meets their real parts (js/hs-physics.js).
     if(typeof bodyContacts==='function')out.push(...bodyContacts(x,z,radius));
     return out;
@@ -2074,7 +2079,7 @@
     if (tm?.on && !mx && !mz) { mx = tm.x; mz = tm.y; }
     const mag = Math.min(1, Math.hypot(mx, mz));
     const night = !!(window.HouseLife && HouseLife.quiet && HouseLife.quiet());
-    const lintel=lowDoorAt(W.x,W.z,W.lvl,6,W.fy),nearLintel=keys.crouch&&lowDoorAt(W.x,W.z,W.lvl,RAD+40,W.fy),ducking=keys.crouch||!!lintel;
+    const lintel=lowDoorAt(W.x,W.z,W.lvl,RAD+6,W.fy),nearLintel=keys.crouch&&lowDoorAt(W.x,W.z,W.lvl,RAD+40,W.fy),ducking=keys.crouch||!!lintel;
     if (!W.seat) W.eye = Math.max(60, ((cur && cur.eye) || STAND) - (keys.crouch ? 38 : 0)); // C: crouch
     if(lintel||nearLintel)W.eye=Math.min(W.eye,(lintel||nearLintel).headroom-10);
     const carrySpeed = held ? (THINGS[held.id]?.walkScale || 1) : 1;
@@ -2089,12 +2094,17 @@
     const acc = 1 - Math.pow(0.0001, dt);
     W.vx += (tvx - W.vx) * acc; W.vz += (tvz - W.vz) * acc;
     const oldX=W.x,oldZ=W.z;
+    const passage=(tvx||tvz)?window.HouseFamily?.passage?.(tvx*dt,tvz*dt,dt,(x,z,fy)=>!!floorAt(x,z,W.lvl,fy)):null;
     const recovered=recoverWalking(dt);if(recovered)roomCheck();
     let spd = Math.hypot(W.vx, W.vz);
     if (spd > 1) {
       // Walking into a thing shoves it first (js/hs-physics.js); whatever it can't give way, the sweep below stops at.
       if(typeof pushBodies==='function')pushBodies(W.vx*dt,W.vz*dt,dt);
-      moveCircle(stairFunnel(W.vx*dt,W.vz*dt),W.vz*dt);
+      // Preserve acceleration and analogue stick strength while steering the
+      // displacement gently around a person; wall/body contacts still win.
+      const travel=Math.hypot(W.vx,W.vz)*dt, desired=passage&&Math.hypot(passage.dx,passage.dz);
+      const dx=desired?passage.dx*travel/desired:W.vx*dt,dz=desired?passage.dz*travel/desired:W.vz*dt;
+      moveCircle(stairFunnel(dx,dz),dz);
       spd=Math.hypot(W.x-oldX,W.z-oldZ)/dt;
       if (stIdx >= 0 && spd > 40) { stIdx = -1; ui.where(); }
       // head bob and footsteps

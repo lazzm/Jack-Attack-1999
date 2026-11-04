@@ -1,5 +1,28 @@
 # Jack's Home Page - changelog
 
+## 2.68.0 - 2026-11-04
+- Outdoors looks like a real neighbourhood. The washed-out backdrop behind the houses is gone: the street now runs on with solid houses, roofs and trees out to 95 m and bends to close the view, and the air stays clear to 50 m. Front plots have joined brick walls and fences, neighbouring hedges are rounded and solid, front doors vary, walls and kerbs sit on the ground, and the road and clouds look better. Draw calls went up by at most 2 in any view.
+- The family move better, round 1. They take short first steps with planted feet, their feet land on real stair treads, standing up blends instead of popping, their eyes lead their head, and blinks close properly. Mom's and your sister's hair has real shape from behind, heads have more form, and hands have fingers and a thumb. Still to come: real grips on things they hold, cloth folds and shoe soles.
+- Tablets: controls sit under your thumbs at the sides and no longer cover the TV, on every console, at four tablet sizes. Game instructions name the buttons on the pad under touch. The shopping note no longer covers the carry panel, Start menus re-fit after rotating, speech balloons clear the speaker's face, the minimap stays in portrait, Menu during sitting offers a way back, and JackOS targets are bigger under touch.
+- Verified: parody 0, all unit checks, Chapter 1, door walking, Bonfire end to end, voices 9/9, seasons, physics, smoke 12/12, performance 4/4 after fixing a flaky test. Mobile passed 7/8 in the gate; the eighth, the owner menu, timed out once and then passed 2/2 alone, so it's treated as flaky. Art checks ran on a software renderer, not real phones. No real account, wallet or shared-world changes.
+
+## 2.67.0 - 2026-11-04
+- Walk at someone and they notice early and shuffle out of your way, then go back to what they were doing. If they can't move, you can squeeze past them. It works in the hall, on the landing and stairs, in doorways, around the kitchen table and sofa, and when someone's walking towards you. Two people can't trap you.
+- Someone you're talking to stays put and finishes their line.
+- No more invisible wall on Bonfire evening: the family used to block you from 1.5 m away in the garden.
+- Verified: parody 0, all unit checks, Chapter 1, door walking, Bonfire end to end and its art check, voices 9/9, mobile 8/8, family routes, physics 15/15, smoke 12/12, walking past people with real keys on desktop and real touch on a phone, performance. No real account, wallet or shared-world changes.
+
+## 2.66.2 - 2026-11-04
+- Fixed the sudden crackle at the end of some voice lines. Cutting batch recordings into clips had left a burst of the next line at the end of some, and hard edges on others. 43 lines and 26 name call-outs are repaired, and each repair was checked to make sure no words were lost.
+- Stopping a voice line early now fades over 15 ms instead of clicking.
+- New repeatable audio check, tools/audio/voice-qa.py, for bursts, hard edges, clipping and level. Two clips still need re-recording: one peaks too high and one name is quiet.
+- Verified: voice unit checks with the new ledger, recordings played through the real sound code, transcripts of every repaired clip. No real account, wallet or shared-world changes.
+
+## 2.66.1 - 2026-11-04
+- You can walk out of the front door again. Since 2.60.0 the new glazed door was measured from one small trim piece, so the game treated the doorway as too low to walk through. The back door was fine.
+- A new test walks through the front, back, kitchen and lounge doors in both directions with real keys. It's now in the release gate, because the old door tests moved the player past the doorway.
+- Verified: parody 0, all unit checks, door walking both ways, smoke 12/12, physics 14 of 15 (the last check, frame cost, was cut off by a time limit). No real account, wallet or shared-world changes.
+
 ## 2.66.0 - 2026-11-04
 - Tekno Fist goes much deeper: Arcade and Time Attack run to ten matches, and there's Team Battle with one to eight fighters, a new Fist Ball bonus game, an ending theatre and proper credits.
 - A refresh mid-match now picks up where you were, even mid-throw or during a replay. Existing memory cards keep all their unlocks, endings and scores.

@@ -1212,7 +1212,7 @@
   const mGrass = () => M({ c: '#fff', map: K.tex('hs.grass', 256, 256, (g, w, h) => { g.fillStyle = '#465e35'; g.fillRect(0, 0, w, h); const r = K.rnd(62); for (let i = 0; i < 14000; i++) { const v = r(); g.fillStyle = v < 0.4 ? 'rgba(35,58,25,.35)' : v < 0.9 ? 'rgba(102,136,75,.25)' : 'rgba(160,151,88,.18)'; g.fillRect(r() * w, r() * h, 1, 1 + r() * 2); } A.mottle(g, w, h, 20, 'rgba(0,0,0,.08)', 40, 63); }) });
   const mSlab = () => M({ c: '#fff', map: K.tex('hs.slab', 256, 256, (g, w, h) => { for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) { g.fillStyle = ['#a8a49a', '#9e9a90', '#b0aca2'][(x + y * 3) % 3]; g.fillRect(x * 64, y * 64, 64, 64); } g.strokeStyle = '#5a5a52'; g.lineWidth = 2; for (let i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(i * 64, 0); g.lineTo(i * 64, h); g.stroke(); g.beginPath(); g.moveTo(0, i * 64); g.lineTo(w, i * 64); g.stroke(); } A.grain(g, w, h, 4000, 0.07, 64); A.mottle(g, w, h, 12, 'rgba(40,60,20,.15)', 30, 65); }) });
   const mBrick=()=>M({c:'#fff',map:K.tex('hs.brick.v2',256,256,(g,w,h)=>{g.fillStyle='#a69b87';g.fillRect(0,0,w,h);const r=K.rnd(66);for(let y=0;y<24;y++)for(let x=-1;x<9;x++){g.fillStyle=['#98664e','#a26d51','#936049','#ac7859'][(r()*4)|0];g.fillRect(x*32+(y%2)*16+.7,y*h/24+.7,30.6,h/24-1.4)}A.grain(g,w,h,1500,.06,66)})});
-  const mTarmac = () => M({ c: '#fff', map: K.tex('hs.tarmac', 256, 256, (g, w, h) => { g.fillStyle = '#4a4a4c'; g.fillRect(0, 0, w, h); const r = K.rnd(67); for (let i = 0; i < 12000; i++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,.3)' : 'rgba(255,255,255,.12)'; g.fillRect(r() * w, r() * h, 1.5, 1.5); } }) });
+  const mTarmac = () => M({ c: '#fff', map: K.tex('hs.tarmac', 256, 256, (g, w, h) => { g.fillStyle = '#4a4a4c'; g.fillRect(0, 0, w, h); const r = K.rnd(67); for (let i = 0; i < 12000; i++) { g.fillStyle = r() < 0.5 ? 'rgba(0,0,0,.16)' : 'rgba(255,255,255,.07)'; g.fillRect(r() * w, r() * h, 1.5, 1.5); } }) });
   function tree(B, x, z, hgt, spread) {
     const trunk=M({c:'#fff',map:tex('oak')}),leaf=M({c:'#436d35',vc:true,sh:2});leaf.userData.nature='leaf';
     // Flared roots and a tapered trunk that forks into the overlapping crown.
@@ -1439,9 +1439,17 @@
     // The street in front (js/hs-world.js FRONT.STREET; js/hs-environment.js carries it on both ways): the pavement, the kerb, the road.
     const [pv0,pv1]=STREET.pave,[rd0,rd1]=STREET.road;
     B.box(300,GY+1.6,(pv0+pv1)/2,1800,4,pv1-pv0,mSlab(),{uv:100});
-    B.box(300,GY+3,(rd0+rd1)/2,1800,4,rd1-rd0,mTarmac(),{uv:120});
-    B.box(300,GY-1,STREET.kerb,1800,6,rd0-pv1,M('#9a9a92'));
-    for(let x=-520;x<1200;x+=260)B.box(x,GY+.87,(rd0+rd1)/2,130,.2,8,M('#d2cdb6'));
+    // The neighbourhood owns the continuous carriageway, including this
+    // stretch. A separate house-lit slab used to leave a hard colour seam.
+    // The near kerb meets the street's 12 cm kerb at both ends. Real joints
+    // are shallow grooves in closed blocks, with a darker seated foot course.
+    const kerbStone=M('#9a9a92');
+    for(let x=-600;x<1200;x+=100)B.rbox(x+50,GY-5,STREET.kerb,99.6,14,rd0-pv1,.45,kerbStone);
+    B.box(300,GY+2.1,STREET.kerb,1800,1.8,rd0-pv1,M('#55564f'));
+    const drainIron=M({c:'#1f2122',sh:40,sp:'#555'}),drainZ=rd0+13;
+    B.box(675,GY+.7,drainZ,38,2,22,drainIron);
+    const grateSteel=M({c:'#4a4f4c',sh:30,sp:'#3a3f3c'}); // shares the lamp column's material
+    for(let x=660;x<=690;x+=5)B.box(x,GY-.1,drainZ,2.4,.8,18,grateSteel);
     for(const x of [120,-340])B.box(x,GY-1,(685+FZ)/2,3,3,FZ-715,M('#8c8679'));
     // A clear pedestrian route beside the parked car.
     B.box(290,GY-.45,(752+FZ)/2,84,1,FZ-752,mSlab(),{uv:100});
@@ -1494,8 +1502,9 @@
     const clippedHedge=M({c:'#fff',vc:true,sh:2,sp:'#142316',map:K.tex('hs.hedge.leaves',128,128,(g,w,h)=>{const r=K.rnd(812);g.fillStyle='#3e5934';g.fillRect(0,0,w,h);for(let i=0;i<1900;i++){g.fillStyle=['#405a34','#48653a','#344e2d','#516d40'][(r()*4)|0];g.beginPath();g.ellipse(r()*w,r()*h,1.5+r(),.7+r()*.6,r()*Math.PI,0,Math.PI*2);g.fill()}})});
     clippedHedge.userData.nature='leaf';
     // One closed clipped hedge: a softly rounded continuous body, with small leaf-scale undulations rather than separate balls.
-    { const x0=-360,x1=FRONT_PIERS[0]-17.5,z0=HEDGE[0],z1=HEDGE[1],width=x1-x0,height=124,depth=z1-z0,round=9;
-      const geo=new T.BoxGeometry(width,height,depth,Math.ceil(width/12),10,4),p=geo.attributes.position;
+    function clippedBoundary(x0,x1,z0,z1,height,base=GY){
+      const width=x1-x0,depth=z1-z0,round=Math.min(9,width/3,depth/3);
+      const geo=new T.BoxGeometry(width,height,depth,Math.ceil(width/18),8,Math.ceil(depth/18)),p=geo.attributes.position;
       for(let i=0;i<p.count;i++){
         const x=p.getX(i),y=p.getY(i),z=p.getZ(i),cx=Math.max(-width/2+round,Math.min(width/2-round,x)),cy=Math.max(-height/2+round,Math.min(height/2-round,y)),cz=Math.max(-depth/2+round,Math.min(depth/2-round,z));
         const dx=x-cx,dy=y-cy,dz=z-cz,len=Math.hypot(dx,dy,dz)||1;
@@ -1508,14 +1517,30 @@
       const n=geo.attributes.normal,sums=new Map(),keys=[];
       for(let i=0;i<p.count;i++){const key=[p.getX(i),p.getY(i),p.getZ(i)].map(v=>Math.round(v*1000)).join(',');keys.push(key);const q=sums.get(key)||new T.Vector3();q.x+=n.getX(i);q.y+=n.getY(i);q.z+=n.getZ(i);sums.set(key,q)}
       for(const q of sums.values())q.normalize();for(let i=0;i<n.count;i++){const q=sums.get(keys[i]);n.setXYZ(i,q.x,q.y,q.z)}
-      B.geo(geo,(x0+x1)/2,GY-height/2,(z0+z1)/2,clippedHedge,{uv:80});
+      B.geo(geo,(x0+x1)/2,base-height/2,(z0+z1)/2,clippedHedge,{uv:80});
       // Small overlapping tips break the clipped silhouette without turning
       // the face into a row of separate balls. The continuous body carries it.
-      for(let i=0;i<20;i++){
+      if(width>depth)for(let i=0;i<20;i++){
         const cx=x0+22+i*(width-44)/19;
-        B.ball(cx,GY-114-(i%3)*1.4,(z0+z1)/2,22,17+(i%2)*2,depth*.49,clippedHedge,10);
+        B.ball(cx,base-height+10-(i%3)*1.4,(z0+z1)/2,22,17+(i%2)*2,depth*.49,clippedHedge,10);
       }
-      B.shadow((x0+x1)/2,GY,(z0+z1)/2-30,width,24,.35,{sq:true}); }
+    }
+    clippedBoundary(-360,FRONT_PIERS[0]-17.5,HEDGE[0],HEDGE[1],124);
+    B.shadow((-360+FRONT_PIERS[0]-17.5)/2,GY,(HEDGE[0]+HEDGE[1])/2-30,FRONT_PIERS[0]+342.5,24,.35,{sq:true});
+    // Low brick garden boundary: entirely outside the mowable turf. The short
+    // return meets the house corner without running through the side-gate leaf.
+    const boundaryStart=600,leftStart=700,boundaryEnd=FZ-5;
+    B.box(-352,GY-34,(leftStart+boundaryEnd)/2,18,68,boundaryEnd-leftStart,mBrick(),{uv:128});
+    B.rbox(-352,GY-70,(leftStart+boundaryEnd)/2,23,4,boundaryEnd-leftStart,.7,capM);
+    B.box(-326,GY-34,leftStart,52,68,18,mBrick(),{uv:128});
+    B.rbox(-326,GY-70,leftStart,52,4,23,.7,capM);
+    for(let z=leftStart;z<boundaryEnd-20;z+=195){
+      B.box(-352,GY-43,z,26,86,26,mBrick(),{uv:128});B.rbox(-352,GY-88,z,30,4,30,.6,capM);
+    }
+    // The drive side shares the existing collider (716..740). Keep its full
+    // clear width, car, boot, gate and all saved placements in place.
+    B.box(728,GY-15,(boundaryStart+FZ-16)/2,24,30,FZ-16-boundaryStart,mBrick(),{uv:128});
+    clippedBoundary(717,739,boundaryStart,FZ-16,102,GY-25);
     // The street lamp stands at the kerb, off to the side of the plot (not across the front of the house):
     // a tapered steel column on a base with its access door, a swan-neck arm and a sodium lantern over the road.
     const lp = B.at(LAMP.x, GY, LAMP.z), col = M({ c: '#4a4f4c', sh: 30, sp: '#3a3f3c' });
@@ -1628,7 +1653,9 @@
     H.block('G', -360, HEDGE[0], FRONT_PIERS[0] - 16.5, FZ + 6); H.block('G', FRONT_PIERS[2] + 16.5, FZ - 16, 740, FZ + 6); // the front wall, with the hedge behind it
     for (const x of FRONT_PIERS) H.block('G', x - 16.5, FZ - 21.5, x + 16.5, FZ + 11.5);
     H.block('G', FRONT_PIERS[1] - 12, FZ - 104, FRONT_PIERS[1] - 6, FZ - 21.5); // the open gate leaf
-    H.block('G', 716, 704, 740, FZ - 15); // next door's hedge
+    H.block('G', -365, 700, -339, FZ + 6); // capped side wall, outside the mowing inset
+    H.block('G', -365, 691, -300, 709); // the return into the house corner
+    H.block('G', 716, 600, 740, FZ - 15); // solid drive boundary joins the side-gate return
     H.block('G', LAMP.x - 16, LAMP.z - 14, LAMP.x + 16, LAMP.z + 14); // the lamp-post's base, now the whole pavement is walkable
     H.support('drive',frame.x-58*frame.s,frame.z-96*frame.s,frame.x+58*frame.s,frame.z+60*frame.s,GY-frame.roof*frame.s,{when:()=>parked.present}); H.support('drive', 265, 708, 335, 752, GY - 2);
     // The shell, lid, contact shadow and picks leave together. The separate batch
