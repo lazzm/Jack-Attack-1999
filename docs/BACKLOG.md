@@ -414,3 +414,6 @@ Completion: the interactive diagnostic exited 0 after 133 captures; driver synta
 - R211: The monitor and tower tops blow out to pure white in Dad's boot in sun (fixes4 r193-merged-post-refresh.png).
 - R212: Tekno Fist's boot heading has a stray dark tick after each word (game-fight boot-existing-card-native.png).
 - R213: Tekno Fist's tower arena has flat red, blue and green rectangles on the wall behind the fighters (game-fight team-next.png). Give them detail or remove them.
+
+## Noted 2026-11-04 tablet fix review
+- R214: Pocket Critters' title: the critter's horn overlaps the N of MOSS VERSION, and the logo has stray ticks at the right edge of its letters, the same mark as R212 in Tekno Fist (fixes5 after-1366x1024-gb.mon-lock.png). Probably one shared cause in the bitmap text drawing.
