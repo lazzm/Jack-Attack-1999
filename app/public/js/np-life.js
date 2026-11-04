@@ -154,7 +154,9 @@
     const g = c.rig.group, parent = H.ROOMS[c.room]?.group;
     if (parent && g.parent !== parent) parent.add(g);
     const y = NV.onFlight(c.x, c.z) && c.x > 340 ? NV.ramp(c.z) : H.LV[c.lvl];
-    c.rig.root(c.x, y, c.z, c.h, c.v);
+    // A tight shuffle uses the rig's planted-foot adjustment steps. Its back
+    // stays against the wall; a forward walk cycle would put toes into it.
+    c.rig.root(c.x, y, c.z, c.h, c.aside?.narrow ? 0 : c.v);
     g.visible = c.present && !hideAll;
   }
   function spawn(c, at, h) {
@@ -256,7 +258,7 @@
     if (!c.cur) { c.cur = c.plan.shift() || null; if (c.cur) c.cur.t = 0; }
     const s = c.cur;
     if (s) s.t += dt;
-    if (c.hold > 0 && c.goal?.key !== 'aside') {
+    if (c.hold > 0 && !(c.goal?.key === 'aside' && c.pass && nowMs() < c.pass.until)) {
       if (c.hold > 2 && speech.cur?.c !== c && !speech.q.some(q => q.c === c)) c.hold = 1.5; // (nothing left to say: never stand there forever)
       c.hold -= dt; c.v = 0;
       const show=c.goal?.key?.startsWith('bf.')?window.Bonfire?.familyLook?.():null;
@@ -374,7 +376,7 @@
     s.s = nextS;
     const p = NV.at(r, s.s), q = NV.at(r, Math.min(r.len, s.s + 28));
     c.x = p.x; c.z = p.z; c.lvl = p.lvl;
-    if (r.len - s.s > 2) { const want2 = Math.atan2(q.x - p.x, q.z - p.z); if (Math.hypot(q.x - p.x, q.z - p.z) > 1) c.h += clamp(angd(c.h, want2), -4.5 * dt, 4.5 * dt); }
+    if (r.len - s.s > 2 && !(s.yielding && c.aside?.narrow)) { const want2 = Math.atan2(q.x - p.x, q.z - p.z); if (Math.hypot(q.x - p.x, q.z - p.z) > 1) c.h += clamp(angd(c.h, want2), -4.5 * dt, 4.5 * dt); }
     // shut doors behind (only ones we opened; never in someone's face)
     for (const id of [...c.opened]) {
       const dd = r.doors.find(q2 => q2.id === id);
@@ -390,7 +392,7 @@
   }
   const prio = c => ({ mom: 3, dad: 2, sister: 1 })[c.id];
   const travelAction = c => c.goal?.away && c.goal.away !== 'bed' ? 'leave' : null;
-  function faceToward(c, p, dt) { if (c.seated) return; const want = Math.atan2(p.x - c.x, p.z - c.z); c.h += clamp(angd(c.h, want), -3.5 * dt, 3.5 * dt); }
+  function faceToward(c, p, dt) { if (c.seated || c.aside?.narrow) return; const want = Math.atan2(p.x - c.x, p.z - c.z); c.h += clamp(angd(c.h, want), -3.5 * dt, 3.5 * dt); }
   function displaySpeaking(c) { return speech.cur?.c === c && !!c.rig?.talking; }
   function lookingAtPlayer(c) { return c.goal?.key?.startsWith('bf.') ? displaySpeaking(c) : c.hold > 0 || c.talking; }
   // at the spot: the action, the props
@@ -415,16 +417,19 @@
       const stairs=NV.onFlight?.(c.x,c.z)&&NV.onFlight(q.x,q.z),need=c.pass?16:NV.NEED;
       if (!stairs && asideClear(c,q)>=NV.NEED) {
         const r=NV.route({lvl:c.lvl,x:c.x,z:c.z},q,{avoid}),end=r?.pts?.[r.pts.length-1];
-        if(r&&(!end||Math.hypot(end.x-q.x,end.z-q.z)<1))return r;
+        const start=r?.pts?.[0];
+        if(r&&(!start||Math.hypot(start.x-c.x,start.z-c.z)<1)&&(!end||Math.hypot(end.x-q.x,end.z-q.z)<1))return r;
       }
       const len=Math.hypot(q.x-c.x,q.z-c.z);
+      let narrow=false;
       for(let d=0;d<=len;d+=3){
         const t=len?d/len:0,p={x:lerp(c.x,q.x,t),z:lerp(c.z,q.z,t),lvl:c.lvl},door=doorZone(p.x,p.z,c.lvl,0);
+        if(asideClear(c,p)<NV.NEED)narrow=true;
         if(door&&!doorOpen(door)||asideClear(c,p)<need||avoid.some(o=>Math.hypot(p.x-o.x,p.z-o.z)<o.r))return null;
       }
       // This short exact segment is checked every 3 cm. Unlike a full walking
       // route it can use a sideways body's depth, without snapping its endpoint.
-      return {len,doors:[],pts:[{x:c.x,z:c.z,lvl:c.lvl,s:0,stairs},{x:q.x,z:q.z,lvl:c.lvl,s:len,stairs}]};
+      return {len,doors:[],narrow,pts:[{x:c.x,z:c.z,lvl:c.lvl,s:0,stairs},{x:q.x,z:q.z,lvl:c.lvl,s:len,stairs}]};
     }
 
     if (c.seated) return;
@@ -433,7 +438,7 @@
     const sinkGuest = c.id === 'mom' && c.goal?.spot === SPOT.sink && c.cur?.k === 'act' && !dialogueHeld(c) && sameFloor(c, player()) && dist(c, player()) < 90;
     if (sinkGuest) { c.pushT = nowMs(); c.pushN = 6; c.pushFrom = null; c.asideFor = null; }
     if (c.goal?.key === 'aside' && c.aside && !((c.pushN || 0) >= 6 && nowMs() - c.pushT <= 600)) {
-      const o = c.asideFor, released = o ? !o.present || dist(c, o) > 90 || o.cur?.k !== 'route' : dist(c, player()) > 170;
+      const o = c.asideFor, released = o ? !o.present || dist(c, o) > 90 || o.cur?.k !== 'route' : !sameFloor(c,player()) || dist(c, player()) > 170;
       c.asideT = released ? c.asideT + dt : 0;
       if (c.asideT > 3) {
         let room = true;
@@ -441,7 +446,7 @@
           const g = target(c, clock(), true), to = g.away ? EXIT[g.exit] : g.spot?.seat ? Object.assign({lvl:g.spot.lvl},approachOf(g.spot.seat,g.spot.lvl)) : g.spot;
           room = to && !chars.some(q => q !== c && q.present && q.lvl === to.lvl && Math.hypot(to.x-q.x,to.z-q.z)<bodyGap(c,q)) && NV.route({lvl:c.lvl,x:c.x,z:c.z},to,{avoid:peopleAvoid(c)});
         }
-        if (room) { c.aside = c.asideFor = null; c.resumeAvoid = true; }
+        if (room) { c.aside = c.asideFor = null; c.pass = null; c.resumeAvoid = true; }
         c.asideT = 0;
       }
       return;
@@ -474,8 +479,8 @@
     const choice = opts.find(q => (checked=asideRoute(c,q,avoid)));
     if (choice) choice.route=checked;
     if (choice) {
-      const narrow=c.pass&&asideClear(c,choice)<NV.NEED;
-      c.aside = Object.assign(choice, {narrow,face:(narrow?Math.atan2(-c.pass.nx*c.pass.side,-c.pass.nz*c.pass.side):Math.atan2(p.x-choice.x,p.z-choice.z))/D2R});
+      const narrow=c.pass&&(checked.narrow||asideClear(c,choice)<NV.NEED);
+      c.aside = Object.assign(choice, {narrow,face:(narrow?Math.atan2(c.pass.nx*c.pass.side,c.pass.nz*c.pass.side):Math.atan2(p.x-choice.x,p.z-choice.z))/D2R});
       c.asideT = 0; c.goal = null;
     }
     else if (c.asideFor) {
@@ -583,6 +588,9 @@
     const c = C[id]; if (!c || !c.present) return;
     if (speech.cur && speech.cur.c === c && speech.cur.talk) { skip(); return; } // F again: on to the next line
     if (speech.q.some(q => q.c === c && q.talk)) return;
+    // A fresh conversation stops even a shuffle already in progress. Only
+    // new walking intent may release this hold; an earlier encounter cannot.
+    c.pass = null; c.pushN = 0; c.pushFrom = null;
     if (speech.cur && speech.cur.c === c) skip(); // (cut short whatever they were saying to themselves)
     if (window.Bonfire?.talk?.(id)) { c.hold = 3; return; }
     const lines = talkLines(c);
@@ -824,6 +832,7 @@
   // Social distance belongs to the family's route planner, never to the
   // player's body. Even on Bonfire evening there is only a small physical core.
   const space = c => c.seated ? 24 : 26;
+  const NO_BLOCKERS = Object.freeze([]);
   function bodyNear(c, lvl) {
     return c.present && (c.lvl === lvl || NV.onFlight(c.x, c.z) && NV.onFlight(H.W.x, H.W.z)) &&
       Math.abs((NV.onFlight(c.x,c.z) ? NV.ramp(c.z) : H.LV[c.lvl]) - H.W.fy) < 110;
@@ -832,6 +841,8 @@
     if (!ready) return false;
     if (lvl === 'U' && doorHeld() && x > 222 && x < 270 && z > 140 && z < 240 && H.W.x < 236) { heldHint(); return true; }
     for (const c of chars) {
+      const r=space(c);
+      if(!c.present||Math.abs(x-c.x)>=r||Math.abs(z-c.z)>=r)continue;
       if (!bodyNear(c,lvl)) continue;
       const d = Math.hypot(x-c.x,z-c.z), old = Math.hypot(H.W.x-c.x,H.W.z-c.z);
       // A person coming to stand over an old pose must never pin it in place.
@@ -840,14 +851,15 @@
     return false;
   }
   function blockers(x, z, lvl, skin) {
-    if (!ready) return [];
-    const out = [];
+    if (!ready) return NO_BLOCKERS;
+    let out = null;
     for (const c of chars) {
+      const dx=x-c.x,dz=z-c.z,r=space(c),reach=r+(skin||0);
+      if(!c.present||Math.abs(dx)>=reach||Math.abs(dz)>=reach||dx*dx+dz*dz>=reach*reach)continue;
       if (!bodyNear(c,lvl)) continue;
-      const r = space(c);
-      if (Math.hypot(x-c.x,z-c.z) < r+(skin||0)) out.push({x:c.x,z:c.z,r});
+      (out||(out=[])).push({x:c.x,z:c.z,r});
     }
-    return out;
+    return out || NO_BLOCKERS;
   }
   function blocker(x,z,lvl,skin) { return blockers(x,z,lvl,skin)[0] || null; }
 
@@ -861,6 +873,7 @@
     const ux=dx/len, uz=dz/len, nx=-uz, nz=ux, now=nowMs();
     let steer=null, nearest=Infinity;
     for (const c of chars) {
+      if(!c.present||Math.abs(c.x-H.W.x)>185||Math.abs(c.z-H.W.z)>185)continue;
       if (!bodyNear(c,H.W.lvl)) continue;
       const cx=c.x-H.W.x, cz=c.z-H.W.z, along=cx*ux+cz*uz, cross=cx*nx+cz*nz, r=space(c);
       if (along < -r || along > 155 || Math.abs(cross)>r+30) continue;
@@ -913,6 +926,7 @@
   const visible = c => c.present && c.rig && H.ROOMS[c.room]?.group.visible;
   function dialogueHeld(c) {
     if (c.pass && nowMs() < c.pass.until) return false; // walking away releases the pose, never the spoken line
+    if (c.goal?.key === 'aside' && !c.aside && c.hold <= 0) return false; // the player left; a passing line may finish back at work
     if (c.hold > 0) return true;
     const line = speech.cur;
     // A passing remark can continue while its speaker steps out of the way.

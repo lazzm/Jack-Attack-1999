@@ -2091,7 +2091,7 @@
     const acc = 1 - Math.pow(0.0001, dt);
     W.vx += (tvx - W.vx) * acc; W.vz += (tvz - W.vz) * acc;
     const oldX=W.x,oldZ=W.z;
-    const passage=window.HouseFamily?.passage?.(tvx*dt,tvz*dt,dt,(x,z,fy)=>!!floorAt(x,z,W.lvl,fy));
+    const passage=(tvx||tvz)?window.HouseFamily?.passage?.(tvx*dt,tvz*dt,dt,(x,z,fy)=>!!floorAt(x,z,W.lvl,fy)):null;
     const recovered=recoverWalking(dt);if(recovered)roomCheck();
     let spd = Math.hypot(W.vx, W.vz);
     if (spd > 1) {
