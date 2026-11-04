@@ -60,8 +60,8 @@
  const streetLamps=[-420,960].map(x=>({x,y:GY-454,z:ST.farKerb+10,c:'#ffc078',i:1.7,d:1650}));
  const OPP=ST.farPave[1]+560; // opposite plots: z of the house centre (front boundary 540 + 20 in front of it)
  // The village goes on past the end of our row: a crossroads to the east (the side road joins the back road), the
- // corner shop and a little green with the phone box on its corners, and more semis both ways. Past about 36 m from
- // wherever you stand, a low painted silhouette of distant hills and treetops carries on to the horizon.
+ // corner shop and a little green with the phone box on its corners, and more semis both ways. Beyond the solid
+ // street bends, a low painted silhouette of distant hills and treetops sits 95 m from the camera.
  const X=[2370,2460,2470,2950,2960,3050]; // the side road: west pavement, kerb, carriageway, kerb, east pavement
  const crosses=(x0,x1)=>x1>X[0]&&x0<X[5];
  const plots={
@@ -73,6 +73,8 @@
  const farPlots=[
   ...[-4760,-4080,-3400,-2720,3400,4080,4760].map((x,i)=>[x,OPP,180,i+17,540]),
   ...[-4420,-3740,-3060,-2380,3780,4460].map((x,i)=>[x,550,0,i+24,ST.pave[0]-570]),
+  ...[-5440,5440].map((x,i)=>[x,OPP,180,60+i,540]),
+  ...[-5100,5140].map((x,i)=>[x,550,0,62+i,ST.pave[0]-570]),
   ...[-4420,-3740,-3060,-2380,2380,3060,3740,4420].map((x,i)=>[x,-2850,0,i+30,540])
  ].filter(([x,z])=>z!==OPP&&z!==550||!crosses(x-330,x+330));
  // Continue the cross street in depth, closing the open eastern corner. These
@@ -82,7 +84,7 @@
  zone('street',b=>{
   // Global foundation stays below every playable road/turf surface.
   // Distant plots own their bounded lawn bases, so their models still meet grade.
-  b.box(0,GY+11,400,16000,10,16000,grass);
+  b.box(0,GY+11,400,24000,10,24000,grass);
   // Keep every lawn in the existing ground batch, rather than adding one
   // material batch to each house row. Plot bases reach the global foundation.
   for(const [x,z,ry,n,front]of [...plots.opposite,...plots.rear,...plots.side,...farPlots]){
@@ -106,14 +108,22 @@
    // Same jointed solid surface on the side road.
    slab(kerb-5,kerb+5,z0,z1,paving,-12,12);
   }
-  // Main road: both sides of the playable drive's own stretch (x -600..1200, js/hs-house.js), through the crossroads.
+  // One main carriageway, including the drive's frontage, through the crossroads.
   const [p0,p1]=ST.pave,[r0,r1]=ST.road,[f0,f1]=ST.farPave,mid=(r0+r1)/2;
-  for(const [x0,x1] of [[-5600,-600],[1200,5600]]){
+  for(const [x0,x1] of [[-6630,6630]]){
    slab(x0,x1,r0,r1,road,0,3);
    for(let x=Math.ceil((x0+35)/180)*180;x<x1-35;x+=180)if(!crosses(x-35,x+35))b.box(x,GY-.3,mid,70,.3,3,trim);
   }
-  for(const [x0,x1] of [[-5600,-600],[1200,X[1]],[X[4],5600]]){pavement(x0,x1,p0,p1,null);slab(x0,x1,ST.kerb-5,ST.kerb+5,paving,-12,12)}
-  for(const [x0,x1] of [[-5600,X[1]],[X[4],5600]]){pavement(x0,x1,f0,f1,null);slab(x0,x1,ST.farKerb-5,ST.farKerb+5,paving,-12,12)}
+  for(const [x0,x1] of [[-6630,-600],[1200,X[1]],[X[4],6630]]){pavement(x0,x1,p0,p1,null);slab(x0,x1,ST.kerb-5,ST.kerb+5,paving,-12,12)}
+  for(const [x0,x1] of [[-6070,X[1]],[X[4],6070]]){pavement(x0,x1,f0,f1,null);slab(x0,x1,ST.farKerb-5,ST.farKerb+5,paving,-12,12)}
+  // Both ends turn behind the last row. The far carriageway and pavement
+  // turn with them; closed houses and trees hide the geometric horizon.
+  for(const side of [-1,1]){
+   const span=(a,b)=>side<0?[-b,-a]:[a,b];
+   slab(...span(6070,6630),r1,5100,road,0,3);
+   pavementZ(...span(6640,6785),p0,5100,side*6635);
+   pavementZ(...span(5920,6065),f0,5100,side*6065);
+  }
   // The back road, its footpaths (the north one stops at the side road's mouth: a T-junction).
   slab(-5600,5600,-2185,-1695,road,0,3);
   pavement(-5600,5600,-2290,-2195,-2190);
@@ -203,7 +213,9 @@
   const b=B.at(x,GY+1,z,ry),wall=type===1?paleBrick:masonry,tile=type===1||type===3?slate:roof;
   const face=d/2,doorX=type===2?0:w*.27,bayX=-w*.23,wallHalf=w/2;
   homes.push({x,z,ry,width:w,depth:d,eave,rise,type,front});
-  b.box(0,-eave/2,0,w,eave,d,wall,{uv:100});
+  // A few vertical rows confine the baked ground occlusion to the foot of
+  // the wall. A single tall quad smeared it over the whole two-storey facade.
+  b.geo(new T.BoxGeometry(w,eave,d,1,Math.ceil(eave/70),1),0,-eave/2,0,wall,{uv:100});
   // Rendered upper storey is a solid coat with a projecting brick sill course.
   if(type===1){b.box(0,-eave+112,0,w+2,224,d+2,render);b.box(0,-eave+227,0,w+7,6,d+7,paving)}
   pitched(b,w,d,eave,rise,tile,type===1?render:wall,across);
@@ -312,6 +324,18 @@
  });
  const facades=[0,1,2].map(t=>{const m=paint('#ffffff');m.map=facadeTex(t,false);return m}),rearFacade=paint('#ffffff');rearFacade.map=facadeTex(0,true);
  const farHomes=[];
+ const endHomes=[];
+ // At 60–80 m the closed house shell, pitched roof and recessed textured
+ // elevations carry the silhouette. No tiny garden fittings or new batches.
+ function endHome(B,x,z,ry,n){
+  const type=n%3,w=540,d=480,eave=490,rise=160,b=B.at(x,GY+6,z,ry);
+  endHomes.push({x,z,ry,width:w,depth:d});
+  b.box(0,-eave/2,0,w,eave,d,masonry,{uv:100});
+  for(const side of [-1,1])b.box(0,-eave/2,side*(d/2+.6),w-.4,eave-.4,1.2,side>0?facades[type]:rearFacade);
+  pitched(b,w,d,eave,rise,n%2?slate:roof,masonry,true);
+  b.box(0,-8,0,w+6,16,d+6,earth);
+  b.box(140,-620,-70,42,150,42,masonry,{uv:100});b.box(140,-697,-70,50,6,50,paving);
+ }
  function farHome(B,x,z,ry,n,front,ground=GY+1){
   const type=n%4,w=[540,530,500,560][type],d=houseDepth[type],eave=[492,480,485,490][type],rise=[156,165,175,150][type],across=type!==2;
   const b=B.at(x,ground,z,ry),wall=type===1?paleBrick:masonry,tile=type===1||type===3?slate:roof,face=d/2,doorX=type===2?0:w*.27;
@@ -383,6 +407,12 @@
  });
  // (one batch for the far rows and the crossroads, so the extra village costs as few draw calls as possible)
  zone('far houses',b=>{for(const p of farPlots)farHome(b,...p);for(const p of crossPlots)farHome(b,...p,GY+6);
+  for(const side of [-1,1]){
+   for(const [i,z]of [1000,1680,2360,3040,3720,4400,5080].entries())endHome(b,side*7345,z,-side*90,i);
+   // Banks of solid crowns overlap behind the bends and at the rear street
+   // ends. They hide ground edges without putting a screen across the road.
+   for(const [i,x,z]of [[0,5700,3450],[1,5850,3950],[2,5720,4680],[3,6450,5500],[4,5890,-1940],[5,6200,-2600]])tree(b.at(0,GY+6,0),side*x,z,540+i%3*40,i);
+  }
   for(const [x,z,h,grade]of [[2250,3200,510,1],[3200,3500,560,6],[-2260,3190,490,1],[-650,-3410,520,1],[820,-3480,480,6],[2140,-3250,540,1],[-2650,-1450,460,1]])tree(b.at(0,GY+grade,0),x,z,h,2);
   cornerShop(b);green(b)});
  const light=new T.Vector3(-.4,-.8,.4).normalize(),normal=new T.Vector3();
@@ -433,10 +463,10 @@
  inkBatch.build(nightInk);
  nightInk.traverse(o=>{o.userData.noPick=true;o.userData.lightDecal=true});
 
- // The horizon: a painted ring 36 m out that travels with the camera (like the sky), so whichever way you look past the
+ // The horizon: a painted ring 95 m out that travels with the camera (like the sky), so whichever way you look past the
  // last houses there are low hedgerows, distant roof ridges and hills fading into the haze, never
  // the edge of the world. Depth-tested, so everything nearer stands in front of it; drawn once per phase change.
- const RING={r:3600,below:60,above:640,w:2048,h:256};
+ const RING={r:9500,below:60,above:640,w:2048,h:256};
  const ringCanvas=document.createElement('canvas');ringCanvas.width=RING.w;ringCanvas.height=RING.h;
  const ringTex=new T.CanvasTexture(ringCanvas);ringTex.wrapS=T.RepeatWrapping;
  const backdrop=new T.Mesh(new T.CylinderGeometry(RING.r,RING.r,RING.below+RING.above,96,1,true),new T.MeshBasicMaterial({map:ringTex,side:T.BackSide,alphaTest:.5,fog:false}));
@@ -502,5 +532,5 @@
   nightInk.visible=ph!=='day';poolM.opacity=night?.42:.18;
   H.dirty();return true;
  }
- update();H.ambient.add(update);window.HouseEnvironment={group,nightInk,sky,homes,farHomes,backdrop,street:ST,streetLamps,update,get phase(){return last}};
+ update();H.ambient.add(update);window.HouseEnvironment={group,nightInk,sky,homes,farHomes,endHomes,backdrop,street:ST,streetLamps,update,get phase(){return last}};
 })();

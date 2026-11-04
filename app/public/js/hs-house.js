@@ -1439,16 +1439,17 @@
     // The street in front (js/hs-world.js FRONT.STREET; js/hs-environment.js carries it on both ways): the pavement, the kerb, the road.
     const [pv0,pv1]=STREET.pave,[rd0,rd1]=STREET.road;
     B.box(300,GY+1.6,(pv0+pv1)/2,1800,4,pv1-pv0,mSlab(),{uv:100});
-    B.box(300,GY+3,(rd0+rd1)/2,1800,4,rd1-rd0,mTarmac(),{uv:120});
+    // The neighbourhood owns the continuous carriageway, including this
+    // stretch. A separate house-lit slab used to leave a hard colour seam.
     // The near kerb meets the street's 12 cm kerb at both ends. Real joints
     // are shallow grooves in closed blocks, with a darker seated foot course.
     const kerbStone=M('#9a9a92');
     for(let x=-600;x<1200;x+=100)B.rbox(x+50,GY-5,STREET.kerb,99.6,14,rd0-pv1,.45,kerbStone);
     B.box(300,GY+2.1,STREET.kerb,1800,1.8,rd0-pv1,M('#55564f'));
     const drainIron=M({c:'#1f2122',sh:40,sp:'#555'}),drainZ=rd0+13;
-    B.box(675,GY+1,drainZ,38,2,22,drainIron);
-    for(let x=660;x<=690;x+=5)B.box(x,GY-.1,drainZ,2.4,.8,18,kerbStone);
-    for(let x=-520;x<1200;x+=260)B.box(x,GY+.87,(rd0+rd1)/2,130,.2,8,M('#d2cdb6'));
+    B.box(675,GY+.7,drainZ,38,2,22,drainIron);
+    const grateSteel=M({c:'#4a4f4c',sh:30,sp:'#3a3f3c'}); // shares the lamp column's material
+    for(let x=660;x<=690;x+=5)B.box(x,GY-.1,drainZ,2.4,.8,18,grateSteel);
     for(const x of [120,-340])B.box(x,GY-1,(685+FZ)/2,3,3,FZ-715,M('#8c8679'));
     // A clear pedestrian route beside the parked car.
     B.box(290,GY-.45,(752+FZ)/2,84,1,FZ-752,mSlab(),{uv:100});

@@ -111,7 +111,7 @@
   const root = new T.Group(); root.scale.set(1, -1, 1); scene.add(root); // y is down in here (see hs-kit.js)
   // Two centimetres preserves depth precision while keeping the entire near
   // rectangle comfortably inside the player's 22 cm collision clearance.
-  const camera = new T.PerspectiveCamera(45, 1, 2, 4000); camera.matrixAutoUpdate = false; camera.layers.set(0);
+  const camera = new T.PerspectiveCamera(45, 1, 2, 11000); camera.matrixAutoUpdate = false; camera.layers.set(0);
   // the lights: a fixed rig (a constant number of lights means no shader rebuilds), moved to suit the rooms on show
   const hemi = new T.HemisphereLight(0x8a90a8, 0x30261c, 0.55); scene.add(hemi); hemi.layers.enableAll();
   const sun = new T.DirectionalLight(0xffffff, 0); root.add(sun); root.add(sun.target); sun.layers.enableAll();
@@ -121,12 +121,12 @@
   // pose: E (eye, cm), ry (yaw: + turns right), rx (pitch: - looks down), the CSS conventions boot.js uses
   const P = { x: 0, y: -50, z: 100, ry: -30, rx: -16, zm: 1 };
   let em = 10, vw = innerWidth, vh = innerHeight;
-  // Keep a full depth of solid scenery before atmospheric fade. The old 30 m
-  // white-out turned the end houses into pale cut-outs even in clear weather.
-  // Static neighbourhood batches already own these shells on every rung.
-  const outdoorFog=new T.Fog(0xcedadf,2000,4400);
+  // Clear local air: brick stays brick throughout the visible street. Only
+  // a gentle atmospheric tint begins beyond 50 m; solid bends close the view
+  // well before either the distant silhouette or the clipping plane.
+  const outdoorFog=new T.Fog(0xcedadf,5000,35000);
   function qualityView(){
-    const fog=rung().far&&cur?.outside?outdoorFog:null,far=4000;
+    const fog=rung().far&&cur?.outside?outdoorFog:null,far=11000;
     scene.fog=fog;
     if(fog){const ph=window.HouseEnvironment?.phase;fog.color.set(ph==='night'?0x26344b:ph==='dusk'?0xd89774:ph==='dawn'?0xddb69a:0xcedadf)}
     if(camera.far!==far){camera.far=far;camera.updateProjectionMatrix()}
