@@ -1,5 +1,12 @@
 # Jack's Home Page - changelog
 
+## 2.66.0 - 2026-11-04
+- Tekno Fist goes much deeper: Arcade and Time Attack run to ten matches, and there's Team Battle with one to eight fighters, a new Fist Ball bonus game, an ending theatre and proper credits.
+- A refresh mid-match now picks up where you were, even mid-throw or during a replay. Existing memory cards keep all their unlocks, endings and scores.
+- The analogue stick now works for moving and for menus, and the boot screen's text no longer overlaps.
+- Still to come for Tekno Fist: a second local player, the scrolling campaign and a bigger roster. See docs/games/fight.md.
+- Verified: parody 0, all unit checks, Tekno Fist's full flow including room, gamepad, five screen sizes and refresh, Street Scrapper II and Soul Sabre on the shared kit, smoke 12/12. No real account, wallet or shared-world changes.
+
 ## 2.65.0 - 2026-11-04
 - Refreshing next to Dad's open boot no longer makes the car and the PC parts vanish in Chapter 1. Saves already stuck that way recover by themselves.
 - The disk checker is now Disk Snitch on the boot screen, in System Tools and in the help. The old command and save data still work.
