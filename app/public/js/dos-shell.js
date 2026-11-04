@@ -965,7 +965,7 @@
     QUAKE: 'Bad command or file name. (The PC shook a bit though. Did you feel that?)',
     Y2K: 'Y2K status: 77-ish days to go. The video recorder will still say 12:00. Everything is FINE.',
     REBOOT: 'To reboot, press Ctrl+Alt+Delete. (Twice, if you\'re brave. Or Start > Shut Down if you\'re sensible.)',
-    SHUTDOWN: 'In DOS you just switch it off at the wall. (DON\'T. ScanDisk will tell on you.)',
+    SHUTDOWN: 'In DOS you just switch it off at the wall. (DON\'T. Disk Snitch will tell on you.)',
     CUBE() { const F = 'UDLRFB', M = ['', "'", '2']; let last = -1, out = []; while (out.length < 20) { const f = Math.random() * 6 | 0; if (f === last || (f >> 1) === (last >> 1) && Math.random() < .5) continue; last = f; out.push(F[f] + M[Math.random() * 3 | 0]); } return 'Rubrick\'s scramble: ' + out.join(' ') + '\n(Jack\'s best: 58.32 seconds. He wants you to know it was under a minute.)'; },
     RUBIK: 'Type CUBE for a scramble. Or JBASIC, then open CUBESCRM.BAS.',
     SNAKE: 'Snakes live in C:\\JBASIC\\WORM.BAS. Type JBASIC /RUN C:\\JBASIC\\WORM.BAS',

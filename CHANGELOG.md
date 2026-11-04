@@ -1,5 +1,13 @@
 # Jack's Home Page - changelog
 
+## 2.65.0 - 2026-11-04
+- Refreshing next to Dad's open boot no longer makes the car and the PC parts vanish in Chapter 1. Saves already stuck that way recover by themselves.
+- The disk checker is now Disk Snitch on the boot screen, in System Tools and in the help. The old command and save data still work.
+- Mom's Bonfire lines only say "tonight" on the night. Before that she talks about getting ready for it. Dad's and the cat's lines get the same care.
+- Your sister sits properly on the sofa, with her knees clear of the cushion and her feet showing, and no longer says she's "just standing here" while sitting down.
+- The cold tea is in a proper hollow mug. Hands now grip the sweet wrappers, the bin bag's neck and the keyboard's sides instead of floating near them.
+- Verified: parody 0, all unit checks, Chapter 1, owner tools, Halloween, Zeldo, Bonfire end to end, mobile 8/8, family routes, identity, seasons, performance, physics, smoke 12/12, and the focused refresh and disk tests. The Zeldo case failure logged as R200 was a timing race in its test, now fixed. No real account, wallet or shared-world changes.
+
 ## 2.64.0 - 2026-11-03
 - The back garden is properly garden-sized: 7.8 m wide and 14 m long, with a lawn to play on, a path, a patio, and the shed, washing line and flower bed spread out instead of crammed together. Next door's houses and the back road have moved so the view still works from the kitchen and bedroom.
 - The kitchen is bigger: 4.75 x 4.7 m, thanks to a single-storey rear extension with a felt roof, gutter and downpipe. The table has moved, and you and Mom can pass each other, with at least a metre to walk around it.

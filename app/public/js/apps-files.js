@@ -1680,15 +1680,15 @@ REM ^ re-enabled by Mom
 DEVICE=C:\\JACKOS\\MOM.SYS /BEDTIME:8PM
 `);
   txt(C, 'HOMEWORK.DOC', '30/12/98', '', { secret: 'files.homeworkdoc' });
-  txt(C, 'SCANDISK.LOG', '29/12/98', `Jacksoft ScanDisk-style log (JackOS edition)
+  txt(C, 'SCANDISK.LOG', '29/12/98', `Jacksoft Disk Snitch-style log (JackOS edition)
 Drive C: checked on 29/12/98
 
-ScanDisk found and fixed problems on drive C.
+Disk Snitch found and fixed problems on drive C.
   - 1 lost cluster found in 1 chain. Saved as FILE0000.CHK.
     (It was half a drawing of a Z-Wing. Dave switched the PC off at the wall.)
   - Surface scan: no bad sectors. One slightly grumpy sector.
 
-Reason for ScanDisk: JackOS was not shut down properly.
+Reason for Disk Snitch: JackOS was not shut down properly.
 Note to Dave: USE START > SHUT DOWN. NOT THE BUTTON. NOT THE WALL.
 `);
   txt(C, 'MSDOS.SYS', '10/12/98', `[Paths]
@@ -2987,7 +2987,7 @@ Love {NAME}
       { name: 'Control Panel', icon: I.cpl, type: 'System Folder', act: () => A.open('control') },
       { name: 'Printers', icon: I.printer, type: 'System Folder', go: 'Printers' },
       { name: 'Dial-Up Networking', icon: I.dialup, type: 'System Folder', go: 'Dial-Up Networking' },
-      { name: 'Scheduled Tasks', icon: I.sched, type: 'System Folder', act: () => Desk.msgbox('Scheduled Tasks', 'Scheduled tasks:\n\n- Tidy bedroom (overdue since 1998)\n- Feed Gubbinz (every day, 4pm)\n- ScanDisk (every time Dave switches the PC off at the wall)\n- Millennium (31/12/1999, 23:59:59)', 'info') },
+      { name: 'Scheduled Tasks', icon: I.sched, type: 'System Folder', act: () => Desk.msgbox('Scheduled Tasks', 'Scheduled tasks:\n\n- Tidy bedroom (overdue since 1998)\n- Feed Gubbinz (every day, 4pm)\n- Disk Snitch (every time Dave switches the PC off at the wall)\n- Millennium (31/12/1999, 23:59:59)', 'info') },
     ];
     if (loc.kind === 'printers') return [
       { name: 'Add Printer', icon: I.printer, type: 'Wizard', act: () => Desk.msgbox('Add Printer Wizard', 'This wizard will help you install your printer.\n\nYou only have one printer. It is out of cyan. Adding another printer will not help. It will also be out of cyan.', 'info') },
@@ -3574,7 +3574,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
     themes: () => Desk.msgbox('Desktop Themes', 'Theme: 1999 (beige)\n\nOther themes are available: also beige.', 'info'),
     signup: () => Desk.msgbox('Online Services', 'Sign up for the Internet today!\n\nYou already have the Internet. It\'s JackNet 56K. It\'s the only one Dad will pay for.', 'info'),
     regedit: () => Desk.msgbox('Registry Editor', 'Dad says:\n\nDO NOT TOUCH THE REGISTRY.\n\nYou have wisely chosen not to touch the registry.', 'warn'),
-    scandisk: () => progress('ScanDisk - Jack\'s PC (C:)', ['Checking folders...', 'Checking file allocation table...', 'Checking file system...', 'Checking surface... (the slightly grumpy sector)'], 3600, () => Desk.msgbox('ScanDisk Results', 'ScanDisk did not find any errors on this drive.\n\n6,400,000 KB total disk space\n1 grumpy sector\n0 KB in bad sectors\n1 Gubbinz (expected)', 'info'), I.hdd),
+    scandisk: () => progress('Disk Snitch - Jack\'s PC (C:)', ['Checking folders...', 'Checking file allocation table...', 'Checking file system...', 'Checking surface... (the slightly grumpy sector)'], 3600, () => Desk.msgbox('Disk Snitch Results', 'Disk Snitch did not find any errors on this drive.\n\n6,400,000 KB total disk space\n1 grumpy sector\n0 KB in bad sectors\n1 Gubbinz (expected)', 'info'), I.hdd),
     defrag: defragger,
     kernel: () => Desk.msgbox('KRNL386.EXE', 'You can\'t run the kernel.\n\nThe kernel runs YOU.', 'warn'),
     setup: () => progress('JACK ATTACK! Cover Disc Setup', ['Preparing to install...', 'Copying files: 0 of 0', 'Installing demos... (they\'re on the website already!)', 'Registering Gubbinz...', 'Done!'], 3000, () => { Desk.msgbox('Setup Complete', 'JACK ATTACK! Cover Disc #7 is installed!\n\nEverything on this disc is also on the website. Opening the Games Arcade now...', 'info', [['OK', () => { showBrowser(); IE.go('demos', 'click'); }]]); }, I.cd),
@@ -4062,7 +4062,7 @@ with a new name. (He doesn't want anyone "improving" his diary.)
   // ---- typing a folder path into Start > Run opens it (once every pack has added its folders)
   addEventListener('load', () => {
     if (!KNOWN.has('defrag')) A.addProgram(['Accessories', 'System Tools', 'Disk Defragmenter'], () => runFake('defrag'), I.hdd);
-    if (!KNOWN.has('scandisk')) A.addProgram(['Accessories', 'System Tools', 'ScanDisk'], () => runFake('scandisk'), I.hdd);
+    if (!KNOWN.has('scandisk')) A.addProgram(['Accessories', 'System Tools', 'Disk Snitch'], () => runFake('scandisk'), I.hdd);
     const walk = (n, p) => (n.kids || []).forEach(k => { if (k.type !== 'dir') return; const q = p + '\\' + k.name; A.cmd([q.toLowerCase(), q.toLowerCase().replace(/\\/g, '/')], () => A.open('explorer', q)); walk(k, q); });
     walk(A.fs.root, 'C:');
   });

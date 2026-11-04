@@ -248,7 +248,7 @@
       glove(B, -8, -54, 0); glove(B, 5, -54, 0); B.ball(2, -57, -7, 11, 7, 9, mat.red, 10); B.cyl(2, -54, -7, 11, 11, 4, 12, mat.red); B.ball(2, -64, -7, 3, 3, 3, mat.string, 7);
     });
     spot('bf.gloves', 'kitchen', 174, GY - 57, -148, 35, 20, 27, 'Put on warm gloves and hat', () => {
-      if (!done('bf-code') || phase !== 'day') return say('gloves.wait', 'Mom', 'Hat, gloves, wellies. It will be cold tonight. Do the Firework Code with Dad before the sparklers.');
+      if (!done('bf-code') || phase !== 'day') return displayEvening() ? say('gloves.wait', 'Mom', 'Hat, gloves, wellies. It will be cold tonight. Do the Firework Code with Dad before the sparklers.') : say('gloves.wait.prep', 'Mom', 'Hat, gloves, wellies ready for Bonfire Night. Do the Firework Code with Dad before the sparklers.');
       SE.step(EID, 'bf-sparkler', 'gloves'); say('c4.bon.mom', 'Mom', 'Gloves on! And nobody waves one near anyone else.');
     });
     DEC.sparklers = group('sparklers', 'garden', -23, GY - 48, -384.9, B => {
@@ -571,7 +571,7 @@
   }
 
   // ------------------------------------------------ account reconciliation, family routines and quiet quest guidance.
-  function petCheck() { SE.step(EID, 'bf-code', 'pets'); say('cat.check', 'Mom', catHome ? '{cat} is safely indoors, hiding under the bed. Let {cat.him} stay cosy.' : '{cat} is indoors. Keep the bedroom window shut tonight. Give {cat.him} a quiet place to hide when the bangs start.'); if(catHome && H.here==='bedroom' && !H.focused && !H.held())H.focus({x:115,y:68,z:145,rx:0,ry:49,lvl:'U',seat:1},{ms:650,label:'Leave the cat cosy'}); }
+  function petCheck() { SE.step(EID, 'bf-code', 'pets'); say(catHome || displayEvening() ? 'cat.check' : 'cat.check.prep', 'Mom', catHome ? '{cat} is safely indoors, hiding under the bed. Let {cat.him} stay cosy.' : displayEvening() ? '{cat} is indoors. Keep the bedroom window shut tonight. Give {cat.him} a quiet place to hide when the bangs start.' : '{cat} is indoors. Keep the bedroom window shut for the display. Give {cat.him} a quiet place to hide when the bangs start.'); if(catHome && H.here==='bedroom' && !H.focused && !H.held())H.focus({x:115,y:68,z:145,rx:0,ry:49,lvl:'U',seat:1},{ms:650,label:'Leave the cat cosy'}); }
   function syncCat() {
     const cat = H.SPOTS.cat?.obj; if (!cat) return;
     const hiding = on && SE.today().hour >= 17 && SE.today().hour < 24;
@@ -732,11 +732,13 @@
     const p = id === 'dad' && lighting ? (stageAt() === 'wheel' ? [150,-1269.7,236] : [155,-1096.9,180]) : bank[id];
     return { key: 'bf.' + id + (lighting && id === 'dad' ? '.light.' + stageAt() : '.watch.'+watchBank), spot: { lvl: 'G', x: p[0], z: p[1], face: p[2] }, act: lighting && id === 'dad' ? 'reach' : null };
   }
+  function displayEvening() { return phase === 'day' && SE.today().hour >= 17 && SE.today().hour < 22; }
   function talk(id) {
     if (!enabled()) return false;
-    if (phase === 'tail') { if (id === 'dad') { if (catchup()) startDisplay(); else say('tail.talk', 'Dad', 'Cold sticks in the bin. Leave the ash alone. If you missed Friday, I have leftovers from half past six until ten tonight.'); return true; } return false; }
+    if (phase === 'tail') { if (id === 'dad') { if (catchup()) startDisplay(); else say('tail.talk.times', 'Dad', 'Cold sticks in the bin. Leave the ash alone. If you missed Friday, I saved leftovers for the evening, half past six until ten.'); return true; } return false; }
     if (id === 'dad') say('dad.talk', 'Dad', done('bf-code') ? 'Safety checks all done. Dry wood only on the stack. Friday evening: torch at the rope, then supper. I do the lighting.' : 'Tin shut, bucket full, pets indoors, everyone behind the rope, long taper. Five checks. No cutting corners.');
-    else if (id === 'mom') say('mom.talk', 'Mom', 'Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Then warm clothes on. No cold fingers tonight.');
+    else if (id === 'mom' && phase === 'day' && SE.today().hour >= 22) say('mom.talk.late', 'Mom', 'It is getting late. Help me put the supper things away, then off to bed.');
+    else if (id === 'mom') displayEvening() ? say('mom.talk', 'Mom', 'Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Then warm clothes on. No cold fingers tonight.') : say('mom.talk.prep', 'Mom', 'Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Have warm clothes ready for Bonfire Night. No cold fingers when we watch the display.');
     else say('sister.talk', '{sister}', done('bf-guy') ? 'Remember, remember, the fifth of November! I remembered. Dad forgot where he put his hat.' : "Will you help me stuff the Guy? Dad's old shirt is on the kitchen table. He says it was fashionable once.");
     return true;
   }

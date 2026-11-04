@@ -1,0 +1,22 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+(async()=>{
+ const {caseEjected}=await import('./case-actions.mjs');
+ const gid='sn.zeldo',medium={snap:'console.sn'},box={canGrab:()=>!cases.busy&&medium.snap!=='console.sn'};
+ const house={gliding:false,focused:true,THINGS:{['media.'+gid]:medium,['media.box.'+gid]:box}};
+ const cases={busy:false,inserted:()=>medium.snap==='console.sn',eject(){this.busy=true;medium.snap='media.case.'+gid;}};
+ const tv={open_:true},timers=[],context={V:{con:'sn'},R:{House:house},RoomTV:tv,House:house,HouseCases:cases,setTimeout:fn=>timers.push(fn),close(){tv.open_=false;house.focused=false;house.gliding=true;}};
+ const src=fs.readFileSync(require.resolve('../app/public/js/rm-tv.js'),'utf8');
+ context.window=context;vm.createContext(context);
+ vm.runInContext(src.slice(src.indexOf('  function eject() {'),src.indexOf('\n\n  // the start-up screens',src.indexOf('  function eject() {'))),context);
+ const settled=vm.runInContext('('+caseEjected.toString()+')',context);
+ context.eject();
+ assert(!cases.busy&&!tv.open_,'Old test incorrectly passes before deferred ejection');
+ assert.equal(settled(gid),false,'Camera return is not completed ejection');
+ house.gliding=false;timers.shift()();
+ assert.equal(medium.snap,'media.case.'+gid,'Ejection commits its save before presentation finishes');
+ assert.equal(settled(gid),false,'Committed media cannot be picked up during case animation');
+ cases.busy=false;assert.equal(settled(gid),true,'Completed ejection is carryable');
+ assert.equal(typeof settled(gid),'boolean','Browser wait returns a plain boolean');
+ console.log('case-eject-unit: PASS production TV deferral, early idle gap, committed animation, completed carryable case');
+})().catch(e=>{console.error(e);process.exitCode=1});

@@ -248,17 +248,19 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       C.lathe(0, 0, 0, [[3.3, 4.5], [3.08, 5.35], [2.6, 5.75], [2.25, 5.6], [0.05, 5.15]], 18, al);
       C.geo(new T.TorusGeometry(0.55, 0.16, 4, 10), 0.6, -5.65, 0, al, { rx: 90 }); C.box(-0.4, -5.66, 0, 1.6, 0.18, 1.1, al);
       G.shadow(0, 0, 0, 14, 9, 0.5); }),
-    wrap: () => grpB(G => {
+    wrap: () => grpB((G, model) => {
       const foil = (c) => M({ c, map: K.tex('ch.foil', 32, 32, (g, w, h) => { g.fillStyle = '#e4e4e4'; g.fillRect(0, 0, w, h); for (let i = -h; i < w; i += 6) { g.fillStyle = 'rgba(255,255,255,.9)'; g.beginPath(); g.moveTo(i, 0); g.lineTo(i + 3, 0); g.lineTo(i + 3 + h, h); g.lineTo(i + h, h); g.fill(); } A.grain(g, w, h, 160, 0.12, 4); }, {}), sh: 110, sp: '#fff', side: 2 });
-      [['#d01a6a', -5.2, 1.6, 10], ['#f2c400', 4.4, 4.2, -32], ['#22a04a', 1.0, -4.8, 62]].forEach(([c, x, z, ry], n) => {
+      // A loose gathered handful: all three middles overlap in the same palm.
+      [['#d01a6a', -1.7, 0.2, 10], ['#f2c400', 1.1, 1.4, -32], ['#22a04a', 0.6, -0.8, 62]].forEach(([c, x, z, ry], n) => {
         const r = rnd(60 + n), pos = [], uv = [], index = [], add = (px, py, pz) => { pos.push(px, py, pz); uv.push(px / 9 + 0.5, pz / 9 + 0.5); return pos.length / 3 - 1; };
         // the crinkled middle (3 x 2.4 cm) and a fanned twist at each end
         const g = []; for (let j = 0; j < 3; j++) for (let i = 0; i < 4; i++) g.push(add(-2.1 + i * 1.4, -(0.2 + (j === 1 && i % 3 ? 0.9 : 0.25) + r() * 0.35), -1.6 + j * 1.6));
         for (let j = 0; j < 2; j++) for (let i = 0; i < 3; i++) { const a = g[j * 4 + i], b = a + 1, e = g[(j + 1) * 4 + i], f = e + 1; index.push(a, b, e, b, f, e); }
         for (const s of [-1, 1]) { const knot = add(s * 2.7, -0.45, 0), tips = [-1.7, -0.6, 0.6, 1.7].map((zz, k) => add(s * (4.1 + r() * 0.5), -(k % 2 ? 1.0 : 0.25), zz)); const edge = s < 0 ? [g[0], g[4], g[8]] : [g[3], g[7], g[11]]; index.push(edge[0], edge[1], knot, edge[1], edge[2], knot); for (let k = 0; k < 3; k++) index.push(knot, tips[k], tips[k + 1]); }
         const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.setIndex(index); geo.computeVertexNormals();
-        G.geo(geo, x, 0, z, foil(c), { ry });
-      }); G.shadow(0, 0, 0, 22, 19, 0.3); }),
+        if(n===1)model.userData.handGrips=[new T.Vector3().fromBufferAttribute(geo.attributes.position,g[6]).applyAxisAngle(new T.Vector3(0,1,0),ry*D2R).add(new T.Vector3(x,0,z)).toArray()];
+        G.geo(K.thicken(geo,.035,[0,-1,0]), x, 0, z, foil(c), { ry });
+      }); G.shadow(0, 0, 0, 14, 11, 0.3); }),
     core: () => grpB(G => { const C = G.at(0, -2.95, 0, 20, { rz: 90 }), skin = mat('#b0261c', { sh: 40, sp: '#553' });
       const flesh = M({ c: '#fff', map: K.tex('ch.coreflesh', 16, 64, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#b8894a'); gr.addColorStop(0.12, '#ead7a2'); gr.addColorStop(0.5, '#f2e4b8'); gr.addColorStop(0.88, '#ead7a2'); gr.addColorStop(1, '#b8894a'); g.fillStyle = gr; g.fillRect(0, 0, w, h); A.grain(g, w, h, 90, 0.12, 8); }, { clamp: true }), sh: 12 });
       C.lathe(0, 0, 0, [[0.35, -4.3], [1.9, -4.12], [2.75, -3.62], [2.95, -3.15]], 12, skin);
@@ -269,7 +271,13 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       G.shadow(0, 0, 0, 11, 7, 0.4); }),
     paper: () => grpB(G => { const geo = crumple(3.9, 31, 0.86); G.geo(geo, 0, -geo.boundingBox.max.y, 0, M({ c: '#fff', map: homeworkTex(), flat: true, sh: 4 })); G.shadow(0, 0, 0, 10, 10, 0.45); }),
     plate: () => grp(G => { G.lathe(0, 0, 0, [[0.1, -0.4], [7, -0.4], [10.5, -1.3], [12, -1.6]], 28, mat('#f6f4ee', { sh: 60, sp: '#888' })); G.lathe(0, 0, 0, [[12, -1.6], [7, 0], [0.1, 0]], 28, mat('#e8e4da')); /* the glaze faces up and the foot down, so the contact shadow stays under it */ [[3, 2, 20], [-2, 4, -40], [1, -3, 70]].forEach(([x, z, ry]) => G.rbox(x, -1.4, z, 6, 1.2, 1.6, 0.4, mat('#a86a30'), { ry })); for (let i = 0; i < 9; i++) G.box(((i * 37) % 11) - 5, -0.6, ((i * 23) % 9) - 4, 0.6, 0.4, 0.6, mat('#c89050')); G.shadow(0, 0, 0, 26, 26, 0.45); }),
-    mug: () => grp(G => { G.cyl(0, -5, 0, 4.2, 4, 10, 18, { s: mat('#2a5ad0', { sh: 60, sp: '#888' }), t: mat('#6a4020'), u: mat('#2a5ad0') }, { open: false }); G.geo(new T.TorusGeometry(2.6, 0.7, 6, 12), 4.6, -5, 0, mat('#2a5ad0', { sh: 60 })); G.cyl(0, -9.6, 0, 3.6, 3.6, 0.3, 16, mat('#7a5030', { sh: 40 })); G.box(0, -6, 4.15, 4, 1, 0.1, mat('#fff')); G.shadow(0, 0, 0, 12, 12, 0.5); }),
+    mug: () => grp(G => { const mm=mat('#2a5ad0',{sh:70,sp:'#999',side:2});
+      // The washing-up mug's hollow ceramic profile, with cold tea below its lip.
+      G.lathe(0,0,0,[[0.001,0],[3.6,0],[4.2,-0.6],[4.2,-9.6],[3.9,-10],[3.65,-9.8]],24,mm);
+      G.lathe(0,0,0,[[3.65,-9.8],[3.35,-1.2],[0.001,-1.2]],24,mat('#efe8dc',{sh:70,sp:'#999',side:2}));
+      G.geo(new T.TorusGeometry(2.6,0.7,8,16),4.6,-5,0,mm);
+      G.disc(0,-7.2,0,3.55,mat('#7a5030',{sh:40}),24);
+      G.box(0,-6,4.21,4,1,0.1,mat('#fff'));G.shadow(0,0,0,12,12,0.5); }),
     bowl: () => grp(G => { G.lathe(0, 0, 0, [[7.5, -5], [7, -2.5], [4, 0], [0.1, 0]], 22, mat('#f2ece0', { sh: 50, sp: '#666', side: 2 })); G.disc(0, -1.6, 0, 5.4, mat('#f8f4e8')); for (let i = 0; i < 6; i++) G.box(Math.cos(i) * 3, -1.9, Math.sin(i * 1.7) * 3, 1.6, 0.4, 1.3, mat('#e8a830'), { ry: i * 40 }); G.cyl(4, -6, 1, 0.4, 0.4, 9, 6, mat('#c8c8cc', { sh: 90 }), { rz: 70 }); G.shadow(0, 0, 0, 18, 18, 0.5); }),
     cd1: () => grp(G => { G.cyl(0, -0.1, 0, 6, 6, 0.2, 32, { s: mat('#ccc'), t: M({ c: '#fff', map: cdTex(), sh: 120, sp: '#fff' }), u: mat('#d8dce8', { sh: 120, sp: '#fff' }) }); G.shadow(0, 0, 0, 14, 14, 0.35); }),
     cd2: () => grp(G => { G.box(0, -0.6, 0, 14.2, 1.2, 12.4, { t: M({ c: '#fff', map: psTex(), sh: 60, sp: '#666' }), all: mat('#111') }); G.shadow(0, 0, 0, 17, 15, 0.5, { sq: true }); }),
@@ -589,7 +597,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       bagOpen = grp(G => { G.lathe(0, 0, 0, [[10.6, -27.4], [9.6, -26.6], [8.9, -23], [9.1, -14], [8.6, -5], [6.5, -0.8], [0.1, -0.3]], 20, bm.clone ? M({ c: '#1c1c20', sh: 70, sp: '#555', side: 2 }) : bm); G.ball(-3, -21.5, 2, 4, 2.4, 3.5, M({ c: '#fff', map: crispTex() }), 10); G.ball(3, -21, -2, 3, 2.6, 3, mat('#f4f2ea'), 8); G.box(1, -22, 4, 4, 1, 3, mat('#d01a6a', { sh: 80 }), { ry: 30 }); });
       bagTied = grp(G => { G.lathe(0, 0, 0, [[0.6, -34], [2.2, -32], [1.4, -29.5], [5.5, -26], [8.8, -19], [8.6, -10], [7.8, -3], [6, -0.6], [0.1, -0.2]], 20, bm); G.ball(-2.4, -34.5, 0, 2.2, 1.2, 1.4, bm, 8, { rz: 30 }); G.ball(2.4, -34.5, 0, 2.2, 1.2, 1.4, bm, 8, { rz: -30 }); });
       bagTied.visible = false; g.add(bagOpen); g.add(bagTied);
-      bag = CK.thing('ch.binbag', { obj: g, kind: 'binbag', label: 'Bin bag', chore: 'bin', holdD: 60, home: { room: 'bedroom', x: -118, y: FY - 0.5, z: -42, ry: 0 } });
+      bag = CK.thing('ch.binbag', { obj: g, kind: 'binbag', label: 'Bin bag', chore: 'bin', holdD: 60, handGrips: [[2.2,-32,0]], home: { room: 'bedroom', x: -118, y: FY - 0.5, z: -42, ry: 0 } });
       // A carried bag is handed back at refresh. If its saved pickup point is still inside the bin, dock it again.
       const at = CK.S.at['ch.binbag'], bin = H.THINGS.bin;
       binBagDocked(!CK.has('bin', 'tie') || !at || !!bin && at[0] === bin.at.room && !at[5] && Math.hypot(at[1] - bin.at.x, at[3] - bin.at.z) < 6 && Math.abs(at[2] - bin.at.y) < 3);

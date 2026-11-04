@@ -6,8 +6,11 @@ Sources: first sweep = the pairs at the top of `tests/parody-audit.cjs`; second 
 
 ## First sweep (games, consoles, Pocket Critters, Intergalactic Battles, software, brands)
 
+Disk Snitch retains the technical `scandisk` / `SCANDISK` commands, `SCANDISK.EXE`, `SCANDISK.LOG`, app/help IDs and saved keys. The audit preserves command examples and navigation targets while checking the displayed utility name.
+
 | Real | Parody |
 |---|---|
+| ScanDisk | Disk Snitch |
 | The Legend of Zelda | The Myth of Zeldo |
 | Ocarina of Time | Kazoo of Time |
 | Super Mario 64 | Super Marlo 64 |

@@ -32,7 +32,7 @@
     ['midnight', 'Time repair', 'Stay up until midnight on a day that never happened']].forEach(([id, n, hint]) => A.defineSecret('leap.' + id, n, hint));
 
   // ---- after a repair, the lost day lives on the C: drive
-  const LOST = '29/02/1999\r\n==========\r\n\r\nScanDisk found this day lying around between Sunday 28/02/99\r\nand Monday 01/03/99. It does not belong to any month.\r\n\r\n00:00 ......................................\r\n01:00 ......................................\r\n  (and so on: 24 hours, all unused)\r\n23:59 ......................................\r\n\r\nContents: 1 day, never opened. Smells faintly of\r\nCeefax and cold toast.\r\n\r\nIt will probably come back in four years.\r\nIt knows where we live.\r\n';
+  const LOST = '29/02/1999\r\n==========\r\n\r\nDisk Snitch found this day lying around between Sunday 28/02/99\r\nand Monday 01/03/99. It does not belong to any month.\r\n\r\n00:00 ......................................\r\n01:00 ......................................\r\n  (and so on: 24 hours, all unused)\r\n23:59 ......................................\r\n\r\nContents: 1 day, never opened. Smells faintly of\r\nCeefax and cold toast.\r\n\r\nIt will probably come back in four years.\r\nIt knows where we live.\r\n';
   const lostFile = () => { A.fs.add('C:/LOSTDAYS', { name: 'FILE0029.CHK', type: 'txt', date: '01/03/99', size: '1 KB', text: LOST }); };
   if (A.store.get('jhp_leap_lost', 0)) lostFile();
   L.lostFile = lostFile;

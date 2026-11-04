@@ -500,10 +500,10 @@ body.lp-calm #lpglitch i{display:none}
   // ================================================================ midnight: ScanDisk repairs the calendar
   function repair(then) {
     if ($('lpRepair')) return;
-    const o = h('div', '', `<div class="hd"><span>JackOS ScanDisk</span><span>Calendar Repair</span></div><div class="mid"><div class="box" role="dialog" aria-label="ScanDisk"><h2>ScanDisk</h2><pre></pre><div class="bar"><i></i></div><div class="btns" hidden><button type="button" data-a="ok">&lt; OK &gt;</button><button type="button" data-a="info">&lt; More Info &gt;</button></div></div></div><div class="ft">ScanDisk is checking the calendar. Please do not turn off your computer.</div>`);
+    const o = h('div', '', `<div class="hd"><span>JackOS Disk Snitch</span><span>Calendar Repair</span></div><div class="mid"><div class="box" role="dialog" aria-label="Disk Snitch"><h2>Disk Snitch</h2><pre></pre><div class="bar"><i></i></div><div class="btns" hidden><button type="button" data-a="ok">&lt; OK &gt;</button><button type="button" data-a="info">&lt; More Info &gt;</button></div></div></div><div class="ft">Disk Snitch is checking the calendar. Please do not turn off your computer.</div>`);
     o.id = 'lpRepair'; DesktopSurface.root().appendChild(o);
     const pre = o.querySelector('pre'), bar = o.querySelector('.bar i'), btns = o.querySelector('.btns');
-    const rows = ['ScanDisk is now checking the calendar for 1999:', ''];
+    const rows = ['Disk Snitch is now checking the calendar for 1999:', ''];
     const MON = [['January', 31], ['February', 28], ['March', 31], ['April', 30], ['May', 31], ['June', 30], ['July', 31], ['August', 31], ['September', 30], ['October', 31], ['November', 30], ['December', 31]];
     let i = 0;
     const out = () => { pre.textContent = rows.join('\n'); };
@@ -511,14 +511,14 @@ body.lp-calm #lpglitch i{display:none}
     MON.forEach(([m, d], k) => steps.push(() => { if (k === 1) rows.push(`  ${'February'.padEnd(10, '.')}.... 28 days  (+1 day that shouldn't be there!)`); else if (k < 3 || k === 11) rows.push(`  ${m.padEnd(10, '.')}.... ${d} days  OK`); else if (k === 10) rows.push(`  ${'April to November'.padEnd(18, '.')}.... OK`); bar.style.width = Math.round((k + 1) / 12 * 70) + '%'; }));
     steps.push(() => { rows.push('', '  Repairing the calendar...'); bar.style.width = '85%'; });
     steps.push(() => { rows.push('  Moving 29/02/1999 out of February...'); bar.style.width = '100%'; note(523, 0.1, 'square'); });
-    steps.push(() => { rows.push('', '  1 day could not be found. It was put in C:\\LOSTDAYS', '  ScanDisk has finished. The date is now Monday, 1 March 1999.'); btns.hidden = false; o.querySelector('.ft').textContent = 'Press Enter (or click OK) to go back to JackOS.'; const b = o.querySelector('[data-a=ok]'); if (b) b.focus(); });
+    steps.push(() => { rows.push('', '  1 day could not be found. It was put in C:\\LOSTDAYS', '  Disk Snitch has finished. The date is now Monday, 1 March 1999.'); btns.hidden = false; o.querySelector('.ft').textContent = 'Press Enter (or click OK) to go back to JackOS.'; const b = o.querySelector('[data-a=ok]'); if (b) b.focus(); });
     const run = () => { if (!o.isConnected) return; steps[i++](); out(); if (i < steps.length) setTimeout(run, i < 12 ? 260 : 1200); };
     out(); setTimeout(run, 700);
     let done = false;
     const finish = () => { if (done) return; done = true; o.remove(); document.removeEventListener('keydown', kd, true); clearTimeout(auto); if (then) then(); };
     const kd = ev => { if (!btns.hidden && (ev.key === 'Enter' || ev.key === 'Escape')) { ev.preventDefault(); finish(); } };
     document.addEventListener('keydown', kd, true);
-    o.addEventListener('click', ev => { const a = ev.target.closest('[data-a]'); if (!a) return; if (a.dataset.a === 'ok') finish(); else Desk.msgbox('More Info', 'ScanDisk found a whole day stuck between Sunday 28/02/99 and Monday 01/03/99.\n\nIt did not belong to any month, so ScanDisk saved it as C:\\LOSTDAYS\\FILE0029.CHK.\n\n(It will probably come back in four years. They always do.)', 'info'); });
+    o.addEventListener('click', ev => { const a = ev.target.closest('[data-a]'); if (!a) return; if (a.dataset.a === 'ok') finish(); else Desk.msgbox('More Info', 'Disk Snitch found a whole day stuck between Sunday 28/02/99 and Monday 01/03/99.\n\nIt did not belong to any month, so Disk Snitch saved it as C:\\LOSTDAYS\\FILE0029.CHK.\n\n(It will probably come back in four years. They always do.)', 'info'); });
     const auto = setTimeout(finish, 30000); // never leave the PC stuck on a blue screen
   }
 

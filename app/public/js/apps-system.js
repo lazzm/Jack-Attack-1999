@@ -288,7 +288,7 @@
   const DEFAULT_TASKS = [
     { n: 'Feed Gubbinz', cmd: 'grotchi', when: 'daily', t: '16:00', on: true, last: '' },
     { n: 'Maintenance-Defragment programs', cmd: 'defrag', when: 'weekly', t: '00:00', on: true, last: '' },
-    { n: 'Maintenance-ScanDisk', cmd: 'scandisk', when: 'weekly', t: '00:30', on: true, last: '' },
+    { n: 'Maintenance-Disk Snitch', cmd: 'scandisk', when: 'weekly', t: '00:30', on: true, last: '' },
     { n: 'Maintenance-Disk cleanup', cmd: 'cleanmgr', when: 'monthly', t: '01:00', on: true, last: '' },
     { n: 'Tidy bedroom', cmd: '', when: 'daily', t: '10:00', on: false, last: 'Never', note: 'Could not start' },
     { n: 'Millennium', cmd: 'system.millennium', when: 'once', t: '23:59', on: true, last: 'Never', date: '31/12/1999' },

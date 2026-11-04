@@ -1530,7 +1530,7 @@
     // Dad's car: a burgundy family saloon (no real make), on the drive, nose to the street
     const frame = r.carFrame = Object.assign({}, CAR);
     const carBatch = K.batch(), carGroup = new T.Group();carGroup.name = 'Dads car';carGroup.userData.staticBatch = true;r.group.add(carGroup);
-    const parked = r.car = { present: !window.HouseFamily?.carAway, known: !!window.HouseFamily, travelled: false, group: carGroup };
+    const parked = r.car = { present: !window.HouseFamily?.carAway, known: !!window.HouseFamily?.ready, travelled: false, group: carGroup };
     const riding = t => t.at.room === 'drive' && ['rest','snap'].includes(t.st) && H.held() !== t.id && !t.at.hide && t.at.y < GY-6 && t.at.y >= GY-170 && Math.abs(t.at.x-frame.x)<=91*frame.s && Math.abs(t.at.z-frame.z)<=205*frame.s;
     r.awayThing = t => !parked.present && riding(t);
     const car = K.into(carBatch).at(frame.x, frame.y, frame.z, 0, { sx: frame.s, sy: frame.s, sz: frame.s }), cm = M({ c: '#6a1a2a', sh: 35, sp: '#30282d' });
@@ -1661,7 +1661,7 @@
       H._.rebuildGrids();H.physics.rebuild();window.NPCNav?.rebuild();H.softChanged('drive');H.dirty();
     };
     parked.update = () => {
-      const family=window.HouseFamily;if(!family||H.paused)return;
+      const family=window.HouseFamily;if(!family?.ready||H.paused)return;
       const present=!family.carAway,initial=!parked.known;parked.known=true;if(family.ready&&!present)parked.travelled=true;
       if(present===parked.present)return;
       if(!(initial&&(!H.live||window.AccountGate?.blocked))&&(onScreen()||nearCar(present?40:185)||(!present&&H.anims.has('story-car-boot'))))return;
@@ -1669,10 +1669,13 @@
       if(present&&bayOccupied())return;
       apply(present);
     };
-    // A car returning while the player was away waits for a clear bay. This
-    // runs before saved-pose collision checks, so refresh cannot move the player.
+    // Restore the home car before validating the saved capsule. Being near the
+    // boot is legal: only an actual overlap defers parking. This also repairs
+    // old saves whose valid boot approach previously hid the car and its cargo.
     r.preparePose = p => {
-      if(p.lvl==='G'&&p.x>carBlock.x0-30&&p.x<carBlock.x1+30&&p.z>carBlock.z0-30&&p.z<carBlock.z1+30)apply(false);
+      if(window.HouseFamily?.carAway){if(parked.present)apply(false);return;}
+      if(!parked.present)apply(true);
+      if(p.lvl==='G'&&p.x>carBlock.x0-30&&p.x<carBlock.x1+30&&p.z>carBlock.z0-30&&p.z<carBlock.z1+30&&!H._.floorAt(p.x,p.z,'G',H.LV.G,Math.max(60,H.LV.G-p.y)))apply(false);
     };
     apply(parked.present);
     let nextCar=0;H.ambient.add(now=>{if(now<nextCar)return false;nextCar=now+250;parked.update();return false;});

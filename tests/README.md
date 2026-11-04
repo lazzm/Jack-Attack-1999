@@ -518,9 +518,40 @@ Visual photographs freeze the actual effects buffers at capture time so slow scr
 consume their three-second afterglow; frame measurements resume animation. `BONFIRE_ART_ONLY` selects comma-separated
 shot names for a focused recheck. Visual scene snapshots settle family routes with the existing NPC simulator.
 
+### fixes4 focused regressions (R193–R199)
+
+Use `tests/fixes4-server.cjs` with a free port in 18080–18099, a fresh `/tmp` DATA_DIR and `ADMIN_TOKEN=testtoken`.
+Start that server and each browser command in the same shell, and stop only its own PID. The fixture seeds a newly
+registered disposable account at the Chapter 1 boot checkpoint in memory; it is never loaded by the production server.
+Run browsers serially. `NODE_OPTIONS=--require=$PWD/tests/browser-budget.cjs` can enforce the shared-host renderer budget.
+
+- `node tests/fixes4-unit.cjs` checks saved boot clearance/recovery, early account snapshots, Dad's startup ordering,
+  seated dialogue selection and Bonfire preparation/evening/late/tail wording.
+- `node tests/fixes4-geometry-unit.cjs` checks production child IK/cushion clearance, the mug's inner wall/lip/tea,
+  and actual mesh contact for wrapper, bag and keyboard grips.
+- `node tests/fixes4-boot.mjs URL after` uses real W to reach the boot stop, reloads twice (including missing Dad/home
+  cache recovery), then picks up the tower with native E. It exports `/tmp/fixes4-story-browser.json` for
+  `node tests/story-ch1.mjs URL pc /tmp/fixes4-story-browser.json` on the **same** disposable server.
+- `node tests/fixes4-art.mjs URL after` captures settled front/side idle/conversation, carried models, mug profiles and
+  unchanged sock/case controls. Its matched R196 before views use the unchanged adult anchor/original foot target;
+  focus views explicitly settle the production skeleton because the game normally pauses NPC drawing there.
+- `node tests/fixes4-ui.mjs URL` checks the retained `scandisk` Run command, Disk Snitch app/help and a real boot disk check.
+- `node tests/fixes4-touch-art.mjs URL` reviews changed models in one real touch context at four phone/tablet viewport sizes;
+  these are viewport/geometry captures, not hardware FPS or a full mobile gameplay certification.
+
+Evidence is in `tests/shots/fixes4/`. The boot/art `before` and `after` arguments label artifacts; they do not change the
+checkout's application source. The original pre-fix boot test failed and its two PNGs are retained alongside the passing
+post-fix reload/native-pickup evidence. All individual unit commands/results are in `fixes4/unit-results.txt` under shots.
 
 Shared software-renderer hosts: `FIXTURE_RASTER_RATIO=0.5` optionally caps raster resolution in `room-fixture.mjs`
 without changing CSS layout, camera coordinates or assertions. Leave it unset for art/pixel reviews.
 `REGRESSION_NO_SHOTS=1` in physics/Halloween/story omits optional galleries while retaining functional checks and
 failure captures. The dedicated sizing/Bonfire art fixtures still capture native-resolution evidence.
 Standing-resume fixtures also complete the normal About You form for freshly provisioned accounts, when present.
+
+R200: `node tests/case-eject-unit.cjs` drives the production TV ejection function through its deferred camera return.
+The previous wait (`!HouseCases.busy && !RoomTV.open_`) passes before ejection starts. `caseEjected` also requires the
+medium back in its own case and the case carryable, so it rejects both that idle gap and a committed, unfinished animation.
+`node tests/games/zeldo.mjs URL --room-only` covers the real eject/change path and touch controls without the native campaign.
+The native review browser closes before the house fixture starts. The focused Chapter 1 PC route followed by
+`node tests/story-ch1.mjs URL owner` prepares the used-server history much faster than replaying the entire opening.

@@ -45,6 +45,7 @@
         enabled:()=>!state()?.done['part.'+part],accepts:(_k,t)=>t.id===id,hint:'E: set down the '+names[part],
         onSnap:()=>{Sound.play('heavy');st.event('part.'+part);}});
       R.grabbable(id,{obj,kind:'story-pc',label:names[part],home,holdD:65,holdOffset:{right:27,down:16},walkScale:part==='monitor'?.48:.85,
+        handGrips:part==='keys'?[[-15,-.725,2.5],[15,-.725,2.5]]:undefined, // keyboard sides, below the loose mouse lead
         canGrab:()=>active()&&!state().done['part.'+part]&&!!state().done.boot&&(H.THINGS[id]?.at.room!=='drive'||H.ROOMS.drive.carBoot.open),
         use:()=>st.say('st.carry.'+part,'Dad',state()?.done['part.'+part]?'Plug in the marked leads, then press the power button.':'E carries it. Take it to the marked place on your desk. Q puts it back safely.'),useLabel:'Carry upstairs'});
     }
