@@ -1,0 +1,2386 @@
+{
+ "created": "2026-11-04",
+ "baseline": "voices-final-2026-11-01.json",
+ "repairs": "repairs-2026-11-04.json",
+ "accepted": {
+  "bf.dad.talk.1dguuhl": {
+   "file": "bf.dad.talk.1dguuhl.mp3",
+   "character": "dad",
+   "dur": 7.61,
+   "sha256": "5936e93882c9511ac13105baf1b27eb7b603d7a39189f863a40b554cdfc1fed5",
+   "heard": "Tin shut, bucket full, pets indoors, everyone behind the rope, long taper. Five checks, no cutting corners.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.dad.talk.1wfrt7z": {
+   "file": "bf.dad.talk.1wfrt7z.mp3",
+   "character": "dad",
+   "dur": 7.08,
+   "sha256": "4feb3956495d57b2b86a5006ee06b7f38bdf1e4b156f4512c670990a75b276c3",
+   "heard": "Safety checks all done, dry wood only on the stack. Friday evening, torch to the rope, then supper. I do the lighting.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.display.away.15tnmi0": {
+   "file": "bf.display.away.15tnmi0.mp3",
+   "character": "dad",
+   "dur": 4.15,
+   "sha256": "93434e22b7a4295a48685061cb6cf717e3c77261af0ab76beedee6ba3183c0f9",
+   "heard": "The display will carry on. Come back behind the rope when you are ready. You can still finish watching.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.display.checks.1fqatvb": {
+   "file": "bf.display.checks.1fqatvb.mp3",
+   "character": "dad",
+   "dur": 3.84,
+   "sha256": "8e3c028b8a875629bde4af160ffc64a5fa48bc14b233e5dcafceb292fde0cc73",
+   "heard": "Finish the dry stack and all five fire coworker checks first.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.display.resume.1lc7fy1": {
+   "file": "bf.display.resume.1lc7fy1.mp3",
+   "character": "dad",
+   "dur": 4.25,
+   "sha256": "9e2040ed4e0b49030c60078eb9fab78647393da41f92314e4a2a3a031a762885",
+   "heard": "You are back. All finished safely? Stay at the rope while I check everything.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.display.start.f55ktr": {
+   "file": "bf.display.start.f55ktr.mp3",
+   "character": "dad",
+   "dur": 11.04,
+   "sha256": "38da1bc8487b554d844e6dade9b266306ba712cdb1d17e3dcc7b1ca2341d7d9d",
+   "heard": "I have checked for animals. Torch this way, everyone behind the rope. I light one, then come back. The display carries on if you leave. Come back to the rope to finish.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.display.time.1dhhkkv": {
+   "file": "bf.display.time.1dhhkkv.mp3",
+   "character": "dad",
+   "dur": 4.13,
+   "sha256": "5eb4fecc7939eeb30f7afbd3573d26ba1847143f2cfe74d7c2508d0a36920984",
+   "heard": "half past six until ten in the evening warm things on and watch from the rope",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.lead.2w6y11": {
+   "file": "bf.lead.2w6y11.mp3",
+   "character": "dad",
+   "dur": 7.61,
+   "sha256": "d52b4645b29b2a4e067cbe3a56d5ac6334256f85f9ac24abc8c680848c603ce7",
+   "heard": "Bonfire Night on Friday. Help me stack the dry garden wood, and you two can make a guy. Closed firework tin stays with me.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.line.2cmfdz": {
+   "file": "bf.line.2cmfdz.mp3",
+   "character": "dad",
+   "dur": 8.93,
+   "sha256": "92f9b8f682faedc475888bb6c0bd9abea2f911654f10bd0f6ccc01b99eaf95b6",
+   "heard": "Everyone stays behind the rope. Always follow the distance on the box. Never throw fireworks and never go back to one, even if it has gone quiet. Leave it to me.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.rocket.1a6z6bq": {
+   "file": "bf.rocket.1a6z6bq.mp3",
+   "character": "dad",
+   "dur": 5.02,
+   "sha256": "7ef346b21e66e688f7274cefd23e4ca7a2d6044778beeb00aa26803864e04c57",
+   "heard": "Here comes the rocket. Stay back. Never go back to a firework even if it seems to have stopped.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.sparkler.done.110908g": {
+   "file": "bf.sparkler.done.110908g.mp3",
+   "character": "dad",
+   "dur": 1.58,
+   "sha256": "b7df1075093ddd0851f8f754554fe033c2e6e788ddd6a2a25441fdfe0c32a1d6",
+   "heard": "Hot wire into the bucket now, please.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.sparkler.done.72262s": {
+   "file": "bf.sparkler.done.72262s.mp3",
+   "character": "dad",
+   "dur": 3.5,
+   "sha256": "8d5a0b526be2025a1d75066921920e5c53ee1e0d2583396dabb4aab5701747b6",
+   "heard": "That was lovely. All the hot wires are in the water. Supper time.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 85,
+    "accepted": true
+   }
+  },
+  "bf.sparkler.wait.1o96ayr": {
+   "file": "bf.sparkler.wait.1o96ayr.mp3",
+   "character": "dad",
+   "dur": 4.18,
+   "sha256": "92533fac15425b2afb51a0d86082c86c7339e6976bfca2a5c8de085b14f4048e",
+   "heard": "Display first, sparklers afterwards. I have not forgotten.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.tail.talk.times.8y9bbq": {
+   "file": "bf.tail.talk.times.8y9bbq.mp3",
+   "character": "dad",
+   "dur": 8.09,
+   "sha256": "8c4ed03698f244e47e2d4dc95663860280ce0d8d198c604f1fce31b5db137c63",
+   "heard": "Cold sticks in the bin. Leave the ash alone. If you missed Friday, I save leftovers for the evening. Half past six until 10.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.tail.tw78cy": {
+   "file": "bf.tail.tw78cy.mp3",
+   "character": "dad",
+   "dur": 8.98,
+   "sha256": "6b343acf24b96929c324494fea166658b824b00cb906da347c718a4e046a8d0b",
+   "heard": "I have damped the fire right down and checked the cold rubbish. Sticks and wrappers into the bin, please. Leave the ash alone. I will check it again.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.taper.te7i05": {
+   "file": "bf.taper.te7i05.mp3",
+   "character": "dad",
+   "dur": 11.33,
+   "sha256": "e90a13264ab4f1c3a8f31cdbdb6c3b50aaa48afca23325c07bb6a082f29df69a",
+   "heard": "A long taper at arm length. One adult in charge. Me. Check. We light the bonfire after checking it for animals. No petrol or paraffin. All ready for Friday evening.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.tin.1dmucg3": {
+   "file": "bf.tin.1dmucg3.mp3",
+   "character": "dad",
+   "dur": 9.19,
+   "sha256": "d27a01b1024b083368cfe8615e1728924c053cfa50cd05616dfbf9aedb8cfb90",
+   "heard": "Shop bought, in their closed tin, up out of reach. No fireworks in pockets. I read the instructions and light one at a time. You watch from behind the rope.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.water.1vy2tmp": {
+   "file": "bf.water.1vy2tmp.mp3",
+   "character": "dad",
+   "dur": 7.44,
+   "sha256": "df1d1a0941499661a6f605594fa5b2d65644667c92c03e5041dc3a770d66c6b3",
+   "heard": "bucket filled and parked behind the rope. Used sparklers go in hot end first. The wire stays hot, even when it looks cold.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.wood.ncj5f5": {
+   "file": "bf.wood.ncj5f5.mp3",
+   "character": "dad",
+   "dur": 9.67,
+   "sha256": "e969cc2da9be3594748d1308c2d89335e8ae73e7583f2bd60b260eb802182405",
+   "heard": "Dry wood and cardboard only, paper then kindling. No aerosols, glass, paint, plastic or fireworks on the fire. We check for hedgehogs before lighting.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.1djssky": {
+   "file": "house.moment.1djssky.mp3",
+   "character": "dad",
+   "dur": 1.18,
+   "sha256": "fa40c9191a2f4c24a6bd7bbd01bd878c5a2095def03f7c629d2ae3eba877be61",
+   "heard": "Bed now",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 85,
+    "accepted": true
+   }
+  },
+  "house.moment.hwj5im": {
+   "file": "house.moment.hwj5im.mp3",
+   "character": "dad",
+   "dur": 3.53,
+   "sha256": "af43ec9fab75f18ad38b3007d4ba318e84cb15ab85c07b4792f12efa0df7d310",
+   "heard": "Is that the internet on? Do you know how much those phone calls cost?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.dad.match.hliuf7": {
+   "file": "hw.dad.match.hliuf7.mp3",
+   "character": "dad",
+   "dur": 7.51,
+   "sha256": "62925d34dc5a39e428ed23c979d1fce7b8d5a1c537fcf211c97b4b4cd9a20fa5",
+   "heard": "Hang on. Matches are my job. Long match. Arm's length. There we go.",
+   "accent": {
+    "accent": "British",
+    "region": "General Southern British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.dad.safe.l28lnk": {
+   "file": "hw.dad.safe.l28lnk.mp3",
+   "character": "dad",
+   "dur": 8.14,
+   "sha256": "9a4a3fb4740995b25bf9458a0c549b37d918e9e1cc7e51a3eb0dbb371d9f487e",
+   "heard": "Only knock on doors with the lights on and never go in anyone's house. Mum's rules and mine.",
+   "accent": {
+    "accent": "British",
+    "region": "General Southern British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "st.carry.4c83tp": {
+   "file": "st.carry.4c83tp.mp3",
+   "character": "dad",
+   "dur": 6.41,
+   "sha256": "b75a1f10a4651806b685fd845009bb5c65fc4362af4a95bef5220e32cd83ceca",
+   "heard": "E carries it. Take it to the marked place on your desk. Q puts it back safely.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "st.carry.wzg82y": {
+   "file": "st.carry.wzg82y.mp3",
+   "character": "dad",
+   "dur": 3.62,
+   "sha256": "b581babca7339f75490cd19e96f8b97dbbc7bdb86168deea2e3d1ec518fa0639",
+   "heard": "Plug in the mock leads, then press the power button.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "st.opening.dad.165n9l8": {
+   "file": "st.opening.dad.165n9l8.mp3",
+   "character": "dad",
+   "dur": 6.94,
+   "sha256": "5de76c649da451042077ec415cd630853ea7cb590ffe3abc945a03c56840563c",
+   "heard": "The office is chucking out the old computers. Mine is in the boot if you want it. Mind the monitor, it weighs a ton.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "st.opening.lead.power.1h9zqa3": {
+   "file": "st.opening.lead.power.1h9zqa3.mp3",
+   "character": "dad",
+   "dur": 5.52,
+   "sha256": "b3a2ad6778c3f7328f72c59cd0372ff3fb689a0fa35eb5b582872e58c316afe7",
+   "heard": "Everything on the desk? Plug the leads into the matching sockets, then try the big button.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "st.opening.pc.oltv5s": {
+   "file": "st.opening.pc.oltv5s.mp3",
+   "character": "dad",
+   "dur": 4.82,
+   "sha256": "57405b8b93e5513939361c8b74fa4e086172eeb461b164422c0897e3e7f024eb",
+   "heard": "There you go. Your own computer. Try not to fill it with games.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "c4.xmas.eve.dad.neutral": {
+   "file": "c4.xmas.eve.dad.neutral.mp3",
+   "character": "dad",
+   "dur": 6.312,
+   "sha256": "72acb4e5582fa8f79e4693b823e008031f39cbe7df6703f8570c1875ee71371e",
+   "heard": "Is everyone asleep yet? Good. Shh. I am eating the mince pie.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "bf.already.food.otebpt": {
+   "file": "bf.already.food.otebpt.mp3",
+   "character": "mom",
+   "dur": 2.98,
+   "sha256": "420bd3887799aba8dacdda0b82197b325d2c9ca52c4de075aacf8cd52f23255c",
+   "heard": "Supper is on the garden table. Help yourself.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.cat.check.1q6dwpi": {
+   "file": "bf.cat.check.1q6dwpi.mp3",
+   "character": "mom",
+   "dur": 6.48,
+   "sha256": "ed4096e2874d6a7f269d9bfc23965061c13290301420308bff374c25514b71e8",
+   "heard": "The cat is indoors. Keep the bedroom window shut tonight. Give the cat a quiet place to hide when the bangs start.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.cat.check.p22a1x": {
+   "file": "bf.cat.check.p22a1x.mp3",
+   "character": "mom",
+   "dur": 6.91,
+   "sha256": "94868c5e6456e0683d6e34d6f8d26d8d2a2080cf51e2540f88c9152242688d5e",
+   "heard": "The cat is indoors. Keep the bedroom window shut for the display. Give the cat a quiet place to hide when the bangs start.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.cat.safe.1n6nrdc": {
+   "file": "bf.cat.safe.1n6nrdc.mp3",
+   "character": "mom",
+   "dur": 8.04,
+   "sha256": "a406f664f8093cfe404e1c4aa500f07f4b9d5515f7bc2f48f48b2bc6db94f90a",
+   "heard": "The cat is safely indoors, hiding under the bed. Let the cat stay cozy. We will feed the cat when the bangs have stopped.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.cat.w6iuui": {
+   "file": "bf.cat.w6iuui.mp3",
+   "character": "mom",
+   "dur": 8.14,
+   "sha256": "2121cdb3279c727a9d8dc3c22a7e71a2439803983b26068cc7f71f8b968c15dd",
+   "heard": "the cat is indoors with the curtains shut let the cat hide under the bed keep the noise down in here no need to pull the cat out",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.gloves.wait.prep.8fedwg": {
+   "file": "bf.gloves.wait.prep.8fedwg.mp3",
+   "character": "mom",
+   "dur": 6.41,
+   "sha256": "2b40afe1c6aa69f6eb2f19efc5e2e9ae5eb039009ba49d6290605b6c71253c5e",
+   "heard": "Hat gloves wellies ready for bonfire night. Do the firework code with Dad before the sparklers",
+   "accent": {
+    "accent": "British",
+    "region": "Modern RP",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.gloves.wait.wmjtee": {
+   "file": "bf.gloves.wait.wmjtee.mp3",
+   "character": "mom",
+   "dur": 6.62,
+   "sha256": "8cf682bbb6eb536d32ad54c378a4915b7db5309a4027dea5111aa424e5b477b6",
+   "heard": "Hat, gloves, wellies. It will be cold tonight. Do the firework code with Dad before the sparklers.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.mom.talk.late.1ogjaal": {
+   "file": "bf.mom.talk.late.1ogjaal.mp3",
+   "character": "mom",
+   "dur": 5.112,
+   "sha256": "cc771234eb2c14df23f75904108ddcfd698cd245f520ecff3f497ce93324beeb",
+   "heard": "It is getting late. Help me put the supper things away, then off to bed.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.mom.talk.prep.ouvann": {
+   "file": "bf.mom.talk.prep.ouvann.mp3",
+   "character": "mom",
+   "dur": 12.24,
+   "sha256": "6113b9b8fd596dc14f8f7d576e53b99fbc5f4e117d2a07c490492c22fd63e337",
+   "heard": "Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Have warm clothes ready for Bonfire Night. No cold fingers when we watch the display.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "bf.parkin.tzx22w": {
+   "file": "bf.parkin.tzx22w.mp3",
+   "character": "mom",
+   "dur": 8.98,
+   "sha256": "dc24aaafe4cb1782567d41229e02137cd1ecbcefbb9b4f94fc4d1189ad862be2",
+   "heard": "sticky ginger cake, best made a day or two ahead. There is treacle toffee, too. You can help with the potatoes. I'll do the hot oven and hot sugar.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.sparkler.gloves.hhvm6u": {
+   "file": "bf.sparkler.gloves.hhvm6u.mp3",
+   "character": "mom",
+   "dur": 2.81,
+   "sha256": "b031b6807458ae6c454ef5bcd5086d45a5f202e8743f22a16088e73a87234759",
+   "heard": "Gloves first. They're on the stool by the back door.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "chore.rating.16wxa7r": {
+   "file": "chore.rating.16wxa7r.mp3",
+   "character": "mom",
+   "dur": 2.78,
+   "sha256": "ce1613b9a531f94e2a47612cc934ca6172b9abc09b9d6f585a730b137f0d51dd",
+   "heard": "Did you actually do it or just move it about?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "chore.shout.1lof225": {
+   "file": "chore.shout.1lof225.mp3",
+   "character": "mom",
+   "dur": 1.68,
+   "sha256": "407cff63d9017c05476ff0fab19e04474048f8f05fe754b642d771c02d32bf03",
+   "heard": "Those jobs won't do themselves.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "chore.shout.1ss7a6t": {
+   "file": "chore.shout.1ss7a6t.mp3",
+   "character": "mom",
+   "dur": 2.5,
+   "sha256": "70f2d602d34780aa5b4148bbf7e04880307426066541cc6ed48234fe1f955122",
+   "heard": "I can hear you not doing your jobs",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "chore.shout.1y83zff": {
+   "file": "chore.shout.1y83zff.mp3",
+   "character": "mom",
+   "dur": 0.62,
+   "sha256": "c6fb55c045861fd85d9b95b623d3657f367d65241a1da9ae6e5aaeff47785b7f",
+   "heard": "Thank you.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "chore.shout.bdi29n": {
+   "file": "chore.shout.bdi29n.mp3",
+   "character": "mom",
+   "dur": 1.608,
+   "sha256": "d57248ad9c0c9a01c2414d602ba8638ce15cb53ff2b3aac4cb400de05b46494e",
+   "heard": "Good helper",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "chore.shout.y5q1ps": {
+   "file": "chore.shout.y5q1ps.mp3",
+   "character": "mom",
+   "dur": 1.44,
+   "sha256": "98e52c1e6b40c09a0da93821f7b6d8c8c205bb07a03e13a2ef1ccb0d1a9cacb4",
+   "heard": "Have you done your jobs yet?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "dialer.01632960777.1wxgtgo": {
+   "file": "dialer.01632960777.1wxgtgo.mp3",
+   "character": "mom",
+   "dur": 1.22,
+   "sha256": "299954118e8a49902a8b8782d65c2be93f588e7baa746d777541a2721557e33f",
+   "heard": "Have you done your homework?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "dialer.01632960777.n7bz0i": {
+   "file": "dialer.01632960777.n7bz0i.mp3",
+   "character": "mom",
+   "dur": 6.77,
+   "sha256": "94efed357d45b88cf15d5341a586c065ea4609c4d19336bb4515ed2bb8517c65",
+   "heard": "Hello? Is everything all right? You're not on the internet, are you? I can't ring home when you're on the internet.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.18qfxaa": {
+   "file": "house.moment.18qfxaa.mp3",
+   "character": "mom",
+   "dur": 3.65,
+   "sha256": "9de0651bd2d101db68c0c1e37787b2a5ffa6e9f8a39bd7e477727e7aba0a58af",
+   "heard": "I'm popping to the shops, do you want anything? Besides a daydream?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.1dd6ufc": {
+   "file": "house.moment.1dd6ufc.mp3",
+   "character": "mom",
+   "dur": 2.42,
+   "sha256": "7727b7be16bd371d937cc3b02b3c6f0df4b6e6ea1e84d145d037a2c9f1bde6bb",
+   "heard": "It's a school night, not too late, eh?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "house.moment.1gm6uua": {
+   "file": "house.moment.1gm6uua.mp3",
+   "character": "mom",
+   "dur": 1.8,
+   "sha256": "9a3a617f52beee5b47f76e5912e5db4999237ea682236adec5b07e87f525dc35",
+   "heard": "Are you on that computer again?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.1hou2xu": {
+   "file": "house.moment.1hou2xu.mp3",
+   "character": "mom",
+   "dur": 2.95,
+   "sha256": "6ad614a74d7b5ab3936c2eda261f71a8e18ab666134b49ce9aa033a45ab11d6a",
+   "heard": "You'll be late for school. Have you had any breakfast?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.1qsooir": {
+   "file": "house.moment.1qsooir.mp3",
+   "character": "mom",
+   "dur": 3.12,
+   "sha256": "1b20ef0aea892fb6ae635ef0f0bedcc445a2482af850ee78746d8a60b173eeb7",
+   "heard": "Tea in five minutes. Wash your hands.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.1wxgtgo": {
+   "file": "house.moment.1wxgtgo.mp3",
+   "character": "mom",
+   "dur": 1.37,
+   "sha256": "ec12499e592e35cd74df0cd3569dcb454bf8071591b111af8b770acf24e91bd7",
+   "heard": "Have you done your homework?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.hypeuv": {
+   "file": "house.moment.hypeuv.mp3",
+   "character": "mom",
+   "dur": 6.7,
+   "sha256": "37cbb5183863ef267bb96b11f93d350df221040c7f0ecfe5f5fe2c2b318c2c1b",
+   "heard": "Why aren't you at school? Oh, it's an inset day. Right, well don't sit on that computer all day.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.p8fwe0": {
+   "file": "house.moment.p8fwe0.mp3",
+   "character": "mom",
+   "dur": 1.51,
+   "sha256": "0bcd3c9ada693c872d2ed019c1e8b483a0aa57e747f9e35affd980ce40ed64c1",
+   "heard": "Have you seen my car keys?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.qrvops": {
+   "file": "house.moment.qrvops.mp3",
+   "character": "mom",
+   "dur": 4.3,
+   "sha256": "dde41a443b717e801af61cb2154b8c7c684cc3c1bf59f82eaced1ddb77d52f37",
+   "heard": "We're going to Gran's for Sunday dinner at 1:00. Wear something clean.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.uar218": {
+   "file": "house.moment.uar218.mp3",
+   "character": "mom",
+   "dur": 2.5,
+   "sha256": "790eecbf5768538d31b4e9308940e1d5099bcf830c849e13b24914ec1ade0913",
+   "heard": "Tea's ready, it'll go cold.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.y9voiz": {
+   "file": "house.moment.y9voiz.mp3",
+   "character": "mom",
+   "dur": 2.28,
+   "sha256": "6a2453456274c97d4acc12df6a624898e95845e500448e4b93b3d01bf9d41da8",
+   "heard": "Your friend's mom rang, are you going round there?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.zpcfic": {
+   "file": "house.moment.zpcfic.mp3",
+   "character": "mom",
+   "dur": 0.96,
+   "sha256": "ea3d3d37269a0b527acbe7047d77d8e2ab2675d0381af646906324c55beda66d",
+   "heard": "Do you want a cup of tea?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.19srweb": {
+   "file": "house.voice.19srweb.mp3",
+   "character": "mom",
+   "dur": 1.73,
+   "sha256": "9c32de0d51f4d65487db4c4d8d4c3215a7f3e63510a4ebda21f967f41022c755",
+   "heard": "Is that you? Tea's nearly ready.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.1wn5usl": {
+   "file": "house.voice.1wn5usl.mp3",
+   "character": "mom",
+   "dur": 3.36,
+   "sha256": "88ec850a9ee26ce7f3be0a2f3e422abf240424900dd980510ab8a398086b549d",
+   "heard": "Wrong number again someone wanting a Chinese",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.52jrk6": {
+   "file": "house.voice.52jrk6.mp3",
+   "character": "mom",
+   "dur": 2.26,
+   "sha256": "43a72820c14b10478200251aca7aca8361b27b24101e7d47064eed2d02e9e9a7",
+   "heard": "That was your friend. Are you coming out?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.c27ds0": {
+   "file": "house.voice.c27ds0.mp3",
+   "character": "mom",
+   "dur": 5.47,
+   "sha256": "2feb74b12225f4bd985d6a9afe41de49ff619840e10b060c924c10a7ce0a3916",
+   "heard": "Here's your pocket money, five pounds. Don't spend it all on games magazines.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.dg5evy": {
+   "file": "house.voice.dg5evy.mp3",
+   "character": "mom",
+   "dur": 2.93,
+   "sha256": "3c59f2afe37b5b50938c45a7fbb7e1dd52aadef42a04ab740c98337236273a06",
+   "heard": "That was your gran. She says you never ring her.",
+   "accent": {
+    "accent": "British",
+    "region": "Modern Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.y87tqf": {
+   "file": "house.voice.y87tqf.mp3",
+   "character": "mom",
+   "dur": 2.42,
+   "sha256": "b7d7d900f3bd228287a8521ec5e93e3159be2b78122bbe37d3525f96daecd4fe",
+   "heard": "Was that the phone? Did you not hear it?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.mom.clocks.1ekmlu0": {
+   "file": "hw.mom.clocks.1ekmlu0.mp3",
+   "character": "mom",
+   "dur": 4.56,
+   "sha256": "09aa3d8a31e35cde6b93adfff9d53b1f5333fb4119b9713d5230fe5e85670b42",
+   "heard": "And the clocks went back last night an extra hour in bed and I'm still tired",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.mom.door.7duwbw": {
+   "file": "hw.mom.door.7duwbw.mp3",
+   "character": "mom",
+   "dur": 2.52,
+   "sha256": "fa9f317b76281933561340c0c174da607dd5f6608b703d71d9547696e165bf1e",
+   "heard": "Door I've got my hands full",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.mom.door.iezetz": {
+   "file": "hw.mom.door.iezetz.mp3",
+   "character": "mom",
+   "dur": 2.02,
+   "sha256": "36d31c2a34f077ebccd7f1af577d1dd23bb07879e8e360c2cf5c5cbb38ca9a66",
+   "heard": "Door, more of them.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "hw.mom.door.le11aj": {
+   "file": "hw.mom.door.le11aj.mp3",
+   "character": "mom",
+   "dur": 2.69,
+   "sha256": "f9d146a484b47adbb7c283cce0ea3242ba56f4a66310b00f1288270a6d7b41df",
+   "heard": "That'll be the Witch Brigade again. Door!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.mom.door2.1c95o5l": {
+   "file": "hw.mom.door2.1c95o5l.mp3",
+   "character": "mom",
+   "dur": 1.78,
+   "sha256": "deff6c8f2803932eeefee9ce4e43635963563176f538e09b5b03a0f8a6a6eac2",
+   "heard": "They're still waiting at the door",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.mom.five.1eab0yr": {
+   "file": "hw.mom.five.1eab0yr.mp3",
+   "character": "mom",
+   "dur": 3.38,
+   "sha256": "2a8f34abaf1bffe707440a78c8c6e30bcf2149fa268802e971b7fa714f989ab3",
+   "heard": "Five lots. The neighbours will think we're ever so organised.",
+   "accent": {
+    "accent": "British",
+    "region": "Standard Southern British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.mom.hand.1x0lkzj": {
+   "file": "hw.mom.hand.1x0lkzj.mp3",
+   "character": "mom",
+   "dur": 3.26,
+   "sha256": "f6897c016fba923b01b92f3d1e35f9aac1c5851ac87ee28b1921254f56100c45",
+   "heard": "Away from your hand, saw away from your hand.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.mom.lead.1roevnu": {
+   "file": "hw.mom.lead.1roevnu.mp3",
+   "character": "mom",
+   "dur": 5.45,
+   "sha256": "e6d4807388b687b0c845c6ea3b17c3b195393d4b946e9496fbdf15225ae8217d",
+   "heard": "I've got a pumpkin for you two to carve. It's on the kitchen table. Newspaper down first, please.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "st.opening.bed.hra5bz": {
+   "file": "st.opening.bed.hra5bz.mp3",
+   "character": "mom",
+   "dur": 3.22,
+   "sha256": "9d2b8ff5026df1cb6a83cbe8214add86d7350abb68aea4e7c28ec90f2054a94a",
+   "heard": "Ah, much better. Now straighten that bed, please.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "st.opening.bin.lnlsdo": {
+   "file": "st.opening.bin.lnlsdo.mp3",
+   "character": "mom",
+   "dur": 3.7,
+   "sha256": "0ec31c33112280503984c3bab05d1178705c1408085b008d2f126033470240c8",
+   "heard": "One last job, bring the bin bag down to the kitchen.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "st.opening.meetmom.p0ty2g": {
+   "file": "st.opening.meetmom.p0ty2g.mp3",
+   "character": "mom",
+   "dur": 7.2,
+   "sha256": "ce470c5d85e925a873ac4fcbaf2d853b7edd28db448beed8b05aa90eac08b833",
+   "heard": "Morning love. Room first, then you can do what you like. Clothes in the basket, rubbish in the bin, plates down to the kitchen.",
+   "accent": {
+    "accent": "British",
+    "region": "Modern Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "st.opening.tidy.1d8mogt": {
+   "file": "st.opening.tidy.1d8mogt.mp3",
+   "character": "mom",
+   "dur": 5.59,
+   "sha256": "85a7a0509fdaeebb893ae93eda68887e55ab14be38574100fc96b9dc2602af8a",
+   "heard": "First things first, clothes in the basket, rubbish in the bin, and bring your dishes down.",
+   "accent": {
+    "accent": "British",
+    "region": "Standard Southern British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "chore.shout.1of6vkv": {
+   "file": "chore.shout.1of6vkv.mp3",
+   "character": "mom",
+   "dur": 5.35,
+   "sha256": "bdafa785cbaace1e4349b2cfbf563487e4793ee8b510a4a0f87a47f47918b63a",
+   "heard": "Have you done all your jobs? Who are you, and what have you done with my real helper?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.1o2t39k": {
+   "file": "house.voice.1o2t39k.mp3",
+   "character": "mom",
+   "dur": 3.82,
+   "sha256": "7735c08cdc36e8ecaa91412ea3fa619ae81c918da984f0c2f066dd5baba7381c",
+   "heard": "School, shoes on, bag ready, out you go.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.1p91ht0": {
+   "file": "house.voice.1p91ht0.mp3",
+   "character": "mom",
+   "dur": 3,
+   "sha256": "30fcf61d7501d345c31a8920163410c5589a970e9d4fd9810e97664d318987c5",
+   "heard": "tea is ready come and get it before it goes cold",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.6sjah6": {
+   "file": "house.voice.6sjah6.mp3",
+   "character": "mom",
+   "dur": 3.65,
+   "sha256": "1a0210dde2cd4da46c667c9fec3eca94b637b812343028029cabfc429c6e1029",
+   "heard": "Saturday pocket money. Check with me when your jobs are done.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.v8d3ia": {
+   "file": "house.voice.v8d3ia.mp3",
+   "character": "mom",
+   "dur": 2.59,
+   "sha256": "85d4703a6e294d738553d9dc4df6482746de97313c10f4a3041a86c1493dd057",
+   "heard": "Time for bed, save your game",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.zrj5mn": {
+   "file": "house.voice.zrj5mn.mp3",
+   "character": "mom",
+   "dur": 5.28,
+   "sha256": "83ad1801c2db4dc5be7dab27ff63f7826d713be37519804c4ed2f412d6b2d62d",
+   "heard": "Ooh, have you done all your jobs? Who are you, and what have you done with my real helper?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.guy.135iti6": {
+   "file": "bf.guy.135iti6.mp3",
+   "character": "sister",
+   "dur": 5.69,
+   "sha256": "246c6f905d89c8ed6892deda550b2df0ef0257600e60309a746d365b7ff2c205",
+   "heard": "Dad said we could have his old clothes, not his work trousers. I have checked twice.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.guy.ready.16vdl6h": {
+   "file": "bf.guy.ready.16vdl6h.mp3",
+   "character": "sister",
+   "dur": 7.66,
+   "sha256": "38112b7a361098fbea7432f0a7bd87192a13e4e96d7b330eec1c929c83edf455",
+   "heard": "He looks just like Dad on a Sunday. Can we keep him? Penny for the guy? He only takes pretend pennies.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.sister.talk.1gj0870": {
+   "file": "bf.sister.talk.1gj0870.mp3",
+   "character": "sister",
+   "dur": 6.26,
+   "sha256": "3a4d9ab993727345c5da2c16e1ef0d722f5cb5e8d3a25fc78a2e93d745c8e6bb",
+   "heard": "Will you help me stuff the guy? Dad's old shirt is on the kitchen table. He says it was fashionable once.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.sister.talk.1kq0e9g": {
+   "file": "bf.sister.talk.1kq0e9g.mp3",
+   "character": "sister",
+   "dur": 5.64,
+   "sha256": "a9bb6cdd649f5aa0daefebf985ac4e257f905e8e3d42ce9af5e5f8b01b4b95cc",
+   "heard": "Remember, remember, the fifth of November. I remembered. Dad forgot where he put his hat.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.wheel.qsib2": {
+   "file": "bf.wheel.qsib2.mp3",
+   "character": "sister",
+   "dur": 3.94,
+   "sha256": "98714e681b164fbb26db6650a4c7ce40dadcae00ec124bb041f8c16a6c08d3c6",
+   "heard": "A Catherine wheel. It is doing cartwheels.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.sis.bat.1p6s4es": {
+   "file": "hw.sis.bat.1p6s4es.mp3",
+   "character": "sister",
+   "dur": 4.3,
+   "sha256": "991712511637f33f5c23780a1d7da13b71bf14b70fc374e984f788cc9788b8b6",
+   "heard": "Higher. No lower. Perfect. It's watching you.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.sis.ghost.b0szgt": {
+   "file": "hw.sis.ghost.b0szgt.mp3",
+   "character": "sister",
+   "dur": 3.65,
+   "sha256": "542ae5e16b215854f01ac1055439a123b5f03596e30cebdf82b5ee70f089987e",
+   "heard": "Now the whole street can see him. His name is Gerald.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "arena.announcer.14a4q40": {
+   "file": "arena.announcer.14a4q40.mp3",
+   "character": "announcer",
+   "dur": 1.9,
+   "sha256": "5d3b2d02583c0a52fa0f701606c45df7c4e03fc45084c96b0bc2a975286e7a3b",
+   "heard": "You have lost the match.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "arena.announcer.1cztk1n": {
+   "file": "arena.announcer.1cztk1n.mp3",
+   "character": "announcer",
+   "dur": 1.39,
+   "sha256": "8b3ac513fdbe3bdd28b21f20e488cff369253681a2f58d2ac96ba7eb1a57568c",
+   "heard": "Rampage",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "arena.announcer.1f8e5lv": {
+   "file": "arena.announcer.1f8e5lv.mp3",
+   "character": "announcer",
+   "dur": 1.68,
+   "sha256": "2ff0bcc24298cc32af3a5381173d18bbbe2d486f8462e0cb911e257e05d87d98",
+   "heard": "Red team scores",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "arena.announcer.1y252m8": {
+   "file": "arena.announcer.1y252m8.mp3",
+   "character": "announcer",
+   "dur": 0.98,
+   "sha256": "301d63c7a8726aab31900f14e14cbb4f8c951c88814c93fdb836261fbef83fd3",
+   "heard": "Combo",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "arena.announcer.2fn0rj": {
+   "file": "arena.announcer.2fn0rj.mp3",
+   "character": "announcer",
+   "dur": 1.56,
+   "sha256": "7e0c2e9c95b6376c1eded75eff3985e50e67ec61b1e90d235abe758347cb2649",
+   "heard": "You have won the match.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "arena.announcer.3lg1q9": {
+   "file": "arena.announcer.3lg1q9.mp3",
+   "character": "announcer",
+   "dur": 1.18,
+   "sha256": "ea5edd3ea8ce4e7e5d72c6bf3ee0c448d826fa881fb8b46967c368739d874f53",
+   "heard": "unstoppable",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "arena.announcer.3vxdme": {
+   "file": "arena.announcer.3vxdme.mp3",
+   "character": "announcer",
+   "dur": 1.08,
+   "sha256": "fcedf17f7b89b44badcf8356f687182ae7de6fcf098867653f45e5aec3b25ac6",
+   "heard": "dominating",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "arena.announcer.7r5nkd": {
+   "file": "arena.announcer.7r5nkd.mp3",
+   "character": "announcer",
+   "dur": 1.06,
+   "sha256": "28440ef5343fd54a7cce0eb4e7e59c93b69dc6c87d067ecae9d6629004245690",
+   "heard": "Godlike",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "arena.announcer.d7miq8": {
+   "file": "arena.announcer.d7miq8.mp3",
+   "character": "announcer",
+   "dur": 1.63,
+   "sha256": "a33445344488bff59d5af919965690efaa1bb9deb6fcb0dd213638b28def922e",
+   "heard": "blue team scores",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "arena.announcer.e6muxl": {
+   "file": "arena.announcer.e6muxl.mp3",
+   "character": "announcer",
+   "dur": 1.13,
+   "sha256": "f353cfd2a7597e3633f2879818cc351f8a7bb54295b635a47e2f038d72b3e809",
+   "heard": "Poofing spree",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "arena.announcer.gc44jq": {
+   "file": "arena.announcer.gc44jq.mp3",
+   "character": "announcer",
+   "dur": 0.72,
+   "sha256": "fd8b331f078dbeac669bbbf5ae25c93f337f4a39e03179adcf7f19cf1cc8700e",
+   "heard": "Play",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 85,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.110fa57": {
+   "file": "game.wobble.host.110fa57.mp3",
+   "character": "announcer",
+   "dur": 2.23,
+   "sha256": "e3eedaf296464f371a3bb332f01b133e8f0ca8b2f5151ee684f785c4efe4c5ee",
+   "heard": "Nobody won that one. No coins.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.143a1lf": {
+   "file": "game.wobble.host.143a1lf.mp3",
+   "character": "announcer",
+   "dur": 4.3,
+   "sha256": "5e44aa3ebc5a5bf6a1f8ca545574b8fcee27ccd9a32d2d6b8ea7f2b24dea6e04",
+   "heard": "The secret marble mischief door is open in the minigame house.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.14iizcv": {
+   "file": "game.wobble.host.14iizcv.mp3",
+   "character": "announcer",
+   "dur": 2.23,
+   "sha256": "2d3a8156f458f0f67e79145bc6e27c9f4be1834cd52efcde4d394ba2940335a1",
+   "heard": "No coins to give. Phew.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.15r76nk": {
+   "file": "game.wobble.host.15r76nk.mp3",
+   "character": "announcer",
+   "dur": 4.06,
+   "sha256": "442c46bd7a59491228e00038b486c7e03444a7e38e74db89f863dd59dee4c64e",
+   "heard": "Picnic time. Everybody gets five coins. Lovely.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1czxqcu": {
+   "file": "game.wobble.host.1czxqcu.mp3",
+   "character": "announcer",
+   "dur": 2.69,
+   "sha256": "94fdde71608e4d32aa1c95307e48428d57a9d0d85e4b9cfe19a1269244efe3a9",
+   "heard": "The star has flown off to a new spot",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1d2y5jj": {
+   "file": "game.wobble.host.1d2y5jj.mp3",
+   "character": "announcer",
+   "dur": 3.6,
+   "sha256": "39f1ada3ed8b6fe7c08ae9543b8bda59373fe2078bb32de9d38f889214103b81",
+   "heard": "And the first star is over there. Go and get it.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1f6ot00": {
+   "file": "game.wobble.host.1f6ot00.mp3",
+   "character": "announcer",
+   "dur": 3.1,
+   "sha256": "17e3d17055adc862fd4ce016aecc7bdd008e751d4d17a8ccc7f10d927d70ad59",
+   "heard": "You haven't got any items. The shop sells them,",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1fya5t0": {
+   "file": "game.wobble.host.1fya5t0.mp3",
+   "character": "announcer",
+   "dur": 4.3,
+   "sha256": "7d43d1e60b74727f869675f3e879df5dff49aa6f3e37e38cf93c76911c456031",
+   "heard": "and now the winner of this waffle party is",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1ja2uxa": {
+   "file": "game.wobble.host.1ja2uxa.mp3",
+   "character": "announcer",
+   "dur": 3.05,
+   "sha256": "0f482c52a774873346d0ac4f22f73e8642151df2429f66b2bb1b9f90decf3f8e",
+   "heard": "Suit yourself. It'll still be here. Probably.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1rkqxmi": {
+   "file": "game.wobble.host.1rkqxmi.mp3",
+   "character": "announcer",
+   "dur": 4.18,
+   "sha256": "0ee5ada91cfd71c3fda2fc6f3e0d87042ed96e60bd91c60223a3df4874bcbf6f",
+   "heard": "Honk a goose waddles up and pinches five coins",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1syds4j": {
+   "file": "game.wobble.host.1syds4j.mp3",
+   "character": "announcer",
+   "dur": 5.21,
+   "sha256": "ca3ce050bbe35c5cb566e7f09d5ea77c0242d523ae1565ae690e72bfba68d987",
+   "heard": "Welcome to Wobble Island. I'm MC Wobble, your host with the most.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1v12lh": {
+   "file": "game.wobble.host.1v12lh.mp3",
+   "character": "announcer",
+   "dur": 5.06,
+   "sha256": "e27042b07f5c05a5e324cc81100fbe5fc0bad61cec7b64399709caa24911dd92",
+   "heard": "And you won every single minigame. A clean sweep! Legendary!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1w75573": {
+   "file": "game.wobble.host.1w75573.mp3",
+   "character": "announcer",
+   "dur": 2.59,
+   "sha256": "06eff8b58ac2d0502164ea13b9aa58b68107f8960c94746b8f47c894cf9f60a0",
+   "heard": "Oh dear. Come back with more coins.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1yrfw5o": {
+   "file": "game.wobble.host.1yrfw5o.mp3",
+   "character": "announcer",
+   "dur": 5.26,
+   "sha256": "3ee371873e14d229dfaf0d00e4eae16e301b7f2a308d983ce388d319f452f84f",
+   "heard": "Whoever has the most stars at the end wins. I'll swap you a star for coins.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1ysq7rd": {
+   "file": "game.wobble.host.1ysq7rd.mp3",
+   "character": "announcer",
+   "dur": 4.82,
+   "sha256": "a42a627728a041e500e5ca9e65eff17e492175b2865faa3b48806ebfd3444122",
+   "heard": "What a party! Everybody to the party stage for the bonus stars!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.2asyz9": {
+   "file": "game.wobble.host.2asyz9.mp3",
+   "character": "announcer",
+   "dur": 7.1,
+   "sha256": "8bd9b6d0e544340473810ee0fe48cefa5cce4f819e30ee061ae2ba18ce91e4c0",
+   "heard": "Blue spaces give you three coins, red ones take three away. After every turn, there's a minigame. Win it for 10 coins.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.2n6itx": {
+   "file": "game.wobble.host.2n6itx.mp3",
+   "character": "announcer",
+   "dur": 3.12,
+   "sha256": "3cf1ac00e07804b0157d3ff1c7a40cbd9aee4ece9ffd9d8fd7225258540f24d6",
+   "heard": "Swap Kazoo! Time to swap places!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.5steas": {
+   "file": "game.wobble.host.5steas.mp3",
+   "character": "announcer",
+   "dur": 1.39,
+   "sha256": "079c64960693cbae84ff0531e71e3293d531447d7042833c12f8bb8ec1a66385",
+   "heard": "Thank you, come again.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.66rpmg": {
+   "file": "game.wobble.host.66rpmg.mp3",
+   "character": "announcer",
+   "dur": 4.58,
+   "sha256": "f3e98b0e883c176d5fbb9dc924e704112d859d744d68c64c3d0bb6998241471a",
+   "heard": "Only three turns left! From now on, blue and red spaces count double!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.6pkgli": {
+   "file": "game.wobble.host.6pkgli.mp3",
+   "character": "announcer",
+   "dur": 2.28,
+   "sha256": "42866786fdf2be29c0452f70de895b434db1f95b53aaf47f49385710737a36e1",
+   "heard": "No stars to give, phew.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.6qi9t6": {
+   "file": "game.wobble.host.6qi9t6.mp3",
+   "character": "announcer",
+   "dur": 1.92,
+   "sha256": "788ecdb5969809794dd57b7ea9dc845a9c1f3b4c5ff15bfc9c4e5ba214dedbdf",
+   "heard": "You can't afford that one, sorry.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.ar7z9n": {
+   "file": "game.wobble.host.ar7z9n.mp3",
+   "character": "announcer",
+   "dur": 3.48,
+   "sha256": "45bd501515ec77458609543615dc8179028c2952a4ab6b3b18dafd8a398c7a37",
+   "heard": "The Count's Discount Lever! Bargain Stars!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.e7lqoo": {
+   "file": "game.wobble.host.e7lqoo.mp3",
+   "character": "announcer",
+   "dur": 2.4,
+   "sha256": "b4d15a8779c5b76144b98c7194279c3bc7306a12b447254ab8cc96cd821aff2e",
+   "heard": "Bad luck. Better luck next time.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.g6mio8": {
+   "file": "game.wobble.host.g6mio8.mp3",
+   "character": "announcer",
+   "dur": 2.98,
+   "sha256": "3cc2a1a50f6bb570b25f3cdf81f8603f5155b57f2d1a0fdd78df119ca9ea699c",
+   "heard": "Time for a bonus star!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.gt3to3": {
+   "file": "game.wobble.host.gt3to3.mp3",
+   "character": "announcer",
+   "dur": 2.47,
+   "sha256": "3ba50f0836b62d9e27f488be4235520252330d4e8917044b41f151286b7874a6",
+   "heard": "You got a star! Sparkly!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.h6mg4g": {
+   "file": "game.wobble.host.h6mg4g.mp3",
+   "character": "announcer",
+   "dur": 3.5,
+   "sha256": "ddb7e091b41757346d78d5fc93f18f6975d31281160ed1df9469ac82925329dd",
+   "heard": "Coin Magnet Three coins from everybody",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.h7wc9x": {
+   "file": "game.wobble.host.h7wc9x.mp3",
+   "character": "announcer",
+   "dur": 2.74,
+   "sha256": "ed4c6ee8c647dd21608cec8793c52d404d32f990a55cb0c44a5066347c7f6ae8",
+   "heard": "Stop the reels, anything can happen.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.it4hyq": {
+   "file": "game.wobble.host.it4hyq.mp3",
+   "character": "announcer",
+   "dur": 2.69,
+   "sha256": "39d90c198e8b07b86c06c505ec5b4e14a157298ba60026eca294005079f5f1bb",
+   "heard": "You found the star. Fancy a swap?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.kj0owm": {
+   "file": "game.wobble.host.kj0owm.mp3",
+   "character": "announcer",
+   "dur": 2.95,
+   "sha256": "c05598a694e9e63a9b8efbc5d543adc4bde56ccfbe81239bdba822b6f24eb11f",
+   "heard": "Nobody. No bonus star this time.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.mju42": {
+   "file": "game.wobble.host.mju42.mp3",
+   "character": "announcer",
+   "dur": 4.63,
+   "sha256": "0b87954958d1e21b063d83f4df34faa469bd6bd116cab999ec98ec8a3b59a6a6",
+   "heard": "The clock is still winding. It adds nine coins each round.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.nzkznm": {
+   "file": "game.wobble.host.nzkznm.mp3",
+   "character": "announcer",
+   "dur": 2.88,
+   "sha256": "806a46cbe68fe25a40de525dee2fc00b63a06b9c1907306de14574e94a2b9245",
+   "heard": "Your pockets are full. Three items max.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 85,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.qm0di3": {
+   "file": "game.wobble.host.qm0di3.mp3",
+   "character": "announcer",
+   "dur": 2.9,
+   "sha256": "d9ba069675681ae2c4a7dd2092b0a6108f759eb5f0d43df5134ccc4cfa71c2a7",
+   "heard": "Swap shop. Time to swap coins.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.t96fyl": {
+   "file": "game.wobble.host.t96fyl.mp3",
+   "character": "announcer",
+   "dur": 3.34,
+   "sha256": "45ea7fd6a506d9c29c50b773d6f097949518278b3394724c8fc3c27ff6d9e13a",
+   "heard": "Well done, you're the wobble superstar!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.vy6gev": {
+   "file": "game.wobble.host.vy6gev.mp3",
+   "character": "announcer",
+   "dur": 3.6,
+   "sha256": "05d6c52cf86cdca91ed6927f28a22704abd959241a7ca0f5badf06ca1a4ef68e",
+   "heard": "Star shuffle The star gets bored and hops away",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.ydyoml": {
+   "file": "game.wobble.host.ydyoml.mp3",
+   "character": "announcer",
+   "dur": 4.01,
+   "sha256": "2fa16c5a3d70f70ce75aaca12db091b643b91968b99d2b8b3fbe14cda4121e7e",
+   "heard": "The windmill pays its rent, five coins for everybody.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "fight.announcer.17hxufs": {
+   "file": "fight.announcer.17hxufs.mp3",
+   "character": "announcer",
+   "dur": 0.84,
+   "sha256": "afc352fe17c425fc738588560a289ffbafd1e2cc13245fa5ba0dbe1b115f03f9",
+   "heard": "Fight",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "fight.announcer.1b3s3ij": {
+   "file": "fight.announcer.1b3s3ij.mp3",
+   "character": "announcer",
+   "dur": 1.39,
+   "sha256": "98c3da0ed2eebdc2f319bf88d1bdcce694a1265fe638f7174e7b8bf17d38fd08",
+   "heard": "Final round",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 85,
+    "accepted": true
+   }
+  },
+  "fight.announcer.1bpvjq6": {
+   "file": "fight.announcer.1bpvjq6.mp3",
+   "character": "announcer",
+   "dur": 0.98,
+   "sha256": "5d95382071cb5adf8afa1e2757beadadfb801ff24b23110cda6cbb7935d517eb",
+   "heard": "Ring out",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "fight.announcer.1gqag2d": {
+   "file": "fight.announcer.1gqag2d.mp3",
+   "character": "announcer",
+   "dur": 0.82,
+   "sha256": "4e8843358a2359fe4e61e6dc60d62d64bec93e77d1cac9ea62862c698e506721",
+   "heard": "K.O.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 85,
+    "accepted": true
+   }
+  },
+  "fight.announcer.1i0ze0n": {
+   "file": "fight.announcer.1i0ze0n.mp3",
+   "character": "announcer",
+   "dur": 1.34,
+   "sha256": "9d799f121edd650ec3a0908f7332268985377e260f3ce72410b8dba83df6172a",
+   "heard": "training",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "fight.announcer.1s3wltc": {
+   "file": "fight.announcer.1s3wltc.mp3",
+   "character": "announcer",
+   "dur": 1.51,
+   "sha256": "fb4436f63bd3abceaec71478e32a35fe80c3717a173700cae96d6de726af09fc",
+   "heard": "Round 1",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "fight.announcer.1ult123": {
+   "file": "fight.announcer.1ult123.mp3",
+   "character": "announcer",
+   "dur": 1.27,
+   "sha256": "5ca059ec90646213388d3de03109730a8145590c3b213e5525871ec229dc014c",
+   "heard": "Round 8",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "fight.announcer.mnmu8j": {
+   "file": "fight.announcer.mnmu8j.mp3",
+   "character": "announcer",
+   "dur": 0.6,
+   "sha256": "200b455e0786769143f564b58a8da98cd51b303b52645439a80ca973ca8ff21b",
+   "heard": "Draw",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.146dks4": {
+   "file": "game.wobble.host.146dks4.mp3",
+   "character": "announcer",
+   "dur": 2.45,
+   "sha256": "e48df94e384df2e623ea15e62711f3fbe355e5ca5a605ff6f00964f5c643a619",
+   "heard": "Let's see what the reels have decided",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1n2x0pa": {
+   "file": "game.wobble.host.1n2x0pa.mp3",
+   "character": "announcer",
+   "dur": 2.23,
+   "sha256": "f665de0d7ea35e8eeea83f12b1a3e7c1e207683bc14e63e93869a061d63b7916",
+   "heard": "A coin geyser. Whoosh!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1wafoa1": {
+   "file": "game.wobble.host.1wafoa1.mp3",
+   "character": "announcer",
+   "dur": 1.73,
+   "sha256": "06fcf404d1e73b933c6b2d4a77397b10ff7bcf50c353b981b7240e6126093203",
+   "heard": "The star has been found",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1wf6wxm": {
+   "file": "game.wobble.host.1wf6wxm.mp3",
+   "character": "announcer",
+   "dur": 2.3,
+   "sha256": "2e86820cb3b8d95ebb4dfc82b3a0be7593ed813ff88b40a071c831b497b9506a",
+   "heard": "Twin dice, two blocks",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1yus1o0": {
+   "file": "game.wobble.host.1yus1o0.mp3",
+   "character": "announcer",
+   "dur": 2.02,
+   "sha256": "70b948ad27ec692e9c7d7dbe27379fc38a5f7e6a1804d0fec6b2b07a1ff8efc7",
+   "heard": "The winners get 10 coins.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.8oxsmd": {
+   "file": "game.wobble.host.8oxsmd.mp3",
+   "character": "announcer",
+   "dur": 4.99,
+   "sha256": "9e1511c8a66604dd112a619abe263195c951f4cb158e3c50a4cb20f9796be707",
+   "heard": "Let's see who goes first. Everybody starts with 10 coins.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.ogoqhi": {
+   "file": "game.wobble.host.ogoqhi.mp3",
+   "character": "announcer",
+   "dur": 3.14,
+   "sha256": "41fa2682e203db359a86894d8188bfcf8dec2e18fc21185207b0e667eb73e843",
+   "heard": "Wobble warp! Whee! Off we go!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.vvc01w": {
+   "file": "game.wobble.host.vvc01w.mp3",
+   "character": "announcer",
+   "dur": 3.19,
+   "sha256": "ad9be532121dbb472f2b578a116254ab8d24dd0cc18cb5fdc550fe6df96bd374",
+   "heard": "Last place? Have 10 coins to catch up!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "phone.in.0.17arros": {
+   "file": "phone.in.0.17arros.mp3",
+   "character": "gran",
+   "dur": 6.672,
+   "sha256": "5f56bf4f97333a5347d61053fa51bc9d701eeadfe39a67f63c9010be291d5aba",
+   "heard": "Hello love, it's Gran. Is your mum there? No? Never mind.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "phone.in.0.1fq2uuq": {
+   "file": "phone.in.0.1fq2uuq.mp3",
+   "character": "gran",
+   "dur": 5.76,
+   "sha256": "14e45f7563fa01de751d2fbc71d7b40b1d900f61783fe259c0def41f61bf443c",
+   "heard": "Are you still playing on that computer? Your grandad says it'll make your eyes go square.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "phone.in.0.1qgwsdv": {
+   "file": "phone.in.0.1qgwsdv.mp3",
+   "character": "gran",
+   "dur": 6.72,
+   "sha256": "1282dbdbc003af097b38bc8145d337f9343969a4980eabff83d1626328f85260",
+   "heard": "Are you eating properly? You're still growing. I've knitted you a jumper. It's got a reindeer on it.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "phone.in.0.reply.1.isje3h": {
+   "file": "phone.in.0.reply.1.isje3h.mp3",
+   "character": "gran",
+   "dur": 7.27,
+   "sha256": "453475ec6348504135bdc924eea4dc2d39e58ccd75f146beb6ce7a79046d2f13",
+   "heard": "Oh. Well, as long as you're happy. Love to your mum. Bye, love. Bye-bye.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "arena.announcer.1rkro3l": {
+   "file": "arena.announcer.1rkro3l.mp3",
+   "character": "announcer",
+   "dur": 1.44,
+   "sha256": "9a5aac2ceb2fbce217f6fd143a2d608f005378238841f400d835e87f95f2f521",
+   "heard": "Multi-poof",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "arena.announcer.lcj2l7": {
+   "file": "arena.announcer.lcj2l7.mp3",
+   "character": "announcer",
+   "dur": 1.25,
+   "sha256": "c3b32eac3d6c41b8d1cfc0c73ef290acb7b552d4729c67023d1c5bfb8848a442",
+   "heard": "Double poof",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "arena.announcer.mktc0m": {
+   "file": "arena.announcer.mktc0m.mp3",
+   "character": "announcer",
+   "dur": 1.39,
+   "sha256": "4d44d90fe4c6f033c9ba1ef40a9773da40e69cfe26d640cc02eed8b2d35d2728",
+   "heard": "Monster Poof",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "arena.announcer.yjtj8i": {
+   "file": "arena.announcer.yjtj8i.mp3",
+   "character": "announcer",
+   "dur": 1.34,
+   "sha256": "83d3c75f0c29f4bdf05b24563a081db8f78210e799e0fd0e52af053ecc7ce8bd",
+   "heard": "Ultra poof",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 85,
+    "accepted": true
+   }
+  },
+  "fight.announcer.1u1tto5": {
+   "file": "fight.announcer.1u1tto5.mp3",
+   "character": "announcer",
+   "dur": 1.2,
+   "sha256": "3f71ff95ac7eddddc8daf9b6a4ff6b71afdfd6665068be89ee525fdc5bfd181b",
+   "heard": "Round 6",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "fight.announcer.mwpmc1": {
+   "file": "fight.announcer.mwpmc1.mp3",
+   "character": "announcer",
+   "dur": 0.98,
+   "sha256": "842980d0374450bd001a71655cd0347559d21413a53f8bdba980de569f7bf80d",
+   "heard": "Time up",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "bf.end.aqcnqs": {
+   "file": "bf.end.aqcnqs.mp3",
+   "character": "dad",
+   "dur": 8.4,
+   "sha256": "f8299b57ecd21a4ccd85108c1e4abe7cc8651b8343c705d4249ca4e3dd1aeccf",
+   "heard": "All finished. I am making everything safe. Stay here while I check. Thank you for watching from the rope.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.history.18sdxer": {
+   "file": "bf.history.18sdxer.mp3",
+   "character": "dad",
+   "dur": 10.824,
+   "sha256": "4db93d2dae2302c244e55bfaff44c53d38cb80238c041254071e93c04a6e7c01",
+   "heard": "Bonfire Night, remembering a plot in 1605 to blow up Parliament. Our Guy is old clothes and newspaper. Dad nearly donated his good trousers.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "c2.pocket.dad4": {
+   "file": "c2.pocket.dad4.mp3",
+   "character": "dad",
+   "dur": 6.072,
+   "sha256": "6724fd914df3589a6e6df46e682f6b452c4f733731d400e9e452e44d2a40daf7",
+   "heard": "And keep on the right side of your mother. Her good books are worth more than any pound coin.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.cooled.15r44gg": {
+   "file": "bf.cooled.15r44gg.mp3",
+   "character": "dad",
+   "dur": 7.176,
+   "sha256": "ddfce0b5f35595d80a7b9f8980b1f31438c0073462844bdf25485f2c237713fe",
+   "heard": "Hot end down. Lovely. You remembered the important bit. Leave the wires in the water.",
+   "accent": {
+    "accent": "British",
+    "region": "Standard Southern British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.display.resume.z6a2bk": {
+   "file": "bf.display.resume.z6a2bk.mp3",
+   "character": "dad",
+   "dur": 4.608,
+   "sha256": "c66eb8bd608427f624a1d5e1329b8039b532eebf44b6d4ab1e33b80109fc0c34",
+   "heard": "The display carried on. Come back behind the rope and look up.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.display.start.14xltvy": {
+   "file": "bf.display.start.14xltvy.mp3",
+   "character": "dad",
+   "dur": 11.856,
+   "sha256": "bfb6524d3214830b2aad89af2182360cf59c469fe2295c6c49efccde9e3351b7",
+   "heard": "Missed Friday? I saved a few. No jobs tonight. Just stay behind the rope and watch. I do all the lighting. The show carries on if you leave. Come back here to finish.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.wd8c5e": {
+   "file": "house.moment.wd8c5e.mp3",
+   "character": "dad",
+   "dur": 3.096,
+   "sha256": "eb9ebaaf08108753726ba40c9fc90f0a7847bfce58242848aeb57ac72a88bac1",
+   "heard": "Have you been using the phone? The bill came",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "st.opening.part.monitor.inylew": {
+   "file": "st.opening.part.monitor.inylew.mp3",
+   "character": "dad",
+   "dur": 3.576,
+   "sha256": "c9c99d02fc00a5f905b9c18818fb6dd330a6b6277e82b3b5bd79632658e606e2",
+   "heard": "Both hands on that monitor, no running on the stairs.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.mom.talk.1ypwr09": {
+   "file": "bf.mom.talk.1ypwr09.mp3",
+   "character": "mom",
+   "dur": 10.896,
+   "sha256": "4138daca4ac54b488ba3044fc997622c9a51a2bb46799e8933d60bc2104a6467",
+   "heard": "Jacket potatoes with cheese and beans. Sticky parkin and treacle toffee. Help at the kitchen worktop, then warm clothes on. No cold fingers tonight.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "chore.shout.9bcrpq": {
+   "file": "chore.shout.9bcrpq.mp3",
+   "character": "mom",
+   "dur": 3.72,
+   "sha256": "1007880b91240bad2c29dbd6fc1d518a30d7aa10c874f92175072897457d943e",
+   "heard": "Love, the list on the fridge, remember the list?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "chore.shout.a506t6": {
+   "file": "chore.shout.a506t6.mp3",
+   "character": "mom",
+   "dur": 3.624,
+   "sha256": "5623f304fcc0b464bb524e4bd5836a633a506c79f41cce21efd005ef971e3546",
+   "heard": "Get off that computer and do your jobs",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.14u1i62": {
+   "file": "house.moment.14u1i62.mp3",
+   "character": "mom",
+   "dur": 3.552,
+   "sha256": "732a3b498bf0f68bee241f0736ee6ba84fe925bdfa832dbda09d26aa28f670c8",
+   "heard": "Get off the internet! I need to ring your nan.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.1trq0u8": {
+   "file": "house.moment.1trq0u8.mp3",
+   "character": "mom",
+   "dur": 2.736,
+   "sha256": "18dcf510b02360706fad56a975c722916ca10e748f7e9cede00c6758c1fb3f2a",
+   "heard": "Come and get your washing. It's on the stairs.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.mom.door.p08w90": {
+   "file": "hw.mom.door.p08w90.mp3",
+   "character": "mom",
+   "dur": 1.896,
+   "sha256": "e402e0c1b88f094dc055c33c65212144594b87f5709c318d061527698b548d79",
+   "heard": "Oh, can you get that?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.mom.tail.ourgck": {
+   "file": "hw.mom.tail.ourgck.mp3",
+   "character": "mom",
+   "dur": 7.992,
+   "sha256": "64196392685e37cfa46c3975a6ca6828312c35f163372b28f548b3fe26c1c0b4",
+   "heard": "Look at the state of this hall. Wrappers everywhere. Bin, please. And who ate all the choc bits?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "bf.code.wait.7q2fba": {
+   "file": "bf.code.wait.7q2fba.mp3",
+   "character": "dad",
+   "dur": 8.688,
+   "sha256": "fd16c3cc354057a6c2bd85c4e39cd68611b8506b382fa408ac197dab9dca12ae",
+   "heard": "Closed tin, water, pets indoors, washing line. Check all four first. Then, we can talk about the taper.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "chore.shout.106ah51": {
+   "file": "chore.shout.106ah51.mp3",
+   "character": "mom",
+   "dur": 1.728,
+   "sha256": "d24ebb68f507372b4b7513c6dcb2b48a35f9826454b576319320ad19f3a70458",
+   "heard": "Ooh, ta.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "arena.announcer.jrwjvq": {
+   "file": "arena.announcer.jrwjvq.mp3",
+   "character": "announcer",
+   "dur": 1.368,
+   "sha256": "24c7eda513df7cfd467c8b984a88567f9e95c87c4e875fa77d359b02ac69a8f6",
+   "heard": "First, poof!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.h701ve": {
+   "file": "house.voice.h701ve.mp3",
+   "character": "dad",
+   "dur": 3.0,
+   "sha256": "0684ab0c61941c0f5b929467021ba5e5520578e2e6cf6a4eb4e7832fd9dea4d9",
+   "heard": "Turn that down! It's the middle of the night.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "hw.mom.porch.d7yfts": {
+   "file": "hw.mom.porch.d7yfts.mp3",
+   "character": "mom",
+   "dur": 5.544,
+   "sha256": "115df7e7be8e32ef8bef9233530c822d519765c9ee331b96d37906c2220400e3",
+   "heard": "Porch light on, love? No light, no trick-or-treaters. That's the rule.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  }
+ }
+}
