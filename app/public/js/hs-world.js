@@ -2007,8 +2007,9 @@
     const out=ramp?[]:shellContacts(x,z,W.lvl,radius);
     out.push(...doorContacts(x,z,W.fy-50,W.lvl,radius));
     // The family are solid (js/np-life.js): a round contact, so you slide round someone instead of stopping dead.
-    const fam=window.HouseFamily?.blocker?.(x,z,W.lvl,radius-RAD+.5);
-    if(fam){const dx=x-fam.x,dz=z-fam.z,d=Math.hypot(dx,dz)||1;out.push({nx:dx/d,nz:dz/d,depth:Math.max(0,fam.r-d)})}
+    const family=window.HouseFamily;
+    const people=family?.blockers?.(x,z,W.lvl,radius-RAD+.5)||[family?.blocker?.(x,z,W.lvl,radius-RAD+.5)].filter(Boolean);
+    for(const fam of people){const dx=x-fam.x,dz=z-fam.z,d=Math.hypot(dx,dz)||1;out.push({nx:dx/d,nz:dz/d,depth:Math.max(0,fam.r-d)})}
     // Things are physics bodies: the player's capsule meets their real parts (js/hs-physics.js).
     if(typeof bodyContacts==='function')out.push(...bodyContacts(x,z,radius));
     return out;
@@ -2074,7 +2075,7 @@
     if (tm?.on && !mx && !mz) { mx = tm.x; mz = tm.y; }
     const mag = Math.min(1, Math.hypot(mx, mz));
     const night = !!(window.HouseLife && HouseLife.quiet && HouseLife.quiet());
-    const lintel=lowDoorAt(W.x,W.z,W.lvl,6,W.fy),nearLintel=keys.crouch&&lowDoorAt(W.x,W.z,W.lvl,RAD+40,W.fy),ducking=keys.crouch||!!lintel;
+    const lintel=lowDoorAt(W.x,W.z,W.lvl,RAD+6,W.fy),nearLintel=keys.crouch&&lowDoorAt(W.x,W.z,W.lvl,RAD+40,W.fy),ducking=keys.crouch||!!lintel;
     if (!W.seat) W.eye = Math.max(60, ((cur && cur.eye) || STAND) - (keys.crouch ? 38 : 0)); // C: crouch
     if(lintel||nearLintel)W.eye=Math.min(W.eye,(lintel||nearLintel).headroom-10);
     const carrySpeed = held ? (THINGS[held.id]?.walkScale || 1) : 1;
@@ -2089,12 +2090,17 @@
     const acc = 1 - Math.pow(0.0001, dt);
     W.vx += (tvx - W.vx) * acc; W.vz += (tvz - W.vz) * acc;
     const oldX=W.x,oldZ=W.z;
+    const passage=window.HouseFamily?.passage?.(tvx*dt,tvz*dt,dt,(x,z,fy)=>!!floorAt(x,z,W.lvl,fy));
     const recovered=recoverWalking(dt);if(recovered)roomCheck();
     let spd = Math.hypot(W.vx, W.vz);
     if (spd > 1) {
       // Walking into a thing shoves it first (js/hs-physics.js); whatever it can't give way, the sweep below stops at.
       if(typeof pushBodies==='function')pushBodies(W.vx*dt,W.vz*dt,dt);
-      moveCircle(stairFunnel(W.vx*dt,W.vz*dt),W.vz*dt);
+      // Preserve acceleration and analogue stick strength while steering the
+      // displacement gently around a person; wall/body contacts still win.
+      const travel=Math.hypot(W.vx,W.vz)*dt, desired=passage&&Math.hypot(passage.dx,passage.dz);
+      const dx=desired?passage.dx*travel/desired:W.vx*dt,dz=desired?passage.dz*travel/desired:W.vz*dt;
+      moveCircle(stairFunnel(dx,dz),dz);
       spd=Math.hypot(W.x-oldX,W.z-oldZ)/dt;
       if (stIdx >= 0 && spd > 40) { stIdx = -1; ui.where(); }
       // head bob and footsteps
