@@ -355,7 +355,9 @@
       const h=.36+(1-d/14)*1.25,c=['#b97532','#c69839','#90522e','#82703c','#bd8536'][i%5];
       G.ball(x,-h,z,3+r()*1.6,.32,2+r(),mat(c),6,{ry:r()*180,rz:(r()-.5)*8});
     }
-    G.shadow(0,0,0,30,30,.46);batch.build(g);return g;
+    G.shadow(0,0,0,30,30,.46);batch.build(g);
+    // One static colour class for the packed leaves and loose leaves; the whole job pile still hides independently.
+    window.HouseStatic?.merge(g);g.userData.staticBatch=true;return g;
   }
 
   CK.add({
@@ -363,7 +365,7 @@
     build(r) {
       piles = LEAVES.map(([x, z], i) => { const g = pileModel(i + 11); g.position.set(x, GY, z); r.group.add(g); return { g, x, z }; });
       sack = grp(G => { G.lathe(0, 0, 0, [[.001,0],[14,0],[18,-6],[19,-30],[17,-47],[16.2,-47],[18.2,-30],[17.2,-6],[13.3,-.9],[.001,-.9],[.001,0]].reverse(), 18, mat('#2a6a2a', { sh: 40, sp: '#444', side: 2 })); G.disc(0, -40, 0, 16, mat('#6a4a1a')); G.shadow(0, 0, 0, 40, 40, 0.5); });
-      sack.position.set(SACK.x, GY, SACK.z); r.group.add(sack);
+      sack.scale.set(45/38,70/47,45/38);sack.position.set(SACK.x, GY, SACK.z); r.group.add(sack);
       CK.spot(r, 'ch.sack', sack, { label: 'Garden sack (for leaves)', act: () => tipLeaves() });
       broom = broomModel(); r.group.add(broom);
       CK.spot(r, 'ch.broom', broom, { label: () => CK.tool.cur && CK.tool.cur.id === 'broom' ? 'The broom (you\'ve got it)' : 'The yard broom', act: () => takeBroom() });

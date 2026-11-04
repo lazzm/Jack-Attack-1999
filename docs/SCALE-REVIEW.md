@@ -122,3 +122,42 @@ Tree/fence artwork, the mower, lamps and house number remain for the separate fi
 ## Sizing round 2 follow-up (3 November 2026)
 
 Rear elevation row 33 is reviewed after the rel-263 merge: two matching real bedroom apertures, a real kitchen side casement and two deep closed-curtain windows in the unmodelled east rooms now articulate the rear wall. The extension roof retains its fascia, gutter and downpipe, with added flashing at the old wall. See `HOUSE-SCALE.md` and `shots/sizing/round2/`. G3, G4 and the other open furniture/stair rows remain open; this follow-up prioritises Bonfire and regression testing.
+
+## Sizing 3 (4 November 2026, working tree; no deployment)
+
+This ledger supersedes the historical estimates above. Measurements use centimetres, the 143 cm standing eye,
+and the shipped walking lens. Evidence: `tests/shots/sizing3/{before,after}/`, identical world-space cameras at
+1366 × 860 and 390 × 844. `before` serves the unmodified `24e3544` JavaScript; the renderer, actor positions,
+clock, seed and camera are held constant. The family is hidden for budget comparisons and shown in the separate
+`people-dad/mom/sister` views. The car stays parked for both sides of the comparison. Validation results are recorded below.
+
+| Row | Decision / measured result |
+|---|---|
+| G3 | **Deferred for Jack's decision.** Keep 258 cm ceilings / 280 cm floor-to-floor. Detailed evidence and both possible approaches are in HOUSE-SCALE.md. No partial ceiling, stair or exterior-height change. |
+| G4 | **Detail pass complete for ordinary hardware; seasonal artwork retained.** Handrail width 6.4 → 5.6 cm; bottom newel 10 → 9 cm. Existing landing newels are already 9 cm, balls 8.6 cm, spindles 3.3 cm, door roses 5 cm, levers 8.4 cm and hinges 9 × 1.2 cm: the old estimates were too large. Bedroom coving now has a closed 0.6 cm body instead of a flat strip. Downstairs switches use square 8.6 cm plates and smaller rockers. No global prop rescale. |
+| 3 | **Done.** Adjacent drive-side privet: 72 → 125 cm visible height, 18 → 55 cm thickness, rounded solid volume. Root bed stays outside the playable plot; front ends 26 cm behind the boundary. Collider follows the actual x/z extent and height. Other neighbours retain their own garden planting. |
+| 4, 7 | **Reviewed, retained.** Actual glasshouse base is 210 × 1.04 = 218.4 cm long; roof is 158 × 1.04 = 164.3 cm, not the whole cabin. Glass is 47 × 1.04 = 48.9 cm high; painted pillars 4.16 cm / seals 5.2 cm. These already match the intended proportions. |
+| 5, 6 | **Open; not attempted.** Bonnet taper and real wheel openings require rebuilding the body/boot-side solids and their physical support heights together. The current bonnet/cabin collision is a roof-height box. A cosmetic cut alone would leave invisible collision and hovering cargo; a complete car/body/physics revision is separate work. Car frame, roof, boot and story pickup positions remain exact. |
+| 9 | **Open; retained 76 cm landing.** Widening to 90 needs a coordinated bedroom-wall/door or stairwell/cupboard redesign, with portal, stair funnel, NPC routing and old-save transfers. Do not steal stair width to widen the landing. |
+| 10 | **Hardware done, width deferred with row 9.** 5.6 × 5.2 cm handrails and 9 cm newels; spindle housings remain joined. Actual tread clear width is 74.6 cm. Rise 20 / going 25 / pitch 38.66° retained. |
+| 11 | **Done.** Desk 152 × 86 → 140 × 72 cm, still 73 cm high with a 3.2 cm top and 69.8 cm knee clearance. Retain enough depth for the CRT/tower, keyboard and desk lamp. Drawer, apron, feet, shadow, supports, collision and drawer close-up move with it. A 130 × 65 desk would crowd the existing period PC. |
+| 12 | **Done.** TV case 46 × 34 → 38 × 33 cm; screen 33 × 24.75 → 28 × 21 cm (35 cm / 13.78-inch diagonal), still 4:3. Tube body is deeper, with a 3 cm rear-wall gap; controls, pick and collider follow it. Cabinet and consoles stay full size. Fixed TV parts now share material batches; live glass remains separate. |
+| 13 | **Done.** Two existing A2 posters retained; the existing robot poster moves above the bed and grows 30 × 42 → A1 59.4 × 84 cm. Its ID, pick box, lettering and interactive close-up follow it. Other posters retain their A3-ish sizes; the window stays clear. |
+| 14 | **Reviewed, retained.** Wardrobe body 100 × 55.6 × 192 cm, 196 cm including cornice. This is a plausible full-size household wardrobe at the corrected eye/lens. Shaving it solely to match the old low-eye image is unwarranted; doors, clothes rail and saved objects remain intact. |
+| 15 | **Reviewed, retained.** Chest is 68 cm across its top, 46 cm deep and 82 cm high, not the estimated 90 cm. It already sits close to the proposed 80 × 42 × 78 size; its three opening drawers and hi-fi fit. |
+| 16 | **Done.** Pinboard 42 × 30 → 60 × 45 cm, calendar 13 × 18 → 21 × 30 cm, photograph 14 × 10 → 15 × 10 cm. Frame, pins and contact shadow follow the print; timetable remains clear. |
+| 17 | **Reviewed, retained.** The box is 11 × 16 × 4.5 cm cat food, not a 30 cm cereal box. Moving it to an unreachable ornament shelf would make the daily cat chore less clear. Mug is 9.5 cm high; Eggbert body is about 6 × 7 cm, with a separate keyring. No indiscriminate prop shrink. |
+| 18 | **Done.** Pillow 50 × 30 × 11 → 75 × 50 × 12.1 cm; dock moves 9 cm forward to clear the headboard, and folded pyjamas sit at the new fabric height. Beanbag skin 64 × 56 → about 90 × 79 cm; back about 37 → 54 cm, depressed seat about 17 → 25 cm. Home shifts (-100,56) → (-116,82), clear of the desk; seat eye stays 81 cm. Physics parts, seams, zip and shadow follow the new shape; factory magazines and their tidy slot move to z 143 and the covered daily-mess spot is replaced. |
+| 20 | **Open, artwork retained.** A taller trial read as orange mounds in the matched captures and was rejected. A convincing layered leaf heap needs a separate model pass. Keep the original 26 individual solid leaves and job centres; only merge their static colour classes to reduce draws. No half-finished heap is left in the game. |
+| 21 | **Done / measured.** Sack 38 × 47 → 45 × 70 cm. Existing hover mower deck is 42 × 44 cm, handle about 90 cm high; bucket is already 28 cm high. Keep those sensible sizes, their stored tool poses and all job progress. |
+| 24 | **Reviewed, retained.** Near-neighbour eaves are already 480–492 cm, not the estimated 520 cm. No blanket skyline lowering while G3 is deferred. |
+| 25 | **Reviewed, retained.** 14 × 20 = 280 cm rise; 25 cm going gives 38.66°. The proposed 15 × 19 = 285 does not match either current floor. Keep the functioning stair ramp, family route and funnel. |
+| 26 | **Reviewed, retained.** Actual rig heights: Dad 178, Mom 163, sister 133 cm; door head 205 cm. Head clearances 27 / 42 / 72 cm are sensible; sister remains below Jack's 143 cm eyes. Large heads are the deliberate shared character style, not a world-scale fix. |
+| 27 | **Reviewed, retained.** Arms are 20 cm, not 22; the 62 cm cushion includes its overlap under the back pad, leaving about 48–51 cm usable sitting depth. Seat top 45 cm, back about 87 cm; these fit the people and existing seat anchors. Preserve the approved 190 cm sofa / 86 cm chair layout and 83 cm passage. |
+| 28 | **Reviewed, retained.** 80 × 205 cm leaves are plausible household doors; architraves are 6 cm per side, not a 12 cm face. Shrinking openings would reduce access and require portals/collision/save migrations for little gain. |
+| 30 | **Not expanded.** This is table dressing, not a remaining scale defect. Keep the finished kitchen and its 24.9 cm fruit bowl/newspaper; its surface must also clear for Halloween carving and Bonfire's Guy. Do not add fixed plates or extra draw calls here. |
+| 34 | **Portrait art reviewed; full device gate open.** 390 × 844 matched captures inspected; Bonfire phone resizing passed. `mobile.mjs` was not run; no full tablet/landscape/touch/gamepad certification or HUD resize claimed. |
+
+Rows already completed in the camera/front/garden/kitchen passes (G1/G2/G5, 1/2/8/19/22/23/29/31/32/33) remain done.
+The explicitly open design work is G3, 5/6, 9, 20 and the width part of 10. Seasonal geometry is not silently counted as
+resized. Save version 11 and the actual regression results are described in HOUSE-SCALE.md.

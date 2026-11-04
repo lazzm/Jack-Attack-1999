@@ -71,14 +71,14 @@ try {
   await check('chair-starts-tucked', async () => {
     const c = await chair();
     assert(c.tucked, 'The chair should start tucked under the desk');
-    assert(c.seatZ0 < 0 && c.seatZ1 <= 38, 'Seat is not under the desk top: ' + JSON.stringify(c));
-    assert(c.backZ0 >= 31 - 0.6 && c.backZ0 < 34, 'The back should sit against the desk edge: ' + c.backZ0);
+    assert(c.seatZ0 < 0 && c.seatZ1 <= 25, 'Seat is not under the desk top: ' + JSON.stringify(c));
+    assert(c.backZ0 >= 18 - 0.6 && c.backZ0 < 21, 'The back should sit against the desk edge: ' + c.backZ0);
     await view([75, -40, 150], [-15, 40, 20]); await shot('01-chair-tucked');
     await view([-15, -10, 125], [-15, 50, 0]); await shot('02-chair-tucked-low');
   });
 
   await check('chair-pull-out-drag', async () => {
-    await look(-15, 92, -15, 30, 40); // aim at the back, over the desk edge
+    await look(-15, 92, -15, 0, 25); // aim at the back, over the desk edge
     await p.keyboard.press('e'); await until(() => House.grip?.drag === true);
     assert.match((await hud()).mode, /MOVING/);
     await shot('03-chair-take-hold');
@@ -99,12 +99,12 @@ try {
     console.log('  chair z during the push: ' + frames.map(z => z.toFixed(1)).join(' > '));
     const c = await chair();
     assert(c.tucked, 'Pushing from behind did not tuck the chair: ' + JSON.stringify(c));
-    assert(c.backZ0 >= 30.4, 'Back pushed through the desk edge: ' + c.backZ0);
+    assert(c.backZ0 >= 17.4, 'Back pushed through the desk edge: ' + c.backZ0);
     await view([75, -40, 150], [-15, 40, 20]); await shot('06-chair-pushed-in');
   });
 
   await check('chair-sit-pulls-out-and-swivels', async () => {
-    await look(-15, 92, -15, 30, 40);
+    await look(-15, 92, -15, 0, 25);
     await p.keyboard.press('f'); await until(() => House.seated === 'chair' && House.mode === 'focus');
     const c = await chair(); assert(!c.tucked, 'Sat in a chair still under the desk');
     await p.evaluate(() => { House.P.ry += 70; House.dirty(); }); await p.waitForTimeout(600);
@@ -169,11 +169,11 @@ try {
   });
 
   await check('drawer-while-carrying', async () => {
-    await holdBox(); await look(56, 75, 56, 6.5, 30.6);
+    await holdBox(); await look(52, 75, 52, 6.5, 17.6);
     const before = await p.evaluate(() => House.OPEN.drawer.open);
     assert.match(await p.evaluate(() => document.querySelector('.hs-tip.carry')?.textContent || ''), /(Open|Close) desk drawer/i);
     // (the first press can turn up one of the room's clue notes instead, exactly as it does with empty hands)
-    const press = async want => { for (let i = 0; i < 3 && await p.evaluate(w => House.OPEN.drawer.open !== w, want); i++) { await p.evaluate(() => House.hush()); await look(56, 75, 56, 6.5, 30.6); await p.keyboard.press('f'); await p.waitForTimeout(900); } assert.equal(await p.evaluate(() => House.OPEN.drawer.open), want, 'F did not work the drawer while carrying'); };
+    const press = async want => { for (let i = 0; i < 3 && await p.evaluate(w => House.OPEN.drawer.open !== w, want); i++) { await p.evaluate(() => House.hush()); await look(52, 75, 52, 6.5, 17.6); await p.keyboard.press('f'); await p.waitForTimeout(900); } assert.equal(await p.evaluate(() => House.OPEN.drawer.open), want, 'F did not work the drawer while carrying'); };
     await press(!before);
     assert.equal(await p.evaluate(() => House.held()), 'physics.box', 'Working the drawer dropped the box');
     await shot('11b-drawer-open-carrying');
@@ -191,7 +191,7 @@ try {
     await shot('12-ghost-green');
     await p.evaluate(() => { const t = House.THINGS.chair; t.at = {room: 'bedroom', x: 100, y: House.LV.U, z: 90, ry: 0}; House.place(t); });
     await look(-20, 80, -20, 73, 14); g = await ghost();
-    assert(g && g.ok && Math.abs(g.y - 73) < .01 && g.z < 31, 'The box should fit on the carpet under the desk top: ' + JSON.stringify(g));
+    assert(g && g.ok && Math.abs(g.y - 73) < .01 && g.z < 18, 'The box should fit on the carpet under the desk top: ' + JSON.stringify(g));
     await shot('12b-ghost-under-desk');
     await p.evaluate(() => { const t = House.THINGS.chair; t.at = {...t.home}; House.place(t); });
     await look(190, 120, 236, 73, 70); g = await ghost(); h = await hud();
@@ -205,20 +205,24 @@ try {
 
   await check('drop-stack-settle', async () => {
     // place the box on the floor (E), then stack the mug on it, then let the revision books drop beside it (X)
-    await holdBox();
-    await look(80, 170, 70, 73, 120);
+    await holdBox(); console.log('  stack: placing box');
+    await look(65, 225, 55, 73, 170);
+    const floorGhost=await ghost(); console.log('  stack floor ghost: '+JSON.stringify(floorGhost));
+    assert(floorGhost?.ok,'Floor box placement blocked: '+JSON.stringify(floorGhost));
     await p.keyboard.press('e'); await until(() => !House.held() && House.THINGS['physics.box'].st === 'rest'); await settled();
     const box = await p.evaluate(() => ({...House.THINGS['physics.box'].at}));
     assert(Math.abs(box.y - 73) < 1e-6, 'Box not on the floor: ' + box.y);
+    console.log('  stack: box settled, picking mug');
     await look(46, 70, 46, -6, -8); await p.keyboard.press('e'); await until(() => House.held() === 'mug');
     await look(box.x - 40, box.z + 60, box.x, 40, box.z); g2: { const g = await ghost(); assert(g && g.ok && Math.abs(g.y - (73 - 30.4)) < 1.5, 'Mug ghost should sit on the box top: ' + JSON.stringify(g)); }
     await shot('14-stack-ghost');
     await p.keyboard.press('e'); await until(() => !House.held() && House.THINGS.mug.st === 'rest'); await settled();
+    console.log('  stack: mug settled');
     const mug = await p.evaluate(() => ({...House.THINGS.mug.at}));
     assert(Math.abs(mug.y - (73 - 30.4)) < 1.5, 'Mug not stacked on the box: ' + mug.y);
     // X: let something go from your hands; it falls, lands and settles
     await look(-40, 70, -40, -6, -38); await p.keyboard.press('e'); await until(() => House.held() === 'books');
-    await look(box.x + 10, box.z + 60, box.x + 10, 73, box.z + 10);
+    await look(-20, 210, -20, 73, 150); // hands drop into the clear aisle, away from the washing basket
     await p.keyboard.press('x'); await until(() => !House.held());
     const seq = [];
     for (let i = 0; i < 6; i++) { await p.waitForTimeout(250); seq.push(await p.evaluate(() => House.THINGS.books.at.y)); await shot('15-drop-seq-' + i); }

@@ -283,7 +283,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     cd2: () => grp(G => { G.box(0, -0.6, 0, 14.2, 1.2, 12.4, { t: M({ c: '#fff', map: psTex(), sh: 60, sp: '#666' }), all: mat('#111') }); G.shadow(0, 0, 0, 17, 15, 0.5, { sq: true }); }),
   };
   // where today's mess can lie (the floor: anything on the bed would be under the bed's own click box)
-  const SPOTS = [[-30, FY, 112, 20], [40, FY, 152, -35], [-112, FY, 140, 60], [92, FY, 82, 10], [-38, FY, 226, -20], [22, FY, 222, 45], [-150, FY, 182, 80], [-20, FY, 176, 15], [70, FY, 198, -10], [-188, FY, 124, 30], [-62, FY, 148, 30], [-104, FY, 172, -40]];
+  const SPOTS = [[-30, FY, 112, 20], [40, FY, 152, -35], [-188, FY, 70, 60], [92, FY, 82, 10], [-38, FY, 226, -20], [22, FY, 222, 45], [-150, FY, 182, 80], [-20, FY, 176, 15], [70, FY, 198, -10], [-188, FY, 124, 30], [-62, FY, 148, 30], [-104, FY, 172, -40]];
   function layout(day) { const items = CC.tidyFor(day,sparse), r = CC.rng('chpos|' + day), sp = CC.shuffle(SPOTS, r); return items.map((m, i) => ({ m, at: sp[i % sp.length] })); }
 
   // ================================================================ TIDY YOUR ROOM
@@ -301,7 +301,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       CK.snap('ch.s.basket', { room: 'bedroom', x: 110, y: FY - 46, z: 222, r: 34, box: [34, 2, 34], glow: 'washing', round: true, accepts: k => k === 'mess.clothes', hide: true, hint: 'Let go: in the washing basket', onSnap: t => put(t) });
       CK.snap('ch.s.bin', { room: 'bedroom', x: -118, y: FY - 30, z: -42, r: 26, box: [22, 2, 22], glow: 'bin', round: true, accepts: k => k === 'mess.rubbish', hide: true, hint: 'Let go: in the bin', onSnap: t => put(t) });
       CK.snap('ch.s.rack', { room: 'bedroom', x: -234, y: FY - 46, z: -30, r: 28, box: [22, 30, 6], accepts: k => k === 'mess.cd', hide: true, hint: 'Let go: back in the CD rack', onSnap: t => put(t) });
-      const pile = CK.snap('ch.s.mags', { room: 'bedroom', x: -144, y: FY - 4, z: 58, r: 30, box: [24, 2, 30], accepts: k => { if (k !== 'mess.mag') return false; pile.pose = { x: -144 + magN * 0.8, y: FY - 2.8 - magN * 1.1, z: 58 + magN * 0.6, ry: -8 + magN * 7 }; return true; }, hint: 'Let go: on the pile of mags', onSnap: t => { magN++; put(t, true); } });
+      const pile = CK.snap('ch.s.mags', { room: 'bedroom', x: -144, y: FY - 4, z: 143, r: 30, box: [24, 2, 30], accepts: k => { if (k !== 'mess.mag') return false; pile.pose = { x: -144 + magN * 0.8, y: FY - 2.8 - magN * 1.1, z: 143 + magN * 0.6, ry: -8 + magN * 7 }; return true; }, hint: 'Let go: on the pile of mags', onSnap: t => { magN++; put(t, true); } });
       const receptacles=[['ch.s.basket','washing',44],['ch.s.bin','bin',27]];
       for(const [slot,id]of receptacles)H.SNAPS[slot].enabled=()=>{const target=H.THINGS[id];return !!target&&['rest','snap'].includes(target.st)&&!target.at.hide};
       H.ambient.add(()=>{for(const [slot,id,offset]of receptacles){
@@ -443,7 +443,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
     const start = ev => {
       if (H.paused || !making?.stage || making.gesture || ev.button > 0) return;
       const p = bedPoint(ev), stage = making.stage;
-      if (!p || (stage === 'pillow' ? Math.abs(p.x-190)>30 || Math.abs(p.z+33)>22 : p.x<BED.x0-8 || p.x>BED.x1+8 || p.z<-20 || p.z>145)) return;
+      if (!p || (stage === 'pillow' ? Math.abs(p.x-190)>38 || Math.abs(p.z+24)>26 : p.x<BED.x0-8 || p.x>BED.x1+8 || p.z<-20 || p.z>145)) return;
       ev.preventDefault(); el.setPointerCapture(ev.pointerId);
       making.gesture = { stage, p, first:p, amount:0, distance:0, pointer:ev.pointerId };bedWatch();
       CK.snd.rustle();
@@ -496,7 +496,7 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       const g = new T.Group(); r.group.add(g);
       duv = K.into(g).geo(geo, bcx, 36, bcz + 14, M({ c: '#fff', map: dtex, side: 2 }).clone(), { rx: 90 }); duv.userData.ch = 1; for (const s of H.softs || []) if (s.room === 'bedroom') s.meshes.push(duv);
       // The bed's only pillow starts on the floor, beside the pyjamas.
-      const pil = grp(G => { G.rbox(0, -5, 0, 50, 10, 30, 4.8, M({ c: '#fff', map: A.t('pillow'), sh: 8 })); G.ball(0, -7, 0, 22, 4, 12, M({ c: '#fff', map: A.t('pillow'), sh: 8 }), 14); G.shadow(0, 0, 0, 56, 34, 0.5, { sq: true }); });
+      const pil = grp(G => { G.rbox(0, -5.5, 0, 75, 11, 50, 5.2, M({ c: '#fff', map: A.t('pillow'), sh: 8 })); G.ball(0, -8, 0, 33, 4.1, 21, M({ c: '#fff', map: A.t('pillow'), sh: 8 }), 14); G.shadow(0, 0, 0, 81, 56, 0.5, { sq: true }); });
       pillowT = CK.thing('ch.pillow', { obj: pil, kind: 'pillow', label: () => CK.has('bed','pillow') || V().pillowDocked ? 'Pillow' : 'Pillow (on the floor, obviously)', chore: 'bed', holdD: 70, home: { room: 'bedroom', x: 40, y: FY, z: 72, ry: 80 } });
       loosePjs = cloth('pjs', 34, 32);
       foldedPjs = grp(G => {
@@ -508,8 +508,8 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       });
       foldedPjs.visible=false;const pajamas=new T.Group();pajamas.add(loosePjs,foldedPjs);pajamas.userData.handGrips=loosePjs.userData.handGrips;
       pjsT = CK.thing('ch.pjs', { obj: pajamas, kind: 'pjs', label: 'Pyjamas', chore: 'bed', holdD: 55, home: { room: 'bedroom', x: 112, y: FY, z: 150, ry: -20 } });
-      CK.snap('ch.s.pillow', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [52, 2, 32], accepts: k => k === 'pillow', pose: { x: 190, y: 37, z: -33, ry: 0 }, hint: 'Let go: on the bed', onSnap: () => { V().pillowDocked=true;CK.save();CK.lock('ch.pillow');CK.snd.thud();CK.MODS.bed.sync();H.ui.toast('Pillow on the bed','F on the bed: plump it up.'); } });
-      CK.snap('ch.s.pjs', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [50, 2, 30], pose: { x: 190, y: 26, z: -33, ry: 0 }, accepts: k => k === 'pjs' && CK.has('bed','pillow'), hint: 'Place: fold onto the pillow', onSnap: () => { CK.lock('ch.pjs'); CK.step('bed', 'pjs'); CK.snd.rustle(); } });
+      CK.snap('ch.s.pillow', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [77, 2, 52], accepts: k => k === 'pillow', pose: { x: 190, y: 37, z: -24, ry: 0 }, hint: 'Let go: on the bed', onSnap: () => { V().pillowDocked=true;CK.save();CK.lock('ch.pillow');CK.snd.thud();CK.MODS.bed.sync();H.ui.toast('Pillow on the bed','F on the bed: plump it up.'); } });
+      CK.snap('ch.s.pjs', { room: 'bedroom', x: 180, y: 0, z: 10, r: 80, box: [29, 2, 22], pose: { x: 190, y: 24.9, z: -24, ry: 0 }, accepts: k => k === 'pjs' && CK.has('bed','pillow'), hint: 'Place: fold onto the pillow', onSnap: () => { CK.lock('ch.pjs'); CK.step('bed', 'pjs'); CK.snd.rustle(); } });
       // The close-up keeps the actual solid cloth interactive; completed beds retain their secrets.
       CK.guard('bed', () => bedClick());
       this.sync();
@@ -519,14 +519,14 @@ const old_comicTex = () => remember('ch.comic', 192, 256, (g, w, h) => { g.fillS
       duvK.s = CK.has('bed', 'pullL') ? 1 : 0; duvK.f = CK.has('bed', 'pullR') ? 1 : 0; duvK.t = CK.has('bed', 'smooth') ? 1 : 0; duvK.lift = 0; duvShape();
       if (pillowT) {
         const docked=CK.has('bed','pillow')||v.pillowDocked;
-        if(docked){pillowT.home={room:'bedroom',x:190,y:37,z:-33,ry:0};CK.lock('ch.pillow');if(Math.abs(pillowT.at.x-190)>.1||pillowT.at.y!==37||pillowT.at.z!==-33||pillowT.at.ry!==0)CK.home('ch.pillow');}
+        if(docked){pillowT.home={room:'bedroom',x:190,y:37,z:-24,ry:0};CK.lock('ch.pillow');if(Math.abs(pillowT.at.x-190)>.1||pillowT.at.y!==37||pillowT.at.z!==-24||pillowT.at.ry!==0)CK.home('ch.pillow');}
         else CK.lock('ch.pillow',false);
         if(pillowT.fixed!==docked){pillowT.fixed=docked;H.physics.sync(pillowT.id);}
         if(!making?.gesture)pillowT.obj.scale.set(1,1,1);
       }
       if (pjsT) {
         const folded=CK.has('bed','pjs');loosePjs.visible=!folded;foldedPjs.visible=folded;pjsT.fixed=folded;
-        if(folded){const y=CK.has('bed','pillow')||v.pillowDocked?26:37;pjsT.home={room:'bedroom',x:190,y,z:-33,ry:0};CK.lock('ch.pjs');if(pjsT.at.hide||pjsT.at.x!==190||pjsT.at.y!==y||pjsT.at.z!==-33||pjsT.at.ry!==0)CK.home('ch.pjs');}
+        if(folded){const y=CK.has('bed','pillow')||v.pillowDocked?24.9:37;pjsT.home={room:'bedroom',x:190,y,z:-24,ry:0};CK.lock('ch.pjs');if(pjsT.at.hide||pjsT.at.x!==190||pjsT.at.y!==y||pjsT.at.z!==-24||pjsT.at.ry!==0)CK.home('ch.pjs');}
         else CK.lock('ch.pjs',false);
         // Folding changes the real support footprint as well as the visible mesh.
         // Recreate only this body so cached support/radius data matches the bundle.
