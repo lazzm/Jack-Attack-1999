@@ -407,3 +407,8 @@ Family/UI: Mom, Dad and the sister actor answered the touch Talk action in both 
 Not verified: a physical tablet, Safari/Android browser chrome and native keyboard appearance/occlusion (headless Chromium has no OS keyboard), real GPU/frame-rate/thermal behaviour, gamepads, every individual cartridge, a full manual stair/carry route, or frame-by-frame transient refresh blackout. No application code, live data, deployment, version, changelog, commit or push was touched.
 
 Completion: the interactive diagnostic exited 0 after 133 captures; driver syntax, whitespace and server-module-load checks passed. The browser closed and the shell EXIT trap killed its own throwaway server PID; port 18089 was confirmed closed. Machine-readable handoff: `tests/shots/qa-tablet/summary.json` (findings, evidence paths, coverage limits and execution/cleanup record).
+
+## Noted 2026-11-04 art review
+- R211: The monitor and tower tops blow out to pure white in Dad's boot in sun (fixes4 r193-merged-post-refresh.png).
+- R212: Tekno Fist's boot heading has a stray dark tick after each word (game-fight boot-existing-card-native.png).
+- R213: Tekno Fist's tower arena has flat red, blue and green rectangles on the wall behind the fighters (game-fight team-next.png). Give them detail or remove them.
