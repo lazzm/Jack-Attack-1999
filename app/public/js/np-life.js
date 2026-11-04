@@ -134,7 +134,16 @@
     if (c.rig) return;
     const clk = clock();
     c.rig = NR.create(c.id, { tier: window.HouseQ === 'low' || window.HouseQ === 'potato' ? window.HouseQ : 'std', outfit: outfitFor(c.id, clk) });
-    c.rig.floor = (x, z) => NV.floor(c.lvl, x, z);
+    c.rig.floor = (x, z) => {
+      // The navigation grid is a body ramp. Feet contact the solid 25 cm
+      // treads / 20 cm risers built by hs-house, across the floor-level seam.
+      // Test the person's floor first so the space below the flight stays below.
+      if (NV.onFlight(c.x, c.z) && (c.lvl === 'U' ? c.z < 440 : c.z > 410) && NV.onFlight(x, z)) {
+        const step = clamp(Math.floor((z - NV.STAIR.z0) / 25) + 1, 0, 14);
+        return H.LV.U + step * 20;
+      }
+      return NV.floor(c.lvl, x, z);
+    };
     H.spot('np.' + c.id, { label: () => 'Talk to ' + label(c), obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
   }
   function outfitFor(id, clk) {
