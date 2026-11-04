@@ -1,5 +1,11 @@
 # Jack's Home Page - changelog
 
+## 2.66.2 - 2026-11-04
+- Fixed the sudden crackle at the end of some voice lines. Cutting batch recordings into clips had left a burst of the next line at the end of some, and hard edges on others. 43 lines and 26 name call-outs are repaired, and each repair was checked to make sure no words were lost.
+- Stopping a voice line early now fades over 15 ms instead of clicking.
+- New repeatable audio check, tools/audio/voice-qa.py, for bursts, hard edges, clipping and level. Two clips still need re-recording: one peaks too high and one name is quiet.
+- Verified: voice unit checks with the new ledger, recordings played through the real sound code, transcripts of every repaired clip. No real account, wallet or shared-world changes.
+
 ## 2.66.1 - 2026-11-04
 - You can walk out of the front door again. Since 2.60.0 the new glazed door was measured from one small trim piece, so the game treated the doorway as too low to walk through. The back door was fine.
 - A new test walks through the front, back, kitchen and lounge doors in both directions with real keys. It's now in the release gate, because the old door tests moved the player past the doorway.
