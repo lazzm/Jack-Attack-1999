@@ -1,0 +1,422 @@
+{
+ "created": "2026-11-04",
+ "why": "Stray burst or hard edge at a clip boundary (crackle). Repaired by tools/audio/voice-qa.py, checked by transcript.",
+ "lines": {
+  "ann.lucky": {
+   "file": "ann.lucky.mp3",
+   "before": "65e844c5139afaf0569b5b388d56ecc6b9ea8b5008c3a6282e2b3a050af65fe7",
+   "sha256": "c7439a99f80a897b20ac090eafaa3b376e4e2b6b6db7b3645296ed4f93feca70",
+   "dur": 1.848
+  },
+  "ann.new": {
+   "file": "ann.new.mp3",
+   "before": "6658cea409fae8d4944c7a30a046acce4ca88cdf89cb729f237cb2cd7275fa7e",
+   "sha256": "54f670f6678e4470dfda4784918464da7e1c7b7ec58a499ce76253ae4a177f93",
+   "dur": 2.064
+  },
+  "bark.dad.tea1": {
+   "file": "bark.dad.tea1.mp3",
+   "before": "678083d65ce70fac2d520b28dc430f946dc48e0b7e2e3f338c959aca0737670f",
+   "sha256": "b7b388cb9bd8f9cc42b92a05b505ab00d17ee1b77055a0ccc5f20cddb0511ad6",
+   "dur": 6.12
+  },
+  "bark.dad.tv3": {
+   "file": "bark.dad.tv3.mp3",
+   "before": "82ad8b16cc3828d8b29c9a0725f6c3adbfc6463d39ced2cbec919eae8f8977d9",
+   "sha256": "12a0a8b137d68becc05a9aea8418e9787fb76253bac1a315a197e8145b6b4315",
+   "dur": 5.928
+  },
+  "bark.gran.bye": {
+   "file": "bark.gran.bye.mp3",
+   "before": "eb0919204ea01d6169a348598187219b4225f299561cd92259d891e0cb7a8164",
+   "sha256": "2096f9440c4dcc6a9cef7a3215d2d02dab15102702f4608af138d5c2e83abd0b",
+   "dur": 3.504
+  },
+  "bark.mom.gran": {
+   "file": "bark.mom.gran.mp3",
+   "before": "1eed5f738d748f3d5191ac7eab0ff55f44cc896050e718f014b0201ab4bce743",
+   "sha256": "bca34964d4c2783ceb146b044cc13b04a049b36f2e0b33d7611f641d41852686",
+   "dur": 3.672
+  },
+  "bark.mom.line2": {
+   "file": "bark.mom.line2.mp3",
+   "before": "d410a1309f48555b656267e04c06a514477dcfcb9b885ce172552c471263a490",
+   "sha256": "b0f7b68039265dc684a35a04c71a080ce7c4cb1dfacd3e0d589a4e4a1b985db6",
+   "dur": 6.48
+  },
+  "bark.mom.react.praise": {
+   "file": "bark.mom.react.praise.mp3",
+   "before": "09aa0b5e29f7eb0ddf846d19a3c69dfd557a77a9e66d714872587b9cd23df6ea",
+   "sha256": "85b2f0a28731652e5c9cf36260f2224c6156026a84516eb4558cff52bc2a54aa",
+   "dur": 4.152
+  },
+  "bark.mom.school3": {
+   "file": "bark.mom.school3.mp3",
+   "before": "b31f411fca354ef0d224e6680f5ae8676692a3173489828fc33d0bb2324ba20a",
+   "sha256": "fe95ff7db503e9b8392c198f25aeb02bd58228ef48332a6a118d1571ed5fbcd8",
+   "dur": 4.992
+  },
+  "bark.mom.tea5": {
+   "file": "bark.mom.tea5.mp3",
+   "before": "b6e1af3b2ff23df4ff487ec7454f21ef6d9c9f10a420859c2843227ed5e4acbf",
+   "sha256": "69ecfe154b8a321f37fb7788a7bcebabbf11b50b53cb6d459cda0571411c6ef8",
+   "dur": 3.6
+  },
+  "bark.sis.cut1": {
+   "file": "bark.sis.cut1.mp3",
+   "before": "292eec891cc5e6afe18a907aa68ab2618495efdbe0897ff6a534ad8c6b114988",
+   "sha256": "b2434d5df59bfbd27cdbfefd4dfe4ba23c203f42f90a69d1686a64a82445dd54",
+   "dur": 3.936
+  },
+  "bark.sis.line2": {
+   "file": "bark.sis.line2.mp3",
+   "before": "ed433d7881a46da43a1646d06bb35affc62e713342f90932fb01cab0133d5f4b",
+   "sha256": "f3780d263e3a33970f7cef29adaa49e82d4848371c6f116fac9fb218b2966c49",
+   "dur": 3.504
+  },
+  "bark.sis.mess2": {
+   "file": "bark.sis.mess2.mp3",
+   "before": "23599782bb25882125c012a40437ae0a4f7791131eba3734268386e1c4d03763",
+   "sha256": "9835d73b7118be7e8304f661e564c7c1395c7024cd31c7c9da6912127ad09e25",
+   "dur": 4.368
+  },
+  "bark.sis.react.console": {
+   "file": "bark.sis.react.console.mp3",
+   "before": "93e9409c12ae999e2c8f51572d09a4bdeafb489b8e01b6f8ff78bd3625f9bccb",
+   "sha256": "4bb3819b40f1248437fa20dfcf8bb57abf7714920085f2e91a915654f8642007",
+   "dur": 4.248
+  },
+  "c1.dad.hello": {
+   "file": "c1.dad.hello.mp3",
+   "before": "701bfdd1dec073a34e89dac865ee7916c988458a17bca0627374a504a54d33d4",
+   "sha256": "085421ffdd01cba96bb8e1a66d8461bdaa0c2a9bfe6c877fd77c2937ffda4e36",
+   "dur": 4.584
+  },
+  "c1.keys.pick": {
+   "file": "c1.keys.pick.mp3",
+   "before": "ef4c08149662ff16f83b5ac5f05dd17a16b8051e9d5853c61fe22271092c25fa",
+   "sha256": "d2eae6d3af2547015bbf8b4cdd55ebf3f437ddffbeeb360e5d7572ba104a3a94",
+   "dur": 4.488
+  },
+  "c1.lad.sis.in": {
+   "file": "c1.lad.sis.in.mp3",
+   "before": "28ed1be303f9da99ef739ff107dae87e859fd85ba684c7cd1798d52a14e06a81",
+   "sha256": "6e414a7fb87c873182aaccca2c8c424274aba4a0343ca4531366e98363773ec8",
+   "dur": 3.312
+  },
+  "c1.mom.carry2": {
+   "file": "c1.mom.carry2.mp3",
+   "before": "38aa7eb65b4a2743d97465649ca4a2480c496cac476b4f973798389a6e5f3ab8",
+   "sha256": "e377bfc6de5e98714a51f0b4cef29b0939beed4c7b003ab7089b20abbaadb850",
+   "dur": 3.624
+  },
+  "c1.mon.drop": {
+   "file": "c1.mon.drop.mp3",
+   "before": "5f8d413d2bc2e3e5aaa410f42c874bfe0b42af2599c58177f5c3fb0c607564fe",
+   "sha256": "78f05f77c8c55734c88bd9f93cf7933e83d64d868a152da5793f4e50b890fcb6",
+   "dur": 4.344
+  },
+  "c1.power.boot": {
+   "file": "c1.power.boot.mp3",
+   "before": "74bc0f8e5e1468884499e2373a032d22f760328748ab95765d9c6ee81f761b3b",
+   "sha256": "67b816fe4996da5ca4f69c3b56998c25877cf22d031a4e45586fbb24739d4ef8",
+   "dur": 2.424
+  },
+  "c1.speak.pick": {
+   "file": "c1.speak.pick.mp3",
+   "before": "9087fab812c6575c73ee11a18c74e85abcdd05f8835e95fa12bec654e68d2069",
+   "sha256": "5ad87d882aca6e9a1118cab76d6558c2601343b48fd2729a912c9a81c561e141",
+   "dur": 4.2
+  },
+  "c1.tower.pick": {
+   "file": "c1.tower.pick.mp3",
+   "before": "0df566feb5bad9fcfedebda53fbd5c56efd9f6e4975926c952d9d1f2d3e31984",
+   "sha256": "1ecaffdb572a49b58f13f59b435c378a953e764562a6425c274232046afda828",
+   "dur": 3.768
+  },
+  "c1.wake.mom.call": {
+   "file": "c1.wake.mom.call.mp3",
+   "before": "e654247207562956b04f89cad7142f08093ce401c4df8952df5933199760cd2d",
+   "sha256": "9e381f2de3803f9c8eabb9e5a84c8cf393f05816c1a020028f7def04a86bf7fa",
+   "dur": 4.104
+  },
+  "c1.wake.mom.room": {
+   "file": "c1.wake.mom.room.mp3",
+   "before": "37a58f0f3fa72b2383e9e4733f47f13570bd2392bbf01b5c1d1a05d9e83b3877",
+   "sha256": "e59eea81550b698736d45da2c125d4df28772875fde4ed009c5bfda068843790",
+   "dur": 3.312
+  },
+  "c2.play.sis": {
+   "file": "c2.play.sis.mp3",
+   "before": "be7f9a32068777b10915994d3ceb26b71b60a43b1c00a407780f5cae88c276a3",
+   "sha256": "70f1af35c5fa6186a15a494d43a994aa7c5bd496371b94e4229a995117f23b06",
+   "dur": 4.872
+  },
+  "c2.sell.sold": {
+   "file": "c2.sell.sold.mp3",
+   "before": "93614ce2361a4ecca26234436ae710987a6a6ef6129be5d7d52f5dadd598f56d",
+   "sha256": "4613ed7ba6147e81ff316dfd07e8a54055a3a1778809b3369b05888d2cfcb42a",
+   "dur": 2.424
+  },
+  "c2.unbox.sis": {
+   "file": "c2.unbox.sis.mp3",
+   "before": "07d31fe4a3bb80959fc3ff239ddd580da86bc129936e643b71ca13bcda270b5d",
+   "sha256": "1984ab74a48945ac377d2979d6000e28bed548fb4f4bd81b7046d72b48efe115",
+   "dur": 4.176
+  },
+  "c3.ask.dad.deal": {
+   "file": "c3.ask.dad.deal.mp3",
+   "before": "14ea9c681b44a323f16d9945abf896b729df8e6e6b2cbd632563d44c943f6650",
+   "sha256": "d99bc639fa39ea958ae3375a31bc22bbe6d06cde50b8c0532f1e4414f9ae090c",
+   "dur": 3.0
+  },
+  "c3.hangup.dad": {
+   "file": "c3.hangup.dad.mp3",
+   "before": "3faed2fd2bb8f43965f4147766c6918bc592883e72e80f879c9a410d8b92909e",
+   "sha256": "6e8a737d648c324e612cc024c3abcb202715b5284f56793b37181937569e6c79",
+   "dur": 4.128
+  },
+  "c3.hangup.dad2": {
+   "file": "c3.hangup.dad2.mp3",
+   "before": "b28716f7454f8f436c77702973569d74590b0040c086b6627cb591a48e01fa96",
+   "sha256": "527e9cc5a8b883beb647ebc157da0fc8b551e37ac521638b54bbefe1d7556126",
+   "dur": 3.696
+  },
+  "c3.mag.mom": {
+   "file": "c3.mag.mom.mp3",
+   "before": "73879beca587a72c657bb2221f3bcc809a32548cb99fa2401f3155a9f3b67f8b",
+   "sha256": "9214b4ed2b0db8c9b5183a51ee24302f3259630d7a934f00fb4f6881594e1dbf",
+   "dur": 6.264
+  },
+  "c3.mag.sis": {
+   "file": "c3.mag.sis.mp3",
+   "before": "b97b10a8573009d7fc52e46f756616db7657cbdb9c9765ebb60895101b2260d2",
+   "sha256": "289bb61c918455425cb2e7887333aba0a404a9da8f19d228889de3cea8b21595",
+   "dur": 4.632
+  },
+  "c4.dd.boot2": {
+   "file": "c4.dd.boot2.mp3",
+   "before": "820c9d3e50d0612299b4f7492111037d0084f624f1cb9eac691e2330cb0a525c",
+   "sha256": "9b5a02d617de11628681436473047654fae102549043c0db8bb508e70d58a2e4",
+   "dur": 3.024
+  },
+  "c4.dd.mom": {
+   "file": "c4.dd.mom.mp3",
+   "before": "20863387900ba76f742d65ef73ac3ec285bd8e40fa31eaaa77c73021d45d4249",
+   "sha256": "355543cc76d7f28854ecb8a425fd89ef80b1c5eca13ba2426c91b2afa3f408bf",
+   "dur": 7.824
+  },
+  "c4.game2.dad": {
+   "file": "c4.game2.dad.mp3",
+   "before": "816066e8eb3185681b315d8affa28d69916bffa94d417f033e09720e1dd9c9ee",
+   "sha256": "ded177948bfea03c3dc7c263ddc990e1712904274cff84678743c3282d736c17",
+   "dur": 5.64
+  },
+  "c4.hal.dad.carve": {
+   "file": "c4.hal.dad.carve.mp3",
+   "before": "ba819df463fbb3936cb81d6ed35babe22117a8bc917e6400e3e4f2671a779573",
+   "sha256": "9474b51c593e33666d474d919b51cdf18d238288c1dbced6aa3a2305a60b5ee7",
+   "dur": 6.552
+  },
+  "c4.hal.treat.dad": {
+   "file": "c4.hal.treat.dad.mp3",
+   "before": "1b4645f91821e88e5b1a9938c2a32d0c3473c4619a7d059dddecfe61f8b6e662",
+   "sha256": "1efcccc60d70ad72741c6c6edfc6c297a1616897b010d5667c9b503a26819387",
+   "dur": 2.088
+  },
+  "c4.mill.count": {
+   "file": "c4.mill.count.mp3",
+   "before": "5ff053fc64203480287d85129f030addc37df563b6d476049637dcbf5fca4a92",
+   "sha256": "928796343cce8a384271aa3df570e373ffe7e9e3f60a9f7f63c3c1502f1ec0a8",
+   "dur": 10.32
+  },
+  "c4.xmas.carol.dad": {
+   "file": "c4.xmas.carol.dad.mp3",
+   "before": "4170ecd174a9c47455c2ff0f95e1cf564856591cada776c123626a6bf2d641fc",
+   "sha256": "4b1ac53e213952073c04cb9ee4de2f775ddeda87d68960471b15871d73561030",
+   "dur": 2.784
+  },
+  "c4.xmas.gran": {
+   "file": "c4.xmas.gran.mp3",
+   "before": "f961b4c502f972bb78e6b56bf7d4355de94920a2046a72ac5cbac7cfc9d0f6b9",
+   "sha256": "dd203c5a4eef25ae509dd55c17043303b4b912b26c3acfc420c2bf5da45df015",
+   "dur": 5.592
+  },
+  "c4.xmas.morn": {
+   "file": "c4.xmas.morn.mp3",
+   "before": "e14f38b9d9f5f3d5553ff78b60304f48df72139b4c6edb261b30ff4360875709",
+   "sha256": "3d4adec0fc12fa8c13c6559078ddfcefd6099a1d1d5f95dbc0041c35d940080c",
+   "dur": 3.96
+  },
+  "chore.cat.give": {
+   "file": "chore.cat.give.mp3",
+   "before": "c2b0af5994d85c0bc0051d65aeda50c4d5dd405eb6bbed981fc4c0515f638dcc",
+   "sha256": "444f85570a86a9946f9b4bbc2db540ae6359b7fcb569f5eb148a46979cf37462",
+   "dur": 4.776
+  },
+  "chore.sweep.done": {
+   "file": "chore.sweep.done.mp3",
+   "before": "02da25d32b4bee5b8c73cfc82e1b6477136e8d234d25e7f253863543376abe11",
+   "sha256": "b3a7d6ac35f0750978232145b2a3285698e1ebec420b0cae97eab345dfa499fe",
+   "dur": 2.76
+  }
+ },
+ "names": {
+  "dad-shout/alexander": {
+   "file": "dad-shout/alexander.mp3",
+   "before": "848c49d1c2c892fe34d5ce1b6f903184777a49683c5350c86ea835784dff58c8",
+   "sha256": "614bdcaeac995924cc32505f134db1b9a535e650006953a2404dd809d4765c52",
+   "dur": 1.128
+  },
+  "dad-shout/billy": {
+   "file": "dad-shout/billy.mp3",
+   "before": "0e5a7a7963f17c1bda1047c189ef35d72148cb5e3aed0323c5df9dda67bb7461",
+   "sha256": "12767272e7d1c41259ed2e2f62dc8ec3835cd24be5b8219755129042bc160dce",
+   "dur": 0.696
+  },
+  "dad-shout/imran": {
+   "file": "dad-shout/imran.mp3",
+   "before": "a972087dccf37b76d7b30d887970c7ad0e856d328b323bf5d2e45bef688d728a",
+   "sha256": "8415a099d52a2434d1247d4c2e97a4b586504b70e1f258735deaeb41b525b95a",
+   "dur": 0.792
+  },
+  "dad-shout/jason": {
+   "file": "dad-shout/jason.mp3",
+   "before": "1983e64ce47cbadeb563b6e981492d9bdca282c0aa43773574619712dae86035",
+   "sha256": "c5fc44c4a5b6891de5a253488a38aa157d9cb7d4d03d3f2e9804727f6d802d98",
+   "dur": 0.6
+  },
+  "dad-shout/marc": {
+   "file": "dad-shout/marc.mp3",
+   "before": "125cd32bef7acd9a1daaea2562a1731659c3de054188aaf5140c61669ff500cf",
+   "sha256": "fdf755f58e669a6460590f4f7ec48acffdbf24f4414df071eb87b3aa03d237c0",
+   "dur": 0.624
+  },
+  "dad-shout/michael": {
+   "file": "dad-shout/michael.mp3",
+   "before": "ca97fdc00230c6245e61ad22b24ec800c4c306742e1653ebc81da721311369a7",
+   "sha256": "85a5f8597a4e76d51764fad458e51f15ea321a72e7f7c2eac304dc8a958680b0",
+   "dur": 0.744
+  },
+  "dad-shout/nicholas": {
+   "file": "dad-shout/nicholas.mp3",
+   "before": "016e12fa3eacf6d901b3dcfe04f7908f9cf24410c42f66fe15327cf4150b68fb",
+   "sha256": "65a406be3ff6a2da75e471c165013d462af9f66023de00a327a0c69c5a15ba28",
+   "dur": 0.768
+  },
+  "dad-shout/phoebe": {
+   "file": "dad-shout/phoebe.mp3",
+   "before": "eb55cbe29edd908a3052c5593338d65711880489f5f9bc2a181a72f9bbdcf442",
+   "sha256": "586dfbc90b72329d289201eb6493d302aba4ff796eba1278c13e493a3555e9af",
+   "dur": 1.2
+  },
+  "dad-shout/toby": {
+   "file": "dad-shout/toby.mp3",
+   "before": "894fa3ab07ffca73f4c05a29f94c1a47bd8bea22e6aa8688596b7ce726acd5c5",
+   "sha256": "3f94219a6a7834a81646032cb2a73e6169af198073d145b576fc2f775205354b",
+   "dur": 1.536
+  },
+  "mom-call/luke": {
+   "file": "mom-call/luke.mp3",
+   "before": "9cb90f9cd4f9d458f0d36b5cb788ccb7999f46b366e008b8a8c08b894eb3b128",
+   "sha256": "65f1e8c8ce916294a48c4820029b7c9ebcdd771102bc88a1947e141b79760f3d",
+   "dur": 1.752
+  },
+  "mom-shout/aaron": {
+   "file": "mom-shout/aaron.mp3",
+   "before": "cef5672c6e27d7e41c76cf4c324a45f3333790bd741d5721dfc18a98ca138e2d",
+   "sha256": "f3d918d91a7e509ce9a1e8d09de5097f922160737bf85f30d562259da149796f",
+   "dur": 0.768
+  },
+  "mom-shout/ashley": {
+   "file": "mom-shout/ashley.mp3",
+   "before": "b9f41aabb97b2e0acc16216fa5ddd14f7928ae915e56f0800792e6f3617b67b1",
+   "sha256": "d4119694fd491b25e3ebc380cb9af4e4c876954a3d6570e14ac07c3cb209e795",
+   "dur": 0.792
+  },
+  "mom-shout/gavin": {
+   "file": "mom-shout/gavin.mp3",
+   "before": "9c84f197f5d739d41134c382ced86fb2e1b50e6d895728ff0163d57e912456c9",
+   "sha256": "4ded582082d28d50931e197a3b638c809ccf3b2821547f48966632a008c61f7d",
+   "dur": 0.672
+  },
+  "mom-shout/jake": {
+   "file": "mom-shout/jake.mp3",
+   "before": "4e097a6010b1338ad6c185c9c0da4ac97a9d7004bbaad3fdeae4008eea9b5427",
+   "sha256": "7302d7d2e0e359968c4cf98dd3efba74054b93cdd422c5b9877cf03ca503900f",
+   "dur": 0.696
+  },
+  "mom-shout/oscar": {
+   "file": "mom-shout/oscar.mp3",
+   "before": "6eaec50ae088b58f3a89854a7424a7b54737e346b92e4013632d20f57a797a50",
+   "sha256": "86a69e18d1913e7ec63577349ba25f0dd876ba248996dd6fe78f03f443ff6d21",
+   "dur": 0.936
+  },
+  "mom-shout/sarah": {
+   "file": "mom-shout/sarah.mp3",
+   "before": "1e1c2b365ac90f55ffe9e80d7dd60cdb076b72609783295fe408b4a4e3c711ed",
+   "sha256": "25751c32ac874f88652c19c37efbe8cf8dd5047b034975816e3182195e7201b3",
+   "dur": 1.2
+  },
+  "mom-shout/sophie": {
+   "file": "mom-shout/sophie.mp3",
+   "before": "23d2b18e4ff18829b538829bf88dd5bb7148a88b5744b034888c7dd493ac65b3",
+   "sha256": "472142853766fc2e9e519eb3e24f5d5ed6ac19e86b9c5129e55be7ea8bd2b67c",
+   "dur": 1.056
+  },
+  "sis-whine/gemma": {
+   "file": "sis-whine/gemma.mp3",
+   "before": "3a3fe7e686ed0265308bc604c91add47930b7513ecc8c302f2cf596899e94247",
+   "sha256": "c9d40c1b986582816ab12a19d23f6ccd7a78dcd5229ffa81ff8783cdeeecc4a8",
+   "dur": 1.56
+  },
+  "sis-whine/john": {
+   "file": "sis-whine/john.mp3",
+   "before": "3fc4254e57c244a732e887565a630fe914eefe5b62079cf3183924e84d92290b",
+   "sha256": "2b7fbb60660e65dd588bc50e021a75a3336f7f5ce634d00d717d66c0e5135f0c",
+   "dur": 0.792
+  },
+  "sis-whine/keith": {
+   "file": "sis-whine/keith.mp3",
+   "before": "f817238bc0f9accc7db97b228d85ef155bb64aeb6d05c01348b3378d93e8e60c",
+   "sha256": "33e94f79b17352db39e7d0e1dccf7e3c922c25bd454356d342bbce1c499bbef4",
+   "dur": 1.176
+  },
+  "sis-whine/omar": {
+   "file": "sis-whine/omar.mp3",
+   "before": "3ebf7533871b7464fb04a9da8e469695eab00f20b13a92b3410d82d4067cdd5c",
+   "sha256": "05a7180fdac8573167126bd67e658e811389989bce7b2e2faf0d454d3cc14c8c",
+   "dur": 1.656
+  },
+  "sis-whine/robert": {
+   "file": "sis-whine/robert.mp3",
+   "before": "6b1696ea283b368acfc6985fef8fcfe534e35c112e3612912cf3cf1fcd8c9650",
+   "sha256": "6ced6262058e46f3baf9fe390b76e3a57fa2a43a09275011bea74971357c52e8",
+   "dur": 1.752
+  },
+  "sis-whine/siobhan": {
+   "file": "sis-whine/siobhan.mp3",
+   "before": "618f5f49d60d10c9d3dc191b17d96ceb27575f7bc3997465843268acd73025d5",
+   "sha256": "e32d2030b45ad1e71f59c3cfd4f70340ad610e0967035193fa1fe29ebe51b224",
+   "dur": 2.136
+  },
+  "sis-whine/tanya": {
+   "file": "sis-whine/tanya.mp3",
+   "before": "2ec45ca84ed7e07ba1a323cef7839e8cb9ffd749d00ca768d3732dc4b9b37a05",
+   "sha256": "a5d4500f862e1f4e2f98be3bfaa3248c38b46b3cfae25a9736ea4223ac5c94bc",
+   "dur": 0.792
+  },
+  "sis-whine/theo": {
+   "file": "sis-whine/theo.mp3",
+   "before": "1f24726c9e2d151a8ec916d606349c97ca2cb9e39b6fafac331e7763d0983f61",
+   "sha256": "909c7d2a1e9083130d6e614db9e5e0d430a130ac14fb88ec571ff46c89639ba7",
+   "dur": 1.008
+  },
+  "sis-whine/zed": {
+   "file": "sis-whine/zed.mp3",
+   "before": "ac486a827faa894e27f7158a54fd79c719a484460bdf23117bf81b0003ccce86",
+   "sha256": "4d1ba8c5ed43e2d63f5e8f7a297845766f955e99491afad63c9a14fd8843ffaa",
+   "dur": 0.816
+  }
+ }
+}
