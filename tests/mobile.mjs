@@ -318,6 +318,11 @@ const phases = {
         if(await p.page.locator('.account-character').count())await p.page.locator('#accountGate [data-switch]').tap();
         await p.shot(`gate-logon-${prof}`);
         await p.page.locator('#accountGate [data-switch]').tap(); await p.page.waitForTimeout(300);
+        await p.page.locator('.account-character summary').tap();
+        for(const value of ['m','f']){
+          const radio=p.page.locator(`[name=gender][value=${value}]`);
+          await radio.locator('..').tap();assert(await radio.isChecked(),prof+' whole gender label is a touch target');
+        }
         await p.shot(`gate-signup-${prof}`);
         const bad = await p.page.evaluate(() => [...document.querySelectorAll('#accountGate input, #accountGate button')].filter(e => e.offsetParent).map(e => { const r = e.getBoundingClientRect(), f = parseFloat(getComputedStyle(e).fontSize); return (r.right > innerWidth + 1 || r.left < -1 ? 'clipped ' : '') + (e.tagName === 'INPUT' && f < 16 ? 'font<16 ' : '') + (r.height < 32 ? 'short ' : '') + (e.name || e.textContent.trim().slice(0, 16)); }).filter(s => /^(clipped|font|short)/.test(s)));
         report.sizes[prof] = { gate: bad };

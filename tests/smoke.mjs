@@ -70,7 +70,7 @@ async function room(){
 async function wait(page,fn,ms=8000){const deadline=Date.now()+ms*SCALE;while(Date.now()<deadline){
   // (a first logon on a new device may reload once to apply the account's profile: js/roam.js)
   try{if(await page.evaluate(fn))return}catch(e){if(!/context was destroyed|navigation/i.test(e.message))throw e}
-  await page.waitForTimeout(100)}throw Error('State timeout: '+fn+'; '+JSON.stringify(await page.evaluate(()=>({mode:window.House?.mode,held:window.House?.held?.(),phone:window.FamilyPhone?.state?.()}))))}
+  await page.waitForTimeout(100)}throw Error('State timeout: '+fn+'; '+JSON.stringify(await page.evaluate(()=>({mode:window.House?.mode,held:window.House?.held?.(),allowed:window.AccountGate?.allowed,gliding:window.House?.gliding,profileReady:window.__smokeProfileReady,profileEvents:window.__smokeProfileEvents,loadingPanels:[...document.querySelectorAll('.hs-loading,#houseEntry')].map(el=>({id:el.id,text:el.textContent})),phone:window.FamilyPhone?.state?.()}))))}
 async function until(fn){const {page}=await room();await wait(page,fn)}
 async function aim(eye,target){const f=await room();await f.view(eye,target);await f.page.evaluate(target=>{House.hush();House._.setMode('walk');House.W.eyeNow=House.W.eye;const P=House.P;P.y=House.W.fy-House.W.eye;P.rx=Math.atan2(-(target[1]-P.y),Math.hypot(target[0]-P.x,target[2]-P.z))*180/Math.PI;P.ry=Math.atan2(target[0]-P.x,-(target[2]-P.z))*180/Math.PI;House.dirty()},target)}
 // Save timestamps advance while the desktop is open; compare the actual pose and power.
@@ -263,7 +263,7 @@ try{
       results.push(false);console.log(`FAIL ${name}: ${reason(e)}`);
       const failedPage=fixture?.page||activeBrowser?.contexts()[0]?.pages()[0];
       if(failedPage){
-        const state=await Promise.race([failedPage.evaluate(()=>({mode:window.House?.mode,focus:!!window.House?.focused,paused:!!window.House?.paused,loading:!!document.querySelector('.hs-loading,#houseEntry'),gate:!!document.querySelector('#accountGate'),phone:window.FamilyPhone?.state?.().id,dialogs:[...document.querySelectorAll('dialog[open]')].map(d=>d.className)})).catch(()=>null),delay(3000)]);
+        const state=await Promise.race([failedPage.evaluate(()=>({mode:window.House?.mode,focus:!!window.House?.focused,paused:!!window.House?.paused,loading:!!document.querySelector('.hs-loading,#houseEntry'),loadingPanels:[...document.querySelectorAll('.hs-loading,#houseEntry')].map(el=>({id:el.id,cls:el.className,text:el.textContent,role:el.getAttribute('role')})),ok:window.House?.ok,frames:window.House?.perf?.().frames,gate:!!document.querySelector('#accountGate'),allowed:!!window.AccountGate?.allowed,blocked:window.AccountGate?.blocked,profileEvents:window.__smokeProfileEvents,phone:window.FamilyPhone?.state?.()?.id,dialogs:[...document.querySelectorAll('dialog[open]')].map(d=>d.className)})).catch(()=>null),delay(3000)]);
         console.log('Failure state',name,state);
         if(keep)await failedPage.screenshot({path:shots+`failure-${name}.png`,timeout:15000}).catch(()=>{});
       }

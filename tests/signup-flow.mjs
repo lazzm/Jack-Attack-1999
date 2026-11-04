@@ -66,10 +66,10 @@ try{for(const phone of [false,true]){
  
  await type('#accountGate [name=name]',name);await type('#accountGate [name=password]','Wrong-Password');await press('#accountGate [type=submit]');await until(p,()=>/wrong password/i.test(document.querySelector('.account-error')?.textContent||''));assert.equal(await p.locator('#accountGate [name=name]').inputValue(),name);assert.equal(await p.locator('#accountGate [name=password]').inputValue(),'Wrong-Password');await shot('08-wrong-password');
  if(await p.locator('.account-recovery summary').count())await press('.account-recovery summary');await shot('08b-forgotten-password');
- await press('#accountGate [data-switch]');await p.locator('#accountGate [name=name]').fill('');await type('#accountGate [name=name]',name);await type('#accountGate [name=password]',password);
+ await press('#accountGate [data-switch]');await p.locator('#accountGate [name=name]').fill('');await type('#accountGate [name=name]',name);await type('#accountGate [name=password]',tag==='before'?password:'Wrong-Password');
  if(tag==='before'){await type('#accountGate [name=confirm]',password);await press('#accountGate [type=submit]');await until(p,()=>!!document.querySelector('#accountFirst'));}
  await press('#accountGate [type=submit]');await until(p,()=>/already taken/.test(document.querySelector('.account-error')?.textContent||''));await shot('08c-taken-name');
- if(tag!=='before'){assert.equal(await p.locator('#accountGate [name=password]').inputValue(),password);assert(await p.locator('[data-suggestion]').isVisible());await press('[data-suggestion]');assert.notEqual(await p.locator('#accountGate [name=name]').inputValue(),name);}
+ if(tag!=='before'){assert.equal(await p.locator('#accountGate [name=password]').inputValue(),'Wrong-Password');assert(await p.locator('[data-suggestion]').isVisible());await press('[data-suggestion]');assert.notEqual(await p.locator('#accountGate [name=name]').inputValue(),name);}
  if(tag==='before')await press('#accountGate [data-back]');
  await press('#accountGate [data-switch]');await p.locator('#accountGate [name=name]').fill('');await type('#accountGate [name=name]',name);
  
@@ -118,7 +118,17 @@ try{for(const phone of [false,true]){
  }
  if(tag!=='before'&&process.env.SIGNUP_LEGACY==='1'){
   const ctx=await browser.newContext({viewport:{width:1366,height:860}}),p=await ctx.newPage();await p.goto(base,{waitUntil:'domcontentloaded'});await until(p,()=>!!window.Net?.me.id&&!!document.querySelector('#accountGate form'));
-  if(await p.locator('.account-character').count())await p.locator('[data-switch]').click();await p.locator('[name=name]').pressSequentially('OldCodePlayer',{delay:45});await p.locator('[name=password]').pressSequentially('Old-Code-Only-1999',{delay:45});await p.locator('[name=password]').press('Enter');await until(p,()=>!!window.AccountGate?.allowed||!!document.querySelector('.account-identity'));
-  if(await p.locator('.account-identity').count())await p.locator('#accountGate [type=submit]').click();await until(p,()=>!!window.AccountGate?.allowed&&!!window.House?.live&&!document.querySelector('.hs-loading,#houseEntry'));assert.equal(await p.evaluate(()=>Net.me.nick),'OldCodePlayer');await p.screenshot({path:new URL('desktop-16-old-code-account.png',dir).pathname});results.push({case:'old-code-account',login:true});await ctx.close();
+  assert(await p.locator('.account-character').count(),'A new device starts on Create Account');
+  await p.locator('[name=name]').pressSequentially('OldCodePlayer',{delay:45});await p.locator('[name=password]').pressSequentially('Wrong-Password',{delay:45});
+  await p.locator('.account-character summary').click();await p.locator('#accountFirst').fill('Intruder');await p.locator('[name=gender][value=m]').check();await p.locator('#accountGate [type=submit]').click();
+  await until(p,()=>/already taken/.test(document.querySelector('.account-error')?.textContent||''));assert(await p.locator('[data-suggestion]').isVisible());assert.equal(await p.locator('[name=password]').inputValue(),'Wrong-Password');await p.screenshot({path:new URL('desktop-16a-old-code-taken.png',dir).pathname});
+  await p.locator('[name=password]').fill('');await p.locator('[name=password]').pressSequentially('Old-Code-Only-1999',{delay:45});await p.locator('[name=password]').press('Enter');
+  await until(p,()=>!!window.AccountGate?.allowed&&!!window.House?.live&&!document.querySelector('.hs-loading,#houseEntry'));
+  assert.equal(await p.evaluate(()=>Net.me.nick),'OldCodePlayer');assert.deepEqual(await p.evaluate(()=>({first:Cast.me().first,g:Cast.me().g})),{first:'Sarah',g:'f'},'Signup identity must not replace an existing identity');
+  await p.screenshot({path:new URL('desktop-16-old-code-account.png',dir).pathname});results.push({case:'old-code-account',login:true,wrongSignupRejected:true,signupIdentityIgnored:true});await ctx.close();
+  const logon=await browser.newContext({viewport:{width:1366,height:860}}),q=await logon.newPage();await q.goto(base,{waitUntil:'domcontentloaded'});await until(q,()=>!!window.Net?.me.id&&!!document.querySelector('#accountGate form'));
+  await q.locator('[data-switch]').click();await q.locator('[name=name]').pressSequentially('OldCodePlayer',{delay:45});await q.locator('[name=password]').pressSequentially('Old-Code-Only-1999',{delay:45});await q.locator('[name=password]').press('Enter');
+  await until(q,()=>!!window.AccountGate?.allowed&&!!window.House?.live&&!document.querySelector('.hs-loading,#houseEntry'));assert.deepEqual(await q.evaluate(()=>({first:Cast.me().first,g:Cast.me().g})),{first:'Sarah',g:'f'});
+  await q.screenshot({path:new URL('desktop-18-old-code-logon.png',dir).pathname});results.push({case:'old-code-logon',login:true});await logon.close();
  }
 }finally{await writeFile(new URL('results.json',dir),JSON.stringify(results,null,2));await browser.close();}

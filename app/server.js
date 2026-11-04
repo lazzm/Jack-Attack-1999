@@ -799,7 +799,6 @@ function handle(ws, c, m) {
       const name = String(m.name || '').trim(), pass = String(m.pass || ''), key = name.toLowerCase();
       const mem = state.members[key];
       if (!mem && m.signup !== true) return send(ws, { t: 'loginErr', msg: 'That account was not found. Choose Create Account to sign up.' });
-      if (mem && m.signup === true) return send(ws, { t: 'loginErr', msg: 'That user name is already taken. Log on or choose another name.', suggestion: freeSignupName(name) });
       if (!mem) {
         const why = nameProblem(name);
         if (why) return send(ws, { t: 'loginErr', msg: why });
@@ -822,7 +821,9 @@ function handle(ws, c, m) {
           const ff = failsByName.get(key) || { n: 0, until: 0 };
           ff.n++; if (ff.n >= 8) { ff.until = Date.now() + 10 * 60000; ff.n = 0; }
           failsByName.set(key, ff);
-          return send(ws, { t: 'loginErr', msg: 'That is the wrong password. Please try again.' });
+          return send(ws, m.signup === true
+            ? { t: 'loginErr', msg: 'That user name is already taken. Log on or choose another name.', suggestion: freeSignupName(name) }
+            : { t: 'loginErr', msg: 'That is the wrong password. Please try again.' });
         }
         failsByName.delete(key);
         logIn(ws, c, key, false);

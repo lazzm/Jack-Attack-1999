@@ -78,11 +78,11 @@ try {
   await p.goto(base + '/?date99=10-26&time=14:00:00', { waitUntil: 'networkidle' });
   await until(() => !!(window.AccountGate?.allowed || document.querySelector('#accountGate form')));
   if (!await ev(() => !!window.AccountGate?.allowed)) {
-    await p.locator('#accountGate [data-switch]').click(); await delay(800);
-    await p.locator('[name=name]').fill('Seasons' + Date.now().toString(36)); await p.locator('[name=password]').fill('Throwaway-1999'); await p.locator('[name=confirm]').fill('Throwaway-1999');
+    if(!await p.locator('.account-character').count())await p.locator('#accountGate [data-switch]').click(); await delay(800);
+    await p.locator('[name=name]').fill('Seasons' + Date.now().toString(36)); await p.locator('[name=password]').fill('Throwaway-1999');
     await p.locator('#accountGate [type=submit]').click();
-    await until(() => !!(window.AccountGate?.allowed || document.querySelector('#accountFirst')));
-    if (await p.locator('#accountFirst').count()) await p.locator('#accountGate [type=submit]').click();
+    await until(() => !!(window.AccountGate?.allowed || document.querySelector('.account-identity #accountFirst')));
+    if (await p.locator('.account-identity #accountFirst').count()) await p.locator('#accountGate [type=submit]').click();
   }
   await until(() => !!(window.AccountGate?.allowed && window.DesktopSurface?.ready()), 60000);
 

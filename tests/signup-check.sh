@@ -43,14 +43,21 @@ if [[ "$CASE" = signup* ]]; then
   node - "$URL" <<'JS'
 const base=process.argv[2];fetch(base+'/admin/register',{method:'POST',headers:{'x-admin-token':'testtoken','content-type':'application/json'},body:JSON.stringify({name:'OldCodePlayer',pass:'Old-Code-Only-1999'})}).then(r=>{if(!r.ok)process.exit(1);console.log('Created legacy fixture using original server source')});
 JS
+  if [ "$?" != 0 ]; then exit 1; fi
+  node - "$URL" <<'JS'
+const WebSocket=require('./app/node_modules/ws');const ws=new WebSocket(process.argv[2].replace('http:','ws:')+'/ws',{origin:process.argv[2]});const timer=setTimeout(()=>process.exit(1),10000);ws.on('open',()=>ws.send(JSON.stringify({t:'hello',cid:'legacy-seed'})));ws.on('message',raw=>{const m=JSON.parse(raw);if(m.t==='welcome')ws.send(JSON.stringify({t:'login',name:'OldCodePlayer',pass:'Old-Code-Only-1999'}));if(m.t==='loginOk')ws.send(JSON.stringify({t:'meSet',me:{first:'Sarah',g:'f'}}));if(m.t==='meOk'){clearTimeout(timer);ws.close();}});
+JS
+  if [ "$?" != 0 ]; then echo 'Legacy identity setup failed'; exit 1; fi
   kill "$SERVER_PID"; wait "$SERVER_PID"; SERVER_PID=''
   # Compare hashes privately after the new UI has used the account. Never print them.
   node - "$DATA" <<'JS'
-const fs=require('node:fs'),path=require('node:path'),dir=process.argv[2];const m=JSON.parse(fs.readFileSync(path.join(dir,'state.json'),'utf8')).members.oldcodeplayer;fs.writeFileSync(path.join(dir,'legacy-fingerprint.json'),JSON.stringify({hash:m.hash,salt:m.salt,created:m.created}),{mode:0o600});
+const fs=require('node:fs'),path=require('node:path'),dir=process.argv[2];const m=JSON.parse(fs.readFileSync(path.join(dir,'state.json'),'utf8')).members.oldcodeplayer;fs.writeFileSync(path.join(dir,'legacy-fingerprint.json'),JSON.stringify({hash:m.hash,salt:m.salt,created:m.created,me:m.me}),{mode:0o600});
 JS
 fi
 start_server tests/bonfire-server.cjs
 case "$CASE" in
+ bonfire) node tests/events-bonfire.mjs "$URL";;
+ seasons) node tests/seasons-web.mjs "$URL";;
  identity-edit) node tests/signup-flow.mjs "$URL" identity-edit --identity-only;;
  journey) node tests/signup-flow.mjs "$URL" after-preview --journey-only;;
  baseline) node tests/signup-flow.mjs "$URL" before --journey-only;;
@@ -72,7 +79,7 @@ RESULT=$?
 if [[ "$CASE" = signup* ]]; then
   kill "$SERVER_PID"; wait "$SERVER_PID"; SERVER_PID=''
   node - "$DATA" <<'JS'
-const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),dir=process.argv[2];const m=JSON.parse(fs.readFileSync(path.join(dir,'state.json'),'utf8')).members.oldcodeplayer,old=JSON.parse(fs.readFileSync(path.join(dir,'legacy-fingerprint.json'),'utf8'));for(const k of ['hash','salt','created'])assert.equal(m[k],old[k]);console.log('Legacy password hash, salt and creation record preserved');
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),dir=process.argv[2];const m=JSON.parse(fs.readFileSync(path.join(dir,'state.json'),'utf8')).members.oldcodeplayer,old=JSON.parse(fs.readFileSync(path.join(dir,'legacy-fingerprint.json'),'utf8'));for(const k of ['hash','salt','created','me'])assert.deepEqual(m[k],old[k]);console.log('Legacy password hash, salt, creation record and character preserved');
 JS
   if [ "$?" != 0 ]; then RESULT=1; fi
 fi

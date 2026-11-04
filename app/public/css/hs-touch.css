@@ -182,3 +182,7 @@ html[data-game-touch="true"] .hs-ui.holding .ch-chip{top:var(--ht-job-top,236px)
 html[data-game-touch="true"] .hs-ui.holding .st-objective{top:var(--ht-objective-top,280px);bottom:auto}
 html[data-game-touch="true"] .hs-ui.holding .hs-voice.on{top:var(--ht-voice-top,212px);bottom:auto}
 html[data-game-touch="true"] .hs-ui.holding .hs-call.on{top:var(--ht-call-top,212px);bottom:auto;max-height:calc(100dvh - var(--ht-call-top,212px) - 12px);overflow:auto}
+
+/* Native-looking radios with a full finger-sized label, including signup details. */
+html.handheld-house .account-box fieldset label,html.mobile-desktop .account-box fieldset label{font-size:16px;min-height:44px;min-width:88px}
+html.handheld-house .account-box input[type=radio],html.mobile-desktop .account-box input[type=radio]{font-size:16px;width:32px;height:32px;min-height:32px;cursor:pointer}
