@@ -7,9 +7,9 @@ html.mobile-desktop #browser{left:0;top:0;right:0;bottom:0;width:100%;max-width:
 html.mobile-desktop .float{max-width:calc(100% - 8px);max-height:calc(100% - 40px)}
 html.mobile-desktop .appwin.maxwin{width:100%!important;height:calc(100% - 32px)!important;left:0!important;top:0!important;max-width:none;max-height:none}
 /* Bigger, still-proportional Win98 title bars for fingers: the bar grows with its buttons. */
-html.mobile-desktop .tb{height:30px;font-size:13px;gap:5px;padding:0 3px 0 5px}
-html.mobile-desktop .tb .ctl{gap:0}
-html.mobile-desktop .tb .ctl button,html.mobile-desktop .tb .ctl i{width:28px;height:24px;min-width:0;min-height:0;background-size:24px 20px;background-position:center}
+html.mobile-desktop .tb{height:48px;font-size:13px;gap:5px;padding:0 3px 0 5px}
+html.mobile-desktop .tb .ctl{gap:2px}
+html.mobile-desktop .tb .ctl button,html.mobile-desktop .tb .ctl i{width:44px;height:44px;min-width:44px;min-height:44px;background-size:24px 20px;background-position:center}
 html.mobile-desktop .tb .ctl [aria-label=Close],html.mobile-desktop .tb .ctl [data-w=close],html.mobile-desktop .tb .ctl i{margin-left:4px}
 html.mobile-desktop #taskbar{height:36px}
 html.mobile-desktop #desktop{bottom:36px}
@@ -19,11 +19,14 @@ html.mobile-desktop .mobile-power{position:absolute;inset:0;z-index:100000;backg
 html.mobile-desktop .mobile-power button{padding:12px 24px;border:2px outset #fff;background:#c0c0c0;font:inherit}
 html.mobile-desktop .mobile-power button+button{margin-left:10px}
 /* JackOS LOCKed IN on a touchscreen in the house: the same finger-sized Win98 title bars and taskbar as JackOS on its own. */
-html[data-game-touch="true"].pc-desktop-full .tb{height:30px;font-size:13px;gap:5px;padding:0 3px 0 5px}
-html[data-game-touch="true"].pc-desktop-full .tb .ctl{gap:0}
-html[data-game-touch="true"].pc-desktop-full .tb .ctl button,html[data-game-touch="true"].pc-desktop-full .tb .ctl i{width:28px;height:24px;min-width:0;min-height:0;background-size:24px 20px;background-position:center}
+html[data-game-touch="true"].pc-desktop-full .tb{height:48px;font-size:13px;gap:5px;padding:0 3px 0 5px}
+html[data-game-touch="true"].pc-desktop-full .tb .ctl{gap:2px}
+html[data-game-touch="true"].pc-desktop-full .tb .ctl button,html[data-game-touch="true"].pc-desktop-full .tb .ctl i{width:44px;height:44px;min-width:44px;min-height:44px;background-size:24px 20px;background-position:center}
 html[data-game-touch="true"].pc-desktop-full .tb .ctl [aria-label=Close],html[data-game-touch="true"].pc-desktop-full .tb .ctl [data-w=close],html[data-game-touch="true"].pc-desktop-full .tb .ctl i{margin-left:4px}
 html[data-game-touch="true"].pc-desktop-full #taskbar{height:36px}
 html[data-game-touch="true"].pc-desktop-full #desktop{bottom:36px}
 html[data-game-touch="true"].pc-desktop-full #startBtn{min-height:30px}
 html[data-game-touch="true"].pc-desktop-full #startMenu{bottom:36px;max-height:calc(100% - 40px);overflow:auto}
+
+/* Keep the period menu type, icons and bevels; give each row its own finger space. */
+html.mobile-desktop .menu button,html.mobile-desktop #startMenu button,html[data-game-touch="true"].pc-desktop-full .menu button,html[data-game-touch="true"].pc-desktop-full #startMenu button{min-height:44px;box-sizing:border-box;padding-top:10px;padding-bottom:10px}

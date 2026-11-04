@@ -11,7 +11,7 @@
 .plumb-actions [data-plumb=b]{background:#dcb95d}.plumb-actions [data-plumb=a]{background:#c9937b}.plumb-actions [data-plumb=y]{background:#8fc2a5}.plumb-actions [data-plumb=x]{background:#8baabd}
 .plumb-actions button.pressed{box-shadow:inset 2px 2px #706b53;transform:translateY(1px)}
 .hs-paused .plumb-controls{visibility:hidden}
-@media (orientation:landscape){.rm-tvv:has(.plumb-controls){--rm-screen-bottom:8px;--rm-screen-left:170px;--rm-screen-right:170px}}
+@media (orientation:landscape), (min-width:600px) and (min-height:600px){.rm-tvv:has(.plumb-controls){--rm-screen-bottom:8px;--rm-screen-left:170px;--rm-screen-right:170px}}
 
 .plumb-dpad.up-active .up,.plumb-dpad.down-active .down,.plumb-dpad.left-active .left,.plumb-dpad.right-active .right{background:#617267;box-shadow:inset 2px 2px #1e3029}
 .rm-tvv:has(.plumb-controls) .rm-help{display:none}

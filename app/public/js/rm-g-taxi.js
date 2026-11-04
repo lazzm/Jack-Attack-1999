@@ -2032,7 +2032,7 @@
             .forEach((l, i) => F.center(H, l, W / 2, 132 + i * 24, i === 11 ? '#9ad8ff' : i > 7 ? '#3aff5a' : i > 4 ? '#ffd21a' : '#fff', 2));
         } else {
           ol(H, 'THE CRAZY MOVES', W / 2, 96, '#ff3a8a', 3, 1);
-          [['CRAZY DASH', 'LET GO, TAP BRAKE, THEN STRAIGHT ON GO: A BURST OF SPEED.'], ['CRAZY DRIFT', 'HOLD THE HANDBRAKE AND STEER AT SPEED. SMOKIN\'!'], ['CRAZY STOP', 'STAND ON THE BRAKES FROM FLAT OUT AND STOP DEAD.'], ['CRAZY THROUGH', 'SKIM PAST TRAFFIC AT SPEED WITHOUT TOUCHING IT.'], ['CRAZY JUMP', 'HUMPS, RAMPS, THE CAR PARK ROOF. AIR TIME = TIPS.']]
+          [['CRAZY DASH', 'LET GO, PRESS BRAKE, THEN STRAIGHT ON GO: A BURST OF SPEED.'], ['CRAZY DRIFT', 'HOLD THE HANDBRAKE AND STEER AT SPEED. SMOKIN\'!'], ['CRAZY STOP', 'STAND ON THE BRAKES FROM FLAT OUT AND STOP DEAD.'], ['CRAZY THROUGH', 'SKIM PAST TRAFFIC AT SPEED WITHOUT TOUCHING IT.'], ['CRAZY JUMP', 'HUMPS, RAMPS, THE CAR PARK ROOF. AIR TIME = TIPS.']]
             .forEach(([n, d], i) => { ol(H, n, W / 2, 136 + i * 50, ['#ffd21a', '#3affd0', '#ff8a3a', '#3aff5a', '#9ad8ff'][i], 2, 1); F.center(H, d, W / 2, 160 + i * 50, '#fff', 1); });
           F.center(H, 'CHAIN THEM WITH A PASSENGER ON BOARD FOR A COMBO = BIGGER TIPS!', W / 2, 400, '#ff3a8a', 1);
         }

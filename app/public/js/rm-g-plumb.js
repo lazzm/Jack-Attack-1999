@@ -927,7 +927,7 @@
       const v=screen.getWorldPosition(new T.Vector3()),n=new T.Vector3(0,0,1).transformDirection(screen.matrixWorld);
       const tan=Math.tan(H.camera.fov*Math.PI/360),aspect=innerWidth/innerHeight;
       const touch=navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches,portrait=innerHeight>=innerWidth;
-      const side=touch&&!portrait?170:8,bottom=touch&&portrait?160:8,top=touch?58:8;
+      const a=window.RoomTV.screenArea(),side=touch?a.left:8,bottom=touch?a.bottom:8,top=touch?a.top:8;
       const aw=Math.max(.2,(innerWidth-side*2)/innerWidth),ah=Math.max(.2,(innerHeight-top-bottom)/innerHeight);
       const d=Math.max(28/(2*tan*ah*.84),34/(2*tan*aspect*aw*.84));
       const x=v.x+n.x*d,y=-v.y-n.y*d,z=v.z+n.z*d,off=touch?(bottom-top)*d*tan/innerHeight:0;

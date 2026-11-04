@@ -493,7 +493,7 @@
       .ww-controller .ww-start{left:calc(50% - 26px);bottom:5px;width:52px;min-height:33px;border-radius:13px;font-size:9px}
       .ww-controller .ww-room-prev,.ww-controller .ww-room-next{top:0;min-height:31px;min-width:53px;border-radius:6px;font-size:9px}.ww-room-prev{left:0}.ww-room-next{right:0}
       .ww-touch-game.rm-lockin{--rm-screen-bottom:157px}
-      @media(max-height:500px){.ww-controller{height:119px;bottom:8px}.ww-stick{width:112px;height:112px}.ww-stick:before,.ww-stick:after{left:12px;top:40px}.ww-knob{left:33px;top:33px}.ww-actions{height:118px}.ww-touch-game.rm-lockin{--rm-screen-bottom:8px;--rm-screen-left:143px;--rm-screen-right:173px}.ww-controller .ww-start{left:30px;bottom:124px}}
+      @media(max-height:500px), (min-width:600px) and (min-height:600px){.ww-controller{height:119px;bottom:8px}.ww-stick{width:112px;height:112px}.ww-stick:before,.ww-stick:after{left:12px;top:40px}.ww-knob{left:33px;top:33px}.ww-actions{height:118px}.ww-touch-game.rm-lockin{--rm-screen-bottom:8px;--rm-screen-left:143px;--rm-screen-right:173px}.ww-controller .ww-start{left:30px;bottom:124px;min-height:44px}}
       `;document.head.append(style);
     }
     const root=document.createElement('div');root.className='ww-controller';root.setAttribute('aria-label','Warp Wombat controller');
@@ -517,7 +517,7 @@
     const view=document.querySelector('.rm-view[data-con="ps"]');view?.classList.add('ww-touch-game');
     if(view?.classList.contains('rm-lockin'))RoomTV.lockIn(true);
     K.pressed=b=>native.pressed(b)||!!pending[b];K.held=b=>native.held(b)||!!held[b];K.any=()=>native.any()||Object.keys(pending).some(k=>pending[k]);K.stick=()=>{const s=native.stick();return Math.abs(axis.x)+Math.abs(axis.y)>.05?{...axis}:s;};
-    return {clear(){pending={}},draw(mode){const state=RoomTV._dbg?.();root.hidden=!!(document.hidden||(window.House?.live&&(House.paused||!House.focused||state?.background||state?.gid!=='ps.run')));if(root.hidden)release();buttons.l.hidden=buttons.r.hidden=mode!=='hub';buttons.a.textContent=mode==='hub'?'ENTER':['level','boss'].includes(mode)?'JUMP':'SELECT';buttons.x.textContent=mode==='hub'?'TRIAL':['level','boss'].includes(mode)?'SPIN':'BACK';buttons.x.hidden=['title','tally','credits','pause'].includes(mode);buttons.y.hidden=!['level','boss'].includes(mode);buttons.y.textContent=mode==='level'?'FLOP / ROUTE':'FLOP';},end(){release();Object.assign(K,native);removeEventListener('blur',release);view?.classList.remove('ww-touch-game');root.remove();if(view?.classList.contains('rm-lockin'))RoomTV.lockIn(true);}};
+    return {clear(){pending={}},draw(mode){const state=RoomTV._dbg?.();root.hidden=!!(document.hidden||(window.House?.live&&(House.paused||!House.focused||state?.background||state?.gid!=='ps.run')));if(root.hidden)release();buttons.l.hidden=buttons.r.hidden=mode!=='hub';buttons.a.textContent=mode==='hub'?'ENTER':['level','boss'].includes(mode)?'JUMP':'SELECT';buttons.x.textContent=mode==='hub'?'TRIAL':['level','boss'].includes(mode)?'SPIN':'BACK';buttons.x.hidden=['title','tally','credits','pause'].includes(mode);buttons.y.hidden=!['level','boss'].includes(mode);buttons.y.textContent=mode==='level'?'FLOP / ROUTE':'FLOP';buttons.l.textContent='ROOM -';buttons.r.textContent='ROOM +';for(const key of ['a','x','y','l','r'])buttons[key].textContent+=' '+K.label(key);},end(){release();Object.assign(K,native);removeEventListener('blur',release);view?.classList.remove('ww-touch-game');root.remove();if(view?.classList.contains('rm-lockin'))RoomTV.lockIn(true);}};
   }
 
   // ================================================================ the disc
@@ -1396,7 +1396,7 @@
           if (LV.freeze > 0) sh('CLOCK FROZEN ' + LV.freeze.toFixed(1), W / 2, 30, '#ffe040');
           if (LV.parent) sh(K.keyLabel('y') + ' RETURN TO LEVEL', W / 2, H - 14, '#ffe5a0');
           else if (!LV.tt && WD.routes) { const portal = WD.routes.find(r => Math.hypot(P.x-r.x,P.z-r.z)<2.8); if (portal) { const rt = portal.rt; sh(rt.type === 'bonus' ? 'BONUS ROUND' : rt.type === 'death' ? 'NO DEATHS ROUTE' : rt.need.toUpperCase() + ' GEM PATH', W/2,H-38,'#ffe040'); sh(K.keyLabel('y') + ' ENTER',W/2,H-25,'#fff'); } }
-          if (LV.t < 5 && !msgT) sh(LV.L.side ? 'LEFT/RIGHT TRAVEL - UP/DOWN DEPTH' : 'ARROWS - Z JUMP - X SPIN - V BELLY FLOP', W/2,H-30,'#ffe5a0');
+          if (LV.t < 5 && !msgT) sh(LV.L.side ? 'LEFT/RIGHT TRAVEL - UP/DOWN DEPTH' : K.directionLabel+' - '+K.keyLabel('a')+' JUMP - '+K.keyLabel('x')+' SPIN - '+K.keyLabel('y')+' FLOP', W/2,H-30,'#ffe5a0');
         }
         if (flash > 0) { g.fillStyle = `rgba(255,230,140,${flash * 2})`; g.fillRect(0, 0, W, H); }
         if (LV.demo) { g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(0, H - 22, W, 14); sh((K.frame >> 5) % 2 ? 'DEMO - PRESS START' : 'WARP WOMBAT', W / 2, H - 19, '#ffe040'); }
@@ -1440,15 +1440,15 @@
             room.levels.forEach((li,j)=>{const y=115+j*17,k='L'+li;fitText((SV.done[k]?'* ':'  ')+LEVELS[li].name,28,y,174,'#fff');F.draw(g,'G',216,y,SV.gems[k]?'#9dffc0':'#63719b',1,'#000');F.draw(g,'R',235,y,SV.relic[k]?['','#6bb9ff','#ffe16a','#fff'][SV.relic[k]]:'#63719b',1,'#000');});
             sh(BOSSES[room.boss].name+': '+(SV.done['B'+room.boss]?'BEATEN':'WAITING'),W/2,205,'#ffc98a');
           }else{[['red','NO SECOND HELPINGS'],['blue','RED SKY AT SNACKTIME'],['green','THE LAST CRUMB'],['yellow','CUSTARD CREAM CRAWL'],['purple','JAMMY DODGER DUNGEON']].forEach(([c,hint],j)=>{const y=100+j*22;sh(c.toUpperCase()+' GEM: '+(SV.colours[c]?'FOUND':'MISSING'),W/2,y,'#'+COLOURS[c].toString(16));sh(hint,W/2,y+9,'#fff');});}
-          sh('LEFT/RIGHT PAGE - X BACK',W/2,216,'#ffedb0');return;
+          sh('LEFT/RIGHT PAGE - '+K.keyLabel('x')+' BACK',W/2,216,'#ffedb0');return;
         }
         if (mode === 'howto') {
           box(g, 12, 80, W - 24, 148);
           const P3 = [
-            [['MOVE','ARROWS / STICK'],['JUMP',K.keyLabel('a')+' / HOLD FOR HEIGHT'],['SPIN','X OR C / SQUARE OR CIRCLE'],['FLOP','V / TRIANGLE WHILE IN THE AIR'],['PAUSE','ENTER / START'],['','SIDE VIEW: LEFT/RIGHT TRAVEL'],['','UP/DOWN MOVE INTO THE SCENE']],
+            [['MOVE',K.directionLabel],['JUMP',K.keyLabel('a')+' / HOLD FOR HEIGHT'],['SPIN',K.keyLabel('x')],['FLOP',K.keyLabel('y')+' WHILE IN THE AIR'],['PAUSE',K.keyLabel('start')],['','SIDE VIEW: LEFT/RIGHT TRAVEL'],['','UP/DOWN MOVE INTO THE SCENE']],
             [['BOOM','LAND ON IT: 3 SECONDS'],['','SPIN INTO IT: INSTANT EXPLOSION'],['ZAP','GREEN. STAY CLEAR!'],['!','END SWITCH DISARMS ALL ZAP CRATES'],['TIKI','3 MASKS = INVINCIBLE FOR A WHILE'],['IRON','ARROW CRATES ARE SPRINGS'],['FLAG','A CHECKPOINT, NOT AN EXTRA LIFE']],
             [['GEMS','SMASH EVERY CRATE, BONUS TOO'],['RELICS','FINISH A STAGE, THEN PRESS SPIN'],['','ON ITS PAD FOR A TIME TRIAL'],['2','CLOCK CRATES FREEZE TRIAL TIME'],['LIVES','100 MANGOES = ONE EXTRA LIFE'],['','TRIALS RESTART WITHOUT LOSING LIVES'],['','YOUR EXACT PLACE SAVES AUTOMATICALLY']],
-            [['ROUTES','V / TRIANGLE AT A ROUND PAD'],['BONUS','FREE RETRIES; CRATES COUNT'],['DEATH','REACH IT WITHOUT A DEATH'],['COLOUR','FIND THE MATCHING GEM FIRST'],['ROOMS',K.keyLabel('l')+' PREVIOUS / '+K.keyLabel('r')+' NEXT'],['BOSSES','CLEAR ALL FIVE STAGES IN A ROOM'],['','Q LEANS BACK; T SWITCHES LOCK IN']],
+            [['ROUTES',K.keyLabel('y')+' AT A ROUND PAD'],['BONUS','FREE RETRIES; CRATES COUNT'],['DEATH','REACH IT WITHOUT A DEATH'],['COLOUR','FIND THE MATCHING GEM FIRST'],['ROOMS',K.keyLabel('l')+' PREVIOUS / '+K.keyLabel('r')+' NEXT'],['BOSSES','CLEAR ALL FIVE STAGES IN A ROOM'],['',GameInput.touch?'BACK: ROOM / LOCK IN: SCREEN':'Q LEANS BACK; T SWITCHES LOCK IN']],
           ][page];
           sh('HOW TO PLAY '+(page+1)+'/4',W/2,86,'#ffe040');P3.forEach(([a,b],i)=>{F.draw(g,a,20,102+i*16,'#ffe040',1,'#000');fitText(b,68,102+i*16,W-82,'#fff')});
 
