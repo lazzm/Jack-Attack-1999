@@ -1,5 +1,11 @@
 # Jack's Home Page - changelog
 
+## 2.68.0 - 2026-11-04
+- Outdoors looks like a real neighbourhood. The washed-out backdrop behind the houses is gone: the street now runs on with solid houses, roofs and trees out to 95 m and bends to close the view, and the air stays clear to 50 m. Front plots have joined brick walls and fences, neighbouring hedges are rounded and solid, front doors vary, walls and kerbs sit on the ground, and the road and clouds look better. Draw calls went up by at most 2 in any view.
+- The family move better, round 1. They take short first steps with planted feet, their feet land on real stair treads, standing up blends instead of popping, their eyes lead their head, and blinks close properly. Mom's and your sister's hair has real shape from behind, heads have more form, and hands have fingers and a thumb. Still to come: real grips on things they hold, cloth folds and shoe soles.
+- Tablets: controls sit under your thumbs at the sides and no longer cover the TV, on every console, at four tablet sizes. Game instructions name the buttons on the pad under touch. The shopping note no longer covers the carry panel, Start menus re-fit after rotating, speech balloons clear the speaker's face, the minimap stays in portrait, Menu during sitting offers a way back, and JackOS targets are bigger under touch.
+- Verified: parody 0, all unit checks, Chapter 1, door walking, Bonfire end to end, voices 9/9, seasons, physics, smoke 12/12, performance 4/4 after fixing a flaky test. Mobile passed 7/8 in the gate; the eighth, the owner menu, timed out once and then passed 2/2 alone, so it's treated as flaky. Art checks ran on a software renderer, not real phones. No real account, wallet or shared-world changes.
+
 ## 2.67.0 - 2026-11-04
 - Walk at someone and they notice early and shuffle out of your way, then go back to what they were doing. If they can't move, you can squeeze past them. It works in the hall, on the landing and stairs, in doorways, around the kitchen table and sofa, and when someone's walking towards you. Two people can't trap you.
 - Someone you're talking to stays put and finishes their line.
