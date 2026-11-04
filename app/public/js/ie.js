@@ -185,7 +185,7 @@
   // ================================================================ menus
   let openMenus = [], menubarOpen = null;
   function closeMenus() { openMenus.forEach(m => m.remove()); openMenus = []; document.querySelectorAll('#ieMenu button.open').forEach(b => b.classList.remove('open')); menubarOpen = null; }
-  function menu(items, x, y, level, inSurface) {
+  function menu(items, x, y, level, inSurface, anchor) {
     // Public callers pass browser client coordinates; layout below uses monitor pixels.
     if (!inSurface) { const local = DesktopSurface.point(x, y); x = local.x; y = local.y; }
     level = level || 0;
@@ -201,26 +201,45 @@
       if (it.rad) b.classList.add('rad');
       if (it.sub) {
         b.classList.add('sub');
-        const openSub = () => { const r = DesktopSurface.rect(b); menu(typeof it.sub === 'function' ? it.sub() : it.sub, r.right - 3, r.top - 3, level + 1, true); };
-        b.addEventListener('mouseenter', openSub); b.addEventListener('click', openSub);
+        const openSub = () => { const r = DesktopSurface.rect(b); menu(typeof it.sub === 'function' ? it.sub() : it.sub, r.right - 3, r.top - 3, level + 1, true, b); };
+        b.addEventListener('mouseenter', () => { if(!window.GameInput?.touch)openSub(); }); b.addEventListener('click', openSub);
       } else {
-        b.addEventListener('mouseenter', () => { openMenus.filter((m, i) => i > level).forEach(m => m.remove()); openMenus = openMenus.slice(0, level + 1); });
+        b.addEventListener('mouseenter', () => { if(window.GameInput?.touch)return;openMenus.filter((m, i) => i > level).forEach(m => m.remove()); openMenus = openMenus.slice(0, level + 1); });
         b.addEventListener('click', () => { closeMenus(); if (it.act) it.act(); });
       }
-      b.addEventListener('mouseenter', () => hl(el, null)); // the mouse takes over from the keyboard highlight
+      b.addEventListener('mouseenter', () => {if(!window.GameInput?.touch)hl(el, null)}); // the mouse takes over from the keyboard highlight
       el.appendChild(b);
     }
     DesktopSurface.root().appendChild(el);
-    el.style.maxHeight = Math.max(40, DesktopSurface.height() - 40) + 'px';
+    el.menuAnchor=anchor;el.menuPoint={x,y};
+    fitMenu(el,x,y,level);
+    openMenus.push(el);
+    return el;
+  }
+  function fitMenu(el,x,y,level){
+    const taskbar=document.getElementById('taskbar'),bottom=taskbar?.offsetHeight||34;
+    el.style.boxSizing='border-box';
+    el.style.maxHeight = Math.max(40, DesktopSurface.height() - bottom - 4) + 'px';
     el.style.maxWidth = Math.max(40, DesktopSurface.width() - 4) + 'px';
     el.style.overflowY = 'auto';
     const r = DesktopSurface.rect(el);
     // a submenu that will not fit on the right opens to the left of its parent, like JackOS
     el.style.left = Math.max(2, (level && x + r.width > DesktopSurface.width() - 2) ? x - r.width - (openMenus[level - 1] ? openMenus[level - 1].offsetWidth - 6 : 0) : Math.min(x, DesktopSurface.width() - r.width - 2)) + 'px';
-    el.style.top = Math.max(2, Math.min(y, DesktopSurface.height() - r.height - 34)) + 'px';
-    openMenus.push(el);
-    return el;
+    el.style.top = Math.max(2, Math.min(y, DesktopSurface.height() - r.height - bottom - 2)) + 'px';
   }
+  let menuFit=0;
+  function refitMenus(){
+    cancelAnimationFrame(menuFit);menuFit=requestAnimationFrame(()=>{
+      openMenus.forEach((el,level)=>{
+        let {x,y}=el.menuPoint;
+        if(el.menuAnchor?.isConnected){const r=DesktopSurface.rect(el.menuAnchor);if(r.width&&r.height){x=r.right-3;y=r.top-3;}}
+        fitMenu(el,x,y,level);
+      });
+    });
+  }
+  addEventListener('resize',refitMenus);
+  document.addEventListener('game-input-change',refitMenus);
+  new ResizeObserver(refitMenus).observe(DesktopSurface.root());
   document.addEventListener('pointerdown', ev => { if (!ev.target.closest('.menu') && !ev.target.closest('#ieMenu button') && !ev.target.closest('.tdrop,.cdrop,.links .chev')) closeMenus(); });
   const under = (btn, items) => { const r = btn.getBoundingClientRect(); menu(items, r.left, r.bottom); };
   // ---- keyboard: arrows move, Enter picks, Esc closes one level, a letter jumps to an item, Alt+letter opens a menu-bar menu

@@ -1610,9 +1610,10 @@
       screen.updateMatrixWorld(true);
       const v=screen.getWorldPosition(new T.Vector3()),n=new T.Vector3(0,0,1).transformDirection(screen.matrixWorld);
       const tan=Math.tan(H.camera.fov*Math.PI/360),aspect=innerWidth/innerHeight;
-      const d=Math.max(28/(2*tan*.84),34/(2*tan*aspect*.84));
-      const x=v.x+n.x*d,y=-v.y-n.y*d,z=v.z+n.z*d;
-      return {x,y,z,rx:-Math.atan2(-v.y-y,Math.hypot(v.x-x,v.z-z))*180/Math.PI,ry:Math.atan2(v.x-x,-(v.z-z))*180/Math.PI,lvl:'G',seat:1};
+      const a=window.RoomTV.screenArea(),aw=Math.max(.2,(innerWidth-a.left-a.right)/innerWidth),ah=Math.max(.2,(innerHeight-a.top-a.bottom)/innerHeight);
+      const d=Math.max(28/(2*tan*.84*ah),34/(2*tan*aspect*.84*aw));
+      const x=v.x+n.x*d,y=-v.y-n.y*d,z=v.z+n.z*d,off=(a.bottom-a.top)*d*tan/innerHeight;
+      return {x,y,z,rx:-Math.atan2(-v.y+off-y,Math.hypot(v.x-x,v.z-z))*180/Math.PI,ry:Math.atan2(v.x-x,-(v.z-z))*180/Math.PI,lvl:'G',seat:1};
     },
     help: 'Walk: arrows. Sword: X (hold it, then let go: spin attack). Talk / lift / open: Z. Use item: V. Map: C. Menu and save: Enter.',
     make(K) {

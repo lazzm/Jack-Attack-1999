@@ -284,7 +284,7 @@ html.hs-moving .rm-tvv .rm-tools,html.hs-moving .rm-live3d .rm-livebar{opacity:0
 [data-con=sn] .rm-pad::before{border-radius:90px}
 /* Wide screens use two wings, leaving a clear central screen at its native
    aspect. Start/select/shoulders live under the left thumb, outside the glass. */
-@media(max-height:500px) and (min-aspect-ratio:3/2) and (min-width:600px){
+@media(max-height:500px) and (min-aspect-ratio:3/2) and (min-width:600px), (min-width:600px) and (min-height:600px){
  .rm-tvv.rm-padon{--rm-screen-left:174px;--rm-screen-right:174px;--rm-screen-bottom:8px}
  .rm-tvv .rm-pad{top:58px;bottom:max(6px,env(safe-area-inset-bottom));height:auto;max-width:none;pointer-events:none}
  .rm-tvv .rm-pad::before,.rm-pad .rm-padname{display:none}
@@ -314,7 +314,7 @@ html.hs-moving .rm-tvv .rm-tools,html.hs-moving .rm-live3d .rm-livebar{opacity:0
 .rm-tvv .rm-pad{display:none}
 html[data-game-touch="true"] .rm-tvv .rm-pad:not([hidden]){display:block}
 .rm-tvv.rm-hand.rm-lockin .rm-pad:not([hidden]){display:block}
-html[data-game-touch="true"] .rm-tvv.rm-hand:not(.rm-lockin) .rm-pad{display:none}
+html[data-game-touch="true"] .rm-tvv.rm-hand:not(.rm-lockin):not(.rm-padon) .rm-pad{display:none}
 /* portrait: the controller sits under the telly; the back/menu bar rides above the controller */
 @media (max-aspect-ratio:3/4){
   .rm-tvv.rm-padon .rm-shelf,.rm-tvv.rm-padon .rm-conbar,.rm-tvv.rm-padon .rm-help{display:none}
@@ -329,6 +329,17 @@ html[data-game-touch="true"] .rm-tvv.rm-hand:not(.rm-lockin) .rm-pad{display:non
    zooming may steal a thumb that is on the D-pad */
 html.rm-gb-model,html.rm-gb-model body{touch-action:none;-webkit-user-select:none;user-select:none}
 @media(max-height:500px) and (min-aspect-ratio:3/2) and (min-width:600px){.rm-tvv .rm-pad .rm-control-label{display:none}}
+/* Tablet grips: the same wings, lower on the case, with the small controls
+   directly below the left thumb. The physical handheld remains visible. */
+@media(min-width:600px) and (min-height:600px){
+ .rm-tvv .rm-pad .rm-control-label{display:none}
+ .rm-tvv .rm-pl,.rm-tvv .rm-pr{top:auto;bottom:116px}
+ .rm-tvv .rm-pm{bottom:8px}
+ .rm-tvv.rm-dual .rm-pr{top:auto;bottom:116px}
+ html[data-game-touch="true"] .rm-tvv.rm-hand.rm-padon .rm-pad:not([hidden]){display:block}
+ .rm-tvv.rm-live3d.rm-padon .rm-livebar{left:180px;right:180px;bottom:8px}
+ .rm-tvv.rm-live3d.rm-padon .rm-livebar .rm-help{display:none}
+}
 .rm-gbpress{position:fixed;z-index:6;pointer-events:none;border-radius:50%;border:3px solid rgba(255,216,74,.85);box-shadow:0 0 12px rgba(255,216,74,.55),inset 0 0 10px rgba(255,216,74,.35);animation:rmGbPress .16s ease-out}
 @keyframes rmGbPress{from{transform:scale(1.35);opacity:.2}to{transform:scale(1);opacity:1}}
 

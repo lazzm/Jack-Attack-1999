@@ -1685,7 +1685,7 @@
           panel(90, 74, 140, MAIN.length * 15 + 14);
           MAIN.forEach((s, n) => { const on = n === sel.main; ctr((on ? '> ' : '') + s + (on ? ' <' : ''), 82 + n * 15, on ? '#ffe14a' : '#fff', 1); });
           const tip = ['FOUR TRACKS, POINTS, A TROPHY', 'ONE RACE ON ANY TRACK', 'YOU, THE CLOCK AND YOUR GHOST', 'POP EVERYONE ELSE\'S BALLOONS', 'BEST SCORES AND TIMES', 'MUSIC, CAMERA, GHOST', 'THE CONTROLS AND THE ITEMS'][sel.main];
-          ctr(tip, 196, '#9ad8ff', 1); ctr('ARROWS MOVE   ' + key('a') + ' SELECT   ' + key('b') + ' BACK', HH - 16, '#ccc', 1);
+          ctr(tip, 196, '#9ad8ff', 1); ctr(K.directionLabel+' MOVE   ' + key('a') + ' SELECT   ' + key('b') + ' BACK', HH - 16, '#ccc', 1);
           if (msgT > 0) ctr(msg, 210, '#ff8a6a', 1);
           return;
         }
@@ -1695,7 +1695,7 @@
           ctr(['GENTLE: GOOD FOR LEARNING', 'THE PROPER SPEED', 'FLAT-OUT MAYHEM', 'EVERY TRACK BACK TO FRONT!'][sel.cc], 172, '#9ad8ff', 1);
           if (!ccOpen(sel.cc)) ctr(sel.cc === 2 ? 'WIN A GOLD CUP ON 100CC TO OPEN IT' : 'WIN GOLD IN BOTH CUPS ON 150CC', 186, '#ff8a6a', 1);
           if (msgT > 0) ctr(msg, 204, '#ff8a6a', 1);
-          ctr('ARROWS MOVE   ' + key('a') + ' SELECT   ' + key('b') + ' BACK', HH - 14, '#ccc', 1);
+          ctr(K.directionLabel+' MOVE   ' + key('a') + ' SELECT   ' + key('b') + ' BACK', HH - 14, '#ccc', 1);
           return;
         }
         if (mode === 'driver') {
@@ -1730,9 +1730,9 @@
         if (mode === 'options') {
           H.fillStyle = 'rgba(0,0,40,.4)'; H.fillRect(0, 0, W, HH); big('OPTIONS', W / 2, 30, 22, '#ffe14a', '#ff8a00'); panel(60, 56, 200, 116);
           [['MUSIC', sv.opt.mus ? 'ON' : 'OFF'], ['CAMERA', sv.opt.cam ? 'FAR' : 'NEAR'], ['GHOST', sv.opt.ghost ? 'ON' : 'OFF'], ['AUTO GO', sv.opt.auto ? 'ON' : 'OFF'], ['DONE', '']].forEach(([a, b], n) => { const on = n === sel.opt; txt((on ? '> ' : '  ') + a, 76, 68 + n * 20, on ? '#ffe14a' : '#fff', 1); if (b) txt(b, 196, 68 + n * 20, '#9affa0', 1); });
-          if (sel.opt === 3) ctr('THE KART GOES BY ITSELF: HOLD ' + key('b') + ' TO BRAKE', 180, '#9ad8ff', 1); else ctr('GLOBAL AUDIO: ESC GAME MENU', 180, '#9ad8ff', 1);
-          if (!window.Sound?.musicOn) ctr('MUSIC MUTED IN THE ESC GAME MENU', 196, '#ffb0a0', 1);
-          ctr('ARROWS CHANGE   ' + key('a') + ' SELECT   ' + key('b') + ' BACK', HH - 14, '#ccc', 1); return;
+          if (sel.opt === 3) ctr('THE KART GOES BY ITSELF: HOLD ' + key('b') + ' TO BRAKE', 180, '#9ad8ff', 1); else ctr('GLOBAL AUDIO: GAME MENU', 180, '#9ad8ff', 1);
+          if (!window.Sound?.musicOn) ctr('MUSIC MUTED IN THE GAME MENU', 196, '#ffb0a0', 1);
+          ctr(K.directionLabel+' CHANGE   ' + key('a') + ' SELECT   ' + key('b') + ' BACK', HH - 14, '#ccc', 1); return;
         }
         if (mode === 'records') {
           H.fillStyle = 'rgba(0,0,40,.5)'; H.fillRect(0, 0, W, HH);
@@ -1745,7 +1745,7 @@
         if (mode === 'how') {
           H.fillStyle = 'rgba(0,0,30,.72)'; H.fillRect(0, 0, W, HH);
           if (sel.how === 0) { big('HOW TO PLAY', W / 2, 20, 18, '#ffe14a', '#ff8a00');
-            [['STEER', 'ARROWS / STICK'], ['GO', key('a') + ' (HOLD IT)'], ['BRAKE / BACK', key('b')], ['USE ITEM', key('c')], ['HOP + DRIFT', 'HOLD ' + key('r') + ' WHILE TURNING'], ['PAUSE', key('start')]].forEach(([a, b], n) => { txt(a, 22, 42 + n * 16, '#ffe14a'); txt(b, 110, 42 + n * 16, '#fff'); });
+            [['STEER', K.directionLabel], ['GO', key('a') + ' (HOLD IT)'], ['BRAKE / BACK', key('b')], ['USE ITEM', key('c')], ['HOP + DRIFT', 'HOLD ' + key('r') + ' WHILE TURNING'], ['PAUSE', key('start')]].forEach(([a, b], n) => { txt(a, 22, 42 + n * 16, '#ffe14a'); txt(b, 110, 42 + n * 16, '#fff'); });
             ctr('UP / DOWN: AIM ITEMS AHEAD / BEHIND',136,'#fff',1);
             ['DRIFT ROUND BENDS: THE SPARKS GO BLUE,', 'THEN ORANGE. LET GO OF ' + key('r'), 'FOR A MINI-TURBO!', 'PRESS GO JUST AS THE LAST LIGHT COMES ON', 'FOR A ROCKET START.'].forEach((l, n) => ctr(l, 146 + n * 11, '#9ad8ff', 1)); }
           else if (sel.how === 1) { big('ITEMS', W / 2, 18, 18, '#ffe14a', '#ff8a00'); ITEMS.forEach((it, n) => { const x = n < 5 ? 10 : 164, y = 34 + (n % 5) * 36; H.drawImage(ICON[it], x, y, 24, 24); txt(it === 'TRIPLE' ? 'TRIPLE TURBO' : it === 'BOMB' ? 'SKY BOMB' : it === 'STAR' ? 'SUPERSTAR' : it, x + 28, y + 3, '#ffe14a'); printLines(ITEM_INFO[it],x+28,y+14,118,'#fff'); }); }

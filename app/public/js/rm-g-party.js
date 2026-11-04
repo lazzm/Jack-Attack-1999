@@ -1022,7 +1022,7 @@
           sel = rnd() < sm ? best : 1 - best; JUNC.sel = 1 - sel;
           yield 0.45; JUNC.sel = sel; K.sfx.tone(880, 0.04); yield 0.5; r = opts[sel];
         } else {
-          HINT = 'CHOOSE A WAY: ARROWS, THEN ' + keyName('a');
+          HINT = 'CHOOSE A WAY: '+K.directionLabel+', THEN ' + keyName('a');
           r = yield () => {
             if (K.pressed('left') || K.pressed('right') || K.pressed('up') || K.pressed('down')) {
               // pick the arrow that is most in the pressed direction (on screen)
@@ -2812,7 +2812,7 @@
           if(MG[MG_ORDER[houseI]].secret&&!SAVE.unlocks.marble)ctr('CLEAR THE EXPEDITION TO OPEN THIS DOOR',160,191,'#f0adbc');
           else ctr('PAGE '+(page+1)+'/'+Math.ceil(MG_ORDER.length/8)+'    '+(houseI+1)+'/'+MG_ORDER.length,160,191,'#9ed9ff');
           const rec=SAVE.records[MG_ORDER[houseI]]||{plays:0,wins:0,best:0};ctr('PLAYS '+rec.plays+'   WINS '+rec.wins+'   BEST '+Math.floor(rec.best),160,204,'#b9e9b9');
-          ctr('ARROWS: CHOOSE   '+keyName('a')+': PLAY   '+keyName('b')+': BACK',160,220,'#fff');return;
+          ctr(K.directionLabel+': CHOOSE   '+keyName('a')+': PLAY   '+keyName('b')+': BACK',160,220,'#fff');return;
         }
         if(MODE==='expedition'){
           const e=SAVE.expedition,route=soloRoute();panel(8,8,304,224,{c1:'#285e7e',c2:'#11263e'});
@@ -2956,7 +2956,7 @@
         // which way? (and how far to the star)
         if (JUNC) ARROWS.forEach((m, k) => { m.material = arrowMats[k === JUNC.sel ? 1 : 0]; m.scale.setScalar(k === JUNC.sel ? 1.15 + Math.sin(clock * 8) * 0.08 : 0.9); const q = scr(m.position.x + m.userData.dx * 1.1, m.position.y + 0.5, m.position.z + m.userData.dz * 1.1); if (q.ok) { H.fillStyle = 'rgba(0,0,40,.55)'; rr(H, q.x - 18, q.y - 8, 34, 14, 4); H.fill(); H.drawImage(ICON.star, q.x - 16, q.y - 7); txt(JUNC.dist[k] >= 99 ? '?' : String(JUNC.dist[k]), q.x - 1, q.y - 3, k === JUNC.sel ? '#ffd23a' : '#fff'); } });
         if (MAPV) {
-          panel(6, HH - 24, W - 12, 18, { c1: '#2a2a6a', c2: '#0a0a2a' }); txt('MAP: ARROWS TO LOOK ROUND   ' + keyName('b') + ': BACK', 12, HH - 19, '#fff');
+          panel(6, HH - 24, W - 12, 18, { c1: '#2a2a6a', c2: '#0a0a2a' }); txt('MAP: '+K.directionLabel+' TO LOOK ROUND   ' + keyName('b') + ': BACK', 12, HH - 19, '#fff');
           if (G.starAt >= 0) { const s = SP[G.starAt], q = scr(s.x, SPY + 3.6, s.z); if (q.ok && q.x > 0 && q.x < W && q.y > 0 && q.y < HH) { H.drawImage(ICON.star, q.x - 7, q.y - 7 + Math.sin(clock * 6) * 2); } }
           for (const p of P) { const q = scr(p.a.x, p.a.y + 2.2, p.a.z); if (q.ok) H.drawImage(portOf(p), q.x - 7, q.y - 7, 14, 14); }
         }

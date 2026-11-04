@@ -171,3 +171,14 @@ html.ht-learning .ht-target,html.ht-learning .hs-tip:not(.carry),html.ht-learnin
   html[data-game-touch="true"] .hs-ui.holding .rm-toast{top:var(--ht-toast-top,calc(env(safe-area-inset-top,0px) + 212px))}
   html[data-game-touch="true"] .hs-ui.holding .ch-chip{top:var(--ht-job-top,calc(env(safe-area-inset-top,0px) + 236px))}
 }
+
+/* Portrait tablets have room for the same navigation map as landscape. */
+@media (orientation:portrait) and (min-width:600px){html[data-game-touch="true"] .hs-ui .hs-map{display:block}}
+/* Every automatic note uses the same measured stack as carry feedback. */
+html[data-game-touch="true"] .hs-ui.holding .rm-note{top:var(--ht-note-top,212px);bottom:auto;max-height:calc(100dvh - var(--ht-note-top,212px) - 12px);overflow:auto}
+@media (orientation:portrait){html[data-game-touch="true"] .hs-ui.holding .rm-note{max-height:calc(100dvh - var(--ht-note-top,212px) - 252px)}}
+html[data-game-touch="true"] .hs-ui.holding .rm-toast{top:var(--ht-toast-top,212px)}
+html[data-game-touch="true"] .hs-ui.holding .ch-chip{top:var(--ht-job-top,236px);bottom:auto}
+html[data-game-touch="true"] .hs-ui.holding .st-objective{top:var(--ht-objective-top,280px);bottom:auto}
+html[data-game-touch="true"] .hs-ui.holding .hs-voice.on{top:var(--ht-voice-top,212px);bottom:auto}
+html[data-game-touch="true"] .hs-ui.holding .hs-call.on{top:var(--ht-call-top,212px);bottom:auto;max-height:calc(100dvh - var(--ht-call-top,212px) - 12px);overflow:auto}

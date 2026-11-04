@@ -11,7 +11,7 @@
 .zeldo-actions [data-zeldo=b]{background:#dcb95d}.zeldo-actions [data-zeldo=a]{background:#c9937b}.zeldo-actions [data-zeldo=y]{background:#8fc2a5}.zeldo-actions [data-zeldo=x]{background:#8baabd}
 .zeldo-actions button.pressed{box-shadow:inset 2px 2px #706b53;transform:translateY(1px)}
 .hs-paused .zeldo-controls{visibility:hidden}
-@media (orientation:landscape){.rm-tvv:has(.zeldo-controls){--rm-screen-bottom:8px;--rm-screen-left:170px;--rm-screen-right:170px}}
+@media (orientation:landscape), (min-width:600px) and (min-height:600px){.rm-tvv:has(.zeldo-controls){--rm-screen-bottom:8px;--rm-screen-left:170px;--rm-screen-right:170px}}
 
 .zeldo-dpad.up-active .up,.zeldo-dpad.down-active .down,.zeldo-dpad.left-active .left,.zeldo-dpad.right-active .right{background:#617267;box-shadow:inset 2px 2px #1e3029}
 .rm-tvv:has(.zeldo-controls) .rm-help{display:none}

@@ -293,7 +293,7 @@
       : { label: k, icon: J('programs') || ICON.folder, sub: () => toItems(n[k]) });
     return toItems(tree);
   }
-  function startSub(btn, items) { const r = btn.getBoundingClientRect(); IE.menu(typeof items === 'function' ? items() : items, r.right - 4, r.top - 2); }
+  function startSub(btn, items) { const r = btn.getBoundingClientRect(); IE.menu(typeof items === 'function' ? items() : items, r.right - 4, r.top - 2, 0, false, btn); }
   document.querySelectorAll('#startMenu [data-sm]').forEach(b => {
     const which = b.dataset.sm;
     const items = () => which === 'programs' ? programsTree()
@@ -302,11 +302,11 @@
       : which === 'find' ? [{ label: 'Files or Folders...', icon: J('find') || ICON.folder, act: () => { closeStart(); open('find'); } }, { label: 'On the Internet...', icon: J('jacknet') || ICON.app, act: () => { closeStart(); document.getElementById('navSearch').click(); } }, { label: 'People...', icon: J('user') || ICON.app, act: () => { closeStart(); IE.go('members', 'click'); } }, { label: 'Secrets...', icon: J('key') || ICON.app, act: () => { closeStart(); window.Apps.secretsWindow(); } }]
       : [];
     const show = () => startSub(b, items);
-    b.addEventListener('mouseenter', show); b.addEventListener('click', show);
+    b.addEventListener('mouseenter', () => {if(!window.GameInput?.touch)show()}); b.addEventListener('click', show);
   });
   const closeStart = () => { $('startMenu').classList.remove('open'); $('startBtn').classList.remove('on'); };
   // pointing at a plain item folds any open submenu away; the keyboard walks the menu like JackOS does
-  document.querySelectorAll('#startMenu button:not([data-sm])').forEach(b => b.addEventListener('mouseenter', () => IE.closeMenus()));
+  document.querySelectorAll('#startMenu button:not([data-sm])').forEach(b => b.addEventListener('mouseenter', () => {if(!window.GameInput?.touch)IE.closeMenus()}));
   $('startMenu').addEventListener('keydown', ev => {
     const bs = [...$('startMenu').querySelectorAll('button')], i = bs.indexOf(document.activeElement);
     if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); IE.closeMenus(); bs[(i + (ev.key === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length].focus(); }
