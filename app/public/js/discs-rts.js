@@ -663,6 +663,7 @@
       const now = performance.now() / 1000; if (!force && now - U.lastSay < 0.8) return; U.lastSay = now;
       const list = kind === 'sel' ? (u.t === 'grot' ? SAY.grot : SAY.sel) : SAY[kind];
       u.bub = { txt: u.t === 'hero' ? vpick(['I\'m the best!', 'Gubbinz is here! Need a hand?', 'Fear me! Or don\'t, I\'m small.']) : vpick(list), t: 1.6 };
+      window.st?.speakLine?.('game.discs-rts','Game discs-rts unit',u.bub.txt,{remote:true,caption:false});
     }
     function msg(txt, col) {
       const d = el('div'); d.textContent = txt; d.style.color = col || '#fff'; msgs.appendChild(d);

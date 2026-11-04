@@ -2181,7 +2181,7 @@ File > Set As Wallpaper puts it on the desktop. Show your Mom.
       const b2 = h(`<div class="row" style="flex-wrap:nowrap;gap:10px;align-items:flex-start">${mini(I.phone)}<div style="flex:1"><b>Active call: ${esc(who)}</b> <span class="pgf-tm">0:00</span><div class="field pgf-talk"></div></div></div><div class="row pg-dlgbtns"><button class="btn pgf-hang">Hang Up</button></div>`);
       const cw = A.win('Active Call', b2, { w: 380, icon: I.phone, noResize: true, noMax: true, onClose: () => { clearInterval(iv); busy = false; w.status.textContent = 'Call ended.'; if (hold) Sound.music.stop(); } });
       const talk = qs(b2, '.pgf-talk'); let i = 0, s = 0;
-      const iv = setInterval(() => { s++; qs(b2, '.pgf-tm').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); if (s % 2 === 1 && i < lines.length) { const p = document.createElement('p'); p.textContent = lines[i++]; talk.appendChild(p); talk.scrollTop = 1e9; } }, 1000);
+      const iv = setInterval(() => { s++; qs(b2, '.pgf-tm').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); if (s % 2 === 1 && i < lines.length) { const p = document.createElement('p'); p.textContent = lines[i++]; talk.appendChild(p); talk.scrollTop = 1e9; const spoken=/^([^:]+):\s*"([\s\S]+)"$/.exec(p.textContent);if(spoken&&spoken[1]!=='You')window.st?.speakLine?.('dialer',spoken[1],spoken[2],{remote:true,caption:false,telephone:true}); } }, 1000);
       tap(qs(b2, '.pgf-hang'), cw.close);
       w.status.textContent = 'Connected: ' + who;
       return cw;

@@ -940,7 +940,7 @@
     function music(k) { if (!opt.music) { K.music(null); return; } const s = CFG.music[k] || null; K.music(s); }
     const SFX = makeSfx(K, look);
     function say(text, frames, o) { G.msgs.push(Object.assign({ text, t: 0, life: frames || 60, col: '#fff' }, o || {})); if (G.msgs.length > 4) G.msgs.shift(); }
-    function sayC(text, frames, o) { G.msgs = G.msgs.filter(m => !m.big); say(text, frames, Object.assign({ big: true }, o)); }
+    function sayC(text, frames, o) { G.msgs = G.msgs.filter(m => !m.big); say(text, frames, Object.assign({ big: true }, o)); window.st?.speakLine?.('fight.announcer','announcer',text,{remote:true,caption:false}); }
 
     // ================================================================ input -> what each fighter wants this frame
     const BTN = ['a', 'b', 'x', 'y'];

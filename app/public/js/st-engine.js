@@ -84,7 +84,7 @@
     observe();
     if (N.connected && Date.now() - lastSync > 9000) { lastSync = Date.now(); N.send({ t: 'stEvent', id: 'sync' }); }
     if (dialogueQueue.length && visible() && !document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out)')) {
-      const d = dialogueQueue.shift(); window.st.say(...d);
+      const d = dialogueQueue.shift(); if(window.st.speakLine)window.st.speakLine(...d);else window.st.say(...d);
     }
     if (celebration && visible() && !tickUntil && !document.querySelector('.hs-note.on,.hs-voice.on,.hs-call.on,.np-bub:not(.np-out)') && !window.HouseFamily?.speaking) {
       tickUntil = Date.now() + 2200;

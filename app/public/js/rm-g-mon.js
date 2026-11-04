@@ -996,7 +996,8 @@
       }
       const wait = n => ({ update() { if (--n <= 0) return NOTHING; } });
       const fn = (u, d) => ({ update: u, draw: d });
-      function* msg(t) { yield say(t); }
+      let npcVoice=null;
+      function* msg(t) {if(npcVoice)window.st?.speakLine?.(npcVoice.base,npcVoice.who,t,{remote:true,caption:false});yield say(t); }
       function* ask(t, opts) { yield say(t, { hold: true }); return yield menu(opts || ['YES', 'NO'], { under: null, y: 96 - ((opts || [0, 0]).length * 12 + 10), cancel: true }); }
       // fades: an ordered dither of the lightest shade
       const fadePat = [];
@@ -1144,6 +1145,9 @@
         playSong();
       }
       function* talkTo(n) {
+        const previous=npcVoice,role=n.mom?'momTalk':n.prof?'profTalk':n.rival?'rivalTalk':n.nurse?'nurseTalk':n.shop?'shopTalk':n.clockmaker?'clockmaker':n.tr?'trainerBattle':null;
+        npcVoice=n.obj||n.rare!=null?null:role?{base:'game.critters.'+role,who:'Pocket Critters '+role}:{base:'game.rm-g-mon.'+n.id,who:'game '+n.id};
+        try {
         if (n.dir && !n.obj) n.dir = opp[pl.dir];
         if (n.obj === 'ball') {
           S.taken[n.id] = 1; npcs = npcs.filter(x => x !== n);
@@ -1163,6 +1167,7 @@
         if(n.rare != null) return yield* rareBattle(n);
         if (n.tr) return yield* trainerBattle(n);
         for (const t of n.talk || []) yield* msg(t);
+        }finally{npcVoice=previous;}
       }
       function* clockmaker() {
         if(!S.f.badge4) return yield* msg('{clockmaker}: The old clock in LOST SOCK TUNNEL has slept for years. Earn the KILN BADGE and I will lend you my winding key.');

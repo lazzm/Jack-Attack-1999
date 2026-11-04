@@ -139,6 +139,25 @@ const tick = () => new Promise(r => setImmediate(r));
   }
   { const {w,fetched}=world({jhp_audio_effects:'1',jhp_audio_volume:'1'});w.navigator.userActivation.hasBeenActive=false;await w.st.loadVoices();
     assert.equal(w.st.play('c1.wake.mom.shout',{}),null);w.st.prefetch('c1.wake.mom.shout');await tick();assert(!fetched.some(u=>u.includes('.mp3')),'no user gesture: no name fetched'); }
+  // ---- the generated catalogue actually resolves at every runtime entry point;
+  // legacy gendered recordings are unreachable, and remote queues serialize even
+  // when sound is off without fetching clips or stopping the previous sentence.
+  {const {w,fetched}=world({jhp_audio_effects:'0',jhp_audio_volume:'1'});await w.st.loadVoices();
+    vm.runInContext(js('np-lines.js'),w);
+    const catalogue=JSON.parse(fs.readFileSync(path.join(__dirname,'../tools/audio/voice-lines.json'),'utf8'));
+    const ids=new Set();for(const l of catalogue.lines){assert(!ids.has(l.id),'duplicate voice id '+l.id);ids.add(l.id);const text=l.line.replace(/\s*\|\s*$/,'').trim();assert(!/[{}]/.test(text),'unsafe recording '+l.id);if(!w.VoiceLineAliases[l.id])assert.equal(w.st.lineId(l.id,l.character,text),l.id,'runtime id '+l.id);}
+    for(const [id,n]of Object.entries(catalogue.batches)){assert(n<=13&&n>0,id);const ls=catalogue.lines.filter(l=>l.batch===id);assert.equal(ls.length,n);assert.equal(new Set(ls.map(l=>l.character+' / '+(l.fx||''))).size,1,'one voice/effect '+id);}
+    assert.equal(w.st.voiceInfo('c4.xmas.eve.dad'),null,'old gendered clip cannot play before its neutral replacement exists');
+    const sent=[];w.HouseFamily={speaking:false,speak:(who,id,text)=>{sent.push({who,id,text});return true;}};
+    const line=catalogue.lines.find(l=>l.id.startsWith('bf.')&&l.character==='mom');
+    w.st.speakLine('bf.old-label','Mom',line.line);assert.equal(sent[0].id,line.id,'seasonal helper finds its recording through the real catalogue');
+    const timers=[];w.clearTimeout=()=>{};w.setTimeout=f=>{timers.push(f);return timers.length;};
+    w.st.speakLine('c4.xmas.gran','gran',w.VoiceLines['c4.xmas.gran'][1],{remote:true,caption:false});
+    w.st.speakLine('c4.xmas.gran2','gran',w.VoiceLines['c4.xmas.gran2'][1],{remote:true,caption:false});
+    assert(w.st.voiceQueued('c4.xmas.gran')&&w.st.voiceQueued('c4.xmas.gran2'));
+    timers.shift()();assert(!w.st.voiceQueued('c4.xmas.gran')&&w.st.voiceQueued('c4.xmas.gran2'),'second line starts after first ends');
+    timers.shift()();assert(!w.st.voiceBusy);assert(!fetched.some(u=>/\.mp3(?:\?|$)/.test(u)),'queued mute fetches no clips');
+  }
   // ---- bubble layout maths
   { const w = { window: null, House: null }; w.window = w; vm.createContext(w); vm.runInContext(js('np-bubble.js'), w);
     const L = w.NPCBubble.layout, view = { w: 390, h: 844, m: 10, top: 8 }, cross = { x: 161, y: 388, w: 68, h: 68 };

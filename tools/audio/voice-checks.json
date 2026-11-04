@@ -1,0 +1,83 @@
+{
+  "summary": [
+    "No TTS, transcription, paid API, secret-key read, audio generation, deploy, commit or push was performed. The existing audio symlink and all recording bytes are unchanged. Work stayed on voices2 and used disposable data only.",
+    "Part 1: the original independent 40 ms interval was delivered about 0.8–2.5 seconds apart on the software renderer. It compared an older painted mouth with a different 11 ms analyser window, then included zeros while the test suspended audio for a screenshot. A failing run advanced its audio clock only 3.77 seconds during an 18-second observation. This was a test artefact, not evidence of an inaudible line: the actual post-panner/filter audio-thread probe and analyser both proved signal. The corrected test observes the analyser value consumed by the production rig, checks its real smoothing equation, ignores suspended samples and leaves audio running during screenshots.",
+    "Counts: original branch 3/5 complete speak passes; live 2.66.0 np-bubble.js substituted alone 0/2, reproducing the same mouth failure without tablet balloon changes. Corrected native sampling passed the mouth checks 3/3; 2/3 complete focused cases passed, with one later ducking cleanup failure during newly queued dialogue. Fixture speech cleanup and waiting for duck release were corrected. The final complete voice-suite attempt passed speak (including far/subtitles), adding another corrected mouth pass. Source files were not reverted.",
+    "Generation: node tools/audio/gen-lines.mjs --dry-run is offline. It plans the missing approved-cast lines only; the four requested retakes and a neutral Christmas Eve replacement are included. Existing recorded lines are recognised only after their approved release hashes were verified. Generator limits, splitter and transcription verification are unchanged."
+  ],
+  "tests": [
+    {
+      "command": "node tests/voices.mjs http://localhost:18080 --only=speak",
+      "result": "Original sampler: 3 runs exit 0; 2 runs exit 1. Detailed logs copied to tests/shots/voices2/."
+    },
+    {
+      "command": "VOICES_REVERT_FILE=/tmp/voices2-live/np-bubble.js VOICES_PROBE_ONLY=1 node tests/voices.mjs http://localhost:18080 --only=speak",
+      "result": "Two runs exit 1 at the same mouth assertion; only the release balloon file was substituted."
+    },
+    {
+      "command": "VOICES_SYNC_SAMPLES=1 VOICES_PROBE_ONLY=1 node tests/voices.mjs http://localhost:18080 --only=speak",
+      "result": "Two runs exit 0; one exit 1 at duck cleanup after passing mouth. Mouth checks 3/3 passed."
+    },
+    {
+      "command": "git diff --name-only -- '*.js' '*.mjs' '*.cjs' | xargs -n1 node --check",
+      "result": "exit 0; all touched tracked JavaScript parsed."
+    },
+    {
+      "command": "node --check tools/audio/voice-audit.mjs",
+      "result": "exit 0."
+    },
+    {
+      "command": "for f in tests/*-unit.cjs; do node \"$f\"; done",
+      "result": "Final 48/48 exit 0. Earlier regression findings were fixed: the neutral bedtime test expectation, and scene-history deduplication across story steps. Final per-file results: tests/shots/voices2/unit-results.txt."
+    },
+    {
+      "command": "node --expose-internals tests/parody-audit.cjs",
+      "result": "exit 0; 0 authored text spans require changes."
+    },
+    {
+      "command": "node tools/audio/test-split.mjs",
+      "result": "exit 0; offline splitter suite passed."
+    },
+    {
+      "command": "node tools/audio/gen-lines.mjs --dry-run",
+      "result": "exit 0; 309/523 verified, 214 pending, 19 planned requests covering all 214. No API calls made."
+    },
+    {
+      "command": "FIXTURE_RASTER_RATIO=0.25 SMOKE_SCALE=1 timeout 600s node tests/voices.mjs http://localhost:18080",
+      "result": "exit 124; 8/9 passed, including audio, layout, speak, muted, names, edge, two, prompt. Global timeout closed the last phone fixture."
+    },
+    {
+      "command": "node tests/voice-recordings.mjs",
+      "result": "exit 0; all five characters, real decoding/source/level/panner/ducking and exact approved manifest."
+    },
+    {
+      "command": "FIXTURE_RASTER_RATIO=0.25 BONFIRE_NO_SHOTS=1 timeout 360s node tests/events-bonfire.mjs http://localhost:18080",
+      "result": "exit 124; real wood stacking and preparations progressed to the display finale. No complete event/persistence pass."
+    },
+    {
+      "command": "FIXTURE_RASTER_RATIO=0.25 REGRESSION_NO_SHOTS=1 STORY_SCALE=1 timeout 180s node tests/story-ch1.mjs http://localhost:18080",
+      "result": "exit 124; interrupted during real bed making. No complete Chapter 1 pass."
+    },
+    {
+      "command": "FIXTURE_RASTER_RATIO=0.25 SMOKE_SCALE=1 timeout 240s node tests/smoke.mjs",
+      "result": "exit 124; 5/8 checks passed before SIGTERM at 240 seconds. Walk-refresh hit a loading-state timeout; it was not rerun alone, so it is unconfirmed and not classified as a game defect. The later phone-typing check passed."
+    },
+    {
+      "command": "node tests/mobile.mjs",
+      "result": "DID NOT RUN: insufficient serial-browser time."
+    }
+  ],
+  "screenshots": [
+    "tests/shots/voices/dad-near.png",
+    "tests/shots/voices/name-mom-call.png",
+    "tests/shots/voices/phone-name-mom-shout.png",
+    "tests/shots/voices/phone-name-landscape.png"
+  ],
+  "limitations": [
+    "The bounded full voice suite reached 8/9 and was terminated at 600 seconds during the separate phone fixture; the names case already includes portrait/landscape phone captures. This is not a full-suite pass.",
+    "Final browser gates use FIXTURE_RASTER_RATIO=0.25 for functional coverage; they do not certify native-resolution visual quality or physical phone/tablet performance. Native diagnostic views were reviewed earlier. The complete mobile suite did not run.",
+    "New clips have not been generated, listened to or transcript/accent audited. Playback of every newly prepared sentence, every refresh during a seasonal/remote call, every floor/room combination and every rapid-input path is not verified.",
+    "Uncast NPCs need Jack’s casting decisions. Legacy computer speech and all free-form adventure/server dialogue have not all been migrated to the new recording queue. Structured MUD dialogue is inventoried, but MUD transport still lacks recording IDs. Treat those as remaining work, not shipped voice coverage.",
+    "The final duplicate-line/F-press and stricter room/floor-muffle adjustments passed the unit suites, but a complete subsequent browser matrix did not fit the time box."
+  ]
+}

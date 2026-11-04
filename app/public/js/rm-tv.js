@@ -617,6 +617,7 @@
     if(V.restoreLocked){V.restoreLocked=false;lockIn(true);}
     if(V.restoreBackground){V.restoreBackground=false;close();}
     if (!V.restoring) playedOne(gid);
+    if(!V.restoring)window.st?.speakLine?.('ann.start','announcer','Player one. Get ready.',{remote:true,caption:false});
   }
   function crash() { const g = V.cv1.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, V.cv1.width, V.cv1.height); font.center(g, 'THIS GAME HAS CRASHED. EJECT IT AND TRY AGAIN.', V.cv1.width / 2, V.cv1.height / 2, '#fff', 1); }
   function stopGame() {
@@ -666,6 +667,7 @@
       return;
     }
     const res = $(V.el, '.rm-res');
+    window.st?.speakLine?.('ann.over','announcer','Game over.',{remote:true,caption:false});
     res.innerHTML = `<h3>${esc(o.title || 'GAME OVER')}</h3>${o.text ? `<p>${esc(o.text)}</p>` : ''}<div class="rm-sc">SCORE <b>${sc.toLocaleString('en-GB')}</b></div>
       <div class="rm-best">YOUR BEST <b>${Math.max(localBest(gid), srv.best[gid] | 0).toLocaleString('en-GB')}</b></div><div class="rm-srv">${tok ? 'Sending your score to JackNet...' : (window.Net && Net.me && Net.me.member ? '' : 'Log on to JackNet to get on the high-score table and earn Rupees!')}</div>
       <ol class="rm-hi"></ol><div class="rm-rb"><button type="button" class="rm-b rm-again">Play again</button><button type="button" class="rm-b rm-shelfb">Change game</button></div>`;

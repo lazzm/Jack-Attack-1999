@@ -47,7 +47,7 @@
       R.grabbable(id,{obj,kind:'story-pc',label:names[part],home,holdD:65,holdOffset:{right:27,down:16},walkScale:part==='monitor'?.48:.85,
         handGrips:part==='keys'?[[-15,-.725,2.5],[15,-.725,2.5]]:undefined, // keyboard sides, below the loose mouse lead
         canGrab:()=>active()&&!state().done['part.'+part]&&!!state().done.boot&&(H.THINGS[id]?.at.room!=='drive'||H.ROOMS.drive.carBoot.open),
-        use:()=>st.say('st.carry.'+part,'Dad',state()?.done['part.'+part]?'Plug in the marked leads, then press the power button.':'E carries it. Take it to the marked place on your desk. Q puts it back safely.'),useLabel:'Carry upstairs'});
+        use:()=>st.speakLine('st.carry.'+part,'Dad',state()?.done['part.'+part]?'Plug in the marked leads, then press the power button.':'E carries it. Take it to the marked place on your desk. Q puts it back safely.'),useLabel:'Carry upstairs'});
     }
     for (const [i,lead] of ['power','video','keyboard'].entries()) {
       const g = new T.Group(), P = K.into(g), x=28,y=-9-i*8,z=-23;

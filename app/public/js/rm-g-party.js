@@ -849,15 +849,54 @@
         const v = WAIT(dt);
         if (v !== undefined) { WAIT = null; RET = v; adv(); }
       }
+      // Generic announcer variants keep players' names, totals and live button
+      // labels out of recordings. Until a clip exists the original writing stays.
+      function hostVoiceText(s) {
+        const rules=[
+          [/ HAS FOUND THE STAR!/,"THE STAR HAS BEEN FOUND!"],
+          [/ ONLY HAS .* COINS\./,"OH DEAR. COME BACK WITH MORE COINS!"],
+          [/ GOT A STAR!/,"YOU GOT A STAR! SPARKLY!"],
+          [/ THE TWIN DICE!/,"TWIN DICE! TWO BLOCKS!"],
+          [/^DING DONG! THE CLOCKWORK JACKPOT:/,"DING DONG! THE CLOCKWORK JACKPOT PAYS OUT!"],
+          [/^A COIN GEYSER!/,"A COIN GEYSER! WHOOSH!"],
+          [/^WOBBLE WARP!/,"WOBBLE WARP! WHEEE! OFF WE GO!"],
+          [/ STOPS THE REELS\./,"STOP THE REELS! ANYTHING CAN HAPPEN!"],
+          [/ GOES FIRST, THEN /,"LET'S SEE WHO GOES FIRST! EVERYBODY STARTS WITH TEN COINS."],
+          [/ IS IN LAST PLACE/,"LAST PLACE? HAVE TEN COINS TO CATCH UP!"],
+          [/ (?:EACH GET|GETS) 10 COINS!/,"THE WINNERS GET TEN COINS!"],
+          [/ (?:GIVES|TAKES|SWAPS|STEALS|TRADES) /,"LET'S SEE WHAT THE REELS HAVE DECIDED!"],
+          [/^WELCOME TO WOBBLE ISLAND/,"WELCOME TO WOBBLE ISLAND! I'M MC WOBBLE, YOUR HOST WITH THE MOST!"],
+          [/^WHOEVER HAS THE MOST STARS/,"WHOEVER HAS THE MOST STARS AT THE END WINS. I'LL SWAP YOU A STAR FOR COINS."],
+          [/^YOU FOUND THE STAR!/,"YOU FOUND THE STAR! FANCY A SWAP?"],
+          [/^YOU GOT A STAR!/,"YOU GOT A STAR! SPARKLY!"],
+          [/^OH DEAR, YOU ONLY HAVE/,"OH DEAR. COME BACK WITH MORE COINS!"],
+          [/^THANK YOU! ONE /,"THANK YOU! COME AGAIN!"],
+          [/^STOP THE REELS WITH/,"STOP THE REELS! ANYTHING CAN HAPPEN!"],
+          [/^SWAP KAZOO!/,"SWAP KAZOO! TIME TO SWAP PLACES!"],
+          [/^SWAP SHOP!/,"SWAP SHOP! TIME TO SWAP COINS!"],
+          [/^YOU FOUND THE COUNT'S DISCOUNT LEVER!/,"THE COUNT'S DISCOUNT LEVER! BARGAIN STARS!"],
+          [/^\.\.\.BUT .* HAS NO STARS/,"NO STARS TO GIVE! PHEW."],
+          [/^\.\.\.BUT .* HAS NO COINS/,"NO COINS TO GIVE! PHEW."],
+          [/^THE .* GOES TO WHOEVER/,"TIME FOR A BONUS STAR!"],
+          [/^\.\.\.NOBODY! NO /,"NOBODY! NO BONUS STAR THIS TIME."],
+          [/^WELL DONE, /,"WELL DONE! YOU'RE THE WOBBLE SUPERSTAR!"],
+          [/^BAD LUCK, /,"BAD LUCK! BETTER LUCK NEXT TIME!"]
+        ];
+        return rules.find(([pattern])=>pattern.test(s))?.[1]||s;
+      }
       // talk: types out, then waits for A (or carries on by itself when nobody needs to read it)
       function* say(s, who, name, o) {
         o = o || {};
+        let voice=null;
+        if(who==='host'&&window.st?.speakLine){const spoken=hostVoiceText(s),id=st.lineId('game.wobble.host','announcer',spoken);if(st.voiceInfo(id))s=spoken;voice=st.speakLine(id,'announcer',spoken,{remote:true,caption:false});}
+        else if(who)window.st?.speakLine?.('game.wobble.speaker','Wobble Party '+name,s,{remote:true,caption:false});
         const lines = wrap(s, who ? 40 : 48), total = lines.join('').length;
         DLG = { who, name, lines, n: 0, done: false, wait: !o.auto };
         let t = 0;
         yield dt => {
           DLG.n = Math.min(total, DLG.n + dt * 70 * spd()); if (DLG.n >= total) DLG.done = true;
           t += dt * spd();
+          if(voice&&window.Sound?.voicesOn&&st.voiceInfo(voice)&&st.voiceQueued(voice))return undefined;
           if (K.pressed('a') || K.pressed('b') && !o.auto) { if (!DLG.done) { DLG.n = total; DLG.done = true; return undefined; } if (t > 0.15) return true; }
           const au = o.auto || (AUTO ? AUTOWAIT : 0);
           if (au && DLG.done && t > (au === true ? 0.9 + total * 0.025 : au)) return true;

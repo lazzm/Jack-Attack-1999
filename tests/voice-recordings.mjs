@@ -4,7 +4,10 @@ import assert from 'node:assert/strict';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {withTestServer} from './perf/server.mjs';
 import {chromium} from 'playwright';
-const audit=JSON.parse(await readFile(new URL('../tools/audio/releases/british-2026-10-29.json',import.meta.url),'utf8'));
+const baseline=JSON.parse(await readFile(new URL('../tools/audio/releases/british-2026-10-29.json',import.meta.url),'utf8'));
+const final=JSON.parse(await readFile(new URL('../tools/audio/releases/voices-final-2026-11-01.json',import.meta.url),'utf8'));
+const accepted={...baseline.accepted,...final.accepted};
+const audit={accepted,acceptedCount:Object.keys(accepted).length,excluded:final.excluded};
 await withTestServer(async base=>{
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium'}),p=await browser.newPage(),errors=[],results=[];
  p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(['error','warning'].includes(m.type()))errors.push(m.text()+' '+JSON.stringify(m.location()))});p.on('response',r=>{if(r.status()>=400)console.log('Audio page resource failure:',r.status(),r.url())});
