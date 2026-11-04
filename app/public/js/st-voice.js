@@ -149,7 +149,7 @@
         return Math.max(0, Math.min(1, (rms / h.peak - 0.12) * 1.35));
       },
       progress() { if (!h.started) return 0; if (h.ended) return 1; return h.dur ? Math.max(0, Math.min(1, (c.currentTime - h.t0) / h.dur)) : 0; },
-      stop() { h.cancelled = true; if (h.src) try { h.src.stop(); } catch (e) {} done(); },
+      stop() { h.cancelled = true; if (h.src) try { const t = c.currentTime; if (h.out) { h.out.gain.cancelScheduledValues(t); h.out.gain.setValueAtTime(h.out.gain.value, t); h.out.gain.linearRampToValueAtTime(0, t + 0.015); } h.src.stop(t + 0.02); } catch (e) {} done(); }, // (a short fade: stopping mid-wave clicks)
       onstart: null, onend: null };
     const done = why => { if (h.ended) return; note(id, typeof why === 'string' ? why : h.cancelled ? 'stopped' : 'ended'); h.ended = true; active.delete(h); pending.delete(h); if (!active.size) window.Sound.duck && Sound.duck(false); try { h.onend && h.onend(h); } catch (e) {} };
     const p = buffer(c, id); if (!p) return null;
@@ -160,7 +160,7 @@
       if (performance.now() - asked > (o.late || 6000)) { done('late'); return; } // (too late: it would be out of step with the bubble)
       const src = c.createBufferSource(); src.buffer = buf; h.src = src; h.dur = buf.duration; h.nameDur = n ? p.nameDur : 0;
       const an = c.createAnalyser(); an.fftSize = 512; h.an = an;
-      const g = c.createGain(); g.gain.value = o.gain || 1;
+      const g = c.createGain(); g.gain.value = o.gain || 1; h.out = g;
       let node = src;
       if (o.pos && c.createPanner) {
         const pn = c.createPanner(); pn.panningModel = 'equalpower'; pn.distanceModel = 'inverse'; pn.refDistance = 140; pn.rolloffFactor = 0.65; pn.maxDistance = 6000;
