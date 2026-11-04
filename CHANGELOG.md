@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.66.1 - 2026-11-04
+- You can walk out of the front door again. Since 2.60.0 the new glazed door was measured from one small trim piece, so the game treated the doorway as too low to walk through. The back door was fine.
+- A new test walks through the front, back, kitchen and lounge doors in both directions with real keys. It's now in the release gate, because the old door tests moved the player past the doorway.
+- Verified: parody 0, all unit checks, door walking both ways, smoke 12/12, physics 14 of 15 (the last check, frame cost, was cut off by a time limit). No real account, wallet or shared-world changes.
+
 ## 2.66.0 - 2026-11-04
 - Tekno Fist goes much deeper: Arcade and Time Attack run to ten matches, and there's Team Battle with one to eight fighters, a new Fist Ball bonus game, an ending theatre and proper credits.
 - A refresh mid-match now picks up where you were, even mid-throw or during a replay. Existing memory cards keep all their unlocks, endings and scores.
