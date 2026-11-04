@@ -29,7 +29,7 @@ try{
  async function clock(date,hour){await owner('clock',{date,hour});await until(`OwnerTools.clock?.date==='${date}'&&OwnerTools.clock.hour===${hour}`);await page.waitForTimeout(600);}
  async function rupees(){await page.evaluate(()=>{window.__ec=null;Net.send({t:'ecMe'})});await until(()=>window.__ec&&Number.isFinite(window.__ec.bal));return page.evaluate(()=>window.__ec.bal);}
  const st=()=>page.evaluate(id=>Season.st(id),EID);
- async function aim(eye,target,level='G'){await view(eye,target,{level});await page.evaluate(t=>{House.hush();House._.setMode('walk');const P=House.P,W=House.W;if(!W.seat){W.eyeNow=W.eye;P.y=W.fy-W.eye;P.rx=Math.atan2(-(t[1]-P.y),Math.hypot(t[0]-P.x,t[2]-P.z))*180/Math.PI;P.ry=Math.atan2(t[0]-P.x,-(t[2]-P.z))*180/Math.PI;House.dirty()}},target);await page.waitForTimeout(250);} // (the eye starts at the standing height: no drift after aiming)
+ async function aim(eye,target,level='G'){await view(eye,target,{level});await page.evaluate(t=>{House.hush();House._.setMode('walk');const P=House.P,W=House.W;if(!W.seat){const r=House.ROOMS[House.here],ceiling=r?.ceilingAt?.(W.x,W.z+22);W.eye=Math.min(r?.eye||House.STAND,Number.isFinite(ceiling)?Math.max(30,W.fy-ceiling-16):Infinity);W.eyeNow=W.eye;P.y=W.fy-W.eye;P.rx=Math.atan2(-(t[1]-P.y),Math.hypot(t[0]-P.x,t[2]-P.z))*180/Math.PI;P.ry=Math.atan2(t[0]-P.x,-(t[2]-P.z))*180/Math.PI;House.dirty()}},target);await page.waitForTimeout(250);} // (the eye starts at the standing height: no drift after aiming)
  async function key(k){await page.keyboard.press(k);await page.waitForTimeout(350);}
  const shot=async n=>{await page.evaluate(()=>House.hush());await page.waitForTimeout(500);if(process.env.REGRESSION_NO_SHOTS!=='1')await page.screenshot({path:shots+n+'.png'});log('checkpoint',n,await page.evaluate(()=>House.ren.info.render.calls)+' draws');};
  async function drag(points,{steps=2,pause=25}={}){await page.mouse.move(points[0][0],points[0][1]);await page.mouse.down();for(const [x,y] of points){await page.mouse.move(x,y,{steps});await page.waitForTimeout(pause);}await page.mouse.up();}
@@ -63,7 +63,7 @@ try{
 
  // ---- 3. fill the bowl from the tin under the stairs
  await page.evaluate(()=>House.setDoor('cupboard',true,true));await page.waitForTimeout(400);
- await aim([300,GY-EYE,421],[348,GY-8,422]);await key('e');
+ await aim([383,GY-90,417],[348,GY-8,422]);await key('e');
  await until(()=>House.held()==='hw.tin');
  await aim([262,GY-EYE,640],[224,GY-70,663]);await key('e');
  await until(()=>!!Season.st('halloween99').obj['hw-bowl']);

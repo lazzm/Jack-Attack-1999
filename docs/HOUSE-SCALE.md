@@ -412,7 +412,7 @@ alcove was cut into the low wedge. Keeping that volume inside gives useful shall
 | Super Ultra box / insertion | (352,340), yaw 15° | (348,275), yaw 0°; insertion follows console |
 | Filled-case rack | x 385..393, z 370 | unchanged IDs, slots and coordinates |
 | Empty-case parking | (379,345), yaw 0° | (397,311), yaw 90°; only old factory park migrates |
-| Tall / low storage | ironing board high end, vacuum (398,420), toolbox (350,390) | board against x 403 at z 359; vacuum (345,450), wellies z 476/490, toolbox (352,517), toy bag (393,508), tree (383,533) |
+| Tall / low storage | ironing board high end, vacuum (398,420), toolbox (350,390) | board against x 403 at z 359; vacuum (345,450), wellies z 476/490, toolbox (352,510), toy bag (393,508), tree (383,533) |
 | Player head | fixed 112 eye throughout | normal 143 at entrance; eye lowers under slope with 16 cm margin ahead of capsule |
 
 The soffit remains `73 + 0.8*(z-250) + 23.5`; the last part is storage, not standing space. The existing meter,

@@ -6,10 +6,11 @@ import {bonfireLogin} from './bonfire-login.mjs';
 import {execFileSync} from 'node:child_process';
 import {roomFixture} from './room-fixture.mjs';
 const base=process.argv[2],tag=process.argv.includes('--before')?'before':'after';
-const dir=new URL('./shots/cupboard/'+tag+'/',import.meta.url).pathname;await mkdir(dir,{recursive:true});
+const native=process.argv.includes('--native'),reviewBefore=process.argv.includes('--review-before');
+const dir=new URL('./shots/cupboard/'+(native?(reviewBefore?'native-before/':'native/'):tag+'/'),import.meta.url).pathname;await mkdir(dir,{recursive:true});
 const account='Cup'+Date.now().toString(36),password='Throwaway-1999';
 assert((await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})})).ok);
-const f=await roomFixture(base,{account,password,signup:false,resume:true,opening:true,storageState:await bonfireLogin(base,password,account,{pv:12,x:40,y:-70,z:155,rx:0,ry:0,lvl:"U",seat:0}),seed:12345,onPage:async p=>{if(tag==='before')for(const file of ['hs-house.js','hs-world.js','rm-room.js','hs-cases.js']){const body=execFileSync('git',['show','b34c2557062b5bb208f6d667d1f1808617caeff0:app/public/js/'+file],{encoding:'utf8'});await p.route('**/js/'+file+'*',r=>r.fulfill({body,contentType:'application/javascript'}))}}}),p=f.page,report={views:[],errors:f.errors};
+const f=await roomFixture(base,{account,password,signup:false,resume:true,opening:true,storageState:await bonfireLogin(base,password,account,{pv:12,x:40,y:-70,z:155,rx:0,ry:0,lvl:"U",seat:0}),seed:12345,onPage:async p=>{if(native)await p.addInitScript(()=>localStorage.setItem('jhp_hs_msaa','true'));if(tag==='before'||reviewBefore)for(const file of ['hs-house.js','hs-world.js','rm-room.js','hs-cases.js']){const body=execFileSync('git',['show',(reviewBefore?'52ce5e1':'b34c2557062b5bb208f6d667d1f1808617caeff0')+':app/public/js/'+file],{encoding:'utf8'});await p.route('**/js/'+file+'*',r=>r.fulfill({body,contentType:'application/javascript'}))}}}),p=f.page,report={views:[],errors:f.errors};
 try{
  await p.evaluate(()=>{House.buildRoom(House.ROOMS.cupboard);HouseFamily.debug.hide(true);House.setDoor('cupboard',false,true);House.hush()});
  const views=[
@@ -20,11 +21,28 @@ try{
  ['back',[370,266,420],[370,280,280],true],
  ['low-end',[380,308,470],[375,330,540],true],
  ['arc-above',[285,110,315],[285,353,315.1],true],
+ ...(native?[
+ ['vacuum',[377,280,420],[345,325,450],true],
+ ['boots',[380,301,463],[344,334,485],true],
+ ['bag-tools',[380,290,450],[375,330,513],true],
+ ['frame-shut',[270,153,355],[330,153,309],false],
+ ['frame-open',[270,153,355],[330,153,309],true],
+ ]:[]),
  ];
  for(const [name,eye,target,open]of views){
   if(process.argv.includes('--functional-only'))break;
+  const only=process.argv.find(a=>a.startsWith('--views='))?.slice(8).split(',');if(only&&!only.includes(name))continue;
   await p.evaluate(({open,name})=>{House.setDoor('cupboard',open,true);House.camera.fov=name==='arc-above'?65:House.camera.fov;House.camera.updateProjectionMatrix()},{open,name});await f.view(eye,target,{level:'G'});await p.waitForTimeout(400);
-  await p.screenshot({path:dir+name+'.png'});report.views.push({name,eye,target,draws:await p.evaluate(()=>House.ren.info.render.calls)});console.log('SHOT',name,report.views.at(-1).draws);
+  if(native){await p.evaluate(()=>{House.ren.setPixelRatio(1);House._.renderForBenchmark();House.ren.getContext().finish()});assert.equal(await p.evaluate(()=>House.ren.getPixelRatio()),1);assert(await p.evaluate(()=>House.ren.domElement.width===innerWidth&&House.ren.domElement.height===innerHeight),'Native drawing buffer must match viewport')}
+  if(native&&name==='hall-shut')report.floorProbe=await p.evaluate(()=>{
+   House.scene.updateMatrixWorld(true);const rays=[];
+   for(const x of [3,20,35,40,45,50,60,70,80])for(const y of [730,750,760,770,780,790,800]){
+    const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(x/innerWidth*2-1,1-y/innerHeight*2),House.camera);
+    const h=ray.intersectObjects(House.scene.children,true).find(h=>{let a=h.object;while(a){if(!a.visible)return false;a=a.parent}const m=Array.isArray(h.object.material)?h.object.material[h.face.materialIndex]:h.object.material;return m?.visible!==false&&!m?.transparent});
+    if(h){const m=Array.isArray(h.object.material)?h.object.material[h.face.materialIndex]:h.object.material;rays.push({pixel:[x,y],point:h.point.toArray(),color:m.color?.getHexString(),texture:Object.entries(House.K.TEX).find(([,t])=>t===m.map)?.[0],sources:h.object.userData.auditSources?.slice(0,3)})}
+   }return rays;
+  });
+  await p.screenshot({path:dir+name+'.png'});report.views.push({name,eye,target,pixelRatio:await p.evaluate(()=>House.ren.getPixelRatio()),raster:await p.evaluate(()=>({width:House.ren.domElement.width,height:House.ren.domElement.height,msaa:House.ren.getContext().getContextAttributes().antialias})),draws:await p.evaluate(()=>House.ren.info.render.calls)});console.log('SHOT',name,report.views.at(-1).draws);
  }
  if(!process.argv.includes('--functional-only')){await p.setViewportSize({width:412,height:915});await f.view([244,210,445],[331,235,315],{level:'G'});await p.screenshot({path:dir+'phone.png'});
  await p.setViewportSize({width:1366,height:860});}
