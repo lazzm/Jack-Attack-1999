@@ -530,9 +530,9 @@
     // a scripted story line that plays by itself plays once per story step (saved: a refresh doesn't replay it)
     if (/^c\d\./.test(lineId) && !o.talk) { const step = window.st?.current?.()?.id || '-', k = 'np.step.' + member() + '.' + step + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
     c.said[lineId] = nowMs();
-    speech.q.push({ c, lineId, person, text: l[1], then: o.then, prio: o.prio || 0, talk: !!o.talk });
+    speech.q.push({ c, lineId, person, text: o.displayText||l[1], callout:o.callout, legacyShout:!!o.legacyShout, then: o.then, prio: o.prio || 0, talk: !!o.talk });
     if (o.prio) speech.q.sort((a, b) => b.prio - a.prio);
-    try { window.st?.prefetch?.(lineId); } catch (e) {}
+    try { window.st?.prefetch?.(lineId,o); } catch (e) {}
     return true;
   }
   // Where a speaker is for their speech bubble (js/np-bubble.js) and their recorded voice (js/st-voice.js, positional)
@@ -543,6 +543,7 @@
   function speechTick() {
     const t = nowMs();
     if (speech.freeze) return; // (tests: hold the current line for a screenshot)
+    if (!speech.cur && window.st?.voiceBusy) return;
     // (a recording that started late runs to its end, within reason)
     if (speech.cur && (t < speech.until || (speech.voice && !speech.voice.ended && speech.voice.started && t < speech.hard))) return;
     if (speech.cur) {
@@ -555,10 +556,10 @@
     const n0 = speech.q[0]; if (!n0) return;
     if (document.querySelector('.rm-note.on,.hs-voice.on,.hs-call.on')) return;
     n0.base = n0.base || n0.text; // (lines with no script entry bring their own words)
-    n0.text = window.st?.voiceText?.(n0.lineId, n0.base) || n0.base;
-    const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n0.lineId);
-    if (rec && !window.st.voiceReady?.(n0.lineId)) { // (give the recording a moment to arrive, so the words and the voice start together)
-      if (!n0.waitFrom) { n0.waitFrom = t; try { window.st.prefetch(n0.lineId); } catch (e) {} }
+    n0.text = window.st?.voiceText?.(n0.lineId, n0.base,n0) || n0.base;
+    const rec = window.Sound?.voicesOn && window.st?.voiceInfo?.(n0.lineId,n0);
+    if (rec && !window.st.voiceReady?.(n0.lineId,n0)) { // (give the recording a moment to arrive, so the words and the voice start together)
+      if (!n0.waitFrom) { n0.waitFrom = t; try { window.st.prefetch(n0.lineId,n0); } catch (e) {} }
       if (t - n0.waitFrom < 4000) return;
     }
     const n = speech.q.shift();
@@ -570,9 +571,10 @@
     if (!V3 && window.THREE) V3 = new THREE.Vector3();
     let voice = null;
     try {
-      voice = window.st?.say(n.lineId, who, n.text, ms, { bubble, fx: L[n.lineId]?.[2],
-        pos: here && V3 ? () => c.rig.mouthWorld(V3) : null, through: here ? () => !seenBy(c) : null, gain: here ? 1 : 0.7 }) || null;
+      voice = window.st?.say(n.lineId, who, n.text, ms, { bubble, callout:n.callout, fx: L[n.lineId]?.[2],
+        pos: c.rig && V3 ? () => c.rig.mouthWorld(V3) : null, through: () => !sameFloor(c,player())||c.room!==H.here, gain: here ? 1 : 0.7 }) || null;
     } catch (e) { console.error(e); }
+    if(!voice&&n.legacyShout)window.HouseLife?.shoutSound?.(n.text);
     if (bubble) speech.bub = window.NPCBubble.show({ key: c.id, who: label(c), place, text: n.text, ms, anchor, voice, shout: !n.person });
     if (here) c.rig.talk(ms - 300, n.text, voice);
     if (voice) voice.onstart = h => { // (a slow connection: the line lasts as long as the recording, from when it really starts)
@@ -584,7 +586,6 @@
     speech.cur = n; speech.voice = voice; speech.until = t + ms + 280; speech.hard = t + ms + 3500; speech.last = t;
     save(); // Make even an immediate refresh resume this line, before the periodic profile save.
   }
-  function skip() { if (speech.cur) { speech.until = 0; speech.hard = 0; } }
 
   // ================================================================ talking (F)
   const momGive = () => {
@@ -595,12 +596,12 @@
   const pendingHand = {};
   function talk(id) {
     const c = C[id]; if (!c || !c.present) return;
-    if (speech.cur && speech.cur.c === c && speech.cur.talk) { skip(); return; } // F again: on to the next line
+    if (speech.cur && speech.cur.c === c && speech.cur.talk) return; // Repeated F never chops a spoken sentence.
     if (speech.q.some(q => q.c === c && q.talk)) return;
     // A fresh conversation stops even a shuffle already in progress. Only
     // new walking intent may release this hold; an earlier encounter cannot.
     c.pass = null; c.pushN = 0; c.pushFrom = null;
-    if (speech.cur && speech.cur.c === c) skip(); // (cut short whatever they were saying to themselves)
+    // Let a passing remark finish before starting the conversation.
     if (window.Bonfire?.talk?.(id)) { c.hold = 3; return; }
     const lines = talkLines(c);
     c.hold = 99;
@@ -996,7 +997,7 @@
     for (const c of chars) o.c[c.id] = c.present ? { p: 1, x: Math.round(c.x), z: Math.round(c.z), lvl: c.lvl, h: +c.h.toFixed(2), g: c.goal?.key || null, seat: c.seated ? SPOT_OF(c.seated) : null } : { p: 0 };
     // Resume the spoken exchange as well as the people. Functions are rebuilt from
     // the current story's talkLines; no reward or story event is replayed on load.
-    o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n?.talk).slice(0,12).map(n=>({id:n.c.id,line:n.lineId,text:n.text}))};
+    o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n && (!speech.voice?.ended || n!==speech.cur)).slice(0,24).map(n=>({id:n.c.id,line:n.lineId,text:n.base||n.text,talk:n.talk,callout:n.callout,legacyShout:n.legacyShout}))};
     ls.set(SKEY(), o);
   }
   const SPOT_OF = q => Object.keys(SPOT).find(k => SPOT[k].seat === q || SPOT[k].childSeat === q) || null;
@@ -1020,9 +1021,9 @@
     if(conversation && conversation.step===(window.st?.current?.()?.id||null) && Array.isArray(conversation.lines)) {
       const lines=conversation.lines.filter(n=>C[n.id]?.present&&typeof n.line==='string'&&typeof n.text==='string');
       lines.forEach((n,i)=>{
-        const c=C[n.id],script=talkLines(c).find(l=>(typeof l==='string'?l:l.id)===n.line);
+        const c=C[n.id],script=n.talk!==false&&talkLines(c).find(l=>(typeof l==='string'?l:l.id)===n.line);
         c.hold=99;
-        say(n.id,n.line,{text:n.text,force:true,again:true,talk:true,prio:5,then:()=>{if(script&&typeof script!=='string')script.then?.();if(i===lines.length-1)c.hold=1.5;}});
+        say(n.id,n.line,{text:n.text,displayText:n.text,callout:n.callout,legacyShout:n.legacyShout,force:true,again:true,talk:true,prio:5,then:()=>{if(script&&typeof script!=='string')script.then?.();if(i===lines.length-1)c.hold=1.5;}});
       });
     }
   }
@@ -1111,7 +1112,7 @@
       return !!s&&!openingHome&&!C.dad.present&&scheduled('dad',clock()).raw==='away:work'&&!storyDirectives().dad&&!manual.dad&&!sceneDbg.dad;
     },
     present: id => !!C[id]?.present, near: (id, cm) => !!C[id] && inEarshot(C[id], cm || 400),
-    talk, say: (id, line, o) => say(id, line, o), speak: (id, line, text) => say(id, line, { text, force: true, again: true, prio: 4 }), storyLine, handIn, blocks, blocker, blockers, passage, doorHeld, heldHint,
+    talk, say: (id, line, o) => say(id, line, o), speak: (id, line, text, o={}) => (speech.cur?.c?.id===id&&speech.cur.lineId===line)||speech.q.some(n=>n.c.id===id&&n.lineId===line)||say(id, line, { text, displayText:text, callout:o.callout, legacyShout:!!o.legacyShout, force: true, call: true, again: true, prio: 4 }), storyLine, handIn, blocks, blocker, blockers, passage, doorHeld, heldHint,
     // hs-life's random shouts give way to the people who are really there (and Dad can't shout from work)
     mute: who => { if (!ready) return false; const w = String(who).toLowerCase(); if (w.startsWith('dad')) return true; if (w.startsWith('mom')) return true; return false; },
     debug: {

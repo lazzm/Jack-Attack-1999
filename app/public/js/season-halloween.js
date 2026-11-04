@@ -43,7 +43,8 @@
   function say(id, who, text, once) {
     if (once) { if (said.ids[id]) return false; said.ids[id] = 1; try { localStorage.setItem(SAID_KEY, JSON.stringify(said)); } catch (e) {} }
     const t = cast(text), w = cast(who);
-    if (window.st?.say) window.st.say(id, w, t); else H.say(w, t, 4600);
+    if(window.st?.speakLine)window.st.speakLine(id,who,t);
+    else if (window.st?.say) window.st.say(id, w, t); else H.say(w, t, 4600);
     return true;
   }
   const think = (title, text, ms) => H.say(cast(title), cast(text), ms || 4200);
@@ -741,7 +742,7 @@
     if (!carving) return; carving.step = step; carving.prog = new Set(); carving.rub = 0;
     const tool = step === 'lid' || step === 'carve' ? pk.saw : step === 'scoop' ? pk.spoon : null;
     carving.tool = tool;
-    if (step === 'lid') { pk.guide.visible = true; setBar('Cut the lid', 'Drag the saw round the stalk, along the blue line. Keep your other hand out of the way!'); say('hw.mom.hand', 'Mom', 'Away from your hand, {me}! Saw AWAY from your hand.', true); }
+    if (step === 'lid') { pk.guide.visible = true; setBar('Cut the lid', 'Drag the saw round the stalk, along the blue line. Keep your other hand out of the way!'); say('hw.mom.hand', 'Mom', "Away from your hand! Saw AWAY from your hand.", true); }
     if (step === 'scoop') { setBar('Scoop it out', 'Hold the button and rub the spoon round inside. Seeds and stringy bits into the bowl. <i>0 / ' + pk.blobs.length + '</i>'); say('hw.sis.scoop', '{sister}', 'Ewww! It looks like brains. Can I keep the seeds?', true); }
     if (step === 'face') { setBar('Pick a face', 'Click a face on ' + cast("{sister}'s") + ' drawing (or press 1-4).', FACE_ORDER.map((f, i) => [(i + 1) + '. ' + FACE_NAMES[f], () => chooseFace(f)])); }
     if (step === 'carve') { prepCarve(); setBar('Carve the face', 'Trace the red outline with the saw. Wobbly is fine: it gives it character.'); }
@@ -986,8 +987,8 @@
     snd.knock(); setTimeout(snd.bell, 700);
     const first = !srv().treat?.n && kids.knocks === 1;
     if (first) say('c4.hal.treat', 'Mom', 'Trick or treat, here they come. Be nice. Give them a handful, not the whole bowl.', true);
-    else if (kids.knocks === 1) say('hw.mom.door.' + kids.g, 'Mom', ['{me}, can you get that?', 'Door, {me}! More of them!', "That'll be the Witch Brigade again. Door!", '{me}! Door! I\'ve got my hands full.'][kids.g % 4]);
-    else say('hw.mom.door2.' + kids.g, 'Mom', '{me}! They\'re still waiting at the door!');
+    else if (kids.knocks === 1) say('hw.mom.door.' + kids.g, 'Mom', ["Can you get that?", "Door! More of them!", "That'll be the Witch Brigade again. Door!", "Door! I've got my hands full."][kids.g % 4]);
+    else say('hw.mom.door2.' + kids.g, 'Mom', "They're still waiting at the door!");
   }
   const fdOpen = () => !!H.DOORS.front?.open;
   let lastDoor = false;
@@ -1001,6 +1002,8 @@
   // the children's mouths move when they speak: all of them on the chorus, the first one carries on with the ask
   function kidsTalk(chorus, rest) {
     if (!kids) return; const ms = t => Math.max(700, t.length / 13.5 * 1000 + 300);
+    window.st?.speakLine?.('hw.kids','Halloween trick-or-treaters',chorus,{remote:true,caption:false});
+    if(rest)window.st?.speakLine?.('hw.kids','Halloween trick-or-treaters',rest,{remote:true,caption:false});
     kids.list.forEach((kd, i) => { if (kd.rig) i || !rest ? kd.rig.talk(ms(chorus + (rest && !i ? ' ' + rest : '')), chorus + (rest && !i ? ' ' + rest : '')) : kd.rig.talk(ms(chorus), chorus); });
     H.dirty();
   }
@@ -1172,7 +1175,7 @@
     if (phase === 'lead') say('hw.mom.lead', 'Mom', "I've got a pumpkin for you two to carve. It's on the kitchen table. Newspaper down first, please!", true);
     if (phase === 'day') { say('c4.hal.mom', 'Mom', "It's Halloween! Don't worry, I've got a bowl of sweets. Sweets for them, not for you.", true); setTimeout(() => say('hw.mom.clocks', 'Mom', 'And the clocks went back last night. An extra hour in bed, and I\'m STILL tired.', true), 5200); }
     if (phase === 'day' && SE.today().hour >= 16) setTimeout(() => say('c4.hal.sis', '{sister}', 'Wooooo! I\'m a ghost! Do I look scary? Say yes.', true), 10500);
-    if (phase === 'tail') say('hw.mom.tail', 'Mom', 'Look at the state of this hall. Wrappers everywhere! Bin, please, {me}. And who ate all the Choc Bits?', true);
+    if (phase === 'tail') say('hw.mom.tail', 'Mom', "Look at the state of this hall. Wrappers everywhere! Bin, please. And who ate all the Choc Bits?", true);
   }
   function enable(ph) {
     const was = on, wasPh = phase; on = true; phase = ph;

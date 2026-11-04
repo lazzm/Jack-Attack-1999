@@ -30,7 +30,7 @@ grouped by `mom-shout`, `mom-call`, `dad-shout` and `sis-whine`, with file and d
 is preserved as the fourth NPCLines field. Playback matches `Cast.me().first` case-insensitively, prefixes the bubble
 with that spelling, and joins the name and generic line with a 100 ms pause in one WebAudio buffer. Mom's warm call
 says "<Name>, love?"; the other styles say "<NAME>!" / "<Name>!". The owner identity always supplies Jack. A missing or
-rejected name recording leaves the original generic voice and bubble unchanged.
+rejected name recording leaves the original generic voice unchanged. A catalogue `display` template is separate from the recorded `line`: it may contain `{me}` or `{me.NAME}` and keeps the player's own spelling on screen even without a name recording. Without a template the generic bubble remains unchanged. `speakLine` forwards `callout` through the family queue (including saved exchanges); the catalogue style takes precedence over a dynamic caller's default.
 - Matching is by SOUND, not spelling (owner: "or Jak or Jaque you know variation"): names are reduced to a phonetic key
   (Metaphone-style rules, a conservative first-vowel check and an alias table), so Jack/Jak/Jac/Jakk/Jaque all hit the Jack recording.
   Exact recorded spellings win; ambiguous phonetic matches fall back instead of speaking somebody else's name.

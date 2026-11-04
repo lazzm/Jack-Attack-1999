@@ -408,7 +408,7 @@
     if (k === 'sub') { st.sub = !st.sub; osd(st.sub ? 'SUBTITLES' : 'SUBTITLES OFF'); return; }
     if (/^[0-9]$/.test(k)) { const n = +k; if (n <= 5) chan(n); else osd('NO SIGNAL'); return; }
     if (k === 'chup') return chan((st.ch + 1) % 6); if (k === 'chdn') return chan((st.ch + 5) % 6);
-    if (k === 'volup' || k === 'voldn') { S.vol = Math.max(0, Math.min(10, S.vol + (k === 'volup' ? 1 : -1))); save(); st.volT = performance.now() + 1500; if (S.vol >= 8 && life() && life().quiet()) setTimeout(() => life().voice('DAD (from upstairs)', '{me.NAME}! TURN THAT DOWN! IT\'S THE MIDDLE OF THE NIGHT!'), 900); return; }
+    if (k === 'volup' || k === 'voldn') { S.vol = Math.max(0, Math.min(10, S.vol + (k === 'volup' ? 1 : -1))); save(); st.volT = performance.now() + 1500; if (S.vol >= 8 && life() && life().quiet()) setTimeout(() => life().voice('DAD (from upstairs)', "TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT!"), 900); return; }
     if (k === 'mute') { st.mute = !st.mute; osd(st.mute ? 'MUTE' : ''); return; }
     if (k === 'r' || k === 'g' || k === 'y' || k === 'c') { ensureTtx(); st.text = true; ttx.key(k); return; }
     if (k === 'index') { ensureTtx(); st.text = true; ttx.go(100); return; }

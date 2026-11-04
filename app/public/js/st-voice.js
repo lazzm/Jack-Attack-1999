@@ -31,8 +31,20 @@
     return loading;
   }
   (window.requestIdleCallback || (f => setTimeout(f, 1500)))(() => loadManifest(), { timeout: 4000 });
-  const info = id => manifest && own(manifest, id) && manifest[id] && manifest[id].file ? manifest[id] : null;
+  const info = id => {id=window.VoiceLineAliases?.[id]||id;return manifest && own(manifest, id) && manifest[id] && manifest[id].file ? manifest[id] : null;};
   const on = () => !!(window.Sound && Sound.voicesOn);
+
+  // Content-qualified variants never accidentally play an older, differently
+  // worded recording. The offline audit uses exactly this normalisation/hash.
+  const words = s => String(s).replace(/\s*\|\s*$/, '').replace(/<[^>]*>/g, '').replace(/&(?:quot|#34);/g, '"').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+  const speakerId = s => /^mom\b/i.test(s) ? 'mom' : /^dad\b/i.test(s) ? 'dad' : /^gran$/i.test(s) ? 'gran' : s === '{sister}' || s === 'sister' || window.Cast?.n && String(s).toLowerCase() === String(Cast.n('sister')).toLowerCase() ? 'sister' : s;
+  function lineId(base, speaker, text) {
+    const all = window.VoiceLines || window.NPCLines || {}, who = speakerId(speaker), t = words(text);
+    if (all[base]?.[0] === who && words(all[base][1]) === t) return base;
+    for (const [id, l] of Object.entries(all)) if (l[0] === who && words(l[1]) === t) return id;
+    let h = 2166136261; for (const c of t) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+    return String(base).replace(/\.+$/, '') + '.' + (h >>> 0).toString(36);
+  }
 
   // Exact spelling first, then known sound-alikes, then an unambiguous phonetic match. Never guess between
   // two recorded names with the same consonants (Jack/Jake, for example). Cast.me keeps owner Jack fixed.
@@ -47,8 +59,8 @@
       .replace(/th/g, '0').replace(/ck|qu/g, 'k').replace(/c(?=[eiy])/g, 's').replace(/c/g, 'k')
       .replace(/dg(?=[eiy])/g, 'j').replace(/g(?=[eiy])/g, 'j').replace(/h(?![aeiou])/g, '').replace(/(.)\1+/g, '$1').replace(/(?!^)[aeiouy]/g, '');
   }
-  function nameInfo(id) {
-    const speaker = window.NPCLines?.[id]?.[3], pool = speaker && names && own(names, speaker) && names[speaker];
+  function nameInfo(id, o) {
+    const speaker = o?.callout || window.NPCLines?.[id]?.[3], pool = speaker && names && own(names, speaker) && names[speaker];
     if (!pool || !info(id)) return null;
     const first = window.Cast?.me?.().first, key = normalName(first);
     if (!key || key === 'you') return null;
@@ -63,8 +75,20 @@
     if (!m || !/^[a-z-]+\/[a-z]+\.mp3$/.test(m.file) || !(m.dur > 0)) return null;
     return { ...m, id: speaker + '/' + canonical, text: speaker === 'mom-call' ? first + ', love?' : (speaker === 'sis-whine' ? first : first.toUpperCase()) + '!' };
   }
-  const voiceText = (id, text) => { const n = nameInfo(id); return n && !String(text).startsWith(n.text + ' ') ? n.text + ' ' + text : text; };
-  const cacheKey = id => { const n = nameInfo(id); return n ? id + '@' + n.id : id; };
+  function voiceText(id, text, o) {
+    const template=window.VoiceDisplays?.[window.VoiceLineAliases?.[id]||id], first=window.Cast?.me?.().first;
+    if(template && first && first!=='you') {
+      const display=template.replace(/\{me.NAME\}/g,first.toUpperCase()).replace(/\{me\}/g,first);
+      if(String(text).includes(display))return text;
+      const plain=(window.VoiceLines||window.NPCLines)?.[id]?.[1];
+      return plain && String(text).includes(plain) ? String(text).replace(plain,display) : display;
+    }
+    const n=nameInfo(id,o), source=String(text);
+    // Dynamic writing may already address Sarah with different punctuation.
+    const named=first&&source.slice(0,first.length).toLowerCase()===first.toLowerCase()&&/^[!?,.…:]/.test(source.slice(first.length));
+    return n && !named && !source.startsWith(n.text+' ') ? n.text+' '+text : text;
+  }
+  const cacheKey = (id,o) => { const n = nameInfo(id,o); return n ? id + '@' + n.id : id; };
 
   // ---------------------------------------------------------------- decoded clips (a small cache)
   const cache = new Map();
@@ -82,9 +106,9 @@
     while (cache.size > 24) cache.delete(cache.keys().next().value);
     return p;
   }
-  function buffer(ctx, id) {
+  function buffer(ctx, id, o) {
     const m = info(id); if (!m) return null;
-    const n = nameInfo(id), key = n ? id + '@' + n.id : id;
+    const n = nameInfo(id,o), key = n ? id + '@' + n.id : id;
     if (!n) return decoded(ctx, key, m.file);
     if (cache.has(key)) return cache.get(key);
     // One continuous source keeps mouth, bubble timing, positional sound, cancellation and ducking in step.
@@ -98,12 +122,12 @@
     });
     return remember(key, joinedClip);
   }
-  function prefetch(id) {
+  function prefetch(id,o) {
     if (!on() || !info(id)) return;
-    const c = window.Sound.ctx || (window.Sound.ready && Sound.unlock && Sound.unlock()); if (c) buffer(c, id);
+    const c = window.Sound.ctx || (window.Sound.ready && Sound.unlock && Sound.unlock()); if (c) buffer(c, id,o);
   }
   // decoded and ready to start this instant (js/np-life.js holds a line back a moment for it, so voice and bubble agree)
-  const ready = id => !!(cache.get(cacheKey(id)) && cache.get(cacheKey(id)).ready);
+  const ready = (id,o) => !!(cache.get(cacheKey(id,o)) && cache.get(cacheKey(id,o)).ready);
 
   // ---------------------------------------------------------------- playing
   const active = new Set(), pending = new Set(), log = []; // (log: the last few voice events, for tests and debugging)
@@ -139,7 +163,7 @@
     const m = info(id); if (!m) return null;
     if (!on()) { note(id, 'off'); return null; }
     const c = window.Sound.unlock && Sound.unlock(); if (!c || c.state === 'closed') { note(id, 'no-context'); return null; }
-    const n = nameInfo(id);
+    const n = nameInfo(id,o);
     const h = { lineId: id, nameId: n?.id || null, nameDur: n?.dur || 0, dur: (+m.dur || 0) + (n ? n.dur + 0.10 : 0), ctx: c, o, started: false, ended: false, t0: 0, src: null, an: null, data: null, panner: null, wall: null, wallGain: null, thru: null, peak: 0.12,
       level() {
         if (!h.started || h.ended || !h.an) return 0;
@@ -152,7 +176,7 @@
       stop() { h.cancelled = true; if (h.src) try { const t = c.currentTime; if (h.out) { h.out.gain.cancelScheduledValues(t); h.out.gain.setValueAtTime(h.out.gain.value, t); h.out.gain.linearRampToValueAtTime(0, t + 0.015); } h.src.stop(t + 0.02); } catch (e) {} done(); }, // (a short fade: stopping mid-wave clicks)
       onstart: null, onend: null };
     const done = why => { if (h.ended) return; note(id, typeof why === 'string' ? why : h.cancelled ? 'stopped' : 'ended'); h.ended = true; active.delete(h); pending.delete(h); if (!active.size) window.Sound.duck && Sound.duck(false); try { h.onend && h.onend(h); } catch (e) {} };
-    const p = buffer(c, id); if (!p) return null;
+    const p = buffer(c, id,o); if (!p) return null;
     pending.add(h);
     const asked = performance.now();
     p.then(buf => {
@@ -194,16 +218,69 @@
   let subs = false; try { subs = localStorage.getItem('jhp_subtitles2') === '1'; } catch (e) {}
   function say(lineId, who, text, ms, o) {
     o = o || {};
-    text = voiceText(lineId, text);
+    text = voiceText(lineId, text,o);
     if (!o.bubble || subs) window.Room?.say(String(who), esc(text), ms > 0 ? ms : 4200);
     if (o.audio === false) return null;
     if (!o.keep) stop();
     return play(lineId, o);
   }
+
+  // Family dialogue uses np-life's existing queue, including its bubble, mouth,
+  // position, floor muffle and refresh recovery. Remote callers and announcers
+  // share a second lane which waits for that queue rather than cutting it off.
+  const cueQueue = [];
+  let cue = null, cueTimer = 0, restoredFor = '';
+  const account = () => window.Net?.me?.member ? String(Net.me.nick || '').toLowerCase() : '';
+  function saveCues() {
+    const name = account(); if (!name) return;
+    try { localStorage.setItem('jhp_voice_queue.' + name, JSON.stringify({ at:Date.now(), lines:[cue, ...cueQueue].filter(Boolean).map(n=>({id:n.id,who:n.who,text:n.text,caption:n.caption,telephone:n.telephone,callout:n.callout,legacyShout:n.legacyShout})) })); } catch (e) {}
+  }
+  function pumpCues() {
+    clearTimeout(cueTimer);
+    if (cue || !cueQueue.length) return;
+    if (window.HouseFamily?.speaking || active.size || pending.size || document.hidden || window.AccountGate?.allowed === false) { cueTimer=setTimeout(pumpCues,120); return; }
+    const n=cue=cueQueue.shift(), m=info(n.id), name=nameInfo(n.id,n), rec=m?{...m,dur:(+m.dur||0)+(name?name.dur+0.10:0)}:null;
+    const finish=()=>{if(cue!==n)return;cue=null;saveCues();pumpCues();};
+    let h=null;
+    const start=()=>{
+      if(cue!==n)return;
+      h=play(n.id,{callout:n.callout,fx:window.VoiceLines?.[n.id]?.[2],through:n.telephone?()=>true:null});
+      if(!h&&n.legacyShout)window.HouseLife?.shoutSound?.(n.text);
+      const fallback=Math.max(2300,Math.min(7600,900+words(n.text).split(/\s+/).length*340));
+      n.timer=setTimeout(finish,rec&&on()?Math.max(fallback,(rec.dur||0)*1000+6500):fallback);
+      if(h){h.onstart=v=>{clearTimeout(n.timer);n.timer=setTimeout(finish,v.dur*1000+1500);};h.onend=()=>{clearTimeout(n.timer);n.timer=setTimeout(finish,350);};}
+      saveCues();
+    };
+    if(n.caption && window.House?.say) House.say(n.who,esc(voiceText(n.id,n.text,n)),Math.max(4500,(rec?.dur||0)*1000+500),start);
+    else start();
+  }
+  function speakLine(base, who, text, o) {
+    o={...o};const speaker=speakerId(who),id=lineId(base,speaker,o.recordingText||text);
+    o.callout=window.VoiceLines?.[id]?.[3]||o.callout;
+    if(!o.remote && ['mom','dad','sister'].includes(speaker) && window.HouseFamily?.speak?.(speaker,id,text,o))return id;
+    // Games and phone cards already carry their own writing and timed mouths.
+    // An uncast/missing remote recording must not hold up the family's queue.
+    if(o.caption===false&&!info(id))return id;
+    if(cueQueue.some(n=>n.id===id)||cue?.id===id)return id;
+    cueQueue.push({id,who,text,caption:o.caption!==false,telephone:!!o.telephone,callout:o.callout,legacyShout:!!o.legacyShout});
+    prefetch(id,o);saveCues();pumpCues();return id;
+  }
+  // Account-scoped text/id only: no story events, rewards, pose or PC state.
+  function restoreCues() {
+    const name=account();if(!name||name===restoredFor)return;restoredFor=name;
+    try { const old=JSON.parse(localStorage.getItem('jhp_voice_queue.'+name)||'null');
+      if(old&&Date.now()-old.at<10*60000&&Array.isArray(old.lines))for(const n of old.lines.slice(0,24))if(typeof n.id==='string'&&typeof n.who==='string'&&typeof n.text==='string')cueQueue.push(n);
+    }catch(e){}pumpCues();
+  }
+  function clearVoiceQueue() {const old=cue;cue=null;cueQueue.length=0;clearTimeout(cueTimer);if(old)clearTimeout(old.timer);stop();saveCues();}
+  window.addEventListener?.('pagehide',saveCues);
+  if(typeof setInterval==='function')setInterval(restoreCues,1000);
   document.addEventListener('audiochange', () => { if (!on()) stop(); });
   const api = {
-    say, play, stopVoice: stop, prefetch, voiceReady: ready, voiceText, voiceName: nameInfo,
-    voiceInfo: id => { const m = info(id), n = nameInfo(id); return m ? { dur: (+m.dur || 0) + (n ? n.dur + 0.10 : 0), character: m.character } : null; },
+    say, play, stopVoice: stop, prefetch, voiceReady: ready, voiceText, voiceName: nameInfo, lineId, speakLine, clearVoiceQueue,
+    get voiceBusy() { return !!cue; },
+    voiceQueued: id => cue?.id===id||cueQueue.some(n=>n.id===id),
+    voiceInfo: (id,o) => { const m = info(id), n = nameInfo(id,o); return m ? { dur: (+m.dur || 0) + (n ? n.dur + 0.10 : 0), character: m.character } : null; },
     get voice() { return manifest || {}; },
     loadVoices: loadManifest,
     get subtitles() { return subs; },

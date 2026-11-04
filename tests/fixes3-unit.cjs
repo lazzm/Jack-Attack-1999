@@ -23,9 +23,9 @@ const voice=life.slice(life.indexOf('  function voice('),life.indexOf('  const w
 vm.runInNewContext('let lastVoice=0;'+voice+';this.owner=({'+event+'})',box);
 for(const name of ['Sam','Robin','Jack']){
  identity=name;spoken.length=0;assert(box.owner.ownerEvent('bedtime'));
- assert.equal(spoken[0],`Time for bed, ${name}. Save your game.`);
+ assert.equal(spoken[0],'Time for bed. Save your game.','Recorded event words work for every chosen name');
 }
 assert(!/\bJack\b/.test(event),'Fixed event lines must not hardcode the owner');
 const moments=life.slice(life.indexOf('  function moments()'),life.indexOf('  function shoutLoop()'));
 assert(!/\bJack\b/.test(moments),'Ordinary family lines must not hardcode the owner');
-console.log('PASS bedtime and fixed/ordinary family tables preserve player identity templates');
+console.log('PASS bedtime and fixed/ordinary family tables use neutral recorded words for every identity');
