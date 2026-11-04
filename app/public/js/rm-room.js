@@ -215,7 +215,7 @@
       if (LIGHT.main) L.push({ x: -20, y: -140, z: 90, c: '#fff0d6', i: 1.15, d: 680 });
       L.push({ x: 191, y: -60, z: -10, c: day ? '#e2ecff' : dim ? '#ffd0af' : '#8c9fc4', i: day ? .85 : dim ? .5 : .16, d: day ? 620 : 420 });
       if (LIGHT.lava) L.push({ x: 134, y: 4.6, z: BZ + 21, c: '#ff6d9c', i: .32, d: 150 });
-      if (LIGHT.telly) L.push({ x: TX, y: -8, z: 20, c: '#9bb5ed', i: .32, d: 180 });
+      if (LIGHT.telly) L.push({ x: TX, y: -8, z: 28, c: '#9bb5ed', i: .32, d: 180 });
       if (pcPowered && window.StoryAccess?.available !== false) L.push({ x: L0().mx, y: -24, z: 20, c: '#b3caec', i: .22, d: 150 });
       return L;
     },
@@ -256,8 +256,9 @@
     for (const [x0, x1] of [[LX, WIN.x0], [WIN.x1, RX]]) borderRun(B, bm, x0, BZ + 0.15, x1, BZ + 0.15, 0);
     borderRun(B, bm, LX + 0.15, BZ, LX + 0.15, FZ, 90); borderRun(B, bm, LX, FZ - 0.15, RX, FZ - 0.15, 180);
     borderRun(B, bm, RX - 0.15, BZ, RX - 0.15, DOOR.z0, -90); borderRun(B, bm, RX - 0.15, DOOR.z1, RX - 0.15, FZ, -90);
-    const cove = (x, z, len, ry) => B.plane(x, CY + 3.5, z, len, 7, mWhite, { ry, rx: 45 });
-    cove((LX + RX) / 2, BZ + 3.5, RX - LX, 0); cove(LX + 3.5, (BZ + FZ) / 2, FZ - BZ, 90); cove((LX + RX) / 2, FZ - 3.5, RX - LX, 180); cove(RX - 3.5, (BZ + FZ) / 2, FZ - BZ, -90);
+    // Closed 7 cm moulding, bedded into both surfaces rather than a floating paper strip.
+    const cove = (x, z, len, ry) => B.box(x, CY + 2.4, z, len, 7, .6, mWhite, { ry, rx: -45 });
+    cove((LX + RX) / 2, BZ + 2.4, RX - LX, 0); cove(LX + 2.4, (BZ + FZ) / 2, FZ - BZ, 90); cove((LX + RX) / 2, FZ - 2.4, RX - LX, 180); cove(RX - 2.4, (BZ + FZ) / 2, FZ - BZ, -90);
     // a little darkness where walls meet the floor and the ceiling (it reads as a real corner)
     const ao = (x, z, w, ry) => B.ao(x, FY - 17, z, w, 34, { ry, rx: 180, a: 0.55 });
     ao((LX + RX) / 2, BZ + 0.3, RX - LX, 0); ao(LX + 0.3, (BZ + FZ) / 2, FZ - BZ, 90); ao((LX + RX) / 2, FZ - 0.3, RX - LX, 180);
@@ -275,7 +276,7 @@
     H.walkRect('U', RX - 6, DOOR.z0 + 4, RX + 16, DOOR.z1 - 4, { door: 'bedroom', room: 'bedroom' });
     for(const w of REAR_WINDOWS)H.support('bedroom',w.x0-7,BZ-8,w.x1+7,BZ+10,w.y1); // real windowsill top
     H.support('bedroom',-66,BZ,38,BZ+18,-129.2); // ornament shelf top
-    H.support('bedroom', -76, -55, 76, 31, 0); // the desk top
+    H.support('bedroom', -70, -54, 70, 18, 0, {thick:3.2}); // 140 x 72 cm CRT desk, 73 cm high
     const L = L0(); // the PC's own surfaces (things can sit on the tower and the keyboard)
     H.support('bedroom', L.tx - 9.5, L.tz - 16.5, L.tx + 9.5, L.tz + 17.5, -42.3, {when:()=>window.StoryAccess?.available!==false||!!window.StorySnapshot?.done?.['part.tower']});
     H.support('bedroom', L.kx - 14, 7, L.kx + 14, 16, -2.2, {thick:2.2,when:()=>window.StoryAccess?.available!==false||!!window.StorySnapshot?.done?.['part.keys']});
@@ -283,14 +284,14 @@
     H.support('bedroom', 150, BZ + 6, 236, 136, 30); // the bed
     H.support('bedroom', LX, 178, LX + 46, 246, -9); // the chest of drawers
     H.support('bedroom', TX - 36, -55, TX + 36, -13, 27.4); // the TV cabinet top
-    H.block('U', -76, -60, 76, 33, { solid: false }); // the desk (for the player: you can't walk into it)
+    H.block('U', -70, -54, 70, 18, { solid: false }); // the desk (for the player: you can't walk into it)
     // For things: the real desk. A 3.2 cm top whose underside is 69.8 cm off the carpet, the left end board, the drawer
     // unit and the modesty panel. The knee space between them is open, so the chair's seat slides under the top.
     if (H.solid) {
-      H.solid('U', -76, -55, 76, 31, 0, 3.2, { kind: 'desk' });
-      H.solid('U', -76, -54, -72, 30, 2, FY + 1, { kind: 'desk' });
-      H.solid('U', 38, -52, 74, 31, 2, FY + 1, { kind: 'desk' });
-      H.solid('U', -72, -53.4, 38, -52, 6, 66, { kind: 'desk' });
+      H.solid('U', -70, -54, 70, 18, 0, 3.2, { kind: 'desk' });
+      H.solid('U', -70, -53, -66, 17, 2, FY + 1, { kind: 'desk' });
+      H.solid('U', 34, -52, 70, 18, 2, FY + 1, { kind: 'desk' });
+      H.solid('U', -66, -52.4, 34, -51, 6, 66, { kind: 'desk' });
       H.solid('U', -69, -47, -55, -33, -36, 0, { kind: 'lamp' }); // the anglepoise's base and arm
       const pc = part => () => window.StoryAccess?.available !== false || !!window.StorySnapshot?.done?.['part.' + part];
       H.solid('U', L.mx - 19, -19, L.mx + 19, 1, -40, 0, { kind: 'pc', when: pc('monitor') });
@@ -374,22 +375,22 @@
   }
   function buildDesk(B, r) {
     const dm = mDesk();
-    B.rbox(0, 1.6, -12, 152, 3.2, 86, 1.1, dm, { uv: 60, seg: 2 }); // a rounded, lacquered edge all round the top
-    B.box(-17, 6.2, 28.6, 110, 6, 1.6, dm, { uv: 60 }); // the apron rail under the front edge, set back from it
-    for(const x of [-73,44,69])for(const z of [-49,25])B.rbox(x,FY-.65,z,3,1.3,4,.3,M('#292622'));
-    B.box(-74, 37, -12, 4, 70, 84, dm, { uv: 60 }); // the left end
-    B.box(0, 36, -52.7, 144, 60, 1.4, M('#2a1c10')); // inset from both end boards
+    B.rbox(0, 1.6, -18, 140, 3.2, 72, 1.1, dm, { uv: 60, seg: 2 }); // a rounded, lacquered edge all round the top
+    B.box(-16, 6.2, 15.6, 100, 6, 1.6, dm, { uv: 60 }); // the apron rail under the front edge, set back from it
+    for(const x of [-68,40,65])for(const z of [-48,12])B.rbox(x,FY-.65,z,3,1.3,4,.3,M('#292622'));
+    B.box(-68, 37, -18, 4, 70, 70, dm, { uv: 60 }); // the left end
+    B.box(0, 36, -51.7, 132, 60, 1.4, M('#2a1c10')); // inset from both end boards
     // the drawer unit on the right (the top drawer opens: letters and floppies)
-    B.box(56, 37.5, -11, 36, 71, 82, dm, { uv: 60, sides: 'trlbu' });
+    B.box(52, 37.5, -17, 36, 71, 70, dm, { uv: 60, sides: 'trlbu' });
     // Drawer fronts sit proud of a recessed face frame, with a shadowed reveal round each one.
     const reveal = M('#24170c');
-    B.box(56, 42.2, 29.2, 34, 61.6, 1.0, reveal); // (below the top drawer, whose open body must stay clear)
-    for(const [y,h]of [[13,3.4],[66.4,13.2]])B.box(56,y,29.9,34,h,1.4,dm,{uv:60});
-    B.rbox(56, 26, 30.4, 33.2, 21.2, 1.8, 0.35, dm, { uv: 60 }); B.rbox(56, 48.7, 30.4, 33.2, 21.2, 1.8, 0.35, dm, { uv: 60 });
-    [26, 48.7].forEach(y => deskHandle(B, 56, y, 31.3));
-    B.shadow(0, FY, -12, 170, 100, 0.75, { sq: true });
-    const dg = new T.Group(); dg.position.set(56, 0, 0); r.group.add(dg);
-    const D = K.into(dg); D.rbox(0, 6.6, 30.4, 33.2, 8.6, 1.8, 0.35, dm, { uv: 60 }); deskHandle(D, 0, 6.6, 31.3); D.box(0, 10.5, 0, 32, 1, 58, M('#4a3420')); D.box(-15.5, 7, 0, 1, 8, 58, M('#4a3420')); D.box(15.5, 7, 0, 1, 8, 58, M('#4a3420'));
+    B.box(52, 42.2, 16.2, 34, 61.6, 1.0, reveal); // (below the top drawer, whose open body must stay clear)
+    for(const [y,h]of [[13,3.4],[66.4,13.2]])B.box(52,y,16.9,34,h,1.4,dm,{uv:60});
+    B.rbox(52, 26, 17.4, 33.2, 21.2, 1.8, 0.35, dm, { uv: 60 }); B.rbox(52, 48.7, 17.4, 33.2, 21.2, 1.8, 0.35, dm, { uv: 60 });
+    [26, 48.7].forEach(y => deskHandle(B, 52, y, 18.3));
+    B.shadow(0, FY, -18, 158, 86, 0.75, { sq: true });
+    const dg = new T.Group(); dg.position.set(52, 0, 0); r.group.add(dg);
+    const D = K.into(dg).at(0,0,-13); D.rbox(0, 6.6, 30.4, 33.2, 8.6, 1.8, 0.35, dm, { uv: 60 }); deskHandle(D, 0, 6.6, 31.3); D.box(0, 10.5, 0, 32, 1, 58, M('#4a3420')); D.box(-15.5, 7, 0, 1, 8, 58, M('#4a3420')); D.box(15.5, 7, 0, 1, 8, 58, M('#4a3420'));
     D.box(0,6.5,-28.5,32,8,1,M('#4a3420'));
     D.box(-5,9.8,6,18,.25,24,M('#f4f0e0'),{ry:12});D.box(6,9.5,12,16,.25,20,M('#fffbe0'),{ry:-8}); D.box(4, 9.4, -10, 9, 0.6, 9.4, M({ c: '#fff', map: tex('floppyLabel') }));
     H.openable('drawer', { label: 'Desk drawer', pivot: dg, type: 'slide', axis: 'z', amt: 22, base: 0, onToggle: open => { if (open && !H.held()) setTimeout(() => { if (H.OPEN.drawer && H.OPEN.drawer.open && !H.held()) bits('drawer'); }, 420); } }); // (hands full: it just slides open)
@@ -429,7 +430,7 @@
     // (three parts are enough: the column and the back strut sit inside the seat's and back's footprints)
     const CHAIR_PARTS=[{t:'cyl',x:0,z:0,r:30,lo:0,hi:9,player:false},
       {t:'box',x:0,z:2,hx:22.5,hz:21.5,lo:9,hi:49,sw:true,top:true},{t:'box',x:0,z:-19.6,hx:21,hz:5.4,lo:49,hi:89,sw:true}];
-    loose('chair',chairGroup,{room:'bedroom',x:L0().mx,y:FY,z:18,ry:180},'My office chair',{kind:'furniture',holdD:90,obstacle:true,floorOnly:true,noStack:true,seat:{eye:110,front:2},swivel:chairSwivel,
+    loose('chair',chairGroup,{room:'bedroom',x:L0().mx,y:FY,z:5,ry:180},'My office chair',{kind:'furniture',holdD:90,obstacle:true,floorOnly:true,noStack:true,seat:{eye:110,front:2},swivel:chairSwivel,
       physics:{parts:CHAIR_PARTS,mass:9,mu:.32,coast:.42,tip:0,castors:true,drag:true,swing:1.2,swDamp:.86},use:()=>H.sitOn('chair'),useLabel:'Sit down'});
     // the desk lamp (an anglepoise; it really lights the room)
     buildDeskLamp(r);
@@ -446,7 +447,7 @@
     bookBatch.build(books);
     H.spot('books', { label: 'GCSE revision guides', act: () => { secret('hs.revise'); say('GCSE revision guides', ['MATHS, SCIENCE, ENGLISH, FRENCH. Exams in June. The spines aren\'t even cracked yet.', 'I opened the Maths one. Simultaneous equations. I closed the Maths one.', 'Mom bought these. She checks if they\'ve moved. I move them a bit every week.'][(S.bk = ((S.bk | 0) + 1) % 3)]); save(); } });
     loose('books',books,{room:'bedroom',x:-40,y:0,z:-38,ry:8},'GCSE revision guides');
-    const mugObj=new T.Group(),mug=K.into(mugObj);
+    const mugObj=new T.Group(),mugBatch=K.batch(),mug=K.into(mugBatch);
     const glaze=M({c:'#c54132',sh:40,sp:'#777'});
     mug.lathe(0,0,0,[[0,-.8],[3,-.8],[3.1,-8.7],[3.35,-9.4],[3.8,-9.5],[3.95,-9.2],[3.95,-.8],[3.4,0],[0,0]],32,glaze);
     mug.disc(0,-7.6,0,3.07,M({c:'#62432a',sh:28}),28);mug.geo(new T.TorusGeometry(2.6,.6,8,24,Math.PI),4.2,-4.6,0,glaze,{rz:-90});
@@ -455,11 +456,13 @@
     const mugLabel=K.tex('rm.mugprint',128,112,(g,w,h)=>{g.fillStyle='#c54132';g.fillRect(0,0,w,h);g.translate(0,h);g.scale(1,-1);A.text(g,"WORLD'S",64,32,'700 19px '+A.UIF,'#f6e8c9','center');g.font='700 18px '+A.UIF;g.fillText(Cast.t('BEST {me.son}').toUpperCase(),64,65,116);A.text(g,'from Gran',64,91,'italic 14px '+A.UIF,'#f6e8c9','center')},{clamp:true,identity:true});
     mug.geo(new T.CylinderGeometry(3.98,3.98,4.5,24,1,true,-.66,1.32),0,-4.8,0,M({c:'#fff',map:mugLabel,sh:40}));
     mug.shadow(0, 0, 0, 11, 11, 0.6);
+    mugBatch.build(mugObj);
     H.spot('mug', { label: 'Mug of tea', act: () => say('Mug of tea', ['Stone cold. Mom made it at four o\'clock. There\'s a skin on it.', 'It says WORLD\'S BEST {me?SON|DAUGHTER} on it. Gran got it. Gran is biased.'][(S.mg = ((S.mg | 0) + 1) % 2)]) });
     loose('mug',mugObj,{room:'bedroom',x:46,y:0,z:-8,ry:0},'Mug of tea');
-    const potObj=new T.Group(),pot=K.into(potObj);
+    const potObj=new T.Group(),potBatch=K.batch(),pot=K.into(potBatch);
     pot.lathe(0,0,0,[[0,-.5],[2.7,-.5],[2.7,-9.7],[2.9,-10],[3.2,-9.8],[3.2,0],[0,0]],24,M({c:'#355a91',sh:24}));pot.shadow(0,0,0,10,10,.5);
     [[-1,'#c6a347',8],[1,'#a9443a',-6],[0,'#34363a',3]].forEach(([dx,c,a])=>{const pen=pot.at(dx,-12,0,0,{rz:a});pen.cyl(0,0,0,.35,.35,14,6,M(c));pen.cyl(0,-7.5,0,.12,.35,1,6,M('#bca079'));pen.cyl(0,-8.1,0,.04,.12,.3,6,M('#252525'))});
+    potBatch.build(potObj);
     loose('pencilpot',potObj,{room:'bedroom',x:35,y:0,z:-42,ry:0},'Pencil pot');
     // the wall shelf over the desk: BUILDO shuttle, Buildex coaster, trophy, robot, PC game boxes
     const shY = -128, sh = B.at(-14, shY, BZ + 9);
@@ -469,13 +472,13 @@
     shelfModels(r, -14, shY - 1.2, BZ + 9);
     // the cork board, the timetable
     const ck = new T.Group(); ck.position.set(42, -84, BZ + 1); r.group.add(ck); const ckBatch = K.batch(), CK = K.into(ckBatch);
-    CK.wshadow(0.8, 1.4, -0.85, 47, 35, 0.5);
-    CK.box(0, 0, 0, 42, 30, 1.6, M({ c: '#ffffff', map: tex('cork'), pr: 1 }));
-    CK.box(0, -15.5, 0.4, 44, 1.6, 2.4, mPine()); CK.box(0, 15.5, 0.4, 44, 1.6, 2.4, mPine()); CK.box(-21.5, 0, 0.4, 1.6, 32, 2.4, mPine()); CK.box(21.5, 0, 0.4, 1.6, 32, 2.4, mPine());
+    CK.wshadow(0.8, 1.4, -0.85, 65, 50, 0.5);
+    CK.box(0, 0, 0, 60, 45, 1.6, M({ c: '#ffffff', map: tex('cork'), pr: 1 }));
+    CK.box(0, -23, 0.4, 62, 1.6, 2.4, mPine()); CK.box(0, 23, 0.4, 62, 1.6, 2.4, mPine()); CK.box(-30.5, 0, 0.4, 1.6, 47, 2.4, mPine()); CK.box(30.5, 0, 0.4, 1.6, 47, 2.4, mPine());
     // Papers have real paper thickness (a card's edge, not a flat sticker), layered a hair apart, pinned through.
     const paper = (x, y, z, w, h, t, rz) => CK.box(x, y, z, w, h, 0.1, { f: M({ c: '#fff', map: tex(t), pr: 1 }), all: M('#e8e3d4') }, { rz });
-    paper(-12, -1, 0.9, 13, 18, 'calendar', -2); paper(4, -6, 1.02, 9, 8, 'note', 5); paper(13, -5, 1.14, 9, 9, 'noteBlue', -4); paper(8, 6, 1.26, 14, 10, 'photo', -3);
-    [[-12, -9.5], [4, -9.5], [13, -9], [8, 1.5]].forEach(([x, y], i) => { const pin = M(['#d02a2a', '#2a8a3a', '#e8c020', '#2a5ad0'][i]); CK.cyl(x, y, 1.75, 0.9, 0.75, 0.9, 10, pin, { rx: 90 }); CK.cyl(x, y, 2.35, 0.55, 0.55, 0.5, 10, pin, { rx: 90 }); }); ckBatch.build(ck);
+    paper(-16, 0, 0.9, 21, 30, 'calendar', -2); paper(6, -9, 1.02, 9, 8, 'note', 5); paper(20, -8, 1.14, 9, 9, 'noteBlue', -4); paper(13, 11, 1.26, 15, 10, 'photo', -3);
+    [[-16, -13.5], [6, -12.5], [20, -12], [13, 6.5]].forEach(([x, y], i) => { const pin = M(['#d02a2a', '#2a8a3a', '#e8c020', '#2a5ad0'][i]); CK.cyl(x, y, 1.75, 0.9, 0.75, 0.9, 10, pin, { rx: 90 }); CK.cyl(x, y, 2.35, 0.55, 0.55, 0.5, 10, pin, { rx: 90 }); }); ckBatch.build(ck);
     H.spot('cork', { label: 'Cork board', obj: ck });
     poster(B, -52, -82, BZ, 42, 59.4, tex('posterShuttle'), 0); pickBox(r, 'postershuttle', -52, -82, BZ + 1, 42, 59.4, 2); H.SPOTS.postershuttle.label = 'Space Shuttlebus poster'; // A2 bedroom poster
     frame(B, 92, -84, BZ + 0.8, 24, 33, 1.4, M({ c: '#fff', map: tex('timetable'), pr: 1 }), M('#2a2a2a'));
@@ -610,21 +613,23 @@
     [30,52.5,68.8].forEach(y=>cab.box(0,y,-20.4,68,3,1.2,back)); // (the low brace stops above the bottom board: no shared faces)
     cab.shadow(0, FY, 0, 80, 50, 0.7, { sq: true });
     // the telly: a 14-inch portable, with a proper deep back
-    const tv = new T.Group(); tv.position.set(TX, 27.4, -36); r.group.add(tv); const TV = K.into(tv);
-    TV.rbox(0, -17, 4, 46, 34, 14, 1.6, M({ c: '#4a4c52', sh: 25, sp: '#333' }));
-    TV.geo(taper(38, 28, 14, 0.62), 0, -17, -10, M('#36383d')); // deep CRT back, clear of the wall and its leads
-    TV.box(0, -2.5, 10.9, 40, 4, 0.4, M('#2a2c30'));
-    TV.rbox(-3, -19, 11.12, 35.2, 27, 0.72, 0.34, M({ c: '#111619', sh: 45, sp: '#35424b' }));
-    const scr = new T.Mesh(crtGlass(33, 24.75, 0.3, 0.38), new T.MeshBasicMaterial({ color: 0xffffff, map: tex('screenOff') }));
-    scr.position.set(-3, -19, 11.52); tv.add(scr); R.tvScreen = scr;
-    TV.plane(18.5, -22, 11.21, 5.5, 7, M({ c: '#fff', map: K.tex('rm.grille', 32, 64, (g, w, h) => { g.fillStyle = '#3a3c42'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a1b1f'; for (let y = 2; y < h; y += 4) g.fillRect(2, y, w - 4, 2); }) }));
-    TV.cyl(18.5, -12, 11.4, 1.6, 1.6, 0.8, 14, M({ c: '#2a2c30', sh: 40 }), { rx: 90 }); TV.box(18.5, -12, 11.9, 0.5, 2.2, 0.3, M('#ddd'));
-    [-8.5, -6.5, -4.5].forEach(y => TV.cyl(17, y, 11.3, 0.55, 0.55, 0.6, 8, M('#111'), { rx: 90 })); [-8.5, -6.5, -4.5].forEach(y => TV.cyl(20, y, 11.3, 0.55, 0.55, 0.6, 8, M('#111'), { rx: 90 }));
-    TV.plane(-3, -3.2, 11.21, 10, 1.6, M({ c: '#fff', map: K.tex('rm.tvbrand', 128, 20, (g, w, h) => { g.fillStyle = '#4a4c52'; g.fillRect(0, 0, w, h); A.text(g, 'FERGUSNOT', 64, 15, '700 13px ' + A.UIF, '#c8c8c8', 'center'); }) }));
-    TV.ball(18.5, -2.8, 11.1, 0.6, 0.6, 0.3, M({ c: '#e01a1a', e: '#a00' }), 6);
+    const tv = new T.Group(); tv.position.set(TX, 27.4, -28); r.group.add(tv); const tvBatch=K.batch(),TV=K.into(tvBatch);
+    TV.rbox(0, -16.5, 4, 38, 33, 14, 1.6, M({ c: '#4a4c52', sh: 25, sp: '#333' }));
+    TV.geo(taper(33, 27, 22, 0.62), 0, -16.5, -14, M('#36383d')); // 36 cm deep CRT; neck clears the rear wall by 3 cm
+    TV.box(0, -2.5, 10.9, 34, 4, 0.4, M('#2a2c30'));
+    TV.rbox(-2.8, -19, 11.12, 30.2, 23.2, 0.72, 0.34, M({ c: '#111619', sh: 25, sp: '#333' }));
+    const scr = new T.Mesh(crtGlass(28, 21, 0.3, 0.38), new T.MeshBasicMaterial({ color: 0xffffff, map: tex('screenOff') }));
+    scr.position.set(-2.8, -19, 11.52); tv.add(scr); R.tvScreen = scr;
+    TV.plane(15.5, -22, 11.21, 4.2, 7, M({ c: '#fff', map: K.tex('rm.grille', 32, 64, (g, w, h) => { g.fillStyle = '#3a3c42'; g.fillRect(0, 0, w, h); g.fillStyle = '#1a1b1f'; for (let y = 2; y < h; y += 4) g.fillRect(2, y, w - 4, 2); }) }));
+    TV.cyl(15.5, -12, 11.4, 1.6, 1.6, 0.8, 14, M({ c: '#2a2c30', sh: 25, sp: '#333' }), { rx: 90 }); TV.box(15.5, -12, 11.9, 0.5, 2.2, 0.3, M('#ddd'));
+    [-8.5, -6.5, -4.5].forEach(y => TV.cyl(14, y, 11.3, 0.55, 0.55, 0.6, 8, M('#111'), { rx: 90 })); [-8.5, -6.5, -4.5].forEach(y => TV.cyl(17, y, 11.3, 0.55, 0.55, 0.6, 8, M('#111'), { rx: 90 }));
+    TV.plane(-2.8, -3.2, 11.21, 10, 1.6, M({ c: '#fff', map: K.tex('rm.tvbrand', 128, 20, (g, w, h) => { g.fillStyle = '#4a4c52'; g.fillRect(0, 0, w, h); A.text(g, 'FERGUSNOT', 64, 15, '700 13px ' + A.UIF, '#c8c8c8', 'center'); }) }));
+    TV.ball(15.5, -2.8, 11.1, 0.6, 0.6, 0.3, M({ c: '#e01a1a', e: '#a00' }), 6);
     TV.box(0, -34.5, -2, 10, 1.2, 8, M('#222')); TV.geo(new T.TorusGeometry(9, 0.35, 6, 24), 0, -45, -2, M('#888'));
     TV.cyl(-5, -40, -2, 0.25, 0.25, 12, 4, mMetal, { rz: 25 }); TV.cyl(5, -40, -2, 0.25, 0.25, 12, 4, mMetal, { rz: -25 });
     TV.shadow(0, 0, 0, 52, 38, 0.6, { sq: true });
+    // The cabinet, controls and aerial share material batches; only the live glass stays separate.
+    tvBatch.build(tv);
     H.spot('telly', { label: 'The telly', obj: tv });
     // consoles on the shelves (each a solid, with its own top)
     con(r, 'n64', TX - 17, 50.1, -26, 26, 7, 19, 'n64top', '#2b2b2e', 'Ultra 64');
@@ -664,7 +669,7 @@
     lead(NS,[[TX+16,47,-35.4],[TX+16,47,-55.45],[TX+22,39,-55.45],[TX+22,23,-55.45],[TX-3,18.5,-55.45],[TX-3,18.5,-53]],'#76746f','playspace-av');
     nestBatch.build(nest);nest.userData.cables=nestBatch.routes;
     nest.visible=!sparseStarter;
-    pickBox(r, 'tvback', TX, 14, -50, 46, 30, 10);
+    pickBox(r, 'tvback', TX, 14, -49, 38, 30, 8);
     // the rug
     B.plane(TX + 10, FY - 0.25, 30, 120, 76, M({ c: '#fff', map: tex('rug') }), { rx: 90 });
     B.box(TX + 10, FY - 0.15, 30, 121, 0.3, 77, M('#5a1818'), { sides: 'frlb' });
@@ -677,7 +682,7 @@
     const clothPoint = (rad,y,a) => {
       const fold = Math.sin(a*6+0.4)*0.55*Math.sin(Math.PI*rad/32);
       const squash=(Math.max(0,Math.cos(a))*7-Math.max(0,-Math.cos(a))*12)*Math.sin(Math.PI*rad/32);
-      return new T.Vector3(Math.sin(a)*(rad+fold),Math.min(-.1,y+squash),Math.cos(a)*(rad+fold)*0.88);
+      return new T.Vector3(Math.sin(a)*(rad+fold)*1.4,Math.min(-.1,y+squash)*1.45,Math.cos(a)*(rad+fold)*1.232);
     };
     const skin = new T.LatheGeometry(profile.map(([rad,y])=>new T.Vector2(rad,y)),48), pos=skin.attributes.position;
     for(let i=0;i<pos.count;i++){const a=Math.atan2(pos.getX(i),pos.getZ(i)),p=clothPoint(Math.hypot(pos.getX(i),pos.getZ(i)),pos.getY(i),a);pos.setXYZ(i,p.x,p.y,p.z)}
@@ -688,11 +693,11 @@
       for(let i=1;i<points.length;i++)SB.geo(new T.TubeGeometry(new T.LineCurve3(points[i-1],points[i]),1,0.055,4),0,0,0,seamM);
     }
     seams.build(bb);
-    BG.rbox(0,-4,-26.9,7,0.7,1,0.2,M('#601b20')); // concealed refill zip and pull, above the carpet
-    BG.box(3.1,-4.5,-27.1,0.7,0.25,1.1,mMetal);
-    BG.shadow(0,0,0,67,60,0.65);
-    loose('beanbag',bb,{room:'bedroom',x:TX+78,y:FY,z:56,ry:-135},'The beanbag',{kind:'furniture',holdD:95,obstacle:true,floorOnly:true,noStack:true,seat:{eye:81,front:4},
-      physics:{parts:[{t:'cyl',x:0,z:0,r:29,lo:0,hi:28}],mass:6,mu:1.4,coast:.05,tip:0,drag:true,noSpin:true},use:()=>H.sitOn('beanbag'),useLabel:'Sit down'});
+    BG.rbox(0,-5.8,-37.66,7,0.7,1,0.2,M({c:'#601b20',sh:3})); // concealed refill zip and pull, above the carpet
+    BG.box(3.1,-6.5,-37.94,0.7,0.25,1.1,mMetal);
+    BG.shadow(0,0,0,94,84,0.65);
+    loose('beanbag',bb,{room:'bedroom',x:TX+62,y:FY,z:82,ry:-135},'The beanbag',{kind:'furniture',holdD:95,obstacle:true,floorOnly:true,noStack:true,seat:{eye:81,front:4},
+      physics:{parts:[{t:'cyl',x:0,z:0,r:41,lo:0,hi:25},{t:'box',x:0,z:-25,hx:28,hz:10,lo:25,hi:51}],mass:6,mu:1.4,coast:.05,tip:0,drag:true,noSpin:true},use:()=>H.sitOn('beanbag'),useLabel:'Sit down'});
     // the games mags on the floor
     // These magazines are individual grab-API objects, built with the reading bookcase.
     // Open media rack: twenty separate slots, with enough clearance for a disc
@@ -714,7 +719,7 @@
     if(sparseStarter)buildStarterClutter(r);
     H.spot('rack', { label: 'Game shelf', obj: rk, touchFallback: true }); H.block('U', TX - 74, -56, TX - 38, -31);
     H.support('bedroom', TX - 72.6, -55, TX - 39.4, -33, FY - 81.1, { thick: 1.2 }); // the rack's top (the VCR stands on it)
-    if (H.solid) { for (const x of [TX - 72.6, TX - 40.6]) H.solid('U', x, -55, x + 1.2, -33, FY - 80.5, FY + 1, { kind: 'rack' }); H.solid('U', TX - 23, -53, TX + 23, -25, -6.6, 27.4, { kind: 'telly' }); }
+    if (H.solid) { for (const x of [TX - 72.6, TX - 40.6]) H.solid('U', x, -55, x + 1.2, -33, FY - 80.5, FY + 1, { kind: 'rack' }); H.solid('U', TX - 19, -53, TX + 19, -16, -5.6, 27.4, { kind: 'telly' }); }
     H.block('U', TX - 38, -60, TX + 38, -11); // the cabinet
     // posters over the telly and on the side wall
     poster(B, TX, -66, BZ, 42, 59.4, tex('posterBand'), 0); pickBox(r, 'posterband', TX, -66, BZ + 1, 42, 59.4, 2); // (A2) H.SPOTS.posterband.label = 'Band poster';
@@ -1187,7 +1192,8 @@
     B.shadow(-10, FY, FZ - 8, 126, 14, 0.5, { sq: true });
     H.spot('radiator', { label: 'Radiator', act: () => say('Radiator', night() ? 'Off. Dad turns the heating off at 10 o\'clock "because we\'re not made of money".' : 'The radiator. It goes clunk clunk clunk when it comes on, like someone hitting the pipes with a spanner.') });
     pickBox(r, 'radiator', -10, FY - 36, FZ - 6, 120, 56, 6);
-    poster(B, -10, -98, FZ, 30, 42, tex('posterRobot'), 180); pickBox(r, 'posterrobot', -10, -98, FZ - 1, 30, 42, 2);
+    // The existing robot poster becomes the A1 hero above the bed; the window stays clear.
+    poster(B, RX, -86, 44, 59.4, 84, tex('posterRobot'), -90); pickBox(r, 'posterrobot', RX - 1, -86, 44, 2, 84, 59.4);
     H.spot('posterrobot', { label: 'ROBO RUMBLE poster', act: () => posterFocus('posterrobot') });
     const sb = new T.Group(); sb.position.set(58, FY, 226); sb.rotation.y = -12 * D2R; /* (by the washing basket: not in the doorway, so you can get out) */ r.group.add(sb); const SB = K.into(sb); // the school bag
     SB.rbox(0, -18, 0, 30, 36, 14, 5, M({ c: '#1a3a7a', sh: 10 })); SB.rbox(0, -10, 8, 22, 16, 5, 3, M('#163068'));
@@ -1313,7 +1319,7 @@
     ['The Modem Mystery','Intergalactic Battles: An Old Hope','The Pocket-Critter Field Guide','How Radios Work','The Space-Kat Annual','Build Your Own Robot'].forEach((title,i)=>item('reading.book.'+i,title,false,[0,10,16,19,24,28][i]));
     if(sparseStarter)['GCSE Maths: Worked Examples','Science Revision Notes','French Vocabulary','School Atlas','Year 11 Homework Diary','Sketchbook: Robots & Rockets'].forEach((title,i)=>item('reading.school.'+i,title,false,[8,9,11,17,18,25][i]));
     item('reading.mag.back1','JACK ATTACK! — May 1999',true,4,'magIssue5');item('reading.mag.back2','JACK ATTACK! — June 1999',true,13,'magIssue6');
-    [['mags','JACK ATTACK! — January 1999','magIssue1'],['reading.mag.floor1','JACK ATTACK! — February 1999','magIssue2'],['reading.mag.floor2','JACK ATTACK! — March 1999','magIssue3']].forEach(([id,title,cover],i)=>item(id,title,true,[7,15,23][i],cover,{room:'bedroom',x:TX+33+i*.8,y:FY-i*.85,z:58+i*.6,ry:[-2,-13,1][i]}));
+    [['mags','JACK ATTACK! — January 1999','magIssue1'],['reading.mag.floor1','JACK ATTACK! — February 1999','magIssue2'],['reading.mag.floor2','JACK ATTACK! — March 1999','magIssue3']].forEach(([id,title,cover],i)=>item(id,title,true,[7,15,23][i],cover,{room:'bedroom',x:TX+33+i*.8,y:FY-i*.85,z:143+i*.6,ry:[-2,-13,1][i]}));
     item('reading.mag.bed','JACK ATTACK! — April 1999',true,31,'magIssue4',{room:'bedroom',x:172,y:30,z:29,ry:-6});
     Room.readingSlot = (id, index=0) => {
       if(!Number.isInteger(slots[id])){const occupied=new Set(Object.values(slots));const available=Array.from({length:32},(_,n)=>n).find(n=>!occupied.has(n));if(available===undefined)return null;slots[id]=available;saveSlots()}
@@ -1517,10 +1523,10 @@
   // ================================================================ things you can pick up (the grab system)
   function things() {
     const add = (id, def) => { const t = H.thing(id, def); t.obj.userData.thing = 1; t.obj.traverse(o => { o.userData.thing = 1; }); H.restoreThing(t); return t; };
-    add('gb', { home: { room: 'bedroom', x: -56, y: 0, z: 18, ry: -18 }, kind: 'handheld', label: 'Game Lad Color', obj: gbModel(), use: () => tvOpen('gb'), useLabel: 'Play it', holdD: 40 });
+    add('gb', { home: { room: 'bedroom', x: -56, y: 0, z: 5, ry: -18 }, kind: 'handheld', label: 'Game Lad Color', obj: gbModel(), use: () => tvOpen('gb'), useLabel: 'Play it', holdD: 40 });
     const cube=add('cube',{home:{room:'bedroom',x:-40,y:0,z:-10,ry:25},kind:'toy',label:'Puzzle cube',obj:cubeModel(),use:()=>H.inspect('cube'),useLabel:'Solve it',holdD:34});
     if(cube.at.room==='bedroom'&&cube.st==='rest'&&Math.abs(cube.at.x+50)<.1&&Math.abs(cube.at.y)<.1&&Math.abs(cube.at.z+22)<.1&&Math.abs(cube.at.ry-25)<.1){cube.at=Object.assign({},cube.home);H.place(cube);H.saveThings()}
-    add('vpet', { home: { room: 'bedroom', x: 40, y: 0, z: 24, ry: 10 }, kind: 'toy', label: 'Eggbert (my keyring pet)', obj: vpetModel(), use:()=>H.inspect('vpet'),useLabel:'Check on it',holdD:30,inspectPose:{pitch:-78,yaw:0},onInspectStart:petInspect,onInspectEnd:()=>{clearInterval(R.petTimer);R.petTimer=null},onInspectKey:ev=>{const action={a:'feed',b:'play',c:'clean'}[ev.key.toLowerCase()];if(action&&!ev.repeat)R.petAction?.(action);return!!action},onInspectClick:hit=>{const action=hit?.object.userData.inspectAction;if(action)R.petAction?.(action)} });
+    add('vpet', { home: { room: 'bedroom', x: 40, y: 0, z: 11, ry: 10 }, kind: 'toy', label: 'Eggbert (my keyring pet)', obj: vpetModel(), use:()=>H.inspect('vpet'),useLabel:'Check on it',holdD:30,inspectPose:{pitch:-78,yaw:0},onInspectStart:petInspect,onInspectEnd:()=>{clearInterval(R.petTimer);R.petTimer=null},onInspectKey:ev=>{const action={a:'feed',b:'play',c:'clean'}[ev.key.toLowerCase()];if(action&&!ev.repeat)R.petAction?.(action);return!!action},onInspectClick:hit=>{const action=hit?.object.userData.inspectAction;if(action)R.petAction?.(action)} });
     // The football: a real truncated icosahedron (12 black pentagons, 20 white hexagons) with inset seams and domed
     // panels, one vertex-coloured mesh (540 triangles). It sits in a spin group so it rolls when it is kicked.
     const fb = new T.Group(), spin = new T.Group(); spin.position.set(0, -11, 0); fb.add(spin);
@@ -1987,8 +1993,9 @@
       const d = Math.max(8 / (Math.tan(fov) * .84), 4.5 / (Math.tan(fov) * aspect * .86));
       return { x: a.x + Math.sin(yaw) * d * .174, y: a.y - 2.7 - d * .985, z: a.z + Math.cos(yaw) * d * .174, rx: -80, ry: -(a.ry || 0), seat: 1, lvl: 'U' };
     }
-    const d = Math.max(17.5 / (Math.tan(fov) * 0.83), 24 / (Math.tan(fov) * aspect * 0.88));
-    return { x: TX - 1, y: 8.4, z: -24 + d, rx: 0, ry: 0, seat: 1, lvl: 'U' };
+    const d = Math.max(17.5 / (Math.tan(fov) * 0.83), 20 / (Math.tan(fov) * aspect * 0.88));
+    const glass=R.tvScreen,body=glass.parent;
+    return { x: body.position.x+glass.position.x, y: body.position.y+glass.position.y, z: body.position.z+glass.position.z+d, rx: 0, ry: 0, seat: 1, lvl: 'U' };
   }
   function tvOpen(con, gameId, resume, locked) {
     if(!consoleConnected(con)){toast('No console connected','Place your console in its highlighted TV-rack slot and press E to connect it.');return;}
@@ -2030,7 +2037,7 @@
   const POSTER_VIEW = {
     postershuttle: [-52, -82, BZ, 42, 59.4, 0], posterband: [TX, -66, BZ, 42, 59.4, 0],
     posterfilm: [TX - 58, -96, BZ, 28, 40, 0], postergame: [LX, -70, 20, 32, 45, 90],
-    posterrobot: [-10, -98, FZ, 30, 42, 180]
+    posterrobot: [RX, -86, 44, 59.4, 84, -90]
   };
   function posterPose(id) {
     const [x, y, z, w, h, angle] = POSTER_VIEW[id], a = angle * D2R;
@@ -2046,7 +2053,7 @@
       enter: () => { focusedPoster = id; H.ui.tip(null); }, exit: () => { focusedPoster = null; } });
   }
   addEventListener('resize', () => { if (focusedPoster && H.mode === 'focus') { Object.assign(H.P, posterPose(focusedPoster)); H.dirty(); } });
-  const BITVIEW = { postershuttle: [-52, -82, BZ], posterband: [TX, -66, BZ], posterfilm: [TX - 58, -96, BZ], cork: [42, -84, BZ], window: [(WIN.x0+WIN.x1)/2,(WIN.y0+WIN.y1)/2,BZ], lava: [134, 6, BZ + 21], mags: [TX + 34, FY, 58], rack: [TX - 56, 33, -44], drawer: [56, 6, 40] };
+  const BITVIEW = { postershuttle: [-52, -82, BZ], posterband: [TX, -66, BZ], posterfilm: [TX - 58, -96, BZ], cork: [42, -84, BZ], window: [(WIN.x0+WIN.x1)/2,(WIN.y0+WIN.y1)/2,BZ], lava: [134, 6, BZ + 21], mags: [TX + 34, FY, 143], rack: [TX - 56, 33, -44], drawer: [52, 6, 27] };
   function bits(id) {
     if(id==='rack')return rackNote();
     if (POSTER_VIEW[id]) return posterFocus(id);
@@ -2109,7 +2116,7 @@
   const look = (fx, fz, tx, ty, tz, eye) => { const ey = FY - (eye || 158); const ry = Math.atan2(tx - fx, -(tz - fz)) / D2R, rx = Math.atan2(-(ty - ey), Math.hypot(tx - fx, tz - fz)) / D2R; return { x: fx, y: ey, z: fz, rx, ry, lvl: 'U' }; };
   const tall = () => !!(window.matchMedia && matchMedia('(max-aspect-ratio: 3/4)').matches);
   room.stations = [
-    { id: 'telly', n: 'Consoles', pose: () => tall() ? look(-128, 160, TX + 2, 10, -30, 150) : look(-92, 140, TX - 12, 12, -26, 150) },
+    { id: 'telly', n: 'Consoles', pose: () => tall() ? look(-128, 160, TX + 2, 10, -22, H.STAND) : look(-92, 140, TX - 12, 12, -18, H.STAND) },
     { id: 'desk', n: window.StoryAccess?.available === false ? 'My desk' : 'The PC', pose: () => Object.assign(H.seatPose(), { seat: 1, lvl: 'U' }) },
     { id: 'window', n: 'Window', pose: () => tall() ? look(100, 214, 196, -10, -20, 160) : look(52, 196, 196, -16, -14, 160) },
     { id: 'door', n: 'The door', pose: () => tall() ? look(-70, 120, 240, -40, 190, 160) : look(-80, 110, 240, -30, 178, 160) },
@@ -2347,7 +2354,7 @@
   function consoleCasePark(id){
     if(id==='sn')return{room:'cupboard',x:379,y:353,z:345,ry:0};
     if(id==='gb'){
-      const a=H.THINGS.gb.at;if(a.room==='bedroom')return{room:'bedroom',x:-68,y:0,z:-22,ry:0};
+      const a=H.THINGS.gb.at;if(a.room==='bedroom')return{room:'bedroom',x:-56,y:0,z:-12,ry:0};
       const r=H.ROOMS[a.room],lvl=r?.lvl||'G';for(const [dx,dz]of [[18,0],[-18,0],[0,18],[0,-18]])if(H._.cellOk(lvl,a.x+dx,a.z+dz))return{room:a.room,x:a.x+dx,y:H.LV[lvl],z:a.z+dz,ry:0};
       return{room:a.room,x:a.x+18,y:H.LV[lvl],z:a.z,ry:0};
     }

@@ -189,9 +189,9 @@
   function switchLook(){for(const [id,rocker]of ceilingSwitches){rocker.rotation.x=(lit(id)?-12:12)*D2R;rocker.updateMatrix()}exteriorLightLook(HouseRooms.rooms.drive);H.dirty()}
   function ceilingSwitch(r,id,x,y,z,ry){
     const group=new T.Group();group.position.set(x,y,z);group.rotation.y=ry*D2R;group.name='ceiling-switch-'+id;r.group.add(group);const B=K.into(group);
-    B.rbox(0,0,0,8,10,1.2,0.35,mWhite);
-    for(const yy of [-3.7,3.7]){B.cyl(0,yy,0.7,0.35,0.35,0.2,10,mMetal,{rx:90});B.box(0,yy,0.82,0.42,0.08,0.05,M('#555'))}
-    const rocker=B.rbox(0,0,0.9,3.4,5.4,0.8,0.25,M('#d6d0c2'));rocker.matrix.decompose(rocker.position,rocker.quaternion,rocker.scale);ceilingSwitches.set(id,rocker);
+    B.rbox(0,0,0,8.6,8.6,.7,0.35,mWhite); // standard square single-gang plate, not a tall overseas one
+    for(const xx of [-3,3]){B.cyl(xx,0,.45,0.25,0.25,0.2,10,mMetal,{rx:90});B.box(xx,0,.57,0.32,0.06,0.05,M('#555'))}
+    const rocker=B.rbox(0,0,.65,2.4,3.4,0.8,0.25,M('#d6d0c2'));rocker.matrix.decompose(rocker.position,rocker.quaternion,rocker.scale);ceilingSwitches.set(id,rocker);
     H.spot('hs.switch.'+id,{label:()=>lit(id)?'Ceiling light: switch off':'Ceiling light: switch on',obj:group,act:()=>{lightsOn[id]=!lit(id);saveHouseLights();switchLook();H.relight();window.Sound?.world('switch')}});
     switchLook();
   }
@@ -420,7 +420,7 @@
     const wood = M({ c: '#fff', map: tex('oak') }), spin = mSpindle;
     for (let i = 0; i < pts.length - 1; i++) {
       const [x0, z0] = pts[i], [x1, z1] = pts[i + 1], len = Math.hypot(x1 - x0, z1 - z0), ry = Math.atan2(x1 - x0, z1 - z0) / D2R;
-      B.rbox((x0 + x1) / 2, fy - 90, (z0 + z1) / 2, 6.4, 5.2, len - 7, 1.6, wood, { ry, uv: 60 }); // housed 1 cm into the newel shoulders
+      B.rbox((x0 + x1) / 2, fy - 90, (z0 + z1) / 2, 5.6, 5.2, len - 7, 1.4, wood, { ry, uv: 60 }); // ordinary graspable rail; same spindle housing height
       B.rbox((x0 + x1) / 2, fy - 3, (z0 + z1) / 2, 7, 6, len - 7, 0.6, wood, { ry, uv: 60 }); // a continuous base rail under every square foot
       const n = Math.floor(len / 12);
       for (let k = 1; k < n; k++) { const t = k / n; spindle(B, x0 + (x1 - x0) * t, fy - 87.4, z0 + (z1 - z0) * t, 81.4, spin); }
@@ -467,10 +467,10 @@
     B.lathe(330, 0, zDrop, [[3.4, pitch(zDrop) - 4.2], [2.2, pitch(zDrop) - 1.5], [3, pitch(zDrop) + 1.5], [0.05, pitch(zDrop) + 2.6]], 16, wood); // the drop's turned pendant
     { const zs = [286, zDrop], top = GC - 1.95; poly(B, [[330, top, zs[0]], [330, top, zs[1]], [330, pitch(zs[1]) - 6, zs[1]], [330, pitch(zs[0]) - 6, zs[0]]], M({ c: '#fff', map: tex('wallpaperHall'), side: 2 })); }
     const rail0 = zDrop + 3.5, rail1 = z2 - 3, railMid = (rail0 + rail1) / 2;
-    B.rbox(330, pitch(railMid) - 92, railMid, 6.4, 5.2, Math.hypot(rail1 - rail0, 0.8 * (rail1 - rail0)), 1.6, wood, { rx: -ang, uv: 60 });
+    B.rbox(330, pitch(railMid) - 92, railMid, 5.6, 5.2, Math.hypot(rail1 - rail0, 0.8 * (rail1 - rail0)), 1.4, wood, { rx: -ang, uv: 60 });
     // Turned spindles, plumb, two per tread, from the string to the underside of the handrail.
     for (let k = 1; k <= 26; k++) { const z = 250 + 12.5 * k - 6.25; if (z > z2 - 6 || z < zDrop + 6) continue; spindle(B, 330, pitch(z) - 89.3, z, 84.4, spin); }
-    newel(B, 330, GY, 600, wood, 10); // the newel post at the bottom
+    newel(B, 330, GY, 600, wood, 9); // same 90 mm stock as the landing
   }
 
   // ================================================================ THE HALL (round the bottom of the stairs)
@@ -1628,7 +1628,7 @@
     H.block('G', -360, HEDGE[0], FRONT_PIERS[0] - 16.5, FZ + 6); H.block('G', FRONT_PIERS[2] + 16.5, FZ - 16, 740, FZ + 6); // the front wall, with the hedge behind it
     for (const x of FRONT_PIERS) H.block('G', x - 16.5, FZ - 21.5, x + 16.5, FZ + 11.5);
     H.block('G', FRONT_PIERS[1] - 12, FZ - 104, FRONT_PIERS[1] - 6, FZ - 21.5); // the open gate leaf
-    H.block('G', 716, 704, 740, FZ - 15); // next door's hedge
+    H.block('G', 720, 801, 775, FZ - 26, {top:GY-125}); // next door's 55 cm clipped privet (hs-environment)
     H.block('G', LAMP.x - 16, LAMP.z - 14, LAMP.x + 16, LAMP.z + 14); // the lamp-post's base, now the whole pavement is walkable
     H.support('drive',frame.x-58*frame.s,frame.z-96*frame.s,frame.x+58*frame.s,frame.z+60*frame.s,GY-frame.roof*frame.s,{when:()=>parked.present}); H.support('drive', 265, 708, 335, 752, GY - 2);
     // The shell, lid, contact shadow and picks leave together. The separate batch

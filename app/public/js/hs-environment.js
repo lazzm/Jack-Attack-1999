@@ -238,8 +238,13 @@
   // The short threshold bridges the wall to the footpath; same height, disjoint.
   b.box(doorX,-1,front+10,82,2,20,paving);
   for(const side of [-1,1]){
-   b.box(side*(plot-9),-36,(face+front)/2,18,72,front-face-12,hedge);
-   b.box(side*(plot-9),-2,(face+front)/2,26,4,front-face-12,earth);
+   // The boundary beside Jack's drive is a full clipped privet, matching his front hedge.
+   // Keep its whole root bed outside Jack's playable drive; its front ends 26 cm behind the piers.
+   const besideJack=x===1060&&ry===0&&side===-1;
+   const boundary=side*(plot-9)+(besideJack?8.5:0);
+   if(besideJack)b.rbox(boundary,-63,(face+front)/2,55,126,front-face-12,7,hedge);
+   else b.box(side*(plot-9),-36,(face+front)/2,18,72,front-face-12,hedge);
+   b.box(boundary,-2,(face+front)/2,besideJack?59:26,4,front-face-12,earth);
   }
   const bedX=-w*.24,bedZ=face+105;
   b.box(bedX,-2,bedZ,160,4,66,earth);

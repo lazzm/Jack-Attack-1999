@@ -249,3 +249,144 @@ node tests/mobile.mjs --only=gate\,full
 ```
 
 Evidence: `tests/shots/sizing/round2/{before,after}/`, `bonfire-desktop/`, `bonfire-phone/`. Captures are native resolution and personally reviewed. Full default Bonfire art coverage, including Potato, requires a completed rerun; a focused pass is not a full-suite pass. G3/G4 and other open stage-3 rows remain open.
+
+## Sizing 3: remaining rooms and front (4 November 2026)
+
+See the per-row decision ledger in SCALE-REVIEW.md. This working-tree pass retains the approved rear/kitchen plan,
+front depth, car frame, storeys, stair pitch, door openings, people and family seat anchors. It changes the desk,
+portable bedroom TV, pinboard/calendar, existing robot poster, pillow and beanbag, plus handrails, switch plates,
+the adjacent front hedge and sack. Leaf artwork is retained, with fewer material draws. It adds no scene lights or graphics options. TV shell parts use
+the existing material-batch helper; live 4:3 glass remains its own interactive mesh.
+
+### Why G3 is left to Jack
+
+The historical statement that *any* ceiling lowering requires new stairs was too broad. There are two choices:
+
+1. **Lower ceilings only:** UC -185 → -170 and GC 95 → 110, keeping floors at UY 73 / GY 353. This gives 243 cm
+   clear height (15 cm / 5.8% less), and 38 cm rather than 53 cm over the unchanged 205 cm doors. The stair rise can
+   stay 280 cm, but the apparent floor/ceiling void grows 22 → 37 cm. The high bedroom window starts at y -166:
+   only **4 cm below the new ceiling**, and its top frame reaches -169, leaving **1 cm** before coving. That window
+   and both exterior/portal apertures need lowering or rebuilding, along with coving, loft hatch, ceiling fittings,
+   ceiling-hung seasonal objects and any saved placements on those changed surfaces. Lowering one plane now would
+   leave inconsistent windows/trim and an implausibly thick floor edge. The gain is modest after the eye/lens fix.
+2. **Lower floor-to-floor as well:** retaining the 22 cm floor void with 243 cm rooms gives 265 cm storeys. The current
+   14 × 20 cm flight, ramp `73 + .8*(z-250)`, cupboard's sloped ceiling, upstairs floor, all upstairs room/door/window
+   positions, exterior bands and NPC stair transitions would need changing together. Old standing/seated/prop/body
+   coordinates would need a whole-upstairs migration, including unbuilt rooms and story/seasonal anchors. No such
+   migration or partial geometry change is included here.
+
+The measured existing stair is 20 cm rise / 25 cm going, 38.66°, with 74.6 cm clear treads. The hall has 121 cm clear
+width; the narrow landing has 76 cm. Widening the landing/stair is a separate horizontal plan decision and must not
+be disguised as a ceiling edit. Contemporary dimensional comparisons: [council stair guidance](https://buildingcontrol.bathnes.gov.uk/loft-conversions/stairs-and-guarding),
+[domestic desk dimensions](https://www.ikea.com/gb/en/p/alex-desk-white-80483438/), and
+[manufacturer stair-part drawings](https://media.cylex-uk.co.uk/companies/2389/1373/uploadedfiles/23891373_636541179842071316_18187-richard-burbidge-trade-brochure-redesign-low-res-complete.pdf).
+These are outside-game measuring references, not new in-world brands or claims about 1999 regulations.
+
+### Saved placements: PV11
+
+Existing PV0–10 transfers remain in order. Bedroom records on the removed desk-edge strips move onto its retained
+top; supported PC/tower/keyboard positions stay exact. Loose contents of the top drawer follow its 4 cm horizontal /
+13 cm depth change. The old beanbag home moves 16 cm left and 26 cm forward; floor props in the enlarged footprint
+move into the open aisle at z 166. The magazine stack and its tidy target move from z 58 to 143, keeping stack
+heights. One factory daily-mess spot moves to (-188,70) so clothes do not start in the beanbag. The front-edge
+Game Lad/Eggbert homes and persisted empty-case anchor also follow the smaller desk. Custom moved furniture stays where it was saved and receives the existing one-time
+physics clearance check. An old valid standing/seat-return point newly covered by the beanbag moves to the open
+aisle only when that beanbag is still at its factory home. Pillow/mattress and old pillow-top placements move 9 cm
+forward, with the old 26 cm pillow-top y corrected to 24.9. Snaps use their new anchors; hidden records, rotations,
+chair swivel, unbuilt-room records, daily chore progress and media IDs remain intact. Current-version saves do not
+repeat these moves. No live data, account, balance, cap, shared-world or server objective state is edited.
+
+`placement-migration-unit.cjs` checks actual production transfers including metadata and repeated loads;
+`world-pose-unit.cjs` checks exact refresh and the newly covered standing point. `sizing3-save.mjs` exercises a real
+PV10 profile with restored bodies, a custom chair/swivel, two ordinary refreshes and the changed bedding interactions.
+Actual results, screenshot reviews and per-camera draw totals are recorded in the final sizing3 ledger.
+
+### Sizing3 verification ledger (4 November 2026)
+
+All browser runs use one Chromium at a time, ports 18080–18099 and new `/tmp` data. No deployment, container,
+version, changelog, live data or account changes. The pre-existing untracked `app/public/audio/voice` entry is untouched.
+The owned-server wrapper checks that its own child logged the selected listening port before allowing the browser;
+its EXIT trap kills only those child PIDs. An early capture attempt lost a shared-host port race and was discarded.
+
+Native matched captures: `node tests/sizing3.mjs http://localhost:18081 before` and
+`node tests/sizing3.mjs http://localhost:18086 after` both exited 0 (34 views each). The final eight changed bedroom /
+leaf / sack captures use `SIZING3_ONLY=bedroom-door,desk,leaves,sack`, port 18098, exit 0. Every image was reviewed in
+contact sheets, with full-resolution inspections of the changed models, people and phone views. Existing baggier
+leaf trial captures were replaced with the retained original artwork. The earlier after views outside those eight
+predate the final small material consolidation and factory chair/magazine-home adjustments; they are not all a
+fresh capture of the final source. Desktop is 1366 × 860, phone portrait 390 × 844; no raster cap on art captures.
+
+Draw-call evidence (same cameras/actor positions; one sample per rendered view, not a device benchmark):
+
+| Camera | Before | Final capture |
+|---|---:|---:|
+| Desktop bedroom doorway (previous peak) | 743 | 742 |
+| Phone bedroom doorway | 594 | 594 |
+| Desktop desk | 473 | 474 |
+| Phone desk | 385 | 386 |
+| Desktop leaves | 92 | 86 |
+| Phone leaves | 74 | 69 |
+| Desktop sack | 65 | 64 |
+| Phone sack | 59 | 59 |
+
+The complete 34-view sample immediately before the final TV-plastic/zip material consolidation totalled
+9,834 → 9,775 draws, but its peak was 744, which triggered that correction. The final heaviest native camera is
+742. **Do not interpret this as every view decreasing:** enlarged furniture / relocated magazines enter some
+frusta that previously missed them. In particular the earlier phone wardrobe sample rose 100 → 115. No lights,
+render passes, texture blur or graphics controls were added. Neighbour scenery stays 83 meshes; hedge detail
+changes its triangle count 76,146 → 76,434. Bonfire geometry remains 263 meshes / 43,756 triangles.
+
+Completed non-browser checks: syntax on every touched JS/test, all 47 `tests/*-unit.cjs` (exit 0),
+`node --expose-internals tests/parody-audit.cjs` (exit 0, 0 authored spans),
+`node tests/neighbourhood-geometry.cjs` (exit 0), and `git diff --check` (exit 0).
+`node tests/bedroom-hifi-unit.cjs` and `node tests/physics-unit.cjs` passed again after the last model-material edit.
+
+Bonfire: `FIXTURE_RASTER_RATIO=0.35 BONFIRE_RESUME_LOGIN=1 BONFIRE_NO_SHOTS=1 node tests/events-bonfire.mjs http://localhost:18081`
+exited 0: all eight objectives, real wood placements/gestures, Friday display, Saturday catch-up, once-only rewards,
+refresh, off-dates, second account and phone resizing. `node tests/bonfire-geometry-unit.cjs` exited 0 in the full unit loop.
+Functional raster caps affect only the test renderer; the authored game setting and native art captures are unchanged.
+
+The first full physics run was interrupted (exit 130) after its old drawer aim failed and stacking waited on a
+blocked placement. A targeted rerun exited 1 and identified `body:ch.pillow` at the old floor-box test location;
+the full-size pillow now legitimately occupies that space. The drawer's corrected aim passed. The stacking fixture
+now uses a genuinely clear floor position and checks the ghost before pressing E, so a blocked ghost fails with its
+reason instead of silently waiting. Earlier old-save fixture failures included an overlength account name and a
+custom chair deliberately coinciding with ordinary chore/tool bodies. The final fixture uses a custom bedroom chair pose (-35,45), after the trial landing pose was rejected by the
+existing room-restore validation. It requires collision-free bodies, exact retained position, preserved swivel/metadata
+and exact subsequent refreshes; see its final result below. Final browser outcomes are recorded below.
+
+`FIXTURE_RASTER_RATIO=0.35 node tests/characters.mjs --only=day,space,bump` exited 0 (3/3).
+The three-day simulation checked 77,760 ticks: minimum nav clearance 23.7 cm, 22 doors opened / 19 shut,
+maximum routine wait 1.1 s; personal-space crossings had no body overlaps and maximum wait 1.8 s.
+
+Remaining scope limits: G3, car taper/arches (5/6), landing width (9), stair width (10) and leaf artwork (20)
+remain explicit design work. Kitchen dressing (30) was deliberately not expanded. `tests/mobile.mjs` has not run
+in this time box; phone portrait captures, Bonfire resizing and any smoke phone checks are narrower evidence,
+not a full phone/tablet, landscape or gamepad certification. No whole-house collision sweep or all-door rapid-click
+matrix is claimed. The corrected desk drawer was exercised open/closed while carrying. Final gate status follows.
+
+Final regression results available before the time-box stop:
+
+- Full `FIXTURE_RASTER_RATIO=0.35 REGRESSION_NO_SHOTS=1 node tests/physics.mjs`: **exit 1, 14/15**.
+  The one failure was an invalid floor expectation: the test's dropped books landed correctly on the washing basket
+  at y 27. After moving the drop camera into the clear aisle,
+  `FIXTURE_RASTER_RATIO=0.35 REGRESSION_NO_SHOTS=1 node tests/physics.mjs --only=carry-box-through-door,drop-stack-settle,no-browser-errors`
+  **exited 0, 3/3**. The full suite has not been rerun a final time after that fixture-only correction. Full-run
+  physics cost: 0.177 ms/step unthrottled, 0.524 ms/step at 4× CPU throttle; both budget checks passed.
+- `FIXTURE_RASTER_RATIO=0.35 node tests/smoke.mjs`: **interrupted, exit 130** after sparse-signup/account-house passed
+  and walk-refresh timed out while the loader was still visible. The alone rerun with `SMOKE_SCALE=4` was also
+  interrupted for the time box before it completed a check. **The smoke gate has not passed.** This is not evidence
+  of a production refresh defect; a complete alone rerun is still required before shipping.
+- `tests/mobile.mjs`: **not run**. A final full physics gate and full smoke gate remain unverified.
+
+`FIXTURE_RASTER_RATIO=0.35 node tests/sizing3-save.mjs http://localhost:18083` exited 1 **after** passing the PV10
+migration/body/no-overlap assertions, exact custom chair/swivel, drawer/slot metadata, unchanged standing/PC power /
+shut door, two exact normal refreshes, drawer reversal/Esc, A1 inspection, gold pillow placement and pillow work.
+The remaining immediate pyjama assertion ran before `snapIn`'s existing **380 ms** animation commits its `onSnap`.
+The fixture now waits for the actual thing to leave `anim`, rather than only for hands to become empty. These are
+narrower passed assertions within a failing test, **not a passed whole save gate**. The old-save and two refresh
+captures were inspected in full. A final no-refresh bedding-only retry is reported below.
+
+The final `SIZING3_REFRESHES=0 FIXTURE_RASTER_RATIO=0.35 node tests/sizing3-save.mjs` bedding-only retry was
+interrupted at the 90-minute stop (exit 130); **not verified**. The whole corrected save gate, full smoke gate and
+final complete physics rerun must pass before shipping. Working tree left uncommitted and undeployed.

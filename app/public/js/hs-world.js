@@ -1516,7 +1516,8 @@
   }
   // Saved as [room, x, y, z, ry, snap, hide, extra]; extra holds a chair's swivel. A carried thing saves where it came
   // from, and the grip itself is remembered so a refresh hands it straight back (jhp_hs_held).
-  const PV = 10; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry; 7: clear floor props from the new cat tree; 8: wider lounge routes, table/chair props follow their furniture; 9: car lid/rim heights; 10: rear extension, kitchen table and garden layout
+  const PV = 11; // 2: physics; 3-6: front plot/car/lounge; 7: cat tree; 8: lounge routes; 9: boot rims; 10: rear extension; 11: desk, beanbag and pillow
+  const placementMoved = new Set(); // in-memory only: changed props get one physical clearance check too
   // The front plot (docs/HOUSE-SCALE.md, js/hs-house.js builds it): the garden runs from the house front (z 702) to the pavement
   // at FZ. Until pv 3 it was 4 m deep (FZ 1100) with Dad's car shrunk to 82% (OLD_CAR) to squeeze it in.
   // STREET: our pavement (FZ..FZ+145, 1.45 m), its kerb, a 5.6 m road, the far kerb and pavement; the opposite houses'
@@ -1545,6 +1546,28 @@
   // in front of the sofa, on the way through.
   const LOUNGE5 = [[-157, 560, 37, 649], [53, 338, 166, 452]];
   function migratePlacement(at, from = 0) {
+    if(at && at.room==='bedroom' && from<11 && !at.hide && Number.isFinite(at.x) && Number.isFinite(at.z)) {
+      // Both factory front-edge toys stay fully on the smaller top, including their depth and keyring.
+      if(Math.abs(at.y)<.1&&Math.abs(at.x+56)<.1&&Math.abs(at.z-18)<.1){at.z=5;return true;}
+      if(Math.abs(at.y)<.1&&Math.abs(at.x-40)<.1&&Math.abs(at.z-24)<.1){at.z=11;return true;}
+      if(Math.abs(at.y)<.1&&Math.abs(at.x+68)<.1&&Math.abs(at.z+22)<.1){at.x=-56;at.z=-12;return true;}
+      if(Math.abs(at.y-LV.U)<.6&&at.x>=-16&&at.x<=-10&&Math.abs(at.z-18)<.1&&Math.abs((at.ry||0)-180)<.1){at.z=5;return true;}
+      // Shrinking the desk exposes floor, never removes it. Only records on a removed strip of its old top move.
+      // Keep PC/keyboard-supported things, ordinary floor poses and rotation/extra metadata exact.
+      if(at.y<=.6&&at.y>=-25&&at.x>=-76&&at.x<=76&&at.z>=-55&&at.z<=31&&(at.x<-70||at.x>70||at.z<-54||at.z>18)) {
+        at.x=clamp(at.x,-42,42);at.z=clamp(at.z,-40,4);return true;
+      }
+      // The open top drawer, including loose contents, follows its front and carcass.
+      if(at.y>=3.2&&at.y<=11&&at.x>=40&&at.x<=72&&at.z>=-29&&at.z<=29){at.x-=4;at.z-=13;return true;}
+      // Pillow and anything resting on its old top follow the larger pillow clear of the headboard.
+      if(at.x>=165&&at.x<=215&&at.z>=-48&&at.z<=-18&&(Math.abs(at.y-37)<.2||Math.abs(at.y-26)<.2)){at.z+=9;if(Math.abs(at.y-26)<.2)at.y=24.9;return true;}
+      // The original beanbag's home moves clear of the desk. Other furniture remains where the player left it.
+      if(Math.abs(at.x+100)<.1&&Math.abs(at.z-56)<.1&&Math.abs(at.y-LV.U)<.6){at.x=-116;at.z=82;return true;}
+      // Preserve the magazine stack and its finished tidy placements as a stack, with their support heights.
+      if(at.x>=-151&&at.x<=-136&&at.z>=54&&at.z<=64&&at.y>=LV.U-8&&at.y<=LV.U+.2){at.z+=85;return true;}
+      // Clear old loose floor props from the enlarged home, into the open aisle in front of it.
+      if(at.y>=LV.U-6&&at.y<=LV.U+2&&Math.hypot(at.x+116,at.z-82)<67){at.z=166;at.y=LV.U;return true;}
+    }
     if(at && from<10 && Number.isFinite(at.x) && Number.isFinite(at.z)) {
       if(at.room==='kitchen') {
         // Loose things on the old rear run follow their supporting unit. Snaps use their current anchors.
@@ -1680,7 +1703,7 @@
       const stale = r[0] === 'drive' && pv === 3 && Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR3.y - 5 && !(Math.abs(r[1] - CAR3.x) <= 92 * CAR3.s && Math.abs(r[3] - CAR3.z) <= 205 * CAR3.s);
       if (!old && !stale) continue;
       const at = { room: r[0], x: r[1], y: r[2], z: r[3], ry: r[4], hide: !!r[6] };
-      if (migratePlacement(at, stale ? 0 : pv)) save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4], ...r.slice(5)];
+      if (migratePlacement(at, stale ? 0 : pv)) { save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4], ...r.slice(5)]; if(pv<11&&at.room==='bedroom')placementMoved.add(id); }
     }
     save.pv = Math.max(pv, PV);
   }
@@ -1692,9 +1715,10 @@
     for (const t of migrateQ) {
       migrateQ.delete(t);
       if (t.st !== 'rest' || t.at.hide || isAway(t) || !t.body || !ROOMS[t.at.room]) continue;
-      if (!t.obstacle) continue; // only furniture saved where the new furniture colliders now stand; props keep their pose
-      if (!PH.overlapping(t.body) && Math.abs(t.at.y - LV[lvlOf(t)]) <= 0.01) continue;
+      if (!t.obstacle && !t._placementMoved) continue; // untouched props keep their exact pose
+      if (!PH.overlapping(t.body) && (!t.obstacle || Math.abs(t.at.y - LV[lvlOf(t)]) <= 0.01)) { t._placementMoved=false; continue; }
       const shift = PH.settle(t.body, 45); if (shift > 0.05) { renderBody(t); moved = true; }
+      t._placementMoved=false;
     }
     if (moved) saveThings();
   }
@@ -1752,6 +1776,7 @@
       t.rx = p.rx || 0; t.rz = p.rz || 0;
     } else { t.st = 'rest'; if (save.pv0 < PV && (t.at.room === 'drive' || t.at.room === 'lounge')) migrateQ.add(t); }
     moveTo(t, t.at.room); place(t); layerFor(t);
+    if(placementMoved.delete(t.id))t._placementMoved=true;
     if (t.st === 'rest' && !t.at.hide && (save.pv0 ?? save.pv ?? 0) < PV) migrateQ.add(t);
     rescueQ.add(t);
   }
@@ -2920,6 +2945,12 @@
   }
   function validPose(s) { return !!s && ['x','y','z','rx','ry'].every(k => Number.isFinite(s[k])) && ['U','G'].includes(s.lvl || 'U') && Math.abs(s.y) < 1000 && Math.abs(s.rx) <= 90; }
   function migrateWalkPose(s) {
+    // A previously clear standing/seat-return point can now lie in the larger beanbag.
+    // Only its unchanged factory home is affected; moved/hidden furniture keeps the old player's position.
+    if((s.pv||0)<11&&s.lvl==='U'&&!s.seat&&s.x<0){
+      const bag=THINGS.beanbag,a=bag?.at;
+      if(a&&!a.hide&&a.room==='bedroom'&&Math.hypot(a.x+116,a.z-82)<.2&&Math.hypot(s.x-a.x,s.z-a.z)<RAD+45)s=Object.assign({},s,{z:150,pv:PV});
+    }
     // Old outdoor poses near the old wall follow the patio; never turn into an indoor spawn.
     if((s.pv||0)<10 && s.lvl==='G' && !s.seat){
       if(s.z< -56 && s.z> -240 && s.x<215)s=Object.assign({},s,{z:s.z-120,pv:PV});

@@ -23,7 +23,7 @@ const pass = 'Throwaway-1999', results = [];
 let server, data, base;
 async function freePort() {
   for (let port = 18080; port <= 18099; port++) {
-    if (await new Promise(resolve => { const s = net.createServer(); s.once('error', () => resolve(false)); s.listen(port, '127.0.0.1', () => s.close(() => resolve(true))); })) return port;
+    if (await new Promise(resolve => { const s = net.createServer(); s.once('error', () => resolve(false)); s.listen(port, () => s.close(() => resolve(true))); })) return port;
   }
   throw Error('No free throwaway port in 18080-18099');
 }
@@ -33,6 +33,7 @@ async function startServer() {
   let log = ''; server.stdout.on('data', d => { log += d; }); server.stderr.on('data', d => { log += d; });
   base = 'http://localhost:' + port;
   for (let i = 0; i < 100; i++) { try { if ((await fetch(base + '/robots.txt')).ok) break; } catch (e) {} await new Promise(r => setTimeout(r, 200)); }
+  assert(server.exitCode===null&&server.signalCode===null&&log.includes('online at :'+port),'Own throwaway server failed to bind: '+log.slice(-600));
   server.log = () => log;
 }
 async function stopServer() {
