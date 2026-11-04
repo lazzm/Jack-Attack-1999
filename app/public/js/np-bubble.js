@@ -96,7 +96,7 @@
     const st = getComputedStyle(H.ui.el); return st.display !== 'none' && st.visibility !== 'hidden';
   }
   // what to keep clear of (refreshed a few times a second)
-  const KEEP = '.hs-hold:not([hidden]),.st-objective:not([hidden]),.hs-top,.hs-map,.hs-tip.carry.on,.ht-acts>.ht-b,.ht-top>.ht-b,.ht-stick.on,.ht-target.on,.ht-tapmark.on,.ht-coach-card,.hs-getup:not([hidden]),.ch-chip:not([hidden]),.hs-voice.on,.rm-note.on,.rm-toast.on';
+  const KEEP = '.hs-hold:not([hidden]),.st-objective:not([hidden]),.hs-top,.hs-map,.hs-tin,.ch-jobs,.hs-tip.carry.on,.ht-acts>.ht-b,.ht-top>.ht-b,.ht-stick.on,.ht-target.on,.ht-tapmark.on,.ht-coach-card,.hs-getup:not([hidden]),.ch-chip:not([hidden]),.hs-voice.on,.rm-note.on,.rm-toast.on';
   let keep = [], keepAt = 0, view = null;
   function refreshKeep(now) {
     if (now - keepAt < 300 && view) return; keepAt = now;
@@ -157,7 +157,20 @@
         else dir = { x: 0, y: 1 };
       } catch (e) { dir = { x: 0, y: 1 }; }
       if (mode !== b.mode) { b.mode = mode; b.el.classList.toggle('np-edge', mode === 'edge'); b.measure = true; b.w = b.el.offsetWidth; b.h = b.el.offsetHeight; }
-      const others = keep.concat(placed);
+      // The hair-to-mouth span scales with distance and the live lens. Reserve
+      // the full face, including chin and cheeks, when the top edge forces a
+      // balloon down or sideways. The tail still points to the actual mouth.
+      const span=mode==='head'?Math.max(18,Math.hypot(mouth.x-top.x,mouth.y-top.y)):0;
+      const face=span?{x:Math.min(top.x,mouth.x)-span*.65,y:Math.min(top.y,mouth.y)-6,w:Math.abs(top.x-mouth.x)+span*1.3,h:Math.abs(top.y-mouth.y)+span*.4+12}:null;
+      // A portrait tablet has useful space beside a close speaker, but a full
+      // 320 px balloon may miss it by a few pixels. Wrap the same size lettering
+      // into that space before falling back beneath the speaker. Quantising the
+      // width keeps a bobbing head from changing the line breaks every frame.
+      const side=face?Math.max(face.x-view.m-8,view.w-view.m-face.x-face.w-8):0;
+      const limit=face&&top.y-18-b.h<view.top+12&&side>=220&&side<320?Math.max(220,Math.floor(side/16)*16)+'px':'';
+      if(b.widthLimit!==limit){b.widthLimit=limit;b.el.style.maxWidth=limit;b.w=b.el.offsetWidth;b.h=b.el.offsetHeight;}
+      const obstacles=face?keep.concat(face):keep;
+      const others = obstacles.concat(placed);
       // A voice out of view gets a stable subtitle, never a balloon over an unrelated prop.
       b.el.querySelector('.np-bub-name').textContent = b.who + (mode === 'edge' ? b.place || ' (nearby)' : '');
       const subtitleY=Math.min(view.h-b.h-16,view.w<600?100:view.h<500?76:view.h-b.h-54);
@@ -167,8 +180,9 @@
       // ease towards the new place (people bob and the view turns; balloons shouldn't jitter)
       if (b.x == null || b.jump) { b.x = r.x; b.y = r.y; b.jump = false; } else { const k = 1 - Math.exp(-(now - (b.lastT || now)) / 70); b.x += (r.x - b.x) * k; b.y += (r.y - b.y) * k; }
       b.lastT = now; r.x = b.x; r.y = b.y;
+      if(face&&hit({x:r.x,y:r.y-12,w:r.w,h:r.h+12},face,6)){r.x=pos.x;r.y=pos.y;b.x=r.x;b.y=r.y;}
       // Easing must not carry a reply through the previous speaker's panel.
-      separate(placed.concat(r), view, keep); b.x = r.x; b.y = r.y;
+      separate(placed.concat(r), view, obstacles); b.x = r.x; b.y = r.y;
       placed.push(r);
       b.el.style.transform = `translate(${r.x.toFixed(1)}px,${r.y.toFixed(1)}px)`;
       if (mode === 'edge') { b.tail = null; continue; }

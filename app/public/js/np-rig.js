@@ -250,6 +250,14 @@
       const ce = Math.cos(el), x = ce * Math.sin(a), y = Math.sin(el), z = ce * Math.cos(a);
       const low = smooth(clamp(-y / 0.95, 0, 1));
       let px = x * rx * (1 - P.jaw * low * low), py = y * ry, pz = z * rz;
+      // Broad skull planes, not extra facial parts: a temple, a jaw angle and
+      // a softly flattened chin. The painted features keep their abstraction.
+      const adult = S.H > 150, temple = Math.exp(-(((y - 0.19) / 0.29) ** 2));
+      px *= 1 - (adult ? 0.045 : 0.025) * temple * Math.abs(x);
+      const jaw = Math.exp(-(((y + 0.61) / 0.24) ** 2));
+      px += x * (adult ? (S.H > 175 ? 1.25 : 0.7) : 0.3) * jaw;
+      py += ry * 0.055 * smooth((-y - 0.67) / 0.33);
+      if (z < 0) pz -= rz * 0.035 * Math.exp(-(((y - 0.12) / 0.48) ** 2)) * -z;
       if (z < 0) pz *= 1 - 0.1 * low; // the back of the skull rounds into the neck
       const ch = Math.exp(-(((Math.abs(x) - 0.58) / 0.3) ** 2 + ((y + 0.38) / 0.3) ** 2)); // full, round cheeks
       px += Math.sign(x) * P.cheek * ch; if (z > 0) pz += P.cheek * 0.5 * ch;
@@ -408,7 +416,7 @@
     const k = side => side === 'L' ? 1 : -1;
     const O = OUTFITS[kind][outfit] || OUTFITS[kind][Object.keys(OUTFITS[kind])[0]];
     const hp = S.head, [cx, cy, cz] = hp.c, [rx, ry] = hp.r;
-    S.L = L; S.lod = lod;
+    S.L = L; S.lod = lod; S.familyHands = kind === 'mom' || kind === 'dad' || kind === 'sister';
 
     // ---- head (the face is painted: see paintFace), neck, ears
     G.add(grid(L.head[0], L.head[1], S.shape.fn), skin, 'head', { face: S, noAO: true });
@@ -496,9 +504,20 @@
     buildProps(G, S, J, kind, L);
     return { geometry: G.build(), J, S, O, frames, tris: G.tris };
   }
-  // a soft mitten hand (palm to fingertips in one loft, curled a little) and a thumb
+  // A palm, four softly grouped fingers and an opposing thumb. No extra bones:
+  // the relaxed curl works with the existing wrist/prop grip frames. Other
+  // costumes retain their original mittens and their very tight budgets.
   function mitten(G, S, wr, kk, bone, color, L) {
     const H = S.handLen, x = wr[0] - kk * 0.3, y = wr[1], z = wr[2];
+    if (S.familyHands) {
+      G.add(loft([[y - H * 0.51, x, z + H * 0.045, H * 0.205, H * 0.105], [y - H * 0.28, x, z, H * 0.215, H * 0.12], [y + H * 0.045, x, z - H * 0.025, H * 0.145, H * 0.12]], L.hand, { bottomDome: H * 0.025, topDome: 0.15 }), color, bone);
+      for (let i = 0; i < 4; i++) {
+        const fx = x + (i - 1.5) * H * 0.105, len = H * [0.34, 0.40, 0.38, 0.28][kk > 0 ? i : 3 - i], fy = y - H * 0.47;
+        G.add(loft([[fy - len, fx, z + H * 0.18, H * 0.043, H * 0.045], [fy - len * 0.5, fx, z + H * 0.13, H * 0.052, H * 0.057], [fy, fx, z + H * 0.035, H * 0.06, H * 0.06]], S.lod === 0 ? 4 : 3, { bottomDome: H * 0.035, topDome: H * 0.015 }), color, bone);
+      }
+      G.add(ell([x - kk * H * 0.22, y - H * 0.36, z + H * 0.12], [H * 0.085, H * 0.23, H * 0.09], [L.hand, 3], [18, 0, -kk * 27]), color, bone);
+      return;
+    }
     const r = [[y - H * 0.9, x - kk * 0.7, z + 1.3, H * 0.15, H * 0.17], [y - H * 0.78, x - kk * 0.5, z + 1.0, H * 0.21, H * 0.24], [y - H * 0.55, x - kk * 0.2, z + 0.5, H * 0.23, H * 0.27], [y - H * 0.3, x, z + 0.1, H * 0.21, H * 0.24], [y + H * 0.05, x, z - 0.1, H * 0.16, H * 0.18]];
     G.add(loft(r, L.hand, { bottomDome: H * 0.09, topDome: 0.2 }), color, bone);
     G.add(ell([x - kk * H * 0.04, y - H * 0.36, z + H * 0.24], [H * 0.09, H * 0.2, H * 0.1], [L.hand, 4], [24, 0, kk * 14]), color, bone);
@@ -659,15 +678,39 @@
     }
     return [x, y, z];
   };
-  const shade = (h, h2, S) => { const [cx, cy, cz] = S.head.c; return (x, y, z) => (Math.sin(Math.atan2(x - cx, z - cz) * 9 + y * 0.12) > 0.55 ? h2 : h); };
+  const shade = (h, h2, S) => {
+    const [cx, cy, cz] = S.head.c, col = h.clone();
+    // Broad, softly graded locks; no hard alternating painted bands.
+    return (x, y, z) => col.copy(h).lerp(h2, 0.25 + 0.45 * smooth((Math.cos(Math.atan2(x - cx, z - cz) * 7 + (y - cy) * 0.055) + 1) * 0.5));
+  };
+  const hairLocks = (S, fall, part) => (x, y, z, ab, ed, A) => {
+    if (fall) [x, y, z] = fall(x, y, z, ab, ed, A);
+    const P = S.head, a = A * D2R, crown = smooth((ed - 18) / 24), side = smooth((ab - 32) / 35);
+    const lock = Math.cos(a * 7 + ed * 0.025) * 0.75 * side * (1 - crown * 0.7);
+    // A shallow part separates the swept masses without exposing the scalp.
+    const partK = Math.max(crown, smooth((ab - 100) / 30) * smooth((ed + 38) / 35));
+    const groove = Math.exp(-((Math.sin(a - part) / 0.10) ** 2)) * partK * 0.65;
+    const d = lock - groove + 0.7 * Math.sin(a * 2) ** 2 * side * (1 - crown * 0.6);
+    x += Math.sin(a) * d; z += Math.cos(a) * d;
+    y += (1 - crown) * side * Math.cos(a * 5 + 0.5) * 0.55;
+    return [x, y, z];
+  };
   const HAIR = {
     mom: { ears: true, build(G, S, J, L, h, h2) { // a soft chin-length bob with a side-swept fringe
       const P = S.head, [cx, cy, cz] = P.c;
       G.add(helmet(S, L, { face: 78, soft: 9,
         line: (A, ab) => 27 + 7 * smooth((ab - 42) / 22) + 4 * smooth(A / 40) - 3 * Math.exp(-(((A + 30) / 26) ** 2)) - 52 * smooth((ab - 58) / 22),
-        end: ab => -46 - 6 * smooth((ab - 100) / 70),
+        end: ab => -46 - 6 * smooth((ab - 100) / 70) + 1.8 * Math.cos(ab * D2R * 5),
         thick: (ab, ed) => 1.5 + 0.9 * smooth((ab - 40) / 40) * (1 - 0.35 * smooth((ab - 120) / 50)) + 1.2 * smooth((ed - 20) / 50),
-        shape: bobFall(S, 2.6, 8) }), shade(h, h2, S), (x, y) => y < cy - 6 ? [['head', 0.8], ['neck', 0.2]] : [['head', 1]]);
+        shape: hairLocks(S, bobFall(S, 1.6, 12), -0.28) }), shade(h, h2, S), (x, y) => {
+          const w = smooth((cy + 1 - y) / 14) * 0.32;
+          return [['head', 1 - w], [x > 0 ? 'hairL' : 'hairR', w]];
+        });
+      // Three overlapping solid nape locks break up the rear dome. Their tops
+      // tuck into the cap; rounded ends and all back faces remain real volume.
+      for (const side of [-1, 0, 1]) {
+        G.add(ell([cx + side * 7, cy - 2.8 + Math.abs(side) * 0.4, cz - 13.4 + Math.abs(side) * 1.5], [5.0, 10.8 - Math.abs(side) * 0.4, 3.4], [L.hand, S.lod === 2 ? 3 : 4], [5, side * -9, side * 4]), shade(h, h2, S), [['head', 0.75], [side > 0 ? 'hairL' : 'hairR', 0.25]]);
+      }
     } },
     dad: { build(G, S, J, L, h, h2) { // short back-and-sides, parted on his left, a small quiff; and his glasses
       const P = S.head, [cx, cy, cz] = P.c, base = shade(h, h2, S);
@@ -690,11 +733,15 @@
       const P = S.head, [cx, cy, cz] = P.c, st = shade(h, h2, S);
       G.add(helmet(S, L, { face: 80, soft: 7,
         line: (A, ab) => 20 + 6 * smooth((ab - 35) / 20) - 28 * smooth((ab - 55) / 25),
-        end: ab => lerp(-2, -22, smooth((ab - 90) / 30)),
-        thick: (ab, ed) => 1.5 + 0.8 * smooth((ed - 20) / 50) }), st, 'head');
+        end: ab => lerp(-5, -38, smooth((ab - 85) / 50)),
+        thick: (ab, ed) => 1.5 + 0.8 * smooth((ed - 20) / 50), shape: hairLocks(S, null, 0) }), st, 'head');
       for (const s of [1, -1]) {
         const sd = s > 0 ? 'L' : 'R', b = J['hair' + sd];
-        G.add(ell([b[0] + s * 3.6, b[1] - 3.8, b[2] - 0.6], [4.0, 6.8, 4.2], L.ell, [8, 0, s * 24]), st, 'hair' + sd);
+        const bunch = grid(L.ell[1], L.ell[0], (a, e) => {
+          const v = Math.sin(e), ring = Math.cos(e), taper = 0.78 + 0.22 * (v + 1) * 0.5, lock = 1 + 0.10 * Math.cos(a * 3 + v * 1.4);
+          return [ring * Math.sin(a) * 4 * taper * lock + s * (1 - v) * 0.65, v * 8.2, ring * Math.cos(a) * 3.9 * taper * lock];
+        });
+        G.add(xf(bunch, [b[0] + s * 3.5, b[1] - 4.8, b[2] - 0.8], [8, 0, s * 22]), st, 'hair' + sd);
         G.add(ell([b[0] + s * 0.5, b[1] + 0.2, b[2] - 0.3], [1.5, 1.7, 1.7], [6, 4]), C('#ffcf3a'), 'head', { noAO: true });
         const ca = s * 30, ce = 40, R = [P.r[0] + 1.8, P.r[1] + 1.6, P.r[2] + 1.8];
         const px = cx + R[0] * Math.cos(ce * D2R) * Math.sin(ca * D2R), py = cy + R[1] * Math.sin(ce * D2R), pz = cz + R[2] * Math.cos(ce * D2R) * Math.cos(ca * D2R), wing = s > 0 ? C('#ff5aa4') : C('#3cc4f0');
@@ -1017,14 +1064,14 @@
     // ---------------------------------------------------------------- state
     const st = {
       x: 0, y: 0, z: 0, h: 0, v: 0, t: Math.random() * 100,
-      gait: 0, walking: false,
+      gait: 0, walking: false, walkTravel: 0, prevX: 0, prevZ: 0, moveX: 0, moveZ: 0, climb: 0,
       feet: [{ x: 0, y: 0, z: 0, yaw: 0, swing: null, side: 1, lift: 0, stance: -1 }, { x: 0, y: 0, z: 0, yaw: 0, swing: null, side: -1, lift: 0, stance: -1 }],
       placed: false,
-      action: null, seat: null, look: null, carry: false, props: {}, sitK: 0, engage: false,
+      action: null, seat: null, seatPose: null, look: null, carry: false, props: {}, sitK: 0, engage: false,
       talkUntil: 0, talkStart: 0, talkSeed: Math.floor(Math.random() * 9), talkText: '', mouth: 0,
       blinkAt: 1 + Math.random() * 3, blinkT: 0,
       gaze: { x: 0, y: 0 }, saccadeAt: 0, glanceAt: 3, glance: null,
-      sm: {}, hairS: 0, hairV: 0, seed: Math.random() * 9, lean: Math.random() < 0.5 ? 1 : -1, wside: 0, glanceT: 0,
+      sm: {}, hairS: 0, hairV: 0, hairHeading: 0, seed: Math.random() * 9, lean: Math.random() < 0.5 ? 1 : -1, wside: 0, glanceT: 0,
     };
     const floorFn = { f: null };
     const fwd = new T.Vector3();
@@ -1040,8 +1087,9 @@
     };
     const floorAt = (x, z) => { const v = floorFn.f ? floorFn.f(x, z) : null; return v == null ? st.y : v; };
     function placeFeet() {
-      for (let i = 0; i < 2; i++) { const f = st.feet[i]; footRest(i, restPt); f.x = restPt.x; f.z = restPt.z; f.y = floorAt(f.x, f.z); f.yaw = st.h + f.side * 0.12; f.swing = null; f.lift = 0; f.stance = -1; }
+      for (let i = 0; i < 2; i++) { const f = st.feet[i]; footRest(i, restPt); f.x = restPt.x; f.z = restPt.z; f.y = floorAt(f.x, f.z); f.yaw = st.h + f.side * 0.12; f.swing = null; f.lift = 0; f.stance = -1; f.stair = false; }
       st.placed = true;
+      st.prevX = st.x; st.prevZ = st.z; st.moveX = st.moveZ = 0;
     }
 
     function slerpTo(name, q, k) {
@@ -1080,17 +1128,32 @@
 
     // ---------------------------------------------------------------- locomotion: plant, swing, step
     function gaitUpdate(dt) {
-      const stepLen = S.H * S.step, cycle = 2 * stepLen, duty = 0.6;
       const moving = st.v > 4 && !st.seat;
-      if (!st.placed) placeFeet();
       if (moving) {
+        const fw0 = forward(st.h);
+        st.climb = clamp((floorAt(st.x - fw0.x * 22, st.z - fw0.z * 22) - floorAt(st.x + fw0.x * 22, st.z + fw0.z * 22)) / 44, -0.9, 0.9);
+      } else st.climb = 0;
+      const duty = 0.6;
+      if (!st.placed) placeFeet();
+      if (!moving) {
+        const invDt = 1 / Math.max(dt, 0.001);
+        st.moveX = clamp((st.x - st.prevX) * invDt, -S.speed, S.speed);
+        st.moveZ = clamp((st.z - st.prevZ) * invDt, -S.speed, S.speed);
+      } else st.moveX = st.moveZ = 0;
+      st.prevX = st.x; st.prevZ = st.z;
+      if (moving) {
+        const baseCycle = 2 * S.H * S.step;
+        // Short first steps establish double support; shorter stair strides stop
+        // the trailing leg dragging the hips down across several treads.
+        const cycle = baseCycle * lerp(0.5, 1, smooth(st.walkTravel / (baseCycle * 0.65))) * (1 - 0.43 * clamp(Math.abs(st.climb) / 0.65, 0, 1));
         if (!st.walking) { // start: the foot further behind lifts first
-          st.walking = true;
+          st.walking = true; st.walkTravel = 0;
           const f0 = st.feet[0], f1 = st.feet[1], fw = forward(st.h);
           const back0 = (f0.x - st.x) * fw.x + (f0.z - st.z) * fw.z, back1 = (f1.x - st.x) * fw.x + (f1.z - st.z) * fw.z;
           const lead = back0 < back1 ? 0 : 1; st.gait = (duty - (lead ? 0.5 : 0) + 1) % 1;
           for (const f of st.feet) f.swing = null;
         }
+        st.walkTravel += st.v * dt;
         st.gait = (st.gait + st.v * dt / cycle) % 1;
         for (let i = 0; i < 2; i++) {
           const f = st.feet[i], p = (st.gait + (i ? 0.5 : 0)) % 1;
@@ -1100,27 +1163,57 @@
             // where it lands: the body at landing time, plus half the stance travel ahead
             const tLand = (1 - p) * cycle / Math.max(st.v, 1), fw = forward(st.h), ahead = st.v * tLand + duty * cycle * 0.5;
             const side = f.side * (S.hipX - 1.4), c = Math.cos(st.h), sn = Math.sin(st.h);
-            const lx = st.x + fw.x * ahead + side * c, lz = st.z + fw.z * ahead - side * sn, ly = floorAt(lx, lz);
-            const e = smooth(s), sw = f.swing;
+            let lx = st.x + fw.x * ahead + side * c, lz = st.z + fw.z * ahead - side * sn, ly = floorAt(lx, lz);
+            const sw = f.swing;
+            const toe = S.foot.heel + S.foot.len + 0.6;
+            if (sw.toeRise === undefined) { sw.toeY = floorAt(lx + fw.x * toe, lz + fw.z * toe); sw.toeRise = Math.abs(sw.toeY - ly) > 2; }
+            if (sw.landY === undefined && (sw.toeRise || Math.abs(ly - sw.y0) > 2 || Math.abs(st.climb) > 0.1)) {
+              // Ascending: fit the forefoot before the next riser. Descending:
+              // keep the heel clear of the higher riser behind it. Only probe when planning a
+              // stair landing; a planted foot is never moved by this search.
+              const down = ly > sw.y0 + 2 || st.climb < -0.1 || sw.toeY > ly + 2;
+              const extent = down ? S.foot.heel - 0.6 : toe, direction = down ? -1 : 1, span = Math.abs(extent);
+              if (Math.abs(floorAt(lx + fw.x * extent, lz + fw.z * extent) - ly) > 2) {
+                let a = 0, b = span;
+                for (let n = 0; n < 5; n++) { const m = (a + b) * 0.5 * direction; if (Math.abs(floorAt(lx + fw.x * m, lz + fw.z * m) - ly) < 2) a = Math.abs(m); else b = Math.abs(m); }
+                const shift = direction * (a - span - 0.6); lx += fw.x * shift; lz += fw.z * shift;
+              }
+              sw.landX = lx; sw.landZ = lz; sw.landY = ly; sw.down = down;
+            }
+            const stairs = sw.landY !== undefined;
+            if (stairs) { lx = sw.landX; lz = sw.landZ; ly = sw.landY; }
+            f.stair = stairs;
+            // Downstairs the foot clears the higher heel edge before lowering
+            // onto the next tread, rather than descending through that riser.
+            const e = smooth(stairs ? clamp((s - 0.18) / (sw.down ? 0.60 : 0.82), 0, 1) : s);
             f.x = lerp(sw.x0, lx, e); f.z = lerp(sw.z0, lz, e);
-            const stairs = Math.abs(ly - sw.y0) > 2;
-            f.y = lerp(sw.y0, ly, smooth(clamp(s * 1.25 - 0.1, 0, 1))) - Math.sin(Math.PI * s) * (stairs ? 10 : 5.5);
+            const vertical = stairs ? (ly < sw.y0 ? smooth(clamp(s * 3.5, 0, 1)) : smooth(clamp((s - 0.32) / 0.68, 0, 1))) : smooth(s);
+            f.y = lerp(sw.y0, ly, vertical) - Math.sin(Math.PI * s) * (stairs ? 11 : 5.5);
             f.yaw = sw.yaw0 + angd(sw.yaw0, st.h + f.side * 0.1) * e; f.lift = Math.sin(Math.PI * s);
           } else { if (f.swing) { f.swing = null; f.y = floorAt(f.x, f.z); } f.lift = 0; }
           f.stance = p < duty ? p / duty : -1;
         }
       } else {
         if (st.walking) { st.walking = false; for (const f of st.feet) if (f.swing && f.swing.kind === 'walk') f.swing = { kind: 'step', t: 0, dur: 0.22, x0: f.x, y0: f.y, z0: f.z, yaw0: f.yaw }; }
-        const busy = st.feet.some(f => f.swing);
+        st.walkTravel = 0;
+        let busy = st.feet.some(f => f.swing);
         for (let i = 0; i < 2; i++) {
           const f = st.feet[i];
-          if (!f.swing && !busy && !st.seat) {
+          if (!f.swing && !busy && !st.seat && st.sitK < 0.05) {
             footRest(i, restPt); const err = Math.hypot(f.x - restPt.x, f.z - restPt.z), turn = Math.abs(angd(f.yaw, st.h + f.side * 0.12));
             const other = st.feet[1 - i]; footRest(1 - i, restPt); const oerr = Math.hypot(other.x - restPt.x, other.z - restPt.z) + Math.abs(angd(other.yaw, st.h + other.side * 0.12)) * 12;
-            if ((err > 9 || turn > 0.5) && err + turn * 12 >= oerr - 0.01) f.swing = { kind: 'step', t: 0, dur: 0.3, x0: f.x, y0: f.y, z0: f.z, yaw0: f.yaw };
+            const shifting = Math.abs(st.moveX) > 3 || Math.abs(st.moveZ) > 3;
+            if ((err > (shifting ? 4 : 9) || turn > 0.42) && err + turn * 12 >= oerr - 0.01) {
+              f.swing = { kind: 'step', t: 0, dur: shifting ? 0.25 : 0.3, x0: f.x, y0: f.y, z0: f.z, yaw0: f.yaw };
+              busy = true; // one support foot remains planted, including equal-error turns
+            }
           }
           if (f.swing && f.swing.kind === 'step') {
-            const sw = f.swing; sw.t += dt; const s = clamp(sw.t / sw.dur, 0, 1), e = smooth(s); footRest(i, restPt); const ly = floorAt(restPt.x, restPt.z);
+            const sw = f.swing; sw.t += dt; const s = clamp(sw.t / sw.dur, 0, 1), e = smooth(s); footRest(i, restPt);
+            // A small lead follows real lateral displacement even when the
+            // life controller deliberately requests zero forward walk speed.
+            restPt.x += clamp(st.moveX * 0.12, -7, 7); restPt.z += clamp(st.moveZ * 0.12, -7, 7);
+            const ly = floorAt(restPt.x, restPt.z);
             f.x = lerp(sw.x0, restPt.x, e); f.z = lerp(sw.z0, restPt.z, e); f.y = lerp(sw.y0, ly, e) - Math.sin(Math.PI * s) * 4;
             f.yaw = sw.yaw0 + angd(sw.yaw0, st.h + f.side * 0.12) * e; f.lift = Math.sin(Math.PI * s);
             if (s >= 1) { f.swing = null; f.y = ly; f.lift = 0; }
@@ -1185,16 +1278,19 @@
       st.t += dt; const t = st.t;
       const k = 1 - Math.exp(-dt * 9);
       gaitUpdate(dt);
-      const seat = st.seat;
+      // Clearing the task's seat begins standing; it must not throw away the
+      // old foot/hip pose on the first frame. Repeated set() calls don't reset it.
+      const seat = st.seat || (st.sitK > 0.001 ? st.seatPose : null);
       // ---- hips: height, sway, bob, sitting
-      st.sitK += ((seat ? 1 : 0) - st.sitK) * (1 - Math.exp(-dt * 3.2));
+      st.sitK += ((st.seat ? 1 : 0) - st.sitK) * (1 - Math.exp(-dt * 3.2));
+      if (!st.seat && st.sitK <= 0.001) st.seatPose = null;
       const sitK = smooth(st.sitK);
       let hx = 0, hy = S.hip + 2, hz = 0, roll = 0, yaw = 0, pitch = 0;
       if (st.walking) {
         const g = st.gait * TAU, spd = clamp(st.v / S.speed, 0, 1.4);
         // the body over the planted foot: a soft bob (lowest at the double support), a side-to-side sway, the pelvis rolling
         // and turning with the stride (the shoulders counter-turn above it), and leaning into stairs going up
-        const fw = forward(st.h), climb = clamp((floorAt(st.x - fw.x * 22, st.z - fw.z * 22) - floorAt(st.x + fw.x * 22, st.z + fw.z * 22)) / 44, -0.9, 0.9);
+        const climb = st.climb;
         hy += -Math.cos(g * 2) * (1.2 + Math.abs(climb) * 1.2) * spd - 0.9 * spd; hx = Math.sin(g) * 1.7 * spd; roll = -Math.sin(g) * 3.0 * spd; yaw = Math.sin(g) * 7 * spd; pitch = (3 + climb * 7) * spd;
       } else {
         // weight shifts slowly from foot to foot
@@ -1202,9 +1298,12 @@
         const ws = Math.sin(t * 0.33 + st.seed) * 0.5 + Math.sin(t * 0.13) * 0.3, side = Math.sin(t * 0.045 + st.seed) > -0.35 ? st.lean : -st.lean;
         st.wside += (side - st.wside) * (1 - Math.exp(-dt * 1.2));
         hx = st.wside * 1.7 + ws * 0.8; roll = st.wside * 3.4 + ws * 1.2; hy -= 0.8 + Math.abs(ws) * 0.3;
+        const support = st.feet[0].swing ? -1 : st.feet[1].swing ? 1 : 0;
+        const lift = Math.max(st.feet[0].lift, st.feet[1].lift);
+        if (support) { hx = lerp(hx, support * S.hipX * 0.35, lift); roll = lerp(roll, support * 2.8, lift); }
       }
       if (sitK > 0.001 && seat) {
-        hx = lerp(hx, 0, sitK); hy = lerp(hy, seat.h + 7.5, sitK); hz = lerp(hz, seat.back ? -2 : 0, sitK); roll *= 1 - sitK; yaw *= 1 - sitK; pitch = lerp(pitch, seat.back ? -10 : -2, sitK);
+        hx = lerp(hx, 0, sitK); hy = lerp(hy, seat.h + 7.5, sitK); hz = lerp(hz, seat.back ? -2 : 0, sitK); roll *= 1 - sitK; yaw *= 1 - sitK; pitch = lerp(pitch, seat.back ? -10 : -2, sitK) + 20 * 4 * sitK * (1 - sitK);
       }
       // never stretch a leg: the hips drop if a foot is low (stairs, a wide stance)
       W.base.p.set(0, 0, 0); W.base.q.identity();
@@ -1224,13 +1323,16 @@
       _q.setFromEuler(_e.set(pitch * D2R, yaw * D2R, roll * D2R, 'YXZ')); slerpTo('hips', _q, st.walking ? 1 : k);
       W.hips.p.copy(B.hips.position); W.hips.q.copy(B.hips.quaternion);
       // ---- spine/chest: counter-rotate the walk, lean into the action, breathe
-      const lean = (act?.lean || 0) + (st.walking ? 2 : 0), breathe = Math.sin(t * 1.7) * 0.9;
-      _q.setFromEuler(_e.set((lean * 0.45 + (seat ? (seat.back ? 4 : 2) : 0)) * D2R, -yaw * 0.75 * D2R, -roll * 0.5 * D2R, 'YXZ')); slerpTo('spine', _q, k); fk('spine');
+      const lean = (act?.lean || 0) + (st.walking ? 2 : 0), breathe = Math.sin(t * (1.45 + st.seed * 0.035)) * 0.9;
+      _q.setFromEuler(_e.set((lean * 0.45 + (seat ? (seat.back ? 4 : 2) * sitK : 0)) * D2R, -yaw * 0.75 * D2R, -roll * 0.5 * D2R, 'YXZ')); slerpTo('spine', _q, k); fk('spine');
       _q.setFromEuler(_e.set((lean * 0.55 - breathe * 0.6) * D2R, -yaw * 0.8 * D2R, -roll * 0.35 * D2R, 'YXZ')); slerpTo('chest', _q, k); fk('chest');
       for (const sd of ['L', 'R']) { _q.setFromEuler(_e.set(0, 0, (sd === 'L' ? 1 : -1) * breathe * 0.5 * D2R)); slerpTo('clav' + sd, _q, k); fk('clav' + sd); }
       // ---- legs: IK to the feet (or to the floor in front of the seat)
       for (let i = 0; i < 2; i++) {
         const f = st.feet[i], sd = i ? 'R' : 'L', s = i ? -1 : 1;
+        const fy = f.yaw - st.h;
+        let fp = 0; if (!f.stair) { if (f.stance > 0.72) fp = (f.stance - 0.72) / 0.28 * 26; else if (f.stance >= 0 && f.stance < 0.12) fp = -(1 - f.stance / 0.12) * 8; else if (f.lift) fp = -6 * f.lift; }
+        if (seat) fp = lerp(fp, 0, sitK);
         hipP.set(J['thigh' + sd][0] - J.hips[0], J['thigh' + sd][1] - J.hips[1], J['thigh' + sd][2] - J.hips[2]).applyQuaternion(W.hips.q).add(W.hips.p);
         if (seat && sitK > 0.001) {
           const kz = seat.knee || (segs['thigh' + sd].L * 0.95);
@@ -1239,15 +1341,19 @@
           tgt.lerp(tmp, 1 - sitK);
         } else {
           toRig(tgt, f.x, f.y, f.z); tgt.y += S.ankle;
-          if (f.stance > 0.72) tgt.y += (f.stance - 0.72) / 0.28 * S.foot.len * 0.16; // toe-off: the heel rises
+          if (fp && f.stance >= 0 && !f.stair) {
+            // Roll about the actual heel/toe contact, not the ankle: both the
+            // ankle lift and forward travel preserve that sole point in space.
+            const a = fp * D2R, sn = Math.sin(a), cs = Math.cos(a), contact = (fp > 0 ? S.foot.heel + S.foot.len : S.foot.heel) - J['foot' + sd][2];
+            const push = contact * (1 - cs) + S.ankle * sn;
+            tgt.y += contact * sn + S.ankle * (cs - 1); tgt.x += Math.sin(fy) * push; tgt.z += Math.cos(fy) * push;
+          }
         }
-        const fy = f.yaw - st.h; pole.set(Math.sin(fy) + s * 0.12, 0.05, Math.cos(fy));
+        pole.set(Math.sin(fy) + s * 0.12, 0.05, Math.cos(fy));
         if (seat) pole.set(s * 0.12, 0.6, 1);
         ik(hipP, tgt, segs['thigh' + sd], segs['shin' + sd], pole, qT, qS);
         _q2.copy(W.hips.q).invert().multiply(qT); B['thigh' + sd].quaternion.copy(_q2);
         _q2.copy(qT).invert().multiply(qS); B['shin' + sd].quaternion.copy(_q2);
-        let fp = 0; if (f.stance > 0.72) fp = (f.stance - 0.72) / 0.28 * 26; else if (f.stance >= 0 && f.stance < 0.12) fp = -(1 - f.stance / 0.12) * 8; else if (f.lift) fp = -6 * f.lift;
-        if (seat) fp = lerp(fp, 0, sitK);
         qF.setFromEuler(_e.set(fp * D2R, fy, 0, 'YXZ'));
         _q2.copy(qS).invert().multiply(qF); B['foot' + sd].quaternion.copy(_q2);
       }
@@ -1258,15 +1364,18 @@
         const s = sd === 'L' ? 1 : -1;
         let a = act?.arms ? act.arms[sd] : null;
         if (!a && st.carry) a = ACT.carry(t, hy).arms[sd];
-        if (!a && seat) a = ACT.sit(t, hy).arms[sd];
+        if (!a && seat && sitK > 0.08) a = ACT.sit(t, hy).arms[sd];
         if (!a && talking && (sd === 'R' || st.talkSeed % 2)) a = talkArm(t, sd, sd === 'R' ? 1 : 0.55);
-        if (!a) { const sw = Math.sin(g + (sd === 'L' ? Math.PI : 0)) * 22 * swing; a = [6 + sw + wob(t * 0.4, s) * 1.5, 9 + wob(t * 0.3, s + 3) * 1.2 - 2 * swing, -12 * (1 - swing * 0.5), 24 + Math.max(0, sw) * 1.1 + 8 * swing, 10 + 6 * swing, -10]; }
+        if (!a) { const sw = Math.sin(g + (sd === 'L' ? Math.PI : 0)) * 22 * swing; a = [4 + sw + wob(t * 0.4, st.seed + s) * 1.5, 5.5 + wob(t * 0.3, st.seed + s + 3) * 1.2 + 1.5 * swing, -8 * (1 - swing * 0.5), 18 + (sd === 'L' ? 4 : 0) + Math.max(0, sw) * 1.1 + 8 * swing, 8 + 6 * swing, -7]; }
         if (Array.isArray(a)) armFK(sd, a, k);
         else { tgt.set(a.ik[0], a.ik[1], a.ik[2]); pole.set(a.pole[0], a.pole[1], a.pole[2]).normalize(); armIK(sd, tgt, pole, k, eul(a.hand[0], a.hand[1], a.hand[2])); }
       }
       // ---- props
       const props = Object.assign({}, act?.props || {}, st.props || {});
-      for (const p of PROPS) { const on = props[p] ? 1 : 0, b = B['p_' + p], cur = b.scale.x, nv = cur + (on - cur) * (1 - Math.exp(-dt * 12)); b.scale.setScalar(nv < 0.02 && !on ? 0 : nv); }
+      const propK = 1 - Math.exp(-dt * 12);
+      // Unbuilt prop bones have no vertices and remain hidden. Settled hidden
+      // props need neither exponential easing nor a redundant transform write.
+      for (const p of PROPS_FOR[kind]) { const on = props[p] ? 1 : 0, b = B['p_' + p], cur = b.scale.x; if (cur === on) continue; const nv = cur + (on - cur) * propK; b.scale.setScalar(nv < 0.02 && !on ? 0 : nv); }
       if (props.pad) B.p_pad.position.set(0, table(hy) + 0.2, 30);
       if (props.string) { // the string hangs straight down from the fingers; the yo-yo rides its end
         const yo = act?.yoyo || 0, h = J.handR;
@@ -1306,8 +1415,13 @@
       _q.setFromEuler(_e.set(-pitchH * 0.4, yawH * 0.4, 0, 'YXZ')); slerpTo('neck', _q, k * 0.7); fk('neck');
       _q.setFromEuler(_e.set(-pitchH * 0.6 - nod, yawH * 0.6, Math.sin(t * 0.21) * 0.03, 'YXZ')); slerpTo('head', _q, k * 0.7); fk('head');
       // the bunches bounce
-      st.hairV += (-st.hairS * 40 - st.hairV * 4 + (st.walking ? Math.cos(g * 2) * 8 : 0)) * dt; st.hairS += st.hairV * dt;
-      B.hairL.rotation.set(st.hairS * 0.05, 0, 0.05 + st.hairS * 0.06); B.hairR.rotation.set(st.hairS * 0.05, 0, -0.05 - st.hairS * 0.06);
+      if (kind === 'mom' || kind === 'sister') { // the other hairstyles have no secondary bones
+        const hairHeading = st.h + yawH;
+        st.hairV -= clamp(angd(st.hairHeading, hairHeading), -0.3, 0.3) * 5; st.hairHeading = hairHeading;
+        st.hairV += (-st.hairS * 40 - st.hairV * 5 + (st.walking ? Math.cos(g * 2) * 8 : 0)) * dt; st.hairS = clamp(st.hairS + st.hairV * dt, -1.2, 1.2);
+        const bunch = kind === 'sister' ? 0.05 : 0;
+        B.hairL.rotation.set(st.hairS * 0.05, st.hairS * 0.045, bunch + st.hairS * 0.06); B.hairR.rotation.set(st.hairS * 0.05, st.hairS * 0.045, -bunch - st.hairS * 0.06);
+      }
       useLod(near);
       if (!near) { setFace(act?.doze ? EYE.shut : EYE.open, MOUTH.smile); U.npGaze.value.set(0, 0); return; } // far away: no face animation
       // the painted eyes lead the head a little and dart about now and then
@@ -1320,12 +1434,14 @@
         if (away) st.saccadeAt = t + 0.35 + Math.random() * 0.3;
       }
       // the head turns most of the way; the painted eyes cover what's left so they meet your eyes
-      const resY = holding ? clamp(lookYawRaw - yawH * 0.92, -0.6, 0.6) : yawH * 0.4, resP = holding ? clamp(lookPitchRaw - pitchH * 0.9, -0.5, 0.5) : pitchH * 0.4;
+      _q2.copy(W.chest.q).invert().multiply(W.head.q); _v.set(0, 0, 1).applyQuaternion(_q2);
+      const actualYaw = Math.atan2(_v.x, _v.z), actualPitch = Math.atan2(_v.y, Math.hypot(_v.x, _v.z));
+      const resY = look ? clamp(lookYawRaw - actualYaw, -0.6, 0.6) : 0, resP = look ? clamp(lookPitchRaw - actualPitch, -0.5, 0.5) : 0;
       U.npGaze.value.set(clamp(resY * 0.09 + st.gaze.x * 0.25, -0.05, 0.05), clamp(resP * 0.08 + st.gaze.y * 0.25, -0.035, 0.035));
       // blink (a quick shut frame); reading or washing up looks down with heavy lids; dozing: shut
-      if (t > st.blinkAt) { st.blinkT = 0.15; st.blinkAt = t + 2 + Math.random() * 4.5; if (Math.random() < 0.15) st.blinkAt = t + 0.35; }
+      if (t > st.blinkAt) { st.blinkT = 0.18; st.blinkAt = t + 2 + Math.random() * 4.5; if (Math.random() < 0.15) st.blinkAt = t + 0.35; }
       let eye = EYE.open; if (!st.look && !talking && (st.action === 'paper' || st.action === 'draw' || st.action === 'magazine' || st.action === 'washup')) eye = EYE.half; if (act?.doze && !st.look) eye = EYE.shut;
-      if (st.blinkT > 0) { st.blinkT -= dt; eye = EYE.shut; }
+      if (st.blinkT > 0) { st.blinkT -= dt; eye = st.blinkT > 0.135 || st.blinkT < 0.045 ? EYE.half : EYE.shut; }
       // talking: mouth frames from the line's rhythm (syllable-ish beats, rounder on o/u, closed at punctuation)
       let open = 0, ch = ' ';
       if (talking) {
@@ -1370,7 +1486,7 @@
       set floor(fn) { floorFn.f = fn; },
       root(x, y, z, h, v) { st.x = x; st.y = y; st.z = z; st.h = h; st.v = v || 0; group.position.set(x, y, z); group.rotation.y = h; },
       teleport(x, y, z, h) { rig.root(x, y, z, h, 0); st.walking = false; placeFeet(); st.sm = {}; },
-      set(o) { if ('engage' in o) st.engage = !!o.engage; if ('action' in o) st.action = o.action || null; if ('seat' in o) st.seat = o.seat || null; if ('look' in o) st.look = o.look || null; if ('carry' in o) st.carry = !!o.carry; if ('props' in o) st.props = o.props || {}; },
+      set(o) { if ('engage' in o) st.engage = !!o.engage; if ('action' in o) st.action = o.action || null; if ('seat' in o) { st.seat = o.seat || null; if (st.seat) st.seatPose = st.seat; } if ('look' in o) st.look = o.look || null; if ('carry' in o) st.carry = !!o.carry; if ('props' in o) st.props = o.props || {}; },
       // voice: the playing recording's handle (js/st-voice.js: level(), progress()); without one the mouth keeps time
       talk(ms, text, voice) { st.talkStart = performance.now(); st.talkUntil = st.talkStart + ms; st.talkText = String(text || ''); st.talkSeed = (st.talkSeed + 1) % 9; st.talkVoice = voice || null; st.talkHeard = false; },
       hush() { st.talkUntil = 0; st.talkVoice = null; },

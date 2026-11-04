@@ -1902,7 +1902,9 @@
     // Frame the complete handheld, including its moulded controls, on every device.
     const t = Math.tan(H.motion.lensFov(view.zm) * D2R / 2), aspect = innerWidth / innerHeight;
     const fit = Math.min(.86,.95*Math.max(1,innerHeight-66)/innerHeight);
-    const d = Math.max(7.5 / (fit * t), 4.1 / (0.9 * t * aspect), 6.5);
+    const tablet=!!window.GameInput?.touch&&matchMedia('(min-width:600px) and (min-height:600px)').matches;
+    const aw=tablet?(innerWidth-348)/innerWidth:1;
+    const d = Math.max(7.5 / (fit * t), 4.1 / (0.9 * t * aspect * aw), 6.5);
     const q = new T.Quaternion().setFromEuler(new T.Euler(-80 * D2R, -view.ry * D2R, 0, 'YXZ'));
     const a = view.ry * D2R, b = (view.rx || 0) * D2R, f = new T.Vector3(Math.sin(a) * Math.cos(b), -Math.sin(b), -Math.cos(a) * Math.cos(b));
     const glass = new T.Vector3(0, -2.6, -0.6).applyQuaternion(q);
@@ -1973,9 +1975,8 @@
       const screen=H.ROOMS.cupboard.cupScreen;screen.updateWorldMatrix(true,false);
       const v=new T.Vector3(0,-14,7.5).applyMatrix4(screen.parent.matrixWorld),n=new T.Vector3(0,0,1).transformDirection(screen.matrixWorld);
       const touch=navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches;
-      // Match the controller's actual two-wing breakpoint. Tablets with more
-      // height keep the full pad and its buttons below the physical set.
-      const wings=matchMedia('(max-height:500px) and (min-aspect-ratio:3/2) and (min-width:600px)').matches;
+      // Match the pad's phone and tablet wings before the controls load.
+      const wings=matchMedia('(max-height:500px) and (min-aspect-ratio:3/2) and (min-width:600px), (min-width:600px) and (min-height:600px)').matches;
       const side=touch&&wings?174:8,bottom=touch?(wings?64:300):80,top=58;
       const aw=Math.max(.2,(innerWidth-side*2)/innerWidth),ah=Math.max(.2,(innerHeight-top-bottom)/innerHeight);
       const d=Math.max(14/(Math.tan(fov)*ah*.84),17/(Math.tan(fov)*aspect*aw*.84));
@@ -1988,8 +1989,10 @@
       const d = Math.max(8 / (Math.tan(fov) * .84), 4.5 / (Math.tan(fov) * aspect * .86));
       return { x: a.x + Math.sin(yaw) * d * .174, y: a.y - 2.7 - d * .985, z: a.z + Math.cos(yaw) * d * .174, rx: -80, ry: -(a.ry || 0), seat: 1, lvl: 'U' };
     }
-    const d = Math.max(17.5 / (Math.tan(fov) * 0.83), 24 / (Math.tan(fov) * aspect * 0.88));
-    return { x: TX - 1, y: 8.4, z: -24 + d, rx: 0, ry: 0, seat: 1, lvl: 'U' };
+    const a=window.RoomTV?.screenArea()||{left:8,right:8,top:58,bottom:8};
+    const aw=Math.max(.2,(innerWidth-a.left-a.right)/innerWidth),ah=Math.max(.2,(innerHeight-a.top-a.bottom)/innerHeight);
+    const d = Math.max(17.5 / (Math.tan(fov) * 0.83 * ah), 24 / (Math.tan(fov) * aspect * 0.88 * aw));
+    return { x: TX - 1+(a.right-a.left)*d*Math.tan(fov)*aspect/innerWidth, y: 8.4+(a.bottom-a.top)*d*Math.tan(fov)/innerHeight, z: -24 + d, rx: 0, ry: 0, seat: 1, lvl: 'U' };
   }
   function tvOpen(con, gameId, resume, locked) {
     if(!consoleConnected(con)){toast('No console connected','Place your console in its highlighted TV-rack slot and press E to connect it.');return;}
@@ -2552,7 +2555,7 @@
     hasConsole, ensureHardware, syncMedia:mediaShelf, found: id => !!S.f[id], owned: g => { const G = CAT.GAME[g]; return gameOwned(G)&&isOut(G.from||CAT.CONSOLES[G.con].from); },
     where: () => H.here, T, K, House: H, ensureHouse,
     onClose(fn) { (EVS.close = EVS.close || []).push(fn); }, offClose(fn) { const a = EVS.close || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); },
-    _: { ejectMedia,
+    _: { ejectMedia, tvPose,
       // where the in-world glass is on screen right now (LOCK IN grows out of it and shrinks back into it)
       screenRect(con, target) {
         const screen = target || (con === 'gb' ? R.gbScreen : R.tvScreen); if (!screen || !H.live) return null;

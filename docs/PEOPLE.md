@@ -69,6 +69,7 @@ Legs stay long enough to sit on 45 cm seats with the feet on the floor (adults);
 
 ### Budgets
 - Draw calls per person: 2 (body + contact shadow).
+- 4 November 2026 animation/model pass: Low/Potato near/far, **including** the six shadow triangles: Mom **2,778 / 1,726**; Dad work/home/weekend **2,958 / 1,890**; sister **2,954 / 1,830**. Other costumes are unchanged, maximum **2,998**. The family still fits six draws and 9,000 triangles. Original grouped fingers, broader skull/jaw forms, Mom's solid nape locks and the sister's parted/tapered hair reuse the existing skeleton. Detailed research, ranked critique, paired CPU timings and verification are in [ANIMATION-RESEARCH.md](ANIMATION-RESEARCH.md) and [ANIMATION-REVIEW.md](ANIMATION-REVIEW.md).
 - Low/Potato: at most **3,000 triangles per person in every outfit**, at both near and far detail. Measured 28 October with `characters.mjs --only=budget`:
   | person | body near | body far |
   |---|---:|---:|
@@ -115,5 +116,8 @@ Legs stay long enough to sit on 45 cm seats with the feet on the floor (adults);
 - Hand targets use the skeleton’s positive-X left side and negative-X right side. Lap, paper, mug, phone and job poses keep wrists on their own side; the seated gallery asserts this so crossed forearms cannot return.
 - Walk: heel-strike/toe-off, pelvis sway, roll and turn with the stride, shoulders counter-turning, arm swing with
   relaxed elbows, a soft bob, leaning into stairs going up.
+- November contact polish: short initial strides, heel/toe roll about the sole contact, exclusive support feet during lateral adjustment/turns, and planned stair landings that fit the forefoot uphill and heel downhill. Descending feet move clear before lowering. Stand-up retains the previous seat pose until the blend finishes; the torso transfers weight forward. Eyes use the animated head's residual angle, blinks include a half-lid phase, and secondary motion is limited to hairstyles with vertices on those bones. These changes introduce no saved fields or outfit IDs.
 
 - Personal space: standing bodies use radii of 25 cm (Dad), 22 cm (Mom) and 18 cm (the sister). Route sampling must stop a blocked walker rather than let them creep through another body. People walk around one another, ask a standing person to move, or retreat into reachable open space; an aside uses its checked avoidance route. They resume when the other person has passed and their destination is free. `characters.mjs --only=day,space` checks three routine days, body separation and kitchen/hall crossings; seated transitions are measured separately.
+
+Foot IK uses the solid 25 cm treads / 20 cm rises from the family house; the navigation body retains its continuous ramp. The small callback in `np-life.js` crosses the floor-level seam without changing navigation or the space below the flight.

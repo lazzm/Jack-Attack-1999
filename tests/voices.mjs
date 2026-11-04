@@ -7,7 +7,7 @@
 // Screenshots (desktop 1366x860 and phone portrait 390x844): tests/shots/voices/.
 //   node voices.mjs http://localhost:PORT [--only=audio|layout|speak|muted|edge|two|prompt|phone|names]
 import assert from 'node:assert/strict';
-import {mkdir} from 'node:fs/promises';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
@@ -28,7 +28,9 @@ async function check(name, fn) {
 }
 async function house(opts = {}) {
   const name = 'Voi' + Date.now().toString(36); await register(name);
-  const f = await roomFixture(base, Object.assign({ hour: 18, account: name, password: pass, signup: false, timeoutScale: SCALE, storage: { jhp_audio_effects: 1, jhp_audio_music: 0, jhp_audio_volume: 1 } }, opts));
+  const revert = process.env.VOICES_REVERT_FILE;
+  const onPage = revert ? async page => { await page.route('**/js/' + revert.split('/').pop() + '*', async route => route.fulfill({ contentType: 'application/javascript', body: await readFile(revert, 'utf8') })); } : undefined;
+  const f = await roomFixture(base, Object.assign({ onPage, hour: 18, account: name, password: pass, signup: false, timeoutScale: SCALE, storage: { jhp_audio_effects: 1, jhp_audio_music: 0, jhp_audio_volume: 1 } }, opts));
   for (let i = 0; i < 120 * SCALE && !(await f.page.evaluate(() => !!window.HouseFamily?.ready)); i++) await f.page.waitForTimeout(500);
   assert(await f.page.evaluate(() => !!window.HouseFamily?.ready), 'The family never arrived');
   await f.page.evaluate(() => window.st.loadVoices());
@@ -55,6 +57,7 @@ async function face(page, id, dist, yaw = 0, lvl = 'G') {
 async function stage(page, where) {
   await page.evaluate(where => {
     const F = HouseFamily; F.debug.clock({ md: 1012, dow: 2, t: 18.1 });
+    window.st?.clearVoiceQueue?.();
     for (const [id, spot] of Object.entries(where)) { F.debug.go(id, spot); F.debug.place(id, spot); }
     F.debug.sim(2, 0.1); F.debug.speech.q.length = 0; F.debug.speech.until = 0; F.debug.speech.hard = 0; NPCBubble.clear();
   }, where);
@@ -131,29 +134,64 @@ await check('speak', async () => {
     await page.keyboard.press('Shift'); // (a user gesture: the browser allows sound)
     const ok = await page.evaluate(() => { Sound.effectsOn = true; return !!Sound.unlock() && Sound.voicesOn && !!st.voiceInfo('c2.pocket.dad'); });
     assert(ok, 'Sound on, the manifest lists c2.pocket.dad');
-    // sample in the page (the host may be busy: round trips are slow, the audio is not)
-    await page.evaluate(() => { window.__vs = []; const t0 = performance.now(); window.__vsT = setInterval(() => { const r = HouseFamily.chars.dad.rig, v = r.st.talkVoice, b = NPCBubble.live.find(b => b.key === 'dad'); window.__vn = (window.__vn || 0) + 1; window.__vlast = { has: !!v, st: v && v.started, en: v && v.ended, same: v === HouseFamily.debug.speech.voice }; if (!v || !v.started || v.ended) return; __vs.push({ t: performance.now() - t0, m: r.st.mouth, f: r.face.mouth, l: v.level(), panner: !!v.panner, ducked: Sound.ducked, said: b ? b.said.length : -1, mode: b && b.mode }); }, 40); });
+    if (process.env.VOICES_METER !== '0') await page.evaluate(async () => {
+      await Sound.ctx.resume(); await Sound.ctx.audioWorklet.addModule('/js/voice-name-meter.js');
+      const original = st.say; window.__voiceMeters = [];
+      st.say = function (...args) {
+        const h = original.apply(this, args); if (!h) return h;
+        const run = { id: args[0], proof: [] }; __voiceMeters.push(run); let start;
+        Object.defineProperty(h, 'onstart', { configurable: true, set(f) { start = f; }, get() { return voice => {
+          start?.(voice);
+          const meter = new AudioWorkletNode(h.ctx, 'name-meter'), silent = h.ctx.createGain(); silent.gain.value = 0;
+          h.an.connect(meter); meter.connect(silent); silent.connect(h.ctx.destination);
+          meter.port.onmessage = e => run.proof.push(e.data); meter.port.postMessage({ t0: h.t0, nameDur: h.nameDur });
+          run.meter = meter; run.silent = silent;
+        }; } }); return h;
+      };
+    });
+    // Capture where the production rig consumes the analyser, before rendering can
+    // stall this task. A later timer reads a different 11 ms audio window from the
+    // one which set the painted mouth; it cannot establish their relationship.
+    if (process.env.VOICES_SYNC_SAMPLES !== '0') await page.evaluate(() => {
+      window.__vs = []; window.__vsT = 0; const t0 = performance.now(), r = HouseFamily.chars.dad.rig;
+      const update = r.update.bind(r); window.__voiceRigUpdate = update;
+      r.update = function (dt, near) {
+        const v = r.st.talkVoice, before = r.st.mouth; let level = null, read;
+        if (v?.started && !v.ended) { read = v.level; v.level = () => (level = read.call(v)); }
+        try { update(dt, near); } finally { if (read) v.level = read; }
+        if (level === null || v.ctx.state !== 'running') return;
+        const b = NPCBubble.live.find(b => b.key === 'dad');
+        __vs.push({ t:performance.now()-t0, ctx:v.ctx.state, audioTime:v.ctx.currentTime, startTime:v.t0,
+          before, dt:Math.min(dt,.1), m:r.st.mouth, f:r.face.mouth, l:level,
+          panner:!!v.panner, ducked:Sound.ducked, said:b?b.said.length:-1, mode:b?.mode });
+      };
+    });
+    else await page.evaluate(() => { window.__vs = []; const t0 = performance.now(); window.__vsT = setInterval(() => { const r = HouseFamily.chars.dad.rig, v = r.st.talkVoice, b = NPCBubble.live.find(b => b.key === 'dad'); window.__vn = (window.__vn || 0) + 1; window.__vlast = { has: !!v, st: v && v.started, en: v && v.ended, same: v === HouseFamily.debug.speech.voice }; if (!v || !v.started || v.ended) return; __vs.push({ t: performance.now() - t0, ctx: Sound.ctx.state, audioTime: Sound.ctx.currentTime, startTime: v.t0, m: r.st.mouth, f: r.face.mouth, l: v.level(), panner: !!v.panner, ducked: Sound.ducked, said: b ? b.said.length : -1, mode: b && b.mode }); }, 40); });
     assert(await say(page, 'dad', 'c2.pocket.dad'), 'Dad says it');
     await waitFor(page, () => __vs.length >= 2, 20000 * SCALE).catch(async e => { console.log('DEBUG', await page.evaluate(() => JSON.stringify({ log: st.voiceLog, cur: HouseFamily.debug.speech.cur?.lineId, q: HouseFamily.debug.speech.q.map(q => q.lineId), ctx: Sound.ctx?.state, tv: !!HouseFamily.chars.dad.rig.st.talkVoice, n: window.__vn, last: window.__vlast, vs: __vs.length }))); throw e; });
-    await page.evaluate(() => { HouseFamily.debug.speech.freeze = true; Sound.ctx.suspend(); });
+    await page.evaluate(sync => { HouseFamily.debug.speech.freeze = true; if (!sync) Sound.ctx.suspend(); }, process.env.VOICES_SYNC_SAMPLES !== '0');
     await page.waitForTimeout(400);
     const frozen = (await live(page)).find(b => b.key === 'dad');
     await shot(page, 'dad-near');
     await page.evaluate(() => { HouseFamily.debug.speech.freeze = false; Sound.ctx.resume(); });
     await waitFor(page, () => !st.voicesPlaying.length, 20000 * SCALE);
-    const vs = await page.evaluate(() => { clearInterval(__vsT); return __vs; });
+    const vs = await page.evaluate(() => { clearInterval(__vsT); if (window.__voiceRigUpdate) HouseFamily.chars.dad.rig.update = __voiceRigUpdate; return __vs; });
+    await writeFile(shots + 'speak-proof-' + Date.now() + '.json', JSON.stringify({ vs, meters: await page.evaluate(() => (window.__voiceMeters || []).map(r => ({ id:r.id, proof:r.proof }))) }, null, 2));
     const s = { started: vs.length >= 2, panner: vs.every(x => x.panner), ducked: vs.some(x => x.ducked), level: vs.map(x => x.l), mouth: vs.map(x => x.m), frames: [...new Set(vs.map(x => x.f))], said: vs.map(x => x.said), b: frozen };
+    console.log('SPEAK PROOF', JSON.stringify({samples:vs.length,states:[...new Set(vs.map(x=>x.ctx))],audioSpan:vs.at(-1).audioTime-vs[0].audioTime,maxGap:Math.max(...vs.slice(1).map((x,i)=>x.t-vs[i].t)),peak:Math.max(...s.level),mouthRange:Math.max(...s.mouth)-Math.min(...s.mouth),frames:s.frames}));
+    if (process.env.VOICES_SYNC_SAMPLES !== '0') for (const x of vs) assert(Math.abs(x.m-(x.before+(x.l-x.before)*(1-Math.exp(-x.dt*22))))<1e-6, 'Production mouth follows its consumed audio level: '+JSON.stringify(x));
     assert(s.started && s.panner, 'The recording started, positional (panner from the head): ' + JSON.stringify(s));
     assert(s.ducked, 'Music and effects dip under the voice');
-    assert(Math.max(...s.level) > 0.3, 'The voice has level: ' + s.level.map(v => v.toFixed(2)));
-    assert(Math.max(...s.mouth) - Math.min(...s.mouth) > 0.2 && s.frames.length > 1, 'Mouth follows the audio: ' + s.mouth.map(v => v.toFixed(2)).join(','));
+    assert(Math.max(...s.level) > 0.3, 'The voice has level: ' + JSON.stringify(vs) + ' meters ' + JSON.stringify(await page.evaluate(() => (window.__voiceMeters || []).map(r => ({id:r.id,proof:r.proof})))));
+    assert(Math.max(...s.mouth) - Math.min(...s.mouth) > 0.2 && s.frames.length > 1, 'Mouth follows the audio: ' + s.mouth.map(v => v.toFixed(2)).join(',') + ' levels ' + s.level.map(v => v.toFixed(2)).join(',') + ' frames ' + JSON.stringify(s.frames) + ' samples ' + JSON.stringify(vs));
     assert(s.b && s.b.key === 'dad' && s.b.mode === 'head', 'Bubble over Dad\'s head: ' + JSON.stringify(s.b));
     assert(s.said[0] < s.said.at(-1) && s.said[0] < s.b.text.length * 0.6, 'Words typed on with the voice: ' + s.said.join(','));
     const vw = 1366, vh = 860; assert(crossClear(s.b, vw, vh), 'Bubble clear of the crosshair: ' + JSON.stringify(s.b));
     const tail = s.b.tail; assert(tail && tail.ty > s.b.y + s.b.h - 2, 'Tail points down at the mouth: ' + JSON.stringify(tail));
     assert(!(await page.evaluate(() => document.querySelector('.hs-note.on')?.textContent || '')).includes('Saving up'), 'No subtitle box by default');
-    await page.waitForTimeout(600);
+    await waitFor(page, () => !st.voicesPlaying.length && !Sound.ducked, 15000*SCALE);
     assert.equal(await page.evaluate(() => Sound.ducked), false, 'Ducking released');
+    if (process.env.VOICES_PROBE_ONLY === '1') return;
     // far: across the drive
     await face(page, 'dad', 700, 75);
     await say(page, 'dad', 'c2.pocket.dad2');

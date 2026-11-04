@@ -1592,7 +1592,7 @@
           g.fillStyle = 'rgba(0,0,10,.5)'; g.fillRect(0, 0, W, H); folder(g, 50, 50, W - 100, 130, 'OPTIONS');
           const L = [['MUSIC', SV.opt.music ? 'ON' : 'OFF'], ['AIM SPEED', ['SLOW', 'NORMAL', 'FAST'][SV.opt.aim | 0]], ['AUTO-AIM', SV.opt.assist ? 'ON' : 'OFF'], ['SCREEN SHAKE', SV.opt.shake ? 'ON' : 'OFF']];
           L.forEach(([a, b], i) => { const y = 70 + i * 20; F.draw(g, (sel === i ? '→ ' : '  ') + a, 62, y, sel === i ? '#c01a1a' : '#1a1a1a', 1); F.draw(g, '< ' + b + ' >', W - 62 - F.width('< ' + b + ' >'), y, '#3a3a3a', 1); });
-          F.center(g, 'AUTO-AIM HELPS WITH A STICK OR ARROWS', W / 2, 158, '#6a5a3a', 1);
+          F.center(g, window.GameInput?.touch?'AUTO-AIM HELPS WITH THE RIGHT STICK':'AUTO-AIM HELPS WITH A STICK OR ARROWS', W / 2, 158, '#6a5a3a', 1);
           return;
         }
         if (mode === 'howto') {

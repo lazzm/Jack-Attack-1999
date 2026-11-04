@@ -33,7 +33,7 @@
   const $ = (el, s) => el.querySelector(s);
   const h = (html, cls, tag) => { const e = document.createElement(tag || 'div'); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
-  const keyboardHints = () => !window.GameInput || GameInput.mode !== 'gamepad';
+  const keyboardHints = () => !window.GameInput || (!GameInput.touch && GameInput.mode !== 'gamepad');
   const touchy = () => !!window.GameInput?.touch;
   const load = src => (window.Apps && Apps.load) ? Apps.load(src) : new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
   (function css() { if (document.getElementById('rmTvCss')) return; const l = document.createElement('link'); l.id = 'rmTvCss'; l.rel = 'stylesheet'; l.href = 'css/rm-tv.css' + ((document.querySelector('link[href*="css/rm.css"]') || {}).href || '').replace(/^[^?]*/, ''); document.head.appendChild(l); })();
@@ -43,7 +43,7 @@
     n64: { res: [320, 240], smooth: true, keys: { a: 'A', b: 'B', c: 'Z', l: 'L', r: 'R', start: 'START' }, cols: { a: '#2a5ad0', b: '#1a9a3a', c: '#888', start: '#c41a1a' } },
     ps: { res: [320, 240], smooth: false, keys: { a: '★', b: '@', x: '#', y: '~', l: 'L1', r: 'R1', start: 'START', select: 'SELECT' }, names: { a: 'Starfish', b: 'Snail', x: 'Waffle', y: 'Worm' }, cols: { a: '#f0c253', b: '#63c7b8', x: '#ed9b70', y: '#b3a2ef' } },
     gb: { res: [160, 144], smooth: false, keys: { a: 'A', b: 'B', start: 'START', select: 'SELECT' }, cols: { a: '#b01a5a', b: '#b01a5a' } },
-    md: { res: [320, 224], smooth: false, keys: { a: 'A', b: 'B', c: 'C', start: 'START' }, cols: { a: '#333', b: '#333', c: '#333' } },
+    md: { res: [320, 224], smooth: false, keys: { a: 'A', b: 'B', c: 'C', start: 'START', select: 'MODE' }, cols: { a: '#333', b: '#333', c: '#333' } },
     dc: { res: [640, 480], smooth: true, keys: { a: 'A', b: 'B', x: 'X', y: 'Y', l: 'L', r: 'R', start: 'START' }, cols: { a: '#e03a3a', b: '#3a6ae0', x: '#f0c020', y: '#2aa04a' } },
     sn: { res: [256, 224], smooth: false, keys: { a: 'A', b: 'B', x: 'X', y: 'Y', l: 'L', r: 'R', start: 'START', select: 'SELECT' }, cols: { a: '#d42a2a', b: '#e8c21a', x: '#2a52d0', y: '#2a9a4a' } },
   };
@@ -228,8 +228,9 @@
     for (const [i, row] of leaders.entries()) { font.draw(g, (i + 1) + '. ' + row.n.slice(0, 18), w * .12, y, '#ddd', s); font.draw(g, row.s, w * .7, y, '#ddd', s); y += 12 * s; }
     const status = $(V.el, '.rm-srv');
     if (status && y < h - 50 * s) screenLines(g, status.textContent, cx, y + 4 * s, w * .8, '#b8c4d4', s);
-    font.center(g, 'A / START: PLAY AGAIN', cx, h - 32 * s, '#fff', s);
-    font.center(g, 'Q: BACK   T: LOCK IN   ESC: MENU', cx, h - 18 * s, '#e0d090', s);
+    const label=b=>K?.keyLabel(b)||LOOK[V.con].keys[b]||b.toUpperCase();
+    font.center(g, label('a')+' / '+label('start')+': PLAY AGAIN', cx, h - 32 * s, '#fff', s);
+    font.center(g, touchy()?'BACK / MENU / LOCK IN':'Q: BACK   T: LOCK IN   ESC: MENU', cx, h - 18 * s, '#e0d090', s);
   }
   function liveFrame() {
     if (!V || !V.live) return;
@@ -582,13 +583,14 @@
   }
   function frameSurface(ms) {
     const def=V&&defs[V.gid],H=R.House;
-    if(!V?.surface || V.background || V.restoreBackground || !H?.focused || typeof def?.screenPose!=='function')return;
+    if(!(V?.live||V?.surface) || V.background || V.restoreBackground || V.lockedIn || !H?.focused)return;
     // Reopening a running surface happens before the house's focus glide lands.
     // Replacing that glide invokes its cancel handler, which closes this screen.
     // Finish the focus move first, and abandon framing if the player leaves.
     clearTimeout(V.frameTimer);
     if(H.gliding){const view=V;V.frameTimer=setTimeout(()=>{if(V===view)frameSurface(ms)},50);return;}
-    const pose=def.screenPose(V.surface);if(pose)H.glideTo(pose,{ms:ms||250,lock:true});
+    const pose=V.surface&&typeof def?.screenPose==='function'?def.screenPose(V.surface):_.tvPose?.(V.con);
+    if(pose)H.glideTo(pose,{ms:ms||250,lock:true});
   }
   function releaseSurface() {
     if(!V?.surface)return;
@@ -633,7 +635,8 @@
       font, sfx, pal: V.pal || GBPAL.none,
       held: b => alias(b).some(isHeld), pressed: b => alias(b).some(x => !!now[x]), any: () => Object.keys(now).some(x => now[x] && ['a', 'b', 'c', 'x', 'y', 'start'].includes(x)),
       stick, label: b => (LOOK[V ? V.con : 'n64'].keys || {})[b] || String(b).toUpperCase(),
-      keyLabel: b => (window.GameInput ? GameInput.mode === 'gamepad' : gpad()) ? ((LOOK[V ? V.con : 'n64'].keys || {})[b] || String(b).toUpperCase()) : ({a:'Z',b:'X',c:'C',x:'C',y:'V',l:'U',r:'E',start:'ENTER',select:'SHIFT'}[b] || String(b).toUpperCase()),
+      keyLabel: b => !keyboardHints() ? ((LOOK[V ? V.con : 'n64'].keys || {})[b] || String(b).toUpperCase()) : ({a:'Z',b:'X',c:'C',x:'C',y:'V',l:'U',r:'E',start:'ENTER',select:'SHIFT'}[b] || String(b).toUpperCase()),
+      get directionLabel(){return keyboardHints()?'ARROWS':gid==='ps.run'||def.stick&&!ownPad()?'STICK':'D-PAD'},
       music(song) { if (V) V.song = song || null; music(song); },
       get best() { return Math.max(localBest(gid), (srv.best[gid] | 0)); },
       save(st) { try { return Apps.saveGame('rm.' + gid, st, { v: def.v || 1 }); } catch (e) { return false; } },
@@ -807,7 +810,7 @@
   // Cartridges that bring their own touch controller (Plumbo, Wobble Party, Zeldo, the PlaySpace platformer) keep theirs.
   // A portrait screen shows the whole Game Lad in your hands, so its own moulded buttons are the controller; on a
   // landscape screen the glass fills the height and the pad's wings stand either side of it.
-  const gbModelButtons = () => !!V?.live;
+  const gbModelButtons = () => !!V?.live && !matchMedia('(min-width:600px) and (min-height:600px)').matches;
   const ownPad = () => !!V && (!!V.el.querySelector('.plumb-controls,.party-controls,.zeldo-controls') || V.el.classList.contains('ww-touch-game'));
   // Each pointer owns its own contribution. Releasing one finger never releases another finger (or the keyboard).
   function syncTouch() {
@@ -833,7 +836,7 @@
     const hide = !def || (!touchy() && !(V.hand && V.lockedIn)) || (V.hand && !V.lockedIn && gbModelButtons()) || ownPad();
     if (hide) {
       touchPads.get(P)?.destroy(); V.el.classList.remove('rm-padon', 'rm-dual');
-      P.hidden = true; P.innerHTML = ''; if (V.lockedIn) lockIn(true); return;
+      P.hidden = true; P.innerHTML = ''; if (V.lockedIn) lockIn(true); else if(def)frameSurface(200); return;
     }
     const bs = [...new Set(def.buttons || ['a', 'b'])].filter(b => L.keys[b] || b === 'c' || b === 'x');
     // A game that declares independent WASD movement keeps K.stick as its aim.
@@ -856,6 +859,7 @@
     padTouch(P, dual ? def.keyboard : null);
     touchPads.get(P).layout = layout;
     if (V.lockedIn) lockIn(true);
+    else frameSurface(200);
   }
   function padTouch(P, movement) {
     touchPads.get(P)?.destroy();
@@ -923,7 +927,7 @@
     const T = window.THREE, H = R.House, v = new T.Vector3(), pts = new Map(), meshes = {}, rest = new Map();
     view.gbTouch = true;
     const obj = () => H.THINGS.gb?.obj;
-    const active = () => V === view && view.el.isConnected && touchy() && !view.background && view.st === 'game' && !view.lockedIn && !R.House.paused && gbModelButtons() && !!obj();
+    const active = () => V === view && view.el.isConnected && touchy() && !view.background && view.st === 'game' && !view.lockedIn && !R.House.paused && !!obj();
     // the moulded meshes, found by where gbModel built them (for the pressed-in look)
     (function findMeshes() {
       const o = obj(); if (!o) return;
@@ -974,7 +978,7 @@
     }
     const own = ev => { ev.preventDefault(); ev.stopImmediatePropagation(); };
     const down = ev => {
-      if (!active() || ev.pointerType === 'mouse' || ev.target?.closest?.('button,a,input,select,textarea,dialog,.rm-tools,.rm-livebar')) return;
+      if (!active() || ev.pointerType === 'mouse' || ev.target?.closest?.('button,a,input,select,textarea,dialog,.rm-tools,.rm-livebar,.rm-pad')) return;
       const h = hit(ev.clientX, ev.clientY); if (!h) return;
       own(ev); pts.set(ev.pointerId, { keys: h.keys, pad: h.pad }); sync();
     };
@@ -1020,13 +1024,28 @@
   function playPhysical(gid) { const G = CAT.GAME[gid]; if (!G || !V || V.con !== G.con) return false; if (V.gid === gid && ['game', 'boot', 'wait'].includes(V.st)) return true; insert(gid, null); bootBad = false; return true; }
   // LOCK IN grows the screen out of its glass in the room (and shrinks it back in on the way out): the room keeps
   // drawing underneath until the full-screen view has landed, so no frame is ever black or cut.
+  function screenArea() {
+    if(!V)return{left:8,right:8,top:58,bottom:8};
+    const style=getComputedStyle(V.el),number=name=>parseFloat(style.getPropertyValue(name))||0;
+    const origin=V.el.getBoundingClientRect(),toolbar=$(V.el,'.rm-tools').getBoundingClientRect();
+    const bar=$(V.el,'.rm-livebar'),br=bar?.getBoundingClientRect();
+    const area={left:number('--rm-screen-left'),right:number('--rm-screen-right'),top:Math.max(number('--rm-screen-top'),toolbar.bottom-origin.top+6),bottom:Math.max(number('--rm-screen-bottom'),!V.lockedIn&&br?.height?origin.bottom-br.top+8:0)};
+    // A portrait tablet can fit a larger picture above the wings. Compare the
+    // real control rectangles with the clear strip between them, keeping both
+    // thumbs at the case edges in either layout.
+    if(touchy()&&Math.min(innerWidth,innerHeight)>=600){
+      const controls=[...V.el.querySelectorAll('.rm-pl,.rm-pr,.rm-pm,.party-pad,.party-buttons,.plumb-dpad,.plumb-actions,.zeldo-dpad,.zeldo-actions')].map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);
+      if(controls.length){
+        const above={left:8,right:8,top:area.top,bottom:Math.max(area.bottom,origin.bottom-Math.min(...controls.map(r=>r.top))+14)};
+        const ratio=V.cv0.width/V.cv0.height,fit=a=>Math.min(origin.width-a.left-a.right,(origin.height-a.top-a.bottom)*ratio);
+        if(fit(above)>fit(area))return above;
+      }
+    }
+    return area;
+  }
   function lockMetrics() {
     const width = V.el.clientWidth || innerWidth, height = V.el.clientHeight || innerHeight;
-    const style = getComputedStyle(V.el), number = name => parseFloat(style.getPropertyValue(name)) || 0;
-    const left = number('--rm-screen-left'), right = number('--rm-screen-right');
-    const origin = V.el.getBoundingClientRect(), toolbar = $(V.el, '.rm-tools').getBoundingClientRect();
-    const top = Math.max(number('--rm-screen-top'), toolbar.bottom - origin.top + 6);
-    const bottom = number('--rm-screen-bottom');
+    const {left,right,top,bottom}=screenArea();
     const w = Math.max(1, width - left - right), h = Math.max(1, height - top - bottom), ratio = V.cv0.width / V.cv0.height;
     const screenWidth = Math.min(w, h * ratio);
     V.el.style.setProperty('--lock-width', screenWidth + 'px');
@@ -1084,7 +1103,7 @@
   }
   // the room is hidden only once a LOCK IN has fully landed (never during the grow or the shrink)
   function covered() { return !!(V && !V.background && V.lockedIn && !V.lockAnim); }
-  addEventListener('resize', () => { clearInput(); if (V?.hand && V.st === 'game' && touchy()) { const want = !V.lockedIn && gbModelButtons(); if (want === !$(V.el, '.rm-pad').hidden) pad(defs[V.gid]); } if (V?.lockedIn) lockIn(true); if(V?.surface)frameSurface(200); });
+  addEventListener('resize', () => { clearInput(); if (V?.hand && V.st === 'game' && touchy()) { const want = !V.lockedIn && gbModelButtons(); if (want === !$(V.el, '.rm-pad').hidden) pad(defs[V.gid]); } if (V?.lockedIn) lockIn(true); if(V?.live)frameSurface(200); });
 
   function restoreSurface(saved){
     if(window.AccountGate&&!window.AccountGate.allowed)return false;
@@ -1098,5 +1117,5 @@
     if(!H.focus(pose,{ms:1,label:'Get up',enter:boot}))return false;
     R.onClose?.(done);return true;
   }
-  window.RoomTV = { restoreSurface, covered, game(id, def) { defs[id] = def; }, defs, test, playPhysical,lockIn, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background, surface: !!V.surface, gbHit: V.gbHit, gbScreen: V.gbScreen, gbMeshes: V.gbMeshes, gbHeld: { ...gbHeld } }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
+  window.RoomTV = { restoreSurface, covered, screenArea, game(id, def) { defs[id] = def; }, defs, test, playPhysical,lockIn, stopPhysical(con) {if (V && V.con === con) close(true);}, dbg: () => K, _dbg: () => V && { st: V.st, gid: V.gid, con: V.con, background: !!V.background, surface: !!V.surface, gbHit: V.gbHit, gbScreen: V.gbScreen, gbMeshes: V.gbMeshes, gbHeld: { ...gbHeld } }, open, close, font, sfx, music, LOOK, get open_() { return !!V && !V.background; } };
 })();

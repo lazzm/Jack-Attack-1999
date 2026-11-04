@@ -56,6 +56,18 @@
  function syncAudio(){el.querySelector('[name=music]').checked=!!window.Sound?.musicOn;el.querySelector('[name=effects]').checked=!!window.Sound?.effectsOn;el.querySelector('[name=subtitles]').checked=!!window.st?.subtitles;const volume=Math.round((window.Sound?.volume??1)*100);el.querySelector('[name=volume]').value=volume;el.querySelector('.hs-audio-volume output').textContent=volume+'%'}
  document.addEventListener('audiochange',syncAudio);
  function syncSettings(){syncAudio();const current=activeScreen(),box=el.querySelector('[name=desktopFull]');box.checked=!!current?.locked;box.disabled=!current;el.querySelector('.hs-lock-help').textContent=current?'Full-screen view of this screen. '+(window.GameInput?.touch?'Click LOCK IN again':'Press T again')+' to return. JackOS fills the window; console and handheld screens keep their original proportions.':'Use a PC, console, Game Lad or family TV, then '+(window.GameInput?.touch?'click LOCK IN':'press T to LOCK IN')+'.';}
+ function syncActions(){
+  if(!el.open||loggingOut)return;
+  syncSettings();button('leave').hidden=!canBack();button('return').hidden=!H.held();
+  el.querySelector('.hs-pause-status').textContent=window.RoomTV?.open_?'This console game is paused. Audio keeps playing so you can adjust it. Online programs keep running.':'Movement is stopped. Online programs and the TV keep running.';
+ }
+ // A camera move may finish behind this menu. Refresh in the next task, after
+ // the mode event's remaining focus/presentation changes have settled.
+ let syncTimer=0;
+ function queueSync(){clearTimeout(syncTimer);syncTimer=setTimeout(syncActions,0)}
+ window.Room?.on('open',queueSync);window.Room?.on('play',queueSync);window.Room?.on('close',queueSync);
+ H.on('mode',queueSync);H.on('move',queueSync);H.on('sat',queueSync);H.on('stood',queueSync);
+ document.addEventListener('game-input-change',queueSync);addEventListener('resize',queueSync);
  function openMenu(){
   if(el.open||window.stDiary?.picking||!H.live||window.House?.god||window.OwnerTools?.active||window.AccountGate&&!AccountGate.allowed)return false;
   syncSettings();

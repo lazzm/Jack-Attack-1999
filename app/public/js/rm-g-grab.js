@@ -1519,16 +1519,16 @@
         rect(0, 0, W, H, 0); box(0, 0, W, H); ctr('HOW TO PLAY ' + (how.page + 1) + '/3', 7, 2);
         const fr = K.frame, A = K.label('a'), B = K.label('b'), X = 40;
         if (how.page === 0) {
-          g.drawImage(GSPR[['walk0', 'walk1', 'walk2', 'walk1'][(fr >> 3) % 4]][0], 4, 16); txt('ARROWS: WALK', X, 22); txt(A + ': JUMP', X, 32);
+          g.drawImage(GSPR[['walk0', 'walk1', 'walk2', 'walk1'][(fr >> 3) % 4]][0], 4, 16); txt(K.directionLabel+': WALK', X, 22); txt(A + ': JUMP', X, 32);
           g.drawImage(GSPR[(fr >> 2) % 2 ? 'barge0' : 'barge1'][0], 4, 44); txt(B + ': BARGE! SMASH', X, 50); txt('BLOCKS AND BOWL', X, 59); txt('BADDIES OVER', X, 68);
           g.drawImage(GSPR.stomp[0], 4, 74); txt('DOWN IN THE AIR:', X, 80); txt('BUTT-STOMP THROUGH', X, 89); txt('CRACKED FLOORS', X, 98);
           g.drawImage(GSPR.back[(fr >> 4) % 2], 4, 102); txt('UP: LADDERS, DOORS', X, 110); txt('START: PAUSE', X, 119);
-          txt('ARROWS: PAGE  ' + A + ': NEXT', 14, 131, 2);
+          txt(K.directionLabel+': PAGE  ' + A + ': NEXT', 14, 131, 2);
         } else if (how.page === 1) {
           g.drawImage(ESPRV.crab[0][0], 10, 26); txt('JUMP ON A BADDIE', X, 20); txt('TO BONK IT. WALK', X, 29); txt('INTO IT TO PICK IT', X, 38); txt('UP, ' + B + ' THROWS IT!', X, 47);
           g.drawImage(HUDCOIN, 14, 66); txt('GET HURT AND YOU', X, 62); txt('DROP COINS. GRAB', X, 71); txt('THEM BACK, QUICK!', X, 80);
           g.drawImage(KEY, 8, 97); txt('EVERY LEVEL HIDES', X, 94); txt('A KEY AND A CHEST', X, 103); txt('FIND ALL SIX!', X, 112);
-          txt('ARROWS: PAGE  ' + A + ': NEXT', 14, 131, 2);
+          txt(K.directionLabel+': PAGE  ' + A + ': NEXT', 14, 131, 2);
         } else {
           g.drawImage(GSPR.puff[0], 4, 14); txt('BEES PUFF YOU UP:', X, 18); txt('FLOAT TO HIGH BITS', X, 27); txt(A + ' LETS THE AIR OUT', X, 36);
           g.drawImage(GSPR.fire0[0], 4, 50); g.drawImage(FLAMES[(fr >> 2) % 2], 15, 38); txt('FLAMES MAKE YOU', X, 54); txt('RUN ABOUT. YOU CAN', X, 63); txt('SMASH FIRE BLOCKS!', X, 72);

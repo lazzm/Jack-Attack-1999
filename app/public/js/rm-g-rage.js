@@ -489,7 +489,7 @@
 
   TV.game('md.rage', {
     buttons: ['a', 'b', 'c'],
-    help: 'Walk: arrows (tap twice to run). Punch: Z. Jump: X. Special: C (when MOM flashes, C calls Mom). Walk into someone to grab them. Pause: Enter.',
+    help: 'Walk: arrows (press twice to run). Punch: Z. Jump: X. Special: C (when MOM flashes, C calls Mom). Walk into someone to grab them. Pause: Enter.',
     make(K) {
       let g = K.g; const F = K.font, sfx = K.sfx;
       g.imageSmoothingEnabled = false;
@@ -1007,16 +1007,16 @@
         rows.forEach(([a, b], i) => { const y = 70 + i * 24, on = i === optI; if (on) rect(g, 50, y - 5, 220, 18, 'rgba(255,74,138,.35)'); F.draw(g, a, 64, y, on ? '#fff' : '#aaa', 1, '#000'); if (b) F.draw(g, '← ' + b + ' →', 180, y, on ? '#ffd84a' : '#aaa', 1, '#000'); });
         F.center(g, `GAMES WON: ${SAVE.wins}`, W / 2, 180, '#ccc', 1, '#000'); F.center(g, SAVE.un.nan ? 'NAN IS READY FOR A SCRAP.' : 'FINISH THE GAME FOR A SURPRISE...', W / 2, 194, '#ccc', 1, '#000');
       }
-      const HOW = [
-        ['THE BASICS', ['WALK WITH THE ARROWS.', 'TAP A DIRECTION TWICE TO RUN.', '', 'Z  PUNCH - KEEP PRESSING FOR A COMBO', 'X  JUMP - THEN Z FOR A FLYING KICK', 'C  SPECIAL SPIN (HURTS YOU A BIT', '   BUT ONLY IF IT HITS SOMEBODY)', 'Z WHILE RUNNING: SHOULDER BARGE']],
-        ['GRABS AND THROWS', ['WALK INTO A THUG TO GRAB THEM.', '', 'Z  KNEE THEM (THREE TIMES!)', 'X  THROW THEM - INTO THEIR MATES!', 'HOLD BACK + X: THROW BEHIND YOU', '', 'BOUNCERS BLOCK PUNCHES: GRAB', 'THEM, KICK THEM OR GO ROUND THE BACK']],
-        ['GOODIES', ['SMASH BINS, CRATES AND PHONE BOXES.', '', 'FISH & CHIPS, ROLLS, ROASTS: HEALTH', 'POCKET MONEY AND TAPES: POINTS', 'PIPES AND BATS: HIT HARDER', 'THE GREEN 1UP: AN EXTRA LIFE', '', 'FILL THE MOM METER, THEN PRESS C!']],
+      const HOW = () => [
+        ['THE BASICS', ['WALK WITH THE '+K.directionLabel+'.', 'PRESS A DIRECTION TWICE TO RUN.', '', K.keyLabel('a')+' PUNCH - KEEP PRESSING FOR A COMBO', K.keyLabel('b')+' JUMP - THEN '+K.keyLabel('a')+' FOR A FLYING KICK', K.keyLabel('c')+' SPECIAL SPIN (HURTS YOU A BIT', '   BUT ONLY IF IT HITS SOMEBODY)', K.keyLabel('a')+' WHILE RUNNING: SHOULDER BARGE']],
+        ['GRABS AND THROWS', ['WALK INTO A THUG TO GRAB THEM.', '', K.keyLabel('a')+' KNEE THEM (THREE TIMES!)', K.keyLabel('b')+' THROW THEM - INTO THEIR MATES!', 'HOLD BACK + '+K.keyLabel('b')+': THROW BEHIND YOU', '', 'BOUNCERS BLOCK PUNCHES: GRAB', 'THEM, KICK THEM OR GO ROUND THE BACK']],
+        ['GOODIES', ['SMASH BINS, CRATES AND PHONE BOXES.', '', 'FISH & CHIPS, ROLLS, ROASTS: HEALTH', 'POCKET MONEY AND TAPES: POINTS', 'PIPES AND BATS: HIT HARDER', 'THE GREEN 1UP: AN EXTRA LIFE', '', 'FILL THE MOM METER, THEN PRESS '+K.keyLabel('c')+'!']],
       ];
       function drawHow() {
-        drawTitleBack(); const [t, lines] = HOW[howI];
+        drawTitleBack(); const [t, lines] = HOW()[howI];
         rect(g, 14, 18, W - 28, 190, 'rgba(10,0,30,.85)'); rect(g, 14, 18, W - 28, 2, '#ff4a8a');
         F.center(g, t, W / 2, 28, '#ffd84a', 2, '#000'); lines.forEach((l, i) => F.draw(g, l, 30, 58 + i * 15, '#fff', 1, '#000'));
-        F.center(g, `${howI + 1}/${HOW.length}   ← →   B: BACK`, W / 2, 194, '#aaa', 1, '#000');
+        F.center(g, `${howI + 1}/${HOW().length}   ← →   B: BACK`, W / 2, 194, '#aaa', 1, '#000');
       }
       const HLIST = () => ['kev', 'shaz', 'nan'];
       function drawSelect() {
@@ -1162,7 +1162,7 @@
             if ((ok && optI === 3) || back) { mode = 'menu'; S.ok(); }
             return;
           }
-          if (mode === 'how') { if (rt || ok) { howI++; S.menu(); if (howI >= HOW.length) mode = 'menu'; } if (lf) howI = Math.max(0, howI - 1); if (back) mode = 'menu'; return; }
+          if (mode === 'how') { if (rt || ok) { howI++; S.menu(); if (howI >= HOW().length) mode = 'menu'; } if (lf) howI = Math.max(0, howI - 1); if (back) mode = 'menu'; return; }
           if (mode === 'password') {
             const P2 = pwIn; if (P2.bad > 0) P2.bad -= dt;
             if (up) { P2.l[P2.i] = (P2.l[P2.i] + 1) % 26; S.menu(); } if (dn) { P2.l[P2.i] = (P2.l[P2.i] + 25) % 26; S.menu(); }

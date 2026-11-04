@@ -998,7 +998,7 @@
         } else if (mode === 'howto') {
           big('HOW TO PLAY', W / 2, 50, 40); panel(40, 90, W - 80, 340);
           const L1 = subI === 0 ? ['RUN: STICK. HOLD UP TO GO FASTER.', 'JUMP: ' + L('a') + '.  IN THE AIR, ' + L('a') + ' AGAIN = HOMING', 'ATTACK: ZIP FLIES AT THE NEAREST ROBOT', '(LOOK FOR THE TARGET MARK).', 'SPIN DASH: HOLD ' + L('b') + ', LET GO.', 'RAILS: LAND ON ONE TO GRIND. ' + L('a') + ' JUMPS OFF.', 'RAMPS: PRESS ' + L('a') + ' OR ' + L('b') + ' IN THE AIR FOR TRICKS.', 'RINGS KEEP YOU SAFE. NO RINGS + A HIT', '= A LIFE GONE.']
-            : ['BLUE DASH PADS AND RED SPRINGS ZOOM YOU.', 'BREAK TV BOXES: RINGS, SHIELD, SHOES, 1-UP.', 'LAMP POSTS ARE CHECKPOINTS.', 'EVERY ROBOT HAS A CRITTER INSIDE. FREE', 'THEM, THEN VISIT THE CHUM GARDEN: CARRY', 'FRUIT AND CRITTERS TO YOUR CHUMS. ' + L('b') + ' = PAT.', 'KEYS: Z = ' + L('a') + '   X = ' + L('b') + '   ENTER = START', 'IT SAVES TO THE MEMORY CARD AS YOU GO.'];
+            : ['BLUE DASH PADS AND RED SPRINGS ZOOM YOU.', 'BREAK TV BOXES: RINGS, SHIELD, SHOES, 1-UP.', 'LAMP POSTS ARE CHECKPOINTS.', 'EVERY ROBOT HAS A CRITTER INSIDE. FREE', 'THEM, THEN VISIT THE CHUM GARDEN: CARRY', 'FRUIT AND CRITTERS TO YOUR CHUMS. ' + L('b') + ' = PAT.', L('a')+' JUMP / '+L('b')+' SPIN / '+L('start')+' PAUSE', 'IT SAVES TO THE MEMORY CARD AS YOU GO.'];
           L1.forEach((s, i) => px(s, 64, 112 + i * 34, '#fff', 2)); pxc((subI + 1) + '/2   PRESS ' + L('a'), W / 2, H - 34, '#bcd8ff', 2);
         } else if (mode === 'records') {
           big('RECORDS', W / 2, 50, 40); panel(90, 90, W - 180, 360);

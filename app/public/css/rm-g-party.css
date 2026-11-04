@@ -13,5 +13,5 @@
 .party-buttons [data-party=start]{background:#a34251}.party-buttons button.pressed{box-shadow:inset 2px 2px #22253b;transform:translateY(1px)}
 .rm-tvv:has(.party-controls) .rm-help{display:none}.rm-tvv:has(.party-controls) .rm-livebar{bottom:168px}
 .hs-paused .party-controls{visibility:hidden}
-@media (orientation:landscape){.rm-tvv:has(.party-controls){--rm-screen-bottom:8px;--rm-screen-left:164px;--rm-screen-right:164px}}
+@media (orientation:landscape), (min-width:600px) and (min-height:600px){.rm-tvv:has(.party-controls){--rm-screen-bottom:8px;--rm-screen-left:164px;--rm-screen-right:164px}}
 @media (max-width:360px){.party-pad,.party-buttons{width:124px;height:136px}.party-pad .up,.party-pad .down{left:40px}.party-pad:after{left:40px}.party-pad .left{left:0}.party-pad .right{right:0}}
