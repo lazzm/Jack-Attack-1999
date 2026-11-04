@@ -100,6 +100,17 @@ assert.deepEqual(Array.from(E.group.children,g=>g.name),['street','opposite hous
 // The village carries on: simpler far houses in every row out to the backdrop, never on the side road or the playable plot.
 assert(E.farHomes.length>=18,'the rows continue past the end of the street');
 for(const h of E.farHomes){
+ if(h.continuation){
+  assert([0,90,180,-90].includes(h.ry),'continuation faces a street or rear lane');
+  if(Math.abs(h.ry)===90)assert.equal(h.x+Math.sign(h.ry)*(h.front+20),h.ry===90?2370:3050,'cross-street gardens reach their footpath');
+  const side=Math.abs(h.ry)===90,hx=(side?h.depth:h.width)/2,hz=(side?h.width:h.depth)/2;
+  assert(h.x+hx<=2470||h.x-hx>=2950||h.z+hz<=-1695,'continuation shells stay outside the cross-street carriageway');
+  for(const o of [...E.homes,...E.farHomes])if(o!==h){
+   const oside=Math.abs(o.ry)===90,ox=(oside?o.depth:o.width)/2,oz=(oside?o.width:o.depth)/2;
+   assert(Math.abs(o.x-h.x)>=hx+ox||Math.abs(o.z-h.z)>=hz+oz,`closed distant houses do not intersect: ${h.x},${h.z} / ${o.x},${o.z}`);
+  }
+  continue;
+ }
  assert(h.ry===0||h.ry===180);const frontEdge=h.z+(h.ry===180?-1:1)*(h.front+20);
  assert([ST.farPave[1],-2290,ST.pave[0]].includes(frontEdge),'far gardens meet their footpath');
  if(h.z!==-2850)assert(h.x+330<=2370||h.x-330>=3050,'no house on the side road');
@@ -108,6 +119,7 @@ for(const h of E.farHomes){
 // The horizon ring travels with the camera and is never part of the static batches.
 const B=E.backdrop;assert(B&&B.parent===H.root&&!E.group.children.includes(B),'backdrop is its own mesh');
 assert.equal(B.frustumCulled,false);assert.equal(B.material.side,T.BackSide);assert(B.material.alphaTest>0&&!B.material.transparent);
+assert.equal(B.material.fog,false,'painted horizon keeps its sky-matched palette rather than becoming a white slab');
 const ringR=B.geometry.parameters.radiusTop;assert(ringR>=3000&&ringR<4000,'inside the camera far plane (4000), outside the playable plot');
 {const cam=new T.PerspectiveCamera();cam.position.set(123,-200,456);cam.updateMatrixWorld();B.onBeforeRender(null,null,cam);assert.equal(B.position.x,123);assert.equal(B.position.z,456)}
 let meshes=0;
@@ -120,7 +132,7 @@ E.group.traverse(o=>{
  assert.equal(g.attributes.position.count,g.attributes.normal.count);assert.equal(g.attributes.position.count,g.attributes.color.count);
  for(const name of ['position','normal','uv','color'])assert(Array.from(g.attributes[name].array).every(Number.isFinite),name+' must stay finite');
 });
-console.log('meshes',meshes,'triangles',triangles,E.group.children.map(g=>g.name+':'+g.children.length).join(' '));assert(meshes<=84,'bounded static draw calls (55 for the near rows, about 26 for the far rows and the crossroads)');assert(triangles<90000,'bounded triangle budget including solid garden fences and the far rows');
+console.log('meshes',meshes,'triangles',triangles,E.group.children.map(g=>g.name+':'+g.children.length).join(' '));assert(meshes<=84,'bounded static draw calls (55 for the near rows, about 26 for the far rows and the crossroads)');assert(triangles<96000,'bounded triangle budget including rounded hedges and the extended cross street');
 const before=E.group.children.flatMap(g=>g.children.map(m=>[m.uuid,m.geometry.uuid,m.geometry.attributes.position.array]));
 const meshGeometry=()=>E.group.children.flatMap(g=>g.children.map(m=>[m.uuid,m.geometry.uuid,m.geometry.attributes.position.array]));
 const allMaterials=new Set();E.group.traverse(o=>{if(o.material)allMaterials.add(o.material)});

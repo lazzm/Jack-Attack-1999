@@ -40,7 +40,7 @@
   // debug option (localStorage jhp_hs_fps, or House.showFps(true)).
   const ADAPT = [
     { far: 0, lamps: 5, screenHz: 60, scale: 1 },     // 0: everything
-    { far: 1, lamps: 5, screenHz: 30, scale: 1 },     // 1: shorter outdoor draw distance and portal depth, screens 30 Hz
+    { far: 1, lamps: 5, screenHz: 30, scale: 1 },     // 1: outdoor atmosphere, fewer portal routes, screens 30 Hz
     { far: 1, lamps: 3, screenHz: 30, scale: 1 },     // 2: the three strongest lamps light per pixel
     { far: 1, lamps: 3, screenHz: 20, scale: 1 },     // 3: screens 20 Hz
     { far: 1, lamps: 3, screenHz: 20, scale: .925 },  // 4: a small resolution step (dense displays only)
@@ -121,9 +121,12 @@
   // pose: E (eye, cm), ry (yaw: + turns right), rx (pitch: - looks down), the CSS conventions boot.js uses
   const P = { x: 0, y: -50, z: 100, ry: -30, rx: -16, zm: 1 };
   let em = 10, vw = innerWidth, vh = innerHeight;
-  const outdoorFog=new T.Fog(0xcedadf,1600,3000);
+  // Keep a full depth of solid scenery before atmospheric fade. The old 30 m
+  // white-out turned the end houses into pale cut-outs even in clear weather.
+  // Static neighbourhood batches already own these shells on every rung.
+  const outdoorFog=new T.Fog(0xcedadf,2000,4400);
   function qualityView(){
-    const fog=rung().far&&cur?.outside?outdoorFog:null,far=fog?fog.far:4000;
+    const fog=rung().far&&cur?.outside?outdoorFog:null,far=4000;
     scene.fog=fog;
     if(fog){const ph=window.HouseEnvironment?.phase;fog.color.set(ph==='night'?0x26344b:ph==='dusk'?0xd89774:ph==='dawn'?0xddb69a:0xcedadf)}
     if(camera.far!==far){camera.far=far;camera.updateProjectionMatrix()}
