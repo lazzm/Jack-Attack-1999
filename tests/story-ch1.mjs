@@ -346,7 +346,8 @@ try {
   await vp.waitForTimeout(1200);await vp.screenshot({path:shots+'14-veteran-summary.png'});
   assert.equal(await vp.evaluate(() => JSON.stringify(Object.entries(House.THINGS).map(([id,t]) => [id,t.at]))),room);
   await vp.close();
-  if(stage==='all')await ownerRoundTrip();
+  // The gameplay browser is empty now; release it before the owner fixture.
+  if(stage==='all'){await browser.close();await ownerRoundTrip();}
   console.log('Story gameplay checks complete: fresh signup, Game Lad, real chores, physical PC assembly/installer/JackNet, refresh progress/pose, physical reader, mobile and veteran isolation');
   assert.deepEqual(errors,[]);console.log('STORY CH1 PASS: no browser errors/warnings');
   }

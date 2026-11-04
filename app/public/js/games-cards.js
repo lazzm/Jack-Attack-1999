@@ -410,7 +410,6 @@
       lastSay = t;
       const L = LINES[p][kind]; if (!L) return;
       bubbles[p] = { text: pick(L), t: 3.4 }; dirty = true;
-      window.st?.speakLine?.('game.hearts.'+p,'Hearts '+({1:'Dave',2:'cousin',3:'Gubbinz'}[p]),bubbles[p].text,{remote:true,caption:false});
     }
     function newGame() {
       if (NET && !NET.host) return;

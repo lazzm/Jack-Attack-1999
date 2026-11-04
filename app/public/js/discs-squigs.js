@@ -530,7 +530,7 @@
       if (by >= 0) { s.last = by; if (by !== s.team) M.teams[by].stats.dmg += d; else M.teams[by].stats.self += d; if (d > M.best.hit && M.sq) M.best = { hit: d, who: M.sq.name, team: M.sq.team }; }
       if (Math.random() < 0.6) say(s, pick(SAY.hurt));
     }
-    function say(s, text) { if (OPT.bubbles && !M.attract) {s.bubble = { text, t: 1.8 };window.st?.speakLine?.('game.discs-squigs','Game discs-squigs unit',text,{remote:true,caption:false});} }
+    function say(s, text) { if (OPT.bubbles && !M.attract) {s.bubble = { text, t: 1.8 };} }
 
     // ---- projectiles
     function normalAt(x, y) {

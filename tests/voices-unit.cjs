@@ -160,6 +160,25 @@ const tick = () => new Promise(r => setImmediate(r));
     timers.shift()();assert(!w.st.voiceQueued('c4.xmas.gran')&&w.st.voiceQueued('c4.xmas.gran2'),'second line starts after first ends');
     timers.shift()();assert(!w.st.voiceBusy);assert(!fetched.some(u=>/\.mp3(?:\?|$)/.test(u)),'queued mute fetches no clips');
   }
+  // Production catalogue display and call-out options, including unrecorded shouts.
+  {const {w,fetched}=world({jhp_audio_effects:'1',jhp_audio_volume:'1'});await w.st.loadVoices();vm.runInContext(js('np-lines.js'),w);
+    const id='house.moment.uar218',plain="TEA'S READY! It'll go cold!";
+    manifest[id]={file:id+'.mp3',character:'mom',dur:3};w.first='Sarah';
+    assert.equal(w.st.voiceText('c2.pocket.dad','Sarah... go to bed.',{callout:'dad-shout'}),'Sarah... go to bed.','dynamic named writing is not prefixed twice');
+    const shown=w.st.voiceText(id,plain);assert.equal(shown,"SARAH! TEA'S READY! It'll go cold!");assert.equal(w.st.voiceText(id,shown),shown,'display template is idempotent');
+    const h=w.st.play(id,{});for(let i=0;i<6;i++)await tick();assert(h.started);assert.equal(h.nameId,'mom-shout/sarah');h.stop();
+    w.first='Zelphina';const before=fetched.length;assert.equal(w.st.voiceText(id,plain),"ZELPHINA! TEA'S READY! It'll go cold!");
+    const unknown=w.st.play(id,{});for(let i=0;i<6;i++)await tick();assert(unknown.started);assert.equal(unknown.nameId,null);unknown.stop();assert(!fetched.slice(before).some(u=>u.includes('/names/')),'unknown name plays the plain recording');
+    const sent=[];w.HouseFamily={speak:(who,id,text,o)=>{sent.push({who,id,text,o});return true;}};
+    w.st.speakLine('house.voice','Mom',plain,{callout:'mom-call',legacyShout:true});assert.equal(sent[0].id,id);assert.equal(sent[0].o.callout,'mom-shout','catalogue style survives dynamic dispatch');assert(sent[0].o.legacyShout);
+    const src=js('hs-life.js'),part=src.slice(src.indexOf('  function shoutSound('),src.indexOf('  const where ='));
+    const tones=[],passed=[];let show;
+    const v={window:{st:{speakLine:(...a)=>passed.push(a)}},H:{sfx:{ac:()=>true,tone:(...a)=>tones.push(a)},say:(who,text,ms,start)=>{show=start;}},cast:t=>t.replace('{me}','Sarah'),sis:()=> 'Crystal',esc:t=>t,Date,Math,lastVoice:0};v.st=v.window.st;vm.createContext(v);vm.runInContext(part+';this.runVoice=voice;',v);
+    v.runVoice('MOM',plain);assert.equal(passed[0][3].callout,'mom-shout');assert.equal(passed[0][3].legacyShout,true);assert.equal(tones.length,0,'queue submission does not sound early');
+    delete v.window.st;v.runVoice('MOM','An unrecorded shout');assert.equal(tones.length,0);show();assert.equal(tones.length,3,'fallback retains old muffled sawtooth shout');assert(tones.every(t=>t[2]==='sawtooth'&&t[3]===0.015&&t[5]===150));
+    const timers=[];w.HouseFamily=null;w.setTimeout=f=>{timers.push(f);return timers.length;};w.clearTimeout=()=>{};let started=0;w.HouseLife={shoutSound:()=>started++};w.House={say:(who,text,ms,start)=>{show=start;}};
+    w.st.speakLine('unit.unrecorded','Mom','An unrecorded shout',{legacyShout:true});assert.equal(started,0);show();assert.equal(started,1,'queued missing clip sounds when its bubble appears');timers.shift()();
+  }
   // ---- bubble layout maths
   { const w = { window: null, House: null }; w.window = w; vm.createContext(w); vm.runInContext(js('np-bubble.js'), w);
     const L = w.NPCBubble.layout, view = { w: 390, h: 844, m: 10, top: 8 }, cross = { x: 161, y: 388, w: 68, h: 68 };

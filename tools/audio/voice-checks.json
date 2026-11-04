@@ -77,7 +77,277 @@
     "The bounded full voice suite reached 8/9 and was terminated at 600 seconds during the separate phone fixture; the names case already includes portrait/landscape phone captures. This is not a full-suite pass.",
     "Final browser gates use FIXTURE_RASTER_RATIO=0.25 for functional coverage; they do not certify native-resolution visual quality or physical phone/tablet performance. Native diagnostic views were reviewed earlier. The complete mobile suite did not run.",
     "New clips have not been generated, listened to or transcript/accent audited. Playback of every newly prepared sentence, every refresh during a seasonal/remote call, every floor/room combination and every rapid-input path is not verified.",
-    "Uncast NPCs need Jack’s casting decisions. Legacy computer speech and all free-form adventure/server dialogue have not all been migrated to the new recording queue. Structured MUD dialogue is inventoried, but MUD transport still lacks recording IDs. Treat those as remaining work, not shipped voice coverage.",
+    "Scope update: the manager dropped text-game voicing in round 2. JackMUD and other excluded text games stay text; their missing recording IDs are not outstanding work.",
     "The final duplicate-line/F-press and stricter room/floor-muffle adjustments passed the unit suites, but a complete subsequent browser matrix did not fit the time box."
-  ]
+  ],
+  "round2": {
+    "summary": [
+      "Round 2 leaves all 523 catalogue line values unchanged. Restored 34 leading-name catalogue entries, added ten middle-name/display variants (44 templates total), and carried call-out style through dynamic family speech, prefetch, playback and saved exchanges. The complete list appears above and in docs/SCRIPT.md. No re-recording is required for these edits.",
+      "Unknown names retain their spelling in personalised writing and play the plain body. Sarah’s exact tea call, name-plus-body playback, dynamic style propagation, no duplicate prefix, the original queued procedural shout and saved metadata are covered by production-code units.",
+      "Full voices.mjs passed 9/9. Its mouth proof sampled a running context, peak 1, and the production mouth smoothing equation. The final punctuation-aware duplicate-prefix guard was added after that full browser pass, then all 50 unit suites passed again. Subsequent page loads use the final code.",
+      "The Chapter 1 harness now closes its empty gameplay browser before opening the owner fixture, preserving the one-browser rule without dropping any test stage.",
+      "No TTS, paid API, audio writes, secret reads, deployment, commit or version change. The manager merge remains HEAD 45e7ddb. Text games remain text and are absent from the missing-voice inventory. Individual unit results below are from the final complete rerun."
+    ],
+    "tests": [
+      {
+        "command": "node tests/art-gallery-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/art-return-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/audio-routing-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/bedroom-hifi-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/board-art-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/bonfire-geometry-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/bonfire-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/case-eject-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/cat-pose-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/console-surface-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/family-phone-private-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/fix-1102-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/fixes2-1102-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/fixes3-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/fixes4-geometry-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/fixes4-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/fixes5-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/graphics-device-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/grass-state-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/hs-input-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/identity-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/jw-furni-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/magazine-catalogue-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/mobile-frame-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/mobile-phone-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/models-rig-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/movement-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/onboard-layout-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/owner-tools-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/pc-game-coordinates-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/people-loop-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/people-pass-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/physics-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/placement-migration-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/print-art-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/props-geometry-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/reading-turn-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/roam-sync-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/season-cat-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/shop-sparse-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/sms-private-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/starter-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/static-batch-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/story-order-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/story-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/touch-picking-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/voices-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/wallet-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/world-pose-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/world-sound-unit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node tests/voice-recordings.mjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "node --expose-internals tests/parody-audit.cjs",
+        "result": "exit 0"
+      },
+      {
+        "command": "FIXTURE_RASTER_RATIO=0.5 node tests/voices.mjs http://localhost:18080",
+        "result": "exit 0"
+      },
+      {
+        "command": "FIXTURE_RASTER_RATIO=0.5 node tests/events-bonfire.mjs http://localhost:18080",
+        "result": "exit 0"
+      },
+      {
+        "command": "FIXTURE_RASTER_RATIO=0.5 node tests/story-ch1.mjs http://localhost:18080",
+        "result": "STARTED but did not complete before the report deadline; no test exit code captured (serial runner stopped with SIGINT, exit 130). Last observed progress: Ch1: real bed accepted / Ch1: real chores accepted / PC part placed: tower"
+      },
+      {
+        "command": "FIXTURE_RASTER_RATIO=0.5 node tests/mobile.mjs http://localhost:18080 --only=gate,full",
+        "result": "DID NOT RUN before the report deadline."
+      },
+      {
+        "command": "FIXTURE_RASTER_RATIO=0.5 node tests/smoke.mjs",
+        "result": "DID NOT RUN before the report deadline."
+      },
+      {
+        "command": "git diff --name-only -- '*.js' '*.mjs' '*.cjs' | xargs -n1 node --check",
+        "result": "exit 0"
+      },
+      {
+        "command": "node --expose-internals tests/parody-audit.cjs",
+        "result": "exit 0; final rerun: 0 authored spans to rewrite."
+      },
+      {
+        "command": "node tools/audio/test-split.mjs",
+        "result": "exit 0; all splitter tests passed."
+      },
+      {
+        "command": "node tools/audio/gen-lines.mjs --dry-run",
+        "result": "exit 0; offline plan only, no key read or API call."
+      },
+      {
+        "command": "node tools/audio/voice-audit.mjs --write",
+        "result": "exit 0; 651 rows, no excluded text-game IDs; 523 recorded bodies unchanged versus HEAD."
+      }
+    ],
+    "screenshots": [
+      "tests/shots/voices/dad-near.png",
+      "tests/shots/voices/phone-name-mom-shout.png",
+      "tests/shots/voices/phone-name-landscape.png"
+    ],
+    "limitations": [
+      "voices: FIXTURE_RASTER_RATIO=0.5 throughout. events-bonfire: started at 0.5; existing browser capped at 0.25 during Guy preparation, including subsequent refreshes. Same objectives, real inputs, waits and screenshot calls. No game-state mutation. story-ch1 and smoke: runner configured with FIXTURE_RASTER_RATIO=0.5. mobile: default native rendering and default --throttle=4; only=gate,full. ",
+      "The local manifest has 309 installed clips; the manager’s 183 additional audited recordings are external to this checkout. Do not regenerate them based solely on the local inventory.",
+      "Not completed within the time budget: story-ch1, mobile, smoke. See their exact statuses above.",
+      "Desktop/voice/event captures on capped software WebGL certify functional layout and playback, not native-resolution artwork or physical-device performance."
+    ]
+  }
 }

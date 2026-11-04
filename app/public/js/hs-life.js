@@ -46,14 +46,18 @@
   // ================================================================ voices: Mom shouting up the stairs (and Dad, and the little sister)
   const ui = H.ui.el;
   let lastVoice = 0;
+  // Preserve the old unrecorded shout, starting with its queued words.
+  function shoutSound(text) {
+    const c = H.sfx.ac && H.sfx.ac();
+    if (c) { const n = Math.min(10, Math.ceil(text.length / 7)); for (let i = 0; i < n; i++) H.sfx.tone(180 + Math.random() * 90, 0.09, 'sawtooth', 0.015, i * 0.11, 150); }
+  }
   function voice(who, text, ms) {
+    const named = /^\{me(?:\.NAME)?\}/.test(text);
+    const recordingText = named ? text.replace(/^\{me(?:\.NAME)?\}[!?,. ]*/, '').replace(/^./, c => c.toUpperCase()) : text;
     who = cast(who); text = cast(text);
-    if(window.st?.speakLine){lastVoice=Date.now();return st.speakLine('house.voice',who,text);}
-    // All seasons and family welcomes share the same reading space and lifetime.
-    H.say(who, esc(text), ms || Math.max(4200, text.length * 75), () => {
-      // The muffled shout starts when its words appear, after any earlier note.
-      const c = H.sfx.ac && H.sfx.ac(); if (c) { const n = Math.min(10, Math.ceil(text.length / 7)); for (let i = 0; i < n; i++) H.sfx.tone(180 + Math.random() * 90, 0.09, 'sawtooth', 0.015, i * 0.11, 150); }
-    });
+    const callout = /^mom\b/i.test(who) ? 'mom-shout' : /^dad\b/i.test(who) ? 'dad-shout' : who.toLowerCase() === sis().toLowerCase() ? 'sis-whine' : undefined;
+    if(window.st?.speakLine){lastVoice=Date.now();return st.speakLine('house.voice',who,text,{recordingText:cast(recordingText),callout,legacyShout:true});}
+    H.say(who, esc(text), ms || Math.max(4200, text.length * 75), () => shoutSound(text));
     lastVoice = Date.now();
   }
   const where = () => H.here || 'bedroom';
@@ -76,7 +80,7 @@
   function shoutLoop() {
     const wait = (quiet() ? 7 : 3.5) * 60000 + Math.random() * 5 * 60000;
     setTimeout(() => {
-      if (H.live && !H.busy && !document.hidden && Date.now() - lastVoice > 120000 && !ringing()) { const L = moments().filter(([w]) => !window.HouseFamily?.mute?.(w)); if (L.length) { const [w, t] = pick(L); voice(w, cast(t)); } } // (the family in the house speak for themselves: js/np-life.js)
+      if (H.live && !H.busy && !document.hidden && Date.now() - lastVoice > 120000 && !ringing()) { const L = moments().filter(([w]) => !window.HouseFamily?.mute?.(w)); if (L.length) { const [w, t] = pick(L); voice(w, t); } } // (the family in the house speak for themselves: js/np-life.js)
       shoutLoop();
     }, wait);
   }
@@ -188,7 +192,7 @@
     if (!a) return;
     if (padSurf) { padSurf.el.querySelector('.hs-padd').textContent = 'CALLING...'; }
     H.sfx.tone(400, 0.4, 'sine', 0.03, 0.2); H.sfx.tone(450, 0.4, 'sine', 0.03, 0.2);
-    setTimeout(() => {window.st?.speakLine?.('phone.out.'+n,a[0],cast(a[1]),{remote:true,caption:false,telephone:true});card(a[0], '<p>' + esc(cast(a[1])) + '</p>', [['Put the phone down', () => H.unfocus()], ['Dial again', () => { dialled = ''; if (padSurf) padSurf.el.querySelector('.hs-padd').textContent = ' '; dial2(); }]]);}, 900);
+    setTimeout(() => {const text=cast(a[1]),id=window.st?.speakLine?.('phone.out.'+n,a[0],text,{remote:true,caption:false,telephone:true});card(a[0], '<p>' + esc(window.st?.voiceText?.(id,text)||text) + '</p>', [['Put the phone down', () => H.unfocus()], ['Dial again', () => { dialled = ''; if (padSurf) padSurf.el.querySelector('.hs-padd').textContent = ' '; dial2(); }]]);}, 900);
     S.calls = (S.calls | 0) + 1; save();
   }
 
@@ -368,7 +372,7 @@
   const USE = { tin, micro, fridge, paper, phone, bin, pbook: () => { if (ring) return answer(); H.focus(phonePose(), { label: 'Put it down', enter: () => { dial(); book(); }, exit: hangUp }); } };
   window.HouseLife = {
     use(what) { const f = USE[what]; if (f) f(); },
-    chore, voice, ringing, ring: c => startRing(c), quiet, part, now99, schoolDay,
+    chore, voice, shoutSound, ringing, ring: c => startRing(c), quiet, part, now99, schoolDay,
     ownerEvent(id) {
       if(!window.OwnerTools?.allowed)return false;
       if(id==='phone'){const was=ring;startRing();return !!ring&&!was;}

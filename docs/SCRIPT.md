@@ -4,7 +4,7 @@ Written 2026-10-26. Source of truth for all spoken and on-screen story text. Fol
 
 ## Conventions
 - Setting: UK, 1999. Prices in pounds and pence; Rupees only via JackNet Bank (20 Rupees = £1). Mom, Dad and Gran are titles. Consoles use the parody names (Game Lad, Segue, PlaySpace, Ultra 64, Daydream); the magazine is JACK ATTACK!; the shop is Pixel Post; the PC is JackOS. Only the Daydream launch (14/10/1999) and the millennium countdown are real events, used lightly. No location clues, no birthday, nothing after 31/12/1999.
-- On-screen text may use Cast placeholders: {me}, {me.his}, {sister}, {mate1}..{mate4}. Recorded voice lines never contain the player's name, the sister's name, or a gendered word for the player (no "lad", "he", "she"); they are the exact subtitle text.
+- On-screen text may use Cast placeholders: {me}, {me.his}, {sister}, {mate1}..{mate4}. Recorded voice lines never contain the player's name, the sister's name, or a gendered word for the player (no "lad", "he", "she"); the `line` field keeps their exact recorded words. A separate `display` template may restore the player's name on screen without changing the recording.
 - Name call-outs: a line marked `callout=mom-shout|mom-call|dad-shout|sis-whine` plays the player's name clip ("SARAH!") first, then the line (subtitle: "{me.NAME}! " + line). With no matching name clip the line plays alone.
 - Emotion tag = the leading [bracket tag] given to the TTS (short, one or two words). fx=downstairs means the muffle filter (speaking from another room); fx=console is the crunchy console filter.
 - Table columns: id | speaker | when/where | emotion | line. Rows for mates and the player's thoughts are on-screen text only (no recording): id | who | when/where | text.
@@ -1138,3 +1138,54 @@ These changes appear only after their recording exists; the live name, score or 
 | `game.wobble.host.qm0di3` | SWAP SHOP! YOU SWAP COINS WITH {dynamic}! | SWAP SHOP! TIME TO SWAP COINS! |
 | `game.wobble.host.t96fyl` | WELL DONE, {dynamic}! YOU'RE THE WOBBLE SUPERSTAR! | WELL DONE! YOU'RE THE WOBBLE SUPERSTAR! |
 | `game.wobble.host.vvc01w` | {dynamic} IS IN LAST PLACE... HAVE 10 COINS TO CATCH UP! | LAST PLACE? HAVE TEN COINS TO CATCH UP! |
+
+## Personalised family writing (round 2)
+
+The recorded bodies below are unchanged. `callout` adds an approved name clip before that body when available; without a name clip the plain body plays. `display` keeps the player's name on screen, including names without a clip. Mid-sentence names are display only; a call-out, where marked, still precedes the body. These templates are also listed by the re-runnable voice audit.
+
+| ID | Call-out | Display |
+|---|---|---|
+| `chore.rate.95a` | display only | Ooh! Who are you and what have you done with {me}? |
+| `house.moment.1djssky` | dad-shout | {me.NAME}! Bed! Now! |
+| `house.moment.wd8c5e` | dad-shout | {me.NAME}! Have you been using the phone? The bill came. |
+| `house.voice.h701ve` | dad-shout | {me.NAME}! TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT! |
+| `phone.out.01632960213.1c5kgqp` | display only | Hello? {me}! Ooh, you never ring! Eating properly? Grandad says hello. HE SAYS HELLO. Bye, love! Bye! Bye bye! |
+| `chore.shout.1lof225` | mom-shout | {me.NAME}! Those jobs won't do themselves! |
+| `chore.shout.1ss7a6t` | mom-shout | {me.NAME}! I can hear you NOT doing your jobs! |
+| `chore.shout.1y83zff` | mom-call | Thank you, {me}! |
+| `chore.shout.9bcrpq` | mom-shout | {me.NAME}! Love? The list on the fridge? Remember the list? |
+| `chore.shout.a506t6` | mom-shout | {me.NAME}! Get off that computer and do your jobs! |
+| `chore.shout.y5q1ps` | mom-shout | {me.NAME}! Have you done your jobs yet? |
+| `dialer.01632960777.1wxgtgo` | mom-call | {me}, love? Have you done your homework? |
+| `house.moment.14u1i62` | mom-shout | {me.NAME}! Get off the Internet! I need to ring your Nan! |
+| `house.moment.18qfxaa` | mom-shout | {me.NAME}! I'm popping to the shops. Do you want anything? ...Besides a Daydream. |
+| `house.moment.1dd6ufc` | mom-shout | {me.NAME}! It's a school night. Not too late, eh? |
+| `house.moment.1gm6uua` | mom-shout | {me.NAME}! Are you on that computer AGAIN? |
+| `house.moment.1hou2xu` | mom-shout | {me.NAME}! You'll be late for school! Have you had any breakfast? |
+| `house.moment.1ibhhmo` | mom-shout | {me.NAME}! Are you up? It's gone eight! Lazybones! |
+| `house.moment.1kgk76z` | mom-shout | {me.NAME}! Turn that light off, love, it's late. |
+| `house.moment.1qhk3rh` | mom-shout | {me.NAME}! Set the table please, love! |
+| `house.moment.1trq0u8` | mom-shout | {me.NAME}! Come and get your washing, it's on the stairs! |
+| `house.moment.1wxgtgo` | mom-call | {me}, love? Have you done your homework? |
+| `house.moment.hypeuv` | mom-shout | {me.NAME}! Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day. |
+| `house.moment.p8fwe0` | mom-call | {me}, love? Have you seen my car keys? |
+| `house.moment.qrvops` | mom-shout | {me.NAME}! We're going to Gran's for Sunday dinner at one! Wear something clean! |
+| `house.moment.uar218` | mom-shout | {me.NAME}! TEA'S READY! It'll go cold! |
+| `house.moment.y9voiz` | mom-shout | {me.NAME}! Your friend's Mom rang. Are you going round there? |
+| `house.moment.zpcfic` | mom-call | {me}, love? Do you want a cup of tea? |
+| `house.voice.19srweb` | mom-shout | {me.NAME}! Is that you? Tea's nearly ready! |
+| `house.voice.1pe2qdm` | mom-shout | {me.NAME}! Is that you coming down? Put the kettle on, love! |
+| `house.voice.52jrk6` | mom-shout | {me.NAME}! That was your friend! Are you coming out? |
+| `house.voice.c27ds0` | mom-call | {me}, love? Here's your pocket money. Five pounds. Don't spend it all on games magazines. |
+| `house.voice.dg5evy` | mom-shout | {me.NAME}! That was your Gran. She says you never ring her. |
+| `hw.mom.door.7duwbw` | mom-shout | {me.NAME}! Door! I've got my hands full. |
+| `hw.mom.door.iezetz` | mom-shout | Door, {me}! More of them! |
+| `hw.mom.door.p08w90` | mom-shout | {me.NAME}! Can you get that? |
+| `hw.mom.door2.1c95o5l` | mom-shout | {me.NAME}! They're still waiting at the door! |
+| `hw.mom.hand.1x0lkzj` | mom-shout | Away from your hand, {me}! Saw AWAY from your hand. |
+| `hw.mom.tail.ourgck` | mom-shout | Look at the state of this hall. Wrappers everywhere! Bin, please, {me}. And who ate all the Choc Bits? |
+| `house.moment.1ci1e5k` | sis-whine | {me}! Can I have a go on the Game Lad? Pleeeeease? |
+| `house.moment.vtvqfy` | display only | MOM! {me}'s being annoying! |
+| `chore.shout.1of6vkv` | display only | Have you done ALL your jobs? Who are you and what have you done with {me}? |
+| `house.voice.v8d3ia` | mom-call | Time for bed, {me}. Save your game. |
+| `house.voice.zrj5mn` | display only | Ooh, have you done ALL your jobs? Who are you and what have you done with {me}? |

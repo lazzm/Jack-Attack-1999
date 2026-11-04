@@ -2081,7 +2081,8 @@
    "line": "Ooh! Who are you and what have you done with my real helper? |",
    "context": "Rating 95 to 100, Mom checks",
    "chapter": "5",
-   "batch": "mom-plain-07"
+   "batch": "mom-plain-07",
+   "display": "Ooh! Who are you and what have you done with {me}?"
   },
   {
    "id": "chore.rate.95b",
@@ -3667,7 +3668,9 @@
    "line": "Bed! Now!",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:69",
    "chapter": "5",
-   "batch": "dad-plain-10"
+   "batch": "dad-plain-10",
+   "callout": "dad-shout",
+   "display": "{me.NAME}! Bed! Now!"
   },
   {
    "id": "house.moment.hwj5im",
@@ -3685,7 +3688,9 @@
    "line": "Have you been using the phone? The bill came.",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:68",
    "chapter": "5",
-   "batch": "dad-plain-10"
+   "batch": "dad-plain-10",
+   "callout": "dad-shout",
+   "display": "{me.NAME}! Have you been using the phone? The bill came."
   },
   {
    "id": "house.voice.h701ve",
@@ -3694,7 +3699,9 @@
    "line": "TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT!",
    "context": "House welcome, shout or event; app/public/js/hs-telly.js:411",
    "chapter": "5",
-   "batch": "dad-plain-11"
+   "batch": "dad-plain-11",
+   "callout": "dad-shout",
+   "display": "{me.NAME}! TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT!"
   },
   {
    "id": "hw.dad.match.hliuf7",
@@ -3820,7 +3827,8 @@
    "line": "Hello? Ooh, you never ring! Eating properly? Grandad says hello. HE SAYS HELLO. Bye, love! Bye! Bye bye!",
    "context": "Outgoing landline call; app/public/js/hs-life.js:174",
    "chapter": "5",
-   "batch": "gran-plain-02"
+   "batch": "gran-plain-02",
+   "display": "Hello? {me}! Ooh, you never ring! Eating properly? Grandad says hello. HE SAYS HELLO. Bye, love! Bye! Bye bye!"
   },
   {
    "id": "bf.already.food.otebpt",
@@ -4009,7 +4017,9 @@
    "line": "Those jobs won't do themselves!",
    "context": "Chore completion / reminder; app/public/js/ch-core.js:547",
    "chapter": "5",
-   "batch": "mom-plain-12"
+   "batch": "mom-plain-12",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Those jobs won't do themselves!"
   },
   {
    "id": "chore.shout.1ss7a6t",
@@ -4018,7 +4028,9 @@
    "line": "I can hear you NOT doing your jobs!",
    "context": "Chore completion / reminder; app/public/js/ch-core.js:547",
    "chapter": "5",
-   "batch": "mom-plain-12"
+   "batch": "mom-plain-12",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! I can hear you NOT doing your jobs!"
   },
   {
    "id": "chore.shout.1y83zff",
@@ -4027,7 +4039,9 @@
    "line": "Thank you!",
    "context": "Chore completion / reminder; app/public/js/ch-core.js:144",
    "chapter": "5",
-   "batch": "mom-plain-12"
+   "batch": "mom-plain-12",
+   "display": "Thank you, {me}!",
+   "callout": "mom-call"
   },
   {
    "id": "chore.shout.9bcrpq",
@@ -4036,7 +4050,9 @@
    "line": "Love? The list on the fridge? Remember the list?",
    "context": "Chore completion / reminder; app/public/js/ch-core.js:547",
    "chapter": "5",
-   "batch": "mom-plain-12"
+   "batch": "mom-plain-12",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Love? The list on the fridge? Remember the list?"
   },
   {
    "id": "chore.shout.a506t6",
@@ -4045,7 +4061,9 @@
    "line": "Get off that computer and do your jobs!",
    "context": "Chore completion / reminder; app/public/js/ch-core.js:547",
    "chapter": "5",
-   "batch": "mom-plain-12"
+   "batch": "mom-plain-12",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Get off that computer and do your jobs!"
   },
   {
    "id": "chore.shout.bdi29n",
@@ -4063,7 +4081,9 @@
    "line": "Have you done your jobs yet?",
    "context": "Chore completion / reminder; app/public/js/ch-core.js:547",
    "chapter": "5",
-   "batch": "mom-plain-12"
+   "batch": "mom-plain-12",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Have you done your jobs yet?"
   },
   {
    "id": "chore.shout.zuxo6x",
@@ -4081,7 +4101,9 @@
    "line": "Have you done your homework?",
    "context": "JackOS Phone Dialer call; app/public/js/apps-programs.js:2132",
    "chapter": "5",
-   "batch": "mom-plain-12"
+   "batch": "mom-plain-12",
+   "callout": "mom-call",
+   "display": "{me}, love? Have you done your homework?"
   },
   {
    "id": "dialer.01632960777.n7bz0i",
@@ -4099,7 +4121,9 @@
    "line": "Get off the Internet! I need to ring your Nan!",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:71",
    "chapter": "5",
-   "batch": "mom-plain-13"
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Get off the Internet! I need to ring your Nan!"
   },
   {
    "id": "house.moment.18qfxaa",
@@ -4108,7 +4132,9 @@
    "line": "I'm popping to the shops. Do you want anything? ...Besides a Daydream.",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:72",
    "chapter": "5",
-   "batch": "mom-plain-13"
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! I'm popping to the shops. Do you want anything? ...Besides a Daydream."
   },
   {
    "id": "house.moment.1dd6ufc",
@@ -4117,7 +4143,9 @@
    "line": "It's a school night. Not too late, eh?",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:68",
    "chapter": "5",
-   "batch": "mom-plain-13"
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! It's a school night. Not too late, eh?"
   },
   {
    "id": "house.moment.1gm6uua",
@@ -4126,7 +4154,9 @@
    "line": "Are you on that computer AGAIN?",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:71",
    "chapter": "5",
-   "batch": "mom-plain-13"
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Are you on that computer AGAIN?"
   },
   {
    "id": "house.moment.1hou2xu",
@@ -4135,7 +4165,9 @@
    "line": "You'll be late for school! Have you had any breakfast?",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:64",
    "chapter": "5",
-   "batch": "mom-plain-13"
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! You'll be late for school! Have you had any breakfast?"
   },
   {
    "id": "house.moment.1ibhhmo",
@@ -4144,7 +4176,9 @@
    "line": "Are you up? It's gone eight! Lazybones!",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:64",
    "chapter": "5",
-   "batch": "mom-plain-13"
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Are you up? It's gone eight! Lazybones!"
   },
   {
    "id": "house.moment.1kgk76z",
@@ -4153,7 +4187,9 @@
    "line": "Turn that light off, love, it's late.",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:69",
    "chapter": "5",
-   "batch": "mom-plain-13"
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Turn that light off, love, it's late."
   },
   {
    "id": "house.moment.1qhk3rh",
@@ -4162,7 +4198,9 @@
    "line": "Set the table please, love!",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:67",
    "chapter": "5",
-   "batch": "mom-plain-13"
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Set the table please, love!"
   },
   {
    "id": "house.moment.1qsooir",
@@ -4180,7 +4218,9 @@
    "line": "Come and get your washing, it's on the stairs!",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:66",
    "chapter": "5",
-   "batch": "mom-plain-13"
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Come and get your washing, it's on the stairs!"
   },
   {
    "id": "house.moment.1wxgtgo",
@@ -4189,7 +4229,9 @@
    "line": "Have you done your homework?",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:66",
    "chapter": "5",
-   "batch": "mom-plain-13"
+   "batch": "mom-plain-13",
+   "callout": "mom-call",
+   "display": "{me}, love? Have you done your homework?"
   },
   {
    "id": "house.moment.hypeuv",
@@ -4198,7 +4240,9 @@
    "line": "Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day.",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:65",
    "chapter": "5",
-   "batch": "mom-plain-13"
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day."
   },
   {
    "id": "house.moment.p8fwe0",
@@ -4207,7 +4251,9 @@
    "line": "Have you seen my car keys?",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:64",
    "chapter": "5",
-   "batch": "mom-plain-14"
+   "batch": "mom-plain-14",
+   "callout": "mom-call",
+   "display": "{me}, love? Have you seen my car keys?"
   },
   {
    "id": "house.moment.qrvops",
@@ -4216,7 +4262,9 @@
    "line": "We're going to Gran's for Sunday dinner at one! Wear something clean!",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:73",
    "chapter": "5",
-   "batch": "mom-plain-14"
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! We're going to Gran's for Sunday dinner at one! Wear something clean!"
   },
   {
    "id": "house.moment.uar218",
@@ -4225,7 +4273,9 @@
    "line": "TEA'S READY! It'll go cold!",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:67",
    "chapter": "5",
-   "batch": "mom-plain-14"
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! TEA'S READY! It'll go cold!"
   },
   {
    "id": "house.moment.y9voiz",
@@ -4234,7 +4284,9 @@
    "line": "Your friend's Mom rang. Are you going round there?",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:66",
    "chapter": "5",
-   "batch": "mom-plain-14"
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Your friend's Mom rang. Are you going round there?"
   },
   {
    "id": "house.moment.zpcfic",
@@ -4243,7 +4295,9 @@
    "line": "Do you want a cup of tea?",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:68",
    "chapter": "5",
-   "batch": "mom-plain-14"
+   "batch": "mom-plain-14",
+   "callout": "mom-call",
+   "display": "{me}, love? Do you want a cup of tea?"
   },
   {
    "id": "house.voice.19srweb",
@@ -4252,7 +4306,9 @@
    "line": "Is that you? Tea's nearly ready!",
    "context": "House welcome, shout or event; app/public/js/hs-life.js:388",
    "chapter": "5",
-   "batch": "mom-plain-14"
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Is that you? Tea's nearly ready!"
   },
   {
    "id": "house.voice.1pe2qdm",
@@ -4261,7 +4317,9 @@
    "line": "Is that you coming down? Put the kettle on, love!",
    "context": "House welcome, shout or event; app/public/js/hs-life.js:388",
    "chapter": "5",
-   "batch": "mom-plain-14"
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Is that you coming down? Put the kettle on, love!"
   },
   {
    "id": "house.voice.1wn5usl",
@@ -4279,7 +4337,9 @@
    "line": "That was your friend! Are you coming out?",
    "context": "House welcome, shout or event; app/public/js/hs-life.js:115",
    "chapter": "5",
-   "batch": "mom-plain-14"
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! That was your friend! Are you coming out?"
   },
   {
    "id": "house.voice.c27ds0",
@@ -4288,7 +4348,9 @@
    "line": "Here's your pocket money. Five pounds. Don't spend it all on games magazines.",
    "context": "House welcome, shout or event; app/public/js/hs-life.js:239",
    "chapter": "5",
-   "batch": "mom-plain-14"
+   "batch": "mom-plain-14",
+   "callout": "mom-call",
+   "display": "{me}, love? Here's your pocket money. Five pounds. Don't spend it all on games magazines."
   },
   {
    "id": "house.voice.dg5evy",
@@ -4297,7 +4359,9 @@
    "line": "That was your Gran. She says you never ring her.",
    "context": "House welcome, shout or event; app/public/js/hs-life.js:115",
    "chapter": "5",
-   "batch": "mom-plain-14"
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! That was your Gran. She says you never ring her."
   },
   {
    "id": "house.voice.y87tqf",
@@ -4324,7 +4388,9 @@
    "line": "Door! I've got my hands full.",
    "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:990",
    "chapter": "4",
-   "batch": "mom-plain-15"
+   "batch": "mom-plain-15",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Door! I've got my hands full."
   },
   {
    "id": "hw.mom.door.iezetz",
@@ -4333,7 +4399,9 @@
    "line": "Door! More of them!",
    "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:990",
    "chapter": "4",
-   "batch": "mom-plain-15"
+   "batch": "mom-plain-15",
+   "display": "Door, {me}! More of them!",
+   "callout": "mom-shout"
   },
   {
    "id": "hw.mom.door.le11aj",
@@ -4351,7 +4419,9 @@
    "line": "Can you get that?",
    "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:990",
    "chapter": "4",
-   "batch": "mom-plain-15"
+   "batch": "mom-plain-15",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Can you get that?"
   },
   {
    "id": "hw.mom.door2.1c95o5l",
@@ -4360,7 +4430,9 @@
    "line": "They're still waiting at the door!",
    "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:991",
    "chapter": "4",
-   "batch": "mom-plain-15"
+   "batch": "mom-plain-15",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! They're still waiting at the door!"
   },
   {
    "id": "hw.mom.five.1eab0yr",
@@ -4378,7 +4450,9 @@
    "line": "Away from your hand! Saw AWAY from your hand.",
    "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:745",
    "chapter": "4",
-   "batch": "mom-plain-15"
+   "batch": "mom-plain-15",
+   "display": "Away from your hand, {me}! Saw AWAY from your hand.",
+   "callout": "mom-shout"
   },
   {
    "id": "hw.mom.lead.1roevnu",
@@ -4405,7 +4479,9 @@
    "line": "Look at the state of this hall. Wrappers everywhere! Bin, please. And who ate all the Choc Bits?",
    "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:1176",
    "chapter": "4",
-   "batch": "mom-plain-15"
+   "batch": "mom-plain-15",
+   "display": "Look at the state of this hall. Wrappers everywhere! Bin, please, {me}. And who ate all the Choc Bits?",
+   "callout": "mom-shout"
   },
   {
    "id": "st.opening.bed.hra5bz",
@@ -4522,7 +4598,9 @@
    "line": "Can I have a go on the Game Lad? Pleeeeease?",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:68",
    "chapter": "5",
-   "batch": "sister-plain-05"
+   "batch": "sister-plain-05",
+   "callout": "sis-whine",
+   "display": "{me}! Can I have a go on the Game Lad? Pleeeeease?"
   },
   {
    "id": "house.moment.vtvqfy",
@@ -4531,7 +4609,8 @@
    "line": "MOM! They're being annoying!",
    "context": "Time-of-day house shout; app/public/js/hs-life.js:66",
    "chapter": "5",
-   "batch": "sister-plain-05"
+   "batch": "sister-plain-05",
+   "display": "MOM! {me}'s being annoying!"
   },
   {
    "id": "hw.sis.bat.1p6s4es",
@@ -4577,7 +4656,8 @@
    "line": "Have you done ALL your jobs? Who are you and what have you done with my real helper?",
    "context": "Chore completion / reminder; numerical rating stays written; app/public/js/ch-core.js:153",
    "chapter": "5",
-   "batch": "mom-plain-16"
+   "batch": "mom-plain-16",
+   "display": "Have you done ALL your jobs? Who are you and what have you done with {me}?"
   },
   {
    "id": "house.voice.1o2t39k",
@@ -4613,7 +4693,9 @@
    "line": "Time for bed. Save your game.",
    "context": "House welcome, shout or event; app/public/js/hs-life.js:376",
    "chapter": "5",
-   "batch": "mom-plain-16"
+   "batch": "mom-plain-16",
+   "display": "Time for bed, {me}. Save your game.",
+   "callout": "mom-call"
   },
   {
    "id": "house.voice.zrj5mn",
@@ -4622,7 +4704,8 @@
    "line": "Ooh, have you done ALL your jobs? Who are you and what have you done with my real helper?",
    "context": "House welcome, shout or event; app/public/js/hs-life.js:217",
    "chapter": "5",
-   "batch": "mom-plain-16"
+   "batch": "mom-plain-16",
+   "display": "Ooh, have you done ALL your jobs? Who are you and what have you done with {me}?"
   },
   {
    "id": "fight.announcer.17hxufs",

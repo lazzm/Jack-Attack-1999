@@ -13,10 +13,10 @@ function load(member = 'LoopTester') {
     NPCLines: { 'c1.lead.dad': ['Dad', 'Plug the lead in.'], 'bark.dad.react.joke': ['Dad', 'A joke.'] },
     st: { current: () => ({ id: step }) } };
   const ctx = { window, addEventListener() {}, document: { querySelector: () => null, addEventListener() {}, hidden: false }, performance: { now: () => time }, localStorage: { getItem: k => store.get(k), setItem: (k, v) => store.set(k, v) }, setTimeout() {}, setInterval() {}, console };
-  vm.runInNewContext(source.replace('  boot();', '  window.testLife = { entrance, barks, speech, C, ent, step, stepAside };'), ctx);
+  vm.runInNewContext(source.replace('  boot();', '  window.testLife = { entrance, barks, speech, speechTick, save, C, ent, step, stepAside };'), ctx);
   const F = window.HouseFamily, I = window.testLife;
   const dad = I.C.dad; dad.present = true;
-  return { F, I, H, N:window.NPCNav, now: n => { time = n; }, step: id => { step = id; } };
+  return { F, I, H, w:window, N:window.NPCNav, now: n => { time = n; }, step: id => { step = id; } };
 }
 let f = load();
 assert(f.F.say('dad', 'c1.lead.dad', { force: true }));
@@ -60,4 +60,14 @@ function queuedFamily(){
 let queue=queuedFamily();queue.f.I.stepAside(queue.sister,.1);assert.equal(queue.dad.asideFor,queue.sister,'The trailing person must make room for a blocked retreat');assert.equal(queue.dad.pushN,6);
 queue=queuedFamily();queue.mom.asideFor=queue.dad;queue.f.I.stepAside(queue.sister,.1);assert.equal(queue.dad.asideFor,null,'Do not make a circular yield request');
 queue=queuedFamily();queue.dad.seated={};queue.f.I.stepAside(queue.sister,.1);assert.equal(queue.dad.asideFor,null,'A passing queue must not pull someone out of their seat');
+// Dynamic shout metadata must reach actual playback, its fallback, and the saved exchange.
+f=load('ShoutTester');let shouts=0,options;
+f.w.HouseLife={shoutSound:()=>shouts++};f.w.st.say=(id,who,text,ms,o)=>{options=o;return null;};
+assert(f.F.speak('dad','unit.dynamic.shout','Bed! Now!',{callout:'dad-shout',legacyShout:true}));
+assert.equal(shouts,0,'A queued shout must not sound before its turn');
+assert.equal(f.I.speech.q[0].callout,'dad-shout');f.I.speechTick();
+assert.equal(options.callout,'dad-shout');assert.equal(shouts,1,'Missing recording retains the procedural shout');
+const saved=[...store.entries()].filter(([k])=>k.includes('shouttester')).map(([,v])=>{try{return JSON.parse(v);}catch{return null;}}).find(v=>v?.conversation);
+assert(saved,'Speech is persisted immediately');assert.equal(saved.conversation.lines[0].callout,'dad-shout');assert.equal(saved.conversation.lines[0].legacyShout,true);
+f.now(100001);f.I.speechTick();assert.equal(shouts,1,'Frames cannot repeat the fallback during one line');
 console.log('PASS people-loop: scene history, account isolation, explicit help, bark cooldown, hold timeout and safe three-person yielding');
