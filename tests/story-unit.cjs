@@ -108,7 +108,7 @@ try {
     const values={jhp_story_pc:'owned',jhp_everbooted:'1',jhp_last:String(now),...overrides};
     const localStorage={getItem:k=>values[k]??null,setItem:(k,v)=>{values[k]=String(v)},removeItem:k=>{delete values[k]}};
     const sessionStorage={getItem:k=>k==='jhp_roam_pending'?JSON.stringify({obj:pending}):null};
-    const context={Date,localStorage,sessionStorage,PCOnly:{desktopOnly:mobile},location:{search:''},document:{documentElement:{classList:{add(){}},appendChild(){}},createElement:()=>({setAttribute(){},append(){}})}};
+    const context={Date,localStorage,sessionStorage,setTimeout(){},PCOnly:{desktopOnly:mobile},location:{search:''},document:{addEventListener(){},documentElement:{classList:{add(){}},appendChild(){}},createElement:()=>({setAttribute(){},append(){}})}};
     context.window=context;vm.runInNewContext(fs.readFileSync(require.resolve('../app/public/js/boot-early.js'),'utf8'),context);
     return {context,values};
   }

@@ -165,6 +165,15 @@ function nameProblem(name) {
   if (RESERVED.test(name)) return 'Sorry, that user name is reserved.';
   return '';
 }
+// Suggestions use the same public signup rules; never reserve or modify an account here.
+function freeSignupName(name) {
+  const stem = name.slice(0, 11);
+  for (let i = 0; i < 20; i++) {
+    const candidate = stem + crypto.randomInt(100, 10000);
+    if (!state.members[candidate.toLowerCase()] && !nameProblem(candidate)) return candidate;
+  }
+  return undefined;
+}
 const sha = t => crypto.createHash('sha256').update(t).digest('hex');
 const tokenIndex = new Map(); // sha256(token) -> lower-case name
 function indexTokens() { tokenIndex.clear(); for (const [k, mem] of Object.entries(state.members)) for (const h of mem.tokens) tokenIndex.set(h, k); }
@@ -790,7 +799,7 @@ function handle(ws, c, m) {
       const name = String(m.name || '').trim(), pass = String(m.pass || ''), key = name.toLowerCase();
       const mem = state.members[key];
       if (!mem && m.signup !== true) return send(ws, { t: 'loginErr', msg: 'That account was not found. Choose Create Account to sign up.' });
-      if (mem && m.signup === true) return send(ws, { t: 'loginErr', msg: 'That user name is already taken. Log on or choose another name.' });
+      if (mem && m.signup === true) return send(ws, { t: 'loginErr', msg: 'That user name is already taken. Log on or choose another name.', suggestion: freeSignupName(name) });
       if (!mem) {
         const why = nameProblem(name);
         if (why) return send(ws, { t: 'loginErr', msg: why });
@@ -799,7 +808,7 @@ function handle(ws, c, m) {
         if (identity.error) return send(ws, { t: 'loginErr', msg: identity.error });
         const salt = crypto.randomBytes(16).toString('hex');
         scryptHash(pass, salt).then(hash => {
-          if (state.members[key]) return send(ws, { t: 'loginErr', msg: 'Somebody just took that name! Try another.' });
+          if (state.members[key]) return send(ws, { t: 'loginErr', msg: 'Somebody just took that name! Try another.', suggestion: freeSignupName(name) });
           state.members[key] = { name, no: ++state.memberSeq, salt, hash, created: Date.now(), tokens: [] };
           if (identity.me) state.members[key].me = identity.me;
           logIn(ws, c, key, true);

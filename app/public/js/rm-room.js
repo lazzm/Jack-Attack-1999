@@ -99,7 +99,8 @@
 
   // ================================================================ no WebGL: the PC on its own (the old dark room), the hook still there
   if (!GL) {
-    const entry = document.getElementById('houseEntry');
+    let entry = document.getElementById('houseEntry');
+    if (!entry) { entry = document.createElement('div'); entry.id = 'houseEntry'; entry.append(document.createElement('strong'), document.createElement('span')); document.documentElement.appendChild(entry); }
     if (entry) {
       entry.setAttribute('role','alert');
       entry.querySelector('strong').textContent = '3D GRAPHICS UNAVAILABLE';

@@ -131,14 +131,13 @@ async function logon(p, acct, { signup = false, first = '' } = {}) {
   const { page, until, shot } = p;
   await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 90000 * SCALE });
   await until(() => window.Net?.connected && !!document.querySelector('#accountGate form'), null, 60000);
-  if (signup) await page.locator('#accountGate [data-switch]').tap();
+  if (signup !== !!(await page.locator('.account-character').count())) await page.locator('#accountGate [data-switch]').tap();
   await page.locator('[name=name]').tap(); await page.keyboard.type(acct.name);
   await page.locator('[name=password]').tap(); await page.keyboard.type(acct.pass);
-  if (signup) { await page.locator('[name=confirm]').tap(); await page.keyboard.type(acct.pass); }
   if (first) await shot(first);
   await page.locator('#accountGate [type=submit]').tap();
-  await until(() => window.AccountGate?.allowed || !!document.querySelector('#accountFirst'), null, 60000);
-  if (await page.locator('#accountFirst').count()) { if (first) await shot(first + '-identity'); await page.locator('#accountGate [type=submit]').tap(); }
+  await until(() => window.AccountGate?.allowed || !!document.querySelector('.account-identity #accountFirst'), null, 60000);
+  if (await page.locator('.account-identity #accountFirst').count()) { if (first) await shot(first + '-identity'); await page.locator('#accountGate [type=submit]').tap(); }
   await until(() => window.__testProfileReady && window.AccountGate?.allowed && window.House?.live && !document.querySelector('.hs-loading,#houseEntry'), null, 120000);
 }
 // Point the camera with the scene API (like the smoke fixture); every interaction after that is a real finger.
@@ -316,6 +315,7 @@ const phases = {
       try {
         await p.page.goto(base, { waitUntil: 'domcontentloaded', timeout: 90000 * SCALE });
         await p.until(() => window.Net?.connected && !!document.querySelector('#accountGate form'), null, 60000);
+        if(await p.page.locator('.account-character').count())await p.page.locator('#accountGate [data-switch]').tap();
         await p.shot(`gate-logon-${prof}`);
         await p.page.locator('#accountGate [data-switch]').tap(); await p.page.waitForTimeout(300);
         await p.shot(`gate-signup-${prof}`);

@@ -86,7 +86,8 @@ try{
  assert(await phone.evaluate(()=>!!document.querySelector('.ht-hud')&&OwnerTools.allowed));await phone.screenshot({path:shots+'phone-390.png'});
  await phone.setViewportSize({width:844,height:390});await phone.screenshot({path:shots+'phone-landscape.png'});await phoneContext.close();
  const context=await normalBrowser.newContext({viewport:{width:1366,height:860}}),normal=await context.newPage();
- await normal.goto(base,{waitUntil:'domcontentloaded',timeout:RELOAD_TIMEOUT});await normal.locator('#accountGate form').waitFor();await normal.locator('[name=name]').fill('NormalOwnerTest');await normal.locator('[name=password]').fill(password);await normal.locator('#accountGate [type=submit]').click();
+ await normal.goto(base,{waitUntil:'domcontentloaded',timeout:RELOAD_TIMEOUT});await normal.locator('#accountGate form').waitFor();if(await normal.locator('.account-character').count())await normal.locator('[data-switch]').click();
+ await normal.locator('[name=name]').fill('NormalOwnerTest');await normal.locator('[name=password]').fill(password);await normal.locator('#accountGate [type=submit]').click();
  await wait(normal,()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst'));if(await normal.locator('#accountFirst').count())await normal.locator('#accountGate [type=submit]').click();
  await wait(normal,()=>window.AccountGate?.allowed&&window.House?.live&&!House.gliding);
  await normal.keyboard.press('Backquote');assert.equal(await normal.locator('.owner-tools').count(),0);assert(!await normal.evaluate(()=>OwnerTools.allowed));

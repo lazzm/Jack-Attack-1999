@@ -391,8 +391,12 @@
       K.setQuality?.('high',scene);
       compileVariants(Q.adapt);
       scene.traverse(o => { const m = o.material; if (m) [].concat(m).forEach(mm => { for (const k in mm) { const tx = mm[k]; if (tx && tx.isTexture && ren.initTexture) { try { ren.initTexture(tx); } catch (e) {} } } }); });
+      // Upload every room's geometry without shading a whole invisible house.
+      // The textures and shader variants above are still warmed before play.
+      const previousScissor = ren.getScissor(new T.Vector4()), previousScissorTest = ren.getScissorTest();
+      try { ren.setScissor(0, 0, 1, 1); ren.setScissorTest(true); ren.render(scene, camera); }
+      finally { ren.setScissor(previousScissor); ren.setScissorTest(previousScissorTest); vis.forEach(([g, v]) => { g.visible = v; }); visCalc(); }
       ren.render(scene, camera);
-      vis.forEach(([g, v]) => { g.visible = v; }); visCalc(); ren.render(scene, camera);
     } catch (e) { console.error('hs prewarm', e); }
   }
   // Merge each built room's static meshes (js/hs-static.js); incremental, so later additions join on the next pass.
@@ -2606,7 +2610,9 @@
   function loop(now) {
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.12, (now - (lastT || now)) / 1000); lastT = now;
-    if (!live || document.hidden) return;
+    // The opaque account window owns the view. Resume on the next frame after authentication;
+    // keep lastT current so loading never advances physics by the whole waiting time.
+    if (!live || document.hidden || window.AccountGate?.blocked) return;
     screenEffort();tickLights(dt);tickWorldSound(now);
     const vo = viewOpen(); if (vo !== viewing) { viewing = vo; viewT = now; html.classList.toggle('hs-viewing', vo); if (vo) { setHot(null); ui.tip(null); unlock(); } }
     // (the consoles' telly is up: once it has settled, the room behind needn't be drawn)
@@ -3243,7 +3249,7 @@
     return false;
   }
   function wdCheck() {
-    if (!live || document.hidden || backgroundCovered() || ['off','follow','pcboot','shutdown'].includes(mode) || viewOpen() || pb.classList.contains('deep') || pb.classList.contains('rm-tvon')) { wdBlack = 0; return; }
+    if (!live || document.hidden || window.AccountGate?.blocked || backgroundCovered() || ['off','follow','pcboot','shutdown'].includes(mode) || viewOpen() || pb.classList.contains('deep') || pb.classList.contains('rm-tvon')) { wdBlack = 0; return; }
     try {
       let bad = !cv.isConnected, why = '';
       if (!bad) { const r = cv.getBoundingClientRect(), cs = getComputedStyle(cv); bad = !r.width || !r.height || cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05; }

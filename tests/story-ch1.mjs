@@ -338,6 +338,7 @@ try {
   assert.equal(registration.status,200);
   const vp = await browser.newPage({viewport:{width:1366,height:860}});vp.on('pageerror',e=>errors.push(e.message));
   await vp.goto(base,{waitUntil:'domcontentloaded',timeout:90000*SCALE});await vp.waitForSelector('#accountGate');
+  if(await vp.locator('.account-character').count())await vp.locator('[data-switch]').click();
   await vp.locator('[name=name]').fill(veteran);await vp.locator('[name=password]').fill(password);await vp.locator('#accountGate [type=submit]').click();for(let i=0;i<100&&!(await vp.evaluate(()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst')));i++)await vp.waitForTimeout(200);if(await vp.locator('#accountFirst').count())await vp.locator('#accountGate [type=submit]').click();
   await wait(vp,() => window.House?.live&&House.mode==='monitor'&&window.PMGL?.built&&window.st?.getState()?.flags.veteran&&!document.querySelector('.hs-loading,#houseEntry'),null,90000);
   assert.equal(await vp.evaluate(() => st.objectives().some(s => s.key === 'story')),false);assert.equal(await vp.evaluate(() => !!House.THINGS['st.diary']),false);
@@ -346,7 +347,7 @@ try {
   await vp.waitForTimeout(1200);await vp.screenshot({path:shots+'14-veteran-summary.png'});
   assert.equal(await vp.evaluate(() => JSON.stringify(Object.entries(House.THINGS).map(([id,t]) => [id,t.at]))),room);
   await vp.close();
-  if(stage==='all')await ownerRoundTrip();
+  if(stage==='all'){await browser.close();await ownerRoundTrip();}
   console.log('Story gameplay checks complete: fresh signup, Game Lad, real chores, physical PC assembly/installer/JackNet, refresh progress/pose, physical reader, mobile and veteran isolation');
   assert.deepEqual(errors,[]);console.log('STORY CH1 PASS: no browser errors/warnings');
   }

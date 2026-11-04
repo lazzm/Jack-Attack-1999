@@ -35,8 +35,25 @@
     document.documentElement.classList.add('house-entering');
     var entry = document.createElement('div'); entry.id = 'houseEntry'; entry.setAttribute('role', 'status');
     var title = document.createElement('strong'); title.textContent = 'ENTERING HOUSE';
-    var note = document.createElement('span'); note.textContent = 'Preparing the room...';
+    var note = document.createElement('span'); note.textContent = 'Loading game files...';
     entry.append(title, note); document.documentElement.appendChild(entry);
+    var files = 0;
+    document.addEventListener('load', function (ev) {
+      if (ev.target.tagName === 'SCRIPT' && entry.isConnected && entry.getAttribute('role') !== 'alert') {
+        files++; note.textContent = 'Loading game files · ' + files + ' received';
+      }
+    }, true);
+    document.addEventListener('DOMContentLoaded', function () {
+      if (entry.isConnected && entry.getAttribute('role') !== 'alert') note.textContent = 'Game files received. Preparing your bedroom...';
+    }, {once:true});
+    setTimeout(function () {
+      if (!entry.isConnected || entry.getAttribute('role') === 'alert') return;
+      var help = document.createElement('p');
+      help.textContent = 'A slow connection can take a little longer. Keep this window open. On a phone, you can hold it either way.';
+      var retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Reload and try again';
+      retry.addEventListener('click', function () { location.reload(); });
+      entry.append(help, retry);
+    }, 20000);
   }
   if (m === 'wake') document.documentElement.classList.add('pc-wake');
   try { var st = JSON.parse(localStorage.getItem('jhp_hs_stand') || 'null'); if (m === 'wake' && st) { window.JHPStood = st; document.documentElement.classList.add('pc-standwake'); } } catch (e) {} // (stay hidden until the saved room is ready, without an arbitrary pose expiry)

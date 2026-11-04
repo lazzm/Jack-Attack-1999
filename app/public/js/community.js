@@ -88,7 +88,7 @@
     if (pending !== 'edit' || !m.p || !m.p.me) return;
     pending = null;
     const p = m.p;
-    mv.innerHTML = `<form class="pedit" id="pedit"><h3>Edit my profile</h3>
+    mv.innerHTML = `<form class="pedit" id="pedit"><h3>Edit my profile</h3>${Net.me.nick.toLowerCase()!=='jack'?'<p><button class="btn" type="button" data-character>Edit About You...</button> Your character name and the family\'s words.</p>':''}
       <div class="pe-row"><label>Avatar</label><div class="avpick">${AV.map((_, i) => `<label title="${AV_NAMES[i]}"><input type="radio" name="avatar" value="${i}" ${i === p.avatar ? 'checked' : ''}>${avImg(i, 40)}</label>`).join('')}</div></div>
       <div class="pe-row"><label>Name colour</label><div class="colpick">${PCOLS.map(c => `<label><input type="radio" name="col" value="${c}" ${c === p.col ? 'checked' : ''}><i style="background:${c}"></i></label>`).join('')}</div></div>
       <div class="pe-row"><label for="peMood">Mood</label><select id="peMood" name="mood">${MOODS.map((md, i) => `<option value="${i}" ${i === p.mood ? 'selected' : ''}>${esc(md)}</option>`).join('')}</select></div>
@@ -101,6 +101,7 @@
       <div class="pe-row"><label for="peSig">Forum signature</label><input type="text" id="peSig" name="sig" maxlength="100" value="${esc(p.sig)}" placeholder="e.g. WAAAGH!!! ~*~ Squirturtle 4 eva ~*~"></div>
       <div class="row" style="justify-content:flex-end"><button class="btn" type="button" data-members>Cancel</button><button class="btn big" type="submit">Save profile</button></div></form>`;
   });
+  mv.addEventListener('click',ev=>{if(ev.target.closest('[data-character]'))window.AccountGate?.editIdentity();});
   document.addEventListener('submit', ev => {
     const f = ev.target;
     if (f.id === 'pedit') {
