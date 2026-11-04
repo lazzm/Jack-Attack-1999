@@ -1901,7 +1901,7 @@
     // Frame the complete handheld, including its moulded controls, on every device.
     const t = Math.tan(H.motion.lensFov(view.zm) * D2R / 2), aspect = innerWidth / innerHeight;
     const fit = Math.min(.86,.95*Math.max(1,innerHeight-66)/innerHeight);
-    const tablet=matchMedia('(min-width:600px) and (min-height:600px)').matches;
+    const tablet=!!window.GameInput?.touch&&matchMedia('(min-width:600px) and (min-height:600px)').matches;
     const aw=tablet?(innerWidth-348)/innerWidth:1;
     const d = Math.max(7.5 / (fit * t), 4.1 / (0.9 * t * aspect * aw), 6.5);
     const q = new T.Quaternion().setFromEuler(new T.Euler(-80 * D2R, -view.ry * D2R, 0, 'YXZ'));

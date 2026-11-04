@@ -47,6 +47,8 @@ await withTestServer(async base=>{
   const fire=await p.evaluate(()=>{House.goRoom('lounge',0);const r=House.ROOMS.lounge;House._.renderForBenchmark();const tick=()=>{for(const fn of stage0Ambient)fn(performance.now())};if(!r.fireOn)House.act('hs.fire');tick();const on=r.flames.some(f=>f.material.opacity>0);House.act('hs.fire');tick();return{on,off:r.flames.every(f=>f.material.opacity===0)}});assert(fire.on&&fire.off,'Gas fire retained its lit flames');
   // Live CRT: sized to its footprint, no mipmaps, throttled, nothing off camera.
   await view([-120,-55,160],[-216,-5,-16]);
+  // The previous step stood in the lounge: the bedroom only comes back into view on the next rendered frame.
+  await p.evaluate(()=>{House._.renderForBenchmark();return new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>r(true))))});
   const live=await p.evaluate(()=>{
    const cv=document.createElement('canvas'),hud=document.createElement('canvas');cv.width=hud.width=640;cv.height=hud.height=480;cv.getContext('2d').fillRect(0,0,640,480);window.stage0Live=[cv,hud];
    const tx=Room._.tvLive(cv,hud,'n64');window.stage0Texture=tx;
