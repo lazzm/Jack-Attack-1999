@@ -254,8 +254,9 @@
       d.pivot.rotation.y = 0; d.pivot.updateWorldMatrix(true,true);
       const b = new T.Box3().setFromObject(d.pivot);
       if (!b.isEmpty()) { d.closedBounds = {x0:b.min.x,z0:b.min.z,x1:b.max.x,z1:b.max.z}; d.portal = b.clone().expandByScalar(15); } // (closed aperture bounds, shared with render audits)
-      const leaf=d.pivot.children.find(o=>o.isMesh&&o.geometry?.type==='BoxGeometry');
-      if(leaf){leaf.geometry.computeBoundingBox();d.headroom=leaf.geometry.boundingBox.max.y-leaf.geometry.boundingBox.min.y;d.floorY=-b.min.y;}
+      // The whole closed door, not its first box: a glazed leaf's slab isn't a box, so that found a trim bead and
+      // called the front door a 6 cm hole. Only a door that's really short (the cupboard) makes you crouch.
+      if(!b.isEmpty()){d.headroom=b.max.y-b.min.y;d.floorY=-b.min.y;}
       d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1);
     } // (the leaf is drawn whenever either room is: see visCalc)
     if (d.frame) root.add(d.frame); // shared static jambs never rotate with the leaf
