@@ -151,7 +151,8 @@ const tick = () => new Promise(r => setImmediate(r));
     const catalogue=JSON.parse(fs.readFileSync(path.join(__dirname,'../tools/audio/voice-lines.json'),'utf8'));
     const ids=new Set();for(const l of catalogue.lines){assert(!ids.has(l.id),'duplicate voice id '+l.id);ids.add(l.id);const text=l.line.replace(/\s*\|\s*$/,'').trim();assert(!/[{}]/.test(text),'unsafe recording '+l.id);if(!w.VoiceLineAliases[l.id])assert.equal(w.st.lineId(l.id,l.character,text),l.id,'runtime id '+l.id);}
     for(const [id,n]of Object.entries(catalogue.batches)){assert(n<=13&&n>0,id);const ls=catalogue.lines.filter(l=>l.batch===id);assert.equal(ls.length,n);assert.equal(new Set(ls.map(l=>l.character+' / '+(l.fx||''))).size,1,'one voice/effect '+id);}
-    assert.equal(w.st.voiceInfo('c4.xmas.eve.dad'),null,'old gendered clip cannot play before its neutral replacement exists');
+    {const neutral=JSON.parse(fs.readFileSync(path.join(__dirname,'../tools/audio/releases/voices-2026-11-04.json'),'utf8')).accepted['c4.xmas.eve.dad.neutral'];
+      assert.equal(w.st.voiceInfo('c4.xmas.eve.dad').dur,neutral.dur,'old gendered id plays only its audited neutral replacement, never the old clip');}
     const sent=[];w.HouseFamily={speaking:false,speak:(who,id,text)=>{sent.push({who,id,text});return true;}};
     const line=catalogue.lines.find(l=>l.id.startsWith('bf.')&&l.character==='mom');
     w.st.speakLine('bf.old-label','Mom',line.line);assert.equal(sent[0].id,line.id,'seasonal helper finds its recording through the real catalogue');
