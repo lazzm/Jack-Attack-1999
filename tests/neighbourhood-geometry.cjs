@@ -8,7 +8,7 @@ const worldSource=fs.readFileSync(path.join(base,'app/public/js/hs-world.js'),'u
 assert(frontStart>=0&&frontEnd>frontStart);H.FRONT=vm.runInNewContext(worldSource.slice(frontStart,frontEnd)+';FRONT');
 let phase='day',dirtyCalls=0;H.dirty=()=>dirtyCalls++;
 const window={THREE:T,House:H,HouseArt:{}};
-const sandbox=vm.createContext({window,document:{createElement(){return{getContext(){return context2d}}},getElementById(){return{classList:{contains:p=>p==='rm-'+phase}}}},console});
+const sandbox=vm.createContext({window,document:{createElement(){const canvas={};const ctx={...context2d,putImageData(im){canvas.pixels=im.data.slice()}};canvas.getContext=()=>ctx;return canvas},getElementById(){return{classList:{contains:p=>p==='rm-'+phase}}}},console});
 function run(file){vm.runInContext(fs.readFileSync(path.join(base,'app/public/js',file),'utf8'),sandbox,{filename:file})}
 run('hs-kit.js');
 const K=window.HouseKit,add=K.Batch.prototype.add;
@@ -100,6 +100,17 @@ assert.deepEqual(Array.from(E.group.children,g=>g.name),['street','opposite hous
 // The village carries on: simpler far houses in every row out to the backdrop, never on the side road or the playable plot.
 assert(E.farHomes.length>=18,'the rows continue past the end of the street');
 for(const h of E.farHomes){
+ if(h.continuation){
+  assert([0,90,180,-90].includes(h.ry),'continuation faces a street or rear lane');
+  if(Math.abs(h.ry)===90)assert.equal(h.x+Math.sign(h.ry)*(h.front+20),h.ry===90?2370:3050,'cross-street gardens reach their footpath');
+  const side=Math.abs(h.ry)===90,hx=(side?h.depth:h.width)/2,hz=(side?h.width:h.depth)/2;
+  assert(h.x+hx<=2470||h.x-hx>=2950||h.z+hz<=-1695,'continuation shells stay outside the cross-street carriageway');
+  for(const o of [...E.homes,...E.farHomes])if(o!==h){
+   const oside=Math.abs(o.ry)===90,ox=(oside?o.depth:o.width)/2,oz=(oside?o.width:o.depth)/2;
+   assert(Math.abs(o.x-h.x)>=hx+ox||Math.abs(o.z-h.z)>=hz+oz,`closed distant houses do not intersect: ${h.x},${h.z} / ${o.x},${o.z}`);
+  }
+  continue;
+ }
  assert(h.ry===0||h.ry===180);const frontEdge=h.z+(h.ry===180?-1:1)*(h.front+20);
  assert([ST.farPave[1],-2290,ST.pave[0]].includes(frontEdge),'far gardens meet their footpath');
  if(h.z!==-2850)assert(h.x+330<=2370||h.x-330>=3050,'no house on the side road');
@@ -108,7 +119,15 @@ for(const h of E.farHomes){
 // The horizon ring travels with the camera and is never part of the static batches.
 const B=E.backdrop;assert(B&&B.parent===H.root&&!E.group.children.includes(B),'backdrop is its own mesh');
 assert.equal(B.frustumCulled,false);assert.equal(B.material.side,T.BackSide);assert(B.material.alphaTest>0&&!B.material.transparent);
-const ringR=B.geometry.parameters.radiusTop;assert(ringR>=3000&&ringR<4000,'inside the camera far plane (4000), outside the playable plot');
+assert.equal(B.material.fog,false,'painted horizon keeps its sky-matched palette rather than becoming a white slab');
+const ringR=B.geometry.parameters.radiusTop;assert(ringR>=9000&&ringR<11000,'distant ring stays behind solid street ends and inside the far plane');
+const fogArgs=worldSource.match(/const outdoorFog=new T.Fog\(0xcedadf,(\d+),(\d+)\)/);
+assert(fogArgs&&Number(fogArgs[1])>=5000&&Number(fogArgs[2])>=30000,'clear air for at least 50 m, then only gentle tint');
+const carriageway=solids.filter(s=>s.material.map?.image&&s.bb.min.x<=-6630&&s.bb.max.x>=6630&&Math.abs(s.bb.min.y-353)<.01&&s.bb.min.z===ST.road[0]&&s.bb.max.z===ST.road[1]);
+assert.equal(carriageway.length,1,'one uninterrupted solid carriageway across both old room seams');
+assert(!/B\.box\(300,GY\+3,\(rd0\+rd1\)\/2/.test(fs.readFileSync(path.join(base,'app/public/js/hs-house.js'),'utf8')),'drive never overlays a differently lit road slab');
+assert.equal(E.endHomes.length,14,'solid rows close both street bends');
+for(const h of E.endHomes){assert(Math.abs(h.x)-h.depth/2>6785,'closed end houses stay behind their footpath');assert.equal(h.ry,-Math.sign(h.x)*90,'end homes face the bend');}
 {const cam=new T.PerspectiveCamera();cam.position.set(123,-200,456);cam.updateMatrixWorld();B.onBeforeRender(null,null,cam);assert.equal(B.position.x,123);assert.equal(B.position.z,456)}
 let meshes=0;
 E.group.traverse(o=>{
@@ -120,15 +139,33 @@ E.group.traverse(o=>{
  assert.equal(g.attributes.position.count,g.attributes.normal.count);assert.equal(g.attributes.position.count,g.attributes.color.count);
  for(const name of ['position','normal','uv','color'])assert(Array.from(g.attributes[name].array).every(Number.isFinite),name+' must stay finite');
 });
-console.log('meshes',meshes,'triangles',triangles,E.group.children.map(g=>g.name+':'+g.children.length).join(' '));assert(meshes<=84,'bounded static draw calls (55 for the near rows, about 26 for the far rows and the crossroads)');assert(triangles<90000,'bounded triangle budget including solid garden fences and the far rows');
+console.log('meshes',meshes,'triangles',triangles,E.group.children.map(g=>g.name+':'+g.children.length).join(' '));assert(meshes<=84,'bounded static draw calls (55 for the near rows, about 26 for the far rows and the crossroads)');assert(triangles<110000,'bounded triangle budget including closed street bends');
 const before=E.group.children.flatMap(g=>g.children.map(m=>[m.uuid,m.geometry.uuid,m.geometry.attributes.position.array]));
 const meshGeometry=()=>E.group.children.flatMap(g=>g.children.map(m=>[m.uuid,m.geometry.uuid,m.geometry.attributes.position.array]));
 const allMaterials=new Set();E.group.traverse(o=>{if(o.material)allMaterials.add(o.material)});
 const daylight=Array.from(allMaterials,m=>m.color.getHex());
+function horizonPixels(ph){
+ const canvas=B.material.map.image,pixels=canvas.pixels,w=canvas.width,h=canvas.height;
+ assert.equal(pixels.length,w*h*4,'horizon uploads a complete image');
+ const sky=new T.Color({day:'#cedadf',night:'#26344b',dusk:'#d89774',dawn:'#ddb69a'}[ph]);
+ const tops=[];
+ for(let x=0;x<w;x++){
+  let top=0;while(top<h&&!pixels[(top*w+x)*4+3])top++;
+  tops.push(top);
+  const height=640-top/(h-1)*700;
+  assert(height<100,'horizon stays below 1 m on the distant ring; no painted near-house elevations');
+  const bottom=((h-1)*w+x)*4;
+  for(const [channel,value]of [[0,sky.r],[1,sky.g],[2,sky.b]])assert(Math.abs(pixels[bottom+channel]-value*255)<=1,'lowest horizon pixels meet the actual sky colour without a teal/field band');
+ }
+ assert(Math.max(...tops)-Math.min(...tops)>8,'hills have an irregular skyline rather than a horizontal card edge');
+ assert(Math.abs(tops[0]-tops[w-1])<=1,'silhouette closes at the ring seam');
+}
+horizonPixels('day');
 assert.equal(H.scene.background,E.sky,'translation-free cubemap remains the scene background');
 E.group.traverse(o=>assert(!o.isLight,'scenery uses no lights'));
 for(const ph of ['night','dusk','dawn','day']){
  phase=ph;E.update();assert.equal(E.phase,ph);assert.equal(E.nightInk.visible,ph!=='day');
+ horizonPixels(ph);
  assert.deepEqual(meshGeometry(),before,'phase changes never replace meshes, geometry or buffers');
  assert.equal(H.ambient.size,1,'one sky updater throughout phase changes');
  if(ph==='night')assert.notDeepEqual(Array.from(allMaterials,m=>m.color.getHex()),daylight,'night tint applies');

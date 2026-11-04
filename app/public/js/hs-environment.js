@@ -27,7 +27,7 @@
  const masonry=paint('#ffffff');masonry.map=brick;
  const paleBrick=paint('#d5c9b5');paleBrick.map=brick;
  const render=paint('#d6ceba'),occupied=paint('#718b96'),lampGlass=paint('#d6cdb2');
- const roof=paint('#68544a'),slate=paint('#4d575b'),trim=paint('#ddd8c9'),glass=paint('#718b96'),glassShade=paint('#3e5763'),door=paint('#334747'),road=paint('#4c4d4e',true),grass=paint('#547044'),hedge=paint('#405f38'),leaf=paint('#657645'),paving=paint('#aaa79d',true),earth=paint('#655543'),metal=paint('#383e3d');
+ const roof=paint('#68544a'),slate=paint('#4d575b'),trim=paint('#ddd8c9'),glass=paint('#718b96'),glassShade=paint('#3e5763'),door=paint('#334747'),road=paint('#4c4d4e',true),grass=paint('#547044'),hedge=paint('#64834f'),leaf=paint('#657645'),paving=paint('#aaa79d',true),earth=paint('#655543'),metal=paint('#383e3d');
  roof.map=slate.map=tiles;
  // Pavement joints belong to the solid slab's surface. The former 0.3 cm
  // high, many-metre groove boxes produced raster slivers through indoor walls
@@ -36,6 +36,11 @@
   g.fillStyle='#ffffff';g.fillRect(0,0,w,h);
   g.fillStyle='#978a6d';g.fillRect(0,0,2,h);g.fillRect(0,0,w,2);
  },{rep:[100/60,100/60]});
+ // Fine leaf clusters on a continuous solid, with no cut-out alpha cards.
+ hedge.map=leaf.map=K.tex('env.hedge.leaves',128,128,(g,w,h)=>{
+  g.fillStyle='#b6c3a6';g.fillRect(0,0,w,h);const r=K.rnd(114);
+  for(let i=0;i<2700;i++){g.fillStyle=['#9cae8c','#d2dbc4','#b5c7a3','#8b9f7a'][i%4];g.fillRect(r()*w,r()*h,1+r()*2,1+r()*1.2)}
+ });
  const fence=paint('#9b876c');
  fence.map=K.tex('env.fence',128,128,(g,w,h)=>{
   g.fillStyle='#dbd1bc';g.fillRect(0,0,w,h);
@@ -55,8 +60,8 @@
  const streetLamps=[-420,960].map(x=>({x,y:GY-454,z:ST.farKerb+10,c:'#ffc078',i:1.7,d:1650}));
  const OPP=ST.farPave[1]+560; // opposite plots: z of the house centre (front boundary 540 + 20 in front of it)
  // The village goes on past the end of our row: a crossroads to the east (the side road joins the back road), the
- // corner shop and a little green with the phone box on its corners, and more semis both ways. Past about 36 m from
- // wherever you stand, a painted backdrop ring (hills, rooftops, trees, the church) carries on to the horizon.
+ // corner shop and a little green with the phone box on its corners, and more semis both ways. Beyond the solid
+ // street bends, a low painted silhouette of distant hills and treetops sits 95 m from the camera.
  const X=[2370,2460,2470,2950,2960,3050]; // the side road: west pavement, kerb, carriageway, kerb, east pavement
  const crosses=(x0,x1)=>x1>X[0]&&x0<X[5];
  const plots={
@@ -68,12 +73,18 @@
  const farPlots=[
   ...[-4760,-4080,-3400,-2720,3400,4080,4760].map((x,i)=>[x,OPP,180,i+17,540]),
   ...[-4420,-3740,-3060,-2380,3780,4460].map((x,i)=>[x,550,0,i+24,ST.pave[0]-570]),
+  ...[-5440,5440].map((x,i)=>[x,OPP,180,60+i,540]),
+  ...[-5100,5140].map((x,i)=>[x,550,0,62+i,ST.pave[0]-570]),
   ...[-4420,-3740,-3060,-2380,2380,3060,3740,4420].map((x,i)=>[x,-2850,0,i+30,540])
  ].filter(([x,z])=>z!==OPP&&z!==550||!crosses(x-330,x+330));
+ // Continue the cross street in depth, closing the open eastern corner. These
+ // closed shells reuse the far-row batch and palettes; no per-house draws.
+ const crossPlots=[...[[1810,3670,90,41],[1810,4350,90,42],[3610,5030,-90,43],[3610,3670,-90,44],[3610,4350,-90,45]].map(p=>[...p,540]),
+  ...[[-2380,-3740,0,46],[-1020,-3740,0,47],[340,-3740,0,48],[1700,-3740,0,49],[-2720,3850,180,50],[-1360,3850,180,51],[0,3850,180,52]].map(p=>[...p,540])];
  zone('street',b=>{
   // Global foundation stays below every playable road/turf surface.
   // Distant plots own their bounded lawn bases, so their models still meet grade.
-  b.box(0,GY+11,400,16000,10,16000,grass);
+  b.box(0,GY+11,400,24000,10,24000,grass);
   // Keep every lawn in the existing ground batch, rather than adding one
   // material batch to each house row. Plot bases reach the global foundation.
   for(const [x,z,ry,n,front]of [...plots.opposite,...plots.rear,...plots.side,...farPlots]){
@@ -97,14 +108,22 @@
    // Same jointed solid surface on the side road.
    slab(kerb-5,kerb+5,z0,z1,paving,-12,12);
   }
-  // Main road: both sides of the playable drive's own stretch (x -600..1200, js/hs-house.js), through the crossroads.
+  // One main carriageway, including the drive's frontage, through the crossroads.
   const [p0,p1]=ST.pave,[r0,r1]=ST.road,[f0,f1]=ST.farPave,mid=(r0+r1)/2;
-  for(const [x0,x1] of [[-5600,-600],[1200,5600]]){
+  for(const [x0,x1] of [[-6630,6630]]){
    slab(x0,x1,r0,r1,road,0,3);
    for(let x=Math.ceil((x0+35)/180)*180;x<x1-35;x+=180)if(!crosses(x-35,x+35))b.box(x,GY-.3,mid,70,.3,3,trim);
   }
-  for(const [x0,x1] of [[-5600,-600],[1200,X[1]],[X[4],5600]]){pavement(x0,x1,p0,p1,null);slab(x0,x1,ST.kerb-5,ST.kerb+5,paving,-12,12)}
-  for(const [x0,x1] of [[-5600,X[1]],[X[4],5600]]){pavement(x0,x1,f0,f1,null);slab(x0,x1,ST.farKerb-5,ST.farKerb+5,paving,-12,12)}
+  for(const [x0,x1] of [[-6630,-600],[1200,X[1]],[X[4],6630]]){pavement(x0,x1,p0,p1,null);slab(x0,x1,ST.kerb-5,ST.kerb+5,paving,-12,12)}
+  for(const [x0,x1] of [[-6070,X[1]],[X[4],6070]]){pavement(x0,x1,f0,f1,null);slab(x0,x1,ST.farKerb-5,ST.farKerb+5,paving,-12,12)}
+  // Both ends turn behind the last row. The far carriageway and pavement
+  // turn with them; closed houses and trees hide the geometric horizon.
+  for(const side of [-1,1]){
+   const span=(a,b)=>side<0?[-b,-a]:[a,b];
+   slab(...span(6070,6630),r1,5100,road,0,3);
+   pavementZ(...span(6640,6785),p0,5100,side*6635);
+   pavementZ(...span(5920,6065),f0,5100,side*6065);
+  }
   // The back road, its footpaths (the north one stops at the side road's mouth: a T-junction).
   slab(-5600,5600,-2185,-1695,road,0,3);
   pavement(-5600,5600,-2290,-2195,-2190);
@@ -172,6 +191,20 @@
   b.ball(x-64,-h*.67,z+24,83,h*.22,78,hedge,7);
   b.ball(x+62,-h*.71,z-20,83,h*.24,82,leaf,7);
  }
+ function gardenHedge(b,x,z,len,height=78,width=50,distant=false){
+  const geo=new T.BoxGeometry(width,height,len,2,distant?2:4,Math.max(2,Math.ceil(len/(distant?150:65)))),p=geo.attributes.position,r=12;
+  for(let i=0;i<p.count;i++){
+   const xx=p.getX(i),yy=p.getY(i),zz=p.getZ(i),cx=Math.max(-width/2+r,Math.min(width/2-r,xx)),cy=Math.max(-height/2+r,Math.min(height/2-r,yy)),cz=Math.max(-len/2+r,Math.min(len/2-r,zz));
+   const dx=xx-cx,dy=yy-cy,dz=zz-cz,d=Math.hypot(dx,dy,dz)||1;
+   const wave=(1.3*Math.sin(zz*.093+xx*.24)+.8*Math.sin(zz*.19+yy*.13))*Math.max(0,Math.min(1,(height/2-yy)/12));
+   p.setXYZ(i,cx+dx/d*(r+wave),cy+dy/d*(r+wave),cz+dz/d*(r+wave));
+  }
+  geo.computeVertexNormals();
+  const normals=geo.attributes.normal,sums=new Map(),keys=[];
+  for(let i=0;i<p.count;i++){const key=[p.getX(i),p.getY(i),p.getZ(i)].map(v=>Math.round(v*1000)).join(',');keys.push(key);const q=sums.get(key)||new T.Vector3();q.x+=normals.getX(i);q.y+=normals.getY(i);q.z+=normals.getZ(i);sums.set(key,q)}
+  for(const q of sums.values())q.normalize();for(let i=0;i<p.count;i++){const q=sums.get(keys[i]);normals.setXYZ(i,q.x,q.y,q.z)}
+  b.geo(geo,x,-height/2,z,hedge,{uv:70});geo.dispose();
+ }
  // Frontage depth is explicit so every path reaches its own footpath. House
  // footprints and gardens are laid out in centimetres; no arbitrary scaling.
  function home(B,x,z,ry,n,front){
@@ -180,7 +213,9 @@
   const b=B.at(x,GY+1,z,ry),wall=type===1?paleBrick:masonry,tile=type===1||type===3?slate:roof;
   const face=d/2,doorX=type===2?0:w*.27,bayX=-w*.23,wallHalf=w/2;
   homes.push({x,z,ry,width:w,depth:d,eave,rise,type,front});
-  b.box(0,-eave/2,0,w,eave,d,wall,{uv:100});
+  // A few vertical rows confine the baked ground occlusion to the foot of
+  // the wall. A single tall quad smeared it over the whole two-storey facade.
+  b.geo(new T.BoxGeometry(w,eave,d,1,Math.ceil(eave/70),1),0,-eave/2,0,wall,{uv:100});
   // Rendered upper storey is a solid coat with a projecting brick sill course.
   if(type===1){b.box(0,-eave+112,0,w+2,224,d+2,render);b.box(0,-eave+227,0,w+7,6,d+7,paving)}
   pitched(b,w,d,eave,rise,tile,type===1?render:wall,across);
@@ -207,7 +242,7 @@
   }else windowBay(b,bayX,-135,face,0,type===1?142:96,112,n);
   if(type===2)windowBay(b,w*.25,-135,face,0,86,112,n+1);
   const entry=b.at(doorX,0,face);
-  entry.box(0,-101,3,82,202,6,trim);entry.box(0,-99,7,70,196,4,n%2?door:metal);
+  entry.box(0,-101,3,82,202,6,trim);entry.box(0,-99,7,70,196,4,[door,metal,roof,leaf][n%4]);
   entry.box(0,-153,10,48,64,2,glassShade);entry.box(0,-59,10,48,50,2,door);
   entry.box(0,-101,12,24,4,3,trim);entry.cyl(25,-91,12,2,2,3,7,trim,{rx:90});
   entry.box(0,-3,24,96,6,62,paving);
@@ -228,7 +263,7 @@
   b.box(doorX,-1,(pathStart+pathEnd)/2,82,2,pathLength,paving);
   for(let zz=pathStart+40;zz<pathEnd;zz+=45)b.box(doorX,-2.15,zz,80,.3,.65,earth);
   const plot=330,gate0=doorX-48,gate1=doorX+48;
-  for(const [lo,hi] of [[-plot+12,gate0-10],[gate1+10,plot-12]]){
+  for(const [lo,hi] of [[-plot,gate0-10],[gate1+10,plot]]){
    b.box((lo+hi)/2,-29,front,hi-lo,58,18,wall,{uv:100});b.box((lo+hi)/2,-60,front,hi-lo+4,4,24,paving);
   }
   for(const xx of [gate0-4,gate1+4]){b.box(xx,-39,front,16,78,24,wall,{uv:100});b.box(xx,-80,front,21,4,29,paving)}
@@ -238,8 +273,10 @@
   // The short threshold bridges the wall to the footpath; same height, disjoint.
   b.box(doorX,-1,front+10,82,2,20,paving);
   for(const side of [-1,1]){
-   b.box(side*(plot-9),-36,(face+front)/2,18,72,front-face-12,hedge);
-   b.box(side*(plot-9),-2,(face+front)/2,26,4,front-face-12,earth);
+   // Jack's drive boundary is built/collided in buildDrive, ending at its side gate.
+   if(n===15&&side===-1)continue;
+   gardenHedge(b,side*(plot-9),(face+front)/2,front-face+18,n%2?84:72);
+   b.box(side*(plot-9),-3,(face+front)/2,30,6,front-face+18,earth);
   }
   const bedX=-w*.24,bedZ=face+105;
   b.box(bedX,-2,bedZ,160,4,66,earth);
@@ -287,10 +324,22 @@
  });
  const facades=[0,1,2].map(t=>{const m=paint('#ffffff');m.map=facadeTex(t,false);return m}),rearFacade=paint('#ffffff');rearFacade.map=facadeTex(0,true);
  const farHomes=[];
- function farHome(B,x,z,ry,n,front){
+ const endHomes=[];
+ // At 60–80 m the closed house shell, pitched roof and recessed textured
+ // elevations carry the silhouette. No tiny garden fittings or new batches.
+ function endHome(B,x,z,ry,n){
+  const type=n%3,w=540,d=480,eave=490,rise=160,b=B.at(x,GY+6,z,ry);
+  endHomes.push({x,z,ry,width:w,depth:d});
+  b.box(0,-eave/2,0,w,eave,d,masonry,{uv:100});
+  for(const side of [-1,1])b.box(0,-eave/2,side*(d/2+.6),w-.4,eave-.4,1.2,side>0?facades[type]:rearFacade);
+  pitched(b,w,d,eave,rise,n%2?slate:roof,masonry,true);
+  b.box(0,-8,0,w+6,16,d+6,earth);
+  b.box(140,-620,-70,42,150,42,masonry,{uv:100});b.box(140,-697,-70,50,6,50,paving);
+ }
+ function farHome(B,x,z,ry,n,front,ground=GY+1){
   const type=n%4,w=[540,530,500,560][type],d=houseDepth[type],eave=[492,480,485,490][type],rise=[156,165,175,150][type],across=type!==2;
-  const b=B.at(x,GY+1,z,ry),wall=type===1?paleBrick:masonry,tile=type===1||type===3?slate:roof,face=d/2,doorX=type===2?0:w*.27;
-  farHomes.push({x,z,ry,width:w,depth:d,eave,rise,type,front});
+  const b=B.at(x,ground,z,ry),wall=type===1?paleBrick:masonry,tile=type===1||type===3?slate:roof,face=d/2,doorX=type===2?0:w*.27;
+  farHomes.push({x,z,ry,width:w,depth:d,eave,rise,type,front,continuation:ground!==GY+1});
   b.box(0,-eave/2,0,w,eave,d,wall,{uv:100});
   // Painted elevations stand 1.2 cm proud of the body (no shared faces), front and back.
   b.box(0,-eave/2,face+.6,w-.4,eave-.4,1.2,facades[type%3]);b.box(0,-eave/2,-face-.6,w-.4,eave-.4,1.2,rearFacade);
@@ -301,7 +350,7 @@
   b.box(doorX,-1,(face+12+front)/2,82,2,front-face-12,paving);b.box(doorX,-1,front+10,82,2,20,paving);
   b.box(doorX,-3,face+26,96,6,28,paving);
   for(const [lo,hi] of [[-318,doorX-58],[doorX+58,318]]){b.box((lo+hi)/2,-29,front,hi-lo,58,18,wall,{uv:100});b.box((lo+hi)/2,-60,front,hi-lo+4,4,24,paving)}
-  for(const side of [-1,1]){b.box(side*321,-36,(face+front)/2,18,72,front-face-12,hedge);b.box(side*321,-2,(face+front)/2,26,4,front-face-12,earth)}
+  for(const side of [-1,1]){gardenHedge(b,side*321,(face+front)/2,front-face+18,72,50,true);b.box(side*321,-2,(face+front)/2,50,4,front-face+18,earth)}
   const rear=z===550?-1476-z:-face-320;b.box(0,-63,rear,648,126,8,fence,{uv:140});
   for(const side of [-1,1])b.box(side*322,-63,(rear+face)/2,8,126,face-rear-8,fence,{uv:140});
   if(n%3===0)tree(b,-240,-face-105,365+(n%2)*60,n);
@@ -357,9 +406,17 @@
   for(const [x,z,i] of [[-3400,-300,0],[-1900,-330,1],[1300,-320,2],[3700,-300,3],[-3000,3550,4],[-1400,3600,5],[200,3520,6],[1700,3580,7],[3800,3540,8]]){const onPlot=[...plots.side,...farPlots.filter(p=>p[1]===550)].some(p=>Math.abs(x-p[0])<334&&z>=-1482&&z<=p[1]+p[4]+20);tree(b.at(0,GY+(onPlot?1:6),0),x,z,460+(i%3)*55,i);}
  });
  // (one batch for the far rows and the crossroads, so the extra village costs as few draw calls as possible)
- zone('far houses',b=>{for(const p of farPlots)farHome(b,...p);cornerShop(b);green(b)});
+ zone('far houses',b=>{for(const p of farPlots)farHome(b,...p);for(const p of crossPlots)farHome(b,...p,GY+6);
+  for(const side of [-1,1]){
+   for(const [i,z]of [1000,1680,2360,3040,3720,4400,5080].entries())endHome(b,side*7345,z,-side*90,i);
+   // Banks of solid crowns overlap behind the bends and at the rear street
+   // ends. They hide ground edges without putting a screen across the road.
+   for(const [i,x,z]of [[0,5700,3450],[1,5850,3950],[2,5720,4680],[3,6450,5500],[4,5890,-1940],[5,6200,-2600]])tree(b.at(0,GY+6,0),side*x,z,540+i%3*40,i);
+  }
+  for(const [x,z,h,grade]of [[2250,3200,510,1],[3200,3500,560,6],[-2260,3190,490,1],[-650,-3410,520,1],[820,-3480,480,6],[2140,-3250,540,1],[-2650,-1450,460,1]])tree(b.at(0,GY+grade,0),x,z,h,2);
+  cornerShop(b);green(b)});
  const light=new T.Vector3(-.4,-.8,.4).normalize(),normal=new T.Vector3();
- group.traverse(o=>{o.userData.noPick=true;if(!o.geometry)return;const n=o.geometry.attributes.normal,colours=new Float32Array(n.count*3);for(let i=0;i<n.count;i++){const shade=.69+.29*Math.max(0,normal.fromBufferAttribute(n,i).dot(light));colours.fill(shade,i*3,i*3+3)}o.geometry.setAttribute('color',new T.Float32BufferAttribute(colours,3));o.material.vertexColors=true;});
+ group.traverse(o=>{o.userData.noPick=true;if(!o.geometry)return;const n=o.geometry.attributes.normal,colours=new Float32Array(n.count*3);for(let i=0;i<n.count;i++){const p=o.geometry.attributes.position,y=p.getY(i),contact=1-.16*Math.max(0,Math.min(1,(y-(GY-70))/70)),shade=(.69+.29*Math.max(0,normal.fromBufferAttribute(n,i).dot(light)))*contact;colours.fill(shade,i*3,i*3+3)}o.geometry.setAttribute('color',new T.Float32BufferAttribute(colours,3));o.material.vertexColors=true;});
 
  // Painted sodium falloff, clipped to each receiving surface and batched once.
  // No blur, real lights, moving buffers or per-frame work; depth testing stays on.
@@ -406,43 +463,38 @@
  inkBatch.build(nightInk);
  nightInk.traverse(o=>{o.userData.noPick=true;o.userData.lightDecal=true});
 
- // The horizon: a painted ring 36 m out that travels with the camera (like the sky), so whichever way you look past the
- // last houses there are fields, hedgerows, more rooftops, the church spire and low hills fading into the haze, never
+ // The horizon: a painted ring 95 m out that travels with the camera (like the sky), so whichever way you look past the
+ // last houses there are low hedgerows, distant roof ridges and hills fading into the haze, never
  // the edge of the world. Depth-tested, so everything nearer stands in front of it; drawn once per phase change.
- const RING={r:3600,below:60,above:640,w:2048,h:256};
+ const RING={r:9500,below:60,above:640,w:2048,h:256};
  const ringCanvas=document.createElement('canvas');ringCanvas.width=RING.w;ringCanvas.height=RING.h;
  const ringTex=new T.CanvasTexture(ringCanvas);ringTex.wrapS=T.RepeatWrapping;
- const backdrop=new T.Mesh(new T.CylinderGeometry(RING.r,RING.r,RING.below+RING.above,96,1,true),new T.MeshBasicMaterial({map:ringTex,side:T.BackSide,alphaTest:.5}));
+ const backdrop=new T.Mesh(new T.CylinderGeometry(RING.r,RING.r,RING.below+RING.above,96,1,true),new T.MeshBasicMaterial({map:ringTex,side:T.BackSide,alphaTest:.5,fog:false}));
  backdrop.name='backdrop';backdrop.rotation.x=Math.PI;backdrop.position.y=GY-(RING.above-RING.below)/2;backdrop.frustumCulled=false;backdrop.userData.noPick=true;
  backdrop.onBeforeRender=(r,s,camera)=>{const e=camera.matrixWorld.elements;backdrop.position.x=e[12];backdrop.position.z=e[14];backdrop.updateMatrixWorld(true)};
  H.root.add(backdrop);
  function paintBackdrop(ph,horizon){
-  const g=ringCanvas.getContext('2d'),im=g.createImageData(RING.w,RING.h),d=im.data,night=ph==='night',TAU=Math.PI*2;
-  const mix=(hex,k)=>{const c=new T.Color(hex);return c.lerp(horizon,k)};
-  const P=night?{field:mix('#141a26',.35),hill:mix('#1b2232',.45),tree:mix('#10151f',.2),roof:mix('#151a24',.2),wall:mix('#1d2330',.2),spire:mix('#1a1f2b',.25)}
-   :ph==='day'?{field:mix('#6f8a5c',.45),hill:mix('#7f9a86',.62),tree:mix('#4f6a45',.38),roof:mix('#5e534f',.38),wall:mix('#9c7b66',.42),spire:mix('#8d8a84',.45)}
-   :{field:mix('#5e6650',.5),hill:mix('#6c6f78',.62),tree:mix('#3f4a3c',.4),roof:mix('#4c4446',.4),wall:mix('#7d6458',.45),spire:mix('#6f6a6a',.45)};
-  const lit=new T.Color('#e7b866'),glow=new T.Color('#c98a4a'),rnd=K.rnd(4242);
-  const set=(i,c,a)=>{d[i]=c.r*255;d[i+1]=c.g*255;d[i+2]=c.b*255;d[i+3]=a};
+  const g=ringCanvas.getContext('2d'),im=g.createImageData(RING.w,RING.h),d=im.data,TAU=Math.PI*2;
+  const night=ph==='night';
+  const hill=new T.Color(night?'#222d3d':'#89978e').lerp(horizon,night?.45:.72);
+  const trees=new T.Color(night?'#16212b':'#63735e').lerp(horizon,night?.35:.59);
+  const roofs=new T.Color(night?'#222633':'#746d68').lerp(horizon,.63);
   for(let x=0;x<RING.w;x++){
-   const u=x/RING.w,a=u*TAU;
-   const hill=Math.max(40,150+70*Math.sin(a*3+1.3)+45*Math.sin(a*7+.4)+22*Math.sin(a*13+2.1));
-   const trees=Math.max(18,62+24*Math.sin(a*41)+17*Math.sin(a*67+1)+11*Math.sin(a*113+2)+8*Math.sin(a*197+.5));
-   // Villages in three directions: little gabled houses with chimneys, then hedgerows and trees between them.
-   const town=Math.sin(a*3+.7)>-.15,p=(x%23)/23,body=town?92:0,gable=town?body+44*(1-Math.abs(p-.5)*2):0,chim=town&&p>.68&&p<.76?body+60:0;
-   // The church: a square tower and its spire, off to one side.
-   const ch=Math.abs(u-.615)*RING.w,tower=ch<7?235:0,spire=ch<7?235+190*(1-ch/7):0;
-   const roofTop=Math.max(gable,chim),near=Math.max(trees,roofTop,spire,tower);
+   const a=x/RING.w*TAU;
+   // Low, periodic silhouettes meet at the cylinder seam. No recognisable
+   // buildings or flat ground band: every nearby street is real geometry.
+   const hillTop=57+19*Math.sin(a*3+1.3)+12*Math.sin(a*7+.4)+5*Math.sin(a*13+2.1);
+   const treeTop=26+7*Math.sin(a*41)+5*Math.sin(a*67+1)+3*Math.sin(a*113+2);
+   const town=Math.sin(a*5+.7)>.5,p=(x%41)/41;
+   const roofTop=town?33+12*(1-Math.abs(p-.5)*2):0;
    for(let y=0;y<RING.h;y++){
     const i=(y*RING.w+x)*4,cm=RING.above-y/(RING.h-1)*(RING.above+RING.below);
-    if(cm<0){set(i,night?P.field.clone().lerp(glow,.12):P.field,255);continue}
-    if(cm<=near){
-     let c=cm<=tower||cm<=spire&&ch<7?P.spire:town&&cm<=roofTop&&cm>body?P.roof:town&&cm<=body&&p>.08&&p<.92?P.wall:P.tree;
-     if(night&&c===P.wall&&cm>24&&cm<80&&(x*7+((cm/16)|0)*13)%11===0&&rnd()<.5)c=lit;
-     set(i,c,255);continue;
-    }
-    if(cm<=hill){set(i,P.hill,255);continue}
-    d[i+3]=0;
+    if(cm>hillTop)continue;
+    let c=cm<treeTop?trees:cm<roofTop?roofs:hill;
+    // Ease the lowest portion into the actual sky horizon, removing the
+    // formerly hard horizontal field/teal stripe at eye level.
+    const fade=Math.max(0,Math.min(1,(15-cm)/65));
+    d[i]=(c.r+(horizon.r-c.r)*fade)*255;d[i+1]=(c.g+(horizon.g-c.g)*fade)*255;d[i+2]=(c.b+(horizon.b-c.b)*fade)*255;d[i+3]=255;
    }
   }
   g.putImageData(im,0,0);ringTex.needsUpdate=true;
@@ -451,6 +503,15 @@
  const sky=new T.CubeTexture(faces);sky.minFilter=T.LinearFilter;sky.magFilter=T.LinearFilter;sky.generateMipmaps=false;H.scene.background=sky;
  const direction=(face,u,v)=>{const a=2*u-1,b=1-2*v;return new T.Vector3(...[[1,b,-a],[-1,b,a],[a,1,-b],[a,-1,b],[a,b,1],[-a,b,-1]][face]).normalize()};
  const sun=new T.Vector3(-.45,.58,.7).normalize(),moon=new T.Vector3(.6,.5,-.6).normalize();
+ // A continuous volume sampled in direction space: rounded cloud masses,
+ // identical across cubemap seams, instead of three conspicuous sine bands.
+ const cloudField=Float32Array.from({length:4096},K.rnd(1999));
+ function cloudNoise(x,y,z){
+  const ix=Math.floor(x),iy=Math.floor(y),iz=Math.floor(z),smooth=t=>t*t*(3-2*t),fx=smooth(x-ix),fy=smooth(y-iy),fz=smooth(z-iz);
+  const at=(a,b,c)=>cloudField[((a&15)*16+(b&15))*16+(c&15)];
+  let sum=0;for(let a=0;a<2;a++)for(let b=0;b<2;b++)for(let c=0;c<2;c++)sum+=at(ix+a,iy+b,iz+c)*(a?fx:1-fx)*(b?fy:1-fy)*(c?fz:1-fz);
+  return sum;
+ }
  let last='',lastMinute=-1,nextUpdate=0;const phases=['night','dusk','dawn','day'];
  function phase(){const cl=document.getElementById('bootPower')?.classList;for(const p of phases)if(cl?.contains('rm-'+p))return p;const h=(window.OwnerTools?.now()||new Date()).getHours();return h<6||h>=20?'night':h<8?'dawn':h>=18?'dusk':'day'}
  function update(now=0){
@@ -460,7 +521,7 @@
   faces.forEach((c,face)=>{const g=c.getContext('2d'),im=g.createImageData(256,256),d=im.data;
    for(let y=0;y<256;y++)for(let x=0;x<256;x++){
     const v=direction(face,(x+.5)/256,(y+.5)/256),h=Math.max(0,v.y),col=horizon.clone().lerp(zenith,Math.pow(h,.6));
-    if(!night){const cloud=Math.sin(v.x*12+v.z*9+v.y*51)+Math.sin(v.z*17-v.x*11+v.y*73)+Math.sin(v.x*24+v.z*21-v.y*91);const alpha=Math.max(0,Math.min(.27,(cloud-1.2)*.2))*Math.max(0,Math.min(1,(h-.06)*6))*Math.max(0,1-h);col.lerp(new T.Color('#f1e9db'),alpha);const glow=Math.pow(Math.max(0,v.dot(sun)),250);col.lerp(new T.Color('#fff0c7'),glow)}
+    if(!night){const cloud=cloudNoise(v.x*6+2,v.y*8,v.z*6)+.35*cloudNoise(v.x*17,v.y*22+3,v.z*17);const alpha=Math.max(0,Math.min(.52,(cloud-.67)*2.2))*Math.max(0,Math.min(1,(h-.07)*5))*Math.max(.35,1-h);col.lerp(new T.Color(ph==='dusk'?'#dab6ad':ph==='dawn'?'#eed9c0':'#f1ecdf'),alpha);const glow=Math.pow(Math.max(0,v.dot(sun)),250);col.lerp(new T.Color('#fff0c7'),glow)}
     else{const dot=v.dot(moon),edge=Math.max(0,Math.min(1,(dot-.99914)/.00022));col.lerp(new T.Color('#e5e0cc'),edge*edge*(3-2*edge));const gx=Math.floor(x/8),gy=Math.floor(y/8),seed=Math.sin(gx*127.1+gy*311.7+face*74.7)*43758.5453,hash=seed-Math.floor(seed),dx=x%8-2-hash*3,dy=y%8-2-hash*2;if(h>.08&&hash>.945){const star=Math.exp(-(dx*dx+dy*dy)*1.6);col.lerp(new T.Color('#d5dded'),star*.8)}}
     const i=(y*256+x)*4;d[i]=col.r*255;d[i+1]=col.g*255;d[i+2]=col.b*255;d[i+3]=255;
    }g.putImageData(im,0,0);
@@ -471,5 +532,5 @@
   nightInk.visible=ph!=='day';poolM.opacity=night?.42:.18;
   H.dirty();return true;
  }
- update();H.ambient.add(update);window.HouseEnvironment={group,nightInk,sky,homes,farHomes,backdrop,street:ST,streetLamps,update,get phase(){return last}};
+ update();H.ambient.add(update);window.HouseEnvironment={group,nightInk,sky,homes,farHomes,endHomes,backdrop,street:ST,streetLamps,update,get phase(){return last}};
 })();
