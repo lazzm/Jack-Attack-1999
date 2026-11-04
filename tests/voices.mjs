@@ -146,7 +146,7 @@ await check('speak', async () => {
     assert(s.started && s.panner, 'The recording started, positional (panner from the head): ' + JSON.stringify(s));
     assert(s.ducked, 'Music and effects dip under the voice');
     assert(Math.max(...s.level) > 0.3, 'The voice has level: ' + s.level.map(v => v.toFixed(2)));
-    assert(Math.max(...s.mouth) - Math.min(...s.mouth) > 0.2 && s.frames.length > 1, 'Mouth follows the audio: ' + s.mouth.map(v => v.toFixed(2)).join(','));
+    assert(Math.max(...s.mouth) - Math.min(...s.mouth) > 0.2 && s.frames.length > 1, 'Mouth follows the audio: ' + s.mouth.map(v => v.toFixed(2)).join(',') + ' levels ' + s.level.map(v => v.toFixed(2)).join(',') + ' frames ' + JSON.stringify(s.frames) + ' samples ' + JSON.stringify(vs.slice(0, 3)));
     assert(s.b && s.b.key === 'dad' && s.b.mode === 'head', 'Bubble over Dad\'s head: ' + JSON.stringify(s.b));
     assert(s.said[0] < s.said.at(-1) && s.said[0] < s.b.text.length * 0.6, 'Words typed on with the voice: ' + s.said.join(','));
     const vw = 1366, vh = 860; assert(crossClear(s.b, vw, vh), 'Bubble clear of the crosshair: ' + JSON.stringify(s.b));
