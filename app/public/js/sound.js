@@ -16,20 +16,40 @@
   function output(c, channel = 'effects') {
     let bus = buses.get(c);
     if (!bus) {
-      bus = {effects:c.createGain(),music:c.createGain(),voice:c.createGain()}; buses.set(c,bus);
-      for (const kind of KINDS) { bus[kind].gain.value = level(kind); bus[kind].connect(c.destination); }
+      // One protected mix per context, including callers with their own sound card.
+      // The fast compressor catches speech peaks; the safety ceiling also catches
+      // its attack transient. Below the .75 knee the shaper is exactly linear.
+      const limiter = c.createDynamicsCompressor(), ceiling = c.createWaveShaper();
+      limiter.threshold.value = -4; limiter.knee.value = 3; limiter.ratio.value = 20;
+      limiter.attack.value = .003; limiter.release.value = .12;
+      const curve = new Float32Array(4097);
+      for (let i=0;i<curve.length;i++) {
+        const x=2*i/(curve.length-1)-1, a=Math.abs(x);
+        curve[i] = Math.sign(x)*(a<=.75?a:.75+.19*(1-Math.exp(-((a-.75)/.19))));
+      }
+      ceiling.curve = curve;
+      const control = c.createGain(); control.gain.value = volume;
+      limiter.connect(ceiling); ceiling.connect(control); control.connect(c.destination);
+      bus = {effects:c.createGain(),music:c.createGain(),voice:c.createGain(),control}; buses.set(c,bus);
+      // Chromium loads HRTF data the first time it's asked for and can be silent until then. Ask at the first gesture,
+      // so the first line of speech doesn't lose its opening.
+      try { const n = window.navigator || {}; if (!(n.hardwareConcurrency <= 4 || n.deviceMemory <= 2) && c.createPanner) { bus.warmHrtf = c.createPanner(); bus.warmHrtf.panningModel = 'HRTF'; } } catch (e) {}
+      for (const kind of KINDS) { bus[kind].gain.value = level(kind); bus[kind].connect(limiter); }
     }
     return bus[channel === 'music' ? 'music' : channel === 'voice' ? 'voice' : 'effects'];
   }
   // The family's recorded voices have their own bus (on the "Sound effects & voices" switch); while someone speaks,
-  // music and the other sounds (the telly, the games) dip a little underneath them.
-  const KINDS = ['effects', 'music', 'voice'], DUCK = { music: 0.55, effects: 0.7, voice: 1 };
+  // music and the other sounds (the telly, the games) settle underneath them.
+  // Recordings are already matched in loudness: +5.1 dB here, without editing clips.
+  const KINDS = ['effects', 'music', 'voice'], DUCK = { music: 0.32, effects: 0.4, voice: 1 };
   let ducked = false;
-  const level = kind => volume * (kind === 'music' ? +musicOn : +sfxOn) * (ducked ? DUCK[kind] : 1);
+  const level = kind => (kind === 'music' ? +musicOn : +sfxOn) * (kind === 'voice' ? 1.8 : 1) * (ducked ? DUCK[kind] : 1);
   function apply(tc) {
     for (const [c,bus] of buses) {
       if (c.state === 'closed') { buses.delete(c); continue; }
       for (const kind of KINDS) { const gain = bus[kind].gain; gain.cancelScheduledValues(c.currentTime); gain.setTargetAtTime(level(kind), c.currentTime, tc); }
+      // The saved slider follows dynamics, so 50% remains exactly half as loud.
+      bus.control.gain.cancelScheduledValues(c.currentTime); bus.control.gain.setTargetAtTime(volume,c.currentTime,.012);
     }
   }
   function changed() {
@@ -253,7 +273,9 @@
     set musicOn(v) { musicOn = !!v; changed(); },
     get volume() { return volume; },
     get ready() { return ready(); },
+    // Channel taps precede dynamics/overall volume; this tap is the final mix.
     output,
+    masterOutput(c) { output(c); return buses.get(c).control; },
     world,
     get voicesOn() { return sfxOn && volume > 0; },
     duck(on) { on = !!on; if (on === ducked) return; ducked = on; apply(on ? .08 : .35); },
