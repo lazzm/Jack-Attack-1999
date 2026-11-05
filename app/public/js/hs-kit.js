@@ -60,8 +60,42 @@
   }
   const qualityMaps=['map','emissiveMap','alphaMap','lightMap','aoMap','normalMap','roughnessMap','metalnessMap','specularMap','bumpMap'];
   // House surfaces keep their material identity (switches/props retain references) and r128's Phong program.
-  function phongShader(){}
-  const phongKey=()=> 'house-phong-r128';
+  function interiorUniforms(){const uniform=v=>({value:v});return {houseSky:uniform(new T.Color()),houseMain:uniform(new T.Color()),houseAccent:uniform(new T.Color()),houseSpill:uniform(new T.Color()),houseSun:uniform(new T.Color()),houseSunDir:uniform(new T.Vector3()),houseProjector0:uniform(new T.Matrix4()),houseProjector1:uniform(new T.Matrix4()),houseU:uniform([new T.Vector4(),new T.Vector4()]),houseV:uniform([new T.Vector4(),new T.Vector4()]),houseAperture:uniform([new T.Vector4(),new T.Vector4()]),housePlane:uniform([new T.Vector4(),new T.Vector4()])}}
+  const INTERIOR_BAKES=new Map(),INTERIOR_SHADER={uniforms:interiorUniforms()},interiorDark=new T.Color('#000');
+  function interiorFor(r){const state=INTERIOR_BAKES.get(r?.id);for(const key in INTERIOR_SHADER.uniforms){const u=INTERIOR_SHADER.uniforms[key];if(state)u.value=state.uniforms[key].value;else if(key==='houseSun')u.value=interiorDark}}
+  function phongShader(shader){
+    const state=INTERIOR_SHADER;
+    Object.assign(shader.uniforms,state.uniforms);
+    shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform vec3 houseSun; varying vec3 housePosition; varying vec3 houseNormal;').replace('#include <worldpos_vertex>',`#include <worldpos_vertex>
+      housePosition=vec3(0.0);houseNormal=vec3(0.0,1.0,0.0);
+      if(dot(houseSun,vec3(1.0))>.001){
+        vec4 houseWorld=modelMatrix*vec4(transformed,1.0);
+        housePosition=vec3(houseWorld.x,-houseWorld.y,houseWorld.z);
+        vec3 houseN=(vec4(transformedNormal,0.0)*viewMatrix).xyz;
+        houseNormal=vec3(houseN.x,-houseN.y,houseN.z);
+      }`);
+    shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
+      varying vec3 housePosition; varying vec3 houseNormal;
+      uniform vec3 houseSky,houseMain,houseAccent,houseSpill,houseSun,houseSunDir;
+      uniform mat4 houseProjector0,houseProjector1;
+      float houseApertureMask(mat4 projector,vec4 p){
+        vec4 a=projector[2];if(a.y<=a.x||dot(projector[3],p)<.5)return 0.0;
+        float u=dot(projector[0],p),v=dot(projector[1],p);
+        if(u<a.x-4.0||u>a.y+4.0||v<a.z-4.0||v>a.w+4.0)return 0.0;
+        float mask=smoothstep(a.x-4.0,a.x+4.0,u)*(1.0-smoothstep(a.y-4.0,a.y+4.0,u))*smoothstep(a.z-4.0,a.z+4.0,v)*(1.0-smoothstep(a.w-4.0,a.w+4.0,v));
+        return mask*smoothstep(1.0,4.0,abs(u-(a.x+a.y)*.5));
+      }
+      vec3 houseWindowLight(){
+        if(dot(houseSun,vec3(1.0))<.001)return vec3(0.0);
+        vec4 p=vec4(housePosition,1.0);
+        float sunMask=houseApertureMask(houseProjector0,p)+houseApertureMask(houseProjector1,p);
+        return houseSun*min(1.0,sunMask)*max(0.0,dot(normalize(houseNormal),-houseSunDir));
+      }`);
+    let maps=T.ShaderChunk.lights_fragment_maps;
+    if(this.userData.interiorShell)maps=maps.replace(/vec3 lightMapIrradiance[^;]+;/,`vec3 lightMapIrradiance = lightMapTexel.r*houseSky + lightMapTexel.g*houseMain + lightMapTexel.b*houseAccent + lightMapTexel.a*houseSpill;`);
+    shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',maps+'\nirradiance += PI*houseWindowLight();');
+  }
+  function phongKey(){return 'house-interior-r2-'+(this.userData.interiorShell?'shell':'prop')}
   function surfaceQuality(m){
     if(!m.isMeshPhongMaterial||!m.userData.houseSurface)return;
     if(m.onBeforeCompile!==phongShader){m.onBeforeCompile=phongShader;m.customProgramCacheKey=phongKey;m.flatShading=!!m.userData.spec?.flat;m.needsUpdate=true}
@@ -170,6 +204,7 @@
   // These are indirect light / occlusion only; the existing rig still lights
   // movable things. Neither exterior materials nor saved game state is touched.
   function bakeInterior(r) {
+    const started=performance.now();
     const layouts = {
       bedroom: [-280,240,-56,250,-185,73], landing:[250,410,130,700,-185,73],
       hall:[205,410,60,700,95,353], cupboard:[331,409,251,570.625,95,353],
@@ -182,13 +217,13 @@
     for(const mesh of r.group.children){
       if(!mesh.isMesh||!mesh.material?.isMeshPhongMaterial||!shellMaps.has(mesh.material.map)||mesh.material.transparent)continue;
       const g=mesh.geometry,p=g.attributes.position,n=g.attributes.normal,verts=[];
-      nm.getNormalMatrix(mesh.matrix);
+      nm.getNormalMatrix(mesh.matrix);let previous=null,prevX=NaN,prevY=NaN,prevZ=NaN,prevDist=NaN;
       for(let i=0;i<p.count;i++){
         pos.fromBufferAttribute(p,i).applyMatrix4(mesh.matrix);normal.fromBufferAttribute(n,i).applyMatrix3(nm).normalize();for(const k of ['x','y','z'])if(Math.abs(normal[k])<.0001)normal[k]=0;
         const ax=Math.abs(normal.x),ay=Math.abs(normal.y),az=Math.abs(normal.z),axis=ax>ay&&ax>az?0:ay>az?1:2;
         const u=axis===0?pos.z:pos.x,v=axis===1?pos.z:pos.y,dist=normal.dot(pos);
-        const key=normal.toArray().map(v=>v.toFixed(3)).join(',')+':'+dist.toFixed(1);
-        let c=byPlane.get(key);if(!c){c={index:charts.length,axis,n:normal.clone(),dist,u0:u,u1:u,v0:v,v1:v};byPlane.set(key,c);charts.push(c)}
+        const plane=Math.round(dist*10);let c=previous;
+        if(normal.x!==prevX||normal.y!==prevY||normal.z!==prevZ||plane!==prevDist){const key=normal.toArray().map(v=>v.toFixed(3)).join(',')+':'+plane;c=byPlane.get(key);if(!c){c={index:charts.length,axis,n:normal.clone(),dist,u0:u,u1:u,v0:v,v1:v};byPlane.set(key,c);charts.push(c)}previous=c;prevX=normal.x;prevY=normal.y;prevZ=normal.z;prevDist=plane}
         c.u0=Math.min(c.u0,u);c.u1=Math.max(c.u1,u);c.v0=Math.min(c.v0,v);c.v1=Math.max(c.v1,v);verts.push({c,u,v});
       }
       receivers.push({mesh,verts});
@@ -209,84 +244,91 @@
       const uv=new Float32Array(verts.length*2);
       verts.forEach(({c,u,v},i)=>{uv[i*2]=(c.x+pad+.5+(u-c.u0)/Math.max(.01,c.u1-c.u0)*(c.w-pad*2-1))/w;uv[i*2+1]=(c.y+pad+.5+(v-c.v0)/Math.max(.01,c.v1-c.v0)*(c.h-pad*2-1))/h});
       mesh.geometry.setAttribute('uv2',new T.Float32BufferAttribute(uv,2));
-      let m=clones.get(mesh.material);if(!m){m=mesh.material.clone();m.lightMap=light;m.lightMapIntensity=1;m.aoMap=ao;m.aoMapIntensity=r.id==='cupboard'?.5:1;m.shininess=1;m.specular.set('#000');m.needsUpdate=true;clones.set(mesh.material,m)}mesh.material=m;
+      let m=clones.get(mesh.material);if(!m){m=mesh.material.clone();m.userData.interiorRoom=r.id;m.userData.interiorShell=true;m.lightMap=light;m.lightMapIntensity=1;m.aoMap=ao;m.aoMapIntensity=r.id==='cupboard'?.5:1;m.shininess=1;m.specular.set('#000');m.needsUpdate=true;clones.set(mesh.material,m)}mesh.material=m;
     }
-    const [x0,x1,z0,z1,cy,fy]=bounds;
-    const windows = r.id==='bedroom' ? window.House.REAR.bedroomWindows.map(a=>({axis:2,at:-56,u0:a.x0+5,u1:a.x1-5,y0:a.y0+5,y1:a.y1-5,sign:1})) : {
+    const chartMs=performance.now()-started;
+    const [x0,x1,z0,z1,cy,fy]=bounds, H=window.House;
+    const windows = r.id==='bedroom' ? H.REAR.bedroomWindows.map(a=>({axis:2,at:-56,u0:a.x0+5,u1:a.x1-5,y0:a.y0+5,y1:a.y1-5,sign:1})) : {
       landing:[{axis:0,at:410,u0:400,u1:480,y0:-80,y1:60,sign:-1}],
       hall:[{axis:2,at:700,u0:279,u1:321,y0:167,y1:245,sign:-1}],
       lounge:[{axis:2,at:700,u0:-164,u1:44,y0:156,y1:294,sign:-1}],
       kitchen:[{axis:2,at:-176,u0:-154,u1:-46,y0:149,y1:247,sign:1},{axis:0,at:195,u0:-154,u1:-86,y0:149,y1:229,sign:-1}]
     }[r.id]||[];
     const smooth=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t)};
-    // Bake geometric weights once. Switches only combine byte layers: no rays,
-    // distance calculations, canvas repaint or geometry work during a frame.
-    const size=w*h,skyLayer=new Uint8Array(size),lampLayers=new Map(),sunLayers=new Map();
-    function scan(fn){
-      for(const c of charts){const ox=c.x,oy=c.y;
-        for(let y=0;y<c.h;y++)for(let x=0;x<c.w;x++){
-          const u=c.u0+(c.u1-c.u0)*Math.max(0,Math.min(1,(x-pad)/(c.w-pad*2-1))),v=c.v0+(c.v1-c.v0)*Math.max(0,Math.min(1,(y-pad)/(c.h-pad*2-1)));
-          if(c.axis===0)pos.set((c.dist-c.n.y*v-c.n.z*u)/c.n.x,v,u);
-          else if(c.axis===1)pos.set(u,(c.dist-c.n.x*u-c.n.z*v)/c.n.y,v);
-          else pos.set(u,v,(c.dist-c.n.x*u-c.n.y*v)/c.n.z);
-          fn((oy+y)*w+ox+x,pos.x,pos.y,pos.z,c);
-        }
+    const sources={
+      bedroom:[[-20,-140,90],[window.Room?.lampSource?.x??-52.65,window.Room?.lampSource?.y??-33.65,window.Room?.lampSource?.z??-30]],
+      landing:[[300,-150,400]],hall:[[300,130,200],[300,130,560]],
+      cupboard:[[370,205,320],[368,258,386]],lounge:[[-60,125,500],[176,193,324]],kitchen:[[-60,105,120]]
+    }[r.id];
+    const main=r.id==='hall'||r.id==='cupboard'?sources:[sources[0]],accent=r.id==='bedroom'||r.id==='lounge'?[sources[1]]:[];
+    const spills={hall:[['lounge','lounge',195,243,520],['kitchen','kitchen',195,243,190]],landing:[['bedroom','bedroom',250,-35,190],['hall',null,300,130,560]],bedroom:[['landing','bedroom',250,-35,190]],lounge:[['hall','lounge',195,243,520]],kitchen:[['hall','kitchen',195,243,190]],cupboard:[['hall','cupboard',331,243,315]]}[r.id]||[];
+    const footprints=[];
+    // Read the actual existing, fixed furniture shadow geometry. Movable props'
+    // nested cards are left alone: carrying a chair must never leave a baked stain.
+    for(const mesh of r.group.children){
+      if(!mesh.userData.contactShadow||!mesh.geometry?.attributes.position)continue;
+      const p=mesh.geometry.attributes.position,step=mesh.material.map===TEX.sqblob2?54:252;
+      if(p.count%step)continue;
+      for(let start=0;start<p.count;start+=step){
+        let ax=Infinity,bx=-Infinity,az=Infinity,bz=-Infinity,ay=Infinity,by=-Infinity;
+        for(let i=start;i<start+step;i++){pos.fromBufferAttribute(p,i).applyMatrix4(mesh.matrix);ax=Math.min(ax,pos.x);bx=Math.max(bx,pos.x);az=Math.min(az,pos.z);bz=Math.max(bz,pos.z);ay=Math.min(ay,pos.y);by=Math.max(by,pos.y)}
+        if(Math.abs((ay+by)/2-fy)<1&&bx-ax>35&&bz-az>28){const inset=Math.min(9,(bx-ax)*.12,(bz-az)*.12);footprints.push([ax+inset,bx-inset,az+inset,bz-inset])}
       }
     }
-    scan((i,px,py,pz,c)=>{
-      const dx=Math.max(0,Math.min(px-x0,x1-px)),dz=Math.max(0,Math.min(pz-z0,z1-pz)),dy=Math.max(0,Math.min(py-(r.ceilingAt?.(px,pz)??cy),fy-py));
+    const lampWeight=(points,px,py,pz,n)=>{let a=0;for(const p of points){const dx=p[0]-px,dy=p[1]-py,dz=p[2]-pz,d2=dx*dx+dy*dy+dz*dz;if(d2>=220900)continue;const d=Math.sqrt(d2),cos=Math.max(0,(dx*n.x+dy*n.y+dz*n.z)/Math.max(1,d));a+=1/(1+d2/12100)*(.12+.88*cos)*(1-smooth(270,470,d))}return Math.min(1,a)};
+    const spillPoints=spills.map(s=>[[s[2],s[3],s[4]]]),bluePoints=accent.length?accent:spillPoints[0]||[],alphaPoints=accent.length?spillPoints[0]||[]:spillPoints[1]||[];
+    // Static RGBA channels: window bounce, ceiling pool, accent/door pool,
+    // second doorway. Time and switches change uniforms, never these texels.
+    for(const c of charts)for(let y=0;y<c.h;y++)for(let x=0;x<c.w;x++){
+      const u=c.u0+(c.u1-c.u0)*Math.max(0,Math.min(1,(x-pad)/(c.w-pad*2-1))),v=c.v0+(c.v1-c.v0)*Math.max(0,Math.min(1,(y-pad)/(c.h-pad*2-1)));
+      if(c.axis===0)pos.set((c.dist-c.n.y*v-c.n.z*u)/c.n.x,v,u);else if(c.axis===1)pos.set(u,(c.dist-c.n.x*u-c.n.z*v)/c.n.y,v);else pos.set(u,v,(c.dist-c.n.x*u-c.n.y*v)/c.n.z);
+      const px=pos.x,py=pos.y,pz=pos.z,dx=Math.max(0,Math.min(px-x0,x1-px)),dz=Math.max(0,Math.min(pz-z0,z1-pz)),dy=Math.max(0,Math.min(py-(r.ceilingAt?.(px,pz)??cy),fy-py));
       const edge=c.axis===1?Math.min(dx,dz):Math.min(c.axis===0?dz:dx,dy);
-      const shade=(.78+.22*smooth(0,65,edge))*(.83+.17*smooth(0,9,edge));
-      aoData[i*4]=aoData[i*4+1]=aoData[i*4+2]=Math.round(shade*255);aoData[i*4+3]=255;
-      let sky=0;for(const a of windows){
-        const lx=(a.axis===0?a.at:(a.u0+a.u1)/2)-px,lz=(a.axis===2?a.at:(a.u0+a.u1)/2)-pz,ly=(a.y0+a.y1)/2-py,d=Math.hypot(lx,ly,lz),cos=Math.max(0,(lx*c.n.x+ly*c.n.y+lz*c.n.z)/Math.max(1,d));
-        sky+=1/(1+(d/170)**2)*(.18+.82*cos);
-      }skyLayer[i]=Math.min(255,Math.round(sky*255));
-    });
-    function lampLayer(l){
-      const key=[l.x,l.y,l.z,l.d||400].join(',');let layer=lampLayers.get(key);if(layer)return layer;
-      layer=new Uint8Array(size);scan((i,px,py,pz,c)=>{
-        const lx=l.x-px,ly=l.y-py,lz=l.z-pz,d=Math.hypot(lx,ly,lz),cos=Math.max(0,(lx*c.n.x+ly*c.n.y+lz*c.n.z)/Math.max(1,d)),f=Math.max(0,1-d/(l.d||400));
-        layer[i]=Math.round(255*f*f*(.2+.8*cos));
-      });lampLayers.set(key,layer);return layer;
+      let shade=(.58+.42*smooth(0,72,edge))*(.72+.28*smooth(0,12,edge));
+      // Each tread has its own dark riser junction, not one flat stair wash.
+      if(r.id==='landing'&&py>fy+4&&c.axis===1&&c.v1-c.v0<45)shade*=.55+.45*smooth(0,16,pz-c.v0);
+      const contactHeight=1-smooth(0,c.axis===1?8:95,Math.abs(fy-py));
+      if(contactHeight>0)for(const b of footprints){const fx=Math.max(b[0]-px,0,px-b[1]),fz=Math.max(b[2]-pz,0,pz-b[3]),d2=fx*fx+fz*fz;if(d2<484)shade*=1-.58*(1-smooth(0,22,Math.sqrt(d2)))*contactHeight}
+      const i=((c.y+y)*w+c.x+x)*4,dither=(((i/4*13)%17)/16-.5)*.8;
+      aoData[i]=aoData[i+1]=aoData[i+2]=Math.round(Math.max(.14,shade)*255);aoData[i+3]=255;
+      let sky=0;for(const a of windows){const lx=(a.axis===0?a.at:(a.u0+a.u1)/2)-px,lz=(a.axis===2?a.at:(a.u0+a.u1)/2)-pz,ly=(a.y0+a.y1)/2-py,d2=lx*lx+ly*ly+lz*lz,d=Math.sqrt(d2),cos=Math.max(0,(lx*c.n.x+ly*c.n.y+lz*c.n.z)/Math.max(1,d));sky+=1/(1+d2/24025)*(.23+.77*cos)}
+      lightData[i]=Math.min(255,Math.round(sky*255+dither));lightData[i+1]=Math.round(lampWeight(main,px,py,pz,c.n)*255);
+      lightData[i+2]=Math.round(lampWeight(bluePoints,px,py,pz,c.n)*(accent.length?1:.8)*255);
+      lightData[i+3]=Math.round(lampWeight(alphaPoints,px,py,pz,c.n)*.8*255);
     }
-    function sunLayer(sun){
-      if(!sun)return null;const key=[sun.x,sun.y,sun.z,sun.tx||0,sun.ty||0,sun.tz||0].join(',');if(sunLayers.has(key))return sunLayers.get(key);
-      const layer=new Uint8Array(size),sx=(sun.tx||0)-sun.x,sy=(sun.ty||0)-sun.y,sz=(sun.tz||0)-sun.z,len=Math.hypot(sx,sy,sz);
-      scan((i,px,py,pz,c)=>{let amount=0;
-        for(const a of windows){
-          const ds=a.axis===0?sx:sz;if(ds*a.sign<=0)continue;
-          const t=((a.axis===0?px:pz)-a.at)/ds;if(t<=0)continue;
-          const hitU=a.axis===0?pz-t*sz:px-t*sx,hitY=py-t*sy;
-          let mask=smooth(-5,5,hitU-a.u0)*(1-smooth(-5,5,hitU-a.u1))*smooth(-5,5,hitY-a.y0)*(1-smooth(-5,5,hitY-a.y1));
-          mask*=smooth(1,5,Math.abs(hitU-(a.u0+a.u1)/2));
-          if(r.id==='bedroom')mask*=smooth(1,5,Math.abs(hitY-(a.y0+(a.y1-a.y0)*.4)));
-          amount+=mask*Math.max(0,-(sx*c.n.x+sy*c.n.y+sz*c.n.z)/len);
-        }layer[i]=Math.min(255,Math.round(amount*255));
-      });sunLayers.set(key,layer);return layer;
+    const uniforms=interiorUniforms();
+    const stats={buildMs:0,chartMs,weightsMs:performance.now()-started-chartMs,updateMs:0,maxUpdateMs:0,updates:0,staticAtlases:2,footprints:footprints.length};
+    const state={uniforms};INTERIOR_BAKES.set(r.id,state);
+    // Room render passes bind these uniforms once for the whole room. Furniture
+    // keeps its original materials, controllers and static batching classes.
+    let lastUpdate='';
+    function update(){
+      const t=performance.now(),date=window.OwnerTools?.now?.()||new Date(),hour=date.getHours()+date.getMinutes()/60,sun=window.Season?.sun?.()||{rise:7,set:18};
+      const ph=document.getElementById('bootPower')?.classList,night=ph?.contains('rm-night'),dawn=ph?.contains('rm-dawn'),dusk=ph?.contains('rm-dusk');
+      const daylight=night?.018:dawn?.32:dusk?.3:1,lamps=(typeof r.lights==='function'?r.lights():r.lights)||[];
+      const key=hour+'|'+sun.rise+','+sun.set+'|'+daylight+'|'+lamps.map(l=>l.i).join(',')+'|'+spills.map(s=>[H.DOORS[s[1]]?.ang,typeof H.ROOMS[s[0]]?.lights==='function'?H.ROOMS[s[0]].lights().map(l=>l.i).join(','):'']).join(';');if(key===lastUpdate)return;lastUpdate=key;
+      uniforms.houseSky.value.set(dusk?'#ffb56d':dawn?'#c5dbff':'#c4d9ff').multiplyScalar(daylight*.72);
+      const match=points=>{let a=0;for(const p of points){const l=lamps.find(l=>Math.hypot(l.x-p[0],l.y-p[1],l.z-p[2])<6);if(l)a=Math.max(a,l.i||0)}return a};
+      uniforms.houseMain.value.set('#ffd39a').multiplyScalar(match(main)*(r.id==='cupboard'?.28:1.6));
+      const spillColour=(s,c)=>{c.set('#ffce96');if(!s){c.multiplyScalar(0);return}const door=s[1]?H.DOORS[s[1]]:null,open=door?Math.max(0,door.ang||0):1,other=H.ROOMS[s[0]],ls=(typeof other?.lights==='function'?other.lights():other?.lights)||[],warm=ls.some(l=>l.i>.4&&new T.Color(l.c||'#fff').r>new T.Color(l.c||'#fff').b);c.multiplyScalar(open*(warm?.62:daylight*.28))};
+      if(accent.length)uniforms.houseAccent.value.set('#ffbe72').multiplyScalar(match(accent)*2.1);else spillColour(spills[0],uniforms.houseAccent.value);
+      spillColour(accent.length?spills[0]:spills[1],uniforms.houseSpill.value);
+      const progress=Math.max(0,Math.min(1,(hour-sun.rise)/(sun.set-sun.rise))),drift=(progress-.5)*1.05,alt=.48+.62*Math.sin(progress*Math.PI),a0=windows[0],dir=uniforms.houseSunDir.value;
+      if(a0?.axis===0)dir.set(a0.sign,alt,drift);else dir.set(drift,alt,a0?.sign||1);dir.normalize();
+      const sunAmount=night?0:(dawn||dusk?.45:1)*Math.max(.1,Math.sin(progress*Math.PI));
+      uniforms.houseSun.value.set(dusk?'#ffb15b':dawn?'#e5edff':'#ffe0a3').multiplyScalar(sunAmount*1.15);
+      for(let i=0;i<2;i++){
+        const a=windows[i];if(!a){uniforms.houseAperture.value[i].set(1,0,1,0);continue}
+        const ds=a.axis===0?dir.x:dir.z;if(ds*a.sign<=.03){uniforms.houseAperture.value[i].set(1,0,1,0);continue}
+        if(a.axis===0){uniforms.houseU.value[i].set(-dir.z/ds,0,1,dir.z/ds*a.at);uniforms.houseV.value[i].set(-dir.y/ds,1,0,dir.y/ds*a.at)}else{uniforms.houseU.value[i].set(1,0,-dir.x/ds,dir.x/ds*a.at);uniforms.houseV.value[i].set(0,1,-dir.y/ds,dir.y/ds*a.at)}
+        uniforms.houseAperture.value[i].set(a.u0,a.u1,a.y0,a.y1);uniforms.housePlane.value[i].set(a.axis===0?a.sign:0,0,a.axis===2?a.sign:0,-a.at*a.sign);
+      }
+      // Matrix setters cache equal elements in r128; pure vector-array setters
+      // upload on every material. These columns are the same aperture data.
+      for(let i=0;i<2;i++){const m=uniforms[i?'houseProjector1':'houseProjector0'].value.elements,columns=[uniforms.houseU.value[i],uniforms.houseV.value[i],uniforms.houseAperture.value[i],uniforms.housePlane.value[i]];for(let c=0;c<4;c++){const v=columns[c],o=c*4;m[o]=v.x;m[o+1]=v.y;m[o+2]=v.z;m[o+3]=v.w}}
+      stats.updateMs=performance.now()-t;stats.maxUpdateMs=Math.max(stats.maxUpdateMs,stats.updateMs);stats.updates++;
     }
-    // Include zero-intensity fittings now, so their first switch-on is warm.
-    for(const l of typeof r.lights==='function'?r.lights():r.lights)lampLayer(l);
-    let last='';
-    function paint(){
-      const lamps=(typeof r.lights==='function'?r.lights():r.lights).filter(l=>l.i>0),sun=typeof r.sun==='function'?r.sun():r.sun;
-      const phase=document.getElementById('bootPower')?.classList,day=phase?.contains('rm-day'),dawn=phase?.contains('rm-dawn'),dusk=phase?.contains('rm-dusk'),daylight=day?1:dawn?.48:dusk?.25:.035;
-      const key=JSON.stringify([daylight,lamps,sun]);if(key===last)return false;last=key;
-      const layers=lamps.map(l=>({a:lampLayer(l),c:new T.Color(l.c||'#fff'),i:l.i*.14/255})),beam=sunLayer(sun);
-      for(let i=0;i<size;i++){
-        const sky=skyLayer[i]*daylight*.2/255,patch=beam?beam[i]*daylight*.3/255:0;
-        let red=sky*.8+patch,green=sky*.9+patch*.86,blue=sky+patch*.65;
-        for(const l of layers){const k=l.a[i]*l.i;red+=l.c.r*k;green+=l.c.g*k;blue+=l.c.b*k}
-        const dither=((i*13)%17/16-.5)*.8,j=i*4;
-        lightData[j]=Math.min(255,Math.max(0,Math.round(red*255+dither)));lightData[j+1]=Math.min(255,Math.max(0,Math.round(green*255+dither)));lightData[j+2]=Math.min(255,Math.max(0,Math.round(blue*255+dither)));lightData[j+3]=255;
-      }light.needsUpdate=true;return true;
-    }
-    // A power-on / rapid switch sequence must not do the bake inside a CRT
-    // upload. Coalesce it before the next paint; the initial bake stays synchronous.
-    let queued=false;
-    function flush(){queued=false;if(paint())window.House?.dirty()}
-    function update(){if(!queued){queued=true;queueMicrotask(flush)}}
-    r.lightBake={update,charts:charts.length,width:w,height:h,light,ao};paint();
+    r.lightBake={update,charts:charts.length,width:w,height:h,light,ao,stats};update();stats.buildMs=performance.now()-started;
   }
 
   // ================================================================ materials (cached by their spec)
@@ -645,5 +687,5 @@
   // The geometry lies flat (normal up in the y-down world), centred, w x d with an m cm fade.
   function shadowGeo(sq, w, d, m) { const g = sq ? sliceGeo(w, d, shadowMargin(w, d, m)) : ringGeo(w, d, shadowMargin(w, d, m)); g.applyMatrix4(new T.Matrix4().makeRotationX(Math.PI / 2)); return g; }
   const shadowMaterial = (sq, a) => mat({ c: '#000', map: sq ? sqBlobTex() : ringTex(), basic: true, tr: true, o: Math.min(0.999, a == null ? 0.8 : a), dw: false, po: -2, cs: 1 });
-  window.HouseKit = { bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
+  window.HouseKit = { interiorFor, bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
 })();

@@ -186,7 +186,7 @@
   // No window under the stairs: daylight must not switch its bulb off.
   const lit = id => lightsOn[id] != null ? lightsOn[id] : (id === 'cupboard' || phase() !== 'day');
   const standardLampOn=()=>lightsOn.loungeLamp==null?phase()!=='day':lightsOn.loungeLamp;
-  function standardLampLook(r){if(r&&r.standardBulbMaterial){r.standardBulbMaterial.emissive.set(standardLampOn()?'#c89b58':'#000000');r.standardBulbMaterial.userData.e0=r.standardBulbMaterial.emissive.clone();exteriorLightLook(HouseRooms.rooms.drive);H.dirty()}}
+  function standardLampLook(r){if(r&&r.standardBulbMaterial){if(r.standardShadeMaterial){r.standardShadeMaterial.emissive.set(standardLampOn()?'#63401f':'#000000');r.standardShadeMaterial.userData.e0=r.standardShadeMaterial.emissive.clone()}r.standardBulbMaterial.emissive.set(standardLampOn()?'#c89b58':'#000000');r.standardBulbMaterial.userData.e0=r.standardBulbMaterial.emissive.clone();exteriorLightLook(HouseRooms.rooms.drive);H.dirty()}}
   const ceilingSwitches=new Map();
   function exteriorLightLook(r){
     if(!r)return;const night=phase()!=='day';
@@ -222,9 +222,9 @@
     switchLook();
   }
   function interiorAmb(id, dayIntensity = .64) {
-    if (phase() === 'day') return {sky: '#d6dfe8', gnd: '#887d6e', i: dayIntensity};
-    if (lit(id)) return {sky: '#ded1bc', gnd: '#7a6853', i: .5};
-    return phase() === 'night' ? {sky: '#7887a2', gnd: '#45464c', i: .36} : {sky: '#c1adb2', gnd: '#746251', i: .46};
+    if (phase() === 'day') return {sky: '#c2d5ee', gnd: '#756b60', i: dayIntensity*.62};
+    if (phase() === 'night') return {sky: '#8699bd', gnd: '#51483f', i: lit(id)?(id==='kitchen'?.18:.14):.105};
+    return phase() === 'dawn' ? {sky:'#c3d7f2',gnd:'#666674',i:.23} : {sky:'#d3ad91',gnd:'#615044',i:.2};
   }
   function outdoorAmb(ground) {
     return phase() === 'day' ? {sky: '#cfe0ff', gnd: ground, i: .78} : phase() === 'night' ? {sky: '#8795af', gnd: '#57604f', i: .52} : {sky: '#d9b6ae', gnd: '#66654f', i: .62};
@@ -847,7 +847,7 @@
     fp.plane(43.6, -52, 0, 84, 80, M({ c: '#fff', map: tileTex() }), { ry: 90 }); fp.box(43, -36, 0, 4, 58, 56, M('#1a1512')); // tiled inset, the dark opening
     // A proper coal-effect gas fire in the opening, not a black slab: a polished brass frame and canopy hood, the burner
     // fret along the bottom with its control knob, the fire box behind the coals.
-    { const brass = M({ c: '#c9a24a', sh: 80, sp: '#a07c3a' }), blackSteel = M({ c: '#202020', sh: 30, sp: '#555' });
+    { const brass = M({ c: '#bfa05c', sh: 38, sp: '#554527' }), blackSteel = M({ c: '#202020', sh: 30, sp: '#555' });
       fp.box(45.6, -66.5, 0, 2, 3, 62, brass); fp.box(45.6, -6.2, 0, 2, 2.4, 62, brass); for (const sd of [-1, 1]) fp.box(45.6, -36.4, sd * 29.5, 2, 57.8, 3, brass);
       fp.box(48.2, -62, 0, 6, 3.4, 58, brass, { rz: -28 }); fp.box(47, -10.5, 0, 4, 6.5, 54, blackSteel);
       for (let k = -4; k <= 4; k++) fp.box(49.1, -10.5, k * 5.6, .4, 4.6, 2.2, brass);
@@ -901,7 +901,8 @@
     H.spot('hs.phone', { label: () => (window.HouseLife && HouseLife.ringing && HouseLife.ringing()) ? 'The phone! (it\'s ringing)' : 'The phone', obj: ph, act: () => life('phone') });
     if(!H.THINGS['hs.pbook']){H.spot('hs.pbook',{label:'Phone book',act:()=>life('pbook')});pickBox(r,'hs.pbook',164,GY-24,610,24,6,30)}
     const sl=B.at(LAMPST.x,GY,LAMPST.z);sl.cyl(0,-1.5,0,14,15,3,28,M('#2a2a2a'));sl.cyl(0,-77,0,1,1,151,12,mBrass);
-    sl.lathe(0,-158,0,[[11.6,-13.2],[12,-13.4],[20.2,12.8],[20.1,13.3],[19.6,13.3],[11.2,-12.7],[11.6,-13.2]],32,M({c:'#e8d2a4',sh:7}));
+    r.standardShadeMaterial=M({c:'#e8d2a4',sh:7}).clone();
+    sl.lathe(0,-158,0,[[11.6,-13.2],[12,-13.4],[20.2,12.8],[20.1,13.3],[19.6,13.3],[11.2,-12.7],[11.6,-13.2]],32,r.standardShadeMaterial);
     for(const yy of [-171.3,-144.7])sl.geo(new T.TorusGeometry(yy===-171.3?11.6:19.9,0.22,5,40),0,yy,0,M('#bba67f'),{rx:90});
     sl.cyl(0,-151,0,2,2,5,16,M('#d5cbb6'));sl.cyl(0,-154.5,0,1.1,1.1,4,14,mMetal);r.standardBulbMaterial=M({c:'#f7e9cd',e:'#000000',sh:18}).clone();sl.ball(0,-160,0,3.1,4,3.1,r.standardBulbMaterial,20);sl.shadow(0,0,0,36,36,0.6);
     B.rbox(194.4,GY-18,360,1.2,8,12,0.4,mWhite);B.rbox(193.1,GY-18,360,1.4,3.8,3.3,0.3,M('#353536'));B.cyl(192,GY-18,360,0.5,0.5,0.8,10,M('#29292b'),{rz:90});
@@ -1862,7 +1863,7 @@
   const rearGlass=[[-160,143,-186,-40,253,-174],[95,167,-180,145,245,-174],[193,143,-160,207,235,-80]],bedroomGlass=REAR.bedroomWindows.map(w=>[w.x0,w.y0,-74,w.x1,w.y1,-50]),bayGlass=[[-170,150,696,50,300,710]],frontGlass=[[279,167,698,321,245,706]];
   const ROOMDEF = {
     landing: { name: 'The landing', title: 'THE LANDING', lvl: 'U', area: [[250, 130, 410, 250], [250, 250, 330, 700], [330, 250, 410, 700]], bx0: 252, bx1: 408, bz0: 132, bz1: 698, build: buildLanding, windowViews:[{room:'drive',bounds:[[410,-80,400,420,60,480]]}],
-      lights: () => [{ x: 300, y: -150, z: 400, c: '#fff0d8', i: lit('landing') ? 0.9 : 0, d: 520 }, { x: 390, y: -10, z: 440, c: phase() === 'day' ? '#e8f0ff' : '#5a6a9a', i: phase() === 'day' ? 1.3 : 0.25, d: 560 }, { x: 300, y: -60, z: 180, c: '#f0ece0', i: phase() === 'day' ? 0.4 : 0.1, d: 320 }],
+      lights: () => [{ x: 300, y: -150, z: 400, c: '#fff0d8', i: lit('landing') ? 0.9 : 0, d: 520 }, { x: 390, y: -10, z: 440, c: phase() === 'day' ? '#e8f0ff' : '#5a6a9a', i: phase() === 'day' ? 1.3 : 0.25, d: 560 }, { x: 300, y: -60, z: 180, c: '#f0ece0', i: phase() === 'day' ? 0.4 : 0.1, d: 320 }, { x: 300, y: 130, z: 560, c: '#fff0d8', i: lit('hall') ? .65 : 0, d: 450 }],
       amb: () => interiorAmb('landing', .68),
       stations: [{ id: 'top', n: 'Top of the stairs', pose: () => look('U', 300, 175, 370, 220, 520, 158) }, { id: 'doors', n: 'Landing', pose: () => look('U', 310, 640, 250, -40, 420, 158) }] },
     hall: { name: 'The hall', title: 'THE HALL', lvl: 'G', area: [[205, 60, 410, 250], [205, 250, 330, 600], [205, 600, 410, 700], [330, 570.625, 410, 600]], bx0: 207, bx1: 408, bz0: 62, bz1: 698, build: buildHall, windowViews:[{room:'drive',bounds:frontGlass}],
@@ -1899,7 +1900,7 @@
       sun: () => phase() === 'night' ? { x: 200, y: -800, z: 1700, tx: 300, ty: GY, tz: 900, c: '#8090c8', i: 0.15 } : { x: -400, y: -900, z: 1500, tx: 300, ty: GY, tz: 900, c: phase() === 'day' ? '#fff4e0' : '#ffb070', i: phase() === 'day' ? 0.9 : 0.5 },
       stations: [{ id: 'car', n: "Dad's car", pose: () => look('G', 290, FZ - 50, CAR.x, GY - 70, CAR.z, 158) }, { id: 'house', n: 'The house', pose: () => look('G', 180, FZ - 70, 150, 120, 700, 158) }, { id: 'street', n: 'The street', pose: () => look('G', 200, 760, 240, GY - 120, FZ + 300, 158) }] },
     kitchen: { name: 'The kitchen', title: 'THE KITCHEN', lvl: 'G', area: [[-280,-176,195,295]], bx0:-278, bx1:193, bz0:-174, bz1:293, build: buildKitchen, windowViews:[{room:'garden',bounds:rearGlass}],
-      lights: () => [{ x: -60, y: GC + 10, z: 120, c: '#f4f8ff', i: lit('kitchen') ? .9 : 0, d: 700 }, { x: -100, y: 198, z: -160, c: phase() === 'day' ? '#e8f0ff' : '#4a5a8a', i: phase() === 'day' ? .72 : .16, d: 600 }],
+      lights: () => [{ x: -60, y: GC + 10, z: 120, c: '#ffe4b8', i: lit('kitchen') ? .9 : 0, d: 700 }, { x: -100, y: 198, z: -160, c: phase() === 'day' ? '#e8f0ff' : '#4a5a8a', i: phase() === 'day' ? .72 : .16, d: 600 }],
       amb: () => interiorAmb('kitchen', .64),
       sun: () => phase() === 'day' ? { x: -80, y: -100, z: -800, tx: -80, ty: GY, tz: 120, c: '#fff4e0', i: 0.3 } : null,
       stations: [{ id: 'fridge', n: 'The fridge', pose: () => look('G', -120, 160, -250, GY - 110, -130, H.STAND) }, { id: 'sink', n: 'The sink', pose: () => look('G', -40, 180, -80, GY - 110, -176, H.STAND) }, { id: 'table', n: 'The table', pose: () => look('G', 120, 260, -60, GY - 76, 110, H.STAND) }] },

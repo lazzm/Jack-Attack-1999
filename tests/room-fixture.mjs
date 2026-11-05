@@ -1,6 +1,7 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import os from 'node:os';
+import {stillCapture} from './still-capture.mjs';
 export const fixtureScale=Math.max(1,Math.min(4,os.loadavg()[0]/os.cpus().length*1.3));
 // Explicit software-host diagnostic only; native layout and inputs are retained.
 export async function fixtureRaster(page,cap=Number(process.env.FIXTURE_RASTER_RATIO)){
@@ -17,6 +18,7 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader'],...launchOptions});
  const page=await browser.newPage({...contextOptions,viewport:{width,height},hasTouch:touch,...(storageState?{storageState}:{}),...(recordVideo?{recordVideo}:{})}),errors=[];
  await onPage?.(page);
+ if(process.env.FIXTURE_STILL_CAPTURE==='1')await stillCapture(page);
  // Optional CPU-host raster cap for functional regressions; layout and input stay in CSS pixels.
  await fixtureRaster(page);
 

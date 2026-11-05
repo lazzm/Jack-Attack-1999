@@ -354,7 +354,7 @@
       rig.slots.forEach((s,i)=>{if(i<active&&!s.t&&remaining.length)s.t=remaining.shift()});
       const a=(typeof r.amb==='function'?r.amb():r.amb)||{sky:'#8a90a8',gnd:'#30261c',i:0.55};
       rig.targetSky.set(a.sky);rig.targetGround.set(a.gnd);rig.targetAmbient=a.i;
-      const sl=typeof r.sun==='function'?r.sun():r.sun;rig.targetSun=sl?sl.i:0;if(sl){rig.sourceSun=Object.assign({},sl);rig.targetSunColor.set(sl.c)}
+      const sl=typeof r.sun==='function'?r.sun():r.sun;rig.targetSun=r.lightBake?0:sl?sl.i:0;if(sl){rig.sourceSun=Object.assign({},sl);rig.targetSunColor.set(sl.c)}
     }
     tickLights(0);
   }
@@ -378,7 +378,7 @@
     if(moving)dirty();
   }
   function applyRoomRig(r) {
-    const rig=roomRig(r);if(!rig)return;
+    const rig=roomRig(r);if(!rig)return;K.interiorFor?.(r);
     hemi.color.copy(rig.sky);hemi.groundColor.copy(rig.ground);hemi.intensity=rig.ambient;
     sun.intensity=rig.sun;sun.color.copy(rig.sunColor);
     if(rig.sourceSun){const l=rig.sourceSun;sun.position.set(l.x,l.y,l.z);sun.target.position.set(l.tx||0,l.ty||0,l.tz||0)}

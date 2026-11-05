@@ -220,9 +220,9 @@
       if (pcPowered && window.StoryAccess?.available !== false) L.push({ x: L0().mx, y: -24, z: 20, c: '#b3caec', i: .22, d: 150 });
       return L;
     },
-    amb: () => { const ph = skyPhase || 'day'; if (ph === 'day') return {sky: '#dcdcd8', gnd: '#86735c', i: .66 + (LIGHT.main ? .08 : 0)};
-      if (LIGHT.main) return {sky: '#dfc9ad', gnd: '#75624e', i: .54};
-      return ph === 'night' ? {sky: '#8896b0', gnd: '#4d4d58', i: .45} : {sky: '#c3a9aa', gnd: '#75614f', i: .52}; },
+    amb: () => { const ph = skyPhase || 'day'; if (ph === 'day') return {sky: '#dcdcd8', gnd: '#86735c', i: .36 + (LIGHT.main ? .04 : 0)};
+      if (LIGHT.main) return {sky: '#dfc9ad', gnd: '#75624e', i: .16};
+      return ph === 'night' ? {sky: '#8896b0', gnd: '#4d4d58', i: .115} : {sky: '#c3bdc9', gnd: '#65574f', i: .22}; },
     sun: () => { const ph = skyPhase || 'day'; return { x: 260, y: -300, z: -420, tx: 0, ty: 73, tz: 60, c: ph === 'night' ? '#a2b6dc' : ph === 'day' ? '#fff2dc' : '#ffcfac', i: ph === 'night' ? .055 : ph === 'day' ? .28 : .16 }; },
     build(r) { buildBedroom(r); },
   });
@@ -2195,7 +2195,7 @@
       const visible=room.group.visible&&room._renderDrawn!==false;
       if (visible && R.blobs && LIGHT.lava) R.blobs.forEach((b, i) => { const t = now / (2600 + i * 900) + i * 2; b.position.y = -12 - (Math.sin(t) * 0.5 + 0.5) * 12; b.scale.y = 1.6 + Math.sin(t * 2.3) * 0.5; });
       if (visible && R.catBody) R.catBody.scale.y = 1 + Math.sin(now / 900) * 0.035;
-      if(now>=nextClock){nextClock=now+1000;const d=window.OwnerTools?.now()||new Date();if(d.getMinutes()!==clockMin){clockMin=d.getMinutes();paintClock(d);if(clockMin%5===0)paintSky()}}
+      if(now>=nextClock){nextClock=now+1000;const d=window.OwnerTools?.now()||new Date();if(d.getMinutes()!==clockMin){clockMin=d.getMinutes();paintClock(d);if(clockMin%5===0)paintSky();for(const room of Object.values(H.ROOMS))room.lightBake?.update();H.dirty()}}
       return !!(visible&&(R.catBody||R.blobs&&LIGHT.lava));
     });
     lampLook();
