@@ -139,7 +139,9 @@ const checks=[
  }],
  ['phone-typing',30000,async()=>{
    const {page}=await room();await page.evaluate(()=>HouseMobile.use());await until(()=>window.FamilyPhone?.isOpen()&&House.focused&&!House.gliding);console.log('phone-typing: focused');
-   await page.keyboard.press('Enter');await page.keyboard.press('Enter');await page.keyboard.press('Enter');await until(()=>FamilyPhone.state().id==='edit');console.log('phone-typing: editor');
+   // Enter from home opens any unread text first (some only arrive on certain dates): read them, then write one.
+   for(let i=0;i<6;i++){for(let k=0;k<3;k++)await page.keyboard.press('Enter');await page.waitForTimeout(200);if(await page.evaluate(()=>FamilyPhone.state().id==='edit'))break;for(let k=0;k<3;k++)await page.keyboard.press('Backspace');await page.waitForTimeout(200);}
+   await until(()=>FamilyPhone.state().id==='edit');console.log('phone-typing: editor');
    await page.keyboard.type('wasd saw dad');assert.equal(await page.evaluate(()=>FamilyPhone.state().text),'wasd saw dad','House movement swallowed phone letters');console.log('phone-typing: text accepted');
    await page.keyboard.press('Escape');console.log('phone-typing: Esc sent');await until(()=>HousePause.open);console.log('phone-typing: pause open');await page.locator('[data-pause=leave]').click();console.log('phone-typing: leave pressed');await until(()=>House.mode==='walk'&&!House.gliding);console.log('phone-typing: left phone');
  }],
