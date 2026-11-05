@@ -164,6 +164,131 @@
   }
   const fadeTex = () => tex('fade', 4, 64, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(0,0,0,.55)'); gr.addColorStop(0.35, 'rgba(0,0,0,.18)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h); }, { clamp: true });
 
+  // Small, room-local light atlases for the plaster and floor finishes. Charts
+  // come from the actual built planes (including the stair soffit), so window
+  // holes stay holes, no decal crosses an opening, and no extra draws are needed.
+  // These are indirect light / occlusion only; the existing rig still lights
+  // movable things. Neither exterior materials nor saved game state is touched.
+  function bakeInterior(r) {
+    const layouts = {
+      bedroom: [-280,240,-56,250,-185,73], landing:[250,410,130,700,-185,73],
+      hall:[205,410,60,700,95,353], cupboard:[331,409,251,570.625,95,353],
+      lounge:[-280,195,305,700,95,353], kitchen:[-280,195,-176,295,95,353]
+    }, bounds=layouts[r.id];
+    if(!bounds||r.lightBake)return;
+    const shellMaps=new Set(Object.entries(TEX).filter(([k])=>/^(?:art:)?(wallBlue|artex|carpetBlue|carpetBeige|carpetRed|lino|wallKitchen|wallpaperHall|wallpaperLounge)$/.test(k)||k==='hs.cupboard.plaster').map(([,t])=>t));
+    const charts=[],byPlane=new Map(),receivers=[];
+    const pos=new T.Vector3(),normal=new T.Vector3(),nm=new T.Matrix3();
+    for(const mesh of r.group.children){
+      if(!mesh.isMesh||!mesh.material?.isMeshPhongMaterial||!shellMaps.has(mesh.material.map)||mesh.material.transparent)continue;
+      const g=mesh.geometry,p=g.attributes.position,n=g.attributes.normal,verts=[];
+      nm.getNormalMatrix(mesh.matrix);
+      for(let i=0;i<p.count;i++){
+        pos.fromBufferAttribute(p,i).applyMatrix4(mesh.matrix);normal.fromBufferAttribute(n,i).applyMatrix3(nm).normalize();for(const k of ['x','y','z'])if(Math.abs(normal[k])<.0001)normal[k]=0;
+        const ax=Math.abs(normal.x),ay=Math.abs(normal.y),az=Math.abs(normal.z),axis=ax>ay&&ax>az?0:ay>az?1:2;
+        const u=axis===0?pos.z:pos.x,v=axis===1?pos.z:pos.y,dist=normal.dot(pos);
+        const key=normal.toArray().map(v=>v.toFixed(3)).join(',')+':'+dist.toFixed(1);
+        let c=byPlane.get(key);if(!c){c={index:charts.length,axis,n:normal.clone(),dist,u0:u,u1:u,v0:v,v1:v};byPlane.set(key,c);charts.push(c)}
+        c.u0=Math.min(c.u0,u);c.u1=Math.max(c.u1,u);c.v0=Math.min(c.v0,v);c.v1=Math.max(c.v1,v);verts.push({c,u,v});
+      }
+      receivers.push({mesh,verts});
+    }
+    if(!receivers.length)return;
+    // Five centimetres per light texel, with two clamped gutter texels. Thin
+    // risers and panel edges get small charts instead of wasting wall-sized tiles.
+    const pad=2,pow2=v=>2**Math.ceil(Math.log2(Math.max(1,v)));
+    for(const c of charts){c.w=Math.max(2,Math.ceil((c.u1-c.u0)/5)+1)+pad*2;c.h=Math.max(2,Math.ceil((c.v1-c.v0)/5)+1)+pad*2}
+    const w=pow2(Math.max(...charts.map(c=>c.w),Math.sqrt(charts.reduce((a,c)=>a+c.w*c.h,0)*1.15)));
+    let packX=0,packY=0,rowH=0;
+    for(const c of charts.slice().sort((a,b)=>b.h-a.h)){if(packX+c.w>w){packX=0;packY+=rowH;rowH=0}c.x=packX;c.y=packY;packX+=c.w;rowH=Math.max(rowH,c.h)}
+    const h=pow2(packY+rowH);
+    const lightData=new Uint8Array(w*h*4),aoData=new Uint8Array(w*h*4);
+    const texture=data=>{const t=new T.DataTexture(data,w,h,T.RGBAFormat);t.minFilter=t.magFilter=T.LinearFilter;t.generateMipmaps=false;t.flipY=false;t.needsUpdate=true;return t};
+    const light=texture(lightData),ao=texture(aoData),clones=new Map();
+    for(const {mesh,verts} of receivers){
+      const uv=new Float32Array(verts.length*2);
+      verts.forEach(({c,u,v},i)=>{uv[i*2]=(c.x+pad+.5+(u-c.u0)/Math.max(.01,c.u1-c.u0)*(c.w-pad*2-1))/w;uv[i*2+1]=(c.y+pad+.5+(v-c.v0)/Math.max(.01,c.v1-c.v0)*(c.h-pad*2-1))/h});
+      mesh.geometry.setAttribute('uv2',new T.Float32BufferAttribute(uv,2));
+      let m=clones.get(mesh.material);if(!m){m=mesh.material.clone();m.lightMap=light;m.lightMapIntensity=1;m.aoMap=ao;m.aoMapIntensity=r.id==='cupboard'?.5:1;m.shininess=1;m.specular.set('#000');m.needsUpdate=true;clones.set(mesh.material,m)}mesh.material=m;
+    }
+    const [x0,x1,z0,z1,cy,fy]=bounds;
+    const windows = r.id==='bedroom' ? window.House.REAR.bedroomWindows.map(a=>({axis:2,at:-56,u0:a.x0+5,u1:a.x1-5,y0:a.y0+5,y1:a.y1-5,sign:1})) : {
+      landing:[{axis:0,at:410,u0:400,u1:480,y0:-80,y1:60,sign:-1}],
+      hall:[{axis:2,at:700,u0:279,u1:321,y0:167,y1:245,sign:-1}],
+      lounge:[{axis:2,at:700,u0:-164,u1:44,y0:156,y1:294,sign:-1}],
+      kitchen:[{axis:2,at:-176,u0:-154,u1:-46,y0:149,y1:247,sign:1},{axis:0,at:195,u0:-154,u1:-86,y0:149,y1:229,sign:-1}]
+    }[r.id]||[];
+    const smooth=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t)};
+    // Bake geometric weights once. Switches only combine byte layers: no rays,
+    // distance calculations, canvas repaint or geometry work during a frame.
+    const size=w*h,skyLayer=new Uint8Array(size),lampLayers=new Map(),sunLayers=new Map();
+    function scan(fn){
+      for(const c of charts){const ox=c.x,oy=c.y;
+        for(let y=0;y<c.h;y++)for(let x=0;x<c.w;x++){
+          const u=c.u0+(c.u1-c.u0)*Math.max(0,Math.min(1,(x-pad)/(c.w-pad*2-1))),v=c.v0+(c.v1-c.v0)*Math.max(0,Math.min(1,(y-pad)/(c.h-pad*2-1)));
+          if(c.axis===0)pos.set((c.dist-c.n.y*v-c.n.z*u)/c.n.x,v,u);
+          else if(c.axis===1)pos.set(u,(c.dist-c.n.x*u-c.n.z*v)/c.n.y,v);
+          else pos.set(u,v,(c.dist-c.n.x*u-c.n.y*v)/c.n.z);
+          fn((oy+y)*w+ox+x,pos.x,pos.y,pos.z,c);
+        }
+      }
+    }
+    scan((i,px,py,pz,c)=>{
+      const dx=Math.max(0,Math.min(px-x0,x1-px)),dz=Math.max(0,Math.min(pz-z0,z1-pz)),dy=Math.max(0,Math.min(py-(r.ceilingAt?.(px,pz)??cy),fy-py));
+      const edge=c.axis===1?Math.min(dx,dz):Math.min(c.axis===0?dz:dx,dy);
+      const shade=(.78+.22*smooth(0,65,edge))*(.83+.17*smooth(0,9,edge));
+      aoData[i*4]=aoData[i*4+1]=aoData[i*4+2]=Math.round(shade*255);aoData[i*4+3]=255;
+      let sky=0;for(const a of windows){
+        const lx=(a.axis===0?a.at:(a.u0+a.u1)/2)-px,lz=(a.axis===2?a.at:(a.u0+a.u1)/2)-pz,ly=(a.y0+a.y1)/2-py,d=Math.hypot(lx,ly,lz),cos=Math.max(0,(lx*c.n.x+ly*c.n.y+lz*c.n.z)/Math.max(1,d));
+        sky+=1/(1+(d/170)**2)*(.18+.82*cos);
+      }skyLayer[i]=Math.min(255,Math.round(sky*255));
+    });
+    function lampLayer(l){
+      const key=[l.x,l.y,l.z,l.d||400].join(',');let layer=lampLayers.get(key);if(layer)return layer;
+      layer=new Uint8Array(size);scan((i,px,py,pz,c)=>{
+        const lx=l.x-px,ly=l.y-py,lz=l.z-pz,d=Math.hypot(lx,ly,lz),cos=Math.max(0,(lx*c.n.x+ly*c.n.y+lz*c.n.z)/Math.max(1,d)),f=Math.max(0,1-d/(l.d||400));
+        layer[i]=Math.round(255*f*f*(.2+.8*cos));
+      });lampLayers.set(key,layer);return layer;
+    }
+    function sunLayer(sun){
+      if(!sun)return null;const key=[sun.x,sun.y,sun.z,sun.tx||0,sun.ty||0,sun.tz||0].join(',');if(sunLayers.has(key))return sunLayers.get(key);
+      const layer=new Uint8Array(size),sx=(sun.tx||0)-sun.x,sy=(sun.ty||0)-sun.y,sz=(sun.tz||0)-sun.z,len=Math.hypot(sx,sy,sz);
+      scan((i,px,py,pz,c)=>{let amount=0;
+        for(const a of windows){
+          const ds=a.axis===0?sx:sz;if(ds*a.sign<=0)continue;
+          const t=((a.axis===0?px:pz)-a.at)/ds;if(t<=0)continue;
+          const hitU=a.axis===0?pz-t*sz:px-t*sx,hitY=py-t*sy;
+          let mask=smooth(-5,5,hitU-a.u0)*(1-smooth(-5,5,hitU-a.u1))*smooth(-5,5,hitY-a.y0)*(1-smooth(-5,5,hitY-a.y1));
+          mask*=smooth(1,5,Math.abs(hitU-(a.u0+a.u1)/2));
+          if(r.id==='bedroom')mask*=smooth(1,5,Math.abs(hitY-(a.y0+(a.y1-a.y0)*.4)));
+          amount+=mask*Math.max(0,-(sx*c.n.x+sy*c.n.y+sz*c.n.z)/len);
+        }layer[i]=Math.min(255,Math.round(amount*255));
+      });sunLayers.set(key,layer);return layer;
+    }
+    // Include zero-intensity fittings now, so their first switch-on is warm.
+    for(const l of typeof r.lights==='function'?r.lights():r.lights)lampLayer(l);
+    let last='';
+    function paint(){
+      const lamps=(typeof r.lights==='function'?r.lights():r.lights).filter(l=>l.i>0),sun=typeof r.sun==='function'?r.sun():r.sun;
+      const phase=document.getElementById('bootPower')?.classList,day=phase?.contains('rm-day'),dawn=phase?.contains('rm-dawn'),dusk=phase?.contains('rm-dusk'),daylight=day?1:dawn?.48:dusk?.25:.035;
+      const key=JSON.stringify([daylight,lamps,sun]);if(key===last)return false;last=key;
+      const layers=lamps.map(l=>({a:lampLayer(l),c:new T.Color(l.c||'#fff'),i:l.i*.14/255})),beam=sunLayer(sun);
+      for(let i=0;i<size;i++){
+        const sky=skyLayer[i]*daylight*.2/255,patch=beam?beam[i]*daylight*.3/255:0;
+        let red=sky*.8+patch,green=sky*.9+patch*.86,blue=sky+patch*.65;
+        for(const l of layers){const k=l.a[i]*l.i;red+=l.c.r*k;green+=l.c.g*k;blue+=l.c.b*k}
+        const dither=((i*13)%17/16-.5)*.8,j=i*4;
+        lightData[j]=Math.min(255,Math.max(0,Math.round(red*255+dither)));lightData[j+1]=Math.min(255,Math.max(0,Math.round(green*255+dither)));lightData[j+2]=Math.min(255,Math.max(0,Math.round(blue*255+dither)));lightData[j+3]=255;
+      }light.needsUpdate=true;return true;
+    }
+    // A power-on / rapid switch sequence must not do the bake inside a CRT
+    // upload. Coalesce it before the next paint; the initial bake stays synchronous.
+    let queued=false;
+    function flush(){queued=false;if(paint())window.House?.dirty()}
+    function update(){if(!queued){queued=true;queueMicrotask(flush)}}
+    r.lightBake={update,charts:charts.length,width:w,height:h,light,ao};paint();
+  }
+
   // ================================================================ materials (cached by their spec)
   const MATS = {}, PRINTS = new Set();
   function mat(spec) {
@@ -520,5 +645,5 @@
   // The geometry lies flat (normal up in the y-down world), centred, w x d with an m cm fade.
   function shadowGeo(sq, w, d, m) { const g = sq ? sliceGeo(w, d, shadowMargin(w, d, m)) : ringGeo(w, d, shadowMargin(w, d, m)); g.applyMatrix4(new T.Matrix4().makeRotationX(Math.PI / 2)); return g; }
   const shadowMaterial = (sq, a) => mat({ c: '#000', map: sq ? sqBlobTex() : ringTex(), basic: true, tr: true, o: Math.min(0.999, a == null ? 0.8 : a), dw: false, po: -2, cs: 1 });
-  window.HouseKit = { T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
+  window.HouseKit = { bakeInterior, T, D2R, SURFACE_LIFT, restY, tex, mat, shadowMat, shadowGeo, shadowMaterial, doorLeaf, batch: () => new Batch(), Batch, into, xform, roundBox, thicken, rnd, speckle, PAINT, wrapText, svgTex, blobTex, setAniso, setQuality, liveCanvas, TEX, MATS, PRINTS };
 })();

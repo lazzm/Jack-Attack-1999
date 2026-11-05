@@ -238,7 +238,7 @@
   }
   function buildRoom(r) {
     if (!r || r.built) return; r.built = true;
-    try { if (r.build) r.build(r); } catch (e) { console.error('hs build', r.id, e); }
+    try { if (r.build) r.build(r); K.bakeInterior?.(r); } catch (e) { console.error('hs build', r.id, e); }
     emit('built', r.id);
     setTimeout(() => mergeRoom(r), 2500); // (after late additions; prewarm merges too)
   }
@@ -341,6 +341,7 @@
   function lightsFor() {
     for (const id in ROOMS) {
       const r=ROOMS[id]; if (!r.built) continue;
+      r.lightBake?.update();
       const rig=roomRig(r), all=[],cx=Number.isFinite(r.bx0)?(r.bx0+r.bx1)/2:0,cz=Number.isFinite(r.bz0)?(r.bz0+r.bz1)/2:0;
       for (const l of (typeof r.lights==='function'?r.lights():r.lights)) {
         if (l.i!=null && l.i<=0) continue;

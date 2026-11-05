@@ -194,7 +194,25 @@
       if(!m)continue;m.emissive.set(on?c:'#000');m.userData.e0=m.emissive.clone();
     }
   }
-  function switchLook(){for(const [id,rocker]of ceilingSwitches){rocker.rotation.x=(lit(id)?-12:12)*D2R;rocker.updateMatrix()}exteriorLightLook(HouseRooms.rooms.drive);H.dirty()}
+  function switchLook(){for(const [id,r]of Object.entries(HouseRooms.rooms))for(const m of r.ceilingGlow||[]){m.emissive.set(lit(id)?m.userData.litColour:'#000');m.userData.e0=m.emissive.clone()}for(const [id,rocker]of ceilingSwitches){rocker.rotation.x=(lit(id)?-12:12)*D2R;rocker.updateMatrix()}exteriorLightLook(HouseRooms.rooms.drive);H.dirty()}
+  function ceilingGlow(r,colour,lightColour){
+    const key=colour+lightColour,cache=r.ceilingMaterials||(r.ceilingMaterials=new Map());
+    if(cache.has(key))return cache.get(key);
+    const m=M({c:colour,sh:5,sp:'#101010'}).clone();
+    m.userData.litColour=lightColour;(r.ceilingGlow||(r.ceilingGlow=[])).push(m);cache.set(key,m);return m;
+  }
+  // Real fittings at the existing light positions: closed shade profiles and
+  // solid opal diffusers, with the same saved switch state as their light pool.
+  function pendant(B,r,x,cy,z){
+    B.cyl(x,cy+1.5,z,6,6,3,14,mWhite);B.cyl(x,cy+15,z,.3,.3,26,6,M('#eee'));
+    const glow=ceilingGlow(r,'#f0e0b8','#ffcc83');
+    glow.emissiveMap=K.tex('hs.pendant.emission',8,8,g=>{g.fillStyle='#353535';g.fillRect(0,0,4,8);g.fillStyle='#fff';g.fillRect(4,0,4,8)},{clamp:true});
+    // One submission: the solid shade samples the dim half, the bulb the hot half.
+    const shade=new T.LatheGeometry([[2,-2],[2.35,-2],[14.35,10],[14,10],[2,-2]].map(([r,y])=>new T.Vector2(r,y)),24);
+    const bulb=new T.SphereGeometry(1,12,8);
+    for(const [geo,u]of [[shade,.25],[bulb,.75]]){const uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,u)}
+    B.geo(shade,x,cy+26,z,glow);B.geo(bulb,x,cy+30,z,glow,{sx:2.6,sy:3.5,sz:2.6});
+  }
   function ceilingSwitch(r,id,x,y,z,ry){
     const group=new T.Group();group.position.set(x,y,z);group.rotation.y=ry*D2R;group.name='ceiling-switch-'+id;r.group.add(group);const B=K.into(group);
     B.rbox(0,0,0,8.6,8.6,.7,0.35,mWhite); // standard square single-gang plate, not a tall overseas one
@@ -358,6 +376,7 @@
     stairs(B);
     // ao along the landing walls
     [[130,150],[230,300],[380,450],[530,700]].forEach(([a,b])=>B.ao(250.3,UY-16,(a+b)/2,b-a,32,{ry:90,rx:180,a:0.5}));B.ao(330, UY - 16, 130.3, 160, 32, { rx: 180, a: 0.5 });
+    pendant(B,r,300,UC,400);
     familyFrame(B,330,-75,130.15,58,44,0);
     familyFrame(B,250.15,-83,415,36,43,1,90);
     runner(B,289,UY,466,44,296);
@@ -555,7 +574,7 @@
     for(const [x,ry,material]of [[-1,-20,mMetal],[1,30,mBrass]]){const key=keys.at(x,0,1,ry);key.cyl(0,.1,0,1.05,1.05,.4,12,material);key.box(0,.1,3,.75,.4,4.3,material);for(const z of [3.6,4.7])key.box(.55,.1,z,.7,.4,.65,material)}
     const book=ht.at(0,-77.5,-23);book.rbox(0,-1,0,16,2,11,.4,M('#e3d9b9'));printBlock(book,0,-2.15,0,17,12,.3,5,{rx:90});book.shadow(0,0,0,19,14,.25,{sq:true});
     ht.shadow(0, 0, 0, 36, 66, 0.6, { sq: true });
-    B.cyl(300, GC + 1.5, 200, 6, 6, 3, 14, mWhite); B.cyl(300, GC + 15, 200, 0.3, 0.3, 26, 4, M('#eee')); B.lathe(300, GC + 26, 200, [[2, -2], [14, 10]], 18, M({ c: '#f0e0b8', sh: 10, side: 2, e: '#000' }));
+    pendant(B,r,300,GC,200);pendant(B,r,300,GC,560);
     batch.build(r.group);
     // the front door (it's cold out), the coats, the hall table
     // the doormat: where the post (and mail-order parcels: Agent P's pack) lands. Things can rest on it: { room: 'hall', x: 300, y: 353, z: 655 }
@@ -913,7 +932,8 @@
     pl.shadow(0,.8,0,31,31,.4);
     // the ceiling light: a three-arm brass thing Mom loves
     const cl = B.at(-60, GC, 500); cl.cyl(0, 2, 0, 7, 7, 4, 16, mBrass); cl.cyl(0, 16, 0, 0.6, 0.6, 26, 6, mBrass);
-    [0, 120, 240].forEach(a => { const x = Math.cos(a * D2R) * 16, z = Math.sin(a * D2R) * 16; cl.cyl(x / 2, 30, z / 2, 0.5, 0.5, 18, 4, mBrass, { rz: 90, ry: -a }); cl.lathe(x, 28, z, [[1.5, -2], [6, 8]], 14, M({ c: '#f8f0e0', side: 2, e: '#000' })); });
+    const ceilingShade=ceilingGlow(r,'#f8f0e0','#51412b'),ceilingBulb=ceilingGlow(r,'#eee6ce','#ffcf91');
+    [0, 120, 240].forEach(a => { const x = Math.cos(a * D2R) * 16, z = Math.sin(a * D2R) * 16; cl.cyl(x / 2, 30, z / 2, 0.5, 0.5, 18, 4, mBrass, { rz: 90, ry: -a }); cl.lathe(x,28,z,[[1.5,-2],[1.8,-2],[6.3,8],[6,8],[1.5,-2]],18,ceilingShade);cl.ball(x,32,z,2,2.8,2,ceilingBulb,10); });
     // a radiator under the window, a picture over the sofa
     B.box(-60, GY - 34, 694, 160, 54, 3.6, { all: M('#e8e5dc'), b: M({ c: '#fff', map: tex('radiator') }) });
     const pic = B.at(-280 + 41.5, GY - 175, 500, 90); pic.wshadow(1, 2, -1.3, 86, 62, 0.5); pic.box(0, 0, 0, 80, 56, 2.4, M('#6a4a2a')); pic.plane(0, 0, 1.3, 72, 48, M({ c: '#fff', map: landTex(), pr: 1 }));
@@ -1069,6 +1089,8 @@
   function buildKitchen(r) {
     const batch = K.batch(), B = K.into(batch);
     const wall = M({ c: '#fff', map: tex('wallKitchen') });
+    B.rbox(-60,GC+2,120,120,4,16,.8,mWhite);
+    B.rbox(-60,GC+5.6,120,113,3.2,12,1.2,ceilingGlow(r,'#e7e8dc','#a4a89b'));
     shell(B, { x0: -280, z0: REAR.z1, x1: 195, z1: 295, fy: GY, cy: GC, wall, uv: 48, cove: true, thin: { n: 0.7 }, floor: false, fuv: 60, holes: { e: [[-160,-80,143,235],[150, 230, GY - 205, GY]], n: [[-160, -40, 143, 253], [80, 160, GY - 205, GY]] } });
     thresholdFloor(B,REAR.z1,295,190,M({c:'#fff',map:tex('lino')}),60);
     // the window over the sink and the back door (half glass): the garden outside
@@ -1852,7 +1874,7 @@
         { x: 370, y: 205, z: 320, c: '#ffdda0', i: lit('cupboard') ? 1.3 : 0, d: 300, flicker: .012 },
         // Warm plaster bounce reaches the fronts of the CRT and stored things;
         // the bare bulb above/behind them otherwise only lights their backs.
-        { x: 368, y: 258, z: 386, c: '#e8c99a', i: lit('cupboard') ? .28 : 0, d: 260 },
+        { x: 368, y: 258, z: 386, c: '#e8c99a', i: lit('cupboard') ? .4 : 0, d: 260 },
         { x: 336, y: 235, z: 315, c: '#e8e0d0', i: H.DOORS.cupboard && H.DOORS.cupboard.open ? (phase() === 'day' ? .65 : .25) : 0, d: 220 }
       ],
       amb: () => ({ sky: lit('cupboard') ? '#c6b392' : '#7d8190', gnd: '#77654c', i: lit('cupboard') ? .5 : (H.DOORS.cupboard && H.DOORS.cupboard.open ? .34 : .22) }),
