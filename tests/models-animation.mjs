@@ -42,14 +42,15 @@ try{
   const floor=new T.Mesh(new T.BoxGeometry(1800,2,1800),new T.MeshLambertMaterial({color:0xb9ab96}));floor.position.y=-1;s.stage.add(floor);
   s.stairs=new T.Group();s.stage.add(s.stairs);
   for(let i=0;i<9;i++){const h=(i+1)*stairRise,m=new T.Mesh(new T.BoxGeometry(100,h,25),new T.MeshLambertMaterial({color:i%2?0x9a8974:0xa5947d}));m.position.set(0,h/2,i*25+12.5);s.stairs.add(m)}
+  {const h=9*stairRise,m=new T.Mesh(new T.BoxGeometry(100,h,150),new T.MeshLambertMaterial({color:0xa5947d}));m.position.set(0,h/2,300);s.stairs.add(m);}
   s.wrapper=new T.Group();s.wrapper.scale.y=-1;s.scene.add(s.wrapper);
   s.render=(dist,angle=0)=>{const r=s.rig;s.renderer.setSize(innerWidth,innerHeight,false);s.camera.aspect=innerWidth/innerHeight;s.camera.updateProjectionMatrix();const x=r.st.x,z=r.st.z,y=-r.st.y;s.camera.position.set(x+Math.sin(angle)*dist,y+110,z+Math.cos(angle)*dist);s.camera.lookAt(x,y+r.S.H*.48,z);s.renderer.render(s.scene,s.camera)};
-  s.reset=(id,state)=>{s.rig?.dispose();const r=s.rig=NPCRig.create(id,{tier:'low',outfit:id==='dad'?'home':undefined});s.wrapper.add(r.group);r.floor=state==='stairs'?(x,z)=>z<0?0:-Math.min(9*stairRise,(Math.floor(z/25)+1)*stairRise):()=>0;r.teleport(0,0,state==='stairs'?-40:0,0);Object.assign(r.st,{t:12,seed:2.7,lean:id==='dad'?-1:1,blinkAt:13.1,glanceAt:100,saccadeAt:100,talkSeed:2});r.st.gaze.x=r.st.gaze.y=0;s.stairs.visible=state==='stairs';r.set({action:state==='job'?(id==='mom'?'washup':id==='dad'?'paper':'draw'):state==='door'?'reach':null,carry:state==='carry'});if(state==='job'&&id!=='mom')r.set({seat:{h:45,back:true,footH:id==='sister'?24:undefined}});for(let i=0;i<60;i++)r.update(1/60,true);s.frame=0;s.state=state;};
+  s.reset=(id,state)=>{s.rig?.dispose();const r=s.rig=NPCRig.create(id,{tier:'low',outfit:id==='dad'?'home':undefined});s.wrapper.add(r.group);r.floor=state.startsWith('stairs')?(x,z)=>z<0?0:-Math.min(9*stairRise,(Math.floor(z/25)+1)*stairRise):()=>0;r.teleport(0,state==='stairs-down'?-9*stairRise:0,state==='stairs-down'?250:state==='stairs'?-40:0,state==='stairs-down'?Math.PI:0);Object.assign(r.st,{t:12,seed:2.7,lean:id==='dad'?-1:1,blinkAt:13.1,glanceAt:100,saccadeAt:100,talkSeed:2});r.st.gaze.x=r.st.gaze.y=0;s.stairs.visible=state.startsWith('stairs');r.set({action:state==='carry'?'mug':state==='job'?(id==='mom'?'washup':id==='dad'?'paper':'draw'):state==='door'?'reach':null,carry:state==='carry'});if(state==='job'&&id!=='mom')r.set({seat:{h:45,back:true,footH:id==='sister'?24:undefined}});for(let i=0;i<60;i++)r.update(1/60,true);s.frame=0;s.state=state;};
   s.advance=target=>{const r=s.rig,state=s.state,dt=1/60;for(;s.frame<target;s.frame++){
    const t=(s.frame+1)*dt;
-   if(['walk','stop','stairs'].includes(state)){const speed=state==='stop'&&t>0.65?Math.max(0,r.S.speed*(1-(t-.65)/.35)):r.S.speed*(state==='stairs'?.65:1);const z=r.st.z+speed*dt;const y=state==='stairs'?-Math.max(0,(z+12.5)/25*stairRise):0;r.root(0,y,z,0,speed);}
+   if(['walk','stop','stairs','stairs-down'].includes(state)){const speed=state==='stop'&&t>0.65?Math.max(0,r.S.speed*(1-(t-.65)/.35)):r.S.speed*(state.startsWith('stairs')?.65:1);const down=state==='stairs-down',z=r.st.z+speed*dt*(down?-1:1);const y=state.startsWith('stairs')?-Math.max(0,Math.min(9*stairRise,(z+12.5)/25*stairRise)):0;r.root(0,y,z,down?Math.PI:0,speed);}
    if(state==='side'){r.root(t*42,0,0,0,0);}
-   if(state==='turn'){r.root(0,0,0,Math.min(Math.PI,t*Math.PI/1.25),0);}
+   if(state.startsWith('turn')){const angle=Number(state.slice(4))||180;r.root(0,0,0,Math.min(angle*Math.PI/180,t*Math.PI/1.25),0);}
    if(state==='sit')r.set({seat:{h:45,back:true,footH:r.kind==='sister'?24:undefined}});
    if(state==='stand'){if(s.frame===0){r.set({seat:{h:45,back:true,footH:r.kind==='sister'?24:undefined}});for(let i=0;i<180;i++)r.update(dt,true);}r.set({seat:null});}
    if(state==='talk'){r.talk(10000,'That sounds like a good idea!');r.st.talkStart=performance.now()-t*1000;r.set({look:{x:80,y:-140,z:200}});}
@@ -58,20 +59,20 @@ try{
  },stairRise);
  const report={label,baseline,stairRise,units:'milliseconds per rig.update; warmed serial JS batches, no rendering',triangles:{},performance:{},frames:[]};
  report.triangles=await page.evaluate(()=>{const o={};for(const tier of ['low','high'])for(const id of Object.keys(NPCRig.OUTFITS))for(const outfit of NPCRig.OUTFITS[id]){const r=NPCRig.create(id,{tier,outfit});for(const near of [true,false]){r.update(.016,near);o[[tier,id,outfit,near?'near':'far'].join('.')]=r.tris+6;}r.dispose()}return o});
- report.performance=await page.evaluate(()=>{
+ report.performance=process.argv.includes('--skip-perf')?{}:await page.evaluate(()=>{
   const out={};for(const mode of ['idle','walk','job','far']){const rigs=['mom','dad','sister'].map(id=>NPCRig.create(id,{tier:'low'}));for(const r of rigs){r.floor=()=>0;r.teleport(0,0,0,0);if(mode==='job')r.set({action:r.kind==='mom'?'washup':'paper'});}
    let frame=0;const run=()=>{frame++;for(const r of rigs){if(mode==='walk')r.root(0,0,frame*r.S.speed/60,0,r.S.speed);r.update(1/60,mode!=='far')}};
    for(let i=0;i<1500;i++)run();const a=[];for(let b=0;b<13;b++){const t=performance.now();for(let i=0;i<2000;i++)run();a.push((performance.now()-t)/2000/3)}a.sort((a,b)=>a-b);out[mode]={median:a[6],p95:a[12],all:a};for(const r of rigs)r.dispose();
   }return out;
  });
- const states=['idle','walk','stop','turn','side','stairs','door','sit','stand','job','carry','talk','rear'];
+ const states=['stairs-down','turn45','turn90','turn180','idle','walk','stop','turn','side','stairs','door','sit','stand','job','carry','talk','rear'];
  for(const device of ['desktop','phone']){
   await page.setViewportSize(device==='phone'?{width:390,height:844}:{width:1366,height:860});
   for(const id of ['mom','dad','sister'])for(const dist of [200,400])for(const state of states){
    if(only&&!only.includes(state))continue;
    await page.evaluate(({id,state})=>probe.reset(id,state),{id,state});
    for(const [i,n] of [6,24,48,84].entries()){
-    await page.evaluate(({n,dist,state})=>{probe.advance(n);probe.render(dist,state==='rear'?Math.PI:state==='stairs'||state==='side'?Math.PI/2:Math.PI/8)}, {n,dist,state});
+    await page.evaluate(({n,dist,state})=>{probe.advance(n);probe.render(dist,state==='rear'?Math.PI:state.startsWith('stairs')||state==='side'?Math.PI/2:Math.PI/8)}, {n,dist,state});
     const name=[device,id,dist,state,i].join('-')+'.png';
     // Keep actual projected size; the desktop crop removes only empty margins.
     await page.screenshot({path:out+label+'/'+name,clip:device==='desktop'?{x:443,y:0,width:480,height:860}:undefined});

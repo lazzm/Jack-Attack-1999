@@ -43,3 +43,39 @@ For shading, keep smooth normals across connected head/hair forms and explicit c
 ## Evidence and priorities
 
 The matched before/after audit, ranked defects, measured budgets, test results and next ten are recorded in `docs/ANIMATION-REVIEW.md`. A controlled rig probe makes exact comparisons possible; house integration captures and tests are identified separately so a posed probe is never presented as a real navigation test.
+
+## Round 2 — contact, stairs and transitions (4 November 2026)
+
+This pass adds a further fifteen minutes of primary-source research. These are observations and design ideas, not imported code, motion data or assets. Implementation remains original, on three.js r128 without dependencies.
+
+### Stairs: clearance is not a heel kick
+
+[Loverro, Mueske and Hamel, 2013](https://pmc.ncbi.nlm.nih.gov/articles/PMC3747961/) measured clearance across the whole shoe, rather than treating the toe as a sufficient proxy. The critical part changes with the task: a descending heel can be close to an edge while the toe appears safely clear. Their results support a small, controlled clearance margin, not an exaggerated additional arc above the next tread. For our stylised gait: advance the swing foot as it rises, keep the shin descending towards the ankle, and test the rendered sole against every crossed riser in both directions. A foot-point-only assertion missed the visible problem in round 1. Whole-shoe penetration, support-foot drift and trailing-shin angle are separate acceptance measurements.
+
+### Hands: establish an object frame and a contact window
+
+[Autodesk's IK attachment documentation](https://help.autodesk.com/cloudhelp/2021/ENU/3DSMax-Character-Animation/files/GUID-ADED19B5-9821-4633-86DF-04C41156EC03.htm) describes changing a limb's attachment between body and object spaces over a defined interval. Our door equivalent is a target on the actual rotating leaf: approach, grasp, follow the first part of the swing, then release while the body continues. A stale point in the closed doorway cannot produce contact after the hinge moves. Reach should be bounded by arm length and a short blend, with no route teleport.
+
+[Animator Shawn Kelly on holding props](https://www.animationmentor.com/blog/how-to-animate-your-character-when-hes-holding-a-prop/) explains why the prop's motion and the hand attachment must be designed together; small wrist rotations also produce large changes at distant parts of a prop. The newspaper should therefore have its own reading frame, with two authored grip anchors. Moving the paper to the average of independently posed hands is circular and makes both contacts approximate. For cups and sponges, test the palm, finger pads and object surface, not just the wrist. Reusing existing rig capacity for finger closure is preferable to adding a skeleton or a runtime cloth/hand system.
+
+[Epic's Motion Warping documentation](https://dev.epicgames.com/documentation/en-us/unreal-engine/motion-warping-in-unreal-engine) separates a named interaction target from the interval in which an animation accommodates it. The useful inexpensive idea is a limited contact correction. We can apply that to wrist targets while retaining our procedural controller, saved roots and existing family routes.
+
+### Sitting: the chair is a constraint, including during interruption
+
+[COUCH, the authors' 2022 project](https://virtualhumans.mpi-inf.mpg.de/couch/) studies chair interactions conditioned on contact and the scene. The transferable idea is that seat, hands and feet belong to the particular chair, not a universal sitting pose. Our sofa and armchair need independently checked seat height, forward knee room, foot support and standing clearance. On standing, retain the previous support contacts until weight transfers. On interruption, continue from the current blend; on refresh, preserve the presentation phase alongside the existing saved position rather than restarting an unrelated pose. No learned model, dataset or assets are needed for these constraints.
+
+[NVIDIA's 2023 character–scene interaction research](https://research.nvidia.com/publication/2023-08_synthesizing-physical-character-scene-interactions) likewise treats carrying and sitting as coordinated interactions with objects. For this budget the lesson is joint validation of body, object and scene, not a physics or machine-learning replacement for the rig.
+
+### Clothes: spend existing polygons where the silhouette bends
+
+[Disney's modelling process](https://www.disneyanimation.com/process/modeling/) emphasises readable form, while [its simulation process](https://disneyanimation.com/process/simulation/) keeps secondary movement under artistic control. [Stable Spaces for Real-Time Clothing](https://la.disneyresearch.com/publication/stable-spaces-for-real-time-clothing/) explores bounded real-time garment behaviour. Our much smaller system should use broad authored elbow/knee/cuff changes on existing rings, not many tiny wrinkle strips. Preserve garment thickness and a clear shoe outsole, heel and toe from all angles. Existing bone deformation supplies the movement; no cloth solver, added draw or per-frame mesh rebuilding is justified.
+
+### Speech, gaze and stationary turns
+
+[Jay Jackson's dialogue advice](https://www.animationmentor.com/blog/some-tips-for-animating-dialogue/) starts with the attitude of the body and head, then supports it with selected accents and holds. Our expression and gesture changes should use the existing talk clock and available conversational state; constant symmetrical waving or a permanently moving mouth is not expressiveness. Keep accents small and separated by readable pauses, without modifying the audio system.
+
+[Paul Steed's first-hand December 1999 production article, printed pages 31–33](https://media.gdcvault.com/GD_Mag_Archives/GDM_December_1999.pdf) describes head-leading turns and a procedural foot shuffle to avoid rotating planted feet. This is particularly relevant to our period and budget. Turn the gaze ahead of the chest, choose the outside foot for the requested direction, move only one foot at a time, and verify 45°, 90° and 180° requests separately. On stairs the look target should point along the flight rather than at an incidental nearby viewer. [Ubisoft La Forge's motion-matching overview](https://www.ubisoft.com/en-us/studio/laforge/news/6xXL85Q3bF2vEj76xmnmIu/introducing-learned-motion-matching) also places foot locking/IK among the final contact corrections; our implementation can retain those inexpensive ideas without adopting its learned system.
+
+### Evidence and budget decisions
+
+A rig probe isolates errors but cannot prove a hand reaches the real sink or that a chair has space behind its back. Round 2 therefore stages the existing production controller in the actual hall, flight, kitchen and lounge, recording camera positions, action phases and door angles with every frame. Desktop and phone use the same world cameras and deterministic model time. Reject an occluded sheet rather than counting it as evidence. Retain native rendering for art and performance captures; any raster reduction used to keep unrelated functional tests timely must be disclosed. Compare the current HEAD, not round 1's older base, and count all outfits and both distance meshes. Reallocate geometry and bones before adding cost.

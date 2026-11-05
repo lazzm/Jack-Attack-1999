@@ -144,6 +144,20 @@
       }
       return NV.floor(c.lvl, x, z);
     };
+    // Read the real hinge frame only during a reach. No navigation changes.
+    const handle = new T.Vector3(), otherHandle = new T.Vector3(), contact = { x: 0, y: 0, z: 0 };
+    c.rig.contact = () => {
+      const d = H.DOORS[c.reachDoor], anchors = d?.pivot?.userData.handles;
+      if (!anchors || d.ang > (c.id === 'sister' ? 0.03 : 0.09) || !c.present) { c.reachDoor = null; return null; }
+      d.pivot.updateWorldMatrix(true, false);
+      handle.fromArray(anchors[0]); d.pivot.localToWorld(handle);
+      otherHandle.fromArray(anchors[1]); d.pivot.localToWorld(otherHandle);
+      const swap = Math.hypot(otherHandle.x - c.x, otherHandle.z - c.z) < Math.hypot(handle.x - c.x, handle.z - c.z);
+      contact.yaw = Math.atan2((swap ? 1 : -1) * (handle.x - otherHandle.x), (swap ? 1 : -1) * (handle.z - otherHandle.z));
+      if (swap) handle.copy(otherHandle);
+      contact.x = handle.x; contact.y = -handle.y; contact.z = handle.z;
+      return contact;
+    };
     H.spot('np.' + c.id, { label: () => 'Talk to ' + label(c), obj: c.rig.proxy, range: 260, act: () => talk(c.id) });
   }
   function outfitFor(id, clk) {
@@ -194,7 +208,9 @@
   function taken(spotKey, me) { return chars.some(o => o !== me && o.present && o.goal && o.goal.spotKey === spotKey); }
 
   // ---------------------------------------------------------------- planning: a goal becomes a list of steps
+  const seatPose = (c, q) => ({ h: q.h, back: q.back, knee: q.knee, table: q.table, footH: q.footH, hipForward: c.id === 'sister' || q.floor ? undefined : 10, footForward: c.id === 'sister' || q.floor ? undefined : 54, x: q.x, z: q.z, face: q.face });
   function setGoal(c, g) {
+    if (c.cur?.k === 'sit' && c.cur.from) c.seated = c.cur.seat;
     c.goal = g; c.plan = []; c.cur = null; c.backHome = null; c.backoff = null;
     const P = c.plan;
     if (c.seated) { P.push({ k: 'stand', seat: c.seated }); }
@@ -302,13 +318,13 @@
       if (Math.abs(d) < 0.04 || s.t > 2.5) { c.h = s.h; c.cur = null; }
     } else if (s.k === 'sit') {
       const q = s.seat;
-      if (!s.from) { s.from = { x: c.x, z: c.z }; c.rig?.set({ seat: { h: q.h, back: q.back, knee: q.knee, table: q.table, footH: q.footH } }); }
+      if (!s.from) { s.from = { x: c.x, z: c.z }; c.rig?.set({ seat: seatPose(c, q) }); }
       const k = smooth(clamp(s.t / 1.1, 0, 1)); c.x = lerp(s.from.x, q.x, k); c.z = lerp(s.from.z, q.z, k); c.v = 0; c.h = q.face * D2R;
       if (s.t > 1.15) { c.seated = q; c.cur = null; }
     } else if (s.k === 'stand') {
       const q = s.seat;
-      if (!s.started) { s.started = true; c.rig?.set({ seat: null, action: null, props: {} }); }
-      const k = smooth(clamp(s.t / 0.95, 0, 1)); c.x = lerp(q.x, q.stand[0], k); c.z = lerp(q.z, q.stand[1], k); c.v = 0;
+      if (!s.started) { s.from = { x: c.x, z: c.z }; s.started = true; c.rig?.set({ seat: null, action: null, props: {} }); }
+      const k = smooth(clamp(s.t / 0.95, 0, 1)); c.x = lerp(s.from.x, q.stand[0], k); c.z = lerp(s.from.z, q.stand[1], k); c.v = 0;
       if (s.t > 1.0) { c.seated = null; c.cur = null; const ap = approachOf(q, c.lvl), back = (q.via || []).slice().reverse().map(v => ({ k: 'line', to: { x: v[0], z: v[1] } })); if (Math.hypot(ap.x - q.stand[0], ap.z - q.stand[1]) > 1) back.push({ k: 'line', to: { x: ap.x, z: ap.z } }); c.plan.unshift(...back); }
     } else if (s.k === 'act') {
       c.v = 0;
@@ -332,7 +348,7 @@
     if (d && !doorOpen(d.id) && s.s < d.s0 + 5) {
       stop = Math.min(stop, d.s0 - 50);
       if (s.s >= d.s0 - 56 && c.v < 25) {
-        if (!s.reach) { s.reach = 1e-6; c.rig?.set({ action: 'reach' }); }
+        if (!s.reach) { c.reachDoor = d.id; s.reach = 1e-6; c.rig?.set({ action: 'reach' }); }
         s.reach += dt;
         if (s.reach > 0.4 && !H.DOORS[d.id].open) { H.setDoor(d.id, true); c.opened.add(d.id); }
       }
@@ -983,7 +999,7 @@
     // straight to the spot if nobody would see it happen (a refresh, a long time away)
     const fresh = !!instant;
     if (fresh && !s.seat) { spawn(c, s); c.goal = want; c.plan = [{ k: 'face', h: (s.face || 0) * D2R }, { k: 'act' }]; return; }
-    if (fresh && s.seat) { const q = seatFor(c, s); spawn(c, { lvl: s.lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: { h: q.h, back: q.back, knee: q.knee, table: q.table, footH: q.footH } }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; return; }
+    if (fresh && s.seat) { const q = seatFor(c, s); spawn(c, { lvl: s.lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: seatPose(c, q) }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; return; }
     if (seenAt(from)) return; // (never appear where you can see it: wait until you look away)
     spawn(c, from); setGoal(c, want);
   }
@@ -993,7 +1009,7 @@
   function save() {
     savedAt = nowMs(); if (simMode) return;
     const o = { pv:10, t: Date.now(), c: {} };
-    for (const c of chars) o.c[c.id] = c.present ? { p: 1, x: Math.round(c.x), z: Math.round(c.z), lvl: c.lvl, h: +c.h.toFixed(2), g: c.goal?.key || null, seat: c.seated ? SPOT_OF(c.seated) : null } : { p: 0 };
+    for (const c of chars) o.c[c.id] = c.present ? { p: 1, x: Math.round(c.x), z: Math.round(c.z), lvl: c.lvl, h: +c.h.toFixed(2), g: c.goal?.key || null, seat: c.seated ? SPOT_OF(c.seated) : null, pose: ['sit', 'stand'].includes(c.cur?.k) ? { k: c.cur.k, seat: SPOT_OF(c.cur.seat), t: c.cur.t, from: c.cur.from, blend: c.rig.st.sitK, feet: c.rig.st.feet.map(f => ({ x: f.x, y: f.y, z: f.z, yaw: f.yaw })) } : null } : { p: 0 };
     // Resume the spoken exchange as well as the people. Functions are rebuilt from
     // the current story's talkLines; no reward or story event is replayed on load.
     o.conversation = {step:window.st?.current?.()?.id || null,lines:[speech.cur,...speech.q].filter(n=>n?.talk).slice(0,12).map(n=>({id:n.c.id,line:n.lineId,text:n.text}))};
@@ -1009,7 +1025,17 @@
     for (const c of chars) {
       const want = target(c, clk), sv = o && Date.now() - o.t < 10 * 60000 ? o.c[c.id] : null;
       if (sv && sv.p && !want.away && sv.g === want.key) { // carry on exactly where they were
-        if (sv.seat && SPOT[sv.seat]?.seat) { const q = seatFor(c, SPOT[sv.seat]); spawn(c, { lvl: SPOT[sv.seat].lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: { h: q.h, back: q.back, knee: q.knee, table: q.table, footH: q.footH } }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; }
+        if (sv.pose && SPOT[sv.pose.seat]?.seat && ['sit', 'stand'].includes(sv.pose.k)) {
+          const p = sv.pose, q = seatFor(c, SPOT[p.seat]);
+          spawn(c, { lvl: sv.lvl, x: sv.x, z: sv.z }, sv.h); c.goal = want;
+          c.rig.set({ seat: seatPose(c, q) }); c.rig.st.sitK = clamp(+p.blend || 0, 0, 1);
+          if (p.k === 'stand') { c.seated = q; setGoal(c, want); c.plan.shift(); c.rig.set({ seat: null }); }
+          else c.plan = [{ k: 'act' }];
+          c.cur = { k: p.k, seat: q, t: clamp(+p.t || 0, 0, 1.2), from: p.from || { x: sv.x, z: sv.z }, started: p.k === 'stand' };
+          if (Array.isArray(p.feet) && p.feet.length === 2) p.feet.forEach((f, i) => { if (['x', 'y', 'z', 'yaw'].every(k => Number.isFinite(f[k]))) Object.assign(c.rig.st.feet[i], f); });
+          c.rig.update(0, true); continue;
+        }
+        if (sv.seat && SPOT[sv.seat]?.seat) { const q = seatFor(c, SPOT[sv.seat]); spawn(c, { lvl: SPOT[sv.seat].lvl, x: q.x, z: q.z, face: q.face }); c.goal = want; c.seated = q; c.rig.set({ seat: seatPose(c, q) }); c.rig.st.sitK = 1; c.plan = [{ k: 'act' }]; }
         else { spawn(c, { lvl: sv.lvl, x: sv.x, z: sv.z }, sv.h); c.goal = null; }
         continue;
       }

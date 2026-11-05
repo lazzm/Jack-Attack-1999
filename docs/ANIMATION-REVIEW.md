@@ -133,3 +133,103 @@ The requested full matched **in-house** action matrix was not completed; the pro
 The phone smoke case did pass shared account/prop state, portrait-to-landscape context survival and the chosen JackOS-only refresh path. This does not turn the separate incomplete phone performance gate into a pass. Canonical smoke screenshots are functional capture coverage, not additional native-resolution character-art review.
 
 Final `for f in app/public/js/np-{rig,life}.js tests/models-*.mjs tests/models-*.cjs; do node --check "$f" || exit; done`, `node --expose-internals tests/parody-audit.cjs` and `git diff --check`: all exit **0** (parody replacements **0**). Branch remains `models`. All owned server/browser runners have finished and cleaned up their disposable state. Stopped new work at the 90-minute mark, leaving the final ten minutes of the requested budget unused. No test is represented as passing without a completed successful result.
+
+## Round 2 — 4 November 2026
+
+Base: `e5d6d5d9b0eec7c4c3f6236052bdcab570edb05a`, the merged `models` HEAD containing live round 1. No deployment, commit, version change or live-data access. Further primary-source research is appended to [ANIMATION-RESEARCH.md](ANIMATION-RESEARCH.md). The useful ideas were staged whole-shoe clearance, explicit object-space contact windows, prop-first grip anchors, chair-relative support, broad authored garment folds and selected speech accents followed by holds. All implementation and geometry are original, using the existing r128 helpers.
+
+### Harsh review: the ten most conspicuous problems
+
+| Rank | What looked cheap | This round |
+|---|---|---|
+| 1 | The trailing heel shot up before the foot came forward on stairs. | Fixed: shorter stair strides, separate intermediate/final tread heights, 2 cm ascent / 3 cm descent clearance and a higher swing-knee direction. Stair gaze follows the flight. Whole skinned soles remain clear. |
+| 2 | A hand reached into space beside the closed door, then ignored the hinge. | Fixed: lever anchors exported from the original solid model; a small family callback reads their actual world transform. Adult overhand and child underhand reaches shift weight, follow the initial swing, then release. Routes are unchanged. |
+| 3 | The newspaper chased the average of the hands, so neither grip was reliable. | Fixed: an independent folded-paper frame and two grip anchors on its real surface; world-oriented wrists and finger closure. The frame is high/close enough for Dad's actual arm lengths. |
+| 4 | Washing wrists and the sponge sat too low and too far outside the real bowl. | Improved: the scrub path reaches into the existing basin, with a stable wrist and closing fingers. Native in-house profile/far views replace the unhelpful rear-only probe. |
+| 5 | Feet could sit underneath the sofa's projecting front plinth. | Fixed for adult family seat poses: pelvis moves forward inside the rig and ankles target the clear floor ahead of the actual upholstery. Saved roots/seat anchors do not move. Child sofa perch remains distinct. |
+| 6 | Interrupting a sit could leave a seated rig travelling along a route, or jump back to the seat before standing. | Fixed: an interrupted descent becomes a stand from its current root and current blend. Support feet remain in world space. |
+| 7 | Refresh discarded an unfinished sit/stand and restarted another pose. | Fixed: optional transition phase, original root interpolation and support contacts join the existing local family save. Older saves still work. Nine person/seat combinations exercise sit restore, interruption and stand restore; a real page reload also checks a naturally scheduled mid-sit. |
+| 8 | Sleeves and trousers read as smooth tubes, particularly at cuffs and knees. | Improved: existing rings form broad cuff, elbow and knee changes. No runtime cloth simulation or additional garment topology. |
+| 9 | Shoes looked melted into their soles. | Improved: capped outsole/welt/toe rings and a simpler ankle collar, reallocating polygons. Near Low loses 16 triangles per family member; Low far meshes retain their prior cost. |
+| 10 | Speech arms waved continuously and negative stationary turns always started with the same foot. | Improved: a first phrase accent and selected later accents have holds, small nods and painted expression changes. Signed 45°, 90° and 180° turns lead with the appropriate foot and preserve exclusive support. No audio code changes. |
+
+### Measurements and their limits
+
+The actual r128 skeleton/skin tests inspect sole vertices, support-foot world positions and grip frames, not just requested IK points. Established-flight shin angles exclude the artificial first half-second of a mid-flight diagnostic teleport; house sequences start from the real upper/lower landing. No penetration checks are excluded. Positive shin angles below mean the ankle is below the knee.
+
+| Measure | Before | After |
+|---|---:|---:|
+| Extra stair arc above the planned tread | 11 cm | 2 cm up / 3 cm down |
+| Minimum trailing shin angle, house ascent: Mom / Dad / sister | −27.7° / −16.6° / −22.0° | 23.6° / 21.2° / 10.1° |
+| Minimum trailing shin angle, house descent: Mom / Dad / sister | −17.3° / −10.9° / −5.9° | 28.9° / 32.5° / 16.2° |
+| Whole-sole penetration, all tested flights/directions | Already guarded in round 1 | 0 cm |
+| Stand support drift, worst frame | 1.27–2.33 cm | Below numerical precision |
+| First-frame horizontal jump after interrupting a sit | 0.49–0.99 cm | Below numerical precision |
+| Adult/child turn lead at negative 45° / 90° / 180° | Always left | Right, with one foot planted |
+| Low near triangles including shadow: Mom / Dad / sister | 2,778 / 2,958 / 2,954 | 2,762 / 2,942 / 2,938 |
+| Low far triangles including shadow: Mom / Dad / sister | 1,726 / 1,890 / 1,830 | Unchanged |
+| Skinned draws per person | 2 | 2 |
+
+Finger flexion reuses two reserved bones previously unused by the painted eyelids. Bone count, shader attributes, material count and draw count do not increase. All existing outfits, Halloween visitors and both distance meshes are checked; no Low/Potato person exceeds 3,000 triangles. House captures use the automatic production tier, which can differ from the explicitly Low rig probe. Desktop is 1366×860; phone is a 390×844 touch-emulated viewport. These are shared-host Chromium/SwiftShader captures, not measurements from physical phones.
+
+### Evidence
+
+`tests/shots/models/r2-before/house/` contains the matched HEAD house sequences. `r2-batch1/house/` records the complete initial nine-action matrix (walking, ascending, descending, door, job, sitting, standing, talking, carrying): 432 native frames, three people, two viewports, two cameras, four times. `r2-after/house/` recaptures the seven affected actions after the final contact/stair/seat batches. Walking and mug carrying also have the batch-1 captures. The stage probe in `r2-probe/` adds unobstructed Low models at exact 2 m and 4 m, including separate 45°/90°/180° turns and descending stairs.
+
+House camera positions and actual ranges are in each `report.json`. Most near views are around 2 m and far views around 4 m; the full diagonal view up the flight is 4.5–5.4 m. The corrected HEAD cameras stay inside the actual house; the forty unmatched after lounge frames are not accepted as matched evidence. Earlier blocked landing/door calibration frames were rejected and are not acceptance evidence. A real refresh preserved the sister's root, goal, `sit` phase and blend exactly in the captured snapshot; nine seat combinations also restore both transition directions through the same production save/restore functions.
+
+Functional regression runs may use the fixture's 0.25 raster cap to keep shared software rendering timely; all house and Low probe art captures are uncapped. The paired CPU benchmark measures all three family rigs per update without rendering. It is not GPU frame time or a physical-phone FPS claim.
+
+### Round 2 completed checks and CPU cost
+
+Paired AB/BA benchmark, all three Low family rigs together, milliseconds per update (16 batches after warm-up):
+
+| Mode | HEAD | After |
+|---|---:|---:|
+| Idle | 0.07245 | 0.07744 |
+| Walking | 0.07554 | 0.08464 |
+| Jobs | 0.08717 | 0.08654 |
+| Far | 0.07714 | 0.07875 |
+| Stairs | 0.07922 | 0.08604 |
+| Stairs with real tread callback | 0.08547 | 0.09285 |
+
+The largest added median is 0.00910 ms for all three rigs. No physical-phone GPU time was measured. Raw paired results: `tests/shots/models/r2-paired-cpu.json`. Newspaper palm-to-folded-surface error falls from 17.953 cm to 0.0797 cm. Settled closed-door lever contact is within numerical precision for adults and 0.02 cm for the sister; the child follows the early hinge swing within 0.86 cm before releasing. These measure palms, not complete finger-pad penetration.
+
+Every result below is round 2, superseding no failed round-1 result silently:
+
+| Actual command | Result |
+|---|---|
+| `node --check` on all eight touched JavaScript files | Exit 0 |
+| `node --expose-internals tests/parody-audit.cjs` | Exit 0; 0 replacement spans |
+| `python3 tests/models-units.py` | Exit 0; all 50 `*-unit.cjs` scripts; exact individual commands/results in `tests/shots/models/r2-unit-results.json` |
+| `node tests/models-rig-unit.cjs` | Exit 0, including final head/door clearance assertions |
+| `node tests/models-rig-unit.cjs --baseline` | Exit 0; baseline measurement mode |
+| `node tests/models-perf.cjs` | Exit 0; paired CPU results above |
+| `node tests/models-animation.mjs --label=r2-probe --only=stairs,stairs-down,turn45,turn90,turn180,job,carry --skip-perf --stairs-rise=20` | Exit 0; 336 frames / 24 sheets |
+| `node tests/characters.mjs --only=day,space,bump` | Exit 0; 3/3, 145.294 s |
+| `node tests/people-pass.mjs --desktop --skip-perf` | Exit 0; all cases, 337.412 s |
+| `node tests/door-walk.mjs http://127.0.0.1:18080` | Exit 0; 94.971 s |
+| `node tests/voices.mjs http://127.0.0.1:18080 --only=speak,two` | Exit 0; 2/2, 106.166 s |
+| `node tests/smoke.mjs` via the model gate | Incomplete: parent runner exited 143 after sparse-signup passed; no complete smoke result |
+| `node tests/events-bonfire.mjs`; `node tests/identity-house.mjs --case=sarah` | Not run this round |
+| `git diff --check` | Exit 0 |
+
+Browser regression commands ran serially through `tests/models-gate.mjs` with disposable `/tmp` data and owned server PID cleanup; completed server checks found no mod-load failures. Functional runs used `FIXTURE_RASTER_RATIO=0.25`; characters/people-pass also used `SMOKE_SCALE=1.3`. Art captures used native raster. An earlier non-TTY characters/people-pass run ended 143 and was superseded by the successful isolated, monitored serial rerun. The smoke interruption was not diagnosed as an application bug and was not rerun before the stop.
+
+Personally inspected all 24 Low probe sheets and all 24 final seven-action house sheets. Comparison review caught far lounge cameras outside the valid floor in several HEAD views; those were rejected. HEAD was recaptured from a valid interior camera, but the matching after recapture did not complete before the stop. Forty far Mom/sister lounge frames consequently remain unmatched and are excluded from the paired comparison sheets. Raw records retain camera coordinates/ranges. Desktop and portrait-phone matrices are present; landscape/tablet and physical weak-phone performance remain unverified. The real reload assertion covers one naturally scheduled sister mid-sit; both-direction transition restoration for nine family-seat combinations is an API check, not nine real browser reloads. Movable dining/desk chairs, finger-pad penetration on every prop, every seasonal outfit's visual appearance, and exhaustive interrupted door contacts remain next-round work. No deployment or commit was performed.
+
+
+### Next ten
+
+1. Bind NPC sitting to additional movable dining/desk chairs using their real surfaces, without adding family routes in this branch.
+2. Give the sister an authored armchair perch and test upholstery clearance there as closely as her sofa perch.
+3. Add hand support on armrests/thighs during the weight transfer into/out of seats; retain interruption continuity.
+4. Extend explicit grip frames to the magazine, drawing pad/crayon, watering can and briefcase; add object-surface penetration checks for finger pads.
+5. Keep the newspaper's object frame stable throughout its fade/put-down and add an original page-turn gesture.
+6. Exercise NPC door reaches from both sides of every leaf, including fast interruptions and a player closing a moving door.
+7. Check entire-flight stair sequences and the first/last tread on physical weak phones, including tight clothes/shoe clearances at the top seam.
+8. Add wider conversational emotion/gesture choices and longer matched samples, including a held mug while the other hand gestures.
+9. Give broad cloth folds better compression when deeply seated, without additional polygons or a cloth solver.
+10. Profile actual low-end phone GPU frame time and sustained thermals; keep the current deterministic CPU/triangle gates as separate evidence.
+
+Stopped new work at the 90-minute cutoff (21:27 UTC). Final comparison regeneration excludes camera mismatches; the complete regenerated comparison collection was not individually re-reviewed before stopping. All 24 Low probe and 24 seven-action house sheets were reviewed earlier; forty far lounge frames remain unmatched.

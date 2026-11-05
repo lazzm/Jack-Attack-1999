@@ -479,6 +479,11 @@
       const geo=new T.ExtrudeGeometry(shape,{depth:o.t,steps:1,bevelEnabled:false,curveSegments:1});geo.translate(0,0,-t2);
       slab=into(pv).at(o.cx,o.cy,o.cz,along?0:90).geo(geo,0,0,0,o.leaf);
     }else slab = into(pv).box(o.cx, o.cy, o.cz, along ? w : o.t, h, along ? o.t : w, o.leaf);
+    // Contact anchors on the actual lever, in this leaf's hinge frame. Metadata
+    // only: the same original solid geometry and draw batches are retained.
+    pv.userData.handles = [-1, 1].map(side => along
+      ? [o.handleA + (o.leverDir || -1) * 3.6, o.handleY, o.cz + side * (t2 + 2.15)]
+      : [o.cx + side * (t2 + 2.15), o.handleY, o.handleA + (o.leverDir || -1) * 3.6]);
     const batch = new Batch(), B = into(batch).at(o.cx, o.cy, o.cz, along ? 0 : 90);
     const U = a => along ? a - o.cx : o.cz - a, dir = d => along ? d : -d;
     const panels = o.glass ? [[-0.17, 0.2], [0.17, 0.2]] : [[-0.17, -0.25], [0.17, -0.25], [-0.17, 0.2], [0.17, 0.2]];
