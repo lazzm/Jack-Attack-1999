@@ -163,6 +163,10 @@
         let p = null; try { p = h.o.pos(); } catch (e) {}
         if (p) {
           if (h.panner.positionX) { setParam(h.panner.positionX, p.x, c, !h.started); setParam(h.panner.positionY, p.y, c, !h.started); setParam(h.panner.positionZ, p.z, c, !h.started); } else h.panner.setPosition(p.x, p.y, p.z);
+          if (h.widen && cam && tmp.f && tmp.u) {
+            const f = tmp.f, u = tmp.u, sx = p.x - tmp.p.x, sy = p.y - tmp.p.y, sz = p.z - tmp.p.z, len = Math.max(1, Math.hypot(sx, sy, sz));
+            setParam(h.widen.pan, 0.55 * (sx * (f.y * u.z - f.z * u.y) + sy * (f.z * u.x - f.x * u.z) + sz * (f.x * u.y - f.y * u.x)) / len, c, !h.started);
+          }
           let d = null; try { d = h.o.dir?.(); } catch (e) {}
           if (d) {
             if (h.panner.orientationX) { setParam(h.panner.orientationX,d.x,c,!h.started); setParam(h.panner.orientationY,d.y,c,!h.started); setParam(h.panner.orientationZ,d.z,c,!h.started); }
@@ -212,6 +216,9 @@
         const pn = c.createPanner(); pn.panningModel = panningModel(); pn.distanceModel = 'inverse'; pn.refDistance = 200; pn.rolloffFactor = 1.5; pn.maxDistance = 6000;
         if (o.dir) { pn.coneInnerAngle = 120; pn.coneOuterAngle = 300; pn.coneOuterGain = .45; }
         h.panner = pn; node.connect(pn); node = pn;
+        // HRTF alone gives only a few dB between the ears, which is weak on phone and laptop speakers. A partial pan keeps
+        // left and right obvious on speakers without flattening the HRTF cues on headphones.
+        if (pn.panningModel === 'HRTF' && c.createStereoPanner) { h.widen = c.createStereoPanner(); node.connect(h.widen); node = h.widen; }
         if (o.dir) { h.facing = c.createBiquadFilter(); h.facing.type = 'lowpass'; h.facing.Q.value = .5; node.connect(h.facing); node = h.facing; }
       }
       if (o.through && (o.fx !== 'downstairs' || n)) { // names are clean; the following downstairs recording is already muffled

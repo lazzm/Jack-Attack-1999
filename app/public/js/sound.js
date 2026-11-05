@@ -31,6 +31,9 @@
       const control = c.createGain(); control.gain.value = volume;
       limiter.connect(ceiling); ceiling.connect(control); control.connect(c.destination);
       bus = {effects:c.createGain(),music:c.createGain(),voice:c.createGain(),control}; buses.set(c,bus);
+      // Chromium loads HRTF data the first time it's asked for and can be silent until then. Ask at the first gesture,
+      // so the first line of speech doesn't lose its opening.
+      try { const n = window.navigator || {}; if (!(n.hardwareConcurrency <= 4 || n.deviceMemory <= 2) && c.createPanner) { bus.warmHrtf = c.createPanner(); bus.warmHrtf.panningModel = 'HRTF'; } } catch (e) {}
       for (const kind of KINDS) { bus[kind].gain.value = level(kind); bus[kind].connect(limiter); }
     }
     return bus[channel === 'music' ? 'music' : channel === 'voice' ? 'voice' : 'effects'];

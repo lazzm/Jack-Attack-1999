@@ -1,5 +1,10 @@
 # Jack's Home Page - changelog
 
+## 2.72.0 - 2026-11-05
+- Voices are louder and come from the person speaking. A family member in the same room is about 6 dB louder, and music and other sounds drop further underneath them. A limiter on the final mix stops anything distorting when several sounds play at once. Your volume slider and saved settings work as before.
+- Speech now uses 3D sound that follows the speaker's mouth as they move. You can hear whether someone is to your left or right, they get clearly quieter further away, and someone facing away from you sounds quieter and duller. This was measured, not listened to, so it needs a real pair of ears.
+- Verified: parody 0, all unit checks, door walking, Bonfire end to end, voices 9/9, recordings, identity, smoke 12/12, phone sign-up and story. Measured in a real browser: someone hard left is 8 dB louder in the left ear, 6 m away is about 9 dB quieter than 2 m, facing away is about 3.7 dB quieter and duller, and the mouth is tracked to within a centimetre while they walk. An overload that used to clip now peaks at -1 dBFS. Front and back differ only subtly on the measurements, and real phones and headphones haven't been tried. One settings check still fails: music tones come out almost silent when the test machine runs slowly. Live 2.71.0 does the same, so it isn't new, and it's next on the sound list.
+
 ## 2.71.0 - 2026-11-05
 - The family move better, round 3. They lower themselves into a seat with their hips going back first and a hand reaching for it, and lean forward and push to get up, on every real chair and sofa. Each walks in their own way, with Dad heavier and slower, Mom brisk and the sister bouncy, and there's some weight in their hips and shoulders. Standing still they shift their weight and look around a little instead of freezing. Hair lags a little on turns, and mouths and brows follow what they're saying.
 - Street Scrapper II has more to it: an eleven-bout ladder, four promoters, a versus mode, saves that bring back the exact fight, and a six-button pad on phones.
