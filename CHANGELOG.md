@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.70.0 - 2026-11-05
+- The family move better, round 2. No more high heel-kick on the stairs: feet lift just enough to clear the next step, and they look where they're going on the way down. Hands reach the real door handle and let go as the door swings. They sit deeper in real chairs and a refresh halfway through sitting or standing carries on from the same pose. Paper, mugs and sponges sit in their fingers, clothes have broad folds at elbows, knees and cuffs, shoes have firm soles, they gesture a little when talking, and they turn on the spot with proper foot steps.
+
 ## 2.69.0 - 2026-11-05
 - Starting the game is much quicker. The first screen has just a name, a password and three clear choices, with a real picture of the game, Show password, and help if you've forgotten your password. Boy or girl and your first name are optional, and everything else moves into the game. About 44 seconds from the page opening to walking around the house on the test machine. If you already have an account and type it into Create Account, you're simply logged in. A wrong password there says the name is taken and suggests another.
 - Far more voices. The family and announcer now have 492 recorded lines, up from 309, each one put through automated checks for the right words and a British accent. On Bonfire evening, at Halloween, in chores and through the story, they now speak lines that used to be silent. They still call you by name: the name clip plays first and your name shows in the bubble, including Mom's welcome, the missed-call line and pocket money. 31 lines are still waiting to be recorded and stay as silent text until then.
