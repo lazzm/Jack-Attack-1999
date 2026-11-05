@@ -116,7 +116,7 @@
   }
   function stopRing(missed) {
     if (!ring) return; clearInterval(ring.timer); const c = ring.call; ring = null; H.dirty();
-    if (missed) setTimeout(() => voice('MOM', cast(c.who === '{mate1}' ? "That was your friend! Are you coming out?" : c.who === 'Gran' ? "That was your Gran. She says you never ring her." : c.who === 'a wrong number' ? 'Wrong number. AGAIN. Someone wanting a Chinese.' : 'Was that the phone? Did you not hear it?!')), 1500);
+    if (missed) setTimeout(() => voice('MOM', c.who === '{mate1}' ? "{me}! That was your friend! Are you coming out?" : c.who === 'Gran' ? "{me}, that was your Gran. She says you never ring her." : c.who === 'a wrong number' ? 'Wrong number. AGAIN. Someone wanting a Chinese.' : 'Was that the phone? Did you not hear it?!'), 1500);
   }
   // picking up: answering a call, or dialling out (the keypad, the phone book's numbers, 1471, the speaking clock)
   const phonePose = () => ({ x: 128, y: GY - 150, z: 604, rx: -8, ry: 90, lvl: 'G', seat: 1 }); // (standing by the phone table, the handset in your hand)
@@ -240,7 +240,7 @@
     Net.on('hsMe', m => { srv.member = !!m.member; srv.chores = m.chores || null; srv.done = m.done || []; srv.tin = !!m.tin; srv.pocket = !!m.pocket; if (m.member && m.saturday && !m.pocket) setTimeout(pocket, 4000); });
     Net.on('hsTin', m => { if (m.amt > 0) toast('+' + m.amt + ' Rupees', 'Found in the biscuit tin, under the biscuits!'); srv.tin = true; });
     Net.on('hsChore', m => { if (m.amt > 0) toast('+' + m.amt + ' Rupees', 'Mom paid you for doing a job!'); if (m.done) srv.done = m.done; });
-    Net.on('hsPocket', m => { if (m.cashPence > 0) { srv.pocket = true; voice('MOM', "Here's your pocket money. Five pounds. Don't spend it all on games magazines."); setTimeout(() => toast('+£'+(m.cashPence/100).toFixed(2), 'Saturday pocket money! Exchange it at JackNet Bank.'), 2500); } });
+    Net.on('hsPocket', m => { if (m.cashPence > 0) { srv.pocket = true; voice('MOM', "{me}! Here's your pocket money. Five pounds. Don't spend it all on games magazines."); setTimeout(() => toast('+£'+(m.cashPence/100).toFixed(2), 'Saturday pocket money! Exchange it at JackNet Bank.'), 2500); } });
     const ask = () => send({ t: 'hsMe' });
     Net.on('welcome', ask); Net.on('loginOk', ask); try { if (Net.me && Net.me.id) ask(); } catch (e) {}
   }
@@ -389,7 +389,7 @@
     if (S.hello) return;
     if (!named() && tries < 30) return setTimeout(() => hello(tries + 1), 500);
     S.hello = 1; save(); const tea = part() === 'tea';
-    voice('MOM', named() ? cast(tea ? "Is that you? Tea's nearly ready!" : "Is that you coming down? Put the kettle on, love!")
+    voice('MOM', named() ? (tea ? "{me}! Is that you? Tea's nearly ready!" : "{me}? Is that you coming down? Put the kettle on, love!")
       : tea ? 'Is that you? Tea\'s nearly ready!' : 'Is that you coming down? Put the kettle on, love!');
   };
   setTimeout(() => hello(0), 2500);

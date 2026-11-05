@@ -78,7 +78,8 @@
   function voiceText(id, text, o) {
     const template=window.VoiceDisplays?.[window.VoiceLineAliases?.[id]||id], first=window.Cast?.me?.().first;
     if(template && first && first!=='you') {
-      const display=template.replace(/\{me.NAME\}/g,first.toUpperCase()).replace(/\{me\}/g,first);
+      let display=template.replace(/\{me.NAME\}/g,first.toUpperCase()).replace(/\{me\}/g,first);
+      if(display.includes('{')&&window.Cast?.t)display=window.Cast.t(display);
       if(String(text).includes(display))return text;
       const plain=(window.VoiceLines||window.NPCLines)?.[id]?.[1];
       return plain && String(text).includes(plain) ? String(text).replace(plain,display) : display;

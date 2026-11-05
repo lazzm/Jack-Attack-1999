@@ -1525,7 +1525,7 @@
   function things() {
     const add = (id, def) => { const t = H.thing(id, def); t.obj.userData.thing = 1; t.obj.traverse(o => { o.userData.thing = 1; }); H.restoreThing(t); return t; };
     add('gb', { home: { room: 'bedroom', x: -56, y: 0, z: 5, ry: -18 }, kind: 'handheld', label: 'Game Lad Color', obj: gbModel(), use: () => tvOpen('gb'), useLabel: 'Play it', holdD: 40 });
-    const cube=add('cube',{home:{room:'bedroom',x:-40,y:0,z:-10,ry:25},kind:'toy',label:'Puzzle cube',obj:cubeModel(),use:()=>H.inspect('cube'),useLabel:'Solve it',holdD:34});
+    const cube=add('cube',{home:{room:'bedroom',x:-48,y:0,z:-8,ry:25},kind:'toy',label:'Puzzle cube',obj:cubeModel(),use:()=>H.inspect('cube'),useLabel:'Solve it',holdD:34});
     if(cube.at.room==='bedroom'&&cube.st==='rest'&&Math.abs(cube.at.x+50)<.1&&Math.abs(cube.at.y)<.1&&Math.abs(cube.at.z+22)<.1&&Math.abs(cube.at.ry-25)<.1){cube.at=Object.assign({},cube.home);H.place(cube);H.saveThings()}
     add('vpet', { home: { room: 'bedroom', x: 40, y: 0, z: 11, ry: 10 }, kind: 'toy', label: 'Eggbert (my keyring pet)', obj: vpetModel(), use:()=>H.inspect('vpet'),useLabel:'Check on it',holdD:30,inspectPose:{pitch:-78,yaw:0},onInspectStart:petInspect,onInspectEnd:()=>{clearInterval(R.petTimer);R.petTimer=null},onInspectKey:ev=>{const action={a:'feed',b:'play',c:'clean'}[ev.key.toLowerCase()];if(action&&!ev.repeat)R.petAction?.(action);return!!action},onInspectClick:hit=>{const action=hit?.object.userData.inspectAction;if(action)R.petAction?.(action)} });
     // The football: a real truncated icosahedron (12 black pentagons, 20 white hexagons) with inset seams and domed

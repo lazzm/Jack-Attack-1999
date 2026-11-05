@@ -69,7 +69,7 @@ try{
  const beforeFly=await page.evaluate(()=>House.P.z);await page.keyboard.down('w');await page.waitForTimeout(300);await page.keyboard.up('w');assert.notEqual(await page.evaluate(()=>House.P.z),beforeFly);
  await page.keyboard.press('Escape');await until(()=>HousePause.open);await page.locator('[data-pause=owner]').click();await until(()=>document.querySelector('.owner-tools')?.open&&!HousePause.open);await tab('world');
  await page.locator('[name=station]').selectOption('kitchen|0');await page.locator('[data-owner=teleport]').click();await until(()=>House.here==='kitchen'&&!House.gliding);await page.screenshot({path:shots+'teleport-kitchen.png'});
- await panel();await tab('world');await page.locator('[name=event]').selectOption('tea');await page.locator('[data-owner=event]').click();await until(()=>!!document.querySelector('.hs-note.on')?.textContent.includes('Tea is ready'));
+ await panel();await tab('world');await page.locator('[name=event]').selectOption('tea');await page.locator('[data-owner=event]').click();await until(()=>[...document.querySelectorAll('.hs-note.on,.np-bub')].some(e=>e.textContent.includes('Tea is ready')));
  await panel();await page.locator('[name=parcel]').selectOption('hardware.md');await tool('parcel');await until(()=>PM.parcels().includes('hardware.md'));
  await page.locator('[name=chore]').selectOption('bed');await page.locator('[data-owner=chore]').click();await until(()=>House.here==='bedroom'&&window.ChoreKit?.started('bed'));assert(!await page.evaluate(()=>ChoreKit.done('bed')));
  await panel();await Promise.all([page.waitForEvent('domcontentloaded',{timeout:RELOAD_TIMEOUT}),page.locator('[data-owner=rebuild]').click()]);await ready();assert.equal(await page.evaluate(()=>House.here),'bedroom');

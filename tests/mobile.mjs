@@ -622,8 +622,8 @@ const phases = {
       // aim assist: hit rate round the kart box at 0..40 px from where it is on screen
       // (a thing on its own: the puzzle cube on the desk, seen from about a metre)
       const T = 'cube'; assert(await standAndAim(p, T), 'Cannot see the cube'); await sleep(300);
-      const c = await screenOf(p, T);
-      const hits = await page.evaluate(({ c, T }) => { const out = {}; for (const r of [0, 12, 24, 34, 48]) { let n = 0, k = 0; for (let i = 0; i < 8; i++) { const a = HouseTouch._aimAt(c.x + Math.cos(i * Math.PI / 4) * r, c.y + Math.sin(i * Math.PI / 4) * r); k++; if (a?.id === T) n++; } out[r] = n / k; } return out; }, { c, T });
+      const c = await screenOf(p, T); await page.screenshot({ path: 'shots/mobile/feel-aim-cube.png' });
+      const hits = await page.evaluate(({ c, T }) => { const out = {}; for (const r of [0, 12, 24, 34, 48]) { let n = 0, k = 0; for (let i = 0; i < 8; i++) { const a = HouseTouch._aimAt(c.x + Math.cos(i * Math.PI / 4) * r, c.y + Math.sin(i * Math.PI / 4) * r); k++; if (a?.id === T) n++; else (out.took ||= {})[a?.id || 'none'] = ((out.took ||= {})[a?.id || 'none'] || 0) + 1; } out[r] = n / k; } return out; }, { c, T });
       feel.cubeOnScreenPx = await page.evaluate(T => { const H = House, b = new H.T.Box3().setFromObject(H.THINGS[T].obj), s = b.getSize(new H.T.Vector3()), c = b.getCenter(new H.T.Vector3()), r = H.ren.domElement.getBoundingClientRect(), p = v => { v.project(H.camera); return [(v.x + 1) / 2 * r.width, (1 - v.y) / 2 * r.height]; }; const a = p(c.clone().addScaledVector(new H.T.Vector3(1, 0, 0), s.x / 2)), d = p(c.clone().addScaledVector(new H.T.Vector3(1, 0, 0), -s.x / 2)); return Math.round(Math.hypot(a[0] - d[0], a[1] - d[1])); }, T);
       feel.aimAssist = hits;
       assert(hits[0] === 1 && hits[24] >= .75, 'Aim assist misses: ' + JSON.stringify(hits));

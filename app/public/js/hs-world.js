@@ -1572,6 +1572,8 @@
   // in front of the sofa, on the way through.
   const LOUNGE5 = [[-157, 560, 37, 649], [53, 338, 166, 452]];
   function migratePlacement(at, from = 0) {
+    // The bigger monitor crowded the cube's factory spot: taps meant for it landed on the PC.
+    if(at && at.room==='bedroom' && from<12 && Math.abs(at.y)<.1 && Math.abs(at.x+40)<.1 && Math.abs(at.z+10)<.1){at.x=-48;at.z=-8;return true;}
     if(at && at.room==='cupboard' && from<12 && !at.hide && Number.isFinite(at.x) && Number.isFinite(at.z)) {
       // Objects resting on the moved chest/console box keep their support and offsets.
       if(at.y<LV.G-10 && at.x>=356 && at.x<=406 && at.z>=280 && at.z<=322){at.x=clamp(at.x+5,370,397);at.z-=27;return true;}

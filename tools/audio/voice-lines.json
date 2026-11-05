@@ -2118,7 +2118,8 @@
    "line": "See, that wasn't so hard, was it? |",
    "context": "Rating 85 to 94",
    "chapter": "5",
-   "batch": "mom-plain-07"
+   "batch": "mom-plain-07",
+   "display": "Good {me.lad}. See, that wasn't so hard, was it?"
   },
   {
    "id": "chore.rate.85c",
