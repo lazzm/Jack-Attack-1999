@@ -1,5 +1,8 @@
 # Jack's Home Page - changelog
 
+## 2.72.1 - 2026-11-05
+- The family repeat themselves far less, all year round. They remember what you've heard, per account and across refreshes, and pick the line you've heard least recently, so they work through everything they could say before any line comes back. Chatting to them, their passing remarks, Mom's shouts about jobs and the house's everyday calls all use it. A shout or seasonal line that has just played won't play again for a couple of minutes, and a passing remark stays quiet for half an hour. Story lines are unchanged.
+
 ## 2.72.0 - 2026-11-05
 - Voices are louder and come from the person speaking. A family member in the same room is about 6 dB louder, and music and other sounds drop further underneath them. A limiter on the final mix stops anything distorting when several sounds play at once. Your volume slider and saved settings work as before.
 - Speech now uses 3D sound that follows the speaker's mouth as they move. You can hear whether someone is to your left or right, they get clearly quieter further away, and someone facing away from you sounds quieter and duller. This was measured, not listened to, so it needs a real pair of ears.

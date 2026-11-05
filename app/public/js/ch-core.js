@@ -544,7 +544,7 @@
     try { if (window.HouseLife && HouseLife.quiet && HouseLife.quiet()) return; } catch (e) {}
     const L = list(); if (!L.length || L.every(id => S.done[id])) return;
     lastShout = Date.now(); shouts++;
-    mom(cast(pick(SHOUTS)));
+    mom(cast(window.HouseFamily?.freshest ? HouseFamily.freshest(SHOUTS, x => 'chore.say.' + x) : pick(SHOUTS)));
     setTimeout(() => jack('{me}', pick(REPLY), 3500), 4200);
   }, 30000);
 

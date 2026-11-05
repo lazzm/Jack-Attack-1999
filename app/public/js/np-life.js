@@ -25,6 +25,23 @@
   const ls = { get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
   const sisName = () => { try { return window.Cast ? Cast.n('sister') : 'My sister'; } catch (e) { return 'My sister'; } };
   const member = () => window.Net?.me?.member ? String(window.Net.me.nick || '').toLowerCase() : '';
+  // What this player has heard, kept per account across refreshes, all year round: the family work through
+  // everything they could say before repeating any of it, and the same line never comes back soon.
+  let heard = null, heardFor = null, heardSave = 0;
+  const heardMap = () => { const k = 'np.heard.' + (member() || 'guest'); if (heardFor !== k) { heardFor = k; heard = ls.get(k) || {}; } return heard; };
+  const heardAt = id => +heardMap()[id] || 0;
+  function hear(id) {
+    const m = heardMap(); m[id] = Date.now();
+    const ids = Object.keys(m); if (ids.length > 600) ids.sort((a, b) => m[a] - m[b]).slice(0, ids.length - 500).forEach(k => delete m[k]);
+    if (typeof setTimeout !== 'function') return ls.set(heardFor, m);
+    if (typeof clearTimeout === 'function') clearTimeout(heardSave); heardSave = setTimeout(() => ls.set(heardFor, m), 400);
+  }
+  // Least recently heard first; never-heard lines are picked at random among themselves.
+  function freshest(list, key = x => x, avoid) {
+    const L2 = list.filter(x => key(x) !== avoid), use = L2.length ? L2 : list; if (!use.length) return undefined;
+    const t = Math.min(...use.map(x => heardAt(key(x)))), tier = use.filter(x => heardAt(key(x)) <= t + 1000);
+    return tier[Math.floor(Math.random() * tier.length)];
+  }
 
   // ================================================================ the 1999 clock (the owner's override included)
   const HOLS = [[101, 104], [215, 219], [329, 416], [503, 503], [531, 604], [722, 907], [1025, 1029], [1218, 1231]];
@@ -549,9 +566,11 @@
     if (o.once) { const k = 'np.once.' + member() + '.' + (o.onceId || lineId); if (ls.get(k)) return false; ls.set(k, 1); }
     // never the same line again within a minute (unless you asked for a story instruction again)
     if (!o.again && c.said[lineId] && nowMs() - c.said[lineId] < 60000) return false;
+    // Shouts, chores and seasonal lines arrive with `again`; even so, the very same line stays quiet for a while.
+    if (o.again && !o.talk && !o.must && !/^c\d\./.test(lineId) && Date.now() - heardAt(lineId) < 150000) return false;
     // a scripted story line that plays by itself plays once per story step (saved: a refresh doesn't replay it)
     if (/^c\d\./.test(lineId) && !o.talk) { const step = window.st?.current?.()?.id || '-', k = 'np.step.' + member() + '.' + step + '.' + lineId; if (ls.get(k)) return false; ls.set(k, 1); }
-    c.said[lineId] = nowMs();
+    c.said[lineId] = nowMs(); if (!/^c\d\./.test(lineId)) hear(lineId);
     speech.q.push({ c, lineId, person, text: o.displayText||l[1], callout:o.callout, legacyShout:!!o.legacyShout, then: o.then, prio: o.prio || 0, talk: !!o.talk });
     if (o.prio) speech.q.sort((a, b) => b.prio - a.prio);
     try { window.st?.prefetch?.(lineId,o); } catch (e) {}
@@ -638,7 +657,7 @@
         c.backoff = { x: tx, z: tz }; c.backHome = c.backHome || { x: c.x, z: c.z }; break;
       }
     }
-    const fresh = lines.filter(l => { const lid = typeof l === 'string' ? l : l.id; return /^c\d\./.test(lid) || !(c.said[lid] && nowMs() - c.said[lid] < 60000); });
+    const fresh = lines.filter(l => { const lid = typeof l === 'string' ? l : l.id; return /^c\d\./.test(lid) || !(c.said[lid] && nowMs() - c.said[lid] < 60000) && Date.now() - heardAt(lid) > 90000; });
     if (!fresh.length) { c.hold = 1.2; return; } // (nothing new to say: they just turn to you)
     fresh.forEach((l, i) => say(id, typeof l === 'string' ? l : l.id, { force: true, prio: 5, talk: true, again: true, then: () => { if (typeof l !== 'string' && l.then) l.then(); if (i === fresh.length - 1) c.hold = 1.5; } }));
   }
@@ -663,7 +682,7 @@
     }
     return [pick(barkPool(c, clock(), true) || ['bark.sis.react.console', 'bark.sis.react.drawing'], c)];
   }
-  function pick(list, c) { const L2 = list.filter(id => L[id] && id !== c.lastBarkId); const id = (L2.length ? L2 : list)[Math.floor(Math.random() * (L2.length || list.length))]; c.lastBarkId = id; return id; }
+  function pick(list, c) { const L2 = list.filter(id => L[id]); const id = freshest(L2.length ? L2 : list, x => x, c.lastBarkId); c.lastBarkId = id; return id; }
   const eyes = () => ({ x: H.P.x, y: H.P.y, z: H.P.z });
 
   // ================================================================ barks: the house talking to itself
@@ -714,7 +733,7 @@
     for (const c of cands.sort(() => Math.random() - 0.5)) {
       const pool = barkPool(c, clk, false); if (!pool) continue;
       const near = inEarshot(c, 600);
-      const ok = pool.filter(id => L[id] && (near ? L[id][2] !== 'downstairs' : L[id][2] === 'downstairs' && c.lvl !== player().lvl) && (!c.said[id] || c.said[id] < t - 15 * 60000));
+      const ok = pool.filter(id => L[id] && (near ? L[id][2] !== 'downstairs' : L[id][2] === 'downstairs' && c.lvl !== player().lvl) && (!c.said[id] || c.said[id] < t - 15 * 60000) && Date.now() - heardAt(id) > 30 * 60000);
       if (!ok.length) continue;
       const id = pick(ok, c);
       if (say(c.id, id, near ? {} : { call: true })) return;
@@ -1138,6 +1157,8 @@
 
   // ================================================================ the API
   window.HouseFamily = {
+    // Other house speech (hs-life moments, chore shouts) picks through the same memory and marks what it chose.
+    freshest: (list, key = x => x) => { const x = freshest(list, key); if (x !== undefined) hear(key(x)); return x; }, heardAt,
     enabled: true, get active() { return ready; }, get ready() { return ready; }, chars: C,
     get speaking() { return !!speech.cur || speech.q.length > 0; },
     // Bedtime keeps the car at home; work follows the real routine and story/home-day exceptions.

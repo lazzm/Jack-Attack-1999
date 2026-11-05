@@ -80,7 +80,7 @@
   function shoutLoop() {
     const wait = (quiet() ? 7 : 3.5) * 60000 + Math.random() * 5 * 60000;
     setTimeout(() => {
-      if (H.live && !H.busy && !document.hidden && Date.now() - lastVoice > 120000 && !ringing()) { const L = moments().filter(([w]) => !window.HouseFamily?.mute?.(w)); if (L.length) { const [w, t] = pick(L); voice(w, t); } } // (the family in the house speak for themselves: js/np-life.js)
+      if (H.live && !H.busy && !document.hidden && Date.now() - lastVoice > 120000 && !ringing()) { const L = moments().filter(([w]) => !window.HouseFamily?.mute?.(w)); if (L.length) { const [w, t] = window.HouseFamily?.freshest ? HouseFamily.freshest(L, m => 'house.say.' + m[1]) : pick(L); voice(w, t); } } // (the family in the house speak for themselves: js/np-life.js)
       shoutLoop();
     }, wait);
   }
