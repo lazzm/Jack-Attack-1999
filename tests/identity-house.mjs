@@ -6,6 +6,7 @@ import {mkdtemp, mkdir, rm, writeFile} from 'node:fs/promises';
 import net from 'node:net';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
+import {fixtureRaster} from './room-fixture.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url)), shots=root+'tests/shots/identity-house/';
 const selection=process.argv.find(a=>a.startsWith('--case='))?.slice(7)||'all';
 assert(['all','sarah','nonowner','owner'].includes(selection));
@@ -26,24 +27,25 @@ const port=await freePort(), base='http://127.0.0.1:'+port;
 async function until(page,fn,timeout=90000){const end=Date.now()+timeout;while(Date.now()<end){let timer;try{const value=await Promise.race([page.evaluate('Boolean(('+String(fn)+')())'),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Browser stopped responding: '+fn)),30000)})]);if(value)return}catch(e){if(!/context was destroyed/.test(e.message))throw e}finally{clearTimeout(timer)}await delay(150)}console.log('Browser errors',errors);throw Error('Timeout: '+fn+' '+JSON.stringify(await page.evaluate(()=>({mode:window.House?.mode,allowed:window.AccountGate?.allowed,loading:!!document.querySelector('.hs-loading,#houseEntry'),gate:document.querySelector('#accountGate')?.textContent}))))}
 function observe(page){page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(['warning','error'].includes(m.type())&&!/GPU stall|ReadPixels/.test(m.text()))errors.push(m.text())});page.setDefaultTimeout(20000);page.setDefaultNavigationTimeout(90000)}
 async function credentials(page,account,first,g,signup=true){
+ await fixtureRaster(page);
  await page.addInitScript(()=>{
   localStorage.setItem('jhp_hs_gfx',JSON.stringify('low'));Date.prototype.getHours=()=>14;Date.prototype.getMinutes=()=>0;
   // Observe the actual canvas ink and SVG raster jobs, rather than duplicating production wording.
   window.identityInk=[];window.identitySVG=[];
   // Every family line spoken, so a later shout can't hide the welcome under load.
-  window.identityVoices=[];setInterval(()=>{const t=document.querySelector('.hs-note.on')?.textContent;if(t&&window.identityVoices.at(-1)!==t)window.identityVoices.push(t)},50);
+  window.identityVoices=[];setInterval(()=>{for(const e of document.querySelectorAll('.hs-note.on,.np-bub')){const t=e.textContent;if(t&&window.identityVoices.at(-1)!==t)window.identityVoices.push(t)}},50);
   const fill=CanvasRenderingContext2D.prototype.fillText;
   CanvasRenderingContext2D.prototype.fillText=function(text,...args){const s=String(text);if(window.identityInk.length<30000)window.identityInk.push(s);return fill.call(this,text,...args)};
   const url=URL.createObjectURL;
   URL.createObjectURL=function(blob){if(blob.type==='image/svg+xml')void blob.text().then(s=>window.identitySVG.push(s));return url.call(this,blob)};
  });
  await page.goto(base+'/?famdate=12-31',{waitUntil:'domcontentloaded'});await until(page,()=>window.Net?.connected&&Net.me.id);
- if(signup)await page.locator('[data-switch]').click();
+ if(signup!==!!(await page.locator('.account-character').count()))await page.locator('[data-switch]').click();
  await page.locator('[name=name]').fill(account);await page.locator('[name=password]').fill(password);
- if(signup)await page.locator('[name=confirm]').fill(password);
+ if(signup){await page.locator('.account-character summary').click();await page.locator('#accountFirst').fill(first);await page.locator(`[name=gender][value=${g}]`).check();}
  await page.locator('#accountGate [type=submit]').click();
- await until(page,()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst'));
- if(await page.locator('#accountFirst').count()){
+ await until(page,()=>window.AccountGate?.allowed||!!document.querySelector('.account-identity #accountFirst'));
+ if(await page.locator('.account-identity #accountFirst').count()){
   await page.locator('#accountFirst').fill(first);await page.locator(`[name=gender][value=${g}]`).check();await page.locator('#accountGate [type=submit]').click();
  }
  await until(page,()=>window.AccountGate?.allowed);
@@ -79,15 +81,17 @@ try{
  browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--enable-unsafe-swiftshader']});
  if(chosen('sarah')){
  const context=await browser.newContext({viewport:{width:1366,height:860}}),page=await context.newPage();observe(page);
- await credentials(page,'Sarah','Sarah','f');console.log('Sarah account ready');await house(page);console.log('Sarah house ready');sarah=await checkRoom(page,'Sarah');
+ await credentials(page,'Sarah','Sarah','f');console.log('Sarah account ready');await house(page);console.log('Sarah house ready');
+ // Observe the natural welcome before the gallery's House.hush clears queued notes.
+ await until(page,()=>identityVoices.some(t=>t.includes('Sarah')),30000).catch(async e=>{throw Error(e.message+' voices='+JSON.stringify(await page.evaluate(()=>identityVoices)))});
+ sarah=await checkRoom(page,'Sarah');
  await until(page,()=>!!House.THINGS['st.diary']);
  assert.equal(await page.evaluate(()=>House.THINGS['st.diary'].label),"Sarah's diary");
  assert(await page.evaluate(()=>identityInk.includes('BEST DAUGHTER')),'Gran’s mug assumed the player was a son');await texture(page,'rm.mugprint','sarah-mug-art');
  await view(page,[80,-20,30],[46,-4,-8]);await shot(page,'sarah-mug');
  // The welcome line is generated by HouseLife from the signed-in identity.
- await until(page,()=>identityVoices.some(t=>t.includes('Sarah')),30000).catch(async e=>{throw Error(e.message+' voices='+JSON.stringify(await page.evaluate(()=>identityVoices)))});
- await page.evaluate(()=>ChoreKit.mom(ChoreCat.momSays(90,1)));assert.match(await page.locator('.hs-note.on').textContent(),/Good girl/);await shot(page,'sarah-mom');
- await page.evaluate(()=>House.SPOTS['starter.fund'].act());await until(page,()=>!!document.querySelector('.hs-note.on')?.textContent.includes('Keep saving, Sarah!'),30000);await shot(page,'sarah-dad-note');
+ await page.evaluate(()=>ChoreKit.mom(ChoreCat.momSays(90,1)));await until(page,()=>[...document.querySelectorAll('.hs-note.on,.np-bub')].some(e=>/Good girl/.test(e.textContent)),30000);await shot(page,'sarah-mom');
+ await page.evaluate(()=>House.SPOTS['starter.fund'].act());await until(page,()=>[...document.querySelectorAll('.hs-note.on,.np-bub')].some(e=>e.textContent.includes('Keep saving, Sarah!')),30000);await shot(page,'sarah-dad-note');
  assert(await page.evaluate(()=>identityInk.includes('Keep saving, Sarah!')));await texture(page,'starter.dad-note','sarah-dad-note-art');
  await page.evaluate(()=>House.hush());await view(page,[-130,-115,185],[-147,-76,236]);await shot(page,'sarah-console-fund');
  await texture(page,'st.cover','sarah-diary-cover');assert(await page.evaluate(()=>identityInk.includes("Sarah's")));

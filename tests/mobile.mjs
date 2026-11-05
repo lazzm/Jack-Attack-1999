@@ -131,14 +131,13 @@ async function logon(p, acct, { signup = false, first = '' } = {}) {
   const { page, until, shot } = p;
   await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 90000 * SCALE });
   await until(() => window.Net?.connected && !!document.querySelector('#accountGate form'), null, 60000);
-  if (signup) await page.locator('#accountGate [data-switch]').tap();
+  if (signup !== !!(await page.locator('.account-character').count())) await page.locator('#accountGate [data-switch]').tap();
   await page.locator('[name=name]').tap(); await page.keyboard.type(acct.name);
   await page.locator('[name=password]').tap(); await page.keyboard.type(acct.pass);
-  if (signup) { await page.locator('[name=confirm]').tap(); await page.keyboard.type(acct.pass); }
   if (first) await shot(first);
   await page.locator('#accountGate [type=submit]').tap();
-  await until(() => window.AccountGate?.allowed || !!document.querySelector('#accountFirst'), null, 60000);
-  if (await page.locator('#accountFirst').count()) { if (first) await shot(first + '-identity'); await page.locator('#accountGate [type=submit]').tap(); }
+  await until(() => window.AccountGate?.allowed || !!document.querySelector('.account-identity #accountFirst'), null, 60000);
+  if (await page.locator('.account-identity #accountFirst').count()) { if (first) await shot(first + '-identity'); await page.locator('#accountGate [type=submit]').tap(); }
   await until(() => window.__testProfileReady && window.AccountGate?.allowed && window.House?.live && !document.querySelector('.hs-loading,#houseEntry'), null, 120000);
 }
 // Point the camera with the scene API (like the smoke fixture); every interaction after that is a real finger.
@@ -316,8 +315,14 @@ const phases = {
       try {
         await p.page.goto(base, { waitUntil: 'domcontentloaded', timeout: 90000 * SCALE });
         await p.until(() => window.Net?.connected && !!document.querySelector('#accountGate form'), null, 60000);
+        if(await p.page.locator('.account-character').count())await p.page.locator('#accountGate [data-switch]').tap();
         await p.shot(`gate-logon-${prof}`);
         await p.page.locator('#accountGate [data-switch]').tap(); await p.page.waitForTimeout(300);
+        await p.page.locator('.account-character summary').tap();
+        for(const value of ['m','f']){
+          const radio=p.page.locator(`[name=gender][value=${value}]`);
+          await radio.locator('..').tap();assert(await radio.isChecked(),prof+' whole gender label is a touch target');
+        }
         await p.shot(`gate-signup-${prof}`);
         const bad = await p.page.evaluate(() => [...document.querySelectorAll('#accountGate input, #accountGate button')].filter(e => e.offsetParent).map(e => { const r = e.getBoundingClientRect(), f = parseFloat(getComputedStyle(e).fontSize); return (r.right > innerWidth + 1 || r.left < -1 ? 'clipped ' : '') + (e.tagName === 'INPUT' && f < 16 ? 'font<16 ' : '') + (r.height < 32 ? 'short ' : '') + (e.name || e.textContent.trim().slice(0, 16)); }).filter(s => /^(clipped|font|short)/.test(s)));
         report.sizes[prof] = { gate: bad };
@@ -617,8 +622,8 @@ const phases = {
       // aim assist: hit rate round the kart box at 0..40 px from where it is on screen
       // (a thing on its own: the puzzle cube on the desk, seen from about a metre)
       const T = 'cube'; assert(await standAndAim(p, T), 'Cannot see the cube'); await sleep(300);
-      const c = await screenOf(p, T);
-      const hits = await page.evaluate(({ c, T }) => { const out = {}; for (const r of [0, 12, 24, 34, 48]) { let n = 0, k = 0; for (let i = 0; i < 8; i++) { const a = HouseTouch._aimAt(c.x + Math.cos(i * Math.PI / 4) * r, c.y + Math.sin(i * Math.PI / 4) * r); k++; if (a?.id === T) n++; } out[r] = n / k; } return out; }, { c, T });
+      const c = await screenOf(p, T); await page.screenshot({ path: 'shots/mobile/feel-aim-cube.png' });
+      const hits = await page.evaluate(({ c, T }) => { const out = {}; for (const r of [0, 12, 24, 34, 48]) { let n = 0, k = 0; for (let i = 0; i < 8; i++) { const a = HouseTouch._aimAt(c.x + Math.cos(i * Math.PI / 4) * r, c.y + Math.sin(i * Math.PI / 4) * r); k++; if (a?.id === T) n++; else (out.took ||= {})[a?.id || 'none'] = ((out.took ||= {})[a?.id || 'none'] || 0) + 1; } out[r] = n / k; } return out; }, { c, T });
       feel.cubeOnScreenPx = await page.evaluate(T => { const H = House, b = new H.T.Box3().setFromObject(H.THINGS[T].obj), s = b.getSize(new H.T.Vector3()), c = b.getCenter(new H.T.Vector3()), r = H.ren.domElement.getBoundingClientRect(), p = v => { v.project(H.camera); return [(v.x + 1) / 2 * r.width, (1 - v.y) / 2 * r.height]; }; const a = p(c.clone().addScaledVector(new H.T.Vector3(1, 0, 0), s.x / 2)), d = p(c.clone().addScaledVector(new H.T.Vector3(1, 0, 0), -s.x / 2)); return Math.round(Math.hypot(a[0] - d[0], a[1] - d[1])); }, T);
       feel.aimAssist = hits;
       assert(hits[0] === 1 && hits[24] >= .75, 'Aim assist misses: ' + JSON.stringify(hits));

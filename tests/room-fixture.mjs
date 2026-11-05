@@ -2,6 +2,15 @@ import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import os from 'node:os';
 export const fixtureScale=Math.max(1,Math.min(4,os.loadavg()[0]/os.cpus().length*1.3));
+// Explicit software-host diagnostic only; native layout and inputs are retained.
+export async function fixtureRaster(page,cap=Number(process.env.FIXTURE_RASTER_RATIO)){
+
+ if(cap>0&&cap<=1)await page.addInitScript(cap=>{
+  const timer=setInterval(()=>{const r=window.House?.ren;if(!r)return;clearInterval(timer);
+   const set=r.setPixelRatio.bind(r);r.setPixelRatio=n=>set(n===undefined?n:Math.min(n,cap));r.setPixelRatio(r.getPixelRatio());
+  },20);
+ },cap);
+}
 // signup:false logs into an existing account; provisioning stays with the caller.
 export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860,storage={},account='Review'+Date.now().toString(36),password='Throwaway-1999',touch=false,signup=true,opening=false,resume=false,storageState,debug=process.env.FIXTURE_DEBUG==='1',recordVideo,onPage,launchOptions={},contextOptions={},seed,timeoutScale=fixtureScale}={}){
  assert(['localhost','127.0.0.1'].includes(new URL(base).hostname),'Use throwaway localhost data');
@@ -9,12 +18,7 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
  const page=await browser.newPage({...contextOptions,viewport:{width,height},hasTouch:touch,...(storageState?{storageState}:{}),...(recordVideo?{recordVideo}:{})}),errors=[];
  await onPage?.(page);
  // Optional CPU-host raster cap for functional regressions; layout and input stay in CSS pixels.
- const rasterCap=Number(process.env.FIXTURE_RASTER_RATIO);
- if(rasterCap>0&&rasterCap<=1)await page.addInitScript(cap=>{
-  const timer=setInterval(()=>{const r=window.House?.ren;if(!r)return;clearInterval(timer);
-   const set=r.setPixelRatio.bind(r);r.setPixelRatio=n=>set(n===undefined?n:Math.min(n,cap));r.setPixelRatio(r.getPixelRatio());
-  },20);
- },rasterCap);
+ await fixtureRaster(page);
 
  if(seed!==undefined)await page.addInitScript(seed=>{let s=seed>>>0;Math.random=()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}},seed);
  page.setDefaultNavigationTimeout(90000*timeoutScale);
@@ -27,16 +31,15 @@ export async function roomFixture(base,{hour=14,tier='low',width=1366,height=860
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:60000*timeoutScale});await until(()=>window.Net?.connected&&!!Net.me.id);
   if(debug)console.log('Fixture connected');
   if(!resume){
-  if(signup)await page.locator('#accountGate [data-switch]').click();
+  if(signup!==!!(await page.locator('.account-character').count()))await page.locator('#accountGate [data-switch]').click();
   await page.locator('[name=name]').fill(account);await page.locator('[name=password]').fill(password);
-  if(signup)await page.locator('[name=confirm]').fill(password);
   await page.locator('#accountGate [type=submit]').click();
-  await until(()=>window.AccountGate?.allowed||!!document.querySelector('#accountFirst'));
-  if(await page.locator('#accountFirst').count())await page.locator('#accountGate [type=submit]').click();
+  await until(()=>window.AccountGate?.allowed||!!document.querySelector('.account-identity #accountFirst'));
+  if(await page.locator('.account-identity #accountFirst').count())await page.locator('#accountGate [type=submit]').click();
   }
   if(resume){
-    await until(()=>!!(window.AccountGate?.allowed||document.querySelector('#accountFirst')));
-    if(await page.locator('#accountFirst').count())await page.locator('#accountGate [type=submit]').click();
+    await until(()=>!!(window.AccountGate?.allowed||document.querySelector('.account-identity #accountFirst')));
+    if(await page.locator('.account-identity #accountFirst').count())await page.locator('#accountGate [type=submit]').click();
   }
   await until(()=>window.AccountGate?.allowed&&window.House?.live&&window.PMGL?.built&&!document.querySelector('.hs-loading,#houseEntry'));
   if(debug)console.log('Fixture room built',await page.evaluate(()=>House.mode));

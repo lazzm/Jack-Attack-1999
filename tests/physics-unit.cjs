@@ -11,10 +11,10 @@ function room(extra) {
   const walls = P.wallsFrom([{ x0: -280, z0: -56, x1: 240, z1: 250 }], 40, -400, 400);
   // the real desk: a 3.2 cm top whose underside is 69.8 cm up, the left end board, the drawer unit and the modesty panel
   const desk = [
-    { x0: -76, z0: -55, x1: 76, z1: 31, top: 0, bot: 3.2 },
-    { x0: -76, z0: -54, x1: -72, z1: 30, top: 2, bot: FY },
-    { x0: 38, z0: -52, x1: 74, z1: 29.4, top: 2, bot: FY },
-    { x0: -72, z0: -53.4, x1: 38, z1: -52, top: 6, bot: 66 },
+    { x0: -70, z0: -54, x1: 70, z1: 18, top: 0, bot: 3.2 },
+    { x0: -70, z0: -53, x1: -66, z1: 17, top: 2, bot: FY },
+    { x0: 34, z0: -52, x1: 70, z1: 18, top: 2, bot: FY },
+    { x0: -66, z0: -52.4, x1: 34, z1: -51, top: 6, bot: 66 },
   ];
   w.setStatic('U', walls.concat(desk, extra || []));
   return w;
@@ -51,12 +51,12 @@ const CHAIR = [cyl(31, 0, 9, { player: false }), cyl(4, 9, 37), box(22.5, 21.5, 
   w.tryMove(ch, 0, -140);
   const seat = ch.wp[2], back = ch.wp[3];
   // (the back sits over the rear of the seat, so the seat's back edge stays a hand's width short of the edge)
-  assert(seat.az0 < 31 - 35 && seat.az1 <= 31 + 6, 'Seat did not go under the desk: ' + seat.az0 + '..' + seat.az1);
-  assert(Math.abs(back.az0 - 31) < 0.6, 'Back should rest against the desk edge, at ' + back.az0);
+  assert(seat.az0 < 18 - 35 && seat.az1 <= 18 + 6, 'Seat did not go under the desk: ' + seat.az0 + '..' + seat.az1);
+  assert(Math.abs(back.az0 - 18) < 0.6, 'Back should rest against the desk edge, at ' + back.az0);
   assert(seat.top > 3.2, 'Seat top must stay below the desk top');
   // turned sideways the back is too wide to go under: it still stops at the edge
   const w2 = room(), c2 = w2.add('chair', { lvl: 'U', x: -15, z: 106, y: FY, ry: 90, parts: CHAIR, mass: 9 });
-  w2.tryMove(c2, 0, -140); assert(c2.wp[3].az0 >= 31 - 0.6, 'Sideways back went under the desk top');
+  w2.tryMove(c2, 0, -140); assert(c2.wp[3].az0 >= 18 - 0.6, 'Sideways back went under the desk top');
   // swivel: turning the seat under the desk is blocked by the desk; out in the room it turns freely
   assert.equal(w.tryTurn(ch, 0, 90), false, 'Seat swivelled through the desk');
   const w3 = room(), c3 = w3.add('chair', { lvl: 'U', x: -15, z: 150, y: FY, ry: 180, parts: CHAIR, mass: 9 });
@@ -102,10 +102,10 @@ const CHAIR = [cyl(31, 0, 9, { player: false }), cyl(4, 9, 37), box(22.5, 21.5, 
 }
 // 7. a box pushed off the desk edge tips over the edge and falls to the floor
 {
-  const w = room(), b = w.add('mug', { lvl: 'U', x: 0, z: 26, y: 0, parts: [cyl(4, 0, 10)], mass: .4 });
+  const w = room(), b = w.add('mug', { lvl: 'U', x: 0, z: 13, y: 0, parts: [cyl(4, 0, 10)], mass: .4 });
   b.vz = 150; w.wake(b); run(w, 2.5);
   assert.equal(b.y, FY, 'Mug balanced in mid-air past the desk edge');
-  assert(b.z > 31, 'Mug fell through the desk instead of off its edge');
+  assert(b.z > 18, 'Mug fell through the desk instead of off its edge');
 }
 // 8. a swinging door leaf (kinematic) shoves a body out of its way
 {

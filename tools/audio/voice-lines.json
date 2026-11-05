@@ -3,14 +3,14 @@
  "notes": [
   "Generated from docs/SCRIPT.md. No line contains a player name, sister name or placeholder.",
   "batch = one TTS request (<=13 lines, one character, one post filter). Total requests = number of batches (quota 100/day/model).",
-  "tag = leading [bracket tag] for gemini-3.8-flash-tts. character -> voice per docs/AUDIO.md (mom Sulafat, dad Algenib, sister Leda, gran TBD, announcer Fenrir).",
+  "tag = leading [bracket tag] for gemini-3.8-flash-tts. character -> voice per docs/AUDIO.md (mom Sulafat, dad Algenib, sister Leda, gran Vindemiatrix, announcer Fenrir).",
   "fx: downstairs = through-the-floor muffle (shouts from another room); console = crunchy console filter; absent = clean.",
   "callout: play the matching name clip first (names/out/<callout>/<name>), then this line. Generic fallback: the line alone.",
   "Mom and Dad's lines are written to work for any player: no 'lad', no he/she, no names."
  ],
  "totals": {
-  "lines": 313,
-  "batches": 26
+  "lines": 523,
+  "batches": 43
  },
  "batches": {
   "announcer-plain-01": 13,
@@ -22,8 +22,12 @@
   "dad-plain-05": 13,
   "dad-plain-06": 13,
   "dad-plain-07": 13,
-  "dad-plain-08": 11,
-  "gran-plain-01": 12,
+  "dad-plain-08": 13,
+  "dad-plain-09": 13,
+  "dad-plain-10": 13,
+  "dad-plain-11": 10,
+  "gran-plain-01": 13,
+  "gran-plain-02": 5,
   "mom-downstairs-01": 9,
   "mom-plain-01": 13,
   "mom-plain-02": 13,
@@ -34,11 +38,24 @@
   "mom-plain-07": 13,
   "mom-plain-08": 13,
   "mom-plain-09": 13,
-  "mom-plain-10": 10,
-  "sister-plain-01": 12,
-  "sister-plain-02": 12,
-  "sister-plain-03": 12,
-  "sister-plain-04": 12
+  "mom-plain-10": 13,
+  "mom-plain-11": 13,
+  "mom-plain-12": 13,
+  "mom-plain-13": 13,
+  "mom-plain-14": 13,
+  "mom-plain-15": 13,
+  "mom-plain-16": 7,
+  "sister-plain-01": 13,
+  "sister-plain-02": 13,
+  "sister-plain-03": 13,
+  "sister-plain-04": 13,
+  "sister-plain-05": 9,
+  "announcer-console-01": 13,
+  "announcer-console-02": 13,
+  "announcer-console-03": 13,
+  "announcer-console-04": 13,
+  "announcer-console-05": 13,
+  "announcer-console-06": 13
  },
  "lines": [
   {
@@ -417,9 +434,9 @@
   {
    "id": "c2.pocket.dad4",
    "character": "dad",
-   "tag": "conspiratorial",
+   "tag": "conspiratorial, neutral British",
    "line": "And keep on the right side of your mother. Her good books are worth more than any pound coin. |",
-   "context": "Closing line",
+   "context": "Closing line; REQUIRED RETAKE: exact words, no extra opening noises; standard neutral British, no regional accent.",
    "chapter": "2",
    "batch": "dad-plain-03"
   },
@@ -472,9 +489,9 @@
   {
    "id": "c2.unbox.dad",
    "character": "dad",
-   "tag": "impressed",
+   "tag": "impressed, neutral British",
    "line": "Look at the size of that. Right. Mind your back on those stairs. |",
-   "context": "Dad leaning in the doorway as the parcel opens",
+   "context": "Dad leaning in the doorway as the parcel opens; REQUIRED RETAKE: exact words, no extra opening noises; standard neutral British, no regional accent.",
    "chapter": "2",
    "batch": "dad-plain-03"
   },
@@ -1318,9 +1335,9 @@
   {
    "id": "c1.mom.up",
    "character": "mom",
-   "tag": "warmly",
+   "tag": "warmly, neutral British",
    "line": "Morning, love. Oh, look at this. A tip. An actual tip. |",
-   "context": "Mom walks into the room, stops at the door",
+   "context": "Mom walks into the room, stops at the door; REQUIRED RETAKE: exact words, no extra opening noises; standard neutral British, no regional accent.",
    "chapter": "1",
    "batch": "mom-plain-01"
   },
@@ -2064,7 +2081,8 @@
    "line": "Ooh! Who are you and what have you done with my real helper? |",
    "context": "Rating 95 to 100, Mom checks",
    "chapter": "5",
-   "batch": "mom-plain-07"
+   "batch": "mom-plain-07",
+   "display": "Ooh! Who are you and what have you done with {me}?"
   },
   {
    "id": "chore.rate.95b",
@@ -2100,7 +2118,8 @@
    "line": "See, that wasn't so hard, was it? |",
    "context": "Rating 85 to 94",
    "chapter": "5",
-   "batch": "mom-plain-07"
+   "batch": "mom-plain-07",
+   "display": "Good {me.lad}. See, that wasn't so hard, was it?"
   },
   {
    "id": "chore.rate.85c",
@@ -2573,7 +2592,7 @@
    "line": "I've had a look at the pictures, and it's got a free sticker. I'm having the sticker. |",
    "context": "The sister waving the mag",
    "chapter": "3",
-   "batch": "sister-plain-02"
+   "batch": "sister-plain-01"
   },
   {
    "id": "c3.run.trip.sis",
@@ -2643,9 +2662,9 @@
   {
    "id": "c4.hal.sis",
    "character": "sister",
-   "tag": "spooky",
+   "tag": "spooky, neutral British",
    "line": "Wooooo! I'm a ghost! Do I look scary? Say yes. |",
-   "context": "The sister in costume at the door",
+   "context": "The sister in costume at the door; REQUIRED RETAKE: exact words, no extra opening noises; standard neutral British, no regional accent.",
    "chapter": "4",
    "batch": "sister-plain-02"
   },
@@ -2683,7 +2702,7 @@
    "line": "HE'S BEEN! HE'S BEEN! GET UP! GET UP! |",
    "context": "25/12 very early, sister at the door",
    "chapter": "4",
-   "batch": "sister-plain-03",
+   "batch": "sister-plain-02",
    "callout": "sis-whine"
   },
   {
@@ -2693,7 +2712,7 @@
    "line": "Can I stay up until midnight? Pleeease? It's the millennium! |",
    "context": "The sister",
    "chapter": "4",
-   "batch": "sister-plain-03"
+   "batch": "sister-plain-02"
   },
   {
    "id": "c4.mill.sis.cheer",
@@ -2794,7 +2813,7 @@
    "line": "I'm not tired! I don't wanna go to bed! |",
    "context": "20:30",
    "chapter": "5",
-   "batch": "sister-plain-04"
+   "batch": "sister-plain-03"
   },
   {
    "id": "bark.sis.bed2",
@@ -2803,7 +2822,7 @@
    "line": "Can I have a drink of water? And a story? And the landing light? |",
    "context": "21:00",
    "chapter": "5",
-   "batch": "sister-plain-04"
+   "batch": "sister-plain-03"
   },
   {
    "id": "bark.sis.school1",
@@ -2812,7 +2831,7 @@
    "line": "I can't find my shoe. It was right there. Someone moved it. |",
    "context": "Hall",
    "chapter": "5",
-   "batch": "sister-plain-04"
+   "batch": "sister-plain-03"
   },
   {
    "id": "bark.sis.school2",
@@ -2897,6 +2916,2057 @@
    "chapter": "5",
    "batch": "sister-plain-04",
    "callout": "sis-whine"
+  },
+  {
+   "id": "arena.announcer.14a4q40",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "You have lost the match.",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.1cztk1n",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "rampage!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.1f8e5lv",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "Red team scores!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.1rkro3l",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "Multi Poof!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.1y252m8",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "Combo!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.2fn0rj",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "You have won the match!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.3lg1q9",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "unstoppable!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.3vxdme",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "dominating!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.7r5nkd",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "godlike!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.d7miq8",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "Blue team scores!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.e6muxl",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "poofing spree!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.gc44jq",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "Play!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.jrwjvq",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "First poof!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-01"
+  },
+  {
+   "id": "arena.announcer.lcj2l7",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "Double Poof!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "arena.announcer.mktc0m",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "MONSTER POOF!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "arena.announcer.yjtj8i",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "Ultra Poof!",
+   "context": "Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "game.wobble.host.110fa57",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "NOBODY WON THAT ONE. NO COINS!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2666",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "game.wobble.host.143a1lf",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "THE SECRET MARBLE MISCHIEF DOOR IS OPEN IN THE MINIGAME HOUSE!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2531",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "game.wobble.host.14iizcv",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "NO COINS TO GIVE! PHEW.",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1255",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "game.wobble.host.15r76nk",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "PICNIC TIME! EVERYBODY GETS 5 COINS. LOVELY!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1232",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "game.wobble.host.1bhurkg",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "WIN EVERY SINGLE MINIGAME AND YOU'RE A PROPER LEGEND. RIGHT, LET'S SEE WHO GOES FIRST!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2564",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "game.wobble.host.1czxqcu",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "THE STAR HAS FLOWN OFF TO A NEW SPOT!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1114",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "game.wobble.host.1d2y5jj",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "AND THE FIRST STAR IS... OVER THERE! GO AND GET IT!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2569",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "game.wobble.host.1f6ot00",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "YOU HAVEN'T GOT ANY ITEMS. THE SHOP SELLS THEM!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2617",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "game.wobble.host.1fya5t0",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "AND NOW... THE WINNER OF THIS WOBBLE PARTY IS...",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2710",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "game.wobble.host.1ja2uxa",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "SUIT YOURSELF! IT'LL STILL BE HERE... PROBABLY.",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1093",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-02"
+  },
+  {
+   "id": "game.wobble.host.1rkqxmi",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "HONK! A GOOSE WADDLES UP AND PINCHES 5 COINS!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1214",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.1syds4j",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "WELCOME TO WOBBLE ISLAND! I'M MC WOBBLE, YOUR HOST WITH THE MOST!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2559",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.1v12lh",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "AND YOU WON EVERY SINGLE MINIGAME! A CLEAN SWEEP! LEGENDARY!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2738",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.1w75573",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "OH DEAR. COME BACK WITH MORE COINS!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1090",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.1yrfw5o",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "WHOEVER HAS THE MOST STARS AT THE END WINS. I'LL SWAP YOU A STAR FOR COINS.",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2562",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.1ysq7rd",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "WHAT A PARTY! EVERYBODY TO THE PARTY STAGE FOR THE BONUS STARS!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2685",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.2asyz9",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "BLUE SPACES GIVE YOU 3 COINS, RED ONES TAKE 3 AWAY. AFTER EVERY TURN THERE'S A MINIGAME: WIN IT FOR 10 COINS!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2563",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.2n6itx",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "SWAP KAZOO! TIME TO SWAP PLACES!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1171",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.5steas",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "THANK YOU! COME AGAIN!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1148",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.66rpmg",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "ONLY THREE TURNS LEFT! FROM NOW ON, BLUE AND RED SPACES COUNT DOUBLE!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2600",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.6pkgli",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "NO STARS TO GIVE! PHEW.",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1257",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.6qi9t6",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "YOU CAN'T AFFORD THAT ONE, SORRY!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1146",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.ar7z9n",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "THE COUNT'S DISCOUNT LEVER! BARGAIN STARS!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1204",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-03"
+  },
+  {
+   "id": "game.wobble.host.e7lqoo",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "BAD LUCK! BETTER LUCK NEXT TIME!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2737",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.g6mio8",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "TIME FOR A BONUS STAR!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2697",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.gt3to3",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "YOU GOT A STAR! SPARKLY!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1103",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.h6mg4g",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "COIN MAGNET! 3 COINS FROM EVERYBODY!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1165",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.h7wc9x",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "STOP THE REELS! ANYTHING CAN HAPPEN!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1241",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.it4hyq",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "YOU FOUND THE STAR! FANCY A SWAP?",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1089",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.kj0owm",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "NOBODY! NO BONUS STAR THIS TIME.",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2698",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.mju42",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "THE CLOCK IS STILL WINDING! IT ADDS 9 COINS EACH ROUND.",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1203",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.nzkznm",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "YOUR POCKETS ARE FULL! (THREE ITEMS MAX.)",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1138",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.qm0di3",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "SWAP SHOP! TIME TO SWAP COINS!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1227",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.t96fyl",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "WELL DONE! YOU'RE THE WOBBLE SUPERSTAR!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2737",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.vy6gev",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "STAR SHUFFLE! THE STAR GETS BORED AND HOPS AWAY!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1223",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "game.wobble.host.ydyoml",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "THE WINDMILL PAYS ITS RENT! 5 COINS FOR EVERYBODY!",
+   "context": "Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1205",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-04"
+  },
+  {
+   "id": "bf.code.wait.7q2fba",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Closed tin, water, pets indoors, watching line. Check all four first. Then we can talk about the taper.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:244",
+   "chapter": "4",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "bf.cooled.15r44gg",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Hot end down. Lovely. You remembered the important bit. Leave the wires in the water.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:269",
+   "chapter": "4",
+   "batch": "dad-plain-08"
+  },
+  {
+   "id": "bf.dad.talk.1dguuhl",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Tin shut, bucket full, pets indoors, everyone behind the rope, long taper. Five checks. No cutting corners.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:740",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.dad.talk.1wfrt7z",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Safety checks all done. Dry wood only on the stack. Friday evening: torch at the rope, then supper. I do the lighting.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:740",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.display.away.15tnmi0",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "The display will carry on. Come back behind the rope when you are ready; you can still finish watching.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:538",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.display.checks.1fqatvb",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Finish the dry stack and all five Firework Code checks first.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:480",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.display.resume.1lc7fy1",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "You are back! All finished safely. Stay at the rope while I check everything.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:483",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.display.resume.z6a2bk",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "The display carried on. Come back behind the rope and look up.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:483",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.display.start.14xltvy",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Missed Friday? I saved a few. No jobs tonight: just stay behind the rope and watch. I do all the lighting. The show carries on if you leave; come back here to finish.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:482",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.display.start.f55ktr",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "I have checked for animals. Torch this way, everyone behind the rope. I light one, then come back. The display carries on if you leave; come back to the rope to finish.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:482",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.display.time.1dhhkkv",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Half past six until ten in the evening. Warm things on, and watch from the rope.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:479",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.end.aqcnqs",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "All finished. I am making everything safe. Stay here while I check. Thank you for watching from the rope!",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:753",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.history.18sdxer",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Bonfire Night remembers a plot in 1605 to blow up Parliament. Our Guy is old clothes and newspaper. Dad nearly donated his good trousers.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:314",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.lead.2w6y11",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Bonfire Night on Friday. Help me stack the dry garden wood, and you two can make a Guy. Closed firework tin stays with me.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:685",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.line.2cmfdz",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Everyone stays behind the rope. Always follow the distance on the box. Never throw fireworks and NEVER go back to one, even if it has gone quiet. Leave it to me.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:238",
+   "chapter": "4",
+   "batch": "dad-plain-09"
+  },
+  {
+   "id": "bf.rocket.1a6z6bq",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Here comes the rocket. Stay back. Never go back to a firework, even if it seems to have stopped.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:502",
+   "chapter": "4",
+   "batch": "dad-plain-10"
+  },
+  {
+   "id": "bf.sparkler.done.110908g",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Hot wire into the bucket now, please.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:263",
+   "chapter": "4",
+   "batch": "dad-plain-10"
+  },
+  {
+   "id": "bf.sparkler.done.72262s",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "That was lovely. All the hot wires are in the water. Supper time.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:263",
+   "chapter": "4",
+   "batch": "dad-plain-10"
+  },
+  {
+   "id": "bf.sparkler.wait.1o96ayr",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Display first, sparklers afterwards. I have not forgotten.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:261",
+   "chapter": "4",
+   "batch": "dad-plain-10"
+  },
+  {
+   "id": "bf.tail.talk.times.8y9bbq",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Cold sticks in the bin. Leave the ash alone. If you missed Friday, I saved leftovers for the evening, half past six until ten.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:739",
+   "chapter": "4",
+   "batch": "dad-plain-10"
+  },
+  {
+   "id": "bf.tail.tw78cy",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "I have damped the fire right down and checked the cold rubbish. Sticks and wrappers into the bin, please. Leave the ash alone; I will check it again.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:687",
+   "chapter": "4",
+   "batch": "dad-plain-10"
+  },
+  {
+   "id": "bf.taper.te7i05",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "A long taper, at arm length. One adult in charge: me. Check! We light the bonfire after checking it for animals. No petrol or paraffin. All ready for Friday evening.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:245",
+   "chapter": "4",
+   "batch": "dad-plain-10"
+  },
+  {
+   "id": "bf.tin.1dmucg3",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Shop-bought, in their closed tin, up out of reach. No fireworks in pockets. I read the instructions and light one at a time. You watch from behind the rope.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:228",
+   "chapter": "4",
+   "batch": "dad-plain-10"
+  },
+  {
+   "id": "bf.water.1vy2tmp",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Bucket filled and parked behind the rope. Used sparklers go in hot end first. The wire stays hot, even when it looks cold.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:231",
+   "chapter": "4",
+   "batch": "dad-plain-10"
+  },
+  {
+   "id": "bf.wood.ncj5f5",
+   "character": "dad",
+   "tag": "firm, neutral British",
+   "line": "Dry wood and cardboard only. Paper, then kindling. No aerosols, glass, paint, plastic or fireworks on the fire. We check for hedgehogs before lighting.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:122",
+   "chapter": "4",
+   "batch": "dad-plain-10"
+  },
+  {
+   "id": "house.moment.1djssky",
+   "character": "dad",
+   "tag": "calling, neutral British",
+   "line": "Bed! Now!",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:69",
+   "chapter": "5",
+   "batch": "dad-plain-10",
+   "callout": "dad-shout",
+   "display": "{me.NAME}! Bed! Now!"
+  },
+  {
+   "id": "house.moment.hwj5im",
+   "character": "dad",
+   "tag": "calling, neutral British",
+   "line": "Is that the Internet on? Do you know how much those phone calls cost?",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:71",
+   "chapter": "5",
+   "batch": "dad-plain-10"
+  },
+  {
+   "id": "house.moment.wd8c5e",
+   "character": "dad",
+   "tag": "calling, neutral British",
+   "line": "Have you been using the phone? The bill came.",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:68",
+   "chapter": "5",
+   "batch": "dad-plain-10",
+   "callout": "dad-shout",
+   "display": "{me.NAME}! Have you been using the phone? The bill came."
+  },
+  {
+   "id": "house.voice.h701ve",
+   "character": "dad",
+   "tag": "calling, neutral British",
+   "line": "TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT!",
+   "context": "House welcome, shout or event; app/public/js/hs-telly.js:411",
+   "chapter": "5",
+   "batch": "dad-plain-11",
+   "callout": "dad-shout",
+   "display": "{me.NAME}! TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT!"
+  },
+  {
+   "id": "hw.dad.match.hliuf7",
+   "character": "dad",
+   "tag": "warm, neutral British",
+   "line": "Hang on, matches are my job. Long match, arm's length... there we go.",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:678",
+   "chapter": "4",
+   "batch": "dad-plain-11"
+  },
+  {
+   "id": "hw.dad.safe.l28lnk",
+   "character": "dad",
+   "tag": "warm, neutral British",
+   "line": "Only knock on doors with the lights on, and never go in anyone's house. Mom's rules. And mine.",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:1015",
+   "chapter": "4",
+   "batch": "dad-plain-11"
+  },
+  {
+   "id": "st.carry.4c83tp",
+   "character": "dad",
+   "tag": "warm, neutral British",
+   "line": "E carries it. Take it to the marked place on your desk. Q puts it back safely.",
+   "context": "Dad explains computer carrying; app/public/js/st-opening.js:50",
+   "chapter": "5",
+   "batch": "dad-plain-11"
+  },
+  {
+   "id": "st.carry.wzg82y",
+   "character": "dad",
+   "tag": "warm, neutral British",
+   "line": "Plug in the marked leads, then press the power button.",
+   "context": "Dad explains computer carrying; app/public/js/st-opening.js:50",
+   "chapter": "5",
+   "batch": "dad-plain-11"
+  },
+  {
+   "id": "st.opening.dad.165n9l8",
+   "character": "dad",
+   "tag": "warm, neutral British",
+   "line": "The office is chucking out the old computers. Mine is in the boot if you want it. Mind the monitor: it weighs a ton!",
+   "context": "Story fallback when family cannot deliver in person; app/public/js/st-engine.js:141",
+   "chapter": "5",
+   "batch": "dad-plain-11"
+  },
+  {
+   "id": "st.opening.lead.power.1h9zqa3",
+   "character": "dad",
+   "tag": "warm, neutral British",
+   "line": "Everything on the desk? Plug the leads into the matching sockets, then try the big button.",
+   "context": "Story fallback when family cannot deliver in person; app/public/js/st-engine.js:143",
+   "chapter": "5",
+   "batch": "dad-plain-11"
+  },
+  {
+   "id": "st.opening.part.monitor.inylew",
+   "character": "dad",
+   "tag": "warm, neutral British",
+   "line": "Both hands on that monitor. No running on the stairs.",
+   "context": "Story fallback when family cannot deliver in person; app/public/js/st-engine.js:142",
+   "chapter": "5",
+   "batch": "dad-plain-11"
+  },
+  {
+   "id": "st.opening.pc.oltv5s",
+   "character": "dad",
+   "tag": "warm, neutral British",
+   "line": "There you go. Your own computer. Try not to fill it with games.",
+   "context": "Story fallback when family cannot deliver in person; app/public/js/st-engine.js:144",
+   "chapter": "5",
+   "batch": "dad-plain-11"
+  },
+  {
+   "id": "phone.in.0.17arros",
+   "character": "gran",
+   "tag": "warm, neutral British",
+   "line": "Hello love! It's Gran. Is your Mom there? ...No? Never mind.",
+   "context": "Incoming landline call; app/public/js/hs-life.js:89",
+   "chapter": "5",
+   "batch": "gran-plain-01"
+  },
+  {
+   "id": "phone.in.0.1fq2uuq",
+   "character": "gran",
+   "tag": "warm, neutral British",
+   "line": "Are you still playing on that computer? Your Grandad says it'll make your eyes go square.",
+   "context": "Incoming landline call; app/public/js/hs-life.js:89",
+   "chapter": "5",
+   "batch": "gran-plain-02"
+  },
+  {
+   "id": "phone.in.0.1qgwsdv",
+   "character": "gran",
+   "tag": "warm, neutral British",
+   "line": "Are you eating properly? You're still growing. I've knitted you a jumper. It's got a reindeer on it.",
+   "context": "Incoming landline call; app/public/js/hs-life.js:89",
+   "chapter": "5",
+   "batch": "gran-plain-02"
+  },
+  {
+   "id": "phone.in.0.reply.0.tcd887",
+   "character": "gran",
+   "tag": "warm, neutral British",
+   "line": "Lovely. I'll send it in the post. Bye love! Bye! Bye bye! Bye!",
+   "context": "Caller responds to player choice; app/public/js/hs-life.js:89",
+   "chapter": "5",
+   "batch": "gran-plain-02"
+  },
+  {
+   "id": "phone.in.0.reply.1.isje3h",
+   "character": "gran",
+   "tag": "warm, neutral British",
+   "line": "Ooh. Well, as long as you're happy. Love to your Mom. Bye love! Bye bye!",
+   "context": "Caller responds to player choice; app/public/js/hs-life.js:89",
+   "chapter": "5",
+   "batch": "gran-plain-02"
+  },
+  {
+   "id": "phone.out.01632960213.1c5kgqp",
+   "character": "gran",
+   "tag": "warm, neutral British",
+   "line": "Hello? Ooh, you never ring! Eating properly? Grandad says hello. HE SAYS HELLO. Bye, love! Bye! Bye bye!",
+   "context": "Outgoing landline call; app/public/js/hs-life.js:174",
+   "chapter": "5",
+   "batch": "gran-plain-02",
+   "display": "Hello? {me}! Ooh, you never ring! Eating properly? Grandad says hello. HE SAYS HELLO. Bye, love! Bye! Bye bye!"
+  },
+  {
+   "id": "bf.already.food.otebpt",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Supper is on the garden table. Help yourself.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:319",
+   "chapter": "4",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "bf.carry.food.1ar533q",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "E carries the tray to the little garden table. Gloves on, mind.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:321",
+   "chapter": "4",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "bf.cat.check.1q6dwpi",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "The cat is indoors. Keep the bedroom window shut tonight. Give the cat a quiet place to hide when the bangs start.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:575",
+   "chapter": "4",
+   "batch": "mom-plain-10"
+  },
+  {
+   "id": "bf.cat.check.3jrkba",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "The cat is safely indoors, hiding under the bed. Let the cat stay cosy.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:575",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.cat.check.p22a1x",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "The cat is indoors. Keep the bedroom window shut for the display. Give the cat a quiet place to hide when the bangs start.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:575",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.cat.safe.1n6nrdc",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "The cat is safely indoors, hiding under the bed. Let the cat stay cosy. We will feed the cat when the bangs have stopped.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:583",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.cat.w6iuui",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "The cat is indoors with the curtains shut. Let the cat hide under the bed; keep the noise down in here. No need to pull the cat out.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:274",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.day.5k1dof",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Bonfire Night! Potatoes, parkin and warm gloves. The washing is in and Dad has put the whirly line away. Keep the cat indoors.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:686",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.finale.1gp0jav",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Ooooh! Look at those gold ones. Like golden rain!",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:502",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.gloves.wait.prep.8fedwg",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Hat, gloves, wellies ready for Bonfire Night. Do the Firework Code with Dad before the sparklers.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:252",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.gloves.wait.wmjtee",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Hat, gloves, wellies. It will be cold tonight. Do the Firework Code with Dad before the sparklers.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:252",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.mom.talk.1ypwr09",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Then warm clothes on. No cold fingers tonight.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:742",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.mom.talk.late.1ogjaal",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "It is getting late. Help me put the supper things away, then off to bed.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:741",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.mom.talk.prep.ouvann",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Have warm clothes ready for Bonfire Night. No cold fingers when we watch the display.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:742",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.parkin.tzx22w",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Sticky ginger cake. Best made a day or two ahead. There is treacle toffee too. You can help with the potatoes; I do the hot oven and hot sugar.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:220",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.sparkler.gloves.hhvm6u",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Gloves first! They are on the stool by the back door.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:262",
+   "chapter": "4",
+   "batch": "mom-plain-11"
+  },
+  {
+   "id": "bf.supper.1cixt9h",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Cheese and beans in your jacket potato? Parkin in the tin, treacle toffee on the plate. Mind your teeth. Hot sugar is my job, thank you.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:213",
+   "chapter": "4",
+   "batch": "mom-plain-12"
+  },
+  {
+   "id": "chore.rating.16wxa7r",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Did you actually do it or just move it about?",
+   "context": "Server-selected chore rating; app/public/js/ch-cat.js:131",
+   "chapter": "5",
+   "batch": "mom-plain-12"
+  },
+  {
+   "id": "chore.shout.106ah51",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Ooh, ta!",
+   "context": "Chore completion / reminder; app/public/js/ch-core.js:144",
+   "chapter": "5",
+   "batch": "mom-plain-12"
+  },
+  {
+   "id": "chore.shout.12cu3fo",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Ta, love.",
+   "context": "Chore completion / reminder; app/public/js/ch-core.js:194",
+   "chapter": "5",
+   "batch": "mom-plain-12"
+  },
+  {
+   "id": "chore.shout.1lof225",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Those jobs won't do themselves!",
+   "context": "Chore completion / reminder; app/public/js/ch-core.js:547",
+   "chapter": "5",
+   "batch": "mom-plain-12",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Those jobs won't do themselves!"
+  },
+  {
+   "id": "chore.shout.1ss7a6t",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "I can hear you NOT doing your jobs!",
+   "context": "Chore completion / reminder; app/public/js/ch-core.js:547",
+   "chapter": "5",
+   "batch": "mom-plain-12",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! I can hear you NOT doing your jobs!"
+  },
+  {
+   "id": "chore.shout.1y83zff",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Thank you!",
+   "context": "Chore completion / reminder; app/public/js/ch-core.js:144",
+   "chapter": "5",
+   "batch": "mom-plain-12",
+   "display": "Thank you, {me}!",
+   "callout": "mom-call"
+  },
+  {
+   "id": "chore.shout.9bcrpq",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Love? The list on the fridge? Remember the list?",
+   "context": "Chore completion / reminder; app/public/js/ch-core.js:547",
+   "chapter": "5",
+   "batch": "mom-plain-12",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Love? The list on the fridge? Remember the list?"
+  },
+  {
+   "id": "chore.shout.a506t6",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Get off that computer and do your jobs!",
+   "context": "Chore completion / reminder; app/public/js/ch-core.js:547",
+   "chapter": "5",
+   "batch": "mom-plain-12",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Get off that computer and do your jobs!"
+  },
+  {
+   "id": "chore.shout.bdi29n",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Good helper!",
+   "context": "Chore completion / reminder; app/public/js/ch-core.js:144",
+   "chapter": "5",
+   "batch": "mom-plain-12"
+  },
+  {
+   "id": "chore.shout.y5q1ps",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Have you done your jobs yet?",
+   "context": "Chore completion / reminder; app/public/js/ch-core.js:547",
+   "chapter": "5",
+   "batch": "mom-plain-12",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Have you done your jobs yet?"
+  },
+  {
+   "id": "chore.shout.zuxo6x",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Ta, love!",
+   "context": "Chore completion / reminder; app/public/js/ch-core.js:144",
+   "chapter": "5",
+   "batch": "mom-plain-12"
+  },
+  {
+   "id": "dialer.01632960777.1wxgtgo",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Have you done your homework?",
+   "context": "JackOS Phone Dialer call; app/public/js/apps-programs.js:2132",
+   "chapter": "5",
+   "batch": "mom-plain-12",
+   "callout": "mom-call",
+   "display": "{me}, love? Have you done your homework?"
+  },
+  {
+   "id": "dialer.01632960777.n7bz0i",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Hello? Is everything alright? You're not on the Internet, are you? I can't ring home when you're on the Internet!",
+   "context": "JackOS Phone Dialer call; app/public/js/apps-programs.js:2132",
+   "chapter": "5",
+   "batch": "mom-plain-13"
+  },
+  {
+   "id": "house.moment.14u1i62",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Get off the Internet! I need to ring your Nan!",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:71",
+   "chapter": "5",
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Get off the Internet! I need to ring your Nan!"
+  },
+  {
+   "id": "house.moment.18qfxaa",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "I'm popping to the shops. Do you want anything? ...Besides a Daydream.",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:72",
+   "chapter": "5",
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! I'm popping to the shops. Do you want anything? ...Besides a Daydream."
+  },
+  {
+   "id": "house.moment.1dd6ufc",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "It's a school night. Not too late, eh?",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:68",
+   "chapter": "5",
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! It's a school night. Not too late, eh?"
+  },
+  {
+   "id": "house.moment.1gm6uua",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Are you on that computer AGAIN?",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:71",
+   "chapter": "5",
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Are you on that computer AGAIN?"
+  },
+  {
+   "id": "house.moment.1hou2xu",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "You'll be late for school! Have you had any breakfast?",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:64",
+   "chapter": "5",
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! You'll be late for school! Have you had any breakfast?"
+  },
+  {
+   "id": "house.moment.1ibhhmo",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Are you up? It's gone eight! Lazybones!",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:64",
+   "chapter": "5",
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Are you up? It's gone eight! Lazybones!"
+  },
+  {
+   "id": "house.moment.1kgk76z",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Turn that light off, love, it's late.",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:69",
+   "chapter": "5",
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Turn that light off, love, it's late."
+  },
+  {
+   "id": "house.moment.1qhk3rh",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Set the table please, love!",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:67",
+   "chapter": "5",
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Set the table please, love!"
+  },
+  {
+   "id": "house.moment.1qsooir",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Tea in five minutes! Wash your hands!",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:67",
+   "chapter": "5",
+   "batch": "mom-plain-13"
+  },
+  {
+   "id": "house.moment.1trq0u8",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Come and get your washing, it's on the stairs!",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:66",
+   "chapter": "5",
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Come and get your washing, it's on the stairs!"
+  },
+  {
+   "id": "house.moment.1wxgtgo",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Have you done your homework?",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:66",
+   "chapter": "5",
+   "batch": "mom-plain-13",
+   "callout": "mom-call",
+   "display": "{me}, love? Have you done your homework?"
+  },
+  {
+   "id": "house.moment.hypeuv",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day.",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:65",
+   "chapter": "5",
+   "batch": "mom-plain-13",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day."
+  },
+  {
+   "id": "house.moment.p8fwe0",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Have you seen my car keys?",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:64",
+   "chapter": "5",
+   "batch": "mom-plain-14",
+   "callout": "mom-call",
+   "display": "{me}, love? Have you seen my car keys?"
+  },
+  {
+   "id": "house.moment.qrvops",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "We're going to Gran's for Sunday dinner at one! Wear something clean!",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:73",
+   "chapter": "5",
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! We're going to Gran's for Sunday dinner at one! Wear something clean!"
+  },
+  {
+   "id": "house.moment.uar218",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "TEA'S READY! It'll go cold!",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:67",
+   "chapter": "5",
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! TEA'S READY! It'll go cold!"
+  },
+  {
+   "id": "house.moment.y9voiz",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Your friend's Mom rang. Are you going round there?",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:66",
+   "chapter": "5",
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Your friend's Mom rang. Are you going round there?"
+  },
+  {
+   "id": "house.moment.zpcfic",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Do you want a cup of tea?",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:68",
+   "chapter": "5",
+   "batch": "mom-plain-14",
+   "callout": "mom-call",
+   "display": "{me}, love? Do you want a cup of tea?"
+  },
+  {
+   "id": "house.voice.19srweb",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Is that you? Tea's nearly ready!",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:388",
+   "chapter": "5",
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Is that you? Tea's nearly ready!"
+  },
+  {
+   "id": "house.voice.1pe2qdm",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Is that you coming down? Put the kettle on, love!",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:388",
+   "chapter": "5",
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Is that you coming down? Put the kettle on, love!"
+  },
+  {
+   "id": "house.voice.1wn5usl",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Wrong number. AGAIN. Someone wanting a Chinese.",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:115",
+   "chapter": "5",
+   "batch": "mom-plain-14"
+  },
+  {
+   "id": "house.voice.52jrk6",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "That was your friend! Are you coming out?",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:115",
+   "chapter": "5",
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! That was your friend! Are you coming out?"
+  },
+  {
+   "id": "house.voice.c27ds0",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Here's your pocket money. Five pounds. Don't spend it all on games magazines.",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:239",
+   "chapter": "5",
+   "batch": "mom-plain-14",
+   "callout": "mom-call",
+   "display": "{me}, love? Here's your pocket money. Five pounds. Don't spend it all on games magazines."
+  },
+  {
+   "id": "house.voice.dg5evy",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "That was your Gran. She says you never ring her.",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:115",
+   "chapter": "5",
+   "batch": "mom-plain-14",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! That was your Gran. She says you never ring her."
+  },
+  {
+   "id": "house.voice.y87tqf",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Was that the phone? Did you not hear it?!",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:115",
+   "chapter": "5",
+   "batch": "mom-plain-14"
+  },
+  {
+   "id": "hw.mom.clocks.1ekmlu0",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "And the clocks went back last night. An extra hour in bed, and I'm STILL tired.",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:1174",
+   "chapter": "4",
+   "batch": "mom-plain-14"
+  },
+  {
+   "id": "hw.mom.door.7duwbw",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Door! I've got my hands full.",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:990",
+   "chapter": "4",
+   "batch": "mom-plain-15",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Door! I've got my hands full."
+  },
+  {
+   "id": "hw.mom.door.iezetz",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Door! More of them!",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:990",
+   "chapter": "4",
+   "batch": "mom-plain-15",
+   "display": "Door, {me}! More of them!",
+   "callout": "mom-shout"
+  },
+  {
+   "id": "hw.mom.door.le11aj",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "That'll be the Witch Brigade again. Door!",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:990",
+   "chapter": "4",
+   "batch": "mom-plain-15"
+  },
+  {
+   "id": "hw.mom.door.p08w90",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Can you get that?",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:990",
+   "chapter": "4",
+   "batch": "mom-plain-15",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! Can you get that?"
+  },
+  {
+   "id": "hw.mom.door2.1c95o5l",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "They're still waiting at the door!",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:991",
+   "chapter": "4",
+   "batch": "mom-plain-15",
+   "callout": "mom-shout",
+   "display": "{me.NAME}! They're still waiting at the door!"
+  },
+  {
+   "id": "hw.mom.five.1eab0yr",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Five lots! The neighbours will think we're ever so organised.",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:1098",
+   "chapter": "4",
+   "batch": "mom-plain-15"
+  },
+  {
+   "id": "hw.mom.hand.1x0lkzj",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Away from your hand! Saw AWAY from your hand.",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:745",
+   "chapter": "4",
+   "batch": "mom-plain-15",
+   "display": "Away from your hand, {me}! Saw AWAY from your hand.",
+   "callout": "mom-shout"
+  },
+  {
+   "id": "hw.mom.lead.1roevnu",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "I've got a pumpkin for you two to carve. It's on the kitchen table. Newspaper down first, please!",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:1173",
+   "chapter": "4",
+   "batch": "mom-plain-15"
+  },
+  {
+   "id": "hw.mom.porch.d7yfts",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Porch light on, love. No light, no trick-or-treaters. That's the rule.",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:1088",
+   "chapter": "4",
+   "batch": "mom-plain-15"
+  },
+  {
+   "id": "hw.mom.tail.ourgck",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Look at the state of this hall. Wrappers everywhere! Bin, please. And who ate all the Choc Bits?",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:1176",
+   "chapter": "4",
+   "batch": "mom-plain-15",
+   "display": "Look at the state of this hall. Wrappers everywhere! Bin, please, {me}. And who ate all the Choc Bits?",
+   "callout": "mom-shout"
+  },
+  {
+   "id": "st.opening.bed.hra5bz",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Much better. Now straighten that bed, please.",
+   "context": "Story fallback when family cannot deliver in person; app/public/js/st-engine.js:139",
+   "chapter": "5",
+   "batch": "mom-plain-15"
+  },
+  {
+   "id": "st.opening.bin.lnlsdo",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "One last job: bring the bin bag down to the kitchen.",
+   "context": "Story fallback when family cannot deliver in person; app/public/js/st-engine.js:140",
+   "chapter": "5",
+   "batch": "mom-plain-15"
+  },
+  {
+   "id": "st.opening.meetmom.p0ty2g",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Morning, love. Room first, then you can do what you like. Clothes in the basket, rubbish in the bin, plates down to the kitchen.",
+   "context": "Story fallback when family cannot deliver in person; app/public/js/st-engine.js:137",
+   "chapter": "5",
+   "batch": "mom-plain-15"
+  },
+  {
+   "id": "st.opening.tidy.1d8mogt",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "First things first: clothes in the basket, rubbish in the bin. And bring your dishes down!",
+   "context": "Story fallback when family cannot deliver in person; app/public/js/st-engine.js:138",
+   "chapter": "5",
+   "batch": "mom-plain-16"
+  },
+  {
+   "id": "bf.already.guy.1f4ztpk",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "Our Guy is sitting in the garden, guarding the parkin.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:319",
+   "chapter": "4",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bf.carry.guy.13p6v71",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "E carries him out to his garden chair. Careful with his head!",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:320",
+   "chapter": "4",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bf.display.done.1lj1fzs",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "The golden one was my favourite!",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:477",
+   "chapter": "4",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bf.guy.135iti6",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "Dad said we could have his OLD clothes. Not his work trousers. I have checked twice.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:313",
+   "chapter": "4",
+   "batch": "sister-plain-04"
+  },
+  {
+   "id": "bf.guy.ready.16vdl6h",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "He looks just like Dad on a Sunday. Can we keep him? Penny for the Guy! He only takes pretend pennies.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:188",
+   "chapter": "4",
+   "batch": "sister-plain-05"
+  },
+  {
+   "id": "bf.sister.talk.1gj0870",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "Will you help me stuff the Guy? Dad's old shirt is on the kitchen table. He says it was fashionable once.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:743",
+   "chapter": "4",
+   "batch": "sister-plain-05"
+  },
+  {
+   "id": "bf.sister.talk.1kq0e9g",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "Remember, remember, the fifth of November! I remembered. Dad forgot where he put his hat.",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:743",
+   "chapter": "4",
+   "batch": "sister-plain-05"
+  },
+  {
+   "id": "bf.wheel.qsib2",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "A Catherine wheel! It is doing cartwheels!",
+   "context": "Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:502",
+   "chapter": "4",
+   "batch": "sister-plain-05"
+  },
+  {
+   "id": "house.moment.1ci1e5k",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "Can I have a go on the Game Lad? Pleeeeease?",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:68",
+   "chapter": "5",
+   "batch": "sister-plain-05",
+   "callout": "sis-whine",
+   "display": "{me}! Can I have a go on the Game Lad? Pleeeeease?"
+  },
+  {
+   "id": "house.moment.vtvqfy",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "MOM! They're being annoying!",
+   "context": "Time-of-day house shout; app/public/js/hs-life.js:66",
+   "chapter": "5",
+   "batch": "sister-plain-05",
+   "display": "MOM! {me}'s being annoying!"
+  },
+  {
+   "id": "hw.sis.bat.1p6s4es",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "Higher! No, lower! Perfect. It's watching you.",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:434",
+   "chapter": "4",
+   "batch": "sister-plain-05"
+  },
+  {
+   "id": "hw.sis.ghost.b0szgt",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "Now the whole street can see him. His name is Gerald.",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:434",
+   "chapter": "4",
+   "batch": "sister-plain-05"
+  },
+  {
+   "id": "hw.sis.scoop.j7h9ib",
+   "character": "sister",
+   "tag": "cheeky, neutral British",
+   "line": "Ewww! It looks like brains. Can I keep the seeds?",
+   "context": "Halloween, physical preparation / door; app/public/js/season-halloween.js:746",
+   "chapter": "4",
+   "batch": "sister-plain-05"
+  },
+  {
+   "id": "c4.xmas.eve.dad.neutral",
+   "character": "dad",
+   "tag": "warm, neutral British",
+   "line": "Is everyone asleep yet? Good. Shh. I am eating the mince pie.",
+   "context": "Christmas Eve, Dad whispers while eating Father Christmas’s mince pie; replaces the gendered player reference in the legacy recording.",
+   "chapter": "4",
+   "replaces": "c4.xmas.eve.dad",
+   "batch": "dad-plain-11"
+  },
+  {
+   "id": "chore.shout.1of6vkv",
+   "character": "mom",
+   "tag": "warm, neutral British",
+   "line": "Have you done ALL your jobs? Who are you and what have you done with my real helper?",
+   "context": "Chore completion / reminder; numerical rating stays written; app/public/js/ch-core.js:153",
+   "chapter": "5",
+   "batch": "mom-plain-16",
+   "display": "Have you done ALL your jobs? Who are you and what have you done with {me}?"
+  },
+  {
+   "id": "house.voice.1o2t39k",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "School! Shoes on, bag ready, out you go!",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:376",
+   "chapter": "5",
+   "batch": "mom-plain-16"
+  },
+  {
+   "id": "house.voice.1p91ht0",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Tea is ready! Come and get it before it goes cold!",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:376",
+   "chapter": "5",
+   "batch": "mom-plain-16"
+  },
+  {
+   "id": "house.voice.6sjah6",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Saturday pocket money! Check with me when your jobs are done.",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:376",
+   "chapter": "5",
+   "batch": "mom-plain-16"
+  },
+  {
+   "id": "house.voice.v8d3ia",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Time for bed. Save your game.",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:376",
+   "chapter": "5",
+   "batch": "mom-plain-16",
+   "display": "Time for bed, {me}. Save your game.",
+   "callout": "mom-call"
+  },
+  {
+   "id": "house.voice.zrj5mn",
+   "character": "mom",
+   "tag": "calling, neutral British",
+   "line": "Ooh, have you done ALL your jobs? Who are you and what have you done with my real helper?",
+   "context": "House welcome, shout or event; app/public/js/hs-life.js:217",
+   "chapter": "5",
+   "batch": "mom-plain-16",
+   "display": "Ooh, have you done ALL your jobs? Who are you and what have you done with {me}?"
+  },
+  {
+   "id": "fight.announcer.17hxufs",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "FIGHT!",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1b3s3ij",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "FINAL ROUND",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1bpvjq6",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "RING OUT!",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1gqag2d",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "K.O.",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1i0ze0n",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "TRAINING",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1s3wltc",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "ROUND 1",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1snvt7a",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "ROUND 3",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1sxvew9",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "ROUND 2",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1t7v0l8",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "ROUND 5",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1thuma7",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "ROUND 4",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1tru7z6",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "ROUND 7",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1u1tto5",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "ROUND 6",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1ubtfd4",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "ROUND 9",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-05"
+  },
+  {
+   "id": "fight.announcer.1ult123",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "ROUND 8",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "fight.announcer.1vahgr4",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "DOUBLE K.O.",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "fight.announcer.mnmu8j",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "DRAW",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "fight.announcer.mwpmc1",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "TIME UP",
+   "context": "Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "game.wobble.host.146dks4",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "LET'S SEE WHAT THE REELS HAVE DECIDED!",
+   "context": "Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:867, app/public/js/rm-g-party.js:1183, app/public/js/rm-g-party.js:1239",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "game.wobble.host.1n2x0pa",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "A COIN GEYSER! WHOOSH!",
+   "context": "Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:861, app/public/js/rm-g-party.js:1222",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "game.wobble.host.1wafoa1",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "THE STAR HAS BEEN FOUND!",
+   "context": "Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:856, app/public/js/rm-g-party.js:1101",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "game.wobble.host.1wf6wxm",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "TWIN DICE! TWO BLOCKS!",
+   "context": "Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:859, app/public/js/rm-g-party.js:1175",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "game.wobble.host.1yus1o0",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "THE WINNERS GET TEN COINS!",
+   "context": "Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:866, app/public/js/rm-g-party.js:2677",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "game.wobble.host.8oxsmd",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "LET'S SEE WHO GOES FIRST! EVERYBODY STARTS WITH TEN COINS.",
+   "context": "Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:864, app/public/js/rm-g-party.js:2605",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "game.wobble.host.ogoqhi",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "WOBBLE WARP! WHEEE! OFF WE GO!",
+   "context": "Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:862, app/public/js/rm-g-party.js:1230",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "game.wobble.host.q55w08",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "DING DONG! THE CLOCKWORK JACKPOT PAYS OUT!",
+   "context": "Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:860, app/public/js/rm-g-party.js:1215",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
+  },
+  {
+   "id": "game.wobble.host.vvc01w",
+   "character": "announcer",
+   "tag": "booming, neutral British",
+   "line": "LAST PLACE? HAVE TEN COINS TO CATCH UP!",
+   "context": "Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:865, app/public/js/rm-g-party.js:2615",
+   "chapter": "5",
+   "fx": "console",
+   "batch": "announcer-console-06"
   }
  ]
 }

@@ -275,9 +275,21 @@
       // Family actions can add this animation during an already-running frame.
       // Its frame-start timestamp then predates t0, especially on a busy device:
       // negative cubic easing used to swing the leaf past its closed frame.
-      const k = ms ? clamp((n - t0) / ms, 0, 1) : 1; d.ang = from + (to - from) * ease(k);
+      const k = ms ? clamp((n - t0) / ms, 0, 1) : 1, target = from + (to - from) * ease(k);
+      if(d.safeSwing&&ms&&live&&mode==='walk'&&W.lvl===ROOMS[d.rooms[0]]?.lvl){
+        // The cupboard folds back through the hall. Sweep at two-degree steps,
+        // wait for a nearby player, and continue when they move clear.
+        const old=d.ang, steps=Math.max(1,Math.ceil(Math.abs(target-old)*d.swing/2));
+        let depth=doorContacts(W.x,W.z,W.fy-50,W.lvl,RAD+2,d).reduce((n,c)=>Math.max(n,c.depth),0);
+        for(let i=1;i<=steps;i++){
+          const prev=d.ang;d.ang=old+(target-old)*i/steps;
+          d.pivot.rotation.y=d.ang*d.swing*D2R*(d.dir||1);
+          const next=doorContacts(W.x,W.z,W.fy-50,W.lvl,RAD+2,d).reduce((n,c)=>Math.max(n,c.depth),0);
+          if(next>0&&next>=depth-.001){d.ang=prev;break}depth=next;
+        }
+      }else d.ang=target;
       if (d.pivot) d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1);
-      if (k >= 1) { visCalc(); return false; } return true;
+      if (k >= 1 && Math.abs(d.ang-to)<.00001) { visCalc(); return false; } return true;
     };
     if (now) { anims.delete('door:' + id); move(t0); dirty(); }
     else anims.set('door:' + id, move);
@@ -394,8 +406,12 @@
       K.setQuality?.('high',scene);
       compileVariants(Q.adapt);
       scene.traverse(o => { const m = o.material; if (m) [].concat(m).forEach(mm => { for (const k in mm) { const tx = mm[k]; if (tx && tx.isTexture && ren.initTexture) { try { ren.initTexture(tx); } catch (e) {} } } }); });
+      // Upload every room's geometry without shading a whole invisible house.
+      // The textures and shader variants above are still warmed before play.
+      const previousScissor = ren.getScissor(new T.Vector4()), previousScissorTest = ren.getScissorTest();
+      try { ren.setScissor(0, 0, 1, 1); ren.setScissorTest(true); ren.render(scene, camera); }
+      finally { ren.setScissor(previousScissor); ren.setScissorTest(previousScissorTest); vis.forEach(([g, v]) => { g.visible = v; }); visCalc(); }
       ren.render(scene, camera);
-      vis.forEach(([g, v]) => { g.visible = v; }); visCalc(); ren.render(scene, camera);
     } catch (e) { console.error('hs prewarm', e); }
   }
   // Merge each built room's static meshes (js/hs-static.js); incremental, so later additions join on the next pass.
@@ -544,9 +560,10 @@
   }
   const onStairs = (x, z) => grids.stairs.find(s => x >= s.x0 && x <= s.x1 && z >= s.z0 && z <= s.z1);
   const doorPoint = new T.Vector3();
-  function doorContacts(x,z,eye,lvl,radius=RAD) {
+  function doorContacts(x,z,eye,lvl,radius=RAD,only) {
     const out=[];
     for (const d of Object.values(DOORS)) {
+      if(only&&d!==only)continue;
       const leaf=d.pivot?.children.find(o=>o.isMesh&&o.geometry?.type==='BoxGeometry');
       if(!leaf||d.always||!d.rooms.some(id=>ROOMS[id]?.lvl===lvl))continue;
       // Query the actual leaf in its own frame, including during a swing.
@@ -580,7 +597,7 @@
     const s = onStairs(x, z); let best = null;
     const cands = [];
     const inX = s && x >= s.x0 + RAD && x <= s.x1 - RAD, sy = inX ? s.y(x, z) : 0, mid = inX && z > s.m0 && z < s.m1; // (on the stairs: the ramp is the floor, bar the cupboard right under them)
-    for (const L of [lvl, lvl === 'U' ? 'G' : 'U']) if (floorClear(x,z,L)) { if (mid && !(L === 'G' && LV.G - sy > 100)) continue; cands.push({ y: LV[L], lvl: L }); }
+    for (const L of [lvl, lvl === 'U' ? 'G' : 'U']) if (floorClear(x,z,L)) { if (mid && !(L === 'G' && (LV.G - sy > 100 || y0 > sy + 30))) continue; cands.push({ y: LV[L], lvl: L }); }
     if (inX) cands.push({ y: sy, lvl: sy < (LV.U + LV.G) / 2 ? 'U' : 'G' });
     for (const c of cands) if (Math.abs(c.y - y0) <= 45 && headFitsDoor(x,z,c.lvl,c.y,eyeHeight==null?W.eyeNow+W.jh:eyeHeight) && !doorObstructs(x,z,c.y-50,c.lvl) && !bodyBlocks(x,z,c.lvl,c.y,eyeHeight==null?W.eyeNow+W.jh:eyeHeight) && (!best || Math.abs(c.y - y0) < Math.abs(best.y - y0))) best = c;
     return best;
@@ -1169,7 +1186,7 @@
     floorGlow(g.snap ? null : g, t);
     dirty();
   }
-  const WHY = { solid: "Something's in the way", door: "The door's in the way", player: "You're standing there", floor: 'It goes on the floor', path: 'That would block the way', far: 'Too far away', stairs: 'Not on the stairs', door_zone: 'Keep the doorway clear', pc: 'Keep the way to the PC clear' };
+  const WHY = { solid: "Something's in the way", door: "The door's in the way", player: "You're standing there", floor: 'It goes on the floor', path: 'That would block the way', far: 'Too far away', stairs: 'Not on the stairs', door_zone: 'Keep the doorway clear', ceiling: 'Not enough headroom', pc: 'Keep the way to the PC clear' };
   function whyText(why) { if (!why) return ''; if (why.startsWith('body:')) { const o = THINGS[why.slice(5)]; const n = o ? (typeof o.label === 'function' ? o.label() : o.label) : 'Something'; return n + ' is in the way'; } return WHY[why] || "Something's in the way"; }
   function computeGhost(t, sx, sy, fresh) {
     const now = performance.now();
@@ -1180,6 +1197,10 @@
     else res = freeGhost(t, sx, sy);
     GP.t = t; GP.at = now; GP.res = res;
     return res;
+  }
+  function fitsCeiling(r,x,y,z,h,radius=0){
+    const ceiling=r?.ceilingAt?.(x,z+radius);
+    return !Number.isFinite(ceiling)||y-h>=ceiling+1;
   }
   function freeGhost(t, sx, sy) {
     const ph = physReady(), b = bodyFor(t), f = fwd(), m = t.local || { cx: 0, cz: 0, hx: t.hx, hz: t.hz, h: t.h };
@@ -1202,6 +1223,7 @@
     if (Math.hypot(x - W.x, z - W.z) > REACH) { res.why = 'far'; return res; }
     const rest = ph.findRest(b, r.lvl, x, z, ry, fromY, t.id, b.sw);
     res.y = rest.y; res.ok = rest.ok; res.why = rest.why;
+    if(res.ok&&!fitsCeiling(r,x,res.y,z,m.h,R)){res.ok=false;res.why='ceiling'}
     if (res.ok && grids.stairs.some(s => x > s.x0 - 6 && x < s.x1 + 6 && z > s.z0 && z < s.z1 && r.lvl === 'U' && z > s.m0 - 30)) { res.ok = false; res.why = 'stairs'; }
     if (res.ok && t.floorOnly && !rest.onFloor) { res.ok = false; res.why = 'floor'; }
     if (res.ok && t.obstacle && rest.onFloor) { // furniture on the floor keeps doorways, the stairs and the way to the PC clear
@@ -1520,7 +1542,8 @@
   }
   // Saved as [room, x, y, z, ry, snap, hide, extra]; extra holds a chair's swivel. A carried thing saves where it came
   // from, and the grip itself is remembered so a refresh hands it straight back (jhp_hs_held).
-  const PV = 10; // 2: placements saved since the physics pass (older ones are checked against the new colliders once); 3: the bigger front garden; 4: the car 20 cm further from the gate, the thicker hedge; 5: the lounge's sofa and armchair moved; 6: approved 7 m front plot, car/roof and lounge props follow the revised geometry; 7: clear floor props from the new cat tree; 8: wider lounge routes, table/chair props follow their furniture; 9: car lid/rim heights; 10: rear extension, kitchen table and garden layout
+  const PV = 12; // 2: physics; 3-6: front plot/car/lounge; 7: cat tree; 8: lounge routes; 9: boot rims; 10: rear extension; 11: desk, beanbag and pillow; 12: cupboard
+  const placementMoved = new Set(); // in-memory only: changed props get one physical clearance check too
   // The front plot (docs/HOUSE-SCALE.md, js/hs-house.js builds it): the garden runs from the house front (z 702) to the pavement
   // at FZ. Until pv 3 it was 4 m deep (FZ 1100) with Dad's car shrunk to 82% (OLD_CAR) to squeeze it in.
   // STREET: our pavement (FZ..FZ+145, 1.45 m), its kerb, a 5.6 m road, the far kerb and pavement; the opposite houses'
@@ -1549,6 +1572,37 @@
   // in front of the sofa, on the way through.
   const LOUNGE5 = [[-157, 560, 37, 649], [53, 338, 166, 452]];
   function migratePlacement(at, from = 0) {
+    // The bigger monitor crowded the cube's factory spot: taps meant for it landed on the PC.
+    if(at && at.room==='bedroom' && from<12 && Math.abs(at.y)<.1 && Math.abs(at.x+40)<.1 && Math.abs(at.z+10)<.1){at.x=-48;at.z=-8;return true;}
+    if(at && at.room==='cupboard' && from<12 && !at.hide && Number.isFinite(at.x) && Number.isFinite(at.z)) {
+      // Objects resting on the moved chest/console box keep their support and offsets.
+      if(at.y<LV.G-10 && at.x>=356 && at.x<=406 && at.z>=280 && at.z<=322){at.x=clamp(at.x+5,370,397);at.z-=27;return true;}
+      if(at.y<LV.G-10 && at.x>=334 && at.x<=372 && at.z>=322 && at.z<=360){at.x-=4;at.z-=65;return true;}
+      // The new high-end storage must not bury an old loose floor placement.
+      if(at.y>=LV.G-10 && at.x>=332 && at.x<=408 && at.z>=252 && at.z<=313){at.x=370;at.z=337;at.y=LV.G;return true;}
+    }
+    if(at && at.room==='bedroom' && from<11 && !at.hide && Number.isFinite(at.x) && Number.isFinite(at.z)) {
+      // Both factory front-edge toys stay fully on the smaller top, including their depth and keyring.
+      if(Math.abs(at.y)<.1&&Math.abs(at.x+56)<.1&&Math.abs(at.z-18)<.1){at.z=5;return true;}
+      if(Math.abs(at.y)<.1&&Math.abs(at.x-40)<.1&&Math.abs(at.z-24)<.1){at.z=11;return true;}
+      if(Math.abs(at.y)<.1&&Math.abs(at.x+68)<.1&&Math.abs(at.z+22)<.1){at.x=-56;at.z=-12;return true;}
+      if(Math.abs(at.y-LV.U)<.6&&at.x>=-16&&at.x<=-10&&Math.abs(at.z-18)<.1&&Math.abs((at.ry||0)-180)<.1){at.z=5;return true;}
+      // Shrinking the desk exposes floor, never removes it. Only records on a removed strip of its old top move.
+      // Keep PC/keyboard-supported things, ordinary floor poses and rotation/extra metadata exact.
+      if(at.y<=.6&&at.y>=-25&&at.x>=-76&&at.x<=76&&at.z>=-55&&at.z<=31&&(at.x<-70||at.x>70||at.z<-54||at.z>18)) {
+        at.x=clamp(at.x,-42,42);at.z=clamp(at.z,-40,4);return true;
+      }
+      // The open top drawer, including loose contents, follows its front and carcass.
+      if(at.y>=3.2&&at.y<=11&&at.x>=40&&at.x<=72&&at.z>=-29&&at.z<=29){at.x-=4;at.z-=13;return true;}
+      // Pillow and anything resting on its old top follow the larger pillow clear of the headboard.
+      if(at.x>=165&&at.x<=215&&at.z>=-48&&at.z<=-18&&(Math.abs(at.y-37)<.2||Math.abs(at.y-26)<.2)){at.z+=9;if(Math.abs(at.y-26)<.2)at.y=24.9;return true;}
+      // The original beanbag's home moves clear of the desk. Other furniture remains where the player left it.
+      if(Math.abs(at.x+100)<.1&&Math.abs(at.z-56)<.1&&Math.abs(at.y-LV.U)<.6){at.x=-116;at.z=82;return true;}
+      // Preserve the magazine stack and its finished tidy placements as a stack, with their support heights.
+      if(at.x>=-151&&at.x<=-136&&at.z>=54&&at.z<=64&&at.y>=LV.U-8&&at.y<=LV.U+.2){at.z+=85;return true;}
+      // Clear old loose floor props from the enlarged home, into the open aisle in front of it.
+      if(at.y>=LV.U-6&&at.y<=LV.U+2&&Math.hypot(at.x+116,at.z-82)<67){at.z=166;at.y=LV.U;return true;}
+    }
     if(at && from<10 && Number.isFinite(at.x) && Number.isFinite(at.z)) {
       if(at.room==='kitchen') {
         // Loose things on the old rear run follow their supporting unit. Snaps use their current anchors.
@@ -1679,12 +1733,12 @@
     if (!save || !save.t || save.pv0 !== undefined) return;
     const { CAR3, OLD_CAR } = FRONT, pv = save.pv || 0, old = pv < PV; save.pv0 = pv; // pv0: the version it was saved with (the physics nudge below still needs it)
     for (const id in save.t) {
-      const r = save.t[id]; if (!Array.isArray(r) || r[5] || (r[0] !== 'drive' && r[0] !== 'lounge' && r[0] !== 'bedroom' && r[0] !== 'kitchen' && r[0] !== 'garden')) continue;
+      const r = save.t[id]; if (!Array.isArray(r) || r[5] || (r[0] !== 'drive' && r[0] !== 'lounge' && r[0] !== 'bedroom' && r[0] !== 'kitchen' && r[0] !== 'garden' && r[0] !== 'cupboard')) continue;
       const lx = (r[1] - OLD_CAR.x) / OLD_CAR.s, lz = (r[3] - OLD_CAR.z) / OLD_CAR.s;
       const stale = r[0] === 'drive' && pv === 3 && Math.abs(lx) <= 92 && Math.abs(lz) <= 210 && r[2] < CAR3.y - 5 && !(Math.abs(r[1] - CAR3.x) <= 92 * CAR3.s && Math.abs(r[3] - CAR3.z) <= 205 * CAR3.s);
       if (!old && !stale) continue;
       const at = { room: r[0], x: r[1], y: r[2], z: r[3], ry: r[4], hide: !!r[6] };
-      if (migratePlacement(at, stale ? 0 : pv)) save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4], ...r.slice(5)];
+      if (migratePlacement(at, stale ? 0 : pv)) { save.t[id] = [r[0], +at.x.toFixed(1), +at.y.toFixed(1), +at.z.toFixed(1), at.ry ?? r[4], ...r.slice(5)]; if(pv<11&&at.room==='bedroom'||pv<12&&at.room==='cupboard')placementMoved.add(id); }
     }
     save.pv = Math.max(pv, PV);
   }
@@ -1696,9 +1750,10 @@
     for (const t of migrateQ) {
       migrateQ.delete(t);
       if (t.st !== 'rest' || t.at.hide || isAway(t) || !t.body || !ROOMS[t.at.room]) continue;
-      if (!t.obstacle) continue; // only furniture saved where the new furniture colliders now stand; props keep their pose
-      if (!PH.overlapping(t.body) && Math.abs(t.at.y - LV[lvlOf(t)]) <= 0.01) continue;
+      if (!t.obstacle && !t._placementMoved) continue; // untouched props keep their exact pose
+      if (!PH.overlapping(t.body) && (!t.obstacle || Math.abs(t.at.y - LV[lvlOf(t)]) <= 0.01)) { t._placementMoved=false; continue; }
       const shift = PH.settle(t.body, 45); if (shift > 0.05) { renderBody(t); moved = true; }
+      t._placementMoved=false;
     }
     if (moved) saveThings();
   }
@@ -1711,6 +1766,7 @@
     const a = t.at; if (t.st !== 'rest' || a.hide || isAway(t) || !t.obj || atHome(t)) return null;
     const r = ROOMS[a.room]; if (!r) return 'room';
     if (a.y > LV[r.lvl] + 0.5) return 'floor';
+    if(!fitsCeiling(r,a.x,a.y,a.z,t.h,Math.hypot(t.hx||0,t.hz||0)))return 'ceiling';
     if (!Object.values(ROOMS).some(q => q.lvl === r.lvl && q.area.some(ar => a.x >= ar[0] - 15 && a.x <= ar[2] + 15 && a.z >= ar[1] - 15 && a.z <= ar[3] + 15))) return 'wall';
     const b = t.body; if (PH && b && b.active && !t.fixed && !held?.drag && PH.overlapping(b) === 'solid') return 'inside';
     if (underOf(t)) return 'under';
@@ -1756,6 +1812,7 @@
       t.rx = p.rx || 0; t.rz = p.rz || 0;
     } else { t.st = 'rest'; if (save.pv0 < PV && (t.at.room === 'drive' || t.at.room === 'lounge')) migrateQ.add(t); }
     moveTo(t, t.at.room); place(t); layerFor(t);
+    if(placementMoved.delete(t.id))t._placementMoved=true;
     if (t.st === 'rest' && !t.at.hide && (save.pv0 ?? save.pv ?? 0) < PV) migrateQ.add(t);
     rescueQ.add(t);
   }
@@ -2112,7 +2169,13 @@
       if (Math.floor(ph) !== Math.floor(W.bobT)) { sfxStep(!!onStairs(W.x, W.z)); emit('step', W.x, W.z, spd); }
       roomCheck();
     } else W.bob *= 0.85;
-    W.eyeNow += (W.eye - W.eyeNow) * Math.min(1, dt * 5);
+    // Anticipate the descending soffit over the capsule's leading edge. Lower
+    // immediately; rise smoothly on the way out. Head/bob/near-plane margin
+    // keeps both the camera and the player below the solid plaster.
+    const ceiling=cur?.ceilingAt?.(W.x,W.z+RAD);
+    const ceilingEye=Number.isFinite(ceiling)?Math.max(30,W.fy-ceiling-16):Infinity;
+    W.eye=Math.min(W.eye,ceilingEye);
+    W.eyeNow = Math.min(ceilingEye,W.eyeNow+(W.eye-W.eyeNow)*Math.min(1,dt*5));
     if (keys.jump) { keys.jump = false; if (W.jh <= 0.01 && !W.jv && !W.seat && !ducking && !(cur && cur.id === 'cupboard')) W.jv = 270; } // (a hop of about 37 cm)
     if (W.jv || W.jh > 0) { const d = Math.min(dt, 0.05); W.jv -= 980 * d; W.jh += W.jv * d; const ceiling=cur?.ceilingAt?.(W.x,W.z),clearance=Number.isFinite(ceiling)?W.fy-ceiling-W.eyeNow-4-Math.abs(W.bob):Infinity; const cap = Math.max(0, Math.min(40, 232 - W.eyeNow,clearance)); if (W.jh > cap) { W.jh = cap; W.jv = Math.min(W.jv, 0); } if (W.jh <= 0) { W.jh = 0; W.jv = 0; } }
     P.x = W.x; P.z = W.z; P.y = W.fy - W.eyeNow - W.bob - W.jh;
@@ -2609,7 +2672,9 @@
   function loop(now) {
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.12, (now - (lastT || now)) / 1000); lastT = now;
-    if (!live || document.hidden) return;
+    // The opaque account window owns the view. Resume on the next frame after authentication;
+    // keep lastT current so loading never advances physics by the whole waiting time.
+    if (!live || document.hidden || window.AccountGate?.blocked) return;
     screenEffort();tickLights(dt);tickWorldSound(now);
     const vo = viewOpen(); if (vo !== viewing) { viewing = vo; viewT = now; html.classList.toggle('hs-viewing', vo); if (vo) { setHot(null); ui.tip(null); unlock(); } }
     // (the consoles' telly is up: once it has settled, the room behind needn't be drawn)
@@ -2930,6 +2995,16 @@
   }
   function validPose(s) { return !!s && ['x','y','z','rx','ry'].every(k => Number.isFinite(s[k])) && ['U','G'].includes(s.lvl || 'U') && Math.abs(s.y) < 1000 && Math.abs(s.rx) <= 90; }
   function migrateWalkPose(s) {
+    if((s.pv||0)<12&&s.lvl==='G'&&!s.seat&&s.x>=332&&s.x<=408&&s.z>=252&&s.z<=440&&s.y>150){
+      // Only the newly occupied high-end floor moves; old clear aisle poses stay.
+      if(s.z<320)s={...s,x:370,z:337,y:210,pv:PV};
+    }
+    // A previously clear standing/seat-return point can now lie in the larger beanbag.
+    // Only its unchanged factory home is affected; moved/hidden furniture keeps the old player's position.
+    if((s.pv||0)<11&&s.lvl==='U'&&!s.seat&&s.x<0){
+      const bag=THINGS.beanbag,a=bag?.at;
+      if(a&&!a.hide&&a.room==='bedroom'&&Math.hypot(a.x+116,a.z-82)<.2&&Math.hypot(s.x-a.x,s.z-a.z)<RAD+45)s=Object.assign({},s,{z:150,pv:PV});
+    }
     // Old outdoor poses near the old wall follow the patio; never turn into an indoor spawn.
     if((s.pv||0)<10 && s.lvl==='G' && !s.seat){
       if(s.z< -56 && s.z> -240 && s.x<215)s=Object.assign({},s,{z:s.z-120,pv:PV});
@@ -2945,24 +3020,25 @@
     const lvl = s.lvl || 'U', r = roomAt(s.x, s.z, lvl); if (!r) return false;
     buildRoom(r);
     r.preparePose?.(s);
+    const restoreFloor=r.id==='cupboard'&&s.y>r.ceilingAt?.(s.x,s.z)?LV[lvl]:s.y+(r.eye||STAND);
     if (s.d && typeof s.d === 'object') for (const id in DOORS) {
       const d = DOORS[id]; if (d.always || typeof s.d[id] !== 'boolean') continue;
       d.open = s.d[id]; d.ang = d.open ? 1 : 0; anims.delete('door:' + id);
       if (d.pivot) d.pivot.rotation.y = d.ang * d.swing * D2R * (d.dir || 1);
     }
     grids.dirty = true;
-    if (!s.seat && !floorAt(s.x, s.z, lvl, s.y + (r.eye || STAND),Math.max(60,LV[lvl]-s.y))) {
+    if (!s.seat && !floorAt(s.x, s.z, lvl, restoreFloor,Math.max(30,LV[lvl]-s.y))) {
       // Older saves rounded to 0.1 cm. Recover that lost half-millimetre
       // inside the same room rather than discarding a standing pose.
       let recovered=null;
       for(const [dx,dz]of [[-.051,0],[.051,0],[0,-.051],[0,.051],[-.051,-.051],[-.051,.051],[.051,-.051],[.051,.051]]){
         const x=s.x+dx,z=s.z+dz;
-        if(roomAt(x,z,lvl)===r&&floorAt(x,z,lvl,s.y+(r.eye||STAND),Math.max(60,LV[lvl]-s.y))){recovered=Object.assign({},s,{x,z});break;}
+        if(roomAt(x,z,lvl)===r&&floorAt(x,z,lvl,restoreFloor,Math.max(30,LV[lvl]-s.y))){recovered=Object.assign({},s,{x,z});break;}
       }
       // An old pose may also touch a newly solid leaf/handle margin. Keep
       // the player standing in that room, using the nearest clear ring.
       if(!recovered)for(const radius of [2.5,5,7.5,10,15,22,30]){
-        for(let i=0;i<16;i++){const a=i*Math.PI/8,x=s.x+Math.cos(a)*radius,z=s.z+Math.sin(a)*radius;if(roomAt(x,z,lvl)===r&&floorAt(x,z,lvl,s.y+(r.eye||STAND),Math.max(60,LV[lvl]-s.y))){recovered=Object.assign({},s,{x,z});break;}}
+        for(let i=0;i<16;i++){const a=i*Math.PI/8,x=s.x+Math.cos(a)*radius,z=s.z+Math.sin(a)*radius;if(roomAt(x,z,lvl)===r&&floorAt(x,z,lvl,restoreFloor,Math.max(30,LV[lvl]-s.y))){recovered=Object.assign({},s,{x,z});break;}}
         if(recovered)break;
       }
       if(!recovered)return false;s=recovered;
@@ -3246,7 +3322,7 @@
     return false;
   }
   function wdCheck() {
-    if (!live || document.hidden || backgroundCovered() || ['off','follow','pcboot','shutdown'].includes(mode) || viewOpen() || pb.classList.contains('deep') || pb.classList.contains('rm-tvon')) { wdBlack = 0; return; }
+    if (!live || document.hidden || window.AccountGate?.blocked || backgroundCovered() || ['off','follow','pcboot','shutdown'].includes(mode) || viewOpen() || pb.classList.contains('deep') || pb.classList.contains('rm-tvon')) { wdBlack = 0; return; }
     try {
       let bad = !cv.isConnected, why = '';
       if (!bad) { const r = cv.getBoundingClientRect(), cs = getComputedStyle(cv); bad = !r.width || !r.height || cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.05; }

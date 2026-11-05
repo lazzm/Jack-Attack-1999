@@ -21,6 +21,7 @@
   };
   const say = (id, who, text) => {
     const t = SE.cast(text), key = id.startsWith('c4.') ? id : 'bf.' + id, person = who === 'Mom' ? 'mom' : who === 'Dad' ? 'dad' : who === '{sister}' ? 'sister' : null;
+    if(window.st?.speakLine)return st.speakLine(key,person||who,t);
     if (person && window.HouseFamily?.speak?.(person, key, t)) return;
     if (window.st?.say) window.st.say(key, SE.cast(who), t); else H.say(SE.cast(who), t, 5200);
   };
@@ -270,7 +271,7 @@
     DEC.torch = group('torch', 'garden', -60, GY - 47, -400.4, B => { B.cyl(0, 0, 0, 2.2, 3.2, 19, 10, mat.dark, { rx: 90 }); B.cyl(0, 0, 10, 3.4, 3.4, 2, 10, mat.metal, { rx: 90 }); B.cyl(0, 0, 11.2, 2.8, 2.8, .5, 10, mat.yellow, { rx: 90 }); });
     const torch = R.grabbable('bf.torch', { obj: DEC.torch, noSave: true, home: { room: 'garden', x: -60, y: GY - 47, z: -400.4, ry: 0 }, kind: 'bf.torch', label: 'Hold the torch for Dad / watch the display', holdD: 35, useLabel: 'Hold the torch for Dad', use: startDisplay, canGrab: () => phase === 'day' && done('bf-code') && done('bf-wood') });
     torch.noSave = true; ITEMS['bf.torch'] = 'thing';
-    spot('bf.petcheck', 'bedroom', 122, 70, 112, 25, 10, 25, 'Check the cat is safe indoors', () => { SE.step(EID, 'bf-code', 'pets'); say('cat', 'Mom', '{cat} is indoors with the curtains shut. Let {cat.him} hide under the bed; keep the noise down in here. No need to pull {cat.him} out.'); });
+    spot('bf.petcheck', 'bedroom', 122, 70, 112, 25, 10, 25, 'Check the cat is safe indoors', () => { SE.step(EID, 'bf-code', 'pets'); say('cat', 'Mom', "The cat is indoors with the curtains shut. Let the cat hide under the bed; keep the noise down in here. No need to pull the cat out."); });
     // The cold rubbish is available only after Dad's morning inspection, never during the display.
     for (let i = 1; i <= 6; i++) {
       const x = -150 + i % 3 * 35, z = gardenZ(-300 - Math.floor((i - 1) / 3) * 42);
@@ -310,12 +311,12 @@
     }[next];
     panel(text[0], text[1], text[2]);
     if (next === 'stuff') say('guy', '{sister}', "Dad said we could have his OLD clothes. Not his work trousers. I have checked twice.");
-    if (next === 'face') say('history', 'Dad', 'Guy Fawkes was part of the Gunpowder Plot in 1605. They planned to blow up Parliament, but the plot was stopped. We remember the fifth of November. Our Guy is just old clothes and newspaper.');
+    if (next === 'face') say('history', 'Dad', "Bonfire Night remembers a plot in 1605 to blow up Parliament. Our Guy is old clothes and newspaper. Dad nearly donated his good trousers.");
     H.dirty();
   }
   function openWork(kind) {
     if (!enabled() || phase === 'tail' || work || H.held()) return;
-    if (kind !== 'sparkler' && done(oid(kind))) return say('already', kind === 'food' ? 'Mom' : '{sister}', kind === 'food' ? 'Supper is on the garden table. Help yourself.' : 'Our Guy is sitting in the garden, guarding the parkin.');
+    if (kind !== 'sparkler' && done(oid(kind))) return kind === 'food' ? say('already.food', 'Mom', 'Supper is on the garden table. Help yourself.') : say('already.guy', '{sister}', 'Our Guy is sitting in the garden, guarding the parkin.');
     if (kind === 'guy' && got('bf-guy', 'hat')) return say('carry.guy', '{sister}', 'E carries him out to his garden chair. Careful with his head!');
     if (kind === 'food' && got('bf-food', 'gloves')) return say('carry.food', 'Mom', 'E carries the tray to the little garden table. Gloves on, mind.');
     const p = kind === 'guy' ? { x: -65, y: TABLE.y - 76, z: 160, rx: -48, ry: 0, lvl: 'G' }
@@ -571,7 +572,7 @@
   }
 
   // ------------------------------------------------ account reconciliation, family routines and quiet quest guidance.
-  function petCheck() { SE.step(EID, 'bf-code', 'pets'); say(catHome || displayEvening() ? 'cat.check' : 'cat.check.prep', 'Mom', catHome ? '{cat} is safely indoors, hiding under the bed. Let {cat.him} stay cosy.' : displayEvening() ? '{cat} is indoors. Keep the bedroom window shut tonight. Give {cat.him} a quiet place to hide when the bangs start.' : '{cat} is indoors. Keep the bedroom window shut for the display. Give {cat.him} a quiet place to hide when the bangs start.'); if(catHome && H.here==='bedroom' && !H.focused && !H.held())H.focus({x:115,y:68,z:145,rx:0,ry:49,lvl:'U',seat:1},{ms:650,label:'Leave the cat cosy'}); }
+  function petCheck() { SE.step(EID, 'bf-code', 'pets'); say(catHome || displayEvening() ? 'cat.check' : 'cat.check.prep', 'Mom', catHome ? "The cat is safely indoors, hiding under the bed. Let the cat stay cosy." : displayEvening() ? "The cat is indoors. Keep the bedroom window shut tonight. Give the cat a quiet place to hide when the bangs start." : "The cat is indoors. Keep the bedroom window shut for the display. Give the cat a quiet place to hide when the bangs start."); if(catHome && H.here==='bedroom' && !H.focused && !H.held())H.focus({x:115,y:68,z:145,rx:0,ry:49,lvl:'U',seat:1},{ms:650,label:'Leave the cat cosy'}); }
   function syncCat() {
     const cat = H.SPOTS.cat?.obj; if (!cat) return;
     const hiding = on && SE.today().hour >= 17 && SE.today().hour < 24;
@@ -579,7 +580,7 @@
     if (hiding && !catHome) {
       catHome = { p: cat.position.clone(), r: cat.rotation.clone(), s: cat.scale.clone(), pose: cat.userData.poseName, act: H.SPOTS.cat.act };
       cat.position.set(174, 73, 93); cat.rotation.y = -Math.PI / 2; cat.scale.y = .42; cat.userData.pose?.('sleep');
-      H.SPOTS.cat.act = () => { SE.step(EID, 'bf-code', 'pets'); say('cat.safe', 'Mom', '{cat} is safely indoors, hiding under the bed. Let {cat.him} stay cosy. We will feed {cat.him} when the bangs have stopped.'); };
+      H.SPOTS.cat.act = () => { SE.step(EID, 'bf-code', 'pets'); say('cat.safe', 'Mom', "The cat is safely indoors, hiding under the bed. Let the cat stay cosy. We will feed the cat when the bangs have stopped."); };
     } else if (!hiding && catHome) {
       cat.position.copy(catHome.p); cat.rotation.copy(catHome.r); cat.scale.copy(catHome.s); cat.userData.pose?.(catHome.pose || 'sleep'); H.SPOTS.cat.act = catHome.act; catHome = null;
     }

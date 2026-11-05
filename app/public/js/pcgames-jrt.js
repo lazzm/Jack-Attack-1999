@@ -532,7 +532,7 @@
     function announce(s, big) { G.ann.push({ s, t: G.t + 2.6, big }); if (G.ann.length > 3) G.ann.shift(); sfx(big ? 'big' : 'announce', 100); speak(s); }
     // the announcer's voice (JRT): a deep, slow reading of the big moments, through the PC's own speech (if it has any)
     function speak(s) {
-      if (JQ || cfg.voice === false || !window.Sound || !Sound.on || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
+      if (JQ || cfg.voice === false || !window.Sound || !Sound.on) return;
       const me_ = myName(), mine = s.indexOf(me_) === 0, t = String(s);
       let say_ = null;
       if (/FIRST POOF/.test(t)) say_ = 'First poof!';
@@ -543,11 +543,7 @@
       else if (mine && /SPREE|RAMPAGE|DOMINATING|UNSTOPPABLE|GODLIKE/.test(t)) say_ = (t.match(/POOFING SPREE|RAMPAGE|DOMINATING|UNSTOPPABLE|GODLIKE/) || ['Spree'])[0].toLowerCase() + '!';
       else if (/WINS? THE MATCH/.test(t)) { const e = A && A.ent(me), w = t.indexOf(me_) === 0 || (e && A.mode === 'ctf' && t.indexOf(AR.TEAM[e.team] + ' team') === 0) || (A && A.mode === 'coop' && /^The players/.test(t)); say_ = w ? 'You have won the match!' : 'You have lost the match.'; }
       if (!say_) return;
-      try {
-        const u = new SpeechSynthesisUtterance(say_), vs = speechSynthesis.getVoices() || [];
-        u.voice = vs.find(v => /en-GB/i.test(v.lang) && /male|daniel|george|uk/i.test(v.name)) || vs.find(v => /en-GB/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null;
-        u.pitch = 0.45; u.rate = 0.9; u.volume = 0.9; speechSynthesis.cancel(); Sound.speak(u);
-      } catch (e) {}
+      window.st?.speakLine?.('arena.announcer','announcer',say_,{remote:true,caption:false});
     }
     function handle(ev) {
       for (const e of ev) {

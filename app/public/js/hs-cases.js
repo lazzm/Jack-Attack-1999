@@ -7,7 +7,14 @@
   let saved=null,owner='';
   function state(){const who=String(window.Net?.me?.id||window.Net?.me?.nick||'');if(!saved||owner!==who){owner=who;try{saved=window.Apps?.loadGame?Apps.loadGame('media.cases',1):JSON.parse(localStorage.getItem('jhp_case_parks.'+who)||'null')}catch(e){}if(!saved||typeof saved!=='object')saved={};if(!saved.parks||typeof saved.parks!=='object')saved.parks={}}return saved}
   function savePark(id,p){state().parks[id]={...p};try{if(!window.Apps?.saveGame('media.cases',saved,{v:1}))localStorage.setItem('jhp_case_parks.'+owner,JSON.stringify(saved))}catch(e){}}
-  function parking(id,p){const old=state().parks[id];if(old&&typeof old.room==='string'&&['x','y','z'].every(k=>Number.isFinite(old[k])))p=old;const key='case.park.'+id;return H.SNAPS[key]||H.snap(key,{...p,pose:{...p},accepts:()=>false,enabled:()=>false,box:[1,1,1]})}
+  function parking(id,p){
+    const old=state().parks[id];if(old&&typeof old.room==='string'&&['x','y','z'].every(k=>Number.isFinite(old[k])))p=old;
+    // The retained parking record outranks the new factory pose. Move only that old desk-edge anchor once.
+    if(id==='console.gb'&&H.placementVersion>=11&&p.room==='bedroom'&&Math.abs(p.x+68)<.1&&Math.abs(p.y)<.1&&Math.abs(p.z+22)<.1){p={...p,x:-56,z:-12};savePark(id,p)}
+    // PV12: follow only the old Super Ultra factory parking point. Custom parks survive.
+    if(id==='console.sn'&&H.placementVersion>=12&&p.room==='cupboard'&&Math.abs(p.x-379)<.1&&Math.abs(p.y-353)<.1&&Math.abs(p.z-345)<.1){p={...p,x:397,z:311,ry:90};savePark(id,p)}
+    const key='case.park.'+id;return H.SNAPS[key]||H.snap(key,{...p,pose:{...p},accepts:()=>false,enabled:()=>false,box:[1,1,1]});
+  }
 
   const ease=k=>H.motion.H5(Math.max(0,Math.min(1,k)));
   const pose=t=>({x:t.obj.position.x,y:t.obj.position.y,z:t.obj.position.z,rx:t.obj.rotation.x/D,ry:t.obj.rotation.y/D,rz:t.obj.rotation.z/D});

@@ -1,0 +1,320 @@
+[
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 63,
+    "from": "{me.NAME}! You'll be late for school! Have you had any breakfast?",
+    "to": "You'll be late for school! Have you had any breakfast?"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 63,
+    "from": "{me}, are you up? It's gone eight! Lazybones!",
+    "to": "Are you up? It's gone eight! Lazybones!"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 63,
+    "from": "{me}, have you seen my car keys?",
+    "to": "Have you seen my car keys?"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 64,
+    "from": "{me}? Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day.",
+    "to": "Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day."
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 65,
+    "from": "{me}, have you done your homework?",
+    "to": "Have you done your homework?"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 65,
+    "from": "{me}! Come and get your washing, it's on the stairs!",
+    "to": "Come and get your washing, it's on the stairs!"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 65,
+    "from": "MOOOOOM! {me}'s being annoying!",
+    "to": "MOM! They're being annoying!"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 65,
+    "from": "{me}, {mate1}'s Mom rang. Are you going round there?",
+    "to": "Your friend's Mom rang. Are you going round there?"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 66,
+    "from": "{me.NAME}! TEA'S READY! It'll go cold!",
+    "to": "TEA'S READY! It'll go cold!"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 66,
+    "from": "{me}, set the table please, love!",
+    "to": "Set the table please, love!"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 67,
+    "from": "{me}, it's a school night. Not too late, eh?",
+    "to": "It's a school night. Not too late, eh?"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 67,
+    "from": "{me}! Have you been using the phone? The bill came.",
+    "to": "Have you been using the phone? The bill came."
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 67,
+    "from": "{me}, do you want a cup of tea?",
+    "to": "Do you want a cup of tea?"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 67,
+    "from": "{me}, can I have a go on the Game Lad? Pleeeeease?",
+    "to": "Can I have a go on the Game Lad? Pleeeeease?"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 68,
+    "from": "{me}! Bed! Now!",
+    "to": "Bed! Now!"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 68,
+    "from": "{me}, turn that light off, love, it's late.",
+    "to": "Turn that light off, love, it's late."
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 70,
+    "from": "{me}, are you on that computer AGAIN?",
+    "to": "Are you on that computer AGAIN?"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 70,
+    "from": "{me}! Get off the Internet! I need to ring your Nan!",
+    "to": "Get off the Internet! I need to ring your Nan!"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 71,
+    "from": "{me}, I'm popping to the shops. Do you want anything? ...Besides a Daydream.",
+    "to": "I'm popping to the shops. Do you want anything? ...Besides a Daydream."
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 72,
+    "from": "{me}, we're going to Gran's for Sunday dinner at one! Wear something clean!",
+    "to": "We're going to Gran's for Sunday dinner at one! Wear something clean!"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 88,
+    "from": "Are you eating properly? You're a growing {me.lad}. I've knitted you a jumper. It's got a reindeer on it.",
+    "to": "Are you eating properly? You're still growing. I've knitted you a jumper. It's got a reindeer on it."
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 114,
+    "from": "{me}! That was {mate1}! {mate1.He} says are you coming out?",
+    "to": "That was your friend! Are you coming out?"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 114,
+    "from": "{me}, that was your Gran. She says you never ring her.",
+    "to": "That was your Gran. She says you never ring her."
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 172,
+    "from": "Hello? Who is it? {me.NAME}! Ooh, you never ring! Is everything all right? Are you eating? Your Grandad says hello. HE SAYS HELLO. Bye love! Bye! Bye bye!",
+    "to": "Hello? Ooh, you never ring! Eating properly? Grandad says hello. HE SAYS HELLO. Bye, love! Bye! Bye bye!"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 215,
+    "from": "Ooh, have you done ALL your jobs? Who are you and what have you done with {me}?",
+    "to": "Ooh, have you done ALL your jobs? Who are you and what have you done with my real helper?"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 237,
+    "from": "{me}! Here's your pocket money. Five pounds. Don't spend it all on games magazines.",
+    "to": "Here's your pocket money. Five pounds. Don't spend it all on games magazines."
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 373,
+    "from": "Time for bed, {me}. Save your game.",
+    "to": "Time for bed. Save your game."
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 386,
+    "from": "{me}! Is that you? Tea's nearly ready!",
+    "to": "Is that you? Tea's nearly ready!"
+  },
+  {
+    "file": "app/public/js/hs-life.js",
+    "line": 386,
+    "from": "{me}? Is that you coming down? Put the kettle on, love!",
+    "to": "Is that you coming down? Put the kettle on, love!"
+  },
+  {
+    "file": "app/public/js/hs-telly.js",
+    "line": 411,
+    "from": "{me.NAME}! TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT!",
+    "to": "TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT!"
+  },
+  {
+    "file": "app/public/js/season-bonfire.js",
+    "line": 273,
+    "from": "{cat} is indoors with the curtains shut. Let {cat.him} hide under the bed; keep the noise down in here. No need to pull {cat.him} out.",
+    "to": "The cat is indoors with the curtains shut. Let the cat hide under the bed; keep the noise down in here. No need to pull the cat out."
+  },
+  {
+    "file": "app/public/js/season-bonfire.js",
+    "line": 313,
+    "from": "Guy Fawkes was part of the Gunpowder Plot in 1605. They planned to blow up Parliament, but the plot was stopped. We remember the fifth of November. Our Guy is just old clothes and newspaper.",
+    "to": "Bonfire Night remembers a plot in 1605 to blow up Parliament. Our Guy is old clothes and newspaper. Dad nearly donated his good trousers."
+  },
+  {
+    "file": "app/public/js/season-bonfire.js",
+    "line": 574,
+    "from": "{cat} is safely indoors, hiding under the bed. Let {cat.him} stay cosy.",
+    "to": "The cat is safely indoors, hiding under the bed. Let the cat stay cosy."
+  },
+  {
+    "file": "app/public/js/season-bonfire.js",
+    "line": 574,
+    "from": "{cat} is indoors. Keep the bedroom window shut tonight. Give {cat.him} a quiet place to hide when the bangs start.",
+    "to": "The cat is indoors. Keep the bedroom window shut tonight. Give the cat a quiet place to hide when the bangs start."
+  },
+  {
+    "file": "app/public/js/season-bonfire.js",
+    "line": 574,
+    "from": "{cat} is indoors. Keep the bedroom window shut for the display. Give {cat.him} a quiet place to hide when the bangs start.",
+    "to": "The cat is indoors. Keep the bedroom window shut for the display. Give the cat a quiet place to hide when the bangs start."
+  },
+  {
+    "file": "app/public/js/season-bonfire.js",
+    "line": 582,
+    "from": "{cat} is safely indoors, hiding under the bed. Let {cat.him} stay cosy. We will feed {cat.him} when the bangs have stopped.",
+    "to": "The cat is safely indoors, hiding under the bed. Let the cat stay cosy. We will feed the cat when the bangs have stopped."
+  },
+  {
+    "file": "app/public/js/ch-cat.js",
+    "line": 132,
+    "from": "Ooh! Who are you and what have you done with {me}?",
+    "to": "Ooh! Who are you and what have you done with my real helper?"
+  },
+  {
+    "file": "app/public/js/ch-cat.js",
+    "line": 132,
+    "from": "Gold star, love. GOLD STAR.",
+    "to": "Gold star. GOLD STAR."
+  },
+  {
+    "file": "app/public/js/ch-cat.js",
+    "line": 133,
+    "from": "Good {me.lad}. See, that wasn't so hard, was it?",
+    "to": "See, that wasn't so hard, was it?"
+  },
+  {
+    "file": "app/public/js/ch-core.js",
+    "line": 144,
+    "from": "Thank you, {me}!",
+    "to": "Thank you!"
+  },
+  {
+    "file": "app/public/js/ch-core.js",
+    "line": 144,
+    "from": "Good {me.lad}!",
+    "to": "Good helper!"
+  },
+  {
+    "file": "app/public/js/ch-core.js",
+    "line": 153,
+    "from": "Have you done ALL your jobs? Who are you and what have you done with {me}?",
+    "to": "Have you done ALL your jobs? Who are you and what have you done with my real helper?"
+  },
+  {
+    "file": "app/public/js/ch-core.js",
+    "line": 538,
+    "from": "{me.NAME}! Have you done your jobs yet?",
+    "to": "Have you done your jobs yet?"
+  },
+  {
+    "file": "app/public/js/ch-core.js",
+    "line": 538,
+    "from": "{me}! Those jobs won't do themselves!",
+    "to": "Those jobs won't do themselves!"
+  },
+  {
+    "file": "app/public/js/ch-core.js",
+    "line": 538,
+    "from": "{me.NAME}! Get off that computer and do your jobs!",
+    "to": "Get off that computer and do your jobs!"
+  },
+  {
+    "file": "app/public/js/ch-core.js",
+    "line": 538,
+    "from": "{me}, love? The list on the fridge? Remember the list?",
+    "to": "Love? The list on the fridge? Remember the list?"
+  },
+  {
+    "file": "app/public/js/ch-core.js",
+    "line": 538,
+    "from": "{me.NAME}! I can hear you NOT doing your jobs!",
+    "to": "I can hear you NOT doing your jobs!"
+  },
+  {
+    "file": "app/public/js/season-halloween.js",
+    "line": 744,
+    "from": "Away from your hand, {me}! Saw AWAY from your hand.",
+    "to": "Away from your hand! Saw AWAY from your hand."
+  },
+  {
+    "file": "app/public/js/season-halloween.js",
+    "line": 989,
+    "from": "{me}, can you get that?",
+    "to": "Can you get that?"
+  },
+  {
+    "file": "app/public/js/season-halloween.js",
+    "line": 989,
+    "from": "Door, {me}! More of them!",
+    "to": "Door! More of them!"
+  },
+  {
+    "file": "app/public/js/season-halloween.js",
+    "line": 989,
+    "from": "{me}! Door! I've got my hands full.",
+    "to": "Door! I've got my hands full."
+  },
+  {
+    "file": "app/public/js/season-halloween.js",
+    "line": 990,
+    "from": "{me}! They're still waiting at the door!",
+    "to": "They're still waiting at the door!"
+  },
+  {
+    "file": "app/public/js/season-halloween.js",
+    "line": 1175,
+    "from": "Look at the state of this hall. Wrappers everywhere! Bin, please, {me}. And who ate all the Choc Bits?",
+    "to": "Look at the state of this hall. Wrappers everywhere! Bin, please. And who ate all the Choc Bits?"
+  }
+]

@@ -19,8 +19,9 @@ await withTestServer(async base=>{
   // Sharp at every size: the drawing buffer is the CSS size times the device pixels (1 here), never a downscale.
   for(const [width,height]of [[1366,860],[2560,1440],[390,844],[844,390]]){
    await p.setViewportSize({width,height});await p.waitForTimeout(250);
-   const state=await p.evaluate(()=>{House._.renderForBenchmark();return{w:House.ren.domElement.width,h:House.ren.domElement.height,css:[House.ren.domElement.clientWidth,House.ren.domElement.clientHeight],pr:House.Q.pixelRatio,points:House.scene.children.concat(House.root.children).filter(o=>o.isPointLight&&o.visible).length,rate:House.screenRate(false),render:getComputedStyle(House.ren.domElement).imageRendering}});
+   const state=await p.evaluate(()=>{House._.renderForBenchmark();return{w:House.ren.domElement.width,h:House.ren.domElement.height,css:[House.ren.domElement.clientWidth,House.ren.domElement.clientHeight],pr:House.Q.pixelRatio,points:House.scene.children.concat(House.root.children).filter(o=>o.isPointLight&&o.visible).length,rate:House.screenRate(false),viewport:House.ren.getViewport(new THREE.Vector4()).toArray(),scissorTest:House.ren.getScissorTest(),render:getComputedStyle(House.ren.domElement).imageRendering}});
    assert.equal(state.pr,1,JSON.stringify(state));assert.equal(state.w,state.css[0],JSON.stringify(state));assert.equal(state.h,state.css[1],JSON.stringify(state));
+   assert.deepEqual(state.viewport,[0,0,width,height],'Warm-up restored the full viewport');assert.equal(state.scissorTest,false,'Warm-up scissor was disabled');
    assert.equal(state.points,5,'All five lamps light per pixel at rung 0');assert.equal(state.rate,60);assert.notEqual(state.render,'pixelated');
    await p.screenshot({path:shots+`best-${width}x${height}.png`});
   }
@@ -46,7 +47,19 @@ await withTestServer(async base=>{
   assert(merge.st.batches>10&&merge.st.sources>100,JSON.stringify(merge));assert(merge.healed,'Moved source draws again');assert(merge.after.dissolved>merge.st.dissolved,'Batch dissolved');
   const fire=await p.evaluate(()=>{House.goRoom('lounge',0);const r=House.ROOMS.lounge;House._.renderForBenchmark();const tick=()=>{for(const fn of stage0Ambient)fn(performance.now())};if(!r.fireOn)House.act('hs.fire');tick();const on=r.flames.some(f=>f.material.opacity>0);House.act('hs.fire');tick();return{on,off:r.flames.every(f=>f.material.opacity===0)}});assert(fire.on&&fire.off,'Gas fire retained its lit flames');
   // Live CRT: sized to its footprint, no mipmaps, throttled, nothing off camera.
-  await p.evaluate(()=>House.goRoom('bedroom',0));await view([-120,-55,160],[-216,-5,-16]);
+  const deferredView=await p.evaluate(async()=>{
+   House.goRoom('bedroom',0);const pending=House.gliding;
+   Object.assign(House.P,{x:-120,y:-55,z:160});
+   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>r(true))));
+   return{pending,overwritten:House.P.x!==-120||House.P.y!==-55||House.P.z!==160};
+  });
+  assert(deferredView.pending&&deferredView.overwritten,'Reproduce the deferred room move overwriting a test camera');
+  console.log('CRT camera race reproduced',JSON.stringify(deferredView));
+  await p.evaluate(()=>House.goRoom('bedroom',0));
+  // Even a zero-duration move settles on the next house frame. Positioning the
+  // test camera first races that move, which can put the CRT behind the viewer.
+  await until(()=>!House.gliding);await view([-120,-55,160],[-216,-5,-16]);
+  assert.deepEqual(await p.evaluate(()=>[House.P.x,House.P.y,House.P.z]),[-120,-55,160],'CRT camera stayed at the requested view');
   // The previous step stood in the lounge: the bedroom only comes back into view on the next rendered frame.
   await p.evaluate(()=>{House._.renderForBenchmark();return new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>r(true))))});
   const live=await p.evaluate(async()=>{
@@ -62,12 +75,12 @@ await withTestServer(async base=>{
   // The hidden counter (migrated above) survives a refresh.
   await p.waitForTimeout(700);assert(await p.locator('.hs-perf').isVisible());assert.match(await p.locator('.hs-perf').innerText(),/ms/);
   await p.screenshot({path:shots+'graphics-counter.png'});
-  await p.reload({waitUntil:'domcontentloaded'});await until(()=>AccountGate.allowed&&House.live&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'));
-  assert.equal(await p.evaluate(()=>House.graphicsGet().showFps),true,'Lost the counter');await p.evaluate(()=>House.showFps(false));
+  console.log('PERF reload starting');await p.reload({waitUntil:'domcontentloaded'});console.log('PERF reload DOM ready');await until(()=>AccountGate.allowed&&House.live&&!House.gliding&&!document.querySelector('.hs-loading,#houseEntry'));
+  console.log('PERF resumed house ready');assert.equal(await p.evaluate(()=>House.graphicsGet().showFps),true,'Lost the counter');await p.evaluate(()=>House.showFps(false));
   // No room GPU work once artwork decoding and all visual animation have settled.
   // The loading panel has a bounded timeout; late SVG covers may still finish and correctly request a draw.
   await p.evaluate(()=>{StoryGuide.setting('off');House.ambient.clear();House.anims.clear();House._.setMode('focus');House.hush();window.idleDraws=0;window.idleLast=performance.now();window.idleStacks=[];window.originalRender=House.ren.render;House.ren.render=function(...a){idleDraws++;idleLast=performance.now();if(idleStacks.length<8)idleStacks.push(new Error().stack);return originalRender.apply(this,a)}});
-  let settled=false;for(let i=0;i<450&&!settled;i++){settled=await p.evaluate(()=>performance.now()-idleLast>3000);if(!settled)await p.waitForTimeout(200)}assert(settled,'Room never became idle after artwork loading');
+  console.log('PERF idle check starting');let settled=false;for(let i=0;i<450&&!settled;i++){settled=await p.evaluate(()=>performance.now()-idleLast>3000);if(!settled)await p.waitForTimeout(200)}assert(settled,'Room never became idle after artwork loading');
   await p.evaluate(()=>{idleDraws=0;idleStacks=[]});await p.waitForTimeout(1900);
   const idle=await p.evaluate(()=>({draws:idleDraws,stacks:idleStacks,mode:House.mode,anims:[...House.anims.keys()],ambient:House.ambient.size}));console.log('IDLE CHECK',JSON.stringify(idle));assert.equal(idle.draws,0,'Settled idle room drew');await p.evaluate(()=>House.ren.render=originalRender);
   // Pacing: measured in a tiny buffer so software fill does not conceal it; never above the 120 Hz desktop cap.

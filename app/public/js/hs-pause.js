@@ -21,7 +21,7 @@
  <label>Guidance <select name="guidance"><option value="full">Full</option><option value="light">Light</option><option value="off">Off</option></select></label>
  <button type="button" data-pause="fullscreen">FULL-SCREEN GAME</button><p class="hs-pause-mouse">Mouse: automatic. Locked while walking; cursor available for screens, inspection and menus.</p></fieldset>
  <button type="button" data-pause="owner" hidden>OWNER TOOLS <kbd>&#96;</kbd></button>
- <fieldset><legend>JACKNET ACCOUNT</legend><button type="button" data-pause="logout">LOG OUT</button><div class="hs-logout-confirm" hidden><p>Save your room and settings, then return to Log On? Your account is kept.</p><button type="button" data-pause="confirmLogout">SAVE AND LOG OUT</button><button type="button" data-pause="cancelLogout">CANCEL</button></div></fieldset>
+ <fieldset><legend>JACKNET ACCOUNT</legend><button type="button" data-pause="identity">ABOUT YOU</button><button type="button" data-pause="logout">LOG OUT</button><div class="hs-logout-confirm" hidden><p>Save your room and settings, then return to Log On? Your account is kept.</p><button type="button" data-pause="confirmLogout">SAVE AND LOG OUT</button><button type="button" data-pause="cancelLogout">CANCEL</button></div></fieldset>
  <fieldset class="hs-test-reset" hidden><legend>TEST ACCOUNT ONLY</legend><p>Reset this test room, media, local game saves and balances. Daily limits, chores and shared-world records are kept. Other accounts are not affected.</p><button type="button" data-pause="resetTest">RESET TEST SAVE</button><div class="hs-test-confirm" hidden><p>Start the test save again? A server backup is kept.</p><button type="button" data-pause="confirmReset">YES, RESET TEST</button><button type="button" data-pause="cancelReset">CANCEL</button></div></fieldset>
  <details class="hs-pause-controls"><summary>KEYBOARD &amp; MOUSE</summary><p class="hs-pause-keys"><kbd>WASD</kbd> Walk · <kbd>Mouse</kbd> Look · <kbd>Shift</kbd> Jog<br><kbd>F</kbd> Use / look / play / sit · <kbd>E</kbd> Pick up / place<br><kbd>R</kbd> Turn · <kbd>Wheel</kbd> Distance<br><kbd>Q</kbd> Back / return item · <kbd>T</kbd> LOCK IN<br><kbd>C</kbd> Crouch · <kbd>Space</kbd> Jump · <kbd>Esc</kbd> Menu<span class="hs-owner-key" hidden><br><kbd>&#96;</kbd> Owner tools / god mode</span></p></details>
  <p class="hs-pause-status" role="status">Movement is stopped. Online programs and the TV keep running.</p></div>`;
@@ -72,6 +72,7 @@
   if(el.open||window.stDiary?.picking||!H.live||window.House?.god||window.OwnerTools?.active||window.AccountGate&&!AccountGate.allowed)return false;
   syncSettings();
   previous=el.contains(document.activeElement)?null:document.activeElement;el.querySelector('[name=crouchToggle]').checked=H.crouchSetting();if(H.motion)el.querySelector('[name=reduceMotion]').checked=H.motion.reduce;
+  button('identity').hidden=window.Net?.me.nick?.toLowerCase()==='jack';
   button('owner').hidden=!window.OwnerTools?.allowed;el.querySelector('.hs-owner-key').hidden=!window.OwnerTools?.allowed;
   el.querySelector('.hs-test-reset').hidden=!(window.Net?.me.member&&Net.me.nick.toLowerCase()==='test'&&localStorage.getItem('jhp_starter')==='1');el.querySelector('.hs-test-confirm').hidden=true;
   el.querySelector('.hs-logout-confirm').hidden=true;
@@ -85,6 +86,7 @@
  el.addEventListener('click',ev=>{
   const b=ev.target.closest('[data-pause]');if(!b)return;
   if(b.dataset.pause==='owner'){closeMenu();window.OwnerTools?.open();}
+  else if(b.dataset.pause==='identity'){closeMenu();window.AccountGate?.editIdentity();}
   else if(b.dataset.pause==='logout'){el.querySelector('.hs-logout-confirm').hidden=false;button('cancelLogout').focus();}
   else if(b.dataset.pause==='cancelLogout'){el.querySelector('.hs-logout-confirm').hidden=true;button('logout').focus();}
   else if(b.dataset.pause==='confirmLogout')logout();

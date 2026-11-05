@@ -141,7 +141,7 @@
       waitPay[id] = setTimeout(() => { delete waitPay[id]; jack('Job done: ' + C.short, 'Mom says she\'ll sort my money out later. (JackNet didn\'t answer. Is the modem plugged in?)'); }, 15000);
     } else {
       jack('Job done: ' + C.short, esc(cast(pick(DONE[id] || DONE._))) + '<br><small>Mom says ta, love. (Members of JackNet get paid Rupees for every job: Start &gt; Log Off, then pick a name. It\'s free!)</small>', 9000);
-      setTimeout(() => mom(cast(pick(['Ta, love!', 'Thank you, {me}!', 'Ooh, ta!', 'Good {me.lad}!']))), 1800);
+      setTimeout(() => mom(cast(pick(['Ta, love!', "Thank you!", 'Ooh, ta!', "Good helper!"]))), 1800);
       allCheck();
     }
   }
@@ -150,7 +150,7 @@
     const L = list(); if (!L.length || !L.every(id => S.done[id])) return;
     if (S.v._all) return; S.v._all = 1; save();
     secret('ch.all');
-    setTimeout(() => mom("Have you done ALL your jobs? Who are you and what have you done with {me}?"), 3500);
+    setTimeout(() => mom("Have you done ALL your jobs? Who are you and what have you done with my real helper?"), 3500);
   }
 
   // ================================================================ the server
@@ -214,6 +214,7 @@
   // ================================================================ talking: Mom (shouting from downstairs) and Jack (thinking)
   function mom(text, ms) {
     text = cast(text);
+    if(window.st?.speakLine)return st.speakLine('chore.shout','mom',text,{recordingText:text.replace(/\s*\(\d+%\)\s*$/,'')});
     try { if (window.HouseLife && HouseLife.voice) return HouseLife.voice('MOM', text, ms); } catch (e) {}
     H.say('MOM (shouting up the stairs)', esc(text), ms || 5000);
     const c = H.sfx.ac && H.sfx.ac(); if (c) { const n = Math.min(8, Math.ceil(text.length / 8)); for (let i = 0; i < n; i++) H.sfx.tone(190 + Math.random() * 80, 0.09, 'sawtooth', 0.012, i * 0.11, 150); }
@@ -535,7 +536,7 @@
 
   // ================================================================ Mom, every now and then (only while there's a job left on her list)
   let lastShout = Date.now(), shouts = 0;
-  const SHOUTS = ['{me.NAME}! Have you done your jobs yet?', '{me}! Those jobs won\'t do themselves!', '{me.NAME}! Get off that computer and do your jobs!', '{me}, love? The list on the fridge? Remember the list?', '{me.NAME}! I can hear you NOT doing your jobs!'];
+  const SHOUTS = ["Have you done your jobs yet?", "Those jobs won't do themselves!", "Get off that computer and do your jobs!", "Love? The list on the fridge? Remember the list?", "I can hear you NOT doing your jobs!"];
   const REPLY = ['(Yeah yeah. In a MINUTE.)', '(I\'m DOING it.)', '(Five more minutes...)', '(How does she KNOW?)'];
   setInterval(() => {
     if (!H.live || H.busy || document.hidden || shouts >= 3) return;

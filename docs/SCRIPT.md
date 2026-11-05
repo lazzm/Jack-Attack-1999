@@ -4,7 +4,7 @@ Written 2026-10-26. Source of truth for all spoken and on-screen story text. Fol
 
 ## Conventions
 - Setting: UK, 1999. Prices in pounds and pence; Rupees only via JackNet Bank (20 Rupees = £1). Mom, Dad and Gran are titles. Consoles use the parody names (Game Lad, Segue, PlaySpace, Ultra 64, Daydream); the magazine is JACK ATTACK!; the shop is Pixel Post; the PC is JackOS. Only the Daydream launch (14/10/1999) and the millennium countdown are real events, used lightly. No location clues, no birthday, nothing after 31/12/1999.
-- On-screen text may use Cast placeholders: {me}, {me.his}, {sister}, {mate1}..{mate4}. Recorded voice lines never contain the player's name, the sister's name, or a gendered word for the player (no "lad", "he", "she"); they are the exact subtitle text.
+- On-screen text may use Cast placeholders: {me}, {me.his}, {sister}, {mate1}..{mate4}. Recorded voice lines never contain the player's name, the sister's name, or a gendered word for the player (no "lad", "he", "she"); the `line` field keeps their exact recorded words. A separate `display` template may restore the player's name on screen without changing the recording.
 - Name call-outs: a line marked `callout=mom-shout|mom-call|dad-shout|sis-whine` plays the player's name clip ("SARAH!") first, then the line (subtitle: "{me.NAME}! " + line). With no matching name clip the line plays alone.
 - Emotion tag = the leading [bracket tag] given to the TTS (short, one or two words). fx=downstairs means the muffle filter (speaking from another room); fx=console is the crunchy console filter.
 - Table columns: id | speaker | when/where | emotion | line. Rows for mates and the player's thoughts are on-screen text only (no recording): id | who | when/where | text.
@@ -539,7 +539,7 @@ Open-ended, the rest of 1999. Goals rotate; the calendar (same day and month as 
 | `c4.xmas.gran3` | gran | Gran about the PC | amused | What's that? The internet? Does it do crosswords? \| |
 | `c4.xmas.gran4` | gran | Gran about the console | cheerful | A games machine? In my day we had a ball and a bit of string. And we were grateful. \| |
 | `c4.xmas.eve` | mom | Christmas Eve, bedtime | whisper | Hang your stocking up and off to bed. Father Christmas won't come if you're awake. \| |
-| `c4.xmas.eve.dad` | dad | Dad on the landing | whisper | Is he asleep yet? Good. Shh. I'm eating the mince pie. \| |
+| `c4.xmas.eve.dad.neutral` | dad | Dad on the landing; old ID aliases to this neutral recording | whisper | Is everyone asleep yet? Good. Shh. I am eating the mince pie. |
 | `c4.xmas.morn` | sister | 25/12 very early, sister at the door | shrieking | HE'S BEEN! HE'S BEEN! GET UP! GET UP! \| |
 | `c4.xmas.morn.mom` | mom | Mom, a minute after | sleepy | It's six in the morning. Go back to bed. Oh, who am I kidding? Go on, then. \| |
 | `c4.xmas.morn.dad` | dad | Dad at the tree | jolly | Merry Christmas, everyone! Let's see what he's brought. \| |
@@ -804,7 +804,7 @@ Not tied to a chapter. Barks fire from NPC routines (time of day, room, state). 
 | `mate.call.7` | mate3 | Mate3 has everything | {mate3}: "Yeah, I've got that. Finished it. Twice. Got the secret ending as well. It's rubbish." |
 | `mate.call.8` | mate3 | Mate3 about the Segue | {mate3}: "The Segue? Cool. My cousin's got one. She says it's got a hedgehog who runs really fast." |
 | `mate.call.9` | mate3 | Mate3 offering to lend | {mate3}: "I'll lend you my spare controller. Don't break it. Don't lose it. Don't let your sister touch it." |
-| `mate.call.10` | mate4 | Mate4 swapping | {mate4}: "Pocket Critters cards. I've got three Charzards. Don't ask where I got them." |
+| `mate.call.10` | mate4 | Mate4 swapping | {mate4}: "Pocket Critters cards. I've got three Charbroilers. Don't ask where I got them." |
 | `mate.call.11` | mate4 | Mate4 about prices | {mate4}: "Heard the Daydream's £199. That's forty weeks of pocket money. I've done the maths." |
 | `mate.call.12` | mate4 | Mate4 about demos | {mate4}: "Do you want to come round? I've got the demo disc. We can't save but we can pretend." |
 | `mate.call.13` | mate1 | Mate1 after school | {mate1}: "Did you do the maths homework? No? Me neither. Copy mine tomorrow." |
@@ -825,3 +825,367 @@ Not tied to a chapter. Barks fire from NPC routines (time of day, room, state). 
 - Phone-extension cable as a physical, clip-by-clip placeable object; modem/ISP installer; dial-up connection with a hang-up event.
 - Mates' phone-call and text engine with Cast slots; sister, Gran as characters.
 - Voice id convention: audio/voice/<id>.mp3 and <id>.name-<key>.mp3; fx filters at playback or at render time.
+
+# Runtime voice additions
+
+Audited 4 November 2026. These rows reconcile the spoken runtime with the recording catalogue. Neutral British only. Name-dependent family shouts now work without a name; the existing name call-outs remain supported. The four required retakes keep their IDs. The old Christmas Eve Dad ID remains an alias to the neutral replacement, with the old clip suppressed until that replacement exists.
+
+The Wobble Party host uses generic phrases for player names, scores and live button labels. Its original writing remains until the matching clip is installed, then the displayed line uses the recording’s exact words. Silent scores, objectives, diary pages, notes, chat and text messages are not voices. Uncast characters remain in VOICE-AUDIT.md for Jack’s decision.
+
+| id | speaker | when / where | emotion | line |
+|---|---|---|---|---|
+| `arena.announcer.14a4q40` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | You have lost the match. |
+| `arena.announcer.1cztk1n` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | rampage! |
+| `arena.announcer.1f8e5lv` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | Red team scores! |
+| `arena.announcer.1rkro3l` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | Multi Poof! |
+| `arena.announcer.1y252m8` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | Combo! |
+| `arena.announcer.2fn0rj` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | You have won the match! |
+| `arena.announcer.3lg1q9` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | unstoppable! |
+| `arena.announcer.3vxdme` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | dominating! |
+| `arena.announcer.7r5nkd` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | godlike! |
+| `arena.announcer.d7miq8` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | Blue team scores! |
+| `arena.announcer.e6muxl` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | poofing spree! |
+| `arena.announcer.gc44jq` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | Play! |
+| `arena.announcer.jrwjvq` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | First poof! |
+| `arena.announcer.lcj2l7` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | Double Poof! |
+| `arena.announcer.mktc0m` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | MONSTER POOF! |
+| `arena.announcer.yjtj8i` | announcer | Jackreal Tournament announcer; derived from server events, never player names; app/public/js/pcgames-jrt.js:534 | booming, neutral British | Ultra Poof! |
+| `game.wobble.host.110fa57` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2666 | booming, neutral British | NOBODY WON THAT ONE. NO COINS! |
+| `game.wobble.host.143a1lf` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2531 | booming, neutral British | THE SECRET MARBLE MISCHIEF DOOR IS OPEN IN THE MINIGAME HOUSE! |
+| `game.wobble.host.14iizcv` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1255 | booming, neutral British | NO COINS TO GIVE! PHEW. |
+| `game.wobble.host.15r76nk` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1232 | booming, neutral British | PICNIC TIME! EVERYBODY GETS 5 COINS. LOVELY! |
+| `game.wobble.host.1bhurkg` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2564 | booming, neutral British | WIN EVERY SINGLE MINIGAME AND YOU'RE A PROPER LEGEND. RIGHT, LET'S SEE WHO GOES FIRST! |
+| `game.wobble.host.1czxqcu` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1114 | booming, neutral British | THE STAR HAS FLOWN OFF TO A NEW SPOT! |
+| `game.wobble.host.1d2y5jj` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2569 | booming, neutral British | AND THE FIRST STAR IS... OVER THERE! GO AND GET IT! |
+| `game.wobble.host.1f6ot00` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2617 | booming, neutral British | YOU HAVEN'T GOT ANY ITEMS. THE SHOP SELLS THEM! |
+| `game.wobble.host.1fya5t0` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2710 | booming, neutral British | AND NOW... THE WINNER OF THIS WOBBLE PARTY IS... |
+| `game.wobble.host.1ja2uxa` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1093 | booming, neutral British | SUIT YOURSELF! IT'LL STILL BE HERE... PROBABLY. |
+| `game.wobble.host.1rkqxmi` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1214 | booming, neutral British | HONK! A GOOSE WADDLES UP AND PINCHES 5 COINS! |
+| `game.wobble.host.1syds4j` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2559 | booming, neutral British | WELCOME TO WOBBLE ISLAND! I'M MC WOBBLE, YOUR HOST WITH THE MOST! |
+| `game.wobble.host.1v12lh` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2738 | booming, neutral British | AND YOU WON EVERY SINGLE MINIGAME! A CLEAN SWEEP! LEGENDARY! |
+| `game.wobble.host.1w75573` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1090 | booming, neutral British | OH DEAR. COME BACK WITH MORE COINS! |
+| `game.wobble.host.1yrfw5o` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2562 | booming, neutral British | WHOEVER HAS THE MOST STARS AT THE END WINS. I'LL SWAP YOU A STAR FOR COINS. |
+| `game.wobble.host.1ysq7rd` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2685 | booming, neutral British | WHAT A PARTY! EVERYBODY TO THE PARTY STAGE FOR THE BONUS STARS! |
+| `game.wobble.host.2asyz9` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2563 | booming, neutral British | BLUE SPACES GIVE YOU 3 COINS, RED ONES TAKE 3 AWAY. AFTER EVERY TURN THERE'S A MINIGAME: WIN IT FOR 10 COINS! |
+| `game.wobble.host.2n6itx` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1171 | booming, neutral British | SWAP KAZOO! TIME TO SWAP PLACES! |
+| `game.wobble.host.5steas` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1148 | booming, neutral British | THANK YOU! COME AGAIN! |
+| `game.wobble.host.66rpmg` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2600 | booming, neutral British | ONLY THREE TURNS LEFT! FROM NOW ON, BLUE AND RED SPACES COUNT DOUBLE! |
+| `game.wobble.host.6pkgli` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1257 | booming, neutral British | NO STARS TO GIVE! PHEW. |
+| `game.wobble.host.6qi9t6` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1146 | booming, neutral British | YOU CAN'T AFFORD THAT ONE, SORRY! |
+| `game.wobble.host.ar7z9n` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1204 | booming, neutral British | THE COUNT'S DISCOUNT LEVER! BARGAIN STARS! |
+| `game.wobble.host.e7lqoo` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2737 | booming, neutral British | BAD LUCK! BETTER LUCK NEXT TIME! |
+| `game.wobble.host.g6mio8` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2697 | booming, neutral British | TIME FOR A BONUS STAR! |
+| `game.wobble.host.gt3to3` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1103 | booming, neutral British | YOU GOT A STAR! SPARKLY! |
+| `game.wobble.host.h6mg4g` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1165 | booming, neutral British | COIN MAGNET! 3 COINS FROM EVERYBODY! |
+| `game.wobble.host.h7wc9x` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1241 | booming, neutral British | STOP THE REELS! ANYTHING CAN HAPPEN! |
+| `game.wobble.host.it4hyq` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1089 | booming, neutral British | YOU FOUND THE STAR! FANCY A SWAP? |
+| `game.wobble.host.kj0owm` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2698 | booming, neutral British | NOBODY! NO BONUS STAR THIS TIME. |
+| `game.wobble.host.mju42` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1203 | booming, neutral British | THE CLOCK IS STILL WINDING! IT ADDS 9 COINS EACH ROUND. |
+| `game.wobble.host.nzkznm` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1138 | booming, neutral British | YOUR POCKETS ARE FULL! (THREE ITEMS MAX.) |
+| `game.wobble.host.qm0di3` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1227 | booming, neutral British | SWAP SHOP! TIME TO SWAP COINS! |
+| `game.wobble.host.t96fyl` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:2737 | booming, neutral British | WELL DONE! YOU'RE THE WOBBLE SUPERSTAR! |
+| `game.wobble.host.vy6gev` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1223 | booming, neutral British | STAR SHUFFLE! THE STAR GETS BORED AND HOPS AWAY! |
+| `game.wobble.host.ydyoml` | announcer | Wobble Party host MC Wobble; variable names/totals stay written until the generic clip exists; app/public/js/rm-g-party.js:1205 | booming, neutral British | THE WINDMILL PAYS ITS RENT! 5 COINS FOR EVERYBODY! |
+| `bf.code.wait.7q2fba` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:244 | firm, neutral British | Closed tin, water, pets indoors, watching line. Check all four first. Then we can talk about the taper. |
+| `bf.cooled.15r44gg` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:269 | firm, neutral British | Hot end down. Lovely. You remembered the important bit. Leave the wires in the water. |
+| `bf.dad.talk.1dguuhl` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:740 | firm, neutral British | Tin shut, bucket full, pets indoors, everyone behind the rope, long taper. Five checks. No cutting corners. |
+| `bf.dad.talk.1wfrt7z` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:740 | firm, neutral British | Safety checks all done. Dry wood only on the stack. Friday evening: torch at the rope, then supper. I do the lighting. |
+| `bf.display.away.15tnmi0` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:538 | firm, neutral British | The display will carry on. Come back behind the rope when you are ready; you can still finish watching. |
+| `bf.display.checks.1fqatvb` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:480 | firm, neutral British | Finish the dry stack and all five Firework Code checks first. |
+| `bf.display.resume.1lc7fy1` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:483 | firm, neutral British | You are back! All finished safely. Stay at the rope while I check everything. |
+| `bf.display.resume.z6a2bk` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:483 | firm, neutral British | The display carried on. Come back behind the rope and look up. |
+| `bf.display.start.14xltvy` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:482 | firm, neutral British | Missed Friday? I saved a few. No jobs tonight: just stay behind the rope and watch. I do all the lighting. The show carries on if you leave; come back here to finish. |
+| `bf.display.start.f55ktr` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:482 | firm, neutral British | I have checked for animals. Torch this way, everyone behind the rope. I light one, then come back. The display carries on if you leave; come back to the rope to finish. |
+| `bf.display.time.1dhhkkv` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:479 | firm, neutral British | Half past six until ten in the evening. Warm things on, and watch from the rope. |
+| `bf.end.aqcnqs` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:753 | firm, neutral British | All finished. I am making everything safe. Stay here while I check. Thank you for watching from the rope! |
+| `bf.history.18sdxer` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:314 | firm, neutral British | Bonfire Night remembers a plot in 1605 to blow up Parliament. Our Guy is old clothes and newspaper. Dad nearly donated his good trousers. |
+| `bf.lead.2w6y11` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:685 | firm, neutral British | Bonfire Night on Friday. Help me stack the dry garden wood, and you two can make a Guy. Closed firework tin stays with me. |
+| `bf.line.2cmfdz` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:238 | firm, neutral British | Everyone stays behind the rope. Always follow the distance on the box. Never throw fireworks and NEVER go back to one, even if it has gone quiet. Leave it to me. |
+| `bf.rocket.1a6z6bq` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:502 | firm, neutral British | Here comes the rocket. Stay back. Never go back to a firework, even if it seems to have stopped. |
+| `bf.sparkler.done.110908g` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:263 | firm, neutral British | Hot wire into the bucket now, please. |
+| `bf.sparkler.done.72262s` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:263 | firm, neutral British | That was lovely. All the hot wires are in the water. Supper time. |
+| `bf.sparkler.wait.1o96ayr` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:261 | firm, neutral British | Display first, sparklers afterwards. I have not forgotten. |
+| `bf.tail.talk.times.8y9bbq` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:739 | firm, neutral British | Cold sticks in the bin. Leave the ash alone. If you missed Friday, I saved leftovers for the evening, half past six until ten. |
+| `bf.tail.tw78cy` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:687 | firm, neutral British | I have damped the fire right down and checked the cold rubbish. Sticks and wrappers into the bin, please. Leave the ash alone; I will check it again. |
+| `bf.taper.te7i05` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:245 | firm, neutral British | A long taper, at arm length. One adult in charge: me. Check! We light the bonfire after checking it for animals. No petrol or paraffin. All ready for Friday evening. |
+| `bf.tin.1dmucg3` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:228 | firm, neutral British | Shop-bought, in their closed tin, up out of reach. No fireworks in pockets. I read the instructions and light one at a time. You watch from behind the rope. |
+| `bf.water.1vy2tmp` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:231 | firm, neutral British | Bucket filled and parked behind the rope. Used sparklers go in hot end first. The wire stays hot, even when it looks cold. |
+| `bf.wood.ncj5f5` | dad | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:122 | firm, neutral British | Dry wood and cardboard only. Paper, then kindling. No aerosols, glass, paint, plastic or fireworks on the fire. We check for hedgehogs before lighting. |
+| `house.moment.1djssky` | dad | Time-of-day house shout; app/public/js/hs-life.js:69 | calling, neutral British | Bed! Now! |
+| `house.moment.hwj5im` | dad | Time-of-day house shout; app/public/js/hs-life.js:71 | calling, neutral British | Is that the Internet on? Do you know how much those phone calls cost? |
+| `house.moment.wd8c5e` | dad | Time-of-day house shout; app/public/js/hs-life.js:68 | calling, neutral British | Have you been using the phone? The bill came. |
+| `house.voice.h701ve` | dad | House welcome, shout or event; app/public/js/hs-telly.js:411 | calling, neutral British | TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT! |
+| `hw.dad.match.hliuf7` | dad | Halloween, physical preparation / door; app/public/js/season-halloween.js:678 | warm, neutral British | Hang on, matches are my job. Long match, arm's length... there we go. |
+| `hw.dad.safe.l28lnk` | dad | Halloween, physical preparation / door; app/public/js/season-halloween.js:1015 | warm, neutral British | Only knock on doors with the lights on, and never go in anyone's house. Mom's rules. And mine. |
+| `st.carry.4c83tp` | dad | Dad explains computer carrying; app/public/js/st-opening.js:50 | warm, neutral British | E carries it. Take it to the marked place on your desk. Q puts it back safely. |
+| `st.carry.wzg82y` | dad | Dad explains computer carrying; app/public/js/st-opening.js:50 | warm, neutral British | Plug in the marked leads, then press the power button. |
+| `st.opening.dad.165n9l8` | dad | Story fallback when family cannot deliver in person; app/public/js/st-engine.js:141 | warm, neutral British | The office is chucking out the old computers. Mine is in the boot if you want it. Mind the monitor: it weighs a ton! |
+| `st.opening.lead.power.1h9zqa3` | dad | Story fallback when family cannot deliver in person; app/public/js/st-engine.js:143 | warm, neutral British | Everything on the desk? Plug the leads into the matching sockets, then try the big button. |
+| `st.opening.part.monitor.inylew` | dad | Story fallback when family cannot deliver in person; app/public/js/st-engine.js:142 | warm, neutral British | Both hands on that monitor. No running on the stairs. |
+| `st.opening.pc.oltv5s` | dad | Story fallback when family cannot deliver in person; app/public/js/st-engine.js:144 | warm, neutral British | There you go. Your own computer. Try not to fill it with games. |
+| `phone.in.0.17arros` | gran | Incoming landline call; app/public/js/hs-life.js:89 | warm, neutral British | Hello love! It's Gran. Is your Mom there? ...No? Never mind. |
+| `phone.in.0.1fq2uuq` | gran | Incoming landline call; app/public/js/hs-life.js:89 | warm, neutral British | Are you still playing on that computer? Your Grandad says it'll make your eyes go square. |
+| `phone.in.0.1qgwsdv` | gran | Incoming landline call; app/public/js/hs-life.js:89 | warm, neutral British | Are you eating properly? You're still growing. I've knitted you a jumper. It's got a reindeer on it. |
+| `phone.in.0.reply.0.tcd887` | gran | Caller responds to player choice; app/public/js/hs-life.js:89 | warm, neutral British | Lovely. I'll send it in the post. Bye love! Bye! Bye bye! Bye! |
+| `phone.in.0.reply.1.isje3h` | gran | Caller responds to player choice; app/public/js/hs-life.js:89 | warm, neutral British | Ooh. Well, as long as you're happy. Love to your Mom. Bye love! Bye bye! |
+| `phone.out.01632960213.1c5kgqp` | gran | Outgoing landline call; app/public/js/hs-life.js:174 | warm, neutral British | Hello? Ooh, you never ring! Eating properly? Grandad says hello. HE SAYS HELLO. Bye, love! Bye! Bye bye! |
+| `bf.already.food.otebpt` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:319 | warm, neutral British | Supper is on the garden table. Help yourself. |
+| `bf.carry.food.1ar533q` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:321 | warm, neutral British | E carries the tray to the little garden table. Gloves on, mind. |
+| `bf.cat.check.1q6dwpi` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:575 | warm, neutral British | The cat is indoors. Keep the bedroom window shut tonight. Give the cat a quiet place to hide when the bangs start. |
+| `bf.cat.check.3jrkba` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:575 | warm, neutral British | The cat is safely indoors, hiding under the bed. Let the cat stay cosy. |
+| `bf.cat.check.p22a1x` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:575 | warm, neutral British | The cat is indoors. Keep the bedroom window shut for the display. Give the cat a quiet place to hide when the bangs start. |
+| `bf.cat.safe.1n6nrdc` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:583 | warm, neutral British | The cat is safely indoors, hiding under the bed. Let the cat stay cosy. We will feed the cat when the bangs have stopped. |
+| `bf.cat.w6iuui` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:274 | warm, neutral British | The cat is indoors with the curtains shut. Let the cat hide under the bed; keep the noise down in here. No need to pull the cat out. |
+| `bf.day.5k1dof` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:686 | warm, neutral British | Bonfire Night! Potatoes, parkin and warm gloves. The washing is in and Dad has put the whirly line away. Keep the cat indoors. |
+| `bf.finale.1gp0jav` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:502 | warm, neutral British | Ooooh! Look at those gold ones. Like golden rain! |
+| `bf.gloves.wait.prep.8fedwg` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:252 | warm, neutral British | Hat, gloves, wellies ready for Bonfire Night. Do the Firework Code with Dad before the sparklers. |
+| `bf.gloves.wait.wmjtee` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:252 | warm, neutral British | Hat, gloves, wellies. It will be cold tonight. Do the Firework Code with Dad before the sparklers. |
+| `bf.mom.talk.1ypwr09` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:742 | warm, neutral British | Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Then warm clothes on. No cold fingers tonight. |
+| `bf.mom.talk.late.1ogjaal` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:741 | warm, neutral British | It is getting late. Help me put the supper things away, then off to bed. |
+| `bf.mom.talk.prep.ouvann` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:742 | warm, neutral British | Jacket potatoes with cheese and beans, sticky parkin and treacle toffee. Help at the kitchen worktop. Have warm clothes ready for Bonfire Night. No cold fingers when we watch the display. |
+| `bf.parkin.tzx22w` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:220 | warm, neutral British | Sticky ginger cake. Best made a day or two ahead. There is treacle toffee too. You can help with the potatoes; I do the hot oven and hot sugar. |
+| `bf.sparkler.gloves.hhvm6u` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:262 | warm, neutral British | Gloves first! They are on the stool by the back door. |
+| `bf.supper.1cixt9h` | mom | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:213 | warm, neutral British | Cheese and beans in your jacket potato? Parkin in the tin, treacle toffee on the plate. Mind your teeth. Hot sugar is my job, thank you. |
+| `chore.rating.16wxa7r` | mom | Server-selected chore rating; app/public/js/ch-cat.js:131 | warm, neutral British | Did you actually do it or just move it about? |
+| `chore.shout.106ah51` | mom | Chore completion / reminder; app/public/js/ch-core.js:144 | warm, neutral British | Ooh, ta! |
+| `chore.shout.12cu3fo` | mom | Chore completion / reminder; app/public/js/ch-core.js:194 | warm, neutral British | Ta, love. |
+| `chore.shout.1lof225` | mom | Chore completion / reminder; app/public/js/ch-core.js:547 | warm, neutral British | Those jobs won't do themselves! |
+| `chore.shout.1ss7a6t` | mom | Chore completion / reminder; app/public/js/ch-core.js:547 | warm, neutral British | I can hear you NOT doing your jobs! |
+| `chore.shout.1y83zff` | mom | Chore completion / reminder; app/public/js/ch-core.js:144 | warm, neutral British | Thank you! |
+| `chore.shout.9bcrpq` | mom | Chore completion / reminder; app/public/js/ch-core.js:547 | warm, neutral British | Love? The list on the fridge? Remember the list? |
+| `chore.shout.a506t6` | mom | Chore completion / reminder; app/public/js/ch-core.js:547 | warm, neutral British | Get off that computer and do your jobs! |
+| `chore.shout.bdi29n` | mom | Chore completion / reminder; app/public/js/ch-core.js:144 | warm, neutral British | Good helper! |
+| `chore.shout.y5q1ps` | mom | Chore completion / reminder; app/public/js/ch-core.js:547 | warm, neutral British | Have you done your jobs yet? |
+| `chore.shout.zuxo6x` | mom | Chore completion / reminder; app/public/js/ch-core.js:144 | warm, neutral British | Ta, love! |
+| `dialer.01632960777.1wxgtgo` | mom | JackOS Phone Dialer call; app/public/js/apps-programs.js:2132 | warm, neutral British | Have you done your homework? |
+| `dialer.01632960777.n7bz0i` | mom | JackOS Phone Dialer call; app/public/js/apps-programs.js:2132 | warm, neutral British | Hello? Is everything alright? You're not on the Internet, are you? I can't ring home when you're on the Internet! |
+| `house.moment.14u1i62` | mom | Time-of-day house shout; app/public/js/hs-life.js:71 | calling, neutral British | Get off the Internet! I need to ring your Nan! |
+| `house.moment.18qfxaa` | mom | Time-of-day house shout; app/public/js/hs-life.js:72 | calling, neutral British | I'm popping to the shops. Do you want anything? ...Besides a Daydream. |
+| `house.moment.1dd6ufc` | mom | Time-of-day house shout; app/public/js/hs-life.js:68 | calling, neutral British | It's a school night. Not too late, eh? |
+| `house.moment.1gm6uua` | mom | Time-of-day house shout; app/public/js/hs-life.js:71 | calling, neutral British | Are you on that computer AGAIN? |
+| `house.moment.1hou2xu` | mom | Time-of-day house shout; app/public/js/hs-life.js:64 | calling, neutral British | You'll be late for school! Have you had any breakfast? |
+| `house.moment.1ibhhmo` | mom | Time-of-day house shout; app/public/js/hs-life.js:64 | calling, neutral British | Are you up? It's gone eight! Lazybones! |
+| `house.moment.1kgk76z` | mom | Time-of-day house shout; app/public/js/hs-life.js:69 | calling, neutral British | Turn that light off, love, it's late. |
+| `house.moment.1qhk3rh` | mom | Time-of-day house shout; app/public/js/hs-life.js:67 | calling, neutral British | Set the table please, love! |
+| `house.moment.1qsooir` | mom | Time-of-day house shout; app/public/js/hs-life.js:67 | calling, neutral British | Tea in five minutes! Wash your hands! |
+| `house.moment.1trq0u8` | mom | Time-of-day house shout; app/public/js/hs-life.js:66 | calling, neutral British | Come and get your washing, it's on the stairs! |
+| `house.moment.1wxgtgo` | mom | Time-of-day house shout; app/public/js/hs-life.js:66 | calling, neutral British | Have you done your homework? |
+| `house.moment.hypeuv` | mom | Time-of-day house shout; app/public/js/hs-life.js:65 | calling, neutral British | Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day. |
+| `house.moment.p8fwe0` | mom | Time-of-day house shout; app/public/js/hs-life.js:64 | calling, neutral British | Have you seen my car keys? |
+| `house.moment.qrvops` | mom | Time-of-day house shout; app/public/js/hs-life.js:73 | calling, neutral British | We're going to Gran's for Sunday dinner at one! Wear something clean! |
+| `house.moment.uar218` | mom | Time-of-day house shout; app/public/js/hs-life.js:67 | calling, neutral British | TEA'S READY! It'll go cold! |
+| `house.moment.y9voiz` | mom | Time-of-day house shout; app/public/js/hs-life.js:66 | calling, neutral British | Your friend's Mom rang. Are you going round there? |
+| `house.moment.zpcfic` | mom | Time-of-day house shout; app/public/js/hs-life.js:68 | calling, neutral British | Do you want a cup of tea? |
+| `house.voice.19srweb` | mom | House welcome, shout or event; app/public/js/hs-life.js:388 | calling, neutral British | Is that you? Tea's nearly ready! |
+| `house.voice.1pe2qdm` | mom | House welcome, shout or event; app/public/js/hs-life.js:388 | calling, neutral British | Is that you coming down? Put the kettle on, love! |
+| `house.voice.1wn5usl` | mom | House welcome, shout or event; app/public/js/hs-life.js:115 | calling, neutral British | Wrong number. AGAIN. Someone wanting a Chinese. |
+| `house.voice.52jrk6` | mom | House welcome, shout or event; app/public/js/hs-life.js:115 | calling, neutral British | That was your friend! Are you coming out? |
+| `house.voice.c27ds0` | mom | House welcome, shout or event; app/public/js/hs-life.js:239 | calling, neutral British | Here's your pocket money. Five pounds. Don't spend it all on games magazines. |
+| `house.voice.dg5evy` | mom | House welcome, shout or event; app/public/js/hs-life.js:115 | calling, neutral British | That was your Gran. She says you never ring her. |
+| `house.voice.y87tqf` | mom | House welcome, shout or event; app/public/js/hs-life.js:115 | calling, neutral British | Was that the phone? Did you not hear it?! |
+| `hw.mom.clocks.1ekmlu0` | mom | Halloween, physical preparation / door; app/public/js/season-halloween.js:1174 | warm, neutral British | And the clocks went back last night. An extra hour in bed, and I'm STILL tired. |
+| `hw.mom.door.7duwbw` | mom | Halloween, physical preparation / door; app/public/js/season-halloween.js:990 | warm, neutral British | Door! I've got my hands full. |
+| `hw.mom.door.iezetz` | mom | Halloween, physical preparation / door; app/public/js/season-halloween.js:990 | warm, neutral British | Door! More of them! |
+| `hw.mom.door.le11aj` | mom | Halloween, physical preparation / door; app/public/js/season-halloween.js:990 | warm, neutral British | That'll be the Witch Brigade again. Door! |
+| `hw.mom.door.p08w90` | mom | Halloween, physical preparation / door; app/public/js/season-halloween.js:990 | warm, neutral British | Can you get that? |
+| `hw.mom.door2.1c95o5l` | mom | Halloween, physical preparation / door; app/public/js/season-halloween.js:991 | warm, neutral British | They're still waiting at the door! |
+| `hw.mom.five.1eab0yr` | mom | Halloween, physical preparation / door; app/public/js/season-halloween.js:1098 | warm, neutral British | Five lots! The neighbours will think we're ever so organised. |
+| `hw.mom.hand.1x0lkzj` | mom | Halloween, physical preparation / door; app/public/js/season-halloween.js:745 | warm, neutral British | Away from your hand! Saw AWAY from your hand. |
+| `hw.mom.lead.1roevnu` | mom | Halloween, physical preparation / door; app/public/js/season-halloween.js:1173 | warm, neutral British | I've got a pumpkin for you two to carve. It's on the kitchen table. Newspaper down first, please! |
+| `hw.mom.porch.d7yfts` | mom | Halloween, physical preparation / door; app/public/js/season-halloween.js:1088 | warm, neutral British | Porch light on, love. No light, no trick-or-treaters. That's the rule. |
+| `hw.mom.tail.ourgck` | mom | Halloween, physical preparation / door; app/public/js/season-halloween.js:1176 | warm, neutral British | Look at the state of this hall. Wrappers everywhere! Bin, please. And who ate all the Choc Bits? |
+| `st.opening.bed.hra5bz` | mom | Story fallback when family cannot deliver in person; app/public/js/st-engine.js:139 | warm, neutral British | Much better. Now straighten that bed, please. |
+| `st.opening.bin.lnlsdo` | mom | Story fallback when family cannot deliver in person; app/public/js/st-engine.js:140 | warm, neutral British | One last job: bring the bin bag down to the kitchen. |
+| `st.opening.meetmom.p0ty2g` | mom | Story fallback when family cannot deliver in person; app/public/js/st-engine.js:137 | warm, neutral British | Morning, love. Room first, then you can do what you like. Clothes in the basket, rubbish in the bin, plates down to the kitchen. |
+| `st.opening.tidy.1d8mogt` | mom | Story fallback when family cannot deliver in person; app/public/js/st-engine.js:138 | warm, neutral British | First things first: clothes in the basket, rubbish in the bin. And bring your dishes down! |
+| `bf.already.guy.1f4ztpk` | sister | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:319 | cheeky, neutral British | Our Guy is sitting in the garden, guarding the parkin. |
+| `bf.carry.guy.13p6v71` | sister | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:320 | cheeky, neutral British | E carries him out to his garden chair. Careful with his head! |
+| `bf.display.done.1lj1fzs` | sister | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:477 | cheeky, neutral British | The golden one was my favourite! |
+| `bf.guy.135iti6` | sister | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:313 | cheeky, neutral British | Dad said we could have his OLD clothes. Not his work trousers. I have checked twice. |
+| `bf.guy.ready.16vdl6h` | sister | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:188 | cheeky, neutral British | He looks just like Dad on a Sunday. Can we keep him? Penny for the Guy! He only takes pretend pennies. |
+| `bf.sister.talk.1gj0870` | sister | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:743 | cheeky, neutral British | Will you help me stuff the Guy? Dad's old shirt is on the kitchen table. He says it was fashionable once. |
+| `bf.sister.talk.1kq0e9g` | sister | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:743 | cheeky, neutral British | Remember, remember, the fifth of November! I remembered. Dad forgot where he put his hat. |
+| `bf.wheel.qsib2` | sister | Bonfire Night, physical preparation / display; app/public/js/season-bonfire.js:502 | cheeky, neutral British | A Catherine wheel! It is doing cartwheels! |
+| `house.moment.1ci1e5k` | sister | Time-of-day house shout; app/public/js/hs-life.js:68 | cheeky, neutral British | Can I have a go on the Game Lad? Pleeeeease? |
+| `house.moment.vtvqfy` | sister | Time-of-day house shout; app/public/js/hs-life.js:66 | cheeky, neutral British | MOM! They're being annoying! |
+| `hw.sis.bat.1p6s4es` | sister | Halloween, physical preparation / door; app/public/js/season-halloween.js:434 | cheeky, neutral British | Higher! No, lower! Perfect. It's watching you. |
+| `hw.sis.ghost.b0szgt` | sister | Halloween, physical preparation / door; app/public/js/season-halloween.js:434 | cheeky, neutral British | Now the whole street can see him. His name is Gerald. |
+| `hw.sis.scoop.j7h9ib` | sister | Halloween, physical preparation / door; app/public/js/season-halloween.js:746 | cheeky, neutral British | Ewww! It looks like brains. Can I keep the seeds? |
+| `c4.xmas.eve.dad.neutral` | dad | Christmas Eve, Dad whispers while eating Father Christmas’s mince pie; replaces the gendered player reference in the legacy recording. | warm, neutral British | Is everyone asleep yet? Good. Shh. I am eating the mince pie. |
+| `chore.shout.1of6vkv` | mom | Chore completion / reminder; numerical rating stays written; app/public/js/ch-core.js:153 | warm, neutral British | Have you done ALL your jobs? Who are you and what have you done with my real helper? |
+| `house.voice.1o2t39k` | mom | House welcome, shout or event; app/public/js/hs-life.js:376 | calling, neutral British | School! Shoes on, bag ready, out you go! |
+| `house.voice.1p91ht0` | mom | House welcome, shout or event; app/public/js/hs-life.js:376 | calling, neutral British | Tea is ready! Come and get it before it goes cold! |
+| `house.voice.6sjah6` | mom | House welcome, shout or event; app/public/js/hs-life.js:376 | calling, neutral British | Saturday pocket money! Check with me when your jobs are done. |
+| `house.voice.v8d3ia` | mom | House welcome, shout or event; app/public/js/hs-life.js:376 | calling, neutral British | Time for bed. Save your game. |
+| `house.voice.zrj5mn` | mom | House welcome, shout or event; app/public/js/hs-life.js:217 | calling, neutral British | Ooh, have you done ALL your jobs? Who are you and what have you done with my real helper? |
+| `fight.announcer.17hxufs` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | FIGHT! |
+| `fight.announcer.1b3s3ij` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | FINAL ROUND |
+| `fight.announcer.1bpvjq6` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | RING OUT! |
+| `fight.announcer.1gqag2d` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | K.O. |
+| `fight.announcer.1i0ze0n` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | TRAINING |
+| `fight.announcer.1s3wltc` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | ROUND 1 |
+| `fight.announcer.1snvt7a` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | ROUND 3 |
+| `fight.announcer.1sxvew9` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | ROUND 2 |
+| `fight.announcer.1t7v0l8` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | ROUND 5 |
+| `fight.announcer.1thuma7` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | ROUND 4 |
+| `fight.announcer.1tru7z6` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | ROUND 7 |
+| `fight.announcer.1u1tto5` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | ROUND 6 |
+| `fight.announcer.1ubtfd4` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | ROUND 9 |
+| `fight.announcer.1ult123` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | ROUND 8 |
+| `fight.announcer.1vahgr4` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | DOUBLE K.O. |
+| `fight.announcer.mnmu8j` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | DRAW |
+| `fight.announcer.mwpmc1` | announcer | Shared console fighting-game announcer; round/result cue; app/public/js/rm-g-fightkit.js:943 | booming, neutral British | TIME UP |
+| `game.wobble.host.146dks4` | announcer | Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:867, app/public/js/rm-g-party.js:1183, app/public/js/rm-g-party.js:1239 | booming, neutral British | LET'S SEE WHAT THE REELS HAVE DECIDED! |
+| `game.wobble.host.1n2x0pa` | announcer | Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:861, app/public/js/rm-g-party.js:1222 | booming, neutral British | A COIN GEYSER! WHOOSH! |
+| `game.wobble.host.1wafoa1` | announcer | Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:856, app/public/js/rm-g-party.js:1101 | booming, neutral British | THE STAR HAS BEEN FOUND! |
+| `game.wobble.host.1wf6wxm` | announcer | Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:859, app/public/js/rm-g-party.js:1175 | booming, neutral British | TWIN DICE! TWO BLOCKS! |
+| `game.wobble.host.1yus1o0` | announcer | Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:866, app/public/js/rm-g-party.js:2677 | booming, neutral British | THE WINNERS GET TEN COINS! |
+| `game.wobble.host.8oxsmd` | announcer | Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:864, app/public/js/rm-g-party.js:2605 | booming, neutral British | LET'S SEE WHO GOES FIRST! EVERYBODY STARTS WITH TEN COINS. |
+| `game.wobble.host.ogoqhi` | announcer | Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:862, app/public/js/rm-g-party.js:1230 | booming, neutral British | WOBBLE WARP! WHEEE! OFF WE GO! |
+| `game.wobble.host.q55w08` | announcer | Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:860, app/public/js/rm-g-party.js:1215 | booming, neutral British | DING DONG! THE CLOCKWORK JACKPOT PAYS OUT! |
+| `game.wobble.host.vvc01w` | announcer | Wobble Party generic announcer variant; original writing remains until recorded; app/public/js/rm-g-party.js:865, app/public/js/rm-g-party.js:2615 | booming, neutral British | LAST PLACE? HAVE TEN COINS TO CATCH UP! |
+
+## Every family wording change
+
+These remove chosen names or gendered player references, retain the joke, or remove a real historical person from the recording. Cat names also become generic so one clip works for every cast.
+
+| Source | Before | After |
+|---|---|---|
+| app/public/js/hs-life.js:63 | {me.NAME}! You'll be late for school! Have you had any breakfast? | You'll be late for school! Have you had any breakfast? |
+| app/public/js/hs-life.js:63 | {me}, are you up? It's gone eight! Lazybones! | Are you up? It's gone eight! Lazybones! |
+| app/public/js/hs-life.js:63 | {me}, have you seen my car keys? | Have you seen my car keys? |
+| app/public/js/hs-life.js:64 | {me}? Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day. | Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day. |
+| app/public/js/hs-life.js:65 | {me}, have you done your homework? | Have you done your homework? |
+| app/public/js/hs-life.js:65 | {me}! Come and get your washing, it's on the stairs! | Come and get your washing, it's on the stairs! |
+| app/public/js/hs-life.js:65 | MOOOOOM! {me}'s being annoying! | MOM! They're being annoying! |
+| app/public/js/hs-life.js:65 | {me}, {mate1}'s Mom rang. Are you going round there? | Your friend's Mom rang. Are you going round there? |
+| app/public/js/hs-life.js:66 | {me.NAME}! TEA'S READY! It'll go cold! | TEA'S READY! It'll go cold! |
+| app/public/js/hs-life.js:66 | {me}, set the table please, love! | Set the table please, love! |
+| app/public/js/hs-life.js:67 | {me}, it's a school night. Not too late, eh? | It's a school night. Not too late, eh? |
+| app/public/js/hs-life.js:67 | {me}! Have you been using the phone? The bill came. | Have you been using the phone? The bill came. |
+| app/public/js/hs-life.js:67 | {me}, do you want a cup of tea? | Do you want a cup of tea? |
+| app/public/js/hs-life.js:67 | {me}, can I have a go on the Game Lad? Pleeeeease? | Can I have a go on the Game Lad? Pleeeeease? |
+| app/public/js/hs-life.js:68 | {me}! Bed! Now! | Bed! Now! |
+| app/public/js/hs-life.js:68 | {me}, turn that light off, love, it's late. | Turn that light off, love, it's late. |
+| app/public/js/hs-life.js:70 | {me}, are you on that computer AGAIN? | Are you on that computer AGAIN? |
+| app/public/js/hs-life.js:70 | {me}! Get off the Internet! I need to ring your Nan! | Get off the Internet! I need to ring your Nan! |
+| app/public/js/hs-life.js:71 | {me}, I'm popping to the shops. Do you want anything? ...Besides a Daydream. | I'm popping to the shops. Do you want anything? ...Besides a Daydream. |
+| app/public/js/hs-life.js:72 | {me}, we're going to Gran's for Sunday dinner at one! Wear something clean! | We're going to Gran's for Sunday dinner at one! Wear something clean! |
+| app/public/js/hs-life.js:88 | Are you eating properly? You're a growing {me.lad}. I've knitted you a jumper. It's got a reindeer on it. | Are you eating properly? You're still growing. I've knitted you a jumper. It's got a reindeer on it. |
+| app/public/js/hs-life.js:114 | {me}! That was {mate1}! {mate1.He} says are you coming out? | That was your friend! Are you coming out? |
+| app/public/js/hs-life.js:114 | {me}, that was your Gran. She says you never ring her. | That was your Gran. She says you never ring her. |
+| app/public/js/hs-life.js:172 | Hello? Who is it? {me.NAME}! Ooh, you never ring! Is everything all right? Are you eating? Your Grandad says hello. HE SAYS HELLO. Bye love! Bye! Bye bye! | Hello? Ooh, you never ring! Eating properly? Grandad says hello. HE SAYS HELLO. Bye, love! Bye! Bye bye! |
+| app/public/js/hs-life.js:215 | Ooh, have you done ALL your jobs? Who are you and what have you done with {me}? | Ooh, have you done ALL your jobs? Who are you and what have you done with my real helper? |
+| app/public/js/hs-life.js:237 | {me}! Here's your pocket money. Five pounds. Don't spend it all on games magazines. | Here's your pocket money. Five pounds. Don't spend it all on games magazines. |
+| app/public/js/hs-life.js:373 | Time for bed, {me}. Save your game. | Time for bed. Save your game. |
+| app/public/js/hs-life.js:386 | {me}! Is that you? Tea's nearly ready! | Is that you? Tea's nearly ready! |
+| app/public/js/hs-life.js:386 | {me}? Is that you coming down? Put the kettle on, love! | Is that you coming down? Put the kettle on, love! |
+| app/public/js/hs-telly.js:411 | {me.NAME}! TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT! | TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT! |
+| app/public/js/season-bonfire.js:273 | {cat} is indoors with the curtains shut. Let {cat.him} hide under the bed; keep the noise down in here. No need to pull {cat.him} out. | The cat is indoors with the curtains shut. Let the cat hide under the bed; keep the noise down in here. No need to pull the cat out. |
+| app/public/js/season-bonfire.js:313 | Guy Fawkes was part of the Gunpowder Plot in 1605. They planned to blow up Parliament, but the plot was stopped. We remember the fifth of November. Our Guy is just old clothes and newspaper. | Bonfire Night remembers a plot in 1605 to blow up Parliament. Our Guy is old clothes and newspaper. Dad nearly donated his good trousers. |
+| app/public/js/season-bonfire.js:574 | {cat} is safely indoors, hiding under the bed. Let {cat.him} stay cosy. | The cat is safely indoors, hiding under the bed. Let the cat stay cosy. |
+| app/public/js/season-bonfire.js:574 | {cat} is indoors. Keep the bedroom window shut tonight. Give {cat.him} a quiet place to hide when the bangs start. | The cat is indoors. Keep the bedroom window shut tonight. Give the cat a quiet place to hide when the bangs start. |
+| app/public/js/season-bonfire.js:574 | {cat} is indoors. Keep the bedroom window shut for the display. Give {cat.him} a quiet place to hide when the bangs start. | The cat is indoors. Keep the bedroom window shut for the display. Give the cat a quiet place to hide when the bangs start. |
+| app/public/js/season-bonfire.js:582 | {cat} is safely indoors, hiding under the bed. Let {cat.him} stay cosy. We will feed {cat.him} when the bangs have stopped. | The cat is safely indoors, hiding under the bed. Let the cat stay cosy. We will feed the cat when the bangs have stopped. |
+| app/public/js/ch-cat.js:132 | Ooh! Who are you and what have you done with {me}? | Ooh! Who are you and what have you done with my real helper? |
+| app/public/js/ch-cat.js:132 | Gold star, love. GOLD STAR. | Gold star. GOLD STAR. |
+| app/public/js/ch-cat.js:133 | Good {me.lad}. See, that wasn't so hard, was it? | See, that wasn't so hard, was it? |
+| app/public/js/ch-core.js:144 | Thank you, {me}! | Thank you! |
+| app/public/js/ch-core.js:144 | Good {me.lad}! | Good helper! |
+| app/public/js/ch-core.js:153 | Have you done ALL your jobs? Who are you and what have you done with {me}? | Have you done ALL your jobs? Who are you and what have you done with my real helper? |
+| app/public/js/ch-core.js:538 | {me.NAME}! Have you done your jobs yet? | Have you done your jobs yet? |
+| app/public/js/ch-core.js:538 | {me}! Those jobs won't do themselves! | Those jobs won't do themselves! |
+| app/public/js/ch-core.js:538 | {me.NAME}! Get off that computer and do your jobs! | Get off that computer and do your jobs! |
+| app/public/js/ch-core.js:538 | {me}, love? The list on the fridge? Remember the list? | Love? The list on the fridge? Remember the list? |
+| app/public/js/ch-core.js:538 | {me.NAME}! I can hear you NOT doing your jobs! | I can hear you NOT doing your jobs! |
+| app/public/js/season-halloween.js:744 | Away from your hand, {me}! Saw AWAY from your hand. | Away from your hand! Saw AWAY from your hand. |
+| app/public/js/season-halloween.js:989 | {me}, can you get that? | Can you get that? |
+| app/public/js/season-halloween.js:989 | Door, {me}! More of them! | Door! More of them! |
+| app/public/js/season-halloween.js:989 | {me}! Door! I've got my hands full. | Door! I've got my hands full. |
+| app/public/js/season-halloween.js:990 | {me}! They're still waiting at the door! | They're still waiting at the door! |
+| app/public/js/season-halloween.js:1175 | Look at the state of this hall. Wrappers everywhere! Bin, please, {me}. And who ate all the Choc Bits? | Look at the state of this hall. Wrappers everywhere! Bin, please. And who ate all the Choc Bits? |
+
+The legacy Christmas Eve line “Is he asleep yet? Good. Shh. I’m eating the mince pie.” becomes “Is everyone asleep yet? Good. Shh. I am eating the mince pie.”
+
+## Announcer variants
+
+These changes appear only after their recording exists; the live name, score or control is generic in the recording.
+
+| ID | Existing writing | Recording and future writing |
+|---|---|---|
+| `game.wobble.host.146dks4` | SWAP KAZOO! YOU SWAPS PLACES WITH {dynamic}! / SWAP SHOP! YOU SWAPS COINS WITH {dynamic}! / {dynamic} {dynamic} {dynamic}! | LET'S SEE WHAT THE REELS HAVE DECIDED! |
+| `game.wobble.host.14iizcv` | ...BUT {dynamic} HAS NO COINS! PHEW. | NO COINS TO GIVE! PHEW. |
+| `game.wobble.host.1n2x0pa` | A COIN GEYSER! WHOOSH! 6 COINS FOR YOU! | A COIN GEYSER! WHOOSH! |
+| `game.wobble.host.1syds4j` | WELCOME TO WOBBLE ISLAND! I'M MC WOBBLE, YOUR HOST WITH THE MOST. (PRESS {dynamic}) | WELCOME TO WOBBLE ISLAND! I'M MC WOBBLE, YOUR HOST WITH THE MOST! |
+| `game.wobble.host.1w75573` | {dynamic} ONLY HAS {dynamic} COINS. COME BACK RICHER! / OH DEAR, YOU ONLY HAVE {dynamic} COINS. COME BACK RICHER! | OH DEAR. COME BACK WITH MORE COINS! |
+| `game.wobble.host.1wafoa1` | {dynamic} HAS FOUND THE STAR! | THE STAR HAS BEEN FOUND! |
+| `game.wobble.host.1wf6wxm` | {dynamic} USES THE TWIN DICE! TWO BLOCKS! / YOU USE THE TWIN DICE! TWO BLOCKS! | TWIN DICE! TWO BLOCKS! |
+| `game.wobble.host.1yrfw5o` | WHOEVER HAS THE MOST STARS AT THE END WINS. I'LL SWAP YOU A STAR FOR {dynamic} COINS. | WHOEVER HAS THE MOST STARS AT THE END WINS. I'LL SWAP YOU A STAR FOR COINS. |
+| `game.wobble.host.1yus1o0` | {dynamic} EACH GET 10 COINS! / {dynamic} GETS 10 COINS! | THE WINNERS GET TEN COINS! |
+| `game.wobble.host.2n6itx` | SWAP KAZOO! YOU SWAP PLACES WITH {dynamic}! | SWAP KAZOO! TIME TO SWAP PLACES! |
+| `game.wobble.host.5steas` | THANK YOU! ONE {dynamic}. COME AGAIN! | THANK YOU! COME AGAIN! |
+| `game.wobble.host.6pkgli` | ...BUT {dynamic} HAS NO STARS TO GIVE! PHEW. | NO STARS TO GIVE! PHEW. |
+| `game.wobble.host.8oxsmd` | {dynamic} GOES FIRST, THEN {dynamic}, {dynamic} AND {dynamic}. EVERYBODY STARTS WITH 10 COINS. | LET'S SEE WHO GOES FIRST! EVERYBODY STARTS WITH TEN COINS. |
+| `game.wobble.host.ar7z9n` | YOU FOUND THE COUNT'S DISCOUNT LEVER! STARS NOW COST {dynamic} COINS. | THE COUNT'S DISCOUNT LEVER! BARGAIN STARS! |
+| `game.wobble.host.e7lqoo` | BAD LUCK, {dynamic}! 1ST PLACE THIS TIME. / BAD LUCK, {dynamic}! 2ND PLACE THIS TIME. / BAD LUCK, {dynamic}! 3RD PLACE THIS TIME. / BAD LUCK, {dynamic}! 4TH PLACE THIS TIME. | BAD LUCK! BETTER LUCK NEXT TIME! |
+| `game.wobble.host.g6mio8` | THE {dynamic} GOES TO WHOEVER {dynamic}... | TIME FOR A BONUS STAR! |
+| `game.wobble.host.gt3to3` | YOU GOT A STAR! THAT'S {dynamic}! | YOU GOT A STAR! SPARKLY! |
+| `game.wobble.host.h7wc9x` | {dynamic} STOPS THE REELS. ANYTHING CAN HAPPEN! / STOP THE REELS WITH {dynamic}! ANYTHING CAN HAPPEN! | STOP THE REELS! ANYTHING CAN HAPPEN! |
+| `game.wobble.host.it4hyq` | YOU FOUND THE STAR! I'LL SWAP IT FOR {dynamic} COINS. | YOU FOUND THE STAR! FANCY A SWAP? |
+| `game.wobble.host.kj0owm` | ...NOBODY! NO {dynamic} THIS TIME. | NOBODY! NO BONUS STAR THIS TIME. |
+| `game.wobble.host.ogoqhi` | WOBBLE WARP! WHEEE! OFF {dynamic} GOES! / WOBBLE WARP! WHEEE! OFF YOU GO! | WOBBLE WARP! WHEEE! OFF WE GO! |
+| `game.wobble.host.q55w08` | DING DONG! THE CLOCKWORK JACKPOT: 0 COINS! | DING DONG! THE CLOCKWORK JACKPOT PAYS OUT! |
+| `game.wobble.host.qm0di3` | SWAP SHOP! YOU SWAP COINS WITH {dynamic}! | SWAP SHOP! TIME TO SWAP COINS! |
+| `game.wobble.host.t96fyl` | WELL DONE, {dynamic}! YOU'RE THE WOBBLE SUPERSTAR! | WELL DONE! YOU'RE THE WOBBLE SUPERSTAR! |
+| `game.wobble.host.vvc01w` | {dynamic} IS IN LAST PLACE... HAVE 10 COINS TO CATCH UP! | LAST PLACE? HAVE TEN COINS TO CATCH UP! |
+
+## Personalised family writing (round 2)
+
+The recorded bodies below are unchanged. `callout` adds an approved name clip before that body when available; without a name clip the plain body plays. `display` keeps the player's name on screen, including names without a clip. Mid-sentence names are display only; a call-out, where marked, still precedes the body. These templates are also listed by the re-runnable voice audit.
+
+| ID | Call-out | Display |
+|---|---|---|
+| `chore.rate.95a` | display only | Ooh! Who are you and what have you done with {me}? |
+| `house.moment.1djssky` | dad-shout | {me.NAME}! Bed! Now! |
+| `house.moment.wd8c5e` | dad-shout | {me.NAME}! Have you been using the phone? The bill came. |
+| `house.voice.h701ve` | dad-shout | {me.NAME}! TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT! |
+| `phone.out.01632960213.1c5kgqp` | display only | Hello? {me}! Ooh, you never ring! Eating properly? Grandad says hello. HE SAYS HELLO. Bye, love! Bye! Bye bye! |
+| `chore.shout.1lof225` | mom-shout | {me.NAME}! Those jobs won't do themselves! |
+| `chore.shout.1ss7a6t` | mom-shout | {me.NAME}! I can hear you NOT doing your jobs! |
+| `chore.shout.1y83zff` | mom-call | Thank you, {me}! |
+| `chore.shout.9bcrpq` | mom-shout | {me.NAME}! Love? The list on the fridge? Remember the list? |
+| `chore.shout.a506t6` | mom-shout | {me.NAME}! Get off that computer and do your jobs! |
+| `chore.shout.y5q1ps` | mom-shout | {me.NAME}! Have you done your jobs yet? |
+| `dialer.01632960777.1wxgtgo` | mom-call | {me}, love? Have you done your homework? |
+| `house.moment.14u1i62` | mom-shout | {me.NAME}! Get off the Internet! I need to ring your Nan! |
+| `house.moment.18qfxaa` | mom-shout | {me.NAME}! I'm popping to the shops. Do you want anything? ...Besides a Daydream. |
+| `house.moment.1dd6ufc` | mom-shout | {me.NAME}! It's a school night. Not too late, eh? |
+| `house.moment.1gm6uua` | mom-shout | {me.NAME}! Are you on that computer AGAIN? |
+| `house.moment.1hou2xu` | mom-shout | {me.NAME}! You'll be late for school! Have you had any breakfast? |
+| `house.moment.1ibhhmo` | mom-shout | {me.NAME}! Are you up? It's gone eight! Lazybones! |
+| `house.moment.1kgk76z` | mom-shout | {me.NAME}! Turn that light off, love, it's late. |
+| `house.moment.1qhk3rh` | mom-shout | {me.NAME}! Set the table please, love! |
+| `house.moment.1trq0u8` | mom-shout | {me.NAME}! Come and get your washing, it's on the stairs! |
+| `house.moment.1wxgtgo` | mom-call | {me}, love? Have you done your homework? |
+| `house.moment.hypeuv` | mom-shout | {me.NAME}! Why aren't you at school? ...Oh, it's an INSET day. Right. Well don't sit on that computer all day. |
+| `house.moment.p8fwe0` | mom-call | {me}, love? Have you seen my car keys? |
+| `house.moment.qrvops` | mom-shout | {me.NAME}! We're going to Gran's for Sunday dinner at one! Wear something clean! |
+| `house.moment.uar218` | mom-shout | {me.NAME}! TEA'S READY! It'll go cold! |
+| `house.moment.y9voiz` | mom-shout | {me.NAME}! Your friend's Mom rang. Are you going round there? |
+| `house.moment.zpcfic` | mom-call | {me}, love? Do you want a cup of tea? |
+| `house.voice.19srweb` | mom-shout | {me.NAME}! Is that you? Tea's nearly ready! |
+| `house.voice.1pe2qdm` | mom-shout | {me.NAME}! Is that you coming down? Put the kettle on, love! |
+| `house.voice.52jrk6` | mom-shout | {me.NAME}! That was your friend! Are you coming out? |
+| `house.voice.c27ds0` | mom-call | {me}, love? Here's your pocket money. Five pounds. Don't spend it all on games magazines. |
+| `house.voice.dg5evy` | mom-shout | {me.NAME}! That was your Gran. She says you never ring her. |
+| `hw.mom.door.7duwbw` | mom-shout | {me.NAME}! Door! I've got my hands full. |
+| `hw.mom.door.iezetz` | mom-shout | Door, {me}! More of them! |
+| `hw.mom.door.p08w90` | mom-shout | {me.NAME}! Can you get that? |
+| `hw.mom.door2.1c95o5l` | mom-shout | {me.NAME}! They're still waiting at the door! |
+| `hw.mom.hand.1x0lkzj` | mom-shout | Away from your hand, {me}! Saw AWAY from your hand. |
+| `hw.mom.tail.ourgck` | mom-shout | Look at the state of this hall. Wrappers everywhere! Bin, please, {me}. And who ate all the Choc Bits? |
+| `house.moment.1ci1e5k` | sis-whine | {me}! Can I have a go on the Game Lad? Pleeeeease? |
+| `house.moment.vtvqfy` | display only | MOM! {me}'s being annoying! |
+| `chore.shout.1of6vkv` | display only | Have you done ALL your jobs? Who are you and what have you done with {me}? |
+| `house.voice.v8d3ia` | mom-call | Time for bed, {me}. Save your game. |
+| `house.voice.zrj5mn` | display only | Ooh, have you done ALL your jobs? Who are you and what have you done with {me}? |
