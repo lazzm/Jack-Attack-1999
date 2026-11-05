@@ -6,7 +6,7 @@ import {once} from 'node:events';
 import {mkdtemp,mkdir,rm,writeFile,readFile} from 'node:fs/promises';
 import {openSync,closeSync} from 'node:fs';
 import net from 'node:net';
-const root=new URL('../',import.meta.url).pathname,out=root+'tests/shots/models/r2-gate-results.json';
+const root=new URL('../',import.meta.url).pathname,out=root+'tests/shots/models/r3-gate-results.json';
 const only=process.argv.find(a=>a.startsWith('--only='))?.slice(7).split(',');
 await mkdir(root+'tests/shots/models',{recursive:true});
 const history=JSON.parse(await readFile(out,'utf8').catch(()=>'[]')),results=[];let child,server,data,log='';
@@ -24,17 +24,19 @@ try{
  let port;for(let p=18080;p<=18099;p++)if(await new Promise(r=>{const s=net.createServer();s.once('error',()=>r(false));s.listen(p,'127.0.0.1',()=>s.close(()=>r(true)))})){port=p;break;}assert(port);
  data=await mkdtemp('/tmp/jhp-model-gate-');server=spawn(process.execPath,['server.js'],{cwd:root+'app',env:{...process.env,PORT:String(port),DATA_DIR:data,ADMIN_TOKEN:'testtoken'},stdio:['ignore','pipe','pipe']});for(const s of [server.stdout,server.stderr])s.on('data',d=>log+=d);
  const base='http://127.0.0.1:'+port;for(let i=0;i<100;i++){try{if((await fetch(base+'/robots.txt')).ok)break}catch{}await new Promise(r=>setTimeout(r,100));}
- await run('models',['tests/models-animation.mjs','--label=r2-probe','--only=stairs,stairs-down,turn45,turn90,turn180,job,carry','--skip-perf','--stairs-rise=20'],600000);
+ await run('models',['tests/models-perf.cjs'],180000);
+ await run('models',['tests/models-house-r3.mjs','--label=r3-real-seats','--seats-only','--seat-matrix','--seats=beanbag','--devices=desktop','--append'],300000);
+ await run('models',['tests/models-animation.mjs','--label=r3-probe','--only=idle,walk,stop,turn,rear,stairs,stairs-down,sit,stand,job,carry,talk','--skip-perf','--stairs-rise=20'],600000);
  await run('after',['tests/models-animation.mjs','--label=after']);
+ await run('events-bonfire',['tests/events-bonfire.mjs',base],900000);
  await run('voices',['tests/voices.mjs',base,'--only=speak,two']);
  await run('door-walk',['tests/door-walk.mjs',base]);
- await run('events-bonfire',['tests/events-bonfire.mjs',base],900000);
+ await run('characters',['tests/characters.mjs','--only=day,space,bump'],1200000);
  await run('mobile',['tests/mobile.mjs',base,'--only=perf']);
  if(server.exitCode===null){const end=once(server,'exit');server.kill('SIGTERM');await end;}server=null;
  await writeFile('/tmp/jhp-model-gate-server.log',log);assert(!/mod failed to load/i.test(log));
  await run('identity',['tests/identity-house.mjs','--case=sarah']);
  await run('smoke',['tests/smoke.mjs'],900000);
- await run('characters',['tests/characters.mjs','--only=day,space,bump'],1200000);
  await run('people-pass',['tests/people-pass.mjs','--desktop','--skip-perf'],1200000);
  await run('contacts',['tests/characters.mjs','--only=feet,draws,budget,refresh'],900000);
 }finally{child?.kill('SIGTERM');if(server?.exitCode===null){const end=once(server,'exit');server.kill('SIGTERM');await end;}if(data)await rm(data,{recursive:true,force:true});}

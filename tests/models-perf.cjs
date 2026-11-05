@@ -6,7 +6,7 @@ const source={before:execFileSync('git',['show','HEAD:app/public/js/np-rig.js'],
 function api(src){const gradient={addColorStop(){}},paint=new Proxy({createLinearGradient:()=>gradient,createRadialGradient:()=>gradient},{get:(o,k)=>k in o?o[k]:()=>{}}),c={THREE:T},doc={createElement:()=>({getContext:()=>paint})},math=Object.create(Math);let seed=1999;math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};return new Function('window','document','performance','Math',src+';return window.NPCRig;')(c,doc,performance,math);}
 const APIs={before:api(source.before),after:api(source.after)},report={units:'ms per frame for all three family rigs, no render',order:'paired AB/BA, 16 batches of 2000 frames after 3000 warmup frames',modes:{}};
 const only=process.argv.find(a=>a.startsWith('--only='))?.slice(7).split(',');
-if(only&&fs.existsSync('tests/shots/models/r2-paired-cpu.json'))Object.assign(report.modes,JSON.parse(fs.readFileSync('tests/shots/models/r2-paired-cpu.json')).modes);
+if(only&&fs.existsSync('tests/shots/models/r3-paired-cpu.json'))Object.assign(report.modes,JSON.parse(fs.readFileSync('tests/shots/models/r3-paired-cpu.json')).modes);
 const contactBody=fs.readFileSync(require.resolve('../app/public/js/np-life.js'),'utf8').match(/c\.rig\.floor = \(x, z\) => \{([\s\S]*?)\n    \};/)[1];
 for(const mode of ['idle','walk','jobs','far','stairs','house-stairs']){
  if(only&&!only.includes(mode))continue;
@@ -24,4 +24,4 @@ for(const mode of ['idle','walk','jobs','far','stairs','house-stairs']){
  report.modes[mode]={};for(const key of ['before','after']){const c=cases[key],a=c.samples.slice().sort((a,b)=>a-b);report.modes[mode][key]={median:a[8],p95:a[15],samples:c.samples};for(const r of c.rigs)r.dispose();}
  report.modes[mode].ratio=report.modes[mode].after.median/report.modes[mode].before.median;
 }
-fs.mkdirSync('tests/shots/models',{recursive:true});fs.writeFileSync('tests/shots/models/r2-paired-cpu.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
+fs.mkdirSync('tests/shots/models',{recursive:true});fs.writeFileSync('tests/shots/models/r3-paired-cpu.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
