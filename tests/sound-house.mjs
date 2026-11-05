@@ -48,7 +48,9 @@ try{
  const errors=settled.map(v=>dist(v.m,v.p)),headErrors=settled.map(v=>dist(v.d,v.orientation));
  assert(Math.max(...errors)<45,'Panner stays at the moving mouth: '+Math.max(...errors));
  assert(Math.max(...headErrors)<1,'Cone follows head smoothly: '+Math.max(...headErrors));
- assert(dist(settled[0].listener,settled.at(-1).listener)>.2,'Listener follows player turning');
+ // P.ry wraps, so first and last can point the same way: check every sample against the camera, and that it really turned.
+ assert(Math.max(...settled.map(v=>dist(v.listener,v.camera)))<.25,'Listener follows player turning: '+Math.max(...settled.map(v=>dist(v.listener,v.camera))));
+ assert(Math.max(...settled.map(v=>dist(v.listener,settled[0].listener)))>.5,'The player really turned');
  await p.evaluate(()=>{voice.stop();HouseFamily.debug.speech.freeze=false});
  await p.waitForTimeout(100);
  assert(await p.evaluate(()=>voice.ended&&!Sound.ducked),'Stop and duck release');

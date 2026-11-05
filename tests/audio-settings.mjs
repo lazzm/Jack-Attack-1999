@@ -14,8 +14,8 @@ try {
     window.audioRMS=kind=>{const a=audioMeters[kind],d=new Float32Array(a.fftSize);a.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,x)=>s+x*x,0)/d.length)};
     Sound.music.play('theme');
   });
-  await p.waitForTimeout(350);
-  assert(await p.evaluate(()=>audioRMS('music')>.00001),'MIDI plays with effects disabled');
+  // One 46 ms window can land between notes, so listen for up to 3 s.
+  assert(await p.waitForFunction(()=>audioRMS('music')>.00001,null,{timeout:3000,polling:50}).then(()=>true,()=>false),'MIDI plays with effects disabled: '+JSON.stringify(await p.evaluate(()=>{const c=Sound.unlock(),b=Sound.output(c,'music');return{state:c.state,time:c.currentTime,playing:Sound.music.playing,musicOn:Sound.musicOn,volume:Sound.volume,busGain:b.gain.value,ducked:Sound.ducked,rms:audioRMS('music'),master:audioRMS('master'),hidden:document.hidden,paused:document.documentElement.classList.contains('hs-paused')}})));
   assert.equal(await p.evaluate(()=>audioRMS('effects')),0);
   await music().uncheck();await effects().check();
   await p.evaluate(()=>Sound.note(440,2,'sine'));await p.waitForTimeout(200);
