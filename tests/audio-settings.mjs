@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import {roomFixture} from './room-fixture.mjs';
-const {browser,page:p,errors,until}=await roomFixture(process.argv[2]||'http://localhost:18471');
+import {provisionedRoom} from './provisioned-room.mjs';
+const {browser,page:p,errors,until}=await provisionedRoom(process.argv[2]||'http://localhost:18080');
 try {
   const menu=()=>p.locator('.hs-pause');
   const music=()=>menu().locator('[name=music]'),effects=()=>menu().locator('[name=effects]');
@@ -10,6 +10,7 @@ try {
   await p.evaluate(()=>{
     const c=Sound.unlock();window.audioMeters={};
     for(const kind of ['music','effects']){const a=c.createAnalyser();a.fftSize=2048;Sound.output(c,kind).connect(a);audioMeters[kind]=a}
+    const master=c.createAnalyser();master.fftSize=2048;Sound.masterOutput(c).connect(master);audioMeters.master=master;
     window.audioRMS=kind=>{const a=audioMeters[kind],d=new Float32Array(a.fftSize);a.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,x)=>s+x*x,0)/d.length)};
     Sound.music.play('theme');
   });
@@ -23,7 +24,7 @@ try {
   await music().check();
   const slider=menu().locator('[name=volume]');await slider.focus();await p.keyboard.press('Home');
   await p.waitForTimeout(300);assert.equal(await p.evaluate(()=>Sound.volume),0);
-  assert(await p.evaluate(()=>audioRMS('music')<.000001&&audioRMS('effects')<.000001));
+  assert(await p.evaluate(()=>audioRMS('master')<.000001),'Overall slider mutes the final mix after dynamics');
   await p.keyboard.press('End');await p.keyboard.press('ArrowLeft');
   assert.equal(await p.evaluate(()=>Sound.volume),.99);assert.equal(await menu().locator('output').innerText(),'99%');
   for(let n=0;n<6;n++)await music().click();assert(await music().isChecked());

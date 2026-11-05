@@ -1,6 +1,6 @@
 /* Sound Rumbler 16 (procedural Web Audio). Nothing plays until the visitor clicks something. */
 (function () {
-  let ctx = null, master = null, musicMaster = null, worldMaster = null, worldPaused = false;
+  let ctx = null, master = null, musicMaster = null, worldMaster = null, worldPaused = false, noiseBuffer = null;
   let sfxOn = true, musicOn = true, volume = 1;
   try {
     const savedLegacy = localStorage.getItem('jhp_sfx');
@@ -16,20 +16,37 @@
   function output(c, channel = 'effects') {
     let bus = buses.get(c);
     if (!bus) {
-      bus = {effects:c.createGain(),music:c.createGain(),voice:c.createGain()}; buses.set(c,bus);
-      for (const kind of KINDS) { bus[kind].gain.value = level(kind); bus[kind].connect(c.destination); }
+      // One protected mix per context, including callers with their own sound card.
+      // The fast compressor catches speech peaks; the safety ceiling also catches
+      // its attack transient. Below the .75 knee the shaper is exactly linear.
+      const limiter = c.createDynamicsCompressor(), ceiling = c.createWaveShaper();
+      limiter.threshold.value = -4; limiter.knee.value = 3; limiter.ratio.value = 20;
+      limiter.attack.value = .003; limiter.release.value = .12;
+      const curve = new Float32Array(4097);
+      for (let i=0;i<curve.length;i++) {
+        const x=2*i/(curve.length-1)-1, a=Math.abs(x);
+        curve[i] = Math.sign(x)*(a<=.75?a:.75+.19*(1-Math.exp(-((a-.75)/.19))));
+      }
+      ceiling.curve = curve;
+      const control = c.createGain(); control.gain.value = volume;
+      limiter.connect(ceiling); ceiling.connect(control); control.connect(c.destination);
+      bus = {effects:c.createGain(),music:c.createGain(),voice:c.createGain(),control}; buses.set(c,bus);
+      for (const kind of KINDS) { bus[kind].gain.value = level(kind); bus[kind].connect(limiter); }
     }
     return bus[channel === 'music' ? 'music' : channel === 'voice' ? 'voice' : 'effects'];
   }
   // The family's recorded voices have their own bus (on the "Sound effects & voices" switch); while someone speaks,
-  // music and the other sounds (the telly, the games) dip a little underneath them.
-  const KINDS = ['effects', 'music', 'voice'], DUCK = { music: 0.55, effects: 0.7, voice: 1 };
+  // music and the other sounds (the telly, the games) settle underneath them.
+  // Recordings are already matched in loudness: +5.1 dB here, without editing clips.
+  const KINDS = ['effects', 'music', 'voice'], DUCK = { music: 0.32, effects: 0.4, voice: 1 };
   let ducked = false;
-  const level = kind => volume * (kind === 'music' ? +musicOn : +sfxOn) * (ducked ? DUCK[kind] : 1);
+  const level = kind => (kind === 'music' ? +musicOn : +sfxOn) * (kind === 'voice' ? 1.8 : 1) * (ducked ? DUCK[kind] : 1);
   function apply(tc) {
     for (const [c,bus] of buses) {
       if (c.state === 'closed') { buses.delete(c); continue; }
       for (const kind of KINDS) { const gain = bus[kind].gain; gain.cancelScheduledValues(c.currentTime); gain.setTargetAtTime(level(kind), c.currentTime, tc); }
+      // The saved slider follows dynamics, so 50% remains exactly half as loud.
+      bus.control.gain.cancelScheduledValues(c.currentTime); bus.control.gain.setTargetAtTime(volume,c.currentTime,.012);
     }
   }
   function changed() {
@@ -69,22 +86,22 @@
     if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
     g.gain.setValueAtTime(vol == null ? 0.3 : vol, t);
     g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    o.connect(g); g.connect(channel === 'music' ? musicMaster : channel === 'world' ? worldMaster : master);
+    o.connect(g); g.connect(channel && typeof channel === 'object' ? channel : channel === 'music' ? musicMaster : channel === 'world' ? worldMaster : master);
     o.start(t); o.stop(t + dur + 0.02);
   }
 
   function noise(dur, vol, when, filterFreq, channel) {
+    if (vol === 0 || dur <= 0) return;
     const c = ac(); if (!c) return;
     const t = c.currentTime + (when || 0);
-    const len = Math.max(1, Math.floor(c.sampleRate * dur));
-    const buf = c.createBuffer(1, len, c.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-    const src = c.createBufferSource(); src.buffer = buf;
+    // One original noise bed, with a different offset on every action. Walking
+    // no longer allocates and fills a fresh PCM buffer on each footfall.
+    if (!noiseBuffer) { noiseBuffer = c.createBuffer(1,c.sampleRate,c.sampleRate); const d=noiseBuffer.getChannelData(0); for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1; }
+    const src = c.createBufferSource(); src.buffer = noiseBuffer; src.loop = true;
     const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = filterFreq || 1200; f.Q.value = 0.8;
-    const g = c.createGain(); g.gain.setValueAtTime(vol || 0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    src.connect(f); f.connect(g); g.connect(channel === 'music' ? musicMaster : channel === 'world' ? worldMaster : master);
-    src.start(t);
+    const g = c.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(vol ?? .3,t+Math.min(.003,dur/4)); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    src.connect(f); f.connect(g); g.connect(channel && typeof channel === 'object' ? channel : channel === 'music' ? musicMaster : channel === 'world' ? worldMaster : master);
+    src.start(t,Math.random()*.9); src.stop(t+dur+.02);
   }
 
   const sfx = {
@@ -174,38 +191,44 @@
              0, 74, -1, 77, 81, -1, 79, 77, 76, -1, -1, 72, 76, -1, 74, 72, 71, -1, 71, 72, 74, -1, 76, -1, 72, -1, 69, -1, 69, -1, 0, 0],
       bass: [40, 52, 40, 52, 45, 57, 45, 57, 44, 56, 40, 52, 45, 57, 45, 57, 38, 50, 38, 50, 36, 48, 36, 48, 44, 56, 40, 52, 45, 57, 45, 57] },
   };
-  let musicTimer = null, step = 0, nextTime = 0, tune = TUNES.theme;
+  let musicTimer = null, step = 0, nextTime = 0, tune = TUNES.theme, musicEmitter = null, musicOptions = null;
   function schedule() {
     const c = ac(); if (!c) return;
-    const L = tune.lead, B = tune.bass, ST = tune.step;
+    const L = tune.lead, B = tune.bass, ST = tune.step, route = musicEmitter?.input || 'music';
     while (nextTime < c.currentTime + 0.25) {
       const when = nextTime - c.currentTime, i = step % L.length;
-      if (L[i] > 0) { let len = 1; while (L[(i + len) % L.length] === -1 && len < L.length) len++; tone(N(L[i]), ST * len * 0.92, 'square', 0.09, when, null, 'music'); }
-      if (step % 2 === 0) { const b = B[(step / 2) % B.length]; tone(N(b), ST * 1.8, 'triangle', 0.22, when, null, 'music'); }
-      if (tune.hats && step % 2 === 1) noise(0.03, 0.05, when, 7000, 'music');
-      if (step % 8 === 0) tone(60, 0.12, 'sine', 0.3, when, 35, 'music');
+      if (L[i] > 0) { let len = 1; while (L[(i + len) % L.length] === -1 && len < L.length) len++; tone(N(L[i]), ST * len * 0.92, 'square', 0.09, when, null, route); }
+      if (step % 2 === 0) { const b = B[(step / 2) % B.length]; tone(N(b), ST * 1.8, 'triangle', 0.22, when, null, route); }
+      if (tune.hats && step % 2 === 1) noise(0.03, 0.05, when, 7000, route);
+      if (step % 8 === 0) tone(60, 0.12, 'sine', 0.3, when, 35, route);
       nextTime += ST; step++;
     }
   }
   function addTune(name, t) { TUNES[name] = Object.assign({ step: 0.16, hats: true }, t); }
   const music = {
     playing: '',
-    play(name) {
+    play(name, options = {}) {
       this.stop();
+      musicOptions = options;
       tune = TUNES[name] || TUNES.theme; this.playing = TUNES[name] ? name : 'theme';
       const c = ac(); if (!c) return;
+      if (options.position && window.Sound.emitter) musicEmitter = Sound.emitter(c,{...options,channel:'music',level:.25});
       step = 0; nextTime = c.currentTime + 0.05;
       musicTimer = setInterval(schedule, 60); schedule();
     },
-    stop() { this.playing = ''; clearInterval(musicTimer); musicTimer = null; },
+    stop() { this.playing = ''; clearInterval(musicTimer); musicTimer = null; musicEmitter?.stop(); musicEmitter = null; musicOptions = null; },
   };
 
   // Short, original physical sounds. They share the effects/volume bus but
   // have a separate pause gain, so the menu's own buttons remain audible.
   function world(kind, o = {}) {
     if (!sfxOn || !volume || worldPaused || document.hidden) return;
-    const t = (f,d,v=0.06,when=0,to,type='sine') => tone(f,d,type,v,when,to,'world');
-    const n = (d,v,f,when=0) => noise(d,v,when,f,'world');
+    const c=o.position&&window.Sound.emitter?ac():null;
+    const source=c?Sound.emitter(c,{position:o.position,room:o.room,output:worldMaster}):null;
+    const route=source?.input||'world';
+    if(source)setTimeout(()=>source.stop(),kind==='kettle'?2200:kind==='road'?950:600);
+    const t = (f,d,v=0.06,when=0,to,type='sine') => tone(f,d,type,v,when,to,route);
+    const n = (d,v,f,when=0) => noise(d,v,when,f,route);
     if (kind === 'step') {
       const profiles = {carpet:[.09,.055,300],lino:[.055,.07,1050],tile:[.045,.085,1700],stairs:[.09,.08,460],paving:[.055,.075,1300],grass:[.13,.055,2300]};
       const [d,v,f] = profiles[o.surface] || profiles.carpet;
@@ -253,7 +276,9 @@
     set musicOn(v) { musicOn = !!v; changed(); },
     get volume() { return volume; },
     get ready() { return ready(); },
+    // Channel taps precede dynamics/overall volume; this tap is the final mix.
     output,
+    masterOutput(c) { output(c); return buses.get(c).control; },
     world,
     get voicesOn() { return sfxOn && volume > 0; },
     duck(on) { on = !!on; if (on === ducked) return; ducked = on; apply(on ? .08 : .35); },
@@ -275,7 +300,7 @@
     if (ev?.isTrusted) gestured = true;
     if (!ready()) return;
     if (sfxOn || musicOn) ac();
-    if (music.playing && !musicTimer) music.play(music.playing);
+    if (music.playing && !musicTimer) music.play(music.playing,musicOptions || {});
     document.dispatchEvent(new Event('audiochange'));
     document.removeEventListener('pointerdown',wake,true);document.removeEventListener('keydown',wake,true);document.removeEventListener('touchstart',wake,true);
   }

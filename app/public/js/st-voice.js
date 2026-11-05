@@ -4,7 +4,8 @@
  *                                     box only appears with the "Subtitles" setting) and plays the recording if there
  *                                     is one. Returns the voice handle (or null: no recording / sound off / not yet allowed).
  *   st.play(lineId, o)                just the recording. o.pos() -> THREE.Vector3 (world) for positional sound from the
- *                                     speaker's head; o.through() -> true when they're in another room or on another
+ *                                     speaker's mouth; o.dir() -> its head's world-space forward vector;
+ *                                     o.through() -> true when they're in another room or on another
  *                                     floor (muffled and quieter); o.fx = the clip's own filter ('downstairs' is already muffled).
  *   handle: { lineId, dur, started, ended, level() 0..1 (loudness right now, for the painted mouth), progress() 0..1, stop() }
  *   st.voiceInfo(lineId) -> { dur } including an available name call-out; st.prefetch(lineId) warms the cache.
@@ -136,8 +137,15 @@
   let raf = 0;
   const v3 = () => (window.THREE ? new THREE.Vector3() : null);
   const tmp = { p: null, f: null, u: null };
-  function setParam(param, v, c) { if (!param) return; if (param.setTargetAtTime) param.setTargetAtTime(v, c.currentTime, 0.05); else param.value = v; }
+  function setParam(param, v, c, immediate) { if (!param) return; if (immediate && param.setValueAtTime) param.setValueAtTime(v,c.currentTime); else if (param.setTargetAtTime) param.setTargetAtTime(v, c.currentTime, 0.035); else param.value = v; }
+  // Select once per utterance: changing a live HRTF kernel can make a click.
+  // Device capability and the house's existing automatic adaptation stay local.
+  function panningModel() {
+    const n = window.navigator || {}, adapt = window.House?.graphicsGet?.().adapt || 0;
+    return (n.hardwareConcurrency && n.hardwareConcurrency <= 4) || (n.deviceMemory && n.deviceMemory <= 2) || adapt >= 5 ? 'equalpower' : 'HRTF';
+  }
   function follow() {
+    if (raf && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(raf);
     raf = 0; if (!active.size) return;
     const H = window.House, cam = H && H.camera;
     for (const h of active) {
@@ -147,15 +155,28 @@
         if (tmp.p) {
           cam.updateMatrixWorld(); cam.getWorldPosition(tmp.p); cam.getWorldDirection(tmp.f); tmp.u.set(0, 1, 0).applyQuaternion(cam.quaternion);
           const L = c.listener;
-          if (L.positionX) { setParam(L.positionX, tmp.p.x, c); setParam(L.positionY, tmp.p.y, c); setParam(L.positionZ, tmp.p.z, c); setParam(L.forwardX, tmp.f.x, c); setParam(L.forwardY, tmp.f.y, c); setParam(L.forwardZ, tmp.f.z, c); setParam(L.upX, tmp.u.x, c); setParam(L.upY, tmp.u.y, c); setParam(L.upZ, tmp.u.z, c); }
+          if (L.positionX) { setParam(L.positionX, tmp.p.x, c, !h.started); setParam(L.positionY, tmp.p.y, c, !h.started); setParam(L.positionZ, tmp.p.z, c, !h.started); setParam(L.forwardX, tmp.f.x, c, !h.started); setParam(L.forwardY, tmp.f.y, c, !h.started); setParam(L.forwardZ, tmp.f.z, c, !h.started); setParam(L.upX, tmp.u.x, c, !h.started); setParam(L.upY, tmp.u.y, c, !h.started); setParam(L.upZ, tmp.u.z, c, !h.started); }
           else if (L.setPosition) { L.setPosition(tmp.p.x, tmp.p.y, tmp.p.z); L.setOrientation(tmp.f.x, tmp.f.y, tmp.f.z, tmp.u.x, tmp.u.y, tmp.u.z); }
         }
       }
       if (h.panner && h.o.pos) {
         let p = null; try { p = h.o.pos(); } catch (e) {}
-        if (p) { if (h.panner.positionX) { setParam(h.panner.positionX, p.x, c); setParam(h.panner.positionY, p.y, c); setParam(h.panner.positionZ, p.z, c); } else h.panner.setPosition(p.x, p.y, p.z); }
+        if (p) {
+          if (h.panner.positionX) { setParam(h.panner.positionX, p.x, c, !h.started); setParam(h.panner.positionY, p.y, c, !h.started); setParam(h.panner.positionZ, p.z, c, !h.started); } else h.panner.setPosition(p.x, p.y, p.z);
+          let d = null; try { d = h.o.dir?.(); } catch (e) {}
+          if (d) {
+            if (h.panner.orientationX) { setParam(h.panner.orientationX,d.x,c,!h.started); setParam(h.panner.orientationY,d.y,c,!h.started); setParam(h.panner.orientationZ,d.z,c,!h.started); }
+            else h.panner.setOrientation?.(d.x,d.y,d.z);
+            const L=c.listener, x=(L.positionX?.value||0)-p.x,y=(L.positionY?.value||0)-p.y,z=(L.positionZ?.value||0)-p.z;
+            const dot=(d.x*x+d.y*y+d.z*z)/Math.max(1,Math.hypot(x,y,z));
+            if (h.facing) setParam(h.facing.frequency,1800+16200*Math.max(0,Math.min(1,(dot+.25)/1.0)),c,!h.started);
+          }
+        }
       }
-      if (h.wall && h.o.fx !== 'downstairs') { let t = false; try { t = !!(h.o.through && h.o.through()); } catch (e) {} if (t !== h.thru) { h.thru = t; setParam(h.wall.frequency, t ? 900 : 18000, c); setParam(h.wallGain.gain, t ? 0.62 : 1, c); } }
+      if (h.wall && h.o.fx !== 'downstairs') {
+        let t=0;try{const v=h.o.through?.();t=v===true?1:Number.isFinite(v)?Math.max(0,Math.min(1,v)):0}catch(e){}
+        if(t!==h.thru){h.thru=t;setParam(h.wall.frequency,18000*Math.pow(.05,t),c,!h.started);setParam(h.wallGain.gain,1-.38*t,c,!h.started)}
+      }
     }
     raf = requestAnimationFrame(follow);
   }
@@ -185,11 +206,13 @@
       if (performance.now() - asked > (o.late || 6000)) { done('late'); return; } // (too late: it would be out of step with the bubble)
       const src = c.createBufferSource(); src.buffer = buf; h.src = src; h.dur = buf.duration; h.nameDur = n ? p.nameDur : 0;
       const an = c.createAnalyser(); an.fftSize = 512; h.an = an;
-      const g = c.createGain(); g.gain.value = o.gain || 1; h.out = g;
+      const g = c.createGain(); g.gain.value = o.gain ?? 1; h.out = g;
       let node = src;
       if (o.pos && c.createPanner) {
-        const pn = c.createPanner(); pn.panningModel = 'equalpower'; pn.distanceModel = 'inverse'; pn.refDistance = 140; pn.rolloffFactor = 0.65; pn.maxDistance = 6000;
+        const pn = c.createPanner(); pn.panningModel = panningModel(); pn.distanceModel = 'inverse'; pn.refDistance = 200; pn.rolloffFactor = 1.5; pn.maxDistance = 6000;
+        if (o.dir) { pn.coneInnerAngle = 120; pn.coneOuterAngle = 300; pn.coneOuterGain = .45; }
         h.panner = pn; node.connect(pn); node = pn;
+        if (o.dir) { h.facing = c.createBiquadFilter(); h.facing.type = 'lowpass'; h.facing.Q.value = .5; node.connect(h.facing); node = h.facing; }
       }
       if (o.through && (o.fx !== 'downstairs' || n)) { // names are clean; the following downstairs recording is already muffled
         const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 18000; lp.Q.value = 0.5; const wg = c.createGain();

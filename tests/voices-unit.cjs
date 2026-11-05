@@ -41,7 +41,7 @@ class Node { constructor(kind) { this.kind = kind; this.gain = new Param(); this
 let ctxs = [];
 class Ctx {
   constructor() { this.destination = { kind: 'dest' }; this.state = 'running'; this.currentTime = 0; this.sampleRate = 24000; this.listener = { setPosition() {}, setOrientation() {} }; ctxs.push(this); this.sources = []; }
-  createGain() { return new Node('gain'); } createOscillator() { return new Node('osc'); } createBiquadFilter() { return new Node('filter'); }
+  createDynamicsCompressor(){const n=this.createGain();for(const k of ['threshold','knee','ratio','attack','release'])n[k]={value:0};return n}createWaveShaper(){return this.createGain()}createGain() { return new Node('gain'); } createOscillator() { return new Node('osc'); } createBiquadFilter() { return new Node('filter'); }
   createBuffer(numberOfChannels = 1, length = 100, sampleRate = 24000) { const data = Array.from({length:numberOfChannels}, () => new Float32Array(length)); return { numberOfChannels, length, sampleRate, duration:length/sampleRate, getChannelData: i => data[i] }; }
   createBufferSource() { const n = new Node('source'); this.sources.push(n); return n; }
   createPanner() { const n = new Node('panner'); n.setPosition = (x, y, z) => { n.pos = [x, y, z]; }; return n; }
@@ -82,11 +82,11 @@ const tick = () => new Promise(r => setImmediate(r));
     // the chain ends on Sound's voice bus
     const bus = w.Sound.output(c, 'voice'); let n = src, hops = 0; while (n && n !== bus && hops < 12) { n = n.connections[0]; hops++; }
     assert.equal(n, bus, 'routed to the voice bus');
-    assert.equal(bus.gain.value, 0.8, 'voice bus at the volume');
+    assert.equal(bus.gain.value, 1.8, 'voice bus boosted');assert.equal(bus.connections[0].connections[0].connections[0].gain.value,.8,'Saved volume follows limiter');
     assert(w.Sound.ducked, 'ducked while talking'); assert(w.Sound.output(c, 'music').gain.value < 0.8, 'music dips');
     assert(h.level() > 0.3, 'level from the analyser: ' + h.level());
     assert.deepEqual([...w.st.voicesPlaying], [id]);
-    src.stop(); assert(h.ended && !w.Sound.ducked, 'ended: ducking released'); assert.equal(w.Sound.output(c, 'music').gain.value, 0.8);
+    src.stop(); assert(h.ended && !w.Sound.ducked, 'ended: ducking released'); assert.equal(w.Sound.output(c, 'music').gain.value, 1);
     // muting mid-line stops it
     const h2 = w.st.play('c2.pocket.dad2', {}); for (let i = 0; i < 5; i++) await tick(); assert(h2.started);
     w.Sound.effectsOn = false; assert(h2.ended, 'switching effects & voices off stops the voice'); assert.equal(bus.gain.value, 0, 'voice bus silent');

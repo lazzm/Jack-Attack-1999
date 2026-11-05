@@ -34,8 +34,8 @@
   function audio() {
     if (!window.Sound?.ready) return null;
     if (ac) { if (ac.state === 'suspended') ac.resume(); return ac; }
-    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
-    ac = new AC(); out = ac.createGain(); out.gain.value = vol * 0.35; an = ac.createAnalyser(); an.fftSize = 64; out.connect(an); an.connect(Sound.output(ac, 'music'));
+    ac = Sound.unlock(); if (!ac) return null;
+    out = ac.createGain(); out.gain.value = vol * 0.35; an = ac.createAnalyser(); an.fftSize = 64; out.connect(an); an.connect(Sound.output(ac, 'music'));
     noiseBuf = ac.createBuffer(1, ac.sampleRate * 0.5, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     return ac;
   }

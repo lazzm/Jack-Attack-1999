@@ -561,7 +561,7 @@
   // (in your room, or just through a doorway: further rooms are behind walls, so their balloons go to the screen edge)
   const seenBy = c => c.present && !!c.rig?.group.visible && !!H.ROOMS[c.room]?.group.visible && sameFloor(c, player()) && (c.room === H.here || dist(c, player()) < 450);
   const anchorOf = c => ({ top: v => c.rig.headTop(v), mouth: v => c.rig.mouthWorld(v), seen: () => seenBy(c), where: v => c.rig.headTop(v) });
-  let V3 = null;
+  let V3 = null, voiceDirection = null;
   function speechTick() {
     const t = nowMs();
     if (speech.freeze) return; // (tests: hold the current line for a screenshot)
@@ -590,11 +590,13 @@
     const who = label(n.c) + (place ? ' ' + place : '');
     const c = n.c, here = c.present && !!c.rig, anchor = here ? anchorOf(c) : null;
     const bubble = !!(anchor && window.NPCBubble?.ok());
-    if (!V3 && window.THREE) V3 = new THREE.Vector3();
+    if (!V3 && window.THREE) { V3 = new THREE.Vector3(); voiceDirection = new THREE.Vector3(); }
     let voice = null;
     try {
       voice = window.st?.say(n.lineId, who, n.text, ms, { bubble, callout:n.callout, fx: L[n.lineId]?.[2],
-        pos: c.rig && V3 ? () => c.rig.mouthWorld(V3) : null, through: () => !sameFloor(c,player())||c.room!==H.here, gain: here ? 1 : 0.7 }) || null;
+        pos: c.rig && V3 ? () => c.rig.mouthWorld(V3) : null,
+        dir: c.rig && voiceDirection ? () => c.rig.bones.head.getWorldDirection(voiceDirection) : null,
+        through: () => window.Sound?.occlusion ? Sound.occlusion(c.room) : !sameFloor(c,player())||c.room!==H.here, gain: here ? 1 : 0.7 }) || null;
     } catch (e) { console.error(e); }
     if(!voice&&n.legacyShout)window.HouseLife?.shoutSound?.(n.text);
     if (bubble) speech.bub = window.NPCBubble.show({ key: c.id, who: label(c), place, text: n.text, ms, anchor, voice, shout: !n.person });

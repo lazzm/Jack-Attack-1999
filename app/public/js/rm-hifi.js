@@ -34,7 +34,8 @@
       const name = tuneName(), src = tunes[item(current()).audio];
       if (!src) return;
       Sound.addTune(name, {...src, lead: src.lead.map(n => n > 0 ? n + [0,5,-3][st.track] : n), hats: st.track !== 2});
-      Sound.music.play(name); soundStarted = !!Sound.ready;
+      const point = new T.Vector3();
+      Sound.music.play(name,{position:()=>{root.updateWorldMatrix(true,false);return root.getWorldPosition(point)},room:'bedroom'}); soundStarted = !!Sound.ready;
     }
     function stopSound() { if (ownMusic()) Sound.music.stop(); soundStarted = false; }
     function display() {

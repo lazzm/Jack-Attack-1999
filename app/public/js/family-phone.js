@@ -41,11 +41,11 @@
   };
   const W = 96, H = 64;
 
-  // ================================================================ sound (own WebAudio context; silent unless the visitor has SFX on)
+  // ================================================================ sound (shared protected mix; silent unless the visitor has SFX on)
   let actx = null, master = null;
   function ac() {
     if (!window.Sound || !Sound.on || !Sound.ready) return null;
-    if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); master = actx.createGain(); master.gain.value = 0.12; master.connect(Sound.output(actx)); }
+    if (!actx) { actx = Sound.unlock(); if (!actx) return null; master = actx.createGain(); master.gain.value = 0.12; master.connect(Sound.output(actx)); }
     if (actx.state === 'suspended') actx.resume();
     return actx;
   }

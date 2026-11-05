@@ -294,7 +294,7 @@
     if (now) { anims.delete('door:' + id); move(t0); dirty(); }
     else anims.set('door:' + id, move);
     if (d.open) visCalc();
-    if (changed) { sfxDoor(d.open); emit('door', id, d.open); }
+    if (changed) { sfxDoor(d.open,d); emit('door', id, d.open); }
   }
   let visSet = new Set(), vegetationRoutes = new Map();
   const vegetationFrustum = new T.Frustum(), vegetationProjection = new T.Matrix4(), vegetationHidden = [];
@@ -839,11 +839,11 @@
     };
     PH.onImpact = (b, v) => {
       const t = b.user, now = performance.now(); if (!t || now - (lastBump.get(t.id) || 0) < 140) return; lastBump.set(t.id, now);
-      physicalSound('bump', { weight: thingWeight(t), speed: v });
+      physicalSound('bump', { weight: thingWeight(t), speed: v, ...thingSound(t) });
     };
     PH.onPush = (b, got, speed) => {
       const t = b.user, now = performance.now(); if (!t || got < 0.2 || now - (lastBump.get('push:' + t.id) || 0) < 160) return; lastBump.set('push:' + t.id, now);
-      physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed });
+      physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed, ...thingSound(t) });
     };
   }
   // the doors' leaves are kinematic boxes while they're open or swinging (a closed door is part of the wall)
@@ -898,7 +898,7 @@
     if (b) { bodyState(t); if (!drag) PH.supportGone(b); else PH.awake.delete(b); }
     layerFor(t); // update the cached front-layer state too, even before a frame renders
     if (cur && t.obj.parent !== cur.things && !drag) cur.things.attach ? cur.things.add(t.obj) : 0;
-    physicalSound('handle', {weight:thingWeight(t)});
+    physicalSound('handle', {weight:thingWeight(t),...thingSound(t)});
     ui.holdBar(t); saveGrip();
     emit('grab', id);
     return true;
@@ -1838,7 +1838,7 @@
     const from = o.k, to = o.open ? 1 : 0, t0 = performance.now(), v0 = anims.has('open:' + id) ? (o.vel || 0) : 0;
     const ms = Math.max(160, o.ms * (v0 ? Math.min(1, Math.abs(to - from) + .25) : 1));let last = t0, prev = from;
     anims.set('open:' + id, n => { const k = clamp((n - t0) / ms, 0, 1); o.k = clamp(from + (to - from) * H5(k) + v0 * ms * H1(k), 0, 1); if (n > last) { o.vel = (o.k - prev) / (n - last); prev = o.k; last = n; } o.apply(); if (k < 1) return true; o.k = to; o.vel = 0; o.apply(); return false; });
-    if (o.sound !== false) { physicalSound(o.type==='slide'?'drawer':'door',{open:o.open}); }
+    if (o.sound !== false) { physicalSound(o.type==='slide'?'drawer':'door',{open:o.open,position:o.pivot?.getWorldPosition(new T.Vector3()),room:cur?.id}); }
     if (o.onToggle) try { o.onToggle(o.open); } catch (e) { console.error(e); }
     emit('open', id, o.open); saveThings();
   }
@@ -1847,17 +1847,19 @@
   let AC = null, OUT = null, NB = null;
   function ac() { if (!window.Sound || !Sound.effectsOn || controlsPaused) return null; if (!AC) { try { AC = Sound.unlock && Sound.unlock(); } catch (e) { AC = null; } if (!AC) return null; OUT = AC.createGain(); OUT.gain.value = 0.5; OUT.connect(Sound.output(AC)); } if (AC.state === 'suspended') AC.resume(); return AC; }
   const sfx = {
-    tone(f, d, type, vol, when, to) { const c = ac(); if (!c || !(f > 0)) return; const t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'square'; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(Math.max(1, to), t + d); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); o.connect(g); g.connect(OUT); o.start(t); o.stop(t + d + 0.03); },
-    noise(d, vol, f, when, type, to) { const c = ac(); if (!c) return; const t = c.currentTime + (when || 0); if (!NB) { NB = c.createBuffer(1, c.sampleRate, c.sampleRate); const a = NB.getChannelData(0); for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1; } const s = c.createBufferSource(); s.buffer = NB; const fl = c.createBiquadFilter(); fl.type = type || 'lowpass'; fl.frequency.setValueAtTime(f || 2000, t); if (to) fl.frequency.exponentialRampToValueAtTime(Math.max(20, to), t + d); const g = c.createGain(); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); s.connect(fl); fl.connect(g); g.connect(OUT); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.03); },
+    tone(f, d, type, vol, when, to, output) { const c = ac(); if (!c || !(f > 0)) return; const t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'square'; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(Math.max(1, to), t + d); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); o.connect(g); g.connect(output||OUT); o.start(t); o.stop(t + d + 0.03); },
+    noise(d, vol, f, when, type, to, output) { const c = ac(); if (!c) return; const t = c.currentTime + (when || 0); if (!NB) { NB = c.createBuffer(1, c.sampleRate, c.sampleRate); const a = NB.getChannelData(0); for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1; } const s = c.createBufferSource(); s.buffer = NB;s.loop=true; const fl = c.createBiquadFilter(); fl.type = type || 'lowpass'; fl.frequency.setValueAtTime(f || 2000, t); if (to) fl.frequency.exponentialRampToValueAtTime(Math.max(20, to), t + d); const g = c.createGain(); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); s.connect(fl); fl.connect(g); g.connect(output||OUT); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.03); },
     ac, output: () => { ac(); return OUT; },
   };
   const physicalSound=(kind,o)=>window.Sound?.world?.(kind,o);
   function thingWeight(t) { return t.weight || (t.floorOnly || t.hx*t.hz*t.h>22000 ? 'heavy' : t.hx*t.hz*t.h<1600 ? 'light' : 'medium'); }
-  function sfxDoor(open) { physicalSound('door',{open}); }
+  function thingSound(t) { return {position:{x:t.at.x,y:-t.at.y,z:t.at.z},room:t.at.room}; }
+  function sfxDoor(open,d) { physicalSound('door',{open,position:d?.pivot?.getWorldPosition(new T.Vector3()),room:d?.rooms?.includes(cur?.id)?cur.id:d?.rooms?.[0]}); }
   function footSurface() {
     const stair=onStairs(W.x,W.z);
     if(stair&&W.z>stair.m0&&W.z<stair.m1)return 'stairs';
     if(cur?.id==='kitchen')return 'lino';
+    if(cur?.id==='bathroom')return 'tile';
     if(cur?.outside){const grass=cur.id==='garden'?!REAR.paving.some(([x0,z0,x1,z1])=>W.x>=x0&&W.x<=x1&&W.z>=z0&&W.z<=z1):W.x< -25&&W.z>770;return grass?'grass':'paving';}
     return 'carpet'; // The hall and landing are visibly carpeted, like the bedroom.
   }

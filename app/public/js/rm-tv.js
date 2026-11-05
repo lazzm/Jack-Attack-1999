@@ -84,10 +84,16 @@
   };
 
   // ================================================================ sound (only when the visitor has SFX on: there's a speaker button)
-  let AC = null, OUT = null, MUSIC_OUT = null, NB = null;
+  let AC = null, OUT = null, MUSIC_OUT = null, NB = null, audioRoutes = null, audioPoint = null;
   function ac() {
     if (!window.Sound || !Sound.on) return null;
-    if (!AC) { try { AC = Sound.unlock && Sound.unlock(); } catch (e) { AC = null; } if (!AC) return null; OUT = AC.createGain(); OUT.gain.value = 0.5; OUT.connect(Sound.output(AC)); MUSIC_OUT = AC.createGain(); MUSIC_OUT.gain.value = 0.5; MUSIC_OUT.connect(Sound.output(AC,'music')); }
+    if (!AC) { try { AC = Sound.unlock && Sound.unlock(); } catch (e) { AC = null; } if (!AC) return null; OUT = AC.createGain(); OUT.gain.value = 0.5; MUSIC_OUT = AC.createGain(); MUSIC_OUT.gain.value = 0.5; }
+    if(!audioRoutes){
+      audioPoint=audioPoint||new THREE.Vector3();
+      const options={position:()=>V&&_.soundPosition?.(V.con,V.surface,audioPoint),room:()=>_.soundRoom?.(V?.con,V?.surface),centered:()=>!V?.live||!!V?.lockedIn,level:()=>V?1:0};
+      const effects=Sound.emitter?.(AC,{...options,channel:'effects'}),music=Sound.emitter?.(AC,{...options,channel:'music'});
+      audioRoutes={effects,music};OUT.connect(effects?.input||Sound.output(AC));MUSIC_OUT.connect(music?.input||Sound.output(AC,'music'));
+    }
     if (AC.state === 'suspended') AC.resume();
     return AC;
   }
@@ -334,6 +340,10 @@
     }
     // This path is a real stop/eject, not a lean-out. Release both GPU textures.
     stopGame(); music(null);
+    if(audioRoutes){
+      const old=audioRoutes;audioRoutes=null;
+      for(const [node,route,channel]of [[OUT,old.effects,'effects'],[MUSIC_OUT,old.music,'music']])if(node){if(route){route.stop();setTimeout(()=>{try{node.disconnect(route.input)}catch(e){}},170)}else node.disconnect(Sound.output(AC,channel))}
+    }
     if (V.live && _.tvOff) _.tvOff(V.con,V.surface);
     try {localStorage.removeItem('jhp_console_focus');} catch (e) {}
     const el = V.el, wasBackground = V.background; V = null;
