@@ -184,7 +184,7 @@
       foot: { len: 23, w: 9.2, h: 8, heel: -5 },
       skin: '#f2c6a4', blush: '#ee8f86', brow: '#5a3322', hair: '#6a3a26', hair2: '#80492f', iris: '#5c7a4a',
       torso: [[0, 14, 10], [0.13, 13.5, 9.7], [0.3, 13.2, 9.5], [0.48, 14.1, 10.1], [0.65, 14.8, 9.8], [0.8, 15, 8.9], [0.89, 13.9, 7.6], [0.95, 9.6, 6.2], [1, 5.6, 4.8]],
-      limb: { arm: 1, leg: 1 }, step: 0.29, speed: 98,
+      limb: { arm: 1, leg: 1 }, step: 0.29, speed: 106,
     },
     dad: {
       H: 178, ankle: 7.5, knee: 47.5, hip: 88, hipX: 8.8, spine: 103, chest: 120, neck: 141.5, headY: 145,
@@ -194,7 +194,7 @@
       foot: { len: 27.5, w: 10.8, h: 8.6, heel: -5.5 },
       skin: '#eab896', blush: '#de8a78', brow: '#3e2a1e', hair: '#4a3324', hair2: '#5c4130', iris: '#4f6687',
       torso: [[0, 16.2, 11.4], [0.15, 16.4, 11.8], [0.33, 16.8, 12], [0.5, 17.6, 11.8], [0.68, 18.6, 11.2], [0.82, 19, 10], [0.91, 17.4, 8.4], [0.96, 11.5, 6.8], [1, 6.4, 5.4]],
-      limb: { arm: 1.12, leg: 1.12 }, step: 0.29, speed: 104,
+      limb: { arm: 1.12, leg: 1.12 }, step: 0.30, speed: 92,
     },
     sister: {
       H: 133, ankle: 5.8, knee: 32, hip: 61, hipX: 6.4, spine: 71, chest: 82, neck: 99.5, headY: 102.5,
@@ -204,7 +204,7 @@
       foot: { len: 19, w: 8, h: 7, heel: -4 },
       skin: '#f6cfb0', blush: '#f38f86', brow: '#9a6c3c', hair: '#b4834a', hair2: '#cc9c5e', iris: '#4a6ea6',
       torso: [[0, 11.2, 8.4], [0.14, 11, 8.3], [0.3, 11, 8.2], [0.48, 11.5, 8.3], [0.66, 12, 8], [0.82, 12.2, 7.4], [0.92, 11, 6.4], [0.97, 7.6, 5.4], [1, 4.8, 4.2]],
-      limb: { arm: 0.86, leg: 0.84 }, step: 0.3, speed: 96,
+      limb: { arm: 0.86, leg: 0.84 }, step: 0.29, speed: 102,
     },
     // a trick-or-treater from down the road (about 7): js/season-halloween.js picks the costume, skin and hair
     kid: {
@@ -422,8 +422,8 @@
 
     // ---- head (the face is painted: see paintFace), neck, ears
     G.add(grid(L.head[0], L.head[1], S.shape.fn), skin, 'head', { face: S, noAO: true });
-    const nr = 0.31 * rx;
-    G.add(loft([[S.neck - 5, 0, -1.2, nr + 0.6, nr + 0.3], [S.neck, 0, -1.1, nr, nr - 0.2], [cy - ry * 0.55, 0, -0.6, nr - 0.2, nr - 0.4]], L.limb, { bottom: false, top: false }),
+    const nr = (S.familyHands ? 0.36 : 0.31) * rx;
+    G.add(loft([[S.neck - (S.familyHands ? 6 : 5), 0, -1.2, nr + (S.familyHands ? 1.7 : 0.6), nr + (S.familyHands ? 1 : 0.3)], [S.neck + (S.familyHands ? 0.8 : 0), 0, -1.1, nr, nr - 0.2], [cy - ry * 0.55, 0, -0.6, nr - 0.2, nr - 0.4]], L.limb, { bottom: false, top: false }),
       skin, (x, y) => blend(y, S.neck - 2, S.headY + 1, 'chest', 'head'));
     const hair = HAIR[S.hairStyle || kind] || HAIR.short;
     if (!hair.ears) for (const sd of ['L', 'R']) {
@@ -441,6 +441,7 @@
     // the top comes down over the waistband (a hem that overlaps the trousers, never a gap or a seam at the hips)
     const ty0 = S.hip - 1.5, ty1 = S.neck + 0.5;
     const torso = (O.torso || S.torso).map(([t, hw, hd]) => [lerp(ty0, ty1, t), 0, 0.3 + 0.9 * Math.sin(t * Math.PI) * (t < 0.9 ? 1 : 0.5), hw * (1 - 0.07 * smooth((t - 0.76) / 0.16)), hd]);
+    if (S.familyHands) { const shoulder=torso[torso.length-2]; shoulder[0]-=0.6; shoulder[3]+=0.9; shoulder[4]+=0.35; } // Same rings, a gentler trapezius/shoulder slope.
     // the hips: one rounded pelvis (a little seat at the back) wide enough to hold the tops of both thighs, so the
     // trousers follow one smooth shape (no ledge where the legs start, no wedge between them)
     const ll0 = S.limb.leg, le0 = O.legEase || 0, pe = O.pelvisEase || 0, jx = S.hipX - 1.1;
@@ -948,7 +949,7 @@
   function buildProps(G, S, J, kind, L) {
     const at = b => J['p_' + b], want = new Set(PROPS_FOR[kind] || []), on = p => want.has(p);
     const paper = C('#ece8dc'), ink = C('#5a564c'), sg = L.limb + 2;
-    if (on('paper')) { const P = at('paper'); for (const sx of [-1, 1]) G.add(rbox([P[0] + sx * 13, P[1], P[2] - Math.abs(sx) * 1.6], [26, 36, 0.45], 0.15, [0, sx * 9, 0], 1), (x, y) => { const lx = x - P[0], ly = y - P[1], col = Math.floor((lx + 40) / 3.3) % 2, row = Math.floor((ly + 40) / 1.15) % 2; return (ly > 12 && ly < 14.5) ? ink : (col && row && ly < 10 && Math.abs(lx) > 2 ? ink.clone().lerp(paper, 0.45) : paper); }, 'p_paper', { noAO: true }); }
+    if (on('paper')) { const P = at('paper'); for (const sx of [-1, 1]) G.add(rbox([P[0] + sx * 11, P[1], P[2] - 1.6], [22, 36, 0.45], 0.15, [0, sx * 9, 0], 1), (x, y) => { const lx = x - P[0], ly = y - P[1], col = Math.floor((lx + 40) / 3.3) % 2, row = Math.floor((ly + 40) / 1.15) % 2; return (ly > 12 && ly < 14.5) ? ink : (col && row && ly < 10 && Math.abs(lx) > 2 ? ink.clone().lerp(paper, 0.45) : paper); }, 'p_paper', { noAO: true }); }
     if (on('mug')) { const M = at('mug'); G.add(tube([M[0] + 3.2, M[1] - 4.5, M[2]], [M[0] + 3.2, M[1] + 4.5, M[2]], 3.5, 3.6, sg), (x, y) => y > M[1] + 4.2 ? C('#7a4a2a') : C('#d8493b'), 'p_mug'); G.add(torusArc([M[0] - 0.2, M[1], M[2]], 2.0, 0.55, Math.PI, [0, 0, 90], null, 6, 4), C('#d8493b'), 'p_mug'); }
     if (on('sponge')) { const Sp = at('sponge'); G.add(rbox([Sp[0], Sp[1] - 1, Sp[2] + 1.5], [4.6, 3.2, 8], 1.0, null, 1), (x, y) => y > Sp[1] - 0.3 ? C('#3c8a3e') : C('#f2d24a'), 'p_sponge'); }
     if (on('spoon')) { const Sw = at('spoon'); G.add(tube([Sw[0], Sw[1] + 3, Sw[2]], [Sw[0], Sw[1] - 22, Sw[2] + 3], 0.6, 0.55, 4), C('#c79a5c'), 'p_spoon'); G.add(ell([Sw[0], Sw[1] - 24, Sw[2] + 3.2], [1.9, 3.0, 0.8], [6, 4]), C('#c79a5c'), 'p_spoon'); }
@@ -987,11 +988,13 @@
   // ================================================================ the material: stock lighting + the painted face
   // One program for everybody (the same onBeforeCompile source); each person has their own material for their own atlas
   // and face-frame uniforms. The fragment picks the eye and mouth frames from the atlas (the old games' texture swap).
-  const FACE_DECL = 'varying vec3 vNpFace;\nuniform vec4 npEye;\nuniform vec4 npMouth;\nuniform vec2 npEyeCell;\nuniform vec2 npMouthCell;\nuniform vec2 npGaze;\nuniform float npRim;\n';
+  const FACE_DECL = 'varying vec3 vNpFace;\nuniform vec4 npEye;\nuniform vec4 npMouth;\nuniform vec2 npEyeCell;\nuniform vec2 npMouthCell;\nuniform vec2 npGaze;\nuniform float npBrow;\nuniform float npRim;\n';
   const FACE_FRAG = `
     if (vNpFace.z > 0.002) {
       vec2 npf = vNpFace.xy;
-      vec4 npc = texture2D(map, vec2(0.0, 0.5) + clamp(npf * 0.25 + 0.25, 0.01, 0.49), -0.6);
+      vec2 npbase = npf;
+      npbase.y -= npBrow * step(0.12, npf.y) * step(npf.y, 0.50);
+      vec4 npc = texture2D(map, vec2(0.0, 0.5) + clamp(npbase * 0.25 + 0.25, 0.01, 0.49), -0.6);
       diffuseColor.rgb = mix(diffuseColor.rgb, npc.rgb, npc.a * vNpFace.z * step(max(abs(npf.x), abs(npf.y)), 0.94));
       vec2 npg = npf - npGaze;
       vec2 npe = (vec2(abs(npg.x), npg.y) - npEye.xy) / npEye.zw * 0.5 + 0.5;
@@ -1013,7 +1016,7 @@
   function material(low, tex, uni) {
     const P = { vertexColors: true, skinning: true, map: tex };
     const m = low ? new T.MeshLambertMaterial(P) : new T.MeshPhongMaterial(Object.assign(P, { shininess: 6, specular: new T.Color('#0c0c0c') }));
-    m.userData.np = { npEye: { value: new T.Vector4(...uni.eye) }, npMouth: { value: new T.Vector4(...uni.mouth) }, npEyeCell: { value: new T.Vector2(CELL.eye(0)[0], CELL.eye(0)[1]) }, npMouthCell: { value: new T.Vector2(CELL.mouth(0)[0], CELL.mouth(0)[1]) }, npGaze: { value: new T.Vector2() }, npRim: { value: low ? 0 : 0.12 } };
+    m.userData.np = { npEye: { value: new T.Vector4(...uni.eye) }, npMouth: { value: new T.Vector4(...uni.mouth) }, npEyeCell: { value: new T.Vector2(CELL.eye(0)[0], CELL.eye(0)[1]) }, npMouthCell: { value: new T.Vector2(CELL.mouth(0)[0], CELL.mouth(0)[1]) }, npGaze: { value: new T.Vector2() }, npBrow: { value: 0 }, npRim: { value: low ? 0 : 0.12 } };
     m.onBeforeCompile = npCompile;
     return m;
   }
@@ -1043,6 +1046,8 @@
     let lodNow = LOD[0];
     const first = dress(outfit);
     const S = first.S, J = first.J;
+    const motion = kind === 'dad' ? { bob: 1.8, sway: 2, roll: 3.6, yaw: 6.5, arm: 18 } : kind === 'mom' ? { bob: 1.25, sway: 1.65, roll: 3.2, yaw: 8, arm: 24 } : kind === 'sister' ? { bob: 2.1, sway: 1.8, roll: 4, yaw: 8.5, arm: 27 } : { bob: 1.2, sway: 1.7, roll: 3, yaw: 7, arm: 22 };
+    const neutralQ = new T.Quaternion();
     const bones = BONES.map(n => { const b = new T.Bone(); b.name = n; return b; }), B = {};
     BONES.forEach((n, i) => { B[n] = bones[i]; });
     for (const n of BONES) { const p = PARENT[n], j = J[n]; if (p) { B[p].add(B[n]); const pj = J[p]; B[n].position.set(j[0] - pj[0], j[1] - pj[1], j[2] - pj[2]); } else B[n].position.set(j[0], j[1], j[2]); }
@@ -1093,10 +1098,10 @@
       feet: [{ x: 0, y: 0, z: 0, yaw: 0, swing: null, side: 1, lift: 0, stance: -1 }, { x: 0, y: 0, z: 0, yaw: 0, swing: null, side: -1, lift: 0, stance: -1 }],
       placed: false, contactK: 0, contactPoint: null, contactSide: null,
       action: null, seat: null, seatPose: null, look: null, carry: false, props: {}, sitK: 0, engage: false,
-      talkUntil: 0, talkStart: 0, talkSeed: Math.floor(Math.random() * 9), talkText: '', mouth: 0,
+      talkUntil: 0, talkStart: 0, talkSeed: Math.floor(Math.random() * 9), talkText: '', mouth: 0, brow: 0,
       blinkAt: 1 + Math.random() * 3, blinkT: 0,
       gaze: { x: 0, y: 0 }, saccadeAt: 0, glanceAt: 3, glance: null,
-      sm: {}, hairS: 0, hairV: 0, hairHeading: 0, seed: Math.random() * 9, lean: Math.random() < 0.5 ? 1 : -1, wside: 0, glanceT: 0,
+      sm: {}, hairS: 0, hairV: 0, hairHeading: 0, seed: Math.random() * 9, lean: Math.random() < 0.5 ? 1 : -1, wside: 0, weightAt: 0, weightSide: 0, glanceT: 0,
     };
     const floorFn = { f: null };
     const fwd = new T.Vector3();
@@ -1190,6 +1195,10 @@
             const side = f.side * (S.hipX - 1.4), c = Math.cos(st.h), sn = Math.sin(st.h);
             let lx = st.x + fw.x * ahead + side * c, lz = st.z + fw.z * ahead - side * sn, ly = floorAt(lx, lz);
             const sw = f.swing;
+            // A foot already below the body must not be pulled back onto a
+            // higher tread on a descending start. Keep that contact for this
+            // short step while the body and other foot catch up.
+            if (st.climb < -0.1 && ly < sw.y0 - 2) { lx = sw.x0; lz = sw.z0; ly = sw.y0; }
             const toe = S.foot.heel + S.foot.len + 0.6;
             if (sw.toeRise === undefined) { sw.toeY = floorAt(lx + fw.x * toe, lz + fw.z * toe); sw.toeRise = Math.abs(sw.toeY - ly) > 2; }
             if (sw.landY === undefined && (sw.toeRise || Math.abs(ly - sw.y0) > 2 || Math.abs(st.climb) > 0.1)) {
@@ -1276,7 +1285,7 @@
     const table = H => (st.seat && st.seat.table) || H + 22;
     const mouthAt = H => S.mouthY - (S.hip + 2 - H);
     const paperQ = new T.Quaternion().setFromAxisAngle(UPV.clone().set(1, 0, 0), 20 * D2R), paperP = new T.Vector3();
-    const paperC = Math.cos(20 * D2R), paperS = Math.sin(20 * D2R), gripY = -13 - S.handLen * 0.55, gripZ = -2.8 + S.handLen * 0.12;
+    const paperC = Math.cos(20 * D2R), paperS = Math.sin(20 * D2R), gripY = -13 - S.handLen * 0.55, gripZ = -3.3 + S.handLen * 0.12;
     const paperAct = { arms: { L: { ik: [22, 0, 0], pole: [0.8, -0.6, -0.8], hand: [200, 0, 0], worldHand: true },
       R: { ik: [-22, 0, 0], pole: [-0.8, -0.6, -0.8], hand: [200, 0, 0], worldHand: true } }, lean: -4, lookR: [0, 0, 40], props: { paper: 1 } };
     function reading(t, H) {
@@ -1285,8 +1294,16 @@
       paperAct.arms.L.ik[1] = paperAct.arms.R.ik[1] = y; paperAct.arms.L.ik[2] = paperAct.arms.R.ik[2] = z;
       paperAct.lookR[1] = H + 30; return paperAct;
     }
+    // The scrub path has fixed structure. Reuse its original pose data rather
+    // than allocating two arm targets, poles, wrists and a prop map every frame.
+    const washAct = { arms: { L: { ik: [10,0,43], pole: [0.6,-0.4,-1], hand: [0,0,0], worldHand: true }, R: { ik: [0,0,0], pole: [-0.6,-0.4,-1], hand: [0,0,0], worldHand: true } }, lean: 12, lookR: [0,0,47], props: { sponge: 1 } };
+    function washing(t, H) {
+      const sn = Math.sin(t * 3), right = washAct.arms.R.ik;
+      washAct.arms.L.ik[1] = H + 13; right[0] = -7 - Math.cos(t * 3) * 2; right[1] = H + 11 + sn * 0.6; right[2] = 46 + sn * 1.5;
+      washAct.lookR[1] = H + 2; return washAct;
+    }
     const ACT = {
-      washup: (t, H) => ({ arms: { L: { ik: [10, H + 13, 43], pole: [0.6, -0.4, -1], hand: [0, 0, 0], worldHand: true }, R: { ik: [-7 - Math.cos(t * 3) * 2, H + 11 + Math.sin(t * 3) * 0.6, 46 + Math.sin(t * 3) * 1.5], pole: [-0.6, -0.4, -1], hand: [0, 0, 0], worldHand: true } }, lean: 12, lookR: [0, H + 2, 47], props: { sponge: 1 } }),
+      washup: washing,
       cook: (t, H) => ({ arms: { L: { ik: [17, H + 7, 27], pole: [0.8, -0.3, -1], hand: [-70, 0, 0] }, R: { ik: [-7 - Math.cos(t * 3.4) * 3.2, H + 15, 33 + Math.sin(t * 3.4) * 3.2], pole: [-0.7, -0.4, -1], hand: [-10, 0, 0] } }, lean: 6, lookR: [-5, H + 6, 40], props: { spoon: 1 } }),
       wipe: (t, H) => ({ arms: { L: { ik: [15, H - 9, 31], pole: [0.8, -0.2, -1], hand: [-75, 0, 0] }, R: { ik: [-9 - Math.cos(t * 2.6) * 9, H - 9.5, 37 + Math.sin(t * 2.6) * 6], pole: [-0.7, -0.3, -1], hand: [-80, 0, 0] } }, lean: 22, lookR: [-6, H - 14, 40], props: { sponge: 1 } }),
       water: (t, H) => ({ arms: { L: [6, 8, 0, 25, 0], R: { ik: [-12, H + 2 + Math.sin(t * 0.8) * 2, 30], pole: [-0.7, -0.5, -1], hand: [20 + Math.sin(t * 0.8) * 12, 0, 0] } }, lean: 6, lookR: [-10, 0, 90], props: { can: 1 } }),
@@ -1317,12 +1334,15 @@
     const lookR = new T.Vector3();
     function update(dt, near) {
       st.t += dt; const t = st.t, now = performance.now(), talking = now < st.talkUntil;
+      const voice = near && talking ? st.talkVoice : null, voiceActive = voice && voice.started && !voice.ended;
+      const voiceOpen = voiceActive ? clamp(voice.level(), 0, 1) : 0;
       // A selected phrase beat, followed by a hold; no free-running hand wave.
       st.accent = 0;
       if (near && talking) {
         const beat = (now - st.talkStart) / (440 + st.talkSeed * 17), phase = beat % 1;
         const ch = st.talkText[Math.floor((now - st.talkStart) * 0.0135)] || ' ';
         if ((Math.floor(beat) === 0 || Math.floor(beat) % 3 === st.talkSeed % 3) && !/[.,;:!?]/.test(ch)) st.accent = Math.sin(Math.PI * clamp(phase / 0.55, 0, 1)) ** 2;
+        if (voice) st.accent *= voiceActive ? smooth(clamp(voiceOpen * 2, 0, 1)) : voice.ended || st.talkHeard ? 0 : 1;
       }
       const k = 1 - Math.exp(-dt * 9);
       gaitUpdate(dt);
@@ -1338,20 +1358,28 @@
         const g = st.gait * TAU, spd = clamp(st.v / S.speed, 0, 1.4);
         // the body over the planted foot: a soft bob (lowest at the double support), a side-to-side sway, the pelvis rolling
         // and turning with the stride (the shoulders counter-turn above it), and leaning into stairs going up
-        const climb = st.climb;
-        hy += -Math.cos(g * 2) * (1.2 + Math.abs(climb) * 1.2) * spd - 0.9 * spd; hx = Math.sin(g) * 1.7 * spd; roll = -Math.sin(g) * 3.0 * spd; yaw = Math.sin(g) * 7 * spd; pitch = (3 + climb * 7) * spd;
-      } else {
+        const climb = st.climb, flat = Math.abs(climb) < 0.1, sn = Math.sin(g);
+        hy += -Math.cos(g * 2) * ((flat ? motion.bob : 1.2) + Math.abs(climb) * 1.2) * spd - 0.9 * spd; hx = sn * (flat ? motion.sway : 1.7) * spd; roll = -sn * (flat ? motion.roll : 3) * spd; yaw = sn * (flat ? motion.yaw : 7) * spd; pitch = (3 + climb * 7) * spd;
+      } else if (near) {
         // weight shifts slowly from foot to foot
         // a relaxed stance: weight on one leg (each person has a favourite side), drifting slowly, now and then swapping
-        const ws = Math.sin(t * 0.33 + st.seed) * 0.5 + Math.sin(t * 0.13) * 0.3, side = Math.sin(t * 0.045 + st.seed) > -0.35 ? st.lean : -st.lean;
+        if (!st.weightSide) st.weightSide = st.lean;
+        if (t > st.weightAt) { st.weightAt = t + 5 + Math.random() * 8; st.weightSide = Math.random() < 0.7 ? -st.weightSide : st.lean; }
+        const ws = Math.sin(t * 0.33 + st.seed) * 0.5 + Math.sin(t * 0.13 + st.seed) * 0.3, side = st.weightSide;
         st.wside += (side - st.wside) * (1 - Math.exp(-dt * 1.2));
         hx = st.wside * 1.7 + ws * 0.8; roll = st.wside * 3.4 + ws * 1.2; hy -= 0.8 + Math.abs(ws) * 0.3;
         const support = st.feet[0].swing ? -1 : st.feet[1].swing ? 1 : 0;
         const lift = Math.max(st.feet[0].lift, st.feet[1].lift);
         if (support) { hx = lerp(hx, support * S.hipX * 0.35, lift); roll = lerp(roll, support * 2.8, lift); }
-      }
+      } else hy -= 0.8; // Far characters retain contacts, without cosmetic idle motion.
+      // Hips retreat before lowering; on rising the chest/hips first come
+      // forward over the feet. One continuous blend also works when interrupted.
+      const transfer = seat ? Math.sin(Math.PI * Math.pow(sitK, st.seat ? 0.45 : 2)) : 0;
       if (sitK > 0.001 && seat) {
-        hx = lerp(hx, 0, sitK); hy = lerp(hy, seat.h + 7.5, sitK); hz = lerp(hz, seat.hipForward ?? (seat.back ? -2 : 0), sitK); roll *= 1 - sitK; yaw *= 1 - sitK; pitch = lerp(pitch, seat.back ? -10 : -2, sitK) + 20 * 4 * sitK * (1 - sitK);
+        const heightK = st.seat ? smooth(clamp((st.sitK - 0.1) / 0.9, 0, 1)) : 1 - smooth(clamp((1 - st.sitK - 0.18) / 0.82, 0, 1));
+        hx = lerp(hx, 0, sitK); hy = lerp(hy, seat.h + 7.5, heightK);
+        hz = (seat.hipForward ?? (seat.back ? -2 : 0)) * sitK + (st.seat ? -6 : 10) * transfer;
+        roll *= 1 - sitK; yaw *= 1 - sitK; pitch = lerp(pitch, seat.back ? -5 : -2, sitK) + 6 * transfer;
       }
       if (st.action === 'reach' && st.contactK) { hz += (kind === 'sister' ? 16 : kind === 'mom' ? 8 : 6) * st.contactK; hx += (st.contactSide === 'L' ? 1 : -1) * (kind === 'sister' ? 5 : 2) * st.contactK; }
       // never stretch a leg: the hips drop if a foot is low (stairs, a wide stance)
@@ -1372,7 +1400,7 @@
       _q.setFromEuler(_e.set(pitch * D2R, yaw * D2R, roll * D2R, 'YXZ')); slerpTo('hips', _q, st.walking ? 1 : k);
       W.hips.p.copy(B.hips.position); W.hips.q.copy(B.hips.quaternion);
       // ---- spine/chest: counter-rotate the walk, lean into the action, breathe
-      const lean = (act?.lean || 0) + (st.walking ? 2 : 0), breathe = Math.sin(t * (1.45 + st.seed * 0.035)) * 0.9;
+      const lean = (act?.lean || 0) + (st.walking ? 2 : 0) + transfer * (kind === 'dad' ? 23 : 19), breathe = near ? Math.sin(t * (1.45 + st.seed * 0.035)) * 0.9 : 0;
       _q.setFromEuler(_e.set((lean * 0.45 + (seat ? (seat.back ? 4 : 2) * sitK : 0)) * D2R, -yaw * 0.75 * D2R, -roll * 0.5 * D2R, 'YXZ')); slerpTo('spine', _q, k); fk('spine');
       _q.setFromEuler(_e.set((lean * 0.55 - breathe * 0.6) * D2R, -yaw * 0.8 * D2R, -roll * 0.35 * D2R, 'YXZ')); slerpTo('chest', _q, k); fk('chest');
       for (const sd of ['L', 'R']) { _q.setFromEuler(_e.set(0, 0, (sd === 'L' ? 1 : -1) * breathe * 0.5 * D2R)); slerpTo('clav' + sd, _q, k); fk('clav' + sd); }
@@ -1423,11 +1451,26 @@
         let a = act?.arms ? act.arms[sd] : null;
         if (st.action === 'reach' && st.contactSide && sd !== st.contactSide) a = null;
         if (!a && st.carry) a = ACT.carry(t, hy).arms[sd];
-        if (!a && seat && sitK > 0.08) a = ACT.sit(t, hy).arms[sd];
-        if (!a && talking && (sd === 'R' || st.talkSeed % 2 || act?.props?.mug)) a = talkArm(t, sd, sd === 'R' ? 1 : 0.55);
-        if (!a) { const sw = Math.sin(g + (sd === 'L' ? Math.PI : 0)) * 22 * swing; a = [4 + sw + wob(t * 0.4, st.seed + s) * 1.5, 5.5 + wob(t * 0.3, st.seed + s + 3) * 1.2 + 1.5 * swing, -8 * (1 - swing * 0.5), 18 + (sd === 'L' ? 4 : 0) + Math.max(0, sw) * 1.1 + 8 * swing, 8 + 6 * swing, -7]; }
+        if (!a && seat && sitK > 0.65) a = ACT.sit(t, hy).arms[sd];
+        if (!a && near && talking && (sd === 'R' || st.talkSeed % 2 || act?.props?.mug)) a = talkArm(t, sd, sd === 'R' ? 1 : 0.55);
+        if (!a) { const sw = Math.sin(g + (sd === 'L' ? Math.PI : 0)) * motion.arm * swing; a = [4 + sw + (near ? wob(t * 0.4, st.seed + s) * 1.5 : 0), 5.5 + (near ? wob(t * 0.3, st.seed + s + 3) * 1.2 : 0) + 1.5 * swing, -8 * (1 - swing * 0.5), 18 + (sd === 'L' ? 4 : 0) + Math.max(0, sw) * 1.1 + 8 * swing, 8 + 6 * swing, -7]; }
         if (Array.isArray(a)) armFK(sd, a, k);
         else { tgt.set(a.ik[0], a.ik[1], a.ik[2]); pole.set(a.pole[0], a.pole[1], a.pole[2]).normalize(); armIK(sd, tgt, pole, k, eul(a.hand[0], a.hand[1], a.hand[2]), a.worldHand); }
+      }
+      // A real armrest/seat surface, read once by the seat callback. Only
+      // reach once it is inside the arm's envelope; never straighten an arm
+      // towards an unreachable chair behind a standing character.
+      st.seatBraceK = 0;
+      if (seat?.support && !st.engage && (!act || ['sit', 'telly', 'doze'].includes(st.action))) {
+        const p = seat.support, sd = p.side;
+        toRig(tgt, p.x, p.y, p.z);
+        const edgeYaw = (p.yaw ?? st.h) - st.h;
+        if (p.edge) { tgt.y += S.handLen * 0.6; tgt.x -= Math.sin(edgeYaw) * S.handLen * 0.12; tgt.z -= Math.cos(edgeYaw) * S.handLen * 0.12; }
+        else { tgt.y += S.handLen * 0.1; tgt.z += S.handLen * 0.35; }
+        const distance = tgt.distanceTo(W['arm' + sd].p), length = segs['arm' + sd].L + segs['fore' + sd].L;
+        const brace = smooth(clamp((length * 0.98 - distance) / 3, 0, 1)) * smooth(clamp((sitK - 0.2) / 0.4, 0, 1));
+        if (brace) { pole.set(sd === 'L' ? 0.8 : -0.8, -0.5, -0.4).normalize(); armIK(sd, tgt, pole, brace, p.edge ? eul(0, edgeYaw / D2R, 0) : eul(90, 0, 0), true); }
+        st.seatBraceK = brace;
       }
       if (st.contactK && st.contactPoint) {
         const sd = st.contactSide, point = st.contactPoint;
@@ -1467,6 +1510,15 @@
         _bx.crossVectors(UPV, _v).normalize(); _by.crossVectors(_v, _bx).normalize();
         _m.makeBasis(_bx, _by, _v); b.quaternion.setFromRotationMatrix(_m); b.position.copy(c).add(_v.multiplyScalar(-1.5));
       }
+      // Far rigs keep the support/action pose but skip glances, breaths,
+      // secondary hair and painted face work. Refresh the cached head frame.
+      if (!near) {
+        B.neck.quaternion.identity(); B.head.quaternion.identity(); fk('neck'); fk('head');
+        if (st.cosmeticNear !== false) { B.hairL.rotation.set(0,0,kind === 'sister' ? .05 : 0); B.hairR.rotation.set(0,0,kind === 'sister' ? -.05 : 0); st.hairS = st.hairV = 0; }
+        st.cosmeticNear = false; useLod(false); setFace(act?.doze ? EYE.shut : EYE.open, MOUTH.smile); U.npGaze.value.set(0,0); U.npBrow.value = 0; return;
+      }
+      if (st.cosmeticNear === false) { st.sm.neck?.copy(B.neck.quaternion); st.sm.head?.copy(B.head.quaternion); st.hairHeading = st.h; }
+      st.cosmeticNear = true;
       // ---- head and eyes: look at something (the player when close), glance about now and then
       fk('neck');
       let look = null;
@@ -1487,18 +1539,23 @@
       if (st.walking && !st.look) pitchH -= 0.08;
       if (act?.doze && !st.look) { yawH = 0.25; pitchH = 0.32; }
       const nod = (st.accent || 0) * 0.055;
-      _q.setFromEuler(_e.set(-pitchH * 0.4, yawH * 0.4, 0, 'YXZ')); slerpTo('neck', _q, k * 0.7); fk('neck');
-      _q.setFromEuler(_e.set(-pitchH * 0.6 - nod, yawH * 0.6, Math.sin(t * 0.21) * 0.03, 'YXZ')); slerpTo('head', _q, k * 0.7); fk('head');
+      const stableHead = st.walking && !look;
+      _q.setFromEuler(_e.set(-pitchH * 0.4, yawH * 0.4, 0, 'YXZ'));
+      if (stableHead) { qF.copy(_q); _q.copy(W.chest.q).invert().slerp(neutralQ,0.5).multiply(qF); }
+      slerpTo('neck', _q, k * 0.7); fk('neck');
+      if (stableHead) { qF.setFromEuler(_e.set(-pitchH-nod,0,0,'YXZ')); _q.copy(W.neck.q).invert().multiply(qF); }
+      else _q.setFromEuler(_e.set(-pitchH * 0.6 - nod, yawH * 0.6, Math.sin(t * 0.21 + st.seed) * 0.03, 'YXZ'));
+      slerpTo('head', _q, k * 0.7); fk('head');
       // the bunches bounce
       if (kind === 'mom' || kind === 'sister') { // the other hairstyles have no secondary bones
-        const hairHeading = st.h + yawH;
-        st.hairV -= clamp(angd(st.hairHeading, hairHeading), -0.3, 0.3) * 5; st.hairHeading = hairHeading;
+        _v.set(0,0,1).applyQuaternion(W.head.q);
+        const hairHeading = st.h + Math.atan2(_v.x,_v.z);
+        st.hairV -= clamp(angd(st.hairHeading, hairHeading), -0.3, 0.3) * (kind === 'sister' ? 8 : 6); st.hairHeading = hairHeading;
         st.hairV += (-st.hairS * 40 - st.hairV * 5 + (st.walking ? Math.cos(g * 2) * 8 : 0)) * dt; st.hairS = clamp(st.hairS + st.hairV * dt, -1.2, 1.2);
         const bunch = kind === 'sister' ? 0.05 : 0;
-        B.hairL.rotation.set(st.hairS * 0.05, st.hairS * 0.045, bunch + st.hairS * 0.06); B.hairR.rotation.set(st.hairS * 0.05, st.hairS * 0.045, -bunch - st.hairS * 0.06);
+        B.hairL.rotation.set(st.hairS * 0.08, st.hairS * 0.09, bunch + st.hairS * 0.12); B.hairR.rotation.set(st.hairS * 0.075 + st.hairV * 0.006, st.hairS * 0.08, -bunch - st.hairS * 0.1);
       }
       useLod(near);
-      if (!near) { setFace(act?.doze ? EYE.shut : EYE.open, MOUTH.smile); U.npGaze.value.set(0, 0); return; } // far away: no face animation
       // the painted eyes lead the head a little and dart about now and then
       const holding = !!st.look;
       if (t > st.saccadeAt) {
@@ -1518,13 +1575,14 @@
       let eye = EYE.open; if (!st.look && !talking && (st.action === 'paper' || st.action === 'draw' || st.action === 'magazine' || st.action === 'washup')) eye = EYE.half; if (act?.doze && !st.look) eye = EYE.shut;
       if (st.blinkT > 0) { st.blinkT -= dt; eye = st.blinkT > 0.135 || st.blinkT < 0.045 ? EYE.half : EYE.shut; }
       if (near && talking && st.accent > 0.65 && /[!?]/.test(st.talkText) && st.blinkT <= 0) eye = EYE.happy;
+      st.brow += ((talking ? st.accent * 0.032 : 0) - st.brow) * k; U.npBrow.value = st.brow;
       // talking: mouth frames from the line's rhythm (syllable-ish beats, rounder on o/u, closed at punctuation)
       let open = 0, ch = ' ';
       if (talking) {
         const el = (performance.now() - st.talkStart) / 1000, text = st.talkText, v = st.talkVoice;
         if (v && v.started && !v.ended) { // a recording is playing: the mouth follows how loud it is right now
           const ci = Math.floor(v.progress() * text.length); ch = text[ci] || ' ';
-          open = v.level(); st.talkHeard = true;
+          open = voiceOpen; st.talkHeard = true;
         } else if (v && (v.ended || st.talkHeard)) open = 0; // (the recording has finished: close up, even if the timer runs on)
         else {
           const ci = Math.floor(el * 13.5); ch = text[ci] || ' ';
@@ -1534,7 +1592,7 @@
         }
         if (el < 0.7 && /!/.test(text) && eye === EYE.open) eye = EYE.happy; // a cheery line starts with smiling eyes
       }
-      st.mouth += (open - st.mouth) * (1 - Math.exp(-dt * 22));
+      st.mouth += (open - st.mouth) * (1 - Math.exp(-dt * (open > st.mouth ? 34 : 24)));
       const m = st.mouth < 0.18 ? MOUTH.smile : st.mouth > 0.4 && /[oOuUwW]/.test(ch) ? MOUTH.oh : st.mouth > 0.58 ? MOUTH.open : MOUTH.small;
       setFace(eye, m);
     }

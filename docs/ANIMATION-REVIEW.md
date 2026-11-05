@@ -1,6 +1,8 @@
 # Family model and animation pass — review log
 
-## Baseline
+Current: [round 3 results](#round-3--5-november-2026) and [the rewritten next ten](#next-ten--remaining-after-round-3). Earlier round findings and validation remain as dated history.
+
+## Round 1 baseline — historical
 
 Branch `models`, baseline `2040234`. Production files were unchanged during research and baseline capture. `tests/models-animation.mjs --baseline` loads the HEAD rig in an isolated solid diagnostic stage with the game's three.js r128. It is a **rig probe**, not evidence of navigation or actual handle contact. Fixed random seed, lighting, 52-degree vertical field of view, 2 m / 4 m cameras, Low tier, 1366×860 desktop and 390×844 portrait projection. Each sequence records 0.10, 0.40, 0.80 and 1.40 seconds. Frames and labelled sheets: `tests/shots/models/before/`.
 
@@ -60,7 +62,7 @@ At 2 m, the new palm/thumb/finger silhouette reads more clearly, and Mom's rear 
 
 Portrait phone projection was reviewed; tablet and landscape art coverage and physical-device GPU measurements remain unverified. Controlled descent contact is covered by the skinned-geometry check, but final rendered sequences show ascent only.
 
-## Next ten
+## Round 1 carry-over list — historical
 
 1. Target each real door handle in world space, follow its hinge briefly and release cleanly.
 2. Author paper/mug/sponge grip poses with finger contact and two explicit paper grip points.
@@ -219,17 +221,151 @@ Browser regression commands ran serially through `tests/models-gate.mjs` with di
 Personally inspected all 24 Low probe sheets and all 24 final seven-action house sheets. Comparison review caught far lounge cameras outside the valid floor in several HEAD views; those were rejected. HEAD was recaptured from a valid interior camera, but the matching after recapture did not complete before the stop. Forty far Mom/sister lounge frames consequently remain unmatched and are excluded from the paired comparison sheets. Raw records retain camera coordinates/ranges. Desktop and portrait-phone matrices are present; landscape/tablet and physical weak-phone performance remain unverified. The real reload assertion covers one naturally scheduled sister mid-sit; both-direction transition restoration for nine family-seat combinations is an API check, not nine real browser reloads. Movable dining/desk chairs, finger-pad penetration on every prop, every seasonal outfit's visual appearance, and exhaustive interrupted door contacts remain next-round work. No deployment or commit was performed.
 
 
-### Next ten
+### Round 3 starting priorities — rewritten before implementation
 
-1. Bind NPC sitting to additional movable dining/desk chairs using their real surfaces, without adding family routes in this branch.
-2. Give the sister an authored armchair perch and test upholstery clearance there as closely as her sofa perch.
-3. Add hand support on armrests/thighs during the weight transfer into/out of seats; retain interruption continuity.
-4. Extend explicit grip frames to the magazine, drawing pad/crayon, watering can and briefcase; add object-surface penetration checks for finger pads.
-5. Keep the newspaper's object frame stable throughout its fade/put-down and add an original page-turn gesture.
-6. Exercise NPC door reaches from both sides of every leaf, including fast interruptions and a player closing a moving door.
-7. Check entire-flight stair sequences and the first/last tread on physical weak phones, including tight clothes/shoe clearances at the top seam.
-8. Add wider conversational emotion/gesture choices and longer matched samples, including a held mug while the other hand gestures.
-9. Give broad cloth folds better compression when deeply seated, without additional polygons or a cloth solver.
-10. Profile actual low-end phone GPU frame time and sustained thermals; keep the current deterministic CPU/triangle gates as separate evidence.
+These are remaining defects/coverage gaps, not a claim that already-shipped contact and persistence work is absent.
 
-Stopped new work at the 90-minute cutoff (21:27 UTC). Final comparison regeneration excludes camera mismatches; the complete regenerated comparison collection was not individually re-reviewed before stopping. All 24 Low probe and 24 seven-action house sheets were reviewed earlier; forty far lounge frames remain unmatched.
+1. Replace Dad's rigid early sit/stand silhouette with a hips-first descent, forward chest counterbalance and a reachable support hand; preserve interrupted transitions.
+2. Inspect actual newspaper finger contact from the player's front/oblique view, including grip visibility and put-down continuity.
+3. Bind/test the rig against every real indoor chair and sofa surface (including movable seats), clearly distinguishing NPC production transitions from player-seat tests.
+4. Complete the forty previously unmatched far lounge frames with identical HEAD/after cameras and times; reject invalid captures explicitly.
+5. Give the three family walks distinct weight, pelvis/shoulder opposition and stabilised heads; preserve planted contacts and route safety while easing actual speed.
+6. Make near idle weight/breath/glance motion read without synchronised loops; disable cosmetic additions at distance.
+7. Broaden the neck-to-shoulder silhouette using existing polygons and review rear/side views; improve secondary hair response without extra draws/bones.
+8. Refine painted talking shapes and brow/eye beats from the existing voice signal, without changing audio playback or voice files.
+9. Capture/review the real-house action matrix in phone portrait, landscape and tablet layouts, retaining matched desktop evidence.
+10. Finish the required regression queue, especially bonfire and complete smoke, and report fresh triangle/paired CPU measurements separately from unmeasured physical-phone GPU performance.
+
+Round 2 stopped new work at its 90-minute cutoff (21:27 UTC). Its final comparison regeneration excluded camera mismatches; forty far lounge frames were still unmatched at that round’s stop. Round 3 replaces that incomplete evidence below.
+
+
+## Round 3 — 5 November 2026
+
+Base: `fd98f5dbb55bcbb03f561c8e1b8ec16ae925b3f1` (merged live 2.70.0). The round-3 starting priorities above were written before production changes; the current next ten below replaces the historical carry-over list. Research began at 05:04 UTC; implementation starts only after the requested approximately fifteen-minute research period. Original research synthesis and primary-source links are appended to ANIMATION-RESEARCH.md.
+
+### Initial harsh review, ranked
+
+1. Dad's first sit frame has a nearly upright chest and hands prematurely hovering at his waist; standing starts by rising before adequate forward weight transfer.
+2. The paper obscures the important finger contact from the normal player view; a palm anchor alone cannot verify a grip. The current skin has fingers on both sides of a leaf plane away from its edge.
+3. Only three production family seat anchors were covered; the actual centre sofa cushion, four kitchen chairs, office chair and beanbag need explicit real-surface testing. The sister's deep armchair perch is not calibrated.
+4. Forty far lounge after frames lacked a matching valid HEAD camera. Fresh baseline capture now uses one shared camera set.
+5. Dad is the fastest family member (104 cm/s versus Mom's 98), and the same pelvis/arm parameters blur the three personalities.
+6. Walking head movement follows the torso too closely in some frames; extra bounce should not shake the gaze.
+7. Near idle has small existing weight/breath/glance motion, but there are long stiff holds and new idle detail must be disabled at distance.
+8. Thin cylindrical necks and abrupt shoulder taper weaken the large-head silhouettes from side/rear views.
+9. Hair lag exists, but its input uses the requested look angle rather than the actual animated head; left/right parts settle together.
+10. Four painted mouth frames already follow recorded loudness, but brows remain static and expression accents can run independently of audible beats. Landscape/tablet real-house coverage is also still missing at the start.
+
+### Ranked-review disposition
+
+1. **Improved:** early chest counterbalance, retreating hips, delayed rise and real armrest support; armless push-offs remain limited.
+2. **Fixed at the reviewed reading pose:** visible paper-edge fingers, measured against the actual skinned leaves; full finger-volume clearance and put-down remain open.
+3. **Coverage completed:** all 30 person/seat combinations, both API restore directions and interruption, plus nine old-phase conversions and one real page reload. Arbitrary moved-chair layouts remain open.
+4. **Fixed evidence gap:** complete 864-frame HEAD and final sets, including the forty former far-lounge gaps, with exact camera/aim/time checks.
+5. **Improved:** individual speeds and pelvis/shoulder/arm weight; existing controller acceleration/braking retained.
+6. **Improved:** head stabilisation measured on the real skeleton while preserving explicit look targets.
+7. **Improved:** seeded near weight swaps, breathing and glances; far cosmetic motion skipped.
+8. **Improved:** broader flared neck base and gentler existing shoulder rings, unchanged triangles.
+9. **Improved:** actual-head-driven hair lag with distinct left/right settles; modest two-bone motion, no strand simulation.
+10. **Improved and coverage completed:** recorded-level mouth/brow accents plus matched portrait, landscape and tablet house matrices. Emotional/phoneme timing and physical device profiling remain open.
+
+### Changes and verification
+
+The early seat pose now separates pelvis retreat, lowering and chest counterbalance. A support hand targets an actual armrest or seat lip only when reachable; it does not stretch to a chair behind a standing figure. Rising includes an initial forward transfer before root travel. Existing seat anchors and routes are retained. New transition saves retain exact roots and a motion marker; old phase times convert to the revised curves. Normal seated/standing saves and outfit IDs keep their existing format.
+
+Model construction exports three sofa-cushion surfaces, the armchair, four kitchen-chair surfaces, plus person-seat dimensions on the existing movable office chair and beanbag. This is contact metadata, not new family destinations. The test stages the original production controller against each real model. It pulls the office chair clear of its desk only in temporary fixture data. It does not assert that the family now schedules visits to these additional seats or that routes to every chair were added.
+
+The folded newspaper is 44 cm wide instead of 52 cm, retaining two solid folded leaves and identical topology. The existing hands now grip the visible outside edges. The skinned-finger test measures the real paper triangles, with about 0.008 cm nearest surface separation and 29 of 75 sampled finger vertices beyond each leaf silhouette, versus no beyond-edge vertices in the old grip. This is a surface/visibility diagnostic; it does not prove every soft finger volume is intersection-free.
+
+Dad walks at 92 cm/s (was 104), Mom 106 (was 98), sister 102 (was 96), using distinct pelvis and arm amplitudes. The original follower still accelerates, brakes and clamps at doors/bodies. The short descending-start correction prevents an already advanced foot being pulled back up a tread. Whole-sole stair acceptance remains zero penetration. Head stabilisation opposes the walking torso without overriding explicit player/object/stair gaze. Quiet seeded weight changes, breathing and glances run near; far rigs skip these cosmetic details and keep support/action motion.
+
+The existing neck rings have broader bases and the upper torso rings form a gentler shoulder slope. No polygons, bones, skin attributes or character draws are added. Mom's hair ends and the sister's bunches use actual animated head heading for bounded lag, with slightly different left/right settles. A painted brow offset and faster mouth attack use the existing recording's level; no audio playback, voice text or voice assets change.
+
+Completed at this point: all 52 `*-unit.cjs` scripts exit 0; parody audit exits 0 with 0 spans; rig contacts/outfit/LOD budgets and the new actual-skin weight, paper and voice checks pass. All 30 person/seat combinations passed sit restoration, interruption and stand restoration. Nine production family-seat combinations also passed conversion of old saved phases, and a real page reload preserved a naturally scheduled sister mid-sit. The seasonal family goal is suppressed only inside that standard-routine reload fixture, since 5 November otherwise sends the family to the bonfire; dedicated bonfire regressions use the real seasonal code.
+
+The original upstairs seat-camera level was wrong and those images were rejected. Corrected upstairs captures use the real bedroom level; a final replacement also hides the fixture's parked background relatives and uses a clear side view of the beanbag. The staged captures hold the house in its existing focus mode while the production family controller is stepped explicitly; they are not a live walking-camera recording. Some near landscape frames crop lower legs, so far views and the unobstructed Low probe are necessary for foot review. Native house baseline capture contains 864 frames across desktop 1366×860, phone portrait 390×844, phone landscape 844×390 and touch tablet 1024×768, near/far, all three people and nine actions. A 12-minute first capture limit interrupted the tablet section (exit 1); the isolated append/fill run completed the set (exit 0). This was a capture-runner limit, not a page-load defect.
+
+### Round 3 measurements
+
+The early seat angles/hip positions below use the deterministic actual-skin rig test with a 57 cm starting offset. They use a fresh identical random seed for each person in both versions; they are mechanics measurements, not angles extracted from the house screenshots. Each real seat is separately staged against its own surface.
+
+| Measurement | HEAD | After |
+|---|---:|---:|
+| Dad chest lean at 0.10 s sitting | 4.27° forward | 14.41° forward |
+| Dad hips, forward position at 0.10 s (start = 57 cm) | 57.51 cm | 49.71 cm |
+| Dad chest lean at 0.10 s standing | -0.97° | 8.63° forward |
+| Walking head-pitch range: Mom / Dad / sister | 5.79° / 5.79° / 5.74° | 0.96° / 1.01° / 0.99° |
+| Low near triangles incl. shadow: Mom / Dad / sister | 2762 / 2942 / 2938 | Unchanged |
+| Low far triangles incl. shadow: Mom / Dad / sister | 1726 / 1890 / 1830 | Unchanged |
+| High near triangles incl. shadow: Mom / Dad / sister | 5214 / 5502 / 5522 | Unchanged |
+| Skinned draws per person | 2 | 2 |
+| Whole-sole penetration on tested 17.5/20 cm stair flights, both directions | 0 cm | 0 cm |
+| Far cosmetic pelvis/breath range | Nonzero | Numerical zero |
+
+The paired CPU benchmark runs all three Low family rigs together, no renderer, 16 AB/BA batches after warm-up. The browser was closed during this run. Times below are milliseconds per update for **all three**, not GPU frame time or a physical-phone FPS result.
+
+| Mode | HEAD | After |
+|---|---:|---:|
+| Idle | 0.077000 | 0.077031 |
+| Walking | 0.069339 | 0.080292 |
+| Jobs | 0.051448 | 0.050357 |
+| Far | 0.076759 | 0.068063 |
+| Stairs | 0.093300 | 0.088354 |
+| Real stair callback | 0.091000 | 0.094306 |
+
+Final paired run after caching the unchanged wash-up targets: walking adds 0.010953 ms for all three rigs (15.8% of the isolated median); far updates save 11.3%, jobs save 2.1%. Shared-host scheduling produces visible batch variance; these are measured medians, not a guaranteed phone budget. The benchmark ran with the browser closed. No character topology, bone count, skin attributes or draws increase. Raw results: `tests/shots/models/r3-paired-cpu.json`, `r3-kinematics-before.json`, `r3-kinematics-after.json`, `r3-weight-before.json`, `r3-weight-after.json`. Every outfit/LOD budget is checked; every outfit was not separately art-reviewed.
+
+### Round 3 evidence and test results
+
+The matched final house set contains **864 frames**, as does HEAD: three people, nine actions, near/far, four times, desktop/portrait-phone/landscape-phone/tablet. `python3 tests/models-compare-r3.py` exits 0 and produces **72** paired sheets after checking identical camera positions, aims and times. The forty former far-lounge gaps are included. All 72 were inspected via the twelve `r3-review-house/overview-*.jpg` atlases, with native closer checks of Dad's reading/sit/stand and the stair silhouettes.
+
+The real-seat set covers **30 person × seat combinations / 240 frames**, using every sofa cushion, armchair, four kitchen chairs, office chair and beanbag. All twelve seat sheets were inspected via `r3-review-seats/`; native close views were also checked. The office chair is pulled out in disposable test state only. An intermediate low-raster beanbag replacement inherited the functional gate's diagnostic cap and was rejected as final art evidence. The final native replacement exits 0, uses a clear front-oblique camera and replaces all 24 beanbag frames; all 240 final seat frames now use native raster. The three replacement beanbag sheets and native Mom close-ups were inspected again; Dad’s approaching standing head crops slightly in the 0.8 s close frame, so that frame is not accepted as a full-body silhouette check. The art harness explicitly rejects inherited raster caps.
+
+The Low probe contains **576 frames / 36 sheets**, at exact 2 m and 4 m on desktop and portrait phone, covering idle, walk, stop, turn, rear, ascent, descent, sit, stand, jobs, carrying and talking. All 36 sheets were inspected via six `r3-review-probe/` atlases. The probe does not replace the real-house evidence or establish physical touch/GPU performance. Some close landscape house frames crop legs under the existing focus lens; matched far views and unobstructed probe views cover those foot poses.
+
+The 52 final unit commands/results are preserved individually in `tests/shots/models/r3-unit-results.json`. The serial browser gate records every completed child command, real exit and duration in `tests/shots/models/r3-gate-results.json`. Functional browser runs use `FIXTURE_RASTER_RATIO=0.25`, `SMOKE_SCALE=1.3`, disposable `/tmp` data and owned server cleanup. Bonfire skips optional screenshots but retains its assertions, real inputs, refresh and date progression. Main house and probe art frames use native raster.
+
+Earlier failures are retained honestly: the first baseline runner hit its capture limit (exit 1), an early seat interruption was blocked by the fixture's leftover conversation hold, and the first ordinary-routine reload could not start because the real 5 November seasonal goal superseded it. These fixture problems were corrected and the affected checks rerun. The descending-start sole unit caught a regression from the new walking speeds; the final tread guard fixed it and the full rig suite passed. An initial `git diff --check` found a trailing documentation blank line (exit 2); that is corrected. The first voice gate was 1/2 (exit 1): its exact coefficient-22 assertion rejected the intentional separate mouth attack/release rates. The assertion now verifies causal movement toward the consumed audio sample inside a bounded 18–40 response-rate window, rather than copying one implementation coefficient. The corrected full voice rerun result is recorded below. No page-load timeout has been classified as an application bug.
+
+<!-- ROUND3_TESTS_BEGIN -->
+
+| Actual command/check | Round 3 result |
+|---|---|
+| `node --check` on all ten touched JavaScript files | Exit 0 |
+| `node --expose-internals tests/parody-audit.cjs` | Exit 0; 0 authored spans |
+| `python3 tests/models-units.py` | Exit 0; 52/52, including strengthened visible-brow sampling |
+| `node tests/models-weight-unit.cjs --baseline` | Exit 0; independent identical per-person seeds |
+| `node tests/models-house-r3.mjs --label=r3-after` | Exit 0; 864 native frames |
+| Real-seat production-controller capture/API checks | Exit 0 on corrected append runs; 30 surfaces/person combinations, 9 legacy conversions, 1 exact real mid-sit reload |
+| `node tests/models-perf.cjs` | Exit 0; 34.124 s |
+| `node tests/models-house-r3.mjs --label=r3-real-seats --seats-only --seat-matrix --seats=beanbag --devices=desktop --append` | Exit 0; 57.601 s |
+| `node tests/models-animation.mjs --label=r3-probe --only=idle,walk,stop,turn,rear,stairs,stairs-down,sit,stand,job,carry,talk --skip-perf --stairs-rise=20` | Exit 0; 72.026 s |
+| `node tests/events-bonfire.mjs http://127.0.0.1:18081` | Exit 0; 535.513 s |
+| `node tests/voices.mjs http://127.0.0.1:18081 --only=speak,two` | Exit 1; 78.970 s |
+| `node tests/door-walk.mjs http://127.0.0.1:18081` | Exit 0; 52.763 s |
+| `node tests/characters.mjs --only=day,space,bump` | Exit 0; 91.943 s |
+| `node tests/smoke.mjs` | Exit 0; 149.213 s |
+| `node tests/people-pass.mjs --desktop --skip-perf` | Exit 0; 271.454 s |
+| `node tests/voices.mjs http://127.0.0.1:18080 --only=speak,two` | Exit 0; 126.199 s |
+| `node tests/models-gate.mjs --only=voices` | Exit 0; final correction/replacement |
+| `node tests/models-house-r3.mjs --label=r3-real-seats --seats-only --seat-matrix --seats=beanbag --devices=desktop --append` | Exit 0; final correction/replacement |
+| `python3 tests/models-compare-r3.py` | Exit 0; 72 exact matched sheets |
+| `python3 tests/models-seat-sheets-r3.py` | Exit 0; 12 sheets |
+| `python3 tests/models-sheets.py r3-probe` | Exit 0; 36 sheets |
+| `git diff --check` | Exit 0 |
+
+No identity browser or separate mobile-perf script ran this round. Physical phones, arbitrary chair moves and actual mid-stand page reloads are unverified. The required browser commands run serially. The initial serial runner exits 1 because its first voice oracle failed; all other requested browser children exit 0. The corrected complete voice rerun passes 2/2 and exits 0. Both voice results remain separate rows; no failed exit is silently replaced.
+<!-- ROUND3_TESTS_END -->
+
+### Next ten — remaining after round 3
+
+1. Calibrate armless-seat lip reaches further: when an arm cannot reach the surface safely, the current rig deliberately uses the relaxed fallback. Give that transfer a convincing thigh/seat push without arm stretch.
+2. Replace the cupped resting lap hands with better thigh/armrest support and check finger-pad/self contact from several close angles.
+3. Add full-flight stair interruptions and tight first/last-tread turns at a wider speed range; retain the whole-sole and no-heel-kick gates.
+4. Profile physical weak-phone GPU time, sustained thermals and real touch behaviour; software-host CPU and emulated viewports do not establish these.
+5. Extend the native real-house comparison to longer idle holds and dedicated start/stop/turn sequences beyond the main nine-action matrix and Low probe.
+6. Add actual page reloads during standing and interrupted transfers at more seats; this round has API restore coverage for all ten surfaces, nine old-phase checks and one exact real mid-sit reload.
+7. Exercise arbitrary moved/swivelled office-chair positions and saved furniture placement with the contact metadata, without adding family routes here.
+8. Author more dialogue intent in the brow/eye/body accents. The current signal supplies loudness/progress, not phoneme timings or emotional labels.
+9. Preserve the newspaper object frame during its fade/put-down and add a restrained original page-turn action.
+10. Calibrate explicit magazine, drawing-pad/crayon, watering-can and briefcase grips against their full solid geometry and finger volumes.

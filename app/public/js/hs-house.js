@@ -817,6 +817,7 @@
   const SOFA = { x: -60, z: 605, w: 190 }, CHAIR = { x: 136, z: 400, ry: -110, w: 86 }, COFFEE = { x: -72, z: 456.5, w: 90, d: 44 }, LAMPST = { x: 176, z: 324 };
   function buildLounge(r) {
     r.fireOn=lightsOn.loungeFire===true;
+    r.peopleSeats=[]; // Original model surfaces for rig contacts; no extra destinations.
     const batch = K.batch(), B = K.into(batch);
     const wall = M({ c: '#fff', map: tex('wallpaperLounge') });
     shell(B, { x0: -280, z0: 305, x1: 195, z1: 700, fy: GY, cy: GC, wall, floor: false, fuv: 44, thin: { s: 0.8 }, holes: { e: [[480, 560, GY - 205, GY]], s: [[-170, 50, 150, 300]] } });
@@ -866,8 +867,8 @@
     // the sofa (3-seater, floral) facing the telly, Dad's armchair, the coffee table
     // Keep the main chair/table aisle over a metre wide, with 80 cm crossways
     // between the slimmer table, telly and settee. Dad's chair stays angled at the screen.
-    sofa(B, SOFA.x, SOFA.z, 180, SOFA.w, M({ c: '#fff', map: sofaTex(), sh: 2, sp: '#080808' }));
-    sofa(B, CHAIR.x, CHAIR.z, CHAIR.ry, CHAIR.w, M({ c: '#fff', map: sofaTex(), sh: 2, sp: '#080808' }));
+    sofa(B, SOFA.x, SOFA.z, 180, SOFA.w, M({ c: '#fff', map: sofaTex(), sh: 2, sp: '#080808' }),r);
+    sofa(B, CHAIR.x, CHAIR.z, CHAIR.ry, CHAIR.w, M({ c: '#fff', map: sofaTex(), sh: 2, sp: '#080808' }),r);
     const ct = B.at(COFFEE.x, GY, COFFEE.z), coffeeOak = M({ c: '#fff', map: tex('oak') });
     ct.rbox(0, -42, 0, COFFEE.w, 3, COFFEE.d, .7, coffeeOak);
     [[-40, -17.5], [40, -17.5], [-40, 17.5], [40, 17.5]].forEach(([x, z]) => ct.rbox(x, -20.5, z, 4, 41, 4, .4, coffeeOak));
@@ -974,7 +975,7 @@
     for(let i=1;i<points.length-1;i++){const p=points[i],r=Math.min(1,p.distanceTo(points[i-1])*0.2,p.distanceTo(points[i+1])*0.2),a=p.clone().add(points[i-1].clone().sub(p).setLength(r)),b=p.clone().add(points[i+1].clone().sub(p).setLength(r));curve.add(new T.LineCurve3(from,a));curve.add(new T.QuadraticBezierCurve3(a,p,b));from=b}
     curve.add(new T.LineCurve3(from,points[points.length-1]));B.geo(new T.TubeGeometry(curve,72,0.25,6),0,0,0,M({c:col,sh:10}));return curve.getSpacedPoints(160).map(p=>p.toArray());
   }
-  function sofa(B, x, z, ry, w, m) {
+  function sofa(B, x, z, ry, w, m, room) {
     const S = B.at(x, GY, z, ry), pipe = M({ c: '#8a6a4a', sh: 2 });
     // All upholstered faces use the same centimetres-per-repeat. Stretching
     // one floral tile over each box made the plinth flowers enormous and
@@ -985,6 +986,8 @@
     const n = w > 120 ? 3 : 1, gap = 1.2, cw = (w - 40 - (n - 1) * gap) / n;
     for (let i = 0; i < n; i++) {
       const cx = (i - (n - 1) / 2) * (cw + gap);
+      if(room){const a=ry*D2R,c=Math.cos(a),s=Math.sin(a),side=cx>0||n===1?1:-1,arm=side*(w/2-9),support=n===1||i===0||i===n-1?{side:side>0?'L':'R',x:x+arm*c+24*s,y:GY-63.3,z:z-arm*s+24*c}:{side:'L',x:x+(cx+12)*c+35*s,y:GY-43.3,z:z-(cx+12)*s+35*c,edge:true,yaw:a+Math.PI};
+        room.peopleSeats.push({id:n===1?'armchair':'sofa'+i,room:'lounge',lvl:'G',x:x+cx*c+2*s,z:z-cx*s+2*c,face:ry,h:45,back:true,front:33,footForward:54,support});}
       // A small compression into the deck and back pads closes the former
       // daylight joins without hiding the separate cushion silhouettes.
       S.rbox(cx, -37, 2, cw, 16, 62, 7, m, fabric);
@@ -1088,6 +1091,7 @@
 
   // ================================================================ THE KITCHEN (the fridge, the biscuit tin, the microwave)
   function buildKitchen(r) {
+    r.peopleSeats=[];
     const batch = K.batch(), B = K.into(batch);
     const wall = M({ c: '#fff', map: tex('wallKitchen') });
     B.rbox(-60,GC+2,120,120,4,16,.8,mWhite);
@@ -1219,7 +1223,7 @@
       g.computeVertexNormals(); paper.geo(K.thicken(g, 0.08), 0.4, -0.3, 0.6, print, { rx: 90, ry: 180 }); }
     paper.shadow(0, 0, 0, 31, 39, 0.35, { sq: true });
     kt2.shadow(0, 0, 0, 130, 90, 0.7, { sq: true });
-    [[-60, 44, 0], [-60, 176, 180], [-136, 110, 90], [16, 110, -90]].forEach(([x, z, ry]) => chair(B, x, z, ry)); // (set 6 cm back: legs clear of the table legs and aprons)
+    [[-60, 44, 0], [-60, 176, 180], [-136, 110, 90], [16, 110, -90]].forEach(([x, z, ry]) => chair(B, x, z, ry,r)); // (set 6 cm back: legs clear of the table legs and aprons)
     // a wall clock, the calendar, the cork board with Mom's lists
     const wc = B.at(-154, GY-181, 293.5, 180);wc.wshadow(.6,1,-1.45,39,39,.35);
     wc.cyl(0,0,0,18,18,3,40,M({c:'#9e352a',sh:45}),{rx:90});
@@ -1292,7 +1296,8 @@
     }
   }
   // a 1990s pine kitchen chair: rounded seat, turned front legs, raked back with a shaped crest rail and slats, stretchers
-  function chair(B, x, z, ry) {
+  function chair(B, x, z, ry, room) {
+    if(room){const a=ry*D2R;room.peopleSeats.push({id:'kitchen-chair'+room.peopleSeats.length,room:'kitchen',lvl:'G',x,z,face:ry,h:47,back:false,front:20.5,hipForward:0,footForward:38,support:{side:'L',x:x+21.5*Math.cos(a)+10*Math.sin(a),y:GY-46,z:z-21.5*Math.sin(a)+10*Math.cos(a),edge:true,yaw:a-Math.PI/2}});}
     const C = B.at(x, GY, z, ry), w = M({ c: '#fff', map: tex('pine') });
     C.rbox(0, -45.4, 0.5, 41, 3.2, 40, 0.9, w, { uv: 40, seg: 2 });
     for (const sx of [-17, 17]) { turnedLeg(C, sx, -43.8, 16, 43.8, 3.8, w); C.rbox(sx, -21.9, -17, 3.4, 43.8, 3.4, 0.5, w, { uv: 40 }); C.rbox(sx, -67.5, -19.4, 3.2, 46, 3.2, 0.6, w, { uv: 40, rx: 7 }); C.cyl(sx, -12, -0.5, 0.9, 0.9, 31, 8, w, { rx: 90 }); }

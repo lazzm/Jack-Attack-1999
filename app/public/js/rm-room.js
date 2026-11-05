@@ -431,7 +431,7 @@
     // (three parts are enough: the column and the back strut sit inside the seat's and back's footprints)
     const CHAIR_PARTS=[{t:'cyl',x:0,z:0,r:30,lo:0,hi:9,player:false},
       {t:'box',x:0,z:2,hx:22.5,hz:21.5,lo:9,hi:49,sw:true,top:true},{t:'box',x:0,z:-19.6,hx:21,hz:5.4,lo:49,hi:89,sw:true}];
-    loose('chair',chairGroup,{room:'bedroom',x:L0().mx,y:FY,z:5,ry:180},'My office chair',{kind:'furniture',holdD:90,obstacle:true,floorOnly:true,noStack:true,seat:{eye:110,front:2},swivel:chairSwivel,
+    loose('chair',chairGroup,{room:'bedroom',x:L0().mx,y:FY,z:5,ry:180},'My office chair',{kind:'furniture',holdD:90,obstacle:true,floorOnly:true,noStack:true,seat:{eye:110,front:2,person:{h:49,hipForward:0,footForward:42,back:true,edge:{x:24,h:48,z:8}}},swivel:chairSwivel,
       physics:{parts:CHAIR_PARTS,mass:9,mu:.32,coast:.42,tip:0,castors:true,drag:true,swing:1.2,swDamp:.86},use:()=>H.sitOn('chair'),useLabel:'Sit down'});
     // the desk lamp (an anglepoise; it really lights the room)
     buildDeskLamp(r);
@@ -697,7 +697,7 @@
     BG.rbox(0,-5.8,-37.66,7,0.7,1,0.2,M({c:'#601b20',sh:3})); // concealed refill zip and pull, above the carpet
     BG.box(3.1,-6.5,-37.94,0.7,0.25,1.1,mMetal);
     BG.shadow(0,0,0,94,84,0.65);
-    loose('beanbag',bb,{room:'bedroom',x:TX+62,y:FY,z:82,ry:-135},'The beanbag',{kind:'furniture',holdD:95,obstacle:true,floorOnly:true,noStack:true,seat:{eye:81,front:4},
+    loose('beanbag',bb,{room:'bedroom',x:TX+62,y:FY,z:82,ry:-135},'The beanbag',{kind:'furniture',holdD:95,obstacle:true,floorOnly:true,noStack:true,seat:{eye:81,front:4,person:{h:24.65,hipForward:0,footForward:36,back:false}},
       physics:{parts:[{t:'cyl',x:0,z:0,r:41,lo:0,hi:25},{t:'box',x:0,z:-25,hx:28,hz:10,lo:25,hi:51}],mass:6,mu:1.4,coast:.05,tip:0,drag:true,noSpin:true},use:()=>H.sitOn('beanbag'),useLabel:'Sit down'});
     // the games mags on the floor
     // These magazines are individual grab-API objects, built with the reading bookcase.

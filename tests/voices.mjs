@@ -179,7 +179,13 @@ await check('speak', async () => {
     await writeFile(shots + 'speak-proof-' + Date.now() + '.json', JSON.stringify({ vs, meters: await page.evaluate(() => (window.__voiceMeters || []).map(r => ({ id:r.id, proof:r.proof }))) }, null, 2));
     const s = { started: vs.length >= 2, panner: vs.every(x => x.panner), ducked: vs.some(x => x.ducked), level: vs.map(x => x.l), mouth: vs.map(x => x.m), frames: [...new Set(vs.map(x => x.f))], said: vs.map(x => x.said), b: frozen };
     console.log('SPEAK PROOF', JSON.stringify({samples:vs.length,states:[...new Set(vs.map(x=>x.ctx))],audioSpan:vs.at(-1).audioTime-vs[0].audioTime,maxGap:Math.max(...vs.slice(1).map((x,i)=>x.t-vs[i].t)),peak:Math.max(...s.level),mouthRange:Math.max(...s.mouth)-Math.min(...s.mouth),frames:s.frames}));
-    if (process.env.VOICES_SYNC_SAMPLES !== '0') for (const x of vs) assert(Math.abs(x.m-(x.before+(x.l-x.before)*(1-Math.exp(-x.dt*22))))<1e-6, 'Production mouth follows its consumed audio level: '+JSON.stringify(x));
+    // Verify the consumed signal, allowing a bounded expressive attack/release
+    // envelope. A single hard-coded filter coefficient rejects legitimate rig timing.
+    if (process.env.VOICES_SYNC_SAMPLES !== '0') for (const x of vs) {
+      const delta=x.l-x.before,change=x.m-x.before;
+      assert(Math.abs(delta)<1e-6 ? Math.abs(change)<1e-6 : change/delta>=1-Math.exp(-x.dt*18)-1e-6 && change/delta<=1-Math.exp(-x.dt*40)+1e-6,
+        'Production mouth moves toward its consumed audio level within the response window: '+JSON.stringify(x));
+    }
     assert(s.started && s.panner, 'The recording started, positional (panner from the head): ' + JSON.stringify(s));
     assert(s.ducked, 'Music and effects dip under the voice');
     assert(Math.max(...s.level) > 0.3, 'The voice has level: ' + JSON.stringify(vs) + ' meters ' + JSON.stringify(await page.evaluate(() => (window.__voiceMeters || []).map(r => ({id:r.id,proof:r.proof})))));

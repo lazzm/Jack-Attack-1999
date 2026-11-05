@@ -19,7 +19,7 @@ export async function insertCase(f,id,sid,{press}={}){
   }
   for(let j=0;j<10;j++){
    const g=await p.evaluate(()=>{const g=House.ghost();return g&&{snap:g.snap?.id,why:g.why,x:g.x,y:g.y,z:g.z}});
-   if(g?.snap==='case.insert.'+sid){if(press)await press();else await p.keyboard.press('e');assert(await p.evaluate(({id,sid})=>House.THINGS[id].snap==='case.park.'+sid,{id,sid}),'Native E did not commit the case');assert(await p.evaluate(({id,g})=>{const a=House.THINGS[id].at;return Math.hypot(a.x-g.x,a.y-g.y,a.z-g.z)<.11},{id,g}),'Case did not land at its gold ghost');return}
+   if(g?.snap==='case.insert.'+sid){if(press)await press();else await p.keyboard.press('e');await p.waitForFunction(({id,sid})=>House.THINGS[id].snap==='case.park.'+sid,{id,sid},{timeout:3000}).catch(()=>{});const committed=await p.evaluate(({id,sid})=>({ok:House.THINGS[id].snap==='case.park.'+sid,snap:House.THINGS[id].snap,held:House.held(),st:House.THINGS[id].st,busy:HouseCases.busy,mode:House.mode,ghost:House.ghost()?.snap?.id,why:House.ghost()?.why}),{id,sid});assert(committed.ok,'Native E did not commit the case: '+JSON.stringify(committed));assert(await p.evaluate(({id,g})=>{const a=House.THINGS[id].at;return Math.hypot(a.x-g.x,a.y-g.y,a.z-g.z)<.11},{id,g}),'Case did not land at its gold ghost');return}
    missed.push(g?.snap||g?.why||'no ghost');await p.keyboard.press('+');
   }
  }

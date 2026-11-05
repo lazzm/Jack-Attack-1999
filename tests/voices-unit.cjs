@@ -18,10 +18,11 @@ if (real && fs.existsSync(ledgerPath)) {
   const sha=p=>createHash('sha256').update(fs.readFileSync(p)).digest('hex');
   // Clips repaired after their audit (tools/audio/voice-qa.py) carry their new bytes in the repair ledger.
   const repairs=JSON.parse(fs.readFileSync(path.join(path.dirname(ledgerPath),'repairs-2026-11-04.json')));
-  for(const [id,r] of Object.entries({...baseline.accepted,...release.accepted})) assert.equal(sha(path.join(path.dirname(mPath),manifest[id].file)),repairs.lines[id]?.sha256||r.sha256,'audited line bytes '+id);
+  const lines1105=JSON.parse(fs.readFileSync(path.join(path.dirname(ledgerPath),'voices-2026-11-05.json')));
+  for(const [id,r] of Object.entries({...baseline.accepted,...release.accepted})) assert.equal(sha(path.join(path.dirname(mPath),manifest[id].file)),lines1105.accepted[id]?.sha256||repairs.lines[id]?.sha256||r.sha256,'audited line bytes '+id);
   const lines1104=JSON.parse(fs.readFileSync(path.join(path.dirname(ledgerPath),'voices-2026-11-04.json')));
-  for(const [id,r] of Object.entries(lines1104.accepted)) assert.equal(sha(path.join(path.dirname(mPath),manifest[id].file)),r.sha256,'audited line bytes '+id);
-  for(const {id} of release.excluded) assert(!manifest[id]||lines1104.accepted[id],'withheld line '+id);
+  for(const [id,r] of Object.entries({...lines1104.accepted,...lines1105.accepted})) assert.equal(sha(path.join(path.dirname(mPath),manifest[id].file)),r.sha256,'audited line bytes '+id);
+  for(const {id} of release.excluded) assert(!manifest[id]||lines1104.accepted[id]||lines1105.accepted[id],'withheld line '+id);
   const names=JSON.parse(fs.readFileSync(namePath));
   for(const [id,r] of Object.entries(release.names.accepted)) { const [speaker,first]=id.toLowerCase().split('/'); assert.equal(names[speaker][first].file,r.file);assert.equal(sha(path.join(path.dirname(namePath),r.file)),repairs.names[speaker+'/'+first]?.sha256||r.sha256,'audited name bytes '+id); }
   for(const id of Object.keys(release.names.excluded)){const [speaker,first]=id.toLowerCase().split('/');assert(!names[speaker]?.[first],'withheld name '+id);}
@@ -40,7 +41,7 @@ class Node { constructor(kind) { this.kind = kind; this.gain = new Param(); this
 let ctxs = [];
 class Ctx {
   constructor() { this.destination = { kind: 'dest' }; this.state = 'running'; this.currentTime = 0; this.sampleRate = 24000; this.listener = { setPosition() {}, setOrientation() {} }; ctxs.push(this); this.sources = []; }
-  createGain() { return new Node('gain'); } createOscillator() { return new Node('osc'); } createBiquadFilter() { return new Node('filter'); }
+  createDynamicsCompressor(){const n=this.createGain();for(const k of ['threshold','knee','ratio','attack','release'])n[k]={value:0};return n}createWaveShaper(){return this.createGain()}createGain() { return new Node('gain'); } createOscillator() { return new Node('osc'); } createBiquadFilter() { return new Node('filter'); }
   createBuffer(numberOfChannels = 1, length = 100, sampleRate = 24000) { const data = Array.from({length:numberOfChannels}, () => new Float32Array(length)); return { numberOfChannels, length, sampleRate, duration:length/sampleRate, getChannelData: i => data[i] }; }
   createBufferSource() { const n = new Node('source'); this.sources.push(n); return n; }
   createPanner() { const n = new Node('panner'); n.setPosition = (x, y, z) => { n.pos = [x, y, z]; }; return n; }
@@ -81,11 +82,11 @@ const tick = () => new Promise(r => setImmediate(r));
     // the chain ends on Sound's voice bus
     const bus = w.Sound.output(c, 'voice'); let n = src, hops = 0; while (n && n !== bus && hops < 12) { n = n.connections[0]; hops++; }
     assert.equal(n, bus, 'routed to the voice bus');
-    assert.equal(bus.gain.value, 0.8, 'voice bus at the volume');
+    assert.equal(bus.gain.value, 1.8, 'voice bus boosted');assert.equal(bus.connections[0].connections[0].connections[0].gain.value,.8,'Saved volume follows limiter');
     assert(w.Sound.ducked, 'ducked while talking'); assert(w.Sound.output(c, 'music').gain.value < 0.8, 'music dips');
     assert(h.level() > 0.3, 'level from the analyser: ' + h.level());
     assert.deepEqual([...w.st.voicesPlaying], [id]);
-    src.stop(); assert(h.ended && !w.Sound.ducked, 'ended: ducking released'); assert.equal(w.Sound.output(c, 'music').gain.value, 0.8);
+    src.stop(); assert(h.ended && !w.Sound.ducked, 'ended: ducking released'); assert.equal(w.Sound.output(c, 'music').gain.value, 1);
     // muting mid-line stops it
     const h2 = w.st.play('c2.pocket.dad2', {}); for (let i = 0; i < 5; i++) await tick(); assert(h2.started);
     w.Sound.effectsOn = false; assert(h2.ended, 'switching effects & voices off stops the voice'); assert.equal(bus.gain.value, 0, 'voice bus silent');
