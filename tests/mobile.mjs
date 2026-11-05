@@ -697,6 +697,7 @@ const phases = {
         await logon(p, acct);
         await until(() => ['monitor', 'walk'].includes(House.mode) && !House.gliding, null, 60000);
         if (await page.evaluate(() => House.mode === 'monitor')) { await press('stand'); await until(() => House.mode === 'walk' && !House.gliding, null, 30000); }
+        await until(() => House.live && window.AccountGate?.allowed && !window.stDiary?.picking, null, 30000); // HousePause refuses until then
         await press('menu'); await until(() => HousePause.open);
         await until(() => !document.querySelector('[data-pause="owner"]').hidden, null, 15000);
         await press('[data-pause="owner"]'); await until(() => !!document.querySelector('dialog.owner-tools[open]'), null, 15000);
@@ -707,7 +708,7 @@ const phases = {
         assert.deepEqual(p.errors, [], 'owner browser errors');
       } catch (e) {
         await shot('owner-failure-' + prof).catch(() => {});
-        console.log('Owner menu state', await page.evaluate(() => ({ god: House.god, owner: OwnerTools.active, picking: window.stDiary?.picking, mode: House.mode, glide: House.gliding, touch: document.documentElement.dataset.touchState, dialogs: [...document.querySelectorAll('dialog[open]')].map(d => d.className) })));
+        console.log('Owner menu state', await page.evaluate(() => ({ live: House.live, allowed: window.AccountGate?.allowed, god: House.god, owner: OwnerTools.active, picking: window.stDiary?.picking, mode: House.mode, glide: House.gliding, touch: document.documentElement.dataset.touchState, dialogs: [...document.querySelectorAll('dialog[open]')].map(d => d.className) })));
         throw e;
       } finally { await p.ctx.close(); }
     }
