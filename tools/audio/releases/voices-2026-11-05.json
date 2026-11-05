@@ -1,0 +1,71 @@
+{
+ "created": "2026-11-05",
+ "why": "Second batch of audited lines. Each clip passed voice-qa, a transcript check and an accent check. bark.sis.mess2 replaces a clipped clip.",
+ "accepted": {
+  "bf.cat.check.3jrkba": {
+   "file": "bf.cat.check.3jrkba.mp3",
+   "character": "mom",
+   "dur": 6.048,
+   "sha256": "71463c181451cae250d058208f4788986e23933e5f79b5e4bf940f381754686b",
+   "heard": "The cat is safely indoors, hiding under the bed. Let the cat stay cozy.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.1ibhhmo": {
+   "file": "house.moment.1ibhhmo.mp3",
+   "character": "mom",
+   "dur": 5.304,
+   "sha256": "25a06b9be78deedd7629390dff7204995f779151c9d136681313e696ffc75fb8",
+   "heard": "Are you up? It's gone eight, lazybones.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.vtvqfy": {
+   "file": "house.moment.vtvqfy.mp3",
+   "character": "sister",
+   "dur": 2.64,
+   "sha256": "34d268a2bb4c94858b4e4f6e4d29953356d2306644e7230dfc29e1e1e31a507f",
+   "heard": "Mom, they're being annoying.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "fight.announcer.1sxvew9": {
+   "file": "fight.announcer.1sxvew9.mp3",
+   "character": "announcer",
+   "dur": 1.704,
+   "sha256": "d114fd0eb54b20b8cb330ac087847658de9af3844f0283f7a60e82902558d3e9",
+   "heard": "Round two",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "bark.sis.mess2": {
+   "file": "bark.sis.mess2.mp3",
+   "character": "sister",
+   "dur": 5.736,
+   "sha256": "6bf70ec781e8ed99b1e6d5670f42eb0b7cfd732aca8e6dfcac085075db7e1465",
+   "heard": "I tidied my room. Look, I've done everything. Where's my pound?",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  }
+ }
+}

@@ -18,10 +18,11 @@ if (real && fs.existsSync(ledgerPath)) {
   const sha=p=>createHash('sha256').update(fs.readFileSync(p)).digest('hex');
   // Clips repaired after their audit (tools/audio/voice-qa.py) carry their new bytes in the repair ledger.
   const repairs=JSON.parse(fs.readFileSync(path.join(path.dirname(ledgerPath),'repairs-2026-11-04.json')));
-  for(const [id,r] of Object.entries({...baseline.accepted,...release.accepted})) assert.equal(sha(path.join(path.dirname(mPath),manifest[id].file)),repairs.lines[id]?.sha256||r.sha256,'audited line bytes '+id);
+  const lines1105=JSON.parse(fs.readFileSync(path.join(path.dirname(ledgerPath),'voices-2026-11-05.json')));
+  for(const [id,r] of Object.entries({...baseline.accepted,...release.accepted})) assert.equal(sha(path.join(path.dirname(mPath),manifest[id].file)),lines1105.accepted[id]?.sha256||repairs.lines[id]?.sha256||r.sha256,'audited line bytes '+id);
   const lines1104=JSON.parse(fs.readFileSync(path.join(path.dirname(ledgerPath),'voices-2026-11-04.json')));
-  for(const [id,r] of Object.entries(lines1104.accepted)) assert.equal(sha(path.join(path.dirname(mPath),manifest[id].file)),r.sha256,'audited line bytes '+id);
-  for(const {id} of release.excluded) assert(!manifest[id]||lines1104.accepted[id],'withheld line '+id);
+  for(const [id,r] of Object.entries({...lines1104.accepted,...lines1105.accepted})) assert.equal(sha(path.join(path.dirname(mPath),manifest[id].file)),r.sha256,'audited line bytes '+id);
+  for(const {id} of release.excluded) assert(!manifest[id]||lines1104.accepted[id]||lines1105.accepted[id],'withheld line '+id);
   const names=JSON.parse(fs.readFileSync(namePath));
   for(const [id,r] of Object.entries(release.names.accepted)) { const [speaker,first]=id.toLowerCase().split('/'); assert.equal(names[speaker][first].file,r.file);assert.equal(sha(path.join(path.dirname(namePath),r.file)),repairs.names[speaker+'/'+first]?.sha256||r.sha256,'audited name bytes '+id); }
   for(const id of Object.keys(release.names.excluded)){const [speaker,first]=id.toLowerCase().split('/');assert(!names[speaker]?.[first],'withheld name '+id);}
