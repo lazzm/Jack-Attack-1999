@@ -1,47 +1,62 @@
 import assert from 'node:assert/strict';
 import {provisionedRoom} from './provisioned-room.mjs';
-const {browser,page:p,errors,until}=await provisionedRoom(process.argv[2]||'http://localhost:18080');
+import {playCase} from './case-actions.mjs';
+const fixture=await provisionedRoom(process.argv[2]||'http://localhost:18080',{launchOptions:{args:['--enable-unsafe-swiftshader','--remote-debugging-port=19295']}});
+const {browser,page:p,errors,until}=fixture;
+const watchdog=setTimeout(async()=>{console.error('AUDIO SETTINGS total timeout');await browser.close().catch(()=>{});process.exit(1)},900000);
 try {
   const menu=()=>p.locator('.hs-pause');
   const music=()=>menu().locator('[name=music]'),effects=()=>menu().locator('[name=effects]');
   await p.keyboard.press('Escape');assert(await p.evaluate(()=>HousePause.open));
   await music().check();await effects().uncheck();
   assert.deepEqual(await p.evaluate(()=>[Sound.musicOn,Sound.effectsOn,Sound.on]),[true,false,true]);
-  await p.evaluate(()=>{
+  await p.evaluate(async()=>{
     const c=Sound.unlock();window.audioMeters={};
     for(const kind of ['music','effects']){const a=c.createAnalyser();a.fftSize=2048;Sound.output(c,kind).connect(a);audioMeters[kind]=a}
     const master=c.createAnalyser();master.fftSize=2048;Sound.masterOutput(c).connect(master);audioMeters.master=master;
     window.audioRMS=kind=>{const a=audioMeters[kind],d=new Float32Array(a.fftSize);a.getFloatTimeDomainData(d);return Math.sqrt(d.reduce((s,x)=>s+x*x,0)/d.length)};
-    Sound.music.play('theme');
+    await c.audioWorklet.addModule('/js/sound-test-meter.js');
+    window.audioMeasure=(kind,ms,action)=>new Promise(resolve=>{
+      const node=kind==='master'?Sound.masterOutput(c):Sound.output(c,kind),meter=new AudioWorkletNode(c,'sound-meter');
+      // The observer writes no output samples. Connect it directly so a
+      // zero-gain downstream node cannot prune observation of a muted bus.
+      node.connect(meter);meter.connect(c.destination);
+      meter.port.onmessage=e=>{let energy=0,n=0,peakRMS=0;for(const [a]of e.data){const s=a.reduce((sum,x)=>sum+x*x,0);energy+=s;n+=a.length;peakRMS=Math.max(peakRMS,Math.sqrt(s/a.length))}node.disconnect(meter);meter.disconnect();resolve({peakRMS,rms:Math.sqrt(energy/n)})};
+      meter.port.postMessage({frames:Math.round(c.sampleRate*ms/1000)});action?.();
+    });
+    window.musicProbe=audioMeasure('music',3000,()=>Sound.music.play('theme'));
   });
-  // One 46 ms window can land between notes, so listen for up to 3 s.
-  assert(await p.waitForFunction(()=>audioRMS('music')>.00001,null,{timeout:3000,polling:50}).then(()=>true,()=>false),'MIDI plays with effects disabled: '+JSON.stringify(await p.evaluate(()=>{const c=Sound.unlock(),b=Sound.output(c,'music');return{state:c.state,time:c.currentTime,playing:Sound.music.playing,musicOn:Sound.musicOn,volume:Sound.volume,busGain:b.gain.value,ducked:Sound.ducked,rms:audioRMS('music'),master:audioRMS('master'),hidden:document.hidden,paused:document.documentElement.classList.contains('hs-paused')}})));
+  // Keep the same three-second window and threshold, but observe it on the
+  // audio thread: a slow render can otherwise miss every live note. This also
+  // avoids waitForFunction's generated evaluator, rejected by the site's CSP.
+  const musicProof=await p.evaluate(()=>musicProbe);console.log('MUSIC PROOF',JSON.stringify(musicProof));
+  assert(musicProof.peakRMS>.00001&&musicProof.rms>.001,'Audible MIDI plays with effects disabled: '+JSON.stringify(musicProof));
   assert.equal(await p.evaluate(()=>audioRMS('effects')),0);
+  console.log('AUDIO CHECK music-only');
   await music().uncheck();await effects().check();
-  await p.evaluate(()=>Sound.note(440,2,'sine'));await p.waitForTimeout(200);
-  assert(await p.evaluate(()=>audioRMS('effects')>.00001),'Effects play with music disabled');
+  assert((await p.evaluate(()=>audioMeasure('effects',350,()=>Sound.note(440,2,'sine')))).peakRMS>.00001,'Effects play with music disabled');
   assert(await p.evaluate(()=>audioRMS('music')<.000001),'Existing MIDI is silenced immediately');
+  console.log('AUDIO CHECK effects-only');
   await music().check();
   const slider=menu().locator('[name=volume]');await slider.focus();await p.keyboard.press('Home');
   await p.waitForTimeout(300);assert.equal(await p.evaluate(()=>Sound.volume),0);
   assert(await p.evaluate(()=>audioRMS('master')<.000001),'Overall slider mutes the final mix after dynamics');
   await p.keyboard.press('End');await p.keyboard.press('ArrowLeft');
-  assert.equal(await p.evaluate(()=>Sound.volume),.99);assert.equal(await menu().locator('output').innerText(),'99%');
+  assert.equal(await p.evaluate(()=>Sound.volume),.99);assert.equal(await menu().locator('.hs-audio-volume output').innerText(),'99%');
   for(let n=0;n<6;n++)await music().click();assert(await music().isChecked());
   await p.screenshot({path:'shots/audio-settings-desktop.png'});
   await p.setViewportSize({width:390,height:844});await p.screenshot({path:'shots/audio-settings-narrow.png'});
   await p.setViewportSize({width:1366,height:860});
+  console.log('AUDIO CHECK master slider');
   await p.keyboard.press('Escape');assert.equal(await p.evaluate(()=>House.mode),'walk');
-  await p.evaluate(async()=>{Sound.music.stop();await Apps.load('js/rm-tv.js');House.act('n64')});
-  await until(()=>House.focused&&RoomTV.open_);
-  await p.evaluate(()=>RoomTV.test('n64.kart'));
+  await p.evaluate(()=>Sound.music.stop());
+  await playCase(fixture,'n64.kart');
   await until(()=>RoomTV._dbg()?.st==='game'&&window.__kartDbg?.st.mode==='title');
   await p.evaluate(()=>{__kartDbg.race('tt',0,0);__kartDbg.go()});await until(()=>__kartDbg.st.mode==='race');
   await p.waitForTimeout(500);await p.evaluate(()=>window.audioGame=RoomTV.dbg());
   await p.keyboard.press('Escape');assert(await p.evaluate(()=>HousePause.open),'Esc opens the global menu over a console');const pausedRace=await p.evaluate(()=>__kartDbg.st.raceT);await music().uncheck();
   await p.waitForTimeout(300);assert(await p.evaluate(()=>audioRMS('music')<.000001),'Recorded Kart music obeys the same switch');
-  await p.evaluate(()=>RoomTV.sfx.tone(440,1,'sine',.2));await p.waitForTimeout(100);
-  assert(await p.evaluate(()=>audioRMS('effects')>.00001));
+  assert((await p.evaluate(()=>audioMeasure('effects',350,()=>RoomTV.sfx.tone(440,1,'sine',.2)))).peakRMS>.00001);
   await music().check();await effects().uncheck();await p.waitForTimeout(300);
   assert(await p.evaluate(()=>audioRMS('music')>.00001));assert(await p.evaluate(()=>audioRMS('effects')<.000001));
   assert(await p.evaluate(()=>RoomTV.dbg()===audioGame),'Audio switches must not restart the game');
@@ -60,4 +75,4 @@ try {
   assert.deepEqual(errors,[]);
   console.log('AUDIO SETTINGS PASS: independent MIDI/recorded music and effects, actual analyser silence, master volume/keyboard slider, repeat clicks, legacy mute synchronization, PC/console/room, refresh, desktop/narrow screenshots');
 }catch(e){console.error('Audio test failure:',e.message,errors);await p.screenshot({path:'shots/audio-settings-failure.png'}).catch(()=>{});throw e}
-finally{await browser.close()}
+finally{clearTimeout(watchdog);await browser.close()}

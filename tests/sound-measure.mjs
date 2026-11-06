@@ -3,29 +3,14 @@ import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {chromium} from 'playwright';
 import {withTestServer} from './perf/server.mjs';
-const tag=process.argv[2]||'after',baseline=tag==='before',dir='/tmp/sound-'+tag;
+import {wav,stats} from './sound-analysis.mjs';
+const tag=process.argv[2]||'after',baseline=tag==='before'||tag==='round2-before',dir='/tmp/sound-'+tag;
 await mkdir(dir,{recursive:true});
-function wav(ch,sr){const n=ch[0].length,b=Buffer.alloc(44+n*8);b.write('RIFF');b.writeUInt32LE(b.length-8,4);b.write('WAVEfmt ',8);b.writeUInt32LE(16,16);b.writeUInt16LE(3,20);b.writeUInt16LE(2,22);b.writeUInt32LE(sr,24);b.writeUInt32LE(sr*8,28);b.writeUInt16LE(8,32);b.writeUInt16LE(32,34);b.write('data',36);b.writeUInt32LE(n*8,40);for(let j=0;j<n;j++)for(let i=0;i<2;i++)b.writeFloatLE(ch[i][j],44+(j*2+i)*4);return b}
-function stats(ch,sampleRate){
- const db=x=>20*Math.log10(Math.max(1e-9,x));
- const rms=ch.map(a=>Math.sqrt(a.reduce((s,v)=>s+v*v,0)/a.length));
- // A real 2.5 kHz high-pass measurement, rather than just overall RMS:
- // the consonant band changes when the head faces away even for a bass voice.
- const w=2*Math.PI*2500/sampleRate,cs=Math.cos(w),alpha=Math.sin(w)/Math.SQRT2,a0=1+alpha;
- const b0=(1+cs)/2/a0,b1=-(1+cs)/a0,b2=b0,a1=-2*cs/a0,a2=(1-alpha)/a0;
- let peak=0,clip=0,high=0,energy=0,mono=0,band=0;
- for(let i=0;i<ch[0].length;i++)mono+=((ch[0][i]+ch[1][i])/2)**2;
- for(const a of ch){let x1=0,x2=0,y1=0,y2=0;for(let i=0;i<a.length;i++){
-  const x=a[i],y=b0*x+b1*x1+b2*x2-a1*y1-a2*y2;x2=x1;x1=x;y2=y1;y1=y;
-  peak=Math.max(peak,Math.abs(x));clip+=Math.abs(x)>=1;band+=y*y;energy+=x*x;if(i)high+=(x-a[i-1])**2;
- }}
- return{left:db(rms[0]),right:db(rms[1]),rms:db(Math.hypot(...rms)/Math.SQRT2),mono:db(Math.sqrt(mono/ch[0].length)),peak:db(peak),clip,brightness:10*Math.log10(high/energy),consonants:10*Math.log10(band/energy)};
-}
 await withTestServer(async base=>{
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium'});
  try{const p=await browser.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
  await p.route('**/__sound.html',r=>r.fulfill({contentType:'text/html',body:'<!doctype html><title>Sound measurement</title><link rel="icon" href="data:,"><button>Start</button><script src="/vendor/three.min.js"></script><script src="/js/sound.js"></script><script src="/js/cast.js"></script><script src="/js/np-lines.js"></script><script src="/js/st-voice.js"></script>'}));
- if(baseline)for(const file of ['sound.js','st-voice.js'])await p.route('**/js/'+file,async r=>r.fulfill({contentType:'text/javascript',body:await readFile('/tmp/sound-baseline/'+file,'utf8')}));
+ if(baseline)for(const file of ['sound.js','st-voice.js'])await p.route('**/js/'+file,async r=>r.fulfill({contentType:'text/javascript',body:await readFile((tag==='round2-before'?'/tmp/sound-round2-baseline/':'/tmp/sound-baseline/')+file,'utf8')}));
  // Observe the true last node, without altering production routing or gain.
  await p.addInitScript(()=>{window.audioEdges=[];window.followCosts=[];const raf=requestAnimationFrame;window.requestAnimationFrame=fn=>raf.call(window,t=>{const start=performance.now();fn(t);if(fn.name==='follow')followCosts.push(performance.now()-start)});const old=AudioNode.prototype.connect;AudioNode.prototype.connect=function(...args){audioEdges.push([this,args[0]]);return old.apply(this,args)}});
  await p.goto(base+'/__sound.html');await p.locator('button').click();
@@ -49,9 +34,36 @@ await withTestServer(async base=>{
   if(name==='stopped'){const tail=ch.map(a=>a.slice(Math.round(chunks.sampleRate*1.5)));results[name].tailPeak=Math.max(...tail.flat().map(Math.abs));assert(results[name].tailPeak<1e-6,'Stop fade leaves silence');}
   await writeFile(dir+'/'+name+'.wav',wav(ch,chunks.sampleRate));console.log(name,JSON.stringify(results[name]));await p.waitForTimeout(250);
  }
- if(!baseline){assert(results.left.left-results.left.right>1,'Left speaker (HRTF also supplies interaural delay)');assert(results.right.right-results.right.left>1,'Right speaker');assert(results.twoMetres.rms-results.far.rms>8.5,'2 m versus 6 m, after master dynamics');assert(results.front.rms-results.away.rms>3,'Head cone');assert(results.front.consonants-results.away.consonants>1,'Facing away loses consonant energy relative to total loudness');assert(Math.abs(results.front.consonants-results.behind.consonants)>.8,'HRTF front/back consonant spectrum differs');assert(results.overload.peak<-.4&&!results.overload.clip,'Master ceiling');assert(Math.abs(results.remote.rms-results.quiet.rms-6.0206)<.2,'Saved volume remains linear');assert(Math.abs(results.front.rms-results.near.rms)<.2,'Close-up is no louder');assert(results.fallback.model==='equalpower','Automatic weak-device fallback');assert(Math.abs(results.tv.rms-results.remote.rms)<.2,'Non-positional TV unchanged');assert(results.telephone.consonants<results.remote.consonants-3,'Telephone keeps its narrow filter');assert(Math.abs(results.telephone.left-results.telephone.right)<.1,'Telephone stays centred');for(const n of ['left','right'])assert(results[n].mono>results[n].rms-6,'Mono phone downmix survives HRTF: '+n);}
+ if(!baseline){assert(results.left.left-results.left.right>7,'Left speaker retains the partial stereo widening');assert(results.right.right-results.right.left>7,'Right speaker retains the partial stereo widening');assert(results.twoMetres.rms-results.far.rms>8.5,'2 m versus 6 m, after master dynamics');assert(results.front.rms-results.away.rms>3,'Head cone');assert(results.front.consonants-results.away.consonants>1,'Facing away loses consonant energy relative to total loudness');assert(Math.abs(results.front.consonants-results.behind.consonants)>3,'HRTF front/back consonant spectrum differs');assert(results.overload.peak<-.4&&!results.overload.clip,'Master ceiling');assert(Math.abs(results.remote.rms-results.quiet.rms-6.0206)<.2,'Saved volume remains linear');assert(Math.abs(results.front.rms-results.near.rms)<.2,'Close-up is no louder');assert(results.fallback.model==='equalpower','Automatic weak-device fallback');assert(Math.abs(results.tv.rms-results.remote.rms)<.2,'Non-positional TV unchanged');assert(results.telephone.consonants<results.remote.consonants-3,'Telephone keeps its narrow filter');assert(Math.abs(results.telephone.left-results.telephone.right)<.1,'Telephone stays centred');for(const n of ['left','right'])assert(results[n].mono>results[n].rms-6,'Mono phone downmix survives HRTF: '+n);}
  // Native audio-thread cost: alternate models to avoid warm-up/order bias.
- const performance=await p.evaluate(async()=>{const samples={equalpower:[],HRTF:[],protectedEqualpower:[],protectedHRTF:[]};for(let i=0;i<8;i++)for(const model of i%2?Object.keys(samples).reverse():Object.keys(samples)){const c=new OfflineAudioContext(2,48000*12,48000),s=c.createBufferSource(),b=c.createBuffer(1,48000,48000);for(let j=0;j<48000;j++)b.getChannelData(0)[j]=Math.sin(j*.11)*.4;s.buffer=b;s.loop=true;const n=c.createPanner();n.panningModel=model.endsWith('HRTF')?'HRTF':'equalpower';n.positionX.value=100;n.positionZ.value=-100;n.refDistance=200;s.connect(n);n.connect(model.startsWith('protected')?Sound.output(c,'voice'):c.destination);s.start();const t=performance.now();await c.startRendering();samples[model].push(performance.now()-t)}return samples});
+ const performance=await p.evaluate(async()=>{
+  const samples={equalpower:[],HRTF:[],protectedEqualpower:[],protectedHRTF:[],completeVoice:[],movingPriorVoice:[],movingVoice:[]};
+  for(let i=0;i<8;i++)for(const model of i%2?Object.keys(samples).reverse():Object.keys(samples)){
+   const c=new OfflineAudioContext(2,48000*12,48000),s=c.createBufferSource(),b=c.createBuffer(1,48000,48000);
+   for(let j=0;j<48000;j++)b.getChannelData(0)[j]=Math.sin(j*.11)*.4;
+   s.buffer=b;s.loop=true;
+   const full=model==='completeVoice'||model==='movingVoice'||model==='movingPriorVoice',n=c.createPanner();
+   n.panningModel=model.endsWith('HRTF')||full?'HRTF':'equalpower';n.positionX.value=100;n.positionZ.value=-100;n.refDistance=200;s.connect(n);
+   if(full){
+    // Match the family graph: HRTF, retained widening, rear/head filters,
+    // room filter/gain, stop-fade gain, mouth analyser, protected voice bus.
+    const pan=c.createStereoPanner(),rear=c.createBiquadFilter(),facing=c.createBiquadFilter(),wall=c.createBiquadFilter(),wallGain=c.createGain(),out=c.createGain(),an=c.createAnalyser();
+    n.rolloffFactor=1.5;n.maxDistance=6000;n.coneInnerAngle=120;n.coneOuterAngle=300;n.coneOuterGain=.45;n.orientationX.value=-Math.SQRT1_2;n.orientationZ.value=Math.SQRT1_2;
+    pan.pan.value=.389;rear.type='highshelf';rear.frequency.value=1800;rear.gain.value=-3;
+    facing.type='lowpass';facing.frequency.value=9000;facing.Q.value=.5;wall.type='lowpass';wall.frequency.value=18000;wall.Q.value=.5;an.fftSize=512;
+    n.connect(pan);if(model==='movingPriorVoice')pan.connect(facing);else{pan.connect(rear);rear.connect(facing)}facing.connect(wall);wall.connect(wallGain);wallGain.connect(out);out.connect(an);an.connect(Sound.output(c,'voice'));
+    if(model==='movingVoice'||model==='movingPriorVoice')for(let t=0;t<12;t+=1/30){
+     const x=Math.sin(t),z=Math.cos(t);
+     n.positionX.setTargetAtTime(150*x,t,.035);n.positionZ.setTargetAtTime(-150*z,t,.035);
+     n.orientationX.setTargetAtTime(-x,t,.035);n.orientationZ.setTargetAtTime(z,t,.035);
+     pan.pan.setTargetAtTime(.55*x,t,.035);if(model!=='movingPriorVoice')rear.gain.setTargetAtTime(-6*Math.max(0,-z),t,.035);
+     facing.frequency.setTargetAtTime(4200+4800*(1+x)/2,t,.035);wall.frequency.setTargetAtTime(18000*Math.pow(.05,(1+z)/2),t,.035);
+    }
+   }else n.connect(model.startsWith('protected')?Sound.output(c,'voice'):c.destination);
+   s.start();const t=performance.now();await c.startRendering();samples[model].push(performance.now()-t);
+  }
+  return samples;
+ });
  results.performance=performance;results.followCosts=await p.evaluate(()=>{const a=followCosts.sort((a,b)=>a-b);return{samples:a.length,p50:a[Math.floor(a.length*.5)],p95:a[Math.floor(a.length*.95)],max:a.at(-1)}});console.log('PERFORMANCE',JSON.stringify(performance),'FOLLOW',JSON.stringify(results.followCosts));
  assert.deepEqual(errors,[]);await writeFile(dir+'/measurements.json',JSON.stringify(results,null,2));
  }finally{await browser.close()}

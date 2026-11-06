@@ -476,12 +476,18 @@ await check('phone', async () => {
     const urls={manifest:resources.find(u=>u.includes('/audio/voice/manifest.json')),script:await page.evaluate(()=>document.querySelector('script[src*="st-voice.js"]')?.src)};
     assert(urls.manifest&&urls.script,'Voice loader resources recorded');
     const stamp=new URL(urls.script).searchParams.get('v');assert(stamp&&new URL(urls.manifest).searchParams.get('v')===stamp,'Manifest uses current script build');
-    await page.evaluate(()=>Cast.bind('voice-phone',{first:'Jaque',g:'m'}));
-    await say(page, 'dad', 'bark.dad.bed2');
+    // Clear any ambient balloon before selecting the named phone utterance.
+    // On a slow renderer the previous Dad line can still satisfy the layout wait.
+    assert(await page.evaluate(()=>{
+      const S=HouseFamily.debug.speech;st.stopVoice();S.q.length=0;S.cur=null;S.voice=null;S.bub=null;S.until=S.hard=0;NPCBubble.clear();
+      Cast.bind('voice-phone',{first:'Jaque',g:'m'});S.freeze=false;
+      return HouseFamily.say('dad','bark.dad.bed2',{force:true,prio:9,again:true});
+    }),'Requested phone line accepted');
     await waitFor(page, () => NPCBubble.live.some(b => b.key === 'dad' && b.mode === 'head' && b.said.length > 20), 15000 * SCALE);
     await page.evaluate(() => { HouseFamily.debug.speech.freeze = true; });
-    const b = (await live(page))[0];
-    assert(b.text.startsWith('JAQUE!'),'Sound-alike name is shown on phone');
+    const b = (await live(page)).find(b=>b.key==='dad'&&!b.out);
+    console.log('PHONE REQUEST PROOF',JSON.stringify({bubble:b,identity:await page.evaluate(()=>({first:Cast.me().first,current:HouseFamily.debug.speech.cur?.lineId,name:HouseFamily.debug.speech.voice?.nameId}))}));
+    assert(b.text.startsWith('JAQUE!'),'Sound-alike name is shown on phone: '+JSON.stringify(b));
     for(const file of ['/bark.dad.bed2.mp3','/names/dad-shout/jack.mp3'])assert(resources.some(u=>new URL(u).pathname.endsWith(file)&&new URL(u).searchParams.get('v')===stamp),'Recording uses current build token: '+file);
     assert(b.x >= 8 && b.x + b.w <= 390 - 8, 'Inside the phone screen: ' + JSON.stringify(b));
     assert(crossClear(b, 390, 844), 'Clear of the crosshair');

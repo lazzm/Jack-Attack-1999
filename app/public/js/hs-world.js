@@ -294,7 +294,7 @@
     if (now) { anims.delete('door:' + id); move(t0); dirty(); }
     else anims.set('door:' + id, move);
     if (d.open) visCalc();
-    if (changed) { sfxDoor(d.open); emit('door', id, d.open); }
+    if (changed) { sfxDoor(d.open,d); emit('door', id, d.open); }
   }
   let visSet = new Set(), vegetationRoutes = new Map();
   const vegetationFrustum = new T.Frustum(), vegetationProjection = new T.Matrix4(), vegetationHidden = [];
@@ -839,11 +839,11 @@
     };
     PH.onImpact = (b, v) => {
       const t = b.user, now = performance.now(); if (!t || now - (lastBump.get(t.id) || 0) < 140) return; lastBump.set(t.id, now);
-      physicalSound('bump', { weight: thingWeight(t), speed: v });
+      physicalSound('bump', { weight: thingWeight(t), speed: v, ...thingSound(t) });
     };
     PH.onPush = (b, got, speed) => {
       const t = b.user, now = performance.now(); if (!t || got < 0.2 || now - (lastBump.get('push:' + t.id) || 0) < 160) return; lastBump.set('push:' + t.id, now);
-      physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed });
+      physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed, ...thingSound(t) });
     };
   }
   // the doors' leaves are kinematic boxes while they're open or swinging (a closed door is part of the wall)
@@ -898,7 +898,7 @@
     if (b) { bodyState(t); if (!drag) PH.supportGone(b); else PH.awake.delete(b); }
     layerFor(t); // update the cached front-layer state too, even before a frame renders
     if (cur && t.obj.parent !== cur.things && !drag) cur.things.attach ? cur.things.add(t.obj) : 0;
-    physicalSound('handle', {weight:thingWeight(t)});
+    physicalSound('handle', {weight:thingWeight(t),...thingSound(t)});
     ui.holdBar(t); saveGrip();
     emit('grab', id);
     return true;
@@ -1348,7 +1348,7 @@
       t.st = 'rest'; t.at = { room, x: g.x, y: g.y, z: g.z, ry: g.ry, sw: t.at.sw || 0 }; t.rx = g.rx || 0; t.rz = g.rz || 0;
       place(t); layerFor(t);
       const b = t.body; if (b && PH.overlapping(b)) PH.wake(b); // somebody moved into the spot meanwhile: let physics sort it out
-      physicalSound('handle', { weight: thingWeight(t), put: true });
+      physicalSound('handle', { weight: thingWeight(t), put: true, ...thingSound(t) });
       saveThings(); emit('rest', t.id); rescueQ.add(t);
       return false;
     });
@@ -1358,7 +1358,7 @@
   function letGo() {
     if (!held) return false; const t = THINGS[held.id], drag = held.drag, hv = held.hv;
     releaseHold();
-    if (drag) { t.st = 'rest'; const b = t.body; t.at.room = roomAt(b.x, b.z, b.lvl)?.id || t.at.room; bodyState(t); renderBody(t); syncBody(t); layerFor(t); physicalSound('handle', { weight: thingWeight(t), put: true }); saveThings(); emit('place', t.id); emit('rest', t.id); return true; }
+    if (drag) { t.st = 'rest'; const b = t.body; t.at.room = roomAt(b.x, b.z, b.lvl)?.id || t.at.room; bodyState(t); renderBody(t); syncBody(t); layerFor(t); physicalSound('handle', { weight: thingWeight(t), put: true, ...thingSound(t) }); saveThings(); emit('place', t.id); emit('rest', t.id); return true; }
     unshrink(t, true); // (full size where you saw it, kept out of walls and out of you)
     const o = t.obj.position, r = roomAt(o.x, o.z, W.lvl) || cur;
     t.st = 'rest'; t.at = { room: r.id, x: o.x, y: restOf(t, o.y), z: o.z, ry: t.obj.rotation.y / D2R, sw: t.at.sw || 0 };
@@ -1388,7 +1388,7 @@
       if (s.hide) t.obj.visible = false;
       syncBody(t); // clicked in: a fixed solid at the slot's pose (or nothing, if the slot hides it)
       layerFor(t);
-      physicalSound('handle', {weight:thingWeight(t),put:true});
+      physicalSound('handle', {weight:thingWeight(t),put:true,...thingSound(t)});
       if (s.onSnap) try { s.onSnap(t); } catch (e) { console.error(e); }
       emit('snap', s.id, t.id); saveThings();
       return false;
@@ -1458,7 +1458,7 @@
     if (Math.abs(dr) > 0.01) PH.tryTurn(b, dr, 0);
     renderBody(t);
     const moved = Math.hypot(b.x - x0, b.z - z0);
-    if (moved > 0.25 && performance.now() > dragSound) { dragSound = performance.now() + 170; physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed: moved / Math.max(dt, 1e-3) }); }
+    if (moved > 0.25 && performance.now() > dragSound) { dragSound = performance.now() + 170; physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed: moved / Math.max(dt, 1e-3), ...thingSound(t) }); }
     if (Math.hypot(tx - b.x, tz - b.z) > reach + 55) { letGo(); ui.toast("It's caught", 'You let go of ' + (typeof t.label === 'function' ? t.label() : t.label).replace(/^(The|My) /, 'the ') + '. Press E on it to take hold again.'); }
   }
   // Contact shadows for grab-API props that do not model their own (phones, toys, boxes...): one instanced,
@@ -1528,7 +1528,7 @@
         const sk = Math.min(1, (now - t.t0) / 240); t.obj.position.x = lerp(t.fromX == null ? a.x : t.fromX, a.x, ease(sk)); t.obj.position.z = lerp(t.fromZ == null ? a.z : t.fromZ, a.z, ease(sk));
         // A slow frame adds up to 216 cm/s of gravity. Do not bounce forever
         // on that numerical contact velocity (the old fixed 160 threshold did).
-        if (a.y >= t.landY) { a.y = t.landY; if (t.vy > Math.max(160,1800*dt)) { t.vy = -t.vy * 0.22; physicalSound('handle', {weight:thingWeight(t),put:true}); } else { t.vy = 0; if (sk >= 1) { t.st = 'rest'; t.fromX = t.fromZ = null; syncBody(t); layerFor(t); saveThings(); emit('rest', id); } } }
+        if (a.y >= t.landY) { a.y = t.landY; if (t.vy > Math.max(160,1800*dt)) { t.vy = -t.vy * 0.22; physicalSound('handle', {weight:thingWeight(t),put:true,...thingSound(t)}); } else { t.vy = 0; if (sk >= 1) { t.st = 'rest'; t.fromX = t.fromZ = null; syncBody(t); layerFor(t); saveThings(); emit('rest', id); } } }
         t.obj.position.y = renderY(t,a.y);
         const r = t.obj.rotation; if(t.floorOnly){r.x=0;r.z=0}else{r.x *= 0.8; r.z *= 0.8;}
         any = true;
@@ -1838,7 +1838,7 @@
     const from = o.k, to = o.open ? 1 : 0, t0 = performance.now(), v0 = anims.has('open:' + id) ? (o.vel || 0) : 0;
     const ms = Math.max(160, o.ms * (v0 ? Math.min(1, Math.abs(to - from) + .25) : 1));let last = t0, prev = from;
     anims.set('open:' + id, n => { const k = clamp((n - t0) / ms, 0, 1); o.k = clamp(from + (to - from) * H5(k) + v0 * ms * H1(k), 0, 1); if (n > last) { o.vel = (o.k - prev) / (n - last); prev = o.k; last = n; } o.apply(); if (k < 1) return true; o.k = to; o.vel = 0; o.apply(); return false; });
-    if (o.sound !== false) { physicalSound(o.type==='slide'?'drawer':'door',{open:o.open}); }
+    if (o.sound !== false) { physicalSound(o.type==='slide'?'drawer':'door',{open:o.open,position:o.pivot?.getWorldPosition(new T.Vector3()),room:cur?.id}); }
     if (o.onToggle) try { o.onToggle(o.open); } catch (e) { console.error(e); }
     emit('open', id, o.open); saveThings();
   }
@@ -1847,17 +1847,19 @@
   let AC = null, OUT = null, NB = null;
   function ac() { if (!window.Sound || !Sound.effectsOn || controlsPaused) return null; if (!AC) { try { AC = Sound.unlock && Sound.unlock(); } catch (e) { AC = null; } if (!AC) return null; OUT = AC.createGain(); OUT.gain.value = 0.5; OUT.connect(Sound.output(AC)); } if (AC.state === 'suspended') AC.resume(); return AC; }
   const sfx = {
-    tone(f, d, type, vol, when, to) { const c = ac(); if (!c || !(f > 0)) return; const t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'square'; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(Math.max(1, to), t + d); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); o.connect(g); g.connect(OUT); o.start(t); o.stop(t + d + 0.03); },
-    noise(d, vol, f, when, type, to) { const c = ac(); if (!c) return; const t = c.currentTime + (when || 0); if (!NB) { NB = c.createBuffer(1, c.sampleRate, c.sampleRate); const a = NB.getChannelData(0); for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1; } const s = c.createBufferSource(); s.buffer = NB; const fl = c.createBiquadFilter(); fl.type = type || 'lowpass'; fl.frequency.setValueAtTime(f || 2000, t); if (to) fl.frequency.exponentialRampToValueAtTime(Math.max(20, to), t + d); const g = c.createGain(); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); s.connect(fl); fl.connect(g); g.connect(OUT); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.03); },
+    tone(f, d, type, vol, when, to, output) { const c = ac(); if (!c || !(f > 0)) return; const t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'square'; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(Math.max(1, to), t + d); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); o.connect(g); g.connect(output||OUT); o.start(t); o.stop(t + d + 0.03); },
+    noise(d, vol, f, when, type, to, output) { const c = ac(); if (!c) return; const t = c.currentTime + (when || 0); if (!NB) { NB = c.createBuffer(1, c.sampleRate, c.sampleRate); const a = NB.getChannelData(0); for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1; } const s = c.createBufferSource(); s.buffer = NB;s.loop=true; const fl = c.createBiquadFilter(); fl.type = type || 'lowpass'; fl.frequency.setValueAtTime(f || 2000, t); if (to) fl.frequency.exponentialRampToValueAtTime(Math.max(20, to), t + d); const g = c.createGain(); g.gain.setValueAtTime(vol == null ? 0.1 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d); s.connect(fl); fl.connect(g); g.connect(output||OUT); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.03); },
     ac, output: () => { ac(); return OUT; },
   };
   const physicalSound=(kind,o)=>window.Sound?.world?.(kind,o);
   function thingWeight(t) { return t.weight || (t.floorOnly || t.hx*t.hz*t.h>22000 ? 'heavy' : t.hx*t.hz*t.h<1600 ? 'light' : 'medium'); }
-  function sfxDoor(open) { physicalSound('door',{open}); }
+  function thingSound(t) { return {position:{x:t.at.x,y:-t.at.y,z:t.at.z},room:t.at.room}; }
+  function sfxDoor(open,d) { physicalSound('door',{open,position:d?.pivot?.getWorldPosition(new T.Vector3()),room:d?.rooms?.includes(cur?.id)?cur.id:d?.rooms?.[0]}); }
   function footSurface() {
     const stair=onStairs(W.x,W.z);
     if(stair&&W.z>stair.m0&&W.z<stair.m1)return 'stairs';
     if(cur?.id==='kitchen')return 'lino';
+    if(cur?.id==='bathroom')return 'tile';
     if(cur?.outside){const grass=cur.id==='garden'?!REAR.paving.some(([x0,z0,x1,z1])=>W.x>=x0&&W.x<=x1&&W.z>=z0&&W.z<=z1):W.x< -25&&W.z>770;return grass?'grass':'paving';}
     return 'carpet'; // The hall and landing are visibly carpeted, like the bedroom.
   }
@@ -1865,7 +1867,7 @@
   let nextClock=0,nextOutside=0,clockSide=0;
   function tickWorldSound(now) {
     if(controlsPaused||!['walk','focus','glide'].includes(mode)||!window.Sound?.effectsOn)return;
-    if(now>=nextClock){nextClock=now+1000;const c=cur?.id==='kitchen'?[-154,172,290]:cur?.id==='lounge'?[-236,229,500]:null;if(c&&Math.hypot(P.x-c[0],P.y-c[1],P.z-c[2])<220)physicalSound('clock',{side:clockSide++%2});}
+    if(now>=nextClock){nextClock=now+1000;const c=cur?.id==='kitchen'?[-154,172,290]:cur?.id==='lounge'?[-236,229,500]:null;if(c&&Math.hypot(P.x-c[0],P.y-c[1],P.z-c[2])<220)physicalSound('clock',{side:clockSide++%2,position:{x:c[0],y:-c[1],z:c[2]},room:cur.id});}
     if(now>=nextOutside){nextOutside=now+7000+Math.random()*8000;if(cur?.outside){physicalSound('road');const hour=new Date().getHours();if(hour>=7&&hour<20)physicalSound('bird');}}
   }
 
@@ -2512,7 +2514,7 @@
       const dx = W.x - b.x, dz = W.z - b.z, d = Math.hypot(dx, dz) || 1, step = clamp((dt || 0.016) * 160, 1.5, 6);
       if (!tuckedUnder(t)) clear += step;
       b.ignorePlayer = true; // (you're about to sit in it: it may roll into where you stand)
-      if (clear < 10 && n++ < 60) { const got = PH.tryMove(b, dx / d * step, dz / d * step); renderBody(t); if (n % 6 === 1) physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed: 120 }); if (Math.hypot(got[0], got[1]) < 0.05) n = 99; return true; }
+      if (clear < 10 && n++ < 60) { const got = PH.tryMove(b, dx / d * step, dz / d * step); renderBody(t); if (n % 6 === 1) physicalSound(t.physics?.castors ? 'roll' : 'scrape', { weight: thingWeight(t), speed: 120, ...thingSound(t) }); if (Math.hypot(got[0], got[1]) < 0.05) n = 99; return true; }
       b.ignorePlayer = false; t.at.room = roomAt(b.x, b.z, b.lvl)?.id || t.at.room; syncBody(t); saveThings(); done(); return false;
     });
   }

@@ -25,7 +25,21 @@
   const liveRaster={};
   function uploadPicture(){const b=H.screenBudget(room()?.tvScreen,!surf,!!surf?.locked);if(!b?.visible)return;tex.image=K.liveCanvas(cv,liveRaster,'picture',b.maxSize);tex.needsUpdate=true}
   const room = () => HR.rooms.lounge;
-  const st = { on: !!S.on, ch: S.ch, text: false, sub: false, vcr: S.vcr||null, play: 0, speed: [-12,0,1,10].includes(S.speed)?S.speed:0, menu: null, static: 0, osd: '', osdT: 0, mute: false };
+  const st = { on: !!S.on, ch: S.ch, text: false, sub: false, vcr: S.vcr||null, play: 0, speed: [-12,0,1,10].includes(S.speed)?S.speed:0, menu: null, static: 0, osd: '', osdT: 0, mute: !!S.mute };
+  const programmeSources={},speakerPoint=new T.Vector3();let programmeTimer=0;
+  const speakerPosition=()=>{const screen=room()?.tvScreen;if(!screen)return null;screen.updateWorldMatrix(true,false);return screen.getWorldPosition(speakerPoint)};
+  function stopProgramme(){clearTimeout(programmeTimer);for(const key of Object.keys(programmeSources)){programmeSources[key].stop();delete programmeSources[key]}}
+  function programmeSource(channel,d){
+    const sound=window.Sound;
+    if(!st.on||st.mute||!S.vol||!sound?.ready||!(channel==='music'?sound.musicOn:sound.effectsOn))return null;
+    const c=sound.unlock();if(!c)return null;
+    const source=programmeSources[channel]||(programmeSources[channel]=sound.emitter(c,{position:speakerPosition,room:'lounge',channel,level:()=>st.on&&!st.mute?S.vol/20:0}));
+    clearTimeout(programmeTimer);programmeTimer=setTimeout(stopProgramme,(d+1)*1000);
+    return source;
+  }
+  function programmeTone(f,d,type,vol,channel='effects'){const source=programmeSource(channel,d);if(source)Sound.signal.tone(f,d,type,vol,0,null,source.input);}
+  function programmeNoise(d,vol,f){const source=programmeSource('effects',d);if(source)Sound.signal.noise(d,vol,0,f,source.input);}
+  function programmeVolume(){for(const source of Object.values(programmeSources)){const t=source.ctx.currentTime;source.input.gain.cancelScheduledValues(t);source.input.gain.setTargetAtTime(st.on&&!st.mute?S.vol/20:0,t,.012)}}
   const savePlayback=()=>{S.on=st.on;S.vcr=st.vcr;S.speed=st.speed;S.ch=st.ch;save()};
   let ttx = null, ttxCv = null;
 
@@ -126,7 +140,7 @@
       g.strokeStyle = '#111'; g.lineWidth = 5; g.beginPath(); g.moveTo(W / 2, 170); g.lineTo(W / 2 + Math.cos(-Math.PI / 2 + k * Math.PI) * 100, 170 + Math.sin(-Math.PI / 2 + k * Math.PI) * 100); g.stroke();
       const L = 'MODEMSTAR'; for (let i = 0; i < 9; i++) { g.fillStyle = '#e8e8f0'; g.fillRect(52 + i * 60, 320, 52, 62); txt(L[i], 78 + i * 60, 366, 36, '#1a1a6a', 'center'); }
       txt('LETTERS AND NUMBERS', W / 2, 440, 24, '#ffd84a', 'center'); dog(o.ch);
-      if (Math.floor(t) % 30 === 29) H.sfx.tone(523, 0.12, 'sine', 0.03);
+      if (Math.floor(t) % 30 === 29 && st.quizBeat!==Math.floor(t/30)) {st.quizBeat=Math.floor(t/30);programmeTone(523,0.12,'sine',0.03);}
       return ['Nine letters... thirty seconds...', 'I\'ve got an eight: "STREAMED"?', 'Dictionary corner?', 'And the time is UP.'][Math.floor(t / 8) % 4];
     },
     charts(t, o) { // TOP OF THE CHARTS (Friday nights): the number one, really
@@ -135,7 +149,7 @@
       for (let i = 0; i < 3; i++) { const x = 200 + i * 120, j = Math.abs(Math.sin(t * 4 + i)) * 14; g.fillStyle = '#111'; g.beginPath(); g.arc(x, 220 - j, 26, 0, 7); g.fill(); rr(x - 34, 250 - j, 68, 130, 18); g.fill(); }
       const c = chart99(); g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(0, 386, W, 60); txt('NUMBER ONE', 24, 410, 18, '#ffd84a'); txt(c ? (c[2] + ' - ' + c[1]).slice(0, 44) : 'THE MODEM BOYS - Beep Bop Connect', 24, 436, 18, '#fff', 'left', '700 18px Arial,sans-serif');
       txt('TOP OF THE CHARTS', W / 2, 52, 30, '#fff', 'center'); dog(o.ch);
-      if (Math.floor(t * 4) % 4 === 0 && Math.floor(t * 4) !== st.beat) { st.beat = Math.floor(t * 4); H.sfx.tone(70, 0.1, 'sine', 0.05); }
+      if (Math.floor(t * 4) % 4 === 0 && Math.floor(t * 4) !== st.beat) { st.beat = Math.floor(t * 4); programmeTone(70,0.1,'sine',0.05,'music'); }
       return '(screaming) ...and it\'s still NUMBER ONE!';
     },
     lecture(t, o) { // OPEN COLLEGE: a beard, a brown suit, a blackboard (it's on at 2am)
@@ -379,13 +393,14 @@
   function standUp() { keysOn(false); if (surf) { surf.close(); surf = null; } cv.classList.remove('on'); if (remoteEl) { remoteEl.remove(); remoteEl = null; } st.menu = null; }
   function power(on) {
     st.on = on == null ? !st.on : on;
+    if(!st.on)stopProgramme();
     const r = room(); if (r && r.tvLed) { const m = [].concat(r.tvLed.material)[0]; m.color.set(st.on ? '#2aff4a' : '#e01a1a'); m.emissive.set(st.on ? '#0a8a1a' : '#900'); m.userData.e0 = m.emissive.clone(); }
-    if (st.on) { st.static = performance.now() + 350; H.sfx.noise(0.35, 0.05, 3000); H.sfx.tone(15700, 0.6, 'sine', 0.008); } else { H.sfx.tone(200, 0.1, 'sine', 0.04, 0, 60); }
+    if (st.on) { st.static = performance.now() + 350; programmeNoise(0.35,0.05,3000); H.sfx.tone(15700, 0.6, 'sine', 0.008); } else { H.sfx.tone(200, 0.1, 'sine', 0.04, 0, 60); }
     if (r && r.tvScreen) { r.tvScreen.material.map = st.on ? tex : A.t('screenOff'); r.tvScreen.material.needsUpdate = true; }
     HR.relight(); H.dirty();
     savePlayback();
   }
-  function chan(n) { st.ch = n; S.ch = n; save(); st.static = performance.now() + 240; H.sfx.noise(0.2, 0.04, 2500); osd(n === 0 ? 'AV' : String(n)); st.osdT = performance.now() + 2200; curShow = ''; }
+  function chan(n) { st.ch = n; S.ch = n; save(); st.static = performance.now() + 240; programmeNoise(0.2,0.04,2500); osd(n === 0 ? 'AV' : String(n)); st.osdT = performance.now() + 2200; curShow = ''; }
   function remote() {
     remoteEl = document.createElement('div'); remoteEl.className = 'hs-remote';
     const B = (k, l, c) => `<button type="button" data-k="${k}"${c ? ` class="${c}"` : ''}>${l}</button>`;
@@ -408,8 +423,8 @@
     if (k === 'sub') { st.sub = !st.sub; osd(st.sub ? 'SUBTITLES' : 'SUBTITLES OFF'); return; }
     if (/^[0-9]$/.test(k)) { const n = +k; if (n <= 5) chan(n); else osd('NO SIGNAL'); return; }
     if (k === 'chup') return chan((st.ch + 1) % 6); if (k === 'chdn') return chan((st.ch + 5) % 6);
-    if (k === 'volup' || k === 'voldn') { S.vol = Math.max(0, Math.min(10, S.vol + (k === 'volup' ? 1 : -1))); save(); st.volT = performance.now() + 1500; if (S.vol >= 8 && life() && life().quiet()) setTimeout(() => life().voice('DAD (from upstairs)', "TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT!"), 900); return; }
-    if (k === 'mute') { st.mute = !st.mute; osd(st.mute ? 'MUTE' : ''); return; }
+    if (k === 'volup' || k === 'voldn') { S.vol = Math.max(0, Math.min(10, S.vol + (k === 'volup' ? 1 : -1))); programmeVolume(); save(); st.volT = performance.now() + 1500; if (S.vol >= 8 && life() && life().quiet()) setTimeout(() => life().voice('DAD (from upstairs)', "TURN THAT DOWN! IT'S THE MIDDLE OF THE NIGHT!"), 900); return; }
+    if (k === 'mute') { st.mute = !st.mute; S.mute=st.mute; save(); programmeVolume(); osd(st.mute ? 'MUTE' : ''); return; }
     if (k === 'r' || k === 'g' || k === 'y' || k === 'c') { ensureTtx(); st.text = true; ttx.key(k); return; }
     if (k === 'index') { ensureTtx(); st.text = true; ttx.go(100); return; }
     // the video
