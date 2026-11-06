@@ -615,7 +615,7 @@
       voice = window.st?.say(n.lineId, who, n.text, ms, { bubble, callout:n.callout, fx: L[n.lineId]?.[2],
         pos: c.rig && V3 ? () => c.rig.mouthWorld(V3) : null,
         dir: c.rig && voiceDirection ? () => c.rig.bones.head.getWorldDirection(voiceDirection) : null,
-        through: () => !sameFloor(c,player())||c.room!==H.here, gain: here ? 1 : 0.7 }) || null;
+        through: () => window.Sound?.occlusion ? Sound.occlusion(c.room) : !sameFloor(c,player())||c.room!==H.here, gain: here ? 1 : 0.7 }) || null;
     } catch (e) { console.error(e); }
     if(!voice&&n.legacyShout)window.HouseLife?.shoutSound?.(n.text);
     if (bubble) speech.bub = window.NPCBubble.show({ key: c.id, who: label(c), place, text: n.text, ms, anchor, voice, shout: !n.person });

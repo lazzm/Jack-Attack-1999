@@ -1,0 +1,28 @@
+// Actual family-TV synthesis/control closures and physical speaker mesh, on disposable data.
+import assert from 'node:assert/strict';
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {provisionedRoom} from './provisioned-room.mjs';
+import {memoryGuard} from './sound-memory.mjs';
+const rawProbe=process.argv.includes('--raw-return-probe');let memory,f;
+const deadline=setTimeout(()=>{console.error('MEDIA HARD TIMEOUT');Promise.resolve(f?.browser.close()).finally(()=>process.exit(124));},180000);
+const base=process.argv[2];await mkdir('/tmp/sound-round2-media',{recursive:true});
+try{f=await provisionedRoom(base,{launchOptions:{args:['--enable-unsafe-swiftshader','--js-flags=--max-old-space-size=512']},onPage:async page=>{memory=await memoryGuard(page.context().browser(),rawProbe?'raw':'fixed');return page.route('**/js/hs-telly.js*',async r=>{const s=await readFile(new URL('../app/public/js/hs-telly.js',import.meta.url),'utf8');await r.fulfill({contentType:'text/javascript',body:s.replace('  window.HouseTelly = {','  window.__tvReview={programmeTone,programmeNoise,SHOW,S,power,speakerPosition,programmeSources};\n  window.HouseTelly = {')})})}});
+const p=f.page;await p.evaluate(async()=>{House.buildRoom(House.ROOMS.lounge);await Apps.load('js/hs-telly.js')});memory.mark('mesh-ready');
+ if(rawProbe){memory.mark('unsafe-mesh-return');const abort=setTimeout(()=>{console.error('RAW PROBE 5 SECOND LIMIT');f.browser.close()},5000);try{await p.evaluate(()=>window.__tvReview&&HouseRooms.rooms.lounge.tvScreen)}finally{clearTimeout(abort)}throw Error('Unsafe mesh return probe complete');}
+ await f.until(()=>!!(window.__tvReview&&HouseRooms.rooms.lounge.tvScreen));
+ memory.mark('controls');await p.keyboard.press('Shift');
+ const point=await p.evaluate(()=>__tvReview.speakerPosition().toArray());await f.view([point[0]+50,-point[1],point[2]+170],[point[0],-point[1],point[2]],{level:'G',roomPoint:[0,225,500]});
+ await p.evaluate(async()=>{Sound.music.stop();Sound.effectsOn=true;Sound.musicOn=true;Sound.setVolume(1);House._.setMode('focus');st.clearVoiceQueue();if(window.HouseFamily?.debug)HouseFamily.debug.speech.freeze=true;__tvReview.power(true);HouseTelly.st.ch=0;HouseTelly.st.mute=false;__tvReview.S.vol=10;
+  await Sound.ctx.audioWorklet.addModule('/js/sound-test-meter.js');window.captureTV=()=>{__tvReview.programmeTone(1000,.8,'sine',.04);const tap=__tvReview.programmeSources.effects.spatial;return new Promise(resolve=>{const m=new AudioWorkletNode(Sound.ctx,'sound-meter');tap.connect(m);m.connect(Sound.ctx.destination);m.port.onmessage=e=>{let sum=0,n=0,peak=0;for(const [a]of e.data)for(const v of a){sum+=v*v;n++;peak=Math.max(peak,Math.abs(v))}tap.disconnect(m);m.disconnect();resolve({rms:Math.sqrt(sum/n),peak})};m.port.postMessage({frames:Math.round(Sound.ctx.sampleRate*.5)});})};
+ });
+ memory.mark('meter');await p.waitForTimeout(1000);const high=await p.evaluate(()=>captureTV());await p.waitForTimeout(1000);
+ await p.evaluate(()=>{for(let i=0;i<9;i++)HouseTelly.press('voldn')});await p.waitForTimeout(350);const low=await p.evaluate(()=>captureTV());await p.waitForTimeout(1000);
+ await p.evaluate(()=>{__tvReview.S.vol=10;__tvReview.programmeTone(1000,3,'sine',.04);HouseTelly.press('mute')});await p.waitForTimeout(500);const muted=await p.evaluate(()=>captureTV());
+ const cue=await p.evaluate(()=>{HouseTelly.press('mute');__tvReview.S.vol=10;let count=0;const old=Sound.signal.tone;Sound.signal.tone=(...a)=>{if(a[0]===523)count++;return old(...a)};HouseTelly.st.quizBeat=null;for(let n=0;n<30;n++)__tvReview.SHOW.letters(29.1,{ch:1});Sound.signal.tone=old;const h=__tvReview.programmeSources.effects,p=__tvReview.speakerPosition();return{count,position:[h.panner.positionX.value,h.panner.positionY.value,h.panner.positionZ.value],speaker:p.toArray()}});
+ assert(high.rms>low.rms*5,'Physical volume changes actual TV audio');assert(muted.rms<1e-6,'MUTE silences the programme');assert.equal(cue.count,1,'Quiz cue once per interval');assert(Math.hypot(...cue.position.map((v,i)=>v-cue.speaker[i]))<.1,'Audio at the real TV glass');
+ memory.mark('repeat-tone');await p.evaluate(()=>{for(let i=0;i<100;i++)__tvReview.programmeTone(440,.04,'sine',.002)});await p.waitForTimeout(5000);
+ memory.mark('repeat-power-volume');await p.evaluate(()=>{for(let i=0;i<20;i++){HouseTelly.press('power');HouseTelly.press('power');HouseTelly.press('voldn');HouseTelly.press('volup')}});await p.waitForTimeout(5000);
+ memory.mark('screenshots');await p.screenshot({path:'/tmp/sound-round2-media/tv-desktop.png'});await p.setViewportSize({width:390,height:844});await p.screenshot({path:'/tmp/sound-round2-media/tv-portrait.png'});await p.setViewportSize({width:844,height:390});await p.screenshot({path:'/tmp/sound-round2-media/tv-landscape.png'});
+ memory.mark('reload');await p.evaluate(()=>{if(!HouseTelly.st.mute)HouseTelly.press('mute')});await p.reload({waitUntil:'domcontentloaded'});await f.until(()=>window.House?.live&&window.AccountGate?.allowed&&!document.querySelector('.hs-loading,#houseEntry'));await p.evaluate(async()=>{await Room.ensureHouse();House.buildRoom(House.ROOMS.lounge);await Apps.load('js/hs-telly.js')});await f.until(()=>!!window.HouseTelly);assert(await p.evaluate(()=>HouseTelly.st.mute),'TV MUTE survives refresh');
+ await writeFile('/tmp/sound-round2-media/report.json',JSON.stringify({high,low,muted,cue,volumeDropDb:20*Math.log10(high.rms/low.rms)},null,2));assert.deepEqual(f.errors,[]);console.log('PHYSICAL TV PASS',JSON.stringify({high,low,muted,cue,volumeDropDb:20*Math.log10(high.rms/low.rms)}));
+}finally{clearTimeout(deadline);await memory?.finish();await f?.browser.close()}

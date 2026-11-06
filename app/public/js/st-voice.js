@@ -153,7 +153,7 @@
       if (cam && c.listener) {
         tmp.p = tmp.p || v3(); tmp.f = tmp.f || v3(); tmp.u = tmp.u || v3();
         if (tmp.p) {
-          cam.updateMatrixWorld(); cam.getWorldPosition(tmp.p); cam.getWorldDirection(tmp.f); tmp.u.set(0, 1, 0).applyQuaternion(cam.quaternion);
+          cam.getWorldPosition(tmp.p); cam.getWorldDirection(tmp.f); tmp.u.set(0, 1, 0).applyQuaternion(cam.quaternion);
           const L = c.listener;
           if (L.positionX) { setParam(L.positionX, tmp.p.x, c, !h.started); setParam(L.positionY, tmp.p.y, c, !h.started); setParam(L.positionZ, tmp.p.z, c, !h.started); setParam(L.forwardX, tmp.f.x, c, !h.started); setParam(L.forwardY, tmp.f.y, c, !h.started); setParam(L.forwardZ, tmp.f.z, c, !h.started); setParam(L.upX, tmp.u.x, c, !h.started); setParam(L.upY, tmp.u.y, c, !h.started); setParam(L.upZ, tmp.u.z, c, !h.started); }
           else if (L.setPosition) { L.setPosition(tmp.p.x, tmp.p.y, tmp.p.z); L.setOrientation(tmp.f.x, tmp.f.y, tmp.f.z, tmp.u.x, tmp.u.y, tmp.u.z); }
@@ -167,6 +167,10 @@
             const f = tmp.f, u = tmp.u, sx = p.x - tmp.p.x, sy = p.y - tmp.p.y, sz = p.z - tmp.p.z, len = Math.max(1, Math.hypot(sx, sy, sz));
             setParam(h.widen.pan, 0.55 * (sx * (f.y * u.z - f.z * u.y) + sy * (f.z * u.x - f.x * u.z) + sz * (f.x * u.y - f.y * u.x)) / len, c, !h.started);
           }
+          // A restrained rear-head shadow survives speaker/mono playback,
+          // where generic HRTF front/back cues alone are easily lost. A shelf
+          // retains consonants instead of cutting off the top of the voice.
+          if(h.rear&&cam&&tmp.f&&tmp.p){const x=p.x-tmp.p.x,y=p.y-tmp.p.y,z=p.z-tmp.p.z,front=(x*tmp.f.x+y*tmp.f.y+z*tmp.f.z)/Math.max(1,Math.hypot(x,y,z));setParam(h.rear.gain,6*Math.min(0,front),c,!h.started);}
           let d = null; try { d = h.o.dir?.(); } catch (e) {}
           if (d) {
             if (h.panner.orientationX) { setParam(h.panner.orientationX,d.x,c,!h.started); setParam(h.panner.orientationY,d.y,c,!h.started); setParam(h.panner.orientationZ,d.z,c,!h.started); }
@@ -177,7 +181,10 @@
           }
         }
       }
-      if (h.wall && h.o.fx !== 'downstairs') { let t = false; try { t = !!(h.o.through && h.o.through()); } catch (e) {} if (t !== h.thru) { h.thru = t; setParam(h.wall.frequency, t ? 900 : 18000, c); setParam(h.wallGain.gain, t ? 0.62 : 1, c); } }
+      if (h.wall && h.o.fx !== 'downstairs') {
+        let t=0;try{const v=h.o.through?.();t=v===true?1:Number.isFinite(v)?Math.max(0,Math.min(1,v)):0}catch(e){}
+        if(t!==h.thru){h.thru=t;setParam(h.wall.frequency,18000*Math.pow(.05,t),c,!h.started);setParam(h.wallGain.gain,1-.38*t,c,!h.started)}
+      }
     }
     raf = requestAnimationFrame(follow);
   }
@@ -216,6 +223,7 @@
         // HRTF alone gives only a few dB between the ears, which is weak on phone and laptop speakers. A partial pan keeps
         // left and right obvious on speakers without flattening the HRTF cues on headphones.
         if (pn.panningModel === 'HRTF' && c.createStereoPanner) { h.widen = c.createStereoPanner(); node.connect(h.widen); node = h.widen; }
+        h.rear=c.createBiquadFilter();h.rear.type='highshelf';h.rear.frequency.value=1800;h.rear.gain.value=0;node.connect(h.rear);node=h.rear;
         if (o.dir) { h.facing = c.createBiquadFilter(); h.facing.type = 'lowpass'; h.facing.Q.value = .5; node.connect(h.facing); node = h.facing; }
       }
       if (o.through && (o.fx !== 'downstairs' || n)) { // names are clean; the following downstairs recording is already muffled
