@@ -1,6 +1,6 @@
-/* METAL GERBIL SOLID (PlayStation, in Jack's room): Tactical Sneaking Action. Agent SOLID GERBIL creeps into a snowy island
- * base to get back the plans for WHEEL REX (a giant walking hamster wheel) from the FERRETHOUND gang. Six areas (dock,
- * helipad, basement, air duct, lab, hangar), guards with vision cones on the radar, "!" alerts, evasion countdowns, a
+/* METAL GERBIL SOLID (PlaySpace, in Jack's room): Tactical Sneaking Action. Agent SOLID GERBIL creeps into a snowy island
+ * base to get back the plans for WHEEL REX (a giant walking hamster wheel) from the FERRETHOUND gang. Nine areas (dock,
+ * helipad, basement, air duct, lab, freezer, packing hall, tea tower, hangar), guards with vision cones on the radar, "!" alerts, evasion countdowns, a
  * cardboard box, knocking on walls, crawling under things, keycards, rations, snooze darts, codec calls and a boss you beat
  * by sneaking. Wobbly 1990s polygons on purpose. Everything is original: art, tunes and words.
  * Secrets: lk.sneak.ghost (finish without being spotted once), lk.sneak.box (sit in your box right under a guard's nose). */
@@ -209,7 +209,7 @@
       ['O', "I'M DR OTTERCON. I DESIGNED WHEEL REX... I THOUGHT IT WAS FOR A PARK PANIC!"],
       ['O', 'THE PLANS ARE LOCKED INSIDE REX. TO SHUT HIM DOWN, PULL THE THREE BIG POWER SWITCHES ON THE HANGAR WALLS.'],
       ['O', "HIS EYE SEES EVERYTHING IT POINTS AT, AND BOXES DON'T FOOL ROBOTS. HIDE BEHIND THE PILLARS."],
-      ['O', "TAKE MY LEVEL 3 CARD. THE HANGAR IS THROUGH THE DOOR AT THE EAST END. I'LL... STAY IN THIS CUPBOARD."]] },
+      ['O', "TAKE MY LEVEL 3 CARD. THE HANGAR ROUTE IS THROUGH THE DOOR AT THE EAST END. I'LL... STAY IN THIS CUPBOARD."]] },
     rex: { who: 'C', lines: [
       ['C', "GERBIL... THAT'S WHEEL REX!"],
       ['G', "IT'S A GIANT HAMSTER WHEEL. WITH LEGS. AND A LASER EYE."],
@@ -275,16 +275,14 @@
   };
 
   // ================================================================ the cartridge's own high-score table (Jack's mates had goes)
-  const MATES = [
-    { n: 'DAVE', s: 42500, r: 'FOX' }, { n: 'LUKE', s: 34200, r: 'HOUND' }, { n: 'JK', s: 28900, r: 'HAMSTER' },
-    { n: 'JACK', s: 22350, r: 'HAMSTER' }, { n: 'CAL', s: 15000, r: 'SCAREDY MOUSE' }, { n: 'MOM', s: 13100, r: 'SLEEPY GERBIL' }];
-  // the other saves on Jack's memory card (just for show)
-  const CARD_FILES = ['WARP WOMBAT  SAVE 1', 'TEKNO FIST  OPTIONS', 'DAVE SUX (DO NOT DELETE)', 'ANTI-GRAV 3000  GHOSTS', 'TEST', 'ASDF'];
+  const castName = id => String(window.Cast ? (id === 'me' ? Cast.me().first : Cast.first(id)) : 'PLAYER').toUpperCase();
+  const MATES = ['mate1', 'mate2', 'mate3', 'me', 'mate4', 'sister'].map((id, i) => ({ cast: id, s: [42500, 34200, 28900, 22350, 15000, 13100][i], r: ['FOX', 'HOUND', 'HAMSTER', 'HAMSTER', 'SCAREDY MOUSE', 'SLEEPY GERBIL'][i] }));
+  const CARD_FILES = ['WARP WOMBAT  SAVE 1', 'TEKNO FIST  OPTIONS', 'BISCUIT EMERGENCY KIT', 'ANTI-GRAV 3000  GHOSTS', 'TEST', 'ASDF'];
   const RANKS = { 'FOX': 'A LEGEND OF STEALTH. NOBODY SAW A THING.', 'HOUND': 'SHARP AND SNEAKY. NEARLY PERFECT.', 'SLEEPY GERBIL': 'THE WHOLE BASE IS HAVING A LOVELY NAP.', 'HAMSTER': 'GOT THE JOB DONE. A BIT NOISILY.', 'SCAREDY MOUSE': 'EVERYONE SAW YOU. EVERYONE.' };
 
   // tile codes
   const FL = 0, WA = 1, CR = 2, LO = 3, BIG = 4, CS = 5, WT = 6, PO = 7, PI = 8, DR = 9, EX = 10;
-  const CODE = { '#': WA, C: CR, B: CR, l: LO, H: BIG, '=': CS, '~': WT, L: PO, T: PI, E: EX, '0': DR, '1': DR, '2': DR, '3': DR };
+  const CODE = { '#': WA, C: CR, B: CR, l: LO, H: BIG, F: BIG, '=': CS, '~': WT, L: PO, T: PI, E: EX, '0': DR, '1': DR, '2': DR, '3': DR };
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const lerp = (a, b, k) => a + (b - a) * k;
   const angDiff = (a, b) => { let d = b - a; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return d; };
@@ -292,16 +290,17 @@
 
   TV.game('ps.sneak', {
     three: true, v: 1,
-    buttons: ['a', 'b', 'x', 'y'],
-    help: 'Move: arrows. Crawl: Z. Knock / use: X. Snooze dart: C. Box: V. Pause: Enter.',
+    buttons: ['a', 'b', 'x', 'y', 'l', 'r'],
+    help: 'Move: arrows. Crawl: Z. Knock / use: X. Snooze dart: C. Box: V. Equipment: U. Look: E. Pause: Enter.',
     make(K) {
       const T3 = K.three({ fov: 44, near: 0.3, far: 70, fogCol: 0x070d1c, fogNear: 13, fogFar: 30 }), T = T3.T, hud = K.hud, F = K.font, W = K.W, HH = K.H;
       const LT = T3.lights({ amb: 0.85, sun: 0.75, dir: [0.4, 1, 0.55], skyCol: 0xd8e4ff, groundCol: 0x404858 });
       const rnd = K.rnd(1999), R = () => rnd();
       const own = []; // things we made ourselves (disposed at the end)
-      const lab = s => String(s).replace(/\{([ABXY])\}/g, (m, b) => K.label(b.toLowerCase()));
+      const control = b => K.keyLabel ? K.keyLabel(b) : K.label(b);
+      const lab = s => String(s).replace(/\{([ABXY])\}/g, (m, b) => control(b.toLowerCase()));
 
-      // ---- PlayStation materials: the kit's wobbly vertices and wonky textures, plus 15-bit colour with ordered dithering
+      // ---- PlaySpace materials: the kit's wobbly vertices and wonky textures, plus 15-bit colour with ordered dithering
       const DH = 'float rmBay2(vec2 a){ a = floor(a); return fract(dot(a, vec2(0.5, a.y * 0.75))); }\nfloat rmBay4(vec2 a){ return rmBay2(0.5 * a) * 0.25 + rmBay2(a); }\n';
       const DB = '#include <dithering_fragment>\n  gl_FragColor.rgb = floor(gl_FragColor.rgb * 31.0 + rmBay4(gl_FragCoord.xy) * 0.94) / 31.0;';
       function M(p) {
@@ -314,7 +313,7 @@
         return m;
       }
 
-      // ---- textures (small and chunky, the PlayStation way)
+      // ---- textures (small and chunky, the PlaySpace way)
       const px = (g, c, x, y, w, h) => { g.fillStyle = c; g.fillRect(x, y, w || 1, h || 1); };
       const speck = (g, w, h, n, cols, sw, sh) => { for (let i = 0; i < n; i++) px(g, cols[i % cols.length], R() * w | 0, R() * h | 0, sw || 1, sh || 1); };
       const TX = {
@@ -338,7 +337,7 @@
         sand: T3.tex(32, 32, (g) => { px(g, '#7e7454', 0, 0, 32, 32); for (let y = 0; y < 32; y += 8) for (let x = (y / 8 % 2) * 8; x < 40; x += 16) { g.fillStyle = '#9a8e68'; g.beginPath(); g.ellipse(x, y + 4, 7.5, 3.5, 0, 0, 7); g.fill(); px(g, '#b2a67e', x - 4, y + 2, 7, 1); px(g, '#5e5640', x - 6, y + 7, 12, 1); } }),
         desk: T3.tex(32, 32, (g) => { px(g, '#6a5a48', 0, 0, 32, 32); px(g, '#8a7660', 0, 0, 32, 2); px(g, '#4a3e30', 0, 30, 32, 2); px(g, '#e8e8e0', 4, 6, 9, 11); px(g, '#c8c8c0', 5, 8, 7, 1); px(g, '#c8c8c0', 5, 10, 7, 1); px(g, '#c8c8c0', 5, 12, 5, 1); px(g, '#303438', 18, 5, 10, 8); px(g, '#4ad06a', 19, 6, 8, 6); px(g, '#d03a2a', 20, 20, 5, 6); px(g, '#f0f0f0', 21, 21, 3, 1); }),
         bench: T3.tex(32, 32, (g) => { px(g, '#dfe6ea', 0, 0, 32, 32); px(g, '#a8b4ba', 0, 30, 32, 2); px(g, '#2a8a92', 0, 0, 32, 2); px(g, '#203038', 3, 6, 11, 9); px(g, '#38e0a0', 4, 7, 9, 7); px(g, '#7af0c0', 4, 7, 9, 1); px(g, '#b0c0c8', 18, 8, 4, 10); px(g, '#80d8ff', 18, 4, 4, 5); px(g, '#e0a040', 24, 9, 5, 9); px(g, '#ffd080', 24, 6, 5, 4); }),
-        box: T3.tex(64, 64, (g) => { px(g, '#b48a52', 0, 0, 64, 64); speck(g, 64, 64, 300, ['#a87e48', '#bc945c', '#aa8248']); px(g, '#7a5a30', 0, 0, 64, 2); px(g, '#7a5a30', 0, 62, 64, 2); px(g, '#7a5a30', 0, 0, 2, 64); px(g, '#7a5a30', 62, 0, 2, 64); px(g, '#d8c492', 26, 0, 12, 64); px(g, '#c4ae7c', 26, 0, 1, 64); px(g, '#c4ae7c', 37, 0, 1, 64); g.fillStyle = '#5a3a1a'; g.beginPath(); g.moveTo(11, 10); g.lineTo(18, 18); g.lineTo(14, 18); g.lineTo(14, 26); g.lineTo(8, 26); g.lineTo(8, 18); g.lineTo(4, 18); g.closePath(); g.fill(); g.font = 'bold 9px Arial'; g.fillText('SEEDS', 42, 44); g.fillText('FRAGILE', 2, 56); g.strokeStyle = '#5a3a1a'; g.lineWidth = 1; g.strokeRect(40.5, 34.5, 21, 13); }),
+        box: T3.tex(64, 64, (g) => { px(g, '#b48a52', 0, 0, 64, 64); speck(g, 64, 64, 300, ['#a87e48', '#bc945c', '#aa8248']); px(g, '#7a5a30', 0, 0, 64, 2); px(g, '#7a5a30', 0, 62, 64, 2); px(g, '#7a5a30', 0, 0, 2, 64); px(g, '#7a5a30', 62, 0, 2, 64); px(g, '#d8c492', 26, 0, 12, 64); px(g, '#c4ae7c', 26, 0, 1, 64); px(g, '#c4ae7c', 37, 0, 1, 64); g.fillStyle = '#5a3a1a'; g.beginPath(); g.moveTo(11, 10); g.lineTo(18, 18); g.lineTo(14, 18); g.lineTo(14, 26); g.lineTo(8, 26); g.lineTo(8, 18); g.lineTo(4, 18); g.closePath(); g.fill(); g.font = 'bold 6px Arial'; g.fillText('SEEDS', 41, 44); g.font = 'bold 9px Arial'; g.fillText('FRAGILE', 2, 56); g.strokeStyle = '#5a3a1a'; g.lineWidth = 1; g.strokeRect(40.5, 34.5, 21, 13); }),
         door: T3.tex(32, 64, (g) => { px(g, '#7c868e', 0, 0, 32, 64); for (let y = 0; y < 64; y += 2) px(g, 'rgba(255,255,255,.04)', 0, y, 32, 1); px(g, '#4a5258', 0, 0, 1, 64); px(g, '#a8b2ba', 1, 0, 1, 64); px(g, '#4a5258', 0, 20, 32, 1); px(g, '#4a5258', 0, 44, 32, 1); px(g, '#a8b2ba', 0, 21, 32, 1); for (let i = 0; i < 4; i++) { px(g, '#e0b020', 4 + i * 6, 56, 3, 6); px(g, '#222', 7 + i * 6, 56, 3, 6); } }),
         heli: T3.tex(32, 32, (g) => { px(g, '#4c5a3a', 0, 0, 32, 32); speck(g, 32, 32, 90, ['#455334', '#566444']); px(g, '#2e3624', 0, 15, 32, 1); px(g, '#2e3624', 15, 0, 1, 32); px(g, '#6a7a54', 0, 16, 32, 1); for (let x = 2; x < 32; x += 6) px(g, '#8a9a70', x, 2); }),
         canvas: T3.tex(32, 32, (g) => { px(g, '#56603e', 0, 0, 32, 32); for (let y = 0; y < 32; y += 8) { px(g, '#3e462c', 0, y, 32, 1); px(g, '#6a7650', 0, y + 1, 32, 1); } speck(g, 32, 32, 60, ['#4e5838', '#606a46']); for (let i = 0; i < 6; i++) px(g, '#c8d2e2', R() * 28 | 0, R() * 3 | 0, 5, 2); }),
@@ -352,14 +351,15 @@
         tank: T3.tex(32, 32, (g) => { const gr = g.createLinearGradient(0, 0, 32, 0); gr.addColorStop(0, '#1a6a4a'); gr.addColorStop(0.3, '#5af0b0'); gr.addColorStop(0.5, '#2ab080'); gr.addColorStop(1, '#0a3a2a'); g.fillStyle = gr; g.fillRect(0, 0, 32, 32); for (let i = 0; i < 12; i++) px(g, 'rgba(220,255,240,.7)', R() * 30 | 0, R() * 32 | 0, 2, 2); }),
         pillar: T3.tex(32, 64, (g) => { px(g, '#5a5e66', 0, 0, 32, 64); speck(g, 32, 64, 120, ['#52565e', '#62666e']); for (let i = -32; i < 32; i += 8) { g.fillStyle = '#d8a818'; g.beginPath(); g.moveTo(i, 14); g.lineTo(i + 4, 14); g.lineTo(i + 14, 4); g.lineTo(i + 10, 4); g.fill(); } px(g, '#202024', 0, 4, 32, 1); px(g, '#202024', 0, 14, 32, 1); px(g, '#3a3e46', 0, 60, 32, 4); }),
       };
+      TX.goldbox = T3.tex(64, 64, g => { g.drawImage(TX.box.image, 0, 0); g.fillStyle = 'rgba(255,210,48,.48)'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#634313'; g.font = 'bold 6px Arial'; g.textAlign = 'center'; g.fillText('PRIORITY', 32, 30); g.fillText('SEEDS', 51, 44); g.font = 'bold 9px Arial'; g.textAlign = 'left'; g.fillText('FRAGILE', 2, 56); });
       const tile2 = t => { t.repeat.set(1, 1); return t; };
 
-      // vertex-coloured, pre-lit world materials (the PlayStation look: lighting baked into the corners)
+      // vertex-coloured, pre-lit world materials (the PlaySpace look: lighting baked into the corners)
       const WM = {};
       for (const k of ['snow', 'planks', 'tarmac', 'metal', 'concrete', 'grate', 'panel', 'duct', 'ductgrate', 'labtile', 'labtile2', 'lab', 'hangar', 'hangar2', 'hangarw', 'crate', 'mil', 'sand', 'desk', 'bench', 'heli', 'canvas', 'door', 'pillar']) WM[k] = M({ map: tile2(TX[k]), vcol: true, lit: false });
       WM.top = M({ vcol: true, lit: false });
       const MT = { // lit materials for things that move
-        suit: M({ color: 0x3a4c62 }), suit2: M({ color: 0x627a94 }), belt: M({ color: 0x24262a }), fur: M({ color: 0xc8965a }), fur2: M({ color: 0xf2dcb4 }),
+        suit: M({ color: 0x3a4c62 }), suit2: M({ color: 0x627a94 }), belt: M({ color: 0x24262a }), shirt: M({ color: 0xece8dc }), fur: M({ color: 0xc8965a }), fur2: M({ color: 0xf2dcb4 }),
         pink: M({ color: 0xec9ca4 }), eye: M({ color: 0x0c0c10, lit: false }), shine: M({ color: 0xffffff, lit: false }), band: M({ color: 0xd8262a }), boot: M({ color: 0x1e2026 }),
         coat: M({ color: 0xdfe3ea }), coat2: M({ color: 0x9ea6b2 }), coatIn: M({ color: 0x5c6a4a }), coatIn2: M({ color: 0x3e4a32 }), trou: M({ color: 0x3a3e4a }),
         wfur: M({ color: 0x8e5c34 }), wfur2: M({ color: 0xf0e2c8 }), hat: M({ color: 0x7e2638 }), bob: M({ color: 0xf4f4f4 }), lens: M({ color: 0x6ad0ff, lit: false }), gog: M({ color: 0x1c2430 }),
@@ -399,6 +399,9 @@
       // ================================================================ SOLID GERBIL (front is +z)
       function makeGerbil() {
         const root = grp(T3.scene), b = grp(root);
+        const formal = grp(b, 0, 0.43, 0.17); formal.visible = false;
+        mesh(GEO.box, MT.shirt, 0, 0, 0, 0.15, 0.18, 0.025, formal);
+        for (const side of [-1, 1]) { const lapel = mesh(GEO.box, MT.boot, side * 0.09, 0.01, 0.012, 0.05, 0.19, 0.028, formal); lapel.rotation.z = side * 0.2; mesh(GEO.ball6, MT.boot, side * 0.025, 0.065, 0.035, 0.05, 0.03, 0.024, formal); }
         const torso = mesh(GEO.ball, MT.suit, 0, 0.36, 0, 0.36, 0.4, 0.3, b);
         mesh(GEO.box, MT.suit2, 0, 0.42, 0.13, 0.24, 0.16, 0.06, b);
         mesh(GEO.cyl, MT.belt, 0, 0.25, 0, 0.36, 0.05, 0.3, b);
@@ -428,7 +431,7 @@
         for (let i = 0; i < 3; i++) { const t = grp(tp, 0, i ? 0 : 0.26, i ? -0.16 : -0.16); mesh(GEO.box, MT.fur, 0, 0, -0.08, 0.045, 0.045, 0.18, t); if (i === 2) mesh(GEO.ball6, MT.fur, 0, 0, -0.18, 0.09, 0.09, 0.12, t); t.rotation.x = i ? -0.25 : 0.5; tail.push(t); tp = t; }
         const box = grp(root); mesh(GEO.box, MT.box, 0, 0.29, 0, 0.66, 0.58, 0.66, box); box.visible = false;
         const sh = flatQuad(FX.shadow, 0.9, T3.scene); root.scale.setScalar(1.25);
-        return { root, b, hd, tails, arms, legs, tail, box, sh, torso };
+        return { root, b, hd, tails, arms, legs, tail, box, sh, torso, formal };
       }
       // ================================================================ a FERRETHOUND guard (a weasel in winter kit)
       function makeGuard(inside) {
@@ -456,7 +459,8 @@
         const tail = grp(b, 0, 0.4, -0.14); mesh(GEO.ball, MT.wfur, 0, -0.05, -0.2, 0.12, 0.12, 0.42, tail); tail.rotation.x = 0.6;
         const ball = mesh(GEO.ball6, MT.snowb, 0, -0.33, 0.05, 0.13, 0.13, 0.13, arms[1]); ball.visible = false;
         const sh = flatQuad(FX.shadow, 1.1, T3.scene);
-        const vis = mesh(GUARD_FAN, FX.vis, 0, 0.03, 0, 1, 1, 1, root); vis.visible = false; b.scale.setScalar(1.2);
+        const vg = GUARD_FAN.clone(); vg._area = true; vg.boundingSphere = new T.Sphere(new T.Vector3(), 1);
+        const vis = mesh(vg, FX.vis, 0, 0.03, 0, 1, 1, 1, root); vis.visible = false; b.scale.setScalar(1.2);
         return { root, b, hd, arms, legs, tail, ball, sh, vis };
       }
       // a flat fan (a vision cone on the floor), radius 1, half-angle h, pointing along +z
@@ -516,6 +520,8 @@
         if (k === 'r') { mesh(GEO.box, MT.ration, 0, 0, 0, 0.36, 0.2, 0.26, g); mesh(GEO.box, MT.rationL, 0, 0.005, 0.131, 0.22, 0.12, 0.01, g); mesh(GEO.box, MT.rationL, 0, 0.101, 0, 0.3, 0.01, 0.06, g); }
         else if (k === 'a') { mesh(GEO.box, MT.ammo, 0, 0, 0, 0.3, 0.18, 0.2, g); for (let i = 0; i < 3; i++) mesh(GEO.box, MT.dart, -0.08 + i * 0.08, 0.13, 0, 0.03, 0.1, 0.03, g); }
         else if (k === 'k') { mesh(GEO.box, MT['card' + (lvl || 1)], 0, 0, 0, 0.34, 0.22, 0.03, g); mesh(GEO.box, MT.cardW, -0.06, 0.03, 0.017, 0.14, 0.05, 0.005, g); mesh(GEO.box, MT.eye, 0, -0.06, 0.017, 0.3, 0.03, 0.005, g); }
+        else if (k === 'n' || k === 't') { mesh(GEO.box, MT.gog, 0, 0, 0, 0.36, 0.12, 0.12, g); for (const x of [-0.1, 0.1]) { mesh(GEO.cyl6, MT.steel2, x, 0, 0.06, 0.15, 0.2, 0.15, g).rotation.x = Math.PI / 2; mesh(GEO.cyl6, k === 't' ? MT.ledG : MT.lens, x, 0, 0.17, 0.12, 0.02, 0.12, g).rotation.x = Math.PI / 2; } }
+        else if (k === 'f') { mesh(GEO.cyl, MT.seed, 0, 0, 0, 0.16, 0.5, 0.16, g); for (const y of [-0.27, 0.27]) mesh(GEO.cyl, MT.steel, 0, y, 0, 0.2, 0.08, 0.2, g); mesh(GEO.box, MT.rationL, 0, 0, 0.09, 0.08, 0.25, 0.03, g); }
         else if (k === 's') { mesh(GEO.ball, MT.seed, 0, 0, 0, 0.2, 0.34, 0.1, g); mesh(GEO.ball6, MT.seed2, 0, 0, 0, 0.12, 0.24, 0.11, g); }
         else if (k === 'p') { const c = mesh(GEO.cyl, MT.plans, 0, 0, 0, 0.16, 0.6, 0.16, g); c.rotation.z = Math.PI / 2; mesh(GEO.cyl, MT.white, 0, 0, 0, 0.17, 0.06, 0.17, g).rotation.z = Math.PI / 2; }
         const glow = mesh(GEO.plane, FX.lamp, 0, -0.25, 0, 0.9, 0.9, 1, g); glow.rotation.x = -Math.PI / 2;
@@ -561,7 +567,7 @@
         const ac = new T.Color(D.out ? 0xa4b6e4 : 0xffffff);
         for (let z = 0; z < h; z++) for (let x = 0; x < w; x++) {
           let c = A.ch[z][x]; const i = z * w + x;
-          if ('raksbo'.includes(c)) { if (c === 'b') A.breakers.push({ x: x + 0.5, z: z + 0.5, on: false, pull: 0 }); else if (c === 'o') A.npc = { x: x + 0.5, z: z + 0.5 }; else A.items.push({ k: c, x: x + 0.5, z: z + 0.5, id: ai + ':' + x + ',' + z }); c = (D.on && D.on[c]) || '.'; A.ch[z][x] = c; }
+          if ('raksbofnt'.includes(c)) { if (c === 'b') A.breakers.push({ x: x + 0.5, z: z + 0.5, on: false, pull: 0 }); else if (c === 'o') A.npc = { x: x + 0.5, z: z + 0.5 }; else A.items.push({ k: c, x: x + 0.5, z: z + 0.5, id: ai + ':' + x + ',' + z }); c = (D.on && D.on[c]) || '.'; A.ch[z][x] = c; }
           if (c === 'P') { A.P = [x + 0.5, z + 0.5]; c = '.'; A.ch[z][x] = '.'; }
           if (c === 'g' || c === 'h') { A.f2[i] = 2; if (c === 'h') A.steams.push({ x: x + 0.5, z: z + 0.5, ph: (x * 0.7 + z * 1.3) % 3.2, on: false }); c = '.'; A.ch[z][x] = '.'; }
           if (c === ',') A.f2[i] = 1;
@@ -651,6 +657,19 @@
         }
         // objects
         for (const o of D.objs || []) {
+          if (o.t === 'freezer') {
+            const g = grp(root, o.x + o.w / 2, 0, o.z + o.d / 2); g.userData.sneakProp = 'freezer'; flatQuad(FX.shadow, 2.4, g);
+            mesh(GEO.box, MT.steel2, 0, 0.1, 0, 1.96, 0.2, 1.96, g);
+            mesh(GEO.box, MT.steel, 0, 0.72, 0, 1.92, 1.2, 1.92, g);
+            mesh(GEO.box, MT.snowb, 0, 1.35, 0, 1.96, 0.1, 1.96, g);
+            for (const s of [-1, 1]) {
+              mesh(GEO.box, MT.coat2, s * 0.48, 0.76, 0.974, 0.88, 1.04, 0.05, g);
+              mesh(GEO.box, MT.belt, s * 0.15, 0.8, 1.015, 0.06, 0.35, 0.07, g);
+              mesh(GEO.cyl6, MT.pipe, s * 0.72, 0.65, -0.99, 0.12, 0.95, 0.12, g);
+            }
+            for (let i = 0; i < 4; i++) mesh(GEO.box, MT.belt, -0.66 + i * 0.44, 0.28, -0.974, 0.28, 0.1, 0.03, g);
+            mesh(GEO.box, MT.ledG, 0.75, 1.13, 1.01, 0.08, 0.05, 0.03, g);
+          }
           if (o.t === 'pipes') { for (const r of [o.z + 0.35, o.z + 0.75, o.z + 2.3, o.z + 2.65]) { const p = mesh(GEO.cyl, r % 1 > 0.5 ? MT.pipe2 : MT.pipe, o.x + o.w / 2, 0.66 + (r % 1 > 0.5 ? 0.12 : 0), r, 0.26, o.w, 0.26, root); p.rotation.z = Math.PI / 2; } for (let i = 0; i <= o.w; i += 2) { mesh(GEO.box, MT.steel2, o.x + i + 0.1, 0.45, o.z + 0.55, 0.1, 0.9, 0.1, root); mesh(GEO.box, MT.steel2, o.x + i + 0.1, 0.45, o.z + 2.45, 0.1, 0.9, 0.1, root); } }
           if (o.t === 'lift') { const g = grp(root, o.x + o.w / 2, 0, o.z + o.d / 2); mesh(GEO.box, MT.steel2, 0, 0.03, 0, o.w - 0.1, 0.06, o.d - 0.1, g); mesh(GEO.box, MT.yel, 0, 0.065, (o.d - 0.1) / 2 - 0.05, o.w - 0.1, 0.02, 0.1, g); if (!o.up) { for (const s of [-1, 1]) mesh(GEO.box, MT.steel, s * (o.w / 2 - 0.1), 1.2, -o.d / 2 + 0.2, 0.16, 2.4, 0.16, g); mesh(GEO.box, MT.yel, 0, 2.3, -o.d / 2 + 0.2, o.w, 0.16, 0.16, g); const s = new T.Mesh(GEO.box, M({ map: T3.tex(32, 16, (q) => { px(q, '#202428', 0, 0, 32, 16); F.draw(q, 'LIFT', 4, 4, '#ffd04a', 1); }) })); s.position.set(0, 1.9, -o.d / 2 + 0.3); s.scale.set(1, 0.5, 0.05); g.add(s); } }
           if (o.t === 'boat') { const g = grp(root, o.x, -0.25, o.z); mesh(GEO.ball, MT.boat, 0, 0, 0, 1.0, 0.35, 2.0, g); mesh(GEO.ball, MT.boat2, 0, 0.08, 0, 0.75, 0.25, 1.6, g); mesh(GEO.box, MT.belt, 0, 0.1, -0.85, 0.3, 0.3, 0.2, g); g.rotation.y = 0.4; A.boat = g; }
@@ -708,13 +727,12 @@
           Object.assign(b, { g, lev, led, glow, dx: d[0], dz: d[1] });
         }
         // Dr Ottercon
-        if (A.npc && !S.otter) { const o = makeOtter(); T3.scene.remove(o.root); root.add(o.root); root.add(o.sh); o.root.position.set(A.npc.x, 0, A.npc.z); o.sh.position.set(A.npc.x, 0.03, A.npc.z); A.npc.m = o; }
-        else if (A.npc) A.npc = null;
+        if (A.npc) { const o = makeOtter(); T3.scene.remove(o.root); root.add(o.root); root.add(o.sh); o.root.position.set(A.npc.x, 0, A.npc.z); o.sh.position.set(A.npc.x, 0.03, A.npc.z); A.npc.m = o; }
         // guards
         (D.guards || []).forEach((gd, gi) => {
-          const m = makeGuard(!D.out); T3.scene.remove(m.root); root.add(m.root); T3.scene.remove(m.sh); root.add(m.sh);
+          const m = makeGuard(!D.out); if (gd.chief) { m.b.scale.setScalar(1.4); m.root.traverse(o => { if (o.material === MT.hat) o.material = MT.yel; if (o.material === MT.coat || o.material === MT.coatIn) o.material = MT.red2; }); } T3.scene.remove(m.root); root.add(m.root); T3.scene.remove(m.sh); root.add(m.sh);
           const p0 = gd.r[0];
-          A.guards.push({ m, route: gd.r, post: !!gd.post, ri: 0, x: p0[0], z: p0[1], a: p0[3] != null ? p0[3] : 0, head: 0, st: 'patrol', t: 0, sus: 0, path: null, pi: 0, tgt: null, last: null, icon: '', iconT: 0, throwT: 1, tackT: 0, run: 0, sleepT: 0, stared: 0, lastSeenT: 9, id: gi, speed: 0, hearT: 0 });
+          A.guards.push({ m, route: gd.r, post: !!gd.post, ri: 0, x: p0[0], z: p0[1], a: p0[3] != null ? p0[3] : 0, head: 0, chief: !!gd.chief, st: 'patrol', t: 0, sus: 0, path: null, pi: 0, tgt: null, last: null, icon: '', iconT: 0, throwT: 1, tackT: 0, run: 0, sleepT: 0, stared: 0, lastSeenT: 9, id: gi, speed: 0, hearT: 0 });
         });
         // the boss
         if (D.boss) { const r = makeRex(); for (const o of [r.root, r.beam, r.spot, r.sh]) { T3.scene.remove(o); root.add(o); } A.rex = { m: r, x: 13, z: 10.5, a: 0, eye: Math.PI, st: 'scan', t: 0, phase: 0, fireT: 0, seenT: 0, wp: 0, walkT: 0, dir: 1, revT: 4, step: 0, sus: 0, down: 0 }; }
@@ -761,11 +779,19 @@
       // ================================================================ the state of play
       let S = null, CK = null, HI = MATES.map(x => Object.assign({}, x));
       { const sv = K.load(); if (sv) { if (Array.isArray(sv.hi) && sv.hi.length) HI = sv.hi; if (sv.ck && sv.ck.st) CK = sv.ck; } }
-      const persist = () => K.save({ ck: CK, hi: HI });
+      const loaded = K.load() || {};
+      let RUN = loaded.run || null;
+      const CAREER = Object.assign({ clears: 0, best: {}, vr: {}, tux: false, gold: false }, loaded.career || {});
+      const persist = () => K.save({ ck: CK, hi: HI, run: RUN, career: CAREER, ui: presentation() });
+      HI = HI.map((e, i) => e.me ? e : Object.assign({}, e, { cast: e.cast || MATES[i % MATES.length].cast, n: undefined }));
+      const agentName = e => e.cast ? castName(e.cast) : String(e.n || castName('me'));
+      let difficulty = 1, outfit = 0, vr = null, vrSel = 0, vrResult = null, creditT = 0, difficultySel = 1;
+      let saveClock = 0, restoringRun = false, clock = 0;
+
       const newS = () => ({ area: 0, cards: 0, darts: 5, rations: 1, life: 100, seeds: {}, taken: {}, otter: 0, calls: {}, st: { t: 0, alerts: 0, naps: 0, rations: 0, cont: 0 } });
       const copy = o => JSON.parse(JSON.stringify(o));
       const G0 = makeGerbil();
-      const P = { x: 0, z: 0, a: Math.PI, low: false, box: false, wall: null, pushT: 0, wallGrace: 0, run: 0, inv: 0, stun: 0, kx: 0, kz: 0, dartT: 0, pullT: 0, pullB: null, still: 0, moving: false, dead: 0, stepT: 0, prompt: '', blockCS: 0, peek: 0, hurtT: 0 };
+      const P = { x: 0, z: 0, a: Math.PI, low: false, box: false, wall: null, pushT: 0, wallGrace: 0, run: 0, inv: 0, stun: 0, kx: 0, kz: 0, look: false, lookPitch: 0, tool: 'none', dartT: 0, pullT: 0, pullB: null, still: 0, moving: false, dead: 0, stepT: 0, prompt: '', blockCS: 0, peek: 0, hurtT: 0 };
       let mode = 'title', paused = false, phase = 'normal', alertT = 0, evT = 0, alertPos = null, bang = 0, flash = 0, flashCol = '255,40,30', shake = 0;
       let toastS = '', toastT = 0, cardT = 0, saveT = 0, captions = [], capT = 0, tutT = 0, fadeT = 0, fadeTo = -1, winT = 0;
       const toast = (s, t) => { toastS = s; toastT = t || 1.8; };
@@ -804,7 +830,7 @@
         for (let i = 1; i < n; i++) { const x = x0 + (x1 - x0) * i / n, z = z0 + (z1 - z0) * i / n; if ((x | 0) === ex && (z | 0) === ez) continue; if (opaque(x, z, low)) return false; }
         return true;
       }
-      function rayLen(x0, z0, a, max) { const sx = Math.sin(a), sz = Math.cos(a); for (let d = 0.3; d < max; d += 0.2) if (opaque(x0 + sx * d, z0 + sz * d, false)) return d; return max; }
+      function rayLen(x0, z0, a, max, low) { const sx = Math.sin(a), sz = Math.cos(a); for (let d = 0.3; d < max; d += 0.2) if (opaque(x0 + sx * d, z0 + sz * d, !!low)) return d; return max; }
       function moveCircle(o, dx, dz, r, solid) {
         let bx = false, bz = false;
         if (dx) { const nx = o.x + dx, e = nx + Math.sign(dx) * r; if (solid(e, o.z - r * 0.85) || solid(e, o.z + r * 0.85)) { bx = true; o.x = dx > 0 ? Math.max(o.x, Math.min(nx, Math.floor(e) - r - 0.001)) : Math.min(o.x, Math.max(nx, Math.floor(e) + 1 + r + 0.001)); } else o.x = nx; }
@@ -843,7 +869,7 @@
       function canStand() { const r = 0.24; for (const [dx, dz] of [[-r, -r], [r, -r], [-r, r], [r, r]]) if (tileAt(P.x + dx, P.z + dz) === CS) return false; return true; }
       function hurt(n, fx, fz, why) {
         if (P.inv > 0 || P.dead || mode !== 'play') return;
-        S.life -= n; P.inv = 1.1; P.stun = 0.35; flash = 0.35; flashCol = '255,40,30'; shake = 0.25; SFX.hurt();
+        S.life -= n * [0.6, 1, 1.3][difficulty]; P.inv = 1.1; P.stun = 0.35; flash = 0.35; flashCol = '255,40,30'; shake = 0.25; SFX.hurt();
         const d = Math.hypot(P.x - fx, P.z - fz) || 1; P.kx = (P.x - fx) / d * 5; P.kz = (P.z - fz) / d * 5;
         if (P.box) { P.box = false; toast('YOUR BOX GOT BONKED OFF!'); burst(P.x, 0.5, P.z, 0xb48a52, 8, 4, 3); }
         P.pullT = 0; P.wall = null;
@@ -856,8 +882,10 @@
       function playerUpdate(dt) {
         if (P.dead) { P.dead += dt; return; }
         if (P.inv > 0) P.inv -= dt; if (P.stun > 0) P.stun -= dt; if (P.dartT > 0) P.dartT -= dt;
-        const st = K.stick(); let mx = st.x, mz = st.y; const mag = Math.hypot(mx, mz); if (mag > 1) { mx /= mag; mz /= mag; }
+        const st = K.stick(); let mx = st.x, mz = st.y; let mag = Math.hypot(mx, mz); if (mag > 1) { mx /= mag; mz /= mag; }
         P.prompt = '';
+        if (K.pressed('r')) { P.look = !P.look; P.lookPitch = 0; P.wall = null; camSnap = true; }
+        if (P.look) { P.a += mx * dt * 1.7; P.lookPitch = clamp((P.lookPitch || 0) - mz * dt * 0.8, -0.5, 0.55); mx = mz = mag = 0; }
         // pulling a power switch: stuck until it's done
         if (P.pullT > 0) { P.pullT -= dt; if (P.pullT <= 0 && P.pullB) flipBreaker(P.pullB); return; }
         if (A.def.duct) P.low = true;
@@ -919,7 +947,7 @@
             S.darts--; P.dartT = 0.45; SFX.dart();
             // a little help with the aim (a D-pad only faces eight ways): a guard roughly in front gets the dart
             let aim = P.a, best = 0.4;
-            for (const g of A.guards) { if (g.st === 'sleep') continue; const d = Math.hypot(g.x - P.x, g.z - P.z); if (d > 8.5) continue; const lead = d / 14 * (g.speed || 0), gx = g.x + Math.sin(g.a) * lead, gz = g.z + Math.cos(g.a) * lead; const want = Math.atan2(gx - P.x, gz - P.z), off = Math.abs(angDiff(P.a, want)); if (off < best && los(P.x, P.z, g.x, g.z, false)) { best = off; aim = want; } }
+            for (const g of A.guards) { if (g.st === 'sleep' || g.offDuty) continue; const d = Math.hypot(g.x - P.x, g.z - P.z); if (d > 8.5) continue; const lead = d / 14 * (g.speed || 0), gx = g.x + Math.sin(g.a) * lead, gz = g.z + Math.cos(g.a) * lead; const want = Math.atan2(gx - P.x, gz - P.z), off = Math.abs(angDiff(P.a, want)); if (off < best && los(P.x, P.z, g.x, g.z, false)) { best = off; aim = want; } }
             const sx = Math.sin(aim), sz = Math.cos(aim);
             shot('dart', P.x + sx * 0.25, P.low ? 0.2 : 0.45, P.z + sz * 0.25, sx * 14, 0, sz * 14);
           }
@@ -931,6 +959,7 @@
         for (const g of A.guards) {
           if (g.st === 'sleep' || g.st === 'wake' || g.st === 'chase' || g.st === 'stare') continue;
           const d = Math.hypot(g.x - P.x, g.z - P.z); if (d > 7.5) continue;
+          if (vr) vr.lured = true;
           g.st = 'hear'; g.t = 0.8; g.tgt = { x: P.x, z: P.z }; g.path = null; setIcon(g, '?', 1.5); if (phase === 'normal') SFX.huh();
         }
       }
@@ -943,11 +972,11 @@
       // ================================================================ the guards
       function setIcon(g, s, t) { g.icon = s; g.iconT = t || 1.5; }
       function canSee(g) {
-        if (P.dead || mode !== 'play') return 0;
+        if (P.dead || mode !== 'play' || g.offDuty) return 0;
         const dx = P.x - g.x, dz = P.z - g.z, d = Math.hypot(dx, dz);
         if (hidden()) return 0;
-        if (d < 0.85 && !P.box) return 3;
-        const range = (phase === 'normal' ? 6.2 : 7.5) * (P.low ? 0.62 : 1);
+        if (d < 0.85 && !P.box && los(g.x, g.z, P.x, P.z, P.low)) return 3;
+        const range = (phase === 'normal' ? 6.2 : 7.5) * (P.low ? 0.62 : 1) * [0.85, 1, 1.15][difficulty] * (g.chief ? 1.18 : 1);
         if (d > range) return 0;
         const half = phase === 'alert' ? 1.1 : 0.68;
         if (Math.abs(angDiff(g.a + g.head, Math.atan2(dx, dz))) > half) return 0;
@@ -956,6 +985,7 @@
       }
       function goTo(g, x, z) { g.path = findPath(g.x, g.z, x, z); g.pi = 0; }
       function follow(g, spd, dt) {
+        if (g.chief) spd *= 1.12;
         if (!g.path || g.pi >= g.path.length) return true;
         const [tx, tz] = g.path[g.pi], dx = tx - g.x, dz = tz - g.z, d = Math.hypot(dx, dz);
         if (d < 0.08) { g.pi++; return g.pi >= g.path.length; }
@@ -965,6 +995,7 @@
       }
       function goReturn(g) { g.st = 'return'; const n = g.route[g.ri]; goTo(g, n[0], n[1]); }
       function guardUpdate(g, dt) {
+        if (g.offDuty) { g.speed = 0; follow(g, 1.45, dt); g.head = Math.sin(clock * 0.7) * 0.2; return; }
         g.speed = 0; if (g.iconT > 0) { g.iconT -= dt; if (g.iconT <= 0) g.icon = ''; } if (g.stared > 0) g.stared -= dt;
         if (g.st === 'sleep') { g.sleepT -= dt; g.zt = (g.zt || 0) - dt; if (g.zt <= 0) { g.zt = 1.6; if (Math.hypot(g.x - P.x, g.z - P.z) < 6) SFX.snore(); } if (g.sleepT <= 0) { g.st = 'wake'; g.t = 1.8; setIcon(g, '?', 1.8); } return; }
         if (g.st === 'wake') { g.t -= dt; if (g.t <= 0) { if (phase === 'normal') goReturn(g); else { g.st = phase === 'alert' ? 'chase' : 'search'; g.tgt = null; g.path = null; } } return; }
@@ -975,8 +1006,8 @@
           if (see) {
             if (phase === 'evasion' && !(P.box && P.still > 0.5)) { raiseAlert(g); return; }
             if (P.box) {
-              if (P.still > 0.4) { const d = Math.hypot(P.x - g.x, P.z - g.z); if (d < 2.4 && g.stared <= 0 && (g.st === 'patrol' || g.st === 'look' || g.st === 'return')) { g.prev = g.st; g.st = 'stare'; g.t = 2.8; setIcon(g, '?', 2.6); SFX.huh(); g.path = null; return; } }
-              else g.sus += dt * 0.32 * see;
+              if (P.still > 0.4) { g.sus = Math.max(0, g.sus - dt); const d = Math.hypot(P.x - g.x, P.z - g.z); if (d >= 2.4 && g.st === 'notice') { g.st = 'investigate'; g.tgt = { x: P.x, z: P.z }; goTo(g, P.x, P.z); } if (d < 2.4 && g.stared <= 0 && (g.st === 'patrol' || g.st === 'look' || g.st === 'return' || g.st === 'notice' || g.st === 'investigate')) { g.prev = g.post ? 'look' : 'patrol'; g.st = 'stare'; g.t = 2.8; setIcon(g, '?', 2.6); SFX.huh(); g.path = null; return; } }
+              else g.sus += dt * 0.24 * see;
             } else g.sus += dt * see * (P.low ? 0.75 : 1.25) * (Math.hypot(P.x - g.x, P.z - g.z) < 2 ? 3 : 1);
             if (g.sus > 0.2 && g.st !== 'notice') { g.st = 'notice'; g.t = 0; setIcon(g, '?', 2); SFX.huh(); g.path = null; }
             if (g.sus >= 1) { raiseAlert(g); return; }
@@ -992,7 +1023,7 @@
           case 'look': {
             const n = g.route[g.ri]; g.t -= dt;
             if (n[3] != null) g.a += angDiff(g.a, n[3]) * Math.min(1, dt * 4);
-            g.head = Math.sin(K.t * 1.25 + g.id * 2) * 0.95;
+            g.head = Math.sin(clock * 1.25 + g.id * 2) * 0.95;
             if (g.t <= 0) { if (g.route.length > 1) { g.ri = (g.ri + 1) % g.route.length; g.st = 'patrol'; } else g.t = 99; }
             break;
           }
@@ -1008,14 +1039,14 @@
             break;
           }
           case 'investigate': { if (follow(g, 1.9, dt)) { g.st = 'lookaround'; g.t = 3.2; g.path = null; } g.head *= 0.9; break; }
-          case 'lookaround': { g.t -= dt; g.head = Math.sin(K.t * 2.6 + g.id) * 1.15; if (g.t <= 0) { g.head = 0; goReturn(g); g.sus = 0; } break; }
+          case 'lookaround': { g.t -= dt; g.head = Math.sin(clock * 2.6 + g.id) * 1.15; if (g.t <= 0) { g.head = 0; goReturn(g); g.sus = 0; } break; }
           case 'return': { if (follow(g, 1.45, dt)) { g.path = null; g.st = g.post ? 'look' : 'patrol'; if (g.post) g.t = 99; } g.head *= 0.9; break; }
           case 'stare': {
             g.t -= dt; g.head *= 0.8; g.a += angDiff(g.a, Math.atan2(P.x - g.x, P.z - g.z)) * Math.min(1, dt * 5);
             if (!P.box || P.moving) { if (canSee(g)) { g.sus = 1; raiseAlert(g); return; } }
             if (g.t <= 0) {
               g.stared = 14; setIcon(g, '...', 1.6); g.st = g.prev === 'look' ? 'look' : g.prev || 'patrol'; if (g.st === 'look') g.t = Math.max(g.t, 1.2);
-              if (P.box && Math.hypot(P.x - g.x, P.z - g.z) < 2.6 && phase === 'normal') { say(g, 'JUST A BOX.'); K.secret('lk.sneak.box'); }
+              if (P.box && Math.hypot(P.x - g.x, P.z - g.z) < 2.6 && phase === 'normal') { say(g, 'JUST A BOX.'); K.secret('lk.sneak.box'); if (vr) vr.boxed = true; }
             }
             break;
           }
@@ -1027,12 +1058,12 @@
             if (see && d < 7 && d > 1.4 && g.throwT <= 0) { g.throwT = 1.3 + R() * 0.6; g.wind = 0.35; }
             if (g.wind > 0) { g.wind -= dt; g.a += angDiff(g.a, Math.atan2(P.x - g.x, P.z - g.z)) * Math.min(1, dt * 10); if (g.wind <= 0) throwBall(g); }
             else if (see && d < 1.4) { g.a += angDiff(g.a, Math.atan2(P.x - g.x, P.z - g.z)) * Math.min(1, dt * 10); const dx = P.x - g.x, dz = P.z - g.z; if (d > 0.6) { g.x += dx / d * 2.8 * dt; g.z += dz / d * 2.8 * dt; g.speed = 2.8; } else if (g.tackT <= 0) { g.tackT = 1.2; hurt(18, g.x, g.z, 'BONK!'); } }
-            else if (follow(g, 2.7, dt)) { g.head = Math.sin(K.t * 3 + g.id) * 1.0; }
+            else if (follow(g, 2.7, dt)) { g.head = Math.sin(clock * 3 + g.id) * 1.0; }
             break;
           }
           case 'search': {
             if (!g.path || g.pi >= g.path.length) {
-              g.t -= dt; g.head = Math.sin(K.t * 2.2 + g.id) * 1.1;
+              g.t -= dt; g.head = Math.sin(clock * 2.2 + g.id) * 1.1;
               if (g.t <= 0) { const b = g.last || alertPos || { x: g.x, z: g.z }; let tx = b.x, tz = b.z; for (let k = 0; k < 12; k++) { const x = b.x + (R() - 0.5) * 9, z = b.z + (R() - 0.5) * 9; if (walkG(tileAt(x, z))) { tx = (x | 0) + 0.5; tz = (z | 0) + 0.5; break; } } goTo(g, tx, tz); g.t = 1.6; }
             } else follow(g, 1.9, dt);
             break;
@@ -1077,8 +1108,9 @@
 
       // ================================================================ cameras, lasers, searchlights, steam, doors, items
       function hazards(dt) {
-        const t = K.t;
+        const t = clock;
         for (const c of A.cams) {
+          if (c.disabled) { c.seeing = false; c.led.material = MT.ledG; continue; }
           c.a = c.base + Math.sin((t / c.per + c.ph) * Math.PI * 2) * c.sw; c.head.rotation.y = c.a - c.base + (c.base === Math.PI ? Math.PI : 0); c.fan.rotation.y = c.a;
           c.seeing = false;
           const dx = P.x - c.x, dz = P.z - c.z, d = Math.hypot(dx, dz);
@@ -1100,6 +1132,7 @@
           }
         }
         for (const s of A.spots) {
+          if (s.disabled) continue;
           if (phase === 'alert' && alertPos) { const dx = alertPos.x - s.x, dz = alertPos.z - s.z, d = Math.hypot(dx, dz); if (d > 0.05) { s.x += dx / d * Math.min(d, 3.2 * dt); s.z += dz / d * Math.min(d, 3.2 * dt); } }
           else { const k = (1 - Math.cos(((t / s.per) + s.ph) * Math.PI * 2)) / 2, tx = lerp(s.a[0], s.b[0], k), tz = lerp(s.a[1], s.b[1], k); s.x = lerp(s.x, tx, Math.min(1, dt * 2)); s.z = lerp(s.z, tz, Math.min(1, dt * 2)); }
           s.disc.position.set(s.x, 0.05, s.z);
@@ -1133,19 +1166,23 @@
       function items(dt) {
         for (const it of A.items) {
           if (it.got) continue;
-          it.g.rotation.y += dt * 2; it.g.position.y = (it.k === 'k' && A.def.on && A.def.on.k === '=' ? 0.2 : 0.35) + Math.sin(K.t * 3 + it.x) * 0.05;
+          it.g.rotation.y += dt * 2; it.g.position.y = (it.k === 'k' && A.def.on && A.def.on.k === '=' ? 0.2 : 0.35) + Math.sin(clock * 3 + it.x) * 0.05;
           if (Math.hypot(P.x - it.x, P.z - it.z) < 0.55 && !P.dead) {
+            if (it.k === 'a' && S.darts >= 12) { if (!it.told) { toast('SNOOZE DARTS FULL (12)'); it.told = 1; } continue; }
             if (it.k === 'r' && S.rations >= 3) { if (!it.told) { toast('RATIONS FULL (3)'); it.told = 1; } continue; }
             it.got = true; it.g.visible = false; S.taken[it.id] = 1;
             if (it.k === 'r') { S.rations++; toast('RATION (A CHEESE AND PICKLE SANDWICH)', 2.2); SFX.get(); }
             if (it.k === 'a') { S.darts = Math.min(12, S.darts + 4); toast('+4 SNOOZE DARTS'); SFX.get(); }
             if (it.k === 'k') { S.cards = Math.max(S.cards, A.def.card); toast('GOT THE LEVEL ' + A.def.card + ' KEYCARD!', 2.4); SFX.card(); }
+            if (it.k === 'n') { S.scope = 1; toast('FIELD BINOCULARS! ' + control('l') + ' OPENS EQUIPMENT.', 3); SFX.card(); }
+            if (it.k === 't') { S.thermal = 1; toast('CRUMB VISION! ' + control('l') + ' OPENS EQUIPMENT.', 3); SFX.card(); }
+            if (it.k === 'f') { S.fuses = (S.fuses || 0) + 1; toast('LIFT FUSE ' + S.fuses + ' OF 2'); SFX.card(); }
             if (it.k === 's') { S.seeds[A.i] = 1; toast('GOLDEN SUNFLOWER SEED! (' + Object.keys(S.seeds).length + '/6)', 2.4); SFX.card(); }
             if (it.k === 'p') { SFX.card(); win(); }
             burst(it.x, 0.5, it.z, 0xffffa0, 10, 2.5, 2.5);
           }
         }
-        if (A.npc && A.npc.m && !S.otter && Math.hypot(P.x - A.npc.x, P.z - A.npc.z) < 2.2 && phase === 'normal') { S.otter = 1; codec('otter', () => { S.cards = Math.max(S.cards, 3); toast('GOT THE LEVEL 3 KEYCARD!', 2.4); SFX.card(); }); }
+        if (A.npc && A.npc.m && !S.otter && Math.hypot(P.x - A.npc.x, P.z - A.npc.z) < 2.2 && phase === 'normal') { S.otter = 1; codec('otter'); }
         const k = (P.x | 0) + ',' + (P.z | 0);
         if (A.talk[k] && !S.calls[A.talk[k]]) { S.calls[A.talk[k]] = 1; captions = EAVES[A.talk[k]].slice(); capT = 3; }
       }
@@ -1157,7 +1194,7 @@
           s.m.position.set(s.x, s.y, s.z);
           let done = s.t > 2.2;
           if (s.k === 'dart') {
-            for (const g of A.guards) if (g.st !== 'sleep' && Math.hypot(g.x - s.x, g.z - s.z) < 0.42) { sleepGuard(g); done = true; break; }
+            for (const g of A.guards) if (g.st !== 'sleep' && !g.offDuty && Math.hypot(g.x - s.x, g.z - s.z) < 0.42) { sleepGuard(g); done = true; break; }
             if (!done && opaque(s.x, s.z, s.y < 0.5)) { done = true; burst(s.x - s.vx * 0.02, s.y, s.z - s.vz * 0.02, 0xffe080, 4, 2, 1); tick(1400, 0.04, 0.04); }
             if (s.t > 0.8) done = true;
           } else {
@@ -1227,6 +1264,14 @@
         b.on = true; P.pullB = null; b.lev.rotation.x = 0.7; b.led.material = MT.ledG; b.glow.visible = false; SFX.lever(); shake = 0.3;
         burst(b.x - b.dx * 0.3, 1.1, b.z - b.dz * 0.3, 0xffe060, 14, 3, 3);
         const n = A.breakers.filter(q => q.on).length, X = A.rex;
+        if (!X) {
+          if (A.def.command) {
+            if (n === 1) for (const s of A.spots) { s.disabled = true; s.beam.visible = false; s.disc.visible = false; }
+            if (n === 2) for (const c of A.cams) { c.disabled = true; c.fan.visible = false; }
+            if (n === 3) { for (const g of A.guards) { g.offDuty = true; g.st = 'tea'; g.icon = '...'; g.iconT = 999; goTo(g, g.route[0][0], g.route[0][1]); } phase = 'normal'; alertT = evT = 0; for (const s of shots) { s.on = false; s.m.visible = false; } toast('TEA BREAK! THE HANGAR LIFT IS OPEN.', 3); return; }
+          }
+          toast('CIRCUIT ' + n + '/' + A.breakers.length + ' ISOLATED'); return;
+        }
         toast('POWER SWITCH ' + n + ' OF 3 OFF!', 2.2);
         if (n >= 3) { X.st = 'down'; X.down = 0; phase = 'normal'; K.music(null); K.sfx.tone(440, 2.5, 'sawtooth', 0.08, 0, 40); shake = 0.6; for (const s of shots) { s.on = false; s.m.visible = false; } X.px = clamp(X.x, 3, 22) + 0.01; X.pz = X.z + 2.4; if (!walkG(tileAt(X.px, X.pz))) X.pz = X.z - 2.4; }
         else { X.phase = n; X.st = 'stagger'; X.t2 = 1.8; K.sfx.tone(300, 0.8, 'sawtooth', 0.08, 0, 80); if (n === 2) toast('UH-OH. HE IS ON THE MOVE!', 2.4); }
@@ -1236,20 +1281,23 @@
       function enterArea(ai, first) {
         S.area = ai; buildArea(ai);
         for (const it of A.items) if (S.taken[it.id]) { it.got = true; it.g.visible = false; }
-        P.x = A.P[0]; P.z = A.P[1]; P.a = Math.PI; P.low = !!A.def.duct; P.box = false; P.wall = null; P.dead = 0; P.inv = 1; P.stun = 0; P.pullT = 0; P.still = 0; P.kx = P.kz = 0;
+        P.x = A.P[0]; P.z = A.P[1]; P.a = Math.PI; P.look = false; P.lookPitch = 0; if (P.tool === 'scope' && !S.scope || P.tool === 'thermal' && !S.thermal) P.tool = 'none'; P.low = !!A.def.duct; P.box = false; P.wall = null; P.dead = 0; P.inv = 1; P.stun = 0; P.pullT = 0; P.pullB = null; P.dartT = 0; P.still = 0; P.kx = P.kz = 0;
         phase = 'normal'; alertPos = null; bang = 0; for (const s of shots) { s.on = false; s.m.visible = false; } captions = []; speech.length = 0;
-        CK = copy(S); persist(); saveT = 2.6; cardT = 4;
+        if (!vr) { CK = copy(S); if (!restoringRun) RUN = null; persist(); } saveT = vr ? 0 : 2.6; cardT = 4;
         K.music(SONGS[A.def.song]); camSnap = true;
-        if (!S.calls[A.def.call]) { S.calls[A.def.call] = 1; CK.calls[A.def.call] = 1; persist(); pendingCall = A.def.call; pendingT = first ? 0.6 : 1.4; }
+        if (A.def.call && !S.calls[A.def.call]) { S.calls[A.def.call] = 1; CK.calls[A.def.call] = 1; persist(); pendingCall = A.def.call; pendingT = first ? 0.6 : 1.4; }
         if (ai === 0 && first) tutT = 14;
       }
       let pendingCall = null, pendingT = 0, camSnap = true;
       function exits(dt) {
         if (fadeT > 0) return;
         const t = tileAt(P.x, P.z);
+        if (vr) { trainingStep(dt, t); return; }
         if (t === EX && !P.dead) {
           if (phase === 'alert') { if (!P.exitTold) { toast("YOU CAN'T SLIP AWAY DURING AN ALERT!"); P.exitTold = 1; } return; }
-          fadeT = 1.2; fadeTo = A.i + 1; if (A.def.objs && A.def.objs.some(o => o.t === 'lift')) SFX.lift(); else SFX.crawl();
+          if (A.def.goal === 'switch' && A.breakers.some(b => !b.on)) { toast('THE LIFT IS LOCKED. ISOLATE ALL CIRCUITS.'); return; }
+          if (A.def.goal === 'fuse' && (S.fuses || 0) < 2) { toast('THE LIFT NEEDS TWO GOLD FUSES.'); return; }
+          fadeT = 1.2; fadeTo = A.def.next ?? A.i + 1; if (A.def.objs && A.def.objs.some(o => o.t === 'lift')) SFX.lift(); else SFX.crawl();
         } else P.exitTold = 0;
       }
       function win() {
@@ -1260,9 +1308,12 @@
       // ================================================================ animating everybody
       let lowK = 0;
       function animGerbil(dt) {
-        const g = G0, t = K.t, mv = P.moving ? 1 : 0, ph = P.run;
-        g.root.position.set(P.x, 0, P.z); g.root.rotation.y = P.a; g.sh.position.set(P.x, 0.03, P.z);
-        g.root.visible = !(P.inv > 0 && !P.dead && (P.inv * 14 | 0) % 2 === 1);
+        const g = G0, t = clock, mv = P.moving ? 1 : 0, ph = P.run;
+        g.sh.visible = true; g.root.position.set(P.x, 0, P.z); g.root.rotation.y = P.a; g.sh.position.set(P.x, 0.03, P.z);
+        g.root.visible = !P.look;
+        MT.suit.emissive.setHex(P.inv > 0 && !P.dead && (P.inv * 14 | 0) % 2 ? 0x263c48 : 0x000000);
+        MT.suit.color.setHex(outfit && CAREER.tux ? 0x20232a : 0x3a4c62); MT.suit2.color.setHex(outfit && CAREER.tux ? 0x25282c : 0x627a94); MT.box.map = CAREER.gold ? TX.goldbox : TX.box; MT.box.color.setHex(0xffffff);
+        g.formal.visible = !!(outfit && CAREER.tux);
         g.box.visible = P.box; g.b.visible = !P.box;
         if (P.box) { g.box.position.y = mv ? Math.abs(Math.sin(ph * 1.3)) * 0.06 : 0; g.box.rotation.z = mv ? Math.sin(ph * 1.3) * 0.06 : 0; g.box.rotation.x = 0; g.sh.scale.set(1.1, 1.1, 1); return; }
         g.sh.scale.set(0.9, 0.9, 1);
@@ -1288,7 +1339,7 @@
         g.tail[0].rotation.x = P.low ? -0.3 : 0.5;
       }
       function animGuard(g, dt) {
-        const m = g.m, t = K.t; m.root.position.set(g.x, 0, g.z); m.root.rotation.y = g.a; m.sh.position.set(g.x, 0.03, g.z);
+        const m = g.m, t = clock; m.root.position.set(g.x, 0, g.z); m.root.rotation.y = g.a; m.sh.position.set(g.x, 0.03, g.z);
         g.run += dt * g.speed * 3.6; const mv = g.speed > 0 ? Math.min(1, g.speed / 1.4) : 0;
         const sleep = g.st === 'sleep', k = sleep ? 1 : g.st === 'wake' ? Math.max(0, g.t / 1.8) : 0;
         g.lk = lerp(g.lk || 0, k, Math.min(1, dt * 6));
@@ -1300,13 +1351,21 @@
         if (g.wind > 0) { m.arms[1].rotation.set(2.6, 0, 0.3); m.ball.visible = true; } else { m.ball.visible = false; if (g.armT > 0) { g.armT -= dt; m.arms[1].rotation.set(-1.4, 0, 0); } }
         if (sleep) { m.arms.forEach(a => a.rotation.set(-0.3, 0, 0)); m.legs.forEach(l => l.rotation.x = 0.2); }
         m.tail.rotation.y = Math.sin(t * 2 + g.id) * 0.4;
-        m.vis.visible = !sleep && g.st !== 'wake' && mode === 'play';
-        if (m.vis.visible) { const r = (phase === 'normal' ? 6.2 : 7.5) * (P.low ? 0.62 : 1); m.vis.scale.set(r, 1, r); m.vis.rotation.y = g.head; m.vis.position.y = 0.04 - m.root.position.y; }
+        m.vis.visible = !g.offDuty && !sleep && g.st !== 'wake' && mode === 'play';
+        if (m.vis.visible) {
+          const r = (phase === 'normal' ? 6.2 : 7.5) * (P.low ? 0.62 : 1) * [0.85, 1, 1.15][difficulty] * (g.chief ? 1.18 : 1), half = phase === 'alert' ? 1.1 : 0.68;
+          const pos = m.vis.geometry.attributes.position;
+          for (let i = 0; i <= 10; i++) { const a = -half + half * 2 * i / 10, d = rayLen(g.x, g.z, g.a + g.head + a, r, P.low) / r; pos.setXYZ(i + 1, Math.sin(a) * d, 0, Math.cos(a) * d); }
+          pos.needsUpdate = true; m.vis.scale.set(r, 1, r); m.vis.rotation.y = g.head; m.vis.position.y = 0.04 - m.root.position.y;
+        }
       }
 
       // ================================================================ the camera
       const cam = T3.cam, camP = new T.Vector3(), camL = new T.Vector3(), tv = new T.Vector3(), camWL = new T.Vector3();
       function camUpdate(dt) {
+        const look = P.look && !P.dead; const fov = look ? P.tool === 'scope' ? 24 : 54 : 44;
+        if (cam.fov !== fov) { cam.fov = fov; cam.updateProjectionMatrix(); }
+        if (look) { const y = P.low ? 0.32 : 0.84; cam.position.set(P.x, y, P.z); cam.lookAt(P.x + Math.sin(P.a) * 8, y + Math.sin(P.lookPitch || 0) * 8, P.z + Math.cos(P.a) * 8); return; }
         const D = A.def, hgt = D.duct ? 5.0 : D.boss ? 10.5 : 6.3, back = D.duct ? 2.7 : D.boss ? 6.8 : 4.2;
         let tx = P.x, tz = P.z;
         if (A.rex) { const X = A.rex, k = clamp(1 - Math.hypot(X.x - P.x, X.z - P.z) / 16, 0.2, 0.5); tx = lerp(P.x, X.x, k); tz = lerp(P.z, X.z - 1.2, k); }
@@ -1322,7 +1381,7 @@
       function proj(x, y, z) { tv.set(x, y, z).project(cam); return [(tv.x + 1) / 2 * W, (1 - tv.y) / 2 * HH, tv.z < 1]; }
       function snowStep(dt) {
         if (!snow.visible) return; const a = snowPos;
-        for (let i = 0; i < SN; i++) { a[i * 3 + 1] -= dt * (0.9 + (i % 5) * 0.12); a[i * 3] += dt * (0.5 + Math.sin(K.t + i) * 0.25); if (a[i * 3 + 1] < 0) { a[i * 3 + 1] += 9; a[i * 3] = (R() - 0.5) * 20; a[i * 3 + 2] = (R() - 0.5) * 16; } if (a[i * 3] > 10) a[i * 3] -= 20; }
+        for (let i = 0; i < SN; i++) { a[i * 3 + 1] -= dt * (0.9 + (i % 5) * 0.12); a[i * 3] += dt * (0.5 + Math.sin(clock + i) * 0.25); if (a[i * 3 + 1] < 0) { a[i * 3 + 1] += 9; a[i * 3] = (R() - 0.5) * 20; a[i * 3 + 2] = (R() - 0.5) * 16; } if (a[i * 3] > 10) a[i * 3] -= 20; }
         snowGeo.attributes.position.needsUpdate = true;
       }
 
@@ -1406,6 +1465,7 @@
         cd = { id, who: C.who, lines: C.lines.map(([w, s]) => [w, lab(s)]), i: 0, n: 0, open: 0, ring: id === 'otter' ? 0 : 0.9, then, rt: 0 };
       }
       function codecUpdate(dt) {
+        if (K.pressed('start')) return endCodec();
         if (cd.ring > 0) { cd.ring -= dt; cd.rt -= dt; if (cd.rt <= 0) { cd.rt = 0.3; K.sfx.tone(1480, 0.07, 'square', 0.07); K.sfx.tone(1480, 0.07, 'square', 0.07, 0.1); } if (cd.ring <= 0) K.sfx.tone(2200, 0.05, 'square', 0.06); return; }
         cd.open = Math.min(1, cd.open + dt * 3.5); if (cd.open < 1) return;
         const L = cd.lines[cd.i][1], n0 = cd.n | 0; cd.n = Math.min(L.length, cd.n + dt * 46);
@@ -1413,7 +1473,7 @@
         if (K.pressed('start')) return endCodec();
         if (K.pressed('a') || K.pressed('b') || K.pressed('x')) { if (cd.n < L.length) cd.n = L.length; else { cd.i++; cd.n = 0; tick(1200, 0.03, 0.04); if (cd.i >= cd.lines.length) endCodec(); } }
       }
-      function endCodec() { const f = cd && cd.then; cd = null; K.sfx.tone(1800, 0.05, 'square', 0.05, 0, 900); if (f) f(); }
+      function endCodec() { const id = cd && cd.id, f = cd && cd.then; cd = null; if (id === 'otter') { S.cards = Math.max(S.cards, 3); toast('GOT THE LEVEL 3 KEYCARD!', 2.4); SFX.card(); } if (id === 'win' && !f) { results(); return; } K.sfx.tone(1800, 0.05, 'square', 0.05, 0, 900); if (f) f(); }
       function wrap(s, n) { const out = []; let line = ''; for (const w of s.split(' ')) { if ((line + ' ' + w).trim().length > n) { out.push(line.trim()); line = w; } else line += ' ' + w; } if (line.trim()) out.push(line.trim()); return out; }
       function drawCodec() {
         const g = hud;
@@ -1467,7 +1527,7 @@
           g.fillStyle = al ? 'rgba(60,0,0,.85)' : 'rgba(40,30,0,.85)'; g.fillRect(x, y, w, h);
           for (let i = 0; i < 18; i++) { g.fillStyle = `rgba(${al ? '255,60,40' : '255,200,40'},${0.08 + R() * 0.12})`; g.fillRect(x + R() * w, y + R() * h, R() * 20, 1); }
           g.strokeStyle = al ? '#ff4030' : '#ffc030'; g.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
-          if (!al || (K.t * 3 | 0) % 2) F.center(g, al ? 'ALERT' : 'EVASION', x + w / 2, y + 12, al ? '#ff7060' : '#ffd060', al ? 2 : 1, '#000');
+          if (!al || (clock * 3 | 0) % 2) F.center(g, al ? 'ALERT' : 'EVASION', x + w / 2, y + 12, al ? '#ff7060' : '#ffd060', al ? 2 : 1, '#000');
           const v = al ? alertT : evT; F.center(g, (Math.max(0, v)).toFixed(2), x + w / 2, y + 36, al ? '#ffb0a0' : '#fff0b0', 1, '#000');
           F.center(g, al ? 'RADAR JAMMED' : 'STAY HIDDEN!', x + w / 2, y + 48, al ? '#c05040' : '#c09040', 1);
           return;
@@ -1475,16 +1535,16 @@
         g.save(); g.fillStyle = 'rgba(0,14,6,.82)'; g.fillRect(x, y, w, h); g.beginPath(); g.rect(x + 1, y + 1, w - 2, h - 2); g.clip();
         const ox = Math.round(x + w / 2 - P.x * 3), oy = Math.round(y + h / 2 - P.z * 3);
         g.drawImage(A.radar, ox, oy);
-        const fan = (cx, cz, a, r, half, col) => { g.fillStyle = col; g.beginPath(); g.moveTo(ox + cx * 3, oy + cz * 3); for (let i = 0; i <= 8; i++) { const q = a - half + 2 * half * i / 8; g.lineTo(ox + (cx + Math.sin(q) * r) * 3, oy + (cz + Math.cos(q) * r) * 3); } g.closePath(); g.fill(); };
-        for (const c of A.cams) fan(c.x, c.z, c.a, c.range, 0.42, 'rgba(255,90,60,.3)');
-        for (const s of A.spots) { g.fillStyle = 'rgba(255,240,120,.35)'; g.beginPath(); g.arc(ox + s.x * 3, oy + s.z * 3, 4.5, 0, 7); g.fill(); }
+        const fan = (cx, cz, a, r, half, col, low = P.low) => { g.fillStyle = col; g.beginPath(); g.moveTo(ox + cx * 3, oy + cz * 3); for (let i = 0; i <= 8; i++) { const q = a - half + 2 * half * i / 8, d = rayLen(cx, cz, q, r, low); g.lineTo(ox + (cx + Math.sin(q) * d) * 3, oy + (cz + Math.cos(q) * d) * 3); } g.closePath(); g.fill(); };
+        for (const c of A.cams) { if (!c.disabled) fan(c.x, c.z, c.a, c.range, 0.42, 'rgba(255,90,60,.3)'); }
+        for (const s of A.spots) { if (s.disabled) continue; g.fillStyle = 'rgba(255,240,120,.35)'; g.beginPath(); g.arc(ox + s.x * 3, oy + s.z * 3, 4.5, 0, 7); g.fill(); }
         for (const L of A.lasers) if (L.on) { g.fillStyle = '#ff4040'; g.fillRect(ox + L.x * 3 - 0.5, oy + L.z0 * 3, 1, (L.z1 - L.z0) * 3); }
-        for (const q of A.guards) { if (q.st !== 'sleep' && q.st !== 'wake') fan(q.x, q.z, q.a + q.head, (P.low ? 0.62 : 1) * 6.2, 0.68, q.sus > 0.15 ? 'rgba(255,220,80,.35)' : 'rgba(90,255,140,.28)'); }
-        for (const q of A.guards) { g.fillStyle = q.st === 'sleep' ? '#8a8aff' : '#ff4a3a'; g.fillRect(ox + q.x * 3 - 1.5, oy + q.z * 3 - 1.5, 3, 3); }
-        if (A.rex && A.rex.st !== 'down') { const X = A.rex; fan(X.x, X.z, X.eye, rayLen(X.x, X.z, X.eye, 11.5), 0.24, 'rgba(255,90,60,.4)'); g.fillStyle = '#ff4a3a'; g.fillRect(ox + X.x * 3 - 4, oy + X.z * 3 - 4, 8, 8); }
-        if (A.npc && A.npc.m && !S.otter) { g.fillStyle = (K.t * 3 | 0) % 2 ? '#80c0ff' : '#4060a0'; g.fillRect(ox + A.npc.x * 3 - 1.5, oy + A.npc.z * 3 - 1.5, 3, 3); }
-        for (const b of A.breakers) if (!b.on) { g.fillStyle = (K.t * 3 | 0) % 2 ? '#ffe060' : '#806020'; g.fillRect(ox + b.x * 3 - 2, oy + b.z * 3 - 2, 4, 4); }
-        g.fillStyle = (K.t * 4 | 0) % 2 ? '#ffffff' : '#c8ffd8'; g.fillRect(x + w / 2 - 1.5, y + h / 2 - 1.5, 3, 3);
+        for (const q of A.guards) { if (!q.offDuty && q.st !== 'sleep' && q.st !== 'wake') fan(q.x, q.z, q.a + q.head, (P.low ? 0.62 : 1) * 6.2 * [0.85, 1, 1.15][difficulty] * (q.chief ? 1.18 : 1), 0.68, q.sus > 0.15 ? 'rgba(255,220,80,.35)' : 'rgba(90,255,140,.28)'); }
+        for (const q of A.guards) { g.fillStyle = q.offDuty ? '#80c8ff' : q.st === 'sleep' ? '#8a8aff' : '#ff4a3a'; g.fillRect(ox + q.x * 3 - 1.5, oy + q.z * 3 - 1.5, 3, 3); }
+        if (A.rex && A.rex.st !== 'down') { const X = A.rex; fan(X.x, X.z, X.eye, rayLen(X.x, X.z, X.eye, 11.5), 0.24, 'rgba(255,90,60,.4)', false); g.fillStyle = '#ff4a3a'; g.fillRect(ox + X.x * 3 - 4, oy + X.z * 3 - 4, 8, 8); }
+        if (A.npc && A.npc.m && !S.otter) { g.fillStyle = (clock * 3 | 0) % 2 ? '#80c0ff' : '#4060a0'; g.fillRect(ox + A.npc.x * 3 - 1.5, oy + A.npc.z * 3 - 1.5, 3, 3); }
+        for (const b of A.breakers) if (!b.on) { g.fillStyle = (clock * 3 | 0) % 2 ? '#ffe060' : '#806020'; g.fillRect(ox + b.x * 3 - 2, oy + b.z * 3 - 2, 4, 4); }
+        g.fillStyle = (clock * 4 | 0) % 2 ? '#ffffff' : '#c8ffd8'; g.fillRect(x + w / 2 - 1.5, y + h / 2 - 1.5, 3, 3);
         for (let yy = y; yy < y + h; yy += 2) { g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(x, yy, w, 1); }
         g.restore();
         g.strokeStyle = '#4ad080'; g.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
@@ -1494,7 +1554,7 @@
         F.draw(g, 'LIFE', 8, 7, '#c8ffd8', 1, true);
         const w = 92, v = clamp(S.life / 100, 0, 1);
         g.fillStyle = '#000'; g.fillRect(8, 17, w + 4, 7); g.fillStyle = '#1a2a20'; g.fillRect(10, 19, w, 3);
-        const col = v > 0.5 ? '#3af07a' : v > 0.25 ? '#f0d03a' : ((K.t * 5 | 0) % 2 ? '#ff3a2a' : '#a02018');
+        const col = v > 0.5 ? '#3af07a' : v > 0.25 ? '#f0d03a' : ((clock * 5 | 0) % 2 ? '#ff3a2a' : '#a02018');
         g.fillStyle = col; g.fillRect(10, 19, Math.round(w * v), 3); g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(10, 19, Math.round(w * v), 1);
         F.draw(g, 'SOLID GERBIL', 38, 7, '#7aa08a', 1, true);
       }
@@ -1513,7 +1573,7 @@
       }
       function promptLine(g) {
         if (!P.prompt || P.dead || cd) return;
-        const [b, s] = P.prompt.split(':'), t = K.label(b) + ' ' + s, w = F.width(t) + 12;
+        const [b, s] = P.prompt.split(':'), t = control(b) + ' ' + s, w = F.width(t) + 12;
         g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(W / 2 - w / 2, HH - 30, w, 13); g.strokeStyle = '#4ad080'; g.strokeRect(W / 2 - w / 2 + 0.5, HH - 29.5, w - 1, 12);
         F.center(g, t, W / 2, HH - 27, '#ffffff', 1);
       }
@@ -1523,24 +1583,33 @@
           if (q.icon === '!') { F.center(g, '!', sx, sy - 18, '#ff3a2a', 3, '#fff'); }
           else if (q.icon === '?') F.center(g, '?', sx, sy - 16, '#ffe040', 2, '#000');
           else if (q.icon === '...') F.center(g, '...', sx, sy - 10, '#ffffff', 1, '#000');
-          else if (q.icon === 'z') { for (let i = 0; i < 3; i++) { const p = (K.t * 0.6 + i / 3) % 1; F.draw(g, 'Z', sx + 4 + p * 10 + Math.sin(p * 8) * 2, sy - p * 22, `rgba(200,220,255,${1 - p})`, p > 0.5 ? 2 : 1, false); } }
+          else if (q.icon === 'z') { for (let i = 0; i < 3; i++) { const p = (clock * 0.6 + i / 3) % 1; F.draw(g, 'Z', sx + 4 + p * 10 + Math.sin(p * 8) * 2, sy - p * 22, `rgba(200,220,255,${1 - p})`, p > 0.5 ? 2 : 1, false); } }
           if (q.sus > 0.05 && q.st === 'notice' && phase === 'normal') { g.fillStyle = '#000'; g.fillRect(sx - 9, sy - 3, 18, 4); g.fillStyle = '#ffd040'; g.fillRect(sx - 8, sy - 2, 16 * Math.min(1, q.sus), 2); }
         }
         for (const s of speech) { const [sx, sy] = proj(s.g.x, 1.6, s.g.z); const w = F.width(s.s) + 8; g.fillStyle = '#fff'; g.fillRect(sx - w / 2, sy - 34, w, 12); g.fillRect(sx - 2, sy - 22, 4, 3); F.center(g, s.s, sx, sy - 32, '#000', 1); }
         for (const r of rings) { const [sx, sy] = proj(r.x, 0.6, r.z); g.strokeStyle = `rgba(255,255,255,${1 - r.t / 0.6})`; g.beginPath(); g.arc(sx, sy, 4 + r.t * 40, 0, 7); g.stroke(); }
-        if (A.npc && A.npc.m && !S.otter) { const [sx, sy] = proj(A.npc.x, 1.5, A.npc.z); if ((K.t * 2 | 0) % 2) F.center(g, '!?', sx, sy - 14, '#80d0ff', 1, '#000'); }
+        if (A.npc && A.npc.m && !S.otter) { const [sx, sy] = proj(A.npc.x, 1.5, A.npc.z); if ((clock * 2 | 0) % 2) F.center(g, '!?', sx, sy - 14, '#80d0ff', 1, '#000'); }
         for (const L of A.lasers) { /* the beams speak for themselves */ }
       }
       function drawPlay() {
         const g = hud;
         if (cd && cd.ring <= 0) return drawCodec();
+        const thermal = P.look && P.tool === 'thermal';
+        if (P.look) {
+          if (thermal) { g.fillStyle = 'rgba(50,150,60,.18)'; g.fillRect(0, 0, W, HH); }
+          if (P.tool === 'scope') { g.fillStyle = '#000'; g.fillRect(0, 0, 18, HH); g.fillRect(W - 18, 0, 18, HH); }
+          g.strokeStyle = '#8affb0'; g.beginPath(); g.moveTo(W / 2 - 9, HH / 2); g.lineTo(W / 2 - 3, HH / 2); g.moveTo(W / 2 + 3, HH / 2); g.lineTo(W / 2 + 9, HH / 2); g.moveTo(W / 2, HH / 2 - 9); g.lineTo(W / 2, HH / 2 - 3); g.moveTo(W / 2, HH / 2 + 3); g.lineTo(W / 2, HH / 2 + 9); g.stroke();
+          F.center(g, (P.tool === 'scope' ? 'FIELD BINOCULARS' : thermal ? 'CRUMB VISION' : 'LOOK') + '   ' + control('r') + ': RETURN', W / 2, 187, '#8affb0', 1, true);
+        }
         lifeBar(g); radar(g); boxes(g); icons(g); promptLine(g);
-        if (cardT > 0 && !cd) { const a = Math.min(1, cardT, (4 - cardT) * 2); g.globalAlpha = clamp(a, 0, 1); g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, 150, W, 34); F.draw(g, A.def.name, 16, 154, '#ffffff', 2, '#000'); F.draw(g, A.def.sub, 16, 172, '#8affb0', 1); g.globalAlpha = 1; }
-        if (saveT > 0) { const k = (K.t * 3 | 0) % 2, sx = 8, sy = 30; px(g, '#202428', sx, sy, 12, 15); px(g, '#c8ccd0', sx + 1, sy + 1, 10, 6); px(g, '#e0b020', sx + 2, sy + 10, 2, 4); px(g, '#e0b020', sx + 5, sy + 10, 2, 4); F.draw(g, k ? 'SAVING...' : 'SAVING.', sx + 16, sy, '#ffffff', 1, true); F.draw(g, 'MEMORY CARD 1', sx + 16, sy + 9, '#9ab0c0', 1, true); }
-        if (tutT > 0 && cardT <= 0 && !cd && !paused) { const a = clamp(Math.min(tutT, 1), 0, 1), y = 148; g.globalAlpha = a; panel(g, 46, y, W - 92, 50); F.center(g, 'HOW TO SNEAK', W / 2, y + 5, '#8affb0', 1); F.center(g, 'MOVE: D-PAD   ' + K.label('a') + ': CRAWL', W / 2, y + 17, '#fff', 1); F.center(g, K.label('x') + ': SNOOZE DART   ' + K.label('y') + ': BOX', W / 2, y + 27, '#fff', 1); F.center(g, 'WALK INTO A WALL, THEN ' + K.label('b') + ': KNOCK', W / 2, y + 37, '#fff', 1); g.globalAlpha = 1; }
+        if (cardT > 0 && !cd && !P.look) { const a = Math.min(1, cardT, (4 - cardT) * 2); g.globalAlpha = clamp(a, 0, 1); g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, 150, W, 34); F.draw(g, A.def.name, 16, 154, '#ffffff', 2, '#000'); F.draw(g, A.def.sub, 16, 172, '#8affb0', 1); g.globalAlpha = 1; }
+        if (saveT > 0) { const k = (clock * 3 | 0) % 2, sx = 8, sy = 30; px(g, '#202428', sx, sy, 12, 15); px(g, '#c8ccd0', sx + 1, sy + 1, 10, 6); px(g, '#e0b020', sx + 2, sy + 10, 2, 4); px(g, '#e0b020', sx + 5, sy + 10, 2, 4); F.draw(g, k ? 'SAVING...' : 'SAVING.', sx + 16, sy, '#ffffff', 1, true); F.draw(g, 'MEMORY CARD 1', sx + 16, sy + 9, '#9ab0c0', 1, true); }
+        if (A.def.goal && !vr) { F.center(g, A.def.goal === 'fuse' ? 'LIFT FUSES ' + (S.fuses || 0) + '/2' : 'CIRCUITS ' + A.breakers.filter(b => b.on).length + '/' + A.breakers.length, W / 2, 7, '#ffe080', 1, true); }
+        if (vr) { F.center(g, 'EXERCISE ' + (vr.i + 1) + '  ' + Math.max(0, TRAINING[vr.i].limit - vr.time).toFixed(1), W / 2, 7, '#ffe080', 1, true); if (cardT <= 0) F.center(g, TRAINING[vr.i].goalText, W / 2, 185, '#8affb0', 1, true); }
+        if (tutT > 0 && cardT <= 0 && !cd && !paused) { const a = clamp(Math.min(tutT, 1), 0, 1), y = 148; g.globalAlpha = a; panel(g, 46, y, W - 92, 50); F.center(g, 'HOW TO SNEAK', W / 2, y + 5, '#8affb0', 1); F.center(g, 'MOVE: D-PAD   ' + control('a') + ': CRAWL', W / 2, y + 17, '#fff', 1); F.center(g, control('x') + ': SNOOZE DART   ' + control('y') + ': BOX', W / 2, y + 27, '#fff', 1); F.center(g, 'WALK INTO A WALL, THEN ' + control('b') + ': KNOCK', W / 2, y + 37, '#fff', 1); g.globalAlpha = 1; }
         if (captions.length) { const [w, s] = captions[0], L = wrap(w + ': ' + s, 46); panel(g, 14, HH - 70 - L.length * 10, W - 28, 10 + L.length * 10, '#6a6a4a'); L.forEach((l, i) => F.draw(g, l, 20, HH - 65 - L.length * 10 + i * 10, i === 0 ? '#ffe8a0' : '#ffffff', 1)); }
-        if (toastT > 0 && toastS) { const a = clamp(toastT * 3, 0, 1); g.globalAlpha = a; const L = wrap(toastS, 48), w = Math.max(...L.map(l => F.width(l))) + 12; g.fillStyle = 'rgba(0,0,0,.65)'; g.fillRect(W / 2 - w / 2, 70, w, 4 + L.length * 10); L.forEach((l, i) => F.center(g, l, W / 2, 73 + i * 10, '#ffffff', 1)); g.globalAlpha = 1; }
-        if (S.life < 25 && !P.dead) { const a = 0.25 + Math.sin(K.t * 6) * 0.15; const gr = g.createRadialGradient(W / 2, HH / 2, 80, W / 2, HH / 2, 200); gr.addColorStop(0, 'rgba(255,0,0,0)'); gr.addColorStop(1, `rgba(200,0,0,${a})`); g.fillStyle = gr; g.fillRect(0, 0, W, HH); }
+        if (toastT > 0 && toastS) { const a = clamp(toastT * 3, 0, 1); g.globalAlpha = a; const L = wrap(toastS, 48), w = Math.max(...L.map(l => F.width(l))) + 12, ty = P.look ? HH - 64 - L.length * 10 : 70; g.fillStyle = 'rgba(0,0,0,.65)'; g.fillRect(W / 2 - w / 2, ty, w, 4 + L.length * 10); L.forEach((l, i) => F.center(g, l, W / 2, ty + 3 + i * 10, '#ffffff', 1)); g.globalAlpha = 1; }
+        if (S.life < 25 && !P.dead) { const a = 0.25 + Math.sin(clock * 6) * 0.15; const gr = g.createRadialGradient(W / 2, HH / 2, 80, W / 2, HH / 2, 200); gr.addColorStop(0, 'rgba(255,0,0,0)'); gr.addColorStop(1, `rgba(200,0,0,${a})`); g.fillStyle = gr; g.fillRect(0, 0, W, HH); }
         if (flash > 0) { g.fillStyle = `rgba(${flashCol},${Math.min(0.5, flash)})`; g.fillRect(0, 0, W, HH); }
         if (bang > 0 && phase === 'alert') { g.strokeStyle = `rgba(255,40,30,${bang})`; g.lineWidth = 6; g.strokeRect(3, 3, W - 6, HH - 6); g.lineWidth = 1; }
         if (cd && cd.ring > 0) drawCodec();
@@ -1548,15 +1617,18 @@
           g.fillStyle = 'rgba(0,8,4,.72)'; g.fillRect(0, 0, W, HH);
           F.center(g, 'PAUSE', W / 2, 40, '#ffffff', 3, '#0a3a1a');
           F.center(g, 'PRESS START TO CARRY ON', W / 2, 74, '#8affb0', 1);
-          F.center(g, 'PRESS ' + K.label('b') + ' TO CALL THE COLONEL FOR A HINT', W / 2, 88, '#ffe080', 1);
+          F.center(g, vr ? 'PRESS ' + control('b') + ' TO LEAVE THE EXERCISE' : 'PRESS ' + control('b') + ' TO CALL THE COLONEL FOR A HINT', W / 2, 88, '#ffe080', 1);
           panel(g, 40, 108, W - 80, 104);
-          const C = [['D-PAD', 'MOVE'], [K.label('a'), 'CRAWL / STAND UP'], [K.label('b'), 'KNOCK / USE'], [K.label('x'), 'SNOOZE DART'], [K.label('y'), 'CARDBOARD BOX'], ['START', 'PAUSE']];
-          C.forEach(([a, b], i) => { F.draw(g, a, 56, 116 + i * 13, '#ffe080', 1); F.draw(g, b, 120, 116 + i * 13, '#ffffff', 1); });
+          const C = [['D-PAD', 'MOVE'], [control('a'), 'CRAWL / STAND UP'], [control('b'), 'KNOCK / USE'], [control('x'), 'SNOOZE DART'], [control('y'), 'CARDBOARD BOX'], [control('l'), 'FIELD EQUIPMENT'], [control('r'), 'LOOK / RETURN'], ['START', 'PAUSE']];
+          C.forEach(([a, b], i) => { F.draw(g, a, 56, 116 + i * 11, '#ffe080', 1); F.draw(g, b, 120, 116 + i * 11, '#ffffff', 1); });
           F.center(g, A.def.name + '   ' + mt(S.st.t) + '   SEEDS ' + Object.keys(S.seeds).length + '/6', W / 2, 222, '#7aa08a', 1);
         }
         if (fadeT > 0) { g.fillStyle = `rgba(0,0,0,${clamp(1 - Math.abs(fadeT - 0.6) / 0.6, 0, 1)})`; g.fillRect(0, 0, W, HH); }
       }
 
+      function fitText(g, text, x, y, width, color) {
+        g.save(); g.translate(x, y); g.scale(Math.min(1, width / Math.max(1, F.width(text))), 1); F.draw(g, text, 0, 0, color, 1); g.restore();
+      }
       // ================================================================ title, menus, results
       const LOGO = (() => {
         const c = document.createElement('canvas'); c.width = 320; c.height = 110; const g = c.getContext('2d');
@@ -1574,18 +1646,19 @@
         g.fillStyle = '#000'; g.beginPath(); g.arc(14, 30, 11, 0, 7); g.fill(); g.fillStyle = '#c8965a'; g.beginPath(); g.arc(14, 32, 8, 0, 7); g.fill(); g.beginPath(); g.arc(8, 23, 4, 0, 7); g.arc(20, 23, 4, 0, 7); g.fill(); g.fillStyle = '#d8262a'; g.fillRect(6, 27, 16, 3); g.fillStyle = '#000'; g.fillRect(10, 31, 2, 2); g.fillRect(16, 31, 2, 2);
         return c;
       })();
-      let menu = [], mi = 0, titleT = 0, pressed = false, briefI = 0, briefT = 0, res = null, resT = 0, nameS = 'JACK', nameI = 3, hiNew = -1, overT = 0, oi = 0, mcI = 0;
+      let menu = [], mi = 0, titleT = 0, pressed = false, briefI = 0, briefT = 0, res = null, resT = 0, nameS = castName('me'), nameI = 3, hiNew = -1, overT = 0, oi = 0, mcI = 0;
       const BRIEF = ['SHADOW MUESLI ISLAND. 1999.', 'A SNOWY ROCK IN THE MIDDLE OF NOWHERE.', 'THE FERRETHOUND GANG HAVE TAKEN OVER ITS SECRET BASE...', '...AND STOLEN THE PLANS FOR WHEEL REX.', 'ONE AGENT HAS BEEN SENT IN. ALONE.', 'CODENAME: SOLID GERBIL.'];
       const BRIEFW = BRIEF.map(b => wrap(b, 48));
-      function titleMenu() { menu = ['NEW GAME'].concat(CK ? ['CONTINUE'] : [], ['RANKINGS']); mi = CK ? 1 : 0; }
+      function titleMenu() { menu = ['NEW GAME'].concat(CK || RUN ? ['CONTINUE'] : [], ['TRAINING', 'DOSSIER', 'RANKINGS']); mi = CK || RUN ? 1 : 0; }
       function toTitle() {
+        vr = null; P.look = false; P.lookPitch = 0; cam.fov = 44; cam.updateProjectionMatrix();
         mode = 'title'; titleT = 0; pressed = false; S = S || newS(); paused = false; cd = null; phase = 'normal';
         buildArea(0); P.x = 10.5; P.z = 17.2; P.a = 0.35; P.low = false; P.box = false; P.wall = null; P.dead = 0; P.moving = false; P.inv = 0;
         K.music(SONGS.title); titleMenu();
       }
-      function startNew() { S = newS(); mode = 'brief'; briefI = 0; briefT = 0; K.music(null); }
-      function startPlay() { mode = 'play'; enterArea(0, true); }
-      function continueGame() { S = copy(CK); mode = 'play'; enterArea(S.area); toast('WELCOME BACK, SOLID GERBIL', 2); }
+      function startNew() { mode = 'difficulty'; difficultySel = 1; }
+      function startPlay() { K.resume?.(); mode = 'play'; enterArea(0, true); saveRun(); }
+      function continueGame() { K.resume?.(); if (RUN) { restoreRun(RUN); return; } vr = null; S = copy(CK); mode = 'play'; enterArea(S.area); toast('WELCOME BACK, SOLID GERBIL', 2); }
       function rankOf(st) { if (st.alerts === 0 && st.t < 900 && st.cont === 0) return 'FOX'; if (st.alerts <= 1 && st.cont === 0) return 'HOUND'; if (st.naps >= 8) return 'SLEEPY GERBIL'; if (st.alerts <= 4) return 'HAMSTER'; return 'SCAREDY MOUSE'; }
       function results() {
         const st = S.st, seeds = Object.keys(S.seeds).length;
@@ -1593,20 +1666,22 @@
         const total = clamp(lines.reduce((n, l) => n + l[1], 0), 0, 50000), rank = rankOf(st), send = Math.min(total, Math.floor(150 * (K.t + 3)));
         res = { lines, total, rank, send, st: copy(st), seeds };
         if (st.alerts === 0) K.secret('lk.sneak.ghost');
-        CK = null; persist();
+        CAREER.clears++; CAREER.tux = true; CAREER.gold = CAREER.gold || seeds === 6; const best = CAREER.best[difficulty]; if (!best || total > best.score) CAREER.best[difficulty] = { score: total, time: st.t, rank };
+        CK = null; RUN = null; persist();
         mode = 'results'; resT = 0; K.music(SONGS.results);
       }
       function afterResults() {
         const pos = HI.findIndex(e => res.total > e.s); const at = pos < 0 ? HI.length : pos;
-        if (at < 8) { mode = 'name'; nameS = 'JACK'; nameI = 3; hiNew = at; } else { hiNew = -1; mode = 'table'; resT = 0; }
+        if (at < 8) { mode = 'name'; nameS = castName('me'); nameI = 3; hiNew = at; } else { hiNew = -1; mode = 'table'; resT = 0; }
       }
       function finishName() {
-        HI.splice(hiNew, 0, { n: nameS.trim() || 'JACK', s: res.total, r: res.rank, me: 1 }); HI.length = Math.min(HI.length, 8); persist();
+        HI.splice(hiNew, 0, { cast: 'me', s: res.total, r: res.rank, me: 1 }); HI.length = Math.min(HI.length, 8); persist();
         mode = 'table'; resT = 0; K.sfx.seq([[76, 0.25], [79, 0.25], [84, 0.5]], { bpm: 300, vol: 0.08 });
       }
-      function finishWin() { mode = 'done'; K.music(null); K.over(res.send, { title: 'MISSION COMPLETE', text: 'RANK: ' + res.rank + '. ' + res.st.alerts + ' ALERTS, ' + mt(res.st.t) + '.' }); }
+      function finishWin() { mode = 'credits'; creditT = 0; saveRun(); K.music(SONGS.results); }
+      function sendWin() { RUN = null; persist(); mode = 'done'; K.music(null); K.over(res.send, { title: 'MISSION COMPLETE', text: 'RANK: ' + res.rank + '. ' + res.st.alerts + ' ALERTS, ' + mt(res.st.t) + '.' }); }
       function finishFail() {
-        const sc = Math.min(S.area * 700 + Object.keys(S.seeds).length * 300 + (S.cards * 200), Math.floor(150 * (K.t + 3)));
+        const sc = Math.min(Math.max(0, CAMPAIGN.indexOf(S.area)) * 700 + Object.keys(S.seeds).length * 300 + (S.cards * 200), Math.floor(150 * (K.t + 3)));
         mode = 'done'; K.music(null); K.over(sc, { title: 'MISSION FAILED', text: 'SOLID GERBIL GOT AS FAR AS THE ' + A.def.name + '.' });
       }
       function drawTitleBg(g) {
@@ -1616,16 +1691,16 @@
         const g = hud; drawTitleBg(g);
         const k = clamp(titleT / 1.2, 0, 1); g.globalAlpha = k; g.drawImage(LOGO, 0, 8 + (1 - k) * -8); g.globalAlpha = 1;
         if (!pressed) { if ((titleT * 2 | 0) % 2 && titleT > 1) F.center(g, 'PRESS START', W / 2, 176, '#ffffff', 1, true); }
-        else { g.fillStyle = 'rgba(0,6,14,.62)'; g.fillRect(W / 2 - 92, 146, 184, 14 * menu.length + 8 + (CK && menu[mi] === 'CONTINUE' ? 12 : 0)); }
-        if (pressed) menu.forEach((m, i) => { const on = i === mi; F.center(g, (on ? '> ' : '  ') + m + (on ? ' <' : '  '), W / 2, 152 + i * 14, on ? '#ffe080' : '#9ab0c0', 1, true); if (m === 'CONTINUE' && on && CK) F.center(g, 'SAVED IN THE ' + AREAS[CK.area].name + '  ' + mt(CK.st.t), W / 2, 152 + menu.length * 14, '#8affb0', 1, true); });
-        F.center(g, 'TOP AGENT: ' + HI[0].n + ' ' + HI[0].s.toLocaleString('en-GB') + ' (' + HI[0].r + ')', W / 2, 212, '#c8a050', 1, true);
+        else { g.fillStyle = 'rgba(0,6,14,.62)'; g.fillRect(W / 2 - 100, 130, 200, 12 * menu.length + 8 + ((CK || RUN) && menu[mi] === 'CONTINUE' ? 12 : 0)); }
+        if (pressed) menu.forEach((m, i) => { const on = i === mi; F.center(g, (on ? '> ' : '  ') + m + (on ? ' <' : '  '), W / 2, 136 + i * 12, on ? '#ffe080' : '#9ab0c0', 1, true); if (m === 'CONTINUE' && on && (CK || RUN)) F.center(g, 'SAVED IN THE ' + AREAS[(RUN?.S || CK).area].name + '  ' + mt((RUN?.S || CK).st.t), W / 2, 136 + menu.length * 12, '#8affb0', 1, true); });
+        F.center(g, 'TOP AGENT: ' + agentName(HI[0]) + ' ' + HI[0].s.toLocaleString('en-GB') + ' (' + HI[0].r + ')', W / 2, 212, '#c8a050', 1, true);
         F.center(g, '(C) 1999 KRONK COMPUTER ENTERTAINMENT', W / 2, 226, '#6a7a8a', 1, true);
       }
       function drawTable(g, hl, title) {
         g.fillStyle = '#020806'; g.fillRect(0, 0, W, HH); for (let y = 0; y < HH; y += 2) { g.fillStyle = 'rgba(40,255,120,.025)'; g.fillRect(0, y, W, 1); }
         F.center(g, title || 'TOP AGENTS', W / 2, 16, '#8affb0', 2, '#0a3a1a');
         F.draw(g, 'NAME', 34, 44, '#4a9a6a', 1); F.draw(g, 'SCORE', 112, 44, '#4a9a6a', 1); F.draw(g, 'RANK', 190, 44, '#4a9a6a', 1);
-        HI.forEach((e, i) => { const y = 58 + i * 17, on = i === hl && (K.t * 3 | 0) % 2 === 0; const c = i === hl ? '#ffe080' : i === 0 ? '#ffffff' : '#c8e8d8'; F.draw(g, (i + 1) + '.', 18, y, '#4a9a6a', 1); F.draw(g, e.n, 34, y, on ? '#ffffff' : c, 1); F.draw(g, String(e.s).padStart(5, ' '), 112, y, c, 1); F.draw(g, e.r, 190, y, c, 1); });
+        HI.forEach((e, i) => { const y = 58 + i * 17, on = i === hl && (clock * 3 | 0) % 2 === 0; const c = i === hl ? '#ffe080' : i === 0 ? '#ffffff' : '#c8e8d8'; F.draw(g, (i + 1) + '.', 18, y, '#4a9a6a', 1); fitText(g, agentName(e), 34, y, 72, on ? '#ffffff' : c); F.draw(g, String(e.s).padStart(5, ' '), 112, y, c, 1); F.draw(g, e.r, 190, y, c, 1); });
       }
       function drawResults() {
         const g = hud; g.fillStyle = '#020806'; g.fillRect(0, 0, W, HH); for (let y = 0; y < HH; y += 2) { g.fillStyle = 'rgba(40,255,120,.025)'; g.fillRect(0, y, W, 1); }
@@ -1641,17 +1716,16 @@
           if (s >= 1) F.center(g, RANKS[rk], W / 2, 182, '#c8e8d8', 1);
           if (s >= 1 && res.send < res.total) F.center(g, 'JACKNET WILL COUNT ' + res.send + ' FOR THIS GO', W / 2, 196, '#c09060', 1);
         }
-        if (resT > 4.4 && (K.t * 2 | 0) % 2) F.center(g, 'PRESS START', W / 2, 218, '#ffffff', 1);
+        if (resT > 4.4 && (clock * 2 | 0) % 2) F.center(g, 'PRESS START', W / 2, 218, '#ffffff', 1);
       }
       function drawName() {
-        const g = hud; g.fillStyle = '#020806'; g.fillRect(0, 0, W, HH); for (let y = 0; y < HH; y += 2) { g.fillStyle = 'rgba(40,255,120,.025)'; g.fillRect(0, y, W, 1); }
-        F.center(g, 'NEW TOP AGENT!', W / 2, 30, '#8affb0', 2, '#0a3a1a');
-        F.center(g, 'SCORE ' + res.total + '   RANK: ' + res.rank, W / 2, 60, '#ffffff', 1);
-        F.center(g, 'THAT PUTS YOU AT NUMBER ' + (hiNew + 1) + ' ON THE TABLE', W / 2, 74, '#c8e8d8', 1);
-        panel(g, 40, 92, W - 80, 70, '#ffe080');
-        F.center(g, 'ENTER YOUR NAME', W / 2, 100, '#ffe080', 1);
-        for (let i = 0; i < 4; i++) { const x = W / 2 - 46 + i * 24, on = i === nameI; F.draw(g, nameS[i] || ' ', x, 114, on ? '#ffffff' : '#c8e8d8', 3, '#000'); if (on && (K.t * 4 | 0) % 2) { g.fillStyle = '#ffe080'; g.fillRect(x, 140, 15, 2); } }
-        F.center(g, 'UP/DOWN: LETTER  ' + K.label('a') + ': NEXT  START: DONE', W / 2, 148, '#8ab0a0', 1);
+        const g = hud; g.fillStyle = '#020806'; g.fillRect(0, 0, W, HH);
+        F.center(g, 'NEW TOP AGENT!', W / 2, 32, '#8affb0', 2);
+        F.center(g, 'SCORE ' + res.total + '   RANK: ' + res.rank, W / 2, 68, '#ffffff', 1);
+        panel(g, 28, 94, W - 56, 68, '#ffe080');
+        F.center(g, castName('me'), W / 2, 110, '#ffffff', 2);
+        F.center(g, 'MEMORY CARD SIGNATURE', W / 2, 144, '#8affb0', 1);
+        F.center(g, 'PRESS START TO SIGN THE RECORD', W / 2, 194, '#ffe080', 1);
       }
       function drawOver() {
         const g = hud; const k = clamp(overT / 1.2, 0, 1);
@@ -1664,16 +1738,16 @@
       function drawMemcard() {
         const g = hud; g.fillStyle = '#10141c'; g.fillRect(0, 0, W, HH);
         const gr = g.createLinearGradient(0, 0, 0, 40); gr.addColorStop(0, '#3a4a6a'); gr.addColorStop(1, '#10141c'); g.fillStyle = gr; g.fillRect(0, 0, W, 40);
-        F.center(g, 'MEMORY CARD 1', W / 2, 12, '#ffffff', 2, '#000'); F.center(g, "JACK'S CARD (DO NOT DELETE)", W / 2, 32, '#9ab0d0', 1);
+        F.center(g, 'MEMORY CARD 1', W / 2, 12, '#ffffff', 2, '#000'); F.center(g, castName('me') + "'S CARD (DO NOT DELETE)", W / 2, 32, '#9ab0d0', 1);
         const files = CARD_FILES.slice(0, 2).concat(['METAL GERBIL SOLID'], CARD_FILES.slice(2));
         files.forEach((f, i) => {
           const y = 46 + i * 23, on = i === mcI, mine = f === 'METAL GERBIL SOLID';
           g.fillStyle = on ? '#2a3a5a' : '#181e2a'; g.fillRect(30, y, W - 60, 21); if (on) { g.strokeStyle = '#ffe080'; g.strokeRect(30.5, y + 0.5, W - 61, 20); }
           px(g, mine ? '#d8262a' : ['#3a8af0', '#e0b020', '#40a040', '#a040c0', '#808080', '#808080'][i % 6], 35, y + 5, 11, 11); px(g, 'rgba(255,255,255,.35)', 35, y + 5, 11, 2);
           F.draw(g, mine ? 'METAL GERBIL SOLID' : f, 52, mine ? y + 3 : y + 7, mine ? '#ffffff' : '#7a8aa0', 1);
-          if (mine) F.draw(g, AREAS[CK.area].name + '  ' + mt(CK.st.t) + '  ' + Object.keys(CK.seeds).length + '/6 SEEDS', 52, y + 12, '#8affb0', 1);
+          if (mine) F.draw(g, AREAS[(RUN?.S || CK).area].name + '  ' + mt((RUN?.S || CK).st.t) + '  ' + Object.keys(CK.seeds).length + '/6 SEEDS', 52, y + 12, '#8affb0', 1);
         });
-        F.center(g, K.label('a') + ': LOAD   ' + K.label('b') + ': BACK', W / 2, 228, '#9ab0d0', 1);
+        F.center(g, control('a') + ': LOAD   ' + control('b') + ': BACK', W / 2, 228, '#9ab0d0', 1);
       }
       function drawBrief() {
         const g = hud; g.fillStyle = '#000'; g.fillRect(0, 0, W, HH);
@@ -1690,22 +1764,294 @@
         F.center(g, 'START: SKIP', W / 2, 224, '#3a4a5a', 1);
       }
 
+      // Four authored training layouts, twelve exercises with distinct rules and patrols.
+      // They use the campaign's movement, visibility, inventory and guard solver.
+      const COURSES = [
+        ['################', '#......EE......#', '#..CC......CC..#', '#..CC..........#', '#.......ll.....#', '#.####..ll..##.#', '#....s.........#', '#.CC......CC...#', '#.CC..ll..CC...#', '#.....ll.......#', '#..............#', '#.......P......#', '################'],
+        ['################', '#......EE......#', '#..............#', '#..===.....CC..#', '#..=s=.....CC..#', '#..===.........#', '#.......CC.....#', '#..CC...CC..ll.#', '#..CC.......ll.#', '#......ll......#', '#..............#', '#.......P......#', '################'],
+        ['################', '#b.....EE.....b#', '#..............#', '#..CC......CC..#', '#..CC..ll..CC..#', '#......ll......#', '#..............#', '#.ll......ll...#', '#.ll......ll...#', '#......s.......#', '#..............#', '#.......P......#', '################'],
+        ['################', '#......EE......#', '#..............#', '#.CC...ll...CC.#', '#.CC...ll...CC.#', '#..............#', '#.....####.....#', '#.....#s.#.....#', '#.....#..#.....#', '#..............#', '#.CC........CC.#', '#.......P......#', '################']
+      ];
+      const TRAINING = [
+        ['FIRST FOOTSTEPS', 0, 'reach', 75, 'REACH THE NORTH EXIT. STAY UNSEEN.'],
+        ['LOW PROFILE', 1, 'seed', 85, 'CRAWL UNDER THE PIPES. FIND THE SEED.'],
+        ['DELIVERY SERVICE', 0, 'box', 80, 'FOOL A GUARD WITH YOUR BOX. THEN EXIT.'],
+        ['QUIET PLEASE', 3, 'targets', 90, 'SNOOZE BOTH GUARDS. THEN EXIT.'],
+        ['POWER NAP', 2, 'switch', 100, 'ISOLATE BOTH CIRCUITS. THEN EXIT.'],
+        ['CAMERA SHY', 1, 'reach', 75, 'DODGE THE CAMERA. REACH THE EXIT.'],
+        ['BEAM BISCUIT', 2, 'seed', 100, 'GET THE SEED. CRAWL UNDER HIGH BEAMS.'],
+        ['WALLFLOWER', 3, 'lure', 100, 'KNOCK. LURE A GUARD. THEN EXIT.'],
+        ['NO PICNIC', 0, 'seed', 65, 'GET THE SEED. NO DARTS. NO ALERTS.'],
+        ['SWITCH SANDWICH', 2, 'switch', 85, 'BOTH CIRCUITS. CAMERAS ARE WATCHING.'],
+        ['NIGHT DELIVERY', 1, 'box', 70, 'BOX INSPECTION. THEN THE EXIT.'],
+        ['THE FINAL CRUMB', 3, 'seed', 75, 'SEED AND EXIT. NO BOX. NO DARTS.']
+      ].map(([name, layout, goal, limit, goalText], i) => ({ name, layout, goal, limit, goalText, area: 6 + i }));
+      COURSES.forEach(map => { map[10] = '#......C.C.....#'; map[11] = '#.....C.P.C....#'; });
+      TRAINING.forEach((v, i) => {
+        const guards = v.layout === 3 ? [{ r: [[3.5, 5.5, 1.3], [12.5, 5.5, 1.3]] }, { r: [[3.5, 9.5, 1], [12.5, 9.5, 1]] }] :
+          [{ r: [[3.5, 2.5, 1.4], [12.5, 2.5, 1.4], [12.5, 6.5, 1], [3.5, 6.5, 1]] }];
+        if (i >= 8) guards.push({ r: [[2.5, 10.5, 1], [13.5, 10.5, 1]] });
+        AREAS[6 + i] = { id: 'vr' + i, name: v.name, sub: 'CRUMB CADET COURSE - EXERCISE ' + (i + 1), floor: 'concrete', floor2: 'grate', wall: 'panel',
+          amb: 0.65, sky: 0x061410, fog: [12, 26], song: 'sneak', map: COURSES[v.layout], guards,
+          lights: [[8, 4, 4, 0x80ffb0, 0.65], [8, 10, 4, 0x80b0ff, 0.55]],
+          objs: v.layout === 1 ? [{ t: 'pipes', x: 3, z: 3, w: 3, d: 3 }] : [],
+          cams: [5, 9, 10, 11].includes(i) ? [{ x: 8.5, z: 1.02, a: 0, sw: 0.9, per: i >= 9 ? 5 : 8 }] : [],
+          lasers: [6, 9, 11].includes(i) ? [{ x: 5.5, z0: 1, z1: 6, hi: 1 }, { x: 10.5, z0: 8, z1: 12, blink: [2.2, 1.6] }] : [] };
+      });
+      // The laboratory route now continues through the base's working machinery.
+      // IDs 0..5 remain unchanged so older checkpoint cards still load correctly.
+      const CAMPAIGN = [0, 1, 2, 3, 4, 18, 19, 20, 5];
+      AREAS[4].next = 18;
+      AREAS[18] = { id: 'freezer', name: 'COLD STORAGE', sub: 'FERRETHOUND HQ - BISCUIT FREEZER', next: 19, goal: 'switch',
+        floor: 'labtile', floor2: 'grate', wall: 'lab', amb: 0.58, sky: 0x07121b, fog: [12, 28], song: 'lab', call: 'freezer', hint: 'h_freezer',
+        map: ['####################', '#b......EE.........#', '#..................#', '#..FF..ll....FF....#', '#..FF..ll....FF....#', '#..................#', '#.####...####..###.#', '#....h.............#', '#..CC....CC....CC..#', '#..CC....CC....CC..#', '#..................#', '#.###..####..###...#', '#.....h............#', '#..r...............#', '#...n.............b#', '#........P.........#', '####################'],
+        objs: [{ t: 'freezer', x: 3, z: 3, w: 2, d: 2 }, { t: 'freezer', x: 13, z: 3, w: 2, d: 2 }, { t: 'lift', x: 8, z: 1, w: 2, d: 2 }],
+        lights: [[5, 4, 4, 0x8acfff, 0.7], [15, 4, 4, 0x8acfff, 0.6], [9, 12, 4, 0x80b0ff, 0.65]],
+        guards: [{ r: [[2.5, 5.5, 1.3], [16.5, 5.5, 1.3]] }, { r: [[4.5, 10.5, 1], [15.5, 10.5, 1]] }],
+        cams: [{ x: 10.5, z: 1.02, a: 0, sw: 0.9, per: 8 }]
+      };
+      AREAS[19] = { id: 'packing', name: 'PACKING HALL', sub: 'FERRETHOUND HQ - SPECIAL DELIVERIES', next: 20, goal: 'fuse',
+        floor: 'concrete', floor2: 'grate', wall: 'panel', amb: 0.6, sky: 0x0c1018, fog: [13, 29], song: 'sneak', call: 'packing', hint: 'h_packing',
+        map: ['########################', '#.........EE...........#', '#......................#', '#..BBB..####..CC....f..#', '#..BBB........CC.......#', '#.......####...........#', '#.CC....#..#....BBB....#', '#.CC....#..#....BBB....#', '#.......#..#...........#', '#......................#', '#..BBB......CC....CC...#', '#..BBB......CC....CC...#', '#..............####....#', '#..f....CC.....t.......#', '#.......CC..........a..#', '#..........P...........#', '########################'],
+        objs: [{ t: 'lift', x: 10, z: 1, w: 2, d: 2 }],
+        lights: [[4, 4, 4, 0xffd898, 0.65], [18, 4, 4, 0xffd898, 0.7], [12, 11, 4, 0xffe0b0, 0.65]],
+        guards: [{ r: [[2.5, 9.5, 1.6], [21.5, 9.5, 1.6]] }, { r: [[12.5, 2.5, 1.2], [21.5, 2.5, 1.2], [21.5, 5.5, 1], [12.5, 5.5, 1]] }],
+        lasers: [{ x: 14.5, z0: 1, z1: 6, hi: 1 }, { x: 6.5, z0: 10, z1: 15, blink: [2.4, 1.8] }]
+      };
+      AREAS[20] = { id: 'tower', name: 'TEA TOWER', sub: 'FERRETHOUND HQ - THE SPINNING STOAT', next: 5, goal: 'switch', command: true, out: true,
+        floor: 'snow', floor2: 'tarmac', wall: 'metal', amb: 0.62, sky: 0x070d1c, fog: [13, 30], song: 'boss', call: 'tower', hint: 'h_tower',
+        map: ['######################', '#b.......EE.........b#', '#....................#', '#..CC....ll....CC....#', '#..CC....ll....CC....#', '#....................#', '#....##......##......#', '#....##......##......#', '#....................#', '#.CC.....CC......CC..#', '#.CC.....CC......CC..#', '#....................#', '#.....ll......ll.....#', '#.....ll......ll.....#', '#b.................r.#', '#.........P..........#', '######################'],
+        lights: [[3, 3, 4, 0xffd890, 0.7], [18, 3, 4, 0xffd890, 0.65], [10, 12, 4, 0x80c0ff, 0.6]],
+        guards: [{ chief: true, r: [[3.5, 5.5, 1], [18.5, 5.5, 1], [18.5, 11.5, 1], [3.5, 11.5, 1]] }],
+        cams: [{ x: 11.5, z: 1.02, a: 0, sw: 1.05, per: 6 }],
+        spots: [{ from: [0.6, 0.6], a: [3.5, 8.5], b: [18.5, 8.5], per: 12, ph: 0 }, { from: [21.4, 0.6], a: [3.5, 12], b: [18.5, 12], per: 14, ph: 0.5 }],
+        objs: [{ t: 'tower', x: 0.6, z: 0.6 }, { t: 'tower', x: 21.4, z: 0.6 }, { t: 'lift', x: 9, z: 1, w: 2, d: 2 }]
+      };
+      Object.assign(CALLS, {
+        freezer: { who: 'C', lines: [['G', 'COLONEL. THE BISCUITS HAVE FROZEN TO THE SHELF.'], ['C', 'A TRAGEDY. ISOLATE BOTH COOLING CIRCUITS WITH {B} TO RELEASE THE LIFT. MIND THE DEFROST STEAM.'], ['G', 'TACTICAL DEFROSTING ACTION.']] },
+        h_freezer: { who: 'C', lines: [['C', 'ONE SWITCH IN THE NORTH-WEST, ONE IN THE SOUTH-EAST. BOTH MUST BE OFF. THE LIFT IS AT THE NORTH END.']] },
+        packing: { who: 'O', lines: [['O', 'THE NEXT LIFT HAS NO FUSES. THE PACKING CREW PUT THEM IN DELIVERY CRATES.'], ['G', 'THEIR SECURITY SYSTEM RUNS ON LOST PARCELS?'], ['O', 'FIND TWO GOLD FUSES. SOUTH-WEST AND NORTH-EAST. AND PLEASE LEAVE MY LUNCH ALONE.']] },
+        h_packing: { who: 'O', lines: [['O', 'THE GOLD FUSES ARE IN THE SOUTH-WEST AND NORTH-EAST AISLES. TWO FUSES WILL POWER THE NORTH LIFT. CRAWL UNDER THE HIGH BEAM.']] },
+        tower: { who: 'C', lines: [['C', 'THE SPINNING STOAT. CHIEF OF SECURITY. HE EVEN CHECKS HIS OWN SANDWICHES.'], ['G', 'WHAT DOES HE EXPECT TO FIND?'], ['C', 'THREE SWITCHES CONTROL HIS CAMERAS, LIGHTS AND TEA BELL. PULL THEM ALL. HIS TEA BREAK IS YOUR WAY TO THE HANGAR.']] },
+        h_tower: { who: 'C', lines: [['C', 'THREE SWITCHES: NORTH-WEST, NORTH-EAST AND SOUTH-WEST. THE FIRST CUTS SEARCHLIGHTS. THE SECOND CUTS CAMERAS. THE THIRD CALLS TEA BREAK.']] }
+      });
+
+      let trainingCampaign = null;
+      function trainingOpen(i) { return i === 0 || !!CAREER.vr[i - 1]; }
+      function startTraining(i) {
+        if (!trainingOpen(i)) { tick(180, 0.12, 0.05); return; }
+        if (!vr) trainingCampaign = RUN?.vr ? RUN.campaign || null : RUN;
+        K.resume?.(); clock = 0; vr = { i, time: 0, boxed: false, lured: false }; difficulty = 1;
+        S = newS(); S.darts = [8, 11].includes(i) ? 0 : 5; S.rations = 0;
+        mode = 'play'; paused = false; cd = null; pendingCall = null; fadeT = 0;
+        enterArea(TRAINING[i].area); toast(TRAINING[i].goalText, 4); saveRun();
+      }
+      function leaveTraining() {
+        RUN = trainingCampaign; trainingCampaign = null; vr = null; persist(); toTitle(); mode = 'training'; vrSel = 0;
+      }
+      function trainingStep(dt, tile) {
+        const v = TRAINING[vr.i]; vr.time += dt;
+        if (S.st.alerts > 0 || S.life <= 0 || vr.time >= v.limit) { endTraining(false, S.st.alerts ? 'SPOTTED! THE KETTLE IS NOT STEALTHY.' : S.life <= 0 ? 'OUT OF PUFF. HAVE A BISCUIT.' : 'TIME UP. THE TEA WENT COLD.'); return; }
+        if (vr.i === 11 && P.box) { P.box = false; toast('FINAL EXERCISE: NO BOX'); }
+        if (tile !== EX) return;
+        const done = v.goal === 'reach' || v.goal === 'seed' && Object.keys(S.seeds).length > 0 ||
+          v.goal === 'box' && vr.boxed || v.goal === 'lure' && vr.lured ||
+          v.goal === 'targets' && A.guards.every(g => g.st === 'sleep' || g.st === 'wake') ||
+          v.goal === 'switch' && A.breakers.every(b => b.on);
+        if (done) endTraining(true, 'THE COLONEL APPROVES. PROBABLY.');
+        else toast('OBJECTIVE FIRST! ' + v.goalText, 1);
+      }
+      function endTraining(won, message) {
+        const v = TRAINING[vr.i], time = vr.time, medal = won ? (time <= v.limit * 0.45 ? 3 : time <= v.limit * 0.7 ? 2 : 1) : 0;
+        vrResult = { won, message, time, medal, i: vr.i };
+        if (won) { const old = CAREER.vr[vr.i]; CAREER.vr[vr.i] = { time: Math.min(time, old?.time ?? Infinity), medal: Math.max(medal, old?.medal || 0) }; }
+        if (TRAINING.every((_, i) => CAREER.vr[i])) CAREER.gold = true;
+        mode = 'vrresult'; K.music(won ? SONGS.results : SONGS.evasion); saveRun();
+      }
+      const DIFFICULTIES = ['TEA BREAK', 'FIELD AGENT', 'NIGHT SHIFT'];
+      function extraInput(dt) {
+        const accept = K.pressed('a') || K.pressed('start'), back = K.pressed('b');
+        if (mode === 'difficulty') {
+          if (K.pressed('up')) difficultySel = (difficultySel + 2) % 3;
+          if (K.pressed('down')) difficultySel = (difficultySel + 1) % 3;
+          if (CAREER.tux && (K.pressed('left') || K.pressed('right'))) outfit = 1 - outfit;
+          if (back) { toTitle(); pressed = true; }
+          else if (accept) { difficulty = difficultySel; clock = 0; vr = null; RUN = null; CK = null; S = newS(); S.darts = [8, 5, 3][difficulty]; S.rations = difficulty === 0 ? 2 : 1; mode = 'brief'; briefI = 0; briefT = 0; K.music(null); persist(); saveRun(); }
+        } else if (mode === 'training') {
+          if (K.pressed('up')) vrSel = (vrSel + TRAINING.length - 1) % TRAINING.length;
+          if (K.pressed('down')) vrSel = (vrSel + 1) % TRAINING.length;
+          if (K.pressed('left')) vrSel = Math.max(0, vrSel - 6);
+          if (K.pressed('right')) vrSel = Math.min(11, vrSel + 6);
+          if (back) { toTitle(); pressed = true; } else if (accept) startTraining(vrSel);
+        } else if (mode === 'vrresult') {
+          if (back) leaveTraining();
+          else if (accept) { const i = vrResult.i; if (vrResult.won && i < 11) startTraining(i + 1); else if (!vrResult.won) startTraining(i); else leaveTraining(); }
+        } else if (mode === 'dossier') {
+          if (accept || back) { toTitle(); pressed = true; }
+        } else if (mode === 'credits') {
+          creditT += dt;
+          if (creditT > 3 && accept) creditT = Math.max(creditT, 43);
+          if (creditT > 48) sendWin();
+        } else return false;
+        return true;
+      }
+      function drawExtras() {
+        const g = hud; g.fillStyle = '#020b09'; g.fillRect(0, 0, W, HH);
+        for (let y = 0; y < HH; y += 3) { g.fillStyle = '#051b13'; g.fillRect(0, y, W, 1); }
+        const heading = s => { F.center(g, s, W / 2, 14, '#b0ffcc', 2, '#000'); g.fillStyle = '#28734b'; g.fillRect(16, 37, W - 32, 1); };
+        const footer = s => F.center(g, s, W / 2, 225, '#8db6a1', 1);
+        if (mode === 'difficulty') {
+          heading('MISSION ORDERS'); F.center(g, 'CHOOSE YOUR CUP OF TROUBLE', W / 2, 48, '#8db6a1', 1);
+          DIFFICULTIES.forEach((s, i) => { const on = difficultySel === i; panel(g, 32, 69 + i * 31, 256, 26, on ? '#ffe080' : '#27553e'); F.draw(g, (on ? '> ' : '  ') + s, 46, 78 + i * 31, on ? '#fff' : '#7b9e8a', 1); });
+          const desc = ['SHORTER SIGHT. EXTRA SUPPLIES. GENTLER BONKS.', 'THE STANDARD SNEAKING MISSION.', 'KEENER GUARDS. FEWER DARTS. HARDER BONKS.'];
+          F.center(g, desc[difficultySel], W / 2, 174, '#ffe080', 1);
+          F.center(g, CAREER.tux ? 'LEFT/RIGHT: ' + (outfit ? 'DINNER SUIT' : 'FIELD SUIT') : 'CLEAR THE MISSION TO UNLOCK A DINNER SUIT', W / 2, 196, '#8affb0', 1);
+          footer(control('a') + ': ACCEPT   ' + control('b') + ': BACK');
+        } else if (mode === 'training') {
+          heading('CRUMB CADET COURSE'); const first = Math.floor(vrSel / 6) * 6;
+          TRAINING.slice(first, first + 6).forEach((v, n) => {
+            const i = first + n, rec = CAREER.vr[i], on = i === vrSel, y = 48 + n * 23;
+            panel(g, 16, y, W - 32, 21, on ? '#ffe080' : '#173c2a');
+            F.draw(g, (on ? '> ' : '  ') + String(i + 1).padStart(2, '0') + ' ' + v.name, 22, y + 7, trainingOpen(i) ? on ? '#fff' : '#a2c5b3' : '#496153', 1);
+            F.draw(g, rec ? ['BRONZE', 'SILVER', 'GOLD'][rec.medal - 1] : trainingOpen(i) ? 'READY' : 'LOCKED', 246, y + 7, rec ? '#ffe080' : '#729080', 1);
+          });
+          F.center(g, TRAINING[vrSel].goalText, W / 2, 196, '#8affb0', 1);
+          F.center(g, 'GOLD: ' + (TRAINING[vrSel].limit * 0.45).toFixed(1) + ' SECONDS  PAGE ' + (first / 6 + 1) + '/2', W / 2, 209, '#ffe080', 1);
+          footer(control('a') + ': BEGIN   ' + control('b') + ': BACK');
+        } else if (mode === 'vrresult') {
+          const r = vrResult; heading(r.won ? 'EXERCISE COMPLETE' : 'EXERCISE RETRY');
+          F.center(g, TRAINING[r.i].name, W / 2, 52, '#fff', 1);
+          // A solid medal graphic with a ribbon, stamped seed and bevelled rim.
+          g.fillStyle = '#802e38'; g.fillRect(143, 73, 14, 30); g.fillStyle = '#3d5a91'; g.fillRect(163, 73, 14, 30);
+          g.fillStyle = r.medal === 3 ? '#f4ca58' : r.medal === 2 ? '#b8ced8' : '#bd8356'; g.beginPath(); g.arc(160, 115, 25, 0, 7); g.fill();
+          g.strokeStyle = '#fff0ac'; g.lineWidth = 2; g.beginPath(); g.arc(160, 115, 21, 0, 7); g.stroke(); g.lineWidth = 1;
+          F.center(g, r.won ? 'S' : '?', 160, 105, '#574126', 3);
+          F.center(g, r.won ? ['BRONZE', 'SILVER', 'GOLD'][r.medal - 1] : 'TRY AGAIN', W / 2, 150, '#ffe080', 2);
+          F.center(g, 'TIME ' + r.time.toFixed(2) + ' / ' + TRAINING[r.i].limit.toFixed(2), W / 2, 174, '#fff', 1);
+          F.center(g, r.message, W / 2, 191, '#8affb0', 1);
+          footer(control('a') + (r.won ? ': NEXT' : ': RETRY') + '   ' + control('b') + ': COURSE LIST');
+        } else if (mode === 'dossier') {
+          heading('AGENT DOSSIER');
+          F.center(g, castName('me'), W / 2, 49, '#fff', 2);
+          F.draw(g, 'MISSIONS CLEARED: ' + CAREER.clears, 24, 77, '#8affb0', 1);
+          DIFFICULTIES.forEach((s, i) => { const r = CAREER.best[i]; F.draw(g, s, 24, 96 + i * 18, '#a2c5b3', 1); F.draw(g, r ? r.rank + ' ' + mt(r.time) : 'NOT CLEARED', 148, 96 + i * 18, r ? '#ffe080' : '#496153', 1); });
+          F.draw(g, 'COURSE MEDALS: ' + Object.keys(CAREER.vr).length + '/12', 24, 160, '#8affb0', 1);
+          F.draw(g, 'DINNER SUIT: ' + (CAREER.tux ? 'ISSUED' : 'CLEAR THE MISSION'), 24, 180, '#ffe080', 1);
+          F.draw(g, 'GOLD BOX: ' + (CAREER.gold ? 'ISSUED' : '6 SEEDS OR ALL 12 MEDALS'), 24, 196, '#ffe080', 1);
+          footer(control('a') + ': BACK');
+        } else if (mode === 'credits') {
+          heading('OPERATION: TEA COSY');
+          const rows = [['THE SNACK CUPBOARDS ARE SAFE', 'THE KETTLE IS ON.'], ['FIELD OPERATIONS', castName('me')], ['PATROL REHEARSALS', castName('mate1') + ' / ' + castName('mate2')], ['CARDBOARD ENGINEERING', castName('mate3')], ['BISCUIT QUALITY CONTROL', castName('mate4') + ' / ' + castName('sister')], ['A KRONK CARTRIDGE', 'ORIGINAL POLYGONS. ORIGINAL CRUMBS.'], ['SPECIAL EQUIPMENT ISSUED', 'DINNER SUIT' + (CAREER.gold ? ' + GOLD BOX' : '')], ['THANK YOU FOR SNEAKING', 'THE END... UNTIL THE NEXT CUP.']];
+          g.save(); g.beginPath(); g.rect(0, 44, W, 166); g.clip();
+          rows.forEach(([a, b], i) => { const y = 228 + i * 56 - creditT * 13; F.center(g, a, W / 2, y, '#8affb0', 1); F.center(g, b, W / 2, y + 17, '#fff', 1); }); g.restore();
+          footer(creditT > 3 ? 'START: FINISH CREDITS' : 'TRANSMISSION ENDS');
+        }
+      }
+
+      let equipSel = 0;
+      function equipmentList() {
+        return [{ id: 'ration', name: 'CHEESE RATION', desc: 'RESTORES 45 LIFE. AUTO-EAT IF EXHAUSTED.' },
+          { id: 'box', name: CAREER.gold ? 'GOLD DELIVERY BOX' : 'DELIVERY BOX', desc: 'STAY STILL WHEN A GUARD CHECKS YOUR BOX.' }]
+          .concat(S.scope ? [{ id: 'scope', name: 'FIELD BINOCULARS', desc: 'A CLOSER LOOK. DIRECTION PAD AIMS.' }] : [],
+            S.thermal ? [{ id: 'thermal', name: 'CRUMB VISION', desc: 'WARM GUARDS GLOW. BOXES STAY BORING.' }] : []);
+      }
+      function useEquipment() {
+        const e = equipmentList()[equipSel]; if (!e) return;
+        if (e.id === 'ration') {
+          if (!S.rations) { toast('THE SANDWICH TIN IS EMPTY.'); return; }
+          if (S.life >= 100) { toast('SAVE IT FOR WHEN YOU ARE TIRED.'); return; }
+          S.rations--; S.st.rations++; S.life = Math.min(100, S.life + 45); SFX.get(); toast('A TACTICAL CHEESE SANDWICH.');
+        } else if (e.id === 'box') { toggleBox(); P.look = false; }
+        else { P.tool = e.id; P.look = true; P.lookPitch = 0; P.wall = null; }
+        mode = 'play'; camSnap = true;
+      }
+      function drawEquipment() {
+        const g = hud; g.fillStyle = 'rgba(0,9,6,.88)'; g.fillRect(0, 0, W, HH);
+        F.center(g, 'FIELD EQUIPMENT', W / 2, 16, '#b0ffcc', 2);
+        F.center(g, 'COLONEL-APPROVED POCKET CLUTTER.', W / 2, 41, '#8ab09c', 1);
+        equipmentList().forEach((e, i) => { const y = 63 + i * 27, on = i === equipSel;
+          panel(g, 24, y, W - 48, 23, on ? '#ffe080' : '#2b5940');
+          F.draw(g, (on ? '> ' : '  ') + e.name + (e.id === 'ration' ? ' X' + S.rations : ''), 32, y + 8, on ? '#fff' : '#8ab09c', 1);
+        });
+        F.center(g, equipmentList()[equipSel]?.desc || '', W / 2, 184, '#8affb0', 1);
+        F.center(g, control('a') + ': USE   ' + control('b') + ': BACK', W / 2, 205, '#ffe080', 1);
+        if (toastT > 0) F.center(g, toastS, W / 2, 224, '#fff', 1);
+      }
+
+      // Capture only data, never renderer objects. Checkpoints remain separate from suspension.
+      const plain = (o, omit = []) => Object.fromEntries(Object.entries(o).filter(([k, v]) => !omit.includes(k) && typeof v !== 'function'));
+      function presentation() {
+        if (!['title', 'ranks', 'memcard', 'training', 'dossier', 'difficulty'].includes(mode)) return null;
+        return { mode, mi, pressed, titleT, mcI, vrSel, difficultySel, outfit, clock };
+      }
+      function saveRun() {
+        if (!S || restoringRun) return;
+        if (presentation()) { persist(); return; }
+        if (mode === 'done') return;
+        RUN = { version: 1, S: copy(S), P: copy(plain(P, ['pullB'])), pull: A.breakers.indexOf(P.pullB), mode, paused, phase, alertT, evT, alertPos,
+          clock, difficulty, outfit, equipSel, vr: copy(vr), campaign: vr ? trainingCampaign : null, vrResult, creditT,
+          guards: A.guards.map(g => copy(plain(g, ['m', 'route']))), doors: A.doors.map(d => d.open),
+          cameras: A.cams.map(c => ({ sus: c.sus, a: c.a, disabled: !!c.disabled })), spots: A.spots.map(s => ({ x: s.x, z: s.z, track: s.track, disabled: !!s.disabled })),
+          breakers: A.breakers.map(b => b.on), rex: A.rex && copy(plain(A.rex, ['m'])),
+          items: A.items.map(it => ({ k: it.k, x: it.x, z: it.z, id: it.id, got: !!it.got })),
+          shots: shots.filter(s => s.on).map(s => copy(plain(s, ['m']))),
+          cd: cd && copy(plain(cd, ['then'])), pendingCall, pendingT, fadeT, fadeTo, winT,
+          briefI, briefT, res, resT, nameS, nameI, hiNew, overT, oi, cardT, tutT, captions, capT };
+        persist();
+      }
+      function restoreRun(r) {
+        if (!r || r.version !== 1 || !r.S || !AREAS[r.S.area]) return false;
+        restoringRun = true;
+        try {
+          S = copy(r.S); vr = copy(r.vr || null); trainingCampaign = r.campaign || null;
+          equipSel = r.equipSel || 0; difficulty = r.difficulty ?? 1; outfit = r.outfit || 0; clock = r.clock || 0;
+          buildArea(S.area); Object.assign(P, r.P); P.pullB = A.breakers[r.pull] || null;
+          mode = r.mode; paused = !!r.paused; phase = r.phase || 'normal'; alertT = r.alertT; evT = r.evT; alertPos = r.alertPos;
+          A.guards.forEach((g, i) => Object.assign(g, r.guards[i] || {}));
+          A.doors.forEach((d, i) => { d.open = r.doors[i] || 0; d.led.material = S.cards >= d.lvl ? MT.ledG : MT.ledR; d.panels.forEach((p, n) => { p.position.x = (n ? 1 : -1) * (d.half / 2 + d.open * d.half * 0.95); }); });
+          A.cams.forEach((c, i) => Object.assign(c, r.cameras[i] || {})); A.spots.forEach((s, i) => Object.assign(s, r.spots[i] || {}));
+          A.cams.forEach(c => { if (c.disabled) { c.fan.visible = false; c.led.material = MT.ledG; } }); A.spots.forEach(s => { if (s.disabled) s.beam.visible = s.disc.visible = false; });
+          A.breakers.forEach((b, i) => { b.on = !!r.breakers[i]; b.lev.rotation.x = b.on ? 0.7 : -0.6; b.led.material = b.on ? MT.ledG : MT.ledR; b.glow.visible = !b.on; });
+          if (A.rex && r.rex) Object.assign(A.rex, r.rex);
+          for (const v of r.items) { let it = A.items.find(it => it.id === v.id); if (!it) { it = Object.assign({}, v, { g: makeItem(v.k) }); A.items.push(it); A.root.add(it.g); } Object.assign(it, v); it.g.visible = !it.got; it.g.position.set(it.x, 0.35, it.z); }
+          for (const s of shots) { s.on = false; s.m.visible = false; }
+          for (const v of r.shots || []) { const s = shot(v.k, v.x, v.y, v.z, v.vx, v.vy, v.vz); if (s) Object.assign(s, v); }
+          cd = r.cd ? copy(r.cd) : null; if (cd && CALLS[cd.id]) cd.lines = CALLS[cd.id].lines.map(([w, s]) => [w, lab(s)]); pendingCall = r.pendingCall; pendingT = r.pendingT; fadeT = r.fadeT || 0; fadeTo = r.fadeTo; winT = r.winT;
+          briefI = r.briefI; briefT = r.briefT; res = r.res; resT = r.resT; nameS = r.nameS; nameI = r.nameI; hiNew = r.hiNew; overT = r.overT; oi = r.oi;
+          cardT = r.cardT || 0; tutT = r.tutT || 0; captions = r.captions || []; capT = r.capT || 0; saveT = 0; vrResult = r.vrResult; creditT = r.creditT || 0;
+          camSnap = true; animGerbil(0); for (const g of A.guards) animGuard(g, 0); camUpdate(0);
+          K.music(SONGS[mode === 'credits' || mode === 'results' ? 'results' : phase === 'normal' ? A.def.song : phase]);
+          return true;
+        } finally { restoringRun = false; }
+      }
+
       // ================================================================ the loop
-      function update(dt) {
+      function step(dt) {
+        if (!paused && !cd && mode !== 'equipment') clock += dt;
+        if (mode === 'equipment') {
+          if (toastT > 0) toastT -= dt;
+          const n = equipmentList().length;
+          if (K.pressed('up')) equipSel = (equipSel + n - 1) % n;
+          if (K.pressed('down')) equipSel = (equipSel + 1) % n;
+          if (K.pressed('l') || K.pressed('b') || K.pressed('start')) mode = 'play';
+          else if (K.pressed('a')) useEquipment();
+          return;
+        }
+        if (extraInput(dt)) return;
         if (toastT > 0) toastT -= dt; if (flash > 0) flash -= dt; if (bang > 0) bang -= dt;
         if (mode === 'title') {
           titleT += dt; titleIdle(dt);
           if (!pressed) { if (titleT > 0.6 && (K.pressed('start') || K.pressed('a'))) { pressed = true; tick(880, 0.08, 0.08); } return; }
           if (K.pressed('up')) { mi = (mi + menu.length - 1) % menu.length; tick(660, 0.04, 0.05); }
           if (K.pressed('down')) { mi = (mi + 1) % menu.length; tick(660, 0.04, 0.05); }
-          if (K.pressed('start') || K.pressed('a')) { tick(1100, 0.08, 0.08); const m = menu[mi]; if (m === 'NEW GAME') startNew(); else if (m === 'CONTINUE') { mode = 'memcard'; mcI = 2; } else { mode = 'ranks'; } }
+          if (K.pressed('start') || K.pressed('a')) { tick(1100, 0.08, 0.08); const m = menu[mi]; if (m === 'NEW GAME') startNew(); else if (m === 'CONTINUE') { if (RUN) continueGame(); else { mode = 'memcard'; mcI = 2; } } else if (m === 'TRAINING') { mode = 'training'; vrSel = 0; } else if (m === 'DOSSIER') mode = 'dossier'; else mode = 'ranks'; }
           return;
         }
         if (mode === 'ranks') { if (K.pressed('start') || K.pressed('a') || K.pressed('b')) { mode = 'title'; tick(700, 0.05, 0.05); } return; }
         if (mode === 'memcard') {
           if (K.pressed('up')) { mcI = (mcI + 6) % 7; tick(660, 0.04, 0.05); } if (K.pressed('down')) { mcI = (mcI + 1) % 7; tick(660, 0.04, 0.05); }
           if (K.pressed('b')) { mode = 'title'; return; }
-          if (K.pressed('a') || K.pressed('start')) { if (mcI === 2) { K.sfx.seq([[72, 0.25], [79, 0.5]], { bpm: 300, vol: 0.08 }); continueGame(); } else { const f = [CARD_FILES[0], CARD_FILES[1], '', ...CARD_FILES.slice(2)][mcI]; tick(180, 0.15, 0.08); memMsg = f.startsWith('DAVE') ? "THAT'S DAVE'S. DO NOT TOUCH IT." : "THAT ISN'T A METAL GERBIL SAVE!"; memT = 1.6; } }
+          if (K.pressed('a') || K.pressed('start')) { if (mcI === 2) { K.sfx.seq([[72, 0.25], [79, 0.5]], { bpm: 300, vol: 0.08 }); continueGame(); } else { const f = [CARD_FILES[0], CARD_FILES[1], '', ...CARD_FILES.slice(2)][mcI]; tick(180, 0.15, 0.08); memMsg = "THAT ISN'T A METAL GERBIL SAVE!"; memT = 1.6; } }
           if (memT > 0) memT -= dt;
           return;
         }
@@ -1718,15 +2064,7 @@
           return;
         }
         if (mode === 'results') { resT += dt; if (resT > 4.4 && (K.pressed('start') || K.pressed('a'))) afterResults(); else if (resT < 4 && (K.pressed('start') || K.pressed('a'))) resT = 4.4; return; }
-        if (mode === 'name') {
-          const AL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 !', ch = nameS[nameI] || ' ', ci = AL.indexOf(ch);
-          const set = c => { nameS = (nameS.slice(0, nameI) + c + nameS.slice(nameI + 1)).padEnd(4, ' ').slice(0, 4); tick(880, 0.03, 0.05); };
-          if (K.pressed('up')) set(AL[(ci + 1) % AL.length]); if (K.pressed('down')) set(AL[(ci + AL.length - 1) % AL.length]);
-          if (K.pressed('right') || K.pressed('a')) { if (nameI < 3) { nameI++; tick(1000, 0.04, 0.05); } else if (K.pressed('a')) finishName(); }
-          if (K.pressed('left') || K.pressed('b')) { if (nameI > 0) nameI--; }
-          if (K.pressed('start')) finishName();
-          return;
-        }
+        if (mode === 'name') { if (K.pressed('start') || K.pressed('a')) finishName(); return; }
         if (mode === 'table') { resT += dt; if (resT > 0.8 && (K.pressed('start') || K.pressed('a'))) finishWin(); return; }
         if (mode === 'done') return;
         if (mode === 'over') {
@@ -1740,7 +2078,8 @@
         if (cd) { codecUpdate(dt); return; }
         if (fadeT > 0) { const f0 = fadeT; fadeT -= dt; if (f0 > 0.6 && fadeT <= 0.6) enterArea(fadeTo); if (fadeT <= 0) fadeT = 0; camUpdate(dt); return; }
         if (K.pressed('start') && !P.dead) { paused = !paused; tick(paused ? 440 : 880, 0.06, 0.06); }
-        if (paused) { if (K.pressed('b')) { paused = false; codec(A.def.hint); } return; }
+        if (!paused && K.pressed('l') && !P.dead) { mode = 'equipment'; equipSel = 0; return; }
+        if (paused) { if (K.pressed('b')) { paused = false; if (vr) leaveTraining(); else codec(A.def.hint); } return; }
         if (pendingCall) { pendingT -= dt; if (pendingT <= 0) { const c = pendingCall; pendingCall = null; codec(c); } }
         S.st.t += dt; if (cardT > 0) cardT -= dt; if (saveT > 0) saveT -= dt; if (tutT > 0 && !pendingCall) tutT -= dt;
         if (capT > 0 && captions.length) { capT -= dt; if (capT <= 0) { captions.shift(); capT = 3; } }
@@ -1749,47 +2088,61 @@
         for (const g of A.guards) { guardUpdate(g, dt); animGuard(g, dt); }
         hazards(dt); rexUpdate(dt); shotsUpdate(dt); items(dt); exits(dt); phaseUpdate(dt);
         stepParts(dt); snowStep(dt); animGerbil(dt); camUpdate(dt);
-        if (A.water) A.water.material.map.offset.set(K.t * 0.02, K.t * 0.012);
+        if (A.water) A.water.material.map.offset.set(clock * 0.02, clock * 0.012);
         if (A.rotor) A.rotor.rotation.y += dt * 0.6;
-        if (A.boat) A.boat.position.y = -0.25 + Math.sin(K.t * 1.5) * 0.04;
+        if (A.boat) A.boat.position.y = -0.25 + Math.sin(clock * 1.5) * 0.04;
         for (const it of A.items) if (it.k === 'p' && !it.got) { it.g.rotation.y += dt * 2; }
-        if (A.npc && A.npc.m) { const o = A.npc.m; o.hd.rotation.y = Math.sin(K.t * 3) * 0.5; o.b.position.y = Math.abs(Math.sin(K.t * 9)) * 0.02; o.root.rotation.y = Math.atan2(P.x - A.npc.x, P.z - A.npc.z) * 0.6; }
+        if (A.npc && A.npc.m) { const o = A.npc.m; o.hd.rotation.y = Math.sin(clock * 3) * 0.5; o.b.position.y = Math.abs(Math.sin(clock * 9)) * 0.02; o.root.rotation.y = Math.atan2(P.x - A.npc.x, P.z - A.npc.z) * 0.6; }
         if (P.dead > 1.8) { mode = 'over'; overT = 0; oi = 0; }
       }
       let memMsg = '', memT = 0;
       function titleIdle(dt) {
         for (const g of A.guards) { guardUpdate(g, dt); animGuard(g, dt); }
         snowStep(dt); stepParts(dt); P.moving = false; animGerbil(dt);
-        if (A.water) A.water.material.map.offset.set(K.t * 0.02, K.t * 0.012); if (A.boat) A.boat.position.y = -0.25 + Math.sin(K.t * 1.5) * 0.04;
+        if (A.water) A.water.material.map.offset.set(clock * 0.02, clock * 0.012); if (A.boat) A.boat.position.y = -0.25 + Math.sin(clock * 1.5) * 0.04;
         const a = titleT * 0.08;
         cam.position.set(P.x - 2.2 + Math.sin(a) * 1.4, 1.5 + Math.sin(titleT * 0.3) * 0.15, P.z + 3.6 - Math.sin(a) * 0.6); cam.lookAt(P.x + 0.6, 1.0, P.z - 2.5);
         snow.position.set(P.x, 0, P.z - 3);
       }
       function draw() {
-        const covered = mode === 'brief' || mode === 'results' || mode === 'name' || mode === 'table' || mode === 'memcard' || mode === 'ranks' || (cd && cd.ring <= 0 && cd.open >= 1);
+        for (const m of [MT.coat, MT.coatIn]) m.emissive.setHex(P.look && P.tool === 'thermal' ? 0xff6030 : 0x000000);
+        const covered = ['difficulty', 'training', 'vrresult', 'dossier', 'credits'].includes(mode) || mode === 'brief' || mode === 'results' || mode === 'name' || mode === 'table' || mode === 'memcard' || mode === 'ranks' || (cd && cd.ring <= 0 && cd.open >= 1);
         if (!covered) T3.render();
         hud.clearRect(0, 0, W, HH);
-        if (mode === 'title') drawTitle();
-        else if (mode === 'ranks') { drawTable(hud, -1); F.center(hud, 'PRESS START', W / 2, 212, (K.t * 2 | 0) % 2 ? '#ffffff' : '#6a8a7a', 1); }
+        if (['difficulty', 'training', 'vrresult', 'dossier', 'credits'].includes(mode)) drawExtras();
+        else if (mode === 'title') drawTitle();
+        else if (mode === 'ranks') { drawTable(hud, -1); F.center(hud, 'PRESS START', W / 2, 212, (clock * 2 | 0) % 2 ? '#ffffff' : '#6a8a7a', 1); }
         else if (mode === 'memcard') { drawMemcard(); if (memT > 0) { const w = F.width(memMsg) + 12; hud.fillStyle = '#000'; hud.fillRect(W / 2 - w / 2, 210, w, 14); F.center(hud, memMsg, W / 2, 213, '#ff8070', 1); } }
         else if (mode === 'brief') drawBrief();
         else if (mode === 'results') drawResults();
         else if (mode === 'name') drawName();
-        else if (mode === 'table') { drawTable(hud, hiNew, 'TOP AGENTS'); if (resT > 0.8 && (K.t * 2 | 0) % 2) F.center(hud, 'PRESS START', W / 2, 212, '#ffffff', 1); }
+        else if (mode === 'table') { drawTable(hud, hiNew, 'TOP AGENTS'); if (resT > 0.8 && (clock * 2 | 0) % 2) F.center(hud, 'PRESS START', W / 2, 212, '#ffffff', 1); }
         else if (mode === 'over') { drawPlay(); drawOver(); }
         else if (mode === 'winfx') { drawPlay(); hud.fillStyle = `rgba(255,255,255,${clamp(1 - winT, 0, 0.8)})`; hud.fillRect(0, 0, W, HH); F.center(hud, 'GOT THE PLANS!', W / 2, 90, '#ffffff', 2, '#0a3a1a'); }
         else if (mode === 'play') drawPlay();
+        else if (mode === 'equipment') { drawPlay(); drawEquipment(); }
         else if (mode === 'done') { hud.fillStyle = '#000'; hud.fillRect(0, 0, W, HH); }
       }
+      function update(dt) {
+        if (K.restoring && mode === 'play' && ['start', 'a', 'b', 'x', 'y', 'l', 'r', 'up', 'down', 'left', 'right'].some(b => K.pressed(b))) K.resume?.();
+        step(Math.min(dt, 0.05));
+        saveClock += dt;
+        if (saveClock >= 1 || ['start', 'a', 'b', 'x', 'y', 'l', 'r'].some(b => K.pressed(b))) { saveClock = 0; saveRun(); }
+      }
       // (for testing)
-      K.dbg = { get S() { return S; }, P, get A() { return A; }, get mode() { return mode; }, get phase() { return phase; }, get cd() { return cd; }, get res() { return res; }, get HI() { return HI; }, get CK() { return CK; },
-        enter(ai) { if (!S || mode === 'title') S = newS(); if (S.life <= 0) S.life = 100; S.cards = 3; mode = 'play'; paused = false; cd = null; pendingCall = null; S.calls = { dock: 1, heli: 1, base: 1, duct: 1, lab: 1, rex: 1 }; enterArea(ai); pendingCall = null; },
+      K.dbg = { get S() { return S; }, P, get A() { return A; }, get mode() { return mode; }, get phase() { return phase; }, get cd() { return cd; }, get res() { return res; }, get HI() { return HI; }, get CK() { return CK; }, get career() { return CAREER; }, get vr() { return vr; }, get hero() { return G0; }, get areas() { return AREAS; }, get campaign() { return CAMPAIGN; }, get training() { return TRAINING; }, get clock() { return clock; }, save: saveRun, restore: restoreRun, title: toTitle, startTraining, get RUN() { return RUN; },
+        enter(ai) { vr = null; if (!S || mode === 'title') S = newS(); if (S.life <= 0) S.life = 100; S.cards = 3; mode = 'play'; paused = false; cd = null; pendingCall = null; S.calls = Object.fromEntries(AREAS.filter(a => a.call).map(a => [a.call, 1])); enterArea(ai); pendingCall = null; },
         at(x, z, a) { P.x = x; P.z = z; if (a != null) P.a = a; camSnap = true; }, alert() { raiseAlert(A.guards[0] || null); }, skip() { if (cd) endCodec(); }, win() { results(); }, setMode(m) { mode = m; },
         flip() { const b = A.breakers.find(q => !q.on); if (b) flipBreaker(b); }, kill() { S.rations = 0; P.inv = 0; hurt(999, P.x + 1, P.z); }, sleepAll() { for (const g of A.guards) sleepGuard(g); }, calm() { phase = 'normal'; for (const g of A.guards) { g.sus = 0; if (g.st !== 'sleep') goReturn(g); } }, get fade() { return fadeT; }, get paused() { return paused; }, get pend() { return pendingCall; }, los, tileAt, doorAt, rayLen };
       toTitle();
+      if (K.restoring && loaded.ui && ['title', 'ranks', 'memcard', 'training', 'dossier', 'difficulty'].includes(loaded.ui.mode)) {
+        const u = loaded.ui; mode = u.mode; mi = clamp(u.mi || 0, 0, menu.length - 1); pressed = !!u.pressed; titleT = u.titleT || 0; mcI = clamp(u.mcI || 0, 0, 6); vrSel = clamp(u.vrSel || 0, 0, 11); difficultySel = clamp(u.difficultySel ?? 1, 0, 2); outfit = u.outfit || 0; clock = u.clock || 0;
+      } else if (K.restoring && RUN) restoreRun(RUN);
+      const onSuspend = () => saveRun();
+      window.addEventListener('pagehide', onSuspend); window.addEventListener('blur', onSuspend);
       return {
         update, draw,
-        end() { K.music(null); if (S && CK && (mode === 'play' || mode === 'over')) { CK.st = copy(S.st); persist(); } for (const m of own) try { m.dispose(); } catch (e) {} },
+        end() { saveRun(); window.removeEventListener('pagehide', onSuspend); window.removeEventListener('blur', onSuspend); K.music(null); for (const m of own) try { m.dispose(); } catch (e) {} },
       };
     },
   });
