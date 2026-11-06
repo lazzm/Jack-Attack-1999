@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const source=fs.readFileSync('app/public/js/hs-world.js','utf8');
+const source=fs.readFileSync(require('path').join(__dirname,'..','app/public/js/hs-world.js'),'utf8');
 const start=source.indexOf("    if (drag && t.id === 'beanbag')"),offset=source.slice(start,source.indexOf('    if (was)',start));
 const tick=source.slice(source.indexOf('  function dragTick('),source.indexOf('  // Contact shadows for grab-API'));
 const w={drag:true,t:{id:'beanbag',at:{x:-108.3826,z:78.8198}},held:{rel:0,ry:0},P:{ry:31},W:{x:-35.9102,z:198.0406},D2R:Math.PI/180,RAD:22,dragSound:Infinity,performance:{now:()=>0},clamp:(x,a,b)=>Math.max(a,Math.min(b,x)),angd:(a,b)=>b-a,PH:{tryMove:(b,x,z)=>{b.x+=x;b.z+=z},tryTurn:(b,r)=>b.ry+=r},renderBody:()=>{},letGo:()=>{throw Error('Unexpected release')},ui:{toast:()=>{}}};

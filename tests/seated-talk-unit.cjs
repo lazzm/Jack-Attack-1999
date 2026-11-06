@@ -3,8 +3,8 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),T=require('../app/public/vendor/three.min.js');
 const gradient={addColorStop(){}},paint=new Proxy({createLinearGradient:()=>gradient,createRadialGradient:()=>gradient,measureText:s=>({width:s.length*7})},{get:(o,k)=>k in o?o[k]:()=>{}});
 let now=1000;const w={THREE:T,document:{createElement:()=>({getContext:()=>paint})},console,performance:{now:()=>now},CAR:{x:500,z:1075},H:{FRONT:{FZ:1400}}};w.window=w;vm.createContext(w);
-vm.runInContext(fs.readFileSync('app/public/js/np-rig.js','utf8'),w);
-const life=fs.readFileSync('app/public/js/np-life.js','utf8');vm.runInContext(life.slice(life.indexOf('  const seat ='),life.indexOf('  const MUG ='))+';this.spots=SPOT;this.seatFor=seatFor;',w);
+vm.runInContext(fs.readFileSync(require('path').join(__dirname,'..','app/public/js/np-rig.js'),'utf8'),w);
+const life=fs.readFileSync(require('path').join(__dirname,'..','app/public/js/np-life.js'),'utf8');vm.runInContext(life.slice(life.indexOf('  const seat ='),life.indexOf('  const MUG ='))+';this.spots=SPOT;this.seatFor=seatFor;',w);
 const bone=(r,k)=>{r.group.updateMatrixWorld(true,true);return r.bones[k].getWorldPosition(new T.Vector3())};
 for(const person of ['mom','dad','sister'])for(const seat of ['armchair','sofaL','sofaR','floorTV']){
  const q=w.seatFor({id:person},w.spots[seat]),r=w.NPCRig.create(person,{tier:'low'});r.floor=()=>353;r.teleport(q.x,353,q.z,q.face*Math.PI/180);

@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const source=fs.readFileSync('app/public/js/np-life.js','utf8'),voice=JSON.parse(fs.readFileSync('tools/audio/voice-lines.json','utf8'));
-const compiled={window:{}};vm.createContext(compiled);vm.runInContext(fs.readFileSync('app/public/js/np-lines.js','utf8'),compiled);
+const source=fs.readFileSync(require('path').join(__dirname,'..','app/public/js/np-life.js'),'utf8'),voice=JSON.parse(fs.readFileSync(require('path').join(__dirname,'..','tools/audio/voice-lines.json'),'utf8'));
+const compiled={window:{}};vm.createContext(compiled);vm.runInContext(fs.readFileSync(require('path').join(__dirname,'..','app/public/js/np-lines.js'),'utf8'),compiled);
 const data=compiled.window.NPCDialogue,L=compiled.window.NPCLines;
 assert(data,'generated browser catalogue must export dialogue conditions');
 assert.deepEqual(JSON.parse(JSON.stringify(data)),Object.fromEntries(voice.lines.filter(l=>l.dialogue).map(l=>[l.id,{speaker:l.character,...l.dialogue}])),'generated conditions match the authored data');

@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const src=fs.readFileSync('app/public/js/st-voice.js','utf8');
+const src=fs.readFileSync(require('path').join(__dirname,'..','app/public/js/st-voice.js'),'utf8');
 const block=src.slice(src.indexOf('  function speakLine('),src.indexOf('  // Account-scoped text/id only:'));
 const store={};let delivered=0,accepted=true;
 function reload(family=true,nick='one'){
@@ -11,7 +11,7 @@ reload().speak('bf.day','Dad','Day',{once:true});assert.equal(delivered,2,'each 
 reload(true,'two').speak('bf.tail','Dad','Ash',{once:true});assert.equal(delivered,3,'separate account');
 accepted=false;const rejected=reload();rejected.speak('bark','Dad','Hi');assert.equal(rejected.cueQueue.length,0,'memory rejection never bypasses through fallback');
 const fallback=reload(false);fallback.speak('hw.tail','Dad','Ash',{once:true});assert.equal(fallback.cueQueue.length,1);const after=reload(false);after.speak('hw.tail','Dad','Ash',{once:true});assert.equal(after.cueQueue.length,0,'fallback also remembers announcements');
-const life=fs.readFileSync('app/public/js/np-life.js','utf8');assert(life.includes('speech.cur = null; save();'),'completion immediately clears persisted conversation');assert(life.includes('if (o.prio) speech.q.sort((a, b) => b.prio - a.prio);\n    save();'),'pending lines immediately saved');
+const life=fs.readFileSync(require('path').join(__dirname,'..','app/public/js/np-life.js'),'utf8');assert(life.includes('speech.cur = null; save();'),'completion immediately clears persisted conversation');assert(life.includes('if (o.prio) speech.q.sort((a, b) => b.prio - a.prio);\n    save();'),'pending lines immediately saved');
 console.log('ANNOUNCEMENTS PASS: phases, account isolation, fallback guard, pending/completed saves');
 // Execute the production queue serializer: queued/interrupted words survive,
 // completed clips do not come back while their visual timer winds down.
