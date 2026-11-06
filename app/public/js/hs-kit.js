@@ -83,22 +83,39 @@
   function phongShader(shader){
     const state=INTERIOR_SHADER;
     Object.assign(shader.uniforms,state.uniforms);
+    // Aperture coordinates are affine in view position: perspective-correct
+    // interpolation gives the same floor/wall projection, with six dot products
+    // per vertex rather than per covered pixel.
+    shader.vertexShader=shader.vertexShader.replace('#include <common>',`#include <common>
+      uniform mat4 houseProjector0,houseProjector1;
+      varying vec3 houseProjected0,houseProjected1;`);
+    shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',`#include <project_vertex>
+      houseProjected0=vec3(dot(houseProjector0[0],mvPosition),dot(houseProjector0[1],mvPosition),dot(houseProjector0[3],mvPosition));
+      houseProjected1=vec3(dot(houseProjector1[0],mvPosition),dot(houseProjector1[1],mvPosition),dot(houseProjector1[3],mvPosition));`);
     shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>
       uniform vec3 houseSky,houseMain,houseAccent,houseSpill,houseSun,houseSunViewDir;
       uniform mat4 houseProjector0,houseProjector1;
-      float houseApertureMask(mat4 projector,vec4 p){
-        vec4 a=projector[2];if(a.y<=a.x||dot(projector[3],p)<.5)return 0.0;
-        float u=dot(projector[0],p),v=dot(projector[1],p);
+      varying vec3 houseProjected0,houseProjected1;
+      float houseApertureMask(mat4 projector,vec3 projected){
+        vec4 a=projector[2];if(a.y<=a.x||projected.z<.5)return 0.0;
+        float u=projected.x,v=projected.y;
         if(u<a.x-4.0||u>a.y+4.0||v<a.z-4.0||v>a.w+4.0)return 0.0;
         float mask=smoothstep(a.x-4.0,a.x+4.0,u)*(1.0-smoothstep(a.y-4.0,a.y+4.0,u))*smoothstep(a.z-4.0,a.z+4.0,v)*(1.0-smoothstep(a.w-4.0,a.w+4.0,v));
         return mask*smoothstep(1.0,4.0,abs(u-(a.x+a.y)*.5));
       }
       vec3 houseWindowLight(vec3 surfaceNormal,vec3 viewPosition){
         if(dot(houseSun,vec3(1.0))<.001)return vec3(0.0);
-        vec4 p=vec4(-viewPosition,1.0);
-        float sunMask=houseApertureMask(houseProjector0,p)+houseApertureMask(houseProjector1,p);
-        return houseSun*min(1.0,sunMask)*max(0.0,dot(surfaceNormal,-houseSunViewDir));
+        float facing=max(0.0,dot(surfaceNormal,-houseSunViewDir));
+        if(facing==0.0)return vec3(0.0);
+        float sunMask=houseApertureMask(houseProjector0,houseProjected0)+houseApertureMask(houseProjector1,houseProjected1);
+        return houseSun*min(1.0,sunMask)*facing;
       }`);
+    // A black light contributes exactly zero, including its specular term.
+    // Baked rooms have no rig sun; switched-off lamp slots also remain in the
+    // fixed rig. Avoid their attenuation/Phong work without changing variants.
+    const direct=T.ShaderChunk.lights_fragment_begin.replace(/(\b(pointLight|spotLight|directionalLight)\s*=\s*\w+\[\s*i\s*\];)([\s\S]*?RE_Direct\( directLight, geometry, material, reflectedLight \);)/g,
+      '$1\nif(any(notEqual($2.color,vec3(0.0)))){$3\n}');
+    shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_begin>',direct);
     if(this.userData.pendant){
       // One material for the cord and shade, with the original cord's exact
       // diffuse/specular/shininess and no emission. Constant U selects the part.

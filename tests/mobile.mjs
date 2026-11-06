@@ -13,6 +13,7 @@ import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {chromium, devices} from 'playwright';
 import {analyse, contactSheet} from './transition-kit.mjs';
+import {drawAudit} from './light-draw-audit.mjs';
 import {insertCase} from './case-actions.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url)), shots = fileURLToPath(new URL('shots/mobile/', import.meta.url));
@@ -737,6 +738,7 @@ const phases = {
         const extra = await page.evaluate(() => { const t0 = performance.now(); for (let i = 0; i < 5; i++) House.pick(innerWidth / 2, innerHeight / 2); const pick = (performance.now() - t0) / 5; const ft = (window.__ft || []).slice().sort((a, b) => a - b); const rooms=Object.values(House.ROOMS).filter(r=>r.lightBake),versions=()=>rooms.reduce((n,r)=>n+r.lightBake.light.version+r.lightBake.ao.version,0),v0=versions(),minute=Date.prototype.getMinutes;let uniformClockMs;try{Date.prototype.getMinutes=()=>1;const start=performance.now();for(const r of rooms)r.lightBake.update();uniformClockMs=performance.now()-start}finally{Date.prototype.getMinutes=minute;for(const r of rooms)r.lightBake.update()}return { view:{x:House.P.x,y:House.P.y,z:House.P.z,rx:House.P.rx,ry:House.P.ry,zoom:House.P.zm,rooms:Object.values(House.ROOMS).filter(r=>r._renderDrawn).map(r=>r.id),doors:Object.fromEntries(Object.entries(House.DOORS).map(([id,d])=>[id,!!d.open]))},bakeLoadMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.buildMs||0).toFixed(2)])),bakeWorkerMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.weightsMs||0).toFixed(2)])),bakeElapsedMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.elapsedMs||0).toFixed(2)])),bakeMaxSliceMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.maxSliceMs||0).toFixed(2)])),bakeOffMain:rooms.every(r=>r.lightBake.stats?.worker),bakeReady:rooms.every(r=>r.lightBake.stats?.ready),loadCpuThrottled:false,uniformClockMs:+uniformClockMs.toFixed(3),atlasVersionDelta:versions()-v0,pickMs: +pick.toFixed(2), physicsMs: +(House.physics.ms || 0).toFixed(2), rafP50: +(ft[ft.length >> 1] || 0).toFixed(1), rafP95: +(ft[Math.floor(ft.length * .95)] || 0).toFixed(1), family: !!window.HouseFamily?.enabled }; });
         assert.equal(extra.bakeReady,true,'Static light weights must be ready before the walking sample');
         assert.equal(extra.atlasVersionDelta,0,'Clock updates must not repaint indoor atlases');
+        if(process.env.LIGHT5_AUDIT){const audit=await drawAudit(page);await writeFile(new URL('shots/light/round5/'+process.env.LIGHT5_AUDIT+'-'+label+'-draws.json',import.meta.url),JSON.stringify(audit,null,2));console.log('DRAW AUDIT',label,JSON.stringify({calls:audit.perf.calls,reasons:audit.reasons,static:audit.static.bedroom}));}
         report.perf[label] = { tier: perf.tier, pixels: perf.pixels, scale: +perf.scale.toFixed(2), calls: perf.calls, triangles: perf.triangles, frameP50: +perf.frameP50.toFixed(1), frameP95: +perf.frameP95.toFixed(1), renderP50: +perf.renderP50.toFixed(1), drawn: t1 - t0, ...extra, load: +os.loadavg()[0].toFixed(1) };
       };
       await run(`walk-cpu${throttle}x`, 8000);

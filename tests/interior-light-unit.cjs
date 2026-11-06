@@ -30,12 +30,17 @@ console.log('INTERIOR LIGHT PASS: yielding bake, neutral fallback, one completed
  console.log('INTERIOR WORKER PASS: byte-identical light and occlusion, one shared worker, completed upload');
 }
 // Projector planes transformed on the CPU must give the same aperture
-// coordinates from Phong's existing view position, without a new vertex varying.
+// coordinates from Phong's existing view position and interpolated vertices.
 {
- const sh={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};material.onBeforeCompile(sh);assert.equal(sh.vertexShader,T.ShaderLib.phong.vertexShader);
+ const sh={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};material.onBeforeCompile(sh);assert(sh.vertexShader.includes('houseProjected0=vec3(dot(houseProjector0[0],mvPosition)'));assert(!sh.fragmentShader.includes('dot(projector[0],p)'));
  K.interiorFor(r);const original=sh.uniforms.houseProjector0.value.clone(),camera=new T.PerspectiveCamera();camera.position.set(80,130,350);camera.lookAt(0,0,0);camera.updateMatrixWorld(true);K.interiorFor(r,camera);
  for(const point of [[10,-40,100],[-120,20,-20],[200,-80,200]]){const view=new T.Vector4(point[0],-point[1],point[2],1).applyMatrix4(camera.matrixWorldInverse),world=new T.Vector4(...point,1);for(const column of [0,1,3]){const a=new T.Vector4().fromArray(original.elements,column*4).dot(world),b=new T.Vector4().fromArray(sh.uniforms.houseProjector0.value.elements,column*4).dot(view);assert(Math.abs(a-b)<1e-8,'Window plane changed with camera')}}
- console.log('INTERIOR PROJECTOR PASS: CPU view planes preserve world aperture at every camera angle; no added vertex work');
+ // Perspective-correct interpolation of an affine projector must equal
+ // projecting the interpolated surface position, even across a sloping face.
+ const vertices=[new T.Vector4(-120,20,-20,1),new T.Vector4(200,-80,200,1),new T.Vector4(10,-40,100,1)],weights=[.2,.35,.45],depth=[.8,2,5],den=weights.reduce((n,w,i)=>n+w/depth[i],0),point=new T.Vector4(0,0,0,0);
+ vertices.forEach((v,i)=>point.addScaledVector(v,weights[i]/depth[i]/den));
+ for(const column of [0,1,3]){const plane=new T.Vector4().fromArray(original.elements,column*4),interpolated=vertices.reduce((n,v,i)=>n+plane.dot(v)*weights[i]/depth[i]/den,0);assert(Math.abs(interpolated-plane.dot(point))<1e-8,'Aperture interpolation moved the sun patch')}
+ console.log('INTERIOR PROJECTOR PASS: view planes and perspective interpolation preserve window projection');
 }
 // Failed, blocked, silent and suspended workers cannot strand a room's atlas.
 for(const failure of ['constructor','post','post-second','error','message','payload','timeout','pagehide']){
