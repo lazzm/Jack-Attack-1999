@@ -117,7 +117,11 @@
   function hook(H) {
     hooked = true;
     line = document.createElement('button'); line.type = 'button'; line.className = 'st-objective'; line.hidden = true;
-    line.addEventListener('click', () => window.stDiary?.picker());
+    // Match the other touch HUD controls: commit a visible press before a
+    // queued line of dialogue can hide the objective between down and up.
+    let objectiveTouch = false;
+    line.addEventListener('pointerdown', e => { objectiveTouch = e.pointerType === 'touch' && !(e.button > 0); if (!objectiveTouch) return; e.preventDefault(); window.stDiary?.picker(); });
+    line.addEventListener('click', e => { const duplicate = e.detail && objectiveTouch; objectiveTouch = false; if (!duplicate) window.stDiary?.picker(); });
     H.ui.el.appendChild(line);
     for (const e of ['mode', 'room', 'grab', 'place', 'snap', 'sat']) H.on(e, observe);
     window.Room.on('play', observe);

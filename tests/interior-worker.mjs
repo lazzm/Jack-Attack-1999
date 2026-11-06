@@ -1,10 +1,8 @@
-// Live-policy worker/fallback, lifecycle, deterministic refresh and camera-race proof.
-// Capture the real response before running this live-policy check:
-// mkdir -p tests/shots/light/round4
-// curl -sS -I https://jacklm.com/ > tests/shots/light/round4/live-headers.txt
+// Application-policy worker/fallback, lifecycle, deterministic refresh and camera-race proof.
+// Read the application policy from the disposable server itself.
 // node tests/interior-worker.mjs (owns its disposable server and browser).
 import assert from 'node:assert/strict';
-import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {writeFile,mkdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {withTestServer} from './perf/server.mjs';
 import {roomFixture} from './room-fixture.mjs';
@@ -12,9 +10,10 @@ import {bonfireLogin} from './bonfire-login.mjs';
 const cspOnly=process.argv.includes('--only=csp');
 const dir=new URL('./shots/light/round4/',import.meta.url);await mkdir(dir,{recursive:true});
 process.env.LIGHT_WORKER_CSP_TEST='1';process.env.NODE_OPTIONS=[process.env.NODE_OPTIONS,'--require='+fileURLToPath(new URL('./interior-worker-server.cjs',import.meta.url))].filter(Boolean).join(' ');
-const live=(await readFile(new URL('live-headers.txt',dir),'utf8')).match(/^content-security-policy:\s*(.+)$/mi)[1].trim(),results=[];
+const results=[];
 function record(row){results.push(row);console.log('WORKER CASE PASS',row.case)}
 await withTestServer(async base=>{
+ const policy=(await fetch(base+'/')).headers.get('content-security-policy');assert(policy, 'Application must send its CSP');assert(/script-src 'self'/.test(policy), 'Application scripts stay same-origin');
  const account='Worker'+Date.now().toString(36),password='Throwaway-1999';await fetch(base+'/admin/register',{method:'POST',headers:{'X-Admin-Token':'testtoken','Content-Type':'application/json'},body:JSON.stringify({name:account,pass:password})});let scenario='normal';const expected=[];
  const f=await roomFixture(base,{account,password,signup:false,resume:true,opening:true,hour:12,storageState:await bonfireLogin(base,password,account,{x:40,y:-70,z:155,rx:0,ry:0,lvl:'U',seat:0}),expectedConsole:[/worker-src 'none'/],onPage:async p=>{
   p.on('console',m=>{if(/worker-src 'none'/.test(m.text()))expected.push(m.text())});
@@ -22,9 +21,9 @@ await withTestServer(async base=>{
  }});const p=f.page;
  async function ready(){await f.until(()=>window.House?.live&&window.AccountGate?.allowed&&!document.querySelector('.hs-loading,#houseEntry'));await p.evaluate(()=>Room.ensureHouse());await f.until(()=>window.HouseRooms?.ready);await f.until(()=>Object.values(House.ROOMS).every(r=>!r.lightBake||r.lightBake.stats.ready));}
  async function snapshot(){return p.evaluate(async()=>{const rooms={};for(const r of Object.values(House.ROOMS))if(r.lightBake){const b=r.lightBake,hash=async data=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data))).map(n=>n.toString(16).padStart(2,'0')).join('');rooms[r.id]={light:await hash(b.light.image.data),ao:await hash(b.ao.image.data)}}return rooms})}
- async function reload(mode){scenario=mode;await p.evaluate(mode=>{sessionStorage.workerScenario=mode;document.cookie='light_worker_test='+mode+'; path=/'},mode);const response=await p.reload({waitUntil:'domcontentloaded'});assert.equal(response.headers()['content-security-policy'],live+(mode==='blocked'?"; worker-src 'none'":''));}
+ async function reload(mode){scenario=mode;await p.evaluate(mode=>{sessionStorage.workerScenario=mode;document.cookie='light_worker_test='+mode+'; path=/'},mode);const response=await p.reload({waitUntil:'domcontentloaded'});assert.equal(response.headers()['content-security-policy'],policy+(mode==='blocked'?"; worker-src 'none'":''));}
  try{
-  await ready();assert.equal((await (await fetch(base+'/')).headers.get('content-security-policy')),live,'Actual application header must match live HTTPS');const original=await snapshot();assert(await p.evaluate(()=>workerMade>=1));assert.equal(await p.evaluate(()=>workerMaxActive),1);await f.until(()=>workerStopped===workerMade);for(let i=0;i<40&&p.workers().length;i++)await p.waitForTimeout(50);assert.equal(p.workers().length,0);record({case:'real live CSP',policy:live,...await p.evaluate(()=>({workerMade,workerStopped,workerMaxActive})),hashes:original});
+  await ready();assert.equal((await (await fetch(base+'/')).headers.get('content-security-policy')),policy,'Application header must remain unchanged');const original=await snapshot();assert(await p.evaluate(()=>workerMade>=1));assert.equal(await p.evaluate(()=>workerMaxActive),1);await f.until(()=>workerStopped===workerMade);for(let i=0;i<40&&p.workers().length;i++)await p.waitForTimeout(50);assert.equal(p.workers().length,0);record({case:'real application CSP',policy,...await p.evaluate(()=>({workerMade,workerStopped,workerMaxActive})),hashes:original});
   if(!cspOnly){
   // Reproduce the old fixture overwriting an in-flight close-up return.
   await p.evaluate(()=>{House._.setMode('walk');House.focus({...House.P,x:House.P.x-20,z:House.P.z-20},{ms:1,backMs:760})});await f.until(()=>House.focused&&!House.gliding);

@@ -99,11 +99,23 @@
         float sunMask=houseApertureMask(houseProjector0,p)+houseApertureMask(houseProjector1,p);
         return houseSun*min(1.0,sunMask)*max(0.0,dot(surfaceNormal,-houseSunViewDir));
       }`);
+    if(this.userData.pendant){
+      // One material for the cord and shade, with the original cord's exact
+      // diffuse/specular/shininess and no emission. Constant U selects the part.
+      shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+        float houseCord=1.0-step(.125,vUv.x);
+        diffuseColor.rgb=mix(diffuseColor.rgb,vec3(0.9333333333333333),houseCord);`);
+      shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
+        totalEmissiveRadiance*=1.0-houseCord;`);
+      shader.fragmentShader=shader.fragmentShader.replace('#include <lights_phong_fragment>',T.ShaderChunk.lights_phong_fragment
+        .replace('material.specularColor = specular;', 'material.specularColor = mix(specular,vec3(0.047058823529411764),houseCord);')
+        .replace('material.specularShininess = shininess;','material.specularShininess = mix(shininess,6.0,houseCord);'));
+    }
     let maps=T.ShaderChunk.lights_fragment_maps;
     if(this.userData.interiorShell)maps=maps.replace(/vec3 lightMapIrradiance[^;]+;/,`vec3 lightMapIrradiance = lightMapTexel.r*houseSky + lightMapTexel.g*houseMain + lightMapTexel.b*houseAccent + lightMapTexel.a*houseSpill;`);
     shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_maps>',maps+'\nirradiance += PI*houseWindowLight(normal,vViewPosition);');
   }
-  function phongKey(){return 'house-interior-r3-'+(this.userData.interiorShell?'shell':'prop')}
+  function phongKey(){return 'house-interior-r3-'+(this.userData.interiorShell?'shell':'prop')+(this.userData.pendant?'-pendant':'')}
   function surfaceQuality(m){
     if(!m.isMeshPhongMaterial||!m.userData.houseSurface)return;
     if(m.onBeforeCompile!==phongShader){m.onBeforeCompile=phongShader;m.customProgramCacheKey=phongKey;m.flatShading=!!m.userData.spec?.flat;m.needsUpdate=true}
@@ -303,12 +315,15 @@
     let packX=0,packY=0,rowH=0;
     for(const c of charts.slice().sort((a,b)=>b.h-a.h)){if(packX+c.w>w){packX=0;packY+=rowH;rowH=0}c.x=packX;c.y=packY;packX+=c.w;rowH=Math.max(rowH,c.h)}
     const h=pow2(packY+rowH);
-    const lightData=new Uint8Array(w*h*4),aoData=new Uint8Array(w*h*4);
+    const lightData=new Uint8Array(w*h*4),aoData=new Uint8Array(w*h);
+    // AO is greyscale: one lossless channel avoids fetching four identical
+    // bytes per texel. Phong reads only .r on WebGL 1 and 2.
+    const aoFormat=window.House?.ren?.capabilities?.isWebGL2?T.RedFormat:T.LuminanceFormat;
     // Neutral occlusion during loading: the existing lamp rig and hemisphere
     // keep the room readable while the static weights finish in the background.
     aoData.fill(255);
-    const texture=data=>{const t=new T.DataTexture(data,w,h,T.RGBAFormat);t.minFilter=t.magFilter=T.LinearFilter;t.generateMipmaps=false;t.flipY=false;t.needsUpdate=true;return t};
-    const light=texture(lightData),ao=texture(aoData),clones=new Map();
+    const texture=(data,format=T.RGBAFormat)=>{const t=new T.DataTexture(data,w,h,format);t.minFilter=t.magFilter=T.LinearFilter;t.generateMipmaps=false;t.flipY=false;t.needsUpdate=true;return t};
+    const light=texture(lightData),ao=texture(aoData,aoFormat),clones=new Map();
     for(const {mesh,verts} of receivers){
       const uv=new Float32Array(verts.length*2);
       verts.forEach(({c,u,v},i)=>{uv[i*2]=(c.x+pad+.5+(u-c.u0)/Math.max(.01,c.u1-c.u0)*(c.w-pad*2-1))/w;uv[i*2+1]=(c.y+pad+.5+(v-c.v0)/Math.max(.01,c.v1-c.v0)*(c.h-pad*2-1))/h});
@@ -406,7 +421,7 @@
     }
     r.lightBake={update,charts:charts.length,width:w,height:h,light,ao,stats};update();stats.buildMs=performance.now()-started;
     const work=weights(),job={stats,bytes:lightData.length,complete(data){
-      if(data){lightData.set(data.light);aoData.set(data.ao)}
+      if(data){lightData.set(data.light);for(let i=0;i<aoData.length;i++)aoData[i]=data.ao[i*4]}
       light.needsUpdate=true;ao.needsUpdate=true;stats.ready=true;stats.elapsedMs=performance.now()-started;H.dirty();
     },step(){const result=work.next();if(!result.done)return false;this.complete(result.value);return true}};
     const ceiling=r.ceilingAt?[r.ceilingAt(0,0),r.ceilingAt(1,0)-r.ceilingAt(0,0),r.ceilingAt(0,1)-r.ceilingAt(0,0)]:null;

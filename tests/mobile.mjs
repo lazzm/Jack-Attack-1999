@@ -118,9 +118,10 @@ async function phone(profile, { tier = null, hour = 14 } = {}) {
   // Taps a touch-HUD button by its key (ht-hud data-k) or a selector, with a real finger on its centre.
   async function press(sel) {
     const s = sel.startsWith('[') || sel.startsWith('.') || sel.startsWith('#') ? sel : `.ht-hud [data-k="${sel}"]`;
-    await until(s => { const b = document.querySelector(s); if (!b || b.disabled) return false; const r = b.getBoundingClientRect(); return r.width > 0 && getComputedStyle(b).visibility !== 'hidden'; }, s, 15000);
-    const r = await page.evaluate(s => { const el = document.querySelector(s); el.scrollIntoView({ block: 'nearest' }); const b = el.getBoundingClientRect(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; }, s);
-    await fingers.tap(r.x, r.y);
+    // Resolve visibility, stability and the receiving element in the same native
+    // touch action. A separately measured centre can be stale by the next frame
+    // when dialogue hides/repositions the objective or the HUD is rebuilt.
+    await page.locator(s).tap({ timeout: 15000 * SCALE });
   }
   return { ctx, page, errors, fingers, until, shot, press, cdp };
 }
@@ -411,14 +412,13 @@ const phases = {
       assert(Math.abs(ry1 - ry0) > 15, 'Drag did not look round: ' + ry0 + ' -> ' + ry1);
       await shot('story-05-looked');
       // the quest line (no keyboard hint on touch) and the diary's objective picker
-      const line = await page.evaluate(() => { const l = document.querySelector('.st-objective'); return l && !l.hidden ? l.textContent : ''; });
+      await page.locator('.st-objective').waitFor({ state: 'visible', timeout: 30000 * SCALE });
+      const line = await page.locator('.st-objective').textContent();
       assert(!/\[J\]/.test(line), 'Quest line shows a keyboard key on touch: ' + line);
-      if (line) {
-        await p.press('.st-objective'); await page.waitForTimeout(800); await shot('story-06-diary-picker');
-        await p.press('[data-quest-close]');
-        await until(() => !window.stDiary?.picking);
-        await page.waitForTimeout(400);
-      }
+      await p.press('.st-objective'); await until(() => !!window.stDiary?.picking, null, 15000); await page.waitForTimeout(800); await shot('story-06-diary-picker');
+      await p.press('[data-quest-close]');
+      await until(() => !window.stDiary?.picking);
+      await page.waitForTimeout(400);
       // the pause menu: touch settings, no keyboard text
       await p.press('menu'); await until(() => HousePause.open); await page.waitForTimeout(300); await shot('story-07-pause');
       const pauseIssues = await page.evaluate(() => { const d = document.querySelector('dialog.hs-pause'), r = d.getBoundingClientRect(); return [r.left < 0 || r.right > innerWidth + 1 ? 'pause clipped' : '', !d.querySelector('.ht-settings') || getComputedStyle(d.querySelector('.ht-settings')).display === 'none' ? 'no touch settings' : '', getComputedStyle(d.querySelector('.hs-pause-controls:not(.ht-help)')).display !== 'none' ? 'keyboard help shown on touch' : ''].filter(Boolean); });
@@ -734,7 +734,7 @@ const phases = {
         for (let i = 0; i < ms / 100; i++) { await fingers.move(2, w - 140 - (i % 20) * 6, h * .45); await sleep(100); }
         await fingers.up(2); await fingers.up(1);
         const perf = await page.evaluate(() => House.perf()), t1 = perf.frames;
-        const extra = await page.evaluate(() => { const t0 = performance.now(); for (let i = 0; i < 5; i++) House.pick(innerWidth / 2, innerHeight / 2); const pick = (performance.now() - t0) / 5; const ft = (window.__ft || []).slice().sort((a, b) => a - b); const rooms=Object.values(House.ROOMS).filter(r=>r.lightBake),versions=()=>rooms.reduce((n,r)=>n+r.lightBake.light.version+r.lightBake.ao.version,0),v0=versions(),minute=Date.prototype.getMinutes;let uniformClockMs;try{Date.prototype.getMinutes=()=>1;const start=performance.now();for(const r of rooms)r.lightBake.update();uniformClockMs=performance.now()-start}finally{Date.prototype.getMinutes=minute;for(const r of rooms)r.lightBake.update()}return { bakeLoadMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.buildMs||0).toFixed(2)])),bakeWorkerMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.weightsMs||0).toFixed(2)])),bakeElapsedMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.elapsedMs||0).toFixed(2)])),bakeMaxSliceMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.maxSliceMs||0).toFixed(2)])),bakeOffMain:rooms.every(r=>r.lightBake.stats?.worker),bakeReady:rooms.every(r=>r.lightBake.stats?.ready),loadCpuThrottled:false,uniformClockMs:+uniformClockMs.toFixed(3),atlasVersionDelta:versions()-v0,pickMs: +pick.toFixed(2), physicsMs: +(House.physics.ms || 0).toFixed(2), rafP50: +(ft[ft.length >> 1] || 0).toFixed(1), rafP95: +(ft[Math.floor(ft.length * .95)] || 0).toFixed(1), family: !!window.HouseFamily?.enabled }; });
+        const extra = await page.evaluate(() => { const t0 = performance.now(); for (let i = 0; i < 5; i++) House.pick(innerWidth / 2, innerHeight / 2); const pick = (performance.now() - t0) / 5; const ft = (window.__ft || []).slice().sort((a, b) => a - b); const rooms=Object.values(House.ROOMS).filter(r=>r.lightBake),versions=()=>rooms.reduce((n,r)=>n+r.lightBake.light.version+r.lightBake.ao.version,0),v0=versions(),minute=Date.prototype.getMinutes;let uniformClockMs;try{Date.prototype.getMinutes=()=>1;const start=performance.now();for(const r of rooms)r.lightBake.update();uniformClockMs=performance.now()-start}finally{Date.prototype.getMinutes=minute;for(const r of rooms)r.lightBake.update()}return { view:{x:House.P.x,y:House.P.y,z:House.P.z,rx:House.P.rx,ry:House.P.ry,zoom:House.P.zm,rooms:Object.values(House.ROOMS).filter(r=>r._renderDrawn).map(r=>r.id),doors:Object.fromEntries(Object.entries(House.DOORS).map(([id,d])=>[id,!!d.open]))},bakeLoadMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.buildMs||0).toFixed(2)])),bakeWorkerMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.weightsMs||0).toFixed(2)])),bakeElapsedMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.elapsedMs||0).toFixed(2)])),bakeMaxSliceMs:Object.fromEntries(rooms.map(r=>[r.id,+(r.lightBake.stats?.maxSliceMs||0).toFixed(2)])),bakeOffMain:rooms.every(r=>r.lightBake.stats?.worker),bakeReady:rooms.every(r=>r.lightBake.stats?.ready),loadCpuThrottled:false,uniformClockMs:+uniformClockMs.toFixed(3),atlasVersionDelta:versions()-v0,pickMs: +pick.toFixed(2), physicsMs: +(House.physics.ms || 0).toFixed(2), rafP50: +(ft[ft.length >> 1] || 0).toFixed(1), rafP95: +(ft[Math.floor(ft.length * .95)] || 0).toFixed(1), family: !!window.HouseFamily?.enabled }; });
         assert.equal(extra.bakeReady,true,'Static light weights must be ready before the walking sample');
         assert.equal(extra.atlasVersionDelta,0,'Clock updates must not repaint indoor atlases');
         report.perf[label] = { tier: perf.tier, pixels: perf.pixels, scale: +perf.scale.toFixed(2), calls: perf.calls, triangles: perf.triangles, frameP50: +perf.frameP50.toFixed(1), frameP95: +perf.frameP95.toFixed(1), renderP50: +perf.renderP50.toFixed(1), drawn: t1 - t0, ...extra, load: +os.loadavg()[0].toFixed(1) };

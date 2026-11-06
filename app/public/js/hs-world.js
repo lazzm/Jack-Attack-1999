@@ -1164,6 +1164,10 @@
   // ---------------------------------------------------------------- the ghost: a see-through copy where the carried thing will land
   // green = it fits there, red = something's in the way, gold = it clicks into a highlighted place. Uses the physics colliders.
   const GP = { t: null, at: 0, res: null, key: '', route: null };
+  // Input commits the last drawn picture, even if a turn or a moving object
+  // changes the selector before the next (possibly capped) frame is presented.
+  const drawnGhost = { t: null, g: null };
+  let ghostPose = null;
   // the ghost: a faint fill plus a fresnel rim on the carried thing's own shape (one merged geometry, two draws)
   const ghostFill = new T.MeshBasicMaterial({ color: 0x8fdc6a, transparent: true, opacity: 0.2, depthWrite: false }), ghostRim = GL.rimMat(GL.GREEN, 0.95);
   let ghostGroup = null, ghostFor = null;
@@ -1176,8 +1180,9 @@
     g.visible = false; root.add(g);
     return g;
   }
-  function clearGhost() { if (ghostGroup) { ghostGroup.parent?.remove(ghostGroup); ghostGroup.children[0]?.geometry.dispose(); ghostGroup = null; ghostFor = null; } }
+  function clearGhost() { drawnGhost.t = drawnGhost.g = null; if (ghostGroup) { ghostGroup.parent?.remove(ghostGroup); ghostGroup.children[0]?.geometry.dispose(); ghostGroup = null; ghostFor = null; } }
   function showGhost(t, g) {
+    ghostPose = g ? { ...g } : null;
     if (!g) { if (ghostGroup) ghostGroup.visible = false; floorGlow(null); return; }
     const mesh = ghostMesh(t);
     const col = g.snap ? GL.GOLD : g.ok ? GL.GREEN : GL.RED; ghostFill.color.set(col); ghostRim.uniforms.uColor.value.set(col);
@@ -1322,18 +1327,30 @@
   function drop(sx, sy, how) {
     if (!held) return false; const t = THINGS[held.id];
     if (held.drag) return letGo();
-    const g = computeGhost(t, sx, sy, true);
-    if (g.snap) return snapIn(t, g.snap);
+    const g = how === 'user' ? drawnGhost.t === t && drawnGhost.g : computeGhost(t, sx, sy, true);
+    if (!g) { dirty(); return false; }
+    if (g.snap) {
+      const s = g.snap;
+      if (SNAPS[s.id] !== s || s.enabled && !s.enabled() || s.accepts && !s.accepts(t.kind, t)) return false;
+      return snapIn(t, s);
+    }
     if (!g.ok) {
       if (how === 'api') return letGo(); // a pack letting go on the player's behalf: it must leave the hands
       ui.toast("Won't fit there", whyText(g.why) + '. Aim where the ghost turns green, X to drop it, or Q to put it back.');
       physicalSound('deny'); return false;
     }
+    if (how === 'user') {
+      // Recheck the pictured position, never choose a different destination.
+      const ph = physReady(), b = bodyFor(t), r = ROOMS[g.room];
+      if (!ph || !b || !r) return false;
+      const rest = ph.findRest(b, r.lvl, g.x, g.z, g.ry, g.y - .6, t.id, b.sw);
+      if (!rest.ok || Math.abs(rest.y - g.y) > .1) return false;
+    }
     if (t.canPlace && t.canPlace({ room: g.room, x: g.x, z: g.z, y0: g.y }) === false) return false;
     setDown(t, g);
     return true;
   }
-  function releaseHold() { held = null; hideArms(); ui.holdBar(null); snapGlow(null); floorGlow(null); showGhost(null); showTargets(null); GP.res = null; saveGrip(); }
+  function releaseHold() { drawnGhost.t = drawnGhost.g = null; held = null; hideArms(); ui.holdBar(null); snapGlow(null); floorGlow(null); showGhost(null); showTargets(null); GP.res = null; saveGrip(); }
   // the gentle place: a short glide from your hands down onto the spot, then it rests there (asleep: no settling wobble)
   function setDown(t, g, ms) {
     releaseHold(); unshrink(t);
@@ -1516,7 +1533,7 @@
         const want = P.ry * -1 + held.ry + (t.faceYou ? 180 : 0), r0 = t.obj.rotation.y / D2R, turn = angd(held.lry, P.ry);
         t.obj.rotation.set((HOLD.tiltSign * holdTilt() + Math.sin(now / 900) * 1.2) * D2R, (r0 + angd(r0, want) * follow) * D2R, (turn * 0.6 + Math.sin(now / 1300) * 0.8 + (t.holdRoll || 0)) * D2R, 'YXZ'); // (holdRoll: a pack tilting it in your hand, e.g. pouring)
         const g = live && mode !== 'glide' ? computeGhost(t) : null;
-        showGhost(t, g); snapGlow(g && g.snap || null); showTargets(live ? t : null, now); ui.carry(t, g); armsTick(t);
+        showGhost(t, g); snapGlow(g && g.snap || null); showTargets(live ? t : null, now); if (!g) ui.carry(t, null); armsTick(t);
       }
       any = true;
     }
@@ -2880,6 +2897,9 @@
       camera.layers.set(1); renderLit(ren2); camera.layers.set(0);
       anyFront = front;
     }
+    drawnGhost.t = ghostGroup?.visible ? ghostFor : null;
+    drawnGhost.g = drawnGhost.t ? ghostPose : null;
+    if (drawnGhost.t) ui.carry(drawnGhost.t, drawnGhost.g);
     if (stood || monitor) glassFit();
     for (const sf of SURF) placeSurf(sf);
   }
@@ -3415,7 +3435,7 @@
     room, buildRoom, door, setDoor, walkRect, block, solid, stairs, support, soft, softChanged, softs: SOFT, spot, unspot, thing, snap: snapDef, openable, toggle, tidy,
     isAway, restoreThing, rescue: t => { if (t) rescueQ.add(t); }, lostWhy, saveThings, saveWalkState, layerFor, frontFx, place,
     grab, drop: (sx, sy) => drop(sx, sy, 'api'), placeHeld: (sx, sy) => drop(sx, sy, 'user'), letGo, setAside, putBack, interact, releaseGrip, suspendGrip, restoreGrip, resumeLook:wantLock, get seated(){return focusS?.o.seatId||focusS?.parent?.o.seatId||null;}, held: () => held && held.id, get grip() { return held ? { id: held.id, drag: !!held.drag, d: held.d, ry: held.ry } : null; },
-    placement:()=>held&&!held.drag?floorAim(THINGS[held.id]):null, ghost:()=>held&&!held.drag?computeGhost(THINGS[held.id],null,null,true):null, act: id => act(SPOTS[id]), useAt,
+    placement:()=>held&&!held.drag?floorAim(THINGS[held.id]):null, ghost:()=>held&&!held.drag&&drawnGhost.t===THINGS[held.id]?drawnGhost.g:null, act: id => act(SPOTS[id]), useAt,
     // the physics world (js/hs-physics.js): bodies, stats, and a few queries the tests and packs use
     physics: { get world() { return physReady(); }, get ms() { return physMs; }, get frameMs() { return physFrame; }, get awake() { return PH ? PH.awake.size : 0; }, body: id => THINGS[id] ? bodyFor(THINGS[id]) : null, tucked: id => !!THINGS[id] && tuckedUnder(THINGS[id]), wake: id => { const b = THINGS[id] && bodyFor(THINGS[id]); if (b) PH.wake(b); }, sync: id => THINGS[id] && syncBody(THINGS[id]), rebuild: () => { physDirty = true; return physReady(); } },
     warmFront, glideTo, goStation, cancelGlide, viewFor, setWalkFrom, seatPose, sitOn, resumeSeat, fillPose, get gliding() { return !!glide; },

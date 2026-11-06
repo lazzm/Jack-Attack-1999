@@ -20,3 +20,14 @@ console.log('STATIC BATCH PASS:',Object.keys(edits).length,'mutations restore bo
  assert.equal(after.vertexShader,before.vertexShader);assert.equal(after.fragmentShader,before.fragmentShader,'Batched surfaces must decode the same lamp/sky channels');assert.equal(after.uniforms.houseSun,before.uniforms.houseSun,'Room passes share the projector binding');
  console.log('STATIC LIGHTING PASS: production atlas decoder and room projector survive material batching');
 }
+// The pendant cord shares a draw with its shade without inheriting the shade's
+// paint, emission or specular response. Batching must preserve that selector.
+{
+ const k={THREE:T,document:{getElementById:()=>null},localStorage:{getItem:()=>null},performance,console};k.window=k;vm.createContext(k);vm.runInContext(fs.readFileSync(require.resolve('../app/public/js/hs-kit.js'),'utf8'),k);
+ const material=k.HouseKit.mat({c:'#f0e0b8',sh:5,sp:'#101010'});material.userData.pendant=true;material.emissiveMap=new T.Texture();
+ const shader=m=>{const s={uniforms:{},vertexShader:T.ShaderLib.phong.vertexShader,fragmentShader:T.ShaderLib.phong.fragmentShader};m.onBeforeCompile(s);return s},before=shader(material),group=new T.Group();
+ assert(before.fragmentShader.includes('mix(specular,vec3(0.047058823529411764),houseCord)'));assert(before.fragmentShader.includes('mix(shininess,6.0,houseCord)'));assert(before.fragmentShader.includes('totalEmissiveRadiance*=1.0-houseCord'));
+ group.add(new T.Mesh(new T.BoxGeometry(),material),new T.Mesh(new T.BoxGeometry(),material));assert(S.merge(group)>0);
+ const after=shader(group.userData.staticHost.children.find(o=>o.userData.staticBatch).material);assert.equal(after.fragmentShader,before.fragmentShader);assert.equal(after.vertexShader,before.vertexShader);
+ console.log('STATIC PENDANT PASS: original cord paint/specular/shininess/emission preserved through batching');
+}

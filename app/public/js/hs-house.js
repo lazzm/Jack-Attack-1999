@@ -204,8 +204,11 @@
   // Real fittings at the existing light positions: closed shade profiles and
   // solid opal diffusers, with the same saved switch state as their light pool.
   function pendant(B,r,x,cy,z){
-    B.cyl(x,cy+1.5,z,6,6,3,14,mWhite);B.cyl(x,cy+15,z,.3,.3,26,6,M('#eee'));
-    const glow=ceilingGlow(r,'#f0e0b8','#ffcc83');
+    B.cyl(x,cy+1.5,z,6,6,3,14,mWhite);
+    const glow=ceilingGlow(r,'#f0e0b8','#ffcc83');glow.userData.pendant=true;
+    const cord=new T.CylinderGeometry(.3,.3,26,6);
+    for(let i=0;i<cord.attributes.uv.count;i++)cord.attributes.uv.setX(i,0);
+    B.geo(cord,x,cy+15,z,glow);
     glow.emissiveMap=K.tex('hs.pendant.emission',8,8,g=>{g.fillStyle='#353535';g.fillRect(0,0,4,8);g.fillStyle='#fff';g.fillRect(4,0,4,8)},{clamp:true});
     // One submission: the solid shade samples the dim half, the bulb the hot half.
     const shade=new T.LatheGeometry([[2,-2],[2.35,-2],[14.35,10],[14,10],[2,-2]].map(([r,y])=>new T.Vector2(r,y)),24);

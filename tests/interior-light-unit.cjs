@@ -8,7 +8,7 @@ const K=k.HouseKit,map=new T.Texture();K.TEX.wallBlue=map;
 const mesh=new T.Mesh(new T.BoxGeometry(300,200,250),K.mat({map}));mesh.updateMatrix();
 const r={id:'bedroom',group:new T.Group(),lights:()=>[]};r.group.add(mesh);k.House.ROOMS.bedroom=r;
 K.bakeInterior(r);const b=r.lightBake,geometry=mesh.geometry,uv=geometry.attributes.uv2,material=mesh.material;
-assert(!b.stats.ready,'Bake must return before scanning the atlas');assert(timers.length,'Work was queued');assert(b.ao.image.data.every(v=>v===255),'Pending AO must be neutral, never black');
+assert(!b.stats.ready,'Bake must return before scanning the atlas');assert(timers.length,'Work was queued');assert(b.ao.image.data.every(v=>v===255),'Pending AO must be neutral, never black');assert.equal(b.ao.image.data.length,b.width*b.height,'AO stores one lossless greyscale channel');
 const versions=[b.light.version,b.ao.version];let slices=0;while(timers.length){timers.shift()();if(!b.stats.ready){assert(b.ao.image.data.every(v=>v===255),'A pending atlas exposed partially baked AO before its first GPU upload');assert(b.light.image.data.every(v=>v===0),'A pending atlas exposed partially baked bounce')}assert(++slices<10000)}
 assert(slices>1,'Large atlas must span several tasks');assert(b.stats.ready);assert.equal(b.light.version,versions[0]+1,'Upload once on completion');assert.equal(b.ao.version,versions[1]+1);
 assert.equal(mesh.geometry,geometry);assert.equal(geometry.attributes.uv2,uv);assert.equal(mesh.material,material,'Background work cannot invalidate static batches');
