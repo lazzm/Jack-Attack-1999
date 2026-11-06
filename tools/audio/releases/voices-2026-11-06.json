@@ -1,0 +1,85 @@
+{
+ "created": "2026-11-06",
+ "why": "Third batch of audited lines, recorded one line per request with Received Pronunciation asked for. Each clip passed voice-qa, a transcript check and an accent check.",
+ "accepted": {
+  "bf.display.done.1lj1fzs": {
+   "file": "bf.display.done.1lj1fzs.mp3",
+   "character": "sister",
+   "dur": 2.736,
+   "sha256": "99ddd88caca613181f850bec33c75b60034b180aa54d8cb375aab64af5b3321b",
+   "heard": "The golden one was my favourite",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 90,
+    "accepted": true
+   }
+  },
+  "bf.supper.1cixt9h": {
+   "file": "bf.supper.1cixt9h.mp3",
+   "character": "mom",
+   "dur": 9.96,
+   "sha256": "c0bc01a376755ff8c9408d3b78b05e2c5d2d4e12e09957ebc79d272203e49b43",
+   "heard": "Cheese and beans in your jacket potato? Parkin in the tin, treacle toffee on the plate. Mind your teeth! Hot sugar is my job, thank you.",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.q55w08": {
+   "file": "game.wobble.host.q55w08.mp3",
+   "character": "announcer",
+   "dur": 4.008,
+   "sha256": "0203dbbbfa72a41d2ea204b9a4ed0fcfe5daf0be6ca3332dc95b709d4d28e25e",
+   "heard": "Ding dong, the Clockwork Jackpot pays out!",
+   "accent": {
+    "accent": "British",
+    "region": "Received Pronunciation",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.moment.1kgk76z": {
+   "file": "house.moment.1kgk76z.mp3",
+   "character": "mom",
+   "dur": 2.592,
+   "sha256": "2d41b67e5ad554ce1b429bf372073fe85f3d93f3c256cbf742a63d6ab2365af8",
+   "heard": "Turn that light off love, it's late.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "house.voice.1pe2qdm": {
+   "file": "house.voice.1pe2qdm.mp3",
+   "character": "mom",
+   "dur": 3.456,
+   "sha256": "ed1ff12ce8dce31c62044d18c808f93d0b22f00e3a05e39417da7ff8008ec320",
+   "heard": "Is that you coming down? Put the kettle on, love.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   }
+  },
+  "game.wobble.host.1bhurkg": {
+   "file": "game.wobble.host.1bhurkg.mp3",
+   "character": "announcer",
+   "dur": 7.128,
+   "sha256": "9ff6109ba17400efef2ef0dfa34c62a5cb3a8ec591042683793faf3ded92a74d",
+   "heard": "Win every single mini game and you're a proper legend. Right, let's see who goes first.",
+   "accent": {
+    "accent": "British",
+    "region": "General British",
+    "confidence": 95,
+    "accepted": true
+   },
+   "note": "Transcript split \"minigame\" as \"mini game\"; same words."
+  }
+ }
+}
