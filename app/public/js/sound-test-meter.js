@@ -2,13 +2,14 @@
 class SoundTestMeter extends AudioWorkletProcessor {
   constructor() {
     super(); this.blocks = []; this.left = 0;
-    this.port.onmessage = e => { if (e.data.frames) { this.blocks = []; this.left = e.data.frames; } };
+    this.port.onmessage = e => { if (e.data.frames) { this.blocks = []; this.left = e.data.frames; if(e.data.ready)this.port.postMessage({ready:true}); } };
   }
-  process(inputs) {
+  process(inputs, outputs) {
     const channels = inputs[0];
-    if (this.left && channels?.length) {
-      const n = Math.min(this.left, channels[0].length);
-      this.blocks.push([Array.from(channels[0].slice(0, n)), Array.from((channels[1] || channels[0]).slice(0, n))]);
+    if (this.left) {
+      const n = Math.min(this.left, channels?.[0]?.length || outputs?.[0]?.[0]?.length || 128);
+      const left=channels?.[0],right=channels?.[1]||left;
+      this.blocks.push([left?Array.from(left.slice(0,n)):new Array(n).fill(0),right?Array.from(right.slice(0,n)):new Array(n).fill(0)]);
       this.left -= n;
       if (!this.left) { this.port.postMessage(this.blocks); this.blocks = []; }
     }

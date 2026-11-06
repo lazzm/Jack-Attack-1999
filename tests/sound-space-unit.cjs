@@ -22,4 +22,5 @@ pos.x=-100;camera.rotation.y=Math.PI/2;check();assert.equal(h.panner.positionX.v
 centered=true;check();assert.equal(h.direct.gain.value,1);assert.equal(h.spatial.gain.value,0,'LOCK IN keeps native stereo');
 level=0;check();assert.equal(h.input.gain.value,0,'Existing device mute');
 h.stop();assert(h.input.gain.events.some(e=>e[0]==='target'&&e[1]===0&&e[3]===.012),'Fade before disconnect');check();assert.equal(frames.size,0,'No idle animation loop');for(const f of timers)f();assert.equal(h.input.connections.length,0);
+const stereo=S.emitter(ctx,{position:()=>pos,room:'a',stereo:true});assert.equal(stereo.spatial.gain.value,1,'Stereo centre needs no mono compensation');stereo.stop();check();
 console.log('SPATIAL SOUND UNIT PASS: real door graph, partial/open/shut/stairs/alternative path, source and listener tracking, LOCK IN direct stereo, mute, stop fade, cleanup, no save writes');

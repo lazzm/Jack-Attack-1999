@@ -31,8 +31,8 @@
       const control = c.createGain(); control.gain.value = volume;
       limiter.connect(ceiling); ceiling.connect(control); control.connect(c.destination);
       bus = {effects:c.createGain(),music:c.createGain(),voice:c.createGain(),control}; buses.set(c,bus);
-      // Chromium loads HRTF data the first time it's asked for and can be silent until then. Ask at the first gesture,
-      // so the first line of speech doesn't lose its opening.
+      // Request HRTF data at the first gesture, ahead of the first utterance.
+      // Retain this startup precaution; sound-warmup.mjs checks the opening word.
       try { const n = window.navigator || {}; if (!(n.hardwareConcurrency <= 4 || n.deviceMemory <= 2) && c.createPanner) { bus.warmHrtf = c.createPanner(); bus.warmHrtf.panningModel = 'HRTF'; } } catch (e) {}
       for (const kind of KINDS) { bus[kind].gain.value = level(kind); bus[kind].connect(limiter); }
     }
@@ -194,11 +194,16 @@
              0, 74, -1, 77, 81, -1, 79, 77, 76, -1, -1, 72, 76, -1, 74, 72, 71, -1, 71, 72, 74, -1, 76, -1, 72, -1, 69, -1, 69, -1, 0, 0],
       bass: [40, 52, 40, 52, 45, 57, 45, 57, 44, 56, 40, 52, 45, 57, 45, 57, 38, 50, 38, 50, 36, 48, 36, 48, 44, 56, 40, 52, 45, 57, 45, 57] },
   };
-  let musicTimer = null, step = 0, nextTime = 0, tune = TUNES.theme, musicEmitter = null, musicOptions = null;
+  let musicTimer = null, step = 0, nextTime = 0, tune = TUNES.theme, musicEmitter = null, musicOptions = null, musicRoute = null;
   function schedule() {
     const c = ac(); if (!c) return;
-    const L = tune.lead, B = tune.bass, ST = tune.step, route = musicEmitter?.input || 'music';
-    while (nextTime < c.currentTime + 0.25) {
+    const L = tune.lead, B = tune.bass, ST = tune.step, route = musicRoute || 'music';
+    // Rendering can hold the main thread for several beats. Keep the original
+    // beat grid, skip expired notes in one step, and queue enough audio to
+    // survive a slow frame. Never start/stop a backlog of notes in the past.
+    const earliest=c.currentTime+.02;
+    if(nextTime<earliest){const missed=Math.ceil((earliest-nextTime)/ST);step+=missed;nextTime+=missed*ST;}
+    while (nextTime < c.currentTime + 2) {
       const when = nextTime - c.currentTime, i = step % L.length;
       if (L[i] > 0) { let len = 1; while (L[(i + len) % L.length] === -1 && len < L.length) len++; tone(N(L[i]), ST * len * 0.92, 'square', 0.09, when, null, route); }
       if (step % 2 === 0) { const b = B[(step / 2) % B.length]; tone(N(b), ST * 1.8, 'triangle', 0.22, when, null, route); }
@@ -216,10 +221,17 @@
       tune = TUNES[name] || TUNES.theme; this.playing = TUNES[name] ? name : 'theme';
       const c = ac(); if (!c) return;
       if (options.position && window.Sound.emitter) musicEmitter = Sound.emitter(c,{...options,channel:'music',level:.25});
+      musicRoute=musicEmitter?.input||c.createGain();
+      if(!musicEmitter){musicRoute.gain.value=.25;musicRoute.connect(output(c,'music'));}
       step = 0; nextTime = c.currentTime + 0.05;
       musicTimer = setInterval(schedule, 60); schedule();
     },
-    stop() { this.playing = ''; clearInterval(musicTimer); musicTimer = null; musicEmitter?.stop(); musicEmitter = null; musicOptions = null; },
+    stop() {
+      this.playing = ''; clearInterval(musicTimer); musicTimer = null;
+      if(musicEmitter)musicEmitter.stop();
+      else if(musicRoute&&ctx){const old=musicRoute,t=ctx.currentTime;old.gain.cancelScheduledValues(t);old.gain.setValueAtTime(old.gain.value,t);old.gain.setTargetAtTime(0,t,.012);setTimeout(()=>old.disconnect(),150);}
+      musicRoute=null;musicEmitter=null;musicOptions=null;
+    },
   };
 
   // Short, original physical sounds. They share the effects/volume bus but
@@ -281,6 +293,7 @@
     get ready() { return ready(); },
     // Channel taps precede dynamics/overall volume; this tap is the final mix.
     output,
+    signal: {tone,noise}, // Original synthesis shared by physical sound sources.
     masterOutput(c) { output(c); return buses.get(c).control; },
     world,
     get voicesOn() { return sfxOn && volume > 0; },

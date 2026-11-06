@@ -8,18 +8,20 @@ try{
   const context=await browser.newContext(),p=await context.newPage(),cdp=await context.newCDPSession(p);const errors=[];p.on('pageerror',e=>errors.push(e.message));
   p.on('console',m=>{if(['warning','error'].includes(m.type()))errors.push(m.text())});
   const passive=async expression=>(await cdp.send('Runtime.evaluate',{expression,returnByValue:true,userGesture:false})).result.value;
-  await p.route('**/__audio-start',r=>r.fulfill({contentType:'text/html',body:'<!doctype html><title>Audio input check</title><link rel="icon" href="data:,"><button>Press to start</button><script src="/js/sound.js"></script>'}));
+  await p.route('**/__audio-start',r=>r.fulfill({contentType:'text/html',headers:{'Content-Security-Policy':"default-src 'self'; script-src 'self'; img-src 'self' data:"},body:'<!doctype html><title>Audio input check</title><link rel="icon" href="data:,"><button>Press to start</button><script src="/js/sound.js"></script><script src="/js/sound-space.js"></script>'}));
   await p.addInitScript(storage=>{if(!localStorage.getItem('audio-start-seeded')){for(const [k,v]of Object.entries(storage))localStorage.setItem(k,v);localStorage.setItem('audio-start-seeded','1')}},storage);
   if(name==='no activation API')await p.addInitScript(()=>Object.defineProperty(navigator,'userActivation',{get:()=>undefined}));
   await p.goto(base+'/__audio-start');
   // Playwright evaluate/addScriptTag grants synthetic user activation. Read and
   // attempt playback through passive CDP so this really is a pre-gesture check.
   assert.deepEqual(await passive('[Sound.effectsOn,Sound.musicOn]'),want,name);
+  assert.equal(await passive('typeof Sound.emitter'),'function','Spatial extension loads after the shared bus without creating audio');
   await passive('Sound.play("click");Sound.music.play("theme")');
   assert.deepEqual(await passive('[Sound.ready,Sound.ctx===null]'),[false,true],'No audio context before trusted input');
   await p.locator('button').click();
   if(want.some(Boolean)){
-   await p.waitForFunction(()=>Sound.ctx?.state==='running');
+   for(let n=0;n<100&&!(await passive('Sound.ctx?.state==="running"'));n++)await p.waitForTimeout(50);
+   assert(await passive('Sound.ctx?.state==="running"'),'First trusted gesture starts the context');
    await p.evaluate(()=>{const c=Sound.ctx;window.meter=c.createAnalyser();meter.fftSize=2048;Sound.output(c,Sound.musicOn?'music':'effects').connect(meter);if(!Sound.musicOn)Sound.note(440,2,'sine')});
    await p.waitForTimeout(250);
    assert(await p.evaluate(()=>{const d=new Float32Array(meter.fftSize);meter.getFloatTimeDomainData(d);return d.some(v=>Math.abs(v)>.00001)}),'Audio reaches the enabled bus after the first real input');

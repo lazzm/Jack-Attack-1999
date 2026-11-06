@@ -91,7 +91,7 @@
     if(!audioRoutes){
       audioPoint=audioPoint||new THREE.Vector3();
       const options={position:()=>V&&_.soundPosition?.(V.con,V.surface,audioPoint),room:()=>_.soundRoom?.(V?.con,V?.surface),centered:()=>!V?.live||!!V?.lockedIn,level:()=>V?1:0};
-      const effects=Sound.emitter?.(AC,{...options,channel:'effects'}),music=Sound.emitter?.(AC,{...options,channel:'music'});
+      const effects=Sound.emitter?.(AC,{...options,channel:'effects'}),music=Sound.emitter?.(AC,{...options,channel:'music',stereo:()=>!!mus.source&&mus.source.buffer.numberOfChannels>1});
       audioRoutes={effects,music};OUT.connect(effects?.input||Sound.output(AC));MUSIC_OUT.connect(music?.input||Sound.output(AC,'music'));
     }
     if (AC.state === 'suspended') AC.resume();
@@ -104,7 +104,7 @@
       const c = ac(); if (!c || !(f > 0)) return; const t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain();
       o.type = type || 'square'; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(Math.max(1, to), t + d);
       g.gain.setValueAtTime(vol == null ? 0.12 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d);
-      o.connect(g); g.connect(channel === 'music' ? MUSIC_OUT : OUT); o.start(t); o.stop(t + d + 0.03);
+      o.connect(g); g.connect(channel === 'music' ? (mus.procedural || MUSIC_OUT) : OUT); o.start(t); o.stop(t + d + 0.03);
     },
     noise(d, vol, f, when, type, to, channel) {
       if (channel !== 'music' && !window.Sound?.effectsOn) return;
@@ -112,12 +112,12 @@
       if (!NB) { NB = c.createBuffer(1, c.sampleRate, c.sampleRate); const a = NB.getChannelData(0); for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1; }
       const s = c.createBufferSource(); s.buffer = NB; const fl = c.createBiquadFilter(); fl.type = type || 'lowpass'; fl.frequency.setValueAtTime(f || 2000, t); if (to) fl.frequency.exponentialRampToValueAtTime(Math.max(20, to), t + d);
       const g = c.createGain(); g.gain.setValueAtTime(vol == null ? 0.15 : vol, t); g.gain.exponentialRampToValueAtTime(0.0008, t + d);
-      s.connect(fl); fl.connect(g); g.connect(channel === 'music' ? MUSIC_OUT : OUT); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.03);
+      s.connect(fl); fl.connect(g); g.connect(channel === 'music' ? (mus.procedural || MUSIC_OUT) : OUT); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.03);
     },
     seq(notes, o) { o = o || {}; const b = 60 / (o.bpm || 140); let w = o.when || 0; for (const [m, beats] of notes) { if (m > 0) sfx.tone(mtof(m), b * beats * 0.95, o.wave || 'square', o.vol == null ? 0.1 : o.vol, w); w += b * beats; } },
   };
   // a looping tune: 16th-note steps, lead and bass in MIDI numbers (0 = rest, -1 = hold)
-  const mus = { song: null, step: 0, next: 0, timer: 0, source: null, gain: null, url: '', offset: 0, started: 0, rate: 1, epoch: 0, enabled: null };
+  const mus = { song: null, step: 0, next: 0, timer: 0, source: null, gain: null, procedural: null, url: '', offset: 0, started: 0, rate: 1, epoch: 0, enabled: null };
   const recordings = new Map();
   function recording(url, c) {
     if (!recordings.has(url)) recordings.set(url, fetch(url).then(r => {
@@ -142,9 +142,12 @@
   }
   function music(song) {
     clearInterval(mus.timer); const epoch = ++mus.epoch;
+    if(mus.procedural){const old=mus.procedural,t=AC.currentTime;old.gain.setTargetAtTime(0,t,.012);setTimeout(()=>old.disconnect(),150);mus.procedural=null;}
     if (mus.source) {
       mus.offset += (AC.currentTime - mus.started) * mus.rate;
-      mus.source.stop(); mus.source.disconnect(); mus.gain.disconnect();
+      const old=mus.source,gain=mus.gain,t=AC.currentTime;
+      gain.gain.cancelScheduledValues(t);gain.gain.setValueAtTime(gain.gain.value,t);gain.gain.linearRampToValueAtTime(0,t+.015);old.stop(t+.02);
+      setTimeout(()=>{old.disconnect();gain.disconnect()},80);
       mus.source = mus.gain = null;
     }
     mus.song = song || null; mus.enabled = !!window.Sound?.on; if (!song) return;
@@ -165,11 +168,14 @@
     }
     mus.url = ''; mus.offset = 0;
     mus.step = 0; mus.next = 0;
+    const context=ac();if(!context)return;mus.procedural=context.createGain();mus.procedural.connect(MUSIC_OUT);
     mus.timer = setInterval(() => {
       const c = ac(); if (!c || !mus.song) return;
       const S = mus.song, st = 60 / (S.bpm || 120) / 4, n = Math.max((S.lead || []).length, (S.bass || []).length) || 16;
-      if (mus.next < c.currentTime) mus.next = c.currentTime + 0.05;
-      while (mus.next < c.currentTime + 0.2) {
+      if (!mus.next) mus.next=c.currentTime+.05;
+      const earliest=c.currentTime+.02;
+      if(mus.next<earliest){const missed=Math.ceil((earliest-mus.next)/st);mus.step+=missed;mus.next+=missed*st;}
+      while (mus.next < c.currentTime + 2) {
         const i = mus.step % n;
         const play = (arr, wave, vol, oct) => {
           if (!arr || !arr.length) return; const m = arr[i % arr.length]; if (!(m > 0)) return;

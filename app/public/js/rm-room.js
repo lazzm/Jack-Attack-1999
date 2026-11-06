@@ -2564,7 +2564,7 @@
     onClose(fn) { (EVS.close = EVS.close || []).push(fn); }, offClose(fn) { const a = EVS.close || []; const i = a.indexOf(fn); if (i >= 0) a.splice(i, 1); },
     _: { ejectMedia, tvPose,
       soundPosition(con,target,out) {
-        const screen=target||(con==='gb'?R.gbScreen:R.tvScreen);if(!screen)return null;
+        const screen=target||(con==='gb'?R.gbScreen:con==='sn'?H.ROOMS.cupboard?.cupScreen:R.tvScreen);if(!screen)return null;
         screen.updateWorldMatrix(true,false);return screen.getWorldPosition(out);
       },
       soundRoom(con,target) {

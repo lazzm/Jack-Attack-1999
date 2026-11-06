@@ -35,10 +35,12 @@
   function listener(c,first){
     const cam=window.House?.camera,T=window.THREE;if(!cam||!T)return;
     if(!ear){ear=new T.Vector3();forward=new T.Vector3();up=new T.Vector3()}
-    cam.updateMatrixWorld();cam.getWorldPosition(ear);cam.getWorldDirection(forward);up.set(0,1,0).applyQuaternion(cam.quaternion);
+    cam.getWorldPosition(ear);cam.getWorldDirection(forward);up.set(0,1,0).applyQuaternion(cam.quaternion);
     const L=c.listener;
     if(L.positionX){
-      for(const [prefix,p]of [['position',ear],['forward',forward],['up',up]])for(const axis of ['x','y','z'])value(L[prefix+axis.toUpperCase()],p[axis],c,first);
+      value(L.positionX,ear.x,c,first);value(L.positionY,ear.y,c,first);value(L.positionZ,ear.z,c,first);
+      value(L.forwardX,forward.x,c,first);value(L.forwardY,forward.y,c,first);value(L.forwardZ,forward.z,c,first);
+      value(L.upX,up.x,c,first);value(L.upY,up.y,c,first);value(L.upZ,up.z,c,first);
     }else{L.setPosition(ear.x,ear.y,ear.z);L.setOrientation(forward.x,forward.y,forward.z,up.x,up.y,up.z)}
   }
   const resolve=v=>typeof v==='function'?v():v;
@@ -46,7 +48,9 @@
     const c=h.ctx,o=h.options;
     let p=null;try{p=resolve(o.position)}catch(e){}
     const centered=!!resolve(o.centered)||!p||!window.House?.live;
-    value(h.direct.gain,centered?1:0,c,first);value(h.spatial.gain,centered?0:Math.SQRT2,c,first);
+    // Equalpower attenuates a mono centre by 3 dB, but passes a stereo centre
+    // unchanged. Compensate only mono, so LOCK IN doesn't change the level.
+    value(h.direct.gain,centered?1:0,c,first);value(h.spatial.gain,centered?0:resolve(o.stereo)?1:Math.SQRT2,c,first);
     if(p){for(const axis of ['x','y','z'])value(h.panner['position'+axis.toUpperCase()],p[axis],c,first)}
     const amount=centered?0:occlusion(resolve(o.room));
     value(h.wall.frequency,18000*Math.pow(900/18000,amount),c,first);value(h.wallGain.gain,1-.38*amount,c,first);
