@@ -498,6 +498,7 @@
         for(const y of [-1,1])B.rbox(0,g.y+y*(g.h/2+.5),z,g.w,1.4,1,.25,bead);
       }
     }
+    const vfxLevers=[];
     for (const s of [-1, 1]) {
       for (const [pu, pv2] of panels) {
         const px = pu * w * 1.5, py = (h - 1) * pv2, z = s * (t2 + mt / 2 - 0.15);
@@ -509,11 +510,14 @@
       const hu = U(o.handleA), hy = o.handleY - o.cy, lu = dir(o.leverDir || -1);
       B.cyl(hu, hy, s * (t2 + 0.3), 2.5, 2.5, 0.6, 20, o.brass, { rx: 90 });
       B.cyl(hu, hy, s * (t2 + 1.3), 0.55, 0.55, 1.6, 10, o.brass, { rx: 90 });
+      const first=(batch.parts.get(o.brass)?.pos.length||0)/3;
       B.rbox(hu + lu * 3.6, hy, s * (t2 + 2.15), 8.4, 1.4, 1.4, 0.5, o.brass);
+      vfxLevers.push({first,count:batch.parts.get(o.brass).pos.length/3-first,x:along?o.handleA:o.cx,y:o.handleY,z:along?o.cz:o.handleA,along,dir:o.leverDir||-1});
       B.rbox(hu, hy + 5.5, s * (t2 + 0.15), 1.6, 3.2, 0.3, 0.1, o.brass);
     }
     if (o.hingeA != null) for (const fy of [0.12, 0.5, 0.88]) B.cyl(U(o.hingeA), -h / 2 + h * fy, (o.hingeSide || 1) * t2, 0.6, 0.6, 9, 10, o.hinge || o.brass);
-    batch.build(pv);
+    const built=batch.build(pv),brass=built.find(m=>m.material===o.brass);
+    if(brass){const p=brass.geometry.attributes.position,n=brass.geometry.attributes.normal;pv.userData.vfxLevers={geometry:brass.geometry,ranges:vfxLevers,position:p.array.slice(),normal:n.array.slice()};}
     return slab;
   }
   // Unit contact-shadow pieces for code that places shadows itself (e.g. one instanced draw per room).

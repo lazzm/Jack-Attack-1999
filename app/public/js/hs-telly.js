@@ -313,6 +313,7 @@
     if (st.volT > now) { g.fillStyle = 'rgba(0,0,0,.4)'; g.fillRect(150, 400, 340, 30); for (let i = 0; i < 10; i++) { g.fillStyle = i < S.vol ? '#3aff6a' : '#1a4a2a'; g.fillRect(160 + i * 33, 406, 28, 18); } }
     // the glass: scanlines and a soft vignette
     g.fillStyle = 'rgba(0,0,0,.12)'; for (let y = 0; y < Hh; y += 3) g.fillRect(0, y, W, 1);
+    window.HouseVFX?.tvFrame(cv);
     uploadPicture();
   }
   function offPic() { g.fillStyle = '#0a0d0c'; g.fillRect(0, 0, W, Hh); const gr = g.createRadialGradient(W * 0.35, Hh * 0.3, 10, W / 2, Hh / 2, 420); gr.addColorStop(0, 'rgba(60,72,66,.5)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, Hh); g.fillStyle = 'rgba(255,255,255,.06)'; g.beginPath(); g.ellipse(200, 120, 160, 60, -0.4, 0, 7); g.fill(); uploadPicture(); }

@@ -2877,7 +2877,7 @@
   }
   function backgroundCovered(){if(monitor&&desktopFull&&!glass.lockAnim||window.RoomTV?.open_&&(RoomTV.covered?RoomTV.covered():RoomTV.lockIn()))return true;for(const s of SURF)if(s.screen&&s.locked)return true;return false}
   let backgroundHidden=false;
-  function render() { rendering = true; try { renderNow(); } finally { rendering = false; } }
+  function render() { rendering = true; try { renderNow(); } finally { try { window.HouseVFX?.afterRender(); } finally { rendering = false; } } }
   function renderNow() {
     const covered=backgroundCovered();
     if(covered!==backgroundHidden||cv.style.display!==(covered?'none':'')){backgroundHidden=covered;cv.style.display=covered?'none':'';cv2.style.display=covered?'none':''}
@@ -2889,6 +2889,7 @@
     // things in front of the PC (and the one in your hands) go on the canvas above it
     let front = false; for (const id in THINGS) { const t = THINGS[id]; if (t.obj.parent && t.obj.parent.parent && t.obj.parent.parent.visible) layerFor(t); if (t.front && t.obj.visible) front = true; }
     const ly = pcOn ? 1 : 0; for (const f of frontFx) { if (f.userData.ly !== ly) { f.userData.ly = ly; f.traverse(o => o.layers.set(ly)); } if (f.visible && pcOn) front = true; }
+    window.HouseVFX?.beforeRender();
     camera.layers.set(0); renderLit(ren);
     if (front || anyFront) {
       // (measure() resizes, and so clears, the room canvas too: draw it again, or this frame shows black)

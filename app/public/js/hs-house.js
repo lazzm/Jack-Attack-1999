@@ -199,7 +199,7 @@
     const group=new T.Group();group.position.set(x,y,z);group.rotation.y=ry*D2R;group.name='ceiling-switch-'+id;r.group.add(group);const B=K.into(group);
     B.rbox(0,0,0,8.6,8.6,.7,0.35,mWhite); // standard square single-gang plate, not a tall overseas one
     for(const xx of [-3,3]){B.cyl(xx,0,.45,0.25,0.25,0.2,10,mMetal,{rx:90});B.box(xx,0,.57,0.32,0.06,0.05,M('#555'))}
-    const rocker=B.rbox(0,0,.65,2.4,3.4,0.8,0.25,M('#d6d0c2'));rocker.matrix.decompose(rocker.position,rocker.quaternion,rocker.scale);ceilingSwitches.set(id,rocker);
+    const rocker=B.rbox(0,0,.65,2.4,3.4,0.8,0.25,M('#d6d0c2'));rocker.matrix.decompose(rocker.position,rocker.quaternion,rocker.scale);rocker.name='switch-rocker';ceilingSwitches.set(id,rocker);
     H.spot('hs.switch.'+id,{label:()=>lit(id)?'Ceiling light: switch off':'Ceiling light: switch on',obj:group,act:()=>{lightsOn[id]=!lit(id);saveHouseLights();switchLook();H.relight();window.Sound?.world('switch')}});
     switchLook();
   }
