@@ -3,6 +3,7 @@
 ## 2.74.0 - 2026-11-06
 - The family move better, round 4. Their arms swing naturally from the shoulder instead of tucking in, their necks are fuller, they push up from a seat with no arms, their hands rest flat on their legs when sitting, and they hold magazines, the watering can, a briefcase and a crayon properly. When talking they raise their brows on a question, nod at the end of a sentence and look at you when they're talking to you. Turning on the stairs and being interrupted on them look right.
 - Metal Gerbil Solid is bigger: nine areas instead of six, twelve training exercises, equipment to find, unlocks, end credits and saves that bring you back exactly where you were. Guards are only ever put to sleep or sent back to their posts.
+- Verified: parody 0, all unit checks, Chapter 1, owner tools, Halloween, door walking, Zeldo, Bonfire end to end and its art check, mobile 8/8, voices 9/9, recordings, characters, zero, Metal Gerbil Solid, cupboard, identity, seasons, performance, physics, smoke 12/12, people and the animation budget. Phone frame times match 2.73.0.
 
 ## 2.73.0 - 2026-11-06
 - Music no longer drops out when the game is busy. On slower machines the tunes used to lose their notes and go nearly silent; now they keep time and catch up cleanly.
